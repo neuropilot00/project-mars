@@ -1,6 +1,6 @@
 const express = require('express');
 const { ethers } = require('ethers');
-const { pool, ensureUser, getSettings, getSetting, getActiveEvents } = require('../db');
+const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode } = require('../db');
 const { generateWithdrawSignature, CHAINS } = require('../services/signer');
 
 const router = express.Router();
@@ -81,6 +81,85 @@ router.get('/config', async (req, res) => {
     });
   } catch (e) {
     console.error('[API] config error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  POST /api/referral/register — Register referral
+// ══════════════════════════════════════════════════
+router.post('/referral/register', async (req, res) => {
+  const { wallet, referralCode } = req.body;
+  if (!wallet || !referralCode) return res.status(400).json({ error: 'Missing wallet or referralCode' });
+
+  try {
+    const w = wallet.toLowerCase();
+    await ensureUser(pool, w);
+
+    // Check if already has a referrer
+    const userRes = await pool.query('SELECT referred_by FROM users WHERE wallet_address = $1', [w]);
+    if (userRes.rows[0].referred_by) {
+      return res.status(400).json({ error: 'Already has a referrer' });
+    }
+
+    // Find referrer by code
+    const refRes = await pool.query('SELECT wallet_address FROM users WHERE referral_code = $1', [referralCode.toUpperCase()]);
+    if (!refRes.rows.length) return res.status(404).json({ error: 'Invalid referral code' });
+
+    const referrer = refRes.rows[0].wallet_address;
+    if (referrer === w) return res.status(400).json({ error: 'Cannot refer yourself' });
+
+    // Set referrer
+    await pool.query('UPDATE users SET referred_by = $1 WHERE wallet_address = $2', [referrer, w]);
+
+    res.json({ success: true, referrer: referrer.slice(0, 6) + '...' + referrer.slice(-4) });
+  } catch (e) {
+    console.error('[API] referral register error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /api/referral/:wallet — Get referral info
+// ══════════════════════════════════════════════════
+router.get('/referral/:wallet', async (req, res) => {
+  try {
+    const w = req.params.wallet.toLowerCase();
+    const userRes = await pool.query(
+      'SELECT referral_code, referred_by FROM users WHERE wallet_address = $1', [w]
+    );
+    if (!userRes.rows.length) return res.json({ code: null, referredBy: null, referrals: 0, totalEarned: 0 });
+
+    let code = userRes.rows[0].referral_code;
+    // Auto-generate code if none
+    if (!code) {
+      code = generateReferralCode();
+      await pool.query('UPDATE users SET referral_code = $1 WHERE wallet_address = $2', [code, w]);
+    }
+
+    // Count direct referrals
+    const refCount = await pool.query('SELECT COUNT(*) as cnt FROM users WHERE referred_by = $1', [w]);
+
+    // Total earned from referrals
+    const earned = await pool.query(
+      'SELECT COALESCE(SUM(pp_amount), 0) as total FROM referral_rewards WHERE to_wallet = $1', [w]
+    );
+
+    // Tier breakdown
+    const tiers = await pool.query(
+      `SELECT tier, COUNT(*) as cnt, COALESCE(SUM(pp_amount), 0) as total
+       FROM referral_rewards WHERE to_wallet = $1 GROUP BY tier ORDER BY tier`, [w]
+    );
+
+    res.json({
+      code,
+      referredBy: userRes.rows[0].referred_by,
+      referrals: parseInt(refCount.rows[0].cnt),
+      totalEarned: parseFloat(earned.rows[0].total),
+      tiers: tiers.rows.map(t => ({ tier: t.tier, count: parseInt(t.cnt), earned: parseFloat(t.total) }))
+    });
+  } catch (e) {
+    console.error('[API] referral info error:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
 });
@@ -332,9 +411,9 @@ router.post('/claim', async (req, res) => {
     }
 
     // Transaction record
-    await client.query(
+    const txRes = await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
-       VALUES ($1,$2,$3,$4,$5,$6)`,
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
       [
         overlapCount > 0 ? 'hijack' : 'claim',
         wallet.toLowerCase(),
@@ -346,13 +425,49 @@ router.post('/claim', async (req, res) => {
         })
       ]
     );
+    const txId = txRes.rows[0].id;
+
+    // ── Referral rewards on hijack ──
+    const referralRewards = [];
+    if (overlapCount > 0 && (s.referral_enabled !== false)) {
+      const tierPercents = [
+        s.referral_tier1_percent || 15,
+        s.referral_tier2_percent || 10,
+        s.referral_tier3_percent || 5
+      ];
+      const chain = await getReferralChain(client, wallet.toLowerCase());
+      const hijackPremium = hijackCost - Object.values(affectedOwners).reduce((sum, a) => sum + a.refund, 0);
+
+      for (const ref of chain) {
+        const pct = tierPercents[ref.tier - 1] || 0;
+        if (pct <= 0) continue;
+        const reward = Math.round(hijackPremium * (pct / 100) * 1000000) / 1000000;
+        if (reward <= 0) continue;
+
+        // Credit PP to referrer
+        await client.query(
+          'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+          [reward, ref.wallet]
+        );
+
+        // Log reward
+        await client.query(
+          `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type, trigger_tx_id)
+           VALUES ($1, $2, $3, $4, 'hijack', $5)`,
+          [wallet.toLowerCase(), ref.wallet, ref.tier, reward, txId]
+        );
+
+        referralRewards.push({ tier: ref.tier, wallet: ref.wallet.slice(0, 6) + '...', reward });
+      }
+    }
 
     await client.query('COMMIT');
 
     res.json({
       success: true, claimId, totalCost,
       newCount, overlapCount,
-      ppUsed, usdtUsed
+      ppUsed, usdtUsed,
+      referralRewards
     });
   } catch (e) {
     await client.query('ROLLBACK');
@@ -493,7 +608,9 @@ router.post('/withdraw-all', async (req, res) => {
 
     const usdtBal = parseFloat(userRes.rows[0].usdt_balance);
     const ppBal = parseFloat(userRes.rows[0].pp_balance);
-    const ppFee = Math.round(ppBal * SWAP_FEE * 1000000) / 1000000;
+    const s = await cfg();
+    const swapFeePct = (s.swap_fee_percent || 5) / 100;
+    const ppFee = Math.round(ppBal * swapFeePct * 1000000) / 1000000;
     const totalOut = Math.round((usdtBal + ppBal - ppFee) * 1000000) / 1000000;
 
     if (totalOut <= 0) {
@@ -510,7 +627,7 @@ router.post('/withdraw-all', async (req, res) => {
     // Reset owned pixels
     await client.query(
       "UPDATE pixels SET owner = NULL, price = $1, updated_at = NOW() WHERE owner = $2",
-      [PIXEL_PRICE, wallet.toLowerCase()]
+      [s.pixel_base_price || 0.1, wallet.toLowerCase()]
     );
 
     // Soft-delete claims

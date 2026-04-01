@@ -438,6 +438,45 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     </div>
   </div>
 
+  <!-- REFERRAL -->
+  <div class="p-section" id="referralSection" style="display:none">
+    <div class="p-title">REFERRAL PROGRAM</div>
+    <div id="referralContent">
+      <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;margin-bottom:6px">
+        Share your code & earn PP<br>when referrals hijack territory!
+      </div>
+      <!-- My referral code -->
+      <div style="background:rgba(255,120,60,.06);border:1px solid var(--bdr);border-radius:6px;padding:8px;margin-bottom:8px">
+        <div style="font-size:6px;color:var(--tx3);margin-bottom:3px">MY REFERRAL CODE</div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="font-size:var(--fs-lg);color:var(--gold);letter-spacing:2px;flex:1" id="myRefCode">--</span>
+          <button class="sz-btn" onclick="copyRefCode()" style="font-size:6px;padding:3px 8px">COPY</button>
+        </div>
+      </div>
+      <!-- Enter referral code -->
+      <div id="enterRefWrap">
+        <div style="font-size:6px;color:var(--tx3);margin-bottom:3px">ENTER REFERRAL CODE</div>
+        <div style="display:flex;gap:4px">
+          <input type="text" class="ui" id="refCodeInput" placeholder="CODE..." style="flex:1;text-transform:uppercase;letter-spacing:1px">
+          <button class="sz-btn" onclick="registerReferral()" style="font-size:6px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)">APPLY</button>
+        </div>
+        <div id="refStatus" style="font-size:6px;margin-top:3px;min-height:12px"></div>
+      </div>
+      <!-- Already referred -->
+      <div id="alreadyReferred" style="display:none;font-size:6px;color:var(--gn);margin-bottom:6px">
+        Referred by: <span id="referredByAddr" style="color:var(--cyan)">--</span>
+      </div>
+      <!-- Stats -->
+      <div style="height:1px;background:var(--bdr);margin:8px 0"></div>
+      <div class="stat-row"><span class="stat-label">REFERRALS</span><span class="stat-val" id="refCount">0</span></div>
+      <div class="stat-row"><span class="stat-label">TOTAL EARNED</span><span class="stat-val" style="color:var(--pp)" id="refEarned">0 PP</span></div>
+      <div style="font-size:6px;color:var(--tx3);margin-top:6px;line-height:1.6">
+        Tier 1: 15% PP · Tier 2: 10% PP · Tier 3: 5% PP<br>
+        (from referral's hijack premium)
+      </div>
+    </div>
+  </div>
+
   <!-- ITEM SHOP -->
   <div class="p-section">
     <div class="p-title">ITEM SHOP</div>
@@ -1492,6 +1531,15 @@ async function connectWallet(){
 
     showToast('WALLET CONNECTED');
 
+    // Load referral info
+    loadReferralInfo();
+    // Auto-apply pending referral code from URL
+    if(window._pendingRefCode){
+      document.getElementById('refCodeInput').value=window._pendingRefCode;
+      setTimeout(function(){registerReferral()},500);
+      delete window._pendingRefCode;
+    }
+
     // Listen for account/chain changes
     window.ethereum.on('accountsChanged',function(accs){
       if(!accs.length){disconnectWallet();return}
@@ -1531,6 +1579,7 @@ function disconnectWallet(){
   document.getElementById('walletCTA').style.display='';
   document.getElementById('walletSection').style.display='none';
   document.getElementById('alertsSection').style.display='none';
+  document.getElementById('referralSection').style.display='none';
   document.getElementById('chainIndicator').style.display='none';
   showToast('WALLET DISCONNECTED');
 }
@@ -1786,6 +1835,65 @@ async function confirmSwap(){
   showToast('SWAPPED '+amt.toFixed(2)+' PP → '+received.toFixed(2)+' USDT');
   addFeed('🔄 '+shortAddr(walletState.address)+' swapped '+amt.toFixed(0)+' PP');
 }
+
+/* ── Referral System ─────────────────────────────── */
+async function loadReferralInfo(){
+  if(!walletState.connected||!walletState.address) return;
+  document.getElementById('referralSection').style.display='';
+  try{
+    var resp=await fetch('/api/referral/'+walletState.address);
+    var d=await resp.json();
+    document.getElementById('myRefCode').textContent=d.code||'--';
+    document.getElementById('refCount').textContent=d.referrals||0;
+    document.getElementById('refEarned').textContent=(d.totalEarned||0).toFixed(2)+' PP';
+    if(d.referredBy){
+      document.getElementById('enterRefWrap').style.display='none';
+      document.getElementById('alreadyReferred').style.display='';
+      document.getElementById('referredByAddr').textContent=d.referredBy.slice(0,6)+'...'+d.referredBy.slice(-4);
+    } else {
+      document.getElementById('enterRefWrap').style.display='';
+      document.getElementById('alreadyReferred').style.display='none';
+    }
+  }catch(e){console.error('Referral load error:',e)}
+}
+
+function copyRefCode(){
+  var code=document.getElementById('myRefCode').textContent;
+  if(!code||code==='--'){showToast('NO CODE YET');return}
+  var url=window.location.origin+'?ref='+code;
+  navigator.clipboard.writeText(url).then(function(){showToast('REFERRAL LINK COPIED!')}).catch(function(){
+    navigator.clipboard.writeText(code).then(function(){showToast('CODE COPIED: '+code)});
+  });
+}
+
+async function registerReferral(){
+  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
+  var code=document.getElementById('refCodeInput').value.trim().toUpperCase();
+  if(!code){showToast('ENTER A CODE');return}
+  var status=document.getElementById('refStatus');
+  status.style.color='var(--tx3)';status.textContent='Registering...';
+  try{
+    var resp=await fetch('/api/referral/register',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:walletState.address,referralCode:code})
+    });
+    var d=await resp.json();
+    if(d.success){
+      status.style.color='var(--gn)';status.textContent='Referred by '+d.referrer;
+      showToast('REFERRAL REGISTERED!');
+      loadReferralInfo();
+    } else {
+      status.style.color='var(--red)';status.textContent=d.error||'Failed';
+    }
+  }catch(e){status.style.color='var(--red)';status.textContent='Network error'}
+}
+
+// Auto-apply referral code from URL
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var refCode=params.get('ref');
+  if(refCode) window._pendingRefCode=refCode.toUpperCase();
+})();
 
 /* ── UI Helpers ──────────────────────────────────── */
 function openItemShop(){document.getElementById('shopModal').classList.add('open')}

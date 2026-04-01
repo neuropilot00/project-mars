@@ -280,6 +280,39 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- REFERRAL STATS -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-title">REFERRAL PROGRAM</span>
+    </div>
+    <div style="padding:16px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:16px" id="refStatsCards">
+        <div class="rev-item"><div class="rev-type">TOTAL REFERRALS</div><div class="rev-val" style="color:var(--cyan)" id="rTotalRefs">--</div></div>
+        <div class="rev-item"><div class="rev-type">PP DISTRIBUTED</div><div class="rev-val" style="color:var(--pp)" id="rTotalPP">--</div></div>
+        <div class="rev-item"><div class="rev-type">REWARD TXS</div><div class="rev-val" style="color:var(--gold)" id="rTotalTxs">--</div></div>
+      </div>
+      <!-- Tier Breakdown -->
+      <div style="font-size:8px;color:var(--tx2);margin-bottom:8px;letter-spacing:1px">TIER BREAKDOWN</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px" id="refTierGrid">
+        <div class="rev-item"><div class="rev-type">TIER 1 (15%)</div><div class="rev-val" style="color:var(--gn)" id="rTier1">--</div><div class="rev-count" id="rTier1Count">0 rewards</div></div>
+        <div class="rev-item"><div class="rev-type">TIER 2 (10%)</div><div class="rev-val" style="color:var(--cyan)" id="rTier2">--</div><div class="rev-count" id="rTier2Count">0 rewards</div></div>
+        <div class="rev-item"><div class="rev-type">TIER 3 (5%)</div><div class="rev-val" style="color:var(--pp)" id="rTier3">--</div><div class="rev-count" id="rTier3Count">0 rewards</div></div>
+      </div>
+      <!-- Top Referrers -->
+      <div style="font-size:8px;color:var(--tx2);margin-bottom:8px;letter-spacing:1px">TOP REFERRERS</div>
+      <table class="adm-table">
+        <thead><tr><th>#</th><th>WALLET</th><th>REFERRALS</th><th>REWARDS</th><th>TOTAL EARNED</th></tr></thead>
+        <tbody id="refTopBody"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+      </table>
+      <!-- Recent Rewards -->
+      <div style="font-size:8px;color:var(--tx2);margin:16px 0 8px;letter-spacing:1px">RECENT REWARDS</div>
+      <table class="adm-table">
+        <thead><tr><th>FROM</th><th>TO</th><th>TIER</th><th>PP AMOUNT</th><th>TYPE</th><th>TIME</th></tr></thead>
+        <tbody id="refRecentBody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- Revenue Breakdown -->
   <div class="section">
     <div class="sec-header">
@@ -406,6 +439,7 @@ function loadAll() {
   loadSettings();
   loadEvents();
   loadItems();
+  loadReferrals();
   loadUsers(userPage);
   loadTransactions(txPage);
   loadRevenue();
@@ -770,6 +804,61 @@ function toggleItem(id, active) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
     body: JSON.stringify({ active: active })
   }).then(function() { loadItems(); });
+}
+
+// ── Referrals ──
+function loadReferrals() {
+  api('/admin/api/referrals').then(function(d) {
+    document.getElementById('rTotalRefs').textContent = d.totalReferrals.toLocaleString();
+    document.getElementById('rTotalPP').textContent = d.totalRewardsDistributed.toFixed(2) + ' PP';
+    document.getElementById('rTotalTxs').textContent = d.totalRewardTxCount.toLocaleString();
+
+    // Tier breakdown
+    var tierEls = { 1: 'rTier1', 2: 'rTier2', 3: 'rTier3' };
+    var tierCountEls = { 1: 'rTier1Count', 2: 'rTier2Count', 3: 'rTier3Count' };
+    [1, 2, 3].forEach(function(t) {
+      var tier = d.tierBreakdown.find(function(b) { return b.tier === t; });
+      document.getElementById(tierEls[t]).textContent = tier ? tier.total.toFixed(2) + ' PP' : '0 PP';
+      document.getElementById(tierCountEls[t]).textContent = tier ? tier.count + ' rewards' : '0 rewards';
+    });
+
+    // Top referrers
+    var topBody = document.getElementById('refTopBody');
+    topBody.innerHTML = '';
+    if (!d.topReferrers.length) {
+      topBody.innerHTML = '<tr><td colspan="5" class="loading">No referrers yet</td></tr>';
+    } else {
+      d.topReferrers.forEach(function(r, i) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td style="color:' + (i < 3 ? 'var(--gold)' : 'var(--tx3)') + '">' + (i + 1) + '</td>' +
+          '<td class="addr">' + r.wallet.slice(0, 8) + '...' + r.wallet.slice(-4) + '</td>' +
+          '<td>' + r.referralCount + '</td>' +
+          '<td>' + r.rewardCount + '</td>' +
+          '<td class="val-pp">' + r.totalEarned.toFixed(2) + ' PP</td>';
+        topBody.appendChild(tr);
+      });
+    }
+
+    // Recent rewards
+    var recentBody = document.getElementById('refRecentBody');
+    recentBody.innerHTML = '';
+    if (!d.recentRewards.length) {
+      recentBody.innerHTML = '<tr><td colspan="6" class="loading">No rewards yet</td></tr>';
+    } else {
+      d.recentRewards.forEach(function(r) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td class="addr">' + r.from.slice(0, 6) + '...' + '</td>' +
+          '<td class="addr">' + r.to.slice(0, 6) + '...' + '</td>' +
+          '<td><span class="type-badge claim">T' + r.tier + '</span></td>' +
+          '<td class="val-pp">' + r.ppAmount.toFixed(2) + '</td>' +
+          '<td><span class="type-badge hijack">' + r.triggerType.toUpperCase() + '</span></td>' +
+          '<td>' + new Date(r.createdAt).toLocaleString() + '</td>';
+        recentBody.appendChild(tr);
+      });
+    }
+  });
 }
 
 // Auto-focus auth input

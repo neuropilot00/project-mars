@@ -19,6 +19,8 @@ async function initDB() {
         wallet_address VARCHAR(42) PRIMARY KEY,
         usdt_balance DECIMAL(20,6) DEFAULT 0,
         pp_balance DECIMAL(20,6) DEFAULT 0,
+        referred_by VARCHAR(42),
+        referral_code VARCHAR(20) UNIQUE,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
 
@@ -104,7 +106,23 @@ async function initDB() {
         updated_at TIMESTAMPTZ DEFAULT NOW()
       );
 
+      -- Referral rewards log
+      CREATE TABLE IF NOT EXISTS referral_rewards (
+        id SERIAL PRIMARY KEY,
+        from_wallet VARCHAR(42) NOT NULL,
+        to_wallet VARCHAR(42) NOT NULL,
+        tier INT NOT NULL,
+        pp_amount DECIMAL(20,6) NOT NULL,
+        trigger_type VARCHAR(20) NOT NULL,
+        trigger_tx_id INT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
       -- Indexes
+      CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by);
+      CREATE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code);
+      CREATE INDEX IF NOT EXISTS idx_referral_rewards_to ON referral_rewards(to_wallet);
+      CREATE INDEX IF NOT EXISTS idx_referral_rewards_from ON referral_rewards(from_wallet);
       CREATE INDEX IF NOT EXISTS idx_deposits_wallet ON deposits(wallet_address);
       CREATE INDEX IF NOT EXISTS idx_pixels_owner ON pixels(owner);
       CREATE INDEX IF NOT EXISTS idx_claims_owner ON claims(owner);
@@ -135,6 +153,11 @@ async function seedDefaults(client) {
     { key: 'withdraw_fee_percent', value: 0, desc: 'Fee % on USDT withdrawal', cat: 'economy' },
     { key: 'hijack_owner_refund', value: 100, desc: 'Refund % of original price to hijacked owner', cat: 'economy' },
     { key: 'hijack_owner_bonus', value: 50, desc: 'Bonus % of premium to hijacked owner (rest → treasury)', cat: 'economy' },
+    // Referral
+    { key: 'referral_tier1_percent', value: 15, desc: 'Tier 1 referral PP reward % on hijack', cat: 'referral' },
+    { key: 'referral_tier2_percent', value: 10, desc: 'Tier 2 referral PP reward % on hijack', cat: 'referral' },
+    { key: 'referral_tier3_percent', value: 5, desc: 'Tier 3 referral PP reward % on hijack', cat: 'referral' },
+    { key: 'referral_enabled', value: true, desc: 'Enable/disable referral system', cat: 'referral' },
     // Limits
     { key: 'min_deposit', value: 1, desc: 'Minimum deposit amount (USDT)', cat: 'limits' },
     { key: 'max_deposit', value: 100000, desc: 'Maximum deposit amount (USDT)', cat: 'limits' },
@@ -187,4 +210,31 @@ async function getActiveEvents() {
   return res.rows;
 }
 
-module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents };
+// ── Helper: get referral chain (up to 3 tiers) ──
+async function getReferralChain(client, wallet) {
+  const chain = [];
+  let current = wallet.toLowerCase();
+  for (let tier = 1; tier <= 3; tier++) {
+    const res = await client.query(
+      'SELECT referred_by FROM users WHERE wallet_address = $1',
+      [current]
+    );
+    if (!res.rows.length || !res.rows[0].referred_by) break;
+    const referrer = res.rows[0].referred_by;
+    // Prevent circular references
+    if (chain.some(c => c.wallet === referrer) || referrer === wallet.toLowerCase()) break;
+    chain.push({ wallet: referrer, tier });
+    current = referrer;
+  }
+  return chain;
+}
+
+// ── Helper: generate referral code ──
+function generateReferralCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode };

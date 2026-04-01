@@ -374,4 +374,56 @@ router.put('/items/:id', async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════
+//  GET /admin/api/referrals — Referral stats
+// ══════════════════════════════════════════════════
+router.get('/referrals', async (req, res) => {
+  try {
+    const [totalRefs, totalRewards, topReferrers, recentRewards] = await Promise.all([
+      pool.query('SELECT COUNT(*) as cnt FROM users WHERE referred_by IS NOT NULL'),
+      pool.query('SELECT COALESCE(SUM(pp_amount), 0) as total, COUNT(*) as cnt FROM referral_rewards'),
+      pool.query(`
+        SELECT to_wallet, COUNT(*) as reward_count, SUM(pp_amount) as total_earned,
+          (SELECT COUNT(*) FROM users WHERE referred_by = rr.to_wallet) as referral_count
+        FROM referral_rewards rr
+        GROUP BY to_wallet ORDER BY total_earned DESC LIMIT 10
+      `),
+      pool.query(`
+        SELECT from_wallet, to_wallet, tier, pp_amount, trigger_type, created_at
+        FROM referral_rewards ORDER BY created_at DESC LIMIT 20
+      `)
+    ]);
+
+    // Tier breakdown
+    const tierBreakdown = await pool.query(`
+      SELECT tier, COUNT(*) as cnt, COALESCE(SUM(pp_amount), 0) as total
+      FROM referral_rewards GROUP BY tier ORDER BY tier
+    `);
+
+    res.json({
+      totalReferrals: parseInt(totalRefs.rows[0].cnt),
+      totalRewardsDistributed: parseFloat(totalRewards.rows[0].total),
+      totalRewardTxCount: parseInt(totalRewards.rows[0].cnt),
+      tierBreakdown: tierBreakdown.rows.map(r => ({
+        tier: r.tier, count: parseInt(r.cnt), total: parseFloat(r.total)
+      })),
+      topReferrers: topReferrers.rows.map(r => ({
+        wallet: r.to_wallet,
+        rewardCount: parseInt(r.reward_count),
+        totalEarned: parseFloat(r.total_earned),
+        referralCount: parseInt(r.referral_count)
+      })),
+      recentRewards: recentRewards.rows.map(r => ({
+        from: r.from_wallet, to: r.to_wallet,
+        tier: r.tier, ppAmount: parseFloat(r.pp_amount),
+        triggerType: r.trigger_type,
+        createdAt: r.created_at
+      }))
+    });
+  } catch (e) {
+    console.error('[Admin] referrals error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 module.exports = router;
