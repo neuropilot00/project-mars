@@ -69,6 +69,41 @@ async function initDB() {
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
 
+      -- Game settings (key-value config)
+      CREATE TABLE IF NOT EXISTS settings (
+        key VARCHAR(100) PRIMARY KEY,
+        value JSONB NOT NULL,
+        description TEXT,
+        category VARCHAR(50) DEFAULT 'general',
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      -- Events (time-limited promotions)
+      CREATE TABLE IF NOT EXISTS events (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(200) NOT NULL,
+        type VARCHAR(50) NOT NULL,
+        config JSONB NOT NULL DEFAULT '{}',
+        starts_at TIMESTAMPTZ NOT NULL,
+        ends_at TIMESTAMPTZ NOT NULL,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      -- Game items (future-proof)
+      CREATE TABLE IF NOT EXISTS game_items (
+        id SERIAL PRIMARY KEY,
+        slug VARCHAR(100) UNIQUE NOT NULL,
+        name VARCHAR(200) NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        price_usdt DECIMAL(20,6) DEFAULT 0,
+        price_pp DECIMAL(20,6) DEFAULT 0,
+        config JSONB DEFAULT '{}',
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
       -- Indexes
       CREATE INDEX IF NOT EXISTS idx_deposits_wallet ON deposits(wallet_address);
       CREATE INDEX IF NOT EXISTS idx_pixels_owner ON pixels(owner);
@@ -76,10 +111,47 @@ async function initDB() {
       CREATE INDEX IF NOT EXISTS idx_transactions_from ON transactions(from_wallet);
       CREATE INDEX IF NOT EXISTS idx_transactions_created ON transactions(created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
+      CREATE INDEX IF NOT EXISTS idx_events_active ON events(active, starts_at, ends_at);
+      CREATE INDEX IF NOT EXISTS idx_game_items_category ON game_items(category, active);
     `);
+
+    // Seed default settings if empty
+    await seedDefaults(client);
+
     console.log('[DB] Schema initialized');
   } finally {
     client.release();
+  }
+}
+
+// ── Seed default game settings ──
+async function seedDefaults(client) {
+  const defaults = [
+    // Economy
+    { key: 'pixel_base_price', value: 0.10, desc: 'Base price per unclaimed pixel (USDT)', cat: 'economy' },
+    { key: 'hijack_multiplier', value: 1.2, desc: 'Price multiplier for hijacking owned pixels', cat: 'economy' },
+    { key: 'deposit_pp_bonus', value: 10, desc: 'PP bonus % on USDT deposit', cat: 'economy' },
+    { key: 'swap_fee_percent', value: 5, desc: 'Fee % on PP→USDT swap', cat: 'economy' },
+    { key: 'withdraw_fee_percent', value: 0, desc: 'Fee % on USDT withdrawal', cat: 'economy' },
+    { key: 'hijack_owner_refund', value: 100, desc: 'Refund % of original price to hijacked owner', cat: 'economy' },
+    { key: 'hijack_owner_bonus', value: 50, desc: 'Bonus % of premium to hijacked owner (rest → treasury)', cat: 'economy' },
+    // Limits
+    { key: 'min_deposit', value: 1, desc: 'Minimum deposit amount (USDT)', cat: 'limits' },
+    { key: 'max_deposit', value: 100000, desc: 'Maximum deposit amount (USDT)', cat: 'limits' },
+    { key: 'max_claim_width', value: 500, desc: 'Maximum claim width in pixels', cat: 'limits' },
+    { key: 'max_claim_height', value: 500, desc: 'Maximum claim height in pixels', cat: 'limits' },
+    { key: 'min_withdraw', value: 10, desc: 'Minimum withdrawal amount (USDT)', cat: 'limits' },
+    // Display
+    { key: 'announcement', value: '', desc: 'Global announcement banner text (empty=hidden)', cat: 'display' },
+    { key: 'maintenance_mode', value: false, desc: 'Disable all transactions when true', cat: 'system' },
+  ];
+
+  for (const d of defaults) {
+    await client.query(
+      `INSERT INTO settings (key, value, description, category)
+       VALUES ($1, $2, $3, $4) ON CONFLICT (key) DO NOTHING`,
+      [d.key, JSON.stringify(d.value), d.desc, d.cat]
+    );
   }
 }
 
@@ -91,4 +163,28 @@ async function ensureUser(client, wallet) {
   );
 }
 
-module.exports = { pool, initDB, ensureUser };
+// ── Helper: get all settings as flat object ──
+async function getSettings() {
+  const res = await pool.query('SELECT key, value FROM settings');
+  const settings = {};
+  for (const row of res.rows) {
+    settings[row.key] = row.value;
+  }
+  return settings;
+}
+
+// ── Helper: get single setting ──
+async function getSetting(key, fallback) {
+  const res = await pool.query('SELECT value FROM settings WHERE key = $1', [key]);
+  return res.rows.length ? res.rows[0].value : fallback;
+}
+
+// ── Helper: get active events ──
+async function getActiveEvents() {
+  const res = await pool.query(
+    `SELECT * FROM events WHERE active = true AND starts_at <= NOW() AND ends_at > NOW() ORDER BY starts_at`
+  );
+  return res.rows;
+}
+
+module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents };

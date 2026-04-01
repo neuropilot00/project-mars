@@ -117,6 +117,46 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
 
 /* Loading */
 .loading{text-align:center;padding:40px;font-size:8px;color:var(--tx3)}
+
+/* Settings controls */
+.setting-card{background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.03);border-radius:6px;
+  padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.setting-key{font-size:7px;color:var(--mars);letter-spacing:.5px}
+.setting-desc{font-size:6px;color:var(--tx3);line-height:1.5}
+.setting-input{padding:6px 8px;font-size:9px;font-family:var(--fn);background:rgba(0,0,0,.3);
+  border:1px solid var(--bdr);color:var(--gold);border-radius:4px;outline:none;width:100%;margin-top:2px;
+  -moz-appearance:textfield}
+.setting-input:focus{border-color:var(--mars)}
+.setting-input::-webkit-inner-spin-button{-webkit-appearance:none}
+.setting-input.changed{border-color:var(--gold);background:rgba(255,209,102,.04)}
+.setting-save{padding:4px 10px;font-size:6px;font-family:var(--fn);background:rgba(76,216,154,.08);
+  border:1px solid rgba(76,216,154,.2);border-radius:3px;color:var(--gn);cursor:pointer;
+  margin-top:4px;display:none}
+.setting-save:hover{background:rgba(76,216,154,.18)}
+.setting-save.show{display:inline-block}
+.setting-cat{font-size:8px;color:var(--mars);letter-spacing:1.5px;text-transform:uppercase;
+  grid-column:1/-1;padding:8px 0 2px;border-bottom:1px solid var(--bdr);margin-top:4px}
+.setting-cat:first-child{margin-top:0}
+
+/* Event cards */
+.event-card{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;
+  background:rgba(0,0,0,.12);border:1px solid rgba(255,255,255,.03);border-radius:6px}
+.event-card.active{border-color:rgba(76,216,154,.15);background:rgba(76,216,154,.03)}
+.event-card.inactive{opacity:.5}
+.ev-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ev-status.on{background:var(--gn)}.ev-status.off{background:var(--tx3)}
+.ev-info{flex:1}
+.ev-name{font-size:8px;color:var(--tx);margin-bottom:3px}
+.ev-meta{font-size:6px;color:var(--tx3);line-height:1.6}
+.ev-actions{display:flex;gap:4px}
+.ev-btn{padding:3px 8px;font-size:6px;font-family:var(--fn);border-radius:3px;cursor:pointer;border:1px solid}
+.ev-btn.toggle{background:rgba(255,209,102,.06);border-color:rgba(255,209,102,.2);color:var(--gold)}
+.ev-btn.del{background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.2);color:var(--red)}
+.ev-btn:hover{opacity:.8}
+
+/* Toggle switch */
+.toggle-wrap{display:flex;align-items:center;gap:6px;margin-top:4px}
+.toggle-label{font-size:7px;color:var(--tx3)}
 </style>
 </head>
 <body>
@@ -152,6 +192,92 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div class="stat-card"><div class="sc-label">ACTIVE CLAIMS</div><div class="sc-value pp" id="sTotalClaims">--</div></div>
     <div class="stat-card"><div class="sc-label">PIXELS SOLD</div><div class="sc-value red" id="sPixelsSold">--</div></div>
     <div class="stat-card"><div class="sc-label">CONTRACT BAL</div><div class="sc-value gn" id="sContractBal">--</div><div class="sc-sub">USDT held</div></div>
+  </div>
+
+  <!-- GAME CONTROLS -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-title">GAME CONTROLS</span>
+      <div class="sec-tools">
+        <span style="font-size:6px;color:var(--tx3)" id="settingsStatus"></span>
+      </div>
+    </div>
+    <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px" id="settingsGrid">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- EVENTS -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-title">EVENTS & PROMOTIONS</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="showNewEventForm()">+ NEW EVENT</button>
+      </div>
+    </div>
+    <div id="newEventForm" style="display:none;padding:16px;border-bottom:1px solid var(--bdr)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">EVENT NAME</div>
+          <input class="adm-input" id="evName" placeholder="Spring Bonus" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">TYPE</div>
+          <select class="adm-select" id="evType" style="width:100%">
+            <option value="deposit_bonus">Deposit PP Bonus</option>
+            <option value="swap_discount">Swap Fee Discount</option>
+            <option value="claim_discount">Claim Price Discount</option>
+            <option value="hijack_bonus">Hijack Owner Bonus</option>
+            <option value="custom">Custom</option>
+          </select></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">START DATE</div>
+          <input class="adm-input" id="evStart" type="datetime-local" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">END DATE</div>
+          <input class="adm-input" id="evEnd" type="datetime-local" style="width:100%"></div>
+        <div style="grid-column:1/3"><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">CONFIG (JSON) — e.g. {"extra_pp_percent": 5}</div>
+          <input class="adm-input" id="evConfig" placeholder='{"extra_pp_percent": 5}' style="width:100%"></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="adm-btn primary" onclick="createEvent()">CREATE</button>
+        <button class="adm-btn primary" onclick="document.getElementById('newEventForm').style.display='none'" style="color:var(--tx3);border-color:var(--bdr)">CANCEL</button>
+      </div>
+    </div>
+    <div id="eventsList" style="padding:12px">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- GAME ITEMS -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-title">GAME ITEMS</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="showNewItemForm()">+ NEW ITEM</button>
+      </div>
+    </div>
+    <div id="newItemForm" style="display:none;padding:16px;border-bottom:1px solid var(--bdr)">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">SLUG</div>
+          <input class="adm-input" id="itemSlug" placeholder="speed_boost" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">NAME</div>
+          <input class="adm-input" id="itemName" placeholder="Speed Boost" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">CATEGORY</div>
+          <input class="adm-input" id="itemCat" placeholder="boost" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">PRICE (USDT)</div>
+          <input class="adm-input" id="itemPriceU" type="number" placeholder="0" step="0.01" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">PRICE (PP)</div>
+          <input class="adm-input" id="itemPriceP" type="number" placeholder="0" step="0.01" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">CONFIG (JSON)</div>
+          <input class="adm-input" id="itemConfig" placeholder="{}" style="width:100%"></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="adm-btn primary" onclick="createItem()">CREATE</button>
+        <button class="adm-btn primary" onclick="document.getElementById('newItemForm').style.display='none'" style="color:var(--tx3);border-color:var(--bdr)">CANCEL</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr><th>SLUG</th><th>NAME</th><th>CATEGORY</th><th>USDT</th><th>PP</th><th>ACTIVE</th><th>ACTIONS</th></tr></thead>
+        <tbody id="itemsBody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Revenue Breakdown -->
@@ -277,6 +403,9 @@ function api(path) {
 
 function loadAll() {
   loadStats();
+  loadSettings();
+  loadEvents();
+  loadItems();
   loadUsers(userPage);
   loadTransactions(txPage);
   loadRevenue();
@@ -444,6 +573,203 @@ function loadRevenue() {
       }
     });
   });
+}
+
+// ── Settings ──
+function loadSettings() {
+  api('/admin/api/settings').then(function(data) {
+    var grid = document.getElementById('settingsGrid');
+    grid.innerHTML = '';
+    var lastCat = '';
+    data.forEach(function(s) {
+      if (s.category !== lastCat) {
+        lastCat = s.category;
+        var catDiv = document.createElement('div');
+        catDiv.className = 'setting-cat';
+        catDiv.textContent = s.category.toUpperCase();
+        grid.appendChild(catDiv);
+      }
+      var card = document.createElement('div');
+      card.className = 'setting-card';
+      var inputType = typeof s.value === 'boolean' ? 'checkbox' : (typeof s.value === 'number' ? 'number' : 'text');
+      var inputVal = typeof s.value === 'boolean' ? '' : s.value;
+      card.innerHTML =
+        '<div class="setting-key">' + s.key + '</div>' +
+        '<div class="setting-desc">' + (s.description || '') + '</div>' +
+        (typeof s.value === 'boolean'
+          ? '<div class="toggle-wrap"><input type="checkbox" id="set_'+s.key+'" '+(s.value?'checked':'')+' onchange="saveSetting(\''+s.key+'\',this.checked)"><label class="toggle-label" for="set_'+s.key+'">'+(s.value?'ON':'OFF')+'</label></div>'
+          : '<input class="setting-input" id="set_'+s.key+'" type="'+inputType+'" value="'+inputVal+'" ' +
+            (inputType==='number'?'step="0.01" ':'') +
+            'onchange="markChanged(this,\''+s.key+'\')" onkeydown="if(event.key===\'Enter\')saveSetting(\''+s.key+'\',this.value)">' +
+            '<button class="setting-save" id="save_'+s.key+'" onclick="saveSetting(\''+s.key+'\',document.getElementById(\'set_'+s.key+'\').value)">SAVE</button>'
+        );
+      grid.appendChild(card);
+    });
+    document.getElementById('settingsStatus').textContent = data.length + ' settings loaded';
+  });
+}
+
+function markChanged(input, key) {
+  input.classList.add('changed');
+  document.getElementById('save_' + key).classList.add('show');
+}
+
+function saveSetting(key, value) {
+  // Parse number if possible
+  if (typeof value === 'string' && !isNaN(value) && value !== '') value = parseFloat(value);
+  fetch('/admin/api/settings/' + key, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({ value: value })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      var input = document.getElementById('set_' + key);
+      if (input) { input.classList.remove('changed'); }
+      var btn = document.getElementById('save_' + key);
+      if (btn) { btn.classList.remove('show'); }
+      document.getElementById('settingsStatus').textContent = key + ' updated!';
+      setTimeout(function() { document.getElementById('settingsStatus').textContent = ''; }, 2000);
+    }
+  });
+}
+
+// ── Events ──
+function loadEvents() {
+  api('/admin/api/events').then(function(data) {
+    var el = document.getElementById('eventsList');
+    el.innerHTML = '';
+    if (!data.length) { el.innerHTML = '<div style="font-size:7px;color:var(--tx3);text-align:center;padding:16px">No events created yet</div>'; return; }
+    data.forEach(function(ev) {
+      var now = new Date();
+      var isActive = ev.active && new Date(ev.startsAt) <= now && new Date(ev.endsAt) > now;
+      var card = document.createElement('div');
+      card.className = 'event-card ' + (isActive ? 'active' : 'inactive');
+      var configStr = JSON.stringify(ev.config);
+      card.innerHTML =
+        '<div class="ev-status ' + (isActive ? 'on' : 'off') + '"></div>' +
+        '<div class="ev-info">' +
+          '<div class="ev-name">' + ev.name + ' <span class="type-badge ' + ev.type + '" style="font-size:5px">' + ev.type.toUpperCase() + '</span></div>' +
+          '<div class="ev-meta">' +
+            new Date(ev.startsAt).toLocaleDateString() + ' → ' + new Date(ev.endsAt).toLocaleDateString() +
+            ' · ' + configStr +
+          '</div>' +
+        '</div>' +
+        '<div class="ev-actions">' +
+          '<button class="ev-btn toggle" onclick="toggleEvent(' + ev.id + ',' + !ev.active + ')">' + (ev.active ? 'DISABLE' : 'ENABLE') + '</button>' +
+          '<button class="ev-btn del" onclick="deleteEvent(' + ev.id + ')">DEL</button>' +
+        '</div>';
+      el.appendChild(card);
+    });
+  });
+}
+
+function showNewEventForm() {
+  document.getElementById('newEventForm').style.display = '';
+  // Default dates: now → +7 days
+  var now = new Date();
+  var end = new Date(now.getTime() + 7 * 86400000);
+  document.getElementById('evStart').value = now.toISOString().slice(0, 16);
+  document.getElementById('evEnd').value = end.toISOString().slice(0, 16);
+}
+
+function createEvent() {
+  var configStr = document.getElementById('evConfig').value || '{}';
+  var config;
+  try { config = JSON.parse(configStr); } catch(e) { alert('Invalid JSON in config'); return; }
+
+  fetch('/admin/api/events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({
+      name: document.getElementById('evName').value,
+      type: document.getElementById('evType').value,
+      config: config,
+      startsAt: new Date(document.getElementById('evStart').value).toISOString(),
+      endsAt: new Date(document.getElementById('evEnd').value).toISOString()
+    })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      document.getElementById('newEventForm').style.display = 'none';
+      loadEvents();
+    }
+  });
+}
+
+function toggleEvent(id, active) {
+  fetch('/admin/api/events/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({ active: active })
+  }).then(function() { loadEvents(); });
+}
+
+function deleteEvent(id) {
+  if (!confirm('Delete this event?')) return;
+  fetch('/admin/api/events/' + id, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': adminSecret }
+  }).then(function() { loadEvents(); });
+}
+
+// ── Game Items ──
+function loadItems() {
+  api('/admin/api/items').then(function(data) {
+    var tbody = document.getElementById('itemsBody');
+    tbody.innerHTML = '';
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">No items yet</td></tr>';
+      return;
+    }
+    data.forEach(function(item) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="color:var(--cyan)">' + item.slug + '</td>' +
+        '<td>' + item.name + '</td>' +
+        '<td><span class="type-badge claim">' + item.category + '</span></td>' +
+        '<td class="val-gn">$' + parseFloat(item.price_usdt).toFixed(2) + '</td>' +
+        '<td class="val-pp">' + parseFloat(item.price_pp).toFixed(2) + '</td>' +
+        '<td>' + (item.active ? '<span style="color:var(--gn)">ON</span>' : '<span style="color:var(--red)">OFF</span>') + '</td>' +
+        '<td><button class="ev-btn toggle" onclick="toggleItem(' + item.id + ',' + !item.active + ')">' +
+          (item.active ? 'DISABLE' : 'ENABLE') + '</button></td>';
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+function showNewItemForm() {
+  document.getElementById('newItemForm').style.display = '';
+}
+
+function createItem() {
+  var configStr = document.getElementById('itemConfig').value || '{}';
+  var config;
+  try { config = JSON.parse(configStr); } catch(e) { alert('Invalid JSON'); return; }
+
+  fetch('/admin/api/items', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({
+      slug: document.getElementById('itemSlug').value,
+      name: document.getElementById('itemName').value,
+      category: document.getElementById('itemCat').value,
+      priceUsdt: parseFloat(document.getElementById('itemPriceU').value) || 0,
+      pricePp: parseFloat(document.getElementById('itemPriceP').value) || 0,
+      config: config
+    })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      document.getElementById('newItemForm').style.display = 'none';
+      loadItems();
+    }
+  });
+}
+
+function toggleItem(id, active) {
+  fetch('/admin/api/items/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({ active: active })
+  }).then(function() { loadItems(); });
 }
 
 // Auto-focus auth input

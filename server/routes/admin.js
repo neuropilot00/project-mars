@@ -204,4 +204,174 @@ router.get('/revenue', async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════
+//  GET /admin/api/settings — All game settings
+// ══════════════════════════════════════════════════
+router.get('/settings', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM settings ORDER BY category, key');
+    res.json(result.rows.map(r => ({
+      key: r.key, value: r.value, description: r.description,
+      category: r.category, updatedAt: r.updated_at
+    })));
+  } catch (e) {
+    console.error('[Admin] settings error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  PUT /admin/api/settings/:key — Update setting
+// ══════════════════════════════════════════════════
+router.put('/settings/:key', async (req, res) => {
+  try {
+    const { value } = req.body;
+    if (value === undefined) return res.status(400).json({ error: 'Missing value' });
+
+    const result = await pool.query(
+      'UPDATE settings SET value = $1, updated_at = NOW() WHERE key = $2 RETURNING *',
+      [JSON.stringify(value), req.params.key]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Setting not found' });
+
+    console.log(`[Admin] Setting updated: ${req.params.key} = ${JSON.stringify(value)}`);
+    res.json({ success: true, key: req.params.key, value });
+  } catch (e) {
+    console.error('[Admin] setting update error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /admin/api/events — All events
+// ══════════════════════════════════════════════════
+router.get('/events', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM events ORDER BY created_at DESC LIMIT 100');
+    res.json(result.rows.map(r => ({
+      id: r.id, name: r.name, type: r.type, config: r.config,
+      startsAt: r.starts_at, endsAt: r.ends_at, active: r.active,
+      createdAt: r.created_at
+    })));
+  } catch (e) {
+    console.error('[Admin] events error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  POST /admin/api/events — Create event
+// ══════════════════════════════════════════════════
+router.post('/events', async (req, res) => {
+  try {
+    const { name, type, config, startsAt, endsAt } = req.body;
+    if (!name || !type || !startsAt || !endsAt) {
+      return res.status(400).json({ error: 'Missing fields: name, type, startsAt, endsAt' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO events (name, type, config, starts_at, ends_at)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [name, type, config || {}, startsAt, endsAt]
+    );
+
+    console.log(`[Admin] Event created: ${name} (${type})`);
+    res.json({ success: true, event: result.rows[0] });
+  } catch (e) {
+    console.error('[Admin] event create error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  PUT /admin/api/events/:id — Update event
+// ══════════════════════════════════════════════════
+router.put('/events/:id', async (req, res) => {
+  try {
+    const { name, type, config, startsAt, endsAt, active } = req.body;
+    const result = await pool.query(
+      `UPDATE events SET
+        name = COALESCE($1, name), type = COALESCE($2, type),
+        config = COALESCE($3, config),
+        starts_at = COALESCE($4, starts_at), ends_at = COALESCE($5, ends_at),
+        active = COALESCE($6, active)
+       WHERE id = $7 RETURNING *`,
+      [name, type, config ? JSON.stringify(config) : null, startsAt, endsAt, active, req.params.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Event not found' });
+    res.json({ success: true, event: result.rows[0] });
+  } catch (e) {
+    console.error('[Admin] event update error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  DELETE /admin/api/events/:id — Delete event
+// ══════════════════════════════════════════════════
+router.delete('/events/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM events WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[Admin] event delete error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /admin/api/items — Game items
+// ══════════════════════════════════════════════════
+router.get('/items', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM game_items ORDER BY category, name');
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[Admin] items error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  POST /admin/api/items — Create game item
+// ══════════════════════════════════════════════════
+router.post('/items', async (req, res) => {
+  try {
+    const { slug, name, category, priceUsdt, pricePp, config } = req.body;
+    if (!slug || !name || !category) return res.status(400).json({ error: 'Missing fields' });
+
+    const result = await pool.query(
+      `INSERT INTO game_items (slug, name, category, price_usdt, price_pp, config)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [slug, name, category, priceUsdt || 0, pricePp || 0, config || {}]
+    );
+    res.json({ success: true, item: result.rows[0] });
+  } catch (e) {
+    console.error('[Admin] item create error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  PUT /admin/api/items/:id — Update game item
+// ══════════════════════════════════════════════════
+router.put('/items/:id', async (req, res) => {
+  try {
+    const { name, priceUsdt, pricePp, config, active } = req.body;
+    const result = await pool.query(
+      `UPDATE game_items SET
+        name = COALESCE($1, name), price_usdt = COALESCE($2, price_usdt),
+        price_pp = COALESCE($3, price_pp), config = COALESCE($4, config),
+        active = COALESCE($5, active), updated_at = NOW()
+       WHERE id = $6 RETURNING *`,
+      [name, priceUsdt, pricePp, config ? JSON.stringify(config) : null, active, req.params.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Item not found' });
+    res.json({ success: true, item: result.rows[0] });
+  } catch (e) {
+    console.error('[Admin] item update error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 module.exports = router;

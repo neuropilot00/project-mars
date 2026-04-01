@@ -437,6 +437,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
       <button class="action-btn" style="margin-top:4px;font-size:7px;padding:6px" onclick="cancelStamp()">CANCEL</button>
     </div>
   </div>
+
+  <!-- ITEM SHOP -->
+  <div class="p-section">
+    <div class="p-title">ITEM SHOP</div>
+    <button class="action-btn" onclick="openItemShop()" style="display:flex;align-items:center;justify-content:center;gap:6px">
+      <span style="font-size:14px">🛒</span> OPEN SHOP
+    </button>
+  </div>
 </div>
 
 <!-- Zoom + Back -->
@@ -585,6 +593,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         You receive: <span id="swpReceive" style="color:var(--gn)">0.00 USDT</span>
       </div>
       <button class="cfm" onclick="confirmSwap()">CONFIRM SWAP</button>
+    </div>
+  </div>
+</div>
+
+<!-- Item Shop Modal (Coming Soon) -->
+<div class="mbg" id="shopModal">
+  <div class="mdl" style="width:380px">
+    <div class="mhd">
+      <span class="mtl" style="color:var(--gold)">ITEM SHOP</span>
+      <button class="mx" onclick="closeItemShop()">×</button>
+    </div>
+    <div class="mbd" style="text-align:center;padding:32px 16px">
+      <div style="font-size:48px;margin-bottom:16px">🚀</div>
+      <div style="font-size:var(--fs-lg);color:var(--gold);margin-bottom:12px">COMING SOON</div>
+      <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:2">
+        Boost items, territory shields,<br>
+        pixel multipliers & more!<br><br>
+        <span style="color:var(--mars)">Stay tuned for updates</span>
+      </div>
     </div>
   </div>
 </div>
@@ -1761,6 +1788,8 @@ async function confirmSwap(){
 }
 
 /* ── UI Helpers ──────────────────────────────────── */
+function openItemShop(){document.getElementById('shopModal').classList.add('open')}
+function closeItemShop(){document.getElementById('shopModal').classList.remove('open')}
 function zoomIn(){globe.pointOfView({altitude:Math.max(.08,globe.pointOfView().altitude*.7)},300);isZoomedIn=true}
 function zoomOut(){
   var newAlt=Math.min(4,globe.pointOfView().altitude*1.4);

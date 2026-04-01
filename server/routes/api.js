@@ -1,14 +1,36 @@
 const express = require('express');
 const { ethers } = require('ethers');
-const { pool, ensureUser } = require('../db');
+const { pool, ensureUser, getSettings, getSetting, getActiveEvents } = require('../db');
 const { generateWithdrawSignature, CHAINS } = require('../services/signer');
 
 const router = express.Router();
 
-const PIXEL_PRICE = 0.1;
-const HIJACK_MULT = 1.2;
 const GRID_SIZE = 0.22;
-const SWAP_FEE = 0.05;
+
+// ── Dynamic settings (cached, refreshed every 30s) ──
+let cachedSettings = null;
+let settingsLastFetch = 0;
+async function cfg() {
+  if (!cachedSettings || Date.now() - settingsLastFetch > 30000) {
+    cachedSettings = await getSettings();
+    settingsLastFetch = Date.now();
+  }
+  return cachedSettings;
+}
+
+// ── Active events with bonus calculation ──
+async function getDepositBonusPercent() {
+  const s = await cfg();
+  let bonus = s.deposit_pp_bonus || 10;
+  // Check active events for bonus boost
+  const events = await getActiveEvents();
+  for (const ev of events) {
+    if (ev.type === 'deposit_bonus' && ev.config && ev.config.extra_pp_percent) {
+      bonus += ev.config.extra_pp_percent;
+    }
+  }
+  return bonus;
+}
 
 // ── Helpers ──
 
@@ -28,6 +50,40 @@ function getClaimPixels(lat, lng, w, h) {
   }
   return pixels;
 }
+
+// ══════════════════════════════════════════════════
+//  GET /api/config — public game config + active events
+// ══════════════════════════════════════════════════
+router.get('/config', async (req, res) => {
+  try {
+    const s = await cfg();
+    const events = await getActiveEvents();
+    const bonusPct = await getDepositBonusPercent();
+
+    res.json({
+      pixelBasePrice: s.pixel_base_price || 0.1,
+      hijackMultiplier: s.hijack_multiplier || 1.2,
+      depositPPBonus: bonusPct,
+      swapFeePercent: s.swap_fee_percent || 5,
+      withdrawFeePercent: s.withdraw_fee_percent || 0,
+      minDeposit: s.min_deposit || 1,
+      maxDeposit: s.max_deposit || 100000,
+      maxClaimWidth: s.max_claim_width || 500,
+      maxClaimHeight: s.max_claim_height || 500,
+      minWithdraw: s.min_withdraw || 10,
+      announcement: s.announcement || '',
+      maintenanceMode: s.maintenance_mode || false,
+      activeEvents: events.map(e => ({
+        id: e.id, name: e.name, type: e.type,
+        config: e.config,
+        startsAt: e.starts_at, endsAt: e.ends_at
+      }))
+    });
+  } catch (e) {
+    console.error('[API] config error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
 
 // ══════════════════════════════════════════════════
 //  GET /api/user/:wallet
@@ -83,7 +139,8 @@ router.get('/pixel/:lat/:lng', async (req, res) => {
     );
 
     if (!pxRes.rows.length) {
-      return res.json({ owner: null, price: PIXEL_PRICE, claimId: null, imageUrl: null, linkUrl: null });
+      const s = await cfg();
+      return res.json({ owner: null, price: s.pixel_base_price || 0.1, claimId: null, imageUrl: null, linkUrl: null });
     }
 
     const px = pxRes.rows[0];
@@ -161,14 +218,28 @@ router.post('/claim', async (req, res) => {
     return res.status(400).json({ error: 'Missing fields' });
   }
 
-  const w = parseInt(wallet.toLowerCase());
   const client = await pool.connect();
+  const s = await cfg();
+  const PIXEL_PRICE = s.pixel_base_price || 0.1;
+  const HIJACK_MULT = s.hijack_multiplier || 1.2;
+  const OWNER_BONUS_PCT = (s.hijack_owner_bonus || 50) / 100;
 
   try {
+    // Maintenance check
+    if (s.maintenance_mode) {
+      return res.status(503).json({ error: 'Maintenance mode — transactions disabled' });
+    }
+
     await client.query('BEGIN');
     await ensureUser(client, wallet.toLowerCase());
 
-    const pixels = getClaimPixels(parseFloat(lat), parseFloat(lng), parseInt(width), parseInt(height));
+    const claimW = parseInt(width), claimH = parseInt(height);
+    if (claimW > (s.max_claim_width || 500) || claimH > (s.max_claim_height || 500)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Claim too large', maxWidth: s.max_claim_width, maxHeight: s.max_claim_height });
+    }
+
+    const pixels = getClaimPixels(parseFloat(lat), parseFloat(lng), claimW, claimH);
     if (!pixels.length) throw new Error('No pixels in range');
 
     // Lock and read all affected pixels
@@ -189,7 +260,7 @@ router.post('/claim', async (req, res) => {
         const prevOwner = existing.owner;
         if (!affectedOwners[prevOwner]) affectedOwners[prevOwner] = { refund: 0, bonus: 0 };
         affectedOwners[prevOwner].refund += parseFloat(existing.price);
-        affectedOwners[prevOwner].bonus += (pxCost - parseFloat(existing.price)) * 0.5;
+        affectedOwners[prevOwner].bonus += (pxCost - parseFloat(existing.price)) * OWNER_BONUS_PCT;
       } else {
         baseCost += PIXEL_PRICE;
         newCount++;
@@ -315,6 +386,8 @@ router.post('/swap', async (req, res) => {
       return res.status(400).json({ error: 'Insufficient PP', balance: ppBal });
     }
 
+    const s = await cfg();
+    const SWAP_FEE = (s.swap_fee_percent || 5) / 100;
     const fee = Math.round(ppAmount * SWAP_FEE * 1000000) / 1000000;
     const received = Math.round((ppAmount - fee) * 1000000) / 1000000;
 
