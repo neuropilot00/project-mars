@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>OCCUPY MARS — Claim Your Territory</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<script src="//unpkg.com/globe.gl@2.27.2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/globe.gl@2.27.2"></script>
 <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
 <style>
 :root{
@@ -37,12 +37,12 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   background:linear-gradient(180deg,rgba(13,11,20,0.96),rgba(13,11,20,0.75));
   border-bottom:1px solid var(--bdr);backdrop-filter:blur(12px)}
 .tb-left{display:flex;align-items:center;gap:10px}
-.tb-title{font-size:var(--fs-lg);color:var(--mars);letter-spacing:2px;
+.tb-title{font-size:16px;color:var(--mars);letter-spacing:3px;
   text-shadow:0 0 24px rgba(255,120,60,0.4)}
 .tb-sub{font-size:var(--fs-xs);color:var(--red);letter-spacing:1px;opacity:.65}
-.tb-btn{padding:8px 16px;font-size:var(--fs-sm);font-family:var(--fn);
+.tb-btn{padding:6px 16px;font-size:var(--fs-sm);font-family:var(--fn);
   background:var(--surface2);border:1px solid var(--bdr2);border-radius:6px;
-  cursor:pointer;color:var(--mars);transition:all .2s}
+  cursor:pointer;color:var(--mars);transition:all .2s;height:36px;display:flex;align-items:center}
 .tb-btn:hover{background:rgba(255,120,60,0.12);box-shadow:0 0 20px rgba(255,120,60,0.1)}
 
 /* Panels (glass-morphism) */
@@ -98,9 +98,9 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 
 /* Zoom Controls */
 .zc{position:fixed;bottom:24px;right:266px;z-index:60;display:flex;flex-direction:column;gap:4px}
-.zb{width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+.zb{width:42px;height:42px;display:flex;align-items:center;justify-content:center;
   background:var(--surface2);backdrop-filter:blur(10px);border:1px solid var(--bdr);border-radius:8px;
-  color:var(--tx);font-size:16px;cursor:pointer;font-family:monospace;transition:all .15s}
+  color:var(--tx);font-size:24px;cursor:pointer;font-family:monospace;transition:all .15s}
 .zb:hover{background:rgba(255,120,60,0.12);border-color:var(--mars);color:var(--mars)}
 
 /* Mode indicator */
@@ -209,9 +209,17 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .wa-btn.dis:hover{background:rgba(255,120,60,.15)}
 
 /* Chain indicator in topbar */
-.chain-indicator{display:flex;align-items:center;gap:4px;padding:4px 8px;
-  font-size:var(--fs-xs);font-family:var(--fn);border-radius:6px;
-  background:var(--surface2);border:1px solid var(--bdr)}
+.chain-indicator{display:flex;align-items:center;gap:4px;padding:6px 10px;
+  font-size:var(--fs-sm);font-family:var(--fn);border-radius:6px;
+  background:var(--surface2);border:1px solid var(--bdr);height:36px}
+
+/* Topbar profile avatar (shown when logged in) */
+.tb-avatar{width:32px;height:32px;border-radius:6px;border:2px solid var(--mars);
+  cursor:pointer;object-fit:cover;display:none;box-shadow:0 0 10px rgba(255,120,60,.3)}
+.tb-avatar-emoji{width:32px;height:32px;border-radius:6px;border:2px solid var(--mars);
+  cursor:pointer;display:none;background:var(--surface2);
+  font-size:14px;box-shadow:0 0 10px rgba(255,120,60,.3);
+  align-items:center;justify-content:center}
 .chain-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
 .chain-dot.base{background:#5BB8E8}.chain-dot.bnb{background:#E8B040}.chain-dot.eth{background:#A080E0}
 
@@ -261,29 +269,61 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   text-align:center;transition:all .15s}
 .auth-tab:first-child{border-radius:6px 0 0 6px}.auth-tab:last-child{border-radius:0 6px 6px 0}
 .auth-tab.active{background:rgba(255,120,60,.1);border-color:var(--mars);color:var(--mars)}
-.auth-input{width:100%;padding:10px 12px;background:rgba(0,0,0,.25);border:1px solid var(--bdr);
-  color:var(--tx);font-size:var(--fs-md);font-family:var(--fn);outline:none;border-radius:6px;margin-bottom:8px}
+.auth-input{width:100%;padding:12px 14px;background:rgba(0,0,0,.25);border:1px solid var(--bdr);
+  color:var(--tx);font-size:var(--fs-md);font-family:var(--fn);outline:none;border-radius:8px;margin-bottom:8px}
 .auth-input:focus{border-color:var(--mars);background:rgba(255,120,60,.03)}
 .auth-input::placeholder{color:var(--tx3)}
+.auth-pass-wrap{position:relative;width:100%}
+.auth-pass-wrap .auth-input{padding-right:44px;margin-bottom:8px}
+.pass-eye{position:absolute;right:8px;top:50%;transform:translateY(calc(-50% - 4px));
+  background:none;border:none;cursor:pointer;font-size:16px;padding:4px 6px;
+  opacity:0.4;transition:opacity .15s;line-height:1}
+.pass-eye:hover,.pass-eye.active{opacity:0.85}
 .auth-divider{display:flex;align-items:center;gap:8px;margin:12px 0}
 .auth-divider span{font-size:var(--fs-xs);color:var(--tx3)}
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
 .auth-err-msg{font-size:var(--fs-xs);color:var(--red);min-height:16px;text-align:center}
-.auth-user-bar{display:flex;align-items:center;gap:6px;padding:6px 8px;
-  background:rgba(76,216,154,.04);border:1px solid rgba(76,216,154,.12);border-radius:6px}
-.auth-user-bar .nickname{font-size:var(--fs-sm);color:var(--gn)}
-.auth-user-bar .email-tag{font-size:6px;color:var(--tx3)}
+
+/* Profile Section */
+.profile-header{display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:10px}
+.profile-avatar{width:80px;height:80px;border-radius:12px;border:3px solid var(--mars);
+  background:var(--surface2);display:flex;align-items:center;justify-content:center;
+  font-size:36px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s;
+  margin:0 auto}
+.profile-avatar:hover{border-color:var(--gold)}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:9px}
+.profile-avatar .avatar-edit{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);
+  font-size:6px;color:var(--tx2);text-align:center;padding:4px 0;font-family:var(--fn);
+  opacity:0;transition:opacity .2s}
+.profile-avatar:hover .avatar-edit{opacity:1}
+.profile-name{font-size:var(--fs-xl);color:var(--tx);letter-spacing:1px;text-align:center}
+.profile-email{font-size:var(--fs-xs);color:var(--tx3)}
+.profile-edit-name{background:none;border:none;color:var(--mars);font-size:8px;
+  font-family:var(--fn);cursor:pointer;padding:2px 6px}
+.profile-edit-name:hover{text-decoration:underline}
+.wallet-copy-row{display:flex;align-items:center;gap:4px;padding:8px 10px;
+  background:rgba(0,0,0,.2);border:1px solid var(--bdr);border-radius:8px;margin:8px 0}
+.wallet-copy-addr{flex:1;font-size:7px;color:var(--cyan);word-break:break-all;line-height:1.5}
+.wallet-copy-btn{padding:6px 10px;font-size:6px;font-family:var(--fn);
+  background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.2);border-radius:5px;
+  color:var(--cyan);cursor:pointer;white-space:nowrap;min-height:32px}
+.wallet-copy-btn:hover{background:rgba(91,184,232,.15)}
+.profile-balance-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.profile-bal-card{padding:12px;background:rgba(0,0,0,.15);border:1px solid var(--bdr);
+  border-radius:8px;text-align:center}
+.profile-bal-label{font-size:7px;color:var(--tx3);margin-bottom:4px;letter-spacing:1px}
+.profile-bal-val{font-size:var(--fs-xl);letter-spacing:1px}
 
 /* Language Switcher */
-.lang-switcher{display:flex;gap:2px;align-items:center}
-.lang-btn{padding:3px 6px;font-size:6px;font-family:var(--fn);background:transparent;
+.lang-switcher{display:flex;gap:2px;align-items:center;height:36px}
+.lang-btn{padding:6px 8px;font-size:var(--fs-sm);font-family:var(--fn);background:transparent;
   border:1px solid rgba(255,255,255,.06);border-radius:3px;color:var(--tx3);cursor:pointer;
   transition:all .15s}
 .lang-btn:hover{border-color:var(--bdr2);color:var(--tx2)}
 .lang-btn.active{background:rgba(255,120,60,.1);border-color:var(--mars);color:var(--mars)}
 /* Language Dropdown (mobile) */
 .lang-dropdown{position:relative;display:none}
-.lang-dropdown .lang-current{padding:4px 8px;font-size:7px;font-family:var(--fn);
+.lang-dropdown .lang-current{padding:6px 10px;font-size:var(--fs-sm);font-family:var(--fn);height:36px;display:flex;align-items:center;
   background:var(--surface2);border:1px solid var(--bdr);border-radius:5px;
   color:var(--tx2);cursor:pointer;min-height:32px;display:flex;align-items:center;gap:3px}
 .lang-dropdown .lang-current::after{content:'▾';font-size:8px;color:var(--tx3)}
@@ -296,56 +336,178 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .lang-menu-item:hover{background:rgba(255,120,60,.08);color:var(--tx)}
 .lang-menu-item.active{color:var(--mars);background:rgba(255,120,60,.06)}
 
-/* Panel close button (mobile only) */
-.panel-close{display:none;position:absolute;top:8px;right:10px;z-index:120;
-  width:40px;height:40px;background:rgba(232,72,85,.1);border:1px solid rgba(232,72,85,.25);
-  border-radius:8px;color:var(--red);font-size:18px;font-family:monospace;
-  cursor:pointer;align-items:center;justify-content:center;transition:background .15s}
-.panel-close:hover{background:rgba(232,72,85,.2)}
+/* Panel close buttons — fixed, outside the panel, shown via JS */
+.panel-close-fixed{display:none;position:fixed;top:58px;z-index:130;
+  width:38px;height:38px;background:rgba(20,16,30,.9);border:1.5px solid rgba(232,72,85,.4);
+  border-radius:50%;color:var(--red);font-size:18px;font-family:monospace;
+  cursor:pointer;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px rgba(0,0,0,.6);backdrop-filter:blur(8px)}
+.panel-close-fixed:hover{background:rgba(232,72,85,.25)}
+.panel-close-fixed.visible{display:flex}
+.panel-close-fixed.for-left{left:min(85vw,324px)}
+.panel-close-fixed.for-right{right:min(85vw,324px)}
 
 /* Mobile stamp modal */
-.stamp-modal{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;
+/* Mobile stamp close button */
+.mob-stamp-close{width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  background:rgba(232,72,85,.1);border:1px solid rgba(232,72,85,.25);border-radius:8px;
+  color:var(--red);font-size:14px;font-family:monospace;cursor:pointer}
+
+/* Mobile stamp preview overlay */
+#mobStampOverlay{position:fixed;inset:0;z-index:95;pointer-events:none}
+.mob-stamp-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);
+  pointer-events:none;text-align:center}
+.mob-stamp-center img{object-fit:contain;
+  opacity:.55;border:2px dashed var(--mars);border-radius:4px;
+  filter:drop-shadow(0 0 12px rgba(255,120,60,.5));
+  transition:width .15s,height .15s}
+.mob-stamp-center-size{position:absolute;top:calc(50% + 16px);left:50%;transform:translateX(-50%);
+  font-size:8px;font-family:var(--fn);color:var(--mars);
+  text-shadow:0 1px 4px rgba(0,0,0,.8);pointer-events:none;white-space:nowrap}
+.mob-stamp-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:24px;height:24px;pointer-events:none}
+.mob-stamp-crosshair::before,.mob-stamp-crosshair::after{content:'';position:absolute;
+  background:var(--mars);opacity:.5}
+.mob-stamp-crosshair::before{width:1px;height:100%;left:50%;top:0}
+.mob-stamp-crosshair::after{height:1px;width:100%;top:50%;left:0}
+.mob-stamp-bar{position:fixed;bottom:20px;left:12px;right:12px;z-index:96;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:10px 12px;background:rgba(14,12,22,.92);backdrop-filter:blur(16px);
+  border:1px solid var(--bdr2);border-radius:14px;pointer-events:auto;
+  box-shadow:0 4px 20px rgba(0,0,0,.6)}
+.mob-stamp-bar-cancel{padding:10px 16px;font-size:9px;font-family:var(--fn);
+  background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);border-radius:8px;
+  color:var(--red);cursor:pointer}
+.mob-stamp-bar-hint{font-size:8px;font-family:var(--fn);color:var(--tx3);text-align:center;flex:1}
+.mob-stamp-bar-ok{padding:10px 20px;font-size:10px;font-family:var(--fn);
+  background:linear-gradient(135deg,var(--mars),#E84855);border:none;border-radius:8px;
+  color:#fff;cursor:pointer;font-weight:bold;letter-spacing:1px;
+  box-shadow:0 2px 10px rgba(255,120,60,.3)}
+
+/* Mobile Place Image FAB */
+.stamp-fab{display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:90;
+  padding:10px 20px;font-size:10px;font-family:var(--fn);
+  background:linear-gradient(135deg,var(--mars),#E84855);color:#fff;
+  border:none;border-radius:24px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(255,120,60,.4);letter-spacing:1px}
+.stamp-fab:active{transform:translateX(-50%) scale(.95)}
+@media(max-width:768px){.stamp-fab{display:block}}
+
+.stamp-modal{position:fixed;bottom:0;left:0;right:0;z-index:500;
   background:var(--panel2);border-top:1px solid var(--bdr2);border-radius:16px 16px 0 0;
   padding:16px;max-height:70vh;overflow-y:auto;
   box-shadow:0 -8px 32px rgba(0,0,0,.5);backdrop-filter:blur(20px);
-  transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)}
-.stamp-modal.open{transform:translateY(0)}
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);
+  pointer-events:none;visibility:hidden}
+.stamp-modal.open{transform:translateY(0);pointer-events:auto;visibility:visible}
 .stamp-modal-handle{width:40px;height:4px;background:var(--bdr2);border-radius:2px;
   margin:0 auto 12px}
 
+/* ── Auth Help (Find ID / Reset PW) ── */
+.auth-help-links{display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:8px 0 4px;padding:4px 0}
+.auth-help-link{background:none;border:none;color:var(--tx3);font-size:7px;font-family:var(--fn);
+  cursor:pointer;padding:4px 2px;transition:color .15s;letter-spacing:.5px}
+.auth-help-link:hover{color:var(--mars)}
+.auth-help-sep{color:var(--bdr);font-size:7px}
+.auth-sub-title{font-size:10px;font-family:var(--fn);color:#fff;text-align:center;
+  margin-bottom:8px;letter-spacing:1px}
+.auth-sub-desc{font-size:7px;font-family:var(--fn);color:var(--tx3);text-align:center;
+  margin-bottom:14px;line-height:1.6}
+.auth-result-card{background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.2);
+  border-radius:8px;padding:12px;text-align:center;margin-bottom:12px}
+.auth-result-card.success{background:rgba(76,216,154,.06);border-color:rgba(76,216,154,.2)}
+.auth-result-label{font-size:6px;font-family:var(--fn);color:var(--tx3);letter-spacing:1px;margin-bottom:6px}
+.auth-result-val{font-size:9px;font-family:var(--fn);color:var(--cyan, #5BB8E8);word-break:break-all}
+.auth-result-card.success .auth-result-val{color:var(--gn)}
+.auth-result-hint{font-size:6px;font-family:var(--fn);color:var(--tx3);margin-top:4px}
+.auth-back-link{display:block;width:100%;background:none;border:none;color:var(--tx3);
+  font-size:7px;font-family:var(--fn);cursor:pointer;padding:10px 0 0;text-align:center;
+  transition:color .15s}
+.auth-back-link:hover{color:var(--mars)}
+
+/* ── Claim Modal Card ── */
+.claim-card{background:var(--surface1);border:1px solid var(--bdr2);border-radius:14px;
+  width:340px;max-width:92vw;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.7)}
+.claim-hero{position:relative;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.35);padding:20px;min-height:160px;border-bottom:1px solid var(--bdr)}
+.claim-hero-img{width:140px;height:140px;object-fit:contain;image-rendering:pixelated;
+  border-radius:8px;border:1px solid var(--bdr);background:rgba(0,0,0,.3)}
+.claim-hero-badge{position:absolute;bottom:8px;right:10px;
+  padding:2px 7px;font-size:7px;font-family:var(--fn);color:var(--gold);
+  background:rgba(0,0,0,.65);border:1px solid rgba(255,209,102,.25);border-radius:4px}
+.claim-title-row{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 8px;border-bottom:1px solid var(--bdr)}
+.claim-title{font-size:9px;font-family:var(--fn);color:#fff;letter-spacing:1.5px}
+.claim-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);border-radius:50%;
+  color:var(--red);font-size:13px;cursor:pointer;font-family:monospace;transition:all .15s}
+.claim-close:hover{background:rgba(232,72,85,.25)}
+.claim-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;
+  border-bottom:1px solid var(--bdr)}
+.claim-info-item{padding:10px 14px;border-right:1px solid var(--bdr)}
+.claim-info-item:nth-child(2){border-right:none}
+.claim-info-item.full{grid-column:1/-1;border-right:none;
+  border-top:1px solid var(--bdr);text-align:center;padding:12px 16px}
+.claim-info-label{font-size:8px;font-family:var(--fn);color:rgba(255,255,255,.45);
+  letter-spacing:1.5px;margin-bottom:6px}
+.claim-info-val{font-size:10px;font-family:var(--fn);color:#E0E0E8}
+.claim-info-val.gold{color:var(--gold);font-size:12px}
+.chain-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.chain-dot.base{background:#0052FF}
+.chain-dot.bnb{background:#F0B90B}
+.chain-dot.eth{background:#627EEA}
+.claim-confirm{width:calc(100% - 32px);margin:14px 16px 0;padding:12px;
+  font-size:8px;font-family:var(--fn);letter-spacing:1.5px;
+  background:linear-gradient(135deg,var(--mars),var(--red));color:#fff;
+  border:none;border-radius:8px;cursor:pointer;transition:all .2s;
+  box-shadow:0 2px 12px rgba(255,120,60,.3)}
+.claim-confirm:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,120,60,.45)}
+.claim-confirm:active{transform:translateY(0)}
+.claim-note{padding:8px 16px 14px;font-size:5.5px;font-family:var(--fn);
+  color:rgba(255,255,255,.3);text-align:center;line-height:1.6}
+.claim-title.wrn{color:var(--red)}
+.hw{margin:0 16px;padding:10px 12px;background:rgba(232,72,85,.08);
+  border:1px solid rgba(232,72,85,.2);border-radius:8px;margin-top:10px}
+.hwt{font-size:7px;font-family:var(--fn);color:var(--red);margin-bottom:4px}
+.hwd{font-size:6px;font-family:var(--fn);color:rgba(255,255,255,.5);line-height:1.6}
+
 /* Mobile */
 @media(max-width:768px){
+  :root{--fs-xs:8px;--fs-sm:9px;--fs-md:10px;--fs-lg:12px;--fs-xl:14px}
   .panel-l,.panel-r{width:85%;top:52px;max-width:320px}
   .panel-l{transform:translateX(-110%)}
   .panel-r{transform:translateX(110%);right:0}
   .panel-l.open,.panel-r.open{transform:translateX(0)}
-  .panel-close{display:flex}
   .mob-toggle{display:block}
-  /* 토글 버튼 숨김은 JS로 처리 (mob-toggle-hidden class) */
   .mob-toggle.hidden{opacity:0;pointer-events:none;transition:opacity .2s}
-  .zc{right:12px;bottom:16px}
-  .mode-badge{left:12px;bottom:16px;font-size:6px;padding:4px 8px}
+  .zc{right:10px;bottom:80px}
+  .mode-badge{left:12px;bottom:16px;font-size:8px;padding:5px 10px}
   .topbar{padding:8px 10px}
-  .tb-title{font-size:8px}.tb-sub{display:none}
-  .tb-btn{font-size:6px;padding:6px 10px;min-height:36px}
+  .tb-title{font-size:12px}.tb-sub{display:none}
+  .tb-btn{font-size:8px;padding:6px 12px;min-height:34px;height:34px}
+  .chain-indicator{height:34px;padding:4px 8px;font-size:8px}
+  .lang-dropdown .lang-current{height:34px;padding:4px 10px;font-size:8px}
+  .tb-avatar,.tb-avatar-emoji{width:30px;height:30px;font-size:13px;border-radius:5px}
   .lang-switcher{display:none}
   .lang-dropdown{display:block}
   .mdl{width:96vw;max-height:85vh}
-  .mbd{padding:12px}
+  .mbd{padding:14px}
   .cr{flex-direction:column}
-  .cb{flex-direction:row;padding:8px 12px}
+  .cb{flex-direction:row;padding:10px 14px}
   .wallet-actions{flex-wrap:wrap}
-  .wa-btn{min-height:40px;font-size:7px}
-  .action-btn{min-height:44px}
-  .sz-btn{min-height:36px}
-  .stat-row{padding:6px 0}
-  .stat-label{font-size:8px}.stat-val{font-size:10px}
-  .p-title{font-size:9px}
+  .wa-btn{min-height:42px;font-size:9px}
+  .action-btn{min-height:46px;font-size:9px}
+  .sz-btn{min-height:38px;font-size:9px}
+  .stat-row{padding:7px 0}
+  .stat-label{font-size:9px}.stat-val{font-size:11px}
+  .p-title{font-size:10px}
   .dw-amount{font-size:14px;padding:12px 10px}
-  .cfm{min-height:48px;font-size:10px}
-  .stamp-hint{font-size:10px;padding:12px}
-  .mx{min-width:44px;min-height:44px;font-size:20px}
-  .mob-toggle{min-height:40px;padding:8px 12px;font-size:8px}
+  .cfm{min-height:48px;font-size:11px}
+  .stamp-hint{font-size:11px;padding:12px}
+  .mx{min-width:44px;min-height:44px;font-size:22px}
+  .zb{width:48px;height:48px;font-size:28px}
+  .mob-toggle{min-height:42px;padding:8px 14px;font-size:9px}
   /* 모바일에서 stamp section은 패널 안에 숨김 → 모달로 표시 */
   #stampSection{display:none!important}
 }
@@ -384,6 +546,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
       <span class="chain-dot base" id="chainDotTop"></span>
       <span id="chainNameTop">BASE</span>
     </div>
+    <div class="tb-avatar-emoji" id="tbAvatarEmoji" onclick="openAuthModal()">👤</div>
+    <img class="tb-avatar" id="tbAvatarImg" onclick="openAuthModal()">
     <button class="tb-btn" id="loginBtn" onclick="openAuthModal()" data-i18n="login">LOGIN</button>
     <button class="tb-btn" id="walletBtn" onclick="connectWallet()" data-i18n="connect_wallet">CONNECT WALLET</button>
   </div>
@@ -393,24 +557,29 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <button class="mob-toggle" style="left:0;top:54px" onclick="toggleLeft()">◀ STATS</button>
 <button class="mob-toggle right" style="right:0;top:54px" onclick="toggleRight()">LIVE ▶</button>
 
+<!-- Panel close buttons (fixed, outside panels) -->
+<button class="panel-close-fixed for-left" id="closeBtnLeft" onclick="closeLeft()">✕</button>
+<button class="panel-close-fixed for-right" id="closeBtnRight" onclick="closeRight()">✕</button>
+
 <!-- Left Panel -->
 <div class="panel-l" id="panelL">
-  <button class="panel-close" onclick="closeLeft()">×</button>
   <div class="p-section">
     <div class="p-title" data-i18n="global_stats">GLOBAL STATS</div>
-    <div class="stat-row"><span class="stat-label">TOTAL PIXELS</span><span class="stat-val" style="color:var(--tx2)">1,040,496</span></div>
+    <div class="stat-row"><span class="stat-label">TOTAL PIXELS</span><span class="stat-val" style="color:var(--tx2)" id="statTotalPx">5,040,000</span></div>
     <div class="stat-row"><span class="stat-label">PIXELS SOLD</span><span class="stat-val gn" id="statPlots">8,450</span></div>
     <div class="stat-row"><span class="stat-label">TOTAL VOLUME</span><span class="stat-val gold" id="statTVL">$845</span></div>
     <div class="stat-row"><span class="stat-label">HIJACKS / HR</span><span class="stat-val red" id="statHijacks">24</span></div>
-    <div class="stat-row"><span class="stat-label">ACTIVE USERS</span><span class="stat-val">1,247</span></div>
+    <div class="stat-row"><span class="stat-label">ACTIVE USERS</span><span class="stat-val" id="statActiveUsers">1,247</span></div>
   </div>
   <div class="p-section">
     <div class="p-title" data-i18n="leaderboard">LEADERBOARD</div>
+    <div id="leaderboardList">
     <div class="lb-row"><span class="lb-rank gold">1</span><span class="lb-name">DogeTeam</span><span class="lb-val">12 plots</span></div>
     <div class="lb-row"><span class="lb-rank silver">2</span><span class="lb-name">예원♥</span><span class="lb-val">8 plots</span></div>
     <div class="lb-row"><span class="lb-rank bronze">3</span><span class="lb-name">0xDEAD</span><span class="lb-val">5 plots</span></div>
     <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">4</span><span class="lb-name">PepeArmy</span><span class="lb-val">3 plots</span></div>
     <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">5</span><span class="lb-name">고래연합</span><span class="lb-val">2 plots</span></div>
+    </div>
   </div>
   <!-- Wallet: not connected CTA -->
   <div class="p-section" id="walletCTA">
@@ -449,13 +618,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         <button class="wa-btn swp" onclick="openSwapModal()">PP→USDT</button>
         <button class="wa-btn dis" onclick="disconnectWallet()">DISCONNECT</button>
       </div>
+      <div class="wallet-actions" id="linkWalletRow" style="display:none">
+        <button class="wa-btn" onclick="linkMetaMask()" style="flex:1;background:rgba(255,120,60,.08);border-color:rgba(255,120,60,.3);color:var(--mars)" data-i18n="link_metamask">LINK METAMASK</button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Right Panel -->
 <div class="panel-r" id="panelR">
-  <button class="panel-close" onclick="closeRight()">×</button>
   <!-- OWNER SEARCH -->
   <div class="p-section">
     <div class="p-title" data-i18n="search_owner">SEARCH OWNER</div>
@@ -589,62 +760,60 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 <!-- Zoom + Back -->
 <div class="zc">
-  <button class="zb back-btn" onclick="goBack()" title="Back to overview" style="font-size:10px;background:rgba(255,107,53,.12);border-color:rgba(255,107,53,.3);margin-bottom:6px">↩</button>
+  <button class="zb back-btn" onclick="goBack()" title="Back to overview" style="background:rgba(255,107,53,.12);border-color:rgba(255,107,53,.3);margin-bottom:6px">↩</button>
   <button class="zb" onclick="zoomIn()">+</button>
   <button class="zb" onclick="zoomOut()">−</button>
+  <button class="zb tex-toggle" id="texToggleBtn" onclick="toggleMarsTexture()" title="Switch texture: NASA / Procedural" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 4px">🛰️<br><span id="texToggleLabel">NASA</span></button>
 </div>
 
 <div class="mode-badge" id="modeBadge">🔴 CLICK MARS TO SELECT TERRITORY</div>
 
 <!-- Claim Modal -->
 <div class="mbg" id="claimModal">
-  <div class="mdl">
-    <div class="mhd">
-      <span class="mtl" id="modalTitle">CLAIM TERRITORY</span>
-      <button class="mx" onclick="closeClaimModal()">×</button>
+  <div class="claim-card">
+    <!-- 타이틀 -->
+    <div class="claim-title-row">
+      <span class="claim-title" id="modalTitle">CLAIM TERRITORY</span>
+      <button class="claim-close" onclick="closeClaimModal()">✕</button>
     </div>
-    <div class="mbd">
-      <div class="hw" id="hijackWarn" style="display:none">
-        <div class="hwt">⚠ HIJACK TERRITORY</div>
-        <div class="hwd">Current owner: <span id="hijackOwner" style="color:var(--gold)">--</span><br>
-          They receive: refund + 10% bonus<br>
-          You pay: <span id="hijackCost" style="color:var(--red)">--</span></div>
+    <!-- 히어로 이미지 -->
+    <div class="claim-hero" id="claimImgPreview">
+      <img id="claimThumb" class="claim-hero-img">
+      <div class="claim-hero-badge" id="claimImgSize">25×25px</div>
+    </div>
+    <!-- 하이잭 경고 -->
+    <div class="hw" id="hijackWarn" style="display:none">
+      <div class="hwt">⚠ HIJACK TERRITORY</div>
+      <div class="hwd">Current owner: <span id="hijackOwner" style="color:var(--gold)">--</span><br>
+        They receive: refund + 10% bonus<br>
+        You pay: <span id="hijackCost" style="color:var(--red)">--</span></div>
+    </div>
+    <!-- 정보 그리드 -->
+    <div class="claim-info-grid">
+      <div class="claim-info-item">
+        <div class="claim-info-label">LOCATION</div>
+        <div class="claim-info-val" id="modalCoords">--</div>
       </div>
-      <div class="mf"><div class="mfl">COORDINATES</div><div class="mfv" id="modalCoords">--</div></div>
-      <div class="mdv"></div>
-      <div class="mf">
-        <div class="mfl">YOUR LOGO IMAGE</div>
-        <div class="ups">
-          <input type="file" id="imgFileInput" accept="image/*" style="display:none">
-          <button class="uf" onclick="document.getElementById('imgFileInput').click()">CHOOSE FILE</button>
-          <div class="uuw">
-            <input type="text" class="ui" id="imgUrlInput" placeholder="PASTE IMAGE URL...">
-            <button class="ulb" onclick="loadFromUrl()">GO</button>
-          </div>
-          <div id="uploadPreviewWrap" class="utw" style="display:none">
-            <img id="uploadThumb" class="uti" alt="">
-            <button class="utc" onclick="clearUpload()">×</button>
-          </div>
-          <div id="uploadStatus" class="ust" style="display:none"></div>
+      <div class="claim-info-item">
+        <div class="claim-info-label">CHAIN</div>
+        <div class="claim-info-val" style="display:flex;align-items:center;gap:5px">
+          <span class="chain-dot" id="claimChainDot"></span><span id="claimChainName">BASE</span>
         </div>
       </div>
-      <div class="mf">
-        <div class="mfl">LINK URL (optional)</div>
-        <input type="text" class="ui" id="linkUrlInput" placeholder="https://your-site.com" style="width:100%;margin-top:4px">
+      <div class="claim-info-item full">
+        <div class="claim-info-label">COST</div>
+        <div class="claim-info-val gold" id="modalCostDisplay">--</div>
       </div>
-      <div class="mdv"></div>
-      <div class="mf"><div class="mfl">CLAIM COST</div><div class="mfv gold" id="modalCostDisplay">100 USDT</div></div>
-      <div class="mf">
-        <div class="mfl">PAYMENT CHAIN</div>
-        <div class="cr">
-          <button class="cb base sel" id="chainBase" onclick="selectChain('base')"><span class="ci">●</span><span class="cn">BASE</span></button>
-          <button class="cb bnb" id="chainBnb" onclick="selectChain('bnb')"><span class="ci">●</span><span class="cn">BNB</span></button>
-          <button class="cb eth" id="chainEth" onclick="selectChain('eth')"><span class="ci">◆</span><span class="cn">ETH</span></button>
-        </div>
-      </div>
-      <button class="cfm" onclick="confirmClaim()">CONFIRM CLAIM</button>
-      <div class="mn">Owner receives 100% refund + 10% bonus · Platform fee: 10%</div>
     </div>
+    <!-- 컨펌 -->
+    <button class="claim-confirm" onclick="confirmClaim()">CONFIRM CLAIM</button>
+    <div class="claim-note">Owner receives 100% refund + 10% bonus · Fee: 10%</div>
+    <!-- Hidden compat -->
+    <input type="file" id="imgFileInput" accept="image/*" style="display:none">
+    <input type="text" id="imgUrlInput" style="display:none">
+    <input type="text" id="linkUrlInput" style="display:none">
+    <div id="uploadPreviewWrap" style="display:none"><img id="uploadThumb"></div>
+    <div id="uploadStatus" style="display:none"></div>
   </div>
 </div>
 
@@ -756,73 +925,128 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   </div>
 </div>
 
+<!-- Mobile: Place Image FAB -->
+<button class="stamp-fab" id="stampFab" onclick="openMobileStamp()">📷 PLACE</button>
+
 <!-- Mobile Stamp Bottom Sheet -->
 <div class="stamp-modal" id="mobileStampModal">
   <div class="stamp-modal-handle"></div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <div class="p-title" data-i18n="place_image" style="border:none;padding:0;margin:0">PLACE YOUR IMAGE</div>
-    <button class="panel-close" style="display:flex;position:static;width:36px;height:36px;font-size:16px" onclick="closeMobileStamp()">×</button>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div class="p-title" style="border:none;padding:0;margin:0;font-size:11px" data-i18n="place_image">PLACE YOUR IMAGE</div>
+    <button class="mob-stamp-close" onclick="closeMobileStamp()">✕</button>
   </div>
   <input type="file" id="mStampFileInput" accept="image/*" style="display:none">
-  <button class="uf" onclick="document.getElementById('mStampFileInput').click()" data-i18n="choose_file">CHOOSE IMAGE FILE</button>
-  <div class="uuw" style="margin-top:5px">
-    <input type="text" class="ui" id="mStampUrlInput" placeholder="OR PASTE URL...">
-    <button class="ulb" onclick="loadMobileStampUrl()">GO</button>
+  <button class="uf" onclick="document.getElementById('mStampFileInput').click()" data-i18n="choose_file" style="min-height:48px;font-size:10px">CHOOSE IMAGE FILE</button>
+  <div class="uuw" style="margin-top:8px">
+    <input type="text" class="ui" id="mStampUrlInput" placeholder="OR PASTE URL..." style="font-size:9px;min-height:44px">
+    <button class="ulb" onclick="loadMobileStampUrl()" style="min-height:44px;font-size:10px">GO</button>
   </div>
-  <div id="mStampPreview" style="display:none;margin-top:10px">
-    <img id="mStampThumb" style="max-width:100%;max-height:80px;border-radius:4px;border:1px solid var(--bdr)">
-    <div class="stat-row" style="margin-top:6px"><span class="stat-label">IMAGE</span><span class="stat-val" id="mStampImgInfo">--</span></div>
-    <div style="margin:8px 0">
-      <div class="stat-label" style="margin-bottom:4px">SCALE %</div>
-      <input type="range" id="mStampSizeSlider" min="1" max="300" value="100" style="width:100%;accent-color:var(--mars)" oninput="updateMobileStampScale(+this.value)">
-      <div style="display:flex;justify-content:space-between;margin-top:4px">
-        <span class="stat-val" id="mStampSizeLabel">--</span>
-        <span class="stat-val gn" id="mStampCostLabel">--</span>
-      </div>
-      <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
-        <button class="sz-btn" onclick="setMobileStampPct(10)">10%</button>
-        <button class="sz-btn" onclick="setMobileStampPct(25)">25%</button>
-        <button class="sz-btn" onclick="setMobileStampPct(50)">50%</button>
-        <button class="sz-btn" onclick="setMobileStampPct(100)">100%</button>
+  <div id="mStampPreview" style="display:none;margin-top:12px">
+    <div style="display:flex;gap:10px;align-items:center">
+      <img id="mStampThumb" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--bdr)">
+      <div style="flex:1">
+        <div style="font-size:9px;color:var(--tx2);font-family:var(--fn)" id="mStampImgInfo">--</div>
+        <div style="font-size:11px;color:var(--gn);font-family:var(--fn);margin-top:4px" id="mStampCostLabel">--</div>
       </div>
     </div>
-    <div style="margin-top:6px">
-      <div class="stat-label" style="margin-bottom:3px">LINK URL</div>
-      <input type="text" class="ui" id="mStampLinkInput" placeholder="https://your-site.com" style="width:100%">
+    <div style="margin:12px 0">
+      <div class="stat-label" style="margin-bottom:6px;font-size:9px">SCALE</div>
+      <input type="range" id="mStampSizeSlider" min="1" max="300" value="100" style="width:100%;accent-color:var(--mars);height:28px" oninput="updateMobileStampScale(+this.value)">
+      <div style="display:flex;justify-content:space-between;margin-top:6px">
+        <span class="stat-val" id="mStampSizeLabel" style="font-size:10px">--</span>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <button class="sz-btn" onclick="setMobileStampPct(10)" style="min-height:40px;font-size:9px;flex:1">10%</button>
+        <button class="sz-btn" onclick="setMobileStampPct(25)" style="min-height:40px;font-size:9px;flex:1">25%</button>
+        <button class="sz-btn" onclick="setMobileStampPct(50)" style="min-height:40px;font-size:9px;flex:1">50%</button>
+        <button class="sz-btn" onclick="setMobileStampPct(100)" style="min-height:40px;font-size:9px;flex:1">100%</button>
+      </div>
     </div>
-    <div class="stamp-hint" style="margin-top:8px" data-i18n="click_stamp">CLICK MARS TO STAMP!</div>
-    <button class="action-btn" style="margin-top:8px" onclick="cancelMobileStamp()" data-i18n="cancel">CANCEL</button>
+    <button class="action-btn" style="margin-top:14px;min-height:52px;font-size:11px;background:linear-gradient(135deg,var(--mars),#E84855);color:#fff;border:none" onclick="startMobilePreview()">👆 PREVIEW ON MARS</button>
+    <button class="action-btn" style="margin-top:6px;min-height:44px;font-size:10px;background:transparent;border:1px solid var(--bdr2);color:var(--tx3)" onclick="cancelMobileStamp()">CANCEL</button>
+  </div>
+</div>
+
+<!-- Mobile: Stamp preview overlay (texture-based preview like desktop) -->
+<div id="mobStampOverlay" style="display:none">
+  <!-- Crosshair + size label at center -->
+  <div class="mob-stamp-crosshair"></div>
+  <div class="mob-stamp-center-size" id="mobStampCenterSize">--</div>
+  <!-- Hidden img for compat -->
+  <img id="mobStampCenterImg" src="" style="display:none">
+  <!-- Bottom bar: OK + Cancel -->
+  <div class="mob-stamp-bar">
+    <button class="mob-stamp-bar-cancel" onclick="cancelMobileStamp()">✕ CANCEL</button>
+    <div class="mob-stamp-bar-hint">DRAG TO POSITION</div>
+    <button class="mob-stamp-bar-ok" onclick="confirmMobilePlacement()">✓ OK</button>
   </div>
 </div>
 
 <!-- Auth Modal (Email Login/Register) -->
 <div class="mbg" id="authModal">
-  <div class="mdl" style="width:400px">
+  <div class="mdl" style="width:440px">
     <div class="mhd">
       <span class="mtl" data-i18n="account">ACCOUNT</span>
       <button class="mx" onclick="closeAuthModal()">×</button>
     </div>
     <div class="mbd">
-      <!-- Logged-in state -->
+      <!-- Logged-in state: Full profile -->
       <div id="authLoggedIn" style="display:none">
-        <div class="auth-user-bar" style="margin-bottom:12px">
-          <span style="font-size:14px">👤</span>
-          <div style="flex:1">
-            <div class="nickname" id="authNickname">--</div>
-            <div class="email-tag" id="authEmail">--</div>
+        <div class="profile-header">
+          <div class="profile-avatar" id="profileAvatar" onclick="changeAvatar()">
+            <span id="avatarEmoji">👤</span>
+            <img id="avatarImg" style="display:none" alt="">
+            <div class="avatar-edit">EDIT</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span class="profile-name" id="authNickname">--</span>
+            <button class="profile-edit-name" onclick="editNickname()">✎</button>
+          </div>
+          <div class="profile-email" id="authEmail">--</div>
+        </div>
+
+        <!-- Nickname edit (hidden by default) -->
+        <div id="nickEditWrap" style="display:none;margin-bottom:12px">
+          <div style="display:flex;gap:4px">
+            <input type="text" class="auth-input" id="nickEditInput" placeholder="New nickname" style="margin:0;flex:1">
+            <button class="wallet-copy-btn" onclick="saveNickname()" style="background:rgba(76,216,154,.08);border-color:rgba(76,216,154,.2);color:var(--gn)">SAVE</button>
+            <button class="wallet-copy-btn" onclick="cancelEditNick()" style="color:var(--tx3);border-color:var(--bdr)">X</button>
           </div>
         </div>
-        <div class="mf"><div class="mfl" data-i18n="game_wallet">GAME WALLET</div><div class="mfv" style="color:var(--cyan);font-size:8px;word-break:break-all" id="authWallet">--</div></div>
-        <div class="mdv"></div>
-        <div class="mf"><div class="mfl" data-i18n="usdt_balance">USDT BALANCE</div><div class="mfv gn" id="authUsdtBal">0.00</div></div>
-        <div class="mf"><div class="mfl" data-i18n="pp_balance">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="authPPBal">0.00</div></div>
-        <div class="mdv"></div>
-        <div class="dw-info" data-i18n="email_wallet_note" style="text-align:center">
+
+        <!-- Game Wallet with copy -->
+        <div style="font-size:7px;color:var(--tx3);margin-bottom:4px;letter-spacing:1px" data-i18n="game_wallet">GAME WALLET</div>
+        <div class="wallet-copy-row">
+          <div class="wallet-copy-addr" id="authWallet">--</div>
+          <button class="wallet-copy-btn" onclick="copyGameWallet()">COPY</button>
+        </div>
+
+        <!-- Balance cards -->
+        <div class="profile-balance-grid">
+          <div class="profile-bal-card">
+            <div class="profile-bal-label">USDT</div>
+            <div class="profile-bal-val" style="color:var(--gn)" id="authUsdtBal">0.00</div>
+          </div>
+          <div class="profile-bal-card">
+            <div class="profile-bal-label">PP</div>
+            <div class="profile-bal-val" style="color:var(--pp)" id="authPPBal">0.00</div>
+          </div>
+        </div>
+
+        <!-- Chain indicator -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;font-size:var(--fs-xs);color:var(--tx2)">
+          <span class="chain-dot base" id="profileChainDot"></span>
+          <span id="profileChainName">BASE</span>
+        </div>
+
+        <div style="font-size:7px;color:var(--tx3);text-align:center;line-height:1.8;margin:8px 0" data-i18n="email_wallet_note">
           Your email account has a built-in game wallet.<br>
           You can also connect MetaMask for on-chain deposits.
         </div>
-        <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.08);border-color:rgba(232,72,85,.2);color:var(--red)" data-i18n="logout">LOGOUT</button>
+
+        <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.15);color:var(--red)" data-i18n="logout">LOGOUT</button>
       </div>
+
       <!-- Login/Register form -->
       <div id="authForm">
         <div class="auth-tabs">
@@ -830,15 +1054,75 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
           <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')" data-i18n="register">REGISTER</button>
         </div>
         <input type="email" class="auth-input" id="authEmailInput" placeholder="email@example.com" data-i18n-placeholder="email_placeholder">
-        <input type="password" class="auth-input" id="authPassInput" placeholder="Password (6+ chars)" data-i18n-placeholder="password_placeholder">
+        <div class="auth-pass-wrap">
+          <input type="password" class="auth-input" id="authPassInput" placeholder="Password (6+ chars)" data-i18n-placeholder="password_placeholder">
+          <button type="button" class="pass-eye" id="passEyeBtn" onclick="togglePassEye()">👁</button>
+        </div>
         <div id="registerFields" style="display:none">
           <input type="text" class="auth-input" id="authNickInput" placeholder="Nickname (optional)" data-i18n-placeholder="nickname_placeholder">
           <input type="text" class="auth-input" id="authRefInput" placeholder="Referral code (optional)" data-i18n-placeholder="referral_placeholder" style="text-transform:uppercase">
         </div>
         <div class="auth-err-msg" id="authErrMsg"></div>
         <button class="cfm" id="authSubmitBtn" onclick="submitAuth()" data-i18n="login">LOGIN</button>
+        <div class="auth-help-links">
+          <button class="auth-help-link" onclick="showFindEmail()" data-i18n="find_email">FIND ID</button>
+          <span class="auth-help-sep">|</span>
+          <button class="auth-help-link" onclick="showResetPassword()" data-i18n="forgot_password">FORGOT PASSWORD</button>
+        </div>
         <div class="auth-divider"><span data-i18n="or">OR</span></div>
         <button class="cfm" onclick="closeAuthModal();connectWallet()" style="background:rgba(255,120,60,.08);border-color:rgba(255,120,60,.2);color:var(--mars)" data-i18n="connect_metamask">CONNECT WITH METAMASK</button>
+      </div>
+
+      <!-- Find Email -->
+      <div id="findEmailView" style="display:none">
+        <div class="auth-sub-title" data-i18n="find_email_title">FIND YOUR ID</div>
+        <div class="auth-sub-desc" data-i18n="enter_nickname">Enter your nickname</div>
+        <input type="text" class="auth-input" id="findNickInput" placeholder="Nickname">
+        <div class="auth-err-msg" id="findEmailErr"></div>
+        <div id="findEmailResult" style="display:none">
+          <div class="auth-result-card">
+            <div class="auth-result-label">Email</div>
+            <div class="auth-result-val" id="foundEmail">--</div>
+            <div class="auth-result-hint" id="foundWallet">--</div>
+          </div>
+        </div>
+        <button class="cfm" onclick="doFindEmail()" data-i18n="search_btn">SEARCH</button>
+        <button class="auth-back-link" onclick="backToAuthForm()" data-i18n="back_to_login">← Back to Login</button>
+      </div>
+
+      <!-- Password Reset -->
+      <div id="resetPassView" style="display:none">
+        <!-- Step 1: Email -->
+        <div id="resetStep1">
+          <div class="auth-sub-title" data-i18n="reset_password_title">RESET PASSWORD</div>
+          <div class="auth-sub-desc" data-i18n="enter_email">Enter your email</div>
+          <input type="email" class="auth-input" id="resetEmailInput" placeholder="email@example.com">
+          <div class="auth-err-msg" id="resetStep1Err"></div>
+          <button class="cfm" id="resetStep1Btn" onclick="doResetStep1()" data-i18n="send_reset_code">SEND RESET CODE</button>
+        </div>
+        <!-- Step 2: Code + New password -->
+        <div id="resetStep2" style="display:none">
+          <div class="auth-sub-title" data-i18n="reset_password_title">RESET PASSWORD</div>
+          <div class="auth-sub-desc" id="resetStep2Hint"></div>
+          <input type="text" class="auth-input" id="resetCodeInput" data-i18n-placeholder="reset_code_placeholder" placeholder="6-digit code" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+          <div class="auth-pass-wrap">
+            <input type="password" class="auth-input" id="resetNewPassInput" data-i18n-placeholder="new_password" placeholder="New password">
+            <button type="button" class="pass-eye" onclick="togglePassField('resetNewPassInput',this)">👁</button>
+          </div>
+          <div class="auth-pass-wrap">
+            <input type="password" class="auth-input" id="resetConfirmPassInput" data-i18n-placeholder="confirm_password" placeholder="Confirm password">
+            <button type="button" class="pass-eye" onclick="togglePassField('resetConfirmPassInput',this)">👁</button>
+          </div>
+          <div class="auth-err-msg" id="resetStep2Err"></div>
+          <button class="cfm" id="resetStep2Btn" onclick="doResetStep2()" data-i18n="change_password">CHANGE PASSWORD</button>
+        </div>
+        <!-- Success -->
+        <div id="resetPassResult" style="display:none">
+          <div class="auth-result-card success">
+            <div class="auth-result-val">✅ Password changed!</div>
+          </div>
+        </div>
+        <button class="auth-back-link" onclick="backToAuthForm()" data-i18n="back_to_login">← Back to Login</button>
       </div>
     </div>
   </div>
@@ -847,6 +1131,73 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <div class="toast" id="toast"></div>
 
 <script>
+/* ── Lightweight Client Error Reporter ─────────────── */
+(function() {
+  var _errCount = 0;
+  var _errMax = 5;
+  var _errWindow = 60000; // 1 minute
+  var _errTimes = [];
+  var _errSentKey = '_om_err_sent';
+
+  function _canSend() {
+    var now = Date.now();
+    _errTimes = _errTimes.filter(function(t) { return now - t < _errWindow; });
+    if (_errTimes.length >= _errMax) return false;
+    _errTimes.push(now);
+    return true;
+  }
+
+  function _isDuplicate(msg) {
+    try {
+      var sent = JSON.parse(localStorage.getItem(_errSentKey) || '{}');
+      var key = String(msg).slice(0, 120);
+      var now = Date.now();
+      // Clear entries older than 5 minutes
+      for (var k in sent) { if (now - sent[k] > 300000) delete sent[k]; }
+      if (sent[key] && now - sent[key] < 300000) return true;
+      sent[key] = now;
+      localStorage.setItem(_errSentKey, JSON.stringify(sent));
+      return false;
+    } catch(e) { return false; }
+  }
+
+  function _reportError(data) {
+    if (!data.message || !_canSend() || _isDuplicate(data.message)) return;
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/error-report', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify({
+        message: String(data.message).slice(0, 1000),
+        source: data.source ? String(data.source).slice(0, 1000) : null,
+        line: data.line || null,
+        stack: data.stack ? String(data.stack).slice(0, 2000) : null,
+        userAgent: navigator.userAgent.slice(0, 500),
+        url: location.href.slice(0, 1000)
+      }));
+    } catch(e) { /* silently fail */ }
+  }
+
+  window.onerror = function(msg, source, line, col, err) {
+    _reportError({
+      message: msg,
+      source: source,
+      line: line,
+      stack: err && err.stack ? err.stack : null
+    });
+  };
+
+  window.onunhandledrejection = function(ev) {
+    var reason = ev.reason || {};
+    _reportError({
+      message: 'Unhandled Promise: ' + (reason.message || String(reason)).slice(0, 900),
+      source: reason.fileName || null,
+      line: reason.lineNumber || null,
+      stack: reason.stack || null
+    });
+  };
+})();
+
 /* ═══════════════════════════════════════════════════════
    OCCUPY MARS — Claim Your Territory (Mars Globe)
    ═══════════════════════════════════════════════════════ */
@@ -858,32 +1209,61 @@ function _fbm(px,py){return _n(px,py)*.5+_n(px*2.1,py*2.1)*.25+_n(px*4.3,py*4.3)
 function _fbm6(px,py){return _fbm(px,py)+_n(px*17.3,py*17.3)*.03+_n(px*33,py*33)*.015}
 function _ridge(px,py){var v=_n(px,py);return 1-Math.abs(v*2-1)}
 
-/* ── Crater generator (more variety) ─────────────── */
+/* ── Crater generator (no overlap, spherical-correct) ── */
 var CRATERS=[];
 (function(){
-  // Large impact basins
-  for(var i=0;i<8;i++){CRATERS.push({u:Math.random(),v:Math.random()*0.8+0.1,r:Math.random()*0.04+0.03,d:Math.random()*0.3+0.3,ring:true})}
+  // Spherical distance on equirectangular UV (u=360°, v=180° → 2:1 ratio)
+  function uvDist(u1,v1,u2,v2){
+    var lat=(v1-0.5)*Math.PI;
+    var cosLat=Math.cos(lat);
+    var du=(u1-u2)*2*cosLat; // ×2 because u spans 360° but v spans 180°
+    return Math.sqrt(du*du+(v1-v2)*(v1-v2));
+  }
+  function tryPlace(r,d,ring,tries){
+    for(var t=0;t<tries;t++){
+      var u=Math.random(),v=Math.random()*0.78+0.11;
+      var ok=true;
+      for(var j=0;j<CRATERS.length;j++){
+        var c2=CRATERS[j];
+        if(uvDist(u,v,c2.u,c2.v)<r+c2.r+0.005){ok=false;break}
+      }
+      if(ok){CRATERS.push({u:u,v:v,r:r,d:d,ring:ring});return true}
+    }
+    return false;
+  }
+  // Large impact basins (no overlap)
+  for(var i=0;i<8;i++) tryPlace(Math.random()*0.035+0.03, Math.random()*0.25+0.3, true, 200);
   // Medium craters
-  for(var i=0;i<60;i++){CRATERS.push({u:Math.random(),v:Math.random()*0.85+0.075,r:Math.random()*0.02+0.008,d:Math.random()*0.35+0.2,ring:false})}
+  for(var i=0;i<50;i++) tryPlace(Math.random()*0.018+0.008, Math.random()*0.3+0.2, false, 100);
   // Small craters
-  for(var i=0;i<200;i++){CRATERS.push({u:Math.random(),v:Math.random()*0.85+0.075,r:Math.random()*0.006+0.002,d:Math.random()*0.2+0.1,ring:false})}
+  for(var i=0;i<180;i++) tryPlace(Math.random()*0.005+0.002, Math.random()*0.2+0.1, false, 50);
 })();
 
 function craterAt(u,v){
   var val=0;
+  // cosine correction + 2:1 aspect ratio: make craters circular on sphere
+  var lat=(v-0.5)*Math.PI;
+  var cosLat=Math.cos(lat);
+  if(cosLat<0.15) cosLat=0.15;
   for(var i=0;i<CRATERS.length;i++){
-    var c=CRATERS[i],du=u-c.u,dv=v-c.v,dist=Math.sqrt(du*du+dv*dv);
-    if(dist<c.r){
+    var c=CRATERS[i];
+    var du=(u-c.u)*2*cosLat; // ×2 for u:v aspect (360°:180°), ×cosLat for latitude
+    var dv=v-c.v;
+    var dist=Math.sqrt(du*du+dv*dv);
+    if(dist<c.r*1.3){
       var t=dist/c.r;
-      if(t<0.8)val-=c.d*(1-t/0.8)*(0.8+_n(u*50+i,v*50)*0.4);
-      else{
-        var rimH=c.ring?0.8:0.5;
-        val+=c.d*rimH*Math.pow((t-0.8)/0.2,0.7);
+      if(t<0.75){
+        // Bowl floor with subtle noise
+        val-=c.d*(1-t/0.75)*(0.85+_n(u*40+i,v*40)*0.3);
+      }else if(t<1.0){
+        // Rim wall
+        var rimH=c.ring?0.7:0.45;
+        val+=c.d*rimH*Math.pow((t-0.75)/0.25,0.6);
+      }else if(c.ring){
+        // Ejecta blanket for large craters only
+        var ej=(1-(t-1.0)/0.3)*0.06;
+        val+=ej*_n(u*60+i,v*60)*c.d;
       }
-    }else if(c.ring&&dist<c.r*1.3){
-      // Ejecta blanket for large craters
-      var ej=(1-(dist-c.r)/(c.r*0.3))*0.08;
-      val+=ej*_n(u*80+i,v*80)*c.d;
     }
   }
   return val;
@@ -901,92 +1281,211 @@ function genMarsTexture(){
     for(var i2=0;i2<w;i2++){
       var idx=(y*w+i2)*4,u=i2/w,v=y/h;
 
-      // Multi-octave terrain noise
+      // Multi-octave terrain noise (7 octaves for fine detail)
       var n1=_fbm6(u*8,v*8);
       var n2=_fbm(u*16+5.7,v*16+3.2)*.4;
       var n3=_fbm(u*32+11,v*32+7)*.12;
-      var n4=_n(u*64+20,v*64+15)*.06; // fine detail
+      var n4=_n(u*64+20,v*64+15)*.06;
+      var n5=_n(u*128+35,v*128+42)*.025; // micro detail
 
       // Ridge noise for mountain ranges
       var ridgeVal=_ridge(u*6+3,v*4+2)*_ridge(u*12+7,v*8+5);
+      var ridgeVal2=_ridge(u*18+11,v*14+9)*0.4;
 
       var lat=Math.abs(v-.5)*2;
       var polar=lat>.82?Math.pow((lat-.82)/.18,1.8):0;
       var cr=craterAt(u,v);
 
-      // Richer base colors with regional variation
+      // Richer base: warm terracotta with regional variation
       var regionHue=_n(u*3+100,v*3+100);
-      var base_r=130+n1*75+n2*30+n3*18+n4*12+cr*55+regionHue*15;
-      var base_g=52+n1*35+n2*18+n3*8+n4*5+cr*22+regionHue*5;
-      var base_b=26+n1*15+n2*10+n3*6+n4*4+cr*12;
+      var regionWarm=_n(u*2+200,v*2+200);
+      var base_r=135+n1*70+n2*28+n3*16+n4*10+n5*8+cr*50+regionHue*18;
+      var base_g=55+n1*32+n2*16+n3*7+n4*4+n5*3+cr*20+regionHue*6;
+      var base_b=30+n1*14+n2*9+n3*5+n4*3+n5*2+cr*10;
 
-      // Mountain ridges — brighter, more orange
-      if(ridgeVal>.6){var rf=(ridgeVal-.6)*2.5;base_r+=rf*25;base_g+=rf*12;base_b+=rf*5}
+      // Warm/cool color shift per region
+      base_r+=regionWarm*12-6;
+      base_g+=regionWarm*4-2;
+      base_b-=regionWarm*3;
 
-      // Dark mare regions (larger, smoother)
+      // Mountain ridges — brighter orange highlights
+      var rTotal=ridgeVal+ridgeVal2;
+      if(rTotal>.65){var rf=(rTotal-.65)*2.2;base_r+=rf*22;base_g+=rf*10;base_b+=rf*4}
+
+      // Dark mare/lowland regions
       var dark=_n(u*2.5+10,v*2.5+10);
       var dark2=_n(u*4+30,v*3+25);
-      if(dark>.5){var df=(dark-.5)*4;base_r-=df*40;base_g-=df*18;base_b-=df*8}
-      if(dark2>.55){var df2=(dark2-.55)*3;base_r-=df2*20;base_g-=df2*10;base_b-=df2*5}
+      if(dark>.48){var df=(dark-.48)*3.5;base_r-=df*35;base_g-=df*16;base_b-=df*7}
+      if(dark2>.52){var df2=(dark2-.52)*2.8;base_r-=df2*18;base_g-=df2*9;base_b-=df2*4}
 
-      // Dust streaks (wind patterns)
-      var streak=_n(u*5+20,v*1.5+20);
-      var streak2=_n(u*10+40,v*3+35);
-      if(streak>.58){var sf=(streak-.58)*2.8;base_r+=sf*18;base_g+=sf*10;base_b+=sf*4}
-      if(streak2>.62){var sf2=(streak2-.62)*2;base_r-=sf2*12;base_g-=sf2*8}
+      // Dust streaks (wind patterns) — more natural
+      var windAngle=_n(u*2+80,v*2+80)*0.3;
+      var streak=_n(u*5+20+windAngle*2, v*1.8+20);
+      var streak2=_n(u*9+40, v*3.5+35);
+      if(streak>.56){var sf=(streak-.56)*2.5;base_r+=sf*15;base_g+=sf*8;base_b+=sf*3}
+      if(streak2>.6){var sf2=(streak2-.6)*1.8;base_r-=sf2*10;base_g-=sf2*6}
 
-      // Polar ice caps — layered with CO2 frost
-      var polarEdge=lat>.78?Math.pow((lat-.78)/.22,1.2)*0.3:0;
-      base_r=base_r*(1-polar)+230*polar+polarEdge*40;
-      base_g=base_g*(1-polar)+222*polar+polarEdge*35;
-      base_b=base_b*(1-polar)+218*polar+polarEdge*45;
+      // Iron oxide variation (subtle rust patches)
+      var oxide=_n(u*7+150,v*7+150);
+      if(oxide>.6){var oxf=(oxide-.6)*2.5;base_r+=oxf*12;base_g-=oxf*4;base_b-=oxf*6}
 
-      // Olympus Mons — large shield volcano
-      var ox=.38,oy=.35,od=Math.sqrt((u-ox)*(u-ox)+(v-oy)*(v-oy));
-      if(od<.1){
-        var of2=1-od/.1;
-        var caldera=od<.015?-15*(1-od/.015):0;
-        base_r+=of2*35+caldera;base_g+=of2*18+caldera*.4;base_b+=of2*6;
+      // Polar ice caps — layered CO2 frost + water ice
+      var polarEdge=lat>.76?Math.pow((lat-.76)/.24,1.0)*0.25:0;
+      var frostNoise=_n(u*20+200,v*20+200)*0.15;
+      base_r=base_r*(1-polar)+232*polar+polarEdge*35+frostNoise*polar*20;
+      base_g=base_g*(1-polar)+225*polar+polarEdge*30+frostNoise*polar*18;
+      base_b=base_b*(1-polar)+220*polar+polarEdge*40+frostNoise*polar*25;
+
+      // ── Landmark Features (cosine-corrected) ──
+      var cosV=Math.cos((v-0.5)*Math.PI);
+      if(cosV<0.15) cosV=0.15;
+
+      // Olympus Mons — shield volcano (largest in solar system)
+      var ox=.38,oy=.35;
+      var omDu=(u-ox)*2*cosV,omDv=v-oy;
+      var od=Math.sqrt(omDu*omDu+omDv*omDv);
+      if(od<.09){
+        var of2=1-od/.09;
+        var caldera=od<.012?-18*(1-od/.012):0;
+        var slope=of2*of2; // quadratic falloff for shield shape
+        base_r+=slope*30+caldera;base_g+=slope*15+caldera*.3;base_b+=slope*5;
       }
 
-      // Valles Marineris — deep canyon system
+      // Valles Marineris — canyon system with better depth
       if(v>.40&&v<.50&&u>.15&&u<.60){
-        var mainV=Math.abs(v-(.445+_n(u*8,v*2)*.012))/.018;
-        // Side canyons
-        var side1=Math.abs(v-(.435+_n(u*12+5,v*3)*.008))/.01;
-        var side2=Math.abs(v-(.455+_n(u*10+8,v*4)*.008))/.01;
+        var mainV=Math.abs(v-(.445+_n(u*8,v*2)*.012))/.016;
+        var side1=Math.abs(v-(.433+_n(u*12+5,v*3)*.007))/.009;
+        var side2=Math.abs(v-(.457+_n(u*10+8,v*4)*.007))/.009;
         var canyon=Math.min(mainV,1);
         if(side1<1&&u>.25&&u<.45)canyon=Math.min(canyon,side1);
         if(side2<1&&u>.30&&u<.50)canyon=Math.min(canyon,side2);
         if(canyon<1){
-          var vf=(1-canyon)*.85;
-          var depth=vf*(0.8+_n(u*20,v*20)*.4);
-          base_r-=depth*50;base_g-=depth*25;base_b-=depth*12;
-          // Canyon walls — slight brightness at edges
-          if(canyon>.7){var wall=(canyon-.7)/.3;base_r+=wall*15;base_g+=wall*8}
+          var vf=(1-canyon)*.9;
+          var depth=vf*(0.85+_n(u*25,v*25)*.3);
+          base_r-=depth*55;base_g-=depth*28;base_b-=depth*14;
+          // Canyon rim highlight
+          if(canyon>.65&&canyon<.85){var wall=(canyon-.65)/.2;base_r+=wall*18;base_g+=wall*9}
+          // Shadow on south wall
+          if(v>(.445+_n(u*8,v*2)*.012)&&canyon<.5){base_r-=8;base_g-=4}
         }
       }
 
-      // Tharsis bulge — elevated region
-      var tx=.32,ty=.4,td=Math.sqrt((u-tx)*(u-tx)+(v-ty)*(v-ty));
-      if(td<.15){var tf=1-td/.15;base_r+=tf*12;base_g+=tf*6;base_b+=tf*3}
+      // Tharsis bulge — elevated volcanic plateau
+      var tx=.32,ty=.4;
+      var tbDu=(u-tx)*2*cosV,tbDv=v-ty;
+      var td=Math.sqrt(tbDu*tbDu+tbDv*tbDv);
+      if(td<.14){var tf=(1-td/.14);tf*=tf;base_r+=tf*10;base_g+=tf*5;base_b+=tf*2}
 
-      // Hellas Basin — large impact, darker floor
-      var hx=.72,hy=.62,hd=Math.sqrt((u-hx)*(u-hx)+(v-hy)*(v-hy));
-      if(hd<.06){var hf=1-hd/.06;base_r-=hf*20;base_g-=hf*12;base_b-=hf*5}
+      // Tharsis Montes trio (3 volcanoes in a line)
+      var montes=[{x:.34,y:.42},{x:.33,y:.45},{x:.32,y:.48}];
+      for(var mi=0;mi<3;mi++){
+        var m=montes[mi];
+        var mdu=(u-m.x)*2*cosV,mdv=v-m.y;
+        var md=Math.sqrt(mdu*mdu+mdv*mdv);
+        if(md<.02){var mf=1-md/.02;base_r+=mf*mf*20;base_g+=mf*mf*10}
+      }
+
+      // Hellas Basin — deep impact basin, darker floor
+      var hx=.72,hy=.62;
+      var hDu=(u-hx)*2*cosV,hDv=v-hy;
+      var hd=Math.sqrt(hDu*hDu+hDv*hDv);
+      if(hd<.055){var hf=1-hd/.055;hf*=hf;base_r-=hf*22;base_g-=hf*14;base_b-=hf*6}
+
+      // Argyre Basin
+      var ax=.60,ay=.66;
+      var aDu=(u-ax)*2*cosV,aDv=v-ay;
+      var ad=Math.sqrt(aDu*aDu+aDv*aDv);
+      if(ad<.035){var af=1-ad/.035;af*=af;base_r-=af*15;base_g-=af*10;base_b-=af*4}
 
       // Subtle color temperature variation
       var temp=_n(u*1.5+50,v*1.5+50);
-      base_r+=temp*6-3;base_g+=temp*3-1.5;
+      base_r+=temp*5-2.5;base_g+=temp*2.5-1.2;
 
-      d[idx]=Math.max(0,Math.min(255,base_r));
-      d[idx+1]=Math.max(0,Math.min(255,base_g));
-      d[idx+2]=Math.max(0,Math.min(255,base_b));
+      d[idx]=Math.max(0,Math.min(255,base_r|0));
+      d[idx+1]=Math.max(0,Math.min(255,base_g|0));
+      d[idx+2]=Math.max(0,Math.min(255,base_b|0));
       d[idx+3]=255;
     }
   }
   x.putImageData(id,0,0);
-  marsBaseData=c.toDataURL('image/jpeg',.9);
+
+  // ── Brand: engrave text into the procedural texture ──
+  // Use Orbitron for sci-fi/space aesthetic (fallback to sans-serif)
+  var BF='"Orbitron",sans-serif';
+  x.save();
+  x.textAlign='center';x.textBaseline='middle';
+
+  // Helper: draw engraved text (shadow + glow)
+  function engrave(text,px,py,size,weight,shadowAlpha,glowColor,glowAlpha){
+    x.font=weight+' '+size+'px '+BF;
+    x.fillStyle='rgba(0,0,0,'+shadowAlpha+')';
+    x.fillText(text,px+2,py+2);
+    x.fillStyle=glowColor.replace('A)',glowAlpha+')');
+    x.fillText(text,px,py);
+  }
+  var dustA='rgba(255,140,60,A)';  // Mars dust orange
+  var paleA='rgba(200,170,120,A)'; // Pale sand
+  var cyanA='rgba(100,200,255,A)'; // Tech cyan
+
+  // ═══ FRONT (lng 0°, u=0.5) — Main Brand ═══
+  var fs1=Math.round(w/8);
+  var tx1=w*0.5, ty1=h*0.44;
+  engrave('OCCUPY',tx1,ty1-fs1*0.38,fs1,'900',0.35,dustA,0.18);
+  engrave('MARS',tx1,ty1+fs1*0.38,Math.round(fs1*1.15),'900',0.35,dustA,0.20);
+  // Decorative line above & below
+  x.strokeStyle='rgba(255,140,60,0.08)';x.lineWidth=3;
+  x.beginPath();x.moveTo(tx1-fs1*1.8,ty1-fs1*0.82);x.lineTo(tx1+fs1*1.8,ty1-fs1*0.82);x.stroke();
+  x.beginPath();x.moveTo(tx1-fs1*1.8,ty1+fs1*0.82);x.lineTo(tx1+fs1*1.8,ty1+fs1*0.82);x.stroke();
+  // Subtitle
+  engrave('⬡ CLAIM YOUR TERRITORY ⬡',tx1,ty1+fs1*1.05,Math.round(fs1/3.8),'700',0.2,paleA,0.10);
+
+  // ═══ BACK (lng ±180°, u=0) — Quote ═══
+  var tx2=w*0.0, ty2=h*0.42;
+  var fs2=Math.round(w/18);
+  engrave('MAKE LIFE',tx2,ty2-fs2*0.6,fs2,'700',0.3,dustA,0.14);
+  engrave('MULTIPLANETARY',tx2,ty2+fs2*0.6,fs2,'900',0.3,dustA,0.16);
+  engrave('— E. MUSK',tx2,ty2+fs2*2.0,Math.round(fs2/2.2),'400',0.15,paleA,0.07);
+  // Also draw at right edge (wrap continuity)
+  engrave('MAKE LIFE',w,ty2-fs2*0.6,fs2,'700',0.3,dustA,0.14);
+  engrave('MULTIPLANETARY',w,ty2+fs2*0.6,fs2,'900',0.3,dustA,0.16);
+  engrave('— E. MUSK',w,ty2+fs2*2.0,Math.round(fs2/2.2),'400',0.15,paleA,0.07);
+
+  // ═══ SOUTH-WEST (u=0.25, v=0.72) — Pixel count ═══
+  var tx3=w*0.25, ty3=h*0.72;
+  var fs3=Math.round(w/26);
+  engrave('5,040,000',tx3,ty3,fs3,'900',0.25,cyanA,0.10);
+  engrave('PIXELS AVAILABLE',tx3,ty3+fs3*1.2,Math.round(fs3/2.2),'700',0.18,paleA,0.07);
+
+  // ═══ NORTH-EAST (u=0.75, v=0.28) — Grid info ═══
+  var tx4=w*0.75, ty4=h*0.28;
+  var fs4=Math.round(w/32);
+  engrave('GRID: 0.1° × 0.1°',tx4,ty4,fs4,'700',0.2,cyanA,0.08);
+  engrave('LAT ±70°  LNG ±180°',tx4,ty4+fs4*1.4,Math.round(fs4*0.85),'400',0.15,paleA,0.06);
+
+  // ═══ SOUTH-EAST (u=0.78, v=0.68) — Chain logos ═══
+  var tx5=w*0.78, ty5=h*0.68;
+  var fs5=Math.round(w/30);
+  engrave('BASE · BNB · ETH',tx5,ty5,fs5,'700',0.22,cyanA,0.09);
+  engrave('MULTI-CHAIN',tx5,ty5+fs5*1.3,Math.round(fs5*0.7),'400',0.15,paleA,0.06);
+
+  // ═══ Decorative grid lines ═══
+  x.strokeStyle='rgba(255,140,60,0.035)';x.lineWidth=1.5;
+  // Equator
+  x.beginPath();x.moveTo(0,h*0.5);x.lineTo(w,h*0.5);x.stroke();
+  // Prime meridian
+  x.beginPath();x.moveTo(w*0.5,h*0.12);x.lineTo(w*0.5,h*0.88);x.stroke();
+  // Latitude guides
+  x.strokeStyle='rgba(255,140,60,0.02)';x.setLineDash([16,32]);
+  x.beginPath();x.moveTo(0,h*0.35);x.lineTo(w,h*0.35);x.stroke();
+  x.beginPath();x.moveTo(0,h*0.65);x.lineTo(w,h*0.65);x.stroke();
+  // Longitude guides
+  x.beginPath();x.moveTo(w*0.25,h*0.12);x.lineTo(w*0.25,h*0.88);x.stroke();
+  x.beginPath();x.moveTo(w*0.75,h*0.12);x.lineTo(w*0.75,h*0.88);x.stroke();
+  x.setLineDash([]);
+
+  x.restore();
+
+  marsBaseData=c.toDataURL('image/jpeg',.92);
   return marsBaseData;
 }
 
@@ -1001,7 +1500,11 @@ function latlngToUV(lat,lng,w,h){
 // Image rect on texture — supports non-square w×h
 function getCellRect(lat,lng,cw,ch,tw,th){
   var pxPerDeg=tw/360;
-  var pw=GRID_SIZE*cw*pxPerDeg;
+  // Cosine correction: compress width at higher latitudes
+  // so images appear undistorted on the 3D sphere
+  var cosLat=Math.cos(lat*Math.PI/180);
+  if(cosLat<0.15) cosLat=0.15; // clamp near poles to avoid extreme stretch
+  var pw=GRID_SIZE*cw*pxPerDeg/cosLat;
   var ph=GRID_SIZE*ch*pxPerDeg;
   var uv=latlngToUV(lat,lng,tw,th);
   return {x:uv.x-pw/2, y:uv.y-ph/2, w:pw, h:ph};
@@ -1039,8 +1542,11 @@ function compositeClaimsOnTexture(previewOnly){
       var r=getCellRect(c.lat,c.lng,cw,ch,w,h);
       var img=c.imgUrl?imgCache[c.imgUrl]:null;
       if(img){
+        // Opaque background so Mars texture doesn't bleed through transparent pixels
+        ctx.fillStyle='#1A1A26';
+        ctx.fillRect(r.x,r.y,r.w,r.h);
         ctx.drawImage(img,r.x,r.y,r.w,r.h);
-        ctx.strokeStyle='rgba(255,209,102,0.25)';ctx.lineWidth=1;
+        ctx.strokeStyle='rgba(255,209,102,0.35)';ctx.lineWidth=1;
         ctx.strokeRect(r.x,r.y,r.w,r.h);
       }else{
         var colors=['#FF6B35','#FFD166','#E84855','#4CD89A','#C080E0'];
@@ -1186,11 +1692,54 @@ var DEMO_LOGOS={
 };
 
 /* ── Globe Init ──────────────────────────────────── */
-var marsTexUrl=genMarsTexture();
+var NASA_MARS_2K='/assets/textures/mars_nasa_2k.jpg';
+var NASA_MARS_8K='/assets/textures/mars_nasa_8k.jpg';
 var marsBumpUrl=genMarsBump();
 var starBgUrl=genStarBg();
+// Generate procedural texture (font may not be ready yet — regenerate later if needed)
+var marsTexUrl=genMarsTexture();
+var currentTexMode=localStorage.getItem('marsTexMode')||'nasa'; // 'nasa' or 'procedural'
+
+// Re-generate procedural texture once Orbitron font loads (for proper branding text)
+if(document.fonts&&document.fonts.load){
+  document.fonts.load('900 48px "Orbitron"').then(function(){
+    console.log('[Mars] Orbitron font loaded, regenerating procedural texture');
+    marsTexUrl=genMarsTexture();
+    if(currentTexMode==='procedural') globe.globeImageUrl(marsTexUrl);
+  }).catch(function(){});
+}
+var nasa8kLoaded=false;
+
+function toggleMarsTexture(){
+  if(currentTexMode==='procedural'){
+    currentTexMode='nasa';
+    document.getElementById('texToggleLabel').textContent='GEN';
+    document.getElementById('texToggleBtn').title='Current: NASA Real | Click for Procedural';
+    globe.globeImageUrl(nasa8kLoaded?NASA_MARS_8K:NASA_MARS_2K);
+  }else{
+    currentTexMode='procedural';
+    document.getElementById('texToggleLabel').textContent='NASA';
+    document.getElementById('texToggleBtn').title='Current: Procedural | Click for NASA Real';
+    globe.globeImageUrl(marsTexUrl);
+  }
+  localStorage.setItem('marsTexMode',currentTexMode);
+}
+
+// Progressive load: start with 2K, upgrade to 8K in background
+function loadNasa8k(){
+  var img=new Image();
+  img.onload=function(){
+    nasa8kLoaded=true;
+    if(currentTexMode==='nasa') globe.globeImageUrl(NASA_MARS_8K);
+    console.log('[Mars] 8K NASA texture loaded');
+  };
+  img.src=NASA_MARS_8K;
+}
+
+var initTexUrl=(currentTexMode==='nasa')?NASA_MARS_2K:marsTexUrl;
+
 var globe=Globe()
-  .globeImageUrl(marsTexUrl)
+  .globeImageUrl(initTexUrl)
   .bumpImageUrl(marsBumpUrl)
   .backgroundImageUrl(starBgUrl)
   .showAtmosphere(true)
@@ -1201,6 +1750,15 @@ var globe=Globe()
   (document.getElementById('globe-wrap'));
 
 var scene=globe.scene();
+
+// Init texture toggle button label
+if(currentTexMode==='nasa'){
+  var tl=document.getElementById('texToggleLabel');if(tl)tl.textContent='GEN';
+  var tb=document.getElementById('texToggleBtn');if(tb)tb.title='Current: NASA Real | Click for Procedural';
+}
+
+// Progressive: load 8K NASA texture in background after initial render
+setTimeout(loadNasa8k, 2000);
 
 // Auto-rotation
 globe.controls().autoRotate=true;
@@ -1219,10 +1777,10 @@ window.addEventListener('resize',function(){
 /* ── Territory Data ──────────────────────────────── */
 var PIXEL_PRICE=0.1;       // $0.1 per pixel
 var HIJACK_MULT=1.2;
-var GRID_SIZE=0.22;        // 0.22° per pixel-cell
-// lat ±70° = 140° / 0.22 ≈ 636 rows
-// lng ±180° = 360° / 0.22 ≈ 1636 cols
-// Total: 636 × 1636 ≈ 1,040,496 ≈ ★ 1 MILLION PIXELS ★
+var GRID_SIZE=0.1;         // 0.1° per pixel-cell
+// lat ±70° = 140° / 0.1 = 1400 rows
+// lng ±180° = 360° / 0.1 = 3600 cols
+// Total: 1400 × 3600 = 5,040,000 ≈ ★ 5 MILLION PIXELS ★
 // Price: $0.1/px → 1×1=$0.1, 10×10=$10, 100×100=$1000
 
 var claims=[
@@ -1384,6 +1942,8 @@ globe.onGlobeClick(function(coords){
 
   // Stamp mode: place image on click
   if(stampMode&&stampImgUrl){
+    // 모바일: OK 버튼으로만 확정 (클릭 무시, 드래그로 위치 조정)
+    if(isMobile) return;
     lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
     lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
     selectedPlot={lat:lat,lng:lng,owner:null,price:0,label:'UNCLAIMED',w:stampW,h:stampH};
@@ -1401,10 +1961,7 @@ globe.onGlobeClick(function(coords){
     selectedPlot=null;
     document.getElementById('territoryInfo').style.display='none';
     compositeClaimsOnTexture();
-    // 모바일: 빈 땅 클릭시 stamp bottom sheet 열기
-    if(isMobile&&walletState.connected&&!stampMode){
-      openMobileStamp();
-    }
+    // 모바일: PLACE 버튼으로 이미지 배치 (자동 열림 제거)
   }
 });
 
@@ -1419,6 +1976,11 @@ function loadStampUrl(){
   activateStamp(v);
 }
 function activateStamp(url){
+  if(!walletState.connected){
+    showToast('LOGIN REQUIRED');
+    openAuthModal();
+    return;
+  }
   var img=new Image();
   img.onload=function(){
     stampImgUrl=url; stampImgW=img.width; stampImgH=img.height;
@@ -1484,12 +2046,20 @@ function cancelStamp(){
 var isMobile=window.innerWidth<=768;
 window.addEventListener('resize',function(){isMobile=window.innerWidth<=768});
 
+var mobileStampPlacing=false; // true when user is picking location on Mars
+
 function openMobileStamp(){
   document.getElementById('mobileStampModal').classList.add('open');
+  document.getElementById('stampFab').style.display='none';
 }
 function closeMobileStamp(){
   document.getElementById('mobileStampModal').classList.remove('open');
+  if(isMobile) document.getElementById('stampFab').style.display='';
+}
+function closeMobileStampFull(){
+  closeMobileStamp();
   cancelStamp();
+  exitMobilePlacing();
 }
 document.getElementById('mStampFileInput').addEventListener('change',function(e){
   var file=e.target.files[0]; if(!file) return;
@@ -1502,7 +2072,6 @@ function loadMobileStampUrl(){
   syncMobileStampUI();
 }
 function syncMobileStampUI(){
-  // After activateStamp runs, sync desktop → mobile UI
   setTimeout(function(){
     if(!stampImgUrl) return;
     document.getElementById('mStampThumb').src=stampImgUrl;
@@ -1527,9 +2096,73 @@ function setMobileStampPct(pct){
   document.getElementById('mStampSizeSlider').value=pct;
   updateMobileStampScale(pct);
 }
+// "PREVIEW ON MARS" → 바텀시트 닫고 반투명 이미지 중앙에 표시, 화성 드래그로 위치 선택
+var _mobPreviewRAF=null;
+function startMobilePreview(){
+  if(!stampImgUrl||!stampMode){showToast('SELECT AN IMAGE FIRST');return}
+  closeMobileStamp();
+  mobileStampPlacing=true;
+  document.getElementById('mobStampCenterImg').src=stampImgUrl;
+  document.getElementById('mobStampCenterSize').textContent=stampW+'×'+stampH+'px';
+  document.getElementById('mobStampOverlay').style.display='';
+  document.getElementById('stampFab').style.display='none';
+  // 스탬프 크기에 맞게 자동 줌인 (이미지가 화면의 20~30% 차지하도록)
+  var maxDeg=Math.max(stampW,stampH)*GRID_SIZE;
+  var targetAlt=Math.max(0.15,maxDeg/12);
+  var pov=globe.pointOfView();
+  if(pov.altitude>targetAlt*1.5){
+    globe.pointOfView({altitude:targetAlt},600);
+  }
+  globe.controls().autoRotate=false;
+  // 텍스처에 스탬프 미리보기 바로 표시 (첫 프레임 보장)
+  var pov2=globe.pointOfView();
+  stampPreviewLat=Math.round(Math.max(-70,Math.min(70,pov2.lat))/GRID_SIZE)*GRID_SIZE;
+  stampPreviewLng=Math.round(pov2.lng/GRID_SIZE)*GRID_SIZE;
+  compositeClaimsOnTexture(false); // full rebuild first
+  compositeClaimsOnTexture(true);  // then overlay preview
+  // RAF 루프로 드래그 시 실시간 업데이트
+  updateMobPreviewSize();
+}
+function updateMobPreviewSize(){
+  if(!mobileStampPlacing){_mobPreviewRAF=null;return}
+  var pov=globe.pointOfView();
+  // 화면 중앙 좌표를 스탬프 미리보기 위치로 설정 (데스크톱 mousemove처럼)
+  var lat=Math.round(Math.max(-70,Math.min(70,pov.lat))/GRID_SIZE)*GRID_SIZE;
+  var lng=Math.round(pov.lng/GRID_SIZE)*GRID_SIZE;
+  if(lat!==stampPreviewLat||lng!==stampPreviewLng){
+    stampPreviewLat=lat; stampPreviewLng=lng;
+    compositeClaimsOnTexture(true);
+  }
+  // 사이즈 라벨 업데이트
+  document.getElementById('mobStampCenterSize').textContent=stampW+'×'+stampH+'px';
+  _mobPreviewRAF=requestAnimationFrame(updateMobPreviewSize);
+}
+function exitMobilePlacing(){
+  mobileStampPlacing=false;
+  if(_mobPreviewRAF){cancelAnimationFrame(_mobPreviewRAF);_mobPreviewRAF=null}
+  document.getElementById('mobStampOverlay').style.display='none';
+  if(isMobile) document.getElementById('stampFab').style.display='';
+  // 텍스처 프리뷰 클리어
+  stampPreviewLat=null; stampPreviewLng=null;
+  compositeClaimsOnTexture(true);
+}
+// OK 버튼 → 현재 화면 중앙 좌표로 이미지 배치 확정
+function confirmMobilePlacement(){
+  if(!stampImgUrl||!stampMode) return;
+  var pov=globe.pointOfView();
+  var lat=Math.max(-70,Math.min(70,pov.lat));
+  var lng=pov.lng;
+  lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
+  lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
+  selectedPlot={lat:lat,lng:lng,owner:null,price:0,label:'UNCLAIMED',w:stampW,h:stampH};
+  uploadedUrl=stampImgUrl;
+  exitMobilePlacing();
+  openClaimModal();
+}
 function cancelMobileStamp(){
   cancelStamp();
   closeMobileStamp();
+  exitMobilePlacing();
 }
 
 // ── Territory Info (for existing claims) ──
@@ -1546,7 +2179,8 @@ function showTerritoryInfo(plot){
   if(plot.link){
     document.getElementById('linkRow').style.display='';
     var linkEl=document.getElementById('infoLink');
-    linkEl.href=plot.link;
+    var safeLink=(plot.link&&plot.link.trim().indexOf('https://')===0)?plot.link.trim():'#';
+    linkEl.href=safeLink;
     linkEl.textContent=plot.link.replace(/^https?:\/\//,'').substring(0,30);
   }else{
     document.getElementById('linkRow').style.display='none';
@@ -1570,7 +2204,7 @@ function openClaimModal(){
 
   if(costInfo.overlapCount>0){
     hw.style.display='';
-    tl.textContent='CLAIM + HIJACK';tl.className='mtl wrn';
+    tl.textContent='CLAIM + HIJACK';tl.className='claim-title wrn';
     // Build affected owners list
     var ownerList=[];
     for(var o in costInfo.affectedOwners){
@@ -1582,26 +2216,44 @@ function openClaimModal(){
     document.getElementById('modalCostDisplay').textContent='$'+costInfo.total.toFixed(2)+' (new '+costInfo.newCount+'px + hijack '+costInfo.overlapCount+'px)';
   }else{
     hw.style.display='none';
-    tl.textContent='CLAIM TERRITORY';tl.className='mtl';
+    tl.textContent='CLAIM TERRITORY';tl.className='claim-title';
     document.getElementById('modalCostDisplay').textContent='$'+costInfo.total.toFixed(2)+' ('+cw+'×'+ch+' = '+costInfo.totalPixels.toLocaleString()+'px)';
   }
-  // Pre-fill image if in stamp mode
+  // 이미지 미리보기 표시
   if(stampImgUrl){
     uploadedUrl=stampImgUrl;
-    document.getElementById('uploadThumb').src=stampImgUrl;
-    document.getElementById('uploadPreviewWrap').style.display='';
+    document.getElementById('claimThumb').src=stampImgUrl;
+    document.getElementById('claimImgSize').textContent=cw+'×'+ch+'px';
+    document.getElementById('claimImgPreview').style.display='flex';
+  }else{
+    document.getElementById('claimImgPreview').style.display='none';
   }
+  // 체인 정보 표시 (로그인 시 선택한 체인)
+  var ch2=walletState.chain||'base';
+  var cfg=CHAINS[ch2];
+  if(cfg){
+    document.getElementById('claimChainDot').className='chain-dot '+ch2;
+    document.getElementById('claimChainName').textContent=cfg.name.toUpperCase();
+  }
+  selectedChain=ch2;
 }
 function closeClaimModal(){document.getElementById('claimModal').classList.remove('open')}
 
 function confirmClaim(){
   if(!selectedPlot) return;
+  // 로그인 체크
+  if(!walletState.connected){
+    closeClaimModal();
+    showToast('LOGIN REQUIRED');
+    openAuthModal();
+    return;
+  }
   var cw=selectedPlot.w||stampW, ch=selectedPlot.h||stampH;
   var costInfo=lastStampCost||calcStampCost(selectedPlot.lat,selectedPlot.lng,cw,ch);
   var price=costInfo.total;
   var hasOverlap=costInfo.overlapCount>0;
 
-  var linkVal=(document.getElementById('stampLinkInput').value||document.getElementById('linkUrlInput').value||'').trim();
+  var linkVal=(document.getElementById('stampLinkInput')?document.getElementById('stampLinkInput').value:'').trim();
   var myAddr=walletState.address?shortAddr(walletState.address):'YOU';
   var nc={lat:selectedPlot.lat,lng:selectedPlot.lng,owner:myAddr,price:price,
     label:'YOU',w:cw,h:ch,link:linkVal||''};
@@ -1829,33 +2481,113 @@ function disconnectWallet(){
   showToast('WALLET DISCONNECTED');
 }
 
+async function linkMetaMask(){
+  if(!emailAuth.token){showToast('LOGIN FIRST');return}
+  if(!window.ethereum){
+    showToast('INSTALL METAMASK!');
+    window.open('https://metamask.io','_blank');
+    return;
+  }
+  try{
+    var provider=new ethers.providers.Web3Provider(window.ethereum,'any');
+    var accounts=await provider.send('eth_requestAccounts',[]);
+    if(!accounts.length){showToast('NO ACCOUNT');return}
+    var addr=await provider.getSigner().getAddress();
+
+    var shortNew=addr.slice(0,6)+'...'+addr.slice(-4);
+    if(!confirm('Link wallet '+shortNew+' to your account?\nThis will migrate all your data (balances, claims, etc.) to this wallet.')){
+      return;
+    }
+
+    var resp=await fetch('/api/auth/link-wallet',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token:emailAuth.token,walletAddress:addr})
+    });
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'LINK FAILED');return}
+
+    // Update token
+    emailAuth.token=d.token;
+    try{localStorage.setItem('pw_token',d.token)}catch(e){}
+
+    // Update wallet state with MetaMask provider
+    walletState.address=addr;
+    walletState.provider=provider;
+    walletState.signer=provider.getSigner();
+    var network=await provider.getNetwork();
+    var detectedChain=detectChain(network.chainId);
+    walletState.chain=detectedChain||'base';
+
+    // Update user object
+    if(emailAuth.user) emailAuth.user.wallet=addr;
+
+    // Refresh UI
+    updateWalletUI();
+    updateChainUI();
+    refreshEmailBalances();
+    showToast('WALLET LINKED!');
+
+    // Listen for account/chain changes
+    window.ethereum.on('accountsChanged',function(accs){
+      if(!accs.length){disconnectWallet();return}
+      walletState.address=accs[0];
+      updateWalletUI();
+      refreshEmailBalances();
+    });
+    window.ethereum.on('chainChanged',function(chainIdHex){
+      var ch=detectChain(parseInt(chainIdHex,16));
+      walletState.chain=ch||walletState.chain;
+      walletState.provider=new ethers.providers.Web3Provider(window.ethereum,'any');
+      walletState.signer=walletState.provider.getSigner();
+      updateChainUI();
+      refreshEmailBalances();
+    });
+  }catch(e){
+    console.error('Link wallet error:',e);
+    showToast('LINK FAILED');
+  }
+}
+
 function updateWalletUI(){
   var btn=document.getElementById('walletBtn');
-  btn.textContent=shortAddr(walletState.address);
-  btn.style.color='var(--gn)';
-  document.getElementById('walletCTA').style.display='none';
-  document.getElementById('walletSection').style.display='';
-  document.getElementById('alertsSection').style.display='';
-  document.getElementById('walletAddr').textContent=walletState.address;
+  if(btn){btn.textContent=shortAddr(walletState.address);btn.style.color='var(--gn)';}
+  var el;
+  if((el=document.getElementById('walletCTA'))) el.style.display='none';
+  if((el=document.getElementById('walletSection'))) el.style.display='';
+  if((el=document.getElementById('alertsSection'))) el.style.display='';
+  if((el=document.getElementById('walletAddr'))) el.textContent=walletState.address;
+  // Show "Link MetaMask" button for custodial (email-only) wallets
+  var linkRow=document.getElementById('linkWalletRow');
+  if(linkRow){
+    var isCustodial=emailAuth.token && !walletState.provider;
+    linkRow.style.display=isCustodial?'flex':'none';
+  }
 }
 
 function updateChainUI(){
   var ch=walletState.chain;
   if(!ch)return;
   var cfg=CHAINS[ch];
+  if(!cfg)return;
   // Topbar indicator
   var ind=document.getElementById('chainIndicator');
-  ind.style.display='flex';
-  ind.style.borderColor=cfg.color+'44';
-  ind.style.color=cfg.color;
-  document.getElementById('chainDotTop').className='chain-dot '+ch;
-  document.getElementById('chainNameTop').textContent=cfg.name.toUpperCase();
+  if(ind){
+    ind.style.display='flex';
+    ind.style.borderColor=cfg.color+'44';
+    ind.style.color=cfg.color;
+  }
+  var cdt=document.getElementById('chainDotTop');
+  if(cdt) cdt.className='chain-dot '+ch;
+  var cnt=document.getElementById('chainNameTop');
+  if(cnt) cnt.textContent=cfg.name.toUpperCase();
   // Wallet panel
-  document.getElementById('walletChain').textContent=cfg.name;
-  document.getElementById('walletChain').style.color=cfg.color;
-  document.getElementById('chainDotPanel').className='chain-dot '+ch;
+  var wc=document.getElementById('walletChain');
+  if(wc){wc.textContent=cfg.name;wc.style.color=cfg.color;}
+  var cdp=document.getElementById('chainDotPanel');
+  if(cdp) cdp.className='chain-dot '+ch;
   // Claim modal chain buttons
-  selectChain(ch);
+  try{selectChain(ch);}catch(e){}
 }
 
 async function refreshBalances(){
@@ -2088,7 +2820,7 @@ var LANG = localStorage.getItem('pw_lang') || 'en';
 var I18N = {
   en: {
     login: 'LOGIN', register: 'REGISTER', logout: 'LOGOUT', account: 'ACCOUNT',
-    connect_wallet: 'CONNECT WALLET', connect_metamask: 'CONNECT WITH METAMASK',
+    connect_wallet: 'CONNECT WALLET', connect_metamask: 'CONNECT WITH METAMASK', link_metamask: 'LINK METAMASK',
     email_login: 'EMAIL LOGIN / REGISTER', my_wallet: 'MY WALLET',
     wallet_cta_desc: 'Connect wallet or login to deposit USDT,<br>claim territories & earn rewards',
     email_placeholder: 'email@example.com', password_placeholder: 'Password (6+ chars)',
@@ -2112,11 +2844,18 @@ var I18N = {
     click_mars: 'CLICK MARS TO SELECT TERRITORY', click_stamp: 'CLICK MARS TO STAMP!',
     registered: 'REGISTERED!', login_success: 'LOGGED IN!', wallet_connected: 'WALLET CONNECTED',
     wallet_disconnected: 'WALLET DISCONNECTED', copied: 'REFERRAL LINK COPIED!',
-    stats_label: 'STATS', live_label: 'LIVE'
+    stats_label: 'STATS', live_label: 'LIVE',
+    find_email: 'FIND ID', forgot_password: 'FORGOT PASSWORD',
+    find_email_title: 'FIND YOUR ID', reset_password_title: 'RESET PASSWORD',
+    send_reset_code: 'SEND RESET CODE', change_password: 'CHANGE PASSWORD',
+    enter_nickname: 'Enter your nickname', enter_email: 'Enter your email',
+    reset_code_placeholder: '6-digit code', new_password: 'New password', confirm_password: 'Confirm password',
+    back_to_login: '← Back to Login', search_btn: 'SEARCH',
+    code_sent_to: 'Code sent to'
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
-    connect_wallet: '지갑 연결', connect_metamask: '메타마스크 연결',
+    connect_wallet: '지갑 연결', connect_metamask: '메타마스크 연결', link_metamask: '메타마스크 연동',
     email_login: '이메일 로그인 / 가입', my_wallet: '내 지갑',
     wallet_cta_desc: '지갑 연결 또는 로그인하여 USDT 입금,<br>영토 점령 & 보상 획득',
     email_placeholder: 'email@example.com', password_placeholder: '비밀번호 (6자 이상)',
@@ -2140,11 +2879,18 @@ var I18N = {
     click_mars: '화성을 클릭하여 영토를 선택하세요', click_stamp: '화성을 클릭하여 배치!',
     registered: '가입 완료!', login_success: '로그인 성공!', wallet_connected: '지갑 연결됨',
     wallet_disconnected: '지갑 연결 해제됨', copied: '추천 링크 복사됨!',
-    stats_label: '통계', live_label: '실시간'
+    stats_label: '통계', live_label: '실시간',
+    find_email: '아이디 찾기', forgot_password: '비밀번호 찾기',
+    find_email_title: '아이디 찾기', reset_password_title: '비밀번호 재설정',
+    send_reset_code: '인증코드 발송', change_password: '비밀번호 변경',
+    enter_nickname: '닉네임을 입력하세요', enter_email: '이메일을 입력하세요',
+    reset_code_placeholder: '6자리 인증코드', new_password: '새 비밀번호', confirm_password: '비밀번호 확인',
+    back_to_login: '← 로그인으로 돌아가기', search_btn: '검색',
+    code_sent_to: '인증코드 발송 완료'
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
-    connect_wallet: 'ウォレット接続', connect_metamask: 'MetaMask接続',
+    connect_wallet: 'ウォレット接続', connect_metamask: 'MetaMask接続', link_metamask: 'MetaMaskを連携',
     email_login: 'メールログイン / 登録', my_wallet: 'マイウォレット',
     wallet_cta_desc: 'ウォレット接続またはログインして<br>USDTを入金、領土を獲得しよう',
     email_placeholder: 'email@example.com', password_placeholder: 'パスワード (6文字以上)',
@@ -2168,11 +2914,18 @@ var I18N = {
     click_mars: '火星をクリックして領土を選択', click_stamp: '火星をクリックして配置！',
     registered: '登録完了！', login_success: 'ログイン成功！', wallet_connected: 'ウォレット接続済み',
     wallet_disconnected: 'ウォレット切断済み', copied: '紹介リンクをコピーしました！',
-    stats_label: '統計', live_label: 'ライブ'
+    stats_label: '統計', live_label: 'ライブ',
+    find_email: 'ID検索', forgot_password: 'パスワード再設定',
+    find_email_title: 'ID検索', reset_password_title: 'パスワード再設定',
+    send_reset_code: '認証コード送信', change_password: 'パスワード変更',
+    enter_nickname: 'ニックネームを入力', enter_email: 'メールアドレスを入力',
+    reset_code_placeholder: '6桁の認証コード', new_password: '新しいパスワード', confirm_password: 'パスワード確認',
+    back_to_login: '← ログインに戻る', search_btn: '検索',
+    code_sent_to: '認証コード送信先'
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
-    connect_wallet: '连接钱包', connect_metamask: '连接MetaMask',
+    connect_wallet: '连接钱包', connect_metamask: '连接MetaMask', link_metamask: '关联MetaMask',
     email_login: '邮箱登录 / 注册', my_wallet: '我的钱包',
     wallet_cta_desc: '连接钱包或登录以存入USDT，<br>占领领土并获得奖励',
     email_placeholder: 'email@example.com', password_placeholder: '密码（至少6位）',
@@ -2196,7 +2949,14 @@ var I18N = {
     click_mars: '点击火星选择领土', click_stamp: '点击火星放置！',
     registered: '注册成功！', login_success: '登录成功！', wallet_connected: '钱包已连接',
     wallet_disconnected: '钱包已断开', copied: '推荐链接已复制！',
-    stats_label: '统计', live_label: '实时'
+    stats_label: '统计', live_label: '实时',
+    find_email: '找回ID', forgot_password: '找回密码',
+    find_email_title: '找回ID', reset_password_title: '重置密码',
+    send_reset_code: '发送验证码', change_password: '修改密码',
+    enter_nickname: '请输入昵称', enter_email: '请输入邮箱',
+    reset_code_placeholder: '6位验证码', new_password: '新密码', confirm_password: '确认密码',
+    back_to_login: '← 返回登录', search_btn: '搜索',
+    code_sent_to: '验证码已发送至'
   }
 };
 
@@ -2257,6 +3017,18 @@ var emailAuth = {
   user: null
 };
 
+function togglePassEye(){
+  var inp=document.getElementById('authPassInput');
+  var btn=document.getElementById('passEyeBtn');
+  if(inp.type==='password'){inp.type='text';btn.classList.add('active');}
+  else{inp.type='password';btn.classList.remove('active');}
+}
+function togglePassField(id,btn){
+  var inp=document.getElementById(id);
+  if(inp.type==='password'){inp.type='text';btn.classList.add('active');}
+  else{inp.type='password';btn.classList.remove('active');}
+}
+
 function openAuthModal(){
   document.getElementById('authModal').classList.add('open');
   if(emailAuth.token && emailAuth.user){
@@ -2266,6 +3038,108 @@ function openAuthModal(){
   }
 }
 function closeAuthModal(){ document.getElementById('authModal').classList.remove('open'); }
+
+/* ── Find ID / Reset PW ── */
+function showFindEmail(){
+  document.getElementById('authForm').style.display='none';
+  document.getElementById('findEmailView').style.display='';
+  document.getElementById('resetPassView').style.display='none';
+  document.getElementById('findEmailResult').style.display='none';
+  document.getElementById('findEmailErr').textContent='';
+  document.getElementById('findNickInput').value='';
+}
+var _resetEmail='';
+function showResetPassword(){
+  document.getElementById('authForm').style.display='none';
+  document.getElementById('findEmailView').style.display='none';
+  document.getElementById('resetPassView').style.display='';
+  document.getElementById('resetStep1').style.display='';
+  document.getElementById('resetStep2').style.display='none';
+  document.getElementById('resetPassResult').style.display='none';
+  document.getElementById('resetStep1Err').textContent='';
+  document.getElementById('resetEmailInput').value='';
+  var btn=document.getElementById('resetStep1Btn');
+  btn.disabled=false;btn.textContent='인증코드 발송';
+  _resetEmail='';
+}
+function backToAuthForm(){
+  document.getElementById('authForm').style.display='';
+  document.getElementById('findEmailView').style.display='none';
+  document.getElementById('resetPassView').style.display='none';
+}
+function showAuthForm(){
+  document.getElementById('authLoggedIn').style.display='none';
+  document.getElementById('authForm').style.display='';
+  document.getElementById('findEmailView').style.display='none';
+  document.getElementById('resetPassView').style.display='none';
+}
+
+async function doFindEmail(){
+  var nick=document.getElementById('findNickInput').value.trim();
+  var errEl=document.getElementById('findEmailErr');
+  errEl.textContent='';
+  document.getElementById('findEmailResult').style.display='none';
+  if(!nick){errEl.textContent='닉네임을 입력하세요';return}
+  try{
+    var resp=await fetch('/api/auth/find-email',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({nickname:nick})
+    });
+    var d=await resp.json();
+    if(!resp.ok){errEl.textContent=d.error||'찾을 수 없습니다';return}
+    document.getElementById('foundEmail').textContent=d.maskedEmail;
+    document.getElementById('foundWallet').textContent='Wallet: '+d.walletHint;
+    document.getElementById('findEmailResult').style.display='';
+  }catch(e){errEl.textContent='네트워크 오류'}
+}
+
+async function doResetStep1(){
+  var email=document.getElementById('resetEmailInput').value.trim();
+  var errEl=document.getElementById('resetStep1Err');
+  errEl.textContent='';
+  if(!email){errEl.textContent='이메일을 입력하세요';return}
+  var btn=document.getElementById('resetStep1Btn');
+  btn.disabled=true;btn.textContent='발송 중...';
+  try{
+    var resp=await fetch('/api/auth/reset-password',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:email})
+    });
+    var d=await resp.json();
+    if(!resp.ok){errEl.textContent=d.error||'실패';btn.disabled=false;btn.textContent='인증코드 발송';return}
+    _resetEmail=email;
+    document.getElementById('resetStep2Hint').textContent='인증코드 전송: '+(d.hint||email);
+    document.getElementById('resetStep1').style.display='none';
+    document.getElementById('resetStep2').style.display='';
+    document.getElementById('resetStep2Err').textContent='';
+    document.getElementById('resetCodeInput').value='';
+    document.getElementById('resetNewPassInput').value='';
+    document.getElementById('resetConfirmPassInput').value='';
+  }catch(e){errEl.textContent='네트워크 오류';btn.disabled=false;btn.textContent='인증코드 발송'}
+}
+
+async function doResetStep2(){
+  var code=document.getElementById('resetCodeInput').value.trim();
+  var newPass=document.getElementById('resetNewPassInput').value;
+  var confirmPass=document.getElementById('resetConfirmPassInput').value;
+  var errEl=document.getElementById('resetStep2Err');
+  errEl.textContent='';
+  if(!code||code.length!==6){errEl.textContent='6자리 인증코드를 입력하세요';return}
+  if(!newPass||newPass.length<6){errEl.textContent='비밀번호는 6자 이상';return}
+  if(newPass!==confirmPass){errEl.textContent='비밀번호가 일치하지 않습니다';return}
+  var btn=document.getElementById('resetStep2Btn');
+  btn.disabled=true;btn.textContent='변경 중...';
+  try{
+    var resp=await fetch('/api/auth/reset-password/verify',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:_resetEmail,code:code,newPassword:newPass})
+    });
+    var d=await resp.json();
+    if(!resp.ok){errEl.textContent=d.error||'실패';btn.disabled=false;btn.textContent='비밀번호 변경';return}
+    document.getElementById('resetStep2').style.display='none';
+    document.getElementById('resetPassResult').style.display='';
+  }catch(e){errEl.textContent='네트워크 오류';btn.disabled=false;btn.textContent='비밀번호 변경'}
+}
 
 var authTab='login';
 function switchAuthTab(tab){
@@ -2294,49 +3168,80 @@ async function submitAuth(){
     if(authTab==='register'){
       body.nickname=document.getElementById('authNickInput').value.trim()||undefined;
       body.referralCode=document.getElementById('authRefInput').value.trim()||undefined;
-      // Also check URL referral code
       if(!body.referralCode&&window._pendingRefCode) body.referralCode=window._pendingRefCode;
     }
 
-    var resp=await fetch('/api/auth/'+(authTab==='register'?'register':'login'),{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
-    var d=await resp.json();
+    var apiUrl='/api/auth/'+(authTab==='register'?'register':'login');
+    console.log('[Auth] fetch →',apiUrl);
+    var resp;
+    try{
+      resp=await fetch(apiUrl,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(body)
+      });
+    }catch(fetchErr){
+      console.error('[Auth] fetch itself failed:',fetchErr);
+      errEl.textContent='Connection failed: '+fetchErr.message;
+      return;
+    }
+
+    var d;
+    try{ d=await resp.json(); }catch(jsonErr){
+      console.error('[Auth] JSON parse failed:',jsonErr,'status:',resp.status);
+      errEl.textContent='Server error (status '+resp.status+')';
+      return;
+    }
 
     if(!resp.ok){errEl.textContent=d.error||'Failed';return}
 
-    // Success
+    // Success — wrap each step so we can see which one breaks on mobile
     emailAuth.token=d.token;
     emailAuth.user=d.user;
-    localStorage.setItem('pw_token',d.token);
+    try{ localStorage.setItem('pw_token',d.token); }catch(lsErr){ console.warn('[Auth] localStorage fail:',lsErr); }
 
-    // Set wallet state from email auth
     walletState.connected=true;
     walletState.address=d.user.wallet;
     walletState.chain='base';
-    updateWalletUI();
-    updateChainUI();
-
-    // Update login button
-    document.getElementById('loginBtn').textContent=d.user.nickname||'👤';
-    document.getElementById('loginBtn').style.color='var(--gn)';
-
-    showAuthLoggedIn();
+    try{ updateWalletUI(); }catch(e2){ console.error('[Auth] updateWalletUI:',e2); }
+    try{ updateChainUI(); }catch(e2){ console.error('[Auth] updateChainUI:',e2); }
+    try{ updateTopbarAvatar(true); }catch(e2){ console.error('[Auth] updateTopbarAvatar:',e2); }
+    try{ showAuthLoggedIn(); }catch(e2){ console.error('[Auth] showAuthLoggedIn:',e2); }
     showToast(t(authTab==='register'?'registered':'login_success'));
 
-    // Load referral info
-    loadReferralInfo();
+    try{ loadReferralInfo(); }catch(e2){ console.error('[Auth] loadReferralInfo:',e2); }
     if(window._pendingRefCode){delete window._pendingRefCode}
-
-    // Load user balance from server
-    refreshEmailBalances();
+    try{ refreshEmailBalances(); }catch(e2){ console.error('[Auth] refreshEmailBalances:',e2); }
 
   }catch(e){
-    errEl.textContent='Network error';
+    console.error('[Auth] submitAuth error:', e);
+    errEl.textContent=(e.message||'Unknown error')+' ('+e.name+')';
   }finally{
     btn.disabled=false;
     btn.textContent=t(authTab);
+  }
+}
+
+function updateTopbarAvatar(loggedIn){
+  var loginBtn=document.getElementById('loginBtn');
+  var tbAvatarEmoji=document.getElementById('tbAvatarEmoji');
+  var tbAvatarImg=document.getElementById('tbAvatarImg');
+  if(loggedIn){
+    loginBtn.style.display='none';
+    var avatar=localStorage.getItem('pw_avatar');
+    if(avatar){
+      tbAvatarImg.src=avatar;
+      tbAvatarImg.style.display='block';
+      tbAvatarEmoji.style.display='none';
+    }else{
+      tbAvatarEmoji.style.display='flex';
+      tbAvatarImg.style.display='none';
+    }
+  }else{
+    loginBtn.style.display='flex';
+    loginBtn.textContent=t('login');
+    loginBtn.style.color='';
+    tbAvatarEmoji.style.display='none';
+    tbAvatarImg.style.display='none';
   }
 }
 
@@ -2347,21 +3252,96 @@ function showAuthLoggedIn(){
     document.getElementById('authNickname').textContent=emailAuth.user.nickname||'--';
     document.getElementById('authEmail').textContent=emailAuth.user.email||'--';
     document.getElementById('authWallet').textContent=emailAuth.user.wallet||'--';
+    // Avatar
+    var avatar=localStorage.getItem('pw_avatar');
+    if(avatar){
+      document.getElementById('avatarImg').src=avatar;
+      document.getElementById('avatarImg').style.display='';
+      document.getElementById('avatarEmoji').style.display='none';
+    }
+    // Chain in profile
+    var ch=walletState.chain||'base';
+    var cfg=CHAINS[ch];
+    if(cfg){
+      document.getElementById('profileChainDot').className='chain-dot '+ch;
+      document.getElementById('profileChainName').textContent=cfg.name.toUpperCase();
+    }
   }
 }
-function showAuthForm(){
-  document.getElementById('authForm').style.display='';
-  document.getElementById('authLoggedIn').style.display='none';
+
+function copyGameWallet(){
+  var addr=document.getElementById('authWallet').textContent;
+  if(!addr||addr==='--'){showToast('NO WALLET');return}
+  navigator.clipboard.writeText(addr).then(function(){showToast('WALLET ADDRESS COPIED!')});
 }
 
+function editNickname(){
+  document.getElementById('nickEditWrap').style.display='';
+  document.getElementById('nickEditInput').value=emailAuth.user?emailAuth.user.nickname:'';
+  document.getElementById('nickEditInput').focus();
+}
+function cancelEditNick(){
+  document.getElementById('nickEditWrap').style.display='none';
+}
+async function saveNickname(){
+  var newName=document.getElementById('nickEditInput').value.trim();
+  if(!newName){showToast('ENTER A NAME');return}
+  if(!emailAuth.token){showToast('NOT LOGGED IN');return}
+  try{
+    var resp=await fetch('/api/auth/update-profile',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
+      body:JSON.stringify({nickname:newName})
+    });
+    var d=await resp.json();
+    if(d.success){
+      emailAuth.user.nickname=newName;
+      document.getElementById('authNickname').textContent=newName;
+      document.getElementById('nickEditWrap').style.display='none';
+      showToast('NAME UPDATED!');
+    }else{showToast(d.error||'FAILED')}
+  }catch(e){showToast('NETWORK ERROR')}
+}
+
+function changeAvatar(){
+  var input=document.createElement('input');
+  input.type='file';input.accept='image/*';
+  input.onchange=function(e){
+    var file=e.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      var dataUrl=ev.target.result;
+      // Resize to 200x200 for storage
+      var img=new Image();
+      img.onload=function(){
+        var c=document.createElement('canvas');c.width=200;c.height=200;
+        var ctx=c.getContext('2d');
+        var size=Math.min(img.width,img.height);
+        var sx=(img.width-size)/2, sy=(img.height-size)/2;
+        ctx.drawImage(img,sx,sy,size,size,0,0,200,200);
+        var small=c.toDataURL('image/jpeg',0.8);
+        localStorage.setItem('pw_avatar',small);
+        document.getElementById('avatarImg').src=small;
+        document.getElementById('avatarImg').style.display='';
+        document.getElementById('avatarEmoji').style.display='none';
+        // Update topbar avatar too
+        document.getElementById('tbAvatarImg').src=small;
+        document.getElementById('tbAvatarImg').style.display='block';
+        document.getElementById('tbAvatarEmoji').style.display='none';
+        showToast('PROFILE PHOTO UPDATED!');
+      };
+      img.src=dataUrl;
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
 function logoutEmail(){
   emailAuth.token=null;
   emailAuth.user=null;
   localStorage.removeItem('pw_token');
   walletState.connected=false;
   walletState.address=null;
-  document.getElementById('loginBtn').textContent=t('login');
-  document.getElementById('loginBtn').style.color='';
+  updateTopbarAvatar(false);
   document.getElementById('walletCTA').style.display='';
   document.getElementById('walletSection').style.display='none';
   document.getElementById('alertsSection').style.display='none';
@@ -2402,8 +3382,8 @@ async function refreshEmailBalances(){
           walletState.gameUsdt=d.usdtBalance||0;
           walletState.gamePP=d.ppBalance||0;
           updateWalletUI();
-          document.getElementById('loginBtn').textContent=d.nickname||'👤';
-          document.getElementById('loginBtn').style.color='var(--gn)';
+          updateChainUI();
+          updateTopbarAvatar(true);
           loadReferralInfo();
           refreshEmailBalances();
         }
@@ -2508,14 +3488,17 @@ function closeRight(){document.getElementById('panelR').classList.remove('open')
 function updateMobToggles(){
   var lOpen=document.getElementById('panelL').classList.contains('open');
   var rOpen=document.getElementById('panelR').classList.contains('open');
+  var anyOpen=lOpen||rOpen;
+  // 어느 패널이든 열리면 양쪽 토글 모두 숨김
   var toggles=document.querySelectorAll('.mob-toggle');
   toggles.forEach(function(btn){
-    if(btn.classList.contains('right')){
-      btn.classList.toggle('hidden',rOpen);
-    }else{
-      btn.classList.toggle('hidden',lOpen);
-    }
+    btn.classList.toggle('hidden',anyOpen);
   });
+  // Close buttons (fixed, outside panels)
+  var clLeft=document.getElementById('closeBtnLeft');
+  var clRight=document.getElementById('closeBtnRight');
+  if(clLeft)clLeft.classList.toggle('visible',lOpen);
+  if(clRight)clRight.classList.toggle('visible',rOpen);
 }
 var feedExpanded=false;
 function toggleFeed(){
@@ -2565,7 +3548,15 @@ function searchOwner(){
     var d=document.createElement('div');
     d.className='search-result-item';
     var cw=c.w||c.size||10, ch=c.h||c.size||10;
-    d.innerHTML='<span style="color:var(--gold);font-size:7px">'+c.owner+'</span><br><span style="font-size:6px;color:var(--tx3)">['+c.lat.toFixed(1)+'°,'+c.lng.toFixed(1)+'°] '+cw+'×'+ch+'px $'+c.price+'</span>';
+    var ownerSpan=document.createElement('span');
+    ownerSpan.style.cssText='color:var(--gold);font-size:7px';
+    ownerSpan.textContent=c.owner;
+    var detailSpan=document.createElement('span');
+    detailSpan.style.cssText='font-size:6px;color:var(--tx3)';
+    detailSpan.textContent='['+c.lat.toFixed(1)+'°,'+c.lng.toFixed(1)+'°] '+cw+'×'+ch+'px $'+c.price;
+    d.appendChild(ownerSpan);
+    d.appendChild(document.createElement('br'));
+    d.appendChild(detailSpan);
     d.onclick=function(){
       globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.08,Math.max(cw,ch)*GRID_SIZE/50)},800);
       isZoomedIn=true; selectedPlot=c; showTerritoryInfo(c); compositeClaimsOnTexture();
@@ -2604,7 +3595,12 @@ function renderAlerts(){
     var icon=a.type==='hijack'?'💀':a.type==='earn'?'💰':'🔔';
     var ago=Math.round((Date.now()-a.time.getTime())/1000);
     var timeStr=ago<60?ago+'s ago':Math.round(ago/60)+'m ago';
-    d.innerHTML=icon+' '+a.msg+'<span class="alert-time">'+timeStr+'</span>';
+    var alertText=document.createTextNode(icon+' '+a.msg);
+    d.appendChild(alertText);
+    var timeSpan=document.createElement('span');
+    timeSpan.className='alert-time';
+    timeSpan.textContent=timeStr;
+    d.appendChild(timeSpan);
     if(a.coords){
       d.onclick=function(){
         globe.pointOfView({lat:a.coords.lat,lng:a.coords.lng,altitude:0.15},800);
@@ -2621,8 +3617,85 @@ setInterval(function(){
   document.getElementById('statHijacks').textContent=20+Math.floor(Math.random()*30);
 },5000);
 
+/* ── Live Stats & Leaderboard from API ───────────── */
+function fmtNum(n){return Number(n).toLocaleString();}
+
+function loadPublicStats(){
+  fetch('/api/stats').then(function(r){return r.json();}).then(function(d){
+    if(d.totalPixelsSold!=null) document.getElementById('statPlots').textContent=fmtNum(d.totalPixelsSold);
+    if(d.totalVolume!=null) document.getElementById('statTVL').textContent='$'+fmtNum(d.totalVolume);
+    if(d.activeUsers24h!=null) document.getElementById('statActiveUsers').textContent=fmtNum(d.activeUsers24h);
+  }).catch(function(e){console.warn('[Stats] fetch failed:',e);});
+}
+
+function loadLeaderboard(){
+  fetch('/api/leaderboard?sort=claims&limit=5').then(function(r){return r.json();}).then(function(arr){
+    var container=document.getElementById('leaderboardList');
+    if(!container) return;
+    if(!Array.isArray(arr)||arr.length===0){
+      container.innerHTML='<div style="font-size:var(--fs-xs);color:var(--tx3);padding:8px 0;text-align:center">No claims yet</div>';
+      return;
+    }
+    var rankClasses=['gold','silver','bronze'];
+    var html='';
+    arr.forEach(function(entry,i){
+      var rank=i+1;
+      var rankCls=rankClasses[i]||'';
+      var rankStyle=rankCls?'':' style="color:var(--tx3)"';
+      var name=entry.nickname||entry.wallet;
+      if(!entry.nickname&&name&&name.length>10) name=name.slice(0,6)+'..'+name.slice(-4);
+      var count=entry.claimCount||entry.claims||0;
+      html+='<div class="lb-row"><span class="lb-rank'+(rankCls?' '+rankCls:'')+'"'+rankStyle+'>'+rank+'</span>'
+        +'<span class="lb-name">'+name+'</span>'
+        +'<span class="lb-val">'+fmtNum(count)+' plots</span></div>';
+    });
+    container.innerHTML=html;
+  }).catch(function(e){console.warn('[Leaderboard] fetch failed:',e);});
+}
+
+loadPublicStats();
+loadLeaderboard();
+setInterval(loadPublicStats,30000);
+setInterval(loadLeaderboard,60000);
+
 /* ── Init i18n ──────────────────────────────────── */
 setLang(LANG);
+
+/* ── Mobile Debug Panel (temporary) ────────────── */
+(function(){
+  var dp=document.createElement('div');
+  dp.id='debugPanel';
+  dp.style.cssText='position:fixed;bottom:0;left:0;right:0;max-height:120px;overflow-y:auto;'+
+    'background:rgba(0,0,0,0.92);color:#0f0;font:10px monospace;padding:6px 8px;z-index:99999;'+
+    'display:none;border-top:1px solid #333;';
+  document.body.appendChild(dp);
+  // Show with triple-tap on bottom-right corner
+  var tapCount=0,tapTimer=null;
+  document.addEventListener('click',function(e){
+    if(e.clientX>window.innerWidth-60&&e.clientY>window.innerHeight-60){
+      tapCount++;
+      clearTimeout(tapTimer);
+      tapTimer=setTimeout(function(){tapCount=0},600);
+      if(tapCount>=3){dp.style.display=dp.style.display==='none'?'block':'none';tapCount=0;}
+    }
+  });
+  window._dbg=function(msg){
+    var line=document.createElement('div');
+    line.textContent='['+new Date().toLocaleTimeString()+'] '+msg;
+    dp.appendChild(line);
+    dp.scrollTop=dp.scrollHeight;
+    dp.style.display='block';
+  };
+  // Intercept console.error/warn/log for mobile
+  var origErr=console.error,origWarn=console.warn,origLog=console.log;
+  console.error=function(){origErr.apply(console,arguments);window._dbg('ERR: '+Array.from(arguments).join(' '));};
+  console.warn=function(){origWarn.apply(console,arguments);window._dbg('WARN: '+Array.from(arguments).join(' '));};
+  // Only intercept [Auth] logs
+  var origLog2=console.log;
+  console.log=function(){origLog2.apply(console,arguments);
+    if(arguments[0]&&String(arguments[0]).indexOf('[Auth]')>=0) window._dbg(Array.from(arguments).join(' '));
+  };
+})();
 </script>
 </body>
 </html>

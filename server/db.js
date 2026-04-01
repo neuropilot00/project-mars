@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const { runMigrations } = require('./migrate');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -12,6 +13,13 @@ pool.on('error', (err) => {
 
 // ── Schema initialization ──
 async function initDB() {
+  // Run file-based migrations first
+  try {
+    await runMigrations();
+  } catch (err) {
+    console.error('[DB] Migration failed, falling back to inline schema:', err.message);
+  }
+
   const client = await pool.connect();
   try {
     await client.query(`
@@ -24,6 +32,7 @@ async function initDB() {
         pp_balance DECIMAL(20,6) DEFAULT 0,
         referred_by VARCHAR(42),
         referral_code VARCHAR(20) UNIQUE,
+        withdrawal_nonce INTEGER DEFAULT 0,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
 
@@ -109,6 +118,17 @@ async function initDB() {
         updated_at TIMESTAMPTZ DEFAULT NOW()
       );
 
+      -- Admin audit log
+      CREATE TABLE IF NOT EXISTS admin_audit_log (
+        id SERIAL PRIMARY KEY,
+        action VARCHAR(100) NOT NULL,
+        target VARCHAR(255),
+        details JSONB,
+        admin_auth VARCHAR(20),
+        ip_address VARCHAR(45),
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
       -- Referral rewards log
       CREATE TABLE IF NOT EXISTS referral_rewards (
         id SERIAL PRIMARY KEY,
@@ -127,6 +147,7 @@ async function initDB() {
         ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255) UNIQUE;
         ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
         ALTER TABLE users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50);
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS withdrawal_nonce INTEGER DEFAULT 0;
       EXCEPTION WHEN OTHERS THEN NULL;
       END $$;
 

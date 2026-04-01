@@ -5,7 +5,22 @@ const { generateWithdrawSignature, CHAINS } = require('../services/signer');
 
 const router = express.Router();
 
+// ── Shared input sanitizer ──
+function sanitize(str, maxLen) {
+  if (typeof str !== 'string') return '';
+  return str.trim().slice(0, maxLen).replace(/<[^>]*>/g, '');
+}
+
 const GRID_SIZE = 0.22;
+
+// ── URL sanitization ──
+function sanitizeUrl(url, allowData) {
+  if (!url) return null;
+  url = url.trim();
+  if (allowData && url.startsWith('data:image/')) return url;
+  if (url.startsWith('https://')) return url;
+  return null;
+}
 
 // ── Dynamic settings (cached, refreshed every 30s) ──
 let cachedSettings = null;
@@ -247,7 +262,10 @@ router.get('/pixel/:lat/:lng', async (req, res) => {
 // ══════════════════════════════════════════════════
 router.get('/search/owner/:query', async (req, res) => {
   try {
-    const q = req.params.query.toLowerCase();
+    const q = sanitize(req.params.query, 100).toLowerCase();
+    if (!q) {
+      return res.status(400).json({ error: 'Search query is required (max 100 chars)' });
+    }
     const result = await pool.query(
       `SELECT center_lat, center_lng, width, height, image_url, total_paid, owner
        FROM claims WHERE LOWER(owner) LIKE $1 AND deleted_at IS NULL
@@ -295,6 +313,43 @@ router.post('/claim', async (req, res) => {
   const { wallet, lat, lng, width, height, imageUrl, linkUrl } = req.body;
   if (!wallet || lat == null || lng == null || !width || !height) {
     return res.status(400).json({ error: 'Missing fields' });
+  }
+
+  // ── Input validation ──
+  const parsedLat = parseFloat(lat);
+  const parsedLng = parseFloat(lng);
+  if (isNaN(parsedLat) || parsedLat < -70 || parsedLat > 70) {
+    return res.status(400).json({ error: 'Invalid latitude (must be between -70 and 70)' });
+  }
+  if (isNaN(parsedLng) || parsedLng < -180 || parsedLng > 180) {
+    return res.status(400).json({ error: 'Invalid longitude (must be between -180 and 180)' });
+  }
+
+  const parsedW = parseInt(width);
+  const parsedH = parseInt(height);
+  if (!Number.isInteger(parsedW) || parsedW <= 0 || parsedW > 500) {
+    return res.status(400).json({ error: 'Invalid width (must be positive integer, max 500)' });
+  }
+  if (!Number.isInteger(parsedH) || parsedH <= 0 || parsedH > 500) {
+    return res.status(400).json({ error: 'Invalid height (must be positive integer, max 500)' });
+  }
+
+  // Validate URL lengths
+  if (imageUrl && typeof imageUrl === 'string' && imageUrl.length > 2048) {
+    return res.status(400).json({ error: 'Image URL too long (max 2048 chars)' });
+  }
+  if (linkUrl && typeof linkUrl === 'string' && linkUrl.length > 512) {
+    return res.status(400).json({ error: 'Link URL too long (max 512 chars)' });
+  }
+
+  // Sanitize URLs
+  const safeImageUrl = sanitizeUrl(imageUrl, true);
+  if (imageUrl && !safeImageUrl) {
+    return res.status(400).json({ error: 'Invalid image URL (must start with data:image/ or https://)' });
+  }
+  const safeLinkUrl = sanitizeUrl(linkUrl, false);
+  if (linkUrl && !safeLinkUrl) {
+    return res.status(400).json({ error: 'Invalid link URL (must start with https://)' });
   }
 
   const client = await pool.connect();
@@ -388,7 +443,7 @@ router.post('/claim', async (req, res) => {
     const claimRes = await client.query(
       `INSERT INTO claims (owner, center_lat, center_lng, width, height, image_url, link_url, total_paid)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
-      [wallet.toLowerCase(), lat, lng, width, height, imageUrl || null, linkUrl || null, totalCost]
+      [wallet.toLowerCase(), lat, lng, width, height, safeImageUrl, safeLinkUrl, totalCost]
     );
     const claimId = claimRes.rows[0].id;
 
@@ -485,6 +540,11 @@ router.post('/swap', async (req, res) => {
   const { wallet, ppAmount } = req.body;
   if (!wallet || !ppAmount || ppAmount <= 0) return res.status(400).json({ error: 'Invalid input' });
 
+  const parsedPP = Number(ppAmount);
+  if (isNaN(parsedPP) || !isFinite(parsedPP) || parsedPP <= 0) {
+    return res.status(400).json({ error: 'Amount must be a positive finite number' });
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -535,7 +595,16 @@ router.post('/withdraw', async (req, res) => {
   const { wallet, amount, chain } = req.body;
   if (!wallet || !amount || amount <= 0) return res.status(400).json({ error: 'Invalid input' });
 
+  const parsedAmount = Number(amount);
+  if (isNaN(parsedAmount) || !isFinite(parsedAmount) || parsedAmount <= 0) {
+    return res.status(400).json({ error: 'Amount must be a positive finite number' });
+  }
+
   const chainKey = chain || 'base';
+  const VALID_CHAINS = ['base', 'bnb', 'eth'];
+  if (!VALID_CHAINS.includes(chainKey)) {
+    return res.status(400).json({ error: 'Invalid chain (must be one of: base, bnb, eth)' });
+  }
   const chainCfg = CHAINS[chainKey];
   if (!chainCfg) return res.status(400).json({ error: 'Invalid chain' });
 
@@ -544,7 +613,7 @@ router.post('/withdraw', async (req, res) => {
     await client.query('BEGIN');
 
     const userRes = await client.query(
-      'SELECT usdt_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT usdt_balance, withdrawal_nonce FROM users WHERE wallet_address = $1 FOR UPDATE',
       [wallet.toLowerCase()]
     );
     if (!userRes.rows.length) throw new Error('User not found');
@@ -555,16 +624,18 @@ router.post('/withdraw', async (req, res) => {
       return res.status(400).json({ error: 'Insufficient balance', balance: bal });
     }
 
-    // Deduct from DB
+    // Read and increment nonce
+    const nonce = userRes.rows[0].withdrawal_nonce || 0;
+
+    // Deduct from DB and increment nonce
     await client.query(
-      'UPDATE users SET usdt_balance = usdt_balance - $1 WHERE wallet_address = $2',
+      'UPDATE users SET usdt_balance = usdt_balance - $1, withdrawal_nonce = withdrawal_nonce + 1 WHERE wallet_address = $2',
       [amount, wallet.toLowerCase()]
     );
 
     // Generate on-chain withdrawal signature
     const amountBN = ethers.utils.parseUnits(amount.toString(), chainCfg.decimals);
     const feeBN = ethers.BigNumber.from(0); // no fee on withdrawal for now
-    const nonce = 0; // TODO: read from on-chain contract
 
     const sigData = await generateWithdrawSignature(
       wallet, amountBN, feeBN, nonce, chainKey
@@ -601,13 +672,14 @@ router.post('/withdraw-all', async (req, res) => {
     await client.query('BEGIN');
 
     const userRes = await client.query(
-      'SELECT usdt_balance, pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT usdt_balance, pp_balance, withdrawal_nonce FROM users WHERE wallet_address = $1 FOR UPDATE',
       [wallet.toLowerCase()]
     );
     if (!userRes.rows.length) throw new Error('User not found');
 
     const usdtBal = parseFloat(userRes.rows[0].usdt_balance);
     const ppBal = parseFloat(userRes.rows[0].pp_balance);
+    const nonce = userRes.rows[0].withdrawal_nonce || 0;
     const s = await cfg();
     const swapFeePct = (s.swap_fee_percent || 5) / 100;
     const ppFee = Math.round(ppBal * swapFeePct * 1000000) / 1000000;
@@ -618,9 +690,9 @@ router.post('/withdraw-all', async (req, res) => {
       return res.status(400).json({ error: 'Nothing to withdraw' });
     }
 
-    // Zero balances
+    // Zero balances and increment nonce
     await client.query(
-      'UPDATE users SET usdt_balance = 0, pp_balance = 0 WHERE wallet_address = $1',
+      'UPDATE users SET usdt_balance = 0, pp_balance = 0, withdrawal_nonce = withdrawal_nonce + 1 WHERE wallet_address = $1',
       [wallet.toLowerCase()]
     );
 
@@ -640,7 +712,7 @@ router.post('/withdraw-all', async (req, res) => {
     const chainCfg = CHAINS[chainKey];
     const amountBN = ethers.utils.parseUnits(totalOut.toString(), chainCfg.decimals);
     const feeBN = ethers.utils.parseUnits(ppFee.toString(), chainCfg.decimals);
-    const sigData = await generateWithdrawSignature(wallet, amountBN, feeBN, 0, chainKey);
+    const sigData = await generateWithdrawSignature(wallet, amountBN, feeBN, nonce, chainKey);
 
     await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
@@ -657,6 +729,131 @@ router.post('/withdraw-all', async (req, res) => {
     res.status(500).json({ error: e.message });
   } finally {
     client.release();
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /api/leaderboard — top players by various criteria
+// ══════════════════════════════════════════════════
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const allowedSorts = ['claims', 'volume', 'pixels'];
+    const sort = allowedSorts.includes(req.query.sort) ? req.query.sort : 'claims';
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit) || 20));
+
+    let orderBy;
+    switch (sort) {
+      case 'volume':  orderBy = 'total_volume DESC'; break;
+      case 'pixels':  orderBy = 'pixel_count DESC'; break;
+      case 'claims':
+      default:        orderBy = 'claim_count DESC'; break;
+    }
+
+    const result = await pool.query(
+      `SELECT
+         u.wallet_address,
+         u.nickname,
+         COUNT(DISTINCT c.id) AS claim_count,
+         COALESCE(SUM(c.total_paid), 0) AS total_volume,
+         COALESCE(px.pixel_count, 0) AS pixel_count
+       FROM users u
+       LEFT JOIN claims c ON c.owner = u.wallet_address AND c.deleted_at IS NULL
+       LEFT JOIN (
+         SELECT owner, COUNT(*) AS pixel_count
+         FROM pixels
+         WHERE owner IS NOT NULL
+         GROUP BY owner
+       ) px ON px.owner = u.wallet_address
+       GROUP BY u.wallet_address, u.nickname, px.pixel_count
+       HAVING COUNT(DISTINCT c.id) > 0
+       ORDER BY ${orderBy}
+       LIMIT $1`,
+      [limit]
+    );
+
+    const rows = result.rows.map((r, i) => ({
+      rank: i + 1,
+      nickname: r.nickname || null,
+      wallet: r.wallet_address.slice(0, 6) + '...' + r.wallet_address.slice(-4),
+      claimCount: parseInt(r.claim_count),
+      totalVolume: parseFloat(r.total_volume),
+      pixelCount: parseInt(r.pixel_count)
+    }));
+
+    res.json(rows);
+  } catch (e) {
+    console.error('[API] leaderboard error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /api/stats — public global statistics
+// ══════════════════════════════════════════════════
+router.get('/stats', async (req, res) => {
+  try {
+    const [usersRes, claimsRes, volumeRes, pixelsRes, activeRes] = await Promise.all([
+      pool.query('SELECT COUNT(*) AS cnt FROM users'),
+      pool.query('SELECT COUNT(*) AS cnt FROM claims WHERE deleted_at IS NULL'),
+      pool.query('SELECT COALESCE(SUM(total_paid), 0) AS total FROM claims WHERE deleted_at IS NULL'),
+      pool.query('SELECT COUNT(*) AS cnt FROM pixels WHERE owner IS NOT NULL'),
+      pool.query(
+        `SELECT COUNT(DISTINCT owner) AS cnt FROM claims
+         WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '24 hours'`
+      )
+    ]);
+
+    res.json({
+      totalUsers: parseInt(usersRes.rows[0].cnt),
+      totalClaims: parseInt(claimsRes.rows[0].cnt),
+      totalVolume: parseFloat(volumeRes.rows[0].total),
+      totalPixelsSold: parseInt(pixelsRes.rows[0].cnt),
+      activeUsers24h: parseInt(activeRes.rows[0].cnt)
+    });
+  } catch (e) {
+    console.error('[API] stats error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  POST /api/error-report — Client-side error logging
+// ══════════════════════════════════════════════════
+router.post('/error-report', async (req, res) => {
+  try {
+    const { message, source, line, stack, userAgent, url } = req.body;
+
+    // Validate: message is required
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return res.status(400).json({ error: 'message is required' });
+    }
+
+    // Truncate fields to max 1000 chars each
+    const trunc = (val, max = 1000) => {
+      if (!val || typeof val !== 'string') return null;
+      return val.slice(0, max);
+    };
+
+    const safeMessage = trunc(message, 1000);
+    const safeSource = trunc(source, 1000);
+    const safeLine = Number.isInteger(line) ? line : null;
+    const safeStack = trunc(stack, 2000);
+    const safeUserAgent = trunc(userAgent, 500);
+    const safeUrl = trunc(url, 1000);
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+    console.error(`[CLIENT_ERROR] ${safeMessage} | source=${safeSource || 'N/A'} line=${safeLine || 'N/A'} | url=${safeUrl || 'N/A'}`);
+
+    await pool.query(
+      `INSERT INTO client_errors (message, source, line, stack, user_agent, url, ip_address)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [safeMessage, safeSource, safeLine, safeStack, safeUserAgent, safeUrl, ip]
+    );
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[API] error-report save failed:', e.message);
+    res.status(500).json({ error: 'Internal error' });
   }
 });
 

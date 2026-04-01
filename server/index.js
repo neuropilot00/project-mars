@@ -3,8 +3,53 @@ require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') }
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
-const { initDB } = require('./db');
+// ── Production environment validation ──
+if (process.env.NODE_ENV === 'production') {
+  const fatal = [];
+
+  // JWT_SECRET: required and must not contain weak patterns
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    fatal.push('JWT_SECRET is not set');
+  } else if (/dev|test|change-me/i.test(jwtSecret)) {
+    fatal.push('JWT_SECRET contains a weak default (dev/test/change-me)');
+  }
+
+  // ADMIN_SECRET: required and must not be the default
+  const adminSecret = process.env.ADMIN_SECRET;
+  if (!adminSecret) {
+    fatal.push('ADMIN_SECRET is not set');
+  } else if (adminSecret === 'admin1234') {
+    fatal.push('ADMIN_SECRET is set to the insecure default "admin1234"');
+  }
+
+  // DATABASE_URL: required
+  if (!process.env.DATABASE_URL) {
+    fatal.push('DATABASE_URL is not set');
+  }
+
+  // SIGNER_PRIVATE_KEY: warn but don't crash
+  if (!process.env.SIGNER_PRIVATE_KEY) {
+    console.warn('[SECURITY] SIGNER_PRIVATE_KEY is not set — on-chain signing will fail');
+  }
+
+  if (fatal.length) {
+    console.error('[FATAL] Production environment validation failed:');
+    fatal.forEach(msg => console.error(`  - ${msg}`));
+    console.error('[FATAL] Fix the above issues and restart. Exiting.');
+    process.exit(1);
+  }
+} else {
+  // Development mode warnings
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret || /dev-secret|change-me/i.test(jwtSecret)) {
+    console.warn('[SECURITY] Using weak JWT_SECRET — set a strong secret before deploying!');
+  }
+}
+
+const { pool, initDB } = require('./db');
 const { init: initSigner } = require('./services/signer');
 const { startListeners } = require('./services/chain');
 const apiRoutes = require('./routes/api');
@@ -14,8 +59,64 @@ const adminRoutes = require('./routes/admin');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ── Security Headers ──
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://*.trycloudflare.com https://*.infura.io https://*.alchemy.com wss://*; font-src 'self' data:;");
+  next();
+});
+
+// ── Rate Limiting ──
+const isDev = process.env.NODE_ENV !== 'production';
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isDev ? 1000 : 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isDev ? 50 : 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts, please try again later.' }
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: isDev ? 300 : 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many API requests, please try again later.' }
+});
+
+app.use(globalLimiter);
+
+// ── CORS ──
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
+// In dev mode, also allow trycloudflare.com tunnels
+if (isDev) allowedOrigins.push('https://*.trycloudflare.com');
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+    var allowed = allowedOrigins.some(function(ao) {
+      if (ao.includes('*')) return origin.endsWith(ao.replace('https://*', ''));
+      return ao === origin;
+    });
+    if (allowed) callback(null, true);
+    else callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-secret']
+}));
+
 // ── Middleware ──
-app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 // ── Request logging ──
@@ -31,7 +132,9 @@ app.use((req, res, next) => {
 });
 
 // ── API Routes ──
-app.use('/api', apiRoutes);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
 
@@ -68,13 +171,28 @@ async function start() {
     await startListeners();
 
     // Start HTTP server
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`\n╔══════════════════════════════════════════╗`);
       console.log(`║  OCCUPY MARS — Server Running             ║`);
       console.log(`║  http://localhost:${PORT}                    ║`);
       console.log(`║  Admin: http://localhost:${PORT}/admin        ║`);
       console.log(`╚══════════════════════════════════════════╝\n`);
     });
+
+    // ── Graceful Shutdown ──
+    function gracefulShutdown() {
+      console.log('[Server] Shutting down gracefully...');
+      server.close(() => {
+        pool.end(() => {
+          console.log('[Server] Closed all connections');
+          process.exit(0);
+        });
+      });
+      setTimeout(() => { process.exit(1); }, 10000);
+    }
+
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('SIGINT', gracefulShutdown);
   } catch (e) {
     console.error('[Server] Failed to start:', e.message);
     process.exit(1);

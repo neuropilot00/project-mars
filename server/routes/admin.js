@@ -1,17 +1,64 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
 
 const router = express.Router();
 
-// ── Admin auth middleware ──
-function adminAuth(req, res, next) {
-  const secret = req.headers['x-admin-secret'] || req.query.secret;
-  if (process.env.ADMIN_SECRET && secret !== process.env.ADMIN_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' });
+// ── Security checks ──
+const isProduction = process.env.NODE_ENV === 'production';
+if (!process.env.ADMIN_SECRET) {
+  if (isProduction) {
+    throw new Error('[FATAL] ADMIN_SECRET is not set. Cannot start admin module in production.');
   }
-  next();
+  console.warn('[SECURITY] ADMIN_SECRET is not set — using default. Set a strong secret in production!');
+}
+if (isProduction && process.env.ADMIN_SECRET === 'admin1234') {
+  throw new Error('[FATAL] ADMIN_SECRET is set to the insecure default "admin1234". Cannot start in production.');
 }
 
+// ── Admin auth middleware ──
+function adminAuth(req, res, next) {
+  // Method 1: x-admin-secret header
+  const secret = req.headers['x-admin-secret'];
+  const adminSecret = process.env.ADMIN_SECRET || (isProduction ? '' : 'admin1234');
+  if (secret && adminSecret && secret === adminSecret) {
+    req.adminAuth = 'secret';
+    return next();
+  }
+  // Method 2: JWT Bearer token
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const decoded = jwt.verify(authHeader.slice(7), process.env.JWT_SECRET);
+      if (decoded.role === 'admin') { req.adminAuth = 'jwt'; return next(); }
+    } catch(e) {}
+  }
+  res.status(401).json({ error: 'Unauthorized' });
+}
+
+// ── Audit log helper ──
+async function auditLog(req, action, target, details) {
+  try {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    await pool.query(
+      'INSERT INTO admin_audit_log (action, target, details, admin_auth, ip_address) VALUES ($1, $2, $3, $4, $5)',
+      [action, target, details ? JSON.stringify(details) : null, req.adminAuth || 'unknown', ip]
+    );
+  } catch(e) { console.error('[Audit] log error:', e.message); }
+}
+
+// ── Admin login (no auth required) ──
+router.post('/login', async (req, res) => {
+  const { password } = req.body;
+  const adminSecret = process.env.ADMIN_SECRET;
+  if (!adminSecret) return res.status(500).json({ error: 'Admin not configured' });
+  if (password !== adminSecret) return res.status(401).json({ error: 'Invalid credentials' });
+  const token = jwt.sign({ role: 'admin', iat: Date.now() }, process.env.JWT_SECRET, { expiresIn: '4h' });
+  res.json({ success: true, token });
+});
+
+// Apply auth middleware to all routes below
 router.use(adminAuth);
 
 // ══════════════════════════════════════════════════
@@ -85,7 +132,7 @@ router.get('/users', async (req, res) => {
     let where = '';
     const params = [];
     if (search) {
-      where = 'WHERE LOWER(wallet_address) LIKE $1';
+      where = 'WHERE LOWER(wallet_address) LIKE $1 OR LOWER(email) LIKE $1 OR LOWER(nickname) LIKE $1';
       params.push(`%${search}%`);
     }
 
@@ -93,7 +140,7 @@ router.get('/users', async (req, res) => {
     const total = parseInt(countRes.rows[0].cnt);
 
     const usersRes = await pool.query(
-      `SELECT u.wallet_address, u.usdt_balance, u.pp_balance, u.created_at,
+      `SELECT u.wallet_address, u.email, u.nickname, u.usdt_balance, u.pp_balance, u.created_at,
         (SELECT COUNT(*) FROM claims c WHERE c.owner = u.wallet_address AND c.deleted_at IS NULL) as claim_count,
         (SELECT COALESCE(SUM(amount),0) FROM deposits d WHERE d.wallet_address = u.wallet_address) as total_deposited
        FROM users u ${where}
@@ -105,6 +152,8 @@ router.get('/users', async (req, res) => {
     res.json({
       users: usersRes.rows.map(r => ({
         wallet: r.wallet_address,
+        email: r.email || '',
+        nickname: r.nickname || '',
         usdtBalance: parseFloat(r.usdt_balance),
         ppBalance: parseFloat(r.pp_balance),
         claimCount: parseInt(r.claim_count),
@@ -117,6 +166,72 @@ router.get('/users', async (req, res) => {
   } catch (e) {
     console.error('[Admin] users error:', e.message);
     res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /admin/api/users/:wallet — User detail
+// ══════════════════════════════════════════════════
+router.get('/users/:wallet', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT wallet_address, email, nickname, usdt_balance, pp_balance, referral_code, referred_by, created_at
+       FROM users WHERE wallet_address = $1`,
+      [req.params.wallet]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
+    const u = result.rows[0];
+    res.json({
+      wallet: u.wallet_address, email: u.email || '', nickname: u.nickname || '',
+      usdtBalance: parseFloat(u.usdt_balance), ppBalance: parseFloat(u.pp_balance),
+      referralCode: u.referral_code || '', referredBy: u.referred_by || '',
+      createdAt: u.created_at
+    });
+  } catch (e) {
+    console.error('[Admin] user detail error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  PUT /admin/api/users/:wallet — Update user info
+// ══════════════════════════════════════════════════
+router.put('/users/:wallet', async (req, res) => {
+  const { email, nickname, newPassword, usdtBalance, ppBalance } = req.body;
+  try {
+    const updates = [];
+    const params = [];
+    let idx = 1;
+
+    if (email !== undefined) { updates.push(`email = $${idx++}`); params.push(email.toLowerCase()); }
+    if (nickname !== undefined) { updates.push(`nickname = $${idx++}`); params.push(nickname); }
+    if (newPassword) {
+      const hash = await bcrypt.hash(newPassword, 10);
+      updates.push(`password_hash = $${idx++}`); params.push(hash);
+    }
+    if (usdtBalance !== undefined) { updates.push(`usdt_balance = $${idx++}`); params.push(usdtBalance); }
+    if (ppBalance !== undefined) { updates.push(`pp_balance = $${idx++}`); params.push(ppBalance); }
+
+    if (!updates.length) return res.status(400).json({ error: 'Nothing to update' });
+
+    params.push(req.params.wallet);
+    await pool.query(
+      `UPDATE users SET ${updates.join(', ')} WHERE wallet_address = $${idx}`,
+      params
+    );
+    const fieldsUpdated = {};
+    if (email !== undefined) fieldsUpdated.email = true;
+    if (nickname !== undefined) fieldsUpdated.nickname = true;
+    if (newPassword) fieldsUpdated.password = true;
+    if (usdtBalance !== undefined) fieldsUpdated.usdtBalance = usdtBalance;
+    if (ppBalance !== undefined) fieldsUpdated.ppBalance = ppBalance;
+
+    await auditLog(req, 'user_update', req.params.wallet, { fieldsUpdated });
+    console.log(`[Admin] Updated user ${req.params.wallet}: ${updates.join(', ')}`);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[Admin] user update error:', e.message);
+    res.status(500).json({ error: 'Update failed' });
   }
 });
 
@@ -234,6 +349,7 @@ router.put('/settings/:key', async (req, res) => {
     );
     if (!result.rows.length) return res.status(404).json({ error: 'Setting not found' });
 
+    await auditLog(req, 'setting_update', req.params.key, { value });
     console.log(`[Admin] Setting updated: ${req.params.key} = ${JSON.stringify(value)}`);
     res.json({ success: true, key: req.params.key, value });
   } catch (e) {
@@ -275,6 +391,7 @@ router.post('/events', async (req, res) => {
       [name, type, config || {}, startsAt, endsAt]
     );
 
+    await auditLog(req, 'event_create', result.rows[0].id?.toString(), { name, type });
     console.log(`[Admin] Event created: ${name} (${type})`);
     res.json({ success: true, event: result.rows[0] });
   } catch (e) {
@@ -312,6 +429,7 @@ router.put('/events/:id', async (req, res) => {
 router.delete('/events/:id', async (req, res) => {
   try {
     await pool.query('DELETE FROM events WHERE id = $1', [req.params.id]);
+    await auditLog(req, 'event_delete', req.params.id, null);
     res.json({ success: true });
   } catch (e) {
     console.error('[Admin] event delete error:', e.message);
@@ -422,6 +540,59 @@ router.get('/referrals', async (req, res) => {
     });
   } catch (e) {
     console.error('[Admin] referrals error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /admin/api/errors — Client error log (paginated)
+// ══════════════════════════════════════════════════
+router.get('/errors', async (req, res) => {
+  try {
+    const limit = Math.min(200, Math.max(1, parseInt(req.query.limit) || 50));
+    const offset = Math.max(0, parseInt(req.query.offset) || 0);
+
+    const countRes = await pool.query('SELECT COUNT(*) as cnt FROM client_errors');
+    const total = parseInt(countRes.rows[0].cnt);
+
+    const result = await pool.query(
+      `SELECT id, message, source, line, stack, user_agent, url, ip_address, created_at
+       FROM client_errors
+       ORDER BY created_at DESC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+
+    res.json({
+      errors: result.rows.map(r => ({
+        id: r.id,
+        message: r.message,
+        source: r.source,
+        line: r.line,
+        stack: r.stack,
+        userAgent: r.user_agent,
+        url: r.url,
+        ip: r.ip_address,
+        createdAt: r.created_at
+      })),
+      total, limit, offset
+    });
+  } catch (e) {
+    console.error('[Admin] errors list error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  DELETE /admin/api/errors — Clear all client errors
+// ══════════════════════════════════════════════════
+router.delete('/errors', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM client_errors');
+    console.log('[Admin] All client errors cleared');
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[Admin] clear errors error:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
 });

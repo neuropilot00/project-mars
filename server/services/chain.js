@@ -27,47 +27,161 @@ const CHAIN_CONFIGS = {
 };
 
 const listeners = {};
+const retryState = {}; // { [chainKey]: { delay, timer } }
+
+const RETRY_INITIAL_MS = 1000;
+const RETRY_MAX_MS = 60000;
+const HEALTH_CHECK_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const DEFAULT_PP_BONUS_PCT = 10;
+
+// ── PP Bonus from DB ──
+
+let cachedPpBonusPct = null;
+let ppBonusFetchedAt = 0;
+const PP_BONUS_CACHE_MS = 60000; // re-read from DB at most once per minute
+
+async function getPpBonusPct() {
+  const now = Date.now();
+  if (cachedPpBonusPct !== null && now - ppBonusFetchedAt < PP_BONUS_CACHE_MS) {
+    return cachedPpBonusPct;
+  }
+  try {
+    const res = await pool.query(
+      `SELECT value FROM settings WHERE key = 'deposit_pp_bonus'`
+    );
+    if (res.rows.length && res.rows[0].value != null) {
+      cachedPpBonusPct = parseFloat(res.rows[0].value);
+      if (isNaN(cachedPpBonusPct)) cachedPpBonusPct = DEFAULT_PP_BONUS_PCT;
+    } else {
+      cachedPpBonusPct = DEFAULT_PP_BONUS_PCT;
+    }
+  } catch (e) {
+    // Table may not exist yet — fall back silently
+    if (cachedPpBonusPct === null) cachedPpBonusPct = DEFAULT_PP_BONUS_PCT;
+    console.warn(`[Chain] Could not read deposit_pp_bonus from settings: ${e.message}`);
+  }
+  ppBonusFetchedAt = now;
+  return cachedPpBonusPct;
+}
+
+// ── Connection with retry ──
+
+async function connectChain(key, cfg) {
+  const rpcUrl = process.env[cfg.rpcEnv];
+  const contractAddr = process.env[cfg.addrEnv];
+
+  if (!rpcUrl || !contractAddr || contractAddr === '0x0000000000000000000000000000000000000000') {
+    console.log(`[Chain] ${cfg.name}: skipped (no RPC or contract address)`);
+    return;
+  }
+
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+
+    // Test the connection by fetching block number
+    await provider.getBlockNumber();
+
+    const contract = new ethers.Contract(contractAddr, DEPOSIT_ABI, provider);
+
+    // Listen for new Deposited events
+    contract.on('Deposited', async (user, amount, timestamp, chainId, event) => {
+      try {
+        await processDeposit({
+          wallet: user.toLowerCase(),
+          amount: ethers.utils.formatUnits(amount, cfg.decimals),
+          chain: key,
+          txHash: event.transactionHash,
+          blockNumber: event.blockNumber
+        });
+      } catch (e) {
+        console.error(`[Chain] ${cfg.name} deposit processing error:`, e.message);
+      }
+    });
+
+    // Listen for provider errors to trigger reconnection
+    provider.on('error', (error) => {
+      console.error(`[Chain] ${cfg.name} provider error:`, error.message);
+      handleDisconnect(key, cfg);
+    });
+
+    // For WebSocket providers, listen for close events
+    if (provider._websocket) {
+      provider._websocket.on('close', () => {
+        console.warn(`[Chain] ${cfg.name} websocket closed`);
+        handleDisconnect(key, cfg);
+      });
+    }
+
+    listeners[key] = { provider, contract };
+    // Reset retry state on successful connection
+    delete retryState[key];
+    console.log(`[Chain] ${cfg.name}: listening on ${contractAddr.slice(0, 10)}...`);
+
+    // Backfill recent events (last 1000 blocks)
+    backfillEvents(key, contract, provider, cfg.decimals).catch(e => {
+      console.warn(`[Chain] ${cfg.name} backfill error:`, e.message);
+    });
+  } catch (e) {
+    console.error(`[Chain] ${cfg.name} connection failed:`, e.message);
+    scheduleRetry(key, cfg);
+  }
+}
+
+function handleDisconnect(key, cfg) {
+  // Clean up existing listener
+  if (listeners[key]) {
+    try {
+      listeners[key].contract.removeAllListeners();
+      listeners[key].provider.removeAllListeners();
+    } catch (_) { /* ignore cleanup errors */ }
+    delete listeners[key];
+  }
+  scheduleRetry(key, cfg);
+}
+
+function scheduleRetry(key, cfg) {
+  // Don't schedule if already pending
+  if (retryState[key] && retryState[key].timer) return;
+
+  const state = retryState[key] || { delay: RETRY_INITIAL_MS };
+  const delay = Math.min(state.delay, RETRY_MAX_MS);
+
+  console.log(`[Chain] ${cfg.name}: retrying in ${delay / 1000}s...`);
+
+  const timer = setTimeout(() => {
+    retryState[key] = { delay: delay * 2 }; // exponential backoff for next failure
+    connectChain(key, cfg);
+  }, delay);
+
+  retryState[key] = { delay, timer };
+}
+
+// ── Health check ──
+
+let healthCheckTimer = null;
+
+function startHealthCheck() {
+  if (healthCheckTimer) return;
+  healthCheckTimer = setInterval(async () => {
+    for (const [key, { provider }] of Object.entries(listeners)) {
+      try {
+        const blockNumber = await provider.getBlockNumber();
+        console.log(`[Chain] Health: ${CHAIN_CONFIGS[key].name} latest block #${blockNumber}`);
+      } catch (e) {
+        console.error(`[Chain] Health: ${CHAIN_CONFIGS[key].name} unreachable — ${e.message}`);
+        handleDisconnect(key, CHAIN_CONFIGS[key]);
+      }
+    }
+  }, HEALTH_CHECK_INTERVAL_MS);
+}
+
+// ── Start all listeners ──
 
 async function startListeners() {
   for (const [key, cfg] of Object.entries(CHAIN_CONFIGS)) {
-    const rpcUrl = process.env[cfg.rpcEnv];
-    const contractAddr = process.env[cfg.addrEnv];
-
-    if (!rpcUrl || !contractAddr || contractAddr === '0x0000000000000000000000000000000000000000') {
-      console.log(`[Chain] ${cfg.name}: skipped (no RPC or contract address)`);
-      continue;
-    }
-
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-      const contract = new ethers.Contract(contractAddr, DEPOSIT_ABI, provider);
-
-      // Listen for new Deposited events
-      contract.on('Deposited', async (user, amount, timestamp, chainId, event) => {
-        try {
-          await processDeposit({
-            wallet: user.toLowerCase(),
-            amount: ethers.utils.formatUnits(amount, cfg.decimals),
-            chain: key,
-            txHash: event.transactionHash,
-            blockNumber: event.blockNumber
-          });
-        } catch (e) {
-          console.error(`[Chain] ${cfg.name} deposit processing error:`, e.message);
-        }
-      });
-
-      listeners[key] = { provider, contract };
-      console.log(`[Chain] ${cfg.name}: listening on ${contractAddr.slice(0, 10)}...`);
-
-      // Backfill recent events (last 1000 blocks)
-      backfillEvents(key, contract, provider, cfg.decimals).catch(e => {
-        console.warn(`[Chain] ${cfg.name} backfill error:`, e.message);
-      });
-    } catch (e) {
-      console.error(`[Chain] ${cfg.name} init error:`, e.message);
-    }
+    await connectChain(key, cfg);
   }
+  startHealthCheck();
 }
 
 async function backfillEvents(chainKey, contract, provider, decimals) {
@@ -104,7 +218,8 @@ async function backfillEvents(chainKey, contract, provider, decimals) {
 
 async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
   const amountNum = parseFloat(amount);
-  const ppBonus = Math.round(amountNum * 0.10 * 1000000) / 1000000; // 10% PP bonus
+  const ppBonusPct = await getPpBonusPct();
+  const ppBonus = Math.round(amountNum * (ppBonusPct / 100) * 1000000) / 1000000;
 
   const client = await pool.connect();
   try {
@@ -140,7 +255,7 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
     );
 
     await client.query('COMMIT');
-    console.log(`[Chain] Deposit: ${wallet.slice(0, 8)}... +${amountNum} USDT +${ppBonus} PP (${chain})`);
+    console.log(`[Chain] Deposit: ${wallet.slice(0, 8)}... +${amountNum} USDT +${ppBonus} PP (${chain}, ${ppBonusPct}%)`);
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;

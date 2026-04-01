@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -157,6 +157,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
 /* Toggle switch */
 .toggle-wrap{display:flex;align-items:center;gap:6px;margin-top:4px}
 .toggle-label{font-size:7px;color:var(--tx3)}
+
+/* Admin Tabs */
+.adm-tabs{display:flex;gap:0;padding:0 24px;background:rgba(13,11,20,0.9);
+  border-bottom:1px solid var(--bdr);overflow-x:auto;position:sticky;top:48px;z-index:99}
+.adm-tab{padding:12px 20px;font-size:8px;font-family:var(--fn);color:var(--tx3);
+  background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;
+  white-space:nowrap;transition:all .15s}
+.adm-tab:hover{color:var(--tx2)}
+.adm-tab.active{color:var(--mars);border-bottom-color:var(--mars)}
+
+/* User edit btn */
+.user-edit-btn{padding:3px 8px;font-size:6px;font-family:var(--fn);cursor:pointer;
+  background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.2);color:var(--cyan);
+  border-radius:3px;transition:all .15s}
+.user-edit-btn:hover{background:rgba(91,184,232,.15)}
 </style>
 </head>
 <body>
@@ -176,28 +191,42 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <span class="tb-sub">ADMIN DASHBOARD</span>
   </div>
   <div class="tb-right">
+    <select class="adm-select" id="adminLangSelect" onchange="setAdminLang(this.value)" style="font-size:7px;padding:4px 8px">
+      <option value="en">English</option>
+      <option value="ko">한국어</option>
+      <option value="ja">日本語</option>
+      <option value="zh">中文</option>
+    </select>
     <span class="tb-status ok" id="serverStatus">CONNECTED</span>
     <span style="font-size:7px;color:var(--tx3)" id="lastUpdate">--</span>
   </div>
 </div>
 
+<!-- Category Tabs -->
+<div class="adm-tabs" id="admTabs">
+  <button class="adm-tab active" onclick="switchTab('dashboard')" data-tab="dashboard" data-i18n="tab_dashboard">DASHBOARD</button>
+  <button class="adm-tab" onclick="switchTab('users')" data-tab="users" data-i18n="tab_users">USERS</button>
+  <button class="adm-tab" onclick="switchTab('game')" data-tab="game" data-i18n="tab_game">GAME SETTINGS</button>
+  <button class="adm-tab" onclick="switchTab('finance')" data-tab="finance" data-i18n="tab_finance">FINANCE</button>
+</div>
+
 <div class="container" id="mainContent" style="display:none">
 
-  <!-- Stats Cards -->
-  <div class="stats-grid" id="statsGrid">
-    <div class="stat-card"><div class="sc-label">TOTAL USERS</div><div class="sc-value mars" id="sTotalUsers">--</div></div>
-    <div class="stat-card"><div class="sc-label">TOTAL VOLUME</div><div class="sc-value gn" id="sTotalVolume">--</div><div class="sc-sub">USDT deposited</div></div>
-    <div class="stat-card"><div class="sc-label">TOTAL REVENUE</div><div class="sc-value gold" id="sTotalRevenue">--</div><div class="sc-sub">fees earned</div></div>
-    <div class="stat-card"><div class="sc-label">ACTIVE 24H</div><div class="sc-value cyan" id="sActive24h">--</div><div class="sc-sub">deposits today</div></div>
-    <div class="stat-card"><div class="sc-label">ACTIVE CLAIMS</div><div class="sc-value pp" id="sTotalClaims">--</div></div>
-    <div class="stat-card"><div class="sc-label">PIXELS SOLD</div><div class="sc-value red" id="sPixelsSold">--</div></div>
-    <div class="stat-card"><div class="sc-label">CONTRACT BAL</div><div class="sc-value gn" id="sContractBal">--</div><div class="sc-sub">USDT held</div></div>
+  <!-- Stats Cards (dashboard) -->
+  <div class="stats-grid cat-dashboard" id="statsGrid">
+    <div class="stat-card"><div class="sc-label" data-i18n="stat_total_users">TOTAL USERS</div><div class="sc-value mars" id="sTotalUsers">--</div></div>
+    <div class="stat-card"><div class="sc-label" data-i18n="stat_total_volume">TOTAL VOLUME</div><div class="sc-value gn" id="sTotalVolume">--</div><div class="sc-sub" data-i18n="stat_usdt_deposited">USDT deposited</div></div>
+    <div class="stat-card"><div class="sc-label" data-i18n="stat_total_revenue">TOTAL REVENUE</div><div class="sc-value gold" id="sTotalRevenue">--</div><div class="sc-sub" data-i18n="stat_fees_earned">fees earned</div></div>
+    <div class="stat-card"><div class="sc-label" data-i18n="stat_active_24h">ACTIVE 24H</div><div class="sc-value cyan" id="sActive24h">--</div><div class="sc-sub" data-i18n="stat_deposits_today">deposits today</div></div>
+    <div class="stat-card"><div class="sc-label" data-i18n="stat_active_claims">ACTIVE CLAIMS</div><div class="sc-value pp" id="sTotalClaims">--</div></div>
+    <div class="stat-card"><div class="sc-label" data-i18n="stat_pixels_sold">PIXELS SOLD</div><div class="sc-value red" id="sPixelsSold">--</div></div>
+    <div class="stat-card"><div class="sc-label" data-i18n="stat_contract_bal">CONTRACT BAL</div><div class="sc-value gn" id="sContractBal">--</div><div class="sc-sub" data-i18n="stat_usdt_held">USDT held</div></div>
   </div>
 
   <!-- GAME CONTROLS -->
-  <div class="section">
+  <div class="section cat-game">
     <div class="sec-header">
-      <span class="sec-title">GAME CONTROLS</span>
+      <span class="sec-title" data-i18n="sec_game_controls">GAME CONTROLS</span>
       <div class="sec-tools">
         <span style="font-size:6px;color:var(--tx3)" id="settingsStatus"></span>
       </div>
@@ -208,18 +237,18 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   </div>
 
   <!-- EVENTS -->
-  <div class="section">
+  <div class="section cat-game">
     <div class="sec-header">
-      <span class="sec-title">EVENTS & PROMOTIONS</span>
+      <span class="sec-title" data-i18n="sec_events">EVENTS & PROMOTIONS</span>
       <div class="sec-tools">
         <button class="adm-btn primary" onclick="showNewEventForm()">+ NEW EVENT</button>
       </div>
     </div>
     <div id="newEventForm" style="display:none;padding:16px;border-bottom:1px solid var(--bdr)">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">EVENT NAME</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="ev_name">EVENT NAME</div>
           <input class="adm-input" id="evName" placeholder="Spring Bonus" style="width:100%"></div>
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">TYPE</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="ev_type">TYPE</div>
           <select class="adm-select" id="evType" style="width:100%">
             <option value="deposit_bonus">Deposit PP Bonus</option>
             <option value="swap_discount">Swap Fee Discount</option>
@@ -227,11 +256,11 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
             <option value="hijack_bonus">Hijack Owner Bonus</option>
             <option value="custom">Custom</option>
           </select></div>
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">START DATE</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="ev_start">START DATE</div>
           <input class="adm-input" id="evStart" type="datetime-local" style="width:100%"></div>
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">END DATE</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="ev_end">END DATE</div>
           <input class="adm-input" id="evEnd" type="datetime-local" style="width:100%"></div>
-        <div style="grid-column:1/3"><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">CONFIG (JSON) — e.g. {"extra_pp_percent": 5}</div>
+        <div style="grid-column:1/3"><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="ev_config">CONFIG (JSON)</div>
           <input class="adm-input" id="evConfig" placeholder='{"extra_pp_percent": 5}' style="width:100%"></div>
       </div>
       <div style="display:flex;gap:6px;margin-top:10px">
@@ -245,26 +274,26 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   </div>
 
   <!-- GAME ITEMS -->
-  <div class="section">
+  <div class="section cat-game">
     <div class="sec-header">
-      <span class="sec-title">GAME ITEMS</span>
+      <span class="sec-title" data-i18n="sec_game_items">GAME ITEMS</span>
       <div class="sec-tools">
         <button class="adm-btn primary" onclick="showNewItemForm()">+ NEW ITEM</button>
       </div>
     </div>
     <div id="newItemForm" style="display:none;padding:16px;border-bottom:1px solid var(--bdr)">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">SLUG</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="item_slug">SLUG</div>
           <input class="adm-input" id="itemSlug" placeholder="speed_boost" style="width:100%"></div>
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">NAME</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="item_name">NAME</div>
           <input class="adm-input" id="itemName" placeholder="Speed Boost" style="width:100%"></div>
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">CATEGORY</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="item_category">CATEGORY</div>
           <input class="adm-input" id="itemCat" placeholder="boost" style="width:100%"></div>
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">PRICE (USDT)</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="item_price_usdt">PRICE (USDT)</div>
           <input class="adm-input" id="itemPriceU" type="number" placeholder="0" step="0.01" style="width:100%"></div>
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">PRICE (PP)</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="item_price_pp">PRICE (PP)</div>
           <input class="adm-input" id="itemPriceP" type="number" placeholder="0" step="0.01" style="width:100%"></div>
-        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">CONFIG (JSON)</div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px" data-i18n="item_config">CONFIG (JSON)</div>
           <input class="adm-input" id="itemConfig" placeholder="{}" style="width:100%"></div>
       </div>
       <div style="display:flex;gap:6px;margin-top:10px">
@@ -281,31 +310,31 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   </div>
 
   <!-- REFERRAL STATS -->
-  <div class="section">
+  <div class="section cat-finance">
     <div class="sec-header">
-      <span class="sec-title">REFERRAL PROGRAM</span>
+      <span class="sec-title" data-i18n="sec_referral">REFERRAL PROGRAM</span>
     </div>
     <div style="padding:16px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:16px" id="refStatsCards">
-        <div class="rev-item"><div class="rev-type">TOTAL REFERRALS</div><div class="rev-val" style="color:var(--cyan)" id="rTotalRefs">--</div></div>
-        <div class="rev-item"><div class="rev-type">PP DISTRIBUTED</div><div class="rev-val" style="color:var(--pp)" id="rTotalPP">--</div></div>
-        <div class="rev-item"><div class="rev-type">REWARD TXS</div><div class="rev-val" style="color:var(--gold)" id="rTotalTxs">--</div></div>
+        <div class="rev-item"><div class="rev-type" data-i18n="ref_total">TOTAL REFERRALS</div><div class="rev-val" style="color:var(--cyan)" id="rTotalRefs">--</div></div>
+        <div class="rev-item"><div class="rev-type" data-i18n="ref_pp_dist">PP DISTRIBUTED</div><div class="rev-val" style="color:var(--pp)" id="rTotalPP">--</div></div>
+        <div class="rev-item"><div class="rev-type" data-i18n="ref_reward_txs">REWARD TXS</div><div class="rev-val" style="color:var(--gold)" id="rTotalTxs">--</div></div>
       </div>
       <!-- Tier Breakdown -->
-      <div style="font-size:8px;color:var(--tx2);margin-bottom:8px;letter-spacing:1px">TIER BREAKDOWN</div>
+      <div style="font-size:8px;color:var(--tx2);margin-bottom:8px;letter-spacing:1px" data-i18n="ref_tier_breakdown">TIER BREAKDOWN</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px" id="refTierGrid">
         <div class="rev-item"><div class="rev-type">TIER 1 (15%)</div><div class="rev-val" style="color:var(--gn)" id="rTier1">--</div><div class="rev-count" id="rTier1Count">0 rewards</div></div>
         <div class="rev-item"><div class="rev-type">TIER 2 (10%)</div><div class="rev-val" style="color:var(--cyan)" id="rTier2">--</div><div class="rev-count" id="rTier2Count">0 rewards</div></div>
         <div class="rev-item"><div class="rev-type">TIER 3 (5%)</div><div class="rev-val" style="color:var(--pp)" id="rTier3">--</div><div class="rev-count" id="rTier3Count">0 rewards</div></div>
       </div>
       <!-- Top Referrers -->
-      <div style="font-size:8px;color:var(--tx2);margin-bottom:8px;letter-spacing:1px">TOP REFERRERS</div>
+      <div style="font-size:8px;color:var(--tx2);margin-bottom:8px;letter-spacing:1px" data-i18n="ref_top_referrers">TOP REFERRERS</div>
       <table class="adm-table">
         <thead><tr><th>#</th><th>WALLET</th><th>REFERRALS</th><th>REWARDS</th><th>TOTAL EARNED</th></tr></thead>
         <tbody id="refTopBody"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
       </table>
       <!-- Recent Rewards -->
-      <div style="font-size:8px;color:var(--tx2);margin:16px 0 8px;letter-spacing:1px">RECENT REWARDS</div>
+      <div style="font-size:8px;color:var(--tx2);margin:16px 0 8px;letter-spacing:1px" data-i18n="ref_recent_rewards">RECENT REWARDS</div>
       <table class="adm-table">
         <thead><tr><th>FROM</th><th>TO</th><th>TIER</th><th>PP AMOUNT</th><th>TYPE</th><th>TIME</th></tr></thead>
         <tbody id="refRecentBody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
@@ -314,9 +343,9 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   </div>
 
   <!-- Revenue Breakdown -->
-  <div class="section">
+  <div class="section cat-finance">
     <div class="sec-header">
-      <span class="sec-title">REVENUE BREAKDOWN</span>
+      <span class="sec-title" data-i18n="sec_revenue_breakdown">REVENUE BREAKDOWN</span>
     </div>
     <div class="rev-grid" id="revGrid">
       <div class="loading">Loading...</div>
@@ -324,9 +353,9 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   </div>
 
   <!-- Revenue Chart -->
-  <div class="section">
+  <div class="section cat-finance">
     <div class="sec-header">
-      <span class="sec-title">REVENUE CHART (30 DAYS)</span>
+      <span class="sec-title" data-i18n="sec_revenue_chart">REVENUE CHART (30 DAYS)</span>
       <div class="sec-tools">
         <select class="adm-select" id="chartDays" onchange="loadRevenue()">
           <option value="7">7 days</option>
@@ -339,11 +368,40 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   </div>
 
   <!-- Users Table -->
-  <div class="section">
+  <div class="section cat-users">
     <div class="sec-header">
-      <span class="sec-title">USERS</span>
+      <span class="sec-title" data-i18n="sec_users">USERS</span>
       <div class="sec-tools">
-        <input type="text" class="adm-input" id="userSearch" placeholder="Search wallet..." oninput="debouncedLoadUsers()">
+        <input type="text" class="adm-input" id="userSearch" data-i18n-placeholder="search_users" placeholder="Search email/nickname/wallet..." oninput="debouncedLoadUsers()" style="width:240px">
+      </div>
+    </div>
+    <!-- User Edit Panel (hidden) -->
+    <div id="userEditPanel" style="display:none;padding:16px;border-bottom:1px solid var(--bdr);background:rgba(91,184,232,.03)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:9px;color:var(--cyan);letter-spacing:1px" data-i18n="user_detail">USER DETAIL</span>
+        <button class="ev-btn del" onclick="closeUserEdit()">CLOSE ✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_wallet">WALLET</div>
+          <div class="adm-input" id="ueWallet" style="opacity:.6;font-size:6px;word-break:break-all">--</div></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_email">EMAIL</div>
+          <input class="adm-input" id="ueEmail" style="width:100%"></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_nickname">NICKNAME</div>
+          <input class="adm-input" id="ueNickname" style="width:100%"></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_new_password">NEW PASSWORD (leave blank to keep)</div>
+          <input class="adm-input" id="uePassword" type="password" data-i18n-placeholder="ue_pw_placeholder" placeholder="Enter to change" style="width:100%"></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_pp_balance">PP BALANCE</div>
+          <input class="adm-input" id="uePP" type="number" step="0.01" style="width:100%"></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_usdt_balance">USDT BALANCE (view only)</div>
+          <div class="adm-input" id="ueUSDT" style="opacity:.6">--</div></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_referral_code">REFERRAL CODE</div>
+          <div class="adm-input" id="ueRefCode" style="opacity:.6">--</div></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_joined">JOINED</div>
+          <div class="adm-input" id="ueJoined" style="opacity:.6">--</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="adm-btn primary" onclick="saveUserEdit()" style="background:rgba(76,216,154,.1);border-color:rgba(76,216,154,.3);color:var(--gn)" data-i18n="btn_save_changes">SAVE CHANGES</button>
+        <span id="ueStatus" style="font-size:7px;color:var(--gn);line-height:32px"></span>
       </div>
     </div>
     <div style="overflow-x:auto">
@@ -351,23 +409,25 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <thead>
           <tr>
             <th onclick="sortUsers('wallet_address')">WALLET</th>
+            <th>EMAIL</th>
+            <th>NICKNAME</th>
             <th onclick="sortUsers('usdt_balance')">USDT</th>
             <th onclick="sortUsers('pp_balance')">PP</th>
             <th>CLAIMS</th>
-            <th>DEPOSITED</th>
             <th onclick="sortUsers('created_at')">JOINED</th>
+            <th>EDIT</th>
           </tr>
         </thead>
-        <tbody id="usersBody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+        <tbody id="usersBody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
       </table>
     </div>
     <div class="pagination" id="usersPagination"></div>
   </div>
 
   <!-- Transactions Table -->
-  <div class="section">
+  <div class="section cat-finance">
     <div class="sec-header">
-      <span class="sec-title">TRANSACTIONS</span>
+      <span class="sec-title" data-i18n="sec_transactions">TRANSACTIONS</span>
       <div class="sec-tools">
         <select class="adm-select" id="txTypeFilter" onchange="loadTransactions(1)">
           <option value="">ALL TYPES</option>
@@ -399,15 +459,253 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div class="pagination" id="txPagination"></div>
   </div>
 
+  <!-- Error Log -->
+  <div class="section cat-dashboard">
+    <div class="sec-header">
+      <span class="sec-title" data-i18n="sec_error_log">CLIENT ERROR LOG</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="clearErrors()" style="color:var(--red);border-color:rgba(232,72,85,.3)">
+          <span data-i18n="btn_clear_errors">CLEAR ALL</span>
+        </button>
+        <button class="adm-btn primary" onclick="loadErrors(0)" data-i18n="btn_refresh">REFRESH</button>
+        <span style="font-size:6px;color:var(--tx3)" id="errCount">--</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th data-i18n="err_th_time">TIME</th>
+            <th data-i18n="err_th_message">MESSAGE</th>
+            <th data-i18n="err_th_source">SOURCE</th>
+            <th data-i18n="err_th_line">LINE</th>
+            <th data-i18n="err_th_url">PAGE</th>
+            <th data-i18n="err_th_browser">BROWSER</th>
+            <th data-i18n="err_th_ip">IP</th>
+          </tr>
+        </thead>
+        <tbody id="errBody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="errPagination"></div>
+    <!-- Stack trace detail -->
+    <div id="errDetail" style="display:none;padding:16px;border-top:1px solid var(--bdr);background:rgba(0,0,0,.2)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:8px;color:var(--red);letter-spacing:1px" data-i18n="err_stack_trace">STACK TRACE</span>
+        <button class="ev-btn del" onclick="document.getElementById('errDetail').style.display='none'">CLOSE ✕</button>
+      </div>
+      <pre id="errStack" style="font-size:7px;color:var(--tx2);background:rgba(0,0,0,.3);padding:12px;border-radius:6px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;border:1px solid var(--bdr)"></pre>
+    </div>
+  </div>
+
 </div>
 
 <script>
 var adminSecret = '';
+// Set language selector to stored value on load
+(function() {
+  var stored = localStorage.getItem('adminLang') || 'en';
+  var sel = document.getElementById('adminLangSelect');
+  if (sel) sel.value = stored;
+})();
 var userSort = 'created_at';
 var userOrder = 'desc';
 var userPage = 1;
 var txPage = 1;
 var revenueChart = null;
+var currentTab = 'dashboard';
+
+// ── Tab System ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.adm-tab').forEach(function(t) {
+    t.classList.toggle('active', t.getAttribute('data-tab') === tab);
+  });
+  // Show/hide sections by category
+  var cats = ['dashboard', 'users', 'game', 'finance'];
+  cats.forEach(function(c) {
+    var els = document.querySelectorAll('.cat-' + c);
+    els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
+  });
+  // Stats grid is always visible on dashboard
+  document.getElementById('statsGrid').style.display = (tab === 'dashboard') ? '' : 'none';
+}
+
+// ── Language System ──
+var adminLang = localStorage.getItem('adminLang') || 'en';
+var adminLangData = {
+  en: {
+    tab_dashboard: 'DASHBOARD', tab_users: 'USERS', tab_game: 'GAME SETTINGS', tab_finance: 'FINANCE',
+    stat_total_users: 'TOTAL USERS', stat_total_volume: 'TOTAL VOLUME', stat_total_revenue: 'TOTAL REVENUE',
+    stat_active_24h: 'ACTIVE 24H', stat_active_claims: 'ACTIVE CLAIMS', stat_pixels_sold: 'PIXELS SOLD',
+    stat_contract_bal: 'CONTRACT BAL', stat_usdt_deposited: 'USDT deposited', stat_fees_earned: 'fees earned',
+    stat_deposits_today: 'deposits today', stat_usdt_held: 'USDT held',
+    sec_game_controls: 'GAME CONTROLS', sec_events: 'EVENTS & PROMOTIONS', sec_game_items: 'GAME ITEMS',
+    sec_referral: 'REFERRAL PROGRAM', sec_revenue_breakdown: 'REVENUE BREAKDOWN',
+    sec_revenue_chart: 'REVENUE CHART (30 DAYS)', sec_users: 'USERS', sec_transactions: 'TRANSACTIONS',
+    user_detail: 'USER DETAIL', ue_wallet: 'WALLET', ue_email: 'EMAIL', ue_nickname: 'NICKNAME',
+    ue_new_password: 'NEW PASSWORD (leave blank to keep)', ue_pw_placeholder: 'Enter to change',
+    ue_pp_balance: 'PP BALANCE', ue_usdt_balance: 'USDT BALANCE (view only)',
+    ue_referral_code: 'REFERRAL CODE', ue_joined: 'JOINED', btn_save_changes: 'SAVE CHANGES',
+    search_users: 'Search email/nickname/wallet...',
+    ev_name: 'EVENT NAME', ev_type: 'TYPE', ev_start: 'START DATE', ev_end: 'END DATE', ev_config: 'CONFIG (JSON)',
+    item_slug: 'SLUG', item_name: 'NAME', item_category: 'CATEGORY', item_price_usdt: 'PRICE (USDT)',
+    item_price_pp: 'PRICE (PP)', item_config: 'CONFIG (JSON)',
+    ref_total: 'TOTAL REFERRALS', ref_pp_dist: 'PP DISTRIBUTED', ref_reward_txs: 'REWARD TXS',
+    ref_tier_breakdown: 'TIER BREAKDOWN', ref_top_referrers: 'TOP REFERRERS', ref_recent_rewards: 'RECENT REWARDS',
+    sec_error_log: 'CLIENT ERROR LOG', btn_clear_errors: 'CLEAR ALL', btn_refresh: 'REFRESH',
+    err_th_time: 'TIME', err_th_message: 'MESSAGE', err_th_source: 'SOURCE', err_th_line: 'LINE',
+    err_th_url: 'PAGE', err_th_browser: 'BROWSER', err_th_ip: 'IP', err_stack_trace: 'STACK TRACE',
+    err_no_errors: 'No errors recorded', err_total: 'total errors'
+  },
+  ko: {
+    tab_dashboard: '\uB300\uC2DC\uBCF4\uB4DC', tab_users: '\uC720\uC800 \uAD00\uB9AC', tab_game: '\uAC8C\uC784 \uC124\uC815', tab_finance: '\uC7AC\uBB34',
+    stat_total_users: '\uCD1D \uC720\uC800 \uC218', stat_total_volume: '\uCD1D \uAC70\uB798\uB7C9', stat_total_revenue: '\uCD1D \uC218\uC775',
+    stat_active_24h: '24\uC2DC\uAC04 \uD65C\uC131', stat_active_claims: '\uD65C\uC131 \uD074\uB808\uC784', stat_pixels_sold: '\uD310\uB9E4\uB41C \uD53D\uC140',
+    stat_contract_bal: '\uCEE8\uD2B8\uB799\uD2B8 \uC794\uACE0', stat_usdt_deposited: 'USDT \uC785\uAE08\uC561', stat_fees_earned: '\uC218\uC218\uB8CC \uC218\uC775',
+    stat_deposits_today: '\uC624\uB298 \uC785\uAE08', stat_usdt_held: 'USDT \uBCF4\uC720',
+    sec_game_controls: '\uAC8C\uC784 \uCEE8\uD2B8\uB864', sec_events: '\uC774\uBCA4\uD2B8 & \uD504\uB85C\uBAA8\uC158', sec_game_items: '\uAC8C\uC784 \uC544\uC774\uD15C',
+    sec_referral: '\uCD94\uCC9C\uC778 \uD504\uB85C\uADF8\uB7A8', sec_revenue_breakdown: '\uC218\uC775 \uBD84\uC11D',
+    sec_revenue_chart: '\uC218\uC775 \uCC28\uD2B8 (30\uC77C)', sec_users: '\uC720\uC800 \uBAA9\uB85D', sec_transactions: '\uAC70\uB798 \uB0B4\uC5ED',
+    user_detail: '\uC720\uC800 \uC0C1\uC138', ue_wallet: '\uC9C0\uAC11 \uC8FC\uC18C', ue_email: '\uC774\uBA54\uC77C', ue_nickname: '\uB2C9\uB124\uC784',
+    ue_new_password: '\uC0C8 \uBE44\uBC00\uBC88\uD638 (\uBE44\uC6CC\uB450\uBA74 \uC720\uC9C0)', ue_pw_placeholder: '\uBCC0\uACBD\uD560 \uBE44\uBC00\uBC88\uD638 \uC785\uB825',
+    ue_pp_balance: 'PP \uC794\uACE0', ue_usdt_balance: 'USDT \uC794\uACE0 (\uC870\uD68C\uB9CC \uAC00\uB2A5)',
+    ue_referral_code: '\uCD94\uCC9C\uC778 \uCF54\uB4DC', ue_joined: '\uAC00\uC785\uC77C', btn_save_changes: '\uBCC0\uACBD \uC800\uC7A5',
+    search_users: '\uC774\uBA54\uC77C/\uB2C9\uB124\uC784/\uC9C0\uAC11 \uAC80\uC0C9...',
+    ev_name: '\uC774\uBCA4\uD2B8\uBA85', ev_type: '\uC720\uD615', ev_start: '\uC2DC\uC791\uC77C', ev_end: '\uC885\uB8CC\uC77C', ev_config: '\uC124\uC815 (JSON)',
+    item_slug: '\uC2AC\uB7EC\uADF8', item_name: '\uC774\uB984', item_category: '\uCE74\uD14C\uACE0\uB9AC', item_price_usdt: '\uAC00\uACA9 (USDT)',
+    item_price_pp: '\uAC00\uACA9 (PP)', item_config: '\uC124\uC815 (JSON)',
+    ref_total: '\uCD1D \uCD94\uCC9C\uC778 \uC218', ref_pp_dist: 'PP \uBD84\uBC30\uB7C9', ref_reward_txs: '\uBCF4\uC0C1 \uAC74\uC218',
+    ref_tier_breakdown: '\uD2F0\uC5B4\uBCC4 \uBD84\uC11D', ref_top_referrers: '\uC0C1\uC704 \uCD94\uCC9C\uC778', ref_recent_rewards: '\uCD5C\uADFC \uBCF4\uC0C1',
+    sec_error_log: '\uD074\uB77C\uC774\uC5B8\uD2B8 \uC5D0\uB7EC \uB85C\uADF8', btn_clear_errors: '\uC804\uCCB4 \uC0AD\uC81C', btn_refresh: '\uC0C8\uB85C\uACE0\uCE68',
+    err_th_time: '\uC2DC\uAC04', err_th_message: '\uBA54\uC2DC\uC9C0', err_th_source: '\uC18C\uC2A4', err_th_line: '\uB77C\uC778',
+    err_th_url: '\uD398\uC774\uC9C0', err_th_browser: '\uBE0C\uB77C\uC6B0\uC800', err_th_ip: 'IP', err_stack_trace: '\uC2A4\uD0DD \uD2B8\uB808\uC774\uC2A4',
+    err_no_errors: '\uAE30\uB85D\uB41C \uC5D0\uB7EC \uC5C6\uC74C', err_total: '\uCD1D \uC5D0\uB7EC'
+  },
+  ja: {
+    tab_dashboard: '\u30C0\u30C3\u30B7\u30E5\u30DC\u30FC\u30C9', tab_users: '\u30E6\u30FC\u30B6\u30FC\u7BA1\u7406', tab_game: '\u30B2\u30FC\u30E0\u8A2D\u5B9A', tab_finance: '\u8CA1\u52D9',
+    stat_total_users: '\u7DCF\u30E6\u30FC\u30B6\u30FC\u6570', stat_total_volume: '\u7DCF\u53D6\u5F15\u91CF', stat_total_revenue: '\u7DCF\u53CE\u76CA',
+    stat_active_24h: '24\u6642\u9593\u30A2\u30AF\u30C6\u30A3\u30D6', stat_active_claims: '\u30A2\u30AF\u30C6\u30A3\u30D6\u30AF\u30EC\u30FC\u30E0', stat_pixels_sold: '\u8CA9\u58F2\u30D4\u30AF\u30BB\u30EB',
+    stat_contract_bal: '\u30B3\u30F3\u30C8\u30E9\u30AF\u30C8\u6B8B\u9AD8', stat_usdt_deposited: 'USDT\u5165\u91D1\u984D', stat_fees_earned: '\u624B\u6570\u6599\u53CE\u76CA',
+    stat_deposits_today: '\u672C\u65E5\u306E\u5165\u91D1', stat_usdt_held: 'USDT\u4FDD\u6709',
+    sec_game_controls: '\u30B2\u30FC\u30E0\u30B3\u30F3\u30C8\u30ED\u30FC\u30EB', sec_events: '\u30A4\u30D9\u30F3\u30C8\uFF06\u30D7\u30ED\u30E2\u30FC\u30B7\u30E7\u30F3', sec_game_items: '\u30B2\u30FC\u30E0\u30A2\u30A4\u30C6\u30E0',
+    sec_referral: '\u7D39\u4ECB\u30D7\u30ED\u30B0\u30E9\u30E0', sec_revenue_breakdown: '\u53CE\u76CA\u5185\u8A33',
+    sec_revenue_chart: '\u53CE\u76CA\u30C1\u30E3\u30FC\u30C8 (30\u65E5)', sec_users: '\u30E6\u30FC\u30B6\u30FC\u4E00\u89A7', sec_transactions: '\u53D6\u5F15\u5C65\u6B74',
+    user_detail: '\u30E6\u30FC\u30B6\u30FC\u8A73\u7D30', ue_wallet: '\u30A6\u30A9\u30EC\u30C3\u30C8', ue_email: '\u30E1\u30FC\u30EB', ue_nickname: '\u30CB\u30C3\u30AF\u30CD\u30FC\u30E0',
+    ue_new_password: '\u65B0\u30D1\u30B9\u30EF\u30FC\u30C9 (\u7A7A\u767D\u3067\u7DAD\u6301)', ue_pw_placeholder: '\u5909\u66F4\u3059\u308B\u30D1\u30B9\u30EF\u30FC\u30C9\u3092\u5165\u529B',
+    ue_pp_balance: 'PP\u6B8B\u9AD8', ue_usdt_balance: 'USDT\u6B8B\u9AD8 (\u95B2\u89A7\u306E\u307F)',
+    ue_referral_code: '\u7D39\u4ECB\u30B3\u30FC\u30C9', ue_joined: '\u767B\u9332\u65E5', btn_save_changes: '\u5909\u66F4\u3092\u4FDD\u5B58',
+    search_users: '\u30E1\u30FC\u30EB/\u30CB\u30C3\u30AF\u30CD\u30FC\u30E0/\u30A6\u30A9\u30EC\u30C3\u30C8\u3067\u691C\u7D22...',
+    ev_name: '\u30A4\u30D9\u30F3\u30C8\u540D', ev_type: '\u30BF\u30A4\u30D7', ev_start: '\u958B\u59CB\u65E5', ev_end: '\u7D42\u4E86\u65E5', ev_config: '\u8A2D\u5B9A (JSON)',
+    item_slug: '\u30B9\u30E9\u30C3\u30B0', item_name: '\u540D\u524D', item_category: '\u30AB\u30C6\u30B4\u30EA', item_price_usdt: '\u4FA1\u683C (USDT)',
+    item_price_pp: '\u4FA1\u683C (PP)', item_config: '\u8A2D\u5B9A (JSON)',
+    ref_total: '\u7DCF\u7D39\u4ECB\u6570', ref_pp_dist: 'PP\u914D\u5E03\u91CF', ref_reward_txs: '\u5831\u916C\u4EF6\u6570',
+    ref_tier_breakdown: '\u30C6\u30A3\u30A2\u5225\u5185\u8A33', ref_top_referrers: '\u30C8\u30C3\u30D7\u7D39\u4ECB\u8005', ref_recent_rewards: '\u6700\u8FD1\u306E\u5831\u916C',
+    sec_error_log: '\u30AF\u30E9\u30A4\u30A2\u30F3\u30C8\u30A8\u30E9\u30FC\u30ED\u30B0', btn_clear_errors: '\u5168\u524A\u9664', btn_refresh: '\u66F4\u65B0',
+    err_th_time: '\u6642\u523B', err_th_message: '\u30E1\u30C3\u30BB\u30FC\u30B8', err_th_source: '\u30BD\u30FC\u30B9', err_th_line: '\u884C',
+    err_th_url: '\u30DA\u30FC\u30B8', err_th_browser: '\u30D6\u30E9\u30A6\u30B6', err_th_ip: 'IP', err_stack_trace: '\u30B9\u30BF\u30C3\u30AF\u30C8\u30EC\u30FC\u30B9',
+    err_no_errors: '\u30A8\u30E9\u30FC\u306A\u3057', err_total: '\u7DCF\u30A8\u30E9\u30FC\u6570'
+  },
+  zh: {
+    tab_dashboard: '\u4EEA\u8868\u76D8', tab_users: '\u7528\u6237\u7BA1\u7406', tab_game: '\u6E38\u620F\u8BBE\u7F6E', tab_finance: '\u8D22\u52A1',
+    stat_total_users: '\u603B\u7528\u6237\u6570', stat_total_volume: '\u603B\u4EA4\u6613\u91CF', stat_total_revenue: '\u603B\u6536\u76CA',
+    stat_active_24h: '24\u5C0F\u65F6\u6D3B\u8DC3', stat_active_claims: '\u6D3B\u8DC3\u8BA4\u9886', stat_pixels_sold: '\u5DF2\u552E\u50CF\u7D20',
+    stat_contract_bal: '\u5408\u7EA6\u4F59\u989D', stat_usdt_deposited: 'USDT\u5145\u503C\u989D', stat_fees_earned: '\u624B\u7EED\u8D39\u6536\u76CA',
+    stat_deposits_today: '\u4ECA\u65E5\u5145\u503C', stat_usdt_held: 'USDT\u6301\u6709',
+    sec_game_controls: '\u6E38\u620F\u63A7\u5236', sec_events: '\u6D3B\u52A8\u4E0E\u4FC3\u9500', sec_game_items: '\u6E38\u620F\u9053\u5177',
+    sec_referral: '\u63A8\u8350\u8BA1\u5212', sec_revenue_breakdown: '\u6536\u76CA\u5206\u6790',
+    sec_revenue_chart: '\u6536\u76CA\u56FE\u8868 (30\u5929)', sec_users: '\u7528\u6237\u5217\u8868', sec_transactions: '\u4EA4\u6613\u8BB0\u5F55',
+    user_detail: '\u7528\u6237\u8BE6\u60C5', ue_wallet: '\u94B1\u5305\u5730\u5740', ue_email: '\u90AE\u7BB1', ue_nickname: '\u6635\u79F0',
+    ue_new_password: '\u65B0\u5BC6\u7801 (\u7559\u7A7A\u4FDD\u6301\u4E0D\u53D8)', ue_pw_placeholder: '\u8F93\u5165\u65B0\u5BC6\u7801',
+    ue_pp_balance: 'PP\u4F59\u989D', ue_usdt_balance: 'USDT\u4F59\u989D (\u4EC5\u67E5\u770B)',
+    ue_referral_code: '\u63A8\u8350\u7801', ue_joined: '\u6CE8\u518C\u65E5\u671F', btn_save_changes: '\u4FDD\u5B58\u66F4\u6539',
+    search_users: '\u641C\u7D22\u90AE\u7BB1/\u6635\u79F0/\u94B1\u5305...',
+    ev_name: '\u6D3B\u52A8\u540D\u79F0', ev_type: '\u7C7B\u578B', ev_start: '\u5F00\u59CB\u65E5\u671F', ev_end: '\u7ED3\u675F\u65E5\u671F', ev_config: '\u914D\u7F6E (JSON)',
+    item_slug: 'Slug', item_name: '\u540D\u79F0', item_category: '\u5206\u7C7B', item_price_usdt: '\u4EF7\u683C (USDT)',
+    item_price_pp: '\u4EF7\u683C (PP)', item_config: '\u914D\u7F6E (JSON)',
+    ref_total: '\u603B\u63A8\u8350\u6570', ref_pp_dist: 'PP\u5206\u53D1\u91CF', ref_reward_txs: '\u5956\u52B1\u6B21\u6570',
+    ref_tier_breakdown: '\u5C42\u7EA7\u5206\u6790', ref_top_referrers: '\u9876\u7EA7\u63A8\u8350\u4EBA', ref_recent_rewards: '\u6700\u8FD1\u5956\u52B1',
+    sec_error_log: '\u5BA2\u6237\u7AEF\u9519\u8BEF\u65E5\u5FD7', btn_clear_errors: '\u5168\u90E8\u6E05\u9664', btn_refresh: '\u5237\u65B0',
+    err_th_time: '\u65F6\u95F4', err_th_message: '\u6D88\u606F', err_th_source: '\u6765\u6E90', err_th_line: '\u884C',
+    err_th_url: '\u9875\u9762', err_th_browser: '\u6D4F\u89C8\u5668', err_th_ip: 'IP', err_stack_trace: '\u5806\u6808\u8DDF\u8E2A',
+    err_no_errors: '\u65E0\u9519\u8BEF\u8BB0\u5F55', err_total: '\u603B\u9519\u8BEF\u6570'
+  }
+};
+
+function setAdminLang(lang) {
+  if (lang) adminLang = lang;
+  localStorage.setItem('adminLang', adminLang);
+  var sel = document.getElementById('adminLangSelect');
+  if (sel) sel.value = adminLang;
+  var dict = adminLangData[adminLang] || adminLangData.en;
+  // Apply text content
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  // Apply placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-placeholder');
+    if (dict[key]) el.placeholder = dict[key];
+  });
+}
+
+// ── User Edit ──
+var editingWallet = null;
+function openUserEdit(wallet) {
+  editingWallet = wallet;
+  document.getElementById('userEditPanel').style.display = '';
+  document.getElementById('ueStatus').textContent = '';
+  apiJson('/admin/api/users/' + encodeURIComponent(wallet)).then(function(u) {
+    document.getElementById('ueWallet').textContent = u.wallet;
+    document.getElementById('ueEmail').value = u.email;
+    document.getElementById('ueNickname').value = u.nickname;
+    document.getElementById('uePassword').value = '';
+    document.getElementById('uePP').value = u.ppBalance;
+    document.getElementById('ueUSDT').textContent = u.usdtBalance.toFixed(2);
+    document.getElementById('ueRefCode').textContent = u.referralCode || '-';
+    document.getElementById('ueJoined').textContent = new Date(u.createdAt).toLocaleString();
+  });
+}
+function closeUserEdit() {
+  document.getElementById('userEditPanel').style.display = 'none';
+  editingWallet = null;
+}
+function saveUserEdit() {
+  if (!editingWallet) return;
+  var body = {};
+  var email = document.getElementById('ueEmail').value.trim();
+  var nick = document.getElementById('ueNickname').value.trim();
+  var pw = document.getElementById('uePassword').value;
+  var pp = document.getElementById('uePP').value;
+  if (email) body.email = email;
+  if (nick) body.nickname = nick;
+  if (pw) body.newPassword = pw;
+  if (pp !== '') body.ppBalance = parseFloat(pp);
+
+  fetch('/admin/api/users/' + encodeURIComponent(editingWallet), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.success) {
+        document.getElementById('ueStatus').textContent = '✓ Saved';
+        loadUsers(userPage);
+      } else {
+        document.getElementById('ueStatus').textContent = '✗ ' + (d.error || 'Failed');
+        document.getElementById('ueStatus').style.color = 'var(--red)';
+      }
+    });
+}
+
+function apiJson(path) {
+  return fetch(path, { headers: { 'x-admin-secret': adminSecret } }).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
+}
 
 function doAuth() {
   adminSecret = document.getElementById('authInput').value;
@@ -419,6 +717,8 @@ function doAuth() {
     .then(function() {
       document.getElementById('authOverlay').style.display = 'none';
       document.getElementById('mainContent').style.display = '';
+      switchTab('dashboard');
+      setAdminLang(adminLang);
       loadAll();
       setInterval(loadAll, 30000);
     })
@@ -443,6 +743,7 @@ function loadAll() {
   loadUsers(userPage);
   loadTransactions(txPage);
   loadRevenue();
+  loadErrors(0);
   document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
 }
 
@@ -501,18 +802,20 @@ function loadUsers(page) {
     var tbody = document.getElementById('usersBody');
     tbody.innerHTML = '';
     if (!d.users.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="loading">No users found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">No users found</td></tr>';
       return;
     }
     d.users.forEach(function(u) {
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td class="addr">' + u.wallet + '</td>' +
+        '<td class="addr">' + u.wallet.slice(0,10) + '...' + '</td>' +
+        '<td>' + (u.email || '-') + '</td>' +
+        '<td>' + (u.nickname || '-') + '</td>' +
         '<td class="val-gn">' + u.usdtBalance.toFixed(2) + '</td>' +
         '<td class="val-pp">' + u.ppBalance.toFixed(2) + '</td>' +
         '<td>' + u.claimCount + '</td>' +
-        '<td class="val-gold">$' + u.totalDeposited.toFixed(2) + '</td>' +
-        '<td>' + new Date(u.createdAt).toLocaleDateString() + '</td>';
+        '<td>' + new Date(u.createdAt).toLocaleDateString() + '</td>' +
+        '<td><button class="user-edit-btn" onclick="openUserEdit(\'' + u.wallet + '\')">EDIT</button></td>';
       tbody.appendChild(tr);
     });
     renderPagination('usersPagination', d.page, d.pages, d.total, loadUsers);
@@ -609,27 +912,86 @@ function loadRevenue() {
   });
 }
 
+// ── Settings Description Translations ──
+var settingDescI18n = {
+  ko: {
+    announcement: '전역 공지사항 배너 텍스트 (비워두면 숨김)',
+    deposit_pp_bonus: 'USDT 입금 시 PP 보너스 %',
+    hijack_multiplier: '점유된 픽셀 탈취 시 가격 배수',
+    hijack_owner_bonus: '탈취 시 원래 소유자에게 돌아가는 프리미엄 %',
+    hijack_owner_refund: '탈취된 픽셀의 원래 가격 환불 %',
+    pixel_base_price: '미점유 픽셀 기본 가격 (USDT)',
+    swap_fee_percent: 'PP↔USDT 스왑 수수료 %',
+    withdraw_fee_percent: 'USDT 출금 수수료 %',
+    max_claim_height: '최대 클레임 높이 (픽셀)',
+    max_claim_width: '최대 클레임 너비 (픽셀)',
+    max_deposit: '최대 입금액 (USDT)',
+    min_deposit: '최소 입금액 (USDT)',
+    min_withdraw: '최소 출금액 (USDT)'
+  },
+  ja: {
+    announcement: '\u30B0\u30ED\u30FC\u30D0\u30EB\u304A\u77E5\u3089\u305B\u30D0\u30CA\u30FC (\u7A7A\u767D\u3067\u975E\u8868\u793A)',
+    deposit_pp_bonus: 'USDT\u5165\u91D1\u6642\u306EPP\u30DC\u30FC\u30CA\u30B9 %',
+    hijack_multiplier: '\u5360\u6709\u30D4\u30AF\u30BB\u30EB\u596A\u53D6\u6642\u306E\u4FA1\u683C\u500D\u7387',
+    hijack_owner_bonus: '\u596A\u53D6\u6642\u306E\u5143\u6240\u6709\u8005\u3078\u306E\u30D7\u30EC\u30DF\u30A2\u30E0 %',
+    hijack_owner_refund: '\u596A\u53D6\u30D4\u30AF\u30BB\u30EB\u306E\u5143\u4FA1\u683C\u8FD4\u91D1 %',
+    pixel_base_price: '\u672A\u5360\u6709\u30D4\u30AF\u30BB\u30EB\u306E\u57FA\u672C\u4FA1\u683C (USDT)',
+    swap_fee_percent: 'PP\u2194USDT\u30B9\u30EF\u30C3\u30D7\u624B\u6570\u6599 %',
+    withdraw_fee_percent: 'USDT\u51FA\u91D1\u624B\u6570\u6599 %',
+    max_claim_height: '\u6700\u5927\u30AF\u30EC\u30FC\u30E0\u9AD8\u3055 (\u30D4\u30AF\u30BB\u30EB)',
+    max_claim_width: '\u6700\u5927\u30AF\u30EC\u30FC\u30E0\u5E45 (\u30D4\u30AF\u30BB\u30EB)',
+    max_deposit: '\u6700\u5927\u5165\u91D1\u984D (USDT)',
+    min_deposit: '\u6700\u5C0F\u5165\u91D1\u984D (USDT)',
+    min_withdraw: '\u6700\u5C0F\u51FA\u91D1\u984D (USDT)'
+  },
+  zh: {
+    announcement: '\u5168\u5C40\u516C\u544A\u6A2A\u5E45 (\u7559\u7A7A\u9690\u85CF)',
+    deposit_pp_bonus: 'USDT\u5145\u503C\u65F6PP\u5956\u52B1 %',
+    hijack_multiplier: '\u5360\u9886\u50CF\u7D20\u593A\u53D6\u4EF7\u683C\u500D\u6570',
+    hijack_owner_bonus: '\u593A\u53D6\u65F6\u539F\u6240\u6709\u8005\u83B7\u5F97\u7684\u6EA2\u4EF7 %',
+    hijack_owner_refund: '\u88AB\u593A\u53D6\u50CF\u7D20\u7684\u539F\u4EF7\u9000\u6B3E %',
+    pixel_base_price: '\u672A\u5360\u9886\u50CF\u7D20\u57FA\u7840\u4EF7\u683C (USDT)',
+    swap_fee_percent: 'PP\u2194USDT\u5151\u6362\u624B\u7EED\u8D39 %',
+    withdraw_fee_percent: 'USDT\u63D0\u73B0\u624B\u7EED\u8D39 %',
+    max_claim_height: '\u6700\u5927\u8BA4\u9886\u9AD8\u5EA6 (\u50CF\u7D20)',
+    max_claim_width: '\u6700\u5927\u8BA4\u9886\u5BBD\u5EA6 (\u50CF\u7D20)',
+    max_deposit: '\u6700\u5927\u5145\u503C\u989D (USDT)',
+    min_deposit: '\u6700\u5C0F\u5145\u503C\u989D (USDT)',
+    min_withdraw: '\u6700\u5C0F\u63D0\u73B0\u989D (USDT)'
+  }
+};
+
+// Category name translations
+var settingCatI18n = {
+  ko: { display: '\uD45C\uC2DC', economy: '\uACBD\uC81C', limits: '\uC81C\uD55C' },
+  ja: { display: '\u8868\u793A', economy: '\u7D4C\u6E08', limits: '\u5236\u9650' },
+  zh: { display: '\u663E\u793A', economy: '\u7ECF\u6D4E', limits: '\u9650\u5236' }
+};
+
 // ── Settings ──
 function loadSettings() {
   api('/admin/api/settings').then(function(data) {
     var grid = document.getElementById('settingsGrid');
     grid.innerHTML = '';
     var lastCat = '';
+    var descDict = settingDescI18n[adminLang] || {};
+    var catDict = settingCatI18n[adminLang] || {};
     data.forEach(function(s) {
       if (s.category !== lastCat) {
         lastCat = s.category;
         var catDiv = document.createElement('div');
         catDiv.className = 'setting-cat';
-        catDiv.textContent = s.category.toUpperCase();
+        catDiv.textContent = (catDict[s.category] || s.category).toUpperCase();
         grid.appendChild(catDiv);
       }
       var card = document.createElement('div');
       card.className = 'setting-card';
       var inputType = typeof s.value === 'boolean' ? 'checkbox' : (typeof s.value === 'number' ? 'number' : 'text');
       var inputVal = typeof s.value === 'boolean' ? '' : s.value;
+      var desc = descDict[s.key] || s.description || '';
       card.innerHTML =
         '<div class="setting-key">' + s.key + '</div>' +
-        '<div class="setting-desc">' + (s.description || '') + '</div>' +
+        '<div class="setting-desc">' + desc + '</div>' +
         (typeof s.value === 'boolean'
           ? '<div class="toggle-wrap"><input type="checkbox" id="set_'+s.key+'" '+(s.value?'checked':'')+' onchange="saveSetting(\''+s.key+'\',this.checked)"><label class="toggle-label" for="set_'+s.key+'">'+(s.value?'ON':'OFF')+'</label></div>'
           : '<input class="setting-input" id="set_'+s.key+'" type="'+inputType+'" value="'+inputVal+'" ' +
@@ -858,6 +1220,94 @@ function loadReferrals() {
         recentBody.appendChild(tr);
       });
     }
+  });
+}
+
+// ── Error Log ──
+var errOffset = 0;
+var errLimit = 50;
+
+function loadErrors(offset) {
+  if (typeof offset === 'number') errOffset = offset;
+  api('/admin/api/errors?limit=' + errLimit + '&offset=' + errOffset).then(function(d) {
+    var dict = adminLangData[adminLang] || adminLangData.en;
+    var tbody = document.getElementById('errBody');
+    tbody.innerHTML = '';
+    document.getElementById('errCount').textContent = d.total + ' ' + (dict.err_total || 'total errors');
+
+    if (!d.errors.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">' + (dict.err_no_errors || 'No errors recorded') + '</td></tr>';
+      document.getElementById('errPagination').innerHTML = '';
+      return;
+    }
+
+    d.errors.forEach(function(e) {
+      var tr = document.createElement('tr');
+      tr.style.cursor = e.stack ? 'pointer' : 'default';
+      if (e.stack) {
+        tr.onclick = (function(stack) {
+          return function() { showErrStack(stack); };
+        })(e.stack);
+      }
+
+      // Parse user agent to short browser name
+      var ua = e.userAgent || '';
+      var browser = 'Unknown';
+      if (ua.indexOf('Chrome') > -1) browser = 'Chrome';
+      else if (ua.indexOf('Firefox') > -1) browser = 'Firefox';
+      else if (ua.indexOf('Safari') > -1) browser = 'Safari';
+      else if (ua.indexOf('Edge') > -1) browser = 'Edge';
+      if (ua.indexOf('Mobile') > -1) browser += ' (M)';
+
+      // Truncate message
+      var msg = e.message || '';
+      var shortMsg = msg.length > 80 ? msg.slice(0, 80) + '...' : msg;
+
+      // Truncate source
+      var src = e.source || '';
+      var shortSrc = src.split('/').pop() || src;
+
+      // Page path
+      var page = e.url || '';
+      var shortPage = page.replace(/https?:\/\/[^\/]+/, '') || page;
+
+      tr.innerHTML =
+        '<td style="color:var(--tx3)">#' + e.id + '</td>' +
+        '<td style="font-size:6px">' + new Date(e.createdAt).toLocaleString() + '</td>' +
+        '<td style="color:var(--red);max-width:250px;overflow:hidden;text-overflow:ellipsis" title="' + msg.replace(/"/g, '&quot;') + '">' + shortMsg + '</td>' +
+        '<td style="color:var(--cyan);font-size:6px">' + shortSrc + '</td>' +
+        '<td>' + (e.line || '-') + '</td>' +
+        '<td style="font-size:6px">' + shortPage + '</td>' +
+        '<td style="font-size:6px">' + browser + '</td>' +
+        '<td style="font-size:6px;color:var(--tx3)">' + (e.ip || '-') + '</td>';
+      tbody.appendChild(tr);
+    });
+
+    // Pagination
+    var totalPages = Math.ceil(d.total / errLimit);
+    var currentPage = Math.floor(errOffset / errLimit) + 1;
+    renderPagination('errPagination', currentPage, totalPages, d.total, function(page) {
+      loadErrors((page - 1) * errLimit);
+    });
+  }).catch(function() {
+    document.getElementById('errBody').innerHTML = '<tr><td colspan="8" class="loading" style="color:var(--red)">Failed to load errors</td></tr>';
+  });
+}
+
+function showErrStack(stack) {
+  var el = document.getElementById('errDetail');
+  el.style.display = '';
+  document.getElementById('errStack').textContent = stack;
+}
+
+function clearErrors() {
+  var dict = adminLangData[adminLang] || adminLangData.en;
+  if (!confirm(dict.btn_clear_errors + '?')) return;
+  fetch('/admin/api/errors', {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': adminSecret }
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) loadErrors(0);
   });
 }
 
