@@ -2429,29 +2429,48 @@ async function confirmClaim(){
   if(btn){btn.disabled=true;btn.textContent='PROCESSING...';}
 
   try{
-    // ── Convert blob: URL to data: URL for server storage ──
+    // ── Upload image: blob/data URL → server file → /uploads/xxx.jpg ──
     var sendImageUrl=uploadedUrl||'';
-    if(sendImageUrl&&sendImageUrl.startsWith('blob:')){
+    if(sendImageUrl&&(sendImageUrl.startsWith('blob:')||sendImageUrl.startsWith('data:'))){
       try{
-        var imgEl=imgCache[sendImageUrl]||document.querySelector('img[src="'+sendImageUrl+'"]');
-        if(!imgEl){
-          var tmpImg=new Image();tmpImg.crossOrigin='anonymous';
-          await new Promise(function(resolve,reject){
-            tmpImg.onload=resolve;tmpImg.onerror=reject;tmpImg.src=sendImageUrl;
-          });
-          imgEl=tmpImg;
+        var dataUrl=sendImageUrl;
+        // Convert blob: to data: first
+        if(sendImageUrl.startsWith('blob:')){
+          var imgEl=imgCache[sendImageUrl];
+          if(!imgEl){
+            var tmpImg=new Image();tmpImg.crossOrigin='anonymous';
+            await new Promise(function(resolve,reject){
+              tmpImg.onload=resolve;tmpImg.onerror=reject;tmpImg.src=sendImageUrl;
+            });
+            imgEl=tmpImg;
+          }
+          var cvs=document.createElement('canvas');
+          var scale=Math.min(512/(imgEl.naturalWidth||imgEl.width),512/(imgEl.naturalHeight||imgEl.height),1);
+          cvs.width=Math.round((imgEl.naturalWidth||imgEl.width)*scale);
+          cvs.height=Math.round((imgEl.naturalHeight||imgEl.height)*scale);
+          cvs.getContext('2d').drawImage(imgEl,0,0,cvs.width,cvs.height);
+          dataUrl=cvs.toDataURL('image/jpeg',0.85);
         }
-        var cvs=document.createElement('canvas');
-        cvs.width=Math.min(imgEl.naturalWidth||imgEl.width,512);
-        cvs.height=Math.min(imgEl.naturalHeight||imgEl.height,512);
-        // Scale down if needed
-        var scale=Math.min(512/(imgEl.naturalWidth||imgEl.width),512/(imgEl.naturalHeight||imgEl.height),1);
-        cvs.width=Math.round((imgEl.naturalWidth||imgEl.width)*scale);
-        cvs.height=Math.round((imgEl.naturalHeight||imgEl.height)*scale);
-        cvs.getContext('2d').drawImage(imgEl,0,0,cvs.width,cvs.height);
-        sendImageUrl=cvs.toDataURL('image/jpeg',0.85);
+        // Upload to server
+        if(btn) btn.textContent='UPLOADING...';
+        var upResp=await fetch('/api/upload',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({dataUrl:dataUrl})
+        });
+        var upData=await upResp.json();
+        if(upResp.ok&&upData.url){
+          sendImageUrl=upData.url;
+        }else{
+          showToast(upData.error||'IMAGE UPLOAD FAILED');
+          if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
+          return;
+        }
       }catch(convErr){
-        console.warn('blob→data conversion failed:',convErr);
+        console.warn('Image upload failed:',convErr);
+        showToast('IMAGE UPLOAD FAILED');
+        if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
+        return;
       }
     }
 

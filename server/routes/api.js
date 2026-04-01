@@ -1,9 +1,13 @@
 const express = require('express');
 const { ethers } = require('ethers');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode } = require('../db');
 const { generateWithdrawSignature, CHAINS } = require('../services/signer');
 
 const router = express.Router();
+const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
 
 // ── Shared input sanitizer ──
 function sanitize(str, maxLen) {
@@ -19,6 +23,7 @@ function sanitizeUrl(url, allowData) {
   url = url.trim();
   if (allowData && url.startsWith('data:image/')) return url;
   if (url.startsWith('https://')) return url;
+  if (url.startsWith('/uploads/')) return url;
   return null;
 }
 
@@ -303,6 +308,46 @@ router.get('/claims', async (req, res) => {
   } catch (e) {
     console.error('[API] claims error:', e.message);
     res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  POST /api/upload — save data:image to file, return URL
+// ══════════════════════════════════════════════════
+router.post('/upload', async (req, res) => {
+  const { dataUrl } = req.body;
+  if (!dataUrl || typeof dataUrl !== 'string') {
+    return res.status(400).json({ error: 'Missing dataUrl' });
+  }
+
+  // Validate data URL format
+  const match = dataUrl.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,(.+)$/);
+  if (!match) {
+    return res.status(400).json({ error: 'Invalid data URL format' });
+  }
+
+  const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+  const base64Data = match[2];
+  const buffer = Buffer.from(base64Data, 'base64');
+
+  // Max 2MB
+  if (buffer.length > 2 * 1024 * 1024) {
+    return res.status(400).json({ error: 'Image too large (max 2MB)' });
+  }
+
+  try {
+    // Ensure uploads dir exists
+    if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+    const filename = crypto.randomBytes(16).toString('hex') + '.' + ext;
+    const filepath = path.join(UPLOADS_DIR, filename);
+    fs.writeFileSync(filepath, buffer);
+
+    const url = '/uploads/' + filename;
+    res.json({ success: true, url });
+  } catch (e) {
+    console.error('[API] upload error:', e.message);
+    res.status(500).json({ error: 'Upload failed' });
   }
 });
 
