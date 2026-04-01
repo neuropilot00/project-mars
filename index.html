@@ -296,13 +296,33 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .lang-menu-item:hover{background:rgba(255,120,60,.08);color:var(--tx)}
 .lang-menu-item.active{color:var(--mars);background:rgba(255,120,60,.06)}
 
+/* Panel close button (mobile only) */
+.panel-close{display:none;position:absolute;top:8px;right:10px;z-index:120;
+  width:40px;height:40px;background:rgba(232,72,85,.1);border:1px solid rgba(232,72,85,.25);
+  border-radius:8px;color:var(--red);font-size:18px;font-family:monospace;
+  cursor:pointer;align-items:center;justify-content:center;transition:background .15s}
+.panel-close:hover{background:rgba(232,72,85,.2)}
+
+/* Mobile stamp modal */
+.stamp-modal{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;
+  background:var(--panel2);border-top:1px solid var(--bdr2);border-radius:16px 16px 0 0;
+  padding:16px;max-height:70vh;overflow-y:auto;
+  box-shadow:0 -8px 32px rgba(0,0,0,.5);backdrop-filter:blur(20px);
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.stamp-modal.open{transform:translateY(0)}
+.stamp-modal-handle{width:40px;height:4px;background:var(--bdr2);border-radius:2px;
+  margin:0 auto 12px}
+
 /* Mobile */
 @media(max-width:768px){
-  .panel-l,.panel-r{width:100%;top:52px}
+  .panel-l,.panel-r{width:85%;top:52px;max-width:320px}
   .panel-l{transform:translateX(-110%)}
-  .panel-r{transform:translateX(110%)}
+  .panel-r{transform:translateX(110%);right:0}
   .panel-l.open,.panel-r.open{transform:translateX(0)}
+  .panel-close{display:flex}
   .mob-toggle{display:block}
+  /* 토글 버튼 숨김은 JS로 처리 (mob-toggle-hidden class) */
+  .mob-toggle.hidden{opacity:0;pointer-events:none;transition:opacity .2s}
   .zc{right:12px;bottom:16px}
   .mode-badge{left:12px;bottom:16px;font-size:6px;padding:4px 8px}
   .topbar{padding:8px 10px}
@@ -326,6 +346,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .stamp-hint{font-size:10px;padding:12px}
   .mx{min-width:44px;min-height:44px;font-size:20px}
   .mob-toggle{min-height:40px;padding:8px 12px;font-size:8px}
+  /* 모바일에서 stamp section은 패널 안에 숨김 → 모달로 표시 */
+  #stampSection{display:none!important}
 }
 </style>
 </head>
@@ -373,6 +395,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 <!-- Left Panel -->
 <div class="panel-l" id="panelL">
+  <button class="panel-close" onclick="closeLeft()">×</button>
   <div class="p-section">
     <div class="p-title" data-i18n="global_stats">GLOBAL STATS</div>
     <div class="stat-row"><span class="stat-label">TOTAL PIXELS</span><span class="stat-val" style="color:var(--tx2)">1,040,496</span></div>
@@ -432,6 +455,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 <!-- Right Panel -->
 <div class="panel-r" id="panelR">
+  <button class="panel-close" onclick="closeRight()">×</button>
   <!-- OWNER SEARCH -->
   <div class="p-section">
     <div class="p-title" data-i18n="search_owner">SEARCH OWNER</div>
@@ -729,6 +753,45 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         <span style="color:var(--mars)">Stay tuned for updates</span>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Mobile Stamp Bottom Sheet -->
+<div class="stamp-modal" id="mobileStampModal">
+  <div class="stamp-modal-handle"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="p-title" data-i18n="place_image" style="border:none;padding:0;margin:0">PLACE YOUR IMAGE</div>
+    <button class="panel-close" style="display:flex;position:static;width:36px;height:36px;font-size:16px" onclick="closeMobileStamp()">×</button>
+  </div>
+  <input type="file" id="mStampFileInput" accept="image/*" style="display:none">
+  <button class="uf" onclick="document.getElementById('mStampFileInput').click()" data-i18n="choose_file">CHOOSE IMAGE FILE</button>
+  <div class="uuw" style="margin-top:5px">
+    <input type="text" class="ui" id="mStampUrlInput" placeholder="OR PASTE URL...">
+    <button class="ulb" onclick="loadMobileStampUrl()">GO</button>
+  </div>
+  <div id="mStampPreview" style="display:none;margin-top:10px">
+    <img id="mStampThumb" style="max-width:100%;max-height:80px;border-radius:4px;border:1px solid var(--bdr)">
+    <div class="stat-row" style="margin-top:6px"><span class="stat-label">IMAGE</span><span class="stat-val" id="mStampImgInfo">--</span></div>
+    <div style="margin:8px 0">
+      <div class="stat-label" style="margin-bottom:4px">SCALE %</div>
+      <input type="range" id="mStampSizeSlider" min="1" max="300" value="100" style="width:100%;accent-color:var(--mars)" oninput="updateMobileStampScale(+this.value)">
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <span class="stat-val" id="mStampSizeLabel">--</span>
+        <span class="stat-val gn" id="mStampCostLabel">--</span>
+      </div>
+      <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+        <button class="sz-btn" onclick="setMobileStampPct(10)">10%</button>
+        <button class="sz-btn" onclick="setMobileStampPct(25)">25%</button>
+        <button class="sz-btn" onclick="setMobileStampPct(50)">50%</button>
+        <button class="sz-btn" onclick="setMobileStampPct(100)">100%</button>
+      </div>
+    </div>
+    <div style="margin-top:6px">
+      <div class="stat-label" style="margin-bottom:3px">LINK URL</div>
+      <input type="text" class="ui" id="mStampLinkInput" placeholder="https://your-site.com" style="width:100%">
+    </div>
+    <div class="stamp-hint" style="margin-top:8px" data-i18n="click_stamp">CLICK MARS TO STAMP!</div>
+    <button class="action-btn" style="margin-top:8px" onclick="cancelMobileStamp()" data-i18n="cancel">CANCEL</button>
   </div>
 </div>
 
@@ -1338,6 +1401,10 @@ globe.onGlobeClick(function(coords){
     selectedPlot=null;
     document.getElementById('territoryInfo').style.display='none';
     compositeClaimsOnTexture();
+    // 모바일: 빈 땅 클릭시 stamp bottom sheet 열기
+    if(isMobile&&walletState.connected&&!stampMode){
+      openMobileStamp();
+    }
   }
 });
 
@@ -1411,6 +1478,58 @@ function cancelStamp(){
   document.getElementById('stampUrlInput').value='';
   document.getElementById('stampLinkInput').value='';
   compositeClaimsOnTexture();
+}
+
+// ── Mobile Stamp (bottom sheet) ──
+var isMobile=window.innerWidth<=768;
+window.addEventListener('resize',function(){isMobile=window.innerWidth<=768});
+
+function openMobileStamp(){
+  document.getElementById('mobileStampModal').classList.add('open');
+}
+function closeMobileStamp(){
+  document.getElementById('mobileStampModal').classList.remove('open');
+  cancelStamp();
+}
+document.getElementById('mStampFileInput').addEventListener('change',function(e){
+  var file=e.target.files[0]; if(!file) return;
+  activateStamp(URL.createObjectURL(file));
+  syncMobileStampUI();
+});
+function loadMobileStampUrl(){
+  var v=document.getElementById('mStampUrlInput').value.trim(); if(!v) return;
+  activateStamp(v);
+  syncMobileStampUI();
+}
+function syncMobileStampUI(){
+  // After activateStamp runs, sync desktop → mobile UI
+  setTimeout(function(){
+    if(!stampImgUrl) return;
+    document.getElementById('mStampThumb').src=stampImgUrl;
+    document.getElementById('mStampImgInfo').textContent=stampImgW+'×'+stampImgH+'px';
+    document.getElementById('mStampSizeSlider').min=document.getElementById('stampSizeSlider').min;
+    document.getElementById('mStampSizeSlider').max=300;
+    document.getElementById('mStampSizeSlider').value=100;
+    updateMobileStampLabels();
+    document.getElementById('mStampPreview').style.display='';
+  },200);
+}
+function updateMobileStampScale(pct){
+  updateStampScale(pct);
+  updateMobileStampLabels();
+}
+function updateMobileStampLabels(){
+  document.getElementById('mStampSizeLabel').textContent=stampW+'×'+stampH+' px ('+stampScale+'%)';
+  var baseCost=Math.round(stampW*stampH*PIXEL_PRICE*100)/100;
+  document.getElementById('mStampCostLabel').textContent='~$'+baseCost.toLocaleString()+' USDT';
+}
+function setMobileStampPct(pct){
+  document.getElementById('mStampSizeSlider').value=pct;
+  updateMobileStampScale(pct);
+}
+function cancelMobileStamp(){
+  cancelStamp();
+  closeMobileStamp();
 }
 
 // ── Territory Info (for existing claims) ──
@@ -2371,8 +2490,33 @@ function addFeed(text){
   f.insertBefore(d,f.firstChild);
   if(f.children.length>15)f.removeChild(f.lastChild);
 }
-function toggleLeft(){document.getElementById('panelL').classList.toggle('open')}
-function toggleRight(){document.getElementById('panelR').classList.toggle('open')}
+function toggleLeft(){
+  var panel=document.getElementById('panelL');
+  var wasOpen=panel.classList.contains('open');
+  panel.classList.toggle('open');
+  document.getElementById('panelR').classList.remove('open');
+  updateMobToggles();
+}
+function toggleRight(){
+  var panel=document.getElementById('panelR');
+  panel.classList.toggle('open');
+  document.getElementById('panelL').classList.remove('open');
+  updateMobToggles();
+}
+function closeLeft(){document.getElementById('panelL').classList.remove('open');updateMobToggles()}
+function closeRight(){document.getElementById('panelR').classList.remove('open');updateMobToggles()}
+function updateMobToggles(){
+  var lOpen=document.getElementById('panelL').classList.contains('open');
+  var rOpen=document.getElementById('panelR').classList.contains('open');
+  var toggles=document.querySelectorAll('.mob-toggle');
+  toggles.forEach(function(btn){
+    if(btn.classList.contains('right')){
+      btn.classList.toggle('hidden',rOpen);
+    }else{
+      btn.classList.toggle('hidden',lOpen);
+    }
+  });
+}
 var feedExpanded=false;
 function toggleFeed(){
   feedExpanded=!feedExpanded;
