@@ -176,10 +176,10 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .hwd{font-size:var(--fs-xs);color:rgba(200,160,140,.55);line-height:1.7}
 
 /* Toast */
-.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);padding:10px 24px;
-  background:var(--surface3);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.2);
-  border-radius:8px;font-size:var(--fs-md);color:var(--gn);opacity:0;transition:opacity .3s;
-  z-index:600;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.35)}
+.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);padding:8px 20px;
+  background:rgba(18,18,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.25);
+  border-radius:20px;font-size:var(--fs-sm);color:var(--gn);opacity:0;transition:opacity .3s;
+  z-index:9999;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
 .toast.show{opacity:1}
 
 /* Stamp hint */
@@ -248,10 +248,19 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .alert-item.hijack{border-color:rgba(232,72,85,.2)}
 .alert-item.earn{border-color:rgba(76,216,154,.2);background:rgba(76,216,154,.05)}
 
-/* Range slider */
+/* Range slider — desktop: circle thumb */
 input[type=range]{-webkit-appearance:none;height:4px;background:var(--bdr);border-radius:2px;outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
   background:var(--mars);border-radius:50%;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;
+  background:var(--mars);border-radius:50%;cursor:pointer;border:none}
+/* Mobile: line thumb */
+@media(max-width:768px){
+  input[type=range]::-webkit-slider-thumb{width:3px;height:24px;border-radius:2px;
+    box-shadow:0 0 0 5px rgba(200,80,60,.25)}
+  input[type=range]::-moz-range-thumb{width:3px;height:24px;border-radius:2px;
+    box-shadow:0 0 0 5px rgba(200,80,60,.25)}
+}
 
 /* Link style */
 .link-val{color:var(--cyan)!important;text-decoration:underline;cursor:pointer;font-size:var(--fs-xs);
@@ -370,16 +379,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   background:var(--mars);opacity:.5}
 .mob-stamp-crosshair::before{width:1px;height:100%;left:50%;top:0}
 .mob-stamp-crosshair::after{height:1px;width:100%;top:50%;left:0}
-.mob-stamp-bar{position:fixed;bottom:20px;left:12px;right:12px;z-index:96;
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:10px 12px;background:rgba(14,12,22,.92);backdrop-filter:blur(16px);
-  border:1px solid var(--bdr2);border-radius:14px;pointer-events:auto;
-  box-shadow:0 4px 20px rgba(0,0,0,.6)}
-.mob-stamp-bar-cancel{padding:10px 16px;font-size:9px;font-family:var(--fn);
+.mob-stamp-bar{position:fixed;bottom:0;left:0;right:0;z-index:96;
+  display:flex;flex-direction:column;gap:6px;
+  padding:8px 10px;background:rgba(14,12,22,.92);backdrop-filter:blur(16px);
+  border-top:1px solid var(--bdr2);border-radius:14px 14px 0 0;pointer-events:auto;
+  box-shadow:0 -4px 20px rgba(0,0,0,.6);padding-bottom:max(10px,env(safe-area-inset-bottom))}
+.mob-stamp-bar-scale{display:flex;align-items:center;gap:6px;padding:0 2px}
+.mob-stamp-bar-scale-label{font-size:9px;font-family:var(--fn);color:var(--mars);
+  min-width:32px;font-weight:bold}
+.mob-stamp-bar-btns{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.mob-stamp-bar-cancel{padding:8px 14px;font-size:9px;font-family:var(--fn);
   background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);border-radius:8px;
   color:var(--red);cursor:pointer}
 .mob-stamp-bar-hint{font-size:8px;font-family:var(--fn);color:var(--tx3);text-align:center;flex:1}
-.mob-stamp-bar-ok{padding:10px 20px;font-size:10px;font-family:var(--fn);
+.mob-stamp-bar-ok{padding:8px 18px;font-size:10px;font-family:var(--fn);
   background:linear-gradient(135deg,var(--mars),#E84855);border:none;border-radius:8px;
   color:#fff;cursor:pointer;font-weight:bold;letter-spacing:1px;
   box-shadow:0 2px 10px rgba(255,120,60,.3)}
@@ -393,9 +406,46 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .stamp-fab:active{transform:translateX(-50%) scale(.95)}
 @media(max-width:768px){.stamp-fab{display:block}}
 
-.stamp-modal{position:fixed;bottom:0;left:0;right:0;z-index:500;
-  background:var(--panel2);border-top:1px solid var(--bdr2);border-radius:16px 16px 0 0;
-  padding:16px;max-height:70vh;overflow-y:auto;
+/* Mobile territory info button (floats above clicked claim) */
+.mob-info-btn{display:none;position:fixed;z-index:95;
+  padding:6px 14px;font-size:9px;font-family:var(--fn);letter-spacing:1.5px;
+  background:rgba(18,18,24,.75);backdrop-filter:blur(8px);color:var(--mars);
+  border:1px solid var(--mars);border-radius:16px;cursor:pointer;
+  box-shadow:0 2px 12px rgba(200,80,60,.3);white-space:nowrap;
+  transform:translate(-50%,-100%);pointer-events:auto}
+.mob-info-btn:active{transform:translate(-50%,-100%) scale(.93)}
+
+/* Mobile territory info modal */
+.mob-territory-modal{position:fixed;inset:0;z-index:510;background:rgba(0,0,0,.7);
+  backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+.mob-territory-modal.open{display:flex}
+.mob-territory-card{width:100%;max-width:480px;background:var(--panel2);
+  border-top:1px solid var(--bdr2);border-radius:16px 16px 0 0;
+  padding:16px 20px 24px;max-height:85vh;overflow-y:auto;
+  box-shadow:0 -8px 40px rgba(0,0,0,.5)}
+.mob-territory-card .mt-handle{width:36px;height:4px;background:var(--bdr2);
+  border-radius:2px;margin:0 auto 14px}
+.mob-territory-card .mt-title{font-family:var(--fn);font-size:12px;color:var(--gold);
+  letter-spacing:2px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.mob-territory-card .mt-close{background:none;border:none;color:var(--tx3);
+  font-size:18px;cursor:pointer;padding:4px 8px}
+.mob-territory-card .mt-row{display:flex;justify-content:space-between;
+  padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:10px}
+.mob-territory-card .mt-label{color:var(--tx3);font-family:var(--fn);letter-spacing:1px}
+.mob-territory-card .mt-val{color:var(--tx1);font-family:var(--fn);text-align:right}
+.mob-territory-card .mt-img{margin:10px 0;text-align:center}
+.mob-territory-card .mt-img img{max-width:100%;max-height:200px;border-radius:8px;
+  border:1px solid var(--bdr2);cursor:pointer}
+.mob-territory-card .mt-hijack{width:100%;margin-top:14px;min-height:48px;
+  font-size:11px;font-family:var(--fn);letter-spacing:1px;
+  background:linear-gradient(135deg,#E84855,var(--mars));color:#fff;
+  border:none;border-radius:10px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(232,72,85,.3)}
+.mob-territory-card .mt-hijack:active{transform:scale(.97)}
+
+.stamp-modal{position:fixed;bottom:90px;left:5%;right:5%;z-index:500;
+  background:var(--panel2);border:1px solid var(--bdr2);border-radius:16px;
+  padding:14px;max-height:70vh;overflow-y:auto;
   box-shadow:0 -8px 32px rgba(0,0,0,.5);backdrop-filter:blur(20px);
   transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);
   pointer-events:none;visibility:hidden}
@@ -514,6 +564,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .zb{width:48px;height:48px;font-size:28px}
   .mob-toggle{min-height:44px;padding:8px 14px;font-size:10px}
   .stamp-fab{bottom:100px;z-index:91}
+  /* Hide sidebar territory info on mobile — use modal instead */
+  #territoryInfo{display:none!important}
   /* Small text fixes */
   .alert-item .alert-time{font-size:8px}
   .wallet-copy-addr{font-size:9px}
@@ -680,6 +732,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="stat-row"><span class="stat-label">SIZE</span><span class="stat-val" id="infoSize">--</span></div>
     <div class="stat-row"><span class="stat-label">PRICE PAID</span><span class="stat-val gn" id="infoPrice">--</span></div>
     <div class="stat-row"><span class="stat-label">HIJACK COST</span><span class="stat-val red" id="infoHijack">--</span></div>
+    <div id="infoImgWrap" style="display:none;margin:8px 0;text-align:center">
+      <img id="infoImgPreview" src="" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer" onclick="expandInfoImg()">
+      <div id="infoImgGifBadge" style="display:none;font-size:8px;color:var(--mars);margin-top:3px">GIF</div>
+    </div>
     <button class="action-btn hijack" id="claimBtn" onclick="openClaimModal()" data-i18n="hijack_this">HIJACK THIS PLOT</button>
   </div>
 
@@ -709,31 +765,27 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <!-- STAMP MODE: Image-first workflow -->
   <div class="p-section" id="stampSection">
     <div class="p-title" data-i18n="place_image">PLACE YOUR IMAGE</div>
-    <input type="file" id="stampFileInput" accept="image/*" style="display:none">
+    <input type="file" id="stampFileInput" accept="image/*,image/gif" style="display:none">
     <button class="uf" onclick="document.getElementById('stampFileInput').click()">CHOOSE IMAGE FILE</button>
-    <div class="uuw" style="margin-top:5px">
-      <input type="text" class="ui" id="stampUrlInput" placeholder="OR PASTE URL...">
-      <button class="ulb" onclick="loadStampUrl()">GO</button>
-    </div>
     <!-- Preview + controls (hidden until image loaded) -->
     <div id="stampPreview" style="display:none;margin-top:10px">
       <img id="stampThumb" style="max-width:100%;max-height:80px;border-radius:4px;border:1px solid var(--bdr)">
       <div class="stat-row" style="margin-top:6px"><span class="stat-label">IMAGE</span><span class="stat-val" id="stampImgInfo">--</span></div>
       <div class="stat-row"><span class="stat-label">MIN VISIBLE</span><span class="stat-val" id="stampMinLabel">--</span></div>
       <div style="margin:8px 0">
-        <div class="stat-label" style="margin-bottom:4px">SCALE %</div>
-        <input type="range" id="stampSizeSlider" min="1" max="300" value="100" style="width:100%;accent-color:var(--mars)" oninput="updateStampScale(+this.value)">
+        <div class="stat-label" style="margin-bottom:4px">SCALE</div>
+        <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:2px"><span>-100</span><span>0</span><span>+100</span></div>
+        <input type="range" id="stampSizeSlider" min="-100" max="100" value="0" style="width:100%;accent-color:var(--mars)" oninput="updateDesktopStampSlider(+this.value)">
         <div style="display:flex;justify-content:space-between;margin-top:2px">
           <span class="stat-val" id="stampSizeLabel">--</span>
           <span class="stat-val gn" id="stampCostLabel">--</span>
         </div>
         <div style="display:flex;gap:3px;margin-top:4px;flex-wrap:wrap">
-          <button class="sz-btn" onclick="setStampPct(5)">5%</button>
-          <button class="sz-btn" onclick="setStampPct(10)">10%</button>
-          <button class="sz-btn" onclick="setStampPct(25)">25%</button>
-          <button class="sz-btn" onclick="setStampPct(50)">50%</button>
-          <button class="sz-btn" onclick="setStampPct(100)">100%</button>
-          <button class="sz-btn" onclick="setStampPct(200)">200%</button>
+          <button class="sz-btn" onclick="setDesktopStampSlider(-100)">MIN</button>
+          <button class="sz-btn" onclick="setDesktopStampSlider(-50)">-50</button>
+          <button class="sz-btn" onclick="setDesktopStampSlider(0)">0</button>
+          <button class="sz-btn" onclick="setDesktopStampSlider(50)">+50</button>
+          <button class="sz-btn" onclick="setDesktopStampSlider(100)">MAX</button>
         </div>
       </div>
       <div style="margin-top:6px">
@@ -963,6 +1015,31 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <!-- Mobile: Place Image FAB -->
 <button class="stamp-fab" id="stampFab" onclick="openMobileStamp()">📷 PLACE</button>
 
+<!-- Mobile: Territory Info Button (floats on globe near clicked claim) -->
+<button class="mob-info-btn" id="mobInfoBtn" onclick="openMobTerritoryModal()">INFO</button>
+
+<!-- Mobile: Territory Info Modal -->
+<div class="mob-territory-modal" id="mobTerritoryModal" onclick="if(event.target===this)closeMobTerritoryModal()">
+  <div class="mob-territory-card">
+    <div class="mt-handle"></div>
+    <div class="mt-title">
+      <span>TERRITORY INFO</span>
+      <button class="mt-close" onclick="closeMobTerritoryModal()">✕</button>
+    </div>
+    <div class="mt-row"><span class="mt-label">COORDS</span><span class="mt-val" id="mtCoords">--</span></div>
+    <div class="mt-row"><span class="mt-label">OWNER</span><span class="mt-val" id="mtOwner" style="color:var(--gold)">--</span></div>
+    <div class="mt-row" id="mtLinkRow" style="display:none"><span class="mt-label">LINK</span><a class="mt-val" id="mtLink" href="#" target="_blank" rel="noopener" style="color:var(--cyan)">--</a></div>
+    <div class="mt-row"><span class="mt-label">SIZE</span><span class="mt-val" id="mtSize">--</span></div>
+    <div class="mt-row"><span class="mt-label">PRICE PAID</span><span class="mt-val" id="mtPrice" style="color:var(--gn)">--</span></div>
+    <div class="mt-row"><span class="mt-label">HIJACK COST</span><span class="mt-val" id="mtHijack" style="color:var(--red)">--</span></div>
+    <div class="mt-img" id="mtImgWrap" style="display:none">
+      <img id="mtImgPreview" src="" onclick="expandMtImg()">
+      <div id="mtGifBadge" style="display:none;font-size:9px;color:var(--mars);margin-top:4px">GIF ▶</div>
+    </div>
+    <button class="mt-hijack" onclick="closeMobTerritoryModal();openClaimModal()">⚔ HIJACK THIS TERRITORY</button>
+  </div>
+</div>
+
 <!-- Mobile Stamp Bottom Sheet -->
 <div class="stamp-modal" id="mobileStampModal">
   <div class="stamp-modal-handle"></div>
@@ -970,12 +1047,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="p-title" style="border:none;padding:0;margin:0;font-size:11px" data-i18n="place_image">PLACE YOUR IMAGE</div>
     <button class="mob-stamp-close" onclick="closeMobileStamp()">✕</button>
   </div>
-  <input type="file" id="mStampFileInput" accept="image/*" style="display:none">
-  <button class="uf" onclick="document.getElementById('mStampFileInput').click()" data-i18n="choose_file" style="min-height:48px;font-size:10px">CHOOSE IMAGE FILE</button>
-  <div class="uuw" style="margin-top:8px">
-    <input type="text" class="ui" id="mStampUrlInput" placeholder="OR PASTE URL..." style="font-size:9px;min-height:44px">
-    <button class="ulb" onclick="loadMobileStampUrl()" style="min-height:44px;font-size:10px">GO</button>
-  </div>
+  <input type="file" id="mStampFileInput" accept="image/*,image/gif" style="display:none">
+  <button class="uf" id="mStampFileBtn" onclick="document.getElementById('mStampFileInput').click()" style="min-height:48px;font-size:10px">SELECT IMAGE FILE</button>
   <div id="mStampPreview" style="display:none;margin-top:12px">
     <div style="display:flex;gap:10px;align-items:center">
       <img id="mStampThumb" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--bdr)">
@@ -986,18 +1059,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     </div>
     <div style="margin:12px 0">
       <div class="stat-label" style="margin-bottom:6px;font-size:9px">SCALE</div>
-      <input type="range" id="mStampSizeSlider" min="1" max="300" value="100" style="width:100%;accent-color:var(--mars);height:28px" oninput="updateMobileStampScale(+this.value)">
+      <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:2px"><span>-100</span><span>0</span><span>+100</span></div>
+      <input type="range" id="mStampSizeSlider" min="-100" max="100" value="0" style="width:100%;accent-color:var(--mars);height:28px" oninput="updateMobileStampSlider(+this.value)">
       <div style="display:flex;justify-content:space-between;margin-top:6px">
         <span class="stat-val" id="mStampSizeLabel" style="font-size:10px">--</span>
       </div>
       <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-        <button class="sz-btn" onclick="setMobileStampPct(10)" style="min-height:40px;font-size:9px;flex:1">10%</button>
-        <button class="sz-btn" onclick="setMobileStampPct(25)" style="min-height:40px;font-size:9px;flex:1">25%</button>
-        <button class="sz-btn" onclick="setMobileStampPct(50)" style="min-height:40px;font-size:9px;flex:1">50%</button>
-        <button class="sz-btn" onclick="setMobileStampPct(100)" style="min-height:40px;font-size:9px;flex:1">100%</button>
+        <button class="sz-btn" onclick="setMobileStampSlider(-100)" style="min-height:40px;font-size:9px;flex:1">MIN</button>
+        <button class="sz-btn" onclick="setMobileStampSlider(-50)" style="min-height:40px;font-size:9px;flex:1">-50</button>
+        <button class="sz-btn" onclick="setMobileStampSlider(0)" style="min-height:40px;font-size:9px;flex:1">0</button>
+        <button class="sz-btn" onclick="setMobileStampSlider(50)" style="min-height:40px;font-size:9px;flex:1">+50</button>
+        <button class="sz-btn" onclick="setMobileStampSlider(100)" style="min-height:40px;font-size:9px;flex:1">MAX</button>
       </div>
     </div>
-    <button class="action-btn" style="margin-top:14px;min-height:52px;font-size:11px;background:linear-gradient(135deg,var(--mars),#E84855);color:#fff;border:none" onclick="startMobilePreview()">👆 PREVIEW ON MARS</button>
+    <button class="action-btn" style="margin-top:14px;min-height:52px;font-size:11px;background:linear-gradient(135deg,var(--mars),#E84855);color:#fff;border:none" onclick="startMobilePreview()">PREVIEW ON MARS</button>
     <button class="action-btn" style="margin-top:6px;min-height:44px;font-size:10px;background:transparent;border:1px solid var(--bdr2);color:var(--tx3)" onclick="cancelMobileStamp()">CANCEL</button>
   </div>
 </div>
@@ -1009,11 +1084,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="mob-stamp-center-size" id="mobStampCenterSize">--</div>
   <!-- Hidden img for compat -->
   <img id="mobStampCenterImg" src="" style="display:none">
-  <!-- Bottom bar: OK + Cancel -->
+  <!-- Bottom bar: Scale + OK/Cancel -->
   <div class="mob-stamp-bar">
-    <button class="mob-stamp-bar-cancel" onclick="cancelMobileStamp()">✕ CANCEL</button>
-    <div class="mob-stamp-bar-hint">DRAG TO POSITION</div>
-    <button class="mob-stamp-bar-ok" onclick="confirmMobilePlacement()">✓ OK</button>
+    <div class="mob-stamp-bar-scale">
+      <span class="mob-stamp-bar-scale-label" id="mobPreviewScaleLabel">100%</span>
+      <input type="range" id="mobPreviewScaleSlider" min="-100" max="100" value="0" style="flex:1;accent-color:var(--mars);height:24px" oninput="updateMobPreviewScale(+this.value)">
+      <span style="font-size:8px;color:var(--tx3);font-family:var(--fn);min-width:50px;text-align:right" id="mobPreviewSizeLabel">--</span>
+    </div>
+    <div class="mob-stamp-bar-btns">
+      <button class="mob-stamp-bar-cancel" onclick="cancelMobileStamp()">✕ CANCEL</button>
+      <div class="mob-stamp-bar-hint">DRAG TO POSITION</div>
+      <button class="mob-stamp-bar-ok" onclick="confirmMobilePlacement()">✓ OK</button>
+    </div>
   </div>
 </div>
 
@@ -1580,6 +1662,8 @@ var marsCanvasTexture=null; // THREE.CanvasTexture for direct GPU upload (no JPE
 var nasaBaseImg=null; // cached NASA texture Image for composite
 
 function compositeClaimsOnTexture(previewOnly){
+  if(!globe||!marsCanvas) return;
+  try{ globe.globeMaterial(); }catch(e){ return; } // globe not ready yet
   var ctx=marsCanvas.getContext('2d');
   var w=marsCanvas.width,h=marsCanvas.height;
 
@@ -1614,13 +1698,9 @@ function compositeClaimsOnTexture(previewOnly){
       ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,h);ctx.stroke();
     }
 
-    // Draw each claim
-    claims.forEach(function(c){
-      var cw=c.w||c.size||20, ch=c.h||c.size||20;
-      var r=getCellRect(c.lat,c.lng,cw,ch,w,h);
-      var img=c.imgUrl?imgCache[c.imgUrl]:null;
+    // Draw each claim (with longitude wrap-around handling)
+    function _drawClaimRect(ctx,img,r,w){
       if(img){
-        // Opaque background so Mars texture doesn't bleed through transparent pixels
         ctx.fillStyle='#1A1A26';
         ctx.fillRect(r.x,r.y,r.w,r.h);
         ctx.drawImage(img,r.x,r.y,r.w,r.h);
@@ -1628,12 +1708,44 @@ function compositeClaimsOnTexture(previewOnly){
         ctx.strokeRect(r.x,r.y,r.w,r.h);
       }else{
         var colors=['#FF6B35','#FFD166','#E84855','#4CD89A','#C080E0'];
-        ctx.fillStyle=colors[Math.abs(c.label.charCodeAt(0))%5];
+        ctx.fillStyle=colors[2];
         ctx.globalAlpha=0.6;ctx.fillRect(r.x,r.y,r.w,r.h);ctx.globalAlpha=1;
       }
+      // Wrap around longitude boundary
+      if(r.x<0){
+        // Left overflow → also draw on right side
+        var r2={x:r.x+w, y:r.y, w:r.w, h:r.h};
+        if(img){ctx.fillStyle='#1A1A26';ctx.fillRect(r2.x,r2.y,r2.w,r2.h);ctx.drawImage(img,r2.x,r2.y,r2.w,r2.h);
+          ctx.strokeStyle='rgba(255,209,102,0.35)';ctx.lineWidth=1;ctx.strokeRect(r2.x,r2.y,r2.w,r2.h);}
+      }else if(r.x+r.w>w){
+        // Right overflow → also draw on left side
+        var r2={x:r.x-w, y:r.y, w:r.w, h:r.h};
+        if(img){ctx.fillStyle='#1A1A26';ctx.fillRect(r2.x,r2.y,r2.w,r2.h);ctx.drawImage(img,r2.x,r2.y,r2.w,r2.h);
+          ctx.strokeStyle='rgba(255,209,102,0.35)';ctx.lineWidth=1;ctx.strokeRect(r2.x,r2.y,r2.w,r2.h);}
+      }
+    }
+    claims.forEach(function(c){
+      var cw=c.w||c.size||20, ch=c.h||c.size||20;
+      var r=getCellRect(c.lat,c.lng,cw,ch,w,h);
+      var img=c.imgUrl?imgCache[c.imgUrl]:null;
+      _drawClaimRect(ctx,img,r,w);
     });
 
-    // (selection highlight removed)
+    // Selection highlight: yellow dashed border on selected claim
+    if(selectedPlot&&selectedPlot.owner){
+      var sp=selectedPlot;
+      var spw=sp.w||sp.size||20, sph=sp.h||sp.size||20;
+      var sr=getCellRect(sp.lat,sp.lng,spw,sph,w,h);
+      ctx.strokeStyle='#FFD166';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.strokeRect(sr.x,sr.y,sr.w,sr.h);
+      // Wrap-around highlight
+      if(sr.x<0){
+        ctx.strokeRect(sr.x+w,sr.y,sr.w,sr.h);
+      }else if(sr.x+sr.w>w){
+        ctx.strokeRect(sr.x-w,sr.y,sr.w,sr.h);
+      }
+      ctx.setLineDash([]);
+    }
 
     // Cache this snapshot for fast preview redraws
     claimsSnapshot=ctx.getImageData(0,0,w,h);
@@ -1664,13 +1776,15 @@ function compositeClaimsOnTexture(previewOnly){
 
   // Direct GPU upload — no JPEG compression, much sharper + faster
   if(!marsCanvasTexture){
-    var TexClass=globe.globeMaterial().map.constructor;
+    var mat=globe.globeMaterial(); if(!mat||!mat.map) return;
+    var TexClass=mat.map.constructor;
     marsCanvasTexture=new TexClass(marsCanvas);
     marsCanvasTexture.needsUpdate=true;
     globe.globeMaterial().map=marsCanvasTexture;
   }else{
     marsCanvasTexture.needsUpdate=true;
   }
+
 }
 
 /* ── Generate Bump Map (higher detail) ───────────── */
@@ -1834,6 +1948,12 @@ function _initStep3(){
       var tb=document.getElementById('texToggleBtn');if(tb)tb.title='Current: NASA Real | Click for Procedural';
     }
 
+    // Pre-cache initial NASA 2K so compositeClaimsOnTexture can use it immediately
+    if(currentTexMode==='nasa'){
+      cacheImage(NASA_MARS_2K,function(){
+        console.log('[Mars] NASA 2K cached for compositing');
+      });
+    }
     // Progressive: load 8K NASA texture in background
     setTimeout(loadNasa8k, 2000);
 
@@ -1886,13 +2006,16 @@ function toggleMarsTexture(){
 }
 
 function loadNasa8k(){
-  var img=new Image();
-  img.onload=function(){
+  cacheImage(NASA_MARS_8K,function(img){
+    if(!img) return;
     nasa8kLoaded=true;
-    if(currentTexMode==='nasa'&&globe) globe.globeImageUrl(NASA_MARS_8K);
     console.log('[Mars] 8K NASA texture loaded');
-  };
-  img.src=NASA_MARS_8K;
+    if(currentTexMode==='nasa'&&globe){
+      // Re-composite claims on top of 8K instead of raw replacement
+      marsCanvasTexture=null; claimsSnapshot=null;
+      compositeClaimsOnTexture();
+    }
+  });
 }
 
 // Start async pipeline
@@ -2056,6 +2179,7 @@ document.getElementById('globe-wrap').addEventListener('touchstart',stopRotation
 function goBack(){
   selectedPlot=null;isZoomedIn=false;
   document.getElementById('territoryInfo').style.display='none';
+  hideMobInfoBtn();
   // Zoom out from current view position (don't reset lat/lng)
   var pov=globe.pointOfView();
   globe.pointOfView({lat:pov.lat,lng:pov.lng,altitude:2.5},1000);
@@ -2083,6 +2207,11 @@ var isZoomedIn=false, lastClickTime=0;
 // ── Globe Click Handler (attached after globe init) ──
 function _attachGlobeClick(){
   if(!globe){setTimeout(_attachGlobeClick,100);return}
+  // Track last tap/click position for mobile info button
+  var _lastTapX=0, _lastTapY=0;
+  var globeEl=globe.renderer().domElement;
+  globeEl.addEventListener('pointerdown',function(e){ _lastTapX=e.clientX; _lastTapY=e.clientY; });
+
   globe.onGlobeClick(function(coords){
     stopRotation();
     var now=Date.now();
@@ -2100,7 +2229,9 @@ function _attachGlobeClick(){
           var maxDim=Math.max(existing.w||existing.size||10,existing.h||existing.size||10);
           var alt=Math.max(0.06,maxDim*GRID_SIZE/60);
           globe.pointOfView({lat:existing.lat,lng:existing.lng,altitude:alt},800);
-          selectedPlot=existing; showTerritoryInfo(existing);
+          selectedPlot=existing;
+          if(isMobile){ showMobInfoBtn(existing,{clientX:_lastTapX,clientY:_lastTapY}); }
+          else{ showTerritoryInfo(existing); }
         }else{
           globe.pointOfView({lat:lat,lng:lng,altitude:0.15},800);
         }
@@ -2124,27 +2255,33 @@ function _attachGlobeClick(){
     // Normal click on existing claim
     if(existing){
       selectedPlot=existing;
-      showTerritoryInfo(existing);
+      if(isMobile){
+        showMobInfoBtn(existing, {clientX:_lastTapX,clientY:_lastTapY});
+      }else{
+        showTerritoryInfo(existing);
+      }
       compositeClaimsOnTexture();
     }else{
       selectedPlot=null;
-      document.getElementById('territoryInfo').style.display='none';
+      if(isMobile){
+        hideMobInfoBtn();
+      }else{
+        document.getElementById('territoryInfo').style.display='none';
+      }
       compositeClaimsOnTexture();
-      // 모바일: PLACE 버튼으로 이미지 배치 (자동 열림 제거)
     }
   });
 }
 
 // ── Stamp Mode: image-first workflow ──
+var _stampOrigFile=null; // keep original File for GIF detection
 document.getElementById('stampFileInput').addEventListener('change',function(e){
   var file=e.target.files[0]; if(!file) return;
+  if(file.size>4.5*1024*1024){ showToast('⚠️ File too large (max 5MB). Choose a smaller image.'); e.target.value=''; return; }
+  _stampOrigFile=file;
   var url=URL.createObjectURL(file);
   activateStamp(url);
 });
-function loadStampUrl(){
-  var v=document.getElementById('stampUrlInput').value.trim(); if(!v) return;
-  activateStamp(v);
-}
 function activateStamp(url){
   if(!walletState.connected){
     showToast('LOGIN REQUIRED');
@@ -2159,23 +2296,21 @@ function activateStamp(url){
     // Default 100% = original image pixel dimensions as cell count
     stampScale=100;
     stampW=stampImgW; stampH=stampImgH;
-    // Min scale: at least 8 texture pixels on longest side
-    var pxPerDeg=marsCanvas.width/360;
-    var texPxPerCell=GRID_SIZE*pxPerDeg;
-    var minCells=Math.ceil(8/texPxPerCell);
+    // Min scale: 1×1 pixel on longest side
     var maxDim=Math.max(stampImgW,stampImgH);
-    var minPct=Math.max(1,Math.ceil(minCells/maxDim*100));
+    var minPct=Math.max(1,Math.ceil(100/maxDim));
     // Update UI
     document.getElementById('stampThumb').src=url;
     document.getElementById('stampImgInfo').textContent=img.width+'×'+img.height+'px';
-    document.getElementById('stampMinLabel').textContent='Min '+minPct+'% ('+Math.ceil(stampImgW*minPct/100)+'×'+Math.ceil(stampImgH*minPct/100)+')';
+    document.getElementById('stampMinLabel').textContent='Min 1×1 px';
     var slider=document.getElementById('stampSizeSlider');
-    slider.min=minPct; slider.max=300; slider.value=100;
+    slider.min=-100; slider.max=100; slider.value=0;
     updateStampScale(100);
     document.getElementById('stampPreview').style.display='';
     showToast('IMAGE READY — CLICK MARS TO STAMP!');
   };
-  img.onerror=function(){showToast('IMAGE LOAD FAILED')};
+  img.onerror=function(){showToast('IMAGE LOAD FAILED — try selecting from Files app for GIF')};
+  img.crossOrigin='anonymous';
   img.src=url;
 }
 function updateStampScale(pct){
@@ -2198,17 +2333,35 @@ function updateStampCostDisplay(){
     document.getElementById('stampCostLabel').textContent='~$'+baseCost.toLocaleString()+' USDT';
   }
 }
+// Shared slider→pct mapping: -100 → 1×1px, 0 → 100%, +100 → 300%
+function _sliderToPct(v){
+  var maxDim=Math.max(stampImgW||1,stampImgH||1);
+  var minPct=Math.max(1,Math.ceil(100/maxDim)); // pct that gives ~1px on longest side
+  if(v<=0) return minPct+(100-minPct)*((v+100)/100);
+  return 100+200*(v/100);
+}
+function _dSliderToPct(v){
+  return _sliderToPct(v);
+}
+function updateDesktopStampSlider(v){
+  var pct=Math.round(_dSliderToPct(v));
+  updateStampScale(pct);
+}
+function setDesktopStampSlider(v){
+  document.getElementById('stampSizeSlider').value=v;
+  updateDesktopStampSlider(v);
+}
 function setStampPct(pct){
-  document.getElementById('stampSizeSlider').value=pct;
+  document.getElementById('stampSizeSlider').value=0;
   updateStampScale(pct);
 }
 function cancelStamp(){
-  stampMode=false; stampImgUrl=null;
+  stampMode=false; stampImgUrl=null; _stampOrigFile=null;
   stampPreviewLat=null; stampPreviewLng=null;
   document.getElementById('stampPreview').style.display='none';
   document.getElementById('stampFileInput').value='';
-  document.getElementById('stampUrlInput').value='';
   document.getElementById('stampLinkInput').value='';
+  document.getElementById('stampSizeSlider').value=0;
   compositeClaimsOnTexture();
 }
 
@@ -2219,6 +2372,12 @@ window.addEventListener('resize',function(){isMobile=window.innerWidth<=768});
 var mobileStampPlacing=false; // true when user is picking location on Mars
 
 function openMobileStamp(){
+  // Reset previous image state
+  stampImgUrl=null;stampMode=false;
+  stampPreviewLat=null;stampPreviewLng=null;
+  document.getElementById('mStampPreview').style.display='none';
+  document.getElementById('mStampFileInput').value='';
+  document.getElementById('mStampFileBtn').textContent=t('choose_file');
   document.getElementById('mobileStampModal').classList.add('open');
   document.getElementById('stampFab').style.display='none';
 }
@@ -2233,6 +2392,8 @@ function closeMobileStampFull(){
 }
 document.getElementById('mStampFileInput').addEventListener('change',function(e){
   var file=e.target.files[0]; if(!file) return;
+  if(file.size>4.5*1024*1024){ showToast('⚠️ File too large (max 5MB). Choose a smaller image.'); e.target.value=''; return; }
+  _stampOrigFile=file;
   activateStamp(URL.createObjectURL(file));
   syncMobileStampUI();
 });
@@ -2246,25 +2407,35 @@ function syncMobileStampUI(){
     if(!stampImgUrl) return;
     document.getElementById('mStampThumb').src=stampImgUrl;
     document.getElementById('mStampImgInfo').textContent=stampImgW+'×'+stampImgH+'px';
-    document.getElementById('mStampSizeSlider').min=document.getElementById('stampSizeSlider').min;
-    document.getElementById('mStampSizeSlider').max=300;
-    document.getElementById('mStampSizeSlider').value=100;
+    document.getElementById('mStampSizeSlider').value=0;
     updateMobileStampLabels();
     document.getElementById('mStampPreview').style.display='';
+    // Update button text to indicate change
+    document.getElementById('mStampFileBtn').textContent=t('choose_file')+' ('+t('cancel')+')';
   },200);
+}
+// Mobile slider: -100..+100 → actual pct: -100→minPct, 0→100%, +100→300%
+function _mSliderToPct(v){
+  return _sliderToPct(v);
+}
+function updateMobileStampSlider(v){
+  var pct=Math.round(_mSliderToPct(v));
+  updateStampScale(pct);
+  updateMobileStampLabels();
 }
 function updateMobileStampScale(pct){
   updateStampScale(pct);
   updateMobileStampLabels();
 }
 function updateMobileStampLabels(){
+  var sign=stampScale>=100?'+':'';
   document.getElementById('mStampSizeLabel').textContent=stampW+'×'+stampH+' px ('+stampScale+'%)';
   var baseCost=Math.round(stampW*stampH*PIXEL_PRICE*100)/100;
   document.getElementById('mStampCostLabel').textContent='~$'+baseCost.toLocaleString()+' USDT';
 }
-function setMobileStampPct(pct){
-  document.getElementById('mStampSizeSlider').value=pct;
-  updateMobileStampScale(pct);
+function setMobileStampSlider(v){
+  document.getElementById('mStampSizeSlider').value=v;
+  updateMobileStampSlider(v);
 }
 // "PREVIEW ON MARS" → 바텀시트 닫고 반투명 이미지 중앙에 표시, 화성 드래그로 위치 선택
 var _mobPreviewRAF=null;
@@ -2276,6 +2447,11 @@ function startMobilePreview(){
   document.getElementById('mobStampCenterSize').textContent=stampW+'×'+stampH+'px';
   document.getElementById('mobStampOverlay').style.display='';
   document.getElementById('stampFab').style.display='none';
+  // Sync preview scale slider with current scale
+  var slider=document.getElementById('mobPreviewScaleSlider');
+  slider._minPct=document.getElementById('mStampSizeSlider')._minPct||1;
+  slider.value=document.getElementById('mStampSizeSlider').value||0;
+  _updateMobPreviewScaleLabels();
   // 스탬프 크기에 맞게 자동 줌인 (이미지가 화면의 20~30% 차지하도록)
   var maxDeg=Math.max(stampW,stampH)*GRID_SIZE;
   var targetAlt=Math.max(0.15,maxDeg/12);
@@ -2306,6 +2482,20 @@ function updateMobPreviewSize(){
   // 사이즈 라벨 업데이트
   document.getElementById('mobStampCenterSize').textContent=stampW+'×'+stampH+'px';
   _mobPreviewRAF=requestAnimationFrame(updateMobPreviewSize);
+}
+function updateMobPreviewScale(v){
+  var pct=Math.round(_sliderToPct(v));
+  updateStampScale(pct);
+  // Sync mobile stamp sheet slider too
+  document.getElementById('mStampSizeSlider').value=v;
+  _updateMobPreviewScaleLabels();
+  // Redraw preview immediately
+  if(mobileStampPlacing) compositeClaimsOnTexture(true);
+}
+function _updateMobPreviewScaleLabels(){
+  document.getElementById('mobPreviewScaleLabel').textContent=stampScale+'%';
+  document.getElementById('mobPreviewSizeLabel').textContent=stampW+'×'+stampH+'px';
+  document.getElementById('mobStampCenterSize').textContent=stampW+'×'+stampH+'px';
 }
 function exitMobilePlacing(){
   mobileStampPlacing=false;
@@ -2355,6 +2545,108 @@ function showTerritoryInfo(plot){
   }else{
     document.getElementById('linkRow').style.display='none';
   }
+  // Show claim image (original GIF if available, otherwise static)
+  var imgWrap=document.getElementById('infoImgWrap');
+  var imgPreview=document.getElementById('infoImgPreview');
+  var gifBadge=document.getElementById('infoImgGifBadge');
+  var showUrl=plot.originalImgUrl||plot.imgUrl;
+  if(showUrl){
+    imgPreview.src=showUrl;
+    imgWrap.style.display='';
+    imgPreview._fullUrl=showUrl;
+    gifBadge.style.display=plot.originalImgUrl?'':'none';
+  }else{
+    imgWrap.style.display='none';
+  }
+}
+// Expand image in full-screen overlay
+function expandInfoImg(){
+  var src=document.getElementById('infoImgPreview')._fullUrl;
+  if(!src) return;
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;cursor:pointer';
+  ov.onclick=function(){document.body.removeChild(ov)};
+  var img=document.createElement('img');
+  img.src=src;
+  img.style.cssText='max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 0 40px rgba(0,0,0,.6)';
+  ov.appendChild(img);
+  document.body.appendChild(ov);
+}
+
+/* ── Mobile Territory Info ───────────────────────── */
+function showMobInfoBtn(plot, evt){
+  var btn=document.getElementById('mobInfoBtn');
+  // Position directly above the tap point (tap lands on the image)
+  var x=evt?evt.clientX:window.innerWidth/2;
+  var y=evt?evt.clientY:window.innerHeight/2;
+  // Clamp to viewport
+  x=Math.max(40,Math.min(window.innerWidth-40,x));
+  y=Math.max(40,Math.min(window.innerHeight-80,y));
+  btn.style.left=x+'px';
+  btn.style.top=y+'px';
+  btn.style.display='block';
+  btn._plot=plot;
+}
+function hideMobInfoBtn(){
+  document.getElementById('mobInfoBtn').style.display='none';
+}
+function openMobTerritoryModal(){
+  var btn=document.getElementById('mobInfoBtn');
+  var plot=btn._plot||selectedPlot;
+  if(!plot||!plot.owner) return;
+  hideMobInfoBtn();
+  // Fill modal data
+  document.getElementById('mtCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
+  document.getElementById('mtOwner').textContent=plot.owner;
+  var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
+  document.getElementById('mtSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
+  document.getElementById('mtPrice').textContent='$'+plot.price+' USDT';
+  document.getElementById('mtHijack').textContent='$'+Math.round(plot.price*HIJACK_MULT*100)/100+' USDT ('+HIJACK_MULT+'×)';
+  // Link
+  if(plot.link){
+    document.getElementById('mtLinkRow').style.display='';
+    var linkEl=document.getElementById('mtLink');
+    var safeLink=(plot.link&&plot.link.trim().indexOf('https://')===0)?plot.link.trim():'#';
+    linkEl.href=safeLink;
+    linkEl.textContent=plot.link.replace(/^https?:\/\//,'').substring(0,30);
+  }else{
+    document.getElementById('mtLinkRow').style.display='none';
+  }
+  // Image
+  var imgWrap=document.getElementById('mtImgWrap');
+  var imgPreview=document.getElementById('mtImgPreview');
+  var gifBadge=document.getElementById('mtGifBadge');
+  var showUrl=plot.originalImgUrl||plot.imgUrl;
+  if(showUrl){
+    imgPreview.src=showUrl;
+    imgWrap.style.display='';
+    imgPreview._fullUrl=showUrl;
+    gifBadge.style.display=plot.originalImgUrl?'':'none';
+  }else{
+    imgWrap.style.display='none';
+  }
+  selectedPlot=plot;
+  document.getElementById('mobTerritoryModal').classList.add('open');
+}
+function closeMobTerritoryModal(){
+  document.getElementById('mobTerritoryModal').classList.remove('open');
+}
+function openMobTerritoryModalDirect(plot){
+  document.getElementById('mobInfoBtn')._plot=plot;
+  selectedPlot=plot;
+  openMobTerritoryModal();
+}
+function expandMtImg(){
+  var src=document.getElementById('mtImgPreview')._fullUrl;
+  if(!src) return;
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;cursor:pointer';
+  ov.onclick=function(){document.body.removeChild(ov)};
+  var img=document.createElement('img');
+  img.src=src;
+  img.style.cssText='max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 0 40px rgba(0,0,0,.6)';
+  ov.appendChild(img);
+  document.body.appendChild(ov);
 }
 
 /* ── Claim Modal ─────────────────────────────────── */
@@ -2434,8 +2726,10 @@ async function confirmClaim(){
     if(sendImageUrl&&(sendImageUrl.startsWith('blob:')||sendImageUrl.startsWith('data:'))){
       try{
         var dataUrl=sendImageUrl;
-        // Convert blob: to data: first
+        // Convert blob: to uploadable data
+        var originalGifUrl=null;
         if(sendImageUrl.startsWith('blob:')){
+          // Use cached img element (already loaded by activateStamp)
           var imgEl=imgCache[sendImageUrl];
           if(!imgEl){
             var tmpImg=new Image();tmpImg.crossOrigin='anonymous';
@@ -2444,14 +2738,36 @@ async function confirmClaim(){
             });
             imgEl=tmpImg;
           }
+
+          // Check if GIF using the original File object
+          var isGif=_stampOrigFile&&(_stampOrigFile.type==='image/gif');
+
+          // For GIFs: upload original GIF first
+          if(isGif){
+            var gifDataUrl=await new Promise(function(resolve){
+              var reader=new FileReader();
+              reader.onload=function(){resolve(reader.result)};
+              reader.readAsDataURL(_stampOrigFile);
+            });
+            if(btn) btn.textContent='UPLOADING GIF...';
+            var gifResp=await fetch('/api/upload',{
+              method:'POST',headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({dataUrl:gifDataUrl})
+            });
+            var gifData=await gifResp.json();
+            if(gifResp.ok&&gifData.url) originalGifUrl=gifData.url;
+          }
+
+          // Always create JPEG thumbnail for texture (using already-loaded imgEl)
           var cvs=document.createElement('canvas');
-          var scale=Math.min(512/(imgEl.naturalWidth||imgEl.width),512/(imgEl.naturalHeight||imgEl.height),1);
+          var maxDim=1536; // Higher res for texture quality
+          var scale=Math.min(maxDim/(imgEl.naturalWidth||imgEl.width),maxDim/(imgEl.naturalHeight||imgEl.height),1);
           cvs.width=Math.round((imgEl.naturalWidth||imgEl.width)*scale);
           cvs.height=Math.round((imgEl.naturalHeight||imgEl.height)*scale);
           cvs.getContext('2d').drawImage(imgEl,0,0,cvs.width,cvs.height);
-          dataUrl=cvs.toDataURL('image/jpeg',0.85);
+          dataUrl=cvs.toDataURL('image/jpeg',0.92);
         }
-        // Upload to server
+        // Upload JPEG thumbnail
         if(btn) btn.textContent='UPLOADING...';
         var upResp=await fetch('/api/upload',{
           method:'POST',
@@ -2488,6 +2804,7 @@ async function confirmClaim(){
         width:cw,
         height:ch,
         imageUrl:sendImageUrl,
+        originalImageUrl:originalGifUrl||'',
         linkUrl:linkVal||''
       })
     });
@@ -3821,7 +4138,10 @@ function searchOwner(){
     d.appendChild(detailSpan);
     d.onclick=function(){
       globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.08,Math.max(cw,ch)*GRID_SIZE/50)},800);
-      isZoomedIn=true; selectedPlot=c; showTerritoryInfo(c); compositeClaimsOnTexture();
+      isZoomedIn=true; selectedPlot=c;
+      if(isMobile){ openMobTerritoryModalDirect(c); }
+      else{ showTerritoryInfo(c); }
+      compositeClaimsOnTexture();
     };
     box.appendChild(d);
   });
@@ -3891,7 +4211,7 @@ function loadPublicStats(){
 }
 
 function loadLeaderboard(){
-  fetch('/api/leaderboard?sort=claims&limit=5').then(function(r){return r.json();}).then(function(arr){
+  fetch('/api/leaderboard?sort=pixels&limit=5').then(function(r){return r.json();}).then(function(arr){
     var container=document.getElementById('leaderboardList');
     if(!container) return;
     if(!Array.isArray(arr)||arr.length===0){
@@ -3906,10 +4226,10 @@ function loadLeaderboard(){
       var rankStyle=rankCls?'':' style="color:var(--tx3)"';
       var name=entry.nickname||entry.wallet;
       if(!entry.nickname&&name&&name.length>10) name=name.slice(0,6)+'..'+name.slice(-4);
-      var count=entry.claimCount||entry.claims||0;
+      var px=entry.pixelCount||0;
       html+='<div class="lb-row"><span class="lb-rank'+(rankCls?' '+rankCls:'')+'"'+rankStyle+'>'+rank+'</span>'
         +'<span class="lb-name">'+name+'</span>'
-        +'<span class="lb-val">'+fmtNum(count)+' plots</span></div>';
+        +'<span class="lb-val">'+fmtNum(px)+' px</span></div>';
     });
     container.innerHTML=html;
   }).catch(function(e){console.warn('[Leaderboard] fetch failed:',e);});

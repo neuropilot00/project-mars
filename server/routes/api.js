@@ -243,18 +243,19 @@ router.get('/pixel/:lat/:lng', async (req, res) => {
     }
 
     const px = pxRes.rows[0];
-    let imageUrl = null, linkUrl = null;
+    let imageUrl = null, originalImageUrl = null, linkUrl = null;
     if (px.claim_id) {
-      const claimRes = await pool.query('SELECT image_url, link_url FROM claims WHERE id = $1', [px.claim_id]);
+      const claimRes = await pool.query('SELECT image_url, original_image_url, link_url FROM claims WHERE id = $1', [px.claim_id]);
       if (claimRes.rows.length) {
         imageUrl = claimRes.rows[0].image_url;
+        originalImageUrl = claimRes.rows[0].original_image_url || null;
         linkUrl = claimRes.rows[0].link_url;
       }
     }
 
     res.json({
       owner: px.owner, price: parseFloat(px.price),
-      claimId: px.claim_id, imageUrl, linkUrl
+      claimId: px.claim_id, imageUrl, originalImageUrl, linkUrl
     });
   } catch (e) {
     console.error('[API] pixel error:', e.message);
@@ -295,14 +296,15 @@ router.get('/search/owner/:query', async (req, res) => {
 router.get('/claims', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, owner, center_lat, center_lng, width, height, image_url, link_url, total_paid
+      `SELECT id, owner, center_lat, center_lng, width, height, image_url, original_image_url, link_url, total_paid
        FROM claims WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 5000`
     );
     res.json(result.rows.map(r => ({
       id: r.id, owner: r.owner,
       lat: parseFloat(r.center_lat), lng: parseFloat(r.center_lng),
       w: r.width, h: r.height,
-      imgUrl: r.image_url, link: r.link_url,
+      imgUrl: r.image_url, originalImgUrl: r.original_image_url || null,
+      link: r.link_url,
       price: parseFloat(r.total_paid), label: r.owner.slice(0, 8)
     })));
   } catch (e) {
@@ -330,9 +332,9 @@ router.post('/upload', async (req, res) => {
   const base64Data = match[2];
   const buffer = Buffer.from(base64Data, 'base64');
 
-  // Max 2MB
-  if (buffer.length > 2 * 1024 * 1024) {
-    return res.status(400).json({ error: 'Image too large (max 2MB)' });
+  // Max 5MB
+  if (buffer.length > 5 * 1024 * 1024) {
+    return res.status(400).json({ error: 'Image too large (max 5MB)' });
   }
 
   try {
@@ -355,7 +357,7 @@ router.post('/upload', async (req, res) => {
 //  POST /api/claim
 // ══════════════════════════════════════════════════
 router.post('/claim', async (req, res) => {
-  const { wallet, lat, lng, width, height, imageUrl, linkUrl } = req.body;
+  const { wallet, lat, lng, width, height, imageUrl, originalImageUrl, linkUrl } = req.body;
   if (!wallet || lat == null || lng == null || !width || !height) {
     return res.status(400).json({ error: 'Missing fields' });
   }
@@ -396,6 +398,7 @@ router.post('/claim', async (req, res) => {
   if (linkUrl && !safeLinkUrl) {
     return res.status(400).json({ error: 'Invalid link URL (must start with https://)' });
   }
+  const safeOriginalImageUrl = sanitizeUrl(originalImageUrl, true) || null;
 
   const client = await pool.connect();
   const s = await cfg();
@@ -486,9 +489,9 @@ router.post('/claim', async (req, res) => {
 
     // Insert claim
     const claimRes = await client.query(
-      `INSERT INTO claims (owner, center_lat, center_lng, width, height, image_url, link_url, total_paid)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
-      [wallet.toLowerCase(), lat, lng, width, height, safeImageUrl, safeLinkUrl, totalCost]
+      `INSERT INTO claims (owner, center_lat, center_lng, width, height, image_url, original_image_url, link_url, total_paid)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
+      [wallet.toLowerCase(), lat, lng, width, height, safeImageUrl, safeOriginalImageUrl, safeLinkUrl, totalCost]
     );
     const claimId = claimRes.rows[0].id;
 
@@ -800,16 +803,10 @@ router.get('/leaderboard', async (req, res) => {
          u.nickname,
          COUNT(DISTINCT c.id) AS claim_count,
          COALESCE(SUM(c.total_paid), 0) AS total_volume,
-         COALESCE(px.pixel_count, 0) AS pixel_count
+         COALESCE(SUM(c.width * c.height), 0) AS pixel_count
        FROM users u
        LEFT JOIN claims c ON c.owner = u.wallet_address AND c.deleted_at IS NULL
-       LEFT JOIN (
-         SELECT owner, COUNT(*) AS pixel_count
-         FROM pixels
-         WHERE owner IS NOT NULL
-         GROUP BY owner
-       ) px ON px.owner = u.wallet_address
-       GROUP BY u.wallet_address, u.nickname, px.pixel_count
+       GROUP BY u.wallet_address, u.nickname
        HAVING COUNT(DISTINCT c.id) > 0
        ORDER BY ${orderBy}
        LIMIT $1`,

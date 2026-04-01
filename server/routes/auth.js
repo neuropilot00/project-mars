@@ -106,6 +106,17 @@ router.post('/register', async (req, res) => {
       [walletAddress, email.toLowerCase(), passwordHash, displayName, refCode, referredBy]
     );
 
+    // Gift PP bonus to new users (configurable via admin settings)
+    const bonusRes = await client.query("SELECT value FROM settings WHERE key = 'signup_pp_bonus'");
+    const signupBonus = bonusRes.rows.length ? Number(bonusRes.rows[0].value) : 0;
+    if (signupBonus > 0) {
+      await client.query(
+        `UPDATE users SET pp_balance = pp_balance + $2 WHERE wallet_address = $1`,
+        [walletAddress, signupBonus]
+      );
+      console.log(`[Auth] Gifted ${signupBonus} PP to new user ${walletAddress}`);
+    }
+
     await client.query('COMMIT');
 
     // Generate JWT

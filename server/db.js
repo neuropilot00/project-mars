@@ -65,6 +65,7 @@ async function initDB() {
         width INT NOT NULL,
         height INT NOT NULL,
         image_url TEXT,
+        original_image_url TEXT,
         link_url TEXT,
         total_paid DECIMAL(20,6) NOT NULL,
         deleted_at TIMESTAMPTZ,
@@ -148,6 +149,7 @@ async function initDB() {
         ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
         ALTER TABLE users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50);
         ALTER TABLE users ADD COLUMN IF NOT EXISTS withdrawal_nonce INTEGER DEFAULT 0;
+        ALTER TABLE claims ADD COLUMN IF NOT EXISTS original_image_url TEXT;
       EXCEPTION WHEN OTHERS THEN NULL;
       END $$;
 
@@ -191,6 +193,8 @@ async function seedDefaults(client) {
     { key: 'referral_tier2_percent', value: 10, desc: 'Tier 2 referral PP reward % on hijack', cat: 'referral' },
     { key: 'referral_tier3_percent', value: 5, desc: 'Tier 3 referral PP reward % on hijack', cat: 'referral' },
     { key: 'referral_enabled', value: true, desc: 'Enable/disable referral system', cat: 'referral' },
+    // Signup
+    { key: 'signup_pp_bonus', value: 100, desc: 'PP gifted to new users on registration (0=disabled)', cat: 'economy' },
     // Limits
     { key: 'min_deposit', value: 1, desc: 'Minimum deposit amount (USDT)', cat: 'limits' },
     { key: 'max_deposit', value: 100000, desc: 'Maximum deposit amount (USDT)', cat: 'limits' },
