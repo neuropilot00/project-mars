@@ -281,6 +281,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   transition:all .15s}
 .lang-btn:hover{border-color:var(--bdr2);color:var(--tx2)}
 .lang-btn.active{background:rgba(255,120,60,.1);border-color:var(--mars);color:var(--mars)}
+/* Language Dropdown (mobile) */
+.lang-dropdown{position:relative;display:none}
+.lang-dropdown .lang-current{padding:4px 8px;font-size:7px;font-family:var(--fn);
+  background:var(--surface2);border:1px solid var(--bdr);border-radius:5px;
+  color:var(--tx2);cursor:pointer;min-height:32px;display:flex;align-items:center;gap:3px}
+.lang-dropdown .lang-current::after{content:'▾';font-size:8px;color:var(--tx3)}
+.lang-dropdown .lang-menu{display:none;position:absolute;top:100%;right:0;margin-top:4px;
+  background:var(--panel2);border:1px solid var(--bdr2);border-radius:6px;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:200;overflow:hidden;min-width:60px}
+.lang-dropdown.open .lang-menu{display:block}
+.lang-menu-item{padding:8px 12px;font-size:7px;font-family:var(--fn);color:var(--tx2);
+  cursor:pointer;transition:background .15s;white-space:nowrap}
+.lang-menu-item:hover{background:rgba(255,120,60,.08);color:var(--tx)}
+.lang-menu-item.active{color:var(--mars);background:rgba(255,120,60,.06)}
 
 /* Mobile */
 @media(max-width:768px){
@@ -295,7 +309,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   .tb-title{font-size:8px}.tb-sub{display:none}
   .tb-btn{font-size:6px;padding:6px 10px;min-height:36px}
   .lang-switcher{display:none}
-  .lang-switcher-mobile{display:flex!important}
+  .lang-dropdown{display:block}
   .mdl{width:96vw;max-height:85vh}
   .mbd{padding:12px}
   .cr{flex-direction:column}
@@ -335,6 +349,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
       <button class="lang-btn" onclick="setLang('ja')">JA</button>
       <button class="lang-btn" onclick="setLang('zh')">ZH</button>
     </div>
+    <div class="lang-dropdown" id="langDropdown" onclick="toggleLangDropdown(event)">
+      <div class="lang-current" id="langCurrent">EN</div>
+      <div class="lang-menu" id="langMenu">
+        <div class="lang-menu-item active" onclick="setLang('en');closeLangDropdown()">EN English</div>
+        <div class="lang-menu-item" onclick="setLang('ko');closeLangDropdown()">KO 한국어</div>
+        <div class="lang-menu-item" onclick="setLang('ja');closeLangDropdown()">JA 日本語</div>
+        <div class="lang-menu-item" onclick="setLang('zh');closeLangDropdown()">ZH 中文</div>
+      </div>
+    </div>
     <div class="chain-indicator" id="chainIndicator" style="display:none">
       <span class="chain-dot base" id="chainDotTop"></span>
       <span id="chainNameTop">BASE</span>
@@ -350,13 +373,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 <!-- Left Panel -->
 <div class="panel-l" id="panelL">
-  <!-- Mobile language switcher -->
-  <div class="lang-switcher lang-switcher-mobile" style="display:none;justify-content:center;gap:4px;padding:6px 0;margin-bottom:8px">
-    <button class="lang-btn" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" onclick="setLang('ko')">KO</button>
-    <button class="lang-btn" onclick="setLang('ja')">JA</button>
-    <button class="lang-btn" onclick="setLang('zh')">ZH</button>
-  </div>
   <div class="p-section">
     <div class="p-title" data-i18n="global_stats">GLOBAL STATS</div>
     <div class="stat-row"><span class="stat-label">TOTAL PIXELS</span><span class="stat-val" style="color:var(--tx2)">1,040,496</span></div>
@@ -2070,12 +2086,28 @@ function t(key){ return (I18N[LANG]&&I18N[LANG][key]) || I18N.en[key] || key; }
 function setLang(lang){
   LANG=lang;
   localStorage.setItem('pw_lang',lang);
-  // Update lang buttons
+  // Update desktop buttons
   document.querySelectorAll('.lang-btn').forEach(function(btn){
     btn.classList.toggle('active',btn.textContent.trim()===lang.toUpperCase());
   });
+  // Update mobile dropdown
+  var cur=document.getElementById('langCurrent');
+  if(cur) cur.textContent=lang.toUpperCase();
+  document.querySelectorAll('.lang-menu-item').forEach(function(item){
+    item.classList.toggle('active',item.textContent.trim().startsWith(lang.toUpperCase()));
+  });
   applyI18n();
 }
+
+function toggleLangDropdown(e){
+  e.stopPropagation();
+  document.getElementById('langDropdown').classList.toggle('open');
+}
+function closeLangDropdown(){
+  document.getElementById('langDropdown').classList.remove('open');
+}
+// 바깥 클릭시 닫기
+document.addEventListener('click',function(){closeLangDropdown()});
 
 function applyI18n(){
   // Text content
