@@ -6,7 +6,7 @@ const { pool, ensureUser, generateReferralCode } = require('../db');
 
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'pixelwar-dev-secret-change-me';
+const JWT_SECRET = process.env.JWT_SECRET || 'occupymars-dev-secret-change-me';
 const JWT_EXPIRES = '30d';
 
 // ── Helper: generate custodial wallet address ──

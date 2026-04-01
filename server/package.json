@@ -1,7 +1,7 @@
 {
-  "name": "pixelwar-server",
+  "name": "occupymars-server",
   "version": "1.0.0",
-  "description": "PIXEL WAR v9.3 — Backend Server",
+  "description": "OCCUPY MARS — Backend Server",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

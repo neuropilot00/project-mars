@@ -70,7 +70,7 @@ async function start() {
     // Start HTTP server
     app.listen(PORT, () => {
       console.log(`\n╔══════════════════════════════════════════╗`);
-      console.log(`║  PIXEL WAR v9.3 — Server Running         ║`);
+      console.log(`║  OCCUPY MARS — Server Running             ║`);
       console.log(`║  http://localhost:${PORT}                    ║`);
       console.log(`║  Admin: http://localhost:${PORT}/admin        ║`);
       console.log(`╚══════════════════════════════════════════╝\n`);

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================
-# PIXEL WAR — Test Server Launcher
+# OCCUPY MARS — Test Server Launcher
 # 지인 테스트용 간편 실행 스크립트
 # ============================================
 
@@ -11,7 +11,7 @@ cd "$PROJECT_DIR"
 
 echo ""
 echo "╔══════════════════════════════════════════╗"
-echo "║  PIXEL WAR v9.3 — Test Launcher          ║"
+echo "║  OCCUPY MARS — Test Launcher             ║"
 echo "╚══════════════════════════════════════════╝"
 echo ""
 
@@ -51,17 +51,17 @@ echo "[3/3] 외부 접속 터널 생성..."
 echo ""
 
 # localtunnel 시작
-lt --port 3000 --subdomain pixelwar-test 2>/dev/null &
+lt --port 3000 --subdomain occupy-mars 2>/dev/null &
 LT_PID=$!
 sleep 3
 
 echo ""
 echo "╔══════════════════════════════════════════════════╗"
 echo "║                                                  ║"
-echo "║  🔴 PIXEL WAR 테스트 서버 실행 중!                ║"
+echo "║  🔴 OCCUPY MARS 테스트 서버 실행 중!               ║"
 echo "║                                                  ║"
 echo "║  로컬:  http://localhost:3000                     ║"
-echo "║  외부:  https://pixelwar-test.loca.lt             ║"
+echo "║  외부:  https://occupy-mars.loca.lt               ║"
 echo "║  관리자: http://localhost:3000/admin               ║"
 echo "║  관리자 비밀번호: admin1234                         ║"
 echo "║                                                  ║"
