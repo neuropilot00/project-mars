@@ -572,6 +572,7 @@ function getCellRect(lat,lng,cw,ch,tw,th){
 // Cached base+claims snapshot for fast preview overlay
 var claimsSnapshot=null; // ImageData of base Mars + claims (no preview)
 var previewRafId=null;
+var marsCanvasTexture=null; // THREE.CanvasTexture for direct GPU upload (no JPEG)
 
 function compositeClaimsOnTexture(previewOnly){
   var ctx=marsCanvas.getContext('2d');
@@ -639,7 +640,15 @@ function compositeClaimsOnTexture(previewOnly){
     }
   }
 
-  globe.globeImageUrl(marsCanvas.toDataURL('image/jpeg',previewOnly?.7:.9));
+  // Direct GPU upload — no JPEG compression, much sharper + faster
+  if(!marsCanvasTexture){
+    var TexClass=globe.globeMaterial().map.constructor;
+    marsCanvasTexture=new TexClass(marsCanvas);
+    marsCanvasTexture.needsUpdate=true;
+    globe.globeMaterial().map=marsCanvasTexture;
+  }else{
+    marsCanvasTexture.needsUpdate=true;
+  }
 }
 
 /* ── Generate Bump Map (higher detail) ───────────── */
