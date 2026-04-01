@@ -1993,14 +1993,55 @@ function calcStampCost(lat,lng,w,h){
 }
 
 // Initialize pixelGrid from existing claims
-(function initPixelGrid(){
+function initPixelGrid(){
+  pixelGrid={};
   claims.forEach(function(c,i){registerClaimPixels(c,i)});
-})();
+}
+initPixelGrid();
 
 // Pre-cache all demo images + base texture
-(function preCache(){
-  claims.forEach(function(c){if(c.imgUrl)cacheImage(c.imgUrl)});
-  cacheImage(marsBaseData,function(){compositeClaimsOnTexture()});
+function preCacheAndComposite(){
+  var pending=0,total=0;
+  claims.forEach(function(c){
+    if(c.imgUrl){
+      total++;pending++;
+      cacheImage(c.imgUrl,function(){
+        pending--;
+        if(pending<=0) compositeClaimsOnTexture();
+      });
+    }
+  });
+  cacheImage(marsBaseData,function(){
+    if(total===0) compositeClaimsOnTexture();
+  });
+}
+preCacheAndComposite();
+
+// Load server claims and merge with demo data
+(function loadServerClaims(){
+  fetch('/api/claims').then(function(r){return r.json()}).then(function(serverClaims){
+    if(!serverClaims||!serverClaims.length) return;
+    // Add server claims (avoid duplicates by checking id)
+    serverClaims.forEach(function(sc){
+      // Server claims have short owner addresses
+      sc.label=sc.owner?(sc.owner.slice(0,6)+'...'+sc.owner.slice(-4)):sc.label;
+      claims.push(sc);
+    });
+    // Rebuild pixel grid with all claims
+    initPixelGrid();
+    // Cache images and re-composite
+    var pending=0;
+    serverClaims.forEach(function(sc){
+      if(sc.imgUrl){
+        pending++;
+        cacheImage(sc.imgUrl,function(){
+          pending--;
+          if(pending<=0){claimsSnapshot=null;compositeClaimsOnTexture()}
+        });
+      }
+    });
+    if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
+  }).catch(function(e){console.warn('[Claims] Failed to load server claims:',e)});
 })();
 
 /* ── Globe Click → Select Territory ──────────────── */
@@ -2388,6 +2429,32 @@ async function confirmClaim(){
   if(btn){btn.disabled=true;btn.textContent='PROCESSING...';}
 
   try{
+    // ── Convert blob: URL to data: URL for server storage ──
+    var sendImageUrl=uploadedUrl||'';
+    if(sendImageUrl&&sendImageUrl.startsWith('blob:')){
+      try{
+        var imgEl=imgCache[sendImageUrl]||document.querySelector('img[src="'+sendImageUrl+'"]');
+        if(!imgEl){
+          var tmpImg=new Image();tmpImg.crossOrigin='anonymous';
+          await new Promise(function(resolve,reject){
+            tmpImg.onload=resolve;tmpImg.onerror=reject;tmpImg.src=sendImageUrl;
+          });
+          imgEl=tmpImg;
+        }
+        var cvs=document.createElement('canvas');
+        cvs.width=Math.min(imgEl.naturalWidth||imgEl.width,512);
+        cvs.height=Math.min(imgEl.naturalHeight||imgEl.height,512);
+        // Scale down if needed
+        var scale=Math.min(512/(imgEl.naturalWidth||imgEl.width),512/(imgEl.naturalHeight||imgEl.height),1);
+        cvs.width=Math.round((imgEl.naturalWidth||imgEl.width)*scale);
+        cvs.height=Math.round((imgEl.naturalHeight||imgEl.height)*scale);
+        cvs.getContext('2d').drawImage(imgEl,0,0,cvs.width,cvs.height);
+        sendImageUrl=cvs.toDataURL('image/jpeg',0.85);
+      }catch(convErr){
+        console.warn('blob→data conversion failed:',convErr);
+      }
+    }
+
     // ── Server API call: deduct PP/USDT and record claim ──
     var headers={'Content-Type':'application/json'};
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
@@ -2401,7 +2468,7 @@ async function confirmClaim(){
         lng:selectedPlot.lng,
         width:cw,
         height:ch,
-        imageUrl:uploadedUrl||'',
+        imageUrl:sendImageUrl,
         linkUrl:linkVal||''
       })
     });
