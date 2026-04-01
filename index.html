@@ -3773,41 +3773,6 @@ setLang(LANG);
 
 /* ── end main init ── */
 
-/* ── Mobile Debug Panel (temporary) ────────────── */
-(function(){
-  var dp=document.createElement('div');
-  dp.id='debugPanel';
-  dp.style.cssText='position:fixed;bottom:0;left:0;right:0;max-height:120px;overflow-y:auto;'+
-    'background:rgba(0,0,0,0.92);color:#0f0;font:10px monospace;padding:6px 8px;z-index:99999;'+
-    'display:none;border-top:1px solid #333;';
-  document.body.appendChild(dp);
-  // Show with triple-tap on bottom-right corner
-  var tapCount=0,tapTimer=null;
-  document.addEventListener('click',function(e){
-    if(e.clientX>window.innerWidth-60&&e.clientY>window.innerHeight-60){
-      tapCount++;
-      clearTimeout(tapTimer);
-      tapTimer=setTimeout(function(){tapCount=0},600);
-      if(tapCount>=3){dp.style.display=dp.style.display==='none'?'block':'none';tapCount=0;}
-    }
-  });
-  window._dbg=function(msg){
-    var line=document.createElement('div');
-    line.textContent='['+new Date().toLocaleTimeString()+'] '+msg;
-    dp.appendChild(line);
-    dp.scrollTop=dp.scrollHeight;
-    dp.style.display='block';
-  };
-  // Intercept console.error/warn/log for mobile
-  var origErr=console.error,origWarn=console.warn,origLog=console.log;
-  console.error=function(){origErr.apply(console,arguments);window._dbg('ERR: '+Array.from(arguments).join(' '));};
-  console.warn=function(){origWarn.apply(console,arguments);window._dbg('WARN: '+Array.from(arguments).join(' '));};
-  // Only intercept [Auth] logs
-  var origLog2=console.log;
-  console.log=function(){origLog2.apply(console,arguments);
-    if(arguments[0]&&String(arguments[0]).indexOf('[Auth]')>=0) window._dbg(Array.from(arguments).join(' '));
-  };
-})();
 </script>
 </body>
 </html>
