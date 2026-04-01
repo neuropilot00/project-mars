@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>PIXEL WAR — World Map v2</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; background:#0a0e1a; display:flex;
+  align-items:center; justify-content:center; overflow:hidden; }
+#wrap { position:relative; width:1300px; height:700px; }
+#mapBg { position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; display:block; image-rendering:pixelated; }
+#overlay { position:absolute; inset:0; width:1300px; height:700px; }
+#inset {
+  position:absolute; bottom:18px; left:18px;
+  width:340px; height:210px;
+  border:2px solid rgba(80,160,255,0.6);
+  box-shadow:0 0 20px rgba(40,120,255,0.35);
+  overflow:hidden; background:#000;
+}
+#inset canvas { display:block; image-rendering:pixelated; }
+#insetLabel {
+  position:absolute; top:0; left:0; right:0;
+  background:rgba(0,0,0,0.75); color:rgba(130,200,255,0.9);
+  font:bold 10px "Courier New"; text-align:center; padding:3px 0;
+  letter-spacing:1.5px;
+}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <img id="mapBg" src="world-map-pixel-art_509477-166.avif"
+       alt="" crossorigin="anonymous">
+  <canvas id="overlay" width="1300" height="700"></canvas>
+  <div id="inset">
+    <canvas id="insetCanvas" width="340" height="210"
+            style="image-rendering:pixelated;"></canvas>
+    <div id="insetLabel">🔍 ZOOM — PIXEL DETAIL VIEW</div>
+  </div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// CONFIG
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const W=1300, H=700, CELL=8;
+const ZOOM_CELL=28, IW=340, IH=210;
+const SRC_X=820, SRC_Y=90;
+const SRC_W=Math.floor(IW/ZOOM_CELL)*CELL;
+const SRC_H=Math.floor(IH/ZOOM_CELL)*CELL;
+
+const cv  = document.getElementById('overlay');
+const ctx = cv.getContext('2d');
+const ic  = document.getElementById('insetCanvas');
+const ictx= ic.getContext('2d');
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PIXEL ART — CONTAINER SHIP (24×12, scale 3 = 72×36px)
+// Side-view, bow pointing right
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const CS = [null,
+  '#1A2A5A',  // 1 hull dark
+  '#2A4A8A',  // 2 hull mid
+  '#F0F0E0',  // 3 superstructure
+  '#88CCFF',  // 4 windows
+  '#DD2200',  // 5 red container
+  '#2266DD',  // 6 blue container
+  '#22AA44',  // 7 green container
+  '#FFCC00',  // 8 yellow container
+  '#888899',  // 9 deck
+  '#CCDDFF',  // 10 waterline
+  '#884400',  // 11 funnel
+  '#AAAAAA',  // 12 smoke
+  '#FF8822',  // 13 orange container
+];
+const CA = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,11,12, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,11,11, 3, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 4, 4, 4, 3, 3, 3, 9, 0, 0, 0],
+  [0, 0, 5, 5, 6, 6, 7, 7, 8, 8,13,13, 3, 4, 4, 4, 4, 3, 3, 9, 9, 9, 0, 0],
+  [0, 5, 5, 6, 6, 7, 7, 8, 8,13, 5, 5, 3, 3, 3, 3, 3, 3, 9, 9, 9, 9, 0, 0],
+  [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0],
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+  [1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0],
+  [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  [0, 0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PIXEL ART — NAVAL PATROL BOAT (16×9, scale 3 = 48×27px)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const NS = [null,
+  '#3A4A5A',  // 1 hull dark gray
+  '#5A7A9A',  // 2 hull mid
+  '#BBCCDD',  // 3 superstructure
+  '#7AAACC',  // 4 deck
+  '#FFFFFF',  // 5 radar mast
+  '#888888',  // 6 details
+  '#DD2200',  // 7 flag
+];
+const NA = [
+  [0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 5, 7, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 3, 3, 4, 4, 4, 3, 3, 3, 0, 0, 0, 0],
+  [0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0],
+  [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+  [0, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0],
+  [1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+  [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PIXEL ART — BUOY (8×15, scale 3 = 24×45px)
+// Navigation buoy — red/white striped with light on top
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const BUC = [null,
+  '#FFE500',  // 1 light / antenna
+  '#DD2200',  // 2 body red
+  '#FFFFFF',  // 3 white stripe
+  '#333344',  // 4 dark band
+  '#1A5CCC',  // 5 base blue
+  '#FF4444',  // 6 light on (blinking)
+];
+const BUA = [
+  [0, 0, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 1, 1, 0, 0, 0],
+  [0, 0, 1, 6, 6, 1, 0, 0],  // light (index 3 = blink replace)
+  [0, 0, 2, 2, 2, 2, 0, 0],
+  [0, 2, 2, 2, 2, 2, 2, 0],
+  [0, 3, 3, 3, 3, 3, 3, 0],
+  [0, 2, 2, 2, 2, 2, 2, 0],
+  [0, 3, 3, 3, 3, 3, 3, 0],
+  [0, 2, 2, 2, 2, 2, 2, 0],
+  [4, 4, 4, 4, 4, 4, 4, 4],
+  [0, 5, 5, 5, 5, 5, 5, 0],
+  [0, 0, 5, 5, 5, 5, 0, 0],
+  [0, 0, 0, 5, 5, 0, 0, 0],
+  [0, 0, 0, 5, 5, 0, 0, 0],
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PIXEL ART — TYPHOON (24×24 sprite, rotates)
+// Seen from above — spiral arms + dark eye
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const TYC = [null,
+  'rgba(200,215,255,0.40)',  // 1 outer band
+  'rgba(160,185,255,0.55)',  // 2
+  'rgba(120,155,255,0.65)',  // 3
+  'rgba(80,120,255,0.75)',   // 4
+  'rgba(200,230,255,0.92)',  // 5 eyewall bright
+  'rgba(8,16,50,0.95)',      // 6 eye dark
+];
+// 24×24 typhoon spiral pixel art (frame 0)
+const TYA = [
+  [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0],
+  [0,0,0,1,1,2,2,1,1,0,0,0,0,0,0,1,1,2,1,0,0,0,0,0],
+  [0,0,1,1,2,2,3,2,1,1,0,0,0,0,1,1,2,3,2,1,0,0,0,0],
+  [0,1,1,2,2,3,3,2,2,1,1,0,0,1,2,2,3,3,2,2,0,0,0,0],
+  [1,1,2,2,3,3,4,3,3,2,2,1,1,2,3,3,4,3,3,2,1,0,0,0],
+  [1,2,2,3,3,4,4,5,4,4,3,3,3,4,4,5,5,4,3,2,1,0,0,0],
+  [0,2,3,3,4,4,5,5,5,4,4,4,4,5,5,5,5,4,3,2,0,0,0,0],
+  [0,1,2,3,4,5,5,5,5,5,4,5,5,5,5,5,4,3,2,1,0,0,0,0],
+  [0,0,2,3,4,5,5,6,6,5,5,5,5,6,5,4,3,2,1,0,0,0,0,0],
+  [0,0,1,2,3,4,5,6,6,5,4,4,5,5,4,3,2,1,0,0,0,0,0,0],
+  [0,0,0,2,3,4,4,5,5,4,3,3,4,4,3,2,1,0,0,0,0,0,0,0],
+  [0,0,0,1,2,3,3,4,4,3,2,2,3,3,2,1,0,0,0,0,0,0,0,0],
+  [0,0,0,0,1,2,2,3,3,2,1,1,2,2,1,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,1,1,2,2,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DRAW PIXEL ART HELPER
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function drawPA(c, art, pal, px, py, sc){
+  art.forEach((row,ry) => row.forEach((ci,rx) => {
+    if(!ci || !pal[ci]) return;
+    c.fillStyle = pal[ci];
+    c.fillRect(px+rx*sc, py+ry*sc, sc, sc);
+  }));
+}
+
+// Draw flipped horizontally (for ships going left)
+function drawPAFlip(c, art, pal, px, py, sc){
+  const W2 = art[0].length;
+  art.forEach((row,ry) => row.forEach((ci,rx) => {
+    if(!ci || !pal[ci]) return;
+    c.fillStyle = pal[ci];
+    c.fillRect(px+(W2-1-rx)*sc, py+ry*sc, sc, sc);
+  }));
+}
+
+// Draw typhoon with rotation via canvas transform
+function drawTyphoon(c, cx, cy, sc, rot){
+  const size = TYA.length;
+  const half = (size * sc) / 2;
+  c.save();
+  c.translate(cx, cy);
+  c.rotate(rot);
+  // Draw centered
+  TYA.forEach((row,ry) => row.forEach((ci,rx) => {
+    if(!ci || !TYC[ci]) return;
+    c.fillStyle = TYC[ci];
+    c.fillRect(-half + rx*sc, -half + ry*sc, sc, sc);
+  }));
+  // Eye highlight — small bright center
+  c.fillStyle = 'rgba(220,240,255,0.9)';
+  c.fillRect(-sc*0.5, -sc*0.5, sc, sc);
+  c.restore();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// OCEAN OBJECTS (grid-cell coordinates on 1300×700 map)
+// Pacific: x 10–50, y 25–65
+// Atlantic: x 55–85, y 20–65
+// Indian: x 90–120, y 40–68
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// BUOYS — fixed positions (cell coords)
+const BUOYS = [
+  { cx:18,  cy:48, label:'#B1 · @PacificKing',   sub:'Lv.3 · 레이스 1위', pp:'+4.2' },
+  { cx:38,  cy:35, label:'#B2 · @NorthPacific',  sub:'Lv.2 · 레이스 4위', pp:'+1.8' },
+  { cx:24,  cy:62, label:'#B3 · @SouthSea',      sub:'Lv.1 · 레이스 7위', pp:'+0.9' },
+  { cx:62,  cy:44, label:'#B4 · @AtlanticFC',    sub:'Lv.4 · 레이스 2위', pp:'+6.1' },
+  { cx:72,  cy:58, label:'#B5 · @SouthAtlantic', sub:'Lv.2 · 레이스 5위', pp:'+2.3' },
+  { cx:102, cy:50, label:'#B6 · @IndianOcean',   sub:'Lv.3 · 레이스 3위', pp:'+3.7' },
+  { cx:115, cy:42, label:'#B7 · @ArabianSea',    sub:'Lv.2 · 레이스 6위', pp:'+2.0' },
+  { cx:45,  cy:55, label:'#B8 · @EquatorialFC',  sub:'Lv.1 · 레이스 9위', pp:'+0.6' },
+];
+
+// SHIPS — moving objects (cell coords, float)
+// type: 0=container, 1=naval
+// dir: 1=right, -1=left
+// speed: cells per frame
+const SHIPS = [
+  { x:14.0, cy:44, type:0, dir: 1, speed:0.010, label:'🚢 @MerchantFleet', ad:'DOGE×TESLA' },
+  { x:68.0, cy:52, type:0, dir:-1, speed:0.008, label:'🚢 @AtlanticCargo', ad:'PEPE×NIKE' },
+  { x:96.0, cy:56, type:1, dir: 1, speed:0.014, label:'⚓ @NavalPatrol',   ad:'BTC×BASE' },
+  { x:44.0, cy:36, type:1, dir:-1, speed:0.012, label:'⚓ @NorthSeaFleet', ad:'ETH×DOGE' },
+];
+
+// Wake trail per ship: stores recent positions
+const WAKES = SHIPS.map(() => []);
+
+// TYPHOONS
+const TYPHOONS = [
+  { cx:148, cy:30, rot:0, speed:0.007, sc:4, label:'태풍 LILY',  cat:'CAT 3' },
+  { cx:105, cy:58, rot:0, speed:0.004, sc:3, label:'태풍 MANGO', cat:'CAT 2' },
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// POPUP / SPEECH BUBBLE (shown over buoy #B4)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const POPUP_BUOY = 3; // index into BUOYS array
+
+function roundRect(c,x,y,w,h,r){
+  c.beginPath();
+  c.moveTo(x+r,y); c.lineTo(x+w-r,y);
+  c.arcTo(x+w,y,x+w,y+r,r); c.lineTo(x+w,y+h-r);
+  c.arcTo(x+w,y+h,x+w-r,y+h,r); c.lineTo(x+r,y+h);
+  c.arcTo(x,y+h,x,y+h-r,r); c.lineTo(x,y+r);
+  c.arcTo(x,y,x+r,y,r); c.closePath();
+}
+
+function drawPopup(c, bx, by, buoy, blink){
+  const BW=170, BH=82, BR=7;
+  const px = bx - BW/2 + 6;
+  const py = by - BH - 22;
+
+  // glow
+  c.save();
+  c.shadowColor='rgba(60,140,255,0.6)'; c.shadowBlur=14;
+  c.fillStyle='rgba(4,10,28,0.94)';
+  c.strokeStyle='rgba(80,160,255,0.85)';
+  c.lineWidth=1.5;
+  roundRect(c,px,py,BW,BH,BR);
+  c.fill(); c.stroke();
+  c.restore();
+
+  // tail triangle
+  c.fillStyle='rgba(4,10,28,0.94)';
+  c.strokeStyle='rgba(80,160,255,0.85)';
+  c.lineWidth=1.5;
+  c.beginPath();
+  c.moveTo(bx-7, py+BH);
+  c.lineTo(bx, by-5);
+  c.lineTo(bx+7, py+BH);
+  c.closePath(); c.fill(); c.stroke();
+
+  // mini buoy sprite inside popup
+  const bPalCopy = [...BUC];
+  bPalCopy[6] = blink ? '#FF4444' : '#884444'; // blink the light
+  drawPA(c, BUA, bPalCopy, px+8, py+6, 2);
+
+  // text
+  c.fillStyle='#FFFFCC'; c.font='bold 10px "Courier New"'; c.textAlign='left';
+  c.fillText(buoy.label, px+32, py+16);
+  c.fillStyle='#88FFAA'; c.font='9px "Courier New"';
+  c.fillText(buoy.sub, px+32, py+28);
+  c.fillStyle='#AAAAFF'; c.font='9px "Courier New"';
+  c.fillText('PP ' + buoy.pp + ' USDT', px+32, py+40);
+  c.fillStyle='#FF9966'; c.font='9px "Courier New"';
+  c.fillText('⚡ Boost Active', px+32, py+52);
+  c.fillStyle='rgba(255,255,255,0.55)'; c.font='8px "Courier New"';
+  c.fillText('click → Ad Placement', px+10, py+BH-8);
+}
+
+// Ship info popup (hovers over first container ship)
+function drawShipPopup(c, sx, sy, ship){
+  const BW=160, BH=62, BR=7;
+  const px=sx - BW/2;
+  const py=sy - BH - 20;
+
+  c.save();
+  c.shadowColor='rgba(255,180,50,0.5)'; c.shadowBlur=12;
+  c.fillStyle='rgba(20,10,4,0.94)';
+  c.strokeStyle='rgba(255,180,50,0.8)';
+  c.lineWidth=1.5;
+  roundRect(c,px,py,BW,BH,BR);
+  c.fill(); c.stroke();
+  c.restore();
+
+  c.fillStyle='rgba(20,10,4,0.94)';
+  c.strokeStyle='rgba(255,180,50,0.8)';
+  c.lineWidth=1.5;
+  c.beginPath();
+  c.moveTo(sx-6,py+BH); c.lineTo(sx,sy-5); c.lineTo(sx+6,py+BH);
+  c.closePath(); c.fill(); c.stroke();
+
+  c.fillStyle='#FFEEAA'; c.font='bold 10px "Courier New"'; c.textAlign='left';
+  c.fillText(ship.label, px+8, py+14);
+  c.fillStyle='#AAFFCC'; c.font='9px "Courier New"';
+  c.fillText('Ad: ' + ship.ad, px+8, py+26);
+  c.fillStyle='#AAAAFF'; c.font='9px "Courier New"';
+  c.fillText('Size: 24×24px  |  3.5 USDT', px+8, py+38);
+  c.fillStyle='rgba(255,255,255,0.5)'; c.font='8px "Courier New"';
+  c.fillText('▶ Request Placement', px+8, py+52);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// INSET PANEL (zoom view — area around SRC_X, SRC_Y)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const INSET_CELLS = [
+  [0,1,'#FF69B4'],[1,1,'#FF69B4'],[2,1,'#CC44FF'],[3,1,'#FF69B4'],
+  [4,1,'#FFFFFF'],[5,1,'#CC44FF'],
+  [0,2,'#FF69B4'],[1,2,'#CC44FF'],[2,2,'#FF69B4'],[3,2,'#FFFFFF'],
+  [4,2,'#CC44FF'],[5,2,'#FF69B4'],
+  [0,3,'#CC44FF'],[1,3,'#FF69B4'],[2,3,'#CC44FF'],[3,3,'#FF69B4'],
+  [6,2,'#DD2200'],[7,2,'#FF4422'],[8,2,'#DD2200'],
+  [6,3,'#FF4422'],[7,3,'#DD2200'],[8,3,'#FF4422'],
+  [6,4,'#DD2200'],[7,4,'#FFCC00'],[8,4,'#DD2200'],
+  [9,3,'#FFCC00'],[10,3,'#DD1111'],
+];
+
+function renderInset(mapImg){
+  ictx.clearRect(0,0,IW,IH);
+  try { ictx.drawImage(mapImg, SRC_X, SRC_Y, SRC_W, SRC_H, 0, 0, IW, IH); }
+  catch(e){}
+
+  INSET_CELLS.forEach(([cx,cy,col])=>{
+    ictx.fillStyle=col+'CC';
+    ictx.fillRect(cx*ZOOM_CELL, cy*ZOOM_CELL, ZOOM_CELL, ZOOM_CELL);
+  });
+
+  // Zoomed buoy (scale 5, positioned in inset)
+  const zb = BUOYS[0];
+  const zbx = (zb.cx*CELL - SRC_X) * (IW/SRC_W);
+  const zby = (zb.cy*CELL - SRC_Y) * (IH/SRC_H);
+  if(zbx>0 && zbx<IW && zby>0 && zby<IH){
+    drawPA(ictx, BUA, BUC, zbx, zby-30, 4);
+  }
+
+  // Grid lines
+  ictx.strokeStyle='rgba(0,0,0,0.35)';
+  ictx.lineWidth=1;
+  for(let x=0;x<=IW;x+=ZOOM_CELL){
+    ictx.beginPath(); ictx.moveTo(x,0); ictx.lineTo(x,IH); ictx.stroke();
+  }
+  for(let y=0;y<=IH;y+=ZOOM_CELL){
+    ictx.beginPath(); ictx.moveTo(0,y); ictx.lineTo(IW,y); ictx.stroke();
+  }
+
+  // Cursor highlight
+  const curCX=3, curCY=2;
+  ictx.strokeStyle='rgba(255,255,255,0.9)'; ictx.lineWidth=2;
+  ictx.strokeRect(curCX*ZOOM_CELL+1, curCY*ZOOM_CELL+1, ZOOM_CELL-2, ZOOM_CELL-2);
+  ictx.fillStyle='rgba(255,100,100,0.3)';
+  ictx.fillRect(curCX*ZOOM_CELL+1, curCY*ZOOM_CELL+1, ZOOM_CELL-2, ZOOM_CELL-2);
+
+  // Label overlay
+  ictx.fillStyle='rgba(0,20,60,0.7)';
+  ictx.fillRect(0, IH-18, IW, 18);
+  ictx.fillStyle='rgba(100,180,255,0.85)';
+  ictx.font='9px "Courier New"'; ictx.textAlign='center';
+  ictx.fillText(`SRC:(${SRC_X},${SRC_Y})  CELLS:${Math.floor(IW/ZOOM_CELL)}×${Math.floor(IH/ZOOM_CELL)}  GRID:${ZOOM_CELL}px/cell`, IW/2, IH-5);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MAIN RENDER LOOP
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let t=0, blink=true;
+
+function render(){
+  t += 0.016;
+  blink = Math.sin(t*3)>0;
+
+  ctx.clearRect(0,0,W,H);
+
+  // ── Grid overlay ──────────────────────────────────
+  ctx.strokeStyle='rgba(0,0,0,0.10)';
+  ctx.lineWidth=0.4;
+  for(let x=0;x<=W;x+=CELL){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0;y<=H;y+=CELL){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  ctx.strokeStyle='rgba(0,0,0,0.18)'; ctx.lineWidth=0.7;
+  for(let x=0;x<=W;x+=CELL*10){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0;y<=H;y+=CELL*10){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // ── Typhoons ──────────────────────────────────────
+  TYPHOONS.forEach((ty, i)=>{
+    ty.rot += ty.speed;
+    const px = ty.cx * CELL;
+    const py = ty.cy * CELL;
+    drawTyphoon(ctx, px, py, ty.sc, ty.rot);
+
+    // Typhoon label
+    ctx.save();
+    ctx.fillStyle='rgba(0,0,30,0.7)';
+    roundRect(ctx, px-34, py-ty.sc*12-22, 68, 20, 4);
+    ctx.fill();
+    ctx.fillStyle='rgba(200,230,255,0.9)';
+    ctx.font='bold 9px "Courier New"';
+    ctx.textAlign='center';
+    ctx.fillText(`🌀 ${ty.label}  ${ty.cat}`, px, py-ty.sc*12-8);
+    ctx.restore();
+  });
+
+  // ── Ship wakes ────────────────────────────────────
+  SHIPS.forEach((s, si)=>{
+    const wx = s.x * CELL + (s.dir<0 ? (s.type===0?24:16)*3 : 0);
+    const wy = s.cy * CELL + (s.type===0?8:7)*3/2;
+    WAKES[si].unshift({ x:wx, y:wy, age:0 });
+    if(WAKES[si].length>25) WAKES[si].pop();
+    WAKES[si].forEach((w,wi)=>{
+      const alpha = (1 - wi/25) * 0.55;
+      ctx.fillStyle=`rgba(200,230,255,${alpha})`;
+      const sz = Math.max(1, Math.floor((1-wi/25)*3));
+      // Stagger wake dots
+      if(wi%2===0){
+        ctx.fillRect(w.x - (s.dir>0?wi*2.5:(-wi*2.5)), w.y-2, sz, sz);
+        ctx.fillRect(w.x - (s.dir>0?wi*2.5:(-wi*2.5)), w.y+2, sz, sz);
+      }
+    });
+  });
+
+  // ── Ships (pixel art sprites) ─────────────────────
+  SHIPS.forEach((s, si)=>{
+    // Advance ship position
+    s.x += s.dir * s.speed;
+    // Wrap horizontally
+    const maxX = (s.type===0 ? 162 - 24 : 162 - 16);
+    if(s.x > maxX) s.x = -5;
+    if(s.x < -10)  s.x = maxX;
+
+    const px = Math.round(s.x * CELL);
+    const py = s.cy * CELL;
+    const art  = s.type===0 ? CA : NA;
+    const pal  = s.type===0 ? CS : NS;
+    if(s.dir>0) drawPA(ctx, art, pal, px, py, 3);
+    else        drawPAFlip(ctx, art, pal, px, py, 3);
+  });
+
+  // Ship popup on first container ship
+  {
+    const s0 = SHIPS[0];
+    const shipW = (s0.type===0 ? 24 : 16) * 3;
+    const shipH = (s0.type===0 ? 12 : 9)  * 3;
+    const cx = s0.x * CELL + shipW/2;
+    const cy = s0.cy * CELL + shipH/2;
+    drawShipPopup(ctx, cx, cy, s0);
+  }
+
+  // ── Buoys (pixel art sprites) ─────────────────────
+  const buoyPal = [...BUC];
+  BUOYS.forEach((b, i)=>{
+    const px = b.cx * CELL - 12; // center buoy (8 wide * 3 sc / 2 = 12)
+    const py = b.cy * CELL - 22; // offset up so base sits on water
+    buoyPal[6] = (blink && i%2===0) || (!blink && i%2===1) ? '#FFEE00' : '#882200';
+    drawPA(ctx, BUA, buoyPal, px, py, 3);
+  });
+
+  // Buoy popup on POPUP_BUOY
+  {
+    const b = BUOYS[POPUP_BUOY];
+    const px = b.cx * CELL;
+    const py = b.cy * CELL;
+    drawPopup(ctx, px, py, b, blink);
+  }
+
+  // ── Inset connection box ───────────────────────────
+  ctx.strokeStyle='rgba(255,255,255,0.35)';
+  ctx.lineWidth=1.2; ctx.setLineDash([4,4]);
+  ctx.strokeRect(SRC_X, SRC_Y, SRC_W, SRC_H);
+  const inX=18, inY=472, inW=340, inH=210;
+  ctx.beginPath();
+  ctx.moveTo(SRC_X, SRC_Y+SRC_H);     ctx.lineTo(inX, inY+inH);
+  ctx.moveTo(SRC_X+SRC_W, SRC_Y+SRC_H); ctx.lineTo(inX+inW, inY+inH);
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // ── Top HUD bar ───────────────────────────────────
+  ctx.fillStyle='rgba(0,0,0,0.62)';
+  ctx.fillRect(0,0,W,28);
+  // Logo
+  ctx.fillStyle='#FFFFFF'; ctx.font='bold 13px "Courier New"'; ctx.textAlign='left';
+  ctx.fillText('[ PIXEL WAR ]', 10, 18);
+  ctx.fillStyle='rgba(100,200,255,0.8)'; ctx.font='11px "Courier New"';
+  ctx.fillText('WORLD MAP  ·  OCEAN LAYER', 150, 18);
+  // Legend
+  ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.font='9px "Courier New"'; ctx.textAlign='right';
+  ctx.fillText('🚢 = 픽셀배 (Layer2)   🟡 = 부표 (클릭→광고)   🌀 = 태풍 (픽셀스프라이트)', W-10, 18);
+
+  requestAnimationFrame(render);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// INIT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const mapEl = document.getElementById('mapBg');
+
+function init(){
+  renderInset(mapEl);
+  render();
+}
+
+if(mapEl.complete && mapEl.naturalWidth > 0){
+  init();
+} else {
+  mapEl.onload  = init;
+  mapEl.onerror = ()=>{ init(); }; // still run without map image
+}
+</script>
+</body>
+</html>

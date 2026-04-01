@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIXEL WAR — 살아있는 세계 지도 픽셀 전쟁</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@300;400;700;900&display=swap');
+
+  :root {
+    --px-blue: #0A66DA;
+    --px-red: #FF2D55;
+    --px-gold: #FFD700;
+    --px-green: #00C896;
+    --px-dark: #0A0A1A;
+    --px-navy: #0D1B3E;
+    --px-pixel: 4px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--px-dark);
+    color: #fff;
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── 픽셀 그리드 배경 ── */
+  .pixel-bg {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background-image:
+      linear-gradient(rgba(10,102,218,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,102,218,0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none; z-index:0;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px;
+    overflow: hidden;
+  }
+
+  .hero-map {
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    opacity: 0.18;
+  }
+
+  .hero-content { position:relative; z-index:2; text-align:center; }
+
+  .logo-pixel {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(28px, 6vw, 72px);
+    color: var(--px-gold);
+    text-shadow:
+      4px 4px 0 var(--px-red),
+      8px 8px 0 rgba(255,45,85,0.3);
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+    animation: glitch 3s infinite;
+  }
+
+  @keyframes glitch {
+    0%,95%,100% { transform: translate(0); }
+    96% { transform: translate(-3px, 1px); filter: hue-rotate(90deg); }
+    97% { transform: translate(3px, -1px); filter: hue-rotate(-90deg); }
+    98% { transform: translate(0); filter: none; }
+  }
+
+  .hero-sub {
+    font-size: clamp(14px, 2.5vw, 22px);
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+
+  .hero-tagline {
+    font-size: clamp(16px, 2.8vw, 26px);
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 40px;
+    line-height: 1.5;
+  }
+
+  .hero-tagline span { color: var(--px-red); }
+
+  .cta-row { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:60px; }
+
+  .btn {
+    padding: 14px 32px;
+    font-size: 15px; font-weight: 700;
+    border: none; border-radius: 2px;
+    cursor: pointer; transition: all 0.15s;
+    font-family: 'Noto Sans KR', sans-serif;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary {
+    background: var(--px-red);
+    color: #fff;
+    box-shadow: 4px 4px 0 #8B0000;
+  }
+  .btn-primary:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #8B0000; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--px-gold);
+    border: 2px solid var(--px-gold);
+    box-shadow: 4px 4px 0 rgba(255,215,0,0.3);
+  }
+  .btn-secondary:hover { background: rgba(255,215,0,0.1); }
+
+  /* ── 픽셀 지도 SVG 프리뷰 ── */
+  .map-preview {
+    width: min(700px, 90vw);
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* ── 통계 배너 ── */
+  .stats-bar {
+    background: rgba(10,102,218,0.15);
+    border-top: 1px solid rgba(10,102,218,0.3);
+    border-bottom: 1px solid rgba(10,102,218,0.3);
+    padding: 20px;
+    display: flex; justify-content: center; gap: clamp(24px,5vw,80px);
+    flex-wrap: wrap;
+  }
+  .stat { text-align:center; }
+  .stat-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(18px, 3vw, 32px);
+    color: var(--px-gold);
+  }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-top:4px; letter-spacing:1px; }
+
+  /* ── 섹션 공통 ── */
+  section { position:relative; z-index:1; padding: 80px 20px; }
+  .section-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(14px, 2.5vw, 22px);
+    color: var(--px-gold);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .section-sub {
+    text-align:center; color:rgba(255,255,255,0.55);
+    font-size:14px; margin-bottom:48px; letter-spacing:1px;
+  }
+
+  /* ── 3레이어 카드 ── */
+  .layers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px; max-width: 1000px; margin: 0 auto;
+  }
+
+  .layer-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 32px 24px;
+    transition: transform 0.2s, border-color 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .layer-card:hover { transform: translateY(-4px); border-color: var(--px-blue); }
+  .layer-card::before {
+    content: '';
+    position: absolute; top:0; left:0; right:0; height:3px;
+  }
+  .layer-land::before { background: var(--px-green); }
+  .layer-ocean::before { background: var(--px-blue); }
+  .layer-sky::before { background: var(--px-red); }
+
+  .layer-icon { font-size:40px; margin-bottom:16px; display:block; }
+  .layer-title { font-size:18px; font-weight:700; margin-bottom:8px; color:#fff; }
+  .layer-desc { font-size:13px; color:rgba(255,255,255,0.6); line-height:1.7; }
+  .layer-tag {
+    display:inline-block; margin-top:12px;
+    padding: 3px 10px; border-radius:2px;
+    font-size:11px; font-weight:700; letter-spacing:1px;
+  }
+  .tag-land { background:rgba(0,200,150,0.2); color:var(--px-green); border:1px solid var(--px-green); }
+  .tag-ocean { background:rgba(10,102,218,0.2); color:#5BB3FF; border:1px solid #5BB3FF; }
+  .tag-sky { background:rgba(255,45,85,0.2); color:var(--px-red); border:1px solid var(--px-red); }
+
+  /* ── 도발 픽셀 섹션 ── */
+  .provocation-section { background: rgba(255,45,85,0.05); border-top:1px solid rgba(255,45,85,0.2); border-bottom:1px solid rgba(255,45,85,0.2); }
+
+  .provocation-grid {
+    display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap:20px; max-width:1000px; margin:0 auto;
+  }
+  .prov-card {
+    background:rgba(255,45,85,0.08);
+    border:1px solid rgba(255,45,85,0.25);
+    border-radius:4px; padding:24px;
+    transition: all 0.2s;
+  }
+  .prov-card:hover { background:rgba(255,45,85,0.15); transform:scale(1.02); }
+  .prov-emoji { font-size:32px; margin-bottom:10px; display:block; }
+  .prov-title { font-size:14px; font-weight:700; color:var(--px-red); margin-bottom:6px; }
+  .prov-desc { font-size:12px; color:rgba(255,255,255,0.6); line-height:1.6; }
+
+  /* ── 픽셀 방치 소멸 시각화 ── */
+  .decay-visual {
+    max-width:700px; margin:0 auto;
+    display:grid; grid-template-columns:repeat(5,1fr); gap:16px;
+    text-align:center;
+  }
+  .decay-step { padding:16px 8px; }
+  .pixel-block {
+    width:60px; height:60px; margin:0 auto 12px;
+    border:3px solid;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+    transition: all 0.3s;
+  }
+  .decay-label { font-size:10px; font-family:'Press Start 2P',monospace; margin-bottom:4px; }
+  .decay-day { font-size:11px; color:rgba(255,255,255,0.45); }
+
+  .d0 .pixel-block { border-color:#00C896; background:rgba(0,200,150,0.2); }
+  .d1 .pixel-block { border-color:#FFD700; background:rgba(255,215,0,0.15); filter:saturate(0.6); }
+  .d2 .pixel-block { border-color:#FF8C00; background:rgba(255,140,0,0.12); filter:saturate(0.3) brightness(0.8); }
+  .d3 .pixel-block { border-color:#FF2D55; background:rgba(255,45,85,0.1); filter:saturate(0.1) brightness(0.6); animation:crack 1.5s infinite; }
+  .d4 .pixel-block { border-color:rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); filter:grayscale(1) brightness(0.3); }
+
+  @keyframes crack {
+    0%,100%{ box-shadow:0 0 0 0 rgba(255,45,85,0); }
+    50%{ box-shadow:0 0 12px 4px rgba(255,45,85,0.4); }
+  }
+
+  /* ── 수익 구조 ── */
+  .revenue-grid {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:16px; max-width:1000px; margin:0 auto;
+  }
+  .rev-card {
+    background:rgba(255,215,0,0.05);
+    border:1px solid rgba(255,215,0,0.2);
+    border-radius:4px; padding:20px;
+    text-align:center;
+  }
+  .rev-num {
+    font-family:'Press Start 2P',monospace;
+    font-size:28px; color:var(--px-gold);
+    margin-bottom:8px;
+  }
+  .rev-title { font-size:13px; font-weight:700; color:#fff; margin-bottom:4px; }
+  .rev-desc { font-size:11px; color:rgba(255,255,255,0.5); }
+
+  /* ── 기업용 섹션 ── */
+  .b2b-section { background:rgba(10,102,218,0.07); border-top:1px solid rgba(10,102,218,0.2); }
+  .b2b-grid {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:24px; max-width:1000px; margin:0 auto;
+  }
+  .b2b-card {
+    background:rgba(10,102,218,0.1);
+    border:1px solid rgba(10,102,218,0.3);
+    border-radius:4px; padding:28px;
+  }
+  .b2b-icon { font-size:36px; margin-bottom:12px; }
+  .b2b-title { font-size:15px; font-weight:700; color:#5BB3FF; margin-bottom:8px; }
+  .b2b-desc { font-size:13px; color:rgba(255,255,255,0.6); line-height:1.7; }
+
+  /* ── 픽셀 맵 SVG 섹션 ── */
+  .map-section { background: var(--px-navy); }
+
+  /* ── 퀘스트 보드 미리보기 ── */
+  .quest-board {
+    max-width:600px; margin:0 auto;
+    background:rgba(0,0,0,0.4);
+    border:2px solid rgba(255,255,255,0.1);
+    border-radius:4px; padding:24px;
+  }
+  .quest-header {
+    font-family:'Press Start 2P',monospace;
+    font-size:11px; color:var(--px-gold);
+    margin-bottom:20px; letter-spacing:2px;
+  }
+  .quest-item {
+    display:flex; align-items:flex-start; gap:16px;
+    padding:16px; margin-bottom:12px;
+    background:rgba(255,255,255,0.04);
+    border-radius:2px; border-left:3px solid;
+  }
+  .qi-blue { border-color: var(--px-blue); }
+  .qi-red  { border-color: var(--px-red); }
+  .qi-gold { border-color: var(--px-gold); }
+  .qi-green{ border-color: var(--px-green); }
+  .quest-brand { font-size:22px; flex-shrink:0; }
+  .quest-info { flex:1; }
+  .quest-name { font-size:12px; font-weight:700; color:#fff; margin-bottom:4px; }
+  .quest-reward { font-size:11px; color:var(--px-gold); margin-bottom:2px; }
+  .quest-meta { font-size:10px; color:rgba(255,255,255,0.4); }
+  .quest-badge {
+    font-size:9px; font-family:'Press Start 2P',monospace;
+    padding:3px 8px; border-radius:2px;
+    align-self:center; white-space:nowrap;
+  }
+  .badge-hot { background:rgba(255,45,85,0.3); color:var(--px-red); border:1px solid var(--px-red); }
+  .badge-team { background:rgba(10,102,218,0.3); color:#5BB3FF; border:1px solid #5BB3FF; }
+  .badge-live { background:rgba(0,200,150,0.3); color:var(--px-green); border:1px solid var(--px-green); animation:blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ── 체인 배지 ── */
+  .chain-row { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin:32px 0; }
+  .chain-badge {
+    padding:10px 24px;
+    border-radius:2px; font-size:13px; font-weight:700;
+    border:2px solid;
+  }
+  .chain-bnb { border-color:#F3BA2F; color:#F3BA2F; background:rgba(243,186,47,0.1); }
+  .chain-base { border-color:#0052FF; color:#6B9FFF; background:rgba(0,82,255,0.1); }
+  .chain-eth { border-color:#627EEA; color:#A0B3F5; background:rgba(98,126,234,0.1); }
+
+  /* ── 푸터 ── */
+  footer {
+    text-align:center; padding:40px 20px;
+    color:rgba(255,255,255,0.25); font-size:12px;
+    border-top:1px solid rgba(255,255,255,0.07);
+  }
+  .footer-logo {
+    font-family:'Press Start 2P',monospace;
+    font-size:16px; color:rgba(255,215,0,0.4);
+    margin-bottom:12px;
+  }
+
+  /* 스크롤 애니메이션 */
+  .fade-in { opacity:0; transform:translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .fade-in.visible { opacity:1; transform:translateY(0); }
+
+  /* 픽셀 스크롤바 */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:#0A0A1A; }
+  ::-webkit-scrollbar-thumb { background:var(--px-blue); }
+</style>
+</head>
+<body>
+<div class="pixel-bg"></div>
+
+<!-- ━━━ HERO ━━━ -->
+<section class="hero">
+  <!-- 배경 픽셀 지도 SVG -->
+  <svg class="hero-map" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
+    <!-- 간략 세계 지도 실루엣 (픽셀 스타일) -->
+    <!-- 북미 -->
+    <rect x="80"  y="100" width="280" height="160" rx="0" fill="#0A66DA" opacity="0.4"/>
+    <rect x="100" y="80"  width="160" height="40"  fill="#0A66DA" opacity="0.3"/>
+    <!-- 남미 -->
+    <rect x="180" y="280" width="120" height="200" fill="#00C896" opacity="0.35"/>
+    <!-- 유럽 -->
+    <rect x="480" y="80"  width="160" height="120" fill="#FFD700" opacity="0.4"/>
+    <!-- 아프리카 -->
+    <rect x="490" y="220" width="160" height="220" fill="#FF8C00" opacity="0.35"/>
+    <!-- 아시아 -->
+    <rect x="660" y="60"  width="360" height="220" fill="#FF2D55" opacity="0.35"/>
+    <!-- 한반도 강조 (분쟁 픽셀 표시) -->
+    <rect x="900" y="160" width="40"  height="60"  fill="#FFD700" opacity="0.8"/>
+    <rect x="902" y="162" width="8"   height="8"   fill="#FF2D55"/>
+    <rect x="910" y="162" width="8"   height="8"   fill="#FF2D55"/>
+    <rect x="918" y="162" width="8"   height="8"   fill="#FFD700"/>
+    <rect x="926" y="162" width="8"   height="8"   fill="#FFD700"/>
+    <!-- 동남아 -->
+    <rect x="820" y="300" width="200" height="120" fill="#0A66DA" opacity="0.4"/>
+    <!-- 호주 -->
+    <rect x="880" y="440" width="180" height="100" fill="#00C896" opacity="0.3"/>
+    <!-- 부표 움직임 표시 -->
+    <circle cx="400" cy="400" r="6" fill="#00C896" opacity="0.9">
+      <animateTransform attributeName="transform" type="translate" values="0,0;20,-8;40,5;60,-3" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="700" cy="350" r="5" fill="#FFD700" opacity="0.9">
+      <animateTransform attributeName="transform" type="translate" values="0,0;-15,10;30,20;50,5" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1050" cy="280" r="5" fill="#FF2D55" opacity="0.8">
+      <animateTransform attributeName="transform" type="translate" values="0,0;25,-5;-10,15;20,8" dur="7s" repeatCount="indefinite"/>
+    </circle>
+    <!-- 격자 오버레이 -->
+    <line x1="0" y1="200" x2="1200" y2="200" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+    <line x1="0" y1="400" x2="1200" y2="400" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+    <line x1="400" y1="0" x2="400" y2="600" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+    <line x1="800" y1="0" x2="800" y2="600" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+  </svg>
+
+  <div class="hero-content">
+    <div class="logo-pixel">PIXEL WAR</div>
+    <p class="hero-sub">살아있는 세계 지도 픽셀 전쟁 플랫폼 · Web3</p>
+    <p class="hero-tagline">
+      틀린 지도를 보고 분노해서 들어온 유저가,<br>
+      <span>USDT를 쓰며 세계를 다시 그린다.</span>
+    </p>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#">🔥 지금 픽셀 차지하기</a>
+      <a class="btn btn-secondary" href="#">🏢 기업 광고 패키지</a>
+    </div>
+
+    <!-- 미니 픽셀 지도 프리뷰 -->
+    <div class="map-preview">
+      <svg viewBox="0 0 600 300" style="width:100%;border:2px solid rgba(255,215,0,0.3);border-radius:4px;background:rgba(0,0,0,0.4);">
+        <!-- 픽셀 그리드 지도 -->
+        <defs>
+          <pattern id="pgrid" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M10 0L0 0 0 10" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="600" height="300" fill="#080818"/>
+        <rect width="600" height="300" fill="url(#pgrid)"/>
+
+        <!-- 픽셀 블록들: 팩션 영토 -->
+        <!-- 한국 팩션 (파란색) -->
+        <rect x="460" y="60" width="10" height="10" fill="#0A66DA"/>
+        <rect x="470" y="60" width="10" height="10" fill="#0A66DA"/>
+        <rect x="460" y="70" width="10" height="10" fill="#0A66DA"/>
+        <rect x="470" y="70" width="10" height="10" fill="#0A66DA"/>
+        <rect x="480" y="70" width="10" height="10" fill="#1A7AEA"/>
+        <rect x="460" y="80" width="10" height="10" fill="#1A7AEA"/>
+
+        <!-- 도발 픽셀: 독도 (빨간색 = 틀린 표시) -->
+        <rect x="490" y="80" width="10" height="10" fill="#FF2D55"/>
+        <rect x="500" y="80" width="10" height="10" fill="#FF2D55"/>
+        <rect x="490" y="90" width="10" height="10" fill="#FF2D55"/>
+        <!-- 경고 테두리 -->
+        <rect x="488" y="78" width="24" height="24" fill="none" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="3,2">
+          <animate attributeName="stroke-dashoffset" from="0" to="20" dur="1s" repeatCount="indefinite"/>
+        </rect>
+        <text x="514" y="75" font-size="7" fill="#FFD700" font-family="monospace">⚠ 도발!</text>
+
+        <!-- 원피스 팩션 (오렌지) -->
+        <rect x="390" y="150" width="10" height="10" fill="#FF8C00"/>
+        <rect x="400" y="150" width="10" height="10" fill="#FF8C00"/>
+        <rect x="410" y="150" width="10" height="10" fill="#FF9A10"/>
+        <rect x="390" y="160" width="10" height="10" fill="#FF8C00"/>
+        <rect x="400" y="160" width="10" height="10" fill="#FFA020"/>
+        <rect x="390" y="170" width="10" height="10" fill="#FF8C00"/>
+
+        <!-- 나이키 팩션 (흰색 영역) -->
+        <rect x="80" y="50" width="10" height="10" fill="#555"/>
+        <rect x="90" y="50" width="10" height="10" fill="#666"/>
+        <rect x="80" y="60" width="10" height="10" fill="#666"/>
+        <rect x="90" y="60" width="10" height="10" fill="#555"/>
+        <!-- 도발: 나이키 위치에 아디다스 로고 픽셀 -->
+        <rect x="100" y="50" width="10" height="10" fill="#FF2D55" opacity="0.7"/>
+        <text x="112" y="60" font-size="6" fill="#FF2D55" font-family="monospace">아디다스?</text>
+
+        <!-- 겐신 팩션 (보라색) -->
+        <rect x="310" y="40" width="10" height="10" fill="#7B2FBE"/>
+        <rect x="320" y="40" width="10" height="10" fill="#8A3FCC"/>
+        <rect x="330" y="40" width="10" height="10" fill="#7B2FBE"/>
+        <rect x="310" y="50" width="10" height="10" fill="#8A3FCC"/>
+        <rect x="320" y="50" width="10" height="10" fill="#9B50DD"/>
+        <rect x="310" y="60" width="10" height="10" fill="#7B2FBE"/>
+
+        <!-- 방치 픽셀 (바랜 색) -->
+        <rect x="200" y="100" width="10" height="10" fill="#2A2A2A" stroke="#555" stroke-width="0.5"/>
+        <rect x="210" y="100" width="10" height="10" fill="#1A1A1A" stroke="#444" stroke-width="0.5"/>
+        <rect x="220" y="100" width="10" height="10" fill="#111" stroke="#333" stroke-width="0.5"/>
+        <text x="200" y="122" font-size="6" fill="#FF2D55" font-family="monospace">방치 소멸 중...</text>
+
+        <!-- 부표 -->
+        <circle cx="180" cy="200" r="5" fill="#00C896" stroke="#fff" stroke-width="1">
+          <animateTransform attributeName="transform" type="translate" values="0,0;8,-3;16,2" dur="4s" repeatCount="indefinite"/>
+        </circle>
+        <text x="158" y="218" font-size="6" fill="#00C896" font-family="monospace">🚢 삼성부표</text>
+
+        <!-- 팩션 전투선 -->
+        <line x1="420" y1="155" x2="490" y2="85" stroke="rgba(255,45,85,0.5)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="440" y="125" font-size="6" fill="rgba(255,200,0,0.8)" font-family="monospace">전투 진행중</text>
+
+        <!-- 범례 -->
+        <rect x="10" y="270" width="8" height="8" fill="#0A66DA"/>
+        <text x="22" y="278" font-size="7" fill="rgba(255,255,255,0.5)" font-family="monospace">한국팩션</text>
+        <rect x="80" y="270" width="8" height="8" fill="#FF2D55"/>
+        <text x="92" y="278" font-size="7" fill="rgba(255,255,255,0.5)" font-family="monospace">도발픽셀</text>
+        <rect x="150" y="270" width="8" height="8" fill="#FF8C00"/>
+        <text x="162" y="278" font-size="7" fill="rgba(255,255,255,0.5)" font-family="monospace">원피스팩션</text>
+        <circle cx="234" cy="274" r="4" fill="#00C896"/>
+        <text x="242" y="278" font-size="7" fill="rgba(255,255,255,0.5)" font-family="monospace">부표</text>
+
+        <!-- 타이틀 -->
+        <text x="300" y="290" font-size="8" fill="rgba(255,215,0,0.4)" font-family="monospace" text-anchor="middle">실제 게임 화면 예시 (픽셀 아트 스타일)</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 통계 바 -->
+<div class="stats-bar fade-in">
+  <div class="stat">
+    <div class="stat-num">100만</div>
+    <div class="stat-label">픽셀 캔버스</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">3</div>
+    <div class="stat-label">세계 레이어</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">$0.10</div>
+    <div class="stat-label">최저 진입가</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">USDT</div>
+    <div class="stat-label">실제 수익</div>
+  </div>
+</div>
+
+<!-- ━━━ 도발 선점 전략 ━━━ -->
+<section class="provocation-section fade-in">
+  <div class="section-title">⚠️ PROVOCATION LAYER</div>
+  <div class="section-sub">론칭 첫날, 운영진이 의도적으로 "틀린 지도"를 배치합니다</div>
+
+  <div class="provocation-grid">
+    <div class="prov-card">
+      <span class="prov-emoji">🇯🇵</span>
+      <div class="prov-title">독도 → 다케시마로 표시</div>
+      <div class="prov-desc">한국 유저가 분노해서 들어옵니다.<br>"우리 땅을 되찾아라!" — 최강 유입 트리거</div>
+    </div>
+    <div class="prov-card">
+      <span class="prov-emoji">🍎</span>
+      <div class="prov-title">삼성 자리에 애플 로고</div>
+      <div class="prov-desc">삼성 팬과 애플 팬이 충돌합니다.<br>기업 마케터가 X에서 발견하고 관심을 가집니다</div>
+    </div>
+    <div class="prov-card">
+      <span class="prov-emoji">🏴‍☠️</span>
+      <div class="prov-title">원피스 팬덤 vs 나루토 팬덤</div>
+      <div class="prov-desc">동남아 전역에 해적기 vs 나뭇잎 마크.<br>오타쿠들이 자기 팬덤 영토를 지키러 옵니다</div>
+    </div>
+    <div class="prov-card">
+      <span class="prov-emoji">🎭</span>
+      <div class="prov-title">K-POP 팬덤 영토 전쟁</div>
+      <div class="prov-desc">한반도에 BTS vs BLACKPINK 경계선.<br>아미와 블링크가 한판 붙습니다</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:36px;">
+    <p style="color:rgba(255,45,85,0.8);font-size:13px;font-style:italic;max-width:500px;margin:0 auto;">
+      "PIXEL WAR에서 독도가 다케시마로 표시됐다" — X 트렌딩 1위 목표.<br>
+      마케팅 예산 $0로 론칭 첫 주 10만 명 유입 가능한 전략.
+    </p>
+  </div>
+</section>
+
+<!-- ━━━ 3레이어 ━━━ -->
+<section class="fade-in">
+  <div class="section-title">🌍 3-LAYER WORLD</div>
+  <div class="section-sub">지상, 바다, 하늘 — 모든 공간이 광고 영토</div>
+
+  <div class="layers-grid">
+    <div class="layer-card layer-land">
+      <span class="layer-icon">🗺️</span>
+      <div class="layer-title">레이어 1 — 지상 (Land)</div>
+      <div class="layer-desc">
+        세계 지도 위 100만 픽셀 영토.<br>
+        팩션 결성, 침공, 방어, 배신이 펼쳐지는 핵심 전쟁터.<br>
+        론칭 시 도발 픽셀 선배치로 즉각 전쟁 시작.
+      </div>
+      <span class="layer-tag tag-land">픽셀 NFT · 팩션 · 방치소멸</span>
+    </div>
+    <div class="layer-card layer-ocean">
+      <span class="layer-icon">🌊</span>
+      <div class="layer-title">레이어 2 — 해양/강 (Ocean)</div>
+      <div class="layer-desc">
+        NASA OSCAR 실데이터로 부표가 실제 해류를 따라 이동.<br>
+        부표 레이스, 침몰 이벤트, 호위 전략.<br>
+        태풍 경로와 교차 시 침몰 위험 알림 발송.
+      </div>
+      <span class="layer-tag tag-ocean">OSCAR NASA · 실해류 · 부표레이스</span>
+    </div>
+    <div class="layer-card layer-sky">
+      <span class="layer-icon">🌪️</span>
+      <div class="layer-title">레이어 3 — 대기 (Atmosphere)</div>
+      <div class="layer-desc">
+        NOAA·JMA 실기상 데이터 연동.<br>
+        태풍 상륙, 폭염, 대설 이벤트가 지도 위를 강타.<br>
+        재난 발생 지역 픽셀 소유자에게 긴급 알림 + 보상.
+      </div>
+      <span class="layer-tag tag-sky">NOAA · JMA · 기상이벤트</span>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ 방치 소멸 시각화 ━━━ -->
+<section class="fade-in" style="background:rgba(255,45,85,0.03);border-top:1px solid rgba(255,45,85,0.1);">
+  <div class="section-title">💀 PIXEL DECAY SYSTEM</div>
+  <div class="section-sub">방치하면 픽셀은 서서히 죽습니다 — 매일 접속해야 하는 이유</div>
+
+  <div class="decay-visual">
+    <div class="decay-step d0">
+      <div class="decay-label" style="color:#00C896">정상</div>
+      <div class="pixel-block">🟩</div>
+      <div class="decay-day">구매 직후</div>
+    </div>
+    <div class="decay-step d1">
+      <div class="decay-label" style="color:#FFD700">바램</div>
+      <div class="pixel-block">🟨</div>
+      <div class="decay-day">15일 무활동</div>
+    </div>
+    <div class="decay-step d2">
+      <div class="decay-label" style="color:#FF8C00">균열</div>
+      <div class="pixel-block">🟧</div>
+      <div class="decay-day">30일 — 50% 할인 강탈 가능</div>
+    </div>
+    <div class="decay-step d3">
+      <div class="decay-label" style="color:#FF2D55">위험</div>
+      <div class="pixel-block">🟥</div>
+      <div class="decay-day">38일 — 소멸 7일 전</div>
+    </div>
+    <div class="decay-step d4">
+      <div class="decay-label" style="color:rgba(255,255,255,0.3)">소멸</div>
+      <div class="pixel-block">⬛</div>
+      <div class="decay-day">45일 — 무주지 전환</div>
+    </div>
+  </div>
+
+  <p style="text-align:center;margin-top:24px;color:rgba(255,215,0,0.7);font-size:13px;">
+    💡 Lv5 픽셀은 소멸 없음 — 레벨업이 영구 소유의 유일한 방법
+  </p>
+</section>
+
+<!-- ━━━ 기업 미션 퀘스트 ━━━ -->
+<section class="fade-in">
+  <div class="section-title">📋 QUEST BOARD</div>
+  <div class="section-sub">기업이 유저에게 미션을 발행합니다 — 광고가 퀘스트가 됩니다</div>
+
+  <div class="quest-board">
+    <div class="quest-header">🔴 TODAY'S QUESTS — 오늘의 미션</div>
+
+    <div class="quest-item qi-blue">
+      <span class="quest-brand">🔵</span>
+      <div class="quest-info">
+        <div class="quest-name">[삼성전자] 한반도 픽셀 500개를 파란색으로 수복하라</div>
+        <div class="quest-reward">💰 보상: USDT $0.80 즉시 지급</div>
+        <div class="quest-meta">참여 1,203명 · 마감 6시간 후</div>
+      </div>
+      <span class="quest-badge badge-hot">HOT</span>
+    </div>
+
+    <div class="quest-item qi-red">
+      <span class="quest-brand">👟</span>
+      <div class="quest-info">
+        <div class="quest-name">[나이키] 북미 지역 스우시 픽셀 아트 완성 (팀 미션)</div>
+        <div class="quest-reward">💰 보상: 시즌 패스 1개월 + USDT $2.00</div>
+        <div class="quest-meta">20명 필요 · D-2일 · 18명 참여 중</div>
+      </div>
+      <span class="quest-badge badge-team">TEAM</span>
+    </div>
+
+    <div class="quest-item qi-green">
+      <span class="quest-brand">🌿</span>
+      <div class="quest-info">
+        <div class="quest-name">[그랩 Grab] 동남아 5개국 픽셀 각 100개씩 노란색으로</div>
+        <div class="quest-reward">💰 보상: USDT $0.50 × 완료 국가</div>
+        <div class="quest-meta">신규 유저 우선 · 상시 진행</div>
+      </div>
+      <span class="quest-badge badge-live">LIVE</span>
+    </div>
+
+    <div class="quest-item qi-gold">
+      <span class="quest-brand">🌪️</span>
+      <div class="quest-info">
+        <div class="quest-name">[긴급] 태풍 예상 경로 픽셀 500개 방어막 설치</div>
+        <div class="quest-reward">💰 보상: 희귀 배지 + USDT $2.00</div>
+        <div class="quest-meta">NOAA 실데이터 연동 · 3시간 후 마감</div>
+      </div>
+      <span class="quest-badge badge-live">긴급</span>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ 유저 수익 구조 ━━━ -->
+<section class="fade-in" style="background:rgba(255,215,0,0.03);">
+  <div class="section-title">💰 EARN STRUCTURE</div>
+  <div class="section-sub">픽셀을 소유하면 7가지 방법으로 수익을 만듭니다</div>
+
+  <div class="revenue-grid">
+    <div class="rev-card">
+      <div class="rev-num">①</div>
+      <div class="rev-title">픽셀 임대</div>
+      <div class="rev-desc">내 픽셀을 광고주에게<br>임대 → 임대료 수취</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-num">②</div>
+      <div class="rev-title">픽셀 매각</div>
+      <div class="rev-desc">레벨업 후 2차 시장에서<br>고가 매각</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-num">③</div>
+      <div class="rev-title">기업 미션</div>
+      <div class="rev-desc">퀘스트 완료 시<br>USDT 즉시 지급</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-num">④</div>
+      <div class="rev-title">부표 호위</div>
+      <div class="rev-desc">Lv4+ 픽셀로<br>부표 보호 서비스 제공</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-num">⑤</div>
+      <div class="rev-title">시즌 상금</div>
+      <div class="rev-desc">팩션 TOP3 영토<br>달성 시 USDT 분배</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-num">⑥</div>
+      <div class="rev-title">날씨 광고</div>
+      <div class="rev-desc">태풍 경로 픽셀<br>기업 광고 자동 임대</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-num">⑦</div>
+      <div class="rev-title">초대 수익</div>
+      <div class="rev-desc">친구 초대 →<br>구매액의 5% 리워드</div>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ 기업용 ━━━ -->
+<section class="b2b-section fade-in">
+  <div class="section-title">🏢 FOR BUSINESS</div>
+  <div class="section-sub">참여하지 않아도 팬들이 당신의 이름으로 싸웁니다. 참여하면 더 유리합니다.</div>
+
+  <div class="b2b-grid">
+    <div class="b2b-card">
+      <div class="b2b-icon">📍</div>
+      <div class="b2b-title">공식 클레임</div>
+      <div class="b2b-desc">브랜드 위치에 공식 인증 배지를 달고, 도발 픽셀 우선 수정권을 획득합니다. 팬들이 자발적으로 브랜드를 수호합니다.</div>
+    </div>
+    <div class="b2b-card">
+      <div class="b2b-icon">📋</div>
+      <div class="b2b-title">미션 퀘스트 발행</div>
+      <div class="b2b-desc">유저에게 미션을 부여하고 브랜드 컬러로 세계 지도를 물들이세요. 유저들은 재미로 하고, 당신은 마케팅 효과를 얻습니다.</div>
+    </div>
+    <div class="b2b-card">
+      <div class="b2b-icon">🚢</div>
+      <div class="b2b-title">부표 광고</div>
+      <div class="b2b-desc">실제 해류를 따라 이동하는 브랜드 부표. 태평양을 횡단하는 광고, 동남아 연근해를 누비는 로고. 이동 경로가 곧 노출 지역입니다.</div>
+    </div>
+    <div class="b2b-card">
+      <div class="b2b-icon">🌪️</div>
+      <div class="b2b-title">날씨 연동 광고</div>
+      <div class="b2b-desc">태풍이 접근할 때, 폭염이 올 때 — 가장 주목도 높은 순간에 자동으로 관련 브랜드 광고가 노출됩니다.</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:40px;">
+    <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:20px;">지원 블록체인 네트워크</p>
+    <div class="chain-row">
+      <span class="chain-badge chain-bnb">⬡ BNB Chain — 아시아 게임 레이어</span>
+      <span class="chain-badge chain-base">◈ Base — 서방/한국 프리미엄</span>
+      <span class="chain-badge chain-eth">◆ Ethereum — 기업 NFT 인증</span>
+    </div>
+  </div>
+</section>
+
+<!-- ━━━ CTA ━━━ -->
+<section class="fade-in" style="text-align:center;padding:100px 20px;">
+  <div class="section-title" style="margin-bottom:20px;">CLAIM YOUR PIXEL</div>
+  <p style="color:rgba(255,255,255,0.6);max-width:480px;margin:0 auto 40px;line-height:1.8;font-size:15px;">
+    세계 지도 위의 픽셀은 지금도 빠르게 채워지고 있습니다.<br>
+    지금 자리를 잡으세요. 방치하면 사라집니다.
+  </p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="#" style="font-size:16px;padding:18px 48px;">🌍 픽셀 구매 시작</a>
+    <a class="btn btn-secondary" href="#" style="font-size:16px;padding:18px 48px;">📋 백서 다운로드</a>
+  </div>
+  <p style="margin-top:24px;color:rgba(255,255,255,0.25);font-size:12px;">
+    BNB Chain · Base · Ethereum · USDT 결제 · 계정추상화 지갑 (시드 문구 없음)
+  </p>
+</section>
+
+<!-- ━━━ 푸터 ━━━ -->
+<footer>
+  <div class="footer-logo">PIXEL WAR</div>
+  <p>© 2026 PIXEL WAR. Powered by BNB Chain + Base + Ethereum</p>
+  <p style="margin-top:8px;">이 랜딩 페이지는 투자 권유가 아닙니다. 디지털 자산 투자에는 위험이 따릅니다.</p>
+</footer>
+
+<script>
+// 스크롤 애니메이션
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// 픽셀 부패 애니메이션 hover
+document.querySelectorAll('.pixel-block').forEach(b => {
+  b.addEventListener('mouseenter', () => b.style.transform = 'scale(1.2)');
+  b.addEventListener('mouseleave', () => b.style.transform = 'scale(1)');
+});
+</script>
+</body>
+</html>

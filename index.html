@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PIXEL WAR v9.2 — RED COLONIZATION</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="//unpkg.com/globe.gl@2.27.2"></script>
+<style>
+:root{
+  --bg:#0D0B14;--panel:rgba(14,12,24,0.93);--panel2:rgba(20,16,32,0.95);
+  --surface1:#161422;--surface2:#1C1A2A;--surface3:#222036;
+  --bdr:rgba(255,120,60,0.14);--bdr2:rgba(255,120,60,0.28);
+  --tx:#E8E0D8;--tx2:#9A8878;--tx3:#6A5848;
+  --mars:#FF7840;--red:#E84855;--gold:#FFD166;--gn:#4CD89A;--pp:#B888E0;
+  --cyan:#5BB8E8;
+  --fn:'Press Start 2P',monospace;
+  --fs-xs:7px;--fs-sm:8px;--fs-md:9px;--fs-lg:11px;--fs-xl:13px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-family:var(--fn)}
+
+/* Globe container */
+#globe-wrap{position:fixed;inset:0;z-index:1}
+#globe-wrap canvas{display:block}
+
+/* Vignette + scanlines */
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(6,4,12,0.5) 100%)}
+.scan{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.015;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.3) 2px,rgba(0,0,0,0.3) 3px)}
+
+/* Top Bar */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;
+  justify-content:space-between;padding:10px 16px;
+  background:linear-gradient(180deg,rgba(13,11,20,0.96),rgba(13,11,20,0.75));
+  border-bottom:1px solid var(--bdr);backdrop-filter:blur(12px)}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-title{font-size:var(--fs-lg);color:var(--mars);letter-spacing:2px;
+  text-shadow:0 0 24px rgba(255,120,60,0.4)}
+.tb-sub{font-size:var(--fs-xs);color:var(--red);letter-spacing:1px;opacity:.65}
+.tb-btn{padding:8px 16px;font-size:var(--fs-sm);font-family:var(--fn);
+  background:var(--surface2);border:1px solid var(--bdr2);border-radius:6px;
+  cursor:pointer;color:var(--mars);transition:all .2s}
+.tb-btn:hover{background:rgba(255,120,60,0.12);box-shadow:0 0 20px rgba(255,120,60,0.1)}
+
+/* Panels (glass-morphism) */
+.panel-l,.panel-r{position:fixed;top:52px;bottom:0;width:250px;z-index:50;
+  background:rgba(14,12,22,0.94);backdrop-filter:blur(24px);overflow-y:auto;padding:14px 12px;
+  transition:transform .3s cubic-bezier(.22,1,.36,1);
+  box-shadow:0 0 40px rgba(0,0,0,0.5)}
+.panel-l{left:0;border-right:1px solid rgba(255,120,60,0.12)}
+.panel-r{right:0;border-left:1px solid rgba(255,120,60,0.12)}
+.panel-l::-webkit-scrollbar,.panel-r::-webkit-scrollbar{width:3px}
+.panel-l::-webkit-scrollbar-thumb,.panel-r::-webkit-scrollbar-thumb{background:rgba(255,120,60,0.2);border-radius:2px}
+
+.p-section{margin-bottom:16px}
+.p-title{font-size:var(--fs-sm);color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;
+  padding-bottom:6px;margin-bottom:8px;border-bottom:1px solid var(--bdr)}
+.stat-row{display:flex;justify-content:space-between;padding:5px 0;gap:8px;align-items:baseline;
+  border-bottom:1px solid rgba(255,255,255,.02)}
+.stat-label{font-size:var(--fs-xs);color:var(--tx3);white-space:nowrap;flex-shrink:0}
+.stat-val{font-size:var(--fs-md);color:var(--mars);text-align:right;word-break:break-all}
+.stat-val.gold{color:var(--gold)}.stat-val.red{color:var(--red)}.stat-val.gn{color:var(--gn)}
+
+.lb-row{display:flex;align-items:center;gap:8px;padding:4px 0}
+.lb-rank{font-size:var(--fs-md);width:18px;text-align:center}
+.lb-rank.gold{color:var(--gold)}.lb-rank.silver{color:#C0C0D0}.lb-rank.bronze{color:#CD7F32}
+.lb-name{font-size:var(--fs-sm);color:var(--tx2);flex:1}.lb-val{font-size:var(--fs-sm);color:var(--gn)}
+
+.feed-item{font-size:var(--fs-xs);color:var(--tx2);padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,.02);line-height:1.7}
+.feed-item.new{color:var(--mars);animation:feedIn .3s}
+@keyframes feedIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+
+/* Territory Info */
+.action-btn{width:100%;padding:10px;margin-top:8px;
+  background:linear-gradient(135deg,rgba(255,120,60,.1),rgba(255,120,60,.03));
+  border:1px solid rgba(255,120,60,.25);border-radius:8px;
+  color:var(--mars);font-size:var(--fs-sm);font-family:var(--fn);cursor:pointer;transition:all .15s}
+.action-btn:hover{background:rgba(255,120,60,.18);box-shadow:0 0 20px rgba(255,120,60,.12)}
+.action-btn.hijack{background:linear-gradient(135deg,rgba(232,72,85,.1),rgba(232,72,85,.03));
+  border-color:rgba(232,72,85,.25);color:var(--red)}
+.action-btn.hijack:hover{background:rgba(232,72,85,.18);box-shadow:0 0 20px rgba(232,72,85,.12)}
+.size-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.sz-btn{padding:5px 4px;font-size:var(--fs-xs);font-family:var(--fn);background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,209,102,.12);color:var(--gold);border-radius:5px;cursor:pointer;
+  transition:all .15s;text-align:center}
+.sz-btn:hover{background:rgba(255,209,102,.1);border-color:rgba(255,209,102,.35)}
+.sz-btn.sel{background:rgba(255,120,60,.15);border-color:var(--mars);color:var(--tx);
+  box-shadow:0 0 10px rgba(255,120,60,.15)}
+.sz-input{padding:4px 6px;font-size:var(--fs-sm);font-family:var(--fn);background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,209,102,.15);color:var(--gold);border-radius:4px;text-align:center;
+  outline:none;-moz-appearance:textfield}
+.sz-input::-webkit-inner-spin-button{-webkit-appearance:none}
+.sz-input:focus{border-color:var(--mars);background:rgba(255,120,60,.05)}
+
+/* Zoom Controls */
+.zc{position:fixed;bottom:24px;right:266px;z-index:60;display:flex;flex-direction:column;gap:4px}
+.zb{width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  background:var(--surface2);backdrop-filter:blur(10px);border:1px solid var(--bdr);border-radius:8px;
+  color:var(--tx);font-size:16px;cursor:pointer;font-family:monospace;transition:all .15s}
+.zb:hover{background:rgba(255,120,60,0.12);border-color:var(--mars);color:var(--mars)}
+
+/* Mode indicator */
+.mode-badge{position:fixed;bottom:24px;left:266px;z-index:60;
+  padding:6px 14px;background:var(--surface2);border:1px solid var(--bdr);border-radius:6px;
+  font-size:var(--fs-xs);color:var(--tx2);pointer-events:none;backdrop-filter:blur(8px)}
+
+/* Mobile toggles */
+.mob-toggle{display:none;position:fixed;top:54px;z-index:110;
+  padding:6px 10px;font-size:7px;font-family:var(--fn);
+  background:var(--panel);border:1px solid var(--bdr);border-radius:0 6px 6px 0;
+  color:var(--tx2);cursor:pointer}
+.mob-toggle.right{right:0;border-radius:6px 0 0 6px}
+
+/* ── Modal ── */
+.mbg{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center}
+.mbg.open{display:flex}
+.mdl{background:var(--panel2);backdrop-filter:blur(20px);border:1px solid var(--bdr);border-radius:12px;
+  width:460px;max-width:94vw;max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(255,107,53,0.04)}
+.mhd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;
+  background:rgba(0,0,0,0.2);border-bottom:1px solid var(--bdr)}
+.mtl{font-size:var(--fs-md);color:var(--tx);letter-spacing:1px}.mtl.wrn{color:var(--red)}
+.mx{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;
+  font-family:monospace;padding:4px 8px;border-radius:4px;min-width:36px;min-height:36px}
+.mx:hover{background:rgba(232,84,84,0.12)}
+.mbd{padding:16px;display:flex;flex-direction:column;gap:12px}
+.mf{display:flex;flex-direction:column;gap:4px}
+.mfl{font-size:var(--fs-xs);color:var(--tx3);letter-spacing:.8px;text-transform:uppercase}
+.mfv{font-size:var(--fs-md);color:var(--tx)}.mfv.gold{color:var(--gold);font-size:var(--fs-xl)}
+.mdv{height:1px;background:var(--bdr)}
+
+/* Upload */
+.ups{display:flex;flex-direction:column;gap:6px}
+.uf{width:100%;padding:9px;background:rgba(255,120,60,.04);border:1px dashed rgba(255,120,60,.2);
+  border-radius:6px;color:var(--mars);font-size:var(--fs-sm);font-family:var(--fn);cursor:pointer;transition:all .15s}
+.uf:hover{background:rgba(255,120,60,.08);border-color:rgba(255,120,60,.35)}
+.uuw{display:flex;gap:4px}
+.ui{flex:1;background:rgba(0,0,0,.25);border:1px solid var(--bdr);padding:7px 8px;color:var(--tx);
+  font-size:var(--fs-sm);font-family:var(--fn);outline:none;border-radius:5px}
+.ui:focus{border-color:var(--mars);background:rgba(255,120,60,.03)}.ui::placeholder{color:var(--tx3)}
+.ulb{padding:7px 12px;background:rgba(255,120,60,.05);border:1px solid rgba(255,120,60,.18);
+  border-radius:5px;color:var(--mars);font-size:var(--fs-sm);font-family:var(--fn);cursor:pointer}
+.utw{position:relative;margin-top:2px}
+.uti{max-width:100%;max-height:50px;border:1px solid var(--bdr);border-radius:4px}
+.utc{position:absolute;top:2px;right:2px;background:var(--red);border:none;color:#fff;font-size:10px;
+  cursor:pointer;padding:2px 6px;font-family:monospace;border-radius:3px}
+.ust{font-size:7px;color:var(--gn);margin-top:2px}.ust.err{color:var(--red)}
+
+/* Chain */
+.cr{display:flex;gap:6px}
+.cb{flex:1;padding:10px 4px;border:1px solid;font-size:var(--fs-xs);font-family:var(--fn);cursor:pointer;
+  transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:8px}
+.cb.base{background:rgba(91,184,232,.04);border-color:rgba(91,184,232,.15);color:#5BB8E8}
+.cb.base:hover,.cb.base.sel{background:rgba(91,184,232,.12);border-color:rgba(91,184,232,.4)}
+.cb.bnb{background:rgba(232,176,64,.04);border-color:rgba(232,176,64,.15);color:#E8B040}
+.cb.bnb:hover,.cb.bnb.sel{background:rgba(232,176,64,.12);border-color:rgba(232,176,64,.4)}
+.cb.eth{background:rgba(160,128,224,.04);border-color:rgba(160,128,224,.15);color:#A080E0}
+.cb.eth:hover,.cb.eth.sel{background:rgba(160,128,224,.12);border-color:rgba(160,128,224,.4)}
+.ci{font-size:16px}.cn{font-size:var(--fs-xs)}
+.cfm{width:100%;padding:12px;
+  background:linear-gradient(135deg,rgba(76,216,154,.1),rgba(76,216,154,.03));
+  border:1px solid rgba(76,216,154,.25);border-radius:8px;
+  color:var(--gn);font-size:var(--fs-md);font-family:var(--fn);cursor:pointer;letter-spacing:.5px;transition:all .15s}
+.cfm:hover{background:rgba(76,216,154,.16);box-shadow:0 0 24px rgba(76,216,154,.1)}
+.mn{font-size:var(--fs-xs);color:var(--tx3);text-align:center;line-height:1.8;margin-top:4px}
+
+/* Hijack warning */
+.hw{background:rgba(232,72,85,.05);border:1px solid rgba(232,72,85,.15);padding:10px;
+  border-radius:6px;margin-bottom:4px}
+.hwt{font-size:var(--fs-sm);color:var(--red);letter-spacing:.5px;margin-bottom:5px}
+.hwd{font-size:var(--fs-xs);color:rgba(200,160,140,.55);line-height:1.7}
+
+/* Toast */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);padding:10px 24px;
+  background:var(--surface3);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.2);
+  border-radius:8px;font-size:var(--fs-md);color:var(--gn);opacity:0;transition:opacity .3s;
+  z-index:600;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.35)}
+.toast.show{opacity:1}
+
+/* Stamp hint */
+.stamp-hint{font-size:var(--fs-md);color:var(--mars);text-align:center;padding:8px;
+  border:1px dashed rgba(255,120,60,.25);border-radius:6px;
+  background:rgba(255,120,60,.03);animation:stampPulse 2s infinite}
+@keyframes stampPulse{0%,100%{border-color:rgba(255,120,60,.25)}50%{border-color:rgba(255,120,60,.5)}}
+.back-btn:hover{background:rgba(255,120,60,.2)!important;color:var(--tx)!important}
+
+/* Range slider */
+input[type=range]{-webkit-appearance:none;height:4px;background:var(--bdr);border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+  background:var(--mars);border-radius:50%;cursor:pointer}
+
+/* Link style */
+.link-val{color:var(--cyan)!important;text-decoration:underline;cursor:pointer;font-size:var(--fs-xs);
+  word-break:break-all;max-width:130px;display:inline-block;overflow:hidden;text-overflow:ellipsis}
+
+/* Search results */
+.search-result-item{padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.03);
+  cursor:pointer;transition:background .15s;border-radius:4px;line-height:1.5}
+.search-result-item:hover{background:rgba(255,107,53,.08)}
+
+/* Mobile */
+@media(max-width:768px){
+  .panel-l{transform:translateX(-110%)}
+  .panel-r{transform:translateX(110%)}
+  .panel-l.open{transform:translateX(0)}
+  .panel-r.open{transform:translateX(0)}
+  .mob-toggle{display:block}
+  .zc{right:12px;bottom:16px}
+  .mode-badge{left:12px;bottom:16px}
+  .topbar{padding:8px 10px}
+  .tb-title{font-size:8px}.tb-sub{display:none}
+  .tb-btn{font-size:6px;padding:5px 8px}
+}
+</style>
+</head>
+<body>
+
+<!-- Globe Container -->
+<div id="globe-wrap"></div>
+<div class="vig"></div>
+<div class="scan"></div>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="tb-left">
+    <span class="tb-title">PIXEL WAR v9.2</span>
+    <span class="tb-sub">RED COLONIZATION</span>
+  </div>
+  <div style="display:flex;gap:6px;align-items:center">
+    <button class="tb-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
+  </div>
+</div>
+
+<!-- Mobile Panel Toggles -->
+<button class="mob-toggle" style="left:0;top:54px" onclick="toggleLeft()">◀ STATS</button>
+<button class="mob-toggle right" style="right:0;top:54px" onclick="toggleRight()">LIVE ▶</button>
+
+<!-- Left Panel -->
+<div class="panel-l" id="panelL">
+  <div class="p-section">
+    <div class="p-title">GLOBAL STATS</div>
+    <div class="stat-row"><span class="stat-label">TOTAL PIXELS</span><span class="stat-val" style="color:var(--tx2)">1,040,496</span></div>
+    <div class="stat-row"><span class="stat-label">PIXELS SOLD</span><span class="stat-val gn" id="statPlots">8,450</span></div>
+    <div class="stat-row"><span class="stat-label">TOTAL VOLUME</span><span class="stat-val gold" id="statTVL">$845</span></div>
+    <div class="stat-row"><span class="stat-label">HIJACKS / HR</span><span class="stat-val red" id="statHijacks">24</span></div>
+    <div class="stat-row"><span class="stat-label">ACTIVE USERS</span><span class="stat-val">1,247</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-title">LEADERBOARD</div>
+    <div class="lb-row"><span class="lb-rank gold">1</span><span class="lb-name">DogeTeam</span><span class="lb-val">12 plots</span></div>
+    <div class="lb-row"><span class="lb-rank silver">2</span><span class="lb-name">예원♥</span><span class="lb-val">8 plots</span></div>
+    <div class="lb-row"><span class="lb-rank bronze">3</span><span class="lb-name">0xDEAD</span><span class="lb-val">5 plots</span></div>
+    <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">4</span><span class="lb-name">PepeArmy</span><span class="lb-val">3 plots</span></div>
+    <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">5</span><span class="lb-name">고래연합</span><span class="lb-val">2 plots</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-title">MY LAND</div>
+    <div class="stat-row"><span class="stat-label">OWNED</span><span class="stat-val gold" id="myPlots">0</span></div>
+    <div class="stat-row"><span class="stat-label">VALUE</span><span class="stat-val gn" id="myValue">$0</span></div>
+    <div class="stat-row"><span class="stat-label">EARNED</span><span class="stat-val" id="myEarned">0 USDT</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-title">MY IMAGES</div>
+    <div id="myImagesList" style="max-height:150px;overflow-y:auto"><div style="font-size:7px;color:var(--tx3)">No images placed yet</div></div>
+  </div>
+</div>
+
+<!-- Right Panel -->
+<div class="panel-r" id="panelR">
+  <!-- OWNER SEARCH -->
+  <div class="p-section">
+    <div class="p-title">SEARCH OWNER</div>
+    <div class="uuw">
+      <input type="text" class="ui" id="ownerSearchInput" placeholder="OWNER NAME / ADDRESS..." oninput="searchOwner()" style="flex:1">
+    </div>
+    <div id="searchResults" style="margin-top:6px;max-height:120px;overflow-y:auto"></div>
+  </div>
+
+  <!-- TERRITORY INFO (shows when clicking existing claim) -->
+  <div class="p-section" id="territoryInfo" style="display:none">
+    <div class="p-title">TERRITORY INFO</div>
+    <div class="stat-row"><span class="stat-label">COORDS</span><span class="stat-val" id="infoCoords">--</span></div>
+    <div class="stat-row"><span class="stat-label">OWNER</span><span class="stat-val gold" id="infoOwner">--</span></div>
+    <div class="stat-row" id="linkRow" style="display:none"><span class="stat-label">LINK</span><a class="stat-val link-val" id="infoLink" href="#" target="_blank" rel="noopener">--</a></div>
+    <div class="stat-row"><span class="stat-label">SIZE</span><span class="stat-val" id="infoSize">--</span></div>
+    <div class="stat-row"><span class="stat-label">PRICE PAID</span><span class="stat-val gn" id="infoPrice">--</span></div>
+    <div class="stat-row"><span class="stat-label">HIJACK COST</span><span class="stat-val red" id="infoHijack">--</span></div>
+    <button class="action-btn hijack" id="claimBtn" onclick="openClaimModal()">HIJACK THIS PLOT</button>
+  </div>
+
+  <!-- LIVE FEED (collapsible) -->
+  <div class="p-section">
+    <div class="p-title" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleFeed()">
+      LIVE FEED <span id="feedToggle" style="font-size:10px;color:var(--tx3)">▼</span>
+    </div>
+    <div id="liveFeed" style="max-height:52px;overflow:hidden;transition:max-height .3s">
+      <div class="feed-item">⚡ DogeTeam claimed OLYMPUS MONS</div>
+      <div class="feed-item">💀 예원♥ hijacked ELYSIUM for 120 USDT</div>
+      <div class="feed-item">⚡ 0xDEAD claimed NORTH POLE</div>
+      <div class="feed-item">⚡ PepeArmy claimed HELLAS BASIN</div>
+    </div>
+  </div>
+
+  <!-- STAMP MODE: Image-first workflow -->
+  <div class="p-section" id="stampSection">
+    <div class="p-title">PLACE YOUR IMAGE</div>
+    <input type="file" id="stampFileInput" accept="image/*" style="display:none">
+    <button class="uf" onclick="document.getElementById('stampFileInput').click()">CHOOSE IMAGE FILE</button>
+    <div class="uuw" style="margin-top:5px">
+      <input type="text" class="ui" id="stampUrlInput" placeholder="OR PASTE URL...">
+      <button class="ulb" onclick="loadStampUrl()">GO</button>
+    </div>
+    <!-- Preview + controls (hidden until image loaded) -->
+    <div id="stampPreview" style="display:none;margin-top:10px">
+      <img id="stampThumb" style="max-width:100%;max-height:80px;border-radius:4px;border:1px solid var(--bdr)">
+      <div class="stat-row" style="margin-top:6px"><span class="stat-label">IMAGE</span><span class="stat-val" id="stampImgInfo">--</span></div>
+      <div class="stat-row"><span class="stat-label">MIN VISIBLE</span><span class="stat-val" id="stampMinLabel">--</span></div>
+      <div style="margin:8px 0">
+        <div class="stat-label" style="margin-bottom:4px">SCALE %</div>
+        <input type="range" id="stampSizeSlider" min="1" max="300" value="100" style="width:100%;accent-color:var(--mars)" oninput="updateStampScale(+this.value)">
+        <div style="display:flex;justify-content:space-between;margin-top:2px">
+          <span class="stat-val" id="stampSizeLabel">--</span>
+          <span class="stat-val gn" id="stampCostLabel">--</span>
+        </div>
+        <div style="display:flex;gap:3px;margin-top:4px;flex-wrap:wrap">
+          <button class="sz-btn" onclick="setStampPct(5)">5%</button>
+          <button class="sz-btn" onclick="setStampPct(10)">10%</button>
+          <button class="sz-btn" onclick="setStampPct(25)">25%</button>
+          <button class="sz-btn" onclick="setStampPct(50)">50%</button>
+          <button class="sz-btn" onclick="setStampPct(100)">100%</button>
+          <button class="sz-btn" onclick="setStampPct(200)">200%</button>
+        </div>
+      </div>
+      <div style="margin-top:6px">
+        <div class="stat-label" style="margin-bottom:3px">LINK URL</div>
+        <input type="text" class="ui" id="stampLinkInput" placeholder="https://your-site.com" style="width:100%">
+      </div>
+      <div class="stamp-hint" style="margin-top:8px">CLICK MARS TO STAMP!</div>
+      <button class="action-btn" style="margin-top:4px;font-size:7px;padding:6px" onclick="cancelStamp()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- Zoom + Back -->
+<div class="zc">
+  <button class="zb back-btn" onclick="goBack()" title="Back to overview" style="font-size:10px;background:rgba(255,107,53,.12);border-color:rgba(255,107,53,.3);margin-bottom:6px">↩</button>
+  <button class="zb" onclick="zoomIn()">+</button>
+  <button class="zb" onclick="zoomOut()">−</button>
+</div>
+
+<div class="mode-badge" id="modeBadge">🔴 CLICK MARS TO SELECT TERRITORY</div>
+
+<!-- Claim Modal -->
+<div class="mbg" id="claimModal">
+  <div class="mdl">
+    <div class="mhd">
+      <span class="mtl" id="modalTitle">CLAIM TERRITORY</span>
+      <button class="mx" onclick="closeClaimModal()">×</button>
+    </div>
+    <div class="mbd">
+      <div class="hw" id="hijackWarn" style="display:none">
+        <div class="hwt">⚠ HIJACK TERRITORY</div>
+        <div class="hwd">Current owner: <span id="hijackOwner" style="color:var(--gold)">--</span><br>
+          They receive: refund + 10% bonus<br>
+          You pay: <span id="hijackCost" style="color:var(--red)">--</span></div>
+      </div>
+      <div class="mf"><div class="mfl">COORDINATES</div><div class="mfv" id="modalCoords">--</div></div>
+      <div class="mdv"></div>
+      <div class="mf">
+        <div class="mfl">YOUR LOGO IMAGE</div>
+        <div class="ups">
+          <input type="file" id="imgFileInput" accept="image/*" style="display:none">
+          <button class="uf" onclick="document.getElementById('imgFileInput').click()">CHOOSE FILE</button>
+          <div class="uuw">
+            <input type="text" class="ui" id="imgUrlInput" placeholder="PASTE IMAGE URL...">
+            <button class="ulb" onclick="loadFromUrl()">GO</button>
+          </div>
+          <div id="uploadPreviewWrap" class="utw" style="display:none">
+            <img id="uploadThumb" class="uti" alt="">
+            <button class="utc" onclick="clearUpload()">×</button>
+          </div>
+          <div id="uploadStatus" class="ust" style="display:none"></div>
+        </div>
+      </div>
+      <div class="mf">
+        <div class="mfl">LINK URL (optional)</div>
+        <input type="text" class="ui" id="linkUrlInput" placeholder="https://your-site.com" style="width:100%;margin-top:4px">
+      </div>
+      <div class="mdv"></div>
+      <div class="mf"><div class="mfl">CLAIM COST</div><div class="mfv gold" id="modalCostDisplay">100 USDT</div></div>
+      <div class="mf">
+        <div class="mfl">PAYMENT CHAIN</div>
+        <div class="cr">
+          <button class="cb base sel" id="chainBase" onclick="selectChain('base')"><span class="ci">●</span><span class="cn">BASE</span></button>
+          <button class="cb bnb" id="chainBnb" onclick="selectChain('bnb')"><span class="ci">●</span><span class="cn">BNB</span></button>
+          <button class="cb eth" id="chainEth" onclick="selectChain('eth')"><span class="ci">◆</span><span class="cn">ETH</span></button>
+        </div>
+      </div>
+      <button class="cfm" onclick="confirmClaim()">CONFIRM CLAIM</button>
+      <div class="mn">Owner receives 100% refund + 10% bonus · Platform fee: 10%</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   PIXEL WAR v9.2 — RED COLONIZATION (Mars Globe MVP)
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Noise helpers (improved) ─────────────────────── */
+function _h(a,b){var n=a*374761393+b*668265263;n=(n^(n>>13))*1274126177;return((n^(n>>16))&0xffff)/65535}
+function _n(px,py){var ix=Math.floor(px),iy=Math.floor(py),fx=px-ix,fy=py-iy;fx=fx*fx*fx*(fx*(fx*6-15)+10);fy=fy*fy*fy*(fy*(fy*6-15)+10);return _h(ix,iy)+((_h(ix+1,iy)-_h(ix,iy))*fx)+((_h(ix,iy+1)-_h(ix,iy))*fy)+((_h(ix,iy)-_h(ix+1,iy)-_h(ix,iy+1)+_h(ix+1,iy+1))*fx*fy)}
+function _fbm(px,py){return _n(px,py)*.5+_n(px*2.1,py*2.1)*.25+_n(px*4.3,py*4.3)*.125+_n(px*8.7,py*8.7)*.0625}
+function _fbm6(px,py){return _fbm(px,py)+_n(px*17.3,py*17.3)*.03+_n(px*33,py*33)*.015}
+function _ridge(px,py){var v=_n(px,py);return 1-Math.abs(v*2-1)}
+
+/* ── Crater generator (more variety) ─────────────── */
+var CRATERS=[];
+(function(){
+  // Large impact basins
+  for(var i=0;i<8;i++){CRATERS.push({u:Math.random(),v:Math.random()*0.8+0.1,r:Math.random()*0.04+0.03,d:Math.random()*0.3+0.3,ring:true})}
+  // Medium craters
+  for(var i=0;i<60;i++){CRATERS.push({u:Math.random(),v:Math.random()*0.85+0.075,r:Math.random()*0.02+0.008,d:Math.random()*0.35+0.2,ring:false})}
+  // Small craters
+  for(var i=0;i<200;i++){CRATERS.push({u:Math.random(),v:Math.random()*0.85+0.075,r:Math.random()*0.006+0.002,d:Math.random()*0.2+0.1,ring:false})}
+})();
+
+function craterAt(u,v){
+  var val=0;
+  for(var i=0;i<CRATERS.length;i++){
+    var c=CRATERS[i],du=u-c.u,dv=v-c.v,dist=Math.sqrt(du*du+dv*dv);
+    if(dist<c.r){
+      var t=dist/c.r;
+      if(t<0.8)val-=c.d*(1-t/0.8)*(0.8+_n(u*50+i,v*50)*0.4);
+      else{
+        var rimH=c.ring?0.8:0.5;
+        val+=c.d*rimH*Math.pow((t-0.8)/0.2,0.7);
+      }
+    }else if(c.ring&&dist<c.r*1.3){
+      // Ejecta blanket for large craters
+      var ej=(1-(dist-c.r)/(c.r*0.3))*0.08;
+      val+=ej*_n(u*80+i,v*80)*c.d;
+    }
+  }
+  return val;
+}
+
+/* ── Generate Procedural Mars Texture (HD) ───────── */
+var marsCanvas=document.createElement('canvas');marsCanvas.width=4096;marsCanvas.height=2048;
+var marsBaseData=null;
+
+function genMarsTexture(){
+  var c=marsCanvas;
+  var x=c.getContext('2d'),w=c.width,h=c.height;
+  var id=x.createImageData(w,h),d=id.data;
+  for(var y=0;y<h;y++){
+    for(var i2=0;i2<w;i2++){
+      var idx=(y*w+i2)*4,u=i2/w,v=y/h;
+
+      // Multi-octave terrain noise
+      var n1=_fbm6(u*8,v*8);
+      var n2=_fbm(u*16+5.7,v*16+3.2)*.4;
+      var n3=_fbm(u*32+11,v*32+7)*.12;
+      var n4=_n(u*64+20,v*64+15)*.06; // fine detail
+
+      // Ridge noise for mountain ranges
+      var ridgeVal=_ridge(u*6+3,v*4+2)*_ridge(u*12+7,v*8+5);
+
+      var lat=Math.abs(v-.5)*2;
+      var polar=lat>.82?Math.pow((lat-.82)/.18,1.8):0;
+      var cr=craterAt(u,v);
+
+      // Richer base colors with regional variation
+      var regionHue=_n(u*3+100,v*3+100);
+      var base_r=130+n1*75+n2*30+n3*18+n4*12+cr*55+regionHue*15;
+      var base_g=52+n1*35+n2*18+n3*8+n4*5+cr*22+regionHue*5;
+      var base_b=26+n1*15+n2*10+n3*6+n4*4+cr*12;
+
+      // Mountain ridges — brighter, more orange
+      if(ridgeVal>.6){var rf=(ridgeVal-.6)*2.5;base_r+=rf*25;base_g+=rf*12;base_b+=rf*5}
+
+      // Dark mare regions (larger, smoother)
+      var dark=_n(u*2.5+10,v*2.5+10);
+      var dark2=_n(u*4+30,v*3+25);
+      if(dark>.5){var df=(dark-.5)*4;base_r-=df*40;base_g-=df*18;base_b-=df*8}
+      if(dark2>.55){var df2=(dark2-.55)*3;base_r-=df2*20;base_g-=df2*10;base_b-=df2*5}
+
+      // Dust streaks (wind patterns)
+      var streak=_n(u*5+20,v*1.5+20);
+      var streak2=_n(u*10+40,v*3+35);
+      if(streak>.58){var sf=(streak-.58)*2.8;base_r+=sf*18;base_g+=sf*10;base_b+=sf*4}
+      if(streak2>.62){var sf2=(streak2-.62)*2;base_r-=sf2*12;base_g-=sf2*8}
+
+      // Polar ice caps — layered with CO2 frost
+      var polarEdge=lat>.78?Math.pow((lat-.78)/.22,1.2)*0.3:0;
+      base_r=base_r*(1-polar)+230*polar+polarEdge*40;
+      base_g=base_g*(1-polar)+222*polar+polarEdge*35;
+      base_b=base_b*(1-polar)+218*polar+polarEdge*45;
+
+      // Olympus Mons — large shield volcano
+      var ox=.38,oy=.35,od=Math.sqrt((u-ox)*(u-ox)+(v-oy)*(v-oy));
+      if(od<.1){
+        var of2=1-od/.1;
+        var caldera=od<.015?-15*(1-od/.015):0;
+        base_r+=of2*35+caldera;base_g+=of2*18+caldera*.4;base_b+=of2*6;
+      }
+
+      // Valles Marineris — deep canyon system
+      if(v>.40&&v<.50&&u>.15&&u<.60){
+        var mainV=Math.abs(v-(.445+_n(u*8,v*2)*.012))/.018;
+        // Side canyons
+        var side1=Math.abs(v-(.435+_n(u*12+5,v*3)*.008))/.01;
+        var side2=Math.abs(v-(.455+_n(u*10+8,v*4)*.008))/.01;
+        var canyon=Math.min(mainV,1);
+        if(side1<1&&u>.25&&u<.45)canyon=Math.min(canyon,side1);
+        if(side2<1&&u>.30&&u<.50)canyon=Math.min(canyon,side2);
+        if(canyon<1){
+          var vf=(1-canyon)*.85;
+          var depth=vf*(0.8+_n(u*20,v*20)*.4);
+          base_r-=depth*50;base_g-=depth*25;base_b-=depth*12;
+          // Canyon walls — slight brightness at edges
+          if(canyon>.7){var wall=(canyon-.7)/.3;base_r+=wall*15;base_g+=wall*8}
+        }
+      }
+
+      // Tharsis bulge — elevated region
+      var tx=.32,ty=.4,td=Math.sqrt((u-tx)*(u-tx)+(v-ty)*(v-ty));
+      if(td<.15){var tf=1-td/.15;base_r+=tf*12;base_g+=tf*6;base_b+=tf*3}
+
+      // Hellas Basin — large impact, darker floor
+      var hx=.72,hy=.62,hd=Math.sqrt((u-hx)*(u-hx)+(v-hy)*(v-hy));
+      if(hd<.06){var hf=1-hd/.06;base_r-=hf*20;base_g-=hf*12;base_b-=hf*5}
+
+      // Subtle color temperature variation
+      var temp=_n(u*1.5+50,v*1.5+50);
+      base_r+=temp*6-3;base_g+=temp*3-1.5;
+
+      d[idx]=Math.max(0,Math.min(255,base_r));
+      d[idx+1]=Math.max(0,Math.min(255,base_g));
+      d[idx+2]=Math.max(0,Math.min(255,base_b));
+      d[idx+3]=255;
+    }
+  }
+  x.putImageData(id,0,0);
+  marsBaseData=c.toDataURL('image/jpeg',.9);
+  return marsBaseData;
+}
+
+/* ── lat/lng → UV pixel coords on equirectangular texture ── */
+function latlngToUV(lat,lng,w,h){
+  var x=((lng+180)/360)*w;
+  var y=((90-lat)/180)*h;
+  return {x:x,y:y};
+}
+
+/* ── Composite all claim images onto Mars texture ── */
+// Image rect on texture — supports non-square w×h
+function getCellRect(lat,lng,cw,ch,tw,th){
+  var pxPerDeg=tw/360;
+  var pw=GRID_SIZE*cw*pxPerDeg;
+  var ph=GRID_SIZE*ch*pxPerDeg;
+  var uv=latlngToUV(lat,lng,tw,th);
+  return {x:uv.x-pw/2, y:uv.y-ph/2, w:pw, h:ph};
+}
+
+// Cached base+claims snapshot for fast preview overlay
+var claimsSnapshot=null; // ImageData of base Mars + claims (no preview)
+var previewRafId=null;
+
+function compositeClaimsOnTexture(previewOnly){
+  var ctx=marsCanvas.getContext('2d');
+  var w=marsCanvas.width,h=marsCanvas.height;
+  var base=imgCache[marsBaseData];
+  if(!base){cacheImage(marsBaseData,function(){compositeClaimsOnTexture()});return}
+
+  if(!previewOnly){
+    // Full rebuild: base + grid + claims → cache snapshot
+    ctx.drawImage(base,0,0);
+
+    // Faint grid (every 10°)
+    ctx.strokeStyle='rgba(255,107,53,0.03)';ctx.lineWidth=0.5;
+    for(var glat=-70;glat<=70;glat+=10){
+      var gy=((90-glat)/180)*h;
+      ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(w,gy);ctx.stroke();
+    }
+    for(var glng=-180;glng<180;glng+=10){
+      var gx=((glng+180)/360)*w;
+      ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,h);ctx.stroke();
+    }
+
+    // Draw each claim
+    claims.forEach(function(c){
+      var cw=c.w||c.size||20, ch=c.h||c.size||20;
+      var r=getCellRect(c.lat,c.lng,cw,ch,w,h);
+      var img=c.imgUrl?imgCache[c.imgUrl]:null;
+      if(img){
+        ctx.drawImage(img,r.x,r.y,r.w,r.h);
+        ctx.strokeStyle='rgba(255,209,102,0.25)';ctx.lineWidth=1;
+        ctx.strokeRect(r.x,r.y,r.w,r.h);
+      }else{
+        var colors=['#FF6B35','#FFD166','#E84855','#4CD89A','#C080E0'];
+        ctx.fillStyle=colors[Math.abs(c.label.charCodeAt(0))%5];
+        ctx.globalAlpha=0.6;ctx.fillRect(r.x,r.y,r.w,r.h);ctx.globalAlpha=1;
+      }
+    });
+
+    // (selection highlight removed)
+
+    // Cache this snapshot for fast preview redraws
+    claimsSnapshot=ctx.getImageData(0,0,w,h);
+  }else{
+    // Fast path: restore cached snapshot, only add preview overlay
+    if(claimsSnapshot) ctx.putImageData(claimsSnapshot,0,0);
+  }
+
+  // Stamp preview (semi-transparent ghost following cursor)
+  if(stampMode&&stampImgUrl&&stampPreviewLat!==null){
+    var spw=stampW, sph=stampH;
+    var pr=getCellRect(stampPreviewLat,stampPreviewLng,spw,sph,w,h);
+    var simg=imgCache[stampImgUrl];
+    if(simg){
+      ctx.globalAlpha=0.45;
+      ctx.drawImage(simg,pr.x,pr.y,pr.w,pr.h);
+      ctx.globalAlpha=1;
+      ctx.strokeStyle='rgba(255,107,53,0.7)';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.strokeRect(pr.x,pr.y,pr.w,pr.h);ctx.setLineDash([]);
+      // Crosshair at center
+      var cx=pr.x+pr.w/2, cy=pr.y+pr.h/2;
+      ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+      ctx.beginPath();ctx.moveTo(cx-10,cy);ctx.lineTo(cx+10,cy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx,cy-10);ctx.lineTo(cx,cy+10);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  globe.globeImageUrl(marsCanvas.toDataURL('image/jpeg',previewOnly?.7:.9));
+}
+
+/* ── Generate Bump Map (higher detail) ───────────── */
+function genMarsBump(){
+  var c=document.createElement('canvas');c.width=2048;c.height=1024;
+  var x=c.getContext('2d'),w=c.width,h=c.height;
+  var id=x.createImageData(w,h),d=id.data;
+  for(var y=0;y<h;y++){
+    for(var i2=0;i2<w;i2++){
+      var idx=(y*w+i2)*4,u=i2/w,v=y/h;
+      var n=_fbm6(u*12,v*12)*.45+_fbm(u*24,v*24)*.22+_n(u*48,v*48)*.1+_n(u*96,v*96)*.04;
+      var cr=craterAt(u,v);
+      var ridge=_ridge(u*6+3,v*4+2)*0.15;
+      // Valles Marineris depression
+      var vm=0;
+      if(v>.40&&v<.50&&u>.15&&u<.60){
+        var vc=Math.abs(v-(.445+_n(u*8,v*2)*.012))/.02;
+        if(vc<1)vm=-(1-vc)*0.4;
+      }
+      // Olympus Mons elevation
+      var om=0;
+      var od=Math.sqrt((u-.38)*(u-.38)+(v-.35)*(v-.35));
+      if(od<.1)om=(1-od/.1)*0.3;
+      var val=Math.max(0,Math.min(255,(n+cr*.45+ridge+vm+om+0.2)*255));
+      d[idx]=d[idx+1]=d[idx+2]=val;d[idx+3]=255;
+    }
+  }
+  x.putImageData(id,0,0);
+  return c.toDataURL('image/jpeg',.85);
+}
+
+/* ── Generate Star Background (richer) ───────────── */
+function genStarBg(){
+  var c=document.createElement('canvas');c.width=2048;c.height=1024;
+  var x=c.getContext('2d');
+  // Deep space — subtle blue-violet gradient
+  var gr=x.createRadialGradient(800,400,50,1024,512,1100);
+  gr.addColorStop(0,'#0E0A1A');gr.addColorStop(0.5,'#080614');gr.addColorStop(1,'#030208');
+  x.fillStyle=gr;x.fillRect(0,0,2048,1024);
+  // Milky way band (faint diagonal glow)
+  x.save();x.translate(1024,512);x.rotate(-0.3);
+  var mw=x.createLinearGradient(-1200,0,1200,0);
+  mw.addColorStop(0,'rgba(120,100,160,0)');mw.addColorStop(0.3,'rgba(120,100,160,0.015)');
+  mw.addColorStop(0.5,'rgba(140,120,180,0.025)');mw.addColorStop(0.7,'rgba(120,100,160,0.015)');
+  mw.addColorStop(1,'rgba(120,100,160,0)');
+  x.fillStyle=mw;x.fillRect(-1200,-120,2400,240);x.restore();
+  // Dim stars (varied colors)
+  for(var i=0;i<1800;i++){
+    var sx=Math.random()*2048,sy=Math.random()*1024;
+    var sr=Math.random()*1+0.2,sb=Math.random()*0.45+0.15;
+    var hues=[0,0,0,30,45,200,220,240]; // mostly white, some colored
+    var hue=hues[Math.floor(Math.random()*hues.length)];
+    var sat=hue===0?0:Math.random()*40+20;
+    x.fillStyle='hsla('+hue+','+sat+'%,80%,'+sb+')';
+    x.beginPath();x.arc(sx,sy,sr,0,Math.PI*2);x.fill();
+  }
+  // Bright stars with glow + diffraction spikes
+  for(var i=0;i<45;i++){
+    var sx=Math.random()*2048,sy=Math.random()*1024;
+    var bright=Math.random()*0.3+0.7;
+    var starHue=Math.random()>.7?(Math.random()>.5?220:30):0;
+    x.fillStyle='hsla('+starHue+',20%,95%,'+bright+')';
+    x.beginPath();x.arc(sx,sy,1.2+Math.random(),0,Math.PI*2);x.fill();
+    var gg=x.createRadialGradient(sx,sy,0,sx,sy,10);
+    gg.addColorStop(0,'hsla('+starHue+',30%,85%,0.2)');gg.addColorStop(1,'hsla('+starHue+',30%,85%,0)');
+    x.fillStyle=gg;x.fillRect(sx-10,sy-10,20,20);
+  }
+  // Nebula patches (richer, more varied)
+  var nebColors=[[280,45],[220,40],[340,35],[180,30],[30,25]];
+  for(var i=0;i<8;i++){
+    var nx=Math.random()*2048,ny=Math.random()*1024,ns=Math.random()*250+80;
+    var nc=nebColors[i%nebColors.length];
+    var ng=x.createRadialGradient(nx+Math.random()*60-30,ny+Math.random()*40-20,0,nx,ny,ns);
+    ng.addColorStop(0,'hsla('+nc[0]+','+nc[1]+'%,18%,0.05)');
+    ng.addColorStop(0.5,'hsla('+nc[0]+','+nc[1]+'%,14%,0.025)');
+    ng.addColorStop(1,'hsla('+nc[0]+','+nc[1]+'%,10%,0)');
+    x.fillStyle=ng;x.fillRect(nx-ns,ny-ns,ns*2,ns*2);
+  }
+  return c.toDataURL('image/jpeg',.92);
+}
+
+/* ── Generate Demo Logo Images ───────────────────── */
+function genLogo(emoji,bg,border){
+  var c=document.createElement('canvas');c.width=80;c.height=80;
+  var x=c.getContext('2d');
+  x.fillStyle=bg;x.fillRect(0,0,80,80);
+  x.strokeStyle=border;x.lineWidth=3;x.strokeRect(1,1,78,78);
+  x.font='40px serif';x.textAlign='center';x.textBaseline='middle';
+  x.fillStyle='#fff';x.fillText(emoji,40,42);
+  return c.toDataURL();
+}
+var DEMO_LOGOS={
+  doge:genLogo('🐕','#8B6914','#FFD166'),
+  love:genLogo('♥','#C02050','#FF6B8A'),
+  skull:genLogo('💀','#333','#888'),
+  pepe:genLogo('🐸','#2D6B2D','#4CD89A')
+};
+
+/* ── Globe Init ──────────────────────────────────── */
+var marsTexUrl=genMarsTexture();
+var marsBumpUrl=genMarsBump();
+var starBgUrl=genStarBg();
+var globe=Globe()
+  .globeImageUrl(marsTexUrl)
+  .bumpImageUrl(marsBumpUrl)
+  .backgroundImageUrl(starBgUrl)
+  .showAtmosphere(true)
+  .atmosphereColor('rgba(255,110,50,0.25)')
+  .atmosphereAltitude(0.2)
+  .width(window.innerWidth)
+  .height(window.innerHeight)
+  (document.getElementById('globe-wrap'));
+
+var scene=globe.scene();
+
+// Auto-rotation
+globe.controls().autoRotate=true;
+globe.controls().autoRotateSpeed=0.35;
+globe.controls().enableDamping=true;
+globe.controls().dampingFactor=0.12;
+globe.controls().minDistance=120;
+globe.controls().maxDistance=600;
+
+// Resize
+window.addEventListener('resize',function(){
+  globe.width(window.innerWidth);
+  globe.height(window.innerHeight);
+});
+
+/* ── Territory Data ──────────────────────────────── */
+var PIXEL_PRICE=0.1;       // $0.1 per pixel
+var HIJACK_MULT=1.2;
+var GRID_SIZE=0.22;        // 0.22° per pixel-cell
+// lat ±70° = 140° / 0.22 ≈ 636 rows
+// lng ±180° = 360° / 0.22 ≈ 1636 cols
+// Total: 636 × 1636 ≈ 1,040,496 ≈ ★ 1 MILLION PIXELS ★
+// Price: $0.1/px → 1×1=$0.1, 10×10=$10, 100×100=$1000
+
+var claims=[
+  {lat:20,lng:-130,owner:'DogeTeam',price:10,imgUrl:DEMO_LOGOS.doge,label:'DogeTeam',size:10,link:'https://doge.com'},
+  {lat:-15,lng:-60,owner:'예원♥',price:40,imgUrl:DEMO_LOGOS.love,label:'예원♥',size:20,link:''},
+  {lat:30,lng:20,owner:'0xDEAD..F00D',price:10,imgUrl:DEMO_LOGOS.skull,label:'0xDEAD',size:10,link:'https://etherscan.io'},
+  {lat:-35,lng:70,owner:'PepeArmy',price:250,imgUrl:DEMO_LOGOS.pepe,label:'PepeArmy',size:50,link:'https://pepe.vip'},
+  {lat:0,lng:140,owner:'CryptoKing',price:100,imgUrl:DEMO_LOGOS.skull,label:'CryptoKing',size:30,link:''},
+  {lat:50,lng:-80,owner:'MoonDAO',price:10,imgUrl:DEMO_LOGOS.doge,label:'MoonDAO',size:10,link:'https://moondao.com'},
+  {lat:-50,lng:-140,owner:'PixelGang',price:40,imgUrl:DEMO_LOGOS.love,label:'PixelGang',size:20,link:''},
+  {lat:10,lng:100,owner:'NFTWhale',price:250,imgUrl:DEMO_LOGOS.pepe,label:'NFTWhale',size:50,link:'https://nftwhale.io'},
+];
+
+// Image cache for instant recomposite
+var imgCache={};
+function cacheImage(url,cb){
+  if(imgCache[url]){cb&&cb(imgCache[url]);return}
+  var img=new Image();img.crossOrigin='anonymous';
+  img.onload=function(){imgCache[url]=img;cb&&cb(img)};
+  img.onerror=function(){cb&&cb(null)};
+  img.src=url;
+}
+
+/* ── Pixel Grid: per-pixel price/owner tracking ── */
+// Key = "lat,lng" (grid-snapped) → {owner, price, claimIdx}
+var pixelGrid={};
+
+function pxKey(lat,lng){ return (Math.round(lat*100)/100)+','+(Math.round(lng*100)/100); }
+
+// Get all pixel coords covered by a claim (center lat/lng, w cells, h cells)
+function getClaimPixels(lat,lng,w,h){
+  var pixels=[];
+  var halfW=w/2, halfH=h/2;
+  for(var dy=0;dy<h;dy++){
+    for(var dx=0;dx<w;dx++){
+      var plat=Math.round((lat+(dy-halfH+0.5)*GRID_SIZE)*100)/100;
+      var plng=Math.round((lng+(dx-halfW+0.5)*GRID_SIZE)*100)/100;
+      if(plat>=-70&&plat<=70) pixels.push({lat:plat,lng:plng});
+    }
+  }
+  return pixels;
+}
+
+// Register a claim's pixels into the grid
+function registerClaimPixels(claim,idx){
+  var cw=claim.w||claim.size||10, ch=claim.h||claim.size||10;
+  var pixels=getClaimPixels(claim.lat,claim.lng,cw,ch);
+  var pricePerPx=claim.price/(cw*ch);
+  pixels.forEach(function(p){
+    var k=pxKey(p.lat,p.lng);
+    pixelGrid[k]={owner:claim.owner,price:pricePerPx,claimIdx:idx};
+  });
+}
+
+// Calculate cost for placing stamp at position, with overlap detection
+function calcStampCost(lat,lng,w,h){
+  var pixels=getClaimPixels(lat,lng,w,h);
+  var baseCost=0, hijackCost=0, overlapCount=0, newCount=0;
+  var affectedOwners={}; // owner → {refund, bonus}
+  pixels.forEach(function(p){
+    var k=pxKey(p.lat,p.lng);
+    var existing=pixelGrid[k];
+    if(existing&&existing.owner){
+      // Overlapping pixel: 1.2× current price
+      var pxCost=existing.price*HIJACK_MULT;
+      hijackCost+=pxCost;
+      overlapCount++;
+      // Track refund to previous owner
+      if(!affectedOwners[existing.owner]) affectedOwners[existing.owner]={refund:0,bonus:0};
+      affectedOwners[existing.owner].refund+=existing.price;
+      affectedOwners[existing.owner].bonus+=(pxCost-existing.price)*0.5; // 50% premium to owner
+    }else{
+      baseCost+=PIXEL_PRICE;
+      newCount++;
+    }
+  });
+  return {
+    total:Math.round((baseCost+hijackCost)*100)/100,
+    baseCost:Math.round(baseCost*100)/100,
+    hijackCost:Math.round(hijackCost*100)/100,
+    overlapCount:overlapCount,
+    newCount:newCount,
+    totalPixels:pixels.length,
+    affectedOwners:affectedOwners
+  };
+}
+
+// Initialize pixelGrid from existing claims
+(function initPixelGrid(){
+  claims.forEach(function(c,i){registerClaimPixels(c,i)});
+})();
+
+// Pre-cache all demo images + base texture
+(function preCache(){
+  claims.forEach(function(c){if(c.imgUrl)cacheImage(c.imgUrl)});
+  cacheImage(marsBaseData,function(){compositeClaimsOnTexture()});
+})();
+
+/* ── Globe Click → Select Territory ──────────────── */
+var selectedPlot=null;
+var selectedChain='base';
+var selectedSize=1;
+// ── Rotation: manual back button only ──
+function stopRotation(){globe.controls().autoRotate=false}
+document.getElementById('globe-wrap').addEventListener('mousedown',stopRotation);
+document.getElementById('globe-wrap').addEventListener('touchstart',stopRotation);
+
+function goBack(){
+  selectedPlot=null;isZoomedIn=false;
+  document.getElementById('territoryInfo').style.display='none';
+  globe.pointOfView({lat:0,lng:0,altitude:2.5},1000);
+  globe.controls().autoRotate=true;
+  compositeClaimsOnTexture();
+}
+
+// ── Find claim at coordinates ──
+function findClaimAt(lat,lng){
+  for(var i=0;i<claims.length;i++){
+    var c=claims[i];
+    var hw=GRID_SIZE*(c.w||c.size||10)/2;
+    var hh=GRID_SIZE*(c.h||c.size||10)/2;
+    if(Math.abs(c.lat-lat)<hh&&Math.abs(c.lng-lng)<hw) return c;
+  }
+  return null;
+}
+
+// ── Stamp Mode State ──
+var stampMode=false, stampImgUrl=null, stampImgW=0, stampImgH=0;
+var stampW=20, stampH=20, stampScale=100; // w,h in pixel-cells, scale in %
+var stampPreviewLat=null, stampPreviewLng=null;
+var isZoomedIn=false, lastClickTime=0;
+
+// ── Globe Click Handler ──
+globe.onGlobeClick(function(coords){
+  stopRotation();
+  var now=Date.now();
+  var isDouble=(now-lastClickTime<400);
+  lastClickTime=now;
+
+  var lat=Math.max(-70,Math.min(70,coords.lat)), lng=coords.lng;
+  var existing=findClaimAt(lat,lng);
+
+  // Double-click: toggle zoom
+  if(isDouble){
+    if(isZoomedIn){goBack();isZoomedIn=false}
+    else{
+      if(existing){
+        var maxDim=Math.max(existing.w||existing.size||10,existing.h||existing.size||10);
+        var alt=Math.max(0.06,maxDim*GRID_SIZE/60);
+        globe.pointOfView({lat:existing.lat,lng:existing.lng,altitude:alt},800);
+        selectedPlot=existing; showTerritoryInfo(existing);
+      }else{
+        globe.pointOfView({lat:lat,lng:lng,altitude:0.15},800);
+      }
+      isZoomedIn=true;
+    }
+    return;
+  }
+
+  // Stamp mode: place image on click
+  if(stampMode&&stampImgUrl){
+    lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
+    lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
+    selectedPlot={lat:lat,lng:lng,owner:null,price:0,label:'UNCLAIMED',w:stampW,h:stampH};
+    uploadedUrl=stampImgUrl;
+    openClaimModal();
+    return;
+  }
+
+  // Normal click on existing claim
+  if(existing){
+    selectedPlot=existing;
+    showTerritoryInfo(existing);
+    compositeClaimsOnTexture();
+  }else{
+    selectedPlot=null;
+    document.getElementById('territoryInfo').style.display='none';
+    compositeClaimsOnTexture();
+  }
+});
+
+// ── Stamp Mode: image-first workflow ──
+document.getElementById('stampFileInput').addEventListener('change',function(e){
+  var file=e.target.files[0]; if(!file) return;
+  var url=URL.createObjectURL(file);
+  activateStamp(url);
+});
+function loadStampUrl(){
+  var v=document.getElementById('stampUrlInput').value.trim(); if(!v) return;
+  activateStamp(v);
+}
+function activateStamp(url){
+  var img=new Image();
+  img.onload=function(){
+    stampImgUrl=url; stampImgW=img.width; stampImgH=img.height;
+    stampMode=true;
+    cacheImage(url);
+    // Default 100% = original image pixel dimensions as cell count
+    stampScale=100;
+    stampW=stampImgW; stampH=stampImgH;
+    // Min scale: at least 8 texture pixels on longest side
+    var pxPerDeg=marsCanvas.width/360;
+    var texPxPerCell=GRID_SIZE*pxPerDeg;
+    var minCells=Math.ceil(8/texPxPerCell);
+    var maxDim=Math.max(stampImgW,stampImgH);
+    var minPct=Math.max(1,Math.ceil(minCells/maxDim*100));
+    // Update UI
+    document.getElementById('stampThumb').src=url;
+    document.getElementById('stampImgInfo').textContent=img.width+'×'+img.height+'px';
+    document.getElementById('stampMinLabel').textContent='Min '+minPct+'% ('+Math.ceil(stampImgW*minPct/100)+'×'+Math.ceil(stampImgH*minPct/100)+')';
+    var slider=document.getElementById('stampSizeSlider');
+    slider.min=minPct; slider.max=300; slider.value=100;
+    updateStampScale(100);
+    document.getElementById('stampPreview').style.display='';
+    showToast('IMAGE READY — CLICK MARS TO STAMP!');
+  };
+  img.onerror=function(){showToast('IMAGE LOAD FAILED')};
+  img.src=url;
+}
+function updateStampScale(pct){
+  stampScale=pct;
+  stampW=Math.max(1,Math.round(stampImgW*pct/100));
+  stampH=Math.max(1,Math.round(stampImgH*pct/100));
+  updateStampCostDisplay();
+  if(stampPreviewLat!==null) compositeClaimsOnTexture(true);
+}
+function updateStampCostDisplay(){
+  var pixels=stampW*stampH;
+  document.getElementById('stampSizeLabel').textContent=stampW+'×'+stampH+' px ('+stampScale+'%)';
+  if(stampPreviewLat!==null){
+    var cost=calcStampCost(stampPreviewLat,stampPreviewLng,stampW,stampH);
+    var label='$'+cost.total.toLocaleString();
+    if(cost.overlapCount>0) label+=' ('+cost.overlapCount+' overlap)';
+    document.getElementById('stampCostLabel').textContent=label;
+  }else{
+    var baseCost=Math.round(pixels*PIXEL_PRICE*100)/100;
+    document.getElementById('stampCostLabel').textContent='~$'+baseCost.toLocaleString()+' USDT';
+  }
+}
+function setStampPct(pct){
+  document.getElementById('stampSizeSlider').value=pct;
+  updateStampScale(pct);
+}
+function cancelStamp(){
+  stampMode=false; stampImgUrl=null;
+  stampPreviewLat=null; stampPreviewLng=null;
+  document.getElementById('stampPreview').style.display='none';
+  document.getElementById('stampFileInput').value='';
+  document.getElementById('stampUrlInput').value='';
+  document.getElementById('stampLinkInput').value='';
+  compositeClaimsOnTexture();
+}
+
+// ── Territory Info (for existing claims) ──
+function showTerritoryInfo(plot){
+  if(!plot||!plot.owner) return;
+  var info=document.getElementById('territoryInfo');
+  info.style.display='';
+  document.getElementById('infoCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
+  document.getElementById('infoOwner').textContent=plot.owner;
+  var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
+  document.getElementById('infoSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
+  document.getElementById('infoPrice').textContent='$'+plot.price+' USDT';
+  document.getElementById('infoHijack').textContent='$'+Math.round(plot.price*HIJACK_MULT*100)/100+' USDT (1.2×)';
+  if(plot.link){
+    document.getElementById('linkRow').style.display='';
+    var linkEl=document.getElementById('infoLink');
+    linkEl.href=plot.link;
+    linkEl.textContent=plot.link.replace(/^https?:\/\//,'').substring(0,30);
+  }else{
+    document.getElementById('linkRow').style.display='none';
+  }
+}
+
+/* ── Claim Modal ─────────────────────────────────── */
+var selectedChain='base', uploadedUrl=null, selectedSize=20;
+
+var lastStampCost=null; // cached cost breakdown for confirm
+function openClaimModal(){
+  if(!selectedPlot) return;
+  var m=document.getElementById('claimModal');
+  m.classList.add('open');
+  document.getElementById('modalCoords').textContent=selectedPlot.lat.toFixed(1)+'°, '+selectedPlot.lng.toFixed(1)+'°';
+  var hw=document.getElementById('hijackWarn'),tl=document.getElementById('modalTitle');
+
+  var cw=selectedPlot.w||stampW, ch=selectedPlot.h||stampH;
+  var costInfo=calcStampCost(selectedPlot.lat,selectedPlot.lng,cw,ch);
+  lastStampCost=costInfo;
+
+  if(costInfo.overlapCount>0){
+    hw.style.display='';
+    tl.textContent='CLAIM + HIJACK';tl.className='mtl wrn';
+    // Build affected owners list
+    var ownerList=[];
+    for(var o in costInfo.affectedOwners){
+      var a=costInfo.affectedOwners[o];
+      ownerList.push(o+': refund $'+a.refund.toFixed(2)+' + bonus $'+a.bonus.toFixed(2));
+    }
+    document.getElementById('hijackOwner').textContent=ownerList.join(', ');
+    document.getElementById('hijackCost').textContent='$'+costInfo.hijackCost.toFixed(2)+' ('+costInfo.overlapCount+'px overlap)';
+    document.getElementById('modalCostDisplay').textContent='$'+costInfo.total.toFixed(2)+' (new '+costInfo.newCount+'px + hijack '+costInfo.overlapCount+'px)';
+  }else{
+    hw.style.display='none';
+    tl.textContent='CLAIM TERRITORY';tl.className='mtl';
+    document.getElementById('modalCostDisplay').textContent='$'+costInfo.total.toFixed(2)+' ('+cw+'×'+ch+' = '+costInfo.totalPixels.toLocaleString()+'px)';
+  }
+  // Pre-fill image if in stamp mode
+  if(stampImgUrl){
+    uploadedUrl=stampImgUrl;
+    document.getElementById('uploadThumb').src=stampImgUrl;
+    document.getElementById('uploadPreviewWrap').style.display='';
+  }
+}
+function closeClaimModal(){document.getElementById('claimModal').classList.remove('open')}
+
+function confirmClaim(){
+  if(!selectedPlot) return;
+  var cw=selectedPlot.w||stampW, ch=selectedPlot.h||stampH;
+  var costInfo=lastStampCost||calcStampCost(selectedPlot.lat,selectedPlot.lng,cw,ch);
+  var price=costInfo.total;
+  var hasOverlap=costInfo.overlapCount>0;
+
+  var linkVal=(document.getElementById('stampLinkInput').value||document.getElementById('linkUrlInput').value||'').trim();
+  var nc={lat:selectedPlot.lat,lng:selectedPlot.lng,owner:'0xYOUR...WALLET',price:price,
+    label:'YOU',w:cw,h:ch,link:linkVal||''};
+  if(uploadedUrl){nc.imgUrl=uploadedUrl;cacheImage(uploadedUrl)}
+  claims.push(nc);
+
+  // Register pixels in grid with updated prices (overlapping pixels get 1.2× price)
+  var pixels=getClaimPixels(selectedPlot.lat,selectedPlot.lng,cw,ch);
+  var claimIdx=claims.length-1;
+  pixels.forEach(function(p){
+    var k=pxKey(p.lat,p.lng);
+    var existing=pixelGrid[k];
+    var newPrice=existing&&existing.owner? existing.price*HIJACK_MULT : PIXEL_PRICE;
+    pixelGrid[k]={owner:'0xYOUR...WALLET',price:newPrice,claimIdx:claimIdx};
+  });
+
+  // Reset stamp mode
+  stampMode=false; stampImgUrl=null;
+  stampPreviewLat=null; stampPreviewLng=null;
+  lastStampCost=null;
+  document.getElementById('stampPreview').style.display='none';
+  compositeClaimsOnTexture();
+  totalClaimed++;totalVolume+=price;
+  document.getElementById('statPlots').textContent=totalClaimed;
+  document.getElementById('statTVL').textContent='$'+totalVolume.toLocaleString();
+  addFeed(hasOverlap
+    ?'💀 YOU claimed+hijacked ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°] ('+costInfo.overlapCount+'px overlap)!'
+    :'⚡ YOU claimed ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°]!');
+  closeClaimModal();
+  showToast(hasOverlap?'HIJACKED '+costInfo.overlapCount+'px! $'+price:'CLAIMED! $'+price);
+  selectedPlot=null;uploadedUrl=null;
+  document.getElementById('territoryInfo').style.display='none';
+  refreshMyImages();
+}
+
+/* ── Old Image Upload (modal) ────────────────────── */
+document.getElementById('imgFileInput').addEventListener('change',function(e){
+  var file=e.target.files[0];if(!file)return;
+  uploadedUrl=URL.createObjectURL(file);
+  document.getElementById('uploadThumb').src=uploadedUrl;
+  document.getElementById('uploadPreviewWrap').style.display='';
+});
+function loadFromUrl(){
+  var v=document.getElementById('imgUrlInput').value.trim();if(!v)return;
+  uploadedUrl=v;
+  document.getElementById('uploadThumb').src=v;
+  document.getElementById('uploadPreviewWrap').style.display='';
+}
+function clearUpload(){
+  uploadedUrl=null;
+  document.getElementById('uploadThumb').src='';
+  document.getElementById('uploadPreviewWrap').style.display='none';
+  document.getElementById('imgFileInput').value='';
+  document.getElementById('imgUrlInput').value='';
+}
+
+/* ── UI Helpers ──────────────────────────────────── */
+function selectChain(ch){
+  selectedChain=ch;
+  document.getElementById('chainBase').classList.toggle('sel',ch==='base');
+  document.getElementById('chainBnb').classList.toggle('sel',ch==='bnb');
+  document.getElementById('chainEth').classList.toggle('sel',ch==='eth');
+}
+function connectWallet(){
+  document.getElementById('walletBtn').textContent='0x1A2...3F4 (5,000 USDT)';
+  document.getElementById('walletBtn').style.color='var(--gn)';
+  showToast('WALLET CONNECTED');
+}
+function zoomIn(){globe.pointOfView({altitude:Math.max(.08,globe.pointOfView().altitude*.7)},300);isZoomedIn=true}
+function zoomOut(){
+  var newAlt=Math.min(4,globe.pointOfView().altitude*1.4);
+  globe.pointOfView({altitude:newAlt},300);
+  if(newAlt>2)isZoomedIn=false;
+}
+function showToast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3500)}
+function addFeed(text){
+  var f=document.getElementById('liveFeed');
+  var d=document.createElement('div');d.className='feed-item new';d.textContent=text;
+  f.insertBefore(d,f.firstChild);
+  if(f.children.length>15)f.removeChild(f.lastChild);
+}
+function toggleLeft(){document.getElementById('panelL').classList.toggle('open')}
+function toggleRight(){document.getElementById('panelR').classList.toggle('open')}
+var feedExpanded=false;
+function toggleFeed(){
+  feedExpanded=!feedExpanded;
+  document.getElementById('liveFeed').style.maxHeight=feedExpanded?'160px':'52px';
+  document.getElementById('feedToggle').textContent=feedExpanded?'▲':'▼';
+}
+
+/* ── Globe Hover → Stamp Preview (cursor follow via mousemove + toGlobeCoords) ── */
+var _hoverDirty=false;
+document.getElementById('globe-wrap').addEventListener('mousemove',function(e){
+  if(!stampMode||!stampImgUrl) return;
+  var coords=globe.toGlobeCoords(e.offsetX, e.offsetY);
+  if(!coords){
+    if(stampPreviewLat!==null){stampPreviewLat=null;stampPreviewLng=null;compositeClaimsOnTexture(true)}
+    return;
+  }
+  var lat=Math.round(Math.max(-70,Math.min(70,coords.lat))/GRID_SIZE)*GRID_SIZE;
+  var lng=Math.round(coords.lng/GRID_SIZE)*GRID_SIZE;
+  if(lat!==stampPreviewLat||lng!==stampPreviewLng){
+    stampPreviewLat=lat; stampPreviewLng=lng;
+    if(!_hoverDirty){
+      _hoverDirty=true;
+      requestAnimationFrame(function(){
+        _hoverDirty=false;
+        compositeClaimsOnTexture(true);
+        updateStampCostDisplay(); // live cost with overlap detection
+      });
+    }
+  }
+});
+document.getElementById('globe-wrap').addEventListener('mouseleave',function(){
+  if(stampMode&&stampPreviewLat!==null){
+    stampPreviewLat=null;stampPreviewLng=null;compositeClaimsOnTexture(true);
+  }
+});
+
+/* ── Owner Search ───────────────────────────────── */
+function searchOwner(){
+  var q=document.getElementById('ownerSearchInput').value.trim().toLowerCase();
+  var box=document.getElementById('searchResults');
+  box.innerHTML='';
+  if(!q){box.innerHTML='<div style="font-size:7px;color:var(--tx3)">Enter owner name or address</div>';return}
+  var matches=claims.filter(function(c){return c.owner.toLowerCase().indexOf(q)>=0||c.label.toLowerCase().indexOf(q)>=0});
+  if(!matches.length){box.innerHTML='<div style="font-size:7px;color:var(--red)">No results</div>';return}
+  matches.forEach(function(c){
+    var d=document.createElement('div');
+    d.className='search-result-item';
+    var cw=c.w||c.size||10, ch=c.h||c.size||10;
+    d.innerHTML='<span style="color:var(--gold);font-size:7px">'+c.owner+'</span><br><span style="font-size:6px;color:var(--tx3)">['+c.lat.toFixed(1)+'°,'+c.lng.toFixed(1)+'°] '+cw+'×'+ch+'px $'+c.price+'</span>';
+    d.onclick=function(){
+      globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.08,Math.max(cw,ch)*GRID_SIZE/50)},800);
+      isZoomedIn=true; selectedPlot=c; showTerritoryInfo(c); compositeClaimsOnTexture();
+    };
+    box.appendChild(d);
+  });
+}
+
+/* ── My Images list ─────────────────────────────── */
+function refreshMyImages(){
+  var box=document.getElementById('myImagesList');
+  box.innerHTML='';
+  var mine=claims.filter(function(c){return c.owner==='0xYOUR...WALLET'||c.label==='YOU'});
+  if(!mine.length){box.innerHTML='<div style="font-size:7px;color:var(--tx3)">No images yet</div>';return}
+  // Newest first (reverse order)
+  for(var i=mine.length-1;i>=0;i--){
+    var c=mine[i];
+    var d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer';
+    var cw=c.w||c.size||10, ch=c.h||c.size||10;
+    if(c.imgUrl){
+      var thumb=document.createElement('img');thumb.src=c.imgUrl;
+      thumb.style.cssText='width:20px;height:20px;object-fit:cover;border-radius:2px;border:1px solid var(--bdr);flex-shrink:0';
+      d.appendChild(thumb);
+    }
+    var info=document.createElement('span');
+    info.style.cssText='font-size:6px;color:var(--tx2);line-height:1.4';
+    info.innerHTML=c.lat.toFixed(1)+'°,'+c.lng.toFixed(1)+'° <span style="color:var(--gn)">$'+c.price+'</span>';
+    d.appendChild(info);
+    (function(cc,ccw,cch){d.onclick=function(){
+      globe.pointOfView({lat:cc.lat,lng:cc.lng,altitude:Math.max(0.08,Math.max(ccw,cch)*GRID_SIZE/50)},800);
+      isZoomedIn=true; selectedPlot=cc; showTerritoryInfo(cc); compositeClaimsOnTexture();
+    }})(c,cw,ch);
+    box.appendChild(d);
+  }
+  document.getElementById('myPlots').textContent=mine.length;
+  var totalVal=mine.reduce(function(s,c){return s+c.price},0);
+  document.getElementById('myValue').textContent='$'+totalVal;
+}
+
+/* ── Demo Stats ──────────────────────────────────── */
+var totalClaimed=8,totalVolume=845;
+setInterval(function(){
+  document.getElementById('statHijacks').textContent=20+Math.floor(Math.random()*30);
+},5000);
+</script>
+</body>
+</html>

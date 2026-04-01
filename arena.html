@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PIXEL WAR — Monster Arena</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080C16;--panel:rgba(8,14,26,0.92);--panel2:rgba(14,20,34,0.94);
+  --bdr:rgba(50,70,110,0.22);--bdr2:rgba(91,184,232,0.18);
+  --tx:#C8D0E0;--tx2:#5A6888;--tx3:#3A4868;
+  --cy:#5BB8E8;--gn:#4CD89A;--gd:#F0C840;--og:#E8863C;--rd:#E85454;--pp:#A080E0;
+  --fn:'Press Start 2P',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-family:var(--fn)}
+
+/* Full screen canvas */
+#arenaCanvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;z-index:1}
+.vig{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.5) 100%)}
+
+/* Top Nav */
+.tn{position:fixed;top:8px;left:10px;z-index:100;display:flex;align-items:center;gap:5px}
+.tn-brand{font-size:9px;color:var(--gd);letter-spacing:2px;text-shadow:0 0 20px rgba(240,200,64,0.5);
+  padding:7px 14px;background:var(--panel);backdrop-filter:blur(12px);
+  border:1px solid rgba(240,200,64,0.12);border-radius:8px}
+.tn-btn{padding:7px 14px;font-size:7px;color:var(--tx2);font-family:var(--fn);
+  background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--bdr);border-radius:6px;
+  cursor:pointer;transition:all .2s}
+.tn-btn:hover{color:var(--tx);border-color:var(--bdr2)}
+.tn-btn.on{color:var(--cy);border-color:rgba(91,184,232,0.3);background:rgba(91,184,232,0.1)}
+
+/* Top Right */
+.tr{position:fixed;top:8px;right:10px;z-index:100;display:flex;align-items:center;gap:5px}
+.tr-btn{padding:7px 14px;font-size:7px;font-family:var(--fn);background:var(--panel);backdrop-filter:blur(12px);
+  border:1px solid var(--bdr);border-radius:6px;cursor:pointer;transition:all .2s;color:var(--cy)}
+.tr-btn:hover{background:rgba(91,184,232,0.1)}
+
+/* Race Status (top center) */
+.rs{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:100;
+  display:flex;align-items:center;gap:14px;padding:7px 20px;
+  background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--bdr);border-radius:8px}
+.rs-lbl{font-size:7px;color:var(--tx3)}.rs-val{font-size:9px;color:var(--gd)}
+
+/* Floating panels */
+.fp{position:fixed;z-index:90;background:var(--panel2);backdrop-filter:blur(16px);
+  border:1px solid var(--bdr);border-radius:10px;overflow-y:auto;overflow-x:hidden;
+  transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.fp::-webkit-scrollbar{width:3px}.fp::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+
+/* Left panel (monsters) */
+.fp-left{top:44px;left:8px;bottom:90px;width:240px;padding:10px;transform:translateX(-110%)}
+.fp-left.open{transform:translateX(0)}
+
+/* Right panel (betting) */
+.fp-right{top:44px;right:8px;bottom:90px;width:240px;padding:10px;transform:translateX(110%)}
+.fp-right.open{transform:translateX(0)}
+
+/* Toggle buttons */
+.fp-toggle{position:fixed;z-index:91;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  background:var(--panel);backdrop-filter:blur(8px);border:1px solid var(--bdr);border-radius:6px;
+  color:var(--tx2);font-size:12px;cursor:pointer;transition:all .15s;font-family:monospace}
+.fp-toggle:hover{color:var(--tx);border-color:var(--bdr2)}
+.fp-toggle.on{color:var(--gd);border-color:rgba(240,200,64,0.25)}
+.tgl-l{top:50%;left:8px;transform:translateY(-50%)}
+.tgl-r{top:50%;right:8px;transform:translateY(-50%)}
+
+/* Panel content */
+.ph{font-size:7px;color:var(--tx3);letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--bdr)}
+.ps{margin-bottom:10px}
+
+/* Status badge */
+.sb{display:flex;align-items:center;gap:6px;padding:6px 8px;
+  background:rgba(232,134,60,.08);border:1px solid rgba(232,134,60,.2);border-radius:6px;margin-bottom:6px}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--og);
+  box-shadow:0 0 5px var(--og);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.sb-lbl{font-size:7px;color:var(--og)}
+
+/* Stats */
+.sr{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.02)}
+.sr:last-child{border:none}.sl{font-size:7px;color:var(--tx3)}.sv{font-size:7px;color:var(--cy)}
+.sv.gn{color:var(--gn)}.sv.og{color:var(--og)}
+
+/* Monster cards */
+.mc{padding:8px;margin-bottom:4px;background:rgba(255,255,255,.02);border:1px solid var(--bdr);
+  border-radius:6px;cursor:pointer;transition:all .15s}
+.mc:hover{border-color:rgba(91,184,232,.3);background:rgba(91,184,232,.04)}
+.mc.sel{border-color:var(--gd);background:rgba(240,200,64,.06)}
+.mc-hd{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.mc-ln{font-size:7px;color:var(--tx3);width:14px}
+.mc-sp{width:28px;height:28px;image-rendering:pixelated;border-radius:4px;border:1px solid var(--bdr)}
+.mc-nm{font-size:7px;flex:1}.mc-od{font-size:9px;color:var(--gd);font-weight:bold}
+.mc-st{display:flex;gap:3px;margin-top:4px}
+.mc-s{flex:1;text-align:center;padding:3px;background:rgba(0,0,0,.2);border-radius:3px}
+.mc-sl{font-size:6px;color:var(--tx3);display:block}.mc-sv{font-size:7px;color:var(--cy);display:block;margin-top:1px}
+.mc-wr{font-size:6px;color:var(--gn);margin-top:3px;text-align:right}
+
+/* Bet form */
+.bf-lbl{font-size:7px;color:var(--tx3);margin-bottom:3px}
+.bf-sel{font-size:8px;color:var(--gd);margin-bottom:6px;min-height:16px}
+.bf-inp{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--bdr);padding:8px;color:var(--tx);
+  font-size:10px;font-family:var(--fn);outline:none;border-radius:5px;min-height:40px;margin-bottom:5px}
+.bf-inp:focus{border-color:var(--cy)}
+.bf-cr{display:flex;gap:4px;margin-bottom:5px}
+.bf-c{flex:1;padding:7px 4px;font-size:7px;font-family:var(--fn);border:1px solid var(--bdr);
+  background:rgba(255,255,255,.02);border-radius:5px;color:var(--tx2);cursor:pointer;text-align:center;min-height:36px}
+.bf-c.sel{border-color:var(--cy);color:var(--cy);background:rgba(91,184,232,.06)}
+.bf-po{font-size:7px;color:var(--tx2);margin-bottom:3px}.bf-po span{color:var(--gn)}
+.bf-fe{font-size:7px;color:var(--tx3);margin-bottom:6px}
+.bf-btn{width:100%;padding:10px;font-size:8px;font-family:var(--fn);border:1px solid;cursor:pointer;
+  border-radius:8px;min-height:44px;transition:all .15s}
+.bf-btn.place{background:rgba(91,184,232,.08);border-color:rgba(91,184,232,.25);color:var(--cy)}
+.bf-btn.place:hover{background:rgba(91,184,232,.15);border-color:rgba(91,184,232,.45)}
+.bf-btn.confirm{background:rgba(76,216,154,.08);border-color:rgba(76,216,154,.25);color:var(--gn);display:none}
+.bf-btn.confirm:hover{background:rgba(76,216,154,.15);border-color:rgba(76,216,154,.45)}
+
+/* Event log */
+.el{max-height:120px;overflow-y:auto}
+.ei{padding:3px 0;border-bottom:1px solid var(--bdr);font-size:6px}
+.ei:last-child{border:none}.e-ic{margin-right:3px}.e-msg{color:var(--tx2)}.e-tm{color:var(--tx3);float:right}
+
+/* Progress overlay */
+.prog{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:100;
+  width:min(600px,90vw);padding:10px 14px;
+  background:var(--panel);backdrop-filter:blur(16px);border:1px solid var(--bdr);border-radius:10px}
+.pr{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.pr:last-child{margin:0}
+.pr-nm{font-size:6px;width:56px;text-align:right;overflow:hidden}
+.pr-bw{flex:1;height:8px;background:rgba(0,0,0,.3);border-radius:4px;position:relative;overflow:hidden}
+.pr-bf{height:100%;border-radius:4px;transition:width .3s}
+.pr-pc{font-size:6px;width:28px;text-align:right;color:var(--tx2)}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:10px 24px;
+  background:var(--panel2);backdrop-filter:blur(12px);border:1px solid rgba(76,216,154,.28);
+  border-radius:8px;font-size:8px;color:var(--gn);opacity:0;transition:opacity .3s;
+  z-index:600;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.toast.show{opacity:1}
+
+@media(max-width:600px){
+  .fp-left,.fp-right{width:220px}
+  .rs{font-size:6px;padding:5px 12px;gap:8px}
+  .prog{width:95vw}
+}
+</style>
+</head>
+<body>
+
+<canvas id="arenaCanvas"></canvas>
+<div class="vig"></div>
+
+<!-- Top Nav -->
+<div class="tn">
+  <div class="tn-brand">PIXEL WAR</div>
+  <button class="tn-btn" onclick="location.href='index.html'">MAP</button>
+  <button class="tn-btn on">ARENA</button>
+</div>
+
+<!-- Top Right -->
+<div class="tr">
+  <button class="tr-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
+</div>
+
+<!-- Race Status -->
+<div class="rs">
+  <span class="rs-lbl">PROGRESS</span>
+  <span class="rs-val" id="raceProgress">0%</span>
+  <span class="rs-lbl">LEADER</span>
+  <span class="rs-val" id="raceLeader">--</span>
+</div>
+
+<!-- Panel Toggles -->
+<button class="fp-toggle tgl-l" id="tglL" onclick="toggleLeft()">◀</button>
+<button class="fp-toggle tgl-r" id="tglR" onclick="toggleRight()">▶</button>
+
+<!-- Left: Monsters -->
+<div class="fp fp-left" id="fpLeft">
+  <div class="ps">
+    <div class="sb">
+      <div class="sb-dot"></div>
+      <div class="sb-lbl" id="raceStatusLabel">RACE IN PROGRESS</div>
+    </div>
+    <div class="sr"><span class="sl">Race #</span><span class="sv og" id="raceNum">4,812</span></div>
+    <div class="sr"><span class="sl">Track</span><span class="sv">Diagonal Sprint</span></div>
+    <div class="sr"><span class="sl">Distance</span><span class="sv">800m</span></div>
+    <div class="sr"><span class="sl">Pool</span><span class="sv gn" id="poolTotal">4,280 USDT</span></div>
+  </div>
+  <div class="ps">
+    <div class="ph">ENTRANTS</div>
+    <div id="monsterCards"></div>
+  </div>
+  <div class="ps">
+    <div class="ph">RACE EVENTS</div>
+    <div class="el" id="evtLog"></div>
+  </div>
+</div>
+
+<!-- Right: Betting -->
+<div class="fp fp-right" id="fpRight">
+  <div class="ps">
+    <div class="ph">PLACE YOUR BET</div>
+    <div class="bf-lbl">SELECTED MONSTER</div>
+    <div class="bf-sel" id="betSelName">-- Tap a monster --</div>
+    <div class="bf-lbl">BET AMOUNT</div>
+    <input type="number" class="bf-inp" id="betAmt" value="10" min="1" oninput="updatePayout()">
+    <div class="bf-cr">
+      <button class="bf-c sel" id="curUSDT" onclick="setCur('usdt')">USDT</button>
+      <button class="bf-c" id="curPP" onclick="setCur('pp')">PP</button>
+    </div>
+    <div class="bf-po">Est. Payout: <span id="payoutVal">--</span></div>
+    <div class="bf-fe">Platform fee: 5%</div>
+    <button class="bf-btn place" id="placeBtn" onclick="placeBet()">PLACE BET</button>
+    <button class="bf-btn confirm" id="confirmBtn" onclick="confirmBet()">CONFIRM BET</button>
+  </div>
+</div>
+
+<!-- Progress -->
+<div class="prog" id="progPanel"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   MONSTER RACING ARENA v4.0 — Premium
+   ═══════════════════════════════════════════════════ */
+
+const ACV=document.getElementById('arenaCanvas');
+const AX=ACV.getContext('2d');
+
+function resizeA(){ACV.width=window.innerWidth;ACV.height=window.innerHeight}
+resizeA();window.addEventListener('resize',resizeA);
+
+/* ── Monsters ─────────────────────────────────────── */
+const MONSTERS=[
+  {id:0,name:'Kraken',color:'#2090D0',spd:1.00,str:8,agi:6,end:7,luck:5,winRate:22},
+  {id:1,name:'Godzilla',color:'#40C060',spd:0.95,str:9,agi:5,end:8,luck:4,winRate:25},
+  {id:2,name:'Magma',color:'#E05020',spd:1.05,str:6,agi:8,end:5,luck:7,winRate:20},
+  {id:3,name:'Arachno',color:'#A060E0',spd:0.98,str:5,agi:9,end:4,luck:8,winRate:15},
+  {id:4,name:'Ghidorah',color:'#D0A020',spd:1.02,str:7,agi:7,end:6,luck:6,winRate:18},
+];
+
+/* ── Procedural Sprites (32×32) ───────────────────── */
+const SC={};
+
+function mkSprite(m){
+  const s=32,c=document.createElement('canvas');c.width=c.height=s;const x=c.getContext('2d');
+  const base=m.color;
+  // Parse color
+  const hex=s=>{const n=parseInt(s.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255]};
+  const [br,bg,bb]=hex(base);
+  function shade(t){
+    const f=Math.max(0,Math.min(1,t));
+    return`rgb(${Math.floor(br*f)},${Math.floor(bg*f)},${Math.floor(bb*f)})`;
+  }
+  const bright=`rgb(${Math.min(255,br+80)},${Math.min(255,bg+80)},${Math.min(255,bb+80)})`;
+  const dark=shade(.4);
+
+  // Body shape based on monster type
+  if(m.id===0){ // Kraken - tentacled
+    for(let py=3;py<15;py++){const t=(py-3)/11,w=Math.floor(Math.sin(t*Math.PI)*10)+1;
+      for(let px=16-w;px<=16+w;px++){if(px<0||px>=s)continue;x.fillStyle=shade(1.1-Math.abs(px-16)/(w||1)*.4);x.fillRect(px,py,1,1)}}
+    x.fillStyle=bright;for(let py=5;py<10;py++){const w=Math.floor(Math.sin((py-3)/11*Math.PI)*4);for(let px=14-w;px<=14+w;px++)if(px>=0&&px<s)x.fillRect(px,py,1,1)}
+    x.fillStyle='#E0F4FF';x.fillRect(10,8,4,3);x.fillRect(18,8,4,3);
+    x.fillStyle='#0A2040';x.fillRect(12,9,2,2);x.fillRect(20,9,2,2);
+    [2,6,10,14,18,22,28].forEach((tx,i)=>{let cx=tx,cy=15;for(let sg=0;sg<15;sg++){cx+=Math.sin(sg*.4+i*1.1)*1.7;cy++;if(cy>=s)break;x.fillStyle=shade(.8-sg/18);x.fillRect(Math.round(cx),cy,2,1)}});
+  }
+  else if(m.id===1){ // Godzilla - big bipedal
+    for(let py=0;py<8;py++){const w=py<2?2+py:py<5?5:5-(py-5);for(let px=14-w;px<=14+w;px++){if(px<0||px>=s)continue;x.fillStyle=shade(1-Math.abs(px-14)/(w||1)*.3);x.fillRect(px,py,1,1)}}
+    x.fillStyle='#FFE040';x.fillRect(10,3,3,2);x.fillRect(17,3,3,2);x.fillStyle='#301000';x.fillRect(11,3,1,2);x.fillRect(18,3,1,2);
+    x.fillStyle='#FF4020';x.fillRect(12,7,5,1);
+    for(let py=8;py<22;py++){const t=(py-8)/14,w=Math.floor(4+Math.sin(t*Math.PI)*3);for(let px=14-w;px<=14+w;px++){if(px<0||px>=s)continue;x.fillStyle=shade(.85-Math.abs(px-14)/(w||1)*.3-t*.1);x.fillRect(px,py,1,1)}}
+    x.fillStyle='#FFD020';[3,6,9,12,15,18].forEach(py=>{x.fillRect(20,py,2,1);x.fillRect(21,py-1,1,1)});
+    for(let i=0;i<9;i++){x.fillStyle=shade(.5-i*.04);x.fillRect(20+i,18+Math.floor(i*.6),2,2)}
+    x.fillStyle=shade(.35);x.fillRect(10,22,3,5);x.fillRect(16,22,3,5);x.fillRect(9,27,4,2);x.fillRect(15,27,4,2);
+  }
+  else if(m.id===2){ // Magma - serpentine
+    const segs=[];for(let i=0;i<22;i++){const t=i/21;segs.push({x:3+t*26,y:16+Math.sin(t*Math.PI*2.5)*7,r:4.5-t*2})}
+    segs.forEach((sg,i)=>{const t=i/segs.length;for(let dy=-Math.ceil(sg.r);dy<=Math.ceil(sg.r);dy++)for(let dx=-Math.ceil(sg.r);dx<=Math.ceil(sg.r);dx++){if(dx*dx+dy*dy>sg.r*sg.r)continue;const px=Math.round(sg.x+dx),py=Math.round(sg.y+dy);if(px<0||px>=s||py<0||py>=s)continue;x.fillStyle=shade(1.1-Math.sqrt(dx*dx+dy*dy)/sg.r*.4-t*.2);x.fillRect(px,py,1,1)}});
+    x.fillStyle='#FFE060';x.fillRect(2,13,3,2);x.fillRect(6,13,3,2);x.fillStyle='#200800';x.fillRect(3,14,2,1);x.fillRect(7,14,2,1);
+    x.fillStyle='#FFD060';for(let i=2;i<20;i+=3){const sg=segs[i];x.fillRect(Math.round(sg.x),Math.round(sg.y),1,1)}
+  }
+  else if(m.id===3){ // Arachno - spider
+    for(let py=4;py<14;py++){const t=(py-4)/10,w=Math.floor(Math.sin(t*Math.PI)*8)+1;for(let px=16-w;px<=16+w;px++){if(px<0||px>=s)continue;x.fillStyle=shade(1-Math.abs(px-16)/(w||1)*.35);x.fillRect(px,py,1,1)}}
+    x.fillStyle='#E0E0FF';x.fillRect(12,7,3,2);x.fillRect(17,7,3,2);x.fillStyle='#1A0030';x.fillRect(13,8,2,1);x.fillRect(18,8,2,1);
+    // 8 legs
+    const legs=[[3,10,-3,6],[6,12,-4,5],[8,13,-2,4],[10,14,-1,3],[20,14,1,3],[22,13,2,4],[24,12,4,5],[27,10,3,6]];
+    legs.forEach(([lx,ly,dx,dy])=>{for(let i=0;i<5;i++){x.fillStyle=shade(.7-i*.08);x.fillRect(lx+dx*i/4,ly+dy*i/4,2,1)}});
+    // Abdomen
+    for(let py=14;py<24;py++){const t=(py-14)/10,w=Math.floor(Math.sin(t*Math.PI)*6)+1;for(let px=16-w;px<=16+w;px++){if(px<0||px>=s)continue;x.fillStyle=shade(.85-Math.abs(px-16)/(w||1)*.3);x.fillRect(px,py,1,1)}}
+    // Markings
+    x.fillStyle=bright;x.fillRect(14,16,4,1);x.fillRect(13,18,6,1);x.fillRect(14,20,4,1);
+  }
+  else{ // Ghidorah - 3 heads dragon
+    // Center body
+    for(let py=10;py<24;py++){const t=(py-10)/14,w=Math.floor(3+Math.sin(t*Math.PI)*3);for(let px=16-w;px<=16+w;px++){if(px<0||px>=s)continue;x.fillStyle=shade(.9-Math.abs(px-16)/(w||1)*.3);x.fillRect(px,py,1,1)}}
+    // 3 necks + heads
+    const heads=[[8,3],[16,1],[24,3]];
+    heads.forEach(([hx,hy])=>{
+      for(let py=hy+4;py<12;py++){x.fillStyle=shade(.8);x.fillRect(hx-1,py,3,1)}
+      for(let py=hy;py<hy+4;py++){const w=py<hy+1?2:3;for(let px=hx-w;px<=hx+w;px++){if(px<0||px>=s)continue;x.fillStyle=shade(1-Math.abs(px-hx)/(w||1)*.3);x.fillRect(px,py,1,1)}}
+      x.fillStyle='#FFE040';x.fillRect(hx-2,hy+1,2,1);x.fillRect(hx+1,hy+1,2,1);
+      x.fillStyle='#200800';x.fillRect(hx-1,hy+1,1,1);x.fillRect(hx+1,hy+1,1,1);
+    });
+    // Wings
+    x.fillStyle=shade(.6);
+    for(let i=0;i<6;i++){x.fillRect(4-i,12+i,3,1);x.fillRect(25+i,12+i,3,1)}
+    // Tail
+    for(let i=0;i<6;i++){x.fillStyle=shade(.5-i*.05);x.fillRect(15,24+i,3,1)}
+    // Legs
+    x.fillStyle=shade(.4);x.fillRect(12,23,3,4);x.fillRect(18,23,3,4);
+  }
+  SC[m.id]=c;
+}
+MONSTERS.forEach(m=>mkSprite(m));
+
+/* ── Race State ───────────────────────────────────── */
+const LANE_N=5;
+let raceState='running',raceTime=0,cameraX=0;
+
+const racers=MONSTERS.map((m,i)=>({
+  ...m,lane:i,progress:0,speed:0,baseSpeed:.0012+m.spd*.0003,
+  stun:0,boost:0,wobble:0,finished:false,finishTime:0
+}));
+
+/* ── Betting ──────────────────────────────────────── */
+let selMon=-1,betCur='usdt';
+const pool=[1200,950,880,620,630];
+function odds(i){const t=pool.reduce((a,b)=>a+b,0);return t>0?(t/pool[i]).toFixed(1):'0.0'}
+
+/* ── Cards ────────────────────────────────────────── */
+function renderCards(){
+  const w=document.getElementById('monsterCards');w.innerHTML='';
+  MONSTERS.forEach((m,i)=>{
+    const d=document.createElement('div');
+    d.className='mc'+(selMon===i?' sel':'');
+    d.onclick=()=>selectMon(i);
+    d.innerHTML=`<div class="mc-hd"><span class="mc-ln">#${i+1}</span><canvas class="mc-sp" width="28" height="28"></canvas><span class="mc-nm" style="color:${m.color}">${m.name}</span><span class="mc-od">${odds(i)}x</span></div><div class="mc-st"><div class="mc-s"><span class="mc-sl">SPD</span><span class="mc-sv">${m.str}</span></div><div class="mc-s"><span class="mc-sl">AGI</span><span class="mc-sv">${m.agi}</span></div><div class="mc-s"><span class="mc-sl">END</span><span class="mc-sv">${m.end}</span></div><div class="mc-s"><span class="mc-sl">LCK</span><span class="mc-sv">${m.luck}</span></div></div><div class="mc-wr">Win Rate: ${m.winRate}%</div>`;
+    const mc=d.querySelector('.mc-sp'),mx=mc.getContext('2d');
+    mx.imageSmoothingEnabled=false;if(SC[i])mx.drawImage(SC[i],0,0,28,28);
+    w.appendChild(d);
+  });
+}
+renderCards();
+
+/* ── Progress Panel ───────────────────────────────── */
+function buildProg(){
+  const p=document.getElementById('progPanel');p.innerHTML='';
+  MONSTERS.forEach((m,i)=>{
+    const r=document.createElement('div');r.className='pr';
+    r.innerHTML=`<span class="pr-nm" style="color:${m.color}">${m.name}</span><div class="pr-bw"><div class="pr-bf" id="pb${i}" style="width:0%;background:${m.color}"></div></div><span class="pr-pc" id="pp${i}">0%</span>`;
+    p.appendChild(r);
+  });
+}
+buildProg();
+
+/* ── Track Drawing ────────────────────────────────── */
+const TRK_ANG=-12,TRK_LEN=3200;
+
+function drawTrack(cam){
+  const W=ACV.width,H=ACV.height,rad=TRK_ANG*Math.PI/180;
+  // Sky/ground gradient
+  const gr=AX.createLinearGradient(0,0,0,H);
+  gr.addColorStop(0,'#060818');gr.addColorStop(.3,'#0A1020');gr.addColorStop(.5,'#0C1428');gr.addColorStop(1,'#081018');
+  AX.fillStyle=gr;AX.fillRect(0,0,W,H);
+
+  // Stars/particles
+  for(let i=0;i<60;i++){
+    const sx=(i*137.5+cam*.02)%W,sy=(i*97.3)%H*.4;
+    AX.fillStyle=`rgba(200,210,240,${.03+Math.sin(raceTime*.01+i)*.02})`;
+    AX.fillRect(sx,sy,1,1);
+  }
+
+  // Perspective ground lines
+  for(let i=0;i<20;i++){
+    const y=H*.35+i*(H*.65/20);
+    AX.strokeStyle=`rgba(91,184,232,${.01+i*.002})`;AX.lineWidth=.5;
+    AX.beginPath();AX.moveTo(0,y);AX.lineTo(W,y);AX.stroke();
+  }
+
+  // Lanes
+  const lnH=H*.11,trkTop=H*.18;
+  for(let ln=0;ln<=LANE_N;ln++){
+    const y=trkTop+ln*lnH;
+    const isEdge=ln===0||ln===LANE_N;
+    AX.strokeStyle=isEdge?'rgba(240,200,64,0.4)':'rgba(91,184,232,0.08)';
+    AX.lineWidth=isEdge?2:1;AX.setLineDash(isEdge?[]:[4,8]);
+    AX.beginPath();
+    const sx=-cam,ex=TRK_LEN-cam,dy=Math.tan(rad);
+    AX.moveTo(sx,y+sx*dy);AX.lineTo(ex,y+ex*dy);AX.stroke();AX.setLineDash([]);
+  }
+
+  // Start gate
+  const sgx=-cam;
+  if(sgx>-80&&sgx<W+80){
+    const gt=trkTop+sgx*Math.tan(rad);
+    // Cage bars with metallic look
+    for(let ln=0;ln<LANE_N;ln++){
+      const ly=gt+ln*lnH+lnH*.15;
+      for(let bar=0;bar<6;bar++){
+        const bx=sgx+bar*5-12;
+        const grad=AX.createLinearGradient(bx,ly,bx+2,ly);
+        grad.addColorStop(0,'#666');grad.addColorStop(.5,'#AAA');grad.addColorStop(1,'#666');
+        AX.fillStyle=grad;AX.fillRect(bx,ly,2,lnH*.7);
+      }
+    }
+    AX.font='10px "Press Start 2P",monospace';AX.fillStyle='#F0C840';
+    AX.shadowColor='#F0C840';AX.shadowBlur=8;AX.fillText('START',sgx-20,gt-10);AX.shadowBlur=0;
+  }
+
+  // Finish
+  const fx=TRK_LEN-cam;
+  if(fx>-80&&fx<W+80){
+    const ft=trkTop+fx*Math.tan(rad);
+    for(let r=0;r<LANE_N*4;r++)for(let c=0;c<4;c++){
+      AX.fillStyle=(r+c)%2===0?'#E0E0E8':'#222';
+      AX.fillRect(fx+c*4-8,ft+r*(lnH/4),4,lnH/4);
+    }
+    AX.font='10px "Press Start 2P",monospace';AX.fillStyle='#E85454';
+    AX.shadowColor='#E85454';AX.shadowBlur=8;AX.fillText('FINISH',fx-24,ft-10);AX.shadowBlur=0;
+  }
+
+  // Hazards
+  [{s:.25,e:.30,lbl:'KRAKEN ZONE',c:'rgba(32,144,208,.06)'},
+   {s:.55,e:.60,lbl:'MAGMA FIELD',c:'rgba(224,80,32,.06)'},
+   {s:.80,e:.85,lbl:'STORM',c:'rgba(160,96,224,.06)'}
+  ].forEach(hz=>{
+    const hx1=hz.s*TRK_LEN-cam,hx2=hz.e*TRK_LEN-cam;
+    if(hx2>0&&hx1<W){
+      const hy=trkTop+hx1*Math.tan(rad);
+      AX.fillStyle=hz.c;AX.fillRect(hx1,hy,hx2-hx1,LANE_N*lnH);
+      AX.font='6px "Press Start 2P",monospace';AX.fillStyle='rgba(224,224,232,0.15)';
+      AX.textAlign='center';AX.fillText(hz.lbl,(hx1+hx2)/2,hy-3);AX.textAlign='left';
+    }
+  });
+
+  return{trkTop,lnH,rad,cam};
+}
+
+/* ── Draw Racers ──────────────────────────────────── */
+function drawRacers(trk){
+  const{trkTop,lnH,rad,cam}=trk;
+  racers.forEach(r=>{
+    const rx=r.progress*TRK_LEN-cam;
+    const ry=trkTop+r.lane*lnH+lnH*.5+rx*Math.tan(rad);
+    if(rx<-40||rx>ACV.width+40)return;
+
+    const wobY=Math.sin(raceTime*8+r.id*2)*2;
+    const sz=lnH*.75;
+
+    // Speed trail
+    if(r.speed>.001){
+      AX.save();AX.globalAlpha=.15;
+      for(let i=1;i<=4;i++){
+        AX.globalAlpha=.15-i*.03;
+        const trailX=rx-i*sz*.3;
+        const sp=SC[r.id];
+        if(sp)AX.drawImage(sp,trailX-sz/2,ry-sz/2+wobY,sz,sz);
+      }
+      AX.restore();
+    }
+
+    // Boost glow
+    if(r.boost>0){
+      AX.save();AX.shadowColor=r.color;AX.shadowBlur=16;AX.globalAlpha=.35;
+      AX.fillStyle=r.color;AX.fillRect(rx-sz/2-2,ry-sz/2+wobY-2,sz+4,sz+4);
+      AX.restore();
+    }
+
+    // Stun flash
+    if(r.stun>0){AX.save();AX.globalAlpha=.4+Math.sin(raceTime*20)*.3}
+
+    // Sprite
+    const sp=SC[r.id];
+    if(sp)AX.drawImage(sp,rx-sz/2,ry-sz/2+wobY,sz,sz);
+
+    if(r.stun>0)AX.restore();
+
+    // Name
+    AX.font='6px "Press Start 2P",monospace';AX.fillStyle=r.color;
+    AX.textAlign='center';AX.fillText(r.name,rx,ry-sz/2+wobY-5);AX.textAlign='left';
+  });
+}
+
+/* ── Events ───────────────────────────────────────── */
+const EVTS=[
+  {name:'Jet Stream',icon:'⚡',prob:.15,eff:'boost',dur:80},
+  {name:'Kraken Grab',icon:'🌊',prob:.10,eff:'stun',dur:60},
+  {name:'Magma Burst',icon:'🔥',prob:.08,eff:'slow',dur:50},
+  {name:'Tailwind',icon:'💨',prob:.12,eff:'boost',dur:40},
+  {name:'Interference',icon:'⚔',prob:.10,eff:'stun',dur:30},
+];
+
+function triggerEvt(){
+  let roll=Math.random();
+  for(const ev of EVTS){
+    if(roll<ev.prob){
+      const tgt=racers[Math.floor(Math.random()*LANE_N)];
+      if(tgt.finished)return;
+      if(ev.eff==='boost')tgt.boost=ev.dur;
+      else if(ev.eff==='stun')tgt.stun=ev.dur;
+      else if(ev.eff==='slow')tgt.boost=-ev.dur;
+      addEvt(ev.icon,`${ev.name} → ${tgt.name}!`);
+      return;
+    }
+    roll-=ev.prob;
+  }
+}
+
+function addEvt(icon,msg){
+  const log=document.getElementById('evtLog'),el=document.createElement('div');
+  el.className='ei';
+  const s=Math.floor(raceTime/60);
+  el.innerHTML=`<span class="e-ic">${icon}</span><span class="e-msg">${msg}</span><span class="e-tm">${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}</span>`;
+  log.insertBefore(el,log.firstChild);
+  if(log.children.length>12)log.removeChild(log.lastChild);
+}
+
+/* ── Update Race ──────────────────────────────────── */
+function updateRace(){
+  if(raceState!=='running')return;
+  raceTime++;
+  if(raceTime%120===0&&raceTime>60)triggerEvt();
+
+  let maxP=0,leader=racers[0];
+  racers.forEach(r=>{
+    if(r.finished)return;
+    let spd=r.baseSpeed*(.9+Math.random()*.2);
+    if(r.boost>0){spd*=1.25;r.boost--}else if(r.boost<0){spd*=.6;r.boost++}
+    if(r.stun>0){spd=.0001;r.stun--}
+    spd*=1-r.progress*.15*(1-r.end/10);
+    if(Math.random()<r.luck*.005)spd*=1.4;
+    r.speed=spd;
+    r.progress=Math.min(1,r.progress+spd);
+    if(r.progress>=1&&!r.finished){r.finished=true;r.finishTime=raceTime;addEvt('🏁',`${r.name} FINISHES!`)}
+    if(r.progress>maxP){maxP=r.progress;leader=r}
+  });
+
+  const targetCam=Math.max(0,maxP*TRK_LEN-ACV.width*.3);
+  cameraX+=(targetCam-cameraX)*.05;
+
+  document.getElementById('raceProgress').textContent=Math.floor(maxP*100)+'%';
+  document.getElementById('raceLeader').textContent=leader.name;
+  document.getElementById('raceLeader').style.color=leader.color;
+
+  racers.forEach((r,i)=>{
+    const bar=document.getElementById('pb'+i),pct=document.getElementById('pp'+i);
+    if(bar)bar.style.width=(r.progress*100)+'%';
+    if(pct)pct.textContent=Math.floor(r.progress*100)+'%';
+  });
+
+  if(racers.some(r=>r.finished)){
+    const allDone=racers.every(r=>r.finished||r.progress>.95);
+    if(allDone||racers.filter(r=>r.finished).length>=3){
+      raceState='finished';
+      const winner=racers.reduce((a,b)=>a.finishTime&&(!b.finishTime||a.finishTime<b.finishTime)?a:b);
+      document.getElementById('raceStatusLabel').textContent=`${winner.name} WINS!`;
+      document.getElementById('raceStatusLabel').style.color=winner.color;
+      showToast(`${winner.name} WINS! Odds: ${odds(winner.id)}x`);
+    }
+  }
+}
+
+/* ── Frame Loop ───────────────────────────────────── */
+function frame(){
+  updateRace();
+  AX.clearRect(0,0,ACV.width,ACV.height);
+  const trk=drawTrack(cameraX);
+  drawRacers(trk);
+  requestAnimationFrame(frame);
+}
+frame();
+
+/* ── UI Functions ─────────────────────────────────── */
+function selectMon(i){
+  selMon=i;const m=MONSTERS[i];
+  document.getElementById('betSelName').textContent=`${m.name} (${odds(i)}x)`;
+  document.getElementById('betSelName').style.color=m.color;
+  renderCards();updatePayout();
+}
+
+function setCur(c){
+  betCur=c;
+  document.getElementById('curUSDT').classList.toggle('sel',c==='usdt');
+  document.getElementById('curPP').classList.toggle('sel',c==='pp');
+  updatePayout();
+}
+
+function updatePayout(){
+  if(selMon<0)return;
+  const amt=parseFloat(document.getElementById('betAmt').value)||0;
+  const o=parseFloat(odds(selMon));
+  document.getElementById('payoutVal').textContent=(amt*o*.95).toFixed(2)+(betCur==='usdt'?' USDT':' PP');
+}
+
+function placeBet(){
+  if(selMon<0){showToast('Select a monster first');return}
+  document.getElementById('placeBtn').style.display='none';
+  document.getElementById('confirmBtn').style.display='';
+}
+
+function confirmBet(){
+  const amt=parseFloat(document.getElementById('betAmt').value)||0;
+  if(amt<=0)return;
+  pool[selMon]+=amt;
+  document.getElementById('poolTotal').textContent=pool.reduce((a,b)=>a+b,0).toLocaleString()+' USDT';
+  document.getElementById('confirmBtn').style.display='none';
+  document.getElementById('placeBtn').style.display='';
+  renderCards();
+  showToast(`BET: ${amt} ${betCur.toUpperCase()} on ${MONSTERS[selMon].name}`);
+}
+
+function toggleLeft(){
+  document.getElementById('fpLeft').classList.toggle('open');
+  document.getElementById('tglL').classList.toggle('on');
+}
+function toggleRight(){
+  document.getElementById('fpRight').classList.toggle('open');
+  document.getElementById('tglR').classList.toggle('on');
+}
+
+function connectWallet(){
+  document.getElementById('walletBtn').textContent='0xA1B2...9F0E';
+  document.getElementById('walletBtn').style.color='var(--gn)';
+}
+
+function showToast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/jongho/Documents/Claude/Projects/**)",
+      "Read(//Users/jongho/Documents/Claude/**)",
+      "Bash(sips -g pixelWidth -g pixelHeight \"/Users/jongho/Documents/Claude/Projects/블록체인 유저참여용 프로젝트/world_map.avif\")",
+      "Bash(kill 28325)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(sips -g pixelWidth -g pixelHeight \"/Users/jongho/Documents/Claude/Projects/블록체인 유저참여용 프로젝트/map.png\")",
+      "Bash(mv index.html index_old.html)",
+      "Bash(cp app.html index.html)",
+      "Bash(find /Users/jongho/Documents/Claude/Projects/블록체인 유저참여용 프로젝트 -type f -exec ls -lh {})",
+      "Bash(rm -rf assets/sprites assets/logo assets/racing assets/ui assets/vfx)",
+      "Bash(rm -f buoy_mini.svg buoy_pixel.svg ship_pixel.svg canvas_preview.svg app.html index_old.html)",
+      "Bash(security find-generic-password:*)",
+      "Bash(git credential-osxkeychain:*)",
+      "Bash(git config:*)"
+    ]
+  }
+}
