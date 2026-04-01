@@ -231,6 +231,15 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .dw-warn{font-size:var(--fs-xs);color:var(--red);padding:6px 8px;
   background:rgba(232,72,85,.05);border:1px solid rgba(232,72,85,.12);border-radius:6px;line-height:1.6}
 
+/* Alerts */
+.alert-item{font-size:var(--fs-xs);padding:6px 8px;margin-bottom:4px;border-radius:5px;
+  background:rgba(232,72,85,.05);border:1px solid rgba(232,72,85,.1);color:var(--tx2);line-height:1.6;
+  cursor:pointer;transition:background .15s}
+.alert-item:hover{background:rgba(232,72,85,.1)}
+.alert-item .alert-time{font-size:6px;color:var(--tx3);display:block;margin-top:2px}
+.alert-item.hijack{border-color:rgba(232,72,85,.2)}
+.alert-item.earn{border-color:rgba(76,216,154,.2);background:rgba(76,216,154,.05)}
+
 /* Range slider */
 input[type=range]{-webkit-appearance:none;height:4px;background:var(--bdr);border-radius:2px;outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
@@ -304,24 +313,34 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">4</span><span class="lb-name">PepeArmy</span><span class="lb-val">3 plots</span></div>
     <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">5</span><span class="lb-name">고래연합</span><span class="lb-val">2 plots</span></div>
   </div>
-  <div class="p-section">
-    <div class="p-title">MY LAND</div>
-    <div class="stat-row"><span class="stat-label">OWNED</span><span class="stat-val gold" id="myPlots">0</span></div>
-    <div class="stat-row"><span class="stat-label">VALUE</span><span class="stat-val gn" id="myValue">$0</span></div>
-    <div class="stat-row"><span class="stat-label">EARNED</span><span class="stat-val" id="myEarned">0 USDT</span></div>
+  <!-- Wallet: not connected CTA -->
+  <div class="p-section" id="walletCTA">
+    <div class="p-title">MY WALLET</div>
+    <div style="text-align:center;padding:12px 4px">
+      <div style="font-size:20px;margin-bottom:8px">🔗</div>
+      <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;margin-bottom:10px">
+        Connect wallet to deposit USDT,<br>claim territories & earn rewards
+      </div>
+      <button class="cfm" onclick="connectWallet()" style="font-size:var(--fs-sm)">CONNECT WALLET</button>
+    </div>
   </div>
-  <div class="p-section">
-    <div class="p-title">MY IMAGES</div>
-    <div id="myImagesList" style="max-height:150px;overflow-y:auto"><div style="font-size:7px;color:var(--tx3)">No images placed yet</div></div>
-  </div>
-  <!-- Wallet Panel (visible after connect) -->
+  <!-- Wallet: connected -->
   <div class="p-section" id="walletSection" style="display:none">
     <div class="p-title">MY WALLET</div>
     <div class="wallet-panel">
       <div class="wallet-addr" id="walletAddr">--</div>
+      <div style="display:flex;gap:4px;align-items:center;margin:2px 0">
+        <span class="chain-dot base" id="chainDotPanel"></span>
+        <span style="font-size:var(--fs-xs);color:var(--tx2)" id="walletChain">--</span>
+      </div>
+      <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-bal"><span class="lbl">USDT</span><span class="val usdt" id="walletUsdt">0.00</span></div>
       <div class="wallet-bal"><span class="lbl">PP</span><span class="val pp" id="walletPP">0.00</span></div>
-      <div class="wallet-bal"><span class="lbl">CHAIN</span><span class="val" id="walletChain" style="color:var(--cyan)">--</span></div>
+      <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
+      <div class="wallet-bal"><span class="lbl">OWNED</span><span class="val gold" id="myPlots">0</span></div>
+      <div class="wallet-bal"><span class="lbl">VALUE</span><span class="val gn" id="myValue">$0</span></div>
+      <div class="wallet-bal"><span class="lbl">EARNED</span><span class="val" style="color:var(--cyan)" id="myEarned">0 USDT</span></div>
+      <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-actions">
         <button class="wa-btn dep" onclick="openDepositModal()">DEPOSIT</button>
         <button class="wa-btn wdr" onclick="openWithdrawModal()">WITHDRAW</button>
@@ -355,6 +374,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="stat-row"><span class="stat-label">PRICE PAID</span><span class="stat-val gn" id="infoPrice">--</span></div>
     <div class="stat-row"><span class="stat-label">HIJACK COST</span><span class="stat-val red" id="infoHijack">--</span></div>
     <button class="action-btn hijack" id="claimBtn" onclick="openClaimModal()">HIJACK THIS PLOT</button>
+  </div>
+
+  <!-- MY ALERTS -->
+  <div class="p-section" id="alertsSection" style="display:none">
+    <div class="p-title" style="display:flex;justify-content:space-between;align-items:center">
+      MY ALERTS <span class="alert-badge" id="alertBadge" style="background:var(--red);color:#fff;font-size:6px;padding:1px 5px;border-radius:8px;display:none">0</span>
+    </div>
+    <div id="alertsList" style="max-height:100px;overflow-y:auto">
+      <div style="font-size:7px;color:var(--tx3)">No alerts yet</div>
+    </div>
   </div>
 
   <!-- LIVE FEED (collapsible) -->
@@ -1294,7 +1323,14 @@ function confirmClaim(){
   showToast(hasOverlap?'HIJACKED '+costInfo.overlapCount+'px! $'+price:'CLAIMED! $'+price);
   selectedPlot=null;uploadedUrl=null;
   document.getElementById('territoryInfo').style.display='none';
-  refreshMyImages();
+  refreshMyStats();
+  // Simulate hijack alerts for affected owners (in production: server push)
+  if(costInfo.overlapCount>0){
+    for(var o in costInfo.affectedOwners){
+      var a=costInfo.affectedOwners[o];
+      addAlert('earn','Hijack refund: $'+a.refund.toFixed(2)+' + $'+a.bonus.toFixed(2)+' PP bonus from '+shortAddr(walletState.address||''),{lat:selectedPlot.lat,lng:selectedPlot.lng});
+    }
+  }
 }
 
 /* ── Old Image Upload (modal) ────────────────────── */
@@ -1465,7 +1501,9 @@ function disconnectWallet(){
   walletState.gamePP=0;
   document.getElementById('walletBtn').textContent='CONNECT WALLET';
   document.getElementById('walletBtn').style.color='var(--mars)';
+  document.getElementById('walletCTA').style.display='';
   document.getElementById('walletSection').style.display='none';
+  document.getElementById('alertsSection').style.display='none';
   document.getElementById('chainIndicator').style.display='none';
   showToast('WALLET DISCONNECTED');
 }
@@ -1474,7 +1512,9 @@ function updateWalletUI(){
   var btn=document.getElementById('walletBtn');
   btn.textContent=shortAddr(walletState.address);
   btn.style.color='var(--gn)';
+  document.getElementById('walletCTA').style.display='none';
   document.getElementById('walletSection').style.display='';
+  document.getElementById('alertsSection').style.display='';
   document.getElementById('walletAddr').textContent=walletState.address;
 }
 
@@ -1492,6 +1532,7 @@ function updateChainUI(){
   // Wallet panel
   document.getElementById('walletChain').textContent=cfg.name;
   document.getElementById('walletChain').style.color=cfg.color;
+  document.getElementById('chainDotPanel').className='chain-dot '+ch;
   // Claim modal chain buttons
   selectChain(ch);
 }
@@ -1792,37 +1833,45 @@ function searchOwner(){
   });
 }
 
-/* ── My Images list ─────────────────────────────── */
-function refreshMyImages(){
-  var box=document.getElementById('myImagesList');
-  box.innerHTML='';
+/* ── My Stats (wallet panel) ────────────────────── */
+function refreshMyStats(){
   var myAddr=walletState.address?shortAddr(walletState.address):'YOU';
   var mine=claims.filter(function(c){return c.owner===myAddr||c.label==='YOU'});
-  if(!mine.length){box.innerHTML='<div style="font-size:7px;color:var(--tx3)">No images yet</div>';return}
-  // Newest first (reverse order)
-  for(var i=mine.length-1;i>=0;i--){
-    var c=mine[i];
-    var d=document.createElement('div');
-    d.style.cssText='display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer';
-    var cw=c.w||c.size||10, ch=c.h||c.size||10;
-    if(c.imgUrl){
-      var thumb=document.createElement('img');thumb.src=c.imgUrl;
-      thumb.style.cssText='width:20px;height:20px;object-fit:cover;border-radius:2px;border:1px solid var(--bdr);flex-shrink:0';
-      d.appendChild(thumb);
-    }
-    var info=document.createElement('span');
-    info.style.cssText='font-size:6px;color:var(--tx2);line-height:1.4';
-    info.innerHTML=c.lat.toFixed(1)+'°,'+c.lng.toFixed(1)+'° <span style="color:var(--gn)">$'+c.price+'</span>';
-    d.appendChild(info);
-    (function(cc,ccw,cch){d.onclick=function(){
-      globe.pointOfView({lat:cc.lat,lng:cc.lng,altitude:Math.max(0.08,Math.max(ccw,cch)*GRID_SIZE/50)},800);
-      isZoomedIn=true; selectedPlot=cc; showTerritoryInfo(cc); compositeClaimsOnTexture();
-    }})(c,cw,ch);
-    box.appendChild(d);
-  }
   document.getElementById('myPlots').textContent=mine.length;
   var totalVal=mine.reduce(function(s,c){return s+c.price},0);
   document.getElementById('myValue').textContent='$'+totalVal;
+}
+
+/* ── Alerts System ─────────────────────────────── */
+var alerts=[];
+function addAlert(type,msg,coords){
+  var alert={type:type,msg:msg,coords:coords,time:new Date()};
+  alerts.unshift(alert);
+  if(alerts.length>20) alerts.pop();
+  renderAlerts();
+}
+function renderAlerts(){
+  var box=document.getElementById('alertsList');
+  if(!box)return;
+  box.innerHTML='';
+  if(!alerts.length){box.innerHTML='<div style="font-size:7px;color:var(--tx3)">No alerts yet</div>';return}
+  var badge=document.getElementById('alertBadge');
+  badge.style.display='';badge.textContent=alerts.length;
+  alerts.forEach(function(a){
+    var d=document.createElement('div');
+    d.className='alert-item '+(a.type||'');
+    var icon=a.type==='hijack'?'💀':a.type==='earn'?'💰':'🔔';
+    var ago=Math.round((Date.now()-a.time.getTime())/1000);
+    var timeStr=ago<60?ago+'s ago':Math.round(ago/60)+'m ago';
+    d.innerHTML=icon+' '+a.msg+'<span class="alert-time">'+timeStr+'</span>';
+    if(a.coords){
+      d.onclick=function(){
+        globe.pointOfView({lat:a.coords.lat,lng:a.coords.lng,altitude:0.15},800);
+        isZoomedIn=true;
+      };
+    }
+    box.appendChild(d);
+  });
 }
 
 /* ── Demo Stats ──────────────────────────────────── */
