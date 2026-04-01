@@ -1,0 +1,17 @@
+{
+  "name": "pixelwar-server",
+  "version": "1.0.0",
+  "description": "PIXEL WAR v9.3 — Backend Server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "ethers": "^5.7.2",
+    "express": "^4.21.0",
+    "pg": "^8.13.0"
+  }
+}

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PIXEL WAR — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0D0B14;--panel:rgba(14,12,24,0.93);--panel2:rgba(20,16,32,0.95);
+  --surface1:#161422;--surface2:#1C1A2A;--surface3:#222036;
+  --bdr:rgba(255,120,60,0.14);--bdr2:rgba(255,120,60,0.28);
+  --tx:#E8E0D8;--tx2:#9A8878;--tx3:#6A5848;
+  --mars:#FF7840;--red:#E84855;--gold:#FFD166;--gn:#4CD89A;--pp:#B888E0;
+  --cyan:#5BB8E8;
+  --fn:'Press Start 2P',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn);color:var(--tx)}
+
+/* Top Bar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;
+  background:linear-gradient(180deg,rgba(13,11,20,0.96),rgba(13,11,20,0.85));
+  border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.tb-title{font-size:13px;color:var(--mars);letter-spacing:2px;text-shadow:0 0 24px rgba(255,120,60,0.4)}
+.tb-sub{font-size:8px;color:var(--red);letter-spacing:1px;opacity:.65;margin-left:10px}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-status{font-size:7px;padding:4px 10px;border-radius:4px;border:1px solid}
+.tb-status.ok{color:var(--gn);border-color:rgba(76,216,154,.3);background:rgba(76,216,154,.06)}
+.tb-status.err{color:var(--red);border-color:rgba(232,72,85,.3);background:rgba(232,72,85,.06)}
+
+/* Layout */
+.container{max-width:1400px;margin:0 auto;padding:20px 24px}
+
+/* Stats Cards */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--panel);border:1px solid var(--bdr);border-radius:10px;padding:16px;
+  transition:border-color .2s}
+.stat-card:hover{border-color:var(--bdr2)}
+.sc-label{font-size:7px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.sc-value{font-size:18px;letter-spacing:1px}
+.sc-value.mars{color:var(--mars)}.sc-value.gn{color:var(--gn)}.sc-value.gold{color:var(--gold)}
+.sc-value.red{color:var(--red)}.sc-value.cyan{color:var(--cyan)}.sc-value.pp{color:var(--pp)}
+.sc-sub{font-size:7px;color:var(--tx3);margin-top:6px}
+
+/* Section */
+.section{background:var(--panel);border:1px solid var(--bdr);border-radius:10px;
+  margin-bottom:20px;overflow:hidden}
+.sec-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;
+  background:rgba(0,0,0,0.2);border-bottom:1px solid var(--bdr)}
+.sec-title{font-size:9px;color:var(--tx2);letter-spacing:1.5px;text-transform:uppercase}
+.sec-tools{display:flex;gap:6px;align-items:center}
+
+/* Inputs */
+.adm-input{padding:6px 10px;font-size:8px;font-family:var(--fn);background:rgba(0,0,0,.3);
+  border:1px solid var(--bdr);color:var(--tx);border-radius:5px;outline:none}
+.adm-input:focus{border-color:var(--mars)}
+.adm-input::placeholder{color:var(--tx3)}
+.adm-select{padding:6px 8px;font-size:7px;font-family:var(--fn);background:var(--surface2);
+  border:1px solid var(--bdr);color:var(--tx2);border-radius:5px;cursor:pointer;outline:none}
+.adm-btn{padding:6px 12px;font-size:7px;font-family:var(--fn);border-radius:5px;cursor:pointer;
+  border:1px solid;transition:all .15s}
+.adm-btn.primary{background:rgba(255,120,60,.08);border-color:rgba(255,120,60,.25);color:var(--mars)}
+.adm-btn.primary:hover{background:rgba(255,120,60,.18)}
+
+/* Table */
+.adm-table{width:100%;border-collapse:collapse}
+.adm-table th{font-size:7px;color:var(--tx3);text-align:left;padding:10px 12px;
+  border-bottom:1px solid var(--bdr);letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  user-select:none;white-space:nowrap}
+.adm-table th:hover{color:var(--mars)}
+.adm-table td{font-size:8px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.02);
+  color:var(--tx2);white-space:nowrap}
+.adm-table tr:hover td{background:rgba(255,120,60,.02)}
+.addr{color:var(--cyan);font-size:7px}.val-gn{color:var(--gn)}.val-pp{color:var(--pp)}
+.val-red{color:var(--red)}.val-gold{color:var(--gold)}
+
+/* Type badges */
+.type-badge{font-size:6px;padding:2px 6px;border-radius:3px;letter-spacing:.5px;display:inline-block}
+.type-badge.deposit{background:rgba(76,216,154,.1);color:var(--gn);border:1px solid rgba(76,216,154,.2)}
+.type-badge.claim{background:rgba(91,184,232,.1);color:var(--cyan);border:1px solid rgba(91,184,232,.2)}
+.type-badge.hijack{background:rgba(232,72,85,.1);color:var(--red);border:1px solid rgba(232,72,85,.2)}
+.type-badge.swap{background:rgba(184,136,224,.1);color:var(--pp);border:1px solid rgba(184,136,224,.2)}
+.type-badge.withdraw,.type-badge.withdraw_all{background:rgba(255,209,102,.1);color:var(--gold);border:1px solid rgba(255,209,102,.2)}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px}
+.pg-btn{padding:5px 10px;font-size:7px;font-family:var(--fn);background:var(--surface2);
+  border:1px solid var(--bdr);border-radius:4px;color:var(--tx2);cursor:pointer}
+.pg-btn:hover{border-color:var(--mars);color:var(--mars)}
+.pg-btn.active{background:rgba(255,120,60,.12);border-color:var(--mars);color:var(--mars)}
+.pg-btn:disabled{opacity:.3;cursor:default}
+.pg-info{font-size:7px;color:var(--tx3)}
+
+/* Chart */
+.chart-wrap{padding:16px;height:280px}
+
+/* Revenue breakdown */
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:16px}
+.rev-item{padding:10px;background:rgba(0,0,0,.15);border-radius:6px;border:1px solid rgba(255,255,255,.03)}
+.rev-type{font-size:7px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.rev-val{font-size:12px;color:var(--gn)}
+.rev-count{font-size:7px;color:var(--tx3);margin-top:4px}
+
+/* Auth overlay */
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;
+  align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.auth-title{font-size:11px;color:var(--mars);letter-spacing:2px}
+.auth-input{padding:10px 16px;font-size:9px;font-family:var(--fn);background:var(--surface2);
+  border:1px solid var(--bdr2);color:var(--tx);border-radius:6px;width:300px;text-align:center;outline:none}
+.auth-input:focus{border-color:var(--mars)}
+.auth-btn{padding:10px 32px;font-size:9px;font-family:var(--fn);background:rgba(255,120,60,.1);
+  border:1px solid rgba(255,120,60,.3);border-radius:6px;color:var(--mars);cursor:pointer}
+.auth-btn:hover{background:rgba(255,120,60,.2)}
+.auth-err{font-size:7px;color:var(--red);height:14px}
+
+/* Loading */
+.loading{text-align:center;padding:40px;font-size:8px;color:var(--tx3)}
+</style>
+</head>
+<body>
+
+<!-- Auth Overlay -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-title">PIXEL WAR ADMIN</div>
+  <input type="password" class="auth-input" id="authInput" placeholder="ADMIN SECRET" onkeydown="if(event.key==='Enter')doAuth()">
+  <button class="auth-btn" onclick="doAuth()">ENTER</button>
+  <div class="auth-err" id="authErr"></div>
+</div>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div style="display:flex;align-items:center">
+    <span class="tb-title">PIXEL WAR</span>
+    <span class="tb-sub">ADMIN DASHBOARD</span>
+  </div>
+  <div class="tb-right">
+    <span class="tb-status ok" id="serverStatus">CONNECTED</span>
+    <span style="font-size:7px;color:var(--tx3)" id="lastUpdate">--</span>
+  </div>
+</div>
+
+<div class="container" id="mainContent" style="display:none">
+
+  <!-- Stats Cards -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="sc-label">TOTAL USERS</div><div class="sc-value mars" id="sTotalUsers">--</div></div>
+    <div class="stat-card"><div class="sc-label">TOTAL VOLUME</div><div class="sc-value gn" id="sTotalVolume">--</div><div class="sc-sub">USDT deposited</div></div>
+    <div class="stat-card"><div class="sc-label">TOTAL REVENUE</div><div class="sc-value gold" id="sTotalRevenue">--</div><div class="sc-sub">fees earned</div></div>
+    <div class="stat-card"><div class="sc-label">ACTIVE 24H</div><div class="sc-value cyan" id="sActive24h">--</div><div class="sc-sub">deposits today</div></div>
+    <div class="stat-card"><div class="sc-label">ACTIVE CLAIMS</div><div class="sc-value pp" id="sTotalClaims">--</div></div>
+    <div class="stat-card"><div class="sc-label">PIXELS SOLD</div><div class="sc-value red" id="sPixelsSold">--</div></div>
+    <div class="stat-card"><div class="sc-label">CONTRACT BAL</div><div class="sc-value gn" id="sContractBal">--</div><div class="sc-sub">USDT held</div></div>
+  </div>
+
+  <!-- Revenue Breakdown -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-title">REVENUE BREAKDOWN</span>
+    </div>
+    <div class="rev-grid" id="revGrid">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Revenue Chart -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-title">REVENUE CHART (30 DAYS)</span>
+      <div class="sec-tools">
+        <select class="adm-select" id="chartDays" onchange="loadRevenue()">
+          <option value="7">7 days</option>
+          <option value="30" selected>30 days</option>
+          <option value="90">90 days</option>
+        </select>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-title">USERS</span>
+      <div class="sec-tools">
+        <input type="text" class="adm-input" id="userSearch" placeholder="Search wallet..." oninput="debouncedLoadUsers()">
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th onclick="sortUsers('wallet_address')">WALLET</th>
+            <th onclick="sortUsers('usdt_balance')">USDT</th>
+            <th onclick="sortUsers('pp_balance')">PP</th>
+            <th>CLAIMS</th>
+            <th>DEPOSITED</th>
+            <th onclick="sortUsers('created_at')">JOINED</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="usersPagination"></div>
+  </div>
+
+  <!-- Transactions Table -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-title">TRANSACTIONS</span>
+      <div class="sec-tools">
+        <select class="adm-select" id="txTypeFilter" onchange="loadTransactions(1)">
+          <option value="">ALL TYPES</option>
+          <option value="deposit">DEPOSIT</option>
+          <option value="claim">CLAIM</option>
+          <option value="hijack">HIJACK</option>
+          <option value="swap">SWAP</option>
+          <option value="withdraw">WITHDRAW</option>
+          <option value="withdraw_all">WITHDRAW ALL</option>
+        </select>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>TYPE</th>
+            <th>FROM</th>
+            <th>USDT</th>
+            <th>PP</th>
+            <th>FEE</th>
+            <th>TIME</th>
+          </tr>
+        </thead>
+        <tbody id="txBody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="txPagination"></div>
+  </div>
+
+</div>
+
+<script>
+var adminSecret = '';
+var userSort = 'created_at';
+var userOrder = 'desc';
+var userPage = 1;
+var txPage = 1;
+var revenueChart = null;
+
+function doAuth() {
+  adminSecret = document.getElementById('authInput').value;
+  fetch('/admin/api/stats', { headers: { 'x-admin-secret': adminSecret } })
+    .then(function(r) {
+      if (r.status === 401) throw new Error('Invalid secret');
+      return r.json();
+    })
+    .then(function() {
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('mainContent').style.display = '';
+      loadAll();
+      setInterval(loadAll, 30000);
+    })
+    .catch(function(e) {
+      document.getElementById('authErr').textContent = e.message || 'Connection failed';
+    });
+}
+
+function api(path) {
+  return fetch(path, { headers: { 'x-admin-secret': adminSecret } }).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
+}
+
+function loadAll() {
+  loadStats();
+  loadUsers(userPage);
+  loadTransactions(txPage);
+  loadRevenue();
+  document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+}
+
+// ── Stats ──
+function loadStats() {
+  api('/admin/api/stats').then(function(d) {
+    document.getElementById('sTotalUsers').textContent = d.totalUsers.toLocaleString();
+    document.getElementById('sTotalVolume').textContent = '$' + d.totalVolume.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('sTotalRevenue').textContent = '$' + d.totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('sActive24h').textContent = d.active24h.toLocaleString();
+    document.getElementById('sTotalClaims').textContent = d.totalClaims.toLocaleString();
+    document.getElementById('sPixelsSold').textContent = d.totalPixelsSold.toLocaleString();
+    document.getElementById('sContractBal').textContent = '$' + d.contractBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('serverStatus').className = 'tb-status ok';
+    document.getElementById('serverStatus').textContent = 'CONNECTED';
+
+    // Revenue breakdown
+    var grid = document.getElementById('revGrid');
+    grid.innerHTML = '';
+    var types = { deposit: 'DEPOSITS', claim: 'CLAIMS', hijack: 'HIJACKS', swap: 'SWAPS', withdraw: 'WITHDRAWALS', withdraw_all: 'FULL WITHDRAWALS' };
+    d.breakdown.forEach(function(b) {
+      var div = document.createElement('div');
+      div.className = 'rev-item';
+      div.innerHTML = '<div class="rev-type">' + (types[b.type] || b.type) + '</div>' +
+        '<div class="rev-val">$' + b.feeTotal.toFixed(2) + '</div>' +
+        '<div class="rev-count">' + b.txCount + ' transactions / $' + b.volumeTotal.toFixed(2) + ' volume</div>';
+      grid.appendChild(div);
+    });
+    if (!d.breakdown.length) grid.innerHTML = '<div class="loading">No transactions yet</div>';
+  }).catch(function() {
+    document.getElementById('serverStatus').className = 'tb-status err';
+    document.getElementById('serverStatus').textContent = 'DISCONNECTED';
+  });
+}
+
+// ── Users ──
+var userDebounce = null;
+function debouncedLoadUsers() {
+  clearTimeout(userDebounce);
+  userDebounce = setTimeout(function() { loadUsers(1); }, 300);
+}
+
+function sortUsers(col) {
+  if (userSort === col) userOrder = userOrder === 'desc' ? 'asc' : 'desc';
+  else { userSort = col; userOrder = 'desc'; }
+  loadUsers(1);
+}
+
+function loadUsers(page) {
+  userPage = page;
+  var search = document.getElementById('userSearch').value;
+  var url = '/admin/api/users?page=' + page + '&sort=' + userSort + '&order=' + userOrder;
+  if (search) url += '&search=' + encodeURIComponent(search);
+
+  api(url).then(function(d) {
+    var tbody = document.getElementById('usersBody');
+    tbody.innerHTML = '';
+    if (!d.users.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">No users found</td></tr>';
+      return;
+    }
+    d.users.forEach(function(u) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td class="addr">' + u.wallet + '</td>' +
+        '<td class="val-gn">' + u.usdtBalance.toFixed(2) + '</td>' +
+        '<td class="val-pp">' + u.ppBalance.toFixed(2) + '</td>' +
+        '<td>' + u.claimCount + '</td>' +
+        '<td class="val-gold">$' + u.totalDeposited.toFixed(2) + '</td>' +
+        '<td>' + new Date(u.createdAt).toLocaleDateString() + '</td>';
+      tbody.appendChild(tr);
+    });
+    renderPagination('usersPagination', d.page, d.pages, d.total, loadUsers);
+  });
+}
+
+// ── Transactions ──
+function loadTransactions(page) {
+  txPage = page;
+  var type = document.getElementById('txTypeFilter').value;
+  var url = '/admin/api/transactions?page=' + page;
+  if (type) url += '&type=' + type;
+
+  api(url).then(function(d) {
+    var tbody = document.getElementById('txBody');
+    tbody.innerHTML = '';
+    if (!d.transactions.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">No transactions</td></tr>';
+      return;
+    }
+    d.transactions.forEach(function(tx) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="color:var(--tx3)">#' + tx.id + '</td>' +
+        '<td><span class="type-badge ' + tx.type + '">' + tx.type.toUpperCase() + '</span></td>' +
+        '<td class="addr">' + (tx.fromWallet ? tx.fromWallet.slice(0, 8) + '...' : '--') + '</td>' +
+        '<td class="val-gn">' + tx.usdtAmount.toFixed(2) + '</td>' +
+        '<td class="val-pp">' + tx.ppAmount.toFixed(2) + '</td>' +
+        '<td class="val-gold">' + tx.fee.toFixed(2) + '</td>' +
+        '<td>' + new Date(tx.createdAt).toLocaleString() + '</td>';
+      tbody.appendChild(tr);
+    });
+    renderPagination('txPagination', d.page, d.pages, d.total, loadTransactions);
+  });
+}
+
+// ── Pagination ──
+function renderPagination(elId, current, total, count, loadFn) {
+  var el = document.getElementById(elId);
+  el.innerHTML = '';
+  if (total <= 1) return;
+
+  var prev = document.createElement('button');
+  prev.className = 'pg-btn'; prev.textContent = '<'; prev.disabled = current <= 1;
+  prev.onclick = function() { loadFn(current - 1); };
+  el.appendChild(prev);
+
+  var info = document.createElement('span');
+  info.className = 'pg-info';
+  info.textContent = 'Page ' + current + ' / ' + total + ' (' + count + ' total)';
+  el.appendChild(info);
+
+  var next = document.createElement('button');
+  next.className = 'pg-btn'; next.textContent = '>'; next.disabled = current >= total;
+  next.onclick = function() { loadFn(current + 1); };
+  el.appendChild(next);
+}
+
+// ── Revenue Chart ──
+function loadRevenue() {
+  var days = document.getElementById('chartDays').value;
+  api('/admin/api/revenue?days=' + days).then(function(d) {
+    var labels = d.days.map(function(r) { return r.date.slice(5); }); // MM-DD
+    var claimData = d.days.map(function(r) { return r.claimRevenue; });
+    var hijackData = d.days.map(function(r) { return r.hijackRevenue; });
+    var swapData = d.days.map(function(r) { return r.swapRevenue; });
+
+    var ctx = document.getElementById('revenueChart').getContext('2d');
+    if (revenueChart) revenueChart.destroy();
+
+    revenueChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Claims', data: claimData, backgroundColor: 'rgba(91,184,232,0.6)', borderColor: '#5BB8E8', borderWidth: 1 },
+          { label: 'Hijacks', data: hijackData, backgroundColor: 'rgba(232,72,85,0.6)', borderColor: '#E84855', borderWidth: 1 },
+          { label: 'Swaps', data: swapData, backgroundColor: 'rgba(184,136,224,0.6)', borderColor: '#B888E0', borderWidth: 1 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          x: { stacked: true, grid: { color: 'rgba(255,120,60,0.05)' }, ticks: { color: '#6A5848', font: { family: "'Press Start 2P'", size: 6 } } },
+          y: { stacked: true, grid: { color: 'rgba(255,120,60,0.05)' }, ticks: { color: '#6A5848', font: { family: "'Press Start 2P'", size: 7 }, callback: function(v) { return '$' + v; } } }
+        },
+        plugins: {
+          legend: { labels: { color: '#9A8878', font: { family: "'Press Start 2P'", size: 7 }, boxWidth: 12, padding: 15 } },
+          tooltip: { titleFont: { family: "'Press Start 2P'", size: 7 }, bodyFont: { family: "'Press Start 2P'", size: 7 },
+            callbacks: { label: function(c) { return c.dataset.label + ': $' + c.parsed.y.toFixed(2); } } }
+        }
+      }
+    });
+  });
+}
+
+// Auto-focus auth input
+document.getElementById('authInput').focus();
+</script>
+</body>
+</html>
