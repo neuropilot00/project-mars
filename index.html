@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>PIXEL WAR v9.2 — RED COLONIZATION</title>
+<title>PIXEL WAR v9.3 — RED COLONIZATION</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <script src="//unpkg.com/globe.gl@2.27.2"></script>
+<script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
 <style>
 :root{
   --bg:#0D0B14;--panel:rgba(14,12,24,0.93);--panel2:rgba(20,16,32,0.95);
@@ -188,6 +189,48 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 @keyframes stampPulse{0%,100%{border-color:rgba(255,120,60,.25)}50%{border-color:rgba(255,120,60,.5)}}
 .back-btn:hover{background:rgba(255,120,60,.2)!important;color:var(--tx)!important}
 
+/* Wallet Panel */
+.wallet-panel{display:flex;flex-direction:column;gap:6px;padding:8px;
+  background:rgba(0,0,0,.2);border:1px solid var(--bdr);border-radius:8px;margin-bottom:8px}
+.wallet-addr{font-size:var(--fs-xs);color:var(--cyan);word-break:break-all;line-height:1.4}
+.wallet-bal{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0}
+.wallet-bal .lbl{font-size:var(--fs-xs);color:var(--tx3)}.wallet-bal .val{font-size:var(--fs-md)}
+.wallet-bal .val.usdt{color:var(--gn)}.wallet-bal .val.pp{color:var(--pp)}
+.wallet-actions{display:flex;gap:4px;margin-top:2px}
+.wa-btn{flex:1;padding:7px 4px;font-size:var(--fs-xs);font-family:var(--fn);border-radius:6px;
+  cursor:pointer;transition:all .15s;text-align:center;border:1px solid}
+.wa-btn.dep{background:rgba(76,216,154,.06);border-color:rgba(76,216,154,.2);color:var(--gn)}
+.wa-btn.dep:hover{background:rgba(76,216,154,.15)}
+.wa-btn.wdr{background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.2);color:var(--red)}
+.wa-btn.wdr:hover{background:rgba(232,72,85,.15)}
+.wa-btn.swp{background:rgba(184,136,224,.06);border-color:rgba(184,136,224,.2);color:var(--pp)}
+.wa-btn.swp:hover{background:rgba(184,136,224,.15)}
+.wa-btn.dis{background:rgba(255,120,60,.06);border-color:rgba(255,120,60,.2);color:var(--mars)}
+.wa-btn.dis:hover{background:rgba(255,120,60,.15)}
+
+/* Chain indicator in topbar */
+.chain-indicator{display:flex;align-items:center;gap:4px;padding:4px 8px;
+  font-size:var(--fs-xs);font-family:var(--fn);border-radius:6px;
+  background:var(--surface2);border:1px solid var(--bdr)}
+.chain-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.chain-dot.base{background:#5BB8E8}.chain-dot.bnb{background:#E8B040}.chain-dot.eth{background:#A080E0}
+
+/* Deposit/Withdraw Modal */
+.dw-amount-wrap{display:flex;gap:4px;align-items:center}
+.dw-amount{flex:1;padding:10px 8px;background:rgba(0,0,0,.3);border:1px solid var(--bdr);
+  color:var(--tx);font-size:var(--fs-lg);font-family:var(--fn);outline:none;border-radius:6px;
+  -moz-appearance:textfield}
+.dw-amount:focus{border-color:var(--mars);background:rgba(255,120,60,.03)}
+.dw-amount::-webkit-inner-spin-button{-webkit-appearance:none}
+.dw-max{padding:10px 12px;font-size:var(--fs-xs);font-family:var(--fn);
+  background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.2);border-radius:6px;
+  color:var(--mars);cursor:pointer}
+.dw-max:hover{background:rgba(255,120,60,.15)}
+.dw-info{font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;padding:6px 0}
+.dw-info span{color:var(--tx2)}
+.dw-warn{font-size:var(--fs-xs);color:var(--red);padding:6px 8px;
+  background:rgba(232,72,85,.05);border:1px solid rgba(232,72,85,.12);border-radius:6px;line-height:1.6}
+
 /* Range slider */
 input[type=range]{-webkit-appearance:none;height:4px;background:var(--bdr);border-radius:2px;outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
@@ -227,10 +270,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <!-- Top Bar -->
 <div class="topbar">
   <div class="tb-left">
-    <span class="tb-title">PIXEL WAR v9.2</span>
+    <span class="tb-title">PIXEL WAR v9.3</span>
     <span class="tb-sub">RED COLONIZATION</span>
   </div>
   <div style="display:flex;gap:6px;align-items:center">
+    <div class="chain-indicator" id="chainIndicator" style="display:none">
+      <span class="chain-dot base" id="chainDotTop"></span>
+      <span id="chainNameTop">BASE</span>
+    </div>
     <button class="tb-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
   </div>
 </div>
@@ -266,6 +313,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="p-section">
     <div class="p-title">MY IMAGES</div>
     <div id="myImagesList" style="max-height:150px;overflow-y:auto"><div style="font-size:7px;color:var(--tx3)">No images placed yet</div></div>
+  </div>
+  <!-- Wallet Panel (visible after connect) -->
+  <div class="p-section" id="walletSection" style="display:none">
+    <div class="p-title">MY WALLET</div>
+    <div class="wallet-panel">
+      <div class="wallet-addr" id="walletAddr">--</div>
+      <div class="wallet-bal"><span class="lbl">USDT</span><span class="val usdt" id="walletUsdt">0.00</span></div>
+      <div class="wallet-bal"><span class="lbl">PP</span><span class="val pp" id="walletPP">0.00</span></div>
+      <div class="wallet-bal"><span class="lbl">CHAIN</span><span class="val" id="walletChain" style="color:var(--cyan)">--</span></div>
+      <div class="wallet-actions">
+        <button class="wa-btn dep" onclick="openDepositModal()">DEPOSIT</button>
+        <button class="wa-btn wdr" onclick="openWithdrawModal()">WITHDRAW</button>
+      </div>
+      <div class="wallet-actions">
+        <button class="wa-btn swp" onclick="openSwapModal()">PP→USDT</button>
+        <button class="wa-btn dis" onclick="disconnectWallet()">DISCONNECT</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -402,6 +467,95 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
       </div>
       <button class="cfm" onclick="confirmClaim()">CONFIRM CLAIM</button>
       <div class="mn">Owner receives 100% refund + 10% bonus · Platform fee: 10%</div>
+    </div>
+  </div>
+</div>
+
+<!-- Deposit Modal -->
+<div class="mbg" id="depositModal">
+  <div class="mdl" style="width:400px">
+    <div class="mhd">
+      <span class="mtl">DEPOSIT USDT</span>
+      <button class="mx" onclick="closeDepositModal()">×</button>
+    </div>
+    <div class="mbd">
+      <div class="mf"><div class="mfl">CURRENT BALANCE</div><div class="mfv gn" id="depCurBal">0.00 USDT</div></div>
+      <div class="mdv"></div>
+      <div class="mf">
+        <div class="mfl">DEPOSIT AMOUNT</div>
+        <div class="dw-amount-wrap">
+          <input type="number" class="dw-amount" id="depAmount" placeholder="0.00" min="0" step="0.01">
+          <button class="dw-max" onclick="setDepMax()">MAX</button>
+        </div>
+      </div>
+      <div class="mf">
+        <div class="mfl">DEPOSIT CHAIN</div>
+        <div class="cr">
+          <button class="cb base sel" id="depChainBase" onclick="selectDepChain('base')"><span class="ci">●</span><span class="cn">BASE</span></button>
+          <button class="cb bnb" id="depChainBnb" onclick="selectDepChain('bnb')"><span class="ci">●</span><span class="cn">BNB</span></button>
+          <button class="cb eth" id="depChainEth" onclick="selectDepChain('eth')"><span class="ci">◆</span><span class="cn">ETH</span></button>
+        </div>
+      </div>
+      <div class="dw-info">
+        Deposit USDT to the game contract.<br>
+        <span>+10% PP bonus</span> on every deposit.<br>
+        You will receive: <span id="depReceive">0.00 USDT + 0.00 PP</span>
+      </div>
+      <button class="cfm" id="depConfirmBtn" onclick="confirmDeposit()">APPROVE & DEPOSIT</button>
+      <div class="mn">Step 1: Approve USDT · Step 2: Deposit to contract</div>
+    </div>
+  </div>
+</div>
+
+<!-- Withdraw Modal -->
+<div class="mbg" id="withdrawModal">
+  <div class="mdl" style="width:400px">
+    <div class="mhd">
+      <span class="mtl">WITHDRAW USDT</span>
+      <button class="mx" onclick="closeWithdrawModal()">×</button>
+    </div>
+    <div class="mbd">
+      <div class="mf"><div class="mfl">AVAILABLE USDT</div><div class="mfv gn" id="wdrAvail">0.00 USDT</div></div>
+      <div class="mdv"></div>
+      <div class="mf">
+        <div class="mfl">WITHDRAW AMOUNT</div>
+        <div class="dw-amount-wrap">
+          <input type="number" class="dw-amount" id="wdrAmount" placeholder="0.00" min="0" step="0.01">
+          <button class="dw-max" onclick="setWdrMax()">MAX</button>
+        </div>
+      </div>
+      <div class="dw-info">
+        Withdraw USDT from game balance to your wallet.<br>
+        Server signs the withdrawal for on-chain execution.
+      </div>
+      <button class="cfm" id="wdrConfirmBtn" onclick="confirmWithdraw()">REQUEST WITHDRAWAL</button>
+      <div class="mn">Server verifies → Signs → You execute on-chain</div>
+    </div>
+  </div>
+</div>
+
+<!-- Swap Modal (PP → USDT) -->
+<div class="mbg" id="swapModal">
+  <div class="mdl" style="width:400px">
+    <div class="mhd">
+      <span class="mtl" style="color:var(--pp)">SWAP PP → USDT</span>
+      <button class="mx" onclick="closeSwapModal()">×</button>
+    </div>
+    <div class="mbd">
+      <div class="mf"><div class="mfl">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="swpPPBal">0.00 PP</div></div>
+      <div class="mdv"></div>
+      <div class="mf">
+        <div class="mfl">SWAP AMOUNT (PP)</div>
+        <div class="dw-amount-wrap">
+          <input type="number" class="dw-amount" id="swpAmount" placeholder="0.00" min="0" step="0.01" oninput="updateSwapPreview()">
+          <button class="dw-max" onclick="setSwpMax()">MAX</button>
+        </div>
+      </div>
+      <div class="dw-info">
+        Swap fee: <span style="color:var(--red)">5%</span><br>
+        You receive: <span id="swpReceive" style="color:var(--gn)">0.00 USDT</span>
+      </div>
+      <button class="cfm" onclick="confirmSwap()">CONFIRM SWAP</button>
     </div>
   </div>
 </div>
@@ -1108,7 +1262,8 @@ function confirmClaim(){
   var hasOverlap=costInfo.overlapCount>0;
 
   var linkVal=(document.getElementById('stampLinkInput').value||document.getElementById('linkUrlInput').value||'').trim();
-  var nc={lat:selectedPlot.lat,lng:selectedPlot.lng,owner:'0xYOUR...WALLET',price:price,
+  var myAddr=walletState.address?shortAddr(walletState.address):'YOU';
+  var nc={lat:selectedPlot.lat,lng:selectedPlot.lng,owner:myAddr,price:price,
     label:'YOU',w:cw,h:ch,link:linkVal||''};
   if(uploadedUrl){nc.imgUrl=uploadedUrl;cacheImage(uploadedUrl)}
   claims.push(nc);
@@ -1120,7 +1275,7 @@ function confirmClaim(){
     var k=pxKey(p.lat,p.lng);
     var existing=pixelGrid[k];
     var newPrice=existing&&existing.owner? existing.price*HIJACK_MULT : PIXEL_PRICE;
-    pixelGrid[k]={owner:'0xYOUR...WALLET',price:newPrice,claimIdx:claimIdx};
+    pixelGrid[k]={owner:myAddr,price:newPrice,claimIdx:claimIdx};
   });
 
   // Reset stamp mode
@@ -1163,18 +1318,408 @@ function clearUpload(){
   document.getElementById('imgUrlInput').value='';
 }
 
-/* ── UI Helpers ──────────────────────────────────── */
+/* ══════════════════════════════════════════════════
+   Wallet & Chain — MetaMask + ethers.js
+   ══════════════════════════════════════════════════ */
+
+// Chain configs
+var CHAINS={
+  base:{
+    chainId:'0x2105', // 8453
+    chainIdDec:8453,
+    name:'Base',
+    rpc:'https://mainnet.base.org',
+    explorer:'https://basescan.org',
+    usdt:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC on Base (commonly used)
+    deposit:'0x0000000000000000000000000000000000000000', // TODO: deploy
+    color:'#5BB8E8',
+    symbol:'ETH',
+    decimals:6
+  },
+  bnb:{
+    chainId:'0x38', // 56
+    chainIdDec:56,
+    name:'BNB Chain',
+    rpc:'https://bsc-dataseed.binance.org',
+    explorer:'https://bscscan.com',
+    usdt:'0x55d398326f99059fF775485246999027B3197955', // BSC USDT
+    deposit:'0x0000000000000000000000000000000000000000',
+    color:'#E8B040',
+    symbol:'BNB',
+    decimals:18
+  },
+  eth:{
+    chainId:'0x1', // 1
+    chainIdDec:1,
+    name:'Ethereum',
+    rpc:'https://eth.llamarpc.com',
+    explorer:'https://etherscan.io',
+    usdt:'0xdAC17F958D2ee523a2206206994597C13D831ec7', // ETH USDT
+    deposit:'0x0000000000000000000000000000000000000000',
+    color:'#A080E0',
+    symbol:'ETH',
+    decimals:6
+  }
+};
+
+var ERC20_ABI=[
+  'function balanceOf(address) view returns (uint256)',
+  'function allowance(address,address) view returns (uint256)',
+  'function approve(address,uint256) returns (bool)',
+  'function decimals() view returns (uint8)',
+  'function symbol() view returns (string)'
+];
+
+var DEPOSIT_ABI=[
+  'function deposit(uint256) external',
+  'function withdraw(uint256,uint256,uint256,uint256,bytes) external',
+  'function getUserDeposited(address) view returns (uint256)',
+  'function getUserWithdrawn(address) view returns (uint256)',
+  'function getContractBalance() view returns (uint256)',
+  'function getUserNonce(address) view returns (uint256)'
+];
+
+// Wallet state
+var walletState={
+  connected:false,
+  address:null,
+  chain:null, // 'base'|'bnb'|'eth'
+  provider:null,
+  signer:null,
+  usdtBalance:0,    // on-chain USDT in wallet
+  gameUsdt:0,       // in-game USDT (from DB — simulated)
+  gamePP:0,         // in-game PP (from DB — simulated)
+  usdtContract:null,
+  depositContract:null
+};
+
+function shortAddr(addr){
+  return addr?addr.slice(0,6)+'...'+addr.slice(-4):'--';
+}
+
+// ── Connect Wallet ──
+async function connectWallet(){
+  if(walletState.connected){return}
+  if(!window.ethereum){
+    showToast('INSTALL METAMASK!');
+    window.open('https://metamask.io','_blank');
+    return;
+  }
+  try{
+    var provider=new ethers.providers.Web3Provider(window.ethereum,'any');
+    var accounts=await provider.send('eth_requestAccounts',[]);
+    if(!accounts.length){showToast('NO ACCOUNT');return}
+    var signer=provider.getSigner();
+    var addr=await signer.getAddress();
+    var network=await provider.getNetwork();
+
+    walletState.connected=true;
+    walletState.address=addr;
+    walletState.provider=provider;
+    walletState.signer=signer;
+
+    // Detect current chain
+    var detectedChain=detectChain(network.chainId);
+    walletState.chain=detectedChain||'base';
+
+    // Update UI
+    updateWalletUI();
+    updateChainUI();
+    await refreshBalances();
+
+    showToast('WALLET CONNECTED');
+
+    // Listen for account/chain changes
+    window.ethereum.on('accountsChanged',function(accs){
+      if(!accs.length){disconnectWallet();return}
+      walletState.address=accs[0];
+      updateWalletUI();
+      refreshBalances();
+    });
+    window.ethereum.on('chainChanged',function(chainIdHex){
+      var ch=detectChain(parseInt(chainIdHex,16));
+      walletState.chain=ch||walletState.chain;
+      walletState.provider=new ethers.providers.Web3Provider(window.ethereum,'any');
+      walletState.signer=walletState.provider.getSigner();
+      updateChainUI();
+      refreshBalances();
+    });
+  }catch(e){
+    console.error('Connect error:',e);
+    showToast('CONNECTION FAILED');
+  }
+}
+
+function detectChain(chainId){
+  for(var k in CHAINS){if(CHAINS[k].chainIdDec===chainId)return k}
+  return null;
+}
+
+function disconnectWallet(){
+  walletState.connected=false;
+  walletState.address=null;
+  walletState.provider=null;
+  walletState.signer=null;
+  walletState.usdtBalance=0;
+  walletState.gameUsdt=0;
+  walletState.gamePP=0;
+  document.getElementById('walletBtn').textContent='CONNECT WALLET';
+  document.getElementById('walletBtn').style.color='var(--mars)';
+  document.getElementById('walletSection').style.display='none';
+  document.getElementById('chainIndicator').style.display='none';
+  showToast('WALLET DISCONNECTED');
+}
+
+function updateWalletUI(){
+  var btn=document.getElementById('walletBtn');
+  btn.textContent=shortAddr(walletState.address);
+  btn.style.color='var(--gn)';
+  document.getElementById('walletSection').style.display='';
+  document.getElementById('walletAddr').textContent=walletState.address;
+}
+
+function updateChainUI(){
+  var ch=walletState.chain;
+  if(!ch)return;
+  var cfg=CHAINS[ch];
+  // Topbar indicator
+  var ind=document.getElementById('chainIndicator');
+  ind.style.display='flex';
+  ind.style.borderColor=cfg.color+'44';
+  ind.style.color=cfg.color;
+  document.getElementById('chainDotTop').className='chain-dot '+ch;
+  document.getElementById('chainNameTop').textContent=cfg.name.toUpperCase();
+  // Wallet panel
+  document.getElementById('walletChain').textContent=cfg.name;
+  document.getElementById('walletChain').style.color=cfg.color;
+  // Claim modal chain buttons
+  selectChain(ch);
+}
+
+async function refreshBalances(){
+  if(!walletState.connected)return;
+  var ch=walletState.chain;
+  if(!ch||!CHAINS[ch])return;
+  var cfg=CHAINS[ch];
+  try{
+    // Read on-chain USDT balance
+    var usdt=new ethers.Contract(cfg.usdt,ERC20_ABI,walletState.provider);
+    walletState.usdtContract=usdt;
+    var bal=await usdt.balanceOf(walletState.address);
+    var dec=cfg.decimals;
+    walletState.usdtBalance=parseFloat(ethers.utils.formatUnits(bal,dec));
+    // Update UI
+    document.getElementById('walletUsdt').textContent=walletState.usdtBalance.toFixed(2)+' USDT';
+    // Game balances (would come from backend API — using simulated values for now)
+    document.getElementById('walletPP').textContent=walletState.gamePP.toFixed(2)+' PP';
+    // MY LAND section
+    document.getElementById('myEarned').textContent=walletState.gameUsdt.toFixed(2)+' USDT';
+  }catch(e){
+    console.warn('Balance read error:',e);
+    document.getElementById('walletUsdt').textContent='(read error)';
+  }
+}
+
+// ── Chain Switching ──
+async function switchChain(chainKey){
+  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
+  var cfg=CHAINS[chainKey];
+  try{
+    await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:cfg.chainId}]});
+  }catch(e){
+    if(e.code===4902){
+      // Chain not added — add it
+      try{
+        await window.ethereum.request({method:'wallet_addEthereumChain',params:[{
+          chainId:cfg.chainId,
+          chainName:cfg.name,
+          rpcUrls:[cfg.rpc],
+          blockExplorerUrls:[cfg.explorer],
+          nativeCurrency:{name:cfg.symbol,symbol:cfg.symbol,decimals:18}
+        }]});
+      }catch(e2){showToast('ADD CHAIN FAILED');console.error(e2)}
+    }else{
+      showToast('SWITCH CHAIN FAILED');console.error(e);
+    }
+  }
+}
+
 function selectChain(ch){
   selectedChain=ch;
   document.getElementById('chainBase').classList.toggle('sel',ch==='base');
   document.getElementById('chainBnb').classList.toggle('sel',ch==='bnb');
   document.getElementById('chainEth').classList.toggle('sel',ch==='eth');
+  if(walletState.connected&&walletState.chain!==ch){
+    switchChain(ch);
+  }
 }
-function connectWallet(){
-  document.getElementById('walletBtn').textContent='0x1A2...3F4 (5,000 USDT)';
-  document.getElementById('walletBtn').style.color='var(--gn)';
-  showToast('WALLET CONNECTED');
+
+// ── Deposit Modal ──
+var depChain='base';
+function openDepositModal(){
+  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
+  depChain=walletState.chain||'base';
+  document.getElementById('depCurBal').textContent=walletState.usdtBalance.toFixed(2)+' USDT (wallet)';
+  document.getElementById('depAmount').value='';
+  document.getElementById('depReceive').textContent='0.00 USDT + 0.00 PP';
+  selectDepChain(depChain);
+  document.getElementById('depositModal').classList.add('open');
 }
+function closeDepositModal(){document.getElementById('depositModal').classList.remove('open')}
+
+function selectDepChain(ch){
+  depChain=ch;
+  document.getElementById('depChainBase').classList.toggle('sel',ch==='base');
+  document.getElementById('depChainBnb').classList.toggle('sel',ch==='bnb');
+  document.getElementById('depChainEth').classList.toggle('sel',ch==='eth');
+}
+
+function setDepMax(){
+  document.getElementById('depAmount').value=walletState.usdtBalance.toFixed(2);
+  updateDepPreview();
+}
+
+document.getElementById('depAmount').addEventListener('input',updateDepPreview);
+function updateDepPreview(){
+  var amt=parseFloat(document.getElementById('depAmount').value)||0;
+  var pp=amt*0.1;
+  document.getElementById('depReceive').textContent=amt.toFixed(2)+' USDT + '+pp.toFixed(2)+' PP';
+}
+
+async function confirmDeposit(){
+  if(!walletState.connected){showToast('CONNECT WALLET');return}
+  var amt=parseFloat(document.getElementById('depAmount').value);
+  if(!amt||amt<=0){showToast('ENTER AMOUNT');return}
+  if(amt>walletState.usdtBalance){showToast('INSUFFICIENT USDT');return}
+
+  var cfg=CHAINS[depChain];
+  if(walletState.chain!==depChain){
+    showToast('SWITCHING TO '+cfg.name.toUpperCase()+'...');
+    await switchChain(depChain);
+    return;
+  }
+
+  var btn=document.getElementById('depConfirmBtn');
+  btn.textContent='APPROVING...';btn.disabled=true;
+
+  try{
+    var usdt=new ethers.Contract(cfg.usdt,ERC20_ABI,walletState.signer);
+    var decimals=cfg.decimals;
+    var amtBN=ethers.utils.parseUnits(amt.toString(),decimals);
+
+    // Check allowance
+    var allowance=await usdt.allowance(walletState.address,cfg.deposit);
+    if(allowance.lt(amtBN)){
+      btn.textContent='APPROVE USDT...';
+      var approveTx=await usdt.approve(cfg.deposit,ethers.constants.MaxUint256);
+      showToast('APPROVING USDT...');
+      await approveTx.wait();
+      showToast('APPROVED!');
+    }
+
+    // Deposit
+    btn.textContent='DEPOSITING...';
+    var deposit=new ethers.Contract(cfg.deposit,DEPOSIT_ABI,walletState.signer);
+    var tx=await deposit.deposit(amtBN);
+    showToast('TX SENT: '+tx.hash.slice(0,10)+'...');
+    await tx.wait();
+
+    // Update simulated game balance
+    walletState.gameUsdt+=amt;
+    walletState.gamePP+=amt*0.1;
+
+    await refreshBalances();
+    closeDepositModal();
+    showToast('DEPOSITED '+amt.toFixed(2)+' USDT! +'+( amt*0.1).toFixed(2)+' PP bonus');
+    addFeed('💰 '+shortAddr(walletState.address)+' deposited $'+amt.toFixed(2));
+  }catch(e){
+    console.error('Deposit error:',e);
+    if(e.code===4001||e.code==='ACTION_REJECTED'){
+      showToast('TRANSACTION CANCELLED');
+    }else{
+      showToast('DEPOSIT FAILED: '+(e.reason||e.message||'').slice(0,40));
+    }
+  }finally{
+    btn.textContent='APPROVE & DEPOSIT';btn.disabled=false;
+  }
+}
+
+// ── Withdraw Modal ──
+function openWithdrawModal(){
+  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
+  document.getElementById('wdrAvail').textContent=walletState.gameUsdt.toFixed(2)+' USDT';
+  document.getElementById('wdrAmount').value='';
+  document.getElementById('withdrawModal').classList.add('open');
+}
+function closeWithdrawModal(){document.getElementById('withdrawModal').classList.remove('open')}
+function setWdrMax(){document.getElementById('wdrAmount').value=walletState.gameUsdt.toFixed(2)}
+
+async function confirmWithdraw(){
+  var amt=parseFloat(document.getElementById('wdrAmount').value);
+  if(!amt||amt<=0){showToast('ENTER AMOUNT');return}
+  if(amt>walletState.gameUsdt){showToast('INSUFFICIENT BALANCE');return}
+
+  var btn=document.getElementById('wdrConfirmBtn');
+  btn.textContent='REQUESTING...';btn.disabled=true;
+
+  try{
+    // In production: POST /api/withdraw → server returns signature
+    // Then call contract.withdraw(amount, fee, nonce, deadline, signature)
+    // For now: simulate
+    await new Promise(function(r){setTimeout(r,1500)});
+
+    walletState.gameUsdt-=amt;
+    walletState.usdtBalance+=amt;
+    await refreshBalances();
+    closeWithdrawModal();
+    showToast('WITHDRAWN '+amt.toFixed(2)+' USDT');
+    addFeed('💸 '+shortAddr(walletState.address)+' withdrew $'+amt.toFixed(2));
+  }catch(e){
+    showToast('WITHDRAW FAILED');
+    console.error(e);
+  }finally{
+    btn.textContent='REQUEST WITHDRAWAL';btn.disabled=false;
+  }
+}
+
+// ── Swap Modal (PP → USDT) ──
+function openSwapModal(){
+  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
+  document.getElementById('swpPPBal').textContent=walletState.gamePP.toFixed(2)+' PP';
+  document.getElementById('swpAmount').value='';
+  document.getElementById('swpReceive').textContent='0.00 USDT';
+  document.getElementById('swapModal').classList.add('open');
+}
+function closeSwapModal(){document.getElementById('swapModal').classList.remove('open')}
+function setSwpMax(){
+  document.getElementById('swpAmount').value=walletState.gamePP.toFixed(2);
+  updateSwapPreview();
+}
+function updateSwapPreview(){
+  var amt=parseFloat(document.getElementById('swpAmount').value)||0;
+  var fee=amt*0.05;
+  document.getElementById('swpReceive').textContent=(amt-fee).toFixed(2)+' USDT (fee: '+fee.toFixed(2)+')';
+}
+
+async function confirmSwap(){
+  var amt=parseFloat(document.getElementById('swpAmount').value);
+  if(!amt||amt<=0){showToast('ENTER AMOUNT');return}
+  if(amt>walletState.gamePP){showToast('INSUFFICIENT PP');return}
+  var fee=amt*0.05;
+  var received=amt-fee;
+
+  // In production: POST /api/swap
+  await new Promise(function(r){setTimeout(r,800)});
+
+  walletState.gamePP-=amt;
+  walletState.gameUsdt+=received;
+  refreshBalances();
+  closeSwapModal();
+  showToast('SWAPPED '+amt.toFixed(2)+' PP → '+received.toFixed(2)+' USDT');
+  addFeed('🔄 '+shortAddr(walletState.address)+' swapped '+amt.toFixed(0)+' PP');
+}
+
+/* ── UI Helpers ──────────────────────────────────── */
 function zoomIn(){globe.pointOfView({altitude:Math.max(.08,globe.pointOfView().altitude*.7)},300);isZoomedIn=true}
 function zoomOut(){
   var newAlt=Math.min(4,globe.pointOfView().altitude*1.4);
@@ -1251,7 +1796,8 @@ function searchOwner(){
 function refreshMyImages(){
   var box=document.getElementById('myImagesList');
   box.innerHTML='';
-  var mine=claims.filter(function(c){return c.owner==='0xYOUR...WALLET'||c.label==='YOU'});
+  var myAddr=walletState.address?shortAddr(walletState.address):'YOU';
+  var mine=claims.filter(function(c){return c.owner===myAddr||c.label==='YOU'});
   if(!mine.length){box.innerHTML='<div style="font-size:7px;color:var(--tx3)">No images yet</div>';return}
   // Newest first (reverse order)
   for(var i=mine.length-1;i>=0;i--){
