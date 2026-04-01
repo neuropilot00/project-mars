@@ -1577,16 +1577,31 @@ function getCellRect(lat,lng,cw,ch,tw,th){
 var claimsSnapshot=null; // ImageData of base Mars + claims (no preview)
 var previewRafId=null;
 var marsCanvasTexture=null; // THREE.CanvasTexture for direct GPU upload (no JPEG)
+var nasaBaseImg=null; // cached NASA texture Image for composite
 
 function compositeClaimsOnTexture(previewOnly){
   var ctx=marsCanvas.getContext('2d');
   var w=marsCanvas.width,h=marsCanvas.height;
-  var base=imgCache[marsBaseData];
-  if(!base){cacheImage(marsBaseData,function(){compositeClaimsOnTexture()});return}
+
+  // Choose base image based on current texture mode
+  var baseUrl=marsBaseData;
+  if(currentTexMode==='nasa'){
+    var nasaUrl=nasa8kLoaded?NASA_MARS_8K:NASA_MARS_2K;
+    if(imgCache[nasaUrl]){
+      baseUrl=nasaUrl;
+    }else{
+      // Cache NASA texture then retry
+      cacheImage(nasaUrl,function(){compositeClaimsOnTexture()});
+      // Fall through to procedural as temporary base
+    }
+  }
+
+  var base=imgCache[baseUrl];
+  if(!base){cacheImage(baseUrl,function(){compositeClaimsOnTexture()});return}
 
   if(!previewOnly){
     // Full rebuild: base + grid + claims → cache snapshot
-    ctx.drawImage(base,0,0);
+    ctx.drawImage(base,0,0,w,h);
 
     // Faint grid (every 10°)
     ctx.strokeStyle='rgba(255,107,53,0.03)';ctx.lineWidth=0.5;
@@ -1853,18 +1868,21 @@ function _initStep3(){
 }
 
 function toggleMarsTexture(){
+  // Reset canvas texture so compositeClaimsOnTexture rebuilds it
+  marsCanvasTexture=null;
+  claimsSnapshot=null;
   if(currentTexMode==='procedural'){
     currentTexMode='nasa';
     document.getElementById('texToggleLabel').textContent='GEN';
     document.getElementById('texToggleBtn').title='Current: NASA Real | Click for Procedural';
-    globe.globeImageUrl(nasa8kLoaded?NASA_MARS_8K:NASA_MARS_2K);
   }else{
     currentTexMode='procedural';
     document.getElementById('texToggleLabel').textContent='NASA';
     document.getElementById('texToggleBtn').title='Current: Procedural | Click for NASA Real';
-    globe.globeImageUrl(marsTexUrl);
   }
   localStorage.setItem('marsTexMode',currentTexMode);
+  // Re-composite with new base texture (NASA or procedural) + all claims
+  compositeClaimsOnTexture();
 }
 
 function loadNasa8k(){
@@ -1997,7 +2015,9 @@ document.getElementById('globe-wrap').addEventListener('touchstart',stopRotation
 function goBack(){
   selectedPlot=null;isZoomedIn=false;
   document.getElementById('territoryInfo').style.display='none';
-  globe.pointOfView({lat:0,lng:0,altitude:2.5},1000);
+  // Zoom out from current view position (don't reset lat/lng)
+  var pov=globe.pointOfView();
+  globe.pointOfView({lat:pov.lat,lng:pov.lng,altitude:2.5},1000);
   globe.controls().autoRotate=true;
   compositeClaimsOnTexture();
 }
@@ -2348,7 +2368,7 @@ function openClaimModal(){
 }
 function closeClaimModal(){document.getElementById('claimModal').classList.remove('open')}
 
-function confirmClaim(){
+async function confirmClaim(){
   if(!selectedPlot) return;
   // 로그인 체크
   if(!walletState.connected){
@@ -2361,47 +2381,94 @@ function confirmClaim(){
   var costInfo=lastStampCost||calcStampCost(selectedPlot.lat,selectedPlot.lng,cw,ch);
   var price=costInfo.total;
   var hasOverlap=costInfo.overlapCount>0;
-
   var linkVal=(document.getElementById('stampLinkInput')?document.getElementById('stampLinkInput').value:'').trim();
-  var myAddr=walletState.address?shortAddr(walletState.address):'YOU';
-  var nc={lat:selectedPlot.lat,lng:selectedPlot.lng,owner:myAddr,price:price,
-    label:'YOU',w:cw,h:ch,link:linkVal||''};
-  if(uploadedUrl){nc.imgUrl=uploadedUrl;cacheImage(uploadedUrl)}
-  claims.push(nc);
 
-  // Register pixels in grid with updated prices (overlapping pixels get 1.2× price)
-  var pixels=getClaimPixels(selectedPlot.lat,selectedPlot.lng,cw,ch);
-  var claimIdx=claims.length-1;
-  pixels.forEach(function(p){
-    var k=pxKey(p.lat,p.lng);
-    var existing=pixelGrid[k];
-    var newPrice=existing&&existing.owner? existing.price*HIJACK_MULT : PIXEL_PRICE;
-    pixelGrid[k]={owner:myAddr,price:newPrice,claimIdx:claimIdx};
-  });
+  // Disable button while processing
+  var btn=document.getElementById('claimConfirmBtn');
+  if(btn){btn.disabled=true;btn.textContent='PROCESSING...';}
 
-  // Reset stamp mode
-  stampMode=false; stampImgUrl=null;
-  stampPreviewLat=null; stampPreviewLng=null;
-  lastStampCost=null;
-  document.getElementById('stampPreview').style.display='none';
-  compositeClaimsOnTexture();
-  totalClaimed++;totalVolume+=price;
-  document.getElementById('statPlots').textContent=totalClaimed;
-  document.getElementById('statTVL').textContent='$'+totalVolume.toLocaleString();
-  addFeed(hasOverlap
-    ?'💀 YOU claimed+hijacked ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°] ('+costInfo.overlapCount+'px overlap)!'
-    :'⚡ YOU claimed ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°]!');
-  closeClaimModal();
-  showToast(hasOverlap?'HIJACKED '+costInfo.overlapCount+'px! $'+price:'CLAIMED! $'+price);
-  selectedPlot=null;uploadedUrl=null;
-  document.getElementById('territoryInfo').style.display='none';
-  refreshMyStats();
-  // Simulate hijack alerts for affected owners (in production: server push)
-  if(costInfo.overlapCount>0){
-    for(var o in costInfo.affectedOwners){
-      var a=costInfo.affectedOwners[o];
-      addAlert('earn','Hijack refund: $'+a.refund.toFixed(2)+' + $'+a.bonus.toFixed(2)+' PP bonus from '+shortAddr(walletState.address||''),{lat:selectedPlot.lat,lng:selectedPlot.lng});
+  try{
+    // ── Server API call: deduct PP/USDT and record claim ──
+    var headers={'Content-Type':'application/json'};
+    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+
+    var resp=await fetch('/api/claim',{
+      method:'POST',
+      headers:headers,
+      body:JSON.stringify({
+        wallet:walletState.address,
+        lat:selectedPlot.lat,
+        lng:selectedPlot.lng,
+        width:cw,
+        height:ch,
+        imageUrl:uploadedUrl||'',
+        linkUrl:linkVal||''
+      })
+    });
+    var d=await resp.json();
+
+    if(!resp.ok){
+      showToast(d.error||'CLAIM FAILED');
+      if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
+      return;
     }
+
+    // ── Success: update local state ──
+    var myAddr=walletState.address?shortAddr(walletState.address):'YOU';
+    var nc={lat:selectedPlot.lat,lng:selectedPlot.lng,owner:myAddr,price:price,
+      label:'YOU',w:cw,h:ch,link:linkVal||''};
+    if(uploadedUrl){nc.imgUrl=uploadedUrl;cacheImage(uploadedUrl)}
+    claims.push(nc);
+
+    // Register pixels in grid with updated prices
+    var pixels=getClaimPixels(selectedPlot.lat,selectedPlot.lng,cw,ch);
+    var claimIdx=claims.length-1;
+    pixels.forEach(function(p){
+      var k=pxKey(p.lat,p.lng);
+      var existing=pixelGrid[k];
+      var newPrice=existing&&existing.owner? existing.price*HIJACK_MULT : PIXEL_PRICE;
+      pixelGrid[k]={owner:myAddr,price:newPrice,claimIdx:claimIdx};
+    });
+
+    // Reset stamp mode
+    stampMode=false; stampImgUrl=null;
+    stampPreviewLat=null; stampPreviewLng=null;
+    lastStampCost=null;
+    document.getElementById('stampPreview').style.display='none';
+    compositeClaimsOnTexture();
+    totalClaimed++;totalVolume+=price;
+    document.getElementById('statPlots').textContent=totalClaimed;
+    document.getElementById('statTVL').textContent='$'+totalVolume.toLocaleString();
+    addFeed(hasOverlap
+      ?'💀 YOU claimed+hijacked ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°] ('+costInfo.overlapCount+'px overlap)!'
+      :'⚡ YOU claimed ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°]!');
+    closeClaimModal();
+    showToast(hasOverlap?'HIJACKED '+costInfo.overlapCount+'px! $'+price:'CLAIMED! $'+price);
+
+    // Update balances from server response
+    if(d.ppUsed!==undefined||d.usdtUsed!==undefined){
+      walletState.gamePP-=(d.ppUsed||0);
+      walletState.gameUsdt-=(d.usdtUsed||0);
+    }
+    refreshEmailBalances();
+
+    var savePlot={lat:selectedPlot.lat,lng:selectedPlot.lng};
+    selectedPlot=null;uploadedUrl=null;
+    document.getElementById('territoryInfo').style.display='none';
+    refreshMyStats();
+
+    // Hijack alerts for affected owners
+    if(hasOverlap&&d.affectedOwners){
+      for(var o in d.affectedOwners){
+        var a=d.affectedOwners[o];
+        addAlert('earn','Hijack refund: $'+(a.refund||0).toFixed(2)+' + $'+(a.bonus||0).toFixed(2)+' PP bonus from '+myAddr,savePlot);
+      }
+    }
+  }catch(e){
+    console.error('Claim error:',e);
+    showToast('CLAIM FAILED: '+(e.message||'Network error'));
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
   }
 }
 
