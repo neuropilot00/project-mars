@@ -17,6 +17,9 @@ async function initDB() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         wallet_address VARCHAR(42) PRIMARY KEY,
+        email VARCHAR(255) UNIQUE,
+        password_hash VARCHAR(255),
+        nickname VARCHAR(50),
         usdt_balance DECIMAL(20,6) DEFAULT 0,
         pp_balance DECIMAL(20,6) DEFAULT 0,
         referred_by VARCHAR(42),
@@ -119,6 +122,15 @@ async function initDB() {
       );
 
       -- Indexes
+      -- Email auth columns (safe to re-run)
+      DO $$ BEGIN
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255) UNIQUE;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS nickname VARCHAR(50);
+      EXCEPTION WHEN OTHERS THEN NULL;
+      END $$;
+
+      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
       CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by);
       CREATE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code);
       CREATE INDEX IF NOT EXISTS idx_referral_rewards_to ON referral_rewards(to_wallet);

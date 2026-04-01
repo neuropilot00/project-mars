@@ -254,18 +254,64 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   cursor:pointer;transition:background .15s;border-radius:4px;line-height:1.5}
 .search-result-item:hover{background:rgba(255,107,53,.08)}
 
+/* Auth Modal */
+.auth-tabs{display:flex;gap:0;margin-bottom:12px}
+.auth-tab{flex:1;padding:10px;font-size:var(--fs-sm);font-family:var(--fn);
+  background:rgba(0,0,0,.2);border:1px solid var(--bdr);color:var(--tx3);cursor:pointer;
+  text-align:center;transition:all .15s}
+.auth-tab:first-child{border-radius:6px 0 0 6px}.auth-tab:last-child{border-radius:0 6px 6px 0}
+.auth-tab.active{background:rgba(255,120,60,.1);border-color:var(--mars);color:var(--mars)}
+.auth-input{width:100%;padding:10px 12px;background:rgba(0,0,0,.25);border:1px solid var(--bdr);
+  color:var(--tx);font-size:var(--fs-md);font-family:var(--fn);outline:none;border-radius:6px;margin-bottom:8px}
+.auth-input:focus{border-color:var(--mars);background:rgba(255,120,60,.03)}
+.auth-input::placeholder{color:var(--tx3)}
+.auth-divider{display:flex;align-items:center;gap:8px;margin:12px 0}
+.auth-divider span{font-size:var(--fs-xs);color:var(--tx3)}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.auth-err-msg{font-size:var(--fs-xs);color:var(--red);min-height:16px;text-align:center}
+.auth-user-bar{display:flex;align-items:center;gap:6px;padding:6px 8px;
+  background:rgba(76,216,154,.04);border:1px solid rgba(76,216,154,.12);border-radius:6px}
+.auth-user-bar .nickname{font-size:var(--fs-sm);color:var(--gn)}
+.auth-user-bar .email-tag{font-size:6px;color:var(--tx3)}
+
+/* Language Switcher */
+.lang-switcher{display:flex;gap:2px;align-items:center}
+.lang-btn{padding:3px 6px;font-size:6px;font-family:var(--fn);background:transparent;
+  border:1px solid rgba(255,255,255,.06);border-radius:3px;color:var(--tx3);cursor:pointer;
+  transition:all .15s}
+.lang-btn:hover{border-color:var(--bdr2);color:var(--tx2)}
+.lang-btn.active{background:rgba(255,120,60,.1);border-color:var(--mars);color:var(--mars)}
+
 /* Mobile */
 @media(max-width:768px){
+  .panel-l,.panel-r{width:100%;top:52px}
   .panel-l{transform:translateX(-110%)}
   .panel-r{transform:translateX(110%)}
-  .panel-l.open{transform:translateX(0)}
-  .panel-r.open{transform:translateX(0)}
+  .panel-l.open,.panel-r.open{transform:translateX(0)}
   .mob-toggle{display:block}
   .zc{right:12px;bottom:16px}
-  .mode-badge{left:12px;bottom:16px}
+  .mode-badge{left:12px;bottom:16px;font-size:6px;padding:4px 8px}
   .topbar{padding:8px 10px}
   .tb-title{font-size:8px}.tb-sub{display:none}
-  .tb-btn{font-size:6px;padding:5px 8px}
+  .tb-btn{font-size:6px;padding:6px 10px;min-height:36px}
+  .lang-switcher{display:none}
+  .lang-switcher-mobile{display:flex!important}
+  .mdl{width:96vw;max-height:85vh}
+  .mbd{padding:12px}
+  .cr{flex-direction:column}
+  .cb{flex-direction:row;padding:8px 12px}
+  .wallet-actions{flex-wrap:wrap}
+  .wa-btn{min-height:40px;font-size:7px}
+  .action-btn{min-height:44px}
+  .sz-btn{min-height:36px}
+  .stat-row{padding:6px 0}
+  .stat-label{font-size:8px}.stat-val{font-size:10px}
+  .p-title{font-size:9px}
+  .dw-amount{font-size:14px;padding:12px 10px}
+  .cfm{min-height:48px;font-size:10px}
+  .stamp-hint{font-size:10px;padding:12px}
+  .mx{min-width:44px;min-height:44px;font-size:20px}
+  .mob-toggle{min-height:40px;padding:8px 12px;font-size:8px}
 }
 </style>
 </head>
@@ -283,11 +329,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <span class="tb-sub">RED COLONIZATION</span>
   </div>
   <div style="display:flex;gap:6px;align-items:center">
+    <div class="lang-switcher" id="langSwitcher">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" onclick="setLang('ja')">JA</button>
+      <button class="lang-btn" onclick="setLang('zh')">ZH</button>
+    </div>
     <div class="chain-indicator" id="chainIndicator" style="display:none">
       <span class="chain-dot base" id="chainDotTop"></span>
       <span id="chainNameTop">BASE</span>
     </div>
-    <button class="tb-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
+    <button class="tb-btn" id="loginBtn" onclick="openAuthModal()" data-i18n="login">LOGIN</button>
+    <button class="tb-btn" id="walletBtn" onclick="connectWallet()" data-i18n="connect_wallet">CONNECT WALLET</button>
   </div>
 </div>
 
@@ -297,8 +350,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
 <!-- Left Panel -->
 <div class="panel-l" id="panelL">
+  <!-- Mobile language switcher -->
+  <div class="lang-switcher lang-switcher-mobile" style="display:none;justify-content:center;gap:4px;padding:6px 0;margin-bottom:8px">
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ko')">KO</button>
+    <button class="lang-btn" onclick="setLang('ja')">JA</button>
+    <button class="lang-btn" onclick="setLang('zh')">ZH</button>
+  </div>
   <div class="p-section">
-    <div class="p-title">GLOBAL STATS</div>
+    <div class="p-title" data-i18n="global_stats">GLOBAL STATS</div>
     <div class="stat-row"><span class="stat-label">TOTAL PIXELS</span><span class="stat-val" style="color:var(--tx2)">1,040,496</span></div>
     <div class="stat-row"><span class="stat-label">PIXELS SOLD</span><span class="stat-val gn" id="statPlots">8,450</span></div>
     <div class="stat-row"><span class="stat-label">TOTAL VOLUME</span><span class="stat-val gold" id="statTVL">$845</span></div>
@@ -306,7 +366,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="stat-row"><span class="stat-label">ACTIVE USERS</span><span class="stat-val">1,247</span></div>
   </div>
   <div class="p-section">
-    <div class="p-title">LEADERBOARD</div>
+    <div class="p-title" data-i18n="leaderboard">LEADERBOARD</div>
     <div class="lb-row"><span class="lb-rank gold">1</span><span class="lb-name">DogeTeam</span><span class="lb-val">12 plots</span></div>
     <div class="lb-row"><span class="lb-rank silver">2</span><span class="lb-name">예원♥</span><span class="lb-val">8 plots</span></div>
     <div class="lb-row"><span class="lb-rank bronze">3</span><span class="lb-name">0xDEAD</span><span class="lb-val">5 plots</span></div>
@@ -315,18 +375,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   </div>
   <!-- Wallet: not connected CTA -->
   <div class="p-section" id="walletCTA">
-    <div class="p-title">MY WALLET</div>
+    <div class="p-title" data-i18n="my_wallet">MY WALLET</div>
     <div style="text-align:center;padding:12px 4px">
       <div style="font-size:20px;margin-bottom:8px">🔗</div>
-      <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;margin-bottom:10px">
-        Connect wallet to deposit USDT,<br>claim territories & earn rewards
+      <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;margin-bottom:10px" data-i18n="wallet_cta_desc">
+        Connect wallet or login to deposit USDT,<br>claim territories & earn rewards
       </div>
-      <button class="cfm" onclick="connectWallet()" style="font-size:var(--fs-sm)">CONNECT WALLET</button>
+      <button class="cfm" onclick="openAuthModal()" style="font-size:var(--fs-sm);margin-bottom:6px" data-i18n="email_login">EMAIL LOGIN / REGISTER</button>
+      <button class="cfm" onclick="connectWallet()" style="font-size:var(--fs-sm);background:rgba(255,120,60,.08);border-color:rgba(255,120,60,.2);color:var(--mars)" data-i18n="connect_metamask">CONNECT WITH METAMASK</button>
     </div>
   </div>
   <!-- Wallet: connected -->
   <div class="p-section" id="walletSection" style="display:none">
-    <div class="p-title">MY WALLET</div>
+    <div class="p-title" data-i18n="my_wallet">MY WALLET</div>
     <div class="wallet-panel">
       <div class="wallet-addr" id="walletAddr">--</div>
       <div style="display:flex;gap:4px;align-items:center;margin:2px 0">
@@ -357,7 +418,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <div class="panel-r" id="panelR">
   <!-- OWNER SEARCH -->
   <div class="p-section">
-    <div class="p-title">SEARCH OWNER</div>
+    <div class="p-title" data-i18n="search_owner">SEARCH OWNER</div>
     <div class="uuw">
       <input type="text" class="ui" id="ownerSearchInput" placeholder="OWNER NAME / ADDRESS..." oninput="searchOwner()" style="flex:1">
     </div>
@@ -366,14 +427,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <!-- TERRITORY INFO (shows when clicking existing claim) -->
   <div class="p-section" id="territoryInfo" style="display:none">
-    <div class="p-title">TERRITORY INFO</div>
+    <div class="p-title" data-i18n="territory_info">TERRITORY INFO</div>
     <div class="stat-row"><span class="stat-label">COORDS</span><span class="stat-val" id="infoCoords">--</span></div>
     <div class="stat-row"><span class="stat-label">OWNER</span><span class="stat-val gold" id="infoOwner">--</span></div>
     <div class="stat-row" id="linkRow" style="display:none"><span class="stat-label">LINK</span><a class="stat-val link-val" id="infoLink" href="#" target="_blank" rel="noopener">--</a></div>
     <div class="stat-row"><span class="stat-label">SIZE</span><span class="stat-val" id="infoSize">--</span></div>
     <div class="stat-row"><span class="stat-label">PRICE PAID</span><span class="stat-val gn" id="infoPrice">--</span></div>
     <div class="stat-row"><span class="stat-label">HIJACK COST</span><span class="stat-val red" id="infoHijack">--</span></div>
-    <button class="action-btn hijack" id="claimBtn" onclick="openClaimModal()">HIJACK THIS PLOT</button>
+    <button class="action-btn hijack" id="claimBtn" onclick="openClaimModal()" data-i18n="hijack_this">HIJACK THIS PLOT</button>
   </div>
 
   <!-- MY ALERTS -->
@@ -401,7 +462,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <!-- STAMP MODE: Image-first workflow -->
   <div class="p-section" id="stampSection">
-    <div class="p-title">PLACE YOUR IMAGE</div>
+    <div class="p-title" data-i18n="place_image">PLACE YOUR IMAGE</div>
     <input type="file" id="stampFileInput" accept="image/*" style="display:none">
     <button class="uf" onclick="document.getElementById('stampFileInput').click()">CHOOSE IMAGE FILE</button>
     <div class="uuw" style="margin-top:5px">
@@ -440,7 +501,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <!-- REFERRAL -->
   <div class="p-section" id="referralSection" style="display:none">
-    <div class="p-title">REFERRAL PROGRAM</div>
+    <div class="p-title" data-i18n="referral_program">REFERRAL PROGRAM</div>
     <div id="referralContent">
       <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;margin-bottom:6px">
         Share your code & earn PP<br>when referrals hijack territory!
@@ -479,7 +540,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <!-- ITEM SHOP -->
   <div class="p-section">
-    <div class="p-title">ITEM SHOP</div>
+    <div class="p-title" data-i18n="item_shop">ITEM SHOP</div>
     <button class="action-btn" onclick="openItemShop()" style="display:flex;align-items:center;justify-content:center;gap:6px">
       <span style="font-size:14px">🛒</span> OPEN SHOP
     </button>
@@ -650,6 +711,55 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         Boost items, territory shields,<br>
         pixel multipliers & more!<br><br>
         <span style="color:var(--mars)">Stay tuned for updates</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Modal (Email Login/Register) -->
+<div class="mbg" id="authModal">
+  <div class="mdl" style="width:400px">
+    <div class="mhd">
+      <span class="mtl" data-i18n="account">ACCOUNT</span>
+      <button class="mx" onclick="closeAuthModal()">×</button>
+    </div>
+    <div class="mbd">
+      <!-- Logged-in state -->
+      <div id="authLoggedIn" style="display:none">
+        <div class="auth-user-bar" style="margin-bottom:12px">
+          <span style="font-size:14px">👤</span>
+          <div style="flex:1">
+            <div class="nickname" id="authNickname">--</div>
+            <div class="email-tag" id="authEmail">--</div>
+          </div>
+        </div>
+        <div class="mf"><div class="mfl" data-i18n="game_wallet">GAME WALLET</div><div class="mfv" style="color:var(--cyan);font-size:8px;word-break:break-all" id="authWallet">--</div></div>
+        <div class="mdv"></div>
+        <div class="mf"><div class="mfl" data-i18n="usdt_balance">USDT BALANCE</div><div class="mfv gn" id="authUsdtBal">0.00</div></div>
+        <div class="mf"><div class="mfl" data-i18n="pp_balance">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="authPPBal">0.00</div></div>
+        <div class="mdv"></div>
+        <div class="dw-info" data-i18n="email_wallet_note" style="text-align:center">
+          Your email account has a built-in game wallet.<br>
+          You can also connect MetaMask for on-chain deposits.
+        </div>
+        <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.08);border-color:rgba(232,72,85,.2);color:var(--red)" data-i18n="logout">LOGOUT</button>
+      </div>
+      <!-- Login/Register form -->
+      <div id="authForm">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')" data-i18n="login">LOGIN</button>
+          <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')" data-i18n="register">REGISTER</button>
+        </div>
+        <input type="email" class="auth-input" id="authEmailInput" placeholder="email@example.com" data-i18n-placeholder="email_placeholder">
+        <input type="password" class="auth-input" id="authPassInput" placeholder="Password (6+ chars)" data-i18n-placeholder="password_placeholder">
+        <div id="registerFields" style="display:none">
+          <input type="text" class="auth-input" id="authNickInput" placeholder="Nickname (optional)" data-i18n-placeholder="nickname_placeholder">
+          <input type="text" class="auth-input" id="authRefInput" placeholder="Referral code (optional)" data-i18n-placeholder="referral_placeholder" style="text-transform:uppercase">
+        </div>
+        <div class="auth-err-msg" id="authErrMsg"></div>
+        <button class="cfm" id="authSubmitBtn" onclick="submitAuth()" data-i18n="login">LOGIN</button>
+        <div class="auth-divider"><span data-i18n="or">OR</span></div>
+        <button class="cfm" onclick="closeAuthModal();connectWallet()" style="background:rgba(255,120,60,.08);border-color:rgba(255,120,60,.2);color:var(--mars)" data-i18n="connect_metamask">CONNECT WITH METAMASK</button>
       </div>
     </div>
   </div>
@@ -1836,6 +1946,324 @@ async function confirmSwap(){
   addFeed('🔄 '+shortAddr(walletState.address)+' swapped '+amt.toFixed(0)+' PP');
 }
 
+/* ══════════════════════════════════════════════════
+   i18n — Internationalization
+   ══════════════════════════════════════════════════ */
+var LANG = localStorage.getItem('pw_lang') || 'en';
+var I18N = {
+  en: {
+    login: 'LOGIN', register: 'REGISTER', logout: 'LOGOUT', account: 'ACCOUNT',
+    connect_wallet: 'CONNECT WALLET', connect_metamask: 'CONNECT WITH METAMASK',
+    email_login: 'EMAIL LOGIN / REGISTER', my_wallet: 'MY WALLET',
+    wallet_cta_desc: 'Connect wallet or login to deposit USDT,<br>claim territories & earn rewards',
+    email_placeholder: 'email@example.com', password_placeholder: 'Password (6+ chars)',
+    nickname_placeholder: 'Nickname (optional)', referral_placeholder: 'Referral code (optional)',
+    or: 'OR', email_wallet_note: 'Your email account has a built-in game wallet.<br>You can also connect MetaMask for on-chain deposits.',
+    game_wallet: 'GAME WALLET', usdt_balance: 'USDT BALANCE', pp_balance: 'PP BALANCE',
+    global_stats: 'GLOBAL STATS', total_pixels: 'TOTAL PIXELS', pixels_sold: 'PIXELS SOLD',
+    total_volume: 'TOTAL VOLUME', hijacks_hr: 'HIJACKS / HR', active_users: 'ACTIVE USERS',
+    leaderboard: 'LEADERBOARD', search_owner: 'SEARCH OWNER', territory_info: 'TERRITORY INFO',
+    coords: 'COORDS', owner: 'OWNER', size: 'SIZE', price_paid: 'PRICE PAID',
+    hijack_cost: 'HIJACK COST', hijack_this: 'HIJACK THIS PLOT',
+    my_alerts: 'MY ALERTS', live_feed: 'LIVE FEED', place_image: 'PLACE YOUR IMAGE',
+    choose_file: 'CHOOSE IMAGE FILE', item_shop: 'ITEM SHOP', open_shop: 'OPEN SHOP',
+    referral_program: 'REFERRAL PROGRAM', referral_desc: 'Share your code & earn PP<br>when referrals hijack territory!',
+    my_ref_code: 'MY REFERRAL CODE', enter_ref_code: 'ENTER REFERRAL CODE',
+    referrals: 'REFERRALS', total_earned: 'TOTAL EARNED', coming_soon: 'COMING SOON',
+    deposit_usdt: 'DEPOSIT USDT', withdraw_usdt: 'WITHDRAW USDT', swap_pp: 'SWAP PP → USDT',
+    claim_territory: 'CLAIM TERRITORY', confirm_claim: 'CONFIRM CLAIM',
+    approve_deposit: 'APPROVE & DEPOSIT', request_withdrawal: 'REQUEST WITHDRAWAL',
+    confirm_swap: 'CONFIRM SWAP', cancel: 'CANCEL', copy: 'COPY', apply: 'APPLY',
+    click_mars: 'CLICK MARS TO SELECT TERRITORY', click_stamp: 'CLICK MARS TO STAMP!',
+    registered: 'REGISTERED!', login_success: 'LOGGED IN!', wallet_connected: 'WALLET CONNECTED',
+    wallet_disconnected: 'WALLET DISCONNECTED', copied: 'REFERRAL LINK COPIED!',
+    stats_label: 'STATS', live_label: 'LIVE'
+  },
+  ko: {
+    login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
+    connect_wallet: '지갑 연결', connect_metamask: '메타마스크 연결',
+    email_login: '이메일 로그인 / 가입', my_wallet: '내 지갑',
+    wallet_cta_desc: '지갑 연결 또는 로그인하여 USDT 입금,<br>영토 점령 & 보상 획득',
+    email_placeholder: 'email@example.com', password_placeholder: '비밀번호 (6자 이상)',
+    nickname_placeholder: '닉네임 (선택)', referral_placeholder: '추천 코드 (선택)',
+    or: '또는', email_wallet_note: '이메일 계정에 게임 지갑이 자동 생성됩니다.<br>메타마스크를 연결해 온체인 입금도 가능합니다.',
+    game_wallet: '게임 지갑', usdt_balance: 'USDT 잔액', pp_balance: 'PP 잔액',
+    global_stats: '전체 통계', total_pixels: '총 픽셀', pixels_sold: '판매된 픽셀',
+    total_volume: '총 거래량', hijacks_hr: '탈취/시간', active_users: '활성 유저',
+    leaderboard: '리더보드', search_owner: '소유자 검색', territory_info: '영토 정보',
+    coords: '좌표', owner: '소유자', size: '크기', price_paid: '구매 가격',
+    hijack_cost: '탈취 비용', hijack_this: '이 영토 탈취하기',
+    my_alerts: '내 알림', live_feed: '실시간 피드', place_image: '이미지 배치',
+    choose_file: '이미지 파일 선택', item_shop: '아이템 상점', open_shop: '상점 열기',
+    referral_program: '추천 프로그램', referral_desc: '코드를 공유하고 추천인이<br>영토를 탈취할 때 PP를 획득하세요!',
+    my_ref_code: '내 추천 코드', enter_ref_code: '추천 코드 입력',
+    referrals: '추천 수', total_earned: '총 수익', coming_soon: '준비 중',
+    deposit_usdt: 'USDT 입금', withdraw_usdt: 'USDT 출금', swap_pp: 'PP → USDT 교환',
+    claim_territory: '영토 점령', confirm_claim: '점령 확인',
+    approve_deposit: '승인 & 입금', request_withdrawal: '출금 요청',
+    confirm_swap: '교환 확인', cancel: '취소', copy: '복사', apply: '적용',
+    click_mars: '화성을 클릭하여 영토를 선택하세요', click_stamp: '화성을 클릭하여 배치!',
+    registered: '가입 완료!', login_success: '로그인 성공!', wallet_connected: '지갑 연결됨',
+    wallet_disconnected: '지갑 연결 해제됨', copied: '추천 링크 복사됨!',
+    stats_label: '통계', live_label: '실시간'
+  },
+  ja: {
+    login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
+    connect_wallet: 'ウォレット接続', connect_metamask: 'MetaMask接続',
+    email_login: 'メールログイン / 登録', my_wallet: 'マイウォレット',
+    wallet_cta_desc: 'ウォレット接続またはログインして<br>USDTを入金、領土を獲得しよう',
+    email_placeholder: 'email@example.com', password_placeholder: 'パスワード (6文字以上)',
+    nickname_placeholder: 'ニックネーム (任意)', referral_placeholder: '紹介コード (任意)',
+    or: 'または', email_wallet_note: 'メールアカウントにゲームウォレットが自動作成されます。<br>MetaMaskでオンチェイン入金も可能です。',
+    game_wallet: 'ゲームウォレット', usdt_balance: 'USDT残高', pp_balance: 'PP残高',
+    global_stats: '全体統計', total_pixels: '総ピクセル', pixels_sold: '販売済み',
+    total_volume: '総取引量', hijacks_hr: '奪取/時', active_users: 'アクティブユーザー',
+    leaderboard: 'リーダーボード', search_owner: 'オーナー検索', territory_info: '領土情報',
+    coords: '座標', owner: 'オーナー', size: 'サイズ', price_paid: '購入価格',
+    hijack_cost: '奪取コスト', hijack_this: 'この領土を奪取',
+    my_alerts: 'アラート', live_feed: 'ライブフィード', place_image: '画像を配置',
+    choose_file: '画像ファイルを選択', item_shop: 'アイテムショップ', open_shop: 'ショップを開く',
+    referral_program: '紹介プログラム', referral_desc: 'コードを共有して紹介者が<br>領土を奪取するとPPを獲得！',
+    my_ref_code: '紹介コード', enter_ref_code: '紹介コード入力',
+    referrals: '紹介数', total_earned: '総収益', coming_soon: '準備中',
+    deposit_usdt: 'USDT入金', withdraw_usdt: 'USDT出金', swap_pp: 'PP → USDT交換',
+    claim_territory: '領土獲得', confirm_claim: '獲得確認',
+    approve_deposit: '承認 & 入金', request_withdrawal: '出金リクエスト',
+    confirm_swap: '交換確認', cancel: 'キャンセル', copy: 'コピー', apply: '適用',
+    click_mars: '火星をクリックして領土を選択', click_stamp: '火星をクリックして配置！',
+    registered: '登録完了！', login_success: 'ログイン成功！', wallet_connected: 'ウォレット接続済み',
+    wallet_disconnected: 'ウォレット切断済み', copied: '紹介リンクをコピーしました！',
+    stats_label: '統計', live_label: 'ライブ'
+  },
+  zh: {
+    login: '登录', register: '注册', logout: '退出', account: '账户',
+    connect_wallet: '连接钱包', connect_metamask: '连接MetaMask',
+    email_login: '邮箱登录 / 注册', my_wallet: '我的钱包',
+    wallet_cta_desc: '连接钱包或登录以存入USDT，<br>占领领土并获得奖励',
+    email_placeholder: 'email@example.com', password_placeholder: '密码（至少6位）',
+    nickname_placeholder: '昵称（可选）', referral_placeholder: '推荐码（可选）',
+    or: '或者', email_wallet_note: '邮箱账户自动创建游戏钱包。<br>也可连接MetaMask进行链上充值。',
+    game_wallet: '游戏钱包', usdt_balance: 'USDT余额', pp_balance: 'PP余额',
+    global_stats: '全局统计', total_pixels: '总像素', pixels_sold: '已售像素',
+    total_volume: '总交易量', hijacks_hr: '劫持/时', active_users: '活跃用户',
+    leaderboard: '排行榜', search_owner: '搜索拥有者', territory_info: '领土信息',
+    coords: '坐标', owner: '拥有者', size: '大小', price_paid: '购买价格',
+    hijack_cost: '劫持费用', hijack_this: '劫持此领土',
+    my_alerts: '我的提醒', live_feed: '实时动态', place_image: '放置图片',
+    choose_file: '选择图片文件', item_shop: '道具商店', open_shop: '打开商店',
+    referral_program: '推荐计划', referral_desc: '分享你的推荐码，<br>当推荐人劫持领土时获得PP！',
+    my_ref_code: '我的推荐码', enter_ref_code: '输入推荐码',
+    referrals: '推荐数', total_earned: '总收益', coming_soon: '即将上线',
+    deposit_usdt: 'USDT充值', withdraw_usdt: 'USDT提现', swap_pp: 'PP → USDT兑换',
+    claim_territory: '占领领土', confirm_claim: '确认占领',
+    approve_deposit: '授权并充值', request_withdrawal: '申请提现',
+    confirm_swap: '确认兑换', cancel: '取消', copy: '复制', apply: '应用',
+    click_mars: '点击火星选择领土', click_stamp: '点击火星放置！',
+    registered: '注册成功！', login_success: '登录成功！', wallet_connected: '钱包已连接',
+    wallet_disconnected: '钱包已断开', copied: '推荐链接已复制！',
+    stats_label: '统计', live_label: '实时'
+  }
+};
+
+function t(key){ return (I18N[LANG]&&I18N[LANG][key]) || I18N.en[key] || key; }
+
+function setLang(lang){
+  LANG=lang;
+  localStorage.setItem('pw_lang',lang);
+  // Update lang buttons
+  document.querySelectorAll('.lang-btn').forEach(function(btn){
+    btn.classList.toggle('active',btn.textContent.trim()===lang.toUpperCase());
+  });
+  applyI18n();
+}
+
+function applyI18n(){
+  // Text content
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key=el.getAttribute('data-i18n');
+    var val=t(key);
+    if(val.indexOf('<br>')>=0) el.innerHTML=val; else el.textContent=val;
+  });
+  // Placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    el.placeholder=t(el.getAttribute('data-i18n-placeholder'));
+  });
+  // Mode badge
+  var badge=document.getElementById('modeBadge');
+  if(badge&&!stampMode) badge.textContent='🔴 '+t('click_mars');
+  // Mobile toggles
+  var mobL=document.querySelector('.mob-toggle:not(.right)');
+  var mobR=document.querySelector('.mob-toggle.right');
+  if(mobL) mobL.innerHTML='◀ '+t('stats_label');
+  if(mobR) mobR.innerHTML=t('live_label')+' ▶';
+}
+
+/* ══════════════════════════════════════════════════
+   Email Auth System
+   ══════════════════════════════════════════════════ */
+var emailAuth = {
+  token: localStorage.getItem('pw_token') || null,
+  user: null
+};
+
+function openAuthModal(){
+  document.getElementById('authModal').classList.add('open');
+  if(emailAuth.token && emailAuth.user){
+    showAuthLoggedIn();
+  } else {
+    showAuthForm();
+  }
+}
+function closeAuthModal(){ document.getElementById('authModal').classList.remove('open'); }
+
+var authTab='login';
+function switchAuthTab(tab){
+  authTab=tab;
+  document.getElementById('tabLogin').classList.toggle('active',tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active',tab==='register');
+  document.getElementById('registerFields').style.display=tab==='register'?'':'none';
+  var btn=document.getElementById('authSubmitBtn');
+  btn.textContent=t(tab);
+  document.getElementById('authErrMsg').textContent='';
+}
+
+async function submitAuth(){
+  var email=document.getElementById('authEmailInput').value.trim();
+  var pass=document.getElementById('authPassInput').value;
+  var errEl=document.getElementById('authErrMsg');
+  errEl.textContent='';
+
+  if(!email||!pass){errEl.textContent='Email and password required';return}
+
+  var btn=document.getElementById('authSubmitBtn');
+  btn.disabled=true;btn.textContent='...';
+
+  try{
+    var body={email:email,password:pass};
+    if(authTab==='register'){
+      body.nickname=document.getElementById('authNickInput').value.trim()||undefined;
+      body.referralCode=document.getElementById('authRefInput').value.trim()||undefined;
+      // Also check URL referral code
+      if(!body.referralCode&&window._pendingRefCode) body.referralCode=window._pendingRefCode;
+    }
+
+    var resp=await fetch('/api/auth/'+(authTab==='register'?'register':'login'),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    var d=await resp.json();
+
+    if(!resp.ok){errEl.textContent=d.error||'Failed';return}
+
+    // Success
+    emailAuth.token=d.token;
+    emailAuth.user=d.user;
+    localStorage.setItem('pw_token',d.token);
+
+    // Set wallet state from email auth
+    walletState.connected=true;
+    walletState.address=d.user.wallet;
+    walletState.chain='base';
+    updateWalletUI();
+    updateChainUI();
+
+    // Update login button
+    document.getElementById('loginBtn').textContent=d.user.nickname||'👤';
+    document.getElementById('loginBtn').style.color='var(--gn)';
+
+    showAuthLoggedIn();
+    showToast(t(authTab==='register'?'registered':'login_success'));
+
+    // Load referral info
+    loadReferralInfo();
+    if(window._pendingRefCode){delete window._pendingRefCode}
+
+    // Load user balance from server
+    refreshEmailBalances();
+
+  }catch(e){
+    errEl.textContent='Network error';
+  }finally{
+    btn.disabled=false;
+    btn.textContent=t(authTab);
+  }
+}
+
+function showAuthLoggedIn(){
+  document.getElementById('authForm').style.display='none';
+  document.getElementById('authLoggedIn').style.display='';
+  if(emailAuth.user){
+    document.getElementById('authNickname').textContent=emailAuth.user.nickname||'--';
+    document.getElementById('authEmail').textContent=emailAuth.user.email||'--';
+    document.getElementById('authWallet').textContent=emailAuth.user.wallet||'--';
+  }
+}
+function showAuthForm(){
+  document.getElementById('authForm').style.display='';
+  document.getElementById('authLoggedIn').style.display='none';
+}
+
+function logoutEmail(){
+  emailAuth.token=null;
+  emailAuth.user=null;
+  localStorage.removeItem('pw_token');
+  walletState.connected=false;
+  walletState.address=null;
+  document.getElementById('loginBtn').textContent=t('login');
+  document.getElementById('loginBtn').style.color='';
+  document.getElementById('walletCTA').style.display='';
+  document.getElementById('walletSection').style.display='none';
+  document.getElementById('alertsSection').style.display='none';
+  document.getElementById('referralSection').style.display='none';
+  document.getElementById('walletBtn').textContent=t('connect_wallet');
+  document.getElementById('walletBtn').style.color='var(--mars)';
+  closeAuthModal();
+  showToast(t('wallet_disconnected'));
+}
+
+async function refreshEmailBalances(){
+  if(!emailAuth.token) return;
+  try{
+    var resp=await fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}});
+    var d=await resp.json();
+    if(resp.ok){
+      walletState.gameUsdt=d.usdtBalance||0;
+      walletState.gamePP=d.ppBalance||0;
+      document.getElementById('walletUsdt').textContent=(d.usdtBalance||0).toFixed(2);
+      document.getElementById('walletPP').textContent=(d.ppBalance||0).toFixed(2);
+      document.getElementById('authUsdtBal').textContent=(d.usdtBalance||0).toFixed(2);
+      document.getElementById('authPPBal').textContent=(d.ppBalance||0).toFixed(2);
+    }
+  }catch(e){}
+}
+
+// Auto-login on page load
+(function(){
+  if(emailAuth.token){
+    fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}})
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(d.wallet){
+          emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,referralCode:d.referralCode};
+          walletState.connected=true;
+          walletState.address=d.wallet;
+          walletState.chain='base';
+          walletState.gameUsdt=d.usdtBalance||0;
+          walletState.gamePP=d.ppBalance||0;
+          updateWalletUI();
+          document.getElementById('loginBtn').textContent=d.nickname||'👤';
+          document.getElementById('loginBtn').style.color='var(--gn)';
+          loadReferralInfo();
+          refreshEmailBalances();
+        }
+      })
+      .catch(function(){
+        localStorage.removeItem('pw_token');
+        emailAuth.token=null;
+      });
+  }
+})();
+
 /* ── Referral System ─────────────────────────────── */
 async function loadReferralInfo(){
   if(!walletState.connected||!walletState.address) return;
@@ -2016,6 +2444,9 @@ var totalClaimed=8,totalVolume=845;
 setInterval(function(){
   document.getElementById('statHijacks').textContent=20+Math.floor(Math.random()*30);
 },5000);
+
+/* ── Init i18n ──────────────────────────────────── */
+setLang(LANG);
 </script>
 </body>
 </html>

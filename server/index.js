@@ -8,6 +8,7 @@ const { initDB } = require('./db');
 const { init: initSigner } = require('./services/signer');
 const { startListeners } = require('./services/chain');
 const apiRoutes = require('./routes/api');
+const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
 
 // ── API Routes ──
 app.use('/api', apiRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
 
 // ── Static files (index.html, admin.html, assets) ──
