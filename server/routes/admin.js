@@ -840,7 +840,7 @@ router.get('/claims', async (req, res) => {
     const params = [];
     if (search) {
       params.push('%' + search + '%');
-      where += ` AND (c.owner ILIKE $${params.length} OR c.label ILIKE $${params.length})`;
+      where += ` AND c.owner ILIKE $${params.length}`;
     }
 
     const countRes = await pool.query(
@@ -849,16 +849,28 @@ router.get('/claims', async (req, res) => {
     const total = parseInt(countRes.rows[0].cnt);
 
     const claimsRes = await pool.query(
-      `SELECT c.id, c.owner, c.label, c.lat, c.lng, c.width, c.height, c.image_url,
-              c.original_image_url, c.link_url, c.total_cost, c.pixel_count,
-              c.pay_method, c.created_at
+      `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
+              c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at
        FROM claims c ${where}
        ORDER BY c.created_at DESC
        LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
       [...params, limit, offset]
     );
 
-    res.json({ claims: claimsRes.rows, total, page, limit });
+    const claims = claimsRes.rows.map(r => ({
+      id: r.id,
+      owner: r.owner,
+      lat: parseFloat(r.center_lat),
+      lng: parseFloat(r.center_lng),
+      width: r.width,
+      height: r.height,
+      image_url: r.image_url,
+      total_cost: parseFloat(r.total_paid) || 0,
+      pixel_count: r.width * r.height,
+      created_at: r.created_at
+    }));
+
+    res.json({ claims, total, page, limit });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -875,7 +887,7 @@ router.delete('/claims/:id', async (req, res) => {
 
     // Get claim info
     const claimRes = await client.query(
-      'SELECT id, owner, lat, lng, width, height FROM claims WHERE id = $1 AND deleted_at IS NULL',
+      'SELECT id, owner, center_lat, center_lng, width, height FROM claims WHERE id = $1 AND deleted_at IS NULL',
       [claimId]
     );
     if (!claimRes.rows.length) {
@@ -886,9 +898,8 @@ router.delete('/claims/:id', async (req, res) => {
     const claim = claimRes.rows[0];
 
     // Remove pixels owned by this claim
-    // Calculate pixel coordinates for this claim
-    const lat = parseFloat(claim.lat);
-    const lng = parseFloat(claim.lng);
+    const lat = parseFloat(claim.center_lat);
+    const lng = parseFloat(claim.center_lng);
     const w = parseInt(claim.width) || 1;
     const h = parseInt(claim.height) || 1;
     const step = 0.1;
