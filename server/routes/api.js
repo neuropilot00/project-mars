@@ -382,17 +382,29 @@ router.get('/search/owner/:query', async (req, res) => {
 // ══════════════════════════════════════════════════
 router.get('/claims', async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT id, owner, center_lat, center_lng, width, height, image_url, original_image_url, link_url, total_paid
-       FROM claims WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 5000`
-    );
+    const since = req.query.since;
+    let result;
+    if (since) {
+      // Delta: only claims created/updated after timestamp
+      result = await pool.query(
+        `SELECT id, owner, center_lat, center_lng, width, height, image_url, original_image_url, link_url, total_paid, created_at
+         FROM claims WHERE deleted_at IS NULL AND created_at > $1 ORDER BY created_at DESC LIMIT 5000`,
+        [new Date(parseInt(since))]
+      );
+    } else {
+      result = await pool.query(
+        `SELECT id, owner, center_lat, center_lng, width, height, image_url, original_image_url, link_url, total_paid, created_at
+         FROM claims WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 5000`
+      );
+    }
     res.json(result.rows.map(r => ({
       id: r.id, owner: r.owner,
       lat: parseFloat(r.center_lat), lng: parseFloat(r.center_lng),
       w: r.width, h: r.height,
       imgUrl: r.image_url, originalImgUrl: r.original_image_url || null,
       link: r.link_url,
-      price: parseFloat(r.total_paid), label: r.owner.slice(0, 8)
+      price: parseFloat(r.total_paid), label: r.owner.slice(0, 8),
+      ts: new Date(r.created_at).getTime()
     })));
   } catch (e) {
     console.error('[API] claims error:', e.message);

@@ -2914,26 +2914,30 @@ preCacheAndComposite();
       }
     });
     if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
-    _lastClaimCount=serverClaims.length;
+    // Track latest timestamp for delta polling
+    serverClaims.forEach(function(sc){ if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts; });
   }).catch(function(e){console.warn('[Claims] Failed to load server claims:',e)});
 })();
 
-// Real-time claims polling (every 30s)
-var _lastClaimCount=0;
+// Delta claims polling (every 15s, only fetches new claims since last sync)
+var _claimsSince=Date.now();
 setInterval(function(){
-  fetch('/api/claims').then(function(r){return r.json()}).then(function(serverClaims){
-    if(!serverClaims||!serverClaims.length) return;
-    if(serverClaims.length===_lastClaimCount) return; // no change
-    _lastClaimCount=serverClaims.length;
-    // Replace all claims with fresh server data
-    claims.length=0;
-    serverClaims.forEach(function(sc){
+  fetch('/api/claims?since='+_claimsSince).then(function(r){return r.json()}).then(function(newClaims){
+    if(!newClaims||!newClaims.length) return;
+    var existingIds={};
+    claims.forEach(function(c){if(c.id) existingIds[c.id]=true;});
+    var added=0;
+    newClaims.forEach(function(sc){
+      if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts;
+      if(existingIds[sc.id]) return; // skip duplicates
       sc.label=sc.owner?(sc.owner.slice(0,6)+'...'+sc.owner.slice(-4)):sc.label;
       claims.push(sc);
+      added++;
     });
+    if(!added) return;
     initPixelGrid();
     var pending=0;
-    serverClaims.forEach(function(sc){
+    newClaims.forEach(function(sc){
       if(sc.imgUrl && !imgCache[sc.imgUrl]){
         pending++;
         cacheImage(sc.imgUrl,function(){
@@ -2944,7 +2948,7 @@ setInterval(function(){
     });
     if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
   }).catch(function(){});
-},30000);
+},15000);
 
 // Load sectors on boot (for boundary overlay)
 (function loadSectorsOnBoot(){
