@@ -3042,6 +3042,12 @@ function _attachGlobeClick(){
       if(isMobile) return;
       lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
       lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
+      // 극지방 체크
+      var _halfH=stampH*0.1/2;
+      if(lat+_halfH>70||lat-_halfH<-70){
+        showToast('POLAR ZONE — Cannot place here (beyond ±70°)');
+        return;
+      }
       selectedPlot={lat:lat,lng:lng,owner:null,price:0,label:'UNCLAIMED',w:stampW,h:stampH};
       uploadedUrl=stampImgUrl;
       openClaimModal();
@@ -3310,6 +3316,12 @@ function confirmMobilePlacement(){
   var lng=pov.lng;
   lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
   lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
+  // 극지방 체크
+  var _halfH=stampH*0.1/2;
+  if(lat+_halfH>70||lat-_halfH<-70){
+    showToast('POLAR ZONE — Cannot place here (beyond ±70°)');
+    return;
+  }
   selectedPlot={lat:lat,lng:lng,owner:null,price:0,label:'UNCLAIMED',w:stampW,h:stampH};
   uploadedUrl=stampImgUrl;
   document.getElementById('stampLinkInput').value = document.getElementById('mStampLinkInput').value || '';
@@ -3541,6 +3553,15 @@ async function confirmClaim(){
     return;
   }
 
+  // 극지방 제한: 스탬프 영역이 ±70° 넘으면 차단
+  var claimLatMax=selectedPlot.lat+ch*0.1/2;
+  var claimLatMin=selectedPlot.lat-ch*0.1/2;
+  if(claimLatMax>70||claimLatMin<-70){
+    showToast('POLAR ZONE — Cannot claim beyond ±70° latitude');
+    if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
+    return;
+  }
+
   // Disable button while processing
   var btn=document.getElementById('claimConfirmBtn');
   if(btn){btn.disabled=true;btn.textContent='PROCESSING...';}
@@ -3652,11 +3673,17 @@ async function confirmClaim(){
       return;
     }
 
-    // ── Success: update local state ──
+    // ── Success: close modal FIRST, then update state ──
+    closeClaimModal();
+    showToast(hasOverlap?'HIJACKED '+costInfo.overlapCount+'px! $'+price:'CLAIMED! $'+price);
+
+    try{
     var myAddr=walletState.address?shortAddr(walletState.address):'YOU';
     var nc={lat:selectedPlot.lat,lng:selectedPlot.lng,owner:myAddr,price:price,
       label:'YOU',w:cw,h:ch,link:linkVal||''};
-    if(uploadedUrl){nc.imgUrl=uploadedUrl;cacheImage(uploadedUrl)}
+    // Use server URL for image, not blob
+    nc.imgUrl=sendImageUrl||uploadedUrl||'';
+    if(nc.imgUrl) cacheImage(nc.imgUrl);
     claims.push(nc);
 
     // Register pixels in grid with updated prices
@@ -3681,8 +3708,7 @@ async function confirmClaim(){
     addFeed(hasOverlap
       ?'💀 YOU claimed+hijacked ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°] ('+costInfo.overlapCount+'px overlap)!'
       :'⚡ YOU claimed ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°]!');
-    closeClaimModal();
-    showToast(hasOverlap?'HIJACKED '+costInfo.overlapCount+'px! $'+price:'CLAIMED! $'+price);
+    }catch(stateErr){console.error('[Claim] State update error (claim succeeded):',stateErr)}
 
     // Track quest progress for claim actions
     try{trackQuestAction('claim_pixels',d.pixelCount||1)}catch(e){}
