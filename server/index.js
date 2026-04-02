@@ -79,7 +79,7 @@ app.use((req, res, next) => {
 const isDev = process.env.NODE_ENV !== 'production';
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isDev ? 5000 : 100,
+  max: isDev ? 5000 : 3000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests, please try again later.' }
@@ -87,7 +87,7 @@ const globalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isDev ? 50 : 5,
+  max: isDev ? 50 : 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many authentication attempts, please try again later.' }
@@ -95,7 +95,7 @@ const authLimiter = rateLimit({
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: isDev ? 300 : 30,
+  max: isDev ? 300 : 200,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many API requests, please try again later.' }

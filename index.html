@@ -5478,6 +5478,13 @@ function updateMobToggles(){
   toggles.forEach(function(btn){
     btn.classList.toggle('hidden',anyOpen);
   });
+  // 사이드바 열리면 모바일 FAB 버튼들 숨김
+  var mobFab=document.getElementById('mobFabWrap');
+  if(mobFab) mobFab.style.display=anyOpen?'none':'';
+  var mobArena=document.querySelector('.mob-arena-btn');
+  var mobBase=document.getElementById('mobBaseBtn');
+  if(mobArena) mobArena.style.display=anyOpen?'none':'';
+  if(mobBase) mobBase.style.display=anyOpen?'none':'';
   // Close buttons (fixed, outside panels)
   var clLeft=document.getElementById('closeBtnLeft');
   var clRight=document.getElementById('closeBtnRight');
