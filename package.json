@@ -1,0 +1,13 @@
+{
+  "name": "occupymars",
+  "version": "1.0.0",
+  "description": "OCCUPY MARS — Pixel Territory Claiming Game",
+  "scripts": {
+    "start": "cd server && node index.js",
+    "dev": "cd server && node --watch index.js",
+    "install:server": "cd server && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
