@@ -2457,10 +2457,11 @@ function compositeClaimsOnTexture(previewOnly){
         ctx.fillRect(rx,ry,rw,rh);
         ctx.strokeStyle='rgba(255,209,102,0.25)';ctx.lineWidth=1;
         ctx.setLineDash([3,3]);ctx.strokeRect(rx,ry,rw,rh);ctx.setLineDash([]);
-        // Small loading indicator
-        ctx.fillStyle='rgba(255,209,102,0.5)';ctx.font='bold '+Math.max(8,Math.min(rw,rh)*0.3)+'px sans-serif';
+        // Loading text
+        var lfs=Math.max(6,Math.min(rw,rh)*0.2);
+        ctx.fillStyle='rgba(255,209,102,0.6)';ctx.font='bold '+lfs+'px sans-serif';
         ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText('⏳',rx+rw/2,ry+rh/2);
+        ctx.fillText('LOADING',rx+rw/2,ry+rh/2);
       }
     }
     function _drawClaimRect(ctx,img,r,w){
