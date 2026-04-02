@@ -259,49 +259,78 @@ router.post('/crash/start', async (req, res) => {
   }
 });
 
+// In-memory crash round cache for fast ticks
+let _crashCache = null, _crashCacheAt = 0;
+
 // GET /arena/crash/tick — Poll current round state; auto-ends if crashed
 router.get('/crash/tick', async (req, res) => {
-  const client = await pool.connect();
   try {
-    const roundRes = await client.query(
-      "SELECT * FROM crash_rounds WHERE status = 'running' ORDER BY id DESC LIMIT 1 FOR UPDATE"
-    );
-    if (roundRes.rows.length === 0) {
-      client.release();
-      return res.json({ status: 'no_round' });
+    // Fast path: use cached round if fresh (< 500ms)
+    let round;
+    if (_crashCache && Date.now() - _crashCacheAt < 500) {
+      round = _crashCache;
+    } else {
+      const roundRes = await pool.query(
+        "SELECT * FROM crash_rounds WHERE status = 'running' ORDER BY id DESC LIMIT 1"
+      );
+      if (roundRes.rows.length === 0) {
+        _crashCache = null;
+        return res.json({ status: 'no_round' });
+      }
+      round = roundRes.rows[0];
+      _crashCache = round;
+      _crashCacheAt = Date.now();
     }
 
-    const round = roundRes.rows[0];
     const elapsed = Date.now() - new Date(round.started_at).getTime();
     const currentMult = calcMultiplier(elapsed);
     const crashPoint = parseFloat(round.crash_point);
 
     if (currentMult >= crashPoint) {
-      // CRASH — end the round
-      await client.query('BEGIN');
-      await client.query(
-        "UPDATE crash_rounds SET status = 'crashed', crashed_at = NOW() WHERE id = $1", [round.id]
-      );
-      await client.query(
-        "UPDATE crash_bets SET status = 'busted' WHERE round_id = $1 AND status = 'active'", [round.id]
-      );
+      // CRASH — end the round (use transaction only here)
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        // Double-check status (another tick may have crashed it)
+        const check = await client.query(
+          "SELECT status FROM crash_rounds WHERE id = $1 FOR UPDATE", [round.id]
+        );
+        if (check.rows[0]?.status !== 'running') {
+          await client.query('ROLLBACK');
+          client.release();
+          _crashCache = null;
+          return res.json({ status: 'crashed', crashPoint, roundId: round.id, elapsed, bets: [] });
+        }
 
-      // Create next round
-      const seed = crypto.randomBytes(32).toString('hex');
-      const cp = generateCrashPoint(seed);
-      const hash = crypto.createHash('sha256').update(seed).digest('hex');
-      await client.query(
-        "INSERT INTO crash_rounds (crash_point, hash, status) VALUES ($1, $2, 'waiting')",
-        [cp, hash]
-      );
-      await client.query('COMMIT');
+        await client.query(
+          "UPDATE crash_rounds SET status = 'crashed', crashed_at = NOW() WHERE id = $1", [round.id]
+        );
+        await client.query(
+          "UPDATE crash_bets SET status = 'busted' WHERE round_id = $1 AND status = 'active'", [round.id]
+        );
 
-      // Get bets for display
-      const bets = await client.query(
+        // Create next round
+        const seed = crypto.randomBytes(32).toString('hex');
+        const cp = generateCrashPoint(seed);
+        const hash = crypto.createHash('sha256').update(seed).digest('hex');
+        await client.query(
+          "INSERT INTO crash_rounds (crash_point, hash, status) VALUES ($1, $2, 'waiting')",
+          [cp, hash]
+        );
+        await client.query('COMMIT');
+        client.release();
+      } catch (txErr) {
+        await client.query('ROLLBACK').catch(() => {});
+        client.release();
+        throw txErr;
+      }
+
+      _crashCache = null;
+
+      const bets = await pool.query(
         'SELECT wallet, bet_amount, currency, cashout_at, status FROM crash_bets WHERE round_id = $1', [round.id]
       );
 
-      client.release();
       return res.json({
         status: 'crashed',
         crashPoint,
@@ -317,11 +346,10 @@ router.get('/crash/tick', async (req, res) => {
       });
     }
 
-    // Still running
-    const bets = await client.query(
+    // Still running — read bets without lock
+    const bets = await pool.query(
       'SELECT wallet, bet_amount, currency, cashout_at, status FROM crash_bets WHERE round_id = $1', [round.id]
     );
-    client.release();
 
     res.json({
       status: 'running',
@@ -337,7 +365,6 @@ router.get('/crash/tick', async (req, res) => {
       }))
     });
   } catch (e) {
-    client.release();
     console.error('[Arena] crash tick:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
