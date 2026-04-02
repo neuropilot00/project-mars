@@ -3504,10 +3504,9 @@ async function confirmClaim(){
   var hasOverlap=costInfo.overlapCount>0;
   var linkVal=(document.getElementById('stampLinkInput')?document.getElementById('stampLinkInput').value:'').trim();
 
-  // 하이잭 시 이미지 필수
-  if(hasOverlap && !stampImgUrl && !uploadedUrl){
-    showToast('IMAGE REQUIRED — Select an image to replace the territory');
-    if(btn){btn.disabled=false;btn.textContent='CONFIRM CLAIM';}
+  // 이미지 필수
+  if(!stampImgUrl && !uploadedUrl){
+    showToast('IMAGE REQUIRED — Select an image first');
     return;
   }
 
