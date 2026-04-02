@@ -4722,8 +4722,14 @@ function switchBaseTab(tab,el){
 }
 
 function loadBaseData(){
-  // Use walletState.address (set by MetaMask or email login)
+  // Use walletState.address, fallback to JWT token wallet
   var w=walletState.address||null;
+  if(!w&&emailAuth.token){
+    try{
+      var payload=JSON.parse(atob(emailAuth.token.split('.')[1]));
+      if(payload.wallet){w=payload.wallet;walletState.address=w;walletState.connected=true;}
+    }catch(e){}
+  }
 
   // Load sectors (with wallet for "my pixels" count)
   var sUrl=w?'/api/sectors?wallet='+encodeURIComponent(w):'/api/sectors';
