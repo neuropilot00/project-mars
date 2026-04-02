@@ -3,6 +3,7 @@ node_modules/
 .env
 .env.production
 *.log
-assets/
+assets/*
+!assets/textures/
 server/node_modules/
 uploads/
