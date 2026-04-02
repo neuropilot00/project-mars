@@ -957,7 +957,7 @@ router.get('/leaderboard', readLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 router.get('/stats', async (req, res) => {
   try {
-    const [usersRes, claimsRes, volumeRes, pixelsRes, activeRes] = await Promise.all([
+    const [usersRes, claimsRes, volumeRes, pixelsRes, activeRes, hijacksRes] = await Promise.all([
       pool.query('SELECT COUNT(*) AS cnt FROM users'),
       pool.query('SELECT COUNT(*) AS cnt FROM claims WHERE deleted_at IS NULL'),
       pool.query('SELECT COALESCE(SUM(total_paid), 0) AS total FROM claims WHERE deleted_at IS NULL'),
@@ -965,6 +965,10 @@ router.get('/stats', async (req, res) => {
       pool.query(
         `SELECT COUNT(DISTINCT owner) AS cnt FROM claims
          WHERE deleted_at IS NULL AND created_at >= NOW() - INTERVAL '24 hours'`
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS cnt FROM transactions
+         WHERE type = 'hijack' AND created_at >= NOW() - INTERVAL '1 hour'`
       )
     ]);
 
@@ -973,7 +977,8 @@ router.get('/stats', async (req, res) => {
       totalClaims: parseInt(claimsRes.rows[0].cnt),
       totalVolume: parseFloat(volumeRes.rows[0].total),
       totalPixelsSold: parseInt(pixelsRes.rows[0].cnt),
-      activeUsers24h: parseInt(activeRes.rows[0].cnt)
+      activeUsers24h: parseInt(activeRes.rows[0].cnt),
+      hijacksPerHour: parseInt(hijacksRes.rows[0].cnt)
     });
   } catch (e) {
     console.error('[API] stats error:', e.message);

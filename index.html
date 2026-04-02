@@ -1145,7 +1145,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="stat-row"><span class="stat-label">TOTAL PIXELS</span><span class="stat-val" style="color:var(--tx2)" id="statTotalPx">5,040,000</span></div>
     <div class="stat-row"><span class="stat-label">PIXELS SOLD</span><span class="stat-val gn" id="statPlots">8,450</span></div>
     <div class="stat-row"><span class="stat-label">TOTAL VOLUME</span><span class="stat-val gold" id="statTVL">$845</span></div>
-    <div class="stat-row"><span class="stat-label">HIJACKS / HR</span><span class="stat-val red" id="statHijacks">24</span></div>
+    <div class="stat-row"><span class="stat-label">HIJACKS / HR</span><span class="stat-val red" id="statHijacks">0</span></div>
     <div class="stat-row"><span class="stat-label">ACTIVE USERS</span><span class="stat-val" id="statActiveUsers">1,247</span></div>
   </div>
   <div class="p-section">
@@ -5596,12 +5596,6 @@ function renderAlerts(){
   });
 }
 
-/* ── Demo Stats ──────────────────────────────────── */
-var totalClaimed=8,totalVolume=845;
-setInterval(function(){
-  document.getElementById('statHijacks').textContent=20+Math.floor(Math.random()*30);
-},5000);
-
 /* ── Live Stats & Leaderboard from API ───────────── */
 function fmtNum(n){return Number(n).toLocaleString();}
 
@@ -5609,6 +5603,7 @@ function loadPublicStats(){
   fetch('/api/stats').then(function(r){return r.json();}).then(function(d){
     if(d.totalPixelsSold!=null) document.getElementById('statPlots').textContent=fmtNum(d.totalPixelsSold);
     if(d.totalVolume!=null) document.getElementById('statTVL').textContent='$'+fmtNum(d.totalVolume);
+    if(d.hijacksPerHour!=null) document.getElementById('statHijacks').textContent=fmtNum(d.hijacksPerHour);
     if(d.activeUsers24h!=null) document.getElementById('statActiveUsers').textContent=fmtNum(d.activeUsers24h);
   }).catch(function(e){console.warn('[Stats] fetch failed:',e);});
 }
