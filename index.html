@@ -6,7 +6,6 @@
 <title>OCCUPY MARS — Claim Your Territory</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/globe.gl@2.27.2"></script>
-<script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
 <style>
 :root{
   --bg:#0D0B14;--panel:rgba(14,12,24,0.93);--panel2:rgba(20,16,32,0.95);
@@ -1109,7 +1108,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="tb-avatar-emoji" id="tbAvatarEmoji" onclick="openAuthModal()">👤</div>
     <img class="tb-avatar" id="tbAvatarImg" onclick="openAuthModal()">
     <button class="tb-btn" id="loginBtn" onclick="openAuthModal()" data-i18n="login">LOGIN</button>
-    <button class="tb-btn" id="walletBtn" onclick="connectWallet()" data-i18n="connect_wallet">CONNECT WALLET</button>
   </div>
 </div>
 
@@ -1164,10 +1162,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div style="text-align:center;padding:12px 4px">
       <div style="font-size:20px;margin-bottom:8px">🔗</div>
       <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;margin-bottom:10px" data-i18n="wallet_cta_desc">
-        Connect wallet or login to deposit USDT,<br>claim territories & earn rewards
+        Login to deposit USDT,<br>claim territories & earn rewards
       </div>
       <button class="cfm" onclick="openAuthModal()" style="font-size:var(--fs-sm);margin-bottom:6px" data-i18n="email_login">EMAIL LOGIN / REGISTER</button>
-      <button class="cfm" onclick="connectWallet()" style="font-size:var(--fs-sm);background:rgba(255,120,60,.08);border-color:rgba(255,120,60,.2);color:var(--mars)" data-i18n="connect_metamask">CONNECT WITH METAMASK</button>
     </div>
   </div>
   <!-- Wallet: connected -->
@@ -1189,10 +1186,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
       <div class="wallet-actions">
         <button class="wa-btn swp" onclick="openSwapModal()">PP→USDT</button>
-        <button class="wa-btn dis" onclick="disconnectWallet()">DISCONNECT</button>
-      </div>
-      <div class="wallet-actions" id="linkWalletRow" style="display:none">
-        <button class="wa-btn" onclick="linkMetaMask()" style="flex:1;background:rgba(255,120,60,.08);border-color:rgba(255,120,60,.3);color:var(--mars)" data-i18n="link_metamask">LINK METAMASK</button>
+        <button class="wa-btn dis" onclick="logoutEmail()">LOGOUT</button>
       </div>
     </div>
   </div>
@@ -1402,7 +1396,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Deposit Modal -->
 <div class="mbg" id="depositModal">
-  <div class="mdl" style="width:400px">
+  <div class="mdl" style="width:420px">
     <div class="mhd">
       <span class="mtl">DEPOSIT USDT</span>
       <button class="mx" onclick="closeDepositModal()">×</button>
@@ -1411,27 +1405,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="mf"><div class="mfl">CURRENT BALANCE</div><div class="mfv gn" id="depCurBal">0.00 USDT</div></div>
       <div class="mdv"></div>
       <div class="mf">
-        <div class="mfl">DEPOSIT AMOUNT</div>
-        <div class="dw-amount-wrap">
-          <input type="number" class="dw-amount" id="depAmount" placeholder="0.00" min="0" step="0.01">
-          <button class="dw-max" onclick="setDepMax()">MAX</button>
-        </div>
-      </div>
-      <div class="mf">
-        <div class="mfl">DEPOSIT CHAIN</div>
+        <div class="mfl">SELECT CHAIN</div>
         <div class="cr">
           <button class="cb base sel" id="depChainBase" onclick="selectDepChain('base')"><span class="ci">●</span><span class="cn">BASE</span></button>
           <button class="cb bnb" id="depChainBnb" onclick="selectDepChain('bnb')"><span class="ci">●</span><span class="cn">BNB</span></button>
           <button class="cb eth" id="depChainEth" onclick="selectDepChain('eth')"><span class="ci">◆</span><span class="cn">ETH</span></button>
         </div>
       </div>
-      <div class="dw-info">
-        Deposit USDT to the game contract.<br>
-        <span>+10% PP bonus</span> on every deposit.<br>
-        You will receive: <span id="depReceive">0.00 USDT + 0.00 PP</span>
+      <div class="mf">
+        <div class="mfl">DEPOSIT ADDRESS</div>
+        <div style="background:rgba(0,0,0,.3);border:1px solid var(--bdr);border-radius:6px;padding:10px;word-break:break-all;font-family:monospace;font-size:11px;color:var(--cyan);cursor:pointer;user-select:all;margin-top:4px" id="depAddrDisplay" onclick="copyDepositAddr()">--</div>
+        <button class="cfm" onclick="copyDepositAddr()" style="margin-top:8px;font-size:var(--fs-xs)">📋 COPY ADDRESS</button>
       </div>
-      <button class="cfm" id="depConfirmBtn" onclick="confirmDeposit()">APPROVE & DEPOSIT</button>
-      <div class="mn">Step 1: Approve USDT · Step 2: Deposit to contract</div>
+      <div class="dw-info">
+        Send <b>USDT</b> on the selected chain to this address.<br>
+        <span style="color:var(--gn)">+10% PP bonus</span> on every deposit.<br>
+        Deposits are detected automatically (may take 1-5 min).<br>
+        <span style="color:var(--red);font-size:9px">⚠ Only send USDT. Other tokens will be lost.</span>
+      </div>
+      <div class="mn">Your game wallet address. Send USDT from any wallet (MetaMask, Trust, exchange, etc.)</div>
     </div>
   </div>
 </div>
@@ -1810,7 +1802,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <div style="font-size:7px;color:var(--tx3);text-align:center;line-height:1.8;margin:8px 0" data-i18n="email_wallet_note">
           Your email account has a built-in game wallet.<br>
-          You can also connect MetaMask for on-chain deposits.
+          Use DEPOSIT to get your deposit address.
         </div>
 
         <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.15);color:var(--red)" data-i18n="logout">LOGOUT</button>
@@ -1831,6 +1823,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <input type="text" class="auth-input" id="authNickInput" placeholder="Nickname (optional)" data-i18n-placeholder="nickname_placeholder">
           <input type="text" class="auth-input" id="authRefInput" placeholder="Referral code (optional)" data-i18n-placeholder="referral_placeholder" style="text-transform:uppercase">
         </div>
+        <div style="display:flex;gap:12px;margin:8px 0;align-items:center">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:6.5px;color:var(--tx2);letter-spacing:.5px;font-family:var(--fn)">
+            <input type="checkbox" id="rememberMe" style="accent-color:var(--mars);width:14px;height:14px"> REMEMBER ID/PW
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:6.5px;color:var(--tx2);letter-spacing:.5px;font-family:var(--fn)">
+            <input type="checkbox" id="autoLogin" style="accent-color:var(--gn);width:14px;height:14px"> AUTO LOGIN
+          </label>
+        </div>
         <div class="auth-err-msg" id="authErrMsg"></div>
         <button class="cfm" id="authSubmitBtn" onclick="submitAuth()" data-i18n="login">LOGIN</button>
         <div class="auth-help-links">
@@ -1838,8 +1838,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <span class="auth-help-sep">|</span>
           <button class="auth-help-link" onclick="showResetPassword()" data-i18n="forgot_password">FORGOT PASSWORD</button>
         </div>
-        <div class="auth-divider"><span data-i18n="or">OR</span></div>
-        <button class="cfm" onclick="closeAuthModal();connectWallet()" style="background:rgba(255,120,60,.08);border-color:rgba(255,120,60,.2);color:var(--mars)" data-i18n="connect_metamask">CONNECT WITH METAMASK</button>
       </div>
 
       <!-- Find Email -->
@@ -2454,8 +2452,15 @@ function compositeClaimsOnTexture(previewOnly){
         ctx.strokeStyle='rgba(255,209,102,0.35)';ctx.lineWidth=1;
         ctx.strokeRect(rx,ry,rw,rh);
       }else{
-        ctx.fillStyle='#E84855';
-        ctx.globalAlpha=0.6;ctx.fillRect(rx,ry,rw,rh);ctx.globalAlpha=1;
+        // Loading placeholder — subtle dark overlay with border
+        ctx.fillStyle='rgba(255,255,255,0.08)';
+        ctx.fillRect(rx,ry,rw,rh);
+        ctx.strokeStyle='rgba(255,209,102,0.25)';ctx.lineWidth=1;
+        ctx.setLineDash([3,3]);ctx.strokeRect(rx,ry,rw,rh);ctx.setLineDash([]);
+        // Small loading indicator
+        ctx.fillStyle='rgba(255,209,102,0.5)';ctx.font='bold '+Math.max(8,Math.min(rw,rh)*0.3)+'px sans-serif';
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText('⏳',rx+rw/2,ry+rh/2);
       }
     }
     function _drawClaimRect(ctx,img,r,w){
@@ -2777,11 +2782,25 @@ var claims=[];
 
 // Image cache for instant recomposite
 var imgCache={};
+var _imgRetry={};
 function cacheImage(url,cb){
   if(imgCache[url]){cb&&cb(imgCache[url]);return}
   var img=new Image();img.crossOrigin='anonymous';
-  img.onload=function(){imgCache[url]=img;cb&&cb(img)};
-  img.onerror=function(){cb&&cb(null)};
+  img.onload=function(){imgCache[url]=img;delete _imgRetry[url];cb&&cb(img)};
+  img.onerror=function(){
+    // Retry up to 3 times with delay
+    var rc=(_imgRetry[url]||0)+1;
+    _imgRetry[url]=rc;
+    if(rc<=3){
+      setTimeout(function(){
+        var r=new Image();r.crossOrigin='anonymous';
+        r.onload=function(){imgCache[url]=r;delete _imgRetry[url];claimsSnapshot=null;compositeClaimsOnTexture()};
+        r.onerror=function(){if(_imgRetry[url]<3){_imgRetry[url]++;setTimeout(arguments.callee,rc*2000)}};
+        r.src=url+'?retry='+rc;
+      },rc*1500);
+    }
+    cb&&cb(null);
+  };
   img.src=url;
 }
 
@@ -3716,259 +3735,51 @@ function clearUpload(){
 }
 
 /* ══════════════════════════════════════════════════
-   Wallet & Chain — MetaMask + ethers.js
+   Wallet & Chain (No MetaMask — deposit address only)
    ══════════════════════════════════════════════════ */
 
-// Chain configs
+// Chain configs (for display & deposit address routing)
 var CHAINS={
   base:{
-    chainId:'0x2105', // 8453
-    chainIdDec:8453,
-    name:'Base',
-    rpc:'https://mainnet.base.org',
-    explorer:'https://basescan.org',
-    usdt:'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC on Base (commonly used)
-    deposit:'0x0000000000000000000000000000000000000000', // TODO: deploy
-    color:'#5BB8E8',
-    symbol:'ETH',
-    decimals:6
+    chainId:'0x2105',chainIdDec:8453,name:'Base',
+    explorer:'https://basescan.org',color:'#5BB8E8',symbol:'ETH',decimals:6
   },
   bnb:{
-    chainId:'0x38', // 56
-    chainIdDec:56,
-    name:'BNB Chain',
-    rpc:'https://bsc-dataseed.binance.org',
-    explorer:'https://bscscan.com',
-    usdt:'0x55d398326f99059fF775485246999027B3197955', // BSC USDT
-    deposit:'0x0000000000000000000000000000000000000000',
-    color:'#E8B040',
-    symbol:'BNB',
-    decimals:18
+    chainId:'0x38',chainIdDec:56,name:'BNB Chain',
+    explorer:'https://bscscan.com',color:'#E8B040',symbol:'BNB',decimals:18
   },
   eth:{
-    chainId:'0x1', // 1
-    chainIdDec:1,
-    name:'Ethereum',
-    rpc:'https://eth.llamarpc.com',
-    explorer:'https://etherscan.io',
-    usdt:'0xdAC17F958D2ee523a2206206994597C13D831ec7', // ETH USDT
-    deposit:'0x0000000000000000000000000000000000000000',
-    color:'#A080E0',
-    symbol:'ETH',
-    decimals:6
+    chainId:'0x1',chainIdDec:1,name:'Ethereum',
+    explorer:'https://etherscan.io',color:'#A080E0',symbol:'ETH',decimals:6
   }
 };
 
-var ERC20_ABI=[
-  'function balanceOf(address) view returns (uint256)',
-  'function allowance(address,address) view returns (uint256)',
-  'function approve(address,uint256) returns (bool)',
-  'function decimals() view returns (uint8)',
-  'function symbol() view returns (string)'
-];
-
-var DEPOSIT_ABI=[
-  'function deposit(uint256) external',
-  'function withdraw(uint256,uint256,uint256,uint256,bytes) external',
-  'function getUserDeposited(address) view returns (uint256)',
-  'function getUserWithdrawn(address) view returns (uint256)',
-  'function getContractBalance() view returns (uint256)',
-  'function getUserNonce(address) view returns (uint256)'
-];
-
-// Wallet state
+// Wallet state (DB-based, no on-chain provider)
 var walletState={
   connected:false,
   address:null,
-  chain:null, // 'base'|'bnb'|'eth'
-  provider:null,
-  signer:null,
-  usdtBalance:0,    // on-chain USDT in wallet
-  gameUsdt:0,       // in-game USDT (from DB — simulated)
-  gamePP:0,         // in-game PP (from DB — simulated)
-  usdtContract:null,
-  depositContract:null
+  chain:'base',
+  usdtBalance:0,
+  gameUsdt:0,
+  gamePP:0
 };
 
 function shortAddr(addr){
   return addr?addr.slice(0,6)+'...'+addr.slice(-4):'--';
 }
 
-// ── Connect Wallet ──
-async function connectWallet(){
-  if(walletState.connected){return}
-  if(!window.ethereum){
-    showToast('INSTALL METAMASK!');
-    window.open('https://metamask.io','_blank');
-    return;
-  }
-  try{
-    var provider=new ethers.providers.Web3Provider(window.ethereum,'any');
-    var accounts=await provider.send('eth_requestAccounts',[]);
-    if(!accounts.length){showToast('NO ACCOUNT');return}
-    var signer=provider.getSigner();
-    var addr=await signer.getAddress();
-    var network=await provider.getNetwork();
-
-    walletState.connected=true;
-    walletState.address=addr;
-    walletState.provider=provider;
-    walletState.signer=signer;
-
-    // Detect current chain
-    var detectedChain=detectChain(network.chainId);
-    walletState.chain=detectedChain||'base';
-
-    // Update UI
-    updateWalletUI();
-    updateChainUI();
-    await refreshBalances();
-
-    showToast('WALLET CONNECTED');
-
-    // Load referral info
-    loadReferralInfo();
-    // Auto-apply pending referral code from URL
-    if(window._pendingRefCode){
-      document.getElementById('refCodeInput').value=window._pendingRefCode;
-      setTimeout(function(){registerReferral()},500);
-      delete window._pendingRefCode;
-    }
-
-    // Listen for account/chain changes
-    window.ethereum.on('accountsChanged',function(accs){
-      if(!accs.length){disconnectWallet();return}
-      walletState.address=accs[0];
-      updateWalletUI();
-      refreshBalances();
-    });
-    window.ethereum.on('chainChanged',function(chainIdHex){
-      var ch=detectChain(parseInt(chainIdHex,16));
-      walletState.chain=ch||walletState.chain;
-      walletState.provider=new ethers.providers.Web3Provider(window.ethereum,'any');
-      walletState.signer=walletState.provider.getSigner();
-      updateChainUI();
-      refreshBalances();
-    });
-  }catch(e){
-    console.error('Connect error:',e);
-    showToast('CONNECTION FAILED');
-  }
-}
-
-function detectChain(chainId){
-  for(var k in CHAINS){if(CHAINS[k].chainIdDec===chainId)return k}
-  return null;
-}
-
-function disconnectWallet(){
-  walletState.connected=false;
-  walletState.address=null;
-  walletState.provider=null;
-  walletState.signer=null;
-  walletState.usdtBalance=0;
-  walletState.gameUsdt=0;
-  walletState.gamePP=0;
-  document.getElementById('walletBtn').textContent='CONNECT WALLET';
-  document.getElementById('walletBtn').style.color='var(--mars)';
-  document.getElementById('walletCTA').style.display='';
-  document.getElementById('walletSection').style.display='none';
-  document.getElementById('alertsSection').style.display='none';
-  document.getElementById('referralSection').style.display='none';
-  document.getElementById('chainIndicator').style.display='none';
-  showToast('WALLET DISCONNECTED');
-}
-
-async function linkMetaMask(){
-  if(!emailAuth.token){showToast('LOGIN FIRST');return}
-  if(!window.ethereum){
-    showToast('INSTALL METAMASK!');
-    window.open('https://metamask.io','_blank');
-    return;
-  }
-  try{
-    var provider=new ethers.providers.Web3Provider(window.ethereum,'any');
-    var accounts=await provider.send('eth_requestAccounts',[]);
-    if(!accounts.length){showToast('NO ACCOUNT');return}
-    var addr=await provider.getSigner().getAddress();
-
-    var shortNew=addr.slice(0,6)+'...'+addr.slice(-4);
-    if(!confirm('Link wallet '+shortNew+' to your account?\nThis will migrate all your data (balances, claims, etc.) to this wallet.')){
-      return;
-    }
-
-    var resp=await fetch('/api/auth/link-wallet',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({token:emailAuth.token,walletAddress:addr})
-    });
-    var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'LINK FAILED');return}
-
-    // Update token
-    emailAuth.token=d.token;
-    try{localStorage.setItem('pw_token',d.token)}catch(e){}
-
-    // Update wallet state with MetaMask provider
-    walletState.address=addr;
-    walletState.provider=provider;
-    walletState.signer=provider.getSigner();
-    var network=await provider.getNetwork();
-    var detectedChain=detectChain(network.chainId);
-    walletState.chain=detectedChain||'base';
-
-    // Update user object
-    if(emailAuth.user) emailAuth.user.wallet=addr;
-
-    // Refresh UI
-    updateWalletUI();
-    updateChainUI();
-    refreshEmailBalances();
-    showToast('WALLET LINKED!');
-
-    // Listen for account/chain changes
-    window.ethereum.on('accountsChanged',function(accs){
-      if(!accs.length){disconnectWallet();return}
-      walletState.address=accs[0];
-      updateWalletUI();
-      refreshEmailBalances();
-    });
-    window.ethereum.on('chainChanged',function(chainIdHex){
-      var ch=detectChain(parseInt(chainIdHex,16));
-      walletState.chain=ch||walletState.chain;
-      walletState.provider=new ethers.providers.Web3Provider(window.ethereum,'any');
-      walletState.signer=walletState.provider.getSigner();
-      updateChainUI();
-      refreshEmailBalances();
-    });
-  }catch(e){
-    console.error('Link wallet error:',e);
-    showToast('LINK FAILED');
-  }
-}
-
 function updateWalletUI(){
-  var btn=document.getElementById('walletBtn');
-  if(btn){btn.textContent=shortAddr(walletState.address);btn.style.color='var(--gn)';}
   var el;
   if((el=document.getElementById('walletCTA'))) el.style.display='none';
   if((el=document.getElementById('walletSection'))) el.style.display='';
   if((el=document.getElementById('alertsSection'))) el.style.display='';
   if((el=document.getElementById('walletAddr'))) el.textContent=walletState.address;
-  // Show "Link MetaMask" button for custodial (email-only) wallets
-  var linkRow=document.getElementById('linkWalletRow');
-  if(linkRow){
-    var isCustodial=emailAuth.token && !walletState.provider;
-    linkRow.style.display=isCustodial?'flex':'none';
-  }
 }
 
 function updateChainUI(){
-  var ch=walletState.chain;
-  if(!ch)return;
+  var ch=walletState.chain||'base';
   var cfg=CHAINS[ch];
   if(!cfg)return;
-  // Topbar indicator
   var ind=document.getElementById('chainIndicator');
   if(ind){
     ind.style.display='flex';
@@ -3979,59 +3790,11 @@ function updateChainUI(){
   if(cdt) cdt.className='chain-dot '+ch;
   var cnt=document.getElementById('chainNameTop');
   if(cnt) cnt.textContent=cfg.name.toUpperCase();
-  // Wallet panel
   var wc=document.getElementById('walletChain');
   if(wc){wc.textContent=cfg.name;wc.style.color=cfg.color;}
   var cdp=document.getElementById('chainDotPanel');
   if(cdp) cdp.className='chain-dot '+ch;
-  // Claim modal chain buttons
   try{selectChain(ch);}catch(e){}
-}
-
-async function refreshBalances(){
-  if(!walletState.connected)return;
-  var ch=walletState.chain;
-  if(!ch||!CHAINS[ch])return;
-  var cfg=CHAINS[ch];
-  try{
-    // Read on-chain USDT balance
-    var usdt=new ethers.Contract(cfg.usdt,ERC20_ABI,walletState.provider);
-    walletState.usdtContract=usdt;
-    var bal=await usdt.balanceOf(walletState.address);
-    var dec=cfg.decimals;
-    walletState.usdtBalance=parseFloat(ethers.utils.formatUnits(bal,dec));
-    // Update UI
-    document.getElementById('walletUsdt').textContent=walletState.usdtBalance.toFixed(2)+' USDT';
-    // Game balances (would come from backend API — using simulated values for now)
-    document.getElementById('walletPP').textContent=walletState.gamePP.toFixed(2)+' PP';
-  }catch(e){
-    console.warn('Balance read error:',e);
-    document.getElementById('walletUsdt').textContent='(read error)';
-  }
-}
-
-// ── Chain Switching ──
-async function switchChain(chainKey){
-  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
-  var cfg=CHAINS[chainKey];
-  try{
-    await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:cfg.chainId}]});
-  }catch(e){
-    if(e.code===4902){
-      // Chain not added — add it
-      try{
-        await window.ethereum.request({method:'wallet_addEthereumChain',params:[{
-          chainId:cfg.chainId,
-          chainName:cfg.name,
-          rpcUrls:[cfg.rpc],
-          blockExplorerUrls:[cfg.explorer],
-          nativeCurrency:{name:cfg.symbol,symbol:cfg.symbol,decimals:18}
-        }]});
-      }catch(e2){showToast('ADD CHAIN FAILED');console.error(e2)}
-    }else{
-      showToast('SWITCH CHAIN FAILED');console.error(e);
-    }
-  }
 }
 
 function selectChain(ch){
@@ -4039,20 +3802,16 @@ function selectChain(ch){
   document.getElementById('chainBase').classList.toggle('sel',ch==='base');
   document.getElementById('chainBnb').classList.toggle('sel',ch==='bnb');
   document.getElementById('chainEth').classList.toggle('sel',ch==='eth');
-  if(walletState.connected&&walletState.chain!==ch){
-    switchChain(ch);
-  }
 }
 
-// ── Deposit Modal ──
+// ── Deposit Modal (address display) ──
 var depChain='base';
+
 function openDepositModal(){
-  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
-  depChain=walletState.chain||'base';
-  document.getElementById('depCurBal').textContent=walletState.usdtBalance.toFixed(2)+' USDT (wallet)';
-  document.getElementById('depAmount').value='';
-  document.getElementById('depReceive').textContent='0.00 USDT + 0.00 PP';
+  if(!walletState.connected){showToast('LOGIN FIRST');return}
+  document.getElementById('depCurBal').textContent=walletState.gameUsdt.toFixed(2)+' USDT';
   selectDepChain(depChain);
+  updateDepositAddr();
   document.getElementById('depositModal').classList.add('open');
 }
 function closeDepositModal(){document.getElementById('depositModal').classList.remove('open')}
@@ -4062,81 +3821,31 @@ function selectDepChain(ch){
   document.getElementById('depChainBase').classList.toggle('sel',ch==='base');
   document.getElementById('depChainBnb').classList.toggle('sel',ch==='bnb');
   document.getElementById('depChainEth').classList.toggle('sel',ch==='eth');
+  updateDepositAddr();
 }
 
-function setDepMax(){
-  document.getElementById('depAmount').value=walletState.usdtBalance.toFixed(2);
-  updateDepPreview();
+function updateDepositAddr(){
+  var el=document.getElementById('depAddrDisplay');
+  if(el) el.textContent=walletState.address||'--';
 }
 
-document.getElementById('depAmount').addEventListener('input',updateDepPreview);
-function updateDepPreview(){
-  var amt=parseFloat(document.getElementById('depAmount').value)||0;
-  var pp=amt*0.1;
-  document.getElementById('depReceive').textContent=amt.toFixed(2)+' USDT + '+pp.toFixed(2)+' PP';
-}
-
-async function confirmDeposit(){
-  if(!walletState.connected){showToast('CONNECT WALLET');return}
-  var amt=parseFloat(document.getElementById('depAmount').value);
-  if(!amt||amt<=0){showToast('ENTER AMOUNT');return}
-  if(amt>walletState.usdtBalance){showToast('INSUFFICIENT USDT');return}
-
-  var cfg=CHAINS[depChain];
-  if(walletState.chain!==depChain){
-    showToast('SWITCHING TO '+cfg.name.toUpperCase()+'...');
-    await switchChain(depChain);
-    return;
-  }
-
-  var btn=document.getElementById('depConfirmBtn');
-  btn.textContent='APPROVING...';btn.disabled=true;
-
-  try{
-    var usdt=new ethers.Contract(cfg.usdt,ERC20_ABI,walletState.signer);
-    var decimals=cfg.decimals;
-    var amtBN=ethers.utils.parseUnits(amt.toString(),decimals);
-
-    // Check allowance
-    var allowance=await usdt.allowance(walletState.address,cfg.deposit);
-    if(allowance.lt(amtBN)){
-      btn.textContent='APPROVE USDT...';
-      var approveTx=await usdt.approve(cfg.deposit,ethers.constants.MaxUint256);
-      showToast('APPROVING USDT...');
-      await approveTx.wait();
-      showToast('APPROVED!');
-    }
-
-    // Deposit
-    btn.textContent='DEPOSITING...';
-    var deposit=new ethers.Contract(cfg.deposit,DEPOSIT_ABI,walletState.signer);
-    var tx=await deposit.deposit(amtBN);
-    showToast('TX SENT: '+tx.hash.slice(0,10)+'...');
-    await tx.wait();
-
-    // Update simulated game balance
-    walletState.gameUsdt+=amt;
-    walletState.gamePP+=amt*0.1;
-
-    await refreshBalances();
-    closeDepositModal();
-    showToast('DEPOSITED '+amt.toFixed(2)+' USDT! +'+( amt*0.1).toFixed(2)+' PP bonus');
-    addFeed('💰 '+shortAddr(walletState.address)+' deposited $'+amt.toFixed(2));
-  }catch(e){
-    console.error('Deposit error:',e);
-    if(e.code===4001||e.code==='ACTION_REJECTED'){
-      showToast('TRANSACTION CANCELLED');
-    }else{
-      showToast('DEPOSIT FAILED: '+(e.reason||e.message||'').slice(0,40));
-    }
-  }finally{
-    btn.textContent='APPROVE & DEPOSIT';btn.disabled=false;
-  }
+function copyDepositAddr(){
+  var addr=walletState.address;
+  if(!addr){showToast('NO ADDRESS');return}
+  navigator.clipboard.writeText(addr).then(function(){
+    showToast('ADDRESS COPIED!');
+  }).catch(function(){
+    // Fallback
+    var ta=document.createElement('textarea');
+    ta.value=addr;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    showToast('ADDRESS COPIED!');
+  });
 }
 
 // ── Withdraw Modal ──
 function openWithdrawModal(){
-  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
+  if(!walletState.connected){showToast('LOGIN FIRST');return}
   document.getElementById('wdrAvail').textContent=walletState.gameUsdt.toFixed(2)+' USDT';
   document.getElementById('wdrAmount').value='';
   document.getElementById('withdrawModal').classList.add('open');
@@ -4153,16 +3862,18 @@ async function confirmWithdraw(){
   btn.textContent='REQUESTING...';btn.disabled=true;
 
   try{
-    // In production: POST /api/withdraw → server returns signature
-    // Then call contract.withdraw(amount, fee, nonce, deadline, signature)
-    // For now: simulate
-    await new Promise(function(r){setTimeout(r,1500)});
+    var resp=await fetch('/api/withdraw',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
+      body:JSON.stringify({amount:amt,chain:walletState.chain||'base'})
+    });
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'WITHDRAW FAILED');return}
 
-    walletState.gameUsdt-=amt;
-    walletState.usdtBalance+=amt;
-    await refreshBalances();
+    walletState.gameUsdt=d.usdtBalance!=null?d.usdtBalance:walletState.gameUsdt-amt;
+    refreshEmailBalances();
     closeWithdrawModal();
-    showToast('WITHDRAWN '+amt.toFixed(2)+' USDT');
+    showToast('WITHDRAWAL REQUESTED: '+amt.toFixed(2)+' USDT');
     addFeed('💸 '+shortAddr(walletState.address)+' withdrew $'+amt.toFixed(2));
   }catch(e){
     showToast('WITHDRAW FAILED');
@@ -4174,7 +3885,7 @@ async function confirmWithdraw(){
 
 // ── Swap Modal (PP → USDT) ──
 function openSwapModal(){
-  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
+  if(!walletState.connected){showToast('LOGIN FIRST');return}
   document.getElementById('swpPPBal').textContent=walletState.gamePP.toFixed(2)+' PP';
   document.getElementById('swpAmount').value='';
   document.getElementById('swpReceive').textContent='0.00 USDT';
@@ -4198,15 +3909,25 @@ async function confirmSwap(){
   var fee=amt*0.05;
   var received=amt-fee;
 
-  // In production: POST /api/swap
-  await new Promise(function(r){setTimeout(r,800)});
+  try{
+    var resp=await fetch('/api/swap',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
+      body:JSON.stringify({amount:amt})
+    });
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'SWAP FAILED');return}
 
-  walletState.gamePP-=amt;
-  walletState.gameUsdt+=received;
-  refreshBalances();
-  closeSwapModal();
-  showToast('SWAPPED '+amt.toFixed(2)+' PP → '+received.toFixed(2)+' USDT');
-  addFeed('🔄 '+shortAddr(walletState.address)+' swapped '+amt.toFixed(0)+' PP');
+    walletState.gamePP=d.ppBalance!=null?d.ppBalance:walletState.gamePP-amt;
+    walletState.gameUsdt=d.usdtBalance!=null?d.usdtBalance:walletState.gameUsdt+received;
+    refreshEmailBalances();
+    closeSwapModal();
+    showToast('SWAPPED '+amt.toFixed(2)+' PP → '+received.toFixed(2)+' USDT');
+    addFeed('🔄 '+shortAddr(walletState.address)+' swapped '+amt.toFixed(0)+' PP');
+  }catch(e){
+    showToast('SWAP FAILED');
+    console.error(e);
+  }
 }
 
 /* ══════════════════════════════════════════════════
@@ -4216,12 +3937,11 @@ var LANG = localStorage.getItem('pw_lang') || 'en';
 var I18N = {
   en: {
     login: 'LOGIN', register: 'REGISTER', logout: 'LOGOUT', account: 'ACCOUNT',
-    connect_wallet: 'CONNECT WALLET', connect_metamask: 'CONNECT WITH METAMASK', link_metamask: 'LINK METAMASK',
     email_login: 'EMAIL LOGIN / REGISTER', my_wallet: 'MY WALLET',
-    wallet_cta_desc: 'Connect wallet or login to deposit USDT,<br>claim territories & earn rewards',
+    wallet_cta_desc: 'Login to deposit USDT,<br>claim territories & earn rewards',
     email_placeholder: 'email@example.com', password_placeholder: 'Password (6+ chars)',
     nickname_placeholder: 'Nickname (optional)', referral_placeholder: 'Referral code (optional)',
-    or: 'OR', email_wallet_note: 'Your email account has a built-in game wallet.<br>You can also connect MetaMask for on-chain deposits.',
+    or: 'OR', email_wallet_note: 'Your email account has a built-in game wallet.<br>Use DEPOSIT to get your deposit address.',
     game_wallet: 'GAME WALLET', usdt_balance: 'USDT BALANCE', pp_balance: 'PP BALANCE',
     global_stats: 'GLOBAL STATS', total_pixels: 'TOTAL PIXELS', pixels_sold: 'PIXELS SOLD',
     total_volume: 'TOTAL VOLUME', hijacks_hr: 'HIJACKS / HR', active_users: 'ACTIVE USERS',
@@ -4251,12 +3971,11 @@ var I18N = {
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
-    connect_wallet: '지갑 연결', connect_metamask: '메타마스크 연결', link_metamask: '메타마스크 연동',
     email_login: '이메일 로그인 / 가입', my_wallet: '내 지갑',
-    wallet_cta_desc: '지갑 연결 또는 로그인하여 USDT 입금,<br>영토 점령 & 보상 획득',
+    wallet_cta_desc: '로그인하여 USDT를 입금하고,<br>영토를 점령하고 보상을 받으세요',
     email_placeholder: 'email@example.com', password_placeholder: '비밀번호 (6자 이상)',
     nickname_placeholder: '닉네임 (선택)', referral_placeholder: '추천 코드 (선택)',
-    or: '또는', email_wallet_note: '이메일 계정에 게임 지갑이 자동 생성됩니다.<br>메타마스크를 연결해 온체인 입금도 가능합니다.',
+    or: '또는', email_wallet_note: '이메일 계정에 게임 지갑이 내장되어 있습니다.<br>DEPOSIT 버튼으로 입금 주소를 확인하세요.',
     game_wallet: '게임 지갑', usdt_balance: 'USDT 잔액', pp_balance: 'PP 잔액',
     global_stats: '전체 통계', total_pixels: '총 픽셀', pixels_sold: '판매된 픽셀',
     total_volume: '총 거래량', hijacks_hr: '탈취/시간', active_users: '활성 유저',
@@ -4286,12 +4005,11 @@ var I18N = {
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
-    connect_wallet: 'ウォレット接続', connect_metamask: 'MetaMask接続', link_metamask: 'MetaMaskを連携',
     email_login: 'メールログイン / 登録', my_wallet: 'マイウォレット',
-    wallet_cta_desc: 'ウォレット接続またはログインして<br>USDTを入金、領土を獲得しよう',
+    wallet_cta_desc: 'ログインしてUSDTを入金、<br>領土を獲得して報酬を得よう',
     email_placeholder: 'email@example.com', password_placeholder: 'パスワード (6文字以上)',
     nickname_placeholder: 'ニックネーム (任意)', referral_placeholder: '紹介コード (任意)',
-    or: 'または', email_wallet_note: 'メールアカウントにゲームウォレットが自動作成されます。<br>MetaMaskでオンチェイン入金も可能です。',
+    or: 'または', email_wallet_note: 'メールアカウントにゲームウォレットが内蔵されています。<br>DEPOSITボタンで入金アドレスを確認できます。',
     game_wallet: 'ゲームウォレット', usdt_balance: 'USDT残高', pp_balance: 'PP残高',
     global_stats: '全体統計', total_pixels: '総ピクセル', pixels_sold: '販売済み',
     total_volume: '総取引量', hijacks_hr: '奪取/時', active_users: 'アクティブユーザー',
@@ -4321,12 +4039,11 @@ var I18N = {
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
-    connect_wallet: '连接钱包', connect_metamask: '连接MetaMask', link_metamask: '关联MetaMask',
     email_login: '邮箱登录 / 注册', my_wallet: '我的钱包',
-    wallet_cta_desc: '连接钱包或登录以存入USDT，<br>占领领土并获得奖励',
+    wallet_cta_desc: '登录以存入USDT，<br>占领领土并获得奖励',
     email_placeholder: 'email@example.com', password_placeholder: '密码（至少6位）',
     nickname_placeholder: '昵称（可选）', referral_placeholder: '推荐码（可选）',
-    or: '或者', email_wallet_note: '邮箱账户自动创建游戏钱包。<br>也可连接MetaMask进行链上充值。',
+    or: '或者', email_wallet_note: '邮箱账户内置游戏钱包。<br>点击DEPOSIT查看充值地址。',
     game_wallet: '游戏钱包', usdt_balance: 'USDT余额', pp_balance: 'PP余额',
     global_stats: '全局统计', total_pixels: '总像素', pixels_sold: '已售像素',
     total_volume: '总交易量', hijacks_hr: '劫持/时', active_users: '活跃用户',
@@ -4413,15 +4130,54 @@ var emailAuth = {
   user: null
 };
 
-// Auto-login: restore session from saved token
-(function autoLogin(){
-  if(!emailAuth.token) return;
-  fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}})
-    .then(function(r){if(!r.ok) throw new Error('expired'); return r.json()})
-    .then(function(d){
-      emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,referralCode:d.referralCode};
+// Auto-login: restore session from saved token, or re-login with saved credentials
+(function autoLoginInit(){
+  if(emailAuth.token){
+    fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}})
+      .then(function(r){if(!r.ok) throw new Error('expired'); return r.json()})
+      .then(function(d){
+        emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,referralCode:d.referralCode};
+        walletState.connected=true;
+        walletState.address=d.wallet;
+        walletState.chain='base';
+        try{updateWalletUI()}catch(e){}
+        try{updateChainUI()}catch(e){}
+        try{updateTopbarAvatar(true)}catch(e){}
+        try{refreshEmailBalances()}catch(e){}
+        try{loadReferralInfo()}catch(e){}
+        try{trackQuestAction('login',1)}catch(e){}
+        console.log('[Auth] Auto-login OK:',d.nickname);
+      })
+      .catch(function(){
+        // Token expired — try credential-based auto-login
+        emailAuth.token=null;
+        try{localStorage.removeItem('pw_token')}catch(e){}
+        console.log('[Auth] Token expired, trying saved credentials...');
+        _tryCredentialAutoLogin();
+      });
+  } else {
+    _tryCredentialAutoLogin();
+  }
+})();
+
+function _tryCredentialAutoLogin(){
+  try{
+    if(localStorage.getItem('pw_autologin')!=='1') return;
+    var email=localStorage.getItem('pw_rem_email');
+    var passB64=localStorage.getItem('pw_rem_pass');
+    if(!email||!passB64) return;
+    var pass=decodeURIComponent(escape(atob(passB64)));
+    console.log('[Auth] Credential auto-login for:',email);
+    fetch('/api/auth/login',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:pass})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(!d.token){console.log('[Auth] Credential auto-login failed');return}
+      emailAuth.token=d.token;
+      emailAuth.user=d.user;
+      try{localStorage.setItem('pw_token',d.token)}catch(e){}
       walletState.connected=true;
-      walletState.address=d.wallet;
+      walletState.address=d.user.wallet;
       walletState.chain='base';
       try{updateWalletUI()}catch(e){}
       try{updateChainUI()}catch(e){}
@@ -4429,15 +4185,10 @@ var emailAuth = {
       try{refreshEmailBalances()}catch(e){}
       try{loadReferralInfo()}catch(e){}
       try{trackQuestAction('login',1)}catch(e){}
-      console.log('[Auth] Auto-login OK:',d.nickname);
-    })
-    .catch(function(){
-      // Token expired or invalid — clear it
-      emailAuth.token=null;
-      try{localStorage.removeItem('pw_token')}catch(e){}
-      console.log('[Auth] Auto-login failed, token cleared');
-    });
-})();
+      console.log('[Auth] Credential auto-login OK:',d.user.nickname);
+    }).catch(function(e){console.log('[Auth] Credential auto-login error:',e)});
+  }catch(e){}
+}
 
 function togglePassEye(){
   var inp=document.getElementById('authPassInput');
@@ -4494,6 +4245,21 @@ function showAuthForm(){
   document.getElementById('authForm').style.display='';
   document.getElementById('findEmailView').style.display='none';
   document.getElementById('resetPassView').style.display='none';
+  // Restore saved credentials & checkbox states
+  try{
+    var rem=localStorage.getItem('pw_remember')==='1';
+    var auto=localStorage.getItem('pw_autologin')==='1';
+    var remCb=document.getElementById('rememberMe');
+    var autoCb=document.getElementById('autoLogin');
+    if(remCb) remCb.checked=rem;
+    if(autoCb) autoCb.checked=auto;
+    if(rem){
+      var savedEmail=localStorage.getItem('pw_rem_email');
+      var savedPass=localStorage.getItem('pw_rem_pass');
+      if(savedEmail) document.getElementById('authEmailInput').value=savedEmail;
+      if(savedPass) try{document.getElementById('authPassInput').value=decodeURIComponent(escape(atob(savedPass)))}catch(e){}
+    }
+  }catch(e){}
 }
 
 async function doFindEmail(){
@@ -4620,6 +4386,26 @@ async function submitAuth(){
     emailAuth.token=d.token;
     emailAuth.user=d.user;
     try{ localStorage.setItem('pw_token',d.token); }catch(lsErr){ console.warn('[Auth] localStorage fail:',lsErr); }
+
+    // Save credentials if Remember checked
+    try{
+      var remCb=document.getElementById('rememberMe');
+      var autoCb=document.getElementById('autoLogin');
+      if(remCb&&remCb.checked){
+        localStorage.setItem('pw_rem_email',email);
+        localStorage.setItem('pw_rem_pass',btoa(unescape(encodeURIComponent(pass))));
+        localStorage.setItem('pw_remember','1');
+      }else{
+        localStorage.removeItem('pw_rem_email');
+        localStorage.removeItem('pw_rem_pass');
+        localStorage.removeItem('pw_remember');
+      }
+      if(autoCb&&autoCb.checked){
+        localStorage.setItem('pw_autologin','1');
+      }else{
+        localStorage.removeItem('pw_autologin');
+      }
+    }catch(e3){}
 
     walletState.connected=true;
     walletState.address=d.user.wallet;
@@ -4762,6 +4548,8 @@ function logoutEmail(){
   emailAuth.token=null;
   emailAuth.user=null;
   localStorage.removeItem('pw_token');
+  // Clear auto-login (keep remember if user wants)
+  localStorage.removeItem('pw_autologin');
   walletState.connected=false;
   walletState.address=null;
   updateTopbarAvatar(false);
@@ -4769,10 +4557,9 @@ function logoutEmail(){
   document.getElementById('walletSection').style.display='none';
   document.getElementById('alertsSection').style.display='none';
   document.getElementById('referralSection').style.display='none';
-  document.getElementById('walletBtn').textContent=t('connect_wallet');
-  document.getElementById('walletBtn').style.color='var(--mars)';
+  document.getElementById('chainIndicator').style.display='none';
   closeAuthModal();
-  showToast(t('wallet_disconnected'));
+  showToast(t('logout'));
 }
 
 async function refreshEmailBalances(){
@@ -4849,7 +4636,7 @@ function copyRefCode(){
 }
 
 async function registerReferral(){
-  if(!walletState.connected){showToast('CONNECT WALLET FIRST');return}
+  if(!walletState.connected){showToast('LOGIN FIRST');return}
   var code=document.getElementById('refCodeInput').value.trim().toUpperCase();
   if(!code){showToast('ENTER A CODE');return}
   var status=document.getElementById('refStatus');
@@ -5680,13 +5467,16 @@ function arenaSetWalletUI() {
 }
 
 window.arenaConnectWallet = function() {
-  if (!window.ethereum) return arenaToast('Install MetaMask', true);
-  window.ethereum.request({ method: 'eth_requestAccounts' }).then(function(accs) {
-    arenaWallet = accs[0].toLowerCase();
+  // No MetaMask — must be logged in via email
+  if (window.walletState && walletState.connected && walletState.address) {
+    arenaWallet = walletState.address.toLowerCase();
     arenaSetWalletUI();
     arenaLoadBalance();
     arenaCheckActiveMines();
-  }).catch(function(){ arenaToast('Wallet connect failed', true); });
+  } else {
+    arenaToast('Please login first', true);
+    try { openAuthModal(); } catch(e) {}
+  }
 };
 
 function arenaTryAutoConnect() {
@@ -5694,7 +5484,6 @@ function arenaTryAutoConnect() {
   if (window.walletState && walletState.connected && walletState.address) {
     arenaWallet = walletState.address.toLowerCase();
     arenaSetWalletUI();
-    // Try nickname from topbar
     var nick = localStorage.getItem('pw_token');
     if (nick) {
       try {
@@ -5724,17 +5513,6 @@ function arenaTryAutoConnect() {
         return;
       }
     } catch(e){}
-  }
-  // Fallback: MetaMask silent
-  if (window.ethereum) {
-    window.ethereum.request({ method: 'eth_accounts' }).then(function(accs) {
-      if (accs.length) {
-        arenaWallet = accs[0].toLowerCase();
-        arenaSetWalletUI();
-        arenaLoadBalance();
-        arenaCheckActiveMines();
-      }
-    }).catch(function(){});
   }
 }
 
