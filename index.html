@@ -3683,7 +3683,6 @@ async function confirmClaim(){
       label:'YOU',w:cw,h:ch,link:linkVal||''};
     // Use server URL for image, not blob
     nc.imgUrl=sendImageUrl||uploadedUrl||'';
-    if(nc.imgUrl) cacheImage(nc.imgUrl);
     claims.push(nc);
 
     // Register pixels in grid with updated prices
@@ -3701,6 +3700,11 @@ async function confirmClaim(){
     stampPreviewLat=null; stampPreviewLng=null;
     lastStampCost=null;
     document.getElementById('stampPreview').style.display='none';
+    // Cache image then redraw texture (async — redraw on load complete)
+    if(nc.imgUrl){
+      cacheImage(nc.imgUrl,function(){claimsSnapshot=null;compositeClaimsOnTexture()});
+    }
+    claimsSnapshot=null;
     compositeClaimsOnTexture();
     totalClaimed++;totalVolume+=price;
     document.getElementById('statPlots').textContent=totalClaimed;
