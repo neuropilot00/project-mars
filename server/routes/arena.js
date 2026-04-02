@@ -394,7 +394,7 @@ router.post('/mines/start', betLimiter, async (req, res) => {
 
     if (!w) return res.status(400).json({ error: 'Wallet required' });
     const minBet = parseFloat(s.mines_min_bet) || 0.1;
-    const maxBet = parseFloat(s.mines_max_bet) || 20;
+    const maxBet = parseFloat(s.mines_max_bet) || 1000;
     if (!bet || bet < minBet || bet > maxBet) {
       return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
     }
