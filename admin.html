@@ -367,6 +367,25 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
   </div>
 
+  <!-- Quest Reward Pool -->
+  <div class="section cat-finance">
+    <div class="sec-header">
+      <span class="sec-title">QUEST REWARD POOL</span>
+      <button class="ev-btn" onclick="loadQuestPool()">REFRESH</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="stat-card"><div class="sc-label">POOL BALANCE</div><div class="sc-value gn" id="qpBalance">--</div><div class="sc-sub">available PP</div></div>
+      <div class="stat-card"><div class="sc-label">TOTAL FUNDED</div><div class="sc-value" id="qpFunded">--</div><div class="sc-sub">lifetime in</div></div>
+      <div class="stat-card"><div class="sc-label">TOTAL PAID</div><div class="sc-value" id="qpPaid">--</div><div class="sc-sub">lifetime out</div></div>
+      <div class="stat-card"><div class="sc-label">TODAY PAID</div><div class="sc-value" id="qpToday">--</div><div class="sc-sub">daily spend</div></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="number" class="adm-input" id="qpFundAmount" placeholder="Amount (PP)" style="width:140px" step="1" min="1">
+      <button class="ev-btn" onclick="fundQuestPool()">FUND POOL</button>
+      <button class="ev-btn del" onclick="setQuestPool()">SET BALANCE</button>
+    </div>
+  </div>
+
   <!-- Users Table -->
   <div class="section cat-users">
     <div class="sec-header">
@@ -743,6 +762,7 @@ function loadAll() {
   loadUsers(userPage);
   loadTransactions(txPage);
   loadRevenue();
+  loadQuestPool();
   loadErrors(0);
   document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
 }
@@ -874,6 +894,31 @@ function renderPagination(elId, current, total, count, loadFn) {
   el.appendChild(next);
 }
 
+// ── Quest Reward Pool ──
+function loadQuestPool() {
+  api('/admin/api/quest-pool').then(function(d) {
+    document.getElementById('qpBalance').textContent = parseFloat(d.balance).toFixed(2) + ' PP';
+    document.getElementById('qpFunded').textContent = parseFloat(d.total_funded).toFixed(2) + ' PP';
+    document.getElementById('qpPaid').textContent = parseFloat(d.total_paid).toFixed(2) + ' PP';
+    document.getElementById('qpToday').textContent = parseFloat(d.today_paid).toFixed(2) + ' PP';
+  });
+}
+function fundQuestPool() {
+  var amt = document.getElementById('qpFundAmount').value;
+  if (!amt || parseFloat(amt) <= 0) return alert('Enter a valid amount');
+  api('/admin/api/quest-pool/fund', 'POST', { amount: parseFloat(amt) }).then(function(d) {
+    if (d.success) { loadQuestPool(); document.getElementById('qpFundAmount').value = ''; }
+  });
+}
+function setQuestPool() {
+  var amt = document.getElementById('qpFundAmount').value;
+  if (amt === '' || parseFloat(amt) < 0) return alert('Enter a valid balance');
+  if (!confirm('Set pool balance to ' + amt + ' PP?')) return;
+  api('/admin/api/quest-pool/set', 'POST', { balance: parseFloat(amt) }).then(function(d) {
+    if (d.success) { loadQuestPool(); document.getElementById('qpFundAmount').value = ''; }
+  });
+}
+
 // ── Revenue Chart ──
 function loadRevenue() {
   var days = document.getElementById('chartDays').value;
@@ -927,7 +972,8 @@ var settingDescI18n = {
     max_claim_width: '최대 클레임 너비 (픽셀)',
     max_deposit: '최대 입금액 (USDT)',
     min_deposit: '최소 입금액 (USDT)',
-    min_withdraw: '최소 출금액 (USDT)'
+    min_withdraw: '최소 출금액 (USDT)',
+    signup_pp_bonus: '신규 가입 시 지급되는 PP (0=비활성)'
   },
   ja: {
     announcement: '\u30B0\u30ED\u30FC\u30D0\u30EB\u304A\u77E5\u3089\u305B\u30D0\u30CA\u30FC (\u7A7A\u767D\u3067\u975E\u8868\u793A)',
@@ -942,7 +988,8 @@ var settingDescI18n = {
     max_claim_width: '\u6700\u5927\u30AF\u30EC\u30FC\u30E0\u5E45 (\u30D4\u30AF\u30BB\u30EB)',
     max_deposit: '\u6700\u5927\u5165\u91D1\u984D (USDT)',
     min_deposit: '\u6700\u5C0F\u5165\u91D1\u984D (USDT)',
-    min_withdraw: '\u6700\u5C0F\u51FA\u91D1\u984D (USDT)'
+    min_withdraw: '\u6700\u5C0F\u51FA\u91D1\u984D (USDT)',
+    signup_pp_bonus: '\u65B0\u898F\u767B\u9332\u6642\u306B\u4ED8\u4E0E\u3055\u308C\u308BPP (0=\u7121\u52B9)'
   },
   zh: {
     announcement: '\u5168\u5C40\u516C\u544A\u6A2A\u5E45 (\u7559\u7A7A\u9690\u85CF)',
@@ -957,7 +1004,8 @@ var settingDescI18n = {
     max_claim_width: '\u6700\u5927\u8BA4\u9886\u5BBD\u5EA6 (\u50CF\u7D20)',
     max_deposit: '\u6700\u5927\u5145\u503C\u989D (USDT)',
     min_deposit: '\u6700\u5C0F\u5145\u503C\u989D (USDT)',
-    min_withdraw: '\u6700\u5C0F\u63D0\u73B0\u989D (USDT)'
+    min_withdraw: '\u6700\u5C0F\u63D0\u73B0\u989D (USDT)',
+    signup_pp_bonus: '\u65B0\u7528\u6237\u6CE8\u518C\u65F6\u8D60\u9001\u7684PP (0=\u7981\u7528)'
   }
 };
 

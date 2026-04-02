@@ -3,11 +3,34 @@ const { ethers } = require('ethers');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode } = require('../db');
+const rateLimit = require('express-rate-limit');
+const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode, awardXP } = require('../db');
 const { generateWithdrawSignature, CHAINS } = require('../services/signer');
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
+
+// ── Rate Limiters ──
+const readLimiter = rateLimit({
+  windowMs: 60 * 1000, max: 120,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many requests. Please slow down.' }
+});
+const writeLimiter = rateLimit({
+  windowMs: 60 * 1000, max: 30,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many write requests. Please wait.' }
+});
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 20,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many login attempts. Try again later.' }
+});
+const harvestLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, max: 10,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Harvest rate limit exceeded.' }
+});
 
 // ── Shared input sanitizer ──
 function sanitize(str, maxLen) {
@@ -96,30 +119,26 @@ async function findSectorForPixel(lat, lng) {
   return null;
 }
 
-// Award XP and check rank-up
-async function awardXP(client, wallet, xpAmount) {
-  if (!xpAmount || xpAmount <= 0) return null;
-  const res = await client.query(
-    'UPDATE users SET xp = xp + $1, total_actions = total_actions + 1 WHERE wallet_address = $2 RETURNING xp, rank_level',
-    [xpAmount, wallet]
-  );
-  if (!res.rows.length) return null;
-  const { xp, rank_level } = res.rows[0];
-  // Check rank-up
-  const rankRes = await client.query(
-    'SELECT level, name, reward_pp FROM rank_definitions WHERE level > $1 AND required_xp <= $2 ORDER BY level DESC LIMIT 1',
-    [rank_level, xp]
-  );
-  if (rankRes.rows.length) {
-    const newRank = rankRes.rows[0];
-    await client.query('UPDATE users SET rank_level = $1 WHERE wallet_address = $2', [newRank.level, wallet]);
-    // Award rank-up PP reward
-    if (parseFloat(newRank.reward_pp) > 0) {
-      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [newRank.reward_pp, wallet]);
-    }
-    return { newLevel: newRank.level, name: newRank.name, rewardPp: parseFloat(newRank.reward_pp) };
+// awardXP is now imported from db.js
+
+// ── Quest Reward Pool: fund from fees ──
+async function fundQuestPool(client, feeAmount) {
+  if (!feeAmount || feeAmount <= 0) return;
+  try {
+    const s = await cfg();
+    const rate = parseFloat(s.quest_pool_fee_rate) || 0.20;
+    const contribution = Math.round(feeAmount * rate * 10000) / 10000;
+    if (contribution <= 0) return;
+    await client.query(`
+      UPDATE quest_reward_pool SET
+        balance = balance + $1,
+        total_funded = total_funded + $1,
+        updated_at = NOW()
+      WHERE id = 1
+    `, [contribution]);
+  } catch (e) {
+    console.warn('[QuestPool] fund error:', e.message);
   }
-  return null;
 }
 
 function snapGrid(val) {
@@ -142,7 +161,7 @@ function getClaimPixels(lat, lng, w, h) {
 // ══════════════════════════════════════════════════
 //  GET /api/config — public game config + active events
 // ══════════════════════════════════════════════════
-router.get('/config', async (req, res) => {
+router.get('/config', readLimiter, async (req, res) => {
   try {
     const s = await cfg();
     const events = await getActiveEvents();
@@ -384,7 +403,7 @@ router.get('/claims', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/upload — save data:image to file, return URL
 // ══════════════════════════════════════════════════
-router.post('/upload', async (req, res) => {
+router.post('/upload', writeLimiter, async (req, res) => {
   const { dataUrl } = req.body;
   if (!dataUrl || typeof dataUrl !== 'string') {
     return res.status(400).json({ error: 'Missing dataUrl' });
@@ -424,7 +443,7 @@ router.post('/upload', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/claim
 // ══════════════════════════════════════════════════
-router.post('/claim', async (req, res) => {
+router.post('/claim', writeLimiter, async (req, res) => {
   const { wallet, lat, lng, width, height, imageUrl, originalImageUrl, linkUrl } = req.body;
   if (!wallet || lat == null || lng == null || !width || !height) {
     return res.status(400).json({ error: 'Missing fields' });
@@ -606,6 +625,9 @@ router.post('/claim', async (req, res) => {
     );
     const txId = txRes.rows[0].id;
 
+    // Fund quest pool from claim/hijack fees
+    await fundQuestPool(client, baseCost);
+
     // ── Referral rewards on hijack ──
     const referralRewards = [];
     if (overlapCount > 0 && (s.referral_enabled !== false)) {
@@ -662,7 +684,7 @@ router.post('/claim', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/swap — PP → USDT
 // ══════════════════════════════════════════════════
-router.post('/swap', async (req, res) => {
+router.post('/swap', writeLimiter, async (req, res) => {
   const { wallet, ppAmount } = req.body;
   if (!wallet || !ppAmount || ppAmount <= 0) return res.status(400).json({ error: 'Invalid input' });
 
@@ -703,6 +725,9 @@ router.post('/swap', async (req, res) => {
       [wallet.toLowerCase(), received, ppAmount, fee, JSON.stringify({ swapRate: 1, feePercent: s.swap_fee_percent || 5 })]
     );
 
+    // Fund quest pool from swap fees
+    await fundQuestPool(client, fee);
+
     await client.query('COMMIT');
     res.json({ success: true, received, fee, ppDeducted: ppAmount });
   } catch (e) {
@@ -717,7 +742,7 @@ router.post('/swap', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/withdraw — USDT withdrawal (server signs)
 // ══════════════════════════════════════════════════
-router.post('/withdraw', async (req, res) => {
+router.post('/withdraw', writeLimiter, async (req, res) => {
   const { wallet, amount, chain } = req.body;
   if (!wallet || !amount || amount <= 0) return res.status(400).json({ error: 'Invalid input' });
 
@@ -787,7 +812,7 @@ router.post('/withdraw', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/withdraw-all — full withdrawal + pixel reset
 // ══════════════════════════════════════════════════
-router.post('/withdraw-all', async (req, res) => {
+router.post('/withdraw-all', writeLimiter, async (req, res) => {
   const { wallet, chain } = req.body;
   if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
 
@@ -847,6 +872,9 @@ router.post('/withdraw-all', async (req, res) => {
        JSON.stringify({ totalOut, chain: chainKey })]
     );
 
+    // Fund quest pool from withdrawal fees
+    await fundQuestPool(client, ppFee);
+
     await client.query('COMMIT');
     res.json({ success: true, totalOut, ppFee, ...sigData });
   } catch (e) {
@@ -861,7 +889,7 @@ router.post('/withdraw-all', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  GET /api/leaderboard — top players by various criteria
 // ══════════════════════════════════════════════════
-router.get('/leaderboard', async (req, res) => {
+router.get('/leaderboard', readLimiter, async (req, res) => {
   try {
     const allowedSorts = ['claims', 'volume', 'pixels'];
     const sort = allowedSorts.includes(req.query.sort) ? req.query.sort : 'claims';
@@ -980,7 +1008,7 @@ router.post('/error-report', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  GET /api/sectors — all sectors with live stats
 // ══════════════════════════════════════════════════
-router.get('/sectors', async (req, res) => {
+router.get('/sectors', readLimiter, async (req, res) => {
   try {
     const wallet = (req.query.wallet || '').toLowerCase();
     const result = await pool.query(`
@@ -1173,6 +1201,31 @@ router.get('/user/:wallet/base', async (req, res) => {
     const mining = miningRes.rows[0] || null;
     const totalPixels = pixelRes.rows.reduce((s, r) => s + parseInt(r.pixel_count), 0);
 
+    const s = await cfg();
+
+    // Determine best tier for harvest interval
+    const tierCounts = { core: 0, mid: 0, frontier: 0 };
+    for (const row of pixelRes.rows) {
+      if (row.tier) tierCounts[row.tier] = (tierCounts[row.tier] || 0) + parseInt(row.pixel_count);
+    }
+    const intervalCore = parseInt(s.mining_interval_core) || 24;
+    const intervalMid = parseInt(s.mining_interval_mid) || 48;
+    const intervalFrontier = parseInt(s.mining_interval_frontier) || 72;
+    let bestInterval = intervalFrontier;
+    if (tierCounts.core > 0) bestInterval = intervalCore;
+    else if (tierCounts.mid > 0) bestInterval = intervalMid;
+
+    // Calculate harvest availability
+    let harvestAvailable = totalPixels > 0;
+    let nextHarvestAt = null;
+    if (mining && mining.last_harvest_at) {
+      const elapsed = (Date.now() - new Date(mining.last_harvest_at).getTime()) / (1000 * 60 * 60);
+      if (elapsed < bestInterval) {
+        harvestAvailable = false;
+        nextHarvestAt = new Date(new Date(mining.last_harvest_at).getTime() + bestInterval * 3600000);
+      }
+    }
+
     res.json({
       user: {
         wallet: user.wallet_address,
@@ -1183,6 +1236,19 @@ router.get('/user/:wallet/base', async (req, res) => {
         rank: user.rank_level || 1,
         referralCode: user.referral_code,
         joinedAt: user.created_at
+      },
+      miningInterval: {
+        core: intervalCore,
+        mid: intervalMid,
+        frontier: intervalFrontier,
+        best: bestInterval
+      },
+      miningRates: {
+        rewardMin: parseFloat(s.mining_reward_min) || 0.01,
+        rewardMax: parseFloat(s.mining_reward_max) || 0.5,
+        coreMult: parseFloat(s.mining_core_mult) || 1.5,
+        midMult: parseFloat(s.mining_mid_mult) || 1.2,
+        frontierMult: parseFloat(s.mining_frontier_mult) || 1.0
       },
       territory: {
         totalPixels,
@@ -1196,14 +1262,19 @@ router.get('/user/:wallet/base', async (req, res) => {
       mining: mining ? {
         lastHarvest: mining.last_harvest_at,
         totalMined: parseFloat(mining.total_mined_pp),
-        todayMined: parseFloat(mining.today_mined_pp)
-      } : { lastHarvest: null, totalMined: 0, todayMined: 0 },
-      ranks: rankRes.rows.map(r => ({
-        level: r.level,
-        name: r.name,
-        requiredXp: r.required_xp,
-        rewardPp: parseFloat(r.reward_pp)
-      }))
+        todayMined: parseFloat(mining.today_mined_pp),
+        harvestAvailable,
+        nextHarvestAt
+      } : { lastHarvest: null, totalMined: 0, todayMined: 0, harvestAvailable, nextHarvestAt: null },
+      ranks: rankRes.rows.map(r => {
+        const obj = { level: r.level, name: r.name, requiredXp: r.required_xp, rewardPp: parseFloat(r.reward_pp) };
+        if (r.breakthrough) {
+          obj.breakthrough = true;
+          obj.breakthroughLabel = r.breakthrough_condition?.label || '';
+          obj.breakthroughDesc = r.breakthrough_condition?.desc || '';
+        }
+        return obj;
+      })
     });
   } catch (e) {
     console.error('[API] user base error:', e.message);
@@ -1217,12 +1288,32 @@ router.get('/user/:wallet/base', async (req, res) => {
 router.get('/ranks', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM rank_definitions ORDER BY level');
-    res.json(result.rows.map(r => ({
-      level: r.level,
-      name: r.name,
-      requiredXp: r.required_xp,
-      rewardPp: parseFloat(r.reward_pp)
-    })));
+    const wallet = req.query.wallet ? req.query.wallet.toLowerCase() : null;
+
+    // Get user's breakthrough status if wallet provided
+    let userBreakthroughs = [];
+    if (wallet) {
+      const btRes = await pool.query('SELECT level FROM user_breakthroughs WHERE wallet_address = $1', [wallet]);
+      userBreakthroughs = btRes.rows.map(r => r.level);
+    }
+
+    res.json(result.rows.map(r => {
+      const obj = {
+        level: r.level,
+        name: r.name,
+        requiredXp: r.required_xp,
+        rewardPp: parseFloat(r.reward_pp)
+      };
+      if (r.breakthrough) {
+        obj.breakthrough = true;
+        obj.breakthroughLabel = r.breakthrough_condition?.label || '';
+        obj.breakthroughDesc = r.breakthrough_condition?.desc || '';
+        if (wallet) {
+          obj.breakthroughUnlocked = userBreakthroughs.includes(r.level);
+        }
+      }
+      return obj;
+    }));
   } catch (e) {
     console.error('[API] ranks error:', e.message);
     res.status(500).json({ error: 'Internal error' });
@@ -1230,9 +1321,73 @@ router.get('/ranks', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+//  GET /api/breakthrough/:wallet — Check breakthrough progress
+// ══════════════════════════════════════════════════
+router.get('/breakthrough/:wallet', readLimiter, async (req, res) => {
+  try {
+    const w = req.params.wallet.toLowerCase();
+    const userRes = await pool.query('SELECT rank_level, xp, created_at FROM users WHERE wallet_address = $1', [w]);
+    if (!userRes.rows.length) return res.status(404).json({ error: 'User not found' });
+
+    const user = userRes.rows[0];
+    const gateRes = await pool.query(
+      'SELECT level, name, required_xp, breakthrough_condition FROM rank_definitions WHERE breakthrough = true AND level > $1 ORDER BY level ASC LIMIT 1',
+      [user.rank_level]
+    );
+
+    if (!gateRes.rows.length) return res.json({ nextGate: null, message: 'All breakthroughs cleared!' });
+
+    const gate = gateRes.rows[0];
+    const cond = gate.breakthrough_condition;
+    const conditions = cond.conditions || [cond];
+
+    const progress = [];
+    for (const c of conditions) {
+      let current = 0, target = c.min || 0, label = c.type;
+
+      if (c.type === 'pixels') {
+        const r = await pool.query('SELECT COUNT(*) AS cnt FROM pixels WHERE owner = $1', [w]);
+        current = parseInt(r.rows[0].cnt); label = 'Pixels owned';
+      } else if (c.type === 'sectors') {
+        const r = await pool.query('SELECT COUNT(DISTINCT sector_id) AS cnt FROM pixels WHERE owner = $1', [w]);
+        current = parseInt(r.rows[0].cnt); label = 'Sectors';
+      } else if (c.type === 'quests') {
+        const r = await pool.query("SELECT COUNT(*) AS cnt FROM user_quests WHERE wallet = $1 AND status = 'claimed'", [w]);
+        current = parseInt(r.rows[0].cnt); label = 'Quests completed';
+      } else if (c.type === 'deposit') {
+        const r = await pool.query('SELECT COALESCE(SUM(amount),0) AS total FROM deposits WHERE wallet_address = $1', [w]);
+        current = parseFloat(r.rows[0].total); label = 'USDT deposited';
+      } else if (c.type === 'play_days') {
+        current = Math.floor((Date.now() - new Date(user.created_at).getTime()) / (1000*60*60*24));
+        label = 'Days played';
+      } else if (c.type === 'hijacks') {
+        const r = await pool.query("SELECT COUNT(*) AS cnt FROM transactions WHERE from_wallet = $1 AND type = 'hijack'", [w]);
+        current = parseInt(r.rows[0].cnt); label = 'Hijacks';
+      } else if (c.type === 'games_played') {
+        const r = await pool.query("SELECT (SELECT COUNT(*) FROM crash_bets WHERE wallet = $1) + (SELECT COUNT(*) FROM mines_games WHERE wallet = $1) AS cnt", [w]);
+        current = parseInt(r.rows[0].cnt); label = 'Games played';
+      } else if (c.type === 'referrals') {
+        const r = await pool.query('SELECT COUNT(*) AS cnt FROM users WHERE referred_by = (SELECT referral_code FROM users WHERE wallet_address = $1)', [w]);
+        current = parseInt(r.rows[0].cnt); label = 'Referrals';
+      }
+      progress.push({ type: c.type, label, current, target, done: current >= target });
+    }
+
+    res.json({
+      nextGate: { level: gate.level, name: gate.name, title: cond.label, requiredXp: gate.required_xp },
+      progress,
+      allMet: progress.every(p => p.done)
+    });
+  } catch (e) {
+    console.error('[API] breakthrough error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
 //  POST /api/harvest — Mining harvest (collect PP from owned pixels)
 // ══════════════════════════════════════════════════
-router.post('/harvest', async (req, res) => {
+router.post('/harvest', harvestLimiter, async (req, res) => {
   const { wallet } = req.body;
   if (!wallet) return res.status(400).json({ error: 'Wallet required' });
 
@@ -1244,26 +1399,6 @@ router.post('/harvest', async (req, res) => {
     const w = wallet.toLowerCase();
     await client.query('BEGIN');
 
-    // Check cooldown
-    const miningRes = await client.query(
-      'SELECT * FROM user_mining WHERE wallet_address = $1 FOR UPDATE',
-      [w]
-    );
-    const intervalHours = s.mining_interval_hours || 4;
-    const now = new Date();
-
-    if (miningRes.rows.length) {
-      const lastHarvest = miningRes.rows[0].last_harvest_at;
-      if (lastHarvest) {
-        const elapsed = (now - new Date(lastHarvest)) / (1000 * 60 * 60);
-        if (elapsed < intervalHours) {
-          await client.query('ROLLBACK');
-          const nextAt = new Date(new Date(lastHarvest).getTime() + intervalHours * 3600000);
-          return res.status(429).json({ error: 'Harvest on cooldown', nextHarvestAt: nextAt });
-        }
-      }
-    }
-
     // Count pixels by sector tier
     const pixelRes = await client.query(`
       SELECT s.tier, COUNT(*) AS cnt
@@ -1274,19 +1409,11 @@ router.post('/harvest', async (req, res) => {
     `, [w]);
 
     let totalPixels = 0;
-    let weightedPixels = 0;
-    const baseRate = s.mining_base_rate || 0.001;
-    const bonusCore = s.mining_bonus_core || 1.5;
-    const bonusMid = s.mining_bonus_mid || 1.2;
-    const bonusFrontier = s.mining_bonus_frontier || 1.0;
-
+    const tierCounts = { core: 0, mid: 0, frontier: 0 };
     for (const row of pixelRes.rows) {
       const cnt = parseInt(row.cnt);
       totalPixels += cnt;
-      let mult = bonusFrontier;
-      if (row.tier === 'core') mult = bonusCore;
-      else if (row.tier === 'mid') mult = bonusMid;
-      weightedPixels += cnt * mult;
+      if (row.tier) tierCounts[row.tier] = (tierCounts[row.tier] || 0) + cnt;
     }
 
     if (totalPixels === 0) {
@@ -1294,33 +1421,96 @@ router.post('/harvest', async (req, res) => {
       return res.status(400).json({ error: 'No pixels owned' });
     }
 
-    // Check if user is governor of any sector for governor bonus
+    // Determine harvest interval based on best tier owned
+    // Core=24h, Mid=48h, Frontier=72h (best tier wins)
+    const intervalCore = parseInt(s.mining_interval_core) || 24;
+    const intervalMid = parseInt(s.mining_interval_mid) || 48;
+    const intervalFrontier = parseInt(s.mining_interval_frontier) || 72;
+    let intervalHours = intervalFrontier;
+    let bestTier = 'frontier';
+    if (tierCounts.core > 0) { intervalHours = intervalCore; bestTier = 'core'; }
+    else if (tierCounts.mid > 0) { intervalHours = intervalMid; bestTier = 'mid'; }
+
+    // Check cooldown
+    const miningRes = await client.query(
+      'SELECT * FROM user_mining WHERE wallet_address = $1 FOR UPDATE', [w]
+    );
+    const now = new Date();
+
+    if (miningRes.rows.length) {
+      const lastHarvest = miningRes.rows[0].last_harvest_at;
+      if (lastHarvest) {
+        const elapsed = (now - new Date(lastHarvest)) / (1000 * 60 * 60);
+        if (elapsed < intervalHours) {
+          await client.query('ROLLBACK');
+          const nextAt = new Date(new Date(lastHarvest).getTime() + intervalHours * 3600000);
+          return res.status(429).json({ error: 'Harvest on cooldown', nextHarvestAt: nextAt, intervalHours });
+        }
+      }
+    }
+
+    // ── Pool-funded random reward ──
+    const rewardMin = parseFloat(s.mining_reward_min) || 0.01;
+    const rewardMax = parseFloat(s.mining_reward_max) || 0.5;
+    const harvestCap = parseFloat(s.mining_reward_cap_per_harvest) || 1.0;
+    const dailyCap = parseFloat(s.mining_daily_cap_per_user) || 1.0;
+
+    // Random base reward scaled by pixel count (diminishing returns)
+    // sqrt(pixels) gives diminishing returns: 100px=10x, 10000px=100x (not 100x linear)
+    const pixelFactor = Math.min(Math.sqrt(totalPixels) / 10, 3.0); // cap at 3x
+    const baseRandom = rewardMin + Math.random() * (rewardMax - rewardMin);
+    let harvestedPP = Math.round(baseRandom * pixelFactor * 10000) / 10000;
+
+    // Governor bonus
     const govRes = await client.query(
       'SELECT COUNT(*) AS cnt FROM sectors WHERE governor_wallet = $1', [w]
     );
     const isGovernor = parseInt(govRes.rows[0].cnt) > 0;
-    const govMult = isGovernor ? (s.mining_governor_bonus || 1.2) : 1.0;
+    if (isGovernor) harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000;
 
-    let harvestedPP = Math.round(weightedPixels * baseRate * govMult * 1000000) / 1000000;
+    // Apply hard cap per harvest
+    harvestedPP = Math.min(harvestedPP, harvestCap);
 
-    // Per-user daily cap
-    const dailyCap = s.pp_daily_earn_cap_per_user || 0;
-    if (dailyCap > 0) {
-      const todayDate = now.toISOString().slice(0, 10);
-      let todayMined = 0;
-      if (miningRes.rows.length && miningRes.rows[0].today_date === todayDate) {
-        todayMined = parseFloat(miningRes.rows[0].today_mined_pp) || 0;
-      }
-      const remaining = dailyCap - todayMined;
-      if (remaining <= 0) {
-        await client.query('ROLLBACK');
-        return res.status(429).json({ error: 'Daily mining cap reached' });
-      }
-      harvestedPP = Math.min(harvestedPP, remaining);
+    // Apply daily cap
+    const todayDate = now.toISOString().slice(0, 10);
+    let todayMined = 0;
+    if (miningRes.rows.length && miningRes.rows[0].today_date === todayDate) {
+      todayMined = parseFloat(miningRes.rows[0].today_mined_pp) || 0;
+    }
+    const dailyRemaining = Math.max(0, dailyCap - todayMined);
+    if (dailyRemaining <= 0) {
+      await client.query('ROLLBACK');
+      return res.status(429).json({ error: 'Daily mining cap reached ($' + dailyCap + '/day)' });
+    }
+    harvestedPP = Math.min(harvestedPP, dailyRemaining);
+
+    // ── Deduct from reward pool ──
+    const poolRes = await client.query('SELECT * FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
+    const poolBalance = parseFloat(poolRes.rows[0].balance);
+
+    if (poolBalance <= 0) {
+      await client.query('ROLLBACK');
+      return res.status(429).json({ error: 'Mining reward pool depleted. Try again later.' });
+    }
+    harvestedPP = Math.min(harvestedPP, poolBalance);
+    harvestedPP = Math.round(harvestedPP * 10000) / 10000;
+
+    if (harvestedPP <= 0) {
+      await client.query('ROLLBACK');
+      return res.status(429).json({ error: 'No rewards available' });
     }
 
+    // Deduct pool
+    await client.query(`
+      UPDATE quest_reward_pool SET
+        balance = balance - $1,
+        total_paid = total_paid + $1,
+        today_paid = today_paid + $1,
+        updated_at = NOW()
+      WHERE id = 1
+    `, [harvestedPP]);
+
     // Update user_mining record
-    const todayDate = now.toISOString().slice(0, 10);
     await client.query(`
       INSERT INTO user_mining (wallet_address, last_harvest_at, total_mined_pp, today_mined_pp, today_date)
       VALUES ($1, NOW(), $2, $2, $3)
@@ -1341,8 +1531,11 @@ router.post('/harvest', async (req, res) => {
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
        VALUES ('mining', $1, $2, 0, $3)`,
-      [w, harvestedPP, JSON.stringify({ totalPixels, weightedPixels: Math.round(weightedPixels), isGovernor })]
+      [w, harvestedPP, JSON.stringify({ totalPixels, bestTier, tierCounts, isGovernor, pixelFactor: Math.round(pixelFactor * 100) / 100 })]
     );
+
+    // Award XP for harvesting (5 XP per harvest)
+    const harvestRankUp = await awardXP(client, w, 5);
 
     await client.query('COMMIT');
 
@@ -1351,7 +1544,10 @@ router.post('/harvest', async (req, res) => {
       success: true,
       harvestedPP,
       totalPixels,
+      bestTier,
+      rankUp: harvestRankUp || null,
       isGovernor,
+      intervalHours,
       nextHarvestAt
     });
   } catch (e) {
@@ -1360,6 +1556,410 @@ router.post('/harvest', async (req, res) => {
     res.status(500).json({ error: 'Internal error' });
   } finally {
     client.release();
+  }
+});
+
+// ══════════════════════════════════════
+//  QUEST SYSTEM — Random Generation
+// ══════════════════════════════════════
+
+// Helper: random int in [min, max]
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+// Helper: random float in [min, max], rounded to 4 decimals
+function randReward(min, max) {
+  return Math.round((Math.random() * (max - min) + min) * 10000) / 10000;
+}
+
+// Generate quests for a user (called on login / daily refresh)
+async function generateQuestsForUser(wallet) {
+  const client = await pool.connect();
+  try {
+    // Check existing active quests
+    const existing = await client.query(
+      "SELECT tier FROM user_quests WHERE wallet = $1 AND status IN ('active','completed')",
+      [wallet]
+    );
+    const activeTiers = new Set(existing.rows.map(r => r.tier));
+
+    // Get templates
+    const tplRes = await client.query('SELECT * FROM quest_templates WHERE active = true');
+    const templates = tplRes.rows;
+
+    const questsToAdd = [];
+
+    // Assign quests per tier: 2 free, 1 activity, 1 spending (if slots open)
+    const tierSlots = { free: 3, activity: 2, spending: 1 };
+
+    for (const [tier, maxSlots] of Object.entries(tierSlots)) {
+      const currentCount = existing.rows.filter(r => r.tier === tier).length;
+      const slotsNeeded = maxSlots - currentCount;
+      if (slotsNeeded <= 0) continue;
+
+      const tierTemplates = templates.filter(t => t.tier === tier);
+      if (tierTemplates.length === 0) continue;
+
+      // Check cooldowns — avoid recently completed quest types
+      const recentRes = await client.query(
+        `SELECT template_id FROM user_quests
+         WHERE wallet = $1 AND tier = $2 AND status = 'claimed'
+         AND claimed_at > NOW() - INTERVAL '1 hour' * (SELECT cooldown_hours FROM quest_templates WHERE id = user_quests.template_id)`,
+        [wallet, tier]
+      );
+      const cooldownIds = new Set(recentRes.rows.map(r => r.template_id));
+      const available = tierTemplates.filter(t => !cooldownIds.has(t.id));
+      if (available.length === 0) continue;
+
+      const usedIds = new Set();
+      for (let i = 0; i < slotsNeeded; i++) {
+        const unused = available.filter(t => !usedIds.has(t.id));
+        const pick = unused.length > 0 ? unused : available;
+        const tpl = pick[randInt(0, pick.length - 1)];
+        usedIds.add(tpl.id);
+        const reqValue = randInt(parseInt(tpl.requirement_min), parseInt(tpl.requirement_max));
+        const rewardPP = randReward(parseFloat(tpl.reward_pp_min), parseFloat(tpl.reward_pp_max));
+        const title = tpl.title_template;
+        const desc = tpl.description_template.replace('{n}', reqValue);
+
+        // Expiry: free=24h, activity=48h, spending=72h
+        const expiryHours = tier === 'free' ? 24 : tier === 'activity' ? 48 : 72;
+
+        questsToAdd.push({
+          wallet, template_id: tpl.id, tier,
+          title, description: desc,
+          requirement_type: tpl.requirement_type,
+          requirement_value: reqValue,
+          reward_pp: rewardPP,
+          expires_at: new Date(Date.now() + expiryHours * 3600000)
+        });
+      }
+    }
+
+    // Insert new quests
+    for (const q of questsToAdd) {
+      await client.query(
+        `INSERT INTO user_quests (wallet, template_id, tier, title, description, requirement_type, requirement_value, reward_pp, expires_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [q.wallet, q.template_id, q.tier, q.title, q.description, q.requirement_type, q.requirement_value, q.reward_pp, q.expires_at]
+      );
+    }
+
+    return questsToAdd.length;
+  } finally {
+    client.release();
+  }
+}
+
+// GET /api/quests?wallet=xxx — Get user's active quests (+ auto-generate if needed)
+router.get('/quests', readLimiter, async (req, res) => {
+  try {
+    const w = sanitize(req.query.wallet, 255);
+    if (!w) return res.status(400).json({ error: 'wallet required' });
+
+    // Auto-generate quests if user has fewer than expected
+    await generateQuestsForUser(w);
+
+    // Expire old quests
+    await pool.query(
+      "UPDATE user_quests SET status = 'expired' WHERE wallet = $1 AND status = 'active' AND expires_at < NOW()",
+      [w]
+    );
+
+    // Fetch active + completed (unclaimed)
+    const result = await pool.query(
+      `SELECT id, tier, title, description, requirement_type, requirement_value,
+              current_progress, reward_pp, status, assigned_at, expires_at
+       FROM user_quests
+       WHERE wallet = $1 AND status IN ('active','completed')
+       ORDER BY
+         CASE tier WHEN 'free' THEN 1 WHEN 'activity' THEN 2 WHEN 'spending' THEN 3 END,
+         assigned_at DESC`,
+      [w]
+    );
+
+    // Also get recently claimed (last 24h) for "completed" display
+    const claimed = await pool.query(
+      `SELECT id, tier, title, reward_pp, claimed_at
+       FROM user_quests
+       WHERE wallet = $1 AND status = 'claimed' AND claimed_at > NOW() - INTERVAL '24 hours'
+       ORDER BY claimed_at DESC LIMIT 10`,
+      [w]
+    );
+
+    // Get pool status for dynamic reward display
+    const poolRes = await pool.query('SELECT balance, today_paid, today_date FROM quest_reward_pool WHERE id = 1');
+    const poolRow = poolRes.rows[0] || { balance: 0 };
+    const poolBalance = parseFloat(poolRow.balance);
+    const s = await cfg();
+    const minBal = parseFloat(s.quest_pool_min_balance) || 1;
+    const multMin = parseFloat(s.quest_reward_multiplier_min) || 0.1;
+    const multMax = parseFloat(s.quest_reward_multiplier_max) || 1.5;
+    let poolMultiplier = 1.0;
+    if (poolBalance <= 0) poolMultiplier = 0;
+    else if (poolBalance < minBal) poolMultiplier = multMin;
+    else poolMultiplier = multMin + (multMax - multMin) * Math.min(poolBalance / 100, 1.0);
+
+    res.json({
+      quests: result.rows.map(r => ({
+        ...r,
+        reward_pp: parseFloat(r.reward_pp),
+        actual_reward: Math.min(
+          Math.round(parseFloat(r.reward_pp) * poolMultiplier * 10000) / 10000,
+          r.tier === 'free' ? (parseFloat(s.quest_max_reward_free) || 0.05) :
+          r.tier === 'activity' ? (parseFloat(s.quest_max_reward_activity) || 0.3) :
+          (parseFloat(s.quest_max_reward_spending) || 1.0)
+        ),
+        requirement_value: parseFloat(r.requirement_value),
+        current_progress: parseFloat(r.current_progress),
+        progress_pct: Math.min(100, Math.round((parseFloat(r.current_progress) / parseFloat(r.requirement_value)) * 100))
+      })),
+      recentlyClaimed: claimed.rows.map(r => ({
+        ...r,
+        reward_pp: parseFloat(r.reward_pp)
+      })),
+      pool: {
+        balance: poolBalance,
+        multiplier: poolMultiplier,
+        active: poolBalance > 0
+      }
+    });
+  } catch (e) {
+    console.error('[API] quests error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// POST /api/quests/:id/progress — Update quest progress
+router.post('/quests/:id/progress', writeLimiter, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const questId = parseInt(req.params.id);
+    const { wallet, amount } = req.body;
+    const w = sanitize(wallet, 255);
+    if (!w || !questId) return res.status(400).json({ error: 'Invalid params' });
+    const increment = parseFloat(amount) || 1;
+
+    await client.query('BEGIN');
+
+    const qRes = await client.query(
+      "SELECT * FROM user_quests WHERE id = $1 AND wallet = $2 AND status = 'active' FOR UPDATE",
+      [questId, w]
+    );
+    if (qRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Quest not found or not active' });
+    }
+
+    const quest = qRes.rows[0];
+    const newProgress = Math.min(parseFloat(quest.current_progress) + increment, parseFloat(quest.requirement_value));
+    const isComplete = newProgress >= parseFloat(quest.requirement_value);
+
+    await client.query(
+      `UPDATE user_quests SET current_progress = $1, status = $2, completed_at = $3
+       WHERE id = $4`,
+      [newProgress, isComplete ? 'completed' : 'active', isComplete ? new Date() : null, questId]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({
+      questId,
+      current_progress: newProgress,
+      requirement_value: parseFloat(quest.requirement_value),
+      status: isComplete ? 'completed' : 'active',
+      progress_pct: Math.min(100, Math.round((newProgress / parseFloat(quest.requirement_value)) * 100))
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[API] quest progress error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /api/quests/:id/claim — Claim completed quest reward (pool-funded)
+router.post('/quests/:id/claim', writeLimiter, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const questId = parseInt(req.params.id);
+    const { wallet } = req.body;
+    const w = sanitize(wallet, 255);
+    if (!w || !questId) return res.status(400).json({ error: 'Invalid params' });
+
+    await client.query('BEGIN');
+
+    const qRes = await client.query(
+      "SELECT * FROM user_quests WHERE id = $1 AND wallet = $2 AND status = 'completed' FOR UPDATE",
+      [questId, w]
+    );
+    if (qRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Quest not completed or already claimed' });
+    }
+
+    const quest = qRes.rows[0];
+    const baseReward = parseFloat(quest.reward_pp);
+    const s = await cfg();
+
+    // ── Pool-based reward calculation ──
+    const poolRes = await client.query('SELECT * FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
+    const poolRow = poolRes.rows[0];
+    let poolBalance = parseFloat(poolRow.balance);
+    const dailyBudget = parseFloat(s.quest_daily_budget) || 50;
+    const minBalance = parseFloat(s.quest_pool_min_balance) || 1;
+    const multMin = parseFloat(s.quest_reward_multiplier_min) || 0.1;
+    const multMax = parseFloat(s.quest_reward_multiplier_max) || 1.5;
+
+    // Reset daily counter if new day
+    const today = new Date().toISOString().slice(0, 10);
+    let todayPaid = parseFloat(poolRow.today_paid);
+    if (poolRow.today_date.toISOString().slice(0, 10) !== today) {
+      todayPaid = 0;
+      await client.query("UPDATE quest_reward_pool SET today_paid = 0, today_date = $1 WHERE id = 1", [today]);
+    }
+
+    // Dynamic multiplier based on pool health
+    // poolBalance low → multiplier shrinks toward multMin
+    // poolBalance high → multiplier grows toward multMax
+    let multiplier = 1.0;
+    if (poolBalance <= 0) {
+      multiplier = 0; // Pool empty = no rewards
+    } else if (poolBalance < minBalance) {
+      multiplier = multMin; // Below minimum = barely any reward
+    } else {
+      // Scale between multMin and multMax based on pool (cap at 100 PP pool for max)
+      const healthRatio = Math.min(poolBalance / 100, 1.0);
+      multiplier = multMin + (multMax - multMin) * healthRatio;
+    }
+
+    // Check daily budget
+    if (todayPaid >= dailyBudget) {
+      multiplier = 0; // Daily budget exhausted
+    }
+
+    // Hard caps per tier — platform NEVER pays more than this
+    const tierCaps = {
+      free: parseFloat(s.quest_max_reward_free) || 0.05,
+      activity: parseFloat(s.quest_max_reward_activity) || 0.3,
+      spending: parseFloat(s.quest_max_reward_spending) || 1.0
+    };
+    const tierCap = tierCaps[quest.tier] || 0.05;
+    const userDailyCap = parseFloat(s.quest_max_daily_per_user) || 2.0;
+
+    // Check user's daily total claimed
+    const userTodayRes = await client.query(
+      "SELECT COALESCE(SUM(pp_amount),0) AS total FROM transactions WHERE type='quest' AND from_wallet=$1 AND created_at > CURRENT_DATE",
+      [w]
+    );
+    const userTodayTotal = parseFloat(userTodayRes.rows[0].total);
+    const userDailyRemaining = Math.max(0, userDailyCap - userTodayTotal);
+
+    let actualReward = Math.round(baseReward * multiplier * 10000) / 10000;
+    actualReward = Math.min(actualReward, tierCap);          // tier hard cap
+    actualReward = Math.min(actualReward, userDailyRemaining); // user daily cap
+    actualReward = Math.round(actualReward * 10000) / 10000;
+
+    if (actualReward <= 0) {
+      await client.query('ROLLBACK');
+      const reason = userDailyRemaining <= 0 ? 'Daily reward limit reached ($'+userDailyCap+'/day)' : 'Quest reward pool depleted. Try again later.';
+      return res.status(429).json({ error: reason });
+    }
+
+    // Deduct from pool
+    await client.query(`
+      UPDATE quest_reward_pool SET
+        balance = balance - $1,
+        total_paid = total_paid + $1,
+        today_paid = today_paid + $1,
+        updated_at = NOW()
+      WHERE id = 1
+    `, [actualReward]);
+
+    // Credit PP to user
+    await client.query(
+      'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+      [actualReward, w]
+    );
+
+    // Mark claimed
+    await client.query(
+      "UPDATE user_quests SET status = 'claimed', claimed_at = NOW() WHERE id = $1",
+      [questId]
+    );
+
+    // Transaction log
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+       VALUES ('quest', $1, $2, 0, $3)`,
+      [w, actualReward, JSON.stringify({
+        quest_id: questId, tier: quest.tier, title: quest.title,
+        base_reward: baseReward, multiplier, pool_balance: poolBalance
+      })]
+    );
+
+    // Award XP for quest completion (tier-based: free=3, activity=5, challenge=10)
+    const questXP = quest.tier === 'challenge' ? 10 : quest.tier === 'activity' ? 5 : 3;
+    const questRankUp = await awardXP(client, w, questXP);
+
+    await client.query('COMMIT');
+
+    res.json({
+      success: true,
+      questId,
+      rewardPP: actualReward,
+      xpEarned: questXP,
+      rankUp: questRankUp || null,
+      baseReward,
+      multiplier,
+      tier: quest.tier,
+      title: quest.title
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[API] quest claim error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /api/quests/track — Server-side quest progress tracking (called by other endpoints)
+// This is an internal helper, also exposed for client-side tracking of view-type quests
+router.post('/quests/track', writeLimiter, async (req, res) => {
+  try {
+    const { wallet, action, amount } = req.body;
+    const w = sanitize(wallet, 255);
+    if (!w || !action) return res.status(400).json({ error: 'Invalid params' });
+    const increment = parseFloat(amount) || 1;
+
+    // Find matching active quests for this action type
+    const result = await pool.query(
+      `UPDATE user_quests SET
+         current_progress = LEAST(current_progress + $1, requirement_value),
+         status = CASE WHEN LEAST(current_progress + $1, requirement_value) >= requirement_value THEN 'completed' ELSE status END,
+         completed_at = CASE WHEN LEAST(current_progress + $1, requirement_value) >= requirement_value AND completed_at IS NULL THEN NOW() ELSE completed_at END
+       WHERE wallet = $2 AND requirement_type = $3 AND status = 'active'
+       RETURNING id, title, tier, current_progress, requirement_value, status, reward_pp`,
+      [increment, w, action]
+    );
+
+    const updated = result.rows.map(r => ({
+      id: r.id,
+      title: r.title,
+      tier: r.tier,
+      progress: parseFloat(r.current_progress),
+      required: parseFloat(r.requirement_value),
+      status: r.status,
+      reward_pp: parseFloat(r.reward_pp),
+      justCompleted: r.status === 'completed'
+    }));
+
+    res.json({ tracked: updated.length, quests: updated });
+  } catch (e) {
+    console.error('[API] quest track error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
   }
 });
 

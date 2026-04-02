@@ -2,10 +2,23 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 const { pool, ensureUser, generateReferralCode } = require('../db');
 const { sendResetCode, isSmtpConfigured } = require('../services/email');
 
 const router = express.Router();
+
+// ── Auth Rate Limiters ──
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 20,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many attempts. Try again later.' }
+});
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, max: 5,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many password reset attempts. Try again in 1 hour.' }
+});
 
 // ── Shared input sanitizer ──
 function sanitize(str, maxLen) {
@@ -39,7 +52,7 @@ function generateCustodialAddress() {
 // ══════════════════════════════════════════════════
 //  POST /api/auth/register — Email signup
 // ══════════════════════════════════════════════════
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   const { email, password, nickname, referralCode } = req.body;
 
   if (!email || !password) {
@@ -150,7 +163,7 @@ router.post('/register', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/auth/login — Email login
 // ══════════════════════════════════════════════════
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -436,7 +449,7 @@ router.post('/link-wallet', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/auth/find-email — Find email by nickname + wallet hint
 // ══════════════════════════════════════════════════
-router.post('/find-email', async (req, res) => {
+router.post('/find-email', authLimiter, async (req, res) => {
   const { nickname } = req.body;
 
   if (!nickname) {
@@ -478,7 +491,7 @@ router.post('/find-email', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/auth/reset-password — Step 1: Request a reset code
 // ══════════════════════════════════════════════════
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', passwordResetLimiter, async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
@@ -566,7 +579,7 @@ router.post('/reset-password', async (req, res) => {
 // ══════════════════════════════════════════════════
 //  POST /api/auth/reset-password/verify — Step 2: Verify code & set new password
 // ══════════════════════════════════════════════════
-router.post('/reset-password/verify', async (req, res) => {
+router.post('/reset-password/verify', passwordResetLimiter, async (req, res) => {
   const { email, code, newPassword } = req.body;
 
   if (!email || !code || !newPassword) {

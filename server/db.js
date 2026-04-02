@@ -347,4 +347,117 @@ function generateReferralCode() {
   return code;
 }
 
-module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode };
+// ── Check breakthrough conditions ──
+async function checkBreakthroughCondition(client, wallet, condition) {
+  if (!condition) return true;
+  const type = condition.type;
+
+  if (type === 'pixels') {
+    const r = await client.query('SELECT COUNT(*) AS cnt FROM pixels WHERE owner = $1', [wallet]);
+    return parseInt(r.rows[0].cnt) >= condition.min;
+  }
+  if (type === 'sectors') {
+    const r = await client.query('SELECT COUNT(DISTINCT sector_id) AS cnt FROM pixels WHERE owner = $1', [wallet]);
+    return parseInt(r.rows[0].cnt) >= condition.min;
+  }
+  if (type === 'quests') {
+    const r = await client.query("SELECT COUNT(*) AS cnt FROM user_quests WHERE wallet = $1 AND status = 'claimed'", [wallet]);
+    return parseInt(r.rows[0].cnt) >= condition.min;
+  }
+  if (type === 'deposit') {
+    const r = await client.query('SELECT COALESCE(SUM(amount),0) AS total FROM deposits WHERE wallet_address = $1', [wallet]);
+    return parseFloat(r.rows[0].total) >= condition.min;
+  }
+  if (type === 'play_days') {
+    const r = await client.query('SELECT created_at FROM users WHERE wallet_address = $1', [wallet]);
+    if (!r.rows.length) return false;
+    const days = (Date.now() - new Date(r.rows[0].created_at).getTime()) / (1000 * 60 * 60 * 24);
+    return days >= condition.min;
+  }
+  if (type === 'hijacks') {
+    const r = await client.query("SELECT COUNT(*) AS cnt FROM transactions WHERE from_wallet = $1 AND type = 'hijack'", [wallet]);
+    return parseInt(r.rows[0].cnt) >= condition.min;
+  }
+  if (type === 'games_played') {
+    const r = await client.query(
+      "SELECT (SELECT COUNT(*) FROM crash_bets WHERE wallet = $1) + (SELECT COUNT(*) FROM mines_games WHERE wallet = $1) AS cnt",
+      [wallet]
+    );
+    return parseInt(r.rows[0].cnt) >= condition.min;
+  }
+  if (type === 'referrals') {
+    const r = await client.query('SELECT COUNT(*) AS cnt FROM users WHERE referred_by = (SELECT referral_code FROM users WHERE wallet_address = $1)', [wallet]);
+    return parseInt(r.rows[0].cnt) >= condition.min;
+  }
+  if (type === 'multi') {
+    for (const sub of (condition.conditions || [])) {
+      const ok = await checkBreakthroughCondition(client, wallet, sub);
+      if (!ok) return false;
+    }
+    return true;
+  }
+  return true;
+}
+
+// ── Award XP and check rank-up (shared across routes) ──
+async function awardXP(client, wallet, xpAmount) {
+  if (!xpAmount || xpAmount <= 0) return null;
+  const res = await client.query(
+    'UPDATE users SET xp = xp + $1, total_actions = total_actions + 1 WHERE wallet_address = $2 RETURNING xp, rank_level',
+    [xpAmount, wallet]
+  );
+  if (!res.rows.length) return null;
+  const { xp, rank_level } = res.rows[0];
+
+  // Find highest achievable rank (considering breakthrough gates)
+  const rankRes = await client.query(
+    'SELECT level, name, reward_pp, breakthrough, breakthrough_condition FROM rank_definitions WHERE level > $1 AND required_xp <= $2 ORDER BY level ASC',
+    [rank_level, xp]
+  );
+
+  let newLevel = rank_level;
+  let newRankName = null;
+  let totalRewardPp = 0;
+  let blockedAt = null;
+
+  for (const rank of rankRes.rows) {
+    if (rank.breakthrough) {
+      // Check if already unlocked
+      const unlocked = await client.query(
+        'SELECT 1 FROM user_breakthroughs WHERE wallet_address = $1 AND level = $2',
+        [wallet, rank.level]
+      );
+      if (!unlocked.rows.length) {
+        // Check if condition is met
+        const cond = rank.breakthrough_condition;
+        const met = await checkBreakthroughCondition(client, wallet, cond);
+        if (met) {
+          // Auto-unlock
+          await client.query(
+            'INSERT INTO user_breakthroughs (wallet_address, level) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+            [wallet, rank.level]
+          );
+        } else {
+          // Blocked! Can't pass this gate
+          blockedAt = { level: rank.level, condition: cond };
+          break;
+        }
+      }
+    }
+    // This rank is reachable
+    newLevel = rank.level;
+    newRankName = rank.name;
+    totalRewardPp += parseFloat(rank.reward_pp) || 0;
+  }
+
+  if (newLevel > rank_level) {
+    await client.query('UPDATE users SET rank_level = $1 WHERE wallet_address = $2', [newLevel, wallet]);
+    if (totalRewardPp > 0) {
+      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [totalRewardPp, wallet]);
+    }
+    return { newLevel, name: newRankName, rewardPp: totalRewardPp, blockedAt };
+  }
+  return blockedAt ? { blockedAt } : null;
+}
+
+module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode, awardXP };

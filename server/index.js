@@ -1,4 +1,9 @@
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+// Load environment-specific .env file, fallback to .env
+const _path = require('path');
+const _envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+require('dotenv').config({ path: _path.join(__dirname, '..', _envFile) });
+// Fallback: also load .env for any unset vars
+require('dotenv').config({ path: _path.join(__dirname, '..', '.env') });
 
 const express = require('express');
 const cors = require('cors');
@@ -55,6 +60,7 @@ const { startListeners } = require('./services/chain');
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const arenaRoutes = require('./routes/arena');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -73,7 +79,7 @@ app.use((req, res, next) => {
 const isDev = process.env.NODE_ENV !== 'production';
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isDev ? 1000 : 100,
+  max: isDev ? 5000 : 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests, please try again later.' }
@@ -137,6 +143,7 @@ app.use('/api/auth/register', authLimiter);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
+app.use('/api/arena', arenaRoutes);
 
 // ── Static files (index.html, admin.html, assets) ──
 app.use(express.static(path.join(__dirname, '..'), {
@@ -150,6 +157,9 @@ app.get('/', (req, res) => {
 });
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'admin.html'));
+});
+app.get('/arena', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'arena.html'));
 });
 
 // ── Error handler ──

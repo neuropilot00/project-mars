@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { pool } = require('../db');
+const { pool, awardXP } = require('../db');
 
 const router = express.Router();
 
@@ -682,6 +682,149 @@ router.put('/ranks/:level', async (req, res) => {
   } catch (e) {
     console.error('[Admin] rank update error:', e.message);
     res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════
+//  Quest Reward Pool Management
+// ══════════════════════════════════
+
+// GET /admin/quest-pool — View pool status
+router.get('/quest-pool', async (req, res) => {
+  try {
+    const r = await pool.query('SELECT * FROM quest_reward_pool WHERE id = 1');
+    res.json(r.rows[0] || {});
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/quest-pool/fund — Add PP to the pool
+router.post('/quest-pool/fund', async (req, res) => {
+  try {
+    const { amount } = req.body;
+    const pp = parseFloat(amount);
+    if (!pp || pp <= 0) return res.status(400).json({ error: 'Invalid amount' });
+
+    await pool.query(`
+      UPDATE quest_reward_pool SET
+        balance = balance + $1,
+        total_funded = total_funded + $1,
+        updated_at = NOW()
+      WHERE id = 1
+    `, [pp]);
+
+    const r = await pool.query('SELECT * FROM quest_reward_pool WHERE id = 1');
+    res.json({ success: true, pool: r.rows[0] });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/quest-pool/set — Set pool balance directly
+router.post('/quest-pool/set', async (req, res) => {
+  try {
+    const { balance } = req.body;
+    const val = parseFloat(balance);
+    if (val === undefined || val < 0) return res.status(400).json({ error: 'Invalid balance' });
+
+    await pool.query('UPDATE quest_reward_pool SET balance = $1, updated_at = NOW() WHERE id = 1', [val]);
+
+    const r = await pool.query('SELECT * FROM quest_reward_pool WHERE id = 1');
+    res.json({ success: true, pool: r.rows[0] });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── POST /admin/api/recalc-ranks — Recalculate all user ranks with breakthrough checks ──
+router.post('/recalc-ranks', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Get all rank definitions with breakthrough info
+    const rankRes = await client.query('SELECT * FROM rank_definitions ORDER BY level ASC');
+    const ranks = rankRes.rows;
+
+    // Get all users
+    const usersRes = await client.query('SELECT wallet_address, xp, rank_level, created_at FROM users');
+    const results = [];
+
+    for (const user of usersRes.rows) {
+      const w = user.wallet_address;
+      let newLevel = 1;
+
+      for (const rank of ranks) {
+        if (rank.required_xp > user.xp) break; // Not enough XP
+
+        if (rank.breakthrough) {
+          // Check if already unlocked
+          const unlocked = await client.query(
+            'SELECT 1 FROM user_breakthroughs WHERE wallet_address = $1 AND level = $2', [w, rank.level]
+          );
+          if (!unlocked.rows.length) {
+            // Check conditions
+            const cond = rank.breakthrough_condition;
+            const conditions = cond.conditions || [cond];
+            let allMet = true;
+
+            for (const c of conditions) {
+              let met = false;
+              if (c.type === 'pixels') {
+                const r = await client.query('SELECT COUNT(*) AS cnt FROM pixels WHERE owner = $1', [w]);
+                met = parseInt(r.rows[0].cnt) >= c.min;
+              } else if (c.type === 'sectors') {
+                const r = await client.query('SELECT COUNT(DISTINCT sector_id) AS cnt FROM pixels WHERE owner = $1', [w]);
+                met = parseInt(r.rows[0].cnt) >= c.min;
+              } else if (c.type === 'quests') {
+                const r = await client.query("SELECT COUNT(*) AS cnt FROM user_quests WHERE wallet = $1 AND status = 'claimed'", [w]);
+                met = parseInt(r.rows[0].cnt) >= c.min;
+              } else if (c.type === 'deposit') {
+                const r = await client.query('SELECT COALESCE(SUM(amount),0) AS total FROM deposits WHERE wallet_address = $1', [w]);
+                met = parseFloat(r.rows[0].total) >= c.min;
+              } else if (c.type === 'play_days') {
+                const days = (Date.now() - new Date(user.created_at).getTime()) / (1000*60*60*24);
+                met = days >= c.min;
+              } else if (c.type === 'hijacks') {
+                const r = await client.query("SELECT COUNT(*) AS cnt FROM transactions WHERE from_wallet = $1 AND type = 'hijack'", [w]);
+                met = parseInt(r.rows[0].cnt) >= c.min;
+              } else if (c.type === 'games_played') {
+                const r = await client.query("SELECT (SELECT COUNT(*) FROM crash_bets WHERE wallet = $1) + (SELECT COUNT(*) FROM mines_games WHERE wallet = $1) AS cnt", [w]);
+                met = parseInt(r.rows[0].cnt) >= c.min;
+              } else if (c.type === 'referrals') {
+                const r = await client.query('SELECT COUNT(*) AS cnt FROM users WHERE referred_by = (SELECT referral_code FROM users WHERE wallet_address = $1)', [w]);
+                met = parseInt(r.rows[0].cnt) >= c.min;
+              } else {
+                met = true;
+              }
+              if (!met) { allMet = false; break; }
+            }
+
+            if (allMet) {
+              await client.query('INSERT INTO user_breakthroughs (wallet_address, level) VALUES ($1, $2) ON CONFLICT DO NOTHING', [w, rank.level]);
+            } else {
+              break; // Blocked at this gate
+            }
+          }
+        }
+        newLevel = rank.level;
+      }
+
+      if (newLevel !== user.rank_level) {
+        await client.query('UPDATE users SET rank_level = $1 WHERE wallet_address = $2', [newLevel, w]);
+      }
+      results.push({ wallet: w.slice(0, 10) + '...', oldRank: user.rank_level, newRank: newLevel, xp: user.xp });
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true, results });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[Admin] recalc-ranks error:', e.message);
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
   }
 });
 

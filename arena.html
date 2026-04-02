@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>OCCUPY MARS — Arena</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D0B14;--panel:rgba(14,12,24,0.93);--panel2:rgba(20,16,32,0.95);
+  --surface1:#161422;--surface2:#1C1A2A;--surface3:#222036;
+  --bdr:rgba(255,120,60,0.14);--bdr2:rgba(255,120,60,0.28);
+  --tx:#E8E0D8;--tx2:#9A8878;--tx3:#6A5848;
+  --mars:#FF7840;--red:#E84855;--gold:#FFD166;--gn:#4CD89A;--pp:#B888E0;
+  --cyan:#5BB8E8;
+  --fn:'Press Start 2P',monospace;
+  --fs-xs:7px;--fs-sm:8px;--fs-md:9px;--fs-lg:11px;--fs-xl:13px;--fs-xxl:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-family:var(--fn);color:var(--tx)}
+
+/* ═══ WINDOW FRAME (80% centered) ═══ */
+.arena-window{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:80vw;height:85vh;max-width:1400px;
+  background:var(--panel);border:1px solid var(--bdr2);border-radius:14px;
+  box-shadow:0 20px 80px rgba(0,0,0,.7),0 0 60px rgba(255,120,60,.04);
+  display:flex;flex-direction:column;overflow:hidden;z-index:10}
+
+/* ═══ TOP BAR ═══ */
+.topbar{display:flex;align-items:center;
+  justify-content:space-between;padding:10px 16px;
+  background:linear-gradient(180deg,rgba(13,11,20,0.96),rgba(13,11,20,0.85));
+  border-bottom:1px solid var(--bdr);border-radius:14px 14px 0 0;flex-shrink:0}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-title{font-size:var(--fs-xxl);color:var(--mars);letter-spacing:3px;
+  text-shadow:0 0 24px rgba(255,120,60,0.4);cursor:pointer}
+.tb-sub{font-size:var(--fs-xs);color:var(--red);letter-spacing:1px;opacity:.65}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-bal{display:flex;gap:12px;align-items:center;padding:6px 14px;
+  background:var(--surface2);border:1px solid var(--bdr);border-radius:6px;font-size:var(--fs-sm)}
+.tb-bal .pp{color:var(--pp)}.tb-bal .usdt{color:var(--gn)}
+.tb-btn{padding:6px 16px;font-size:var(--fs-sm);font-family:var(--fn);
+  background:var(--surface2);border:1px solid var(--bdr2);border-radius:6px;
+  cursor:pointer;color:var(--mars);transition:all .2s;height:36px;display:flex;align-items:center}
+.tb-btn:hover{background:rgba(255,120,60,0.12)}
+
+/* ═══ LAYOUT ═══ */
+.arena-wrap{flex:1;display:flex;overflow:hidden;position:relative}
+
+/* Game tabs */
+.game-tabs-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.game-tabs{display:flex;gap:0;background:var(--surface1);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.game-tab{flex:1;padding:12px;text-align:center;font-size:var(--fs-sm);font-family:var(--fn);
+  color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;
+  background:transparent}
+.game-tab:hover{color:var(--tx2);background:rgba(255,120,60,.03)}
+.game-tab.active{color:var(--mars);border-bottom-color:var(--mars);background:rgba(255,120,60,.05)}
+
+.game-area{flex:1;overflow-y:auto}
+.game-panel{display:none;height:100%;flex-direction:column}
+.game-panel.active{display:flex}
+
+/* ═══════════════════════
+   CRASH GAME
+   ═══════════════════════ */
+.crash-wrap{display:flex;height:100%;overflow:hidden}
+.crash-main{flex:1;display:flex;flex-direction:column;min-width:0}
+.crash-canvas-wrap{flex:1;position:relative;background:rgba(0,0,0,.2);
+  border-bottom:1px solid var(--bdr);overflow:hidden}
+#crashCanvas{width:100%;height:100%;display:block}
+
+/* Crash multiplier overlay */
+.crash-mult-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Orbitron',monospace;font-weight:900;pointer-events:none;
+  text-align:center;transition:all .1s}
+.crash-mult-val{font-size:64px;letter-spacing:2px}
+.crash-mult-val.waiting{color:var(--tx3);font-size:32px}
+.crash-mult-val.running{color:var(--gn)}
+.crash-mult-val.crashed{color:var(--red)}
+.crash-status-text{font-size:var(--fs-sm);margin-top:8px;letter-spacing:2px}
+
+/* Crash how-to-play guide */
+.crash-guide{padding:8px 14px;background:rgba(255,209,102,.03);border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;gap:12px;flex-shrink:0}
+.crash-guide-steps{display:flex;gap:10px;flex:1;overflow-x:auto}
+.crash-guide-step{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);
+  color:var(--tx2);white-space:nowrap}
+.crash-guide-step .step-num{width:16px;height:16px;border-radius:50%;
+  background:rgba(255,120,60,.15);color:var(--mars);font-size:7px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.crash-guide-step .step-arrow{color:var(--tx3);font-size:10px}
+.crash-guide-toggle{font-size:7px;color:var(--tx3);cursor:pointer;
+  padding:3px 6px;border:1px solid var(--bdr);border-radius:4px;white-space:nowrap;flex-shrink:0}
+.crash-guide-toggle:hover{color:var(--mars);border-color:var(--bdr2)}
+
+/* Auto cashout toggle */
+.auto-cashout-wrap{display:flex;align-items:center;gap:8px}
+.auto-toggle{position:relative;width:36px;height:20px;border-radius:10px;
+  background:rgba(255,255,255,.08);border:1px solid var(--bdr);cursor:pointer;transition:all .2s;flex-shrink:0}
+.auto-toggle.on{background:rgba(76,216,154,.2);border-color:rgba(76,216,154,.4)}
+.auto-toggle-dot{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+  background:var(--tx3);transition:all .2s}
+.auto-toggle.on .auto-toggle-dot{left:18px;background:var(--gn)}
+.auto-cashout-input{width:70px;padding:6px;font-size:var(--fs-sm);background:rgba(0,0,0,.3);
+  border:1px solid var(--bdr);color:var(--tx);font-family:var(--fn);border-radius:5px;
+  outline:none;text-align:center;-moz-appearance:textfield;transition:opacity .2s}
+.auto-cashout-input::-webkit-inner-spin-button{-webkit-appearance:none}
+.auto-cashout-input:focus{border-color:var(--mars)}
+.auto-cashout-input.disabled{opacity:.3;pointer-events:none}
+
+/* Crash bottom controls */
+.crash-controls{display:flex;gap:0;border-top:1px solid var(--bdr)}
+.crash-bet-panel{flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;
+  background:var(--surface1);border-right:1px solid var(--bdr)}
+.crash-bet-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.crash-input{width:70px;flex:0 0 70px;padding:8px 6px;background:rgba(0,0,0,.3);border:1px solid var(--bdr);
+  color:var(--tx);font-size:var(--fs-lg);font-family:var(--fn);outline:none;border-radius:6px;
+  -moz-appearance:textfield;text-align:right}
+.crash-input::-webkit-inner-spin-button{-webkit-appearance:none}
+.crash-input:focus{border-color:var(--mars)}
+.crash-quick-btn{padding:6px 8px;font-size:var(--fs-xs);font-family:var(--fn);flex:1;min-width:0;
+  background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:5px;
+  color:var(--tx2);cursor:pointer;transition:all .15s}
+.crash-quick-btn:hover{background:rgba(255,120,60,.1);color:var(--mars);border-color:var(--bdr2)}
+
+.crash-auto-row{display:flex;gap:8px;align-items:center}
+.crash-auto-label{font-size:var(--fs-xs);color:var(--tx3);white-space:nowrap}
+
+.btn-bet{width:100%;padding:14px;font-size:var(--fs-lg);font-family:var(--fn);border-radius:8px;
+  cursor:pointer;transition:all .2s;border:1px solid;letter-spacing:1px;font-weight:700}
+.btn-bet.place{background:linear-gradient(135deg,rgba(76,216,154,.15),rgba(76,216,154,.05));
+  border-color:rgba(76,216,154,.3);color:var(--gn)}
+.btn-bet.place:hover{background:rgba(76,216,154,.25);box-shadow:0 0 24px rgba(76,216,154,.15)}
+.btn-bet.cashout{background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(255,209,102,.05));
+  border-color:rgba(255,209,102,.4);color:var(--gold);animation:cashoutPulse 1s infinite}
+.btn-bet.cashout:hover{background:rgba(255,209,102,.3)}
+.btn-bet:disabled{opacity:.4;cursor:not-allowed;animation:none}
+@keyframes cashoutPulse{0%,100%{box-shadow:0 0 10px rgba(255,209,102,.1)}
+  50%{box-shadow:0 0 24px rgba(255,209,102,.3)}}
+
+/* Crash history bar */
+.crash-history{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;
+  background:rgba(0,0,0,.15);border-bottom:1px solid var(--bdr)}
+.crash-history::-webkit-scrollbar{height:3px}
+.crash-history::-webkit-scrollbar-thumb{background:rgba(255,120,60,.2);border-radius:2px}
+.ch-pill{padding:4px 8px;border-radius:4px;font-size:var(--fs-xs);font-family:var(--fn);
+  white-space:nowrap;flex-shrink:0}
+.ch-pill.low{background:rgba(232,72,85,.1);color:var(--red)}
+.ch-pill.mid{background:rgba(91,184,232,.1);color:var(--cyan)}
+.ch-pill.high{background:rgba(76,216,154,.1);color:var(--gn)}
+.ch-pill.mega{background:rgba(255,209,102,.1);color:var(--gold)}
+
+/* Crash sidebar — bets list */
+.crash-sidebar{width:240px;background:var(--surface1);border-left:1px solid var(--bdr);
+  display:flex;flex-direction:column;overflow:hidden}
+.crash-sb-title{padding:10px 12px;font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1.5px;
+  text-transform:uppercase;border-bottom:1px solid var(--bdr)}
+.crash-bets-list{flex:1;overflow-y:auto;padding:4px 8px}
+.crash-bets-list::-webkit-scrollbar{width:3px}
+.crash-bets-list::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
+.cb-row{display:flex;align-items:center;justify-content:space-between;padding:6px 4px;
+  border-bottom:1px solid rgba(255,255,255,.02);font-size:var(--fs-xs)}
+.cb-row .cb-user{color:var(--tx2);flex:1}.cb-row .cb-amt{color:var(--pp);margin:0 6px}
+.cb-row .cb-status{font-size:7px;padding:2px 5px;border-radius:3px}
+.cb-row .cb-status.active{background:rgba(91,184,232,.1);color:var(--cyan)}
+.cb-row .cb-status.cashed{background:rgba(76,216,154,.1);color:var(--gn)}
+.cb-row .cb-status.busted{background:rgba(232,72,85,.1);color:var(--red)}
+
+/* Currency toggle */
+.cur-toggle{display:flex;border-radius:6px;overflow:hidden;border:1px solid var(--bdr)}
+.cur-opt{padding:6px 12px;font-size:var(--fs-xs);font-family:var(--fn);cursor:pointer;
+  background:transparent;border:none;color:var(--tx3);transition:all .15s}
+.cur-opt.active{color:var(--pp);background:rgba(184,136,224,.1)}
+.cur-opt.active.usdt{color:var(--gn);background:rgba(76,216,154,.1)}
+
+/* ═══════════════════════
+   MINES GAME
+   ═══════════════════════ */
+.mines-wrap{display:flex;height:100%;align-items:stretch;overflow:hidden}
+.mines-main{flex:1;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.15);position:relative;min-height:0}
+
+.mines-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
+  width:min(420px,90vw);aspect-ratio:1;padding:20px}
+.mine-tile{position:relative;border-radius:8px;cursor:pointer;
+  background:var(--surface2);border:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;transition:all .2s;aspect-ratio:1}
+.mine-tile:hover:not(.revealed){background:rgba(255,120,60,.08);
+  border-color:var(--bdr2);transform:scale(1.03)}
+.mine-tile.revealed.gem{background:rgba(76,216,154,.1);border-color:rgba(76,216,154,.3);
+  cursor:default;animation:gemReveal .3s}
+.mine-tile.revealed.mine{background:rgba(232,72,85,.15);border-color:rgba(232,72,85,.3);
+  cursor:default;animation:mineReveal .3s}
+.mine-tile.revealed.mine-hidden{background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.15);
+  cursor:default;opacity:.6}
+.mine-tile.revealed.gem-hidden{background:rgba(76,216,154,.04);border-color:rgba(76,216,154,.1);
+  cursor:default;opacity:.5}
+.mine-tile .tile-icon{font-size:20px;opacity:0;transition:opacity .2s}
+.mine-tile.revealed .tile-icon{opacity:1}
+.mine-tile.idle{cursor:default;opacity:.5}
+@keyframes gemReveal{from{transform:scale(0.8);opacity:.5}to{transform:scale(1);opacity:1}}
+@keyframes mineReveal{from{transform:scale(1.2);opacity:.5}to{transform:scale(1);opacity:1}}
+
+/* Mines sidebar */
+.mines-sidebar{width:280px;background:var(--surface1);border-left:1px solid var(--bdr);
+  padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.mines-sidebar::-webkit-scrollbar{width:3px}
+.mines-sidebar::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
+.mines-sb-title{font-size:var(--fs-sm);color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;
+  padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+
+.mines-info{display:flex;flex-direction:column;gap:6px}
+.mines-info-row{display:flex;justify-content:space-between;align-items:baseline}
+.mines-info-label{font-size:var(--fs-xs);color:var(--tx3)}
+.mines-info-val{font-size:var(--fs-md);color:var(--mars)}
+.mines-info-val.gn{color:var(--gn)}.mines-info-val.gold{color:var(--gold)}
+
+.mines-count-row{display:flex;gap:4px;flex-wrap:wrap}
+.mc-btn{padding:6px 8px;font-size:var(--fs-xs);font-family:var(--fn);
+  background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:5px;
+  color:var(--tx2);cursor:pointer;transition:all .15s;min-width:32px;text-align:center}
+.mc-btn:hover{background:rgba(255,120,60,.08);color:var(--mars)}
+.mc-btn.active{background:rgba(255,120,60,.12);border-color:var(--mars);color:var(--mars)}
+
+.btn-mines{width:100%;padding:14px;font-size:var(--fs-lg);font-family:var(--fn);border-radius:8px;
+  cursor:pointer;transition:all .2s;border:1px solid;letter-spacing:1px;font-weight:700}
+.btn-mines.start{background:linear-gradient(135deg,rgba(255,120,60,.15),rgba(255,120,60,.05));
+  border-color:rgba(255,120,60,.3);color:var(--mars)}
+.btn-mines.start:hover{background:rgba(255,120,60,.25);box-shadow:0 0 24px rgba(255,120,60,.15)}
+.btn-mines.cashout{background:linear-gradient(135deg,rgba(76,216,154,.15),rgba(76,216,154,.05));
+  border-color:rgba(76,216,154,.3);color:var(--gn);animation:minesCashPulse 1.5s infinite}
+.btn-mines.cashout:hover{background:rgba(76,216,154,.25)}
+.btn-mines:disabled{opacity:.4;cursor:not-allowed;animation:none}
+@keyframes minesCashPulse{0%,100%{box-shadow:0 0 8px rgba(76,216,154,.1)}
+  50%{box-shadow:0 0 20px rgba(76,216,154,.25)}}
+
+/* Divider */
+.divider{height:1px;background:var(--bdr);margin:4px 0}
+
+/* Toast */
+.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);padding:8px 20px;
+  background:rgba(18,18,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.25);
+  border-radius:20px;font-size:var(--fs-sm);color:var(--gn);opacity:0;transition:opacity .3s;
+  z-index:9999;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.toast.err{border-color:rgba(232,72,85,.25);color:var(--red)}
+.toast.show{opacity:1}
+
+/* Stars background */
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.vig{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(6,4,12,0.5) 100%)}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  .arena-window{width:92vw;height:90vh;border-radius:10px}
+  .topbar{border-radius:10px 10px 0 0;padding:8px 10px}
+  .tb-title{font-size:var(--fs-lg)}
+  .crash-sidebar{display:none}
+  .mines-sidebar{width:100%;max-height:none;overflow-y:visible}
+  .crash-wrap{flex-direction:column}
+  .mines-wrap{flex-direction:column;overflow-y:auto}
+  .mines-main{min-height:auto;flex-shrink:0;padding:10px 0}
+  .mines-grid{width:min(280px,75vw)}
+  .crash-canvas-wrap{max-height:35vh;min-height:120px}
+  .crash-mult-val{font-size:36px}
+  .crash-mult-val.waiting{font-size:20px}
+  .crash-controls{flex-direction:column}
+  .crash-bet-panel{border-right:none;border-bottom:1px solid var(--bdr);padding:10px}
+  .crash-wrap{overflow-y:auto}
+  .tb-bal{font-size:7px;padding:4px 8px;gap:6px}
+  .crash-guide-steps{gap:4px}
+  .crash-guide{padding:6px 10px}
+  .crash-guide-step{font-size:6px}
+  .game-tab{padding:10px 6px;font-size:7px}
+}
+</style>
+</head>
+<body>
+
+<!-- Stars BG -->
+<canvas class="stars" id="starsBg"></canvas>
+<div class="vig"></div>
+
+<!-- ═══ ARENA WINDOW (80% centered) ═══ -->
+<div class="arena-window">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-title">ARENA</div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-bal">
+        <span class="pp" id="dispPP">— PP</span>
+        <span style="color:var(--tx3)">|</span>
+        <span class="usdt" id="dispUSDT">— USDT</span>
+      </div>
+      <button class="tb-btn" id="btnConnect" onclick="connectWallet()">CONNECT</button>
+      <button class="tb-btn" onclick="location.href='/'" style="color:var(--red);border-color:rgba(232,72,85,.3);padding:6px 10px;font-size:14px;font-family:monospace">✕</button>
+    </div>
+  </div>
+
+  <!-- Arena Layout -->
+  <div class="arena-wrap">
+    <div class="game-tabs-wrap">
+      <!-- Game tabs -->
+      <div class="game-tabs">
+        <div class="game-tab active" data-game="crash" onclick="switchGame('crash')">CRASH</div>
+        <div class="game-tab" data-game="mines" onclick="switchGame('mines')">MINES</div>
+      </div>
+
+      <!-- Game panels -->
+      <div class="game-area">
+
+        <!-- ═══ CRASH PANEL ═══ -->
+        <div class="game-panel active" id="panelCrash">
+          <!-- How to play guide -->
+          <div class="crash-guide" id="crashGuide">
+            <div class="crash-guide-steps">
+              <div class="crash-guide-step"><span class="step-num">1</span> BET</div>
+              <div class="crash-guide-step"><span class="step-arrow">→</span></div>
+              <div class="crash-guide-step"><span class="step-num">2</span> WATCH MULTIPLIER RISE</div>
+              <div class="crash-guide-step"><span class="step-arrow">→</span></div>
+              <div class="crash-guide-step"><span class="step-num">3</span> CASHOUT BEFORE CRASH!</div>
+              <div class="crash-guide-step"><span class="step-arrow">|</span></div>
+              <div class="crash-guide-step" style="color:var(--tx3)">Too late = lose bet</div>
+            </div>
+            <span class="crash-guide-toggle" onclick="this.parentElement.style.display='none'">HIDE</span>
+          </div>
+
+          <!-- History bar -->
+          <div class="crash-history" id="crashHistory"></div>
+
+          <div class="crash-wrap">
+            <div class="crash-main">
+              <!-- Canvas for chart -->
+              <div class="crash-canvas-wrap">
+                <canvas id="crashCanvas"></canvas>
+                <div class="crash-mult-overlay">
+                  <div class="crash-mult-val waiting" id="crashMultVal">WAITING...</div>
+                  <div class="crash-status-text" id="crashStatusText" style="color:var(--tx3)">Next round starting soon</div>
+                </div>
+              </div>
+          <!-- Controls -->
+          <div class="crash-controls">
+            <div class="crash-bet-panel">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
+                <div class="cur-toggle" id="crashCurToggle">
+                  <button class="cur-opt active" data-cur="PP" onclick="setCrashCur('PP')">PP</button>
+                  <button class="cur-opt usdt" data-cur="USDT" onclick="setCrashCur('USDT')">USDT</button>
+                </div>
+              </div>
+              <div class="crash-bet-row">
+                <input type="number" class="crash-input" id="crashBetInput" value="1" min="0.1" step="0.1" placeholder="Bet...">
+                <button class="crash-quick-btn" onclick="qCrash(0.1)">0.1</button>
+                <button class="crash-quick-btn" onclick="qCrash(0.5)">0.5</button>
+                <button class="crash-quick-btn" onclick="qCrash(1)">1</button>
+                <button class="crash-quick-btn" onclick="qCrash(3)">3</button>
+                <button class="crash-quick-btn" onclick="qCrash(5)">5</button>
+                <button class="crash-quick-btn" onclick="qCrash(10)">10</button>
+                <button class="crash-quick-btn" onclick="qCrash(25)">25</button>
+                <button class="crash-quick-btn" onclick="qCrash(50)">50</button>
+              </div>
+              <div class="auto-cashout-wrap">
+                <span style="font-size:var(--fs-xs);color:var(--tx3);white-space:nowrap">AUTO CASHOUT</span>
+                <div class="auto-toggle" id="autoToggle" onclick="toggleAutoCashout()">
+                  <div class="auto-toggle-dot"></div>
+                </div>
+                <input type="number" class="auto-cashout-input" id="crashAutoInput"
+                  value="2.0" min="1.1" step="0.1" placeholder="2.0">
+              </div>
+              <button class="btn-bet place" id="crashBetBtn" onclick="placeCrashBet()">
+                PLACE BET
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bets sidebar -->
+        <div class="crash-sidebar">
+          <div class="crash-sb-title">BETS THIS ROUND</div>
+          <div class="crash-bets-list" id="crashBetsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MINES PANEL ═══ -->
+    <div class="game-panel" id="panelMines">
+      <div class="mines-wrap">
+        <div class="mines-main">
+          <div class="mines-grid" id="minesGrid"></div>
+        </div>
+        <div class="mines-sidebar">
+          <div class="mines-sb-title">MINES</div>
+
+          <!-- Bet amount -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
+              <div class="cur-toggle" id="minesCurToggle">
+                <button class="cur-opt active" data-cur="PP" onclick="setMinesCur('PP')">PP</button>
+                <button class="cur-opt usdt" data-cur="USDT" onclick="setMinesCur('USDT')">USDT</button>
+              </div>
+            </div>
+            <div class="crash-bet-row">
+              <input type="number" class="crash-input" id="minesBetInput" value="1" min="0.1" step="0.1" placeholder="Bet...">
+              <button class="crash-quick-btn" onclick="qMines(0.1)">0.1</button>
+              <button class="crash-quick-btn" onclick="qMines(0.5)">0.5</button>
+              <button class="crash-quick-btn" onclick="qMines(1)">1</button>
+              <button class="crash-quick-btn" onclick="qMines(3)">3</button>
+              <button class="crash-quick-btn" onclick="qMines(5)">5</button>
+              <button class="crash-quick-btn" onclick="qMines(10)">10</button>
+              <button class="crash-quick-btn" onclick="qMines(25)">25</button>
+              <button class="crash-quick-btn" onclick="qMines(50)">50</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Mine count -->
+          <div>
+            <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px;margin-bottom:6px">MINES COUNT</div>
+            <div class="mines-count-row" id="minesCountRow">
+              <button class="mc-btn" data-mc="1" onclick="setMineCount(1)">1</button>
+              <button class="mc-btn" data-mc="3" onclick="setMineCount(3)">3</button>
+              <button class="mc-btn active" data-mc="5" onclick="setMineCount(5)">5</button>
+              <button class="mc-btn" data-mc="10" onclick="setMineCount(10)">10</button>
+              <button class="mc-btn" data-mc="15" onclick="setMineCount(15)">15</button>
+              <button class="mc-btn" data-mc="20" onclick="setMineCount(20)">20</button>
+              <button class="mc-btn" data-mc="24" onclick="setMineCount(24)">24</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Game info -->
+          <div class="mines-info" id="minesInfo">
+            <div class="mines-info-row">
+              <span class="mines-info-label">GEMS FOUND</span>
+              <span class="mines-info-val" id="minesGemsFound">0</span>
+            </div>
+            <div class="mines-info-row">
+              <span class="mines-info-label">MULTIPLIER</span>
+              <span class="mines-info-val gold" id="minesMultiplier">1.00x</span>
+            </div>
+            <div class="mines-info-row">
+              <span class="mines-info-label">NEXT MULT</span>
+              <span class="mines-info-val" id="minesNextMult">—</span>
+            </div>
+            <div class="mines-info-row">
+              <span class="mines-info-label">POTENTIAL WIN</span>
+              <span class="mines-info-val gn" id="minesPotentialWin">0.00</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <button class="btn-mines start" id="minesActionBtn" onclick="minesAction()">
+            START GAME
+          </button>
+        </div>
+      </div>
+    </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════
+const API = '/api/arena';
+let wallet = null;
+let ppBal = 0, usdtBal = 0;
+
+// ── Toast ──
+function toast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className = 'toast', 2500);
+}
+
+// ── Wallet ──
+function setWalletUI() {
+  const short = wallet.slice(0,6) + '...' + wallet.slice(-4);
+  document.getElementById('btnConnect').textContent = short;
+  document.getElementById('btnConnect').style.color = 'var(--gn)';
+}
+
+async function connectWallet() {
+  if (!window.ethereum) return toast('Install MetaMask', true);
+  try {
+    const accs = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    wallet = accs[0].toLowerCase();
+    setWalletUI();
+    loadBalance();
+    checkActiveMines();
+  } catch(e) { toast('Wallet connect failed', true); }
+}
+
+// Try to restore wallet from JWT token or MetaMask
+function tryAutoConnect() {
+  // 1. Try JWT token from email login (stored as pw_token)
+  const token = localStorage.getItem('pw_token');
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.wallet) {
+        wallet = payload.wallet.toLowerCase();
+        setWalletUI();
+        // Show nickname if available
+        if (payload.nickname) {
+          document.getElementById('btnConnect').textContent = payload.nickname;
+        }
+        loadBalance();
+        checkActiveMines();
+        return;
+      }
+    } catch(e) {}
+  }
+  // 2. Try MetaMask silent
+  if (window.ethereum) {
+    window.ethereum.request({ method: 'eth_accounts' }).then(accs => {
+      if (accs.length) {
+        wallet = accs[0].toLowerCase();
+        setWalletUI();
+        loadBalance();
+        checkActiveMines();
+      }
+    }).catch(() => {});
+  }
+}
+
+async function loadBalance() {
+  if (!wallet) return;
+  try {
+    const r = await fetch(`/api/user/${wallet}/base`);
+    if (!r.ok) return;
+    const d = await r.json();
+    // API returns { user: { pp, usdt, ... } }
+    const u = d.user || d;
+    ppBal = parseFloat(u.pp) || parseFloat(u.pp_balance) || 0;
+    usdtBal = parseFloat(u.usdt) || parseFloat(u.usdt_balance) || 0;
+    document.getElementById('dispPP').textContent = ppBal.toFixed(2) + ' PP';
+    document.getElementById('dispUSDT').textContent = usdtBal.toFixed(2) + ' USDT';
+  } catch(e) {}
+}
+
+// ── Tab switching ──
+function switchGame(game) {
+  document.querySelectorAll('.game-tab').forEach(t => t.classList.toggle('active', t.dataset.game === game));
+  document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(game === 'crash' ? 'panelCrash' : 'panelMines').classList.add('active');
+  if (game === 'crash') initCrashCanvas();
+}
+
+// ═══════════════════════════════════════
+//  CRASH GAME
+// ═══════════════════════════════════════
+let crashState = 'waiting'; // waiting | betting | running | crashed
+let crashRoundId = null;
+let crashStartTime = null;
+let crashMultiplier = 1.00;
+let crashTargetCrash = null;
+let myBet = null; // { amount, currency, cashed }
+let crashCurrency = 'PP';
+let crashBets = [];
+
+// Canvas
+let crashCtx = null;
+let crashPoints = [];
+
+function initCrashCanvas() {
+  const c = document.getElementById('crashCanvas');
+  const wrap = c.parentElement;
+  c.width = wrap.clientWidth * (window.devicePixelRatio || 1);
+  c.height = wrap.clientHeight * (window.devicePixelRatio || 1);
+  c.style.width = wrap.clientWidth + 'px';
+  c.style.height = wrap.clientHeight + 'px';
+  crashCtx = c.getContext('2d');
+  crashCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+}
+
+function drawCrashChart() {
+  if (!crashCtx) return;
+  const c = document.getElementById('crashCanvas');
+  const w = c.clientWidth, h = c.clientHeight;
+  const ctx = crashCtx;
+
+  ctx.clearRect(0, 0, w, h);
+
+  if (crashState !== 'running' && crashState !== 'crashed') return;
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,120,60,0.06)';
+  ctx.lineWidth = 1;
+  const maxMult = Math.max(crashMultiplier, 2);
+  for (let m = 1; m <= maxMult + 1; m += 0.5) {
+    const y = h - ((m - 1) / (maxMult - 0.8)) * (h - 40) - 20;
+    if (y < 0 || y > h) continue;
+    ctx.beginPath();
+    ctx.moveTo(40, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+    // Label
+    ctx.fillStyle = 'rgba(106,88,72,0.6)';
+    ctx.font = '8px "Press Start 2P"';
+    ctx.fillText(m.toFixed(1) + 'x', 2, y + 3);
+  }
+
+  if (crashPoints.length < 2) return;
+
+  // Draw curve
+  const elapsed = crashPoints[crashPoints.length - 1].t;
+  const tScale = (w - 60) / Math.max(elapsed, 3000);
+
+  ctx.beginPath();
+  ctx.strokeStyle = crashState === 'crashed' ? 'rgba(232,72,85,0.8)' : 'rgba(76,216,154,0.9)';
+  ctx.lineWidth = 2.5;
+  ctx.shadowColor = crashState === 'crashed' ? 'rgba(232,72,85,0.4)' : 'rgba(76,216,154,0.4)';
+  ctx.shadowBlur = 12;
+
+  for (let i = 0; i < crashPoints.length; i++) {
+    const p = crashPoints[i];
+    const x = 50 + p.t * tScale;
+    const y = h - ((p.m - 1) / (maxMult - 0.8)) * (h - 40) - 20;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Dot at end
+  const last = crashPoints[crashPoints.length - 1];
+  const lx = 50 + last.t * tScale;
+  const ly = h - ((last.m - 1) / (maxMult - 0.8)) * (h - 40) - 20;
+  ctx.beginPath();
+  ctx.fillStyle = crashState === 'crashed' ? '#E84855' : '#4CD89A';
+  ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// Start crash round (server drives the multiplier via /tick)
+function startCrashAnimation() {
+  crashStartTime = Date.now();
+  crashPoints = [];
+  crashMultiplier = 1.00;
+  crashState = 'running';
+  updateCrashDisplay();
+  updateCrashBtn();
+}
+
+function stopCrashAnimation(crashPoint) {
+  crashState = 'crashed';
+  crashMultiplier = crashPoint;
+  clearTimeout(crashPollTimer);
+  if (crashStartTime) crashPoints.push({ t: Date.now() - crashStartTime, m: crashPoint });
+  updateCrashDisplay();
+  drawCrashChart();
+
+  // If player had active bet, it's busted
+  if (myBet && !myBet.cashed) {
+    myBet = null;
+    toast('BUSTED!', true);
+  }
+
+  // Next round countdown
+  updateCrashBtn();
+  setTimeout(() => {
+    crashState = 'waiting';
+    myBet = null;
+    updateCrashDisplay();
+    updateCrashBtn();
+    pollCrashRound();
+  }, 3000);
+}
+
+function updateCrashDisplay() {
+  const el = document.getElementById('crashMultVal');
+  const status = document.getElementById('crashStatusText');
+
+  if (crashState === 'waiting') {
+    el.className = 'crash-mult-val waiting';
+    el.textContent = 'WAITING...';
+    status.textContent = 'Place your bets!';
+    status.style.color = 'var(--tx3)';
+  } else if (crashState === 'running') {
+    el.className = 'crash-mult-val running';
+    el.textContent = crashMultiplier.toFixed(2) + 'x';
+    status.textContent = '';
+    status.style.color = 'var(--gn)';
+  } else if (crashState === 'crashed') {
+    el.className = 'crash-mult-val crashed';
+    el.textContent = crashMultiplier.toFixed(2) + 'x';
+    status.textContent = 'CRASHED!';
+    status.style.color = 'var(--red)';
+  }
+}
+
+function updateCrashBtn() {
+  const btn = document.getElementById('crashBetBtn');
+  if (crashState === 'running' && myBet && !myBet.cashed) {
+    // ★ CASHOUT 버튼 — 배율 + 예상 수익 표시
+    const payout = (myBet.amount * crashMultiplier).toFixed(2);
+    btn.className = 'btn-bet cashout';
+    btn.textContent = 'CASHOUT  ' + payout + ' ' + myBet.currency + '  (' + crashMultiplier.toFixed(2) + 'x)';
+    btn.disabled = false;
+    btn.onclick = doCrashCashout;
+  } else if (crashState === 'running' && myBet && myBet.cashed) {
+    btn.className = 'btn-bet place';
+    btn.textContent = 'CASHED OUT ✓';
+    btn.disabled = true;
+    btn.onclick = null;
+  } else if (crashState === 'running') {
+    btn.className = 'btn-bet place';
+    btn.textContent = 'ROUND IN PROGRESS';
+    btn.disabled = true;
+    btn.onclick = null;
+  } else if (crashState === 'crashed') {
+    btn.className = 'btn-bet place';
+    btn.textContent = 'NEXT ROUND...';
+    btn.disabled = true;
+    btn.onclick = null;
+  } else if (crashState === 'waiting' && myBet) {
+    // 이미 베팅함 — 대기 중
+    btn.className = 'btn-bet cashout';
+    btn.textContent = 'BET PLACED (' + myBet.amount + ' ' + myBet.currency + ') — WAITING...';
+    btn.disabled = true;
+    btn.onclick = null;
+  } else {
+    btn.className = 'btn-bet place';
+    btn.textContent = 'PLACE BET';
+    btn.disabled = !wallet;
+    btn.onclick = placeCrashBet;
+  }
+}
+
+// Auto cashout toggle
+let autoCashoutOn = false;
+function toggleAutoCashout() {
+  autoCashoutOn = !autoCashoutOn;
+  const toggle = document.getElementById('autoToggle');
+  toggle.classList.toggle('on', autoCashoutOn);
+  const v = parseFloat(document.getElementById('crashAutoInput').value);
+  if (autoCashoutOn && (!v || v < 1.1)) {
+    toast('Set auto cashout multiplier first (min 1.1x)');
+    autoCashoutOn = false;
+    toggle.classList.remove('on');
+  }
+}
+
+function setCrashCur(cur) {
+  crashCurrency = cur;
+  document.querySelectorAll('#crashCurToggle .cur-opt').forEach(o => {
+    o.classList.toggle('active', o.dataset.cur === cur);
+  });
+}
+function qCrash(v) { document.getElementById('crashBetInput').value = v; }
+
+// ── API calls ──
+async function placeCrashBet() {
+  if (!wallet) return toast('Connect wallet first', true);
+  if (crashState !== 'waiting') return toast('Wait for next round', true);
+  const amount = parseFloat(document.getElementById('crashBetInput').value);
+  if (!amount || amount <= 0) return toast('Enter bet amount', true);
+
+  try {
+    const r = await fetch(API + '/crash/bet', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, amount, currency: crashCurrency })
+    });
+    const d = await r.json();
+    if (!r.ok) return toast(d.error, true);
+
+    myBet = { amount: d.bet, currency: d.currency, cashed: false };
+    toast('Bet placed: ' + d.bet + ' ' + d.currency + ' — CASHOUT when round starts!');
+    loadBalance();
+    updateCrashBtn(); // Show cashout button immediately if round is running
+    pollCrashRound(); // refresh bets
+  } catch(e) { toast('Bet failed', true); }
+}
+
+async function doCrashCashout() {
+  if (!myBet || myBet.cashed) return;
+  try {
+    const r = await fetch(API + '/crash/cashout', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, multiplier: crashMultiplier })
+    });
+    const d = await r.json();
+    if (!r.ok) return toast(d.error, true);
+
+    myBet.cashed = true;
+    toast('Cashed out @ ' + d.cashoutAt.toFixed(2) + 'x  →  +' + d.payout.toFixed(4) + ' ' + d.currency);
+    loadBalance();
+    updateCrashBtn();
+  } catch(e) { toast('Cashout failed', true); }
+}
+
+// ── Crash game loop (polling server) ──
+let crashPollTimer = null;
+let crashCountdown = 0;
+let countdownInterval = null;
+
+async function pollCrashRound() {
+  try {
+    const r = await fetch(API + '/crash/current');
+    const d = await r.json();
+    crashRoundId = d.roundId;
+    crashBets = d.bets || [];
+    renderCrashBets();
+
+    if (d.status === 'waiting') {
+      crashState = 'waiting';
+      updateCrashDisplay();
+      updateCrashBtn();
+
+      // Auto-start after countdown
+      if (!crashCountdown) {
+        crashCountdown = 8;
+        if (countdownInterval) clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+          crashCountdown--;
+          document.getElementById('crashStatusText').textContent =
+            'Starting in ' + crashCountdown + 's...';
+          if (crashCountdown <= 0) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+            startRoundOnServer();
+          }
+        }, 1000);
+      }
+    } else if (d.status === 'running') {
+      if (crashState !== 'running') {
+        startCrashAnimation();
+      }
+      // Start tick polling
+      clearTimeout(crashPollTimer);
+      crashPollTimer = setTimeout(tickCrashRound, 500);
+    } else if (d.status === 'crashed') {
+      if (crashState !== 'crashed') {
+        stopCrashAnimation(d.crashPoint);
+        loadCrashHistory();
+      }
+    }
+  } catch(e) {
+    setTimeout(pollCrashRound, 3000);
+  }
+}
+
+async function startRoundOnServer() {
+  try {
+    await fetch(API + '/crash/start', { method: 'POST' });
+    crashCountdown = 0;
+    pollCrashRound();
+  } catch(e) {
+    setTimeout(pollCrashRound, 2000);
+  }
+}
+
+// Poll /crash/tick — server calculates real multiplier & auto-crashes
+async function tickCrashRound() {
+  if (crashState !== 'running') return;
+  try {
+    const r = await fetch(API + '/crash/tick');
+    const d = await r.json();
+
+    if (d.status === 'crashed') {
+      stopCrashAnimation(d.crashPoint);
+      loadCrashHistory();
+      return;
+    }
+
+    if (d.status === 'running') {
+      // Sync server multiplier (authoritative)
+      crashMultiplier = d.multiplier;
+      crashBets = d.bets || [];
+      renderCrashBets();
+      updateCrashDisplay();
+      updateCrashBtn();
+
+      // Update chart with server value
+      const elapsed = d.elapsed;
+      crashPoints.push({ t: elapsed, m: d.multiplier });
+      if (crashPoints.length > 600) crashPoints = crashPoints.filter((_, i) => i % 2 === 0);
+      drawCrashChart();
+
+      // Check auto-cashout (only if toggle is ON)
+      if (autoCashoutOn) {
+        const autoVal = parseFloat(document.getElementById('crashAutoInput').value);
+        if (autoVal && autoVal >= 1.1 && myBet && !myBet.cashed && d.multiplier >= autoVal) {
+          doCrashCashout();
+        }
+      }
+    }
+
+    if (d.status === 'no_round') {
+      // Round ended between polls
+      crashState = 'waiting';
+      pollCrashRound();
+      return;
+    }
+  } catch(e) {}
+
+  // Continue polling
+  if (crashState === 'running') {
+    crashPollTimer = setTimeout(tickCrashRound, 150);
+  }
+}
+
+function renderCrashBets() {
+  const el = document.getElementById('crashBetsList');
+  el.innerHTML = crashBets.map(b => `
+    <div class="cb-row">
+      <span class="cb-user">${b.wallet}</span>
+      <span class="cb-amt">${b.bet.toFixed(2)}</span>
+      <span class="cb-status ${b.status}">${
+        b.status === 'cashed' ? b.cashout.toFixed(2) + 'x' :
+        b.status === 'busted' ? 'BUST' : 'LIVE'
+      }</span>
+    </div>
+  `).join('');
+}
+
+async function loadCrashHistory() {
+  try {
+    const r = await fetch(API + '/crash/history');
+    const d = await r.json();
+    const el = document.getElementById('crashHistory');
+    el.innerHTML = d.map(h => {
+      const cp = h.crashPoint;
+      const cls = cp < 1.5 ? 'low' : cp < 3 ? 'mid' : cp < 10 ? 'high' : 'mega';
+      return `<div class="ch-pill ${cls}">${cp.toFixed(2)}x</div>`;
+    }).join('');
+    el.scrollLeft = 0;
+  } catch(e) {}
+}
+
+
+// ═══════════════════════════════════════
+//  MINES GAME
+// ═══════════════════════════════════════
+let minesGameId = null;
+let minesActive = false;
+let minesCurrency = 'PP';
+let mineCount = 5;
+let minesRevealed = [];
+let minesGrid = null; // Only known after bust/cashout
+let minesMultVal = 1.0;
+let minesNextMultVal = null;
+let minesBetAmount = 0;
+
+function initMinesGrid() {
+  const el = document.getElementById('minesGrid');
+  el.innerHTML = '';
+  for (let i = 0; i < 25; i++) {
+    const tile = document.createElement('div');
+    tile.className = 'mine-tile' + (!minesActive ? ' idle' : '');
+    tile.dataset.pos = i;
+    tile.innerHTML = '<span class="tile-icon">?</span>';
+    tile.onclick = () => revealTile(i);
+    el.appendChild(tile);
+  }
+  updateMinesRevealed();
+}
+
+function updateMinesRevealed() {
+  const tiles = document.querySelectorAll('.mine-tile');
+  tiles.forEach((tile, i) => {
+    tile.className = 'mine-tile' + (!minesActive ? ' idle' : '');
+    tile.querySelector('.tile-icon').textContent = '?';
+    tile.querySelector('.tile-icon').style.opacity = minesActive ? '' : '0';
+  });
+
+  // Mark revealed gems
+  minesRevealed.forEach(pos => {
+    if (pos < tiles.length) {
+      tiles[pos].classList.add('revealed', 'gem');
+      tiles[pos].querySelector('.tile-icon').textContent = '💎';
+    }
+  });
+
+  // If game ended with full grid reveal
+  if (minesGrid && !minesActive) {
+    tiles.forEach((tile, i) => {
+      if (minesRevealed.includes(i)) return; // Already shown
+      const isGem = minesGrid[i] === 'gem';
+      tile.classList.add('revealed', isGem ? 'gem-hidden' : 'mine-hidden');
+      tile.querySelector('.tile-icon').textContent = isGem ? '💎' : '💣';
+    });
+  }
+}
+
+function setMineCount(n) {
+  if (minesActive) return;
+  mineCount = n;
+  document.querySelectorAll('.mc-btn').forEach(b =>
+    b.classList.toggle('active', parseInt(b.dataset.mc) === n));
+}
+
+function setMinesCur(cur) {
+  minesCurrency = cur;
+  document.querySelectorAll('#minesCurToggle .cur-opt').forEach(o => {
+    o.classList.toggle('active', o.dataset.cur === cur);
+  });
+}
+function qMines(v) { document.getElementById('minesBetInput').value = v; }
+
+function updateMinesInfo() {
+  document.getElementById('minesGemsFound').textContent = minesRevealed.length;
+  document.getElementById('minesMultiplier').textContent = minesMultVal.toFixed(2) + 'x';
+  document.getElementById('minesNextMult').textContent = minesNextMultVal ? minesNextMultVal.toFixed(2) + 'x' : '—';
+  document.getElementById('minesPotentialWin').textContent =
+    (minesBetAmount * minesMultVal).toFixed(4);
+
+  const btn = document.getElementById('minesActionBtn');
+  if (minesActive) {
+    btn.className = 'btn-mines cashout';
+    btn.textContent = 'CASHOUT  ' + (minesBetAmount * minesMultVal).toFixed(4) + ' ' + minesCurrency;
+    btn.disabled = minesRevealed.length === 0;
+  } else {
+    btn.className = 'btn-mines start';
+    btn.textContent = 'START GAME';
+    btn.disabled = !wallet;
+  }
+}
+
+function minesAction() {
+  if (minesActive) {
+    cashoutMines();
+  } else {
+    startMines();
+  }
+}
+
+async function startMines() {
+  if (!wallet) return toast('Connect wallet first', true);
+  const amount = parseFloat(document.getElementById('minesBetInput').value);
+  if (!amount || amount <= 0) return toast('Enter bet amount', true);
+
+  try {
+    const r = await fetch(API + '/mines/start', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, amount, currency: minesCurrency, mines: mineCount })
+    });
+    const d = await r.json();
+    if (!r.ok) return toast(d.error, true);
+
+    minesGameId = d.gameId;
+    minesActive = true;
+    minesRevealed = [];
+    minesGrid = null;
+    minesMultVal = 1.0;
+    minesNextMultVal = d.nextMultiplier;
+    minesBetAmount = d.bet;
+    minesCurrency = d.currency;
+
+    initMinesGrid();
+    updateMinesInfo();
+    loadBalance();
+    toast('Game started! Find the gems!');
+  } catch(e) { toast('Failed to start game', true); }
+}
+
+async function revealTile(pos) {
+  if (!minesActive || !minesGameId) return;
+  if (minesRevealed.includes(pos)) return;
+
+  // Disable clicking during request
+  const tile = document.querySelectorAll('.mine-tile')[pos];
+  tile.style.pointerEvents = 'none';
+
+  try {
+    const r = await fetch(API + '/mines/reveal', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, gameId: minesGameId, position: pos })
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error, true); tile.style.pointerEvents = ''; return; }
+
+    if (d.result === 'mine') {
+      // BUSTED
+      minesActive = false;
+      minesGrid = d.grid;
+      minesRevealed.push(pos);
+
+      // Animate bust
+      tile.classList.add('revealed', 'mine');
+      tile.querySelector('.tile-icon').textContent = '💣';
+
+      setTimeout(() => {
+        updateMinesRevealed();
+        updateMinesInfo();
+      }, 500);
+
+      toast('BOOM! You hit a mine!', true);
+      loadBalance();
+    } else {
+      // GEM
+      minesRevealed = d.revealed;
+      minesMultVal = d.multiplier;
+      minesNextMultVal = d.nextMultiplier;
+
+      tile.classList.add('revealed', 'gem');
+      tile.querySelector('.tile-icon').textContent = '💎';
+
+      updateMinesInfo();
+
+      if (d.safeRemaining === 0) {
+        // All gems found!
+        minesActive = false;
+        toast('ALL GEMS FOUND! Auto cashout!');
+        cashoutMines();
+      }
+    }
+  } catch(e) {
+    toast('Error revealing tile', true);
+    tile.style.pointerEvents = '';
+  }
+}
+
+async function cashoutMines() {
+  if (!minesActive || !minesGameId) return;
+  if (minesRevealed.length === 0) return toast('Reveal at least one tile', true);
+
+  try {
+    const r = await fetch(API + '/mines/cashout', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, gameId: minesGameId })
+    });
+    const d = await r.json();
+    if (!r.ok) return toast(d.error, true);
+
+    minesActive = false;
+    minesGrid = d.grid;
+    updateMinesRevealed();
+
+    toast('Cashed out! +' + d.payout.toFixed(4) + ' ' + d.currency + ' @ ' + d.multiplier.toFixed(2) + 'x');
+    loadBalance();
+    updateMinesInfo();
+  } catch(e) { toast('Cashout failed', true); }
+}
+
+async function checkActiveMines() {
+  if (!wallet) return;
+  try {
+    const r = await fetch(API + '/mines/active?wallet=' + wallet);
+    const d = await r.json();
+    if (d.active) {
+      minesGameId = d.gameId;
+      minesActive = true;
+      minesRevealed = d.revealed;
+      minesMultVal = d.multiplier;
+      minesNextMultVal = d.nextMultiplier;
+      minesBetAmount = d.bet;
+      minesCurrency = d.currency;
+      mineCount = d.mines;
+
+      // Update mine count buttons
+      document.querySelectorAll('.mc-btn').forEach(b =>
+        b.classList.toggle('active', parseInt(b.dataset.mc) === mineCount));
+
+      initMinesGrid();
+      updateMinesInfo();
+    }
+  } catch(e) {}
+}
+
+
+// ═══════════════════════════════════════
+//  STARS BACKGROUND
+// ═══════════════════════════════════════
+function initStars() {
+  const c = document.getElementById('starsBg');
+  const ctx = c.getContext('2d');
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
+
+  const stars = [];
+  for (let i = 0; i < 200; i++) {
+    stars.push({
+      x: Math.random() * c.width,
+      y: Math.random() * c.height,
+      r: Math.random() * 1.2 + 0.3,
+      a: Math.random() * 0.6 + 0.2,
+      s: Math.random() * 0.002 + 0.001
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    const t = Date.now();
+    stars.forEach(s => {
+      const flicker = s.a + Math.sin(t * s.s) * 0.15;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255,240,220,${Math.max(0, flicker)})`;
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  window.addEventListener('resize', () => {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    stars.forEach(s => {
+      s.x = Math.random() * c.width;
+      s.y = Math.random() * c.height;
+    });
+  });
+}
+
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+window.addEventListener('load', () => {
+  initStars();
+  initCrashCanvas();
+  initMinesGrid();
+  updateCrashDisplay();
+  updateCrashBtn();
+  updateMinesInfo();
+  loadCrashHistory();
+  pollCrashRound();
+  tryAutoConnect();
+});
+
+window.addEventListener('resize', () => {
+  initCrashCanvas();
+  drawCrashChart();
+});
+</script>
+</body>
+</html>
