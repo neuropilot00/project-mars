@@ -597,4 +597,92 @@ router.delete('/errors', async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════
+//  GET /admin/api/sectors — list all sectors with stats
+// ══════════════════════════════════════════════════
+router.get('/sectors', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT s.*,
+        (SELECT COUNT(*) FROM pixels p WHERE p.sector_id = s.id AND p.owner IS NOT NULL) AS occupied_count,
+        (SELECT COUNT(DISTINCT p.owner) FROM pixels p WHERE p.sector_id = s.id AND p.owner IS NOT NULL) AS unique_owners
+      FROM sectors s ORDER BY s.id
+    `);
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[Admin] sectors list error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  PUT /admin/api/sectors/:id — update sector settings
+// ══════════════════════════════════════════════════
+router.put('/sectors/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { name, tier, base_price, governor_wallet } = req.body;
+
+    const updates = [];
+    const vals = [];
+    let idx = 1;
+
+    if (name !== undefined) { updates.push(`name = $${idx++}`); vals.push(name); }
+    if (tier !== undefined) { updates.push(`tier = $${idx++}`); vals.push(tier); }
+    if (base_price !== undefined) { updates.push(`base_price = $${idx++}`); vals.push(base_price); }
+    if (governor_wallet !== undefined) { updates.push(`governor_wallet = $${idx++}`); vals.push(governor_wallet || null); }
+
+    if (!updates.length) return res.status(400).json({ error: 'No fields to update' });
+
+    vals.push(id);
+    await pool.query(`UPDATE sectors SET ${updates.join(', ')} WHERE id = $${idx}`, vals);
+    await auditLog(req, 'sector_update', `sector:${id}`, req.body);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[Admin] sector update error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /admin/api/ranks — list rank definitions
+// ══════════════════════════════════════════════════
+router.get('/ranks', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM rank_definitions ORDER BY level');
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[Admin] ranks list error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  PUT /admin/api/ranks/:level — update a rank definition
+// ══════════════════════════════════════════════════
+router.put('/ranks/:level', async (req, res) => {
+  try {
+    const level = parseInt(req.params.level);
+    const { name, required_xp, reward_pp } = req.body;
+
+    const updates = [];
+    const vals = [];
+    let idx = 1;
+
+    if (name !== undefined) { updates.push(`name = $${idx++}`); vals.push(name); }
+    if (required_xp !== undefined) { updates.push(`required_xp = $${idx++}`); vals.push(required_xp); }
+    if (reward_pp !== undefined) { updates.push(`reward_pp = $${idx++}`); vals.push(reward_pp); }
+
+    if (!updates.length) return res.status(400).json({ error: 'No fields to update' });
+
+    vals.push(level);
+    await pool.query(`UPDATE rank_definitions SET ${updates.join(', ')} WHERE level = $${idx}`, vals);
+    await auditLog(req, 'rank_update', `rank:${level}`, req.body);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[Admin] rank update error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 module.exports = router;

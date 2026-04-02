@@ -2,10 +2,11 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "pixelwar",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8080"],
-      "port": 8080
+      "name": "occupymars",
+      "runtimeExecutable": "/Users/jongho/.openclaw/tools/node-v22.22.0/bin/node",
+      "runtimeArgs": ["server/index.js"],
+      "port": 3000,
+      "autoPort": false
     }
   ]
 }

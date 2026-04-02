@@ -180,30 +180,103 @@ async function initDB() {
 // ── Seed default game settings ──
 async function seedDefaults(client) {
   const defaults = [
-    // Economy
-    { key: 'pixel_base_price', value: 0.10, desc: 'Base price per unclaimed pixel (USDT)', cat: 'economy' },
+    // ── Economy: Pixel pricing ──
+    { key: 'pixel_base_price', value: 0.10, desc: 'Default base price per unclaimed pixel (USDT)', cat: 'economy' },
+    { key: 'price_pixel_core', value: 0.15, desc: 'Core sector pixel price (USDT)', cat: 'economy' },
+    { key: 'price_pixel_mid', value: 0.05, desc: 'Mid sector pixel price (USDT)', cat: 'economy' },
+    { key: 'price_pixel_frontier', value: 0.02, desc: 'Frontier sector pixel price (USDT)', cat: 'economy' },
+    { key: 'dynamic_price_enabled', value: true, desc: 'Enable dynamic pricing based on sector occupancy', cat: 'economy' },
+    { key: 'dynamic_price_core_mult', value: 3, desc: 'Dynamic price tier multiplier for Core sectors', cat: 'economy' },
+    { key: 'dynamic_price_mid_mult', value: 2, desc: 'Dynamic price tier multiplier for Mid sectors', cat: 'economy' },
+    { key: 'dynamic_price_frontier_mult', value: 1, desc: 'Dynamic price tier multiplier for Frontier sectors', cat: 'economy' },
+
+    // ── Economy: Hijack ──
     { key: 'hijack_multiplier', value: 1.2, desc: 'Price multiplier for hijacking owned pixels', cat: 'economy' },
+    { key: 'hijack_owner_refund', value: 100, desc: 'Refund % of original price to hijacked owner', cat: 'economy' },
+    { key: 'hijack_owner_bonus', value: 50, desc: 'Bonus % of premium to hijacked owner (rest → treasury)', cat: 'economy' },
+
+    // ── Economy: Deposit / Swap / Withdraw ──
     { key: 'deposit_pp_bonus', value: 10, desc: 'PP bonus % on USDT deposit', cat: 'economy' },
     { key: 'swap_fee_percent', value: 5, desc: 'Fee % on PP→USDT swap', cat: 'economy' },
     { key: 'withdraw_fee_percent', value: 0, desc: 'Fee % on USDT withdrawal', cat: 'economy' },
-    { key: 'hijack_owner_refund', value: 100, desc: 'Refund % of original price to hijacked owner', cat: 'economy' },
-    { key: 'hijack_owner_bonus', value: 50, desc: 'Bonus % of premium to hijacked owner (rest → treasury)', cat: 'economy' },
-    // Referral
+    { key: 'signup_pp_bonus', value: 100, desc: 'PP gifted to new users on registration (0=disabled)', cat: 'economy' },
+
+    // ── Sector tax & distribution ──
+    { key: 'sector_tax_rate', value: 2, desc: 'Sector transaction tax % on claim/hijack', cat: 'sector' },
+    { key: 'tax_platform_share', value: 60, desc: '% of sector tax → platform treasury', cat: 'sector' },
+    { key: 'tax_governor_share', value: 20, desc: '% of sector tax → sector governor', cat: 'sector' },
+    { key: 'tax_citizen_share', value: 20, desc: '% of sector tax → active citizens pool (proportional)', cat: 'sector' },
+    { key: 'governor_in_citizen_pool', value: false, desc: 'Include governor in citizen distribution pool', cat: 'sector' },
+    { key: 'governor_min_pixels', value: 10, desc: 'Min pixels to qualify as governor candidate', cat: 'sector' },
+    { key: 'governor_election_cycle_hours', value: 168, desc: 'Governor re-election cycle (hours, 168=weekly)', cat: 'sector' },
+    { key: 'governor_tax_payout_cycle_hours', value: 168, desc: 'Tax payout cycle (hours)', cat: 'sector' },
+
+    // ── Citizen conditions ──
+    { key: 'citizen_min_pixels', value: 1, desc: 'Min pixels in sector to qualify as citizen', cat: 'sector' },
+    { key: 'citizen_activity_window_days', value: 7, desc: 'Days of recent activity required for citizen status', cat: 'sector' },
+    { key: 'citizen_min_actions_per_week', value: 3, desc: 'Min weekly actions for citizen status', cat: 'sector' },
+    { key: 'citizen_snapshot_mode', value: 'average', desc: 'Distribution snapshot mode: average / random / fixed', cat: 'sector' },
+
+    // ── Mining ──
+    { key: 'mining_enabled', value: true, desc: 'Enable/disable mining system', cat: 'mining' },
+    { key: 'mining_base_rate', value: 0.001, desc: 'Base PP per pixel per harvest cycle', cat: 'mining' },
+    { key: 'mining_interval_hours', value: 4, desc: 'Hours between harvest cycles', cat: 'mining' },
+    { key: 'mining_bonus_core', value: 1.5, desc: 'Mining multiplier for Core sectors', cat: 'mining' },
+    { key: 'mining_bonus_mid', value: 1.2, desc: 'Mining multiplier for Mid sectors', cat: 'mining' },
+    { key: 'mining_bonus_frontier', value: 1.0, desc: 'Mining multiplier for Frontier sectors', cat: 'mining' },
+    { key: 'mining_governor_bonus', value: 1.2, desc: 'Extra mining multiplier for governor', cat: 'mining' },
+    { key: 'mining_global_cap', value: 0, desc: 'Global daily PP mining cap (0=unlimited)', cat: 'mining' },
+    { key: 'pp_daily_earn_cap_per_user', value: 0, desc: 'Per-user daily PP earn cap (0=unlimited)', cat: 'mining' },
+
+    // ── Maintenance fee ──
+    { key: 'maintenance_fee_enabled', value: true, desc: 'Enable weekly maintenance fee for large holders', cat: 'mining' },
+    { key: 'maintenance_fee_threshold', value: 100, desc: 'Pixel count above which maintenance fee applies', cat: 'mining' },
+    { key: 'maintenance_fee_rate', value: 0.5, desc: 'Weekly PP fee per pixel above threshold', cat: 'mining' },
+
+    // ── Rank / XP ──
+    { key: 'xp_per_claim', value: 2, desc: 'XP per pixel on new claim', cat: 'rank' },
+    { key: 'xp_per_hijack', value: 3, desc: 'XP per pixel on hijack', cat: 'rank' },
+    { key: 'xp_per_login', value: 5, desc: 'XP for daily login', cat: 'rank' },
+    { key: 'xp_first_deposit', value: 50, desc: 'XP bonus for first deposit', cat: 'rank' },
+    { key: 'xp_per_survival_day', value: 1, desc: 'XP per pixel per 7-day survival (unhijacked)', cat: 'rank' },
+    { key: 'rank_max_level', value: 20, desc: 'Maximum rank level', cat: 'rank' },
+
+    // ── Quest ──
+    { key: 'quest_enabled', value: true, desc: 'Enable/disable quest system', cat: 'quest' },
+    { key: 'quest_daily_reward_pp', value: 15, desc: 'Average PP reward for daily quests', cat: 'quest' },
+    { key: 'quest_weekly_reward_pp', value: 75, desc: 'Average PP reward for weekly quests', cat: 'quest' },
+    { key: 'quest_daily_reward_xp', value: 5, desc: 'XP reward for daily quests', cat: 'quest' },
+    { key: 'quest_weekly_reward_xp', value: 30, desc: 'XP reward for weekly quests', cat: 'quest' },
+
+    // ── Referral ──
+    { key: 'referral_enabled', value: true, desc: 'Enable/disable referral system', cat: 'referral' },
     { key: 'referral_tier1_percent', value: 15, desc: 'Tier 1 referral PP reward % on hijack', cat: 'referral' },
     { key: 'referral_tier2_percent', value: 10, desc: 'Tier 2 referral PP reward % on hijack', cat: 'referral' },
     { key: 'referral_tier3_percent', value: 5, desc: 'Tier 3 referral PP reward % on hijack', cat: 'referral' },
-    { key: 'referral_enabled', value: true, desc: 'Enable/disable referral system', cat: 'referral' },
-    // Signup
-    { key: 'signup_pp_bonus', value: 100, desc: 'PP gifted to new users on registration (0=disabled)', cat: 'economy' },
-    // Limits
+
+    // ── Arena ──
+    { key: 'arena_enabled', value: true, desc: 'Enable/disable arena', cat: 'arena' },
+    { key: 'arena_house_edge', value: 5, desc: 'Arena betting house edge %', cat: 'arena' },
+    { key: 'arena_sector_mode', value: false, desc: 'Sector-based arena races (future)', cat: 'arena' },
+
+    // ── Limits ──
     { key: 'min_deposit', value: 1, desc: 'Minimum deposit amount (USDT)', cat: 'limits' },
     { key: 'max_deposit', value: 100000, desc: 'Maximum deposit amount (USDT)', cat: 'limits' },
     { key: 'max_claim_width', value: 500, desc: 'Maximum claim width in pixels', cat: 'limits' },
     { key: 'max_claim_height', value: 500, desc: 'Maximum claim height in pixels', cat: 'limits' },
     { key: 'min_withdraw', value: 10, desc: 'Minimum withdrawal amount (USDT)', cat: 'limits' },
-    // Display
+    { key: 'max_image_size_mb', value: 5, desc: 'Maximum image upload size (MB)', cat: 'limits' },
+    { key: 'max_search_results', value: 50, desc: 'Max search results returned', cat: 'limits' },
+    { key: 'claims_load_limit', value: 5000, desc: 'Max claims loaded on frontend init', cat: 'limits' },
+
+    // ── PP economy controls ──
+    { key: 'pp_withdrawal_min', value: 100, desc: 'Minimum PP for withdrawal conversion', cat: 'economy' },
+    { key: 'pp_withdrawal_fee_rate', value: 5, desc: 'PP withdrawal conversion fee %', cat: 'economy' },
+
+    // ── Display / System ──
     { key: 'announcement', value: '', desc: 'Global announcement banner text (empty=hidden)', cat: 'display' },
     { key: 'maintenance_mode', value: false, desc: 'Disable all transactions when true', cat: 'system' },
+    { key: 'settings_cache_ttl_ms', value: 30000, desc: 'Settings cache refresh interval (ms)', cat: 'system' },
   ];
 
   for (const d of defaults) {

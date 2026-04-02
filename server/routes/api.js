@@ -54,6 +54,74 @@ async function getDepositBonusPercent() {
 
 // ── Helpers ──
 
+// Point-in-polygon (ray-casting algorithm)
+function pointInPolygon(lng, lat, polygon) {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i][0], yi = polygon[i][1];
+    const xj = polygon[j][0], yj = polygon[j][1];
+    if ((yi > lat) !== (yj > lat) && lng < (xj - xi) * (lat - yi) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+// Cached sectors for sector lookup
+let _sectorsCache = null;
+let _sectorsCacheAt = 0;
+async function getSectorsForLookup() {
+  if (_sectorsCache && Date.now() - _sectorsCacheAt < 60000) return _sectorsCache;
+  const res = await pool.query('SELECT id, tier, bounds_polygon, lat_min, lat_max, lng_min, lng_max FROM sectors');
+  _sectorsCache = res.rows;
+  _sectorsCacheAt = Date.now();
+  return _sectorsCache;
+}
+
+// Find sector_id for a pixel coordinate
+async function findSectorForPixel(lat, lng) {
+  const sectors = await getSectorsForLookup();
+  for (const s of sectors) {
+    // Quick bbox check first
+    if (lat < parseFloat(s.lat_min) || lat > parseFloat(s.lat_max)) continue;
+    if (lng < parseFloat(s.lng_min) || lng > parseFloat(s.lng_max)) continue;
+    // Polygon check
+    if (s.bounds_polygon && Array.isArray(s.bounds_polygon) && s.bounds_polygon.length >= 3) {
+      if (pointInPolygon(lng, lat, s.bounds_polygon)) return s.id;
+    } else {
+      // Fallback: bbox match
+      return s.id;
+    }
+  }
+  return null;
+}
+
+// Award XP and check rank-up
+async function awardXP(client, wallet, xpAmount) {
+  if (!xpAmount || xpAmount <= 0) return null;
+  const res = await client.query(
+    'UPDATE users SET xp = xp + $1, total_actions = total_actions + 1 WHERE wallet_address = $2 RETURNING xp, rank_level',
+    [xpAmount, wallet]
+  );
+  if (!res.rows.length) return null;
+  const { xp, rank_level } = res.rows[0];
+  // Check rank-up
+  const rankRes = await client.query(
+    'SELECT level, name, reward_pp FROM rank_definitions WHERE level > $1 AND required_xp <= $2 ORDER BY level DESC LIMIT 1',
+    [rank_level, xp]
+  );
+  if (rankRes.rows.length) {
+    const newRank = rankRes.rows[0];
+    await client.query('UPDATE users SET rank_level = $1 WHERE wallet_address = $2', [newRank.level, wallet]);
+    // Award rank-up PP reward
+    if (parseFloat(newRank.reward_pp) > 0) {
+      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [newRank.reward_pp, wallet]);
+    }
+    return { newLevel: newRank.level, name: newRank.name, rewardPp: parseFloat(newRank.reward_pp) };
+  }
+  return null;
+}
+
 function snapGrid(val) {
   return Math.round(parseFloat(val) * 100) / 100;
 }
@@ -495,7 +563,7 @@ router.post('/claim', async (req, res) => {
     );
     const claimId = claimRes.rows[0].id;
 
-    // Upsert all pixels
+    // Upsert all pixels (with sector_id assignment)
     for (const p of pixels) {
       const pxRes = await client.query(
         'SELECT owner, price FROM pixels WHERE lat = $1 AND lng = $2',
@@ -505,13 +573,21 @@ router.post('/claim', async (req, res) => {
         ? parseFloat(pxRes.rows[0].price) * HIJACK_MULT
         : PIXEL_PRICE;
 
+      const sectorId = await findSectorForPixel(p.lat, p.lng);
+
       await client.query(
-        `INSERT INTO pixels (lat, lng, owner, price, claim_id, updated_at)
-         VALUES ($1,$2,$3,$4,$5,NOW())
-         ON CONFLICT (lat, lng) DO UPDATE SET owner=$3, price=$4, claim_id=$5, updated_at=NOW()`,
-        [p.lat, p.lng, wallet.toLowerCase(), newPrice, claimId]
+        `INSERT INTO pixels (lat, lng, owner, price, claim_id, sector_id, updated_at)
+         VALUES ($1,$2,$3,$4,$5,$6,NOW())
+         ON CONFLICT (lat, lng) DO UPDATE SET owner=$3, price=$4, claim_id=$5, sector_id=COALESCE($6,pixels.sector_id), updated_at=NOW()`,
+        [p.lat, p.lng, wallet.toLowerCase(), newPrice, claimId, sectorId]
       );
     }
+
+    // Award XP for claim/hijack
+    const xpPerClaim = s.xp_per_claim || 2;
+    const xpPerHijack = s.xp_per_hijack || 3;
+    const totalXP = (newCount * xpPerClaim) + (overlapCount * xpPerHijack);
+    const rankUp = await awardXP(client, wallet.toLowerCase(), totalXP);
 
     // Transaction record
     const txRes = await client.query(
@@ -570,6 +646,8 @@ router.post('/claim', async (req, res) => {
       success: true, claimId, totalCost,
       newCount, overlapCount,
       ppUsed, usdtUsed,
+      xpEarned: totalXP,
+      rankUp: rankUp || null,
       referralRewards
     });
   } catch (e) {
@@ -622,7 +700,7 @@ router.post('/swap', async (req, res) => {
     await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
        VALUES ('swap', $1, $2, $3, $4, $5)`,
-      [wallet.toLowerCase(), received, ppAmount, fee, JSON.stringify({ swapRate: 1, feePercent: 5 })]
+      [wallet.toLowerCase(), received, ppAmount, fee, JSON.stringify({ swapRate: 1, feePercent: s.swap_fee_percent || 5 })]
     );
 
     await client.query('COMMIT');
@@ -896,6 +974,392 @@ router.post('/error-report', async (req, res) => {
   } catch (e) {
     console.error('[API] error-report save failed:', e.message);
     res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /api/sectors — all sectors with live stats
+// ══════════════════════════════════════════════════
+router.get('/sectors', async (req, res) => {
+  try {
+    const wallet = (req.query.wallet || '').toLowerCase();
+    const result = await pool.query(`
+      SELECT s.*,
+        (SELECT COUNT(*) FROM pixels p WHERE p.sector_id = s.id AND p.owner IS NOT NULL) AS occupied_count,
+        (SELECT COUNT(DISTINCT p.owner) FROM pixels p WHERE p.sector_id = s.id AND p.owner IS NOT NULL) AS unique_owners,
+        (SELECT COALESCE(AVG(p.price),0) FROM pixels p WHERE p.sector_id = s.id AND p.owner IS NOT NULL) AS avg_price,
+        (SELECT COUNT(*) FROM pixels p
+          WHERE p.sector_id = s.id AND p.owner IS NOT NULL
+          AND p.updated_at > NOW() - INTERVAL '24 hours') AS activity_24h
+      FROM sectors s
+      ORDER BY s.tier, s.name
+    `);
+
+    // Top holder per sector
+    const topRes = await pool.query(`
+      SELECT DISTINCT ON (sector_id) sector_id, owner, COUNT(*) AS cnt
+      FROM pixels WHERE owner IS NOT NULL AND sector_id IS NOT NULL
+      GROUP BY sector_id, owner
+      ORDER BY sector_id, cnt DESC
+    `);
+    const topMap = {};
+    topRes.rows.forEach(r => { topMap[r.sector_id] = { wallet: r.owner, pixels: parseInt(r.cnt) }; });
+
+    // User's pixels per sector
+    let myMap = {};
+    if (wallet) {
+      const myRes = await pool.query(
+        'SELECT sector_id, COUNT(*) AS cnt FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL GROUP BY sector_id',
+        [wallet]
+      );
+      myRes.rows.forEach(r => { myMap[r.sector_id] = parseInt(r.cnt); });
+    }
+
+    const s = await cfg();
+    const miningBonusMap = { core: s.mining_core_mult || 1.5, mid: s.mining_mid_mult || 1.2, frontier: s.mining_frontier_mult || 1.0 };
+
+    const rows = result.rows.map(r => {
+      const occupied = parseInt(r.occupied_count) || 0;
+      // Calculate total pixels from bounding box if not set
+      let total = parseInt(r.total_pixels) || 0;
+      if (total <= 1) {
+        const latRange = Math.abs(parseFloat(r.lat_max) - parseFloat(r.lat_min));
+        const lngRange = Math.abs(parseFloat(r.lng_max) - parseFloat(r.lng_min));
+        total = Math.max(1, Math.round((latRange / GRID_SIZE) * (lngRange / GRID_SIZE)));
+      }
+      const ratio = Math.min(occupied / total, 1.0);
+
+      let tierMult = 1;
+      if (r.tier === 'core') tierMult = s.dynamic_price_core_mult || 3;
+      else if (r.tier === 'mid') tierMult = s.dynamic_price_mid_mult || 2;
+
+      const dynPrice = (s.dynamic_price_enabled !== false)
+        ? parseFloat(r.base_price) * (1 + ratio * tierMult)
+        : parseFloat(r.base_price);
+
+      const top = topMap[r.id] || null;
+
+      return {
+        id: r.id,
+        name: r.name,
+        tier: r.tier,
+        centerLat: parseFloat(r.center_lat),
+        centerLng: parseFloat(r.center_lng),
+        bounds: {
+          latMin: parseFloat(r.lat_min), latMax: parseFloat(r.lat_max),
+          lngMin: parseFloat(r.lng_min), lngMax: parseFloat(r.lng_max)
+        },
+        polygon: r.bounds_polygon || null,
+        basePrice: parseFloat(r.base_price),
+        currentPrice: Math.round(dynPrice * 1000000) / 1000000,
+        miningBonus: miningBonusMap[r.tier] || 1.0,
+        governor: r.governor_wallet ? {
+          wallet: r.governor_wallet.slice(0, 6) + '...' + r.governor_wallet.slice(-4),
+          since: r.governor_since
+        } : null,
+        topHolder: top ? {
+          wallet: top.wallet.slice(0, 6) + '...' + top.wallet.slice(-4),
+          pixels: top.pixels
+        } : null,
+        myPixels: myMap[r.id] || 0,
+        stats: {
+          totalPixels: total,
+          occupiedPixels: occupied,
+          uniqueOwners: parseInt(r.unique_owners) || 0,
+          occupancyRate: Math.round(ratio * 10000) / 100,
+          avgPrice: Math.round(parseFloat(r.avg_price) * 1000000) / 1000000,
+          activity24h: parseInt(r.activity_24h) || 0
+        }
+      };
+    });
+
+    res.json(rows);
+  } catch (e) {
+    console.error('[API] sectors error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /api/sectors/:id — single sector detail
+// ══════════════════════════════════════════════════
+router.get('/sectors/:id', async (req, res) => {
+  try {
+    const sectorId = parseInt(req.params.id);
+    if (isNaN(sectorId)) return res.status(400).json({ error: 'Invalid sector ID' });
+
+    const sRes = await pool.query('SELECT * FROM sectors WHERE id = $1', [sectorId]);
+    if (!sRes.rows.length) return res.status(404).json({ error: 'Sector not found' });
+
+    const sector = sRes.rows[0];
+
+    // Top holders in this sector
+    const holdersRes = await pool.query(`
+      SELECT p.owner, u.nickname, COUNT(*) AS pixel_count
+      FROM pixels p
+      LEFT JOIN users u ON u.wallet_address = p.owner
+      WHERE p.sector_id = $1 AND p.owner IS NOT NULL
+      GROUP BY p.owner, u.nickname
+      ORDER BY pixel_count DESC
+      LIMIT 20
+    `, [sectorId]);
+
+    // Recent transactions in this sector
+    const txRes = await pool.query(`
+      SELECT t.type, t.from_wallet, t.usdt_amount, t.pp_amount, t.created_at
+      FROM transactions t
+      JOIN claims c ON (t.meta->>'claimId')::int = c.id
+      WHERE c.center_lat BETWEEN $1 AND $2
+        AND c.center_lng BETWEEN $3 AND $4
+      ORDER BY t.created_at DESC
+      LIMIT 10
+    `, [sector.lat_min, sector.lat_max, sector.lng_min, sector.lng_max]);
+
+    res.json({
+      sector: {
+        id: sector.id,
+        name: sector.name,
+        tier: sector.tier,
+        basePrice: parseFloat(sector.base_price),
+        governor: sector.governor_wallet,
+        governorSince: sector.governor_since
+      },
+      topHolders: holdersRes.rows.map(r => ({
+        wallet: r.owner.slice(0, 6) + '...' + r.owner.slice(-4),
+        nickname: r.nickname,
+        pixels: parseInt(r.pixel_count)
+      })),
+      recentActivity: txRes.rows.map(r => ({
+        type: r.type,
+        wallet: r.from_wallet.slice(0, 6) + '...' + r.from_wallet.slice(-4),
+        usdt: parseFloat(r.usdt_amount),
+        pp: parseFloat(r.pp_amount),
+        at: r.created_at
+      }))
+    });
+  } catch (e) {
+    console.error('[API] sector detail error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /api/user/:wallet/base — BASE tab unified data
+// ══════════════════════════════════════════════════
+router.get('/user/:wallet/base', async (req, res) => {
+  try {
+    const wallet = req.params.wallet.toLowerCase();
+
+    const [userRes, pixelRes, miningRes, rankRes] = await Promise.all([
+      pool.query(
+        'SELECT wallet_address, nickname, usdt_balance, pp_balance, xp, rank_level, referral_code, created_at FROM users WHERE wallet_address = $1',
+        [wallet]
+      ),
+      pool.query(`
+        SELECT s.id AS sector_id, s.name AS sector_name, s.tier, COUNT(*) AS pixel_count
+        FROM pixels p
+        JOIN sectors s ON s.id = p.sector_id
+        WHERE p.owner = $1
+        GROUP BY s.id, s.name, s.tier
+        ORDER BY pixel_count DESC
+      `, [wallet]),
+      pool.query('SELECT * FROM user_mining WHERE wallet_address = $1', [wallet]),
+      pool.query('SELECT * FROM rank_definitions ORDER BY level')
+    ]);
+
+    if (!userRes.rows.length) return res.status(404).json({ error: 'User not found' });
+
+    const user = userRes.rows[0];
+    const mining = miningRes.rows[0] || null;
+    const totalPixels = pixelRes.rows.reduce((s, r) => s + parseInt(r.pixel_count), 0);
+
+    res.json({
+      user: {
+        wallet: user.wallet_address,
+        nickname: user.nickname,
+        usdt: parseFloat(user.usdt_balance),
+        pp: parseFloat(user.pp_balance),
+        xp: user.xp || 0,
+        rank: user.rank_level || 1,
+        referralCode: user.referral_code,
+        joinedAt: user.created_at
+      },
+      territory: {
+        totalPixels,
+        bySector: pixelRes.rows.map(r => ({
+          sectorId: r.sector_id,
+          sectorName: r.sector_name,
+          tier: r.tier,
+          pixels: parseInt(r.pixel_count)
+        }))
+      },
+      mining: mining ? {
+        lastHarvest: mining.last_harvest_at,
+        totalMined: parseFloat(mining.total_mined_pp),
+        todayMined: parseFloat(mining.today_mined_pp)
+      } : { lastHarvest: null, totalMined: 0, todayMined: 0 },
+      ranks: rankRes.rows.map(r => ({
+        level: r.level,
+        name: r.name,
+        requiredXp: r.required_xp,
+        rewardPp: parseFloat(r.reward_pp)
+      }))
+    });
+  } catch (e) {
+    console.error('[API] user base error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /api/ranks — rank definitions table
+// ══════════════════════════════════════════════════
+router.get('/ranks', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM rank_definitions ORDER BY level');
+    res.json(result.rows.map(r => ({
+      level: r.level,
+      name: r.name,
+      requiredXp: r.required_xp,
+      rewardPp: parseFloat(r.reward_pp)
+    })));
+  } catch (e) {
+    console.error('[API] ranks error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  POST /api/harvest — Mining harvest (collect PP from owned pixels)
+// ══════════════════════════════════════════════════
+router.post('/harvest', async (req, res) => {
+  const { wallet } = req.body;
+  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+
+  const client = await pool.connect();
+  try {
+    const s = await cfg();
+    if (s.mining_enabled === false) return res.status(403).json({ error: 'Mining is disabled' });
+
+    const w = wallet.toLowerCase();
+    await client.query('BEGIN');
+
+    // Check cooldown
+    const miningRes = await client.query(
+      'SELECT * FROM user_mining WHERE wallet_address = $1 FOR UPDATE',
+      [w]
+    );
+    const intervalHours = s.mining_interval_hours || 4;
+    const now = new Date();
+
+    if (miningRes.rows.length) {
+      const lastHarvest = miningRes.rows[0].last_harvest_at;
+      if (lastHarvest) {
+        const elapsed = (now - new Date(lastHarvest)) / (1000 * 60 * 60);
+        if (elapsed < intervalHours) {
+          await client.query('ROLLBACK');
+          const nextAt = new Date(new Date(lastHarvest).getTime() + intervalHours * 3600000);
+          return res.status(429).json({ error: 'Harvest on cooldown', nextHarvestAt: nextAt });
+        }
+      }
+    }
+
+    // Count pixels by sector tier
+    const pixelRes = await client.query(`
+      SELECT s.tier, COUNT(*) AS cnt
+      FROM pixels p
+      LEFT JOIN sectors s ON s.id = p.sector_id
+      WHERE p.owner = $1
+      GROUP BY s.tier
+    `, [w]);
+
+    let totalPixels = 0;
+    let weightedPixels = 0;
+    const baseRate = s.mining_base_rate || 0.001;
+    const bonusCore = s.mining_bonus_core || 1.5;
+    const bonusMid = s.mining_bonus_mid || 1.2;
+    const bonusFrontier = s.mining_bonus_frontier || 1.0;
+
+    for (const row of pixelRes.rows) {
+      const cnt = parseInt(row.cnt);
+      totalPixels += cnt;
+      let mult = bonusFrontier;
+      if (row.tier === 'core') mult = bonusCore;
+      else if (row.tier === 'mid') mult = bonusMid;
+      weightedPixels += cnt * mult;
+    }
+
+    if (totalPixels === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'No pixels owned' });
+    }
+
+    // Check if user is governor of any sector for governor bonus
+    const govRes = await client.query(
+      'SELECT COUNT(*) AS cnt FROM sectors WHERE governor_wallet = $1', [w]
+    );
+    const isGovernor = parseInt(govRes.rows[0].cnt) > 0;
+    const govMult = isGovernor ? (s.mining_governor_bonus || 1.2) : 1.0;
+
+    let harvestedPP = Math.round(weightedPixels * baseRate * govMult * 1000000) / 1000000;
+
+    // Per-user daily cap
+    const dailyCap = s.pp_daily_earn_cap_per_user || 0;
+    if (dailyCap > 0) {
+      const todayDate = now.toISOString().slice(0, 10);
+      let todayMined = 0;
+      if (miningRes.rows.length && miningRes.rows[0].today_date === todayDate) {
+        todayMined = parseFloat(miningRes.rows[0].today_mined_pp) || 0;
+      }
+      const remaining = dailyCap - todayMined;
+      if (remaining <= 0) {
+        await client.query('ROLLBACK');
+        return res.status(429).json({ error: 'Daily mining cap reached' });
+      }
+      harvestedPP = Math.min(harvestedPP, remaining);
+    }
+
+    // Update user_mining record
+    const todayDate = now.toISOString().slice(0, 10);
+    await client.query(`
+      INSERT INTO user_mining (wallet_address, last_harvest_at, total_mined_pp, today_mined_pp, today_date)
+      VALUES ($1, NOW(), $2, $2, $3)
+      ON CONFLICT (wallet_address) DO UPDATE SET
+        last_harvest_at = NOW(),
+        total_mined_pp = user_mining.total_mined_pp + $2,
+        today_mined_pp = CASE WHEN user_mining.today_date = $3 THEN user_mining.today_mined_pp + $2 ELSE $2 END,
+        today_date = $3
+    `, [w, harvestedPP, todayDate]);
+
+    // Credit PP to user
+    await client.query(
+      'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+      [harvestedPP, w]
+    );
+
+    // Transaction log
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+       VALUES ('mining', $1, $2, 0, $3)`,
+      [w, harvestedPP, JSON.stringify({ totalPixels, weightedPixels: Math.round(weightedPixels), isGovernor })]
+    );
+
+    await client.query('COMMIT');
+
+    const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
+    res.json({
+      success: true,
+      harvestedPP,
+      totalPixels,
+      isGovernor,
+      nextHarvestAt
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[API] harvest error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  } finally {
+    client.release();
   }
 });
 

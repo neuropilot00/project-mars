@@ -397,14 +397,28 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   color:#fff;cursor:pointer;font-weight:bold;letter-spacing:1px;
   box-shadow:0 2px 10px rgba(255,120,60,.3)}
 
+/* Mobile FAB container (PLACE only, centered) */
+.mob-fab-wrap{display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:90;
+  gap:12px;align-items:center;justify-content:center}
+@media(max-width:768px){.mob-fab-wrap{display:flex}}
+
 /* Mobile Place Image FAB */
-.stamp-fab{display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:90;
-  padding:10px 20px;font-size:10px;font-family:var(--fn);
+.stamp-fab{padding:10px 20px;font-size:10px;font-family:var(--fn);
   background:linear-gradient(135deg,var(--mars),#E84855);color:#fff;
   border:none;border-radius:24px;cursor:pointer;
   box-shadow:0 4px 16px rgba(255,120,60,.4);letter-spacing:1px}
-.stamp-fab:active{transform:translateX(-50%) scale(.95)}
-@media(max-width:768px){.stamp-fab{display:block}}
+.stamp-fab:active{transform:scale(.95)}
+
+/* Mobile BASE button — left side, mirrors back button style */
+.mob-base-btn{display:none;position:fixed;z-index:60;left:10px;
+  width:48px;height:48px;
+  font-size:9px;font-family:var(--fn);letter-spacing:1px;line-height:1;
+  background:var(--surface2);color:var(--mars);
+  border:1px solid rgba(255,107,53,.5);border-radius:8px;cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center}
+.mob-base-btn:active{transform:scale(.93)}
+@media(max-width:768px){.mob-base-btn{display:flex;bottom:306px}}
 
 /* Mobile territory info button (floats above clicked claim) */
 .mob-info-btn{display:none;position:fixed;z-index:95;
@@ -452,6 +466,117 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .stamp-modal.open{transform:translateY(0);pointer-events:auto;visibility:visible}
 .stamp-modal-handle{width:40px;height:4px;background:var(--bdr2);border-radius:2px;
   margin:0 auto 12px}
+
+/* ── BASE Modal ── */
+.base-modal{position:fixed;inset:0;z-index:520;background:rgba(0,0,0,.75);
+  backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center}
+.base-modal.open{display:flex}
+.base-card{width:600px;max-width:96vw;max-height:90vh;background:var(--panel2);
+  border:1px solid var(--bdr2);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 60px rgba(255,120,60,.05)}
+.base-header{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;background:rgba(0,0,0,.25);border-bottom:1px solid var(--bdr)}
+.base-header-title{font-size:13px;color:var(--mars);letter-spacing:2px;font-family:var(--fn)}
+.base-close{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;
+  padding:4px 8px;min-width:36px;min-height:36px}
+.base-tabs{display:flex;border-bottom:1px solid var(--bdr);background:rgba(0,0,0,.15)}
+.base-tab{flex:1;padding:10px 8px;text-align:center;font-size:8px;font-family:var(--fn);
+  color:var(--tx3);cursor:pointer;letter-spacing:1px;border-bottom:2px solid transparent;
+  transition:all .2s;white-space:nowrap}
+.base-tab:hover{color:var(--tx2);background:rgba(255,120,60,.04)}
+.base-tab.active{color:var(--mars);border-bottom-color:var(--mars);background:rgba(255,120,60,.06)}
+.base-body{flex:1;overflow-y:auto;padding:16px 18px}
+.base-body::-webkit-scrollbar{width:3px}
+.base-body::-webkit-scrollbar-thumb{background:rgba(255,120,60,.2);border-radius:2px}
+.base-pane{display:none}
+.base-pane.active{display:block}
+
+.base-banner{width:100%;height:130px;border-radius:8px;margin-bottom:14px;overflow:hidden;
+  position:relative;background:#0a0a12;border:1px solid var(--bdr)}
+.base-banner img{width:100%;height:100%;object-fit:cover;display:block}
+.base-banner-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--tx3);font-family:var(--fn);letter-spacing:2px;
+  background:linear-gradient(135deg,rgba(255,120,60,.06),rgba(0,0,0,.3))}
+
+/* BASE sub-components */
+.base-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.base-stat-box{background:rgba(0,0,0,.2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px}
+.base-stat-box .bsb-label{font-size:7px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px;font-family:var(--fn)}
+.base-stat-box .bsb-val{font-size:14px;color:var(--mars);font-family:var(--fn)}
+.base-stat-box .bsb-val.gn{color:var(--gn)}
+.base-stat-box .bsb-val.pp{color:var(--pp)}
+.base-stat-box .bsb-val.gold{color:var(--gold)}
+
+.base-section-title{font-size:9px;color:var(--tx3);letter-spacing:1.5px;margin:14px 0 8px;
+  padding-bottom:4px;border-bottom:1px solid var(--bdr);font-family:var(--fn)}
+
+/* Sector list in BASE */
+.sector-list{display:flex;flex-direction:column;gap:8px}
+.sector-card{background:rgba(0,0,0,.2);border:1px solid var(--bdr);border-radius:10px;
+  padding:10px 12px;cursor:pointer;transition:all .2s}
+.sector-card:hover{background:rgba(255,120,60,.06);border-color:var(--bdr2)}
+.sector-card .sc-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sector-card .sc-tier{font-size:7px;padding:2px 6px;border-radius:4px;font-family:var(--fn);
+  letter-spacing:.5px;font-weight:bold;text-transform:uppercase}
+.sector-card .sc-tier.core{background:rgba(232,72,85,.15);color:var(--red)}
+.sector-card .sc-tier.mid{background:rgba(255,209,102,.15);color:var(--gold)}
+.sector-card .sc-tier.frontier{background:rgba(76,216,154,.15);color:var(--gn)}
+.sector-card .sc-name{flex:1;font-size:10px;color:var(--tx);font-family:var(--fn);font-weight:bold}
+.sector-card .sc-mining{font-size:7px;color:var(--pp);font-family:var(--fn);
+  background:rgba(255,120,60,.1);padding:2px 5px;border-radius:3px}
+.sector-card .sc-go{font-size:7px;color:var(--cyan,#5BB8E8);font-family:var(--fn);
+  padding:3px 8px;border:1px solid rgba(91,184,232,.3);border-radius:4px;
+  background:rgba(91,184,232,.08);cursor:pointer;transition:all .15s}
+.sector-card .sc-go:hover{background:rgba(91,184,232,.2)}
+/* Occupancy bar */
+.sc-occ-wrap{margin-bottom:8px}
+.sc-occ-bar{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-top:3px}
+.sc-occ-fill{height:100%;border-radius:3px;transition:width .4s}
+.sc-occ-fill.core{background:linear-gradient(90deg,rgba(232,72,85,.6),rgba(232,72,85,.9))}
+.sc-occ-fill.mid{background:linear-gradient(90deg,rgba(255,209,102,.5),rgba(255,209,102,.8))}
+.sc-occ-fill.frontier{background:linear-gradient(90deg,rgba(76,216,154,.5),rgba(76,216,154,.8))}
+.sc-occ-labels{display:flex;justify-content:space-between;font-size:7px;font-family:var(--fn);color:var(--tx3)}
+/* Stats grid */
+.sc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px 8px;margin-bottom:6px}
+.sc-stat{display:flex;flex-direction:column;gap:1px}
+.sc-stat-label{font-size:6px;color:var(--tx3);font-family:var(--fn);letter-spacing:.5px;text-transform:uppercase}
+.sc-stat-val{font-size:9px;color:var(--tx);font-family:var(--fn)}
+/* My holdings highlight */
+.sc-my{display:flex;align-items:center;gap:6px;padding:4px 8px;margin-top:6px;
+  background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.15);border-radius:6px}
+.sc-my-label{font-size:6px;color:var(--tx3);font-family:var(--fn);letter-spacing:.5px}
+.sc-my-val{font-size:9px;color:var(--cyan,#5BB8E8);font-family:var(--fn);font-weight:bold}
+/* Activity badge */
+.sc-activity{display:flex;align-items:center;gap:4px;font-size:7px;color:var(--mars);font-family:var(--fn);
+  margin-bottom:6px}
+.sc-activity-dot{width:5px;height:5px;border-radius:50%;background:var(--mars);animation:pulse-dot 1.5s infinite}
+@keyframes pulse-dot{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* Rank progress bar */
+.rank-progress{background:rgba(0,0,0,.3);border-radius:6px;height:14px;overflow:hidden;
+  border:1px solid var(--bdr);margin-top:6px}
+.rank-progress-fill{height:100%;border-radius:5px;
+  background:linear-gradient(90deg,var(--mars),var(--gold));transition:width .5s}
+.rank-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;
+  background:rgba(255,120,60,.1);border:1px solid var(--bdr2);border-radius:8px;
+  font-size:10px;color:var(--mars);font-family:var(--fn)}
+.rank-badge .rb-level{font-size:14px;color:var(--gold)}
+.rank-badge .rb-name{font-size:9px;color:var(--tx)}
+
+/* Rank table */
+.rank-table{width:100%;border-collapse:collapse;font-size:8px;font-family:var(--fn)}
+.rank-table th{text-align:left;color:var(--tx3);padding:6px 4px;border-bottom:1px solid var(--bdr);letter-spacing:1px}
+.rank-table td{padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.02);color:var(--tx2)}
+.rank-table tr.current{background:rgba(255,120,60,.08)}
+.rank-table td:first-child{color:var(--gold)}
+
+@media(max-width:768px){
+  .base-card{width:100%;max-width:100%;height:77vh;max-height:77vh;border-radius:16px 16px 0 0;
+    align-self:flex-end}
+  .base-modal{align-items:flex-end}
+  .base-tab{font-size:7px;padding:8px 4px}
+  .base-stat-grid{grid-template-columns:1fr 1fr}
+}
 
 /* ── Auth Help (Find ID / Reset PW) ── */
 .auth-help-links{display:flex;align-items:center;justify-content:center;gap:8px;
@@ -693,10 +818,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="wallet-bal"><span class="lbl">USDT</span><span class="val usdt" id="walletUsdt">0.00</span></div>
       <div class="wallet-bal"><span class="lbl">PP</span><span class="val pp" id="walletPP">0.00</span></div>
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
-      <div class="wallet-bal"><span class="lbl">OWNED</span><span class="val gold" id="myPlots">0</span></div>
-      <div class="wallet-bal"><span class="lbl">VALUE</span><span class="val gn" id="myValue">$0</span></div>
-      <div class="wallet-bal"><span class="lbl">EARNED</span><span class="val" style="color:var(--cyan)" id="myEarned">0 USDT</span></div>
-      <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-actions">
         <button class="wa-btn dep" onclick="openDepositModal()">DEPOSIT</button>
         <button class="wa-btn wdr" onclick="openWithdrawModal()">WITHDRAW</button>
@@ -836,21 +957,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
   </div>
 
-  <!-- ITEM SHOP -->
+  <!-- BASE (Dashboard) -->
   <div class="p-section">
-    <div class="p-title" data-i18n="item_shop">ITEM SHOP</div>
-    <button class="action-btn" onclick="openItemShop()" style="display:flex;align-items:center;justify-content:center;gap:6px">
-      <span style="font-size:14px">🛒</span> OPEN SHOP
+    <div class="p-title">MY BASE</div>
+    <button class="action-btn" onclick="openBaseModal()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(255,120,60,.04));border-color:rgba(255,120,60,.35)">
+      OPEN BASE
     </button>
   </div>
+
 </div>
 
 <!-- Zoom + Back -->
 <div class="zc">
-  <button class="zb back-btn" onclick="goBack()" title="Back to overview" style="background:rgba(255,107,53,.12);border-color:rgba(255,107,53,.3);margin-bottom:6px">↩</button>
+  <button class="zb back-btn" onclick="goBack()" title="Back to overview" style="background:var(--surface2);border-color:rgba(255,107,53,.5);margin-bottom:6px">↩</button>
   <button class="zb" onclick="zoomIn()">+</button>
   <button class="zb" onclick="zoomOut()">−</button>
-  <button class="zb tex-toggle" id="texToggleBtn" onclick="toggleMarsTexture()" title="Switch texture: NASA / Procedural" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 4px">🛰️<br><span id="texToggleLabel">NASA</span></button>
+  <button class="zb tex-toggle" id="texToggleBtn" onclick="toggleMarsTexture()" title="Switch texture" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 4px"><span id="texToggleLabel">MAP</span></button>
+  <button class="zb" id="sectorToggleBtn" onclick="toggleSectorOverlay()" title="Toggle sectors" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px"><span id="sectorToggleLabel">SECTORS</span></button>
 </div>
 
 <div class="mode-badge" id="modeBadge">🔴 CLICK MARS TO SELECT TERRITORY</div>
@@ -1012,8 +1135,154 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
 </div>
 
-<!-- Mobile: Place Image FAB -->
-<button class="stamp-fab" id="stampFab" onclick="openMobileStamp()">📷 PLACE</button>
+<!-- BASE Modal (Dashboard) -->
+<div class="base-modal" id="baseModal" onclick="if(event.target===this)closeBaseModal()">
+  <div class="base-card">
+    <div class="base-header">
+      <span class="base-header-title">MY BASE</span>
+      <button class="base-close" onclick="closeBaseModal()">✕</button>
+    </div>
+    <div class="base-tabs">
+      <div class="base-tab active" onclick="switchBaseTab('territory',this)">MY TERRITORY</div>
+      <div class="base-tab" onclick="switchBaseTab('sectors',this)">SECTORS</div>
+      <div class="base-tab" onclick="switchBaseTab('rank',this)">RANK</div>
+      <div class="base-tab" onclick="switchBaseTab('mining',this)">MINING</div>
+      <div class="base-tab" onclick="switchBaseTab('quests',this)">QUESTS</div>
+      <div class="base-tab" onclick="switchBaseTab('shop',this)">SHOP</div>
+    </div>
+    <div class="base-body">
+
+      <!-- TAB: MY TERRITORY -->
+      <div class="base-pane active" id="basePane_territory">
+        <div class="base-banner" id="bannerTerritory"><img src="/assets/base/territory.png" alt=""></div>
+        <div class="base-stat-grid">
+          <div class="base-stat-box">
+            <div class="bsb-label">TOTAL PIXELS</div>
+            <div class="bsb-val gold" id="baseTotalPx">0</div>
+          </div>
+          <div class="base-stat-box">
+            <div class="bsb-label">USDT BALANCE</div>
+            <div class="bsb-val gn" id="baseUsdt">0.00</div>
+          </div>
+          <div class="base-stat-box">
+            <div class="bsb-label">PP BALANCE</div>
+            <div class="bsb-val pp" id="basePP">0.00</div>
+          </div>
+          <div class="base-stat-box">
+            <div class="bsb-label">RANK</div>
+            <div class="bsb-val" id="baseRankShort">Lv.1</div>
+          </div>
+        </div>
+
+        <div class="base-section-title">MY SECTORS</div>
+        <div id="baseMySectors" style="font-size:8px;color:var(--tx3)">Login to view your territories.</div>
+      </div>
+
+      <!-- TAB: SECTORS -->
+      <div class="base-pane" id="basePane_sectors">
+        <div class="base-banner" id="bannerSectors"><img src="assets/base/sectors.png" alt="Sectors"></div>
+        <div class="base-section-title">ALL 24 SECTORS</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="base-filter-btn active" onclick="filterSectors('all',this)" style="font-size:7px;font-family:var(--fn);padding:4px 8px;background:rgba(255,120,60,.1);border:1px solid var(--bdr2);border-radius:4px;color:var(--mars);cursor:pointer">ALL</button>
+          <button class="base-filter-btn" onclick="filterSectors('core',this)" style="font-size:7px;font-family:var(--fn);padding:4px 8px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);border-radius:4px;color:var(--red);cursor:pointer">CORE</button>
+          <button class="base-filter-btn" onclick="filterSectors('mid',this)" style="font-size:7px;font-family:var(--fn);padding:4px 8px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);border-radius:4px;color:var(--gold);cursor:pointer">MID</button>
+          <button class="base-filter-btn" onclick="filterSectors('frontier',this)" style="font-size:7px;font-family:var(--fn);padding:4px 8px;background:rgba(76,216,154,.08);border:1px solid rgba(76,216,154,.2);border-radius:4px;color:var(--gn);cursor:pointer">FRONTIER</button>
+        </div>
+        <div class="sector-list" id="baseSectorList">
+          <div style="font-size:8px;color:var(--tx3);padding:20px;text-align:center">Loading sectors...</div>
+        </div>
+      </div>
+
+      <!-- TAB: RANK -->
+      <div class="base-pane" id="basePane_rank">
+        <div class="base-banner" id="bannerRank"><img src="assets/base/rank.png" alt="Rank"></div>
+        <div style="text-align:center;margin-bottom:16px">
+          <div class="rank-badge">
+            <span class="rb-level" id="baseRankLevel">1</span>
+            <span class="rb-name" id="baseRankName">Dust Walker</span>
+          </div>
+          <div style="margin-top:10px">
+            <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--tx3);font-family:var(--fn);margin-bottom:2px">
+              <span id="baseXpCurrent">0 XP</span>
+              <span id="baseXpNext">100 XP</span>
+            </div>
+            <div class="rank-progress">
+              <div class="rank-progress-fill" id="baseRankBar" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="base-section-title">ALL RANKS</div>
+        <table class="rank-table">
+          <thead><tr><th>LV</th><th>NAME</th><th>XP</th><th>PP REWARD</th></tr></thead>
+          <tbody id="baseRankTable"></tbody>
+        </table>
+      </div>
+
+      <!-- TAB: MINING -->
+      <div class="base-pane" id="basePane_mining">
+        <div class="base-banner" id="bannerMining"><img src="/assets/base/mining.png" alt=""></div>
+        <div class="base-stat-grid">
+          <div class="base-stat-box">
+            <div class="bsb-label">HARVESTABLE PP</div>
+            <div class="bsb-val gn" id="baseMineAvail">0.00</div>
+          </div>
+          <div class="base-stat-box">
+            <div class="bsb-label">TOTAL MINED</div>
+            <div class="bsb-val pp" id="baseMineTotalMined">0.00</div>
+          </div>
+        </div>
+        <button class="action-btn" id="baseHarvestBtn" onclick="harvestMining()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(76,216,154,.12),rgba(76,216,154,.04));border-color:rgba(76,216,154,.35);color:var(--gn)">
+          HARVEST PP
+        </button>
+        <div style="font-size:7px;color:var(--tx3);text-align:center;margin-top:8px" id="baseMineTimer">Next harvest available in --:--:--</div>
+
+        <div class="base-section-title">MINING RATES</div>
+        <div style="font-size:8px;color:var(--tx2);line-height:2.2" id="baseMineRates">
+          <div class="stat-row"><span class="stat-label">Base Rate</span><span class="stat-val" style="font-size:8px">-- PP/pixel/4h</span></div>
+          <div class="stat-row"><span class="stat-label">Core Bonus</span><span class="stat-val" style="font-size:8px;color:var(--red)">×--</span></div>
+          <div class="stat-row"><span class="stat-label">Mid Bonus</span><span class="stat-val" style="font-size:8px;color:var(--gold)">×--</span></div>
+          <div class="stat-row"><span class="stat-label">Frontier Bonus</span><span class="stat-val" style="font-size:8px;color:var(--gn)">×--</span></div>
+        </div>
+      </div>
+
+      <!-- TAB: QUESTS -->
+      <div class="base-pane" id="basePane_quests">
+        <div class="base-banner" id="bannerQuests"><img src="/assets/base/quests.png" alt=""></div>
+        <div style="text-align:center;padding:32px 16px">
+          <div style="font-size:var(--fs-lg);color:var(--gold);margin-bottom:8px">COMING SOON</div>
+          <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:2">
+            Daily & weekly quests,<br>
+            sector missions, achievements<br>
+            & event challenges.
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: SHOP -->
+      <div class="base-pane" id="basePane_shop">
+        <div class="base-banner" id="bannerShop"><div class="base-banner-placeholder">SHOP</div></div>
+        <div style="text-align:center;padding:32px 16px">
+          <div style="font-size:var(--fs-lg);color:var(--gold);margin-bottom:8px">ITEM SHOP — COMING SOON</div>
+          <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:2">
+            Boost items, territory shields,<br>
+            pixel multipliers, cosmetics<br>
+            & more!<br><br>
+            <span style="color:var(--mars)">Stay tuned for updates</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Mobile: PLACE FAB (center) -->
+<div class="mob-fab-wrap" id="mobFabWrap">
+  <button class="stamp-fab" id="stampFab" onclick="openMobileStamp()">PLACE</button>
+</div>
+<!-- Mobile: BASE button (left side, mirrors back button) -->
+<button class="mob-base-btn" id="mobBaseBtn" onclick="openBaseModal()">BASE</button>
 
 <!-- Mobile: Territory Info Button (floats on globe near clicked claim) -->
 <button class="mob-info-btn" id="mobInfoBtn" onclick="openMobTerritoryModal()">INFO</button>
@@ -1071,6 +1340,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <button class="sz-btn" onclick="setMobileStampSlider(50)" style="min-height:40px;font-size:9px;flex:1">+50</button>
         <button class="sz-btn" onclick="setMobileStampSlider(100)" style="min-height:40px;font-size:9px;flex:1">MAX</button>
       </div>
+    </div>
+    <div style="margin-top:10px">
+      <div class="stat-label" style="margin-bottom:4px;font-size:9px">LINK URL</div>
+      <input type="text" class="ui" id="mStampLinkInput" placeholder="https://your-site.com" style="width:100%;min-height:40px;font-size:10px">
     </div>
     <button class="action-btn" style="margin-top:14px;min-height:52px;font-size:11px;background:linear-gradient(135deg,var(--mars),#E84855);color:#fff;border:none" onclick="startMobilePreview()">PREVIEW ON MARS</button>
     <button class="action-btn" style="margin-top:6px;min-height:44px;font-size:10px;background:transparent;border:1px solid var(--bdr2);color:var(--tx3)" onclick="cancelMobileStamp()">CANCEL</button>
@@ -1554,81 +1827,7 @@ function genMarsTexture(){
   }
   x.putImageData(id,0,0);
 
-  // ── Brand: engrave text into the procedural texture ──
-  // Use Orbitron for sci-fi/space aesthetic (fallback to sans-serif)
-  var BF='"Orbitron",sans-serif';
-  x.save();
-  x.textAlign='center';x.textBaseline='middle';
-
-  // Helper: draw engraved text (shadow + glow)
-  function engrave(text,px,py,size,weight,shadowAlpha,glowColor,glowAlpha){
-    x.font=weight+' '+size+'px '+BF;
-    x.fillStyle='rgba(0,0,0,'+shadowAlpha+')';
-    x.fillText(text,px+2,py+2);
-    x.fillStyle=glowColor.replace('A)',glowAlpha+')');
-    x.fillText(text,px,py);
-  }
-  var dustA='rgba(255,140,60,A)';  // Mars dust orange
-  var paleA='rgba(200,170,120,A)'; // Pale sand
-  var cyanA='rgba(100,200,255,A)'; // Tech cyan
-
-  // ═══ FRONT (lng 0°, u=0.5) — Main Brand ═══
-  var fs1=Math.round(w/8);
-  var tx1=w*0.5, ty1=h*0.44;
-  engrave('OCCUPY',tx1,ty1-fs1*0.38,fs1,'900',0.35,dustA,0.18);
-  engrave('MARS',tx1,ty1+fs1*0.38,Math.round(fs1*1.15),'900',0.35,dustA,0.20);
-  // Decorative line above & below
-  x.strokeStyle='rgba(255,140,60,0.08)';x.lineWidth=3;
-  x.beginPath();x.moveTo(tx1-fs1*1.8,ty1-fs1*0.82);x.lineTo(tx1+fs1*1.8,ty1-fs1*0.82);x.stroke();
-  x.beginPath();x.moveTo(tx1-fs1*1.8,ty1+fs1*0.82);x.lineTo(tx1+fs1*1.8,ty1+fs1*0.82);x.stroke();
-  // Subtitle
-  engrave('⬡ CLAIM YOUR TERRITORY ⬡',tx1,ty1+fs1*1.05,Math.round(fs1/3.8),'700',0.2,paleA,0.10);
-
-  // ═══ BACK (lng ±180°, u=0) — Quote ═══
-  var tx2=w*0.0, ty2=h*0.42;
-  var fs2=Math.round(w/18);
-  engrave('MAKE LIFE',tx2,ty2-fs2*0.6,fs2,'700',0.3,dustA,0.14);
-  engrave('MULTIPLANETARY',tx2,ty2+fs2*0.6,fs2,'900',0.3,dustA,0.16);
-  engrave('— E. MUSK',tx2,ty2+fs2*2.0,Math.round(fs2/2.2),'400',0.15,paleA,0.07);
-  // Also draw at right edge (wrap continuity)
-  engrave('MAKE LIFE',w,ty2-fs2*0.6,fs2,'700',0.3,dustA,0.14);
-  engrave('MULTIPLANETARY',w,ty2+fs2*0.6,fs2,'900',0.3,dustA,0.16);
-  engrave('— E. MUSK',w,ty2+fs2*2.0,Math.round(fs2/2.2),'400',0.15,paleA,0.07);
-
-  // ═══ SOUTH-WEST (u=0.25, v=0.72) — Pixel count ═══
-  var tx3=w*0.25, ty3=h*0.72;
-  var fs3=Math.round(w/26);
-  engrave('5,040,000',tx3,ty3,fs3,'900',0.25,cyanA,0.10);
-  engrave('PIXELS AVAILABLE',tx3,ty3+fs3*1.2,Math.round(fs3/2.2),'700',0.18,paleA,0.07);
-
-  // ═══ NORTH-EAST (u=0.75, v=0.28) — Grid info ═══
-  var tx4=w*0.75, ty4=h*0.28;
-  var fs4=Math.round(w/32);
-  engrave('GRID: 0.1° × 0.1°',tx4,ty4,fs4,'700',0.2,cyanA,0.08);
-  engrave('LAT ±70°  LNG ±180°',tx4,ty4+fs4*1.4,Math.round(fs4*0.85),'400',0.15,paleA,0.06);
-
-  // ═══ SOUTH-EAST (u=0.78, v=0.68) — Chain logos ═══
-  var tx5=w*0.78, ty5=h*0.68;
-  var fs5=Math.round(w/30);
-  engrave('BASE · BNB · ETH',tx5,ty5,fs5,'700',0.22,cyanA,0.09);
-  engrave('MULTI-CHAIN',tx5,ty5+fs5*1.3,Math.round(fs5*0.7),'400',0.15,paleA,0.06);
-
-  // ═══ Decorative grid lines ═══
-  x.strokeStyle='rgba(255,140,60,0.035)';x.lineWidth=1.5;
-  // Equator
-  x.beginPath();x.moveTo(0,h*0.5);x.lineTo(w,h*0.5);x.stroke();
-  // Prime meridian
-  x.beginPath();x.moveTo(w*0.5,h*0.12);x.lineTo(w*0.5,h*0.88);x.stroke();
-  // Latitude guides
-  x.strokeStyle='rgba(255,140,60,0.02)';x.setLineDash([16,32]);
-  x.beginPath();x.moveTo(0,h*0.35);x.lineTo(w,h*0.35);x.stroke();
-  x.beginPath();x.moveTo(0,h*0.65);x.lineTo(w,h*0.65);x.stroke();
-  // Longitude guides
-  x.beginPath();x.moveTo(w*0.25,h*0.12);x.lineTo(w*0.25,h*0.88);x.stroke();
-  x.beginPath();x.moveTo(w*0.75,h*0.12);x.lineTo(w*0.75,h*0.88);x.stroke();
-  x.setLineDash([]);
-
-  x.restore();
+  // (No text overlays on procedural map — clean surface only)
 
   marsBaseData=c.toDataURL('image/jpeg',.92);
   return marsBaseData;
@@ -1730,6 +1929,9 @@ function compositeClaimsOnTexture(previewOnly){
       var img=c.imgUrl?imgCache[c.imgUrl]:null;
       _drawClaimRect(ctx,img,r,w);
     });
+
+    // Sector boundaries overlay
+    _drawSectorOverlay(ctx,w,h);
 
     // Selection highlight: yellow dashed border on selected claim
     if(selectedPlot&&selectedPlot.owner){
@@ -1887,7 +2089,7 @@ var DEMO_LOGOS={
 var NASA_MARS_2K='/assets/textures/mars_nasa_2k.jpg';
 var NASA_MARS_8K='/assets/textures/mars_nasa_8k.jpg';
 var marsBumpUrl, starBgUrl, marsTexUrl;
-var currentTexMode=localStorage.getItem('marsTexMode')||'nasa';
+var currentTexMode='nasa';
 var nasa8kLoaded=false;
 var globe, scene;
 
@@ -1943,10 +2145,7 @@ function _initStep3(){
     setLoadProgress(90,'Rendering globe...');
 
     // Init texture toggle button label
-    if(currentTexMode==='nasa'){
-      var tl=document.getElementById('texToggleLabel');if(tl)tl.textContent='GEN';
-      var tb=document.getElementById('texToggleBtn');if(tb)tb.title='Current: NASA Real | Click for Procedural';
-    }
+    var tl=document.getElementById('texToggleLabel');if(tl)tl.textContent='MAP';
 
     // Pre-cache initial NASA 2K so compositeClaimsOnTexture can use it immediately
     if(currentTexMode==='nasa'){
@@ -1988,20 +2187,24 @@ function _initStep3(){
 }
 
 function toggleMarsTexture(){
-  // Reset canvas texture so compositeClaimsOnTexture rebuilds it
   marsCanvasTexture=null;
   claimsSnapshot=null;
   if(currentTexMode==='procedural'){
     currentTexMode='nasa';
-    document.getElementById('texToggleLabel').textContent='GEN';
-    document.getElementById('texToggleBtn').title='Current: NASA Real | Click for Procedural';
+    document.getElementById('texToggleLabel').textContent='MAP';
   }else{
     currentTexMode='procedural';
-    document.getElementById('texToggleLabel').textContent='NASA';
-    document.getElementById('texToggleBtn').title='Current: Procedural | Click for NASA Real';
+    document.getElementById('texToggleLabel').textContent='MAP';
   }
   localStorage.setItem('marsTexMode',currentTexMode);
-  // Re-composite with new base texture (NASA or procedural) + all claims
+  compositeClaimsOnTexture();
+}
+
+function toggleSectorOverlay(){
+  _showSectorBounds=!_showSectorBounds;
+  var btn=document.getElementById('sectorToggleBtn');
+  if(btn) btn.style.background=_showSectorBounds?'rgba(90,180,230,0.25)':'';
+  marsCanvasTexture=null;claimsSnapshot=null;
   compositeClaimsOnTexture();
 }
 
@@ -2165,6 +2368,15 @@ preCacheAndComposite();
     });
     if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
   }).catch(function(e){console.warn('[Claims] Failed to load server claims:',e)});
+})();
+
+// Load sectors on boot (for boundary overlay)
+(function loadSectorsOnBoot(){
+  fetch('/api/sectors').then(function(r){return r.json()}).then(function(data){
+    _sectorsData=data;
+    // Redraw texture to include sector boundaries
+    setTimeout(function(){claimsSnapshot=null;compositeClaimsOnTexture()},1000);
+  }).catch(function(e){console.warn('[Sectors] Failed to load:',e)});
 })();
 
 /* ── Globe Click → Select Territory ──────────────── */
@@ -2516,10 +2728,12 @@ function confirmMobilePlacement(){
   lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
   selectedPlot={lat:lat,lng:lng,owner:null,price:0,label:'UNCLAIMED',w:stampW,h:stampH};
   uploadedUrl=stampImgUrl;
+  document.getElementById('stampLinkInput').value = document.getElementById('mStampLinkInput').value || '';
   exitMobilePlacing();
   openClaimModal();
 }
 function cancelMobileStamp(){
+  document.getElementById('mStampLinkInput').value = '';
   cancelStamp();
   closeMobileStamp();
   exitMobilePlacing();
@@ -3185,8 +3399,6 @@ async function refreshBalances(){
     document.getElementById('walletUsdt').textContent=walletState.usdtBalance.toFixed(2)+' USDT';
     // Game balances (would come from backend API — using simulated values for now)
     document.getElementById('walletPP').textContent=walletState.gamePP.toFixed(2)+' PP';
-    // MY LAND section
-    document.getElementById('myEarned').textContent=walletState.gameUsdt.toFixed(2)+' USDT';
   }catch(e){
     console.warn('Balance read error:',e);
     document.getElementById('walletUsdt').textContent='(read error)';
@@ -3595,6 +3807,31 @@ var emailAuth = {
   token: localStorage.getItem('pw_token') || null,
   user: null
 };
+
+// Auto-login: restore session from saved token
+(function autoLogin(){
+  if(!emailAuth.token) return;
+  fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+emailAuth.token}})
+    .then(function(r){if(!r.ok) throw new Error('expired'); return r.json()})
+    .then(function(d){
+      emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,referralCode:d.referralCode};
+      walletState.connected=true;
+      walletState.address=d.wallet;
+      walletState.chain='base';
+      try{updateWalletUI()}catch(e){}
+      try{updateChainUI()}catch(e){}
+      try{updateTopbarAvatar(true)}catch(e){}
+      try{refreshEmailBalances()}catch(e){}
+      try{loadReferralInfo()}catch(e){}
+      console.log('[Auth] Auto-login OK:',d.nickname);
+    })
+    .catch(function(){
+      // Token expired or invalid — clear it
+      emailAuth.token=null;
+      try{localStorage.removeItem('pw_token')}catch(e){}
+      console.log('[Auth] Auto-login failed, token cleared');
+    });
+})();
 
 function togglePassEye(){
   var inp=document.getElementById('authPassInput');
@@ -4036,6 +4273,292 @@ async function registerReferral(){
 /* ── UI Helpers ──────────────────────────────────── */
 function openItemShop(){document.getElementById('shopModal').classList.add('open')}
 function closeItemShop(){document.getElementById('shopModal').classList.remove('open')}
+
+/* ── BASE Modal ──────────────────────────────────── */
+var _sectorsData=[];
+var _ranksData=[];
+var _baseUserData=null;
+
+function openBaseModal(){
+  document.getElementById('baseModal').classList.add('open');
+  loadBaseData();
+}
+function closeBaseModal(){document.getElementById('baseModal').classList.remove('open')}
+
+function switchBaseTab(tab,el){
+  document.querySelectorAll('.base-tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.base-pane').forEach(function(p){p.classList.remove('active')});
+  el.classList.add('active');
+  document.getElementById('basePane_'+tab).classList.add('active');
+}
+
+function loadBaseData(){
+  // Load sectors (with wallet for "my pixels" count)
+  var sw=(typeof currentWallet!=='undefined'&&currentWallet)?currentWallet:sessionStorage.getItem('wallet');
+  var sUrl=sw?'/api/sectors?wallet='+encodeURIComponent(sw):'/api/sectors';
+  fetch(sUrl).then(function(r){return r.json()}).then(function(data){
+    _sectorsData=data;
+    renderSectorList(data);
+    drawSectorBoundaries();
+  }).catch(function(){});
+
+  // Load ranks
+  fetch('/api/ranks').then(function(r){return r.json()}).then(function(data){
+    _ranksData=data;
+    renderRankTable(data);
+  }).catch(function(){});
+
+  // Load user data if logged in
+  var w=(typeof currentWallet!=='undefined'&&currentWallet)?currentWallet:sessionStorage.getItem('wallet');
+  if(w){
+    fetch('/api/user/'+w+'/base').then(function(r){return r.json()}).then(function(data){
+      _baseUserData=data;
+      renderBaseUser(data);
+    }).catch(function(){});
+  }
+}
+
+function renderBaseUser(data){
+  if(!data||!data.user) return;
+  var u=data.user;
+  document.getElementById('baseTotalPx').textContent=data.territory.totalPixels.toLocaleString();
+  document.getElementById('baseUsdt').textContent=u.usdt.toFixed(2);
+  document.getElementById('basePP').textContent=u.pp.toFixed(2);
+  document.getElementById('baseRankShort').textContent='Lv.'+u.rank;
+
+  // Rank info
+  var rank=_ranksData.find(function(r){return r.level===u.rank})||{name:'Dust Walker',requiredXp:0};
+  var nextRank=_ranksData.find(function(r){return r.level===u.rank+1});
+  document.getElementById('baseRankLevel').textContent=u.rank;
+  document.getElementById('baseRankName').textContent=rank.name;
+  document.getElementById('baseXpCurrent').textContent=u.xp+' XP';
+  if(nextRank){
+    document.getElementById('baseXpNext').textContent=nextRank.requiredXp+' XP';
+    var pct=Math.min(100,Math.max(0,((u.xp-rank.requiredXp)/(nextRank.requiredXp-rank.requiredXp))*100));
+    document.getElementById('baseRankBar').style.width=pct+'%';
+  }else{
+    document.getElementById('baseXpNext').textContent='MAX';
+    document.getElementById('baseRankBar').style.width='100%';
+  }
+
+  // Highlight current rank in table
+  document.querySelectorAll('.rank-table tbody tr').forEach(function(tr){
+    tr.classList.toggle('current',parseInt(tr.dataset.level)===u.rank);
+  });
+
+  // My sectors
+  var mySec=document.getElementById('baseMySectors');
+  if(data.territory.bySector.length===0){
+    mySec.innerHTML='<div style="color:var(--tx3);font-size:8px;padding:8px 0">No territories claimed yet. Explore the map!</div>';
+  }else{
+    var html='<div class="sector-list">';
+    data.territory.bySector.forEach(function(s){
+      html+='<div class="sector-item" onclick="focusSector('+s.sectorId+')">';
+      html+='<span class="si-tier '+s.tier+'">'+s.tier.toUpperCase()+'</span>';
+      html+='<span class="si-name">'+s.sectorName+'</span>';
+      html+='<span class="si-price" style="color:var(--gold)">'+s.pixels+' px</span>';
+      html+='</div>';
+    });
+    html+='</div>';
+    mySec.innerHTML=html;
+  }
+
+  // Mining
+  if(data.mining){
+    document.getElementById('baseMineTotalMined').textContent=data.mining.totalMined.toFixed(2);
+  }
+}
+
+function renderSectorList(sectors){
+  var html='';
+  sectors.forEach(function(s){
+    var occ=s.stats.occupancyRate;
+    var occPx=s.stats.occupiedPixels;
+    var totPx=s.stats.totalPixels||1;
+    html+='<div class="sector-card" data-tier="'+s.tier+'">';
+    // Header
+    html+='<div class="sc-header">';
+    html+='<span class="sc-tier '+s.tier+'">'+s.tier+'</span>';
+    html+='<span class="sc-name">'+s.name+'</span>';
+    html+='<span class="sc-mining">'+s.miningBonus+'x</span>';
+    html+='<span class="sc-go" onclick="focusSector('+s.id+')">GO</span>';
+    html+='</div>';
+    // Activity badge (inline, below header)
+    if(s.stats.activity24h>0) html+='<div class="sc-activity"><span class="sc-activity-dot"></span>'+s.stats.activity24h+' claims in 24h</div>';
+    // Occupancy bar
+    html+='<div class="sc-occ-wrap">';
+    html+='<div class="sc-occ-labels"><span>OCCUPIED</span><span>'+occPx.toLocaleString()+' / '+totPx.toLocaleString()+' ('+occ+'%)</span></div>';
+    html+='<div class="sc-occ-bar"><div class="sc-occ-fill '+s.tier+'" style="width:'+Math.min(occ,100)+'%"></div></div>';
+    html+='</div>';
+    // Stats grid
+    html+='<div class="sc-stats">';
+    html+='<div class="sc-stat"><span class="sc-stat-label">AVG PRICE</span><span class="sc-stat-val" style="color:var(--gn)">$'+s.stats.avgPrice.toFixed(4)+'</span></div>';
+    html+='<div class="sc-stat"><span class="sc-stat-label">CUR. PRICE</span><span class="sc-stat-val" style="color:var(--gn)">$'+s.currentPrice.toFixed(4)+'</span></div>';
+    html+='<div class="sc-stat"><span class="sc-stat-label">OWNERS</span><span class="sc-stat-val">'+s.stats.uniqueOwners+'</span></div>';
+    html+='</div>';
+    // Top holder / Governor
+    if(s.topHolder){
+      html+='<div class="sc-stats" style="margin-top:2px">';
+      html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">TOP HOLDER</span><span class="sc-stat-val" style="font-size:8px">'+s.topHolder.wallet+' ('+s.topHolder.pixels+'px)</span></div>';
+      if(s.governor) html+='<div class="sc-stat"><span class="sc-stat-label">GOVERNOR</span><span class="sc-stat-val" style="color:var(--gold);font-size:8px">'+s.governor.wallet+'</span></div>';
+      html+='</div>';
+    }
+    // My holdings
+    if(s.myPixels>0){
+      html+='<div class="sc-my"><span class="sc-my-label">MY PIXELS</span><span class="sc-my-val">'+s.myPixels+'</span></div>';
+    }
+    html+='</div>';
+  });
+  document.getElementById('baseSectorList').innerHTML=html;
+}
+
+function filterSectors(tier,el){
+  document.querySelectorAll('.base-filter-btn').forEach(function(b){b.classList.remove('active');b.style.opacity='.5'});
+  el.classList.add('active');el.style.opacity='1';
+  document.querySelectorAll('#baseSectorList .sector-card').forEach(function(item){
+    if(tier==='all'||item.dataset.tier===tier) item.style.display='';
+    else item.style.display='none';
+  });
+}
+
+function renderRankTable(ranks){
+  var html='';
+  ranks.forEach(function(r){
+    html+='<tr data-level="'+r.level+'">';
+    html+='<td>'+r.level+'</td>';
+    html+='<td>'+r.name+'</td>';
+    html+='<td>'+r.requiredXp.toLocaleString()+'</td>';
+    html+='<td style="color:var(--pp)">'+r.rewardPp+' PP</td>';
+    html+='</tr>';
+  });
+  document.getElementById('baseRankTable').innerHTML=html;
+}
+
+function focusSector(sectorId){
+  var s=_sectorsData.find(function(x){return x.id===sectorId});
+  if(!s) return;
+  closeBaseModal();
+  globe.pointOfView({lat:s.centerLat,lng:s.centerLng-180,altitude:1.2},1000);
+}
+
+function harvestMining(){
+  showToast('Mining harvest coming soon!');
+}
+
+function openBaseTab(tab){
+  openBaseModal();
+  // Switch to specified tab
+  document.querySelectorAll('.base-tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.base-pane').forEach(function(p){p.classList.remove('active')});
+  var pane=document.getElementById('basePane_'+tab);
+  if(pane) pane.classList.add('active');
+  // Find and activate matching tab button
+  document.querySelectorAll('.base-tab').forEach(function(t){
+    if(t.textContent.trim().toLowerCase().replace(/\s/g,'')===tab.toLowerCase()) t.classList.add('active');
+  });
+}
+
+/* ── Sector Boundaries on Globe Texture ── */
+var _showSectorBounds=false;
+
+function drawSectorBoundaries(){
+  if(!_sectorsData.length) return;
+  compositeClaimsOnTexture();
+}
+
+function _drawSectorOverlay(ctx,w,h){
+  if(!_showSectorBounds||!_sectorsData.length) return;
+  ctx.save();
+
+  function toXY(v){return[((v[0]+180)/360)*w,((90-v[1])/180)*h]}
+  function centroid(pts){
+    var cx=0,cy=0;
+    for(var i=0;i<pts.length;i++){var p=toXY(pts[i]);cx+=p[0];cy+=p[1]}
+    return[cx/pts.length,cy/pts.length];
+  }
+
+  // 1) Fill polygons
+  _sectorsData.forEach(function(s){
+    var poly=s.polygon;
+    if(!poly||poly.length<3) return;
+    ctx.globalAlpha=0.12;
+    ctx.fillStyle=_sectorColor(s.tier);
+    ctx.beginPath();
+    var p0=toXY(poly[0]);
+    ctx.moveTo(p0[0],p0[1]);
+    for(var i=1;i<poly.length;i++){var p=toXY(poly[i]);ctx.lineTo(p[0],p[1])}
+    ctx.closePath();
+    ctx.fill();
+  });
+
+  // 2) Unique edges — no double-drawing
+  var edgeSet={};
+  var edges=[];
+  _sectorsData.forEach(function(s){
+    var poly=s.polygon;
+    if(!poly||poly.length<3) return;
+    for(var i=0;i<poly.length;i++){
+      var a=poly[i], b=poly[(i+1)%poly.length];
+      var ka=a[0]+','+a[1], kb=b[0]+','+b[1];
+      var key=ka<kb?ka+'|'+kb:kb+'|'+ka;
+      if(!edgeSet[key]){
+        edgeSet[key]=true;
+        edges.push({a:a,b:b,tier:s.tier});
+      }
+    }
+  });
+  ctx.globalAlpha=0.7;
+  ctx.lineWidth=2;
+  ctx.setLineDash([]);
+  edges.forEach(function(e){
+    var pa=toXY(e.a), pb=toXY(e.b);
+    ctx.strokeStyle=_sectorColor(e.tier);
+    ctx.beginPath();ctx.moveTo(pa[0],pa[1]);ctx.lineTo(pb[0],pb[1]);ctx.stroke();
+  });
+
+  // 3) Labels — no bg box, text with shadow only
+  _sectorsData.forEach(function(s){
+    var poly=s.polygon;
+    if(!poly||poly.length<3) return;
+    var c=centroid(poly);
+    var cx=c[0],cy=c[1];
+    var xs=poly.map(function(v){return toXY(v)[0]});
+    var polyW=Math.max.apply(null,xs)-Math.min.apply(null,xs);
+
+    // 70% of previous size (was max 96 → now max 67)
+    var fontSize=Math.max(32,Math.min(67,polyW/s.name.length*2.4));
+    ctx.font='bold '+fontSize+'px monospace';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+
+    // Text shadow for readability
+    ctx.globalAlpha=0.95;
+    ctx.shadowColor='rgba(0,0,0,0.9)';
+    ctx.shadowBlur=8;
+    ctx.shadowOffsetX=2;ctx.shadowOffsetY=2;
+    ctx.fillStyle=_sectorColor(s.tier);
+    ctx.fillText(s.name,cx,cy);
+
+    // Tier label below
+    var tierSize=Math.max(18,fontSize*0.4);
+    ctx.font='bold '+tierSize+'px monospace';
+    ctx.globalAlpha=0.8;
+    ctx.fillText(s.tier.toUpperCase(),cx,cy+fontSize*0.55+tierSize*0.2);
+
+    ctx.shadowColor='transparent';ctx.shadowBlur=0;
+    ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
+  });
+
+  ctx.restore();
+}
+
+function _sectorColor(tier){
+  switch(tier){
+    case 'core': return '#E84855';
+    case 'mid': return '#FFD166';
+    case 'frontier': return '#4CD89A';
+    default: return '#FF7840';
+  }
+}
 function zoomIn(){globe.pointOfView({altitude:Math.max(.08,globe.pointOfView().altitude*.7)},300);isZoomedIn=true}
 function zoomOut(){
   var newAlt=Math.min(4,globe.pointOfView().altitude*1.4);
@@ -4151,9 +4674,7 @@ function searchOwner(){
 function refreshMyStats(){
   var myAddr=walletState.address?shortAddr(walletState.address):'YOU';
   var mine=claims.filter(function(c){return c.owner===myAddr||c.label==='YOU'});
-  document.getElementById('myPlots').textContent=mine.length;
   var totalVal=mine.reduce(function(s,c){return s+c.price},0);
-  document.getElementById('myValue').textContent='$'+totalVal;
 }
 
 /* ── Alerts System ─────────────────────────────── */
