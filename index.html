@@ -2914,8 +2914,37 @@ preCacheAndComposite();
       }
     });
     if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
+    _lastClaimCount=serverClaims.length;
   }).catch(function(e){console.warn('[Claims] Failed to load server claims:',e)});
 })();
+
+// Real-time claims polling (every 30s)
+var _lastClaimCount=0;
+setInterval(function(){
+  fetch('/api/claims').then(function(r){return r.json()}).then(function(serverClaims){
+    if(!serverClaims||!serverClaims.length) return;
+    if(serverClaims.length===_lastClaimCount) return; // no change
+    _lastClaimCount=serverClaims.length;
+    // Replace all claims with fresh server data
+    claims.length=0;
+    serverClaims.forEach(function(sc){
+      sc.label=sc.owner?(sc.owner.slice(0,6)+'...'+sc.owner.slice(-4)):sc.label;
+      claims.push(sc);
+    });
+    initPixelGrid();
+    var pending=0;
+    serverClaims.forEach(function(sc){
+      if(sc.imgUrl && !imgCache[sc.imgUrl]){
+        pending++;
+        cacheImage(sc.imgUrl,function(){
+          pending--;
+          if(pending<=0){claimsSnapshot=null;compositeClaimsOnTexture()}
+        });
+      }
+    });
+    if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
+  }).catch(function(){});
+},30000);
 
 // Load sectors on boot (for boundary overlay)
 (function loadSectorsOnBoot(){
