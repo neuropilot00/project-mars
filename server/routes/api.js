@@ -104,15 +104,22 @@ async function getSectorsForLookup() {
 // Find sector_id for a pixel coordinate
 async function findSectorForPixel(lat, lng) {
   const sectors = await getSectorsForLookup();
+  return _findSectorSync(sectors, lat, lng);
+}
+
+// Sync version using pre-cached sectors
+function findSectorForPixelSync(lat, lng) {
+  if (!_sectorsCache) return null;
+  return _findSectorSync(_sectorsCache, lat, lng);
+}
+
+function _findSectorSync(sectors, lat, lng) {
   for (const s of sectors) {
-    // Quick bbox check first
     if (lat < parseFloat(s.lat_min) || lat > parseFloat(s.lat_max)) continue;
     if (lng < parseFloat(s.lng_min) || lng > parseFloat(s.lng_max)) continue;
-    // Polygon check
     if (s.bounds_polygon && Array.isArray(s.bounds_polygon) && s.bounds_polygon.length >= 3) {
       if (pointInPolygon(lng, lat, s.bounds_polygon)) return s.id;
     } else {
-      // Fallback: bbox match
       return s.id;
     }
   }
@@ -523,18 +530,27 @@ router.post('/claim', writeLimiter, async (req, res) => {
     const pixels = getClaimPixels(parseFloat(lat), parseFloat(lng), claimW, claimH);
     if (!pixels.length) throw new Error('No pixels in range');
 
-    // Lock and read all affected pixels
+    // ── BATCH: Lock and read all affected pixels in one query ──
     let baseCost = 0, hijackCost = 0, overlapCount = 0, newCount = 0;
     const affectedOwners = {}; // owner → { refund, bonus }
 
-    for (const p of pixels) {
-      const pxRes = await client.query(
-        'SELECT owner, price FROM pixels WHERE lat = $1 AND lng = $2 FOR UPDATE',
-        [p.lat, p.lng]
-      );
+    // Build VALUES list for batch lookup
+    const pxCoords = pixels.map((p, i) => `($${i*2+1}::numeric, $${i*2+2}::numeric)`).join(',');
+    const pxParams = pixels.flatMap(p => [p.lat, p.lng]);
+    const existingRes = await client.query(
+      `SELECT lat, lng, owner, price FROM pixels WHERE (lat, lng) IN (${pxCoords}) AND owner IS NOT NULL FOR UPDATE`,
+      pxParams
+    );
 
-      if (pxRes.rows.length && pxRes.rows[0].owner) {
-        const existing = pxRes.rows[0];
+    // Build lookup map of existing pixels
+    const existingMap = {};
+    for (const row of existingRes.rows) {
+      existingMap[row.lat + ',' + row.lng] = row;
+    }
+
+    for (const p of pixels) {
+      const existing = existingMap[p.lat + ',' + p.lng];
+      if (existing) {
         const pxCost = parseFloat(existing.price) * HIJACK_MULT;
         hijackCost += pxCost;
         overlapCount++;
@@ -583,13 +599,12 @@ router.post('/claim', writeLimiter, async (req, res) => {
       [ppUsed, usdtUsed, wallet.toLowerCase()]
     );
 
-    // Credit hijacked owners (PP refund + bonus)
-    for (const [owner, amounts] of Object.entries(affectedOwners)) {
-      await client.query(
-        'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
-        [amounts.refund + amounts.bonus, owner]
-      );
-    }
+    // Credit hijacked owners (PP refund + bonus) — parallel
+    const ownerCredits = Object.entries(affectedOwners).map(([owner, amounts]) =>
+      client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+        [amounts.refund + amounts.bonus, owner])
+    );
+    if (ownerCredits.length) await Promise.all(ownerCredits);
 
     // Insert claim
     const claimRes = await client.query(
@@ -599,23 +614,28 @@ router.post('/claim', writeLimiter, async (req, res) => {
     );
     const claimId = claimRes.rows[0].id;
 
-    // Upsert all pixels (with sector_id assignment)
-    for (const p of pixels) {
-      const pxRes = await client.query(
-        'SELECT owner, price FROM pixels WHERE lat = $1 AND lng = $2',
-        [p.lat, p.lng]
-      );
-      const newPrice = (pxRes.rows.length && pxRes.rows[0].owner)
-        ? parseFloat(pxRes.rows[0].price) * HIJACK_MULT
-        : PIXEL_PRICE;
-
-      const sectorId = await findSectorForPixel(p.lat, p.lng);
-
+    // ── BATCH: Upsert all pixels ──
+    // Pre-compute prices and sectors (sectors are cached, no DB hit)
+    const walletLower = wallet.toLowerCase();
+    const batchSize = 50; // upsert in chunks
+    for (let i = 0; i < pixels.length; i += batchSize) {
+      const chunk = pixels.slice(i, i + batchSize);
+      const values = [];
+      const params = [];
+      let paramIdx = 1;
+      for (const p of chunk) {
+        const existing = existingMap[p.lat + ',' + p.lng];
+        const newPrice = existing ? parseFloat(existing.price) * HIJACK_MULT : PIXEL_PRICE;
+        const sectorId = findSectorForPixelSync(p.lat, p.lng);
+        values.push(`($${paramIdx},$${paramIdx+1},$${paramIdx+2},$${paramIdx+3},$${paramIdx+4},$${paramIdx+5},NOW())`);
+        params.push(p.lat, p.lng, walletLower, newPrice, claimId, sectorId);
+        paramIdx += 6;
+      }
       await client.query(
         `INSERT INTO pixels (lat, lng, owner, price, claim_id, sector_id, updated_at)
-         VALUES ($1,$2,$3,$4,$5,$6,NOW())
-         ON CONFLICT (lat, lng) DO UPDATE SET owner=$3, price=$4, claim_id=$5, sector_id=COALESCE($6,pixels.sector_id), updated_at=NOW()`,
-        [p.lat, p.lng, wallet.toLowerCase(), newPrice, claimId, sectorId]
+         VALUES ${values.join(',')}
+         ON CONFLICT (lat, lng) DO UPDATE SET owner=EXCLUDED.owner, price=EXCLUDED.price, claim_id=EXCLUDED.claim_id, sector_id=COALESCE(EXCLUDED.sector_id,pixels.sector_id), updated_at=NOW()`,
+        params
       );
     }
 
