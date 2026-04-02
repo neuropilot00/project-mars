@@ -747,6 +747,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .claim-note{padding:8px 16px 14px;font-size:5.5px;font-family:var(--fn);
   color:rgba(255,255,255,.3);text-align:center;line-height:1.6}
 .claim-title.wrn{color:var(--red)}
+.pay-method-btn{padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);cursor:pointer;
+  font-family:var(--fn);font-size:7px;letter-spacing:1px;transition:all .2s}
+.pay-method-btn.sel{background:rgba(255,160,60,.15);border-color:var(--gold);color:var(--gold)}
 .hw{margin:0 16px;padding:10px 12px;background:rgba(232,72,85,.08);
   border:1px solid rgba(232,72,85,.2);border-radius:8px;margin-top:10px}
 .hwt{font-size:7px;font-family:var(--fn);color:var(--red);margin-bottom:4px}
@@ -1377,6 +1381,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="claim-info-item full">
         <div class="claim-info-label">COST</div>
         <div class="claim-info-val gold" id="modalCostDisplay">--</div>
+      </div>
+      <div class="claim-info-item full">
+        <div class="claim-info-label">PAY WITH</div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <button class="pay-method-btn sel" id="payPP" onclick="selectPayMethod('pp')">🟠 PP</button>
+          <button class="pay-method-btn" id="payUSDT" onclick="selectPayMethod('usdt')">💲 USDT</button>
+        </div>
       </div>
     </div>
     <!-- 컨펌 -->
@@ -3405,6 +3416,26 @@ function expandMtImg(){
 
 /* ── Claim Modal ─────────────────────────────────── */
 var selectedChain='base', uploadedUrl=null, selectedSize=20;
+var selectedPayMethod='pp'; // 'pp' or 'usdt'
+function selectPayMethod(m){
+  selectedPayMethod=m;
+  document.getElementById('payPP').className='pay-method-btn'+(m==='pp'?' sel':'');
+  document.getElementById('payUSDT').className='pay-method-btn'+(m==='usdt'?' sel':'');
+  // Update cost display unit
+  updateCostDisplayUnit();
+}
+function updateCostDisplayUnit(){
+  if(!lastStampCost) return;
+  var unit=selectedPayMethod==='usdt'?'USDT':'PP';
+  var ci=lastStampCost;
+  if(ci.overlapCount>0){
+    document.getElementById('hijackCost').textContent=ci.hijackCost.toFixed(2)+' '+unit+' ('+ci.overlapCount+'px overlap)';
+    document.getElementById('modalCostDisplay').textContent=ci.total.toFixed(2)+' '+unit+' (new '+ci.newCount+'px + hijack '+ci.overlapCount+'px)';
+  }else{
+    var cw=selectedPlot?selectedPlot.w||stampW:stampW, ch=selectedPlot?selectedPlot.h||stampH:stampH;
+    document.getElementById('modalCostDisplay').textContent=ci.total.toFixed(2)+' '+unit+' ('+cw+'×'+ch+' = '+ci.totalPixels.toLocaleString()+'px)';
+  }
+}
 
 var lastStampCost=null; // cached cost breakdown for confirm
 function openClaimModal(){
@@ -3435,6 +3466,9 @@ function openClaimModal(){
     tl.textContent='CLAIM TERRITORY';tl.className='claim-title';
     document.getElementById('modalCostDisplay').textContent=costInfo.total.toFixed(2)+' PP ('+cw+'×'+ch+' = '+costInfo.totalPixels.toLocaleString()+'px)';
   }
+  // Reset pay method to PP
+  selectedPayMethod='pp';
+  selectPayMethod('pp');
   // 이미지 미리보기 표시
   if(stampImgUrl){
     uploadedUrl=stampImgUrl;
@@ -3519,14 +3553,24 @@ async function confirmClaim(){
             if(gifResp.ok&&gifData.url) originalGifUrl=gifData.url;
           }
 
-          // Always create JPEG thumbnail for texture (using already-loaded imgEl)
+          // Always create thumbnail for texture (using already-loaded imgEl)
+          // Use PNG to preserve transparency, JPEG for opaque images
           var cvs=document.createElement('canvas');
           var maxDim=1536; // Higher res for texture quality
           var scale=Math.min(maxDim/(imgEl.naturalWidth||imgEl.width),maxDim/(imgEl.naturalHeight||imgEl.height),1);
           cvs.width=Math.round((imgEl.naturalWidth||imgEl.width)*scale);
           cvs.height=Math.round((imgEl.naturalHeight||imgEl.height)*scale);
-          cvs.getContext('2d').drawImage(imgEl,0,0,cvs.width,cvs.height);
-          dataUrl=cvs.toDataURL('image/jpeg',0.92);
+          var tCtx=cvs.getContext('2d');
+          tCtx.drawImage(imgEl,0,0,cvs.width,cvs.height);
+          // Detect transparency: check a few pixels for alpha < 255
+          var hasAlpha=false;
+          try{
+            var sample=tCtx.getImageData(0,0,cvs.width,Math.min(cvs.height,4));
+            for(var si=3;si<sample.data.length;si+=4){
+              if(sample.data[si]<250){hasAlpha=true;break;}
+            }
+          }catch(e){}
+          dataUrl=hasAlpha?cvs.toDataURL('image/png'):cvs.toDataURL('image/jpeg',0.92);
         }
         // Upload JPEG thumbnail
         if(btn) btn.textContent='UPLOADING...';
@@ -3566,7 +3610,8 @@ async function confirmClaim(){
         height:ch,
         imageUrl:sendImageUrl,
         originalImageUrl:originalGifUrl||'',
-        linkUrl:linkVal||''
+        linkUrl:linkVal||'',
+        payMethod:selectedPayMethod||'pp'
       })
     });
     var d=await resp.json();

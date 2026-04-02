@@ -444,7 +444,7 @@ router.post('/upload', writeLimiter, async (req, res) => {
 //  POST /api/claim
 // ══════════════════════════════════════════════════
 router.post('/claim', writeLimiter, async (req, res) => {
-  const { wallet, lat, lng, width, height, imageUrl, originalImageUrl, linkUrl } = req.body;
+  const { wallet, lat, lng, width, height, imageUrl, originalImageUrl, linkUrl, payMethod } = req.body;
   if (!wallet || lat == null || lng == null || !width || !height) {
     return res.status(400).json({ error: 'Missing fields' });
   }
@@ -538,7 +538,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
 
     const totalCost = Math.round((baseCost + hijackCost) * 1000000) / 1000000;
 
-    // Check user balance (PP first, then USDT)
+    // Check user balance based on selected payment method
     const userRes = await client.query(
       'SELECT usdt_balance, pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
       [wallet.toLowerCase()]
@@ -547,17 +547,22 @@ router.post('/claim', writeLimiter, async (req, res) => {
     let ppUsed = 0, usdtUsed = 0;
     const ppBal = parseFloat(user.pp_balance);
     const usdtBal = parseFloat(user.usdt_balance);
+    const method = payMethod || 'pp';
 
-    if (ppBal >= totalCost) {
-      ppUsed = totalCost;
+    if (method === 'usdt') {
+      // USDT only
+      if (usdtBal < totalCost) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Insufficient USDT balance', required: totalCost, usdtBalance: usdtBal });
+      }
+      usdtUsed = totalCost;
     } else {
-      ppUsed = ppBal;
-      usdtUsed = totalCost - ppBal;
-    }
-
-    if (usdtUsed > usdtBal) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Insufficient balance', required: totalCost, usdtBalance: usdtBal, ppBalance: ppBal });
+      // PP only
+      if (ppBal < totalCost) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Insufficient PP balance', required: totalCost, ppBalance: ppBal });
+      }
+      ppUsed = totalCost;
     }
 
     // Deduct from user
