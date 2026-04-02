@@ -828,4 +828,100 @@ router.post('/recalc-ranks', async (req, res) => {
   }
 });
 
+// ── GET /admin/api/claims — List claims (paginated, searchable) ──
+router.get('/claims', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const offset = (page - 1) * limit;
+    const search = (req.query.search || '').trim().toLowerCase();
+
+    let where = 'WHERE c.deleted_at IS NULL';
+    const params = [];
+    if (search) {
+      params.push('%' + search + '%');
+      where += ` AND (c.owner ILIKE $${params.length} OR c.label ILIKE $${params.length})`;
+    }
+
+    const countRes = await pool.query(
+      `SELECT COUNT(*) as cnt FROM claims c ${where}`, params
+    );
+    const total = parseInt(countRes.rows[0].cnt);
+
+    const claimsRes = await pool.query(
+      `SELECT c.id, c.owner, c.label, c.lat, c.lng, c.width, c.height, c.image_url,
+              c.original_image_url, c.link_url, c.total_cost, c.pixel_count,
+              c.pay_method, c.created_at
+       FROM claims c ${where}
+       ORDER BY c.created_at DESC
+       LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      [...params, limit, offset]
+    );
+
+    res.json({ claims: claimsRes.rows, total, page, limit });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── DELETE /admin/api/claims/:id — Delete a claim and its pixels ──
+router.delete('/claims/:id', async (req, res) => {
+  const claimId = parseInt(req.params.id);
+  if (!claimId) return res.status(400).json({ error: 'Invalid claim ID' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Get claim info
+    const claimRes = await client.query(
+      'SELECT id, owner, lat, lng, width, height FROM claims WHERE id = $1 AND deleted_at IS NULL',
+      [claimId]
+    );
+    if (!claimRes.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Claim not found' });
+    }
+
+    const claim = claimRes.rows[0];
+
+    // Remove pixels owned by this claim
+    // Calculate pixel coordinates for this claim
+    const lat = parseFloat(claim.lat);
+    const lng = parseFloat(claim.lng);
+    const w = parseInt(claim.width) || 1;
+    const h = parseInt(claim.height) || 1;
+    const step = 0.1;
+
+    let pixelsRemoved = 0;
+    for (let dy = 0; dy < h; dy++) {
+      for (let dx = 0; dx < w; dx++) {
+        const plat = Math.round((lat + dy * step) * 10) / 10;
+        const plng = Math.round((lng + dx * step) * 10) / 10;
+        const delRes = await client.query(
+          'DELETE FROM pixels WHERE lat = $1 AND lng = $2 AND owner = $3',
+          [plat, plng, claim.owner]
+        );
+        pixelsRemoved += delRes.rowCount;
+      }
+    }
+
+    // Soft-delete the claim
+    await client.query(
+      'UPDATE claims SET deleted_at = NOW() WHERE id = $1',
+      [claimId]
+    );
+
+    await client.query('COMMIT');
+    console.log(`[Admin] Deleted claim #${claimId} (${pixelsRemoved} pixels removed)`);
+    res.json({ success: true, pixelsRemoved });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[Admin] Delete claim error:', e.message);
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
 module.exports = router;

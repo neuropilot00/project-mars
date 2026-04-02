@@ -208,6 +208,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('users')" data-tab="users" data-i18n="tab_users">USERS</button>
   <button class="adm-tab" onclick="switchTab('game')" data-tab="game" data-i18n="tab_game">GAME SETTINGS</button>
   <button class="adm-tab" onclick="switchTab('finance')" data-tab="finance" data-i18n="tab_finance">FINANCE</button>
+  <button class="adm-tab" onclick="switchTab('claims')" data-tab="claims">CLAIMS</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -518,6 +519,38 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- Claims Management -->
+  <div class="section cat-claims" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title">CLAIMS MANAGEMENT</span>
+      <div class="sec-tools">
+        <input class="adm-input" id="claimSearch" placeholder="Search owner..." oninput="loadClaims()" style="width:160px">
+        <button class="adm-btn primary" onclick="loadClaims()">REFRESH</button>
+        <span style="font-size:6px;color:var(--tx3)" id="claimCount">--</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>IMAGE</th>
+            <th>OWNER</th>
+            <th>LAT</th>
+            <th>LNG</th>
+            <th>SIZE</th>
+            <th>PIXELS</th>
+            <th>COST</th>
+            <th>DATE</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody id="claimBody"><tr><td colspan="10" class="loading">Click CLAIMS tab to load...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="claimPagination"></div>
+  </div>
+
 </div>
 
 <script>
@@ -542,13 +575,15 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
   });
   // Stats grid is always visible on dashboard
   document.getElementById('statsGrid').style.display = (tab === 'dashboard') ? '' : 'none';
+  // Auto-load claims on tab switch
+  if (tab === 'claims' && !_claimsLoaded) loadClaims();
 }
 
 // ── Language System ──
@@ -1365,6 +1400,76 @@ function clearErrors() {
   }).then(function(r) { return r.json(); }).then(function(d) {
     if (d.success) loadErrors(0);
   });
+}
+
+// ── Claims Management ──
+var _claimsLoaded = false;
+var claimPage = 1;
+
+function loadClaims() {
+  _claimsLoaded = true;
+  var search = (document.getElementById('claimSearch').value || '').trim();
+  var url = '/admin/api/claims?page=' + claimPage + '&limit=20';
+  if (search) url += '&search=' + encodeURIComponent(search);
+
+  fetch(url, { headers: { 'x-admin-secret': adminSecret } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (!d.claims) return;
+      document.getElementById('claimCount').textContent = d.total + ' claims';
+      var body = document.getElementById('claimBody');
+      if (!d.claims.length) {
+        body.innerHTML = '<tr><td colspan="10" class="loading">No claims found</td></tr>';
+        document.getElementById('claimPagination').innerHTML = '';
+        return;
+      }
+      body.innerHTML = d.claims.map(function(c) {
+        var thumb = c.image_url
+          ? '<img src="' + c.image_url + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--bdr)">'
+          : '<span style="color:var(--tx3)">—</span>';
+        var owner = c.owner ? (c.owner.slice(0,6) + '...' + c.owner.slice(-4)) : '—';
+        var size = (c.width || '?') + '×' + (c.height || '?');
+        var date = c.created_at ? new Date(c.created_at).toLocaleDateString() : '—';
+        return '<tr>' +
+          '<td>' + c.id + '</td>' +
+          '<td>' + thumb + '</td>' +
+          '<td class="addr">' + owner + '</td>' +
+          '<td>' + (c.lat != null ? parseFloat(c.lat).toFixed(1) : '—') + '°</td>' +
+          '<td>' + (c.lng != null ? parseFloat(c.lng).toFixed(1) : '—') + '°</td>' +
+          '<td>' + size + '</td>' +
+          '<td>' + (c.pixel_count || '—') + '</td>' +
+          '<td class="val-gn">$' + (parseFloat(c.total_cost) || 0).toFixed(2) + '</td>' +
+          '<td>' + date + '</td>' +
+          '<td><button class="adm-btn primary" style="color:var(--red);border-color:rgba(232,72,85,.3);font-size:6px" onclick="deleteClaim(' + c.id + ')">DELETE</button></td>' +
+          '</tr>';
+      }).join('');
+
+      // Pagination
+      var totalPages = Math.ceil(d.total / 20);
+      var pgHtml = '';
+      pgHtml += '<button class="pg-btn" onclick="claimPage=1;loadClaims()" ' + (claimPage <= 1 ? 'disabled' : '') + '>«</button>';
+      pgHtml += '<button class="pg-btn" onclick="claimPage--;loadClaims()" ' + (claimPage <= 1 ? 'disabled' : '') + '>‹</button>';
+      pgHtml += '<span class="pg-info">' + claimPage + ' / ' + totalPages + '</span>';
+      pgHtml += '<button class="pg-btn" onclick="claimPage++;loadClaims()" ' + (claimPage >= totalPages ? 'disabled' : '') + '>›</button>';
+      pgHtml += '<button class="pg-btn" onclick="claimPage=' + totalPages + ';loadClaims()" ' + (claimPage >= totalPages ? 'disabled' : '') + '>»</button>';
+      document.getElementById('claimPagination').innerHTML = pgHtml;
+    })
+    .catch(function(e) { console.error('loadClaims error:', e); });
+}
+
+function deleteClaim(id) {
+  if (!confirm('Delete claim #' + id + '? This will remove all pixels and refund is NOT automatic.')) return;
+  fetch('/admin/api/claims/' + id, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': adminSecret }
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      alert('Claim #' + id + ' deleted (' + (d.pixelsRemoved || 0) + ' pixels removed)');
+      loadClaims();
+    } else {
+      alert('Failed: ' + (d.error || 'unknown'));
+    }
+  }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
 // Auto-focus auth input
