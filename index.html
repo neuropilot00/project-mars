@@ -2625,13 +2625,6 @@ function genLogo(emoji,bg,border){
   x.fillStyle='#fff';x.fillText(emoji,40,42);
   return c.toDataURL();
 }
-var DEMO_LOGOS={
-  doge:genLogo('🐕','#8B6914','#FFD166'),
-  love:genLogo('♥','#C02050','#FF6B8A'),
-  skull:genLogo('💀','#333','#888'),
-  pepe:genLogo('🐸','#2D6B2D','#4CD89A')
-};
-
 /* ── Globe Init (async pipeline — lets browser paint loading screen) ── */
 var NASA_MARS_2K='/assets/textures/mars_nasa_2k.jpg';
 var NASA_MARS_8K='/assets/textures/mars_nasa_8k.jpg';
@@ -2780,16 +2773,7 @@ var GRID_SIZE=0.1;         // 0.1° per pixel-cell
 // Total: 1400 × 3600 = 5,040,000 ≈ ★ 5 MILLION PIXELS ★
 // Price: $0.1/px → 1×1=$0.1, 10×10=$10, 100×100=$1000
 
-var claims=[
-  {lat:20,lng:-130,owner:'DogeTeam',price:10,imgUrl:DEMO_LOGOS.doge,label:'DogeTeam',size:10,link:'https://doge.com'},
-  {lat:-15,lng:-60,owner:'예원♥',price:40,imgUrl:DEMO_LOGOS.love,label:'예원♥',size:20,link:''},
-  {lat:30,lng:20,owner:'0xDEAD..F00D',price:10,imgUrl:DEMO_LOGOS.skull,label:'0xDEAD',size:10,link:'https://etherscan.io'},
-  {lat:-35,lng:70,owner:'PepeArmy',price:250,imgUrl:DEMO_LOGOS.pepe,label:'PepeArmy',size:50,link:'https://pepe.vip'},
-  {lat:0,lng:140,owner:'CryptoKing',price:100,imgUrl:DEMO_LOGOS.skull,label:'CryptoKing',size:30,link:''},
-  {lat:50,lng:-80,owner:'MoonDAO',price:10,imgUrl:DEMO_LOGOS.doge,label:'MoonDAO',size:10,link:'https://moondao.com'},
-  {lat:-50,lng:-140,owner:'PixelGang',price:40,imgUrl:DEMO_LOGOS.love,label:'PixelGang',size:20,link:''},
-  {lat:10,lng:100,owner:'MarsWhale',price:250,imgUrl:DEMO_LOGOS.pepe,label:'MarsWhale',size:50,link:''},
-];
+var claims=[];
 
 // Image cache for instant recomposite
 var imgCache={};
