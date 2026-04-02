@@ -3082,7 +3082,7 @@ function updateStampCostDisplay(){
     document.getElementById('stampCostLabel').textContent=label;
   }else{
     var baseCost=Math.round(pixels*PIXEL_PRICE*100)/100;
-    document.getElementById('stampCostLabel').textContent='~$'+baseCost.toLocaleString()+' USDT';
+    document.getElementById('stampCostLabel').textContent='~'+baseCost.toLocaleString()+' PP';
   }
 }
 // Shared slider→pct mapping: -100 → 1×1px, 0 → 100%, +100 → 300%
@@ -3183,7 +3183,7 @@ function updateMobileStampLabels(){
   var sign=stampScale>=100?'+':'';
   document.getElementById('mStampSizeLabel').textContent=stampW+'×'+stampH+' px ('+stampScale+'%)';
   var baseCost=Math.round(stampW*stampH*PIXEL_PRICE*100)/100;
-  document.getElementById('mStampCostLabel').textContent='~$'+baseCost.toLocaleString()+' USDT';
+  document.getElementById('mStampCostLabel').textContent='~'+baseCost.toLocaleString()+' PP';
 }
 function setMobileStampSlider(v){
   document.getElementById('mStampSizeSlider').value=v;
@@ -3288,8 +3288,8 @@ function showTerritoryInfo(plot){
   document.getElementById('infoOwner').textContent=plot.owner;
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   document.getElementById('infoSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
-  document.getElementById('infoPrice').textContent='$'+plot.price+' USDT';
-  document.getElementById('infoHijack').textContent='$'+Math.round(plot.price*HIJACK_MULT*100)/100+' USDT (1.2×)';
+  document.getElementById('infoPrice').textContent=plot.price+' PP';
+  document.getElementById('infoHijack').textContent=Math.round(plot.price*HIJACK_MULT*100)/100+' PP (1.2×)';
   if(plot.link){
     document.getElementById('linkRow').style.display='';
     var linkEl=document.getElementById('infoLink');
@@ -3354,8 +3354,8 @@ function openMobTerritoryModal(){
   document.getElementById('mtOwner').textContent=plot.owner;
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   document.getElementById('mtSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
-  document.getElementById('mtPrice').textContent='$'+plot.price+' USDT';
-  document.getElementById('mtHijack').textContent='$'+Math.round(plot.price*HIJACK_MULT*100)/100+' USDT ('+HIJACK_MULT+'×)';
+  document.getElementById('mtPrice').textContent=plot.price+' PP';
+  document.getElementById('mtHijack').textContent=Math.round(plot.price*HIJACK_MULT*100)/100+' PP ('+HIJACK_MULT+'×)';
   // Link
   if(plot.link){
     document.getElementById('mtLinkRow').style.display='';
