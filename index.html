@@ -1251,12 +1251,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="stat-row" id="linkRow" style="display:none"><span class="stat-label">LINK</span><a class="stat-val link-val" id="infoLink" href="#" target="_blank" rel="noopener">--</a></div>
     <div class="stat-row"><span class="stat-label">SIZE</span><span class="stat-val" id="infoSize">--</span></div>
     <div class="stat-row"><span class="stat-label">PRICE PAID</span><span class="stat-val gn" id="infoPrice">--</span></div>
-    <div class="stat-row"><span class="stat-label">HIJACK COST</span><span class="stat-val red" id="infoHijack">--</span></div>
     <div id="infoImgWrap" style="display:none;margin:8px 0;text-align:center">
       <img id="infoImgPreview" src="" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer" onclick="expandInfoImg()">
       <div id="infoImgGifBadge" style="display:none;font-size:8px;color:var(--mars);margin-top:3px">GIF</div>
     </div>
-    <button class="action-btn hijack" id="claimBtn" onclick="openClaimModal()" data-i18n="hijack_this">HIJACK THIS PLOT</button>
   </div>
 
   <!-- MY ALERTS -->
@@ -1683,12 +1681,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="mt-row" id="mtLinkRow" style="display:none"><span class="mt-label">LINK</span><a class="mt-val" id="mtLink" href="#" target="_blank" rel="noopener" style="color:var(--cyan)">--</a></div>
     <div class="mt-row"><span class="mt-label">SIZE</span><span class="mt-val" id="mtSize">--</span></div>
     <div class="mt-row"><span class="mt-label">PRICE PAID</span><span class="mt-val" id="mtPrice" style="color:var(--gn)">--</span></div>
-    <div class="mt-row"><span class="mt-label">HIJACK COST</span><span class="mt-val" id="mtHijack" style="color:var(--red)">--</span></div>
     <div class="mt-img" id="mtImgWrap" style="display:none">
       <img id="mtImgPreview" src="" onclick="expandMtImg()">
       <div id="mtGifBadge" style="display:none;font-size:9px;color:var(--mars);margin-top:4px">GIF ▶</div>
     </div>
-    <button class="mt-hijack" onclick="closeMobTerritoryModal();openClaimModal()">⚔ HIJACK THIS TERRITORY</button>
   </div>
 </div>
 
@@ -3300,7 +3296,6 @@ function showTerritoryInfo(plot){
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   document.getElementById('infoSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
   document.getElementById('infoPrice').textContent=plot.price+' PP';
-  document.getElementById('infoHijack').textContent=Math.round(plot.price*HIJACK_MULT*100)/100+' PP (1.2×)';
   if(plot.link){
     document.getElementById('linkRow').style.display='';
     var linkEl=document.getElementById('infoLink');
@@ -3366,7 +3361,6 @@ function openMobTerritoryModal(){
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   document.getElementById('mtSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
   document.getElementById('mtPrice').textContent=plot.price+' PP';
-  document.getElementById('mtHijack').textContent=Math.round(plot.price*HIJACK_MULT*100)/100+' PP ('+HIJACK_MULT+'×)';
   // Link
   if(plot.link){
     document.getElementById('mtLinkRow').style.display='';
