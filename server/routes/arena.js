@@ -398,75 +398,78 @@ function generateMinesGrid(mineCount) {
   return JSON.stringify(grid);
 }
 
+// Pre-computed multiplier cache for instant lookup
+const _multCache = {};
 function minesMultiplier(revealed, mineCount) {
-  // Fair multiplier: (25! / (25-revealed)!) / ((25-mines)! / (25-mines-revealed)!) * (1-edge)
+  const key = revealed + '_' + mineCount;
+  if (_multCache[key]) return _multCache[key];
   const safeTotal = 25 - mineCount;
   let mult = 1;
   for (let i = 0; i < revealed; i++) {
     mult *= (25 - i) / (safeTotal - i);
   }
-  return Math.round(mult * 0.97 * 10000) / 10000; // 3% house edge
+  const result = Math.round(mult * 0.97 * 10000) / 10000; // 3% house edge
+  _multCache[key] = result;
+  return result;
 }
 
 // POST /arena/mines/start — Start a new mines game
 router.post('/mines/start', betLimiter, async (req, res) => {
+  // Validate outside transaction
+  const { wallet, amount, currency, mines } = req.body;
+  const w = (wallet || '').toLowerCase().trim();
+  const cur = currency === 'USDT' ? 'USDT' : 'PP';
+  const bet = parseFloat(amount);
+  const mineCount = Math.max(1, Math.min(24, parseInt(mines) || 5));
+
+  if (!w) return res.status(400).json({ error: 'Wallet required' });
+  const s = await cfg();
+  const minBet = parseFloat(s.mines_min_bet) || 0.1;
+  const maxBet = parseFloat(s.mines_max_bet) || 1000;
+  if (!bet || bet < minBet || bet > maxBet) {
+    return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
+  }
+
   const client = await pool.connect();
   try {
-    const { wallet, amount, currency, mines } = req.body;
-    const w = (wallet || '').toLowerCase().trim();
-    const cur = currency === 'USDT' ? 'USDT' : 'PP';
-    const bet = parseFloat(amount);
-    const mineCount = Math.max(1, Math.min(24, parseInt(mines) || 5));
-    const s = await cfg();
-
-    if (!w) return res.status(400).json({ error: 'Wallet required' });
-    const minBet = parseFloat(s.mines_min_bet) || 0.1;
-    const maxBet = parseFloat(s.mines_max_bet) || 1000;
-    if (!bet || bet < minBet || bet > maxBet) {
-      return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
-    }
-
     await client.query('BEGIN');
 
-    // Check no active game
-    const activeGame = await client.query(
-      "SELECT id FROM mines_games WHERE wallet = $1 AND status = 'active'", [w]
-    );
+    // Check no active game + balance in parallel
+    const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
+    const [activeGame, userRes] = await Promise.all([
+      client.query("SELECT id FROM mines_games WHERE wallet = $1 AND status = 'active'", [w]),
+      client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1 FOR UPDATE`, [w])
+    ]);
+
     if (activeGame.rows.length > 0) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Finish your current game first', gameId: activeGame.rows[0].id });
     }
-
-    // Check balance
-    const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
-    const userRes = await client.query(
-      `SELECT ${balCol} as bal FROM users WHERE wallet_address = $1 FOR UPDATE`, [w]
-    );
     if (userRes.rows.length === 0 || parseFloat(userRes.rows[0].bal) < bet) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Insufficient balance' });
     }
 
-    // Deduct
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]);
-
-    // Create game
+    // Deduct + Create game in parallel
     const grid = generateMinesGrid(mineCount);
-    const gameRes = await client.query(
-      `INSERT INTO mines_games (wallet, bet_amount, currency, mine_count, grid, current_multiplier)
-       VALUES ($1,$2,$3,$4,$5,1.0) RETURNING id`,
-      [w, bet, cur, mineCount, grid]
-    );
+    const [, gameRes] = await Promise.all([
+      client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]),
+      client.query(
+        `INSERT INTO mines_games (wallet, bet_amount, currency, mine_count, grid, current_multiplier)
+         VALUES ($1,$2,$3,$4,$5,1.0) RETURNING id`,
+        [w, bet, cur, mineCount, grid]
+      )
+    ]);
 
-    // Transaction
-    await client.query(
-      `INSERT INTO transactions (type, from_wallet, ${cur === 'USDT' ? 'usdt_amount' : 'pp_amount'}, fee, meta)
-       VALUES ('mines_bet', $1, $2, 0, $3)`,
-      [w, bet, JSON.stringify({ gameId: gameRes.rows[0].id, mines: mineCount })]
-    );
-
-    // Award 1 XP per game bet
-    await awardXP(client, w, 1);
+    // Transaction log + XP in parallel
+    await Promise.all([
+      client.query(
+        `INSERT INTO transactions (type, from_wallet, ${cur === 'USDT' ? 'usdt_amount' : 'pp_amount'}, fee, meta)
+         VALUES ('mines_bet', $1, $2, 0, $3)`,
+        [w, bet, JSON.stringify({ gameId: gameRes.rows[0].id, mines: mineCount })]
+      ),
+      awardXP(client, w, 1)
+    ]);
 
     await client.query('COMMIT');
     res.json({
@@ -487,20 +490,20 @@ router.post('/mines/start', betLimiter, async (req, res) => {
 
 // POST /arena/mines/reveal — Reveal a tile
 router.post('/mines/reveal', betLimiter, async (req, res) => {
+  // Validate outside transaction
+  const { wallet, gameId, position } = req.body;
+  const w = (wallet || '').toLowerCase().trim();
+  const pos = parseInt(position);
+  if (!w || !gameId || pos < 0 || pos > 24) {
+    return res.status(400).json({ error: 'Invalid params' });
+  }
+
   const client = await pool.connect();
   try {
-    const { wallet, gameId, position } = req.body;
-    const w = (wallet || '').toLowerCase().trim();
-    const pos = parseInt(position);
-
-    if (!w || !gameId || pos < 0 || pos > 24) {
-      return res.status(400).json({ error: 'Invalid params' });
-    }
-
     await client.query('BEGIN');
 
     const gameRes = await client.query(
-      "SELECT * FROM mines_games WHERE id = $1 AND wallet = $2 AND status = 'active' FOR UPDATE",
+      "SELECT id, grid, revealed, mine_count, bet_amount FROM mines_games WHERE id = $1 AND wallet = $2 AND status = 'active' FOR UPDATE",
       [gameId, w]
     );
     if (gameRes.rows.length === 0) {
@@ -521,22 +524,15 @@ router.post('/mines/reveal', betLimiter, async (req, res) => {
     const isMine = grid[pos] === 'mine';
 
     if (isMine) {
-      // BUSTED
       await client.query(
         "UPDATE mines_games SET revealed = $1, status = 'busted', ended_at = NOW() WHERE id = $2",
         [JSON.stringify(revealed), gameId]
       );
       await client.query('COMMIT');
-      return res.json({
-        result: 'mine',
-        position: pos,
-        grid, // Reveal full grid on bust
-        payout: 0,
-        status: 'busted'
-      });
+      return res.json({ result: 'mine', position: pos, grid, payout: 0, status: 'busted' });
     }
 
-    // GEM — update multiplier
+    // GEM
     const newMult = minesMultiplier(revealed.length, game.mine_count);
     await client.query(
       "UPDATE mines_games SET revealed = $1, current_multiplier = $2 WHERE id = $3",
@@ -544,15 +540,13 @@ router.post('/mines/reveal', betLimiter, async (req, res) => {
     );
 
     const safeRemaining = (25 - game.mine_count) - revealed.length;
-
     await client.query('COMMIT');
+
     res.json({
-      result: 'gem',
-      position: pos,
+      result: 'gem', position: pos,
       multiplier: newMult,
       nextMultiplier: safeRemaining > 0 ? minesMultiplier(revealed.length + 1, game.mine_count) : null,
-      revealed,
-      safeRemaining,
+      revealed, safeRemaining,
       potentialPayout: Math.round(parseFloat(game.bet_amount) * newMult * 10000) / 10000,
       status: 'active'
     });
@@ -567,15 +561,16 @@ router.post('/mines/reveal', betLimiter, async (req, res) => {
 
 // POST /arena/mines/cashout — Cash out current mines game
 router.post('/mines/cashout', betLimiter, async (req, res) => {
+  const { wallet, gameId } = req.body;
+  const w = (wallet || '').toLowerCase().trim();
+  if (!w || !gameId) return res.status(400).json({ error: 'Missing params' });
+
   const client = await pool.connect();
   try {
-    const { wallet, gameId } = req.body;
-    const w = (wallet || '').toLowerCase().trim();
-
     await client.query('BEGIN');
 
     const gameRes = await client.query(
-      "SELECT * FROM mines_games WHERE id = $1 AND wallet = $2 AND status = 'active' FOR UPDATE",
+      "SELECT id, bet_amount, currency, current_multiplier, revealed, grid FROM mines_games WHERE id = $1 AND wallet = $2 AND status = 'active' FOR UPDATE",
       [gameId, w]
     );
     if (gameRes.rows.length === 0) {
@@ -593,29 +588,23 @@ router.post('/mines/cashout', betLimiter, async (req, res) => {
     const payout = Math.round(parseFloat(game.bet_amount) * parseFloat(game.current_multiplier) * 10000) / 10000;
     const balCol = game.currency === 'USDT' ? 'usdt_balance' : 'pp_balance';
 
-    // Credit
-    await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, w]);
-
-    // Update game
-    await client.query(
-      "UPDATE mines_games SET status = 'cashed', payout = $1, ended_at = NOW() WHERE id = $2",
-      [payout, gameId]
-    );
-
-    // Transaction
-    await client.query(
-      `INSERT INTO transactions (type, from_wallet, ${game.currency === 'USDT' ? 'usdt_amount' : 'pp_amount'}, fee, meta)
-       VALUES ('mines_win', $1, $2, 0, $3)`,
-      [w, payout, JSON.stringify({ gameId, multiplier: parseFloat(game.current_multiplier), tilesRevealed: revealed.length })]
-    );
+    // Credit + Update game + Transaction log in parallel
+    await Promise.all([
+      client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, w]),
+      client.query("UPDATE mines_games SET status = 'cashed', payout = $1, ended_at = NOW() WHERE id = $2", [payout, gameId]),
+      client.query(
+        `INSERT INTO transactions (type, from_wallet, ${game.currency === 'USDT' ? 'usdt_amount' : 'pp_amount'}, fee, meta)
+         VALUES ('mines_win', $1, $2, 0, $3)`,
+        [w, payout, JSON.stringify({ gameId, multiplier: parseFloat(game.current_multiplier), tilesRevealed: revealed.length })]
+      )
+    ]);
 
     await client.query('COMMIT');
     res.json({
-      success: true,
-      payout,
+      success: true, payout,
       multiplier: parseFloat(game.current_multiplier),
       currency: game.currency,
-      grid: JSON.parse(game.grid) // Reveal full grid
+      grid: JSON.parse(game.grid)
     });
   } catch (e) {
     await client.query('ROLLBACK');
