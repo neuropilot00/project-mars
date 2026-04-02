@@ -583,7 +583,7 @@ function switchTab(tab) {
   // Stats grid is always visible on dashboard
   document.getElementById('statsGrid').style.display = (tab === 'dashboard') ? '' : 'none';
   // Auto-load claims on tab switch
-  if (tab === 'claims' && !_claimsLoaded) loadClaims();
+  if (tab === 'claims') { try { loadClaims(); } catch(e) { console.error('loadClaims:', e); } }
 }
 
 // ── Language System ──
