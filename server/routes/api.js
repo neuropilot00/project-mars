@@ -1226,9 +1226,9 @@ router.get('/user/:wallet/base', async (req, res) => {
         [wallet]
       ),
       pool.query(`
-        SELECT s.id AS sector_id, s.name AS sector_name, s.tier, COUNT(*) AS pixel_count
+        SELECT s.id AS sector_id, COALESCE(s.name, 'Uncharted') AS sector_name, COALESCE(s.tier, 'frontier') AS tier, COUNT(*) AS pixel_count
         FROM pixels p
-        JOIN sectors s ON s.id = p.sector_id
+        LEFT JOIN sectors s ON s.id = p.sector_id
         WHERE p.owner = $1
         GROUP BY s.id, s.name, s.tier
         ORDER BY pixel_count DESC
