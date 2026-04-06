@@ -3094,7 +3094,12 @@ function activateLandSelect(){
   document.getElementById('landSelectPreview').style.display='none';
   // Cancel stamp mode if active
   if(stampImgUrl) cancelStamp();
-  showToast('CLICK MARS TO SET START POINT, THEN DRAG');
+  // Disable globe rotation/panning so drag selects land, not spins globe
+  if(globe&&globe.controls){
+    globe.controls().enabled=false;
+    globe.controls().autoRotate=false;
+  }
+  showToast('CLICK START POINT → CLICK END POINT');
 }
 
 function cancelLandSelect(){
@@ -3102,11 +3107,15 @@ function cancelLandSelect(){
   document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
   document.getElementById('landSelectBtn').style.color='var(--mars)';
   document.getElementById('landSelectPreview').style.display='none';
+  // Re-enable globe controls
+  if(globe&&globe.controls) globe.controls().enabled=true;
   compositeClaimsOnTexture();
 }
 
 function confirmLandSelect(){
   if(!landDragRect) return;
+  // Re-enable globe controls
+  if(globe&&globe.controls) globe.controls().enabled=true;
   selectedPlot={lat:landDragRect.lat, lng:landDragRect.lng, owner:null, price:0, label:'UNCLAIMED',
     w:landDragRect.w, h:landDragRect.h};
   openClaimModal();
@@ -3202,8 +3211,8 @@ function _attachGlobeClick(){
         document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
         document.getElementById('landSelectBtn').style.color='var(--mars)';
         // Auto open confirm
-        confirmLandSelect();
         landSelectMode=false;
+        confirmLandSelect();
       }
       return;
     }
