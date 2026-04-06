@@ -1329,7 +1329,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <button class="zb back-btn" onclick="goBack()" title="Back to overview" style="background:var(--surface2);border-color:rgba(255,107,53,.5);margin-bottom:6px">↩</button>
   <button class="zb" onclick="zoomIn()">+</button>
   <button class="zb" onclick="zoomOut()">−</button>
-  <button class="zb" id="myLandBtn" onclick="toggleMyLand()" title="My territories" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)">MY<br>LAND</button>
+  <button class="zb" id="sectorToggleBtn" onclick="toggleSectorOverlay()" title="Toggle sectors" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 4px"><span id="sectorToggleLabel">SECTORS</span></button>
+  <button class="zb" id="myLandBtn" onclick="toggleMyLand()" title="My territories" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)">MY<br>LAND</button>
 </div>
 
 <div class="mode-badge" id="modeBadge">🔴 CLICK MARS TO SELECT TERRITORY</div>
@@ -2518,9 +2519,24 @@ function compositeClaimsOnTexture(previewOnly){
     }
 
     // Draw each claim (with longitude wrap-around handling)
-    function _drawOneRect(ctx,img,rx,ry,rw,rh,noImage,ownerLabel,oc){
+    function _drawOneRect(ctx,img,rx,ry,rw,rh,noImage,ownerLabel,oc,imgParams){
       if(img){
-        ctx.drawImage(img,rx,ry,rw,rh);
+        // Masking render: clip to territory rect, apply scale/rotate/offset
+        ctx.save();
+        ctx.beginPath();ctx.rect(rx,ry,rw,rh);ctx.clip();
+        var ip=imgParams||{};
+        var s=(ip.scale||100)/100;
+        var rot=(ip.rotate||0)*Math.PI/180;
+        var ox=ip.ox||0, oy=ip.oy||0;
+        // Center of territory + offset
+        var cx=rx+rw/2+ox, cy=ry+rh/2+oy;
+        ctx.translate(cx,cy);
+        ctx.rotate(rot);
+        // Cover: scale image to fill territory, then apply user scale
+        var coverScale=Math.max(rw/img.width, rh/img.height)*s;
+        var dw=img.width*coverScale, dh=img.height*coverScale;
+        ctx.drawImage(img,-dw/2,-dh/2,dw,dh);
+        ctx.restore();
         // Tinted border per owner
         var bc=oc||{r:255,g:209,b:102};
         ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.5)';ctx.lineWidth=1;
@@ -2554,10 +2570,10 @@ function compositeClaimsOnTexture(previewOnly){
         ctx.fillText('LOADING',rx+rw/2,ry+rh/2);
       }
     }
-    function _drawClaimRect(ctx,img,r,w,noImage,ownerLabel,oc){
-      _drawOneRect(ctx,img,r.x,r.y,r.w,r.h,noImage,ownerLabel,oc);
-      if(r.x<0) _drawOneRect(ctx,img,r.x+w,r.y,r.w,r.h,noImage,ownerLabel,oc);
-      else if(r.x+r.w>w) _drawOneRect(ctx,img,r.x-w,r.y,r.w,r.h,noImage,ownerLabel,oc);
+    function _drawClaimRect(ctx,img,r,w,noImage,ownerLabel,oc,imgParams){
+      _drawOneRect(ctx,img,r.x,r.y,r.w,r.h,noImage,ownerLabel,oc,imgParams);
+      if(r.x<0) _drawOneRect(ctx,img,r.x+w,r.y,r.w,r.h,noImage,ownerLabel,oc,imgParams);
+      else if(r.x+r.w>w) _drawOneRect(ctx,img,r.x-w,r.y,r.w,r.h,noImage,ownerLabel,oc,imgParams);
     }
     var myAddr=walletState.address||'';
     claims.forEach(function(c){
@@ -2570,8 +2586,9 @@ function compositeClaimsOnTexture(previewOnly){
       var oc=_ownerColor(c.owner);
       var displayLabel=c.nickname||c.label||shortAddr(c.owner);
       // In My Land mode, dim other players' claims
+      var imgParams=hasUrl?{scale:c.imgScale||100,rotate:c.imgRotate||0,ox:c.imgOffsetX||0,oy:c.imgOffsetY||0}:null;
       if(_myLandMode&&!isMine) ctx.globalAlpha=0.15;
-      _drawClaimRect(ctx,img,r,w,noImage,displayLabel,oc);
+      _drawClaimRect(ctx,img,r,w,noImage,displayLabel,oc,imgParams);
       if(_myLandMode&&!isMine) ctx.globalAlpha=1;
       // Highlight my claims with bright border
       if(_myLandMode&&isMine){
@@ -2902,7 +2919,7 @@ function toggleMyLand(){
     var mine=claims.filter(function(c){return c.owner===myAddr});
     if(mine.length>0){
       var first=mine[0];
-      globe.pointOfView({lat:first.lat,lng:first.lng,altitude:0.2},800);
+      globe.pointOfView({lat:first.lat,lng:first.lng,altitude:0.5},800);
     }
   }else{
     document.getElementById('myTerritoriesSection').style.display='none';
@@ -2933,7 +2950,7 @@ function _updateMyTerritories(){
     right.textContent=c.price+' PP';
     d.appendChild(left);d.appendChild(right);
     d.onclick=function(){
-      globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.06,Math.max(pw,ph)*0.001)},600);
+      globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.15,Math.max(pw,ph)*0.003)},600);
       selectedPlot=c;showTerritoryInfo(c);
     };
     listEl.appendChild(d);

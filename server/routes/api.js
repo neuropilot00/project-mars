@@ -395,6 +395,7 @@ router.get('/claims', async (req, res) => {
       result = await pool.query(
         `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
+                c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 u.nickname
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
          WHERE c.deleted_at IS NULL AND c.created_at > $1
@@ -405,6 +406,7 @@ router.get('/claims', async (req, res) => {
       result = await pool.query(
         `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
+                c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 u.nickname
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
          WHERE c.deleted_at IS NULL
@@ -420,6 +422,10 @@ router.get('/claims', async (req, res) => {
       price: parseFloat(r.total_paid),
       nickname: r.nickname || null,
       label: r.nickname || (r.owner.slice(0, 6) + '...' + r.owner.slice(-4)),
+      imgScale: r.img_scale ? parseFloat(r.img_scale) : 100,
+      imgRotate: r.img_rotate ? parseFloat(r.img_rotate) : 0,
+      imgOffsetX: r.img_offset_x || 0,
+      imgOffsetY: r.img_offset_y || 0,
       ts: new Date(r.created_at).getTime()
     })));
   } catch (e) {
