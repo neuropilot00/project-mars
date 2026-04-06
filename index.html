@@ -746,6 +746,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .claim-note{padding:8px 16px 14px;font-size:5.5px;font-family:var(--fn);
   color:rgba(255,255,255,.3);text-align:center;line-height:1.6}
 .claim-title.wrn{color:var(--red)}
+.editor-ctrl-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--bdr2);
+  background:rgba(255,255,255,.06);color:var(--tx2);cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--fn)}
+.editor-ctrl-btn:hover{background:rgba(255,160,60,.15);border-color:var(--gold);color:var(--gold)}
+.editor-ctrl-btn:active{transform:scale(.92)}
 .pay-method-btn{padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.15);
   background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);cursor:pointer;
   font-family:var(--fn);font-size:7px;letter-spacing:1px;transition:all .2s}
@@ -1250,6 +1255,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <img id="infoImgPreview" src="" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer" onclick="expandInfoImg()">
       <div id="infoImgGifBadge" style="display:none;font-size:8px;color:var(--mars);margin-top:3px">GIF</div>
     </div>
+    <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)">EDIT IMAGE</button>
   </div>
 
   <!-- MY ALERTS -->
@@ -1409,6 +1415,61 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <input type="text" id="linkUrlInput" style="display:none">
     <div id="uploadPreviewWrap" style="display:none"><img id="uploadThumb"></div>
     <div id="uploadStatus" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Image Editor Modal -->
+<div class="mbg" id="imgEditorModal">
+  <div class="mdl" style="width:520px;max-height:90vh;overflow-y:auto">
+    <div class="mhd">
+      <span class="mtl">IMAGE EDITOR</span>
+      <button class="mx" onclick="closeImageEditor()">×</button>
+    </div>
+    <div class="mbd" style="padding:12px">
+      <!-- Upload area -->
+      <div id="editorUploadArea" style="border:2px dashed var(--bdr2);border-radius:8px;padding:24px;text-align:center;cursor:pointer;margin-bottom:12px" onclick="document.getElementById('editorFileInput').click()">
+        <div style="font-size:24px;margin-bottom:6px">📁</div>
+        <div style="font-size:10px;color:var(--tx2)">Click to upload image</div>
+        <div style="font-size:8px;color:var(--tx3);margin-top:4px">PNG, JPG, GIF · Max 5MB</div>
+      </div>
+      <input type="file" id="editorFileInput" accept="image/*" style="display:none">
+
+      <!-- Canvas editor area (hidden until image loaded) -->
+      <div id="editorCanvasWrap" style="display:none">
+        <div style="position:relative;margin:0 auto;border-radius:8px;overflow:hidden;border:1px solid var(--bdr2);background:#111" id="editorViewport">
+          <canvas id="editorCanvas" style="display:block;width:100%;cursor:grab"></canvas>
+        </div>
+        <div style="font-size:7px;color:var(--tx3);text-align:center;margin:6px 0">Drag to move · Scroll to zoom · Use controls to rotate</div>
+
+        <!-- Controls -->
+        <div style="display:flex;gap:8px;align-items:center;justify-content:center;margin:10px 0">
+          <button class="editor-ctrl-btn" onclick="editorZoom(-10)" title="Zoom out">−</button>
+          <span style="font-size:9px;color:var(--tx2);min-width:40px;text-align:center" id="editorScaleLabel">100%</span>
+          <button class="editor-ctrl-btn" onclick="editorZoom(10)" title="Zoom in">+</button>
+          <span style="width:1px;height:16px;background:var(--bdr2);margin:0 4px"></span>
+          <button class="editor-ctrl-btn" onclick="editorRotate(-15)" title="Rotate left">↺</button>
+          <span style="font-size:9px;color:var(--tx2);min-width:30px;text-align:center" id="editorRotLabel">0°</span>
+          <button class="editor-ctrl-btn" onclick="editorRotate(15)" title="Rotate right">↻</button>
+          <span style="width:1px;height:16px;background:var(--bdr2);margin:0 4px"></span>
+          <button class="editor-ctrl-btn" onclick="editorReset()" title="Reset">⟲</button>
+        </div>
+
+        <!-- Territory info -->
+        <div style="display:flex;gap:12px;justify-content:center;font-size:8px;color:var(--tx3);margin-bottom:10px">
+          <span>Territory: <span id="editorTerritorySize" style="color:var(--tx2)">--</span></span>
+          <span>Claim ID: <span id="editorClaimId" style="color:var(--tx2)">--</span></span>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display:flex;gap:8px">
+          <button class="uf" style="flex:1;font-size:10px" onclick="document.getElementById('editorFileInput').click()">CHANGE IMAGE</button>
+          <button class="uf" style="flex:1;font-size:10px;background:var(--mars);color:#fff;border-color:var(--mars)" onclick="saveEditorImage()">SAVE IMAGE</button>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div id="editorStatus" style="display:none;text-align:center;font-size:9px;margin-top:8px;padding:6px;border-radius:4px"></div>
+    </div>
   </div>
 </div>
 
@@ -3572,6 +3633,15 @@ function showTerritoryInfo(plot){
   }else{
     imgWrap.style.display='none';
   }
+  // Show EDIT IMAGE button only for own territories
+  var editBtn=document.getElementById('infoEditImgBtn');
+  var myW=walletState.address||'';
+  if(myW&&plot.owner===myW){
+    editBtn.style.display='';
+    editBtn.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
+  }else{
+    editBtn.style.display='none';
+  }
 }
 // Expand image in full-screen overlay
 function expandInfoImg(){
@@ -3585,6 +3655,306 @@ function expandInfoImg(){
   img.style.cssText='max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 0 40px rgba(0,0,0,.6)';
   ov.appendChild(img);
   document.body.appendChild(ov);
+}
+
+/* ── Image Editor ──────────────────────────────────── */
+var _editor={claim:null,img:null,scale:100,rotate:0,ox:0,oy:0,dragging:false,lastX:0,lastY:0,
+  maskW:0,maskH:0,canvasW:480,canvasH:360};
+
+function openImageEditor(plot){
+  if(!plot||!plot.id){showToast('Select a territory first','red');return}
+  if(!walletState.connected||plot.owner!==walletState.address){showToast('Not your territory','red');return}
+  _editor.claim=plot;
+  _editor.scale=100;_editor.rotate=0;_editor.ox=0;_editor.oy=0;_editor.img=null;
+  // Territory dimensions
+  var tw=plot.w||plot.size||20, th=plot.h||plot.size||20;
+  _editor.maskW=tw;_editor.maskH=th;
+  document.getElementById('editorTerritorySize').textContent=tw+'×'+th+' px';
+  document.getElementById('editorClaimId').textContent='#'+plot.id;
+  document.getElementById('editorScaleLabel').textContent='100%';
+  document.getElementById('editorRotLabel').textContent='0°';
+  // Show modal
+  document.getElementById('imgEditorModal').classList.add('open');
+  // If claim already has image, load it
+  if(plot.imgUrl){
+    document.getElementById('editorUploadArea').style.display='none';
+    document.getElementById('editorCanvasWrap').style.display='';
+    var img=new Image();img.crossOrigin='anonymous';
+    img.onload=function(){_editor.img=img;_editorDraw()};
+    img.src=plot.originalImgUrl||plot.imgUrl;
+  }else{
+    document.getElementById('editorUploadArea').style.display='';
+    document.getElementById('editorCanvasWrap').style.display='none';
+  }
+  document.getElementById('editorStatus').style.display='none';
+  // Setup canvas size
+  _editorResizeCanvas();
+}
+function closeImageEditor(){
+  document.getElementById('imgEditorModal').classList.remove('open');
+  _editor.claim=null;_editor.img=null;
+}
+
+function _editorResizeCanvas(){
+  var canvas=document.getElementById('editorCanvas');
+  var viewport=document.getElementById('editorViewport');
+  // Fit canvas to modal width while maintaining aspect ratio of territory
+  var maxW=viewport.parentElement.clientWidth||480;
+  var aspect=_editor.maskH/_editor.maskW;
+  // Canvas display: scale territory to fill nicely (with padding for drag room)
+  var padFactor=2.5; // show 2.5x territory size for drag room
+  var cw=Math.min(maxW,480);
+  var ch=Math.round(cw*Math.min(aspect,1.2));
+  ch=Math.max(ch,240);
+  canvas.width=cw*2;canvas.height=ch*2; // 2x for retina
+  canvas.style.width=cw+'px';canvas.style.height=ch+'px';
+  _editor.canvasW=cw*2;_editor.canvasH=ch*2;
+}
+
+function _editorDraw(){
+  var c=document.getElementById('editorCanvas');
+  var ctx=c.getContext('2d');
+  var W=_editor.canvasW,H=_editor.canvasH;
+  ctx.clearRect(0,0,W,H);
+
+  // Territory mask dimensions in canvas space
+  // Scale territory to fit nicely in canvas (60% of canvas width)
+  var fitScale=Math.min(W*0.6/_editor.maskW, H*0.6/_editor.maskH);
+  var mw=_editor.maskW*fitScale, mh=_editor.maskH*fitScale;
+  var mx=(W-mw)/2, my=(H-mh)/2;
+
+  // Draw darkened background
+  ctx.fillStyle='rgba(10,10,18,1)';
+  ctx.fillRect(0,0,W,H);
+
+  // Draw image (if loaded) clipped to mask
+  if(_editor.img){
+    ctx.save();
+    // Clip to territory rectangle
+    ctx.beginPath();
+    ctx.rect(mx,my,mw,mh);
+    ctx.clip();
+
+    // Image transform: center of mask + user offset
+    var cx=mx+mw/2+_editor.ox*fitScale;
+    var cy=my+mh/2+_editor.oy*fitScale;
+    ctx.translate(cx,cy);
+    ctx.rotate(_editor.rotate*Math.PI/180);
+    var s=_editor.scale/100;
+    // Scale image to cover mask by default
+    var imgCoverScale=Math.max(mw/_editor.img.width, mh/_editor.img.height);
+    var finalScale=imgCoverScale*s;
+    var dw=_editor.img.width*finalScale;
+    var dh=_editor.img.height*finalScale;
+    ctx.drawImage(_editor.img,-dw/2,-dh/2,dw,dh);
+    ctx.restore();
+  }
+
+  // Draw mask overlay (darken outside territory)
+  ctx.fillStyle='rgba(10,10,18,0.75)';
+  ctx.beginPath();
+  ctx.rect(0,0,W,H);
+  // Cut out the territory rectangle
+  ctx.moveTo(mx,my);ctx.lineTo(mx,my+mh);ctx.lineTo(mx+mw,my+mh);ctx.lineTo(mx+mw,my);ctx.closePath();
+  ctx.fill('evenodd');
+
+  // Territory border (dashed orange)
+  ctx.strokeStyle='rgba(255,120,60,0.6)';ctx.lineWidth=2;
+  ctx.setLineDash([6,4]);
+  ctx.strokeRect(mx,my,mw,mh);
+  ctx.setLineDash([]);
+
+  // Corner markers
+  var cm=8;
+  ctx.strokeStyle='rgba(255,160,60,0.9)';ctx.lineWidth=2.5;ctx.setLineDash([]);
+  [[mx,my,1,1],[mx+mw,my,-1,1],[mx,my+mh,1,-1],[mx+mw,my+mh,-1,-1]].forEach(function(p){
+    ctx.beginPath();ctx.moveTo(p[0],p[1]+p[3]*cm);ctx.lineTo(p[0],p[1]);ctx.lineTo(p[0]+p[2]*cm,p[1]);ctx.stroke();
+  });
+
+  // If no image, show upload prompt
+  if(!_editor.img){
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='bold 14px sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('Upload an image',W/2,H/2);
+  }
+}
+
+// Editor controls
+function editorZoom(delta){
+  _editor.scale=Math.max(20,Math.min(500,_editor.scale+delta));
+  document.getElementById('editorScaleLabel').textContent=_editor.scale+'%';
+  _editorDraw();
+}
+function editorRotate(delta){
+  _editor.rotate=((_editor.rotate+delta)%360+360)%360;
+  if(_editor.rotate>180) _editor.rotate-=360;
+  document.getElementById('editorRotLabel').textContent=_editor.rotate+'°';
+  _editorDraw();
+}
+function editorReset(){
+  _editor.scale=100;_editor.rotate=0;_editor.ox=0;_editor.oy=0;
+  document.getElementById('editorScaleLabel').textContent='100%';
+  document.getElementById('editorRotLabel').textContent='0°';
+  _editorDraw();
+}
+
+// Drag to move image
+(function(){
+  var canvas;
+  function getCanvas(){
+    if(!canvas) canvas=document.getElementById('editorCanvas');
+    return canvas;
+  }
+  function onDown(e){
+    if(!_editor.img) return;
+    e.preventDefault();
+    _editor.dragging=true;
+    var p=e.touches?e.touches[0]:e;
+    _editor.lastX=p.clientX;_editor.lastY=p.clientY;
+    getCanvas().style.cursor='grabbing';
+  }
+  function onMove(e){
+    if(!_editor.dragging) return;
+    e.preventDefault();
+    var p=e.touches?e.touches[0]:e;
+    var fitScale=Math.min(_editor.canvasW*0.6/_editor.maskW, _editor.canvasH*0.6/_editor.maskH);
+    // Convert screen pixels to editor units (accounting for canvas display scaling)
+    var rect=getCanvas().getBoundingClientRect();
+    var pixelRatio=_editor.canvasW/(rect.width);
+    var dx=(p.clientX-_editor.lastX)*pixelRatio/fitScale;
+    var dy=(p.clientY-_editor.lastY)*pixelRatio/fitScale;
+    _editor.ox+=dx;_editor.oy+=dy;
+    _editor.lastX=p.clientX;_editor.lastY=p.clientY;
+    _editorDraw();
+  }
+  function onUp(){
+    _editor.dragging=false;
+    if(getCanvas()) getCanvas().style.cursor='grab';
+  }
+  function onWheel(e){
+    if(!_editor.img) return;
+    var modal=document.getElementById('imgEditorModal');
+    if(!modal.classList.contains('open')) return;
+    e.preventDefault();
+    var delta=e.deltaY>0?-5:5;
+    editorZoom(delta);
+  }
+  // Attach once after DOM ready
+  var _edBound=false;
+  function _edBind(){
+    if(_edBound) return;
+    var c=getCanvas();
+    if(!c) return;
+    _edBound=true;
+    c.addEventListener('mousedown',onDown);
+    c.addEventListener('touchstart',onDown,{passive:false});
+    window.addEventListener('mousemove',onMove);
+    window.addEventListener('touchmove',onMove,{passive:false});
+    window.addEventListener('mouseup',onUp);
+    window.addEventListener('touchend',onUp);
+    c.addEventListener('wheel',onWheel,{passive:false});
+  }
+  document.addEventListener('DOMContentLoaded',_edBind);
+  setTimeout(_edBind,200);
+})();
+
+// File upload for editor
+document.addEventListener('DOMContentLoaded',function(){
+  var fi=document.getElementById('editorFileInput');
+  if(fi) fi.addEventListener('change',function(e){
+    var file=e.target.files[0];
+    if(!file) return;
+    if(file.size>5*1024*1024){showToast('Image too large (max 5MB)','red');return}
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      var img=new Image();
+      img.onload=function(){
+        _editor.img=img;
+        _editor.scale=100;_editor.ox=0;_editor.oy=0;_editor.rotate=0;
+        document.getElementById('editorScaleLabel').textContent='100%';
+        document.getElementById('editorRotLabel').textContent='0°';
+        document.getElementById('editorUploadArea').style.display='none';
+        document.getElementById('editorCanvasWrap').style.display='';
+        _editorResizeCanvas();
+        _editorDraw();
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    fi.value='';
+  });
+});
+
+// Save: render final image at territory pixel size, upload
+async function saveEditorImage(){
+  if(!_editor.img||!_editor.claim){showToast('No image to save','red');return}
+  var status=document.getElementById('editorStatus');
+  status.style.display='';status.style.background='rgba(255,160,60,.12)';status.style.color='var(--gold)';
+  status.textContent='Rendering & uploading...';
+
+  // Render at actual territory pixel dimensions
+  var tw=_editor.maskW, th=_editor.maskH;
+  var oc=document.createElement('canvas');oc.width=tw;oc.height=th;
+  var octx=oc.getContext('2d');
+
+  // Apply transforms at territory scale
+  var cx=tw/2+_editor.ox;
+  var cy=th/2+_editor.oy;
+  octx.translate(cx,cy);
+  octx.rotate(_editor.rotate*Math.PI/180);
+  var coverScale=Math.max(tw/_editor.img.width, th/_editor.img.height);
+  var s=coverScale*(_editor.scale/100);
+  var dw=_editor.img.width*s;
+  var dh=_editor.img.height*s;
+  octx.drawImage(_editor.img,-dw/2,-dh/2,dw,dh);
+
+  // Get data URL
+  var dataUrl=oc.toDataURL('image/png');
+
+  try{
+    // Upload image first
+    var upRes=await fetch('/api/upload',{
+      method:'POST',headers:{'Content-Type':'application/json',
+        'Authorization':'Bearer '+(localStorage.getItem('jwt')||'')},
+      body:JSON.stringify({dataUrl:dataUrl})
+    });
+    var upData=await upRes.json();
+    if(!upRes.ok) throw new Error(upData.error||'Upload failed');
+
+    // Update claim with image URL and editor params
+    var putRes=await fetch('/api/claim/'+_editor.claim.id+'/image',{
+      method:'PUT',headers:{'Content-Type':'application/json',
+        'Authorization':'Bearer '+(localStorage.getItem('jwt')||'')},
+      body:JSON.stringify({
+        wallet:walletState.address,
+        imageUrl:upData.url,
+        originalImageUrl:upData.url,
+        imgScale:_editor.scale,
+        imgRotate:_editor.rotate,
+        imgOffsetX:Math.round(_editor.ox),
+        imgOffsetY:Math.round(_editor.oy)
+      })
+    });
+    var putData=await putRes.json();
+    if(!putRes.ok) throw new Error(putData.error||'Save failed');
+
+    status.style.background='rgba(76,216,154,.12)';status.style.color='var(--grn)';
+    status.textContent='Image saved successfully!';
+
+    // Update local claim data
+    var c=_editor.claim;
+    c.imgUrl=upData.url;c.originalImgUrl=upData.url;
+    // Reload texture
+    cacheImage(upData.url,function(){
+      claimsSnapshot=null;compositeClaimsOnTexture();
+    });
+    // Update territory info panel
+    showTerritoryInfo(c);
+    setTimeout(function(){closeImageEditor()},1200);
+  }catch(err){
+    status.style.background='rgba(232,72,85,.12)';status.style.color='var(--red)';
+    status.textContent='Error: '+err.message;
+  }
 }
 
 /* ── Mobile Territory Info ───────────────────────── */
