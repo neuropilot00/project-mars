@@ -2485,6 +2485,8 @@ function compositeClaimsOnTexture(previewOnly){
   if(!globe||!marsCanvas) return;
   try{ globe.globeMaterial(); }catch(e){ return; } // globe not ready yet
   var ctx=marsCanvas.getContext('2d');
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
   var w=marsCanvas.width,h=marsCanvas.height;
 
   // Choose base image based on current texture mode
@@ -2940,7 +2942,7 @@ function toggleMyLand(){
   if(mine.length>0&&_myLandIdx<mine.length){
     var t=mine[_myLandIdx];
     var pw=t.w||t.size||20, ph=t.h||t.size||20;
-    globe.pointOfView({lat:t.lat,lng:t.lng,altitude:Math.max(0.15,Math.max(pw,ph)*0.003)},600);
+    globe.pointOfView({lat:t.lat,lng:t.lng,altitude:Math.max(0.4,Math.max(pw,ph)*0.006)},600);
     selectedPlot=t;
     showTerritoryInfo(t);
     showToast('MY LAND '+(_myLandIdx+1)+'/'+mine.length+(t.nickname?' — '+t.nickname:''));
@@ -2984,7 +2986,7 @@ function _updateMyTerritories(){
     right.textContent=c.price+' PP';
     d.appendChild(left);d.appendChild(right);
     d.onclick=function(){
-      globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.15,Math.max(pw,ph)*0.003)},600);
+      globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.4,Math.max(pw,ph)*0.006)},600);
       selectedPlot=c;showTerritoryInfo(c);
     };
     listEl.appendChild(d);
