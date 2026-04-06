@@ -1090,6 +1090,126 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 @keyframes minesCashPulse{0%,100%{box-shadow:0 0 8px rgba(76,216,154,.1)}
   50%{box-shadow:0 0 20px rgba(76,216,154,.25)}}
 
+/* Coinflip game */
+.cf-wrap{display:flex;height:100%;align-items:stretch;overflow:hidden}
+.cf-main{flex:1;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.15);position:relative;min-height:0}
+.cf-arena{display:flex;flex-direction:column;align-items:center;gap:24px}
+.cf-coin{width:140px;height:140px;border-radius:50%;position:relative;perspective:600px;cursor:default}
+.cf-coin-face{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--fn);font-size:var(--fs-sm);font-weight:700;letter-spacing:2px;backface-visibility:hidden;transition:transform .6s}
+.cf-survive{background:linear-gradient(135deg,rgba(76,216,154,.25),rgba(76,216,154,.08));
+  border:2px solid rgba(76,216,154,.4);color:var(--gn)}
+.cf-perish{background:linear-gradient(135deg,rgba(232,72,85,.25),rgba(232,72,85,.08));
+  border:2px solid rgba(232,72,85,.4);color:var(--red);transform:rotateY(180deg)}
+.cf-coin.flip-survive .cf-survive{transform:rotateY(0deg)}.cf-coin.flip-survive .cf-perish{transform:rotateY(180deg)}
+.cf-coin.flip-perish .cf-survive{transform:rotateY(-180deg)}.cf-coin.flip-perish .cf-perish{transform:rotateY(0deg)}
+.cf-coin.spinning .cf-survive,.cf-coin.spinning .cf-perish{transition:none}
+@keyframes coinSpin{0%{transform:rotateY(0)}100%{transform:rotateY(1800deg)}}
+.cf-coin.spinning{animation:coinSpin .8s linear}
+.cf-result{font-size:var(--fs-lg);font-family:var(--fn);font-weight:700;letter-spacing:2px;min-height:28px}
+.cf-history{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;background:rgba(0,0,0,.15);border-bottom:1px solid var(--bdr)}
+.cf-history::-webkit-scrollbar{height:3px}
+.cf-history::-webkit-scrollbar-thumb{background:rgba(255,120,60,.2);border-radius:2px}
+.cf-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.cf-dot.survive{background:var(--gn)}.cf-dot.perish{background:var(--red)}
+.cf-sidebar{width:280px;background:var(--surface1);border-left:1px solid var(--bdr);
+  padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.cf-sidebar::-webkit-scrollbar{width:3px}
+.cf-sidebar::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
+.cf-sb-title{font-size:var(--fs-sm);color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;
+  padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+.cf-choice-row{display:flex;gap:8px}
+.cf-choice-btn{flex:1;padding:12px 8px;font-size:var(--fs-sm);font-family:var(--fn);border-radius:8px;
+  cursor:pointer;transition:all .2s;border:1px solid;letter-spacing:1px;font-weight:700;background:transparent}
+.cf-choice-btn.survive{border-color:rgba(76,216,154,.3);color:var(--tx3)}
+.cf-choice-btn.survive.active{background:rgba(76,216,154,.15);border-color:rgba(76,216,154,.5);color:var(--gn)}
+.cf-choice-btn.perish{border-color:rgba(232,72,85,.3);color:var(--tx3)}
+.cf-choice-btn.perish.active{background:rgba(232,72,85,.15);border-color:rgba(232,72,85,.5);color:var(--red)}
+
+/* Dice game */
+.dice-wrap{display:flex;height:100%;align-items:stretch;overflow:hidden}
+.dice-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.15);position:relative;min-height:0;padding:20px;gap:20px}
+.dice-display{text-align:center}
+.dice-roll-result{font-family:'Orbitron',monospace;font-size:64px;font-weight:900;color:var(--tx3);
+  letter-spacing:4px;transition:all .3s}
+.dice-roll-result.win{color:var(--gn)}.dice-roll-result.lose{color:var(--red)}
+.dice-roll-label{font-size:var(--fs-sm);color:var(--tx3);letter-spacing:2px;margin-top:4px}
+.dice-slider-area{width:100%;max-width:500px}
+.dice-slider-bar{position:relative;height:8px;border-radius:4px;background:rgba(232,72,85,.2);overflow:visible}
+.dice-slider-fill{position:absolute;left:0;top:0;height:100%;border-radius:4px;background:rgba(76,216,154,.3);
+  pointer-events:none;transition:width .1s}
+.dice-slider{position:absolute;top:-10px;left:0;width:100%;height:28px;margin:0;
+  -webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;z-index:2}
+.dice-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+  background:var(--mars);border:2px solid rgba(255,255,255,.3);box-shadow:0 0 12px rgba(255,120,60,.4);cursor:grab}
+.dice-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;
+  background:var(--mars);border:2px solid rgba(255,255,255,.3);box-shadow:0 0 12px rgba(255,120,60,.4);cursor:grab}
+.dice-slider-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:var(--fs-xs);color:var(--tx3)}
+.dice-direction-row{display:flex;gap:8px}
+.dice-dir-btn{padding:10px 24px;font-size:var(--fs-sm);font-family:var(--fn);border-radius:8px;
+  cursor:pointer;transition:all .2s;border:1px solid var(--bdr);color:var(--tx3);background:transparent;
+  letter-spacing:1px;font-weight:700}
+.dice-dir-btn.active{background:rgba(255,120,60,.12);border-color:var(--mars);color:var(--mars)}
+.dice-dir-btn:hover:not(.active){background:rgba(255,120,60,.05);color:var(--tx2)}
+.dice-stats{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.dice-stat{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px;
+  padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid var(--bdr);border-radius:8px}
+.dice-stat-label{font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px}
+.dice-stat-val{font-size:var(--fs-md);color:var(--mars);font-family:var(--fn)}
+.dice-stat-val.gold{color:var(--gold)}.dice-stat-val.gn{color:var(--gn)}
+.dice-sidebar{width:280px;background:var(--surface1);border-left:1px solid var(--bdr);
+  padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.dice-sidebar::-webkit-scrollbar{width:3px}
+.dice-sidebar::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
+.dice-sb-title{font-size:var(--fs-sm);color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;
+  padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+@keyframes diceRoll{0%{transform:scale(1);opacity:1}25%{transform:scale(1.3);opacity:.5}
+  50%{transform:scale(0.8);opacity:.3}75%{transform:scale(1.2);opacity:.7}100%{transform:scale(1);opacity:1}}
+.dice-rolling{animation:diceRoll .5s ease}
+
+/* HiLo game */
+.hilo-wrap{display:flex;height:100%;align-items:stretch;overflow:hidden}
+.hilo-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.15);position:relative;min-height:0;padding:20px;gap:16px}
+.hilo-cards-area{display:flex;gap:8px;overflow-x:auto;padding:8px;max-width:100%;justify-content:center;flex-wrap:wrap}
+.hilo-cards-area::-webkit-scrollbar{height:3px}
+.hilo-cards-area::-webkit-scrollbar-thumb{background:rgba(255,120,60,.2);border-radius:2px}
+.hilo-card-sm{width:48px;height:68px;border-radius:6px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;font-family:var(--fn);
+  background:rgba(30,28,50,.9);border:1px solid var(--bdr);font-size:var(--fs-sm)}
+.hilo-card-sm .hc-val{font-weight:700;color:var(--tx)}.hilo-card-sm .hc-suit{font-size:10px;color:var(--tx3)}
+.hilo-current{display:flex;flex-direction:column;align-items:center;gap:12px}
+.hilo-card-big{width:120px;height:170px;border-radius:12px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;font-family:var(--fn);
+  background:linear-gradient(135deg,rgba(30,28,50,.95),rgba(20,18,40,.95));
+  border:2px solid rgba(255,120,60,.3);box-shadow:0 4px 24px rgba(0,0,0,.4);transition:all .3s}
+.hilo-card-big .hilo-card-val{font-size:36px;font-weight:900;color:var(--tx)}
+.hilo-card-big .hilo-card-suit{font-size:var(--fs-md);color:var(--tx3)}
+.hilo-mult-display{display:flex;flex-direction:column;align-items:center;gap:2px}
+.hilo-mult-val{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;color:var(--gold)}
+.hilo-actions{display:flex;gap:12px;align-items:center}
+.hilo-action-btn{padding:14px 28px;font-size:var(--fs-md);font-family:var(--fn);border-radius:8px;
+  cursor:pointer;transition:all .2s;border:1px solid;letter-spacing:1px;font-weight:700}
+.hilo-action-btn.higher{background:linear-gradient(135deg,rgba(76,216,154,.15),rgba(76,216,154,.05));
+  border-color:rgba(76,216,154,.3);color:var(--gn)}
+.hilo-action-btn.higher:hover:not(:disabled){background:rgba(76,216,154,.25);box-shadow:0 0 16px rgba(76,216,154,.15)}
+.hilo-action-btn.lower{background:linear-gradient(135deg,rgba(232,72,85,.15),rgba(232,72,85,.05));
+  border-color:rgba(232,72,85,.3);color:var(--red)}
+.hilo-action-btn.lower:hover:not(:disabled){background:rgba(232,72,85,.25);box-shadow:0 0 16px rgba(232,72,85,.15)}
+.hilo-action-btn.cashout{background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(255,209,102,.05));
+  border-color:rgba(255,209,102,.4);color:var(--gold)}
+.hilo-action-btn.cashout:hover:not(:disabled){background:rgba(255,209,102,.3)}
+.hilo-action-btn:disabled{opacity:.4;cursor:not-allowed}
+.hilo-sidebar{width:280px;background:var(--surface1);border-left:1px solid var(--bdr);
+  padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.hilo-sidebar::-webkit-scrollbar{width:3px}
+.hilo-sidebar::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
+.hilo-sb-title{font-size:var(--fs-sm);color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;
+  padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+@keyframes hiloCardReveal{from{transform:scale(0.5) rotateY(90deg);opacity:0}to{transform:scale(1) rotateY(0);opacity:1}}
+.hilo-card-big.reveal{animation:hiloCardReveal .4s ease}
+
 /* Arena toast (scoped inside overlay) */
 .arena-overlay .arena-toast{position:absolute;top:12px;left:50%;transform:translateX(-50%);padding:8px 20px;
   background:rgba(18,18,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.25);
@@ -1128,8 +1248,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .crash-guide-steps{gap:4px}
   .crash-guide{display:none}
   .crash-history{padding:4px 8px;flex-shrink:0}
-  .game-tab{padding:8px 6px;font-size:7px}
+  .game-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .game-tab{padding:8px 6px;font-size:7px;white-space:nowrap;flex:0 0 auto;min-width:56px}
   .btn-bet{padding:12px;font-size:var(--fs-sm)}
+  .cf-wrap{flex-direction:column;flex:1;overflow-y:auto}
+  .cf-main{min-height:auto;flex-shrink:0;padding:20px 0}
+  .cf-sidebar{width:100%;max-height:none;overflow-y:visible;padding:10px !important;gap:8px !important}
+  .cf-coin{width:100px;height:100px}
+  .cf-coin-face{font-size:9px}
+  .dice-wrap{flex-direction:column;flex:1;overflow-y:auto}
+  .dice-main{min-height:auto;flex-shrink:0;padding:12px;gap:12px}
+  .dice-sidebar{width:100%;max-height:none;overflow-y:visible;padding:10px !important;gap:8px !important}
+  .dice-roll-result{font-size:40px}
+  .dice-stats{gap:8px}
+  .dice-stat{min-width:60px;padding:6px 8px}
+  .hilo-wrap{flex-direction:column;flex:1;overflow-y:auto}
+  .hilo-main{min-height:auto;flex-shrink:0;padding:12px;gap:12px}
+  .hilo-sidebar{width:100%;max-height:none;overflow-y:visible;padding:10px !important;gap:8px !important}
+  .hilo-card-big{width:90px;height:130px}
+  .hilo-card-big .hilo-card-val{font-size:28px}
+  .hilo-action-btn{padding:10px 16px;font-size:var(--fs-sm)}
+  .hilo-mult-val{font-size:22px}
 }
 </style>
 </head>
@@ -2088,6 +2227,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="game-tabs">
           <div class="game-tab active" data-game="crash" onclick="switchGame('crash')">CRASH</div>
           <div class="game-tab" data-game="mines" onclick="switchGame('mines')">MINES</div>
+          <div class="game-tab" data-game="coinflip" onclick="switchGame('coinflip')">COINFLIP</div>
+          <div class="game-tab" data-game="dice" onclick="switchGame('dice')">DICE</div>
+          <div class="game-tab" data-game="hilo" onclick="switchGame('hilo')">HI-LO</div>
         </div>
         <div class="game-area">
 
@@ -2220,6 +2362,182 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 </div>
                 <div class="divider"></div>
                 <button class="btn-mines start" id="minesActionBtn" onclick="minesAction()">
+                  START GAME
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- COINFLIP PANEL -->
+          <div class="game-panel" id="panelCoinflip">
+            <div class="cf-history" id="cfHistory"></div>
+            <div class="cf-wrap">
+              <div class="cf-main">
+                <div class="cf-arena">
+                  <div class="cf-coin" id="cfCoin">
+                    <div class="cf-coin-face cf-survive">SURVIVE</div>
+                    <div class="cf-coin-face cf-perish">PERISH</div>
+                  </div>
+                  <div class="cf-result" id="cfResult"></div>
+                </div>
+              </div>
+              <div class="cf-sidebar">
+                <div class="cf-sb-title">COINFLIP</div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                    <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
+                    <div class="cur-toggle" id="cfCurToggle">
+                      <button class="cur-opt active" data-cur="PP" onclick="setCfCur('PP')">PP</button>
+                      <button class="cur-opt usdt" data-cur="USDT" onclick="setCfCur('USDT')">USDT</button>
+                    </div>
+                  </div>
+                  <div style="display:flex;justify-content:center;margin-bottom:6px">
+                    <input type="number" class="crash-input" id="cfBetInput" value="1" min="0.1" step="0.1" placeholder="Bet..." style="width:100%;flex:1;text-align:center;font-size:var(--fs-xl)">
+                  </div>
+                  <div style="display:flex;gap:4px;justify-content:center">
+                    <button class="crash-quick-btn" onclick="qCf(0.1)">0.1</button>
+                    <button class="crash-quick-btn" onclick="qCf(0.5)">0.5</button>
+                    <button class="crash-quick-btn" onclick="qCf(1)">1</button>
+                    <button class="crash-quick-btn" onclick="qCf(3)">3</button>
+                    <button class="crash-quick-btn" onclick="qCf(5)">5</button>
+                    <button class="crash-quick-btn" onclick="qCf(10)">10</button>
+                    <button class="crash-quick-btn" onclick="qCf(25)">25</button>
+                    <button class="crash-quick-btn" onclick="qCf(50)">50</button>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px;margin-bottom:6px">CHOOSE YOUR FATE</div>
+                <div class="cf-choice-row">
+                  <button class="cf-choice-btn survive active" id="cfChoiceSurvive" onclick="setCfChoice('survive')">&#x1F6E1; SURVIVE</button>
+                  <button class="cf-choice-btn perish" id="cfChoicePerish" onclick="setCfChoice('perish')">&#x1F480; PERISH</button>
+                </div>
+                <div class="divider"></div>
+                <button class="btn-mines start" id="cfPlayBtn" onclick="playCoinflip()">
+                  FLIP COIN
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- DICE PANEL -->
+          <div class="game-panel" id="panelDice">
+            <div class="dice-wrap">
+              <div class="dice-main">
+                <div class="dice-display">
+                  <div class="dice-roll-result" id="diceRollResult">--</div>
+                  <div class="dice-roll-label" id="diceRollLabel">ROLL TO PLAY</div>
+                </div>
+                <div class="dice-slider-area">
+                  <div class="dice-slider-bar">
+                    <div class="dice-slider-fill" id="diceSliderFill"></div>
+                    <input type="range" class="dice-slider" id="diceSlider" min="2" max="98" value="50" oninput="updateDiceUI()">
+                  </div>
+                  <div class="dice-slider-labels">
+                    <span>1</span><span>25</span><span>50</span><span>75</span><span>98</span>
+                  </div>
+                </div>
+                <div class="dice-direction-row">
+                  <button class="dice-dir-btn active" id="diceDirOver" onclick="setDiceDir('over')">ROLL OVER</button>
+                  <button class="dice-dir-btn" id="diceDirUnder" onclick="setDiceDir('under')">ROLL UNDER</button>
+                </div>
+                <div class="dice-stats">
+                  <div class="dice-stat">
+                    <span class="dice-stat-label">TARGET</span>
+                    <span class="dice-stat-val" id="diceTarget">50.00</span>
+                  </div>
+                  <div class="dice-stat">
+                    <span class="dice-stat-label">WIN CHANCE</span>
+                    <span class="dice-stat-val" id="diceWinChance">50.00%</span>
+                  </div>
+                  <div class="dice-stat">
+                    <span class="dice-stat-label">MULTIPLIER</span>
+                    <span class="dice-stat-val gold" id="diceMult">1.98x</span>
+                  </div>
+                  <div class="dice-stat">
+                    <span class="dice-stat-label">POTENTIAL WIN</span>
+                    <span class="dice-stat-val gn" id="dicePotentialWin">1.98</span>
+                  </div>
+                </div>
+              </div>
+              <div class="dice-sidebar">
+                <div class="dice-sb-title">DICE</div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                    <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
+                    <div class="cur-toggle" id="diceCurToggle">
+                      <button class="cur-opt active" data-cur="PP" onclick="setDiceCur('PP')">PP</button>
+                      <button class="cur-opt usdt" data-cur="USDT" onclick="setDiceCur('USDT')">USDT</button>
+                    </div>
+                  </div>
+                  <div style="display:flex;justify-content:center;margin-bottom:6px">
+                    <input type="number" class="crash-input" id="diceBetInput" value="1" min="0.1" step="0.1" placeholder="Bet..." style="width:100%;flex:1;text-align:center;font-size:var(--fs-xl)">
+                  </div>
+                  <div style="display:flex;gap:4px;justify-content:center">
+                    <button class="crash-quick-btn" onclick="qDice(0.1)">0.1</button>
+                    <button class="crash-quick-btn" onclick="qDice(0.5)">0.5</button>
+                    <button class="crash-quick-btn" onclick="qDice(1)">1</button>
+                    <button class="crash-quick-btn" onclick="qDice(3)">3</button>
+                    <button class="crash-quick-btn" onclick="qDice(5)">5</button>
+                    <button class="crash-quick-btn" onclick="qDice(10)">10</button>
+                    <button class="crash-quick-btn" onclick="qDice(25)">25</button>
+                    <button class="crash-quick-btn" onclick="qDice(50)">50</button>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <button class="btn-mines start" id="dicePlayBtn" onclick="playDice()">
+                  ROLL DICE
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- HILO PANEL -->
+          <div class="game-panel" id="panelHilo">
+            <div class="hilo-wrap">
+              <div class="hilo-main">
+                <div class="hilo-cards-area" id="hiloCardsArea"></div>
+                <div class="hilo-current">
+                  <div class="hilo-card-big" id="hiloCurrentCard">
+                    <div class="hilo-card-val">?</div>
+                    <div class="hilo-card-suit"></div>
+                  </div>
+                  <div class="hilo-mult-display">
+                    <span style="font-size:var(--fs-xs);color:var(--tx3)">MULTIPLIER</span>
+                    <span class="hilo-mult-val" id="hiloMultVal">1.00x</span>
+                  </div>
+                </div>
+                <div class="hilo-actions" id="hiloActions">
+                  <button class="hilo-action-btn higher" id="hiloHigherBtn" onclick="guessHilo('higher')" disabled>&#x2B06; HIGHER</button>
+                  <button class="hilo-action-btn cashout" id="hiloCashoutBtn" onclick="cashoutHilo()" disabled>CASHOUT</button>
+                  <button class="hilo-action-btn lower" id="hiloLowerBtn" onclick="guessHilo('lower')" disabled>&#x2B07; LOWER</button>
+                </div>
+              </div>
+              <div class="hilo-sidebar">
+                <div class="hilo-sb-title">HI-LO</div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                    <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
+                    <div class="cur-toggle" id="hiloCurToggle">
+                      <button class="cur-opt active" data-cur="PP" onclick="setHiloCur('PP')">PP</button>
+                      <button class="cur-opt usdt" data-cur="USDT" onclick="setHiloCur('USDT')">USDT</button>
+                    </div>
+                  </div>
+                  <div style="display:flex;justify-content:center;margin-bottom:6px">
+                    <input type="number" class="crash-input" id="hiloBetInput" value="1" min="0.1" step="0.1" placeholder="Bet..." style="width:100%;flex:1;text-align:center;font-size:var(--fs-xl)">
+                  </div>
+                  <div style="display:flex;gap:4px;justify-content:center">
+                    <button class="crash-quick-btn" onclick="qHilo(0.1)">0.1</button>
+                    <button class="crash-quick-btn" onclick="qHilo(0.5)">0.5</button>
+                    <button class="crash-quick-btn" onclick="qHilo(1)">1</button>
+                    <button class="crash-quick-btn" onclick="qHilo(3)">3</button>
+                    <button class="crash-quick-btn" onclick="qHilo(5)">5</button>
+                    <button class="crash-quick-btn" onclick="qHilo(10)">10</button>
+                    <button class="crash-quick-btn" onclick="qHilo(25)">25</button>
+                    <button class="crash-quick-btn" onclick="qHilo(50)">50</button>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <button class="btn-mines start" id="hiloStartBtn" onclick="startHilo()">
                   START GAME
                 </button>
               </div>
@@ -6694,8 +7012,13 @@ function arenaLoadBalance() {
 window.switchGame = function(game) {
   document.querySelectorAll('#arenaOverlay .game-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.game === game); });
   document.querySelectorAll('#arenaOverlay .game-panel').forEach(function(p){ p.classList.remove('active'); });
-  document.getElementById(game === 'crash' ? 'panelCrash' : 'panelMines').classList.add('active');
+  var panelMap = {crash:'panelCrash',mines:'panelMines',coinflip:'panelCoinflip',dice:'panelDice',hilo:'panelHilo'};
+  var panel = document.getElementById(panelMap[game]);
+  if (panel) panel.classList.add('active');
   if (game === 'crash') initCrashCanvas();
+  if (game === 'coinflip') initCoinflip();
+  if (game === 'dice') initDice();
+  if (game === 'hilo') initHilo();
 };
 
 // ═══ CRASH GAME ═══
@@ -7229,6 +7552,405 @@ function arenaCheckActiveMines() {
 }
 
 
+// ═══ COINFLIP GAME ═══
+var cfCurrency = 'PP';
+var cfChoice = 'survive';
+var cfPlaying = false;
+
+window.setCfCur = function(cur) {
+  cfCurrency = cur;
+  document.querySelectorAll('#cfCurToggle .cur-opt').forEach(function(o){
+    o.classList.toggle('active', o.dataset.cur === cur);
+  });
+};
+window.qCf = function(v) { document.getElementById('cfBetInput').value = v; };
+
+window.setCfChoice = function(c) {
+  cfChoice = c;
+  document.getElementById('cfChoiceSurvive').classList.toggle('active', c === 'survive');
+  document.getElementById('cfChoicePerish').classList.toggle('active', c === 'perish');
+};
+
+function initCoinflip() {
+  loadCoinflipHistory();
+}
+
+function loadCoinflipHistory() {
+  if (!arenaWallet) return;
+  fetch(ARENA_API + '/coinflip/history?wallet=' + arenaWallet).then(function(r){ return r.json(); })
+  .then(function(data){
+    var el = document.getElementById('cfHistory');
+    if (!el) return;
+    el.innerHTML = '';
+    var items = Array.isArray(data) ? data.slice(0, 10) : [];
+    items.forEach(function(item){
+      var dot = document.createElement('div');
+      dot.className = 'cf-dot ' + (item.result || 'survive');
+      dot.title = (item.result === 'survive' ? 'SURVIVE' : 'PERISH') + ' | Bet: ' + item.bet + ' | Payout: ' + (item.payout || 0);
+      el.appendChild(dot);
+    });
+  }).catch(function(){});
+}
+
+window.playCoinflip = function() {
+  if (cfPlaying) return;
+  if (!arenaWallet) return arenaToast('Connect wallet first', true);
+  var amount = parseFloat(document.getElementById('cfBetInput').value);
+  if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
+
+  cfPlaying = true;
+  var btn = document.getElementById('cfPlayBtn');
+  btn.disabled = true;
+  btn.textContent = 'FLIPPING...';
+
+  var coin = document.getElementById('cfCoin');
+  var resultEl = document.getElementById('cfResult');
+  resultEl.textContent = '';
+  resultEl.style.color = '';
+  coin.className = 'cf-coin spinning';
+
+  fetch(ARENA_API + '/coinflip/play', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: cfCurrency, choice: cfChoice })
+  }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+  .then(function(res){
+    setTimeout(function(){
+      cfPlaying = false;
+      btn.disabled = false;
+      btn.textContent = 'FLIP COIN';
+      if (!res.ok) {
+        coin.className = 'cf-coin';
+        arenaToast(res.data.error, true);
+        return;
+      }
+      var d = res.data;
+      coin.className = 'cf-coin flip-' + d.result;
+      if (d.won) {
+        resultEl.textContent = 'WIN! +' + (d.payout || 0).toFixed(4) + ' ' + cfCurrency;
+        resultEl.style.color = 'var(--gn)';
+        arenaToast('You survived! +' + (d.payout || 0).toFixed(4) + ' ' + cfCurrency);
+      } else {
+        resultEl.textContent = 'LOST! -' + amount.toFixed(4) + ' ' + cfCurrency;
+        resultEl.style.color = 'var(--red)';
+        arenaToast('You perished!', true);
+      }
+      arenaLoadBalance();
+      loadCoinflipHistory();
+    }, 900);
+  }).catch(function(){
+    setTimeout(function(){
+      cfPlaying = false;
+      btn.disabled = false;
+      btn.textContent = 'FLIP COIN';
+      coin.className = 'cf-coin';
+      arenaToast('Coinflip failed', true);
+    }, 900);
+  });
+};
+
+
+// ═══ DICE GAME ═══
+var diceCurrency = 'PP';
+var diceDirection = 'over';
+var dicePlaying = false;
+
+window.setDiceCur = function(cur) {
+  diceCurrency = cur;
+  document.querySelectorAll('#diceCurToggle .cur-opt').forEach(function(o){
+    o.classList.toggle('active', o.dataset.cur === cur);
+  });
+};
+window.qDice = function(v) { document.getElementById('diceBetInput').value = v; };
+
+window.setDiceDir = function(dir) {
+  diceDirection = dir;
+  document.getElementById('diceDirOver').classList.toggle('active', dir === 'over');
+  document.getElementById('diceDirUnder').classList.toggle('active', dir === 'under');
+  updateDiceUI();
+};
+
+function initDice() {
+  updateDiceUI();
+}
+
+window.updateDiceUI = function() {
+  var slider = document.getElementById('diceSlider');
+  if (!slider) return;
+  var target = parseInt(slider.value);
+  var fill = document.getElementById('diceSliderFill');
+  var winChance, mult;
+
+  if (diceDirection === 'over') {
+    winChance = 99 - target;
+    if (fill) fill.style.width = ((target / 99) * 100) + '%';
+  } else {
+    winChance = target - 1;
+    if (fill) fill.style.width = ((1 - target / 99) * 100) + '%';
+  }
+  if (winChance <= 0) winChance = 1;
+  if (winChance >= 99) winChance = 98;
+  mult = (99 / winChance) * 0.99; // 1% house edge
+
+  var betAmount = parseFloat(document.getElementById('diceBetInput').value) || 1;
+
+  var el;
+  el = document.getElementById('diceTarget'); if (el) el.textContent = target + '.00';
+  el = document.getElementById('diceWinChance'); if (el) el.textContent = winChance.toFixed(2) + '%';
+  el = document.getElementById('diceMult'); if (el) el.textContent = mult.toFixed(2) + 'x';
+  el = document.getElementById('dicePotentialWin'); if (el) el.textContent = (betAmount * mult).toFixed(4);
+};
+
+window.playDice = function() {
+  if (dicePlaying) return;
+  if (!arenaWallet) return arenaToast('Connect wallet first', true);
+  var amount = parseFloat(document.getElementById('diceBetInput').value);
+  if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
+  var target = parseInt(document.getElementById('diceSlider').value);
+
+  dicePlaying = true;
+  var btn = document.getElementById('dicePlayBtn');
+  btn.disabled = true;
+  btn.textContent = 'ROLLING...';
+
+  var resultEl = document.getElementById('diceRollResult');
+  var labelEl = document.getElementById('diceRollLabel');
+  resultEl.className = 'dice-roll-result dice-rolling';
+  resultEl.textContent = '??';
+  labelEl.textContent = '';
+
+  fetch(ARENA_API + '/dice/play', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: diceCurrency, target: target, direction: diceDirection })
+  }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+  .then(function(res){
+    setTimeout(function(){
+      dicePlaying = false;
+      btn.disabled = false;
+      btn.textContent = 'ROLL DICE';
+      if (!res.ok) {
+        resultEl.className = 'dice-roll-result';
+        resultEl.textContent = '--';
+        labelEl.textContent = 'ROLL TO PLAY';
+        arenaToast(res.data.error, true);
+        return;
+      }
+      var d = res.data;
+      resultEl.className = 'dice-roll-result ' + (d.won ? 'win' : 'lose');
+      resultEl.textContent = d.roll.toFixed(2);
+      if (d.won) {
+        labelEl.textContent = 'WIN! +' + (d.payout || 0).toFixed(4) + ' ' + diceCurrency + ' @ ' + (d.multiplier || 0).toFixed(2) + 'x';
+        labelEl.style.color = 'var(--gn)';
+        arenaToast('Roll ' + d.roll.toFixed(2) + ' — WIN! +' + (d.payout || 0).toFixed(4));
+      } else {
+        labelEl.textContent = 'LOST! -' + amount.toFixed(4) + ' ' + diceCurrency;
+        labelEl.style.color = 'var(--red)';
+        arenaToast('Roll ' + d.roll.toFixed(2) + ' — LOST!', true);
+      }
+      arenaLoadBalance();
+    }, 600);
+  }).catch(function(){
+    setTimeout(function(){
+      dicePlaying = false;
+      btn.disabled = false;
+      btn.textContent = 'ROLL DICE';
+      resultEl.className = 'dice-roll-result';
+      resultEl.textContent = '--';
+      arenaToast('Dice roll failed', true);
+    }, 600);
+  });
+};
+
+
+// ═══ HI-LO GAME ═══
+var hiloCurrency = 'PP';
+var hiloGameId = null;
+var hiloActive = false;
+var hiloCards = [];
+var hiloMultiplier = 1.0;
+var hiloBetAmount = 0;
+
+var HILO_SUITS = ['rock', 'dust', 'ice', 'iron'];
+var HILO_SUIT_ICONS = {rock:'\u{1FAA8}', dust:'\u{1F32A}', ice:'\u{1F9CA}', iron:'\u{2699}'};
+
+window.setHiloCur = function(cur) {
+  hiloCurrency = cur;
+  document.querySelectorAll('#hiloCurToggle .cur-opt').forEach(function(o){
+    o.classList.toggle('active', o.dataset.cur === cur);
+  });
+};
+window.qHilo = function(v) { document.getElementById('hiloBetInput').value = v; };
+
+function initHilo() {
+  checkActiveHilo();
+}
+
+function renderHiloCards() {
+  var area = document.getElementById('hiloCardsArea');
+  if (!area) return;
+  area.innerHTML = '';
+  hiloCards.forEach(function(card){
+    var el = document.createElement('div');
+    el.className = 'hilo-card-sm';
+    var suitIcon = HILO_SUIT_ICONS[card.suit] || card.suit;
+    el.innerHTML = '<span class="hc-val">' + card.display + '</span><span class="hc-suit">' + suitIcon + '</span>';
+    area.appendChild(el);
+  });
+}
+
+function updateHiloDisplay() {
+  var card = hiloCards.length ? hiloCards[hiloCards.length - 1] : null;
+  var bigCard = document.getElementById('hiloCurrentCard');
+  if (bigCard) {
+    if (card) {
+      var suitIcon = HILO_SUIT_ICONS[card.suit] || card.suit;
+      bigCard.querySelector('.hilo-card-val').textContent = card.display;
+      bigCard.querySelector('.hilo-card-suit').textContent = suitIcon + ' ' + (card.suit || '').toUpperCase();
+      bigCard.classList.add('reveal');
+      setTimeout(function(){ bigCard.classList.remove('reveal'); }, 500);
+    } else {
+      bigCard.querySelector('.hilo-card-val').textContent = '?';
+      bigCard.querySelector('.hilo-card-suit').textContent = '';
+    }
+  }
+  var multEl = document.getElementById('hiloMultVal');
+  if (multEl) multEl.textContent = hiloMultiplier.toFixed(2) + 'x';
+
+  var higherBtn = document.getElementById('hiloHigherBtn');
+  var lowerBtn = document.getElementById('hiloLowerBtn');
+  var cashBtn = document.getElementById('hiloCashoutBtn');
+  var startBtn = document.getElementById('hiloStartBtn');
+
+  if (hiloActive) {
+    if (higherBtn) higherBtn.disabled = false;
+    if (lowerBtn) lowerBtn.disabled = false;
+    if (cashBtn) { cashBtn.disabled = hiloCards.length < 2; cashBtn.textContent = 'CASHOUT ' + (hiloBetAmount * hiloMultiplier).toFixed(4) + ' ' + hiloCurrency; }
+    if (startBtn) { startBtn.textContent = 'GAME IN PROGRESS'; startBtn.disabled = true; }
+  } else {
+    if (higherBtn) higherBtn.disabled = true;
+    if (lowerBtn) lowerBtn.disabled = true;
+    if (cashBtn) { cashBtn.disabled = true; cashBtn.textContent = 'CASHOUT'; }
+    if (startBtn) { startBtn.textContent = 'START GAME'; startBtn.disabled = !arenaWallet; }
+  }
+  renderHiloCards();
+}
+
+function checkActiveHilo() {
+  if (!arenaWallet) return;
+  fetch(ARENA_API + '/hilo/active?wallet=' + arenaWallet).then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.active || d.gameId) {
+      hiloGameId = d.gameId;
+      hiloActive = true;
+      hiloCards = d.cards || [];
+      hiloMultiplier = d.multiplier || 1.0;
+      hiloBetAmount = d.bet || 0;
+      hiloCurrency = d.currency || 'PP';
+      updateHiloDisplay();
+    }
+  }).catch(function(){});
+}
+
+window.startHilo = function() {
+  if (hiloActive) return;
+  if (!arenaWallet) return arenaToast('Connect wallet first', true);
+  var amount = parseFloat(document.getElementById('hiloBetInput').value);
+  if (!amount || amount <= 0) return arenaToast('Enter bet amount', true);
+
+  var btn = document.getElementById('hiloStartBtn');
+  btn.disabled = true;
+  btn.textContent = 'STARTING...';
+
+  fetch(ARENA_API + '/hilo/start', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wallet: arenaWallet, amount: amount, currency: hiloCurrency })
+  }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+  .then(function(res){
+    if (!res.ok) {
+      btn.disabled = false;
+      btn.textContent = 'START GAME';
+      return arenaToast(res.data.error, true);
+    }
+    var d = res.data;
+    hiloGameId = d.gameId;
+    hiloActive = true;
+    hiloCards = d.cards || [];
+    hiloMultiplier = d.multiplier || 1.0;
+    hiloBetAmount = amount;
+    updateHiloDisplay();
+    arenaLoadBalance();
+    arenaToast('Game started! Higher or Lower?');
+  }).catch(function(){
+    btn.disabled = false;
+    btn.textContent = 'START GAME';
+    arenaToast('Failed to start game', true);
+  });
+};
+
+window.guessHilo = function(dir) {
+  if (!hiloActive || !hiloGameId) return;
+  var higherBtn = document.getElementById('hiloHigherBtn');
+  var lowerBtn = document.getElementById('hiloLowerBtn');
+  if (higherBtn) higherBtn.disabled = true;
+  if (lowerBtn) lowerBtn.disabled = true;
+
+  fetch(ARENA_API + '/hilo/guess', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gameId: hiloGameId, guess: dir })
+  }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+  .then(function(res){
+    if (!res.ok) {
+      if (hiloActive) { if (higherBtn) higherBtn.disabled = false; if (lowerBtn) lowerBtn.disabled = false; }
+      return arenaToast(res.data.error, true);
+    }
+    var d = res.data;
+    if (d.card) hiloCards.push(d.card);
+    if (d.cards) hiloCards = d.cards;
+    hiloMultiplier = d.multiplier || hiloMultiplier;
+
+    if (d.correct === false || d.status === 'lost') {
+      hiloActive = false;
+      hiloGameId = null;
+      updateHiloDisplay();
+      arenaToast('Wrong guess! Game over!', true);
+      arenaLoadBalance();
+    } else {
+      updateHiloDisplay();
+      arenaToast('Correct! Multiplier: ' + hiloMultiplier.toFixed(2) + 'x');
+    }
+  }).catch(function(){
+    if (hiloActive) { if (higherBtn) higherBtn.disabled = false; if (lowerBtn) lowerBtn.disabled = false; }
+    arenaToast('Guess failed', true);
+  });
+};
+
+window.cashoutHilo = function() {
+  if (!hiloActive || !hiloGameId) return;
+  if (hiloCards.length < 2) return arenaToast('Make at least one guess first', true);
+  var cashBtn = document.getElementById('hiloCashoutBtn');
+  if (cashBtn) { cashBtn.disabled = true; cashBtn.textContent = 'CASHING OUT...'; }
+
+  fetch(ARENA_API + '/hilo/cashout', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gameId: hiloGameId })
+  }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+  .then(function(res){
+    if (!res.ok) {
+      if (cashBtn) { cashBtn.disabled = false; cashBtn.textContent = 'CASHOUT'; }
+      return arenaToast(res.data.error, true);
+    }
+    var d = res.data;
+    hiloActive = false;
+    hiloGameId = null;
+    updateHiloDisplay();
+    arenaToast('Cashed out! +' + (d.payout || 0).toFixed(4) + ' ' + (d.currency || hiloCurrency));
+    arenaLoadBalance();
+  }).catch(function(){
+    if (cashBtn) { cashBtn.disabled = false; cashBtn.textContent = 'CASHOUT'; }
+    arenaToast('Cashout failed', true);
+  });
+};
+
+
 // ═══ OPEN / CLOSE ARENA ═══
 function stopAllArenaTimers() {
   clearTimeout(crashPollTimer); crashPollTimer = null;
@@ -7250,6 +7972,8 @@ window.openArena = function() {
   updateMinesInfo();
   loadCrashHistory();
   pollCrashRound();
+  updateDiceUI();
+  updateHiloDisplay();
   arenaInited = true;
 };
 
