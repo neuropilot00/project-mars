@@ -1128,8 +1128,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Collapsed-mode floating buttons (both panels folded) -->
 <div class="col-fab-wrap" id="colFabWrap">
-  <button class="col-fab" onclick="activateLandSelect()" style="color:var(--mars)">LAND</button>
-  <button class="col-fab place" onclick="document.getElementById('stampFileInput').click()">PLACE</button>
+  <button class="col-fab" onclick="activateLandSelect()" style="color:var(--mars)">CLAIM</button>
   <button class="col-fab base" onclick="openBaseModal()">BASE</button>
   <button class="col-fab arena" onclick="openArena()">CANTINA</button>
 </div>
@@ -1297,46 +1296,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div style="margin-top:4px;font-size:7px;color:var(--tx3);line-height:1.4;opacity:.7">Claim land first, add image later</div>
   </div>
 
-  <!-- STAMP MODE: Image-first workflow -->
-  <div class="p-section" id="stampSection">
-    <div class="p-title" data-i18n="place_image">OR PLACE IMAGE</div>
-    <input type="file" id="stampFileInput" accept="image/*,image/gif" style="display:none">
-    <button class="uf" onclick="document.getElementById('stampFileInput').click()">CHOOSE IMAGE FILE</button>
-    <!-- Preview + controls (hidden until image loaded) -->
-    <div id="stampPreview" style="display:none;margin-top:10px">
-      <img id="stampThumb" style="max-width:100%;max-height:80px;border-radius:4px;border:1px solid var(--bdr)">
-      <div class="stat-row" style="margin-top:6px"><span class="stat-label">IMAGE</span><span class="stat-val" id="stampImgInfo">--</span></div>
-      <div class="stat-row"><span class="stat-label">MIN VISIBLE</span><span class="stat-val" id="stampMinLabel">--</span></div>
-      <div style="margin:8px 0">
-        <div class="stat-label" style="margin-bottom:4px">SCALE</div>
-        <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:2px"><span>-100</span><span>0</span><span>+100</span></div>
-        <input type="range" id="stampSizeSlider" min="-100" max="100" value="0" style="width:100%;accent-color:var(--mars)" oninput="updateDesktopStampSlider(+this.value)">
-        <div style="display:flex;justify-content:space-between;margin-top:2px">
-          <span class="stat-val" id="stampSizeLabel">--</span>
-          <span class="stat-val gn" id="stampCostLabel">--</span>
-        </div>
-        <div style="display:flex;gap:3px;margin-top:4px;flex-wrap:wrap">
-          <button class="sz-btn" onclick="setDesktopStampSlider(-100)">MIN</button>
-          <button class="sz-btn" onclick="setDesktopStampSlider(-50)">-50</button>
-          <button class="sz-btn" onclick="setDesktopStampSlider(0)">0</button>
-          <button class="sz-btn" onclick="setDesktopStampSlider(50)">+50</button>
-          <button class="sz-btn" onclick="setDesktopStampSlider(100)">MAX</button>
-        </div>
-      </div>
-      <div style="margin-top:6px">
-        <div class="stat-label" style="margin-bottom:3px">LINK URL</div>
-        <input type="text" class="ui" id="stampLinkInput" placeholder="https://your-site.com" style="width:100%">
-      </div>
-      <div class="stamp-hint" style="margin-top:8px">CLICK MARS TO STAMP!</div>
-      <button class="action-btn" style="margin-top:4px;font-size:7px;padding:6px" onclick="cancelStamp()">CANCEL</button>
+  <!-- MY TERRITORIES (shows when MY LAND activated) -->
+  <div class="p-section" id="myTerritoriesSection" style="display:none">
+    <div class="p-title" style="display:flex;justify-content:space-between;align-items:center">
+      MY TERRITORIES <span style="background:var(--mars);color:#fff;font-size:7px;padding:1px 6px;border-radius:8px;font-weight:bold" id="myTerritoryCount">0</span>
+    </div>
+    <div id="myTerritoryList" style="max-height:200px;overflow-y:auto">
+      <div style="font-size:8px;color:var(--tx3);padding:4px 0">No territories yet</div>
     </div>
   </div>
 
   <!-- CANTINA -->
   <div class="p-section">
     <div class="p-title">CANTINA</div>
-    <button class="action-btn" onclick="openArena()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold)">
-      CRASH & MINES & MORE
+    <button class="action-btn" onclick="openArena()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold);font-size:8px;letter-spacing:1.5px">
+      ⚔ ENTER THE CANTINA
     </button>
   </div>
 
@@ -1355,9 +1329,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <button class="zb back-btn" onclick="goBack()" title="Back to overview" style="background:var(--surface2);border-color:rgba(255,107,53,.5);margin-bottom:6px">↩</button>
   <button class="zb" onclick="zoomIn()">+</button>
   <button class="zb" onclick="zoomOut()">−</button>
-  <button class="zb tex-toggle" id="texToggleBtn" onclick="toggleMarsTexture()" title="Switch texture" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 4px"><span id="texToggleLabel">MAP</span></button>
-  <button class="zb" id="sectorToggleBtn" onclick="toggleSectorOverlay()" title="Toggle sectors" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px"><span id="sectorToggleLabel">SECTORS</span></button>
-  <button class="zb" id="myLandBtn" onclick="toggleMyLand()" title="Highlight my land" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)">MY LAND</button>
+  <button class="zb" id="myLandBtn" onclick="toggleMyLand()" title="My territories" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)">MY<br>LAND</button>
 </div>
 
 <div class="mode-badge" id="modeBadge">🔴 CLICK MARS TO SELECT TERRITORY</div>
@@ -1411,6 +1383,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="claim-note">Owner receives 100% refund + 10% bonus · Fee: 10%</div>
     <!-- Hidden compat -->
     <input type="file" id="imgFileInput" accept="image/*" style="display:none">
+    <input type="file" id="stampFileInput" accept="image/*,image/gif" style="display:none">
     <input type="text" id="imgUrlInput" style="display:none">
     <input type="text" id="linkUrlInput" style="display:none">
     <div id="uploadPreviewWrap" style="display:none"><img id="uploadThumb"></div>
@@ -2553,12 +2526,15 @@ function compositeClaimsOnTexture(previewOnly){
         ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.5)';ctx.lineWidth=1;
         ctx.strokeRect(rx,ry,rw,rh);
       }else if(noImage){
-        // Land-only claim — per-user colored territory block
+        // Land-only claim — semi-transparent colored territory (terrain visible underneath)
         var tc=oc||{r:255,g:120,b:60};
-        ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.22)';
+        ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.12)';
         ctx.fillRect(rx,ry,rw,rh);
-        ctx.strokeStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.55)';ctx.lineWidth=1;
+        ctx.strokeStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.45)';ctx.lineWidth=1.5;
         ctx.strokeRect(rx,ry,rw,rh);
+        // Inner dashed border for clarity
+        ctx.strokeStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.2)';ctx.lineWidth=0.5;
+        ctx.setLineDash([4,3]);ctx.strokeRect(rx+3,ry+3,rw-6,rh-6);ctx.setLineDash([]);
         // Owner label (nickname or short address)
         if(rw>20&&rh>12){
           var lfs=Math.max(6,Math.min(rw*0.18,rh*0.3,14));
@@ -2911,9 +2887,57 @@ function toggleMyLand(){
   _myLandMode=!_myLandMode;
   var btn=document.getElementById('myLandBtn');
   if(btn) btn.style.background=_myLandMode?'rgba(255,120,60,0.25)':'';
+  // Stop/resume auto-rotate
+  if(globe&&globe.controls){
+    globe.controls().autoRotate=!_myLandMode;
+  }
   claimsSnapshot=null;
   compositeClaimsOnTexture();
-  showToast(_myLandMode?'MY LAND — Showing your territory':'MY LAND OFF');
+  // Update MY TERRITORIES panel
+  _updateMyTerritories();
+  if(_myLandMode){
+    document.getElementById('myTerritoriesSection').style.display='';
+    // Zoom to first owned territory
+    var myAddr=walletState.address||'';
+    var mine=claims.filter(function(c){return c.owner===myAddr});
+    if(mine.length>0){
+      var first=mine[0];
+      globe.pointOfView({lat:first.lat,lng:first.lng,altitude:0.2},800);
+    }
+  }else{
+    document.getElementById('myTerritoriesSection').style.display='none';
+  }
+}
+function _updateMyTerritories(){
+  var myAddr=walletState.address||'';
+  var mine=claims.filter(function(c){return c.owner===myAddr});
+  var countEl=document.getElementById('myTerritoryCount');
+  var listEl=document.getElementById('myTerritoryList');
+  if(countEl) countEl.textContent=mine.length;
+  if(!listEl) return;
+  listEl.innerHTML='';
+  if(mine.length===0){
+    listEl.innerHTML='<div style="font-size:8px;color:var(--tx3);padding:4px 0">No territories yet</div>';
+    return;
+  }
+  mine.forEach(function(c,i){
+    var d=document.createElement('div');
+    d.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:6px;margin-bottom:3px;cursor:pointer;background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.12);transition:all .15s';
+    d.onmouseenter=function(){d.style.background='rgba(255,120,60,.15)'};
+    d.onmouseleave=function(){d.style.background='rgba(255,120,60,.06)'};
+    var pw=c.w||c.size||10, ph=c.h||c.size||10;
+    var left=document.createElement('div');
+    left.innerHTML='<div style="font-size:8px;color:var(--tx2)">#'+(i+1)+' · '+c.lat.toFixed(1)+'°, '+c.lng.toFixed(1)+'°</div><div style="font-size:7px;color:var(--tx3)">'+pw+'×'+ph+'px · '+(c.imgUrl?'📷':'🏴 No image')+'</div>';
+    var right=document.createElement('div');
+    right.style.cssText='font-size:8px;color:var(--gold);text-align:right';
+    right.textContent=c.price+' PP';
+    d.appendChild(left);d.appendChild(right);
+    d.onclick=function(){
+      globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.06,Math.max(pw,ph)*0.001)},600);
+      selectedPlot=c;showTerritoryInfo(c);
+    };
+    listEl.appendChild(d);
+  });
 }
 
 function loadNasa8k(){
