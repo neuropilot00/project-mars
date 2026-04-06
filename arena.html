@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>OCCUPY MARS — Arena</title>
+<title>OCCUPY MARS — Cantina</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -63,10 +63,8 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 /* ═══════════════════════
    CRASH GAME
    ═══════════════════════ */
-.crash-wrap{display:flex;height:100%;overflow:hidden}
-.crash-main{flex:1;display:flex;flex-direction:column;min-width:0}
 .crash-canvas-wrap{flex:1;position:relative;background:rgba(0,0,0,.2);
-  border-bottom:1px solid var(--bdr);overflow:hidden}
+  overflow:hidden;min-height:0}
 #crashCanvas{width:100%;height:100%;display:block}
 
 /* Crash multiplier overlay */
@@ -108,10 +106,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .auto-cashout-input:focus{border-color:var(--mars)}
 .auto-cashout-input.disabled{opacity:.3;pointer-events:none}
 
-/* Crash bottom controls */
-.crash-controls{display:flex;gap:0;border-top:1px solid var(--bdr)}
-.crash-bet-panel{flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;
-  background:var(--surface1);border-right:1px solid var(--bdr)}
+/* Crash bet controls (reused in sidebar) */
 .crash-bet-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .crash-input{width:70px;flex:0 0 70px;padding:8px 6px;background:rgba(0,0,0,.3);border:1px solid var(--bdr);
   color:var(--tx);font-size:var(--fs-lg);font-family:var(--fn);outline:none;border-radius:6px;
@@ -150,12 +145,8 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .ch-pill.high{background:rgba(76,216,154,.1);color:var(--gn)}
 .ch-pill.mega{background:rgba(255,209,102,.1);color:var(--gold)}
 
-/* Crash sidebar — bets list */
-.crash-sidebar{width:240px;background:var(--surface1);border-left:1px solid var(--bdr);
-  display:flex;flex-direction:column;overflow:hidden}
-.crash-sb-title{padding:10px 12px;font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1.5px;
-  text-transform:uppercase;border-bottom:1px solid var(--bdr)}
-.crash-bets-list{flex:1;overflow-y:auto;padding:4px 8px}
+/* Crash bets list */
+.crash-bets-list{overflow-y:auto;padding:4px 0}
 .crash-bets-list::-webkit-scrollbar{width:3px}
 .crash-bets-list::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
 .cb-row{display:flex;align-items:center;justify-content:space-between;padding:6px 4px;
@@ -176,9 +167,6 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 /* ═══════════════════════
    MINES GAME
    ═══════════════════════ */
-.mines-wrap{display:flex;height:100%;align-items:stretch;overflow:hidden}
-.mines-main{flex:1;display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.15);position:relative;min-height:0}
 
 .mines-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
   width:min(420px,90vw);aspect-ratio:1;padding:20px}
@@ -202,13 +190,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 @keyframes gemReveal{from{transform:scale(0.8);opacity:.5}to{transform:scale(1);opacity:1}}
 @keyframes mineReveal{from{transform:scale(1.2);opacity:.5}to{transform:scale(1);opacity:1}}
 
-/* Mines sidebar */
-.mines-sidebar{width:280px;background:var(--surface1);border-left:1px solid var(--bdr);
-  padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
-.mines-sidebar::-webkit-scrollbar{width:3px}
-.mines-sidebar::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
-.mines-sb-title{font-size:var(--fs-sm);color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;
-  padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+/* Mines sidebar (uses cantina-sidebar) */
 
 .mines-info{display:flex;flex-direction:column;gap:6px}
 .mines-info-row{display:flex;justify-content:space-between;align-items:baseline}
@@ -251,28 +233,129 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .vig{position:fixed;inset:0;z-index:1;pointer-events:none;
   background:radial-gradient(ellipse at center,transparent 55%,rgba(6,4,12,0.5) 100%)}
 
+/* ═══════════════════════
+   CANTINA GAMES — Sidebar Layout
+   Left: game visual  |  Right: controls sidebar
+   ═══════════════════════ */
+.cantina-game{display:flex;height:100%;overflow:hidden}
+.cantina-main{flex:1;display:flex;flex-direction:column;min-width:0;overflow-y:auto}
+.cantina-main::-webkit-scrollbar{width:3px}
+.cantina-main::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
+.cantina-sidebar{width:280px;background:var(--surface1);border-left:1px solid var(--bdr);
+  padding:14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex-shrink:0}
+.cantina-sidebar::-webkit-scrollbar{width:3px}
+.cantina-sidebar::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
+.cs-title{font-size:var(--fs-sm);color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;
+  padding-bottom:6px;border-bottom:1px solid var(--bdr)}
+
+/* Banner */
+.game-banner{width:100%;border-bottom:1px solid var(--bdr);flex-shrink:0;overflow:hidden}
+.game-banner canvas{width:100%;height:100%;display:block}
+
+/* Result display */
+.game-result-area{flex:1;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.15);position:relative;min-height:120px}
+.result-display{text-align:center;padding:16px}
+.result-big{font-family:'Orbitron',monospace;font-weight:900;font-size:48px;
+  letter-spacing:2px;transition:all .3s}
+.result-big.win{color:var(--gn);text-shadow:0 0 30px rgba(76,216,154,.4)}
+.result-big.lose{color:var(--red);text-shadow:0 0 30px rgba(232,72,85,.4)}
+.result-big.idle{color:var(--tx3);font-size:24px}
+.result-sub{font-size:var(--fs-sm);color:var(--tx2);margin-top:6px;letter-spacing:1px}
+
+/* Game-specific main areas */
+.cf-choices{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--bdr)}
+.cf-btn{flex:1;padding:16px;border-radius:8px;cursor:pointer;font-family:var(--fn);
+  font-size:var(--fs-md);text-align:center;border:2px solid transparent;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.cf-btn .cf-icon{font-size:24px}
+.cf-btn.survive{background:rgba(76,216,154,.05);border-color:rgba(76,216,154,.18);color:var(--gn)}
+.cf-btn.survive:hover{background:rgba(76,216,154,.1);border-color:rgba(76,216,154,.35)}
+.cf-btn.survive.sel{background:rgba(76,216,154,.16);border-color:var(--gn);
+  box-shadow:inset 0 0 16px rgba(76,216,154,.08),0 0 12px rgba(76,216,154,.1)}
+.cf-btn.perish{background:rgba(232,72,85,.05);border-color:rgba(232,72,85,.18);color:var(--red)}
+.cf-btn.perish:hover{background:rgba(232,72,85,.1);border-color:rgba(232,72,85,.35)}
+.cf-btn.perish.sel{background:rgba(232,72,85,.16);border-color:var(--red);
+  box-shadow:inset 0 0 16px rgba(232,72,85,.08),0 0 12px rgba(232,72,85,.1)}
+
+/* Dice */
+.dice-area{padding:12px 16px;border-top:1px solid var(--bdr);display:flex;flex-direction:column;gap:8px}
+.dice-slider{width:100%;-webkit-appearance:none;height:6px;border-radius:3px;
+  background:linear-gradient(90deg,var(--red) 0%,var(--gold) 50%,var(--gn) 100%);
+  outline:none;cursor:pointer}
+.dice-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;
+  border-radius:50%;background:var(--tx);border:3px solid var(--mars);cursor:pointer;
+  box-shadow:0 0 10px rgba(255,120,60,.3)}
+.dice-dirs{display:flex;gap:6px}
+.dice-dir{flex:1;padding:8px;border-radius:6px;font-family:var(--fn);font-size:var(--fs-sm);
+  cursor:pointer;text-align:center;border:1px solid var(--bdr);transition:all .2s;
+  background:transparent;color:var(--tx3)}
+.dice-dir.active{border-color:var(--mars);color:var(--mars);background:rgba(255,120,60,.08)}
+.dice-dir:hover{background:rgba(255,120,60,.04)}
+.dice-stats{display:flex;justify-content:space-between;padding:6px 0}
+.dice-stat{display:flex;flex-direction:column;align-items:center;gap:1px;
+  font-size:var(--fs-xs);color:var(--tx3)}
+.dice-stat .ds-val{color:var(--mars);font-size:var(--fs-md);font-weight:700}
+
+/* Hi-Lo */
+.hilo-main-area{display:flex;flex-direction:column;gap:6px;padding:8px 16px;
+  border-top:1px solid var(--bdr)}
+.hl-cards{display:flex;align-items:center;justify-content:center;gap:10px;padding:4px 0}
+.hl-card{width:62px;height:88px;border-radius:8px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-family:'Orbitron',monospace;
+  border:2px solid var(--bdr);background:var(--surface2);transition:all .3s}
+.hl-card .hc-val{font-size:22px;font-weight:900}
+.hl-card .hc-suit{font-size:11px;margin-top:1px;opacity:.7}
+.hl-card.cur{border-color:var(--gold);box-shadow:0 0 16px rgba(255,209,102,.12);transform:scale(1.06)}
+.hl-card.prev{opacity:.45;transform:scale(.88)}
+.hl-card.empty{border-style:dashed;border-color:var(--tx3);opacity:.25}
+.hl-card.empty .hc-val{font-size:18px;color:var(--tx3)}
+.hl-guesses{display:flex;gap:8px}
+.hl-guess{flex:1;padding:10px;border-radius:8px;font-family:var(--fn);font-size:var(--fs-md);
+  cursor:pointer;border:2px solid;transition:all .2s;display:flex;
+  align-items:center;justify-content:center;gap:6px}
+.hl-guess.high{background:rgba(76,216,154,.05);border-color:rgba(76,216,154,.18);color:var(--gn)}
+.hl-guess.high:hover{background:rgba(76,216,154,.12);border-color:rgba(76,216,154,.35)}
+.hl-guess.low{background:rgba(232,72,85,.05);border-color:rgba(232,72,85,.18);color:var(--red)}
+.hl-guess.low:hover{background:rgba(232,72,85,.12);border-color:rgba(232,72,85,.35)}
+.hl-guess:disabled{opacity:.35;cursor:not-allowed}
+.hl-guess .hg-icon{font-size:18px}
+
+/* History pills */
+.cg-history{display:flex;gap:4px;overflow-x:auto;padding:4px 0}
+.cg-history::-webkit-scrollbar{height:2px}
+.cg-history::-webkit-scrollbar-thumb{background:rgba(255,120,60,.15);border-radius:2px}
+.cg-hpill{padding:3px 8px;border-radius:4px;font-size:var(--fs-xs);white-space:nowrap;flex-shrink:0}
+.cg-hpill.win{background:rgba(76,216,154,.08);color:var(--gn)}
+.cg-hpill.lose{background:rgba(232,72,85,.08);color:var(--red)}
+
+/* Mars suit colors */
+.suit-rock{color:#C4815C}.suit-dust{color:#E8A84C}.suit-ice{color:#7CC4E8}.suit-iron{color:#9A9AAA}
+
 /* ═══ RESPONSIVE ═══ */
 @media(max-width:768px){
   .arena-window{width:92vw;height:90vh;border-radius:10px}
   .topbar{border-radius:10px 10px 0 0;padding:8px 10px}
   .tb-title{font-size:var(--fs-lg)}
-  .crash-sidebar{display:none}
-  .mines-sidebar{width:100%;max-height:none;overflow-y:visible}
-  .crash-wrap{flex-direction:column}
-  .mines-wrap{flex-direction:column;overflow-y:auto}
-  .mines-main{min-height:auto;flex-shrink:0;padding:10px 0}
-  .mines-grid{width:min(280px,75vw)}
+  .tb-bal{font-size:7px;padding:4px 8px;gap:6px}
+  .game-tab{padding:10px 6px;font-size:6px}
+  /* Unified sidebar → stack vertically on mobile */
+  .cantina-game{flex-direction:column;overflow-y:auto}
+  .cantina-sidebar{width:100%;border-left:none;border-top:1px solid var(--bdr);flex-shrink:0}
+  /* Crash specific */
   .crash-canvas-wrap{max-height:35vh;min-height:120px}
   .crash-mult-val{font-size:36px}
   .crash-mult-val.waiting{font-size:20px}
-  .crash-controls{flex-direction:column}
-  .crash-bet-panel{border-right:none;border-bottom:1px solid var(--bdr);padding:10px}
-  .crash-wrap{overflow-y:auto}
-  .tb-bal{font-size:7px;padding:4px 8px;gap:6px}
   .crash-guide-steps{gap:4px}
   .crash-guide{padding:6px 10px}
   .crash-guide-step{font-size:6px}
-  .game-tab{padding:10px 6px;font-size:7px}
+  /* Mines specific */
+  .mines-grid{width:min(280px,75vw)}
+  /* Cantina games */
+  .result-big{font-size:26px}
+  .result-big.idle{font-size:15px}
+  .hl-card{width:48px;height:66px}
+  .hl-card .hc-val{font-size:15px}
 }
 </style>
 </head>
@@ -288,7 +371,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   <!-- Top Bar -->
   <div class="topbar">
     <div class="tb-left">
-      <div class="tb-title">ARENA</div>
+      <div class="tb-title">CANTINA</div>
     </div>
     <div class="tb-right">
       <div class="tb-bal">
@@ -308,6 +391,9 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
       <div class="game-tabs">
         <div class="game-tab active" data-game="crash" onclick="switchGame('crash')">CRASH</div>
         <div class="game-tab" data-game="mines" onclick="switchGame('mines')">MINES</div>
+        <div class="game-tab" data-game="coinflip" onclick="switchGame('coinflip')">SANDSTORM</div>
+        <div class="game-tab" data-game="dice" onclick="switchGame('dice')">METEORITE</div>
+        <div class="game-tab" data-game="hilo" onclick="switchGame('hilo')">HI-LO</div>
       </div>
 
       <!-- Game panels -->
@@ -315,25 +401,23 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 
         <!-- ═══ CRASH PANEL ═══ -->
         <div class="game-panel active" id="panelCrash">
-          <!-- How to play guide -->
-          <div class="crash-guide" id="crashGuide">
-            <div class="crash-guide-steps">
-              <div class="crash-guide-step"><span class="step-num">1</span> BET</div>
-              <div class="crash-guide-step"><span class="step-arrow">→</span></div>
-              <div class="crash-guide-step"><span class="step-num">2</span> WATCH MULTIPLIER RISE</div>
-              <div class="crash-guide-step"><span class="step-arrow">→</span></div>
-              <div class="crash-guide-step"><span class="step-num">3</span> CASHOUT BEFORE CRASH!</div>
-              <div class="crash-guide-step"><span class="step-arrow">|</span></div>
-              <div class="crash-guide-step" style="color:var(--tx3)">Too late = lose bet</div>
-            </div>
-            <span class="crash-guide-toggle" onclick="this.parentElement.style.display='none'">HIDE</span>
-          </div>
-
-          <!-- History bar -->
-          <div class="crash-history" id="crashHistory"></div>
-
-          <div class="crash-wrap">
-            <div class="crash-main">
+          <div class="cantina-game">
+            <div class="cantina-main">
+              <!-- Banner -->
+              <div class="game-banner" style="height:120px"><canvas id="bannerCrash"></canvas></div>
+              <!-- How to play guide -->
+              <div class="crash-guide" id="crashGuide">
+                <div class="crash-guide-steps">
+                  <div class="crash-guide-step"><span class="step-num">1</span> BET</div>
+                  <div class="crash-guide-step"><span class="step-arrow">→</span></div>
+                  <div class="crash-guide-step"><span class="step-num">2</span> WATCH RISE</div>
+                  <div class="crash-guide-step"><span class="step-arrow">→</span></div>
+                  <div class="crash-guide-step"><span class="step-num">3</span> CASHOUT!</div>
+                </div>
+                <span class="crash-guide-toggle" onclick="this.parentElement.style.display='none'">✕</span>
+              </div>
+              <!-- History bar -->
+              <div class="crash-history" id="crashHistory"></div>
               <!-- Canvas for chart -->
               <div class="crash-canvas-wrap">
                 <canvas id="crashCanvas"></canvas>
@@ -342,11 +426,11 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
                   <div class="crash-status-text" id="crashStatusText" style="color:var(--tx3)">Next round starting soon</div>
                 </div>
               </div>
-          <!-- Controls -->
-          <div class="crash-controls">
-            <div class="crash-bet-panel">
+            </div>
+            <div class="cantina-sidebar">
+              <div class="cs-title">CRASH</div>
               <div style="display:flex;justify-content:space-between;align-items:center">
-                <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
+                <span style="font-size:var(--fs-xs);color:var(--tx3)">BET AMOUNT</span>
                 <div class="cur-toggle" id="crashCurToggle">
                   <button class="cur-opt active" data-cur="PP" onclick="setCrashCur('PP')">PP</button>
                   <button class="cur-opt usdt" data-cur="USDT" onclick="setCrashCur('USDT')">USDT</button>
@@ -357,10 +441,8 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
                 <button class="crash-quick-btn" onclick="qCrash(0.1)">0.1</button>
                 <button class="crash-quick-btn" onclick="qCrash(0.5)">0.5</button>
                 <button class="crash-quick-btn" onclick="qCrash(1)">1</button>
-                <button class="crash-quick-btn" onclick="qCrash(3)">3</button>
                 <button class="crash-quick-btn" onclick="qCrash(5)">5</button>
                 <button class="crash-quick-btn" onclick="qCrash(10)">10</button>
-                <button class="crash-quick-btn" onclick="qCrash(25)">25</button>
                 <button class="crash-quick-btn" onclick="qCrash(50)">50</button>
               </div>
               <div class="auto-cashout-wrap">
@@ -374,68 +456,219 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
               <button class="btn-bet place" id="crashBetBtn" onclick="placeCrashBet()">
                 PLACE BET
               </button>
+              <div class="divider"></div>
+              <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BETS THIS ROUND</div>
+              <div class="crash-bets-list" id="crashBetsList" style="flex:1;overflow-y:auto;max-height:200px"></div>
             </div>
           </div>
         </div>
 
-        <!-- Bets sidebar -->
-        <div class="crash-sidebar">
-          <div class="crash-sb-title">BETS THIS ROUND</div>
-          <div class="crash-bets-list" id="crashBetsList"></div>
+    <!-- ═══ COINFLIP (Sandstorm Survival) ═══ -->
+    <!-- ═══ COINFLIP (Sandstorm Survival) ═══ -->
+    <div class="game-panel" id="panelCoinflip">
+      <div class="cantina-game">
+        <div class="cantina-main">
+          <div class="game-banner" style="height:120px"><canvas id="bannerCoinflip"></canvas></div>
+          <div class="game-result-area">
+            <div class="result-display">
+              <div class="result-big idle" id="coinflipResult">SANDSTORM SURVIVAL</div>
+              <div class="result-sub" id="coinflipResultSub">Will you survive the storm?</div>
+            </div>
+          </div>
+          <div class="cf-choices">
+            <div class="cf-btn survive" id="cfBtnSurvive" onclick="setCoinflipChoice('survive')">
+              <span class="cf-icon">🛡️</span><span>SURVIVE</span>
+            </div>
+            <div class="cf-btn perish" id="cfBtnPerish" onclick="setCoinflipChoice('perish')">
+              <span class="cf-icon">🌪️</span><span>PERISH</span>
+            </div>
+          </div>
+        </div>
+        <div class="cantina-sidebar">
+          <div class="cs-title">SANDSTORM SURVIVAL</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:var(--fs-xs);color:var(--tx3)">BET AMOUNT</span>
+            <div class="cur-toggle" id="cfCurToggle">
+              <button class="cur-opt active" data-cur="PP" onclick="setCfCur('PP')">PP</button>
+              <button class="cur-opt usdt" data-cur="USDT" onclick="setCfCur('USDT')">USDT</button>
+            </div>
+          </div>
+          <div class="crash-bet-row">
+            <input type="number" class="crash-input" id="cfBetInput" value="1" min="0.1" step="0.1">
+            <button class="crash-quick-btn" onclick="qCf(0.1)">0.1</button>
+            <button class="crash-quick-btn" onclick="qCf(0.5)">0.5</button>
+            <button class="crash-quick-btn" onclick="qCf(1)">1</button>
+            <button class="crash-quick-btn" onclick="qCf(5)">5</button>
+            <button class="crash-quick-btn" onclick="qCf(10)">10</button>
+            <button class="crash-quick-btn" onclick="qCf(50)">50</button>
+          </div>
+          <div class="divider"></div>
+          <div class="mines-info">
+            <div class="mines-info-row"><span class="mines-info-label">PAYOUT</span><span class="mines-info-val gn">1.96x</span></div>
+            <div class="mines-info-row"><span class="mines-info-label">HOUSE EDGE</span><span class="mines-info-val" style="color:var(--tx2)">2%</span></div>
+          </div>
+          <div class="divider"></div>
+          <button class="btn-mines start" id="cfPlayBtn" onclick="playCoinflip()">PLAY</button>
+          <div class="divider"></div>
+          <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">HISTORY</div>
+          <div class="cg-history" id="cfHistory"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DICE (Meteorite Prediction) ═══ -->
+    <div class="game-panel" id="panelDice">
+      <div class="cantina-game">
+        <div class="cantina-main">
+          <div class="game-banner" style="height:120px"><canvas id="bannerDice"></canvas></div>
+          <div class="game-result-area">
+            <div class="result-display">
+              <div class="result-big idle" id="diceResult">METEORITE PREDICTION</div>
+              <div class="result-sub" id="diceResultSub">Predict where the meteorite lands</div>
+            </div>
+          </div>
+          <div class="dice-area">
+            <input type="range" class="dice-slider" id="diceSlider" min="2" max="97" value="50" oninput="updateDiceSlider()">
+            <div class="dice-dirs">
+              <button class="dice-dir active" id="diceDirOver" onclick="setDiceDir('over')">OVER</button>
+              <button class="dice-dir" id="diceDirUnder" onclick="setDiceDir('under')">UNDER</button>
+            </div>
+            <div class="dice-stats">
+              <div class="dice-stat">TARGET<div class="ds-val" id="diceTargetDisp">50</div></div>
+              <div class="dice-stat">WIN %<div class="ds-val" id="diceChanceDisp">49%</div></div>
+              <div class="dice-stat">MULTI<div class="ds-val" id="diceMultDisp">1.98x</div></div>
+              <div class="dice-stat">PAYOUT<div class="ds-val" id="dicePayoutDisp">1.98</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="cantina-sidebar">
+          <div class="cs-title">METEORITE PREDICTION</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:var(--fs-xs);color:var(--tx3)">BET AMOUNT</span>
+            <div class="cur-toggle" id="diceCurToggle">
+              <button class="cur-opt active" data-cur="PP" onclick="setDiceCur('PP')">PP</button>
+              <button class="cur-opt usdt" data-cur="USDT" onclick="setDiceCur('USDT')">USDT</button>
+            </div>
+          </div>
+          <div class="crash-bet-row">
+            <input type="number" class="crash-input" id="diceBetInput" value="1" min="0.1" step="0.1">
+            <button class="crash-quick-btn" onclick="qDice(0.1)">0.1</button>
+            <button class="crash-quick-btn" onclick="qDice(0.5)">0.5</button>
+            <button class="crash-quick-btn" onclick="qDice(1)">1</button>
+            <button class="crash-quick-btn" onclick="qDice(5)">5</button>
+            <button class="crash-quick-btn" onclick="qDice(10)">10</button>
+            <button class="crash-quick-btn" onclick="qDice(50)">50</button>
+          </div>
+          <div class="divider"></div>
+          <div class="mines-info">
+            <div class="mines-info-row"><span class="mines-info-label">HOUSE EDGE</span><span class="mines-info-val" style="color:var(--tx2)">2%</span></div>
+          </div>
+          <div class="divider"></div>
+          <button class="btn-mines start" id="dicePlayBtn" onclick="playDice()">ROLL</button>
+          <div class="divider"></div>
+          <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">HISTORY</div>
+          <div class="cg-history" id="diceHistory"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ HI-LO (Terrain Survey) ═══ -->
+    <div class="game-panel" id="panelHilo">
+      <div class="cantina-game">
+        <div class="cantina-main">
+          <div class="game-banner" style="height:120px"><canvas id="bannerHilo"></canvas></div>
+          <div class="game-result-area">
+            <div class="result-display">
+              <div class="result-big idle" id="hiloResult">TERRAIN SURVEY</div>
+              <div class="result-sub" id="hiloResultSub">Predict the terrain elevation</div>
+            </div>
+          </div>
+          <div class="hilo-main-area">
+            <div class="hl-cards" id="hiloCardsArea">
+              <div class="hl-card empty"><span class="hc-val">?</span></div>
+            </div>
+            <div class="hl-guesses">
+              <button class="hl-guess high" id="hiloBtnHigh" onclick="hiloGuess('high')" disabled>
+                <span class="hg-icon">▲</span><span>HIGHER</span>
+              </button>
+              <button class="hl-guess low" id="hiloBtnLow" onclick="hiloGuess('low')" disabled>
+                <span class="hg-icon">▼</span><span>LOWER</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="cantina-sidebar">
+          <div class="cs-title">TERRAIN SURVEY</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:var(--fs-xs);color:var(--tx3)">BET AMOUNT</span>
+            <div class="cur-toggle" id="hiloCurToggle">
+              <button class="cur-opt active" data-cur="PP" onclick="setHiloCur('PP')">PP</button>
+              <button class="cur-opt usdt" data-cur="USDT" onclick="setHiloCur('USDT')">USDT</button>
+            </div>
+          </div>
+          <div class="crash-bet-row">
+            <input type="number" class="crash-input" id="hiloBetInput" value="1" min="0.1" step="0.1">
+            <button class="crash-quick-btn" onclick="qHilo(0.1)">0.1</button>
+            <button class="crash-quick-btn" onclick="qHilo(0.5)">0.5</button>
+            <button class="crash-quick-btn" onclick="qHilo(1)">1</button>
+            <button class="crash-quick-btn" onclick="qHilo(5)">5</button>
+            <button class="crash-quick-btn" onclick="qHilo(10)">10</button>
+            <button class="crash-quick-btn" onclick="qHilo(50)">50</button>
+          </div>
+          <div class="divider"></div>
+          <div class="mines-info">
+            <div class="mines-info-row"><span class="mines-info-label">CURRENT MULT</span><span class="mines-info-val gold" id="hiloCurrentMult">1.00x</span></div>
+            <div class="mines-info-row"><span class="mines-info-label">POTENTIAL WIN</span><span class="mines-info-val gn" id="hiloPotentialWin">0.00</span></div>
+            <div class="mines-info-row"><span class="mines-info-label">CARDS DRAWN</span><span class="mines-info-val" id="hiloCardsDrawn">0</span></div>
+          </div>
+          <div class="divider"></div>
+          <button class="btn-mines start" id="hiloStartBtn" onclick="startHilo()">START SURVEY</button>
+          <button class="btn-mines cashout" id="hiloCashBtn" onclick="hiloCashout()" style="display:none">CASHOUT</button>
+          <div class="divider"></div>
+          <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">HOUSE EDGE: 2%</div>
         </div>
       </div>
     </div>
 
     <!-- ═══ MINES PANEL ═══ -->
     <div class="game-panel" id="panelMines">
-      <div class="mines-wrap">
-        <div class="mines-main">
-          <div class="mines-grid" id="minesGrid"></div>
+      <div class="cantina-game">
+        <div class="cantina-main">
+          <div class="game-banner" style="height:120px"><canvas id="bannerMines"></canvas></div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center">
+            <div class="mines-grid" id="minesGrid"></div>
+          </div>
         </div>
-        <div class="mines-sidebar">
-          <div class="mines-sb-title">MINES</div>
-
-          <!-- Bet amount -->
-          <div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
-              <div class="cur-toggle" id="minesCurToggle">
-                <button class="cur-opt active" data-cur="PP" onclick="setMinesCur('PP')">PP</button>
-                <button class="cur-opt usdt" data-cur="USDT" onclick="setMinesCur('USDT')">USDT</button>
-              </div>
-            </div>
-            <div class="crash-bet-row">
-              <input type="number" class="crash-input" id="minesBetInput" value="1" min="0.1" step="0.1" placeholder="Bet...">
-              <button class="crash-quick-btn" onclick="qMines(0.1)">0.1</button>
-              <button class="crash-quick-btn" onclick="qMines(0.5)">0.5</button>
-              <button class="crash-quick-btn" onclick="qMines(1)">1</button>
-              <button class="crash-quick-btn" onclick="qMines(3)">3</button>
-              <button class="crash-quick-btn" onclick="qMines(5)">5</button>
-              <button class="crash-quick-btn" onclick="qMines(10)">10</button>
-              <button class="crash-quick-btn" onclick="qMines(25)">25</button>
-              <button class="crash-quick-btn" onclick="qMines(50)">50</button>
+        <div class="cantina-sidebar">
+          <div class="cs-title">MINES</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:var(--fs-xs);color:var(--tx3)">BET AMOUNT</span>
+            <div class="cur-toggle" id="minesCurToggle">
+              <button class="cur-opt active" data-cur="PP" onclick="setMinesCur('PP')">PP</button>
+              <button class="cur-opt usdt" data-cur="USDT" onclick="setMinesCur('USDT')">USDT</button>
             </div>
           </div>
-
-          <div class="divider"></div>
-
-          <!-- Mine count -->
-          <div>
-            <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px;margin-bottom:6px">MINES COUNT</div>
-            <div class="mines-count-row" id="minesCountRow">
-              <button class="mc-btn" data-mc="1" onclick="setMineCount(1)">1</button>
-              <button class="mc-btn" data-mc="3" onclick="setMineCount(3)">3</button>
-              <button class="mc-btn active" data-mc="5" onclick="setMineCount(5)">5</button>
-              <button class="mc-btn" data-mc="10" onclick="setMineCount(10)">10</button>
-              <button class="mc-btn" data-mc="15" onclick="setMineCount(15)">15</button>
-              <button class="mc-btn" data-mc="20" onclick="setMineCount(20)">20</button>
-              <button class="mc-btn" data-mc="24" onclick="setMineCount(24)">24</button>
-            </div>
+          <div class="crash-bet-row">
+            <input type="number" class="crash-input" id="minesBetInput" value="1" min="0.1" step="0.1" placeholder="Bet...">
+            <button class="crash-quick-btn" onclick="qMines(0.1)">0.1</button>
+            <button class="crash-quick-btn" onclick="qMines(0.5)">0.5</button>
+            <button class="crash-quick-btn" onclick="qMines(1)">1</button>
+            <button class="crash-quick-btn" onclick="qMines(5)">5</button>
+            <button class="crash-quick-btn" onclick="qMines(10)">10</button>
+            <button class="crash-quick-btn" onclick="qMines(50)">50</button>
           </div>
-
           <div class="divider"></div>
-
-          <!-- Game info -->
+          <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">MINES COUNT</div>
+          <div class="mines-count-row" id="minesCountRow">
+            <button class="mc-btn" data-mc="1" onclick="setMineCount(1)">1</button>
+            <button class="mc-btn" data-mc="3" onclick="setMineCount(3)">3</button>
+            <button class="mc-btn active" data-mc="5" onclick="setMineCount(5)">5</button>
+            <button class="mc-btn" data-mc="10" onclick="setMineCount(10)">10</button>
+            <button class="mc-btn" data-mc="15" onclick="setMineCount(15)">15</button>
+            <button class="mc-btn" data-mc="20" onclick="setMineCount(20)">20</button>
+            <button class="mc-btn" data-mc="24" onclick="setMineCount(24)">24</button>
+          </div>
+          <div class="divider"></div>
           <div class="mines-info" id="minesInfo">
             <div class="mines-info-row">
               <span class="mines-info-label">GEMS FOUND</span>
@@ -454,9 +687,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
               <span class="mines-info-val gn" id="minesPotentialWin">0.00</span>
             </div>
           </div>
-
           <div class="divider"></div>
-
           <button class="btn-mines start" id="minesActionBtn" onclick="minesAction()">
             START GAME
           </button>
@@ -517,12 +748,12 @@ function tryAutoConnect() {
       if (payload.wallet) {
         wallet = payload.wallet.toLowerCase();
         setWalletUI();
-        // Show nickname if available
         if (payload.nickname) {
           document.getElementById('btnConnect').textContent = payload.nickname;
         }
         loadBalance();
         checkActiveMines();
+        checkActiveHilo();
         return;
       }
     } catch(e) {}
@@ -535,6 +766,7 @@ function tryAutoConnect() {
         setWalletUI();
         loadBalance();
         checkActiveMines();
+        checkActiveHilo();
       }
     }).catch(() => {});
   }
@@ -556,11 +788,17 @@ async function loadBalance() {
 }
 
 // ── Tab switching ──
+const panelMap = {crash:'panelCrash',mines:'panelMines',coinflip:'panelCoinflip',dice:'panelDice',hilo:'panelHilo'};
 function switchGame(game) {
   document.querySelectorAll('.game-tab').forEach(t => t.classList.toggle('active', t.dataset.game === game));
   document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(game === 'crash' ? 'panelCrash' : 'panelMines').classList.add('active');
-  if (game === 'crash') initCrashCanvas();
+  const pid = panelMap[game];
+  if (pid) document.getElementById(pid).classList.add('active');
+  if (game === 'crash') { initCrashCanvas(); setTimeout(drawBannerCrash, 50); }
+  if (game === 'mines') setTimeout(drawBannerMines, 50);
+  if (game === 'coinflip') { setTimeout(drawBannerCoinflip, 50); loadCfHistory(); }
+  if (game === 'dice') setTimeout(drawBannerDice, 50);
+  if (game === 'hilo') { setTimeout(drawBannerHilo, 50); checkActiveHilo(); }
 }
 
 // ═══════════════════════════════════════
@@ -1177,6 +1415,510 @@ async function checkActiveMines() {
 
 
 // ═══════════════════════════════════════
+//  BANNER RENDERERS (Canvas pixel art)
+// ═══════════════════════════════════════
+function drawBannerCrash() {
+  const c = document.getElementById('bannerCrash'); if (!c) return;
+  const w = c.parentElement.clientWidth, h = c.parentElement.clientHeight;
+  c.width = w * 2; c.height = h * 2; c.style.width = w+'px'; c.style.height = h+'px';
+  const ctx = c.getContext('2d'); ctx.scale(2,2);
+  // Dark space gradient with green tint
+  const g = ctx.createLinearGradient(0,0,w,h);
+  g.addColorStop(0,'#0A1210'); g.addColorStop(0.4,'#0C1A14'); g.addColorStop(0.7,'#081810');
+  g.addColorStop(1,'#041208');
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  // Rising graph line
+  ctx.strokeStyle='rgba(76,216,154,0.25)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(w*0.05,h*0.85);
+  const pts = [[0.15,0.7],[0.25,0.6],[0.35,0.55],[0.45,0.4],[0.55,0.35],[0.65,0.22],[0.72,0.15],[0.78,0.12]];
+  pts.forEach(([px,py]) => ctx.lineTo(w*px,h*py));
+  ctx.stroke();
+  // Glow under graph
+  ctx.lineTo(w*0.78,h); ctx.lineTo(w*0.05,h); ctx.closePath();
+  ctx.fillStyle='rgba(76,216,154,0.04)'; ctx.fill();
+  // Crash explosion at end
+  ctx.fillStyle='rgba(232,72,85,0.3)';
+  ctx.beginPath(); ctx.arc(w*0.82,h*0.2,18,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(232,72,85,0.15)';
+  ctx.beginPath(); ctx.arc(w*0.82,h*0.2,30,0,Math.PI*2); ctx.fill();
+  // Scattered sparks
+  for(let i=0;i<40;i++){
+    ctx.fillStyle=`rgba(${76+Math.random()*180},${150+Math.random()*66},${80+Math.random()*74},${Math.random()*0.3+0.05})`;
+    ctx.fillRect(Math.random()*w,Math.random()*h,1.5,1.5);
+  }
+  ctx.fillStyle='rgba(76,216,154,0.9)'; ctx.font='bold 18px Orbitron';
+  ctx.textAlign='center'; ctx.fillText('CRASH',w/2,h/2-8);
+  ctx.fillStyle='rgba(76,216,154,0.5)'; ctx.font='10px "Press Start 2P"';
+  ctx.fillText('CASHOUT BEFORE THE CRASH',w/2,h/2+16);
+}
+
+function drawBannerMines() {
+  const c = document.getElementById('bannerMines'); if (!c) return;
+  const w = c.parentElement.clientWidth, h = c.parentElement.clientHeight;
+  c.width = w * 2; c.height = h * 2; c.style.width = w+'px'; c.style.height = h+'px';
+  const ctx = c.getContext('2d'); ctx.scale(2,2);
+  // Dark underground gradient
+  const g = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#12080A'); g.addColorStop(0.5,'#1A0E12'); g.addColorStop(1,'#221418');
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  // Grid pattern
+  ctx.strokeStyle='rgba(255,120,60,0.06)'; ctx.lineWidth=0.5;
+  for(let x=0;x<w;x+=24){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=24){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  // Gems scattered
+  const gemColors = ['rgba(76,216,154,0.6)','rgba(91,184,232,0.6)','rgba(184,136,224,0.5)','rgba(255,209,102,0.5)'];
+  for(let i=0;i<12;i++){
+    const x=Math.random()*w, y=Math.random()*h, sz=Math.random()*4+2;
+    ctx.fillStyle=gemColors[Math.floor(Math.random()*gemColors.length)];
+    // Diamond shape
+    ctx.beginPath(); ctx.moveTo(x,y-sz); ctx.lineTo(x+sz,y); ctx.lineTo(x,y+sz); ctx.lineTo(x-sz,y); ctx.closePath(); ctx.fill();
+  }
+  // Mines (danger)
+  for(let i=0;i<6;i++){
+    const x=Math.random()*w, y=Math.random()*h;
+    ctx.fillStyle='rgba(232,72,85,0.25)';
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(232,72,85,0.5)'; ctx.font='8px "Press Start 2P"';
+    ctx.textAlign='center'; ctx.fillText('💣',x,y+3);
+  }
+  ctx.fillStyle='rgba(255,120,60,0.9)'; ctx.font='bold 18px Orbitron';
+  ctx.textAlign='center'; ctx.fillText('MINES',w/2,h/2-8);
+  ctx.fillStyle='rgba(255,120,60,0.5)'; ctx.font='10px "Press Start 2P"';
+  ctx.fillText('FIND GEMS  •  AVOID MINES',w/2,h/2+16);
+}
+
+function drawBannerCoinflip() {
+  const c = document.getElementById('bannerCoinflip'); if (!c) return;
+  const w = c.parentElement.clientWidth, h = c.parentElement.clientHeight;
+  c.width = w * 2; c.height = h * 2; c.style.width = w+'px'; c.style.height = h+'px';
+  const ctx = c.getContext('2d'); ctx.scale(2,2);
+  // Sandstorm gradient
+  const g = ctx.createLinearGradient(0,0,w,h);
+  g.addColorStop(0,'#2A1810'); g.addColorStop(0.4,'#4A2820'); g.addColorStop(0.7,'#6A3828');
+  g.addColorStop(1,'#8A4830');
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  // Sand particles
+  for (let i=0;i<120;i++){
+    const x=Math.random()*w, y=Math.random()*h, r=Math.random()*3+1;
+    ctx.fillStyle=`rgba(255,${160+Math.random()*60},${80+Math.random()*40},${Math.random()*0.4+0.1})`;
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  }
+  // Wind streaks
+  ctx.strokeStyle='rgba(255,180,100,0.08)'; ctx.lineWidth=2;
+  for(let i=0;i<15;i++){
+    const y=Math.random()*h, xStart=Math.random()*w*0.3;
+    ctx.beginPath(); ctx.moveTo(xStart,y); ctx.lineTo(xStart+Math.random()*200+100,y+Math.random()*20-10);
+    ctx.stroke();
+  }
+  // Title
+  ctx.fillStyle='rgba(255,200,120,0.9)'; ctx.font='bold 18px Orbitron';
+  ctx.textAlign='center'; ctx.fillText('SANDSTORM SURVIVAL',w/2,h/2-8);
+  ctx.fillStyle='rgba(255,180,100,0.5)'; ctx.font='10px "Press Start 2P"';
+  ctx.fillText('SURVIVE OR PERISH  •  1.96x PAYOUT',w/2,h/2+16);
+}
+
+function drawBannerDice() {
+  const c = document.getElementById('bannerDice'); if (!c) return;
+  const w = c.parentElement.clientWidth, h = c.parentElement.clientHeight;
+  c.width = w * 2; c.height = h * 2; c.style.width = w+'px'; c.style.height = h+'px';
+  const ctx = c.getContext('2d'); ctx.scale(2,2);
+  // Space gradient
+  const g = ctx.createLinearGradient(0,0,w,h);
+  g.addColorStop(0,'#0A0A1A'); g.addColorStop(0.5,'#1A1030'); g.addColorStop(1,'#0A0818');
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  // Stars
+  for(let i=0;i<80;i++){
+    ctx.fillStyle=`rgba(255,255,255,${Math.random()*0.5+0.1})`;
+    ctx.fillRect(Math.random()*w,Math.random()*h,1,1);
+  }
+  // Meteorites
+  for(let i=0;i<8;i++){
+    const x=Math.random()*w, y=Math.random()*h*0.7, sz=Math.random()*6+3;
+    ctx.fillStyle=`rgba(${200+Math.random()*55},${100+Math.random()*60},${50+Math.random()*40},0.7)`;
+    ctx.beginPath(); ctx.arc(x,y,sz,0,Math.PI*2); ctx.fill();
+    // Trail
+    ctx.strokeStyle=`rgba(255,${150+Math.random()*60},60,0.3)`; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x+sz,y-sz); ctx.lineTo(x+sz+Math.random()*40+20,y-sz-Math.random()*20-10);
+    ctx.stroke();
+  }
+  ctx.fillStyle='rgba(180,160,255,0.9)'; ctx.font='bold 18px Orbitron';
+  ctx.textAlign='center'; ctx.fillText('METEORITE PREDICTION',w/2,h/2-8);
+  ctx.fillStyle='rgba(160,140,220,0.5)'; ctx.font='10px "Press Start 2P"';
+  ctx.fillText('PREDICT THE IMPACT ZONE',w/2,h/2+16);
+}
+
+function drawBannerHilo() {
+  const c = document.getElementById('bannerHilo'); if (!c) return;
+  const w = c.parentElement.clientWidth, h = c.parentElement.clientHeight;
+  c.width = w * 2; c.height = h * 2; c.style.width = w+'px'; c.style.height = h+'px';
+  const ctx = c.getContext('2d'); ctx.scale(2,2);
+  // Mars terrain gradient
+  const g = ctx.createLinearGradient(0,h,0,0);
+  g.addColorStop(0,'#3A1808'); g.addColorStop(0.4,'#5A2818'); g.addColorStop(0.7,'#2A1A28');
+  g.addColorStop(1,'#0A0818');
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  // Terrain bumps
+  ctx.fillStyle='rgba(120,60,30,0.3)';
+  ctx.beginPath(); ctx.moveTo(0,h);
+  for(let x=0;x<=w;x+=20) ctx.lineTo(x, h-20-Math.sin(x*0.03)*25-Math.random()*10);
+  ctx.lineTo(w,h); ctx.fill();
+  // Grid overlay
+  ctx.strokeStyle='rgba(91,184,232,0.06)'; ctx.lineWidth=0.5;
+  for(let x=0;x<w;x+=30){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=30){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  ctx.fillStyle='rgba(91,184,232,0.9)'; ctx.font='bold 18px Orbitron';
+  ctx.textAlign='center'; ctx.fillText('TERRAIN SURVEY',w/2,h/2-8);
+  ctx.fillStyle='rgba(91,184,232,0.5)'; ctx.font='10px "Press Start 2P"';
+  ctx.fillText('HIGHER OR LOWER  •  CHAIN YOUR WINS',w/2,h/2+16);
+}
+
+// ═══════════════════════════════════════
+//  COINFLIP — Sandstorm Survival
+// ═══════════════════════════════════════
+let cfChoice = null;
+let cfCurrency = 'PP';
+let cfPlaying = false;
+
+function setCoinflipChoice(ch) {
+  if (cfPlaying) return;
+  cfChoice = ch;
+  document.getElementById('cfBtnSurvive').classList.toggle('sel', ch === 'survive');
+  document.getElementById('cfBtnPerish').classList.toggle('sel', ch === 'perish');
+}
+function setCfCur(cur) {
+  cfCurrency = cur;
+  document.querySelectorAll('#cfCurToggle .cur-opt').forEach(o =>
+    o.classList.toggle('active', o.dataset.cur === cur));
+}
+function qCf(v) { document.getElementById('cfBetInput').value = v; }
+
+async function playCoinflip() {
+  if (!wallet) return toast('Connect wallet first', true);
+  if (!cfChoice) return toast('Choose SURVIVE or PERISH', true);
+  const amount = parseFloat(document.getElementById('cfBetInput').value);
+  if (!amount || amount <= 0) return toast('Enter bet amount', true);
+
+  cfPlaying = true;
+  const btn = document.getElementById('cfPlayBtn');
+  btn.textContent = 'ROLLING...'; btn.disabled = true;
+
+  const resEl = document.getElementById('coinflipResult');
+  const resSub = document.getElementById('coinflipResultSub');
+  resEl.className = 'result-big idle'; resEl.textContent = '...';
+  resSub.textContent = 'The sandstorm approaches...';
+
+  try {
+    const r = await fetch(API + '/coinflip/play', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, amount, currency: cfCurrency, choice: cfChoice })
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error, true); cfPlaying = false; btn.textContent = 'PLAY'; btn.disabled = false; return; }
+
+    // Dramatic delay
+    await new Promise(res => setTimeout(res, 800));
+
+    const won = d.won;
+    resEl.className = 'result-big ' + (won ? 'win' : 'lose');
+    resEl.textContent = won ? 'SURVIVED!' : 'PERISHED!';
+    resSub.textContent = won
+      ? '+' + parseFloat(d.payout).toFixed(4) + ' ' + cfCurrency + '  (1.96x)'
+      : 'Lost ' + amount.toFixed(2) + ' ' + cfCurrency;
+
+    if (won) toast('You survived! +' + parseFloat(d.payout).toFixed(4) + ' ' + cfCurrency);
+    else toast('The storm took you...', true);
+
+    loadBalance();
+    loadCfHistory();
+  } catch(e) { toast('Game failed', true); }
+
+  cfPlaying = false;
+  btn.textContent = 'PLAY'; btn.disabled = false;
+}
+
+async function loadCfHistory() {
+  if (!wallet) return;
+  try {
+    const r = await fetch(API + '/coinflip/history?wallet=' + wallet);
+    const d = await r.json();
+    const el = document.getElementById('cfHistory');
+    el.innerHTML = d.map(g => {
+      const won = parseFloat(g.payout) > 0;
+      return `<span class="cg-hpill ${won?'win':'lose'}">${won ? '+'+parseFloat(g.payout).toFixed(1) : '-'+parseFloat(g.bet).toFixed(1)}</span>`;
+    }).join('');
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+//  DICE — Meteorite Prediction
+// ═══════════════════════════════════════
+let diceDir = 'over';
+let diceCurrency = 'PP';
+let dicePlaying = false;
+
+function setDiceDir(dir) {
+  diceDir = dir;
+  document.getElementById('diceDirOver').classList.toggle('active', dir === 'over');
+  document.getElementById('diceDirUnder').classList.toggle('active', dir === 'under');
+  updateDiceSlider();
+}
+function setDiceCur(cur) {
+  diceCurrency = cur;
+  document.querySelectorAll('#diceCurToggle .cur-opt').forEach(o =>
+    o.classList.toggle('active', o.dataset.cur === cur));
+}
+function qDice(v) { document.getElementById('diceBetInput').value = v; }
+
+function updateDiceSlider() {
+  const target = parseInt(document.getElementById('diceSlider').value);
+  const winChance = diceDir === 'over' ? (99 - target) : (target - 1);
+  const mult = winChance > 0 ? ((99 / winChance) * 0.98).toFixed(4) : 0;
+  const bet = parseFloat(document.getElementById('diceBetInput').value) || 1;
+
+  document.getElementById('diceTargetDisp').textContent = target;
+  document.getElementById('diceChanceDisp').textContent = winChance + '%';
+  document.getElementById('diceMultDisp').textContent = parseFloat(mult).toFixed(2) + 'x';
+  document.getElementById('dicePayoutDisp').textContent = (bet * parseFloat(mult)).toFixed(2);
+}
+
+async function playDice() {
+  if (!wallet) return toast('Connect wallet first', true);
+  const amount = parseFloat(document.getElementById('diceBetInput').value);
+  if (!amount || amount <= 0) return toast('Enter bet amount', true);
+  const target = parseInt(document.getElementById('diceSlider').value);
+
+  dicePlaying = true;
+  const btn = document.getElementById('dicePlayBtn');
+  btn.textContent = 'ROLLING...'; btn.disabled = true;
+
+  const resEl = document.getElementById('diceResult');
+  const resSub = document.getElementById('diceResultSub');
+  resEl.className = 'result-big idle'; resEl.textContent = '...';
+  resSub.textContent = 'Meteorite incoming...';
+
+  try {
+    const r = await fetch(API + '/dice/play', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, amount, currency: diceCurrency, target, direction: diceDir })
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error, true); dicePlaying = false; btn.textContent = 'ROLL'; btn.disabled = false; return; }
+
+    await new Promise(res => setTimeout(res, 600));
+
+    const won = parseFloat(d.payout) > 0;
+    resEl.className = 'result-big ' + (won ? 'win' : 'lose');
+    resEl.textContent = d.roll;
+    resSub.textContent = won
+      ? 'Roll ' + d.roll + ' ' + diceDir + ' ' + target + '  →  +' + parseFloat(d.payout).toFixed(4) + ' (' + parseFloat(d.multiplier).toFixed(2) + 'x)'
+      : 'Roll ' + d.roll + ' — needed ' + diceDir + ' ' + target;
+
+    if (won) toast('Impact zone hit! +' + parseFloat(d.payout).toFixed(4));
+    else toast('Meteorite missed...', true);
+
+    loadBalance();
+  } catch(e) { toast('Roll failed', true); }
+
+  dicePlaying = false;
+  btn.textContent = 'ROLL'; btn.disabled = false;
+}
+
+// ═══════════════════════════════════════
+//  HI-LO — Terrain Survey
+// ═══════════════════════════════════════
+let hiloGameId = null;
+let hiloActive = false;
+let hiloCurrency = 'PP';
+let hiloCards = [];
+let hiloMult = 1;
+let hiloBet = 0;
+let hiloGuessing = false;
+
+const MARS_SUITS = { rock:'🪨', dust:'🌪️', ice:'🧊', iron:'⚙️' };
+const CARD_NAMES = {2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K',14:'A'};
+
+function setHiloCur(cur) {
+  hiloCurrency = cur;
+  document.querySelectorAll('#hiloCurToggle .cur-opt').forEach(o =>
+    o.classList.toggle('active', o.dataset.cur === cur));
+}
+function qHilo(v) { document.getElementById('hiloBetInput').value = v; }
+
+function renderHiloCards() {
+  const area = document.getElementById('hiloCardsArea');
+  if (!hiloCards.length) {
+    area.innerHTML = '<div class="hl-card empty"><span class="hc-val">?</span></div>';
+    return;
+  }
+  const visible = hiloCards.slice(-6);
+  area.innerHTML = visible.map((card, i) => {
+    const isLast = i === visible.length - 1;
+    const suitCls = 'suit-' + card.suit;
+    return `<div class="hl-card ${isLast ? 'cur' : 'prev'}">
+      <span class="hc-val ${suitCls}">${CARD_NAMES[card.value] || card.value}</span>
+      <span class="hc-suit ${suitCls}">${MARS_SUITS[card.suit] || card.suit}</span>
+    </div>`;
+  }).join('');
+}
+
+function updateHiloUI() {
+  document.getElementById('hiloCurrentMult').textContent = hiloMult.toFixed(2) + 'x';
+  document.getElementById('hiloPotentialWin').textContent = (hiloBet * hiloMult).toFixed(2);
+  document.getElementById('hiloCardsDrawn').textContent = hiloCards.length;
+
+  const startBtn = document.getElementById('hiloStartBtn');
+  const cashBtn = document.getElementById('hiloCashBtn');
+  const highBtn = document.getElementById('hiloBtnHigh');
+  const lowBtn = document.getElementById('hiloBtnLow');
+
+  if (hiloActive) {
+    startBtn.style.display = 'none';
+    cashBtn.style.display = '';
+    cashBtn.textContent = 'CASH ' + (hiloBet * hiloMult).toFixed(2);
+    cashBtn.disabled = hiloCards.length < 2;
+    highBtn.disabled = false;
+    lowBtn.disabled = false;
+  } else {
+    startBtn.style.display = '';
+    cashBtn.style.display = 'none';
+    startBtn.disabled = !wallet;
+    highBtn.disabled = true;
+    lowBtn.disabled = true;
+  }
+}
+
+async function startHilo() {
+  if (!wallet) return toast('Connect wallet first', true);
+  const amount = parseFloat(document.getElementById('hiloBetInput').value);
+  if (!amount || amount <= 0) return toast('Enter bet amount', true);
+
+  const btn = document.getElementById('hiloStartBtn');
+  btn.textContent = 'STARTING...'; btn.disabled = true;
+
+  try {
+    const r = await fetch(API + '/hilo/start', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, amount, currency: hiloCurrency })
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error, true); btn.textContent = 'START SURVEY'; btn.disabled = false; return; }
+
+    hiloGameId = d.gameId;
+    hiloActive = true;
+    hiloCards = d.card ? [d.card] : [];
+    hiloMult = parseFloat(d.multiplier) || 1;
+    hiloBet = parseFloat(d.betAmount);
+    hiloCurrency = d.currency;
+
+    renderHiloCards();
+    updateHiloUI();
+    loadBalance();
+
+    const resEl = document.getElementById('hiloResult');
+    const resSub = document.getElementById('hiloResultSub');
+    resEl.className = 'result-big idle';
+    resEl.textContent = 'SURVEY ACTIVE';
+    const lastVal = hiloCards[hiloCards.length-1]?.value;
+    resSub.textContent = 'Higher or lower than ' + (CARD_NAMES[lastVal] || lastVal || '?') + '?';
+
+    toast('Survey started! Predict the terrain.');
+  } catch(e) { toast('Failed to start', true); btn.textContent = 'START SURVEY'; btn.disabled = false; }
+}
+
+async function hiloGuess(guess) {
+  if (!hiloActive || !hiloGameId || hiloGuessing) return;
+  hiloGuessing = true;
+
+  const highBtn = document.getElementById('hiloBtnHigh');
+  const lowBtn = document.getElementById('hiloBtnLow');
+  highBtn.disabled = true; lowBtn.disabled = true;
+
+  try {
+    const r = await fetch(API + '/hilo/guess', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gameId: hiloGameId, wallet, guess })
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error, true); hiloGuessing = false; updateHiloUI(); return; }
+
+    if (d.card) hiloCards.push(d.card);
+    hiloMult = parseFloat(d.multiplier) || hiloMult;
+    renderHiloCards();
+
+    const resEl = document.getElementById('hiloResult');
+    const resSub = document.getElementById('hiloResultSub');
+
+    if (!d.correct || d.gameOver) {
+      hiloActive = false;
+      resEl.className = 'result-big lose';
+      resEl.textContent = 'SURVEY FAILED';
+      resSub.textContent = 'Wrong prediction! Lost ' + hiloBet.toFixed(2) + ' ' + hiloCurrency;
+      toast('Terrain mismatch! Survey failed.', true);
+      loadBalance();
+    } else {
+      resEl.className = 'result-big win';
+      resEl.textContent = hiloMult.toFixed(2) + 'x';
+      const lastCard = hiloCards[hiloCards.length-1];
+      resSub.textContent = 'Correct! Next: higher or lower than ' + (CARD_NAMES[lastCard?.value] || lastCard?.value || '?') + '?';
+      toast('Correct! Multiplier: ' + hiloMult.toFixed(2) + 'x');
+    }
+
+    updateHiloUI();
+  } catch(e) { toast('Guess failed', true); }
+
+  hiloGuessing = false;
+}
+
+async function hiloCashout() {
+  if (!hiloActive || !hiloGameId) return;
+  if (hiloCards.length < 2) return toast('Make at least one guess first', true);
+
+  const btn = document.getElementById('hiloCashBtn');
+  btn.textContent = 'CASHING OUT...'; btn.disabled = true;
+
+  try {
+    const r = await fetch(API + '/hilo/cashout', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gameId: hiloGameId, wallet })
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error, true); btn.disabled = false; return; }
+
+    hiloActive = false;
+    const resEl = document.getElementById('hiloResult');
+    const resSub = document.getElementById('hiloResultSub');
+    resEl.className = 'result-big win';
+    resEl.textContent = 'SURVEY COMPLETE';
+    resSub.textContent = '+' + parseFloat(d.payout).toFixed(4) + ' ' + hiloCurrency + ' @ ' + parseFloat(d.multiplier).toFixed(2) + 'x';
+    toast('Survey complete! +' + parseFloat(d.payout).toFixed(4) + ' ' + hiloCurrency);
+    loadBalance();
+    updateHiloUI();
+  } catch(e) { toast('Cashout failed', true); btn.disabled = false; }
+}
+
+async function checkActiveHilo() {
+  if (!wallet) return;
+  try {
+    const r = await fetch(API + '/hilo/active?wallet=' + wallet);
+    const d = await r.json();
+    if (d.active) {
+      hiloGameId = d.gameId;
+      hiloActive = true;
+      hiloCards = d.cards || [];
+      hiloMult = parseFloat(d.multiplier) || 1;
+      hiloBet = parseFloat(d.bet);
+      hiloCurrency = d.currency || 'PP';
+      renderHiloCards();
+      updateHiloUI();
+      const resEl = document.getElementById('hiloResult');
+      resEl.className = 'result-big idle';
+      resEl.textContent = 'SURVEY ACTIVE';
+    }
+  } catch(e) {}
+}
+
+
+// ═══════════════════════════════════════
 //  STARS BACKGROUND
 // ═══════════════════════════════════════
 function initStars() {
@@ -1231,14 +1973,18 @@ window.addEventListener('load', () => {
   updateCrashDisplay();
   updateCrashBtn();
   updateMinesInfo();
+  updateDiceSlider();
+  updateHiloUI();
   loadCrashHistory();
   pollCrashRound();
   tryAutoConnect();
+  setTimeout(drawBannerCrash, 100);
 });
 
 window.addEventListener('resize', () => {
   initCrashCanvas();
   drawCrashChart();
+  drawBannerCrash();
 });
 </script>
 </body>

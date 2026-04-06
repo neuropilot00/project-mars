@@ -645,4 +645,354 @@ router.get('/mines/active', async (req, res) => {
   }
 });
 
+// ══════════════════════════════════
+//  SANDSTORM SURVIVAL (Coin Flip)
+// ══════════════════════════════════
+
+router.post('/coinflip/play', betLimiter, async (req, res) => {
+  const { wallet, amount, currency, choice } = req.body;
+  const w = (wallet || '').toLowerCase().trim();
+  const cur = currency === 'USDT' ? 'USDT' : 'PP';
+  const bet = parseFloat(amount);
+  const pick = choice === 'perish' ? 'perish' : 'survive';
+
+  if (!w) return res.status(400).json({ error: 'Wallet required' });
+  const s = await cfg();
+  const minBet = parseFloat(s.coinflip_min_bet) || 0.1;
+  const maxBet = parseFloat(s.coinflip_max_bet) || 500;
+  if (!bet || bet < minBet || bet > maxBet) {
+    return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
+  }
+
+  const seed = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.createHmac('sha256', seed).update('coinflip').digest('hex');
+  const result = parseInt(hash.slice(0, 8), 16) % 2 === 0 ? 'survive' : 'perish';
+  const won = pick === result;
+  const payout = won ? Math.round(bet * 1.96 * 1000000) / 1000000 : 0;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
+    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
+    if (parseFloat(uRes.rows[0].bal) < bet) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
+
+    // Deduct bet
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]);
+
+    // Credit winnings
+    if (won) {
+      await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, w]);
+      await awardXP(client, w, Math.max(1, Math.floor(bet)));
+    }
+
+    // Record game
+    await client.query(
+      `INSERT INTO coinflip_games (wallet, bet_amount, currency, choice, result, payout, seed) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [w, bet, cur, pick, result, payout, seed]
+    );
+
+    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    await client.query('COMMIT');
+
+    res.json({ result, won, choice: pick, payout, balance: parseFloat(balRes.rows[0].bal), hash: hash.slice(0, 16), seed });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// GET /arena/coinflip/history
+router.get('/coinflip/history', async (req, res) => {
+  try {
+    const w = (req.query.wallet || '').toLowerCase().trim();
+    if (!w) return res.json([]);
+    const r = await pool.query(
+      'SELECT id, choice, result, bet_amount, currency, payout, created_at FROM coinflip_games WHERE wallet = $1 ORDER BY id DESC LIMIT 20', [w]
+    );
+    res.json(r.rows.map(g => ({
+      id: g.id, choice: g.choice, result: g.result,
+      bet: parseFloat(g.bet_amount), currency: g.currency,
+      payout: parseFloat(g.payout), time: g.created_at
+    })));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ══════════════════════════════════
+//  METEORITE PREDICTION (Dice)
+// ══════════════════════════════════
+
+router.post('/dice/play', betLimiter, async (req, res) => {
+  const { wallet, amount, currency, target, direction } = req.body;
+  const w = (wallet || '').toLowerCase().trim();
+  const cur = currency === 'USDT' ? 'USDT' : 'PP';
+  const bet = parseFloat(amount);
+  const tgt = parseInt(target);
+  const dir = direction === 'under' ? 'under' : 'over';
+
+  if (!w) return res.status(400).json({ error: 'Wallet required' });
+  if (isNaN(tgt) || tgt < 1 || tgt > 98) return res.status(400).json({ error: 'Target must be 1-98' });
+
+  const s = await cfg();
+  const minBet = parseFloat(s.dice_min_bet) || 0.1;
+  const maxBet = parseFloat(s.dice_max_bet) || 500;
+  if (!bet || bet < minBet || bet > maxBet) {
+    return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
+  }
+
+  // Roll & multiplier
+  const roll = parseInt(crypto.randomBytes(4).toString('hex'), 16) % 100; // 0-99
+  const winChance = dir === 'over' ? (99 - tgt) : tgt;
+  if (winChance <= 0) return res.status(400).json({ error: 'Invalid target' });
+  const multiplier = Math.round((99 / winChance) * 0.98 * 10000) / 10000; // 2% house edge
+  const won = dir === 'over' ? roll > tgt : roll < tgt;
+  const payout = won ? Math.round(bet * multiplier * 1000000) / 1000000 : 0;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
+    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
+    if (parseFloat(uRes.rows[0].bal) < bet) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
+
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]);
+    if (won) {
+      await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, w]);
+      await awardXP(client, w, Math.max(1, Math.floor(bet)));
+    }
+
+    await client.query(
+      `INSERT INTO dice_games (wallet, bet_amount, currency, target, direction, roll, multiplier, payout) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [w, bet, cur, tgt, dir, roll, multiplier, payout]
+    );
+
+    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    await client.query('COMMIT');
+
+    res.json({ roll, target: tgt, direction: dir, won, multiplier, payout, balance: parseFloat(balRes.rows[0].bal) });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// ══════════════════════════════════
+//  TERRAIN SURVEY (Hi-Lo)
+// ══════════════════════════════════
+
+const SUITS = ['rock', 'dust', 'ice', 'iron'];
+function drawCard() {
+  return { value: Math.floor(Math.random() * 13) + 2, suit: SUITS[Math.floor(Math.random() * 4)] };
+  // value: 2-14 (2-10, J=11, Q=12, K=13, A=14)
+}
+function cardName(v) {
+  if (v <= 10) return '' + v;
+  return { 11: 'J', 12: 'Q', 13: 'K', 14: 'A' }[v];
+}
+
+// POST /arena/hilo/start
+router.post('/hilo/start', betLimiter, async (req, res) => {
+  const { wallet, amount, currency } = req.body;
+  const w = (wallet || '').toLowerCase().trim();
+  const cur = currency === 'USDT' ? 'USDT' : 'PP';
+  const bet = parseFloat(amount);
+
+  if (!w) return res.status(400).json({ error: 'Wallet required' });
+  const s = await cfg();
+  const minBet = parseFloat(s.hilo_min_bet) || 0.1;
+  const maxBet = parseFloat(s.hilo_max_bet) || 500;
+  if (!bet || bet < minBet || bet > maxBet) {
+    return res.status(400).json({ error: `Bet must be ${minBet}-${maxBet} ${cur}` });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Check no active game
+    const active = await client.query(
+      "SELECT id FROM hilo_games WHERE wallet = $1 AND status = 'active'", [w]
+    );
+    if (active.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Active game exists', gameId: active.rows[0].id });
+    }
+
+    const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
+    const uRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    if (!uRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
+    if (parseFloat(uRes.rows[0].bal) < bet) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient balance' }); }
+
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [bet, w]);
+
+    const firstCard = drawCard();
+    const gameRes = await client.query(
+      `INSERT INTO hilo_games (wallet, bet_amount, currency, cards, current_multiplier, status)
+       VALUES ($1, $2, $3, $4, 1, 'active') RETURNING id`,
+      [w, bet, cur, JSON.stringify([firstCard])]
+    );
+
+    await client.query('COMMIT');
+    res.json({
+      gameId: gameRes.rows[0].id,
+      card: { value: firstCard.value, name: cardName(firstCard.value), suit: firstCard.suit },
+      betAmount: bet, currency: cur, multiplier: 1
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /arena/hilo/guess
+router.post('/hilo/guess', betLimiter, async (req, res) => {
+  const { gameId, guess } = req.body;
+  const pick = guess === 'low' ? 'low' : 'high';
+
+  if (!gameId) return res.status(400).json({ error: 'gameId required' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const gRes = await client.query(
+      "SELECT * FROM hilo_games WHERE id = $1 AND status = 'active' FOR UPDATE", [gameId]
+    );
+    if (!gRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Game not found' }); }
+
+    const g = gRes.rows[0];
+    const cards = JSON.parse(g.cards);
+    const lastCard = cards[cards.length - 1];
+    const newCard = drawCard();
+    cards.push(newCard);
+
+    let correct;
+    if (newCard.value === lastCard.value) {
+      correct = true; // Push = auto-win
+    } else if (pick === 'high') {
+      correct = newCard.value > lastCard.value;
+    } else {
+      correct = newCard.value < lastCard.value;
+    }
+
+    if (correct) {
+      // Calculate multiplier for this guess
+      const higherCards = 14 - lastCard.value; // cards strictly higher
+      const lowerCards = lastCard.value - 2; // cards strictly lower
+      const winCards = pick === 'high' ? higherCards : lowerCards;
+      const guessMult = winCards > 0 ? Math.round((13 / Math.max(winCards, 1)) * 0.98 * 10000) / 10000 : 1.5;
+      const newMult = Math.round(parseFloat(g.current_multiplier) * guessMult * 10000) / 10000;
+
+      await client.query(
+        `UPDATE hilo_games SET cards = $1, current_multiplier = $2 WHERE id = $3`,
+        [JSON.stringify(cards), newMult, gameId]
+      );
+
+      // Next guess multiplier preview
+      const nextHigher = 14 - newCard.value;
+      const nextLower = newCard.value - 2;
+      const nextHighMult = nextHigher > 0 ? Math.round((13 / nextHigher) * 0.98 * 10000) / 10000 : 99;
+      const nextLowMult = nextLower > 0 ? Math.round((13 / nextLower) * 0.98 * 10000) / 10000 : 99;
+
+      await client.query('COMMIT');
+      res.json({
+        card: { value: newCard.value, name: cardName(newCard.value), suit: newCard.suit },
+        correct: true, multiplier: newMult, guess: pick,
+        potentialPayout: Math.round(parseFloat(g.bet_amount) * newMult * 10000) / 10000,
+        nextHighMult, nextLowMult, round: cards.length - 1
+      });
+    } else {
+      // Lose
+      await client.query(
+        `UPDATE hilo_games SET cards = $1, status = 'lost', current_multiplier = 0 WHERE id = $2`,
+        [JSON.stringify(cards), gameId]
+      );
+      await client.query('COMMIT');
+      res.json({
+        card: { value: newCard.value, name: cardName(newCard.value), suit: newCard.suit },
+        correct: false, multiplier: 0, guess: pick, gameOver: true, round: cards.length - 1
+      });
+    }
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /arena/hilo/cashout
+router.post('/hilo/cashout', betLimiter, async (req, res) => {
+  const { gameId } = req.body;
+  if (!gameId) return res.status(400).json({ error: 'gameId required' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const gRes = await client.query(
+      "SELECT * FROM hilo_games WHERE id = $1 AND status = 'active' FOR UPDATE", [gameId]
+    );
+    if (!gRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Game not found' }); }
+
+    const g = gRes.rows[0];
+    const cards = JSON.parse(g.cards);
+    if (cards.length < 2) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Must guess at least once' }); }
+
+    const payout = Math.round(parseFloat(g.bet_amount) * parseFloat(g.current_multiplier) * 1000000) / 1000000;
+    const balCol = g.currency === 'USDT' ? 'usdt_balance' : 'pp_balance';
+
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [payout, g.wallet]);
+    await client.query(
+      `UPDATE hilo_games SET status = 'cashed_out', payout = $1 WHERE id = $2`, [payout, gameId]
+    );
+    await awardXP(client, g.wallet, Math.max(1, Math.floor(parseFloat(g.bet_amount))));
+
+    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [g.wallet]);
+    await client.query('COMMIT');
+
+    res.json({
+      payout, multiplier: parseFloat(g.current_multiplier),
+      balance: parseFloat(balRes.rows[0].bal), rounds: cards.length - 1
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// GET /arena/hilo/active
+router.get('/hilo/active', async (req, res) => {
+  try {
+    const w = (req.query.wallet || '').toLowerCase().trim();
+    if (!w) return res.json({ active: false });
+    const r = await pool.query(
+      "SELECT * FROM hilo_games WHERE wallet = $1 AND status = 'active' ORDER BY id DESC LIMIT 1", [w]
+    );
+    if (!r.rows.length) return res.json({ active: false });
+    const g = r.rows[0];
+    const cards = JSON.parse(g.cards);
+    const lastCard = cards[cards.length - 1];
+    const nextHigher = 14 - lastCard.value;
+    const nextLower = lastCard.value - 2;
+    res.json({
+      active: true, gameId: g.id, bet: parseFloat(g.bet_amount), currency: g.currency,
+      cards: cards.map(c => ({ value: c.value, name: cardName(c.value), suit: c.suit })),
+      multiplier: parseFloat(g.current_multiplier),
+      potentialPayout: Math.round(parseFloat(g.bet_amount) * parseFloat(g.current_multiplier) * 10000) / 10000,
+      nextHighMult: nextHigher > 0 ? Math.round((13 / nextHigher) * 0.98 * 10000) / 10000 : 99,
+      nextLowMult: nextLower > 0 ? Math.round((13 / nextLower) * 0.98 * 10000) / 10000 : 99,
+      round: cards.length - 1
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
