@@ -2144,4 +2144,181 @@ router.post('/quests/track', writeLimiter, async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════
+// ITEM SHOP
+// ══════════════════════════════════════
+
+// GET /api/shop/items — list all available items
+router.get('/shop/items', readLimiter, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM item_types WHERE active = true ORDER BY category, price_pp');
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[SHOP] list items error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// GET /api/shop/inventory?wallet= — get user's items
+router.get('/shop/inventory', readLimiter, async (req, res) => {
+  const wallet = (req.query.wallet || '').toLowerCase();
+  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+  try {
+    const result = await pool.query(
+      `SELECT ui.*, it.code, it.name, it.description, it.category, it.icon, it.duration_hours, it.effect_value, it.max_stack
+       FROM user_items ui JOIN item_types it ON ui.item_type_id = it.id
+       WHERE ui.wallet = $1 AND ui.quantity > 0
+       ORDER BY it.category, it.name`, [wallet]
+    );
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[SHOP] inventory error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// POST /api/shop/buy — purchase an item
+router.post('/shop/buy', writeLimiter, async (req, res) => {
+  const { wallet, itemCode, currency, quantity } = req.body;
+  const w = (wallet || '').toLowerCase();
+  const qty = parseInt(quantity) || 1;
+  if (!w || !itemCode) return res.status(400).json({ error: 'Missing wallet or itemCode' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Get item info
+    const itemRes = await client.query('SELECT * FROM item_types WHERE code = $1 AND active = true', [itemCode]);
+    if (itemRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Item not found' }); }
+    const item = itemRes.rows[0];
+
+    // Check max stack
+    const existingRes = await client.query('SELECT quantity FROM user_items WHERE wallet = $1 AND item_type_id = $2', [w, item.id]);
+    const currentQty = existingRes.rows.length > 0 ? existingRes.rows[0].quantity : 0;
+    if (currentQty + qty > item.max_stack) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Max ${item.max_stack} of this item. You have ${currentQty}.` });
+    }
+
+    // Calculate cost
+    const cur = (currency || 'PP').toUpperCase();
+    const unitPrice = cur === 'USDT' ? parseFloat(item.price_usdt) : parseFloat(item.price_pp);
+    const totalCost = unitPrice * qty;
+    const balCol = cur === 'USDT' ? 'balance_usdt' : 'balance_pp';
+
+    // Check balance
+    const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
+    if (balRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
+    if (parseFloat(balRes.rows[0].bal) < totalCost) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Insufficient ${cur}. Need ${totalCost}, have ${parseFloat(balRes.rows[0].bal).toFixed(2)}` });
+    }
+
+    // Deduct balance
+    await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [totalCost, w]);
+
+    // Add item to inventory (upsert)
+    await client.query(
+      `INSERT INTO user_items (wallet, item_type_id, quantity) VALUES ($1, $2, $3)
+       ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + $3`,
+      [w, item.id, qty]
+    );
+
+    // Log transaction
+    await client.query(
+      `INSERT INTO transactions (wallet, type, amount, currency, description)
+       VALUES ($1, 'shop_purchase', $2, $3, $4)`,
+      [w, totalCost, cur, `Bought ${qty}x ${item.name}`]
+    );
+
+    await client.query('COMMIT');
+    res.json({ success: true, item: item.name, quantity: qty, cost: totalCost, currency: cur });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[SHOP] buy error:', e.message);
+    res.status(500).json({ error: 'Purchase failed' });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /api/shop/use — use an item
+router.post('/shop/use', writeLimiter, async (req, res) => {
+  const { wallet, itemCode, claimId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !itemCode) return res.status(400).json({ error: 'Missing params' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Get item type
+    const itemRes = await client.query('SELECT * FROM item_types WHERE code = $1', [itemCode]);
+    if (itemRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Item not found' }); }
+    const item = itemRes.rows[0];
+
+    // Check user has item
+    const invRes = await client.query('SELECT * FROM user_items WHERE wallet = $1 AND item_type_id = $2 AND quantity > 0', [w, item.id]);
+    if (invRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'You don\'t have this item' }); }
+
+    // Deduct quantity
+    await client.query('UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2', [w, item.id]);
+
+    // Apply item effect based on code
+    let effectResult = {};
+    if (item.code === 'shield_basic' || item.code === 'shield_advanced') {
+      if (!claimId) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'claimId required for shield' }); }
+      // Check claim ownership
+      const claimRes = await client.query('SELECT owner FROM claims WHERE id = $1', [claimId]);
+      if (claimRes.rows.length === 0 || claimRes.rows[0].owner !== w) {
+        await client.query('ROLLBACK'); return res.status(403).json({ error: 'Not your territory' });
+      }
+      const hp = item.effect_value;
+      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      // Remove old shield if exists, add new
+      await client.query('DELETE FROM pixel_shields WHERE claim_id = $1', [claimId]);
+      await client.query(
+        'INSERT INTO pixel_shields (claim_id, owner, shield_type, hp, max_hp, expires_at) VALUES ($1,$2,$3,$4,$5,$6)',
+        [claimId, w, item.code, hp, hp, expiresAt]
+      );
+      effectResult = { shielded: true, hp, expiresAt };
+    } else if (item.code === 'emp_strike') {
+      if (!claimId) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'claimId required for EMP' }); }
+      // Disable shield on target claim
+      await client.query('DELETE FROM pixel_shields WHERE claim_id = $1', [claimId]);
+      effectResult = { empApplied: true, targetClaim: claimId };
+    } else {
+      // Generic: just log the usage, client handles effect
+      effectResult = { applied: true, code: item.code, duration: item.duration_hours, value: item.effect_value };
+    }
+
+    // Log usage
+    await client.query('INSERT INTO item_usage_log (wallet, item_type_id, claim_id) VALUES ($1,$2,$3)', [w, item.id, claimId || null]);
+
+    await client.query('COMMIT');
+    res.json({ success: true, item: item.name, effect: effectResult });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[SHOP] use error:', e.message);
+    res.status(500).json({ error: 'Failed to use item' });
+  } finally {
+    client.release();
+  }
+});
+
+// GET /api/shop/shields?claimId= — check if a claim has an active shield
+router.get('/shop/shields', readLimiter, async (req, res) => {
+  const claimId = req.query.claimId;
+  if (!claimId) return res.status(400).json({ error: 'claimId required' });
+  try {
+    const result = await pool.query(
+      'SELECT * FROM pixel_shields WHERE claim_id = $1 AND expires_at > NOW()', [claimId]
+    );
+    res.json(result.rows.length > 0 ? result.rows[0] : null);
+  } catch (e) {
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 module.exports = router;
