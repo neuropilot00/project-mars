@@ -2426,6 +2426,26 @@ var previewRafId=null;
 var marsCanvasTexture=null; // THREE.CanvasTexture for direct GPU upload (no JPEG)
 var nasaBaseImg=null; // cached NASA texture Image for composite
 
+// Per-user territory color from wallet address hash
+function _ownerColor(addr){
+  if(!addr) return {r:255,g:120,b:60};
+  var h=0;
+  for(var i=0;i<addr.length;i++) h=((h<<5)-h+addr.charCodeAt(i))|0;
+  // Generate HSL hue from hash, keep saturation/lightness in pleasant range
+  var hue=((h%360)+360)%360;
+  var s=55+((h>>8)%20); // 55-75%
+  var l=50+((h>>16)%15); // 50-65%
+  // HSL to RGB
+  var c=(1-Math.abs(2*l/100-1))*s/100;
+  var x=c*(1-Math.abs((hue/60)%2-1));
+  var m=l/100-c/2;
+  var r1,g1,b1;
+  if(hue<60){r1=c;g1=x;b1=0}else if(hue<120){r1=x;g1=c;b1=0}
+  else if(hue<180){r1=0;g1=c;b1=x}else if(hue<240){r1=0;g1=x;b1=c}
+  else if(hue<300){r1=x;g1=0;b1=c}else{r1=c;g1=0;b1=x}
+  return {r:Math.round((r1+m)*255),g:Math.round((g1+m)*255),b:Math.round((b1+m)*255)};
+}
+
 function compositeClaimsOnTexture(previewOnly){
   if(!globe||!marsCanvas) return;
   try{ globe.globeMaterial(); }catch(e){ return; } // globe not ready yet
@@ -2464,21 +2484,24 @@ function compositeClaimsOnTexture(previewOnly){
     }
 
     // Draw each claim (with longitude wrap-around handling)
-    function _drawOneRect(ctx,img,rx,ry,rw,rh,noImage,ownerLabel){
+    function _drawOneRect(ctx,img,rx,ry,rw,rh,noImage,ownerLabel,oc){
       if(img){
         ctx.drawImage(img,rx,ry,rw,rh);
-        ctx.strokeStyle='rgba(255,209,102,0.35)';ctx.lineWidth=1;
+        // Tinted border per owner
+        var bc=oc||{r:255,g:209,b:102};
+        ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.5)';ctx.lineWidth=1;
         ctx.strokeRect(rx,ry,rw,rh);
       }else if(noImage){
-        // Land-only claim (no image) — colored territory block
-        ctx.fillStyle='rgba(255,120,60,0.18)';
+        // Land-only claim — per-user colored territory block
+        var tc=oc||{r:255,g:120,b:60};
+        ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.22)';
         ctx.fillRect(rx,ry,rw,rh);
-        ctx.strokeStyle='rgba(255,120,60,0.45)';ctx.lineWidth=1;
+        ctx.strokeStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.55)';ctx.lineWidth=1;
         ctx.strokeRect(rx,ry,rw,rh);
-        // Owner label (if large enough)
+        // Owner label (nickname or short address)
         if(rw>20&&rh>12){
           var lfs=Math.max(6,Math.min(rw*0.18,rh*0.3,14));
-          ctx.fillStyle='rgba(255,120,60,0.7)';ctx.font='bold '+lfs+'px sans-serif';
+          ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.85)';ctx.font='bold '+lfs+'px sans-serif';
           ctx.textAlign='center';ctx.textBaseline='middle';
           ctx.fillText(ownerLabel||'CLAIMED',rx+rw/2,ry+rh/2);
         }
@@ -2494,26 +2517,29 @@ function compositeClaimsOnTexture(previewOnly){
         ctx.fillText('LOADING',rx+rw/2,ry+rh/2);
       }
     }
-    function _drawClaimRect(ctx,img,r,w,noImage,ownerLabel){
-      _drawOneRect(ctx,img,r.x,r.y,r.w,r.h,noImage,ownerLabel);
-      if(r.x<0) _drawOneRect(ctx,img,r.x+w,r.y,r.w,r.h,noImage,ownerLabel);
-      else if(r.x+r.w>w) _drawOneRect(ctx,img,r.x-w,r.y,r.w,r.h,noImage,ownerLabel);
+    function _drawClaimRect(ctx,img,r,w,noImage,ownerLabel,oc){
+      _drawOneRect(ctx,img,r.x,r.y,r.w,r.h,noImage,ownerLabel,oc);
+      if(r.x<0) _drawOneRect(ctx,img,r.x+w,r.y,r.w,r.h,noImage,ownerLabel,oc);
+      else if(r.x+r.w>w) _drawOneRect(ctx,img,r.x-w,r.y,r.w,r.h,noImage,ownerLabel,oc);
     }
-    var myAddr=walletState.address?shortAddr(walletState.address):'';
+    var myAddr=walletState.address||'';
     claims.forEach(function(c){
       var cw=c.w||c.size||20, ch=c.h||c.size||20;
       var r=getCellRect(c.lat,c.lng,cw,ch,w,h);
       var hasUrl=c.imgUrl&&c.imgUrl.length>0;
       var img=hasUrl?imgCache[c.imgUrl]:null;
       var noImage=!hasUrl;
-      var isMine=_myLandMode&&myAddr&&(c.owner===myAddr||c.label===myAddr);
+      var isMine=_myLandMode&&myAddr&&c.owner===myAddr;
+      var oc=_ownerColor(c.owner);
+      var displayLabel=c.nickname||c.label||shortAddr(c.owner);
       // In My Land mode, dim other players' claims
       if(_myLandMode&&!isMine) ctx.globalAlpha=0.15;
-      _drawClaimRect(ctx,img,r,w,noImage,c.owner||c.label);
+      _drawClaimRect(ctx,img,r,w,noImage,displayLabel,oc);
       if(_myLandMode&&!isMine) ctx.globalAlpha=1;
       // Highlight my claims with bright border
       if(_myLandMode&&isMine){
-        ctx.strokeStyle='rgba(255,120,60,0.9)';ctx.lineWidth=2;ctx.setLineDash([]);
+        var mc=_ownerColor(myAddr);
+        ctx.strokeStyle='rgba('+mc.r+','+mc.g+','+mc.b+',0.9)';ctx.lineWidth=2;ctx.setLineDash([]);
         ctx.strokeRect(r.x,r.y,r.w,r.h);
         if(r.x<0) ctx.strokeRect(r.x+w,r.y,r.w,r.h);
         else if(r.x+r.w>w) ctx.strokeRect(r.x-w,r.y,r.w,r.h);
@@ -2976,7 +3002,6 @@ preCacheAndComposite();
     // Add server claims (avoid duplicates by checking id)
     serverClaims.forEach(function(sc){
       // Server claims have short owner addresses
-      sc.label=sc.owner?(sc.owner.slice(0,6)+'...'+sc.owner.slice(-4)):sc.label;
       claims.push(sc);
     });
     // Rebuild pixel grid with all claims
@@ -3009,7 +3034,6 @@ setInterval(function(){
     newClaims.forEach(function(sc){
       if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts;
       if(existingIds[sc.id]) return; // skip duplicates
-      sc.label=sc.owner?(sc.owner.slice(0,6)+'...'+sc.owner.slice(-4)):sc.label;
       claims.push(sc);
       added++;
     });
@@ -3522,7 +3546,7 @@ function showTerritoryInfo(plot){
   var info=document.getElementById('territoryInfo');
   info.style.display='';
   document.getElementById('infoCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
-  document.getElementById('infoOwner').textContent=plot.owner;
+  document.getElementById('infoOwner').textContent=plot.nickname||plot.label||shortAddr(plot.owner);
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   document.getElementById('infoSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
   document.getElementById('infoPrice').textContent=plot.price+' PP';
@@ -5556,7 +5580,10 @@ function searchOwner(){
   var box=document.getElementById('searchResults');
   box.innerHTML='';
   if(!q){box.innerHTML='<div style="font-size:7px;color:var(--tx3)">Enter owner name or address</div>';return}
-  var matches=claims.filter(function(c){return c.owner.toLowerCase().indexOf(q)>=0||c.label.toLowerCase().indexOf(q)>=0});
+  var matches=claims.filter(function(c){
+    var n=(c.nickname||'').toLowerCase();
+    return c.owner.toLowerCase().indexOf(q)>=0||c.label.toLowerCase().indexOf(q)>=0||n.indexOf(q)>=0;
+  });
   if(!matches.length){box.innerHTML='<div style="font-size:7px;color:var(--red)">No results</div>';return}
   matches.forEach(function(c){
     var d=document.createElement('div');
@@ -5564,7 +5591,7 @@ function searchOwner(){
     var cw=c.w||c.size||10, ch=c.h||c.size||10;
     var ownerSpan=document.createElement('span');
     ownerSpan.style.cssText='color:var(--gold);font-size:7px';
-    ownerSpan.textContent=c.owner;
+    ownerSpan.textContent=c.nickname||c.label||shortAddr(c.owner);
     var detailSpan=document.createElement('span');
     detailSpan.style.cssText='font-size:6px;color:var(--tx3)';
     detailSpan.textContent='['+c.lat.toFixed(1)+'°,'+c.lng.toFixed(1)+'°] '+cw+'×'+ch+'px $'+c.price;

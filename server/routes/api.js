@@ -392,16 +392,23 @@ router.get('/claims', async (req, res) => {
     const since = req.query.since;
     let result;
     if (since) {
-      // Delta: only claims created/updated after timestamp
       result = await pool.query(
-        `SELECT id, owner, center_lat, center_lng, width, height, image_url, original_image_url, link_url, total_paid, created_at
-         FROM claims WHERE deleted_at IS NULL AND created_at > $1 ORDER BY created_at DESC LIMIT 5000`,
+        `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
+                c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
+                u.nickname
+         FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
+         WHERE c.deleted_at IS NULL AND c.created_at > $1
+         ORDER BY c.created_at DESC LIMIT 5000`,
         [new Date(parseInt(since))]
       );
     } else {
       result = await pool.query(
-        `SELECT id, owner, center_lat, center_lng, width, height, image_url, original_image_url, link_url, total_paid, created_at
-         FROM claims WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 5000`
+        `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
+                c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
+                u.nickname
+         FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
+         WHERE c.deleted_at IS NULL
+         ORDER BY c.created_at DESC LIMIT 5000`
       );
     }
     res.json(result.rows.map(r => ({
@@ -410,7 +417,9 @@ router.get('/claims', async (req, res) => {
       w: r.width, h: r.height,
       imgUrl: r.image_url, originalImgUrl: r.original_image_url || null,
       link: r.link_url,
-      price: parseFloat(r.total_paid), label: r.owner.slice(0, 8),
+      price: parseFloat(r.total_paid),
+      nickname: r.nickname || null,
+      label: r.nickname || (r.owner.slice(0, 6) + '...' + r.owner.slice(-4)),
       ts: new Date(r.created_at).getTime()
     })));
   } catch (e) {
