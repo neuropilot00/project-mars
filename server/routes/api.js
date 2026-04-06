@@ -719,6 +719,56 @@ router.post('/claim', writeLimiter, async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+//  PUT /api/claim/:id/image — Update/add image to existing claim
+// ══════════════════════════════════════════════════
+router.put('/claim/:id/image', writeLimiter, async (req, res) => {
+  const claimId = parseInt(req.params.id);
+  const { wallet, imageUrl, originalImageUrl, imgScale, imgRotate, imgOffsetX, imgOffsetY } = req.body;
+  if (!wallet || !claimId) return res.status(400).json({ error: 'Missing fields' });
+
+  const safeImageUrl = sanitizeUrl(imageUrl, true);
+  if (imageUrl && !safeImageUrl) {
+    return res.status(400).json({ error: 'Invalid image URL' });
+  }
+  const safeOriginalImageUrl = sanitizeUrl(originalImageUrl, true) || null;
+
+  try {
+    // Verify ownership
+    const claimRes = await pool.query(
+      'SELECT id, owner FROM claims WHERE id = $1 AND deleted_at IS NULL',
+      [claimId]
+    );
+    if (!claimRes.rows.length) return res.status(404).json({ error: 'Claim not found' });
+    if (claimRes.rows[0].owner !== wallet.toLowerCase()) {
+      return res.status(403).json({ error: 'Not your claim' });
+    }
+
+    // Update image and editing params
+    await pool.query(
+      `UPDATE claims SET
+        image_url = COALESCE($1, image_url),
+        original_image_url = COALESCE($2, original_image_url),
+        img_scale = COALESCE($3, img_scale),
+        img_rotate = COALESCE($4, img_rotate),
+        img_offset_x = COALESCE($5, img_offset_x),
+        img_offset_y = COALESCE($6, img_offset_y)
+      WHERE id = $7`,
+      [safeImageUrl, safeOriginalImageUrl,
+       imgScale != null ? imgScale : null,
+       imgRotate != null ? imgRotate : null,
+       imgOffsetX != null ? imgOffsetX : null,
+       imgOffsetY != null ? imgOffsetY : null,
+       claimId]
+    );
+
+    res.json({ success: true, claimId });
+  } catch (e) {
+    console.error('[API] claim image update error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ══════════════════════════════════════════════════
 //  POST /api/swap — PP → USDT
 // ══════════════════════════════════════════════════
 router.post('/swap', writeLimiter, async (req, res) => {

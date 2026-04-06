@@ -1123,6 +1123,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Collapsed-mode floating buttons (both panels folded) -->
 <div class="col-fab-wrap" id="colFabWrap">
+  <button class="col-fab" onclick="activateLandSelect()" style="color:var(--mars)">LAND</button>
   <button class="col-fab place" onclick="document.getElementById('stampFileInput').click()">PLACE</button>
   <button class="col-fab base" onclick="openBaseModal()">BASE</button>
   <button class="col-fab arena" onclick="openArena()">CANTINA</button>
@@ -1274,9 +1275,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
   </div>
 
+  <!-- CLAIM LAND: Land-first workflow (no image needed) -->
+  <div class="p-section" id="landSection">
+    <div class="p-title">CLAIM TERRITORY</div>
+    <button class="uf" id="landSelectBtn" onclick="activateLandSelect()" style="background:linear-gradient(135deg,rgba(255,120,60,.15),rgba(255,120,60,.05));border-color:rgba(255,120,60,.35);color:var(--mars)">DRAG TO SELECT LAND</button>
+    <div id="landSelectPreview" style="display:none;margin-top:8px">
+      <div class="stat-row"><span class="stat-label">SIZE</span><span class="stat-val" id="landSizeLabel">--</span></div>
+      <div class="stat-row"><span class="stat-label">PIXELS</span><span class="stat-val" id="landPixelLabel">--</span></div>
+      <div class="stat-row"><span class="stat-label">COST</span><span class="stat-val gn" id="landCostLabel">--</span></div>
+      <div style="margin-top:6px;display:flex;gap:4px">
+        <button class="action-btn" style="flex:1;font-size:7px;padding:6px" onclick="confirmLandSelect()">CONFIRM</button>
+        <button class="action-btn" style="flex:1;font-size:7px;padding:6px;color:var(--tx3)" onclick="cancelLandSelect()">CANCEL</button>
+      </div>
+    </div>
+    <div style="margin-top:4px;font-size:7px;color:var(--tx3);line-height:1.4;opacity:.7">Claim land first, add image later</div>
+  </div>
+
   <!-- STAMP MODE: Image-first workflow -->
   <div class="p-section" id="stampSection">
-    <div class="p-title" data-i18n="place_image">PLACE YOUR IMAGE</div>
+    <div class="p-title" data-i18n="place_image">OR PLACE IMAGE</div>
     <input type="file" id="stampFileInput" accept="image/*,image/gif" style="display:none">
     <button class="uf" onclick="document.getElementById('stampFileInput').click()">CHOOSE IMAGE FILE</button>
     <!-- Preview + controls (hidden until image loaded) -->
@@ -1334,6 +1351,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <button class="zb" onclick="zoomOut()">−</button>
   <button class="zb tex-toggle" id="texToggleBtn" onclick="toggleMarsTexture()" title="Switch texture" style="margin-top:8px;font-size:9px;line-height:1.1;padding:6px 4px"><span id="texToggleLabel">MAP</span></button>
   <button class="zb" id="sectorToggleBtn" onclick="toggleSectorOverlay()" title="Toggle sectors" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px"><span id="sectorToggleLabel">SECTORS</span></button>
+  <button class="zb" id="myLandBtn" onclick="toggleMyLand()" title="Highlight my land" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)">MY LAND</button>
 </div>
 
 <div class="mode-badge" id="modeBadge">🔴 CLICK MARS TO SELECT TERRITORY</div>
@@ -2446,35 +2464,60 @@ function compositeClaimsOnTexture(previewOnly){
     }
 
     // Draw each claim (with longitude wrap-around handling)
-    function _drawOneRect(ctx,img,rx,ry,rw,rh){
+    function _drawOneRect(ctx,img,rx,ry,rw,rh,noImage,ownerLabel){
       if(img){
         ctx.drawImage(img,rx,ry,rw,rh);
         ctx.strokeStyle='rgba(255,209,102,0.35)';ctx.lineWidth=1;
         ctx.strokeRect(rx,ry,rw,rh);
+      }else if(noImage){
+        // Land-only claim (no image) — colored territory block
+        ctx.fillStyle='rgba(255,120,60,0.18)';
+        ctx.fillRect(rx,ry,rw,rh);
+        ctx.strokeStyle='rgba(255,120,60,0.45)';ctx.lineWidth=1;
+        ctx.strokeRect(rx,ry,rw,rh);
+        // Owner label (if large enough)
+        if(rw>20&&rh>12){
+          var lfs=Math.max(6,Math.min(rw*0.18,rh*0.3,14));
+          ctx.fillStyle='rgba(255,120,60,0.7)';ctx.font='bold '+lfs+'px sans-serif';
+          ctx.textAlign='center';ctx.textBaseline='middle';
+          ctx.fillText(ownerLabel||'CLAIMED',rx+rw/2,ry+rh/2);
+        }
       }else{
-        // Loading placeholder — subtle dark overlay with border
+        // Loading placeholder — image not yet cached
         ctx.fillStyle='rgba(255,255,255,0.08)';
         ctx.fillRect(rx,ry,rw,rh);
         ctx.strokeStyle='rgba(255,209,102,0.25)';ctx.lineWidth=1;
         ctx.setLineDash([3,3]);ctx.strokeRect(rx,ry,rw,rh);ctx.setLineDash([]);
-        // Loading text
         var lfs=Math.max(6,Math.min(rw,rh)*0.2);
         ctx.fillStyle='rgba(255,209,102,0.6)';ctx.font='bold '+lfs+'px sans-serif';
         ctx.textAlign='center';ctx.textBaseline='middle';
         ctx.fillText('LOADING',rx+rw/2,ry+rh/2);
       }
     }
-    function _drawClaimRect(ctx,img,r,w){
-      _drawOneRect(ctx,img,r.x,r.y,r.w,r.h);
-      // Wrap around longitude boundary
-      if(r.x<0) _drawOneRect(ctx,img,r.x+w,r.y,r.w,r.h);
-      else if(r.x+r.w>w) _drawOneRect(ctx,img,r.x-w,r.y,r.w,r.h);
+    function _drawClaimRect(ctx,img,r,w,noImage,ownerLabel){
+      _drawOneRect(ctx,img,r.x,r.y,r.w,r.h,noImage,ownerLabel);
+      if(r.x<0) _drawOneRect(ctx,img,r.x+w,r.y,r.w,r.h,noImage,ownerLabel);
+      else if(r.x+r.w>w) _drawOneRect(ctx,img,r.x-w,r.y,r.w,r.h,noImage,ownerLabel);
     }
+    var myAddr=walletState.address?shortAddr(walletState.address):'';
     claims.forEach(function(c){
       var cw=c.w||c.size||20, ch=c.h||c.size||20;
       var r=getCellRect(c.lat,c.lng,cw,ch,w,h);
-      var img=c.imgUrl?imgCache[c.imgUrl]:null;
-      _drawClaimRect(ctx,img,r,w);
+      var hasUrl=c.imgUrl&&c.imgUrl.length>0;
+      var img=hasUrl?imgCache[c.imgUrl]:null;
+      var noImage=!hasUrl;
+      var isMine=_myLandMode&&myAddr&&(c.owner===myAddr||c.label===myAddr);
+      // In My Land mode, dim other players' claims
+      if(_myLandMode&&!isMine) ctx.globalAlpha=0.15;
+      _drawClaimRect(ctx,img,r,w,noImage,c.owner||c.label);
+      if(_myLandMode&&!isMine) ctx.globalAlpha=1;
+      // Highlight my claims with bright border
+      if(_myLandMode&&isMine){
+        ctx.strokeStyle='rgba(255,120,60,0.9)';ctx.lineWidth=2;ctx.setLineDash([]);
+        ctx.strokeRect(r.x,r.y,r.w,r.h);
+        if(r.x<0) ctx.strokeRect(r.x+w,r.y,r.w,r.h);
+        else if(r.x+r.w>w) ctx.strokeRect(r.x-w,r.y,r.w,r.h);
+      }
     });
 
     // Sector boundaries overlay
@@ -2526,6 +2569,27 @@ function compositeClaimsOnTexture(previewOnly){
       ctx.beginPath();ctx.moveTo(cx-10,cy);ctx.lineTo(cx+10,cy);ctx.stroke();
       ctx.beginPath();ctx.moveTo(cx,cy-10);ctx.lineTo(cx,cy+10);ctx.stroke();
       ctx.setLineDash([]);
+    }
+  }
+
+  // Land select preview (orange rectangle)
+  if(landSelectMode&&landDragStart){
+    var lr=landDragRect||computeLandRect(landDragStart.lat,landDragStart.lng,
+      landDragEnd?landDragEnd.lat:landDragStart.lat,
+      landDragEnd?landDragEnd.lng:landDragStart.lng);
+    if(lr){
+      var lrr=getCellRect(lr.lat,lr.lng,lr.w,lr.h,w,h);
+      // Semi-transparent fill
+      ctx.fillStyle='rgba(255,120,60,0.15)';
+      ctx.fillRect(lrr.x,lrr.y,lrr.w,lrr.h);
+      // Animated border
+      ctx.strokeStyle='rgba(255,120,60,0.8)';ctx.lineWidth=2;ctx.setLineDash([8,4]);
+      ctx.strokeRect(lrr.x,lrr.y,lrr.w,lrr.h);ctx.setLineDash([]);
+      // Size label
+      var lfs=Math.max(8,Math.min(lrr.w,lrr.h)*0.15);
+      ctx.fillStyle='rgba(255,120,60,0.9)';ctx.font='bold '+lfs+'px sans-serif';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(lr.w+'×'+lr.h,lrr.x+lrr.w/2,lrr.y+lrr.h/2);
     }
   }
 
@@ -2752,6 +2816,17 @@ function toggleSectorOverlay(){
   if(btn) btn.style.background=_showSectorBounds?'rgba(90,180,230,0.25)':'';
   marsCanvasTexture=null;claimsSnapshot=null;
   compositeClaimsOnTexture();
+}
+
+var _myLandMode=false;
+function toggleMyLand(){
+  if(!walletState.connected){showToast('LOGIN REQUIRED');openAuthModal();return;}
+  _myLandMode=!_myLandMode;
+  var btn=document.getElementById('myLandBtn');
+  if(btn) btn.style.background=_myLandMode?'rgba(255,120,60,0.25)':'';
+  claimsSnapshot=null;
+  compositeClaimsOnTexture();
+  showToast(_myLandMode?'MY LAND — Showing your territory':'MY LAND OFF');
 }
 
 function loadNasa8k(){
@@ -3000,6 +3075,77 @@ var stampW=20, stampH=20, stampScale=100; // w,h in pixel-cells, scale in %
 var stampPreviewLat=null, stampPreviewLng=null;
 var isZoomedIn=false, lastClickTime=0;
 
+// ── Land Select Mode: buy land without image ──
+var landSelectMode=false;
+var landDragStart=null; // {lat, lng}
+var landDragEnd=null;   // {lat, lng}
+var landDragRect=null;  // {lat, lng, w, h} — computed rect
+
+function activateLandSelect(){
+  if(!walletState.connected){
+    showToast('LOGIN REQUIRED');
+    openAuthModal();
+    return;
+  }
+  landSelectMode=true; stampMode=false;
+  landDragStart=null; landDragEnd=null; landDragRect=null;
+  document.getElementById('landSelectBtn').textContent='CLICK MARS TO START';
+  document.getElementById('landSelectBtn').style.color='var(--gn)';
+  document.getElementById('landSelectPreview').style.display='none';
+  // Cancel stamp mode if active
+  if(stampImgUrl) cancelStamp();
+  showToast('CLICK MARS TO SET START POINT, THEN DRAG');
+}
+
+function cancelLandSelect(){
+  landSelectMode=false; landDragStart=null; landDragEnd=null; landDragRect=null;
+  document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
+  document.getElementById('landSelectBtn').style.color='var(--mars)';
+  document.getElementById('landSelectPreview').style.display='none';
+  compositeClaimsOnTexture();
+}
+
+function confirmLandSelect(){
+  if(!landDragRect) return;
+  selectedPlot={lat:landDragRect.lat, lng:landDragRect.lng, owner:null, price:0, label:'UNCLAIMED',
+    w:landDragRect.w, h:landDragRect.h};
+  openClaimModal();
+}
+
+function updateLandSelectUI(){
+  if(!landDragRect) return;
+  var r=landDragRect;
+  document.getElementById('landSizeLabel').textContent=r.w+'×'+r.h;
+  document.getElementById('landPixelLabel').textContent=(r.w*r.h).toLocaleString()+'px';
+  var costInfo=calcStampCost(r.lat,r.lng,r.w,r.h);
+  var costStr=costInfo.total.toFixed(2)+' PP';
+  if(costInfo.overlapCount>0) costStr+=' ('+costInfo.overlapCount+' hijack)';
+  document.getElementById('landCostLabel').textContent=costStr;
+  document.getElementById('landSelectPreview').style.display='';
+}
+
+function computeLandRect(startLat,startLng,endLat,endLng){
+  // Snap to grid
+  var lat1=Math.round(startLat/GRID_SIZE)*GRID_SIZE;
+  var lng1=Math.round(startLng/GRID_SIZE)*GRID_SIZE;
+  var lat2=Math.round(endLat/GRID_SIZE)*GRID_SIZE;
+  var lng2=Math.round(endLng/GRID_SIZE)*GRID_SIZE;
+  // Ensure ordering
+  var minLat=Math.min(lat1,lat2), maxLat=Math.max(lat1,lat2);
+  var minLng=Math.min(lng1,lng2), maxLng=Math.max(lng1,lng2);
+  // Calculate dimensions in grid cells
+  var w=Math.max(1,Math.round((maxLng-minLng)/GRID_SIZE));
+  var h=Math.max(1,Math.round((maxLat-minLat)/GRID_SIZE));
+  // Clamp size
+  w=Math.min(w,500); h=Math.min(h,500);
+  // Center point
+  var cLat=(minLat+maxLat)/2;
+  var cLng=(minLng+maxLng)/2;
+  // Clamp latitude
+  cLat=Math.max(-70+h*GRID_SIZE/2, Math.min(70-h*GRID_SIZE/2, cLat));
+  return {lat:cLat, lng:cLng, w:w, h:h};
+}
+
 // ── Globe Click Handler (attached after globe init) ──
 function _attachGlobeClick(){
   if(!globe){setTimeout(_attachGlobeClick,100);return}
@@ -3032,6 +3178,32 @@ function _attachGlobeClick(){
           globe.pointOfView({lat:lat,lng:lng,altitude:0.15},800);
         }
         isZoomedIn=true;
+      }
+      return;
+    }
+
+    // Land Select mode: first click = start, second click = end
+    if(landSelectMode){
+      lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
+      lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
+      if(!landDragStart){
+        // First click — set start point
+        landDragStart={lat:lat,lng:lng};
+        landDragEnd={lat:lat,lng:lng};
+        landDragRect=computeLandRect(lat,lng,lat,lng);
+        document.getElementById('landSelectBtn').textContent='CLICK AGAIN TO SET END';
+        showToast('START POINT SET — Click to set end point');
+        compositeClaimsOnTexture();
+      }else{
+        // Second click — set end point and finalize
+        landDragEnd={lat:lat,lng:lng};
+        landDragRect=computeLandRect(landDragStart.lat,landDragStart.lng,lat,lng);
+        updateLandSelectUI();
+        document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
+        document.getElementById('landSelectBtn').style.color='var(--mars)';
+        // Auto open confirm
+        confirmLandSelect();
+        landSelectMode=false;
       }
       return;
     }
@@ -3547,11 +3719,7 @@ async function confirmClaim(){
   var hasOverlap=costInfo.overlapCount>0;
   var linkVal=(document.getElementById('stampLinkInput')?document.getElementById('stampLinkInput').value:'').trim();
 
-  // 이미지 필수
-  if(!stampImgUrl && !uploadedUrl){
-    showToast('IMAGE REQUIRED — Select an image first');
-    return;
-  }
+  // 이미지 없이도 땅 구매 가능 (나중에 이미지 추가)
 
   // 극지방 제한: 스탬프 영역이 ±70° 넘으면 차단
   var claimLatMax=selectedPlot.lat+ch*0.1/2;
@@ -3695,11 +3863,15 @@ async function confirmClaim(){
       pixelGrid[k]={owner:myAddr,price:newPrice,claimIdx:claimIdx};
     });
 
-    // Reset stamp mode
+    // Reset stamp & land-select modes
     stampMode=false; stampImgUrl=null;
     stampPreviewLat=null; stampPreviewLng=null;
     lastStampCost=null;
+    landSelectMode=false; landDragStart=null; landDragEnd=null; landDragRect=null;
     document.getElementById('stampPreview').style.display='none';
+    document.getElementById('landSelectPreview').style.display='none';
+    document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
+    document.getElementById('landSelectBtn').style.color='var(--mars)';
     // Cache image then redraw texture (async — redraw on load complete)
     if(nc.imgUrl){
       cacheImage(nc.imgUrl,function(){claimsSnapshot=null;compositeClaimsOnTexture()});
@@ -5325,14 +5497,32 @@ function toggleFeed(){
 /* ── Globe Hover → Stamp Preview (cursor follow via mousemove + toGlobeCoords) ── */
 var _hoverDirty=false;
 document.getElementById('globe-wrap').addEventListener('mousemove',function(e){
-  if(!stampMode||!stampImgUrl) return;
   var coords=globe.toGlobeCoords(e.offsetX, e.offsetY);
+  if(!coords) return;
+  var lat=Math.round(Math.max(-70,Math.min(70,coords.lat))/GRID_SIZE)*GRID_SIZE;
+  var lng=Math.round(coords.lng/GRID_SIZE)*GRID_SIZE;
+
+  // Land select mode: update drag end point in realtime
+  if(landSelectMode&&landDragStart){
+    landDragEnd={lat:lat,lng:lng};
+    landDragRect=computeLandRect(landDragStart.lat,landDragStart.lng,lat,lng);
+    if(!_hoverDirty){
+      _hoverDirty=true;
+      requestAnimationFrame(function(){
+        _hoverDirty=false;
+        compositeClaimsOnTexture(true);
+        updateLandSelectUI();
+      });
+    }
+    return;
+  }
+
+  // Stamp mode
+  if(!stampMode||!stampImgUrl) return;
   if(!coords){
     if(stampPreviewLat!==null){stampPreviewLat=null;stampPreviewLng=null;compositeClaimsOnTexture(true)}
     return;
   }
-  var lat=Math.round(Math.max(-70,Math.min(70,coords.lat))/GRID_SIZE)*GRID_SIZE;
-  var lng=Math.round(coords.lng/GRID_SIZE)*GRID_SIZE;
   if(lat!==stampPreviewLat||lng!==stampPreviewLng){
     stampPreviewLat=lat; stampPreviewLng=lng;
     if(!_hoverDirty){
