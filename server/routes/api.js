@@ -546,8 +546,9 @@ router.post('/claim', writeLimiter, async (req, res) => {
     if (!pixels.length) throw new Error('No pixels in range');
 
     // ── BATCH: Lock and read all affected pixels in one query ──
-    let baseCost = 0, hijackCost = 0, overlapCount = 0, newCount = 0;
+    let baseCost = 0, attackCost = 0, overlapCount = 0, newCount = 0, ownSkipCount = 0;
     const affectedOwners = {}; // owner → { refund, bonus }
+    const ATTACK_SUCCESS_RATE = s.attack_success_rate || 50; // % chance to win attack
 
     // Build VALUES list for batch lookup
     const pxCoords = pixels.map((p, i) => `($${i*2+1}::numeric, $${i*2+2}::numeric)`).join(',');
@@ -563,23 +564,64 @@ router.post('/claim', writeLimiter, async (req, res) => {
       existingMap[row.lat + ',' + row.lng] = row;
     }
 
+    // Separate pixels into: new, own (skip), enemy (attack)
+    const newPixels = [];
+    const enemyPixels = [];
+    const walletLower = wallet.toLowerCase();
+
     for (const p of pixels) {
       const existing = existingMap[p.lat + ',' + p.lng];
       if (existing) {
-        const pxCost = parseFloat(existing.price) * HIJACK_MULT;
-        hijackCost += pxCost;
-        overlapCount++;
-        const prevOwner = existing.owner;
-        if (!affectedOwners[prevOwner]) affectedOwners[prevOwner] = { refund: 0, bonus: 0 };
-        affectedOwners[prevOwner].refund += parseFloat(existing.price);
-        affectedOwners[prevOwner].bonus += (pxCost - parseFloat(existing.price)) * OWNER_BONUS_PCT;
+        if (existing.owner === walletLower) {
+          // Own pixel — skip entirely (no cost)
+          ownSkipCount++;
+        } else {
+          // Enemy pixel — attack
+          const pxCost = parseFloat(existing.price) * HIJACK_MULT;
+          attackCost += pxCost;
+          overlapCount++;
+          const prevOwner = existing.owner;
+          if (!affectedOwners[prevOwner]) affectedOwners[prevOwner] = { refund: 0, bonus: 0, attackedPixels: 0 };
+          affectedOwners[prevOwner].attackedPixels++;
+          enemyPixels.push({ ...p, existing });
+        }
       } else {
         baseCost += PIXEL_PRICE;
         newCount++;
+        newPixels.push(p);
       }
     }
 
-    const totalCost = Math.round((baseCost + hijackCost) * 1000000) / 1000000;
+    // ── BATTLE: Roll for each enemy pixel ──
+    let attackWon = 0, attackLost = 0, refundFromFailed = 0, platformFee = 0;
+    const wonPixels = [];
+
+    for (const ep of enemyPixels) {
+      const roll = Math.random() * 100;
+      const pxCost = parseFloat(ep.existing.price) * HIJACK_MULT;
+      const prevOwner = ep.existing.owner;
+
+      if (roll < ATTACK_SUCCESS_RATE) {
+        // Attack SUCCESS — take the pixel
+        attackWon++;
+        wonPixels.push(ep);
+        // Owner gets refund + bonus (existing hijack logic)
+        affectedOwners[prevOwner].refund += parseFloat(ep.existing.price);
+        affectedOwners[prevOwner].bonus += (pxCost - parseFloat(ep.existing.price)) * OWNER_BONUS_PCT;
+      } else {
+        // Attack FAILED — 90% refund to attacker, 10% platform
+        attackLost++;
+        const failRefund = pxCost * 0.9;
+        const failFee = pxCost * 0.1;
+        refundFromFailed += failRefund;
+        platformFee += failFee;
+      }
+    }
+
+    // Actual cost = new pixels + won attacks + failed attack fees (lost 10%)
+    const wonAttackCost = wonPixels.reduce((sum, ep) => sum + parseFloat(ep.existing.price) * HIJACK_MULT, 0);
+    const failedAttackCost = attackLost > 0 ? (attackCost - wonAttackCost) : 0;
+    const totalCost = Math.round((baseCost + wonAttackCost + failedAttackCost - refundFromFailed) * 1000000) / 1000000;
 
     // Check user balance based on selected payment method
     const userRes = await client.query(
@@ -629,12 +671,11 @@ router.post('/claim', writeLimiter, async (req, res) => {
     );
     const claimId = claimRes.rows[0].id;
 
-    // ── BATCH: Upsert all pixels ──
-    // Pre-compute prices and sectors (sectors are cached, no DB hit)
-    const walletLower = wallet.toLowerCase();
-    const batchSize = 50; // upsert in chunks
-    for (let i = 0; i < pixels.length; i += batchSize) {
-      const chunk = pixels.slice(i, i + batchSize);
+    // ── BATCH: Upsert only new + won pixels (skip own, skip failed attacks) ──
+    const claimPixels = [...newPixels, ...wonPixels];
+    const batchSize = 50;
+    for (let i = 0; i < claimPixels.length; i += batchSize) {
+      const chunk = claimPixels.slice(i, i + batchSize);
       const values = [];
       const params = [];
       let paramIdx = 1;
@@ -646,32 +687,61 @@ router.post('/claim', writeLimiter, async (req, res) => {
         params.push(p.lat, p.lng, walletLower, newPrice, claimId, sectorId);
         paramIdx += 6;
       }
+      if (values.length > 0) {
+        await client.query(
+          `INSERT INTO pixels (lat, lng, owner, price, claim_id, sector_id, updated_at)
+           VALUES ${values.join(',')}
+           ON CONFLICT (lat, lng) DO UPDATE SET owner=EXCLUDED.owner, price=EXCLUDED.price, claim_id=EXCLUDED.claim_id, sector_id=COALESCE(EXCLUDED.sector_id,pixels.sector_id), updated_at=NOW()`,
+          params
+        );
+      }
+    }
+
+    // Record battle results (per defender)
+    const battleResults = [];
+    if (overlapCount > 0) {
+      for (const [defender, info] of Object.entries(affectedOwners)) {
+        const wonVs = wonPixels.filter(ep => ep.existing.owner === defender).length;
+        const lostVs = info.attackedPixels - wonVs;
+        const res2 = await client.query(
+          `INSERT INTO battles (attacker, defender, claim_id, pixels_attacked, pixels_won, pixels_lost, attack_cost, refund_amount, platform_fee, success)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+          [walletLower, defender, claimId, info.attackedPixels, wonVs, lostVs,
+           wonVs > 0 ? info.refund + info.bonus : 0,
+           lostVs > 0 ? (lostVs * PIXEL_PRICE * HIJACK_MULT * 0.9) : 0,
+           lostVs > 0 ? (lostVs * PIXEL_PRICE * HIJACK_MULT * 0.1) : 0,
+           wonVs > lostVs]
+        );
+        battleResults.push({ id: res2.rows[0].id, defender: defender.slice(0,6)+'...', attacked: info.attackedPixels, won: wonVs, lost: lostVs });
+      }
+    }
+
+    // Refund failed attack cost to attacker
+    if (refundFromFailed > 0) {
       await client.query(
-        `INSERT INTO pixels (lat, lng, owner, price, claim_id, sector_id, updated_at)
-         VALUES ${values.join(',')}
-         ON CONFLICT (lat, lng) DO UPDATE SET owner=EXCLUDED.owner, price=EXCLUDED.price, claim_id=EXCLUDED.claim_id, sector_id=COALESCE(EXCLUDED.sector_id,pixels.sector_id), updated_at=NOW()`,
-        params
+        'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
+        [refundFromFailed, walletLower]
       );
     }
 
     // Award XP for claim/hijack
     const xpPerClaim = s.xp_per_claim || 2;
     const xpPerHijack = s.xp_per_hijack || 3;
-    const totalXP = (newCount * xpPerClaim) + (overlapCount * xpPerHijack);
-    const rankUp = await awardXP(client, wallet.toLowerCase(), totalXP);
+    const totalXP = (newCount * xpPerClaim) + (attackWon * xpPerHijack);
+    const rankUp = await awardXP(client, walletLower, totalXP);
 
     // Transaction record
     const txRes = await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
        VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
       [
-        overlapCount > 0 ? 'hijack' : 'claim',
+        attackWon > 0 ? 'hijack' : (attackLost > 0 ? 'battle_failed' : 'claim'),
         wallet.toLowerCase(),
         usdtUsed, ppUsed,
         baseCost, // new pixel revenue goes to treasury
         JSON.stringify({
-          claimId, totalPixels: pixels.length, newCount, overlapCount,
-          affectedOwners, hijackPremiumToTreasury: Object.values(affectedOwners).reduce((s, a) => s + (a.bonus), 0)
+          claimId, totalPixels: claimPixels.length, newCount, attackWon, attackLost, ownSkipCount,
+          affectedOwners, platformFee, refundFromFailed
         })
       ]
     );
@@ -718,11 +788,15 @@ router.post('/claim', writeLimiter, async (req, res) => {
 
     res.json({
       success: true, claimId, totalCost,
-      newCount, overlapCount,
+      newCount, overlapCount, ownSkipCount,
+      attackWon, attackLost,
+      refundFromFailed: Math.round(refundFromFailed * 100) / 100,
+      platformFee: Math.round(platformFee * 100) / 100,
       ppUsed, usdtUsed,
       xpEarned: totalXP,
       rankUp: rankUp || null,
-      referralRewards
+      referralRewards,
+      battleResults
     });
   } catch (e) {
     await client.query('ROLLBACK');
