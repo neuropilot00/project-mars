@@ -2899,30 +2899,64 @@ function toggleSectorOverlay(){
 }
 
 var _myLandMode=false;
+var _myLandIdx=-1; // current territory index for cycling
 function toggleMyLand(){
   if(!walletState.connected){showToast('LOGIN REQUIRED');openAuthModal();return;}
-  _myLandMode=!_myLandMode;
-  var btn=document.getElementById('myLandBtn');
-  if(btn) btn.style.background=_myLandMode?'rgba(255,120,60,0.25)':'';
-  // Stop/resume auto-rotate
-  if(globe&&globe.controls){
-    globe.controls().autoRotate=!_myLandMode;
-  }
-  claimsSnapshot=null;
-  compositeClaimsOnTexture();
-  // Update MY TERRITORIES panel
-  _updateMyTerritories();
-  if(_myLandMode){
-    document.getElementById('myTerritoriesSection').style.display='';
-    // Zoom to first owned territory
-    var myAddr=walletState.address||'';
-    var mine=claims.filter(function(c){return c.owner===myAddr});
-    if(mine.length>0){
-      var first=mine[0];
-      globe.pointOfView({lat:first.lat,lng:first.lng,altitude:0.5},800);
+  var myAddr=walletState.address||'';
+  var mine=claims.filter(function(c){return c.owner===myAddr});
+
+  if(!_myLandMode){
+    // First press: activate MY LAND mode
+    _myLandMode=true;
+    _myLandIdx=0;
+    var btn=document.getElementById('myLandBtn');
+    if(btn) btn.style.background='rgba(255,120,60,0.25)';
+    if(globe&&globe.controls){
+      globe.controls().autoRotate=false;
     }
+    claimsSnapshot=null;
+    compositeClaimsOnTexture();
+    _updateMyTerritories();
+    document.getElementById('myTerritoriesSection').style.display='';
   }else{
-    document.getElementById('myTerritoriesSection').style.display='none';
+    // Already active: cycle to next territory
+    _myLandIdx++;
+    if(_myLandIdx>=mine.length){
+      // Cycled through all — deactivate
+      _myLandMode=false;
+      _myLandIdx=-1;
+      var btn=document.getElementById('myLandBtn');
+      if(btn) btn.style.background='';
+      if(globe&&globe.controls) globe.controls().autoRotate=true;
+      claimsSnapshot=null;
+      compositeClaimsOnTexture();
+      document.getElementById('myTerritoriesSection').style.display='none';
+      showToast('MY LAND OFF');
+      return;
+    }
+  }
+
+  // Zoom to current territory
+  if(mine.length>0&&_myLandIdx<mine.length){
+    var t=mine[_myLandIdx];
+    var pw=t.w||t.size||20, ph=t.h||t.size||20;
+    globe.pointOfView({lat:t.lat,lng:t.lng,altitude:Math.max(0.15,Math.max(pw,ph)*0.003)},600);
+    selectedPlot=t;
+    showTerritoryInfo(t);
+    showToast('MY LAND '+(_myLandIdx+1)+'/'+mine.length+(t.nickname?' — '+t.nickname:''));
+    // Highlight current in list
+    _highlightMyTerritoryItem(_myLandIdx);
+  }else{
+    showToast('No territories owned');
+  }
+}
+function _highlightMyTerritoryItem(idx){
+  var list=document.getElementById('myTerritoryList');
+  if(!list) return;
+  var items=list.children;
+  for(var i=0;i<items.length;i++){
+    items[i].style.borderColor=i===idx?'rgba(255,120,60,0.6)':'rgba(255,120,60,.12)';
+    items[i].style.background=i===idx?'rgba(255,120,60,.2)':'rgba(255,120,60,.06)';
   }
 }
 function _updateMyTerritories(){
