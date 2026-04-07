@@ -3156,36 +3156,66 @@ function compositeClaimsOnTexture(previewOnly){
         ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.5)';ctx.lineWidth=1;ctx.setLineDash([]);
       }
 
-      // For each claim rect edge, only draw if not adjacent to another same-owner claim
+      // For each edge segment, subtract portions covered by other same-owner rects
+      // This handles both adjacent AND overlapping rects
       ctx.beginPath();
       for(var ri=0;ri<ownerRects.length;ri++){
         var cr=ownerRects[ri].r;
-        var edges=[
-          {x1:cr.x,y1:cr.y,x2:cr.x+cr.w,y2:cr.y},         // top
-          {x1:cr.x,y1:cr.y+cr.h,x2:cr.x+cr.w,y2:cr.y+cr.h}, // bottom
-          {x1:cr.x,y1:cr.y,x2:cr.x,y2:cr.y+cr.h},         // left
-          {x1:cr.x+cr.w,y1:cr.y,x2:cr.x+cr.w,y2:cr.y+cr.h}  // right
+        // 4 edges: [type, fixed-coord, start, end]
+        // H=horizontal (fixed y, x varies), V=vertical (fixed x, y varies)
+        var edgeDefs=[
+          {h:true, fixed:cr.y, start:cr.x, end:cr.x+cr.w},           // top
+          {h:true, fixed:cr.y+cr.h, start:cr.x, end:cr.x+cr.w},     // bottom
+          {h:false, fixed:cr.x, start:cr.y, end:cr.y+cr.h},          // left
+          {h:false, fixed:cr.x+cr.w, start:cr.y, end:cr.y+cr.h}     // right
         ];
         for(var ei=0;ei<4;ei++){
-          // Check if this edge is shared with another same-owner rect
-          var shared=false;
+          var ed=edgeDefs[ei];
+          // Collect intervals covered by other same-owner rects
+          var covered=[];
           for(var rj=0;rj<ownerRects.length;rj++){
             if(ri===rj) continue;
             var or2=ownerRects[rj].r;
-            if(ei===0){ // top: shared if other rect's bottom == this top and x-overlap
-              if(Math.abs(or2.y+or2.h-cr.y)<1 && or2.x<cr.x+cr.w-1 && or2.x+or2.w>cr.x+1) shared=true;
-            }else if(ei===1){ // bottom
-              if(Math.abs(or2.y-(cr.y+cr.h))<1 && or2.x<cr.x+cr.w-1 && or2.x+or2.w>cr.x+1) shared=true;
-            }else if(ei===2){ // left
-              if(Math.abs(or2.x+or2.w-cr.x)<1 && or2.y<cr.y+cr.h-1 && or2.y+or2.h>cr.y+1) shared=true;
-            }else{ // right
-              if(Math.abs(or2.x-(cr.x+cr.w))<1 && or2.y<cr.y+cr.h-1 && or2.y+or2.h>cr.y+1) shared=true;
+            if(ed.h){
+              // Horizontal edge at y=ed.fixed: is this y inside or2?
+              if(ed.fixed>or2.y+0.5 && ed.fixed<or2.y+or2.h-0.5){
+                // This edge's y is inside or2 → covered where x overlaps
+                var cs=Math.max(ed.start, or2.x);
+                var ce=Math.min(ed.end, or2.x+or2.w);
+                if(ce>cs) covered.push([cs,ce]);
+              }
+            }else{
+              // Vertical edge at x=ed.fixed: is this x inside or2?
+              if(ed.fixed>or2.x+0.5 && ed.fixed<or2.x+or2.w-0.5){
+                var cs2=Math.max(ed.start, or2.y);
+                var ce2=Math.min(ed.end, or2.y+or2.h);
+                if(ce2>cs2) covered.push([cs2,ce2]);
+              }
             }
-            if(shared) break;
           }
-          if(!shared){
-            ctx.moveTo(edges[ei].x1,edges[ei].y1);
-            ctx.lineTo(edges[ei].x2,edges[ei].y2);
+          // Sort covered intervals and merge
+          covered.sort(function(a,b){return a[0]-b[0]});
+          var merged=[];
+          for(var ci=0;ci<covered.length;ci++){
+            if(merged.length && covered[ci][0]<=merged[merged.length-1][1]+0.5){
+              merged[merged.length-1][1]=Math.max(merged[merged.length-1][1],covered[ci][1]);
+            }else{
+              merged.push([covered[ci][0],covered[ci][1]]);
+            }
+          }
+          // Draw uncovered segments
+          var pos=ed.start;
+          for(var mi=0;mi<merged.length;mi++){
+            if(merged[mi][0]>pos+0.5){
+              // Draw from pos to merged[mi][0]
+              if(ed.h){ctx.moveTo(pos,ed.fixed);ctx.lineTo(merged[mi][0],ed.fixed);}
+              else{ctx.moveTo(ed.fixed,pos);ctx.lineTo(ed.fixed,merged[mi][0]);}
+            }
+            pos=merged[mi][1];
+          }
+          if(pos<ed.end-0.5){
+            if(ed.h){ctx.moveTo(pos,ed.fixed);ctx.lineTo(ed.end,ed.fixed);}
+            else{ctx.moveTo(ed.fixed,pos);ctx.lineTo(ed.fixed,ed.end);}
           }
         }
       }
