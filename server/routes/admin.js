@@ -935,4 +935,128 @@ router.delete('/claims/:id', async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════
+//  ITEM SHOP MANAGEMENT
+// ══════════════════════════════════════════════════
+
+// GET /admin/api/shop-items — List all shop items (item_types)
+router.get('/shop-items', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM item_types ORDER BY category, code');
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[Admin] shop-items error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// PUT /admin/api/shop-items/:id — Update shop item
+router.put('/shop-items/:id', async (req, res) => {
+  try {
+    const { name, description, price_pp, price_usdt, duration_hours, effect_value, max_stack, active } = req.body;
+    const result = await pool.query(
+      `UPDATE item_types SET
+        name = COALESCE($1, name), description = COALESCE($2, description),
+        price_pp = COALESCE($3, price_pp), price_usdt = COALESCE($4, price_usdt),
+        duration_hours = COALESCE($5, duration_hours), effect_value = COALESCE($6, effect_value),
+        max_stack = COALESCE($7, max_stack), active = COALESCE($8, active)
+       WHERE id = $9 RETURNING *`,
+      [name, description, price_pp, price_usdt, duration_hours, effect_value, max_stack, active, req.params.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Item not found' });
+    res.json({ success: true, item: result.rows[0] });
+  } catch (e) {
+    console.error('[Admin] shop-item update error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// POST /admin/api/shop-items — Create new shop item
+router.post('/shop-items', async (req, res) => {
+  try {
+    const { code, name, description, category, price_pp, price_usdt, duration_hours, effect_value, icon, max_stack } = req.body;
+    if (!code || !name || !category) return res.status(400).json({ error: 'code, name, category required' });
+    const result = await pool.query(
+      `INSERT INTO item_types (code, name, description, category, price_pp, price_usdt, duration_hours, effect_value, icon, max_stack)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+      [code, name, description || '', category, price_pp || 0, price_usdt || 0, duration_hours || 0, effect_value || 0, icon || '', max_stack || 5]
+    );
+    res.json({ success: true, item: result.rows[0] });
+  } catch (e) {
+    console.error('[Admin] shop-item create error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /admin/api/battles — List recent battles
+router.get('/battles', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const result = await pool.query(
+      `SELECT b.*,
+        (SELECT nickname FROM users WHERE wallet_address = b.attacker) as attacker_name,
+        (SELECT nickname FROM users WHERE wallet_address = b.defender) as defender_name
+       FROM battles b ORDER BY b.created_at DESC LIMIT $1`, [limit]
+    );
+    const stats = await pool.query(
+      `SELECT count(*) as total, count(CASE WHEN success THEN 1 END) as wins,
+        COALESCE(SUM(pixels_won),0) as total_pixels_won,
+        COALESCE(SUM(platform_fee),0) as total_fees
+       FROM battles`
+    );
+    res.json({ battles: result.rows, stats: stats.rows[0] });
+  } catch (e) {
+    console.error('[Admin] battles error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// GET /admin/api/shields — List active shields
+router.get('/shields', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT ps.*, c.center_lat, c.center_lng, c.width, c.height
+       FROM pixel_shields ps JOIN claims c ON ps.claim_id = c.id
+       WHERE ps.expires_at > NOW()
+       ORDER BY ps.expires_at ASC LIMIT 100`
+    );
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[Admin] shields error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// DELETE /admin/api/shields/:id — Remove a shield
+router.delete('/shields/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM pixel_shields WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// GET /admin/api/shop-stats — Item shop statistics
+router.get('/shop-stats', async (req, res) => {
+  try {
+    const [purchases, usage, topItems] = await Promise.all([
+      pool.query('SELECT count(*) as total FROM item_usage_log'),
+      pool.query(`SELECT it.name, it.code, count(*) as uses FROM item_usage_log iul
+        JOIN item_types it ON iul.item_type_id = it.id GROUP BY it.name, it.code ORDER BY uses DESC LIMIT 10`),
+      pool.query(`SELECT it.code, it.name, COALESCE(SUM(ui.quantity),0) as total_owned
+        FROM item_types it LEFT JOIN user_items ui ON ui.item_type_id = it.id
+        GROUP BY it.code, it.name ORDER BY total_owned DESC`)
+    ]);
+    res.json({
+      totalUsages: parseInt(purchases.rows[0].total),
+      topUsed: usage.rows,
+      ownership: topItems.rows
+    });
+  } catch (e) {
+    console.error('[Admin] shop-stats error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 module.exports = router;

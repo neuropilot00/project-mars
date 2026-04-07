@@ -221,6 +221,8 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   border:1px dashed rgba(255,120,60,.25);border-radius:6px;
   background:rgba(255,120,60,.03);animation:stampPulse 2s infinite}
 @keyframes stampPulse{0%,100%{border-color:rgba(255,120,60,.25)}50%{border-color:rgba(255,120,60,.5)}}
+@keyframes effectFadeOut{0%{opacity:1}60%{opacity:1}100%{opacity:0}}
+@keyframes effectPop{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.3)}100%{transform:scale(1);opacity:1}}
 .back-btn:hover{background:rgba(255,120,60,.2)!important;color:var(--tx)!important}
 
 /* Wallet Panel */
@@ -486,6 +488,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   box-shadow:0 4px 16px rgba(255,120,60,.35);margin-top:-14px;
   border:2px solid rgba(255,120,60,0.3)}
 .mob-nav-item.claim-nav .nav-label{color:var(--mars);font-weight:bold;margin-top:-2px}
+/* Mobile land select controls — hidden on desktop */
+@media(min-width:769px){#mobSizeControls{display:none!important}}
+/* Size adjust buttons for mobile land select */
+.sz-adj{padding:6px 4px;min-width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);color:var(--tx);font-size:10px;font-family:var(--fn);cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.sz-adj:active{background:rgba(255,120,60,0.15)}
 /* Legacy individual buttons — hidden, replaced by nav bar */
 .mob-base-btn,.mob-arena-btn,.mob-claim-btn,.mob-myland-btn{display:none!important}
 @media(max-width:768px){
@@ -870,7 +879,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .p-section{margin-bottom:14px}
   /* モバイル: stamp section hidden → show via modal */
   #stampSection{display:none!important}
-  /* Item Shop mobile */
+  /* Item Shop mobile — must be above BASE (z-520) */
+  #shopModal{z-index:530}
   #shopModal .mdl{max-height:85vh;height:85vh}
   .shop-grid{grid-template-columns:1fr}
   .shop-item-card{padding:14px}
@@ -880,9 +890,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .inv-use{min-height:40px;padding:8px 14px!important}
   /* Image editor mobile */
   .editor-ctrl-btn{width:40px;height:40px;font-size:18px}
-  /* Claim modal mobile */
+  /* Claim modal mobile — compact */
   .claim-card{width:100vw;max-width:100vw;border-radius:16px 16px 0 0}
-  .claim-confirm{min-height:48px;font-size:11px}
+  .claim-hero{padding:10px;min-height:auto}
+  .claim-hero-img{width:80px;height:80px}
+  .claim-title-row{padding:8px 14px 6px}
+  .claim-info-grid{gap:0}
+  .claim-info-item{padding:6px 12px}
+  .claim-info-item.full{padding:8px 14px}
+  .claim-info-label{margin-bottom:3px}
+  .claim-confirm{min-height:44px;font-size:11px;margin:8px 14px 0}
+  .claim-note{padding:4px 14px 10px}
 }
 /* Small phones */
 @media(max-width:380px){
@@ -1248,8 +1266,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .crash-guide-steps{gap:4px}
   .crash-guide{display:none}
   .crash-history{padding:4px 8px;flex-shrink:0}
-  .game-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .game-tab{padding:8px 6px;font-size:7px;white-space:nowrap;flex:0 0 auto;min-width:56px}
+  .game-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0}
+  .game-tab{padding:10px 4px;font-size:8px;white-space:nowrap;flex:1 1 0;min-width:0;text-align:center}
   .btn-bet{padding:12px;font-size:var(--fs-sm)}
   .cf-wrap{flex-direction:column;flex:1;overflow-y:auto}
   .cf-main{min-height:auto;flex-shrink:0;padding:20px 0}
@@ -1930,6 +1948,32 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Mobile Bottom Navigation Bar -->
+<!-- Mobile Land Size Controls (floating above bottom nav) -->
+<div id="mobSizeControls" style="display:none;position:fixed;bottom:64px;left:0;right:0;z-index:210;
+  background:rgba(14,12,22,0.97);border-top:1px solid rgba(255,120,60,0.3);
+  padding:10px 12px;backdrop-filter:blur(16px)">
+  <div style="display:flex;align-items:center;gap:12px">
+    <!-- Virtual Joystick: drag to resize territory -->
+    <div id="mobJoystickWrap" style="position:relative;width:72px;height:72px;flex:0 0 72px;border-radius:50%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,120,60,0.3);touch-action:none">
+      <div id="mobJoystickKnob" style="position:absolute;top:50%;left:50%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:linear-gradient(135deg,var(--mars),var(--red));box-shadow:0 0 10px rgba(255,120,60,0.5);pointer-events:none"></div>
+      <div style="position:absolute;top:3px;left:50%;transform:translateX(-50%);font-size:7px;color:var(--tx3);font-family:var(--fn)">H+</div>
+      <div style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:7px;color:var(--tx3);font-family:var(--fn)">H−</div>
+      <div style="position:absolute;left:3px;top:50%;transform:translateY(-50%);font-size:7px;color:var(--tx3);font-family:var(--fn)">W−</div>
+      <div style="position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:7px;color:var(--tx3);font-family:var(--fn)">W+</div>
+    </div>
+    <!-- Size info -->
+    <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+      <span id="mobSizeLabel" style="font-size:13px;font-family:var(--fn);color:var(--gold);font-weight:700">20 × 20</span>
+      <span id="mobCostLabel" style="font-size:11px;font-family:var(--fn);color:var(--tx3)">400px</span>
+    </div>
+    <!-- Actions -->
+    <div style="display:flex;flex-direction:column;gap:6px;flex:0 0 auto">
+      <button onclick="_mobConfirmLand()" style="padding:10px 18px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));border:none;color:#fff;font-family:var(--fn);font-size:12px;cursor:pointer;font-weight:700">CONFIRM</button>
+      <button onclick="cancelLandSelect();_showMobSizeControls(false)" style="padding:6px 18px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer">CANCEL</button>
+    </div>
+  </div>
+</div>
+
 <nav class="mob-bottom-nav" id="mobBottomNav">
   <div class="nav-items">
     <button class="mob-nav-item" onclick="toggleMyLand()" id="mobNavMyLand">
@@ -1979,6 +2023,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="mt-img" id="mtImgWrap" style="display:none">
       <img id="mtImgPreview" src="" onclick="expandMtImg()">
       <div id="mtGifBadge" style="display:none;font-size:9px;color:var(--mars);margin-top:4px">GIF ▶</div>
+    </div>
+    <div id="mtEditBtnWrap" style="display:none;padding:10px 0 4px">
+      <button id="mtEditImgBtn" onclick="closeMobTerritoryModal();openImageEditor(selectedPlot)"
+        style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));
+        border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
+        ADD IMAGE
+      </button>
     </div>
   </div>
 </div>
@@ -2959,38 +3010,34 @@ function compositeClaimsOnTexture(previewOnly){
         var s=(ip.scale||100)/100;
         var rot=(ip.rotate||0)*Math.PI/180;
         var ox=ip.ox||0, oy=ip.oy||0;
-        // Center of territory + offset
         var cx=rx+rw/2+ox, cy=ry+rh/2+oy;
         ctx.translate(cx,cy);
         ctx.rotate(rot);
-        // Cover: scale image to fill territory, then apply user scale
         var coverScale=Math.max(rw/img.width, rh/img.height)*s;
         var dw=img.width*coverScale, dh=img.height*coverScale;
         ctx.drawImage(img,-dw/2,-dh/2,dw,dh);
         ctx.restore();
-        // Tinted border per owner
-        var bc=oc||{r:255,g:209,b:102};
-        ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.5)';ctx.lineWidth=1;
-        ctx.strokeRect(rx,ry,rw,rh);
+        // Borders drawn in grouped exterior pass
       }else if(noImage){
-        // Land-only claim — semi-transparent colored territory (terrain visible underneath)
+        // Land-only claim — semi-transparent colored territory
         var tc=oc||{r:255,g:120,b:60};
         ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.12)';
         ctx.fillRect(rx,ry,rw,rh);
-        ctx.strokeStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.45)';ctx.lineWidth=1.5;
-        ctx.strokeRect(rx,ry,rw,rh);
-        // Inner dashed border for clarity
-        ctx.strokeStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.2)';ctx.lineWidth=0.5;
-        ctx.setLineDash([4,3]);ctx.strokeRect(rx+3,ry+3,rw-6,rh-6);ctx.setLineDash([]);
-        // Owner label (nickname or short address)
+        // Borders drawn in grouped exterior pass
+        // Owner label
         if(rw>20&&rh>12){
-          var lfs=Math.max(6,Math.min(rw*0.18,rh*0.3,14));
+          ctx.save();
+          ctx.beginPath();ctx.rect(rx,ry,rw,rh);ctx.clip();
+          var lfs=Math.max(5,Math.min(rw*0.15,rh*0.28,12));
           ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.85)';ctx.font='bold '+lfs+'px sans-serif';
           ctx.textAlign='center';ctx.textBaseline='middle';
-          ctx.fillText(ownerLabel||'CLAIMED',rx+rw/2,ry+rh/2);
+          var lbl=ownerLabel||'CLAIMED';
+          while(ctx.measureText(lbl).width>rw-4&&lbl.length>3) lbl=lbl.slice(0,-1);
+          ctx.fillText(lbl,rx+rw/2,ry+rh/2);
+          ctx.restore();
         }
       }else{
-        // Loading placeholder — image not yet cached
+        // Loading placeholder
         ctx.fillStyle='rgba(255,255,255,0.08)';
         ctx.fillRect(rx,ry,rw,rh);
         ctx.strokeStyle='rgba(255,209,102,0.25)';ctx.lineWidth=1;
@@ -3006,29 +3053,145 @@ function compositeClaimsOnTexture(previewOnly){
       if(r.x<0) _drawOneRect(ctx,img,r.x+w,r.y,r.w,r.h,noImage,ownerLabel,oc,imgParams);
       else if(r.x+r.w>w) _drawOneRect(ctx,img,r.x-w,r.y,r.w,r.h,noImage,ownerLabel,oc,imgParams);
     }
+    // Shield glow effect on a claim rect
+    function _drawShieldEffect(ctx,rx,ry,rw,rh,shieldType){
+      var isAdvanced=shieldType==='shield_advanced';
+      var glowColor=isAdvanced?'rgba(80,200,255,':'rgba(60,160,255,';
+      ctx.save();
+      ctx.shadowColor=isAdvanced?'#50C8FF':'#3CA0FF';
+      ctx.shadowBlur=isAdvanced?8:5;
+      ctx.strokeStyle=glowColor+'0.7)';
+      ctx.lineWidth=isAdvanced?2:1.5;
+      ctx.setLineDash(isAdvanced?[]:[4,3]);
+      ctx.strokeRect(rx,ry,rw,rh);
+      ctx.setLineDash([]);
+      // Shield icon indicator
+      var iconSz=Math.max(6,Math.min(rw,rh)*0.25);
+      ctx.font='bold '+iconSz+'px sans-serif';ctx.textAlign='left';ctx.textBaseline='top';
+      ctx.fillStyle=glowColor+'0.9)';
+      ctx.fillText(isAdvanced?'🔰':'🛡️',rx+1,ry+1);
+      ctx.restore();
+    }
     var myAddr=walletState.address||'';
-    claims.forEach(function(c){
+    var _shieldPulse=Math.sin(Date.now()/600)*0.15+0.85;
+
+    // Sort claims oldest→newest so newer claims visually override older ones
+    var sortedClaims=claims.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0)});
+    // Pre-compute rects for clipping
+    var claimRects=sortedClaims.map(function(c){
       var cw=c.w||c.size||20, ch=c.h||c.size||20;
-      var r=getCellRect(c.lat,c.lng,cw,ch,w,h);
+      return getCellRect(c.lat,c.lng,cw,ch,w,h);
+    });
+
+    // ── Hybrid rendering: claim rects + pixelGrid ownership for accuracy ──
+    // Build owner→claimRects for grouped border rendering
+    var _ownerClaimRects={}; // owner → [{r, claim, idx}]
+    sortedClaims.forEach(function(c,idx){
+      if(!_ownerClaimRects[c.owner]) _ownerClaimRects[c.owner]=[];
+      _ownerClaimRects[c.owner].push({r:claimRects[idx], claim:c, idx:idx});
+    });
+
+    // For each claim: draw fill/image clipped to claim rect minus lost pixels
+    sortedClaims.forEach(function(c,idx){
+      var r=claimRects[idx];
       var hasUrl=c.imgUrl&&c.imgUrl.length>0;
       var img=hasUrl?imgCache[c.imgUrl]:null;
       var noImage=!hasUrl;
       var isMine=_myLandMode&&myAddr&&c.owner===myAddr;
+      var isNPC=c.owner&&c.owner.indexOf('0xnpc_')===0;
       var oc=_ownerColor(c.owner);
-      var displayLabel=c.nickname||c.label||shortAddr(c.owner);
-      // In My Land mode, dim other players' claims
+      var displayLabel=isNPC?(c.owner.replace('0xnpc_','').replace(/_/g,' ').toUpperCase()):(c.nickname||c.label||shortAddr(c.owner));
       var imgParams=hasUrl?{scale:c.imgScale||100,rotate:c.imgRotate||0,ox:c.imgOffsetX||0,oy:c.imgOffsetY||0}:null;
+
+      // Build clipping: claim rect MINUS enemy claims that overlap
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(r.x,r.y,r.w,r.h);
+      if(r.x<0) ctx.rect(r.x+w,r.y,r.w,r.h);
+      else if(r.x+r.w>w) ctx.rect(r.x-w,r.y,r.w,r.h);
+      // Subtract newer claims from DIFFERENT owners (evenodd)
+      for(var j=idx+1;j<sortedClaims.length;j++){
+        if(sortedClaims[j].owner===c.owner) continue;
+        var nr=claimRects[j];
+        ctx.rect(nr.x,nr.y,nr.w,nr.h);
+        if(nr.x<0) ctx.rect(nr.x+w,nr.y,nr.w,nr.h);
+        else if(nr.x+nr.w>w) ctx.rect(nr.x-w,nr.y,nr.w,nr.h);
+      }
+      ctx.clip('evenodd');
+
       if(_myLandMode&&!isMine) ctx.globalAlpha=0.15;
       _drawClaimRect(ctx,img,r,w,noImage,displayLabel,oc,imgParams);
       if(_myLandMode&&!isMine) ctx.globalAlpha=1;
-      // Highlight my claims with bright border
-      if(_myLandMode&&isMine){
-        var mc=_ownerColor(myAddr);
-        ctx.strokeStyle='rgba('+mc.r+','+mc.g+','+mc.b+',0.9)';ctx.lineWidth=2;ctx.setLineDash([]);
-        ctx.strokeRect(r.x,r.y,r.w,r.h);
-        if(r.x<0) ctx.strokeRect(r.x+w,r.y,r.w,r.h);
-        else if(r.x+r.w>w) ctx.strokeRect(r.x-w,r.y,r.w,r.h);
+
+      // Shield visual effect
+      if(c.shield&&c.shield.expires>Date.now()){
+        ctx.globalAlpha=_shieldPulse;
+        _drawShieldEffect(ctx,r.x,r.y,r.w,r.h,c.shield.type);
+        if(r.x<0)_drawShieldEffect(ctx,r.x+w,r.y,r.w,r.h,c.shield.type);
+        else if(r.x+r.w>w)_drawShieldEffect(ctx,r.x-w,r.y,r.w,r.h,c.shield.type);
+        ctx.globalAlpha=1;
       }
+      ctx.restore();
+    });
+
+    // ── Grouped exterior-only borders per owner ──
+    var _processedOwners={};
+    sortedClaims.forEach(function(c){
+      if(_processedOwners[c.owner]) return;
+      _processedOwners[c.owner]=true;
+      var ownerRects=_ownerClaimRects[c.owner];
+      if(!ownerRects||!ownerRects.length) return;
+
+      var isNPC=c.owner&&c.owner.indexOf('0xnpc_')===0;
+      var isMine=_myLandMode&&myAddr&&c.owner===myAddr;
+      var oc=_ownerColor(c.owner);
+      var bc=oc||{r:255,g:120,b:60};
+
+      ctx.save();
+      if(isNPC){
+        ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.6)';ctx.lineWidth=1.5;ctx.setLineDash([3,2]);
+      }else if(_myLandMode&&isMine){
+        ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.9)';ctx.lineWidth=2;ctx.setLineDash([]);
+      }else{
+        ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.5)';ctx.lineWidth=1;ctx.setLineDash([]);
+      }
+
+      // For each claim rect edge, only draw if not adjacent to another same-owner claim
+      ctx.beginPath();
+      for(var ri=0;ri<ownerRects.length;ri++){
+        var cr=ownerRects[ri].r;
+        var edges=[
+          {x1:cr.x,y1:cr.y,x2:cr.x+cr.w,y2:cr.y},         // top
+          {x1:cr.x,y1:cr.y+cr.h,x2:cr.x+cr.w,y2:cr.y+cr.h}, // bottom
+          {x1:cr.x,y1:cr.y,x2:cr.x,y2:cr.y+cr.h},         // left
+          {x1:cr.x+cr.w,y1:cr.y,x2:cr.x+cr.w,y2:cr.y+cr.h}  // right
+        ];
+        for(var ei=0;ei<4;ei++){
+          // Check if this edge is shared with another same-owner rect
+          var shared=false;
+          for(var rj=0;rj<ownerRects.length;rj++){
+            if(ri===rj) continue;
+            var or2=ownerRects[rj].r;
+            if(ei===0){ // top: shared if other rect's bottom == this top and x-overlap
+              if(Math.abs(or2.y+or2.h-cr.y)<1 && or2.x<cr.x+cr.w-1 && or2.x+or2.w>cr.x+1) shared=true;
+            }else if(ei===1){ // bottom
+              if(Math.abs(or2.y-(cr.y+cr.h))<1 && or2.x<cr.x+cr.w-1 && or2.x+or2.w>cr.x+1) shared=true;
+            }else if(ei===2){ // left
+              if(Math.abs(or2.x+or2.w-cr.x)<1 && or2.y<cr.y+cr.h-1 && or2.y+or2.h>cr.y+1) shared=true;
+            }else{ // right
+              if(Math.abs(or2.x-(cr.x+cr.w))<1 && or2.y<cr.y+cr.h-1 && or2.y+or2.h>cr.y+1) shared=true;
+            }
+            if(shared) break;
+          }
+          if(!shared){
+            ctx.moveTo(edges[ei].x1,edges[ei].y1);
+            ctx.lineTo(edges[ei].x2,edges[ei].y2);
+          }
+        }
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
     });
 
     // Sector boundaries overlay
@@ -3090,17 +3253,47 @@ function compositeClaimsOnTexture(previewOnly){
       landDragEnd?landDragEnd.lng:landDragStart.lng);
     if(lr){
       var lrr=getCellRect(lr.lat,lr.lng,lr.w,lr.h,w,h);
-      // Semi-transparent fill
-      ctx.fillStyle='rgba(255,120,60,0.15)';
+      // Semi-transparent fill — cyan/white to contrast Mars surface
+      ctx.fillStyle='rgba(0,200,255,0.12)';
       ctx.fillRect(lrr.x,lrr.y,lrr.w,lrr.h);
-      // Animated border
-      ctx.strokeStyle='rgba(255,120,60,0.8)';ctx.lineWidth=2;ctx.setLineDash([8,4]);
+      // Animated border — bright cyan
+      ctx.strokeStyle='rgba(0,220,255,0.85)';ctx.lineWidth=2;ctx.setLineDash([8,4]);
       ctx.strokeRect(lrr.x,lrr.y,lrr.w,lrr.h);ctx.setLineDash([]);
-      // Size label
+      // Corner markers
+      var cm=6;
+      ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=2;ctx.setLineDash([]);
+      // Top-left
+      ctx.beginPath();ctx.moveTo(lrr.x,lrr.y+cm);ctx.lineTo(lrr.x,lrr.y);ctx.lineTo(lrr.x+cm,lrr.y);ctx.stroke();
+      // Top-right
+      ctx.beginPath();ctx.moveTo(lrr.x+lrr.w-cm,lrr.y);ctx.lineTo(lrr.x+lrr.w,lrr.y);ctx.lineTo(lrr.x+lrr.w,lrr.y+cm);ctx.stroke();
+      // Bottom-left
+      ctx.beginPath();ctx.moveTo(lrr.x,lrr.y+lrr.h-cm);ctx.lineTo(lrr.x,lrr.y+lrr.h);ctx.lineTo(lrr.x+cm,lrr.y+lrr.h);ctx.stroke();
+      // Bottom-right
+      ctx.beginPath();ctx.moveTo(lrr.x+lrr.w-cm,lrr.y+lrr.h);ctx.lineTo(lrr.x+lrr.w,lrr.y+lrr.h);ctx.lineTo(lrr.x+lrr.w,lrr.y+lrr.h-cm);ctx.stroke();
+      // Pin marker at center — large and visible
+      var pcx=lrr.x+lrr.w/2, pcy=lrr.y+lrr.h/2;
+      // Pin drop shadow
+      ctx.fillStyle='rgba(0,0,0,0.4)';
+      ctx.beginPath();ctx.ellipse(pcx+1,pcy+1,3,1.5,0,0,Math.PI*2);ctx.fill();
+      // Pin shaft
+      ctx.strokeStyle='#fff';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(pcx,pcy);ctx.lineTo(pcx,pcy-24);ctx.stroke();
+      // Pin head
+      ctx.beginPath();ctx.arc(pcx,pcy-28,7,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,200,255,0.95)';ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+      // Pin inner dot
+      ctx.beginPath();ctx.arc(pcx,pcy-28,2.5,0,Math.PI*2);
+      ctx.fillStyle='#fff';ctx.fill();
+      // Size label — white on dark background
       var lfs=Math.max(8,Math.min(lrr.w,lrr.h)*0.15);
-      ctx.fillStyle='rgba(255,120,60,0.9)';ctx.font='bold '+lfs+'px sans-serif';
-      ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(lr.w+'×'+lr.h,lrr.x+lrr.w/2,lrr.y+lrr.h/2);
+      ctx.font='bold '+lfs+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      var ltxt=lr.w+'×'+lr.h;
+      var tw=ctx.measureText(ltxt).width;
+      ctx.fillStyle='rgba(0,0,0,0.6)';
+      ctx.fillRect(pcx-tw/2-4,pcy+4,tw+8,lfs+4);
+      ctx.fillStyle='#fff';
+      ctx.fillText(ltxt,pcx,pcy+6+lfs/2);
     }
   }
 
@@ -3482,12 +3675,16 @@ function pxKey(lat,lng){ return (Math.round(lat*100)/100)+','+(Math.round(lng*10
 // Get all pixel coords covered by a claim (center lat/lng, w cells, h cells)
 function getClaimPixels(lat,lng,w,h){
   var pixels=[];
-  var halfW=w/2, halfH=h/2;
-  for(var dy=0;dy<h;dy++){
-    for(var dx=0;dx<w;dx++){
-      var plat=Math.round((lat+(dy-halfH+0.5)*GRID_SIZE)*100)/100;
-      var plng=Math.round((lng+(dx-halfW+0.5)*GRID_SIZE)*100)/100;
-      if(plat>=-70&&plat<=70) pixels.push({lat:plat,lng:plng});
+  var halfW=(w*GRID_SIZE)/2, halfH=(h*GRID_SIZE)/2;
+  var minLat=lat-halfH, maxLat=lat+halfH;
+  var minLng=lng-halfW, maxLng=lng+halfW;
+  var startLat=Math.ceil(minLat/GRID_SIZE)*GRID_SIZE;
+  var startLng=Math.ceil(minLng/GRID_SIZE)*GRID_SIZE;
+  for(var plat=startLat;plat<maxLat;plat+=GRID_SIZE){
+    for(var plng=startLng;plng<maxLng;plng+=GRID_SIZE){
+      var sLat=Math.round(plat*100)/100;
+      var sLng=Math.round(plng*100)/100;
+      if(sLat>=-70&&sLat<=70) pixels.push({lat:sLat,lng:sLng});
     }
   }
   return pixels;
@@ -3507,20 +3704,25 @@ function registerClaimPixels(claim,idx){
 // Calculate cost for placing stamp at position, with overlap detection
 function calcStampCost(lat,lng,w,h){
   var pixels=getClaimPixels(lat,lng,w,h);
-  var baseCost=0, hijackCost=0, overlapCount=0, newCount=0;
+  var baseCost=0, hijackCost=0, overlapCount=0, newCount=0, ownSkipCount=0;
   var affectedOwners={}; // owner → {refund, bonus}
+  var myAddr=(walletState.address||'').toLowerCase();
   pixels.forEach(function(p){
     var k=pxKey(p.lat,p.lng);
     var existing=pixelGrid[k];
     if(existing&&existing.owner){
-      // Overlapping pixel: 1.2× current price
-      var pxCost=existing.price*HIJACK_MULT;
-      hijackCost+=pxCost;
-      overlapCount++;
-      // Track refund to previous owner
-      if(!affectedOwners[existing.owner]) affectedOwners[existing.owner]={refund:0,bonus:0};
-      affectedOwners[existing.owner].refund+=existing.price;
-      affectedOwners[existing.owner].bonus+=(pxCost-existing.price)*0.5; // 50% premium to owner
+      if(myAddr&&existing.owner.toLowerCase()===myAddr){
+        // Own pixel — skip (no cost, no battle)
+        ownSkipCount++;
+      }else{
+        // Enemy pixel: 1.2× current price
+        var pxCost=existing.price*HIJACK_MULT;
+        hijackCost+=pxCost;
+        overlapCount++;
+        if(!affectedOwners[existing.owner]) affectedOwners[existing.owner]={refund:0,bonus:0};
+        affectedOwners[existing.owner].refund+=existing.price;
+        affectedOwners[existing.owner].bonus+=(pxCost-existing.price)*0.5;
+      }
     }else{
       baseCost+=PIXEL_PRICE;
       newCount++;
@@ -3532,16 +3734,33 @@ function calcStampCost(lat,lng,w,h){
     hijackCost:Math.round(hijackCost*100)/100,
     overlapCount:overlapCount,
     newCount:newCount,
+    ownSkipCount:ownSkipCount,
     totalPixels:pixels.length,
     affectedOwners:affectedOwners
   };
 }
 
-// Initialize pixelGrid from existing claims
+// Initialize pixelGrid from existing claims (fallback)
 function initPixelGrid(){
   pixelGrid={};
   claims.forEach(function(c,i){registerClaimPixels(c,i)});
 }
+// Build pixelGrid from authoritative server pixel data
+function initPixelGridFromServer(byOwner){
+  pixelGrid={};
+  // Build claimId → claimIdx lookup
+  var claimIdMap={};
+  claims.forEach(function(c,i){ if(c.id) claimIdMap[c.id]=i; });
+  for(var owner in byOwner){
+    var pxArr=byOwner[owner];
+    for(var i=0;i<pxArr.length;i++){
+      var p=pxArr[i]; // [lat, lng, claimId, price]
+      var k=pxKey(p[0],p[1]);
+      pixelGrid[k]={owner:owner, price:p[3], claimIdx:claimIdMap[p[2]]!==undefined?claimIdMap[p[2]]:-1, claimId:p[2]};
+    }
+  }
+}
+var _pixelsLoaded=false;
 initPixelGrid();
 
 // Pre-cache all demo images + base texture
@@ -3562,21 +3781,27 @@ function preCacheAndComposite(){
 }
 preCacheAndComposite();
 
-// Load server claims and merge with demo data
+// Load server claims + authoritative pixel ownership
 (function loadServerClaims(){
-  fetch('/api/claims').then(function(r){return r.json()}).then(function(serverClaims){
-    if(!serverClaims||!serverClaims.length) return;
-    // Add server claims (avoid duplicates by checking id)
-    serverClaims.forEach(function(sc){
-      // Server claims have short owner addresses
-      claims.push(sc);
-    });
-    // Rebuild pixel grid with all claims
-    initPixelGrid();
+  Promise.all([
+    fetch('/api/claims').then(function(r){return r.json()}),
+    fetch('/api/pixels').then(function(r){return r.json()})
+  ]).then(function(results){
+    var serverClaims=results[0], serverPixels=results[1];
+    if(serverClaims&&serverClaims.length){
+      serverClaims.forEach(function(sc){ claims.push(sc); });
+    }
+    // Use authoritative pixel data if available
+    if(serverPixels&&typeof serverPixels==='object'&&Object.keys(serverPixels).length>0){
+      initPixelGridFromServer(serverPixels);
+      _pixelsLoaded=true;
+    }else{
+      initPixelGrid();
+    }
     // Cache images and re-composite
     var pending=0;
-    serverClaims.forEach(function(sc){
-      if(sc.imgUrl){
+    claims.forEach(function(sc){
+      if(sc.imgUrl&&!imgCache[sc.imgUrl]){
         pending++;
         cacheImage(sc.imgUrl,function(){
           pending--;
@@ -3585,30 +3810,41 @@ preCacheAndComposite();
       }
     });
     if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
-    // Track latest timestamp for delta polling
-    serverClaims.forEach(function(sc){ if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts; });
-  }).catch(function(e){console.warn('[Claims] Failed to load server claims:',e)});
+    if(serverClaims) serverClaims.forEach(function(sc){ if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts; });
+  }).catch(function(e){console.warn('[Claims] Failed to load:',e)});
 })();
 
-// Delta claims polling (every 15s, only fetches new claims since last sync)
+// Delta claims polling (every 10s for claims, every 30s for full pixel refresh)
 var _claimsSince=Date.now();
+var _pixelPollCount=0;
 setInterval(function(){
-  fetch('/api/claims?since='+_claimsSince).then(function(r){return r.json()}).then(function(newClaims){
-    if(!newClaims||!newClaims.length) return;
-    var existingIds={};
-    claims.forEach(function(c){if(c.id) existingIds[c.id]=true;});
+  _pixelPollCount++;
+  var fetchPixels=(_pixelPollCount%3===0); // every 30s (3×10s)
+  var fetches=[fetch('/api/claims?since='+_claimsSince).then(function(r){return r.json()})];
+  if(fetchPixels) fetches.push(fetch('/api/pixels').then(function(r){return r.json()}));
+  Promise.all(fetches).then(function(results){
+    var newClaims=results[0], serverPixels=results[1];
     var added=0;
-    newClaims.forEach(function(sc){
-      if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts;
-      if(existingIds[sc.id]) return; // skip duplicates
-      claims.push(sc);
-      added++;
-    });
-    if(!added) return;
-    initPixelGrid();
+    if(newClaims&&newClaims.length){
+      var existingIds={};
+      claims.forEach(function(c){if(c.id) existingIds[c.id]=true;});
+      newClaims.forEach(function(sc){
+        if(sc.ts&&sc.ts>_claimsSince) _claimsSince=sc.ts;
+        if(existingIds[sc.id]) return;
+        claims.push(sc);
+        added++;
+      });
+    }
+    if(fetchPixels&&serverPixels&&typeof serverPixels==='object'&&Object.keys(serverPixels).length>0){
+      initPixelGridFromServer(serverPixels);
+      _pixelsLoaded=true;
+    }else if(added){
+      initPixelGrid();
+    }
+    if(!added&&!fetchPixels) return;
     var pending=0;
-    newClaims.forEach(function(sc){
-      if(sc.imgUrl && !imgCache[sc.imgUrl]){
+    if(newClaims) newClaims.forEach(function(sc){
+      if(sc.imgUrl&&!imgCache[sc.imgUrl]){
         pending++;
         cacheImage(sc.imgUrl,function(){
           pending--;
@@ -3618,7 +3854,7 @@ setInterval(function(){
     });
     if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
   }).catch(function(){});
-},1000);
+},10000);
 
 // Load sectors on boot (for boundary overlay)
 (function loadSectorsOnBoot(){
@@ -3680,7 +3916,7 @@ function activateLandSelect(){
   }
   landSelectMode=true; stampMode=false;
   landDragStart=null; landDragEnd=null; landDragRect=null;
-  document.getElementById('landSelectBtn').textContent='CLICK MARS TO START';
+  document.getElementById('landSelectBtn').textContent=isMobile?'TAP MARS TO PLACE':'CLICK MARS TO START';
   document.getElementById('landSelectBtn').style.color='var(--gn)';
   document.getElementById('landSelectPreview').style.display='none';
   // Cancel stamp mode if active
@@ -3690,14 +3926,102 @@ function activateLandSelect(){
     globe.controls().enabled=false;
     globe.controls().autoRotate=false;
   }
-  showToast('CLICK START POINT → CLICK END POINT');
+  // Mobile: show size controls and default size
+  if(isMobile){
+    _mobLandW=20; _mobLandH=20;
+    _showMobSizeControls(true);
+    showToast('TAP to place center → adjust size → CONFIRM');
+  }else{
+    showToast('CLICK START POINT → CLICK END POINT');
+  }
 }
+// Mobile land size state
+var _mobLandW=20, _mobLandH=20;
+function _showMobSizeControls(show){
+  var el=document.getElementById('mobSizeControls');
+  if(!el) return;
+  el.style.display=show?'flex':'none';
+  if(show) _updateMobLabels();
+}
+function _mobConfirmLand(){
+  if(!landDragRect){showToast('Tap Mars to set location first','error');return;}
+  _showMobSizeControls(false);
+  landSelectMode=false;
+  if(globe&&globe.controls) globe.controls().enabled=true;
+  confirmLandSelect();
+}
+function _updateMobLabels(){
+  var el=document.getElementById('mobSizeLabel');
+  if(el) el.textContent=_mobLandW+' × '+_mobLandH;
+  var cl=document.getElementById('mobCostLabel');
+  if(!landDragRect){if(cl) cl.textContent=(_mobLandW*_mobLandH).toLocaleString()+'px';return;}
+  var ci=calcStampCost(landDragRect.lat,landDragRect.lng,landDragRect.w,landDragRect.h);
+  if(cl) cl.textContent=(_mobLandW*_mobLandH).toLocaleString()+'px · ≈'+ci.total.toFixed(1)+' PP'+(ci.overlapCount>0?' ('+ci.overlapCount+'⚔)':'');
+}
+// Virtual joystick for territory size control
+(function(){
+  var wrap=document.getElementById('mobJoystickWrap');
+  if(!wrap) return;
+  var knob=document.getElementById('mobJoystickKnob');
+  var active=false, cx=0, cy=0, moveInterval=null;
+  var dx=0, dy=0;
+  function onStart(e){
+    e.preventDefault();
+    active=true;
+    var rect=wrap.getBoundingClientRect();
+    cx=rect.left+rect.width/2;
+    cy=rect.top+rect.height/2;
+    moveInterval=setInterval(function(){
+      if(!active) return;
+      // Joystick controls territory size: right=W+, left=W-, up=H+, down=H-
+      var dw=0, dh=0;
+      if(Math.abs(dx)>0.3) dw=dx>0?1:-1;
+      if(Math.abs(dy)>0.3) dh=dy<0?1:-1; // up = H+
+      if(dw===0&&dh===0) return;
+      _mobLandW=Math.max(5,Math.min(200,_mobLandW+dw));
+      _mobLandH=Math.max(5,Math.min(200,_mobLandH+dh));
+      if(landDragStart){
+        landDragRect={lat:landDragStart.lat,lng:landDragStart.lng,w:_mobLandW,h:_mobLandH};
+        updateLandSelectUI();
+        compositeClaimsOnTexture();
+      }
+      _updateMobLabels();
+    },100);
+  }
+  function onMove(e){
+    if(!active) return;
+    e.preventDefault();
+    var t=e.touches?e.touches[0]:e;
+    var rawDx=t.clientX-cx, rawDy=t.clientY-cy;
+    var maxR=32;
+    var dist=Math.sqrt(rawDx*rawDx+rawDy*rawDy);
+    if(dist>maxR){rawDx=rawDx/dist*maxR;rawDy=rawDy/dist*maxR;}
+    dx=rawDx/maxR; dy=rawDy/maxR;
+    if(knob){
+      knob.style.left='calc(50% + '+rawDx+'px)';
+      knob.style.top='calc(50% + '+rawDy+'px)';
+    }
+  }
+  function onEnd(){
+    active=false; dx=0; dy=0;
+    if(moveInterval){clearInterval(moveInterval);moveInterval=null;}
+    if(knob){knob.style.left='50%';knob.style.top='50%';}
+  }
+  wrap.addEventListener('touchstart',onStart,{passive:false});
+  wrap.addEventListener('touchmove',onMove,{passive:false});
+  wrap.addEventListener('touchend',onEnd);
+  wrap.addEventListener('touchcancel',onEnd);
+  wrap.addEventListener('mousedown',onStart);
+  document.addEventListener('mousemove',function(e){if(active)onMove(e);});
+  document.addEventListener('mouseup',function(){if(active)onEnd();});
+})();
 
 function cancelLandSelect(){
   landSelectMode=false; landDragStart=null; landDragEnd=null; landDragRect=null;
   document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
   document.getElementById('landSelectBtn').style.color='var(--mars)';
   document.getElementById('landSelectPreview').style.display='none';
+  if(isMobile) _showMobSizeControls(false);
   // Re-enable globe controls
   if(globe&&globe.controls) globe.controls().enabled=true;
   compositeClaimsOnTexture();
@@ -3782,28 +4106,36 @@ function _attachGlobeClick(){
       return;
     }
 
-    // Land Select mode: first click = start, second click = end
+    // Land Select mode
     if(landSelectMode){
       lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
       lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
-      if(!landDragStart){
-        // First click — set start point
+      if(isMobile){
+        // Mobile: single tap sets center, joystick to fine-tune, size buttons to resize
         landDragStart={lat:lat,lng:lng};
-        landDragEnd={lat:lat,lng:lng};
-        landDragRect=computeLandRect(lat,lng,lat,lng);
-        document.getElementById('landSelectBtn').textContent='CLICK AGAIN TO SET END';
-        showToast('START POINT SET — Click to set end point');
+        landDragRect={lat:lat,lng:lng,w:_mobLandW,h:_mobLandH};
+        updateLandSelectUI();
+        _updateMobLabels();
+        showToast('📍 Pin placed! Use joystick to move, adjust size → CONFIRM');
         compositeClaimsOnTexture();
       }else{
-        // Second click — set end point and finalize
-        landDragEnd={lat:lat,lng:lng};
-        landDragRect=computeLandRect(landDragStart.lat,landDragStart.lng,lat,lng);
-        updateLandSelectUI();
-        document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
-        document.getElementById('landSelectBtn').style.color='var(--mars)';
-        // Auto open confirm
-        landSelectMode=false;
-        confirmLandSelect();
+        // Desktop: two-click (start → end)
+        if(!landDragStart){
+          landDragStart={lat:lat,lng:lng};
+          landDragEnd={lat:lat,lng:lng};
+          landDragRect=computeLandRect(lat,lng,lat,lng);
+          document.getElementById('landSelectBtn').textContent='CLICK AGAIN TO SET END';
+          showToast('START POINT SET — Click to set end point');
+          compositeClaimsOnTexture();
+        }else{
+          landDragEnd={lat:lat,lng:lng};
+          landDragRect=computeLandRect(landDragStart.lat,landDragStart.lng,lat,lng);
+          updateLandSelectUI();
+          document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
+          document.getElementById('landSelectBtn').style.color='var(--mars)';
+          landSelectMode=false;
+          confirmLandSelect();
+        }
       }
       return;
     }
@@ -4515,6 +4847,16 @@ function openMobTerritoryModal(){
     imgWrap.style.display='none';
   }
   selectedPlot=plot;
+  // Show edit image button for own territories
+  var isMine=walletState&&walletState.address&&plot.owner===walletState.address;
+  var editWrap=document.getElementById('mtEditBtnWrap');
+  var editBtn=document.getElementById('mtEditImgBtn');
+  if(isMine){
+    editWrap.style.display='';
+    editBtn.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
+  }else{
+    editWrap.style.display='none';
+  }
   document.getElementById('mobTerritoryModal').classList.add('open');
 }
 function closeMobTerritoryModal(){
@@ -4924,21 +5266,31 @@ async function confirmClaim(){
     nc.imgUrl=sendImageUrl||uploadedUrl||'';
     claims.push(nc);
 
-    // Register pixels in grid (only new + won pixels)
-    var pixels=getClaimPixels(selectedPlot.lat,selectedPlot.lng,cw,ch);
+    // Register pixels in grid using server-authoritative data
     var claimIdx=claims.length-1;
-    pixels.forEach(function(p){
-      var k=pxKey(p.lat,p.lng);
-      var existing=pixelGrid[k];
-      // Skip own pixels and failed attack pixels
-      if(existing&&existing.owner===myLabel) return;
-      if(existing&&existing.owner&&existing.owner!==myLabel){
-        // Enemy pixel — only update if attack won (server handles this, we optimistically update)
-        // In reality, the server already determined which pixels were won
-      }
-      var newPrice=existing&&existing.owner? existing.price*HIJACK_MULT : PIXEL_PRICE;
-      pixelGrid[k]={owner:myLabel,price:newPrice,claimIdx:claimIdx};
-    });
+    if(d.newPixels){
+      d.newPixels.forEach(function(p){
+        var k=pxKey(p[0],p[1]);
+        pixelGrid[k]={owner:myAddr,price:PIXEL_PRICE,claimIdx:claimIdx,claimId:d.claimId};
+      });
+    }
+    if(d.wonPixels){
+      d.wonPixels.forEach(function(p){
+        var k=pxKey(p[0],p[1]);
+        var existing=pixelGrid[k];
+        var newPrice=existing? existing.price*HIJACK_MULT : PIXEL_PRICE;
+        pixelGrid[k]={owner:myAddr,price:newPrice,claimIdx:claimIdx,claimId:d.claimId};
+      });
+    }
+    if(!d.newPixels&&!d.wonPixels&&d.overlapCount===0){
+      var pixels=getClaimPixels(selectedPlot.lat,selectedPlot.lng,cw,ch);
+      pixels.forEach(function(p){
+        var k=pxKey(p.lat,p.lng);
+        if(!pixelGrid[k]||!pixelGrid[k].owner){
+          pixelGrid[k]={owner:myAddr,price:PIXEL_PRICE,claimIdx:claimIdx,claimId:d.claimId};
+        }
+      });
+    }
 
     // Reset modes
     stampMode=false; stampImgUrl=null;
@@ -6099,13 +6451,38 @@ function useShopItem(code,needsClaim){
   var w=walletState;
   if(!w){showToast('Connect wallet first','error');return;}
   if(needsClaim){
-    var claimId=prompt('Enter Claim ID to apply item on:');
-    if(!claimId)return;
-    _doUseItem(w,code,parseInt(claimId));
+    // Show claim picker instead of raw prompt
+    var myClaims=claims.filter(function(c){return c.owner===w});
+    if(myClaims.length===0){showToast('You have no territories','error');return;}
+    var isEMP=code==='emp_strike';
+    if(isEMP){
+      // EMP targets enemy claims
+      var targetClaims=claims.filter(function(c){return c.owner!==w&&c.shield});
+      if(targetClaims.length===0){showToast('No shielded enemy territories found','error');return;}
+      _showClaimPicker(targetClaims,code,'Select target to EMP');
+    }else{
+      _showClaimPicker(myClaims,code,'Select your territory');
+    }
   }else{
     if(!confirm('Use this item now?'))return;
     _doUseItem(w,code,null);
   }
+}
+function _showClaimPicker(claimList,itemCode,title){
+  var html='<div class="mbg" onclick="this.remove()" style="z-index:1200"><div class="mdl" onclick="event.stopPropagation()" style="max-width:380px;padding:16px">'
+    +'<div style="font-size:var(--fs-lg);font-weight:700;margin-bottom:12px;color:var(--mars)">'+title+'</div>'
+    +'<div style="max-height:50vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px">';
+  claimList.forEach(function(c){
+    var lbl=c.nickname||c.label||('Claim #'+c.id);
+    var shieldInfo=c.shield?'<span style="color:#50C8FF;font-size:10px">🛡️ SHIELDED</span>':'';
+    html+='<button onclick="document.querySelector(\'.mbg[style*=z-index\\\\:1200]\').remove();_doUseItem(walletState,\''+itemCode+'\','+c.id+')" '
+      +'style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--tx1);cursor:pointer;width:100%;text-align:left;font-size:13px">'
+      +'<span><strong>#'+c.id+'</strong> '+lbl+'</span>'
+      +'<span style="font-size:11px;color:var(--tx3)">'+Math.round(c.w*c.h)+'px '+shieldInfo+'</span>'
+      +'</button>';
+  });
+  html+='</div><button onclick="this.closest(\'.mbg\').remove()" style="margin-top:12px;width:100%;padding:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--tx2);cursor:pointer;font-size:13px">CANCEL</button></div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
 }
 function _doUseItem(w,code,claimId){
   fetch('/api/shop/use',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -6113,8 +6490,46 @@ function _doUseItem(w,code,claimId){
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(d.error,'error');return;}
     showToast(d.item+' activated!','success');
+    // Visual feedback based on item type
+    if(code.indexOf('shield')===0&&claimId) _showItemEffect('shield',claimId);
+    else if(code==='emp_strike'&&claimId) _showItemEffect('emp',claimId);
+    else if(code==='stealth_cloak') _showItemEffect('stealth',null);
+    else if(code==='radar_scan') _showItemEffect('radar',null);
+    else if(code==='attack_boost') _showItemEffect('boost',null);
+    else if(code==='pixel_doubler') _showItemEffect('doubler',null);
+    else if(code==='mining_boost') _showItemEffect('mining',null);
     renderShopInventory();
+    // Refresh claims to update shield status on globe
+    setTimeout(function(){
+      claimsSnapshot=null;
+      fetch('/api/claims').then(function(r){return r.json()}).then(function(sc){
+        if(!sc||!sc.length)return;
+        // Replace claims array with fresh data
+        claims.length=0;
+        sc.forEach(function(c){claims.push(c)});
+        preCacheAndComposite();
+      });
+    },500);
   }).catch(function(e){showToast('Failed to use item','error')});
+}
+// Visual effect overlay when using items
+function _showItemEffect(type,claimId){
+  var overlay=document.createElement('div');
+  overlay.className='item-effect-overlay';
+  var icon='',color='',label='';
+  if(type==='shield'){icon='🛡️';color='#50C8FF';label='SHIELD ACTIVATED';}
+  else if(type==='emp'){icon='⚡';color='#FF4444';label='EMP STRIKE!';}
+  else if(type==='stealth'){icon='👻';color='#AA88FF';label='STEALTH ACTIVE';}
+  else if(type==='radar'){icon='📡';color='#44FF88';label='RADAR SCANNING...';}
+  else if(type==='boost'){icon='🔥';color='#FF8800';label='ATTACK BOOSTED';}
+  else if(type==='doubler'){icon='✨';color='#FFD166';label='PIXEL DOUBLER ON';}
+  else if(type==='mining'){icon='⛏️';color='#88DDFF';label='MINING BOOST ON';}
+  overlay.innerHTML='<div class="effect-icon">'+icon+'</div><div class="effect-label">'+label+'</div>';
+  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);pointer-events:none;animation:effectFadeOut 1.8s ease-out forwards';
+  overlay.querySelector('.effect-icon').style.cssText='font-size:64px;animation:effectPop 0.4s ease-out';
+  overlay.querySelector('.effect-label').style.cssText='font-size:24px;font-weight:800;letter-spacing:2px;margin-top:12px;color:'+color+';text-shadow:0 0 20px '+color;
+  document.body.appendChild(overlay);
+  setTimeout(function(){overlay.remove()},2000);
 }
 
 /* ── BASE Modal ──────────────────────────────────── */

@@ -154,12 +154,17 @@ function snapGrid(val) {
 
 function getClaimPixels(lat, lng, w, h) {
   const pixels = [];
-  const halfW = w / 2, halfH = h / 2;
-  for (let dy = 0; dy < h; dy++) {
-    for (let dx = 0; dx < w; dx++) {
-      const plat = Math.round((lat + (dy - halfH + 0.5) * GRID_SIZE) * 100) / 100;
-      const plng = Math.round((lng + (dx - halfW + 0.5) * GRID_SIZE) * 100) / 100;
-      if (plat >= -70 && plat <= 70) pixels.push({ lat: plat, lng: plng });
+  const halfW = (w * GRID_SIZE) / 2;
+  const halfH = (h * GRID_SIZE) / 2;
+  const minLat = lat - halfH, maxLat = lat + halfH;
+  const minLng = lng - halfW, maxLng = lng + halfW;
+  const startLat = Math.ceil(minLat / GRID_SIZE) * GRID_SIZE;
+  const startLng = Math.ceil(minLng / GRID_SIZE) * GRID_SIZE;
+  for (let plat = startLat; plat < maxLat; plat += GRID_SIZE) {
+    for (let plng = startLng; plng < maxLng; plng += GRID_SIZE) {
+      const sLat = Math.round(plat * 100) / 100;
+      const sLng = Math.round(plng * 100) / 100;
+      if (sLat >= -70 && sLat <= 70) pixels.push({ lat: sLat, lng: sLng });
     }
   }
   return pixels;
@@ -385,6 +390,28 @@ router.get('/search/owner/:query', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  GET /api/pixels — actual pixel ownership (authoritative)
+// ══════════════════════════════════════════════════
+router.get('/pixels', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT lat, lng, owner, claim_id, price FROM pixels WHERE owner IS NOT NULL`
+    );
+    // Compact format: group by owner → [[lat, lng, claimId, price], ...]
+    const byOwner = {};
+    for (const r of result.rows) {
+      const o = r.owner;
+      if (!byOwner[o]) byOwner[o] = [];
+      byOwner[o].push([parseFloat(r.lat), parseFloat(r.lng), r.claim_id, parseFloat(r.price)]);
+    }
+    res.json(byOwner);
+  } catch (e) {
+    console.error('[API] pixels error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 //  GET /api/claims — all active claims (for frontend init)
 // ══════════════════════════════════════════════════
 router.get('/claims', async (req, res) => {
@@ -396,8 +423,10 @@ router.get('/claims', async (req, res) => {
         `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
-                u.nickname
+                u.nickname,
+                ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
+         LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL AND c.created_at > $1
          ORDER BY c.created_at DESC LIMIT 5000`,
         [new Date(parseInt(since))]
@@ -407,8 +436,10 @@ router.get('/claims', async (req, res) => {
         `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
-                u.nickname
+                u.nickname,
+                ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
+         LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL
          ORDER BY c.created_at DESC LIMIT 5000`
       );
@@ -426,7 +457,8 @@ router.get('/claims', async (req, res) => {
       imgRotate: r.img_rotate ? parseFloat(r.img_rotate) : 0,
       imgOffsetX: r.img_offset_x || 0,
       imgOffsetY: r.img_offset_y || 0,
-      ts: new Date(r.created_at).getTime()
+      ts: new Date(r.created_at).getTime(),
+      shield: r.shield_type ? { type: r.shield_type, hp: r.shield_hp, maxHp: r.shield_max_hp, expires: new Date(r.shield_expires).getTime() } : null
     })));
   } catch (e) {
     console.error('[API] claims error:', e.message);
@@ -759,7 +791,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
         s.referral_tier3_percent || 5
       ];
       const chain = await getReferralChain(client, wallet.toLowerCase());
-      const hijackPremium = hijackCost - Object.values(affectedOwners).reduce((sum, a) => sum + a.refund, 0);
+      const hijackPremium = wonAttackCost - Object.values(affectedOwners).reduce((sum, a) => sum + a.refund, 0);
 
       for (const ref of chain) {
         const pct = tierPercents[ref.tier - 1] || 0;
@@ -796,7 +828,9 @@ router.post('/claim', writeLimiter, async (req, res) => {
       xpEarned: totalXP,
       rankUp: rankUp || null,
       referralRewards,
-      battleResults
+      battleResults,
+      wonPixels: wonPixels.map(p => [p.lat, p.lng]),
+      newPixels: newPixels.map(p => [p.lat, p.lng])
     });
   } catch (e) {
     await client.query('ROLLBACK');

@@ -209,6 +209,8 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('game')" data-tab="game" data-i18n="tab_game">GAME SETTINGS</button>
   <button class="adm-tab" onclick="switchTab('finance')" data-tab="finance" data-i18n="tab_finance">FINANCE</button>
   <button class="adm-tab" onclick="switchTab('claims')" data-tab="claims">CLAIMS</button>
+  <button class="adm-tab" onclick="switchTab('shop')" data-tab="shop">ITEM SHOP</button>
+  <button class="adm-tab" onclick="switchTab('battles')" data-tab="battles">BATTLES</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -551,6 +553,117 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div class="pagination" id="claimPagination"></div>
   </div>
 
+  <!-- ═══ ITEM SHOP TAB ═══ -->
+  <div class="section cat-shop" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title">SHOP STATISTICS</span>
+    </div>
+    <div class="stats-grid" id="shopStatsGrid" style="padding:16px">
+      <div class="stat-card"><div class="sc-label">TOTAL ITEMS USED</div><div class="sc-value cyan" id="shopTotalUsages">--</div></div>
+      <div class="stat-card"><div class="sc-label">ACTIVE SHIELDS</div><div class="sc-value pp" id="shopActiveShields">--</div></div>
+    </div>
+    <div style="padding:0 16px 16px">
+      <div style="font-size:7px;color:var(--tx3);margin-bottom:6px;letter-spacing:1px">MOST USED ITEMS</div>
+      <div id="shopTopUsed" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+
+  <div class="section cat-shop" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title">SHOP ITEMS (item_types)</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="showNewShopItemForm()">+ NEW ITEM</button>
+        <button class="adm-btn primary" onclick="loadShopItems()">REFRESH</button>
+      </div>
+    </div>
+    <div id="newShopItemForm" style="display:none;padding:16px;border-bottom:1px solid var(--bdr)">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">CODE</div>
+          <input class="adm-input" id="siCode" placeholder="shield_mega" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">NAME</div>
+          <input class="adm-input" id="siName" placeholder="Mega Shield" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">CATEGORY</div>
+          <select class="adm-select" id="siCat" style="width:100%">
+            <option value="defense">defense</option><option value="attack">attack</option>
+            <option value="utility">utility</option><option value="boost">boost</option>
+          </select></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">PRICE PP</div>
+          <input class="adm-input" id="siPricePP" type="number" step="0.01" placeholder="0" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">PRICE USDT</div>
+          <input class="adm-input" id="siPriceUSDT" type="number" step="0.01" placeholder="0" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">ICON (emoji)</div>
+          <input class="adm-input" id="siIcon" placeholder="🛡️" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">DURATION (hours)</div>
+          <input class="adm-input" id="siDuration" type="number" placeholder="0" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">EFFECT VALUE</div>
+          <input class="adm-input" id="siEffect" type="number" placeholder="0" style="width:100%"></div>
+        <div><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">MAX STACK</div>
+          <input class="adm-input" id="siMaxStack" type="number" placeholder="5" style="width:100%"></div>
+        <div style="grid-column:1/-1"><div style="font-size:7px;color:var(--tx3);margin-bottom:4px">DESCRIPTION</div>
+          <input class="adm-input" id="siDesc" placeholder="Item description..." style="width:100%"></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="adm-btn primary" onclick="createShopItem()">CREATE</button>
+        <button class="adm-btn primary" onclick="document.getElementById('newShopItemForm').style.display='none'" style="color:var(--tx3);border-color:var(--bdr)">CANCEL</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr>
+          <th>ICON</th><th>CODE</th><th>NAME</th><th>CAT</th><th>PP</th><th>USDT</th>
+          <th>DURATION</th><th>EFFECT</th><th>STACK</th><th>ACTIVE</th><th>ACTIONS</th>
+        </tr></thead>
+        <tbody id="shopItemsBody"><tr><td colspan="11" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section cat-shop" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title">ACTIVE SHIELDS</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="loadAdminShields()">REFRESH</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr><th>ID</th><th>CLAIM</th><th>OWNER</th><th>TYPE</th><th>HP</th><th>EXPIRES</th><th>ACTION</th></tr></thead>
+        <tbody id="shieldsBody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ BATTLES TAB ═══ -->
+  <div class="section cat-battles" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title">BATTLE STATISTICS</span>
+    </div>
+    <div class="stats-grid" style="padding:16px" id="battleStatsGrid">
+      <div class="stat-card"><div class="sc-label">TOTAL BATTLES</div><div class="sc-value mars" id="bTotalBattles">--</div></div>
+      <div class="stat-card"><div class="sc-label">ATTACKER WINS</div><div class="sc-value gn" id="bTotalWins">--</div></div>
+      <div class="stat-card"><div class="sc-label">PIXELS CONQUERED</div><div class="sc-value cyan" id="bPixelsWon">--</div></div>
+      <div class="stat-card"><div class="sc-label">PLATFORM FEES</div><div class="sc-value gold" id="bPlatformFees">--</div></div>
+    </div>
+  </div>
+
+  <div class="section cat-battles" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title">RECENT BATTLES</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="loadBattles()">REFRESH</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr>
+          <th>ID</th><th>ATTACKER</th><th>DEFENDER</th><th>PIXELS</th><th>WON</th>
+          <th>COST</th><th>REFUND</th><th>FEE</th><th>RESULT</th><th>TIME</th>
+        </tr></thead>
+        <tbody id="battlesBody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -575,15 +688,17 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
   });
   // Stats grid is always visible on dashboard
   document.getElementById('statsGrid').style.display = (tab === 'dashboard') ? '' : 'none';
-  // Auto-load claims on tab switch
+  // Auto-load on tab switch
   if (tab === 'claims') { try { loadClaims(); } catch(e) { console.error('loadClaims:', e); } }
+  if (tab === 'shop') { loadShopItems(); loadShopStats(); loadAdminShields(); }
+  if (tab === 'battles') { loadBattles(); }
 }
 
 // ── Language System ──
@@ -1470,6 +1585,163 @@ function deleteClaim(id) {
       alert('Failed: ' + (d.error || 'unknown'));
     }
   }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ═══ ITEM SHOP MANAGEMENT ═══
+
+function loadShopItems() {
+  apiJson('/admin/api/shop-items').then(function(items) {
+    var tb = document.getElementById('shopItemsBody');
+    if (!items || !items.length) { tb.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--tx3)">No items</td></tr>'; return; }
+    tb.innerHTML = items.map(function(it) {
+      var catColors = { defense: 'cyan', attack: 'red', utility: 'pp', boost: 'gold' };
+      var catCl = catColors[it.category] || 'mars';
+      return '<tr>'
+        + '<td style="font-size:14px">' + (it.icon || '') + '</td>'
+        + '<td><span class="addr">' + it.code + '</span></td>'
+        + '<td>' + it.name + '</td>'
+        + '<td><span class="type-badge" style="color:var(--' + catCl + ');border-color:var(--' + catCl + ')">' + it.category + '</span></td>'
+        + '<td class="val-pp">' + parseFloat(it.price_pp).toFixed(0) + '</td>'
+        + '<td class="val-gn">' + parseFloat(it.price_usdt).toFixed(2) + '</td>'
+        + '<td>' + (it.duration_hours || 0) + 'h</td>'
+        + '<td>' + (it.effect_value || 0) + '</td>'
+        + '<td>' + (it.max_stack || 5) + '</td>'
+        + '<td>' + (it.active ? '<span style="color:var(--gn)">ON</span>' : '<span style="color:var(--red)">OFF</span>') + '</td>'
+        + '<td><button class="ev-btn" onclick="toggleShopItem(' + it.id + ',' + !it.active + ')">' + (it.active ? 'DISABLE' : 'ENABLE') + '</button>'
+        + ' <button class="ev-btn" onclick="editShopItem(' + it.id + ')">EDIT</button></td>'
+        + '</tr>';
+    }).join('');
+  });
+}
+
+function toggleShopItem(id, active) {
+  fetch('/admin/api/shop-items/' + id, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({ active: active })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) loadShopItems(); else alert(d.error || 'Failed');
+  });
+}
+
+function editShopItem(id) {
+  var newPP = prompt('New PP price (leave blank to skip):');
+  var newUSDT = prompt('New USDT price (leave blank to skip):');
+  var body = {};
+  if (newPP && newPP.trim()) body.price_pp = parseFloat(newPP);
+  if (newUSDT && newUSDT.trim()) body.price_usdt = parseFloat(newUSDT);
+  if (Object.keys(body).length === 0) return;
+  fetch('/admin/api/shop-items/' + id, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) { loadShopItems(); alert('Updated!'); } else alert(d.error || 'Failed');
+  });
+}
+
+function showNewShopItemForm() { document.getElementById('newShopItemForm').style.display = 'block'; }
+
+function createShopItem() {
+  var code = document.getElementById('siCode').value.trim();
+  var name = document.getElementById('siName').value.trim();
+  var cat = document.getElementById('siCat').value;
+  if (!code || !name) { alert('Code and Name required'); return; }
+  fetch('/admin/api/shop-items', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({
+      code: code, name: name, category: cat,
+      description: document.getElementById('siDesc').value,
+      price_pp: parseFloat(document.getElementById('siPricePP').value) || 0,
+      price_usdt: parseFloat(document.getElementById('siPriceUSDT').value) || 0,
+      icon: document.getElementById('siIcon').value,
+      duration_hours: parseInt(document.getElementById('siDuration').value) || 0,
+      effect_value: parseInt(document.getElementById('siEffect').value) || 0,
+      max_stack: parseInt(document.getElementById('siMaxStack').value) || 5
+    })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      document.getElementById('newShopItemForm').style.display = 'none';
+      loadShopItems();
+    } else alert(d.error || 'Failed');
+  });
+}
+
+function loadShopStats() {
+  apiJson('/admin/api/shop-stats').then(function(d) {
+    if (!d) return;
+    document.getElementById('shopTotalUsages').textContent = d.totalUsages || 0;
+    var topDiv = document.getElementById('shopTopUsed');
+    if (d.topUsed && d.topUsed.length) {
+      topDiv.innerHTML = d.topUsed.map(function(t) {
+        return '<div style="padding:6px 10px;background:var(--surface2);border:1px solid var(--bdr);border-radius:6px;font-size:8px">'
+          + '<span style="color:var(--cyan)">' + t.code + '</span> <span style="color:var(--gold)">' + t.uses + ' uses</span></div>';
+      }).join('');
+    } else {
+      topDiv.innerHTML = '<span style="font-size:8px;color:var(--tx3)">No usage data yet</span>';
+    }
+  });
+  apiJson('/admin/api/shields').then(function(d) {
+    document.getElementById('shopActiveShields').textContent = (d && d.length) || 0;
+  });
+}
+
+function loadAdminShields() {
+  apiJson('/admin/api/shields').then(function(shields) {
+    var tb = document.getElementById('shieldsBody');
+    if (!shields || !shields.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--tx3)">No active shields</td></tr>'; return; }
+    tb.innerHTML = shields.map(function(s) {
+      var exp = new Date(s.expires_at);
+      var remain = Math.max(0, Math.round((exp - Date.now()) / 3600000 * 10) / 10);
+      return '<tr>'
+        + '<td>' + s.id + '</td>'
+        + '<td>#' + s.claim_id + '</td>'
+        + '<td class="addr">' + s.owner.slice(0, 10) + '...</td>'
+        + '<td>' + s.shield_type + '</td>'
+        + '<td>' + s.hp + '/' + s.max_hp + '</td>'
+        + '<td>' + remain + 'h left</td>'
+        + '<td><button class="ev-btn del" onclick="removeShield(' + s.id + ')">REMOVE</button></td>'
+        + '</tr>';
+    }).join('');
+  });
+}
+
+function removeShield(id) {
+  if (!confirm('Remove shield #' + id + '?')) return;
+  fetch('/admin/api/shields/' + id, {
+    method: 'DELETE', headers: { 'x-admin-secret': adminSecret }
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) loadAdminShields(); else alert('Failed');
+  });
+}
+
+// ═══ BATTLES MANAGEMENT ═══
+
+function loadBattles() {
+  apiJson('/admin/api/battles').then(function(d) {
+    if (!d) return;
+    var s = d.stats || {};
+    document.getElementById('bTotalBattles').textContent = s.total || 0;
+    document.getElementById('bTotalWins').textContent = s.wins || 0;
+    document.getElementById('bPixelsWon').textContent = (s.total_pixels_won || 0).toLocaleString();
+    document.getElementById('bPlatformFees').textContent = parseFloat(s.total_fees || 0).toFixed(2) + ' PP';
+    var tb = document.getElementById('battlesBody');
+    var battles = d.battles || [];
+    if (!battles.length) { tb.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--tx3)">No battles yet</td></tr>'; return; }
+    tb.innerHTML = battles.map(function(b) {
+      var dt = new Date(b.created_at);
+      return '<tr>'
+        + '<td>' + b.id + '</td>'
+        + '<td class="addr" title="' + b.attacker + '">' + (b.attacker_name || b.attacker.slice(0, 10) + '...') + '</td>'
+        + '<td class="addr" title="' + b.defender + '">' + (b.defender_name || b.defender.slice(0, 10) + '...') + '</td>'
+        + '<td>' + b.pixels_attacked + '</td>'
+        + '<td class="' + (b.pixels_won > 0 ? 'val-gn' : '') + '">' + b.pixels_won + '</td>'
+        + '<td class="val-pp">' + parseFloat(b.attack_cost).toFixed(1) + '</td>'
+        + '<td>' + parseFloat(b.refund_amount).toFixed(1) + '</td>'
+        + '<td class="val-gold">' + parseFloat(b.platform_fee).toFixed(1) + '</td>'
+        + '<td>' + (b.success ? '<span style="color:var(--gn)">WIN</span>' : '<span style="color:var(--red)">LOSE</span>') + '</td>'
+        + '<td style="font-size:7px">' + dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString() + '</td>'
+        + '</tr>';
+    }).join('');
+  });
 }
 
 // Auto-focus auth input
