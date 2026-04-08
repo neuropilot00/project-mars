@@ -1294,13 +1294,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Loading Overlay -->
 <div id="loadOverlay" style="position:fixed;inset:0;z-index:9999;background:#0D0B14;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s">
-  <div style="font-family:'Orbitron','Press Start 2P',monospace;font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:8px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
-  <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#6A5848;letter-spacing:2px;margin-bottom:40px">LOADING TERRITORY DATA...</div>
-  <div style="width:320px;max-width:80vw;height:6px;background:rgba(255,120,60,0.1);border-radius:3px;border:1px solid rgba(255,120,60,0.2);overflow:hidden;position:relative">
-    <div id="loadBar" style="height:100%;width:0%;background:linear-gradient(90deg,#FF7840,#FFD166);border-radius:3px;transition:width .3s ease-out;box-shadow:0 0 12px rgba(255,120,60,0.4)"></div>
-  </div>
-  <div id="loadPct" style="font-family:'Press Start 2P',monospace;font-size:18px;color:#fff;margin-top:20px;letter-spacing:2px">0%</div>
-  <div id="loadMsg" style="font-family:'Press Start 2P',monospace;font-size:7px;color:#9A8878;margin-top:12px;letter-spacing:1px;height:14px"></div>
+  <div style="font-family:'Orbitron','Press Start 2P',monospace;font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:12px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
+  <div id="loadQuote" style="font-family:'Press Start 2P',monospace;font-size:9px;color:#C8A882;letter-spacing:1.5px;margin-bottom:40px;text-align:center;max-width:80vw;line-height:1.8;min-height:36px"></div>
+  <div id="loadMsg" style="font-family:'Press Start 2P',monospace;font-size:7px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
 </div>
 
 <!-- Globe Container -->
@@ -2679,18 +2675,48 @@ var _loadSteps={
   noise:5, craters:10, terrain:25, bump:35, stars:40,
   texture:70, font:75, globe:85, data:92, done:100
 };
+var _loadQuotes=[
+  'Welcome to Mars. Defend your territory.',
+  'The red frontier awaits your claim.',
+  'Every pixel is a battle worth fighting.',
+  'Your empire begins with a single pixel.',
+  'Mars belongs to those who dare.',
+  'Stake your ground. Hold the line.',
+  'The dust settles. The war begins.',
+  'Conquer or be conquered.',
+  'Build your legacy on Martian soil.',
+  'No retreat. No surrender.',
+  'The planet is yours for the taking.',
+  'Fortune favors the bold pioneer.',
+  'Prepare your strategy. The map awaits.',
+  'In space, every pixel counts.',
+  'Claim. Defend. Expand. Dominate.',
+  'The Martian frontier never sleeps.',
+  'Your territory. Your rules.',
+  'Join the race for Mars dominance.',
+  'Pixels today. Empires tomorrow.',
+  'The red planet calls. Will you answer?'
+];
+var _loadQuoteIdx=Math.floor(Math.random()*_loadQuotes.length);
+var _loadQuoteTimer=setInterval(function(){
+  var el=document.getElementById('loadQuote');
+  if(!el) return;
+  _loadQuoteIdx=(_loadQuoteIdx+1)%_loadQuotes.length;
+  el.style.opacity='0';
+  setTimeout(function(){
+    if(el){el.textContent=_loadQuotes[_loadQuoteIdx];el.style.opacity='1';}
+  },400);
+},3000);
+(function(){var el=document.getElementById('loadQuote');if(el){el.textContent=_loadQuotes[_loadQuoteIdx];el.style.transition='opacity .4s';}})();
 function setLoadProgress(pct,msg){
   _loadPct=pct;
-  var bar=document.getElementById('loadBar');
-  var txt=document.getElementById('loadPct');
   var msgEl=document.getElementById('loadMsg');
-  if(bar)bar.style.width=pct+'%';
-  if(txt)txt.textContent=Math.round(pct)+'%';
   if(msgEl&&msg)msgEl.textContent=msg;
 }
 function dismissLoader(){
   var el=document.getElementById('loadOverlay');
   if(!el)return;
+  clearInterval(_loadQuoteTimer);
   setLoadProgress(100,'READY');
   setTimeout(function(){
     el.style.opacity='0';
