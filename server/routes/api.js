@@ -624,29 +624,39 @@ router.post('/claim', writeLimiter, async (req, res) => {
       }
     }
 
-    // ── BATTLE: Roll for each enemy pixel ──
+    // ── BATTLE: Roll ONCE per defender (all-or-nothing per owner overlap) ──
     let attackWon = 0, attackLost = 0, refundFromFailed = 0, platformFee = 0;
     const wonPixels = [];
 
+    // Group enemy pixels by owner
+    const enemyByOwner = {};
     for (const ep of enemyPixels) {
-      const roll = Math.random() * 100;
-      const pxCost = parseFloat(ep.existing.price) * HIJACK_MULT;
       const prevOwner = ep.existing.owner;
+      if (!enemyByOwner[prevOwner]) enemyByOwner[prevOwner] = [];
+      enemyByOwner[prevOwner].push(ep);
+    }
 
+    for (const [prevOwner, ownerPixels] of Object.entries(enemyByOwner)) {
+      const roll = Math.random() * 100;
       if (roll < ATTACK_SUCCESS_RATE) {
-        // Attack SUCCESS — take the pixel
-        attackWon++;
-        wonPixels.push(ep);
-        // Owner gets refund + bonus (existing hijack logic)
-        affectedOwners[prevOwner].refund += parseFloat(ep.existing.price);
-        affectedOwners[prevOwner].bonus += (pxCost - parseFloat(ep.existing.price)) * OWNER_BONUS_PCT;
+        // Attack SUCCESS — take ALL pixels from this owner
+        for (const ep of ownerPixels) {
+          const pxCost = parseFloat(ep.existing.price) * HIJACK_MULT;
+          attackWon++;
+          wonPixels.push(ep);
+          affectedOwners[prevOwner].refund += parseFloat(ep.existing.price);
+          affectedOwners[prevOwner].bonus += (pxCost - parseFloat(ep.existing.price)) * OWNER_BONUS_PCT;
+        }
       } else {
-        // Attack FAILED — 90% refund to attacker, 10% platform
-        attackLost++;
-        const failRefund = pxCost * 0.9;
-        const failFee = pxCost * 0.1;
-        refundFromFailed += failRefund;
-        platformFee += failFee;
+        // Attack FAILED — don't touch ANY of this owner's pixels
+        for (const ep of ownerPixels) {
+          const pxCost = parseFloat(ep.existing.price) * HIJACK_MULT;
+          attackLost++;
+          const failRefund = pxCost * 0.9;
+          const failFee = pxCost * 0.1;
+          refundFromFailed += failRefund;
+          platformFee += failFee;
+        }
       }
     }
 
