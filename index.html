@@ -4335,14 +4335,20 @@ function activateLandSelect(){
   if(stampImgUrl) cancelStamp();
   // Disable globe rotation/panning so drag selects land, not spins globe
   if(globe&&globe.controls){
-    globe.controls().enabled=false;
+    if(isMobile){
+      // Mobile: keep zoom (pinch) enabled, disable rotation only
+      globe.controls().enableRotate=false;
+      globe.controls().enablePan=false;
+    }else{
+      globe.controls().enabled=false;
+    }
     globe.controls().autoRotate=false;
   }
   // Mobile: show size controls and default size
   if(isMobile){
     _mobLandW=20; _mobLandH=20;
     _showMobSizeControls(true);
-    showToast('TAP to place center → adjust size → CONFIRM');
+    showToast('TAP to place center → drag to move → pinch zoom');
   }else{
     showToast('CLICK START POINT → CLICK END POINT');
   }
@@ -4359,8 +4365,14 @@ function _mobConfirmLand(){
   if(!landDragRect){showToast('Tap Mars to set location first','error');return;}
   _showMobSizeControls(false);
   landSelectMode=false;
-  if(globe&&globe.controls) globe.controls().enabled=true;
+  _restoreGlobeControls();
   confirmLandSelect();
+}
+function _restoreGlobeControls(){
+  if(!globe||!globe.controls) return;
+  globe.controls().enabled=true;
+  globe.controls().enableRotate=true;
+  globe.controls().enablePan=true;
 }
 function _updateMobLabels(){
   var el=document.getElementById('mobSizeLabel');
@@ -4428,21 +4440,70 @@ function _updateMobLabels(){
   document.addEventListener('mouseup',function(){if(active)onEnd();});
 })();
 
+// Mobile: single-finger drag to move territory position after pin placed
+(function(){
+  var globeWrap=document.getElementById('globe-wrap');
+  if(!globeWrap) return;
+  var dragActive=false, lastTouch=null;
+  globeWrap.addEventListener('touchstart',function(e){
+    // Only single-finger, only in landSelectMode with pin placed
+    if(e.touches.length!==1||!landSelectMode||!landDragStart) return;
+    // Don't intercept if touching joystick/controls area
+    var t=e.target;
+    while(t&&t!==globeWrap){
+      if(t.id==='mobSizeControls') return;
+      t=t.parentElement;
+    }
+    dragActive=true;
+    lastTouch={x:e.touches[0].clientX,y:e.touches[0].clientY};
+  },{passive:true});
+  globeWrap.addEventListener('touchmove',function(e){
+    if(!dragActive||e.touches.length!==1) return;
+    var tx=e.touches[0].clientX, ty=e.touches[0].clientY;
+    if(!lastTouch){lastTouch={x:tx,y:ty};return;}
+    // Convert screen delta to globe coordinates
+    var pov=globe.pointOfView();
+    var alt=pov.altitude||1;
+    // Rough: at altitude a, 1px screen ≈ k degrees
+    var degPerPx=alt*0.15;
+    var dlng=-(tx-lastTouch.x)*degPerPx;
+    var dlat=(ty-lastTouch.y)*degPerPx;
+    lastTouch={x:tx,y:ty};
+    // Move the territory
+    var newLat=Math.round(Math.max(-70,Math.min(70,landDragStart.lat+dlat))/GRID_SIZE)*GRID_SIZE;
+    var newLng=Math.round((landDragStart.lng+dlng)/GRID_SIZE)*GRID_SIZE;
+    if(newLng>180) newLng-=360;
+    if(newLng<-180) newLng+=360;
+    landDragStart={lat:newLat,lng:newLng};
+    landDragRect={lat:newLat,lng:newLng,w:_mobLandW,h:_mobLandH};
+    if(!_hoverDirty){
+      _hoverDirty=true;
+      requestAnimationFrame(function(){
+        _hoverDirty=false;
+        compositeClaimsOnTexture(true);
+        updateLandSelectUI();
+        _updateMobLabels();
+      });
+    }
+    e.preventDefault();
+  },{passive:false});
+  globeWrap.addEventListener('touchend',function(){dragActive=false;lastTouch=null;});
+  globeWrap.addEventListener('touchcancel',function(){dragActive=false;lastTouch=null;});
+})();
+
 function cancelLandSelect(){
   landSelectMode=false; landDragStart=null; landDragEnd=null; landDragRect=null;
   document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
   document.getElementById('landSelectBtn').style.color='var(--mars)';
   document.getElementById('landSelectPreview').style.display='none';
   if(isMobile) _showMobSizeControls(false);
-  // Re-enable globe controls
-  if(globe&&globe.controls) globe.controls().enabled=true;
+  _restoreGlobeControls();
   compositeClaimsOnTexture();
 }
 
 function confirmLandSelect(){
   if(!landDragRect) return;
-  // Re-enable globe controls
-  if(globe&&globe.controls) globe.controls().enabled=true;
+  _restoreGlobeControls();
   selectedPlot={lat:landDragRect.lat, lng:landDragRect.lng, owner:null, price:0, label:'UNCLAIMED',
     w:landDragRect.w, h:landDragRect.h};
   openClaimModal();
@@ -4528,7 +4589,7 @@ function _attachGlobeClick(){
         landDragRect={lat:lat,lng:lng,w:_mobLandW,h:_mobLandH};
         updateLandSelectUI();
         _updateMobLabels();
-        showToast('📍 Pin placed! Use joystick to move, adjust size → CONFIRM');
+        showToast('📍 Pin placed! Drag to move · Pinch to zoom');
         compositeClaimsOnTexture();
       }else{
         // Desktop: two-click (start → end)
