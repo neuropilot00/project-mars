@@ -3049,9 +3049,9 @@ function compositeClaimsOnTexture(previewOnly){
         ctx.restore();
         // Borders drawn in grouped exterior pass
       }else if(noImage){
-        // Land-only claim — semi-transparent colored territory
+        // Land-only claim — colored territory
         var tc=oc||{r:255,g:120,b:60};
-        ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.12)';
+        ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.35)';
         ctx.fillRect(rx,ry,rw,rh);
         // Borders drawn in grouped exterior pass
         // Owner label
@@ -3059,7 +3059,7 @@ function compositeClaimsOnTexture(previewOnly){
           ctx.save();
           ctx.beginPath();ctx.rect(rx,ry,rw,rh);ctx.clip();
           var lfs=Math.max(5,Math.min(rw*0.15,rh*0.28,12));
-          ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.85)';ctx.font='bold '+lfs+'px sans-serif';
+          ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',1)';ctx.font='bold '+lfs+'px sans-serif';
           ctx.textAlign='center';ctx.textBaseline='middle';
           var lbl=ownerLabel||'CLAIMED';
           while(ctx.measureText(lbl).width>rw-4&&lbl.length>3) lbl=lbl.slice(0,-1);
@@ -3204,8 +3204,8 @@ function compositeClaimsOnTexture(previewOnly){
                    s.lng1>=gb2.minLng-_gs*0.5&&s.lng2<=gb2.maxLng+_gs*0.5;
           });
           var bc2=oc||{r:255,g:120,b:60};
-          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+(isMine?'0.9':'0.5')+')';
-          ctx.lineWidth=isMine?2:1;
+          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+(isMine?'1':'0.7')+')';
+          ctx.lineWidth=isMine?2.5:1.5;
           ctx.setLineDash([]);
           ctx.beginPath();
           for(var si2=0;si2<gStrips2.length;si2++){
@@ -3237,7 +3237,7 @@ function compositeClaimsOnTexture(previewOnly){
           });
           // Fill with strips (pixel-accurate, matches border exactly)
           var tc=oc||{r:255,g:120,b:60};
-          ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.12)';
+          ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.35)';
           var fbx1=Infinity,fby1=Infinity,fbx2=-Infinity,fby2=-Infinity;
           for(var fi=0;fi<gStrips.length;fi++){
             var fr=_sRect(gStrips[fi]);
@@ -3253,7 +3253,7 @@ function compositeClaimsOnTexture(previewOnly){
             for(var fci=0;fci<gStrips.length;fci++){var fcr=_sRect(gStrips[fci]);ctx.rect(fcr.x,fcr.y,fcr.w,fcr.h);}
             ctx.clip();
             var lfs=Math.max(5,Math.min(fbw*0.15,fbh*0.28,12));
-            ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.85)';ctx.font='bold '+lfs+'px sans-serif';
+            ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',1)';ctx.font='bold '+lfs+'px sans-serif';
             ctx.textAlign='center';ctx.textBaseline='middle';
             var lbl=displayLabel;
             while(ctx.measureText(lbl).width>fbw-4&&lbl.length>3) lbl=lbl.slice(0,-1);
@@ -3261,8 +3261,8 @@ function compositeClaimsOnTexture(previewOnly){
             ctx.restore();
           }
           var bc3=oc||{r:255,g:120,b:60};
-          ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.6)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'0.9':'0.5')+')';
-          ctx.lineWidth=isNPC?1.5:(isMine?2:1);
+          ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.8)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.7')+')';
+          ctx.lineWidth=isNPC?2:(isMine?2.5:1.5);
           if(isNPC) ctx.setLineDash([3,2]); else ctx.setLineDash([]);
           ctx.beginPath();
           for(var si=0;si<gStrips.length;si++){
