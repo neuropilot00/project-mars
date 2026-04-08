@@ -3225,13 +3225,8 @@ function compositeClaimsOnTexture(previewOnly){
           }
           ctx.stroke();
         }else{
-          // No image: colored fill + label per claim rect
+          // No image: pixel-accurate fill using strips + label
           var displayLabel=isNPC?(c.owner.replace('0xnpc_','').replace(/_/g,' ').toUpperCase()):(c.nickname||c.label||shortAddr(c.owner));
-          groupClaims.forEach(function(gc){
-            var r=getCellRect(gc.lat,gc.lng,gc.w||20,gc.h||20,w,h);
-            _drawClaimRect(ctx,null,r,w,true,displayLabel,oc,null);
-          });
-          // Strip-based border for non-image groups
           var byLat=_stripsByOwnerLat[c.owner]||{};
           var gsKey=byLat._latStep||Math.round(_gs*100);
           var gb=grp.bounds;
@@ -3239,6 +3234,31 @@ function compositeClaimsOnTexture(previewOnly){
             return s.lat>=gb.minLat-_gs*0.5&&s.lat<=gb.maxLat+_gs*0.5&&
                    s.lng1>=gb.minLng-_gs*0.5&&s.lng2<=gb.maxLng+_gs*0.5;
           });
+          // Fill with strips (pixel-accurate, matches border exactly)
+          var tc=oc||{r:255,g:120,b:60};
+          ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.12)';
+          var fbx1=Infinity,fby1=Infinity,fbx2=-Infinity,fby2=-Infinity;
+          for(var fi=0;fi<gStrips.length;fi++){
+            var fr=_sRect(gStrips[fi]);
+            ctx.fillRect(fr.x,fr.y,fr.w,fr.h);
+            if(fr.x<fbx1)fbx1=fr.x;if(fr.y<fby1)fby1=fr.y;
+            if(fr.x+fr.w>fbx2)fbx2=fr.x+fr.w;if(fr.y+fr.h>fby2)fby2=fr.y+fr.h;
+          }
+          // Label centered in bounding box
+          var fbw=fbx2-fbx1, fbh=fby2-fby1;
+          if(fbw>20&&fbh>12){
+            ctx.save();
+            ctx.beginPath();
+            for(var fci=0;fci<gStrips.length;fci++){var fcr=_sRect(gStrips[fci]);ctx.rect(fcr.x,fcr.y,fcr.w,fcr.h);}
+            ctx.clip();
+            var lfs=Math.max(5,Math.min(fbw*0.15,fbh*0.28,12));
+            ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.85)';ctx.font='bold '+lfs+'px sans-serif';
+            ctx.textAlign='center';ctx.textBaseline='middle';
+            var lbl=displayLabel;
+            while(ctx.measureText(lbl).width>fbw-4&&lbl.length>3) lbl=lbl.slice(0,-1);
+            ctx.fillText(lbl,fbx1+fbw/2,fby1+fbh/2);
+            ctx.restore();
+          }
           var bc3=oc||{r:255,g:120,b:60};
           ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.6)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'0.9':'0.5')+')';
           ctx.lineWidth=isNPC?1.5:(isMine?2:1);
