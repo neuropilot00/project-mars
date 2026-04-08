@@ -15,7 +15,7 @@
   --mars:#FF7840;--red:#E84855;--gold:#FFD166;--gn:#4CD89A;--pp:#B888E0;
   --cyan:#5BB8E8;
   --fn:'Press Start 2P',monospace;
-  --fs-xs:7px;--fs-sm:8px;--fs-md:9px;--fs-lg:11px;--fs-xl:13px;
+  --fs-xs:9px;--fs-sm:10px;--fs-md:11px;--fs-lg:13px;--fs-xl:15px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-family:var(--fn)}
@@ -144,7 +144,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 
 /* Mobile toggles */
 .mob-toggle{display:none;position:fixed;top:54px;z-index:110;
-  padding:6px 10px;font-size:7px;font-family:var(--fn);
+  padding:6px 10px;font-size:9px;font-family:var(--fn);
   background:var(--panel);border:1px solid var(--bdr);border-radius:0 6px 6px 0;
   color:var(--tx2);cursor:pointer}
 .mob-toggle.right{right:0;border-radius:6px 0 0 6px}
@@ -183,7 +183,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .uti{max-width:100%;max-height:50px;border:1px solid var(--bdr);border-radius:4px}
 .utc{position:absolute;top:2px;right:2px;background:var(--red);border:none;color:#fff;font-size:10px;
   cursor:pointer;padding:2px 6px;font-family:monospace;border-radius:3px}
-.ust{font-size:7px;color:var(--gn);margin-top:2px}.ust.err{color:var(--red)}
+.ust{font-size:9px;color:var(--gn);margin-top:2px}.ust.err{color:var(--red)}
 
 /* Chain */
 .cr{display:flex;gap:6px}
@@ -280,7 +280,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   background:rgba(232,72,85,.05);border:1px solid rgba(232,72,85,.1);color:var(--tx2);line-height:1.6;
   cursor:pointer;transition:background .15s}
 .alert-item:hover{background:rgba(232,72,85,.1)}
-.alert-item .alert-time{font-size:6px;color:var(--tx3);display:block;margin-top:2px}
+.alert-item .alert-time{font-size:8px;color:var(--tx3);display:block;margin-top:2px}
 .alert-item.hijack{border-color:rgba(232,72,85,.2)}
 .alert-item.earn{border-color:rgba(76,216,154,.2);background:rgba(76,216,154,.05)}
 
@@ -338,25 +338,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .profile-avatar:hover{border-color:var(--gold)}
 .profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:9px}
 .profile-avatar .avatar-edit{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);
-  font-size:6px;color:var(--tx2);text-align:center;padding:4px 0;font-family:var(--fn);
+  font-size:8px;color:var(--tx2);text-align:center;padding:4px 0;font-family:var(--fn);
   opacity:0;transition:opacity .2s}
 .profile-avatar:hover .avatar-edit{opacity:1}
 .profile-name{font-size:var(--fs-xl);color:var(--tx);letter-spacing:1px;text-align:center}
 .profile-email{font-size:var(--fs-xs);color:var(--tx3)}
-.profile-edit-name{background:none;border:none;color:var(--mars);font-size:8px;
+.profile-edit-name{background:none;border:none;color:var(--mars);font-size:10px;
   font-family:var(--fn);cursor:pointer;padding:2px 6px}
 .profile-edit-name:hover{text-decoration:underline}
 .wallet-copy-row{display:flex;align-items:center;gap:4px;padding:8px 10px;
   background:rgba(0,0,0,.2);border:1px solid var(--bdr);border-radius:8px;margin:8px 0}
-.wallet-copy-addr{flex:1;font-size:7px;color:var(--cyan);word-break:break-all;line-height:1.5}
-.wallet-copy-btn{padding:6px 10px;font-size:6px;font-family:var(--fn);
+.wallet-copy-addr{flex:1;font-size:9px;color:var(--cyan);word-break:break-all;line-height:1.5}
+.wallet-copy-btn{padding:6px 10px;font-size:8px;font-family:var(--fn);
   background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.2);border-radius:5px;
   color:var(--cyan);cursor:pointer;white-space:nowrap;min-height:32px}
 .wallet-copy-btn:hover{background:rgba(91,184,232,.15)}
 .profile-balance-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
 .profile-bal-card{padding:12px;background:rgba(0,0,0,.15);border:1px solid var(--bdr);
   border-radius:8px;text-align:center}
-.profile-bal-label{font-size:7px;color:var(--tx3);margin-bottom:4px;letter-spacing:1px}
+.profile-bal-label{font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:1px}
 .profile-bal-val{font-size:var(--fs-xl);letter-spacing:1px}
 
 /* Language Switcher */
@@ -371,12 +371,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .lang-dropdown .lang-current{padding:6px 10px;font-size:var(--fs-sm);font-family:var(--fn);height:36px;display:flex;align-items:center;
   background:var(--surface2);border:1px solid var(--bdr);border-radius:5px;
   color:var(--tx2);cursor:pointer;min-height:32px;display:flex;align-items:center;gap:3px}
-.lang-dropdown .lang-current::after{content:'▾';font-size:8px;color:var(--tx3)}
+.lang-dropdown .lang-current::after{content:'▾';font-size:10px;color:var(--tx3)}
 .lang-dropdown .lang-menu{display:none;position:absolute;top:100%;right:0;margin-top:4px;
   background:var(--panel2);border:1px solid var(--bdr2);border-radius:6px;
   box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:200;overflow:hidden;min-width:60px}
 .lang-dropdown.open .lang-menu{display:block}
-.lang-menu-item{padding:8px 12px;font-size:7px;font-family:var(--fn);color:var(--tx2);
+.lang-menu-item{padding:8px 12px;font-size:9px;font-family:var(--fn);color:var(--tx2);
   cursor:pointer;transition:background .15s;white-space:nowrap}
 .lang-menu-item:hover{background:rgba(255,120,60,.08);color:var(--tx)}
 .lang-menu-item.active{color:var(--mars);background:rgba(255,120,60,.06)}
@@ -407,7 +407,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   filter:drop-shadow(0 0 12px rgba(255,120,60,.5));
   transition:width .15s,height .15s}
 .mob-stamp-center-size{position:absolute;top:calc(50% + 16px);left:50%;transform:translateX(-50%);
-  font-size:8px;font-family:var(--fn);color:var(--mars);
+  font-size:10px;font-family:var(--fn);color:var(--mars);
   text-shadow:0 1px 4px rgba(0,0,0,.8);pointer-events:none;white-space:nowrap}
 .mob-stamp-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   width:24px;height:24px;pointer-events:none}
@@ -427,7 +427,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .mob-stamp-bar-cancel{padding:8px 14px;font-size:9px;font-family:var(--fn);
   background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);border-radius:8px;
   color:var(--red);cursor:pointer}
-.mob-stamp-bar-hint{font-size:8px;font-family:var(--fn);color:var(--tx3);text-align:center;flex:1}
+.mob-stamp-bar-hint{font-size:10px;font-family:var(--fn);color:var(--tx3);text-align:center;flex:1}
 .mob-stamp-bar-ok{padding:8px 18px;font-size:10px;font-family:var(--fn);
   background:linear-gradient(135deg,var(--mars),#E84855);border:none;border-radius:8px;
   color:#fff;cursor:pointer;font-weight:bold;letter-spacing:1px;
@@ -474,7 +474,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   flex:1;gap:3px;background:none;border:none;cursor:pointer;padding:6px 2px;
   transition:all .2s;position:relative;-webkit-tap-highlight-color:transparent}
 .mob-nav-item .nav-icon{font-size:20px;line-height:1;transition:all .2s}
-.mob-nav-item .nav-label{font-size:8px;font-family:var(--fn);letter-spacing:0.5px;
+.mob-nav-item .nav-label{font-size:10px;font-family:var(--fn);letter-spacing:0.5px;
   color:var(--tx3);transition:all .2s;white-space:nowrap}
 .mob-nav-item:active{transform:scale(.92)}
 .mob-nav-item.active .nav-label{color:var(--mars)}
@@ -561,7 +561,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .base-close{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;
   padding:4px 8px;min-width:36px;min-height:36px}
 .base-tabs{display:flex;border-bottom:1px solid var(--bdr);background:rgba(0,0,0,.15)}
-.base-tab{flex:1;padding:10px 8px;text-align:center;font-size:8px;font-family:var(--fn);
+.base-tab{flex:1;padding:10px 8px;text-align:center;font-size:10px;font-family:var(--fn);
   color:var(--tx3);cursor:pointer;letter-spacing:1px;border-bottom:2px solid transparent;
   transition:all .2s;white-space:nowrap}
 .base-tab:hover{color:var(--tx2);background:rgba(255,120,60,.04)}
@@ -582,7 +582,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* BASE sub-components */
 .base-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .base-stat-box{background:rgba(0,0,0,.2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px}
-.base-stat-box .bsb-label{font-size:7px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px;font-family:var(--fn)}
+.base-stat-box .bsb-label{font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px;font-family:var(--fn)}
 .base-stat-box .bsb-val{font-size:14px;color:var(--mars);font-family:var(--fn)}
 .base-stat-box .bsb-val.gn{color:var(--gn)}
 .base-stat-box .bsb-val.pp{color:var(--pp)}
@@ -597,15 +597,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   padding:10px 12px;cursor:pointer;transition:all .2s}
 .sector-card:hover{background:rgba(255,120,60,.06);border-color:var(--bdr2)}
 .sector-card .sc-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.sector-card .sc-tier{font-size:7px;padding:2px 6px;border-radius:4px;font-family:var(--fn);
+.sector-card .sc-tier{font-size:9px;padding:2px 6px;border-radius:4px;font-family:var(--fn);
   letter-spacing:.5px;font-weight:bold;text-transform:uppercase}
 .sector-card .sc-tier.core{background:rgba(232,72,85,.15);color:var(--red)}
 .sector-card .sc-tier.mid{background:rgba(255,209,102,.15);color:var(--gold)}
 .sector-card .sc-tier.frontier{background:rgba(76,216,154,.15);color:var(--gn)}
 .sector-card .sc-name{flex:1;font-size:10px;color:var(--tx);font-family:var(--fn);font-weight:bold}
-.sector-card .sc-mining{font-size:7px;color:var(--pp);font-family:var(--fn);
+.sector-card .sc-mining{font-size:9px;color:var(--pp);font-family:var(--fn);
   background:rgba(255,120,60,.1);padding:2px 5px;border-radius:3px}
-.sector-card .sc-go{font-size:7px;color:var(--cyan,#5BB8E8);font-family:var(--fn);
+.sector-card .sc-go{font-size:9px;color:var(--cyan,#5BB8E8);font-family:var(--fn);
   padding:3px 8px;border:1px solid rgba(91,184,232,.3);border-radius:4px;
   background:rgba(91,184,232,.08);cursor:pointer;transition:all .15s}
 .sector-card .sc-go:hover{background:rgba(91,184,232,.2)}
@@ -616,25 +616,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .sc-occ-fill.core{background:linear-gradient(90deg,rgba(232,72,85,.6),rgba(232,72,85,.9))}
 .sc-occ-fill.mid{background:linear-gradient(90deg,rgba(255,209,102,.5),rgba(255,209,102,.8))}
 .sc-occ-fill.frontier{background:linear-gradient(90deg,rgba(76,216,154,.5),rgba(76,216,154,.8))}
-.sc-occ-labels{display:flex;justify-content:space-between;font-size:7px;font-family:var(--fn);color:var(--tx3)}
+.sc-occ-labels{display:flex;justify-content:space-between;font-size:9px;font-family:var(--fn);color:var(--tx3)}
 /* Stats grid */
 .sc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px 8px;margin-bottom:6px}
 .sc-stat{display:flex;flex-direction:column;gap:1px}
-.sc-stat-label{font-size:6px;color:var(--tx3);font-family:var(--fn);letter-spacing:.5px;text-transform:uppercase}
+.sc-stat-label{font-size:8px;color:var(--tx3);font-family:var(--fn);letter-spacing:.5px;text-transform:uppercase}
 .sc-stat-val{font-size:9px;color:var(--tx);font-family:var(--fn)}
 /* My holdings highlight */
 .sc-my{display:flex;align-items:center;gap:6px;padding:4px 8px;margin-top:6px;
   background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.15);border-radius:6px}
-.sc-my-label{font-size:6px;color:var(--tx3);font-family:var(--fn);letter-spacing:.5px}
+.sc-my-label{font-size:8px;color:var(--tx3);font-family:var(--fn);letter-spacing:.5px}
 .sc-my-val{font-size:9px;color:var(--cyan,#5BB8E8);font-family:var(--fn);font-weight:bold}
 /* Activity badge */
-.sc-activity{display:flex;align-items:center;gap:4px;font-size:7px;color:var(--mars);font-family:var(--fn);
+.sc-activity{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--mars);font-family:var(--fn);
   margin-bottom:6px}
 .sc-activity-dot{width:5px;height:5px;border-radius:50%;background:var(--mars);animation:pulse-dot 1.5s infinite}
 @keyframes pulse-dot{0%,100%{opacity:.4}50%{opacity:1}}
 
 /* Quest cards */
-.quest-tier-label{font-size:7px;padding:2px 6px;border-radius:4px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px}
+.quest-tier-label{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px}
 .quest-tier-label.free{background:rgba(76,216,154,.15);color:#4CD89A}
 .quest-tier-label.activity{background:rgba(91,184,232,.15);color:#5BB8E8}
 .quest-tier-label.spending{background:rgba(240,200,64,.15);color:#F0C840}
@@ -643,21 +643,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .quest-card .qc-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .quest-card .qc-title{flex:1;font-size:10px;font-weight:bold;color:var(--tx)}
 .quest-card .qc-reward{font-size:9px;color:var(--pp);font-weight:bold}
-.quest-card .qc-desc{font-size:8px;color:var(--tx3);line-height:1.5;margin-bottom:8px}
+.quest-card .qc-desc{font-size:10px;color:var(--tx3);line-height:1.5;margin-bottom:8px}
 .quest-card .qc-progress{display:flex;align-items:center;gap:8px}
 .quest-card .qc-bar{flex:1;height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
 .quest-card .qc-fill{height:100%;border-radius:3px;transition:width .3s}
 .quest-card .qc-fill.free{background:linear-gradient(90deg,#3A9,#4CD89A)}
 .quest-card .qc-fill.activity{background:linear-gradient(90deg,#3A8BD8,#5BB8E8)}
 .quest-card .qc-fill.spending{background:linear-gradient(90deg,#D8A030,#F0C840)}
-.quest-card .qc-pct{font-size:8px;color:var(--tx2);min-width:28px;text-align:right}
+.quest-card .qc-pct{font-size:10px;color:var(--tx2);min-width:28px;text-align:right}
 .quest-card .qc-claim-btn{margin-top:8px;width:100%;padding:6px;font-size:9px;font-weight:bold;
   background:linear-gradient(135deg,#3A9,#4CD89A);color:#000;border:none;border-radius:6px;cursor:pointer;
   font-family:var(--fn);letter-spacing:1px}
 .quest-card .qc-claim-btn:hover{filter:brightness(1.1)}
-.quest-card .qc-expire{font-size:7px;color:var(--tx3);margin-top:4px;text-align:right}
-.quest-section-title{font-size:8px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin:12px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--bdr)}
-.quest-claimed-item{display:flex;align-items:center;gap:8px;padding:6px 8px;font-size:8px;color:var(--tx3);
+.quest-card .qc-expire{font-size:9px;color:var(--tx3);margin-top:4px;text-align:right}
+.quest-section-title{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin:12px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--bdr)}
+.quest-claimed-item{display:flex;align-items:center;gap:8px;padding:6px 8px;font-size:10px;color:var(--tx3);
   background:rgba(76,216,154,.03);border-radius:6px;margin-bottom:4px}
 .quest-claimed-item .qci-check{color:#4CD89A;font-size:10px}
 .quest-claimed-item .qci-reward{margin-left:auto;color:var(--pp);font-weight:bold}
@@ -674,16 +674,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .rank-badge .rb-name{font-size:9px;color:var(--tx)}
 
 /* Rank table */
-.rank-table{width:100%;border-collapse:collapse;font-size:8px;font-family:var(--fn)}
+.rank-table{width:100%;border-collapse:collapse;font-size:10px;font-family:var(--fn)}
 .rank-table th{text-align:left;color:var(--tx3);padding:6px 4px;border-bottom:1px solid var(--bdr);letter-spacing:1px}
 .rank-table td{padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.02);color:var(--tx2)}
 .rank-table tr.current{background:rgba(255,120,60,.08)}
 .rank-table tr.bt-row{background:none;border:none}
 .rank-table tr.bt-row td{border:none;padding:0 4px 8px}
 .bt-info{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:4px;background:rgba(240,200,64,.06);border-left:2px solid var(--gold)}
-.bt-label{font-size:7px;color:var(--gold);font-weight:bold;white-space:nowrap}
-.bt-desc{font-size:7px;color:var(--tx3)}
-.bt-prog-item{display:flex;align-items:center;gap:8px;font-size:8px;font-family:var(--fn)}
+.bt-label{font-size:9px;color:var(--gold);font-weight:bold;white-space:nowrap}
+.bt-desc{font-size:9px;color:var(--tx3)}
+.bt-prog-item{display:flex;align-items:center;gap:8px;font-size:10px;font-family:var(--fn)}
 .bt-prog-bar{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
 .bt-prog-fill{height:100%;border-radius:3px;transition:width .3s}
 .bt-prog-fill.done{background:var(--gn)}
@@ -694,30 +694,30 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .base-card{width:100%;max-width:100%;height:80vh;max-height:80vh;border-radius:16px 16px 0 0;
     align-self:flex-end}
   .base-modal{align-items:flex-end}
-  .base-tab{font-size:7px;padding:8px 4px}
+  .base-tab{font-size:9px;padding:8px 4px}
   .base-stat-grid{grid-template-columns:1fr 1fr}
 }
 
 /* ── Auth Help (Find ID / Reset PW) ── */
 .auth-help-links{display:flex;align-items:center;justify-content:center;gap:8px;
   margin:8px 0 4px;padding:4px 0}
-.auth-help-link{background:none;border:none;color:var(--tx3);font-size:7px;font-family:var(--fn);
+.auth-help-link{background:none;border:none;color:var(--tx3);font-size:9px;font-family:var(--fn);
   cursor:pointer;padding:4px 2px;transition:color .15s;letter-spacing:.5px}
 .auth-help-link:hover{color:var(--mars)}
-.auth-help-sep{color:var(--bdr);font-size:7px}
+.auth-help-sep{color:var(--bdr);font-size:9px}
 .auth-sub-title{font-size:10px;font-family:var(--fn);color:#fff;text-align:center;
   margin-bottom:8px;letter-spacing:1px}
-.auth-sub-desc{font-size:7px;font-family:var(--fn);color:var(--tx3);text-align:center;
+.auth-sub-desc{font-size:9px;font-family:var(--fn);color:var(--tx3);text-align:center;
   margin-bottom:14px;line-height:1.6}
 .auth-result-card{background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.2);
   border-radius:8px;padding:12px;text-align:center;margin-bottom:12px}
 .auth-result-card.success{background:rgba(76,216,154,.06);border-color:rgba(76,216,154,.2)}
-.auth-result-label{font-size:6px;font-family:var(--fn);color:var(--tx3);letter-spacing:1px;margin-bottom:6px}
+.auth-result-label{font-size:8px;font-family:var(--fn);color:var(--tx3);letter-spacing:1px;margin-bottom:6px}
 .auth-result-val{font-size:9px;font-family:var(--fn);color:var(--cyan, #5BB8E8);word-break:break-all}
 .auth-result-card.success .auth-result-val{color:var(--gn)}
-.auth-result-hint{font-size:6px;font-family:var(--fn);color:var(--tx3);margin-top:4px}
+.auth-result-hint{font-size:8px;font-family:var(--fn);color:var(--tx3);margin-top:4px}
 .auth-back-link{display:block;width:100%;background:none;border:none;color:var(--tx3);
-  font-size:7px;font-family:var(--fn);cursor:pointer;padding:10px 0 0;text-align:center;
+  font-size:9px;font-family:var(--fn);cursor:pointer;padding:10px 0 0;text-align:center;
   transition:color .15s}
 .auth-back-link:hover{color:var(--mars)}
 
@@ -729,7 +729,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .claim-hero-img{width:140px;height:140px;object-fit:contain;image-rendering:pixelated;
   border-radius:8px;border:1px solid var(--bdr);background:rgba(0,0,0,.3)}
 .claim-hero-badge{position:absolute;bottom:8px;right:10px;
-  padding:2px 7px;font-size:7px;font-family:var(--fn);color:var(--gold);
+  padding:2px 7px;font-size:9px;font-family:var(--fn);color:var(--gold);
   background:rgba(0,0,0,.65);border:1px solid rgba(255,209,102,.25);border-radius:4px}
 .claim-title-row{display:flex;align-items:center;justify-content:space-between;
   padding:12px 16px 8px;border-bottom:1px solid var(--bdr)}
@@ -744,7 +744,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .claim-info-item:nth-child(2){border-right:none}
 .claim-info-item.full{grid-column:1/-1;border-right:none;
   border-top:1px solid var(--bdr);text-align:center;padding:12px 16px}
-.claim-info-label{font-size:8px;font-family:var(--fn);color:rgba(255,255,255,.45);
+.claim-info-label{font-size:10px;font-family:var(--fn);color:rgba(255,255,255,.45);
   letter-spacing:1.5px;margin-bottom:6px}
 .claim-info-val{font-size:10px;font-family:var(--fn);color:#E0E0E8}
 .claim-info-val.gold{color:var(--gold);font-size:12px}
@@ -753,7 +753,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .chain-dot.bnb{background:#F0B90B}
 .chain-dot.eth{background:#627EEA}
 .claim-confirm{width:calc(100% - 32px);margin:14px 16px 0;padding:12px;
-  font-size:8px;font-family:var(--fn);letter-spacing:1.5px;
+  font-size:10px;font-family:var(--fn);letter-spacing:1.5px;
   background:linear-gradient(135deg,var(--mars),var(--red));color:#fff;
   border:none;border-radius:8px;cursor:pointer;transition:all .2s;
   box-shadow:0 2px 12px rgba(255,120,60,.3)}
@@ -769,12 +769,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .editor-ctrl-btn:active{transform:scale(.92)}
 .pay-method-btn{padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.15);
   background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);cursor:pointer;
-  font-family:var(--fn);font-size:7px;letter-spacing:1px;transition:all .2s}
+  font-family:var(--fn);font-size:9px;letter-spacing:1px;transition:all .2s}
 .pay-method-btn.sel{background:rgba(255,160,60,.15);border-color:var(--gold);color:var(--gold)}
 .hw{margin:0 16px;padding:10px 12px;background:rgba(232,72,85,.08);
   border:1px solid rgba(232,72,85,.2);border-radius:8px;margin-top:10px}
-.hwt{font-size:7px;font-family:var(--fn);color:var(--red);margin-bottom:4px}
-.hwd{font-size:6px;font-family:var(--fn);color:rgba(255,255,255,.5);line-height:1.6}
+.hwt{font-size:9px;font-family:var(--fn);color:var(--red);margin-bottom:4px}
+.hwd{font-size:8px;font-family:var(--fn);color:rgba(255,255,255,.5);line-height:1.6}
 
 /* ── Item Shop ── */
 .shop-cat-btn{flex:1;padding:8px 4px;font-size:var(--fs-xs);font-family:var(--fn);
@@ -792,7 +792,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   letter-spacing:.5px;margin-bottom:4px;line-height:1.4}
 .shop-item-card .si-desc{font-size:var(--fs-xs);color:var(--tx3);line-height:1.5;
   margin-bottom:8px;min-height:30px}
-.shop-item-card .si-cat{position:absolute;top:8px;right:8px;font-size:6px;
+.shop-item-card .si-cat{position:absolute;top:8px;right:8px;font-size:8px;
   padding:2px 6px;border-radius:3px;font-family:var(--fn);letter-spacing:.5px;text-transform:uppercase}
 .si-cat.defense{background:rgba(91,184,232,.12);color:var(--cyan)}
 .si-cat.attack{background:rgba(232,72,85,.12);color:var(--red)}
@@ -807,7 +807,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .si-price.usdt:hover{background:rgba(76,216,154,.2)}
 .shop-item-card .si-qty{font-size:var(--fs-xs);color:var(--tx3);font-family:var(--fn)}
 .shop-item-card .si-owned{font-size:var(--fs-xs);color:var(--gold);font-family:var(--fn)}
-.shop-item-card .si-effect{font-size:7px;color:var(--cyan);font-family:var(--fn);
+.shop-item-card .si-effect{font-size:9px;color:var(--cyan);font-family:var(--fn);
   background:rgba(91,184,232,.06);padding:2px 6px;border-radius:3px;display:inline-block;margin-bottom:6px}
 /* Inventory item in shop */
 .inv-item{display:flex;align-items:center;gap:10px;padding:10px;
@@ -867,13 +867,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   /* Hide sidebar territory info on mobile — use modal instead */
   #territoryInfo{display:none!important}
   /* Small text fixes */
-  .alert-item .alert-time{font-size:8px}
+  .alert-item .alert-time{font-size:10px}
   .wallet-copy-addr{font-size:9px}
-  .wallet-copy-btn{font-size:8px;min-height:32px}
-  .hwt{font-size:9px}.hwd{font-size:8px}
+  .wallet-copy-btn{font-size:10px;min-height:32px}
+  .hwt{font-size:9px}.hwd{font-size:10px}
   .ust{font-size:9px}
-  .auth-result-label{font-size:8px}
-  .auth-result-hint{font-size:8px}
+  .auth-result-label{font-size:10px}
+  .auth-result-hint{font-size:10px}
   /* Panel inner spacing */
   .panel-l,.panel-r{padding:16px 14px}
   .p-section{margin-bottom:14px}
@@ -905,10 +905,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* Small phones */
 @media(max-width:380px){
   .tb-title{font-size:10px;letter-spacing:1px}
-  .tb-btn{font-size:8px;padding:5px 8px;min-height:34px;height:34px}
+  .tb-btn{font-size:10px;padding:5px 8px;min-height:34px;height:34px}
   .mdl{max-height:92vh}
   .mob-toggle{font-size:9px;padding:6px 10px}
-  .mob-nav-item .nav-label{font-size:7px}
+  .mob-nav-item .nav-label{font-size:9px}
 }
 
 /* ═══════════════════════════════════════
@@ -968,10 +968,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .crash-guide-step{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);
   color:var(--tx2);white-space:nowrap}
 .crash-guide-step .step-num{width:16px;height:16px;border-radius:50%;
-  background:rgba(255,120,60,.15);color:var(--mars);font-size:7px;
+  background:rgba(255,120,60,.15);color:var(--mars);font-size:9px;
   display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .crash-guide-step .step-arrow{color:var(--tx3);font-size:10px}
-.crash-guide-toggle{font-size:7px;color:var(--tx3);cursor:pointer;
+.crash-guide-toggle{font-size:9px;color:var(--tx3);cursor:pointer;
   padding:3px 6px;border:1px solid var(--bdr);border-radius:4px;white-space:nowrap;flex-shrink:0}
 .crash-guide-toggle:hover{color:var(--mars);border-color:var(--bdr2)}
 
@@ -1040,7 +1040,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .cb-row{display:flex;align-items:center;justify-content:space-between;padding:6px 4px;
   border-bottom:1px solid rgba(255,255,255,.02);font-size:var(--fs-xs)}
 .cb-row .cb-user{color:var(--tx2);flex:1}.cb-row .cb-amt{color:var(--pp);margin:0 6px}
-.cb-row .cb-status{font-size:7px;padding:2px 5px;border-radius:3px}
+.cb-row .cb-status{font-size:9px;padding:2px 5px;border-radius:3px}
 .cb-row .cb-status.active{background:rgba(91,184,232,.1);color:var(--cyan)}
 .cb-row .cb-status.cashed{background:rgba(76,216,154,.1);color:var(--gn)}
 .cb-row .cb-status.busted{background:rgba(232,72,85,.1);color:var(--red)}
@@ -1245,7 +1245,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .arena-window{width:100%;max-width:100%;height:80vh;border-radius:16px 16px 0 0;display:flex;flex-direction:column}
   .arena-topbar{border-radius:16px 16px 0 0;padding:6px 10px}
   .arena-topbar .tb-title{font-size:var(--fs-lg)}
-  .arena-topbar .tb-bal{font-size:7px;padding:4px 8px;gap:6px}
+  .arena-topbar .tb-bal{font-size:9px;padding:4px 8px;gap:6px}
   .crash-sidebar{display:none}
   .mines-sidebar{width:100%;max-height:none;overflow-y:visible}
   .crash-wrap{flex-direction:column;flex:1;overflow:hidden}
@@ -1267,7 +1267,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .crash-guide{display:none}
   .crash-history{padding:4px 8px;flex-shrink:0}
   .game-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0}
-  .game-tab{padding:10px 4px;font-size:8px;white-space:nowrap;flex:1 1 0;min-width:0;text-align:center}
+  .game-tab{padding:10px 4px;font-size:10px;white-space:nowrap;flex:1 1 0;min-width:0;text-align:center}
   .btn-bet{padding:12px;font-size:var(--fs-sm)}
   .cf-wrap{flex-direction:column;flex:1;overflow-y:auto}
   .cf-main{min-height:auto;flex-shrink:0;padding:20px 0}
@@ -1296,7 +1296,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div id="loadOverlay" style="position:fixed;inset:0;z-index:9999;background:#0D0B14;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s">
   <div style="font-family:'Orbitron','Press Start 2P',monospace;font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:12px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
   <div id="loadQuote" style="font-family:'Press Start 2P',monospace;font-size:9px;color:#C8A882;letter-spacing:1.5px;margin-bottom:40px;text-align:center;max-width:80vw;line-height:1.8;min-height:36px"></div>
-  <div id="loadMsg" style="font-family:'Press Start 2P',monospace;font-size:7px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
+  <div id="loadMsg" style="font-family:'Press Start 2P',monospace;font-size:9px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
 </div>
 
 <!-- Globe Container -->
@@ -1423,27 +1423,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         Share your code & earn PP<br>when referrals hijack territory!
       </div>
       <div style="background:rgba(255,120,60,.06);border:1px solid var(--bdr);border-radius:6px;padding:8px;margin-bottom:8px">
-        <div style="font-size:6px;color:var(--tx3);margin-bottom:3px">MY REFERRAL CODE</div>
+        <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">MY REFERRAL CODE</div>
         <div style="display:flex;align-items:center;gap:4px">
           <span style="font-size:var(--fs-lg);color:var(--gold);letter-spacing:2px;flex:1" id="myRefCode">--</span>
-          <button class="sz-btn" onclick="copyRefCode()" style="font-size:6px;padding:3px 8px">COPY</button>
+          <button class="sz-btn" onclick="copyRefCode()" style="font-size:8px;padding:3px 8px">COPY</button>
         </div>
       </div>
       <div id="enterRefWrap">
-        <div style="font-size:6px;color:var(--tx3);margin-bottom:3px">ENTER REFERRAL CODE</div>
+        <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">ENTER REFERRAL CODE</div>
         <div style="display:flex;gap:4px">
           <input type="text" class="ui" id="refCodeInput" placeholder="CODE..." style="flex:1;text-transform:uppercase;letter-spacing:1px">
-          <button class="sz-btn" onclick="registerReferral()" style="font-size:6px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)">APPLY</button>
+          <button class="sz-btn" onclick="registerReferral()" style="font-size:8px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)">APPLY</button>
         </div>
-        <div id="refStatus" style="font-size:6px;margin-top:3px;min-height:12px"></div>
+        <div id="refStatus" style="font-size:8px;margin-top:3px;min-height:12px"></div>
       </div>
-      <div id="alreadyReferred" style="display:none;font-size:6px;color:var(--gn);margin-bottom:6px">
+      <div id="alreadyReferred" style="display:none;font-size:8px;color:var(--gn);margin-bottom:6px">
         Referred by: <span id="referredByAddr" style="color:var(--cyan)">--</span>
       </div>
       <div style="height:1px;background:var(--bdr);margin:8px 0"></div>
       <div class="stat-row"><span class="stat-label">REFERRALS</span><span class="stat-val" id="refCount">0</span></div>
       <div class="stat-row"><span class="stat-label">TOTAL EARNED</span><span class="stat-val" style="color:var(--pp)" id="refEarned">0 PP</span></div>
-      <div style="font-size:6px;color:var(--tx3);margin-top:6px;line-height:1.6">
+      <div style="font-size:8px;color:var(--tx3);margin-top:6px;line-height:1.6">
         Tier 1: 15% PP · Tier 2: 10% PP · Tier 3: 5% PP<br>
         (from referral's hijack premium)
       </div>
@@ -1475,10 +1475,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)">EDIT IMAGE</button>
     <div id="infoLinkEdit" style="display:none;margin-top:6px">
-      <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">PROMO LINK</div>
+      <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">PROMO LINK</div>
       <div style="display:flex;gap:4px">
         <input type="url" id="infoLinkInput" placeholder="https://..." style="flex:1;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);font-size:9px;padding:4px 6px;border-radius:4px">
-        <button class="action-btn" style="font-size:7px;padding:4px 8px;white-space:nowrap" onclick="savePromoLink()">SAVE</button>
+        <button class="action-btn" style="font-size:9px;padding:4px 8px;white-space:nowrap" onclick="savePromoLink()">SAVE</button>
       </div>
     </div>
   </div>
@@ -1486,10 +1486,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <!-- MY ALERTS -->
   <div class="p-section" id="alertsSection" style="display:none">
     <div class="p-title" style="display:flex;justify-content:space-between;align-items:center">
-      MY ALERTS <span class="alert-badge" id="alertBadge" style="background:var(--red);color:#fff;font-size:6px;padding:1px 5px;border-radius:8px;display:none">0</span>
+      MY ALERTS <span class="alert-badge" id="alertBadge" style="background:var(--red);color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;display:none">0</span>
     </div>
     <div id="alertsList" style="max-height:100px;overflow-y:auto">
-      <div style="font-size:7px;color:var(--tx3)">No alerts yet</div>
+      <div style="font-size:9px;color:var(--tx3)">No alerts yet</div>
     </div>
   </div>
 
@@ -1515,27 +1515,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="stat-row"><span class="stat-label">PIXELS</span><span class="stat-val" id="landPixelLabel">--</span></div>
       <div class="stat-row"><span class="stat-label">COST</span><span class="stat-val gn" id="landCostLabel">--</span></div>
       <div style="margin-top:6px;display:flex;gap:4px">
-        <button class="action-btn" style="flex:1;font-size:7px;padding:6px" onclick="confirmLandSelect()">CONFIRM</button>
-        <button class="action-btn" style="flex:1;font-size:7px;padding:6px;color:var(--tx3)" onclick="cancelLandSelect()">CANCEL</button>
+        <button class="action-btn" style="flex:1;font-size:9px;padding:6px" onclick="confirmLandSelect()">CONFIRM</button>
+        <button class="action-btn" style="flex:1;font-size:9px;padding:6px;color:var(--tx3)" onclick="cancelLandSelect()">CANCEL</button>
       </div>
     </div>
-    <div style="margin-top:4px;font-size:7px;color:var(--tx3);line-height:1.4;opacity:.7">Claim land first, add image later</div>
+    <div style="margin-top:4px;font-size:9px;color:var(--tx3);line-height:1.4;opacity:.7">Claim land first, add image later</div>
   </div>
 
   <!-- MY TERRITORIES (shows when MY LAND activated) -->
   <div class="p-section" id="myTerritoriesSection" style="display:none">
     <div class="p-title" style="display:flex;justify-content:space-between;align-items:center">
-      MY TERRITORIES <span style="background:var(--mars);color:#fff;font-size:7px;padding:1px 6px;border-radius:8px;font-weight:bold" id="myTerritoryCount">0</span>
+      MY TERRITORIES <span style="background:var(--mars);color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:bold" id="myTerritoryCount">0</span>
     </div>
     <div id="myTerritoryList" style="max-height:200px;overflow-y:auto">
-      <div style="font-size:8px;color:var(--tx3);padding:4px 0">No territories yet</div>
+      <div style="font-size:10px;color:var(--tx3);padding:4px 0">No territories yet</div>
     </div>
   </div>
 
   <!-- CANTINA -->
   <div class="p-section">
     <div class="p-title">CANTINA</div>
-    <button class="action-btn" onclick="openArena()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold);font-size:8px;letter-spacing:1.5px">
+    <button class="action-btn" onclick="openArena()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold);font-size:10px;letter-spacing:1.5px">
       ⚔ ENTER THE CANTINA
     </button>
   </div>
@@ -1634,7 +1634,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div id="editorUploadArea" style="border:2px dashed var(--bdr2);border-radius:8px;padding:24px;text-align:center;cursor:pointer;margin-bottom:12px" onclick="document.getElementById('editorFileInput').click()">
         <div style="font-size:24px;margin-bottom:6px">📁</div>
         <div style="font-size:10px;color:var(--tx2)">Click to upload image</div>
-        <div style="font-size:8px;color:var(--tx3);margin-top:4px">PNG, JPG, GIF · Max 5MB</div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:4px">PNG, JPG, GIF · Max 5MB</div>
       </div>
       <input type="file" id="editorFileInput" accept="image/*" style="display:none">
 
@@ -1643,7 +1643,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div style="position:relative;margin:0 auto;border-radius:8px;overflow:hidden;border:1px solid var(--bdr2);background:#111" id="editorViewport">
           <canvas id="editorCanvas" style="display:block;width:100%;cursor:grab"></canvas>
         </div>
-        <div style="font-size:7px;color:var(--tx3);text-align:center;margin:6px 0">Drag to move · Scroll to zoom · Use controls to rotate</div>
+        <div style="font-size:9px;color:var(--tx3);text-align:center;margin:6px 0">Drag to move · Scroll to zoom · Use controls to rotate</div>
 
         <!-- Controls -->
         <div style="display:flex;gap:8px;align-items:center;justify-content:center;margin:10px 0">
@@ -1659,7 +1659,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
 
         <!-- Territory info -->
-        <div style="display:flex;gap:12px;justify-content:center;font-size:8px;color:var(--tx3);margin-bottom:10px">
+        <div style="display:flex;gap:12px;justify-content:center;font-size:10px;color:var(--tx3);margin-bottom:10px">
           <span>Territory: <span id="editorTerritorySize" style="color:var(--tx2)">--</span></span>
           <span>Claim ID: <span id="editorClaimId" style="color:var(--tx2)">--</span></span>
         </div>
@@ -1839,7 +1839,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
 
         <div class="base-section-title">MY SECTORS</div>
-        <div id="baseMySectors" style="font-size:8px;color:var(--tx3)">Login to view your territories.</div>
+        <div id="baseMySectors" style="font-size:10px;color:var(--tx3)">Login to view your territories.</div>
       </div>
 
       <!-- TAB: SECTORS -->
@@ -1847,13 +1847,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="base-banner" id="bannerSectors"><img src="assets/base/sectors.png" alt="Sectors"></div>
         <div class="base-section-title">ALL 24 SECTORS</div>
         <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
-          <button class="base-filter-btn active" onclick="filterSectors('all',this)" style="font-size:7px;font-family:var(--fn);padding:4px 8px;background:rgba(255,120,60,.1);border:1px solid var(--bdr2);border-radius:4px;color:var(--mars);cursor:pointer">ALL</button>
-          <button class="base-filter-btn" onclick="filterSectors('core',this)" style="font-size:7px;font-family:var(--fn);padding:4px 8px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);border-radius:4px;color:var(--red);cursor:pointer">CORE</button>
-          <button class="base-filter-btn" onclick="filterSectors('mid',this)" style="font-size:7px;font-family:var(--fn);padding:4px 8px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);border-radius:4px;color:var(--gold);cursor:pointer">MID</button>
-          <button class="base-filter-btn" onclick="filterSectors('frontier',this)" style="font-size:7px;font-family:var(--fn);padding:4px 8px;background:rgba(76,216,154,.08);border:1px solid rgba(76,216,154,.2);border-radius:4px;color:var(--gn);cursor:pointer">FRONTIER</button>
+          <button class="base-filter-btn active" onclick="filterSectors('all',this)" style="font-size:9px;font-family:var(--fn);padding:4px 8px;background:rgba(255,120,60,.1);border:1px solid var(--bdr2);border-radius:4px;color:var(--mars);cursor:pointer">ALL</button>
+          <button class="base-filter-btn" onclick="filterSectors('core',this)" style="font-size:9px;font-family:var(--fn);padding:4px 8px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);border-radius:4px;color:var(--red);cursor:pointer">CORE</button>
+          <button class="base-filter-btn" onclick="filterSectors('mid',this)" style="font-size:9px;font-family:var(--fn);padding:4px 8px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);border-radius:4px;color:var(--gold);cursor:pointer">MID</button>
+          <button class="base-filter-btn" onclick="filterSectors('frontier',this)" style="font-size:9px;font-family:var(--fn);padding:4px 8px;background:rgba(76,216,154,.08);border:1px solid rgba(76,216,154,.2);border-radius:4px;color:var(--gn);cursor:pointer">FRONTIER</button>
         </div>
         <div class="sector-list" id="baseSectorList">
-          <div style="font-size:8px;color:var(--tx3);padding:20px;text-align:center">Loading sectors...</div>
+          <div style="font-size:10px;color:var(--tx3);padding:20px;text-align:center">Loading sectors...</div>
         </div>
       </div>
 
@@ -1866,7 +1866,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <span class="rb-name" id="baseRankName">Dust Walker</span>
           </div>
           <div style="margin-top:10px">
-            <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--tx3);font-family:var(--fn);margin-bottom:2px">
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--tx3);font-family:var(--fn);margin-bottom:2px">
               <span id="baseXpCurrent">0 XP</span>
               <span id="baseXpNext">100 XP</span>
             </div>
@@ -1909,14 +1909,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <button class="action-btn" id="baseHarvestBtn" onclick="harvestMining()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(76,216,154,.12),rgba(76,216,154,.04));border-color:rgba(76,216,154,.35);color:var(--gn)">
           HARVEST PP
         </button>
-        <div style="font-size:7px;color:var(--tx3);text-align:center;margin-top:8px" id="baseMineTimer">Next harvest available in --:--:--</div>
+        <div style="font-size:9px;color:var(--tx3);text-align:center;margin-top:8px" id="baseMineTimer">Next harvest available in --:--:--</div>
 
         <div class="base-section-title">MINING RATES</div>
-        <div style="font-size:8px;color:var(--tx2);line-height:2.2" id="baseMineRates">
-          <div class="stat-row"><span class="stat-label">Base Rate</span><span class="stat-val" style="font-size:8px">-- PP/pixel/4h</span></div>
-          <div class="stat-row"><span class="stat-label">Core Bonus</span><span class="stat-val" style="font-size:8px;color:var(--red)">×--</span></div>
-          <div class="stat-row"><span class="stat-label">Mid Bonus</span><span class="stat-val" style="font-size:8px;color:var(--gold)">×--</span></div>
-          <div class="stat-row"><span class="stat-label">Frontier Bonus</span><span class="stat-val" style="font-size:8px;color:var(--gn)">×--</span></div>
+        <div style="font-size:10px;color:var(--tx2);line-height:2.2" id="baseMineRates">
+          <div class="stat-row"><span class="stat-label">Base Rate</span><span class="stat-val" style="font-size:10px">-- PP/pixel/4h</span></div>
+          <div class="stat-row"><span class="stat-label">Core Bonus</span><span class="stat-val" style="font-size:10px;color:var(--red)">×--</span></div>
+          <div class="stat-row"><span class="stat-label">Mid Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gold)">×--</span></div>
+          <div class="stat-row"><span class="stat-label">Frontier Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gn)">×--</span></div>
         </div>
       </div>
 
@@ -1941,10 +1941,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div style="margin-top:12px">
           <div class="base-section-title">ITEM CATEGORIES</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div class="base-stat-box"><div class="bsb-label" style="color:var(--cyan)">DEFENSE</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">Shields to protect territory</div></div>
-            <div class="base-stat-box"><div class="bsb-label" style="color:var(--red)">ATTACK</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">EMP & damage boosts</div></div>
-            <div class="base-stat-box"><div class="bsb-label" style="color:var(--pp)">UTILITY</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">Stealth & radar tools</div></div>
-            <div class="base-stat-box"><div class="bsb-label" style="color:var(--gold)">BOOST</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">Mining & pixel multipliers</div></div>
+            <div class="base-stat-box"><div class="bsb-label" style="color:var(--cyan)">DEFENSE</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">Shields to protect territory</div></div>
+            <div class="base-stat-box"><div class="bsb-label" style="color:var(--red)">ATTACK</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">EMP & damage boosts</div></div>
+            <div class="base-stat-box"><div class="bsb-label" style="color:var(--pp)">UTILITY</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">Stealth & radar tools</div></div>
+            <div class="base-stat-box"><div class="bsb-label" style="color:var(--gold)">BOOST</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">Mining & pixel multipliers</div></div>
           </div>
         </div>
       </div>
@@ -2065,7 +2065,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <div style="margin:12px 0">
       <div class="stat-label" style="margin-bottom:6px;font-size:9px">SCALE</div>
-      <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:2px"><span>-100</span><span>0</span><span>+100</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-bottom:2px"><span>-100</span><span>0</span><span>+100</span></div>
       <input type="range" id="mStampSizeSlider" min="-100" max="100" value="0" style="width:100%;accent-color:var(--mars);height:28px" oninput="updateMobileStampSlider(+this.value)">
       <div style="display:flex;justify-content:space-between;margin-top:6px">
         <span class="stat-val" id="mStampSizeLabel" style="font-size:10px">--</span>
@@ -2099,7 +2099,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="mob-stamp-bar-scale">
       <span class="mob-stamp-bar-scale-label" id="mobPreviewScaleLabel">100%</span>
       <input type="range" id="mobPreviewScaleSlider" min="-100" max="100" value="0" style="flex:1;accent-color:var(--mars);height:24px" oninput="updateMobPreviewScale(+this.value)">
-      <span style="font-size:8px;color:var(--tx3);font-family:var(--fn);min-width:50px;text-align:right" id="mobPreviewSizeLabel">--</span>
+      <span style="font-size:10px;color:var(--tx3);font-family:var(--fn);min-width:50px;text-align:right" id="mobPreviewSizeLabel">--</span>
     </div>
     <div class="mob-stamp-bar-btns">
       <button class="mob-stamp-bar-cancel" onclick="cancelMobileStamp()">✕ CANCEL</button>
@@ -2142,7 +2142,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
 
         <!-- Game Wallet with copy -->
-        <div style="font-size:7px;color:var(--tx3);margin-bottom:4px;letter-spacing:1px" data-i18n="game_wallet">GAME WALLET</div>
+        <div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:1px" data-i18n="game_wallet">GAME WALLET</div>
         <div class="wallet-copy-row">
           <div class="wallet-copy-addr" id="authWallet">--</div>
           <button class="wallet-copy-btn" onclick="copyGameWallet()">COPY</button>
@@ -2166,7 +2166,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <span id="profileChainName">BASE</span>
         </div>
 
-        <div style="font-size:7px;color:var(--tx3);text-align:center;line-height:1.8;margin:8px 0" data-i18n="email_wallet_note">
+        <div style="font-size:9px;color:var(--tx3);text-align:center;line-height:1.8;margin:8px 0" data-i18n="email_wallet_note">
           Your email account has a built-in game wallet.<br>
           Use DEPOSIT to get your deposit address.
         </div>
@@ -3702,7 +3702,7 @@ function toggleMyLand(){
     var merged=_buildMergedPlot(myAddr,t.lat,t.lng);
     if(!merged) merged=t;
     var pw=merged.w||merged.size||20, ph=merged.h||merged.size||20;
-    globe.pointOfView({lat:merged.lat,lng:merged.lng,altitude:Math.max(0.4,Math.max(pw,ph)*0.006)},600);
+    globe.pointOfView({lat:merged.lat,lng:merged.lng,altitude:Math.max(0.8,Math.max(pw,ph)*0.008)},600);
     selectedPlot=merged;
     showTerritoryInfo(merged);
     showToast('MY LAND '+(_myLandIdx+1)+'/'+mine.length+(merged._pixelCount?' — '+merged._pixelCount+' px':''));
@@ -3730,7 +3730,7 @@ function _updateMyTerritories(){
   listEl.innerHTML='';
   if(mine.length===0){
     if(countEl) countEl.textContent='0';
-    listEl.innerHTML='<div style="font-size:8px;color:var(--tx3);padding:4px 0">No territories yet</div>';
+    listEl.innerHTML='<div style="font-size:10px;color:var(--tx3);padding:4px 0">No territories yet</div>';
     return;
   }
   // Group claims by _ownerGroups (merged territories = 1 entry)
@@ -3771,10 +3771,10 @@ function _updateMyTerritories(){
     var centerLng=b?(b.minLng+b.maxLng)/2:ec[0].lng;
     var totalPx=entry.group?entry.group.count:(ec[0].w||ec[0].size||10)*(ec[0].h||ec[0].size||10);
     var left=document.createElement('div');
-    var subLabel=ec.length>1?' <span style="color:var(--gold);font-size:7px">('+ec.length+' merged)</span>':'';
-    left.innerHTML='<div style="font-size:8px;color:var(--tx2)">#'+(i+1)+' · '+centerLat.toFixed(1)+'°, '+centerLng.toFixed(1)+'°'+subLabel+'</div><div style="font-size:7px;color:var(--tx3)">'+totalPx+'px · '+(entry.hasImg?'📷':'🏴 No image')+'</div>';
+    var subLabel=ec.length>1?' <span style="color:var(--gold);font-size:9px">('+ec.length+' merged)</span>':'';
+    left.innerHTML='<div style="font-size:10px;color:var(--tx2)">#'+(i+1)+' · '+centerLat.toFixed(1)+'°, '+centerLng.toFixed(1)+'°'+subLabel+'</div><div style="font-size:9px;color:var(--tx3)">'+totalPx+'px · '+(entry.hasImg?'📷':'🏴 No image')+'</div>';
     var right=document.createElement('div');
-    right.style.cssText='font-size:8px;color:var(--gold);text-align:right;white-space:nowrap';
+    right.style.cssText='font-size:10px;color:var(--gold);text-align:right;white-space:nowrap';
     right.textContent=entry.totalPP.toFixed(1)+' PP';
     mainRow.appendChild(left);mainRow.appendChild(right);
     d.appendChild(mainRow);
@@ -3791,7 +3791,7 @@ function _updateMyTerritories(){
       subList.style.cssText='display:none;border-top:1px solid rgba(255,120,60,.1);padding:2px 0';
       ec.forEach(function(sc,si){
         var sub=document.createElement('div');
-        sub.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:3px 12px 3px 16px;cursor:pointer;font-size:7px;color:var(--tx3)';
+        sub.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:3px 12px 3px 16px;cursor:pointer;font-size:9px;color:var(--tx3)';
         sub.onmouseenter=function(){sub.style.background='rgba(255,120,60,.1)'};
         sub.onmouseleave=function(){sub.style.background='transparent'};
         var sw=sc.w||sc.size||10, sh=sc.h||sc.size||10;
@@ -3807,7 +3807,7 @@ function _updateMyTerritories(){
       // Toggle expand on main row click with alt or second click
       var expandBtn=document.createElement('span');
       expandBtn.textContent='▸';
-      expandBtn.style.cssText='font-size:8px;color:var(--tx3);cursor:pointer;padding:0 4px;flex-shrink:0';
+      expandBtn.style.cssText='font-size:10px;color:var(--tx3);cursor:pointer;padding:0 4px;flex-shrink:0';
       mainRow.insertBefore(expandBtn,mainRow.firstChild);
       expandBtn.onclick=function(e){
         e.stopPropagation();
@@ -7394,7 +7394,7 @@ function renderBaseUser(data){
   // My sectors
   var mySec=document.getElementById('baseMySectors');
   if(data.territory.bySector.length===0){
-    mySec.innerHTML='<div style="color:var(--tx3);font-size:8px;padding:8px 0">No territories claimed yet. Explore the map!</div>';
+    mySec.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px 0">No territories claimed yet. Explore the map!</div>';
   }else{
     var html='<div class="sector-list">';
     data.territory.bySector.forEach(function(s){
@@ -7432,11 +7432,11 @@ function renderBaseUser(data){
     var mr=data.miningRates;
     var bestInt=data.miningInterval.best||72;
     var ratesHtml='';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Reward Range</span><span class="stat-val" style="font-size:8px">'+mr.rewardMin+' ~ '+mr.rewardMax+' PP</span></div>';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Harvest Interval</span><span class="stat-val" style="font-size:8px;color:var(--cyan)">'+bestInt+'h</span></div>';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Core Bonus</span><span class="stat-val" style="font-size:8px;color:var(--red)">×'+mr.coreMult+'</span></div>';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Mid Bonus</span><span class="stat-val" style="font-size:8px;color:var(--gold)">×'+mr.midMult+'</span></div>';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Frontier Bonus</span><span class="stat-val" style="font-size:8px;color:var(--gn)">×'+mr.frontierMult+'</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">Reward Range</span><span class="stat-val" style="font-size:10px">'+mr.rewardMin+' ~ '+mr.rewardMax+' PP</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">Harvest Interval</span><span class="stat-val" style="font-size:10px;color:var(--cyan)">'+bestInt+'h</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">Core Bonus</span><span class="stat-val" style="font-size:10px;color:var(--red)">×'+mr.coreMult+'</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">Mid Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gold)">×'+mr.midMult+'</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">Frontier Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gn)">×'+mr.frontierMult+'</span></div>';
     document.getElementById('baseMineRates').innerHTML=ratesHtml;
   }
 }
@@ -7471,8 +7471,8 @@ function renderSectorList(sectors){
     // Top holder / Governor
     if(s.topHolder){
       html+='<div class="sc-stats" style="margin-top:2px">';
-      html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">TOP HOLDER</span><span class="sc-stat-val" style="font-size:8px">'+s.topHolder.wallet+' ('+s.topHolder.pixels+'px)</span></div>';
-      if(s.governor) html+='<div class="sc-stat"><span class="sc-stat-label">GOVERNOR</span><span class="sc-stat-val" style="color:var(--gold);font-size:8px">'+s.governor.wallet+'</span></div>';
+      html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">TOP HOLDER</span><span class="sc-stat-val" style="font-size:10px">'+s.topHolder.wallet+' ('+s.topHolder.pixels+'px)</span></div>';
+      if(s.governor) html+='<div class="sc-stat"><span class="sc-stat-label">GOVERNOR</span><span class="sc-stat-val" style="color:var(--gold);font-size:10px">'+s.governor.wallet+'</span></div>';
       html+='</div>';
     }
     // My holdings
@@ -7584,9 +7584,9 @@ function renderQuests(quests, container){
   var html='';
   // Pool status indicator
   if(!_questPoolData.active){
-    html+='<div style="text-align:center;padding:8px;margin-bottom:8px;background:rgba(255,60,60,.08);border:1px solid rgba(255,60,60,.2);border-radius:6px;font-size:8px;color:#F66">REWARD POOL DEPLETED — Rewards temporarily paused</div>';
+    html+='<div style="text-align:center;padding:8px;margin-bottom:8px;background:rgba(255,60,60,.08);border:1px solid rgba(255,60,60,.2);border-radius:6px;font-size:10px;color:#F66">REWARD POOL DEPLETED — Rewards temporarily paused</div>';
   } else if(_questPoolData.multiplier<0.5){
-    html+='<div style="text-align:center;padding:8px;margin-bottom:8px;background:rgba(240,200,64,.08);border:1px solid rgba(240,200,64,.2);border-radius:6px;font-size:8px;color:var(--gold)">LOW POOL — Rewards reduced to '+Math.round(_questPoolData.multiplier*100)+'%</div>';
+    html+='<div style="text-align:center;padding:8px;margin-bottom:8px;background:rgba(240,200,64,.08);border:1px solid rgba(240,200,64,.2);border-radius:6px;font-size:10px;color:var(--gold)">LOW POOL — Rewards reduced to '+Math.round(_questPoolData.multiplier*100)+'%</div>';
   }
   var currentTier='';
   var tierNames={free:'FREE MISSIONS',activity:'ACTIVITY MISSIONS',spending:'SPECIAL OPS'};
@@ -7616,7 +7616,7 @@ function renderQuests(quests, container){
     if(isComplete&&displayReward>0){
       html+='<button class="qc-claim-btn" onclick="claimQuest('+q.id+')">CLAIM +'+displayReward.toFixed(4)+' PP</button>';
     }else if(isComplete){
-      html+='<div style="text-align:center;padding:6px;font-size:8px;color:var(--tx3)">Pool empty — reward unavailable</div>';
+      html+='<div style="text-align:center;padding:6px;font-size:10px;color:var(--tx3)">Pool empty — reward unavailable</div>';
     }
     html+='<div class="qc-expire">'+timeLeft+'</div>';
     html+='</div>';
@@ -7980,21 +7980,21 @@ function searchOwner(){
   var q=document.getElementById('ownerSearchInput').value.trim().toLowerCase();
   var box=document.getElementById('searchResults');
   box.innerHTML='';
-  if(!q){box.innerHTML='<div style="font-size:7px;color:var(--tx3)">Enter owner name or address</div>';return}
+  if(!q){box.innerHTML='<div style="font-size:9px;color:var(--tx3)">Enter owner name or address</div>';return}
   var matches=claims.filter(function(c){
     var n=(c.nickname||'').toLowerCase();
     return c.owner.toLowerCase().indexOf(q)>=0||c.label.toLowerCase().indexOf(q)>=0||n.indexOf(q)>=0;
   });
-  if(!matches.length){box.innerHTML='<div style="font-size:7px;color:var(--red)">No results</div>';return}
+  if(!matches.length){box.innerHTML='<div style="font-size:9px;color:var(--red)">No results</div>';return}
   matches.forEach(function(c){
     var d=document.createElement('div');
     d.className='search-result-item';
     var cw=c.w||c.size||10, ch=c.h||c.size||10;
     var ownerSpan=document.createElement('span');
-    ownerSpan.style.cssText='color:var(--gold);font-size:7px';
+    ownerSpan.style.cssText='color:var(--gold);font-size:9px';
     ownerSpan.textContent=c.nickname||c.label||shortAddr(c.owner);
     var detailSpan=document.createElement('span');
-    detailSpan.style.cssText='font-size:6px;color:var(--tx3)';
+    detailSpan.style.cssText='font-size:8px;color:var(--tx3)';
     detailSpan.textContent='['+c.lat.toFixed(1)+'°,'+c.lng.toFixed(1)+'°] '+cw+'×'+ch+'px $'+c.price;
     d.appendChild(ownerSpan);
     d.appendChild(document.createElement('br'));
@@ -8029,7 +8029,7 @@ function renderAlerts(){
   var box=document.getElementById('alertsList');
   if(!box)return;
   box.innerHTML='';
-  if(!alerts.length){box.innerHTML='<div style="font-size:7px;color:var(--tx3)">No alerts yet</div>';return}
+  if(!alerts.length){box.innerHTML='<div style="font-size:9px;color:var(--tx3)">No alerts yet</div>';return}
   var badge=document.getElementById('alertBadge');
   badge.style.display='';badge.textContent=alerts.length;
   alerts.forEach(function(a){
