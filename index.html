@@ -3705,29 +3705,96 @@ function _updateMyTerritories(){
   var mine=claims.filter(function(c){return c.owner===myAddr});
   var countEl=document.getElementById('myTerritoryCount');
   var listEl=document.getElementById('myTerritoryList');
-  if(countEl) countEl.textContent=mine.length;
   if(!listEl) return;
   listEl.innerHTML='';
   if(mine.length===0){
+    if(countEl) countEl.textContent='0';
     listEl.innerHTML='<div style="font-size:8px;color:var(--tx3);padding:4px 0">No territories yet</div>';
     return;
   }
-  mine.forEach(function(c,i){
+  // Group claims by _ownerGroups (merged territories = 1 entry)
+  var groups=_ownerGroups[myAddr]||[];
+  var usedIndices={};
+  var entries=[]; // [{claims:[], group, bounds, totalPP, hasImg}]
+  groups.forEach(function(grp){
+    var grpClaims=[];
+    var totalPP=0, hasImg=false;
+    grp.claimIndices.forEach(function(ci){
+      usedIndices[ci]=true;
+      var c=claims[ci];
+      if(c){
+        grpClaims.push(c);
+        totalPP+=(c.price||0);
+        if(c.imgUrl) hasImg=true;
+      }
+    });
+    if(grpClaims.length>0) entries.push({claims:grpClaims,group:grp,totalPP:totalPP,hasImg:hasImg});
+  });
+  // Add ungrouped claims (shouldn't happen normally, but safety)
+  mine.forEach(function(c){
+    var ci=claims.indexOf(c);
+    if(!usedIndices[ci]) entries.push({claims:[c],group:null,totalPP:c.price||0,hasImg:!!c.imgUrl});
+  });
+  if(countEl) countEl.textContent=entries.length;
+  entries.forEach(function(entry,i){
     var d=document.createElement('div');
-    d.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:6px;margin-bottom:3px;cursor:pointer;background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.12);transition:all .15s';
-    d.onmouseenter=function(){d.style.background='rgba(255,120,60,.15)'};
-    d.onmouseleave=function(){d.style.background='rgba(255,120,60,.06)'};
-    var pw=c.w||c.size||10, ph=c.h||c.size||10;
+    d.style.cssText='border-radius:6px;margin-bottom:3px;background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.12);transition:all .15s;overflow:hidden';
+    // Main row (always visible)
+    var mainRow=document.createElement('div');
+    mainRow.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:5px 8px;cursor:pointer';
+    mainRow.onmouseenter=function(){d.style.background='rgba(255,120,60,.15)'};
+    mainRow.onmouseleave=function(){d.style.background='rgba(255,120,60,.06)'};
+    var ec=entry.claims;
+    var b=entry.group?entry.group.bounds:null;
+    var centerLat=b?(b.minLat+b.maxLat)/2:ec[0].lat;
+    var centerLng=b?(b.minLng+b.maxLng)/2:ec[0].lng;
+    var totalPx=entry.group?entry.group.count:(ec[0].w||ec[0].size||10)*(ec[0].h||ec[0].size||10);
     var left=document.createElement('div');
-    left.innerHTML='<div style="font-size:8px;color:var(--tx2)">#'+(i+1)+' · '+c.lat.toFixed(1)+'°, '+c.lng.toFixed(1)+'°</div><div style="font-size:7px;color:var(--tx3)">'+pw+'×'+ph+'px · '+(c.imgUrl?'📷':'🏴 No image')+'</div>';
+    var subLabel=ec.length>1?' <span style="color:var(--gold);font-size:7px">('+ec.length+' merged)</span>':'';
+    left.innerHTML='<div style="font-size:8px;color:var(--tx2)">#'+(i+1)+' · '+centerLat.toFixed(1)+'°, '+centerLng.toFixed(1)+'°'+subLabel+'</div><div style="font-size:7px;color:var(--tx3)">'+totalPx+'px · '+(entry.hasImg?'📷':'🏴 No image')+'</div>';
     var right=document.createElement('div');
-    right.style.cssText='font-size:8px;color:var(--gold);text-align:right';
-    right.textContent=c.price+' PP';
-    d.appendChild(left);d.appendChild(right);
-    d.onclick=function(){
-      globe.pointOfView({lat:c.lat,lng:c.lng,altitude:Math.max(0.4,Math.max(pw,ph)*0.006)},600);
-      selectedPlot=c;showTerritoryInfo(c);
+    right.style.cssText='font-size:8px;color:var(--gold);text-align:right;white-space:nowrap';
+    right.textContent=entry.totalPP.toFixed(1)+' PP';
+    mainRow.appendChild(left);mainRow.appendChild(right);
+    d.appendChild(mainRow);
+    // Click: zoom to territory
+    var zoomW=b?(b.maxLng-b.minLng):((ec[0].w||10)*0.22);
+    var zoomH=b?(b.maxLat-b.minLat):((ec[0].h||10)*0.22);
+    mainRow.onclick=function(){
+      globe.pointOfView({lat:centerLat,lng:centerLng,altitude:Math.max(0.4,Math.max(zoomW,zoomH)*0.03)},600);
+      selectedPlot=ec[0];showTerritoryInfo(ec[0]);
     };
+    // Sub-list for merged territories (expandable)
+    if(ec.length>1){
+      var subList=document.createElement('div');
+      subList.style.cssText='display:none;border-top:1px solid rgba(255,120,60,.1);padding:2px 0';
+      ec.forEach(function(sc,si){
+        var sub=document.createElement('div');
+        sub.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:3px 12px 3px 16px;cursor:pointer;font-size:7px;color:var(--tx3)';
+        sub.onmouseenter=function(){sub.style.background='rgba(255,120,60,.1)'};
+        sub.onmouseleave=function(){sub.style.background='transparent'};
+        var sw=sc.w||sc.size||10, sh=sc.h||sc.size||10;
+        sub.innerHTML='<span>↳ '+sc.lat.toFixed(1)+'°, '+sc.lng.toFixed(1)+'° ('+sw+'×'+sh+')</span><span style="color:var(--gold)">'+(sc.price||0)+' PP</span>';
+        sub.onclick=function(e){
+          e.stopPropagation();
+          globe.pointOfView({lat:sc.lat,lng:sc.lng,altitude:Math.max(0.4,Math.max(sw,sh)*0.006)},600);
+          selectedPlot=sc;showTerritoryInfo(sc);
+        };
+        subList.appendChild(sub);
+      });
+      d.appendChild(subList);
+      // Toggle expand on main row click with alt or second click
+      var expandBtn=document.createElement('span');
+      expandBtn.textContent='▸';
+      expandBtn.style.cssText='font-size:8px;color:var(--tx3);cursor:pointer;padding:0 4px;flex-shrink:0';
+      mainRow.insertBefore(expandBtn,mainRow.firstChild);
+      expandBtn.onclick=function(e){
+        e.stopPropagation();
+        var vis=subList.style.display==='none';
+        subList.style.display=vis?'block':'none';
+        expandBtn.textContent=vis?'▾':'▸';
+      };
+    }
     listEl.appendChild(d);
   });
 }
@@ -4917,7 +4984,7 @@ function openImageEditor(plot){
   var pxCount=plot._pixelCount||(tw*th);
   document.getElementById('editorTerritorySize').textContent=tw+'×'+th+' px ('+pxCount.toLocaleString()+')';
   document.getElementById('editorClaimId').textContent='#'+plot.id;
-  document.getElementById('editorScaleLabel').textContent=_editor.scale+'%';
+  document.getElementById('editorScaleLabel').textContent=Math.round(10000/_editor.scale)+'%';
   document.getElementById('editorRotLabel').textContent=_editor.rotate+'°';
   // Show modal
   document.getElementById('imgEditorModal').classList.add('open');
@@ -5127,9 +5194,13 @@ function _editorBuildClip(ctx,terrX,terrY,gridPx){
 
 // Editor controls
 function editorZoom(delta){
-  // Inverted: + makes territory bigger (lower scale), - makes it smaller (higher scale)
-  _editor.scale=Math.max(20,Math.min(500,_editor.scale-delta));
-  document.getElementById('editorScaleLabel').textContent=_editor.scale+'%';
+  // + makes territory bigger (lower internal scale)
+  // Multiplicative step: smooth at all zoom levels
+  var factor=delta>0?0.92:1/0.92;
+  _editor.scale=Math.max(5,Math.min(500,_editor.scale*factor));
+  // Display inverted: show bigger number when territory is bigger
+  var displayPct=Math.round(10000/_editor.scale);
+  document.getElementById('editorScaleLabel').textContent=displayPct+'%';
   _editorDraw();
 }
 function editorRotate(delta){
@@ -5140,7 +5211,7 @@ function editorRotate(delta){
 }
 function editorReset(){
   _editor.scale=100;_editor.rotate=0;_editor.ox=0;_editor.oy=0;
-  document.getElementById('editorScaleLabel').textContent='100%';
+  document.getElementById('editorScaleLabel').textContent=Math.round(10000/_editor.scale)+'%';
   document.getElementById('editorRotLabel').textContent='0°';
   _editorDraw();
 }
@@ -5223,8 +5294,8 @@ document.addEventListener('DOMContentLoaded',function(){
         // Auto-set scale so territory window fills ~50% of canvas
         var imgCS=Math.min(_editor.canvasW/img.width, _editor.canvasH/img.height);
         var autoS=Math.max(_editor.maskW*imgCS/(_editor.canvasW*0.5), _editor.maskH*imgCS/(_editor.canvasH*0.5))*100;
-        _editor.scale=Math.max(20,Math.min(500,Math.round(autoS)));
-        document.getElementById('editorScaleLabel').textContent=_editor.scale+'%';
+        _editor.scale=Math.max(5,Math.min(500,Math.round(autoS)));
+        document.getElementById('editorScaleLabel').textContent=Math.round(10000/_editor.scale)+'%';
         document.getElementById('editorRotLabel').textContent='0°';
         document.getElementById('editorUploadArea').style.display='none';
         document.getElementById('editorCanvasWrap').style.display='';

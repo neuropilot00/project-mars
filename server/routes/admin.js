@@ -989,8 +989,8 @@ router.post('/reset-claims', async (req, res) => {
 
         // Insert claim
         const claimRes = await client.query(
-          `INSERT INTO claims (owner, center_lat, center_lng, width, height, price_paid, pay_method)
-           VALUES ($1, $2, $3, $4, $5, 0, 'free') RETURNING id`,
+          `INSERT INTO claims (owner, center_lat, center_lng, width, height, total_paid)
+           VALUES ($1, $2, $3, $4, $5, 0) RETURNING id`,
           [owner, npc.lat, npc.lng, npc.w, npc.h]
         );
         const claimId = claimRes.rows[0].id;
