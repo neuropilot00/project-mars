@@ -868,7 +868,7 @@ router.post('/hilo/guess', betLimiter, async (req, res) => {
     if (!gRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Game not found' }); }
 
     const g = gRes.rows[0];
-    const cards = JSON.parse(g.cards);
+    const cards = typeof g.cards === 'string' ? JSON.parse(g.cards) : g.cards;
     const lastCard = cards[cards.length - 1];
     const newCard = drawCard();
     cards.push(newCard);
@@ -942,7 +942,7 @@ router.post('/hilo/cashout', betLimiter, async (req, res) => {
     if (!gRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Game not found' }); }
 
     const g = gRes.rows[0];
-    const cards = JSON.parse(g.cards);
+    const cards = typeof g.cards === 'string' ? JSON.parse(g.cards) : g.cards;
     if (cards.length < 2) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Must guess at least once' }); }
 
     const payout = Math.round(parseFloat(g.bet_amount) * parseFloat(g.current_multiplier) * 1000000) / 1000000;
@@ -979,7 +979,7 @@ router.get('/hilo/active', async (req, res) => {
     );
     if (!r.rows.length) return res.json({ active: false });
     const g = r.rows[0];
-    const cards = JSON.parse(g.cards);
+    const cards = typeof g.cards === 'string' ? JSON.parse(g.cards) : g.cards;
     const lastCard = cards[cards.length - 1];
     const nextHigher = 14 - lastCard.value;
     const nextLower = lastCard.value - 2;

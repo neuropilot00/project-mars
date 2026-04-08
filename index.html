@@ -3948,6 +3948,8 @@ function calcStampCost(lat,lng,w,h){
 function initPixelGrid(){
   pixelGrid={};
   claims.forEach(function(c,i){registerClaimPixels(c,i)});
+  // Re-overlay server pixels if available (they have authoritative ownership)
+  for(var k in _serverPixels){ pixelGrid[k]=_serverPixels[k]; }
   _rebuildOwnerData();
 }
 // Build pixelGrid from authoritative server pixel data
@@ -4067,15 +4069,25 @@ function _rebuildOwnerData(){
       if(claims[ci].owner===owner) ownerClaims.push(ci);
     }
     if(ownerClaims.length<=1){
-      // Single claim = single group
+      // Single claim = single group — compute bounds from actual strips
       if(ownerClaims.length===1){
-        var c0=claims[ownerClaims[0]];
-        var cw=c0.w||c0.size||20, ch=c0.h||c0.size||20;
-        var halfW=cw*gs/2, halfH=ch*gs/2;
-        _ownerGroups[owner]=[{
-          claimIndices:ownerClaims,
-          bounds:{minLat:c0.lat-halfH,maxLat:c0.lat+halfH,minLng:c0.lng-halfW,maxLng:c0.lng+halfW,count:cw*ch}
-        }];
+        var sStrips=_globalOwnerStrips[owner]||[];
+        var sb={minLat:Infinity,maxLat:-Infinity,minLng:Infinity,maxLng:-Infinity,count:0};
+        for(var ssi=0;ssi<sStrips.length;ssi++){
+          var ss=sStrips[ssi];
+          if(ss.lat<sb.minLat) sb.minLat=ss.lat;
+          if(ss.lat>sb.maxLat) sb.maxLat=ss.lat;
+          if(ss.lng1<sb.minLng) sb.minLng=ss.lng1;
+          if(ss.lng2>sb.maxLng) sb.maxLng=ss.lng2;
+          sb.count+=Math.round((ss.lng2-ss.lng1)/gs)+1;
+        }
+        if(sb.minLat===Infinity){
+          // Fallback if no strips
+          var c0=claims[ownerClaims[0]];
+          var cw0=c0.w||c0.size||20, ch0=c0.h||c0.size||20;
+          sb={minLat:c0.lat-ch0*gs/2,maxLat:c0.lat+ch0*gs/2,minLng:c0.lng-cw0*gs/2,maxLng:c0.lng+cw0*gs/2,count:cw0*ch0};
+        }
+        _ownerGroups[owner]=[{claimIndices:ownerClaims,bounds:sb}];
       }
       continue;
     }
@@ -4108,26 +4120,31 @@ function _rebuildOwnerData(){
     var groupArr=[];
     for(var r in groups){
       var gClaims=groups[r];
-      var b={minLat:Infinity,maxLat:-Infinity,minLng:Infinity,maxLng:-Infinity,count:0};
+      // Compute bounds from actual pixel data (not claim rect math)
+      // First: rough bounds from claim rects to filter strips
+      var rough={minLat:Infinity,maxLat:-Infinity,minLng:Infinity,maxLng:-Infinity};
       gClaims.forEach(function(ci){
         var c=claims[ci];
-        var cw=(c.w||c.size||20)*gs/2, ch=(c.h||c.size||20)*gs/2;
-        if(c.lat-ch<b.minLat) b.minLat=c.lat-ch;
-        if(c.lat+ch>b.maxLat) b.maxLat=c.lat+ch;
-        if(c.lng-cw<b.minLng) b.minLng=c.lng-cw;
-        if(c.lng+cw>b.maxLng) b.maxLng=c.lng+cw;
+        var cw=(c.w||c.size||20)*gs/2+gs, ch=(c.h||c.size||20)*gs/2+gs;
+        if(c.lat-ch<rough.minLat) rough.minLat=c.lat-ch;
+        if(c.lat+ch>rough.maxLat) rough.maxLat=c.lat+ch;
+        if(c.lng-cw<rough.minLng) rough.minLng=c.lng-cw;
+        if(c.lng+cw>rough.maxLng) rough.maxLng=c.lng+cw;
       });
-      // Count pixels from strips in this group's bounding box (fast)
-      var cnt=0;
+      // Tight bounds from actual strips
+      var b={minLat:Infinity,maxLat:-Infinity,minLng:Infinity,maxLng:-Infinity,count:0};
       var allStrips=_globalOwnerStrips[owner]||[];
       for(var si=0;si<allStrips.length;si++){
         var s=allStrips[si];
-        if(s.lat>=b.minLat-gs*0.5&&s.lat<=b.maxLat+gs*0.5&&
-           s.lng1>=b.minLng-gs*0.5&&s.lng2<=b.maxLng+gs*0.5){
-          cnt+=Math.round((s.lng2-s.lng1)/gs)+1;
+        if(s.lat>=rough.minLat&&s.lat<=rough.maxLat&&
+           s.lng1>=rough.minLng&&s.lng2<=rough.maxLng){
+          if(s.lat<b.minLat) b.minLat=s.lat;
+          if(s.lat>b.maxLat) b.maxLat=s.lat;
+          if(s.lng1<b.minLng) b.minLng=s.lng1;
+          if(s.lng2>b.maxLng) b.maxLng=s.lng2;
+          b.count+=Math.round((s.lng2-s.lng1)/gs)+1;
         }
       }
-      b.count=cnt;
       groupArr.push({claimIndices:gClaims,bounds:b});
     }
     _ownerGroups[owner]=groupArr;
