@@ -1597,6 +1597,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <button class="pay-method-btn sel" id="payPP" onclick="selectPayMethod('pp')">🟠 PP</button>
           <button class="pay-method-btn" id="payUSDT" onclick="selectPayMethod('usdt')">💲 USDT</button>
         </div>
+        <div style="font-size:var(--fs-xs);color:var(--tx3);margin-top:6px" id="claimBalanceDisplay">
+          Balance: <span id="claimBalPP">0</span> PP · <span id="claimBalUSDT">0</span> USDT
+        </div>
       </div>
     </div>
     <!-- 컨펌 -->
@@ -3821,8 +3824,9 @@ function loadNasa8k(){
 _initStep1();
 
 /* ── Territory Data ──────────────────────────────── */
-var PIXEL_PRICE=0.1;       // $0.1 per pixel
+var PIXEL_PRICE=0.1;       // $0.1 per pixel (fallback)
 var HIJACK_MULT=1.2;
+var SECTOR_PRICES={core:0.15, mid:0.05, frontier:0.02}; // updated from server config
 var GRID_SIZE=0.22;        // 0.22° per pixel-cell (must match server)
 // lat ±70° = 140° / 0.22 ≈ 636 rows
 // lng ±180° = 360° / 0.22 ≈ 1636 cols
@@ -3864,15 +3868,19 @@ function pxKey(lat,lng){ return (Math.round(lat*100)/100)+','+(Math.round(lng*10
 // Get all pixel coords covered by a claim (center lat/lng, w cells, h cells)
 function getClaimPixels(lat,lng,w,h){
   var pixels=[];
-  var halfW=(w*GRID_SIZE)/2, halfH=(h*GRID_SIZE)/2;
+  var gs=GRID_SIZE;
+  var gsI=Math.round(gs*100); // integer grid step (22 for 0.22)
+  var halfW=(w*gs)/2, halfH=(h*gs)/2;
   var minLat=lat-halfH, maxLat=lat+halfH;
   var minLng=lng-halfW, maxLng=lng+halfW;
-  var startLat=Math.ceil(minLat/GRID_SIZE)*GRID_SIZE;
-  var startLng=Math.ceil(minLng/GRID_SIZE)*GRID_SIZE;
-  for(var plat=startLat;plat<maxLat;plat+=GRID_SIZE){
-    for(var plng=startLng;plng<maxLng;plng+=GRID_SIZE){
-      var sLat=Math.round(plat*100)/100;
-      var sLng=Math.round(plng*100)/100;
+  // Use integer math to avoid floating-point accumulation errors
+  var startLatI=Math.ceil(Math.round(minLat*100)/gsI)*gsI;
+  var startLngI=Math.ceil(Math.round(minLng*100)/gsI)*gsI;
+  var maxLatI=Math.round(maxLat*100);
+  var maxLngI=Math.round(maxLng*100);
+  for(var iLat=startLatI;iLat<maxLatI;iLat+=gsI){
+    for(var iLng=startLngI;iLng<maxLngI;iLng+=gsI){
+      var sLat=iLat/100, sLng=iLng/100;
       if(sLat>=-70&&sLat<=70) pixels.push({lat:sLat,lng:sLng});
     }
   }
@@ -3891,6 +3899,29 @@ function registerClaimPixels(claim,idx){
 }
 
 // Calculate cost for placing stamp at position, with overlap detection
+// Find pixel price based on sector tier
+function _getSectorPixelPrice(lat,lng){
+  for(var i=0;i<_sectorsData.length;i++){
+    var s=_sectorsData[i];
+    var b=s.bounds;
+    if(!b) continue;
+    if(lat<b.latMin||lat>b.latMax||lng<b.lngMin||lng>b.lngMax) continue;
+    var poly=s.polygon;
+    if(poly&&poly.length>=3){
+      // Point-in-polygon (ray casting)
+      var inside=false;
+      for(var pi=0,pj=poly.length-1;pi<poly.length;pj=pi++){
+        var xi=poly[pi][0],yi=poly[pi][1],xj=poly[pj][0],yj=poly[pj][1];
+        if((yi>lat)!==(yj>lat)&&lng<(xj-xi)*(lat-yi)/(yj-yi)+xi) inside=!inside;
+      }
+      if(inside) return SECTOR_PRICES[s.tier]||PIXEL_PRICE;
+    }else{
+      return SECTOR_PRICES[s.tier]||PIXEL_PRICE;
+    }
+  }
+  return PIXEL_PRICE;
+}
+
 function calcStampCost(lat,lng,w,h){
   var pixels=getClaimPixels(lat,lng,w,h);
   var baseCost=0, hijackCost=0, overlapCount=0, newCount=0, ownSkipCount=0;
@@ -3913,7 +3944,7 @@ function calcStampCost(lat,lng,w,h){
         affectedOwners[existing.owner].bonus+=(pxCost-existing.price)*0.5;
       }
     }else{
-      baseCost+=PIXEL_PRICE;
+      baseCost+=_getSectorPixelPrice(p.lat,p.lng);
       newCount++;
     }
   });
@@ -5598,6 +5629,10 @@ function openClaimModal(){
     tl.textContent='CLAIM TERRITORY';tl.className='claim-title';
     document.getElementById('modalCostDisplay').textContent=costInfo.total.toFixed(2)+' PP ('+cw+'×'+ch+' = '+costInfo.totalPixels.toLocaleString()+'px)';
   }
+  // Show balance
+  var bPP=document.getElementById('claimBalPP'), bU=document.getElementById('claimBalUSDT');
+  if(bPP) bPP.textContent=(walletState.gamePP||0).toLocaleString(undefined,{maximumFractionDigits:2});
+  if(bU) bU.textContent=(walletState.gameUsdt||0).toLocaleString(undefined,{maximumFractionDigits:2});
   // Reset pay method to PP
   selectedPayMethod='pp';
   selectPayMethod('pp');
@@ -9131,6 +9166,10 @@ window.addEventListener('resize', function(){
         var banner = document.getElementById('announceBanner');
         if(banner) banner.classList.remove('show');
       }
+      // Update pricing from server config
+      if(cfg.pixelBasePrice) PIXEL_PRICE=cfg.pixelBasePrice;
+      if(cfg.hijackMultiplier) HIJACK_MULT=cfg.hijackMultiplier;
+      if(cfg.sectorPrices) SECTOR_PRICES=cfg.sectorPrices;
     }).catch(function(){});
   }
 

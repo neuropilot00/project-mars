@@ -95,7 +95,7 @@ let _sectorsCache = null;
 let _sectorsCacheAt = 0;
 async function getSectorsForLookup() {
   if (_sectorsCache && Date.now() - _sectorsCacheAt < 60000) return _sectorsCache;
-  const res = await pool.query('SELECT id, tier, bounds_polygon, lat_min, lat_max, lng_min, lng_max FROM sectors');
+  const res = await pool.query('SELECT id, tier, bounds_polygon, lat_min, lat_max, lng_min, lng_max, base_price FROM sectors');
   _sectorsCache = res.rows;
   _sectorsCacheAt = Date.now();
   return _sectorsCache;
@@ -126,6 +126,33 @@ function _findSectorSync(sectors, lat, lng) {
   return null;
 }
 
+// Get sector tier-based price for a pixel coordinate using admin settings
+// _sectorPriceSettings is set at claim time from cfg()
+let _sectorPriceSettings = null;
+function getSectorPriceSync(lat, lng, fallback) {
+  if (!_sectorsCache) return fallback;
+  for (const s of _sectorsCache) {
+    if (lat < parseFloat(s.lat_min) || lat > parseFloat(s.lat_max)) continue;
+    if (lng < parseFloat(s.lng_min) || lng > parseFloat(s.lng_max)) continue;
+    let match = false;
+    if (s.bounds_polygon && Array.isArray(s.bounds_polygon) && s.bounds_polygon.length >= 3) {
+      match = pointInPolygon(lng, lat, s.bounds_polygon);
+    } else {
+      match = true;
+    }
+    if (match) {
+      // Use admin settings per tier, fallback to sector's own base_price
+      if (_sectorPriceSettings) {
+        if (s.tier === 'core') return _sectorPriceSettings.core;
+        if (s.tier === 'mid') return _sectorPriceSettings.mid;
+        if (s.tier === 'frontier') return _sectorPriceSettings.frontier;
+      }
+      return parseFloat(s.base_price) || fallback;
+    }
+  }
+  return fallback;
+}
+
 // awardXP is now imported from db.js
 
 // ── Quest Reward Pool: fund from fees ──
@@ -154,16 +181,19 @@ function snapGrid(val) {
 
 function getClaimPixels(lat, lng, w, h) {
   const pixels = [];
-  const halfW = (w * GRID_SIZE) / 2;
-  const halfH = (h * GRID_SIZE) / 2;
+  const gs = GRID_SIZE;
+  const gsI = Math.round(gs * 100); // integer grid step (22 for 0.22)
+  const halfW = (w * gs) / 2, halfH = (h * gs) / 2;
   const minLat = lat - halfH, maxLat = lat + halfH;
   const minLng = lng - halfW, maxLng = lng + halfW;
-  const startLat = Math.ceil(minLat / GRID_SIZE) * GRID_SIZE;
-  const startLng = Math.ceil(minLng / GRID_SIZE) * GRID_SIZE;
-  for (let plat = startLat; plat < maxLat; plat += GRID_SIZE) {
-    for (let plng = startLng; plng < maxLng; plng += GRID_SIZE) {
-      const sLat = Math.round(plat * 100) / 100;
-      const sLng = Math.round(plng * 100) / 100;
+  // Use integer math to avoid floating-point accumulation errors
+  const startLatI = Math.ceil(Math.round(minLat * 100) / gsI) * gsI;
+  const startLngI = Math.ceil(Math.round(minLng * 100) / gsI) * gsI;
+  const maxLatI = Math.round(maxLat * 100);
+  const maxLngI = Math.round(maxLng * 100);
+  for (let iLat = startLatI; iLat < maxLatI; iLat += gsI) {
+    for (let iLng = startLngI; iLng < maxLngI; iLng += gsI) {
+      const sLat = iLat / 100, sLng = iLng / 100;
       if (sLat >= -70 && sLat <= 70) pixels.push({ lat: sLat, lng: sLng });
     }
   }
@@ -181,6 +211,11 @@ router.get('/config', readLimiter, async (req, res) => {
 
     res.json({
       pixelBasePrice: s.pixel_base_price || 0.1,
+      sectorPrices: {
+        core: s.price_pixel_core || 0.15,
+        mid: s.price_pixel_mid || 0.05,
+        frontier: s.price_pixel_frontier || 0.02
+      },
       hijackMultiplier: s.hijack_multiplier || 1.2,
       depositPPBonus: bonusPct,
       swapFeePercent: s.swap_fee_percent || 5,
@@ -558,6 +593,12 @@ router.post('/claim', writeLimiter, async (req, res) => {
   const PIXEL_PRICE = s.pixel_base_price || 0.1;
   const HIJACK_MULT = s.hijack_multiplier || 1.2;
   const OWNER_BONUS_PCT = (s.hijack_owner_bonus || 50) / 100;
+  await getSectorsForLookup(); // ensure sector cache for price lookup
+  _sectorPriceSettings = {
+    core: s.price_pixel_core || 0.15,
+    mid: s.price_pixel_mid || 0.05,
+    frontier: s.price_pixel_frontier || 0.02
+  };
 
   try {
     // Maintenance check
@@ -618,9 +659,10 @@ router.post('/claim', writeLimiter, async (req, res) => {
           enemyPixels.push({ ...p, existing });
         }
       } else {
-        baseCost += PIXEL_PRICE;
+        const sectorPrice = getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE);
+        baseCost += sectorPrice;
         newCount++;
-        newPixels.push(p);
+        newPixels.push({ ...p, sectorPrice });
       }
     }
 
@@ -723,7 +765,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
       let paramIdx = 1;
       for (const p of chunk) {
         const existing = existingMap[p.lat + ',' + p.lng];
-        const newPrice = existing ? parseFloat(existing.price) * HIJACK_MULT : PIXEL_PRICE;
+        const newPrice = existing ? parseFloat(existing.price) * HIJACK_MULT : (p.sectorPrice || getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE));
         const sectorId = findSectorForPixelSync(p.lat, p.lng);
         values.push(`($${paramIdx},$${paramIdx+1},$${paramIdx+2},$${paramIdx+3},$${paramIdx+4},$${paramIdx+5},NOW())`);
         params.push(p.lat, p.lng, walletLower, newPrice, claimId, sectorId);
