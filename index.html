@@ -3011,7 +3011,8 @@ function compositeClaimsOnTexture(previewOnly){
         var s=(ip.scale||100)/100;
         var rot=(ip.rotate||0)*Math.PI/180;
         var ox=ip.ox||0, oy=ip.oy||0;
-        var cx=rx+rw/2+ox, cy=ry+rh/2+oy;
+        var _gsTPx2=_gs*_pxDeg;
+        var cx=rx+rw/2+ox*_gsTPx2*s, cy=ry+rh/2+oy*_gsTPx2*s;
         ctx.translate(cx,cy);
         ctx.rotate(rot);
         var coverScale=Math.max(rw/img.width, rh/img.height)*s;
@@ -3162,7 +3163,7 @@ function compositeClaimsOnTexture(previewOnly){
           var ip=sharedImgParams, s=(ip.scale||100)/100;
           var rot=(ip.rotate||0)*Math.PI/180;
           var _gsTPx=_gs*_pxDeg; // 1 grid unit in texture pixels
-          ctx.translate(ar.x+ar.w/2+(ip.ox||0)*_gsTPx, ar.y+ar.h/2+(ip.oy||0)*_gsTPx);
+          ctx.translate(ar.x+ar.w/2+(ip.ox||0)*_gsTPx*s, ar.y+ar.h/2+(ip.oy||0)*_gsTPx*s);
           ctx.rotate(rot);
           var cs=_gsTPx*s;
           ctx.drawImage(sharedImg,-sharedImg.width*cs/2,-sharedImg.height*cs/2,sharedImg.width*cs,sharedImg.height*cs);
