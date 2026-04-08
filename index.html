@@ -7146,7 +7146,7 @@ function renderShopItems(){
       +'<div class="si-desc">'+item.description+'</div>'
       +'<div class="si-effect">'+durTxt+(item.effect_value?' · '+item.effect_value+(item.category==='defense'?'% absorb':item.code==='attack_boost'?'% boost':'x effect'):'')+'</div>'
       +'<div class="si-prices">'
-      +'<span class="si-price pp" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'PP\')">'+parseFloat(item.price_pp).toFixed(0)+' PP</span>'
+      +'<span class="si-price pp" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'PP\')">'+parseFloat(item.price_pp).toFixed(1)+' PP</span>'
       +'<span class="si-price usdt" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'USDT\')">'+parseFloat(item.price_usdt).toFixed(1)+' USDT</span>'
       +'</div>'
       +(ownedQty>0?'<div class="si-owned">Owned: '+ownedQty+'/'+item.max_stack+'</div>':'<div class="si-qty">Max: '+item.max_stack+'</div>')
@@ -7209,7 +7209,7 @@ function buyShopItem(code,currency){
   if(!w){showToast('Connect wallet first','error');return;}
   var item=_shopItems.find(function(i){return i.code===code});
   if(!item)return;
-  var price=currency==='USDT'?parseFloat(item.price_usdt).toFixed(1)+' USDT':parseFloat(item.price_pp).toFixed(0)+' PP';
+  var price=currency==='USDT'?parseFloat(item.price_usdt).toFixed(1)+' USDT':parseFloat(item.price_pp).toFixed(1)+' PP';
   if(!confirm('Buy '+item.name+' for '+price+'?'))return;
   fetch('/api/shop/buy',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({wallet:w,itemCode:code,currency:currency,quantity:1})
