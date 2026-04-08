@@ -4412,7 +4412,7 @@ function activateLandSelect(){
   }
   // Mobile: show size controls and default size
   if(isMobile){
-    _mobLandW=20; _mobLandH=20;
+    _mobLandW=15; _mobLandH=15;
     _showMobSizeControls(true);
     showToast('TAP to place center → drag to move → pinch zoom');
   }else{
@@ -4420,7 +4420,7 @@ function activateLandSelect(){
   }
 }
 // Mobile land size state
-var _mobLandW=20, _mobLandH=20;
+var _mobLandW=15, _mobLandH=15;
 function _showMobSizeControls(show){
   var el=document.getElementById('mobSizeControls');
   if(!el) return;
