@@ -3141,7 +3141,6 @@ function compositeClaimsOnTexture(previewOnly){
 
       // Pass 1: Fill + images per group
       ctx.save();
-      if(_myLandMode&&!isMine) ctx.globalAlpha=0.15;
       var ownerGroups=_ownerGroups[c.owner]||[];
       ownerGroups.forEach(function(grp){
         var groupClaims=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
@@ -3284,7 +3283,6 @@ function compositeClaimsOnTexture(previewOnly){
           ctx.stroke();ctx.setLineDash([]);
         }
       });
-      if(_myLandMode&&!isMine) ctx.globalAlpha=1;
       ctx.restore();
 
       // Shield effects
