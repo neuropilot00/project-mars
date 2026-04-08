@@ -6045,7 +6045,9 @@ async function confirmClaim(){
     if(d.newPixels){
       d.newPixels.forEach(function(p){
         var k=pxKey(p[0],p[1]);
-        pixelGrid[k]={owner:myAddr,price:PIXEL_PRICE,claimIdx:claimIdx,claimId:d.claimId};
+        var entry={owner:myAddr,price:PIXEL_PRICE,claimIdx:claimIdx,claimId:d.claimId};
+        pixelGrid[k]=entry;
+        _serverPixels[k]=entry;
       });
     }
     if(d.wonPixels){
@@ -6053,7 +6055,9 @@ async function confirmClaim(){
         var k=pxKey(p[0],p[1]);
         var existing=pixelGrid[k];
         var newPrice=existing? existing.price*HIJACK_MULT : PIXEL_PRICE;
-        pixelGrid[k]={owner:myAddr,price:newPrice,claimIdx:claimIdx,claimId:d.claimId};
+        var entry={owner:myAddr,price:newPrice,claimIdx:claimIdx,claimId:d.claimId};
+        pixelGrid[k]=entry;
+        _serverPixels[k]=entry;
       });
     }
     if(!d.newPixels&&!d.wonPixels&&d.overlapCount===0){
@@ -6061,10 +6065,14 @@ async function confirmClaim(){
       pixels.forEach(function(p){
         var k=pxKey(p.lat,p.lng);
         if(!pixelGrid[k]||!pixelGrid[k].owner){
-          pixelGrid[k]={owner:myAddr,price:PIXEL_PRICE,claimIdx:claimIdx,claimId:d.claimId};
+          var entry={owner:myAddr,price:PIXEL_PRICE,claimIdx:claimIdx,claimId:d.claimId};
+          pixelGrid[k]=entry;
+          _serverPixels[k]=entry;
         }
       });
     }
+    // Rebuild owner strips so old owner's territory no longer includes hijacked pixels
+    _rebuildOwnerData();
 
     // Reset modes
     stampMode=false; stampImgUrl=null;
