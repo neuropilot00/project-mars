@@ -4489,8 +4489,8 @@ function _updateMobLabels(){
     var alt=pov.altitude||1;
     // Rough: at altitude a, 1px screen ≈ k degrees
     var degPerPx=alt*0.15;
-    var dlng=-(tx-lastTouch.x)*degPerPx;
-    var dlat=(ty-lastTouch.y)*degPerPx;
+    var dlng=(tx-lastTouch.x)*degPerPx;
+    var dlat=-(ty-lastTouch.y)*degPerPx;
     lastTouch={x:tx,y:ty};
     // Move the territory
     var newLat=Math.round(Math.max(-70,Math.min(70,landDragStart.lat+dlat))/GRID_SIZE)*GRID_SIZE;
