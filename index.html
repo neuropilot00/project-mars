@@ -1949,27 +1949,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Mobile Bottom Navigation Bar -->
 <!-- Mobile Land Size Controls (floating above bottom nav) -->
-<div id="mobSizeControls" style="display:none;position:fixed;bottom:64px;left:0;right:0;z-index:210;
-  background:rgba(14,12,22,0.97);border-top:1px solid rgba(255,120,60,0.3);
-  padding:10px 12px;backdrop-filter:blur(16px)">
-  <div style="display:flex;align-items:center;gap:12px">
+<div id="mobSizeControls" style="display:none;position:fixed;bottom:64px;left:0;right:80px;z-index:210;
+  background:rgba(14,12,22,0.97);border-top:1px solid rgba(255,120,60,0.3);border-right:1px solid rgba(255,120,60,0.3);
+  border-radius:0 12px 0 0;padding:8px 10px;backdrop-filter:blur(16px)">
+  <div style="display:flex;align-items:center;gap:10px">
     <!-- Virtual Joystick: drag to resize territory -->
-    <div id="mobJoystickWrap" style="position:relative;width:72px;height:72px;flex:0 0 72px;border-radius:50%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,120,60,0.3);touch-action:none">
-      <div id="mobJoystickKnob" style="position:absolute;top:50%;left:50%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:linear-gradient(135deg,var(--mars),var(--red));box-shadow:0 0 10px rgba(255,120,60,0.5);pointer-events:none"></div>
-      <div style="position:absolute;top:3px;left:50%;transform:translateX(-50%);font-size:7px;color:var(--tx3);font-family:var(--fn)">H+</div>
-      <div style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:7px;color:var(--tx3);font-family:var(--fn)">H−</div>
-      <div style="position:absolute;left:3px;top:50%;transform:translateY(-50%);font-size:7px;color:var(--tx3);font-family:var(--fn)">W−</div>
-      <div style="position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:7px;color:var(--tx3);font-family:var(--fn)">W+</div>
+    <div id="mobJoystickWrap" style="position:relative;width:88px;height:88px;flex:0 0 88px;border-radius:50%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,120,60,0.3);touch-action:none">
+      <div id="mobJoystickKnob" style="position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:linear-gradient(135deg,var(--mars),var(--red));box-shadow:0 0 10px rgba(255,120,60,0.5);pointer-events:none"></div>
+      <div style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--tx3);font-family:var(--fn)">H+</div>
+      <div style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--tx3);font-family:var(--fn)">H−</div>
+      <div style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--tx3);font-family:var(--fn)">W−</div>
+      <div style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--tx3);font-family:var(--fn)">W+</div>
     </div>
     <!-- Size info -->
-    <div style="flex:1;display:flex;flex-direction:column;gap:2px">
-      <span id="mobSizeLabel" style="font-size:13px;font-family:var(--fn);color:var(--gold);font-weight:700">20 × 20</span>
-      <span id="mobCostLabel" style="font-size:11px;font-family:var(--fn);color:var(--tx3)">400px</span>
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+      <span id="mobSizeLabel" style="font-size:15px;font-family:var(--fn);color:var(--gold);font-weight:700">20 × 20</span>
+      <span id="mobCostLabel" style="font-size:12px;font-family:var(--fn);color:var(--tx3)">400px</span>
     </div>
-    <!-- Actions -->
-    <div style="display:flex;flex-direction:column;gap:6px;flex:0 0 auto">
-      <button onclick="_mobConfirmLand()" style="padding:10px 18px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));border:none;color:#fff;font-family:var(--fn);font-size:12px;cursor:pointer;font-weight:700">CONFIRM</button>
-      <button onclick="cancelLandSelect();_showMobSizeControls(false)" style="padding:6px 18px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer">CANCEL</button>
+    <!-- Actions (fixed width) -->
+    <div style="display:flex;flex-direction:column;gap:6px;flex:0 0 110px">
+      <button onclick="_mobConfirmLand()" style="padding:12px 0;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));border:none;color:#fff;font-family:var(--fn);font-size:13px;cursor:pointer;font-weight:700;width:100%">CONFIRM</button>
+      <button onclick="cancelLandSelect();_showMobSizeControls(false)" style="padding:8px 0;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--tx3);font-family:var(--fn);font-size:11px;cursor:pointer;width:100%">CANCEL</button>
     </div>
   </div>
 </div>
@@ -5010,10 +5010,48 @@ function _editorDraw(){
   ctx.drawImage(img,imgX,imgY,imgW,imgH);
   ctx.restore();
 
-  // Territory border
+  // Territory border — outer contour only (no internal edges between merged claims)
   ctx.strokeStyle='rgba(255,160,60,0.7)';ctx.lineWidth=2;ctx.setLineDash([]);
-  _buildRotatedClip();
-  ctx.stroke();
+  if(_editor.isMerged&&_editor.bounds&&_editor.claim){
+    // Build cell grid to detect outer edges
+    var b2=_editor.bounds;
+    var gs3=_actualGridStep||GRID_SIZE;
+    var gW=Math.round(_editor.maskW),gH=Math.round(_editor.maskH);
+    var grd=[];for(var gi2=0;gi2<gH;gi2++) grd[gi2]=new Uint8Array(gW);
+    var owner2=_editor.claim.owner;
+    var groups2=_ownerGroups[owner2]||[];
+    var grp2=null;
+    for(var gi3=0;gi3<groups2.length;gi3++){if(groups2[gi3].bounds===b2){grp2=groups2[gi3];break;}}
+    if(!grp2) grp2=groups2[0];
+    if(grp2){
+      grp2.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean).forEach(function(gc){
+        var cw3=gc.w||20,ch3=gc.h||20;
+        var gx0=Math.round((gc.lng-b2.minLng)/gs3-cw3/2);
+        var gy0=Math.round((b2.maxLat-gc.lat)/gs3-ch3/2);
+        for(var dy2=0;dy2<ch3;dy2++) for(var dx2=0;dx2<cw3;dx2++){
+          var yy=gy0+dy2,xx=gx0+dx2;
+          if(yy>=0&&yy<gH&&xx>=0&&xx<gW) grd[yy][xx]=1;
+        }
+      });
+    }
+    // Draw outer edges only
+    ctx.beginPath();
+    for(var gy2=0;gy2<gH;gy2++) for(var gx2=0;gx2<gW;gx2++){
+      if(!grd[gy2][gx2]) continue;
+      var px2=terrX+gx2*gridPx,py2=terrY+gy2*gridPx;
+      if(gy2===0||!grd[gy2-1][gx2]){var e1=rotPt(px2,py2),e2=rotPt(px2+gridPx,py2);ctx.moveTo(e1[0],e1[1]);ctx.lineTo(e2[0],e2[1]);}
+      if(gy2===gH-1||!grd[gy2+1][gx2]){var e1=rotPt(px2,py2+gridPx),e2=rotPt(px2+gridPx,py2+gridPx);ctx.moveTo(e1[0],e1[1]);ctx.lineTo(e2[0],e2[1]);}
+      if(gx2===0||!grd[gy2][gx2-1]){var e1=rotPt(px2,py2),e2=rotPt(px2,py2+gridPx);ctx.moveTo(e1[0],e1[1]);ctx.lineTo(e2[0],e2[1]);}
+      if(gx2===gW-1||!grd[gy2][gx2+1]){var e1=rotPt(px2+gridPx,py2),e2=rotPt(px2+gridPx,py2+gridPx);ctx.moveTo(e1[0],e1[1]);ctx.lineTo(e2[0],e2[1]);}
+    }
+    ctx.stroke();
+  }else{
+    ctx.beginPath();
+    var bp1=rotPt(terrX,terrY),bp2=rotPt(terrX+terrW,terrY);
+    var bp3=rotPt(terrX+terrW,terrY+terrH),bp4=rotPt(terrX,terrY+terrH);
+    ctx.moveTo(bp1[0],bp1[1]);ctx.lineTo(bp2[0],bp2[1]);ctx.lineTo(bp3[0],bp3[1]);ctx.lineTo(bp4[0],bp4[1]);ctx.closePath();
+    ctx.stroke();
+  }
 
   // Corner markers (rotated)
   var cm=10;
