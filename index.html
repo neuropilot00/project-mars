@@ -2929,8 +2929,9 @@ function getCellRect(lat,lng,cw,ch,tw,th){
   // so images appear undistorted on the 3D sphere
   var cosLat=Math.cos(lat*Math.PI/180);
   if(cosLat<0.15) cosLat=0.15; // clamp near poles to avoid extreme stretch
-  var pw=GRID_SIZE*cw*pxPerDeg/cosLat;
-  var ph=GRID_SIZE*ch*pxPerDeg;
+  var gs=_actualGridStep||GRID_SIZE;
+  var pw=gs*cw*pxPerDeg/cosLat;
+  var ph=gs*ch*pxPerDeg;
   var uv=latlngToUV(lat,lng,tw,th);
   return {x:uv.x-pw/2, y:uv.y-ph/2, w:pw, h:ph};
 }
@@ -3083,164 +3084,221 @@ function compositeClaimsOnTexture(previewOnly){
       return getCellRect(c.lat,c.lng,cw,ch,w,h);
     });
 
-    // ── Hybrid rendering: claim rects + pixelGrid ownership for accuracy ──
-    // Build owner→claimRects for grouped border rendering
-    var _ownerClaimRects={}; // owner → [{r, claim, idx}]
-    sortedClaims.forEach(function(c,idx){
-      if(!_ownerClaimRects[c.owner]) _ownerClaimRects[c.owner]=[];
-      _ownerClaimRects[c.owner].push({r:claimRects[idx], claim:c, idx:idx});
-    });
+    // ── Pixel-accurate rendering via horizontal strips (global cache) ──
+    var _ownerStrips=_globalOwnerStrips;
+    var _stripsByOwnerLat=_globalOwnerStripsByLat;
 
-    // For each claim: draw fill/image clipped to claim rect minus lost pixels
-    sortedClaims.forEach(function(c,idx){
-      var r=claimRects[idx];
-      var hasUrl=c.imgUrl&&c.imgUrl.length>0;
-      var img=hasUrl?imgCache[c.imgUrl]:null;
-      var noImage=!hasUrl;
-      var isMine=_myLandMode&&myAddr&&c.owner===myAddr;
-      var isNPC=c.owner&&c.owner.indexOf('0xnpc_')===0;
-      var oc=_ownerColor(c.owner);
-      var displayLabel=isNPC?(c.owner.replace('0xnpc_','').replace(/_/g,' ').toUpperCase()):(c.nickname||c.label||shortAddr(c.owner));
-      var imgParams=hasUrl?{scale:c.imgScale||100,rotate:c.imgRotate||0,ox:c.imgOffsetX||0,oy:c.imgOffsetY||0}:null;
+    // Strip → screen rect
+    var _pxDeg=w/360, _gs=_actualGridStep;
+    function _sRect(s){
+      var cl=Math.cos(s.lat*Math.PI/180); if(cl<0.15)cl=0.15;
+      var dw=s.lng2-s.lng1+_gs;
+      var pw=dw*_pxDeg/cl, ph=_gs*_pxDeg;
+      var cx=((s.lng1+s.lng2)/2+180)/360*w;
+      var cy=(90-s.lat)/180*h;
+      return{x:cx-pw/2,y:cy-ph/2,w:pw,h:ph};
+    }
 
-      // Build clipping: claim rect MINUS enemy claims that overlap
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(r.x,r.y,r.w,r.h);
-      if(r.x<0) ctx.rect(r.x+w,r.y,r.w,r.h);
-      else if(r.x+r.w>w) ctx.rect(r.x-w,r.y,r.w,r.h);
-      // Subtract newer claims from DIFFERENT owners (evenodd)
-      for(var j=idx+1;j<sortedClaims.length;j++){
-        if(sortedClaims[j].owner===c.owner) continue;
-        var nr=claimRects[j];
-        ctx.rect(nr.x,nr.y,nr.w,nr.h);
-        if(nr.x<0) ctx.rect(nr.x+w,nr.y,nr.w,nr.h);
-        else if(nr.x+nr.w>w) ctx.rect(nr.x-w,nr.y,nr.w,nr.h);
-      }
-      ctx.clip('evenodd');
-
-      if(_myLandMode&&!isMine) ctx.globalAlpha=0.15;
-      _drawClaimRect(ctx,img,r,w,noImage,displayLabel,oc,imgParams);
-      if(_myLandMode&&!isMine) ctx.globalAlpha=1;
-
-      // Shield visual effect
-      if(c.shield&&c.shield.expires>Date.now()){
-        ctx.globalAlpha=_shieldPulse;
-        _drawShieldEffect(ctx,r.x,r.y,r.w,r.h,c.shield.type);
-        if(r.x<0)_drawShieldEffect(ctx,r.x+w,r.y,r.w,r.h,c.shield.type);
-        else if(r.x+r.w>w)_drawShieldEffect(ctx,r.x-w,r.y,r.w,r.h,c.shield.type);
-        ctx.globalAlpha=1;
-      }
-      ctx.restore();
-    });
-
-    // ── Grouped exterior-only borders per owner ──
+    // Render: claim rects for fills/images, strips for borders only
     var _processedOwners={};
     sortedClaims.forEach(function(c){
       if(_processedOwners[c.owner]) return;
       _processedOwners[c.owner]=true;
-      var ownerRects=_ownerClaimRects[c.owner];
-      if(!ownerRects||!ownerRects.length) return;
+      var strips=_ownerStrips[c.owner];
+      if(!strips||!strips.length) return;
 
       var isNPC=c.owner&&c.owner.indexOf('0xnpc_')===0;
       var isMine=_myLandMode&&myAddr&&c.owner===myAddr;
       var oc=_ownerColor(c.owner);
-      var bc=oc||{r:255,g:120,b:60};
 
+      // Pass 1: Fill + images per group
       ctx.save();
-      if(isNPC){
-        ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.6)';ctx.lineWidth=1.5;ctx.setLineDash([3,2]);
-      }else if(_myLandMode&&isMine){
-        ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.9)';ctx.lineWidth=2;ctx.setLineDash([]);
-      }else{
-        ctx.strokeStyle='rgba('+bc.r+','+bc.g+','+bc.b+',0.5)';ctx.lineWidth=1;ctx.setLineDash([]);
-      }
-
-      // For each edge segment, subtract portions covered by other same-owner rects
-      // This handles both adjacent AND overlapping rects
-      ctx.beginPath();
-      for(var ri=0;ri<ownerRects.length;ri++){
-        var cr=ownerRects[ri].r;
-        // 4 edges: [type, fixed-coord, start, end]
-        // H=horizontal (fixed y, x varies), V=vertical (fixed x, y varies)
-        var edgeDefs=[
-          {h:true, fixed:cr.y, start:cr.x, end:cr.x+cr.w},           // top
-          {h:true, fixed:cr.y+cr.h, start:cr.x, end:cr.x+cr.w},     // bottom
-          {h:false, fixed:cr.x, start:cr.y, end:cr.y+cr.h},          // left
-          {h:false, fixed:cr.x+cr.w, start:cr.y, end:cr.y+cr.h}     // right
-        ];
-        for(var ei=0;ei<4;ei++){
-          var ed=edgeDefs[ei];
-          // Collect intervals covered by other same-owner rects
-          var covered=[];
-          for(var rj=0;rj<ownerRects.length;rj++){
-            if(ri===rj) continue;
-            var or2=ownerRects[rj].r;
-            if(ed.h){
-              // Horizontal edge at y=ed.fixed: is this y inside or2?
-              if(ed.fixed>or2.y+0.5 && ed.fixed<or2.y+or2.h-0.5){
-                // This edge's y is inside or2 → covered where x overlaps
-                var cs=Math.max(ed.start, or2.x);
-                var ce=Math.min(ed.end, or2.x+or2.w);
-                if(ce>cs) covered.push([cs,ce]);
-              }
-            }else{
-              // Vertical edge at x=ed.fixed: is this x inside or2?
-              if(ed.fixed>or2.x+0.5 && ed.fixed<or2.x+or2.w-0.5){
-                var cs2=Math.max(ed.start, or2.y);
-                var ce2=Math.min(ed.end, or2.y+or2.h);
-                if(ce2>cs2) covered.push([cs2,ce2]);
-              }
-            }
-          }
-          // Sort covered intervals and merge
-          covered.sort(function(a,b){return a[0]-b[0]});
-          var merged=[];
-          for(var ci=0;ci<covered.length;ci++){
-            if(merged.length && covered[ci][0]<=merged[merged.length-1][1]+0.5){
-              merged[merged.length-1][1]=Math.max(merged[merged.length-1][1],covered[ci][1]);
-            }else{
-              merged.push([covered[ci][0],covered[ci][1]]);
-            }
-          }
-          // Draw uncovered segments
-          var pos=ed.start;
-          for(var mi=0;mi<merged.length;mi++){
-            if(merged[mi][0]>pos+0.5){
-              // Draw from pos to merged[mi][0]
-              if(ed.h){ctx.moveTo(pos,ed.fixed);ctx.lineTo(merged[mi][0],ed.fixed);}
-              else{ctx.moveTo(ed.fixed,pos);ctx.lineTo(ed.fixed,merged[mi][0]);}
-            }
-            pos=merged[mi][1];
-          }
-          if(pos<ed.end-0.5){
-            if(ed.h){ctx.moveTo(pos,ed.fixed);ctx.lineTo(ed.end,ed.fixed);}
-            else{ctx.moveTo(ed.fixed,pos);ctx.lineTo(ed.fixed,ed.end);}
+      if(_myLandMode&&!isMine) ctx.globalAlpha=0.15;
+      var ownerGroups=_ownerGroups[c.owner]||[];
+      ownerGroups.forEach(function(grp){
+        var groupClaims=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
+        // Find shared image + anchor claim
+        var sharedImg=null, sharedImgParams=null, anchorClaim=null;
+        for(var gi=0;gi<groupClaims.length;gi++){
+          var gc=groupClaims[gi];
+          if(gc.imgUrl&&gc.imgUrl.length>0){
+            sharedImg=imgCache[gc.imgUrl]||null;
+            sharedImgParams={scale:gc.imgScale||100,rotate:gc.imgRotate||0,ox:gc.imgOffsetX||0,oy:gc.imgOffsetY||0};
+            anchorClaim=gc;
+            break;
           }
         }
-      }
-      ctx.stroke();
-      ctx.setLineDash([]);
+        // Compute claim rects + group bounding box
+        var rects=[], bx1=Infinity, by1=Infinity, bx2=-Infinity, by2=-Infinity;
+        groupClaims.forEach(function(gc){
+          var r=getCellRect(gc.lat,gc.lng,gc.w||20,gc.h||20,w,h);
+          rects.push(r);
+          if(r.x<bx1)bx1=r.x;if(r.y<by1)by1=r.y;
+          if(r.x+r.w>bx2)bx2=r.x+r.w;if(r.y+r.h>by2)by2=r.y+r.h;
+        });
+        if(sharedImg){
+          // Clip to territory shape using strips (pixel-accurate, no gaps)
+          var gb2i=grp.bounds;
+          var gStripsClip=(strips||[]).filter(function(s){
+            return s.lat>=gb2i.minLat-_gs*0.5&&s.lat<=gb2i.maxLat+_gs*0.5&&
+                   s.lng1>=gb2i.minLng-_gs*0.5&&s.lng2<=gb2i.maxLng+_gs*0.5;
+          });
+          ctx.save();
+          ctx.beginPath();
+          if(gStripsClip.length>0){
+            for(var sci=0;sci<gStripsClip.length;sci++){
+              var ssr=_sRect(gStripsClip[sci]);
+              ctx.rect(ssr.x, ssr.y, ssr.w, ssr.h);
+            }
+          }else{
+            rects.forEach(function(r){ctx.rect(r.x,r.y,r.w,r.h)});
+          }
+          ctx.clip();
+          // Solid fill under image (covers all clipped area — prevents Mars surface bleed)
+          ctx.fillStyle='rgb(30,20,15)';
+          ctx.fill();
+          // Image FIXED at anchor claim center
+          var ar=getCellRect(anchorClaim.lat,anchorClaim.lng,anchorClaim.w||20,anchorClaim.h||20,w,h);
+          var ip=sharedImgParams, s=(ip.scale||100)/100;
+          var rot=(ip.rotate||0)*Math.PI/180;
+          var _gsTPx=_gs*_pxDeg; // 1 grid unit in texture pixels
+          ctx.translate(ar.x+ar.w/2+(ip.ox||0)*_gsTPx, ar.y+ar.h/2+(ip.oy||0)*_gsTPx);
+          ctx.rotate(rot);
+          var cs=_gsTPx*s;
+          ctx.drawImage(sharedImg,-sharedImg.width*cs/2,-sharedImg.height*cs/2,sharedImg.width*cs,sharedImg.height*cs);
+          ctx.restore();
+          // Strip-based exterior border (same as non-image groups)
+          var byLat2=_stripsByOwnerLat[c.owner]||{};
+          var gsKey2=byLat2._latStep||Math.round(_gs*100);
+          var gb2=grp.bounds;
+          var gStrips2=(strips||[]).filter(function(s){
+            return s.lat>=gb2.minLat-_gs*0.5&&s.lat<=gb2.maxLat+_gs*0.5&&
+                   s.lng1>=gb2.minLng-_gs*0.5&&s.lng2<=gb2.maxLng+_gs*0.5;
+          });
+          var bc2=oc||{r:255,g:120,b:60};
+          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+(isMine?'0.9':'0.5')+')';
+          ctx.lineWidth=isMine?2:1;
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          for(var si2=0;si2<gStrips2.length;si2++){
+            var ss2=gStrips2[si2], sr2=_sRect(ss2);
+            var lk2=Math.round(ss2.lat*100);
+            ctx.moveTo(sr2.x,sr2.y);ctx.lineTo(sr2.x,sr2.y+sr2.h);
+            ctx.moveTo(sr2.x+sr2.w,sr2.y);ctx.lineTo(sr2.x+sr2.w,sr2.y+sr2.h);
+            var adj3=byLat2[lk2+gsKey2]||[];
+            var covX3=[];for(var ai3=0;ai3<adj3.length;ai3++){var ar3=_sRect(adj3[ai3]);var o13=Math.max(sr2.x,ar3.x),o23=Math.min(sr2.x+sr2.w,ar3.x+ar3.w);if(o23>o13)covX3.push([o13,o23]);}
+            covX3.sort(function(a,b){return a[0]-b[0]});var pos3=sr2.x;
+            for(var ci3=0;ci3<covX3.length;ci3++){if(covX3[ci3][0]>pos3+0.5){ctx.moveTo(pos3,sr2.y);ctx.lineTo(covX3[ci3][0],sr2.y);}pos3=covX3[ci3][1];}
+            if(pos3<sr2.x+sr2.w-0.5){ctx.moveTo(pos3,sr2.y);ctx.lineTo(sr2.x+sr2.w,sr2.y);}
+            var adj4=byLat2[lk2-gsKey2]||[];
+            var covX4=[];for(var ai4=0;ai4<adj4.length;ai4++){var ar4=_sRect(adj4[ai4]);var o14=Math.max(sr2.x,ar4.x),o24=Math.min(sr2.x+sr2.w,ar4.x+ar4.w);if(o24>o14)covX4.push([o14,o24]);}
+            covX4.sort(function(a,b){return a[0]-b[0]});var pos4=sr2.x, yb2=sr2.y+sr2.h;
+            for(var ci4=0;ci4<covX4.length;ci4++){if(covX4[ci4][0]>pos4+0.5){ctx.moveTo(pos4,yb2);ctx.lineTo(covX4[ci4][0],yb2);}pos4=covX4[ci4][1];}
+            if(pos4<sr2.x+sr2.w-0.5){ctx.moveTo(pos4,yb2);ctx.lineTo(sr2.x+sr2.w,yb2);}
+          }
+          ctx.stroke();
+        }else{
+          // No image: colored fill + label per claim rect
+          var displayLabel=isNPC?(c.owner.replace('0xnpc_','').replace(/_/g,' ').toUpperCase()):(c.nickname||c.label||shortAddr(c.owner));
+          groupClaims.forEach(function(gc){
+            var r=getCellRect(gc.lat,gc.lng,gc.w||20,gc.h||20,w,h);
+            _drawClaimRect(ctx,null,r,w,true,displayLabel,oc,null);
+          });
+          // Strip-based border for non-image groups
+          var byLat=_stripsByOwnerLat[c.owner]||{};
+          var gsKey=byLat._latStep||Math.round(_gs*100);
+          var gb=grp.bounds;
+          var gStrips=(strips||[]).filter(function(s){
+            return s.lat>=gb.minLat-_gs*0.5&&s.lat<=gb.maxLat+_gs*0.5&&
+                   s.lng1>=gb.minLng-_gs*0.5&&s.lng2<=gb.maxLng+_gs*0.5;
+          });
+          var bc3=oc||{r:255,g:120,b:60};
+          ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.6)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'0.9':'0.5')+')';
+          ctx.lineWidth=isNPC?1.5:(isMine?2:1);
+          if(isNPC) ctx.setLineDash([3,2]); else ctx.setLineDash([]);
+          ctx.beginPath();
+          for(var si=0;si<gStrips.length;si++){
+            var ss=gStrips[si], sr=_sRect(ss);
+            var lk=Math.round(ss.lat*100);
+            ctx.moveTo(sr.x,sr.y);ctx.lineTo(sr.x,sr.y+sr.h);
+            ctx.moveTo(sr.x+sr.w,sr.y);ctx.lineTo(sr.x+sr.w,sr.y+sr.h);
+            var adj=byLat[lk+gsKey]||[];
+            var covX=[];for(var ai=0;ai<adj.length;ai++){var ar=_sRect(adj[ai]);var o1=Math.max(sr.x,ar.x),o2=Math.min(sr.x+sr.w,ar.x+ar.w);if(o2>o1)covX.push([o1,o2]);}
+            covX.sort(function(a,b){return a[0]-b[0]});var pos=sr.x;
+            for(var ci=0;ci<covX.length;ci++){if(covX[ci][0]>pos+0.5){ctx.moveTo(pos,sr.y);ctx.lineTo(covX[ci][0],sr.y);}pos=covX[ci][1];}
+            if(pos<sr.x+sr.w-0.5){ctx.moveTo(pos,sr.y);ctx.lineTo(sr.x+sr.w,sr.y);}
+            var adj2=byLat[lk-gsKey]||[];
+            var covX2=[];for(var ai2=0;ai2<adj2.length;ai2++){var ar2=_sRect(adj2[ai2]);var o12=Math.max(sr.x,ar2.x),o22=Math.min(sr.x+sr.w,ar2.x+ar2.w);if(o22>o12)covX2.push([o12,o22]);}
+            covX2.sort(function(a,b){return a[0]-b[0]});var pos2=sr.x, yb=sr.y+sr.h;
+            for(var ci2=0;ci2<covX2.length;ci2++){if(covX2[ci2][0]>pos2+0.5){ctx.moveTo(pos2,yb);ctx.lineTo(covX2[ci2][0],yb);}pos2=covX2[ci2][1];}
+            if(pos2<sr.x+sr.w-0.5){ctx.moveTo(pos2,yb);ctx.lineTo(sr.x+sr.w,yb);}
+          }
+          ctx.stroke();ctx.setLineDash([]);
+        }
+      });
+      if(_myLandMode&&!isMine) ctx.globalAlpha=1;
       ctx.restore();
+
+      // Shield effects
+      sortedClaims.forEach(function(sc){
+        if(sc.owner!==c.owner) return;
+        if(sc.shield&&sc.shield.expires>Date.now()){
+          var sr2=getCellRect(sc.lat,sc.lng,sc.w||20,sc.h||20,w,h);
+          ctx.globalAlpha=_shieldPulse;
+          _drawShieldEffect(ctx,sr2.x,sr2.y,sr2.w,sr2.h,sc.shield.type);
+          ctx.globalAlpha=1;
+        }
+      });
     });
 
     // Sector boundaries overlay
     _drawSectorOverlay(ctx,w,h);
 
-    // Selection highlight: yellow dashed border on selected claim
+    // Selection highlight: yellow dashed border on selected group's territory (strip-based)
     if(selectedPlot&&selectedPlot.owner){
-      var sp=selectedPlot;
-      var spw=sp.w||sp.size||20, sph=sp.h||sp.size||20;
-      var sr=getCellRect(sp.lat,sp.lng,spw,sph,w,h);
-      ctx.strokeStyle='#FFD166';ctx.lineWidth=2;ctx.setLineDash([6,4]);
-      ctx.strokeRect(sr.x,sr.y,sr.w,sr.h);
-      // Wrap-around highlight
-      if(sr.x<0){
-        ctx.strokeRect(sr.x+w,sr.y,sr.w,sr.h);
-      }else if(sr.x+sr.w>w){
-        ctx.strokeRect(sr.x-w,sr.y,sr.w,sr.h);
+      var _selOwner=selectedPlot.owner;
+      // Filter strips for the selected group's bounding box
+      var _allSelStrips=_ownerStrips[_selOwner]||[];
+      var _selBounds=selectedPlot._bounds;
+      var _selStrips;
+      if(_selBounds){
+        _selStrips=_allSelStrips.filter(function(s){
+          return s.lat>=_selBounds.minLat-_gs*0.5&&s.lat<=_selBounds.maxLat+_gs*0.5&&
+                 s.lng1>=_selBounds.minLng-_gs*0.5&&s.lng2<=_selBounds.maxLng+_gs*0.5;
+        });
+      }else{
+        _selStrips=_allSelStrips;
       }
-      ctx.setLineDash([]);
+      if(_selStrips&&_selStrips.length){
+        var _selByLat={};
+        _selStrips.forEach(function(s){var lk=Math.round(s.lat*100);if(!_selByLat[lk])_selByLat[lk]=[];_selByLat[lk].push(s);});
+        var _selFullByLat=_stripsByOwnerLat[_selOwner]||{};
+        var _selGsKey=_selFullByLat._latStep||Math.round(_gs*100);
+        ctx.save();
+        ctx.strokeStyle='#FFD166';ctx.lineWidth=2.5;ctx.setLineDash([6,4]);
+        ctx.beginPath();
+        for(var _si=0;_si<_selStrips.length;_si++){
+          var _ss=_selStrips[_si],_ssr=_sRect(_ss);
+          var _slk=Math.round(_ss.lat*100);
+          ctx.moveTo(_ssr.x,_ssr.y);ctx.lineTo(_ssr.x,_ssr.y+_ssr.h);
+          ctx.moveTo(_ssr.x+_ssr.w,_ssr.y);ctx.lineTo(_ssr.x+_ssr.w,_ssr.y+_ssr.h);
+          var _sadj=_selByLat[_slk+_selGsKey]||[];
+          var _scovX=[];for(var _sai=0;_sai<_sadj.length;_sai++){var _sar=_sRect(_sadj[_sai]);var _so1=Math.max(_ssr.x,_sar.x),_so2=Math.min(_ssr.x+_ssr.w,_sar.x+_sar.w);if(_so2>_so1)_scovX.push([_so1,_so2]);}
+          _scovX.sort(function(a,b){return a[0]-b[0]});
+          var _sp=_ssr.x;
+          for(var _sci=0;_sci<_scovX.length;_sci++){if(_scovX[_sci][0]>_sp+0.5){ctx.moveTo(_sp,_ssr.y);ctx.lineTo(_scovX[_sci][0],_ssr.y);}_sp=_scovX[_sci][1];}
+          if(_sp<_ssr.x+_ssr.w-0.5){ctx.moveTo(_sp,_ssr.y);ctx.lineTo(_ssr.x+_ssr.w,_ssr.y);}
+          var _sadj2=_selByLat[_slk-_selGsKey]||[];
+          var _scovX2=[];for(var _sai2=0;_sai2<_sadj2.length;_sai2++){var _sar2=_sRect(_sadj2[_sai2]);var _so12=Math.max(_ssr.x,_sar2.x),_so22=Math.min(_ssr.x+_ssr.w,_sar2.x+_sar2.w);if(_so22>_so12)_scovX2.push([_so12,_so22]);}
+          _scovX2.sort(function(a,b){return a[0]-b[0]});
+          var _sp2=_ssr.x,_syb=_ssr.y+_ssr.h;
+          for(var _sci2=0;_sci2<_scovX2.length;_sci2++){if(_scovX2[_sci2][0]>_sp2+0.5){ctx.moveTo(_sp2,_syb);ctx.lineTo(_scovX2[_sci2][0],_syb);}_sp2=_scovX2[_sci2][1];}
+          if(_sp2<_ssr.x+_ssr.w-0.5){ctx.moveTo(_sp2,_syb);ctx.lineTo(_ssr.x+_ssr.w,_syb);}
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
     }
 
     // Cache this snapshot for fast preview redraws
@@ -3590,14 +3648,16 @@ function toggleMyLand(){
     }
   }
 
-  // Zoom to current territory
+  // Zoom to current territory (group-based)
   if(mine.length>0&&_myLandIdx<mine.length){
     var t=mine[_myLandIdx];
-    var pw=t.w||t.size||20, ph=t.h||t.size||20;
-    globe.pointOfView({lat:t.lat,lng:t.lng,altitude:Math.max(0.4,Math.max(pw,ph)*0.006)},600);
-    selectedPlot=t;
-    showTerritoryInfo(t);
-    showToast('MY LAND '+(_myLandIdx+1)+'/'+mine.length+(t.nickname?' — '+t.nickname:''));
+    var merged=_buildMergedPlot(myAddr,t.lat,t.lng);
+    if(!merged) merged=t;
+    var pw=merged.w||merged.size||20, ph=merged.h||merged.size||20;
+    globe.pointOfView({lat:merged.lat,lng:merged.lng,altitude:Math.max(0.4,Math.max(pw,ph)*0.006)},600);
+    selectedPlot=merged;
+    showTerritoryInfo(merged);
+    showToast('MY LAND '+(_myLandIdx+1)+'/'+mine.length+(merged._pixelCount?' — '+merged._pixelCount+' px':''));
     // Highlight current in list
     _highlightMyTerritoryItem(_myLandIdx);
   }else{
@@ -3774,23 +3834,191 @@ function calcStampCost(lat,lng,w,h){
 function initPixelGrid(){
   pixelGrid={};
   claims.forEach(function(c,i){registerClaimPixels(c,i)});
+  _rebuildOwnerData();
 }
 // Build pixelGrid from authoritative server pixel data
 function initPixelGridFromServer(byOwner){
+  // Start from claims-based grid (fills all claim rectangles) — used for click detection
   pixelGrid={};
-  // Build claimId → claimIdx lookup
+  claims.forEach(function(c,i){registerClaimPixels(c,i)});
+  // Overlay authoritative server pixel data (overrides where battles changed ownership)
   var claimIdMap={};
   claims.forEach(function(c,i){ if(c.id) claimIdMap[c.id]=i; });
+  // Build server-only pixel set for strip rendering (avoids GRID_SIZE=0.1 noise)
+  _serverPixels={};
   for(var owner in byOwner){
     var pxArr=byOwner[owner];
     for(var i=0;i<pxArr.length;i++){
       var p=pxArr[i]; // [lat, lng, claimId, price]
       var k=pxKey(p[0],p[1]);
-      pixelGrid[k]={owner:owner, price:p[3], claimIdx:claimIdMap[p[2]]!==undefined?claimIdMap[p[2]]:-1, claimId:p[2]};
+      var entry={owner:owner, price:p[3], claimIdx:claimIdMap[p[2]]!==undefined?claimIdMap[p[2]]:-1, claimId:p[2]};
+      pixelGrid[k]=entry;
+      _serverPixels[k]=entry;
     }
   }
+  _rebuildOwnerData();
 }
 var _pixelsLoaded=false;
+// Global owner territory data (rebuilt when pixelGrid changes)
+var _globalOwnerStrips={};
+var _globalOwnerStripsByLat={};
+var _ownerTerritoryCache={};
+var _actualGridStep=GRID_SIZE; // detected from actual pixel data
+var _serverPixels={}; // server-authoritative pixels only (0.22 spacing)
+
+// Connected component grouping for same-owner claims
+var _ownerGroups={}; // owner → [{claimIndices, bounds, count, strips, stripsByLat}]
+function _rebuildOwnerData(){
+  _ownerTerritoryCache={};
+  _globalOwnerStrips={};
+  _globalOwnerStripsByLat={};
+  _ownerGroups={};
+
+  // Step 1: Build strips per owner — use server pixels only (correct spacing)
+  var pixelSource=Object.keys(_serverPixels).length>0?_serverPixels:pixelGrid;
+  var byOL={}; // owner → latS → [lng, ...]
+  for(var k in pixelSource){
+    var pv=pixelSource[k];
+    if(!pv||!pv.owner) continue;
+    var sep=k.indexOf(',');
+    var latS=k.substring(0,sep), lng=parseFloat(k.substring(sep+1));
+    var lat=parseFloat(latS);
+    var o=pv.owner;
+    if(!_ownerTerritoryCache[o]) _ownerTerritoryCache[o]={minLat:Infinity,maxLat:-Infinity,minLng:Infinity,maxLng:-Infinity,count:0};
+    var t=_ownerTerritoryCache[o];
+    if(lat<t.minLat) t.minLat=lat;
+    if(lat>t.maxLat) t.maxLat=lat;
+    if(lng<t.minLng) t.minLng=lng;
+    if(lng>t.maxLng) t.maxLng=lng;
+    t.count++;
+    if(!byOL[o]) byOL[o]={};
+    if(!byOL[o][latS]) byOL[o][latS]=[];
+    byOL[o][latS].push(lng);
+  }
+  // Detect actual grid step from data (may differ from GRID_SIZE if old data)
+  var _stepCounts={};
+  for(var _ao in byOL){
+    for(var _al in byOL[_ao]){
+      var _alng=byOL[_ao][_al].sort(function(a,b){return a-b});
+      for(var _ai=1;_ai<Math.min(_alng.length,10);_ai++){
+        var _ag=Math.round((_alng[_ai]-_alng[_ai-1])*100);
+        if(_ag>0&&_ag<100) _stepCounts[_ag]=(_stepCounts[_ag]||0)+1;
+      }
+    }
+    break; // sample first owner only
+  }
+  var _bestStep=Math.round(GRID_SIZE*100),_bestCnt=0;
+  for(var _sk in _stepCounts){if(_stepCounts[_sk]>_bestCnt){_bestCnt=_stepCounts[_sk];_bestStep=parseInt(_sk);}}
+  _actualGridStep=_bestStep/100;
+
+  var gs=_actualGridStep;
+  for(var owner in byOL){
+    var strips=[],byLat={};
+    for(var latS in byOL[owner]){
+      var lat=parseFloat(latS);
+      var lngs=byOL[owner][latS].sort(function(a,b){return a-b});
+      var lk=Math.round(lat*100);
+      if(!byLat[lk]) byLat[lk]=[];
+      var i=0;
+      while(i<lngs.length){
+        var s0=lngs[i],e0=s0,j=i+1;
+        while(j<lngs.length&&lngs[j]-e0<gs*2.5){e0=lngs[j];j++;}
+        var st={lat:lat,lng1:s0,lng2:e0};
+        strips.push(st);byLat[lk].push(st);
+        i=j;
+      }
+    }
+    _globalOwnerStrips[owner]=strips;
+    _globalOwnerStripsByLat[owner]=byLat;
+    // Detect actual lat step for this owner (for border adjacency lookup)
+    var latKeys=Object.keys(byLat).map(Number).sort(function(a,b){return a-b});
+    var _latStep=Math.round(gs*100); // default
+    if(latKeys.length>=2){
+      var gaps={};
+      for(var li=1;li<Math.min(latKeys.length,20);li++){
+        var g=latKeys[li]-latKeys[li-1];
+        gaps[g]=(gaps[g]||0)+1;
+      }
+      var bestG=0,bestC=0;
+      for(var gk in gaps){if(gaps[gk]>bestC){bestC=gaps[gk];bestG=parseInt(gk);}}
+      if(bestG>0) _latStep=bestG;
+    }
+    byLat._latStep=_latStep;
+  }
+
+  // Step 2: Connected component grouping per owner (claim-level adjacency)
+  for(var owner in _globalOwnerStrips){
+    var ownerClaims=[];
+    for(var ci=0;ci<claims.length;ci++){
+      if(claims[ci].owner===owner) ownerClaims.push(ci);
+    }
+    if(ownerClaims.length<=1){
+      // Single claim = single group
+      if(ownerClaims.length===1){
+        var c0=claims[ownerClaims[0]];
+        var cw=c0.w||c0.size||20, ch=c0.h||c0.size||20;
+        var halfW=cw*gs/2, halfH=ch*gs/2;
+        _ownerGroups[owner]=[{
+          claimIndices:ownerClaims,
+          bounds:{minLat:c0.lat-halfH,maxLat:c0.lat+halfH,minLng:c0.lng-halfW,maxLng:c0.lng+halfW,count:cw*ch}
+        }];
+      }
+      continue;
+    }
+    // Union-Find
+    var parent={};
+    ownerClaims.forEach(function(ci){parent[ci]=ci});
+    function find(x){while(parent[x]!==x)x=parent[x]=parent[parent[x]];return x}
+    function union(a,b){var ra=find(a),rb=find(b);if(ra!==rb)parent[ra]=rb}
+    // Check adjacency: two claims are adjacent if their bounding boxes overlap or touch (within 1 grid cell)
+    for(var i=0;i<ownerClaims.length;i++){
+      var ci=claims[ownerClaims[i]];
+      var cw1=(ci.w||ci.size||20)*gs/2, ch1=(ci.h||ci.size||20)*gs/2;
+      for(var j=i+1;j<ownerClaims.length;j++){
+        var cj=claims[ownerClaims[j]];
+        var cw2=(cj.w||cj.size||20)*gs/2, ch2=(cj.h||cj.size||20)*gs/2;
+        // Expand by 1 grid cell for adjacency
+        var margin=gs*1.1;
+        if(Math.abs(ci.lat-cj.lat)<ch1+ch2+margin && Math.abs(ci.lng-cj.lng)<cw1+cw2+margin){
+          union(ownerClaims[i],ownerClaims[j]);
+        }
+      }
+    }
+    // Group by root
+    var groups={};
+    ownerClaims.forEach(function(ci){
+      var r=find(ci);
+      if(!groups[r]) groups[r]=[];
+      groups[r].push(ci);
+    });
+    var groupArr=[];
+    for(var r in groups){
+      var gClaims=groups[r];
+      var b={minLat:Infinity,maxLat:-Infinity,minLng:Infinity,maxLng:-Infinity,count:0};
+      gClaims.forEach(function(ci){
+        var c=claims[ci];
+        var cw=(c.w||c.size||20)*gs/2, ch=(c.h||c.size||20)*gs/2;
+        if(c.lat-ch<b.minLat) b.minLat=c.lat-ch;
+        if(c.lat+ch>b.maxLat) b.maxLat=c.lat+ch;
+        if(c.lng-cw<b.minLng) b.minLng=c.lng-cw;
+        if(c.lng+cw>b.maxLng) b.maxLng=c.lng+cw;
+      });
+      // Count pixels from strips in this group's bounding box (fast)
+      var cnt=0;
+      var allStrips=_globalOwnerStrips[owner]||[];
+      for(var si=0;si<allStrips.length;si++){
+        var s=allStrips[si];
+        if(s.lat>=b.minLat-gs*0.5&&s.lat<=b.maxLat+gs*0.5&&
+           s.lng1>=b.minLng-gs*0.5&&s.lng2<=b.maxLng+gs*0.5){
+          cnt+=Math.round((s.lng2-s.lng1)/gs)+1;
+        }
+      }
+      b.count=cnt;
+      groupArr.push({claimIndices:gClaims,bounds:b});
+    }
+    _ownerGroups[owner]=groupArr;
+  }
+}
 initPixelGrid();
 
 // Pre-cache all demo images + base texture
@@ -3924,6 +4152,66 @@ function findClaimAt(lat,lng){
     if(Math.abs(c.lat-lat)<hh&&Math.abs(c.lng-lng)<hw) return c;
   }
   return null;
+}
+
+// Find which connected group a click falls in
+function _findGroupAt(owner,lat,lng){
+  var groups=_ownerGroups[owner];
+  if(!groups) return null;
+  var gs=GRID_SIZE;
+  for(var i=0;i<groups.length;i++){
+    var b=groups[i].bounds;
+    if(lat>=b.minLat-gs*0.5&&lat<=b.maxLat+gs*0.5&&lng>=b.minLng-gs*0.5&&lng<=b.maxLng+gs*0.5){
+      return groups[i];
+    }
+  }
+  return groups[0]; // fallback
+}
+
+// Find merged territory at coords (pixel-accurate, returns merged plot for connected group)
+function findTerritoryAt(lat,lng){
+  // Check pixelGrid first for pixel-accurate hit
+  var snapLat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
+  snapLat=Math.round(snapLat*100)/100;
+  var snapLng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
+  snapLng=Math.round(snapLng*100)/100;
+  var px=pixelGrid[pxKey(snapLat,snapLng)];
+  if(px&&px.owner) return _buildMergedPlot(px.owner,lat,lng);
+  // Fallback: rect-based
+  var claim=findClaimAt(lat,lng);
+  if(claim&&claim.owner) return _buildMergedPlot(claim.owner,lat,lng);
+  return null;
+}
+
+function _buildMergedPlot(owner,lat,lng){
+  var group=_findGroupAt(owner,lat,lng);
+  if(!group) return null;
+  var groupClaims=group.claimIndices.map(function(ci){return claims[ci]});
+  var t=group.bounds;
+  var centerLat=(t.minLat+t.maxLat)/2;
+  var centerLng=(t.minLng+t.maxLng)/2;
+  var _gs2=_actualGridStep||GRID_SIZE;
+  var wPx=Math.round((t.maxLng-t.minLng)/_gs2)+1;
+  var hPx=Math.round((t.maxLat-t.minLat)/_gs2)+1;
+  // Find representative claim (first with image)
+  var imgClaim=null;
+  for(var i=0;i<groupClaims.length;i++){
+    if(groupClaims[i].imgUrl){imgClaim=groupClaims[i];break}
+  }
+  if(!imgClaim) imgClaim=groupClaims[0];
+  return {
+    lat:centerLat,lng:centerLng,w:wPx,h:hPx,
+    owner:owner, id:imgClaim.id,
+    claims:groupClaims,
+    imgUrl:imgClaim.imgUrl, originalImgUrl:imgClaim.originalImgUrl,
+    imgScale:imgClaim.imgScale, imgRotate:imgClaim.imgRotate,
+    imgOffsetX:imgClaim.imgOffsetX, imgOffsetY:imgClaim.imgOffsetY,
+    price:groupClaims.reduce(function(s,c){return s+(c.price||0)},0),
+    nickname:imgClaim.nickname, label:imgClaim.label||imgClaim.nickname,
+    link:imgClaim.link, shield:imgClaim.shield,
+    isMerged:groupClaims.length>1,
+    _pixelCount:t.count, _bounds:t
+  };
 }
 
 // ── Stamp Mode State ──
@@ -4115,7 +4403,7 @@ function _attachGlobeClick(){
     lastClickTime=now;
 
     var lat=Math.max(-70,Math.min(70,coords.lat)), lng=coords.lng;
-    var existing=findClaimAt(lat,lng);
+    var existing=findTerritoryAt(lat,lng);
 
     // Double-click: toggle zoom
     if(isDouble){
@@ -4477,7 +4765,8 @@ function showTerritoryInfo(plot){
   document.getElementById('infoCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
   document.getElementById('infoOwner').textContent=plot.nickname||plot.label||shortAddr(plot.owner);
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
-  document.getElementById('infoSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
+  var pxCount=plot._pixelCount||(pw*ph);
+  document.getElementById('infoSize').textContent=pw+'×'+ph+' px ('+pxCount.toLocaleString()+' pixels)';
   document.getElementById('infoPrice').textContent=plot.price+' PP';
   if(plot.link){
     document.getElementById('linkRow').style.display='';
@@ -4533,14 +4822,69 @@ function openImageEditor(plot){
   if(!plot||!plot.id){showToast('Select a territory first','red');return}
   if(!walletState.connected||plot.owner!==walletState.address){showToast('Not your territory','red');return}
   _editor.claim=plot;
-  _editor.scale=100;_editor.rotate=0;_editor.ox=0;_editor.oy=0;_editor.img=null;
-  // Territory dimensions
-  var tw=plot.w||plot.size||20, th=plot.h||plot.size||20;
+  _editor.img=null;_editor.newFileDataUrl=null;
+  // Load saved params if image exists, otherwise defaults
+  if(plot.imgUrl){
+    _editor.scale=plot.imgScale||100;
+    _editor.rotate=-(plot.imgRotate||0); // territory rotation = negated image rotation
+    _editor.ox=plot.imgOffsetX||0;
+    _editor.oy=plot.imgOffsetY||0;
+  }else{
+    _editor.scale=100;_editor.rotate=0;_editor.ox=0;_editor.oy=0;
+  }
+  // Territory dimensions (use bounding box for merged)
+  var tw,th;
+  if(plot._bounds){
+    var b=plot._bounds;
+    var _egs=_actualGridStep||GRID_SIZE;
+    tw=Math.round((b.maxLng-b.minLng)/_egs);
+    th=Math.round((b.maxLat-b.minLat)/_egs);
+    _editor.isMerged=true;
+    // Filter strips for this group's bounding box
+    var allStrips=_globalOwnerStrips[plot.owner]||[];
+    var gs=_egs;
+    _editor.mergedStrips=allStrips.filter(function(s){
+      return s.lat>=b.minLat-gs*0.5&&s.lat<=b.maxLat+gs*0.5&&
+             s.lng1>=b.minLng-gs*0.5&&s.lng2<=b.maxLng+gs*0.5;
+    });
+    _editor.bounds=b;
+    // Find anchor claim (first with imgUrl) for consistent positioning with map
+    var owner=plot.owner;
+    var groups=_ownerGroups[owner]||[];
+    var anchorClaim=null;
+    for(var gi=0;gi<groups.length;gi++){
+      if(groups[gi].bounds===b){
+        var cls=groups[gi].claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
+        for(var ci2=0;ci2<cls.length;ci2++){
+          if(cls[ci2].imgUrl){anchorClaim=cls[ci2];break;}
+        }
+        break;
+      }
+    }
+    if(anchorClaim){
+      // lng/lat are already CENTER coordinates — don't add w/2
+      _editor.anchorX=(anchorClaim.lng-b.minLng)/_egs;
+      _editor.anchorY=(b.maxLat-anchorClaim.lat)/_egs;
+      _editor.anchorClaimW=anchorClaim.w||20;
+      _editor.anchorClaimH=anchorClaim.h||20;
+    }else{
+      _editor.anchorX=tw/2;_editor.anchorY=th/2;
+      _editor.anchorClaimW=tw;_editor.anchorClaimH=th;
+    }
+  }else{
+    tw=plot.w||plot.size||20; th=plot.h||plot.size||20;
+    _editor.isMerged=false;
+    _editor.mergedStrips=null;
+    _editor.bounds=null;
+    _editor.anchorX=tw/2;_editor.anchorY=th/2;
+    _editor.anchorClaimW=tw;_editor.anchorClaimH=th;
+  }
   _editor.maskW=tw;_editor.maskH=th;
-  document.getElementById('editorTerritorySize').textContent=tw+'×'+th+' px';
+  var pxCount=plot._pixelCount||(tw*th);
+  document.getElementById('editorTerritorySize').textContent=tw+'×'+th+' px ('+pxCount.toLocaleString()+')';
   document.getElementById('editorClaimId').textContent='#'+plot.id;
-  document.getElementById('editorScaleLabel').textContent='100%';
-  document.getElementById('editorRotLabel').textContent='0°';
+  document.getElementById('editorScaleLabel').textContent=_editor.scale+'%';
+  document.getElementById('editorRotLabel').textContent=_editor.rotate+'°';
   // Show modal
   document.getElementById('imgEditorModal').classList.add('open');
   // If claim already has image, load it
@@ -4573,7 +4917,7 @@ function _editorResizeCanvas(){
   var padFactor=2.5; // show 2.5x territory size for drag room
   var cw=Math.min(maxW,480);
   var ch=Math.round(cw*Math.min(aspect,1.2));
-  ch=Math.max(ch,240);
+  ch=Math.min(Math.max(ch,200), 320); // cap height so buttons always visible
   canvas.width=cw*2;canvas.height=ch*2; // 2x for retina
   canvas.style.width=cw+'px';canvas.style.height=ch+'px';
   _editor.canvasW=cw*2;_editor.canvasH=ch*2;
@@ -4585,71 +4929,134 @@ function _editorDraw(){
   var W=_editor.canvasW,H=_editor.canvasH;
   ctx.clearRect(0,0,W,H);
 
-  // Territory mask dimensions in canvas space
-  // Scale territory to fit nicely in canvas (60% of canvas width)
-  var fitScale=Math.min(W*0.6/_editor.maskW, H*0.6/_editor.maskH);
-  var mw=_editor.maskW*fitScale, mh=_editor.maskH*fitScale;
-  var mx=(W-mw)/2, my=(H-mh)/2;
-
-  // Draw darkened background
-  ctx.fillStyle='rgba(10,10,18,1)';
+  // Dark background
+  ctx.fillStyle='rgb(10,10,18)';
   ctx.fillRect(0,0,W,H);
 
-  // Draw image (if loaded) clipped to mask
-  if(_editor.img){
-    ctx.save();
-    // Clip to territory rectangle
-    ctx.beginPath();
-    ctx.rect(mx,my,mw,mh);
-    ctx.clip();
-
-    // Image transform: center of mask + user offset
-    var cx=mx+mw/2+_editor.ox*fitScale;
-    var cy=my+mh/2+_editor.oy*fitScale;
-    ctx.translate(cx,cy);
-    ctx.rotate(_editor.rotate*Math.PI/180);
-    var s=_editor.scale/100;
-    // Scale image to cover mask by default
-    var imgCoverScale=Math.max(mw/_editor.img.width, mh/_editor.img.height);
-    var finalScale=imgCoverScale*s;
-    var dw=_editor.img.width*finalScale;
-    var dh=_editor.img.height*finalScale;
-    ctx.drawImage(_editor.img,-dw/2,-dh/2,dw,dh);
-    ctx.restore();
-  }
-
-  // Draw mask overlay (darken outside territory)
-  ctx.fillStyle='rgba(10,10,18,0.75)';
-  ctx.beginPath();
-  ctx.rect(0,0,W,H);
-  // Cut out the territory rectangle
-  ctx.moveTo(mx,my);ctx.lineTo(mx,my+mh);ctx.lineTo(mx+mw,my+mh);ctx.lineTo(mx+mw,my);ctx.closePath();
-  ctx.fill('evenodd');
-
-  // Territory border (dashed orange)
-  ctx.strokeStyle='rgba(255,120,60,0.6)';ctx.lineWidth=2;
-  ctx.setLineDash([6,4]);
-  ctx.strokeRect(mx,my,mw,mh);
-  ctx.setLineDash([]);
-
-  // Corner markers
-  var cm=8;
-  ctx.strokeStyle='rgba(255,160,60,0.9)';ctx.lineWidth=2.5;ctx.setLineDash([]);
-  [[mx,my,1,1],[mx+mw,my,-1,1],[mx,my+mh,1,-1],[mx+mw,my+mh,-1,-1]].forEach(function(p){
-    ctx.beginPath();ctx.moveTo(p[0],p[1]+p[3]*cm);ctx.lineTo(p[0],p[1]);ctx.lineTo(p[0]+p[2]*cm,p[1]);ctx.stroke();
-  });
-
-  // If no image, show upload prompt
   if(!_editor.img){
     ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='bold 14px sans-serif';
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText('Upload an image',W/2,H/2);
+    return;
+  }
+
+  var img=_editor.img;
+  var s=_editor.scale/100;
+
+  // Image fully visible (contain fit — entire image shown, no cropping)
+  var imgCS=Math.min(W/img.width, H/img.height);
+  var imgW=img.width*imgCS, imgH=img.height*imgCS;
+  var imgX=(W-imgW)/2, imgY=(H-imgH)/2;
+
+  // Draw full image dimmed (no rotation — image stays fixed)
+  ctx.save();
+  ctx.globalAlpha=0.3;
+  ctx.drawImage(img,imgX,imgY,imgW,imgH);
+  ctx.restore();
+
+  // Territory window: position and size on the image
+  var gridPx=imgCS/s;
+  var anchorCX=W/2-_editor.ox*imgCS;
+  var anchorCY=H/2-_editor.oy*imgCS;
+  var terrX=anchorCX-_editor.anchorX*gridPx;
+  var terrY=anchorCY-_editor.anchorY*gridPx;
+  var terrW=_editor.maskW*gridPx;
+  var terrH=_editor.maskH*gridPx;
+  // Territory center for rotation pivot
+  var terrCX=terrX+terrW/2, terrCY=terrY+terrH/2;
+  var rotRad=_editor.rotate*Math.PI/180;
+
+  // Rotation helper: rotate point around territory center
+  var cosR=Math.cos(rotRad), sinR=Math.sin(rotRad);
+  function rotPt(x,y){
+    var dx=x-terrCX, dy=y-terrCY;
+    return [terrCX+dx*cosR-dy*sinR, terrCY+dx*sinR+dy*cosR];
+  }
+
+  // Build rotated clip path manually (no transform needed)
+  function _buildRotatedClip(){
+    ctx.beginPath();
+    if(_editor.isMerged&&_editor.bounds&&_editor.claim){
+      var b=_editor.bounds;
+      var owner=_editor.claim.owner;
+      var groups=_ownerGroups[owner]||[];
+      var grp=null;
+      for(var gi=0;gi<groups.length;gi++){if(groups[gi].bounds===b){grp=groups[gi];break;}}
+      if(!grp) grp=groups[0];
+      if(grp){
+        var cls=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
+        var gs2=_actualGridStep||GRID_SIZE;
+        cls.forEach(function(gc){
+          var cw2=gc.w||20,ch2=gc.h||20;
+          var rx=terrX+((gc.lng-b.minLng)/gs2-cw2/2)*gridPx;
+          var ry=terrY+((b.maxLat-gc.lat)/gs2-ch2/2)*gridPx;
+          var rw=cw2*gridPx, rh=ch2*gridPx;
+          var p1=rotPt(rx,ry),p2=rotPt(rx+rw,ry),p3=rotPt(rx+rw,ry+rh),p4=rotPt(rx,ry+rh);
+          ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p2[0],p2[1]);ctx.lineTo(p3[0],p3[1]);ctx.lineTo(p4[0],p4[1]);ctx.closePath();
+        });
+      }
+    }else{
+      var p1=rotPt(terrX,terrY),p2=rotPt(terrX+terrW,terrY);
+      var p3=rotPt(terrX+terrW,terrY+terrH),p4=rotPt(terrX,terrY+terrH);
+      ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p2[0],p2[1]);ctx.lineTo(p3[0],p3[1]);ctx.lineTo(p4[0],p4[1]);ctx.closePath();
+    }
+  }
+
+  // Bright image clipped to rotated territory
+  ctx.save();
+  _buildRotatedClip();
+  ctx.clip();
+  ctx.drawImage(img,imgX,imgY,imgW,imgH);
+  ctx.restore();
+
+  // Territory border
+  ctx.strokeStyle='rgba(255,160,60,0.7)';ctx.lineWidth=2;ctx.setLineDash([]);
+  _buildRotatedClip();
+  ctx.stroke();
+
+  // Corner markers (rotated)
+  var cm=10;
+  ctx.strokeStyle='rgba(255,160,60,0.9)';ctx.lineWidth=2.5;ctx.setLineDash([]);
+  var corners=[[terrX,terrY,1,1],[terrX+terrW,terrY,-1,1],[terrX,terrY+terrH,1,-1],[terrX+terrW,terrY+terrH,-1,-1]];
+  corners.forEach(function(c){
+    var pc=rotPt(c[0],c[1]);
+    var pa=rotPt(c[0]+c[2]*cm,c[1]);
+    var pb=rotPt(c[0],c[1]+c[3]*cm);
+    ctx.beginPath();ctx.moveTo(pb[0],pb[1]);ctx.lineTo(pc[0],pc[1]);ctx.lineTo(pa[0],pa[1]);ctx.stroke();
+  });
+}
+
+// Build territory clip path at given position/scale
+function _editorBuildClip(ctx,terrX,terrY,gridPx){
+  ctx.beginPath();
+  if(_editor.isMerged&&_editor.bounds&&_editor.claim){
+    var b=_editor.bounds;
+    var owner=_editor.claim.owner;
+    var groups=_ownerGroups[owner]||[];
+    var grp=null;
+    for(var gi=0;gi<groups.length;gi++){
+      if(groups[gi].bounds===b){grp=groups[gi];break;}
+    }
+    if(!grp) grp=groups[0];
+    if(grp){
+      var cls=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
+      var gs=_actualGridStep||GRID_SIZE;
+      cls.forEach(function(gc){
+        var cw=gc.w||20,ch=gc.h||20;
+        var colLeft=(gc.lng-b.minLng)/gs-cw/2;
+        var rowTop=(b.maxLat-gc.lat)/gs-ch/2;
+        ctx.rect(terrX+colLeft*gridPx,terrY+rowTop*gridPx,cw*gridPx,ch*gridPx);
+      });
+    }
+  }else{
+    ctx.rect(terrX,terrY,_editor.maskW*gridPx,_editor.maskH*gridPx);
   }
 }
 
 // Editor controls
 function editorZoom(delta){
-  _editor.scale=Math.max(20,Math.min(500,_editor.scale+delta));
+  // Inverted: + makes territory bigger (lower scale), - makes it smaller (higher scale)
+  _editor.scale=Math.max(20,Math.min(500,_editor.scale-delta));
   document.getElementById('editorScaleLabel').textContent=_editor.scale+'%';
   _editorDraw();
 }
@@ -4682,16 +5089,17 @@ function editorReset(){
     getCanvas().style.cursor='grabbing';
   }
   function onMove(e){
-    if(!_editor.dragging) return;
+    if(!_editor.dragging||!_editor.img) return;
     e.preventDefault();
     var p=e.touches?e.touches[0]:e;
-    var fitScale=Math.min(_editor.canvasW*0.6/_editor.maskW, _editor.canvasH*0.6/_editor.maskH);
-    // Convert screen pixels to editor units (accounting for canvas display scaling)
+    // Convert screen pixels to grid units via imgCS (image cover scale)
     var rect=getCanvas().getBoundingClientRect();
     var pixelRatio=_editor.canvasW/(rect.width);
-    var dx=(p.clientX-_editor.lastX)*pixelRatio/fitScale;
-    var dy=(p.clientY-_editor.lastY)*pixelRatio/fitScale;
-    _editor.ox+=dx;_editor.oy+=dy;
+    var imgCS=Math.min(_editor.canvasW/_editor.img.width, _editor.canvasH/_editor.img.height);
+    var dx=(p.clientX-_editor.lastX)*pixelRatio/imgCS;
+    var dy=(p.clientY-_editor.lastY)*pixelRatio/imgCS;
+    // Inverted: dragging moves territory window (opposite of image offset)
+    _editor.ox-=dx;_editor.oy-=dy;
     _editor.lastX=p.clientX;_editor.lastY=p.clientY;
     _editorDraw();
   }
@@ -4738,8 +5146,13 @@ document.addEventListener('DOMContentLoaded',function(){
       var img=new Image();
       img.onload=function(){
         _editor.img=img;
-        _editor.scale=100;_editor.ox=0;_editor.oy=0;_editor.rotate=0;
-        document.getElementById('editorScaleLabel').textContent='100%';
+        _editor.newFileDataUrl=ev.target.result; // track original for upload
+        _editor.ox=0;_editor.oy=0;_editor.rotate=0;
+        // Auto-set scale so territory window fills ~50% of canvas
+        var imgCS=Math.min(_editor.canvasW/img.width, _editor.canvasH/img.height);
+        var autoS=Math.max(_editor.maskW*imgCS/(_editor.canvasW*0.5), _editor.maskH*imgCS/(_editor.canvasH*0.5))*100;
+        _editor.scale=Math.max(20,Math.min(500,Math.round(autoS)));
+        document.getElementById('editorScaleLabel').textContent=_editor.scale+'%';
         document.getElementById('editorRotLabel').textContent='0°';
         document.getElementById('editorUploadArea').style.display='none';
         document.getElementById('editorCanvasWrap').style.display='';
@@ -4753,71 +5166,67 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 
-// Save: render final image at territory pixel size, upload
+// Save: upload ORIGINAL image (not cropped), store params for runtime rendering
 async function saveEditorImage(){
   if(!_editor.img||!_editor.claim){showToast('No image to save','red');return}
   var status=document.getElementById('editorStatus');
   status.style.display='';status.style.background='rgba(255,160,60,.12)';status.style.color='var(--gold)';
-  status.textContent='Rendering & uploading...';
-
-  // Render at actual territory pixel dimensions
-  var tw=_editor.maskW, th=_editor.maskH;
-  var oc=document.createElement('canvas');oc.width=tw;oc.height=th;
-  var octx=oc.getContext('2d');
-
-  // Apply transforms at territory scale
-  var cx=tw/2+_editor.ox;
-  var cy=th/2+_editor.oy;
-  octx.translate(cx,cy);
-  octx.rotate(_editor.rotate*Math.PI/180);
-  var coverScale=Math.max(tw/_editor.img.width, th/_editor.img.height);
-  var s=coverScale*(_editor.scale/100);
-  var dw=_editor.img.width*s;
-  var dh=_editor.img.height*s;
-  octx.drawImage(_editor.img,-dw/2,-dh/2,dw,dh);
-
-  // Get data URL
-  var dataUrl=oc.toDataURL('image/png');
+  status.textContent='Saving...';
 
   try{
-    // Upload image first
-    var upRes=await fetch('/api/upload',{
-      method:'POST',headers:{'Content-Type':'application/json',
-        'Authorization':'Bearer '+(localStorage.getItem('jwt')||'')},
-      body:JSON.stringify({dataUrl:dataUrl})
-    });
-    var upData=await upRes.json();
-    if(!upRes.ok) throw new Error(upData.error||'Upload failed');
+    var originalUrl=_editor.claim.originalImgUrl||_editor.claim.imgUrl||null;
 
-    // Update claim with image URL and editor params
-    var putRes=await fetch('/api/claim/'+_editor.claim.id+'/image',{
-      method:'PUT',headers:{'Content-Type':'application/json',
-        'Authorization':'Bearer '+(localStorage.getItem('jwt')||'')},
-      body:JSON.stringify({
-        wallet:walletState.address,
-        imageUrl:upData.url,
-        originalImageUrl:upData.url,
-        imgScale:_editor.scale,
-        imgRotate:_editor.rotate,
-        imgOffsetX:Math.round(_editor.ox),
-        imgOffsetY:Math.round(_editor.oy)
-      })
+    // Only upload if user picked a new file
+    if(_editor.newFileDataUrl){
+      var upRes=await fetch('/api/upload',{
+        method:'POST',headers:{'Content-Type':'application/json',
+          'Authorization':'Bearer '+(localStorage.getItem('jwt')||'')},
+        body:JSON.stringify({dataUrl:_editor.newFileDataUrl})
+      });
+      var upData=await upRes.json();
+      if(!upRes.ok) throw new Error(upData.error||'Upload failed');
+      originalUrl=upData.url;
+    }
+
+    if(!originalUrl) throw new Error('No image URL');
+
+    // Update ALL claims with ORIGINAL image URL + editor params (no cropping)
+    var allClaims=(_editor.claim.claims||[_editor.claim]);
+    var imgBody=JSON.stringify({
+      wallet:walletState.address,
+      imageUrl:originalUrl,
+      originalImageUrl:originalUrl,
+      imgScale:_editor.scale,
+      imgRotate:-_editor.rotate,
+      imgOffsetX:Math.round(_editor.ox),
+      imgOffsetY:Math.round(_editor.oy)
     });
-    var putData=await putRes.json();
-    if(!putRes.ok) throw new Error(putData.error||'Save failed');
+    var putPromises=allClaims.map(function(ac){
+      return fetch('/api/claim/'+ac.id+'/image',{
+        method:'PUT',headers:{'Content-Type':'application/json',
+          'Authorization':'Bearer '+(localStorage.getItem('jwt')||'')},
+        body:imgBody
+      }).then(function(r){return r.json()});
+    });
+    var putResults=await Promise.all(putPromises);
+    var anyFail=putResults.find(function(r){return r.error});
+    if(anyFail) throw new Error(anyFail.error||'Save failed');
 
     status.style.background='rgba(76,216,154,.12)';status.style.color='var(--grn)';
     status.textContent='Image saved successfully!';
 
-    // Update local claim data
-    var c=_editor.claim;
-    c.imgUrl=upData.url;c.originalImgUrl=upData.url;
+    // Update local claim data — keep original URL intact
+    allClaims.forEach(function(ac){
+      ac.imgUrl=originalUrl;ac.originalImgUrl=originalUrl;
+      ac.imgScale=_editor.scale;ac.imgRotate=-_editor.rotate;
+      ac.imgOffsetX=Math.round(_editor.ox);ac.imgOffsetY=Math.round(_editor.oy);
+    });
+    _editor.newFileDataUrl=null;
     // Reload texture
-    cacheImage(upData.url,function(){
+    cacheImage(originalUrl,function(){
       claimsSnapshot=null;compositeClaimsOnTexture();
     });
-    // Update territory info panel
-    showTerritoryInfo(c);
+    showTerritoryInfo(_editor.claim);
     setTimeout(function(){closeImageEditor()},1200);
   }catch(err){
     status.style.background='rgba(232,72,85,.12)';status.style.color='var(--red)';
@@ -5335,9 +5744,8 @@ async function confirmClaim(){
     }
     claimsSnapshot=null;
     compositeClaimsOnTexture();
-    totalClaimed++;totalVolume+=d.totalCost;
-    document.getElementById('statPlots').textContent=totalClaimed;
-    document.getElementById('statTVL').textContent='$'+totalVolume.toLocaleString();
+    if(d.totalPixelsSold!=null) document.getElementById('statPlots').textContent=fmtNum(d.totalPixelsSold);
+    if(d.totalVolume!=null) document.getElementById('statTVL').textContent='$'+fmtNum(d.totalVolume);
 
     if(hasBattle){
       var feedMsg='⚔ BATTLE: won '+d.attackWon+'/'+d.overlapCount+'px, claimed '+d.newCount+'px new';
