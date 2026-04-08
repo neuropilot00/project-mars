@@ -898,7 +898,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
 // ══════════════════════════════════════════════════
 router.put('/claim/:id/image', writeLimiter, async (req, res) => {
   const claimId = parseInt(req.params.id);
-  const { wallet, imageUrl, originalImageUrl, imgScale, imgRotate, imgOffsetX, imgOffsetY } = req.body;
+  const { wallet, imageUrl, originalImageUrl, imgScale, imgRotate, imgOffsetX, imgOffsetY, linkUrl } = req.body;
   if (!wallet || !claimId) return res.status(400).json({ error: 'Missing fields' });
 
   const safeImageUrl = sanitizeUrl(imageUrl, true);
@@ -906,6 +906,7 @@ router.put('/claim/:id/image', writeLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Invalid image URL' });
   }
   const safeOriginalImageUrl = sanitizeUrl(originalImageUrl, true) || null;
+  const safeLinkUrl = linkUrl !== undefined ? (sanitizeUrl(linkUrl, false) || null) : undefined;
 
   try {
     // Verify ownership
@@ -918,7 +919,7 @@ router.put('/claim/:id/image', writeLimiter, async (req, res) => {
       return res.status(403).json({ error: 'Not your claim' });
     }
 
-    // Update image and editing params
+    // Update image, editing params, and link
     await pool.query(
       `UPDATE claims SET
         image_url = COALESCE($1, image_url),
@@ -926,14 +927,16 @@ router.put('/claim/:id/image', writeLimiter, async (req, res) => {
         img_scale = COALESCE($3, img_scale),
         img_rotate = COALESCE($4, img_rotate),
         img_offset_x = COALESCE($5, img_offset_x),
-        img_offset_y = COALESCE($6, img_offset_y)
+        img_offset_y = COALESCE($6, img_offset_y),
+        link_url = COALESCE($8, link_url)
       WHERE id = $7`,
       [safeImageUrl, safeOriginalImageUrl,
        imgScale != null ? imgScale : null,
        imgRotate != null ? imgRotate : null,
        imgOffsetX != null ? imgOffsetX : null,
        imgOffsetY != null ? imgOffsetY : null,
-       claimId]
+       claimId,
+       safeLinkUrl !== undefined ? safeLinkUrl : null]
     );
 
     res.json({ success: true, claimId });
