@@ -2305,9 +2305,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               </div>
               <div class="crash-sidebar">
                 <div class="crash-sb-title">CRASH</div>
-                <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BETS THIS ROUND</div>
-                <div class="crash-bets-list" id="crashBetsList" style="flex:1;overflow-y:auto;min-height:60px"></div>
-                <div class="divider"></div>
                 <div style="display:flex;justify-content:space-between;align-items:center">
                   <span style="font-size:var(--fs-xs);color:var(--tx3)">BET AMOUNT</span>
                   <div class="cur-toggle" id="crashCurToggle">
@@ -2335,6 +2332,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 <button class="btn-bet place" id="crashBetBtn" onclick="placeCrashBet()">
                   PLACE BET
                 </button>
+                <div class="divider"></div>
+                <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BETS THIS ROUND</div>
+                <div class="crash-bets-list" id="crashBetsList" style="flex:1;overflow-y:auto"></div>
               </div>
             </div>
           </div>
