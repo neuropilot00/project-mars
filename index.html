@@ -2274,29 +2274,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="game-tabs">
           <div class="game-tab active" data-game="crash" onclick="switchGame('crash')">CRASH</div>
           <div class="game-tab" data-game="mines" onclick="switchGame('mines')">MINES</div>
-          <div class="game-tab" data-game="coinflip" onclick="switchGame('coinflip')">COINFLIP</div>
-          <div class="game-tab" data-game="dice" onclick="switchGame('dice')">DICE</div>
+          <div class="game-tab" data-game="coinflip" onclick="switchGame('coinflip')">SANDSTORM</div>
+          <div class="game-tab" data-game="dice" onclick="switchGame('dice')">METEORITE</div>
           <div class="game-tab" data-game="hilo" onclick="switchGame('hilo')">HI-LO</div>
         </div>
         <div class="game-area">
 
           <!-- CRASH PANEL -->
           <div class="game-panel active" id="panelCrash">
-            <div class="crash-guide" id="crashGuide">
-              <div class="crash-guide-steps">
-                <div class="crash-guide-step"><span class="step-num">1</span> BET</div>
-                <div class="crash-guide-step"><span class="step-arrow">&rarr;</span></div>
-                <div class="crash-guide-step"><span class="step-num">2</span> WATCH MULTIPLIER RISE</div>
-                <div class="crash-guide-step"><span class="step-arrow">&rarr;</span></div>
-                <div class="crash-guide-step"><span class="step-num">3</span> CASHOUT BEFORE CRASH!</div>
-                <div class="crash-guide-step"><span class="step-arrow">|</span></div>
-                <div class="crash-guide-step" style="color:var(--tx3)">Too late = lose bet</div>
-              </div>
-              <span class="crash-guide-toggle" onclick="this.parentElement.style.display='none'">HIDE</span>
-            </div>
-            <div class="crash-history" id="crashHistory"></div>
             <div class="crash-wrap">
               <div class="crash-main">
+                <div class="crash-guide" id="crashGuide">
+                  <div class="crash-guide-steps">
+                    <div class="crash-guide-step"><span class="step-num">1</span> BET</div>
+                    <div class="crash-guide-step"><span class="step-arrow">→</span></div>
+                    <div class="crash-guide-step"><span class="step-num">2</span> WATCH RISE</div>
+                    <div class="crash-guide-step"><span class="step-arrow">→</span></div>
+                    <div class="crash-guide-step"><span class="step-num">3</span> CASHOUT!</div>
+                  </div>
+                  <span class="crash-guide-toggle" onclick="this.parentElement.style.display='none'">✕</span>
+                </div>
+                <div class="crash-history" id="crashHistory"></div>
                 <div class="crash-canvas-wrap">
                   <canvas id="crashCanvas"></canvas>
                   <div class="crash-mult-overlay">
@@ -2304,43 +2302,39 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                     <div class="crash-status-text" id="crashStatusText" style="color:var(--tx3)">Next round starting soon</div>
                   </div>
                 </div>
-                <div class="crash-controls">
-                  <div class="crash-bet-panel">
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                      <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
-                      <div class="cur-toggle" id="crashCurToggle">
-                        <button class="cur-opt active" data-cur="PP" onclick="setCrashCur('PP')">PP</button>
-                        <button class="cur-opt usdt" data-cur="USDT" onclick="setCrashCur('USDT')">USDT</button>
-                      </div>
-                    </div>
-                    <div class="crash-bet-row">
-                      <input type="number" class="crash-input" id="crashBetInput" value="1" min="0.1" step="0.1" placeholder="Bet...">
-                      <button class="crash-quick-btn" onclick="qCrash(0.1)">0.1</button>
-                      <button class="crash-quick-btn" onclick="qCrash(0.5)">0.5</button>
-                      <button class="crash-quick-btn" onclick="qCrash(1)">1</button>
-                      <button class="crash-quick-btn" onclick="qCrash(3)">3</button>
-                      <button class="crash-quick-btn" onclick="qCrash(5)">5</button>
-                      <button class="crash-quick-btn" onclick="qCrash(10)">10</button>
-                      <button class="crash-quick-btn" onclick="qCrash(25)">25</button>
-                      <button class="crash-quick-btn" onclick="qCrash(50)">50</button>
-                    </div>
-                    <div class="auto-cashout-wrap">
-                      <span style="font-size:var(--fs-xs);color:var(--tx3);white-space:nowrap">AUTO CASHOUT</span>
-                      <div class="auto-toggle" id="autoToggle" onclick="toggleAutoCashout()">
-                        <div class="auto-toggle-dot"></div>
-                      </div>
-                      <input type="number" class="auto-cashout-input" id="crashAutoInput"
-                        value="2.0" min="1.1" step="0.1" placeholder="2.0">
-                    </div>
-                    <button class="btn-bet place" id="crashBetBtn" onclick="placeCrashBet()">
-                      PLACE BET
-                    </button>
-                  </div>
-                </div>
               </div>
               <div class="crash-sidebar">
-                <div class="crash-sb-title">BETS THIS ROUND</div>
-                <div class="crash-bets-list" id="crashBetsList"></div>
+                <div class="crash-sb-title">CRASH</div>
+                <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BETS THIS ROUND</div>
+                <div class="crash-bets-list" id="crashBetsList" style="flex:1;overflow-y:auto;min-height:60px"></div>
+                <div class="divider"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:var(--fs-xs);color:var(--tx3)">BET AMOUNT</span>
+                  <div class="cur-toggle" id="crashCurToggle">
+                    <button class="cur-opt active" data-cur="PP" onclick="setCrashCur('PP')">PP</button>
+                    <button class="cur-opt usdt" data-cur="USDT" onclick="setCrashCur('USDT')">USDT</button>
+                  </div>
+                </div>
+                <div class="crash-bet-row">
+                  <input type="number" class="crash-input" id="crashBetInput" value="1" min="0.1" step="0.1" placeholder="Bet...">
+                  <button class="crash-quick-btn" onclick="qCrash(0.1)">0.1</button>
+                  <button class="crash-quick-btn" onclick="qCrash(0.5)">0.5</button>
+                  <button class="crash-quick-btn" onclick="qCrash(1)">1</button>
+                  <button class="crash-quick-btn" onclick="qCrash(5)">5</button>
+                  <button class="crash-quick-btn" onclick="qCrash(10)">10</button>
+                  <button class="crash-quick-btn" onclick="qCrash(50)">50</button>
+                </div>
+                <div class="auto-cashout-wrap">
+                  <span style="font-size:var(--fs-xs);color:var(--tx3);white-space:nowrap">AUTO CASHOUT</span>
+                  <div class="auto-toggle" id="autoToggle" onclick="toggleAutoCashout()">
+                    <div class="auto-toggle-dot"></div>
+                  </div>
+                  <input type="number" class="auto-cashout-input" id="crashAutoInput"
+                    value="2.0" min="1.1" step="0.1" placeholder="2.0">
+                </div>
+                <button class="btn-bet place" id="crashBetBtn" onclick="placeCrashBet()">
+                  PLACE BET
+                </button>
               </div>
             </div>
           </div>
@@ -2353,40 +2347,32 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               </div>
               <div class="mines-sidebar">
                 <div class="mines-sb-title">MINES</div>
-                <div>
-                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-                    <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
-                    <div class="cur-toggle" id="minesCurToggle">
-                      <button class="cur-opt active" data-cur="PP" onclick="setMinesCur('PP')">PP</button>
-                      <button class="cur-opt usdt" data-cur="USDT" onclick="setMinesCur('USDT')">USDT</button>
-                    </div>
-                  </div>
-                  <div style="display:flex;justify-content:center;margin-bottom:6px">
-                    <input type="number" class="crash-input" id="minesBetInput" value="1" min="0.1" step="0.1" placeholder="Bet..." style="width:100%;flex:1;text-align:center;font-size:var(--fs-xl)">
-                  </div>
-                  <div style="display:flex;gap:4px;justify-content:center">
-                    <button class="crash-quick-btn" onclick="qMines(0.1)">0.1</button>
-                    <button class="crash-quick-btn" onclick="qMines(0.5)">0.5</button>
-                    <button class="crash-quick-btn" onclick="qMines(1)">1</button>
-                    <button class="crash-quick-btn" onclick="qMines(3)">3</button>
-                    <button class="crash-quick-btn" onclick="qMines(5)">5</button>
-                    <button class="crash-quick-btn" onclick="qMines(10)">10</button>
-                    <button class="crash-quick-btn" onclick="qMines(25)">25</button>
-                    <button class="crash-quick-btn" onclick="qMines(50)">50</button>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:var(--fs-xs);color:var(--tx3)">BET AMOUNT</span>
+                  <div class="cur-toggle" id="minesCurToggle">
+                    <button class="cur-opt active" data-cur="PP" onclick="setMinesCur('PP')">PP</button>
+                    <button class="cur-opt usdt" data-cur="USDT" onclick="setMinesCur('USDT')">USDT</button>
                   </div>
                 </div>
+                <div class="crash-bet-row">
+                  <input type="number" class="crash-input" id="minesBetInput" value="1" min="0.1" step="0.1" placeholder="Bet...">
+                  <button class="crash-quick-btn" onclick="qMines(0.1)">0.1</button>
+                  <button class="crash-quick-btn" onclick="qMines(0.5)">0.5</button>
+                  <button class="crash-quick-btn" onclick="qMines(1)">1</button>
+                  <button class="crash-quick-btn" onclick="qMines(5)">5</button>
+                  <button class="crash-quick-btn" onclick="qMines(10)">10</button>
+                  <button class="crash-quick-btn" onclick="qMines(50)">50</button>
+                </div>
                 <div class="divider"></div>
-                <div>
-                  <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px;margin-bottom:6px">MINES COUNT</div>
-                  <div class="mines-count-row" id="minesCountRow">
-                    <button class="mc-btn" data-mc="1" onclick="setMineCount(1)">1</button>
-                    <button class="mc-btn" data-mc="3" onclick="setMineCount(3)">3</button>
-                    <button class="mc-btn active" data-mc="5" onclick="setMineCount(5)">5</button>
-                    <button class="mc-btn" data-mc="10" onclick="setMineCount(10)">10</button>
-                    <button class="mc-btn" data-mc="15" onclick="setMineCount(15)">15</button>
-                    <button class="mc-btn" data-mc="20" onclick="setMineCount(20)">20</button>
-                    <button class="mc-btn" data-mc="24" onclick="setMineCount(24)">24</button>
-                  </div>
+                <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">MINES COUNT</div>
+                <div class="mines-count-row" id="minesCountRow">
+                  <button class="mc-btn" data-mc="1" onclick="setMineCount(1)">1</button>
+                  <button class="mc-btn" data-mc="3" onclick="setMineCount(3)">3</button>
+                  <button class="mc-btn active" data-mc="5" onclick="setMineCount(5)">5</button>
+                  <button class="mc-btn" data-mc="10" onclick="setMineCount(10)">10</button>
+                  <button class="mc-btn" data-mc="15" onclick="setMineCount(15)">15</button>
+                  <button class="mc-btn" data-mc="20" onclick="setMineCount(20)">20</button>
+                  <button class="mc-btn" data-mc="24" onclick="setMineCount(24)">24</button>
                 </div>
                 <div class="divider"></div>
                 <div class="mines-info" id="minesInfo">
@@ -2429,7 +2415,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 </div>
               </div>
               <div class="cf-sidebar">
-                <div class="cf-sb-title">COINFLIP</div>
+                <div class="cf-sb-title">SANDSTORM</div>
                 <div>
                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
                     <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
@@ -2507,7 +2493,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 </div>
               </div>
               <div class="dice-sidebar">
-                <div class="dice-sb-title">DICE</div>
+                <div class="dice-sb-title">METEORITE</div>
                 <div>
                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
                     <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
@@ -3118,9 +3104,8 @@ function compositeClaimsOnTexture(previewOnly){
     // Strip → screen rect
     var _pxDeg=w/360, _gs=_actualGridStep;
     function _sRect(s){
-      var cl=Math.cos(s.lat*Math.PI/180); if(cl<0.15)cl=0.15;
       var dw=s.lng2-s.lng1+_gs;
-      var pw=dw*_pxDeg/cl, ph=_gs*_pxDeg;
+      var pw=dw*_pxDeg, ph=_gs*_pxDeg;
       var cx=((s.lng1+s.lng2)/2+180)/360*w;
       var cy=(90-s.lat)/180*h;
       return{x:cx-pw/2,y:cy-ph/2,w:pw,h:ph};
@@ -8887,7 +8872,7 @@ function renderHiloCards() {
     var el = document.createElement('div');
     el.className = 'hilo-card-sm';
     var suitIcon = HILO_SUIT_ICONS[card.suit] || card.suit;
-    el.innerHTML = '<span class="hc-val">' + card.display + '</span><span class="hc-suit">' + suitIcon + '</span>';
+    el.innerHTML = '<span class="hc-val">' + (card.display || card.name) + '</span><span class="hc-suit">' + suitIcon + '</span>';
     area.appendChild(el);
   });
 }
@@ -8898,7 +8883,7 @@ function updateHiloDisplay() {
   if (bigCard) {
     if (card) {
       var suitIcon = HILO_SUIT_ICONS[card.suit] || card.suit;
-      bigCard.querySelector('.hilo-card-val').textContent = card.display;
+      bigCard.querySelector('.hilo-card-val').textContent = card.display || card.name;
       bigCard.querySelector('.hilo-card-suit').textContent = suitIcon + ' ' + (card.suit || '').toUpperCase();
       bigCard.classList.add('reveal');
       setTimeout(function(){ bigCard.classList.remove('reveal'); }, 500);
