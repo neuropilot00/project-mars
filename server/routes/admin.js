@@ -936,6 +936,116 @@ router.delete('/claims/:id', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+//  RESET CLAIMS + NPC DEPLOYMENT
+// ══════════════════════════════════════════════════
+
+// POST /admin/api/reset-claims — Delete all claims & pixels, optionally deploy NPCs
+router.post('/reset-claims', async (req, res) => {
+  const { keepUsers = true, deployNpcs = true } = req.body || {};
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1. Delete all pixels
+    const pxDel = await client.query('DELETE FROM pixels');
+
+    // 2. Delete shields linked to claims
+    await client.query('DELETE FROM pixel_shields');
+
+    // 3. Soft-delete all claims (or hard-delete)
+    const clDel = await client.query("UPDATE claims SET deleted_at = NOW() WHERE deleted_at IS NULL");
+
+    let npcCount = 0;
+
+    // 4. Deploy NPCs if requested
+    if (deployNpcs) {
+      const GRID_SIZE = 0.22;
+      const NPC_TERRITORIES = [
+        // Major landmarks
+        { name: 'olympus_mons', lat: 18.65, lng: -133.8, w: 30, h: 30 },
+        { name: 'valles_marineris', lat: -14.0, lng: -59.0, w: 40, h: 15 },
+        { name: 'elysium_mons', lat: 25.02, lng: 147.2, w: 25, h: 25 },
+        { name: 'hellas_basin', lat: -42.4, lng: 70.5, w: 35, h: 30 },
+        { name: 'tharsis_ridge', lat: -1.0, lng: -112.0, w: 25, h: 20 },
+        { name: 'syrtis_major', lat: 8.4, lng: 69.5, w: 20, h: 25 },
+        { name: 'arcadia_plains', lat: 47.2, lng: -176.0, w: 30, h: 20 },
+        { name: 'chryse_landing', lat: 22.5, lng: -49.8, w: 20, h: 20 },
+        { name: 'utopia_basin', lat: 49.7, lng: 118.0, w: 30, h: 25 },
+        { name: 'argyre_crater', lat: -49.7, lng: -43.0, w: 25, h: 25 },
+        { name: 'isidis_plains', lat: 12.9, lng: 87.0, w: 20, h: 20 },
+        { name: 'gale_crater', lat: -5.4, lng: 137.8, w: 15, h: 15 },
+        { name: 'jezero_delta', lat: 18.4, lng: 77.7, w: 15, h: 15 },
+        { name: 'amazonis_flats', lat: 0.0, lng: -160.0, w: 25, h: 20 },
+        { name: 'noachis_terra', lat: -45.0, lng: -10.0, w: 25, h: 20 },
+        { name: 'arabia_terra', lat: 20.0, lng: 5.0, w: 20, h: 25 },
+        { name: 'acidalia_sea', lat: 46.7, lng: -22.0, w: 25, h: 20 },
+        { name: 'cimmeria_ridge', lat: -35.0, lng: 145.0, w: 20, h: 20 },
+        { name: 'tyrrhena_mesa', lat: -15.0, lng: 105.0, w: 20, h: 15 },
+        { name: 'solis_planum', lat: -25.0, lng: -85.0, w: 20, h: 20 },
+      ];
+
+      for (const npc of NPC_TERRITORIES) {
+        const owner = '0xnpc_' + npc.name;
+
+        // Insert claim
+        const claimRes = await client.query(
+          `INSERT INTO claims (owner, center_lat, center_lng, width, height, price_paid, pay_method)
+           VALUES ($1, $2, $3, $4, $5, 0, 'free') RETURNING id`,
+          [owner, npc.lat, npc.lng, npc.w, npc.h]
+        );
+        const claimId = claimRes.rows[0].id;
+
+        // Insert pixels
+        const halfW = (npc.w * GRID_SIZE) / 2;
+        const halfH = (npc.h * GRID_SIZE) / 2;
+        const startLat = Math.ceil((npc.lat - halfH) / GRID_SIZE) * GRID_SIZE;
+        const startLng = Math.ceil((npc.lng - halfW) / GRID_SIZE) * GRID_SIZE;
+        const maxLat = npc.lat + halfH;
+        const maxLng = npc.lng + halfW;
+
+        const pixelValues = [];
+        const pixelParams = [];
+        let pi = 0;
+        for (let plat = startLat; plat < maxLat; plat += GRID_SIZE) {
+          for (let plng = startLng; plng < maxLng; plng += GRID_SIZE) {
+            const sLat = Math.round(plat * 100) / 100;
+            const sLng = Math.round(plng * 100) / 100;
+            if (sLat >= -70 && sLat <= 70) {
+              pixelValues.push(`($${pi*4+1}, $${pi*4+2}, $${pi*4+3}, $${pi*4+4})`);
+              pixelParams.push(sLat, sLng, owner, 0);
+              pi++;
+            }
+          }
+        }
+        if (pixelValues.length > 0) {
+          await client.query(
+            `INSERT INTO pixels (lat, lng, owner, price) VALUES ${pixelValues.join(',')}
+             ON CONFLICT (lat, lng) DO UPDATE SET owner = EXCLUDED.owner, price = EXCLUDED.price`,
+            pixelParams
+          );
+        }
+        npcCount++;
+      }
+    }
+
+    await client.query('COMMIT');
+    console.log(`[Admin] Reset: ${clDel.rowCount} claims deleted, ${pxDel.rowCount} pixels removed, ${npcCount} NPCs deployed`);
+    res.json({
+      success: true,
+      claimsDeleted: clDel.rowCount,
+      pixelsRemoved: pxDel.rowCount,
+      npcsDeployed: npcCount
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[Admin] Reset error:', e.message);
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// ══════════════════════════════════════════════════
 //  ITEM SHOP MANAGEMENT
 // ══════════════════════════════════════════════════
 

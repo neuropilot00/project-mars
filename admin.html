@@ -528,6 +528,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
       <div class="sec-tools">
         <input class="adm-input" id="claimSearch" placeholder="Search owner..." oninput="loadClaims()" style="width:160px">
         <button class="adm-btn primary" onclick="loadClaims()">REFRESH</button>
+        <button class="adm-btn" style="background:var(--red);border-color:var(--red)" onclick="resetAllClaims()">RESET ALL + NPC</button>
         <span style="font-size:6px;color:var(--tx3)" id="claimCount">--</span>
       </div>
     </div>
@@ -1520,6 +1521,21 @@ function clearErrors() {
 // ── Claims Management ──
 var _claimsLoaded = false;
 var claimPage = 1;
+
+function resetAllClaims() {
+  if (!confirm('⚠️ WARNING: This will DELETE all claims and pixels, then deploy 20 NPC territories.\n\nUser accounts and balances will be preserved.\n\nAre you sure?')) return;
+  if (!confirm('FINAL CONFIRMATION: Type OK to proceed with full claim reset.')) return;
+  fetch('/admin/api/reset-claims', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({ keepUsers: true, deployNpcs: true })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.error) { alert('Error: ' + d.error); return; }
+    alert('Reset complete!\n\nClaims deleted: ' + d.claimsDeleted + '\nPixels removed: ' + d.pixelsRemoved + '\nNPCs deployed: ' + d.npcsDeployed);
+    loadClaims();
+    loadStats();
+  }).catch(function(e) { alert('Reset failed: ' + e.message); });
+}
 
 function loadClaims() {
   _claimsLoaded = true;
