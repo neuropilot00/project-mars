@@ -4488,7 +4488,7 @@ function _updateMobLabels(){
     var pov=globe.pointOfView();
     var alt=pov.altitude||1;
     // Rough: at altitude a, 1px screen ≈ k degrees
-    var degPerPx=alt*0.15;
+    var degPerPx=alt*0.07;
     var dlng=(tx-lastTouch.x)*degPerPx;
     var dlat=-(ty-lastTouch.y)*degPerPx;
     lastTouch={x:tx,y:ty};
