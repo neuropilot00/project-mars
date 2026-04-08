@@ -3818,10 +3818,10 @@ _initStep1();
 /* ── Territory Data ──────────────────────────────── */
 var PIXEL_PRICE=0.1;       // $0.1 per pixel
 var HIJACK_MULT=1.2;
-var GRID_SIZE=0.1;         // 0.1° per pixel-cell
-// lat ±70° = 140° / 0.1 = 1400 rows
-// lng ±180° = 360° / 0.1 = 3600 cols
-// Total: 1400 × 3600 = 5,040,000 ≈ ★ 5 MILLION PIXELS ★
+var GRID_SIZE=0.22;        // 0.22° per pixel-cell (must match server)
+// lat ±70° = 140° / 0.22 ≈ 636 rows
+// lng ±180° = 360° / 0.22 ≈ 1636 cols
+// Total ≈ 1,040,000 PIXELS
 // Price: $0.1/px → 1×1=$0.1, 10×10=$10, 100×100=$1000
 
 var claims=[];
@@ -4265,9 +4265,10 @@ function _findGroupAt(owner,lat,lng){
 // Find merged territory at coords (pixel-accurate, returns merged plot for connected group)
 function findTerritoryAt(lat,lng){
   // Check pixelGrid first for pixel-accurate hit
-  var snapLat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
+  var gs=_actualGridStep||GRID_SIZE;
+  var snapLat=Math.round(lat/gs)*gs;
   snapLat=Math.round(snapLat*100)/100;
-  var snapLng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
+  var snapLng=Math.round(lng/gs)*gs;
   snapLng=Math.round(snapLng*100)/100;
   var px=pixelGrid[pxKey(snapLat,snapLng)];
   if(px&&px.owner) return _buildMergedPlot(px.owner,lat,lng);
