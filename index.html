@@ -6049,14 +6049,33 @@ async function confirmClaim(){
       });
     }
     if(d.wonPixels){
+      // Track which old claims lost pixels
+      var _lostClaimIds={};
       d.wonPixels.forEach(function(p){
         var k=pxKey(p[0],p[1]);
         var existing=pixelGrid[k];
+        // Track old claimId for cleanup
+        if(existing&&existing.claimId&&existing.claimId!==-1) _lostClaimIds[existing.claimId]=true;
         var newPrice=existing? existing.price*HIJACK_MULT : PIXEL_PRICE;
         var entry={owner:myAddr,price:newPrice,claimIdx:claimIdx,claimId:d.claimId};
         pixelGrid[k]=entry;
         _serverPixels[k]=entry;
       });
+      // Check if old claims lost ALL their pixels — if so, remove from claims array
+      for(var _lcId in _lostClaimIds){
+        var lcIdN=parseInt(_lcId);
+        // Count remaining pixels for this claim
+        var remaining=0;
+        for(var _pk in _serverPixels){
+          if(_serverPixels[_pk].claimId===lcIdN) remaining++;
+        }
+        if(remaining===0){
+          // All pixels hijacked — mark claim as dead
+          for(var _ci2=0;_ci2<claims.length;_ci2++){
+            if(claims[_ci2].id===lcIdN){ claims[_ci2].owner='__dead__'; break; }
+          }
+        }
+      }
     }
     if(!d.newPixels&&!d.wonPixels&&d.overlapCount===0){
       var pixels=getClaimPixels(selectedPlot.lat,selectedPlot.lng,cw,ch);
@@ -7474,12 +7493,24 @@ function renderSectorList(sectors){
     html+='<div class="sc-stat"><span class="sc-stat-label">CUR. PRICE</span><span class="sc-stat-val" style="color:var(--gn)">$'+s.currentPrice.toFixed(4)+'</span></div>';
     html+='<div class="sc-stat"><span class="sc-stat-label">OWNERS</span><span class="sc-stat-val">'+s.stats.uniqueOwners+'</span></div>';
     html+='</div>';
-    // Top holder / Governor
+    // Top holder / Governor / Tax
     if(s.topHolder){
       html+='<div class="sc-stats" style="margin-top:2px">';
-      html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">TOP HOLDER</span><span class="sc-stat-val" style="font-size:10px">'+s.topHolder.wallet+' ('+s.topHolder.pixels+'px)</span></div>';
-      if(s.governor) html+='<div class="sc-stat"><span class="sc-stat-label">GOVERNOR</span><span class="sc-stat-val" style="color:var(--gold);font-size:10px">'+s.governor.wallet+'</span></div>';
+      html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">TOP HOLDER / GOVERNOR</span><span class="sc-stat-val" style="font-size:10px;color:var(--gold)">'+s.topHolder.wallet+' ('+s.topHolder.pixels+'px)</span></div>';
+      html+='<div class="sc-stat"><span class="sc-stat-label">TAX RATE</span><span class="sc-stat-val" style="color:var(--cyan)">'+(s.taxRate||2)+'%</span></div>';
+      if(s.viceGovernor) html+='<div class="sc-stat"><span class="sc-stat-label">VICE GOV</span><span class="sc-stat-val" style="font-size:10px">'+s.viceGovernor+'</span></div>';
       html+='</div>';
+    }
+    // Active buffs
+    if(s.activeBuffs&&s.activeBuffs.length>0){
+      var buffIcons={mining_boost:'⛏️+20%',defense_bonus:'🛡️+10%',claim_discount:'💰-10%'};
+      html+='<div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">';
+      s.activeBuffs.forEach(function(b){ html+='<span style="font-size:9px;padding:2px 6px;background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.2);border-radius:4px;color:var(--cyan);font-family:var(--fn)">'+(buffIcons[b.buff_type]||b.buff_type)+'</span>'; });
+      html+='</div>';
+    }
+    // Sector announcement
+    if(s.announcement){
+      html+='<div style="font-size:9px;color:var(--gold);margin-top:4px;font-style:italic;font-family:var(--fn)">"'+s.announcement+'"</div>';
     }
     // My holdings
     if(s.myPixels>0){
@@ -9238,6 +9269,13 @@ window.addEventListener('resize', function(){
     sessionStorage.setItem('announce_dismissed', _announceDismissed||'');
   };
 
+  // Governance UI state
+  var _govState = null;
+  function _updateGovernanceUI(gov) {
+    _govState = gov;
+    // TODO: render governance banners, commander info, active events
+  }
+
   function fetchAnnounce(){
     fetch('/api/config').then(function(r){return r.json()}).then(function(cfg){
       if(cfg && cfg.announcement) showAnnounce(cfg.announcement);
@@ -9249,6 +9287,8 @@ window.addEventListener('resize', function(){
       if(cfg.pixelBasePrice) PIXEL_PRICE=cfg.pixelBasePrice;
       if(cfg.hijackMultiplier) HIJACK_MULT=cfg.hijackMultiplier;
       if(cfg.sectorPrices) SECTOR_PRICES=cfg.sectorPrices;
+      // Governance state
+      if(cfg.governance) _updateGovernanceUI(cfg.governance);
     }).catch(function(){});
   }
 

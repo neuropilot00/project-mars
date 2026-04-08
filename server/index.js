@@ -61,6 +61,7 @@ const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const arenaRoutes = require('./routes/arena');
+const governanceRoutes = require('./routes/governance');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -146,6 +147,7 @@ app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
 app.use('/api/arena', arenaRoutes);
+app.use('/api/governance', governanceRoutes);
 
 // ── Static files (index.html, admin.html, assets) ──
 app.use(express.static(path.join(__dirname, '..'), {

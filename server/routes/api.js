@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode, awardXP } = require('../db');
 const { generateWithdrawSignature, CHAINS } = require('../services/signer');
+const { recalculateGovernor, recalculateCommander, collectTax, getActiveSectorBuffs, hasActiveEvent } = require('../services/governance');
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -209,6 +210,11 @@ router.get('/config', readLimiter, async (req, res) => {
     const events = await getActiveEvents();
     const bonusPct = await getDepositBonusPercent();
 
+    // Governance data for frontend
+    const { getActiveGovEvents, getCommanderInfo } = require('../services/governance');
+    const govEvents = await getActiveGovEvents();
+    const cmdInfo = await getCommanderInfo();
+
     res.json({
       pixelBasePrice: s.pixel_base_price || 0.1,
       sectorPrices: {
@@ -231,7 +237,13 @@ router.get('/config', readLimiter, async (req, res) => {
         id: e.id, name: e.name, type: e.type,
         config: e.config,
         startsAt: e.starts_at, endsAt: e.ends_at
-      }))
+      })),
+      governance: {
+        commander: cmdInfo.commander,
+        commanderAnnouncement: cmdInfo.announcement,
+        activeGovEvents: govEvents.map(e => ({ type: e.event_type, endsAt: e.ends_at })),
+        activeBounties: cmdInfo.activeBounties.length
+      }
     });
   } catch (e) {
     console.error('[API] config error:', e.message);
@@ -606,6 +618,9 @@ router.post('/claim', writeLimiter, async (req, res) => {
       return res.status(503).json({ error: 'Maintenance mode — transactions disabled' });
     }
 
+    // Check peace treaty — blocks all hijacks
+    const _isPeaceTreaty = await hasActiveEvent('peace_treaty');
+
     await client.query('BEGIN');
     await ensureUser(client, wallet.toLowerCase());
 
@@ -637,6 +652,18 @@ router.post('/claim', writeLimiter, async (req, res) => {
       existingMap[row.lat + ',' + row.lng] = row;
     }
 
+    // ── Governance: cache sector buffs for discount ──
+    const _sectorBuffCache = {};
+    async function _getBuffDiscount(sectorId) {
+      if (!sectorId) return 0;
+      if (_sectorBuffCache[sectorId] !== undefined) return _sectorBuffCache[sectorId];
+      const buffs = await getActiveSectorBuffs(sectorId);
+      const disc = buffs.find(b => b.buff_type === 'claim_discount');
+      _sectorBuffCache[sectorId] = disc ? parseFloat(disc.effect_value) / 100 : 0;
+      return _sectorBuffCache[sectorId];
+    }
+    const _isWarTime = await hasActiveEvent('war_time');
+
     // Separate pixels into: new, own (skip), enemy (attack)
     const newPixels = [];
     const enemyPixels = [];
@@ -646,11 +673,17 @@ router.post('/claim', writeLimiter, async (req, res) => {
       const existing = existingMap[p.lat + ',' + p.lng];
       if (existing) {
         if (existing.owner === walletLower) {
-          // Own pixel — skip entirely (no cost)
           ownSkipCount++;
         } else {
-          // Enemy pixel — attack
-          const pxCost = parseFloat(existing.price) * HIJACK_MULT;
+          // Peace treaty blocks all hijacks
+          if (_isPeaceTreaty) {
+            await client.query('ROLLBACK');
+            client.release();
+            return res.status(400).json({ error: 'Peace Treaty active — hijacking is temporarily disabled' });
+          }
+          // Enemy pixel — attack (war_time gives 20% discount)
+          let pxCost = parseFloat(existing.price) * HIJACK_MULT;
+          if (_isWarTime) pxCost = Math.round(pxCost * 0.8 * 1000000) / 1000000;
           attackCost += pxCost;
           overlapCount++;
           const prevOwner = existing.owner;
@@ -659,7 +692,11 @@ router.post('/claim', writeLimiter, async (req, res) => {
           enemyPixels.push({ ...p, existing });
         }
       } else {
-        const sectorPrice = getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE);
+        let sectorPrice = getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE);
+        // Apply claim discount buff
+        const sId = findSectorForPixelSync(p.lat, p.lng);
+        const disc = await _getBuffDiscount(sId);
+        if (disc > 0) sectorPrice = Math.round(sectorPrice * (1 - disc) * 1000000) / 1000000;
         baseCost += sectorPrice;
         newCount++;
         newPixels.push({ ...p, sectorPrice });
@@ -679,8 +716,16 @@ router.post('/claim', writeLimiter, async (req, res) => {
     }
 
     for (const [prevOwner, ownerPixels] of Object.entries(enemyByOwner)) {
+      // Defense bonus buff: check if defender's sector has defense_bonus active
+      let effectiveSuccessRate = ATTACK_SUCCESS_RATE;
+      const defSectorId = ownerPixels[0] && ownerPixels[0].existing ? findSectorForPixelSync(ownerPixels[0].lat, ownerPixels[0].lng) : null;
+      if (defSectorId) {
+        const defBuffs = await getActiveSectorBuffs(defSectorId);
+        const defBuff = defBuffs.find(b => b.buff_type === 'defense_bonus');
+        if (defBuff) effectiveSuccessRate = Math.max(0, effectiveSuccessRate - parseFloat(defBuff.effect_value));
+      }
       const roll = Math.random() * 100;
-      if (roll < ATTACK_SUCCESS_RATE) {
+      if (roll < effectiveSuccessRate) {
         // Attack SUCCESS — take ALL pixels from this owner
         for (const ep of ownerPixels) {
           const pxCost = parseFloat(ep.existing.price) * HIJACK_MULT;
@@ -870,6 +915,27 @@ router.post('/claim', writeLimiter, async (req, res) => {
       if (refPromises.length) await Promise.all(refPromises);
     }
 
+    // ── Governance: collect tax per sector + recalculate positions ──
+    let totalTax = 0;
+    const affectedSectors = new Set();
+    for (const p of claimPixels) {
+      const sId = findSectorForPixelSync(p.lat, p.lng);
+      if (sId) affectedSectors.add(sId);
+    }
+    for (const sId of affectedSectors) {
+      // Calculate sector's share of totalCost
+      const sectorPixels = claimPixels.filter(p => findSectorForPixelSync(p.lat, p.lng) === sId);
+      const sectorCost = (sectorPixels.length / claimPixels.length) * totalCost;
+      if (sectorCost > 0) {
+        const tax = await collectTax(client, sId, sectorCost, txType);
+        totalTax += tax;
+      }
+      // Recalculate governor for affected sectors
+      await recalculateGovernor(client, sId);
+    }
+    // Recalculate global commander
+    await recalculateCommander(client);
+
     await client.query('COMMIT');
 
     res.json({
@@ -878,7 +944,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
       attackWon, attackLost,
       refundFromFailed: Math.round(refundFromFailed * 100) / 100,
       platformFee: Math.round(platformFee * 100) / 100,
-      ppUsed, usdtUsed,
+      ppUsed, usdtUsed, totalTax: Math.round(totalTax * 100) / 100,
       xpEarned: totalXP,
       rankUp: rankUp || null,
       referralRewards,
@@ -1739,6 +1805,25 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     );
     const isGovernor = parseInt(govRes.rows[0].cnt) > 0;
     if (isGovernor) harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000;
+
+    // ── Governance buffs: sector mining_boost + global double_mining ──
+    // Check if any owned pixel's sector has mining_boost buff
+    const sectorBuffRes = await client.query(
+      `SELECT DISTINCT p.sector_id FROM pixels p WHERE p.owner = $1 AND p.sector_id IS NOT NULL`, [w]
+    );
+    let hasMiningBuff = false;
+    for (const row of sectorBuffRes.rows) {
+      const buffs = await getActiveSectorBuffs(row.sector_id);
+      if (buffs.some(b => b.buff_type === 'mining_boost')) { hasMiningBuff = true; break; }
+    }
+    if (hasMiningBuff) {
+      harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000; // +20% mining boost
+    }
+    // Global double mining event
+    const isDoubleMining = await hasActiveEvent('double_mining');
+    if (isDoubleMining) {
+      harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
+    }
 
     // Apply hard cap per harvest
     harvestedPP = Math.min(harvestedPP, harvestCap);
