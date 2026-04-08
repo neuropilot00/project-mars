@@ -5966,6 +5966,26 @@ async function confirmClaim(){
       }
     }
 
+    // ── Optimistic update: show claim on map immediately ──
+    var myAddr=walletState.address||'';
+    var optimisticPixels=getClaimPixels(selectedPlot.lat,selectedPlot.lng,cw,ch);
+    optimisticPixels.forEach(function(p){
+      var k=pxKey(p.lat,p.lng);
+      var ex=pixelGrid[k];
+      if(!ex||!ex.owner||ex.owner.toLowerCase()===myAddr.toLowerCase()){
+        pixelGrid[k]={owner:myAddr,price:PIXEL_PRICE,claimIdx:claims.length,claimId:-1};
+      }
+    });
+    _serverPixels=Object.assign({},_serverPixels); // shallow copy
+    optimisticPixels.forEach(function(p){
+      var k=pxKey(p.lat,p.lng);
+      _serverPixels[k]=pixelGrid[k];
+    });
+    _rebuildOwnerData();
+    claimsSnapshot=null;
+    compositeClaimsOnTexture();
+    closeClaimModal();
+
     // ── Server API call: deduct PP/USDT and record claim ──
     var headers={'Content-Type':'application/json'};
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
@@ -5988,13 +6008,20 @@ async function confirmClaim(){
     var d=await resp.json();
 
     if(!resp.ok){
+      // Rollback optimistic update
+      optimisticPixels.forEach(function(p){
+        var k=pxKey(p.lat,p.lng);
+        delete pixelGrid[k]; delete _serverPixels[k];
+      });
+      _rebuildOwnerData();
+      claimsSnapshot=null;
+      compositeClaimsOnTexture();
       showToast(d.error||'CLAIM FAILED');
       if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
       return;
     }
 
     // ── Success: handle battle animation or direct claim ──
-    closeClaimModal();
 
     var hasBattle=d.overlapCount>0;
     if(hasBattle){
