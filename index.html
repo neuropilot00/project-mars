@@ -4859,11 +4859,25 @@ function openImageEditor(plot){
   }else{
     _editor.scale=100;_editor.rotate=0;_editor.ox=0;_editor.oy=0;
   }
-  // Territory dimensions (use bounding box for merged)
+  // Territory dimensions — find the EXACT group this claim belongs to
   var tw,th;
-  if(plot._bounds){
-    var b=plot._bounds;
-    var _egs=_actualGridStep||GRID_SIZE;
+  var _egs=_actualGridStep||GRID_SIZE;
+  var owner=plot.owner;
+  var groups=_ownerGroups[owner]||[];
+  // Find the group that contains THIS specific claim
+  var myGroup=null;
+  for(var gi=0;gi<groups.length;gi++){
+    var gCls=groups[gi].claimIndices;
+    for(var gj=0;gj<gCls.length;gj++){
+      if(claims[gCls[gj]]===plot||claims[gCls[gj]]&&claims[gCls[gj]].id===plot.id){
+        myGroup=groups[gi];break;
+      }
+    }
+    if(myGroup) break;
+  }
+  var isMergedGroup=myGroup&&myGroup.claimIndices.length>1;
+  if(isMergedGroup){
+    var b=myGroup.bounds;
     tw=Math.round((b.maxLng-b.minLng)/_egs);
     th=Math.round((b.maxLat-b.minLat)/_egs);
     _editor.isMerged=true;
@@ -4876,17 +4890,10 @@ function openImageEditor(plot){
     });
     _editor.bounds=b;
     // Find anchor claim (first with imgUrl) for consistent positioning with map
-    var owner=plot.owner;
-    var groups=_ownerGroups[owner]||[];
     var anchorClaim=null;
-    for(var gi=0;gi<groups.length;gi++){
-      if(groups[gi].bounds===b){
-        var cls=groups[gi].claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
-        for(var ci2=0;ci2<cls.length;ci2++){
-          if(cls[ci2].imgUrl){anchorClaim=cls[ci2];break;}
-        }
-        break;
-      }
+    var cls=myGroup.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
+    for(var ci2=0;ci2<cls.length;ci2++){
+      if(cls[ci2].imgUrl){anchorClaim=cls[ci2];break;}
     }
     if(anchorClaim){
       // lng/lat are already CENTER coordinates — don't add w/2
