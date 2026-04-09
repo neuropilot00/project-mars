@@ -2131,7 +2131,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- Governor Dashboard (only visible to governors) -->
         <div id="govGovernorDash" style="display:none;margin-bottom:12px;padding:12px;border-radius:8px;background:rgba(91,184,232,.04);border:1px solid rgba(91,184,232,.15)">
-          <div style="font-size:10px;color:var(--cyan);font-family:var(--fn);margin-bottom:8px;font-weight:700">GOVERNOR CONTROLS <span id="govGovSectorName" style="color:var(--tx3)"></span></div>
+          <div style="font-size:10px;color:var(--cyan);font-family:var(--fn);margin-bottom:8px;font-weight:700;display:flex;align-items:center;gap:6px">GOVERNOR CONTROLS <select id="govSectorSelect" onchange="govSwitchSector(this.value)" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--cyan);font-size:9px;padding:2px 6px;border-radius:4px;font-family:var(--fn)"></select></div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <div style="display:flex;align-items:center;gap:8px">
               <span style="font-size:9px;color:var(--tx3)">TAX RATE</span>
@@ -10811,7 +10811,8 @@ window.addEventListener('resize', function(){
   // Governance UI state
   var _govState = null;
   var _govMyPositions = [];
-  var _govMySectorId = null; // sector I govern
+  var _govMySectorId = null; // currently selected governed sector
+  var _govMySectorIds = []; // all sectors I govern
 
   function _updateGovernanceUI(gov) {
     _govState = gov;
@@ -10846,6 +10847,7 @@ window.addEventListener('resize', function(){
       var bounties = results[3];
 
       _govMyPositions = Array.isArray(positions) ? positions : [];
+      _govMySectorIds = [];
       _govMySectorId = null;
 
       // ── MY POSITIONS ──
@@ -10861,7 +10863,7 @@ window.addEventListener('resize', function(){
           html += '<span style="font-size:10px;color:'+roleColor+';font-family:var(--fn);font-weight:700">'+label+' '+govBadgeHTML(p.wallet)+'</span>';
           html += '<span style="font-size:10px;color:var(--cyan);font-family:var(--fn)">'+parseFloat(p.gp_balance||0).toFixed(0)+' GP</span>';
           html += '</div>';
-          if(p.role==='governor' && p.sector_id) _govMySectorId = p.sector_id;
+          if(p.role==='governor' && p.sector_id) _govMySectorIds.push(p.sector_id);
         });
         posEl.innerHTML = html;
 
@@ -10877,8 +10879,18 @@ window.addEventListener('resize', function(){
       var isGovernor = _govMyPositions.some(function(p){return p.role==='governor'});
       document.getElementById('govCommanderDash').style.display = isCommander?'':'none';
       document.getElementById('govGovernorDash').style.display = isGovernor?'':'none';
-      if(isGovernor && _govMySectorId){
-        document.getElementById('govGovSectorName').textContent='(Sector '+_govMySectorId+')';
+      if(isGovernor && _govMySectorIds.length){
+        // Set initial selected sector (keep previous if still valid)
+        if(!_govMySectorId || _govMySectorIds.indexOf(_govMySectorId)===-1) _govMySectorId = _govMySectorIds[0];
+        // Populate sector selector dropdown
+        var sel = document.getElementById('govSectorSelect');
+        if(sel){
+          sel.innerHTML = _govMySectorIds.map(function(sid){
+            var sn = (_sectorsData||[]).find(function(s){return s.id===sid});
+            var name = sn ? sn.name : 'Sector '+sid;
+            return '<option value="'+sid+'"'+(sid===_govMySectorId?' selected':'')+'>'+name+'</option>';
+          }).join('');
+        }
         // Pre-fill sector announcement & tax rate
         var mySector = _sectorsData && _sectorsData.find(function(s){return s.id===_govMySectorId});
         if(mySector){
@@ -11043,6 +11055,21 @@ window.addEventListener('resize', function(){
       showToast('Buff activated: '+buffType+' for '+d.hours+'h (-'+d.gpSpent+' GP)');
       loadGovernanceData();
     }).catch(function(){showToast('Failed to buy buff')});
+  };
+
+  window.govSwitchSector = function(sectorId) {
+    _govMySectorId = parseInt(sectorId);
+    var mySector = _sectorsData && _sectorsData.find(function(s){return s.id===_govMySectorId});
+    if(mySector){
+      var saInput = document.getElementById('govSectorAnnounce');
+      if(saInput) saInput.value = mySector.announcement || '';
+      var taxSlider = document.getElementById('govTaxSlider');
+      var taxVal = document.getElementById('govTaxVal');
+      if(taxSlider && mySector.taxRate){
+        taxSlider.value = mySector.taxRate;
+        if(taxVal) taxVal.textContent = mySector.taxRate+'%';
+      }
+    }
   };
 
   window.govSetSectorAnnouncement = function(){
