@@ -4727,6 +4727,10 @@ function computeLandRect(startLat,startLng,endLat,endLng){
   var lng1=Math.round(startLng/GRID_SIZE)*GRID_SIZE;
   var lat2=Math.round(endLat/GRID_SIZE)*GRID_SIZE;
   var lng2=Math.round(endLng/GRID_SIZE)*GRID_SIZE;
+  // Handle longitude wrap-around (e.g. -179 to +179 = 2° apart, not 358°)
+  var dLng=lng2-lng1;
+  if(dLng>180) lng2-=360;
+  else if(dLng<-180) lng2+=360;
   // Ensure ordering
   var minLat=Math.min(lat1,lat2), maxLat=Math.max(lat1,lat2);
   var minLng=Math.min(lng1,lng2), maxLng=Math.max(lng1,lng2);
@@ -4738,6 +4742,9 @@ function computeLandRect(startLat,startLng,endLat,endLng){
   // Center point
   var cLat=(minLat+maxLat)/2;
   var cLng=(minLng+maxLng)/2;
+  // Normalize longitude to [-180, 180]
+  if(cLng>180) cLng-=360;
+  else if(cLng<-180) cLng+=360;
   // Clamp latitude
   cLat=Math.max(-70+h*GRID_SIZE/2, Math.min(70-h*GRID_SIZE/2, cLat));
   return {lat:cLat, lng:cLng, w:w, h:h};
