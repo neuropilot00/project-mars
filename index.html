@@ -8808,16 +8808,14 @@ function _drawStarlinkTrails(ctx, w, h) {
     var len = Math.sqrt(dx * dx + dy * dy) || 1;
     dx /= len; dy /= len;
 
-    // Draw 5 satellites in a line along movement direction
+    // Draw 5 satellites in a line — all same size
     for (var s = 0; s < _trainSize; s++) {
       var sx = x + dx * s * _trainGap;
       var sy = y + dy * s * _trainGap;
-      var fade = 1 - s * 0.15;
-      var dotSize = 8 - s * 1;
 
-      ctx.globalAlpha = 0.95 * fade;
+      ctx.globalAlpha = 0.9;
       ctx.beginPath();
-      ctx.arc(sx, sy, Math.max(3, dotSize), 0, Math.PI * 2);
+      ctx.arc(sx, sy, 10, 0, Math.PI * 2);
       ctx.fillStyle = '#00FF88';
       ctx.fill();
     }
@@ -8878,8 +8876,7 @@ function _updateStarlinkPositions() {
       );
       mesh.lookAt(0, 0, 0);
       mesh.visible = true;
-      var scale = 1 - s * 0.12;
-      mesh.scale.set(scale, scale, scale);
+      mesh.scale.set(1, 1, 1);
     }
   });
 }
