@@ -2844,6 +2844,29 @@ router.get('/rockets/:id/loot', readLimiter, async (req, res) => {
   }
 });
 
+// POST /api/rockets/trigger — commander triggers a rocket drop
+router.post('/rockets/trigger', writeLimiter, async (req, res) => {
+  try {
+    if (!rocketService) return res.status(503).json({ error: 'Rocket system not available' });
+    const { wallet } = req.body;
+    if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
+    // Verify commander
+    const cmdRes = await pool.query(
+      "SELECT value FROM game_settings WHERE key = 'commander_wallet'"
+    );
+    const cmdWallet = cmdRes.rows[0]?.value;
+    if (!cmdWallet || wallet.toLowerCase() !== cmdWallet.toLowerCase()) {
+      return res.status(403).json({ error: 'Only the commander can trigger rocket drops' });
+    }
+    const result = await rocketService.scheduleRocketEvent(wallet.toLowerCase());
+    if (result && result.error) return res.status(400).json(result);
+    res.json({ success: true, event: result });
+  } catch (e) {
+    console.error('[ROCKET] trigger error:', e.message);
+    res.status(500).json({ error: 'Trigger failed: ' + e.message });
+  }
+});
+
 // POST /api/rockets/claim-loot — claim a loot item
 router.post('/rockets/claim-loot', writeLimiter, async (req, res) => {
   try {

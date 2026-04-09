@@ -2126,6 +2126,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <input type="number" id="govBountyAmount" placeholder="GP" style="width:60px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:9px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
               <button class="sz-btn" onclick="govPlaceBounty()" style="color:var(--red);border-color:rgba(232,72,85,.3);font-size:8px;padding:4px 8px">PLACE</button>
             </div>
+            <div style="font-size:9px;color:var(--tx3);margin-top:4px">ROCKET SUPPLY DROP</div>
+            <button class="sz-btn" onclick="govTriggerRocket()" style="color:var(--mars);border-color:rgba(255,120,60,.3);font-size:8px;padding:6px 12px;width:100%">🚀 LAUNCH SUPPLY DROP</button>
           </div>
         </div>
 
@@ -10993,6 +10995,20 @@ window.addEventListener('resize', function(){
       showToast('Event triggered: '+eventType+' ('+d.hours+'h)');
       loadGovernanceData();
     }).catch(function(){showToast('Failed to trigger event')});
+  };
+
+  window.govTriggerRocket = function(){
+    var w = walletState.address;
+    if(!w){showToast('Connect wallet first');return}
+    if(!confirm('Launch a rocket supply drop?')) return;
+    fetch('/api/rockets/trigger',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error);return}
+      showToast('🚀 Rocket supply drop scheduled!');
+    }).catch(function(){showToast('Failed to trigger rocket')});
   };
 
   window.govSetCmdAnnouncement = function(){

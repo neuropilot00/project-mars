@@ -1239,4 +1239,19 @@ router.get('/governance/transactions', adminAuth, async (req, res) => {
   }
 });
 
+// POST /admin/api/rocket-trigger — manually trigger a rocket drop
+router.post('/rocket-trigger', async (req, res) => {
+  try {
+    let rocketService;
+    try { rocketService = require('../services/rocket'); } catch(_e) {}
+    if (!rocketService) return res.status(503).json({ error: 'Rocket service not available' });
+    const result = await rocketService.scheduleRocketEvent(null);
+    if (result && result.error) return res.status(400).json(result);
+    res.json({ success: true, event: result });
+  } catch (e) {
+    console.error('[ADMIN] rocket trigger error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;
