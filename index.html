@@ -9812,167 +9812,92 @@ function _drawPOIMarkers(ctx, w, h) {
   ctx.restore();
 }
 
-// ═══════ STARLINK SATELLITES (3D) ═══════
-var _starlinkMeshes = [];
+// ═══════ STARLINK SATELLITES (HTML overlay via globe.gl) ═══════
+var _starlinkMeshes = []; // kept for compat (empty)
 var _starlinkData = { satellites: [], passes: [] };
 
-function _initStarlinkSatellites() {
-  if (!globe || typeof THREE === 'undefined') return;
-  var scene;
-  try { scene = globe.scene(); } catch(_e) { return; }
-  if (!scene) return;
-  var totalMeshes = _satConfig.length * _trainSize; // 3 trains × 5 = 15
-  console.log('[STARLINK] Initializing ' + totalMeshes + ' satellite meshes');
-  for (var i = 0; i < totalMeshes; i++) {
-    var group = new THREE.Group();
-    var bodyGeo = new THREE.BoxGeometry(1.5, 0.4, 0.4);
-    var bodyMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.95 });
-    var body = new THREE.Mesh(bodyGeo, bodyMat);
-    group.add(body);
-    var panelGeo = new THREE.PlaneGeometry(4, 0.6);
-    var panelMat = new THREE.MeshBasicMaterial({ color: 0xDDEEFF, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
-    var panel = new THREE.Mesh(panelGeo, panelMat);
-    group.add(panel);
-    var glowGeo = new THREE.SphereGeometry(0.4, 8, 8);
-    var glowMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.9 });
-    var glow = new THREE.Mesh(glowGeo, glowMat);
-    glow.position.set(0, 0.4, 0);
-    group.add(glow);
-    group.visible = false;
-    scene.add(group);
-    _starlinkMeshes.push(group);
-  }
+// Orbit config — crossing orbits for visual variety
+var _satConfig = [
+  { id: 1, amp: 45, speed: 0.0003, offset: 0, dir: 1, tilt: 5 },
+  { id: 2, amp: 55, speed: 0.00028, offset: 1.2, dir: -1, tilt: -10 },
+  { id: 3, amp: 35, speed: 0.00035, offset: 3.5, dir: 1, tilt: 20 }
+];
+var _trainSize = 5;
+var _slHtmlInit = false;
+
+function _initStarlinkHtml() {
+  if (!globe || _slHtmlInit) return;
+  _slHtmlInit = true;
+  // Build initial data array: 3 trains × 5 satellites = 15 elements
+  var data = [];
+  _satConfig.forEach(function(sat) {
+    for (var s = 0; s < _trainSize; s++) {
+      data.push({ satId: sat.id, idx: s, lat: 0, lng: 0 });
+    }
+  });
+  globe
+    .htmlElementsData(data)
+    .htmlLat(function(d) { return d.lat; })
+    .htmlLng(function(d) { return d.lng; })
+    .htmlAltitude(0.06)
+    .htmlElement(function(d) {
+      var el = document.createElement('div');
+      var isLead = d.idx === 0;
+      var size = isLead ? 8 : Math.max(3, 7 - d.idx);
+      var opacity = isLead ? 1 : Math.max(0.3, 1 - d.idx * 0.18);
+      el.style.cssText = 'width:' + size + 'px;height:' + size + 'px;border-radius:50%;' +
+        'background:radial-gradient(circle,#fff 30%,rgba(0,255,136,' + opacity + ') 70%,transparent 100%);' +
+        'box-shadow:0 0 ' + (isLead ? 10 : 4) + 'px rgba(0,255,136,' + (opacity * 0.8) + ');' +
+        'pointer-events:none;transition:opacity 0.3s;';
+      if (isLead) {
+        // Add label for lead satellite
+        var label = document.createElement('div');
+        label.style.cssText = 'position:absolute;top:-16px;left:50%;transform:translateX(-50%);' +
+          'font:bold 8px monospace;color:#00FF88;white-space:nowrap;opacity:0.8;text-shadow:0 0 4px rgba(0,0,0,0.8);';
+        label.textContent = '\u{1F6F0} SL-' + d.satId;
+        el.style.position = 'relative';
+        el.appendChild(label);
+      }
+      return el;
+    });
+  console.log('[STARLINK] HTML overlay initialized: ' + data.length + ' elements');
 }
 
-// Client-side satellite orbit config — crossing orbits for visual variety
-// dir: longitude direction multiplier (negative = westward), tilt: latitude center offset
-var _satConfig = [
-  { id: 1, amp: 45, speed: 0.0003, offset: 0, dir: 1, tilt: 5 },      // eastward, slightly north
-  { id: 2, amp: 55, speed: 0.00028, offset: 1.2, dir: -1, tilt: -10 }, // westward, south — crosses #1
-  { id: 3, amp: 35, speed: 0.00035, offset: 3.5, dir: 1, tilt: 20 }    // eastward fast, high inclination
-];
-var _trainSize = 5; // satellites per train
-var _trainSpacing = 350; // ms between each satellite (~6 degrees apart for tight train)
-
-// Starlink train rendering — simple approach: 1 lead position + 4 trailing dots at fixed pixel spacing
-var _trainGap = 28; // pixels between each satellite in the train
-function _drawStarlinkTrails(ctx, w, h) {
+// Smooth position update via requestAnimationFrame
+function _animateStarlink() {
+  if (!globe || !_slHtmlInit) { requestAnimationFrame(_animateStarlink); return; }
   var t = Date.now();
-  ctx.save();
-
+  var data = globe.htmlElementsData();
+  if (!data || !data.length) { requestAnimationFrame(_animateStarlink); return; }
+  var i = 0;
   _satConfig.forEach(function(sat) {
     var dir = sat.dir || 1;
     var tilt = sat.tilt || 0;
-    // Calculate lead satellite position with direction and tilt
-    var lat = sat.amp * Math.sin(t * sat.speed + sat.offset) + tilt;
-    var lng = ((dir * t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360 + 360) % 360 - 180;
-    var x = ((lng + 180) / 360) * w;
-    var y = ((90 - lat) / 180) * h;
-
-    // Calculate movement direction for trailing satellites
-    var dt = 500;
-    var lat2 = sat.amp * Math.sin((t - dt) * sat.speed + sat.offset) + tilt;
-    var lng2 = ((dir * (t - dt) * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360 + 360) % 360 - 180;
-    var x2 = ((lng2 + 180) / 360) * w;
-    var y2 = ((90 - lat2) / 180) * h;
-    // Direction vector (normalized)
-    var dx = x2 - x, dy = y2 - y;
-    var len = Math.sqrt(dx * dx + dy * dy) || 1;
-    dx /= len; dy /= len;
-
-    // Draw 5 satellites in a line — glow point style
-    for (var s = 0; s < _trainSize; s++) {
-      var sx = x + dx * s * _trainGap;
-      var sy = y + dy * s * _trainGap;
-
-      // Soft outer glow
-      var grad = ctx.createRadialGradient(sx, sy, 2, sx, sy, 12);
-      grad.addColorStop(0, 'rgba(0,255,136,0.9)');
-      grad.addColorStop(0.4, 'rgba(0,255,136,0.3)');
-      grad.addColorStop(1, 'rgba(0,255,136,0)');
-      ctx.globalAlpha = 1;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 12, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      // Bright core
-      ctx.globalAlpha = 1;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fill();
-
-      // Solar panel line (perpendicular to movement)
-      ctx.globalAlpha = 0.6;
-      ctx.strokeStyle = '#88FFCC';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(sx - dy * 7, sy + dx * 7);
-      ctx.lineTo(sx + dy * 7, sy - dx * 7);
-      ctx.stroke();
-    }
-
-    // Glow ring on lead
-    ctx.globalAlpha = 0.35 + Math.sin(t / 300 + sat.id) * 0.15;
-    ctx.beginPath();
-    ctx.arc(x, y, 14, 0, Math.PI * 2);
-    ctx.strokeStyle = '#00FF88';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Label
-    ctx.globalAlpha = 0.7;
-    ctx.font = 'bold 9px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#00FF88';
-    ctx.fillText('\u{1F6F0} SL-' + sat.id, x, y - 16);
-  });
-
-  ctx.restore();
-}
-
-
-function _updateStarlinkPositions() {
-  if (!_starlinkMeshes.length) return;
-  var GLOBE_RADIUS = 100;
-  var ALT = 145;
-  var t = Date.now();
-
-  _satConfig.forEach(function(sat, i) {
-    var dir = sat.dir || 1;
-    var tilt = sat.tilt || 0;
-    // Lead position
     var lat0 = sat.amp * Math.sin(t * sat.speed + sat.offset) + tilt;
     var lng0 = ((dir * t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360 + 360) % 360 - 180;
-    // Slightly earlier position for direction
+    // Trailing direction
     var lat1 = sat.amp * Math.sin((t - 500) * sat.speed + sat.offset) + tilt;
     var lng1 = ((dir * (t - 500) * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360 + 360) % 360 - 180;
-    // Direction in degrees
-    var dLat = (lat1 - lat0), dLng = (lng1 - lng0);
+    var dLat = lat1 - lat0, dLng = lng1 - lng0;
     var dLen = Math.sqrt(dLat * dLat + dLng * dLng) || 1;
     dLat /= dLen; dLng /= dLen;
-    var gap = 1.5; // degrees between satellites in 3D
-
+    var gap = 1.8; // degrees between satellites
     for (var s = 0; s < _trainSize; s++) {
-      var meshIdx = i * _trainSize + s;
-      if (meshIdx >= _starlinkMeshes.length) return;
-      var mesh = _starlinkMeshes[meshIdx];
-      var sLat = lat0 + dLat * s * gap;
-      var sLng = lng0 + dLng * s * gap;
-      var phi = (90 - sLat) * Math.PI / 180;
-      var theta = (sLng + 180) * Math.PI / 180;
-      mesh.position.set(
-        -ALT * Math.sin(phi) * Math.cos(theta),
-         ALT * Math.cos(phi),
-         ALT * Math.sin(phi) * Math.sin(theta)
-      );
-      mesh.lookAt(0, 0, 0);
-      mesh.visible = true;
-      mesh.scale.set(1, 1, 1);
+      if (i < data.length) {
+        data[i].lat = lat0 + dLat * s * gap;
+        data[i].lng = lng0 + dLng * s * gap;
+        i++;
+      }
     }
   });
+  globe.htmlElementsData(data);
+  requestAnimationFrame(_animateStarlink);
 }
+
+// No-op compat stubs
+function _drawStarlinkTrails() {}
+function _updateStarlinkPositions() {}
+function _initStarlinkSatellites() {}
 
 // ═══════ ROCKET EVENTS ═══════
 var _rocketData = { events: [] };
@@ -11735,10 +11660,15 @@ window.addEventListener('resize', function(){
   setInterval(loadExplorationData, 30000);
   setTimeout(loadStarlinkData, 6000);
   setInterval(loadStarlinkData, 10000);
-  // 3D starlink disabled for performance — using 2D texture trails only
-  function _tryInitStarlink() {}
-  setTimeout(_tryInitStarlink, 3000);
-  // 3D starlink position update disabled (using 2D texture trails only)
+  // Starlink HTML overlay — smooth movement via requestAnimationFrame
+  function _tryInitStarlinkHtml() {
+    if (_slHtmlInit) return;
+    _initStarlinkHtml();
+    if (!_slHtmlInit) setTimeout(_tryInitStarlinkHtml, 2000);
+    else requestAnimationFrame(_animateStarlink);
+  }
+  setTimeout(_tryInitStarlinkHtml, 3000);
+  // Starlink position updates handled by _animateStarlink RAF loop
 
   // ═══════ ROCKET EVENT POLLING ═══════
   function loadRocketData() {
