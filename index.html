@@ -8602,7 +8602,7 @@ function _drawWeatherOverlay(ctx, w, h) {
 
     if (wx.weatherType === 'sandstorm') {
       // Orange-brown pulsing overlay
-      ctx.globalAlpha = 0.25 + Math.sin(t / 1000) * 0.08;
+      ctx.globalAlpha = 0.12 + Math.sin(t / 1000) * 0.04;
       ctx.fillStyle = 'rgba(200,120,40,1)';
       ctx.fill();
       // Noise dots
@@ -8623,7 +8623,7 @@ function _drawWeatherOverlay(ctx, w, h) {
       ctx.restore();
     } else if (wx.weatherType === 'solar_flare') {
       // Yellow pulsing glow
-      ctx.globalAlpha = 0.2 + Math.sin(t / 500) * 0.1;
+      ctx.globalAlpha = 0.1 + Math.sin(t / 500) * 0.05;
       ctx.fillStyle = 'rgba(255,220,60,1)';
       ctx.fill();
       // Bright pulse center
@@ -8641,7 +8641,7 @@ function _drawWeatherOverlay(ctx, w, h) {
       ctx.restore();
     } else if (wx.weatherType === 'meteor_shower') {
       // Blue tint + scattered bright dots
-      ctx.globalAlpha = 0.18;
+      ctx.globalAlpha = 0.08;
       ctx.fillStyle = 'rgba(100,180,255,1)';
       ctx.fill();
       ctx.save();
@@ -8664,7 +8664,7 @@ function _drawWeatherOverlay(ctx, w, h) {
       ctx.restore();
     } else if (wx.weatherType === 'dust_devil') {
       // Brown swirl
-      ctx.globalAlpha = 0.22 + Math.sin(t / 800) * 0.06;
+      ctx.globalAlpha = 0.1 + Math.sin(t / 800) * 0.03;
       ctx.fillStyle = 'rgba(160,100,50,1)';
       ctx.fill();
       ctx.save();
@@ -10531,7 +10531,7 @@ window.addEventListener('resize', function(){
     if (!el) return;
     if (!_weatherData.length) { el.classList.remove('show'); el.innerHTML = ''; return; }
     var now = Date.now();
-    el.innerHTML = _weatherData.map(function(wx) {
+    el.innerHTML = _weatherData.slice(0, 5).map(function(wx) {
       var remaining = Math.max(0, new Date(wx.endsAt).getTime() - now);
       var mins = Math.floor(remaining / 60000);
       var timeStr = mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
