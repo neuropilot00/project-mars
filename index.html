@@ -3798,25 +3798,46 @@ function compositeClaimsOnTexture(previewOnly){
       });
       ctx.restore();
 
-      // Cosmetic effects for this owner's claims
-      sortedClaims.forEach(function(sc){
-        if(sc.owner!==c.owner||!sc.cosmetics) return;
-        var cr=getCellRect(sc.lat,sc.lng,sc.w||20,sc.h||20,w,h);
-        var cos=sc.cosmetics;
+      // Cosmetic effects — group-based (matches territory outline, not individual cell rects)
+      ownerGroups.forEach(function(grp){
+        var groupClaims=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
+        // Find cosmetic from any claim in group
+        var cos=null;
+        for(var gi=0;gi<groupClaims.length;gi++){
+          if(groupClaims[gi].cosmetics){cos=groupClaims[gi].cosmetics;break;}
+        }
+        if(!cos) return;
+        // Get strips for this group
+        var gb2i=grp.bounds;
+        var gStrips=(strips||[]).filter(function(s){
+          return s.lat>=gb2i.minLat-_gs*0.5&&s.lat<=gb2i.maxLat+_gs*0.5&&
+                 s.lng1>=gb2i.minLng-_gs*0.5&&s.lng2<=gb2i.maxLng+_gs*0.5;
+        });
+        if(!gStrips.length) return;
+
+        // Build clip path from strips (territory outline)
+        function _cosClipPath(){
+          ctx.beginPath();
+          for(var si=0;si<gStrips.length;si++){
+            var sr=_sRect(gStrips[si]);
+            ctx.rect(sr.x,sr.y,sr.w,sr.h);
+          }
+        }
 
         // Terrain tint
         if(cos.terrain){
           ctx.save();
           var tColors={volcanic_terrain:'rgba(255,80,20,0.18)',frozen_terrain:'rgba(100,180,255,0.18)',crystal_terrain:'rgba(180,100,255,0.18)',toxic_terrain:'rgba(100,255,80,0.14)'};
+          _cosClipPath();
           ctx.fillStyle=tColors[cos.terrain]||'rgba(255,255,255,0.1)';
-          ctx.fillRect(cr.x,cr.y,cr.w,cr.h);
+          ctx.fill();
           ctx.restore();
         }
 
-        // Border cosmetic
+        // Border cosmetic — stroke the outline of the territory shape
         if(cos.border){
           ctx.save();
-          var t=Date.now();
+          // Build outer edge segments from strips
           if(cos.border==='neon_border'){
             ctx.strokeStyle='#00FFFF';ctx.shadowColor='#00FFFF';ctx.shadowBlur=6;ctx.lineWidth=1.5;
           }else if(cos.border==='flame_border'){
@@ -3828,7 +3849,10 @@ function compositeClaimsOnTexture(previewOnly){
           }else if(cos.border==='starship_border'){
             ctx.strokeStyle='#FF4400';ctx.shadowColor='#FF6600';ctx.shadowBlur=6;ctx.lineWidth=2;ctx.setLineDash([5,2]);
           }
-          ctx.strokeRect(cr.x,cr.y,cr.w,cr.h);
+          // Stroke each strip rect — only outer edges will be visible after overlap
+          _cosClipPath();
+          // Use stroke on the combined path — canvas merges overlapping rects visually
+          ctx.stroke();
           ctx.setLineDash([]);
           ctx.restore();
         }
@@ -3838,25 +3862,21 @@ function compositeClaimsOnTexture(previewOnly){
           ctx.save();
           var t2=Date.now();
           if(cos.glow==='pulse_glow'){
-            var pAlpha=0.2+Math.sin(t2/400)*0.12;
+            ctx.globalAlpha=0.2+Math.sin(t2/400)*0.12;
             ctx.shadowBlur=8+Math.sin(t2/400)*4;
-            ctx.shadowColor=_ownerColor(sc.owner);
-            ctx.globalAlpha=pAlpha;
-            ctx.strokeStyle=_ownerColor(sc.owner);ctx.lineWidth=3;
-            ctx.strokeRect(cr.x-1,cr.y-1,cr.w+2,cr.h+2);
+            ctx.shadowColor=_ownerColor(c.owner);
+            ctx.strokeStyle=_ownerColor(c.owner);ctx.lineWidth=3;
           }else if(cos.glow==='rainbow_glow'){
             var hue=(t2/15)%360;
-            ctx.shadowBlur=10;
-            ctx.shadowColor='hsl('+hue+',100%,60%)';
-            ctx.globalAlpha=0.3;
-            ctx.strokeStyle='hsl('+hue+',100%,60%)';ctx.lineWidth=2.5;
-            ctx.strokeRect(cr.x-1,cr.y-1,cr.w+2,cr.h+2);
+            ctx.shadowBlur=10;ctx.shadowColor='hsl('+hue+',100%,60%)';
+            ctx.globalAlpha=0.3;ctx.strokeStyle='hsl('+hue+',100%,60%)';ctx.lineWidth=2.5;
           }else if(cos.glow==='dark_aura'){
             ctx.shadowBlur=10;ctx.shadowColor='rgba(80,0,120,0.8)';
             ctx.globalAlpha=0.25+Math.sin(t2/600)*0.08;
             ctx.strokeStyle='rgba(120,0,180,0.6)';ctx.lineWidth=2;
-            ctx.strokeRect(cr.x-1,cr.y-1,cr.w+2,cr.h+2);
           }
+          _cosClipPath();
+          ctx.stroke();
           ctx.restore();
         }
       });
