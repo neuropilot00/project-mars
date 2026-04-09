@@ -274,6 +274,12 @@ async function seedDefaults(client) {
     { key: 'pp_withdrawal_min', value: 100, desc: 'Minimum PP for withdrawal conversion', cat: 'economy' },
     { key: 'pp_withdrawal_fee_rate', value: 5, desc: 'PP withdrawal conversion fee %', cat: 'economy' },
 
+    // ── PP sink mechanisms ──
+    { key: 'mining_daily_cap_per_user', value: 50, desc: 'Max PP per user per day from mining (0=unlimited)', cat: 'mining' },
+    { key: 'cosmetic_equip_fee_pp', value: 2, desc: 'PP cost to equip cosmetics', cat: 'economy' },
+    { key: 'exploration_fee_pp', value: 1, desc: 'PP cost per POI discovery', cat: 'economy' },
+    { key: 'territory_rename_fee_pp', value: 5, desc: 'PP cost to set promo link', cat: 'economy' },
+
     // ── Display / System ──
     { key: 'announcement', value: '', desc: 'Global announcement banner text (empty=hidden)', cat: 'display' },
     { key: 'maintenance_mode', value: false, desc: 'Disable all transactions when true', cat: 'system' },

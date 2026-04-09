@@ -133,6 +133,23 @@ async function discoverPOI(wallet, poiId) {
       return { error: 'You need territory in this sector to discover POIs' };
     }
 
+    // PP fee for exploration
+    const explorationFee = parseFloat(await getSetting('exploration_fee_pp') || 0);
+    if (explorationFee > 0) {
+      const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [wallet]);
+      const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
+      if (ppBal < explorationFee) {
+        await client.query('ROLLBACK');
+        return { error: `Insufficient PP. Need ${explorationFee} PP to discover POIs.` };
+      }
+      await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [explorationFee, wallet]);
+      await client.query(
+        `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+         VALUES ('shop_purchase', $1, $2, 0, $3)`,
+        [wallet, explorationFee, JSON.stringify({ action: 'exploration_fee', poiId })]
+      );
+    }
+
     // Mark as discovered
     await client.query(
       'UPDATE exploration_pois SET discovered_by = $1, discovered_at = NOW() WHERE id = $2',

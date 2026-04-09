@@ -1937,7 +1937,7 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     const rewardMin = parseFloat(s.mining_reward_min) || 0.01;
     const rewardMax = parseFloat(s.mining_reward_max) || 0.5;
     const harvestCap = parseFloat(s.mining_reward_cap_per_harvest) || 1.0;
-    const dailyCap = parseFloat(s.mining_daily_cap_per_user) || 1.0;
+    const dailyCap = parseFloat(s.mining_daily_cap_per_user) || 0; // 0=unlimited
 
     // Random base reward scaled by pixel count (diminishing returns)
     // sqrt(pixels) gives diminishing returns: 100px=10x, 10000px=100x (not 100x linear)
@@ -2018,18 +2018,20 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     // Apply hard cap per harvest
     harvestedPP = Math.min(harvestedPP, harvestCap);
 
-    // Apply daily cap
+    // Apply daily cap (0=unlimited)
     const todayDate = now.toISOString().slice(0, 10);
     let todayMined = 0;
     if (miningRes.rows.length && miningRes.rows[0].today_date === todayDate) {
       todayMined = parseFloat(miningRes.rows[0].today_mined_pp) || 0;
     }
-    const dailyRemaining = Math.max(0, dailyCap - todayMined);
-    if (dailyRemaining <= 0) {
-      await client.query('ROLLBACK');
-      return res.status(429).json({ error: 'Daily mining cap reached ($' + dailyCap + '/day)' });
+    if (dailyCap > 0) {
+      const dailyRemaining = Math.max(0, dailyCap - todayMined);
+      if (dailyRemaining <= 0) {
+        await client.query('ROLLBACK');
+        return res.status(429).json({ error: 'Daily mining cap reached (' + dailyCap + ' PP/day)' });
+      }
+      harvestedPP = Math.min(harvestedPP, dailyRemaining);
     }
-    harvestedPP = Math.min(harvestedPP, dailyRemaining);
 
     // ── Deduct from reward pool ──
     const poolRes = await client.query('SELECT * FROM quest_reward_pool WHERE id = 1 FOR UPDATE');
@@ -2899,33 +2901,62 @@ router.post('/cosmetic/equip', writeLimiter, async (req, res) => {
   else if (itemCode.endsWith('_terrain')) cosmeticType = 'terrain';
   else return res.status(400).json({ error: 'Not a cosmetic item' });
 
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
+    const s = await cfg();
+
     // Verify claim ownership
-    const claimRes = await pool.query('SELECT owner FROM claims WHERE id = $1 AND deleted_at IS NULL', [claimId]);
+    const claimRes = await client.query('SELECT owner FROM claims WHERE id = $1 AND deleted_at IS NULL', [claimId]);
     if (!claimRes.rows[0] || claimRes.rows[0].owner.toLowerCase() !== w) {
+      await client.query('ROLLBACK');
       return res.status(403).json({ error: 'Not your claim' });
     }
 
     // Verify user owns the cosmetic item
-    const invRes = await pool.query(
+    const invRes = await client.query(
       `SELECT ui.quantity FROM user_items ui
        JOIN item_types it ON it.id = ui.item_type_id
        WHERE ui.wallet = $1 AND it.code = $2 AND ui.quantity > 0`, [w, itemCode]
     );
-    if (!invRes.rows[0]) return res.status(400).json({ error: 'You don\'t own this cosmetic' });
+    if (!invRes.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'You don\'t own this cosmetic' });
+    }
+
+    // PP fee for equipping cosmetics
+    const equipFee = parseFloat(s.cosmetic_equip_fee_pp) || 0;
+    if (equipFee > 0) {
+      const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
+      const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
+      if (ppBal < equipFee) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: `Insufficient PP. Need ${equipFee} PP to equip cosmetic.` });
+      }
+      await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [equipFee, w]);
+      await client.query(
+        `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+         VALUES ('shop_purchase', $1, $2, 0, $3)`,
+        [w, equipFee, JSON.stringify({ action: 'cosmetic_equip', itemCode, claimId })]
+      );
+    }
 
     // Equip (upsert — replaces existing cosmetic of same type on this claim)
-    await pool.query(
+    await client.query(
       `INSERT INTO user_cosmetics (wallet, claim_id, cosmetic_type, cosmetic_code)
        VALUES ($1, $2, $3, $4)
        ON CONFLICT (claim_id, cosmetic_type) DO UPDATE SET cosmetic_code = $4, wallet = $1, equipped_at = NOW()`,
       [w, claimId, cosmeticType, itemCode]
     );
 
-    res.json({ success: true, cosmeticType, cosmeticCode: itemCode });
+    await client.query('COMMIT');
+    res.json({ success: true, cosmeticType, cosmeticCode: itemCode, feePP: equipFee });
   } catch (e) {
+    await client.query('ROLLBACK');
     console.error('[COSMETIC] equip error:', e.message);
     res.status(500).json({ error: 'Equip failed' });
+  } finally {
+    client.release();
   }
 });
 
