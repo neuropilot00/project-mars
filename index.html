@@ -64,6 +64,18 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .weather-banner .wx-icon{font-size:12px}
 .weather-banner .wx-sector{color:#FFD166;font-size:8px;font-weight:700}
 .weather-banner .wx-time{color:rgba(255,153,68,0.7);font-size:7px}
+.weather-banner .wx-item{cursor:pointer;transition:background .15s;border-radius:8px}
+.weather-banner .wx-item:active{background:rgba(255,140,60,0.15)}
+.wx-detail-popup{position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(180deg,rgba(15,10,8,0.97),rgba(25,15,10,0.99));
+  border-top:1px solid rgba(255,140,60,0.3);padding:16px 20px 24px;transform:translateY(100%);transition:transform .25s ease;
+  font-family:var(--fn);backdrop-filter:blur(10px);max-height:50vh;overflow-y:auto}
+.wx-detail-popup.open{transform:translateY(0)}
+.wx-detail-popup .wx-d-close{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--tx3);font-size:18px;cursor:pointer}
+.wx-detail-popup .wx-d-title{font-size:14px;color:#FFD166;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.wx-detail-popup .wx-d-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,140,60,0.1)}
+.wx-detail-popup .wx-d-label{font-size:10px;color:var(--tx3)}
+.wx-detail-popup .wx-d-val{font-size:11px;font-weight:700}
+.wx-d-val.buff{color:var(--gn)}.wx-d-val.debuff{color:var(--red)}.wx-d-val.neutral{color:var(--cyan)}
 @media(max-width:768px){.weather-banner{bottom:112px;font-size:8px;padding:3px 10px}}
 
 /* Rocket Event Banner */
@@ -1447,6 +1459,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Weather Banner -->
 <div class="weather-banner" id="weatherBanner"></div>
+<div class="wx-detail-popup" id="wxDetailPopup">
+  <button class="wx-d-close" onclick="document.getElementById('wxDetailPopup').classList.remove('open')">&times;</button>
+  <div id="wxDetailContent"></div>
+</div>
 
 <!-- Rocket Event Banner -->
 <div class="rocket-banner" id="rocketBanner"></div>
@@ -10533,11 +10549,11 @@ window.addEventListener('resize', function(){
     if (!el) return;
     if (!_weatherData.length) { el.classList.remove('show'); el.innerHTML = ''; return; }
     var now = Date.now();
-    el.innerHTML = _weatherData.slice(0, 5).map(function(wx) {
+    el.innerHTML = _weatherData.slice(0, 5).map(function(wx, idx) {
       var remaining = Math.max(0, new Date(wx.endsAt).getTime() - now);
       var mins = Math.floor(remaining / 60000);
       var timeStr = mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
-      return '<div class="wx-item">'
+      return '<div class="wx-item" onclick="_showWeatherDetail('+idx+')">'
         + '<span class="wx-icon">' + (wx.icon || '🌡️') + '</span>'
         + '<span class="wx-sector">' + (wx.sectorName || 'Sector ' + wx.sectorId) + '</span>'
         + '<span class="wx-time">' + timeStr + '</span>'
@@ -10545,6 +10561,45 @@ window.addEventListener('resize', function(){
     }).join('');
     el.classList.add('show');
   }
+
+  var _wxEffectMap = {
+    sandstorm:   { name: 'Sandstorm', desc: 'Harsh winds carry abrasive particles across the surface',
+      effects: [{label:'Mining Yield',val:'+50%',type:'buff'},{label:'Movement Speed',val:'-20%',type:'debuff'},{label:'Visibility',val:'Reduced',type:'debuff'}]},
+    solar_flare: { name: 'Solar Flare', desc: 'Intense radiation from the sun disrupts electronics',
+      effects: [{label:'Mining Yield',val:'+100%',type:'buff'},{label:'Shield Strength',val:'-50%',type:'debuff'},{label:'Hijack Cost',val:'+25%',type:'buff'}]},
+    meteor_shower:{ name: 'Meteor Shower', desc: 'Debris from passing asteroids rains down on the surface',
+      effects: [{label:'Rare Drop Chance',val:'+30%',type:'buff'},{label:'Harvest Bonus',val:'+20%',type:'buff'},{label:'Structure Damage',val:'Possible',type:'debuff'}]},
+    dust_devil:  { name: 'Dust Devil', desc: 'Swirling columns of dust reduce operational efficiency',
+      effects: [{label:'Claim Cost',val:'-15%',type:'buff'},{label:'Mining Yield',val:'-10%',type:'debuff'},{label:'Exploration Speed',val:'+25%',type:'buff'}]}
+  };
+
+  window._showWeatherDetail = function(idx) {
+    var wx = _weatherData[idx];
+    if(!wx) return;
+    var info = _wxEffectMap[wx.weatherType] || {name:wx.weatherType,desc:'Unknown weather event',effects:[]};
+    var remaining = Math.max(0, new Date(wx.endsAt).getTime() - Date.now());
+    var mins = Math.floor(remaining / 60000);
+    var timeStr = mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
+
+    var html = '<div class="wx-d-title">' + (wx.icon||'🌡️') + ' ' + info.name + '</div>';
+    html += '<div style="font-size:10px;color:var(--tx2);margin-bottom:12px">' + info.desc + '</div>';
+    html += '<div class="wx-d-row"><div class="wx-d-label">Sector</div><div class="wx-d-val neutral">' + (wx.sectorName||'Sector '+wx.sectorId) + '</div></div>';
+    html += '<div class="wx-d-row"><div class="wx-d-label">Time Remaining</div><div class="wx-d-val neutral">' + timeStr + '</div></div>';
+    info.effects.forEach(function(e){
+      html += '<div class="wx-d-row"><div class="wx-d-label">'+e.label+'</div><div class="wx-d-val '+e.type+'">'+e.val+'</div></div>';
+    });
+    html += '<div style="margin-top:12px;font-size:8px;color:var(--tx3);text-align:center">Tap outside to close</div>';
+
+    document.getElementById('wxDetailContent').innerHTML = html;
+    document.getElementById('wxDetailPopup').classList.add('open');
+  };
+  // Close on outside tap
+  document.addEventListener('click', function(e){
+    var popup = document.getElementById('wxDetailPopup');
+    if(popup && popup.classList.contains('open') && !popup.contains(e.target) && !e.target.closest('.wx-item')){
+      popup.classList.remove('open');
+    }
+  });
   setTimeout(loadWeatherData, 4000);
   setInterval(loadWeatherData, 60000);
   setInterval(updateWeatherBanner, 30000);
