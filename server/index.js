@@ -320,6 +320,15 @@ async function start() {
     // Initialize database schema
     await initDB();
 
+    // Run pending SQL migrations automatically
+    try {
+      const { runMigrations } = require('./migrate');
+      await runMigrations();
+    } catch (migErr) {
+      console.error('[migrate] Auto-migration failed:', migErr.message);
+      // Don't crash — existing tables still work
+    }
+
     // Initialize withdrawal signer
     initSigner();
 
