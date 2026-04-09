@@ -312,13 +312,24 @@ router.post('/commander/announcement', writeLimiter, async (req, res) => {
 //  POST /api/governance/commander/bounty — place bounty
 // ═══════════════════════════════════════════════════════
 router.post('/commander/bounty', writeLimiter, async (req, res) => {
-  const { wallet, targetWallet, gpAmount, reason } = req.body;
-  if (!wallet || !targetWallet || !gpAmount) return res.status(400).json({ error: 'Missing fields' });
+  const { wallet, targetWallet, targetNickname, gpAmount, reason } = req.body;
+  if (!wallet || (!targetWallet && !targetNickname) || !gpAmount) return res.status(400).json({ error: 'Missing fields' });
 
   const client = await pool.connect();
   try {
     if (!(await verifyCommander(wallet, 'commander'))) {
       return res.status(403).json({ error: 'Only the Commander can place bounties' });
+    }
+
+    // Resolve nickname to wallet if needed
+    let resolvedTarget = targetWallet;
+    if (!resolvedTarget && targetNickname) {
+      const nickRes = await pool.query(
+        'SELECT wallet_address FROM users WHERE LOWER(nickname) = LOWER($1) LIMIT 1',
+        [targetNickname.trim()]
+      );
+      if (!nickRes.rows[0]) return res.status(400).json({ error: 'Player "' + targetNickname + '" not found' });
+      resolvedTarget = nickRes.rows[0].wallet_address;
     }
 
     const amount = parseFloat(gpAmount);
@@ -345,17 +356,17 @@ router.post('/commander/bounty', writeLimiter, async (req, res) => {
     await client.query(
       `INSERT INTO bounties (placed_by, target_wallet, gp_reward, pp_reward, reason, expires_at)
        VALUES ($1, $2, $3, $3, $4, NOW() + INTERVAL '7 days')`,
-      [wallet.toLowerCase(), targetWallet.toLowerCase(), amount, (reason || '').slice(0, 200)]
+      [wallet.toLowerCase(), resolvedTarget.toLowerCase(), amount, (reason || '').slice(0, 200)]
     );
 
     await client.query(
       `INSERT INTO governance_transactions (type, from_role, to_role, sector_id, wallet, gp_amount, meta)
        VALUES ('bounty_spend', 'commander', 'bounty', NULL, $1, $2, $3)`,
-      [wallet.toLowerCase(), amount, JSON.stringify({ target: targetWallet.toLowerCase(), reason })]
+      [wallet.toLowerCase(), amount, JSON.stringify({ target: resolvedTarget.toLowerCase(), nickname: targetNickname || null, reason })]
     );
 
     await client.query('COMMIT');
-    res.json({ success: true, target: targetWallet, gpSpent: amount, ppReward: amount });
+    res.json({ success: true, target: resolvedTarget, nickname: targetNickname || null, gpSpent: amount, ppReward: amount });
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[GOV] bounty error:', e.message);

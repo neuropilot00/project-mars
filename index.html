@@ -64,7 +64,8 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .tb-commander .cmd-name{font-weight:700;font-size:11px}
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
 @media(max-width:768px){.tb-commander{top:85px;padding:3px 10px;font-size:9px}
-  .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}}
+  .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}
+  #tbCmdAnnounce{top:112px!important;font-size:8px!important;max-width:80%!important}}
 
 /* Governance Leaderboard (sidebar) */
 .gov-lb-section{margin-top:2px;border-top:1px solid var(--bdr)}
@@ -1403,6 +1404,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <span class="cmd-label">COMMANDER</span>
   <span class="cmd-name" id="tbCmdName">--</span>
 </div>
+<div id="tbCmdAnnounce" style="display:none;position:fixed;top:160px;left:50%;transform:translateX(-50%);z-index:108;
+  font-family:var(--fn);font-size:9px;color:var(--gold);opacity:0.8;white-space:nowrap;pointer-events:none;
+  padding:3px 12px;background:rgba(20,16,10,0.6);border-radius:10px;backdrop-filter:blur(4px);max-width:60%;overflow:hidden;text-overflow:ellipsis"></div>
 
 <!-- Active Item Buffs Overlay -->
 <div id="tbActiveBuffs" style="display:none;position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:110;flex-direction:row;gap:6px;pointer-events:none"></div>
@@ -2069,7 +2073,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             </div>
             <div style="font-size:9px;color:var(--tx3);margin-top:4px">BOUNTY</div>
             <div style="display:flex;gap:4px;align-items:center">
-              <input type="text" id="govBountyTarget" placeholder="0x target wallet" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:9px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+              <input type="text" id="govBountyTarget" placeholder="Target nickname" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:9px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
               <input type="number" id="govBountyAmount" placeholder="GP" style="width:60px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:9px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
               <button class="sz-btn" onclick="govPlaceBounty()" style="color:var(--red);border-color:rgba(232,72,85,.3);font-size:8px;padding:4px 8px">PLACE</button>
             </div>
@@ -8263,6 +8267,17 @@ function _drawSectorOverlay(ctx,w,h){
       ctx.fillText((isCommander?'⭐ ':'👑 ')+govName,cx,govY);
     }
 
+    // Sector announcement below governor name
+    if(s.announcement){
+      var annSize=Math.max(11,tierSize*0.55);
+      var annY=govName?(govY+annSize+4):(cy+fontSize*0.55+tierSize*0.2+tierSize*0.8+4);
+      ctx.font='italic '+annSize+'px monospace';
+      ctx.globalAlpha=0.6;
+      ctx.fillStyle='#FFD166';
+      var annText=s.announcement.length>30?s.announcement.slice(0,30)+'…':s.announcement;
+      ctx.fillText('📢 '+annText,cx,annY);
+    }
+
     ctx.shadowColor='transparent';ctx.shadowBlur=0;
     ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
   });
@@ -9698,6 +9713,16 @@ window.addEventListener('resize', function(){
       } else {
         el.classList.remove('show');
       }
+      // Show commander announcement below commander banner
+      var cmdAnnEl = document.getElementById('tbCmdAnnounce');
+      if (cmdAnnEl) {
+        if (info.announcement) {
+          cmdAnnEl.textContent = '📢 ' + info.announcement;
+          cmdAnnEl.style.display = 'block';
+        } else {
+          cmdAnnEl.style.display = 'none';
+        }
+      }
       updateGovRoles();
     }).catch(function(){});
   }
@@ -10012,11 +10037,11 @@ window.addEventListener('resize', function(){
     if(!w){showToast('Connect wallet first');return}
     var target = document.getElementById('govBountyTarget').value.trim();
     var amount = parseFloat(document.getElementById('govBountyAmount').value);
-    if(!target||!amount||amount<=0){showToast('Enter target wallet and GP amount');return}
+    if(!target||!amount||amount<=0){showToast('Enter target nickname and GP amount');return}
     fetch('/api/governance/commander/bounty',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wallet:w,targetWallet:target,gpAmount:amount})
+      body:JSON.stringify({wallet:w,targetNickname:target,gpAmount:amount})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error);return}
       showToast('Bounty placed: '+d.ppReward+' PP reward');
