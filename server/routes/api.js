@@ -495,6 +495,31 @@ router.get('/claims', async (req, res) => {
          ORDER BY c.created_at DESC LIMIT 5000`
       );
     }
+    // Fetch cosmetics + hijack counts (non-critical, fail-safe)
+    const claimIds = result.rows.map(r => r.id);
+    const ownerWallets = [...new Set(result.rows.map(r => r.owner))];
+    let cosmeticsMap = {};
+    let hijackMap = {};
+    if (claimIds.length > 0) {
+      try {
+        const cosRes = await pool.query(
+          'SELECT claim_id, cosmetic_type, cosmetic_code FROM user_cosmetics WHERE claim_id = ANY($1)',
+          [claimIds]
+        );
+        cosRes.rows.forEach(c => {
+          if (!cosmeticsMap[c.claim_id]) cosmeticsMap[c.claim_id] = {};
+          cosmeticsMap[c.claim_id][c.cosmetic_type] = c.cosmetic_code;
+        });
+      } catch (_ce) { /* cosmetics table may not exist yet */ }
+      try {
+        const hjRes = await pool.query(
+          'SELECT wallet_address, hijack_count FROM users WHERE wallet_address = ANY($1) AND hijack_count > 0',
+          [ownerWallets]
+        );
+        hjRes.rows.forEach(r => { hijackMap[r.wallet_address] = parseInt(r.hijack_count) || 0; });
+      } catch (_he) { /* hijack_count column may not exist yet */ }
+    }
+
     res.json(result.rows.map(r => ({
       id: r.id, owner: r.owner,
       lat: parseFloat(r.center_lat), lng: parseFloat(r.center_lng),
@@ -509,7 +534,9 @@ router.get('/claims', async (req, res) => {
       imgOffsetX: r.img_offset_x || 0,
       imgOffsetY: r.img_offset_y || 0,
       ts: new Date(r.created_at).getTime(),
-      shield: r.shield_type ? { type: r.shield_type, hp: r.shield_hp, maxHp: r.shield_max_hp, expires: new Date(r.shield_expires).getTime() } : null
+      shield: r.shield_type ? { type: r.shield_type, hp: r.shield_hp, maxHp: r.shield_max_hp, expires: new Date(r.shield_expires).getTime() } : null,
+      hijackCount: hijackMap[r.owner] || 0,
+      cosmetics: cosmeticsMap[r.id] || null
     })));
   } catch (e) {
     console.error('[API] claims error:', e.message);
@@ -924,6 +951,17 @@ router.post('/claim', writeLimiter, async (req, res) => {
            wonVs > lostVs]
         );
         battleResults.push({ id: res2.rows[0].id, defender: defender.slice(0,6)+'...', attacked: info.attackedPixels, won: wonVs, lost: lostVs });
+      }
+    }
+
+    // Increment hijack count for attacker (non-critical, uses savepoint)
+    if (attackWon > 0) {
+      try {
+        await client.query('SAVEPOINT hijack_sp');
+        await client.query('UPDATE users SET hijack_count = COALESCE(hijack_count, 0) + 1 WHERE wallet_address = $1', [walletLower]);
+        await client.query('RELEASE SAVEPOINT hijack_sp');
+      } catch (_hce) {
+        await client.query('ROLLBACK TO SAVEPOINT hijack_sp');
       }
     }
 
@@ -2663,6 +2701,88 @@ router.get('/shop/active-effects', readLimiter, async (req, res) => {
     res.json(result.rows);
   } catch (e) {
     console.error('[SHOP] active-effects error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════
+// COSMETICS
+// ══════════════════════════════════════
+
+// POST /api/cosmetic/equip — equip a cosmetic to a claim
+router.post('/cosmetic/equip', writeLimiter, async (req, res) => {
+  const { wallet, claimId, itemCode } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !claimId || !itemCode) return res.status(400).json({ error: 'Missing params' });
+
+  // Derive cosmetic_type from item code
+  let cosmeticType;
+  if (itemCode.endsWith('_border')) cosmeticType = 'border';
+  else if (itemCode.endsWith('_glow') || itemCode === 'dark_aura') cosmeticType = 'glow';
+  else if (itemCode.endsWith('_terrain')) cosmeticType = 'terrain';
+  else return res.status(400).json({ error: 'Not a cosmetic item' });
+
+  try {
+    // Verify claim ownership
+    const claimRes = await pool.query('SELECT owner FROM claims WHERE id = $1 AND deleted_at IS NULL', [claimId]);
+    if (!claimRes.rows[0] || claimRes.rows[0].owner.toLowerCase() !== w) {
+      return res.status(403).json({ error: 'Not your claim' });
+    }
+
+    // Verify user owns the cosmetic item
+    const invRes = await pool.query(
+      `SELECT ui.quantity FROM user_items ui
+       JOIN item_types it ON it.id = ui.item_type_id
+       WHERE ui.wallet = $1 AND it.code = $2 AND ui.quantity > 0`, [w, itemCode]
+    );
+    if (!invRes.rows[0]) return res.status(400).json({ error: 'You don\'t own this cosmetic' });
+
+    // Equip (upsert — replaces existing cosmetic of same type on this claim)
+    await pool.query(
+      `INSERT INTO user_cosmetics (wallet, claim_id, cosmetic_type, cosmetic_code)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (claim_id, cosmetic_type) DO UPDATE SET cosmetic_code = $4, wallet = $1, equipped_at = NOW()`,
+      [w, claimId, cosmeticType, itemCode]
+    );
+
+    res.json({ success: true, cosmeticType, cosmeticCode: itemCode });
+  } catch (e) {
+    console.error('[COSMETIC] equip error:', e.message);
+    res.status(500).json({ error: 'Equip failed' });
+  }
+});
+
+// POST /api/cosmetic/unequip — remove a cosmetic from a claim
+router.post('/cosmetic/unequip', writeLimiter, async (req, res) => {
+  const { wallet, claimId, cosmeticType } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !claimId || !cosmeticType) return res.status(400).json({ error: 'Missing params' });
+
+  try {
+    const result = await pool.query(
+      'DELETE FROM user_cosmetics WHERE wallet = $1 AND claim_id = $2 AND cosmetic_type = $3 RETURNING id',
+      [w, claimId, cosmeticType]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: 'No cosmetic to remove' });
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[COSMETIC] unequip error:', e.message);
+    res.status(500).json({ error: 'Unequip failed' });
+  }
+});
+
+// GET /api/cosmetic/equipped?wallet= — get all equipped cosmetics for a user
+router.get('/cosmetic/equipped', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Wallet required' });
+  try {
+    const result = await pool.query(
+      'SELECT claim_id, cosmetic_type, cosmetic_code, equipped_at FROM user_cosmetics WHERE wallet = $1 ORDER BY equipped_at DESC',
+      [w]
+    );
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[COSMETIC] equipped error:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
 });
