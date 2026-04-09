@@ -8,6 +8,80 @@ const { sendResetCode, isSmtpConfigured } = require('../services/email');
 
 const router = express.Router();
 
+// ── Login Attempt Tracking (in-memory) ──
+// Map<email, { attempts: number, firstAttemptAt: number, lockedUntil: number }>
+const loginAttempts = new Map();
+const MAX_LOGIN_ATTEMPTS = 5;
+const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;   // 15 minutes
+const LOCKOUT_DURATION_MS = 30 * 60 * 1000;  // 30 minutes
+
+// Clean up stale entries every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, data] of loginAttempts) {
+    if (data.lockedUntil && now > data.lockedUntil) {
+      loginAttempts.delete(email);
+    } else if (!data.lockedUntil && now - data.firstAttemptAt > ATTEMPT_WINDOW_MS) {
+      loginAttempts.delete(email);
+    }
+  }
+}, 10 * 60 * 1000);
+
+function checkLoginLockout(email) {
+  const data = loginAttempts.get(email);
+  if (!data) return null;
+
+  const now = Date.now();
+
+  // Account is locked
+  if (data.lockedUntil && now < data.lockedUntil) {
+    const remainingMs = data.lockedUntil - now;
+    return {
+      locked: true,
+      remainingSeconds: Math.ceil(remainingMs / 1000),
+      lockedUntil: new Date(data.lockedUntil).toISOString()
+    };
+  }
+
+  // Lock expired — reset
+  if (data.lockedUntil && now >= data.lockedUntil) {
+    loginAttempts.delete(email);
+    return null;
+  }
+
+  // Attempt window expired — reset
+  if (now - data.firstAttemptAt > ATTEMPT_WINDOW_MS) {
+    loginAttempts.delete(email);
+    return null;
+  }
+
+  return null;
+}
+
+function recordFailedLogin(email) {
+  const now = Date.now();
+  let data = loginAttempts.get(email);
+
+  if (!data || now - data.firstAttemptAt > ATTEMPT_WINDOW_MS) {
+    data = { attempts: 1, firstAttemptAt: now, lockedUntil: null };
+    loginAttempts.set(email, data);
+    return;
+  }
+
+  data.attempts += 1;
+
+  if (data.attempts >= MAX_LOGIN_ATTEMPTS) {
+    data.lockedUntil = now + LOCKOUT_DURATION_MS;
+    console.log(`[Auth] Account locked for 30 minutes due to ${data.attempts} failed attempts: ${email}`);
+  }
+
+  loginAttempts.set(email, data);
+}
+
+function resetLoginAttempts(email) {
+  loginAttempts.delete(email);
+}
+
 // ── Auth Rate Limiters ──
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 20,
@@ -174,13 +248,26 @@ router.post('/login', authLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Email too long (max 254 chars)' });
   }
 
+  const normalizedEmail = email.toLowerCase();
+
+  // ── Check login lockout ──
+  const lockout = checkLoginLockout(normalizedEmail);
+  if (lockout && lockout.locked) {
+    return res.status(429).json({
+      error: `Account temporarily locked due to too many failed login attempts. Try again after ${lockout.lockedUntil}`,
+      lockedUntil: lockout.lockedUntil,
+      remainingSeconds: lockout.remainingSeconds
+    });
+  }
+
   try {
     const result = await pool.query(
       'SELECT wallet_address, email, password_hash, nickname, referral_code FROM users WHERE email = $1',
-      [email.toLowerCase()]
+      [normalizedEmail]
     );
 
     if (!result.rows.length) {
+      recordFailedLogin(normalizedEmail);
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
@@ -192,8 +279,12 @@ router.post('/login', authLimiter, async (req, res) => {
 
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
+      recordFailedLogin(normalizedEmail);
       return res.status(401).json({ error: 'Invalid email or password' });
     }
+
+    // ── Successful login — reset failed attempts ──
+    resetLoginAttempts(normalizedEmail);
 
     const token = jwt.sign(
       { wallet: user.wallet_address, email: user.email, nickname: user.nickname },

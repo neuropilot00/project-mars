@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#FF4500">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.json">
 <title>OCCUPY MARS — Claim Your Territory</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/globe.gl@2.27.2"></script>
@@ -9863,16 +9867,21 @@ function _animateStarlinkOrbit() {
     if (sc && sc.x > -50 && sc.y > -50) {
       sd.el.style.left = (sc.x - 4) + 'px';
       sd.el.style.top = (sc.y - 4) + 'px';
-      // Occlusion: check if satellite is on the far side of globe
-      var scSurface = globe.getScreenCoords(lat, lng, 0);
-      var scHigh = globe.getScreenCoords(lat, lng, _slAlt + 0.01);
-      // If surface and altitude coords are very close, satellite is behind globe
-      if (scSurface && scHigh) {
-        var dx = scHigh.x - scSurface.x, dy = scHigh.y - scSurface.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        sd.el.style.opacity = dist < 0.3 ? '0' : '1';
+      // Occlusion: dot product of surface normal with camera direction
+      var cam = globe.camera().position;
+      var latR = lat * Math.PI / 180, lngR = lng * Math.PI / 180;
+      var px = Math.cos(latR) * Math.cos(lngR);
+      var py = Math.sin(latR);
+      var pz = Math.cos(latR) * Math.sin(lngR);
+      var dot = px * cam.x + py * cam.y + pz * cam.z;
+      // dot>0 = facing camera (visible), dot<=0 = behind globe
+      // Smooth fade near the edge (dot 0~0.15)
+      if (dot < 0) {
+        sd.el.style.opacity = '0';
+      } else if (dot < 0.15 * Math.sqrt(cam.x*cam.x+cam.y*cam.y+cam.z*cam.z)) {
+        sd.el.style.opacity = '0.3';
       } else {
-        sd.el.style.opacity = '0.8';
+        sd.el.style.opacity = '1';
       }
     } else {
       sd.el.style.opacity = '0';
@@ -12223,5 +12232,6 @@ window.addEventListener('resize', function(){
 })();
 
 </script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </body>
 </html>

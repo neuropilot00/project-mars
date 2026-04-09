@@ -1237,10 +1237,26 @@ router.post('/withdraw', writeLimiter, async (req, res) => {
     await client.query('BEGIN');
 
     const userRes = await client.query(
-      'SELECT usdt_balance, withdrawal_nonce FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT usdt_balance, withdrawal_nonce, last_withdrawal_at FROM users WHERE wallet_address = $1 FOR UPDATE',
       [wallet.toLowerCase()]
     );
     if (!userRes.rows.length) throw new Error('User not found');
+
+    // ── Withdrawal cooldown check ──
+    const s = await cfg();
+    const cooldownHours = Number(s.withdrawal_cooldown_hours) || 24;
+    if (cooldownHours > 0 && userRes.rows[0].last_withdrawal_at) {
+      const lastWithdrawal = new Date(userRes.rows[0].last_withdrawal_at);
+      const nextAllowed = new Date(lastWithdrawal.getTime() + cooldownHours * 60 * 60 * 1000);
+      if (Date.now() < nextAllowed.getTime()) {
+        await client.query('ROLLBACK');
+        return res.status(429).json({
+          error: `Withdrawal cooldown active. Next withdrawal allowed after ${nextAllowed.toISOString()}`,
+          nextAllowedAt: nextAllowed.toISOString(),
+          remainingSeconds: Math.ceil((nextAllowed.getTime() - Date.now()) / 1000)
+        });
+      }
+    }
 
     const bal = parseFloat(userRes.rows[0].usdt_balance);
     if (bal < amount) {
@@ -1251,9 +1267,9 @@ router.post('/withdraw', writeLimiter, async (req, res) => {
     // Read and increment nonce
     const nonce = userRes.rows[0].withdrawal_nonce || 0;
 
-    // Deduct from DB and increment nonce
+    // Deduct from DB, increment nonce, and update last_withdrawal_at
     await client.query(
-      'UPDATE users SET usdt_balance = usdt_balance - $1, withdrawal_nonce = withdrawal_nonce + 1 WHERE wallet_address = $2',
+      'UPDATE users SET usdt_balance = usdt_balance - $1, withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE wallet_address = $2',
       [amount, wallet.toLowerCase()]
     );
 
@@ -1296,15 +1312,30 @@ router.post('/withdraw-all', writeLimiter, async (req, res) => {
     await client.query('BEGIN');
 
     const userRes = await client.query(
-      'SELECT usdt_balance, pp_balance, withdrawal_nonce FROM users WHERE wallet_address = $1 FOR UPDATE',
+      'SELECT usdt_balance, pp_balance, withdrawal_nonce, last_withdrawal_at FROM users WHERE wallet_address = $1 FOR UPDATE',
       [wallet.toLowerCase()]
     );
     if (!userRes.rows.length) throw new Error('User not found');
 
+    // ── Withdrawal cooldown check ──
+    const s = await cfg();
+    const cooldownHours = Number(s.withdrawal_cooldown_hours) || 24;
+    if (cooldownHours > 0 && userRes.rows[0].last_withdrawal_at) {
+      const lastWithdrawal = new Date(userRes.rows[0].last_withdrawal_at);
+      const nextAllowed = new Date(lastWithdrawal.getTime() + cooldownHours * 60 * 60 * 1000);
+      if (Date.now() < nextAllowed.getTime()) {
+        await client.query('ROLLBACK');
+        return res.status(429).json({
+          error: `Withdrawal cooldown active. Next withdrawal allowed after ${nextAllowed.toISOString()}`,
+          nextAllowedAt: nextAllowed.toISOString(),
+          remainingSeconds: Math.ceil((nextAllowed.getTime() - Date.now()) / 1000)
+        });
+      }
+    }
+
     const usdtBal = parseFloat(userRes.rows[0].usdt_balance);
     const ppBal = parseFloat(userRes.rows[0].pp_balance);
     const nonce = userRes.rows[0].withdrawal_nonce || 0;
-    const s = await cfg();
     const swapFeePct = (s.swap_fee_percent || 5) / 100;
     const ppFee = Math.round(ppBal * swapFeePct * 1000000) / 1000000;
     const totalOut = Math.round((usdtBal + ppBal - ppFee) * 1000000) / 1000000;
@@ -1314,9 +1345,9 @@ router.post('/withdraw-all', writeLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Nothing to withdraw' });
     }
 
-    // Zero balances and increment nonce
+    // Zero balances, increment nonce, and update last_withdrawal_at
     await client.query(
-      'UPDATE users SET usdt_balance = 0, pp_balance = 0, withdrawal_nonce = withdrawal_nonce + 1 WHERE wallet_address = $1',
+      'UPDATE users SET usdt_balance = 0, pp_balance = 0, withdrawal_nonce = withdrawal_nonce + 1, last_withdrawal_at = NOW() WHERE wallet_address = $1',
       [wallet.toLowerCase()]
     );
 

@@ -252,6 +252,20 @@ async function start() {
       console.log('[EXPLORE] Scheduled tasks initialized (expire: 5min, POI spawn: 4h, starlink: 10min)');
     } catch(e) { console.warn('[EXPLORE] Could not init scheduled tasks:', e.message); }
 
+    // ── Maintenance Fee Scheduled Tasks ──
+    try {
+      const { processMaintenanceFees } = require('./services/maintenance');
+      // Check daily if weekly maintenance fees are due
+      setInterval(async () => {
+        try { await processMaintenanceFees(); } catch(e) { console.warn('[MAINTENANCE] process error:', e.message); }
+      }, 24 * 60 * 60 * 1000);
+      // Initial check on startup (after 90s delay)
+      setTimeout(async () => {
+        try { await processMaintenanceFees(); } catch(e) { console.warn('[MAINTENANCE] initial check error:', e.message); }
+      }, 90 * 1000);
+      console.log('[MAINTENANCE] Scheduled tasks initialized (check: 24h, runs weekly)');
+    } catch(e) { console.warn('[MAINTENANCE] Could not init scheduled tasks:', e.message); }
+
     // ── Rocket Scheduled Tasks ──
     try {
       const { autoScheduleRocket, processRocketLanding, processRocketCompletion } = require('./services/rocket');
