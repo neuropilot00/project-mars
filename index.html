@@ -1692,13 +1692,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
   <div class="p-section">
     <div class="p-title" data-i18n="leaderboard">LEADERBOARD</div>
-    <div id="leaderboardList">
-    <div class="lb-row"><span class="lb-rank gold">1</span><span class="lb-name">DogeTeam</span><span class="lb-val">12 plots</span></div>
-    <div class="lb-row"><span class="lb-rank silver">2</span><span class="lb-name">예원♥</span><span class="lb-val">8 plots</span></div>
-    <div class="lb-row"><span class="lb-rank bronze">3</span><span class="lb-name">0xDEAD</span><span class="lb-val">5 plots</span></div>
-    <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">4</span><span class="lb-name">PepeArmy</span><span class="lb-val">3 plots</span></div>
-    <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">5</span><span class="lb-name">고래연합</span><span class="lb-val">2 plots</span></div>
-    </div>
+    <div id="leaderboardList"></div>
+    <div id="lbToggle" style="display:none;text-align:center;padding:2px 0;cursor:pointer;font-size:8px;color:var(--tx3);font-family:var(--fn);letter-spacing:0.5px" onclick="toggleLeaderboard()">▼ TOP 10</div>
   </div>
   <!-- Governance Leaderboard -->
   <div class="p-section gov-lb-section" id="govLeaderboardSection">
@@ -10319,11 +10314,12 @@ function loadPublicStats(){
 }
 
 function loadLeaderboard(){
-  fetch('/api/leaderboard?sort=pixels&limit=5').then(function(r){return r.json();}).then(function(arr){
+  fetch('/api/leaderboard?sort=pixels&limit=10').then(function(r){return r.json();}).then(function(arr){
     var container=document.getElementById('leaderboardList');
     if(!container) return;
     if(!Array.isArray(arr)||arr.length===0){
       container.innerHTML='<div style="font-size:var(--fs-xs);color:var(--tx3);padding:8px 0;text-align:center">No claims yet</div>';
+      document.getElementById('lbToggle').style.display='none';
       return;
     }
     var rankClasses=['gold','silver','bronze'];
@@ -10335,12 +10331,23 @@ function loadLeaderboard(){
       var name=entry.nickname||entry.wallet;
       if(!entry.nickname&&name&&name.length>10) name=name.slice(0,6)+'..'+name.slice(-4);
       var px=entry.pixelCount||0;
-      html+='<div class="lb-row"><span class="lb-rank'+(rankCls?' '+rankCls:'')+'"'+rankStyle+'>'+rank+'</span>'
+      var hide=i>=3?' style="display:none" class="lb-row lb-extra"':' class="lb-row"';
+      html+='<div'+hide+'><span class="lb-rank'+(rankCls?' '+rankCls:'')+'"'+rankStyle+'>'+rank+'</span>'
         +'<span class="lb-name">'+name+'</span>'
         +'<span class="lb-val">'+fmtNum(px)+' px</span></div>';
     });
     container.innerHTML=html;
+    var toggle=document.getElementById('lbToggle');
+    if(toggle) toggle.style.display=arr.length>3?'block':'none';
   }).catch(function(e){console.warn('[Leaderboard] fetch failed:',e);});
+}
+var _lbExpanded=false;
+function toggleLeaderboard(){
+  _lbExpanded=!_lbExpanded;
+  var extras=document.querySelectorAll('#leaderboardList .lb-extra');
+  extras.forEach(function(el){el.style.display=_lbExpanded?'flex':'none'});
+  var toggle=document.getElementById('lbToggle');
+  if(toggle) toggle.innerHTML=_lbExpanded?'▲ TOP 3':'▼ TOP 10';
 }
 
 setLoadProgress(95,'Loading stats...');
