@@ -2,13 +2,13 @@ const { pool, getSetting } = require('../db');
 
 // Mission pool definitions
 const MISSION_POOL = [
-  { type: 'claim_pixels',    label: 'Expand Territory',  targetMin: 3, targetMax: 8, rewardGP: 15, rewardXP: 5 },
-  { type: 'harvest',         label: 'Collect Resources',  targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
-  { type: 'explore_poi',     label: 'Recon Mission',      targetMin: 1, targetMax: 1, rewardGP: 20, rewardXP: 5 },
-  { type: 'hijack',          label: 'Hostile Takeover',    targetMin: 1, targetMax: 3, rewardGP: 25, rewardXP: 5 },
-  { type: 'play_cantina',    label: 'Cantina Night',      targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
-  { type: 'equip_cosmetic',  label: 'Mars Fashion',       targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
-  { type: 'view_weather',    label: 'Storm Chaser',       targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'claim_pixels',    label: 'Expand Territory',  icon: '🏴', targetMin: 3, targetMax: 8, rewardGP: 15, rewardXP: 5 },
+  { type: 'harvest',         label: 'Collect Resources', icon: '⛏️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'explore_poi',     label: 'Recon Mission',     icon: '🔭', targetMin: 1, targetMax: 1, rewardGP: 20, rewardXP: 5 },
+  { type: 'hijack',          label: 'Hostile Takeover',   icon: '⚔️', targetMin: 1, targetMax: 3, rewardGP: 25, rewardXP: 5 },
+  { type: 'play_cantina',    label: 'Cantina Night',     icon: '🎰', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'equip_cosmetic',  label: 'Mars Fashion',      icon: '👗', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'view_weather',    label: 'Storm Chaser',      icon: '🌪️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
 ];
 
 function randInt(min, max) {
@@ -161,10 +161,11 @@ function formatMission(row) {
     id: row.id,
     slot: row.slot,
     type: row.mission_type,
-    label: def ? def.label : row.mission_type,
-    targetValue: row.target_value,
-    currentValue: row.current_value,
-    rewardGP: parseFloat(row.reward_gp),
+    icon: def ? def.icon : '📋',
+    title: def ? def.label : row.mission_type,
+    target: row.target_value,
+    current: row.current_value,
+    reward: parseFloat(row.reward_gp),
     rewardXP: row.reward_xp,
     completed: row.completed,
     claimed: row.claimed

@@ -13799,28 +13799,34 @@ function renderDailyMissions(){
   var html = '';
   var allClaimed = true;
   _dailyState.missions.forEach(function(m){
-    var pct = Math.min((m.current/m.target)*100, 100);
-    var claimable = m.current >= m.target && !m.claimed;
+    // Support both server field names and local defaults
+    var icon = m.icon || '📋';
+    var title = m.title || m.label || m.type;
+    var target = m.target != null ? m.target : m.targetValue;
+    var current = m.current != null ? m.current : m.currentValue;
+    var reward = m.reward != null ? m.reward : m.rewardGP;
+    var pct = Math.min((current/target)*100, 100);
+    var claimable = current >= target && !m.claimed;
     var cls = 'daily-mission-card';
     if(m.claimed) cls += ' claimed';
     else if(claimable) cls += ' claimable';
     if(!m.claimed) allClaimed = false;
 
     html += '<div class="'+cls+'" id="dm_'+m.id+'">';
-    html += '<div class="dm-icon">'+m.icon+'</div>';
+    html += '<div class="dm-icon">'+icon+'</div>';
     html += '<div class="dm-info">';
-    html += '<div class="dm-title">'+m.title+'</div>';
+    html += '<div class="dm-title">'+title+'</div>';
     html += '<div class="dm-prog-bar"><div class="dm-prog-fill" style="width:'+pct+'%"></div></div>';
-    html += '<div class="dm-prog-text">'+Math.min(m.current,m.target)+' / '+m.target+'</div>';
+    html += '<div class="dm-prog-text">'+Math.min(current,target)+' / '+target+'</div>';
     html += '</div>';
     html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">';
-    html += '<div class="dm-reward">+'+m.reward+' GP</div>';
+    html += '<div class="dm-reward">+'+reward+' GP</div>';
     if(m.claimed){
       html += '<span class="dm-claimed-check">✓</span>';
     } else if(claimable){
       html += '<button class="dm-claim-btn" onclick="claimMission(\''+m.id+'\')">CLAIM</button>';
     } else {
-      html += '<button class="dm-claim-btn" disabled>'+Math.min(m.current,m.target)+'/'+m.target+'</button>';
+      html += '<button class="dm-claim-btn" disabled>'+Math.min(current,target)+'/'+target+'</button>';
     }
     html += '</div></div>';
   });
