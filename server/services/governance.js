@@ -47,14 +47,27 @@ async function recalculateGovernor(client, sectorId) {
   // ── Governor change ──
   if (newGov !== oldGov) {
     changed = true;
-    // Transfer old governor's GP to sector pool
+    // Close old governor's history record + transfer GP
     if (oldGov) {
+      await client.query(
+        `UPDATE governance_history SET ended_at = NOW(),
+           tenure_seconds = EXTRACT(EPOCH FROM (NOW() - started_at))::int
+         WHERE wallet = $1 AND role = 'governor' AND sector_id = $2 AND ended_at IS NULL`,
+        [oldGov, sectorId]
+      );
       const oldPos = await client.query(
         `SELECT gp_balance FROM governance_positions WHERE role = 'governor' AND sector_id = $1`,
         [sectorId]
       );
       const oldGP = oldPos.rows[0] ? parseFloat(oldPos.rows[0].gp_balance) : 0;
+      // Record tax earned in history
       if (oldGP > 0) {
+        await client.query(
+          `UPDATE governance_history SET total_tax_earned = $1
+           WHERE wallet = $2 AND role = 'governor' AND sector_id = $3
+             AND ended_at IS NOT NULL ORDER BY ended_at DESC LIMIT 1`,
+          [oldGP, oldGov, sectorId]
+        );
         await client.query(
           'UPDATE sectors SET sector_pool_gp = sector_pool_gp + $1 WHERE id = $2',
           [oldGP, sectorId]
@@ -68,12 +81,16 @@ async function recalculateGovernor(client, sectorId) {
         [sectorId]
       );
     }
-    // Create new governor position
+    // Create new governor position + history record
     if (newGov) {
       await client.query(
         `INSERT INTO governance_positions (wallet, role, sector_id, gp_balance, appointed_at)
          VALUES ($1, 'governor', $2, 0, NOW())
          ON CONFLICT (role, sector_id) DO UPDATE SET wallet = $1, gp_balance = 0, appointed_at = NOW()`,
+        [newGov, sectorId]
+      );
+      await client.query(
+        `INSERT INTO governance_history (wallet, role, sector_id, started_at) VALUES ($1, 'governor', $2, NOW())`,
         [newGov, sectorId]
       );
     }
@@ -88,6 +105,12 @@ async function recalculateGovernor(client, sectorId) {
   if (newVice !== oldVice) {
     changed = true;
     if (oldVice) {
+      await client.query(
+        `UPDATE governance_history SET ended_at = NOW(),
+           tenure_seconds = EXTRACT(EPOCH FROM (NOW() - started_at))::int
+         WHERE wallet = $1 AND role = 'vice_governor' AND sector_id = $2 AND ended_at IS NULL`,
+        [oldVice, sectorId]
+      );
       const oldPos = await client.query(
         `SELECT gp_balance FROM governance_positions WHERE role = 'vice_governor' AND sector_id = $1`,
         [sectorId]
@@ -111,6 +134,10 @@ async function recalculateGovernor(client, sectorId) {
         `INSERT INTO governance_positions (wallet, role, sector_id, gp_balance, appointed_at)
          VALUES ($1, 'vice_governor', $2, 0, NOW())
          ON CONFLICT (role, sector_id) DO UPDATE SET wallet = $1, gp_balance = 0, appointed_at = NOW()`,
+        [newVice, sectorId]
+      );
+      await client.query(
+        `INSERT INTO governance_history (wallet, role, sector_id, started_at) VALUES ($1, 'vice_governor', $2, NOW())`,
         [newVice, sectorId]
       );
     }
@@ -149,6 +176,12 @@ async function recalculateCommander(client) {
   if (newCmd !== oldCmd) {
     changed = true;
     if (oldCmd) {
+      await client.query(
+        `UPDATE governance_history SET ended_at = NOW(),
+           tenure_seconds = EXTRACT(EPOCH FROM (NOW() - started_at))::int
+         WHERE wallet = $1 AND role = 'commander' AND sector_id IS NULL AND ended_at IS NULL`,
+        [oldCmd]
+      );
       const oldPos = await client.query(
         `SELECT gp_balance FROM governance_positions WHERE role = 'commander' AND sector_id IS NULL`
       );
@@ -172,6 +205,10 @@ async function recalculateCommander(client) {
          ON CONFLICT (role, sector_id) DO UPDATE SET wallet = $1, gp_balance = 0, appointed_at = NOW()`,
         [newCmd]
       );
+      await client.query(
+        `INSERT INTO governance_history (wallet, role, sector_id, started_at) VALUES ($1, 'commander', NULL, NOW())`,
+        [newCmd]
+      );
     }
     await client.query(
       'UPDATE commander SET commander_wallet = $1, commander_since = NOW() WHERE id = 1',
@@ -183,6 +220,12 @@ async function recalculateCommander(client) {
   if (newVice !== oldVice) {
     changed = true;
     if (oldVice) {
+      await client.query(
+        `UPDATE governance_history SET ended_at = NOW(),
+           tenure_seconds = EXTRACT(EPOCH FROM (NOW() - started_at))::int
+         WHERE wallet = $1 AND role = 'vice_commander' AND sector_id IS NULL AND ended_at IS NULL`,
+        [oldVice]
+      );
       const oldPos = await client.query(
         `SELECT gp_balance FROM governance_positions WHERE role = 'vice_commander' AND sector_id IS NULL`
       );
@@ -204,6 +247,10 @@ async function recalculateCommander(client) {
         `INSERT INTO governance_positions (wallet, role, sector_id, gp_balance, appointed_at)
          VALUES ($1, 'vice_commander', NULL, 0, NOW())
          ON CONFLICT (role, sector_id) DO UPDATE SET wallet = $1, gp_balance = 0, appointed_at = NOW()`,
+        [newVice]
+      );
+      await client.query(
+        `INSERT INTO governance_history (wallet, role, sector_id, started_at) VALUES ($1, 'vice_commander', NULL, NOW())`,
         [newVice]
       );
     }
@@ -447,7 +494,7 @@ async function getSectorGovernance(sectorId) {
   };
 }
 
-// Get commander info
+// Get commander info (with nicknames)
 async function getCommanderInfo() {
   const [cmdRes, eventsRes, bountiesRes, cmdPosRes, vicePosRes] = await Promise.all([
     pool.query('SELECT * FROM commander WHERE id = 1'),
@@ -458,11 +505,27 @@ async function getCommanderInfo() {
   ]);
 
   const cmd = cmdRes.rows[0] || {};
+  // Fetch nicknames
+  let commanderNickname = null, viceNickname = null;
+  if (cmd.commander_wallet || cmd.vice_commander_wallet) {
+    const wallets = [cmd.commander_wallet, cmd.vice_commander_wallet].filter(Boolean);
+    const nickRes = await pool.query(
+      `SELECT wallet_address, nickname FROM users WHERE wallet_address = ANY($1)`,
+      [wallets]
+    );
+    const nickMap = {};
+    nickRes.rows.forEach(r => { nickMap[r.wallet_address] = r.nickname; });
+    commanderNickname = nickMap[cmd.commander_wallet] || null;
+    viceNickname = nickMap[cmd.vice_commander_wallet] || null;
+  }
+
   return {
     commander: cmd.commander_wallet,
+    commanderNickname,
     commanderSince: cmd.commander_since,
     commanderGP: cmdPosRes.rows[0] ? parseFloat(cmdPosRes.rows[0].gp_balance) : 0,
     vice: cmd.vice_commander_wallet,
+    viceNickname,
     viceSince: cmd.vice_commander_since,
     viceGP: vicePosRes.rows[0] ? parseFloat(vicePosRes.rows[0].gp_balance) : 0,
     announcement: cmd.announcement || '',
@@ -470,6 +533,46 @@ async function getCommanderInfo() {
     activeEvents: eventsRes,
     activeBounties: bountiesRes.rows
   };
+}
+
+// Governor leaderboard: ranked by total tax earned across all tenures
+async function getGovernorLeaderboard(sortBy = 'tax') {
+  let orderClause;
+  switch (sortBy) {
+    case 'tenure': orderClause = 'total_tenure DESC'; break;
+    case 'sectors': orderClause = 'sector_count DESC'; break;
+    default: orderClause = 'total_tax DESC';
+  }
+  const res = await pool.query(`
+    SELECT gh.wallet,
+           u.nickname,
+           SUM(gh.total_tax_earned)::numeric AS total_tax,
+           SUM(gh.tenure_seconds)::int AS total_tenure,
+           COUNT(DISTINCT gh.sector_id) AS sector_count,
+           COUNT(*)::int AS reign_count,
+           BOOL_OR(gh.ended_at IS NULL) AS currently_active
+    FROM governance_history gh
+    LEFT JOIN users u ON u.wallet_address = gh.wallet
+    WHERE gh.role = 'governor'
+    GROUP BY gh.wallet, u.nickname
+    ORDER BY ${orderClause}
+    LIMIT 50
+  `);
+  return res.rows;
+}
+
+// Sector history: all past governors for a sector
+async function getSectorGovernorHistory(sectorId) {
+  const res = await pool.query(`
+    SELECT gh.wallet, u.nickname, gh.started_at, gh.ended_at,
+           gh.total_tax_earned, gh.tenure_seconds
+    FROM governance_history gh
+    LEFT JOIN users u ON u.wallet_address = gh.wallet
+    WHERE gh.sector_id = $1 AND gh.role = 'governor'
+    ORDER BY gh.started_at DESC
+    LIMIT 50
+  `, [sectorId]);
+  return res.rows;
 }
 
 module.exports = {
@@ -485,5 +588,7 @@ module.exports = {
   getPositionsForWallet,
   getSectorGovernance,
   getCommanderInfo,
+  getGovernorLeaderboard,
+  getSectorGovernorHistory,
   govCfg
 };

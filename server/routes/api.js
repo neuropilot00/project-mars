@@ -990,6 +990,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
         const sId = findSectorForPixelSync(p.lat, p.lng);
         if (sId) affectedSectors.add(sId);
       }
+      var govChanges = [];
       for (const sId of affectedSectors) {
         const sectorPixels = claimPixels.filter(p => findSectorForPixelSync(p.lat, p.lng) === sId);
         const sectorCost = (sectorPixels.length / claimPixels.length) * totalCost;
@@ -997,9 +998,19 @@ router.post('/claim', writeLimiter, async (req, res) => {
           const tax = await collectTax(client, sId, sectorCost, txType);
           totalTax += tax;
         }
-        await recalculateGovernor(client, sId);
+        const govResult = await recalculateGovernor(client, sId);
+        if (govResult.changed) {
+          // Fetch sector name + governor nickname for feed
+          const sInfo = await client.query('SELECT name FROM sectors WHERE id = $1', [sId]);
+          const gNick = govResult.governor ? (await client.query('SELECT nickname FROM users WHERE wallet_address = $1', [govResult.governor])).rows[0] : null;
+          govChanges.push({ type: 'governor', sectorId: sId, sectorName: sInfo.rows[0]?.name, wallet: govResult.governor, nickname: gNick?.nickname || null });
+        }
       }
-      await recalculateCommander(client);
+      const cmdResult = await recalculateCommander(client);
+      if (cmdResult.changed && cmdResult.commander) {
+        const cNick = (await client.query('SELECT nickname FROM users WHERE wallet_address = $1', [cmdResult.commander])).rows[0];
+        govChanges.push({ type: 'commander', wallet: cmdResult.commander, nickname: cNick?.nickname || null });
+      }
     } catch(ge) { console.warn('[GOV] governance post-claim failed:', ge.message); }
 
     // Consume pixel_doubler if used
@@ -1023,7 +1034,8 @@ router.post('/claim', writeLimiter, async (req, res) => {
       referralRewards,
       battleResults,
       wonPixels: wonPixels.map(p => [p.lat, p.lng]),
-      newPixels: newPixels.map(p => [p.lat, p.lng])
+      newPixels: newPixels.map(p => [p.lat, p.lng]),
+      govChanges: govChanges || []
     });
   } catch (e) {
     await client.query('ROLLBACK');
@@ -1429,8 +1441,10 @@ router.get('/sectors', readLimiter, async (req, res) => {
         (SELECT COALESCE(AVG(p.price),0) FROM pixels p WHERE p.sector_id = s.id AND p.owner IS NOT NULL) AS avg_price,
         (SELECT COUNT(*) FROM pixels p
           WHERE p.sector_id = s.id AND p.owner IS NOT NULL
-          AND p.updated_at > NOW() - INTERVAL '24 hours') AS activity_24h
+          AND p.updated_at > NOW() - INTERVAL '24 hours') AS activity_24h,
+        ug.nickname AS governor_nickname
       FROM sectors s
+      LEFT JOIN users ug ON ug.wallet_address = s.governor_wallet
       ORDER BY s.tier, s.name
     `);
 
@@ -1494,8 +1508,11 @@ router.get('/sectors', readLimiter, async (req, res) => {
         miningBonus: miningBonusMap[r.tier] || 1.0,
         governor: r.governor_wallet ? {
           wallet: r.governor_wallet.slice(0, 6) + '...' + r.governor_wallet.slice(-4),
+          fullWallet: r.governor_wallet,
+          nickname: r.governor_nickname || null,
           since: r.governor_since
         } : null,
+        taxRate: parseFloat(r.tax_rate) || 2,
         topHolder: top ? {
           wallet: top.wallet.slice(0, 6) + '...' + top.wallet.slice(-4),
           pixels: top.pixels

@@ -50,6 +50,42 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @media(max-width:768px){.announce-bar{left:5%;right:5%}}
 
+/* Commander Banner */
+.tb-commander{position:fixed;top:130px;left:50%;transform:translateX(-50%);z-index:109;
+  display:none;align-items:center;gap:8px;padding:4px 16px;
+  background:linear-gradient(90deg,rgba(20,16,10,0.75),rgba(30,24,12,0.85),rgba(20,16,10,0.75));
+  border:1px solid rgba(255,209,102,0.3);border-radius:20px;backdrop-filter:blur(6px);
+  font-family:var(--fn);font-size:10px;color:var(--gold);letter-spacing:1px;
+  white-space:nowrap;pointer-events:none;
+  animation:cmdPulse 3s ease-in-out infinite}
+.tb-commander.show{display:flex}
+.tb-commander .cmd-icon{font-size:13px}
+.tb-commander .cmd-label{font-size:8px;opacity:0.7;text-transform:uppercase}
+.tb-commander .cmd-name{font-weight:700;font-size:11px}
+@keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
+@media(max-width:768px){.tb-commander{top:85px;padding:3px 10px;font-size:9px}
+  .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}}
+
+/* Governance Leaderboard (sidebar) */
+.gov-lb-section{margin-top:2px;border-top:1px solid var(--bdr)}
+.gov-lb-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:var(--fs-xs);font-family:var(--fn)}
+.gov-lb-row .glb-rank{min-width:14px;text-align:center;font-weight:700}
+.gov-lb-row .glb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx1)}
+.gov-lb-row .glb-val{color:var(--gold);font-size:9px}
+.gov-lb-row.commander{background:rgba(255,209,102,0.08);border-radius:4px;padding:4px 3px;border-left:2px solid var(--gold)}
+.gov-lb-row .glb-badge{font-size:9px}
+
+/* Title Badges */
+.title-badge{display:inline-block;padding:1px 5px;border-radius:3px;font-family:var(--fn);font-size:8px;font-weight:700;letter-spacing:0.5px;vertical-align:middle}
+.title-badge.commander{background:rgba(255,209,102,0.15);color:var(--gold);border:1px solid rgba(255,209,102,0.3);text-shadow:0 0 6px rgba(255,209,102,0.4)}
+.title-badge.governor{background:rgba(91,184,232,0.1);color:var(--cyan);border:1px solid rgba(91,184,232,0.25)}
+.title-badge.vice{background:rgba(255,255,255,0.05);color:var(--tx3);border:1px solid rgba(255,255,255,0.1)}
+.title-badge.warlord{background:rgba(232,72,85,0.1);color:var(--red);border:1px solid rgba(232,72,85,0.25)}
+
+/* Gov Feed Alert */
+.feed-gov{border-left:2px solid var(--gold)!important;background:rgba(255,209,102,0.04)!important}
+.feed-gov .feed-text{color:var(--gold)!important;font-weight:700}
+
 /* Top Bar */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;
   justify-content:space-between;padding:10px 16px;
@@ -1361,6 +1397,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
 </div>
 
+<!-- Commander Banner -->
+<div class="tb-commander" id="tbCommander">
+  <span class="cmd-icon">👑</span>
+  <span class="cmd-label">COMMANDER</span>
+  <span class="cmd-name" id="tbCmdName">--</span>
+</div>
+
 <!-- Active Item Buffs Overlay -->
 <div id="tbActiveBuffs" style="display:none;position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:110;flex-direction:row;gap:6px;pointer-events:none"></div>
 
@@ -1408,6 +1451,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">4</span><span class="lb-name">PepeArmy</span><span class="lb-val">3 plots</span></div>
     <div class="lb-row"><span class="lb-rank" style="color:var(--tx3)">5</span><span class="lb-name">고래연합</span><span class="lb-val">2 plots</span></div>
     </div>
+  </div>
+  <!-- Governance Leaderboard -->
+  <div class="p-section gov-lb-section" id="govLeaderboardSection">
+    <div class="p-title" style="color:var(--gold)">👑 TOP GOVERNORS</div>
+    <div id="govLeaderboardList" style="font-size:9px;color:var(--tx3)">Loading...</div>
   </div>
   <!-- Wallet: not connected CTA -->
   <div class="p-section" id="walletCTA">
@@ -2056,6 +2104,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="base-section-title" style="color:var(--red)">BOUNTY BOARD</div>
         <div id="govBountyList" style="margin-bottom:12px">
           <div style="font-size:10px;color:var(--tx3);padding:8px 0">No active bounties.</div>
+        </div>
+
+        <!-- Hall of Fame -->
+        <div class="base-section-title" style="color:var(--gold);cursor:pointer" onclick="toggleHallOfFame()">🏆 HALL OF FAME <span id="hofToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
+        <div id="govHallOfFame" style="display:none;margin-bottom:12px">
+          <div style="margin-bottom:8px">
+            <select id="hofSectorSelect" onchange="loadHallOfFame()" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+              <option value="">Select sector...</option>
+            </select>
+          </div>
+          <div id="hofList" style="font-size:10px;color:var(--tx3);padding:4px 0">Select a sector to view history.</div>
         </div>
       </div>
 
@@ -3435,6 +3494,36 @@ function compositeClaimsOnTexture(previewOnly){
       });
     });
 
+    // Governor glow effect: gold border around governor/commander territories
+    if(typeof _govWalletRoles!=='undefined'){
+      var _govPulse=Math.sin(Date.now()/1200)*0.1+0.9;
+      var _processedGovOwners={};
+      sortedClaims.forEach(function(c){
+        if(_processedGovOwners[c.owner]) return;
+        var roles=_govWalletRoles[c.owner]||[];
+        if(!roles.length) return;
+        _processedGovOwners[c.owner]=true;
+        var isCmd=roles.indexOf('commander')>=0;
+        var strips=_ownerStrips[c.owner];
+        if(!strips||!strips.length) return;
+        // Draw glow border on outer edges of territory
+        ctx.save();
+        ctx.globalAlpha=_govPulse*(isCmd?0.7:0.5);
+        ctx.strokeStyle=isCmd?'rgba(255,209,102,0.9)':'rgba(91,184,232,0.7)';
+        ctx.lineWidth=isCmd?3:2;
+        ctx.shadowColor=isCmd?'rgba(255,209,102,0.6)':'rgba(91,184,232,0.4)';
+        ctx.shadowBlur=isCmd?10:6;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        for(var si=0;si<strips.length;si++){
+          var sr=_sRect(strips[si]);
+          ctx.rect(sr.x,sr.y,sr.w,sr.h);
+        }
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
     // Sector boundaries overlay
     _drawSectorOverlay(ctx,w,h);
 
@@ -4434,6 +4523,7 @@ setInterval(function(){
     _sectorsData=data;
     // Redraw texture to include sector boundaries
     setTimeout(function(){claimsSnapshot=null;compositeClaimsOnTexture()},1000);
+    if(typeof updateGovRoles==='function') updateGovRoles();
   }).catch(function(e){console.warn('[Sectors] Failed to load:',e)});
 })();
 
@@ -6339,6 +6429,8 @@ async function confirmClaim(){
     }else{
       addFeed('⚡ YOU claimed ['+selectedPlot.lat.toFixed(0)+'°,'+selectedPlot.lng.toFixed(0)+'°]!');
     }
+    // Governance change alerts
+    if(d.govChanges&&d.govChanges.length) addGovFeed(d.govChanges);
     }catch(stateErr){console.error('[Claim] State update error (claim succeeded):',stateErr)}
 
     // Track quest progress for claim actions
@@ -8157,6 +8249,18 @@ function _drawSectorOverlay(ctx,w,h){
     ctx.globalAlpha=0.8;
     ctx.fillText(s.tier.toUpperCase(),cx,cy+fontSize*0.55+tierSize*0.2);
 
+    // Governor name below tier
+    var govName=s.governor?s.governor.nickname:null;
+    if(govName){
+      var govSize=Math.max(14,tierSize*0.8);
+      var govY=cy+fontSize*0.55+tierSize*0.2+tierSize*0.8+4;
+      ctx.font='bold '+govSize+'px monospace';
+      ctx.globalAlpha=0.9;
+      var isCommander=_cmdInfo&&_cmdInfo.commander&&s.governor&&s.governor.fullWallet&&_cmdInfo.commander.toLowerCase()===s.governor.fullWallet.toLowerCase();
+      ctx.fillStyle=isCommander?'#FFD166':'#FFD166';
+      ctx.fillText((isCommander?'⭐ ':'👑 ')+govName,cx,govY);
+    }
+
     ctx.shadowColor='transparent';ctx.shadowBlur=0;
     ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
   });
@@ -9574,6 +9678,158 @@ window.addEventListener('resize', function(){
     if(track && track.firstChild) _announceDismissed = track.firstChild.textContent;
     sessionStorage.setItem('announce_dismissed', _announceDismissed||'');
   };
+
+  // ═══════ GOVERNANCE VISIBILITY ═══════
+
+  // Commander banner: poll + display
+  var _cmdInfo = null;
+  function loadCommanderBanner() {
+    fetch('/api/governance/commander').then(function(r){return r.json()}).then(function(info){
+      _cmdInfo = info;
+      var el = document.getElementById('tbCommander');
+      var nameEl = document.getElementById('tbCmdName');
+      if (!el || !nameEl) return;
+      if (info.commander) {
+        var name = info.commanderNickname || (info.commander.slice(0,6)+'...'+info.commander.slice(-4));
+        nameEl.textContent = name;
+        el.classList.add('show');
+      } else {
+        el.classList.remove('show');
+      }
+      updateGovRoles();
+    }).catch(function(){});
+  }
+  // Load on boot + poll every 60s
+  setTimeout(loadCommanderBanner, 2000);
+  setInterval(loadCommanderBanner, 60000);
+
+  // Badge system: wallet → roles map
+  var _govWalletRoles = {}; // { wallet: ['commander','governor',...] }
+  function updateGovRoles() {
+    // Build from sectors data + commander info
+    _govWalletRoles = {};
+    if (_cmdInfo) {
+      if (_cmdInfo.commander) {
+        if (!_govWalletRoles[_cmdInfo.commander]) _govWalletRoles[_cmdInfo.commander] = [];
+        _govWalletRoles[_cmdInfo.commander].push('commander');
+      }
+      if (_cmdInfo.vice) {
+        if (!_govWalletRoles[_cmdInfo.vice]) _govWalletRoles[_cmdInfo.vice] = [];
+        _govWalletRoles[_cmdInfo.vice].push('vice_commander');
+      }
+    }
+    (_sectorsData || []).forEach(function(s) {
+      if (s.governor && s.governor.fullWallet) {
+        var w = s.governor.fullWallet;
+        if (!_govWalletRoles[w]) _govWalletRoles[w] = [];
+        if (_govWalletRoles[w].indexOf('governor') < 0) _govWalletRoles[w].push('governor');
+      }
+    });
+  }
+  function govBadgeHTML(wallet) {
+    if (!wallet) return '';
+    var roles = _govWalletRoles[wallet.toLowerCase()] || _govWalletRoles[wallet] || [];
+    if (!roles.length) return '';
+    if (roles.indexOf('commander') >= 0) return '<span class="title-badge commander" title="Commander">👑 CMDR</span>';
+    if (roles.indexOf('governor') >= 0) return '<span class="title-badge governor" title="Governor">🏛 GOV</span>';
+    if (roles.indexOf('vice_commander') >= 0) return '<span class="title-badge vice" title="Vice Commander">⭐ VICE</span>';
+    return '';
+  }
+
+  // Governance leaderboard (sidebar)
+  function loadGovLeaderboard() {
+    fetch('/api/governance/leaderboard?sort=tax').then(function(r){return r.json()}).then(function(rows){
+      var el = document.getElementById('govLeaderboardList');
+      if (!el) return;
+      if (!rows || !rows.length) { el.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">No governors yet</div>'; return; }
+      var cmdWallet = _cmdInfo ? _cmdInfo.commander : null;
+      el.innerHTML = rows.slice(0, 8).map(function(r, i) {
+        var isCmd = cmdWallet && r.wallet === cmdWallet;
+        var name = r.nickname || (r.wallet.slice(0,6)+'...'+r.wallet.slice(-4));
+        var tax = parseFloat(r.total_tax || 0);
+        var taxStr = tax >= 1000 ? (tax/1000).toFixed(1)+'K' : tax.toFixed(0);
+        var rankColors = ['var(--gold)','#C0C0C0','#CD7F32'];
+        var rankColor = i < 3 ? rankColors[i] : 'var(--tx3)';
+        return '<div class="gov-lb-row'+(isCmd?' commander':'')+'">'
+          + '<span class="glb-rank" style="color:'+rankColor+'">'+(i+1)+'</span>'
+          + (isCmd ? '<span class="glb-badge">👑</span>' : '')
+          + '<span class="glb-name">'+name+'</span>'
+          + '<span class="glb-val">'+taxStr+' GP</span>'
+          + '</div>';
+      }).join('');
+    }).catch(function(){});
+  }
+  setTimeout(loadGovLeaderboard, 3000);
+  setInterval(loadGovLeaderboard, 120000);
+
+  // Gov change feed alerts
+  function addGovFeed(changes) {
+    if (!changes || !changes.length) return;
+    changes.forEach(function(c) {
+      var text;
+      var name = c.nickname || (c.wallet ? c.wallet.slice(0,6)+'...'+c.wallet.slice(-4) : '???');
+      if (c.type === 'commander') {
+        text = '⭐ NEW COMMANDER: ' + name + ' commands all of Mars!';
+      } else if (c.type === 'governor') {
+        text = '👑 NEW GOVERNOR: ' + name + ' rules ' + (c.sectorName || 'sector') + '!';
+      }
+      if (text) {
+        var feed = document.getElementById('feedList');
+        if (!feed) return;
+        var div = document.createElement('div');
+        div.className = 'feed-item feed-gov';
+        div.innerHTML = '<span class="feed-dot" style="background:var(--gold)"></span><span class="feed-text">' + text + '</span>';
+        feed.insertBefore(div, feed.firstChild);
+        // Keep max 20
+        while (feed.children.length > 20) feed.removeChild(feed.lastChild);
+      }
+    });
+  }
+
+  // Hall of Fame toggle + loader
+  function toggleHallOfFame() {
+    var el = document.getElementById('govHallOfFame');
+    var tog = document.getElementById('hofToggle');
+    if (!el) return;
+    var show = el.style.display === 'none';
+    el.style.display = show ? 'block' : 'none';
+    if (tog) tog.textContent = show ? '▲' : '▼';
+    if (show) {
+      // Populate sector selector if empty
+      var sel = document.getElementById('hofSectorSelect');
+      if (sel && sel.options.length <= 1 && _sectorsData.length) {
+        _sectorsData.forEach(function(s) {
+          var opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = s.name;
+          sel.appendChild(opt);
+        });
+      }
+    }
+  }
+  function loadHallOfFame() {
+    var sel = document.getElementById('hofSectorSelect');
+    var list = document.getElementById('hofList');
+    if (!sel || !list) return;
+    var sectorId = sel.value;
+    if (!sectorId) { list.innerHTML = '<div style="padding:4px 0">Select a sector to view history.</div>'; return; }
+    list.innerHTML = '<div style="padding:4px 0">Loading...</div>';
+    fetch('/api/governance/history/' + sectorId).then(function(r){return r.json()}).then(function(rows){
+      if (!rows || !rows.length) { list.innerHTML = '<div style="padding:4px 0">No governor history for this sector.</div>'; return; }
+      list.innerHTML = rows.map(function(r) {
+        var name = r.nickname || (r.wallet.slice(0,6)+'...'+r.wallet.slice(-4));
+        var start = new Date(r.started_at).toLocaleDateString();
+        var end = r.ended_at ? new Date(r.ended_at).toLocaleDateString() : 'Present';
+        var tax = parseFloat(r.total_tax_earned || 0);
+        var taxStr = tax >= 1000 ? (tax/1000).toFixed(1)+'K' : tax.toFixed(0);
+        var dur = r.tenure_seconds ? Math.floor(r.tenure_seconds/3600)+'h' : '-';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--bdr)">'
+          + '<div><span style="color:var(--gold)">👑</span> <b>'+name+'</b></div>'
+          + '<div style="text-align:right;color:var(--tx3);font-size:9px">'+start+' – '+end+'<br>'+taxStr+' GP · '+dur+'</div>'
+          + '</div>';
+      }).join('');
+    }).catch(function(){ list.innerHTML = '<div style="padding:4px 0;color:var(--red)">Failed to load history.</div>'; });
+  }
 
   // Governance UI state
   var _govState = null;

@@ -6,7 +6,8 @@ const rateLimit = require('express-rate-limit');
 const { pool, getSettings } = require('../db');
 const {
   getSectorGovernance, getCommanderInfo, getPositionsForWallet,
-  getActiveGovEvents, govCfg, getActiveSectorBuffs
+  getActiveGovEvents, govCfg, getActiveSectorBuffs,
+  getGovernorLeaderboard, getSectorGovernorHistory
 } = require('../services/governance');
 
 const router = express.Router();
@@ -416,6 +417,35 @@ router.get('/all-sectors', readLimiter, async (req, res) => {
     res.json(sectors);
   } catch (e) {
     console.error('[GOV] all-sectors error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+//  GET /api/governance/leaderboard — governor rankings
+// ═══════════════════════════════════════════════════════
+router.get('/leaderboard', readLimiter, async (req, res) => {
+  try {
+    const sortBy = req.query.sort || 'tax'; // tax | tenure | sectors
+    const rows = await getGovernorLeaderboard(sortBy);
+    res.json(rows);
+  } catch (e) {
+    console.error('[GOV] leaderboard error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+//  GET /api/governance/history/:sectorId — sector governor history
+// ═══════════════════════════════════════════════════════
+router.get('/history/:sectorId', readLimiter, async (req, res) => {
+  try {
+    const sectorId = parseInt(req.params.sectorId);
+    if (!sectorId) return res.status(400).json({ error: 'Invalid sector ID' });
+    const rows = await getSectorGovernorHistory(sectorId);
+    res.json(rows);
+  } catch (e) {
+    console.error('[GOV] history error:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
 });
