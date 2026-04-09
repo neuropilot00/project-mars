@@ -815,9 +815,9 @@ router.post('/claim', writeLimiter, async (req, res) => {
 
     // ── BATCH: Upsert only new + won pixels (skip own, skip failed attacks) ──
     // Use large batch (500) to minimize DB round trips
+    // IMPORTANT: sequential execution on transaction client to avoid pg DeprecationWarning
     const claimPixels = [...newPixels, ...wonPixels];
     const batchSize = 500;
-    const upsertPromises = [];
     for (let i = 0; i < claimPixels.length; i += batchSize) {
       const chunk = claimPixels.slice(i, i + batchSize);
       const values = [];
@@ -832,44 +832,42 @@ router.post('/claim', writeLimiter, async (req, res) => {
         paramIdx += 6;
       }
       if (values.length > 0) {
-        upsertPromises.push(client.query(
+        await client.query(
           `INSERT INTO pixels (lat, lng, owner, price, claim_id, sector_id, updated_at)
            VALUES ${values.join(',')}
            ON CONFLICT (lat, lng) DO UPDATE SET owner=EXCLUDED.owner, price=EXCLUDED.price, claim_id=EXCLUDED.claim_id, sector_id=COALESCE(EXCLUDED.sector_id,pixels.sector_id), updated_at=NOW()`,
           params
-        ));
-      }
-    }
-
-    // Record battle results (parallel with pixel upserts)
-    const battleResults = [];
-    const battlePromises = [];
-    if (overlapCount > 0) {
-      for (const [defender, info] of Object.entries(affectedOwners)) {
-        const wonVs = wonPixels.filter(ep => ep.existing.owner === defender).length;
-        const lostVs = info.attackedPixels - wonVs;
-        battlePromises.push(
-          client.query(
-            `INSERT INTO battles (attacker, defender, claim_id, pixels_attacked, pixels_won, pixels_lost, attack_cost, refund_amount, platform_fee, success)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
-            [walletLower, defender, claimId, info.attackedPixels, wonVs, lostVs,
-             wonVs > 0 ? info.refund + info.bonus : 0,
-             lostVs > 0 ? (lostVs * PIXEL_PRICE * HIJACK_MULT * 0.9) : 0,
-             lostVs > 0 ? (lostVs * PIXEL_PRICE * HIJACK_MULT * 0.1) : 0,
-             wonVs > lostVs]
-          ).then(res2 => battleResults.push({ id: res2.rows[0].id, defender: defender.slice(0,6)+'...', attacked: info.attackedPixels, won: wonVs, lost: lostVs }))
         );
       }
     }
 
-    // XP calculation (sync, no await needed yet)
+    // Record battle results (sequential)
+    const battleResults = [];
+    if (overlapCount > 0) {
+      for (const [defender, info] of Object.entries(affectedOwners)) {
+        const wonVs = wonPixels.filter(ep => ep.existing.owner === defender).length;
+        const lostVs = info.attackedPixels - wonVs;
+        const res2 = await client.query(
+          `INSERT INTO battles (attacker, defender, claim_id, pixels_attacked, pixels_won, pixels_lost, attack_cost, refund_amount, platform_fee, success)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+          [walletLower, defender, claimId, info.attackedPixels, wonVs, lostVs,
+           wonVs > 0 ? info.refund + info.bonus : 0,
+           lostVs > 0 ? (lostVs * PIXEL_PRICE * HIJACK_MULT * 0.9) : 0,
+           lostVs > 0 ? (lostVs * PIXEL_PRICE * HIJACK_MULT * 0.1) : 0,
+           wonVs > lostVs]
+        );
+        battleResults.push({ id: res2.rows[0].id, defender: defender.slice(0,6)+'...', attacked: info.attackedPixels, won: wonVs, lost: lostVs });
+      }
+    }
+
+    // XP calculation
     const xpPerClaim = s.xp_per_claim || 2;
     const xpPerHijack = s.xp_per_hijack || 3;
     const totalXP = (newCount * xpPerClaim) + (attackWon * xpPerHijack);
 
-    // Transaction record (can run parallel with pixel upserts)
+    // Transaction record
     const txType = attackWon > 0 ? 'hijack' : (attackLost > 0 ? 'battle_failed' : 'claim');
-    const txPromise = client.query(
+    const txRes = await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
        VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
       [txType, wallet.toLowerCase(), usdtUsed, ppUsed, baseCost,
@@ -878,23 +876,17 @@ router.post('/claim', writeLimiter, async (req, res) => {
           affectedOwners, platformFee, refundFromFailed
         })]
     );
+    const txId = txRes.rows[0].id;
 
-    // Run all parallel: pixel upserts + battles + transaction + refund + XP + quest pool
-    const parallelOps = [...upsertPromises, ...battlePromises, txPromise,
-      awardXP(client, walletLower, totalXP),
-      fundQuestPool(client, baseCost)
-    ];
+    // XP + quest pool + refund (sequential)
+    const rankUp = await awardXP(client, walletLower, totalXP);
+    await fundQuestPool(client, baseCost);
     if (refundFromFailed > 0) {
-      parallelOps.push(client.query(
+      await client.query(
         'UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
         [refundFromFailed, walletLower]
-      ));
+      );
     }
-    const parallelResults = await Promise.all(parallelOps);
-
-    // Extract txId and rankUp from results
-    const txId = parallelResults[upsertPromises.length + battlePromises.length].rows[0].id;
-    const rankUp = parallelResults[upsertPromises.length + battlePromises.length + 1];
 
     // ── Referral rewards on hijack (needs txId, so runs after) ──
     const referralRewards = [];
@@ -907,25 +899,20 @@ router.post('/claim', writeLimiter, async (req, res) => {
       const chain = await getReferralChain(client, wallet.toLowerCase());
       const hijackPremium = wonAttackCost - Object.values(affectedOwners).reduce((sum, a) => sum + a.refund, 0);
 
-      const refPromises = [];
       for (const ref of chain) {
         const pct = tierPercents[ref.tier - 1] || 0;
         if (pct <= 0) continue;
         const reward = Math.round(hijackPremium * (pct / 100) * 1000000) / 1000000;
         if (reward <= 0) continue;
 
-        refPromises.push(
-          Promise.all([
-            client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [reward, ref.wallet]),
-            client.query(
-              `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type, trigger_tx_id)
-               VALUES ($1, $2, $3, $4, 'hijack', $5)`,
-              [wallet.toLowerCase(), ref.wallet, ref.tier, reward, txId]
-            )
-          ]).then(() => referralRewards.push({ tier: ref.tier, wallet: ref.wallet.slice(0, 6) + '...', reward }))
+        await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [reward, ref.wallet]);
+        await client.query(
+          `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type, trigger_tx_id)
+           VALUES ($1, $2, $3, $4, 'hijack', $5)`,
+          [wallet.toLowerCase(), ref.wallet, ref.tier, reward, txId]
         );
+        referralRewards.push({ tier: ref.tier, wallet: ref.wallet.slice(0, 6) + '...', reward });
       }
-      if (refPromises.length) await Promise.all(refPromises);
     }
 
     // ── Governance: collect tax per sector + recalculate positions (safe: won't break claim if governance fails) ──
