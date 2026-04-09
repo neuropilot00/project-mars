@@ -76,7 +76,8 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .wx-detail-popup .wx-d-label{font-size:10px;color:var(--tx3)}
 .wx-detail-popup .wx-d-val{font-size:11px;font-weight:700}
 .wx-d-val.buff{color:var(--gn)}.wx-d-val.debuff{color:var(--red)}.wx-d-val.neutral{color:var(--cyan)}
-@media(max-width:768px){.weather-banner{bottom:112px;font-size:8px;padding:3px 10px}}
+@media(max-width:768px){.weather-banner{bottom:112px;font-size:8px;padding:3px 10px}
+.wx-detail-popup{padding-bottom:80px;z-index:210}}
 
 /* Rocket Event Banner */
 .rocket-banner{position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:112;
@@ -3798,85 +3799,328 @@ function compositeClaimsOnTexture(previewOnly){
       });
       ctx.restore();
 
-      // Cosmetic effects — group-based (matches territory outline, not individual cell rects)
+      // ═══ COSMETIC EFFECTS (overhaul — group-based, strips outline) ═══
+      var _ct=Date.now();
       ownerGroups.forEach(function(grp){
         var groupClaims=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
-        // Find cosmetic from any claim in group
-        var cos=null;
+        var cos=null, _cosOwner=null;
         for(var gi=0;gi<groupClaims.length;gi++){
+          if(!_cosOwner) _cosOwner=groupClaims[gi].owner;
           if(groupClaims[gi].cosmetics){cos=groupClaims[gi].cosmetics;break;}
         }
         if(!cos) return;
-        // Get strips for this group
+        if(!_cosOwner && groupClaims.length) _cosOwner=groupClaims[0].owner;
         var gb2i=grp.bounds;
         var gStrips=(strips||[]).filter(function(s){
           return s.lat>=gb2i.minLat-_gs*0.5&&s.lat<=gb2i.maxLat+_gs*0.5&&
                  s.lng1>=gb2i.minLng-_gs*0.5&&s.lng2<=gb2i.maxLng+_gs*0.5;
         });
         if(!gStrips.length) return;
-
-        // Build clip path from strips (territory outline)
-        function _cosClipPath(){
+        // Bounding box for particle seeding
+        var _cbx1=Infinity,_cby1=Infinity,_cbx2=-Infinity,_cby2=-Infinity;
+        // _cosClip: fills path with individual rects (good for fill/clip, NOT for stroke)
+        function _cosClip(){
           ctx.beginPath();
           for(var si=0;si<gStrips.length;si++){
             var sr=_sRect(gStrips[si]);
             ctx.rect(sr.x,sr.y,sr.w,sr.h);
+            if(sr.x<_cbx1)_cbx1=sr.x;if(sr.y<_cby1)_cby1=sr.y;
+            if(sr.x+sr.w>_cbx2)_cbx2=sr.x+sr.w;if(sr.y+sr.h>_cby2)_cby2=sr.y+sr.h;
           }
         }
+        // _cosOutline: builds path with ONLY outer edges (for stroke — no internal strip lines)
+        function _cosOutline(){
+          var byLat=_stripsByOwnerLat[_cosOwner]||{};
+          var gsKey=byLat._latStep||Math.round(_gs*100);
+          ctx.beginPath();
+          for(var si=0;si<gStrips.length;si++){
+            var ss=gStrips[si], sr=_sRect(ss);
+            var lk=Math.round(ss.lat*100);
+            // Left & right edges always exposed
+            ctx.moveTo(sr.x,sr.y);ctx.lineTo(sr.x,sr.y+sr.h);
+            ctx.moveTo(sr.x+sr.w,sr.y);ctx.lineTo(sr.x+sr.w,sr.y+sr.h);
+            // Top edge: only uncovered portions
+            var adj=byLat[lk+gsKey]||[];
+            var covX=[];for(var ai=0;ai<adj.length;ai++){var ar=_sRect(adj[ai]);var o1=Math.max(sr.x,ar.x),o2=Math.min(sr.x+sr.w,ar.x+ar.w);if(o2>o1)covX.push([o1,o2]);}
+            covX.sort(function(a,b){return a[0]-b[0]});var pos=sr.x;
+            for(var ci=0;ci<covX.length;ci++){if(covX[ci][0]>pos+0.5){ctx.moveTo(pos,sr.y);ctx.lineTo(covX[ci][0],sr.y);}pos=covX[ci][1];}
+            if(pos<sr.x+sr.w-0.5){ctx.moveTo(pos,sr.y);ctx.lineTo(sr.x+sr.w,sr.y);}
+            // Bottom edge: only uncovered portions
+            var adj2=byLat[lk-gsKey]||[];
+            var covX2=[];for(var ai2=0;ai2<adj2.length;ai2++){var ar2=_sRect(adj2[ai2]);var o12=Math.max(sr.x,ar2.x),o22=Math.min(sr.x+sr.w,ar2.x+ar2.w);if(o22>o12)covX2.push([o12,o22]);}
+            covX2.sort(function(a,b){return a[0]-b[0]});var pos2=sr.x, yb=sr.y+sr.h;
+            for(var ci2=0;ci2<covX2.length;ci2++){if(covX2[ci2][0]>pos2+0.5){ctx.moveTo(pos2,yb);ctx.lineTo(covX2[ci2][0],yb);}pos2=covX2[ci2][1];}
+            if(pos2<sr.x+sr.w-0.5){ctx.moveTo(pos2,yb);ctx.lineTo(sr.x+sr.w,yb);}
+          }
+        }
+        _cosClip(); // compute bbox
 
-        // Terrain tint
+        // ── TERRAIN: animated texture patterns ──
         if(cos.terrain){
           ctx.save();
-          var tColors={volcanic_terrain:'rgba(255,80,20,0.18)',frozen_terrain:'rgba(100,180,255,0.18)',crystal_terrain:'rgba(180,100,255,0.18)',toxic_terrain:'rgba(100,255,80,0.14)'};
-          _cosClipPath();
-          ctx.fillStyle=tColors[cos.terrain]||'rgba(255,255,255,0.1)';
-          ctx.fill();
-          ctx.restore();
-        }
-
-        // Border cosmetic — stroke the outline of the territory shape
-        if(cos.border){
-          ctx.save();
-          // Build outer edge segments from strips
-          if(cos.border==='neon_border'){
-            ctx.strokeStyle='#00FFFF';ctx.shadowColor='#00FFFF';ctx.shadowBlur=6;ctx.lineWidth=1.5;
-          }else if(cos.border==='flame_border'){
-            ctx.strokeStyle='#FF6600';ctx.shadowColor='#FF4400';ctx.shadowBlur=4;ctx.lineWidth=1.5;ctx.setLineDash([3,2]);
-          }else if(cos.border==='ice_border'){
-            ctx.strokeStyle='#88CCFF';ctx.shadowColor='#AADDFF';ctx.shadowBlur=5;ctx.lineWidth=2;
-          }else if(cos.border==='gold_border'){
-            ctx.strokeStyle='#FFD700';ctx.shadowColor='#FFD700';ctx.shadowBlur=8;ctx.lineWidth=2.5;
-          }else if(cos.border==='starship_border'){
-            ctx.strokeStyle='#FF4400';ctx.shadowColor='#FF6600';ctx.shadowBlur=6;ctx.lineWidth=2;ctx.setLineDash([5,2]);
+          _cosClip();ctx.clip();
+          var tw=_cbx2-_cbx1, th=_cby2-_cby1;
+          if(cos.terrain==='volcanic_terrain'){
+            // Lava cracks + ember particles
+            ctx.fillStyle='rgba(255,60,10,0.12)';ctx.fill();
+            // Lava cracks
+            ctx.strokeStyle='rgba(255,120,20,0.4)';ctx.lineWidth=1.2;ctx.shadowColor='#FF4400';ctx.shadowBlur=4;
+            var _seed=grp.claimIndices[0]||0;
+            for(var vi=0;vi<8;vi++){
+              var vx=_cbx1+(((_seed*137+vi*97)%100)/100)*tw;
+              var vy=_cby1+(((_seed*241+vi*53)%100)/100)*th;
+              ctx.beginPath();ctx.moveTo(vx,vy);
+              for(var vj=0;vj<3;vj++){
+                vx+=(((_seed*31+vi*17+vj*71)%60)-30);
+                vy+=(((_seed*43+vi*23+vj*37)%40)-10);
+                ctx.lineTo(vx,vy);
+              }
+              ctx.stroke();
+            }
+            // Ember dots
+            ctx.shadowBlur=6;ctx.shadowColor='#FF6600';
+            for(var ei=0;ei<12;ei++){
+              var ex=_cbx1+(((_seed*73+ei*131+Math.floor(_ct/800))%100)/100)*tw;
+              var ey=_cby1+(((_seed*89+ei*167+Math.floor(_ct/1200))%100)/100)*th;
+              var eAlpha=0.3+0.4*Math.sin(_ct/300+ei*1.7);
+              ctx.globalAlpha=eAlpha;ctx.fillStyle='#FFAA22';
+              ctx.beginPath();ctx.arc(ex,ey,1.5+Math.sin(_ct/400+ei)*0.8,0,Math.PI*2);ctx.fill();
+            }
+          }else if(cos.terrain==='frozen_terrain'){
+            // Ice crystals + frost shimmer
+            ctx.fillStyle='rgba(80,160,255,0.1)';ctx.fill();
+            ctx.strokeStyle='rgba(180,220,255,0.35)';ctx.lineWidth=0.8;ctx.shadowColor='#88DDFF';ctx.shadowBlur=3;
+            var _seed2=grp.claimIndices[0]||0;
+            for(var fi=0;fi<10;fi++){
+              var fx=_cbx1+(((_seed2*97+fi*127)%100)/100)*tw;
+              var fy=_cby1+(((_seed2*151+fi*83)%100)/100)*th;
+              // 6-point snowflake
+              ctx.beginPath();
+              for(var fa=0;fa<6;fa++){
+                var ang=fa*Math.PI/3;var fl=3+(((_seed2+fi*37)%5));
+                ctx.moveTo(fx,fy);ctx.lineTo(fx+Math.cos(ang)*fl,fy+Math.sin(ang)*fl);
+              }
+              ctx.stroke();
+            }
+            // Shimmer particles
+            ctx.shadowBlur=5;ctx.shadowColor='#AAEEFF';
+            for(var si2=0;si2<8;si2++){
+              var sx=_cbx1+(((_seed2*67+si2*113+Math.floor(_ct/1500))%100)/100)*tw;
+              var sy=_cby1+(((_seed2*83+si2*149+Math.floor(_ct/2000))%100)/100)*th;
+              ctx.globalAlpha=0.2+0.5*Math.abs(Math.sin(_ct/500+si2*2.3));
+              ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.arc(sx,sy,1.2,0,Math.PI*2);ctx.fill();
+            }
+          }else if(cos.terrain==='crystal_terrain'){
+            // Crystal shards + prismatic sparkles
+            ctx.fillStyle='rgba(160,80,255,0.08)';ctx.fill();
+            var _seed3=grp.claimIndices[0]||0;
+            for(var ci2=0;ci2<7;ci2++){
+              var cx=_cbx1+(((_seed3*109+ci2*139)%100)/100)*tw;
+              var cy=_cby1+(((_seed3*173+ci2*89)%100)/100)*th;
+              var cSize=2+(((_seed3+ci2*41)%4));
+              var cHue=((_ct/20+ci2*60)%360);
+              ctx.fillStyle='hsla('+cHue+',80%,70%,0.35)';
+              ctx.shadowColor='hsl('+cHue+',100%,60%)';ctx.shadowBlur=6;
+              ctx.beginPath();
+              ctx.moveTo(cx,cy-cSize);ctx.lineTo(cx+cSize*0.6,cy);ctx.lineTo(cx,cy+cSize*0.4);ctx.lineTo(cx-cSize*0.6,cy);
+              ctx.closePath();ctx.fill();
+            }
+            // Prismatic sparkles
+            for(var pi=0;pi<10;pi++){
+              var px=_cbx1+(((_seed3*47+pi*179+Math.floor(_ct/600))%100)/100)*tw;
+              var py=_cby1+(((_seed3*61+pi*131+Math.floor(_ct/900))%100)/100)*th;
+              var pHue=((_ct/10+pi*36)%360);
+              ctx.globalAlpha=0.3+0.5*Math.abs(Math.sin(_ct/250+pi*1.9));
+              ctx.fillStyle='hsl('+pHue+',100%,75%)';ctx.shadowColor='hsl('+pHue+',100%,60%)';ctx.shadowBlur=4;
+              ctx.beginPath();ctx.arc(px,py,1,0,Math.PI*2);ctx.fill();
+            }
+          }else if(cos.terrain==='toxic_terrain'){
+            // Toxic bubbles + green haze
+            ctx.fillStyle='rgba(60,255,60,0.08)';ctx.fill();
+            var _seed4=grp.claimIndices[0]||0;
+            ctx.strokeStyle='rgba(80,255,80,0.25)';ctx.lineWidth=0.8;ctx.shadowColor='#44FF44';ctx.shadowBlur=4;
+            for(var ti=0;ti<10;ti++){
+              var tx2=_cbx1+(((_seed4*83+ti*151)%100)/100)*tw;
+              var ty=_cby1+(((_seed4*127+ti*97+Math.floor(_ct/1000)*3)%100)/100)*th;
+              var tRad=1.5+Math.sin(_ct/400+ti*1.3)*1;
+              ctx.globalAlpha=0.2+0.4*Math.abs(Math.sin(_ct/350+ti*2.1));
+              ctx.beginPath();ctx.arc(tx2,ty,tRad,0,Math.PI*2);ctx.stroke();
+              ctx.fillStyle='rgba(80,255,80,0.15)';ctx.fill();
+            }
+            // Rising toxic mist dots
+            for(var mi=0;mi<6;mi++){
+              var mx=_cbx1+(((_seed4*59+mi*173)%100)/100)*tw;
+              var myBase=_cby2-(((_ct/800+mi*1.7)%1))*th;
+              ctx.globalAlpha=0.15+0.2*Math.sin(_ct/600+mi);
+              ctx.fillStyle='rgba(100,255,80,0.3)';ctx.shadowBlur=8;
+              ctx.beginPath();ctx.arc(mx,myBase,3+Math.sin(_ct/500+mi)*1.5,0,Math.PI*2);ctx.fill();
+            }
           }
-          // Stroke each strip rect — only outer edges will be visible after overlap
-          _cosClipPath();
-          // Use stroke on the combined path — canvas merges overlapping rects visually
-          ctx.stroke();
-          ctx.setLineDash([]);
           ctx.restore();
         }
 
-        // Glow cosmetic
+        // ── BORDER: multi-layer glow + animated effects ──
+        if(cos.border){
+          // Layer 1: Wide outer glow
+          ctx.save();
+          if(cos.border==='neon_border'){
+            ctx.strokeStyle='rgba(0,255,255,0.15)';ctx.shadowColor='#00FFFF';ctx.shadowBlur=18;ctx.lineWidth=6;
+            _cosOutline();ctx.stroke();
+            // Layer 2: Bright inner
+            ctx.strokeStyle='rgba(0,255,255,0.5)';ctx.shadowBlur=10;ctx.lineWidth=2.5;
+            _cosOutline();ctx.stroke();
+            // Layer 3: White core
+            ctx.strokeStyle='rgba(200,255,255,0.8)';ctx.shadowBlur=4;ctx.lineWidth=1;
+            _cosOutline();ctx.stroke();
+            // Sparkle particles along border
+            ctx.shadowBlur=6;ctx.shadowColor='#00FFFF';
+            for(var ni=0;ni<15;ni++){
+              var nPhase=(_ct/600+ni*0.42)%(Math.PI*2);
+              var nIdx=Math.floor((ni/15)*gStrips.length);
+              if(nIdx>=gStrips.length)nIdx=gStrips.length-1;
+              var nsr=_sRect(gStrips[nIdx]);
+              var nx=nsr.x+Math.abs(Math.sin(nPhase))*nsr.w;
+              var ny=nsr.y+(ni%2===0?0:nsr.h);
+              ctx.globalAlpha=0.4+0.6*Math.abs(Math.sin(_ct/200+ni*1.3));
+              ctx.fillStyle='#AAFFFF';ctx.beginPath();ctx.arc(nx,ny,1.5,0,Math.PI*2);ctx.fill();
+            }
+          }else if(cos.border==='flame_border'){
+            // Fire glow
+            ctx.strokeStyle='rgba(255,80,0,0.12)';ctx.shadowColor='#FF4400';ctx.shadowBlur=20;ctx.lineWidth=8;
+            _cosOutline();ctx.stroke();
+            ctx.strokeStyle='rgba(255,120,20,0.5)';ctx.shadowBlur=10;ctx.lineWidth=2.5;
+            _cosOutline();ctx.stroke();
+            ctx.strokeStyle='rgba(255,200,60,0.7)';ctx.shadowBlur=3;ctx.lineWidth=1;
+            _cosOutline();ctx.stroke();
+            // Fire particles rising from border
+            ctx.shadowBlur=5;ctx.shadowColor='#FF6600';
+            for(var ffi=0;ffi<20;ffi++){
+              var ffIdx=Math.floor((ffi/20)*gStrips.length);
+              if(ffIdx>=gStrips.length)ffIdx=gStrips.length-1;
+              var fsr=_sRect(gStrips[ffIdx]);
+              var ffx=fsr.x+((ffi*37+Math.floor(_ct/300))%Math.max(1,Math.floor(fsr.w)));
+              var ffy=fsr.y-(((_ct/400+ffi*0.8)%8));
+              var ffAlpha=0.6-(((_ct/400+ffi*0.8)%8))/8;
+              if(ffAlpha<0)ffAlpha=0;
+              ctx.globalAlpha=ffAlpha;
+              var ffHue=20+Math.sin(_ct/200+ffi)*15;
+              ctx.fillStyle='hsl('+ffHue+',100%,'+Math.floor(50+ffAlpha*30)+'%)';
+              ctx.beginPath();ctx.arc(ffx,ffy,1+ffAlpha*1.5,0,Math.PI*2);ctx.fill();
+            }
+          }else if(cos.border==='ice_border'){
+            ctx.strokeStyle='rgba(100,180,255,0.12)';ctx.shadowColor='#88CCFF';ctx.shadowBlur=16;ctx.lineWidth=6;
+            _cosOutline();ctx.stroke();
+            ctx.strokeStyle='rgba(150,210,255,0.5)';ctx.shadowBlur=8;ctx.lineWidth=2;
+            _cosOutline();ctx.stroke();
+            ctx.strokeStyle='rgba(220,240,255,0.8)';ctx.shadowBlur=3;ctx.lineWidth=1;
+            _cosOutline();ctx.stroke();
+            // Frost sparkles
+            ctx.shadowBlur=4;ctx.shadowColor='#CCEFFF';
+            for(var ici=0;ici<12;ici++){
+              var icIdx=Math.floor((ici/12)*gStrips.length);
+              if(icIdx>=gStrips.length)icIdx=gStrips.length-1;
+              var icsr=_sRect(gStrips[icIdx]);
+              var icx=icsr.x+Math.abs(Math.sin(_ct/1200+ici*0.8))*icsr.w;
+              var icy=icsr.y+((ici%2)?icsr.h:0);
+              ctx.globalAlpha=0.3+0.7*Math.abs(Math.sin(_ct/400+ici*1.7));
+              ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.arc(icx,icy,1.2,0,Math.PI*2);ctx.fill();
+            }
+          }else if(cos.border==='gold_border'){
+            ctx.strokeStyle='rgba(255,200,0,0.1)';ctx.shadowColor='#FFD700';ctx.shadowBlur=24;ctx.lineWidth=8;
+            _cosOutline();ctx.stroke();
+            ctx.strokeStyle='rgba(255,215,0,0.5)';ctx.shadowBlur=12;ctx.lineWidth=3;
+            _cosOutline();ctx.stroke();
+            ctx.strokeStyle='rgba(255,240,150,0.85)';ctx.shadowBlur=4;ctx.lineWidth=1.2;
+            _cosOutline();ctx.stroke();
+            // Gold shimmer particles
+            ctx.shadowBlur=6;ctx.shadowColor='#FFD700';
+            for(var goi=0;goi<18;goi++){
+              var goIdx=Math.floor((goi/18)*gStrips.length);
+              if(goIdx>=gStrips.length)goIdx=gStrips.length-1;
+              var gosr=_sRect(gStrips[goIdx]);
+              var gox=gosr.x+Math.abs(Math.sin(_ct/700+goi*0.55))*gosr.w;
+              var goy=gosr.y+((goi%3===0)?0:(goi%3===1)?gosr.h:gosr.h*0.5);
+              ctx.globalAlpha=0.3+0.7*Math.abs(Math.sin(_ct/300+goi*1.1));
+              ctx.fillStyle='#FFEE88';ctx.beginPath();ctx.arc(gox,goy,1.3,0,Math.PI*2);ctx.fill();
+            }
+          }else if(cos.border==='starship_border'){
+            ctx.strokeStyle='rgba(255,60,0,0.1)';ctx.shadowColor='#FF4400';ctx.shadowBlur=20;ctx.lineWidth=7;
+            _cosOutline();ctx.stroke();
+            ctx.strokeStyle='rgba(255,80,20,0.45)';ctx.shadowBlur=8;ctx.lineWidth=2.5;ctx.setLineDash([6,3]);
+            _cosOutline();ctx.stroke();ctx.setLineDash([]);
+            ctx.strokeStyle='rgba(255,160,60,0.7)';ctx.shadowBlur=3;ctx.lineWidth=1;
+            _cosOutline();ctx.stroke();
+            // Re-entry spark trail
+            ctx.shadowBlur=8;ctx.shadowColor='#FF6600';
+            for(var sti=0;sti<14;sti++){
+              var stIdx=Math.floor(((_ct/100+sti*3)%(gStrips.length)));
+              var stsr=_sRect(gStrips[stIdx]);
+              ctx.globalAlpha=0.5+0.5*Math.abs(Math.sin(_ct/150+sti*2));
+              ctx.fillStyle='#FFAA44';ctx.beginPath();ctx.arc(stsr.x+stsr.w*0.5,stsr.y,1.5,0,Math.PI*2);ctx.fill();
+            }
+          }
+          ctx.restore();
+        }
+
+        // ── GLOW: strong territory-wide aura ──
         if(cos.glow){
           ctx.save();
-          var t2=Date.now();
           if(cos.glow==='pulse_glow'){
-            ctx.globalAlpha=0.2+Math.sin(t2/400)*0.12;
-            ctx.shadowBlur=8+Math.sin(t2/400)*4;
-            ctx.shadowColor=_ownerColor(c.owner);
-            ctx.strokeStyle=_ownerColor(c.owner);ctx.lineWidth=3;
+            var pVal=Math.sin(_ct/400);
+            // Outer aura
+            ctx.globalAlpha=0.08+0.06*pVal;
+            ctx.shadowBlur=20+pVal*8;ctx.shadowColor=_ownerColor(_cosOwner);
+            ctx.fillStyle=_ownerColor(_cosOwner);
+            _cosClip();ctx.fill();
+            // Border pulse
+            ctx.globalAlpha=0.3+0.2*pVal;
+            ctx.strokeStyle=_ownerColor(_cosOwner);ctx.lineWidth=3+pVal*1.5;
+            ctx.shadowBlur=14+pVal*6;
+            _cosOutline();ctx.stroke();
           }else if(cos.glow==='rainbow_glow'){
-            var hue=(t2/15)%360;
-            ctx.shadowBlur=10;ctx.shadowColor='hsl('+hue+',100%,60%)';
-            ctx.globalAlpha=0.3;ctx.strokeStyle='hsl('+hue+',100%,60%)';ctx.lineWidth=2.5;
+            var rHue=(_ct/12)%360;
+            // Rainbow fill aura
+            ctx.globalAlpha=0.08;
+            ctx.fillStyle='hsl('+rHue+',100%,60%)';ctx.shadowColor='hsl('+rHue+',100%,50%)';ctx.shadowBlur=20;
+            _cosClip();ctx.fill();
+            // Multi-hue border layers
+            for(var ri=0;ri<3;ri++){
+              var rH2=(rHue+ri*40)%360;
+              ctx.globalAlpha=0.25-ri*0.06;
+              ctx.strokeStyle='hsl('+rH2+',100%,65%)';ctx.shadowColor='hsl('+rH2+',100%,50%)';
+              ctx.shadowBlur=12-ri*3;ctx.lineWidth=3-ri*0.8;
+              _cosOutline();ctx.stroke();
+            }
+            // Rainbow sparkles inside
+            for(var rsi=0;rsi<8;rsi++){
+              var rsH=(rHue+rsi*45)%360;
+              var rsx=_cbx1+(((rsi*137+Math.floor(_ct/500))%100)/100)*(_cbx2-_cbx1);
+              var rsy=_cby1+(((rsi*97+Math.floor(_ct/700))%100)/100)*(_cby2-_cby1);
+              ctx.globalAlpha=0.3+0.5*Math.abs(Math.sin(_ct/250+rsi*1.5));
+              ctx.fillStyle='hsl('+rsH+',100%,75%)';ctx.shadowColor='hsl('+rsH+',100%,60%)';ctx.shadowBlur=5;
+              ctx.beginPath();ctx.arc(rsx,rsy,1.2,0,Math.PI*2);ctx.fill();
+            }
           }else if(cos.glow==='dark_aura'){
-            ctx.shadowBlur=10;ctx.shadowColor='rgba(80,0,120,0.8)';
-            ctx.globalAlpha=0.25+Math.sin(t2/600)*0.08;
-            ctx.strokeStyle='rgba(120,0,180,0.6)';ctx.lineWidth=2;
+            var dPulse=Math.sin(_ct/600);
+            // Dark inner shadow
+            ctx.globalAlpha=0.12+0.04*dPulse;
+            ctx.fillStyle='rgba(40,0,60,0.5)';ctx.shadowColor='rgba(100,0,160,0.8)';ctx.shadowBlur=22;
+            _cosClip();ctx.fill();
+            // Purple border
+            ctx.globalAlpha=0.35+0.15*dPulse;
+            ctx.strokeStyle='rgba(140,0,220,0.6)';ctx.shadowBlur=16;ctx.lineWidth=3;
+            _cosOutline();ctx.stroke();
+            ctx.strokeStyle='rgba(180,80,255,0.4)';ctx.shadowBlur=6;ctx.lineWidth=1;
+            _cosOutline();ctx.stroke();
+            // Dark mist particles
+            for(var di=0;di<8;di++){
+              var dx=_cbx1+(((di*131+Math.floor(_ct/900))%100)/100)*(_cbx2-_cbx1);
+              var dy=_cby1+(((di*97+Math.floor(_ct/1100))%100)/100)*(_cby2-_cby1);
+              ctx.globalAlpha=0.15+0.2*Math.abs(Math.sin(_ct/500+di*1.8));
+              ctx.fillStyle='rgba(120,0,200,0.4)';ctx.shadowColor='rgba(80,0,140,0.6)';ctx.shadowBlur=8;
+              ctx.beginPath();ctx.arc(dx,dy,2+Math.sin(_ct/400+di)*1,0,Math.PI*2);ctx.fill();
+            }
           }
-          _cosClipPath();
-          ctx.stroke();
           ctx.restore();
         }
       });
@@ -9691,7 +9935,7 @@ function _drawStarlinkTrails(ctx, w, h) {
 function _updateStarlinkPositions() {
   if (!_starlinkMeshes.length) return;
   var GLOBE_RADIUS = 100;
-  var ALT = 112;
+  var ALT = 145;
   var t = Date.now();
 
   _satConfig.forEach(function(sat, i) {
