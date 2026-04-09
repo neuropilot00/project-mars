@@ -713,6 +713,21 @@ router.post('/claim', writeLimiter, async (req, res) => {
       }
     }
 
+    // Check pixel_doubler effect (50% claim discount)
+    let pixelDoublerEffectId = null;
+    try {
+      const pdRes = await client.query(
+        `SELECT id FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'pixel_doubler' AND active = true
+           AND uses_remaining > 0
+         ORDER BY id DESC LIMIT 1`, [walletLower]
+      );
+      if (pdRes.rows.length > 0) {
+        pixelDoublerEffectId = pdRes.rows[0].id;
+        baseCost = Math.round(baseCost * 0.5 * 1000000) / 1000000;
+      }
+    } catch(pe) { /* item system unavailable */ }
+
     // ── BATTLE: Roll ONCE per defender (all-or-nothing per owner overlap) ──
     let attackWon = 0, attackLost = 0, refundFromFailed = 0, platformFee = 0;
     const wonPixels = [];
@@ -725,9 +740,25 @@ router.post('/claim', writeLimiter, async (req, res) => {
       enemyByOwner[prevOwner].push(ep);
     }
 
+    // Check attacker's attack_boost item effect
+    let attackBoostValue = 0;
+    let attackBoostEffectId = null;
+    try {
+      const boostRes = await client.query(
+        `SELECT id, effect_value, uses_remaining FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'attack_boost' AND active = true
+           AND (uses_remaining > 0 OR uses_remaining IS NULL)
+         ORDER BY id DESC LIMIT 1`, [wallet.toLowerCase()]
+      );
+      if (boostRes.rows.length > 0) {
+        attackBoostValue = parseFloat(boostRes.rows[0].effect_value);
+        attackBoostEffectId = boostRes.rows[0].id;
+      }
+    } catch(be) { /* item system unavailable */ }
+
     for (const [prevOwner, ownerPixels] of Object.entries(enemyByOwner)) {
       // Defense bonus buff: check if defender's sector has defense_bonus active
-      let effectiveSuccessRate = ATTACK_SUCCESS_RATE;
+      let effectiveSuccessRate = ATTACK_SUCCESS_RATE + attackBoostValue;
       try {
         const defSectorId = ownerPixels[0] && ownerPixels[0].existing ? findSectorForPixelSync(ownerPixels[0].lat, ownerPixels[0].lng) : null;
         if (defSectorId) {
@@ -757,6 +788,18 @@ router.post('/claim', writeLimiter, async (req, res) => {
           platformFee += failFee;
         }
       }
+    }
+
+    // Consume attack_boost use if battles occurred
+    if (attackBoostEffectId && (attackWon > 0 || attackLost > 0)) {
+      try {
+        await client.query(
+          `UPDATE user_active_effects SET uses_remaining = uses_remaining - 1 WHERE id = $1`, [attackBoostEffectId]
+        );
+        await client.query(
+          `UPDATE user_active_effects SET active = false WHERE id = $1 AND uses_remaining <= 0`, [attackBoostEffectId]
+        );
+      } catch(be) { /* non-critical */ }
     }
 
     // ── If ALL battles lost, keep newPixels (non-overlapping empty land is still claimed) ──
@@ -958,6 +1001,13 @@ router.post('/claim', writeLimiter, async (req, res) => {
       }
       await recalculateCommander(client);
     } catch(ge) { console.warn('[GOV] governance post-claim failed:', ge.message); }
+
+    // Consume pixel_doubler if used
+    if (pixelDoublerEffectId) {
+      try {
+        await client.query(`UPDATE user_active_effects SET uses_remaining = 0, active = false WHERE id = $1`, [pixelDoublerEffectId]);
+      } catch(pe) { /* non-critical */ }
+    }
 
     await client.query('COMMIT');
 
@@ -1844,6 +1894,20 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       if (isDoubleMining) harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
     } catch(ge) { console.warn('[GOV] harvest buff check failed:', ge.message); }
 
+    // Check personal mining_boost item effect
+    try {
+      const mbRes = await client.query(
+        `SELECT id, effect_value FROM user_active_effects
+         WHERE wallet = $1 AND effect_type = 'mining_boost' AND active = true
+           AND expires_at > NOW()
+         ORDER BY id DESC LIMIT 1`, [w]
+      );
+      if (mbRes.rows.length > 0) {
+        const boost = parseFloat(mbRes.rows[0].effect_value) / 100; // e.g. 50 → 0.5
+        harvestedPP = Math.round(harvestedPP * (1 + boost) * 10000) / 10000;
+      }
+    } catch(me) { /* item system unavailable */ }
+
     // Apply hard cap per harvest
     harvestedPP = Math.min(harvestedPP, harvestCap);
 
@@ -2484,9 +2548,53 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
       // Disable shield on target claim
       await client.query('DELETE FROM pixel_shields WHERE claim_id = $1', [claimId]);
       effectResult = { empApplied: true, targetClaim: claimId };
+    } else if (item.code === 'attack_boost') {
+      // +20% attack success for next 3 attacks (uses-based)
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'attack_boost' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining) VALUES ($1, 'attack_boost', $2, 3)`,
+        [w, item.effect_value]
+      );
+      effectResult = { applied: true, code: item.code, uses: 3, value: item.effect_value };
+    } else if (item.code === 'pixel_doubler') {
+      // 2x pixels on next claim (1 use)
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'pixel_doubler' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining) VALUES ($1, 'pixel_doubler', 2, 1)`,
+        [w]
+      );
+      effectResult = { applied: true, code: item.code, uses: 1, value: 2 };
+    } else if (item.code === 'mining_boost') {
+      // +mining speed for duration_hours (duration-based)
+      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'mining_boost' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at) VALUES ($1, 'mining_boost', $2, $3)`,
+        [w, item.effect_value, expiresAt]
+      );
+      effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
+    } else if (item.code === 'stealth_cloak') {
+      // Hide territory for duration_hours
+      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'stealth_cloak' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at) VALUES ($1, 'stealth_cloak', 1, $2)`,
+        [w, expiresAt]
+      );
+      effectResult = { applied: true, code: item.code, expiresAt };
+    } else if (item.code === 'radar_scan') {
+      // Instant effect — reveal nearby enemies (no active state needed)
+      effectResult = { applied: true, code: item.code, instant: true };
     } else {
-      // Generic: just log the usage, client handles effect
-      effectResult = { applied: true, code: item.code, duration: item.duration_hours, value: item.effect_value };
+      effectResult = { applied: true, code: item.code };
     }
 
     // Log usage
@@ -2513,6 +2621,30 @@ router.get('/shop/shields', readLimiter, async (req, res) => {
     );
     res.json(result.rows.length > 0 ? result.rows[0] : null);
   } catch (e) {
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// GET /api/shop/active-effects?wallet= — get user's active item effects
+router.get('/shop/active-effects', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'wallet required' });
+  try {
+    // Auto-expire duration-based effects
+    await pool.query(
+      `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND active = true AND expires_at IS NOT NULL AND expires_at < NOW()`, [w]
+    );
+    const result = await pool.query(
+      `SELECT e.*, t.name, t.icon, t.code FROM user_active_effects e
+       JOIN item_types t ON t.code = e.effect_type
+       WHERE e.wallet = $1 AND e.active = true
+         AND (e.expires_at IS NULL OR e.expires_at > NOW())
+         AND (e.uses_remaining IS NULL OR e.uses_remaining > 0)
+       ORDER BY e.activated_at DESC`, [w]
+    );
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[SHOP] active-effects error:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
 });

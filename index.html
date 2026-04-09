@@ -827,6 +827,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   background:rgba(255,120,60,.12);border:1px solid rgba(255,120,60,.3);border-radius:6px;
   color:var(--mars);cursor:pointer;transition:all .15s}
 .inv-item .inv-use:hover{background:rgba(255,120,60,.25)}
+/* Active buff pills */
+.tb-buff{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;
+  font-size:9px;font-family:var(--fn);letter-spacing:.3px;white-space:nowrap;
+  animation:buffPulse 2s ease-in-out infinite}
+.tb-buff.attack{background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.3);color:var(--red)}
+.tb-buff.defense{background:rgba(91,184,232,.15);border:1px solid rgba(91,184,232,.3);color:var(--cyan)}
+.tb-buff.utility{background:rgba(184,136,224,.15);border:1px solid rgba(184,136,224,.3);color:var(--pp)}
+.tb-buff.boost{background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);color:var(--gold)}
+@keyframes buffPulse{0%,100%{opacity:1}50%{opacity:.7}}
 
 /* Mobile */
 @media(max-width:768px){
@@ -892,6 +901,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .shop-grid{grid-template-columns:1fr}
   .shop-item-card{padding:14px}
   .shop-main-tab{padding:8px 14px;font-size:10px;min-height:40px}
+  #shopConfirmModal{align-items:center!important}
+  #shopConfirmModal .mdl{align-self:center;border-radius:14px;max-width:90vw}
+  .tb-buff{font-size:8px;padding:2px 6px}
   .shop-cat-btn{padding:10px 4px;font-size:10px;min-height:44px}
   .si-price{min-height:36px;display:flex;align-items:center;padding:6px 12px!important;font-size:11px!important}
   .inv-item{padding:12px}
@@ -1322,6 +1334,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <span class="tb-title">OCCUPY MARS</span>
     <span class="tb-sub">CLAIM YOUR TERRITORY</span>
   </div>
+  <div id="tbActiveBuffs" style="display:none;gap:4px;align-items:center;margin-right:4px"></div>
   <div style="display:flex;gap:6px;align-items:center">
     <div class="lang-switcher" id="langSwitcher">
       <button class="lang-btn active" onclick="setLang('en')">EN</button>
@@ -1808,6 +1821,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div id="shopItemsGrid" class="shop-grid"></div>
       <!-- Inventory view (hidden by default) -->
       <div id="shopInventoryView" style="display:none">
+        <div id="shopActiveSection" style="display:none;margin-bottom:12px">
+          <div style="font-size:var(--fs-sm);color:var(--gold);letter-spacing:1px;margin-bottom:6px">ACTIVE EFFECTS</div>
+          <div id="shopActiveList" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+        </div>
         <div style="font-size:var(--fs-sm);color:var(--tx3);letter-spacing:1px;margin-bottom:8px">MY INVENTORY</div>
         <div id="shopInventoryList" class="shop-grid"></div>
       </div>
@@ -6384,6 +6401,7 @@ function updateWalletUI(){
   if((el=document.getElementById('walletSection'))) el.style.display='';
   if((el=document.getElementById('alertsSection'))) el.style.display='';
   if((el=document.getElementById('walletAddr'))) el.textContent=walletState.address;
+  try{loadActiveEffects()}catch(e){}
 }
 
 function updateChainUI(){
@@ -7311,6 +7329,33 @@ function _shopConfirmResolve(val){
   if(_shopConfirmCb){_shopConfirmCb(val);_shopConfirmCb=null;}
 }
 
+var _activeEffects=[];
+function loadActiveEffects(){
+  var w=(walletState&&walletState.address)||'';
+  if(!w)return;
+  fetch('/api/shop/active-effects?wallet='+w).then(function(r){return r.json()}).then(function(effects){
+    _activeEffects=effects||[];
+    renderActiveBuffs();
+  }).catch(function(){});
+}
+function renderActiveBuffs(){
+  var el=document.getElementById('tbActiveBuffs');
+  if(!el)return;
+  if(_activeEffects.length===0){el.style.display='none';return;}
+  var catMap={attack_boost:'attack',stealth_cloak:'utility',mining_boost:'boost',pixel_doubler:'boost',radar_scan:'utility'};
+  el.style.display='flex';
+  el.innerHTML=_activeEffects.map(function(e){
+    var cat=catMap[e.effect_type]||'utility';
+    var label=e.icon+' ';
+    if(e.uses_remaining!==null) label+=e.uses_remaining+'x';
+    else if(e.expires_at){
+      var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
+      label+=mins>60?Math.floor(mins/60)+'h':mins+'m';
+    }
+    return '<div class="tb-buff '+cat+'" title="'+e.name+'">'+label+'</div>';
+  }).join('');
+}
+
 function openItemShop(){
   document.getElementById('shopModal').classList.add('open');
   shopSwitchTab('shop');
@@ -7422,6 +7467,21 @@ function renderShopInventory(){
         +'</div>';
     }).join('');
   }).catch(function(){list.innerHTML='<div style="text-align:center;color:var(--red);font-size:var(--fs-sm)">Failed to load</div>'});
+  // Render active effects in inventory view
+  var actSec=document.getElementById('shopActiveSection');
+  var actList=document.getElementById('shopActiveList');
+  if(_activeEffects.length>0){
+    actSec.style.display='';
+    actList.innerHTML=_activeEffects.map(function(e){
+      var info=e.icon+' <b>'+e.name+'</b> — ';
+      if(e.uses_remaining!==null) info+=e.uses_remaining+' uses left';
+      else if(e.expires_at){
+        var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
+        info+=mins>60?Math.floor(mins/60)+'h '+mins%60+'m left':mins+'m left';
+      }
+      return '<div style="padding:6px 10px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);border-radius:8px;font-size:var(--fs-xs);color:var(--gold);font-family:var(--fn)">'+info+'</div>';
+    }).join('');
+  }else{actSec.style.display='none';}
 }
 
 function buyShopItem(code,currency){
@@ -7503,6 +7563,7 @@ function _doUseItem(w,code,claimId){
     else if(code==='pixel_doubler') _showItemEffect('doubler',null);
     else if(code==='mining_boost') _showItemEffect('mining',null);
     renderShopInventory();
+    loadActiveEffects();
     // Refresh claims to update shield status on globe
     setTimeout(function(){
       claimsSnapshot=null;
