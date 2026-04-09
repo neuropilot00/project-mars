@@ -416,6 +416,19 @@ async function start() {
       console.log('[ROCKET] Scheduled tasks initialized (process: 1min, auto-schedule: 12h)');
     } catch(e) { console.warn('[ROCKET] Could not init scheduled tasks:', e.message); }
 
+    // ── Daily Engagement Cleanup ──
+    try {
+      // Daily cleanup - remove old mission data
+      setInterval(async () => {
+        try {
+          await pool.query("DELETE FROM daily_missions WHERE mission_date < CURRENT_DATE - INTERVAL '7 days'");
+          await pool.query("DELETE FROM daily_logins WHERE login_date < CURRENT_DATE - INTERVAL '90 days'");
+          console.log('[DAILY] Cleanup completed');
+        } catch(e) { console.error('[DAILY] cleanup error:', e.message); }
+      }, 24 * 60 * 60 * 1000);
+      console.log('[DAILY] Scheduled tasks initialized (cleanup: 24h)');
+    } catch(e) { console.warn('[DAILY] Could not init scheduled tasks:', e.message); }
+
     // Start HTTP server
     const server = app.listen(PORT, () => {
       console.log(`\n╔══════════════════════════════════════════╗`);

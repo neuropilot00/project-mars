@@ -1658,6 +1658,57 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .tos-check-row input{accent-color:var(--mars);width:14px;height:14px;flex-shrink:0;margin-top:1px}
 .tos-check-row a{color:var(--mars);text-decoration:underline;cursor:pointer}
 .tos-check-row a:hover{color:var(--gold)}
+
+/* ── Daily Engagement System ── */
+.daily-day-box{width:32px;height:32px;border-radius:6px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-family:var(--fn);font-size:8px;
+  border:1px solid var(--bdr);background:rgba(0,0,0,.2);color:var(--tx3);transition:all .2s;gap:1px}
+.daily-day-box .dd-num{font-size:7px;opacity:.7}
+.daily-day-box .dd-icon{font-size:11px}
+.daily-day-box.completed{border-color:rgba(76,216,154,.4);background:rgba(76,216,154,.08);color:var(--gn)}
+.daily-day-box.completed .dd-icon{color:var(--gn)}
+.daily-day-box.active{border-color:var(--gold);background:rgba(255,209,102,.1);color:var(--gold);
+  box-shadow:0 0 12px rgba(255,209,102,.3),inset 0 0 6px rgba(255,209,102,.1);
+  animation:dailyGlow 1.5s ease-in-out infinite}
+.daily-day-box.future{opacity:.35}
+@keyframes dailyGlow{0%,100%{box-shadow:0 0 8px rgba(255,209,102,.2)}50%{box-shadow:0 0 16px rgba(255,209,102,.45)}}
+
+.daily-mission-card{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;
+  background:rgba(0,0,0,.15);border:1px solid var(--bdr);border-radius:8px;transition:all .2s}
+.daily-mission-card.claimable{border-color:rgba(76,216,154,.4);box-shadow:0 0 10px rgba(76,216,154,.15)}
+.daily-mission-card.claimed{opacity:.55;border-color:rgba(76,216,154,.2)}
+.daily-mission-card .dm-icon{font-size:18px;min-width:28px;text-align:center}
+.daily-mission-card .dm-info{flex:1;min-width:0}
+.daily-mission-card .dm-title{font-size:9px;color:var(--tx);letter-spacing:.5px;margin-bottom:3px;font-family:var(--fn)}
+.daily-mission-card .dm-prog-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:2px}
+.daily-mission-card .dm-prog-fill{height:100%;background:var(--mars);border-radius:2px;transition:width .3s}
+.daily-mission-card.claimable .dm-prog-fill{background:var(--gn)}
+.daily-mission-card.claimed .dm-prog-fill{background:var(--gn)}
+.daily-mission-card .dm-prog-text{font-size:7px;color:var(--tx3);font-family:var(--fn)}
+.daily-mission-card .dm-reward{font-size:10px;color:var(--gold);font-family:var(--fn);font-weight:700;white-space:nowrap}
+.daily-mission-card .dm-claim-btn{padding:4px 10px;font-size:8px;font-family:var(--fn);border-radius:4px;
+  cursor:pointer;border:1px solid rgba(76,216,154,.3);background:rgba(76,216,154,.1);color:var(--gn);
+  letter-spacing:.5px;transition:all .15s;white-space:nowrap}
+.daily-mission-card .dm-claim-btn:hover{background:rgba(76,216,154,.2);box-shadow:0 0 8px rgba(76,216,154,.2)}
+.daily-mission-card .dm-claim-btn:disabled{opacity:.4;cursor:default;box-shadow:none}
+.daily-mission-card .dm-claimed-check{color:var(--gn);font-size:12px}
+
+.daily-bonus-card{padding:12px;margin-top:8px;text-align:center;
+  background:linear-gradient(135deg,rgba(255,209,102,.08),rgba(255,120,60,.06));
+  border:1px solid rgba(255,209,102,.3);border-radius:8px;
+  animation:dailyBonusPulse 2s ease-in-out infinite}
+.daily-bonus-card .db-title{font-size:11px;color:var(--gold);font-family:var(--fn);font-weight:700;letter-spacing:1px}
+.daily-bonus-card .db-sub{font-size:8px;color:var(--tx2);margin-top:4px;font-family:var(--fn)}
+@keyframes dailyBonusPulse{0%,100%{border-color:rgba(255,209,102,.2)}50%{border-color:rgba(255,209,102,.5)}}
+
+.daily-hud-btn{position:relative;width:28px;height:28px;border-radius:50%;
+  border:1px solid rgba(255,209,102,.35);background:rgba(255,209,102,.08);
+  color:var(--gold);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-family:var(--fn)}
+.daily-hud-btn:hover{background:rgba(255,209,102,.2);box-shadow:0 0 8px rgba(255,209,102,.2)}
+.daily-hud-dot{position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;
+  background:var(--red);border:1px solid var(--bg);display:none;animation:dotPulse 1.5s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{opacity:.7}50%{opacity:1;transform:scale(1.2)}}
 </style>
 </head>
 <body>
@@ -1701,6 +1752,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <span class="chain-dot base" id="chainDotTop"></span>
       <span id="chainNameTop">BASE</span>
     </div>
+    <button class="daily-hud-btn" id="dailyHudBtn" onclick="openDailyPanel()" title="Daily Missions" style="display:none">📋<span class="daily-hud-dot" id="dailyHudDot"></span></button>
     <button id="telegramBtn" onclick="openTelegramGroup()" title="Join Telegram" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(36,161,222,.35);background:rgba(36,161,222,.1);color:#24A1DE;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1" onmouseover="this.style.background='rgba(36,161,222,.25)'" onmouseout="this.style.background='rgba(36,161,222,.1)'">✈</button>
     <div class="tb-avatar-emoji" id="tbAvatarEmoji" onclick="openAuthModal()">👤</div>
     <img class="tb-avatar" id="tbAvatarImg" onclick="openAuthModal()">
@@ -1816,7 +1868,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-bal"><span class="lbl">USDT</span><span class="val usdt" id="walletUsdt">0.00</span></div>
       <div class="wallet-bal"><span class="lbl">PP</span><span class="val pp" id="walletPP">0.00</span></div>
-      <div class="wallet-bal" id="walletGPRow" style="display:none"><span class="lbl" style="color:var(--cyan)">GP</span><span class="val" style="color:var(--cyan)" id="walletGP">0</span></div>
+      <div class="wallet-bal" id="walletGPRow" style="display:none"><span class="lbl" style="color:var(--gold)">GP</span><span class="val" style="color:var(--gold)" id="walletGP">0</span></div>
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-actions">
         <button class="wa-btn dep" onclick="openDepositModal()">DEPOSIT</button>
@@ -2368,6 +2420,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <!-- TAB: QUESTS -->
       <div class="base-pane" id="basePane_quests">
         <div class="base-banner" id="bannerQuests"><img src="/assets/base/quests.png" alt=""></div>
+        <!-- Daily Missions Panel -->
+        <div id="dailyMissionsPanel" style="display:none;margin:0;padding:8px 10px;border-bottom:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:9px;color:var(--gold);letter-spacing:2px;font-family:var(--fn)">DAILY MISSIONS</span>
+            <span id="dailyMissionTimer" style="font-size:8px;color:var(--tx3);font-family:var(--fn)"></span>
+          </div>
+          <div id="dailyMissionCards"></div>
+          <div id="dailyBonusCard" style="display:none"></div>
+        </div>
+
         <div id="questsContainer" style="padding:8px 10px">
           <div id="questsLoading" style="text-align:center;padding:24px;color:var(--tx3);font-size:var(--fs-xs)">Loading quests...</div>
           <div id="questsList"></div>
@@ -2653,6 +2715,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
 </div>
 
+<!-- Daily Login Popup -->
+<div class="mbg" id="dailyLoginPopup">
+  <div class="mdl" style="width:360px">
+    <div class="mhd">
+      <span class="mtl" style="color:var(--gold)">DAILY CHECK-IN</span>
+      <button class="mx" onclick="closeDailyLogin()">×</button>
+    </div>
+    <div class="mbd" style="text-align:center">
+      <div id="dailyStreakRow" style="display:flex;justify-content:center;gap:6px;margin:12px 0;flex-wrap:wrap"></div>
+      <div id="dailyRewardText" style="font-size:12px;color:var(--gold);margin:10px 0;font-family:var(--fn)"></div>
+      <div id="dailyMilestoneText" style="font-size:10px;color:var(--gn);margin:8px 0;display:none;font-family:var(--fn)"></div>
+      <button class="cfm" id="dailyClaimBtn" onclick="claimDailyLogin()" style="background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)">CLAIM REWARD</button>
+    </div>
+  </div>
+</div>
+
 <!-- Auth Modal (Email Login/Register) -->
 <div class="mbg" id="authModal">
   <div class="mdl" style="width:440px">
@@ -2702,6 +2780,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div class="profile-bal-label">PP</div>
             <div class="profile-bal-val" style="color:var(--pp)" id="authPPBal">0.00</div>
           </div>
+          <div class="profile-bal-card" style="grid-column:1/-1">
+            <div class="profile-bal-label" style="color:var(--gold)">GP (Governance Points)</div>
+            <div class="profile-bal-val" style="color:var(--gold)" id="authGPBal">0</div>
+          </div>
         </div>
 
         <!-- Chain indicator -->
@@ -2715,38 +2797,41 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           Use DEPOSIT to get your deposit address.
         </div>
 
-        <!-- SETTINGS SECTION -->
+        <!-- SETTINGS SECTION (collapsible) -->
         <div style="border-top:1px solid var(--bdr);margin:12px 0 8px;padding-top:12px">
-          <div style="font-size:9px;color:var(--tx3);letter-spacing:2px;margin-bottom:10px">⚙ SETTINGS</div>
+          <div onclick="var b=document.getElementById('settingsBody');b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.chevron').textContent=b.style.display==='none'?'▸':'▾'" style="font-size:9px;color:var(--tx3);letter-spacing:2px;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <span class="chevron">▸</span> ⚙ SETTINGS
+          </div>
+          <div id="settingsBody" style="display:none;margin-top:8px">
+            <!-- Notification Settings -->
+            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:6px">NOTIFICATIONS</div>
+            <div class="profile-setting-row">
+              <span>Hijack Alerts</span>
+              <label class="profile-toggle"><input type="checkbox" id="notifHijack" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+            <div class="profile-setting-row">
+              <span>Weather Events</span>
+              <label class="profile-toggle"><input type="checkbox" id="notifWeather" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+            <div class="profile-setting-row">
+              <span>Rocket Drops</span>
+              <label class="profile-toggle"><input type="checkbox" id="notifRocket" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+            <div class="profile-setting-row">
+              <span>Mining Complete</span>
+              <label class="profile-toggle"><input type="checkbox" id="notifMining" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+            <div class="profile-setting-row">
+              <span>Sound Effects</span>
+              <label class="profile-toggle"><input type="checkbox" id="notifSound" onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
 
-          <!-- Notification Settings -->
-          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:6px">NOTIFICATIONS</div>
-          <div class="profile-setting-row">
-            <span>Hijack Alerts</span>
-            <label class="profile-toggle"><input type="checkbox" id="notifHijack" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+            <!-- Account Management -->
+            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px">ACCOUNT</div>
+            <button class="profile-acct-btn" onclick="openChangePassword()">🔒 Change Password</button>
+            <button class="profile-acct-btn" onclick="exportAccountData()">📦 Export My Data</button>
+            <button class="profile-acct-btn profile-acct-danger" onclick="requestDeleteAccount()">🗑 Delete Account</button>
           </div>
-          <div class="profile-setting-row">
-            <span>Weather Events</span>
-            <label class="profile-toggle"><input type="checkbox" id="notifWeather" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
-          </div>
-          <div class="profile-setting-row">
-            <span>Rocket Drops</span>
-            <label class="profile-toggle"><input type="checkbox" id="notifRocket" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
-          </div>
-          <div class="profile-setting-row">
-            <span>Mining Complete</span>
-            <label class="profile-toggle"><input type="checkbox" id="notifMining" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
-          </div>
-          <div class="profile-setting-row">
-            <span>Sound Effects</span>
-            <label class="profile-toggle"><input type="checkbox" id="notifSound" onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
-          </div>
-
-          <!-- Account Management -->
-          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px">ACCOUNT</div>
-          <button class="profile-acct-btn" onclick="openChangePassword()">🔒 Change Password</button>
-          <button class="profile-acct-btn" onclick="exportAccountData()">📦 Export My Data</button>
-          <button class="profile-acct-btn profile-acct-danger" onclick="requestDeleteAccount()">🗑 Delete Account</button>
         </div>
 
         <!-- Change Password Inline -->
@@ -8637,6 +8722,7 @@ async function submitAuth(){
     if(window._pendingRefCode){delete window._pendingRefCode}
     try{ refreshEmailBalances(); }catch(e2){ console.error('[Auth] refreshEmailBalances:',e2); }
     try{ trackQuestAction('login',1); }catch(e2){}
+    try{ checkDailyLogin(); }catch(e2){ console.error('[Auth] checkDailyLogin:',e2); }
 
   }catch(e){
     console.error('[Auth] submitAuth error:', e);
@@ -8856,6 +8942,11 @@ async function refreshEmailBalances(){
       document.getElementById('walletPP').textContent=(d.ppBalance||0).toFixed(2);
       document.getElementById('authUsdtBal').textContent=(d.usdtBalance||0).toFixed(2);
       document.getElementById('authPPBal').textContent=(d.ppBalance||0).toFixed(2);
+      // GP balance from server
+      if(d.gpBalance !== undefined){
+        _dailyState.gpBalance = parseFloat(d.gpBalance)||0;
+        updateGPDisplay();
+      }
     }
   }catch(e){}
 }
@@ -8878,6 +8969,7 @@ async function refreshEmailBalances(){
           updateTopbarAvatar(true);
           loadReferralInfo();
           refreshEmailBalances();
+          try{ checkDailyLogin(); }catch(e){}
         }
       })
       .catch(function(){
@@ -12908,6 +13000,337 @@ function acceptGambleDisclaimer(){
   localStorage.setItem('gamble_disclaimer_accepted','1');
   document.getElementById('gambleDisclaimer').classList.remove('open');
   _origOpenArena();
+}
+
+// ══════════════════════════════════════════════════════════
+//  DAILY ENGAGEMENT SYSTEM
+// ══════════════════════════════════════════════════════════
+var _dailyState = {
+  streak: 0,
+  todayClaimed: false,
+  missions: [],
+  gpBalance: 0,
+  lastReward: 0
+};
+
+// Daily reward schedule (day 1-7)
+var _dailyRewards = [10, 15, 20, 25, 30, 40, 75];
+var _dailyMilestones = { 7: { bonus: 100, label: 'WEEKLY STREAK BONUS!' } };
+
+// ── Check Daily Login ──
+function checkDailyLogin(){
+  if(!emailAuth.token || !walletState.address) return;
+  var today = new Date().toISOString().slice(0,10);
+  var stored = localStorage.getItem('daily_login_date_'+walletState.address);
+  if(stored === today){ _dailyState.todayClaimed=true; updateDailyHudDot(); return; }
+
+  fetch('/api/daily/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
+    body:JSON.stringify({wallet:walletState.address})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.success){
+      _dailyState.streak = d.streak || 1;
+      _dailyState.lastReward = d.reward || _dailyRewards[Math.min((_dailyState.streak-1),6)];
+      _dailyState.todayClaimed = false;
+      renderDailyStreakRow();
+      document.getElementById('dailyLoginPopup').classList.add('open');
+    } else if(d.already_claimed){
+      _dailyState.todayClaimed = true;
+      _dailyState.streak = d.streak || 0;
+      localStorage.setItem('daily_login_date_'+walletState.address, today);
+    }
+    updateDailyHudDot();
+    loadDailyMissions();
+  }).catch(function(e){
+    // Backend not ready — show UI with defaults for graceful degradation
+    console.log('[Daily] Login endpoint not available, using local defaults');
+    var lastLogin = localStorage.getItem('daily_last_streak_'+walletState.address);
+    _dailyState.streak = lastLogin ? Math.min(parseInt(lastLogin)+1, 7) : 1;
+    _dailyState.lastReward = _dailyRewards[Math.min((_dailyState.streak-1),6)];
+    _dailyState.todayClaimed = false;
+    renderDailyStreakRow();
+    document.getElementById('dailyLoginPopup').classList.add('open');
+    updateDailyHudDot();
+    loadDailyMissions();
+  });
+}
+
+// ── Render 7-day streak row ──
+function renderDailyStreakRow(){
+  var row = document.getElementById('dailyStreakRow');
+  var streak = _dailyState.streak;
+  var html = '';
+  for(var i=1;i<=7;i++){
+    var cls = 'daily-day-box';
+    var icon = '';
+    if(i < streak){ cls += ' completed'; icon = '✓'; }
+    else if(i === streak){ cls += ' active'; icon = '🎁'; }
+    else { cls += ' future'; icon = '·'; }
+    html += '<div class="'+cls+'"><div class="dd-num">D'+i+'</div><div class="dd-icon">'+icon+'</div></div>';
+  }
+  row.innerHTML = html;
+
+  var rewardText = document.getElementById('dailyRewardText');
+  rewardText.textContent = '🎁 +' + _dailyState.lastReward + ' GP';
+
+  var milestone = _dailyMilestones[streak];
+  var milestoneEl = document.getElementById('dailyMilestoneText');
+  if(milestone){
+    milestoneEl.textContent = '🏆 ' + milestone.label + ' (+' + milestone.bonus + ' GP)';
+    milestoneEl.style.display = '';
+  } else {
+    milestoneEl.style.display = 'none';
+  }
+}
+
+// ── Claim Daily Login ──
+function claimDailyLogin(){
+  var today = new Date().toISOString().slice(0,10);
+  localStorage.setItem('daily_login_date_'+walletState.address, today);
+  localStorage.setItem('daily_last_streak_'+walletState.address, String(_dailyState.streak));
+  _dailyState.todayClaimed = true;
+  _dailyState.gpBalance += _dailyState.lastReward;
+  var milestone = _dailyMilestones[_dailyState.streak];
+  if(milestone) _dailyState.gpBalance += milestone.bonus;
+  updateGPDisplay();
+  closeDailyLogin();
+  var msg = '+' + _dailyState.lastReward + ' GP CLAIMED!';
+  if(milestone) msg += ' +' + milestone.bonus + ' GP STREAK BONUS!';
+  showToast(msg);
+  try{_sfx.harvest()}catch(e){}
+  updateDailyHudDot();
+}
+
+function closeDailyLogin(){
+  document.getElementById('dailyLoginPopup').classList.remove('open');
+}
+
+// ── Daily Missions ──
+var _defaultMissions = [
+  {id:'claim_land', type:'claim', icon:'🏴', title:'CLAIM TERRITORY', desc:'Claim 1 land pixel', target:1, current:0, reward:20, claimed:false},
+  {id:'visit_sectors', type:'explore', icon:'🔭', title:'EXPLORE SECTORS', desc:'View the sectors tab', target:1, current:0, reward:15, claimed:false},
+  {id:'play_game', type:'play', icon:'🎮', title:'DAILY ACTIVITY', desc:'Perform any game action', target:3, current:0, reward:25, claimed:false}
+];
+
+function loadDailyMissions(){
+  if(!emailAuth.token) return;
+  document.getElementById('dailyMissionsPanel').style.display = '';
+  document.getElementById('dailyHudBtn').style.display = 'flex';
+
+  fetch('/api/daily/missions',{
+    headers:{'Authorization':'Bearer '+emailAuth.token}
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.missions && d.missions.length){
+      _dailyState.missions = d.missions;
+    } else {
+      _dailyState.missions = JSON.parse(JSON.stringify(_defaultMissions));
+    }
+    renderDailyMissions();
+  }).catch(function(){
+    // Backend not ready — use default missions with localStorage tracking
+    console.log('[Daily] Missions endpoint not available, using local defaults');
+    var stored = localStorage.getItem('daily_missions_'+walletState.address+'_'+new Date().toISOString().slice(0,10));
+    if(stored){
+      try{ _dailyState.missions = JSON.parse(stored); }catch(e){ _dailyState.missions = JSON.parse(JSON.stringify(_defaultMissions)); }
+    } else {
+      _dailyState.missions = JSON.parse(JSON.stringify(_defaultMissions));
+    }
+    renderDailyMissions();
+  });
+
+  startDailyTimer();
+}
+
+function renderDailyMissions(){
+  var container = document.getElementById('dailyMissionCards');
+  var html = '';
+  var allClaimed = true;
+  _dailyState.missions.forEach(function(m){
+    var pct = Math.min((m.current/m.target)*100, 100);
+    var claimable = m.current >= m.target && !m.claimed;
+    var cls = 'daily-mission-card';
+    if(m.claimed) cls += ' claimed';
+    else if(claimable) cls += ' claimable';
+    if(!m.claimed) allClaimed = false;
+
+    html += '<div class="'+cls+'" id="dm_'+m.id+'">';
+    html += '<div class="dm-icon">'+m.icon+'</div>';
+    html += '<div class="dm-info">';
+    html += '<div class="dm-title">'+m.title+'</div>';
+    html += '<div class="dm-prog-bar"><div class="dm-prog-fill" style="width:'+pct+'%"></div></div>';
+    html += '<div class="dm-prog-text">'+Math.min(m.current,m.target)+' / '+m.target+'</div>';
+    html += '</div>';
+    html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">';
+    html += '<div class="dm-reward">+'+m.reward+' GP</div>';
+    if(m.claimed){
+      html += '<span class="dm-claimed-check">✓</span>';
+    } else if(claimable){
+      html += '<button class="dm-claim-btn" onclick="claimMission(\''+m.id+'\')">CLAIM</button>';
+    } else {
+      html += '<button class="dm-claim-btn" disabled>'+Math.min(m.current,m.target)+'/'+m.target+'</button>';
+    }
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+
+  // Bonus card
+  var bonusEl = document.getElementById('dailyBonusCard');
+  if(allClaimed && _dailyState.missions.length > 0){
+    bonusEl.style.display = '';
+    bonusEl.innerHTML = '<div class="daily-bonus-card"><div class="db-title">🎉 +50 GP BONUS!</div><div class="db-sub">ALL DAILY MISSIONS COMPLETE</div></div>';
+  } else {
+    bonusEl.style.display = 'none';
+  }
+  updateDailyHudDot();
+}
+
+function claimMission(missionId){
+  var mission = null;
+  _dailyState.missions.forEach(function(m){ if(m.id===missionId) mission=m; });
+  if(!mission || mission.claimed || mission.current < mission.target) return;
+
+  if(emailAuth.token){
+    fetch('/api/daily/missions/'+missionId+'/claim',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token}
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.success || d.reward){
+        finalizeMissionClaim(mission);
+      } else {
+        // Graceful: claim locally anyway
+        finalizeMissionClaim(mission);
+      }
+    }).catch(function(){
+      // Backend not ready, claim locally
+      finalizeMissionClaim(mission);
+    });
+  } else {
+    finalizeMissionClaim(mission);
+  }
+}
+
+function finalizeMissionClaim(mission){
+  mission.claimed = true;
+  _dailyState.gpBalance += mission.reward;
+  updateGPDisplay();
+  showToast('+'+mission.reward+' GP MISSION COMPLETE!');
+  try{_sfx.claim()}catch(e){}
+
+  // Check if all claimed for bonus
+  var allClaimed = true;
+  _dailyState.missions.forEach(function(m){ if(!m.claimed) allClaimed=false; });
+  if(allClaimed && _dailyState.missions.length > 0){
+    _dailyState.gpBalance += 50;
+    updateGPDisplay();
+    setTimeout(function(){
+      showToast('🎉 +50 GP ALL MISSIONS BONUS!');
+      try{_sfx.levelUp()}catch(e){}
+    }, 800);
+  }
+  saveMissionsLocal();
+  renderDailyMissions();
+}
+
+function saveMissionsLocal(){
+  if(!walletState.address) return;
+  var key = 'daily_missions_'+walletState.address+'_'+new Date().toISOString().slice(0,10);
+  try{ localStorage.setItem(key, JSON.stringify(_dailyState.missions)); }catch(e){}
+}
+
+// ── Update mission progress (called from game actions) ──
+function updateMissionProgress(actionType, amount){
+  if(!_dailyState.missions.length) return;
+  var changed = false;
+  _dailyState.missions.forEach(function(m){
+    if(m.claimed) return;
+    var match = false;
+    if(actionType==='claim' && m.type==='claim') match=true;
+    if(actionType==='view_sectors' && m.type==='explore') match=true;
+    if(m.type==='play') match=true; // any action counts
+    if(match){
+      m.current = Math.min(m.current + (amount||1), m.target);
+      changed = true;
+    }
+  });
+  if(changed){
+    saveMissionsLocal();
+    renderDailyMissions();
+  }
+}
+
+// ── GP Display ──
+function updateGPDisplay(){
+  var gpVal = _dailyState.gpBalance;
+  // Profile modal
+  var authGP = document.getElementById('authGPBal');
+  if(authGP) authGP.textContent = gpVal.toFixed(0);
+  // Sidebar wallet
+  var walletGPRow = document.getElementById('walletGPRow');
+  var walletGP = document.getElementById('walletGP');
+  if(walletGPRow && walletGP){
+    walletGPRow.style.display = '';
+    walletGP.textContent = gpVal.toFixed(0);
+  }
+}
+
+// ── Daily Reset Timer ──
+var _dailyTimerInterval = null;
+function startDailyTimer(){
+  if(_dailyTimerInterval) clearInterval(_dailyTimerInterval);
+  function tick(){
+    var now = new Date();
+    var utcMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()+1, 0, 0, 0));
+    var diff = utcMidnight - now;
+    var h = Math.floor(diff/3600000);
+    var m = Math.floor((diff%3600000)/60000);
+    var s = Math.floor((diff%60000)/1000);
+    var timerEl = document.getElementById('dailyMissionTimer');
+    if(timerEl) timerEl.textContent = 'RESETS '+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  tick();
+  _dailyTimerInterval = setInterval(tick, 1000);
+}
+
+// ── HUD Button & Notification Dot ──
+function updateDailyHudDot(){
+  var dot = document.getElementById('dailyHudDot');
+  if(!dot) return;
+  var hasUnclaimed = !_dailyState.todayClaimed;
+  if(!hasUnclaimed){
+    _dailyState.missions.forEach(function(m){
+      if(!m.claimed && m.current >= m.target) hasUnclaimed = true;
+    });
+  }
+  dot.style.display = hasUnclaimed ? 'block' : 'none';
+}
+
+function openDailyPanel(){
+  // Open base modal to quests tab which contains daily missions
+  try{
+    openBaseModal();
+    var tabs = document.querySelectorAll('.base-tab');
+    tabs.forEach(function(t){
+      if(t.textContent.trim()==='QUESTS'){
+        switchBaseTab('quests',t);
+      }
+    });
+  }catch(e){
+    console.error('[Daily] openDailyPanel error:', e);
+  }
+}
+
+// ── Integration: hook into game actions ──
+var _origTrackQuestAction = window.trackQuestAction;
+if(typeof _origTrackQuestAction === 'function'){
+  window.trackQuestAction = function(action, val){
+    _origTrackQuestAction(action, val);
+    try{
+      if(action==='claim_pixel' || action==='claim') updateMissionProgress('claim', val);
+      else if(action==='view_sectors') updateMissionProgress('view_sectors', val);
+      else updateMissionProgress('other', val);
+    }catch(e){}
+  };
 }
 </script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>

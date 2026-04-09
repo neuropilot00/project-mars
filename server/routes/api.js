@@ -15,6 +15,8 @@ let rocketService;
 try { rocketService = require('../services/rocket'); } catch (_e) { /* rocket service not available */ }
 let telegramService;
 try { telegramService = require('../services/telegram'); } catch (_e) { /* telegram service not available */ }
+let dailyService;
+try { dailyService = require('../services/daily'); } catch (_e) { /* daily engagement service not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -1103,6 +1105,14 @@ router.post('/claim', writeLimiter, async (req, res) => {
       newPixels: newPixels.map(p => [p.lat, p.lng]),
       govChanges: govChanges || []
     });
+
+    // Daily mission progress hooks (non-blocking, never breaks main flow)
+    if (dailyService) {
+      try {
+        if (newCount > 0) await dailyService.updateMissionProgress(walletLower, 'claim_pixels', newCount);
+        if (attackWon > 0) await dailyService.updateMissionProgress(walletLower, 'hijack', attackWon);
+      } catch (_de) { /* daily mission tracking non-critical */ }
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[API] claim error:', e.message);
@@ -2141,6 +2151,11 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       intervalHours,
       nextHarvestAt
     });
+
+    // Daily mission progress hook (non-blocking)
+    if (dailyService) {
+      try { await dailyService.updateMissionProgress(w, 'harvest', 1); } catch (_de) { /* non-critical */ }
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[API] harvest error:', e.message);
@@ -2841,6 +2856,10 @@ router.post('/exploration/discover', writeLimiter, async (req, res) => {
     const result = await explorationService.discoverPOI(wallet.toLowerCase(), parseInt(poiId));
     if (result.error) return res.status(400).json(result);
     res.json(result);
+    // Daily mission progress hook (non-blocking)
+    if (dailyService && !result.error) {
+      try { await dailyService.updateMissionProgress(wallet.toLowerCase(), 'explore_poi', 1); } catch (_de) { /* non-critical */ }
+    }
   } catch (e) {
     console.error('[EXPLORE] discover error:', e.message);
     res.status(500).json({ error: 'Discovery failed' });
@@ -3048,6 +3067,68 @@ router.get('/lore', async (req, res) => {
     res.json({ lore: lore.rows, crawl: crawl.rows });
   } catch (e) {
     res.json({ lore: [], crawl: [] });
+  }
+});
+
+// ═══════════════════════════════════════
+//  DAILY ENGAGEMENT SYSTEM
+// ═══════════════════════════════════════
+
+// POST /api/daily/login — record daily login & collect streak reward
+router.post('/daily/login', writeLimiter, async (req, res) => {
+  try {
+    if (!dailyService) return res.status(503).json({ error: 'Daily system not available' });
+    const { wallet } = req.body;
+    if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
+    const result = await dailyService.recordDailyLogin(wallet);
+    res.json(result);
+  } catch (e) {
+    console.error('[DAILY] login error:', e.message);
+    res.status(500).json({ error: 'Daily login failed' });
+  }
+});
+
+// GET /api/daily/missions — get today's missions (auto-generates if needed)
+router.get('/daily/missions', readLimiter, async (req, res) => {
+  try {
+    if (!dailyService) return res.status(503).json({ error: 'Daily system not available' });
+    const { wallet } = req.query;
+    if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
+    const missions = await dailyService.getDailyMissions(wallet);
+    res.json({ missions });
+  } catch (e) {
+    console.error('[DAILY] missions error:', e.message);
+    res.status(500).json({ error: 'Failed to get missions' });
+  }
+});
+
+// POST /api/daily/missions/:id/claim — claim a completed mission reward
+router.post('/daily/missions/:id/claim', writeLimiter, async (req, res) => {
+  try {
+    if (!dailyService) return res.status(503).json({ error: 'Daily system not available' });
+    const { wallet } = req.body;
+    const missionId = parseInt(req.params.id);
+    if (!wallet || !missionId) return res.status(400).json({ error: 'Missing wallet or mission ID' });
+    const result = await dailyService.claimMissionReward(wallet, missionId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[DAILY] claim error:', e.message);
+    res.status(500).json({ error: 'Mission claim failed' });
+  }
+});
+
+// GET /api/daily/streak — get streak info
+router.get('/daily/streak', readLimiter, async (req, res) => {
+  try {
+    if (!dailyService) return res.status(503).json({ error: 'Daily system not available' });
+    const { wallet } = req.query;
+    if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
+    const info = await dailyService.getStreakInfo(wallet);
+    res.json(info);
+  } catch (e) {
+    console.error('[DAILY] streak error:', e.message);
+    res.status(500).json({ error: 'Failed to get streak info' });
   }
 });
 

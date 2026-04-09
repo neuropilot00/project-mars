@@ -48,6 +48,6 @@ INSERT INTO settings (key, value) VALUES
 ON CONFLICT (key) DO NOTHING;
 
 -- Starship border cosmetic (drop-only, not purchasable)
-INSERT INTO item_types (code, name, description, category, price_pp, max_supply, tradeable)
-VALUES ('starship_border', 'Starship Border', 'Rare animated border from rocket supply drops', 'cosmetic', 0, 100, false)
+INSERT INTO item_types (code, name, description, category, price_pp)
+VALUES ('starship_border', 'Starship Border', 'Rare animated border from rocket supply drops', 'cosmetic', 0)
 ON CONFLICT (code) DO NOTHING;
