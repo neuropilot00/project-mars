@@ -1254,4 +1254,76 @@ router.post('/rocket-trigger', async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════
+//  LORE MANAGEMENT (Loading Lore + Crawl Story)
+// ═══════════════════════════════════════════════
+
+// GET /admin/api/lore — list all loading lore entries
+router.get('/lore', adminAuth, async (req, res) => {
+  try {
+    const lore = await pool.query('SELECT * FROM loading_lore ORDER BY sort_order ASC, id ASC');
+    const crawl = await pool.query('SELECT * FROM lore_crawl ORDER BY lang ASC');
+    res.json({ lore: lore.rows, crawl: crawl.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/lore — create new lore entry
+router.post('/lore', adminAuth, async (req, res) => {
+  try {
+    const { year, text_en, text_ko, text_ja, text_zh, category, sort_order, active } = req.body;
+    if (!text_en) return res.status(400).json({ error: 'text_en is required' });
+    const r = await pool.query(
+      `INSERT INTO loading_lore (year, text_en, text_ko, text_ja, text_zh, category, sort_order, active)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [year || 'TIP', text_en, text_ko || null, text_ja || null, text_zh || null, category || 'timeline', sort_order || 0, active !== false]
+    );
+    await auditLog(req, 'lore_create', 'loading_lore', { id: r.rows[0].id, year });
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PUT /admin/api/lore/:id — update lore entry
+router.put('/lore/:id', adminAuth, async (req, res) => {
+  try {
+    const { year, text_en, text_ko, text_ja, text_zh, category, sort_order, active } = req.body;
+    const r = await pool.query(
+      `UPDATE loading_lore SET year=COALESCE($1,year), text_en=COALESCE($2,text_en),
+       text_ko=COALESCE($3,text_ko), text_ja=COALESCE($4,text_ja), text_zh=COALESCE($5,text_zh),
+       category=COALESCE($6,category), sort_order=COALESCE($7,sort_order), active=COALESCE($8,active)
+       WHERE id=$9 RETURNING *`,
+      [year, text_en, text_ko, text_ja, text_zh, category, sort_order, active, req.params.id]
+    );
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    await auditLog(req, 'lore_update', 'loading_lore', { id: req.params.id });
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/lore/:id — delete lore entry
+router.delete('/lore/:id', adminAuth, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM loading_lore WHERE id=$1', [req.params.id]);
+    await auditLog(req, 'lore_delete', 'loading_lore', { id: req.params.id });
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PUT /admin/api/lore-crawl/:lang — update crawl story for a language
+router.put('/lore-crawl/:lang', adminAuth, async (req, res) => {
+  try {
+    const { era_text, title_text, body_html, tagline, close_text } = req.body;
+    const r = await pool.query(
+      `INSERT INTO lore_crawl (lang, era_text, title_text, body_html, tagline, close_text, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,NOW())
+       ON CONFLICT (lang) DO UPDATE SET era_text=COALESCE($2,lore_crawl.era_text),
+       title_text=COALESCE($3,lore_crawl.title_text), body_html=COALESCE($4,lore_crawl.body_html),
+       tagline=COALESCE($5,lore_crawl.tagline), close_text=COALESCE($6,lore_crawl.close_text),
+       updated_at=NOW() RETURNING *`,
+      [req.params.lang, era_text, title_text, body_html, tagline, close_text]
+    );
+    await auditLog(req, 'lore_crawl_update', 'lore_crawl', { lang: req.params.lang });
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

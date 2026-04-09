@@ -212,6 +212,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('shop')" data-tab="shop">ITEM SHOP</button>
   <button class="adm-tab" onclick="switchTab('battles')" data-tab="battles">BATTLES</button>
   <button class="adm-tab" onclick="switchTab('governance')" data-tab="governance" style="color:var(--cyan)">GOVERNANCE</button>
+  <button class="adm-tab" onclick="switchTab('lore')" data-tab="lore" style="color:#FFD700">LORE</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -723,6 +724,64 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ LORE TAB ═══ -->
+  <div class="section cat-lore" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#FFD700">LOADING SCREEN LORE</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="loadLoreData()">REFRESH</button>
+        <button class="adm-btn" onclick="showAddLore()" style="background:rgba(255,215,0,.15);border-color:rgba(255,215,0,.4);color:#FFD700">+ ADD ENTRY</button>
+      </div>
+    </div>
+    <p style="font-size:10px;color:#888;margin-bottom:8px">Timeline events & tips shown during loading. Shown randomly each session.</p>
+    <!-- Add/Edit Form (hidden by default) -->
+    <div id="loreForm" style="display:none;background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.2);border-radius:8px;padding:12px;margin-bottom:12px">
+      <input type="hidden" id="loreEditId">
+      <div style="display:grid;grid-template-columns:80px 1fr;gap:6px;margin-bottom:8px">
+        <label style="font-size:10px;color:#FFD700">Year</label>
+        <input id="loreYear" placeholder="2157 or TIP" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:4px 8px;font-size:11px;border-radius:4px">
+        <label style="font-size:10px;color:#FFD700">Category</label>
+        <select id="loreCat" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:4px 8px;font-size:11px;border-radius:4px">
+          <option value="earth_fall">Earth Fall</option><option value="mars_init">Mars Initiative</option>
+          <option value="colony_wars">Colony Wars</option><option value="present">Present Day</option>
+          <option value="tip">Gameplay Tip</option>
+        </select>
+        <label style="font-size:10px;color:#FFD700">EN</label>
+        <textarea id="loreEN" rows="2" placeholder="English text" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:4px 8px;font-size:11px;border-radius:4px;resize:vertical"></textarea>
+        <label style="font-size:10px;color:#FFD700">KO</label>
+        <textarea id="loreKO" rows="2" placeholder="Korean (optional)" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:4px 8px;font-size:11px;border-radius:4px;resize:vertical"></textarea>
+        <label style="font-size:10px;color:#FFD700">JA</label>
+        <textarea id="loreJA" rows="1" placeholder="Japanese (optional)" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:4px 8px;font-size:11px;border-radius:4px;resize:vertical"></textarea>
+        <label style="font-size:10px;color:#FFD700">ZH</label>
+        <textarea id="loreZH" rows="1" placeholder="Chinese (optional)" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:4px 8px;font-size:11px;border-radius:4px;resize:vertical"></textarea>
+        <label style="font-size:10px;color:#FFD700">Order</label>
+        <input id="loreOrder" type="number" value="0" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:4px 8px;font-size:11px;border-radius:4px;width:80px">
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="adm-btn primary" onclick="saveLoreEntry()" style="background:rgba(255,215,0,.2);border-color:rgba(255,215,0,.4);color:#FFD700">SAVE</button>
+        <button class="adm-btn" onclick="document.getElementById('loreForm').style.display='none'">CANCEL</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr>
+          <th>ID</th><th>YEAR</th><th>CATEGORY</th><th>TEXT (EN)</th><th>KO</th><th>ORDER</th><th>ACTIVE</th><th>ACTIONS</th>
+        </tr></thead>
+        <tbody id="loreTableBody"><tr><td colspan="8" class="loading">Click REFRESH to load</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section cat-lore" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#FFD700">STAR WARS CRAWL STORY</span>
+    </div>
+    <p style="font-size:10px;color:#888;margin-bottom:8px">Edit the cinematic story shown when clicking the OCCUPY MARS title. One entry per language.</p>
+    <div id="loreCrawlEditor" style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:10px;color:#888">Loading...</div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -747,7 +806,7 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'governance'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'governance', 'lore'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
@@ -759,6 +818,7 @@ function switchTab(tab) {
   if (tab === 'shop') { loadShopItems(); loadShopStats(); loadAdminShields(); }
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'governance') { loadGovData(); }
+  if (tab === 'lore') { loadLoreData(); }
 }
 
 // ── Language System ──
@@ -1915,6 +1975,137 @@ function loadGovTx() {
         + '</tr>';
     }).join('');
   }).catch(function(e){ console.error('[Gov] tx load error:', e); });
+}
+
+// ═══════════════════════════════════════
+//  LORE MANAGEMENT
+// ═══════════════════════════════════════
+
+function loadLoreData() {
+  fetch('/admin/api/lore', { headers: {'x-admin-secret': adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      // Render loading lore table
+      var tb = document.getElementById('loreTableBody');
+      if (!data.lore || data.lore.length === 0) {
+        tb.innerHTML = '<tr><td colspan="8" style="color:#888">No lore entries. Add some!</td></tr>';
+      } else {
+        tb.innerHTML = data.lore.map(function(l) {
+          var shortText = l.text_en.length > 60 ? l.text_en.slice(0,60)+'...' : l.text_en;
+          var hasKo = l.text_ko ? '✓' : '—';
+          return '<tr>'
+            + '<td>' + l.id + '</td>'
+            + '<td style="color:#FFD700;font-weight:700">' + l.year + '</td>'
+            + '<td><span class="type-badge" style="background:rgba(255,215,0,.1);color:#FFD700">' + (l.category||'') + '</span></td>'
+            + '<td style="font-size:9px;max-width:200px;overflow:hidden;text-overflow:ellipsis" title="' + l.text_en.replace(/"/g,'&quot;') + '">' + shortText + '</td>'
+            + '<td>' + hasKo + '</td>'
+            + '<td>' + (l.sort_order||0) + '</td>'
+            + '<td>' + (l.active ? '<span style="color:#4f4">ON</span>' : '<span style="color:#f44">OFF</span>') + '</td>'
+            + '<td style="display:flex;gap:4px">'
+            + '<button class="adm-btn" style="font-size:8px;padding:2px 6px" onclick="editLore('+l.id+')">EDIT</button>'
+            + '<button class="adm-btn" style="font-size:8px;padding:2px 6px" onclick="toggleLore('+l.id+','+(!l.active)+')">' + (l.active?'OFF':'ON') + '</button>'
+            + '<button class="adm-btn" style="font-size:8px;padding:2px 6px;color:#f44" onclick="deleteLore('+l.id+')">DEL</button>'
+            + '</td></tr>';
+        }).join('');
+      }
+      // Store for edit
+      window._loreEntries = data.lore || [];
+      // Render crawl editor
+      renderCrawlEditor(data.crawl || []);
+    }).catch(function(e) { console.error('[Lore] load error:', e); });
+}
+
+function showAddLore() {
+  document.getElementById('loreEditId').value = '';
+  document.getElementById('loreYear').value = '';
+  document.getElementById('loreCat').value = 'present';
+  document.getElementById('loreEN').value = '';
+  document.getElementById('loreKO').value = '';
+  document.getElementById('loreJA').value = '';
+  document.getElementById('loreZH').value = '';
+  document.getElementById('loreOrder').value = '0';
+  document.getElementById('loreForm').style.display = '';
+}
+
+function editLore(id) {
+  var entry = (window._loreEntries||[]).find(function(e){ return e.id === id; });
+  if (!entry) return;
+  document.getElementById('loreEditId').value = id;
+  document.getElementById('loreYear').value = entry.year || '';
+  document.getElementById('loreCat').value = entry.category || 'timeline';
+  document.getElementById('loreEN').value = entry.text_en || '';
+  document.getElementById('loreKO').value = entry.text_ko || '';
+  document.getElementById('loreJA').value = entry.text_ja || '';
+  document.getElementById('loreZH').value = entry.text_zh || '';
+  document.getElementById('loreOrder').value = entry.sort_order || 0;
+  document.getElementById('loreForm').style.display = '';
+}
+
+function saveLoreEntry() {
+  var id = document.getElementById('loreEditId').value;
+  var body = {
+    year: document.getElementById('loreYear').value || 'TIP',
+    text_en: document.getElementById('loreEN').value,
+    text_ko: document.getElementById('loreKO').value || null,
+    text_ja: document.getElementById('loreJA').value || null,
+    text_zh: document.getElementById('loreZH').value || null,
+    category: document.getElementById('loreCat').value,
+    sort_order: parseInt(document.getElementById('loreOrder').value) || 0
+  };
+  if (!body.text_en) return alert('English text is required');
+  var url = id ? '/admin/api/lore/' + id : '/admin/api/lore';
+  var method = id ? 'PUT' : 'POST';
+  fetch(url, { method: method, headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}, body: JSON.stringify(body) })
+    .then(function(r){ return r.json(); })
+    .then(function() {
+      document.getElementById('loreForm').style.display = 'none';
+      loadLoreData();
+    }).catch(function(e){ alert('Error: ' + e.message); });
+}
+
+function toggleLore(id, active) {
+  fetch('/admin/api/lore/' + id, { method: 'PUT', headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}, body: JSON.stringify({active:active}) })
+    .then(function(){ loadLoreData(); });
+}
+
+function deleteLore(id) {
+  if (!confirm('Delete lore entry #' + id + '?')) return;
+  fetch('/admin/api/lore/' + id, { method: 'DELETE', headers: {'x-admin-secret':adminSecret} })
+    .then(function(){ loadLoreData(); });
+}
+
+function renderCrawlEditor(crawlData) {
+  var el = document.getElementById('loreCrawlEditor');
+  var langs = ['en','ko','ja','zh'];
+  var langNames = {en:'English',ko:'Korean',ja:'Japanese',zh:'Chinese'};
+  el.innerHTML = langs.map(function(lang) {
+    var c = crawlData.find(function(x){ return x.lang === lang; }) || {};
+    return '<div style="background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.15);border-radius:8px;padding:10px">'
+      + '<div style="font-size:11px;color:#FFD700;font-weight:700;margin-bottom:8px">' + langNames[lang] + ' (' + lang + ')</div>'
+      + '<div style="display:grid;grid-template-columns:80px 1fr;gap:4px;font-size:10px">'
+      + '<label style="color:#888">Era Text</label><input id="crawl_era_'+lang+'" value="'+(c.era_text||'').replace(/"/g,'&quot;')+'" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:3px 6px;font-size:10px;border-radius:3px">'
+      + '<label style="color:#888">Title</label><input id="crawl_title_'+lang+'" value="'+(c.title_text||'').replace(/"/g,'&quot;')+'" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:3px 6px;font-size:10px;border-radius:3px">'
+      + '<label style="color:#888">Body HTML</label><textarea id="crawl_body_'+lang+'" rows="4" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:3px 6px;font-size:10px;border-radius:3px;resize:vertical">'+(c.body_html||'')+'</textarea>'
+      + '<label style="color:#888">Tagline</label><input id="crawl_tagline_'+lang+'" value="'+(c.tagline||'').replace(/"/g,'&quot;')+'" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:3px 6px;font-size:10px;border-radius:3px">'
+      + '<label style="color:#888">Close Btn</label><input id="crawl_close_'+lang+'" value="'+(c.close_text||'').replace(/"/g,'&quot;')+'" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;padding:3px 6px;font-size:10px;border-radius:3px">'
+      + '</div>'
+      + '<button class="adm-btn" onclick="saveCrawl(\''+lang+'\')" style="margin-top:6px;font-size:9px;background:rgba(255,215,0,.15);border-color:rgba(255,215,0,.3);color:#FFD700">SAVE '+lang.toUpperCase()+'</button>'
+      + '</div>';
+  }).join('');
+}
+
+function saveCrawl(lang) {
+  var body = {
+    era_text: document.getElementById('crawl_era_'+lang).value,
+    title_text: document.getElementById('crawl_title_'+lang).value,
+    body_html: document.getElementById('crawl_body_'+lang).value,
+    tagline: document.getElementById('crawl_tagline_'+lang).value,
+    close_text: document.getElementById('crawl_close_'+lang).value
+  };
+  fetch('/admin/api/lore-crawl/' + lang, { method: 'PUT', headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}, body: JSON.stringify(body) })
+    .then(function(r){ return r.json(); })
+    .then(function(){ alert('Crawl story (' + lang + ') saved!'); })
+    .catch(function(e){ alert('Error: ' + e.message); });
 }
 
 // Auto-focus auth input

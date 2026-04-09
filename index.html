@@ -653,7 +653,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .base-modal{position:fixed;inset:0;z-index:520;background:rgba(0,0,0,.75);
   backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center}
 .base-modal.open{display:flex}
-.base-card{width:600px;max-width:96vw;max-height:90vh;background:var(--panel2);
+.base-card{width:600px;max-width:96vw;height:90vh;max-height:90vh;background:var(--panel2);
   border:1px solid var(--bdr2);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
   box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 60px rgba(255,120,60,.05)}
 .base-header{display:flex;align-items:center;justify-content:space-between;
@@ -1444,6 +1444,58 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .help-popup-close button:hover{background:rgba(91,184,232,.25);border-color:var(--cyan)}
 
 /* ══════════════════════════════════════════════════
+   Lore / Story Popup (Star Wars crawl style)
+   ══════════════════════════════════════════════════ */
+.lore-bg{display:none;position:fixed;inset:0;z-index:9999;background:#000;overflow:hidden}
+.lore-bg.open{display:block}
+/* Twinkling stars background */
+.lore-stars{position:absolute;inset:0;overflow:hidden}
+.lore-stars span{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;
+  animation:loreTwinkle 3s ease-in-out infinite alternate}
+@keyframes loreTwinkle{0%{opacity:.2}100%{opacity:.9}}
+/* Intro text: "A long time from now..." */
+.lore-intro{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;color:var(--cyan);font-size:16px;font-family:var(--fn);
+  letter-spacing:2px;opacity:0;animation:loreIntroAnim 6s ease-in-out forwards}
+@keyframes loreIntroAnim{0%{opacity:0}8%{opacity:1}42%{opacity:1}50%{opacity:0}100%{opacity:0}}
+/* Big title: "OCCUPY MARS" */
+.lore-big-title{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) scale(1);
+  text-align:center;font-size:52px;font-weight:900;font-family:var(--fn);letter-spacing:8px;
+  color:#FFD700;opacity:0;white-space:nowrap;
+  animation:loreTitleAnim 10s linear forwards;animation-delay:4s}
+@keyframes loreTitleAnim{0%{opacity:0;transform:translate(-50%,-50%) scale(1.2)}
+  5%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  40%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  70%{opacity:0;transform:translate(-50%,-50%) scale(0.1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(0)}}
+/* Perspective crawl container */
+.lore-crawl-wrap{position:absolute;bottom:0;left:50%;width:90%;max-width:600px;height:100%;
+  transform:translateX(-50%);perspective:350px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 25%,#000 60%,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0%,#000 25%,#000 60%,transparent 100%)}
+.lore-crawl{position:absolute;top:100%;left:0;right:0;text-align:center;
+  transform-origin:50% 100%;transform:rotateX(22deg);
+  animation:loreCrawl 60s linear forwards;animation-delay:8s;
+  color:#FFD700;font-family:var(--fn);font-size:22px;line-height:1.8;
+  letter-spacing:1px;font-weight:700}
+@keyframes loreCrawl{0%{top:100%}100%{top:-280%}}
+.lore-crawl p{margin-bottom:28px}
+.lore-crawl .lore-highlight{color:#fff}
+.lore-crawl .lore-red{color:#FF4444}
+.lore-crawl .lore-cyan{color:#5BB8E8}
+.lore-crawl .lore-chapter{font-size:15px;letter-spacing:4px;color:rgba(255,215,0,.6);
+  margin-bottom:6px;font-weight:400}
+.lore-crawl .lore-subtitle{font-size:34px;letter-spacing:6px;margin-bottom:32px}
+/* Close/skip button */
+.lore-skip{position:absolute;bottom:24px;right:24px;z-index:10;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.5);font-size:10px;font-family:var(--fn);
+  padding:8px 18px;border-radius:6px;cursor:pointer;letter-spacing:2px;transition:all .3s}
+.lore-skip:hover{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)}
+@keyframes loreFadeInFinale{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@keyframes lorePulseBtn{0%,100%{box-shadow:0 0 15px rgba(255,180,60,.2)}50%{box-shadow:0 0 30px rgba(255,180,60,.4)}}
+
+/* ══════════════════════════════════════════════════
    Tutorial / Onboarding Overlay
    ══════════════════════════════════════════════════ */
 .tut-howto-btn{
@@ -1520,7 +1572,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <!-- Loading Overlay -->
 <div id="loadOverlay" style="position:fixed;inset:0;z-index:9999;background:#0D0B14;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s">
   <div style="font-family:'Orbitron','Press Start 2P',monospace;font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:12px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
-  <div id="loadQuote" style="font-family:'Orbitron',sans-serif;font-size:11px;color:#C8A882;letter-spacing:1.5px;margin-bottom:40px;text-align:center;max-width:80vw;line-height:1.8;min-height:36px"></div>
+  <div id="loadQuote" style="font-family:'Orbitron',sans-serif;font-size:11px;color:#C8A882;letter-spacing:1px;margin-bottom:40px;text-align:center;max-width:85vw;line-height:1.8;min-height:36px"></div>
   <div id="loadMsg" style="font-family:'Orbitron',sans-serif;font-size:11px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
 </div>
 
@@ -1532,7 +1584,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <!-- Top Bar -->
 <div class="topbar" id="topbar">
   <div class="tb-left">
-    <span class="tb-title">OCCUPY MARS <span class="help-tip" onclick="event.stopPropagation();showHelpTip('about')" style="vertical-align:middle">?</span></span>
+    <span class="tb-title" onclick="showLorePopup()" style="cursor:pointer">OCCUPY MARS</span>
     <span class="tb-sub">CLAIM YOUR TERRITORY</span>
   </div>
   <div style="display:flex;gap:6px;align-items:center">
@@ -2112,7 +2164,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" onclick="switchBaseTab('rank',this)">RANK</div>
       <div class="base-tab" onclick="switchBaseTab('mining',this)">MINING</div>
       <div class="base-tab" onclick="switchBaseTab('quests',this)">QUESTS</div>
-      <div class="base-tab" onclick="switchBaseTab('shop',this)">SHOP</div>
+      <div class="base-tab" onclick="switchBaseTab('shop',this);loadBaseShopItems()">SHOP</div>
       <div class="base-tab" onclick="switchBaseTab('govern',this)" style="color:var(--cyan)">GOVERN</div>
     </div>
     <div class="base-body">
@@ -2323,20 +2375,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: SHOP -->
       <div class="base-pane" id="basePane_shop">
-        <div class="base-banner" id="bannerShop"><div class="base-banner-placeholder" style="background:linear-gradient(135deg,rgba(255,209,102,.08),rgba(184,136,224,.06))">🛡️ ITEM SHOP</div></div>
-        <!-- Quick inventory display -->
-        <div id="baseShopInventory" style="margin-bottom:12px"></div>
-        <button class="action-btn" onclick="closeBaseModal();setTimeout(function(){openItemShop()},200)" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold);font-size:9px;letter-spacing:1.5px;width:100%">
-          OPEN ITEM SHOP
-        </button>
-        <div style="margin-top:12px">
-          <div class="base-section-title">ITEM CATEGORIES</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div class="base-stat-box"><div class="bsb-label" style="color:var(--cyan)">DEFENSE</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">Shields to protect territory</div></div>
-            <div class="base-stat-box"><div class="bsb-label" style="color:var(--red)">ATTACK</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">EMP & damage boosts</div></div>
-            <div class="base-stat-box"><div class="bsb-label" style="color:var(--pp)">UTILITY</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">Stealth & radar tools</div></div>
-            <div class="base-stat-box"><div class="bsb-label" style="color:var(--gold)">BOOST</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">Mining & pixel multipliers</div></div>
-          </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+          <button class="base-shop-cat" onclick="filterBaseShop('all',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,209,102,.3);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)">ALL</button>
+          <button class="base-shop-cat" onclick="filterBaseShop('defense',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">DEFENSE</button>
+          <button class="base-shop-cat" onclick="filterBaseShop('attack',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">ATTACK</button>
+          <button class="base-shop-cat" onclick="filterBaseShop('utility',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">UTILITY</button>
+          <button class="base-shop-cat" onclick="filterBaseShop('cosmetic',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">COSMETIC</button>
+        </div>
+        <div id="baseShopGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading items...</div>
         </div>
       </div>
 
@@ -2669,6 +2716,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="help-popup-close"><button onclick="closeHelpTip()">OK</button></div>
   </div>
 </div>
+<!-- Lore / Story Popup (Star Wars Crawl) -->
+<div class="lore-bg" id="loreBg">
+  <div class="lore-stars" id="loreStars"></div>
+  <div class="lore-intro" id="loreIntro"></div>
+  <div class="lore-big-title" id="loreBigTitle">OCCUPY MARS</div>
+  <div class="lore-crawl-wrap">
+    <div class="lore-crawl" id="loreCrawl"></div>
+  </div>
+  <button class="lore-skip" onclick="closeLorePopup()" id="loreSkipBtn">SKIP ▸</button>
+</div>
 
 <!-- ═══ ARENA OVERLAY (hidden by default) ═══ -->
 <div class="arena-overlay" id="arenaOverlay">
@@ -2695,11 +2752,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="arena-wrap">
       <div class="game-tabs-wrap">
         <div class="game-tabs">
-          <div class="game-tab active" data-game="crash" onclick="switchGame('crash')">CRASH</div>
-          <div class="game-tab" data-game="mines" onclick="switchGame('mines')">MINES</div>
-          <div class="game-tab" data-game="coinflip" onclick="switchGame('coinflip')">SANDSTORM</div>
-          <div class="game-tab" data-game="dice" onclick="switchGame('dice')">METEORITE</div>
-          <div class="game-tab" data-game="hilo" onclick="switchGame('hilo')">HI-LO</div>
+          <div class="game-tab active" data-game="crash" onclick="switchGame('crash')">CRASH <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_crash')" style="width:14px;height:14px;font-size:8px">?</span></div>
+          <div class="game-tab" data-game="mines" onclick="switchGame('mines')">MINES <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_mines')" style="width:14px;height:14px;font-size:8px">?</span></div>
+          <div class="game-tab" data-game="coinflip" onclick="switchGame('coinflip')">SANDSTORM <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_sandstorm')" style="width:14px;height:14px;font-size:8px">?</span></div>
+          <div class="game-tab" data-game="dice" onclick="switchGame('dice')">METEORITE <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_meteorite')" style="width:14px;height:14px;font-size:8px">?</span></div>
+          <div class="game-tab" data-game="hilo" onclick="switchGame('hilo')">HI-LO <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_hilo')" style="width:14px;height:14px;font-size:8px">?</span></div>
         </div>
         <div class="game-area">
 
@@ -3084,30 +3141,47 @@ var _loadSteps={
   noise:5, craters:10, terrain:25, bump:35, stars:40,
   texture:70, font:75, globe:85, data:92, done:100
 };
-var _loadQuotes=[
-  // Atmospheric
-  'The red frontier awaits your claim.',
-  'Mars belongs to those who dare.',
-  'Build your legacy on Martian soil.',
-  'Fortune favors the bold pioneer.',
-  'The red planet calls. Will you answer?',
-  // Gameplay tips
-  'TIP: Draw a rectangle on Mars to claim land. Bigger = more expensive.',
-  'TIP: Harvest PP from your territory every few hours — don\'t let it cap out.',
-  'TIP: Hijacking costs 1.2x the current land price. Choose targets wisely.',
-  'TIP: Dust storms reduce mining output. Check weather before harvesting.',
-  'TIP: Rocket supply drops contain rare items — first come, first served!',
-  'TIP: Starlink satellites boost PP mining rate when overhead.',
-  'TIP: Visit the Item Shop for shields, scanners, and cosmetic upgrades.',
-  'TIP: Governors can set tax rates and activate sector-wide buffs.',
-  'TIP: Share your referral code — earn PP when your referrals hijack territory.',
-  'TIP: Each sector has unique resources. Explore POIs to earn bonus PP and XP.',
-  'TIP: Equip cosmetics on your territory from the Customize panel.',
-  'TIP: Solar flares boost mining output — watch for golden weather icons.',
-  'TIP: Polar zones (beyond 70 latitude) are restricted. Claim near the equator.',
-  'TIP: Upload an image to stamp your territory and make it stand out.',
-  'TIP: Complete daily quests for extra PP rewards. Check the Quest tab.'
+var _loadLore=[
+  // ── TIMELINE: The Fall of Earth ──
+  {y:'2089',t:'The Great Collapse begins. Global temperatures hit +4.2°C. Coastal megacities flood within months.'},
+  {y:'2091',t:'The Pacific Exodus — 800 million climate refugees flee inland. Resource wars ignite across three continents.'},
+  {y:'2094',t:'United Nations dissolves. The last democratic government falls in Oslo. Corporate states rise.'},
+  {y:'2097',t:'Project GAIA fails. Earth\'s last geoengineering attempt backfires — the Amazon rainforest burns for 9 months.'},
+  {y:'2101',t:'The Oxygen Crisis. Atmospheric O₂ drops below 19%. Outdoor activity requires filtration masks in 40% of the world.'},
+  // ── TIMELINE: The Mars Initiative ──
+  {y:'2103',t:'Dr. Elena Vasquez proposes the ARES Initiative — humanity\'s last hope. "We don\'t deserve Earth. Maybe we can earn Mars."'},
+  {y:'2107',t:'ARES-1 launches from Baikonur with 2,400 colonists. The largest spacecraft ever built. No return trip planned.'},
+  {y:'2108',t:'ARES-2 and ARES-3 depart six months apart. Total colonist count: 7,200 souls heading into the void.'},
+  {y:'2110',t:'ARES-1 makes landfall at Olympus Mons Basin. First words from Mars: "The soil is red. The sky is home."'},
+  {y:'2111',t:'Colony One established. 847 colonists survive the first Martian winter. The rest are buried in red soil.'},
+  // ── TIMELINE: The Colony Wars ──
+  {y:'2118',t:'The Mineral Rush. Rare Martianium deposits discovered beneath Valles Marineris. Every faction wants control.'},
+  {y:'2122',t:'First Sector War. Commander Yuki Tanaka seizes Hellas Basin by force. The age of Governors begins.'},
+  {y:'2125',t:'The Hijack Protocol is invented. Raiders develop technology to steal territory claims remotely. No one is safe.'},
+  {y:'2129',t:'The Starlink Network goes rogue. Automated satellites begin broadcasting mineral locations to anyone who listens.'},
+  {y:'2131',t:'The Cantina opens in Sector 7. A lawless trading post where warriors gamble territory for glory.'},
+  // ── TIMELINE: Present Day ──
+  {y:'2134',t:'SpaceX Starship "Erebus" suffers RUD over Elysium — scattered debris becomes the first supply loot event.'},
+  {y:'2138',t:'Earth goes silent. The last transmission from Houston: "You\'re on your own now. Make it count."'},
+  {y:'2141',t:'The Governor\'s Accord — sector leaders agree to tax-based governance. Peace lasts exactly 47 days.'},
+  {y:'2149',t:'A massive sandstorm buries Colony Three for two weeks. When it clears, the colony has been hijacked.'},
+  {y:'2152',t:'Planet Points (PP) become the universal currency. The old Earth dollar is worthless. Only Mars resources matter.'},
+  {y:'2155',t:'Ancient alien artifacts discovered near the north pole. Their purpose remains unknown. Explorers report strange signals.'},
+  {y:'2157',t:'Present day. You arrive on Mars. No welcome party. No instructions. Just red dust and opportunity.'},
+  // ── Gameplay Tips ──
+  {y:'TIP',t:'Draw a rectangle on Mars to claim land. Bigger = more expensive.'},
+  {y:'TIP',t:'Harvest PP from your territory every few hours — don\'t let it cap out.'},
+  {y:'TIP',t:'Hijacking costs 1.2x the current land price. Choose targets wisely.'},
+  {y:'TIP',t:'Dust storms reduce mining output. Check weather before harvesting.'},
+  {y:'TIP',t:'Rocket supply drops contain rare items — first come, first served!'},
+  {y:'TIP',t:'Starlink satellites boost PP mining rate when overhead.'},
+  {y:'TIP',t:'Governors can set tax rates and activate sector-wide buffs.'},
+  {y:'TIP',t:'Solar flares boost mining output — watch for golden weather icons.'},
+  {y:'TIP',t:'Polar zones (beyond 70 latitude) are restricted. Claim near the equator.'}
 ];
+// Shuffle lore so each session gets random order
+(function(){for(var i=_loadLore.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=_loadLore[i];_loadLore[i]=_loadLore[j];_loadLore[j]=tmp;}})();
+var _loadQuotes=_loadLore.map(function(e){return e.y==='TIP'?'TIP: '+e.t:'[ '+e.y+' ]  '+e.t;});
 var _loadQuoteIdx=Math.floor(Math.random()*_loadQuotes.length);
 var _loadQuoteTimer=setInterval(function(){
   var el=document.getElementById('loadQuote');
@@ -3116,9 +3190,30 @@ var _loadQuoteTimer=setInterval(function(){
   el.style.opacity='0';
   setTimeout(function(){
     if(el){el.textContent=_loadQuotes[_loadQuoteIdx];el.style.opacity='1';}
-  },400);
-},3000);
-(function(){var el=document.getElementById('loadQuote');if(el){el.textContent=_loadQuotes[_loadQuoteIdx];el.style.transition='opacity .4s';}})();
+  },300);
+},2200);
+(function(){var el=document.getElementById('loadQuote');if(el){el.textContent=_loadQuotes[_loadQuoteIdx];el.style.transition='opacity .3s';}})();
+// Load lore from server (override hardcoded if available)
+var _loreCrawlData = null;
+(function(){
+  fetch('/api/lore').then(function(r){return r.json()}).then(function(data){
+    if(data.lore && data.lore.length > 0){
+      var langKey = 'text_' + (LANG||'en');
+      var mapped = data.lore.map(function(e){
+        var txt = e[langKey] || e.text_en;
+        return e.year==='TIP'?'TIP: '+txt:'[ '+e.year+' ]  '+txt;
+      });
+      // Shuffle
+      for(var i=mapped.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=mapped[i];mapped[i]=mapped[j];mapped[j]=tmp;}
+      _loadQuotes = mapped;
+      _loadQuoteIdx = 0;
+    }
+    if(data.crawl && data.crawl.length > 0){
+      _loreCrawlData = {};
+      data.crawl.forEach(function(c){ _loreCrawlData[c.lang] = c; });
+    }
+  }).catch(function(){});
+})();
 function setLoadProgress(pct,msg){
   _loadPct=pct;
   var msgEl=document.getElementById('loadMsg');
@@ -7193,7 +7288,22 @@ var I18N = {
     help_weather: 'WEATHER EVENTS',
     help_weather_body: 'Mars weather affects gameplay! Sandstorms reduce defense but boost mining. Solar flares double mining but weaken shields. Meteor showers drop bonus PP. Dust devils reduce claim costs but boost attacks.',
     help_about: 'ABOUT OCCUPY MARS',
-    help_about_body: 'Occupy Mars is a blockchain territory game on Mars! Buy land (pixels) with USDT, harvest PP over time, hijack enemy territory in PvP battles, and rise through the ranks. Become a Sector Governor, trade items in the Cantina, and compete for dominance on the Red Planet. All transactions are on-chain (Base L2).'
+    help_about_body: 'Occupy Mars is a blockchain territory game on Mars!',
+    help_game_crash: 'CRASH',
+    help_game_crash_body: 'A rocket launches and the multiplier rises! Place your bet and cash out before it crashes. The longer you wait, the higher the reward — but if the rocket explodes before you cash out, you lose everything. Bet PP to play.',
+    help_game_mines: 'MINES',
+    help_game_mines_body: 'A 5x5 grid hides gems and mines. Choose how many mines (more mines = higher multiplier). Reveal tiles one by one — each gem increases your payout. Hit a mine and you lose. Cash out anytime to keep your winnings!',
+    help_game_sandstorm: 'SANDSTORM',
+    help_game_sandstorm_body: 'A coin flip game with a Mars twist! Pick DUST or STORM, place your bet, and flip. Win = 1.96x your bet. Simple, fast, 50/50 chance. Perfect for quick plays.',
+    help_game_meteorite: 'METEORITE',
+    help_game_meteorite_body: 'Roll the dice! Set a target range (the narrower the range, the higher the multiplier). If the roll lands in your range, you win. Adjust risk vs reward to your preference.',
+    help_game_hilo: 'HI-LO',
+    help_game_hilo_body: 'A card is shown face up. Guess whether the next card will be HIGHER or LOWER. Each correct guess increases your multiplier. You can cash out after any correct guess, or keep going for bigger rewards. Wrong guess = lose all!',
+    lore_era: 'A LONG TIME FROM NOW, ON A PLANET NOT SO FAR AWAY...',
+    lore_title: 'OCCUPY MARS',
+    lore_body: '<p>The year is <span class="lore-highlight">2157</span>. Earth is dying. Rising seas have swallowed the great coastal cities. The air itself has become poison. Seven billion souls cling to a world that no longer wants them.</p><p>But humanity refused to go quietly into the dark.</p><p>The <span class="lore-highlight">ARES INITIATIVE</span> — a desperate, last-chance mission — launched a fleet of colony ships toward the Red Planet. After three brutal years crossing the void of space, the survivors made landfall on <span class="lore-red">Mars</span>.</p><p>They found no paradise. Only red dust, freezing winds, and endless silence. But they also found something unexpected: <span class="lore-cyan">Rare mineral deposits</span> buried deep beneath the Martian surface — resources powerful enough to build a new civilization... or tear one apart.</p><p>Now, factions wage war across the crimson wastes. <span class="lore-highlight">Sector Governors</span> rule their domains with iron fists. Raiders <span class="lore-red">hijack</span> territory under cover of sandstorms. Supply rockets crash-land with precious cargo, and only the fastest survive to claim the spoils.</p><p>There is no law here. No government. No rescue coming.<br>There is only <span class="lore-red">Mars</span>. And those bold enough to <span class="lore-highlight">occupy</span> it.</p>',
+    lore_tagline: 'YOUR TERRITORY. YOUR RULES. YOUR PLANET.',
+    lore_close: 'ENTER MARS'
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -7252,7 +7362,22 @@ var I18N = {
     help_weather: '날씨 이벤트',
     help_weather_body: '화성 날씨가 게임에 영향을 줍니다! 모래폭풍: 방어↓ 채굴↑. 태양 플레어: 채굴 2배, 쉴드↓. 유성우: 보너스 PP 드랍. 먼지 소용돌이: 클레임 비용↓ 공격↑.',
     help_about: 'OCCUPY MARS 소개',
-    help_about_body: 'Occupy Mars는 화성 위 블록체인 영토 게임입니다! USDT로 땅(픽셀)을 사고, 시간이 지나면 PP를 수확하고, PvP 전투로 적의 영토를 빼앗으세요. 섹터 총독이 되어 세금을 걷고, 칸티나에서 아이템을 거래하고, 붉은 행성의 지배권을 놓고 경쟁하세요. 모든 거래는 온체인(Base L2)입니다.'
+    help_about_body: 'Occupy Mars는 화성 위 블록체인 영토 게임입니다!',
+    help_game_crash: 'CRASH',
+    help_game_crash_body: '로켓이 발사되고 배율이 올라갑니다! 베팅 후 폭발 전에 캐시아웃하세요. 오래 기다릴수록 보상이 커지지만, 캐시아웃 전에 폭발하면 전부 잃습니다. PP로 베팅.',
+    help_game_mines: 'MINES',
+    help_game_mines_body: '5x5 그리드에 보석과 지뢰가 숨겨져 있습니다. 지뢰 수를 선택하세요(많을수록 배율↑). 타일을 하나씩 열어보세요 — 보석마다 당첨금 증가. 지뢰를 밟으면 끝! 언제든 캐시아웃 가능.',
+    help_game_sandstorm: 'SANDSTORM',
+    help_game_sandstorm_body: '화성풍 동전 던지기! DUST 또는 STORM을 고르고 베팅, 뒤집기. 맞추면 1.96배. 간단하고 빠른 50/50 확률 게임.',
+    help_game_meteorite: 'METEORITE',
+    help_game_meteorite_body: '주사위 굴리기! 목표 범위를 설정하세요(좁을수록 배율↑). 결과가 범위 안에 들면 승리. 위험 대 보상을 취향에 맞게 조절.',
+    help_game_hilo: 'HI-LO',
+    help_game_hilo_body: '카드가 한 장 공개됩니다. 다음 카드가 더 높을지 낮을지 맞추세요. 맞출 때마다 배율 증가. 맞춘 후 언제든 캐시아웃 가능, 또는 더 큰 보상을 위해 계속! 틀리면 전부 잃습니다.',
+    lore_era: '머지않은 미래, 그리 멀지 않은 행성에서...',
+    lore_title: 'OCCUPY MARS',
+    lore_body: '<p><span class="lore-highlight">2157년</span>. 지구는 죽어가고 있다. 해수면 상승이 거대한 해안 도시들을 삼켰다. 공기 자체가 독이 되었다. 70억 영혼이 더 이상 그들을 원하지 않는 세계에 매달려 있다.</p><p>하지만 인류는 조용히 사라지길 거부했다.</p><p><span class="lore-highlight">아레스 이니셔티브</span> — 절박한 최후의 미션 — 이 붉은 행성을 향해 식민 함대를 발사했다. 우주의 공허를 가로지르는 3년간의 잔혹한 여정 끝에, 생존자들은 <span class="lore-red">화성</span>에 착륙했다.</p><p>낙원은 없었다. 붉은 먼지, 얼어붙는 바람, 끝없는 정적뿐. 하지만 예상치 못한 것을 발견했다: 화성 지표면 깊숙이 묻힌 <span class="lore-cyan">희귀 광물 매장지</span> — 새로운 문명을 건설하거나... 산산조각 낼 수 있는 자원.</p><p>이제 세력들이 진홍빛 황무지에서 전쟁을 벌인다. <span class="lore-highlight">섹터 총독</span>들이 철권으로 영토를 지배한다. 약탈자들이 모래폭풍을 틈타 영토를 <span class="lore-red">하이잭</span>한다. 보급 로켓이 귀중한 화물과 함께 추락하고, 가장 빠른 자만이 전리품을 차지한다.</p><p>여기에 법은 없다. 정부도 없다. 구조대도 오지 않는다.<br>오직 <span class="lore-red">화성</span>만이 있을 뿐. 그리고 그것을 <span class="lore-highlight">점령</span>할 만큼 대담한 자들.</p>',
+    lore_tagline: '너의 영토. 너의 규칙. 너의 행성.',
+    lore_close: '화성 진입'
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -7311,7 +7436,22 @@ var I18N = {
     help_weather: '天候イベント',
     help_weather_body: '火星の天候がゲームに影響！砂嵐：防御↓採掘↑。太陽フレア：採掘2倍、シールド↓。流星群：ボーナスPPドロップ。ダストデビル：クレームコスト↓攻撃↑。',
     help_about: 'OCCUPY MARSについて',
-    help_about_body: 'Occupy Marsは火星上のブロックチェーン領土ゲームです！USDTで土地（ピクセル）を購入し、PPを収穫し、PvPバトルで敵の領土を奪取しましょう。セクター総督になって税金を徴収し、カンティーナでアイテムを取引し、赤い惑星の支配権を争いましょう。全取引はオンチェーン（Base L2）です。'
+    help_about_body: 'Occupy Marsは火星上のブロックチェーン領土ゲームです！',
+    help_game_crash: 'CRASH',
+    help_game_crash_body: 'ロケットが発射され倍率が上昇！爆発前にキャッシュアウトしよう。長く待つほど報酬は大きいが、キャッシュアウト前に爆発すると全額失う。PPでベット。',
+    help_game_mines: 'MINES',
+    help_game_mines_body: '5x5グリッドに宝石と地雷が隠されている。地雷数を選択（多いほど倍率↑）。タイルを1つずつ開けよう — 宝石ごとに配当増加。地雷を踏んだら終了！いつでもキャッシュアウト可能。',
+    help_game_sandstorm: 'SANDSTORM',
+    help_game_sandstorm_body: '火星風コイントス！DUSTかSTORMを選んでベット。当たれば1.96倍。シンプルで速い50/50ゲーム。',
+    help_game_meteorite: 'METEORITE',
+    help_game_meteorite_body: 'サイコロを振ろう！目標範囲を設定（狭いほど倍率↑）。結果が範囲内なら勝利。リスクと報酬を好みに調整。',
+    help_game_hilo: 'HI-LO',
+    help_game_hilo_body: 'カードが1枚公開。次のカードが高いか低いか当てよう。正解ごとに倍率上昇。いつでもキャッシュアウト可能、または大きな報酬を狙って続行！不正解で全額失う。',
+    lore_era: '遠くない未来、そう遠くない惑星で...',
+    lore_title: 'OCCUPY MARS',
+    lore_body: '<p><span class="lore-highlight">2157年</span>。地球は死にかけている。海面上昇が偉大な沿岸都市を飲み込んだ。大気そのものが毒と化した。70億の魂が、もはや彼らを望まない世界にしがみついている。</p><p>しかし人類は静かに闇に消えることを拒んだ。</p><p><span class="lore-highlight">アレス・イニシアチブ</span> — 絶望的な最後のミッション — が赤い惑星へ植民船団を発進させた。宇宙の虚空を渡る過酷な3年間の後、生存者たちは<span class="lore-red">火星</span>に着陸した。</p><p>楽園はなかった。赤い砂塵、凍てつく風、果てしない静寂だけ。だが予想外のものを発見した：火星の地表深くに埋まる<span class="lore-cyan">希少鉱物の鉱脈</span> — 新文明を築くか...破壊するかの力を持つ資源。</p><p>今、勢力が真紅の荒野で戦争を繰り広げる。<span class="lore-highlight">セクター総督</span>が鉄拳で領土を支配する。略奪者が砂嵐に紛れて領土を<span class="lore-red">ハイジャック</span>する。補給ロケットが貴重な積荷と共に墜落し、最も速い者だけが戦利品を手にする。</p><p>ここに法はない。政府もない。救助も来ない。<br>あるのは<span class="lore-red">火星</span>だけ。そしてそれを<span class="lore-highlight">占領</span>する勇気を持つ者たち。</p>',
+    lore_tagline: 'お前の領土。お前のルール。お前の惑星。',
+    lore_close: '火星へ突入'
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
@@ -7370,7 +7510,22 @@ var I18N = {
     help_weather: '天气事件',
     help_weather_body: '火星天气影响游戏！沙暴：防御↓采矿↑。太阳耀斑：采矿2倍、护盾↓。流星雨：掉落奖励PP。尘旋风：领地费用↓攻击↑。',
     help_about: '关于OCCUPY MARS',
-    help_about_body: 'Occupy Mars是火星上的区块链领土游戏！用USDT购买土地（像素），随时间收获PP，通过PvP战斗劫持敌方领土。成为区域总督征收税费，在酒吧交易道具，争夺红色星球的统治权。所有交易在链上（Base L2）进行。'
+    help_about_body: 'Occupy Mars是火星上的区块链领土游戏！',
+    help_game_crash: 'CRASH',
+    help_game_crash_body: '火箭发射，倍率上升！在爆炸前提现。等待越久奖励越高，但如果在提现前爆炸则全部损失。用PP下注。',
+    help_game_mines: 'MINES',
+    help_game_mines_body: '5x5网格中隐藏着宝石和地雷。选择地雷数量（越多倍率越高）。逐个翻开方块——每颗宝石增加奖金。踩到地雷就结束！随时可以提现。',
+    help_game_sandstorm: 'SANDSTORM',
+    help_game_sandstorm_body: '火星风格抛硬币！选择DUST或STORM，下注，翻转。赢了=1.96倍。简单快速的50/50概率游戏。',
+    help_game_meteorite: 'METEORITE',
+    help_game_meteorite_body: '掷骰子！设置目标范围（范围越窄倍率越高）。结果在范围内则获胜。根据偏好调整风险与回报。',
+    help_game_hilo: 'HI-LO',
+    help_game_hilo_body: '翻开一张牌。猜下一张牌是更高还是更低。每次猜对倍率增加。猜对后随时可以提现，或继续追求更大奖励！猜错则全部损失。',
+    lore_era: '不远的未来，在一颗不太遥远的星球上...',
+    lore_title: 'OCCUPY MARS',
+    lore_body: '<p><span class="lore-highlight">2157年</span>。地球正在死去。海平面上升吞没了伟大的沿海城市。空气本身变成了毒药。70亿灵魂紧紧抓住一个不再需要他们的世界。</p><p>但人类拒绝悄然消逝于黑暗之中。</p><p><span class="lore-highlight">战神计划</span> — 一次孤注一掷的最后任务 — 向红色星球发射了殖民舰队。经过穿越太空虚空的三年残酷旅程，幸存者们降落在了<span class="lore-red">火星</span>上。</p><p>这里没有天堂。只有红色尘土、刺骨寒风和无尽的沉寂。但他们发现了意想不到的东西：深埋在火星地表之下的<span class="lore-cyan">稀有矿藏</span> — 足以建造新文明……或将其撕裂的资源。</p><p>如今，各势力在猩红荒原上征战。<span class="lore-highlight">区域总督</span>以铁腕统治自己的领地。掠夺者趁沙暴<span class="lore-red">劫持</span>领土。补给火箭携带珍贵货物坠落，只有最快的人才能夺取战利品。</p><p>这里没有法律。没有政府。没有救援会来。<br>只有<span class="lore-red">火星</span>。以及那些敢于<span class="lore-highlight">占领</span>它的人。</p>',
+    lore_tagline: '你的领土。你的规则。你的星球。',
+    lore_close: '进入火星'
   }
 };
 
@@ -7584,6 +7739,75 @@ function showHelpTip(key, ev){
 function closeHelpTip(){
   document.getElementById('helpPopupBg').classList.remove('open');
   document.getElementById('helpPopupBg').style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════════
+   Lore / Story Popup
+   ══════════════════════════════════════════════════ */
+var _loreTimer = null;
+function showLorePopup(){
+  var bg = document.getElementById('loreBg');
+  // Generate stars
+  var starsEl = document.getElementById('loreStars');
+  starsEl.innerHTML = '';
+  for(var i=0;i<120;i++){
+    var s = document.createElement('span');
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.width = (1+Math.random()*2)+'px';
+    s.style.height = s.style.width;
+    s.style.animationDelay = (Math.random()*3)+'s';
+    s.style.animationDuration = (2+Math.random()*3)+'s';
+    starsEl.appendChild(s);
+  }
+  // Use server crawl data if available, fallback to i18n
+  var cd = (_loreCrawlData && _loreCrawlData[LANG]) || (_loreCrawlData && _loreCrawlData['en']) || null;
+  document.getElementById('loreIntro').textContent = cd ? cd.era_text : t('lore_era');
+  document.getElementById('loreBigTitle').textContent = cd ? cd.title_text : t('lore_title');
+  var crawlHtml = '<div class="lore-chapter">' + (cd ? cd.tagline : t('lore_tagline')) + '</div>';
+  crawlHtml += (cd && cd.body_html) ? cd.body_html : t('lore_body');
+  document.getElementById('loreCrawl').innerHTML = crawlHtml;
+  document.getElementById('loreSkipBtn').textContent = (cd ? cd.close_text : t('lore_close')) + ' ▸';
+  // Reset animations
+  bg.classList.remove('open');
+  void bg.offsetWidth;
+  bg.classList.add('open');
+  bg.style.display = 'block';
+  // Remove inline styles that might block animation restarts
+  var intro = document.getElementById('loreIntro');
+  var title = document.getElementById('loreBigTitle');
+  var crawl = document.getElementById('loreCrawl');
+  intro.style.animation = 'none'; void intro.offsetWidth; intro.style.animation = '';
+  title.style.animation = 'none'; void title.offsetWidth; title.style.animation = '';
+  crawl.style.animation = 'none'; void crawl.offsetWidth; crawl.style.animation = '';
+  // Show ENTER MARS button after crawl finishes (~50s)
+  if(_loreTimer) clearTimeout(_loreTimer);
+  _loreTimer = setTimeout(function(){
+    _showLoreFinale();
+  }, 55000);
+}
+function _showLoreFinale(){
+  var crawl = document.getElementById('loreCrawl');
+  crawl.style.animation = 'none';
+  crawl.innerHTML = '';
+  // Show centered ENTER MARS
+  var finale = document.createElement('div');
+  finale.style.cssText = 'position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;animation:loreFadeInFinale 2s ease-out forwards';
+  finale.innerHTML = '<div style="font-size:42px;font-weight:900;font-family:var(--fn);color:#FFD700;letter-spacing:8px;margin-bottom:32px;text-shadow:0 0 40px rgba(255,215,0,.4)">' + t('lore_title') + '</div>' +
+    '<div style="font-size:12px;color:rgba(255,215,0,.6);letter-spacing:4px;font-family:var(--fn);margin-bottom:28px">' + t('lore_tagline') + '</div>' +
+    '<button onclick="closeLorePopup()" style="background:linear-gradient(135deg,rgba(255,180,60,.2),rgba(255,120,60,.1));border:1px solid rgba(255,180,60,.5);color:#FFD700;font-size:13px;font-family:var(--fn);padding:12px 40px;border-radius:8px;cursor:pointer;letter-spacing:3px;transition:all .3s;animation:lorePulseBtn 2s ease-in-out infinite">' + t('lore_close') + '</button>';
+  document.getElementById('loreBg').appendChild(finale);
+  document.getElementById('loreSkipBtn').style.display = 'none';
+}
+function closeLorePopup(){
+  if(_loreTimer) clearTimeout(_loreTimer);
+  var bg = document.getElementById('loreBg');
+  bg.classList.remove('open');
+  bg.style.display = 'none';
+  // Clean up finale if exists
+  var finale = bg.querySelector('div[style*="position:fixed"]');
+  if(finale) finale.remove();
+  document.getElementById('loreSkipBtn').style.display = '';
 }
 
 /* ══════════════════════════════════════════════════
@@ -8447,6 +8671,52 @@ function openBaseModal(){
 }
 function closeBaseModal(){document.getElementById('baseModal').classList.remove('open')}
 
+// ── Base Inline Shop ──
+var _baseShopItems = [];
+var _baseShopFilter = 'all';
+function loadBaseShopItems(){
+  fetch('/api/shop/items').then(function(r){return r.json()}).then(function(data){
+    _baseShopItems = (data.items||data||[]).filter(function(i){return i.active !== false});
+    renderBaseShop();
+  }).catch(function(){
+    document.getElementById('baseShopGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px;font-size:10px">Failed to load shop</div>';
+  });
+}
+function filterBaseShop(cat,el){
+  _baseShopFilter = cat;
+  document.querySelectorAll('.base-shop-cat').forEach(function(b){
+    b.style.borderColor='rgba(255,255,255,.1)';b.style.background='rgba(255,255,255,.03)';b.style.color='var(--tx3)';
+  });
+  el.style.borderColor='rgba(255,209,102,.3)';el.style.background='rgba(255,209,102,.12)';el.style.color='var(--gold)';
+  renderBaseShop();
+}
+function renderBaseShop(){
+  var grid = document.getElementById('baseShopGrid');
+  var items = _baseShopItems.filter(function(i){
+    if(_baseShopFilter==='all') return true;
+    return (i.category||'').toLowerCase() === _baseShopFilter;
+  });
+  if(!items.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px;font-size:10px">No items in this category</div>';
+    return;
+  }
+  var catColors={defense:'var(--cyan)',attack:'var(--red)',utility:'var(--pp)',cosmetic:'#c088e0',boost:'var(--gold)'};
+  grid.innerHTML = items.map(function(it){
+    var c = catColors[(it.category||'').toLowerCase()]||'var(--tx2)';
+    var price = parseFloat(it.price_pp||0);
+    return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+      +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+ ' ' +(it.name||it.item_code)+'</span>'
+      +'<span style="font-size:8px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--tx3)">'+(it.category||'')+'</span>'
+      +'</div>'
+      +'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+(it.description||'')+'</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">'
+      +'<span style="font-size:11px;font-weight:700;color:var(--gold)">'+price.toFixed(1)+' PP</span>'
+      +'<button onclick="closeBaseModal();setTimeout(function(){openItemShop()},200)" style="font-size:8px;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,209,102,.3);background:rgba(255,209,102,.1);color:var(--gold);cursor:pointer;font-family:var(--fn)">BUY</button>'
+      +'</div></div>';
+  }).join('');
+}
+
 function switchBaseTab(tab,el){
   document.querySelectorAll('.base-tab').forEach(function(t){t.classList.remove('active')});
   document.querySelectorAll('.base-pane').forEach(function(p){p.classList.remove('active')});
@@ -9288,17 +9558,17 @@ function _initStarlinkSatellites() {
     var group = new THREE.Group();
     // Body
     var bodyGeo = new THREE.BoxGeometry(1.5, 0.4, 0.4);
-    var bodyMat = new THREE.MeshBasicMaterial({ color: 0xCCCCCC, transparent: true, opacity: 0.9 });
+    var bodyMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.95 });
     var body = new THREE.Mesh(bodyGeo, bodyMat);
     group.add(body);
     // Solar panels
     var panelGeo = new THREE.PlaneGeometry(4, 0.6);
-    var panelMat = new THREE.MeshBasicMaterial({ color: 0x3388FF, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
+    var panelMat = new THREE.MeshBasicMaterial({ color: 0xDDEEFF, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
     var panel = new THREE.Mesh(panelGeo, panelMat);
     group.add(panel);
     // Glow point
     var glowGeo = new THREE.SphereGeometry(0.4, 8, 8);
-    var glowMat = new THREE.MeshBasicMaterial({ color: 0x00FF88, transparent: true, opacity: 0.8 });
+    var glowMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.9 });
     var glow = new THREE.Mesh(glowGeo, glowMat);
     glow.position.set(0, 0.4, 0);
     group.add(glow);
