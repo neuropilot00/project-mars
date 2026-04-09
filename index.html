@@ -8782,53 +8782,58 @@ var _satConfig = [
 var _trainSize = 5; // satellites per train
 var _trainSpacing = 350; // ms between each satellite (~6 degrees apart for tight train)
 
-// Starlink train rendering (visible on globe surface)
+// Starlink train rendering — simple approach: 1 lead position + 4 trailing dots at fixed pixel spacing
+var _trainGap = 18; // pixels between each satellite in the train
 function _drawStarlinkTrails(ctx, w, h) {
   var t = Date.now();
   ctx.save();
 
   _satConfig.forEach(function(sat) {
-    // Draw 5 satellites in a train formation
-    for (var s = 0; s < _trainSize; s++) {
-      var st = t - s * _trainSpacing; // Each one trails behind
-      var lat = sat.amp * Math.sin(st * sat.speed + sat.offset);
-      var lng = ((st * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
-      var x = ((lng + 180) / 360) * w;
-      var y = ((90 - lat) / 180) * h;
+    // Calculate lead satellite position
+    var lat = sat.amp * Math.sin(t * sat.speed + sat.offset);
+    var lng = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    var x = ((lng + 180) / 360) * w;
+    var y = ((90 - lat) / 180) * h;
 
-      // Lead satellite is brightest/biggest, trailing ones fade
+    // Calculate movement direction for trailing satellites
+    var dt = 500; // small time delta to get direction
+    var lat2 = sat.amp * Math.sin((t - dt) * sat.speed + sat.offset);
+    var lng2 = (((t - dt) * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    var x2 = ((lng2 + 180) / 360) * w;
+    var y2 = ((90 - lat2) / 180) * h;
+    // Direction vector (normalized)
+    var dx = x2 - x, dy = y2 - y;
+    var len = Math.sqrt(dx * dx + dy * dy) || 1;
+    dx /= len; dy /= len;
+
+    // Draw 5 satellites in a line along movement direction
+    for (var s = 0; s < _trainSize; s++) {
+      var sx = x + dx * s * _trainGap;
+      var sy = y + dy * s * _trainGap;
       var fade = 1 - s * 0.15;
       var dotSize = 8 - s * 1;
 
-      // Bright dot
       ctx.globalAlpha = 0.95 * fade;
       ctx.beginPath();
-      ctx.arc(x, y, Math.max(2, dotSize), 0, Math.PI * 2);
+      ctx.arc(sx, sy, Math.max(3, dotSize), 0, Math.PI * 2);
       ctx.fillStyle = '#00FF88';
       ctx.fill();
-
-      // Glow ring (lead only)
-      if (s === 0) {
-        ctx.globalAlpha = 0.35 + Math.sin(t / 300 + sat.id) * 0.15;
-        ctx.beginPath();
-        ctx.arc(x, y, 12, 0, Math.PI * 2);
-        ctx.strokeStyle = '#00FF88';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
     }
 
-    // Label on lead satellite
-    var leadLat = sat.amp * Math.sin(t * sat.speed + sat.offset);
-    var leadLng = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
-    var lx = ((leadLng + 180) / 360) * w;
-    var ly = ((90 - leadLat) / 180) * h;
+    // Glow ring on lead
+    ctx.globalAlpha = 0.35 + Math.sin(t / 300 + sat.id) * 0.15;
+    ctx.beginPath();
+    ctx.arc(x, y, 14, 0, Math.PI * 2);
+    ctx.strokeStyle = '#00FF88';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Label
     ctx.globalAlpha = 0.7;
     ctx.font = 'bold 9px monospace';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#00FF88';
-    ctx.fillText('\u{1F6F0} SL-' + sat.id, lx, ly - 16);
-
+    ctx.fillText('\u{1F6F0} SL-' + sat.id, x, y - 16);
   });
 
   ctx.restore();
@@ -8842,15 +8847,26 @@ function _updateStarlinkPositions() {
   var t = Date.now();
 
   _satConfig.forEach(function(sat, i) {
+    // Lead position
+    var lat0 = sat.amp * Math.sin(t * sat.speed + sat.offset);
+    var lng0 = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    // Slightly earlier position for direction
+    var lat1 = sat.amp * Math.sin((t - 500) * sat.speed + sat.offset);
+    var lng1 = (((t - 500) * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    // Direction in degrees
+    var dLat = (lat1 - lat0), dLng = (lng1 - lng0);
+    var dLen = Math.sqrt(dLat * dLat + dLng * dLng) || 1;
+    dLat /= dLen; dLng /= dLen;
+    var gap = 1.5; // degrees between satellites in 3D
+
     for (var s = 0; s < _trainSize; s++) {
       var meshIdx = i * _trainSize + s;
       if (meshIdx >= _starlinkMeshes.length) return;
       var mesh = _starlinkMeshes[meshIdx];
-      var st = t - s * _trainSpacing;
-      var lat = sat.amp * Math.sin(st * sat.speed + sat.offset);
-      var lng = ((st * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
-      var phi = (90 - lat) * Math.PI / 180;
-      var theta = (lng + 180) * Math.PI / 180;
+      var sLat = lat0 + dLat * s * gap;
+      var sLng = lng0 + dLng * s * gap;
+      var phi = (90 - sLat) * Math.PI / 180;
+      var theta = (sLng + 180) * Math.PI / 180;
       mesh.position.set(
         -ALT * Math.sin(phi) * Math.cos(theta),
          ALT * Math.cos(phi),
@@ -8858,8 +8874,7 @@ function _updateStarlinkPositions() {
       );
       mesh.lookAt(0, 0, 0);
       mesh.visible = true;
-      // Trailing satellites smaller
-      var scale = 1 - s * 0.15;
+      var scale = 1 - s * 0.12;
       mesh.scale.set(scale, scale, scale);
     }
   });
