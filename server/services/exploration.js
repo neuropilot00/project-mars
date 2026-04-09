@@ -30,7 +30,7 @@ async function spawnPOIs() {
   const maxPP = parseFloat(await getSetting('poi_reward_max_pp') || '0.5');
 
   // Get all sectors for random placement
-  const sectors = await pool.query('SELECT id, polygon FROM sectors');
+  const sectors = await pool.query('SELECT id, bounds_polygon FROM sectors');
   if (!sectors.rows.length) return [];
 
   const types = Object.keys(POI_TYPES);
@@ -39,7 +39,7 @@ async function spawnPOIs() {
   for (let i = 0; i < count; i++) {
     // Pick random sector
     const sector = sectors.rows[Math.floor(Math.random() * sectors.rows.length)];
-    const polygon = typeof sector.polygon === 'string' ? JSON.parse(sector.polygon) : sector.polygon;
+    const polygon = typeof sector.bounds_polygon === 'string' ? JSON.parse(sector.bounds_polygon) : sector.bounds_polygon;
     if (!polygon || polygon.length < 3) continue;
 
     // Random point inside sector polygon (simple: random point in bounding box, check containment)
@@ -236,12 +236,12 @@ async function updateStarlinkPasses() {
   const positions = getSatellitePositions();
 
   // Get sectors
-  const sectors = await pool.query('SELECT id, polygon FROM sectors');
+  const sectors = await pool.query('SELECT id, bounds_polygon FROM sectors');
 
   for (const sat of positions) {
     // Find which sector the satellite is over
     for (const sector of sectors.rows) {
-      const polygon = typeof sector.polygon === 'string' ? JSON.parse(sector.polygon) : sector.polygon;
+      const polygon = typeof sector.bounds_polygon === 'string' ? JSON.parse(sector.bounds_polygon) : sector.bounds_polygon;
       if (!polygon || polygon.length < 3) continue;
 
       if (pointInPolygon([sat.lng, sat.lat], polygon)) {
