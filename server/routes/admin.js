@@ -1028,8 +1028,15 @@ router.post('/reset-claims', async (req, res) => {
       }
     }
 
+    // 5. Reset governance: clear governors/commanders since all pixels are gone
+    await client.query("UPDATE sectors SET governor_wallet = NULL, governor_since = NULL, vice_governor_wallet = NULL, vice_governor_since = NULL, sector_pool_gp = 0, buff_fund_gp = 0");
+    await client.query("DELETE FROM governance_positions");
+    await client.query("UPDATE governance_history SET ended_at = NOW(), tenure_seconds = EXTRACT(EPOCH FROM (NOW() - started_at))::int WHERE ended_at IS NULL");
+    await client.query("DELETE FROM sector_buffs WHERE active = true");
+    await client.query("UPDATE commander SET commander_wallet = NULL, vice_commander_wallet = NULL, commander_pool_gp = 0");
+
     await client.query('COMMIT');
-    console.log(`[Admin] Reset: ${clDel.rowCount} claims deleted, ${pxDel.rowCount} pixels removed, ${npcCount} NPCs deployed`);
+    console.log(`[Admin] Reset: ${clDel.rowCount} claims deleted, ${pxDel.rowCount} pixels removed, ${npcCount} NPCs deployed, governance cleared`);
     res.json({
       success: true,
       claimsDeleted: clDel.rowCount,

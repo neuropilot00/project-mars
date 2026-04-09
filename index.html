@@ -1559,6 +1559,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <img id="infoImgPreview" src="" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer" onclick="expandInfoImg()">
     </div>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)">EDIT IMAGE</button>
+    <button class="uf" id="infoCosmeticBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(255,100,200,.08));border-color:rgba(180,100,255,.3);color:#c088e0" onclick="openCosmeticPanel(selectedPlot)">✨ CUSTOMIZE</button>
+    <div id="cosmeticPanel" style="display:none;margin-top:8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
+      <div style="font-size:9px;color:#c088e0;font-family:var(--fn);letter-spacing:1px;margin-bottom:8px;font-weight:700">COSMETICS</div>
+      <div id="cosmeticSlots" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
     <div id="infoLinkEdit" style="display:none;margin-top:6px">
       <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">PROMO LINK</div>
       <div style="display:flex;gap:4px">
@@ -1874,6 +1879,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <button class="shop-cat-btn" onclick="shopFilterCat('attack',this)">ATTACK</button>
       <button class="shop-cat-btn" onclick="shopFilterCat('utility',this)">UTILITY</button>
       <button class="shop-cat-btn" onclick="shopFilterCat('boost',this)">BOOST</button>
+      <button class="shop-cat-btn" onclick="shopFilterCat('cosmetic',this)">COSMETIC</button>
     </div>
     <div class="mbd" style="padding:12px;overflow-y:auto;flex:1" id="shopBody">
       <!-- Shop items grid (populated by JS) -->
@@ -2230,6 +2236,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));
         border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
         ADD IMAGE
+      </button>
+    </div>
+    <div id="mtCosmeticBtnWrap" style="display:none;padding:4px 0">
+      <button onclick="closeMobTerritoryModal();setTimeout(function(){openCosmeticPanel(selectedPlot)},200)"
+        style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(180,100,255,.15),rgba(255,100,200,.1));
+        border:1px solid rgba(180,100,255,.3);color:#c088e0;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
+        ✨ CUSTOMIZE
       </button>
     </div>
     <div id="mtLinkEditWrap" style="display:none;padding:4px 0 8px">
@@ -3489,6 +3502,100 @@ function compositeClaimsOnTexture(previewOnly){
         }); // end _grpWrapOffsets.forEach
       });
       ctx.restore();
+
+      // Cosmetic effects for this owner's claims
+      sortedClaims.forEach(function(sc){
+        if(sc.owner!==c.owner||!sc.cosmetics) return;
+        var cr=getCellRect(sc.lat,sc.lng,sc.w||20,sc.h||20,w,h);
+        var cos=sc.cosmetics;
+
+        // Terrain tint
+        if(cos.terrain){
+          ctx.save();
+          var tColors={volcanic_terrain:'rgba(255,80,20,0.18)',frozen_terrain:'rgba(100,180,255,0.18)',crystal_terrain:'rgba(180,100,255,0.18)',toxic_terrain:'rgba(100,255,80,0.14)'};
+          ctx.fillStyle=tColors[cos.terrain]||'rgba(255,255,255,0.1)';
+          ctx.fillRect(cr.x,cr.y,cr.w,cr.h);
+          ctx.restore();
+        }
+
+        // Border cosmetic
+        if(cos.border){
+          ctx.save();
+          var t=Date.now();
+          if(cos.border==='neon_border'){
+            ctx.strokeStyle='#00FFFF';ctx.shadowColor='#00FFFF';ctx.shadowBlur=6;ctx.lineWidth=1.5;
+          }else if(cos.border==='flame_border'){
+            ctx.strokeStyle='#FF6600';ctx.shadowColor='#FF4400';ctx.shadowBlur=4;ctx.lineWidth=1.5;ctx.setLineDash([3,2]);
+          }else if(cos.border==='ice_border'){
+            ctx.strokeStyle='#88CCFF';ctx.shadowColor='#AADDFF';ctx.shadowBlur=5;ctx.lineWidth=2;
+          }else if(cos.border==='gold_border'){
+            ctx.strokeStyle='#FFD700';ctx.shadowColor='#FFD700';ctx.shadowBlur=8;ctx.lineWidth=2.5;
+          }else if(cos.border==='starship_border'){
+            ctx.strokeStyle='#FF4400';ctx.shadowColor='#FF6600';ctx.shadowBlur=6;ctx.lineWidth=2;ctx.setLineDash([5,2]);
+          }
+          ctx.strokeRect(cr.x,cr.y,cr.w,cr.h);
+          ctx.setLineDash([]);
+          ctx.restore();
+        }
+
+        // Glow cosmetic
+        if(cos.glow){
+          ctx.save();
+          var t2=Date.now();
+          if(cos.glow==='pulse_glow'){
+            var pAlpha=0.2+Math.sin(t2/400)*0.12;
+            ctx.shadowBlur=8+Math.sin(t2/400)*4;
+            ctx.shadowColor=_ownerColor(sc.owner);
+            ctx.globalAlpha=pAlpha;
+            ctx.strokeStyle=_ownerColor(sc.owner);ctx.lineWidth=3;
+            ctx.strokeRect(cr.x-1,cr.y-1,cr.w+2,cr.h+2);
+          }else if(cos.glow==='rainbow_glow'){
+            var hue=(t2/15)%360;
+            ctx.shadowBlur=10;
+            ctx.shadowColor='hsl('+hue+',100%,60%)';
+            ctx.globalAlpha=0.3;
+            ctx.strokeStyle='hsl('+hue+',100%,60%)';ctx.lineWidth=2.5;
+            ctx.strokeRect(cr.x-1,cr.y-1,cr.w+2,cr.h+2);
+          }else if(cos.glow==='dark_aura'){
+            ctx.shadowBlur=10;ctx.shadowColor='rgba(80,0,120,0.8)';
+            ctx.globalAlpha=0.25+Math.sin(t2/600)*0.08;
+            ctx.strokeStyle='rgba(120,0,180,0.6)';ctx.lineWidth=2;
+            ctx.strokeRect(cr.x-1,cr.y-1,cr.w+2,cr.h+2);
+          }
+          ctx.restore();
+        }
+      });
+
+      // Infamy aura (hijack count >= 15 = red glow, >= 5 = skull icon)
+      var ownerHijackCount=0;
+      sortedClaims.forEach(function(sc){ if(sc.owner===c.owner && sc.hijackCount) ownerHijackCount=Math.max(ownerHijackCount,sc.hijackCount); });
+      if(ownerHijackCount>=15){
+        var infPulse=Math.sin(Date.now()/800)*0.12+0.28;
+        sortedClaims.forEach(function(sc){
+          if(sc.owner!==c.owner) return;
+          var ir=getCellRect(sc.lat,sc.lng,sc.w||20,sc.h||20,w,h);
+          ctx.save();
+          ctx.globalAlpha=infPulse;
+          ctx.strokeStyle='rgba(255,40,40,0.8)';ctx.shadowColor='rgba(255,0,0,0.6)';ctx.shadowBlur=12;ctx.lineWidth=2;
+          ctx.strokeRect(ir.x,ir.y,ir.w,ir.h);
+          ctx.restore();
+        });
+      }
+      if(ownerHijackCount>=5){
+        // Draw skull on first claim of this owner
+        var fc=sortedClaims.find(function(sc){return sc.owner===c.owner});
+        if(fc){
+          var sr=getCellRect(fc.lat,fc.lng,fc.w||20,fc.h||20,w,h);
+          var skSz=Math.min(sr.w,sr.h)*0.3;
+          if(skSz>=4){
+            ctx.save();ctx.font=skSz+'px sans-serif';ctx.textAlign='right';ctx.textBaseline='top';
+            ctx.globalAlpha=0.7;
+            ctx.shadowColor='rgba(0,0,0,0.8)';ctx.shadowBlur=4;
+            ctx.fillText('💀',sr.x+sr.w-1,sr.y+1);
+            ctx.restore();
+          }
+        }
+      }
 
       // Shield effects
       sortedClaims.forEach(function(sc){
@@ -5277,16 +5384,111 @@ function showTerritoryInfo(plot){
   var editBtn=document.getElementById('infoEditImgBtn');
   var linkEdit=document.getElementById('infoLinkEdit');
   var myW=walletState.address||'';
+  var cosBtn=document.getElementById('infoCosmeticBtn');
+  var cosPanel=document.getElementById('cosmeticPanel');
   if(myW&&plot.owner===myW){
     editBtn.style.display='';
     editBtn.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
     linkEdit.style.display='';
     document.getElementById('infoLinkInput').value=plot.link||'';
+    cosBtn.style.display='';
   }else{
     editBtn.style.display='none';
     linkEdit.style.display='none';
+    cosBtn.style.display='none';
   }
+  cosPanel.style.display='none';
 }
+// ── Cosmetic Panel ──
+var _cosmeticDefs={
+  border:{neon_border:{label:'Neon',icon:'💠',color:'#00FFFF'},flame_border:{label:'Flame',icon:'🔥',color:'#FF6600'},ice_border:{label:'Ice',icon:'❄️',color:'#88CCFF'},gold_border:{label:'Gold',icon:'👑',color:'#FFD700'},starship_border:{label:'Starship',icon:'🚀',color:'#FF4400'}},
+  glow:{pulse_glow:{label:'Pulse',icon:'💫',color:'#c088e0'},rainbow_glow:{label:'Rainbow',icon:'🌈',color:'#FF88CC'},dark_aura:{label:'Dark',icon:'🌑',color:'#8800CC'}},
+  terrain:{volcanic_terrain:{label:'Volcanic',icon:'🌋',color:'#FF5014'},frozen_terrain:{label:'Frozen',icon:'🧊',color:'#64B4FF'},crystal_terrain:{label:'Crystal',icon:'💎',color:'#B464FF'},toxic_terrain:{label:'Toxic',icon:'☣️',color:'#64FF50'}}
+};
+
+function openCosmeticPanel(plot){
+  var panel=document.getElementById('cosmeticPanel');
+  if(panel.style.display!=='none'){panel.style.display='none';return;}
+  panel.style.display='';
+  var slots=document.getElementById('cosmeticSlots');
+  if(!plot||!plot.id){slots.innerHTML='<div style="font-size:9px;color:var(--tx3)">Select a claim first</div>';return;}
+  var cos=plot.cosmetics||{};
+  var w=walletState.address;
+  // Load inventory to know what user owns
+  fetch('/api/shop/inventory?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(inv){
+    var html='';
+    ['border','glow','terrain'].forEach(function(type){
+      var typeLabel=type.toUpperCase();
+      var equipped=cos[type]||null;
+      var def=equipped?_cosmeticDefs[type][equipped]:null;
+      html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:rgba(0,0,0,.15);border-radius:6px">';
+      html+='<div style="display:flex;align-items:center;gap:6px">';
+      html+='<span style="font-size:8px;color:var(--tx3);min-width:48px">'+typeLabel+'</span>';
+      if(def){
+        html+='<span style="font-size:10px">'+def.icon+'</span><span style="font-size:9px;color:'+def.color+';font-family:var(--fn)">'+def.label+'</span>';
+      }else{
+        html+='<span style="font-size:9px;color:var(--tx3)">None</span>';
+      }
+      html+='</div><div style="display:flex;gap:4px">';
+      // Dropdown of owned cosmetics of this type
+      var owned=inv.filter(function(i){return i.quantity>0&&_cosmeticDefs[type]&&_cosmeticDefs[type][i.code]});
+      if(owned.length>0){
+        html+='<select onchange="equipCosmetic('+plot.id+',this.value)" style="font-size:8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:4px;padding:2px 4px;font-family:var(--fn)">';
+        html+='<option value="">Equip...</option>';
+        owned.forEach(function(o){
+          var d=_cosmeticDefs[type][o.code];
+          html+='<option value="'+o.code+'"'+(equipped===o.code?' selected':'')+'>'+d.icon+' '+d.label+' (×'+o.quantity+')</option>';
+        });
+        html+='</select>';
+      }
+      if(equipped){
+        html+='<button onclick="unequipCosmetic('+plot.id+',\''+type+'\')" style="font-size:7px;background:none;border:1px solid rgba(232,72,85,.3);color:var(--red);border-radius:4px;padding:2px 6px;cursor:pointer;font-family:var(--fn)">✕</button>';
+      }
+      html+='</div></div>';
+    });
+    if(!inv.some(function(i){return i.quantity>0&&(i.category==='cosmetic')})){
+      html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px 0;margin-top:4px">No cosmetics owned. <span style="color:#c088e0;cursor:pointer;text-decoration:underline" onclick="openItemShop();shopFilterCat(\'cosmetic\',document.querySelectorAll(\'.shop-cat-btn\')[5])">Visit Shop</span></div>';
+    }
+    slots.innerHTML=html;
+  }).catch(function(){slots.innerHTML='<div style="font-size:9px;color:var(--red)">Failed to load</div>'});
+}
+
+function equipCosmetic(claimId,itemCode){
+  if(!itemCode)return;
+  var w=walletState.address;
+  fetch('/api/cosmetic/equip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,claimId:claimId,itemCode:itemCode})})
+  .then(function(r){return r.json()}).then(function(d){
+    if(d.error){showToast(d.error,'error');return;}
+    showToast('Cosmetic equipped!');
+    // Update local claim data
+    var cl=claims.find(function(c){return c.id===claimId});
+    if(cl){
+      if(!cl.cosmetics) cl.cosmetics={};
+      cl.cosmetics[d.cosmeticType]=d.cosmeticCode;
+    }
+    if(selectedPlot&&selectedPlot.id===claimId){
+      if(!selectedPlot.cosmetics) selectedPlot.cosmetics={};
+      selectedPlot.cosmetics[d.cosmeticType]=d.cosmeticCode;
+    }
+    claimsSnapshot=null;compositeClaimsOnTexture();
+    openCosmeticPanel(selectedPlot);// refresh panel
+  }).catch(function(){showToast('Failed to equip','error')});
+}
+
+function unequipCosmetic(claimId,cosmeticType){
+  var w=walletState.address;
+  fetch('/api/cosmetic/unequip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,claimId:claimId,cosmeticType:cosmeticType})})
+  .then(function(r){return r.json()}).then(function(d){
+    if(d.error){showToast(d.error,'error');return;}
+    showToast('Cosmetic removed');
+    var cl=claims.find(function(c){return c.id===claimId});
+    if(cl&&cl.cosmetics) delete cl.cosmetics[cosmeticType];
+    if(selectedPlot&&selectedPlot.id===claimId&&selectedPlot.cosmetics) delete selectedPlot.cosmetics[cosmeticType];
+    claimsSnapshot=null;compositeClaimsOnTexture();
+    openCosmeticPanel(selectedPlot);
+  }).catch(function(){showToast('Failed to remove','error')});
+}
+
 // Save promo link for owned territory
 function savePromoLink(){
   if(!selectedPlot||!selectedPlot.claimId) return showToast('No claim selected','error');
@@ -5869,14 +6071,17 @@ function openMobTerritoryModal(){
   var editWrap=document.getElementById('mtEditBtnWrap');
   var editBtn=document.getElementById('mtEditImgBtn');
   var linkEditWrap=document.getElementById('mtLinkEditWrap');
+  var mtCosBtn=document.getElementById('mtCosmeticBtnWrap');
   if(isMine){
     editWrap.style.display='';
     editBtn.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
     linkEditWrap.style.display='';
     document.getElementById('mtLinkInput').value=plot.link||'';
+    mtCosBtn.style.display='';
   }else{
     editWrap.style.display='none';
     linkEditWrap.style.display='none';
+    mtCosBtn.style.display='none';
   }
   document.getElementById('mobTerritoryModal').classList.add('open');
 }
@@ -7542,7 +7747,7 @@ function renderShopItems(){
   grid.innerHTML=filtered.map(function(item){
     var owned=_shopInventory.find(function(inv){return inv.item_type_id===item.id});
     var ownedQty=owned?owned.quantity:0;
-    var durTxt=item.duration_hours>0?item.duration_hours+'h duration':'Single use';
+    var durTxt=item.category==='cosmetic'?'Permanent':item.duration_hours>0?item.duration_hours+'h duration':'Single use';
     return '<div class="shop-item-card" data-code="'+item.code+'">'
       +'<span class="si-cat '+item.category+'">'+item.category+'</span>'
       +'<span class="si-icon">'+item.icon+'</span>'
@@ -7590,13 +7795,16 @@ function renderShopInventory(){
     }
     list.innerHTML=inv.map(function(item){
       var needsClaim=item.code.indexOf('shield')===0||item.code==='emp_strike';
+      var isCosmetic=item.category==='cosmetic';
       return '<div class="inv-item">'
         +'<span class="inv-icon">'+item.icon+'</span>'
         +'<div class="inv-info">'
         +'<div class="inv-name">'+item.name+'</div>'
         +'<div class="inv-qty">×'+item.quantity+'</div>'
         +'</div>'
-        +(needsClaim
+        +(isCosmetic
+          ?'<button class="inv-use" style="color:#c088e0;border-color:rgba(180,100,255,.3)" onclick="closeItemShop();showToast(\'Select your territory then click CUSTOMIZE\')">EQUIP ON LAND</button>'
+          :needsClaim
           ?'<button class="inv-use" onclick="useShopItem(\''+item.code+'\',true)">USE ON LAND</button>'
           :'<button class="inv-use" onclick="useShopItem(\''+item.code+'\',false)">USE</button>')
         +'</div>';
