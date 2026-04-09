@@ -9681,8 +9681,8 @@ window.addEventListener('resize', function(){
 
   // ═══════ GOVERNANCE VISIBILITY ═══════
 
-  // Commander banner: poll + display
-  var _cmdInfo = null;
+  // Commander banner: poll + display (global for _drawSectorOverlay access)
+  window._cmdInfo = null;
   function loadCommanderBanner() {
     fetch('/api/governance/commander').then(function(r){return r.json()}).then(function(info){
       _cmdInfo = info;
@@ -9726,7 +9726,7 @@ window.addEventListener('resize', function(){
       }
     });
   }
-  function govBadgeHTML(wallet) {
+  window.govBadgeHTML = function(wallet) {
     if (!wallet) return '';
     var roles = _govWalletRoles[wallet.toLowerCase()] || _govWalletRoles[wallet] || [];
     if (!roles.length) return '';
@@ -9763,7 +9763,7 @@ window.addEventListener('resize', function(){
   setInterval(loadGovLeaderboard, 120000);
 
   // Gov change feed alerts
-  function addGovFeed(changes) {
+  window.addGovFeed = function(changes) {
     if (!changes || !changes.length) return;
     changes.forEach(function(c) {
       var text;
@@ -9774,11 +9774,12 @@ window.addEventListener('resize', function(){
         text = '👑 NEW GOVERNOR: ' + name + ' rules ' + (c.sectorName || 'sector') + '!';
       }
       if (text) {
-        var feed = document.getElementById('feedList');
+        var feed = document.getElementById('liveFeed');
         if (!feed) return;
         var div = document.createElement('div');
         div.className = 'feed-item feed-gov';
-        div.innerHTML = '<span class="feed-dot" style="background:var(--gold)"></span><span class="feed-text">' + text + '</span>';
+        div.style.cssText = 'border-left:2px solid var(--gold);padding-left:6px;font-weight:bold;color:var(--gold)';
+        div.textContent = text;
         feed.insertBefore(div, feed.firstChild);
         // Keep max 20
         while (feed.children.length > 20) feed.removeChild(feed.lastChild);
@@ -9787,7 +9788,7 @@ window.addEventListener('resize', function(){
   }
 
   // Hall of Fame toggle + loader
-  function toggleHallOfFame() {
+  window.toggleHallOfFame = function() {
     var el = document.getElementById('govHallOfFame');
     var tog = document.getElementById('hofToggle');
     if (!el) return;
@@ -9807,7 +9808,7 @@ window.addEventListener('resize', function(){
       }
     }
   }
-  function loadHallOfFame() {
+  window.loadHallOfFame = function() {
     var sel = document.getElementById('hofSectorSelect');
     var list = document.getElementById('hofList');
     if (!sel || !list) return;
