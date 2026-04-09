@@ -6085,8 +6085,37 @@ async function confirmClaim(){
         }
       });
     }
-    // Rebuild owner strips so old owner's territory no longer includes hijacked pixels
+
+    // ── Clean up optimistic pixels that weren't confirmed by server ──
+    var confirmedKeys={};
+    if(d.newPixels) d.newPixels.forEach(function(p){ confirmedKeys[pxKey(p[0],p[1])]=true; });
+    if(d.wonPixels) d.wonPixels.forEach(function(p){ confirmedKeys[pxKey(p[0],p[1])]=true; });
+    optimisticPixels.forEach(function(p){
+      var k=pxKey(p.lat,p.lng);
+      if(!confirmedKeys[k]){
+        // This pixel wasn't confirmed — revert optimistic entry
+        var cur=pixelGrid[k];
+        if(cur&&cur.claimId===-1){
+          // Was optimistically set by us but server didn't confirm — remove
+          delete pixelGrid[k]; delete _serverPixels[k];
+        }
+      }
+    });
+
+    // Rebuild owner strips
     _rebuildOwnerData();
+
+    // After battles, fetch authoritative pixel data to ensure sync
+    if(hasBattle){
+      setTimeout(function(){
+        fetch('/api/pixels').then(function(r){return r.json()}).then(function(sp){
+          if(sp&&typeof sp==='object'&&Object.keys(sp).length>0){
+            initPixelGridFromServer(sp);
+            claimsSnapshot=null;compositeClaimsOnTexture();
+          }
+        }).catch(function(){});
+      },1500);
+    }
 
     // Reset modes
     stampMode=false; stampImgUrl=null;
