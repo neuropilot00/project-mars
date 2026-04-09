@@ -618,8 +618,9 @@ router.post('/claim', writeLimiter, async (req, res) => {
       return res.status(503).json({ error: 'Maintenance mode — transactions disabled' });
     }
 
-    // Check peace treaty — blocks all hijacks
-    const _isPeaceTreaty = await hasActiveEvent('peace_treaty');
+    // Check peace treaty — blocks all hijacks (safe: fallback to false if governance tables missing)
+    let _isPeaceTreaty = false;
+    try { _isPeaceTreaty = await hasActiveEvent('peace_treaty'); } catch(ge) { console.warn('[GOV] peace check failed:', ge.message); }
 
     await client.query('BEGIN');
     await ensureUser(client, wallet.toLowerCase());
@@ -652,17 +653,20 @@ router.post('/claim', writeLimiter, async (req, res) => {
       existingMap[row.lat + ',' + row.lng] = row;
     }
 
-    // ── Governance: cache sector buffs for discount ──
+    // ── Governance: cache sector buffs for discount (safe: fallback if governance fails) ──
     const _sectorBuffCache = {};
     async function _getBuffDiscount(sectorId) {
-      if (!sectorId) return 0;
-      if (_sectorBuffCache[sectorId] !== undefined) return _sectorBuffCache[sectorId];
-      const buffs = await getActiveSectorBuffs(sectorId);
-      const disc = buffs.find(b => b.buff_type === 'claim_discount');
-      _sectorBuffCache[sectorId] = disc ? parseFloat(disc.effect_value) / 100 : 0;
-      return _sectorBuffCache[sectorId];
+      try {
+        if (!sectorId) return 0;
+        if (_sectorBuffCache[sectorId] !== undefined) return _sectorBuffCache[sectorId];
+        const buffs = await getActiveSectorBuffs(sectorId);
+        const disc = buffs.find(b => b.buff_type === 'claim_discount');
+        _sectorBuffCache[sectorId] = disc ? parseFloat(disc.effect_value) / 100 : 0;
+        return _sectorBuffCache[sectorId];
+      } catch(ge) { return 0; }
     }
-    const _isWarTime = await hasActiveEvent('war_time');
+    let _isWarTime = false;
+    try { _isWarTime = await hasActiveEvent('war_time'); } catch(ge) { console.warn('[GOV] war check failed:', ge.message); }
 
     // Separate pixels into: new, own (skip), enemy (attack)
     const newPixels = [];
@@ -718,12 +722,14 @@ router.post('/claim', writeLimiter, async (req, res) => {
     for (const [prevOwner, ownerPixels] of Object.entries(enemyByOwner)) {
       // Defense bonus buff: check if defender's sector has defense_bonus active
       let effectiveSuccessRate = ATTACK_SUCCESS_RATE;
-      const defSectorId = ownerPixels[0] && ownerPixels[0].existing ? findSectorForPixelSync(ownerPixels[0].lat, ownerPixels[0].lng) : null;
-      if (defSectorId) {
-        const defBuffs = await getActiveSectorBuffs(defSectorId);
-        const defBuff = defBuffs.find(b => b.buff_type === 'defense_bonus');
-        if (defBuff) effectiveSuccessRate = Math.max(0, effectiveSuccessRate - parseFloat(defBuff.effect_value));
-      }
+      try {
+        const defSectorId = ownerPixels[0] && ownerPixels[0].existing ? findSectorForPixelSync(ownerPixels[0].lat, ownerPixels[0].lng) : null;
+        if (defSectorId) {
+          const defBuffs = await getActiveSectorBuffs(defSectorId);
+          const defBuff = defBuffs.find(b => b.buff_type === 'defense_bonus');
+          if (defBuff) effectiveSuccessRate = Math.max(0, effectiveSuccessRate - parseFloat(defBuff.effect_value));
+        }
+      } catch(ge) { /* governance unavailable, use base rate */ }
       const roll = Math.random() * 100;
       if (roll < effectiveSuccessRate) {
         // Attack SUCCESS — take ALL pixels from this owner
@@ -915,26 +921,25 @@ router.post('/claim', writeLimiter, async (req, res) => {
       if (refPromises.length) await Promise.all(refPromises);
     }
 
-    // ── Governance: collect tax per sector + recalculate positions ──
+    // ── Governance: collect tax per sector + recalculate positions (safe: won't break claim if governance fails) ──
     let totalTax = 0;
-    const affectedSectors = new Set();
-    for (const p of claimPixels) {
-      const sId = findSectorForPixelSync(p.lat, p.lng);
-      if (sId) affectedSectors.add(sId);
-    }
-    for (const sId of affectedSectors) {
-      // Calculate sector's share of totalCost
-      const sectorPixels = claimPixels.filter(p => findSectorForPixelSync(p.lat, p.lng) === sId);
-      const sectorCost = (sectorPixels.length / claimPixels.length) * totalCost;
-      if (sectorCost > 0) {
-        const tax = await collectTax(client, sId, sectorCost, txType);
-        totalTax += tax;
+    try {
+      const affectedSectors = new Set();
+      for (const p of claimPixels) {
+        const sId = findSectorForPixelSync(p.lat, p.lng);
+        if (sId) affectedSectors.add(sId);
       }
-      // Recalculate governor for affected sectors
-      await recalculateGovernor(client, sId);
-    }
-    // Recalculate global commander
-    await recalculateCommander(client);
+      for (const sId of affectedSectors) {
+        const sectorPixels = claimPixels.filter(p => findSectorForPixelSync(p.lat, p.lng) === sId);
+        const sectorCost = (sectorPixels.length / claimPixels.length) * totalCost;
+        if (sectorCost > 0) {
+          const tax = await collectTax(client, sId, sectorCost, txType);
+          totalTax += tax;
+        }
+        await recalculateGovernor(client, sId);
+      }
+      await recalculateCommander(client);
+    } catch(ge) { console.warn('[GOV] governance post-claim failed:', ge.message); }
 
     await client.query('COMMIT');
 
@@ -1806,24 +1811,20 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     const isGovernor = parseInt(govRes.rows[0].cnt) > 0;
     if (isGovernor) harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000;
 
-    // ── Governance buffs: sector mining_boost + global double_mining ──
-    // Check if any owned pixel's sector has mining_boost buff
-    const sectorBuffRes = await client.query(
-      `SELECT DISTINCT p.sector_id FROM pixels p WHERE p.owner = $1 AND p.sector_id IS NOT NULL`, [w]
-    );
-    let hasMiningBuff = false;
-    for (const row of sectorBuffRes.rows) {
-      const buffs = await getActiveSectorBuffs(row.sector_id);
-      if (buffs.some(b => b.buff_type === 'mining_boost')) { hasMiningBuff = true; break; }
-    }
-    if (hasMiningBuff) {
-      harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000; // +20% mining boost
-    }
-    // Global double mining event
-    const isDoubleMining = await hasActiveEvent('double_mining');
-    if (isDoubleMining) {
-      harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
-    }
+    // ── Governance buffs: sector mining_boost + global double_mining (safe) ──
+    try {
+      const sectorBuffRes = await client.query(
+        `SELECT DISTINCT p.sector_id FROM pixels p WHERE p.owner = $1 AND p.sector_id IS NOT NULL`, [w]
+      );
+      let hasMiningBuff = false;
+      for (const row of sectorBuffRes.rows) {
+        const buffs = await getActiveSectorBuffs(row.sector_id);
+        if (buffs.some(b => b.buff_type === 'mining_boost')) { hasMiningBuff = true; break; }
+      }
+      if (hasMiningBuff) harvestedPP = Math.round(harvestedPP * 1.2 * 10000) / 10000;
+      const isDoubleMining = await hasActiveEvent('double_mining');
+      if (isDoubleMining) harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
+    } catch(ge) { console.warn('[GOV] harvest buff check failed:', ge.message); }
 
     // Apply hard cap per harvest
     harvestedPP = Math.min(harvestedPP, harvestCap);
