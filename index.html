@@ -904,7 +904,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   #shopConfirmModal{align-items:center!important}
   #shopConfirmModal .mdl{align-self:center;border-radius:14px;max-width:90vw}
   .tb-buff{font-size:8px;padding:2px 6px}
-  #tbActiveBuffs{left:8px!important;bottom:70px!important}
+  #tbActiveBuffs{top:58px!important;left:50%!important;transform:translateX(-50%)!important}
   .shop-cat-btn{padding:10px 4px;font-size:10px;min-height:44px}
   .si-price{min-height:36px;display:flex;align-items:center;padding:6px 12px!important;font-size:11px!important}
   .inv-item{padding:12px}
@@ -1362,7 +1362,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Active Item Buffs Overlay -->
-<div id="tbActiveBuffs" style="display:none;position:fixed;left:12px;bottom:80px;z-index:100;flex-direction:column;gap:4px;pointer-events:none"></div>
+<div id="tbActiveBuffs" style="display:none;position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:110;flex-direction:row;gap:6px;pointer-events:none"></div>
 
 <!-- Announcement Banner (overlay below topbar) -->
 <div class="announce-bar" id="announceBanner">
@@ -3248,10 +3248,11 @@ function compositeClaimsOnTexture(previewOnly){
 
     // Strip → screen rect
     var _pxDeg=w/360, _gs=_actualGridStep;
+    var _sRectOx=0; // wrap-around x-offset (0 or ±w)
     function _sRect(s){
       var dw=s.lng2-s.lng1+_gs;
       var pw=dw*_pxDeg, ph=_gs*_pxDeg;
-      var cx=((s.lng1+s.lng2)/2+180)/360*w;
+      var cx=((s.lng1+s.lng2)/2+180)/360*w+_sRectOx;
       var cy=(90-s.lat)/180*h;
       return{x:cx-pw/2,y:cy-ph/2,w:pw,h:ph};
     }
@@ -3272,6 +3273,13 @@ function compositeClaimsOnTexture(previewOnly){
       ctx.save();
       var ownerGroups=_ownerGroups[c.owner]||[];
       ownerGroups.forEach(function(grp){
+        // Detect if group extends past ±180° boundary
+        var _grpWrapOffsets=[0];
+        var gb0=grp.bounds;
+        if(gb0&&gb0.maxLng>180) _grpWrapOffsets.push(-w); // right overflow → draw wrapped copy on left
+        if(gb0&&gb0.minLng<-180) _grpWrapOffsets.push(w);  // left overflow → draw wrapped copy on right
+        _grpWrapOffsets.forEach(function(_wrapOx){
+        _sRectOx=_wrapOx;
         var groupClaims=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
         // Find shared image + anchor claim
         var sharedImg=null, sharedImgParams=null, anchorClaim=null;
@@ -3313,6 +3321,7 @@ function compositeClaimsOnTexture(previewOnly){
           ctx.fill();
           // Image FIXED at anchor claim center (large scale, clip path reveals territory shape)
           var ar=getCellRect(anchorClaim.lat,anchorClaim.lng,anchorClaim.w||20,anchorClaim.h||20,w,h);
+          ar.x+=_sRectOx; // apply wrap-around offset
           var ip=sharedImgParams, s=(ip.scale||100)/100;
           var rot=(ip.rotate||0)*Math.PI/180;
           var _gsTPx=_gs*_pxDeg; // 1 grid unit in texture pixels
@@ -3409,6 +3418,8 @@ function compositeClaimsOnTexture(previewOnly){
           }
           ctx.stroke();ctx.setLineDash([]);
         }
+        _sRectOx=0; // reset wrap offset
+        }); // end _grpWrapOffsets.forEach
       });
       ctx.restore();
 
@@ -3447,6 +3458,12 @@ function compositeClaimsOnTexture(previewOnly){
         _selStrips.forEach(function(s){var lk=Math.round(s.lat*100);if(!_selByLat[lk])_selByLat[lk]=[];_selByLat[lk].push(s);});
         var _selFullByLat=_stripsByOwnerLat[_selOwner]||{};
         var _selGsKey=_selFullByLat._latStep||Math.round(_gs*100);
+        // Detect wrap-around for selection highlight
+        var _selWrapOffsets=[0];
+        if(_selBounds&&_selBounds.maxLng>180) _selWrapOffsets.push(-w);
+        if(_selBounds&&_selBounds.minLng<-180) _selWrapOffsets.push(w);
+        _selWrapOffsets.forEach(function(_selWox){
+        _sRectOx=_selWox;
         ctx.save();
         ctx.strokeStyle='#FFD166';ctx.lineWidth=2.5;ctx.setLineDash([6,4]);
         ctx.beginPath();
@@ -3471,6 +3488,8 @@ function compositeClaimsOnTexture(previewOnly){
         ctx.stroke();
         ctx.setLineDash([]);
         ctx.restore();
+        _sRectOx=0;
+        }); // end _selWrapOffsets
       }
     }
 
@@ -3507,54 +3526,56 @@ function compositeClaimsOnTexture(previewOnly){
     }
   }
 
-  // Land select preview (orange rectangle)
+  // Land select preview (cyan rectangle)
   if(landSelectMode&&landDragStart){
     var lr=landDragRect||computeLandRect(landDragStart.lat,landDragStart.lng,
       landDragEnd?landDragEnd.lat:landDragStart.lat,
       landDragEnd?landDragEnd.lng:landDragStart.lng);
     if(lr){
       var lrr=getCellRect(lr.lat,lr.lng,lr.w,lr.h,w,h);
-      // Semi-transparent fill — cyan/white to contrast Mars surface
-      ctx.fillStyle='rgba(0,200,255,0.12)';
-      ctx.fillRect(lrr.x,lrr.y,lrr.w,lrr.h);
-      // Animated border — bright cyan
-      ctx.strokeStyle='rgba(0,220,255,0.85)';ctx.lineWidth=2;ctx.setLineDash([8,4]);
-      ctx.strokeRect(lrr.x,lrr.y,lrr.w,lrr.h);ctx.setLineDash([]);
-      // Corner markers
-      var cm=6;
-      ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=2;ctx.setLineDash([]);
-      // Top-left
-      ctx.beginPath();ctx.moveTo(lrr.x,lrr.y+cm);ctx.lineTo(lrr.x,lrr.y);ctx.lineTo(lrr.x+cm,lrr.y);ctx.stroke();
-      // Top-right
-      ctx.beginPath();ctx.moveTo(lrr.x+lrr.w-cm,lrr.y);ctx.lineTo(lrr.x+lrr.w,lrr.y);ctx.lineTo(lrr.x+lrr.w,lrr.y+cm);ctx.stroke();
-      // Bottom-left
-      ctx.beginPath();ctx.moveTo(lrr.x,lrr.y+lrr.h-cm);ctx.lineTo(lrr.x,lrr.y+lrr.h);ctx.lineTo(lrr.x+cm,lrr.y+lrr.h);ctx.stroke();
-      // Bottom-right
-      ctx.beginPath();ctx.moveTo(lrr.x+lrr.w-cm,lrr.y+lrr.h);ctx.lineTo(lrr.x+lrr.w,lrr.y+lrr.h);ctx.lineTo(lrr.x+lrr.w,lrr.y+lrr.h-cm);ctx.stroke();
-      // Pin marker at center — large and visible
-      var pcx=lrr.x+lrr.w/2, pcy=lrr.y+lrr.h/2;
-      // Pin drop shadow
-      ctx.fillStyle='rgba(0,0,0,0.4)';
-      ctx.beginPath();ctx.ellipse(pcx+1,pcy+1,3,1.5,0,0,Math.PI*2);ctx.fill();
-      // Pin shaft
-      ctx.strokeStyle='#fff';ctx.lineWidth=2.5;
-      ctx.beginPath();ctx.moveTo(pcx,pcy);ctx.lineTo(pcx,pcy-24);ctx.stroke();
-      // Pin head
-      ctx.beginPath();ctx.arc(pcx,pcy-28,7,0,Math.PI*2);
-      ctx.fillStyle='rgba(0,200,255,0.95)';ctx.fill();
-      ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
-      // Pin inner dot
-      ctx.beginPath();ctx.arc(pcx,pcy-28,2.5,0,Math.PI*2);
-      ctx.fillStyle='#fff';ctx.fill();
-      // Size label — white on dark background
+      // Helper: draw selection rect at given offset (for wrap-around)
+      function _drawLandSel(ox){
+        var rx=lrr.x+ox,ry=lrr.y,rw=lrr.w,rh=lrr.h;
+        ctx.fillStyle='rgba(0,200,255,0.12)';
+        ctx.fillRect(rx,ry,rw,rh);
+        ctx.strokeStyle='rgba(0,220,255,0.85)';ctx.lineWidth=2;ctx.setLineDash([8,4]);
+        ctx.strokeRect(rx,ry,rw,rh);ctx.setLineDash([]);
+        var cm=6;
+        ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=2;ctx.setLineDash([]);
+        ctx.beginPath();ctx.moveTo(rx,ry+cm);ctx.lineTo(rx,ry);ctx.lineTo(rx+cm,ry);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(rx+rw-cm,ry);ctx.lineTo(rx+rw,ry);ctx.lineTo(rx+rw,ry+cm);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(rx,ry+rh-cm);ctx.lineTo(rx,ry+rh);ctx.lineTo(rx+cm,ry+rh);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(rx+rw-cm,ry+rh);ctx.lineTo(rx+rw,ry+rh);ctx.lineTo(rx+rw,ry+rh-cm);ctx.stroke();
+      }
+      // Draw main rect + wrapped copy if crossing texture edge
+      var _landWrapOffsets=[0];
+      if(lrr.x<0) _landWrapOffsets.push(w);
+      else if(lrr.x+lrr.w>w) _landWrapOffsets.push(-w);
+      // Helper: draw pin + size label at offset
       var lfs=Math.max(8,Math.min(lrr.w,lrr.h)*0.15);
-      ctx.font='bold '+lfs+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
       var ltxt=lr.w+'×'+lr.h;
-      var tw=ctx.measureText(ltxt).width;
-      ctx.fillStyle='rgba(0,0,0,0.6)';
-      ctx.fillRect(pcx-tw/2-4,pcy+4,tw+8,lfs+4);
-      ctx.fillStyle='#fff';
-      ctx.fillText(ltxt,pcx,pcy+6+lfs/2);
+      function _drawLandPin(ox){
+        var pcx=lrr.x+lrr.w/2+ox, pcy=lrr.y+lrr.h/2;
+        ctx.fillStyle='rgba(0,0,0,0.4)';
+        ctx.beginPath();ctx.ellipse(pcx+1,pcy+1,3,1.5,0,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#fff';ctx.lineWidth=2.5;
+        ctx.beginPath();ctx.moveTo(pcx,pcy);ctx.lineTo(pcx,pcy-24);ctx.stroke();
+        ctx.beginPath();ctx.arc(pcx,pcy-28,7,0,Math.PI*2);
+        ctx.fillStyle='rgba(0,200,255,0.95)';ctx.fill();
+        ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+        ctx.beginPath();ctx.arc(pcx,pcy-28,2.5,0,Math.PI*2);
+        ctx.fillStyle='#fff';ctx.fill();
+        ctx.font='bold '+lfs+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        var ltw=ctx.measureText(ltxt).width;
+        ctx.fillStyle='rgba(0,0,0,0.6)';
+        ctx.fillRect(pcx-ltw/2-4,pcy+4,ltw+8,lfs+4);
+        ctx.fillStyle='#fff';
+        ctx.fillText(ltxt,pcx,pcy+6+lfs/2);
+      }
+      for(var _lwi=0;_lwi<_landWrapOffsets.length;_lwi++){
+        _drawLandSel(_landWrapOffsets[_lwi]);
+        _drawLandPin(_landWrapOffsets[_lwi]);
+      }
     }
   }
 
