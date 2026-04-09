@@ -5,6 +5,7 @@ node_modules/
 *.log
 assets/*
 !assets/textures/
+!assets/lib/
 server/node_modules/
 uploads/
 logs/
