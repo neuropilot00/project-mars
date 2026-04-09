@@ -64,8 +64,11 @@ async function recalculateGovernor(client, sectorId) {
       if (oldGP > 0) {
         await client.query(
           `UPDATE governance_history SET total_tax_earned = $1
-           WHERE wallet = $2 AND role = 'governor' AND sector_id = $3
-             AND ended_at IS NOT NULL ORDER BY ended_at DESC LIMIT 1`,
+           WHERE id = (
+             SELECT id FROM governance_history
+             WHERE wallet = $2 AND role = 'governor' AND sector_id = $3 AND ended_at IS NOT NULL
+             ORDER BY ended_at DESC LIMIT 1
+           )`,
           [oldGP, oldGov, sectorId]
         );
         await client.query(
