@@ -6076,7 +6076,9 @@ async function confirmClaim(){
     _serverPixels=Object.assign({},_serverPixels); // shallow copy
     optimisticPixels.forEach(function(p){
       var k=pxKey(p.lat,p.lng);
-      _serverPixels[k]=pixelGrid[k];
+      var cur=pixelGrid[k];
+      // Only add to serverPixels if we actually set it as ours (not enemy territory)
+      if(cur&&cur.claimId===-1) _serverPixels[k]=cur;
     });
     _rebuildOwnerData();
     claimsSnapshot=null;
@@ -6208,14 +6210,12 @@ async function confirmClaim(){
 
     // After battles, fetch authoritative pixel data to ensure sync
     if(hasBattle){
-      setTimeout(function(){
-        fetch('/api/pixels').then(function(r){return r.json()}).then(function(sp){
-          if(sp&&typeof sp==='object'&&Object.keys(sp).length>0){
-            initPixelGridFromServer(sp);
-            claimsSnapshot=null;compositeClaimsOnTexture();
-          }
-        }).catch(function(){});
-      },1500);
+      fetch('/api/pixels').then(function(r){return r.json()}).then(function(sp){
+        if(sp&&typeof sp==='object'&&Object.keys(sp).length>0){
+          initPixelGridFromServer(sp);
+          claimsSnapshot=null;compositeClaimsOnTexture();
+        }
+      }).catch(function(){});
     }
 
     // Reset modes
