@@ -1513,6 +1513,7 @@ router.get('/sectors', readLimiter, async (req, res) => {
           since: r.governor_since
         } : null,
         taxRate: parseFloat(r.tax_rate) || 2,
+        announcement: r.announcement || null,
         topHolder: top ? {
           wallet: top.wallet.slice(0, 6) + '...' + top.wallet.slice(-4),
           pixels: top.pixels
