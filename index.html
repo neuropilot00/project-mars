@@ -3170,15 +3170,13 @@ function compositeClaimsOnTexture(previewOnly){
             return s.lat>=gb2i.minLat-_gs*0.5&&s.lat<=gb2i.maxLat+_gs*0.5&&
                    s.lng1>=gb2i.minLng-_gs*0.5&&s.lng2<=gb2i.maxLng+_gs*0.5;
           });
+          // If no strips match this group, skip drawing (pixels were hijacked)
+          if(gStripsClip.length===0) return;
           ctx.save();
           ctx.beginPath();
-          if(gStripsClip.length>0){
-            for(var sci=0;sci<gStripsClip.length;sci++){
-              var ssr=_sRect(gStripsClip[sci]);
-              ctx.rect(ssr.x, ssr.y, ssr.w, ssr.h);
-            }
-          }else{
-            rects.forEach(function(r){ctx.rect(r.x,r.y,r.w,r.h)});
+          for(var sci=0;sci<gStripsClip.length;sci++){
+            var ssr=_sRect(gStripsClip[sci]);
+            ctx.rect(ssr.x, ssr.y, ssr.w, ssr.h);
           }
           ctx.clip();
           // Solid fill under image (covers all clipped area — prevents Mars surface bleed)
@@ -4109,10 +4107,8 @@ function _rebuildOwnerData(){
           sb.count+=Math.round((ss.lng2-ss.lng1)/gs)+1;
         }
         if(sb.minLat===Infinity){
-          // Fallback if no strips
-          var c0=claims[ownerClaims[0]];
-          var cw0=c0.w||c0.size||20, ch0=c0.h||c0.size||20;
-          sb={minLat:c0.lat-ch0*gs/2,maxLat:c0.lat+ch0*gs/2,minLng:c0.lng-cw0*gs/2,maxLng:c0.lng+cw0*gs/2,count:cw0*ch0};
+          // No actual pixels — skip group (all pixels hijacked)
+          continue;
         }
         _ownerGroups[owner]=[{claimIndices:ownerClaims,bounds:sb}];
       }
@@ -4172,9 +4168,10 @@ function _rebuildOwnerData(){
           b.count+=Math.round((s.lng2-s.lng1)/gs)+1;
         }
       }
-      groupArr.push({claimIndices:gClaims,bounds:b});
+      // Skip groups with no actual pixels (all hijacked)
+      if(b.minLat!==Infinity) groupArr.push({claimIndices:gClaims,bounds:b});
     }
-    _ownerGroups[owner]=groupArr;
+    if(groupArr.length>0) _ownerGroups[owner]=groupArr;
   }
 }
 initPixelGrid();
