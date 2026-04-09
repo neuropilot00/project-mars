@@ -95,10 +95,10 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .tb-commander .cmd-label{font-size:8px;opacity:0.7;text-transform:uppercase}
 .tb-commander .cmd-name{font-weight:700;font-size:11px}
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
-@media(max-width:768px){.tb-commander{top:68px;padding:3px 10px;font-size:9px}
+@media(max-width:768px){.tb-commander{top:100px;padding:3px 10px;font-size:9px}
   .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}
-  #tbCmdAnnounce{top:90px!important;font-size:8px!important;max-width:80%!important}
-  #tbSectorAnnounce{top:105px!important;font-size:7px!important;max-width:85%!important}}
+  #tbCmdAnnounce{top:122px!important;font-size:8px!important;max-width:80%!important}
+  #tbSectorAnnounce{top:137px!important;font-size:7px!important;max-width:85%!important}}
 
 /* Governance Leaderboard (sidebar) */
 .gov-lb-section{margin-top:2px;border-top:1px solid var(--bdr)}
@@ -916,8 +916,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .panel-l.open,.panel-r.open{transform:translateX(0)}
   .mob-toggle{display:block}
   .mob-toggle.hidden{opacity:0;pointer-events:none;transition:opacity .2s}
-  .zc{right:10px;bottom:84px}
-  .mode-badge{left:12px;bottom:76px;font-size:9px;padding:6px 12px}
+  .zc{right:10px;bottom:150px}
+  .mode-badge{left:12px;bottom:140px;font-size:9px;padding:6px 12px}
   .mob-fab-wrap{display:none!important}
   /* Topbar */
   .topbar{padding:8px 10px}
@@ -8744,9 +8744,9 @@ function _initStarlinkSatellites() {
   var scene;
   try { scene = globe.scene(); } catch(_e) { return; }
   if (!scene) return;
-  console.log('[STARLINK] Initializing 3 satellite meshes');
-  // Create 3 small satellite meshes
-  for (var i = 0; i < 3; i++) {
+  var totalMeshes = _satConfig.length * _trainSize; // 3 trains × 5 = 15
+  console.log('[STARLINK] Initializing ' + totalMeshes + ' satellite meshes');
+  for (var i = 0; i < totalMeshes; i++) {
     var group = new THREE.Group();
     // Body
     var bodyGeo = new THREE.BoxGeometry(1.5, 0.4, 0.4);
@@ -8779,7 +8779,7 @@ var _satConfig = [
   { id: 3, amp: 50, speed: 0.00035, offset: 4.19 }
 ];
 var _trainSize = 5; // satellites per train
-var _trainSpacing = 8000; // ms between each satellite in train
+var _trainSpacing = 1800; // ms between each satellite in train (close together like real Starlink)
 
 // Starlink train rendering (visible on globe surface)
 function _drawStarlinkTrails(ctx, w, h) {
@@ -8828,20 +8828,6 @@ function _drawStarlinkTrails(ctx, w, h) {
     ctx.fillStyle = '#00FF88';
     ctx.fillText('\u{1F6F0} SL-' + sat.id, lx, ly - 16);
 
-    // Connecting line between train satellites
-    ctx.globalAlpha = 0.12;
-    ctx.strokeStyle = '#00FF88';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (var c = 0; c < _trainSize; c++) {
-      var ct = t - c * _trainSpacing;
-      var cLat = sat.amp * Math.sin(ct * sat.speed + sat.offset);
-      var cLng = ((ct * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
-      var cx = ((cLng + 180) / 360) * w;
-      var cy = ((90 - cLat) / 180) * h;
-      if (c === 0) ctx.moveTo(cx, cy); else ctx.lineTo(cx, cy);
-    }
-    ctx.stroke();
   });
 
   ctx.restore();
@@ -8855,20 +8841,26 @@ function _updateStarlinkPositions() {
   var t = Date.now();
 
   _satConfig.forEach(function(sat, i) {
-    if (i >= _starlinkMeshes.length) return;
-    var mesh = _starlinkMeshes[i];
-    // Deterministic orbit
-    var lat = sat.amp * Math.sin(t * sat.speed + sat.offset);
-    var lng = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
-    var phi = (90 - lat) * Math.PI / 180;
-    var theta = (lng + 180) * Math.PI / 180;
-    mesh.position.set(
-      -ALT * Math.sin(phi) * Math.cos(theta),
-       ALT * Math.cos(phi),
-       ALT * Math.sin(phi) * Math.sin(theta)
-    );
-    mesh.lookAt(0, 0, 0);
-    mesh.visible = true;
+    for (var s = 0; s < _trainSize; s++) {
+      var meshIdx = i * _trainSize + s;
+      if (meshIdx >= _starlinkMeshes.length) return;
+      var mesh = _starlinkMeshes[meshIdx];
+      var st = t - s * _trainSpacing;
+      var lat = sat.amp * Math.sin(st * sat.speed + sat.offset);
+      var lng = ((st * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+      var phi = (90 - lat) * Math.PI / 180;
+      var theta = (lng + 180) * Math.PI / 180;
+      mesh.position.set(
+        -ALT * Math.sin(phi) * Math.cos(theta),
+         ALT * Math.cos(phi),
+         ALT * Math.sin(phi) * Math.sin(theta)
+      );
+      mesh.lookAt(0, 0, 0);
+      mesh.visible = true;
+      // Trailing satellites smaller
+      var scale = 1 - s * 0.15;
+      mesh.scale.set(scale, scale, scale);
+    }
   });
 }
 
@@ -10546,8 +10538,8 @@ window.addEventListener('resize', function(){
     if (_starlinkMeshes.length === 0) setTimeout(_tryInitStarlink, 3000); // retry
   }
   setTimeout(_tryInitStarlink, 3000);
-  // Animate starlink positions every second
-  setInterval(_updateStarlinkPositions, 1000);
+  // Animate starlink positions smoothly
+  setInterval(_updateStarlinkPositions, 200);
 
   // ═══════ ROCKET EVENT POLLING ═══════
   function loadRocketData() {
