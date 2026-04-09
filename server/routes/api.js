@@ -813,10 +813,32 @@ router.post('/claim', writeLimiter, async (req, res) => {
     );
     const claimId = claimRes.rows[0].id;
 
+    // ── Update claim dimensions if some battles were lost ──
+    const claimPixels = [...newPixels, ...wonPixels];
+    if (attackLost > 0 && claimPixels.length > 0) {
+      let mnLat = Infinity, mxLat = -Infinity, mnLng = Infinity, mxLng = -Infinity;
+      for (const p of claimPixels) {
+        if (p.lat < mnLat) mnLat = p.lat;
+        if (p.lat > mxLat) mxLat = p.lat;
+        if (p.lng < mnLng) mnLng = p.lng;
+        if (p.lng > mxLng) mxLng = p.lng;
+      }
+      const newCenterLat = (mnLat + mxLat) / 2;
+      const newCenterLng = (mnLng + mxLng) / 2;
+      const newW = Math.round((mxLng - mnLng) / GRID_SIZE) + 1;
+      const newH = Math.round((mxLat - mnLat) / GRID_SIZE) + 1;
+      await client.query(
+        'UPDATE claims SET center_lat=$1, center_lng=$2, width=$3, height=$4 WHERE id=$5',
+        [newCenterLat, newCenterLng, newW, newH, claimId]
+      );
+    } else if (claimPixels.length === 0) {
+      // Total defeat with no new pixels — delete empty claim
+      await client.query('DELETE FROM claims WHERE id=$1', [claimId]);
+    }
+
     // ── BATCH: Upsert only new + won pixels (skip own, skip failed attacks) ──
     // Use large batch (500) to minimize DB round trips
     // IMPORTANT: sequential execution on transaction client to avoid pg DeprecationWarning
-    const claimPixels = [...newPixels, ...wonPixels];
     const batchSize = 500;
     for (let i = 0; i < claimPixels.length; i += batchSize) {
       const chunk = claimPixels.slice(i, i + batchSize);

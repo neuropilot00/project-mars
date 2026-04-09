@@ -6133,8 +6133,26 @@ async function confirmClaim(){
     try{
     var myAddr=walletState.address||'';
     var myLabel=walletState.address?shortAddr(walletState.address):'YOU';
-    var nc={lat:selectedPlot.lat,lng:selectedPlot.lng,owner:myAddr,price:d.totalCost,
-      label:'YOU',nickname:walletState.nickname||'YOU',w:cw,h:ch,link:linkVal||'',id:d.claimId};
+    // Compute actual claimed pixel bounds (may be smaller than requested if battle lost)
+    var allConfirmed=[];
+    if(d.newPixels) d.newPixels.forEach(function(p){allConfirmed.push(p)});
+    if(d.wonPixels) d.wonPixels.forEach(function(p){allConfirmed.push(p)});
+    var ncLat=selectedPlot.lat, ncLng=selectedPlot.lng, ncW=cw, ncH=ch;
+    if(allConfirmed.length>0 && d.attackLost>0){
+      // Recalculate center and size from actual confirmed pixels
+      var mnLat=Infinity,mxLat=-Infinity,mnLng=Infinity,mxLng=-Infinity;
+      allConfirmed.forEach(function(p){
+        if(p[0]<mnLat)mnLat=p[0];if(p[0]>mxLat)mxLat=p[0];
+        if(p[1]<mnLng)mnLng=p[1];if(p[1]>mxLng)mxLng=p[1];
+      });
+      ncLat=(mnLat+mxLat)/2; ncLng=(mnLng+mxLng)/2;
+      ncW=Math.round((mxLng-mnLng)/GRID_SIZE)+1;
+      ncH=Math.round((mxLat-mnLat)/GRID_SIZE)+1;
+    } else if(allConfirmed.length===0){
+      ncW=0; ncH=0;
+    }
+    var nc={lat:ncLat,lng:ncLng,owner:myAddr,price:d.totalCost,
+      label:'YOU',nickname:walletState.nickname||'YOU',w:ncW,h:ncH,link:linkVal||'',id:d.claimId};
     nc.imgUrl=sendImageUrl||uploadedUrl||'';
     claims.push(nc);
 
