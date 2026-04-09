@@ -9858,8 +9858,9 @@ async function harvestMining(){
     var totalEl=document.getElementById('baseMineTotalMined');
     var prev=parseFloat(totalEl.textContent)||0;
     totalEl.textContent=(prev+d.harvestedPP).toFixed(2);
-    // Update timer
+    // Update timer & hide mining dot
     if(d.nextHarvestAt) startMineTimer(new Date(d.nextHarvestAt));
+    var md=document.getElementById('miningDot');if(md)md.style.display='none';
     // Refresh balances
     try{refreshEmailBalances()}catch(e){}
   }catch(e){showToast('Network error')}
@@ -10003,6 +10004,7 @@ function startMineTimer(nextAt){
     if(diff<=0){
       el.textContent='Harvest available now!';
       instantBtn.style.display='none';
+      var md=document.getElementById('miningDot');if(md)md.style.display='block';
       clearInterval(window._mineTimerInterval);
       return;
     }
