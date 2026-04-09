@@ -7,6 +7,12 @@ const rateLimit = require('express-rate-limit');
 const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode, awardXP } = require('../db');
 const { generateWithdrawSignature, CHAINS } = require('../services/signer');
 const { recalculateGovernor, recalculateCommander, collectTax, getActiveSectorBuffs, hasActiveEvent } = require('../services/governance');
+let weatherService;
+try { weatherService = require('../services/weather'); } catch (_e) { /* weather service not available */ }
+let explorationService;
+try { explorationService = require('../services/exploration'); } catch (_e) { /* exploration service not available */ }
+let rocketService;
+try { rocketService = require('../services/rocket'); } catch (_e) { /* rocket service not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -794,6 +800,17 @@ router.post('/claim', writeLimiter, async (req, res) => {
           if (defBuff) effectiveSuccessRate = Math.max(0, effectiveSuccessRate - parseFloat(defBuff.effect_value));
         }
       } catch(ge) { /* governance unavailable, use base rate */ }
+      // Weather attack/defense modifiers
+      try {
+        if (weatherService) {
+          const wxSectorId = ownerPixels[0] && ownerPixels[0].existing ? findSectorForPixelSync(ownerPixels[0].lat, ownerPixels[0].lng) : null;
+          if (wxSectorId) {
+            const wMods = await weatherService.getWeatherModifiers(wxSectorId);
+            effectiveSuccessRate += (wMods.attackMod || 0) + (wMods.defenseMod || 0);
+          }
+        }
+      } catch (_we) { /* weather unavailable */ }
+      effectiveSuccessRate = Math.max(10, Math.min(90, effectiveSuccessRate));
       const roll = Math.random() * 100;
       if (roll < effectiveSuccessRate) {
         // Attack SUCCESS — take ALL pixels from this owner
@@ -1950,6 +1967,40 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       if (isDoubleMining) harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
     } catch(ge) { console.warn('[GOV] harvest buff check failed:', ge.message); }
 
+    // ── Weather modifiers (safe) ──
+    try {
+      if (weatherService) {
+        const sectorRows = await client.query(
+          'SELECT DISTINCT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL', [w]
+        );
+        let bestMiningMod = 0;
+        for (const row of sectorRows.rows) {
+          const wMods = await weatherService.getWeatherModifiers(row.sector_id);
+          if (wMods.miningMod > bestMiningMod) bestMiningMod = wMods.miningMod;
+        }
+        if (bestMiningMod > 0) {
+          harvestedPP = Math.round(harvestedPP * (1 + bestMiningMod / 100) * 10000) / 10000;
+        }
+      }
+    } catch (we) { /* weather system unavailable */ }
+
+    // ── Starlink boost (safe) ──
+    try {
+      if (explorationService) {
+        const sectorRows2 = await client.query(
+          'SELECT DISTINCT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL', [w]
+        );
+        let bestStarlinkBoost = 0;
+        for (const row of sectorRows2.rows) {
+          const slBoost = await explorationService.getStarlinkBoost(row.sector_id);
+          if (slBoost > bestStarlinkBoost) bestStarlinkBoost = slBoost;
+        }
+        if (bestStarlinkBoost > 0) {
+          harvestedPP = Math.round(harvestedPP * (1 + bestStarlinkBoost) * 10000) / 10000;
+        }
+      }
+    } catch (_se) { /* starlink system unavailable */ }
+
     // Check personal mining_boost item effect
     try {
       const mbRes = await client.query(
@@ -2702,6 +2753,109 @@ router.get('/shop/active-effects', readLimiter, async (req, res) => {
   } catch (e) {
     console.error('[SHOP] active-effects error:', e.message);
     res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════
+// MARS WEATHER
+// ══════════════════════════════════════
+
+// GET /api/weather — active weather events
+router.get('/weather', readLimiter, async (req, res) => {
+  try {
+    if (!weatherService) return res.json({ active: [] });
+    const active = await weatherService.getActiveWeather();
+    res.json({ active, serverTime: new Date().toISOString() });
+  } catch (e) {
+    console.error('[WEATHER] get error:', e.message);
+    res.json({ active: [] });
+  }
+});
+
+// ══════════════════════════════════════
+// EXPLORATION (POIs + Starlink)
+// ══════════════════════════════════════
+
+// GET /api/exploration/pois — active POIs
+router.get('/exploration/pois', readLimiter, async (req, res) => {
+  try {
+    if (!explorationService) return res.json({ pois: [] });
+    const pois = await explorationService.getActivePOIs();
+    res.json({ pois, serverTime: new Date().toISOString() });
+  } catch (e) {
+    console.error('[EXPLORE] pois error:', e.message);
+    res.json({ pois: [] });
+  }
+});
+
+// POST /api/exploration/discover — discover a POI
+router.post('/exploration/discover', writeLimiter, async (req, res) => {
+  try {
+    if (!explorationService) return res.status(503).json({ error: 'Exploration system not available' });
+    const { wallet, poiId } = req.body;
+    if (!wallet || !poiId) return res.status(400).json({ error: 'Missing wallet or poiId' });
+    const result = await explorationService.discoverPOI(wallet.toLowerCase(), parseInt(poiId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[EXPLORE] discover error:', e.message);
+    res.status(500).json({ error: 'Discovery failed' });
+  }
+});
+
+// GET /api/exploration/starlink — satellite positions + active boosts
+router.get('/exploration/starlink', readLimiter, async (req, res) => {
+  try {
+    if (!explorationService) return res.json({ satellites: [], passes: [] });
+    const satellites = explorationService.getSatellitePositions();
+    const passes = await explorationService.getActiveStarlinkPasses();
+    res.json({ satellites, passes, serverTime: new Date().toISOString() });
+  } catch (e) {
+    console.error('[STARLINK] error:', e.message);
+    res.json({ satellites: [], passes: [] });
+  }
+});
+
+// ══════════════════════════════════════
+// ROCKET EVENTS
+// ══════════════════════════════════════
+
+// GET /api/rockets — active rocket events
+router.get('/rockets', readLimiter, async (req, res) => {
+  try {
+    if (!rocketService) return res.json({ events: [] });
+    const events = await rocketService.getActiveRocketEvents();
+    res.json({ events, serverTime: new Date().toISOString() });
+  } catch (e) {
+    console.error('[ROCKET] list error:', e.message);
+    res.json({ events: [] });
+  }
+});
+
+// GET /api/rockets/:id/loot — unclaimed loot positions
+router.get('/rockets/:id/loot', readLimiter, async (req, res) => {
+  try {
+    if (!rocketService) return res.json({ loot: [] });
+    const loot = await rocketService.getRocketLoot(parseInt(req.params.id));
+    res.json({ loot });
+  } catch (e) {
+    console.error('[ROCKET] loot error:', e.message);
+    res.json({ loot: [] });
+  }
+});
+
+// POST /api/rockets/claim-loot — claim a loot item
+router.post('/rockets/claim-loot', writeLimiter, async (req, res) => {
+  try {
+    if (!rocketService) return res.status(503).json({ error: 'Rocket system not available' });
+    const { wallet, rocketEventId, lootIndex } = req.body;
+    if (!wallet || rocketEventId == null || lootIndex == null) return res.status(400).json({ error: 'Missing fields' });
+    const result = await rocketService.claimRocketLoot(wallet.toLowerCase(), parseInt(rocketEventId), parseInt(lootIndex));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[ROCKET] claim error:', e.message);
+    res.status(500).json({ error: 'Claim failed' });
   }
 });
 

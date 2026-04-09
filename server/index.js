@@ -230,6 +230,46 @@ async function start() {
       console.log('[WEATHER] Scheduled tasks initialized (expire: 5min, spawn: 6h)');
     } catch(e) { console.warn('[WEATHER] Could not init scheduled tasks:', e.message); }
 
+    // ── Exploration Scheduled Tasks ──
+    try {
+      const { spawnPOIs, expirePOIs, updateStarlinkPasses, expireStarlinkPasses } = require('./services/exploration');
+      // Expire POIs every 5 minutes
+      setInterval(async () => {
+        try { await expirePOIs(); await expireStarlinkPasses(); } catch(e) { console.warn('[EXPLORE] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      // Spawn POIs every 4 hours
+      setInterval(async () => {
+        try { await spawnPOIs(); } catch(e) { console.warn('[EXPLORE] spawn error:', e.message); }
+      }, 4 * 60 * 60 * 1000);
+      // Update starlink passes every 10 minutes
+      setInterval(async () => {
+        try { await updateStarlinkPasses(); } catch(e) { console.warn('[STARLINK] update error:', e.message); }
+      }, 10 * 60 * 1000);
+      // Initial spawn on startup (after 45s delay)
+      setTimeout(async () => {
+        try { await spawnPOIs(); await updateStarlinkPasses(); } catch(e) { console.warn('[EXPLORE] initial spawn error:', e.message); }
+      }, 45 * 1000);
+      console.log('[EXPLORE] Scheduled tasks initialized (expire: 5min, POI spawn: 4h, starlink: 10min)');
+    } catch(e) { console.warn('[EXPLORE] Could not init scheduled tasks:', e.message); }
+
+    // ── Rocket Scheduled Tasks ──
+    try {
+      const { autoScheduleRocket, processRocketLanding, processRocketCompletion } = require('./services/rocket');
+      // Process landings + completions every minute
+      setInterval(async () => {
+        try { await processRocketLanding(); await processRocketCompletion(); } catch(e) { console.warn('[ROCKET] process error:', e.message); }
+      }, 60 * 1000);
+      // Auto-schedule every 12 hours
+      setInterval(async () => {
+        try { await autoScheduleRocket(); } catch(e) { console.warn('[ROCKET] schedule error:', e.message); }
+      }, 12 * 60 * 60 * 1000);
+      // Initial schedule on startup (after 60s delay)
+      setTimeout(async () => {
+        try { await autoScheduleRocket(); } catch(e) { console.warn('[ROCKET] initial schedule error:', e.message); }
+      }, 60 * 1000);
+      console.log('[ROCKET] Scheduled tasks initialized (process: 1min, auto-schedule: 12h)');
+    } catch(e) { console.warn('[ROCKET] Could not init scheduled tasks:', e.message); }
+
     // Start HTTP server
     const server = app.listen(PORT, () => {
       console.log(`\n╔══════════════════════════════════════════╗`);

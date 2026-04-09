@@ -50,6 +50,38 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @media(max-width:768px){.announce-bar{left:5%;right:5%}}
 
+/* Weather Banner */
+.weather-banner{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:108;
+  display:none;align-items:center;gap:6px;padding:4px 14px;
+  background:linear-gradient(90deg,rgba(20,12,8,0.8),rgba(40,20,10,0.9),rgba(20,12,8,0.8));
+  border:1px solid rgba(255,140,60,0.35);border-radius:16px;backdrop-filter:blur(6px);
+  font-family:var(--fn);font-size:9px;color:#FF9944;letter-spacing:0.5px;
+  white-space:nowrap;pointer-events:none;max-width:90vw;overflow:hidden}
+.weather-banner.show{display:flex}
+.weather-banner .wx-item{display:flex;align-items:center;gap:4px;padding:0 6px}
+.weather-banner .wx-item+.wx-item{border-left:1px solid rgba(255,140,60,0.2)}
+.weather-banner .wx-icon{font-size:12px}
+.weather-banner .wx-sector{color:#FFD166;font-size:8px;font-weight:700}
+.weather-banner .wx-time{color:rgba(255,153,68,0.7);font-size:7px}
+@media(max-width:768px){.weather-banner{bottom:70px;font-size:8px;padding:3px 10px}}
+
+/* Rocket Event Banner */
+.rocket-banner{position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:112;
+  display:none;align-items:center;gap:8px;padding:6px 18px;
+  background:linear-gradient(90deg,rgba(30,8,8,0.85),rgba(60,15,10,0.95),rgba(30,8,8,0.85));
+  border:1px solid rgba(255,80,40,0.5);border-radius:20px;backdrop-filter:blur(8px);
+  font-family:var(--fn);font-size:10px;color:#FF6644;letter-spacing:0.8px;
+  white-space:nowrap;pointer-events:none;
+  animation:rocketPulse 2s ease-in-out infinite}
+.rocket-banner.show{display:flex;pointer-events:auto}
+.rocket-banner .rk-icon{font-size:16px}
+.rocket-banner .rk-type{font-weight:700;text-transform:uppercase}
+.rocket-banner .rk-sector{color:#FFD166;font-size:9px}
+.rocket-banner .rk-time{color:rgba(255,100,68,0.8);font-size:9px;font-weight:700}
+.rocket-banner .rk-loot{color:#00FF88;font-size:9px}
+@keyframes rocketPulse{0%,100%{border-color:rgba(255,80,40,0.5)}50%{border-color:rgba(255,80,40,0.9)}}
+@media(max-width:768px){.rocket-banner{top:45px;font-size:9px;padding:4px 12px}}
+
 /* Commander Banner */
 .tb-commander{position:fixed;top:130px;left:50%;transform:translateX(-50%);z-index:109;
   display:none;align-items:center;gap:8px;padding:4px 16px;
@@ -1411,6 +1443,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div id="tbSectorAnnounce" style="display:none;position:fixed;top:182px;left:50%;transform:translateX(-50%);z-index:108;
   font-family:var(--fn);font-size:8px;color:var(--cyan);opacity:0.7;white-space:nowrap;pointer-events:none;
   padding:2px 10px;background:rgba(10,16,20,0.5);border-radius:8px;backdrop-filter:blur(4px);max-width:70%;overflow:hidden;text-overflow:ellipsis"></div>
+
+<!-- Weather Banner -->
+<div class="weather-banner" id="weatherBanner"></div>
+
+<!-- Rocket Event Banner -->
+<div class="rocket-banner" id="rocketBanner"></div>
 
 <!-- Active Item Buffs Overlay -->
 <div id="tbActiveBuffs" style="display:none;position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:110;flex-direction:row;gap:6px;pointer-events:none"></div>
@@ -3642,6 +3680,11 @@ function compositeClaimsOnTexture(previewOnly){
     // Sector boundaries overlay
     _drawSectorOverlay(ctx,w,h);
 
+    // Weather overlay
+    if(typeof _drawWeatherOverlay==='function') _drawWeatherOverlay(ctx,w,h);
+    if(typeof _drawPOIMarkers==='function') _drawPOIMarkers(ctx,w,h);
+    if(typeof _drawRocketOverlay==='function') _drawRocketOverlay(ctx,w,h);
+
     // Selection highlight: yellow dashed border on selected group's territory (strip-based)
     if(selectedPlot&&selectedPlot.owner){
       var _selOwner=selectedPlot.owner;
@@ -5012,6 +5055,33 @@ function _attachGlobeClick(){
         isZoomedIn=true;
       }
       return;
+    }
+
+    // POI proximity check — discover nearby POI on click
+    if(_poiData.length > 0 && !landSelectMode) {
+      var nearestPOI = null, nearestDist = Infinity;
+      for(var pi=0;pi<_poiData.length;pi++){
+        var p=_poiData[pi];
+        if(p.discovered) continue;
+        var dlat=lat-p.lat, dlng=lng-p.lng;
+        var dist=Math.sqrt(dlat*dlat+dlng*dlng);
+        if(dist<nearestDist){nearestDist=dist;nearestPOI=p;}
+      }
+      if(nearestPOI && nearestDist < 3) { // Within ~3 degrees
+        _showPOIPopup(nearestPOI);
+        return;
+      }
+    }
+
+    // Rocket proximity check — open loot popup
+    if(_rocketData.events && _rocketData.events.length > 0 && !landSelectMode) {
+      for(var ri=0;ri<_rocketData.events.length;ri++){
+        var rev=_rocketData.events[ri];
+        if(rev.status !== 'looting') continue;
+        var rdlat=lat-rev.lat, rdlng=lng-rev.lng;
+        var rdist=Math.sqrt(rdlat*rdlat+rdlng*rdlng);
+        if(rdist < 8) { _showRocketLootPopup(rev); return; }
+      }
     }
 
     // Land Select mode
@@ -8499,6 +8569,357 @@ function _drawSectorOverlay(ctx,w,h){
   ctx.restore();
 }
 
+// ═══════ WEATHER OVERLAY ═══════
+var _weatherData = [];
+var _weatherT = 0;
+
+function _drawWeatherOverlay(ctx, w, h) {
+  if (!_weatherData.length || !_sectorsData.length) return;
+  ctx.save();
+  _weatherT = Date.now();
+
+  function toXY(v) { return [((v[0] + 180) / 360) * w, ((90 - v[1]) / 180) * h]; }
+
+  // Build sector lookup
+  var sectorMap = {};
+  _sectorsData.forEach(function(s) { sectorMap[s.id] = s; });
+
+  _weatherData.forEach(function(wx) {
+    var sector = sectorMap[wx.sectorId];
+    if (!sector || !sector.polygon || sector.polygon.length < 3) return;
+    var poly = sector.polygon;
+
+    // Draw polygon path
+    ctx.beginPath();
+    var p0 = toXY(poly[0]);
+    ctx.moveTo(p0[0], p0[1]);
+    for (var i = 1; i < poly.length; i++) { var p = toXY(poly[i]); ctx.lineTo(p[0], p[1]); }
+    ctx.closePath();
+
+    var t = _weatherT;
+
+    if (wx.weatherType === 'sandstorm') {
+      // Orange-brown pulsing overlay
+      ctx.globalAlpha = 0.12 + Math.sin(t / 1000) * 0.05;
+      ctx.fillStyle = 'rgba(200,120,40,1)';
+      ctx.fill();
+      // Noise dots
+      ctx.save();
+      ctx.clip();
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = '#C87828';
+      var cx0 = 0, cy0 = 0;
+      for (var j = 0; j < poly.length; j++) { var pp = toXY(poly[j]); cx0 += pp[0]; cy0 += pp[1]; }
+      cx0 /= poly.length; cy0 /= poly.length;
+      for (var d = 0; d < 40; d++) {
+        var angle = (d * 137.5 + t / 200) * Math.PI / 180;
+        var radius = 20 + (d * 7) % 120;
+        var dx = cx0 + Math.cos(angle) * radius;
+        var dy = cy0 + Math.sin(angle) * radius;
+        ctx.fillRect(dx, dy, 2 + Math.sin(d + t / 300) * 1.5, 1);
+      }
+      ctx.restore();
+    } else if (wx.weatherType === 'solar_flare') {
+      // Yellow pulsing glow
+      ctx.globalAlpha = 0.08 + Math.sin(t / 500) * 0.06;
+      ctx.fillStyle = 'rgba(255,220,60,1)';
+      ctx.fill();
+      // Bright pulse center
+      ctx.save();
+      ctx.clip();
+      var ctr = [0, 0];
+      for (var k = 0; k < poly.length; k++) { var pk = toXY(poly[k]); ctr[0] += pk[0]; ctr[1] += pk[1]; }
+      ctr[0] /= poly.length; ctr[1] /= poly.length;
+      var grad = ctx.createRadialGradient(ctr[0], ctr[1], 0, ctr[0], ctr[1], 80 + Math.sin(t / 400) * 30);
+      grad.addColorStop(0, 'rgba(255,240,100,0.2)');
+      grad.addColorStop(1, 'rgba(255,220,60,0)');
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = grad;
+      ctx.fillRect(ctr[0] - 150, ctr[1] - 150, 300, 300);
+      ctx.restore();
+    } else if (wx.weatherType === 'meteor_shower') {
+      // Subtle blue tint + scattered bright dots
+      ctx.globalAlpha = 0.06;
+      ctx.fillStyle = 'rgba(100,180,255,1)';
+      ctx.fill();
+      ctx.save();
+      ctx.clip();
+      ctx.globalAlpha = 0.7;
+      var mc = [0, 0];
+      for (var m = 0; m < poly.length; m++) { var pm = toXY(poly[m]); mc[0] += pm[0]; mc[1] += pm[1]; }
+      mc[0] /= poly.length; mc[1] /= poly.length;
+      for (var s = 0; s < 18; s++) {
+        var sa = (s * 97.3 + t / 150) * Math.PI / 180;
+        var sr = 15 + (s * 11) % 100;
+        var sx = mc[0] + Math.cos(sa) * sr;
+        var sy = mc[1] + Math.sin(sa) * sr;
+        var ss = 1 + Math.sin(s * 2.3 + t / 200) * 0.8;
+        ctx.fillStyle = 'rgba(180,220,255,' + (0.5 + Math.sin(s + t / 300) * 0.3) + ')';
+        ctx.beginPath();
+        ctx.arc(sx, sy, ss, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    } else if (wx.weatherType === 'dust_devil') {
+      // Brown swirl
+      ctx.globalAlpha = 0.1 + Math.sin(t / 800) * 0.04;
+      ctx.fillStyle = 'rgba(160,100,50,1)';
+      ctx.fill();
+      ctx.save();
+      ctx.clip();
+      var dc = [0, 0];
+      for (var dd = 0; dd < poly.length; dd++) { var pd = toXY(poly[dd]); dc[0] += pd[0]; dc[1] += pd[1]; }
+      dc[0] /= poly.length; dc[1] /= poly.length;
+      ctx.globalAlpha = 0.3;
+      ctx.strokeStyle = '#A06432';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (var a = 0; a < 12; a++) {
+        var ang = (a * 30 + t / 100) * Math.PI / 180;
+        var r1 = 10 + a * 6;
+        ctx.moveTo(dc[0] + Math.cos(ang) * r1, dc[1] + Math.sin(ang) * r1);
+        ctx.lineTo(dc[0] + Math.cos(ang + 0.5) * (r1 + 15), dc[1] + Math.sin(ang + 0.5) * (r1 + 15));
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+  });
+
+  ctx.restore();
+}
+
+// ═══════ EXPLORATION POI MARKERS ═══════
+var _poiData = [];
+var _poiDefs = {
+  ancient_ruins:  { icon: '\u{1F3DB}', color: '#FFD700' },
+  ore_deposit:    { icon: '\u26CF',    color: '#FF8C00' },
+  crashed_probe:  { icon: '\u{1F6F8}', color: '#00FF88' },
+  water_ice:      { icon: '\u{1F4A7}', color: '#00BFFF' },
+  alien_artifact: { icon: '\u{1F47D}', color: '#FF00FF' }
+};
+
+function _drawPOIMarkers(ctx, w, h) {
+  if (!_poiData.length) return;
+  ctx.save();
+  var t = Date.now();
+
+  _poiData.forEach(function(poi) {
+    if (poi.discovered) return; // Don't show discovered POIs
+    var x = ((poi.lng + 180) / 360) * w;
+    var y = ((90 - poi.lat) / 180) * h;
+    var def = _poiDefs[poi.poiType] || { icon: '\u{1F4CD}', color: '#FFFFFF' };
+
+    // Pulsing glow circle
+    var pulse = 6 + Math.sin(t / 400 + poi.id) * 3;
+    ctx.globalAlpha = 0.4 + Math.sin(t / 500 + poi.id * 0.7) * 0.2;
+    ctx.beginPath();
+    ctx.arc(x, y, pulse, 0, Math.PI * 2);
+    ctx.fillStyle = def.color;
+    ctx.fill();
+
+    // Inner dot
+    ctx.globalAlpha = 0.9;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = def.color;
+    ctx.fill();
+
+    // Icon (only at reasonable zoom — always on equirectangular texture)
+    ctx.globalAlpha = 0.85;
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(def.icon, x, y - 8);
+  });
+
+  ctx.restore();
+}
+
+// ═══════ STARLINK SATELLITES (3D) ═══════
+var _starlinkMeshes = [];
+var _starlinkData = { satellites: [], passes: [] };
+
+function _initStarlinkSatellites() {
+  if (!globe || !globe.scene || typeof THREE === 'undefined') return;
+  var scene = globe.scene();
+  // Create 3 small satellite meshes
+  for (var i = 0; i < 3; i++) {
+    var group = new THREE.Group();
+    // Body
+    var bodyGeo = new THREE.BoxGeometry(0.3, 0.1, 0.1);
+    var bodyMat = new THREE.MeshBasicMaterial({ color: 0xCCCCCC, transparent: true, opacity: 0.9 });
+    var body = new THREE.Mesh(bodyGeo, bodyMat);
+    group.add(body);
+    // Solar panels
+    var panelGeo = new THREE.PlaneGeometry(0.8, 0.15);
+    var panelMat = new THREE.MeshBasicMaterial({ color: 0x3388FF, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
+    var panel = new THREE.Mesh(panelGeo, panelMat);
+    group.add(panel);
+    // Glow point
+    var glowGeo = new THREE.SphereGeometry(0.06, 8, 8);
+    var glowMat = new THREE.MeshBasicMaterial({ color: 0x00FF88, transparent: true, opacity: 0.8 });
+    var glow = new THREE.Mesh(glowGeo, glowMat);
+    glow.position.set(0, 0.08, 0);
+    group.add(glow);
+
+    group.visible = false;
+    scene.add(group);
+    _starlinkMeshes.push(group);
+  }
+}
+
+function _updateStarlinkPositions() {
+  if (!_starlinkMeshes.length || !_starlinkData.satellites.length) return;
+  var GLOBE_RADIUS = 100; // three-globe default
+  var ALT = 108; // slightly above globe surface
+
+  _starlinkData.satellites.forEach(function(sat, i) {
+    if (i >= _starlinkMeshes.length) return;
+    var mesh = _starlinkMeshes[i];
+    // Convert lat/lng to 3D position
+    var phi = (90 - sat.lat) * Math.PI / 180;
+    var theta = (sat.lng + 180) * Math.PI / 180;
+    mesh.position.set(
+      -ALT * Math.sin(phi) * Math.cos(theta),
+       ALT * Math.cos(phi),
+       ALT * Math.sin(phi) * Math.sin(theta)
+    );
+    mesh.lookAt(0, 0, 0);
+    mesh.visible = true;
+  });
+}
+
+// ═══════ ROCKET EVENTS ═══════
+var _rocketData = { events: [] };
+var _rocketMesh = null;
+var _rocketParticles = [];
+
+function _drawRocketOverlay(ctx, w, h) {
+  if (!_rocketData.events.length) return;
+  ctx.save();
+  var t = Date.now();
+
+  _rocketData.events.forEach(function(ev) {
+    var x = ((ev.lng + 180) / 360) * w;
+    var y = ((90 - ev.lat) / 180) * h;
+
+    if (ev.status === 'incoming') {
+      // Target reticle
+      var pulse = 0.5 + Math.sin(t / 300) * 0.3;
+      ctx.globalAlpha = pulse;
+      ctx.strokeStyle = '#FF4422';
+      ctx.lineWidth = 2;
+      // Outer circle
+      ctx.beginPath();
+      ctx.arc(x, y, 20, 0, Math.PI * 2);
+      ctx.stroke();
+      // Crosshair
+      ctx.beginPath();
+      ctx.moveTo(x - 28, y); ctx.lineTo(x - 12, y);
+      ctx.moveTo(x + 12, y); ctx.lineTo(x + 28, y);
+      ctx.moveTo(x, y - 28); ctx.lineTo(x, y - 12);
+      ctx.moveTo(x, y + 12); ctx.lineTo(x, y + 28);
+      ctx.stroke();
+      // Label
+      ctx.globalAlpha = 0.8;
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#FF4422';
+      ctx.fillText('INCOMING', x, y - 32);
+      ctx.font = '14px sans-serif';
+      ctx.fillText('\u{1F680}', x, y + 42);
+    } else if (ev.status === 'looting') {
+      // Glow circle with loot dots
+      var glowR = 30 + Math.sin(t / 500) * 5;
+      ctx.globalAlpha = 0.15;
+      var grad = ctx.createRadialGradient(x, y, 0, x, y, glowR);
+      if (ev.eventType === 'rud_explosion') {
+        grad.addColorStop(0, 'rgba(255,100,20,0.6)');
+        grad.addColorStop(1, 'rgba(255,60,10,0)');
+      } else {
+        grad.addColorStop(0, 'rgba(0,255,136,0.5)');
+        grad.addColorStop(1, 'rgba(0,200,100,0)');
+      }
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, glowR, 0, Math.PI * 2);
+      ctx.fill();
+      // Center icon
+      ctx.globalAlpha = 0.9;
+      ctx.font = '18px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ev.eventType === 'rud_explosion' ? '\u{1F4A5}' : '\u{1F4E6}', x, y + 6);
+      // LOOT label
+      ctx.font = 'bold 8px monospace';
+      ctx.fillStyle = ev.eventType === 'rud_explosion' ? '#FF6644' : '#00FF88';
+      var remaining = ev.totalRewards - ev.claimedRewards;
+      ctx.fillText(remaining + ' LOOT', x, y - 24);
+    }
+  });
+
+  ctx.restore();
+}
+
+function _initRocketMesh() {
+  if (!globe || !globe.scene || typeof THREE === 'undefined') return;
+  var scene = globe.scene();
+  var group = new THREE.Group();
+  // Rocket body (cylinder + cone)
+  var bodyGeo = new THREE.CylinderGeometry(0.15, 0.2, 1.2, 8);
+  var bodyMat = new THREE.MeshBasicMaterial({ color: 0xDDDDDD, transparent: true, opacity: 0.95 });
+  group.add(new THREE.Mesh(bodyGeo, bodyMat));
+  var noseGeo = new THREE.ConeGeometry(0.15, 0.4, 8);
+  var noseMat = new THREE.MeshBasicMaterial({ color: 0xFF4422 });
+  var nose = new THREE.Mesh(noseGeo, noseMat);
+  nose.position.y = 0.8;
+  group.add(nose);
+  // Engine glow
+  var engGeo = new THREE.SphereGeometry(0.12, 8, 8);
+  var engMat = new THREE.MeshBasicMaterial({ color: 0xFF8800, transparent: true, opacity: 0.8 });
+  var eng = new THREE.Mesh(engGeo, engMat);
+  eng.position.y = -0.7;
+  group.add(eng);
+  group.visible = false;
+  scene.add(group);
+  _rocketMesh = group;
+}
+
+function _updateRocketMesh() {
+  if (!_rocketMesh) return;
+  var ev = _rocketData.events.find(function(e) { return e.status === 'incoming' || e.status === 'looting'; });
+  if (!ev) { _rocketMesh.visible = false; return; }
+
+  var GLOBE_RADIUS = 100;
+  var phi = (90 - ev.lat) * Math.PI / 180;
+  var theta = (ev.lng + 180) * Math.PI / 180;
+
+  if (ev.status === 'incoming') {
+    // Descending animation
+    var now = Date.now();
+    var landTime = new Date(ev.landingAt).getTime();
+    var progress = Math.max(0, Math.min(1, 1 - (landTime - now) / (2 * 60 * 60 * 1000))); // 0→1 over 2h
+    var alt = GLOBE_RADIUS + 30 - progress * 25; // 130 → 105
+    _rocketMesh.position.set(
+      -alt * Math.sin(phi) * Math.cos(theta),
+       alt * Math.cos(phi),
+       alt * Math.sin(phi) * Math.sin(theta)
+    );
+    _rocketMesh.lookAt(0, 0, 0);
+    _rocketMesh.rotateX(Math.PI); // Nose pointing down toward planet
+    _rocketMesh.visible = true;
+  } else if (ev.status === 'looting') {
+    // Landed on surface
+    var alt2 = GLOBE_RADIUS + 1;
+    _rocketMesh.position.set(
+      -alt2 * Math.sin(phi) * Math.cos(theta),
+       alt2 * Math.cos(phi),
+       alt2 * Math.sin(phi) * Math.sin(theta)
+    );
+    _rocketMesh.lookAt(0, 0, 0);
+    _rocketMesh.rotateX(Math.PI);
+    _rocketMesh.visible = ev.eventType !== 'rud_explosion'; // Hide if RUD
+  }
+}
+
 function _sectorColor(tier){
   switch(tier){
     case 'core': return '#E84855';
@@ -8514,6 +8935,44 @@ function zoomOut(){
   if(newAlt>2)isZoomedIn=false;
 }
 function showToast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3500)}
+
+// ═══════ POI POPUP ═══════
+function _showPOIPopup(poi) {
+  var def = _poiDefs[poi.poiType] || { icon: '\u{1F4CD}', color: '#FFFFFF' };
+  var html = '<div style="text-align:center;padding:16px">'
+    + '<div style="font-size:36px;margin-bottom:8px">' + def.icon + '</div>'
+    + '<div style="font-size:14px;font-weight:700;color:' + def.color + ';margin-bottom:4px">' + (poi.label || poi.poiType) + '</div>'
+    + '<div style="font-size:10px;color:var(--tx3);margin-bottom:12px">' + (poi.sectorName || 'Unknown Sector') + '</div>'
+    + '<div style="font-size:9px;color:var(--tx3);margin-bottom:16px">Discover this POI to earn PP rewards!<br>Requires territory in this sector.</div>'
+    + '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:10px;background:linear-gradient(135deg,' + def.color + ',#FF8800);color:#000;border:none;border-radius:8px;font-family:var(--fn);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px">'
+    + '\u{1F50D} DISCOVER</button>'
+    + '</div>';
+  if (isMobile) {
+    showMobModal('EXPLORATION', html);
+  } else {
+    var panel = document.getElementById('infoPanel');
+    if (panel) { panel.innerHTML = html; panel.style.display = 'block'; }
+  }
+}
+
+function _discoverPOI(poiId) {
+  if (!currentWallet) { showToast('Connect wallet first'); return; }
+  fetch('/api/exploration/discover', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wallet: currentWallet, poiId: poiId })
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.error) { showToast(data.error); return; }
+    showToast(data.icon + ' Discovered ' + data.label + '! +' + data.reward.amount + ' PP, +' + data.xp + ' XP');
+    addFeed('\u{1F50D} ' + (currentNickname || currentWallet.slice(0,6)) + ' discovered ' + data.label);
+    // Remove from local data
+    _poiData = _poiData.filter(function(p) { return p.id !== poiId; });
+    compositeClaimsOnTexture();
+    loadBalance();
+    // Close popup
+    if (isMobile) { closeMobModal(); } else { var p = document.getElementById('infoPanel'); if(p) p.style.display='none'; }
+  }).catch(function() { showToast('Discovery failed'); });
+}
 function addFeed(text){
   var f=document.getElementById('liveFeed');
   var d=document.createElement('div');d.className='feed-item new';d.textContent=text;
@@ -9943,6 +10402,151 @@ window.addEventListener('resize', function(){
   // Load on boot + poll every 60s
   setTimeout(loadCommanderBanner, 2000);
   setInterval(loadCommanderBanner, 60000);
+
+  // ═══════ WEATHER POLLING + BANNER ═══════
+  function loadWeatherData() {
+    fetch('/api/weather').then(function(r){return r.json()}).then(function(data){
+      _weatherData = data.active || [];
+      updateWeatherBanner();
+      // Trigger texture refresh if weather changed
+      if (_weatherData.length > 0) compositeClaimsOnTexture();
+    }).catch(function(){ _weatherData = []; });
+  }
+  function updateWeatherBanner() {
+    var el = document.getElementById('weatherBanner');
+    if (!el) return;
+    if (!_weatherData.length) { el.classList.remove('show'); el.innerHTML = ''; return; }
+    var now = Date.now();
+    el.innerHTML = _weatherData.map(function(wx) {
+      var remaining = Math.max(0, new Date(wx.endsAt).getTime() - now);
+      var mins = Math.floor(remaining / 60000);
+      var timeStr = mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
+      return '<div class="wx-item">'
+        + '<span class="wx-icon">' + (wx.icon || '🌡️') + '</span>'
+        + '<span class="wx-sector">' + (wx.sectorName || 'Sector ' + wx.sectorId) + '</span>'
+        + '<span class="wx-time">' + timeStr + '</span>'
+        + '</div>';
+    }).join('');
+    el.classList.add('show');
+  }
+  setTimeout(loadWeatherData, 4000);
+  setInterval(loadWeatherData, 60000);
+  setInterval(updateWeatherBanner, 30000);
+  // Animate weather/POI overlay texture every 2s when active
+  setInterval(function() {
+    if (_weatherData.length > 0 || _poiData.length > 0) compositeClaimsOnTexture();
+  }, 2000);
+
+  // ═══════ EXPLORATION POLLING ═══════
+  function loadExplorationData() {
+    fetch('/api/exploration/pois').then(function(r){return r.json()}).then(function(data){
+      _poiData = data.pois || [];
+      if (_poiData.length > 0) compositeClaimsOnTexture();
+    }).catch(function(){ _poiData = []; });
+  }
+  function loadStarlinkData() {
+    fetch('/api/exploration/starlink').then(function(r){return r.json()}).then(function(data){
+      _starlinkData = data;
+      _updateStarlinkPositions();
+    }).catch(function(){});
+  }
+  setTimeout(loadExplorationData, 5000);
+  setInterval(loadExplorationData, 30000);
+  setTimeout(loadStarlinkData, 6000);
+  setInterval(loadStarlinkData, 10000);
+  // Init starlink 3D meshes after globe is ready
+  setTimeout(_initStarlinkSatellites, 3000);
+  // Animate starlink positions every second
+  setInterval(_updateStarlinkPositions, 1000);
+
+  // ═══════ ROCKET EVENT POLLING ═══════
+  function loadRocketData() {
+    fetch('/api/rockets').then(function(r){return r.json()}).then(function(data){
+      _rocketData = data;
+      updateRocketBanner();
+      _updateRocketMesh();
+      if (_rocketData.events && _rocketData.events.length > 0) compositeClaimsOnTexture();
+    }).catch(function(){ _rocketData = { events: [] }; });
+  }
+  function updateRocketBanner() {
+    var el = document.getElementById('rocketBanner');
+    if (!el) return;
+    var events = (_rocketData.events || []).filter(function(e){ return e.status !== 'completed'; });
+    if (!events.length) { el.classList.remove('show'); el.innerHTML = ''; return; }
+    var ev = events[0];
+    var now = Date.now();
+    var icon, typeLabel, timeStr;
+    if (ev.status === 'incoming') {
+      icon = '\u{1F680}';
+      typeLabel = ev.eventType === 'rud_explosion' ? 'UNKNOWN OBJECT' : 'SUPPLY DROP';
+      var remaining = Math.max(0, new Date(ev.landingAt).getTime() - now);
+      var mins = Math.floor(remaining / 60000);
+      timeStr = mins >= 60 ? Math.floor(mins/60) + 'h ' + (mins%60) + 'm' : mins + 'm';
+    } else if (ev.status === 'looting') {
+      icon = ev.eventType === 'rud_explosion' ? '\u{1F4A5}' : '\u{1F4E6}';
+      typeLabel = ev.eventType === 'rud_explosion' ? 'RUD — DEBRIS FIELD' : 'SUPPLY DROP LANDED';
+      var remain2 = Math.max(0, new Date(ev.lootingEndsAt).getTime() - now);
+      var mins2 = Math.floor(remain2 / 60000);
+      timeStr = mins2 + 'm left';
+    }
+    var remaining2 = ev.totalRewards - ev.claimedRewards;
+    el.innerHTML = '<span class="rk-icon">' + icon + '</span>'
+      + '<span class="rk-type">' + typeLabel + '</span>'
+      + '<span class="rk-sector">' + (ev.sectorName || '') + '</span>'
+      + '<span class="rk-time">' + timeStr + '</span>'
+      + (ev.status === 'looting' ? '<span class="rk-loot">' + remaining2 + '/' + ev.totalRewards + ' loot</span>' : '');
+    el.classList.add('show');
+  }
+  setTimeout(loadRocketData, 7000);
+  setInterval(loadRocketData, 30000);
+  setInterval(updateRocketBanner, 15000);
+  setTimeout(_initRocketMesh, 3500);
+  setInterval(_updateRocketMesh, 2000);
+
+  // ═══════ ROCKET LOOT CLAIM ═══════
+  window._showRocketLootPopup = function(ev) {
+    if (!ev || ev.status !== 'looting') { showToast('Rocket not available for looting'); return; }
+    fetch('/api/rockets/' + ev.id + '/loot').then(function(r){return r.json()}).then(function(data){
+      var loot = data.loot || [];
+      if (!loot.length) { showToast('No loot remaining!'); return; }
+      var html = '<div style="text-align:center;padding:16px">'
+        + '<div style="font-size:28px;margin-bottom:8px">' + (ev.eventType === 'rud_explosion' ? '\u{1F4A5}' : '\u{1F4E6}') + '</div>'
+        + '<div style="font-size:13px;font-weight:700;color:#FF6644;margin-bottom:4px">'
+        + (ev.eventType === 'rud_explosion' ? 'RUD DEBRIS FIELD' : 'SUPPLY DROP') + '</div>'
+        + '<div style="font-size:9px;color:var(--tx3);margin-bottom:12px">' + loot.length + ' items remaining — first come first served!</div>'
+        + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:6px;max-height:200px;overflow-y:auto">';
+      loot.forEach(function(l) {
+        var lIcon = l.hasItem ? '\u{2B50}' : '\u{1F4B0}';
+        html += '<button onclick="_claimLoot(' + ev.id + ',' + l.index + ',this)" style="padding:8px 4px;background:rgba(255,100,60,0.15);border:1px solid rgba(255,100,60,0.3);border-radius:6px;color:#FF9944;font-family:var(--fn);font-size:10px;cursor:pointer;text-align:center">'
+          + lIcon + '<br><span style="font-size:7px;color:var(--tx3)">#' + (l.index + 1) + '</span></button>';
+      });
+      html += '</div></div>';
+      if (isMobile) { showMobModal('ROCKET LOOT', html); } else {
+        var panel = document.getElementById('infoPanel');
+        if (panel) { panel.innerHTML = html; panel.style.display = 'block'; }
+      }
+    }).catch(function(){ showToast('Failed to load loot'); });
+  };
+
+  window._claimLoot = function(eventId, lootIndex, btn) {
+    if (!currentWallet) { showToast('Connect wallet first'); return; }
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+    fetch('/api/rockets/claim-loot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: currentWallet, rocketEventId: eventId, lootIndex: lootIndex })
+    }).then(function(r){return r.json()}).then(function(data){
+      if (data.error) { showToast(data.error); if(btn){btn.disabled=false;btn.style.opacity='1';} return; }
+      var r = data.reward;
+      if (r.type === 'item') {
+        showToast('\u{2B50} Got ' + (r.itemCode || 'item') + '!');
+      } else {
+        showToast('\u{1F4B0} +' + r.amount + ' PP');
+      }
+      if (btn) { btn.textContent = '\u2713'; btn.style.background = 'rgba(0,255,100,0.2)'; btn.style.borderColor = '#00FF88'; }
+      loadBalance();
+    }).catch(function(){ showToast('Claim failed'); if(btn){btn.disabled=false;btn.style.opacity='1';} });
+  };
 
   // Badge system: wallet → roles map
   var _govWalletRoles = {}; // { wallet: ['commander','governor',...] }
