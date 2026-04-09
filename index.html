@@ -10731,7 +10731,7 @@ window.addEventListener('resize', function(){
   window.updateSectorAnnounces = function() {
     var el = document.getElementById('tbSectorAnnounce');
     if (!el) return;
-    var announces = (_sectorsData || []).filter(function(s) { return s.announcement && s.myPixels > 0; });
+    var announces = (_sectorsData || []).filter(function(s) { return s.announcement; });
     if (!announces.length) { el.style.display = 'none'; return; }
     var text = announces.map(function(s) { return '🏛 ' + s.name + ': ' + s.announcement; }).join('  ·  ');
     el.textContent = text;
@@ -11056,6 +11056,10 @@ window.addEventListener('resize', function(){
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error);return}
       showToast('Sector announcement updated');
+      // Update local data and refresh overlay
+      var sec = (_sectorsData || []).find(function(s){return s.id===_govMySectorId});
+      if(sec) sec.announcement = text;
+      if(typeof updateSectorAnnounces==='function') updateSectorAnnounces();
     }).catch(function(){showToast('Failed to set announcement')});
   };
 
