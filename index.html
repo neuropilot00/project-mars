@@ -8783,7 +8783,7 @@ var _trainSize = 5; // satellites per train
 var _trainSpacing = 350; // ms between each satellite (~6 degrees apart for tight train)
 
 // Starlink train rendering — simple approach: 1 lead position + 4 trailing dots at fixed pixel spacing
-var _trainGap = 18; // pixels between each satellite in the train
+var _trainGap = 28; // pixels between each satellite in the train
 function _drawStarlinkTrails(ctx, w, h) {
   var t = Date.now();
   ctx.save();
@@ -8808,16 +8808,37 @@ function _drawStarlinkTrails(ctx, w, h) {
     var len = Math.sqrt(dx * dx + dy * dy) || 1;
     dx /= len; dy /= len;
 
-    // Draw 5 satellites in a line — all same size
+    // Draw 5 satellites in a line — glow point style
     for (var s = 0; s < _trainSize; s++) {
       var sx = x + dx * s * _trainGap;
       var sy = y + dy * s * _trainGap;
 
-      ctx.globalAlpha = 0.9;
+      // Soft outer glow
+      var grad = ctx.createRadialGradient(sx, sy, 2, sx, sy, 12);
+      grad.addColorStop(0, 'rgba(0,255,136,0.9)');
+      grad.addColorStop(0.4, 'rgba(0,255,136,0.3)');
+      grad.addColorStop(1, 'rgba(0,255,136,0)');
+      ctx.globalAlpha = 1;
       ctx.beginPath();
-      ctx.arc(sx, sy, 10, 0, Math.PI * 2);
-      ctx.fillStyle = '#00FF88';
+      ctx.arc(sx, sy, 12, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
       ctx.fill();
+
+      // Bright core
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+
+      // Solar panel line (perpendicular to movement)
+      ctx.globalAlpha = 0.6;
+      ctx.strokeStyle = '#88FFCC';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(sx - dy * 7, sy + dx * 7);
+      ctx.lineTo(sx + dy * 7, sy - dx * 7);
+      ctx.stroke();
     }
 
     // Glow ring on lead
