@@ -17,6 +17,10 @@ let telegramService;
 try { telegramService = require('../services/telegram'); } catch (_e) { /* telegram service not available */ }
 let dailyService;
 try { dailyService = require('../services/daily'); } catch (_e) { /* daily engagement service not available */ }
+let guildService;
+try { guildService = require('../services/guild'); } catch (_e) { /* guild service not available */ }
+let seasonService;
+try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -486,9 +490,10 @@ router.get('/claims', async (req, res) => {
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 c.custom_name,
-                u.nickname,
+                u.nickname, g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
                 ps.id AS shield_id, ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires, ps.auto_renew AS shield_auto_renew
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
+         LEFT JOIN guilds g ON g.id = u.guild_id
          LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL AND c.created_at > $1
          ORDER BY c.created_at DESC LIMIT 5000`,
@@ -500,9 +505,10 @@ router.get('/claims', async (req, res) => {
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 c.custom_name,
-                u.nickname,
+                u.nickname, g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
                 ps.id AS shield_id, ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires, ps.auto_renew AS shield_auto_renew
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
+         LEFT JOIN guilds g ON g.id = u.guild_id
          LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL
          ORDER BY c.created_at DESC LIMIT 5000`
@@ -550,7 +556,9 @@ router.get('/claims', async (req, res) => {
       customName: r.custom_name || null,
       shield: r.shield_type ? { id: r.shield_id, type: r.shield_type, hp: r.shield_hp, maxHp: r.shield_max_hp, expires: new Date(r.shield_expires).getTime(), autoRenew: r.shield_auto_renew || false } : null,
       hijackCount: hijackMap[r.owner] || 0,
-      cosmetics: cosmeticsMap[r.id] || null
+      cosmetics: cosmeticsMap[r.id] || null,
+      guildTag: r.guild_tag || null,
+      guildEmblem: r.guild_emblem || null
     })));
   } catch (e) {
     console.error('[API] claims error:', e.message);
@@ -1115,6 +1123,34 @@ router.post('/claim', writeLimiter, async (req, res) => {
         if (newCount > 0) await dailyService.updateMissionProgress(walletLower, 'claim_pixels', newCount);
         if (attackWon > 0) await dailyService.updateMissionProgress(walletLower, 'hijack', attackWon);
       } catch (_de) { /* daily mission tracking non-critical */ }
+    }
+
+    // Guild pixel count refresh (non-blocking)
+    if (guildService) {
+      try {
+        const userGuild = await pool.query('SELECT guild_id FROM users WHERE wallet_address = $1', [walletLower]);
+        if (userGuild.rows[0]?.guild_id) {
+          guildService.refreshGuildPixelCount(userGuild.rows[0].guild_id).catch(() => {});
+        }
+        // Also refresh defender guilds if hijack occurred
+        if (attackWon > 0 && battleResults?.length) {
+          const defenderWallets = [...new Set(battleResults.map(b => b.defender))];
+          for (const dw of defenderWallets) {
+            const dg = await pool.query('SELECT guild_id FROM users WHERE wallet_address = $1', [dw]);
+            if (dg.rows[0]?.guild_id && dg.rows[0].guild_id !== userGuild.rows[0]?.guild_id) {
+              guildService.refreshGuildPixelCount(dg.rows[0].guild_id).catch(() => {});
+            }
+          }
+        }
+      } catch (_ge) { /* guild refresh non-critical */ }
+    }
+
+    // Season score tracking (non-blocking)
+    if (seasonService) {
+      try {
+        if (newCount > 0) seasonService.addSeasonScore(walletLower, 'claim_pixels', newCount).catch(() => {});
+        if (attackWon > 0) seasonService.addSeasonScore(walletLower, 'hijack', attackWon).catch(() => {});
+      } catch (_se) { /* season tracking non-critical */ }
     }
   } catch (e) {
     await client.query('ROLLBACK');
@@ -2158,6 +2194,10 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     // Daily mission progress hook (non-blocking)
     if (dailyService) {
       try { await dailyService.updateMissionProgress(w, 'harvest', 1); } catch (_de) { /* non-critical */ }
+    }
+    // Season score hook (non-blocking)
+    if (seasonService) {
+      try { seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {}); } catch (_se) { /* non-critical */ }
     }
   } catch (e) {
     await client.query('ROLLBACK');
@@ -3445,6 +3485,287 @@ router.post('/shop/auto-renew', writeLimiter, async (req, res) => {
   } catch (e) {
     console.error('[MICRO] auto-renew toggle error:', e.message);
     res.status(500).json({ error: 'Failed to toggle auto-renew' });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+//  SEASON SYSTEM
+// ══════════════════════════════════════════════════════════════
+
+// Get active season info
+router.get('/season/active', readLimiter, async (req, res) => {
+  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
+  try {
+    const season = await seasonService.getActiveSeason();
+    res.json({ season });
+  } catch (e) {
+    console.error('[SEASON] active error:', e.message);
+    res.status(500).json({ error: 'Failed to get season' });
+  }
+});
+
+// Get season leaderboard
+router.get('/season/leaderboard', readLimiter, async (req, res) => {
+  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
+  try {
+    const seasonId = req.query.seasonId ? parseInt(req.query.seasonId) : null;
+    const lb = await seasonService.getSeasonLeaderboard(seasonId, parseInt(req.query.limit) || 20);
+    res.json({ leaderboard: lb });
+  } catch (e) {
+    console.error('[SEASON] leaderboard error:', e.message);
+    res.status(500).json({ error: 'Failed to get leaderboard' });
+  }
+});
+
+// Get my season rewards
+router.get('/season/rewards', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
+  try {
+    const rewards = await seasonService.getMyRewards(w);
+    res.json({ rewards });
+  } catch (e) {
+    console.error('[SEASON] rewards error:', e.message);
+    res.status(500).json({ error: 'Failed to get rewards' });
+  }
+});
+
+// Claim season reward
+router.post('/season/claim', writeLimiter, async (req, res) => {
+  const { wallet, rewardId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !rewardId) return res.status(400).json({ error: 'Missing fields' });
+  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
+  try {
+    const result = await seasonService.claimSeasonReward(w, parseInt(rewardId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[SEASON] claim error:', e.message);
+    res.status(500).json({ error: 'Failed to claim reward' });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+//  GUILD SYSTEM
+// ══════════════════════════════════════════════════════════════
+
+// Create guild
+router.post('/guild/create', writeLimiter, async (req, res) => {
+  const { wallet, name, tag, emoji, description } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !name || !tag) return res.status(400).json({ error: 'Missing wallet, name, or tag' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.createGuild(w, name, tag, emoji, description);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] create error:', e.message);
+    res.status(500).json({ error: 'Failed to create guild' });
+  }
+});
+
+// Get my guild
+router.get('/guild/my', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const guild = await guildService.getGuildByWallet(w);
+    res.json({ guild });
+  } catch (e) {
+    console.error('[GUILD] get-my error:', e.message);
+    res.status(500).json({ error: 'Failed to get guild' });
+  }
+});
+
+// Get my invites (must be before /guild/:id)
+router.get('/guild/invites', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const invites = await guildService.getMyInvites(w);
+    res.json({ invites });
+  } catch (e) {
+    console.error('[GUILD] invites error:', e.message);
+    res.status(500).json({ error: 'Failed to get invites' });
+  }
+});
+
+// Guild leaderboard (must be before /guild/:id)
+router.get('/guild/leaderboard', readLimiter, async (req, res) => {
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const guilds = await guildService.getGuildLeaderboard(parseInt(req.query.limit) || 20);
+    res.json({ guilds });
+  } catch (e) {
+    console.error('[GUILD] leaderboard error:', e.message);
+    res.status(500).json({ error: 'Failed to get leaderboard' });
+  }
+});
+
+// Get guild by ID
+router.get('/guild/:id', readLimiter, async (req, res) => {
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const guild = await guildService.getGuild(parseInt(req.params.id));
+    if (!guild) return res.status(404).json({ error: 'Guild not found' });
+    res.json({ guild });
+  } catch (e) {
+    console.error('[GUILD] get error:', e.message);
+    res.status(500).json({ error: 'Failed to get guild' });
+  }
+});
+
+// Invite member
+router.post('/guild/invite', writeLimiter, async (req, res) => {
+  const { wallet, targetWallet, guildId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  const tw = (targetWallet || '').toLowerCase();
+  if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.inviteMember(w, tw, parseInt(guildId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] invite error:', e.message);
+    res.status(500).json({ error: 'Failed to invite' });
+  }
+});
+
+// Accept invite
+router.post('/guild/invite/accept', writeLimiter, async (req, res) => {
+  const { wallet, inviteId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !inviteId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.acceptInvite(w, parseInt(inviteId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] accept error:', e.message);
+    res.status(500).json({ error: 'Failed to accept invite' });
+  }
+});
+
+// Decline invite
+router.post('/guild/invite/decline', writeLimiter, async (req, res) => {
+  const { wallet, inviteId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !inviteId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.declineInvite(w, parseInt(inviteId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] decline error:', e.message);
+    res.status(500).json({ error: 'Failed to decline invite' });
+  }
+});
+
+// Leave guild
+router.post('/guild/leave', writeLimiter, async (req, res) => {
+  const { wallet } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.leaveGuild(w);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] leave error:', e.message);
+    res.status(500).json({ error: 'Failed to leave guild' });
+  }
+});
+
+// Kick member
+router.post('/guild/kick', writeLimiter, async (req, res) => {
+  const { wallet, targetWallet, guildId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  const tw = (targetWallet || '').toLowerCase();
+  if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.kickMember(w, tw, parseInt(guildId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] kick error:', e.message);
+    res.status(500).json({ error: 'Failed to kick member' });
+  }
+});
+
+// Promote to officer
+router.post('/guild/promote', writeLimiter, async (req, res) => {
+  const { wallet, targetWallet, guildId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  const tw = (targetWallet || '').toLowerCase();
+  if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.promoteToOfficer(w, tw, parseInt(guildId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] promote error:', e.message);
+    res.status(500).json({ error: 'Failed to promote' });
+  }
+});
+
+// Demote to member
+router.post('/guild/demote', writeLimiter, async (req, res) => {
+  const { wallet, targetWallet, guildId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  const tw = (targetWallet || '').toLowerCase();
+  if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.demoteToMember(w, tw, parseInt(guildId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] demote error:', e.message);
+    res.status(500).json({ error: 'Failed to demote' });
+  }
+});
+
+// Transfer leadership
+router.post('/guild/transfer', writeLimiter, async (req, res) => {
+  const { wallet, targetWallet, guildId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  const tw = (targetWallet || '').toLowerCase();
+  if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.transferLeadership(w, tw, parseInt(guildId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] transfer error:', e.message);
+    res.status(500).json({ error: 'Failed to transfer' });
+  }
+});
+
+// Disband guild
+router.post('/guild/disband', writeLimiter, async (req, res) => {
+  const { wallet, guildId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.disbandGuild(w, parseInt(guildId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] disband error:', e.message);
+    res.status(500).json({ error: 'Failed to disband' });
   }
 });
 

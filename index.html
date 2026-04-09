@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#FF4500">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -140,7 +140,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 
 /* Top Bar */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;
-  justify-content:space-between;padding:10px 16px;
+  justify-content:space-between;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));
   background:linear-gradient(180deg,rgba(13,11,20,0.96),rgba(13,11,20,0.75));
   border-bottom:1px solid var(--bdr);backdrop-filter:blur(12px)}
 .tb-left{display:flex;align-items:center;gap:10px}
@@ -809,8 +809,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 @media(max-width:768px){
   .base-card{width:100%;max-width:100%;height:80vh;max-height:80vh;border-radius:16px 16px 0 0;
-    align-self:flex-end}
+    align-self:flex-end;animation:slideUp .25s ease-out}
   .base-modal{align-items:flex-end}
+  @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
   .base-tab{font-size:9px;padding:8px 4px}
   .base-stat-grid{grid-template-columns:1fr 1fr}
 }
@@ -975,7 +976,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .lang-dropdown .lang-current{height:34px;padding:4px 10px;font-size:9px}
   .tb-avatar,.tb-avatar-emoji{width:30px;height:30px;font-size:13px;border-radius:5px}
   /* Modal — full width bottom sheet style */
-  .mdl{width:100vw;max-width:100vw;max-height:90vh;border-radius:16px 16px 0 0;margin:0;align-self:flex-end}
+  .mdl{width:100vw;max-width:100vw;max-height:90vh;border-radius:16px 16px 0 0;margin:0;align-self:flex-end;animation:slideUp .25s ease-out}
   .mbg{align-items:flex-end}
   .mbd{padding:16px}
   .cr{flex-direction:column}
@@ -1049,6 +1050,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .mdl{max-height:92vh}
   .mob-toggle{font-size:9px;padding:6px 10px}
   .mob-nav-item .nav-label{font-size:9px}
+  .base-tab{font-size:8px;padding:6px 3px;letter-spacing:0}
+  .base-body{padding:12px 10px}
+  .base-stat-grid{grid-template-columns:1fr 1fr;gap:4px}
+}
+/* ── Landscape mode ── */
+@media(max-height:500px) and (orientation:landscape){
+  .mob-bottom-nav{height:48px}
+  .mob-bottom-nav .nav-items{height:48px}
+  .mob-nav-item .nav-icon{font-size:16px}
+  .mob-nav-item .nav-label{font-size:8px}
+  .mob-nav-item.claim-nav .nav-icon{width:36px;height:36px;font-size:18px;margin-top:-10px}
+  .base-card{height:95vh;max-height:95vh}
+  .base-banner{height:60px}
+  .topbar{padding:4px 10px;padding-top:max(4px,env(safe-area-inset-top))}
+  .tb-title{font-size:11px}
+  #mobSizeControls{bottom:52px}
+  .zc{bottom:60px}
 }
 
 /* ═══════════════════════════════════════
@@ -1803,6 +1821,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <button class="announce-close" onclick="closeAnnounce()">&times;</button>
 </div>
 
+<!-- Season Banner -->
+<div id="seasonBanner" style="display:none;position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:107;
+  font-family:var(--fn);font-size:9px;padding:4px 14px;border-radius:0 0 10px 10px;
+  background:linear-gradient(135deg,rgba(255,80,30,0.15),rgba(255,40,10,0.08));backdrop-filter:blur(8px);
+  border:1px solid rgba(255,80,30,0.2);border-top:none;color:var(--mars);white-space:nowrap;
+  pointer-events:none;letter-spacing:1px">
+  <span id="seasonBannerIcon" style="margin-right:4px">🌋</span>
+  <span id="seasonBannerName">Season 1</span>
+  <span style="color:var(--tx3);margin:0 6px">·</span>
+  <span id="seasonBannerTimer" style="color:var(--gold)">--</span>
+</div>
+
+<!-- Season Visual Tint Overlay -->
+<div id="seasonTintOverlay" style="display:none;position:fixed;inset:0;pointer-events:none;z-index:1;
+  mix-blend-mode:overlay;opacity:0.4"></div>
+
 <!-- Desktop/Tablet panel collapse tabs -->
 <div class="panel-tab left" id="panelTabL" onclick="collapsePanel('left')">◀</div>
 <div class="panel-tab right" id="panelTabR" onclick="collapsePanel('right')">▶</div>
@@ -1929,6 +1963,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="p-title" data-i18n="territory_info">TERRITORY INFO</div>
     <div class="stat-row"><span class="stat-label">COORDS</span><span class="stat-val" id="infoCoords">--</span></div>
     <div class="stat-row"><span class="stat-label">OWNER</span><span class="stat-val gold" id="infoOwner">--</span></div>
+    <div class="stat-row" id="infoGuildRow" style="display:none"><span class="stat-label">GUILD</span><span class="stat-val" id="infoGuild" style="color:var(--mars)">--</span></div>
     <div class="stat-row" id="linkRow" style="display:none"><span class="stat-label">LINK</span><a class="stat-val link-val" id="infoLink" href="#" target="_blank" rel="noopener">--</a></div>
     <div class="stat-row"><span class="stat-label">SIZE</span><span class="stat-val" id="infoSize">--</span></div>
     <div class="stat-row"><span class="stat-label">PRICE PAID</span><span class="stat-val gn" id="infoPrice">--</span></div>
@@ -2307,6 +2342,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this)">MINING<span class="tab-dot" id="miningDot"></span></div>
       <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this)">QUESTS<span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" onclick="switchBaseTab('shop',this);loadBaseShopItems()">SHOP</div>
+      <div class="base-tab" onclick="switchBaseTab('guild',this);loadGuildTab()" style="color:var(--mars)">GUILD</div>
       <div class="base-tab" onclick="switchBaseTab('govern',this)" style="color:var(--cyan)">GOVERN</div>
     </div>
     <div class="base-body">
@@ -2381,6 +2417,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <span style="font-size:var(--fs-xs);color:var(--tx3);margin-left:auto" id="btGateLevel">Lv.?</span>
           </div>
           <div id="btProgressList" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
+        <!-- Season Leaderboard -->
+        <div id="seasonSection" style="margin-bottom:16px">
+          <div class="base-section-title" style="color:var(--mars)">SEASON RANKING</div>
+          <div id="seasonLeaderboard" style="font-size:10px;color:var(--tx3);padding:4px 0">Loading...</div>
+          <!-- My season rewards -->
+          <div id="seasonRewardsSection" style="display:none;margin-top:8px">
+            <div style="font-size:9px;color:var(--gold);font-family:var(--fn);margin-bottom:4px">YOUR REWARDS</div>
+            <div id="seasonRewardsList"></div>
+          </div>
         </div>
 
         <div class="base-section-title">ALL RANKS</div>
@@ -2530,6 +2577,96 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
       </div>
 
+      <!-- TAB: GUILD -->
+      <div class="base-pane" id="basePane_guild">
+        <div id="guildContent">
+          <!-- No guild state -->
+          <div id="guildNoGuild">
+            <div style="text-align:center;padding:20px 0">
+              <div style="font-size:28px;margin-bottom:8px">⚔️</div>
+              <div style="font-size:12px;color:var(--tx);margin-bottom:4px;font-weight:700">JOIN OR CREATE A GUILD</div>
+              <div style="font-size:10px;color:var(--tx3);margin-bottom:16px">Team up with other colonists to dominate Mars</div>
+            </div>
+            <!-- Pending invites -->
+            <div id="guildInvitesSection" style="display:none;margin-bottom:16px">
+              <div class="base-section-title" style="color:var(--gold)">PENDING INVITES</div>
+              <div id="guildInvitesList"></div>
+            </div>
+            <!-- Create guild form -->
+            <div style="padding:12px;border-radius:8px;background:rgba(255,120,60,.04);border:1px solid rgba(255,120,60,.15)">
+              <div style="font-size:10px;color:var(--mars);font-family:var(--fn);font-weight:700;margin-bottom:10px">CREATE NEW GUILD <span style="font-size:8px;color:var(--tx3);font-weight:400">(costs 50 GP)</span></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <input type="text" id="guildNameInput" maxlength="50" placeholder="Guild name (2-50 chars)" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px 10px;border-radius:6px;font-family:var(--fn)">
+                <div style="display:flex;gap:6px">
+                  <input type="text" id="guildTagInput" maxlength="4" placeholder="TAG (2-4)" style="flex:0 0 80px;background:var(--surface1);border:1px solid var(--bdr);color:var(--mars);font-size:12px;padding:8px 10px;border-radius:6px;font-family:var(--fn);text-transform:uppercase;font-weight:700;text-align:center">
+                  <select id="guildEmojiSelect" style="flex:0 0 50px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:16px;padding:4px;border-radius:6px;text-align:center">
+                    <option>🔴</option><option>🔵</option><option>🟢</option><option>🟡</option><option>🟣</option><option>⚫</option><option>🟠</option><option>⚔️</option><option>🛡️</option><option>🚀</option><option>💀</option><option>🐉</option><option>🦅</option><option>🔥</option><option>⭐</option>
+                  </select>
+                  <input type="text" id="guildDescInput" maxlength="200" placeholder="Description (optional)" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:8px 10px;border-radius:6px;font-family:var(--fn)">
+                </div>
+                <button onclick="createGuild()" style="padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));border:none;color:#fff;font-family:var(--fn);font-size:12px;cursor:pointer;font-weight:700">CREATE GUILD (50 GP)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Has guild state -->
+          <div id="guildMyGuild" style="display:none">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <span id="guildEmblem" style="font-size:28px">🔴</span>
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span id="guildName" style="font-size:14px;color:var(--tx);font-weight:700"></span>
+                  <span id="guildTag" style="font-size:10px;color:var(--mars);font-family:var(--fn);padding:2px 6px;border:1px solid rgba(255,120,60,.3);border-radius:4px;font-weight:700"></span>
+                </div>
+                <div style="font-size:9px;color:var(--tx3);margin-top:2px" id="guildDesc"></div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
+              <div style="text-align:center;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--bdr)">
+                <div style="font-size:8px;color:var(--tx3)">MEMBERS</div>
+                <div style="font-size:14px;color:var(--tx);font-weight:700" id="guildMemberCount">0</div>
+              </div>
+              <div style="text-align:center;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--bdr)">
+                <div style="font-size:8px;color:var(--tx3)">TOTAL PIXELS</div>
+                <div style="font-size:14px;color:var(--gold);font-weight:700" id="guildTotalPx">0</div>
+              </div>
+              <div style="text-align:center;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--bdr)">
+                <div style="font-size:8px;color:var(--tx3)">GP TREASURY</div>
+                <div style="font-size:14px;color:var(--gn);font-weight:700" id="guildTreasury">0</div>
+              </div>
+            </div>
+            <!-- Members list -->
+            <div class="base-section-title">MEMBERS</div>
+            <div id="guildMembersList" style="margin-bottom:12px"></div>
+            <!-- Invite (leader/officer only) -->
+            <div id="guildInviteSection" style="display:none;margin-bottom:12px">
+              <div class="base-section-title" style="color:var(--cyan)">INVITE PLAYER</div>
+              <div style="display:flex;gap:6px">
+                <input type="text" id="guildInviteInput" placeholder="Wallet address or nickname..." style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+                <button onclick="guildInviteMember()" style="padding:6px 12px;border-radius:4px;background:rgba(91,184,232,.12);border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-size:9px;cursor:pointer;font-family:var(--fn)">INVITE</button>
+              </div>
+            </div>
+            <!-- Guild management (leader only) -->
+            <div id="guildLeaderSection" style="display:none">
+              <div class="base-section-title" style="color:var(--red)">MANAGEMENT</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button onclick="guildDisband()" style="padding:6px 12px;border-radius:4px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.3);color:var(--red);font-size:9px;cursor:pointer;font-family:var(--fn)">DISBAND GUILD</button>
+              </div>
+            </div>
+            <!-- Leave button (non-leader) -->
+            <div id="guildLeaveSection" style="display:none;margin-top:12px">
+              <button onclick="guildLeave()" style="padding:6px 12px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)">LEAVE GUILD</button>
+            </div>
+          </div>
+
+          <!-- Guild Leaderboard -->
+          <div style="margin-top:16px">
+            <div class="base-section-title" style="color:var(--mars)">GUILD LEADERBOARD</div>
+            <div id="guildLeaderboard" style="font-size:10px;color:var(--tx3);padding:4px 0">Loading...</div>
+          </div>
+        </div>
+      </div>
+
       <!-- TAB: SHOP -->
       <div class="base-pane" id="basePane_shop">
         <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
@@ -2593,9 +2730,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <span class="nav-icon" data-icon="inventory">📦</span>
       <span class="nav-label">ITEMS</span>
     </button>
-    <button class="mob-nav-item" onclick="openBaseModal()">
+    <button class="mob-nav-item" onclick="openBaseModal()" style="position:relative">
       <span class="nav-icon" data-icon="base">🏠</span>
       <span class="nav-label">BASE</span>
+      <span id="mobBaseDot" class="tab-dot" style="top:2px;right:6px;width:8px;height:8px"></span>
     </button>
   </div>
 </nav>
@@ -2618,6 +2756,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <div class="mt-row"><span class="mt-label">COORDS</span><span class="mt-val" id="mtCoords">--</span></div>
     <div class="mt-row"><span class="mt-label">OWNER</span><span class="mt-val" id="mtOwner" style="color:var(--gold)">--</span></div>
+    <div class="mt-row" id="mtGuildRow" style="display:none"><span class="mt-label">GUILD</span><span class="mt-val" id="mtGuild" style="color:var(--mars)">--</span></div>
     <div class="mt-row" id="mtLinkRow" style="display:none"><span class="mt-label">LINK</span><a class="mt-val" id="mtLink" href="#" target="_blank" rel="noopener" style="color:var(--cyan)">--</a></div>
     <div class="mt-row"><span class="mt-label">SIZE</span><span class="mt-val" id="mtSize">--</span></div>
     <div class="mt-row"><span class="mt-label">PRICE PAID</span><span class="mt-val" id="mtPrice" style="color:var(--gn)">--</span></div>
@@ -4921,6 +5060,8 @@ function _initStep3(){
 
     // Signal globe is ready — remaining code runs at global scope
     window._globeReady=true;
+    // Load season data
+    try{loadSeasonData();}catch(e){};
   });
 }
 } // end _initStep3
@@ -5137,6 +5278,7 @@ var claims=[];
 var imgCache={};
 var _imgRetry={};
 function cacheImage(url,cb){
+  if(!url){cb&&cb(null);return}
   if(imgCache[url]){cb&&cb(imgCache[url]);return}
   var img=new Image();img.crossOrigin='anonymous';
   img.onload=function(){imgCache[url]=img;delete _imgRetry[url];cb&&cb(img)};
@@ -6309,6 +6451,12 @@ function showTerritoryInfo(plot){
   var _ownerName=plot.nickname||plot.label||shortAddr(plot.owner);
   var _ownerBadge=typeof govBadgeHTML==='function'?govBadgeHTML(plot.owner):'';
   document.getElementById('infoOwner').innerHTML=_ownerName+(_ownerBadge?' '+_ownerBadge:'');
+  // Guild tag
+  var guildRow=document.getElementById('infoGuildRow');
+  if(plot.guildTag){
+    guildRow.style.display='';
+    document.getElementById('infoGuild').textContent=(plot.guildEmblem||'')+'['+plot.guildTag+']';
+  }else{ guildRow.style.display='none'; }
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   var pxCount=plot._pixelCount||(pw*ph);
   document.getElementById('infoSize').textContent=pw+'×'+ph+' px ('+pxCount.toLocaleString()+' pixels)';
@@ -7004,7 +7152,11 @@ function openMobTerritoryModal(){
   hideMobInfoBtn();
   // Fill modal data
   document.getElementById('mtCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
-  document.getElementById('mtOwner').textContent=plot.owner;
+  document.getElementById('mtOwner').textContent=plot.nickname||plot.label||plot.owner;
+  if(plot.guildTag){
+    document.getElementById('mtGuildRow').style.display='';
+    document.getElementById('mtGuild').textContent=(plot.guildEmblem||'')+'['+plot.guildTag+']';
+  }else{ document.getElementById('mtGuildRow').style.display='none'; }
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   document.getElementById('mtSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
   document.getElementById('mtPrice').textContent=parseFloat(plot.price||0).toFixed(2)+' PP';
@@ -9452,9 +9604,329 @@ function switchBaseTab(tab,el){
   document.getElementById('basePane_'+tab).classList.add('active');
   // Quest tracking for tab views
   if(tab==='sectors') try{trackQuestAction('view_sectors',1)}catch(e){}
-  if(tab==='rank') try{trackQuestAction('view_leaderboard',1)}catch(e){}
+  if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
   if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w);}
   if(tab==='govern') loadGovernanceData();
+  if(tab==='guild') loadGuildTab();
+}
+
+// ── Guild System ──────────────────────────────────
+var _myGuildData=null;
+
+function loadGuildTab(){
+  var w=walletState.address;
+  if(!w) return;
+  // Load my guild + leaderboard in parallel
+  Promise.all([
+    fetch('/api/guild/my?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}),
+    fetch('/api/guild/leaderboard').then(function(r){return r.json()}),
+    fetch('/api/guild/invites?wallet='+encodeURIComponent(w)).then(function(r){return r.json()})
+  ]).then(function(results){
+    var myGuild=results[0].guild;
+    var lb=results[1].guilds||[];
+    var invites=results[2].invites||[];
+    _myGuildData=myGuild;
+    renderGuildState(myGuild, w);
+    renderGuildLeaderboard(lb);
+    renderGuildInvites(invites);
+  }).catch(function(e){console.warn('[GUILD] load error:',e)});
+}
+
+function renderGuildState(guild, wallet){
+  var noGuild=document.getElementById('guildNoGuild');
+  var myGuild=document.getElementById('guildMyGuild');
+  if(!guild){
+    noGuild.style.display='';
+    myGuild.style.display='none';
+    return;
+  }
+  noGuild.style.display='none';
+  myGuild.style.display='';
+  document.getElementById('guildEmblem').textContent=guild.emblem||'🔴';
+  document.getElementById('guildName').textContent=guild.name;
+  document.getElementById('guildTag').textContent='['+guild.tag+']';
+  document.getElementById('guildDesc').textContent=guild.description||'';
+  document.getElementById('guildMemberCount').textContent=guild.memberCount;
+  document.getElementById('guildTotalPx').textContent=(guild.totalPixels||0).toLocaleString();
+  document.getElementById('guildTreasury').textContent=Math.floor(guild.gpTreasury||0);
+
+  // Render members
+  var ml=document.getElementById('guildMembersList');
+  var myRole='member';
+  ml.innerHTML=(guild.members||[]).map(function(m){
+    if(m.wallet===wallet) myRole=m.role;
+    var roleIcon=m.role==='leader'?'👑':m.role==='officer'?'⚔️':'';
+    var actions='';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr)">'+
+      '<span style="font-size:12px">'+roleIcon+'</span>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:11px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(m.nickname||m.wallet.slice(0,10)+'...')+'</div>'+
+        '<div style="font-size:8px;color:var(--tx3)">'+m.pixelCount+' px · '+m.role+'</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:4px" data-wallet="'+m.wallet+'" data-role="'+m.role+'"></div>'+
+    '</div>';
+  }).join('');
+
+  // Show/hide management sections based on role
+  document.getElementById('guildInviteSection').style.display=(myRole==='leader'||myRole==='officer')?'':'none';
+  document.getElementById('guildLeaderSection').style.display=(myRole==='leader')?'':'none';
+  document.getElementById('guildLeaveSection').style.display=(myRole!=='leader')?'':'none';
+
+  // Add action buttons for leader
+  if(myRole==='leader'){
+    ml.querySelectorAll('[data-wallet]').forEach(function(el){
+      var mw=el.dataset.wallet;
+      var mr=el.dataset.role;
+      if(mw===wallet) return;
+      var btns='';
+      if(mr==='member') btns+='<button onclick="guildPromote(\''+mw+'\')" style="font-size:7px;padding:2px 6px;border-radius:3px;background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.2);color:var(--cyan);cursor:pointer">PROMOTE</button>';
+      if(mr==='officer') btns+='<button onclick="guildDemote(\''+mw+'\')" style="font-size:7px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--tx3);cursor:pointer">DEMOTE</button>';
+      btns+='<button onclick="guildKick(\''+mw+'\')" style="font-size:7px;padding:2px 6px;border-radius:3px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);color:var(--red);cursor:pointer">KICK</button>';
+      btns+='<button onclick="guildTransfer(\''+mw+'\')" style="font-size:7px;padding:2px 6px;border-radius:3px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);color:var(--gold);cursor:pointer">LEADER</button>';
+      el.innerHTML=btns;
+    });
+  }
+}
+
+function renderGuildInvites(invites){
+  var sec=document.getElementById('guildInvitesSection');
+  var list=document.getElementById('guildInvitesList');
+  if(!invites||!invites.length){sec.style.display='none';return;}
+  sec.style.display='';
+  list.innerHTML=invites.map(function(inv){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-radius:6px;margin-bottom:4px">'+
+      '<span style="font-size:16px">'+(inv.emblem_emoji||'🔴')+'</span>'+
+      '<div style="flex:1"><div style="font-size:11px;color:var(--tx);font-weight:700">'+(inv.guild_name||'Guild')+'</div>'+
+      '<div style="font-size:8px;color:var(--tx3)">Invited by '+(inv.invited_by_nickname||inv.invited_by.slice(0,8)+'...')+'</div></div>'+
+      '<button onclick="guildAcceptInvite('+inv.id+')" style="padding:4px 10px;border-radius:4px;background:rgba(76,216,154,.12);border:1px solid rgba(76,216,154,.3);color:var(--gn);font-size:9px;cursor:pointer;font-family:var(--fn)">ACCEPT</button>'+
+      '<button onclick="guildDeclineInvite('+inv.id+')" style="padding:4px 8px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)">✕</button>'+
+    '</div>';
+  }).join('');
+}
+
+function renderGuildLeaderboard(guilds){
+  var el=document.getElementById('guildLeaderboard');
+  if(!guilds||!guilds.length){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px;font-size:10px">No guilds yet. Be the first!</div>';return;}
+  el.innerHTML=guilds.map(function(g,i){
+    var myGuild=_myGuildData&&_myGuildData.id===g.id;
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;'+(myGuild?'background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.15)':'border-bottom:1px solid var(--bdr)')+'">'+
+      '<span style="font-size:11px;color:'+(i<3?'var(--gold)':'var(--tx3)')+';font-weight:700;min-width:20px">#'+(i+1)+'</span>'+
+      '<span style="font-size:14px">'+(g.emblem||'🔴')+'</span>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:11px;color:var(--tx);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+g.name+' <span style="color:var(--mars);font-size:9px">['+g.tag+']</span></div>'+
+        '<div style="font-size:8px;color:var(--tx3)">'+g.memberCount+' members · Leader: '+(g.leaderNickname||'Unknown')+'</div>'+
+      '</div>'+
+      '<div style="text-align:right"><div style="font-size:12px;color:var(--gold);font-weight:700">'+(g.totalPixels||0).toLocaleString()+'</div><div style="font-size:7px;color:var(--tx3)">PIXELS</div></div>'+
+    '</div>';
+  }).join('');
+}
+
+function createGuild(){
+  var w=walletState.address;
+  if(!w){showToast('Login first','error');return;}
+  var name=document.getElementById('guildNameInput').value.trim();
+  var tag=document.getElementById('guildTagInput').value.trim();
+  var emoji=document.getElementById('guildEmojiSelect').value;
+  var desc=document.getElementById('guildDescInput').value.trim();
+  if(!name||!tag){showToast('Enter guild name and tag','error');return;}
+  fetch('/api/guild/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,name:name,tag:tag,emoji:emoji,description:desc})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Guild ['+data.tag+'] created!','success');
+    loadGuildTab();
+    // Refresh GP display
+    if(typeof refreshWalletData==='function') refreshWalletData();
+  }).catch(function(){showToast('Failed to create guild','error')});
+}
+
+function guildInviteMember(){
+  var w=walletState.address;
+  if(!w||!_myGuildData){showToast('No guild','error');return;}
+  var target=document.getElementById('guildInviteInput').value.trim().toLowerCase();
+  if(!target){showToast('Enter wallet address','error');return;}
+  fetch('/api/guild/invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:target,guildId:_myGuildData.id})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Invite sent!','success');
+    document.getElementById('guildInviteInput').value='';
+  }).catch(function(){showToast('Failed to invite','error')});
+}
+
+function guildAcceptInvite(inviteId){
+  var w=walletState.address;
+  fetch('/api/guild/invite/accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,inviteId:inviteId})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Joined guild!','success');
+    loadGuildTab();
+  }).catch(function(){showToast('Failed to accept','error')});
+}
+
+function guildDeclineInvite(inviteId){
+  var w=walletState.address;
+  fetch('/api/guild/invite/decline',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,inviteId:inviteId})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Invite declined','info');
+    loadGuildTab();
+  }).catch(function(){showToast('Failed','error')});
+}
+
+function guildLeave(){
+  if(!confirm('Leave this guild?')) return;
+  var w=walletState.address;
+  fetch('/api/guild/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Left guild','info');
+    _myGuildData=null;
+    loadGuildTab();
+  }).catch(function(){showToast('Failed','error')});
+}
+
+function guildKick(targetWallet){
+  if(!confirm('Kick this member?')) return;
+  var w=walletState.address;
+  fetch('/api/guild/kick',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Member kicked','info');
+    loadGuildTab();
+  }).catch(function(){showToast('Failed','error')});
+}
+
+function guildPromote(targetWallet){
+  var w=walletState.address;
+  fetch('/api/guild/promote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Promoted to officer','success');
+    loadGuildTab();
+  }).catch(function(){showToast('Failed','error')});
+}
+
+function guildDemote(targetWallet){
+  var w=walletState.address;
+  fetch('/api/guild/demote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Demoted to member','info');
+    loadGuildTab();
+  }).catch(function(){showToast('Failed','error')});
+}
+
+function guildTransfer(targetWallet){
+  if(!confirm('Transfer leadership? This cannot be undone.')) return;
+  var w=walletState.address;
+  fetch('/api/guild/transfer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Leadership transferred','success');
+    loadGuildTab();
+  }).catch(function(){showToast('Failed','error')});
+}
+
+function guildDisband(){
+  if(!confirm('DISBAND guild? All members will be removed. This cannot be undone!')) return;
+  var w=walletState.address;
+  fetch('/api/guild/disband',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,guildId:_myGuildData.id})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Guild disbanded','info');
+    _myGuildData=null;
+    loadGuildTab();
+  }).catch(function(){showToast('Failed','error')});
+}
+
+// ── Season System ──────────────────────────────────
+var _seasonData=null;
+var _seasonTimerInterval=null;
+
+function loadSeasonData(){
+  fetch('/api/season/active').then(function(r){return r.json()}).then(function(d){
+    _seasonData=d.season;
+    if(_seasonData){
+      showSeasonBanner(_seasonData);
+      showSeasonTint(_seasonData);
+    }
+  }).catch(function(){});
+}
+
+function showSeasonBanner(season){
+  var banner=document.getElementById('seasonBanner');
+  if(!season){banner.style.display='none';return;}
+  banner.style.display='';
+  var themeIcons={volcanic:'🌋',ice_age:'❄️',solar_storm:'☀️',dust_epoch:'🌪️'};
+  document.getElementById('seasonBannerIcon').textContent=themeIcons[season.theme]||'🌋';
+  document.getElementById('seasonBannerName').textContent=season.name;
+  // Start countdown timer
+  if(_seasonTimerInterval) clearInterval(_seasonTimerInterval);
+  function updateTimer(){
+    var remaining=new Date(season.endsAt).getTime()-Date.now();
+    if(remaining<=0){document.getElementById('seasonBannerTimer').textContent='ENDED';clearInterval(_seasonTimerInterval);return;}
+    var d=Math.floor(remaining/86400000);
+    var h=Math.floor((remaining%86400000)/3600000);
+    var m=Math.floor((remaining%3600000)/60000);
+    document.getElementById('seasonBannerTimer').textContent=d+'d '+h+'h '+m+'m';
+  }
+  updateTimer();
+  _seasonTimerInterval=setInterval(updateTimer,60000);
+}
+
+function showSeasonTint(season){
+  var overlay=document.getElementById('seasonTintOverlay');
+  if(!season||!season.visualTint){overlay.style.display='none';return;}
+  overlay.style.display='';
+  overlay.style.background=season.visualTint;
+}
+
+function loadSeasonLeaderboard(){
+  var w=walletState.address||'';
+  fetch('/api/season/leaderboard?limit=20').then(function(r){return r.json()}).then(function(d){
+    var lb=d.leaderboard||[];
+    var el=document.getElementById('seasonLeaderboard');
+    if(!lb.length){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:10px">No season scores yet</div>';return;}
+    el.innerHTML=lb.map(function(p,i){
+      var isMe=p.wallet===w;
+      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:4px;'+(isMe?'background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.12)':'border-bottom:1px solid var(--bdr)')+'">'+
+        '<span style="font-size:10px;color:'+(i<3?'var(--gold)':'var(--tx3)')+';font-weight:700;min-width:22px">#'+p.rank+'</span>'+
+        '<div style="flex:1;min-width:0"><div style="font-size:10px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.nickname+'</div>'+
+        '<div style="font-size:7px;color:var(--tx3)">'+p.pixelsClaimed+'px · '+p.harvests+'h · '+p.hijacksWon+'hj</div></div>'+
+        '<div style="font-size:11px;color:var(--gold);font-weight:700">'+p.score.toLocaleString()+'</div>'+
+      '</div>';
+    }).join('');
+  }).catch(function(){});
+
+  // Load my rewards
+  if(w){
+    fetch('/api/season/rewards?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+      var rewards=d.rewards||[];
+      var sec=document.getElementById('seasonRewardsSection');
+      var list=document.getElementById('seasonRewardsList');
+      var unclaimed=rewards.filter(function(r){return !r.claimed});
+      if(!unclaimed.length){sec.style.display='none';return;}
+      sec.style.display='';
+      list.innerHTML=unclaimed.map(function(r){
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-radius:6px;margin-bottom:4px">'+
+          '<div style="flex:1"><div style="font-size:10px;color:var(--tx)">'+r.seasonName+' — Rank #'+r.rank+'</div>'+
+          '<div style="font-size:9px;color:var(--gold)">'+r.amount+' '+r.type.toUpperCase()+'</div></div>'+
+          '<button onclick="claimSeasonReward('+r.id+')" style="padding:4px 10px;border-radius:4px;background:rgba(76,216,154,.12);border:1px solid rgba(76,216,154,.3);color:var(--gn);font-size:9px;cursor:pointer;font-family:var(--fn)">CLAIM</button>'+
+        '</div>';
+      }).join('');
+    }).catch(function(){});
+  }
+}
+
+function claimSeasonReward(rewardId){
+  var w=walletState.address;
+  if(!w) return;
+  fetch('/api/season/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,rewardId:rewardId})})
+  .then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'error');return;}
+    showToast('Claimed '+data.amount+' '+data.type.toUpperCase()+'!','success');
+    loadSeasonLeaderboard();
+    if(typeof refreshWalletData==='function') refreshWalletData();
+  }).catch(function(){showToast('Failed to claim','error')});
 }
 
 function loadBaseData(){
@@ -13297,7 +13769,8 @@ function loadDailyMissions(){
   if(!emailAuth.token) return;
   document.getElementById('dailyMissionsPanel').style.display = '';
 
-  fetch('/api/daily/missions',{
+  var _dmw = walletState.address || '';
+  fetch('/api/daily/missions?wallet='+encodeURIComponent(_dmw),{
     headers:{'Authorization':'Bearer '+emailAuth.token}
   }).then(function(r){return r.json()}).then(function(d){
     if(d.missions && d.missions.length){
@@ -13482,6 +13955,9 @@ function updateDailyHudDot(){
   // OPEN BASE button dot
   var baseDot = document.getElementById('dailyHudDot');
   if(baseDot) baseDot.style.display = hasUnclaimed ? 'block' : 'none';
+  // Mobile bottom nav BASE dot
+  var mobBaseDot = document.getElementById('mobBaseDot');
+  if(mobBaseDot) mobBaseDot.style.display = hasUnclaimed ? 'block' : 'none';
   // QUESTS tab dot inside BASE modal
   var questsDot = document.getElementById('questsDot');
   if(questsDot) questsDot.style.display = hasUnclaimed ? 'block' : 'none';
