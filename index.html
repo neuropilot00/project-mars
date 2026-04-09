@@ -9208,8 +9208,15 @@ window.closeArena = function() {
 
 // Close on Escape key
 document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape' && document.getElementById('arenaOverlay').classList.contains('active')) {
-    closeArena();
+  if(e.key==='Escape'){
+    // Land select cancel
+    if(landSelectMode){ cancelLandSelect(); _showMobSizeControls(false); return; }
+    // Claim modal
+    if(document.getElementById('claimModal').classList.contains('open')){ closeClaimModal(); return; }
+    // Base modal
+    if(document.getElementById('baseModal').classList.contains('open')){ closeBaseModal(); return; }
+    // Arena
+    if(document.getElementById('arenaOverlay').classList.contains('active')){ closeArena(); return; }
   }
 });
 
