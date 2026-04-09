@@ -140,7 +140,7 @@ router.get('/users', async (req, res) => {
     const total = parseInt(countRes.rows[0].cnt);
 
     const usersRes = await pool.query(
-      `SELECT u.wallet_address, u.email, u.nickname, u.usdt_balance, u.pp_balance, u.created_at,
+      `SELECT u.wallet_address, u.email, u.nickname, u.usdt_balance, u.pp_balance, COALESCE(u.gp_balance,0) as gp_balance, u.created_at,
         (SELECT COUNT(*) FROM claims c WHERE c.owner = u.wallet_address AND c.deleted_at IS NULL) as claim_count,
         (SELECT COALESCE(SUM(amount),0) FROM deposits d WHERE d.wallet_address = u.wallet_address) as total_deposited
        FROM users u ${where}
@@ -156,6 +156,7 @@ router.get('/users', async (req, res) => {
         nickname: r.nickname || '',
         usdtBalance: parseFloat(r.usdt_balance),
         ppBalance: parseFloat(r.pp_balance),
+        gpBalance: parseFloat(r.gp_balance),
         claimCount: parseInt(r.claim_count),
         totalDeposited: parseFloat(r.total_deposited),
         createdAt: r.created_at
@@ -175,7 +176,7 @@ router.get('/users', async (req, res) => {
 router.get('/users/:wallet', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT wallet_address, email, nickname, usdt_balance, pp_balance, referral_code, referred_by, created_at
+      `SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) as gp_balance, referral_code, referred_by, created_at
        FROM users WHERE wallet_address = $1`,
       [req.params.wallet]
     );
@@ -184,6 +185,7 @@ router.get('/users/:wallet', async (req, res) => {
     res.json({
       wallet: u.wallet_address, email: u.email || '', nickname: u.nickname || '',
       usdtBalance: parseFloat(u.usdt_balance), ppBalance: parseFloat(u.pp_balance),
+      gpBalance: parseFloat(u.gp_balance),
       referralCode: u.referral_code || '', referredBy: u.referred_by || '',
       createdAt: u.created_at
     });
@@ -197,7 +199,7 @@ router.get('/users/:wallet', async (req, res) => {
 //  PUT /admin/api/users/:wallet — Update user info
 // ══════════════════════════════════════════════════
 router.put('/users/:wallet', async (req, res) => {
-  const { email, nickname, newPassword, usdtBalance, ppBalance } = req.body;
+  const { email, nickname, newPassword, usdtBalance, ppBalance, gpBalance } = req.body;
   try {
     const updates = [];
     const params = [];
@@ -211,6 +213,7 @@ router.put('/users/:wallet', async (req, res) => {
     }
     if (usdtBalance !== undefined) { updates.push(`usdt_balance = $${idx++}`); params.push(usdtBalance); }
     if (ppBalance !== undefined) { updates.push(`pp_balance = $${idx++}`); params.push(ppBalance); }
+    if (gpBalance !== undefined) { updates.push(`gp_balance = $${idx++}`); params.push(gpBalance); }
 
     if (!updates.length) return res.status(400).json({ error: 'Nothing to update' });
 
@@ -225,6 +228,7 @@ router.put('/users/:wallet', async (req, res) => {
     if (newPassword) fieldsUpdated.password = true;
     if (usdtBalance !== undefined) fieldsUpdated.usdtBalance = usdtBalance;
     if (ppBalance !== undefined) fieldsUpdated.ppBalance = ppBalance;
+    if (gpBalance !== undefined) fieldsUpdated.gpBalance = gpBalance;
 
     await auditLog(req, 'user_update', req.params.wallet, { fieldsUpdated });
     console.log(`[Admin] Updated user ${req.params.wallet}: ${updates.join(', ')}`);
@@ -1322,6 +1326,160 @@ router.put('/lore-crawl/:lang', adminAuth, async (req, res) => {
       [req.params.lang, era_text, title_text, body_html, tagline, close_text]
     );
     await auditLog(req, 'lore_crawl_update', 'lore_crawl', { lang: req.params.lang });
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ══════════════════════════════════════════════════
+//  GUILD MANAGEMENT
+// ══════════════════════════════════════════════════
+
+// GET /admin/api/guilds — list all guilds
+router.get('/guilds', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT g.*,
+        (SELECT COUNT(*) FROM guild_members gm WHERE gm.guild_id = g.id) as member_count,
+        (SELECT COUNT(*) FROM claims c WHERE c.owner IN (SELECT wallet FROM guild_members gm2 WHERE gm2.guild_id = g.id) AND c.deleted_at IS NULL) as pixel_count
+       FROM guilds g ORDER BY g.created_at DESC`
+    );
+    res.json({ guilds: r.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/guilds/:id — force disband a guild
+router.delete('/guilds/:id', adminAuth, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('UPDATE users SET guild_id = NULL WHERE guild_id = $1', [req.params.id]);
+    await client.query('DELETE FROM guild_invites WHERE guild_id = $1', [req.params.id]);
+    await client.query('DELETE FROM guild_members WHERE guild_id = $1', [req.params.id]);
+    await client.query('DELETE FROM guilds WHERE id = $1', [req.params.id]);
+    await client.query('COMMIT');
+    await auditLog(req, 'guild_disband', 'guild', { guildId: req.params.id });
+    res.json({ success: true });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally { client.release(); }
+});
+
+// ══════════════════════════════════════════════════
+//  SEASON MANAGEMENT
+// ══════════════════════════════════════════════════
+
+// GET /admin/api/seasons — list all seasons
+router.get('/seasons', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query('SELECT * FROM seasons ORDER BY id DESC');
+    res.json({ seasons: r.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/seasons — create a new season
+router.post('/seasons', adminAuth, async (req, res) => {
+  try {
+    const { name, theme, starts_at, ends_at, rewards_json, visual_tint } = req.body;
+    const r = await pool.query(
+      `INSERT INTO seasons (name, theme, starts_at, ends_at, active, rewards_json, visual_tint)
+       VALUES ($1, $2, $3, $4, false, $5, $6) RETURNING *`,
+      [name, theme || 'volcanic', starts_at, ends_at, rewards_json || '[]', visual_tint || '#ff4500']
+    );
+    await auditLog(req, 'season_create', 'season', { seasonId: r.rows[0].id });
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// PUT /admin/api/seasons/:id — update season (activate/deactivate, edit dates, etc.)
+router.put('/seasons/:id', adminAuth, async (req, res) => {
+  try {
+    const { name, theme, starts_at, ends_at, active, rewards_json, visual_tint } = req.body;
+    // If activating this season, deactivate all others first
+    if (active === true) {
+      await pool.query('UPDATE seasons SET active = false WHERE active = true');
+    }
+    const r = await pool.query(
+      `UPDATE seasons SET
+        name = COALESCE($1, name), theme = COALESCE($2, theme),
+        starts_at = COALESCE($3, starts_at), ends_at = COALESCE($4, ends_at),
+        active = COALESCE($5, active), rewards_json = COALESCE($6, rewards_json),
+        visual_tint = COALESCE($7, visual_tint)
+       WHERE id = $8 RETURNING *`,
+      [name, theme, starts_at, ends_at, active, rewards_json, visual_tint, req.params.id]
+    );
+    await auditLog(req, 'season_update', 'season', { seasonId: req.params.id, active });
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/seasons/:id — delete a season
+router.delete('/seasons/:id', adminAuth, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM season_rewards WHERE season_id = $1', [req.params.id]);
+    await pool.query('DELETE FROM season_scores WHERE season_id = $1', [req.params.id]);
+    await pool.query('DELETE FROM seasons WHERE id = $1', [req.params.id]);
+    await auditLog(req, 'season_delete', 'season', { seasonId: req.params.id });
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /admin/api/seasons/:id/scores — season leaderboard
+router.get('/seasons/:id/scores', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT ss.*, u.nickname FROM season_scores ss
+       LEFT JOIN users u ON u.wallet_address = ss.wallet
+       WHERE ss.season_id = $1 ORDER BY ss.score DESC LIMIT 50`,
+      [req.params.id]
+    );
+    res.json({ scores: r.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ══════════════════════════════════════════════════
+//  GP BULK OPERATIONS
+// ══════════════════════════════════════════════════
+
+// POST /admin/api/gp/grant — grant GP to a user
+router.post('/gp/grant', adminAuth, async (req, res) => {
+  try {
+    const { wallet, amount, reason } = req.body;
+    if (!wallet || !amount) return res.status(400).json({ error: 'Missing wallet or amount' });
+    await pool.query(
+      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2',
+      [amount, wallet.toLowerCase()]
+    );
+    await auditLog(req, 'gp_grant', wallet, { amount, reason });
+    res.json({ success: true, amount });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/gp/grant-all — grant GP to all users
+router.post('/gp/grant-all', adminAuth, async (req, res) => {
+  try {
+    const { amount, reason } = req.body;
+    if (!amount) return res.status(400).json({ error: 'Missing amount' });
+    const r = await pool.query(
+      'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1',
+      [amount]
+    );
+    await auditLog(req, 'gp_grant_all', 'all_users', { amount, reason, affected: r.rowCount });
+    res.json({ success: true, affected: r.rowCount });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /admin/api/gp/stats — GP economy overview
+router.get('/gp/stats', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT
+        COALESCE(SUM(gp_balance), 0) as total_gp,
+        COALESCE(AVG(gp_balance), 0) as avg_gp,
+        COALESCE(MAX(gp_balance), 0) as max_gp,
+        COUNT(*) FILTER (WHERE gp_balance > 0) as users_with_gp
+       FROM users`
+    );
     res.json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

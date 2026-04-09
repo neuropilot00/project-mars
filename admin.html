@@ -211,6 +211,9 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('claims')" data-tab="claims">CLAIMS</button>
   <button class="adm-tab" onclick="switchTab('shop')" data-tab="shop">ITEM SHOP</button>
   <button class="adm-tab" onclick="switchTab('battles')" data-tab="battles">BATTLES</button>
+  <button class="adm-tab" onclick="switchTab('guild')" data-tab="guild" style="color:var(--mars)">GUILD</button>
+  <button class="adm-tab" onclick="switchTab('season')" data-tab="season" style="color:#ff4500">SEASON</button>
+  <button class="adm-tab" onclick="switchTab('gp')" data-tab="gp" style="color:var(--gold)">GP</button>
   <button class="adm-tab" onclick="switchTab('governance')" data-tab="governance" style="color:var(--cyan)">GOVERNANCE</button>
   <button class="adm-tab" onclick="switchTab('lore')" data-tab="lore" style="color:#FFD700">LORE</button>
 </div>
@@ -416,6 +419,8 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
           <input class="adm-input" id="uePassword" type="password" data-i18n-placeholder="ue_pw_placeholder" placeholder="Enter to change" style="width:100%"></div>
         <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_pp_balance">PP BALANCE</div>
           <input class="adm-input" id="uePP" type="number" step="0.01" style="width:100%"></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px">GP BALANCE</div>
+          <input class="adm-input" id="ueGP" type="number" step="1" style="width:100%"></div>
         <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_usdt_balance">USDT BALANCE (view only)</div>
           <div class="adm-input" id="ueUSDT" style="opacity:.6">--</div></div>
         <div><div style="font-size:6px;color:var(--tx3);margin-bottom:3px" data-i18n="ue_referral_code">REFERRAL CODE</div>
@@ -437,6 +442,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
             <th>NICKNAME</th>
             <th onclick="sortUsers('usdt_balance')">USDT</th>
             <th onclick="sortUsers('pp_balance')">PP</th>
+            <th onclick="sortUsers('gp_balance')">GP</th>
             <th>CLAIMS</th>
             <th onclick="sortUsers('created_at')">JOINED</th>
             <th>EDIT</th>
@@ -724,6 +730,111 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ GUILD TAB ═══ -->
+  <div class="section cat-guild" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--mars)">GUILD MANAGEMENT</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="loadAdminGuilds()">REFRESH</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr><th>ID</th><th>NAME</th><th>TAG</th><th>EMBLEM</th><th>LEADER</th><th>MEMBERS</th><th>PIXELS</th><th>CREATED</th><th>ACTIONS</th></tr></thead>
+        <tbody id="guildsBody"><tr><td colspan="9" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ SEASON TAB ═══ -->
+  <div class="section cat-season" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ff4500">SEASON MANAGEMENT</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="loadAdminSeasons()">REFRESH</button>
+        <button class="adm-btn" onclick="showNewSeasonForm()" style="background:rgba(255,69,0,.15);border-color:rgba(255,69,0,.4);color:#ff4500">+ NEW SEASON</button>
+      </div>
+    </div>
+    <div id="newSeasonForm" style="display:none;padding:12px;margin-bottom:12px;border:1px solid rgba(255,69,0,.2);border-radius:6px;background:rgba(255,69,0,.03)">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:2px">NAME</div>
+          <input class="adm-input" id="nsName" placeholder="Season 2" style="width:100%"></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:2px">THEME</div>
+          <select class="adm-select" id="nsTheme" style="width:100%"><option value="volcanic">Volcanic</option><option value="ice_age">Ice Age</option><option value="solar_storm">Solar Storm</option><option value="dust_epoch">Dust Epoch</option></select></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:2px">TINT COLOR</div>
+          <input class="adm-input" id="nsTint" value="#ff4500" style="width:100%"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:2px">STARTS AT</div>
+          <input class="adm-input" id="nsStart" type="datetime-local" style="width:100%"></div>
+        <div><div style="font-size:6px;color:var(--tx3);margin-bottom:2px">ENDS AT</div>
+          <input class="adm-input" id="nsEnd" type="datetime-local" style="width:100%"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="adm-btn primary" onclick="createSeason()" style="background:rgba(255,69,0,.15);border-color:rgba(255,69,0,.4);color:#ff4500">CREATE</button>
+        <button class="adm-btn" onclick="document.getElementById('newSeasonForm').style.display='none'">CANCEL</button>
+        <span id="nsStatus" style="font-size:7px;line-height:32px"></span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr><th>ID</th><th>NAME</th><th>THEME</th><th>STATUS</th><th>START</th><th>END</th><th>TINT</th><th>ACTIONS</th></tr></thead>
+        <tbody id="seasonsBody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div id="seasonScoresPanel" style="display:none;margin-top:12px;padding:12px;border:1px solid rgba(255,69,0,.2);border-radius:6px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:8px;color:#ff4500;letter-spacing:1px">SEASON LEADERBOARD</span>
+        <button class="ev-btn del" onclick="document.getElementById('seasonScoresPanel').style.display='none'">CLOSE ✕</button>
+      </div>
+      <table class="adm-table">
+        <thead><tr><th>#</th><th>PLAYER</th><th>SCORE</th><th>PIXELS</th><th>HARVESTS</th><th>HIJACKS</th></tr></thead>
+        <tbody id="seasonScoresBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ GP ECONOMY TAB ═══ -->
+  <div class="section cat-gp" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--gold)">GP ECONOMY</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="loadGPStats()">REFRESH</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="stat-card"><div class="sc-label">TOTAL GP IN CIRCULATION</div><div class="sc-value gold" id="gpTotal">0</div></div>
+      <div class="stat-card"><div class="sc-label">AVG GP PER USER</div><div class="sc-value gold" id="gpAvg">0</div></div>
+      <div class="stat-card"><div class="sc-label">MAX GP (TOP HOLDER)</div><div class="sc-value gold" id="gpMax">0</div></div>
+      <div class="stat-card"><div class="sc-label">USERS WITH GP > 0</div><div class="sc-value gold" id="gpUsers">0</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="padding:12px;border:1px solid rgba(255,209,102,.2);border-radius:6px;background:rgba(255,209,102,.03)">
+        <div style="font-size:8px;color:var(--gold);letter-spacing:1px;margin-bottom:8px">GRANT GP TO USER</div>
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+          <input class="adm-input" id="gpGrantWallet" placeholder="Wallet address" style="flex:2">
+          <input class="adm-input" id="gpGrantAmount" type="number" placeholder="Amount" style="flex:1">
+        </div>
+        <input class="adm-input" id="gpGrantReason" placeholder="Reason (optional)" style="width:100%;margin-bottom:6px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="adm-btn primary" onclick="grantGP()" style="background:rgba(255,209,102,.15);border-color:rgba(255,209,102,.4);color:var(--gold)">GRANT GP</button>
+          <span id="gpGrantStatus" style="font-size:7px"></span>
+        </div>
+      </div>
+      <div style="padding:12px;border:1px solid rgba(255,209,102,.2);border-radius:6px;background:rgba(255,209,102,.03)">
+        <div style="font-size:8px;color:var(--gold);letter-spacing:1px;margin-bottom:8px">GRANT GP TO ALL USERS</div>
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+          <input class="adm-input" id="gpGrantAllAmount" type="number" placeholder="Amount per user" style="flex:1">
+          <input class="adm-input" id="gpGrantAllReason" placeholder="Reason" style="flex:2">
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="adm-btn primary" onclick="grantAllGP()" style="background:rgba(255,120,60,.15);border-color:rgba(255,120,60,.4);color:var(--mars)">GRANT TO ALL</button>
+          <span id="gpGrantAllStatus" style="font-size:7px"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ LORE TAB ═══ -->
   <div class="section cat-lore" style="display:none">
     <div class="sec-header">
@@ -806,7 +917,7 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'governance', 'lore'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'governance', 'lore'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
@@ -817,6 +928,9 @@ function switchTab(tab) {
   if (tab === 'claims') { try { loadClaims(); } catch(e) { console.error('loadClaims:', e); } }
   if (tab === 'shop') { loadShopItems(); loadShopStats(); loadAdminShields(); }
   if (tab === 'battles') { loadBattles(); }
+  if (tab === 'guild') { loadAdminGuilds(); }
+  if (tab === 'season') { loadAdminSeasons(); }
+  if (tab === 'gp') { loadGPStats(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
 }
@@ -952,6 +1066,7 @@ function openUserEdit(wallet) {
     document.getElementById('ueNickname').value = u.nickname;
     document.getElementById('uePassword').value = '';
     document.getElementById('uePP').value = u.ppBalance;
+    document.getElementById('ueGP').value = u.gpBalance || 0;
     document.getElementById('ueUSDT').textContent = u.usdtBalance.toFixed(2);
     document.getElementById('ueRefCode').textContent = u.referralCode || '-';
     document.getElementById('ueJoined').textContent = new Date(u.createdAt).toLocaleString();
@@ -968,10 +1083,12 @@ function saveUserEdit() {
   var nick = document.getElementById('ueNickname').value.trim();
   var pw = document.getElementById('uePassword').value;
   var pp = document.getElementById('uePP').value;
+  var gp = document.getElementById('ueGP').value;
   if (email) body.email = email;
   if (nick) body.nickname = nick;
   if (pw) body.newPassword = pw;
   if (pp !== '') body.ppBalance = parseFloat(pp);
+  if (gp !== '') body.gpBalance = parseFloat(gp);
 
   fetch('/admin/api/users/' + encodeURIComponent(editingWallet), {
     method: 'PUT',
@@ -1092,7 +1209,7 @@ function loadUsers(page) {
     var tbody = document.getElementById('usersBody');
     tbody.innerHTML = '';
     if (!d.users.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="loading">No users found</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="loading">No users found</td></tr>';
       return;
     }
     d.users.forEach(function(u) {
@@ -1103,6 +1220,7 @@ function loadUsers(page) {
         '<td>' + (u.nickname || '-') + '</td>' +
         '<td class="val-gn">' + u.usdtBalance.toFixed(2) + '</td>' +
         '<td class="val-pp">' + u.ppBalance.toFixed(2) + '</td>' +
+        '<td class="val-gold">' + (u.gpBalance || 0) + '</td>' +
         '<td>' + u.claimCount + '</td>' +
         '<td>' + new Date(u.createdAt).toLocaleDateString() + '</td>' +
         '<td><button class="user-edit-btn" onclick="openUserEdit(\'' + u.wallet + '\')">EDIT</button></td>';
@@ -2106,6 +2224,183 @@ function saveCrawl(lang) {
     .then(function(r){ return r.json(); })
     .then(function(){ alert('Crawl story (' + lang + ') saved!'); })
     .catch(function(e){ alert('Error: ' + e.message); });
+}
+
+// ═══ GUILD MANAGEMENT ═══
+function loadAdminGuilds() {
+  api('/admin/api/guilds').then(function(d) {
+    var tbody = document.getElementById('guildsBody');
+    tbody.innerHTML = '';
+    if (!d.guilds || !d.guilds.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="loading">No guilds yet</td></tr>';
+      return;
+    }
+    d.guilds.forEach(function(g) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="color:var(--tx3)">#' + g.id + '</td>' +
+        '<td style="color:var(--mars)">' + (g.name || '') + '</td>' +
+        '<td>[' + (g.tag || '') + ']</td>' +
+        '<td style="font-size:14px">' + (g.emblem || '') + '</td>' +
+        '<td class="addr">' + (g.leader_wallet ? g.leader_wallet.slice(0,10) + '...' : '--') + '</td>' +
+        '<td class="val-gn">' + (g.member_count || 0) + '</td>' +
+        '<td class="val-pp">' + (g.pixel_count || 0) + '</td>' +
+        '<td>' + new Date(g.created_at).toLocaleDateString() + '</td>' +
+        '<td><button class="ev-btn del" onclick="disbandGuildAdmin(' + g.id + ',\'' + (g.name||'').replace(/'/g,"\\'") + '\')">DISBAND</button></td>';
+      tbody.appendChild(tr);
+    });
+  }).catch(function(e) {
+    document.getElementById('guildsBody').innerHTML = '<tr><td colspan="9" class="loading">Error: ' + e.message + '</td></tr>';
+  });
+}
+
+function disbandGuildAdmin(id, name) {
+  if (!confirm('Force disband guild "' + name + '"? This removes all members.')) return;
+  fetch('/admin/api/guilds/' + id, { method: 'DELETE', headers: {'x-admin-secret': adminSecret} })
+    .then(function(r) { return r.json(); })
+    .then(function(d) { if (d.success) loadAdminGuilds(); else alert(d.error); });
+}
+
+// ═══ SEASON MANAGEMENT ═══
+function loadAdminSeasons() {
+  api('/admin/api/seasons').then(function(d) {
+    var tbody = document.getElementById('seasonsBody');
+    tbody.innerHTML = '';
+    if (!d.seasons || !d.seasons.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">No seasons</td></tr>';
+      return;
+    }
+    d.seasons.forEach(function(s) {
+      var status = s.active ? '<span class="tb-status ok">ACTIVE</span>' : '<span class="tb-status">INACTIVE</span>';
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="color:var(--tx3)">#' + s.id + '</td>' +
+        '<td style="color:#ff4500">' + (s.name || '') + '</td>' +
+        '<td>' + (s.theme || '') + '</td>' +
+        '<td>' + status + '</td>' +
+        '<td>' + new Date(s.starts_at).toLocaleDateString() + '</td>' +
+        '<td>' + new Date(s.ends_at).toLocaleDateString() + '</td>' +
+        '<td><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + (s.visual_tint || '#ff4500') + '"></span></td>' +
+        '<td>' +
+          (s.active
+            ? '<button class="ev-btn" onclick="toggleSeason(' + s.id + ',false)">DEACTIVATE</button>'
+            : '<button class="ev-btn" onclick="toggleSeason(' + s.id + ',true)" style="color:var(--gn)">ACTIVATE</button>') +
+          ' <button class="ev-btn" onclick="viewSeasonScores(' + s.id + ')">SCORES</button>' +
+          ' <button class="ev-btn del" onclick="deleteSeason(' + s.id + ')">DELETE</button>' +
+        '</td>';
+      tbody.appendChild(tr);
+    });
+  }).catch(function(e) {
+    document.getElementById('seasonsBody').innerHTML = '<tr><td colspan="8" class="loading">Error: ' + e.message + '</td></tr>';
+  });
+}
+
+function showNewSeasonForm() {
+  document.getElementById('newSeasonForm').style.display = '';
+  var now = new Date();
+  var end = new Date(now.getTime() + 30*24*60*60*1000);
+  document.getElementById('nsStart').value = now.toISOString().slice(0,16);
+  document.getElementById('nsEnd').value = end.toISOString().slice(0,16);
+}
+
+function createSeason() {
+  var body = {
+    name: document.getElementById('nsName').value,
+    theme: document.getElementById('nsTheme').value,
+    starts_at: new Date(document.getElementById('nsStart').value).toISOString(),
+    ends_at: new Date(document.getElementById('nsEnd').value).toISOString(),
+    visual_tint: document.getElementById('nsTint').value,
+    rewards_json: JSON.stringify([
+      {rank_min:1,rank_max:1,type:'pp',amount:5,label:'1st Place'},
+      {rank_min:2,rank_max:3,type:'pp',amount:2,label:'Top 3'},
+      {rank_min:4,rank_max:10,type:'gp',amount:500,label:'Top 10'}
+    ])
+  };
+  fetch('/admin/api/seasons', { method: 'POST', headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}, body: JSON.stringify(body) })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.id) {
+        document.getElementById('newSeasonForm').style.display = 'none';
+        loadAdminSeasons();
+      } else {
+        document.getElementById('nsStatus').textContent = d.error || 'Failed';
+        document.getElementById('nsStatus').style.color = 'var(--red)';
+      }
+    });
+}
+
+function toggleSeason(id, active) {
+  fetch('/admin/api/seasons/' + id, { method: 'PUT', headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}, body: JSON.stringify({active:active}) })
+    .then(function() { loadAdminSeasons(); });
+}
+
+function deleteSeason(id) {
+  if (!confirm('Delete season #' + id + '? This removes all scores and rewards.')) return;
+  fetch('/admin/api/seasons/' + id, { method: 'DELETE', headers: {'x-admin-secret':adminSecret} })
+    .then(function() { loadAdminSeasons(); });
+}
+
+function viewSeasonScores(id) {
+  document.getElementById('seasonScoresPanel').style.display = '';
+  api('/admin/api/seasons/' + id + '/scores').then(function(d) {
+    var tbody = document.getElementById('seasonScoresBody');
+    tbody.innerHTML = '';
+    if (!d.scores || !d.scores.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">No scores yet</td></tr>';
+      return;
+    }
+    d.scores.forEach(function(s, i) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="color:var(--gold)">#' + (i+1) + '</td>' +
+        '<td>' + (s.nickname || s.wallet.slice(0,10) + '...') + '</td>' +
+        '<td class="val-gn">' + s.score + '</td>' +
+        '<td>' + (s.pixels_claimed || 0) + '</td>' +
+        '<td>' + (s.harvests || 0) + '</td>' +
+        '<td class="val-red">' + (s.hijacks_won || 0) + '</td>';
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+// ═══ GP ECONOMY ═══
+function loadGPStats() {
+  api('/admin/api/gp/stats').then(function(d) {
+    document.getElementById('gpTotal').textContent = parseFloat(d.total_gp || 0).toLocaleString();
+    document.getElementById('gpAvg').textContent = parseFloat(d.avg_gp || 0).toFixed(1);
+    document.getElementById('gpMax').textContent = parseFloat(d.max_gp || 0).toLocaleString();
+    document.getElementById('gpUsers').textContent = d.users_with_gp || 0;
+  });
+}
+
+function grantGP() {
+  var wallet = document.getElementById('gpGrantWallet').value.trim();
+  var amount = parseFloat(document.getElementById('gpGrantAmount').value);
+  var reason = document.getElementById('gpGrantReason').value.trim();
+  if (!wallet || !amount) { document.getElementById('gpGrantStatus').textContent = 'Missing wallet/amount'; return; }
+  fetch('/admin/api/gp/grant', { method: 'POST', headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({wallet:wallet, amount:amount, reason:reason}) })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var el = document.getElementById('gpGrantStatus');
+      if (d.success) { el.textContent = '✓ Granted ' + amount + ' GP'; el.style.color = 'var(--gn)'; loadGPStats(); }
+      else { el.textContent = '✗ ' + (d.error || 'Failed'); el.style.color = 'var(--red)'; }
+    });
+}
+
+function grantAllGP() {
+  var amount = parseFloat(document.getElementById('gpGrantAllAmount').value);
+  var reason = document.getElementById('gpGrantAllReason').value.trim();
+  if (!amount) return;
+  if (!confirm('Grant ' + amount + ' GP to ALL users?')) return;
+  fetch('/admin/api/gp/grant-all', { method: 'POST', headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({amount:amount, reason:reason}) })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var el = document.getElementById('gpGrantAllStatus');
+      if (d.success) { el.textContent = '✓ Granted to ' + d.affected + ' users'; el.style.color = 'var(--gn)'; loadGPStats(); }
+      else { el.textContent = '✗ ' + (d.error || 'Failed'); el.style.color = 'var(--red)'; }
+    });
 }
 
 // Auto-focus auth input
