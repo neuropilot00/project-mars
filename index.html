@@ -8772,44 +8772,78 @@ function _initStarlinkSatellites() {
 }
 
 // Client-side satellite orbit config (matches server SATELLITES)
+// 3 Starlink trains, each with 5 satellites in a line
 var _satConfig = [
   { id: 1, amp: 40, speed: 0.0003, offset: 0 },
   { id: 2, amp: 30, speed: 0.00025, offset: 2.09 },
   { id: 3, amp: 50, speed: 0.00035, offset: 4.19 }
 ];
+var _trainSize = 5; // satellites per train
+var _trainSpacing = 8000; // ms between each satellite in train
 
-// Starlink texture trails (visible on globe surface)
+// Starlink train rendering (visible on globe surface)
 function _drawStarlinkTrails(ctx, w, h) {
   var t = Date.now();
   ctx.save();
+
   _satConfig.forEach(function(sat) {
-    var lat = sat.amp * Math.sin(t * sat.speed + sat.offset);
-    var lng = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
-    var x = ((lng + 180) / 360) * w;
-    var y = ((90 - lat) / 180) * h;
+    // Draw 5 satellites in a train formation
+    for (var s = 0; s < _trainSize; s++) {
+      var st = t - s * _trainSpacing; // Each one trails behind
+      var lat = sat.amp * Math.sin(st * sat.speed + sat.offset);
+      var lng = ((st * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+      var x = ((lng + 180) / 360) * w;
+      var y = ((90 - lat) / 180) * h;
 
-    // Bright dot
-    ctx.globalAlpha = 0.9;
-    ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#00FF88';
-    ctx.fill();
+      // Lead satellite is brightest/biggest, trailing ones fade
+      var fade = 1 - s * 0.18;
+      var dotSize = 6 - s * 0.8;
 
-    // Glow ring
-    ctx.globalAlpha = 0.3 + Math.sin(t / 300 + sat.id) * 0.15;
-    ctx.beginPath();
-    ctx.arc(x, y, 10, 0, Math.PI * 2);
-    ctx.strokeStyle = '#00FF88';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+      // Bright dot
+      ctx.globalAlpha = 0.95 * fade;
+      ctx.beginPath();
+      ctx.arc(x, y, Math.max(2, dotSize), 0, Math.PI * 2);
+      ctx.fillStyle = '#00FF88';
+      ctx.fill();
 
-    // Label
-    ctx.globalAlpha = 0.6;
-    ctx.font = '8px monospace';
+      // Glow ring (lead only)
+      if (s === 0) {
+        ctx.globalAlpha = 0.35 + Math.sin(t / 300 + sat.id) * 0.15;
+        ctx.beginPath();
+        ctx.arc(x, y, 12, 0, Math.PI * 2);
+        ctx.strokeStyle = '#00FF88';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+
+    // Label on lead satellite
+    var leadLat = sat.amp * Math.sin(t * sat.speed + sat.offset);
+    var leadLng = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    var lx = ((leadLng + 180) / 360) * w;
+    var ly = ((90 - leadLat) / 180) * h;
+    ctx.globalAlpha = 0.7;
+    ctx.font = 'bold 9px monospace';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#00FF88';
-    ctx.fillText('\u{1F6F0} SL-' + sat.id, x, y - 14);
+    ctx.fillText('\u{1F6F0} SL-' + sat.id, lx, ly - 16);
+
+    // Connecting line between train satellites
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle = '#00FF88';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (var c = 0; c < _trainSize; c++) {
+      var ct = t - c * _trainSpacing;
+      var cLat = sat.amp * Math.sin(ct * sat.speed + sat.offset);
+      var cLng = ((ct * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+      var cx = ((cLng + 180) / 360) * w;
+      var cy = ((90 - cLat) / 180) * h;
+      if (c === 0) ctx.moveTo(cx, cy); else ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
   });
+
   ctx.restore();
 }
 
