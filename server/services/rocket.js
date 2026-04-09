@@ -1,4 +1,5 @@
 const { pool, getSetting } = require('../db');
+const { sendTelegramNotification } = require('./telegram');
 
 // ═══════════════════════════════════════
 //  SCHEDULE ROCKET EVENT
@@ -79,6 +80,12 @@ async function scheduleRocketEvent(triggeredBy) {
   );
 
   console.log(`[ROCKET] Scheduled ${eventType} at (${lat.toFixed(1)}, ${lng.toFixed(1)}) — landing in ${advanceHours}h, ${lootCount} loot items`);
+  // Telegram notification for rocket events
+  const rocketEmoji = isRUD ? '💥' : '🚀';
+  const typeLabel = isRUD ? 'RUD EXPLOSION' : 'SUPPLY DROP';
+  sendTelegramNotification(
+    `<b>${rocketEmoji} ROCKET EVENT: ${typeLabel}</b>\n\nLocation: (${lat.toFixed(1)}°, ${lng.toFixed(1)}°)\nLanding in: ${advanceHours}h\nLoot items: ${lootCount}\n\nGet ready to collect!`
+  ).catch(() => {});
   return {
     id: res.rows[0].id,
     eventType,
@@ -100,6 +107,10 @@ async function processRocketLanding() {
   );
   for (const r of res.rows) {
     console.log(`[ROCKET] ${r.event_type} #${r.id} has landed at (${r.landing_lat.toFixed(1)}, ${r.landing_lng.toFixed(1)}) — looting open!`);
+    const emoji = r.event_type === 'rud_explosion' ? '💥' : '🚀';
+    sendTelegramNotification(
+      `<b>${emoji} ROCKET HAS LANDED!</b>\n\n${r.event_type === 'rud_explosion' ? 'RUD Explosion' : 'Supply Drop'} #${r.id} at (${r.landing_lat.toFixed(1)}°, ${r.landing_lng.toFixed(1)}°)\n\nLooting is now OPEN! Go collect your rewards!`
+    ).catch(() => {});
   }
   return res.rows;
 }

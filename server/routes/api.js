@@ -13,6 +13,8 @@ let explorationService;
 try { explorationService = require('../services/exploration'); } catch (_e) { /* exploration service not available */ }
 let rocketService;
 try { rocketService = require('../services/rocket'); } catch (_e) { /* rocket service not available */ }
+let telegramService;
+try { telegramService = require('../services/telegram'); } catch (_e) { /* telegram service not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -253,7 +255,8 @@ router.get('/config', readLimiter, async (req, res) => {
         config: e.config,
         startsAt: e.starts_at, endsAt: e.ends_at
       })),
-      governance: govData
+      governance: govData,
+      telegram_group_url: s.telegram_group_url || ''
     });
   } catch (e) {
     console.error('[API] config error:', e.message);
@@ -1076,6 +1079,14 @@ router.post('/claim', writeLimiter, async (req, res) => {
     }
 
     await client.query('COMMIT');
+
+    // Telegram notification for large hijacks (5+ pixels won)
+    if (attackWon >= 5 && telegramService) {
+      const attackerNick = (await pool.query('SELECT nickname FROM users WHERE wallet_address = $1', [walletLower])).rows[0]?.nickname || walletLower.slice(0,8) + '...';
+      telegramService.sendTelegramNotification(
+        `<b>⚔️ MASSIVE HIJACK!</b>\n\n${attackerNick} conquered ${attackWon} pixels!\nTotal cost: ${totalCost.toFixed(2)} PP\n\nThe battle for Mars rages on!`
+      ).catch(() => {});
+    }
 
     res.json({
       success: true, claimId, totalCost,

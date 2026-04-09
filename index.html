@@ -468,6 +468,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   border-radius:8px;text-align:center}
 .profile-bal-label{font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:1px}
 .profile-bal-val{font-size:var(--fs-xl);letter-spacing:1px}
+.profile-setting-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:var(--fs-xs);color:var(--tx2)}
+.profile-toggle{position:relative;width:34px;height:18px;flex-shrink:0}
+.profile-toggle input{opacity:0;width:0;height:0}
+.profile-toggle-slider{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.1);border-radius:9px;cursor:pointer;transition:.2s}
+.profile-toggle-slider:before{content:'';position:absolute;height:14px;width:14px;left:2px;bottom:2px;background:var(--tx3);border-radius:50%;transition:.2s}
+.profile-toggle input:checked+.profile-toggle-slider{background:rgba(76,216,154,.3)}
+.profile-toggle input:checked+.profile-toggle-slider:before{transform:translateX(16px);background:var(--gn)}
+.profile-acct-btn{display:block;width:100%;text-align:left;background:none;border:1px solid var(--bdr);color:var(--tx2);font:var(--fs-xs) var(--fn);padding:8px 10px;border-radius:4px;margin-bottom:4px;cursor:pointer;letter-spacing:.5px}
+.profile-acct-btn:hover{border-color:var(--mars);color:var(--tx)}
+.profile-acct-danger{color:var(--red);border-color:rgba(232,72,85,.15)}
+.profile-acct-danger:hover{border-color:var(--red)}
 
 /* Language Switcher — always dropdown */
 .lang-switcher{display:none}
@@ -1570,6 +1581,83 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   0%,100%{box-shadow:0 0 12px rgba(91,184,232,.4),inset 0 0 12px rgba(91,184,232,.1)}
   50%{box-shadow:0 0 24px rgba(91,184,232,.6),inset 0 0 20px rgba(91,184,232,.2)}
 }
+
+/* ── Legal Modals (TOS, Privacy) ── */
+.legal-modal-bg{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center}
+.legal-modal-bg.open{display:flex}
+.legal-modal{background:var(--panel2);border:1px solid var(--bdr2);border-radius:14px;
+  width:680px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;
+  box-shadow:0 20px 80px rgba(0,0,0,.7),0 0 60px rgba(255,120,60,.04)}
+.legal-modal-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;
+  background:rgba(0,0,0,0.3);border-bottom:1px solid var(--bdr);border-radius:14px 14px 0 0;flex-shrink:0}
+.legal-modal-hd h2{font-family:var(--fn);font-size:14px;color:var(--mars);letter-spacing:2px;margin:0}
+.legal-modal-hd .lm-close{background:none;border:none;color:var(--red);font-size:20px;cursor:pointer;
+  font-family:monospace;padding:4px 10px;border-radius:4px;min-width:36px;min-height:36px}
+.legal-modal-hd .lm-close:hover{background:rgba(232,84,84,0.12)}
+.legal-modal-body{flex:1;overflow-y:auto;padding:20px 24px;font-family:var(--fn);font-size:11px;
+  color:var(--tx);line-height:2;letter-spacing:0.3px}
+.legal-modal-body::-webkit-scrollbar{width:4px}
+.legal-modal-body::-webkit-scrollbar-thumb{background:rgba(255,120,60,0.2);border-radius:2px}
+.legal-modal-body h3{color:var(--mars);font-size:12px;letter-spacing:1.5px;margin:18px 0 8px;
+  padding-bottom:4px;border-bottom:1px solid var(--bdr)}
+.legal-modal-body h3:first-child{margin-top:0}
+.legal-modal-body p{margin:6px 0;color:var(--tx2)}
+.legal-modal-body ul{margin:6px 0 6px 16px;color:var(--tx2)}
+.legal-modal-body li{margin:3px 0}
+.legal-modal-body .legal-update{font-size:9px;color:var(--tx3);text-align:right;margin-top:20px;
+  padding-top:10px;border-top:1px solid var(--bdr)}
+@media(max-width:768px){.legal-modal{max-width:100vw;max-height:100vh;border-radius:0;width:100vw;height:100vh}
+  .legal-modal-hd{border-radius:0}.legal-modal-body{padding:16px}}
+
+/* ── Footer Legal Links ── */
+.legal-footer{position:fixed;bottom:4px;left:50%;transform:translateX(-50%);z-index:60;
+  display:flex;gap:12px;align-items:center;font-family:var(--fn);font-size:7px;
+  color:var(--tx3);letter-spacing:0.5px;pointer-events:auto}
+.legal-footer a{color:var(--tx3);text-decoration:none;cursor:pointer;transition:color .2s}
+.legal-footer a:hover{color:var(--mars)}
+.legal-footer .lf-sep{opacity:0.4}
+@media(max-width:768px){.legal-footer{bottom:68px}}
+
+/* ── Cookie Consent Banner ── */
+.cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  display:none;align-items:center;justify-content:center;gap:12px;
+  padding:10px 20px;
+  background:linear-gradient(180deg,rgba(13,11,20,0.97),rgba(13,11,20,0.99));
+  border-top:1px solid var(--bdr);backdrop-filter:blur(12px);
+  font-family:var(--fn);font-size:9px;color:var(--tx2);letter-spacing:0.3px}
+.cookie-banner.show{display:flex}
+.cookie-banner .ck-text{flex:1;max-width:600px;line-height:1.7}
+.cookie-banner .ck-accept{padding:6px 18px;font-size:9px;font-family:var(--fn);
+  background:rgba(255,120,60,.1);border:1px solid rgba(255,120,60,.3);border-radius:6px;
+  color:var(--mars);cursor:pointer;letter-spacing:1px;transition:all .2s;white-space:nowrap}
+.cookie-banner .ck-accept:hover{background:rgba(255,120,60,.2);box-shadow:0 0 12px rgba(255,120,60,.15)}
+@media(max-width:768px){.cookie-banner{flex-direction:column;gap:8px;padding:10px 16px;bottom:64px}
+  .cookie-banner .ck-text{text-align:center}}
+
+/* ── Gambling Disclaimer ── */
+.gamble-disclaimer-bg{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
+.gamble-disclaimer-bg.open{display:flex}
+.gamble-disclaimer{background:var(--panel2);border:1px solid rgba(255,209,102,0.3);border-radius:14px;
+  width:420px;max-width:92vw;padding:24px;text-align:center;font-family:var(--fn);
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.gamble-disclaimer .gd-icon{font-size:36px;margin-bottom:12px}
+.gamble-disclaimer .gd-title{font-size:14px;color:var(--gold);letter-spacing:2px;margin-bottom:14px}
+.gamble-disclaimer .gd-text{font-size:10px;color:var(--tx2);line-height:2;margin-bottom:18px}
+.gamble-disclaimer .gd-text strong{color:var(--red)}
+.gamble-disclaimer .gd-accept{padding:10px 28px;font-size:10px;font-family:var(--fn);
+  background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));
+  border:1px solid rgba(255,209,102,.35);border-radius:8px;
+  color:var(--gold);cursor:pointer;letter-spacing:1px;transition:all .2s}
+.gamble-disclaimer .gd-accept:hover{background:rgba(255,209,102,.2);box-shadow:0 0 20px rgba(255,209,102,.15)}
+
+/* ── TOS Checkbox in Auth ── */
+.tos-check-row{display:flex;align-items:flex-start;gap:6px;margin:4px 0;font-size:6.5px;
+  color:var(--tx2);letter-spacing:.5px;font-family:var(--fn);line-height:1.6}
+.tos-check-row input{accent-color:var(--mars);width:14px;height:14px;flex-shrink:0;margin-top:1px}
+.tos-check-row a{color:var(--mars);text-decoration:underline;cursor:pointer}
+.tos-check-row a:hover{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -1613,6 +1701,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <span class="chain-dot base" id="chainDotTop"></span>
       <span id="chainNameTop">BASE</span>
     </div>
+    <button id="telegramBtn" onclick="openTelegramGroup()" title="Join Telegram" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(36,161,222,.35);background:rgba(36,161,222,.1);color:#24A1DE;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1" onmouseover="this.style.background='rgba(36,161,222,.25)'" onmouseout="this.style.background='rgba(36,161,222,.1)'">✈</button>
     <div class="tb-avatar-emoji" id="tbAvatarEmoji" onclick="openAuthModal()">👤</div>
     <img class="tb-avatar" id="tbAvatarImg" onclick="openAuthModal()">
     <button class="tb-btn" id="loginBtn" onclick="openAuthModal()" data-i18n="login">LOGIN</button>
@@ -1797,6 +1886,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div id="infoImgWrap" style="display:none;margin:8px 0;text-align:center">
       <img id="infoImgPreview" src="" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer" onclick="expandInfoImg()">
     </div>
+    <button class="uf" id="infoShareBtn" style="margin-top:6px;font-size:9px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border-color:rgba(91,184,232,.3);color:var(--cyan)" onclick="shareTerritory(selectedPlot)">📤 SHARE</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)">EDIT IMAGE</button>
     <button class="uf" id="infoCosmeticBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(255,100,200,.08));border-color:rgba(180,100,255,.3);color:#c088e0" onclick="openCosmeticPanel(selectedPlot)">✨ CUSTOMIZE</button>
     <div id="cosmeticPanel" style="display:none;margin-top:8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
@@ -2191,6 +2281,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
+        <button onclick="shareBaseStats()" style="width:100%;margin-bottom:12px;padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">📤 SHARE MY STATS</button>
+
         <div class="base-section-title">MY SECTORS</div>
         <div id="baseMySectors" style="font-size:10px;color:var(--tx3)">Login to view your territories.</div>
       </div>
@@ -2488,6 +2580,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <button onclick="savePromoLink()" style="padding:8px 14px;border-radius:6px;background:var(--mars);border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">SAVE</button>
       </div>
     </div>
+    <div style="padding:4px 0">
+      <button onclick="shareTerritory(selectedPlot)"
+        style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));
+        border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
+        📤 SHARE
+      </button>
+    </div>
   </div>
 </div>
 
@@ -2616,7 +2715,54 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           Use DEPOSIT to get your deposit address.
         </div>
 
-        <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.15);color:var(--red)" data-i18n="logout">LOGOUT</button>
+        <!-- SETTINGS SECTION -->
+        <div style="border-top:1px solid var(--bdr);margin:12px 0 8px;padding-top:12px">
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:2px;margin-bottom:10px">⚙ SETTINGS</div>
+
+          <!-- Notification Settings -->
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:6px">NOTIFICATIONS</div>
+          <div class="profile-setting-row">
+            <span>Hijack Alerts</span>
+            <label class="profile-toggle"><input type="checkbox" id="notifHijack" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+          </div>
+          <div class="profile-setting-row">
+            <span>Weather Events</span>
+            <label class="profile-toggle"><input type="checkbox" id="notifWeather" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+          </div>
+          <div class="profile-setting-row">
+            <span>Rocket Drops</span>
+            <label class="profile-toggle"><input type="checkbox" id="notifRocket" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+          </div>
+          <div class="profile-setting-row">
+            <span>Mining Complete</span>
+            <label class="profile-toggle"><input type="checkbox" id="notifMining" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+          </div>
+          <div class="profile-setting-row">
+            <span>Sound Effects</span>
+            <label class="profile-toggle"><input type="checkbox" id="notifSound" onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
+          </div>
+
+          <!-- Account Management -->
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px">ACCOUNT</div>
+          <button class="profile-acct-btn" onclick="openChangePassword()">🔒 Change Password</button>
+          <button class="profile-acct-btn" onclick="exportAccountData()">📦 Export My Data</button>
+          <button class="profile-acct-btn profile-acct-danger" onclick="requestDeleteAccount()">🗑 Delete Account</button>
+        </div>
+
+        <!-- Change Password Inline -->
+        <div id="profileChangePw" style="display:none;border:1px solid var(--bdr);border-radius:6px;padding:10px;margin:8px 0">
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:8px">CHANGE PASSWORD</div>
+          <input type="password" class="auth-input" id="profCurPw" placeholder="Current password" style="margin-bottom:6px">
+          <input type="password" class="auth-input" id="profNewPw" placeholder="New password (8+ chars)" style="margin-bottom:6px">
+          <input type="password" class="auth-input" id="profNewPw2" placeholder="Confirm new password" style="margin-bottom:6px">
+          <div class="auth-err-msg" id="profPwErr"></div>
+          <div style="display:flex;gap:6px">
+            <button class="cfm" onclick="doChangePassword()" style="flex:1;background:rgba(76,216,154,.06);border-color:rgba(76,216,154,.15);color:var(--gn)">SAVE</button>
+            <button class="cfm" onclick="document.getElementById('profileChangePw').style.display='none'" style="flex:1;color:var(--tx3);border-color:var(--bdr)">CANCEL</button>
+          </div>
+        </div>
+
+        <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.15);color:var(--red);margin-top:8px" data-i18n="logout">LOGOUT</button>
       </div>
 
       <!-- Login/Register form -->
@@ -2633,6 +2779,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="registerFields" style="display:none">
           <input type="text" class="auth-input" id="authNickInput" placeholder="Nickname (optional)" data-i18n-placeholder="nickname_placeholder">
           <input type="text" class="auth-input" id="authRefInput" placeholder="Referral code (optional)" data-i18n-placeholder="referral_placeholder" style="text-transform:uppercase">
+          <div class="tos-check-row">
+            <input type="checkbox" id="tosAgree">
+            <span>I agree to the <a onclick="openTosModal();event.stopPropagation()">Terms of Service</a> and <a onclick="openPrivacyModal();event.stopPropagation()">Privacy Policy</a></span>
+          </div>
         </div>
         <div style="display:flex;gap:12px;margin:8px 0;align-items:center">
           <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:6.5px;color:var(--tx2);letter-spacing:.5px;font-family:var(--fn)">
@@ -8313,6 +8463,9 @@ async function submitAuth(){
       body.nickname=document.getElementById('authNickInput').value.trim()||undefined;
       body.referralCode=document.getElementById('authRefInput').value.trim()||undefined;
       if(!body.referralCode&&window._pendingRefCode) body.referralCode=window._pendingRefCode;
+      var tosBox=document.getElementById('tosAgree');
+      if(!tosBox||!tosBox.checked){errEl.textContent='You must agree to the Terms of Service';btn.disabled=false;btn.textContent=t(authTab);return}
+      body.tosAccepted=true;
     }
 
     var apiUrl='/api/auth/'+(authTab==='register'?'register':'login');
@@ -8413,6 +8566,7 @@ function updateTopbarAvatar(loggedIn){
 function showAuthLoggedIn(){
   document.getElementById('authForm').style.display='none';
   document.getElementById('authLoggedIn').style.display='';
+  loadNotifSettings();
   if(emailAuth.user){
     document.getElementById('authNickname').textContent=emailAuth.user.nickname||'--';
     document.getElementById('authEmail').textContent=emailAuth.user.email||'--';
@@ -8499,6 +8653,70 @@ function changeAvatar(){
     reader.readAsDataURL(file);
   };
   input.click();
+}
+// ═══════ PROFILE SETTINGS ═══════
+function saveNotifSettings(){
+  var s={hijack:document.getElementById('notifHijack').checked,weather:document.getElementById('notifWeather').checked,
+    rocket:document.getElementById('notifRocket').checked,mining:document.getElementById('notifMining').checked,
+    sound:document.getElementById('notifSound').checked};
+  localStorage.setItem('pw_notif_settings',JSON.stringify(s));
+}
+function loadNotifSettings(){
+  try{var s=JSON.parse(localStorage.getItem('pw_notif_settings'));if(!s)return;
+    if(s.hijack!==undefined)document.getElementById('notifHijack').checked=s.hijack;
+    if(s.weather!==undefined)document.getElementById('notifWeather').checked=s.weather;
+    if(s.rocket!==undefined)document.getElementById('notifRocket').checked=s.rocket;
+    if(s.mining!==undefined)document.getElementById('notifMining').checked=s.mining;
+    if(s.sound!==undefined)document.getElementById('notifSound').checked=s.sound;
+  }catch(_e){}
+}
+function getNotifSetting(key){
+  try{var s=JSON.parse(localStorage.getItem('pw_notif_settings'));return s?s[key]!==false:true;}catch(_e){return true;}
+}
+function openChangePassword(){
+  var el=document.getElementById('profileChangePw');
+  el.style.display=el.style.display==='none'?'block':'none';
+  document.getElementById('profPwErr').textContent='';
+  document.getElementById('profCurPw').value='';
+  document.getElementById('profNewPw').value='';
+  document.getElementById('profNewPw2').value='';
+}
+async function doChangePassword(){
+  var cur=document.getElementById('profCurPw').value;
+  var nw=document.getElementById('profNewPw').value;
+  var nw2=document.getElementById('profNewPw2').value;
+  var errEl=document.getElementById('profPwErr');
+  if(!cur){errEl.textContent='Enter current password';return;}
+  if(nw.length<8){errEl.textContent='New password must be 8+ characters';return;}
+  if(nw!==nw2){errEl.textContent='Passwords do not match';return;}
+  if(!/[A-Z]/.test(nw)||!/[a-z]/.test(nw)||!/[0-9]/.test(nw)||!/[^A-Za-z0-9]/.test(nw)){
+    errEl.textContent='Need uppercase, lowercase, number, special char';return;}
+  try{
+    var r=await fetch(API+'/auth/change-password',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
+      body:JSON.stringify({currentPassword:cur,newPassword:nw})});
+    var d=await r.json();
+    if(!r.ok){errEl.textContent=d.error||'Failed';return;}
+    document.getElementById('profileChangePw').style.display='none';
+    showToast('Password changed successfully');
+  }catch(e){errEl.textContent='Network error';}
+}
+function exportAccountData(){
+  if(!emailAuth.user)return;
+  var data={email:emailAuth.user.email,nickname:emailAuth.user.nickname,wallet:walletState.address,
+    exportedAt:new Date().toISOString()};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='occupymars_account_'+Date.now()+'.json';a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Account data exported');
+}
+function requestDeleteAccount(){
+  if(!confirm('Are you sure you want to delete your account? This action cannot be undone. All territories and PP will be lost.'))return;
+  if(!confirm('FINAL WARNING: This will permanently delete your account, wallet, and all game data.'))return;
+  fetch(API+'/auth/delete-account',{method:'POST',headers:{'Authorization':'Bearer '+emailAuth.token}})
+    .then(function(r){return r.json()})
+    .then(function(d){if(d.success){showToast('Account deleted');logoutEmail();}else{showToast(d.error||'Failed to delete');}})
+    .catch(function(){showToast('Network error');});
 }
 function logoutEmail(){
   emailAuth.token=null;
@@ -12231,6 +12449,341 @@ window.addEventListener('resize', function(){
   setInterval(fetchAnnounce, POLL_INTERVAL);
 })();
 
+// ═══════ SHARE FUNCTIONALITY ═══════
+function _captureGlobeScreenshot(){
+  try{
+    var globeEl=document.getElementById('globe-wrap');
+    var canvas=globeEl?globeEl.querySelector('canvas'):null;
+    if(!canvas) return null;
+    // Force a render to get current frame
+    if(globe&&globe.renderer){
+      globe.renderer().render(globe.scene(),globe.camera());
+    }
+    return canvas;
+  }catch(e){console.warn('[SHARE] capture error:',e);return null}
+}
+
+function _createShareImage(overlayText,callback){
+  var srcCanvas=_captureGlobeScreenshot();
+  if(!srcCanvas){showToast('Could not capture globe view');return}
+  var shareCanvas=document.createElement('canvas');
+  var w=1200,h=630;
+  shareCanvas.width=w;shareCanvas.height=h;
+  var ctx=shareCanvas.getContext('2d');
+  // Draw globe screenshot scaled to fill
+  try{ctx.drawImage(srcCanvas,0,0,w,h)}catch(e){
+    ctx.fillStyle='#0D0B14';ctx.fillRect(0,0,w,h);
+  }
+  // Dark overlay for readability
+  ctx.fillStyle='rgba(13,11,20,.55)';ctx.fillRect(0,0,w,h);
+  // Top branding
+  ctx.fillStyle='#FF7840';ctx.font='bold 36px Orbitron,monospace';ctx.textAlign='center';
+  ctx.fillText('OCCUPY MARS',w/2,80);
+  // Main text
+  ctx.fillStyle='#FFFFFF';ctx.font='bold 28px Orbitron,monospace';
+  ctx.fillText(overlayText,w/2,h/2);
+  // Bottom CTA
+  ctx.fillStyle='#C8A882';ctx.font='16px Orbitron,monospace';
+  ctx.fillText(window.location.origin,w/2,h-40);
+  shareCanvas.toBlob(function(blob){callback(blob)},'image/png');
+}
+
+function _doShare(text,blob){
+  var shareUrl=window.location.origin;
+  var shareText=text||"I'm colonizing Mars! Check out my territory on OCCUPY MARS \uD83D\uDD34\uD83D\uDE80";
+  if(navigator.share&&blob){
+    var file=new File([blob],'occupy-mars-territory.png',{type:'image/png'});
+    navigator.share({title:'OCCUPY MARS',text:shareText,url:shareUrl,files:[file]}).catch(function(){
+      // Fallback: try without files
+      navigator.share({title:'OCCUPY MARS',text:shareText,url:shareUrl}).catch(function(){});
+    });
+  }else if(navigator.share){
+    navigator.share({title:'OCCUPY MARS',text:shareText,url:shareUrl}).catch(function(){});
+  }else{
+    // Fallback: copy link
+    var copyText=shareText+' '+shareUrl;
+    navigator.clipboard.writeText(copyText).then(function(){
+      showToast('Share text copied to clipboard!');
+    }).catch(function(){
+      // Final fallback
+      var ta=document.createElement('textarea');ta.value=copyText;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+      showToast('Share text copied to clipboard!');
+    });
+  }
+}
+
+function shareTerritory(plot){
+  if(!plot)return;
+  var ownerName=plot.nickname||plot.label||(plot.owner?plot.owner.slice(0,8)+'...':'Unknown');
+  var pw=plot.w||plot.size||10,ph=plot.h||plot.size||10;
+  var pxCount=plot._pixelCount||(pw*ph);
+  var overlayText='I own '+pxCount.toLocaleString()+' pixels on Mars! \uD83D\uDD34 OCCUPY MARS';
+  _createShareImage(overlayText,function(blob){
+    _doShare("I'm colonizing Mars! Check out my territory on OCCUPY MARS \uD83D\uDD34\uD83D\uDE80",blob);
+  });
+}
+
+function shareBaseStats(){
+  var totalPx=document.getElementById('baseTotalPx')?document.getElementById('baseTotalPx').textContent:'0';
+  var rank=document.getElementById('baseRankShort')?document.getElementById('baseRankShort').textContent:'Lv.1';
+  var tCount=document.getElementById('myTerritoryCount')?document.getElementById('myTerritoryCount').textContent:'0';
+  var overlayText='I own '+tCount+' territories on Mars! \uD83D\uDD34 OCCUPY MARS';
+  _createShareImage(overlayText,function(blob){
+    var text="I'm colonizing Mars with "+totalPx+" pixels ("+rank+")! Check out my territory on OCCUPY MARS \uD83D\uDD34\uD83D\uDE80";
+    _doShare(text,blob);
+  });
+}
+
+// ═══════ TELEGRAM INTEGRATION ═══════
+var _telegramGroupUrl='';
+function openTelegramGroup(){
+  if(_telegramGroupUrl){
+    window.open(_telegramGroupUrl,'_blank','noopener');
+  }else{
+    showToast('Telegram group not configured yet');
+  }
+}
+// Fetch telegram URL from config
+(function(){
+  fetch('/api/config').then(function(r){return r.json()}).then(function(cfg){
+    if(cfg&&cfg.telegram_group_url){
+      _telegramGroupUrl=cfg.telegram_group_url;
+    }
+  }).catch(function(){});
+})();
+
+</script>
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  LEGAL: Terms of Service Modal                          -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="legal-modal-bg" id="tosModal" onclick="if(event.target===this)closeTosModal()">
+  <div class="legal-modal">
+    <div class="legal-modal-hd">
+      <h2>TERMS OF SERVICE</h2>
+      <button class="lm-close" onclick="closeTosModal()">&times;</button>
+    </div>
+    <div class="legal-modal-body">
+      <h3>1. ABOUT OCCUPY MARS</h3>
+      <p>Occupy Mars is a browser-based territory strategy game set on a virtual Mars. Players claim land, mine resources, battle opponents, and trade in-game currency. The game is provided "as is" for entertainment purposes.</p>
+
+      <h3>2. PLANET POINTS (PP) &mdash; IN-GAME CURRENCY</h3>
+      <p>Planet Points (PP) is the primary in-game currency used within Occupy Mars. PP is <strong>not</strong> real money, legal tender, or a cryptocurrency. PP has no inherent monetary value outside the game.</p>
+      <p>PP can be earned through gameplay (mining, quests, battles) or purchased via supported payment methods. All PP purchases are final and non-refundable unless required by applicable law.</p>
+
+      <h3>3. USDT WITHDRAWALS</h3>
+      <p>Under certain conditions, players may convert PP to USDT and request withdrawals. Withdrawal availability is subject to:</p>
+      <ul>
+        <li>Minimum balance and verification requirements</li>
+        <li>Anti-fraud and anti-money-laundering checks</li>
+        <li>Processing times (may vary)</li>
+        <li>Network fees deducted from the withdrawal amount</li>
+        <li>The game operator's right to suspend withdrawals for security or maintenance</li>
+      </ul>
+      <p>The exchange rate between PP and USDT is determined by the game and may change without notice.</p>
+
+      <h3>4. USER CONDUCT</h3>
+      <p>By using this service, you agree not to:</p>
+      <ul>
+        <li>Use bots, scripts, or automation tools</li>
+        <li>Exploit bugs or glitches (report them instead)</li>
+        <li>Harass, threaten, or impersonate other players</li>
+        <li>Attempt to manipulate the game economy</li>
+        <li>Create multiple accounts to gain unfair advantages</li>
+        <li>Engage in real-money trading of accounts or in-game assets outside official channels</li>
+      </ul>
+
+      <h3>5. ACCOUNT TERMINATION</h3>
+      <p>We reserve the right to suspend or terminate accounts that violate these terms, including but not limited to:</p>
+      <ul>
+        <li>Cheating, botting, or exploiting</li>
+        <li>Fraudulent deposits or chargebacks</li>
+        <li>Abusive behavior toward other players or staff</li>
+        <li>Violation of any applicable law</li>
+      </ul>
+      <p>Terminated accounts may forfeit any remaining PP balance. We will make reasonable efforts to notify you before termination, except in cases of fraud or security threats.</p>
+
+      <h3>6. INTELLECTUAL PROPERTY</h3>
+      <p>All game content, code, art, text, and design are the property of the Occupy Mars team. Player-uploaded images remain the property of their creators, but you grant us a license to display them in-game. You may not copy, distribute, or reverse-engineer any part of the game.</p>
+
+      <h3>7. LIMITATION OF LIABILITY</h3>
+      <p>The game is provided without warranties of any kind. We are not liable for:</p>
+      <ul>
+        <li>Loss of in-game currency or progress due to bugs, server issues, or maintenance</li>
+        <li>Blockchain network delays or failures</li>
+        <li>Unauthorized access to your account (please use a strong password)</li>
+        <li>Any indirect, incidental, or consequential damages</li>
+      </ul>
+      <p>Our total liability shall not exceed the amount you have paid to us in the 12 months prior to any claim.</p>
+
+      <h3>8. CHANGES TO TERMS</h3>
+      <p>We may update these terms at any time. Continued use of the game after changes constitutes acceptance. We will notify users of significant changes via in-game announcement.</p>
+
+      <h3>9. GOVERNING LAW</h3>
+      <p>These terms are governed by the laws of the jurisdiction in which the game operator is registered. Disputes shall be resolved through good-faith negotiation first.</p>
+
+      <h3>10. CONTACT</h3>
+      <p>For questions about these terms, contact us via the in-game support channel or at the email provided on our official website.</p>
+
+      <div class="legal-update">Last updated: April 9, 2026 &mdash; Version 1.0</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  LEGAL: Privacy Policy Modal                             -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="legal-modal-bg" id="privacyModal" onclick="if(event.target===this)closePrivacyModal()">
+  <div class="legal-modal">
+    <div class="legal-modal-hd">
+      <h2>PRIVACY POLICY</h2>
+      <button class="lm-close" onclick="closePrivacyModal()">&times;</button>
+    </div>
+    <div class="legal-modal-body">
+      <h3>1. DATA WE COLLECT</h3>
+      <p>When you use Occupy Mars, we may collect:</p>
+      <ul>
+        <li><strong>Account info:</strong> Email address, nickname, password (hashed &mdash; we never store plaintext)</li>
+        <li><strong>Wallet address:</strong> Your custodial game wallet address (generated at registration)</li>
+        <li><strong>Gameplay data:</strong> Territory claims, battles, transactions, quest progress, game statistics</li>
+        <li><strong>Device info:</strong> Browser type, screen size, IP address (for security and rate limiting)</li>
+        <li><strong>Usage data:</strong> Pages visited, features used, session duration</li>
+      </ul>
+
+      <h3>2. HOW WE USE YOUR DATA</h3>
+      <ul>
+        <li>Provide and maintain game services</li>
+        <li>Process in-game transactions and withdrawals</li>
+        <li>Prevent fraud, cheating, and abuse</li>
+        <li>Improve game performance and features</li>
+        <li>Send important account notifications (security alerts, terms changes)</li>
+        <li>Generate anonymized analytics to improve the game</li>
+      </ul>
+
+      <h3>3. DATA STORAGE &amp; SECURITY</h3>
+      <p>Your data is stored on secured servers with encryption at rest and in transit. Passwords are hashed using bcrypt. We implement rate limiting, input validation, and regular security audits. However, no system is 100% secure &mdash; please use a strong, unique password.</p>
+
+      <h3>4. THIRD-PARTY SERVICES</h3>
+      <p>We integrate with the following types of third-party services:</p>
+      <ul>
+        <li><strong>Blockchain networks:</strong> For processing USDT deposits and withdrawals (transaction data is public on-chain)</li>
+        <li><strong>Email services:</strong> For password resets and account notifications</li>
+        <li><strong>CDN/hosting:</strong> For delivering game assets</li>
+      </ul>
+      <p>We do not sell your personal data to third parties.</p>
+
+      <h3>5. YOUR RIGHTS</h3>
+      <p>Depending on your jurisdiction, you may have the right to:</p>
+      <ul>
+        <li><strong>Access:</strong> Request a copy of the personal data we hold about you</li>
+        <li><strong>Correction:</strong> Update inaccurate or incomplete data</li>
+        <li><strong>Deletion:</strong> Request deletion of your account and associated data</li>
+        <li><strong>Export:</strong> Receive your data in a portable format</li>
+        <li><strong>Objection:</strong> Object to certain processing of your data</li>
+      </ul>
+      <p>To exercise these rights, contact us through the in-game support channel. We will respond within 30 days.</p>
+
+      <h3>6. COOKIES &amp; LOCAL STORAGE</h3>
+      <p>We use browser cookies and localStorage for:</p>
+      <ul>
+        <li>Authentication (keeping you logged in)</li>
+        <li>Remembering your preferences (language, settings)</li>
+        <li>Game state caching (for faster loading)</li>
+      </ul>
+      <p>We do not use third-party tracking cookies. You can clear cookies at any time through your browser settings, but this may log you out.</p>
+
+      <h3>7. DATA RETENTION</h3>
+      <p>We retain your data for as long as your account is active. If you request account deletion, we will remove your personal data within 30 days, except where retention is required by law (e.g., financial transaction records).</p>
+
+      <h3>8. CHILDREN</h3>
+      <p>Occupy Mars is not intended for users under 18 years of age. We do not knowingly collect data from minors. If you believe a minor has created an account, please contact us.</p>
+
+      <h3>9. CHANGES TO THIS POLICY</h3>
+      <p>We may update this policy from time to time. We will notify users of significant changes via in-game announcement. Continued use after changes constitutes acceptance.</p>
+
+      <h3>10. CONTACT</h3>
+      <p>For privacy-related questions or requests, contact us via the in-game support channel or at the email provided on our official website.</p>
+
+      <div class="legal-update">Last updated: April 9, 2026 &mdash; Version 1.0</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  LEGAL: Gambling / Age Disclaimer (one-time)             -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="gamble-disclaimer-bg" id="gambleDisclaimer" onclick="if(event.target===this)return">
+  <div class="gamble-disclaimer">
+    <div class="gd-icon">&#9888;&#65039;</div>
+    <div class="gd-title">CANTINA GAMES DISCLAIMER</div>
+    <div class="gd-text">
+      The Cantina contains games of chance and skill.<br>
+      <strong>You may lose PP (Planet Points). Play responsibly.</strong><br><br>
+      PP spent in games is gone &mdash; wins are not guaranteed.<br>
+      You must be <strong>18 years or older</strong> to play.<br><br>
+      If you feel you are developing a problem with gambling,<br>
+      please take a break and seek help.
+    </div>
+    <button class="gd-accept" onclick="acceptGambleDisclaimer()">I UNDERSTAND &mdash; ENTER CANTINA</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  LEGAL: Cookie Consent Banner                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="cookie-banner" id="cookieBanner">
+  <span class="ck-text">We use cookies and localStorage for authentication, saving your preferences, and improving your experience.</span>
+  <button class="ck-accept" onclick="acceptCookies()">ACCEPT</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  LEGAL: Footer Links                                     -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="legal-footer" id="legalFooter">
+  <a onclick="openTosModal()">Terms of Service</a>
+  <span class="lf-sep">|</span>
+  <a onclick="openPrivacyModal()">Privacy Policy</a>
+</div>
+
+<script>
+// ── Legal Modals ──
+function openTosModal(){ document.getElementById('tosModal').classList.add('open'); }
+function closeTosModal(){ document.getElementById('tosModal').classList.remove('open'); }
+function openPrivacyModal(){ document.getElementById('privacyModal').classList.add('open'); }
+function closePrivacyModal(){ document.getElementById('privacyModal').classList.remove('open'); }
+
+// Close legal modals with Escape key
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){
+    closeTosModal();
+    closePrivacyModal();
+  }
+});
+
+// ── Cookie Consent ──
+(function(){
+  if(!localStorage.getItem('cookie_consent')){
+    document.getElementById('cookieBanner').classList.add('show');
+  }
+})();
+function acceptCookies(){
+  localStorage.setItem('cookie_consent','1');
+  document.getElementById('cookieBanner').classList.remove('show');
+}
+
+// ── Gambling Disclaimer (one-time before arena) ──
+var _origOpenArena = window.openArena;
+window.openArena = function(){
+  if(!localStorage.getItem('gamble_disclaimer_accepted')){
+    document.getElementById('gambleDisclaimer').classList.add('open');
+    return;
+  }
+  _origOpenArena();
+};
+function acceptGambleDisclaimer(){
+  localStorage.setItem('gamble_disclaimer_accepted','1');
+  document.getElementById('gambleDisclaimer').classList.remove('open');
+  _origOpenArena();
+}
 </script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </body>

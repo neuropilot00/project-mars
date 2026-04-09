@@ -1,4 +1,5 @@
 const { pool, getSetting } = require('../db');
+const { sendTelegramNotification } = require('./telegram');
 
 // Weather type definitions with effects
 const WEATHER_TYPES = {
@@ -42,6 +43,12 @@ async function spawnWeatherEvents() {
 
   if (results.length > 0) {
     console.log('[WEATHER] Spawned:', results.map(r => `sector ${r.sectorId}: ${r.weatherType} (${r.durationHours}h)`).join(', '));
+    // Telegram notification for weather events
+    const icons = results.map(r => {
+      const def = WEATHER_TYPES[r.weatherType];
+      return `${def ? def.icon : ''} ${def ? def.label : r.weatherType} in Sector ${r.sectorId} (${r.durationHours}h)`;
+    }).join('\n');
+    sendTelegramNotification(`<b>🌡️ MARS WEATHER ALERT</b>\n\n${icons}\n\nCheck the map for affected sectors!`).catch(() => {});
   }
   return results;
 }

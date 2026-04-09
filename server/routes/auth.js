@@ -127,10 +127,15 @@ function generateCustodialAddress() {
 //  POST /api/auth/register — Email signup
 // ══════════════════════════════════════════════════
 router.post('/register', authLimiter, async (req, res) => {
-  const { email, password, nickname, referralCode } = req.body;
+  const { email, password, nickname, referralCode, tosAccepted } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password required' });
+  }
+
+  // Require TOS acceptance for registration
+  if (!tosAccepted) {
+    return res.status(400).json({ error: 'You must accept the Terms of Service to register' });
   }
 
   // Validate email format and length
@@ -186,10 +191,10 @@ router.post('/register', authLimiter, async (req, res) => {
       }
     }
 
-    // Insert user
+    // Insert user with TOS acceptance
     await client.query(
-      `INSERT INTO users (wallet_address, email, password_hash, nickname, referral_code, referred_by)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
+      `INSERT INTO users (wallet_address, email, password_hash, nickname, referral_code, referred_by, tos_accepted_at, tos_version)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), '1.0')`,
       [walletAddress, email.toLowerCase(), passwordHash, displayName, refCode, referredBy]
     );
 
@@ -734,6 +739,57 @@ router.post('/reset-password/verify', passwordResetLimiter, async (req, res) => 
     await client.query('ROLLBACK');
     console.error('[Auth] reset-password/verify error:', e.message);
     res.status(500).json({ error: 'Reset verification failed' });
+  } finally {
+    client.release();
+  }
+});
+
+// ═══════ CHANGE PASSWORD (authenticated) ═══════
+router.post('/change-password', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'Not authenticated' });
+    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'dev-secret');
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+    if (newPassword.length < 8) return res.status(400).json({ error: 'Password must be 8+ characters' });
+    if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[^A-Za-z0-9]/.test(newPassword)) {
+      return res.status(400).json({ error: 'Need uppercase, lowercase, number, special char' });
+    }
+    const user = await pool.query('SELECT password_hash FROM users WHERE id = $1', [decoded.userId]);
+    if (!user.rows.length) return res.status(404).json({ error: 'User not found' });
+    const valid = await bcrypt.compare(currentPassword, user.rows[0].password_hash);
+    if (!valid) return res.status(403).json({ error: 'Current password is incorrect' });
+    const newHash = await bcrypt.hash(newPassword, 12);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, decoded.userId]);
+    console.log(`[Auth] Password changed for user ${decoded.userId}`);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[Auth] change-password error:', e.message);
+    res.status(500).json({ error: 'Failed to change password' });
+  }
+});
+
+// ═══════ DELETE ACCOUNT (authenticated) ═══════
+router.post('/delete-account', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'Not authenticated' });
+    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET || 'dev-secret');
+    await client.query('BEGIN');
+    // Release all territories
+    await client.query('UPDATE pixels SET owner = NULL WHERE owner = (SELECT wallet FROM users WHERE id = $1)', [decoded.userId]);
+    await client.query("UPDATE claims SET status = 'abandoned' WHERE wallet = (SELECT wallet FROM users WHERE id = $1)", [decoded.userId]);
+    // Zero out balances
+    await client.query('UPDATE users SET pp_balance = 0, usdt_balance = 0, is_active = false WHERE id = $1', [decoded.userId]);
+    await client.query('COMMIT');
+    console.log(`[Auth] Account deleted: user ${decoded.userId}`);
+    res.json({ success: true });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[Auth] delete-account error:', e.message);
+    res.status(500).json({ error: 'Failed to delete account' });
   } finally {
     client.release();
   }

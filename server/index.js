@@ -8,7 +8,14 @@ require('dotenv').config({ path: _path.join(__dirname, '..', '.env') });
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const rateLimit = require('express-rate-limit');
+
+// ── Ensure logs directory exists ──
+const logsDir = path.join(__dirname, '..', 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
 
 // ── Production environment validation ──
 if (process.env.NODE_ENV === 'production') {
@@ -75,6 +82,25 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.trycloudflare.com https://*.railway.app https://*.infura.io https://*.alchemy.com wss://*; font-src 'self' data: https://fonts.gstatic.com;");
   next();
+});
+
+// ── Health Check (before rate limiting) ──
+app.get('/health', async (req, res) => {
+  let dbStatus = 'ok';
+  try {
+    await pool.query('SELECT 1');
+  } catch (e) {
+    dbStatus = 'error';
+  }
+  const memoryMB = Math.round(process.memoryUsage().rss / 1024 / 1024 * 100) / 100;
+  const status = dbStatus === 'ok' ? 'ok' : 'degraded';
+  res.json({
+    status,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    database: dbStatus,
+    memory: memoryMB
+  });
 });
 
 // ── Rate Limiting ──
@@ -150,13 +176,114 @@ app.use('/admin/api', adminRoutes);
 app.use('/api/arena', arenaRoutes);
 app.use('/api/governance', governanceRoutes);
 
+// ── Public Leaderboard Page ──
+app.get('/leaderboard', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT
+         u.wallet_address,
+         u.nickname,
+         COUNT(DISTINCT c.id) AS claim_count,
+         COALESCE(SUM(c.width * c.height), 0) AS pixel_count
+       FROM users u
+       LEFT JOIN claims c ON c.owner = u.wallet_address AND c.deleted_at IS NULL
+       GROUP BY u.wallet_address, u.nickname
+       HAVING COUNT(DISTINCT c.id) > 0
+       ORDER BY claim_count DESC
+       LIMIT 50`
+    );
+
+    const rows = result.rows.map((r, i) => ({
+      rank: i + 1,
+      nickname: r.nickname || null,
+      wallet: r.wallet_address.slice(0, 6) + '...' + r.wallet_address.slice(-4),
+      claimCount: parseInt(r.claim_count),
+      pixelCount: parseInt(r.pixel_count)
+    }));
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCCUPY MARS - Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0D0B14;color:#E8DCC8;font-family:'Orbitron',monospace;min-height:100vh}
+.container{max-width:720px;margin:0 auto;padding:20px 16px}
+.header{text-align:center;padding:40px 0 30px}
+.logo{font-size:32px;font-weight:900;color:#FF7840;letter-spacing:6px;text-shadow:0 0 30px rgba(255,120,60,.5)}
+.subtitle{font-size:12px;color:#C8A882;letter-spacing:2px;margin-top:8px}
+.play-btn{display:inline-block;margin-top:20px;padding:14px 40px;background:linear-gradient(135deg,#FF7840,#E84855);color:#fff;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:3px;border:none;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .3s}
+.play-btn:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(255,120,60,.4)}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th{font-size:10px;color:#6A5848;letter-spacing:1.5px;text-align:left;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+th:last-child,th:nth-child(3),th:nth-child(4){text-align:right}
+td{font-size:12px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:#C8A882}
+td:last-child,td:nth-child(3),td:nth-child(4){text-align:right}
+tr:hover td{background:rgba(255,120,60,.04)}
+.rank-num{font-weight:700;color:#FF7840;font-size:14px}
+.rank-1{color:#FFD166;font-size:16px}
+.rank-2{color:#C0C0C0;font-size:15px}
+.rank-3{color:#CD7F32;font-size:15px}
+.nickname{color:#E8DCC8;font-weight:700}
+.wallet{color:#6A5848;font-size:10px}
+.gold{color:#FFD166}
+.mars{color:#FF7840}
+.footer{text-align:center;padding:40px 0 20px;font-size:10px;color:#3A3020}
+@media(max-width:480px){
+  .logo{font-size:22px;letter-spacing:3px}
+  th,td{padding:8px 6px;font-size:10px}
+  .rank-num{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">OCCUPY MARS</div>
+    <div class="subtitle">TOP 50 COLONIZERS</div>
+    <a href="/" class="play-btn">PLAY NOW</a>
+  </div>
+  <table>
+    <thead>
+      <tr><th>#</th><th>COLONIZER</th><th>TERRITORIES</th><th>PIXELS</th></tr>
+    </thead>
+    <tbody>
+${rows.map(r => {
+  const rankClass = r.rank === 1 ? 'rank-1' : r.rank === 2 ? 'rank-2' : r.rank === 3 ? 'rank-3' : '';
+  const medal = r.rank === 1 ? ' \uD83E\uDD47' : r.rank === 2 ? ' \uD83E\uDD48' : r.rank === 3 ? ' \uD83E\uDD49' : '';
+  const name = r.nickname ? '<span class="nickname">' + r.nickname + '</span><br><span class="wallet">' + r.wallet + '</span>' : '<span class="wallet">' + r.wallet + '</span>';
+  return '      <tr><td class="rank-num ' + rankClass + '">' + r.rank + medal + '</td><td>' + name + '</td><td class="mars">' + r.claimCount + '</td><td class="gold">' + r.pixelCount.toLocaleString() + '</td></tr>';
+}).join('\n')}
+    </tbody>
+  </table>
+  <div class="footer">OCCUPY MARS &mdash; Claim Your Territory on the Red Planet</div>
+</div>
+</body>
+</html>`;
+    res.type('html').send(html);
+  } catch (e) {
+    console.error('[LEADERBOARD] Error:', e.message);
+    res.status(500).send('Leaderboard temporarily unavailable');
+  }
+});
+
 // ── Static files (index.html, admin.html, assets) ──
-// Disable caching for HTML files to ensure latest code is always served
+// Cache headers per file type
 app.use((req, res, next) => {
   if (req.path.endsWith('.html') || req.path === '/') {
+    // HTML: no cache
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
+  } else if (/\.(png|jpg|jpeg|webp|svg|gif|ico)$/i.test(req.path)) {
+    // Images: 7 days
+    res.setHeader('Cache-Control', 'public, max-age=604800');
+  } else if (/\.(js|css)$/i.test(req.path)) {
+    // JS/CSS: 1 day
+    res.setHeader('Cache-Control', 'public, max-age=86400');
   }
   next();
 });
@@ -179,6 +306,11 @@ app.get('/arena', (req, res) => {
 // ── Error handler ──
 app.use((err, req, res, next) => {
   console.error('[Server] Error:', err.message);
+  // Append to error log file
+  const logEntry = `[${new Date().toISOString()}] ${req.method} ${req.url} | ${err.message}\n${err.stack || ''}\n---\n`;
+  fs.appendFile(path.join(logsDir, 'error.log'), logEntry, (writeErr) => {
+    if (writeErr) console.error('[Server] Failed to write error log:', writeErr.message);
+  });
   res.status(500).json({ error: 'Internal server error' });
 });
 

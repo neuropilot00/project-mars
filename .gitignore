@@ -7,3 +7,5 @@ assets/*
 !assets/textures/
 server/node_modules/
 uploads/
+logs/
+server/backups/
