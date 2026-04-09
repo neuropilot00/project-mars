@@ -327,7 +327,7 @@ router.get('/me', async (req, res) => {
   try {
     const decoded = jwt.verify(authHeader.slice(7), JWT_SECRET);
     const result = await pool.query(
-      'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, referral_code FROM users WHERE wallet_address = $1',
+      'SELECT wallet_address, email, nickname, usdt_balance, pp_balance, COALESCE(gp_balance,0) AS gp_balance, referral_code FROM users WHERE wallet_address = $1',
       [decoded.wallet]
     );
 
@@ -336,12 +336,21 @@ router.get('/me', async (req, res) => {
     }
 
     const u = result.rows[0];
+
+    // Sum governance GP from all positions
+    const govGPRes = await pool.query(
+      'SELECT COALESCE(SUM(gp_balance),0)::numeric AS total FROM governance_positions WHERE wallet = $1',
+      [u.wallet_address]
+    );
+    const govGP = parseFloat(govGPRes.rows[0]?.total || 0);
+
     res.json({
       wallet: u.wallet_address,
       email: u.email,
       nickname: u.nickname,
       usdtBalance: parseFloat(u.usdt_balance),
       ppBalance: parseFloat(u.pp_balance),
+      gpBalance: parseFloat(u.gp_balance) + govGP,
       referralCode: u.referral_code
     });
   } catch (e) {

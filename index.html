@@ -1701,14 +1701,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .daily-bonus-card .db-sub{font-size:8px;color:var(--tx2);margin-top:4px;font-family:var(--fn)}
 @keyframes dailyBonusPulse{0%,100%{border-color:rgba(255,209,102,.2)}50%{border-color:rgba(255,209,102,.5)}}
 
-.daily-hud-btn{position:relative;width:28px;height:28px;border-radius:50%;
-  border:1px solid rgba(255,209,102,.35);background:rgba(255,209,102,.08);
-  color:var(--gold);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:all .2s;font-family:var(--fn)}
-.daily-hud-btn:hover{background:rgba(255,209,102,.2);box-shadow:0 0 8px rgba(255,209,102,.2)}
-.daily-hud-dot{position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;
-  background:var(--red);border:1px solid var(--bg);display:none;animation:dotPulse 1.5s ease-in-out infinite}
 @keyframes dotPulse{0%,100%{opacity:.7}50%{opacity:1;transform:scale(1.2)}}
+.tab-dot{display:none;width:6px;height:6px;border-radius:50%;background:var(--red);
+  position:absolute;top:4px;right:4px;animation:dotPulse 1.5s ease-in-out infinite;
+  box-shadow:0 0 4px rgba(232,72,85,0.6)}
+.base-tab{position:relative}
 </style>
 </head>
 <body>
@@ -1752,7 +1749,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <span class="chain-dot base" id="chainDotTop"></span>
       <span id="chainNameTop">BASE</span>
     </div>
-    <button class="daily-hud-btn" id="dailyHudBtn" onclick="openDailyPanel()" title="Daily Missions" style="display:none">📋<span class="daily-hud-dot" id="dailyHudDot"></span></button>
+    <!-- daily hud moved to OPEN BASE button -->
     <button id="telegramBtn" onclick="openTelegramGroup()" title="Join Telegram" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(36,161,222,.35);background:rgba(36,161,222,.1);color:#24A1DE;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1" onmouseover="this.style.background='rgba(36,161,222,.25)'" onmouseout="this.style.background='rgba(36,161,222,.1)'">✈</button>
     <div class="tb-avatar-emoji" id="tbAvatarEmoji" onclick="openAuthModal()">👤</div>
     <img class="tb-avatar" id="tbAvatarImg" onclick="openAuthModal()">
@@ -1868,7 +1865,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-bal"><span class="lbl">USDT</span><span class="val usdt" id="walletUsdt">0.00</span></div>
       <div class="wallet-bal"><span class="lbl">PP</span><span class="val pp" id="walletPP">0.00</span></div>
-      <div class="wallet-bal" id="walletGPRow" style="display:none"><span class="lbl" style="color:var(--gold)">GP</span><span class="val" style="color:var(--gold)" id="walletGP">0</span></div>
+      <div class="wallet-bal" id="walletGPRow"><span class="lbl" style="color:var(--gold)">GP</span><span class="val" style="color:var(--gold)" id="walletGP">0</span></div>
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-actions">
         <button class="wa-btn dep" onclick="openDepositModal()">DEPOSIT</button>
@@ -2016,8 +2013,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <!-- BASE (Dashboard) -->
   <div class="p-section">
     <div class="p-title">MY BASE <span class="help-tip" onclick="event.stopPropagation();showHelpTip('base')">?</span></div>
-    <button class="action-btn" onclick="openBaseModal()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(255,120,60,.04));border-color:rgba(255,120,60,.35)">
+    <button class="action-btn" id="openBaseBtn" onclick="openBaseModal()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(255,120,60,.04));border-color:rgba(255,120,60,.35);position:relative">
       OPEN BASE
+      <span id="dailyHudDot" class="tab-dot" style="top:4px;right:4px;width:8px;height:8px"></span>
     </button>
   </div>
 
@@ -2306,8 +2304,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab active" onclick="switchBaseTab('territory',this)">MY TERRITORY</div>
       <div class="base-tab" onclick="switchBaseTab('sectors',this)">SECTORS</div>
       <div class="base-tab" onclick="switchBaseTab('rank',this)">RANK</div>
-      <div class="base-tab" onclick="switchBaseTab('mining',this)">MINING</div>
-      <div class="base-tab" onclick="switchBaseTab('quests',this)">QUESTS</div>
+      <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this)">MINING<span class="tab-dot" id="miningDot"></span></div>
+      <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this)">QUESTS<span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" onclick="switchBaseTab('shop',this);loadBaseShopItems()">SHOP</div>
       <div class="base-tab" onclick="switchBaseTab('govern',this)" style="color:var(--cyan)">GOVERN</div>
     </div>
@@ -12584,11 +12582,7 @@ window.addEventListener('resize', function(){
         });
         posEl.innerHTML = html;
 
-        // Update GP in wallet panel
-        var totalGP = _govMyPositions.reduce(function(s,p){return s+parseFloat(p.gp_balance||0)},0);
-        var gpRow = document.getElementById('walletGPRow');
-        var gpVal = document.getElementById('walletGP');
-        if(gpRow && totalGP > 0) { gpRow.style.display=''; gpVal.textContent=totalGP.toFixed(0); }
+        // GP is now managed by updateGPDisplay() from /api/auth/me
       }
 
       // ── COMMANDER / GOVERNOR DASHBOARDS ──
@@ -13300,7 +13294,6 @@ var _defaultMissions = [
 function loadDailyMissions(){
   if(!emailAuth.token) return;
   document.getElementById('dailyMissionsPanel').style.display = '';
-  document.getElementById('dailyHudBtn').style.display = 'flex';
 
   fetch('/api/daily/missions',{
     headers:{'Authorization':'Bearer '+emailAuth.token}
@@ -13476,17 +13469,20 @@ function startDailyTimer(){
   _dailyTimerInterval = setInterval(tick, 1000);
 }
 
-// ── HUD Button & Notification Dot ──
+// ── Notification Dots (OPEN BASE button + QUESTS tab) ──
 function updateDailyHudDot(){
-  var dot = document.getElementById('dailyHudDot');
-  if(!dot) return;
   var hasUnclaimed = !_dailyState.todayClaimed;
   if(!hasUnclaimed){
     _dailyState.missions.forEach(function(m){
       if(!m.claimed && m.current >= m.target) hasUnclaimed = true;
     });
   }
-  dot.style.display = hasUnclaimed ? 'block' : 'none';
+  // OPEN BASE button dot
+  var baseDot = document.getElementById('dailyHudDot');
+  if(baseDot) baseDot.style.display = hasUnclaimed ? 'block' : 'none';
+  // QUESTS tab dot inside BASE modal
+  var questsDot = document.getElementById('questsDot');
+  if(questsDot) questsDot.style.display = hasUnclaimed ? 'block' : 'none';
 }
 
 function openDailyPanel(){
