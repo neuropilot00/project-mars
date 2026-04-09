@@ -777,6 +777,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .hwd{font-size:8px;font-family:var(--fn);color:rgba(255,255,255,.5);line-height:1.6}
 
 /* ── Item Shop ── */
+.shop-main-tab{flex:none;padding:10px 18px;font-size:var(--fs-sm);font-family:var(--fn);
+  background:none;border:none;color:var(--tx3);cursor:pointer;position:relative;
+  letter-spacing:.5px;transition:all .15s}
+.shop-main-tab:hover{color:var(--tx)}
+.shop-main-tab.active{color:var(--gold);font-weight:700}
+.shop-main-tab.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;
+  height:2px;background:var(--gold)}
 .shop-cat-btn{flex:1;padding:8px 4px;font-size:var(--fs-xs);font-family:var(--fn);
   background:none;border:none;color:var(--tx3);cursor:pointer;
   border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.5px}
@@ -884,6 +891,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   #shopModal .mdl{max-height:85vh;height:85vh}
   .shop-grid{grid-template-columns:1fr}
   .shop-item-card{padding:14px}
+  .shop-main-tab{padding:8px 14px;font-size:10px;min-height:40px}
   .shop-cat-btn{padding:10px 4px;font-size:10px;min-height:44px}
   .si-price{min-height:36px;display:flex;align-items:center;padding:6px 12px!important;font-size:11px!important}
   .inv-item{padding:12px}
@@ -1776,15 +1784,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <span class="mtl" style="color:var(--gold)">🛡️ ITEM SHOP</span>
       <button class="mx" onclick="closeItemShop()">×</button>
     </div>
-    <!-- Shop balance bar -->
-    <div style="display:flex;gap:12px;padding:8px 16px;background:rgba(0,0,0,.2);border-bottom:1px solid var(--bdr);font-size:var(--fs-sm);flex-shrink:0">
-      <span style="color:var(--pp)" id="shopBalPP">-- PP</span>
-      <span style="color:var(--tx3)">|</span>
-      <span style="color:var(--gn)" id="shopBalUSDT">-- USDT</span>
-      <span style="flex:1"></span>
-      <button onclick="shopShowInventory()" style="background:none;border:1px solid var(--bdr);border-radius:4px;color:var(--gold);font-size:var(--fs-xs);font-family:var(--fn);cursor:pointer;padding:2px 8px" id="shopInvToggle">MY ITEMS</button>
+    <!-- Shop/Inventory main tabs -->
+    <div style="display:flex;border-bottom:1px solid var(--bdr);flex-shrink:0">
+      <button class="shop-main-tab active" id="shopTabShop" onclick="shopSwitchTab('shop')">🛒 SHOP</button>
+      <button class="shop-main-tab" id="shopTabInv" onclick="shopSwitchTab('inv')">📦 MY ITEMS <span id="shopInvCount" style="background:var(--mars);color:#fff;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:4px;display:none">0</span></button>
+      <div style="flex:1;background:rgba(0,0,0,.2)"></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:0 12px;background:rgba(0,0,0,.2);font-size:var(--fs-xs)">
+        <span style="color:var(--pp)" id="shopBalPP">-- PP</span>
+        <span style="color:var(--tx3)">|</span>
+        <span style="color:var(--gn)" id="shopBalUSDT">-- USDT</span>
+      </div>
     </div>
-    <!-- Shop tabs -->
+    <!-- Shop category tabs -->
     <div style="display:flex;border-bottom:1px solid var(--bdr);background:rgba(0,0,0,.1);flex-shrink:0" id="shopCatTabs">
       <button class="shop-cat-btn active" onclick="shopFilterCat('all',this)">ALL</button>
       <button class="shop-cat-btn" onclick="shopFilterCat('defense',this)">DEFENSE</button>
@@ -1800,6 +1811,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div style="font-size:var(--fs-sm);color:var(--tx3);letter-spacing:1px;margin-bottom:8px">MY INVENTORY</div>
         <div id="shopInventoryList" class="shop-grid"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Confirm Modal (replaces native confirm()) -->
+<div id="shopConfirmModal" style="position:fixed;inset:0;z-index:1100;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35)">
+  <div class="mdl" style="max-width:340px;padding:0;border-radius:14px;overflow:hidden;animation:modalIn .15s ease-out">
+    <div style="padding:20px 20px 12px;text-align:center">
+      <div id="shopConfirmIcon" style="font-size:36px;margin-bottom:8px">🛒</div>
+      <div id="shopConfirmTitle" style="font-size:var(--fs-lg);font-weight:700;color:var(--tx);margin-bottom:6px">Confirm Purchase</div>
+      <div id="shopConfirmMsg" style="font-size:var(--fs-sm);color:var(--tx3);line-height:1.6"></div>
+    </div>
+    <div style="display:flex;border-top:1px solid var(--bdr);margin-top:8px">
+      <button onclick="_shopConfirmResolve(false)" style="flex:1;padding:14px;font-size:var(--fs-sm);font-family:var(--fn);background:none;border:none;color:var(--tx3);cursor:pointer;border-right:1px solid var(--bdr);transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='none'">CANCEL</button>
+      <button onclick="_shopConfirmResolve(true)" id="shopConfirmBtn" style="flex:1;padding:14px;font-size:var(--fs-sm);font-family:var(--fn);background:none;border:none;color:var(--mars);cursor:pointer;font-weight:700;transition:background .15s" onmouseover="this.style.background='rgba(255,120,60,.06)'" onmouseout="this.style.background='none'">CONFIRM</button>
     </div>
   </div>
 </div>
@@ -2077,9 +2103,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <span class="nav-icon" data-icon="claim">＋</span>
       <span class="nav-label">CLAIM</span>
     </button>
-    <button class="mob-nav-item" onclick="openBaseModal();setTimeout(function(){switchBaseTab('shop',document.querySelector('.base-tab:last-child'))},150)">
-      <span class="nav-icon" data-icon="shop">🛡️</span>
-      <span class="nav-label">SHOP</span>
+    <button class="mob-nav-item" onclick="openItemShop();shopSwitchTab('inv')">
+      <span class="nav-icon" data-icon="inventory">📦</span>
+      <span class="nav-label">ITEMS</span>
     </button>
     <button class="mob-nav-item" onclick="openBaseModal()">
       <span class="nav-icon" data-icon="base">🏠</span>
@@ -7269,20 +7295,38 @@ var _shopItems=[];
 var _shopInventory=[];
 var _shopCurFilter='all';
 var _shopShowingInventory=false;
+var _shopConfirmCb=null;
+function shopConfirm(icon,title,msg,btnText){
+  return new Promise(function(resolve){
+    _shopConfirmCb=resolve;
+    document.getElementById('shopConfirmIcon').textContent=icon||'🛒';
+    document.getElementById('shopConfirmTitle').textContent=title||'Confirm';
+    document.getElementById('shopConfirmMsg').innerHTML=msg||'';
+    document.getElementById('shopConfirmBtn').textContent=btnText||'CONFIRM';
+    document.getElementById('shopConfirmModal').style.display='flex';
+  });
+}
+function _shopConfirmResolve(val){
+  document.getElementById('shopConfirmModal').style.display='none';
+  if(_shopConfirmCb){_shopConfirmCb(val);_shopConfirmCb=null;}
+}
 
 function openItemShop(){
   document.getElementById('shopModal').classList.add('open');
-  _shopShowingInventory=false;
-  document.getElementById('shopInvToggle').textContent='MY ITEMS';
-  document.getElementById('shopItemsGrid').style.display='';
-  document.getElementById('shopInventoryView').style.display='none';
+  shopSwitchTab('shop');
+  // Show loading state if items haven't loaded yet
+  if(_shopItems.length===0){
+    document.getElementById('shopItemsGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--tx3);font-size:var(--fs-sm)">Loading...</div>';
+  }else{
+    renderShopItems();
+  }
   loadShopData();
 }
 function closeItemShop(){document.getElementById('shopModal').classList.remove('open')}
 
 function loadShopData(){
   // Update balance display
-  var w=walletState||'';
+  var w=(walletState&&walletState.address)||'';
   if(w){
     fetch('/api/user?wallet='+w).then(r=>r.json()).then(function(d){
       if(d&&d.user){
@@ -7293,9 +7337,13 @@ function loadShopData(){
   }
   // Load items
   fetch('/api/shop/items').then(function(r){return r.json()}).then(function(items){
+    if(!items||!Array.isArray(items)){console.error('Shop items: invalid response');return;}
     _shopItems=items;
     renderShopItems();
-  }).catch(function(e){console.error('Shop load:',e)});
+  }).catch(function(e){
+    console.error('Shop load:',e);
+    document.getElementById('shopItemsGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--red);font-size:var(--fs-sm)">Failed to load items</div>';
+  });
   // Load inventory
   if(w){
     fetch('/api/shop/inventory?wallet='+w).then(function(r){return r.json()}).then(function(inv){
@@ -7337,29 +7385,25 @@ function shopFilterCat(cat,btn){
   renderShopItems();
 }
 
-function shopShowInventory(){
-  _shopShowingInventory=!_shopShowingInventory;
-  var toggle=document.getElementById('shopInvToggle');
-  if(_shopShowingInventory){
-    toggle.textContent='SHOP';
-    document.getElementById('shopItemsGrid').style.display='none';
-    document.getElementById('shopInventoryView').style.display='';
-    document.getElementById('shopCatTabs').style.display='none';
-    renderShopInventory();
-  }else{
-    toggle.textContent='MY ITEMS';
-    document.getElementById('shopItemsGrid').style.display='';
-    document.getElementById('shopInventoryView').style.display='none';
-    document.getElementById('shopCatTabs').style.display='';
-  }
+function shopSwitchTab(tab){
+  _shopShowingInventory=(tab==='inv');
+  document.getElementById('shopTabShop').classList.toggle('active',tab==='shop');
+  document.getElementById('shopTabInv').classList.toggle('active',tab==='inv');
+  document.getElementById('shopItemsGrid').style.display=tab==='shop'?'':'none';
+  document.getElementById('shopInventoryView').style.display=tab==='inv'?'':'none';
+  document.getElementById('shopCatTabs').style.display=tab==='shop'?'':'none';
+  if(tab==='inv') renderShopInventory();
 }
 
 function renderShopInventory(){
   var list=document.getElementById('shopInventoryList');
-  var w=walletState||'';
+  var w=(walletState&&walletState.address)||'';
   if(!w){list.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx3);font-size:var(--fs-sm)">Connect wallet first</div>';return;}
   fetch('/api/shop/inventory?wallet='+w).then(function(r){return r.json()}).then(function(inv){
     _shopInventory=inv;
+    var badge=document.getElementById('shopInvCount');
+    var total=inv.reduce(function(s,i){return s+i.quantity},0);
+    if(total>0){badge.textContent=total;badge.style.display='';}else{badge.style.display='none';}
     if(inv.length===0){
       list.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--tx3);font-size:var(--fs-sm)">No items yet. Visit the shop!</div>';
       return;
@@ -7381,24 +7425,29 @@ function renderShopInventory(){
 }
 
 function buyShopItem(code,currency){
-  var w=walletState;
-  if(!w){showToast('Connect wallet first','error');return;}
+  if(!walletState||!walletState.address){showToast('Connect wallet first','error');return;}
+  var w=walletState.address;
   var item=_shopItems.find(function(i){return i.code===code});
   if(!item)return;
   var price=currency==='USDT'?parseFloat(item.price_usdt).toFixed(1)+' USDT':parseFloat(item.price_pp).toFixed(1)+' PP';
-  if(!confirm('Buy '+item.name+' for '+price+'?'))return;
-  fetch('/api/shop/buy',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({wallet:w,itemCode:code,currency:currency,quantity:1})
-  }).then(function(r){return r.json()}).then(function(d){
-    if(d.error){showToast(d.error,'error');return;}
-    showToast('Purchased '+item.name+'!','success');
-    loadShopData();
-  }).catch(function(e){showToast('Purchase failed','error')});
+  shopConfirm(item.icon||'🛒','Purchase Item',
+    '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+item.name+'</div>'
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">'+price+'</div>','BUY NOW'
+  ).then(function(ok){
+    if(!ok)return;
+    fetch('/api/shop/buy',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w,itemCode:code,currency:currency,quantity:1})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error,'error');return;}
+      showToast('Purchased '+item.name+'!','success');
+      loadShopData();
+    }).catch(function(e){showToast('Purchase failed','error')});
+  });
 }
 
 function useShopItem(code,needsClaim){
-  var w=walletState;
-  if(!w){showToast('Connect wallet first','error');return;}
+  if(!walletState||!walletState.address){showToast('Connect wallet first','error');return;}
+  var w=walletState.address;
   if(needsClaim){
     // Show claim picker instead of raw prompt
     var myClaims=claims.filter(function(c){return c.owner===w});
@@ -7413,8 +7462,14 @@ function useShopItem(code,needsClaim){
       _showClaimPicker(myClaims,code,'Select your territory');
     }
   }else{
-    if(!confirm('Use this item now?'))return;
-    _doUseItem(w,code,null);
+    var invItem=_shopInventory.find(function(i){return i.code===code});
+    shopConfirm(invItem?invItem.icon:'⚡','Use Item',
+      '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+(invItem?invItem.name:code)+'</div>'
+      +'<div style="font-size:var(--fs-xs);color:var(--tx3)">This will activate immediately</div>','USE NOW'
+    ).then(function(ok){
+      if(!ok)return;
+      _doUseItem(w,code,null);
+    });return;
   }
 }
 function _showClaimPicker(claimList,itemCode,title){

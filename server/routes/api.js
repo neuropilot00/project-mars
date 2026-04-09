@@ -2400,7 +2400,7 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
     const cur = (currency || 'PP').toUpperCase();
     const unitPrice = cur === 'USDT' ? parseFloat(item.price_usdt) : parseFloat(item.price_pp);
     const totalCost = unitPrice * qty;
-    const balCol = cur === 'USDT' ? 'balance_usdt' : 'balance_pp';
+    const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
 
     // Check balance
     const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
