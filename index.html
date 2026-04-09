@@ -1380,7 +1380,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .mines-grid{width:min(240px,65vw);gap:4px;padding:10px}
   .mines-sidebar{padding:10px !important;gap:8px !important}
   .btn-mines{padding:12px;font-size:var(--fs-sm)}
-  .crash-canvas-wrap{flex:1;min-height:100px}
+  .crash-canvas-wrap{flex:1;min-height:80px;max-height:35vh}
   .crash-mult-val{font-size:32px}
   .crash-mult-val.waiting{font-size:18px}
   .crash-controls{flex-direction:column;flex-shrink:0}
@@ -10254,7 +10254,15 @@ function updateCollapsedUI(){
   }
   // Floating action buttons when both collapsed
   var fab = document.getElementById('colFabWrap');
-  if(fab) fab.classList.toggle('show', lCol && rCol);
+  if(fab){
+    fab.classList.toggle('show', lCol && rCol);
+    if(lCol && rCol) fab.style.bottom='56px'; else fab.style.bottom='';
+  }
+  // Move zoom controls + mode badge when panels collapsed
+  var zc = document.querySelector('.zc');
+  if(zc) zc.style.right = rCol ? '10px' : '';
+  var badge = document.getElementById('modeBadge');
+  if(badge) badge.style.left = lCol ? '12px' : '';
 }
 // Restore collapsed state on load
 (function(){
