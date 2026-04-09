@@ -56,14 +56,15 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   background:linear-gradient(90deg,rgba(20,12,8,0.8),rgba(40,20,10,0.9),rgba(20,12,8,0.8));
   border:1px solid rgba(255,140,60,0.35);border-radius:16px;backdrop-filter:blur(6px);
   font-family:var(--fn);font-size:9px;color:#FF9944;letter-spacing:0.5px;
-  white-space:nowrap;pointer-events:none;max-width:90vw;overflow:hidden}
+  white-space:nowrap;pointer-events:auto;max-width:92vw;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+.weather-banner::-webkit-scrollbar{display:none}
 .weather-banner.show{display:flex}
 .weather-banner .wx-item{display:flex;align-items:center;gap:4px;padding:0 6px}
 .weather-banner .wx-item+.wx-item{border-left:1px solid rgba(255,140,60,0.2)}
 .weather-banner .wx-icon{font-size:12px}
 .weather-banner .wx-sector{color:#FFD166;font-size:8px;font-weight:700}
 .weather-banner .wx-time{color:rgba(255,153,68,0.7);font-size:7px}
-@media(max-width:768px){.weather-banner{bottom:105px;font-size:8px;padding:3px 10px}}
+@media(max-width:768px){.weather-banner{bottom:112px;font-size:8px;padding:3px 10px}}
 
 /* Rocket Event Banner */
 .rocket-banner{position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:112;
@@ -95,10 +96,10 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .tb-commander .cmd-label{font-size:8px;opacity:0.7;text-transform:uppercase}
 .tb-commander .cmd-name{font-weight:700;font-size:11px}
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
-@media(max-width:768px){.tb-commander{top:118px;padding:3px 10px;font-size:9px}
+@media(max-width:768px){.tb-commander{top:124px;padding:3px 10px;font-size:9px}
   .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}
-  #tbCmdAnnounce{top:138px!important;font-size:8px!important;max-width:80%!important}
-  #tbSectorAnnounce{top:155px!important;font-size:7px!important;max-width:85%!important}}
+  #tbCmdAnnounce{top:148px!important;font-size:8px!important;max-width:80%!important}
+  #tbSectorAnnounce{top:168px!important;font-size:7px!important;max-width:85%!important}}
 
 /* Governance Leaderboard (sidebar) */
 .gov-lb-section{margin-top:2px;border-top:1px solid var(--bdr)}
@@ -974,7 +975,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   #shopConfirmModal{align-items:center!important}
   #shopConfirmModal .mdl{align-self:center;border-radius:14px;max-width:90vw}
   .tb-buff{font-size:8px;padding:2px 6px}
-  #tbActiveBuffs{top:98px!important;left:50%!important;transform:translateX(-50%)!important}
+  #tbActiveBuffs{top:100px!important;left:50%!important;transform:translateX(-50%)!important}
   .shop-cat-btn{padding:10px 4px;font-size:10px;min-height:44px}
   .si-price{min-height:36px;display:flex;align-items:center;padding:6px 12px!important;font-size:11px!important}
   .inv-item{padding:12px}
@@ -8779,7 +8780,7 @@ var _satConfig = [
   { id: 3, amp: 50, speed: 0.00035, offset: 4.19 }
 ];
 var _trainSize = 5; // satellites per train
-var _trainSpacing = 1800; // ms between each satellite in train (close together like real Starlink)
+var _trainSpacing = 350; // ms between each satellite (~6 degrees apart for tight train)
 
 // Starlink train rendering (visible on globe surface)
 function _drawStarlinkTrails(ctx, w, h) {
@@ -8796,8 +8797,8 @@ function _drawStarlinkTrails(ctx, w, h) {
       var y = ((90 - lat) / 180) * h;
 
       // Lead satellite is brightest/biggest, trailing ones fade
-      var fade = 1 - s * 0.18;
-      var dotSize = 6 - s * 0.8;
+      var fade = 1 - s * 0.15;
+      var dotSize = 8 - s * 1;
 
       // Bright dot
       ctx.globalAlpha = 0.95 * fade;
@@ -10508,10 +10509,10 @@ window.addEventListener('resize', function(){
   setTimeout(loadWeatherData, 4000);
   setInterval(loadWeatherData, 60000);
   setInterval(updateWeatherBanner, 30000);
-  // Animate weather/POI overlay texture every 2s when active
+  // Animate weather/POI/starlink overlay texture
   setInterval(function() {
-    if (_weatherData.length > 0 || _poiData.length > 0) compositeClaimsOnTexture();
-  }, 2000);
+    if (_weatherData.length > 0 || _poiData.length > 0 || _starlinkData.passes.length > 0) compositeClaimsOnTexture();
+  }, 800);
 
   // ═══════ EXPLORATION POLLING ═══════
   function loadExplorationData() {
