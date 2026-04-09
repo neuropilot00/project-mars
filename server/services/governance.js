@@ -22,7 +22,7 @@ async function recalculateGovernor(client, sectorId) {
   // Top 2 pixel holders in this sector
   const res = await client.query(
     `SELECT owner, COUNT(*)::int AS cnt FROM pixels
-     WHERE sector_id = $1 AND owner IS NOT NULL
+     WHERE sector_id = $1 AND owner IS NOT NULL AND owner NOT LIKE '0xnpc_%'
      GROUP BY owner ORDER BY cnt DESC LIMIT 2`,
     [sectorId]
   );
@@ -159,7 +159,7 @@ async function recalculateGovernor(client, sectorId) {
 async function recalculateCommander(client) {
   const res = await client.query(
     `SELECT owner, COUNT(*)::int AS cnt FROM pixels
-     WHERE owner IS NOT NULL GROUP BY owner ORDER BY cnt DESC LIMIT 2`
+     WHERE owner IS NOT NULL AND owner NOT LIKE '0xnpc_%' GROUP BY owner ORDER BY cnt DESC LIMIT 2`
   );
 
   const top1 = res.rows[0] || null;
