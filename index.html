@@ -1295,8 +1295,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <!-- Loading Overlay -->
 <div id="loadOverlay" style="position:fixed;inset:0;z-index:9999;background:#0D0B14;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s">
   <div style="font-family:'Orbitron','Press Start 2P',monospace;font-size:28px;color:#FF7840;letter-spacing:6px;margin-bottom:12px;text-shadow:0 0 30px rgba(255,120,60,0.5)">OCCUPY MARS</div>
-  <div id="loadQuote" style="font-family:'Press Start 2P',monospace;font-size:9px;color:#C8A882;letter-spacing:1.5px;margin-bottom:40px;text-align:center;max-width:80vw;line-height:1.8;min-height:36px"></div>
-  <div id="loadMsg" style="font-family:'Press Start 2P',monospace;font-size:9px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
+  <div id="loadQuote" style="font-family:'Orbitron',sans-serif;font-size:11px;color:#C8A882;letter-spacing:1.5px;margin-bottom:40px;text-align:center;max-width:80vw;line-height:1.8;min-height:36px"></div>
+  <div id="loadMsg" style="font-family:'Orbitron',sans-serif;font-size:11px;color:#6A5848;letter-spacing:1px;height:14px">Loading...</div>
 </div>
 
 <!-- Globe Container -->
@@ -3686,8 +3686,17 @@ function _initStep3(){
     globe.controls().autoRotateSpeed=0.35;
     globe.controls().enableDamping=true;
     globe.controls().dampingFactor=0.12;
-    globe.controls().minDistance=120;
+    globe.controls().minDistance=160;
     globe.controls().maxDistance=600;
+
+    // Override double-click zoom to prevent zooming too close
+    var gWrap=document.getElementById('globe-wrap');
+    gWrap.addEventListener('dblclick',function(e){
+      e.stopPropagation();
+      var pov=globe.pointOfView();
+      var newAlt=Math.max(0.25, pov.altitude*0.55);
+      globe.pointOfView({altitude:newAlt},400);
+    },true);
 
     // Resize
     window.addEventListener('resize',function(){
