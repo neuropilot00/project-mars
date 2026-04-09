@@ -9,17 +9,12 @@
 <link rel="manifest" href="/manifest.json">
 <title>OCCUPY MARS — Claim Your Territory</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/globe.gl@2.27.2"></script>
-<script>
-if(typeof Globe==='undefined'){document.write('<script src="https://cdn.jsdelivr.net/npm/globe.gl@2.27.2"><\/script>')}
-</script>
-<script>
-if(typeof Globe==='undefined'){
-  var _gs=document.createElement('script');_gs.src='https://unpkg.com/globe.gl@2.27.2';
-  _gs.onload=function(){if(typeof _globeRetryInit==='function')_globeRetryInit()};
-  document.head.appendChild(_gs);
-}
-</script>
+<script src="https://unpkg.com/globe.gl@2.27.2" onerror="
+  var s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/globe.gl@2.27.2';
+  s.onerror=function(){console.error('All Globe CDN sources failed')};
+  document.head.appendChild(s);
+"></script>
 <style>
 :root{
   --bg:#0D0B14;--panel:rgba(14,12,24,0.93);--panel2:rgba(20,16,32,0.95);
