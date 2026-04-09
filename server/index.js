@@ -150,6 +150,15 @@ app.use('/api/arena', arenaRoutes);
 app.use('/api/governance', governanceRoutes);
 
 // ── Static files (index.html, admin.html, assets) ──
+// Disable caching for HTML files to ensure latest code is always served
+app.use((req, res, next) => {
+  if (req.path.endsWith('.html') || req.path === '/') {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+  next();
+});
 app.use(express.static(path.join(__dirname, '..'), {
   index: 'index.html',
   extensions: ['html']

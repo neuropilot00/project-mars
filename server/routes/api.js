@@ -652,9 +652,11 @@ router.post('/claim', writeLimiter, async (req, res) => {
     );
 
     // Build lookup map of existing pixels
+    // IMPORTANT: parseFloat() to normalize DECIMAL(8,2) strings (e.g. "1.10" → 1.1)
+    // so keys match JS number toString format used in lookups
     const existingMap = {};
     for (const row of existingRes.rows) {
-      existingMap[row.lat + ',' + row.lng] = row;
+      existingMap[parseFloat(row.lat) + ',' + parseFloat(row.lng)] = row;
     }
 
     // ── Governance: cache sector buffs for discount (safe: fallback if governance fails) ──
