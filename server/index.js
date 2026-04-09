@@ -64,6 +64,7 @@ const arenaRoutes = require('./routes/arena');
 const governanceRoutes = require('./routes/governance');
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
 const PORT = process.env.PORT || 3000;
 
 // ── Security Headers ──
@@ -210,6 +211,24 @@ async function start() {
       }, 24 * 60 * 60 * 1000);
       console.log('[GOV] Scheduled tasks initialized (expire: 5min, maintenance: 24h)');
     } catch(e) { console.warn('[GOV] Could not init scheduled tasks:', e.message); }
+
+    // ── Weather Scheduled Tasks ──
+    try {
+      const { spawnWeatherEvents, expireWeather } = require('./services/weather');
+      // Expire weather every 5 minutes
+      setInterval(async () => {
+        try { await expireWeather(); } catch(e) { console.warn('[WEATHER] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      // Spawn weather events every 6 hours
+      setInterval(async () => {
+        try { await spawnWeatherEvents(); } catch(e) { console.warn('[WEATHER] spawn error:', e.message); }
+      }, 6 * 60 * 60 * 1000);
+      // Initial spawn on startup (after 30s delay)
+      setTimeout(async () => {
+        try { await spawnWeatherEvents(); } catch(e) { console.warn('[WEATHER] initial spawn error:', e.message); }
+      }, 30 * 1000);
+      console.log('[WEATHER] Scheduled tasks initialized (expire: 5min, spawn: 6h)');
+    } catch(e) { console.warn('[WEATHER] Could not init scheduled tasks:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {
