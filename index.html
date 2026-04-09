@@ -111,8 +111,8 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
 @media(max-width:768px){.tb-commander{top:124px;padding:3px 10px;font-size:9px}
   .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}
-  #tbCmdAnnounce{top:148px!important;font-size:8px!important;max-width:80%!important}
-  #tbSectorAnnounce{top:168px!important;font-size:7px!important;max-width:85%!important}}
+  #tbCmdAnnounce{top:156px!important;font-size:8px!important;max-width:80%!important}
+  #tbSectorAnnounce{top:182px!important;font-size:7px!important;max-width:85%!important}}
 
 /* Governance Leaderboard (sidebar) */
 .gov-lb-section{margin-top:2px;border-top:1px solid var(--bdr)}
@@ -4592,30 +4592,25 @@ function toggleSectorOverlay(){
 }
 
 var _myLandMode=false;
-var _myLandIdx=-1; // current territory index for cycling
+var _myLandIdx=-1; // current territory GROUP index for cycling
 function toggleMyLand(){
   if(!walletState.connected){showToast('LOGIN REQUIRED');openAuthModal();return;}
   var myAddr=walletState.address||'';
-  var mine=claims.filter(function(c){return c.owner===myAddr});
+  var groups=_ownerGroups[myAddr]||[];
 
   if(!_myLandMode){
-    // First press: activate MY LAND mode
     _myLandMode=true;
     _myLandIdx=0;
     var btn=document.getElementById('myLandBtn');
     if(btn) btn.style.background='rgba(255,120,60,0.25)';
-    if(globe&&globe.controls){
-      globe.controls().autoRotate=false;
-    }
+    if(globe&&globe.controls) globe.controls().autoRotate=false;
     claimsSnapshot=null;
     compositeClaimsOnTexture();
     _updateMyTerritories();
     document.getElementById('myTerritoriesSection').style.display='';
   }else{
-    // Already active: cycle to next territory
     _myLandIdx++;
-    if(_myLandIdx>=mine.length){
-      // Cycled through all — deactivate
+    if(_myLandIdx>=groups.length){
       _myLandMode=false;
       _myLandIdx=-1;
       var btn=document.getElementById('myLandBtn');
@@ -4629,17 +4624,18 @@ function toggleMyLand(){
     }
   }
 
-  // Zoom to current territory (group-based)
-  if(mine.length>0&&_myLandIdx<mine.length){
-    var t=mine[_myLandIdx];
-    var merged=_buildMergedPlot(myAddr,t.lat,t.lng);
-    if(!merged) merged=t;
+  // Zoom to current merged territory group
+  if(groups.length>0&&_myLandIdx<groups.length){
+    var grp=groups[_myLandIdx];
+    var firstClaim=claims[grp.claimIndices[0]];
+    if(!firstClaim){showToast('No territories owned');return;}
+    var merged=_buildMergedPlot(myAddr,firstClaim.lat,firstClaim.lng);
+    if(!merged) merged=firstClaim;
     var pw=merged.w||merged.size||20, ph=merged.h||merged.size||20;
     globe.pointOfView({lat:merged.lat,lng:merged.lng,altitude:Math.max(0.8,Math.max(pw,ph)*0.008)},600);
     selectedPlot=merged;
     showTerritoryInfo(merged);
-    showToast('MY LAND '+(_myLandIdx+1)+'/'+mine.length+(merged._pixelCount?' — '+merged._pixelCount+' px':''));
-    // Highlight current in list
+    showToast('MY LAND '+(_myLandIdx+1)+'/'+groups.length+(merged._pixelCount?' — '+merged._pixelCount+' px':''));
     _highlightMyTerritoryItem(_myLandIdx);
   }else{
     showToast('No territories owned');
@@ -9829,23 +9825,19 @@ function _initStarlinkSatellites() {
   console.log('[STARLINK] Initializing ' + totalMeshes + ' satellite meshes');
   for (var i = 0; i < totalMeshes; i++) {
     var group = new THREE.Group();
-    // Body
     var bodyGeo = new THREE.BoxGeometry(1.5, 0.4, 0.4);
     var bodyMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.95 });
     var body = new THREE.Mesh(bodyGeo, bodyMat);
     group.add(body);
-    // Solar panels
     var panelGeo = new THREE.PlaneGeometry(4, 0.6);
     var panelMat = new THREE.MeshBasicMaterial({ color: 0xDDEEFF, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
     var panel = new THREE.Mesh(panelGeo, panelMat);
     group.add(panel);
-    // Glow point
     var glowGeo = new THREE.SphereGeometry(0.4, 8, 8);
     var glowMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.9 });
     var glow = new THREE.Mesh(glowGeo, glowMat);
     glow.position.set(0, 0.4, 0);
     group.add(glow);
-
     group.visible = false;
     scene.add(group);
     _starlinkMeshes.push(group);
@@ -11735,16 +11727,10 @@ window.addEventListener('resize', function(){
   setInterval(loadExplorationData, 30000);
   setTimeout(loadStarlinkData, 6000);
   setInterval(loadStarlinkData, 10000);
-  // Init starlink 3D meshes after globe is ready
-  // Retry starlink init until scene is ready
-  function _tryInitStarlink() {
-    if (_starlinkMeshes.length > 0) return; // already initialized
-    _initStarlinkSatellites();
-    if (_starlinkMeshes.length === 0) setTimeout(_tryInitStarlink, 3000); // retry
-  }
+  // 3D starlink disabled for performance — using 2D texture trails only
+  function _tryInitStarlink() {}
   setTimeout(_tryInitStarlink, 3000);
-  // Animate starlink positions smoothly
-  setInterval(_updateStarlinkPositions, 1000);
+  // 3D starlink position update disabled (using 2D texture trails only)
 
   // ═══════ ROCKET EVENT POLLING ═══════
   function loadRocketData() {
