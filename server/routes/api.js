@@ -2422,9 +2422,10 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
 
     // Log transaction
     await client.query(
-      `INSERT INTO transactions (wallet, type, amount, currency, description)
-       VALUES ($1, 'shop_purchase', $2, $3, $4)`,
-      [w, totalCost, cur, `Bought ${qty}x ${item.name}`]
+      `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
+       VALUES ('shop_purchase', $1, $2, $3, 0, $4)`,
+      [w, cur === 'USDT' ? totalCost : 0, cur === 'PP' ? totalCost : 0,
+       JSON.stringify({ item: item.code, qty, name: item.name })]
     );
 
     await client.query('COMMIT');
