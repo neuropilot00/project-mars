@@ -210,10 +210,19 @@ router.get('/config', readLimiter, async (req, res) => {
     const events = await getActiveEvents();
     const bonusPct = await getDepositBonusPercent();
 
-    // Governance data for frontend
-    const { getActiveGovEvents, getCommanderInfo } = require('../services/governance');
-    const govEvents = await getActiveGovEvents();
-    const cmdInfo = await getCommanderInfo();
+    // Governance data for frontend (wrapped to prevent config endpoint failure)
+    let govData = { commander: null, commanderAnnouncement: '', activeGovEvents: [], activeBounties: 0 };
+    try {
+      const { getActiveGovEvents, getCommanderInfo } = require('../services/governance');
+      const govEvents = await getActiveGovEvents();
+      const cmdInfo = await getCommanderInfo();
+      govData = {
+        commander: cmdInfo.commander,
+        commanderAnnouncement: cmdInfo.announcement,
+        activeGovEvents: govEvents.map(e => ({ type: e.event_type, endsAt: e.ends_at })),
+        activeBounties: (cmdInfo.activeBounties || []).length
+      };
+    } catch (ge) { console.warn('[GOV] config governance data failed:', ge.message); }
 
     res.json({
       pixelBasePrice: s.pixel_base_price || 0.1,
@@ -238,12 +247,7 @@ router.get('/config', readLimiter, async (req, res) => {
         config: e.config,
         startsAt: e.starts_at, endsAt: e.ends_at
       })),
-      governance: {
-        commander: cmdInfo.commander,
-        commanderAnnouncement: cmdInfo.announcement,
-        activeGovEvents: govEvents.map(e => ({ type: e.event_type, endsAt: e.ends_at })),
-        activeBounties: cmdInfo.activeBounties.length
-      }
+      governance: govData
     });
   } catch (e) {
     console.error('[API] config error:', e.message);

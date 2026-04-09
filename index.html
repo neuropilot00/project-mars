@@ -1404,6 +1404,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-bal"><span class="lbl">USDT</span><span class="val usdt" id="walletUsdt">0.00</span></div>
       <div class="wallet-bal"><span class="lbl">PP</span><span class="val pp" id="walletPP">0.00</span></div>
+      <div class="wallet-bal" id="walletGPRow" style="display:none"><span class="lbl" style="color:var(--cyan)">GP</span><span class="val" style="color:var(--cyan)" id="walletGP">0</span></div>
       <div style="height:1px;background:var(--bdr);margin:4px 0"></div>
       <div class="wallet-actions">
         <button class="wa-btn dep" onclick="openDepositModal()">DEPOSIT</button>
@@ -1813,6 +1814,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" onclick="switchBaseTab('mining',this)">MINING</div>
       <div class="base-tab" onclick="switchBaseTab('quests',this)">QUESTS</div>
       <div class="base-tab" onclick="switchBaseTab('shop',this)">SHOP</div>
+      <div class="base-tab" onclick="switchBaseTab('govern',this)" style="color:var(--cyan)">GOVERN</div>
     </div>
     <div class="base-body">
 
@@ -1927,6 +1929,83 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="questsLoading" style="text-align:center;padding:24px;color:var(--tx3);font-size:var(--fs-xs)">Loading quests...</div>
           <div id="questsList"></div>
           <div id="questsClaimed" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- TAB: GOVERN -->
+      <div class="base-pane" id="basePane_govern">
+        <div class="base-banner"><div class="base-banner-placeholder" style="background:linear-gradient(135deg,rgba(91,184,232,.08),rgba(255,209,102,.06))">⚜ GOVERNANCE</div></div>
+
+        <!-- Active Global Events -->
+        <div id="govActiveEvents" style="display:none;margin-bottom:12px">
+          <div class="base-section-title" style="color:var(--cyan)">ACTIVE EVENTS</div>
+          <div id="govEventsList" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
+        <!-- My Positions -->
+        <div class="base-section-title">MY POSITIONS</div>
+        <div id="govMyPositions" style="margin-bottom:12px">
+          <div style="font-size:10px;color:var(--tx3);padding:8px 0">Login to view your governance positions.</div>
+        </div>
+
+        <!-- Commander Info -->
+        <div class="base-section-title" style="color:var(--gold)">COMMANDER</div>
+        <div id="govCommanderInfo" style="margin-bottom:12px">
+          <div style="font-size:10px;color:var(--tx3);padding:8px 0">Loading...</div>
+        </div>
+
+        <!-- Commander Dashboard (only visible to commander) -->
+        <div id="govCommanderDash" style="display:none;margin-bottom:12px;padding:12px;border-radius:8px;background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15)">
+          <div style="font-size:10px;color:var(--gold);font-family:var(--fn);margin-bottom:8px;font-weight:700">COMMANDER CONTROLS</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:9px;color:var(--tx3)">GLOBAL EVENT (1/day)</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <button class="sz-btn" onclick="govTriggerEvent('double_mining')" style="color:var(--gn);border-color:rgba(76,216,154,.3);font-size:8px;padding:4px 8px">⛏ DOUBLE MINING</button>
+              <button class="sz-btn" onclick="govTriggerEvent('war_time')" style="color:var(--red);border-color:rgba(232,72,85,.3);font-size:8px;padding:4px 8px">⚔ WAR TIME</button>
+              <button class="sz-btn" onclick="govTriggerEvent('peace_treaty')" style="color:var(--cyan);border-color:rgba(91,184,232,.3);font-size:8px;padding:4px 8px">🕊 PEACE</button>
+            </div>
+            <div style="font-size:9px;color:var(--tx3);margin-top:4px">ANNOUNCEMENT</div>
+            <div style="display:flex;gap:4px">
+              <input type="text" id="govCmdAnnounce" maxlength="200" placeholder="Global message..." style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+              <button class="sz-btn" onclick="govSetCmdAnnouncement()" style="color:var(--gold);border-color:rgba(255,209,102,.3);font-size:8px;padding:4px 8px">SET</button>
+            </div>
+            <div style="font-size:9px;color:var(--tx3);margin-top:4px">BOUNTY</div>
+            <div style="display:flex;gap:4px;align-items:center">
+              <input type="text" id="govBountyTarget" placeholder="0x target wallet" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:9px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+              <input type="number" id="govBountyAmount" placeholder="GP" style="width:60px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:9px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+              <button class="sz-btn" onclick="govPlaceBounty()" style="color:var(--red);border-color:rgba(232,72,85,.3);font-size:8px;padding:4px 8px">PLACE</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Governor Dashboard (only visible to governors) -->
+        <div id="govGovernorDash" style="display:none;margin-bottom:12px;padding:12px;border-radius:8px;background:rgba(91,184,232,.04);border:1px solid rgba(91,184,232,.15)">
+          <div style="font-size:10px;color:var(--cyan);font-family:var(--fn);margin-bottom:8px;font-weight:700">GOVERNOR CONTROLS <span id="govGovSectorName" style="color:var(--tx3)"></span></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:9px;color:var(--tx3)">TAX RATE</span>
+              <input type="range" id="govTaxSlider" min="1" max="5" step="0.5" value="2" style="flex:1;accent-color:var(--cyan)">
+              <span id="govTaxVal" style="font-size:10px;color:var(--cyan);font-family:var(--fn);min-width:30px">2%</span>
+              <button class="sz-btn" onclick="govSetTaxRate()" style="color:var(--cyan);border-color:rgba(91,184,232,.3);font-size:8px;padding:4px 8px">SET</button>
+            </div>
+            <div style="font-size:9px;color:var(--tx3)">SECTOR BUFFS</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <button class="sz-btn" onclick="govBuyBuff('mining_boost')" style="color:var(--gn);border-color:rgba(76,216,154,.3);font-size:8px;padding:4px 8px">⛏ MINING +20%</button>
+              <button class="sz-btn" onclick="govBuyBuff('defense_bonus')" style="color:var(--cyan);border-color:rgba(91,184,232,.3);font-size:8px;padding:4px 8px">🛡 DEFENSE +10%</button>
+              <button class="sz-btn" onclick="govBuyBuff('claim_discount')" style="color:var(--gold);border-color:rgba(255,209,102,.3);font-size:8px;padding:4px 8px">💰 CLAIM -10%</button>
+            </div>
+            <div style="font-size:9px;color:var(--tx3)">SECTOR ANNOUNCEMENT</div>
+            <div style="display:flex;gap:4px">
+              <input type="text" id="govSectorAnnounce" maxlength="100" placeholder="Sector message..." style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+              <button class="sz-btn" onclick="govSetSectorAnnouncement()" style="color:var(--cyan);border-color:rgba(91,184,232,.3);font-size:8px;padding:4px 8px">SET</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Bounties -->
+        <div class="base-section-title" style="color:var(--red)">BOUNTY BOARD</div>
+        <div id="govBountyList" style="margin-bottom:12px">
+          <div style="font-size:10px;color:var(--tx3);padding:8px 0">No active bounties.</div>
         </div>
       </div>
 
@@ -3182,7 +3261,7 @@ function compositeClaimsOnTexture(previewOnly){
           // Solid fill under image (covers all clipped area — prevents Mars surface bleed)
           ctx.fillStyle='rgb(30,20,15)';
           ctx.fill();
-          // Image FIXED at anchor claim center
+          // Image FIXED at anchor claim center (large scale, clip path reveals territory shape)
           var ar=getCellRect(anchorClaim.lat,anchorClaim.lng,anchorClaim.w||20,anchorClaim.h||20,w,h);
           var ip=sharedImgParams, s=(ip.scale||100)/100;
           var rot=(ip.rotate||0)*Math.PI/180;
@@ -4984,7 +5063,7 @@ function showTerritoryInfo(plot){
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   var pxCount=plot._pixelCount||(pw*ph);
   document.getElementById('infoSize').textContent=pw+'×'+ph+' px ('+pxCount.toLocaleString()+' pixels)';
-  document.getElementById('infoPrice').textContent=plot.price+' PP';
+  document.getElementById('infoPrice').textContent=parseFloat(plot.price||0).toFixed(2)+' PP';
   if(plot.link){
     document.getElementById('linkRow').style.display='';
     var linkEl=document.getElementById('infoLink');
@@ -5099,6 +5178,21 @@ function openImageEditor(plot){
   var isMergedGroup=myGroup&&myGroup.claimIndices.length>1;
   if(isMergedGroup){
     var b=myGroup.bounds;
+    // Expand bounds to include full claim rects (claims may extend beyond strip bounds)
+    // Keep original bounds ref for group identity lookup, use expanded for sizing
+    var eb={minLat:b.minLat,maxLat:b.maxLat,minLng:b.minLng,maxLng:b.maxLng};
+    var cls0=myGroup.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
+    cls0.forEach(function(gc){
+      var cw0=gc.w||20,ch0=gc.h||20;
+      var clMinLng=gc.lng-cw0/2*_egs, clMaxLng=gc.lng+cw0/2*_egs;
+      var clMinLat=gc.lat-ch0/2*_egs, clMaxLat=gc.lat+ch0/2*_egs;
+      if(clMinLng<eb.minLng) eb.minLng=clMinLng;
+      if(clMaxLng>eb.maxLng) eb.maxLng=clMaxLng;
+      if(clMinLat<eb.minLat) eb.minLat=clMinLat;
+      if(clMaxLat>eb.maxLat) eb.maxLat=clMaxLat;
+    });
+    b=eb; // use expanded bounds for editor (separate from _ownerGroups)
+    _editor.groupIndex=groups.indexOf(myGroup); // store index for lookup instead of === ref
     tw=Math.round((b.maxLng-b.minLng)/_egs);
     th=Math.round((b.maxLat-b.minLat)/_egs);
     _editor.isMerged=true;
@@ -5236,8 +5330,8 @@ function _editorDraw(){
       var owner=_editor.claim.owner;
       var groups=_ownerGroups[owner]||[];
       var grp=null;
-      for(var gi=0;gi<groups.length;gi++){if(groups[gi].bounds===b){grp=groups[gi];break;}}
-      if(!grp) grp=groups[0];
+      var grpIdx=_editor.groupIndex!=null?_editor.groupIndex:-1;
+      var grp=grpIdx>=0&&grpIdx<groups.length?groups[grpIdx]:groups[0];
       if(grp){
         var cls=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
         var gs2=_actualGridStep||GRID_SIZE;
@@ -5275,8 +5369,8 @@ function _editorDraw(){
     var owner2=_editor.claim.owner;
     var groups2=_ownerGroups[owner2]||[];
     var grp2=null;
-    for(var gi3=0;gi3<groups2.length;gi3++){if(groups2[gi3].bounds===b2){grp2=groups2[gi3];break;}}
-    if(!grp2) grp2=groups2[0];
+    var grpIdx2=_editor.groupIndex!=null?_editor.groupIndex:-1;
+    var grp2=grpIdx2>=0&&grpIdx2<groups2.length?groups2[grpIdx2]:groups2[0];
     if(grp2){
       grp2.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean).forEach(function(gc){
         var cw3=gc.w||20,ch3=gc.h||20;
@@ -5327,10 +5421,8 @@ function _editorBuildClip(ctx,terrX,terrY,gridPx){
     var owner=_editor.claim.owner;
     var groups=_ownerGroups[owner]||[];
     var grp=null;
-    for(var gi=0;gi<groups.length;gi++){
-      if(groups[gi].bounds===b){grp=groups[gi];break;}
-    }
-    if(!grp) grp=groups[0];
+    var grpIdx3=_editor.groupIndex!=null?_editor.groupIndex:-1;
+    var grp=grpIdx3>=0&&grpIdx3<groups.length?groups[grpIdx3]:groups[0];
     if(grp){
       var cls=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
       var gs=_actualGridStep||GRID_SIZE;
@@ -5558,7 +5650,7 @@ function openMobTerritoryModal(){
   document.getElementById('mtOwner').textContent=plot.owner;
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   document.getElementById('mtSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
-  document.getElementById('mtPrice').textContent=plot.price+' PP';
+  document.getElementById('mtPrice').textContent=parseFloat(plot.price||0).toFixed(2)+' PP';
   // Link
   if(plot.link){
     document.getElementById('mtLinkRow').style.display='';
@@ -7376,6 +7468,7 @@ function switchBaseTab(tab,el){
   if(tab==='sectors') try{trackQuestAction('view_sectors',1)}catch(e){}
   if(tab==='rank') try{trackQuestAction('view_leaderboard',1)}catch(e){}
   if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w);}
+  if(tab==='govern') loadGovernanceData();
 }
 
 function loadBaseData(){
@@ -9304,10 +9397,246 @@ window.addEventListener('resize', function(){
 
   // Governance UI state
   var _govState = null;
+  var _govMyPositions = [];
+  var _govMySectorId = null; // sector I govern
+
   function _updateGovernanceUI(gov) {
     _govState = gov;
-    // TODO: render governance banners, commander info, active events
+    // Show active event banner on map if any
+    if(gov && gov.activeGovEvents && gov.activeGovEvents.length > 0) {
+      var evNames = gov.activeGovEvents.map(function(e){
+        var icons = {double_mining:'⛏ DOUBLE MINING',war_time:'⚔ WAR TIME',peace_treaty:'🕊 PEACE'};
+        return icons[e.type]||e.type;
+      });
+      showAnnounce('EVENT ACTIVE: ' + evNames.join(' | '));
+    }
   }
+
+  // ── Load governance data for GOVERN tab ──
+  window.loadGovernanceData = function(){
+    var w = walletState.address;
+    if(!w) {
+      document.getElementById('govMyPositions').innerHTML='<div style="font-size:10px;color:var(--tx3);padding:8px 0">Connect wallet to view governance.</div>';
+      return;
+    }
+
+    // Fetch all in parallel
+    Promise.all([
+      fetch('/api/governance/my-positions/'+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
+      fetch('/api/governance/commander?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {}}),
+      fetch('/api/governance/events').then(function(r){return r.json()}).catch(function(){return []}),
+      fetch('/api/governance/bounties').then(function(r){return r.json()}).catch(function(){return []})
+    ]).then(function(results){
+      var positions = results[0];
+      var cmdInfo = results[1];
+      var events = results[2];
+      var bounties = results[3];
+
+      _govMyPositions = Array.isArray(positions) ? positions : [];
+      _govMySectorId = null;
+
+      // ── MY POSITIONS ──
+      var posEl = document.getElementById('govMyPositions');
+      if(_govMyPositions.length === 0){
+        posEl.innerHTML='<div style="font-size:10px;color:var(--tx3);padding:8px 0">No governance positions. Claim more territory to become Governor!</div>';
+      } else {
+        var html = '';
+        _govMyPositions.forEach(function(p){
+          var roleColor = p.role==='commander'?'var(--gold)':p.role==='governor'?'var(--cyan)':'var(--tx2)';
+          var label = p.role.toUpperCase() + (p.sector_id?' · Sector '+p.sector_id:'');
+          html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:rgba(91,184,232,.04);border-radius:6px;margin-bottom:4px;border:1px solid '+roleColor+'22">';
+          html += '<span style="font-size:10px;color:'+roleColor+';font-family:var(--fn);font-weight:700">'+label+'</span>';
+          html += '<span style="font-size:10px;color:var(--cyan);font-family:var(--fn)">'+parseFloat(p.gp_balance||0).toFixed(0)+' GP</span>';
+          html += '</div>';
+          if(p.role==='governor' && p.sector_id) _govMySectorId = p.sector_id;
+        });
+        posEl.innerHTML = html;
+
+        // Update GP in wallet panel
+        var totalGP = _govMyPositions.reduce(function(s,p){return s+parseFloat(p.gp_balance||0)},0);
+        var gpRow = document.getElementById('walletGPRow');
+        var gpVal = document.getElementById('walletGP');
+        if(gpRow && totalGP > 0) { gpRow.style.display=''; gpVal.textContent=totalGP.toFixed(0); }
+      }
+
+      // ── COMMANDER / GOVERNOR DASHBOARDS ──
+      var isCommander = _govMyPositions.some(function(p){return p.role==='commander'});
+      var isGovernor = _govMyPositions.some(function(p){return p.role==='governor'});
+      document.getElementById('govCommanderDash').style.display = isCommander?'':'none';
+      document.getElementById('govGovernorDash').style.display = isGovernor?'':'none';
+      if(isGovernor && _govMySectorId){
+        document.getElementById('govGovSectorName').textContent='(Sector '+_govMySectorId+')';
+      }
+
+      // ── COMMANDER INFO ──
+      var cmdEl = document.getElementById('govCommanderInfo');
+      if(cmdInfo && cmdInfo.commander){
+        var chtml = '<div style="display:flex;flex-direction:column;gap:4px">';
+        chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">COMMANDER</span><span style="font-size:10px;color:var(--gold);font-family:var(--fn)">'+shortAddr(cmdInfo.commander)+'</span></div>';
+        if(cmdInfo.vice) chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">VICE</span><span style="font-size:10px;color:var(--tx2);font-family:var(--fn)">'+shortAddr(cmdInfo.vice)+'</span></div>';
+        if(cmdInfo.commanderGP!=null) chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">GP BALANCE</span><span style="font-size:10px;color:var(--cyan);font-family:var(--fn)">'+parseFloat(cmdInfo.commanderGP).toFixed(0)+'</span></div>';
+        if(cmdInfo.poolGP!=null) chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">POOL</span><span style="font-size:10px;color:var(--gn);font-family:var(--fn)">'+parseFloat(cmdInfo.poolGP).toFixed(0)+' GP</span></div>';
+        if(cmdInfo.announcement) chtml += '<div style="margin-top:4px;padding:6px 8px;background:rgba(255,209,102,.06);border-radius:4px;font-size:10px;color:var(--gold)">📢 '+cmdInfo.announcement+'</div>';
+        chtml += '</div>';
+        cmdEl.innerHTML = chtml;
+      } else {
+        cmdEl.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:8px 0">No Commander elected yet.</div>';
+      }
+
+      // ── ACTIVE EVENTS ──
+      var evSection = document.getElementById('govActiveEvents');
+      var evList = document.getElementById('govEventsList');
+      if(events && events.length > 0){
+        evSection.style.display = '';
+        var ehtml = '';
+        events.forEach(function(ev){
+          var icons = {double_mining:'⛏',war_time:'⚔',peace_treaty:'🕊'};
+          var colors = {double_mining:'var(--gn)',war_time:'var(--red)',peace_treaty:'var(--cyan)'};
+          var names = {double_mining:'DOUBLE MINING',war_time:'WAR TIME',peace_treaty:'PEACE TREATY'};
+          var icon = icons[ev.event_type]||'📌';
+          var color = colors[ev.event_type]||'var(--tx)';
+          var name = names[ev.event_type]||ev.event_type;
+          var endsAt = new Date(ev.ends_at);
+          var remaining = Math.max(0, Math.ceil((endsAt - Date.now())/(60*1000)));
+          var timeStr = remaining > 60 ? Math.floor(remaining/60)+'h '+remaining%60+'m' : remaining+'m';
+          ehtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:'+color+'08;border-radius:6px;border:1px solid '+color+'22">';
+          ehtml += '<span style="font-size:10px;color:'+color+';font-family:var(--fn)">'+icon+' '+name+'</span>';
+          ehtml += '<span style="font-size:9px;color:var(--tx3)">'+timeStr+' left</span>';
+          ehtml += '</div>';
+        });
+        evList.innerHTML = ehtml;
+      } else {
+        evSection.style.display = 'none';
+      }
+
+      // ── BOUNTY BOARD ──
+      var bList = document.getElementById('govBountyList');
+      if(bounties && bounties.length > 0){
+        var bhtml = '';
+        bounties.forEach(function(b){
+          var exp = new Date(b.expires_at);
+          var daysLeft = Math.max(0, Math.ceil((exp - Date.now())/(24*60*60*1000)));
+          bhtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:rgba(232,72,85,.04);border-radius:6px;margin-bottom:4px;border:1px solid rgba(232,72,85,.15)">';
+          bhtml += '<div style="display:flex;flex-direction:column;gap:2px">';
+          bhtml += '<span style="font-size:10px;color:var(--red);font-family:var(--fn)">🎯 '+shortAddr(b.target_wallet)+'</span>';
+          if(b.reason) bhtml += '<span style="font-size:8px;color:var(--tx3)">'+b.reason+'</span>';
+          bhtml += '</div>';
+          bhtml += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">';
+          bhtml += '<span style="font-size:10px;color:var(--gold);font-family:var(--fn)">'+parseFloat(b.pp_reward).toFixed(0)+' PP</span>';
+          bhtml += '<span style="font-size:8px;color:var(--tx3)">'+daysLeft+'d left</span>';
+          bhtml += '</div>';
+          bhtml += '</div>';
+        });
+        bList.innerHTML = bhtml;
+      } else {
+        bList.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:8px 0">No active bounties.</div>';
+      }
+
+    }).catch(function(err){
+      console.warn('[GOV] loadGovernanceData error:', err);
+    });
+  };
+
+  // ── Governance Actions ──
+  window.govTriggerEvent = function(eventType){
+    var w = walletState.address;
+    if(!w){showToast('Connect wallet first');return}
+    fetch('/api/governance/commander/event',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w,eventType:eventType})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error);return}
+      showToast('Event triggered: '+eventType+' ('+d.hours+'h)');
+      loadGovernanceData();
+    }).catch(function(){showToast('Failed to trigger event')});
+  };
+
+  window.govSetCmdAnnouncement = function(){
+    var w = walletState.address;
+    if(!w){showToast('Connect wallet first');return}
+    var text = document.getElementById('govCmdAnnounce').value.trim();
+    fetch('/api/governance/commander/announcement',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w,text:text})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error);return}
+      showToast('Announcement updated');
+      document.getElementById('govCmdAnnounce').value='';
+      loadGovernanceData();
+    }).catch(function(){showToast('Failed to set announcement')});
+  };
+
+  window.govPlaceBounty = function(){
+    var w = walletState.address;
+    if(!w){showToast('Connect wallet first');return}
+    var target = document.getElementById('govBountyTarget').value.trim();
+    var amount = parseFloat(document.getElementById('govBountyAmount').value);
+    if(!target||!amount||amount<=0){showToast('Enter target wallet and GP amount');return}
+    fetch('/api/governance/commander/bounty',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w,targetWallet:target,gpAmount:amount})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error);return}
+      showToast('Bounty placed: '+d.ppReward+' PP reward');
+      document.getElementById('govBountyTarget').value='';
+      document.getElementById('govBountyAmount').value='';
+      loadGovernanceData();
+    }).catch(function(){showToast('Failed to place bounty')});
+  };
+
+  window.govSetTaxRate = function(){
+    var w = walletState.address;
+    if(!w||!_govMySectorId){showToast('Not a governor');return}
+    var rate = parseFloat(document.getElementById('govTaxSlider').value);
+    fetch('/api/governance/sector/'+_govMySectorId+'/tax-rate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w,rate:rate})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error);return}
+      showToast('Tax rate set to '+d.taxRate+'%');
+    }).catch(function(){showToast('Failed to set tax rate')});
+  };
+
+  window.govBuyBuff = function(buffType){
+    var w = walletState.address;
+    if(!w||!_govMySectorId){showToast('Not a governor');return}
+    fetch('/api/governance/sector/'+_govMySectorId+'/buff',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w,buffType:buffType})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error);return}
+      showToast('Buff activated: '+buffType+' for '+d.hours+'h (-'+d.gpSpent+' GP)');
+      loadGovernanceData();
+    }).catch(function(){showToast('Failed to buy buff')});
+  };
+
+  window.govSetSectorAnnouncement = function(){
+    var w = walletState.address;
+    if(!w||!_govMySectorId){showToast('Not a governor');return}
+    var text = document.getElementById('govSectorAnnounce').value.trim();
+    fetch('/api/governance/sector/'+_govMySectorId+'/announcement',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w,text:text})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error);return}
+      showToast('Sector announcement updated');
+      document.getElementById('govSectorAnnounce').value='';
+    }).catch(function(){showToast('Failed to set announcement')});
+  };
+
+  // Tax slider live update
+  (function(){
+    var sl = document.getElementById('govTaxSlider');
+    if(sl) sl.addEventListener('input',function(){
+      document.getElementById('govTaxVal').textContent = this.value+'%';
+    });
+  })();
 
   function fetchAnnounce(){
     fetch('/api/config').then(function(r){return r.json()}).then(function(cfg){

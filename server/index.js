@@ -184,6 +184,24 @@ async function start() {
     // Start on-chain event listeners
     await startListeners();
 
+    // ── Governance Scheduled Tasks ──
+    try {
+      const { expireGovernanceItems, applyDailyMaintenance, distributeCommanderPool } = require('./services/governance');
+      // Expire buffs/events/bounties every 5 minutes
+      setInterval(async () => {
+        try { await expireGovernanceItems(); } catch(e) { console.warn('[GOV] expire task error:', e.message); }
+      }, 5 * 60 * 1000);
+      // Daily maintenance + pool distribution every 24 hours
+      setInterval(async () => {
+        try {
+          await applyDailyMaintenance();
+          await distributeCommanderPool();
+          console.log('[GOV] Daily maintenance + pool distribution completed');
+        } catch(e) { console.warn('[GOV] daily task error:', e.message); }
+      }, 24 * 60 * 60 * 1000);
+      console.log('[GOV] Scheduled tasks initialized (expire: 5min, maintenance: 24h)');
+    } catch(e) { console.warn('[GOV] Could not init scheduled tasks:', e.message); }
+
     // Start HTTP server
     const server = app.listen(PORT, () => {
       console.log(`\n╔══════════════════════════════════════════╗`);

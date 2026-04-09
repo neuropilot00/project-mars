@@ -1169,4 +1169,67 @@ router.get('/shop-stats', async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════
+//  Governance Admin Endpoints
+// ═══════════════════════════════════════════════════════
+
+// GET /admin/api/governance — all governance data for admin panel
+router.get('/governance', adminAuth, async (req, res) => {
+  try {
+    const { getCommanderInfo, getActiveGovEvents, getActiveSectorBuffs } = require('../services/governance');
+
+    // Commander info
+    const cmdInfo = await getCommanderInfo();
+
+    // Active events
+    const events = await getActiveGovEvents();
+
+    // All sectors with governance data
+    const sectorsRes = await pool.query(
+      `SELECT s.id, s.name, s.tier, s.tax_rate, s.governor_wallet, s.vice_governor_wallet,
+              s.announcement, s.sector_pool_gp, s.buff_fund_gp,
+              u1.nickname AS governor_name, u2.nickname AS vice_name
+       FROM sectors s
+       LEFT JOIN users u1 ON u1.wallet_address = s.governor_wallet
+       LEFT JOIN users u2 ON u2.wallet_address = s.vice_governor_wallet
+       ORDER BY s.tier, s.name`
+    );
+    const sectors = [];
+    for (const row of sectorsRes.rows) {
+      const buffs = await getActiveSectorBuffs(row.id);
+      sectors.push({ ...row, activeBuffs: buffs });
+    }
+
+    // Active bounties
+    const bountiesRes = await pool.query(
+      `SELECT id, placed_by, target_wallet, pp_reward, reason, expires_at, created_at
+       FROM bounties WHERE status = 'active' ORDER BY pp_reward DESC`
+    );
+
+    res.json({
+      commander: cmdInfo,
+      events,
+      sectors,
+      bounties: bountiesRes.rows
+    });
+  } catch (e) {
+    console.error('[Admin] governance error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// GET /admin/api/governance/transactions — governance transaction log
+router.get('/governance/transactions', adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, type, from_role, to_role, sector_id, wallet, gp_amount, meta, created_at
+       FROM governance_transactions ORDER BY created_at DESC LIMIT 100`
+    );
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[Admin] gov tx error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 module.exports = router;

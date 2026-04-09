@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OCCUPY MARS — Admin Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root{
@@ -14,7 +14,7 @@
   --tx:#E8E0D8;--tx2:#9A8878;--tx3:#6A5848;
   --mars:#FF7840;--red:#E84855;--gold:#FFD166;--gn:#4CD89A;--pp:#B888E0;
   --cyan:#5BB8E8;
-  --fn:'Press Start 2P',monospace;
+  --fn:'Orbitron',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn);color:var(--tx)}
@@ -211,6 +211,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('claims')" data-tab="claims">CLAIMS</button>
   <button class="adm-tab" onclick="switchTab('shop')" data-tab="shop">ITEM SHOP</button>
   <button class="adm-tab" onclick="switchTab('battles')" data-tab="battles">BATTLES</button>
+  <button class="adm-tab" onclick="switchTab('governance')" data-tab="governance" style="color:var(--cyan)">GOVERNANCE</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -665,6 +666,63 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══════ GOVERNANCE ═══════ -->
+  <div class="section cat-governance" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--cyan)">⚜ COMMANDER & GLOBAL</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="loadGovData()">REFRESH</button>
+      </div>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="govGlobalCards">
+        <div class="stat-card"><div class="sc-label">COMMANDER</div><div class="sc-value gold" id="govCmdWallet">--</div><div class="sc-sub" id="govCmdSince">--</div></div>
+        <div class="stat-card"><div class="sc-label">COMMANDER POOL GP</div><div class="sc-value cyan" id="govCmdPool">0</div></div>
+      </div>
+      <div id="govActiveEventsAdmin" style="display:none">
+        <div style="font-size:8px;color:var(--cyan);margin-bottom:6px;font-family:var(--fn)">ACTIVE EVENTS</div>
+        <div id="govEventsListAdmin"></div>
+      </div>
+      <div id="govBountiesAdmin" style="display:none">
+        <div style="font-size:8px;color:var(--red);margin-bottom:6px;font-family:var(--fn)">ACTIVE BOUNTIES</div>
+        <div id="govBountiesListAdmin"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section cat-governance" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--cyan)">SECTOR GOVERNANCE</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr>
+          <th>SECTOR</th><th>TIER</th><th>GOVERNOR</th><th>VICE</th><th>TAX %</th>
+          <th>POOL GP</th><th>BUFF FUND</th><th>BUFFS</th><th>ANNOUNCEMENT</th>
+        </tr></thead>
+        <tbody id="govSectorsBody"><tr><td colspan="9" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section cat-governance" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--cyan)">GOVERNANCE TRANSACTIONS</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="loadGovTx()">REFRESH</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr>
+          <th>ID</th><th>TYPE</th><th>FROM</th><th>TO</th><th>SECTOR</th>
+          <th>WALLET</th><th>GP</th><th>META</th><th>TIME</th>
+        </tr></thead>
+        <tbody id="govTxBody"><tr><td colspan="9" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -689,7 +747,7 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'governance'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
@@ -700,6 +758,7 @@ function switchTab(tab) {
   if (tab === 'claims') { try { loadClaims(); } catch(e) { console.error('loadClaims:', e); } }
   if (tab === 'shop') { loadShopItems(); loadShopStats(); loadAdminShields(); }
   if (tab === 'battles') { loadBattles(); }
+  if (tab === 'governance') { loadGovData(); }
 }
 
 // ── Language System ──
@@ -1758,6 +1817,104 @@ function loadBattles() {
         + '</tr>';
     }).join('');
   });
+}
+
+// ═══════════════════════════════════════════════════
+//  Governance Admin Functions
+// ═══════════════════════════════════════════════════
+function loadGovData() {
+  fetch('/admin/api/governance', {headers:{'x-admin-secret':adminSecret}})
+  .then(function(r){return r.json()}).then(function(d) {
+    if(d.error) { console.error('[Gov]', d.error); return; }
+
+    // Commander info
+    var cmd = d.commander || {};
+    document.getElementById('govCmdWallet').textContent = cmd.commander ? (cmd.commander.slice(0,10)+'...') : 'NONE';
+    document.getElementById('govCmdSince').textContent = cmd.commanderSince ? 'Since ' + new Date(cmd.commanderSince).toLocaleDateString() : '';
+    document.getElementById('govCmdPool').textContent = parseFloat(cmd.poolGP || 0).toFixed(0);
+
+    // Active events
+    var evWrap = document.getElementById('govActiveEventsAdmin');
+    var evList = document.getElementById('govEventsListAdmin');
+    var events = d.events || [];
+    if(events.length > 0) {
+      evWrap.style.display = '';
+      evList.innerHTML = events.map(function(e){
+        var icons={double_mining:'⛏',war_time:'⚔',peace_treaty:'🕊'};
+        var endsAt = new Date(e.ends_at);
+        var mins = Math.max(0, Math.ceil((endsAt - Date.now())/(60000)));
+        return '<div style="display:flex;justify-content:space-between;padding:6px 8px;background:rgba(91,184,232,.04);border-radius:4px;margin-bottom:4px">'
+          + '<span style="font-size:8px;color:var(--cyan)">'+(icons[e.event_type]||'')+' '+e.event_type+'</span>'
+          + '<span style="font-size:8px;color:var(--tx3)">'+mins+'m left</span></div>';
+      }).join('');
+    } else { evWrap.style.display = 'none'; }
+
+    // Bounties
+    var bWrap = document.getElementById('govBountiesAdmin');
+    var bList = document.getElementById('govBountiesListAdmin');
+    var bounties = d.bounties || [];
+    if(bounties.length > 0) {
+      bWrap.style.display = '';
+      bList.innerHTML = bounties.map(function(b){
+        return '<div style="display:flex;justify-content:space-between;padding:6px 8px;background:rgba(232,72,85,.04);border-radius:4px;margin-bottom:4px">'
+          + '<span style="font-size:8px;color:var(--red)">🎯 '+(b.target_wallet.slice(0,10)+'...')+'</span>'
+          + '<span style="font-size:8px;color:var(--gold)">'+parseFloat(b.pp_reward).toFixed(0)+' PP</span></div>';
+      }).join('');
+    } else { bWrap.style.display = 'none'; }
+
+    // Sectors table
+    var tb = document.getElementById('govSectorsBody');
+    var sectors = d.sectors || [];
+    if(!sectors.length) {
+      tb.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--tx3)">No sectors</td></tr>';
+    } else {
+      tb.innerHTML = sectors.map(function(s){
+        var buffs = (s.activeBuffs || []).map(function(b){return b.buff_type}).join(', ') || '-';
+        return '<tr>'
+          + '<td>'+s.name+'</td>'
+          + '<td><span class="type-badge" style="background:rgba(91,184,232,.1);color:var(--cyan)">'+s.tier+'</span></td>'
+          + '<td class="addr" title="'+(s.governor_wallet||'')+'">'+(s.governor_name||s.governor_wallet?(s.governor_name||(s.governor_wallet||'').slice(0,8)+'...'):'--')+'</td>'
+          + '<td class="addr">'+(s.vice_name||(s.vice_governor_wallet?(s.vice_governor_wallet.slice(0,8)+'...'):'--'))+'</td>'
+          + '<td>'+parseFloat(s.tax_rate||2).toFixed(1)+'%</td>'
+          + '<td class="val-pp">'+parseFloat(s.sector_pool_gp||0).toFixed(0)+'</td>'
+          + '<td class="val-pp">'+parseFloat(s.buff_fund_gp||0).toFixed(0)+'</td>'
+          + '<td style="font-size:7px">'+buffs+'</td>'
+          + '<td style="font-size:7px;max-width:120px;overflow:hidden;text-overflow:ellipsis">'+(s.announcement||'-')+'</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    // Also load transactions
+    loadGovTx();
+  }).catch(function(e){ console.error('[Gov] load error:', e); });
+}
+
+function loadGovTx() {
+  fetch('/admin/api/governance/transactions', {headers:{'x-admin-secret':adminSecret}})
+  .then(function(r){return r.json()}).then(function(txs) {
+    if(!Array.isArray(txs)) { txs = []; }
+    var tb = document.getElementById('govTxBody');
+    if(!txs.length) {
+      tb.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--tx3)">No governance transactions</td></tr>';
+      return;
+    }
+    tb.innerHTML = txs.map(function(t){
+      var dt = new Date(t.created_at);
+      var meta = '';
+      try { var m = typeof t.meta === 'string' ? JSON.parse(t.meta) : t.meta; meta = JSON.stringify(m); } catch(e){ meta = t.meta||''; }
+      return '<tr>'
+        + '<td>'+t.id+'</td>'
+        + '<td><span class="type-badge" style="background:rgba(91,184,232,.1);color:var(--cyan)">'+t.type+'</span></td>'
+        + '<td style="font-size:7px">'+(t.from_role||'-')+'</td>'
+        + '<td style="font-size:7px">'+(t.to_role||'-')+'</td>'
+        + '<td>'+(t.sector_id||'-')+'</td>'
+        + '<td class="addr" title="'+t.wallet+'">'+(t.wallet?t.wallet.slice(0,10)+'...':'-')+'</td>'
+        + '<td class="val-pp">'+parseFloat(t.gp_amount||0).toFixed(0)+'</td>'
+        + '<td style="font-size:6px;max-width:100px;overflow:hidden;text-overflow:ellipsis" title="'+meta+'">'+meta.slice(0,30)+'</td>'
+        + '<td style="font-size:7px">'+dt.toLocaleDateString()+' '+dt.toLocaleTimeString()+'</td>'
+        + '</tr>';
+    }).join('');
+  }).catch(function(e){ console.error('[Gov] tx load error:', e); });
 }
 
 // Auto-focus auth input
