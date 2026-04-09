@@ -3801,6 +3801,7 @@ function compositeClaimsOnTexture(previewOnly){
 
       // ═══ COSMETIC EFFECTS (overhaul — group-based, strips outline) ═══
       var _ct=Date.now();
+      var _cosLite=(w<=2048); // lighter effects on smaller textures (mobile)
       ownerGroups.forEach(function(grp){
         var groupClaims=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
         var cos=null, _cosOwner=null;
@@ -3829,28 +3830,36 @@ function compositeClaimsOnTexture(previewOnly){
           }
         }
         // _cosOutline: builds path with ONLY outer edges (for stroke — no internal strip lines)
-        function _cosOutline(){
+        // Cached: compute edge segments once, replay for each stroke layer
+        var _outlineSegs=null;
+        function _computeOutlineSegs(){
+          if(_outlineSegs) return;
+          _outlineSegs=[];
           var byLat=_stripsByOwnerLat[_cosOwner]||{};
           var gsKey=byLat._latStep||Math.round(_gs*100);
-          ctx.beginPath();
           for(var si=0;si<gStrips.length;si++){
             var ss=gStrips[si], sr=_sRect(ss);
             var lk=Math.round(ss.lat*100);
-            // Left & right edges always exposed
-            ctx.moveTo(sr.x,sr.y);ctx.lineTo(sr.x,sr.y+sr.h);
-            ctx.moveTo(sr.x+sr.w,sr.y);ctx.lineTo(sr.x+sr.w,sr.y+sr.h);
-            // Top edge: only uncovered portions
+            _outlineSegs.push(sr.x,sr.y,sr.x,sr.y+sr.h);
+            _outlineSegs.push(sr.x+sr.w,sr.y,sr.x+sr.w,sr.y+sr.h);
             var adj=byLat[lk+gsKey]||[];
             var covX=[];for(var ai=0;ai<adj.length;ai++){var ar=_sRect(adj[ai]);var o1=Math.max(sr.x,ar.x),o2=Math.min(sr.x+sr.w,ar.x+ar.w);if(o2>o1)covX.push([o1,o2]);}
             covX.sort(function(a,b){return a[0]-b[0]});var pos=sr.x;
-            for(var ci=0;ci<covX.length;ci++){if(covX[ci][0]>pos+0.5){ctx.moveTo(pos,sr.y);ctx.lineTo(covX[ci][0],sr.y);}pos=covX[ci][1];}
-            if(pos<sr.x+sr.w-0.5){ctx.moveTo(pos,sr.y);ctx.lineTo(sr.x+sr.w,sr.y);}
-            // Bottom edge: only uncovered portions
+            for(var ci=0;ci<covX.length;ci++){if(covX[ci][0]>pos+0.5){_outlineSegs.push(pos,sr.y,covX[ci][0],sr.y);}pos=covX[ci][1];}
+            if(pos<sr.x+sr.w-0.5){_outlineSegs.push(pos,sr.y,sr.x+sr.w,sr.y);}
             var adj2=byLat[lk-gsKey]||[];
             var covX2=[];for(var ai2=0;ai2<adj2.length;ai2++){var ar2=_sRect(adj2[ai2]);var o12=Math.max(sr.x,ar2.x),o22=Math.min(sr.x+sr.w,ar2.x+ar2.w);if(o22>o12)covX2.push([o12,o22]);}
             covX2.sort(function(a,b){return a[0]-b[0]});var pos2=sr.x, yb=sr.y+sr.h;
-            for(var ci2=0;ci2<covX2.length;ci2++){if(covX2[ci2][0]>pos2+0.5){ctx.moveTo(pos2,yb);ctx.lineTo(covX2[ci2][0],yb);}pos2=covX2[ci2][1];}
-            if(pos2<sr.x+sr.w-0.5){ctx.moveTo(pos2,yb);ctx.lineTo(sr.x+sr.w,yb);}
+            for(var ci2=0;ci2<covX2.length;ci2++){if(covX2[ci2][0]>pos2+0.5){_outlineSegs.push(pos2,yb,covX2[ci2][0],yb);}pos2=covX2[ci2][1];}
+            if(pos2<sr.x+sr.w-0.5){_outlineSegs.push(pos2,yb,sr.x+sr.w,yb);}
+          }
+        }
+        function _cosOutline(){
+          _computeOutlineSegs();
+          ctx.beginPath();
+          for(var i=0;i<_outlineSegs.length;i+=4){
+            ctx.moveTo(_outlineSegs[i],_outlineSegs[i+1]);
+            ctx.lineTo(_outlineSegs[i+2],_outlineSegs[i+3]);
           }
         }
         _cosClip(); // compute bbox
@@ -3961,13 +3970,13 @@ function compositeClaimsOnTexture(previewOnly){
 
         // ── BORDER: multi-layer glow + animated effects ──
         if(cos.border){
-          // Layer 1: Wide outer glow
+          // Layer 1: Wide outer glow (skip on mobile for perf)
           ctx.save();
           if(cos.border==='neon_border'){
-            ctx.strokeStyle='rgba(0,255,255,0.15)';ctx.shadowColor='#00FFFF';ctx.shadowBlur=18;ctx.lineWidth=6;
-            _cosOutline();ctx.stroke();
+            if(!_cosLite){ctx.strokeStyle='rgba(0,255,255,0.15)';ctx.shadowColor='#00FFFF';ctx.shadowBlur=18;ctx.lineWidth=6;
+            _cosOutline();ctx.stroke();}
             // Layer 2: Bright inner
-            ctx.strokeStyle='rgba(0,255,255,0.5)';ctx.shadowBlur=10;ctx.lineWidth=2.5;
+            ctx.strokeStyle='rgba(0,255,255,0.5)';ctx.shadowColor='#00FFFF';ctx.shadowBlur=_cosLite?6:10;ctx.lineWidth=2.5;
             _cosOutline();ctx.stroke();
             // Layer 3: White core
             ctx.strokeStyle='rgba(200,255,255,0.8)';ctx.shadowBlur=4;ctx.lineWidth=1;
@@ -3986,9 +3995,9 @@ function compositeClaimsOnTexture(previewOnly){
             }
           }else if(cos.border==='flame_border'){
             // Fire glow
-            ctx.strokeStyle='rgba(255,80,0,0.12)';ctx.shadowColor='#FF4400';ctx.shadowBlur=20;ctx.lineWidth=8;
-            _cosOutline();ctx.stroke();
-            ctx.strokeStyle='rgba(255,120,20,0.5)';ctx.shadowBlur=10;ctx.lineWidth=2.5;
+            if(!_cosLite){ctx.strokeStyle='rgba(255,80,0,0.12)';ctx.shadowColor='#FF4400';ctx.shadowBlur=20;ctx.lineWidth=8;
+            _cosOutline();ctx.stroke();}
+            ctx.strokeStyle='rgba(255,120,20,0.5)';ctx.shadowColor='#FF4400';ctx.shadowBlur=_cosLite?6:10;ctx.lineWidth=2.5;
             _cosOutline();ctx.stroke();
             ctx.strokeStyle='rgba(255,200,60,0.7)';ctx.shadowBlur=3;ctx.lineWidth=1;
             _cosOutline();ctx.stroke();
@@ -4008,9 +4017,9 @@ function compositeClaimsOnTexture(previewOnly){
               ctx.beginPath();ctx.arc(ffx,ffy,1+ffAlpha*1.5,0,Math.PI*2);ctx.fill();
             }
           }else if(cos.border==='ice_border'){
-            ctx.strokeStyle='rgba(100,180,255,0.12)';ctx.shadowColor='#88CCFF';ctx.shadowBlur=16;ctx.lineWidth=6;
-            _cosOutline();ctx.stroke();
-            ctx.strokeStyle='rgba(150,210,255,0.5)';ctx.shadowBlur=8;ctx.lineWidth=2;
+            if(!_cosLite){ctx.strokeStyle='rgba(100,180,255,0.12)';ctx.shadowColor='#88CCFF';ctx.shadowBlur=16;ctx.lineWidth=6;
+            _cosOutline();ctx.stroke();}
+            ctx.strokeStyle='rgba(150,210,255,0.5)';ctx.shadowColor='#88CCFF';ctx.shadowBlur=_cosLite?5:8;ctx.lineWidth=2;
             _cosOutline();ctx.stroke();
             ctx.strokeStyle='rgba(220,240,255,0.8)';ctx.shadowBlur=3;ctx.lineWidth=1;
             _cosOutline();ctx.stroke();
@@ -4026,9 +4035,9 @@ function compositeClaimsOnTexture(previewOnly){
               ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.arc(icx,icy,1.2,0,Math.PI*2);ctx.fill();
             }
           }else if(cos.border==='gold_border'){
-            ctx.strokeStyle='rgba(255,200,0,0.1)';ctx.shadowColor='#FFD700';ctx.shadowBlur=24;ctx.lineWidth=8;
-            _cosOutline();ctx.stroke();
-            ctx.strokeStyle='rgba(255,215,0,0.5)';ctx.shadowBlur=12;ctx.lineWidth=3;
+            if(!_cosLite){ctx.strokeStyle='rgba(255,200,0,0.1)';ctx.shadowColor='#FFD700';ctx.shadowBlur=24;ctx.lineWidth=8;
+            _cosOutline();ctx.stroke();}
+            ctx.strokeStyle='rgba(255,215,0,0.5)';ctx.shadowColor='#FFD700';ctx.shadowBlur=_cosLite?6:12;ctx.lineWidth=3;
             _cosOutline();ctx.stroke();
             ctx.strokeStyle='rgba(255,240,150,0.85)';ctx.shadowBlur=4;ctx.lineWidth=1.2;
             _cosOutline();ctx.stroke();
@@ -4044,9 +4053,9 @@ function compositeClaimsOnTexture(previewOnly){
               ctx.fillStyle='#FFEE88';ctx.beginPath();ctx.arc(gox,goy,1.3,0,Math.PI*2);ctx.fill();
             }
           }else if(cos.border==='starship_border'){
-            ctx.strokeStyle='rgba(255,60,0,0.1)';ctx.shadowColor='#FF4400';ctx.shadowBlur=20;ctx.lineWidth=7;
-            _cosOutline();ctx.stroke();
-            ctx.strokeStyle='rgba(255,80,20,0.45)';ctx.shadowBlur=8;ctx.lineWidth=2.5;ctx.setLineDash([6,3]);
+            if(!_cosLite){ctx.strokeStyle='rgba(255,60,0,0.1)';ctx.shadowColor='#FF4400';ctx.shadowBlur=20;ctx.lineWidth=7;
+            _cosOutline();ctx.stroke();}
+            ctx.strokeStyle='rgba(255,80,20,0.45)';ctx.shadowColor='#FF4400';ctx.shadowBlur=_cosLite?5:8;ctx.lineWidth=2.5;ctx.setLineDash([6,3]);
             _cosOutline();ctx.stroke();ctx.setLineDash([]);
             ctx.strokeStyle='rgba(255,160,60,0.7)';ctx.shadowBlur=3;ctx.lineWidth=1;
             _cosOutline();ctx.stroke();
@@ -11704,10 +11713,10 @@ window.addEventListener('resize', function(){
   setTimeout(loadWeatherData, 4000);
   setInterval(loadWeatherData, 60000);
   setInterval(updateWeatherBanner, 30000);
-  // Animate weather/POI/starlink overlay texture
+  // Animate weather/POI/starlink overlay texture (throttled for performance)
   setInterval(function() {
     if (_weatherData.length > 0 || _poiData.length > 0 || _starlinkData.passes.length > 0) compositeClaimsOnTexture();
-  }, 800);
+  }, 2500);
 
   // ═══════ EXPLORATION POLLING ═══════
   function loadExplorationData() {
@@ -11735,7 +11744,7 @@ window.addEventListener('resize', function(){
   }
   setTimeout(_tryInitStarlink, 3000);
   // Animate starlink positions smoothly
-  setInterval(_updateStarlinkPositions, 200);
+  setInterval(_updateStarlinkPositions, 1000);
 
   // ═══════ ROCKET EVENT POLLING ═══════
   function loadRocketData() {
