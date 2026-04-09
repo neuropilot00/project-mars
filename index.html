@@ -889,6 +889,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .inv-item{padding:12px}
   .inv-use{min-height:40px;padding:8px 14px!important}
   /* Image editor mobile */
+  .imgEditorMdl{width:100vw!important;max-width:100vw!important;max-height:85vh!important}
+  .imgEditorMdl .mbd{padding:8px 10px}
+  #editorViewport{max-height:32vh}
+  #editorCanvas{max-height:32vh}
   .editor-ctrl-btn{width:40px;height:40px;font-size:18px}
   /* Claim modal mobile — compact */
   .claim-card{width:100vw;max-width:100vw;border-radius:16px 16px 0 0}
@@ -1625,7 +1629,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Image Editor Modal -->
 <div class="mbg" id="imgEditorModal">
-  <div class="mdl" style="width:520px;max-height:90vh;overflow-y:auto">
+  <div class="mdl imgEditorMdl" style="width:520px;max-height:90vh;overflow-y:auto">
     <div class="mhd">
       <span class="mtl">IMAGE EDITOR</span>
       <button class="mx" onclick="closeImageEditor()">×</button>
@@ -5270,12 +5274,14 @@ function _editorResizeCanvas(){
   var viewport=document.getElementById('editorViewport');
   // Fit canvas to modal width while maintaining aspect ratio of territory
   var maxW=viewport.parentElement.clientWidth||480;
+  var isMobile=window.innerWidth<=768;
+  if(isMobile) maxW=Math.min(maxW, window.innerWidth-24);
   var aspect=_editor.maskH/_editor.maskW;
   // Canvas display: scale territory to fill nicely (with padding for drag room)
-  var padFactor=2.5; // show 2.5x territory size for drag room
-  var cw=Math.min(maxW,480);
+  var cw=Math.min(maxW, isMobile?maxW:480);
   var ch=Math.round(cw*Math.min(aspect,1.2));
-  ch=Math.min(Math.max(ch,200), 320); // cap height so buttons always visible
+  var maxH=isMobile?Math.min(window.innerHeight*0.28, 200):320;
+  ch=Math.min(Math.max(ch, isMobile?150:200), maxH);
   canvas.width=cw*2;canvas.height=ch*2; // 2x for retina
   canvas.style.width=cw+'px';canvas.style.height=ch+'px';
   _editor.canvasW=cw*2;_editor.canvasH=ch*2;
