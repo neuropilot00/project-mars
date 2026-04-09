@@ -65,7 +65,8 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
 @media(max-width:768px){.tb-commander{top:85px;padding:3px 10px;font-size:9px}
   .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}
-  #tbCmdAnnounce{top:112px!important;font-size:8px!important;max-width:80%!important}}
+  #tbCmdAnnounce{top:112px!important;font-size:8px!important;max-width:80%!important}
+  #tbSectorAnnounce{top:130px!important;font-size:7px!important;max-width:85%!important}}
 
 /* Governance Leaderboard (sidebar) */
 .gov-lb-section{margin-top:2px;border-top:1px solid var(--bdr)}
@@ -1407,6 +1408,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div id="tbCmdAnnounce" style="display:none;position:fixed;top:160px;left:50%;transform:translateX(-50%);z-index:108;
   font-family:var(--fn);font-size:9px;color:var(--gold);opacity:0.8;white-space:nowrap;pointer-events:none;
   padding:3px 12px;background:rgba(20,16,10,0.6);border-radius:10px;backdrop-filter:blur(4px);max-width:60%;overflow:hidden;text-overflow:ellipsis"></div>
+<div id="tbSectorAnnounce" style="display:none;position:fixed;top:182px;left:50%;transform:translateX(-50%);z-index:108;
+  font-family:var(--fn);font-size:8px;color:var(--cyan);opacity:0.7;white-space:nowrap;pointer-events:none;
+  padding:2px 10px;background:rgba(10,16,20,0.5);border-radius:8px;backdrop-filter:blur(4px);max-width:70%;overflow:hidden;text-overflow:ellipsis"></div>
 
 <!-- Active Item Buffs Overlay -->
 <div id="tbActiveBuffs" style="display:none;position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:110;flex-direction:row;gap:6px;pointer-events:none"></div>
@@ -4528,6 +4532,8 @@ setInterval(function(){
     // Redraw texture to include sector boundaries
     setTimeout(function(){claimsSnapshot=null;compositeClaimsOnTexture()},1000);
     if(typeof updateGovRoles==='function') updateGovRoles();
+    // Show sector announcements below commander announce
+    if(typeof updateSectorAnnounces==='function') updateSectorAnnounces();
   }).catch(function(e){console.warn('[Sectors] Failed to load:',e)});
 })();
 
@@ -7905,8 +7911,8 @@ function renderSectorList(sectors){
       s.activeBuffs.forEach(function(b){ html+='<span style="font-size:9px;padding:2px 6px;background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.2);border-radius:4px;color:var(--cyan);font-family:var(--fn)">'+(buffIcons[b.buff_type]||b.buff_type)+'</span>'; });
       html+='</div>';
     }
-    // Sector announcement
-    if(s.announcement){
+    // Sector announcement (only visible to sector members)
+    if(s.announcement && s.myPixels>0){
       html+='<div style="font-size:9px;color:var(--gold);margin-top:4px;font-style:italic;font-family:var(--fn)">"'+s.announcement+'"</div>';
     }
     // My holdings
@@ -8267,8 +8273,8 @@ function _drawSectorOverlay(ctx,w,h){
       ctx.fillText((isCommander?'⭐ ':'👑 ')+govName,cx,govY);
     }
 
-    // Sector announcement below governor name
-    if(s.announcement){
+    // Sector announcement below governor name (only for sector members)
+    if(s.announcement && s.myPixels > 0){
       var annSize=Math.max(11,tierSize*0.55);
       var annY=govName?(govY+annSize+4):(cy+fontSize*0.55+tierSize*0.2+tierSize*0.8+4);
       ctx.font='italic '+annSize+'px monospace';
@@ -9789,6 +9795,17 @@ window.addEventListener('resize', function(){
   setTimeout(loadGovLeaderboard, 3000);
   setInterval(loadGovLeaderboard, 120000);
 
+  // Sector announcements overlay
+  window.updateSectorAnnounces = function() {
+    var el = document.getElementById('tbSectorAnnounce');
+    if (!el) return;
+    var announces = (_sectorsData || []).filter(function(s) { return s.announcement && s.myPixels > 0; });
+    if (!announces.length) { el.style.display = 'none'; return; }
+    var text = announces.map(function(s) { return '🏛 ' + s.name + ': ' + s.announcement; }).join('  ·  ');
+    el.textContent = text;
+    el.style.display = 'block';
+  };
+
   // Gov change feed alerts
   window.addGovFeed = function(changes) {
     if (!changes || !changes.length) return;
@@ -9930,6 +9947,24 @@ window.addEventListener('resize', function(){
       document.getElementById('govGovernorDash').style.display = isGovernor?'':'none';
       if(isGovernor && _govMySectorId){
         document.getElementById('govGovSectorName').textContent='(Sector '+_govMySectorId+')';
+        // Pre-fill sector announcement & tax rate
+        var mySector = _sectorsData && _sectorsData.find(function(s){return s.id===_govMySectorId});
+        if(mySector){
+          var saInput = document.getElementById('govSectorAnnounce');
+          if(saInput && !saInput.value) saInput.value = mySector.announcement || '';
+          var taxSlider = document.getElementById('govTaxSlider');
+          var taxVal = document.getElementById('govTaxVal');
+          if(taxSlider && mySector.taxRate){
+            taxSlider.value = mySector.taxRate;
+            if(taxVal) taxVal.textContent = mySector.taxRate+'%';
+          }
+        }
+      }
+
+      // Pre-fill commander announcement
+      if(isCommander && cmdInfo && cmdInfo.announcement){
+        var caInput = document.getElementById('govCmdAnnounce');
+        if(caInput && !caInput.value) caInput.value = cmdInfo.announcement;
       }
 
       // ── COMMANDER INFO ──
@@ -10027,7 +10062,6 @@ window.addEventListener('resize', function(){
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error);return}
       showToast('Announcement updated');
-      document.getElementById('govCmdAnnounce').value='';
       loadGovernanceData();
     }).catch(function(){showToast('Failed to set announcement')});
   };
@@ -10090,7 +10124,6 @@ window.addEventListener('resize', function(){
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error);return}
       showToast('Sector announcement updated');
-      document.getElementById('govSectorAnnounce').value='';
     }).catch(function(){showToast('Failed to set announcement')});
   };
 
