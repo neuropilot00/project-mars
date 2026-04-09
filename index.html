@@ -63,7 +63,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .weather-banner .wx-icon{font-size:12px}
 .weather-banner .wx-sector{color:#FFD166;font-size:8px;font-weight:700}
 .weather-banner .wx-time{color:rgba(255,153,68,0.7);font-size:7px}
-@media(max-width:768px){.weather-banner{bottom:70px;font-size:8px;padding:3px 10px}}
+@media(max-width:768px){.weather-banner{bottom:105px;font-size:8px;padding:3px 10px}}
 
 /* Rocket Event Banner */
 .rocket-banner{position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:112;
@@ -95,10 +95,10 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .tb-commander .cmd-label{font-size:8px;opacity:0.7;text-transform:uppercase}
 .tb-commander .cmd-name{font-weight:700;font-size:11px}
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
-@media(max-width:768px){.tb-commander{top:85px;padding:3px 10px;font-size:9px}
+@media(max-width:768px){.tb-commander{top:68px;padding:3px 10px;font-size:9px}
   .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}
-  #tbCmdAnnounce{top:112px!important;font-size:8px!important;max-width:80%!important}
-  #tbSectorAnnounce{top:130px!important;font-size:7px!important;max-width:85%!important}}
+  #tbCmdAnnounce{top:90px!important;font-size:8px!important;max-width:80%!important}
+  #tbSectorAnnounce{top:105px!important;font-size:7px!important;max-width:85%!important}}
 
 /* Governance Leaderboard (sidebar) */
 .gov-lb-section{margin-top:2px;border-top:1px solid var(--bdr)}
@@ -8809,21 +8809,6 @@ function _drawStarlinkTrails(ctx, w, h) {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#00FF88';
     ctx.fillText('\u{1F6F0} SL-' + sat.id, x, y - 14);
-
-    // Trail (5 past positions)
-    ctx.globalAlpha = 0.15;
-    ctx.strokeStyle = '#00FF88';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (var back = 1; back <= 8; back++) {
-      var pt = t - back * 60000; // 1 minute intervals
-      var pLat = sat.amp * Math.sin(pt * sat.speed + sat.offset);
-      var pLng = ((pt * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
-      var px = ((pLng + 180) / 360) * w;
-      var py = ((90 - pLat) / 180) * h;
-      if (back === 1) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-    }
-    ctx.stroke();
   });
   ctx.restore();
 }
