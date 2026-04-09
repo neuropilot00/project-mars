@@ -13684,7 +13684,10 @@ function checkDailyLogin(){
     if(d.success){
       _dailyState.streak = d.streak || 1;
       _dailyState.lastReward = d.reward || _dailyRewards[Math.min((_dailyState.streak-1),6)];
-      _dailyState.todayClaimed = false;
+      _dailyState.todayClaimed = true; // Server already credited reward
+      var today = new Date().toISOString().slice(0,10);
+      localStorage.setItem('daily_login_date_'+walletState.address, today);
+      localStorage.setItem('daily_last_streak_'+walletState.address, String(_dailyState.streak));
       renderDailyStreakRow();
       document.getElementById('dailyLoginPopup').classList.add('open');
     } else if(d.already_claimed){
@@ -13700,7 +13703,7 @@ function checkDailyLogin(){
     var lastLogin = localStorage.getItem('daily_last_streak_'+walletState.address);
     _dailyState.streak = lastLogin ? Math.min(parseInt(lastLogin)+1, 7) : 1;
     _dailyState.lastReward = _dailyRewards[Math.min((_dailyState.streak-1),6)];
-    _dailyState.todayClaimed = false;
+    _dailyState.todayClaimed = true; // Treat as claimed to avoid false notification
     renderDailyStreakRow();
     document.getElementById('dailyLoginPopup').classList.add('open');
     updateDailyHudDot();
@@ -13952,21 +13955,26 @@ function startDailyTimer(){
 
 // ── Notification Dots (OPEN BASE button + QUESTS tab) ──
 function updateDailyHudDot(){
-  var hasUnclaimed = !_dailyState.todayClaimed;
-  if(!hasUnclaimed){
+  var hasClaimable = false;
+  // Check daily login unclaimed
+  if(!_dailyState.todayClaimed) hasClaimable = true;
+  // Check daily missions — only if a mission is COMPLETED and not yet claimed
+  if(!hasClaimable){
     _dailyState.missions.forEach(function(m){
-      if(!m.claimed && m.current >= m.target) hasUnclaimed = true;
+      var cur = m.current != null ? m.current : m.currentValue;
+      var tgt = m.target != null ? m.target : m.targetValue;
+      if(!m.claimed && cur >= tgt) hasClaimable = true;
     });
   }
   // OPEN BASE button dot
   var baseDot = document.getElementById('dailyHudDot');
-  if(baseDot) baseDot.style.display = hasUnclaimed ? 'block' : 'none';
+  if(baseDot) baseDot.style.display = hasClaimable ? 'block' : 'none';
   // Mobile bottom nav BASE dot
   var mobBaseDot = document.getElementById('mobBaseDot');
-  if(mobBaseDot) mobBaseDot.style.display = hasUnclaimed ? 'block' : 'none';
+  if(mobBaseDot) mobBaseDot.style.display = hasClaimable ? 'block' : 'none';
   // QUESTS tab dot inside BASE modal
   var questsDot = document.getElementById('questsDot');
-  if(questsDot) questsDot.style.display = hasUnclaimed ? 'block' : 'none';
+  if(questsDot) questsDot.style.display = hasClaimable ? 'block' : 'none';
 }
 
 function openDailyPanel(){

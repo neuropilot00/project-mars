@@ -1,4 +1,4 @@
-const { pool } = require('../db');
+const { pool, getSetting } = require('../db');
 
 // ═══════════════════════════════════════
 //  GET ACTIVE SEASON
@@ -30,17 +30,18 @@ async function addSeasonScore(wallet, category, amount) {
   const season = await getActiveSeason();
   if (!season) return;
 
-  // Map category to column + score multiplier
+  // Map category to column + score multiplier (configurable via admin settings)
   const colMap = {
-    claim_pixels: { col: 'pixels_claimed', multiplier: 1 },
-    harvest: { col: 'harvests', multiplier: 5 },
-    hijack: { col: 'hijacks_won', multiplier: 10 },
-    poi: { col: 'pois_discovered', multiplier: 15 }
+    claim_pixels: { col: 'pixels_claimed', settingKey: 'season_mult_pixels', defaultMult: 1 },
+    harvest: { col: 'harvests', settingKey: 'season_mult_harvest', defaultMult: 5 },
+    hijack: { col: 'hijacks_won', settingKey: 'season_mult_hijack', defaultMult: 10 },
+    poi: { col: 'pois_discovered', settingKey: 'season_mult_poi', defaultMult: 15 }
   };
   const mapping = colMap[category];
   if (!mapping) return;
 
-  const scoreAdd = amount * mapping.multiplier;
+  const multiplier = await getSetting(mapping.settingKey, mapping.defaultMult);
+  const scoreAdd = amount * multiplier;
 
   await pool.query(
     `INSERT INTO season_scores (season_id, wallet, score, ${mapping.col}, updated_at)
