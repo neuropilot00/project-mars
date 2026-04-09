@@ -9807,45 +9807,82 @@ function _drawPOIMarkers(ctx, w, h) {
   ctx.restore();
 }
 
-// ═══════ STARLINK SATELLITES (2D texture trails) ═══════
+// ═══════ STARLINK SATELLITES (3D orbit via screen coords) ═══════
 var _starlinkMeshes = [];
 var _starlinkData = { satellites: [], passes: [] };
 
-var _satConfig = [
-  { id: 1, amp: 45, speed: 0.0003, offset: 0, dir: 1, tilt: 5 },
-  { id: 2, amp: 55, speed: 0.00028, offset: 1.2, dir: -1, tilt: -10 },
-  { id: 3, amp: 35, speed: 0.00035, offset: 3.5, dir: 1, tilt: 20 }
+// 6 orbits at evenly distributed inclinations — electron shell around atom
+var _satOrbits = [
+  { id: 1, speed: 0.00025, phase: 0,    inclination: 25,  tiltAxis: 0 },
+  { id: 2, speed: 0.00028, phase: 1.05, inclination: 50,  tiltAxis: 60 },
+  { id: 3, speed: 0.00030, phase: 2.09, inclination: 75,  tiltAxis: 120 },
+  { id: 4, speed: 0.00027, phase: 3.14, inclination: 40,  tiltAxis: 180 },
+  { id: 5, speed: 0.00032, phase: 4.19, inclination: 65,  tiltAxis: 240 },
+  { id: 6, speed: 0.00026, phase: 5.24, inclination: 85,  tiltAxis: 300 }
 ];
-var _trainSize = 1;
+var _slDots = []; // DOM elements
+var _slAlt = 0.35; // orbit altitude above globe surface
 
-function _drawStarlinkTrails(ctx, w, h) {
-  var t = Date.now();
-  ctx.save();
-  _satConfig.forEach(function(sat) {
-    var dir = sat.dir || 1, tilt = sat.tilt || 0;
-    var lat = sat.amp * Math.sin(t * sat.speed + sat.offset) + tilt;
-    var lng = ((dir * t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360 + 360) % 360 - 180;
-    var x = ((lng + 180) / 360) * w, y = ((90 - lat) / 180) * h;
-    // Glow
-    var grad = ctx.createRadialGradient(x, y, 1, x, y, 10);
-    grad.addColorStop(0, 'rgba(255,255,255,0.95)');
-    grad.addColorStop(0.3, 'rgba(0,255,136,0.5)');
-    grad.addColorStop(1, 'rgba(0,255,136,0)');
-    ctx.globalAlpha = 1;
-    ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2);
-    ctx.fillStyle = grad; ctx.fill();
-    // Core
-    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#FFFFFF'; ctx.fill();
-    // Label
-    ctx.globalAlpha = 0.7;
-    ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
-    ctx.fillStyle = '#00FF88';
-    ctx.fillText('\u{1F6F0} SL-' + sat.id, x, y - 14);
+function _initStarlinkOrbit() {
+  if (_slDots.length || !globe) return;
+  var container;
+  try { container = globe.renderer().domElement.parentElement; } catch(_e) { return; }
+  if (!container) return;
+  _satOrbits.forEach(function(orb) {
+    var dot = document.createElement('div');
+    dot.style.cssText = 'position:absolute;z-index:50;pointer-events:none;transition:opacity 0.15s;';
+    dot.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#fff 25%,rgba(0,255,136,0.8) 60%,transparent 100%);box-shadow:0 0 8px rgba(0,255,136,0.6),0 0 16px rgba(0,255,136,0.2)"></div>' +
+      '<div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);font:bold 7px monospace;color:#00FF88;white-space:nowrap;text-shadow:0 0 4px rgba(0,0,0,0.9)">SL-' + orb.id + '</div>';
+    container.appendChild(dot);
+    _slDots.push({ el: dot, orb: orb });
   });
-  ctx.restore();
+  requestAnimationFrame(_animateStarlinkOrbit);
 }
 
+function _animateStarlinkOrbit() {
+  if (!globe || !_slDots.length) { requestAnimationFrame(_animateStarlinkOrbit); return; }
+  var t = Date.now();
+  _slDots.forEach(function(sd) {
+    var orb = sd.orb;
+    var angle = t * orb.speed + orb.phase; // orbital angle
+    // Compute lat/lng on a tilted great circle
+    var incRad = orb.inclination * Math.PI / 180;
+    var tiltRad = orb.tiltAxis * Math.PI / 180;
+    // Position on unit circle in orbital plane, then rotate by inclination and tilt
+    var x0 = Math.cos(angle);
+    var y0 = Math.sin(angle);
+    // Rotate around Y-axis by tiltAxis, then around X-axis by inclination
+    var x1 = x0 * Math.cos(tiltRad) - y0 * Math.sin(tiltRad) * Math.cos(incRad);
+    var y1 = x0 * Math.sin(tiltRad) + y0 * Math.cos(tiltRad) * Math.cos(incRad);
+    var z1 = y0 * Math.sin(incRad);
+    // Convert to lat/lng
+    var lat = Math.asin(Math.max(-1, Math.min(1, z1))) * 180 / Math.PI;
+    var lng = Math.atan2(y1, x1) * 180 / Math.PI;
+    // Get screen position
+    var sc = globe.getScreenCoords(lat, lng, _slAlt);
+    if (sc && sc.x > -50 && sc.y > -50) {
+      sd.el.style.left = (sc.x - 4) + 'px';
+      sd.el.style.top = (sc.y - 4) + 'px';
+      // Occlusion: check if satellite is on the far side of globe
+      var scSurface = globe.getScreenCoords(lat, lng, 0);
+      var scHigh = globe.getScreenCoords(lat, lng, _slAlt + 0.01);
+      // If surface and altitude coords are very close, satellite is behind globe
+      if (scSurface && scHigh) {
+        var dx = scHigh.x - scSurface.x, dy = scHigh.y - scSurface.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        sd.el.style.opacity = dist < 0.3 ? '0' : '1';
+      } else {
+        sd.el.style.opacity = '0.8';
+      }
+    } else {
+      sd.el.style.opacity = '0';
+    }
+  });
+  requestAnimationFrame(_animateStarlinkOrbit);
+}
+
+// Texture trail stub (no longer used)
+function _drawStarlinkTrails() {}
 function _updateStarlinkPositions() {}
 function _initStarlinkSatellites() {}
 
@@ -11622,7 +11659,13 @@ window.addEventListener('resize', function(){
   setInterval(loadExplorationData, 30000);
   setTimeout(loadStarlinkData, 6000);
   setInterval(loadStarlinkData, 10000);
-  // Starlink rendered on texture via _drawStarlinkTrails (called in compositeClaimsOnTexture)
+  // Init Starlink 3D orbit around globe
+  function _tryInitStarlinkOrbit() {
+    if (_slDots.length) return;
+    _initStarlinkOrbit();
+    if (!_slDots.length) setTimeout(_tryInitStarlinkOrbit, 2000);
+  }
+  setTimeout(_tryInitStarlinkOrbit, 3000);
   // Starlink position updates handled by _animateStarlink RAF loop
 
   // ═══════ ROCKET EVENT POLLING ═══════
