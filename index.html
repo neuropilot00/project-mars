@@ -3281,6 +3281,109 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   };
 })();
 
+/* ═══════ SOUND EFFECTS ENGINE (Web Audio API) ═══════ */
+var _audioCtx=null;
+function _ensureAudio(){
+  if(!_audioCtx) _audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(_audioCtx.state==='suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+var _sfx={
+  volume:0.2,
+  _ok:function(){try{return typeof getNotifSetting==='function'?getNotifSetting('sound'):true}catch(e){return true}},
+  _gain:function(v){var ctx=_ensureAudio();var g=ctx.createGain();g.gain.value=(v||0.2)*_sfx.volume;g.connect(ctx.destination);return g},
+  click:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var o=ctx.createOscillator();var g=_sfx._gain(0.08);
+    o.type='sine';o.frequency.setValueAtTime(1200,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.05);
+    o.connect(g);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.05);
+  },
+  claim:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    var o=ctx.createOscillator();var g=_sfx._gain(0.25);
+    o.type='sine';o.frequency.setValueAtTime(400,t);o.frequency.exponentialRampToValueAtTime(1200,t+0.15);
+    o.connect(g);g.gain.exponentialRampToValueAtTime(0.001,t+0.3);o.start(t);o.stop(t+0.3);
+    var o2=ctx.createOscillator();var g2=_sfx._gain(0.18);
+    o2.type='sine';o2.frequency.setValueAtTime(1200,t+0.15);
+    o2.connect(g2);g2.gain.exponentialRampToValueAtTime(0.001,t+0.4);o2.start(t+0.15);o2.stop(t+0.4);
+  },
+  harvest:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    [880,1100,1320,1760].forEach(function(f,i){
+      var o=ctx.createOscillator();var g=_sfx._gain(0.15);
+      o.type='sine';o.frequency.value=f;o.connect(g);
+      g.gain.exponentialRampToValueAtTime(0.001,t+i*0.06+0.08);
+      o.start(t+i*0.06);o.stop(t+i*0.06+0.08);
+    });
+  },
+  hijackWin:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    [260,330,392,523].forEach(function(f,i){
+      var o=ctx.createOscillator();var g=_sfx._gain(0.22);
+      o.type='square';o.frequency.value=f;o.connect(g);
+      g.gain.exponentialRampToValueAtTime(0.001,t+i*0.08+0.1);
+      o.start(t+i*0.08);o.stop(t+i*0.08+0.1);
+    });
+  },
+  hijackFail:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    var o=ctx.createOscillator();var g=_sfx._gain(0.2);
+    o.type='sawtooth';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(60,t+0.2);
+    o.connect(g);g.gain.exponentialRampToValueAtTime(0.001,t+0.25);o.start(t);o.stop(t+0.25);
+  },
+  shield:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    var o=ctx.createOscillator();var g=_sfx._gain(0.18);
+    o.type='sine';o.frequency.setValueAtTime(300,t);o.frequency.exponentialRampToValueAtTime(2400,t+0.15);
+    o.connect(g);g.gain.exponentialRampToValueAtTime(0.001,t+0.2);o.start(t);o.stop(t+0.2);
+    var o2=ctx.createOscillator();var g2=_sfx._gain(0.1);
+    o2.type='triangle';o2.frequency.setValueAtTime(2400,t+0.1);o2.frequency.exponentialRampToValueAtTime(600,t+0.25);
+    o2.connect(g2);g2.gain.exponentialRampToValueAtTime(0.001,t+0.3);o2.start(t+0.1);o2.stop(t+0.3);
+  },
+  notification:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    var o=ctx.createOscillator();var g=_sfx._gain(0.15);
+    o.type='sine';o.frequency.value=880;o.connect(g);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.1);o.start(t);o.stop(t+0.1);
+    var o2=ctx.createOscillator();var g2=_sfx._gain(0.15);
+    o2.type='sine';o2.frequency.value=1320;o2.connect(g2);
+    g2.gain.exponentialRampToValueAtTime(0.001,t+0.2);o2.start(t+0.08);o2.stop(t+0.2);
+  },
+  purchase:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    var o=ctx.createOscillator();var g=_sfx._gain(0.15);
+    o.type='square';o.frequency.value=1500;o.connect(g);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.04);o.start(t);o.stop(t+0.04);
+    var o2=ctx.createOscillator();var g2=_sfx._gain(0.2);
+    o2.type='sine';o2.frequency.value=2200;o2.connect(g2);
+    g2.gain.exponentialRampToValueAtTime(0.001,t+0.12);o2.start(t+0.04);o2.stop(t+0.12);
+    var o3=ctx.createOscillator();var g3=_sfx._gain(0.12);
+    o3.type='sine';o3.frequency.value=2640;o3.connect(g3);
+    g3.gain.exponentialRampToValueAtTime(0.001,t+0.18);o3.start(t+0.1);o3.stop(t+0.18);
+  },
+  error:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    [0,0.12].forEach(function(d){
+      var o=ctx.createOscillator();var g=_sfx._gain(0.18);
+      o.type='square';o.frequency.value=120;o.connect(g);
+      g.gain.exponentialRampToValueAtTime(0.001,t+d+0.08);o.start(t+d);o.stop(t+d+0.08);
+    });
+  },
+  levelUp:function(){
+    if(!_sfx._ok())return;var ctx=_ensureAudio();var t=ctx.currentTime;
+    [523,659,784,1047].forEach(function(f,i){
+      var o=ctx.createOscillator();var g=_sfx._gain(0.2);
+      o.type='sine';o.frequency.value=f;o.connect(g);
+      g.gain.exponentialRampToValueAtTime(0.001,t+i*0.1+0.15);
+      o.start(t+i*0.1);o.stop(t+i*0.1+0.15);
+    });
+    // Final sustained chord
+    var o5=ctx.createOscillator();var g5=_sfx._gain(0.12);
+    o5.type='triangle';o5.frequency.value=1047;o5.connect(g5);
+    g5.gain.exponentialRampToValueAtTime(0.001,t+0.7);o5.start(t+0.4);o5.stop(t+0.7);
+  }
+};
+
 /* ═══════════════════════════════════════════════════════
    OCCUPY MARS — Claim Your Territory (Mars Globe)
    ═══════════════════════════════════════════════════════ */
@@ -7075,6 +7178,7 @@ function _showBattleAnimation(result){
         if(elapsed>4.5){
           document.body.removeChild(ov);
           showNotification('hijack',isWin?'BATTLE WON':'TERRITORY DEFENDED',isWin?won+'/'+total+'px captured!':'Held '+lost+'/'+total+'px against attack');
+          try{isWin?_sfx.hijackWin():_sfx.hijackFail()}catch(e){}
           resolve();
           return;
         }
@@ -7087,6 +7191,7 @@ function _showBattleAnimation(result){
 }
 
 async function confirmClaim(){
+  try{_sfx.click()}catch(e){}
   if(!selectedPlot) return;
   // 로그인 체크
   if(!walletState.connected){
@@ -7249,6 +7354,7 @@ async function confirmClaim(){
       claimsSnapshot=null;
       compositeClaimsOnTexture();
       showToast(d.error||'CLAIM FAILED');
+      try{_sfx.error()}catch(e){}
       if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
       return;
     }
@@ -7261,6 +7367,7 @@ async function confirmClaim(){
       await _showBattleAnimation(d);
     }else{
       showNotification('claim','TERRITORY CLAIMED','New land secured for $'+d.totalCost.toFixed(2));
+      try{_sfx.claim()}catch(e){}
     }
 
     try{
@@ -7588,6 +7695,7 @@ async function confirmWithdraw(){
     refreshEmailBalances();
     closeWithdrawModal();
     showToast('WITHDRAWAL REQUESTED: '+amt.toFixed(2)+' USDT');
+    try{_sfx.purchase()}catch(e){}
     addFeed('💸 '+shortAddr(walletState.address)+' withdrew $'+amt.toFixed(2));
   }catch(e){
     showToast('WITHDRAW FAILED');
@@ -9034,6 +9142,7 @@ function renderShopInventory(){
 }
 
 function buyShopItem(code,currency){
+  try{_sfx.click()}catch(e){}
   if(!walletState||!walletState.address){showToast('Connect wallet first','error');return;}
   var w=walletState.address;
   var item=_shopItems.find(function(i){return i.code===code});
@@ -9047,8 +9156,9 @@ function buyShopItem(code,currency){
     fetch('/api/shop/buy',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({wallet:w,itemCode:code,currency:currency,quantity:1})
     }).then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error,'error');return;}
+      if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
       showToast('Purchased '+item.name+'!','success');
+      try{_sfx.purchase()}catch(e){}
       loadShopData();
     }).catch(function(e){showToast('Purchase failed','error')});
   });
@@ -9101,8 +9211,9 @@ function _doUseItem(w,code,claimId){
   fetch('/api/shop/use',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({wallet:w,itemCode:code,claimId:claimId})
   }).then(function(r){return r.json()}).then(function(d){
-    if(d.error){showToast(d.error,'error');return;}
+    if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
     showToast(d.item+' activated!','success');
+    try{code.indexOf('shield')===0?_sfx.shield():_sfx.purchase()}catch(e){}
     // Visual feedback based on item type
     if(code.indexOf('shield')===0&&claimId) _showItemEffect('shield',claimId);
     else if(code==='emp_strike'&&claimId) _showItemEffect('emp',claimId);
@@ -9251,9 +9362,16 @@ function loadBaseData(){
   }
 }
 
+var _prevUserRank=0;
 function renderBaseUser(data){
   if(!data||!data.user) return;
   var u=data.user;
+  // Detect rank up
+  if(_prevUserRank>0&&u.rank>_prevUserRank){
+    try{_sfx.levelUp()}catch(e){}
+    showNotification('system','RANK UP!','You reached Level '+u.rank+'!');
+  }
+  _prevUserRank=u.rank;
   document.getElementById('baseTotalPx').textContent=data.territory.totalPixels.toLocaleString();
   document.getElementById('baseUsdt').textContent=u.usdt.toFixed(2);
   document.getElementById('basePP').textContent=u.pp.toFixed(2);
@@ -9547,6 +9665,7 @@ function getTimeLeft(expiresAt){
 }
 
 async function claimQuest(questId){
+  try{_sfx.click()}catch(e){}
   var w=walletState.address;
   if(!w){showToast('LOGIN FIRST');return}
   var btn=document.querySelector('.quest-card[data-qid="'+questId+'"] .qc-claim-btn');
@@ -9559,8 +9678,9 @@ async function claimQuest(questId){
       body:JSON.stringify({wallet:w})
     });
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Claim failed');return}
+    if(!resp.ok){showToast(d.error||'Claim failed');try{_sfx.error()}catch(e){}return}
     showToast('+'+d.rewardPP.toFixed(1)+' PP from "'+d.title+'"!');
+    try{_sfx.harvest()}catch(e){}
     loadQuests(w); // Refresh
     try{refreshEmailBalances()}catch(e){}
   }catch(e){showToast('Network error')}
@@ -9579,13 +9699,14 @@ function trackQuestAction(action, amount){
   }).then(function(r){return r.json()}).then(function(d){
     if(d.quests){
       d.quests.forEach(function(q){
-        if(q.justCompleted) showToast('Quest complete: "'+q.title+'" — Claim your reward!');
+        if(q.justCompleted){showToast('Quest complete: "'+q.title+'" — Claim your reward!');try{_sfx.notification()}catch(e){}}
       });
     }
   }).catch(function(){});
 }
 
 async function harvestMining(){
+  try{_sfx.click()}catch(e){}
   var w=walletState.address;
   if(!w){showToast('LOGIN FIRST');return}
   var btn=document.getElementById('baseHarvestBtn');
@@ -9595,8 +9716,9 @@ async function harvestMining(){
     if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
     var resp=await fetch('/api/harvest',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
     var d=await resp.json();
-    if(!resp.ok){showToast(d.error||'Harvest failed');return}
+    if(!resp.ok){showToast(d.error||'Harvest failed');try{_sfx.error()}catch(e){}return}
     showNotification('mining','HARVEST COMPLETE','+'+d.harvestedPP.toFixed(4)+' PP collected from your territory');
+    try{_sfx.harvest()}catch(e){}
     try{trackQuestAction('harvest',1)}catch(e){}
     // Update UI
     document.getElementById('baseMineAvail').textContent='0.00';
@@ -10275,6 +10397,8 @@ var _NOTIF_MAX=3;
 function showNotification(type,title,msg){
   var stack=document.getElementById('notifStack');
   if(!stack) return;
+  // Play notification sound for important types (hijack already handled separately)
+  if(type!=='hijack')try{_sfx.notification()}catch(e){}
   var cfg=_notifTypes[type]||_notifTypes.system;
   // Enforce max stack size — remove oldest
   while(_notifQueue.length>=_NOTIF_MAX){
@@ -11979,6 +12103,7 @@ window.addEventListener('resize', function(){
       } else {
         showNotification('rocket','LOOT CLAIMED','+'+r.amount+' PP from supply drop');
       }
+      try{_sfx.harvest()}catch(e){}
       if (btn) { btn.textContent = '\u2713'; btn.style.background = 'rgba(0,255,100,0.2)'; btn.style.borderColor = '#00FF88'; }
       loadBalance();
     }).catch(function(){ showToast('Claim failed'); if(btn){btn.disabled=false;btn.style.opacity='1';} });
