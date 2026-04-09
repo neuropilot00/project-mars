@@ -416,6 +416,131 @@ async function start() {
       console.log('[ROCKET] Scheduled tasks initialized (process: 1min, auto-schedule: 12h)');
     } catch(e) { console.warn('[ROCKET] Could not init scheduled tasks:', e.message); }
 
+    // ── Auto-Renewal Micro-Transaction Cron (every 5 minutes) ──
+    try {
+      setInterval(async () => {
+        try {
+          // Auto-renew expired shields
+          const expiredShields = await pool.query(
+            `SELECT ps.id, ps.claim_id, ps.owner, ps.shield_type, ps.auto_renew
+             FROM pixel_shields ps
+             WHERE ps.expires_at <= NOW() AND ps.auto_renew = true`
+          );
+          for (const shield of expiredShields.rows) {
+            const client = await pool.connect();
+            try {
+              await client.query('BEGIN');
+              // Get item info for the shield type
+              const itemRes = await client.query('SELECT * FROM item_types WHERE code = $1 AND active = true', [shield.shield_type]);
+              if (!itemRes.rows.length) { await client.query('ROLLBACK'); client.release(); continue; }
+              const item = itemRes.rows[0];
+              const cost = parseFloat(item.price_pp);
+
+              // Check user balance
+              const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [shield.owner]);
+              const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
+
+              if (ppBal < cost) {
+                // Insufficient PP — disable auto-renew
+                await client.query('UPDATE pixel_shields SET auto_renew = false WHERE id = $1', [shield.id]);
+                await client.query('COMMIT');
+                console.log(`[AUTO-RENEW] Shield #${shield.id} — insufficient PP (${ppBal}/${cost}), auto-renew disabled`);
+                client.release();
+                continue;
+              }
+
+              // Deduct PP
+              await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [cost, shield.owner]);
+
+              // Delete old shield, create new
+              await client.query('DELETE FROM pixel_shields WHERE id = $1', [shield.id]);
+              const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+              const hp = item.effect_value;
+              await client.query(
+                'INSERT INTO pixel_shields (claim_id, owner, shield_type, hp, max_hp, expires_at, auto_renew) VALUES ($1,$2,$3,$4,$5,$6,true)',
+                [shield.claim_id, shield.owner, shield.shield_type, hp, hp, expiresAt]
+              );
+
+              // Log transaction
+              await client.query(
+                `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+                 VALUES ('auto_renew', $1, $2, 0, $3)`,
+                [shield.owner, cost, JSON.stringify({ itemCode: shield.shield_type, claimId: shield.claim_id, type: 'shield' })]
+              );
+
+              await client.query('COMMIT');
+              console.log(`[AUTO-RENEW] Shield ${shield.shield_type} renewed for claim #${shield.claim_id} (${cost} PP)`);
+            } catch (e) {
+              await client.query('ROLLBACK');
+              console.warn(`[AUTO-RENEW] Shield #${shield.id} renewal failed:`, e.message);
+            } finally {
+              client.release();
+            }
+          }
+
+          // Auto-renew expired duration-based effects
+          const expiredEffects = await pool.query(
+            `SELECT uae.id, uae.wallet, uae.effect_type, uae.auto_renew, uae.source_item_code
+             FROM user_active_effects uae
+             WHERE uae.active = true AND uae.auto_renew = true
+               AND uae.expires_at IS NOT NULL AND uae.expires_at <= NOW()`
+          );
+          for (const effect of expiredEffects.rows) {
+            const client = await pool.connect();
+            try {
+              await client.query('BEGIN');
+              const itemCode = effect.source_item_code || effect.effect_type;
+              const itemRes = await client.query('SELECT * FROM item_types WHERE code = $1 AND active = true', [itemCode]);
+              if (!itemRes.rows.length) {
+                await client.query('UPDATE user_active_effects SET active = false, auto_renew = false WHERE id = $1', [effect.id]);
+                await client.query('COMMIT'); client.release(); continue;
+              }
+              const item = itemRes.rows[0];
+              const cost = parseFloat(item.price_pp);
+
+              const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [effect.wallet]);
+              const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
+
+              if (ppBal < cost) {
+                await client.query('UPDATE user_active_effects SET active = false, auto_renew = false WHERE id = $1', [effect.id]);
+                await client.query('COMMIT');
+                console.log(`[AUTO-RENEW] Effect ${effect.effect_type} — insufficient PP (${ppBal}/${cost}), disabled`);
+                client.release();
+                continue;
+              }
+
+              // Deduct PP
+              await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [cost, effect.wallet]);
+
+              // Deactivate old, create new
+              await client.query('UPDATE user_active_effects SET active = false WHERE id = $1', [effect.id]);
+              const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+              await client.query(
+                `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at, auto_renew, source_item_code)
+                 VALUES ($1, $2, $3, $4, true, $5)`,
+                [effect.wallet, effect.effect_type, item.effect_value, expiresAt, itemCode]
+              );
+
+              await client.query(
+                `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+                 VALUES ('auto_renew', $1, $2, 0, $3)`,
+                [effect.wallet, cost, JSON.stringify({ itemCode, type: 'effect', effectType: effect.effect_type })]
+              );
+
+              await client.query('COMMIT');
+              console.log(`[AUTO-RENEW] Effect ${effect.effect_type} renewed for ${effect.wallet} (${cost} PP)`);
+            } catch (e) {
+              await client.query('ROLLBACK');
+              console.warn(`[AUTO-RENEW] Effect #${effect.id} renewal failed:`, e.message);
+            } finally {
+              client.release();
+            }
+          }
+        } catch (e) { console.warn('[AUTO-RENEW] cron error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[AUTO-RENEW] Scheduled tasks initialized (check: 5min)');
+    } catch(e) { console.warn('[AUTO-RENEW] Could not init scheduled tasks:', e.message); }
+
     // ── Daily Engagement Cleanup ──
     try {
       // Daily cleanup - remove old mission data

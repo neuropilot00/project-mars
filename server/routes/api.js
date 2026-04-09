@@ -485,8 +485,9 @@ router.get('/claims', async (req, res) => {
         `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
+                c.custom_name,
                 u.nickname,
-                ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires
+                ps.id AS shield_id, ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires, ps.auto_renew AS shield_auto_renew
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
          LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL AND c.created_at > $1
@@ -498,8 +499,9 @@ router.get('/claims', async (req, res) => {
         `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
+                c.custom_name,
                 u.nickname,
-                ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires
+                ps.id AS shield_id, ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires, ps.auto_renew AS shield_auto_renew
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
          LEFT JOIN pixel_shields ps ON ps.claim_id = c.id AND ps.expires_at > NOW()
          WHERE c.deleted_at IS NULL
@@ -545,7 +547,8 @@ router.get('/claims', async (req, res) => {
       imgOffsetX: r.img_offset_x || 0,
       imgOffsetY: r.img_offset_y || 0,
       ts: new Date(r.created_at).getTime(),
-      shield: r.shield_type ? { type: r.shield_type, hp: r.shield_hp, maxHp: r.shield_max_hp, expires: new Date(r.shield_expires).getTime() } : null,
+      customName: r.custom_name || null,
+      shield: r.shield_type ? { id: r.shield_id, type: r.shield_type, hp: r.shield_hp, maxHp: r.shield_max_hp, expires: new Date(r.shield_expires).getTime(), autoRenew: r.shield_auto_renew || false } : null,
       hijackCount: hijackMap[r.owner] || 0,
       cosmetics: cosmeticsMap[r.id] || null
     })));
@@ -2741,8 +2744,8 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'mining_boost' AND active = true`, [w]
       );
       await client.query(
-        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at) VALUES ($1, 'mining_boost', $2, $3)`,
-        [w, item.effect_value, expiresAt]
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at, source_item_code) VALUES ($1, 'mining_boost', $2, $3, $4)`,
+        [w, item.effect_value, expiresAt, item.code]
       );
       effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
     } else if (item.code === 'stealth_cloak') {
@@ -2752,8 +2755,8 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'stealth_cloak' AND active = true`, [w]
       );
       await client.query(
-        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at) VALUES ($1, 'stealth_cloak', 1, $2)`,
-        [w, expiresAt]
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at, source_item_code) VALUES ($1, 'stealth_cloak', 1, $2, $3)`,
+        [w, expiresAt, item.code]
       );
       effectResult = { applied: true, code: item.code, expiresAt };
     } else if (item.code === 'radar_scan') {
@@ -2801,7 +2804,7 @@ router.get('/shop/active-effects', readLimiter, async (req, res) => {
       `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND active = true AND expires_at IS NOT NULL AND expires_at < NOW()`, [w]
     );
     const result = await pool.query(
-      `SELECT e.*, t.name, t.icon, t.code FROM user_active_effects e
+      `SELECT e.*, t.name, t.icon, t.code, t.price_pp FROM user_active_effects e
        JOIN item_types t ON t.code = e.effect_type
        WHERE e.wallet = $1 AND e.active = true
          AND (e.expires_at IS NULL OR e.expires_at > NOW())
@@ -3129,6 +3132,319 @@ router.get('/daily/streak', readLimiter, async (req, res) => {
   } catch (e) {
     console.error('[DAILY] streak error:', e.message);
     res.status(500).json({ error: 'Failed to get streak info' });
+  }
+});
+
+// ══════════════════════════════════════
+// MICRO-TRANSACTIONS (Drizzle Revenue)
+// ══════════════════════════════════════
+
+// POST /api/harvest-instant — skip cooldown for 0.5 PP
+router.post('/harvest-instant', harvestLimiter, async (req, res) => {
+  const { wallet } = req.body;
+  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+
+  const client = await pool.connect();
+  try {
+    const s = await cfg();
+    if (s.mining_enabled === false) return res.status(403).json({ error: 'Mining is disabled' });
+
+    const w = wallet.toLowerCase();
+    const instantCost = parseFloat(s.instant_harvest_cost_pp) || 0.5;
+
+    await client.query('BEGIN');
+
+    // Check PP balance
+    const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
+    if (!balRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
+    const ppBal = parseFloat(balRes.rows[0].pp_balance);
+    if (ppBal < instantCost) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Insufficient PP. Need ${instantCost} PP.`, cost: instantCost, balance: ppBal });
+    }
+
+    // Deduct cost
+    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [instantCost, w]);
+
+    // Log micro-transaction
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+       VALUES ('instant_harvest', $1, $2, 0, $3)`,
+      [w, instantCost, JSON.stringify({ action: 'skip_harvest_cooldown' })]
+    );
+
+    // Reset cooldown by updating last_harvest_at to a past time
+    await client.query(
+      `UPDATE user_mining SET last_harvest_at = NOW() - INTERVAL '999 hours' WHERE wallet_address = $1`,
+      [w]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({ success: true, cost: instantCost, message: 'Cooldown skipped! You can harvest now.' });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[MICRO] instant-harvest error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /api/claims/:id/rename — rename territory for 0.3 PP
+router.post('/claims/:id/rename', writeLimiter, async (req, res) => {
+  const { wallet, name } = req.body;
+  const claimId = parseInt(req.params.id);
+  if (!wallet || !claimId || !name) return res.status(400).json({ error: 'Missing wallet, claimId, or name' });
+
+  // Sanitize name: max 20 chars, no HTML
+  const cleanName = sanitize(name, 20);
+  if (cleanName.length === 0) return res.status(400).json({ error: 'Name cannot be empty' });
+  if (cleanName.length > 20) return res.status(400).json({ error: 'Name too long (max 20 chars)' });
+
+  const client = await pool.connect();
+  try {
+    const s = await cfg();
+    const w = wallet.toLowerCase();
+    const renameCost = parseFloat(s.rename_cost_pp) || 0.3;
+
+    await client.query('BEGIN');
+
+    // Verify claim ownership
+    const claimRes = await client.query('SELECT owner, custom_name FROM claims WHERE id = $1 AND deleted_at IS NULL', [claimId]);
+    if (!claimRes.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Claim not found' }); }
+    if (claimRes.rows[0].owner.toLowerCase() !== w) { await client.query('ROLLBACK'); return res.status(403).json({ error: 'Not your territory' }); }
+
+    // Check PP balance
+    const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
+    const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
+    if (ppBal < renameCost) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Insufficient PP. Need ${renameCost} PP.`, cost: renameCost });
+    }
+
+    // Deduct PP
+    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [renameCost, w]);
+
+    // Update custom_name
+    await client.query('UPDATE claims SET custom_name = $1 WHERE id = $2', [cleanName, claimId]);
+
+    // Log transaction
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+       VALUES ('rename_fee', $1, $2, 0, $3)`,
+      [w, renameCost, JSON.stringify({ claimId, newName: cleanName })]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({ success: true, cost: renameCost, name: cleanName });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[MICRO] rename error:', e.message);
+    res.status(500).json({ error: 'Rename failed' });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /api/exploration/hint — get approximate direction to nearest undiscovered POI (0.2 PP)
+router.post('/exploration/hint', writeLimiter, async (req, res) => {
+  const { wallet, lat, lng } = req.body;
+  if (!wallet || lat == null || lng == null) return res.status(400).json({ error: 'Missing wallet or coordinates' });
+
+  const client = await pool.connect();
+  try {
+    const s = await cfg();
+    const w = wallet.toLowerCase();
+    const hintCost = parseFloat(s.poi_hint_cost_pp) || 0.2;
+
+    await client.query('BEGIN');
+
+    // Check PP balance
+    const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
+    const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
+    if (ppBal < hintCost) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Insufficient PP. Need ${hintCost} PP.`, cost: hintCost });
+    }
+
+    // Find nearest undiscovered POI
+    const poiRes = await client.query(
+      `SELECT id, lat, lng, poi_type FROM exploration_pois
+       WHERE active = true AND expires_at > NOW() AND discovered_by IS NULL
+       ORDER BY (lat - $1)*(lat - $1) + (lng - $2)*(lng - $2) ASC
+       LIMIT 1`,
+      [lat, lng]
+    );
+
+    if (!poiRes.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'No undiscovered POIs available right now' });
+    }
+
+    const poi = poiRes.rows[0];
+    const dlat = parseFloat(poi.lat) - lat;
+    const dlng = parseFloat(poi.lng) - lng;
+    const dist = Math.sqrt(dlat * dlat + dlng * dlng);
+
+    // Calculate approximate direction (N/S/E/W/NE/NW/SE/SW)
+    const angle = Math.atan2(dlng, dlat) * 180 / Math.PI; // degrees from north
+    let direction;
+    if (angle >= -22.5 && angle < 22.5) direction = 'NORTH';
+    else if (angle >= 22.5 && angle < 67.5) direction = 'NORTHEAST';
+    else if (angle >= 67.5 && angle < 112.5) direction = 'EAST';
+    else if (angle >= 112.5 && angle < 157.5) direction = 'SOUTHEAST';
+    else if (angle >= 157.5 || angle < -157.5) direction = 'SOUTH';
+    else if (angle >= -157.5 && angle < -112.5) direction = 'SOUTHWEST';
+    else if (angle >= -112.5 && angle < -67.5) direction = 'WEST';
+    else direction = 'NORTHWEST';
+
+    // Approximate distance category
+    let distLabel;
+    if (dist < 5) distLabel = 'very close';
+    else if (dist < 15) distLabel = 'nearby';
+    else if (dist < 40) distLabel = 'moderate distance';
+    else distLabel = 'far away';
+
+    // Deduct PP
+    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [hintCost, w]);
+
+    // Log transaction
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+       VALUES ('poi_hint', $1, $2, 0, $3)`,
+      [w, hintCost, JSON.stringify({ fromLat: lat, fromLng: lng, direction, distLabel })]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({
+      success: true,
+      cost: hintCost,
+      hint: { direction, distance: distLabel, poiType: poi.poi_type }
+    });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[MICRO] poi-hint error:', e.message);
+    res.status(500).json({ error: 'Hint failed' });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /api/rockets/priority — purchase priority notification for rocket loot (0.3 PP)
+router.post('/rockets/priority', writeLimiter, async (req, res) => {
+  const { wallet, rocketEventId } = req.body;
+  if (!wallet || rocketEventId == null) return res.status(400).json({ error: 'Missing wallet or rocketEventId' });
+
+  const client = await pool.connect();
+  try {
+    const s = await cfg();
+    const w = wallet.toLowerCase();
+    const priorityCost = parseFloat(s.loot_priority_cost_pp) || 0.3;
+
+    await client.query('BEGIN');
+
+    // Check rocket event exists and is incoming/landed
+    const evRes = await client.query(
+      "SELECT id, status FROM rocket_events WHERE id = $1 AND status IN ('incoming','looting')", [rocketEventId]
+    );
+    if (!evRes.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'No active rocket event found' });
+    }
+
+    // Check if already purchased
+    const existRes = await client.query(
+      'SELECT id FROM loot_priority_claims WHERE wallet = $1 AND rocket_event_id = $2', [w, rocketEventId]
+    );
+    if (existRes.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Priority already purchased for this event' });
+    }
+
+    // Check PP balance
+    const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
+    const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
+    if (ppBal < priorityCost) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Insufficient PP. Need ${priorityCost} PP.`, cost: priorityCost });
+    }
+
+    // Deduct PP
+    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2', [priorityCost, w]);
+
+    // Record priority claim
+    await client.query(
+      'INSERT INTO loot_priority_claims (wallet, rocket_event_id) VALUES ($1, $2)',
+      [w, rocketEventId]
+    );
+
+    // Log transaction
+    await client.query(
+      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
+       VALUES ('loot_priority', $1, $2, 0, $3)`,
+      [w, priorityCost, JSON.stringify({ rocketEventId })]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({ success: true, cost: priorityCost, message: 'Priority notification activated! You\'ll get a 5-second head start when loot drops.' });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[MICRO] loot-priority error:', e.message);
+    res.status(500).json({ error: 'Priority purchase failed' });
+  } finally {
+    client.release();
+  }
+});
+
+// GET /api/rockets/priority?wallet=&rocketEventId= — check priority status
+router.get('/rockets/priority', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  const rocketEventId = req.query.rocketEventId;
+  if (!w || !rocketEventId) return res.json({ hasPriority: false });
+  try {
+    const result = await pool.query(
+      'SELECT id FROM loot_priority_claims WHERE wallet = $1 AND rocket_event_id = $2', [w, rocketEventId]
+    );
+    res.json({ hasPriority: result.rows.length > 0 });
+  } catch (e) {
+    res.json({ hasPriority: false });
+  }
+});
+
+// POST /api/shop/auto-renew — toggle auto-renewal for shield or active effect
+router.post('/shop/auto-renew', writeLimiter, async (req, res) => {
+  const { wallet, effectId, shieldId, enabled } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!effectId && !shieldId) return res.status(400).json({ error: 'Missing effectId or shieldId' });
+
+  try {
+    const autoRenew = enabled === true || enabled === 'true';
+
+    if (shieldId) {
+      // Toggle auto_renew on shield
+      const result = await pool.query(
+        'UPDATE pixel_shields SET auto_renew = $1 WHERE id = $2 AND owner = $3 RETURNING id',
+        [autoRenew, shieldId, w]
+      );
+      if (!result.rows.length) return res.status(404).json({ error: 'Shield not found or not yours' });
+    } else {
+      // Toggle auto_renew on active effect
+      const result = await pool.query(
+        'UPDATE user_active_effects SET auto_renew = $1 WHERE id = $2 AND wallet = $3 RETURNING id',
+        [autoRenew, effectId, w]
+      );
+      if (!result.rows.length) return res.status(404).json({ error: 'Effect not found or not yours' });
+    }
+
+    res.json({ success: true, autoRenew });
+  } catch (e) {
+    console.error('[MICRO] auto-renew toggle error:', e.message);
+    res.status(500).json({ error: 'Failed to toggle auto-renew' });
   }
 });
 

@@ -84,7 +84,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .wx-detail-popup{padding-bottom:80px;z-index:210}}
 
 /* Rocket Event Banner */
-.rocket-banner{position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:112;
+.rocket-banner{position:fixed;top:210px;left:50%;transform:translateX(-50%);z-index:108;
   display:none;align-items:center;gap:8px;padding:6px 18px;
   background:linear-gradient(90deg,rgba(30,8,8,0.85),rgba(60,15,10,0.95),rgba(30,8,8,0.85));
   border:1px solid rgba(255,80,40,0.5);border-radius:20px;backdrop-filter:blur(8px);
@@ -98,7 +98,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .rocket-banner .rk-time{color:rgba(255,100,68,0.8);font-size:9px;font-weight:700}
 .rocket-banner .rk-loot{color:#00FF88;font-size:9px}
 @keyframes rocketPulse{0%,100%{border-color:rgba(255,80,40,0.5)}50%{border-color:rgba(255,80,40,0.9)}}
-@media(max-width:768px){.rocket-banner{top:45px;font-size:9px;padding:4px 12px}}
+@media(max-width:768px){.rocket-banner{top:206px;font-size:9px;padding:4px 12px}}
 
 /* Commander Banner */
 .tb-commander{position:fixed;top:130px;left:50%;transform:translateX(-50%);z-index:109;
@@ -1938,7 +1938,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div id="infoImgWrap" style="display:none;margin:8px 0;text-align:center">
       <img id="infoImgPreview" src="" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer" onclick="expandInfoImg()">
     </div>
+    <div class="stat-row" id="infoNameRow" style="display:none"><span class="stat-label">NAME</span><span class="stat-val" id="infoCustomName" style="color:var(--gold)">--</span></div>
     <button class="uf" id="infoShareBtn" style="margin-top:6px;font-size:9px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border-color:rgba(91,184,232,.3);color:var(--cyan)" onclick="shareTerritory(selectedPlot)">📤 SHARE</button>
+    <button class="uf" id="infoRenameBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)" onclick="renameTerritory(selectedPlot)">RENAME (0.3 PP)</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)">EDIT IMAGE</button>
     <button class="uf" id="infoCosmeticBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(180,100,255,.12),rgba(255,100,200,.08));border-color:rgba(180,100,255,.3);color:#c088e0" onclick="openCosmeticPanel(selectedPlot)">✨ CUSTOMIZE</button>
     <div id="cosmeticPanel" style="display:none;margin-top:8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
@@ -2405,6 +2407,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
         <button class="action-btn" id="baseHarvestBtn" onclick="harvestMining()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(76,216,154,.12),rgba(76,216,154,.04));border-color:rgba(76,216,154,.35);color:var(--gn)">
           HARVEST PP
+        </button>
+        <button class="action-btn" id="baseInstantHarvestBtn" onclick="instantHarvest()" style="display:none;margin-top:6px;font-size:10px;padding:8px 12px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold)">
+          HARVEST NOW (0.5 PP)
         </button>
         <div style="font-size:9px;color:var(--tx3);text-align:center;margin-top:8px" id="baseMineTimer">Next harvest available in --:--:--</div>
 
@@ -6314,22 +6319,33 @@ function showTerritoryInfo(plot){
   }else{
     imgWrap.style.display='none';
   }
-  // Show EDIT IMAGE + PROMO LINK only for own territories
+  // Show custom name if present
+  var nameRow=document.getElementById('infoNameRow');
+  if(plot.customName){
+    nameRow.style.display='';
+    document.getElementById('infoCustomName').textContent=plot.customName;
+  }else{
+    nameRow.style.display='none';
+  }
+  // Show EDIT IMAGE + PROMO LINK + RENAME only for own territories
   var editBtn=document.getElementById('infoEditImgBtn');
   var linkEdit=document.getElementById('infoLinkEdit');
   var myW=walletState.address||'';
   var cosBtn=document.getElementById('infoCosmeticBtn');
   var cosPanel=document.getElementById('cosmeticPanel');
+  var renameBtn=document.getElementById('infoRenameBtn');
   if(myW&&plot.owner===myW){
     editBtn.style.display='';
     editBtn.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
     linkEdit.style.display='';
     document.getElementById('infoLinkInput').value=plot.link||'';
     cosBtn.style.display='';
+    renameBtn.style.display='';
   }else{
     editBtn.style.display='none';
     linkEdit.style.display='none';
     cosBtn.style.display='none';
+    renameBtn.style.display='none';
   }
   cosPanel.style.display='none';
 }
@@ -9216,7 +9232,7 @@ function renderShopInventory(){
         +'</div>';
     }).join('');
   }).catch(function(){list.innerHTML='<div style="text-align:center;color:var(--red);font-size:var(--fs-sm)">Failed to load</div>'});
-  // Render active effects in inventory view
+  // Render active effects in inventory view (with auto-renew toggles)
   var actSec=document.getElementById('shopActiveSection');
   var actList=document.getElementById('shopActiveList');
   if(_activeEffects.length>0){
@@ -9228,7 +9244,16 @@ function renderShopInventory(){
         var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
         info+=mins>60?Math.floor(mins/60)+'h '+mins%60+'m left':mins+'m left';
       }
-      return '<div style="padding:6px 10px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);border-radius:8px;font-size:var(--fs-xs);color:var(--gold);font-family:var(--fn)">'+info+'</div>';
+      // Auto-renew toggle for duration-based effects
+      var renewHTML='';
+      if(e.expires_at&&e.price_pp){
+        var isOn=e.auto_renew===true;
+        renewHTML='<div style="margin-top:4px;display:flex;align-items:center;gap:6px">'
+          +'<span style="font-size:8px;color:var(--tx3)">AUTO-RENEW ('+parseFloat(e.price_pp).toFixed(1)+' PP)</span>'
+          +'<button onclick="toggleAutoRenew(\'effect\','+e.id+','+isOn+')" style="font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid '+(isOn?'rgba(76,216,154,.4)':'rgba(255,255,255,.15)')+';background:'+(isOn?'rgba(76,216,154,.15)':'rgba(255,255,255,.05)')+';color:'+(isOn?'var(--gn)':'var(--tx3)')+';cursor:pointer;font-family:var(--fn)">'+(isOn?'ON':'OFF')+'</button>'
+          +'</div>';
+      }
+      return '<div style="padding:6px 10px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);border-radius:8px;font-size:var(--fs-xs);color:var(--gold);font-family:var(--fn)">'+info+renewHTML+'</div>';
     }).join('');
   }else{actSec.style.display='none';}
 }
@@ -9514,6 +9539,7 @@ function renderBaseUser(data){
       document.getElementById('baseMineTimer').textContent='Harvest available now!';
       document.getElementById('baseMineAvail').textContent='Ready!';
       document.getElementById('baseHarvestBtn').disabled=false;
+      document.getElementById('baseInstantHarvestBtn').style.display='none';
     }else if(data.mining.nextHarvestAt){
       startMineTimer(new Date(data.mining.nextHarvestAt));
       document.getElementById('baseMineAvail').textContent='0.00';
@@ -9522,6 +9548,7 @@ function renderBaseUser(data){
       document.getElementById('baseMineTimer').textContent='Claim pixels to start mining!';
       document.getElementById('baseMineAvail').textContent='--';
       document.getElementById('baseHarvestBtn').disabled=true;
+      document.getElementById('baseInstantHarvestBtn').style.display='none';
     }
   }
 
@@ -9825,12 +9852,146 @@ async function harvestMining(){
   finally{btn.disabled=false;btn.textContent='HARVEST PP'}
 }
 
+// ── Instant Harvest (skip cooldown micro-transaction) ──
+async function instantHarvest(){
+  try{_sfx.click()}catch(e){}
+  var w=walletState.address;
+  if(!w){showToast('LOGIN FIRST');return}
+  var ok=await shopConfirm('','Skip Cooldown',
+    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">INSTANT HARVEST</div>'
+    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Skip the harvest cooldown and harvest immediately.</div>'
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.5 PP</div>','SKIP COOLDOWN');
+  if(!ok)return;
+  var btn=document.getElementById('baseInstantHarvestBtn');
+  btn.disabled=true;btn.textContent='PROCESSING...';
+  try{
+    var headers={'Content-Type':'application/json'};
+    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+    var resp=await fetch('/api/harvest-instant',{method:'POST',headers:headers,body:JSON.stringify({wallet:w})});
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'Failed','error');return}
+    showToast('Cooldown skipped! Harvest now.','success');
+    btn.style.display='none';
+    document.getElementById('baseMineTimer').textContent='Harvest available now!';
+    if(window._mineTimerInterval) clearInterval(window._mineTimerInterval);
+    try{refreshEmailBalances()}catch(e){}
+  }catch(e){showToast('Network error','error')}
+  finally{btn.disabled=false;btn.textContent='HARVEST NOW (0.5 PP)'}
+}
+
+// ── Territory Rename (micro-transaction) ──
+async function renameTerritory(plot){
+  if(!plot||!plot.id)return;
+  var w=walletState.address;
+  if(!w){showToast('LOGIN FIRST');return}
+  var currentName=plot.customName||'';
+  // Prompt for new name
+  var name=prompt('Enter territory name (max 20 chars, costs 0.3 PP):',currentName);
+  if(name===null||name.trim()==='')return;
+  name=name.trim().substring(0,20);
+  try{
+    var headers={'Content-Type':'application/json'};
+    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+    var resp=await fetch('/api/claims/'+plot.id+'/rename',{method:'POST',headers:headers,body:JSON.stringify({wallet:w,name:name})});
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'Rename failed','error');return}
+    showToast('Territory renamed to "'+d.name+'"','success');
+    // Update local data
+    plot.customName=d.name;
+    var nameRow=document.getElementById('infoNameRow');
+    nameRow.style.display='';
+    document.getElementById('infoCustomName').textContent=d.name;
+    try{refreshEmailBalances()}catch(e){}
+  }catch(e){showToast('Network error','error')}
+}
+
+// ── POI Hint (micro-transaction) ──
+async function getPOIHint(){
+  var w=walletState.address;
+  if(!w){showToast('LOGIN FIRST');return}
+  // Use camera/globe center as user position
+  var lat=0,lng=0;
+  try{
+    if(typeof camera!=='undefined'&&camera.position){
+      // Convert camera to lat/lng approximation
+      var pos=camera.position;
+      lat=Math.asin(pos.y/pos.length())*180/Math.PI;
+      lng=Math.atan2(pos.x,pos.z)*180/Math.PI;
+    }
+  }catch(e){}
+  var ok=await shopConfirm('','POI Hint',
+    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">POI DIRECTION HINT</div>'
+    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Get the approximate direction to the nearest undiscovered POI.</div>'
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.2 PP</div>','GET HINT');
+  if(!ok)return;
+  try{
+    var headers={'Content-Type':'application/json'};
+    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+    var resp=await fetch('/api/exploration/hint',{method:'POST',headers:headers,body:JSON.stringify({wallet:w,lat:lat,lng:lng})});
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'Hint failed','error');return}
+    var icon=d.hint.poiType?({'ancient_ruins':'','ore_deposit':'','crashed_probe':'','water_ice':'','alien_artifact':''}[d.hint.poiType]||''):'';
+    showNotification('exploration','POI HINT',icon+' '+d.hint.direction+' — '+d.hint.distance);
+    try{refreshEmailBalances()}catch(e){}
+  }catch(e){showToast('Network error','error')}
+}
+
+// ── Rocket Loot Priority (micro-transaction) ──
+async function buyLootPriority(rocketEventId){
+  var w=walletState.address;
+  if(!w){showToast('LOGIN FIRST');return}
+  var ok=await shopConfirm('','Priority Queue',
+    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">LOOT PRIORITY</div>'
+    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Get a 5-second head start notification when rocket loot drops.</div>'
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.3 PP</div>','GET PRIORITY');
+  if(!ok)return;
+  try{
+    var headers={'Content-Type':'application/json'};
+    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+    var resp=await fetch('/api/rockets/priority',{method:'POST',headers:headers,body:JSON.stringify({wallet:w,rocketEventId:rocketEventId})});
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'Priority failed','error');return}
+    showToast('Priority notification activated!','success');
+    try{refreshEmailBalances()}catch(e){}
+  }catch(e){showToast('Network error','error')}
+}
+
+// ── Auto-Renew Toggle ──
+async function toggleAutoRenew(type,id,currentState){
+  var w=walletState.address;
+  if(!w)return;
+  var newState=!currentState;
+  try{
+    var body={wallet:w,enabled:newState};
+    if(type==='shield') body.shieldId=id;
+    else body.effectId=id;
+    var resp=await fetch('/api/shop/auto-renew',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'Toggle failed','error');return}
+    showToast('Auto-renew '+(newState?'ON':'OFF'),'success');
+    // Refresh inventory view if open
+    if(typeof renderShopInventory==='function') renderShopInventory();
+  }catch(e){showToast('Network error','error')}
+}
+
 function startMineTimer(nextAt){
   var el=document.getElementById('baseMineTimer');
+  var instantBtn=document.getElementById('baseInstantHarvestBtn');
   if(window._mineTimerInterval) clearInterval(window._mineTimerInterval);
+  // Show instant harvest button if on cooldown
+  if(nextAt&&nextAt>Date.now()){
+    instantBtn.style.display='';
+  }else{
+    instantBtn.style.display='none';
+  }
   window._mineTimerInterval=setInterval(function(){
     var diff=nextAt-Date.now();
-    if(diff<=0){el.textContent='Harvest available now!';clearInterval(window._mineTimerInterval);return}
+    if(diff<=0){
+      el.textContent='Harvest available now!';
+      instantBtn.style.display='none';
+      clearInterval(window._mineTimerInterval);
+      return;
+    }
     var h=Math.floor(diff/3600000);var m=Math.floor((diff%3600000)/60000);var s=Math.floor((diff%60000)/1000);
     el.textContent='Next harvest in '+h+'h '+m+'m '+s+'s';
   },1000);
@@ -10535,6 +10696,8 @@ function _showPOIPopup(poi) {
     + '<div style="font-size:9px;color:var(--tx3);margin-bottom:16px">Discover this POI to earn PP rewards!<br>Requires territory in this sector.</div>'
     + '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:10px;background:linear-gradient(135deg,' + def.color + ',#FF8800);color:#000;border:none;border-radius:8px;font-family:var(--fn);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px">'
     + '\u{1F50D} DISCOVER</button>'
+    + '<button onclick="getPOIHint()" style="width:100%;margin-top:6px;padding:8px;background:rgba(255,209,102,.1);color:var(--gold);border:1px solid rgba(255,209,102,.3);border-radius:8px;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px">'
+    + 'POI HINT (0.2 PP)</button>'
     + '</div>';
   if (isMobile) {
     showMobModal('EXPLORATION', html);
@@ -12142,11 +12305,16 @@ window.addEventListener('resize', function(){
       timeStr = mins2 + 'm left';
     }
     var remaining2 = ev.totalRewards - ev.claimedRewards;
+    var priorityBtn = '';
+    if (ev.status === 'incoming' && currentWallet) {
+      priorityBtn = '<button onclick="event.stopPropagation();buyLootPriority(' + ev.id + ')" style="font-size:8px;padding:2px 8px;background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);border-radius:4px;color:var(--gold);cursor:pointer;font-family:var(--fn);white-space:nowrap">PRIORITY (0.3 PP)</button>';
+    }
     el.innerHTML = '<span class="rk-icon">' + icon + '</span>'
       + '<span class="rk-type">' + typeLabel + '</span>'
       + '<span class="rk-sector">' + (ev.sectorName || '') + '</span>'
       + '<span class="rk-time">' + timeStr + '</span>'
-      + (ev.status === 'looting' ? '<span class="rk-loot">' + remaining2 + '/' + ev.totalRewards + ' loot</span>' : '');
+      + (ev.status === 'looting' ? '<span class="rk-loot">' + remaining2 + '/' + ev.totalRewards + ' loot</span>' : '')
+      + priorityBtn;
     el.classList.add('show');
   }
   setTimeout(loadRocketData, 7000);
