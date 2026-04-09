@@ -657,11 +657,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   border:1px solid var(--bdr2);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
   box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 60px rgba(255,120,60,.05)}
 .base-header{display:flex;align-items:center;justify-content:space-between;
-  padding:14px 18px;background:rgba(0,0,0,.25);border-bottom:1px solid var(--bdr)}
+  padding:14px 18px;background:rgba(0,0,0,.25);border-bottom:1px solid var(--bdr);flex-shrink:0}
 .base-header-title{font-size:13px;color:var(--mars);letter-spacing:2px;font-family:var(--fn)}
 .base-close{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;
   padding:4px 8px;min-width:36px;min-height:36px}
-.base-tabs{display:flex;border-bottom:1px solid var(--bdr);background:rgba(0,0,0,.15)}
+.base-tabs{display:flex;border-bottom:1px solid var(--bdr);background:rgba(0,0,0,.15);flex-shrink:0;overflow-x:auto}
 .base-tab{flex:1;padding:10px 8px;text-align:center;font-size:10px;font-family:var(--fn);
   color:var(--tx3);cursor:pointer;letter-spacing:1px;border-bottom:2px solid transparent;
   transition:all .2s;white-space:nowrap}
@@ -1414,6 +1414,36 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 
 /* ══════════════════════════════════════════════════
+   Section Help Tooltips (?)
+   ══════════════════════════════════════════════════ */
+.help-tip{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;
+  border-radius:50%;background:rgba(91,184,232,.12);border:1px solid rgba(91,184,232,.35);
+  color:var(--cyan);font-size:10px;font-weight:700;font-family:var(--fn);cursor:pointer;
+  margin-left:6px;transition:all .2s;vertical-align:middle;flex-shrink:0;line-height:1}
+.help-tip:hover{background:rgba(91,184,232,.25);border-color:var(--cyan)}
+.help-popup-bg{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5)}
+.help-popup-bg.open{display:flex;align-items:center;justify-content:center}
+.help-popup{background:linear-gradient(160deg,rgba(14,12,22,.97),rgba(20,18,32,.97));
+  border:1px solid rgba(91,184,232,.3);border-radius:16px;
+  max-width:380px;width:90vw;padding:0;box-shadow:0 16px 50px rgba(0,0,0,.7),0 0 40px rgba(91,184,232,.08);
+  animation:helpPopIn .3s cubic-bezier(.4,0,.2,1);overflow:hidden}
+@keyframes helpPopIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.help-popup-title{font-size:13px;font-family:var(--fn);color:#fff;letter-spacing:1.5px;
+  padding:16px 20px 12px;display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(91,184,232,.15),rgba(255,120,60,.08));
+  border-bottom:1px solid rgba(91,184,232,.15)}
+.help-popup-title::before{content:'?';display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,rgba(91,184,232,.25),rgba(91,184,232,.1));
+  border:1.5px solid rgba(91,184,232,.5);font-size:13px;font-weight:700;color:var(--cyan);flex-shrink:0}
+.help-popup-body{font-size:11.5px;color:var(--tx2);line-height:1.7;font-family:var(--fn);padding:16px 20px;
+  white-space:pre-line}
+.help-popup-close{padding:0 20px 16px;text-align:center}
+.help-popup-close button{background:linear-gradient(135deg,rgba(91,184,232,.15),rgba(91,184,232,.05));
+  border:1px solid rgba(91,184,232,.35);color:var(--cyan);font-size:10px;font-family:var(--fn);
+  padding:8px 28px;border-radius:8px;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.help-popup-close button:hover{background:rgba(91,184,232,.25);border-color:var(--cyan)}
+
+/* ══════════════════════════════════════════════════
    Tutorial / Onboarding Overlay
    ══════════════════════════════════════════════════ */
 .tut-howto-btn{
@@ -1502,7 +1532,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <!-- Top Bar -->
 <div class="topbar" id="topbar">
   <div class="tb-left">
-    <span class="tb-title">OCCUPY MARS</span>
+    <span class="tb-title">OCCUPY MARS <span class="help-tip" onclick="event.stopPropagation();showHelpTip('about')" style="vertical-align:middle">?</span></span>
     <span class="tb-sub">CLAIM YOUR TERRITORY</span>
   </div>
   <div style="display:flex;gap:6px;align-items:center">
@@ -1635,9 +1665,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
   <!-- Wallet: connected -->
   <div class="p-section" id="walletSection" style="display:none">
-    <div class="p-title" data-i18n="my_wallet">MY WALLET</div>
+    <div class="p-title" data-i18n="my_wallet">MY WALLET <span class="help-tip" onclick="event.stopPropagation();showHelpTip('currency')">?</span></div>
     <div class="wallet-panel">
-      <div class="wallet-addr" id="walletAddr">--</div>
+      <div class="wallet-addr" id="walletAddr" style="display:flex;align-items:center;gap:4px">--<button class="help-tip" onclick="(function(){var a=document.getElementById('walletAddr').textContent.replace('--','').trim();if(a)navigator.clipboard.writeText(a).then(function(){showToast('Address copied!')});})()" style="width:16px;height:16px;font-size:8px;margin-left:4px;border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:var(--tx3)">⎘</button></div>
       <div style="display:flex;gap:4px;align-items:center;margin:2px 0">
         <span class="chain-dot base" id="chainDotPanel"></span>
         <span style="font-size:var(--fs-xs);color:var(--tx2)" id="walletChain">--</span>
@@ -1659,7 +1689,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
   <!-- REFERRAL PROGRAM (below wallet) -->
   <div class="p-section" id="referralSection" style="display:none">
-    <div class="p-title" data-i18n="referral_program">REFERRAL PROGRAM</div>
+    <div class="p-title" data-i18n="referral_program">REFERRAL PROGRAM <span class="help-tip" onclick="event.stopPropagation();showHelpTip('referral')">?</span></div>
     <div id="referralContent">
       <div style="font-size:var(--fs-xs);color:var(--tx3);line-height:1.8;margin-bottom:6px">
         Share your code & earn PP<br>when referrals hijack territory!
@@ -1755,7 +1785,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
   <!-- CLAIM LAND: Land-first workflow (no image needed) -->
   <div class="p-section" id="landSection">
-    <div class="p-title">CLAIM TERRITORY</div>
+    <div class="p-title">CLAIM TERRITORY <span class="help-tip" onclick="event.stopPropagation();showHelpTip('claim')">?</span></div>
     <button class="uf" id="landSelectBtn" onclick="activateLandSelect()" style="background:linear-gradient(135deg,rgba(255,120,60,.15),rgba(255,120,60,.05));border-color:rgba(255,120,60,.35);color:var(--mars)">DRAG TO SELECT LAND</button>
     <div id="landSelectPreview" style="display:none;margin-top:8px">
       <div class="stat-row"><span class="stat-label">SIZE</span><span class="stat-val" id="landSizeLabel">--</span></div>
@@ -1781,7 +1811,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
   <!-- CANTINA -->
   <div class="p-section">
-    <div class="p-title">CANTINA</div>
+    <div class="p-title">CANTINA <span class="help-tip" onclick="event.stopPropagation();showHelpTip('cantina')">?</span></div>
     <button class="action-btn" onclick="openArena()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold);font-size:10px;letter-spacing:1.5px">
       ⚔ ENTER THE CANTINA
     </button>
@@ -1789,7 +1819,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
   <!-- BASE (Dashboard) -->
   <div class="p-section">
-    <div class="p-title">MY BASE</div>
+    <div class="p-title">MY BASE <span class="help-tip" onclick="event.stopPropagation();showHelpTip('base')">?</span></div>
     <button class="action-btn" onclick="openBaseModal()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(255,120,60,.04));border-color:rgba(255,120,60,.35)">
       OPEN BASE
     </button>
@@ -2169,7 +2199,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="base-banner" id="bannerMining"><img src="/assets/base/mining.png" alt=""></div>
         <div class="base-stat-grid">
           <div class="base-stat-box">
-            <div class="bsb-label">HARVESTABLE PP</div>
+            <div class="bsb-label">HARVESTABLE PP <span class="help-tip" onclick="event.stopPropagation();showHelpTip('harvest')">?</span></div>
             <div class="bsb-val gn" id="baseMineAvail">0.00</div>
           </div>
           <div class="base-stat-box">
@@ -2203,7 +2233,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       <!-- TAB: GOVERN -->
       <div class="base-pane" id="basePane_govern">
-        <div class="base-banner"><div class="base-banner-placeholder" style="background:linear-gradient(135deg,rgba(91,184,232,.08),rgba(255,209,102,.06))">⚜ GOVERNANCE</div></div>
+        <div class="base-banner"><div class="base-banner-placeholder" style="background:linear-gradient(135deg,rgba(91,184,232,.08),rgba(255,209,102,.06))">⚜ GOVERNANCE <span class="help-tip" onclick="event.stopPropagation();showHelpTip('governance')">?</span></div></div>
 
         <!-- Active Global Events -->
         <div id="govActiveEvents" style="display:none;margin-bottom:12px">
@@ -2211,14 +2241,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="govEventsList" style="display:flex;flex-direction:column;gap:6px"></div>
         </div>
 
-        <!-- My Positions -->
-        <div class="base-section-title">MY POSITIONS</div>
+        <!-- My Positions (collapsible) -->
+        <div class="base-section-title" style="cursor:pointer" onclick="(function(el){var c=document.getElementById('govMyPositions');var t=el.querySelector('.gov-toggle');if(c.style.display==='none'){c.style.display='';t.textContent='▲'}else{c.style.display='none';t.textContent='▼'}})(this)">MY POSITIONS <span class="gov-toggle" style="font-size:8px;color:var(--tx3)">▲</span></div>
         <div id="govMyPositions" style="margin-bottom:12px">
           <div style="font-size:10px;color:var(--tx3);padding:8px 0">Login to view your governance positions.</div>
         </div>
 
-        <!-- Commander Info -->
-        <div class="base-section-title" style="color:var(--gold)">COMMANDER</div>
+        <!-- Commander Info (collapsible) -->
+        <div class="base-section-title" style="color:var(--gold);cursor:pointer" onclick="(function(el){var c=document.getElementById('govCommanderInfo');var t=el.querySelector('.gov-toggle');if(c.style.display==='none'){c.style.display='';t.textContent='▲'}else{c.style.display='none';t.textContent='▼'}})(this)">COMMANDER <span class="gov-toggle" style="font-size:8px;color:var(--tx3)">▲</span></div>
         <div id="govCommanderInfo" style="margin-bottom:12px">
           <div style="font-size:10px;color:var(--tx3);padding:8px 0">Loading...</div>
         </div>
@@ -2273,9 +2303,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- Active Bounties -->
-        <div class="base-section-title" style="color:var(--red)">BOUNTY BOARD</div>
-        <div id="govBountyList" style="margin-bottom:12px">
+        <!-- Active Bounties (collapsible) -->
+        <div class="base-section-title" style="color:var(--red);cursor:pointer" onclick="(function(el){var c=document.getElementById('govBountyList');var t=el.querySelector('.gov-toggle');if(c.style.display==='none'){c.style.display='';t.textContent='▲'}else{c.style.display='none';t.textContent='▼'}})(this)">BOUNTY BOARD <span class="gov-toggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
+        <div id="govBountyList" style="display:none;margin-bottom:12px">
           <div style="font-size:10px;color:var(--tx3);padding:8px 0">No active bounties.</div>
         </div>
 
@@ -2631,6 +2661,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <div class="toast" id="toast"></div>
 <div id="notifStack"></div>
+<!-- Help Tooltip Popup -->
+<div class="help-popup-bg" id="helpPopupBg" onclick="closeHelpTip()">
+  <div class="help-popup" onclick="event.stopPropagation()">
+    <div class="help-popup-title" id="helpPopupTitle"></div>
+    <div class="help-popup-body" id="helpPopupBody"></div>
+    <div class="help-popup-close"><button onclick="closeHelpTip()">OK</button></div>
+  </div>
+</div>
 
 <!-- ═══ ARENA OVERLAY (hidden by default) ═══ -->
 <div class="arena-overlay" id="arenaOverlay">
@@ -7137,7 +7175,25 @@ var I18N = {
     tut_step3: 'Visit your BASE to harvest PP rewards from your territories.',
     tut_step4: 'Buy items in the CANTINA shop to boost your game strategy!',
     tut_step5: 'Hijack enemy territory to expand your empire and earn more rewards!',
-    tut_next: 'NEXT', tut_skip: 'SKIP', tut_done: 'START PLAYING!'
+    tut_next: 'NEXT', tut_skip: 'SKIP', tut_done: 'START PLAYING!',
+    help_claim: 'CLAIM TERRITORY',
+    help_claim_body: 'Drag on Mars to select pixels, then pay USDT to claim them as your territory. You earn PP (Planet Points) by harvesting your land. You can also HIJACK other players\' territory by paying a premium!',
+    help_cantina: 'CANTINA',
+    help_cantina_body: 'The PvP battle arena! Enter the Cantina to fight other players, buy battle items from the shop, and earn rewards. Use shields to protect your territory and weapons to attack others.',
+    help_base: 'MY BASE',
+    help_base_body: 'Your command center. View your territory stats, harvest PP from your land, manage your inventory, equip cosmetics, and access governance if you\'re a sector governor.',
+    help_harvest: 'HARVEST PP',
+    help_harvest_body: 'Your territory generates PP (Planet Points) over time. Tap HARVEST to collect them. PP can be converted to USDT or used to buy items. Weather and Starlink boosts can increase harvest rates!',
+    help_governance: 'GOVERNANCE',
+    help_governance_body: 'Own the most pixels in a sector to become its Governor! Governors can set tax rates (earn PP from all transactions in their sector), post announcements, and activate sector-wide buffs.',
+    help_referral: 'REFERRAL PROGRAM',
+    help_referral_body: 'Share your referral code with friends. When they hijack territory, you earn PP rewards! Tier 1: 15%, Tier 2: 10%, Tier 3: 5% of their hijack premium.',
+    help_currency: 'PP & USDT',
+    help_currency_body: 'USDT: Stablecoin used to buy and hijack territory. Deposit from your wallet.\nPP (Planet Points): In-game currency earned by harvesting land. Convert PP to USDT anytime, or spend PP on items and cosmetics.',
+    help_weather: 'WEATHER EVENTS',
+    help_weather_body: 'Mars weather affects gameplay! Sandstorms reduce defense but boost mining. Solar flares double mining but weaken shields. Meteor showers drop bonus PP. Dust devils reduce claim costs but boost attacks.',
+    help_about: 'ABOUT OCCUPY MARS',
+    help_about_body: 'Occupy Mars is a blockchain territory game on Mars! Buy land (pixels) with USDT, harvest PP over time, hijack enemy territory in PvP battles, and rise through the ranks. Become a Sector Governor, trade items in the Cantina, and compete for dominance on the Red Planet. All transactions are on-chain (Base L2).'
   },
   ko: {
     login: '로그인', register: '회원가입', logout: '로그아웃', account: '계정',
@@ -7178,7 +7234,25 @@ var I18N = {
     tut_step3: 'BASE를 방문하여 영토에서 PP 보상을 수확하세요.',
     tut_step4: 'CANTINA 상점에서 아이템을 구매하여 전략을 강화하세요!',
     tut_step5: '적의 영토를 탈취하여 제국을 확장하고 더 많은 보상을 받으세요!',
-    tut_next: '다음', tut_skip: '건너뛰기', tut_done: '시작하기!'
+    tut_next: '다음', tut_skip: '건너뛰기', tut_done: '시작하기!',
+    help_claim: '영토 점령',
+    help_claim_body: '화성을 드래그하여 픽셀을 선택하고 USDT로 구매하세요. 영토에서 PP(Planet Points)를 수확할 수 있습니다. 다른 플레이어의 영토를 프리미엄을 내고 하이잭할 수도 있습니다!',
+    help_cantina: '칸티나',
+    help_cantina_body: 'PvP 배틀 아레나! 칸티나에서 다른 플레이어와 싸우고, 상점에서 전투 아이템을 구매하고, 보상을 획득하세요. 쉴드로 영토를 방어하고 무기로 공격하세요.',
+    help_base: '마이 베이스',
+    help_base_body: '당신의 사령부입니다. 영토 현황 확인, PP 수확, 인벤토리 관리, 코스메틱 장착, 총독이라면 거버넌스 기능을 이용할 수 있습니다.',
+    help_harvest: 'PP 수확',
+    help_harvest_body: '영토는 시간이 지나면 PP를 생성합니다. HARVEST를 눌러 수집하세요. PP는 USDT로 변환하거나 아이템 구매에 사용할 수 있습니다. 날씨와 스타링크 부스트가 수확률을 높여줍니다!',
+    help_governance: '거버넌스',
+    help_governance_body: '섹터에서 가장 많은 픽셀을 소유하면 총독이 됩니다! 총독은 세율 설정(섹터 내 모든 거래에서 PP 수익), 공지 게시, 섹터 전체 버프 활성화가 가능합니다.',
+    help_referral: '추천인 프로그램',
+    help_referral_body: '추천 코드를 친구에게 공유하세요. 친구가 영토를 하이잭하면 PP 보상을 받습니다! 1단계: 15%, 2단계: 10%, 3단계: 5%',
+    help_currency: 'PP & USDT',
+    help_currency_body: 'USDT: 영토 구매/하이잭에 사용하는 스테이블코인. 지갑에서 입금하세요.\nPP (Planet Points): 영토 수확으로 얻는 게임 내 화폐. PP를 USDT로 교환하거나 아이템/코스메틱 구매에 사용하세요.',
+    help_weather: '날씨 이벤트',
+    help_weather_body: '화성 날씨가 게임에 영향을 줍니다! 모래폭풍: 방어↓ 채굴↑. 태양 플레어: 채굴 2배, 쉴드↓. 유성우: 보너스 PP 드랍. 먼지 소용돌이: 클레임 비용↓ 공격↑.',
+    help_about: 'OCCUPY MARS 소개',
+    help_about_body: 'Occupy Mars는 화성 위 블록체인 영토 게임입니다! USDT로 땅(픽셀)을 사고, 시간이 지나면 PP를 수확하고, PvP 전투로 적의 영토를 빼앗으세요. 섹터 총독이 되어 세금을 걷고, 칸티나에서 아이템을 거래하고, 붉은 행성의 지배권을 놓고 경쟁하세요. 모든 거래는 온체인(Base L2)입니다.'
   },
   ja: {
     login: 'ログイン', register: '新規登録', logout: 'ログアウト', account: 'アカウント',
@@ -7219,7 +7293,25 @@ var I18N = {
     tut_step3: 'BASEを訪問して領土からPP報酬を収穫しよう。',
     tut_step4: 'CANTINAショップでアイテムを購入して戦略を強化しよう！',
     tut_step5: '敵の領土を奪取して帝国を拡大し、より多くの報酬を獲得しよう！',
-    tut_next: '次へ', tut_skip: 'スキップ', tut_done: 'プレイ開始!'
+    tut_next: '次へ', tut_skip: 'スキップ', tut_done: 'プレイ開始!',
+    help_claim: '領土獲得',
+    help_claim_body: '火星をドラッグしてピクセルを選択し、USDTで購入しましょう。領土からPP（プラネットポイント）を収穫できます。他プレイヤーの領土をプレミアム付きで乗っ取ることも可能です！',
+    help_cantina: 'カンティーナ',
+    help_cantina_body: 'PvPバトルアリーナ！カンティーナで他プレイヤーと戦い、ショップでバトルアイテムを購入し、報酬を獲得しましょう。シールドで領土を守り、武器で攻撃しましょう。',
+    help_base: 'マイベース',
+    help_base_body: 'あなたの司令部です。領土統計の確認、PP収穫、インベントリ管理、コスメティック装備、セクター総督ならガバナンス機能が利用できます。',
+    help_harvest: 'PP収穫',
+    help_harvest_body: '領土は時間経過でPPを生成します。HARVESTをタップして収集しましょう。PPはUSDTに変換したり、アイテム購入に使えます。天候やスターリンクブーストで収穫率アップ！',
+    help_governance: 'ガバナンス',
+    help_governance_body: 'セクターで最多ピクセルを所有すると総督になれます！総督は税率設定（セクター内全取引からPP収益）、告知投稿、セクター全体バフ発動が可能です。',
+    help_referral: '紹介プログラム',
+    help_referral_body: '紹介コードを友達に共有しましょう。友達が領土を乗っ取るとPP報酬を獲得！Tier 1: 15%, Tier 2: 10%, Tier 3: 5%',
+    help_currency: 'PP & USDT',
+    help_currency_body: 'USDT: 領土購入・乗っ取りに使用するステーブルコイン。ウォレットから入金。\nPP（プラネットポイント）: 領土収穫で獲得するゲーム内通貨。USDTに変換やアイテム・コスメティック購入に使用。',
+    help_weather: '天候イベント',
+    help_weather_body: '火星の天候がゲームに影響！砂嵐：防御↓採掘↑。太陽フレア：採掘2倍、シールド↓。流星群：ボーナスPPドロップ。ダストデビル：クレームコスト↓攻撃↑。',
+    help_about: 'OCCUPY MARSについて',
+    help_about_body: 'Occupy Marsは火星上のブロックチェーン領土ゲームです！USDTで土地（ピクセル）を購入し、PPを収穫し、PvPバトルで敵の領土を奪取しましょう。セクター総督になって税金を徴収し、カンティーナでアイテムを取引し、赤い惑星の支配権を争いましょう。全取引はオンチェーン（Base L2）です。'
   },
   zh: {
     login: '登录', register: '注册', logout: '退出', account: '账户',
@@ -7260,7 +7352,25 @@ var I18N = {
     tut_step3: '访问你的BASE，从领土中收获PP奖励。',
     tut_step4: '在CANTINA商店购买道具来增强你的游戏策略！',
     tut_step5: '劫持敌方领土来扩大你的帝国，获得更多奖励！',
-    tut_next: '下一步', tut_skip: '跳过', tut_done: '开始游戏!'
+    tut_next: '下一步', tut_skip: '跳过', tut_done: '开始游戏!',
+    help_claim: '占领领土',
+    help_claim_body: '在火星上拖动选择像素，用USDT购买成为你的领土。从领土中收获PP（星球积分）。还可以支付溢价劫持其他玩家的领土！',
+    help_cantina: '酒吧',
+    help_cantina_body: 'PvP战斗竞技场！进入酒吧与其他玩家战斗，在商店购买战斗道具，获得奖励。使用护盾保护领土，使用武器攻击敌人。',
+    help_base: '我的基地',
+    help_base_body: '你的指挥中心。查看领土数据、收获PP、管理库存、装备装饰品，如果你是区域总督还可以使用治理功能。',
+    help_harvest: '收获PP',
+    help_harvest_body: '你的领土会随时间生成PP。点击HARVEST收集。PP可以兑换为USDT或用于购买道具。天气和星链加成可以提高收获率！',
+    help_governance: '治理',
+    help_governance_body: '在区域中拥有最多像素即可成为总督！总督可以设置税率（从区域内所有交易中获得PP收益）、发布公告、激活区域全体增益。',
+    help_referral: '推荐计划',
+    help_referral_body: '分享推荐码给朋友。朋友劫持领土时你获得PP奖励！一级：15%，二级：10%，三级：5%。',
+    help_currency: 'PP & USDT',
+    help_currency_body: 'USDT：用于购买和劫持领土的稳定币。从钱包充值。\nPP（星球积分）：通过收获领土获得的游戏货币。可兑换为USDT或用于购买道具和装饰品。',
+    help_weather: '天气事件',
+    help_weather_body: '火星天气影响游戏！沙暴：防御↓采矿↑。太阳耀斑：采矿2倍、护盾↓。流星雨：掉落奖励PP。尘旋风：领地费用↓攻击↑。',
+    help_about: '关于OCCUPY MARS',
+    help_about_body: 'Occupy Mars是火星上的区块链领土游戏！用USDT购买土地（像素），随时间收获PP，通过PvP战斗劫持敌方领土。成为区域总督征收税费，在酒吧交易道具，争夺红色星球的统治权。所有交易在链上（Base L2）进行。'
   }
 };
 
@@ -7460,6 +7570,21 @@ function endTutorial(){
     }, 1200);
   };
 })();
+
+/* ══════════════════════════════════════════════════
+   Section Help Tooltips
+   ══════════════════════════════════════════════════ */
+function showHelpTip(key, ev){
+  if(ev) ev.stopPropagation();
+  document.getElementById('helpPopupTitle').textContent = t('help_' + key);
+  document.getElementById('helpPopupBody').textContent = t('help_' + key + '_body');
+  document.getElementById('helpPopupBg').classList.add('open');
+  document.getElementById('helpPopupBg').style.display = 'flex';
+}
+function closeHelpTip(){
+  document.getElementById('helpPopupBg').classList.remove('open');
+  document.getElementById('helpPopupBg').style.display = 'none';
+}
 
 /* ══════════════════════════════════════════════════
    Email Auth System
