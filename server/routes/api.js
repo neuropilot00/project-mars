@@ -757,13 +757,8 @@ router.post('/claim', writeLimiter, async (req, res) => {
       }
     }
 
-    // ── If ALL battles lost (total defeat), discard newPixels too — nothing claimed ──
+    // ── If ALL battles lost, keep newPixels (non-overlapping empty land is still claimed) ──
     const totalDefeat = attackLost > 0 && attackWon === 0;
-    if (totalDefeat) {
-      newPixels.length = 0; // clear new pixels — full loss means no territory gained
-      newCount = 0;
-      baseCost = 0;
-    }
 
     // Actual cost = new pixels + won attacks + failed attack fees (lost 10%)
     const wonAttackCost = wonPixels.reduce((sum, ep) => sum + parseFloat(ep.existing.price) * HIJACK_MULT, 0);
