@@ -3684,6 +3684,7 @@ function compositeClaimsOnTexture(previewOnly){
     if(typeof _drawWeatherOverlay==='function') _drawWeatherOverlay(ctx,w,h);
     if(typeof _drawPOIMarkers==='function') _drawPOIMarkers(ctx,w,h);
     if(typeof _drawRocketOverlay==='function') _drawRocketOverlay(ctx,w,h);
+    if(typeof _drawStarlinkTrails==='function') _drawStarlinkTrails(ctx,w,h);
 
     // Selection highlight: yellow dashed border on selected group's territory (strip-based)
     if(selectedPlot&&selectedPlot.owner){
@@ -8739,8 +8740,11 @@ var _starlinkMeshes = [];
 var _starlinkData = { satellites: [], passes: [] };
 
 function _initStarlinkSatellites() {
-  if (!globe || !globe.scene || typeof THREE === 'undefined') return;
-  var scene = globe.scene();
+  if (!globe || typeof THREE === 'undefined') return;
+  var scene;
+  try { scene = globe.scene(); } catch(_e) { return; }
+  if (!scene) return;
+  console.log('[STARLINK] Initializing 3 satellite meshes');
   // Create 3 small satellite meshes
   for (var i = 0; i < 3; i++) {
     var group = new THREE.Group();
@@ -8767,12 +8771,63 @@ function _initStarlinkSatellites() {
   }
 }
 
-// Client-side satellite orbit calculation (matches server SATELLITES config)
+// Client-side satellite orbit config (matches server SATELLITES)
 var _satConfig = [
   { id: 1, amp: 40, speed: 0.0003, offset: 0 },
   { id: 2, amp: 30, speed: 0.00025, offset: 2.09 },
   { id: 3, amp: 50, speed: 0.00035, offset: 4.19 }
 ];
+
+// Starlink texture trails (visible on globe surface)
+function _drawStarlinkTrails(ctx, w, h) {
+  var t = Date.now();
+  ctx.save();
+  _satConfig.forEach(function(sat) {
+    var lat = sat.amp * Math.sin(t * sat.speed + sat.offset);
+    var lng = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    var x = ((lng + 180) / 360) * w;
+    var y = ((90 - lat) / 180) * h;
+
+    // Bright dot
+    ctx.globalAlpha = 0.9;
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#00FF88';
+    ctx.fill();
+
+    // Glow ring
+    ctx.globalAlpha = 0.3 + Math.sin(t / 300 + sat.id) * 0.15;
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, Math.PI * 2);
+    ctx.strokeStyle = '#00FF88';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Label
+    ctx.globalAlpha = 0.6;
+    ctx.font = '8px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#00FF88';
+    ctx.fillText('\u{1F6F0} SL-' + sat.id, x, y - 14);
+
+    // Trail (5 past positions)
+    ctx.globalAlpha = 0.15;
+    ctx.strokeStyle = '#00FF88';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (var back = 1; back <= 8; back++) {
+      var pt = t - back * 60000; // 1 minute intervals
+      var pLat = sat.amp * Math.sin(pt * sat.speed + sat.offset);
+      var pLng = ((pt * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+      var px = ((pLng + 180) / 360) * w;
+      var py = ((90 - pLat) / 180) * h;
+      if (back === 1) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
 
 function _updateStarlinkPositions() {
   if (!_starlinkMeshes.length) return;
@@ -10465,7 +10520,13 @@ window.addEventListener('resize', function(){
   setTimeout(loadStarlinkData, 6000);
   setInterval(loadStarlinkData, 10000);
   // Init starlink 3D meshes after globe is ready
-  setTimeout(_initStarlinkSatellites, 3000);
+  // Retry starlink init until scene is ready
+  function _tryInitStarlink() {
+    if (_starlinkMeshes.length > 0) return; // already initialized
+    _initStarlinkSatellites();
+    if (_starlinkMeshes.length === 0) setTimeout(_tryInitStarlink, 3000); // retry
+  }
+  setTimeout(_tryInitStarlink, 3000);
   // Animate starlink positions every second
   setInterval(_updateStarlinkPositions, 1000);
 
