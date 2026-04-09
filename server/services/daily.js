@@ -47,12 +47,13 @@ async function recordDailyLogin(wallet) {
   let streakDay = 1;
   if (yesterday.rows.length) {
     streakDay = yesterday.rows[0].streak_day + 1;
-    if (streakDay > 7) streakDay = 1; // cycle after 7
+    const maxDays = parseInt(await getSetting('daily_streak_cycle', 14));
+    if (streakDay > maxDays) streakDay = 1; // cycle after 14
   }
 
   // Get reward arrays from settings
-  const gpRewards = await getSetting('daily_login_gp_rewards', [5, 10, 15, 20, 30, 40, 100]);
-  const ppRewards = await getSetting('daily_login_pp_rewards', [0, 0, 0, 0, 0, 0, 0.05]);
+  const gpRewards = await getSetting('daily_login_gp_rewards', [5, 10, 10, 15, 15, 20, 30, 10, 15, 15, 20, 20, 25, 50]);
+  const ppRewards = await getSetting('daily_login_pp_rewards', [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 
   const rewardGP = gpRewards[streakDay - 1] || 0;
   const rewardPP = ppRewards[streakDay - 1] || 0;
@@ -81,16 +82,19 @@ async function recordDailyLogin(wallet) {
   let milestoneGP = 0;
   let milestonePP = 0;
 
-  if (totalDays === 7) {
-    milestoneGP = parseFloat(await getSetting('streak_7_gp', 200));
+  // Streak milestones (based on current streak day, not total days)
+  if (streakDay === 3) {
+    milestoneGP = parseFloat(await getSetting('streak_3_gp', 30));
+    milestone = { days: 3, gp: milestoneGP, pp: 0 };
+  } else if (streakDay === 7) {
+    milestoneGP = parseFloat(await getSetting('streak_7_gp', 100));
     milestone = { days: 7, gp: milestoneGP, pp: 0 };
-  } else if (totalDays === 14) {
-    milestoneGP = parseFloat(await getSetting('streak_14_gp', 500));
+  } else if (streakDay === 10) {
+    milestoneGP = parseFloat(await getSetting('streak_10_gp', 150));
+    milestone = { days: 10, gp: milestoneGP, pp: 0 };
+  } else if (streakDay === 14) {
+    milestoneGP = parseFloat(await getSetting('streak_14_gp', 300));
     milestone = { days: 14, gp: milestoneGP, pp: 0 };
-  } else if (totalDays === 30) {
-    milestoneGP = parseFloat(await getSetting('streak_30_gp', 1500));
-    milestonePP = parseFloat(await getSetting('streak_30_pp', 0.5));
-    milestone = { days: 30, gp: milestoneGP, pp: milestonePP };
   }
 
   if (milestoneGP > 0 || milestonePP > 0) {

@@ -1678,18 +1678,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .tos-check-row a:hover{color:var(--gold)}
 
 /* ── Daily Engagement System ── */
-.daily-day-box{width:32px;height:32px;border-radius:6px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;font-family:var(--fn);font-size:8px;
-  border:1px solid var(--bdr);background:rgba(0,0,0,.2);color:var(--tx3);transition:all .2s;gap:1px}
-.daily-day-box .dd-num{font-size:7px;opacity:.7}
-.daily-day-box .dd-icon{font-size:11px}
-.daily-day-box.completed{border-color:rgba(76,216,154,.4);background:rgba(76,216,154,.08);color:var(--gn)}
-.daily-day-box.completed .dd-icon{color:var(--gn)}
-.daily-day-box.active{border-color:var(--gold);background:rgba(255,209,102,.1);color:var(--gold);
-  box-shadow:0 0 12px rgba(255,209,102,.3),inset 0 0 6px rgba(255,209,102,.1);
-  animation:dailyGlow 1.5s ease-in-out infinite}
-.daily-day-box.future{opacity:.35}
-@keyframes dailyGlow{0%,100%{box-shadow:0 0 8px rgba(255,209,102,.2)}50%{box-shadow:0 0 16px rgba(255,209,102,.45)}}
+.stamp-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4px 2px;border-radius:6px;border:1px solid var(--bdr);background:rgba(0,0,0,.2);
+  font-family:var(--fn);transition:all .2s;min-height:44px}
+.stamp-cell .sc-day{font-size:6px;color:var(--tx3);letter-spacing:.5px;margin-bottom:1px}
+.stamp-cell .sc-reward{font-size:6px;color:var(--gold);opacity:.6}
+.stamp-cell .sc-stamp{font-size:16px;line-height:1}
+.stamp-cell.stamped{border-color:rgba(76,216,154,.4);background:rgba(76,216,154,.06)}
+.stamp-cell.stamped .sc-stamp{color:var(--gn)}
+.stamp-cell.today{border-color:var(--gold);background:rgba(255,209,102,.1);
+  box-shadow:0 0 10px rgba(255,209,102,.25);animation:stampGlow 1.5s ease-in-out infinite}
+.stamp-cell.future{opacity:.3}
+.stamp-cell.milestone{border-color:rgba(255,120,60,.4);background:rgba(255,120,60,.06)}
+.stamp-cell.milestone.stamped{border-color:rgba(76,216,154,.5);background:rgba(76,216,154,.1)}
+.stamp-cell .sc-milestone{position:absolute;top:-6px;right:-4px;background:var(--mars);color:#000;
+  font-size:5px;padding:1px 3px;border-radius:3px;font-weight:700;letter-spacing:.3px}
+@keyframes stampGlow{0%,100%{box-shadow:0 0 8px rgba(255,209,102,.2)}50%{box-shadow:0 0 14px rgba(255,209,102,.4)}}
 
 .daily-mission-card{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;
   background:rgba(0,0,0,.15);border:1px solid var(--bdr);border-radius:8px;transition:all .2s}
@@ -2419,9 +2423,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="btProgressList" style="display:flex;flex-direction:column;gap:6px"></div>
         </div>
 
-        <!-- Season Leaderboard -->
+        <!-- Season Info & Guide -->
         <div id="seasonSection" style="margin-bottom:16px">
-          <div class="base-section-title" style="color:var(--mars)">SEASON RANKING</div>
+          <div class="base-section-title" style="color:var(--mars)">SEASON</div>
+          <div id="seasonGuide" style="display:none;margin-bottom:10px;padding:10px;border:1px solid rgba(255,120,60,.2);border-radius:8px;background:rgba(255,120,60,.04)">
+            <div id="seasonGuideName" style="font-size:11px;color:var(--mars);font-family:var(--fn);font-weight:700;margin-bottom:6px"></div>
+            <div id="seasonGuideTimer" style="font-size:8px;color:var(--tx3);margin-bottom:8px"></div>
+            <div style="font-size:8px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:4px">HOW TO EARN POINTS</div>
+            <div id="seasonScoreRules" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px"></div>
+            <div style="font-size:8px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:4px">SEASON REWARDS</div>
+            <div style="font-size:8px;color:var(--tx3);line-height:1.5">
+              Top players earn <span style="color:var(--gold)">GP</span> rewards at season end.<br>
+              Climb the leaderboard to earn more!
+            </div>
+          </div>
+          <div style="font-size:8px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:4px">LEADERBOARD</div>
           <div id="seasonLeaderboard" style="font-size:10px;color:var(--tx3);padding:4px 0">Loading...</div>
           <!-- My season rewards -->
           <div id="seasonRewardsSection" style="display:none;margin-top:8px">
@@ -2859,16 +2875,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Daily Login Popup -->
 <div class="mbg" id="dailyLoginPopup">
-  <div class="mdl" style="width:360px">
+  <div class="mdl" style="width:400px;max-width:95vw">
     <div class="mhd">
       <span class="mtl" style="color:var(--gold)">DAILY CHECK-IN</span>
       <button class="mx" onclick="closeDailyLogin()">×</button>
     </div>
-    <div class="mbd" style="text-align:center">
-      <div id="dailyStreakRow" style="display:flex;justify-content:center;gap:6px;margin:12px 0;flex-wrap:wrap"></div>
-      <div id="dailyRewardText" style="font-size:12px;color:var(--gold);margin:10px 0;font-family:var(--fn)"></div>
-      <div id="dailyMilestoneText" style="font-size:10px;color:var(--gn);margin:8px 0;display:none;font-family:var(--fn)"></div>
-      <button class="cfm" id="dailyClaimBtn" onclick="claimDailyLogin()" style="background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)">CLAIM REWARD</button>
+    <div class="mbd" style="text-align:center;padding:12px">
+      <div id="dailyStampBoard" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px"></div>
+      <div id="dailyRewardText" style="font-size:12px;color:var(--gold);margin:8px 0;font-family:var(--fn)"></div>
+      <div id="dailyMilestoneText" style="font-size:10px;color:var(--gn);margin:6px 0;display:none;font-family:var(--fn)"></div>
+      <button class="cfm" id="dailyClaimBtn" onclick="claimDailyLogin()" style="background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(255,209,102,.06));border-color:rgba(255,209,102,.4);color:var(--gold);font-size:11px;padding:10px 24px">CHECK IN TODAY</button>
     </div>
   </div>
 </div>
@@ -9848,8 +9864,34 @@ function loadSeasonData(){
     if(_seasonData){
       showSeasonBanner(_seasonData);
       showSeasonTint(_seasonData);
+      showSeasonGuide(_seasonData);
     }
   }).catch(function(){});
+}
+
+function showSeasonGuide(season){
+  var guide=document.getElementById('seasonGuide');
+  if(!season){guide.style.display='none';return;}
+  guide.style.display='';
+  var themeNames={volcanic:'Volcanic Dawn',ice_age:'Ice Age',solar_storm:'Solar Storm',dust_epoch:'Dust Epoch'};
+  document.getElementById('seasonGuideName').textContent=season.name+' — '+(themeNames[season.theme]||season.theme);
+  var remaining=new Date(season.endsAt).getTime()-Date.now();
+  var days=Math.floor(remaining/86400000);
+  document.getElementById('seasonGuideTimer').textContent=days>0?days+' days remaining':'Season ending soon!';
+  // Score rules
+  var rules=document.getElementById('seasonScoreRules');
+  var scoreItems=[
+    {icon:'🏴',action:'Claim Territory',pts:'1pt / pixel',color:'var(--tx)'},
+    {icon:'⛏️',action:'Harvest',pts:'5pt / harvest',color:'var(--gn)'},
+    {icon:'⚔️',action:'Hijack Land',pts:'10pt / hijack',color:'var(--red)'},
+    {icon:'🔭',action:'Discover POI',pts:'15pt / POI',color:'var(--cyan)'}
+  ];
+  rules.innerHTML=scoreItems.map(function(s){
+    return '<div style="display:flex;align-items:center;gap:4px;padding:4px 6px;border-radius:4px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04)">'+
+      '<span style="font-size:12px">'+s.icon+'</span>'+
+      '<div style="flex:1"><div style="font-size:8px;color:'+s.color+'">'+s.action+'</div>'+
+      '<div style="font-size:7px;color:var(--gold)">'+s.pts+'</div></div></div>';
+  }).join('');
 }
 
 function showSeasonBanner(season){
@@ -13665,9 +13707,15 @@ var _dailyState = {
   lastReward: 0
 };
 
-// Daily reward schedule (day 1-7)
-var _dailyRewards = [10, 15, 20, 25, 30, 40, 75];
-var _dailyMilestones = { 7: { bonus: 100, label: 'WEEKLY STREAK BONUS!' } };
+// 14-day check-in rewards (GP per day)
+var _dailyRewards = [5, 10, 10, 15, 15, 20, 30, 10, 15, 15, 20, 20, 25, 50];
+// Milestone days with bonus rewards
+var _dailyMilestones = {
+  3:  { bonus: 30,  label: '3-DAY STREAK!' },
+  7:  { bonus: 100, label: 'WEEKLY STREAK!' },
+  10: { bonus: 150, label: '10-DAY STREAK!' },
+  14: { bonus: 300, label: 'FULL STAMP CARD!' }
+};
 
 // ── Check Daily Login ──
 function checkDailyLogin(){
@@ -13711,28 +13759,39 @@ function checkDailyLogin(){
   });
 }
 
-// ── Render 7-day streak row ──
+// ── Render 14-day stamp board ──
 function renderDailyStreakRow(){
-  var row = document.getElementById('dailyStreakRow');
+  var board = document.getElementById('dailyStampBoard');
   var streak = _dailyState.streak;
   var html = '';
-  for(var i=1;i<=7;i++){
-    var cls = 'daily-day-box';
-    var icon = '';
-    if(i < streak){ cls += ' completed'; icon = '✓'; }
-    else if(i === streak){ cls += ' active'; icon = '🎁'; }
-    else { cls += ' future'; icon = '·'; }
-    html += '<div class="'+cls+'"><div class="dd-num">D'+i+'</div><div class="dd-icon">'+icon+'</div></div>';
+  var milestoneKeys = [3, 7, 10, 14];
+  for(var i=1;i<=14;i++){
+    var cls = 'stamp-cell';
+    var stamp = '';
+    var isMilestone = milestoneKeys.indexOf(i) >= 0;
+    var reward = _dailyRewards[Math.min(i-1, _dailyRewards.length-1)];
+    if(i < streak){ cls += ' stamped'; stamp = '✅'; }
+    else if(i === streak){ cls += ' today'; stamp = '🎁'; }
+    else { cls += ' future'; stamp = '·'; }
+    if(isMilestone && i >= streak) cls += ' milestone';
+    if(isMilestone && i < streak) cls += ' milestone';
+    html += '<div class="'+cls+'">';
+    if(isMilestone) html += '<span class="sc-milestone">+' + _dailyMilestones[i].bonus + '</span>';
+    html += '<div class="sc-day">D'+i+'</div>';
+    html += '<div class="sc-stamp">'+stamp+'</div>';
+    html += '<div class="sc-reward">'+reward+'GP</div>';
+    html += '</div>';
   }
-  row.innerHTML = html;
+  board.innerHTML = html;
 
   var rewardText = document.getElementById('dailyRewardText');
-  rewardText.textContent = '🎁 +' + _dailyState.lastReward + ' GP';
+  var todayReward = _dailyState.lastReward || _dailyRewards[Math.min(streak-1, _dailyRewards.length-1)];
+  rewardText.innerHTML = '🎁 TODAY: <strong>+' + todayReward + ' GP</strong>';
 
   var milestone = _dailyMilestones[streak];
   var milestoneEl = document.getElementById('dailyMilestoneText');
   if(milestone){
-    milestoneEl.textContent = '🏆 ' + milestone.label + ' (+' + milestone.bonus + ' GP)';
+    milestoneEl.innerHTML = '🏆 ' + milestone.label + ' <strong>+' + milestone.bonus + ' GP BONUS!</strong>';
     milestoneEl.style.display = '';
   } else {
     milestoneEl.style.display = 'none';
