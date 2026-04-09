@@ -8772,12 +8772,12 @@ function _initStarlinkSatellites() {
   }
 }
 
-// Client-side satellite orbit config (matches server SATELLITES)
-// 3 Starlink trains, each with 5 satellites in a line
+// Client-side satellite orbit config — crossing orbits for visual variety
+// dir: longitude direction multiplier (negative = westward), tilt: latitude center offset
 var _satConfig = [
-  { id: 1, amp: 40, speed: 0.0003, offset: 0 },
-  { id: 2, amp: 30, speed: 0.00025, offset: 2.09 },
-  { id: 3, amp: 50, speed: 0.00035, offset: 4.19 }
+  { id: 1, amp: 45, speed: 0.0003, offset: 0, dir: 1, tilt: 5 },      // eastward, slightly north
+  { id: 2, amp: 55, speed: 0.00028, offset: 1.2, dir: -1, tilt: -10 }, // westward, south — crosses #1
+  { id: 3, amp: 35, speed: 0.00035, offset: 3.5, dir: 1, tilt: 20 }    // eastward fast, high inclination
 ];
 var _trainSize = 5; // satellites per train
 var _trainSpacing = 350; // ms between each satellite (~6 degrees apart for tight train)
@@ -8789,16 +8789,18 @@ function _drawStarlinkTrails(ctx, w, h) {
   ctx.save();
 
   _satConfig.forEach(function(sat) {
-    // Calculate lead satellite position
-    var lat = sat.amp * Math.sin(t * sat.speed + sat.offset);
-    var lng = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    var dir = sat.dir || 1;
+    var tilt = sat.tilt || 0;
+    // Calculate lead satellite position with direction and tilt
+    var lat = sat.amp * Math.sin(t * sat.speed + sat.offset) + tilt;
+    var lng = ((dir * t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360 + 360) % 360 - 180;
     var x = ((lng + 180) / 360) * w;
     var y = ((90 - lat) / 180) * h;
 
     // Calculate movement direction for trailing satellites
-    var dt = 500; // small time delta to get direction
-    var lat2 = sat.amp * Math.sin((t - dt) * sat.speed + sat.offset);
-    var lng2 = (((t - dt) * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    var dt = 500;
+    var lat2 = sat.amp * Math.sin((t - dt) * sat.speed + sat.offset) + tilt;
+    var lng2 = ((dir * (t - dt) * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360 + 360) % 360 - 180;
     var x2 = ((lng2 + 180) / 360) * w;
     var y2 = ((90 - lat2) / 180) * h;
     // Direction vector (normalized)
@@ -8847,12 +8849,14 @@ function _updateStarlinkPositions() {
   var t = Date.now();
 
   _satConfig.forEach(function(sat, i) {
+    var dir = sat.dir || 1;
+    var tilt = sat.tilt || 0;
     // Lead position
-    var lat0 = sat.amp * Math.sin(t * sat.speed + sat.offset);
-    var lng0 = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    var lat0 = sat.amp * Math.sin(t * sat.speed + sat.offset) + tilt;
+    var lng0 = ((dir * t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360 + 360) % 360 - 180;
     // Slightly earlier position for direction
-    var lat1 = sat.amp * Math.sin((t - 500) * sat.speed + sat.offset);
-    var lng1 = (((t - 500) * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    var lat1 = sat.amp * Math.sin((t - 500) * sat.speed + sat.offset) + tilt;
+    var lng1 = ((dir * (t - 500) * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360 + 360) % 360 - 180;
     // Direction in degrees
     var dLat = (lat1 - lat0), dLng = (lng1 - lng0);
     var dLen = Math.sqrt(dLat * dLat + dLng * dLng) || 1;
