@@ -8600,7 +8600,7 @@ function _drawWeatherOverlay(ctx, w, h) {
 
     if (wx.weatherType === 'sandstorm') {
       // Orange-brown pulsing overlay
-      ctx.globalAlpha = 0.12 + Math.sin(t / 1000) * 0.05;
+      ctx.globalAlpha = 0.25 + Math.sin(t / 1000) * 0.08;
       ctx.fillStyle = 'rgba(200,120,40,1)';
       ctx.fill();
       // Noise dots
@@ -8621,7 +8621,7 @@ function _drawWeatherOverlay(ctx, w, h) {
       ctx.restore();
     } else if (wx.weatherType === 'solar_flare') {
       // Yellow pulsing glow
-      ctx.globalAlpha = 0.08 + Math.sin(t / 500) * 0.06;
+      ctx.globalAlpha = 0.2 + Math.sin(t / 500) * 0.1;
       ctx.fillStyle = 'rgba(255,220,60,1)';
       ctx.fill();
       // Bright pulse center
@@ -8638,8 +8638,8 @@ function _drawWeatherOverlay(ctx, w, h) {
       ctx.fillRect(ctr[0] - 150, ctr[1] - 150, 300, 300);
       ctx.restore();
     } else if (wx.weatherType === 'meteor_shower') {
-      // Subtle blue tint + scattered bright dots
-      ctx.globalAlpha = 0.06;
+      // Blue tint + scattered bright dots
+      ctx.globalAlpha = 0.18;
       ctx.fillStyle = 'rgba(100,180,255,1)';
       ctx.fill();
       ctx.save();
@@ -8662,7 +8662,7 @@ function _drawWeatherOverlay(ctx, w, h) {
       ctx.restore();
     } else if (wx.weatherType === 'dust_devil') {
       // Brown swirl
-      ctx.globalAlpha = 0.1 + Math.sin(t / 800) * 0.04;
+      ctx.globalAlpha = 0.22 + Math.sin(t / 800) * 0.06;
       ctx.fillStyle = 'rgba(160,100,50,1)';
       ctx.fill();
       ctx.save();
@@ -8745,20 +8745,20 @@ function _initStarlinkSatellites() {
   for (var i = 0; i < 3; i++) {
     var group = new THREE.Group();
     // Body
-    var bodyGeo = new THREE.BoxGeometry(0.3, 0.1, 0.1);
+    var bodyGeo = new THREE.BoxGeometry(1.5, 0.4, 0.4);
     var bodyMat = new THREE.MeshBasicMaterial({ color: 0xCCCCCC, transparent: true, opacity: 0.9 });
     var body = new THREE.Mesh(bodyGeo, bodyMat);
     group.add(body);
     // Solar panels
-    var panelGeo = new THREE.PlaneGeometry(0.8, 0.15);
+    var panelGeo = new THREE.PlaneGeometry(4, 0.6);
     var panelMat = new THREE.MeshBasicMaterial({ color: 0x3388FF, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
     var panel = new THREE.Mesh(panelGeo, panelMat);
     group.add(panel);
     // Glow point
-    var glowGeo = new THREE.SphereGeometry(0.06, 8, 8);
+    var glowGeo = new THREE.SphereGeometry(0.4, 8, 8);
     var glowMat = new THREE.MeshBasicMaterial({ color: 0x00FF88, transparent: true, opacity: 0.8 });
     var glow = new THREE.Mesh(glowGeo, glowMat);
-    glow.position.set(0, 0.08, 0);
+    glow.position.set(0, 0.4, 0);
     group.add(glow);
 
     group.visible = false;
@@ -8767,17 +8767,27 @@ function _initStarlinkSatellites() {
   }
 }
 
-function _updateStarlinkPositions() {
-  if (!_starlinkMeshes.length || !_starlinkData.satellites.length) return;
-  var GLOBE_RADIUS = 100; // three-globe default
-  var ALT = 108; // slightly above globe surface
+// Client-side satellite orbit calculation (matches server SATELLITES config)
+var _satConfig = [
+  { id: 1, amp: 40, speed: 0.0003, offset: 0 },
+  { id: 2, amp: 30, speed: 0.00025, offset: 2.09 },
+  { id: 3, amp: 50, speed: 0.00035, offset: 4.19 }
+];
 
-  _starlinkData.satellites.forEach(function(sat, i) {
+function _updateStarlinkPositions() {
+  if (!_starlinkMeshes.length) return;
+  var GLOBE_RADIUS = 100;
+  var ALT = 112;
+  var t = Date.now();
+
+  _satConfig.forEach(function(sat, i) {
     if (i >= _starlinkMeshes.length) return;
     var mesh = _starlinkMeshes[i];
-    // Convert lat/lng to 3D position
-    var phi = (90 - sat.lat) * Math.PI / 180;
-    var theta = (sat.lng + 180) * Math.PI / 180;
+    // Deterministic orbit
+    var lat = sat.amp * Math.sin(t * sat.speed + sat.offset);
+    var lng = ((t * sat.speed * 360 / (2 * Math.PI) + sat.id * 120) % 360) - 180;
+    var phi = (90 - lat) * Math.PI / 180;
+    var theta = (lng + 180) * Math.PI / 180;
     mesh.position.set(
       -ALT * Math.sin(phi) * Math.cos(theta),
        ALT * Math.cos(phi),
