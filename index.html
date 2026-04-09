@@ -5236,7 +5236,9 @@ function showTerritoryInfo(plot){
   var info=document.getElementById('territoryInfo');
   info.style.display='';
   document.getElementById('infoCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
-  document.getElementById('infoOwner').textContent=plot.nickname||plot.label||shortAddr(plot.owner);
+  var _ownerName=plot.nickname||plot.label||shortAddr(plot.owner);
+  var _ownerBadge=typeof govBadgeHTML==='function'?govBadgeHTML(plot.owner):'';
+  document.getElementById('infoOwner').innerHTML=_ownerName+(_ownerBadge?' '+_ownerBadge:'');
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   var pxCount=plot._pixelCount||(pw*ph);
   document.getElementById('infoSize').textContent=pw+'×'+ph+' px ('+pxCount.toLocaleString()+' pixels)';
@@ -9753,7 +9755,7 @@ window.addEventListener('resize', function(){
         return '<div class="gov-lb-row'+(isCmd?' commander':'')+'">'
           + '<span class="glb-rank" style="color:'+rankColor+'">'+(i+1)+'</span>'
           + (isCmd ? '<span class="glb-badge">👑</span>' : '')
-          + '<span class="glb-name">'+name+'</span>'
+          + '<span class="glb-name">'+name+' '+govBadgeHTML(r.wallet)+'</span>'
           + '<span class="glb-val">'+taxStr+' GP</span>'
           + '</div>';
       }).join('');
@@ -9882,7 +9884,7 @@ window.addEventListener('resize', function(){
           var roleColor = p.role==='commander'?'var(--gold)':p.role==='governor'?'var(--cyan)':'var(--tx2)';
           var label = p.role.toUpperCase() + (p.sector_id?' · Sector '+p.sector_id:'');
           html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:rgba(91,184,232,.04);border-radius:6px;margin-bottom:4px;border:1px solid '+roleColor+'22">';
-          html += '<span style="font-size:10px;color:'+roleColor+';font-family:var(--fn);font-weight:700">'+label+'</span>';
+          html += '<span style="font-size:10px;color:'+roleColor+';font-family:var(--fn);font-weight:700">'+label+' '+govBadgeHTML(p.wallet)+'</span>';
           html += '<span style="font-size:10px;color:var(--cyan);font-family:var(--fn)">'+parseFloat(p.gp_balance||0).toFixed(0)+' GP</span>';
           html += '</div>';
           if(p.role==='governor' && p.sector_id) _govMySectorId = p.sector_id;
