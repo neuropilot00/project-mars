@@ -11661,11 +11661,11 @@ function _showPOIPopup(poi) {
 }
 
 function _discoverPOI(poiId) {
-  if (!currentWallet) { showToast('Connect wallet first'); return; }
+  if (!walletState.address) { showToast('Connect wallet first'); return; }
   fetch('/api/exploration/discover', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ wallet: currentWallet, poiId: poiId })
+    body: JSON.stringify({ wallet: walletState.address, poiId: poiId })
   }).then(function(r) { return r.json(); }).then(function(data) {
     if (data.error) { showToast(data.error); return; }
     var rw = data.reward;
@@ -11684,7 +11684,7 @@ function _discoverPOI(poiId) {
       notifMsg += '\n🎁 BONUS: ' + (data.bonusCosmetic.icon||'✨') + ' ' + data.bonusCosmetic.name;
     }
     showNotification('system','POI DISCOVERED', notifMsg);
-    var feedMsg = '\u{1F50D} ' + (currentNickname || currentWallet.slice(0,6)) + ' discovered ' + data.label + ' — ' + rwText;
+    var feedMsg = '\u{1F50D} ' + (walletState.nickname || walletState.address.slice(0,6)) + ' discovered ' + data.label + ' — ' + rwText;
     if (data.bonusCosmetic) feedMsg += ' + 🎁' + (data.bonusCosmetic.icon||'') + data.bonusCosmetic.name;
     addFeed(feedMsg);
     // Remove from local data
@@ -13298,7 +13298,7 @@ window.addEventListener('resize', function(){
     }
     var remaining2 = ev.totalRewards - ev.claimedRewards;
     var priorityBtn = '';
-    if (ev.status === 'incoming' && currentWallet) {
+    if (ev.status === 'incoming' && walletState.address) {
       priorityBtn = '<button onclick="event.stopPropagation();buyLootPriority(' + ev.id + ')" style="font-size:8px;padding:2px 8px;background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);border-radius:4px;color:var(--gold);cursor:pointer;font-family:var(--fn);white-space:nowrap">PRIORITY (0.3 PP)</button>';
     }
     var tooltipText = ev.status === 'incoming'
@@ -13345,12 +13345,12 @@ window.addEventListener('resize', function(){
   };
 
   window._claimLoot = function(eventId, lootIndex, btn) {
-    if (!currentWallet) { showToast('Connect wallet first'); return; }
+    if (!walletState.address) { showToast('Connect wallet first'); return; }
     if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
     fetch('/api/rockets/claim-loot', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ wallet: currentWallet, rocketEventId: eventId, lootIndex: lootIndex })
+      body: JSON.stringify({ wallet: walletState.address, rocketEventId: eventId, lootIndex: lootIndex })
     }).then(function(r){return r.json()}).then(function(data){
       if (data.error) { showToast(data.error); if(btn){btn.disabled=false;btn.style.opacity='1';} return; }
       var r = data.reward;
