@@ -1547,7 +1547,8 @@ function loadSettings() {
   api('/admin/api/settings').then(function(data) {
     _allSettings = data;
     buildSettingFilterBar(data);
-    renderSettingsGrid(data);
+    var filtered = _settingsFilter === 'all' ? data : data.filter(function(s) { return s.category === _settingsFilter; });
+    renderSettingsGrid(filtered);
   });
 }
 
