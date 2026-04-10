@@ -2460,8 +2460,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="padding:8px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.15);border-radius:6px">
             <div style="font-size:8px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:3px">SEASON REWARDS</div>
             <div style="font-size:9px;color:var(--tx3);line-height:1.6">
-              🥇 Top players earn <span style="color:var(--gold)">GP &amp; PP</span> at season end<br>
-              📈 More activity = higher score = better rewards
+              🥇 <b>1st place per category</b>: GP + XP + Items + Title<br>
+              🥈 <b>Top 3</b>: GP + Items<br>
+              🥉 <b>Top 10</b>: GP<br>
+              💎 Overall #1 also earns rare <span style="color:var(--gold)">PP</span>!<br>
+              ⚡ You can win rewards in <b>multiple categories</b> at once!
             </div>
           </div>
         </div>
@@ -2525,6 +2528,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <!-- TAB: QUESTS -->
       <div class="base-pane" id="basePane_quests">
         <div class="base-banner" id="bannerQuests"><img src="/assets/base/quests.png" alt=""></div>
+
+        <!-- Daily Check-in (Inline Stamp Card) -->
+        <div id="dailyCheckinInline" style="margin:0;padding:10px 10px 6px;border-bottom:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:9px;color:var(--gold);letter-spacing:2px;font-family:var(--fn)">📅 DAILY CHECK-IN</span>
+            <span id="checkinStreakLabel" style="font-size:8px;color:var(--tx3);font-family:var(--fn)"></span>
+          </div>
+          <div id="inlineStampBoard" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:8px"></div>
+          <div id="inlineCheckinReward" style="text-align:center;font-size:10px;color:var(--gold);margin-bottom:6px;font-family:var(--fn)"></div>
+          <button id="inlineCheckinBtn" onclick="claimDailyLogin()" style="display:none;width:100%;padding:8px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(255,209,102,.06));border:1px solid rgba(255,209,102,.4);color:var(--gold);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700;letter-spacing:1px;margin-bottom:4px">CHECK IN TODAY</button>
+        </div>
+
         <!-- Daily Missions Panel -->
         <div id="dailyMissionsPanel" style="display:none;margin:0;padding:8px 10px;border-bottom:1px solid var(--bdr)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -6140,17 +6155,21 @@ function _attachGlobeClick(){
     // POI proximity check — discover nearby POI on click
     if(_poiData.length > 0 && !landSelectMode) {
       var nearestPOI = null, nearestDist = Infinity;
+      var undiscoveredCount = 0;
       for(var pi=0;pi<_poiData.length;pi++){
         var p=_poiData[pi];
         if(p.discovered) continue;
+        undiscoveredCount++;
         var dlat=lat-p.lat, dlng=lng-p.lng;
         var dist=Math.sqrt(dlat*dlat+dlng*dlng);
         if(dist<nearestDist){nearestDist=dist;nearestPOI=p;}
       }
-      if(nearestPOI && nearestDist < 6) { // Within ~6 degrees (large tap area for mobile)
+      if(nearestPOI && nearestDist < 8) { // Within ~8 degrees (generous tap area for mobile)
+        console.log('[POI] Click detected! Nearest:', nearestPOI.poiType, 'dist:', nearestDist.toFixed(1), 'id:', nearestPOI.id);
         _showPOIPopup(nearestPOI);
         return;
       }
+      if(undiscoveredCount > 0) console.log('[POI] Clicked but nearest POI too far:', nearestDist.toFixed(1), '° (need < 8°)');
     }
 
     // Rocket proximity check — open loot popup
@@ -9965,11 +9984,13 @@ function showSeasonGuide(season){
   var rules=document.getElementById('seasonScoreRules');
   var cats=season.activeCategories||[];
   rules.innerHTML='<div style="grid-column:1/-1;font-size:9px;color:var(--tx2);margin-bottom:4px;line-height:1.5">'+(themeDescs[season.theme]||'Compete for the top of the leaderboard!')+'</div>'+
-    '<div style="grid-column:1/-1;font-size:8px;color:var(--gold);margin-bottom:2px">THIS SEASON\'S RANKING CATEGORIES</div>'+
+    '<div style="grid-column:1/-1;font-size:8px;color:var(--gold);margin-bottom:2px">THIS SEASON\'S RANKING CATEGORIES ('+cats.length+')</div>'+
     cats.map(function(c){
-    return '<div style="padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05)">'+
-      '<div style="display:flex;align-items:center;gap:4px"><span style="font-size:14px">'+(c.icon||'🏆')+'</span>'+
-      '<span style="font-size:9px;color:var(--tx);font-weight:700">'+(c.label||c.key)+'</span></div></div>';
+    return '<div style="padding:8px 8px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05)">'+
+      '<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="font-size:14px">'+(c.icon||'🏆')+'</span>'+
+      '<span style="font-size:9px;color:var(--tx);font-weight:700">'+(c.label||c.key)+'</span></div>'+
+      (c.desc ? '<div style="font-size:8px;color:var(--tx3);line-height:1.3">'+c.desc+'</div>' : '')+
+      '</div>';
   }).join('');
 }
 
@@ -12910,7 +12931,10 @@ window.addEventListener('resize', function(){
   function loadExplorationData() {
     fetch('/api/exploration/pois').then(function(r){return r.json()}).then(function(data){
       _poiData = data.pois || [];
-      if (_poiData.length > 0) compositeClaimsOnTexture();
+      if (_poiData.length > 0) {
+        console.log('[POI] Loaded', _poiData.length, 'POIs:', _poiData.map(function(p){return '#'+p.id+' '+p.poiType+(p.discovered?' (found)':'')}).join(', '));
+        compositeClaimsOnTexture();
+      }
     }).catch(function(){ _poiData = []; });
   }
   function loadStarlinkData() {
@@ -13895,7 +13919,7 @@ function checkDailyLogin(){
   if(!emailAuth.token || !walletState.address) return;
   var today = new Date().toISOString().slice(0,10);
   var stored = localStorage.getItem('daily_login_date_'+walletState.address);
-  if(stored === today){ _dailyState.todayClaimed=true; _dailyDotReady=true; updateDailyHudDot(); loadDailyMissions(); return; }
+  if(stored === today){ _dailyState.todayClaimed=true; _dailyDotReady=true; updateDailyHudDot(); renderInlineCheckin(); loadDailyMissions(); return; }
 
   fetch('/api/daily/login',{
     method:'POST',
@@ -13910,11 +13934,13 @@ function checkDailyLogin(){
       localStorage.setItem('daily_login_date_'+walletState.address, today);
       localStorage.setItem('daily_last_streak_'+walletState.address, String(_dailyState.streak));
       renderDailyStreakRow();
+      renderInlineCheckin();
       document.getElementById('dailyLoginPopup').classList.add('open');
     } else if(d.already_claimed){
       _dailyState.todayClaimed = true;
       _dailyState.streak = d.streak || 0;
       localStorage.setItem('daily_login_date_'+walletState.address, today);
+      renderInlineCheckin();
     }
     _dailyDotReady = true;
     updateDailyHudDot();
@@ -13927,6 +13953,7 @@ function checkDailyLogin(){
     _dailyState.lastReward = _dailyRewards[Math.min((_dailyState.streak-1),6)];
     _dailyState.todayClaimed = true; // Treat as claimed to avoid false notification
     renderDailyStreakRow();
+    renderInlineCheckin();
     document.getElementById('dailyLoginPopup').classList.add('open');
     _dailyDotReady = true;
     updateDailyHudDot();
@@ -13973,6 +14000,44 @@ function renderDailyStreakRow(){
   }
 }
 
+// ── Render inline check-in inside QUESTS tab ──
+function renderInlineCheckin(){
+  var board = document.getElementById('inlineStampBoard');
+  if(!board) return;
+  var streak = _dailyState.streak;
+  var html = '';
+  for(var d=1;d<=14;d++){
+    var reward = _dailyRewards[d-1] || 10;
+    var isMilestone = _dailyMilestones[d];
+    var done = d <= streak;
+    var isToday = d === streak + 1 && !_dailyState.todayClaimed;
+    var isTodayDone = d === streak && _dailyState.todayClaimed;
+    var bg = done || isTodayDone ? 'rgba(0,255,100,.12)' : (isToday ? 'rgba(255,209,102,.15)' : 'rgba(255,255,255,.02)');
+    var bdr = isMilestone ? 'rgba(255,209,102,.4)' : (done || isTodayDone ? 'rgba(0,255,100,.3)' : 'rgba(255,255,255,.06)');
+    var mark = done || isTodayDone ? '✅' : (isToday ? '🎁' : '<span style="font-size:8px;color:var(--tx3)">'+d+'</span>');
+    html += '<div style="text-align:center;padding:3px 2px;border-radius:4px;background:'+bg+';border:1px solid '+bdr+'">'
+      + '<div style="font-size:10px;line-height:1.2">'+mark+'</div>'
+      + '<div style="font-size:7px;color:'+(done||isTodayDone?'var(--gn)':'var(--tx3)')+'">+'+reward+'</div>'
+      + (isMilestone ? '<div style="font-size:6px;color:var(--gold)">★</div>' : '')
+      + '</div>';
+  }
+  board.innerHTML = html;
+
+  var label = document.getElementById('checkinStreakLabel');
+  if(label) label.textContent = 'Day ' + streak + ' / 14';
+
+  var rewardEl = document.getElementById('inlineCheckinReward');
+  var btn = document.getElementById('inlineCheckinBtn');
+  if(_dailyState.todayClaimed){
+    if(rewardEl) rewardEl.textContent = '✅ Checked in today! +' + (_dailyState.lastReward||0) + ' GP';
+    if(btn) btn.style.display = 'none';
+  } else {
+    var nextReward = _dailyRewards[Math.min(streak, 13)] || 10;
+    if(rewardEl) rewardEl.textContent = 'Today: +' + nextReward + ' GP';
+    if(btn) btn.style.display = '';
+  }
+}
+
 // ── Claim Daily Login ──
 function claimDailyLogin(){
   var today = new Date().toISOString().slice(0,10);
@@ -13988,6 +14053,7 @@ function claimDailyLogin(){
   if(milestone) msg += ' +' + milestone.bonus + ' GP STREAK BONUS!';
   showToast(msg);
   try{_sfx.harvest()}catch(e){}
+  renderInlineCheckin();
   updateDailyHudDot();
 }
 

@@ -814,7 +814,9 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
       </div>
     </div>
     <p style="font-size:10px;color:#888;margin-bottom:8px">
-      Manage POI discovery rewards. Weight determines drop chance (GP/Item/PP ratios in SETTINGS tab → exploration category).
+      <b>POI = globe markers (different from Supply Drop).</b> POIs spawn on the map, players click to discover and get rewards.<br>
+      This table manages which <b>items</b> can drop from POIs (when reward type = item). GP/PP drops are set in SETTINGS → exploration.<br>
+      Weight = relative chance. Higher weight = more likely. Select items from the SHOP tab's item_types.
     </p>
 
     <!-- POI Stats -->
@@ -2449,8 +2451,18 @@ function showAddDrop() {
     var sel = document.getElementById('dropItemCode');
     sel.innerHTML = '<option value="">— Select item —</option>';
     (items || []).forEach(function(it) {
-      sel.innerHTML += '<option value="' + it.code + '">' + it.icon + ' ' + it.name + ' (' + it.code + ')</option>';
+      sel.innerHTML += '<option value="' + it.code + '" data-icon="' + (it.icon||'📦') + '">' + (it.icon||'📦') + ' ' + it.name + ' (' + it.code + ')</option>';
     });
+    // Auto-fill icon when item is selected
+    sel.onchange = function() {
+      var opt = sel.options[sel.selectedIndex];
+      if (opt && opt.dataset.icon) {
+        document.getElementById('dropIcon').value = opt.dataset.icon;
+      }
+    };
+  }).catch(function(e) {
+    console.error('[Admin] Failed to load shop items for POI drops:', e);
+    alert('Failed to load item list. Make sure shop items exist in the SHOP tab first.');
   });
 }
 

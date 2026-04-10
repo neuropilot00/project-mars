@@ -3,33 +3,33 @@ const { pool, getSetting } = require('../db');
 // All possible season ranking categories (18+)
 // Each season picks 6 from this list via active_categories
 const ALL_CATEGORIES = [
-  { key: 'overall',      col: 'score',              label: 'Overall Champion',  icon: '🏆' },
-  { key: 'territory',    col: 'pixels_claimed',     label: 'Territory King',    icon: '🏴' },
-  { key: 'mining',       col: 'harvests',           label: 'Mining Master',     icon: '⛏️' },
-  { key: 'combat',       col: 'hijacks_won',        label: 'Combat Legend',     icon: '⚔️' },
-  { key: 'defender',     col: 'battles_lost',       label: 'Resilient Fighter', icon: '🛡️' },
-  { key: 'explorer',     col: 'pois_discovered',    label: 'Explorer Elite',    icon: '🔭' },
-  { key: 'active',       col: 'tap_count',          label: 'Most Active',       icon: '👆' },
-  { key: 'shopper',      col: 'items_used',         label: 'Item Master',       icon: '🎒' },
-  { key: 'quester',      col: 'quests_done',        label: 'Quest Hero',        icon: '📋' },
-  { key: 'big_spender',  col: 'gp_spent',           label: 'Big Spender',       icon: '💰' },
-  { key: 'investor',     col: 'pp_spent',           label: 'PP Investor',       icon: '💎' },
-  { key: 'fortifier',    col: 'shields_placed',     label: 'Fortress Builder',  icon: '🏰' },
-  { key: 'wanderer',     col: 'sectors_entered',    label: 'Sector Wanderer',   icon: '🗺️' },
-  { key: 'dedicated',    col: 'login_days',         label: 'Most Dedicated',    icon: '📅' },
-  { key: 'fashionista',  col: 'cosmetics_equipped', label: 'Mars Fashionista',  icon: '👗' },
-  { key: 'gambler',      col: 'cantina_plays',      label: 'Cantina Regular',   icon: '🎰' },
-  { key: 'team_player',  col: 'guild_contributions',label: 'Team Player',       icon: '🤝' },
-  { key: 'recruiter',    col: 'referrals',          label: 'Top Recruiter',     icon: '📢' },
-  { key: 'social',       col: 'chat_messages',      label: 'Social Butterfly',  icon: '💬' },
-  { key: 'earner',       col: 'total_gp_earned',    label: 'GP Tycoon',         icon: '🪙' },
-  { key: 'whale',        col: 'total_pp_earned',    label: 'PP Whale',          icon: '🐋' },
-  { key: 'loser',        col: 'pixels_lost',        label: 'Never Give Up',     icon: '💪' },
-  { key: 'streaker',     col: 'longest_streak',     label: 'Streak Master',     icon: '🔥' },
-  { key: 'astronaut',    col: 'rockets_joined',     label: 'Rocket Rider',      icon: '🚀' },
-  { key: 'weatherman',   col: 'weather_checks',     label: 'Storm Chaser',      icon: '🌪️' },
-  { key: 'namer',        col: 'territory_renames',  label: 'Name Artist',       icon: '✏️' },
-  { key: 'influencer',   col: 'shares_count',       label: 'Mars Influencer',   icon: '📤' }
+  { key: 'overall',      col: 'score',              label: 'Overall Champion',  icon: '🏆', desc: 'Earn the highest total score across all activities' },
+  { key: 'territory',    col: 'pixels_claimed',     label: 'Territory King',    icon: '🏴', desc: 'Claim the most land pixels on Mars' },
+  { key: 'mining',       col: 'harvests',           label: 'Mining Master',     icon: '⛏️', desc: 'Harvest resources from your territory the most' },
+  { key: 'combat',       col: 'hijacks_won',        label: 'Combat Legend',     icon: '⚔️', desc: 'Win the most hijack battles against other players' },
+  { key: 'defender',     col: 'battles_lost',       label: 'Resilient Fighter', icon: '🛡️', desc: 'Survive the most attacks on your territory' },
+  { key: 'explorer',     col: 'pois_discovered',    label: 'Explorer Elite',    icon: '🔭', desc: 'Discover the most POI markers on the globe' },
+  { key: 'active',       col: 'tap_count',          label: 'Most Active',       icon: '👆', desc: 'Click & tap the most — just play the game!' },
+  { key: 'shopper',      col: 'items_used',         label: 'Item Master',       icon: '🎒', desc: 'Buy and use the most items from the shop' },
+  { key: 'quester',      col: 'quests_done',        label: 'Quest Hero',        icon: '📋', desc: 'Complete the most daily missions' },
+  { key: 'big_spender',  col: 'gp_spent',           label: 'Big Spender',       icon: '💰', desc: 'Spend the most GP on items, hijacks, and upgrades' },
+  { key: 'investor',     col: 'pp_spent',           label: 'PP Investor',       icon: '💎', desc: 'Spend the most PP on premium features' },
+  { key: 'fortifier',    col: 'shields_placed',     label: 'Fortress Builder',  icon: '🏰', desc: 'Place the most shields on your territories' },
+  { key: 'wanderer',     col: 'sectors_entered',    label: 'Sector Wanderer',   icon: '🗺️', desc: 'Explore and visit the most different sectors' },
+  { key: 'dedicated',    col: 'login_days',         label: 'Most Dedicated',    icon: '📅', desc: 'Log in every day — consistency is key!' },
+  { key: 'fashionista',  col: 'cosmetics_equipped', label: 'Mars Fashionista',  icon: '👗', desc: 'Equip the most cosmetic items to your territory' },
+  { key: 'gambler',      col: 'cantina_plays',      label: 'Cantina Regular',   icon: '🎰', desc: 'Play the most mini-games in the Cantina' },
+  { key: 'team_player',  col: 'guild_contributions',label: 'Team Player',       icon: '🤝', desc: 'Contribute the most to your guild activities' },
+  { key: 'recruiter',    col: 'referrals',          label: 'Top Recruiter',     icon: '📢', desc: 'Invite the most new players via referral' },
+  { key: 'social',       col: 'chat_messages',      label: 'Social Butterfly',  icon: '💬', desc: 'Send the most chat messages to other players' },
+  { key: 'earner',       col: 'total_gp_earned',    label: 'GP Tycoon',         icon: '🪙', desc: 'Earn the most GP from all sources combined' },
+  { key: 'whale',        col: 'total_pp_earned',    label: 'PP Whale',          icon: '🐋', desc: 'Earn the most PP from mining and discoveries' },
+  { key: 'loser',        col: 'pixels_lost',        label: 'Never Give Up',     icon: '💪', desc: 'Lost pixels to hijacks? Keep fighting back!' },
+  { key: 'streaker',     col: 'longest_streak',     label: 'Streak Master',     icon: '🔥', desc: 'Maintain the longest daily login streak' },
+  { key: 'astronaut',    col: 'rockets_joined',     label: 'Rocket Rider',      icon: '🚀', desc: 'Claim loot from the most rocket supply drops' },
+  { key: 'weatherman',   col: 'weather_checks',     label: 'Storm Chaser',      icon: '🌪️', desc: 'Check the Mars weather forecast frequently' },
+  { key: 'namer',        col: 'territory_renames',  label: 'Name Artist',       icon: '✏️', desc: 'Rename your territories the most times' },
+  { key: 'influencer',   col: 'shares_count',       label: 'Mars Influencer',   icon: '📤', desc: 'Share your stats and territory the most' }
 ];
 
 // ═══════════════════════════════════════
@@ -54,7 +54,7 @@ async function getActiveSeason() {
     visualTint: s.visual_tint,
     remainingMs: new Date(s.ends_at).getTime() - Date.now(),
     activeCategories: activeCategories,
-    allCategories: ALL_CATEGORIES.map(c => ({ key: c.key, label: c.label, icon: c.icon }))
+    allCategories: ALL_CATEGORIES.map(c => ({ key: c.key, label: c.label, icon: c.icon, desc: c.desc }))
   };
 }
 
