@@ -4058,142 +4058,21 @@ var marsBaseData=null;
 function genMarsTexture(){
   var c=marsCanvas;
   var x=c.getContext('2d'),w=c.width,h=c.height;
-  var id=x.createImageData(w,h),d=id.data;
-  for(var y=0;y<h;y++){
-    for(var i2=0;i2<w;i2++){
-      var idx=(y*w+i2)*4,u=i2/w,v=y/h;
-
-      // Multi-octave terrain noise (7 octaves for fine detail)
-      var n1=_fbm6(u*8,v*8);
-      var n2=_fbm(u*16+5.7,v*16+3.2)*.4;
-      var n3=_fbm(u*32+11,v*32+7)*.12;
-      var n4=_n(u*64+20,v*64+15)*.06;
-      var n5=_n(u*128+35,v*128+42)*.025; // micro detail
-
-      // Ridge noise for mountain ranges
-      var ridgeVal=_ridge(u*6+3,v*4+2)*_ridge(u*12+7,v*8+5);
-      var ridgeVal2=_ridge(u*18+11,v*14+9)*0.4;
-
-      var lat=Math.abs(v-.5)*2;
-      var polar=lat>.82?Math.pow((lat-.82)/.18,1.8):0;
-      var cr=craterAt(u,v);
-
-      // Richer base: warm terracotta with regional variation
-      var regionHue=_n(u*3+100,v*3+100);
-      var regionWarm=_n(u*2+200,v*2+200);
-      var base_r=135+n1*70+n2*28+n3*16+n4*10+n5*8+cr*50+regionHue*18;
-      var base_g=55+n1*32+n2*16+n3*7+n4*4+n5*3+cr*20+regionHue*6;
-      var base_b=30+n1*14+n2*9+n3*5+n4*3+n5*2+cr*10;
-
-      // Warm/cool color shift per region
-      base_r+=regionWarm*12-6;
-      base_g+=regionWarm*4-2;
-      base_b-=regionWarm*3;
-
-      // Mountain ridges — brighter orange highlights
-      var rTotal=ridgeVal+ridgeVal2;
-      if(rTotal>.65){var rf=(rTotal-.65)*2.2;base_r+=rf*22;base_g+=rf*10;base_b+=rf*4}
-
-      // Dark mare/lowland regions
-      var dark=_n(u*2.5+10,v*2.5+10);
-      var dark2=_n(u*4+30,v*3+25);
-      if(dark>.48){var df=(dark-.48)*3.5;base_r-=df*35;base_g-=df*16;base_b-=df*7}
-      if(dark2>.52){var df2=(dark2-.52)*2.8;base_r-=df2*18;base_g-=df2*9;base_b-=df2*4}
-
-      // Dust streaks (wind patterns) — more natural
-      var windAngle=_n(u*2+80,v*2+80)*0.3;
-      var streak=_n(u*5+20+windAngle*2, v*1.8+20);
-      var streak2=_n(u*9+40, v*3.5+35);
-      if(streak>.56){var sf=(streak-.56)*2.5;base_r+=sf*15;base_g+=sf*8;base_b+=sf*3}
-      if(streak2>.6){var sf2=(streak2-.6)*1.8;base_r-=sf2*10;base_g-=sf2*6}
-
-      // Iron oxide variation (subtle rust patches)
-      var oxide=_n(u*7+150,v*7+150);
-      if(oxide>.6){var oxf=(oxide-.6)*2.5;base_r+=oxf*12;base_g-=oxf*4;base_b-=oxf*6}
-
-      // Polar ice caps — layered CO2 frost + water ice
-      var polarEdge=lat>.76?Math.pow((lat-.76)/.24,1.0)*0.25:0;
-      var frostNoise=_n(u*20+200,v*20+200)*0.15;
-      base_r=base_r*(1-polar)+232*polar+polarEdge*35+frostNoise*polar*20;
-      base_g=base_g*(1-polar)+225*polar+polarEdge*30+frostNoise*polar*18;
-      base_b=base_b*(1-polar)+220*polar+polarEdge*40+frostNoise*polar*25;
-
-      // ── Landmark Features (cosine-corrected) ──
-      var cosV=Math.cos((v-0.5)*Math.PI);
-      if(cosV<0.15) cosV=0.15;
-
-      // Olympus Mons — shield volcano (largest in solar system)
-      var ox=.38,oy=.35;
-      var omDu=(u-ox)*2*cosV,omDv=v-oy;
-      var od=Math.sqrt(omDu*omDu+omDv*omDv);
-      if(od<.09){
-        var of2=1-od/.09;
-        var caldera=od<.012?-18*(1-od/.012):0;
-        var slope=of2*of2; // quadratic falloff for shield shape
-        base_r+=slope*30+caldera;base_g+=slope*15+caldera*.3;base_b+=slope*5;
-      }
-
-      // Valles Marineris — canyon system with better depth
-      if(v>.40&&v<.50&&u>.15&&u<.60){
-        var mainV=Math.abs(v-(.445+_n(u*8,v*2)*.012))/.016;
-        var side1=Math.abs(v-(.433+_n(u*12+5,v*3)*.007))/.009;
-        var side2=Math.abs(v-(.457+_n(u*10+8,v*4)*.007))/.009;
-        var canyon=Math.min(mainV,1);
-        if(side1<1&&u>.25&&u<.45)canyon=Math.min(canyon,side1);
-        if(side2<1&&u>.30&&u<.50)canyon=Math.min(canyon,side2);
-        if(canyon<1){
-          var vf=(1-canyon)*.9;
-          var depth=vf*(0.85+_n(u*25,v*25)*.3);
-          base_r-=depth*55;base_g-=depth*28;base_b-=depth*14;
-          // Canyon rim highlight
-          if(canyon>.65&&canyon<.85){var wall=(canyon-.65)/.2;base_r+=wall*18;base_g+=wall*9}
-          // Shadow on south wall
-          if(v>(.445+_n(u*8,v*2)*.012)&&canyon<.5){base_r-=8;base_g-=4}
-        }
-      }
-
-      // Tharsis bulge — elevated volcanic plateau
-      var tx=.32,ty=.4;
-      var tbDu=(u-tx)*2*cosV,tbDv=v-ty;
-      var td=Math.sqrt(tbDu*tbDu+tbDv*tbDv);
-      if(td<.14){var tf=(1-td/.14);tf*=tf;base_r+=tf*10;base_g+=tf*5;base_b+=tf*2}
-
-      // Tharsis Montes trio (3 volcanoes in a line)
-      var montes=[{x:.34,y:.42},{x:.33,y:.45},{x:.32,y:.48}];
-      for(var mi=0;mi<3;mi++){
-        var m=montes[mi];
-        var mdu=(u-m.x)*2*cosV,mdv=v-m.y;
-        var md=Math.sqrt(mdu*mdu+mdv*mdv);
-        if(md<.02){var mf=1-md/.02;base_r+=mf*mf*20;base_g+=mf*mf*10}
-      }
-
-      // Hellas Basin — deep impact basin, darker floor
-      var hx=.72,hy=.62;
-      var hDu=(u-hx)*2*cosV,hDv=v-hy;
-      var hd=Math.sqrt(hDu*hDu+hDv*hDv);
-      if(hd<.055){var hf=1-hd/.055;hf*=hf;base_r-=hf*22;base_g-=hf*14;base_b-=hf*6}
-
-      // Argyre Basin
-      var ax=.60,ay=.66;
-      var aDu=(u-ax)*2*cosV,aDv=v-ay;
-      var ad=Math.sqrt(aDu*aDu+aDv*aDv);
-      if(ad<.035){var af=1-ad/.035;af*=af;base_r-=af*15;base_g-=af*10;base_b-=af*4}
-
-      // Subtle color temperature variation
-      var temp=_n(u*1.5+50,v*1.5+50);
-      base_r+=temp*5-2.5;base_g+=temp*2.5-1.2;
-
-      d[idx]=Math.max(0,Math.min(255,base_r|0));
-      d[idx+1]=Math.max(0,Math.min(255,base_g|0));
-      d[idx+2]=Math.max(0,Math.min(255,base_b|0));
-      d[idx+3]=255;
-    }
+  // Simple Mars gradient — NASA texture is the real one
+  var g=x.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#c4714a');g.addColorStop(0.15,'#b8623c');
+  g.addColorStop(0.4,'#a85535');g.addColorStop(0.5,'#9e4e30');
+  g.addColorStop(0.6,'#a85535');g.addColorStop(0.85,'#b8623c');
+  g.addColorStop(1,'#c4714a');
+  x.fillStyle=g;x.fillRect(0,0,w,h);
+  // Slight noise for non-flat look
+  var id=x.getImageData(0,0,w,h),d=id.data;
+  for(var i=0;i<d.length;i+=4){
+    var n=(Math.random()*16-8)|0;
+    d[i]+=n;d[i+1]+=(n/2)|0;d[i+2]+=(n/3)|0;
   }
   x.putImageData(id,0,0);
-
-  // (No text overlays on procedural map — clean surface only)
-
-  marsBaseData=c.toDataURL('image/jpeg',.92);
+  marsBaseData=c.toDataURL('image/jpeg',.85);
   return marsBaseData;
 }
 
