@@ -5181,6 +5181,7 @@ function _initStep3(){
       .height(window.innerHeight)
       .onGlobeReady(function(){
         setLoadProgress(98,'Almost ready...');
+        globe.pointOfView({altitude:3.2},0);
         setTimeout(dismissLoader,200);
       })
       (document.getElementById('globe-wrap'));
@@ -5932,7 +5933,7 @@ function goBack(){
   hideMobInfoBtn();
   // Zoom out from current view position (don't reset lat/lng)
   var pov=globe.pointOfView();
-  globe.pointOfView({lat:pov.lat,lng:pov.lng,altitude:2.5},1000);
+  globe.pointOfView({lat:pov.lat,lng:pov.lng,altitude:3.2},1000);
   globe.controls().autoRotate=true;
   compositeClaimsOnTexture();
 }
@@ -11244,9 +11245,13 @@ function _initStarlinkOrbit() {
   requestAnimationFrame(_animateStarlinkOrbit);
 }
 
+var _slLastFrame=0;
+var _slFrameInterval=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?100:33;
 function _animateStarlinkOrbit() {
   if (!globe || !_slDots.length) { requestAnimationFrame(_animateStarlinkOrbit); return; }
   var t = Date.now();
+  if(t-_slLastFrame<_slFrameInterval){requestAnimationFrame(_animateStarlinkOrbit);return;}
+  _slLastFrame=t;
   _slDots.forEach(function(sd) {
     var orb = sd.orb;
     var angle = t * orb.speed + orb.phase; // orbital angle
