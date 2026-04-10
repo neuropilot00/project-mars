@@ -749,6 +749,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   margin-bottom:6px}
 .sc-activity-dot{width:5px;height:5px;border-radius:50%;background:var(--mars);animation:pulse-dot 1.5s infinite}
 @keyframes pulse-dot{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes seasonPulse{0%,100%{box-shadow:0 4px 20px rgba(255,80,30,0.15)}50%{box-shadow:0 4px 30px rgba(255,80,30,0.35)}}
 
 /* Quest cards */
 .quest-tier-label{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px}
@@ -1826,15 +1827,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Season Banner -->
-<div id="seasonBanner" style="display:none;position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:107;
-  font-family:var(--fn);font-size:9px;padding:4px 14px;border-radius:0 0 10px 10px;
-  background:linear-gradient(135deg,rgba(255,80,30,0.15),rgba(255,40,10,0.08));backdrop-filter:blur(8px);
-  border:1px solid rgba(255,80,30,0.2);border-top:none;color:var(--mars);white-space:nowrap;
-  pointer-events:none;letter-spacing:1px">
-  <span id="seasonBannerIcon" style="margin-right:4px">🌋</span>
-  <span id="seasonBannerName">Season 1</span>
-  <span style="color:var(--tx3);margin:0 6px">·</span>
-  <span id="seasonBannerTimer" style="color:var(--gold)">--</span>
+<div id="seasonBanner" onclick="openBaseModal();switchBaseTab('rank',document.querySelector('[onclick*=rank]'))" style="display:none;position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:107;
+  font-family:var(--fn);font-size:10px;padding:6px 18px;border-radius:0 0 12px 12px;
+  background:linear-gradient(135deg,rgba(255,80,30,0.2),rgba(255,40,10,0.1));backdrop-filter:blur(10px);
+  border:1px solid rgba(255,80,30,0.3);border-top:none;color:var(--mars);white-space:nowrap;
+  cursor:pointer;letter-spacing:1px;
+  animation:seasonPulse 3s ease-in-out infinite;
+  box-shadow:0 4px 20px rgba(255,80,30,0.15)">
+  <span id="seasonBannerIcon" style="margin-right:4px;font-size:14px">🌋</span>
+  <span id="seasonBannerName" style="font-weight:700">Season 1</span>
+  <span style="color:var(--tx3);margin:0 8px">·</span>
+  <span id="seasonBannerTimer" style="color:var(--gold);font-weight:700">--</span>
+  <span style="margin-left:6px;font-size:8px;color:var(--tx3)">TAP ▸</span>
 </div>
 
 <!-- Season Visual Tint Overlay -->
@@ -9904,6 +9908,28 @@ function loadSeasonData(){
   }).catch(function(){});
 }
 
+// ── Tap/Click tracking for "Most Active" season category ──
+var _tapCount=0;
+var _tapTimer=null;
+document.addEventListener('click',function(){
+  _tapCount++;
+  if(!_tapTimer){
+    _tapTimer=setTimeout(function(){
+      if(_tapCount>0&&walletState.address){
+        fetch('/api/season/taps',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({wallet:walletState.address,count:_tapCount})}).catch(function(){});
+      }
+      _tapCount=0;_tapTimer=null;
+    },30000); // batch every 30s
+  }
+});
+// Flush taps on page unload
+window.addEventListener('beforeunload',function(){
+  if(_tapCount>0&&walletState.address){
+    navigator.sendBeacon('/api/season/taps',JSON.stringify({wallet:walletState.address,count:_tapCount}));
+  }
+});
+
 function toggleRankTable(){
   var wrap=document.getElementById('rankTableWrap');
   var tog=document.getElementById('rankTableToggle');
@@ -9935,21 +9961,15 @@ function showSeasonGuide(season){
   var hours=Math.floor((remaining%86400000)/3600000);
   document.getElementById('seasonGuideTimer').textContent=days>0?days+'d '+hours+'h remaining':'Season ending soon!';
 
-  // Score rules
+  // Score rules — show season's active categories (6 per season)
   var rules=document.getElementById('seasonScoreRules');
-  var scoreItems=[
-    {icon:'🏴',action:'Claim Territory',pts:'1pt / pixel',tip:'Buy land on the map'},
-    {icon:'⛏️',action:'Harvest Resources',pts:'5pt / harvest',tip:'Mine PP from your land'},
-    {icon:'⚔️',action:'Hijack Enemy Land',pts:'10pt / hijack',tip:'Take over other\'s territory'},
-    {icon:'🔭',action:'Discover POI',pts:'15pt / POI',tip:'Find points of interest'}
-  ];
+  var cats=season.activeCategories||[];
   rules.innerHTML='<div style="grid-column:1/-1;font-size:9px;color:var(--tx2);margin-bottom:4px;line-height:1.5">'+(themeDescs[season.theme]||'Compete for the top of the leaderboard!')+'</div>'+
-    scoreItems.map(function(s){
+    '<div style="grid-column:1/-1;font-size:8px;color:var(--gold);margin-bottom:2px">THIS SEASON\'S RANKING CATEGORIES</div>'+
+    cats.map(function(c){
     return '<div style="padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05)">'+
-      '<div style="display:flex;align-items:center;gap:4px;margin-bottom:2px"><span style="font-size:13px">'+s.icon+'</span>'+
-      '<span style="font-size:9px;color:var(--tx);font-weight:700">'+s.action+'</span></div>'+
-      '<div style="font-size:8px;color:var(--gold);font-weight:700">'+s.pts+'</div>'+
-      '<div style="font-size:7px;color:var(--tx3);margin-top:1px">'+s.tip+'</div></div>';
+      '<div style="display:flex;align-items:center;gap:4px"><span style="font-size:14px">'+(c.icon||'🏆')+'</span>'+
+      '<span style="font-size:9px;color:var(--tx);font-weight:700">'+(c.label||c.key)+'</span></div></div>';
   }).join('');
 }
 

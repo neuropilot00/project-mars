@@ -735,6 +735,10 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <div><div style="font-size:6px;color:var(--tx3);margin-bottom:2px">ENDS AT</div>
           <input class="adm-input" id="nsEnd" type="datetime-local" style="width:100%"></div>
       </div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:6px;color:var(--tx3);margin-bottom:4px">ACTIVE CATEGORIES (pick 6)</div>
+        <div id="nsCategoriesGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;font-size:7px"></div>
+      </div>
       <div style="display:flex;gap:8px">
         <button class="adm-btn primary" onclick="createSeason()" style="background:rgba(255,69,0,.15);border-color:rgba(255,69,0,.4);color:#ff4500">CREATE</button>
         <button class="adm-btn" onclick="document.getElementById('newSeasonForm').style.display='none'">CANCEL</button>
@@ -2258,25 +2262,60 @@ function loadAdminSeasons() {
   });
 }
 
+var _allSeasonCats = [
+  {key:'overall',icon:'🏆',label:'Overall'},{key:'territory',icon:'🏴',label:'Territory King'},
+  {key:'mining',icon:'⛏️',label:'Mining Master'},{key:'combat',icon:'⚔️',label:'Combat Legend'},
+  {key:'defender',icon:'🛡️',label:'Resilient Fighter'},{key:'explorer',icon:'🔭',label:'Explorer Elite'},
+  {key:'active',icon:'👆',label:'Most Active'},{key:'shopper',icon:'🎒',label:'Item Master'},
+  {key:'quester',icon:'📋',label:'Quest Hero'},{key:'big_spender',icon:'💰',label:'Big Spender'},
+  {key:'investor',icon:'💎',label:'PP Investor'},{key:'fortifier',icon:'🏰',label:'Fortress Builder'},
+  {key:'wanderer',icon:'🗺️',label:'Sector Wanderer'},{key:'dedicated',icon:'📅',label:'Most Dedicated'},
+  {key:'fashionista',icon:'👗',label:'Fashionista'},{key:'gambler',icon:'🎰',label:'Cantina Regular'},
+  {key:'team_player',icon:'🤝',label:'Team Player'},{key:'recruiter',icon:'📢',label:'Top Recruiter'},
+  {key:'social',icon:'💬',label:'Social Butterfly'},{key:'earner',icon:'🪙',label:'GP Tycoon'},
+  {key:'whale',icon:'🐋',label:'PP Whale'},{key:'loser',icon:'💪',label:'Never Give Up'},
+  {key:'streaker',icon:'🔥',label:'Streak Master'},{key:'astronaut',icon:'🚀',label:'Rocket Rider'},
+  {key:'weatherman',icon:'🌪️',label:'Storm Chaser'},{key:'namer',icon:'✏️',label:'Name Artist'},
+  {key:'influencer',icon:'📤',label:'Mars Influencer'}
+];
+var _defaultCats = ['overall','territory','mining','combat','explorer','active'];
+
 function showNewSeasonForm() {
   document.getElementById('newSeasonForm').style.display = '';
   var now = new Date();
   var end = new Date(now.getTime() + 30*24*60*60*1000);
   document.getElementById('nsStart').value = now.toISOString().slice(0,16);
   document.getElementById('nsEnd').value = end.toISOString().slice(0,16);
+  // Render category checkboxes
+  var grid = document.getElementById('nsCategoriesGrid');
+  grid.innerHTML = _allSeasonCats.map(function(c) {
+    var checked = _defaultCats.indexOf(c.key) >= 0 ? 'checked' : '';
+    return '<label style="display:flex;align-items:center;gap:3px;cursor:pointer;padding:2px 4px;border-radius:3px;background:rgba(255,255,255,.02)">'
+      + '<input type="checkbox" class="nsCatCheck" value="'+c.key+'" '+checked+' style="width:10px;height:10px">'
+      + '<span>'+c.icon+' '+c.label+'</span></label>';
+  }).join('');
 }
 
 function createSeason() {
+  // Collect selected categories
+  var catChecks = document.querySelectorAll('.nsCatCheck:checked');
+  var activeCats = [];
+  catChecks.forEach(function(cb) { activeCats.push(cb.value); });
+  if (activeCats.length < 3) { alert('Select at least 3 categories'); return; }
+  if (activeCats.length > 8) { alert('Select max 8 categories'); return; }
+
   var body = {
     name: document.getElementById('nsName').value,
     theme: document.getElementById('nsTheme').value,
     starts_at: new Date(document.getElementById('nsStart').value).toISOString(),
     ends_at: new Date(document.getElementById('nsEnd').value).toISOString(),
     visual_tint: document.getElementById('nsTint').value,
+    active_categories: JSON.stringify(activeCats),
     rewards_json: JSON.stringify([
-      {rank_min:1,rank_max:1,type:'pp',amount:5,label:'1st Place'},
-      {rank_min:2,rank_max:3,type:'pp',amount:2,label:'Top 3'},
-      {rank_min:4,rank_max:10,type:'gp',amount:500,label:'Top 10'}
+      {category:'overall',rank:1,type:'gp',amount:3000,title:'Champion'},
+      {category:'overall',rank:1,type:'pp',amount:0.5},
+      {category:'overall',rank:3,type:'gp',amount:1500},
+      {category:'overall',rank:10,type:'gp',amount:500}
     ])
   };
   fetch('/admin/api/seasons', { method: 'POST', headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}, body: JSON.stringify(body) })

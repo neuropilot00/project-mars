@@ -1,5 +1,37 @@
 const { pool, getSetting } = require('../db');
 
+// All possible season ranking categories (18+)
+// Each season picks 6 from this list via active_categories
+const ALL_CATEGORIES = [
+  { key: 'overall',      col: 'score',              label: 'Overall Champion',  icon: '🏆' },
+  { key: 'territory',    col: 'pixels_claimed',     label: 'Territory King',    icon: '🏴' },
+  { key: 'mining',       col: 'harvests',           label: 'Mining Master',     icon: '⛏️' },
+  { key: 'combat',       col: 'hijacks_won',        label: 'Combat Legend',     icon: '⚔️' },
+  { key: 'defender',     col: 'battles_lost',       label: 'Resilient Fighter', icon: '🛡️' },
+  { key: 'explorer',     col: 'pois_discovered',    label: 'Explorer Elite',    icon: '🔭' },
+  { key: 'active',       col: 'tap_count',          label: 'Most Active',       icon: '👆' },
+  { key: 'shopper',      col: 'items_used',         label: 'Item Master',       icon: '🎒' },
+  { key: 'quester',      col: 'quests_done',        label: 'Quest Hero',        icon: '📋' },
+  { key: 'big_spender',  col: 'gp_spent',           label: 'Big Spender',       icon: '💰' },
+  { key: 'investor',     col: 'pp_spent',           label: 'PP Investor',       icon: '💎' },
+  { key: 'fortifier',    col: 'shields_placed',     label: 'Fortress Builder',  icon: '🏰' },
+  { key: 'wanderer',     col: 'sectors_entered',    label: 'Sector Wanderer',   icon: '🗺️' },
+  { key: 'dedicated',    col: 'login_days',         label: 'Most Dedicated',    icon: '📅' },
+  { key: 'fashionista',  col: 'cosmetics_equipped', label: 'Mars Fashionista',  icon: '👗' },
+  { key: 'gambler',      col: 'cantina_plays',      label: 'Cantina Regular',   icon: '🎰' },
+  { key: 'team_player',  col: 'guild_contributions',label: 'Team Player',       icon: '🤝' },
+  { key: 'recruiter',    col: 'referrals',          label: 'Top Recruiter',     icon: '📢' },
+  { key: 'social',       col: 'chat_messages',      label: 'Social Butterfly',  icon: '💬' },
+  { key: 'earner',       col: 'total_gp_earned',    label: 'GP Tycoon',         icon: '🪙' },
+  { key: 'whale',        col: 'total_pp_earned',    label: 'PP Whale',          icon: '🐋' },
+  { key: 'loser',        col: 'pixels_lost',        label: 'Never Give Up',     icon: '💪' },
+  { key: 'streaker',     col: 'longest_streak',     label: 'Streak Master',     icon: '🔥' },
+  { key: 'astronaut',    col: 'rockets_joined',     label: 'Rocket Rider',      icon: '🚀' },
+  { key: 'weatherman',   col: 'weather_checks',     label: 'Storm Chaser',      icon: '🌪️' },
+  { key: 'namer',        col: 'territory_renames',  label: 'Name Artist',       icon: '✏️' },
+  { key: 'influencer',   col: 'shares_count',       label: 'Mars Influencer',   icon: '📤' }
+];
+
 // ═══════════════════════════════════════
 //  GET ACTIVE SEASON
 // ═══════════════════════════════════════
@@ -10,13 +42,19 @@ async function getActiveSeason() {
   );
   if (!res.rows.length) return null;
   const s = res.rows[0];
+  // Map active category keys to full definitions
+  const activeCatKeys = s.active_categories || ['overall','territory','mining','combat','explorer','active'];
+  const activeCategories = ALL_CATEGORIES.filter(c => activeCatKeys.includes(c.key));
+
   return {
     id: s.id, name: s.name, theme: s.theme,
     startsAt: s.starts_at, endsAt: s.ends_at,
     rewards: s.rewards_json || [],
     weatherWeights: s.weather_weights || {},
     visualTint: s.visual_tint,
-    remainingMs: new Date(s.ends_at).getTime() - Date.now()
+    remainingMs: new Date(s.ends_at).getTime() - Date.now(),
+    activeCategories: activeCategories,
+    allCategories: ALL_CATEGORIES.map(c => ({ key: c.key, label: c.label, icon: c.icon }))
   };
 }
 
@@ -30,12 +68,34 @@ async function addSeasonScore(wallet, category, amount) {
   const season = await getActiveSeason();
   if (!season) return;
 
-  // Map category to column + score multiplier (configurable via admin settings)
+  // All 18+ categories — always tracked, score multiplier 0 = track only (no overall score boost)
   const colMap = {
-    claim_pixels: { col: 'pixels_claimed', settingKey: 'season_mult_pixels', defaultMult: 1 },
-    harvest: { col: 'harvests', settingKey: 'season_mult_harvest', defaultMult: 5 },
-    hijack: { col: 'hijacks_won', settingKey: 'season_mult_hijack', defaultMult: 10 },
-    poi: { col: 'pois_discovered', settingKey: 'season_mult_poi', defaultMult: 15 }
+    claim_pixels:   { col: 'pixels_claimed',     settingKey: 'season_mult_pixels',    defaultMult: 1 },
+    harvest:        { col: 'harvests',            settingKey: 'season_mult_harvest',   defaultMult: 5 },
+    hijack:         { col: 'hijacks_won',         settingKey: 'season_mult_hijack',    defaultMult: 10 },
+    hijack_loss:    { col: 'battles_lost',        settingKey: 'season_mult_loss',      defaultMult: 0 },
+    poi:            { col: 'pois_discovered',     settingKey: 'season_mult_poi',       defaultMult: 15 },
+    tap:            { col: 'tap_count',           settingKey: 'season_mult_tap',       defaultMult: 0 },
+    item_use:       { col: 'items_used',          settingKey: 'season_mult_item',      defaultMult: 0 },
+    quest:          { col: 'quests_done',         settingKey: 'season_mult_quest',     defaultMult: 0 },
+    gp_spend:       { col: 'gp_spent',            settingKey: 'season_mult_gp_spend',  defaultMult: 0 },
+    pp_spend:       { col: 'pp_spent',            settingKey: 'season_mult_pp_spend',  defaultMult: 0 },
+    shield:         { col: 'shields_placed',      settingKey: 'season_mult_shield',    defaultMult: 0 },
+    sector_enter:   { col: 'sectors_entered',     settingKey: 'season_mult_sector',    defaultMult: 0 },
+    login:          { col: 'login_days',          settingKey: 'season_mult_login',     defaultMult: 0 },
+    cosmetic:       { col: 'cosmetics_equipped',  settingKey: 'season_mult_cosmetic',  defaultMult: 0 },
+    cantina:        { col: 'cantina_plays',       settingKey: 'season_mult_cantina',   defaultMult: 0 },
+    guild_contrib:  { col: 'guild_contributions', settingKey: 'season_mult_guild',     defaultMult: 0 },
+    referral:       { col: 'referrals',           settingKey: 'season_mult_referral',  defaultMult: 0 },
+    chat:           { col: 'chat_messages',       settingKey: 'season_mult_chat',      defaultMult: 0 },
+    gp_earn:        { col: 'total_gp_earned',     settingKey: 'season_mult_gp_earn',   defaultMult: 0 },
+    pp_earn:        { col: 'total_pp_earned',     settingKey: 'season_mult_pp_earn',   defaultMult: 0 },
+    pixel_loss:     { col: 'pixels_lost',         settingKey: 'season_mult_pixloss',   defaultMult: 0 },
+    streak:         { col: 'longest_streak',      settingKey: 'season_mult_streak',    defaultMult: 0 },
+    rocket:         { col: 'rockets_joined',      settingKey: 'season_mult_rocket',    defaultMult: 0 },
+    weather:        { col: 'weather_checks',      settingKey: 'season_mult_weather',   defaultMult: 0 },
+    rename:         { col: 'territory_renames',   settingKey: 'season_mult_rename',    defaultMult: 0 },
+    share:          { col: 'shares_count',        settingKey: 'season_mult_share',     defaultMult: 0 }
   };
   const mapping = colMap[category];
   if (!mapping) return;
@@ -68,7 +128,7 @@ async function getSeasonLeaderboard(seasonId, limit = 20) {
 
   const res = await pool.query(
     `SELECT ss.wallet, ss.score, ss.pixels_claimed, ss.harvests, ss.hijacks_won, ss.pois_discovered,
-            u.nickname
+            COALESCE(ss.tap_count, 0) AS tap_count, u.nickname
      FROM season_scores ss
      LEFT JOIN users u ON u.wallet_address = ss.wallet
      WHERE ss.season_id = $1
@@ -85,7 +145,8 @@ async function getSeasonLeaderboard(seasonId, limit = 20) {
     pixelsClaimed: r.pixels_claimed,
     harvests: r.harvests,
     hijacksWon: r.hijacks_won,
-    poisDiscovered: r.pois_discovered
+    poisDiscovered: r.pois_discovered,
+    tapCount: parseInt(r.tap_count)
   }));
 }
 
@@ -105,36 +166,65 @@ async function finalizeSeasonRewards(seasonId) {
     const seasonRes = await client.query('SELECT rewards_json FROM seasons WHERE id = $1', [seasonId]);
     const rewardsConfig = seasonRes.rows[0]?.rewards_json || [];
 
-    // Get leaderboard
-    const lb = await client.query(
-      'SELECT wallet, score FROM season_scores WHERE season_id = $1 ORDER BY score DESC',
-      [seasonId]
-    );
+    // Category-based reward distribution
+    // Each category has its own leaderboard — players can win multiple awards
+    // Get season's active categories (admin selects 6 per season)
+    const seasonFull = await client.query('SELECT active_categories FROM seasons WHERE id = $1', [seasonId]);
+    const activeCatKeys = seasonFull.rows[0]?.active_categories || ['overall','territory','mining','combat','explorer','active'];
 
-    // Distribute rewards based on rank thresholds
-    for (const entry of lb.rows) {
-      const rank = lb.rows.indexOf(entry) + 1;
+    // Filter ALL_CATEGORIES to only active ones for this season
+    const categories = ALL_CATEGORIES.filter(c => activeCatKeys.includes(c.key));
 
-      // Find applicable reward (highest rank threshold that player qualifies for)
-      let reward = null;
-      for (const r of rewardsConfig) {
-        if (rank <= r.rank) {
-          if (!reward || r.rank < reward.rank) reward = r;
-        }
-      }
-      if (!reward) continue;
+    let totalRewarded = 0;
 
-      await client.query(
-        `INSERT INTO season_rewards (season_id, wallet, rank, reward_type, reward_amount, reward_meta)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [seasonId, entry.wallet, rank, reward.type || 'pp', reward.amount || 0,
-         JSON.stringify({ title: reward.title || null })]
+    for (const cat of categories) {
+      // Get category leaderboard
+      const lb = await client.query(
+        `SELECT wallet, ${cat.col} AS val FROM season_scores
+         WHERE season_id = $1 AND ${cat.col} > 0
+         ORDER BY ${cat.col} DESC`,
+        [seasonId]
       );
+
+      // Find rewards for this category
+      const catRewards = rewardsConfig.filter(r => r.category === cat.key);
+      if (!catRewards.length) continue;
+
+      for (let i = 0; i < lb.rows.length; i++) {
+        const playerRank = i + 1;
+        const entry = lb.rows[i];
+
+        // Find the best tier this player qualifies for
+        let bestTier = null;
+        for (const r of catRewards) {
+          if (playerRank <= r.rank) {
+            if (!bestTier || r.rank < bestTier) bestTier = r.rank;
+          }
+        }
+        if (bestTier === null) continue;
+
+        // Give ALL rewards at that tier for this category
+        const tierRewards = catRewards.filter(r => r.rank === bestTier);
+        for (const reward of tierRewards) {
+          await client.query(
+            `INSERT INTO season_rewards (season_id, wallet, rank, reward_type, reward_amount, reward_meta)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [seasonId, entry.wallet, playerRank, reward.type || 'gp', reward.amount || 0,
+             JSON.stringify({
+               title: reward.title || null,
+               item_code: reward.item_code || null,
+               category: cat.key,
+               categoryLabel: cat.label
+             })]
+          );
+        }
+        totalRewarded++;
+      }
     }
 
     await client.query('COMMIT');
-    console.log(`[SEASON] Finalized season #${seasonId}, rewarded ${lb.rows.length} players`);
-    return { success: true, rewarded: lb.rows.length };
+    console.log(`[SEASON] Finalized season #${seasonId}, rewarded ${totalRewarded} entries across ${categories.length} categories`);
+    return { success: true, rewarded: totalRewarded };
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -163,23 +253,47 @@ async function claimSeasonReward(wallet, rewardId) {
 
     const reward = res.rows[0];
 
-    // Credit the reward
+    // Credit the reward based on type
+    const meta = reward.reward_meta || {};
+    let rewardLabel = '';
+
     if (reward.reward_type === 'pp') {
       await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2',
         [reward.reward_amount, wallet]);
+      rewardLabel = reward.reward_amount + ' PP';
     } else if (reward.reward_type === 'gp') {
-      await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2',
+      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE wallet_address = $2',
         [reward.reward_amount, wallet]);
+      rewardLabel = reward.reward_amount + ' GP';
+    } else if (reward.reward_type === 'xp') {
+      await client.query('UPDATE users SET xp = xp + $1 WHERE wallet_address = $2',
+        [reward.reward_amount, wallet]);
+      rewardLabel = reward.reward_amount + ' XP';
+    } else if (reward.reward_type === 'item' && meta.item_code) {
+      // Give item to user inventory
+      const itemRes = await client.query('SELECT id FROM item_types WHERE code = $1 AND active = true', [meta.item_code]);
+      if (itemRes.rows.length) {
+        await client.query(
+          `INSERT INTO user_items (wallet, item_type_id, quantity) VALUES ($1, $2, $3)
+           ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + $3`,
+          [wallet, itemRes.rows[0].id, Math.max(1, reward.reward_amount)]
+        );
+        rewardLabel = reward.reward_amount + 'x ' + meta.item_code;
+      }
     } else if (reward.reward_type === 'usdt') {
       await client.query('UPDATE users SET usdt_balance = usdt_balance + $1 WHERE wallet_address = $2',
         [reward.reward_amount, wallet]);
+      rewardLabel = reward.reward_amount + ' USDT';
     }
 
     await client.query('UPDATE season_rewards SET claimed = true WHERE id = $1', [rewardId]);
 
     await client.query('COMMIT');
-    console.log(`[SEASON] ${wallet} claimed reward #${rewardId}: ${reward.reward_amount} ${reward.reward_type}`);
-    return { success: true, type: reward.reward_type, amount: parseFloat(reward.reward_amount) };
+    console.log(`[SEASON] ${wallet} claimed reward #${rewardId}: ${rewardLabel}`);
+    return {
+      success: true, type: reward.reward_type, amount: parseFloat(reward.reward_amount),
+      title: meta.title || null, itemCode: meta.item_code || null
+    };
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
@@ -210,6 +324,7 @@ async function getMyRewards(wallet) {
 }
 
 module.exports = {
+  ALL_CATEGORIES,
   getActiveSeason, addSeasonScore,
   getSeasonLeaderboard, finalizeSeasonRewards,
   claimSeasonReward, getMyRewards

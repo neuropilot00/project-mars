@@ -1150,6 +1150,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
       try {
         if (newCount > 0) seasonService.addSeasonScore(walletLower, 'claim_pixels', newCount).catch(() => {});
         if (attackWon > 0) seasonService.addSeasonScore(walletLower, 'hijack', attackWon).catch(() => {});
+        if (attackLost > 0) seasonService.addSeasonScore(walletLower, 'hijack_loss', attackLost).catch(() => {});
       } catch (_se) { /* season tracking non-critical */ }
     }
   } catch (e) {
@@ -2809,6 +2810,9 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
     // Log usage
     await client.query('INSERT INTO item_usage_log (wallet, item_type_id, claim_id) VALUES ($1,$2,$3)', [w, item.id, claimId || null]);
 
+    // Season tracking: item used
+    if (seasonService) { seasonService.addSeasonScore(w, 'item_use', 1).catch(() => {}); }
+
     await client.query('COMMIT');
     res.json({ success: true, item: item.name, effect: effectResult });
   } catch (e) {
@@ -3154,6 +3158,8 @@ router.post('/daily/missions/:id/claim', writeLimiter, async (req, res) => {
     if (!wallet || !missionId) return res.status(400).json({ error: 'Missing wallet or mission ID' });
     const result = await dailyService.claimMissionReward(wallet, missionId);
     if (result.error) return res.status(400).json(result);
+    // Season tracking: quest completed
+    if (seasonService && result.success) { seasonService.addSeasonScore(wallet.toLowerCase(), 'quest', 1).catch(() => {}); }
     res.json(result);
   } catch (e) {
     console.error('[DAILY] claim error:', e.message);
@@ -3545,6 +3551,21 @@ router.post('/season/claim', writeLimiter, async (req, res) => {
     console.error('[SEASON] claim error:', e.message);
     res.status(500).json({ error: 'Failed to claim reward' });
   }
+});
+
+// Track taps/clicks for "Most Active" season category (batched from frontend)
+router.post('/season/taps', writeLimiter, async (req, res) => {
+  try {
+    const { wallet, count } = req.body;
+    const w = (wallet || '').toLowerCase();
+    if (!w || !count || count < 1) return res.json({ ok: true });
+    // Cap at 500 per batch to prevent abuse
+    const taps = Math.min(parseInt(count) || 0, 500);
+    if (taps > 0) {
+      seasonService.addSeasonScore(w, 'tap', taps).catch(() => {});
+    }
+    res.json({ ok: true, recorded: taps });
+  } catch (e) { res.json({ ok: true }); }
 });
 
 // ══════════════════════════════════════════════════════════════

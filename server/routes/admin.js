@@ -1380,11 +1380,12 @@ router.get('/seasons', adminAuth, async (req, res) => {
 // POST /admin/api/seasons — create a new season
 router.post('/seasons', adminAuth, async (req, res) => {
   try {
-    const { name, theme, starts_at, ends_at, rewards_json, visual_tint } = req.body;
+    const { name, theme, starts_at, ends_at, rewards_json, visual_tint, active_categories } = req.body;
     const r = await pool.query(
-      `INSERT INTO seasons (name, theme, starts_at, ends_at, active, rewards_json, visual_tint)
-       VALUES ($1, $2, $3, $4, false, $5, $6) RETURNING *`,
-      [name, theme || 'volcanic', starts_at, ends_at, rewards_json || '[]', visual_tint || '#ff4500']
+      `INSERT INTO seasons (name, theme, starts_at, ends_at, active, rewards_json, visual_tint, active_categories)
+       VALUES ($1, $2, $3, $4, false, $5, $6, $7) RETURNING *`,
+      [name, theme || 'volcanic', starts_at, ends_at, rewards_json || '[]', visual_tint || '#ff4500',
+       active_categories || '["overall","territory","mining","combat","explorer","active"]']
     );
     await auditLog(req, 'season_create', 'season', { seasonId: r.rows[0].id });
     res.json(r.rows[0]);
@@ -1394,7 +1395,7 @@ router.post('/seasons', adminAuth, async (req, res) => {
 // PUT /admin/api/seasons/:id — update season (activate/deactivate, edit dates, etc.)
 router.put('/seasons/:id', adminAuth, async (req, res) => {
   try {
-    const { name, theme, starts_at, ends_at, active, rewards_json, visual_tint } = req.body;
+    const { name, theme, starts_at, ends_at, active, rewards_json, visual_tint, active_categories } = req.body;
     // If activating this season, deactivate all others first
     if (active === true) {
       await pool.query('UPDATE seasons SET active = false WHERE active = true');
@@ -1404,9 +1405,10 @@ router.put('/seasons/:id', adminAuth, async (req, res) => {
         name = COALESCE($1, name), theme = COALESCE($2, theme),
         starts_at = COALESCE($3, starts_at), ends_at = COALESCE($4, ends_at),
         active = COALESCE($5, active), rewards_json = COALESCE($6, rewards_json),
-        visual_tint = COALESCE($7, visual_tint)
-       WHERE id = $8 RETURNING *`,
-      [name, theme, starts_at, ends_at, active, rewards_json, visual_tint, req.params.id]
+        visual_tint = COALESCE($7, visual_tint),
+        active_categories = COALESCE($8, active_categories)
+       WHERE id = $9 RETURNING *`,
+      [name, theme, starts_at, ends_at, active, rewards_json, visual_tint, active_categories, req.params.id]
     );
     await auditLog(req, 'season_update', 'season', { seasonId: req.params.id, active });
     res.json(r.rows[0]);
