@@ -35,7 +35,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.3) 2px,rgba(0,0,0,0.3) 3px)}
 
 /* Announcement Banner — transparent overlay below topbar */
-.announce-bar{position:fixed;top:68px;left:280px;right:280px;z-index:110;height:28px;
+.announce-bar{position:fixed;top:89px;left:280px;right:280px;z-index:110;height:28px;
   background:transparent;overflow:hidden;display:none;align-items:center;
   pointer-events:none}
 .announce-bar.show{display:flex}
@@ -54,7 +54,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @media(max-width:768px){
   .announce-bar{left:55px;right:49px;top:72px;height:20px}
-  #seasonBanner{top:43px!important;max-width:75vw;font-size:9px!important;padding:3px 10px!important}
+  #seasonBanner{top:47px!important;max-width:75vw;font-size:9px!important;padding:3px 10px!important}
   .tb-commander{top:96px!important}
   .active-buffs-bar{top:auto;bottom:148px;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
 }
@@ -89,7 +89,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .wx-detail-popup{padding-bottom:80px;z-index:210}}
 
 /* Rocket Event Banner */
-.rocket-banner{position:fixed;top:210px;left:50%;transform:translateX(-50%);z-index:108;
+.rocket-banner{position:fixed;top:197px;left:50%;transform:translateX(-50%);z-index:108;
   display:none;align-items:center;gap:8px;padding:6px 18px;
   background:linear-gradient(90deg,rgba(30,8,8,0.85),rgba(60,15,10,0.95),rgba(30,8,8,0.85));
   border:1px solid rgba(255,80,40,0.5);border-radius:20px;backdrop-filter:blur(8px);
@@ -106,7 +106,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 @media(max-width:768px){.rocket-banner{top:168px;font-size:9px;padding:4px 12px}}
 
 /* Commander Banner */
-.tb-commander{position:fixed;top:130px;left:50%;transform:translateX(-50%);z-index:109;
+.tb-commander{position:fixed;top:121px;left:50%;transform:translateX(-50%);z-index:109;
   display:none;align-items:center;gap:8px;padding:4px 16px;
   background:linear-gradient(90deg,rgba(20,16,10,0.75),rgba(30,24,12,0.85),rgba(20,16,10,0.75));
   border:1px solid rgba(255,209,102,0.3);border-radius:20px;backdrop-filter:blur(6px);
@@ -952,8 +952,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   background:rgba(255,120,60,.12);border:1px solid rgba(255,120,60,.3);border-radius:6px;
   color:var(--mars);cursor:pointer;transition:all .15s}
 .inv-item .inv-use:hover{background:rgba(255,120,60,.25)}
-/* Active buff bar — default (desktop): top center */
-.active-buffs-bar{top:100px;left:50%;transform:translateX(-50%);flex-direction:row}
+/* Season banner — desktop default */
+#seasonBanner{top:53px}
+/* Active buff bar — default (desktop): bottom left above weather */
+.active-buffs-bar{top:auto;bottom:92px;left:266px;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
 /* Active buff pills */
 .tb-buff{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;
   font-size:9px;font-family:var(--fn);letter-spacing:.3px;white-space:nowrap;
@@ -1976,10 +1978,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <span class="cmd-label">COMMANDER</span>
   <span class="cmd-name" id="tbCmdName">--</span>
 </div>
-<div id="tbCmdAnnounce" style="display:none;position:fixed;top:160px;left:50%;transform:translateX(-50%);z-index:108;
+<div id="tbCmdAnnounce" style="display:none;position:fixed;top:152px;left:50%;transform:translateX(-50%);z-index:108;
   font-family:var(--fn);font-size:9px;color:var(--gold);opacity:0.8;white-space:nowrap;pointer-events:none;
   padding:3px 12px;background:rgba(20,16,10,0.6);border-radius:10px;backdrop-filter:blur(4px);max-width:60%;overflow:hidden;text-overflow:ellipsis"></div>
-<div id="tbSectorAnnounce" style="display:none;position:fixed;top:182px;left:50%;transform:translateX(-50%);z-index:108;
+<div id="tbSectorAnnounce" style="display:none;position:fixed;top:176px;left:50%;transform:translateX(-50%);z-index:108;
   font-family:var(--fn);font-size:8px;color:var(--cyan);opacity:0.7;white-space:nowrap;pointer-events:none;
   padding:2px 10px;background:rgba(10,16,20,0.5);border-radius:8px;backdrop-filter:blur(4px);max-width:70%;overflow:hidden;text-overflow:ellipsis"></div>
 
