@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
-const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode, awardXP } = require('../db');
+const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP } = require('../db');
 const { generateWithdrawSignature, CHAINS } = require('../services/signer');
 const { recalculateGovernor, recalculateCommander, collectTax, getActiveSectorBuffs, hasActiveEvent } = require('../services/governance');
 let weatherService;
@@ -347,6 +347,81 @@ router.get('/referral/:wallet', async (req, res) => {
     });
   } catch (e) {
     console.error('[API] referral info error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /api/referral/leaderboard — DYNASTY top earners
+// ══════════════════════════════════════════════════
+router.get('/referral/leaderboard/top', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100);
+    const rows = await pool.query(
+      `SELECT rr.to_wallet AS wallet,
+              COALESCE(SUM(rr.pp_amount), 0) AS total_earned,
+              COUNT(DISTINCT rr.from_wallet) AS downline_count,
+              (SELECT COUNT(*) FROM users u WHERE u.referred_by = rr.to_wallet) AS direct_count
+       FROM referral_rewards rr
+       GROUP BY rr.to_wallet
+       ORDER BY total_earned DESC
+       LIMIT $1`,
+      [limit]
+    );
+    res.json({
+      leaderboard: rows.rows.map((r, i) => ({
+        rank: i + 1,
+        wallet: r.wallet,
+        totalEarned: parseFloat(r.total_earned),
+        downlineCount: parseInt(r.downline_count),
+        directCount: parseInt(r.direct_count)
+      }))
+    });
+  } catch (e) {
+    console.error('[API] referral leaderboard error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GET /api/referral/tree/:wallet — DYNASTY downline tree
+// ══════════════════════════════════════════════════
+router.get('/referral/tree/:wallet', async (req, res) => {
+  try {
+    const w = req.params.wallet.toLowerCase();
+    // Tier 1: direct referrals
+    const t1 = await pool.query(
+      `SELECT u.wallet_address AS wallet,
+              COALESCE(SUM(rr.pp_amount) FILTER (WHERE rr.to_wallet = $1 AND rr.from_wallet = u.wallet_address), 0) AS earned_from,
+              (SELECT COUNT(*) FROM users u2 WHERE u2.referred_by = u.wallet_address) AS sub_count
+       FROM users u
+       LEFT JOIN referral_rewards rr ON rr.from_wallet = u.wallet_address
+       WHERE u.referred_by = $1
+       GROUP BY u.wallet_address
+       ORDER BY earned_from DESC
+       LIMIT 100`,
+      [w]
+    );
+    // Breakdown by trigger type
+    const byTrigger = await pool.query(
+      `SELECT trigger_type, COALESCE(SUM(pp_amount), 0) AS total
+       FROM referral_rewards WHERE to_wallet = $1
+       GROUP BY trigger_type ORDER BY total DESC`,
+      [w]
+    );
+    res.json({
+      directReferrals: t1.rows.map(r => ({
+        wallet: r.wallet,
+        earnedFrom: parseFloat(r.earned_from),
+        subCount: parseInt(r.sub_count)
+      })),
+      byTrigger: byTrigger.rows.map(r => ({
+        trigger: r.trigger_type,
+        total: parseFloat(r.total)
+      }))
+    });
+  } catch (e) {
+    console.error('[API] referral tree error:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
 });
@@ -1275,6 +1350,11 @@ router.post('/swap', writeLimiter, async (req, res) => {
     // Fund quest pool from swap fees
     await fundQuestPool(client, fee);
 
+    // Referral commission — uplines get USDT cut from the swap fee
+    try {
+      await creditReferralCommission(client, wallet, 'swap', fee, 'usdt');
+    } catch (_e) { /* non-critical */ }
+
     await client.query('COMMIT');
     res.json({ success: true, received, fee, ppDeducted: ppAmount });
   } catch (e) {
@@ -2193,6 +2273,11 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     // Award XP for harvesting (5 XP per harvest)
     const harvestRankUp = await awardXP(client, w, 5);
 
+    // Referral commission — uplines get small PP cut from each harvest
+    try {
+      await creditReferralCommission(client, w, 'harvest', harvestedPP, 'pp');
+    } catch (_e) { /* non-critical */ }
+
     await client.query('COMMIT');
 
     const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
@@ -2722,6 +2807,13 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
       [w, cur === 'USDT' ? totalCost : 0, cur === 'PP' ? totalCost : 0,
        JSON.stringify({ item: item.code, qty, name: item.name, currency: cur, gp: cur === 'GP' ? totalCost : 0 })]
     );
+
+    // Referral commission — only on USDT purchases (real value spend → uplines get PP)
+    if (cur === 'USDT') {
+      try {
+        await creditReferralCommission(client, w, 'shop', totalCost, 'pp');
+      } catch (_e) { /* non-critical */ }
+    }
 
     await client.query('COMMIT');
     res.json({ success: true, item: item.name, quantity: qty, cost: totalCost, currency: cur });

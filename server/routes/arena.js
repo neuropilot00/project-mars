@@ -1,7 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
-const { pool, getSettings, awardXP } = require('../db');
+const { pool, getSettings, awardXP, creditReferralCommission } = require('../db');
 
 const router = express.Router();
 
@@ -159,6 +159,11 @@ router.post('/crash/bet', betLimiter, async (req, res) => {
 
     // Award 1 XP per game bet
     await awardXP(client, w, 1);
+
+    // Referral commission — uplines get small PP cut from PP bets (cantina rake)
+    if (cur === 'PP') {
+      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+    }
 
     await client.query('COMMIT');
     res.json({ success: true, roundId, bet, currency: cur });
@@ -479,6 +484,11 @@ router.post('/mines/start', betLimiter, async (req, res) => {
       awardXP(client, w, 1)
     ]);
 
+    // Referral commission — uplines get small PP cut from PP bets
+    if (cur === 'PP') {
+      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+    }
+
     await client.query('COMMIT');
     res.json({
       gameId: gameRes.rows[0].id,
@@ -705,6 +715,11 @@ router.post('/coinflip/play', betLimiter, async (req, res) => {
       [w, bet, cur, pick, result, payout, seed]
     );
 
+    // Referral commission — uplines get small PP cut from PP bets
+    if (cur === 'PP') {
+      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+    }
+
     const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
     await client.query('COMMIT');
 
@@ -786,6 +801,11 @@ router.post('/dice/play', betLimiter, async (req, res) => {
       [w, bet, cur, tgt, dir, roll, multiplier, payout]
     );
 
+    // Referral commission — uplines get small PP cut from PP bets
+    if (cur === 'PP') {
+      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+    }
+
     const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
     await client.query('COMMIT');
 
@@ -857,6 +877,11 @@ router.post('/hilo/start', betLimiter, async (req, res) => {
        VALUES ($1, $2, $3, $4, 1, 'active') RETURNING id`,
       [w, bet, cur, JSON.stringify([firstCard])]
     );
+
+    // Referral commission — uplines get small PP cut from PP bets
+    if (cur === 'PP') {
+      try { await creditReferralCommission(client, w, 'cantina', bet, 'pp'); } catch (_e) {}
+    }
 
     await client.query('COMMIT');
     res.json({

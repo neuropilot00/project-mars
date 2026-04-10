@@ -14,10 +14,41 @@ async function scheduleRocketEvent(triggeredBy) {
   const rudChance = parseInt(await getSetting('rocket_rud_chance') || '5');
   const normalLoot = parseInt(await getSetting('rocket_loot_count_normal') || '15');
   const rudLoot = parseInt(await getSetting('rocket_loot_count_rud') || '30');
-  const minPP = parseFloat(await getSetting('rocket_loot_min_pp') || '0.1');
-  const maxPP = parseFloat(await getSetting('rocket_loot_max_pp') || '1.0');
+  const minPP = parseFloat(await getSetting('rocket_loot_min_pp') || '0.02');
+  const maxPP = parseFloat(await getSetting('rocket_loot_max_pp') || '0.1');
+  const minGP = parseFloat(await getSetting('rocket_loot_min_gp') || '10');
+  const maxGP = parseFloat(await getSetting('rocket_loot_max_gp') || '40');
+  const minXP = parseInt(await getSetting('rocket_loot_min_xp') || '5');
+  const maxXP = parseInt(await getSetting('rocket_loot_max_xp') || '25');
   const normalRadius = parseFloat(await getSetting('rocket_loot_radius') || '5');
   const rudRadius = parseFloat(await getSetting('rocket_rud_radius') || '10');
+
+  // Weighted drop distribution (admin configurable) — rewards mostly GP/items/XP,
+  // PP is rare because crypto real-value currency should be hard-earned.
+  const wGP       = parseInt(await getSetting('rocket_drop_gp_weight')       || '50');
+  const wItem     = parseInt(await getSetting('rocket_drop_item_weight')     || '25');
+  const wXP       = parseInt(await getSetting('rocket_drop_xp_weight')       || '17');
+  const wPP       = parseInt(await getSetting('rocket_drop_pp_weight')       || '6');
+  const wCosmetic = parseInt(await getSetting('rocket_drop_cosmetic_weight') || '2');
+  const totalWeight = wGP + wItem + wXP + wPP + wCosmetic || 1;
+
+  // Load battle item drop table (shared with POI system). Falls back to a small
+  // default pool if poi_drop_table isn't seeded — keeps rockets functional.
+  let dropTable = [];
+  try {
+    const dtRes = await pool.query('SELECT item_code, weight, min_qty, max_qty FROM poi_drop_table WHERE active = true');
+    dropTable = dtRes.rows;
+  } catch (_e) { /* table may not exist yet */ }
+  if (!dropTable.length) {
+    dropTable = [
+      { item_code: 'shield_basic',    weight: 30, min_qty: 1, max_qty: 1 },
+      { item_code: 'shield_advanced', weight: 10, min_qty: 1, max_qty: 1 },
+      { item_code: 'emp_strike',      weight: 20, min_qty: 1, max_qty: 1 },
+      { item_code: 'attack_boost',    weight: 20, min_qty: 1, max_qty: 1 },
+      { item_code: 'mining_boost',    weight: 15, min_qty: 1, max_qty: 1 },
+      { item_code: 'pixel_doubler',   weight:  5, min_qty: 1, max_qty: 1 }
+    ];
+  }
 
   // Check for existing incoming/landed events
   const existing = await pool.query(
@@ -48,24 +79,45 @@ async function scheduleRocketEvent(triggeredBy) {
     }
   } catch (_e) { /* sector lookup failed */ }
 
-  // Generate loot positions
+  // Generate loot positions with weighted reward types
   const rewards = [];
   for (let i = 0; i < lootCount; i++) {
     const angle = Math.random() * Math.PI * 2;
     const dist = Math.random() * radius;
     const lootLat = lat + Math.cos(angle) * dist;
     const lootLng = lng + Math.sin(angle) * dist;
-    const amount = Math.round((minPP + Math.random() * (maxPP - minPP)) * 100) / 100;
 
-    // Small chance of starship_border cosmetic (2% per loot)
-    const isCosmetic = Math.random() < 0.02;
+    // Weighted pick: GP > Item > XP > PP > Cosmetic
+    let roll = Math.random() * totalWeight;
+    let type, amount, itemCode = null;
+    if (roll < wGP) {
+      type = 'gp';
+      amount = Math.round(minGP + Math.random() * (maxGP - minGP));
+    } else if ((roll -= wGP) < wItem && dropTable.length > 0) {
+      type = 'item';
+      const picked = weightedPickItem(dropTable);
+      itemCode = picked.item_code;
+      amount = randInt(picked.min_qty || 1, picked.max_qty || 1);
+    } else if ((roll -= wItem) < wXP) {
+      type = 'xp';
+      amount = randInt(minXP, maxXP);
+    } else if ((roll -= wXP) < wPP) {
+      type = 'pp';
+      amount = Math.round((minPP + Math.random() * (maxPP - minPP)) * 100) / 100;
+    } else {
+      // Cosmetic: starship_border (rocket signature)
+      type = 'cosmetic';
+      itemCode = 'starship_border';
+      amount = 1;
+    }
+
     rewards.push({
       index: i,
       lat: Math.round(lootLat * 100) / 100,
       lng: Math.round(lootLng * 100) / 100,
-      type: isCosmetic ? 'item' : 'pp',
-      amount: isCosmetic ? 1 : amount,
-      itemCode: isCosmetic ? 'starship_border' : null,
+      type,
+      amount,
+      itemCode,
       claimedBy: null
     });
   }
@@ -221,9 +273,46 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
       [eventId, wallet, lootIndex, loot.type, loot.amount, loot.itemCode]
     );
 
-    // Grant reward
-    let rewardGiven = { type: loot.type, amount: loot.amount, itemCode: loot.itemCode };
-    if (loot.type === 'pp') {
+    // Grant reward — supports gp / item / xp / pp / cosmetic
+    let rewardGiven = { type: loot.type, amount: loot.amount, itemCode: loot.itemCode, itemName: null, itemIcon: null };
+
+    if (loot.type === 'gp') {
+      await client.query(
+        'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2',
+        [loot.amount, wallet]
+      );
+    } else if (loot.type === 'xp') {
+      try {
+        const { awardXP } = require('../db');
+        await awardXP(client, wallet, loot.amount);
+      } catch (_e) { /* non-critical */ }
+    } else if ((loot.type === 'item' || loot.type === 'cosmetic') && loot.itemCode) {
+      // Look up item_type_id by code (user_items uses item_type_id, NOT item_code).
+      const itemRes = await client.query(
+        'SELECT id, name, icon FROM item_types WHERE code = $1 AND active = true',
+        [loot.itemCode]
+      );
+      if (itemRes.rows.length) {
+        const item = itemRes.rows[0];
+        rewardGiven.itemName = item.name;
+        rewardGiven.itemIcon = item.icon;
+        await client.query(
+          `INSERT INTO user_items (wallet, item_type_id, quantity)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + $3`,
+          [wallet, item.id, Math.max(1, loot.amount || 1)]
+        );
+      } else {
+        // Fallback: item not found → give small GP instead
+        rewardGiven.type = 'gp';
+        rewardGiven.amount = 10;
+        rewardGiven.itemCode = null;
+        await client.query(
+          'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + 10 WHERE wallet_address = $1',
+          [wallet]
+        );
+      }
+    } else if (loot.type === 'pp') {
       let reward = loot.amount;
       try {
         const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1');
@@ -244,14 +333,9 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
       if (reward > 0) {
         await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [reward, wallet]);
         rewardGiven.amount = reward;
+      } else {
+        rewardGiven.amount = 0;
       }
-    } else if (loot.type === 'item' && loot.itemCode) {
-      // Grant item to inventory
-      await client.query(
-        `INSERT INTO user_items (wallet, item_code, quantity) VALUES ($1, $2, 1)
-         ON CONFLICT (wallet, item_code) DO UPDATE SET quantity = user_items.quantity + 1`,
-        [wallet, loot.itemCode]
-      );
     }
 
     await client.query('COMMIT');
@@ -284,6 +368,20 @@ async function autoScheduleRocket() {
 // ═══════════════════════════════════════
 //  HELPER
 // ═══════════════════════════════════════
+
+function weightedPickItem(dropTable) {
+  const totalW = dropTable.reduce((s, d) => s + d.weight, 0);
+  let roll = Math.random() * totalW;
+  for (const item of dropTable) {
+    roll -= item.weight;
+    if (roll <= 0) return item;
+  }
+  return dropTable[dropTable.length - 1];
+}
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 function pointInPolygon(point, polygon) {
   const x = point[0], y = point[1];

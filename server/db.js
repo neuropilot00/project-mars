@@ -251,9 +251,16 @@ async function seedDefaults(client) {
 
     // ── Referral ──
     { key: 'referral_enabled', value: true, desc: 'Enable/disable referral system', cat: 'referral' },
-    { key: 'referral_tier1_percent', value: 15, desc: 'Tier 1 referral PP reward % on hijack', cat: 'referral' },
-    { key: 'referral_tier2_percent', value: 10, desc: 'Tier 2 referral PP reward % on hijack', cat: 'referral' },
-    { key: 'referral_tier3_percent', value: 5, desc: 'Tier 3 referral PP reward % on hijack', cat: 'referral' },
+    { key: 'referral_tier1_percent', value: 15, desc: 'Tier 1 referral commission % (direct upline)', cat: 'referral' },
+    { key: 'referral_tier2_percent', value: 10, desc: 'Tier 2 referral commission % (grand-upline)', cat: 'referral' },
+    { key: 'referral_tier3_percent', value: 5, desc: 'Tier 3 referral commission % (great-grand-upline)', cat: 'referral' },
+    // Per-trigger commission rates (% of base amount applied BEFORE tier multipliers).
+    // 0 = disabled. These let admin tune which money sources feed the referral tree.
+    { key: 'referral_deposit_pct', value: 5, desc: 'Deposit USDT → upline % (0=off). Minted as PP bonus.', cat: 'referral' },
+    { key: 'referral_swap_pct', value: 50, desc: 'Swap fee USDT → upline % of fee (0=off)', cat: 'referral' },
+    { key: 'referral_shop_pct', value: 8, desc: 'Shop USDT purchase → upline % (0=off)', cat: 'referral' },
+    { key: 'referral_cantina_pct', value: 2, desc: 'Cantina PP bet → upline % (0=off)', cat: 'referral' },
+    { key: 'referral_harvest_pct', value: 2, desc: 'Mining PP harvest → upline % (0=off)', cat: 'referral' },
 
     // ── Arena ──
     { key: 'arena_enabled', value: true, desc: 'Enable/disable arena', cat: 'arena' },
@@ -344,6 +351,72 @@ async function getReferralChain(client, wallet) {
     current = referrer;
   }
   return chain;
+}
+
+// ── Helper: credit referral commission to upline chain ──
+// Called from money-flow events (deposit, swap, shop, cantina, harvest, hijack).
+// triggerType: 'deposit'|'swap'|'shop'|'cantina'|'harvest'|'hijack'
+// currency: 'pp'|'usdt' — which balance column to credit on uplines.
+// baseAmount: the gross amount the action moved (e.g. deposit USDT, swap fee, bet PP).
+// Returns the array of credited rewards (for logging/UI), [] if disabled or no chain.
+async function creditReferralCommission(client, fromWallet, triggerType, baseAmount, currency) {
+  if (!fromWallet || !baseAmount || baseAmount <= 0) return [];
+  try {
+    // Master switch
+    const enabled = await getSetting('referral_enabled');
+    if (enabled === false || enabled === 'false') return [];
+
+    // Per-trigger rate (% of baseAmount sent to the referral tree, before tier split)
+    const triggerKey = 'referral_' + triggerType + '_pct';
+    const triggerPctRaw = await getSetting(triggerKey);
+    const triggerPct = parseFloat(triggerPctRaw) || 0;
+    if (triggerPct <= 0) return [];
+
+    // Tier multipliers (% of the trigger pool that each tier gets)
+    const t1 = parseFloat(await getSetting('referral_tier1_percent') || '15');
+    const t2 = parseFloat(await getSetting('referral_tier2_percent') || '10');
+    const t3 = parseFloat(await getSetting('referral_tier3_percent') || '5');
+    const tierPcts = [t1, t2, t3];
+
+    const chain = await getReferralChain(client, fromWallet.toLowerCase());
+    if (!chain.length) return [];
+
+    const cur = (currency || 'pp').toLowerCase();
+    const balCol = cur === 'usdt' ? 'usdt_balance' : 'pp_balance';
+    const ppCol = cur === 'usdt' ? 0 : 1; // for referral_rewards.pp_amount column
+
+    // Pool that the tree shares for this event
+    const pool = baseAmount * (triggerPct / 100);
+    const credited = [];
+
+    for (const ref of chain) {
+      const tierIdx = ref.tier - 1;
+      const pct = tierPcts[tierIdx] || 0;
+      if (pct <= 0) continue;
+      const reward = Math.round(pool * (pct / 100) * 1000000) / 1000000;
+      if (reward <= 0) continue;
+
+      // Credit upline balance
+      await client.query(
+        `UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`,
+        [reward, ref.wallet]
+      );
+
+      // Log to referral_rewards (existing schema uses pp_amount; we record amount
+      // there regardless of currency, with currency tagged via trigger_type prefix).
+      await client.query(
+        `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [fromWallet.toLowerCase(), ref.wallet, ref.tier, reward, triggerType + (cur === 'usdt' ? '_usdt' : '')]
+      );
+
+      credited.push({ tier: ref.tier, wallet: ref.wallet, amount: reward, currency: cur });
+    }
+    return credited;
+  } catch (e) {
+    console.warn('[REFERRAL] commission failed:', e.message);
+    return [];
+  }
 }
 
 // ── Helper: generate referral code ──
@@ -467,4 +540,4 @@ async function awardXP(client, wallet, xpAmount) {
   return blockedAt ? { blockedAt } : null;
 }
 
-module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, generateReferralCode, awardXP };
+module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP };

@@ -2146,8 +2146,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="stat-row"><span class="stat-label">REFERRALS</span><span class="stat-val" id="refCount">0</span></div>
       <div class="stat-row"><span class="stat-label">TOTAL EARNED</span><span class="stat-val" style="color:var(--pp)" id="refEarned">0 PP</span></div>
       <div style="font-size:8px;color:var(--tx3);margin-top:6px;line-height:1.6">
-        Tier 1: 15% PP · Tier 2: 10% PP · Tier 3: 5% PP<br>
-        (from referral's hijack premium)
+        Tier 1: 15% · Tier 2: 10% · Tier 3: 5%<br>
+        (deposit · swap · shop · harvest · cantina · hijack)
+      </div>
+      <button class="sz-btn" onclick="toggleDynastyView()" style="width:100%;margin-top:8px;font-size:9px;padding:6px;color:var(--gold);border-color:rgba(255,184,77,.4);background:linear-gradient(135deg,rgba(255,184,77,.1),rgba(255,120,60,.05))">👑 VIEW DYNASTY</button>
+      <div id="dynastyViewWrap" style="display:none;margin-top:8px">
+        <div style="display:flex;gap:4px;margin-bottom:6px">
+          <button class="sz-btn" id="dynTabLb" onclick="showDynastyTab('lb')" style="flex:1;font-size:8px;padding:4px">LEADERBOARD</button>
+          <button class="sz-btn" id="dynTabTree" onclick="showDynastyTab('tree')" style="flex:1;font-size:8px;padding:4px">MY TREE</button>
+        </div>
+        <div id="dynastyLb" style="max-height:240px;overflow-y:auto"></div>
+        <div id="dynastyTree" style="display:none;max-height:240px;overflow-y:auto"></div>
       </div>
     </div>
   </div>
@@ -9666,6 +9675,93 @@ async function registerReferral(){
   if(refCode) window._pendingRefCode=refCode.toUpperCase();
 })();
 
+// ── DYNASTY view (leaderboard + tree) ──
+function toggleDynastyView(){
+  var w=document.getElementById('dynastyViewWrap');
+  if(!w) return;
+  if(w.style.display==='none'){
+    w.style.display='';
+    showDynastyTab('lb');
+  } else {
+    w.style.display='none';
+  }
+}
+function showDynastyTab(tab){
+  var lb=document.getElementById('dynastyLb'),tr=document.getElementById('dynastyTree');
+  var tlb=document.getElementById('dynTabLb'),ttr=document.getElementById('dynTabTree');
+  if(tab==='lb'){
+    lb.style.display='';tr.style.display='none';
+    if(tlb) tlb.style.color='var(--gold)';
+    if(ttr) ttr.style.color='';
+    loadDynastyLb();
+  } else {
+    lb.style.display='none';tr.style.display='';
+    if(tlb) tlb.style.color='';
+    if(ttr) ttr.style.color='var(--gold)';
+    loadDynastyTree();
+  }
+}
+async function loadDynastyLb(){
+  var el=document.getElementById('dynastyLb');
+  if(!el) return;
+  el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">Loading...</div>';
+  try{
+    var r=await fetch('/api/referral/leaderboard/top?limit=20');
+    var d=await r.json();
+    var rows=d.leaderboard||[];
+    if(!rows.length){el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">No dynasty yet</div>';return}
+    var me=(walletState.address||'').toLowerCase();
+    var html='';
+    rows.forEach(function(r){
+      var isMe=r.wallet.toLowerCase()===me;
+      var medal=r.rank===1?'🥇':r.rank===2?'🥈':r.rank===3?'🥉':'#'+r.rank;
+      html+='<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-bottom:1px solid var(--bdr);font-size:9px;'+(isMe?'background:rgba(255,184,77,.1)':'')+'">'+
+        '<span style="width:24px;color:var(--gold);font-size:8px">'+medal+'</span>'+
+        '<span style="flex:1;color:'+(isMe?'var(--gold)':'var(--tx2)')+'">'+r.wallet.slice(0,6)+'...'+r.wallet.slice(-4)+'</span>'+
+        '<span style="color:var(--tx3);font-size:8px">'+r.directCount+'👥</span>'+
+        '<span style="color:var(--pp);min-width:60px;text-align:right">'+r.totalEarned.toFixed(2)+' PP</span>'+
+        '</div>';
+    });
+    el.innerHTML=html;
+  }catch(e){el.innerHTML='<div style="font-size:8px;color:var(--red);text-align:center;padding:8px">Load failed</div>'}
+}
+async function loadDynastyTree(){
+  var el=document.getElementById('dynastyTree');
+  if(!el) return;
+  if(!walletState.address){el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">Login first</div>';return}
+  el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">Loading...</div>';
+  try{
+    var r=await fetch('/api/referral/tree/'+walletState.address);
+    var d=await r.json();
+    var direct=d.directReferrals||[];
+    var byTrig=d.byTrigger||[];
+    var html='';
+    if(byTrig.length){
+      html+='<div style="font-size:8px;color:var(--tx3);margin-bottom:4px">EARNINGS BY SOURCE</div>';
+      byTrig.forEach(function(t){
+        var label=(t.trigger||'').replace(/_usdt$/,' (USDT)').toUpperCase();
+        html+='<div style="display:flex;justify-content:space-between;font-size:9px;padding:2px 4px;border-bottom:1px solid var(--bdr)">'+
+          '<span style="color:var(--tx2)">'+label+'</span>'+
+          '<span style="color:var(--pp)">'+t.total.toFixed(2)+'</span>'+
+          '</div>';
+      });
+    }
+    html+='<div style="font-size:8px;color:var(--tx3);margin:8px 0 4px">DIRECT DOWNLINE ('+direct.length+')</div>';
+    if(!direct.length){
+      html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px">No referrals yet</div>';
+    } else {
+      direct.forEach(function(r){
+        html+='<div style="display:flex;align-items:center;gap:6px;padding:3px 4px;border-bottom:1px solid var(--bdr);font-size:9px">'+
+          '<span style="flex:1;color:var(--tx2)">'+r.wallet.slice(0,6)+'...'+r.wallet.slice(-4)+'</span>'+
+          (r.subCount>0?'<span style="color:var(--tx3);font-size:8px">+'+r.subCount+' sub</span>':'')+
+          '<span style="color:var(--pp);min-width:60px;text-align:right">'+r.earnedFrom.toFixed(2)+' PP</span>'+
+          '</div>';
+      });
+    }
+    el.innerHTML=html;
+  }catch(e){el.innerHTML='<div style="font-size:8px;color:var(--red);text-align:center;padding:8px">Load failed</div>'}
+}
+
 /* ── UI Helpers ──────────────────────────────────── */
 /* ── Mobile Nav Icon Customization ─────────────── */
 // To replace emoji icons with custom images, set paths here:
@@ -13871,11 +13967,14 @@ window.addEventListener('resize', function(){
     }).then(function(r){return r.json()}).then(function(data){
       if (data.error) { showToast(data.error); if(btn){btn.disabled=false;btn.style.opacity='1';} return; }
       var r = data.reward;
-      if (r.type === 'item') {
-        showNotification('rocket','LOOT CLAIMED','Got '+(r.itemCode||'item')+' from supply drop!');
-      } else {
-        showNotification('rocket','LOOT CLAIMED','+'+r.amount+' PP from supply drop');
-      }
+      var msg;
+      if (r.type === 'gp') msg = '+'+r.amount+' GP from supply drop';
+      else if (r.type === 'xp') msg = '+'+r.amount+' XP from supply drop';
+      else if (r.type === 'pp') msg = '+'+r.amount+' PP from supply drop';
+      else if (r.type === 'cosmetic') msg = 'Got '+(r.itemName||r.itemCode||'cosmetic')+' (rare cosmetic)!';
+      else if (r.type === 'item') msg = 'Got '+(r.itemName||r.itemCode||'item')+' x'+(r.amount||1);
+      else msg = 'Loot claimed!';
+      showNotification('rocket','LOOT CLAIMED',msg);
       try{_sfx.harvest()}catch(e){}
       if (btn) { btn.textContent = '\u2713'; btn.style.background = 'rgba(0,255,100,0.2)'; btn.style.borderColor = '#00FF88'; }
       try{ refreshEmailBalances(); }catch(_rb){}

@@ -1,5 +1,5 @@
 const { ethers } = require('ethers');
-const { pool, ensureUser, awardXP } = require('../db');
+const { pool, ensureUser, awardXP, creditReferralCommission } = require('../db');
 
 const DEPOSIT_ABI = [
   'event Deposited(address indexed user, uint256 amount, uint256 timestamp, uint256 chainId)'
@@ -257,6 +257,11 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
     // Award XP for deposit ($1 = 1 XP)
     const depositXP = Math.max(1, Math.floor(amountNum));
     await awardXP(client, wallet, depositXP);
+
+    // Referral commission (DYNASTY) — uplines get a PP cut of the deposit USDT
+    try {
+      await creditReferralCommission(client, wallet, 'deposit', amountNum, 'pp');
+    } catch (_e) { /* non-critical */ }
 
     await client.query('COMMIT');
     console.log(`[Chain] Deposit: ${wallet.slice(0, 8)}... +${amountNum} USDT +${ppBonus} PP +${depositXP} XP (${chain}, ${ppBonusPct}%)`);
