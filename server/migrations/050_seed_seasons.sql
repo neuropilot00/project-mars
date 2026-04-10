@@ -4,6 +4,9 @@
 -- Multiple reward entries per tier → player gets ALL rewards at their tier
 -- ═══════════════════════════════════════════════════
 
+-- Fix visual_tint column too short for rgba values
+ALTER TABLE seasons ALTER COLUMN visual_tint TYPE VARCHAR(40);
+
 -- Allow 'item' and 'xp' in season_rewards
 ALTER TABLE season_rewards DROP CONSTRAINT IF EXISTS season_rewards_reward_type_check;
 ALTER TABLE season_rewards ADD CONSTRAINT season_rewards_reward_type_check
