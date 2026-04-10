@@ -5315,18 +5315,22 @@ function _initStep3(){
         console.log('[Mars] NASA 2K cached for compositing');
       });
     }
-    // Mobile: try loading NASA 2K in background after procedural is showing
+    // Mobile: load NASA 2K in background, apply when ready
     if(isMobileDevice){
       setTimeout(function(){
-        var t=new Image();
-        t.onload=function(){
-          console.log('[Mars] NASA 2K loaded on mobile — upgrading texture');
-          currentTexMode='nasa';
-          globe.globeImageUrl(NASA_MARS_2K);
-        };
-        t.onerror=function(){ console.warn('[Mars] NASA 2K unavailable on mobile'); };
-        t.src=NASA_MARS_2K;
-      }, 3000);
+        console.log('[Mars] Mobile — loading NASA 2K...');
+        cacheImage(NASA_MARS_2K, function(img){
+          if(img){
+            console.log('[Mars] NASA 2K loaded on mobile — upgrading texture');
+            currentTexMode='nasa';
+            globe.globeImageUrl(NASA_MARS_2K);
+            // Also composite claims on the new texture
+            setTimeout(function(){ if(typeof compositeClaimsOnTexture==='function') compositeClaimsOnTexture(); }, 500);
+          } else {
+            console.warn('[Mars] NASA 2K failed on mobile');
+          }
+        });
+      }, 1500);
     } else {
       // Desktop: progressive load 8K NASA texture in background
       setTimeout(loadNasa8k, 2000);
