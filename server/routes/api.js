@@ -2915,14 +2915,27 @@ router.get('/weather', readLimiter, async (req, res) => {
 // ══════════════════════════════════════
 
 // GET /api/exploration/pois — active POIs
+// Accepts ?wallet=... to also return the user's owned sector IDs so the client
+// can show whether a POI is discoverable without a round-trip.
 router.get('/exploration/pois', readLimiter, async (req, res) => {
   try {
-    if (!explorationService) return res.json({ pois: [] });
+    if (!explorationService) return res.json({ pois: [], ownedSectorIds: [] });
     const pois = await explorationService.getActivePOIs();
-    res.json({ pois, serverTime: new Date().toISOString() });
+    let ownedSectorIds = [];
+    const w = (req.query.wallet || '').toLowerCase();
+    if (w) {
+      try {
+        const r = await pool.query(
+          'SELECT DISTINCT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL',
+          [w]
+        );
+        ownedSectorIds = r.rows.map(row => row.sector_id);
+      } catch (_e) { /* non-critical */ }
+    }
+    res.json({ pois, ownedSectorIds, serverTime: new Date().toISOString() });
   } catch (e) {
     console.error('[EXPLORE] pois error:', e.message);
-    res.json({ pois: [] });
+    res.json({ pois: [], ownedSectorIds: [] });
   }
 });
 

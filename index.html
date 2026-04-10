@@ -4128,10 +4128,25 @@ function compositeClaimsOnTexture(previewOnly){
   if(!globe||!marsCanvas) return;
   // Skip compositing while waiting for NASA texture on mobile
   if(currentTexMode==='simple') return;
+  var _isMob=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
   // On mobile with NASA mode: skip if NASA image not cached yet (let globe.gl show it directly)
-  if(currentTexMode==='nasa' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+  if(currentTexMode==='nasa' && _isMob){
     var _nasaKey = nasa8kLoaded ? NASA_MARS_8K : NASA_MARS_2K;
-    if(!imgCache[_nasaKey]){ return; }
+    if(!imgCache[_nasaKey]){
+      // Ensure cache load kicks off (idempotent)
+      cacheImage(_nasaKey, function(img){
+        if(img) compositeClaimsOnTexture();
+      });
+      return;
+    }
+    // Extra safety: verify the cached image actually has valid dimensions
+    if(!imgCache[_nasaKey].width || !imgCache[_nasaKey].height){
+      delete imgCache[_nasaKey];
+      cacheImage(_nasaKey, function(img){
+        if(img) compositeClaimsOnTexture();
+      });
+      return;
+    }
   }
   try{ globe.globeMaterial(); }catch(e){ return; } // globe not ready yet
   var ctx=marsCanvas.getContext('2d');
@@ -4993,6 +5008,30 @@ function compositeClaimsOnTexture(previewOnly){
     }
   }
 
+  // Safety: verify the canvas actually has non-black content before replacing the globe texture.
+  // On mobile, drawImage() can silently fail under memory pressure, leaving a black canvas.
+  // If we replace the good Three.js-loaded texture with a black canvas, the globe appears black.
+  try{
+    var _safetyCtx = marsCanvas.getContext('2d');
+    var _sample = _safetyCtx.getImageData(Math.floor(marsCanvas.width/2), Math.floor(marsCanvas.height/2), 2, 2).data;
+    var _allBlack = true;
+    for(var _si=0;_si<_sample.length;_si+=4){
+      if(_sample[_si]>8 || _sample[_si+1]>8 || _sample[_si+2]>8){ _allBlack = false; break; }
+    }
+    if(_allBlack){
+      console.warn('[Mars] Canvas empty/black after composite — skipping texture replacement');
+      // Fallback: restore NASA texture via globe.gl TextureLoader (reliable path)
+      if(currentTexMode==='nasa' && globe){
+        try{ globe.globeImageUrl(nasa8kLoaded?NASA_MARS_8K:NASA_MARS_2K); }catch(_re){}
+      }
+      return;
+    }
+  }catch(_se){
+    // getImageData can fail on tainted canvas — safer to skip than corrupt the globe
+    console.warn('[Mars] Canvas safety check failed:', _se.message);
+    return;
+  }
+
   // Direct GPU upload — no JPEG compression, much sharper + faster
   if(!marsCanvasTexture){
     var mat=globe.globeMaterial(); if(!mat||!mat.map) return;
@@ -5130,8 +5169,9 @@ function _initStep2(){
 }
 
 function _initStep3(){
-  // Re-generate procedural texture once Orbitron font loads
-  if(document.fonts&&document.fonts.load){
+  // Re-generate procedural texture once Orbitron font loads (DESKTOP ONLY — mobile skips procedural)
+  var _isMobileInit=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  if(!_isMobileInit && document.fonts&&document.fonts.load){
     document.fonts.load('900 48px "Orbitron"').then(function(){
       console.log('[Mars] Orbitron font loaded, regenerating procedural texture');
       marsTexUrl=genMarsTexture();
@@ -5503,15 +5543,31 @@ function cacheImage(url,cb){
   if(!url){cb&&cb(null);return}
   if(imgCache[url]){cb&&cb(imgCache[url]);return}
   var img=new Image();
-  img.onload=function(){imgCache[url]=img;delete _imgRetry[url];cb&&cb(img)};
+  // Same-origin images don't strictly need this, but it ensures canvas isn't tainted
+  // and helps with strict mobile browsers.
+  try{ img.crossOrigin='anonymous'; }catch(_ce){}
+  img.onload=function(){
+    // Sanity check: ensure image has dimensions
+    if(!img.width || !img.height){
+      console.warn('[cacheImage] Image loaded with zero dimensions:', url);
+      cb&&cb(null);
+      return;
+    }
+    imgCache[url]=img;delete _imgRetry[url];cb&&cb(img);
+  };
   img.onerror=function(){
+    console.warn('[cacheImage] Image load failed:', url);
     // Retry up to 3 times with delay
     var rc=(_imgRetry[url]||0)+1;
     _imgRetry[url]=rc;
     if(rc<=3){
       setTimeout(function(){
         var r=new Image();
-        r.onload=function(){imgCache[url]=r;delete _imgRetry[url];claimsSnapshot=null;compositeClaimsOnTexture()};
+        try{ r.crossOrigin='anonymous'; }catch(_ce2){}
+        r.onload=function(){
+          if(!r.width||!r.height){return;}
+          imgCache[url]=r;delete _imgRetry[url];claimsSnapshot=null;compositeClaimsOnTexture();
+        };
         r.onerror=function(){if(_imgRetry[url]<3){_imgRetry[url]++;setTimeout(arguments.callee,rc*2000)}};
         r.src=url+'?retry='+rc;
       },rc*1500);
@@ -11635,6 +11691,15 @@ function _showPOIPopup(poi) {
     + '<div style="font-size:16px;font-weight:700;color:#FFF;margin-bottom:4px;text-shadow:0 0 12px ' + def.color + '66">' + (poi.label || def.label || 'Unknown POI') + '</div>'
     // Sector
     + '<div style="font-size:10px;color:var(--tx3);margin-bottom:6px">📍 ' + (poi.sectorName || 'Unknown Sector') + '</div>'
+    // Territory status
+    + (function(){
+        var owned = (window._myOwnedSectors||[]).indexOf(poi.sectorId)>=0;
+        if(owned){
+          return '<div style="font-size:9px;color:#4CD89A;margin-bottom:10px">✓ You own territory in this sector</div>';
+        } else {
+          return '<div style="font-size:9px;color:#E84855;margin-bottom:10px">⚠ No territory in this sector — claim land in ' + (poi.sectorName||'this sector') + ' first</div>';
+        }
+      })()
     // Reward hint
     + '<div style="display:flex;justify-content:center;gap:12px;margin:10px 0 14px">'
     + '<div style="text-align:center"><div style="font-size:16px">🪙</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">GP</div></div>'
@@ -11642,10 +11707,16 @@ function _showPOIPopup(poi) {
     + '<div style="text-align:center"><div style="font-size:16px">⭐</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">RARE PP</div></div>'
     + '</div>'
     // Info
-    + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">Discover to earn rewards!<br>Requires territory in this sector.</div>'
-    // Discover button
-    + '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">'
-    + '🔍 DISCOVER</button>'
+    + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">Discover to earn rewards! 100% success if you own territory here.</div>'
+    // Discover button — greyed out if no territory
+    + (function(){
+        var owned = (window._myOwnedSectors||[]).indexOf(poi.sectorId)>=0;
+        if(owned){
+          return '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">🔍 DISCOVER</button>';
+        } else {
+          return '<button onclick="showToast(\'Claim territory in \' + (' + JSON.stringify(poi.sectorName||'this sector') + ') + \' first\')" style="width:100%;padding:12px;background:rgba(80,80,80,0.4);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:1.5px">🔒 TERRITORY REQUIRED</button>';
+        }
+      })()
     // Hint button
     + '<button onclick="getPOIHint()" style="width:100%;margin-top:8px;padding:9px;background:transparent;color:var(--gold);border:1px solid rgba(255,209,102,.25);border-radius:10px;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px">'
     + '💡 POI HINT (0.2 PP)</button>'
@@ -11657,12 +11728,27 @@ function _showPOIPopup(poi) {
 
 function _discoverPOI(poiId) {
   if (!walletState.address) { showToast('Connect wallet first'); return; }
+  var _btn = document.querySelector('#poiPopupOverlay button[onclick*="_discoverPOI"]');
+  if(_btn){ _btn.disabled=true; _btn.style.opacity='0.6'; _btn.textContent='🔍 SEARCHING...'; }
   fetch('/api/exploration/discover', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ wallet: walletState.address, poiId: poiId })
-  }).then(function(r) { return r.json(); }).then(function(data) {
-    if (data.error) { showToast(data.error); return; }
+  }).then(function(r) {
+    return r.json().then(function(d){ return {status:r.status, body:d}; });
+  }).then(function(resp) {
+    var data = resp.body || {};
+    if(_btn){ _btn.disabled=false; _btn.style.opacity=''; _btn.innerHTML='🔍 DISCOVER'; }
+    if (data.error) {
+      console.warn('[POI] Discover rejected:', resp.status, data.error);
+      showToast(data.error);
+      return;
+    }
+    if (!data.success || !data.reward) {
+      console.warn('[POI] Discover unexpected response:', resp.status, data);
+      showToast('Discovery failed (bad response)');
+      return;
+    }
     var rw = data.reward;
     var rwText = '';
     if (rw.type === 'item' && rw.itemName) {
@@ -11688,7 +11774,11 @@ function _discoverPOI(poiId) {
     var poiOv = document.getElementById('poiPopupOverlay');
     if (poiOv) poiOv.remove();
     _showRewardSplash(data.label, rwText, data.xp, data.bonusCosmetic, _poiType || data.poiType || '');
-  }).catch(function() { showToast('Discovery failed'); });
+  }).catch(function(err) {
+    console.error('[POI] Discover network error:', err);
+    if(_btn){ _btn.disabled=false; _btn.style.opacity=''; _btn.innerHTML='🔍 DISCOVER'; }
+    showToast('Discovery failed (network)');
+  });
 }
 
 function _showRewardSplash(label, rwText, xp, bonusCosmetic, poiType) {
@@ -13257,16 +13347,20 @@ window.addEventListener('resize', function(){
   }, _compositeInterval);
 
   // ═══════ EXPLORATION POLLING ═══════
+  window._myOwnedSectors = window._myOwnedSectors || [];
   function loadExplorationData() {
-    fetch('/api/exploration/pois').then(function(r){return r.json()}).then(function(data){
+    var url = '/api/exploration/pois';
+    if(walletState.address) url += '?wallet=' + encodeURIComponent(walletState.address);
+    fetch(url).then(function(r){return r.json()}).then(function(data){
       var now = new Date().getTime();
       // Filter out expired POIs client-side too
       _poiData = (data.pois || []).filter(function(p){
         if(p.expiresAt && new Date(p.expiresAt).getTime() < now) return false;
         return true;
       });
+      if (Array.isArray(data.ownedSectorIds)) window._myOwnedSectors = data.ownedSectorIds;
       if (_poiData.length > 0) {
-        console.log('[POI] Active:', _poiData.filter(function(p){return !p.discovered}).length, '/', _poiData.length, 'total');
+        console.log('[POI] Active:', _poiData.filter(function(p){return !p.discovered}).length, '/', _poiData.length, 'total, mySectors:', window._myOwnedSectors);
         compositeClaimsOnTexture();
       }
     }).catch(function(){ _poiData = []; });
