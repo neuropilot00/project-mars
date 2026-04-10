@@ -4,6 +4,13 @@
 -- - Add arena_enabled, arena_house_edge
 -- ═══════════════════════════════════════════════════
 
+-- Fix POI settings stuck in 'general' → move to 'exploration'
+UPDATE settings SET category = 'exploration', description = 'POI count spawned per cycle' WHERE key = 'poi_count_per_cycle';
+UPDATE settings SET category = 'exploration', description = 'POI spawn interval (hours)' WHERE key = 'poi_spawn_interval_hours';
+UPDATE settings SET category = 'exploration', description = 'POI expiry time (hours)' WHERE key = 'poi_expire_hours';
+UPDATE settings SET category = 'exploration', description = 'Enable/disable POI system' WHERE key = 'poi_enabled';
+UPDATE settings SET category = 'exploration', description = 'POI cosmetic drop chance' WHERE key = 'poi_cosmetic_chance';
+
 -- Fix crash/mines settings → category 'arena'
 UPDATE settings SET category = 'arena', description = 'Crash min bet (PP)' WHERE key = 'crash_min_bet';
 UPDATE settings SET category = 'arena', description = 'Crash max bet (PP)' WHERE key = 'crash_max_bet';
