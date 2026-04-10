@@ -4963,8 +4963,10 @@ function compositeClaimsOnTexture(previewOnly){
     }
   }
 
-  // Land select preview (cyan rectangle)
-  if(landSelectMode&&landDragStart){
+  // Land select preview (cyan rectangle) — now rendered as a separate
+  // WebGL polygon overlay via _setDragPreviewPolygon() so we never touch
+  // the texture during drag. Skip all canvas drawing for this path.
+  if(false && landSelectMode&&landDragStart){
     var lr=landDragRect||computeLandRect(landDragStart.lat,landDragStart.lng,
       landDragEnd?landDragEnd.lat:landDragStart.lat,
       landDragEnd?landDragEnd.lng:landDragStart.lng);
@@ -5282,6 +5284,20 @@ function _initStep3(){
 
     scene=globe.scene();
     setLoadProgress(90,'Rendering globe...');
+
+    // ═══ DRAG-PIN OVERLAY (WebGL polygon, no JPEG re-encoding) ═══
+    // Renders the land-select preview rectangle as a separate polygon layer
+    // instead of drawing it onto marsCanvas — eliminates the toDataURL cost
+    // per drag frame on mobile and keeps the pin perfectly crisp.
+    try{
+      globe
+        .polygonsData([])
+        .polygonAltitude(0.003)
+        .polygonCapColor(function(){ return 'rgba(0,220,255,0.22)'; })
+        .polygonSideColor(function(){ return 'rgba(0,220,255,0.10)'; })
+        .polygonStrokeColor(function(){ return 'rgba(0,255,255,1)'; })
+        .polygonsTransitionDuration(0);
+    }catch(_pe){ console.warn('[Mars] polygonsData init failed:', _pe.message); }
 
     // Init texture toggle button label
     var tl=document.getElementById('texToggleLabel');if(tl)tl.textContent='MAP';
@@ -6175,7 +6191,7 @@ function activateLandSelect(){
   }
   // Mobile: show size controls and default size
   if(isMobile){
-    _mobLandW=15; _mobLandH=15;
+    _mobLandW=20; _mobLandH=20;
     _showMobSizeControls(true);
     showToast('TAP to place center → drag to move → pinch zoom');
   }else{
@@ -6183,7 +6199,7 @@ function activateLandSelect(){
   }
 }
 // Mobile land size state
-var _mobLandW=15, _mobLandH=15;
+var _mobLandW=20, _mobLandH=20;
 function _showMobSizeControls(show){
   var el=document.getElementById('mobSizeControls');
   if(!el) return;
@@ -6236,7 +6252,7 @@ function _updateMobLabels(){
       if(landDragStart){
         landDragRect={lat:landDragStart.lat,lng:landDragStart.lng,w:_mobLandW,h:_mobLandH};
         updateLandSelectUI();
-        compositeClaimsOnTexture();
+        _setDragPreviewPolygon(landDragRect);
       }
       _updateMobLabels();
     },100);
@@ -6309,7 +6325,9 @@ function _updateMobLabels(){
       _hoverDirty=true;
       requestAnimationFrame(function(){
         _hoverDirty=false;
-        compositeClaimsOnTexture(true);
+        // Fast path: update the WebGL polygon overlay instead of re-encoding
+        // the whole texture. No toDataURL cost = buttery drag on mobile.
+        _setDragPreviewPolygon(landDragRect);
         updateLandSelectUI();
         _updateMobLabels();
       });
@@ -6327,12 +6345,14 @@ function cancelLandSelect(){
   document.getElementById('landSelectPreview').style.display='none';
   if(isMobile) _showMobSizeControls(false);
   _restoreGlobeControls();
+  _clearDragPreviewPolygon();
   compositeClaimsOnTexture();
 }
 
 function confirmLandSelect(){
   if(!landDragRect) return;
   _restoreGlobeControls();
+  _clearDragPreviewPolygon();
   selectedPlot={lat:landDragRect.lat, lng:landDragRect.lng, owner:null, price:0, label:'UNCLAIMED',
     w:landDragRect.w, h:landDragRect.h};
   openClaimModal();
@@ -6348,6 +6368,35 @@ function updateLandSelectUI(){
   if(costInfo.overlapCount>0) costStr+=' ('+costInfo.overlapCount+' hijack)';
   document.getElementById('landCostLabel').textContent=costStr;
   document.getElementById('landSelectPreview').style.display='';
+}
+
+// ── Drag-pin polygon overlay helpers (no texture re-encoding) ──
+function _setDragPreviewPolygon(lr){
+  if(!globe || !lr) return;
+  try{
+    var hw = (lr.w * GRID_SIZE) / 2;
+    var hh = (lr.h * GRID_SIZE) / 2;
+    var n = Math.max(-89.9, Math.min(89.9, lr.lat + hh));
+    var s = Math.max(-89.9, Math.min(89.9, lr.lat - hh));
+    var e = lr.lng + hw;
+    var wl = lr.lng - hw;
+    // Subdivide long edges so the polygon hugs the curvature instead of
+    // cutting straight across. ~2° per segment is plenty.
+    var steps = Math.max(2, Math.ceil((e - wl) / 2));
+    var top = [], bot = [];
+    for(var i=0;i<=steps;i++){
+      var lng = wl + (e - wl) * (i/steps);
+      top.push([lng, n]);
+      bot.push([lng, s]);
+    }
+    var ring = top.concat(bot.reverse());
+    ring.push([wl, n]); // close
+    globe.polygonsData([{ geometry:{ type:'Polygon', coordinates:[ring] }, properties:{} }]);
+  }catch(_pe){}
+}
+function _clearDragPreviewPolygon(){
+  if(!globe) return;
+  try{ globe.polygonsData([]); }catch(_ce){}
 }
 
 function computeLandRect(startLat,startLng,endLat,endLng){
@@ -6464,7 +6513,7 @@ function _attachGlobeClick(){
         updateLandSelectUI();
         _updateMobLabels();
         showToast('📍 Pin placed! Drag to move · Pinch to zoom');
-        compositeClaimsOnTexture();
+        _setDragPreviewPolygon(landDragRect);
       }else{
         // Desktop: two-click (start → end)
         if(!landDragStart){
@@ -6473,7 +6522,7 @@ function _attachGlobeClick(){
           landDragRect=computeLandRect(lat,lng,lat,lng);
           document.getElementById('landSelectBtn').textContent='CLICK AGAIN TO SET END';
           showToast('START POINT SET — Click to set end point');
-          compositeClaimsOnTexture();
+          _setDragPreviewPolygon(landDragRect);
         }else{
           landDragEnd={lat:lat,lng:lng};
           landDragRect=computeLandRect(landDragStart.lat,landDragStart.lng,lat,lng);
@@ -8095,6 +8144,7 @@ async function confirmClaim(){
     document.getElementById('landSelectPreview').style.display='none';
     document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
     document.getElementById('landSelectBtn').style.color='var(--mars)';
+    _clearDragPreviewPolygon();
     if(nc.imgUrl){
       cacheImage(nc.imgUrl,function(){claimsSnapshot=null;compositeClaimsOnTexture()});
     }
@@ -12021,7 +12071,8 @@ document.getElementById('globe-wrap').addEventListener('mousemove',function(e){
       _hoverDirty=true;
       requestAnimationFrame(function(){
         _hoverDirty=false;
-        compositeClaimsOnTexture(true);
+        // WebGL polygon overlay (zero encoding cost)
+        _setDragPreviewPolygon(landDragRect);
         updateLandSelectUI();
       });
     }
