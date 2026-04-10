@@ -11709,7 +11709,7 @@ function _showRewardSplash(label, rwText, xp, bonusCosmetic, poiType) {
   var popup = document.createElement('div');
   popup.style.cssText = 'width:240px;max-width:70vw;border-radius:12px;border:1px solid ' + c + '44;box-shadow:0 6px 24px rgba(0,0,0,0.5),0 0 16px ' + c + '15;overflow:hidden;animation:poiSlideUp 0.3s ease';
 
-  popup.innerHTML = '<div style="background:rgba(12,10,8,.95);border-radius:12px;padding:12px 16px 12px;text-align:center">'
+  popup.innerHTML = '<div style="background:rgba(12,10,8,.95);border-radius:12px;padding:12px 16px 12px;text-align:center;font-family:var(--fn)">'
     + '<div style="font-size:11px;color:' + c + ';font-weight:600;margin-bottom:8px">' + label + '</div>'
     + lines.map(function(l){ return '<div style="font-size:11px;color:#FFF;margin-bottom:3px">' + l + '</div>'; }).join('')
     + '<button onclick="document.getElementById(\'rewardSplash\').remove()" style="width:100%;margin-top:8px;padding:6px;background:' + c + '18;border:1px solid ' + c + '33;border-radius:8px;color:' + c + ';font-family:var(--fn);font-size:10px;font-weight:600;cursor:pointer">OK</button>'
