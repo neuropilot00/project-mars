@@ -5315,21 +5315,27 @@ function _initStep3(){
         console.log('[Mars] NASA 2K cached for compositing');
       });
     }
-    // Mobile: load NASA 2K in background, apply when ready
+    // Mobile: load NASA 2K, convert to dataURL, apply to globe
     if(isMobileDevice){
       setTimeout(function(){
         console.log('[Mars] Mobile — loading NASA 2K...');
-        cacheImage(NASA_MARS_2K, function(img){
-          if(img){
-            console.log('[Mars] NASA 2K loaded on mobile — upgrading texture');
+        var img=new Image();
+        img.crossOrigin='anonymous';
+        img.onload=function(){
+          try{
+            var cv=document.createElement('canvas');
+            cv.width=img.naturalWidth;cv.height=img.naturalHeight;
+            cv.getContext('2d').drawImage(img,0,0);
+            var dataUrl=cv.toDataURL('image/jpeg',0.9);
+            console.log('[Mars] NASA 2K converted to dataURL — applying');
             currentTexMode='nasa';
-            globe.globeImageUrl(NASA_MARS_2K);
-            // Also composite claims on the new texture
+            imgCache[NASA_MARS_2K]=img;
+            globe.globeImageUrl(dataUrl);
             setTimeout(function(){ if(typeof compositeClaimsOnTexture==='function') compositeClaimsOnTexture(); }, 500);
-          } else {
-            console.warn('[Mars] NASA 2K failed on mobile');
-          }
-        });
+          }catch(e){ console.warn('[Mars] NASA 2K canvas convert failed:',e); }
+        };
+        img.onerror=function(){ console.warn('[Mars] NASA 2K load failed on mobile'); };
+        img.src=NASA_MARS_2K;
       }, 1500);
     } else {
       // Desktop: progressive load 8K NASA texture in background
