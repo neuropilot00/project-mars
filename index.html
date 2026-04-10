@@ -5291,7 +5291,7 @@ function _initStep3(){
       .bumpImageUrl(marsBumpUrl)
       .backgroundImageUrl(starBgUrl)
       .showAtmosphere(true)
-      .atmosphereColor('rgba(255,110,50,0.25)')
+      .atmosphereColor('#FF6E32')
       .atmosphereAltitude(0.2)
       .width(window.innerWidth)
       .height(window.innerHeight)
@@ -13808,6 +13808,33 @@ window.addEventListener('resize', function(){
   setTimeout(_initRocketMesh, 3500);
   setInterval(_updateRocketMesh, 2000);
 
+  // ═══════ GENERIC MOBILE-FRIENDLY MODAL ═══════
+  // Works on both mobile and desktop — uses the .mbg/.mdl pattern, z-index above HUD.
+  window.showMobModal = function(title, html){
+    // Remove any existing instance to prevent stacking
+    var existing = document.getElementById('_mobModal');
+    if(existing) existing.remove();
+    var bg = document.createElement('div');
+    bg.id = '_mobModal';
+    bg.className = 'mbg open';
+    bg.style.cssText = 'z-index:1300;display:flex';
+    var mdl = document.createElement('div');
+    mdl.className = 'mdl';
+    mdl.style.cssText = 'max-width:420px;width:94vw;max-height:80vh;overflow-y:auto;padding:0';
+    mdl.addEventListener('click', function(e){e.stopPropagation();});
+    mdl.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--bdr)">' +
+        '<div style="font-size:var(--fs-md);font-weight:700;color:var(--mars);letter-spacing:1px">' + title + '</div>' +
+        '<button id="_mobModalX" style="background:none;border:none;color:var(--tx3);font-size:20px;cursor:pointer;padding:0;line-height:1">&times;</button>' +
+      '</div>' +
+      '<div style="padding:0">' + html + '</div>';
+    bg.appendChild(mdl);
+    bg.addEventListener('click', function(e){ if(e.target===bg) bg.remove(); });
+    document.body.appendChild(bg);
+    var x = document.getElementById('_mobModalX');
+    if(x) x.addEventListener('click', function(){ bg.remove(); });
+  };
+
   // ═══════ ROCKET LOOT CLAIM ═══════
   window._showRocketLootPopup = function(ev) {
     if (!ev || ev.status !== 'looting') { showToast('Rocket not available for looting'); return; }
@@ -13826,11 +13853,12 @@ window.addEventListener('resize', function(){
           + lIcon + '<br><span style="font-size:7px;color:var(--tx3)">#' + (l.index + 1) + '</span></button>';
       });
       html += '</div></div>';
-      if (isMobile) { showMobModal('ROCKET LOOT', html); } else {
-        var panel = document.getElementById('infoPanel');
-        if (panel) { panel.innerHTML = html; panel.style.display = 'block'; }
-      }
-    }).catch(function(){ showToast('Failed to load loot'); });
+      // infoPanel no longer exists — use the shared modal on both mobile and desktop
+      showMobModal('ROCKET LOOT', html);
+    }).catch(function(err){
+      console.error('[ROCKET] loot load error:', err);
+      showToast('Failed to load loot','error');
+    });
   };
 
   window._claimLoot = function(eventId, lootIndex, btn) {
@@ -13888,8 +13916,7 @@ window.addEventListener('resize', function(){
       + '<div style="font-size:9px;color:var(--tx3);line-height:1.4;padding:8px;background:rgba(255,255,255,.03);border-radius:6px">'
       + '💡 <b>How it works:</b> Loot contains GP, items, or rare PP. Click the marker on the map to claim. Each player can claim one loot per drop. First come, first served!'
       + '</div></div>';
-    if (isMobile) { showMobModal('SUPPLY DROP', html); }
-    else { var p = document.getElementById('infoPanel'); if(p){p.innerHTML=html;p.style.display='block';} }
+    showMobModal('SUPPLY DROP', html);
   };
 
   // Badge system: wallet → roles map
