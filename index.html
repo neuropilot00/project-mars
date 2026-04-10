@@ -11649,7 +11649,7 @@ function _showPOIPopup(poi) {
     // Info
     + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">Discover to earn rewards!<br>Requires territory in this sector.</div>'
     // Discover button
-    + '<button onclick="_discoverPOI(' + poi.id + ');document.getElementById(\'poiPopupOverlay\')&&document.getElementById(\'poiPopupOverlay\').remove()" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">'
+    + '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">'
     + '🔍 DISCOVER</button>'
     // Hint button
     + '<button onclick="getPOIHint()" style="width:100%;margin-top:8px;padding:9px;background:transparent;color:var(--gold);border:1px solid rgba(255,209,102,.25);border-radius:10px;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px">'
