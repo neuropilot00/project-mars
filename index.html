@@ -6055,10 +6055,13 @@ function goBack(){
   selectedPlot=null;isZoomedIn=false;
   document.getElementById('territoryInfo').style.display='none';
   hideMobInfoBtn();
-  // Zoom out from current view position (don't reset lat/lng)
-  var pov=globe.pointOfView();
-  globe.pointOfView({lat:pov.lat,lng:pov.lng,altitude:3.2},1000);
-  globe.controls().autoRotate=true;
+  // Cancel land selection mode if active (drag pin)
+  try{ if(typeof landSelectMode!=='undefined' && landSelectMode) cancelLandSelect(); }catch(_le){}
+  // Close any open POI popup
+  try{ var _po=document.getElementById('poiPopupOverlay'); if(_po) _po.remove(); }catch(_pe){}
+  // Reset to initial planet view: lat 0, lng 0, altitude 3.2 (matches onGlobeReady)
+  globe.pointOfView({lat:0,lng:0,altitude:3.2},1000);
+  try{ globe.controls().autoRotate=true; }catch(_ae){}
   compositeClaimsOnTexture();
 }
 
