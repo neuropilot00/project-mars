@@ -11757,15 +11757,25 @@ function _showPOIPopup(poi) {
     + '<div style="text-align:center"><div style="font-size:16px">📦</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">ITEMS</div></div>'
     + '<div style="text-align:center"><div style="font-size:16px">⭐</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">RARE PP</div></div>'
     + '</div>'
-    // Info
-    + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">Discover to earn rewards! 100% success if you own territory here.</div>'
-    // Discover button — greyed out if no territory
+    // Info + fee line
+    + (function(){
+        var fee = window._explorationFee||0;
+        var feeLine = fee>0
+          ? '<div style="font-size:10px;color:var(--gold);margin-bottom:10px">💠 Cost: '+fee+' PP <span style="color:var(--tx3)">(you have '+(window._userPP||0).toFixed(2)+' PP)</span></div>'
+          : '';
+        return feeLine + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">Discover to earn rewards! 100% success if you own territory here.</div>';
+      })()
+    // Discover button — greyed out if no territory or insufficient PP
     + (function(){
         var owned = (window._myOwnedSectors||[]).indexOf(poi.sectorId)>=0;
-        if(owned){
-          return '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">🔍 DISCOVER</button>';
-        } else {
+        var fee = window._explorationFee||0;
+        var hasPP = (window._userPP||0) >= fee;
+        if(!owned){
           return '<button onclick="showToast(\'Claim territory in \' + (' + JSON.stringify(poi.sectorName||'this sector') + ') + \' first\')" style="width:100%;padding:12px;background:rgba(80,80,80,0.4);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:1.5px">🔒 TERRITORY REQUIRED</button>';
+        } else if(!hasPP){
+          return '<button onclick="showToast(\'Need '+fee+' PP to discover — earn more by harvesting\')" style="width:100%;padding:12px;background:rgba(232,72,85,0.2);color:#E84855;border:1px solid rgba(232,72,85,0.4);border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:1.5px">💠 NEED '+fee+' PP</button>';
+        } else {
+          return '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">🔍 DISCOVER'+(fee>0?' ('+fee+' PP)':'')+'</button>';
         }
       })()
     // Hint button
@@ -11833,6 +11843,8 @@ function _discoverPOI(poiId) {
     var _poiType = '';
     for(var _pi=0;_pi<_poiData.length;_pi++){ if(_poiData[_pi].id===poiId){_poiType=_poiData[_pi].poiType;break;} }
     _poiData = _poiData.filter(function(p) { return p.id !== poiId; });
+    // Optimistically deduct the fee from the cached balance so repeated discovers show correct state
+    window._userPP = Math.max(0, (window._userPP||0) - (window._explorationFee||0));
     compositeClaimsOnTexture();
     loadBalance();
     var poiOv = document.getElementById('poiPopupOverlay');
@@ -13412,6 +13424,8 @@ window.addEventListener('resize', function(){
 
   // ═══════ EXPLORATION POLLING ═══════
   window._myOwnedSectors = window._myOwnedSectors || [];
+  window._explorationFee = 0;
+  window._userPP = 0;
   function loadExplorationData() {
     var url = '/api/exploration/pois';
     if(walletState.address) url += '?wallet=' + encodeURIComponent(walletState.address);
@@ -13423,8 +13437,10 @@ window.addEventListener('resize', function(){
         return true;
       });
       if (Array.isArray(data.ownedSectorIds)) window._myOwnedSectors = data.ownedSectorIds;
+      if (typeof data.explorationFee === 'number') window._explorationFee = data.explorationFee;
+      if (typeof data.userPP === 'number') window._userPP = data.userPP;
       if (_poiData.length > 0) {
-        console.log('[POI] Active:', _poiData.filter(function(p){return !p.discovered}).length, '/', _poiData.length, 'total, mySectors:', window._myOwnedSectors);
+        console.log('[POI] Active:', _poiData.filter(function(p){return !p.discovered}).length, '/', _poiData.length, 'total, fee:', window._explorationFee, 'PP, userPP:', window._userPP);
         compositeClaimsOnTexture();
       }
     }).catch(function(){ _poiData = []; });

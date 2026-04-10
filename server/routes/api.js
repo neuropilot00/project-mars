@@ -2919,9 +2919,10 @@ router.get('/weather', readLimiter, async (req, res) => {
 // can show whether a POI is discoverable without a round-trip.
 router.get('/exploration/pois', readLimiter, async (req, res) => {
   try {
-    if (!explorationService) return res.json({ pois: [], ownedSectorIds: [] });
+    if (!explorationService) return res.json({ pois: [], ownedSectorIds: [], explorationFee: 0, userPP: 0 });
     const pois = await explorationService.getActivePOIs();
     let ownedSectorIds = [];
+    let userPP = 0;
     const w = (req.query.wallet || '').toLowerCase();
     if (w) {
       try {
@@ -2931,11 +2932,16 @@ router.get('/exploration/pois', readLimiter, async (req, res) => {
         );
         ownedSectorIds = r.rows.map(row => row.sector_id);
       } catch (_e) { /* non-critical */ }
+      try {
+        const u = await pool.query('SELECT pp_balance FROM users WHERE wallet_address = $1', [w]);
+        userPP = parseFloat(u.rows[0]?.pp_balance || 0);
+      } catch (_e) { /* non-critical */ }
     }
-    res.json({ pois, ownedSectorIds, serverTime: new Date().toISOString() });
+    const explorationFee = parseFloat(await getSetting('exploration_fee_pp') || 0);
+    res.json({ pois, ownedSectorIds, explorationFee, userPP, serverTime: new Date().toISOString() });
   } catch (e) {
     console.error('[EXPLORE] pois error:', e.message);
-    res.json({ pois: [], ownedSectorIds: [] });
+    res.json({ pois: [], ownedSectorIds: [], explorationFee: 0, userPP: 0 });
   }
 });
 
