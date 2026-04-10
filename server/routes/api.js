@@ -1075,14 +1075,16 @@ router.post('/claim', writeLimiter, async (req, res) => {
         if (govResult.changed) {
           // Fetch sector name + governor nickname for feed
           const sInfo = await client.query('SELECT name FROM sectors WHERE id = $1', [sId]);
-          const gNick = govResult.governor ? (await client.query('SELECT nickname FROM users WHERE wallet_address = $1', [govResult.governor])).rows[0] : null;
-          govChanges.push({ type: 'governor', sectorId: sId, sectorName: sInfo.rows[0]?.name, wallet: govResult.governor, nickname: gNick?.nickname || null });
+          const gNickRes = govResult.governor ? await client.query('SELECT nickname FROM users WHERE wallet_address = $1', [govResult.governor]) : null;
+          const gNick = gNickRes?.rows?.[0]?.nickname || null;
+          govChanges.push({ type: 'governor', sectorId: sId, sectorName: sInfo.rows[0]?.name, wallet: govResult.governor, nickname: gNick });
         }
       }
       const cmdResult = await recalculateCommander(client);
       if (cmdResult.changed && cmdResult.commander) {
-        const cNick = (await client.query('SELECT nickname FROM users WHERE wallet_address = $1', [cmdResult.commander])).rows[0];
-        govChanges.push({ type: 'commander', wallet: cmdResult.commander, nickname: cNick?.nickname || null });
+        const cNickRes = await client.query('SELECT nickname FROM users WHERE wallet_address = $1', [cmdResult.commander]);
+        const cNick = cNickRes.rows?.[0]?.nickname || null;
+        govChanges.push({ type: 'commander', wallet: cmdResult.commander, nickname: cNick });
       }
     } catch(ge) { console.warn('[GOV] governance post-claim failed:', ge.message); }
 

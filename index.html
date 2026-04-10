@@ -1729,6 +1729,187 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   position:absolute;top:4px;right:4px;animation:dotPulse 1.5s ease-in-out infinite;
   box-shadow:0 0 4px rgba(232,72,85,0.6)}
 .base-tab{position:relative}
+
+/* ═══════════════════════════════════════
+   MOBILE UX ENHANCEMENTS
+   ═══════════════════════════════════════ */
+
+/* ── 1. Safe-area-inset for iPhone notch/home-indicator ── */
+@supports(padding:env(safe-area-inset-top)){
+  .topbar{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .mob-bottom-nav{padding-bottom:env(safe-area-inset-bottom);
+    padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+  .toast{top:max(12px,calc(env(safe-area-inset-top) + 4px))}
+  #notifStack{top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right))}
+  .weather-banner{padding-left:max(14px,env(safe-area-inset-left));
+    padding-right:max(14px,env(safe-area-inset-right))}
+  .wx-detail-popup{padding-bottom:max(24px,calc(env(safe-area-inset-bottom) + 16px));
+    padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+  .mob-territory-card{padding-bottom:max(24px,calc(env(safe-area-inset-bottom) + 16px))}
+  .stamp-modal{padding-bottom:max(14px,env(safe-area-inset-bottom))}
+  .panel-l{padding-left:max(12px,env(safe-area-inset-left))}
+  .panel-r{padding-right:max(12px,env(safe-area-inset-right))}
+  .col-fab-wrap{bottom:max(40px,calc(env(safe-area-inset-bottom) + 20px))}
+  .mob-fab-wrap{bottom:max(100px,calc(env(safe-area-inset-bottom) + 80px))}
+  .mode-badge{bottom:max(76px,calc(env(safe-area-inset-bottom) + 56px))}
+  .zc{bottom:max(145px,calc(env(safe-area-inset-bottom) + 120px))}
+}
+@media(max-width:768px){
+  @supports(padding:env(safe-area-inset-top)){
+    .topbar{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+    #notifStack{top:0;right:0;left:0;padding-top:env(safe-area-inset-top)}
+    .announce-bar{left:max(5%,env(safe-area-inset-left));right:max(5%,env(safe-area-inset-right))}
+    .weather-banner{bottom:max(112px,calc(env(safe-area-inset-bottom) + 80px))}
+    .wx-detail-popup{padding-bottom:max(80px,calc(env(safe-area-inset-bottom) + 60px))}
+  }
+}
+
+/* ── 2. Small device optimization (380px and below) ── */
+@media(max-width:380px){
+  :root{--fs-xs:8px;--fs-sm:9px;--fs-md:10px;--fs-lg:12px;--fs-xl:13px}
+  .topbar{padding:6px 8px;padding-top:max(6px,env(safe-area-inset-top))}
+  .tb-title{font-size:10px;letter-spacing:1px}
+  .tb-btn{font-size:8px;padding:4px 7px;min-height:32px;height:32px}
+  .chain-indicator{height:28px;padding:3px 6px;font-size:9px}
+  .lang-dropdown .lang-current{height:28px;padding:3px 8px;font-size:8px}
+  .tb-avatar,.tb-avatar-emoji{width:28px;height:28px;font-size:12px}
+  .panel-l,.panel-r{width:90%;max-width:290px;padding:12px 10px}
+  .p-section{margin-bottom:10px}
+  .p-title{font-size:9px;letter-spacing:1px;padding-bottom:4px;margin-bottom:6px}
+  .stat-row{padding:5px 0}
+  .stat-label{font-size:9px}.stat-val{font-size:10px}
+  .mdl{max-height:92vh}
+  .mhd{padding:10px 12px}
+  .mtl{font-size:10px}
+  .mbd{padding:12px;gap:10px}
+  .mob-toggle{font-size:8px;padding:5px 8px}
+  .mob-bottom-nav{height:56px}
+  .mob-bottom-nav .nav-items{height:56px}
+  .mob-nav-item .nav-icon{font-size:17px}
+  .mob-nav-item .nav-label{font-size:8px}
+  .mob-nav-item.claim-nav .nav-icon{width:38px;height:38px;font-size:18px;margin-top:-10px}
+  .base-card{height:82vh;max-height:82vh}
+  .base-header{padding:10px 12px}
+  .base-header-title{font-size:11px;letter-spacing:1.5px}
+  .base-tab{font-size:8px;padding:6px 3px;letter-spacing:0}
+  .base-body{padding:10px 8px}
+  .base-stat-grid{grid-template-columns:1fr 1fr;gap:4px}
+  .base-stat-box{padding:8px 10px}
+  .base-stat-box .bsb-label{font-size:8px}
+  .base-stat-box .bsb-val{font-size:12px}
+  .base-section-title{font-size:8px;margin:10px 0 6px}
+  .action-btn{min-height:44px;padding:8px;font-size:9px}
+  .wallet-panel{padding:6px;gap:4px}
+  .wa-btn{font-size:9px;padding:6px 8px;min-height:40px}
+  .quest-card{padding:8px 10px}
+  .quest-card .qc-title{font-size:9px}
+  .quest-card .qc-desc{font-size:9px}
+  .sector-card{padding:8px 10px}
+  .sector-card .sc-name{font-size:9px}
+  .shop-grid{gap:6px}
+  .shop-item-card{padding:10px}
+  .shop-item-card .si-name{font-size:9px}
+  .shop-item-card .si-desc{font-size:8px;min-height:24px}
+  .claim-card{border-radius:14px 14px 0 0}
+  .claim-info-item{padding:5px 10px}
+  .claim-info-label{font-size:9px}
+  .claim-info-val{font-size:9px}
+  .announce-bar{top:56px;height:24px}
+  .tb-commander{top:110px;font-size:8px;padding:2px 8px}
+  .rocket-banner{top:180px;font-size:8px;padding:3px 10px}
+  .weather-banner{font-size:7px;padding:2px 8px}
+  .feed-item{font-size:8px;padding:4px 0}
+  .lb-row{padding:3px 0}
+  .lb-name{font-size:9px}.lb-val{font-size:9px}
+  .notif-title{font-size:10px}
+  .notif-msg{font-size:9px}
+  .crash-mult-val{font-size:40px}
+  .crash-mult-val.waiting{font-size:24px}
+  .crash-input{width:60px;flex:0 0 60px;padding:6px 4px;font-size:11px}
+}
+
+/* ── 3. Touch targets — ensure 44px minimum for all interactive elements ── */
+@media(max-width:768px){
+  .announce-close{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .auth-tab{min-height:44px}
+  .auth-input{min-height:44px}
+  .auth-help-link{min-height:44px;display:inline-flex;align-items:center;padding:8px 6px}
+  .auth-back-link{min-height:44px;display:flex;align-items:center;justify-content:center}
+  .pass-eye{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+  .dw-max{min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
+  .dw-amount{min-height:44px}
+  .profile-edit-name{min-height:44px;display:inline-flex;align-items:center;padding:8px 10px}
+  .profile-acct-btn{min-height:44px;display:flex;align-items:center}
+  .wallet-copy-btn{min-height:44px;padding:8px 12px}
+  .search-result-item{min-height:44px;display:flex;align-items:center;padding:8px}
+  .cb{min-height:44px}
+  .sz-adj{min-width:44px;min-height:44px}
+  .editor-ctrl-btn{min-width:44px;min-height:44px}
+  .claim-close{min-width:44px;min-height:44px}
+  .mob-stamp-close{min-width:44px;min-height:44px}
+  .mob-info-btn{min-height:44px;padding:10px 16px}
+  .mt-close{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+  .panel-close-fixed{min-width:44px;min-height:44px}
+  .alert-item{min-height:44px;display:flex;align-items:center;padding:8px 10px}
+  .uf{min-height:44px;display:flex;align-items:center;justify-content:center}
+  .ulb{min-height:44px;display:flex;align-items:center;justify-content:center}
+  .crash-quick-btn{min-height:44px}
+  .btn-bet{min-height:48px}
+  .game-tab{min-height:44px}
+  .shop-main-tab{min-height:44px}
+  .inv-use{min-height:44px;padding:8px 14px}
+  .si-price{min-height:40px}
+  .dm-claim-btn{min-height:36px;padding:6px 12px}
+  .quest-card .qc-claim-btn{min-height:44px;padding:10px;font-size:10px}
+  .ch-pill{min-height:32px;display:inline-flex;align-items:center}
+  .lang-menu-item{min-height:44px;display:flex;align-items:center}
+  .sc-go{min-height:36px;display:inline-flex;align-items:center;padding:6px 12px}
+}
+
+/* ── 4. Landscape mode on phones ── */
+@media(orientation:landscape) and (max-height:500px){
+  .topbar{padding:3px 10px;padding-top:max(3px,env(safe-area-inset-top))}
+  .tb-title{font-size:10px;letter-spacing:1px}
+  .tb-btn{height:30px;min-height:30px;padding:4px 10px;font-size:9px}
+  .chain-indicator{height:26px}
+  .tb-avatar,.tb-avatar-emoji{width:26px;height:26px}
+  .lang-dropdown .lang-current{height:26px}
+  .mob-bottom-nav{height:40px}
+  .mob-bottom-nav .nav-items{height:40px}
+  .mob-nav-item .nav-icon{font-size:14px}
+  .mob-nav-item .nav-label{font-size:7px}
+  .mob-nav-item.claim-nav .nav-icon{width:32px;height:32px;font-size:16px;margin-top:-8px}
+  .panel-l,.panel-r{top:40px}
+  .base-card{height:95vh;max-height:95vh}
+  .base-header{padding:6px 12px}
+  .base-header-title{font-size:10px}
+  .base-tab{padding:6px 4px;font-size:9px}
+  .base-body{padding:8px 12px}
+  .base-banner{height:50px}
+  .base-stat-grid{gap:4px}
+  .base-stat-box{padding:6px 8px}
+  .base-stat-box .bsb-val{font-size:12px}
+  .mdl{max-height:95vh}
+  .mhd{padding:8px 12px}
+  .mbd{padding:10px}
+  .mob-territory-card{max-height:90vh;padding:10px 14px 16px}
+  .claim-hero{padding:8px;min-height:auto}
+  .claim-hero-img{width:60px;height:60px}
+  .announce-bar{top:40px}
+  .tb-commander{top:76px;font-size:8px}
+  .rocket-banner{top:130px;font-size:8px}
+  .weather-banner{bottom:52px;font-size:7px}
+  .zc{bottom:52px}
+  .mode-badge{bottom:48px;font-size:8px;padding:4px 8px}
+  #mobSizeControls{bottom:44px}
+  .mob-fab-wrap{bottom:60px}
+  .stamp-modal{bottom:50px;max-height:60vh}
+  .mob-stamp-bar{padding:4px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom))}
+  .crash-mult-val{font-size:36px}
+  .crash-mult-val.waiting{font-size:20px}
+  .crash-bet-panel{padding:8px}
+  .crash-input{padding:6px 4px}
+}
 </style>
 </head>
 <body>
