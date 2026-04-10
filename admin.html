@@ -820,6 +820,8 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
       <div class="sec-tools">
         <button class="adm-btn primary" onclick="loadPOIDrops()">REFRESH</button>
         <button class="adm-btn" onclick="showAddDrop()" style="background:rgba(0,255,136,.15);border-color:rgba(0,255,136,.4);color:#00FF88">+ ADD DROP</button>
+        <button class="adm-btn" onclick="resetExpiredPOIs()" style="background:rgba(255,180,50,.15);border-color:rgba(255,180,50,.4);color:#FFB432">🗑 RESET EXPIRED</button>
+        <button class="adm-btn" onclick="resetAllPOIs()" style="background:rgba(255,50,50,.15);border-color:rgba(255,50,50,.4);color:#FF3232">⚠ RESET ALL POIs</button>
       </div>
     </div>
     <p style="font-size:10px;color:#888;margin-bottom:8px">
@@ -2626,6 +2628,23 @@ function updateDrop(id, data) {
 function deleteDrop(id) {
   if (!confirm('Delete this drop entry?')) return;
   api('poi-drops/' + id, 'DELETE').then(function() { loadPOIDrops(); });
+}
+
+function resetExpiredPOIs() {
+  if (!confirm('Delete all EXPIRED POIs from the map?')) return;
+  api('poi-reset-expired', 'POST').then(function(r) {
+    alert('Deleted ' + (r.deleted || 0) + ' expired POIs');
+    loadPOIDrops();
+  });
+}
+
+function resetAllPOIs() {
+  if (!confirm('⚠ DELETE ALL POIs from the map? This cannot be undone!')) return;
+  if (!confirm('Are you SURE? All active POIs will be removed.')) return;
+  api('poi-reset-all', 'POST').then(function(r) {
+    alert('Deleted ' + (r.deleted || 0) + ' POIs');
+    loadPOIDrops();
+  });
 }
 
 // Auto-focus auth input

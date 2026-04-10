@@ -1557,4 +1557,20 @@ router.delete('/poi-drops/:id', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── POI Reset: expired only ──
+router.post('/poi-reset-expired', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query('DELETE FROM exploration_pois WHERE expires_at < NOW() RETURNING id');
+    res.json({ success: true, deleted: r.rowCount });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── POI Reset: all ──
+router.post('/poi-reset-all', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query('DELETE FROM exploration_pois RETURNING id');
+    res.json({ success: true, deleted: r.rowCount });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
