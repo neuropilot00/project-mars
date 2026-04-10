@@ -2917,23 +2917,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 <button onclick="guildInviteMember()" style="padding:6px 12px;border-radius:4px;background:rgba(91,184,232,.12);border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-size:9px;cursor:pointer;font-family:var(--fn)">INVITE</button>
               </div>
             </div>
-            <!-- Guild management (leader only) -->
-            <div id="guildLeaderSection" style="display:none">
-              <div class="base-section-title" style="color:var(--red)">MANAGEMENT</div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap">
-                <button onclick="guildDisband()" style="padding:6px 12px;border-radius:4px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.3);color:var(--red);font-size:9px;cursor:pointer;font-family:var(--fn)">DISBAND GUILD</button>
-              </div>
-            </div>
-            <!-- Leave button (non-leader) -->
-            <div id="guildLeaveSection" style="display:none;margin-top:12px">
-              <button onclick="guildLeave()" style="padding:6px 12px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)">LEAVE GUILD</button>
-            </div>
           </div>
 
           <!-- Guild Leaderboard -->
           <div style="margin-top:16px">
             <div class="base-section-title" style="color:var(--mars)">GUILD LEADERBOARD</div>
             <div id="guildLeaderboard" style="font-size:10px;color:var(--tx3);padding:4px 0">Loading...</div>
+          </div>
+
+          <!-- Leave button (non-leader) — bottom -->
+          <div id="guildLeaveSection" style="display:none;margin-top:16px;padding-top:12px;border-top:1px solid var(--bdr)">
+            <button onclick="guildLeave()" style="padding:6px 12px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)">LEAVE GUILD</button>
+          </div>
+
+          <!-- Guild management (leader only) — bottom, destructive -->
+          <div id="guildLeaderSection" style="display:none;margin-top:16px;padding-top:12px;border-top:1px solid var(--bdr)">
+            <div class="base-section-title" style="color:var(--red)">DANGER ZONE</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button onclick="guildDisband()" style="padding:6px 12px;border-radius:4px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.3);color:var(--red);font-size:9px;cursor:pointer;font-family:var(--fn)">DISBAND GUILD</button>
+            </div>
           </div>
         </div>
       </div>
@@ -9945,6 +9947,9 @@ function renderGuildState(guild, wallet){
   if(!guild){
     noGuild.style.display='';
     myGuild.style.display='none';
+    // Also hide the leave/disband sections (they live outside guildMyGuild)
+    var _ls=document.getElementById('guildLeaderSection'); if(_ls) _ls.style.display='none';
+    var _lv=document.getElementById('guildLeaveSection'); if(_lv) _lv.style.display='none';
     return;
   }
   noGuild.style.display='none';
@@ -10134,7 +10139,16 @@ function guildTransfer(targetWallet){
 }
 
 function guildDisband(){
-  if(!confirm('DISBAND guild? All members will be removed. This cannot be undone!')) return;
+  if(!_myGuildData || !_myGuildData.name){ showToast('No guild data','error'); return; }
+  var name=_myGuildData.name;
+  // Two-step confirmation: user must type the guild name exactly
+  if(!confirm('⚠ DISBAND guild "'+name+'"?\n\nAll members will be removed.\nThis cannot be undone!')) return;
+  var typed=prompt('To confirm, type the guild name exactly:\n\n'+name);
+  if(typed===null) return; // cancelled
+  if(typed.trim()!==name){
+    showToast('Guild name mismatch — disband cancelled','error');
+    return;
+  }
   var w=walletState.address;
   fetch('/api/guild/disband',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
