@@ -5231,6 +5231,13 @@ function _initStep1(){
 }
 
 function _initStep2(){
+  // Mobile: skip heavy procedural texture generation
+  if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+    console.log('[Mars] Mobile — skipping procedural texture generation');
+    setLoadProgress(72,'Textures ready...');
+    requestAnimationFrame(_initStep3);
+    return;
+  }
   marsTexUrl=genMarsTexture();
   setLoadProgress(72,'Textures ready...');
   requestAnimationFrame(_initStep3);
@@ -5246,13 +5253,23 @@ function _initStep3(){
     }).catch(function(){});
   }
 
-  // On mobile, use procedural texture first (NASA 2K can fail on mobile)
+  // On mobile: skip procedural, use simple placeholder → NASA 2K loads in background
   var isMobileDevice=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-  if(isMobileDevice && currentTexMode==='nasa'){
-    console.log('[Mars] Mobile detected — using procedural texture, NASA loads later');
-    currentTexMode='procedural';
+  var initTexUrl;
+  if(isMobileDevice){
+    console.log('[Mars] Mobile — simple placeholder, NASA 2K loads after');
+    var _mc=document.createElement('canvas');_mc.width=512;_mc.height=256;
+    var _mx=_mc.getContext('2d');
+    var _mg=_mx.createLinearGradient(0,0,0,256);
+    _mg.addColorStop(0,'#c4714a');_mg.addColorStop(0.3,'#b5623d');
+    _mg.addColorStop(0.5,'#a85535');_mg.addColorStop(0.7,'#b5623d');
+    _mg.addColorStop(1,'#c4714a');
+    _mx.fillStyle=_mg;_mx.fillRect(0,0,512,256);
+    initTexUrl=_mc.toDataURL('image/jpeg',0.8);
+    currentTexMode='simple';
+  } else {
+    initTexUrl=(currentTexMode==='nasa')?NASA_MARS_2K:marsTexUrl;
   }
-  var initTexUrl=(currentTexMode==='nasa')?NASA_MARS_2K:marsTexUrl;
   setLoadProgress(80,'Initializing globe...');
 
   requestAnimationFrame(function(){
