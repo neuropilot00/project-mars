@@ -279,8 +279,9 @@ app.use((req, res, next) => {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
   } else if (/\.(png|jpg|jpeg|webp|svg|gif|ico)$/i.test(req.path)) {
-    // Images: 7 days
+    // Images: 7 days + CORS for canvas access
     res.setHeader('Cache-Control', 'public, max-age=604800');
+    res.setHeader('Access-Control-Allow-Origin', '*');
   } else if (/\.(js|css)$/i.test(req.path)) {
     // JS/CSS: 1 day
     res.setHeader('Cache-Control', 'public, max-age=86400');
