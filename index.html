@@ -53,9 +53,9 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .announce-close:hover{color:var(--gold)}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @media(max-width:768px){
-  .announce-bar{left:55px;right:49px;top:75px;height:20px}
-  #seasonBanner{top:50px!important;max-width:75vw;font-size:9px!important;padding:3px 10px!important}
-  .tb-commander{top:99px!important}
+  .announce-bar{left:55px;right:49px;top:77px;height:20px}
+  #seasonBanner{top:52px!important;max-width:75vw;font-size:9px!important;padding:3px 10px!important}
+  .tb-commander{top:101px!important}
   .active-buffs-bar{top:auto;bottom:148px;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
 }
 
@@ -120,8 +120,8 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
 @media(max-width:768px){.tb-commander{top:108px;padding:3px 10px;font-size:9px}
   .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}
-  #tbCmdAnnounce{top:125px!important;font-size:8px!important;max-width:80%!important}
-  #tbSectorAnnounce{top:148px!important;font-size:7px!important;max-width:85%!important}}
+  #tbCmdAnnounce{top:127px!important;font-size:8px!important;max-width:80%!important}
+  #tbSectorAnnounce{top:150px!important;font-size:7px!important;max-width:85%!important}}
 
 /* Governance Leaderboard (sidebar) */
 .gov-lb-section{margin-top:2px;border-top:1px solid var(--bdr)}
@@ -236,7 +236,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   font-size:var(--fs-xs);color:var(--tx2);pointer-events:none;backdrop-filter:blur(8px)}
 
 /* Mobile toggles */
-.mob-toggle{display:none;position:fixed;top:48px;z-index:110;
+.mob-toggle{display:none;position:fixed;top:50px;z-index:110;
   padding:6px 10px;font-size:9px;font-family:var(--fn);
   background:var(--panel);border:1px solid var(--bdr);border-radius:0 6px 6px 0;
   color:var(--tx2);cursor:pointer}
@@ -1768,7 +1768,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   @supports(padding:env(safe-area-inset-top)){
     .topbar{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
     #notifStack{top:0;right:0;left:0;padding-top:env(safe-area-inset-top)}
-    .announce-bar{left:max(55px,env(safe-area-inset-left));right:max(49px,env(safe-area-inset-right));top:75px}
+    .announce-bar{left:max(55px,env(safe-area-inset-left));right:max(49px,env(safe-area-inset-right));top:77px}
     .weather-banner{bottom:max(116px,calc(env(safe-area-inset-bottom) + 80px))}
     .wx-detail-popup{padding-bottom:max(80px,calc(env(safe-area-inset-bottom) + 60px))}
   }
