@@ -91,7 +91,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   font-family:var(--fn);font-size:10px;color:#FF6644;letter-spacing:0.8px;
   white-space:nowrap;pointer-events:none;
   animation:rocketPulse 2s ease-in-out infinite}
-.rocket-banner.show{display:flex;pointer-events:auto}
+.rocket-banner.show{display:flex;pointer-events:auto;cursor:pointer}
 .rocket-banner .rk-icon{font-size:16px}
 .rocket-banner .rk-type{font-weight:700;text-transform:uppercase}
 .rocket-banner .rk-sector{color:#FFD166;font-size:9px}
@@ -1801,7 +1801,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Rocket Event Banner -->
-<div class="rocket-banner" id="rocketBanner"></div>
+<div class="rocket-banner" id="rocketBanner" onclick="showRocketInfo()"></div>
 
 <!-- Active Item Buffs Overlay -->
 <div id="tbActiveBuffs" style="display:none;position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:110;flex-direction:row;gap:6px;pointer-events:none"></div>
@@ -12833,7 +12833,9 @@ window.addEventListener('resize', function(){
 
   // ═══════ WEATHER POLLING + BANNER ═══════
   function loadWeatherData() {
-    fetch('/api/weather').then(function(r){return r.json()}).then(function(data){
+    var wxUrl = '/api/weather';
+    if(walletState.address) wxUrl += '?wallet=' + encodeURIComponent(walletState.address);
+    fetch(wxUrl).then(function(r){return r.json()}).then(function(data){
       _weatherData = data.active || [];
       updateWeatherBanner();
       // Trigger texture refresh if weather changed
@@ -12965,12 +12967,16 @@ window.addEventListener('resize', function(){
     if (ev.status === 'incoming' && currentWallet) {
       priorityBtn = '<button onclick="event.stopPropagation();buyLootPriority(' + ev.id + ')" style="font-size:8px;padding:2px 8px;background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);border-radius:4px;color:var(--gold);cursor:pointer;font-family:var(--fn);white-space:nowrap">PRIORITY (0.3 PP)</button>';
     }
+    var tooltipText = ev.status === 'incoming'
+      ? 'A rocket is arriving! When it lands, click the drop zone on the map to claim loot (items, GP, PP). First come, first served!'
+      : 'The supply drop has landed! Click the 📦 marker on the map to claim loot. ' + remaining2 + ' items remaining!';
     el.innerHTML = '<span class="rk-icon">' + icon + '</span>'
       + '<span class="rk-type">' + typeLabel + '</span>'
-      + '<span class="rk-sector">' + (ev.sectorName || '') + '</span>'
+      + '<span class="rk-sector" style="margin:0 4px">' + (ev.sectorName || '') + '</span>'
       + '<span class="rk-time">' + timeStr + '</span>'
       + (ev.status === 'looting' ? '<span class="rk-loot">' + remaining2 + '/' + ev.totalRewards + ' loot</span>' : '')
       + priorityBtn;
+    el.title = tooltipText;
     el.classList.add('show');
   }
   setTimeout(loadRocketData, 7000);
@@ -13023,6 +13029,44 @@ window.addEventListener('resize', function(){
       if (btn) { btn.textContent = '\u2713'; btn.style.background = 'rgba(0,255,100,0.2)'; btn.style.borderColor = '#00FF88'; }
       loadBalance();
     }).catch(function(){ showToast('Claim failed'); if(btn){btn.disabled=false;btn.style.opacity='1';} });
+  };
+
+  // ═══════ ROCKET INFO POPUP ═══════
+  window.showRocketInfo = function() {
+    var events = (_rocketData.events || []).filter(function(e){ return e.status !== 'completed'; });
+    if (!events.length) return;
+    var ev = events[0];
+    var now = Date.now();
+    var isIncoming = ev.status === 'incoming';
+    var isLooting = ev.status === 'looting';
+    var remaining = isLooting ? (ev.totalRewards - ev.claimedRewards) : ev.totalRewards;
+    var icon = isLooting ? (ev.eventType === 'rud_explosion' ? '\u{1F4A5}' : '\u{1F4E6}') : '\u{1F680}';
+    var timeLeft = '';
+    if (isIncoming) {
+      var ms = Math.max(0, new Date(ev.landingAt).getTime() - now);
+      timeLeft = Math.floor(ms / 60000) + ' min until landing';
+    } else if (isLooting) {
+      var ms2 = Math.max(0, new Date(ev.lootingEndsAt).getTime() - now);
+      timeLeft = Math.floor(ms2 / 60000) + ' min remaining';
+    }
+    var html = '<div style="text-align:center;padding:16px">'
+      + '<div style="font-size:36px;margin-bottom:8px">' + icon + '</div>'
+      + '<div style="font-size:14px;font-weight:700;color:#FF6644;margin-bottom:8px">'
+      + (ev.eventType === 'rud_explosion' ? 'RUD EVENT' : 'SUPPLY DROP') + '</div>'
+      + '<div style="font-size:10px;color:var(--tx2);margin-bottom:12px;line-height:1.5">'
+      + (isIncoming
+        ? 'A rocket is on its way to Mars! When it lands, a 📦 marker will appear on the map in <b>' + (ev.sectorName || 'a sector') + '</b>. Click it to claim loot!'
+        : 'The supply drop has landed in <b>' + (ev.sectorName || 'a sector') + '</b>! Click the 📦 marker on the map to claim items.')
+      + '</div>'
+      + '<div style="display:flex;gap:12px;justify-content:center;margin-bottom:12px">'
+      + '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--gold)">' + remaining + '/' + ev.totalRewards + '</div><div style="font-size:8px;color:var(--tx3)">LOOT LEFT</div></div>'
+      + '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--mars)">' + timeLeft + '</div><div style="font-size:8px;color:var(--tx3)">TIME</div></div>'
+      + '</div>'
+      + '<div style="font-size:9px;color:var(--tx3);line-height:1.4;padding:8px;background:rgba(255,255,255,.03);border-radius:6px">'
+      + '💡 <b>How it works:</b> Loot contains GP, items, or rare PP. Click the marker on the map to claim. Each player can claim one loot per drop. First come, first served!'
+      + '</div></div>';
+    if (isMobile) { showMobModal('SUPPLY DROP', html); }
+    else { var p = document.getElementById('infoPanel'); if(p){p.innerHTML=html;p.style.display='block';} }
   };
 
   // Badge system: wallet → roles map
@@ -13526,6 +13570,8 @@ function _createShareImage(overlayText,callback){
 }
 
 function _doShare(text,blob){
+  // Season tracking: share action
+  if(walletState.address) fetch('/api/season/share',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:walletState.address})}).catch(function(){});
   var shareUrl=window.location.origin;
   var shareText=text||"I'm colonizing Mars! Check out my territory on OCCUPY MARS \uD83D\uDD34\uD83D\uDE80";
   if(navigator.share&&blob){

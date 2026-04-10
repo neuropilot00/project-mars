@@ -5,6 +5,9 @@ const { pool, getSettings, awardXP } = require('../db');
 
 const router = express.Router();
 
+let seasonService;
+try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }
+
 const isDev = process.env.NODE_ENV !== 'production';
 const betLimiter = rateLimit({
   windowMs: 60 * 1000, max: isDev ? 300 : 60,
@@ -159,6 +162,11 @@ router.post('/crash/bet', betLimiter, async (req, res) => {
 
     await client.query('COMMIT');
     res.json({ success: true, roundId, bet, currency: cur });
+    // Season tracking: cantina play + pp_spend (non-blocking)
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'cantina', 1).catch(() => {});
+      if (cur === 'PP') seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[Arena] crash bet:', e.message);
@@ -479,6 +487,10 @@ router.post('/mines/start', betLimiter, async (req, res) => {
       multiplier: 1.0,
       nextMultiplier: minesMultiplier(1, mineCount)
     });
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'cantina', 1).catch(() => {});
+      if (cur === 'PP') seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[Arena] mines start:', e.message);
@@ -697,6 +709,10 @@ router.post('/coinflip/play', betLimiter, async (req, res) => {
     await client.query('COMMIT');
 
     res.json({ result, won, choice: pick, payout, balance: parseFloat(balRes.rows[0].bal), hash: hash.slice(0, 16), seed });
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'cantina', 1).catch(() => {});
+      if (cur === 'PP') seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     res.status(500).json({ error: e.message });
@@ -774,6 +790,10 @@ router.post('/dice/play', betLimiter, async (req, res) => {
     await client.query('COMMIT');
 
     res.json({ roll, target: tgt, direction: dir, won, multiplier, payout, balance: parseFloat(balRes.rows[0].bal) });
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'cantina', 1).catch(() => {});
+      if (cur === 'PP') seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     res.status(500).json({ error: e.message });
@@ -844,6 +864,10 @@ router.post('/hilo/start', betLimiter, async (req, res) => {
       card: { value: firstCard.value, name: cardName(firstCard.value), suit: firstCard.suit },
       betAmount: bet, currency: cur, multiplier: 1
     });
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'cantina', 1).catch(() => {});
+      if (cur === 'PP') seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     res.status(500).json({ error: e.message });

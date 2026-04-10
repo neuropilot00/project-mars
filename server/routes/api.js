@@ -298,6 +298,8 @@ router.post('/referral/register', async (req, res) => {
     await pool.query('UPDATE users SET referred_by = $1 WHERE wallet_address = $2', [referrer, w]);
 
     res.json({ success: true, referrer: referrer.slice(0, 6) + '...' + referrer.slice(-4) });
+    // Season tracking: referral
+    if (seasonService) { seasonService.addSeasonScore(w, 'referral', 1).catch(() => {}); }
   } catch (e) {
     console.error('[API] referral register error:', e.message);
     res.status(500).json({ error: 'Internal error' });
@@ -1151,6 +1153,15 @@ router.post('/claim', writeLimiter, async (req, res) => {
         if (newCount > 0) seasonService.addSeasonScore(walletLower, 'claim_pixels', newCount).catch(() => {});
         if (attackWon > 0) seasonService.addSeasonScore(walletLower, 'hijack', attackWon).catch(() => {});
         if (attackLost > 0) seasonService.addSeasonScore(walletLower, 'hijack_loss', attackLost).catch(() => {});
+        // Track gp_spend for hijack cost
+        if (overlapCount > 0) seasonService.addSeasonScore(walletLower, 'gp_spend', Math.round(totalCost || 0)).catch(() => {});
+        // Track pixel_loss for defenders
+        if (battleResults && battleResults.length > 0) {
+          for (const [defender, info] of Object.entries(affectedOwners)) {
+            const lost = wonPixels.filter(ep => ep.existing.owner === defender).length;
+            if (lost > 0) seasonService.addSeasonScore(defender, 'pixel_loss', lost).catch(() => {});
+          }
+        }
       } catch (_se) { /* season tracking non-critical */ }
     }
   } catch (e) {
@@ -1678,6 +1689,8 @@ router.get('/sectors', readLimiter, async (req, res) => {
     });
 
     res.json(rows);
+    // Season tracking: sector exploration (non-blocking, once per request with wallet)
+    if (wallet && seasonService) { seasonService.addSeasonScore(wallet, 'sector_enter', 1).catch(() => {}); }
   } catch (e) {
     console.error('[API] sectors error:', e.message);
     res.status(500).json({ error: 'Internal error' });
@@ -2196,9 +2209,12 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     if (dailyService) {
       try { await dailyService.updateMissionProgress(w, 'harvest', 1); } catch (_de) { /* non-critical */ }
     }
-    // Season score hook (non-blocking)
+    // Season score hooks (non-blocking)
     if (seasonService) {
-      try { seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {}); } catch (_se) { /* non-critical */ }
+      try {
+        seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {});
+        if (harvestedPP > 0) seasonService.addSeasonScore(w, 'pp_earn', 1).catch(() => {});
+      } catch (_se) { /* non-critical */ }
     }
   } catch (e) {
     await client.query('ROLLBACK');
@@ -2704,6 +2720,12 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
 
     await client.query('COMMIT');
     res.json({ success: true, item: item.name, quantity: qty, cost: totalCost, currency: cur });
+    // Season tracking: shop purchase (non-blocking)
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'item_use', qty).catch(() => {}); // shopper category
+      if (cur === 'PP') seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
+      else seasonService.addSeasonScore(w, 'gp_spend', Math.round(totalCost)).catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[SHOP] buy error:', e.message);
@@ -2811,7 +2833,12 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
     await client.query('INSERT INTO item_usage_log (wallet, item_type_id, claim_id) VALUES ($1,$2,$3)', [w, item.id, claimId || null]);
 
     // Season tracking: item used
-    if (seasonService) { seasonService.addSeasonScore(w, 'item_use', 1).catch(() => {}); }
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'item_use', 1).catch(() => {});
+      if (item.code === 'shield_basic' || item.code === 'shield_advanced') {
+        seasonService.addSeasonScore(w, 'shield', 1).catch(() => {}); // fortifier
+      }
+    }
 
     await client.query('COMMIT');
     res.json({ success: true, item: item.name, effect: effectResult });
@@ -2871,6 +2898,9 @@ router.get('/weather', readLimiter, async (req, res) => {
   try {
     if (!weatherService) return res.json({ active: [] });
     const active = await weatherService.getActiveWeather();
+    // Season tracking: weather check (non-blocking, needs wallet)
+    const ww = (req.query.wallet || '').toLowerCase();
+    if (ww && seasonService) { seasonService.addSeasonScore(ww, 'weather', 1).catch(() => {}); }
     res.json({ active, serverTime: new Date().toISOString() });
   } catch (e) {
     console.error('[WEATHER] get error:', e.message);
@@ -2906,6 +2936,15 @@ router.post('/exploration/discover', writeLimiter, async (req, res) => {
     // Daily mission progress hook (non-blocking)
     if (dailyService && !result.error) {
       try { await dailyService.updateMissionProgress(wallet.toLowerCase(), 'explore_poi', 1); } catch (_de) { /* non-critical */ }
+    }
+    // Season tracking: POI discovery (non-blocking)
+    if (seasonService && result.success) {
+      const sw = wallet.toLowerCase();
+      seasonService.addSeasonScore(sw, 'poi', 1).catch(() => {}); // explorer
+      if (result.reward) {
+        if (result.reward.type === 'pp') seasonService.addSeasonScore(sw, 'pp_earn', 1).catch(() => {});
+        if (result.reward.type === 'gp') seasonService.addSeasonScore(sw, 'gp_earn', Math.round(result.reward.amount)).catch(() => {});
+      }
     }
   } catch (e) {
     console.error('[EXPLORE] discover error:', e.message);
@@ -2986,6 +3025,8 @@ router.post('/rockets/claim-loot', writeLimiter, async (req, res) => {
     const result = await rocketService.claimRocketLoot(wallet.toLowerCase(), parseInt(rocketEventId), parseInt(lootIndex));
     if (result.error) return res.status(400).json(result);
     res.json(result);
+    // Season tracking: rocket participation
+    if (seasonService && result.success) { seasonService.addSeasonScore(wallet.toLowerCase(), 'rocket', 1).catch(() => {}); }
   } catch (e) {
     console.error('[ROCKET] claim error:', e.message);
     res.status(500).json({ error: 'Claim failed' });
@@ -3059,6 +3100,11 @@ router.post('/cosmetic/equip', writeLimiter, async (req, res) => {
 
     await client.query('COMMIT');
     res.json({ success: true, cosmeticType, cosmeticCode: itemCode, feePP: equipFee });
+    // Season tracking: cosmetic equip + pp_spend (non-blocking)
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'cosmetic', 1).catch(() => {}); // fashionista
+      if (equipFee > 0) seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[COSMETIC] equip error:', e.message);
@@ -3129,6 +3175,13 @@ router.post('/daily/login', writeLimiter, async (req, res) => {
     if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
     const result = await dailyService.recordDailyLogin(wallet);
     res.json(result);
+    // Season tracking: daily login + streak (non-blocking)
+    if (seasonService && !result.alreadyClaimed) {
+      const sw = wallet.toLowerCase();
+      seasonService.addSeasonScore(sw, 'login', 1).catch(() => {}); // dedicated
+      if (result.streakDay > 1) seasonService.addSeasonScore(sw, 'streak', result.streakDay).catch(() => {}); // streaker
+      if (result.rewardGP > 0) seasonService.addSeasonScore(sw, 'gp_earn', result.rewardGP).catch(() => {});
+    }
   } catch (e) {
     console.error('[DAILY] login error:', e.message);
     res.status(500).json({ error: 'Daily login failed' });
@@ -3158,8 +3211,12 @@ router.post('/daily/missions/:id/claim', writeLimiter, async (req, res) => {
     if (!wallet || !missionId) return res.status(400).json({ error: 'Missing wallet or mission ID' });
     const result = await dailyService.claimMissionReward(wallet, missionId);
     if (result.error) return res.status(400).json(result);
-    // Season tracking: quest completed
-    if (seasonService && result.success) { seasonService.addSeasonScore(wallet.toLowerCase(), 'quest', 1).catch(() => {}); }
+    // Season tracking: quest completed + gp_earn
+    if (seasonService && result.success) {
+      const sw = wallet.toLowerCase();
+      seasonService.addSeasonScore(sw, 'quest', 1).catch(() => {}); // quester
+      if (result.rewardGP > 0) seasonService.addSeasonScore(sw, 'gp_earn', Math.round(result.rewardGP)).catch(() => {});
+    }
     res.json(result);
   } catch (e) {
     console.error('[DAILY] claim error:', e.message);
@@ -3228,6 +3285,8 @@ router.post('/harvest-instant', harvestLimiter, async (req, res) => {
     await client.query('COMMIT');
 
     res.json({ success: true, cost: instantCost, message: 'Cooldown skipped! You can harvest now.' });
+    // Season tracking: pp_spend (non-blocking)
+    if (seasonService) { seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {}); }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[MICRO] instant-harvest error:', e.message);
@@ -3285,6 +3344,11 @@ router.post('/claims/:id/rename', writeLimiter, async (req, res) => {
     await client.query('COMMIT');
 
     res.json({ success: true, cost: renameCost, name: cleanName });
+    // Season tracking: rename + pp_spend (non-blocking)
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'rename', 1).catch(() => {}); // namer
+      seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[MICRO] rename error:', e.message);
@@ -3370,6 +3434,8 @@ router.post('/exploration/hint', writeLimiter, async (req, res) => {
       cost: hintCost,
       hint: { direction, distance: distLabel, poiType: poi.poi_type }
     });
+    // Season tracking: pp_spend (non-blocking)
+    if (seasonService) { seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {}); }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[MICRO] poi-hint error:', e.message);
@@ -3553,6 +3619,17 @@ router.post('/season/claim', writeLimiter, async (req, res) => {
   }
 });
 
+// Track share action for "Influencer" season category
+router.post('/season/share', writeLimiter, async (req, res) => {
+  try {
+    const { wallet } = req.body;
+    const w = (wallet || '').toLowerCase();
+    if (!w) return res.json({ ok: true });
+    if (seasonService) { seasonService.addSeasonScore(w, 'share', 1).catch(() => {}); }
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: true }); }
+});
+
 // Track taps/clicks for "Most Active" season category (batched from frontend)
 router.post('/season/taps', writeLimiter, async (req, res) => {
   try {
@@ -3582,6 +3659,11 @@ router.post('/guild/create', writeLimiter, async (req, res) => {
     const result = await guildService.createGuild(w, name, tag, emoji, description);
     if (result.error) return res.status(400).json(result);
     res.json(result);
+    // Season tracking: gp_spend for guild creation + guild_contrib
+    if (seasonService && result.success) {
+      seasonService.addSeasonScore(w, 'gp_spend', 50).catch(() => {}); // big_spender
+      seasonService.addSeasonScore(w, 'guild_contrib', 1).catch(() => {}); // team_player
+    }
   } catch (e) {
     console.error('[GUILD] create error:', e.message);
     res.status(500).json({ error: 'Failed to create guild' });
@@ -3668,6 +3750,8 @@ router.post('/guild/invite/accept', writeLimiter, async (req, res) => {
     const result = await guildService.acceptInvite(w, parseInt(inviteId));
     if (result.error) return res.status(400).json(result);
     res.json(result);
+    // Season tracking: guild contribution (non-blocking)
+    if (seasonService && !result.error) { seasonService.addSeasonScore(w, 'guild_contrib', 1).catch(() => {}); }
   } catch (e) {
     console.error('[GUILD] accept error:', e.message);
     res.status(500).json({ error: 'Failed to accept invite' });
