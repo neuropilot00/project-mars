@@ -6334,23 +6334,30 @@ function _attachGlobeClick(){
     }
 
     // POI proximity check — discover nearby POI on click
-    if(_poiData.length > 0 && !landSelectMode) {
+    if(_poiData.length > 0 && !landSelectMode && !stampMode) {
       var nearestPOI = null, nearestDist = Infinity;
       var undiscoveredCount = 0;
       for(var pi=0;pi<_poiData.length;pi++){
         var p=_poiData[pi];
         if(p.discovered) continue;
         undiscoveredCount++;
-        var dlat=lat-p.lat, dlng=lng-p.lng;
+        var dlat=lat-p.lat;
+        var dlng=lng-p.lng;
+        // Wrap longitude difference for ±180 boundary
+        if(dlng > 180) dlng -= 360;
+        if(dlng < -180) dlng += 360;
         var dist=Math.sqrt(dlat*dlat+dlng*dlng);
         if(dist<nearestDist){nearestDist=dist;nearestPOI=p;}
       }
-      if(nearestPOI && nearestDist < 8) { // Within ~8 degrees (generous tap area for mobile)
-        console.log('[POI] Click detected! Nearest:', nearestPOI.poiType, 'dist:', nearestDist.toFixed(1), 'id:', nearestPOI.id);
+      // Dynamic threshold based on zoom level
+      var alt = globe.pointOfView().altitude || 2;
+      var threshold = Math.max(3, Math.min(12, alt * 6));
+      if(nearestPOI && nearestDist < threshold) {
+        console.log('[POI] Click! type:', nearestPOI.poiType, 'dist:', nearestDist.toFixed(1)+'°', 'threshold:', threshold.toFixed(1), 'id:', nearestPOI.id);
         _showPOIPopup(nearestPOI);
         return;
       }
-      if(undiscoveredCount > 0) console.log('[POI] Clicked but nearest POI too far:', nearestDist.toFixed(1), '° (need < 8°)');
+      if(undiscoveredCount > 0 && nearestDist < 30) console.log('[POI] Nearest POI too far:', nearestDist.toFixed(1)+'° (need <'+threshold.toFixed(0)+'°)');
     }
 
     // Rocket proximity check — open loot popup
@@ -14101,49 +14108,39 @@ var _dailyMilestones = {
   14: { bonus: 300, label: 'FULL STAMP CARD!' }
 };
 
-// ── Check Daily Login ──
+// ── Check Daily Login (query-only, no auto-claim) ──
 function checkDailyLogin(){
   if(!emailAuth.token || !walletState.address) return;
   var today = new Date().toISOString().slice(0,10);
   var stored = localStorage.getItem('daily_login_date_'+walletState.address);
   if(stored === today){ _dailyState.todayClaimed=true; _dailyDotReady=true; updateDailyHudDot(); renderInlineCheckin(); loadDailyMissions(); return; }
 
-  fetch('/api/daily/login',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
-    body:JSON.stringify({wallet:walletState.address})
+  // Just check status, don't auto-claim
+  fetch('/api/daily/status?wallet='+encodeURIComponent(walletState.address),{
+    headers:{'Authorization':'Bearer '+emailAuth.token}
   }).then(function(r){return r.json()}).then(function(d){
-    if(d.success){
-      _dailyState.streak = d.streak || 1;
-      _dailyState.lastReward = d.reward || _dailyRewards[Math.min((_dailyState.streak-1),6)];
-      _dailyState.todayClaimed = true; // Server already credited reward
-      var today = new Date().toISOString().slice(0,10);
-      localStorage.setItem('daily_login_date_'+walletState.address, today);
-      localStorage.setItem('daily_last_streak_'+walletState.address, String(_dailyState.streak));
-      renderDailyStreakRow();
-      renderInlineCheckin();
-      document.getElementById('dailyLoginPopup').classList.add('open');
-    } else if(d.already_claimed){
+    _dailyState.streak = d.streak || 0;
+    _dailyState.lastReward = _dailyRewards[Math.min(_dailyState.streak, 13)] || 10;
+    if(d.todayClaimed){
       _dailyState.todayClaimed = true;
-      _dailyState.streak = d.streak || 0;
       localStorage.setItem('daily_login_date_'+walletState.address, today);
-      renderInlineCheckin();
+    } else {
+      _dailyState.todayClaimed = false;
     }
     _dailyDotReady = true;
     updateDailyHudDot();
+    renderInlineCheckin();
     loadDailyMissions();
   }).catch(function(e){
-    // Backend not ready — show UI with defaults for graceful degradation
-    console.log('[Daily] Login endpoint not available, using local defaults');
-    var lastLogin = localStorage.getItem('daily_last_streak_'+walletState.address);
-    _dailyState.streak = lastLogin ? Math.min(parseInt(lastLogin)+1, 7) : 1;
-    _dailyState.lastReward = _dailyRewards[Math.min((_dailyState.streak-1),6)];
-    _dailyState.todayClaimed = true; // Treat as claimed to avoid false notification
-    renderDailyStreakRow();
-    renderInlineCheckin();
-    document.getElementById('dailyLoginPopup').classList.add('open');
+    // Backend not ready — show checkin button anyway
+    console.log('[Daily] Status endpoint not available, using local defaults');
+    var lastStreak = localStorage.getItem('daily_last_streak_'+walletState.address);
+    _dailyState.streak = lastStreak ? parseInt(lastStreak) : 0;
+    _dailyState.lastReward = _dailyRewards[Math.min(_dailyState.streak, 13)] || 10;
+    _dailyState.todayClaimed = false;
     _dailyDotReady = true;
     updateDailyHudDot();
+    renderInlineCheckin();
     loadDailyMissions();
   });
 }
@@ -14227,21 +14224,32 @@ function renderInlineCheckin(){
 
 // ── Claim Daily Login ──
 function claimDailyLogin(){
-  var today = new Date().toISOString().slice(0,10);
-  localStorage.setItem('daily_login_date_'+walletState.address, today);
-  localStorage.setItem('daily_last_streak_'+walletState.address, String(_dailyState.streak));
-  _dailyState.todayClaimed = true;
-  _dailyState.gpBalance += _dailyState.lastReward;
-  var milestone = _dailyMilestones[_dailyState.streak];
-  if(milestone) _dailyState.gpBalance += milestone.bonus;
-  updateGPDisplay();
-  closeDailyLogin();
-  var msg = '+' + _dailyState.lastReward + ' GP CLAIMED!';
-  if(milestone) msg += ' +' + milestone.bonus + ' GP STREAK BONUS!';
-  showToast(msg);
-  try{_sfx.harvest()}catch(e){}
-  renderInlineCheckin();
-  updateDailyHudDot();
+  if(!emailAuth.token || !walletState.address) { showToast('Login required'); return; }
+  if(_dailyState.todayClaimed) { showToast('Already checked in today!'); return; }
+
+  fetch('/api/daily/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
+    body:JSON.stringify({wallet:walletState.address})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error && !d.already_claimed) { showToast(d.error); return; }
+    var today = new Date().toISOString().slice(0,10);
+    _dailyState.streak = d.streak || (_dailyState.streak + 1);
+    _dailyState.lastReward = d.reward || _dailyRewards[Math.min(_dailyState.streak - 1, 13)] || 10;
+    _dailyState.todayClaimed = true;
+    localStorage.setItem('daily_login_date_'+walletState.address, today);
+    localStorage.setItem('daily_last_streak_'+walletState.address, String(_dailyState.streak));
+    closeDailyLogin();
+    var msg = '+' + _dailyState.lastReward + ' GP CLAIMED!';
+    var milestone = _dailyMilestones[_dailyState.streak];
+    if(milestone) msg += ' +' + milestone.bonus + ' GP STREAK BONUS!';
+    showToast(msg);
+    showNotification('system','CHECK-IN COMPLETE','Day '+_dailyState.streak+' streak! '+msg);
+    try{_sfx.harvest()}catch(e){}
+    renderInlineCheckin();
+    updateDailyHudDot();
+    loadBalance();
+  }).catch(function(){ showToast('Check-in failed, try again'); });
 }
 
 function closeDailyLogin(){

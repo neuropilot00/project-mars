@@ -3169,6 +3169,30 @@ router.get('/lore', async (req, res) => {
 //  DAILY ENGAGEMENT SYSTEM
 // ═══════════════════════════════════════
 
+// GET /api/daily/status — check today's check-in status without claiming
+router.get('/daily/status', readLimiter, async (req, res) => {
+  try {
+    const { wallet } = req.query;
+    if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
+    const w = wallet.toLowerCase();
+    const existing = await pool.query(
+      'SELECT streak_day, reward_gp FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE', [w]
+    );
+    if (existing.rows.length) {
+      return res.json({ todayClaimed: true, streak: existing.rows[0].streak_day, reward: parseFloat(existing.rows[0].reward_gp) });
+    }
+    // Not claimed today — get yesterday's streak to show current progress
+    const yesterday = await pool.query(
+      "SELECT streak_day FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE - INTERVAL '1 day'", [w]
+    );
+    const streak = yesterday.rows.length ? yesterday.rows[0].streak_day : 0;
+    res.json({ todayClaimed: false, streak });
+  } catch (e) {
+    console.error('[DAILY] status error:', e.message);
+    res.status(500).json({ error: 'Status check failed' });
+  }
+});
+
 // POST /api/daily/login — record daily login & collect streak reward
 router.post('/daily/login', writeLimiter, async (req, res) => {
   try {
