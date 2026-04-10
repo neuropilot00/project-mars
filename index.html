@@ -5246,18 +5246,13 @@ function _initStep3(){
     }).catch(function(){});
   }
 
-  // On mobile, test if NASA texture loads — fallback to procedural if it fails
-  var initTexUrl=(currentTexMode==='nasa')?NASA_MARS_2K:marsTexUrl;
-  if(currentTexMode==='nasa' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
-    var _testImg=new Image();
-    _testImg.onload=function(){ console.log('[Mars] NASA 2K texture loaded OK'); };
-    _testImg.onerror=function(){
-      console.warn('[Mars] NASA 2K failed on mobile, falling back to procedural');
-      initTexUrl=marsTexUrl;
-      currentTexMode='procedural';
-    };
-    _testImg.src=NASA_MARS_2K;
+  // On mobile, use procedural texture first (NASA 2K can fail on mobile)
+  var isMobileDevice=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  if(isMobileDevice && currentTexMode==='nasa'){
+    console.log('[Mars] Mobile detected — using procedural texture, NASA loads later');
+    currentTexMode='procedural';
   }
+  var initTexUrl=(currentTexMode==='nasa')?NASA_MARS_2K:marsTexUrl;
   setLoadProgress(80,'Initializing globe...');
 
   requestAnimationFrame(function(){
@@ -5303,8 +5298,22 @@ function _initStep3(){
         console.log('[Mars] NASA 2K cached for compositing');
       });
     }
-    // Progressive: load 8K NASA texture in background
-    setTimeout(loadNasa8k, 2000);
+    // Mobile: try loading NASA 2K in background after procedural is showing
+    if(isMobileDevice){
+      setTimeout(function(){
+        var t=new Image();
+        t.onload=function(){
+          console.log('[Mars] NASA 2K loaded on mobile — upgrading texture');
+          currentTexMode='nasa';
+          globe.globeImageUrl(NASA_MARS_2K);
+        };
+        t.onerror=function(){ console.warn('[Mars] NASA 2K unavailable on mobile'); };
+        t.src=NASA_MARS_2K;
+      }, 3000);
+    } else {
+      // Desktop: progressive load 8K NASA texture in background
+      setTimeout(loadNasa8k, 2000);
+    }
 
     // Auto-rotation
     globe.controls().autoRotate=true;
