@@ -4126,6 +4126,8 @@ function _ownerColor(addr){
 
 function compositeClaimsOnTexture(previewOnly){
   if(!globe||!marsCanvas) return;
+  // Skip compositing while waiting for NASA texture on mobile
+  if(currentTexMode==='simple') return;
   try{ globe.globeMaterial(); }catch(e){ return; } // globe not ready yet
   var ctx=marsCanvas.getContext('2d');
   ctx.imageSmoothingEnabled=true;
@@ -5145,6 +5147,7 @@ function _initStep3(){
     _mg.addColorStop(1,'#c4714a');
     _mx.fillStyle=_mg;_mx.fillRect(0,0,512,256);
     initTexUrl=_mc.toDataURL('image/jpeg',0.8);
+    marsBaseData=initTexUrl;
     currentTexMode='simple';
   } else {
     initTexUrl=(currentTexMode==='nasa')?NASA_MARS_2K:marsTexUrl;
