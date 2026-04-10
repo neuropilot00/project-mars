@@ -5032,7 +5032,25 @@ function compositeClaimsOnTexture(previewOnly){
     return;
   }
 
-  // Direct GPU upload — no JPEG compression, much sharper + faster
+  // ═══ MOBILE SAFE PATH ═══
+  // Direct CanvasTexture → globeMaterial.map replacement has been unreliable on
+  // some mobile devices (results in black globe). Route through globe.globeImageUrl()
+  // which uses Three.js TextureLoader — proven reliable on all devices.
+  if(_isMob){
+    try{
+      var _dataUrl = marsCanvas.toDataURL('image/jpeg', 0.82);
+      // Debounce: don't thrash if called rapidly
+      if(!window._lastMobileTexUpload || Date.now() - window._lastMobileTexUpload > 800){
+        window._lastMobileTexUpload = Date.now();
+        globe.globeImageUrl(_dataUrl);
+      }
+    }catch(_mu){
+      console.warn('[Mars] Mobile texture upload failed:', _mu.message);
+    }
+    return;
+  }
+
+  // Direct GPU upload — no JPEG compression, much sharper + faster (DESKTOP)
   if(!marsCanvasTexture){
     var mat=globe.globeMaterial(); if(!mat||!mat.map) return;
     var TexClass=mat.map.constructor;
