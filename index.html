@@ -303,7 +303,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .hwd{font-size:var(--fs-xs);color:rgba(200,160,140,.55);line-height:1.7}
 
 /* Toast */
-.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% - 100px));padding:8px 20px;
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% - 160px));padding:8px 20px;
   background:rgba(18,18,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.25);
   border-radius:20px;font-size:var(--fs-sm);color:var(--gn);opacity:0;transition:opacity .3s;
   z-index:10001;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
@@ -4054,7 +4054,13 @@ function craterAt(u,v){
 }
 
 /* ── Generate Procedural Mars Texture (HD) ───────── */
-var marsCanvas=document.createElement('canvas');marsCanvas.width=2048;marsCanvas.height=1024;
+// Desktop: 4096x2048 (matches NASA 4K). Mobile: 2048x1024 (JPEG upload size constraint).
+var marsCanvas=document.createElement('canvas');
+(function(){
+  var _isMobCanvas=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  marsCanvas.width  = _isMobCanvas ? 2048 : 4096;
+  marsCanvas.height = _isMobCanvas ? 1024 : 2048;
+})();
 var marsBaseData=null;
 
 function genMarsTexture(){
@@ -5034,36 +5040,46 @@ function compositeClaimsOnTexture(previewOnly){
     return;
   }
 
-  // ═══ IN-PLACE IMAGE SWAP ═══
-  // Previously we replaced mat.map with a new CanvasTexture — unreliable on mobile
-  // (created a fresh texture with default settings that rendered as black GPU-side).
-  // Previously we routed mobile through globeImageUrl(dataURL) — reliable but
-  // JPEG re-encoded every composite, causing generation loss (blurry globe).
-  //
-  // Best of both: swap the existing texture's .image reference to marsCanvas and
-  // flag needsUpdate. This preserves all wrap/filter/colorSpace settings that
-  // globe.gl set up during init, and never re-encodes.
-  var _mat = globe.globeMaterial();
-  if(!_mat || !_mat.map){
-    // Texture not yet loaded by Three.js — try again shortly
-    setTimeout(function(){compositeClaimsOnTexture(previewOnly)}, 200);
+  // ═══ TEXTURE UPLOAD ═══
+  // Mobile: route through globe.globeImageUrl() with high-quality JPEG dataURL.
+  // (CanvasTexture replacement AND in-place image swap both render as black
+  //  on some mobile GPUs — only the TextureLoader path is reliable.)
+  // Desktop: direct CanvasTexture GPU upload (fastest, no encoding cost).
+  if(_isMob){
+    try{
+      if(!window._lastMobileTexUpload || Date.now() - window._lastMobileTexUpload > 800){
+        window._lastMobileTexUpload = Date.now();
+        // Quality 0.95 = visually near-lossless, ~500-900KB for 2048x1024
+        var _dataUrl = marsCanvas.toDataURL('image/jpeg', 0.95);
+        globe.globeImageUrl(_dataUrl);
+      }
+    }catch(_mu){
+      console.warn('[Mars] Mobile texture upload failed:', _mu.message);
+    }
     return;
   }
-  try{
-    _mat.map.image = marsCanvas;
-    _mat.map.needsUpdate = true;
-    // Ensure filter settings are compatible with a canvas source on mobile
-    // (avoid mipmap generation which can fail on some mobile GPUs)
-    if(_isMob){
-      try{
-        // THREE.LinearFilter = 1006, THREE.ClampToEdgeWrapping = 1001
-        _mat.map.generateMipmaps = false;
-        _mat.map.minFilter = 1006; // LinearFilter
-        _mat.map.magFilter = 1006; // LinearFilter
-      }catch(_fe){}
-    }
-  }catch(_ue){
-    console.warn('[Mars] Texture image swap failed:', _ue.message);
+
+  // Desktop: direct GPU upload via CanvasTexture (no JPEG cost)
+  if(!marsCanvasTexture){
+    var mat=globe.globeMaterial(); if(!mat||!mat.map) return;
+    var TexClass=mat.map.constructor;
+    marsCanvasTexture=new TexClass(marsCanvas);
+    // Preserve colorSpace & anisotropy from the original texture loaded by globe.gl
+    try{
+      if(mat.map.colorSpace) marsCanvasTexture.colorSpace=mat.map.colorSpace;
+      else if(mat.map.encoding!=null) marsCanvasTexture.encoding=mat.map.encoding;
+    }catch(_ce){}
+    try{
+      // Max out anisotropy so 4K canvas stays sharp at oblique viewing angles
+      var _renderer = globe.renderer && globe.renderer();
+      var _maxAniso = _renderer && _renderer.capabilities && _renderer.capabilities.getMaxAnisotropy
+        ? _renderer.capabilities.getMaxAnisotropy() : 16;
+      marsCanvasTexture.anisotropy = _maxAniso;
+    }catch(_ae){}
+    marsCanvasTexture.needsUpdate=true;
+    globe.globeMaterial().map=marsCanvasTexture;
+  }else{
+    marsCanvasTexture.needsUpdate=true;
   }
 
 }
