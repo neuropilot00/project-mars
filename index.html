@@ -13080,10 +13080,11 @@ window.addEventListener('resize', function(){
   setTimeout(loadWeatherData, 4000);
   setInterval(loadWeatherData, 60000);
   setInterval(updateWeatherBanner, 30000);
-  // Animate weather/POI/starlink overlay texture (throttled for performance)
+  // Animate weather/POI/starlink overlay texture (throttled — mobile slower)
+  var _compositeInterval = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 15000 : 8000;
   setInterval(function() {
     if (_weatherData.length > 0 || _poiData.length > 0 || _starlinkData.passes.length > 0) compositeClaimsOnTexture();
-  }, 2500);
+  }, _compositeInterval);
 
   // ═══════ EXPLORATION POLLING ═══════
   function loadExplorationData() {
@@ -13107,9 +13108,9 @@ window.addEventListener('resize', function(){
     }).catch(function(){});
   }
   setTimeout(loadExplorationData, 5000);
-  setInterval(loadExplorationData, 30000);
+  setInterval(loadExplorationData, 60000);
   setTimeout(loadStarlinkData, 6000);
-  setInterval(loadStarlinkData, 10000);
+  setInterval(loadStarlinkData, 30000);
   // Init Starlink 3D orbit around globe
   function _tryInitStarlinkOrbit() {
     if (_slDots.length) return;

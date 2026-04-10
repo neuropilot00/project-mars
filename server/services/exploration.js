@@ -25,6 +25,15 @@ async function spawnPOIs() {
   if (enabled === 'false') return [];
 
   const count = parseInt(await getSetting('poi_count_per_cycle') || '6');
+  const maxActive = parseInt(await getSetting('poi_max_active') || '12');
+
+  // Skip spawning if enough active POIs exist
+  const activeRes = await pool.query('SELECT COUNT(*)::int AS cnt FROM exploration_pois WHERE active = true AND expires_at > NOW()');
+  const currentActive = activeRes.rows[0]?.cnt || 0;
+  if (currentActive >= maxActive) {
+    console.log(`[EXPLORE] Skip spawn: ${currentActive} active POIs (max ${maxActive})`);
+    return [];
+  }
   const expireHours = parseInt(await getSetting('poi_expire_hours') || '12');
   const minPP = parseFloat(await getSetting('poi_reward_min_pp') || '0.05');
   const maxPP = parseFloat(await getSetting('poi_reward_max_pp') || '0.3');
