@@ -10132,7 +10132,7 @@ function createGuild(){
     showToast('Guild ['+data.tag+'] created!','success');
     loadGuildTab();
     // Refresh GP display
-    if(typeof refreshWalletData==='function') refreshWalletData();
+    try{ refreshEmailBalances(); }catch(_re){}
   }).catch(function(){showToast('Failed to create guild','error')});
 }
 
@@ -10411,7 +10411,7 @@ function claimSeasonReward(rewardId){
     if(data.error){showToast(data.error,'error');return;}
     showToast('Claimed '+data.amount+' '+data.type.toUpperCase()+'!','success');
     loadSeasonLeaderboard();
-    if(typeof refreshWalletData==='function') refreshWalletData();
+    try{ refreshEmailBalances(); }catch(_re){}
   }).catch(function(){showToast('Failed to claim','error')});
 }
 
@@ -11912,7 +11912,7 @@ function _discoverPOI(poiId) {
     // Optimistically deduct the fee from the cached balance so repeated discovers show correct state
     window._userPP = Math.max(0, (window._userPP||0) - (window._explorationFee||0));
     compositeClaimsOnTexture();
-    loadBalance();
+    try{ refreshEmailBalances(); }catch(_rb){}
     var poiOv = document.getElementById('poiPopupOverlay');
     if (poiOv) poiOv.remove();
     _showRewardSplash(data.label, rwText, data.xp, data.bonusCosmetic, _poiType || data.poiType || '');
@@ -13626,7 +13626,7 @@ window.addEventListener('resize', function(){
       }
       try{_sfx.harvest()}catch(e){}
       if (btn) { btn.textContent = '\u2713'; btn.style.background = 'rgba(0,255,100,0.2)'; btn.style.borderColor = '#00FF88'; }
-      loadBalance();
+      try{ refreshEmailBalances(); }catch(_rb){}
     }).catch(function(){ showToast('Claim failed'); if(btn){btn.disabled=false;btn.style.opacity='1';} });
   };
 
@@ -14701,7 +14701,7 @@ function claimDailyLogin(){
     try{_sfx.harvest()}catch(e){}
     renderInlineCheckin();
     updateDailyHudDot();
-    loadBalance();
+    try{ refreshEmailBalances(); }catch(_rb){}
   }).catch(function(){ showToast('Check-in failed, try again'); });
 }
 
