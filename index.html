@@ -52,7 +52,12 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   text-shadow:0 1px 3px rgba(0,0,0,0.8)}
 .announce-close:hover{color:var(--gold)}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@media(max-width:768px){.announce-bar{left:5%;right:5%}}
+@media(max-width:768px){
+  .announce-bar{left:55px;right:49px;top:72px;height:20px}
+  #seasonBanner{top:43px!important;max-width:75vw;font-size:9px!important;padding:3px 10px!important}
+  .tb-commander{top:96px!important}
+  .active-buffs-bar{top:auto;bottom:148px;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+}
 
 /* Weather Banner */
 .weather-banner{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:108;
@@ -80,7 +85,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .wx-detail-popup .wx-d-label{font-size:10px;color:var(--tx3)}
 .wx-detail-popup .wx-d-val{font-size:11px;font-weight:700}
 .wx-d-val.buff{color:var(--gn)}.wx-d-val.debuff{color:var(--red)}.wx-d-val.neutral{color:var(--cyan)}
-@media(max-width:768px){.weather-banner{bottom:112px;font-size:8px;padding:3px 10px}
+@media(max-width:768px){.weather-banner{bottom:116px;font-size:8px;padding:3px 10px}
 .wx-detail-popup{padding-bottom:80px;z-index:210}}
 
 /* Rocket Event Banner */
@@ -98,7 +103,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .rocket-banner .rk-time{color:rgba(255,100,68,0.8);font-size:9px;font-weight:700}
 .rocket-banner .rk-loot{color:#00FF88;font-size:9px}
 @keyframes rocketPulse{0%,100%{border-color:rgba(255,80,40,0.5)}50%{border-color:rgba(255,80,40,0.9)}}
-@media(max-width:768px){.rocket-banner{top:206px;font-size:9px;padding:4px 12px}}
+@media(max-width:768px){.rocket-banner{top:168px;font-size:9px;padding:4px 12px}}
 
 /* Commander Banner */
 .tb-commander{position:fixed;top:130px;left:50%;transform:translateX(-50%);z-index:109;
@@ -113,10 +118,10 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .tb-commander .cmd-label{font-size:8px;opacity:0.7;text-transform:uppercase}
 .tb-commander .cmd-name{font-weight:700;font-size:11px}
 @keyframes cmdPulse{0%,100%{opacity:0.85;box-shadow:0 0 8px rgba(255,209,102,0.1)}50%{opacity:1;box-shadow:0 0 16px rgba(255,209,102,0.25)}}
-@media(max-width:768px){.tb-commander{top:124px;padding:3px 10px;font-size:9px}
+@media(max-width:768px){.tb-commander{top:108px;padding:3px 10px;font-size:9px}
   .tb-commander .cmd-label{display:none}.tb-commander .cmd-name{font-size:10px}
-  #tbCmdAnnounce{top:156px!important;font-size:8px!important;max-width:80%!important}
-  #tbSectorAnnounce{top:182px!important;font-size:7px!important;max-width:85%!important}}
+  #tbCmdAnnounce{top:122px!important;font-size:8px!important;max-width:80%!important}
+  #tbSectorAnnounce{top:144px!important;font-size:7px!important;max-width:85%!important}}
 
 /* Governance Leaderboard (sidebar) */
 .gov-lb-section{margin-top:2px;border-top:1px solid var(--bdr)}
@@ -231,7 +236,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
   font-size:var(--fs-xs);color:var(--tx2);pointer-events:none;backdrop-filter:blur(8px)}
 
 /* Mobile toggles */
-.mob-toggle{display:none;position:fixed;top:54px;z-index:110;
+.mob-toggle{display:none;position:fixed;top:48px;z-index:110;
   padding:6px 10px;font-size:9px;font-family:var(--fn);
   background:var(--panel);border:1px solid var(--bdr);border-radius:0 6px 6px 0;
   color:var(--tx2);cursor:pointer}
@@ -947,6 +952,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   background:rgba(255,120,60,.12);border:1px solid rgba(255,120,60,.3);border-radius:6px;
   color:var(--mars);cursor:pointer;transition:all .15s}
 .inv-item .inv-use:hover{background:rgba(255,120,60,.25)}
+/* Active buff bar — default (desktop): top center */
+.active-buffs-bar{top:100px;left:50%;transform:translateX(-50%);flex-direction:row}
 /* Active buff pills */
 .tb-buff{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;
   font-size:9px;font-family:var(--fn);letter-spacing:.3px;white-space:nowrap;
@@ -963,11 +970,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .panel-l,.panel-r{width:85%;top:52px;max-width:320px}
   .panel-l{transform:translateX(-110%)}
   .panel-r{transform:translateX(110%);right:0}
-  .panel-l.open,.panel-r.open{transform:translateX(0)}
+  .panel-l.open,.panel-r.open{transform:translateX(0);z-index:120}
   .mob-toggle{display:block}
   .mob-toggle.hidden{opacity:0;pointer-events:none;transition:opacity .2s}
   .zc{right:10px;bottom:145px}
-  .mode-badge{left:12px;bottom:76px;font-size:9px;padding:6px 12px}
+  .mode-badge{left:12px;bottom:82px;font-size:9px;padding:6px 12px}
   .mob-fab-wrap{display:none!important}
   /* Topbar */
   .topbar{padding:8px 10px}
@@ -1022,7 +1029,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   #shopConfirmModal{align-items:center!important}
   #shopConfirmModal .mdl{align-self:center;border-radius:14px;max-width:90vw}
   .tb-buff{font-size:8px;padding:2px 6px}
-  #tbActiveBuffs{top:100px!important;left:50%!important;transform:translateX(-50%)!important}
+  .active-buffs-bar{top:auto;bottom:148px;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
   .shop-cat-btn{padding:10px 4px;font-size:10px;min-height:44px}
   .si-price{min-height:36px;display:flex;align-items:center;padding:6px 12px!important;font-size:11px!important}
   .inv-item{padding:12px}
@@ -1752,15 +1759,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .panel-r{padding-right:max(12px,env(safe-area-inset-right))}
   .col-fab-wrap{bottom:max(40px,calc(env(safe-area-inset-bottom) + 20px))}
   .mob-fab-wrap{bottom:max(100px,calc(env(safe-area-inset-bottom) + 80px))}
-  .mode-badge{bottom:max(76px,calc(env(safe-area-inset-bottom) + 56px))}
+  .mode-badge{bottom:max(82px,calc(env(safe-area-inset-bottom) + 56px))}
   .zc{bottom:max(145px,calc(env(safe-area-inset-bottom) + 120px))}
 }
 @media(max-width:768px){
   @supports(padding:env(safe-area-inset-top)){
     .topbar{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
     #notifStack{top:0;right:0;left:0;padding-top:env(safe-area-inset-top)}
-    .announce-bar{left:max(5%,env(safe-area-inset-left));right:max(5%,env(safe-area-inset-right))}
-    .weather-banner{bottom:max(112px,calc(env(safe-area-inset-bottom) + 80px))}
+    .announce-bar{left:max(55px,env(safe-area-inset-left));right:max(49px,env(safe-area-inset-right));top:72px}
+    .weather-banner{bottom:max(116px,calc(env(safe-area-inset-bottom) + 80px))}
     .wx-detail-popup{padding-bottom:max(80px,calc(env(safe-area-inset-bottom) + 60px))}
   }
 }
@@ -1815,9 +1822,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .claim-info-item{padding:5px 10px}
   .claim-info-label{font-size:9px}
   .claim-info-val{font-size:9px}
-  .announce-bar{top:56px;height:24px}
-  .tb-commander{top:110px;font-size:8px;padding:2px 8px}
-  .rocket-banner{top:180px;font-size:8px;padding:3px 10px}
+  .announce-bar{top:70px;height:18px}
+  #seasonBanner{max-width:70vw;font-size:8px!important}
+  .tb-commander{top:92px;font-size:8px;padding:2px 8px}
+  .rocket-banner{top:168px;font-size:8px;padding:3px 10px}
   .weather-banner{font-size:7px;padding:2px 8px}
   .feed-item{font-size:8px;padding:4px 0}
   .lb-row{padding:3px 0}
@@ -1896,7 +1904,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .mob-territory-card{max-height:90vh;padding:10px 14px 16px}
   .claim-hero{padding:8px;min-height:auto}
   .claim-hero-img{width:60px;height:60px}
-  .announce-bar{top:40px}
+  .announce-bar{top:68px}
   .tb-commander{top:76px;font-size:8px}
   .rocket-banner{top:130px;font-size:8px}
   .weather-banner{bottom:52px;font-size:7px}
@@ -1986,7 +1994,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div class="rocket-banner" id="rocketBanner" onclick="showRocketInfo()"></div>
 
 <!-- Active Item Buffs Overlay -->
-<div id="tbActiveBuffs" style="display:none;position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:110;flex-direction:row;gap:6px;pointer-events:none"></div>
+<div id="tbActiveBuffs" style="display:none;position:fixed;z-index:110;gap:6px;pointer-events:none" class="active-buffs-bar"></div>
 
 <!-- Tutorial Overlay -->
 <div class="tut-overlay" id="tutOverlay" style="display:none">
@@ -2009,8 +2017,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Season Banner -->
-<div id="seasonBanner" onclick="openBaseModal();switchBaseTab('rank',document.querySelector('[onclick*=rank]'))" style="display:none;position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:107;
-  font-family:var(--fn);font-size:10px;padding:6px 18px;border-radius:0 0 12px 12px;
+<div id="seasonBanner" onclick="openBaseModal();switchBaseTab('rank',document.querySelector('[onclick*=rank]'))" style="display:none;position:fixed;left:50%;transform:translateX(-50%);z-index:107;
+  font-family:var(--fn);font-size:10px;padding:6px 14px;border-radius:0 0 12px 12px;
   background:linear-gradient(135deg,rgba(255,80,30,0.2),rgba(255,40,10,0.1));backdrop-filter:blur(10px);
   border:1px solid rgba(255,80,30,0.3);border-top:none;color:var(--mars);white-space:nowrap;
   cursor:pointer;letter-spacing:1px;
@@ -2018,9 +2026,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   box-shadow:0 4px 20px rgba(255,80,30,0.15)">
   <span id="seasonBannerIcon" style="margin-right:4px;font-size:14px">🌋</span>
   <span id="seasonBannerName" style="font-weight:700">Season 1</span>
-  <span style="color:var(--tx3);margin:0 8px">·</span>
-  <span id="seasonBannerTimer" style="color:var(--gold);font-weight:700">--</span>
-  <span style="margin-left:6px;font-size:8px;color:var(--tx3)">TAP ▸</span>
+  <span style="color:var(--tx3);margin-left:4px">(</span><span id="seasonBannerTimer" style="color:var(--gold);font-weight:700">--</span><span style="color:var(--tx3)">)</span>
+  <span style="margin-left:4px;font-size:7px;color:var(--tx3)">TAP▸</span>
 </div>
 
 <!-- Season Visual Tint Overlay -->
@@ -2039,8 +2046,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Mobile Panel Toggles -->
-<button class="mob-toggle" style="left:0;top:54px" onclick="toggleLeft()">◀ STATS</button>
-<button class="mob-toggle right" style="right:0;top:54px" onclick="toggleRight()">LIVE ▶</button>
+<button class="mob-toggle" style="left:0" onclick="toggleLeft()">◀ STATS</button>
+<button class="mob-toggle right" style="right:0" onclick="toggleRight()">LIVE ▶</button>
 
 <!-- Panel close buttons (fixed, outside panels) -->
 <button class="panel-close-fixed for-left" id="closeBtnLeft" onclick="closeLeft()">✕</button>
@@ -11687,6 +11694,16 @@ function updateMobToggles(){
   var clRight=document.getElementById('closeBtnRight');
   if(clLeft)clLeft.classList.toggle('visible',lOpen);
   if(clRight)clRight.classList.toggle('visible',rOpen);
+  // 패널 열리면 고정 배너들 숨기기
+  var seasonB=document.getElementById('seasonBanner');
+  var announceB=document.getElementById('announceBanner');
+  var cmdB=document.getElementById('tbCommander');
+  var buffsB=document.getElementById('tbActiveBuffs');
+  var cmdAnn=document.getElementById('tbCmdAnnounce');
+  var secAnn=document.getElementById('tbSectorAnnounce');
+  [seasonB,announceB,cmdB,buffsB,cmdAnn,secAnn].forEach(function(el){
+    if(el) el.style.visibility=anyOpen?'hidden':'';
+  });
 }
 var feedExpanded=false;
 function toggleFeed(){
@@ -14428,6 +14445,7 @@ function renderDailyMissions(){
 
 function claimMission(missionId){
   var mission = null;
+  missionId = Number(missionId);
   _dailyState.missions.forEach(function(m){ if(m.id===missionId) mission=m; });
   if(!mission || mission.claimed || mission.current < mission.target) return;
 
