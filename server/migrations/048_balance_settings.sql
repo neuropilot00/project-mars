@@ -78,3 +78,15 @@ INSERT INTO game_settings (key, value, category, description) VALUES
   ('loot_priority_cost_pp', '0.3', 'micro', 'PP cost for rocket loot priority'),
   ('cosmetic_equip_fee_pp', '0', 'micro', 'PP fee for equipping cosmetics')
 ON CONFLICT (key) DO NOTHING;
+
+-- ── POI Reward Scaling ──
+INSERT INTO game_settings (key, value, category, description) VALUES
+  ('poi_reward_min_gp', '10', 'exploration', 'Min GP reward for POI discovery'),
+  ('poi_reward_max_gp', '50', 'exploration', 'Max GP reward for POI discovery'),
+  ('poi_reward_min_pp', '0.05', 'exploration', 'Min PP reward for POI discovery (rare)'),
+  ('poi_reward_max_pp', '0.3', 'exploration', 'Max PP reward for POI discovery (rare)'),
+  ('poi_drop_gp_weight', '70', 'exploration', 'Weight for GP drop from POI (70 = ~70%)'),
+  ('poi_drop_item_weight', '20', 'exploration', 'Weight for Item drop from POI (20 = ~20%)'),
+  ('poi_drop_pp_weight', '10', 'exploration', 'Weight for PP drop from POI (10 = ~10% rare)'),
+  ('poi_discovery_xp', '5', 'exploration', 'XP awarded per POI discovery')
+ON CONFLICT (key) DO NOTHING;

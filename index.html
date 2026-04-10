@@ -2413,17 +2413,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- Next Breakthrough Gate -->
-        <div id="breakthroughPanel" style="display:none;margin:12px 0;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(240,200,64,.08),rgba(240,200,64,.02));border:1px solid rgba(240,200,64,.25)">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-            <span style="font-size:14px">🔒</span>
-            <span style="font-size:var(--fs-sm);color:var(--gold);font-family:var(--fn);font-weight:bold" id="btGateTitle">BREAKTHROUGH</span>
-            <span style="font-size:var(--fs-xs);color:var(--tx3);margin-left:auto" id="btGateLevel">Lv.?</span>
-          </div>
-          <div id="btProgressList" style="display:flex;flex-direction:column;gap:6px"></div>
-        </div>
-
-        <!-- Season Info & Guide -->
+        <!-- Season Info & Guide (TOP PRIORITY) -->
         <div id="seasonSection" style="margin-bottom:16px">
           <div class="base-section-title" style="color:var(--mars)">SEASON</div>
           <div id="seasonGuide" style="display:none;margin-bottom:10px;padding:10px;border:1px solid rgba(255,120,60,.2);border-radius:8px;background:rgba(255,120,60,.04)">
@@ -2439,18 +2429,33 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
           <div style="font-size:8px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:4px">LEADERBOARD</div>
           <div id="seasonLeaderboard" style="font-size:10px;color:var(--tx3);padding:4px 0">Loading...</div>
-          <!-- My season rewards -->
           <div id="seasonRewardsSection" style="display:none;margin-top:8px">
             <div style="font-size:9px;color:var(--gold);font-family:var(--fn);margin-bottom:4px">YOUR REWARDS</div>
             <div id="seasonRewardsList"></div>
           </div>
         </div>
 
-        <div class="base-section-title">ALL RANKS</div>
-        <table class="rank-table">
-          <thead><tr><th>LV</th><th>NAME</th><th>XP</th><th>PP REWARD</th></tr></thead>
-          <tbody id="baseRankTable"></tbody>
-        </table>
+        <!-- Next Breakthrough Gate -->
+        <div id="breakthroughPanel" style="display:none;margin:12px 0;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(240,200,64,.08),rgba(240,200,64,.02));border:1px solid rgba(240,200,64,.25)">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+            <span style="font-size:14px">🔒</span>
+            <span style="font-size:var(--fs-sm);color:var(--gold);font-family:var(--fn);font-weight:bold" id="btGateTitle">BREAKTHROUGH</span>
+            <span style="font-size:var(--fs-xs);color:var(--tx3);margin-left:auto" id="btGateLevel">Lv.?</span>
+          </div>
+          <div id="btProgressList" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
+        <!-- ALL RANKS (collapsed by default) -->
+        <div class="base-section-title" onclick="toggleRankTable()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+          <span>ALL RANKS</span>
+          <span id="rankTableToggle" style="font-size:8px;color:var(--tx3)">▼ SHOW</span>
+        </div>
+        <div id="rankTableWrap" style="display:none">
+          <table class="rank-table">
+            <thead><tr><th>LV</th><th>NAME</th><th>XP</th><th>PP REWARD</th></tr></thead>
+            <tbody id="baseRankTable"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- TAB: MINING -->
@@ -9869,6 +9874,14 @@ function loadSeasonData(){
   }).catch(function(){});
 }
 
+function toggleRankTable(){
+  var wrap=document.getElementById('rankTableWrap');
+  var tog=document.getElementById('rankTableToggle');
+  if(!wrap)return;
+  if(wrap.style.display==='none'){wrap.style.display='';tog.textContent='▲ HIDE';}
+  else{wrap.style.display='none';tog.textContent='▼ SHOW';}
+}
+
 function showSeasonGuide(season){
   var guide=document.getElementById('seasonGuide');
   if(!season){guide.style.display='none';return;}
@@ -11237,7 +11250,7 @@ function _showPOIPopup(poi) {
     + '<div style="font-size:36px;margin-bottom:8px">' + def.icon + '</div>'
     + '<div style="font-size:14px;font-weight:700;color:' + def.color + ';margin-bottom:4px">' + (poi.label || poi.poiType) + '</div>'
     + '<div style="font-size:10px;color:var(--tx3);margin-bottom:12px">' + (poi.sectorName || 'Unknown Sector') + '</div>'
-    + '<div style="font-size:9px;color:var(--tx3);margin-bottom:16px">Discover this POI to earn PP rewards!<br>Requires territory in this sector.</div>'
+    + '<div style="font-size:9px;color:var(--tx3);margin-bottom:16px">Discover to earn GP, Items, or rare PP!<br>Requires territory in this sector.</div>'
     + '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:10px;background:linear-gradient(135deg,' + def.color + ',#FF8800);color:#000;border:none;border-radius:8px;font-family:var(--fn);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px">'
     + '\u{1F50D} DISCOVER</button>'
     + '<button onclick="getPOIHint()" style="width:100%;margin-top:6px;padding:8px;background:rgba(255,209,102,.1);color:var(--gold);border:1px solid rgba(255,209,102,.3);border-radius:8px;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px">'
@@ -11259,8 +11272,19 @@ function _discoverPOI(poiId) {
     body: JSON.stringify({ wallet: currentWallet, poiId: poiId })
   }).then(function(r) { return r.json(); }).then(function(data) {
     if (data.error) { showToast(data.error); return; }
-    showNotification('system','POI DISCOVERED',data.label+' found! +'+data.reward.amount+' PP, +'+data.xp+' XP');
-    addFeed('\u{1F50D} ' + (currentNickname || currentWallet.slice(0,6)) + ' discovered ' + data.label);
+    var rw = data.reward;
+    var rwText = '';
+    if (rw.type === 'item' && rw.itemName) {
+      rwText = (rw.itemIcon||'📦') + ' ' + rw.itemName + (rw.amount > 1 ? ' x' + rw.amount : '');
+    } else if (rw.type === 'gp') {
+      rwText = '+' + rw.amount + ' GP';
+    } else if (rw.type === 'pp') {
+      rwText = '+' + rw.amount + ' PP ★RARE★';
+    } else {
+      rwText = '+' + rw.amount + ' ' + (rw.type||'').toUpperCase();
+    }
+    showNotification('system','POI DISCOVERED', data.label + ' found! ' + rwText + ', +' + data.xp + ' XP');
+    addFeed('\u{1F50D} ' + (currentNickname || currentWallet.slice(0,6)) + ' discovered ' + data.label + ' — ' + rwText);
     // Remove from local data
     _poiData = _poiData.filter(function(p) { return p.id !== poiId; });
     compositeClaimsOnTexture();

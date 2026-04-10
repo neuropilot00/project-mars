@@ -1484,4 +1484,53 @@ router.get('/gp/stats', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ══════════════════════════════════════
+//  POI DROP TABLE MANAGEMENT
+// ══════════════════════════════════════
+
+router.get('/poi-drops', adminAuth, async (req, res) => {
+  try {
+    const drops = await pool.query('SELECT * FROM poi_drop_table ORDER BY weight DESC');
+    // Also get POI stats
+    const stats = await pool.query(`
+      SELECT reward_type, COUNT(*) as cnt, ROUND(AVG(reward_amount)::numeric,2) as avg_amt
+      FROM exploration_pois WHERE created_at > NOW() - INTERVAL '7 days'
+      GROUP BY reward_type ORDER BY cnt DESC`);
+    const active = await pool.query('SELECT COUNT(*) as cnt FROM exploration_pois WHERE active = true AND expires_at > NOW()');
+    res.json({ drops: drops.rows, stats: stats.rows, activePOIs: parseInt(active.rows[0].cnt) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/poi-drops', adminAuth, async (req, res) => {
+  try {
+    const { itemCode, itemName, icon, weight, minQty, maxQty } = req.body;
+    if (!itemCode || !itemName) return res.status(400).json({ error: 'itemCode and itemName required' });
+    const r = await pool.query(
+      `INSERT INTO poi_drop_table (item_code, item_name, icon, weight, min_qty, max_qty)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [itemCode, itemName, icon || '📦', weight || 10, minQty || 1, maxQty || 1]
+    );
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.put('/poi-drops/:id', adminAuth, async (req, res) => {
+  try {
+    const { weight, minQty, maxQty, active } = req.body;
+    const r = await pool.query(
+      `UPDATE poi_drop_table SET weight = COALESCE($1, weight), min_qty = COALESCE($2, min_qty),
+       max_qty = COALESCE($3, max_qty), active = COALESCE($4, active) WHERE id = $5 RETURNING *`,
+      [weight, minQty, maxQty, active, req.params.id]
+    );
+    res.json(r.rows[0] || { error: 'Not found' });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/poi-drops/:id', adminAuth, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM poi_drop_table WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

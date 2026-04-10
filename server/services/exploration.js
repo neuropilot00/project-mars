@@ -27,7 +27,27 @@ async function spawnPOIs() {
   const count = parseInt(await getSetting('poi_count_per_cycle') || '6');
   const expireHours = parseInt(await getSetting('poi_expire_hours') || '12');
   const minPP = parseFloat(await getSetting('poi_reward_min_pp') || '0.05');
-  const maxPP = parseFloat(await getSetting('poi_reward_max_pp') || '0.5');
+  const maxPP = parseFloat(await getSetting('poi_reward_max_pp') || '0.3');
+  const minGP = parseFloat(await getSetting('poi_reward_min_gp') || '10');
+  const maxGP = parseFloat(await getSetting('poi_reward_max_gp') || '50');
+
+  // Reward distribution weights (admin configurable)
+  const gpWeight = parseInt(await getSetting('poi_drop_gp_weight') || '70');
+  const itemWeight = parseInt(await getSetting('poi_drop_item_weight') || '20');
+  const ppWeight = parseInt(await getSetting('poi_drop_pp_weight') || '10');
+  const totalWeight = gpWeight + itemWeight + ppWeight;
+
+  // Load item drop table
+  let dropTable = [];
+  try {
+    const dtRes = await pool.query('SELECT * FROM poi_drop_table WHERE active = true ORDER BY weight DESC');
+    dropTable = dtRes.rows;
+  } catch (_e) { /* table may not exist yet */ }
+
+  // Scale rewards based on active user count
+  const userCountRes = await pool.query("SELECT COUNT(*)::int AS cnt FROM users WHERE created_at > NOW() - INTERVAL '30 days'");
+  const activeUsers = userCountRes.rows[0]?.cnt || 1;
+  const scaleFactor = Math.min(1 + Math.floor(activeUsers / 10) * 0.1, 3.0); // +10% per 10 users, max 3x
 
   // Get all sectors for random placement
   const sectors = await pool.query('SELECT id, bounds_polygon FROM sectors');
@@ -42,7 +62,7 @@ async function spawnPOIs() {
     const polygon = typeof sector.bounds_polygon === 'string' ? JSON.parse(sector.bounds_polygon) : sector.bounds_polygon;
     if (!polygon || polygon.length < 3) continue;
 
-    // Random point inside sector polygon (simple: random point in bounding box, check containment)
+    // Random point inside sector polygon
     const lngs = polygon.map(p => p[0]);
     const lats = polygon.map(p => p[1]);
     const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
@@ -57,20 +77,57 @@ async function spawnPOIs() {
     if (!inside) { lat = (minLat + maxLat) / 2; lng = (minLng + maxLng) / 2; }
 
     const poiType = types[Math.floor(Math.random() * types.length)];
-    const rewardAmount = Math.round((minPP + Math.random() * (maxPP - minPP)) * 100) / 100;
+
+    // Weighted random: GP (70%) > Item (20%) > PP (10%)
+    const roll = Math.random() * totalWeight;
+    let rewardType, rewardAmount, rewardItemCode = null;
+
+    if (roll < gpWeight) {
+      // GP reward (most common)
+      rewardType = 'gp';
+      rewardAmount = Math.round((minGP + Math.random() * (maxGP - minGP)) * scaleFactor);
+    } else if (roll < gpWeight + itemWeight && dropTable.length > 0) {
+      // Item reward — weighted random from drop table
+      rewardType = 'item';
+      const picked = weightedPickItem(dropTable);
+      rewardItemCode = picked.item_code;
+      rewardAmount = randInt(picked.min_qty, picked.max_qty);
+    } else {
+      // PP reward (rare)
+      rewardType = 'pp';
+      rewardAmount = Math.round((minPP + Math.random() * (maxPP - minPP)) * scaleFactor * 100) / 100;
+    }
 
     const res = await pool.query(
-      `INSERT INTO exploration_pois (lat, lng, sector_id, poi_type, reward_type, reward_amount, expires_at)
-       VALUES ($1, $2, $3, $4, 'pp', $5, NOW() + INTERVAL '1 hour' * $6) RETURNING id`,
-      [lat, lng, sector.id, poiType, rewardAmount, expireHours]
+      `INSERT INTO exploration_pois (lat, lng, sector_id, poi_type, reward_type, reward_amount, reward_item_code, expires_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '1 hour' * $8) RETURNING id`,
+      [lat, lng, sector.id, poiType, rewardType, rewardAmount, rewardItemCode, expireHours]
     );
-    results.push({ id: res.rows[0].id, sectorId: sector.id, poiType, lat, lng, rewardAmount });
+    results.push({ id: res.rows[0].id, sectorId: sector.id, poiType, lat, lng, rewardType, rewardAmount, rewardItemCode });
   }
 
   if (results.length > 0) {
-    console.log('[EXPLORE] Spawned POIs:', results.map(r => `#${r.id} ${r.poiType} (${r.rewardAmount}PP)`).join(', '));
+    console.log('[EXPLORE] Spawned POIs:', results.map(r => {
+      const label = r.rewardType === 'item' ? `${r.rewardItemCode} x${r.rewardAmount}` : `${r.rewardAmount} ${r.rewardType.toUpperCase()}`;
+      return `#${r.id} ${r.poiType} (${label}) scale:${scaleFactor}`;
+    }).join(', '));
   }
   return results;
+}
+
+// Weighted random pick from drop table
+function weightedPickItem(dropTable) {
+  const totalW = dropTable.reduce((s, d) => s + d.weight, 0);
+  let roll = Math.random() * totalW;
+  for (const item of dropTable) {
+    roll -= item.weight;
+    if (roll <= 0) return item;
+  }
+  return dropTable[dropTable.length - 1];
+}
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // ═══════════════════════════════════════
@@ -156,10 +213,33 @@ async function discoverPOI(wallet, poiId) {
       [wallet, poiId]
     );
 
-    // Grant reward
-    let rewardGiven = { type: poi.reward_type, amount: parseFloat(poi.reward_amount) };
-    if (poi.reward_type === 'pp') {
-      // Fund from quest_reward_pool
+    // Grant reward based on type: gp, pp, item, xp
+    let rewardGiven = { type: poi.reward_type, amount: parseFloat(poi.reward_amount), itemCode: poi.reward_item_code, itemName: null, itemIcon: null };
+
+    if (poi.reward_type === 'gp') {
+      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2', [rewardGiven.amount, wallet]);
+    } else if (poi.reward_type === 'item' && poi.reward_item_code) {
+      // Item reward — add to user inventory
+      const itemRes = await client.query('SELECT id, name, icon FROM item_types WHERE code = $1 AND active = true', [poi.reward_item_code]);
+      if (itemRes.rows.length) {
+        const item = itemRes.rows[0];
+        rewardGiven.itemName = item.name;
+        rewardGiven.itemIcon = item.icon;
+        await client.query(
+          `INSERT INTO user_items (wallet, item_type_id, quantity)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + $3`,
+          [wallet, item.id, Math.max(1, rewardGiven.amount)]
+        );
+      } else {
+        // Fallback: item not found, give GP instead
+        rewardGiven.type = 'gp';
+        rewardGiven.amount = 15;
+        rewardGiven.itemCode = null;
+        await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2', [15, wallet]);
+      }
+    } else if (poi.reward_type === 'pp') {
+      // PP reward — fund from quest_reward_pool (rare)
       const poolRes = await client.query('SELECT quest_reward_pool FROM platform_stats LIMIT 1');
       const poolBal = poolRes.rows[0] ? parseFloat(poolRes.rows[0].quest_reward_pool) : 0;
       const reward = Math.min(rewardGiven.amount, poolBal);
@@ -172,16 +252,17 @@ async function discoverPOI(wallet, poiId) {
       }
     }
 
-    // XP reward
+    // XP bonus for all discoveries
+    const xpReward = parseInt(await getSetting('poi_discovery_xp', 5));
     try {
       const { awardXP } = require('../db');
-      await awardXP(client, wallet, 5);
+      await awardXP(client, wallet, xpReward);
     } catch (_e) { /* XP award failed, non-critical */ }
 
     // Log discovery
     await client.query(
-      'INSERT INTO poi_discoveries (poi_id, wallet, reward_type, reward_amount) VALUES ($1, $2, $3, $4)',
-      [poiId, wallet, rewardGiven.type, rewardGiven.amount]
+      'INSERT INTO poi_discoveries (poi_id, wallet, reward_type, reward_amount, reward_item_code) VALUES ($1, $2, $3, $4, $5)',
+      [poiId, wallet, rewardGiven.type, rewardGiven.amount, rewardGiven.itemCode]
     );
 
     await client.query('COMMIT');
@@ -189,7 +270,7 @@ async function discoverPOI(wallet, poiId) {
       success: true,
       poiType: poi.poi_type,
       reward: rewardGiven,
-      xp: 5,
+      xp: xpReward,
       icon: POI_TYPES[poi.poi_type]?.icon || '📍',
       label: POI_TYPES[poi.poi_type]?.label || poi.poi_type
     };

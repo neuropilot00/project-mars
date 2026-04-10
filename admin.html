@@ -214,6 +214,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('guild')" data-tab="guild" style="color:var(--mars)">GUILD</button>
   <button class="adm-tab" onclick="switchTab('season')" data-tab="season" style="color:#ff4500">SEASON</button>
   <button class="adm-tab" onclick="switchTab('gp')" data-tab="gp" style="color:var(--gold)">GP</button>
+  <button class="adm-tab" onclick="switchTab('poi')" data-tab="poi" style="color:#00FF88">POI</button>
   <button class="adm-tab" onclick="switchTab('governance')" data-tab="governance" style="color:var(--cyan)">GOVERNANCE</button>
   <button class="adm-tab" onclick="switchTab('lore')" data-tab="lore" style="color:#FFD700">LORE</button>
 </div>
@@ -799,6 +800,64 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ POI DROP TABLE TAB ═══ -->
+  <div class="section cat-poi" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#00FF88">POI DROP TABLE</span>
+      <div class="sec-tools">
+        <button class="adm-btn primary" onclick="loadPOIDrops()">REFRESH</button>
+        <button class="adm-btn" onclick="showAddDrop()" style="background:rgba(0,255,136,.15);border-color:rgba(0,255,136,.4);color:#00FF88">+ ADD DROP</button>
+      </div>
+    </div>
+    <p style="font-size:10px;color:#888;margin-bottom:8px">
+      Manage POI discovery rewards. Weight determines drop chance (GP/Item/PP ratios in SETTINGS tab → exploration category).
+    </p>
+
+    <!-- POI Stats -->
+    <div id="poiStats" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>
+
+    <!-- Add Drop Form -->
+    <div id="dropForm" style="display:none;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:12px;margin-bottom:12px">
+      <div style="font-size:9px;font-weight:700;color:#00FF88;margin-bottom:8px">NEW ITEM DROP</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div>
+          <label style="font-size:7px;color:#888">Item Code</label>
+          <select id="dropItemCode" style="width:100%;padding:4px;font-size:8px;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);border-radius:4px">
+            <option value="">— Select item —</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:7px;color:#888">Icon</label>
+          <input id="dropIcon" style="width:100%;padding:4px;font-size:8px;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);border-radius:4px" value="📦">
+        </div>
+        <div>
+          <label style="font-size:7px;color:#888">Weight (higher = more common)</label>
+          <input id="dropWeight" type="number" value="10" style="width:100%;padding:4px;font-size:8px;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);border-radius:4px">
+        </div>
+        <div>
+          <label style="font-size:7px;color:#888">Min Qty</label>
+          <input id="dropMinQty" type="number" value="1" style="width:100%;padding:4px;font-size:8px;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);border-radius:4px">
+        </div>
+        <div>
+          <label style="font-size:7px;color:#888">Max Qty</label>
+          <input id="dropMaxQty" type="number" value="1" style="width:100%;padding:4px;font-size:8px;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);border-radius:4px">
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="adm-btn primary" onclick="createDrop()" style="background:rgba(0,255,136,.15);border-color:rgba(0,255,136,.4);color:#00FF88">CREATE</button>
+        <button class="adm-btn" onclick="document.getElementById('dropForm').style.display='none'">CANCEL</button>
+      </div>
+    </div>
+
+    <!-- Drop Table -->
+    <table class="data-table" style="font-size:8px">
+      <thead><tr>
+        <th>ICON</th><th>ITEM</th><th>CODE</th><th>WEIGHT</th><th>QTY</th><th>ACTIVE</th><th></th>
+      </tr></thead>
+      <tbody id="poiDropBody"></tbody>
+    </table>
+  </div>
+
   <!-- ═══ LORE TAB ═══ -->
   <div class="section cat-lore" style="display:none">
     <div class="sec-header">
@@ -881,7 +940,7 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'governance', 'lore'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
@@ -895,6 +954,7 @@ function switchTab(tab) {
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); }
   if (tab === 'gp') { loadGPStats(); }
+  if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
 }
@@ -2304,6 +2364,81 @@ function grantAllGP() {
       if (d.success) { el.textContent = '✓ Granted to ' + d.affected + ' users'; el.style.color = 'var(--gn)'; loadGPStats(); }
       else { el.textContent = '✗ ' + (d.error || 'Failed'); el.style.color = 'var(--red)'; }
     });
+}
+
+// ══════════════════════════════════════
+//  POI DROP TABLE
+// ══════════════════════════════════════
+
+function loadPOIDrops() {
+  api('poi-drops').then(function(d) {
+    // Stats
+    var statsEl = document.getElementById('poiStats');
+    var html = '<div style="padding:6px 10px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:6px;font-size:8px">'
+      + '<div style="color:#00FF88;font-weight:700">Active POIs: ' + (d.activePOIs || 0) + '</div></div>';
+    if (d.stats) {
+      d.stats.forEach(function(s) {
+        var color = s.reward_type === 'gp' ? 'var(--gold)' : s.reward_type === 'item' ? '#00FF88' : 'var(--cyan)';
+        html += '<div style="padding:6px 10px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px;font-size:8px">'
+          + '<div style="color:' + color + ';font-weight:700">' + s.reward_type.toUpperCase() + '</div>'
+          + '<div style="color:#888">' + s.cnt + ' drops (avg ' + s.avg_amt + ')</div></div>';
+      });
+    }
+    statsEl.innerHTML = html;
+
+    // Drop table rows
+    var body = document.getElementById('poiDropBody');
+    body.innerHTML = '';
+    (d.drops || []).forEach(function(dr) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (dr.icon || '📦') + '</td>'
+        + '<td style="font-weight:700">' + dr.item_name + '</td>'
+        + '<td style="color:#888">' + dr.item_code + '</td>'
+        + '<td><input type="number" value="' + dr.weight + '" style="width:40px;padding:2px;font-size:8px;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);border-radius:3px;text-align:center" onchange="updateDrop(' + dr.id + ',{weight:+this.value})"></td>'
+        + '<td>' + dr.min_qty + '-' + dr.max_qty + '</td>'
+        + '<td><button class="ev-btn" style="border-color:' + (dr.active ? 'var(--gn)' : 'var(--red)') + ';color:' + (dr.active ? 'var(--gn)' : 'var(--red)') + '" onclick="updateDrop(' + dr.id + ',{active:' + (!dr.active) + '})">' + (dr.active ? 'ON' : 'OFF') + '</button></td>'
+        + '<td><button class="ev-btn" style="border-color:var(--red);color:var(--red)" onclick="deleteDrop(' + dr.id + ')">DEL</button></td>';
+      body.appendChild(tr);
+    });
+  });
+}
+
+function showAddDrop() {
+  document.getElementById('dropForm').style.display = '';
+  // Load item_types for dropdown
+  api('shop-items').then(function(items) {
+    var sel = document.getElementById('dropItemCode');
+    sel.innerHTML = '<option value="">— Select item —</option>';
+    (items || []).forEach(function(it) {
+      sel.innerHTML += '<option value="' + it.code + '">' + it.icon + ' ' + it.name + ' (' + it.code + ')</option>';
+    });
+  });
+}
+
+function createDrop() {
+  var sel = document.getElementById('dropItemCode');
+  var opt = sel.options[sel.selectedIndex];
+  if (!sel.value) { alert('Select an item'); return; }
+  api('poi-drops', 'POST', {
+    itemCode: sel.value,
+    itemName: opt.textContent.split('(')[0].trim(),
+    icon: document.getElementById('dropIcon').value || '📦',
+    weight: parseInt(document.getElementById('dropWeight').value) || 10,
+    minQty: parseInt(document.getElementById('dropMinQty').value) || 1,
+    maxQty: parseInt(document.getElementById('dropMaxQty').value) || 1
+  }).then(function() {
+    document.getElementById('dropForm').style.display = 'none';
+    loadPOIDrops();
+  });
+}
+
+function updateDrop(id, data) {
+  api('poi-drops/' + id, 'PUT', data).then(function() { loadPOIDrops(); });
+}
+
+function deleteDrop(id) {
+  if (!confirm('Delete this drop entry?')) return;
+  api('poi-drops/' + id, 'DELETE').then(function() { loadPOIDrops(); });
 }
 
 // Auto-focus auth input
