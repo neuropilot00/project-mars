@@ -5046,12 +5046,25 @@ function compositeClaimsOnTexture(previewOnly){
   //  on some mobile GPUs — only the TextureLoader path is reliable.)
   // Desktop: direct CanvasTexture GPU upload (fastest, no encoding cost).
   if(_isMob){
+    // Preview drags (previewOnly=true) happen every animation frame while the
+    // user moves the claim pin — re-encoding a 2K JPEG at 0.95 each frame
+    // tanks the framerate. Use a coarser quality + tighter throttle while
+    // previewing, and only do a high-quality upload on commit.
     try{
-      if(!window._lastMobileTexUpload || Date.now() - window._lastMobileTexUpload > 800){
-        window._lastMobileTexUpload = Date.now();
-        // Quality 0.95 = visually near-lossless, ~500-900KB for 2048x1024
-        var _dataUrl = marsCanvas.toDataURL('image/jpeg', 0.95);
-        globe.globeImageUrl(_dataUrl);
+      var _now = Date.now();
+      var _lastUp = window._lastMobileTexUpload || 0;
+      if(previewOnly){
+        // Coalesce preview uploads — max ~6 fps, quality 0.6 (tiny encode cost)
+        if(_now - _lastUp < 160) return;
+        window._lastMobileTexUpload = _now;
+        var _dataUrlP = marsCanvas.toDataURL('image/jpeg', 0.60);
+        globe.globeImageUrl(_dataUrlP);
+      } else {
+        // Full rebuild — commit quality. Throttle light (500ms).
+        if(_now - _lastUp < 500) return;
+        window._lastMobileTexUpload = _now;
+        var _dataUrlF = marsCanvas.toDataURL('image/jpeg', 0.92);
+        globe.globeImageUrl(_dataUrlF);
       }
     }catch(_mu){
       console.warn('[Mars] Mobile texture upload failed:', _mu.message);
