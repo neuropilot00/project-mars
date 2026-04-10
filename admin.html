@@ -137,6 +137,14 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
 .setting-cat{font-size:8px;color:var(--mars);letter-spacing:1.5px;text-transform:uppercase;
   grid-column:1/-1;padding:8px 0 2px;border-bottom:1px solid var(--bdr);margin-top:4px}
 .setting-cat:first-child{margin-top:0}
+/* Setting category filter tabs */
+.setting-filter-bar{display:flex;flex-wrap:wrap;gap:4px;padding:12px 16px 0;border-bottom:1px solid var(--bdr)}
+.setting-filter-btn{padding:5px 10px;font-size:7px;font-family:var(--fn);letter-spacing:.8px;
+  background:transparent;border:1px solid transparent;border-bottom:2px solid transparent;
+  color:var(--tx3);cursor:pointer;border-radius:4px 4px 0 0;transition:all .2s;white-space:nowrap}
+.setting-filter-btn:hover{color:var(--tx);background:rgba(255,120,60,.05)}
+.setting-filter-btn.active{color:var(--mars);border-color:var(--bdr);border-bottom-color:var(--mars);
+  background:rgba(255,120,60,.08)}
 
 /* Event cards */
 .event-card{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;
@@ -240,6 +248,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <span style="font-size:6px;color:var(--tx3)" id="settingsStatus"></span>
       </div>
     </div>
+    <div class="setting-filter-bar" id="settingFilterBar"></div>
     <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px" id="settingsGrid">
       <div class="loading">Loading...</div>
     </div>
@@ -1391,14 +1400,82 @@ var settingDescI18n = {
     min_deposit: '최소 입금액 (USDT)',
     min_withdraw: '최소 출금액 (USDT)',
     signup_pp_bonus: '신규 가입 시 지급되는 PP (0=비활성)',
-    arena_enabled: '아레나 게임 활성화/비활성화',
-    arena_house_edge: '아레나 전체 하우스엣지 %',
+    arena_enabled: '칸티나 전체 활성화/비활성화',
+    arena_house_edge: '칸티나 전체 하우스엣지 %',
     crash_house_edge: 'Crash 게임 하우스엣지 (0.04 = 4%)',
-    crash_max_bet: 'Crash 최대 베팅액',
-    crash_min_bet: 'Crash 최소 베팅액',
+    crash_max_bet: 'Crash 최대 베팅액 (PP)',
+    crash_min_bet: 'Crash 최소 베팅액 (PP)',
     mines_house_edge: 'Mines 게임 하우스엣지 (0.03 = 3%)',
-    mines_max_bet: 'Mines 최대 베팅액',
-    mines_min_bet: 'Mines 최소 베팅액'
+    mines_max_bet: 'Mines 최대 베팅액 (PP)',
+    mines_min_bet: 'Mines 최소 베팅액 (PP)',
+    coinflip_min_bet: 'Coinflip 최소 베팅액 (PP)',
+    coinflip_max_bet: 'Coinflip 최대 베팅액 (PP)',
+    dice_min_bet: 'Dice 최소 베팅액 (PP)',
+    dice_max_bet: 'Dice 최대 베팅액 (PP)',
+    hilo_min_bet: 'Hi-Lo 최소 베팅액 (PP)',
+    hilo_max_bet: 'Hi-Lo 최대 베팅액 (PP)',
+    // 탐험
+    poi_reward_min_gp: 'POI 최소 GP 보상',
+    poi_reward_max_gp: 'POI 최대 GP 보상',
+    poi_reward_min_pp: 'POI 최소 PP 보상 (레어)',
+    poi_reward_max_pp: 'POI 최대 PP 보상 (레어)',
+    poi_drop_gp_weight: 'GP 드롭 가중치 (70 = ~70%)',
+    poi_drop_item_weight: '아이템 드롭 가중치 (20 = ~20%)',
+    poi_drop_pp_weight: 'PP 드롭 가중치 (10 = ~10% 레어)',
+    poi_discovery_xp: 'POI 발견 시 XP 보상',
+    poi_count_per_cycle: '사이클당 POI 스폰 수',
+    poi_spawn_interval_hours: 'POI 스폰 주기 (시간)',
+    poi_expire_hours: 'POI 만료 시간',
+    poi_hint_cost_pp: 'POI 힌트 비용 (PP)',
+    // 전투
+    attack_success_rate: '기본 공격 성공률 (%)',
+    attack_min_success: '최소 공격 성공률 (%)',
+    attack_max_success: '최대 공격 성공률 (%)',
+    hijack_fail_refund: '공격 실패 시 환불 비율 (0.9 = 90%)',
+    hijack_fail_fee: '공격 실패 수수료 비율 (0.1 = 10%)',
+    war_discount_mult: '전쟁 중 클레임 할인 (0.8 = 20% 할인)',
+    pixel_doubler_mult: '픽셀 더블러 할인 (0.5 = 50% 할인)',
+    // 채굴
+    harvest_pixel_factor_cap: '채굴 픽셀 팩터 최대값',
+    harvest_governor_bonus: '총독 채굴 보너스 (1.2 = 20% 추가)',
+    // 시즌
+    season_mult_pixels: '픽셀 클레임 당 시즌 점수',
+    season_mult_harvest: '채굴 당 시즌 점수',
+    season_mult_hijack: '하이잭 성공 당 시즌 점수',
+    season_mult_poi: 'POI 발견 당 시즌 점수',
+    // 길드
+    guild_create_cost_gp: '길드 생성 비용 (GP)',
+    guild_max_members: '길드 최대 인원',
+    // 데일리
+    daily_mission_reward_claim: '클레임 미션 GP 보상',
+    daily_mission_reward_harvest: '채굴 미션 GP 보상',
+    daily_mission_reward_poi: '탐험 미션 GP 보상',
+    daily_mission_reward_hijack: '하이잭 미션 GP 보상',
+    daily_mission_reward_cantina: '칸티나 미션 GP 보상',
+    daily_mission_reward_cosmetic: '코스메틱 미션 GP 보상',
+    daily_mission_reward_weather: '날씨 미션 GP 보상',
+    daily_mission_bonus_gp: '전체 미션 완료 보너스 GP',
+    daily_streak_cycle: '출석 연속 리셋 주기 (일)',
+    // 퀘스트
+    quest_slots_free: '무료 퀘스트 슬롯 수',
+    quest_slots_activity: '활동 퀘스트 슬롯 수',
+    quest_slots_spending: '소비 퀘스트 슬롯 수',
+    quest_expiry_free: '무료 퀘스트 만료 (시간)',
+    quest_expiry_activity: '활동 퀘스트 만료 (시간)',
+    quest_expiry_spending: '소비 퀘스트 만료 (시간)',
+    // 소액결제
+    instant_harvest_cost_pp: '즉시 채굴 비용 (PP)',
+    rename_cost_pp: '영토 이름 변경 비용 (PP)',
+    loot_priority_cost_pp: '로켓 루팅 우선권 비용 (PP)',
+    cosmetic_equip_fee_pp: '코스메틱 장착 수수료 (PP)',
+    // 날씨
+    weather_dust_mining: '먼지폭풍 채굴 보정 (%)',
+    weather_dust_defense: '먼지폭풍 방어 보정 (%)',
+    weather_solar_mining: '태양폭풍 채굴 보정 (%)',
+    weather_solar_shield: '태양폭풍 실드 보정 (%)',
+    weather_cold_mining: '한파 채굴 보정 (%)',
+    weather_meteor_attack: '운석우 공격 보정 (%)',
+    weather_meteor_claimcost: '운석우 클레임 비용 보정 (%)'
   },
   ja: {
     announcement: '\u30B0\u30ED\u30FC\u30D0\u30EB\u304A\u77E5\u3089\u305B\u30D0\u30CA\u30FC (\u7A7A\u767D\u3067\u975E\u8868\u793A)',
@@ -1434,48 +1511,104 @@ var settingDescI18n = {
   }
 };
 
-// Category name translations
+// Category name translations (with icons)
 var settingCatI18n = {
-  ko: { display: '\uD45C\uC2DC', economy: '\uACBD\uC81C', limits: '\uC81C\uD55C' },
-  ja: { display: '\u8868\u793A', economy: '\u7D4C\u6E08', limits: '\u5236\u9650' },
-  zh: { display: '\u663E\u793A', economy: '\u7ECF\u6D4E', limits: '\u9650\u5236' }
+  ko: {
+    general: '⚙️ 일반', display: '🖥️ 표시', economy: '💰 경제', limits: '🚧 제한',
+    arena: '🎰 칸티나', battle: '⚔️ 전투', mining: '⛏️ 채굴',
+    quest: '📜 퀘스트', daily: '📅 데일리', weather: '🌦️ 날씨',
+    season: '🏆 시즌', guild: '🛡️ 길드', exploration: '🔭 탐험',
+    micro: '💎 소액결제', rank: '🏅 랭크', referral: '🤝 추천',
+    sector: '🗺️ 섹터', security: '🔒 보안', system: '🔧 시스템'
+  },
+  ja: {
+    display: '\u8868\u793A', economy: '\u7D4C\u6E08', limits: '\u5236\u9650',
+    arena: '🎰 \u30AB\u30F3\u30C6\u30A3\u30FC\u30CA', battle: '⚔️ \u6226\u95D8',
+    mining: '⛏️ \u63A1\u6398', quest: '📜 \u30AF\u30A8\u30B9\u30C8',
+    daily: '📅 \u30C7\u30A4\u30EA\u30FC', weather: '🌦️ \u5929\u6C17',
+    season: '🏆 \u30B7\u30FC\u30BA\u30F3', guild: '🛡️ \u30AE\u30EB\u30C9',
+    exploration: '🔭 \u63A2\u691C', micro: '💎 \u5C11\u984D\u6C7A\u6E08'
+  },
+  zh: {
+    display: '\u663E\u793A', economy: '\u7ECF\u6D4E', limits: '\u9650\u5236',
+    arena: '🎰 酒馆', battle: '⚔️ 战斗', mining: '⛏️ 挖矿',
+    quest: '📜 任务', daily: '📅 每日', weather: '🌦️ 天气',
+    season: '🏆 赛季', guild: '🛡️ 公会', exploration: '🔭 探险', micro: '💎 微交易'
+  }
 };
 
 // ── Settings ──
+var _allSettings = [];
+var _settingsFilter = 'all';
+
 function loadSettings() {
   api('/admin/api/settings').then(function(data) {
-    var grid = document.getElementById('settingsGrid');
-    grid.innerHTML = '';
-    var lastCat = '';
-    var descDict = settingDescI18n[adminLang] || {};
-    var catDict = settingCatI18n[adminLang] || {};
-    data.forEach(function(s) {
-      if (s.category !== lastCat) {
-        lastCat = s.category;
-        var catDiv = document.createElement('div');
-        catDiv.className = 'setting-cat';
-        catDiv.textContent = (catDict[s.category] || s.category).toUpperCase();
-        grid.appendChild(catDiv);
-      }
-      var card = document.createElement('div');
-      card.className = 'setting-card';
-      var inputType = typeof s.value === 'boolean' ? 'checkbox' : (typeof s.value === 'number' ? 'number' : 'text');
-      var inputVal = typeof s.value === 'boolean' ? '' : s.value;
-      var desc = descDict[s.key] || s.description || '';
-      card.innerHTML =
-        '<div class="setting-key">' + s.key + '</div>' +
-        '<div class="setting-desc">' + desc + '</div>' +
-        (typeof s.value === 'boolean'
-          ? '<div class="toggle-wrap"><input type="checkbox" id="set_'+s.key+'" '+(s.value?'checked':'')+' onchange="saveSetting(\''+s.key+'\',this.checked)"><label class="toggle-label" for="set_'+s.key+'">'+(s.value?'ON':'OFF')+'</label></div>'
-          : '<input class="setting-input" id="set_'+s.key+'" type="'+inputType+'" value="'+inputVal+'" ' +
-            (inputType==='number'?'step="0.01" ':'') +
-            'onchange="markChanged(this,\''+s.key+'\')" onkeydown="if(event.key===\'Enter\')saveSetting(\''+s.key+'\',this.value)">' +
-            '<button class="setting-save" id="save_'+s.key+'" onclick="saveSetting(\''+s.key+'\',document.getElementById(\'set_'+s.key+'\').value)">SAVE</button>'
-        );
-      grid.appendChild(card);
-    });
-    document.getElementById('settingsStatus').textContent = data.length + ' settings loaded';
+    _allSettings = data;
+    buildSettingFilterBar(data);
+    renderSettingsGrid(data);
   });
+}
+
+function buildSettingFilterBar(data) {
+  var bar = document.getElementById('settingFilterBar');
+  if (!bar) return;
+  var catDict = settingCatI18n[adminLang] || {};
+  // Collect unique categories in order
+  var cats = [];
+  var seen = {};
+  data.forEach(function(s) {
+    if (!seen[s.category]) { seen[s.category] = true; cats.push(s.category); }
+  });
+  var html = '<button class="setting-filter-btn' + (_settingsFilter === 'all' ? ' active' : '') +
+    '" onclick="filterSettings(\'all\')">🔧 ALL</button>';
+  cats.forEach(function(cat) {
+    var label = (catDict[cat] || cat).toUpperCase();
+    html += '<button class="setting-filter-btn' + (_settingsFilter === cat ? ' active' : '') +
+      '" onclick="filterSettings(\'' + cat + '\')">' + label + '</button>';
+  });
+  bar.innerHTML = html;
+}
+
+function filterSettings(cat) {
+  _settingsFilter = cat;
+  // Re-render filter bar + grid
+  buildSettingFilterBar(_allSettings);
+  var filtered = cat === 'all' ? _allSettings : _allSettings.filter(function(s) { return s.category === cat; });
+  renderSettingsGrid(filtered);
+}
+
+function renderSettingsGrid(data) {
+  var grid = document.getElementById('settingsGrid');
+  grid.innerHTML = '';
+  var lastCat = '';
+  var descDict = settingDescI18n[adminLang] || {};
+  var catDict = settingCatI18n[adminLang] || {};
+  data.forEach(function(s) {
+    if (s.category !== lastCat) {
+      lastCat = s.category;
+      var catDiv = document.createElement('div');
+      catDiv.className = 'setting-cat';
+      catDiv.textContent = (catDict[s.category] || s.category).toUpperCase();
+      grid.appendChild(catDiv);
+    }
+    var card = document.createElement('div');
+    card.className = 'setting-card';
+    var inputType = typeof s.value === 'boolean' ? 'checkbox' : (typeof s.value === 'number' ? 'number' : 'text');
+    var inputVal = typeof s.value === 'boolean' ? '' : s.value;
+    var desc = descDict[s.key] || s.description || '';
+    card.innerHTML =
+      '<div class="setting-key">' + s.key + '</div>' +
+      '<div class="setting-desc">' + desc + '</div>' +
+      (typeof s.value === 'boolean'
+        ? '<div class="toggle-wrap"><input type="checkbox" id="set_'+s.key+'" '+(s.value?'checked':'')+' onchange="saveSetting(\''+s.key+'\',this.checked)"><label class="toggle-label" for="set_'+s.key+'">'+(s.value?'ON':'OFF')+'</label></div>'
+        : '<input class="setting-input" id="set_'+s.key+'" type="'+inputType+'" value="'+inputVal+'" ' +
+          (inputType==='number'?'step="0.01" ':'') +
+          'onchange="markChanged(this,\''+s.key+'\')" onkeydown="if(event.key===\'Enter\')saveSetting(\''+s.key+'\',this.value)">' +
+          '<button class="setting-save" id="save_'+s.key+'" onclick="saveSetting(\''+s.key+'\',document.getElementById(\'set_'+s.key+'\').value)">SAVE</button>'
+      );
+    grid.appendChild(card);
+  });
+  document.getElementById('settingsStatus').textContent = data.length + ' settings loaded';
 }
 
 function markChanged(input, key) {
