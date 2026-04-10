@@ -5194,28 +5194,18 @@ function _initStep3(){
         console.log('[Mars] NASA 2K cached for compositing');
       });
     }
-    // Mobile: load NASA 2K, convert to dataURL, apply to globe
+    // Mobile: apply NASA 2K directly after delay
     if(isMobileDevice){
       setTimeout(function(){
-        console.log('[Mars] Mobile — loading NASA 2K...');
-        var img=new Image();
-        img.crossOrigin='anonymous';
-        img.onload=function(){
-          try{
-            var cv=document.createElement('canvas');
-            cv.width=img.naturalWidth;cv.height=img.naturalHeight;
-            cv.getContext('2d').drawImage(img,0,0);
-            var dataUrl=cv.toDataURL('image/jpeg',0.9);
-            console.log('[Mars] NASA 2K converted to dataURL — applying');
-            currentTexMode='nasa';
-            imgCache[NASA_MARS_2K]=img;
-            globe.globeImageUrl(dataUrl);
-            setTimeout(function(){ if(typeof compositeClaimsOnTexture==='function') compositeClaimsOnTexture(); }, 500);
-          }catch(e){ console.warn('[Mars] NASA 2K canvas convert failed:',e); }
-        };
-        img.onerror=function(){ console.warn('[Mars] NASA 2K load failed on mobile'); };
-        img.src=NASA_MARS_2K;
-      }, 1500);
+        console.log('[Mars] Mobile — applying NASA 2K directly');
+        currentTexMode='nasa';
+        globe.globeImageUrl(NASA_MARS_2K);
+        // Cache for compositing
+        cacheImage(NASA_MARS_2K, function(){
+          console.log('[Mars] NASA 2K cached on mobile');
+          setTimeout(function(){ if(typeof compositeClaimsOnTexture==='function') compositeClaimsOnTexture(); }, 500);
+        });
+      }, 2000);
     } else {
       // Desktop: progressive load 8K NASA texture in background
       setTimeout(loadNasa8k, 2000);
@@ -5492,7 +5482,7 @@ var _imgRetry={};
 function cacheImage(url,cb){
   if(!url){cb&&cb(null);return}
   if(imgCache[url]){cb&&cb(imgCache[url]);return}
-  var img=new Image();img.crossOrigin='anonymous';
+  var img=new Image();
   img.onload=function(){imgCache[url]=img;delete _imgRetry[url];cb&&cb(img)};
   img.onerror=function(){
     // Retry up to 3 times with delay
@@ -5500,7 +5490,7 @@ function cacheImage(url,cb){
     _imgRetry[url]=rc;
     if(rc<=3){
       setTimeout(function(){
-        var r=new Image();r.crossOrigin='anonymous';
+        var r=new Image();
         r.onload=function(){imgCache[url]=r;delete _imgRetry[url];claimsSnapshot=null;compositeClaimsOnTexture()};
         r.onerror=function(){if(_imgRetry[url]<3){_imgRetry[url]++;setTimeout(arguments.callee,rc*2000)}};
         r.src=url+'?retry='+rc;
