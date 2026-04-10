@@ -5180,9 +5180,14 @@ function _initStep3(){
       .width(window.innerWidth)
       .height(window.innerHeight)
       .onGlobeReady(function(){
-        setLoadProgress(98,'Almost ready...');
+        setLoadProgress(95,'Loading Mars texture...');
         globe.pointOfView({altitude:3.2},0);
-        setTimeout(dismissLoader,200);
+        if(isMobileDevice){
+          // Wait for NASA texture to load before dismissing
+          setLoadProgress(96,'Downloading Mars surface...');
+        } else {
+          setTimeout(dismissLoader,200);
+        }
       })
       (document.getElementById('globe-wrap'));
 
@@ -5203,8 +5208,11 @@ function _initStep3(){
       console.log('[Mars] Mobile — applying NASA 2K directly');
       currentTexMode='nasa';
       globe.globeImageUrl(NASA_MARS_2K);
+      setLoadProgress(97,'Rendering Mars surface...');
       cacheImage(NASA_MARS_2K, function(){
         console.log('[Mars] NASA 2K cached on mobile');
+        setLoadProgress(100,'Ready!');
+        setTimeout(dismissLoader, 300);
         compositeClaimsOnTexture();
       });
     } else {
