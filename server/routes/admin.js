@@ -324,6 +324,28 @@ router.get('/revenue', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+//  GET /admin/api/migrations — Migration status
+// ══════════════════════════════════════════════════
+router.get('/migrations', async (req, res) => {
+  try {
+    const applied = await pool.query('SELECT filename, applied_at FROM schema_migrations ORDER BY filename');
+    const fs = require('fs');
+    const path = require('path');
+    const dir = path.join(__dirname, '..', 'migrations');
+    const allFiles = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.sql')).sort() : [];
+    const appliedSet = new Set(applied.rows.map(r => r.filename));
+    const status = allFiles.map(f => ({
+      file: f,
+      applied: appliedSet.has(f),
+      appliedAt: applied.rows.find(r => r.filename === f)?.applied_at || null
+    }));
+    res.json({ total: allFiles.length, applied: applied.rows.length, pending: allFiles.length - applied.rows.length, migrations: status });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ══════════════════════════════════════════════════
 //  GET /admin/api/settings — All game settings
 // ══════════════════════════════════════════════════
 router.get('/settings', async (req, res) => {
