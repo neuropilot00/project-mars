@@ -5200,16 +5200,13 @@ function _initStep3(){
     }
     // Mobile: apply NASA 2K directly after delay
     if(isMobileDevice){
-      setTimeout(function(){
-        console.log('[Mars] Mobile — applying NASA 2K directly');
-        currentTexMode='nasa';
-        globe.globeImageUrl(NASA_MARS_2K);
-        // Cache for compositing
-        cacheImage(NASA_MARS_2K, function(){
-          console.log('[Mars] NASA 2K cached on mobile');
-          setTimeout(function(){ if(typeof compositeClaimsOnTexture==='function') compositeClaimsOnTexture(); }, 500);
-        });
-      }, 500);
+      console.log('[Mars] Mobile — applying NASA 2K directly');
+      currentTexMode='nasa';
+      globe.globeImageUrl(NASA_MARS_2K);
+      cacheImage(NASA_MARS_2K, function(){
+        console.log('[Mars] NASA 2K cached on mobile');
+        compositeClaimsOnTexture();
+      });
     } else {
       // Desktop: progressive load 8K NASA texture in background
       setTimeout(loadNasa8k, 2000);
