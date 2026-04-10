@@ -5203,18 +5203,34 @@ function _initStep3(){
         console.log('[Mars] NASA 2K cached for compositing');
       });
     }
-    // Mobile: apply NASA 2K directly after delay
+    // Mobile: apply NASA 2K directly
     if(isMobileDevice){
       console.log('[Mars] Mobile — applying NASA 2K directly');
       currentTexMode='nasa';
       globe.globeImageUrl(NASA_MARS_2K);
       setLoadProgress(97,'Rendering Mars surface...');
-      cacheImage(NASA_MARS_2K, function(){
-        console.log('[Mars] NASA 2K cached on mobile');
+      var _mobNasaDone = false;
+      cacheImage(NASA_MARS_2K, function(img){
+        if(_mobNasaDone) return;
+        _mobNasaDone = true;
+        if(img){
+          console.log('[Mars] NASA 2K cached on mobile — success');
+        } else {
+          console.warn('[Mars] NASA 2K cache failed on mobile — globe.gl may still render');
+        }
         setLoadProgress(100,'Ready!');
         setTimeout(dismissLoader, 300);
         compositeClaimsOnTexture();
       });
+      // Safety timeout: dismiss loader after 12s even if NASA fails
+      setTimeout(function(){
+        if(!_mobNasaDone){
+          _mobNasaDone = true;
+          console.warn('[Mars] Mobile NASA timeout — dismissing loader anyway');
+          setLoadProgress(100,'Ready!');
+          dismissLoader();
+        }
+      }, 12000);
     } else {
       // Desktop: progressive load 8K NASA texture in background
       setTimeout(loadNasa8k, 2000);
@@ -11552,53 +11568,37 @@ function _dismissNotif(card){
 var _poiIllustrations = {
   ancient_ruins: {
     bg: 'linear-gradient(180deg, #1a0e00 0%, #3d2200 40%, #1a0e00 100%)',
-    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
-      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#0d0700,#2a1600,#1a0e00);opacity:0.9"></div>'
-      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50);font-size:60px;filter:drop-shadow(0 0 20px #FFD700)">🏛️</div>'
-      + '<div style="position:absolute;top:8px;left:12px;font-size:8px;color:#FFD70066;letter-spacing:3px">◈ ◈ ◈ ◈ ◈</div>'
-      + '<div style="position:absolute;top:8px;right:12px;font-size:8px;color:#FFD70066;letter-spacing:3px">◈ ◈ ◈ ◈ ◈</div>'
-      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#1a0e00)"></div>'
-      + '<div style="position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:80%;height:2px;background:linear-gradient(90deg,transparent,#FFD70044,transparent)"></div>'
+    scene: '<div style="position:relative;height:160px;overflow:hidden;border-radius:14px 14px 0 0">'
+      + '<img src="/assets/textures/poi/ancient_ruins.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,#1a0e00)"></div>'
       + '</div>'
   },
   ore_deposit: {
     bg: 'linear-gradient(180deg, #0d0500 0%, #2a1500 40%, #0d0500 100%)',
-    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
-      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#0a0300,#1f0d00,#0d0500);opacity:0.9"></div>'
-      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:60px;filter:drop-shadow(0 0 20px #FF8C00)">⛏️</div>'
-      + '<div style="position:absolute;top:20px;left:20%;font-size:14px;filter:drop-shadow(0 0 6px #FF8C00);animation:poiFloat 2s ease-in-out infinite">💎</div>'
-      + '<div style="position:absolute;top:30px;right:22%;font-size:12px;filter:drop-shadow(0 0 6px #FF8C00);animation:poiFloat 2.5s ease-in-out infinite 0.5s">💎</div>'
-      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#0d0500)"></div>'
+    scene: '<div style="position:relative;height:160px;overflow:hidden;border-radius:14px 14px 0 0">'
+      + '<img src="/assets/textures/poi/ore_deposit.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,#0d0500)"></div>'
       + '</div>'
   },
   crashed_probe: {
     bg: 'linear-gradient(180deg, #000d06 0%, #002211 40%, #000d06 100%)',
-    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
-      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#000a04,#001a0d,#000d06);opacity:0.9"></div>'
-      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:60px;filter:drop-shadow(0 0 20px #00FF88)">🛸</div>'
-      + '<div style="position:absolute;top:15px;left:30%;width:4px;height:4px;border-radius:50%;background:#00FF88;box-shadow:0 0 8px #00FF88;animation:poiBlink 1.5s infinite"></div>'
-      + '<div style="position:absolute;top:25px;right:25%;width:3px;height:3px;border-radius:50%;background:#00FF88;box-shadow:0 0 6px #00FF88;animation:poiBlink 2s infinite 0.5s"></div>'
-      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#000d06)"></div>'
+    scene: '<div style="position:relative;height:160px;overflow:hidden;border-radius:14px 14px 0 0">'
+      + '<img src="/assets/textures/poi/crashed_probe.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,#000d06)"></div>'
       + '</div>'
   },
   water_ice: {
     bg: 'linear-gradient(180deg, #000610 0%, #001830 40%, #000610 100%)',
-    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
-      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#000408,#001020,#000610);opacity:0.9"></div>'
-      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:60px;filter:drop-shadow(0 0 20px #00BFFF)">🧊</div>'
-      + '<div style="position:absolute;top:18px;left:25%;font-size:10px;color:#00BFFF66;animation:poiFloat 3s ease-in-out infinite">❄</div>'
-      + '<div style="position:absolute;top:12px;right:20%;font-size:8px;color:#00BFFF44;animation:poiFloat 2.5s ease-in-out infinite 1s">❄</div>'
-      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#000610)"></div>'
+    scene: '<div style="position:relative;height:160px;overflow:hidden;border-radius:14px 14px 0 0">'
+      + '<img src="/assets/textures/poi/water_ice.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,#000610)"></div>'
       + '</div>'
   },
   alien_artifact: {
     bg: 'linear-gradient(180deg, #0d0010 0%, #220033 40%, #0d0010 100%)',
-    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
-      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#08000d,#180022,#0d0010);opacity:0.9"></div>'
-      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:60px;filter:drop-shadow(0 0 25px #FF00FF)">🔮</div>'
-      + '<div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:60px;height:60px;border:1px solid #FF00FF22;border-radius:50%;animation:poiPulseRing 2s ease-in-out infinite"></div>'
-      + '<div style="position:absolute;top:5px;left:50%;transform:translateX(-50%);width:80px;height:80px;border:1px solid #FF00FF11;border-radius:50%;animation:poiPulseRing 2s ease-in-out infinite 0.5s"></div>'
-      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#0d0010)"></div>'
+    scene: '<div style="position:relative;height:160px;overflow:hidden;border-radius:14px 14px 0 0">'
+      + '<img src="/assets/textures/poi/alien_artifact.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,#0d0010)"></div>'
       + '</div>'
   }
 };
