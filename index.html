@@ -6309,15 +6309,15 @@ function _attachGlobeClick(){
         var dist=Math.sqrt(dlat*dlat+dlng*dlng);
         if(dist<nearestDist){nearestDist=dist;nearestPOI=p;}
       }
-      // Dynamic threshold based on zoom level
+      // Dynamic threshold based on zoom level — generous for easier clicking
       var alt = globe.pointOfView().altitude || 2;
-      var threshold = Math.max(3, Math.min(12, alt * 6));
+      var threshold = Math.max(5, Math.min(18, alt * 8));
       if(nearestPOI && nearestDist < threshold) {
         console.log('[POI] Click! type:', nearestPOI.poiType, 'dist:', nearestDist.toFixed(1)+'°', 'threshold:', threshold.toFixed(1), 'id:', nearestPOI.id);
         _showPOIPopup(nearestPOI);
         return;
       }
-      if(undiscoveredCount > 0 && nearestDist < 30) console.log('[POI] Nearest POI too far:', nearestDist.toFixed(1)+'° (need <'+threshold.toFixed(0)+'°)');
+      if(undiscoveredCount > 0 && nearestDist < 40) console.log('[POI] Nearest POI too far:', nearestDist.toFixed(1)+'° (need <'+threshold.toFixed(0)+'°)');
     }
 
     // Rocket proximity check — open loot popup
@@ -11161,11 +11161,11 @@ function _drawWeatherOverlay(ctx, w, h) {
 // ═══════ EXPLORATION POI MARKERS ═══════
 var _poiData = [];
 var _poiDefs = {
-  ancient_ruins:  { icon: '\u{1F3DB}', color: '#FFD700' },
-  ore_deposit:    { icon: '\u26CF',    color: '#FF8C00' },
-  crashed_probe:  { icon: '\u{1F6F8}', color: '#00FF88' },
-  water_ice:      { icon: '\u{1F4A7}', color: '#00BFFF' },
-  alien_artifact: { icon: '\u{1F47D}', color: '#FF00FF' }
+  ancient_ruins:  { icon: '⚜', color: '#FFD700', glow: '#FFE066', label: 'ANCIENT RUINS',  illust: '🏛️' },
+  ore_deposit:    { icon: '◆', color: '#FF8C00', glow: '#FFB060', label: 'ORE DEPOSIT',    illust: '⛏️' },
+  crashed_probe:  { icon: '▼', color: '#00FF88', glow: '#66FFB2', label: 'CRASHED PROBE',  illust: '🛸' },
+  water_ice:      { icon: '◇', color: '#00BFFF', glow: '#66DFFF', label: 'WATER ICE',      illust: '🧊' },
+  alien_artifact: { icon: '✦', color: '#FF00FF', glow: '#FF66FF', label: 'ALIEN ARTIFACT', illust: '🔮' }
 };
 
 function _drawPOIMarkers(ctx, w, h) {
@@ -11177,42 +11177,86 @@ function _drawPOIMarkers(ctx, w, h) {
     if (poi.discovered) return;
     var x = ((poi.lng + 180) / 360) * w;
     var y = ((90 - poi.lat) / 180) * h;
-    var def = _poiDefs[poi.poiType] || { icon: '\u{1F4CD}', color: '#FFFFFF' };
+    var def = _poiDefs[poi.poiType] || { icon: '✦', color: '#FFFFFF', glow: '#FFFFFF' };
 
-    // Outer pulsing ring — large and visible
-    var pulse = 16 + Math.sin(t / 400 + poi.id) * 6;
-    ctx.globalAlpha = 0.25 + Math.sin(t / 500 + poi.id * 0.7) * 0.15;
+    // ── Light beam going upward ──
+    var beamH = 50 + Math.sin(t / 600 + poi.id) * 8;
+    var beamGrad = ctx.createLinearGradient(x, y, x, y - beamH);
+    beamGrad.addColorStop(0, def.color);
+    beamGrad.addColorStop(0.5, def.glow || def.color);
+    beamGrad.addColorStop(1, 'transparent');
+    ctx.globalAlpha = 0.35 + Math.sin(t / 500 + poi.id * 0.7) * 0.15;
     ctx.beginPath();
-    ctx.arc(x, y, pulse, 0, Math.PI * 2);
-    ctx.fillStyle = def.color;
+    ctx.moveTo(x - 3, y);
+    ctx.lineTo(x - 1, y - beamH);
+    ctx.lineTo(x + 1, y - beamH);
+    ctx.lineTo(x + 3, y);
+    ctx.closePath();
+    ctx.fillStyle = beamGrad;
     ctx.fill();
 
-    // Mid glow ring
-    ctx.globalAlpha = 0.5;
+    // ── Ground glow ring (pulsing) ──
+    var pulse = 14 + Math.sin(t / 400 + poi.id) * 4;
+    ctx.globalAlpha = 0.2;
     ctx.beginPath();
-    ctx.arc(x, y, 10, 0, Math.PI * 2);
-    ctx.fillStyle = def.color;
+    ctx.arc(x, y + 2, pulse, 0, Math.PI * 2);
+    var ringGrad = ctx.createRadialGradient(x, y + 2, 0, x, y + 2, pulse);
+    ringGrad.addColorStop(0, def.color);
+    ringGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = ringGrad;
     ctx.fill();
 
-    // Inner solid dot
-    ctx.globalAlpha = 0.95;
+    // ── Pin body (teardrop shape) ──
+    var pinH = 28;
+    var pinR = 9;
+    ctx.globalAlpha = 0.9;
     ctx.beginPath();
-    ctx.arc(x, y, 6, 0, Math.PI * 2);
-    ctx.fillStyle = def.color;
+    // Pin point at bottom (x, y)
+    ctx.moveTo(x, y);
+    // Left curve up to circle
+    ctx.quadraticCurveTo(x - pinR * 1.2, y - pinH * 0.5, x - pinR, y - pinH * 0.65);
+    // Top arc
+    ctx.arc(x, y - pinH * 0.65, pinR, Math.PI, 0, false);
+    // Right curve down to point
+    ctx.quadraticCurveTo(x + pinR * 1.2, y - pinH * 0.5, x, y);
+    ctx.closePath();
+    // Pin gradient fill
+    var pinGrad = ctx.createLinearGradient(x - pinR, y - pinH, x + pinR, y);
+    pinGrad.addColorStop(0, def.glow || def.color);
+    pinGrad.addColorStop(0.6, def.color);
+    pinGrad.addColorStop(1, '#000');
+    ctx.fillStyle = pinGrad;
+    ctx.fill();
+    // Pin border glow
+    ctx.strokeStyle = def.glow || def.color;
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.7;
+    ctx.stroke();
+
+    // ── Pin shadow ──
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    ctx.ellipse(x, y + 3, 7, 2.5, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#000';
     ctx.fill();
 
-    // Icon — large and clear
+    // ── Icon inside pin head ──
     ctx.globalAlpha = 1;
-    ctx.font = '22px sans-serif';
+    ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(def.icon, x, y - 18);
+    ctx.fillStyle = '#000';
+    ctx.fillText(def.icon, x, y - pinH * 0.65);
+    // White highlight on icon
+    ctx.fillStyle = '#FFF';
+    ctx.globalAlpha = 0.9;
+    ctx.fillText(def.icon, x - 0.5, y - pinH * 0.65 - 0.5);
 
-    // Label text below
-    ctx.globalAlpha = 0.8;
-    ctx.font = '9px sans-serif';
+    // ── Label below ──
+    ctx.globalAlpha = 0.85;
+    ctx.font = 'bold 8px sans-serif';
     ctx.fillStyle = def.color;
-    ctx.fillText('TAP TO DISCOVER', x, y + 18);
+    ctx.fillText(def.label || 'DISCOVER', x, y + 14);
   });
 
   ctx.restore();
@@ -11505,24 +11549,115 @@ function _dismissNotif(card){
 }
 
 // ═══════ POI POPUP ═══════
-function _showPOIPopup(poi) {
-  var def = _poiDefs[poi.poiType] || { icon: '\u{1F4CD}', color: '#FFFFFF' };
-  var html = '<div style="text-align:center;padding:16px">'
-    + '<div style="font-size:36px;margin-bottom:8px">' + def.icon + '</div>'
-    + '<div style="font-size:14px;font-weight:700;color:' + def.color + ';margin-bottom:4px">' + (poi.label || poi.poiType) + '</div>'
-    + '<div style="font-size:10px;color:var(--tx3);margin-bottom:12px">' + (poi.sectorName || 'Unknown Sector') + '</div>'
-    + '<div style="font-size:9px;color:var(--tx3);margin-bottom:16px">Discover to earn GP, Items, or rare PP!<br>Requires territory in this sector.</div>'
-    + '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:10px;background:linear-gradient(135deg,' + def.color + ',#FF8800);color:#000;border:none;border-radius:8px;font-family:var(--fn);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px">'
-    + '\u{1F50D} DISCOVER</button>'
-    + '<button onclick="getPOIHint()" style="width:100%;margin-top:6px;padding:8px;background:rgba(255,209,102,.1);color:var(--gold);border:1px solid rgba(255,209,102,.3);border-radius:8px;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px">'
-    + 'POI HINT (0.2 PP)</button>'
-    + '</div>';
-  if (isMobile) {
-    showMobModal('EXPLORATION', html);
-  } else {
-    var panel = document.getElementById('infoPanel');
-    if (panel) { panel.innerHTML = html; panel.style.display = 'block'; }
+var _poiIllustrations = {
+  ancient_ruins: {
+    bg: 'linear-gradient(180deg, #1a0e00 0%, #3d2200 40%, #1a0e00 100%)',
+    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
+      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#0d0700,#2a1600,#1a0e00);opacity:0.9"></div>'
+      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50);font-size:60px;filter:drop-shadow(0 0 20px #FFD700)">🏛️</div>'
+      + '<div style="position:absolute;top:8px;left:12px;font-size:8px;color:#FFD70066;letter-spacing:3px">◈ ◈ ◈ ◈ ◈</div>'
+      + '<div style="position:absolute;top:8px;right:12px;font-size:8px;color:#FFD70066;letter-spacing:3px">◈ ◈ ◈ ◈ ◈</div>'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#1a0e00)"></div>'
+      + '<div style="position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:80%;height:2px;background:linear-gradient(90deg,transparent,#FFD70044,transparent)"></div>'
+      + '</div>'
+  },
+  ore_deposit: {
+    bg: 'linear-gradient(180deg, #0d0500 0%, #2a1500 40%, #0d0500 100%)',
+    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
+      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#0a0300,#1f0d00,#0d0500);opacity:0.9"></div>'
+      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:60px;filter:drop-shadow(0 0 20px #FF8C00)">⛏️</div>'
+      + '<div style="position:absolute;top:20px;left:20%;font-size:14px;filter:drop-shadow(0 0 6px #FF8C00);animation:poiFloat 2s ease-in-out infinite">💎</div>'
+      + '<div style="position:absolute;top:30px;right:22%;font-size:12px;filter:drop-shadow(0 0 6px #FF8C00);animation:poiFloat 2.5s ease-in-out infinite 0.5s">💎</div>'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#0d0500)"></div>'
+      + '</div>'
+  },
+  crashed_probe: {
+    bg: 'linear-gradient(180deg, #000d06 0%, #002211 40%, #000d06 100%)',
+    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
+      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#000a04,#001a0d,#000d06);opacity:0.9"></div>'
+      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:60px;filter:drop-shadow(0 0 20px #00FF88)">🛸</div>'
+      + '<div style="position:absolute;top:15px;left:30%;width:4px;height:4px;border-radius:50%;background:#00FF88;box-shadow:0 0 8px #00FF88;animation:poiBlink 1.5s infinite"></div>'
+      + '<div style="position:absolute;top:25px;right:25%;width:3px;height:3px;border-radius:50%;background:#00FF88;box-shadow:0 0 6px #00FF88;animation:poiBlink 2s infinite 0.5s"></div>'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#000d06)"></div>'
+      + '</div>'
+  },
+  water_ice: {
+    bg: 'linear-gradient(180deg, #000610 0%, #001830 40%, #000610 100%)',
+    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
+      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#000408,#001020,#000610);opacity:0.9"></div>'
+      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:60px;filter:drop-shadow(0 0 20px #00BFFF)">🧊</div>'
+      + '<div style="position:absolute;top:18px;left:25%;font-size:10px;color:#00BFFF66;animation:poiFloat 3s ease-in-out infinite">❄</div>'
+      + '<div style="position:absolute;top:12px;right:20%;font-size:8px;color:#00BFFF44;animation:poiFloat 2.5s ease-in-out infinite 1s">❄</div>'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#000610)"></div>'
+      + '</div>'
+  },
+  alien_artifact: {
+    bg: 'linear-gradient(180deg, #0d0010 0%, #220033 40%, #0d0010 100%)',
+    scene: '<div style="position:relative;height:120px;overflow:hidden;border-radius:12px 12px 0 0">'
+      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#08000d,#180022,#0d0010);opacity:0.9"></div>'
+      + '<div style="position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:60px;filter:drop-shadow(0 0 25px #FF00FF)">🔮</div>'
+      + '<div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:60px;height:60px;border:1px solid #FF00FF22;border-radius:50%;animation:poiPulseRing 2s ease-in-out infinite"></div>'
+      + '<div style="position:absolute;top:5px;left:50%;transform:translateX(-50%);width:80px;height:80px;border:1px solid #FF00FF11;border-radius:50%;animation:poiPulseRing 2s ease-in-out infinite 0.5s"></div>'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#0d0010)"></div>'
+      + '</div>'
   }
+};
+
+function _showPOIPopup(poi) {
+  var def = _poiDefs[poi.poiType] || { icon: '✦', color: '#FFFFFF', illust: '📍' };
+  var illust = _poiIllustrations[poi.poiType] || _poiIllustrations.ancient_ruins;
+
+  // Remove existing popup if any
+  var existing = document.getElementById('poiPopupOverlay');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'poiPopupOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);animation:poiFadeIn 0.25s ease';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+
+  var popup = document.createElement('div');
+  popup.style.cssText = 'width:340px;max-width:92vw;max-height:90vh;overflow-y:auto;border-radius:14px;border:1px solid ' + def.color + '33;box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 30px ' + def.color + '22;animation:poiSlideUp 0.3s ease';
+
+  popup.innerHTML = '<style>'
+    + '@keyframes poiFadeIn{from{opacity:0}to{opacity:1}}'
+    + '@keyframes poiSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}'
+    + '@keyframes poiFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}'
+    + '@keyframes poiBlink{0%,100%{opacity:1}50%{opacity:0.2}}'
+    + '@keyframes poiPulseRing{0%{transform:translateX(-50%) scale(1);opacity:0.4}100%{transform:translateX(-50%) scale(1.3);opacity:0}}'
+    + '@keyframes poiShine{0%{background-position:200% center}100%{background-position:-200% center}}'
+    + '</style>'
+    + '<div style="background:' + illust.bg + ';border-radius:14px;overflow:hidden;position:relative">'
+    // Close button
+    + '<button onclick="document.getElementById(\'poiPopupOverlay\').remove()" style="position:absolute;top:8px;right:10px;z-index:10;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.15);color:#fff;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>'
+    // Illustration area
+    + illust.scene
+    // Content area
+    + '<div style="padding:16px 20px 20px;text-align:center">'
+    // Type badge
+    + '<div style="display:inline-block;padding:3px 12px;background:' + def.color + '18;border:1px solid ' + def.color + '44;border-radius:20px;font-size:9px;color:' + def.color + ';letter-spacing:2px;margin-bottom:8px">' + (def.label || poi.poiType.toUpperCase()) + '</div>'
+    // Title
+    + '<div style="font-size:16px;font-weight:700;color:#FFF;margin-bottom:4px;text-shadow:0 0 12px ' + def.color + '66">' + (poi.label || def.label || 'Unknown POI') + '</div>'
+    // Sector
+    + '<div style="font-size:10px;color:var(--tx3);margin-bottom:6px">📍 ' + (poi.sectorName || 'Unknown Sector') + '</div>'
+    // Reward hint
+    + '<div style="display:flex;justify-content:center;gap:12px;margin:10px 0 14px">'
+    + '<div style="text-align:center"><div style="font-size:16px">🪙</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">GP</div></div>'
+    + '<div style="text-align:center"><div style="font-size:16px">📦</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">ITEMS</div></div>'
+    + '<div style="text-align:center"><div style="font-size:16px">⭐</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">RARE PP</div></div>'
+    + '</div>'
+    // Info
+    + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">Discover to earn rewards!<br>Requires territory in this sector.</div>'
+    // Discover button
+    + '<button onclick="_discoverPOI(' + poi.id + ');document.getElementById(\'poiPopupOverlay\')&&document.getElementById(\'poiPopupOverlay\').remove()" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">'
+    + '🔍 DISCOVER</button>'
+    // Hint button
+    + '<button onclick="getPOIHint()" style="width:100%;margin-top:8px;padding:9px;background:transparent;color:var(--gold);border:1px solid rgba(255,209,102,.25);border-radius:10px;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px">'
+    + '💡 POI HINT (0.2 PP)</button>'
+    + '</div></div>';
+
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
 }
 
 function _discoverPOI(poiId) {
@@ -11557,7 +11692,8 @@ function _discoverPOI(poiId) {
     compositeClaimsOnTexture();
     loadBalance();
     // Close popup
-    if (isMobile) { closeMobModal(); } else { var p = document.getElementById('infoPanel'); if(p) p.style.display='none'; }
+    var poiOv = document.getElementById('poiPopupOverlay');
+    if (poiOv) poiOv.remove();
   }).catch(function() { showToast('Discovery failed'); });
 }
 function addFeed(text){
