@@ -2632,19 +2632,25 @@ function deleteDrop(id) {
 
 function resetExpiredPOIs() {
   if (!confirm('Delete all EXPIRED POIs from the map?')) return;
-  api('poi-reset-expired', 'POST').then(function(r) {
+  fetch('/admin/api/poi-reset-expired', {
+    method: 'POST',
+    headers: { 'x-admin-secret': adminSecret }
+  }).then(function(r) { return r.json(); }).then(function(r) {
     alert('Deleted ' + (r.deleted || 0) + ' expired POIs');
     loadPOIDrops();
-  });
+  }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
 function resetAllPOIs() {
   if (!confirm('⚠ DELETE ALL POIs from the map? This cannot be undone!')) return;
   if (!confirm('Are you SURE? All active POIs will be removed.')) return;
-  api('poi-reset-all', 'POST').then(function(r) {
+  fetch('/admin/api/poi-reset-all', {
+    method: 'POST',
+    headers: { 'x-admin-secret': adminSecret }
+  }).then(function(r) { return r.json(); }).then(function(r) {
     alert('Deleted ' + (r.deleted || 0) + ' POIs');
     loadPOIDrops();
-  });
+  }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
 // Auto-focus auth input

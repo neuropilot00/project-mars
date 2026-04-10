@@ -5246,7 +5246,18 @@ function _initStep3(){
     }).catch(function(){});
   }
 
+  // On mobile, test if NASA texture loads — fallback to procedural if it fails
   var initTexUrl=(currentTexMode==='nasa')?NASA_MARS_2K:marsTexUrl;
+  if(currentTexMode==='nasa' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+    var _testImg=new Image();
+    _testImg.onload=function(){ console.log('[Mars] NASA 2K texture loaded OK'); };
+    _testImg.onerror=function(){
+      console.warn('[Mars] NASA 2K failed on mobile, falling back to procedural');
+      initTexUrl=marsTexUrl;
+      currentTexMode='procedural';
+    };
+    _testImg.src=NASA_MARS_2K;
+  }
   setLoadProgress(80,'Initializing globe...');
 
   requestAnimationFrame(function(){
@@ -5325,6 +5336,21 @@ function _initStep3(){
     };
     checkImg.src=initTexUrl;
     setTimeout(function(){ if(_loadPct<100) dismissLoader(); }, 8000);
+
+    // WebGL context lost/restored recovery
+    var gCanvas=document.querySelector('#globe-wrap canvas');
+    if(gCanvas){
+      gCanvas.addEventListener('webglcontextlost',function(e){
+        e.preventDefault();
+        console.warn('[Mars] WebGL context lost — will restore');
+      });
+      gCanvas.addEventListener('webglcontextrestored',function(){
+        console.log('[Mars] WebGL context restored — reloading globe');
+        if(globe){
+          globe.globeImageUrl(currentTexMode==='nasa'?NASA_MARS_2K:marsTexUrl);
+        }
+      });
+    }
 
     // Attach globe click handler now that globe exists
     _attachGlobeClick();
