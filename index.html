@@ -2342,7 +2342,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="base-tabs">
       <div class="base-tab active" onclick="switchBaseTab('territory',this)">MY TERRITORY</div>
       <div class="base-tab" onclick="switchBaseTab('sectors',this)">SECTORS</div>
-      <div class="base-tab" onclick="switchBaseTab('rank',this)">RANK</div>
+      <div class="base-tab" onclick="switchBaseTab('rank',this)" style="color:var(--mars)">SEASON</div>
       <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this)">MINING<span class="tab-dot" id="miningDot"></span></div>
       <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this)">QUESTS<span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" onclick="switchBaseTab('shop',this);loadBaseShopItems()">SHOP</div>
@@ -2368,14 +2368,58 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div class="bsb-val pp" id="basePP">0.00</div>
           </div>
           <div class="base-stat-box">
-            <div class="bsb-label">RANK</div>
-            <div class="bsb-val" id="baseRankShort">Lv.1</div>
+            <div class="bsb-label">GP</div>
+            <div class="bsb-val gold" id="baseGP">0</div>
+          </div>
+        </div>
+
+        <!-- Player Level Card -->
+        <div id="profileLevelCard" style="margin-bottom:12px;padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(255,120,60,.06),rgba(255,120,60,.02));border:1px solid rgba(255,120,60,.2)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--mars),#FF8800);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#000;font-family:var(--fn)" id="profileLevelBadge">1</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:700;color:var(--tx);font-family:var(--fn)" id="profileNickname">Explorer</div>
+              <div style="font-size:9px;color:var(--mars);font-family:var(--fn)" id="profileRankName">Dust Walker</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)">LEVEL</div>
+              <div style="font-size:18px;font-weight:900;color:var(--mars);font-family:var(--fn)" id="profileLevel">1</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);font-family:var(--fn);margin-bottom:3px">
+            <span id="profileXpCurrent">0 XP</span>
+            <span id="profileXpNext">Next: 100 XP</span>
+          </div>
+          <div style="height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden">
+            <div id="profileXpBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--mars),#FF8800);border-radius:3px;transition:width .6s"></div>
           </div>
         </div>
 
         <button onclick="shareBaseStats()" style="width:100%;margin-bottom:12px;padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">📤 SHARE MY STATS</button>
 
-        <div class="base-section-title">MY SECTORS</div>
+        <!-- Next Breakthrough Gate -->
+        <div id="breakthroughPanel" style="display:none;margin-bottom:12px;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(240,200,64,.08),rgba(240,200,64,.02));border:1px solid rgba(240,200,64,.25)">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+            <span style="font-size:14px">🔒</span>
+            <span style="font-size:var(--fs-sm);color:var(--gold);font-family:var(--fn);font-weight:bold" id="btGateTitle">BREAKTHROUGH</span>
+            <span style="font-size:var(--fs-xs);color:var(--tx3);margin-left:auto" id="btGateLevel">Lv.?</span>
+          </div>
+          <div id="btProgressList" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
+        <!-- ALL RANKS (collapsed) -->
+        <div class="base-section-title" onclick="toggleRankTable()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+          <span>ALL RANKS</span>
+          <span id="rankTableToggle" style="font-size:8px;color:var(--tx3)">▼ SHOW</span>
+        </div>
+        <div id="rankTableWrap" style="display:none">
+          <table class="rank-table">
+            <thead><tr><th>LV</th><th>NAME</th><th>XP</th><th>PP REWARD</th></tr></thead>
+            <tbody id="baseRankTable"></tbody>
+          </table>
+        </div>
+
+        <div class="base-section-title" style="margin-top:12px">MY SECTORS</div>
         <div id="baseMySectors" style="font-size:10px;color:var(--tx3)">Login to view your territories.</div>
       </div>
 
@@ -2394,68 +2438,54 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
       </div>
 
-      <!-- TAB: RANK -->
+      <!-- TAB: SEASON (formerly RANK) -->
       <div class="base-pane" id="basePane_rank">
-        <div class="base-banner" id="bannerRank"><img src="assets/base/rank.png" alt="Rank"></div>
-        <div style="text-align:center;margin-bottom:16px">
-          <div class="rank-badge">
-            <span class="rb-level" id="baseRankLevel">1</span>
-            <span class="rb-name" id="baseRankName">Dust Walker</span>
-          </div>
-          <div style="margin-top:10px">
-            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--tx3);font-family:var(--fn);margin-bottom:2px">
-              <span id="baseXpCurrent">0 XP</span>
-              <span id="baseXpNext">100 XP</span>
+        <div class="base-banner" id="bannerRank"><img src="assets/base/rank.png" alt="Season"></div>
+
+        <!-- Season Banner (main content) -->
+        <div id="seasonGuide" style="margin-bottom:14px;padding:14px;border-radius:10px;background:linear-gradient(135deg,rgba(255,120,60,.08),rgba(255,120,60,.02));border:1px solid rgba(255,120,60,.25)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="font-size:20px">🏆</div>
+            <div style="flex:1">
+              <div id="seasonGuideName" style="font-size:13px;color:var(--mars);font-family:var(--fn);font-weight:700">No Active Season</div>
+              <div id="seasonGuideTimer" style="font-size:9px;color:var(--tx3)"></div>
             </div>
-            <div class="rank-progress">
-              <div class="rank-progress-fill" id="baseRankBar" style="width:0%"></div>
+          </div>
+          <div style="font-size:9px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px">HOW TO EARN POINTS</div>
+          <div id="seasonScoreRules" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px"></div>
+          <div style="padding:8px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.15);border-radius:6px">
+            <div style="font-size:8px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:3px">SEASON REWARDS</div>
+            <div style="font-size:9px;color:var(--tx3);line-height:1.6">
+              🥇 Top players earn <span style="color:var(--gold)">GP &amp; PP</span> at season end<br>
+              📈 More activity = higher score = better rewards
             </div>
           </div>
         </div>
 
-        <!-- Season Info & Guide (TOP PRIORITY) -->
-        <div id="seasonSection" style="margin-bottom:16px">
-          <div class="base-section-title" style="color:var(--mars)">SEASON</div>
-          <div id="seasonGuide" style="display:none;margin-bottom:10px;padding:10px;border:1px solid rgba(255,120,60,.2);border-radius:8px;background:rgba(255,120,60,.04)">
-            <div id="seasonGuideName" style="font-size:11px;color:var(--mars);font-family:var(--fn);font-weight:700;margin-bottom:6px"></div>
-            <div id="seasonGuideTimer" style="font-size:8px;color:var(--tx3);margin-bottom:8px"></div>
-            <div style="font-size:8px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:4px">HOW TO EARN POINTS</div>
-            <div id="seasonScoreRules" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px"></div>
-            <div style="font-size:8px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:4px">SEASON REWARDS</div>
-            <div style="font-size:8px;color:var(--tx3);line-height:1.5">
-              Top players earn <span style="color:var(--gold)">GP</span> rewards at season end.<br>
-              Climb the leaderboard to earn more!
+        <!-- My Season Rank -->
+        <div id="mySeasonRank" style="display:none;margin-bottom:14px;padding:10px;border-radius:8px;background:rgba(255,120,60,.05);border:1px solid rgba(255,120,60,.15)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:24px;font-weight:900;color:var(--mars);font-family:var(--fn)" id="mySeasonRankNum">#-</div>
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--tx);font-family:var(--fn);font-weight:700">MY SEASON RANK</div>
+              <div style="font-size:9px;color:var(--tx3)" id="mySeasonScore">0 pts</div>
             </div>
           </div>
-          <div style="font-size:8px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:4px">LEADERBOARD</div>
-          <div id="seasonLeaderboard" style="font-size:10px;color:var(--tx3);padding:4px 0">Loading...</div>
-          <div id="seasonRewardsSection" style="display:none;margin-top:8px">
-            <div style="font-size:9px;color:var(--gold);font-family:var(--fn);margin-bottom:4px">YOUR REWARDS</div>
-            <div id="seasonRewardsList"></div>
-          </div>
         </div>
 
-        <!-- Next Breakthrough Gate -->
-        <div id="breakthroughPanel" style="display:none;margin:12px 0;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(240,200,64,.08),rgba(240,200,64,.02));border:1px solid rgba(240,200,64,.25)">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-            <span style="font-size:14px">🔒</span>
-            <span style="font-size:var(--fs-sm);color:var(--gold);font-family:var(--fn);font-weight:bold" id="btGateTitle">BREAKTHROUGH</span>
-            <span style="font-size:var(--fs-xs);color:var(--tx3);margin-left:auto" id="btGateLevel">Lv.?</span>
-          </div>
-          <div id="btProgressList" style="display:flex;flex-direction:column;gap:6px"></div>
+        <!-- Season Leaderboard -->
+        <div style="font-size:9px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+          <span>SEASON LEADERBOARD</span>
+          <span style="font-size:8px;color:var(--mars);cursor:pointer" onclick="loadSeasonData()">↻ REFRESH</span>
+        </div>
+        <div id="seasonLeaderboard" style="font-size:10px;color:var(--tx3);padding:4px 0">Loading...</div>
+
+        <!-- Unclaimed Season Rewards -->
+        <div id="seasonRewardsSection" style="display:none;margin-top:12px">
+          <div style="font-size:9px;color:var(--gold);font-family:var(--fn);margin-bottom:4px">🎁 YOUR REWARDS</div>
+          <div id="seasonRewardsList"></div>
         </div>
 
-        <!-- ALL RANKS (collapsed by default) -->
-        <div class="base-section-title" onclick="toggleRankTable()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
-          <span>ALL RANKS</span>
-          <span id="rankTableToggle" style="font-size:8px;color:var(--tx3)">▼ SHOW</span>
-        </div>
-        <div id="rankTableWrap" style="display:none">
-          <table class="rank-table">
-            <thead><tr><th>LV</th><th>NAME</th><th>XP</th><th>PP REWARD</th></tr></thead>
-            <tbody id="baseRankTable"></tbody>
-          </table>
-        </div>
       </div>
 
       <!-- TAB: MINING -->
@@ -9884,26 +9914,42 @@ function toggleRankTable(){
 
 function showSeasonGuide(season){
   var guide=document.getElementById('seasonGuide');
-  if(!season){guide.style.display='none';return;}
+  if(!season){
+    // No active season — show placeholder
+    document.getElementById('seasonGuideName').textContent='No Active Season';
+    document.getElementById('seasonGuideTimer').textContent='Check back soon for the next season!';
+    document.getElementById('seasonScoreRules').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);font-size:9px;padding:8px">Season activities will appear here when a season starts.</div>';
+    return;
+  }
   guide.style.display='';
   var themeNames={volcanic:'Volcanic Dawn',ice_age:'Ice Age',solar_storm:'Solar Storm',dust_epoch:'Dust Epoch'};
+  var themeDescs={
+    volcanic:'Volcanic activity surges across Mars. Mining yields are boosted but shields weaken!',
+    ice_age:'Frozen tundras spread. Cold slows mining but defense is strong.',
+    solar_storm:'Solar radiation floods the surface. Maximum mining, but shields fail fast!',
+    dust_epoch:'Massive dust storms rage. Visibility drops but meteors bring surprises.'
+  };
   document.getElementById('seasonGuideName').textContent=season.name+' — '+(themeNames[season.theme]||season.theme);
   var remaining=new Date(season.endsAt).getTime()-Date.now();
   var days=Math.floor(remaining/86400000);
-  document.getElementById('seasonGuideTimer').textContent=days>0?days+' days remaining':'Season ending soon!';
+  var hours=Math.floor((remaining%86400000)/3600000);
+  document.getElementById('seasonGuideTimer').textContent=days>0?days+'d '+hours+'h remaining':'Season ending soon!';
+
   // Score rules
   var rules=document.getElementById('seasonScoreRules');
   var scoreItems=[
-    {icon:'🏴',action:'Claim Territory',pts:'1pt / pixel',color:'var(--tx)'},
-    {icon:'⛏️',action:'Harvest',pts:'5pt / harvest',color:'var(--gn)'},
-    {icon:'⚔️',action:'Hijack Land',pts:'10pt / hijack',color:'var(--red)'},
-    {icon:'🔭',action:'Discover POI',pts:'15pt / POI',color:'var(--cyan)'}
+    {icon:'🏴',action:'Claim Territory',pts:'1pt / pixel',tip:'Buy land on the map'},
+    {icon:'⛏️',action:'Harvest Resources',pts:'5pt / harvest',tip:'Mine PP from your land'},
+    {icon:'⚔️',action:'Hijack Enemy Land',pts:'10pt / hijack',tip:'Take over other\'s territory'},
+    {icon:'🔭',action:'Discover POI',pts:'15pt / POI',tip:'Find points of interest'}
   ];
-  rules.innerHTML=scoreItems.map(function(s){
-    return '<div style="display:flex;align-items:center;gap:4px;padding:4px 6px;border-radius:4px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04)">'+
-      '<span style="font-size:12px">'+s.icon+'</span>'+
-      '<div style="flex:1"><div style="font-size:8px;color:'+s.color+'">'+s.action+'</div>'+
-      '<div style="font-size:7px;color:var(--gold)">'+s.pts+'</div></div></div>';
+  rules.innerHTML='<div style="grid-column:1/-1;font-size:9px;color:var(--tx2);margin-bottom:4px;line-height:1.5">'+(themeDescs[season.theme]||'Compete for the top of the leaderboard!')+'</div>'+
+    scoreItems.map(function(s){
+    return '<div style="padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05)">'+
+      '<div style="display:flex;align-items:center;gap:4px;margin-bottom:2px"><span style="font-size:13px">'+s.icon+'</span>'+
+      '<span style="font-size:9px;color:var(--tx);font-weight:700">'+s.action+'</span></div>'+
+      '<div style="font-size:8px;color:var(--gold);font-weight:700">'+s.pts+'</div>'+
+      '<div style="font-size:7px;color:var(--tx3);margin-top:1px">'+s.tip+'</div></div>';
   }).join('');
 }
 
@@ -9940,12 +9986,24 @@ function loadSeasonLeaderboard(){
   fetch('/api/season/leaderboard?limit=20').then(function(r){return r.json()}).then(function(d){
     var lb=d.leaderboard||[];
     var el=document.getElementById('seasonLeaderboard');
-    if(!lb.length){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:10px">No season scores yet</div>';return;}
+    if(!lb.length){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:10px">No season scores yet</div>';document.getElementById('mySeasonRank').style.display='none';return;}
+
+    // Find my rank
+    var myRankEl=document.getElementById('mySeasonRank');
+    var myEntry=lb.find(function(p){return p.wallet===w});
+    if(myEntry){
+      myRankEl.style.display='';
+      document.getElementById('mySeasonRankNum').textContent='#'+myEntry.rank;
+      document.getElementById('mySeasonScore').textContent=myEntry.score.toLocaleString()+' pts · '+myEntry.pixelsClaimed+'px · '+myEntry.harvests+'h · '+myEntry.hijacksWon+'hj';
+    } else { myRankEl.style.display='none'; }
+
+    var medals=['🥇','🥈','🥉'];
     el.innerHTML=lb.map(function(p,i){
       var isMe=p.wallet===w;
-      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:4px;'+(isMe?'background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.12)':'border-bottom:1px solid var(--bdr)')+'">'+
-        '<span style="font-size:10px;color:'+(i<3?'var(--gold)':'var(--tx3)')+';font-weight:700;min-width:22px">#'+p.rank+'</span>'+
-        '<div style="flex:1;min-width:0"><div style="font-size:10px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.nickname+'</div>'+
+      var medal=i<3?medals[i]:'';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;margin-bottom:2px;'+(isMe?'background:rgba(255,120,60,.08);border:1px solid rgba(255,120,60,.15)':'background:rgba(255,255,255,.01)')+'">'+
+        '<span style="font-size:'+(i<3?'14px':'10px')+';min-width:24px;text-align:center">'+(medal||'<span style="color:var(--tx3);font-weight:700">#'+p.rank+'</span>')+'</span>'+
+        '<div style="flex:1;min-width:0"><div style="font-size:10px;color:'+(isMe?'var(--mars)':'var(--tx)')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:'+(isMe?'700':'400')+'">'+p.nickname+'</div>'+
         '<div style="font-size:7px;color:var(--tx3)">'+p.pixelsClaimed+'px · '+p.harvests+'h · '+p.hijacksWon+'hj</div></div>'+
         '<div style="font-size:11px;color:var(--gold);font-weight:700">'+p.score.toLocaleString()+'</div>'+
       '</div>';
@@ -10033,22 +10091,32 @@ function renderBaseUser(data){
   document.getElementById('baseTotalPx').textContent=data.territory.totalPixels.toLocaleString();
   document.getElementById('baseUsdt').textContent=u.usdt.toFixed(2);
   document.getElementById('basePP').textContent=u.pp.toFixed(2);
-  document.getElementById('baseRankShort').textContent='Lv.'+u.rank;
+  var gpEl=document.getElementById('baseGP');
+  if(gpEl) gpEl.textContent=(u.gp||0).toLocaleString();
 
-  // Rank info
+  // Rank info (Season tab compact + Profile card)
   var rank=_ranksData.find(function(r){return r.level===u.rank})||{name:'Dust Walker',requiredXp:0};
   var nextRank=_ranksData.find(function(r){return r.level===u.rank+1});
-  document.getElementById('baseRankLevel').textContent=u.rank;
-  document.getElementById('baseRankName').textContent=rank.name;
-  document.getElementById('baseXpCurrent').textContent=u.xp+' XP';
+  var xpPct=0;
   if(nextRank){
-    document.getElementById('baseXpNext').textContent=nextRank.requiredXp+' XP';
-    var pct=Math.min(100,Math.max(0,((u.xp-rank.requiredXp)/(nextRank.requiredXp-rank.requiredXp))*100));
-    document.getElementById('baseRankBar').style.width=pct+'%';
-  }else{
-    document.getElementById('baseXpNext').textContent='MAX';
-    document.getElementById('baseRankBar').style.width='100%';
-  }
+    xpPct=Math.min(100,Math.max(0,((u.xp-rank.requiredXp)/(nextRank.requiredXp-rank.requiredXp))*100));
+  }else{xpPct=100;}
+
+  // Season tab level (compact)
+  var rl=document.getElementById('baseRankLevel');if(rl)rl.textContent=u.rank;
+  var rn=document.getElementById('baseRankName');if(rn)rn.textContent=rank.name;
+  var xc=document.getElementById('baseXpCurrent');if(xc)xc.textContent=u.xp+' XP';
+  var xn=document.getElementById('baseXpNext');if(xn)xn.textContent=nextRank?nextRank.requiredXp+' XP':'MAX';
+  var rb=document.getElementById('baseRankBar');if(rb)rb.style.width=xpPct+'%';
+
+  // Profile level card (MY TERRITORY tab)
+  var plb=document.getElementById('profileLevelBadge');if(plb)plb.textContent=u.rank;
+  var pl=document.getElementById('profileLevel');if(pl)pl.textContent=u.rank;
+  var pn=document.getElementById('profileNickname');if(pn)pn.textContent=u.nickname||u.wallet.slice(0,8)+'...';
+  var prn=document.getElementById('profileRankName');if(prn)prn.textContent=rank.name;
+  var pxc=document.getElementById('profileXpCurrent');if(pxc)pxc.textContent=u.xp+' XP';
+  var pxn=document.getElementById('profileXpNext');if(pxn)pxn.textContent=nextRank?'Next: '+nextRank.requiredXp+' XP':'MAX LEVEL';
+  var pxb=document.getElementById('profileXpBar');if(pxb)pxb.style.width=xpPct+'%';
 
   // Highlight current rank in table
   document.querySelectorAll('.rank-table tbody tr').forEach(function(tr){
@@ -13474,7 +13542,8 @@ function shareTerritory(plot){
 
 function shareBaseStats(){
   var totalPx=document.getElementById('baseTotalPx')?document.getElementById('baseTotalPx').textContent:'0';
-  var rank=document.getElementById('baseRankShort')?document.getElementById('baseRankShort').textContent:'Lv.1';
+  var rankLvl=document.getElementById('profileLevel')?document.getElementById('profileLevel').textContent:'1';
+  var rank='Lv.'+rankLvl;
   var tCount=document.getElementById('myTerritoryCount')?document.getElementById('myTerritoryCount').textContent:'0';
   var overlayText='I own '+tCount+' territories on Mars! \uD83D\uDD34 OCCUPY MARS';
   _createShareImage(overlayText,function(blob){
