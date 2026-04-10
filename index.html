@@ -303,7 +303,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
 .hwd{font-size:var(--fs-xs);color:rgba(200,160,140,.55);line-height:1.7}
 
 /* Toast */
-.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:8px 20px;
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% - 100px));padding:8px 20px;
   background:rgba(18,18,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.25);
   border-radius:20px;font-size:var(--fs-sm);color:var(--gn);opacity:0;transition:opacity .3s;
   z-index:10001;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
@@ -5034,33 +5034,36 @@ function compositeClaimsOnTexture(previewOnly){
     return;
   }
 
-  // ═══ MOBILE SAFE PATH ═══
-  // Direct CanvasTexture → globeMaterial.map replacement has been unreliable on
-  // some mobile devices (results in black globe). Route through globe.globeImageUrl()
-  // which uses Three.js TextureLoader — proven reliable on all devices.
-  if(_isMob){
-    try{
-      var _dataUrl = marsCanvas.toDataURL('image/jpeg', 0.82);
-      // Debounce: don't thrash if called rapidly
-      if(!window._lastMobileTexUpload || Date.now() - window._lastMobileTexUpload > 800){
-        window._lastMobileTexUpload = Date.now();
-        globe.globeImageUrl(_dataUrl);
-      }
-    }catch(_mu){
-      console.warn('[Mars] Mobile texture upload failed:', _mu.message);
-    }
+  // ═══ IN-PLACE IMAGE SWAP ═══
+  // Previously we replaced mat.map with a new CanvasTexture — unreliable on mobile
+  // (created a fresh texture with default settings that rendered as black GPU-side).
+  // Previously we routed mobile through globeImageUrl(dataURL) — reliable but
+  // JPEG re-encoded every composite, causing generation loss (blurry globe).
+  //
+  // Best of both: swap the existing texture's .image reference to marsCanvas and
+  // flag needsUpdate. This preserves all wrap/filter/colorSpace settings that
+  // globe.gl set up during init, and never re-encodes.
+  var _mat = globe.globeMaterial();
+  if(!_mat || !_mat.map){
+    // Texture not yet loaded by Three.js — try again shortly
+    setTimeout(function(){compositeClaimsOnTexture(previewOnly)}, 200);
     return;
   }
-
-  // Direct GPU upload — no JPEG compression, much sharper + faster (DESKTOP)
-  if(!marsCanvasTexture){
-    var mat=globe.globeMaterial(); if(!mat||!mat.map) return;
-    var TexClass=mat.map.constructor;
-    marsCanvasTexture=new TexClass(marsCanvas);
-    marsCanvasTexture.needsUpdate=true;
-    globe.globeMaterial().map=marsCanvasTexture;
-  }else{
-    marsCanvasTexture.needsUpdate=true;
+  try{
+    _mat.map.image = marsCanvas;
+    _mat.map.needsUpdate = true;
+    // Ensure filter settings are compatible with a canvas source on mobile
+    // (avoid mipmap generation which can fail on some mobile GPUs)
+    if(_isMob){
+      try{
+        // THREE.LinearFilter = 1006, THREE.ClampToEdgeWrapping = 1001
+        _mat.map.generateMipmaps = false;
+        _mat.map.minFilter = 1006; // LinearFilter
+        _mat.map.magFilter = 1006; // LinearFilter
+      }catch(_fe){}
+    }
+  }catch(_ue){
+    console.warn('[Mars] Texture image swap failed:', _ue.message);
   }
 
 }
@@ -11762,15 +11765,28 @@ function _discoverPOI(poiId) {
   if (!walletState.address) { showToast('Connect wallet first'); return; }
   var _btn = document.querySelector('#poiPopupOverlay button[onclick*="_discoverPOI"]');
   if(_btn){ _btn.disabled=true; _btn.style.opacity='0.6'; _btn.textContent='🔍 SEARCHING...'; }
+  console.log('[POI] Discover request:', { wallet: walletState.address, poiId: poiId });
   fetch('/api/exploration/discover', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ wallet: walletState.address, poiId: poiId })
   }).then(function(r) {
-    return r.json().then(function(d){ return {status:r.status, body:d}; });
+    // Read as text first so we can show server body on parse failure
+    return r.text().then(function(txt){
+      var body = null;
+      try { body = JSON.parse(txt); } catch(_pe){}
+      return { status: r.status, ok: r.ok, text: txt, body: body };
+    });
   }).then(function(resp) {
-    var data = resp.body || {};
+    console.log('[POI] Discover response:', resp.status, resp.body || resp.text);
     if(_btn){ _btn.disabled=false; _btn.style.opacity=''; _btn.innerHTML='🔍 DISCOVER'; }
+    var data = resp.body;
+    if (!data) {
+      // Non-JSON response — show status + snippet
+      var snippet = (resp.text||'').slice(0,120).replace(/\s+/g,' ');
+      showToast('HTTP ' + resp.status + ' — ' + (snippet || 'no body'));
+      return;
+    }
     if (data.error) {
       console.warn('[POI] Discover rejected:', resp.status, data.error);
       showToast(data.error);
@@ -11778,7 +11794,7 @@ function _discoverPOI(poiId) {
     }
     if (!data.success || !data.reward) {
       console.warn('[POI] Discover unexpected response:', resp.status, data);
-      showToast('Discovery failed (bad response)');
+      showToast('Discovery failed — bad response');
       return;
     }
     var rw = data.reward;
@@ -11809,7 +11825,7 @@ function _discoverPOI(poiId) {
   }).catch(function(err) {
     console.error('[POI] Discover network error:', err);
     if(_btn){ _btn.disabled=false; _btn.style.opacity=''; _btn.innerHTML='🔍 DISCOVER'; }
-    showToast('Discovery failed (network)');
+    showToast('Network error: ' + (err && err.message ? err.message : 'unknown'));
   });
 }
 
