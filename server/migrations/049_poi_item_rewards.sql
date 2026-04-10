@@ -10,6 +10,8 @@ ALTER TABLE exploration_pois ADD CONSTRAINT exploration_pois_reward_type_check
 
 -- Also update poi_discoveries to accept gp
 ALTER TABLE poi_discoveries DROP CONSTRAINT IF EXISTS poi_discoveries_reward_type_check;
+ALTER TABLE poi_discoveries ADD CONSTRAINT poi_discoveries_reward_type_check
+  CHECK (reward_type IN ('pp','gp','item','xp'));
 
 -- ── POI Drop Table (configurable from admin) ──
 -- Each row = one possible item drop with weight

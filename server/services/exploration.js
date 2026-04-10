@@ -98,12 +98,25 @@ async function spawnPOIs() {
       rewardAmount = Math.round((minPP + Math.random() * (maxPP - minPP)) * scaleFactor * 100) / 100;
     }
 
-    const res = await pool.query(
-      `INSERT INTO exploration_pois (lat, lng, sector_id, poi_type, reward_type, reward_amount, reward_item_code, expires_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '1 hour' * $8) RETURNING id`,
-      [lat, lng, sector.id, poiType, rewardType, rewardAmount, rewardItemCode, expireHours]
-    );
-    results.push({ id: res.rows[0].id, sectorId: sector.id, poiType, lat, lng, rewardType, rewardAmount, rewardItemCode });
+    try {
+      const res = await pool.query(
+        `INSERT INTO exploration_pois (lat, lng, sector_id, poi_type, reward_type, reward_amount, reward_item_code, expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '1 hour' * $8) RETURNING id`,
+        [lat, lng, sector.id, poiType, rewardType, rewardAmount, rewardItemCode, expireHours]
+      );
+      results.push({ id: res.rows[0].id, sectorId: sector.id, poiType, lat, lng, rewardType, rewardAmount, rewardItemCode });
+    } catch (insertErr) {
+      console.warn('[EXPLORE] POI insert failed (reward_type=' + rewardType + '):', insertErr.message);
+      // Fallback: try as 'xp' if constraint rejects 'gp'
+      try {
+        const fbRes = await pool.query(
+          `INSERT INTO exploration_pois (lat, lng, sector_id, poi_type, reward_type, reward_amount, reward_item_code, expires_at)
+           VALUES ($1, $2, $3, $4, 'xp', $5, NULL, NOW() + INTERVAL '1 hour' * $6) RETURNING id`,
+          [lat, lng, sector.id, poiType, Math.max(5, Math.round(rewardAmount / 3)), expireHours]
+        );
+        results.push({ id: fbRes.rows[0].id, sectorId: sector.id, poiType, lat, lng, rewardType: 'xp', rewardAmount: Math.max(5, Math.round(rewardAmount / 3)), rewardItemCode: null });
+      } catch (_e2) { /* skip this POI */ }
+    }
   }
 
   if (results.length > 0) {

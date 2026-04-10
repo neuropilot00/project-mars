@@ -13849,7 +13849,7 @@ function checkDailyLogin(){
   if(!emailAuth.token || !walletState.address) return;
   var today = new Date().toISOString().slice(0,10);
   var stored = localStorage.getItem('daily_login_date_'+walletState.address);
-  if(stored === today){ _dailyState.todayClaimed=true; updateDailyHudDot(); return; }
+  if(stored === today){ _dailyState.todayClaimed=true; _dailyDotReady=true; updateDailyHudDot(); loadDailyMissions(); return; }
 
   fetch('/api/daily/login',{
     method:'POST',
@@ -13870,6 +13870,7 @@ function checkDailyLogin(){
       _dailyState.streak = d.streak || 0;
       localStorage.setItem('daily_login_date_'+walletState.address, today);
     }
+    _dailyDotReady = true;
     updateDailyHudDot();
     loadDailyMissions();
   }).catch(function(e){
@@ -13881,6 +13882,7 @@ function checkDailyLogin(){
     _dailyState.todayClaimed = true; // Treat as claimed to avoid false notification
     renderDailyStreakRow();
     document.getElementById('dailyLoginPopup').classList.add('open');
+    _dailyDotReady = true;
     updateDailyHudDot();
     loadDailyMissions();
   });
@@ -13949,9 +13951,9 @@ function closeDailyLogin(){
 
 // ── Daily Missions ──
 var _defaultMissions = [
-  {id:'claim_land', type:'claim', icon:'🏴', title:'CLAIM TERRITORY', desc:'Claim 1 land pixel', target:1, current:0, reward:20, claimed:false},
-  {id:'visit_sectors', type:'explore', icon:'🔭', title:'EXPLORE SECTORS', desc:'View the sectors tab', target:1, current:0, reward:15, claimed:false},
-  {id:'play_game', type:'play', icon:'🎮', title:'DAILY ACTIVITY', desc:'Perform any game action', target:3, current:0, reward:25, claimed:false}
+  {id:'claim_land', type:'claim', icon:'🏴', title:'CLAIM TERRITORY', desc:'Claim land pixels on the Mars globe', target:1, current:0, reward:20, claimed:false},
+  {id:'visit_sectors', type:'explore', icon:'🔭', title:'EXPLORE SECTORS', desc:'Discover a POI marker on the globe', target:1, current:0, reward:15, claimed:false},
+  {id:'play_game', type:'play', icon:'🎮', title:'DAILY ACTIVITY', desc:'Perform any game action (claim, mine, hijack, etc.)', target:3, current:0, reward:25, claimed:false}
 ];
 
 function loadDailyMissions(){
@@ -14002,9 +14004,11 @@ function renderDailyMissions(){
     if(!m.claimed) allClaimed = false;
 
     html += '<div class="'+cls+'" id="dm_'+m.id+'">';
+    var desc = m.desc || '';
     html += '<div class="dm-icon">'+icon+'</div>';
     html += '<div class="dm-info">';
     html += '<div class="dm-title">'+title+'</div>';
+    if(desc) html += '<div class="dm-desc" style="font-size:9px;color:var(--tx3);margin:2px 0 4px;line-height:1.3">'+desc+'</div>';
     html += '<div class="dm-prog-bar"><div class="dm-prog-fill" style="width:'+pct+'%"></div></div>';
     html += '<div class="dm-prog-text">'+Math.min(current,target)+' / '+target+'</div>';
     html += '</div>';
@@ -14140,17 +14144,21 @@ function startDailyTimer(){
 }
 
 // ── Notification Dots (OPEN BASE button + QUESTS tab) ──
+var _dailyDotReady = false; // Don't show dot until daily state is actually loaded
 function updateDailyHudDot(){
   var hasClaimable = false;
-  // Check daily login unclaimed
-  if(!_dailyState.todayClaimed) hasClaimable = true;
-  // Check daily missions — only if a mission is COMPLETED and not yet claimed
-  if(!hasClaimable){
-    _dailyState.missions.forEach(function(m){
-      var cur = m.current != null ? m.current : m.currentValue;
-      var tgt = m.target != null ? m.target : m.targetValue;
-      if(!m.claimed && cur >= tgt) hasClaimable = true;
-    });
+  // Only check if daily state has been initialized from server
+  if(_dailyDotReady) {
+    // Check daily login unclaimed
+    if(!_dailyState.todayClaimed) hasClaimable = true;
+    // Check daily missions — only if a mission is COMPLETED and not yet claimed
+    if(!hasClaimable && _dailyState.missions.length > 0){
+      _dailyState.missions.forEach(function(m){
+        var cur = m.current != null ? m.current : (m.currentValue != null ? m.currentValue : 0);
+        var tgt = m.target != null ? m.target : (m.targetValue != null ? m.targetValue : 999);
+        if(!m.claimed && cur >= tgt) hasClaimable = true;
+      });
+    }
   }
   // OPEN BASE button dot
   var baseDot = document.getElementById('dailyHudDot');

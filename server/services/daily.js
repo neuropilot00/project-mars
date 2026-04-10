@@ -2,13 +2,13 @@ const { pool, getSetting } = require('../db');
 
 // Mission pool definitions
 const MISSION_POOL = [
-  { type: 'claim_pixels',    label: 'Expand Territory',  icon: '🏴', targetMin: 3, targetMax: 8, rewardGP: 15, rewardXP: 5 },
-  { type: 'harvest',         label: 'Collect Resources', icon: '⛏️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
-  { type: 'explore_poi',     label: 'Recon Mission',     icon: '🔭', targetMin: 1, targetMax: 1, rewardGP: 20, rewardXP: 5 },
-  { type: 'hijack',          label: 'Hostile Takeover',   icon: '⚔️', targetMin: 1, targetMax: 3, rewardGP: 25, rewardXP: 5 },
-  { type: 'play_cantina',    label: 'Cantina Night',     icon: '🎰', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
-  { type: 'equip_cosmetic',  label: 'Mars Fashion',      icon: '👗', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
-  { type: 'view_weather',    label: 'Storm Chaser',      icon: '🌪️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'claim_pixels',    label: 'Expand Territory',  desc: 'Claim land pixels on the Mars globe', icon: '🏴', targetMin: 3, targetMax: 8, rewardGP: 15, rewardXP: 5 },
+  { type: 'harvest',         label: 'Collect Resources', desc: 'Harvest PP from your owned territory', icon: '⛏️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'explore_poi',     label: 'Recon Mission',     desc: 'Discover a POI marker on the globe', icon: '🔭', targetMin: 1, targetMax: 1, rewardGP: 20, rewardXP: 5 },
+  { type: 'hijack',          label: 'Hostile Takeover',   desc: 'Hijack enemy territory with GP', icon: '⚔️', targetMin: 1, targetMax: 3, rewardGP: 25, rewardXP: 5 },
+  { type: 'play_cantina',    label: 'Cantina Night',     desc: 'Play a mini-game in the Cantina', icon: '🎰', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'equip_cosmetic',  label: 'Mars Fashion',      desc: 'Equip a cosmetic item from your inventory', icon: '👗', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'view_weather',    label: 'Storm Chaser',      desc: 'Check the Mars weather forecast', icon: '🌪️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
 ];
 
 function randInt(min, max) {
@@ -167,6 +167,7 @@ function formatMission(row) {
     type: row.mission_type,
     icon: def ? def.icon : '📋',
     title: def ? def.label : row.mission_type,
+    desc: def ? def.desc : '',
     target: row.target_value,
     current: row.current_value,
     reward: parseFloat(row.reward_gp),
