@@ -278,12 +278,35 @@ async function discoverPOI(wallet, poiId) {
       [poiId, wallet, rewardGiven.type, rewardGiven.amount, rewardGiven.itemCode]
     );
 
+    // Bonus cosmetic drop chance
+    let bonusCosmetic = null;
+    try {
+      const cosmeticChance = parseInt(await getSetting('poi_cosmetic_chance', 5));
+      if (Math.random() * 100 < cosmeticChance) {
+        // Pick a random cosmetic item
+        const cosRes = await client.query(
+          "SELECT id, code, name, icon FROM item_types WHERE category = 'cosmetic' AND active = true ORDER BY RANDOM() LIMIT 1"
+        );
+        if (cosRes.rows.length) {
+          const cos = cosRes.rows[0];
+          await client.query(
+            `INSERT INTO user_items (wallet, item_type_id, quantity)
+             VALUES ($1, $2, 1)
+             ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + 1`,
+            [wallet, cos.id]
+          );
+          bonusCosmetic = { code: cos.code, name: cos.name, icon: cos.icon };
+        }
+      }
+    } catch (_e) { /* cosmetic bonus failed, non-critical */ }
+
     await client.query('COMMIT');
     return {
       success: true,
       poiType: poi.poi_type,
       reward: rewardGiven,
       xp: xpReward,
+      bonusCosmetic: bonusCosmetic,
       icon: POI_TYPES[poi.poi_type]?.icon || '📍',
       label: POI_TYPES[poi.poi_type]?.label || poi.poi_type
     };

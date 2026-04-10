@@ -11392,8 +11392,14 @@ function _discoverPOI(poiId) {
     } else {
       rwText = '+' + rw.amount + ' ' + (rw.type||'').toUpperCase();
     }
-    showNotification('system','POI DISCOVERED', data.label + ' found! ' + rwText + ', +' + data.xp + ' XP');
-    addFeed('\u{1F50D} ' + (currentNickname || currentWallet.slice(0,6)) + ' discovered ' + data.label + ' — ' + rwText);
+    var notifMsg = data.label + ' found! ' + rwText + ', +' + data.xp + ' XP';
+    if (data.bonusCosmetic) {
+      notifMsg += '\n🎁 BONUS: ' + (data.bonusCosmetic.icon||'✨') + ' ' + data.bonusCosmetic.name;
+    }
+    showNotification('system','POI DISCOVERED', notifMsg);
+    var feedMsg = '\u{1F50D} ' + (currentNickname || currentWallet.slice(0,6)) + ' discovered ' + data.label + ' — ' + rwText;
+    if (data.bonusCosmetic) feedMsg += ' + 🎁' + (data.bonusCosmetic.icon||'') + data.bonusCosmetic.name;
+    addFeed(feedMsg);
     // Remove from local data
     _poiData = _poiData.filter(function(p) { return p.id !== poiId; });
     compositeClaimsOnTexture();
