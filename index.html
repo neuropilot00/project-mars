@@ -6108,7 +6108,7 @@ function _attachGlobeClick(){
         var dist=Math.sqrt(dlat*dlat+dlng*dlng);
         if(dist<nearestDist){nearestDist=dist;nearestPOI=p;}
       }
-      if(nearestPOI && nearestDist < 3) { // Within ~3 degrees
+      if(nearestPOI && nearestDist < 6) { // Within ~6 degrees (large tap area for mobile)
         _showPOIPopup(nearestPOI);
         return;
       }
@@ -10904,31 +10904,45 @@ function _drawPOIMarkers(ctx, w, h) {
   var t = Date.now();
 
   _poiData.forEach(function(poi) {
-    if (poi.discovered) return; // Don't show discovered POIs
+    if (poi.discovered) return;
     var x = ((poi.lng + 180) / 360) * w;
     var y = ((90 - poi.lat) / 180) * h;
     var def = _poiDefs[poi.poiType] || { icon: '\u{1F4CD}', color: '#FFFFFF' };
 
-    // Pulsing glow circle
-    var pulse = 6 + Math.sin(t / 400 + poi.id) * 3;
-    ctx.globalAlpha = 0.4 + Math.sin(t / 500 + poi.id * 0.7) * 0.2;
+    // Outer pulsing ring — large and visible
+    var pulse = 16 + Math.sin(t / 400 + poi.id) * 6;
+    ctx.globalAlpha = 0.25 + Math.sin(t / 500 + poi.id * 0.7) * 0.15;
     ctx.beginPath();
     ctx.arc(x, y, pulse, 0, Math.PI * 2);
     ctx.fillStyle = def.color;
     ctx.fill();
 
-    // Inner dot
-    ctx.globalAlpha = 0.9;
+    // Mid glow ring
+    ctx.globalAlpha = 0.5;
     ctx.beginPath();
-    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.arc(x, y, 10, 0, Math.PI * 2);
     ctx.fillStyle = def.color;
     ctx.fill();
 
-    // Icon (only at reasonable zoom — always on equirectangular texture)
-    ctx.globalAlpha = 0.85;
-    ctx.font = '14px sans-serif';
+    // Inner solid dot
+    ctx.globalAlpha = 0.95;
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = def.color;
+    ctx.fill();
+
+    // Icon — large and clear
+    ctx.globalAlpha = 1;
+    ctx.font = '22px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(def.icon, x, y - 8);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(def.icon, x, y - 18);
+
+    // Label text below
+    ctx.globalAlpha = 0.8;
+    ctx.font = '9px sans-serif';
+    ctx.fillStyle = def.color;
+    ctx.fillText('TAP TO DISCOVER', x, y + 18);
   });
 
   ctx.restore();
