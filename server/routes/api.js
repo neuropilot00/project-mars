@@ -3178,15 +3178,30 @@ router.get('/daily/status', readLimiter, async (req, res) => {
     const existing = await pool.query(
       'SELECT streak_day, reward_gp FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE', [w]
     );
-    if (existing.rows.length) {
-      return res.json({ todayClaimed: true, streak: existing.rows[0].streak_day, reward: parseFloat(existing.rows[0].reward_gp) });
+    // Get reward config from admin settings
+    const { getSetting } = require('../db');
+    const gpRewards = await getSetting('daily_login_gp_rewards', [5,10,10,15,15,20,30,10,15,15,20,20,25,50]);
+    const maxDays = parseInt(await getSetting('daily_streak_cycle', 14));
+    const milestones = {
+      3:  { bonus: parseFloat(await getSetting('streak_3_gp', 30)) },
+      7:  { bonus: parseFloat(await getSetting('streak_7_gp', 100)) },
+      10: { bonus: parseFloat(await getSetting('streak_10_gp', 150)) },
+      14: { bonus: parseFloat(await getSetting('streak_14_gp', 300)) }
+    };
+    // Build day reward defs for frontend
+    const dayRewards = [];
+    for (let d = 1; d <= maxDays; d++) {
+      dayRewards.push({ day: d, gp: gpRewards[d-1] || 0, milestone: milestones[d] || null });
     }
-    // Not claimed today — get yesterday's streak to show current progress
+
+    if (existing.rows.length) {
+      return res.json({ todayClaimed: true, streak: existing.rows[0].streak_day, reward: parseFloat(existing.rows[0].reward_gp), dayRewards, maxDays });
+    }
     const yesterday = await pool.query(
       "SELECT streak_day FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE - INTERVAL '1 day'", [w]
     );
     const streak = yesterday.rows.length ? yesterday.rows[0].streak_day : 0;
-    res.json({ todayClaimed: false, streak });
+    res.json({ todayClaimed: false, streak, dayRewards, maxDays });
   } catch (e) {
     console.error('[DAILY] status error:', e.message);
     res.status(500).json({ error: 'Status check failed' });
