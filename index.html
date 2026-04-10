@@ -9914,14 +9914,15 @@ function buyShopItem(code,currency){
 function useShopItem(code,needsClaim){
   if(!walletState||!walletState.address){showToast('Connect wallet first','error');return;}
   var w=walletState.address;
+  var wl=(w||'').toLowerCase();
   if(needsClaim){
-    // Show claim picker instead of raw prompt
-    var myClaims=claims.filter(function(c){return c.owner===w});
+    // Case-insensitive owner match — claim.owner can be mixed-case from server
+    var myClaims=claims.filter(function(c){return (c.owner||'').toLowerCase()===wl});
     if(myClaims.length===0){showToast('You have no territories','error');return;}
     var isEMP=code==='emp_strike';
     if(isEMP){
-      // EMP targets enemy claims
-      var targetClaims=claims.filter(function(c){return c.owner!==w&&c.shield});
+      // EMP targets enemy shielded claims
+      var targetClaims=claims.filter(function(c){return (c.owner||'').toLowerCase()!==wl && c.shield});
       if(targetClaims.length===0){showToast('No shielded enemy territories found','error');return;}
       _showClaimPicker(targetClaims,code,'Select target to EMP');
     }else{
@@ -9939,20 +9940,45 @@ function useShopItem(code,needsClaim){
   }
 }
 function _showClaimPicker(claimList,itemCode,title){
-  var html='<div class="mbg" onclick="this.remove()" style="z-index:1200"><div class="mdl" onclick="event.stopPropagation()" style="max-width:380px;padding:16px">'
-    +'<div style="font-size:var(--fs-lg);font-weight:700;margin-bottom:12px;color:var(--mars)">'+title+'</div>'
+  // Remove any stale picker first (prevents stacking)
+  document.querySelectorAll('.mbg.claim-picker').forEach(function(el){el.remove();});
+  var bg=document.createElement('div');
+  bg.className='mbg open claim-picker';
+  bg.style.cssText='z-index:1200;display:flex';
+  var mdl=document.createElement('div');
+  mdl.className='mdl';
+  mdl.style.cssText='max-width:380px;padding:16px';
+  mdl.addEventListener('click',function(e){e.stopPropagation();});
+  var w=(walletState&&walletState.address)||'';
+  var inner='<div style="font-size:var(--fs-lg);font-weight:700;margin-bottom:12px;color:var(--mars)">'+title+'</div>'
     +'<div style="max-height:50vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px">';
-  claimList.forEach(function(c){
-    var lbl=c.nickname||c.label||('Claim #'+c.id);
-    var shieldInfo=c.shield?'<span style="color:#50C8FF;font-size:10px">🛡️ SHIELDED</span>':'';
-    html+='<button onclick="document.querySelector(\'.mbg[style*=z-index\\\\:1200]\').remove();_doUseItem(walletState,\''+itemCode+'\','+c.id+')" '
-      +'style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--tx1);cursor:pointer;width:100%;text-align:left;font-size:13px">'
-      +'<span><strong>#'+c.id+'</strong> '+lbl+'</span>'
-      +'<span style="font-size:11px;color:var(--tx3)">'+Math.round(c.w*c.h)+'px '+shieldInfo+'</span>'
-      +'</button>';
+  if(!claimList||!claimList.length){
+    inner+='<div style="padding:16px;text-align:center;color:var(--tx3);font-size:12px">No valid targets found</div>';
+  }else{
+    claimList.forEach(function(c){
+      var lbl=c.nickname||c.label||('Claim #'+c.id);
+      var shieldInfo=c.shield?' <span style="color:#50C8FF;font-size:10px">🛡️</span>':'';
+      inner+='<button data-claim-id="'+c.id+'" class="_cp-btn" '
+        +'style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--tx1);cursor:pointer;width:100%;text-align:left;font-size:13px">'
+        +'<span><strong>#'+c.id+'</strong> '+lbl+'</span>'
+        +'<span style="font-size:11px;color:var(--tx3)">'+Math.round((c.w||0)*(c.h||0))+'px'+shieldInfo+'</span>'
+        +'</button>';
+    });
+  }
+  inner+='</div><button class="_cp-cancel" style="margin-top:12px;width:100%;padding:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--tx2);cursor:pointer;font-size:13px">CANCEL</button>';
+  mdl.innerHTML=inner;
+  bg.appendChild(mdl);
+  bg.addEventListener('click',function(e){if(e.target===bg) bg.remove();});
+  // Wire up buttons
+  mdl.querySelectorAll('._cp-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var cid=parseInt(btn.getAttribute('data-claim-id'));
+      bg.remove();
+      _doUseItem(w,itemCode,cid);
+    });
   });
-  html+='</div><button onclick="this.closest(\'.mbg\').remove()" style="margin-top:12px;width:100%;padding:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--tx2);cursor:pointer;font-size:13px">CANCEL</button></div></div>';
-  document.body.insertAdjacentHTML('beforeend',html);
+  mdl.querySelector('._cp-cancel').addEventListener('click',function(){bg.remove();});
+  document.body.appendChild(bg);
 }
 function _doUseItem(w,code,claimId){
   fetch('/api/shop/use',{method:'POST',headers:{'Content-Type':'application/json'},
