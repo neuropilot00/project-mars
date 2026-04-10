@@ -4128,6 +4128,11 @@ function compositeClaimsOnTexture(previewOnly){
   if(!globe||!marsCanvas) return;
   // Skip compositing while waiting for NASA texture on mobile
   if(currentTexMode==='simple') return;
+  // On mobile with NASA mode: skip if NASA image not cached yet (let globe.gl show it directly)
+  if(currentTexMode==='nasa' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+    var _nasaKey = nasa8kLoaded ? NASA_MARS_8K : NASA_MARS_2K;
+    if(!imgCache[_nasaKey]){ return; }
+  }
   try{ globe.globeMaterial(); }catch(e){ return; } // globe not ready yet
   var ctx=marsCanvas.getContext('2d');
   ctx.imageSmoothingEnabled=true;
@@ -5215,12 +5220,13 @@ function _initStep3(){
         _mobNasaDone = true;
         if(img){
           console.log('[Mars] NASA 2K cached on mobile — success');
+          // Only composite if cache succeeded, otherwise let globe.gl show NASA directly
+          compositeClaimsOnTexture();
         } else {
-          console.warn('[Mars] NASA 2K cache failed on mobile — globe.gl may still render');
+          console.warn('[Mars] NASA 2K cache failed on mobile — letting globe.gl render directly');
         }
         setLoadProgress(100,'Ready!');
         setTimeout(dismissLoader, 300);
-        compositeClaimsOnTexture();
       });
       // Safety timeout: dismiss loader after 12s even if NASA fails
       setTimeout(function(){
