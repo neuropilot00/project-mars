@@ -40,7 +40,7 @@ INSERT INTO poi_drop_table (item_code, item_name, icon, weight, min_qty, max_qty
 ON CONFLICT DO NOTHING;
 
 -- ── POI reward distribution settings ──
-INSERT INTO game_settings (key, value, category, description) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('poi_drop_gp_weight',   '70', 'exploration', 'Weight for GP reward from POI (higher = more common)'),
   ('poi_drop_item_weight', '20', 'exploration', 'Weight for Item reward from POI'),
   ('poi_drop_pp_weight',   '10', 'exploration', 'Weight for PP reward from POI (rare)')
