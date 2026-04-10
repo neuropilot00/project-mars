@@ -5143,17 +5143,9 @@ function _initStep3(){
   var isMobileDevice=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
   var initTexUrl;
   if(isMobileDevice){
-    console.log('[Mars] Mobile — simple placeholder, NASA 2K loads after');
-    var _mc=document.createElement('canvas');_mc.width=512;_mc.height=256;
-    var _mx=_mc.getContext('2d');
-    var _mg=_mx.createLinearGradient(0,0,0,256);
-    _mg.addColorStop(0,'#c4714a');_mg.addColorStop(0.3,'#b5623d');
-    _mg.addColorStop(0.5,'#a85535');_mg.addColorStop(0.7,'#b5623d');
-    _mg.addColorStop(1,'#c4714a');
-    _mx.fillStyle=_mg;_mx.fillRect(0,0,512,256);
-    initTexUrl=_mc.toDataURL('image/jpeg',0.8);
-    marsBaseData=initTexUrl;
-    currentTexMode='simple';
+    console.log('[Mars] Mobile — using NASA 2K directly from start');
+    initTexUrl=NASA_MARS_2K;
+    currentTexMode='nasa';
   } else {
     initTexUrl=(currentTexMode==='nasa')?NASA_MARS_2K:marsTexUrl;
   }
@@ -5208,11 +5200,9 @@ function _initStep3(){
         console.log('[Mars] NASA 2K cached for compositing');
       });
     }
-    // Mobile: apply NASA 2K directly
+    // Mobile: NASA 2K already set as initTexUrl, just cache for compositing
     if(isMobileDevice){
-      console.log('[Mars] Mobile — applying NASA 2K directly');
-      currentTexMode='nasa';
-      globe.globeImageUrl(NASA_MARS_2K);
+      console.log('[Mars] Mobile — caching NASA 2K for compositing');
       setLoadProgress(97,'Rendering Mars surface...');
       var _mobNasaDone = false;
       cacheImage(NASA_MARS_2K, function(img){
@@ -5220,19 +5210,18 @@ function _initStep3(){
         _mobNasaDone = true;
         if(img){
           console.log('[Mars] NASA 2K cached on mobile — success');
-          // Only composite if cache succeeded, otherwise let globe.gl show NASA directly
           compositeClaimsOnTexture();
         } else {
-          console.warn('[Mars] NASA 2K cache failed on mobile — letting globe.gl render directly');
+          console.warn('[Mars] NASA 2K cache failed — globe.gl renders directly');
         }
         setLoadProgress(100,'Ready!');
         setTimeout(dismissLoader, 300);
       });
-      // Safety timeout: dismiss loader after 12s even if NASA fails
+      // Safety timeout
       setTimeout(function(){
         if(!_mobNasaDone){
           _mobNasaDone = true;
-          console.warn('[Mars] Mobile NASA timeout — dismissing loader anyway');
+          console.warn('[Mars] Mobile NASA cache timeout — dismissing loader');
           setLoadProgress(100,'Ready!');
           dismissLoader();
         }
@@ -11689,10 +11678,7 @@ function _discoverPOI(poiId) {
     if (data.bonusCosmetic) {
       notifMsg += '\n🎁 BONUS: ' + (data.bonusCosmetic.icon||'✨') + ' ' + data.bonusCosmetic.name;
     }
-    showNotification('system','POI DISCOVERED', notifMsg);
-    var feedMsg = '\u{1F50D} ' + (walletState.nickname || walletState.address.slice(0,6)) + ' discovered ' + data.label + ' — ' + rwText;
-    if (data.bonusCosmetic) feedMsg += ' + 🎁' + (data.bonusCosmetic.icon||'') + data.bonusCosmetic.name;
-    addFeed(feedMsg);
+    addFeed('\u{1F50D} ' + (walletState.nickname || walletState.address.slice(0,6)) + ' discovered ' + data.label + ' — ' + rwText);
     // Remove from local data
     _poiData = _poiData.filter(function(p) { return p.id !== poiId; });
     compositeClaimsOnTexture();
@@ -11700,8 +11686,43 @@ function _discoverPOI(poiId) {
     // Close popup
     var poiOv = document.getElementById('poiPopupOverlay');
     if (poiOv) poiOv.remove();
+    // Show reward splash in center
+    _showRewardSplash(data.label, rwText, data.xp, data.bonusCosmetic);
   }).catch(function() { showToast('Discovery failed'); });
 }
+
+function _showRewardSplash(label, rwText, xp, bonusCosmetic) {
+  var old = document.getElementById('rewardSplash');
+  if (old) old.remove();
+
+  var splash = document.createElement('div');
+  splash.id = 'rewardSplash';
+  splash.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);animation:poiFadeIn 0.3s ease';
+  splash.onclick = function() { splash.remove(); };
+
+  var bonusHtml = '';
+  if (bonusCosmetic) {
+    bonusHtml = '<div style="margin-top:12px;padding:8px 16px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);border-radius:10px">'
+      + '<div style="font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:4px">🎁 BONUS</div>'
+      + '<div style="font-size:14px;color:#FFF">' + (bonusCosmetic.icon||'✨') + ' ' + bonusCosmetic.name + '</div>'
+      + '</div>';
+  }
+
+  splash.innerHTML = '<div style="text-align:center;animation:poiSlideUp 0.4s ease">'
+    + '<div style="font-size:48px;margin-bottom:12px;filter:drop-shadow(0 0 20px rgba(255,200,50,0.6))">🔍</div>'
+    + '<div style="font-size:11px;color:var(--gold);letter-spacing:3px;margin-bottom:6px">POI DISCOVERED</div>'
+    + '<div style="font-size:20px;font-weight:700;color:#FFF;margin-bottom:8px;text-shadow:0 0 12px rgba(255,200,50,0.4)">' + label + '</div>'
+    + '<div style="font-size:24px;font-weight:700;color:var(--gold);margin-bottom:6px">' + rwText + '</div>'
+    + '<div style="font-size:13px;color:var(--gn)">+' + xp + ' XP</div>'
+    + bonusHtml
+    + '<div style="margin-top:20px;font-size:10px;color:var(--tx3)">TAP TO CLOSE</div>'
+    + '</div>';
+
+  document.body.appendChild(splash);
+  // Auto-dismiss after 5s
+  setTimeout(function() { if (splash.parentNode) splash.remove(); }, 5000);
+}
+
 function addFeed(text){
   var f=document.getElementById('liveFeed');
   var d=document.createElement('div');d.className='feed-item new';d.textContent=text;
