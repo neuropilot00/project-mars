@@ -2688,11 +2688,14 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
       return res.status(400).json({ error: `Max ${item.max_stack} of this item. You have ${currentQty}.` });
     }
 
-    // Calculate cost
+    // Calculate cost. Supported currencies: PP (default), USDT, GP.
     const cur = (currency || 'PP').toUpperCase();
-    const unitPrice = cur === 'USDT' ? parseFloat(item.price_usdt) : parseFloat(item.price_pp);
+    let unitPrice, balCol;
+    if (cur === 'USDT')      { unitPrice = parseFloat(item.price_usdt); balCol = 'usdt_balance'; }
+    else if (cur === 'GP')   { unitPrice = parseFloat(item.price_gp || 0); balCol = 'gp_balance'; }
+    else                     { unitPrice = parseFloat(item.price_pp);   balCol = 'pp_balance'; }
+    if (unitPrice <= 0) { await client.query('ROLLBACK'); return res.status(400).json({ error: `Item not purchasable with ${cur}` }); }
     const totalCost = unitPrice * qty;
-    const balCol = cur === 'USDT' ? 'usdt_balance' : 'pp_balance';
 
     // Check balance
     const balRes = await client.query(`SELECT ${balCol} as bal FROM users WHERE wallet_address = $1`, [w]);
@@ -2717,7 +2720,7 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
        VALUES ('shop_purchase', $1, $2, $3, 0, $4)`,
       [w, cur === 'USDT' ? totalCost : 0, cur === 'PP' ? totalCost : 0,
-       JSON.stringify({ item: item.code, qty, name: item.name })]
+       JSON.stringify({ item: item.code, qty, name: item.name, currency: cur, gp: cur === 'GP' ? totalCost : 0 })]
     );
 
     await client.query('COMMIT');
@@ -2926,14 +2929,17 @@ router.get('/exploration/pois', readLimiter, async (req, res) => {
     const w = (req.query.wallet || '').toLowerCase();
     if (w) {
       try {
+        // Use LOWER(owner) to match the discovery check's case-insensitive
+        // comparison — otherwise users with mixed-case wallet addresses in
+        // pixels.owner see "No territory in this sector" despite owning land.
         const r = await pool.query(
-          'SELECT DISTINCT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL',
+          'SELECT DISTINCT sector_id FROM pixels WHERE LOWER(owner) = LOWER($1) AND sector_id IS NOT NULL',
           [w]
         );
         ownedSectorIds = r.rows.map(row => row.sector_id);
       } catch (_e) { /* non-critical */ }
       try {
-        const u = await pool.query('SELECT pp_balance FROM users WHERE wallet_address = $1', [w]);
+        const u = await pool.query('SELECT pp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1)', [w]);
         userPP = parseFloat(u.rows[0]?.pp_balance || 0);
       } catch (_e) { /* non-critical */ }
     }

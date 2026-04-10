@@ -2490,6 +2490,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <span style="color:var(--pp)" id="shopBalPP">-- PP</span>
         <span style="color:var(--tx3)">|</span>
         <span style="color:var(--gn)" id="shopBalUSDT">-- USDT</span>
+        <span style="color:var(--tx3)">|</span>
+        <span style="color:var(--gold)" id="shopBalGP">-- GP</span>
       </div>
     </div>
     <!-- Shop category tabs -->
@@ -2941,16 +2943,37 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
 
       <!-- TAB: SHOP -->
+      <!-- TAB: SHOP (single source of truth for item shop) -->
       <div class="base-pane" id="basePane_shop">
-        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
-          <button class="base-shop-cat" onclick="filterBaseShop('all',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,209,102,.3);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)">ALL</button>
+        <!-- Balance + view toggle -->
+        <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;padding:4px 2px 8px;font-size:10px;font-family:var(--fn);border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:8px">
+          <div style="display:flex;gap:4px">
+            <button class="base-shop-view active" onclick="switchBaseShopView('shop',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.15);color:var(--gold);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px">🛒 SHOP</button>
+            <button class="base-shop-view" onclick="switchBaseShopView('inventory',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px">🎒 MY ITEMS</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <span style="color:var(--pp)"><b id="baseShopBalPP">0</b> PP</span>
+            <span style="color:var(--tx3)">|</span>
+            <span style="color:var(--gn)"><b id="baseShopBalUSDT">0</b> USDT</span>
+            <span style="color:var(--tx3)">|</span>
+            <span style="color:var(--gold)"><b id="baseShopBalGP">0</b> GP</span>
+          </div>
+        </div>
+        <!-- Category filter (SHOP view only) -->
+        <div id="baseShopCatRow" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+          <button class="base-shop-cat active" onclick="filterBaseShop('all',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,209,102,.3);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)">ALL</button>
           <button class="base-shop-cat" onclick="filterBaseShop('defense',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">DEFENSE</button>
           <button class="base-shop-cat" onclick="filterBaseShop('attack',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">ATTACK</button>
           <button class="base-shop-cat" onclick="filterBaseShop('utility',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">UTILITY</button>
+          <button class="base-shop-cat" onclick="filterBaseShop('boost',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">BOOST</button>
           <button class="base-shop-cat" onclick="filterBaseShop('cosmetic',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">COSMETIC</button>
         </div>
         <div id="baseShopGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
           <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading items...</div>
+        </div>
+        <!-- Inventory view (hidden by default) -->
+        <div id="baseInvGrid" style="display:none;grid-template-columns:1fr 1fr;gap:6px">
+          <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading inventory...</div>
         </div>
       </div>
 
@@ -6180,13 +6203,11 @@ function activateLandSelect(){
   if(stampImgUrl) cancelStamp();
   // Disable globe rotation/panning so drag selects land, not spins globe
   if(globe&&globe.controls){
-    if(isMobile){
-      // Mobile: keep zoom (pinch) enabled, disable rotation only
-      globe.controls().enableRotate=false;
-      globe.controls().enablePan=false;
-    }else{
-      globe.controls().enabled=false;
-    }
+    // Keep controls enabled so globe.gl still receives pointer events
+    // (disabling controls entirely prevents onGlobeClick from firing).
+    // Just disable rotate/pan so user drags select land instead of spinning globe.
+    globe.controls().enableRotate=false;
+    globe.controls().enablePan=false;
     globe.controls().autoRotate=false;
   }
   // Mobile: show size controls and default size
@@ -6436,6 +6457,48 @@ function _attachGlobeClick(){
   var globeEl=globe.renderer().domElement;
   globeEl.addEventListener('pointerdown',function(e){ _lastTapX=e.clientX; _lastTapY=e.clientY; });
 
+  // Fast-path click handler for LAND SELECT mode (desktop).
+  // Uses 'click' event (fires on pointerup) to avoid clashing with globe.gl's
+  // internal pointer capture logic. Much faster than onGlobeClick because it
+  // bypasses the raycaster chain entirely — we use toGlobeCoords directly.
+  var _fastClickGuard=0;
+  globeEl.addEventListener('click',function(e){
+    if(isMobile) return;
+    if(!landSelectMode) return;
+    if(e.button!==0) return;
+    var nowG=Date.now();
+    if(nowG-_fastClickGuard<250) return;
+    _fastClickGuard=nowG;
+    var rect=globeEl.getBoundingClientRect();
+    var coords=globe.toGlobeCoords(e.clientX-rect.left, e.clientY-rect.top);
+    if(!coords) return;
+    var lat=Math.max(-70,Math.min(70,coords.lat));
+    var lng=coords.lng;
+    lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
+    lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
+    if(!landDragStart){
+      landDragStart={lat:lat,lng:lng};
+      landDragEnd={lat:lat,lng:lng};
+      landDragRect=computeLandRect(lat,lng,lat,lng);
+      var _btn=document.getElementById('landSelectBtn');
+      if(_btn) _btn.textContent='CLICK AGAIN TO SET END';
+      showToast('START POINT SET — Click to set end point');
+      _setDragPreviewPolygon(landDragRect);
+    }else{
+      landDragEnd={lat:lat,lng:lng};
+      landDragRect=computeLandRect(landDragStart.lat,landDragStart.lng,lat,lng);
+      updateLandSelectUI();
+      var _btn2=document.getElementById('landSelectBtn');
+      if(_btn2){
+        _btn2.textContent='DRAG TO SELECT LAND';
+        _btn2.style.color='var(--mars)';
+      }
+      landSelectMode=false;
+      // Defer modal open so globe.gl's internal pointer handling finishes
+      setTimeout(function(){ try{ confirmLandSelect(); }catch(_ce){} }, 0);
+    }
+  });
+
   globe.onGlobeClick(function(coords){
     stopRotation();
     var now=Date.now();
@@ -6480,9 +6543,10 @@ function _attachGlobeClick(){
         var dist=Math.sqrt(dlat*dlat+dlng*dlng);
         if(dist<nearestDist){nearestDist=dist;nearestPOI=p;}
       }
-      // Dynamic threshold based on zoom level — generous for easier clicking
+      // Dynamic threshold based on zoom level — tight hit-box so users
+      // can click near POIs to claim land without accidentally triggering discover.
       var alt = globe.pointOfView().altitude || 2;
-      var threshold = Math.max(5, Math.min(18, alt * 8));
+      var threshold = Math.max(1.5, Math.min(6, alt * 2.2));
       if(nearestPOI && nearestDist < threshold) {
         console.log('[POI] Click! type:', nearestPOI.poiType, 'dist:', nearestDist.toFixed(1)+'°', 'threshold:', threshold.toFixed(1), 'id:', nearestPOI.id);
         _showPOIPopup(nearestPOI);
@@ -6504,35 +6568,18 @@ function _attachGlobeClick(){
 
     // Land Select mode
     if(landSelectMode){
+      // Desktop path is handled by the fast pointerdown handler above.
+      // This onGlobeClick fires AFTER pointerup and would cause a double-action.
+      if(!isMobile) return;
       lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
       lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
-      if(isMobile){
-        // Mobile: single tap sets center, joystick to fine-tune, size buttons to resize
-        landDragStart={lat:lat,lng:lng};
-        landDragRect={lat:lat,lng:lng,w:_mobLandW,h:_mobLandH};
-        updateLandSelectUI();
-        _updateMobLabels();
-        showToast('📍 Pin placed! Drag to move · Pinch to zoom');
-        _setDragPreviewPolygon(landDragRect);
-      }else{
-        // Desktop: two-click (start → end)
-        if(!landDragStart){
-          landDragStart={lat:lat,lng:lng};
-          landDragEnd={lat:lat,lng:lng};
-          landDragRect=computeLandRect(lat,lng,lat,lng);
-          document.getElementById('landSelectBtn').textContent='CLICK AGAIN TO SET END';
-          showToast('START POINT SET — Click to set end point');
-          _setDragPreviewPolygon(landDragRect);
-        }else{
-          landDragEnd={lat:lat,lng:lng};
-          landDragRect=computeLandRect(landDragStart.lat,landDragStart.lng,lat,lng);
-          updateLandSelectUI();
-          document.getElementById('landSelectBtn').textContent='DRAG TO SELECT LAND';
-          document.getElementById('landSelectBtn').style.color='var(--mars)';
-          landSelectMode=false;
-          confirmLandSelect();
-        }
-      }
+      // Mobile: single tap sets center, joystick to fine-tune, size buttons to resize
+      landDragStart={lat:lat,lng:lng};
+      landDragRect={lat:lat,lng:lng,w:_mobLandW,h:_mobLandH};
+      updateLandSelectUI();
+      _updateMobLabels();
+      showToast('📍 Pin placed! Drag to move · Pinch to zoom');
+      _setDragPreviewPolygon(landDragRect);
       return;
     }
 
@@ -8174,6 +8221,9 @@ async function confirmClaim(){
     }
     refreshEmailBalances();
 
+    // Refresh owned-sector list so newly-claimed sectors unlock POI discovery
+    try{ if(typeof loadExplorationData==='function') loadExplorationData(); }catch(_le){}
+
     var savePlot={lat:selectedPlot.lat,lng:selectedPlot.lng};
     selectedPlot=null;uploadedUrl=null;
     document.getElementById('territoryInfo').style.display='none';
@@ -9678,29 +9728,30 @@ function renderActiveBuffs(){
   }).join('');
 }
 
+// Legacy: openItemShop now routes to BASE modal → SHOP tab (single source of truth).
+// The old standalone #shopModal is kept in the DOM but is no longer opened anywhere.
 function openItemShop(){
-  document.getElementById('shopModal').classList.add('open');
-  shopSwitchTab('shop');
-  // Show loading state if items haven't loaded yet
-  if(_shopItems.length===0){
-    document.getElementById('shopItemsGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--tx3);font-size:var(--fs-sm)">Loading...</div>';
-  }else{
-    renderShopItems();
-  }
-  loadShopData();
+  try{ openBaseModal(); }catch(_){}
+  setTimeout(function(){
+    var shopTab = Array.from(document.querySelectorAll('.base-tab')).find(function(t){return (t.textContent||'').trim()==='SHOP';});
+    if(shopTab) shopTab.click();
+    else if(typeof loadBaseShopItems==='function') loadBaseShopItems();
+  }, 100);
 }
-function closeItemShop(){document.getElementById('shopModal').classList.remove('open')}
+function closeItemShop(){
+  var m=document.getElementById('shopModal'); if(m) m.classList.remove('open');
+}
 
 function loadShopData(){
   // Update balance display
   var w=(walletState&&walletState.address)||'';
   if(w){
-    fetch('/api/user?wallet='+w).then(r=>r.json()).then(function(d){
-      if(d&&d.user){
-        document.getElementById('shopBalPP').textContent=parseFloat(d.user.balance_pp||0).toFixed(1)+' PP';
-        document.getElementById('shopBalUSDT').textContent=parseFloat(d.user.balance_usdt||0).toFixed(2)+' USDT';
-      }
-    }).catch(function(){});
+    // Use live wallet state + daily GP (refreshed via refreshEmailBalances)
+    try{ if(typeof refreshEmailBalances==='function') refreshEmailBalances(); }catch(_){}
+    document.getElementById('shopBalPP').textContent=(walletState.gamePP||0).toFixed(1)+' PP';
+    document.getElementById('shopBalUSDT').textContent=(walletState.gameUsdt||0).toFixed(2)+' USDT';
+    var gpEl=document.getElementById('shopBalGP');
+    if(gpEl) gpEl.textContent=((_dailyState&&_dailyState.gpBalance)||0).toFixed(0)+' GP';
   }
   // Load items
   fetch('/api/shop/items').then(function(r){return r.json()}).then(function(items){
@@ -9730,6 +9781,10 @@ function renderShopItems(){
     var owned=_shopInventory.find(function(inv){return inv.item_type_id===item.id});
     var ownedQty=owned?owned.quantity:0;
     var durTxt=item.category==='cosmetic'?'Permanent':item.duration_hours>0?item.duration_hours+'h duration':'Single use';
+    var gpPrice=parseFloat(item.price_gp||0);
+    var gpBtn=gpPrice>0
+      ? '<span class="si-price gp" style="background:linear-gradient(135deg,#FFD166,#FF9030);color:#000;font-weight:700" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'GP\')">'+gpPrice.toFixed(0)+' GP</span>'
+      : '';
     return '<div class="shop-item-card" data-code="'+item.code+'">'
       +'<span class="si-cat '+item.category+'">'+item.category+'</span>'
       +'<span class="si-icon">'+item.icon+'</span>'
@@ -9739,6 +9794,7 @@ function renderShopItems(){
       +'<div class="si-prices">'
       +'<span class="si-price pp" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'PP\')">'+parseFloat(item.price_pp).toFixed(1)+' PP</span>'
       +'<span class="si-price usdt" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'USDT\')">'+parseFloat(item.price_usdt).toFixed(1)+' USDT</span>'
+      +gpBtn
       +'</div>'
       +(ownedQty>0?'<div class="si-owned">Owned: '+ownedQty+'/'+item.max_stack+'</div>':'<div class="si-qty">Max: '+item.max_stack+'</div>')
       +'</div>';
@@ -9822,9 +9878,14 @@ function buyShopItem(code,currency){
   try{_sfx.click()}catch(e){}
   if(!walletState||!walletState.address){showToast('Connect wallet first','error');return;}
   var w=walletState.address;
-  var item=_shopItems.find(function(i){return i.code===code});
-  if(!item)return;
-  var price=currency==='USDT'?parseFloat(item.price_usdt).toFixed(1)+' USDT':parseFloat(item.price_pp).toFixed(1)+' PP';
+  // Look up item in whichever catalog has it (BASE shop tab vs standalone ITEM SHOP modal).
+  var item=(_baseShopItems&&_baseShopItems.find(function(i){return (i.code||i.item_code)===code}))
+        || (_shopItems&&_shopItems.find(function(i){return (i.code||i.item_code)===code}));
+  if(!item){showToast('Item not found','error');return;}
+  var price;
+  if(currency==='USDT') price=parseFloat(item.price_usdt).toFixed(1)+' USDT';
+  else if(currency==='GP') price=parseFloat(item.price_gp||0).toFixed(0)+' GP';
+  else price=parseFloat(item.price_pp).toFixed(1)+' PP';
   shopConfirm(item.icon||'🛒','Purchase Item',
     '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+item.name+'</div>'
     +'<div style="font-size:var(--fs-md);color:var(--gold)">'+price+'</div>','BUY NOW'
@@ -9836,7 +9897,16 @@ function buyShopItem(code,currency){
       if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
       showToast('Purchased '+item.name+'!','success');
       try{_sfx.purchase()}catch(e){}
-      loadShopData();
+      // Refresh balances from server (PP/USDT always, GP needs daily endpoint)
+      try{ if(typeof refreshEmailBalances==='function') refreshEmailBalances(); }catch(_){}
+      if(currency==='GP'){
+        try{ if(typeof checkDailyLogin==='function') checkDailyLogin(); }catch(_){}
+      }
+      // Refresh whichever shop UI is currently open
+      try{ if(typeof loadBaseShopItems==='function') loadBaseShopItems(); }catch(_){}
+      try{ if(typeof loadShopData==='function') loadShopData(); }catch(_){}
+      // Also refresh inventory view inside BASE shop
+      try{ if(typeof loadBaseInventory==='function') loadBaseInventory(); }catch(_){}
     }).catch(function(e){showToast('Purchase failed','error')});
   });
 }
@@ -9949,12 +10019,23 @@ function closeBaseModal(){document.getElementById('baseModal').classList.remove(
 var _baseShopItems = [];
 var _baseShopFilter = 'all';
 function loadBaseShopItems(){
+  // Refresh balances (PP/USDT/GP)
+  try{ if(typeof refreshEmailBalances==='function') refreshEmailBalances(); }catch(_){}
+  _updateBaseShopBalances();
   fetch('/api/shop/items').then(function(r){return r.json()}).then(function(data){
     _baseShopItems = (data.items||data||[]).filter(function(i){return i.active !== false});
     renderBaseShop();
   }).catch(function(){
     document.getElementById('baseShopGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px;font-size:10px">Failed to load shop</div>';
   });
+}
+function _updateBaseShopBalances(){
+  var pp=document.getElementById('baseShopBalPP');
+  var usdt=document.getElementById('baseShopBalUSDT');
+  var gp=document.getElementById('baseShopBalGP');
+  if(pp) pp.textContent=(walletState.gamePP||0).toFixed(1);
+  if(usdt) usdt.textContent=(walletState.gameUsdt||0).toFixed(2);
+  if(gp) gp.textContent=((_dailyState&&_dailyState.gpBalance)||0).toFixed(0);
 }
 function filterBaseShop(cat,el){
   _baseShopFilter = cat;
@@ -9978,17 +10059,126 @@ function renderBaseShop(){
   grid.innerHTML = items.map(function(it){
     var c = catColors[(it.category||'').toLowerCase()]||'var(--tx2)';
     var price = parseFloat(it.price_pp||0);
+    var usdtPrice = parseFloat(it.price_usdt||0);
+    var gpPrice = parseFloat(it.price_gp||0);
+    var code = (it.code||it.item_code||'').replace(/'/g,"\\'");
+    var ppBtn = price>0
+      ? '<button onclick="buyShopItem(\''+code+'\',\'PP\')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(176,136,224,.45);background:rgba(176,136,224,.12);color:#c088e0;cursor:pointer;font-family:var(--fn)">'+price.toFixed(1)+' PP</button>'
+      : '';
+    var usdtBtn = usdtPrice>0
+      ? '<button onclick="buyShopItem(\''+code+'\',\'USDT\')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.45);background:rgba(76,216,154,.12);color:var(--gn);cursor:pointer;font-family:var(--fn)">'+usdtPrice.toFixed(1)+' USDT</button>'
+      : '';
+    var gpBtn = gpPrice>0
+      ? '<button onclick="buyShopItem(\''+code+'\',\'GP\')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:none;background:linear-gradient(135deg,#FFD166,#FF9030);color:#000;cursor:pointer;font-family:var(--fn)">'+gpPrice.toFixed(0)+' GP</button>'
+      : '';
     return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center">'
       +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+ ' ' +(it.name||it.item_code)+'</span>'
       +'<span style="font-size:8px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--tx3)">'+(it.category||'')+'</span>'
       +'</div>'
       +'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+(it.description||'')+'</div>'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">'
-      +'<span style="font-size:11px;font-weight:700;color:var(--gold)">'+price.toFixed(1)+' PP</span>'
-      +'<button onclick="closeBaseModal();setTimeout(function(){openItemShop()},200)" style="font-size:8px;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,209,102,.3);background:rgba(255,209,102,.1);color:var(--gold);cursor:pointer;font-family:var(--fn)">BUY</button>'
+      +'<div style="display:flex;justify-content:flex-end;gap:4px;align-items:center;margin-top:auto;flex-wrap:wrap">'
+      +ppBtn+usdtBtn+gpBtn
       +'</div></div>';
   }).join('');
+}
+
+// ── BASE Shop <-> Inventory View Toggle ──
+var _baseShopView='shop'; // 'shop' | 'inventory'
+function switchBaseShopView(view,el){
+  _baseShopView=view;
+  // Update view-toggle button styles
+  document.querySelectorAll('.base-shop-view').forEach(function(b){
+    b.style.borderColor='rgba(255,255,255,.1)';
+    b.style.background='rgba(255,255,255,.03)';
+    b.style.color='var(--tx3)';
+    b.classList.remove('active');
+  });
+  if(el){
+    el.style.borderColor='rgba(255,209,102,.45)';
+    el.style.background='rgba(255,209,102,.15)';
+    el.style.color='var(--gold)';
+    el.classList.add('active');
+  }
+  var shopGrid=document.getElementById('baseShopGrid');
+  var invGrid=document.getElementById('baseInvGrid');
+  var catRow=document.getElementById('baseShopCatRow');
+  if(view==='inventory'){
+    shopGrid.style.display='none';
+    catRow.style.display='none';
+    invGrid.style.display='grid';
+    loadBaseInventory();
+  }else{
+    shopGrid.style.display='grid';
+    catRow.style.display='flex';
+    invGrid.style.display='none';
+  }
+}
+
+var _baseInventory=[];
+function loadBaseInventory(){
+  var w=(walletState&&walletState.address)||'';
+  var grid=document.getElementById('baseInvGrid');
+  if(!w){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Connect wallet first</div>';return;}
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading...</div>';
+  // Load inventory + active effects in parallel
+  Promise.all([
+    fetch('/api/shop/inventory?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}),
+    fetch('/api/shop/active-effects?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []})
+  ]).then(function(results){
+    _baseInventory=results[0]||[];
+    _activeEffects=results[1]||[];
+    renderBaseInventory();
+  }).catch(function(){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);padding:20px 0;font-size:10px">Failed to load inventory</div>';
+  });
+}
+
+function renderBaseInventory(){
+  var grid=document.getElementById('baseInvGrid');
+  var parts=[];
+  // Active effects bar
+  if(_activeEffects&&_activeEffects.length>0){
+    var effHTML=_activeEffects.map(function(e){
+      var info=e.icon+' <b>'+e.name+'</b>';
+      if(e.uses_remaining!=null) info+=' · '+e.uses_remaining+' uses';
+      else if(e.expires_at){
+        var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
+        info+=' · '+(mins>60?Math.floor(mins/60)+'h '+mins%60+'m':mins+'m');
+      }
+      return '<span style="display:inline-block;padding:4px 8px;margin:0 4px 4px 0;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.25);border-radius:6px;font-size:9px;color:var(--gold);font-family:var(--fn)">'+info+'</span>';
+    }).join('');
+    parts.push('<div style="grid-column:1/-1;padding:6px;background:rgba(255,255,255,.02);border-radius:6px"><div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px">ACTIVE EFFECTS</div>'+effHTML+'</div>');
+  }
+  if(!_baseInventory||_baseInventory.length===0){
+    parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">No items yet. Buy some from the SHOP tab!</div>');
+    grid.innerHTML=parts.join('');
+    return;
+  }
+  var catColors={defense:'var(--cyan)',attack:'var(--red)',utility:'var(--pp)',cosmetic:'#c088e0',boost:'var(--gold)'};
+  parts=parts.concat(_baseInventory.map(function(it){
+    var code=(it.code||'').replace(/'/g,"\\'");
+    var c=catColors[(it.category||'').toLowerCase()]||'var(--tx2)';
+    var needsClaim=code.indexOf('shield')===0||code==='emp_strike';
+    var isCosmetic=(it.category||'').toLowerCase()==='cosmetic';
+    var useBtn;
+    if(isCosmetic){
+      useBtn='<button onclick="showToast(\'Select your territory then click CUSTOMIZE\',\'info\')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(192,136,224,.45);background:rgba(192,136,224,.12);color:#c088e0;cursor:pointer;font-family:var(--fn)">EQUIP ON LAND</button>';
+    }else if(needsClaim){
+      useBtn='<button onclick="useShopItem(\''+code+'\',true)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(255,120,60,.45);background:rgba(255,120,60,.12);color:var(--mars);cursor:pointer;font-family:var(--fn)">USE ON LAND</button>';
+    }else{
+      useBtn='<button onclick="useShopItem(\''+code+'\',false)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.45);background:rgba(76,216,154,.12);color:var(--gn);cursor:pointer;font-family:var(--fn)">USE</button>';
+    }
+    return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+      +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+' '+(it.name||it.code)+'</span>'
+      +'<span style="font-size:9px;color:var(--gold);font-weight:700">×'+it.quantity+'</span>'
+      +'</div>'
+      +(it.description?'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+it.description+'</div>':'')
+      +'<div style="display:flex;justify-content:flex-end;margin-top:auto">'+useBtn+'</div>'
+      +'</div>';
+  }));
+  grid.innerHTML=parts.join('');
 }
 
 function switchBaseTab(tab,el){
@@ -13517,6 +13707,7 @@ window.addEventListener('resize', function(){
       }
     }).catch(function(){ _poiData = []; });
   }
+  window.loadExplorationData = loadExplorationData;
   function loadStarlinkData() {
     fetch('/api/exploration/starlink').then(function(r){return r.json()}).then(function(data){
       _starlinkData = data;
@@ -14498,9 +14689,9 @@ var _dailyMilestones = {
 function checkDailyLogin(){
   if(!emailAuth.token || !walletState.address) return;
   var today = new Date().toISOString().slice(0,10);
-  var stored = localStorage.getItem('daily_login_date_'+walletState.address);
-  if(stored === today){ _dailyState.todayClaimed=true; _dailyDotReady=true; updateDailyHudDot(); renderInlineCheckin(); loadDailyMissions(); return; }
-
+  // NOTE: always fetch status from server so streak/defs stay in sync.
+  // The previous "localStorage fast-path" returned before loading the streak,
+  // which left streak=0 while todayClaimed=true → entire 14-day row shows locked.
   // Just check status, don't auto-claim
   fetch('/api/daily/status?wallet='+encodeURIComponent(walletState.address),{
     headers:{'Authorization':'Bearer '+emailAuth.token}
@@ -14807,22 +14998,27 @@ function claimMission(missionId){
   _dailyState.missions.forEach(function(m){ if(m.id===missionId) mission=m; });
   if(!mission || mission.claimed || mission.current < mission.target) return;
 
-  if(emailAuth.token){
+  if(emailAuth.token && walletState.address){
     fetch('/api/daily/missions/'+missionId+'/claim',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token}
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
+      body: JSON.stringify({wallet: walletState.address})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.success || d.reward){
+        // Server confirmed — use server's reward values so GP stays in sync
+        if(d.rewardGP != null) mission.reward = parseFloat(d.rewardGP);
         finalizeMissionClaim(mission);
+        // Refresh authoritative GP balance from server
+        try{ if(typeof checkDailyLogin==='function') checkDailyLogin(); }catch(_){}
       } else {
-        // Graceful: claim locally anyway
-        finalizeMissionClaim(mission);
+        // Server rejected — show error, do NOT mark locally (otherwise it reverts on refresh)
+        showToast(d.error||'Claim failed','error');
       }
     }).catch(function(){
-      // Backend not ready, claim locally
-      finalizeMissionClaim(mission);
+      showToast('Claim failed — check connection','error');
     });
   } else {
+    // No backend → local-only fallback (offline/demo mode)
     finalizeMissionClaim(mission);
   }
 }

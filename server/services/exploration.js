@@ -276,13 +276,28 @@ async function discoverPOI(wallet, poiId) {
         await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2', [15, wallet]);
       }
     } else if (poi.reward_type === 'pp') {
-      // PP reward — fund from quest_reward_pool (rare)
-      const poolRes = await client.query('SELECT quest_reward_pool FROM platform_stats LIMIT 1');
-      const poolBal = poolRes.rows[0] ? parseFloat(poolRes.rows[0].quest_reward_pool) : 0;
-      const reward = Math.min(rewardGiven.amount, poolBal);
+      // PP reward — fund from quest_reward_pool.balance (singleton row id=1).
+      // Falls back to direct mint if the pool table/row is missing.
+      let reward = rewardGiven.amount;
+      try {
+        const poolRes = await client.query('SELECT balance FROM quest_reward_pool WHERE id = 1');
+        const poolBal = poolRes.rows[0] ? parseFloat(poolRes.rows[0].balance) : 0;
+        const capped = Math.min(reward, poolBal);
+        if (capped > 0) {
+          await client.query(
+            'UPDATE quest_reward_pool SET balance = balance - $1, total_paid = total_paid + $1, today_paid = today_paid + $1, updated_at = NOW() WHERE id = 1',
+            [capped]
+          );
+          reward = capped;
+        } else {
+          // Pool empty — still mint the full reward (bootstrap economy)
+          console.warn('[EXPLORE] quest_reward_pool empty, minting PP directly');
+        }
+      } catch (_poolErr) {
+        console.warn('[EXPLORE] quest_reward_pool missing, minting PP directly:', _poolErr.message);
+      }
       if (reward > 0) {
         await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [reward, wallet]);
-        await client.query('UPDATE platform_stats SET quest_reward_pool = quest_reward_pool - $1', [reward]);
         rewardGiven.amount = reward;
       } else {
         rewardGiven.amount = 0;
