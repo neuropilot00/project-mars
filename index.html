@@ -4805,9 +4805,8 @@ function compositeClaimsOnTexture(previewOnly){
                    s.lng1>=gb2.minLng-_gs*0.5&&s.lng2<=gb2.maxLng+_gs*0.5;
           });
           var bc2=oc||{r:255,g:120,b:60};
-          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+(isMine?'1':'0.7')+')';
-          ctx.lineWidth=isMine?2.5:1.5;
           ctx.setLineDash([]);
+          ctx.lineCap='square';
           ctx.beginPath();
           for(var si2=0;si2<gStrips2.length;si2++){
             var ss2=gStrips2[si2], sr2=_sRect(ss2);
@@ -4825,7 +4824,15 @@ function compositeClaimsOnTexture(previewOnly){
             for(var ci4=0;ci4<covX4.length;ci4++){if(covX4[ci4][0]>pos4+0.5){ctx.moveTo(pos4,yb2);ctx.lineTo(covX4[ci4][0],yb2);}pos4=covX4[ci4][1];}
             if(pos4<sr2.x+sr2.w-0.5){ctx.moveTo(pos4,yb2);ctx.lineTo(sr2.x+sr2.w,yb2);}
           }
+          // Pass 1: Wide halo (atmospheric bleed)
+          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+',0.18)';
+          ctx.lineWidth=isMine?5:3;
           ctx.stroke();
+          // Pass 2: Crisp tactical line
+          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+(isMine?'1':'0.82')+')';
+          ctx.lineWidth=isMine?1.8:1;
+          ctx.stroke();
+          ctx.lineCap='butt';
         }else{
           // No image: pixel-accurate fill using strips + label
           var displayLabel=isNPC?(c.owner.replace('0xnpc_','').replace(/_/g,' ').toUpperCase()):(c.nickname||c.label||shortAddr(c.owner));
@@ -4839,7 +4846,9 @@ function compositeClaimsOnTexture(previewOnly){
           // Fill with strips (pixel-accurate, matches border exactly).
           // Pad by 0.75px so adjacent strips overlap — eliminates subpixel gap lines.
           var tc=oc||{r:255,g:120,b:60};
-          ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.35)';
+          // Lower base alpha for cleaner look; isMine stays brighter
+          var _tAlpha=isMine?0.30:(isNPC?0.18:0.22);
+          ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+','+_tAlpha+')';
           var fbx1=Infinity,fby1=Infinity,fbx2=-Infinity,fby2=-Infinity;
           for(var fi=0;fi<gStrips.length;fi++){
             var fr=_sRect(gStrips[fi]);
@@ -4847,7 +4856,7 @@ function compositeClaimsOnTexture(previewOnly){
             if(fr.x<fbx1)fbx1=fr.x;if(fr.y<fby1)fby1=fr.y;
             if(fr.x+fr.w>fbx2)fbx2=fr.x+fr.w;if(fr.y+fr.h>fby2)fby2=fr.y+fr.h;
           }
-          // Label centered in bounding box
+          // Label centered in bounding box (with drop shadow for tactical readability)
           var fbw=fbx2-fbx1, fbh=fby2-fby1;
           if(fbw>20&&fbh>12){
             ctx.save();
@@ -4855,17 +4864,23 @@ function compositeClaimsOnTexture(previewOnly){
             for(var fci=0;fci<gStrips.length;fci++){var fcr=_sRect(gStrips[fci]);ctx.rect(fcr.x,fcr.y,fcr.w,fcr.h);}
             ctx.clip();
             var lfs=Math.max(5,Math.min(fbw*0.15,fbh*0.28,12));
-            ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',1)';ctx.font='bold '+lfs+'px sans-serif';
+            ctx.font='bold '+lfs+'px sans-serif';
             ctx.textAlign='center';ctx.textBaseline='middle';
             var lbl=displayLabel;
             while(ctx.measureText(lbl).width>fbw-4&&lbl.length>3) lbl=lbl.slice(0,-1);
+            // Dark outline for contrast
+            ctx.lineWidth=Math.max(2,lfs*0.28);
+            ctx.strokeStyle='rgba(8,4,2,0.85)';
+            ctx.lineJoin='round';
+            ctx.strokeText(lbl,fbx1+fbw/2,fby1+fbh/2);
+            // Fill on top
+            ctx.fillStyle='rgba(255,242,228,0.96)';
             ctx.fillText(lbl,fbx1+fbw/2,fby1+fbh/2);
             ctx.restore();
           }
           var bc3=oc||{r:255,g:120,b:60};
-          ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.8)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.7')+')';
-          ctx.lineWidth=isNPC?2:(isMine?2.5:1.5);
-          if(isNPC) ctx.setLineDash([3,2]); else ctx.setLineDash([]);
+          if(isNPC) ctx.setLineDash([5,3]); else ctx.setLineDash([]);
+          ctx.lineCap='square';
           ctx.beginPath();
           for(var si=0;si<gStrips.length;si++){
             var ss=gStrips[si], sr=_sRect(ss);
@@ -4883,7 +4898,15 @@ function compositeClaimsOnTexture(previewOnly){
             for(var ci2=0;ci2<covX2.length;ci2++){if(covX2[ci2][0]>pos2+0.5){ctx.moveTo(pos2,yb);ctx.lineTo(covX2[ci2][0],yb);}pos2=covX2[ci2][1];}
             if(pos2<sr.x+sr.w-0.5){ctx.moveTo(pos2,yb);ctx.lineTo(sr.x+sr.w,yb);}
           }
-          ctx.stroke();ctx.setLineDash([]);
+          // Pass 1: Wide atmospheric halo (shared path)
+          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.18)';
+          ctx.lineWidth=isMine?5:(isNPC?3:3);
+          ctx.stroke();
+          // Pass 2: Crisp tactical inner line
+          ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.85)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.85')+')';
+          ctx.lineWidth=isNPC?1.3:(isMine?1.8:1);
+          ctx.stroke();
+          ctx.lineCap='butt';ctx.setLineDash([]);
         }
         _sRectOx=0; // reset wrap offset
         }); // end _grpWrapOffsets.forEach
@@ -6970,8 +6993,8 @@ function _attachGlobeClick(){
           var alt=Math.max(0.06,maxDim*GRID_SIZE/60);
           globe.pointOfView({lat:existing.lat,lng:existing.lng,altitude:alt},800);
           selectedPlot=existing;
-          if(isMobile){ showMobInfoBtn(existing,{clientX:_lastTapX,clientY:_lastTapY}); }
-          else{ showTerritoryInfo(existing); }
+          // Unified: both desktop and mobile use the floating INFO button → modal
+          showMobInfoBtn(existing,{clientX:_lastTapX,clientY:_lastTapY});
         }else{
           globe.pointOfView({lat:lat,lng:lng,altitude:0.15},800);
         }
@@ -7054,22 +7077,17 @@ function _attachGlobeClick(){
       return;
     }
 
-    // Normal click on existing claim
+    // Normal click on existing claim — unified desktop+mobile UX:
+    // both show the floating INFO button which opens the territory modal
     if(existing){
       selectedPlot=existing;
-      if(isMobile){
-        showMobInfoBtn(existing, {clientX:_lastTapX,clientY:_lastTapY});
-      }else{
-        showTerritoryInfo(existing);
-      }
+      showMobInfoBtn(existing, {clientX:_lastTapX,clientY:_lastTapY});
       compositeClaimsOnTexture();
     }else{
       selectedPlot=null;
-      if(isMobile){
-        hideMobInfoBtn();
-      }else{
-        document.getElementById('territoryInfo').style.display='none';
-      }
+      hideMobInfoBtn();
+      var _deskInfo=document.getElementById('territoryInfo');
+      if(_deskInfo) _deskInfo.style.display='none';
       compositeClaimsOnTexture();
     }
   });
@@ -12669,12 +12687,13 @@ function _drawWeatherOverlay(ctx, w, h) {
 
 // ═══════ EXPLORATION POI MARKERS ═══════
 var _poiData = [];
+// Mars-theme harmonized palette (aligned to --gold/--mars/--gn/--cyan/--pp)
 var _poiDefs = {
-  ancient_ruins:  { icon: '⚜', color: '#FFD700', glow: '#FFE066', label: 'ANCIENT RUINS',  illust: '🏛️' },
-  ore_deposit:    { icon: '◆', color: '#FF8C00', glow: '#FFB060', label: 'ORE DEPOSIT',    illust: '⛏️' },
-  crashed_probe:  { icon: '▼', color: '#00FF88', glow: '#66FFB2', label: 'CRASHED PROBE',  illust: '🛸' },
-  water_ice:      { icon: '◇', color: '#00BFFF', glow: '#66DFFF', label: 'WATER ICE',      illust: '🧊' },
-  alien_artifact: { icon: '✦', color: '#FF00FF', glow: '#FF66FF', label: 'ALIEN ARTIFACT', illust: '🔮' }
+  ancient_ruins:  { icon: '⚜', color: '#FFD166', glow: '#FFE4A3', label: 'ANCIENT RUINS',  illust: '🏛️' },
+  ore_deposit:    { icon: '◆', color: '#FF7840', glow: '#FFB085', label: 'ORE DEPOSIT',    illust: '⛏️' },
+  crashed_probe:  { icon: '▼', color: '#4CD89A', glow: '#9CF0C8', label: 'CRASHED PROBE',  illust: '🛸' },
+  water_ice:      { icon: '◇', color: '#5BB8E8', glow: '#A8DCF5', label: 'WATER ICE',      illust: '🧊' },
+  alien_artifact: { icon: '✦', color: '#B888E0', glow: '#DCBCF0', label: 'ALIEN ARTIFACT', illust: '🔮' }
 };
 
 function _drawPOIMarkers(ctx, w, h) {
@@ -12683,78 +12702,93 @@ function _drawPOIMarkers(ctx, w, h) {
   var t = Date.now();
 
   // Draw a single POI marker at the given x (allows wrap-around copies)
+  // Style: tactical hex scanner — rotating dashed ring, hex diamond, crosshairs
   function _drawOnePOI(poi, x, y, def){
-    // ── Light beam going upward ──
-    var beamH = 50 + Math.sin(t / 600 + poi.id) * 8;
-    var beamGrad = ctx.createLinearGradient(x, y, x, y - beamH);
-    beamGrad.addColorStop(0, def.color);
-    beamGrad.addColorStop(0.5, def.glow || def.color);
-    beamGrad.addColorStop(1, 'transparent');
-    ctx.globalAlpha = 0.35 + Math.sin(t / 500 + poi.id * 0.7) * 0.15;
+    var pulse = (Math.sin(t / 500 + poi.id) + 1) / 2; // 0..1
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    // ── Outer soft glow halo ──
+    var haloR = 20 + pulse * 4;
+    var haloGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, haloR);
+    haloGrad.addColorStop(0, def.color + '55');
+    haloGrad.addColorStop(0.55, def.color + '18');
+    haloGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = haloGrad;
     ctx.beginPath();
-    ctx.moveTo(x - 3, y);
-    ctx.lineTo(x - 1, y - beamH);
-    ctx.lineTo(x + 1, y - beamH);
-    ctx.lineTo(x + 3, y);
-    ctx.closePath();
-    ctx.fillStyle = beamGrad;
+    ctx.arc(0, 0, haloR, 0, Math.PI * 2);
     ctx.fill();
 
-    // ── Ground glow ring (pulsing) ──
-    var pulse = 14 + Math.sin(t / 400 + poi.id) * 4;
-    ctx.globalAlpha = 0.2;
+    // ── Rotating dashed scan ring ──
+    var ringR = 14 + pulse * 1.5;
+    ctx.globalAlpha = 0.55;
+    ctx.strokeStyle = def.color;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.lineDashOffset = -(t / 70) % 8;
     ctx.beginPath();
-    ctx.arc(x, y + 2, pulse, 0, Math.PI * 2);
-    var ringGrad = ctx.createRadialGradient(x, y + 2, 0, x, y + 2, pulse);
-    ringGrad.addColorStop(0, def.color);
-    ringGrad.addColorStop(1, 'transparent');
-    ctx.fillStyle = ringGrad;
-    ctx.fill();
+    ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-    // ── Pin body (teardrop shape) ──
-    var pinH = 28;
-    var pinR = 9;
-    ctx.globalAlpha = 0.9;
+    // ── Inner hex diamond ──
+    var hexR = 7.5;
     ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.quadraticCurveTo(x - pinR * 1.2, y - pinH * 0.5, x - pinR, y - pinH * 0.65);
-    ctx.arc(x, y - pinH * 0.65, pinR, Math.PI, 0, false);
-    ctx.quadraticCurveTo(x + pinR * 1.2, y - pinH * 0.5, x, y);
+    for (var hi = 0; hi < 6; hi++) {
+      var ha = hi * Math.PI / 3 - Math.PI / 2;
+      var hx = Math.cos(ha) * hexR;
+      var hy = Math.sin(ha) * hexR;
+      if (hi === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+    }
     ctx.closePath();
-    var pinGrad = ctx.createLinearGradient(x - pinR, y - pinH, x + pinR, y);
-    pinGrad.addColorStop(0, def.glow || def.color);
-    pinGrad.addColorStop(0.6, def.color);
-    pinGrad.addColorStop(1, '#000');
-    ctx.fillStyle = pinGrad;
+    // Dark backdrop
+    ctx.globalAlpha = 0.92;
+    ctx.fillStyle = '#0A0604';
     ctx.fill();
+    // Glowing rim
+    ctx.globalAlpha = 1;
+    ctx.shadowColor = def.color;
+    ctx.shadowBlur = 6 + pulse * 4;
     ctx.strokeStyle = def.glow || def.color;
     ctx.lineWidth = 1.5;
-    ctx.globalAlpha = 0.7;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // ── Crosshair tick marks (N/S/E/W outside the hex) ──
+    ctx.globalAlpha = 0.6;
+    ctx.strokeStyle = def.color;
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(-hexR - 5, 0); ctx.lineTo(-hexR - 1, 0);
+    ctx.moveTo( hexR + 1, 0); ctx.lineTo( hexR + 5, 0);
+    ctx.moveTo(0, -hexR - 5); ctx.lineTo(0, -hexR - 1);
+    ctx.moveTo(0,  hexR + 1); ctx.lineTo(0,  hexR + 5);
     ctx.stroke();
 
-    // ── Pin shadow ──
-    ctx.globalAlpha = 0.3;
-    ctx.beginPath();
-    ctx.ellipse(x, y + 3, 7, 2.5, 0, 0, Math.PI * 2);
-    ctx.fillStyle = '#000';
-    ctx.fill();
-
-    // ── Icon inside pin head ──
+    // ── Center icon (white on dark) ──
     ctx.globalAlpha = 1;
-    ctx.font = 'bold 13px sans-serif';
+    ctx.font = 'bold 10px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#000';
-    ctx.fillText(def.icon, x, y - pinH * 0.65);
-    ctx.fillStyle = '#FFF';
-    ctx.globalAlpha = 0.9;
-    ctx.fillText(def.icon, x - 0.5, y - pinH * 0.65 - 0.5);
+    ctx.fillStyle = def.glow || def.color;
+    ctx.fillText(def.icon, 0, 0.5);
 
-    // ── Label below ──
-    ctx.globalAlpha = 0.85;
+    ctx.restore();
+
+    // ── Tactical label with brackets (dark outline for readability) ──
+    ctx.globalAlpha = 0.9;
     ctx.font = 'bold 8px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    var labelText = '\u2039 ' + (def.label || 'SIGNAL') + ' \u203A';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(4,2,1,0.85)';
+    ctx.strokeText(labelText, x, y + 24);
     ctx.fillStyle = def.color;
-    ctx.fillText(def.label || 'DISCOVER', x, y + 14);
+    ctx.fillText(labelText, x, y + 24);
   }
 
   // Approximate extent the marker extends from its center (pin + beam + label)
@@ -16990,25 +17024,25 @@ var CODEX_CONTENT = {
   en: {
     sections: [
       { id: 'overview', icon: '🌍', title: 'Overview',
-        body: '**Occupy Mars** is a territorial conquest game on Base chain. You claim pixel plots on a 3D Mars globe, earn PP (Potato Points) from mining, raid enemies, join guilds, and compete in seasonal leaderboards.\n\n**Core loop:** CLAIM → MINE → DEFEND → RAID → GROW.\n\n**Win condition:** There is no end state. Your goal is to accumulate territory, reputation, and governance power. Top players become Commanders and Governors who shape the entire map.\n\n**Payment:** Base USDT for real purchases, PP for all in-game economy, GP (Governance Points) for voting.' },
+        body: '**Occupy Mars** is a territorial conquest MMO on Base chain. You claim pixel plots on a 3D Mars globe, farm PP passively from mining and POIs, raid rivals for their pixels, band into guilds, and fight for the season leaderboard.\n\n**Core loop:** CLAIM → MINE → DEFEND → RAID → GROW.\n\n**Four currencies:** USDT (real, Base), PP (soft currency for all in-game spending), GP (governance power, non-tradable), XP (account rank progression).\n\n**No end state.** Seasons reset scores, but pixels, cosmetics and GP persist. Your long-term goal is governance power — Commander or Governor — which lets you shape the entire map.' },
       { id: 'tokens', icon: '🪙', title: 'Token Economy',
-        body: '**USDT** (Base chain) — Real money. Used to buy premium plots, cosmetics, and cantina credits. Never minted, only deposited/withdrawn.\n\n**PP (Potato Points)** — Game currency. Earned from mining, POI drops, hijacks, referrals, casino wins, quest rewards. Spent on basic claims, shop items, guild fees, and casino bets. Can be swapped to USDT at market rate (fee applies).\n\n**GP (Governance Points)** — Political power. Earned by holding territory, winning elections, completing governance quests. Spent on votes, commanding sectors, and special policies. Cannot be swapped.\n\n**XP** — Account level. Unlocks rank perks, commission boosts, and exclusive cosmetics. Earned from any activity.' },
+        body: '**USDT** (Base chain) — Real money. Deposit via bridge, swap 1:1 with PP, used for all premium purchases. Never minted by the game.\n\n**PP (Potato Points)** — Soft currency. Earned from passive mining (max ~1 PP/harvest), POI drops, quest rewards, rocket loot, guild/season bonuses, and DYNASTY referral commission. Spent on claims, shop items, cantina bets, territory rename (0.3 PP), and guild fees.\n\n**GP (Governance Points)** — Non-transferable political currency. Earned ONLY from activity: daily login (5-100/day on a 7-day streak), daily missions (10-25 each, +50 bonus for all 3), POI drops (10-50, 70% drop weight), rocket drops (10-40), and season leaderboard rewards (500-5000). Spent on guild creation (50 GP), guild rename (100 GP), sector buffs (100-150 GP, governor only) and global events (300-500 GP, commander only, max 1/day).\n\n**XP** — Drives rank progression (Lv.1 Dust Walker → Lv.30 Architect of Worlds, 0 → 2,600,000 XP curve). Earned from claims (+2 per pixel claim), hijack wins (+3), and POI discoveries (+5). Rank rewards pay PP (up to 5,000 at Lv.30).' },
       { id: 'territory', icon: '🏴', title: 'Territory',
-        body: '**Claiming:** Open the CLAIM modal, drag on Mars to select a rectangle (up to 500×500 px per claim), upload an image, pay. New plots on empty land cost base × pixels.\n\n**Hijacking:** If a plot overlaps an existing owner, you pay 1.2× the current price to the old owner (minus fees). Contested pixels transfer. Good targets: inactive big plots.\n\n**Shields:** Buy from Shop → protects pixels from hijack for N hours. Auto-renew available.\n\n**Image:** Static PNG/JPG or GIF. Cropped to your plot bounds. Animated GIFs display on hover/focus. Link URL optional (https only).\n\n**Rename:** Custom name shown on territory info. Costs PP.' },
+        body: '**Claiming:** Drag a rectangle up to **500×500 px** on the globe, upload an image (≤5 MB, PNG/JPG/GIF/WEBP), pay with PP or USDT. Claims above ±70° latitude are blocked.\n\n**Sector tiers:** CORE (24 h harvest cycle, highest traffic, most expensive) → MID (48 h) → FRONTIER (72 h, cheapest). Pricing is dynamic — the more a sector fills up, the higher the price per pixel.\n\n**Hijacking:** Claiming on top of someone else costs **1.2× the original price**; the defender receives 50% back as a consolation refund, and the base hijack success rate is 50% (min 10%, max 90%). Failed hijacks refund 90% to the attacker. Every hijacked pixel gives **+3 XP**.\n\n**Shields:** Energy Shield (2.5 PP, 12 h, absorbs 50% damage) or Plasma Shield (5 PP, 24 h, absorbs 75%). Buy from SHOP.\n\n**Image:** Static or animated GIF. Cropped to your plot bounds. Link URL must start with `https://`.\n\n**Rename:** Custom territory name (0.3 PP). Visible on the info modal — an effective hijack deterrent.\n\n**Maintenance fee:** If you hold more than 100 pixels, a weekly maintenance fee of 0.5 PP per pixel above the threshold is deducted automatically. If PP is insufficient, the oldest claims are abandoned first.' },
       { id: 'mining', icon: '⛏', title: 'Mining & Income',
-        body: '**Passive mining:** Every owned pixel generates PP per hour based on rank multiplier and sector tax. Claim from BASE → MINE tab. Bigger plots = bigger mining pool.\n\n**POIs (Points of Interest):** Random resource spots spawn on the map. Walk (click) onto one to harvest. Drops PP, items, or cosmetics. Tiered rewards (common → legendary).\n\n**Rockets:** Timed events — rockets land in random sectors with valuable loot. First-come drop. Check ROCKET tab for next launch.\n\n**Daily quests:** 3 quests per day. Mine, battle, social. Complete for PP + XP.\n\n**Commissions:** If you referred someone, you earn automatic cuts from their deposits, swaps, harvests, shop purchases, hijacks, and cantina spending (3-tier DYNASTY, see §8).' },
+        body: '**Passive harvest formula:** `yield = random(0.01, 0.5) × min(√pixels/10, 3.0)`, hard-capped at **1.0 PP per harvest**. The pixel factor is a square root — 1 px = 0.10, 100 px = 1.0, 1,000 px = 3.0 (capped). Buying more than ~1,000 pixels gives you zero extra mining income.\n\n**Harvest cycles:** CORE 24 h / MID 48 h / FRONTIER 72 h. A territory spanning multiple tiers uses the best (shortest) available cycle.\n\n**Boosts (multiplicative, capped by the 1 PP/harvest ceiling):** Governor +20%, sector mining_boost +20%, commander "double_mining" event ×2, weather modifiers (solar_flare +100%, sandstorm +50%, cold_wave +30%), Starlink satellite pass +10% per active pass, personal Mining Accelerator item ×2 for 6 h.\n\n**POIs:** Spawn every 4 h (6 per cycle, max 12 active, expire after 12 h). Drop weights: **GP 70% (10-50)**, items 20%, PP 10% (0.05-0.3), +5% bonus roll for cosmetics. Each discovery gives +5 XP. Anyone can claim — first come, first served.\n\n**Rockets:** Land every 12 h (2 h warning → 1 h looting window). Normal drop = 15 loot items, 5% chance of RUD explosion (30 items, 2× drop radius). Rare drop-only Starship Border cosmetic at 2% weight.\n\n**Daily missions:** 3 random missions per day from 7 types (claim, harvest, explore POI, hijack, play cantina, equip cosmetic, view weather). Each mission pays 10-25 GP + 5 XP, and completing all 3 pays a +50 GP bonus. Daily login streak pays 5-100 GP on a 7-day cycle.\n\n**Rank rewards:** Level up via XP. Sample: Lv.7 = 35 PP, Lv.15 = 250 PP, Lv.20 = 700 PP, Lv.30 = 5,000 PP.\n\n**DYNASTY commission:** If you referred someone, you earn PP from their deposits, swaps, shop purchases, harvests, cantina bets, and hijacks — across 3 referral tiers. See §8.' },
       { id: 'governance', icon: '🏛', title: 'Governance',
-        body: '**Commander:** One global leader elected by GP votes. Sets announcement, declares events (Double Mining, War Time, Peace Treaty), posts bounties, collects % of global fees.\n\n**Governors:** Per-sector leaders. Collect sector tax, decide sector buffs, veto hijacks.\n\n**Elections:** Continuous. Whoever holds the most GP in a position wins. Challenge anytime.\n\n**Bounties:** Commander can post a bounty on a target wallet. First to hijack them gets the reward.\n\n**DAO votes:** Global proposals affect game balance (fee rates, event weights). Vote with GP.' },
+        body: '**Commander** — single global leader. Triggers global events at max 1/day: **Double Mining** (×2 harvest), **War Time** (boosted hijack XP), **Peace Treaty** (temporary hijack freeze). Each event costs 300-500 GP.\n\n**Vice Commander** — global #2, acts when commander is absent.\n\n**Governors** — one per sector. Set sector tax rate (1-5%, default 2%), deploy sector buffs (100-150 GP each): mining_boost (+20% harvest), defense_bonus (shield absorption), claim_discount.\n\n**Vice Governors** — per-sector #2, receive 20% of sector tax revenue.\n\n**Tax split:** Claim fees in a sector are taxed and distributed 70% to the governor, 20% to the vice governor, 10% to the sector pool.\n\n**Elections:** Positions are claimed by highest GP holder. Keep accumulating GP and you can unseat any position at any time.\n\n**Bounties:** Commanders and governors can place GP + optional PP bounties on target wallets. First hijacker claims the reward. Bounty states: active → claimed / expired / cancelled.' },
       { id: 'guilds', icon: '⚔', title: 'Guilds & Seasons',
-        body: '**Guilds:** Team up with 2-20 players under a common banner. Share chat, collective stats, emblem on territories. Costs 50 GP to create.\n\n**Roles:** Leader, Officer, Member. Leader can kick, promote, disband.\n\n**Seasons:** ~90-day competitive cycles. Themed weather (volcanic, ice age, solar storm, dust epoch). Top players earn exclusive cosmetics, PP bonus, commander-worthy XP.\n\n**Leaderboards:** Updated live. Top 10 earn PP rewards at season end. Top 3 get unique titles.' },
+        body: '**Create cost:** 50 GP. **Max members:** 20. **Roles:** Leader / Officer / Member (1 wallet = 1 guild, enforced).\n\n**Customization (leader only):** Rename 100 GP, Description 20 GP, Emoji emblem 50 GP, Pixel-art image emblem 50 GP (max 32×32 px, 8 KB base64). Invites expire after 72 h.\n\n**Guild chat:** Polling-based. Max 300 chars per message, 3 s cooldown between messages, latest 100 messages kept.\n\n**Seasons:** 30-day cycles (not 90). Four rotating themes: **Volcanic**, **Ice Age**, **Solar Storm**, **Dust Epoch** — each with its own weather weights and visual tint.\n\n**Season scoring:** Pixels claimed (+1 each), harvests (+5), hijacks won (+10), POIs discovered (+15). POIs are the highest point-per-action activity by far.\n\n**Season rewards (per rank):** Season 1 Top 1 = 3000 GP + 0.5 PP + 500 XP + items; Top 3 = 1500 GP; Top 10 = 500 GP. Later seasons scale up (Season 3 Top 1 = 5000 GP + 1.0 PP + 800 XP). Rewards claim from the RANK tab.' },
       { id: 'casino', icon: '🎰', title: 'Cantina Casino',
-        body: '**Cantina** is the in-game casino. Bet PP or USDT on 5 games:\n\n**CRASH** — Multiplier rises. Cash out before it crashes. House edge ~3%.\n\n**MINES** — Reveal tiles on a grid. Avoid bombs. Each safe tile multiplies your bet.\n\n**COINFLIP** — 50/50 on HEADS/TAILS. 1.96× payout.\n\n**DICE** — Roll over/under a target. Narrower range = higher multiplier.\n\n**HI-LO** — Guess next card higher or lower. Streak payouts stack.\n\n**Warning:** House always wins long-term. Play for fun, not income. Casino commissions feed referral payouts (see §8).' },
+        body: '**Cantina** is the in-game casino — five games, all payable in PP or USDT:\n\n**Crash** — Multiplier rockets upward, you cash out before it crashes. Bet 0.1-50, house edge 4%.\n\n**Mines** — Reveal tiles on a grid, avoid bombs. Every safe tile multiplies your bet. Bet 0.1-20, house edge 3%.\n\n**Sandstorm Survival** (themed coinflip) — survive or be swept away. Bet 0.1-500.\n\n**Meteorite Prediction** (themed dice) — guess the impact range over/under a target. Narrower range = higher multiplier. Bet 0.1-500.\n\n**Terrain Survey** (themed hi-lo) — is the next card higher or lower? Streaks stack multiplicatively. Bet 0.1-500.\n\n**Warning:** House edges are real — 3-4% of every bet evaporates on average. Play for fun, not income. Cantina action also generates DYNASTY commission for whoever referred you (see §8).' },
       { id: 'dynasty', icon: '👑', title: 'DYNASTY Referrals',
-        body: '**3-tier MLM system:** When you refer someone, you earn a % of their activity across **6 revenue sources**: deposits, swaps, shop purchases, harvests, cantina bets, hijacks.\n\n**Tier 1** (direct): 15% of their fees\n**Tier 2** (their referrals): 10%\n**Tier 3** (indirect): 5%\n\n**Payout:** Instant PP credit. Check DYNASTY tab for leaderboard and tree view.\n\n**Notifications:** Every commission triggers a "+X PP earned" toast.\n\n**Strategy:** Invite active big spenders, not bots. Your commission is capped at the referee\'s actual spending.' },
+        body: '**3-tier MLM:** Referring a player gives you commission on their activity across **6 revenue streams**: deposits, swaps, shop purchases, passive harvests, cantina bets, and hijacks. Their referrals become your Tier 2, theirs your Tier 3.\n\n**Tracking:** The `referral_rewards` table stores every payout with its tier (1/2/3) and trigger type. Tier percentages are admin-configurable and shown live on the DYNASTY tab — always check the in-game numbers for the current rate.\n\n**Payout:** Instant PP credit. Every commission also triggers a "+X PP earned" toast.\n\n**Leaderboard:** DYNASTY tab shows your direct count, total downline count, and cumulative PP earned. Global ranking is visible.\n\n**Strategy:** Referral commission caps at the referee\'s actual spending — bots are worthless. Bring in 3-5 active whales and your passive PP will outpace your personal mining within weeks.' },
       { id: 'cosmetics', icon: '✨', title: 'Cosmetics & Items',
-        body: '**Borders:** Neon, Flame, Ice, Gold, Starship. Visible on your plots from orbit.\n\n**Glows:** Pulse, Rainbow, Dark Aura. Animated overlays.\n\n**Terrains:** Volcanic, Frozen, Crystal, Toxic. Change plot base texture.\n\n**How to get:** Shop (direct purchase), POI drops (random), rocket loot (rare), season rewards (exclusive).\n\n**Items:** Shields, speed boosts, bounty tokens, lottery tickets. Use from inventory.\n\n**Gifting:** Send items to other players via BASE → GIFT. Wallet & nickname supported.' },
+        body: '**Borders (4 purchasable + 1 drop-only):** Neon, Flame, Ice, Gold — priced 3-15 PP. **Starship Border** is drop-only from rockets (2% weight).\n\n**Glows (3):** Pulse, Rainbow, Dark Aura — 4-8 PP.\n\n**Terrains (4):** Volcanic, Frozen, Crystal, Toxic — 5-7 PP.\n\nEach claim can equip at most one of each category (border + glow + terrain). Cosmetics are permanent and survive season resets.\n\n**Items (PP prices):** Energy Shield 2.5 (12 h, 50% absorb), Plasma Shield 5.0 (24 h, 75% absorb), Mars Rage 2.0 (+20% attack × 3), Stealth Cloak 1.5 (8 h invisible), Radar Scan 1.0 (reveal cloaked), Mining Accelerator 3.0 (×2 mining × 6 h), Pixel Doubler 4.0 (next claim counts ×2 pixels).\n\n**Payment options:** Every shop item accepts PP, USDT (1:1 with PP), or GP (at 4× PP price). Use surplus GP here if you are not chasing governance.\n\n**Drop-only rewards:** Starship Border (rocket), Season emblems (season top 10), special POI cosmetics (+5% bonus roll per discovery). Once a season passes, its emblem cannot be obtained again.' },
       { id: 'strategy', icon: '🎯', title: 'Strategy Tips',
-        body: '**Early game (first day):** Get your free starter plot, complete 3 daily quests, claim 1-2 more pixels on cheap land, invite 1 friend for commission.\n\n**Mid game (first week):** Join a guild, unlock rank 3 for commission boost, build a 5×5 fortress with a shield, start mining dailies.\n\n**Late game:** Challenge a Governor election in a high-traffic sector, collect tax, stack GP, bid on Commander. Farm referral DYNASTY for passive PP.\n\n**Common mistakes:**\n• Spending USDT on casino before mining infrastructure is set up\n• Building on remote coords where no one sees your art\n• Ignoring shields → losing hijacked pixels\n• Forgetting daily quests (biggest free PP/XP)\n• Not inviting friends — DYNASTY is the highest-EV action in the game'
+        body: '**Day 1 checklist:** Claim login reward → complete all 3 daily missions (+50 GP bonus) → drop a small claim in a FRONTIER sector to start harvest → find 1 POI → register 1 friend with your referral code.\n\n**First week (target 100-300 px):** Keep an Energy Shield running 24/7, hit daily missions religiously, join an active guild (don\'t create one alone — you lose the 50 GP), chase POIs for GP (15 pts/discovery on the season board).\n\n**Long-term builds:**\n• **Become a Governor** — target a low-traffic sector first, stack 1,000-3,000 GP, unseat the incumbent.\n• **Season Top 10** — POI-focused play (POI = 15 points each, 10× a pixel claim).\n• **Commander** — requires tens of thousands of GP and constant activity. Only feasible with a guild + referral network + consistent POI grinding.\n• **DYNASTY compounding** — refer 3-5 active spenders. Their activity yields more than your personal mining once the network matures.\n\n**Top 5 mistakes:**\n① Opening USDT → cantina without mining infrastructure — house edges are real.\n② Oversized claims in remote coordinates nobody sees.\n③ Skipping shields to save 2.5 PP → losing dozens of pixels to hijack.\n④ Skipping daily missions — that\'s 1,500-4,500 GP/month free.\n⑤ Not inviting friends — DYNASTY is the highest expected value action in the game.'
       }
     ]
   },
@@ -17360,24 +17394,477 @@ var CODEX_CONTENT = {
         ]
       },
       { id: 'governance', icon: '🏛', title: '거버넌스',
-        body: '**커맨더:** GP 투표로 선출되는 전역 지도자. 공지·이벤트 선언(더블 마이닝·전시·평화조약)·현상금·글로벌 수수료 분배.\n\n**거버너:** 섹터별 지도자. 섹터세 징수·버프 결정·하이잭 거부권.\n\n**선거:** 상시 진행. 해당 포지션에 GP 가장 많이 투표한 사람이 승리. 언제든 도전 가능.\n\n**현상금:** 커맨더가 특정 지갑에 현상금 공지. 먼저 하이잭한 사람이 보상.\n\n**DAO 투표:** 글로벌 제안으로 게임 밸런스 변경(수수료율·이벤트 가중치). GP로 투표.' },
+        blocks: [
+          { type:'p', text:'화성은 **두 단계 권력 구조**로 돌아가. 전역 1인자인 **커맨더**와 섹터마다 한 명씩 있는 **거버너**. 둘 다 세수·권한·이벤트 발동 같은 실제 게임 규칙을 바꿀 수 있어. 거버넌스는 구현된 실제 기능이야 — 상징적인 장식이 아냐.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '권력 구조 (커맨더 / 거버너)',
+            '섹터 세금과 분배',
+            '섹터 버프 (거버너 권한)',
+            '글로벌 이벤트 (커맨더 권한)',
+            '현상금 시스템',
+            'GP — 거버넌스 포인트'
+          ]},
+
+          { type:'h2', text:'1. 권력 구조' },
+          { type:'table',
+            headers:['직책','범위','수','권한'],
+            rows:[
+              [{v:'👑 커맨더',cls:'mars'},     '전역',     {v:'1명',cls:'num'}, '글로벌 이벤트·전역 공지·현상금'],
+              [{v:'⚔ 부커맨더',cls:'mars'},    '전역',     {v:'1명',cls:'num'}, '커맨더 부재 시 이벤트 대행'],
+              [{v:'🏛 거버너',cls:'mars'},     '섹터',     {v:'섹터당 1명',cls:'num'}, '섹터 세율·섹터 버프·섹터 세수'],
+              [{v:'⚖ 부거버너',cls:'mars'},    '섹터',     {v:'섹터당 1명',cls:'num'}, '세수 20% 수령']
+            ]},
+          { type:'callout', variant:'info', title:'선출 방식',
+            text:'각 포지션은 **GP 보유량**이 가장 많은 플레이어가 차지해. 언제든 GP를 더 쌓으면 현 직책자를 밀어낼 수 있어 — 상시 선거야.' },
+
+          { type:'h2', text:'2. 섹터 세금과 분배' },
+          { type:'p', text:'거버너는 자기 섹터에서 일어나는 **클레임 비용에 세율**을 건다. 세율은 관리자가 설정한 범위 안에서 거버너가 직접 조정해.' },
+          { type:'table',
+            headers:['항목','값'],
+            rows:[
+              ['세율 범위',   {v:'1 ~ 5 %',cls:'num'}],
+              ['기본 세율',   {v:'2 %',cls:'num'}],
+              ['거버너 수령',  {v:'70 %',cls:'num'}],
+              ['부거버너 수령',{v:'20 %',cls:'num'}],
+              ['섹터 풀',     {v:'10 %',cls:'num'}]
+            ]},
+          { type:'callout', variant:'pro', title:'고트래픽 섹터 = 수익 머신',
+            text:'인기 섹터 거버너가 되면 앉아있기만 해도 세수가 들어와. 타인이 클레임할 때마다 자동 정산이야. CORE 섹터는 세율 1%만 걸어도 금방 수백 USDT가 쌓여.' },
+
+          { type:'h2', text:'3. 섹터 버프 — 거버너 권한' },
+          { type:'p', text:'거버너는 GP를 태워서 섹터 전체에 버프를 걸 수 있어. 자기 영토뿐 아니라 **모든 주민에게 혜택**이 가. 선거 공약으로 많이 쓰여.' },
+          { type:'table',
+            headers:['버프','효과','비용 (GP)'],
+            rows:[
+              ['⛏ 채굴 부스트',  '섹터 전체 채굴 수확량 +20%', {v:'100 ~ 150',cls:'num'}],
+              ['🛡 방어 보너스',  '쉴드 흡수율 증가',         {v:'100 ~ 150',cls:'num'}],
+              ['💰 클레임 할인', '섹터 내 신규 클레임 가격 인하',{v:'100 ~ 150',cls:'num'}]
+            ]},
+
+          { type:'h2', text:'4. 글로벌 이벤트 — 커맨더 권한' },
+          { type:'p', text:'커맨더는 **하루 1회** 전역 이벤트를 발동할 수 있어. 하나만 켤 수 있고 GP 소모가 큰 대신 전 화성에 영향을 줘.' },
+          { type:'table',
+            headers:['이벤트','효과','비용 (GP)'],
+            rows:[
+              ['⚡ 더블 마이닝', '전역 채굴 수확량 × 2',      {v:'300 ~ 500',cls:'num'}],
+              ['⚔ 전시 체제',   '하이잭 XP·보상 증가',       {v:'300 ~ 500',cls:'num'}],
+              ['🕊 평화 조약',   '일정 시간 하이잭 금지',     {v:'300 ~ 500',cls:'num'}]
+            ]},
+          { type:'callout', variant:'warn', title:'1일 1회 제한',
+            text:'`max_global_events_per_day=1`. 커맨더가 아무리 GP가 많아도 하루에 한 번만 이벤트를 발동할 수 있어. 타이밍이 전략이야.' },
+
+          { type:'h2', text:'5. 현상금 시스템' },
+          { type:'p', text:'커맨더와 거버너는 특정 지갑에 **현상금**을 걸 수 있어. 현상금 타깃을 먼저 하이잭하는 사람이 보상을 전부 가져가.' },
+          { type:'table',
+            headers:['항목','값'],
+            rows:[
+              ['발행 권한',    '커맨더·거버너'],
+              ['보상 타입',    'GP + 선택적 PP'],
+              ['상태',         'active → claimed / expired / cancelled'],
+              ['만료',         '발행 시 지정']
+            ]},
+          { type:'callout', variant:'pro', title:'현상금은 정치 도구',
+            text:'경쟁자 거버너를 흔들고 싶으면 그의 핵심 영토에 현상금을 걸어. 다른 유저들이 습격하러 몰려오면 그 거버너는 방어에 쫓겨서 세수를 제대로 못 걷어.' },
+
+          { type:'h2', text:'6. GP — 거버넌스 포인트' },
+          { type:'p', text:'GP는 거버넌스 전용 통화야. **PP나 USDT로 살 수 없어** (코스메틱은 4× PP 비율로 GP 결제 가능). GP를 얻는 방법은 활동뿐이야.' },
+          { type:'table',
+            headers:['GP 획득 경로','일반 보상'],
+            rows:[
+              ['일일 로그인 (7일 주기)',  {v:'5 ~ 100 GP',cls:'num'}],
+              ['일일 미션 (3개/일)',      {v:'10 ~ 25 GP 각',cls:'num'}],
+              ['일일 미션 3개 완료',      {v:'+50 GP',cls:'num'}],
+              ['POI 발견',               {v:'10 ~ 50 GP',cls:'num'}],
+              ['시즌 랭킹 보상',          {v:'500 ~ 5000 GP',cls:'num'}],
+              ['로켓 드롭',              {v:'10 ~ 40 GP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'tip', title:'거버너 되는 가장 빠른 길',
+            text:'매일 출석 + 미션 3개 + POI 몇 개만 먹어도 일 100 GP는 쌓여. 한 달이면 3000 GP. 활동 없는 섹터 거버너는 그 정도면 밀어낼 수 있어.' }
+        ]
+      },
       { id: 'guilds', icon: '⚔', title: '길드 & 시즌',
-        body: '**길드:** 2-20명이 공동 깃발 아래 팀 결성. 길드 채팅·집단 스탯·영토에 엠블렘 표시. 생성비 50 GP.\n\n**역할:** 리더, 장교, 멤버. 리더는 추방·승격·해산 권한.\n\n**시즌:** 약 90일 경쟁 주기. 테마별 날씨(화산기·빙하기·태양폭풍·먼지시대). 상위 플레이어는 전용 코스메틱·PP 보너스·XP 대량 획득.\n\n**리더보드:** 실시간 업데이트. TOP 10 시즌 종료시 PP 보상. TOP 3 고유 타이틀.' },
+        blocks: [
+          { type:'p', text:'혼자 성장에 한계가 오면 **길드**로 묶여. 픽셀이 자동으로 합산되고, 길드 채팅·엠블렘·시즌 리더보드까지 팀플레이 전부 구현되어 있어. 시즌은 **30일 주기**로 돌아가고 매 시즌마다 테마가 바뀌어.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '길드 생성과 역할',
+            '길드 커스터마이즈 비용',
+            '길드 채팅',
+            '시즌 시스템',
+            '시즌 점수 계산',
+            '시즌 보상'
+          ]},
+
+          { type:'h2', text:'1. 길드 생성과 역할' },
+          { type:'table',
+            headers:['항목','값','출처'],
+            rows:[
+              ['생성 비용',      {v:'50 GP',cls:'num'},  '`guild_create_cost_gp`'],
+              ['최대 멤버',      {v:'20명',cls:'num'},   '`guild_max_members`'],
+              ['역할',          '리더 · 장교 · 멤버',   '`guild_members.role`'],
+              ['초대 만료',      {v:'72 시간',cls:'num'},'`guild_invite_expire_hours`'],
+              ['1인 1길드',      '강제 (UNIQUE wallet)',  '`guild_members`']
+            ]},
+          { type:'callout', variant:'info', title:'리더·장교·멤버',
+            text:'**리더** — 추방·승격·강등·해산·리더 이양. **장교** — 초대·일부 편집. **멤버** — 채팅·뷰. 리더가 장기 부재면 장교가 대신 운영할 수 있어.' },
+
+          { type:'h2', text:'2. 길드 커스터마이즈 비용' },
+          { type:'p', text:'생성 후에도 GP로 길드 외형을 계속 바꿀 수 있어. 리더만 결제 가능.' },
+          { type:'table',
+            headers:['항목','비용','비고'],
+            rows:[
+              ['이름 변경',          {v:'100 GP',cls:'num'}, '`guild_rename_cost_gp`'],
+              ['설명 변경',          {v:'20 GP',cls:'num'},  '`guild_desc_cost_gp`'],
+              ['엠블렘 이모지',      {v:'50 GP',cls:'num'},  '텍스트 이모지'],
+              ['엠블렘 픽셀 아트',   {v:'50 GP',cls:'num'},  {v:'32×32 · 최대 8 KB',cls:'num'}]
+            ]},
+          { type:'callout', variant:'pro', title:'픽셀 아트 엠블렘은 강력한 브랜딩',
+            text:'길드 픽셀 아트 엠블렘은 리니지 스타일로 **32×32**까지 업로드 가능. 작은 사이즈라도 영토 팝업에 뜨면 인식력이 엄청 높아.' },
+
+          { type:'h2', text:'3. 길드 채팅' },
+          { type:'table',
+            headers:['항목','값','출처'],
+            rows:[
+              ['최대 길이',   {v:'300 자',cls:'num'},  '`guild_chat_max_len`'],
+              ['쿨다운',     {v:'3 초',cls:'num'},    '`guild_chat_cooldown_sec`'],
+              ['히스토리',    {v:'최신 100개',cls:'num'}, '`guild_chat_history_limit`']
+            ]},
+          { type:'callout', variant:'info', title:'폴링 기반',
+            text:'웹소켓 아니고 **폴링** 방식이야. 메시지 한 번에 새로고침되는 게 아니라 몇 초 간격으로 동기화돼. 실시간 전투 상황에서는 반응이 살짝 느릴 수 있어.' },
+
+          { type:'h2', text:'4. 시즌 시스템' },
+          { type:'p', text:'시즌은 **30일 주기**. 테마별로 날씨·시각 효과가 바뀌고 시즌 끝에 상위권에게 보상이 지급돼.' },
+          { type:'table',
+            headers:['시즌','테마','특징'],
+            rows:[
+              [{v:'시즌 1',cls:'mars'}, '🌋 Volcanic',    '용암·화산활동 테마'],
+              [{v:'시즌 2',cls:'mars'}, '❄ Ice Age',     '빙하기 테마'],
+              [{v:'시즌 3',cls:'mars'}, '☀ Solar Storm', '태양 폭풍 테마'],
+              [{v:'시즌 4',cls:'mars'}, '🌪 Dust Epoch', '모래폭풍 테마']
+            ]},
+          { type:'callout', variant:'warn', title:'시즌은 30일 — 장식 아님',
+            text:'시즌 길이는 **30일**로 하드 설정되어 있어 (`seasons.ends_at`). 테마에 따라 날씨 확률이 달라지고 시각적 틴트가 지구본에 오버레이돼.' },
+
+          { type:'h2', text:'5. 시즌 점수 계산' },
+          { type:'p', text:'시즌 점수는 **6가지 카테고리**로 집계돼. 플레이어당 점수가 쌓이고 랭킹이 실시간 갱신돼.' },
+          { type:'table',
+            headers:['활동','점수','출처'],
+            rows:[
+              ['클레임한 픽셀',   {v:'+1 점 / px',cls:'num'},  '`season_pixel_score`'],
+              ['수확 완료',      {v:'+5 점',cls:'num'},       '`season_harvest_score`'],
+              ['하이잭 승리',    {v:'+10 점',cls:'num'},      '`season_hijack_score`'],
+              ['POI 발견',      {v:'+15 점',cls:'num'},      '`season_poi_score`']
+            ]},
+          { type:'callout', variant:'tip', title:'POI가 점수 가성비 최고',
+            text:'픽셀 1개보다 POI 1개가 **15배** 점수야. 시즌 상위권 노리면 지도 켜놓고 POI부터 달려. 12시간 안에 6개 × 15점 = 90점은 그냥 주워지는 거야.' },
+
+          { type:'h2', text:'6. 시즌 보상' },
+          { type:'p', text:'시즌이 끝나면 카테고리별 상위권에게 자동 지급. 수령은 `RANK` 탭에서.' },
+          { type:'table',
+            headers:['순위','시즌1 보상','시즌3 보상'],
+            rows:[
+              [{v:'1위',cls:'mars'},    {v:'3000 GP + 0.5 PP + 500 XP',cls:'num'}, {v:'5000 GP + 1.0 PP + 800 XP',cls:'num'}],
+              [{v:'2 ~ 3위',cls:'mars'}, {v:'1500 GP',cls:'num'},                   {v:'2500 GP',cls:'num'}],
+              [{v:'4 ~ 10위',cls:'mars'}, {v:'500 GP',cls:'num'},                    {v:'800 GP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'pro', title:'시즌별로 보상이 커진다',
+            text:'첫 시즌이 가장 작고 시즌이 갈수록 보상이 커지도록 설계되어 있어. 오래 플레이할수록 복리처럼 보상이 늘어.' }
+        ]
+      },
       { id: 'casino', icon: '🎰', title: '칸티나 카지노',
-        body: '**칸티나**는 인게임 카지노. PP 또는 USDT로 5게임 베팅:\n\n**CRASH** — 배수 상승. 추락 전에 캐시아웃. 하우스 엣지 ~3%.\n\n**MINES** — 타일 공개. 폭탄 피하기. 안전 타일마다 배수 증가.\n\n**COINFLIP** — HEADS/TAILS 50/50. 1.96배 배당.\n\n**DICE** — 목표 위/아래 굴리기. 범위 좁을수록 배수↑.\n\n**HI-LO** — 다음 카드 높은지 낮은지 맞추기. 연승 누적.\n\n**경고:** 하우스는 장기적으로 무조건 이겨. 재미로만, 수익원으로 보지 마. 카지노 수수료는 추천 커미션 풀로 분배됨(§8).' },
+        blocks: [
+          { type:'p', text:'**칸티나**는 5종 미니게임으로 구성된 인게임 카지노야. 전부 PP와 USDT 둘 다로 베팅 가능. 실제 하우스 엣지가 있으니 수익원이 아니라 엔터테인먼트로 생각해.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '게임 5종 요약',
+            '베팅 한도 & 하우스 엣지',
+            '모래폭풍 서바이벌 (Coinflip)',
+            '운석 예측 (Dice)',
+            '지형 조사 (Hi-Lo)',
+            '크래쉬 / 마인스'
+          ]},
+
+          { type:'h2', text:'1. 게임 5종 요약' },
+          { type:'table',
+            headers:['게임','유형','테마','통화'],
+            rows:[
+              [{v:'🚀 Crash',cls:'mars'},             '라이브 배수',  '로켓 고도',        'PP · USDT'],
+              [{v:'💣 Mines',cls:'mars'},             '그리드',      '지뢰 찾기',       'PP · USDT'],
+              [{v:'🌪 Sandstorm',cls:'mars'},         '50/50',       '모래폭풍 서바이벌','PP · USDT'],
+              [{v:'☄ Meteorite',cls:'mars'},          '주사위',      '운석 예측',       'PP · USDT'],
+              [{v:'🏔 Terrain Survey',cls:'mars'},    '카드',        '지형 고저 추측',  'PP · USDT']
+            ]},
+
+          { type:'h2', text:'2. 베팅 한도 & 하우스 엣지' },
+          { type:'table',
+            headers:['게임','최소 베팅','최대 베팅','하우스 엣지'],
+            rows:[
+              [{v:'Crash',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'50',cls:'num'},  {v:'4 %',cls:'num'}],
+              [{v:'Mines',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'20',cls:'num'},  {v:'3 %',cls:'num'}],
+              [{v:'Sandstorm',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 3 %',cls:'num'}],
+              [{v:'Meteorite',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'가변',cls:'num'}],
+              [{v:'Terrain',cls:'mars'},  {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 4 %',cls:'num'}]
+            ]},
+          { type:'callout', variant:'warn', title:'하우스 엣지는 진짜로 적용됨',
+            text:'장기적으로 모든 게임은 하우스가 이겨. 엣지가 3~4%라는 건 베팅한 모든 금액의 평균 **3~4%가 사라진다**는 뜻. 100 PP 베팅하면 평균 3~4 PP가 증발.' },
+
+          { type:'h2', text:'3. 모래폭풍 서바이벌 (Coinflip)' },
+          { type:'p', text:'모래폭풍 앞에 서서 **살아남을지 / 쓸려갈지**를 고르는 50/50 게임. 테마가 바뀐 동전던지기야.' },
+          { type:'callout', variant:'info', title:'단순하지만 하우스 엣지는 있다',
+            text:'50/50처럼 보이지만 배당이 2.0배가 아니라 그보다 낮아서 엣지가 발생해. 빠른 시간에 많은 판을 할 수 있는 게 장점.' },
+
+          { type:'h2', text:'4. 운석 예측 (Dice)' },
+          { type:'p', text:'운석 낙하 각도를 예측하는 주사위 게임. **특정 범위 위/아래**를 고르고, 범위가 좁을수록 배수가 커져.' },
+          { type:'callout', variant:'tip', title:'범위 조정으로 리스크 조절',
+            text:'낮은 배수·높은 확률 또는 높은 배수·낮은 확률을 직접 선택해. 번 게임에서 가장 조절 폭이 넓어.' },
+
+          { type:'h2', text:'5. 지형 조사 (Hi-Lo)' },
+          { type:'p', text:'다음에 뽑힐 카드가 **현재보다 높을지 / 낮을지** 맞추는 카드 게임. 연속으로 맞추면 배수가 누적돼.' },
+          { type:'callout', variant:'pro', title:'연승이 핵심',
+            text:'베이스 배당은 작지만 **스트릭**으로 기하급수적으로 커져. 적절한 타이밍에 캐시아웃하는 감각이 전부.' },
+
+          { type:'h2', text:'6. Crash / Mines' },
+          { type:'p', text:'**Crash** — 배수가 계속 오르다가 언젠가 추락해. 추락 전에 캐시아웃. **Mines** — 그리드에서 타일을 열어. 폭탄 피해서 안전 타일 공개할 때마다 배수가 올라가. 이 둘은 가장 인기 있는 두 게임이야.' },
+          { type:'callout', variant:'warn', title:'책임감 있게 플레이',
+            text:'카지노는 엔터테인먼트. 패시브 채굴로 하루에 버는 PP의 일부만 써라. 수익원으로 보지 마. 한 판에 올인하면 자동 청산이야.' }
+        ]
+      },
       { id: 'dynasty', icon: '👑', title: 'DYNASTY 추천',
-        body: '**3단계 MLM:** 누군가를 추천하면 그들의 활동 중 **6가지 수익원**에서 %를 받아: 입금·스왑·상점·수확·칸티나·하이잭.\n\n**티어 1** (직접): 15%\n**티어 2** (그의 추천인): 10%\n**티어 3** (간접): 5%\n\n**지급:** PP 즉시 입금. DYNASTY 탭에서 리더보드와 트리 확인.\n\n**알림:** 커미션 들어오면 "+X PP earned" 토스트 표시.\n\n**전략:** 활동적인 큰손 초대. 봇은 무의미. 커미션은 피추천인의 실제 지출에 캡이 걸림.' },
+        blocks: [
+          { type:'p', text:'친구를 초대하면 **3단계 MLM** 구조로 커미션이 들어와. 직접 초대한 친구(Tier 1)뿐 아니라 그 친구가 초대한 사람(Tier 2), 또 그 아래까지(Tier 3) 전부 내 수익 라인이 돼.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '3단계 구조',
+            '커미션이 발생하는 활동 6가지',
+            '리더보드와 트리 뷰',
+            '장기 전략'
+          ]},
+
+          { type:'h2', text:'1. 3단계 구조' },
+          { type:'diagram',
+            svg:'<svg viewBox="0 0 520 180" xmlns="http://www.w3.org/2000/svg">'+
+              '<g font-family="monospace" font-size="10" fill="#fff" text-anchor="middle">'+
+              '<circle cx="260" cy="30" r="22" fill="rgba(255,209,102,.18)" stroke="#ffd166" stroke-width="2"/><text x="260" y="34" fill="#ffd166">YOU</text>'+
+              '<circle cx="140" cy="95" r="20" fill="rgba(255,120,60,.15)" stroke="#ff783c" stroke-width="1.5"/><text x="140" y="99">T1</text>'+
+              '<circle cx="260" cy="95" r="20" fill="rgba(255,120,60,.15)" stroke="#ff783c" stroke-width="1.5"/><text x="260" y="99">T1</text>'+
+              '<circle cx="380" cy="95" r="20" fill="rgba(255,120,60,.15)" stroke="#ff783c" stroke-width="1.5"/><text x="380" y="99">T1</text>'+
+              '<circle cx="90"  cy="155" r="16" fill="rgba(255,120,60,.08)" stroke="#ff783c" stroke-opacity=".6" stroke-width="1"/><text x="90"  y="159" font-size="9">T2</text>'+
+              '<circle cx="180" cy="155" r="16" fill="rgba(255,120,60,.08)" stroke="#ff783c" stroke-opacity=".6" stroke-width="1"/><text x="180" y="159" font-size="9">T2</text>'+
+              '<circle cx="260" cy="155" r="16" fill="rgba(255,120,60,.08)" stroke="#ff783c" stroke-opacity=".6" stroke-width="1"/><text x="260" y="159" font-size="9">T2</text>'+
+              '<circle cx="340" cy="155" r="16" fill="rgba(255,120,60,.08)" stroke="#ff783c" stroke-opacity=".6" stroke-width="1"/><text x="340" y="159" font-size="9">T2</text>'+
+              '<circle cx="430" cy="155" r="16" fill="rgba(255,120,60,.08)" stroke="#ff783c" stroke-opacity=".6" stroke-width="1"/><text x="430" y="159" font-size="9">T2</text>'+
+              '</g>'+
+              '<line x1="250" y1="48" x2="150" y2="78" stroke="#ff783c" stroke-opacity=".6" stroke-width="1.2"/>'+
+              '<line x1="260" y1="52" x2="260" y2="75" stroke="#ff783c" stroke-opacity=".6" stroke-width="1.2"/>'+
+              '<line x1="270" y1="48" x2="370" y2="78" stroke="#ff783c" stroke-opacity=".6" stroke-width="1.2"/>'+
+              '<line x1="132" y1="114" x2="94"  y2="140" stroke="#ff783c" stroke-opacity=".35" stroke-width="1"/>'+
+              '<line x1="148" y1="114" x2="176" y2="140" stroke="#ff783c" stroke-opacity=".35" stroke-width="1"/>'+
+              '<line x1="260" y1="115" x2="260" y2="140" stroke="#ff783c" stroke-opacity=".35" stroke-width="1"/>'+
+              '<line x1="372" y1="114" x2="336" y2="140" stroke="#ff783c" stroke-opacity=".35" stroke-width="1"/>'+
+              '<line x1="388" y1="114" x2="425" y2="140" stroke="#ff783c" stroke-opacity=".35" stroke-width="1"/>'+
+            '</svg>',
+            caption:'YOU → T1 (직접 초대) → T2 (간접) → T3 (3단계까지)' },
+          { type:'p', text:'테이블 `referral_rewards` 에 **tier INT** 컬럼이 있어서 각 지급이 몇 단계에서 왔는지 추적돼. 단계별 비율은 관리자 설정에서 조정 가능해 — 게임 내 수치가 바뀔 수 있으니 DYNASTY 탭에서 실시간 비율을 확인하는 게 정확해.' },
+
+          { type:'h2', text:'2. 커미션이 발생하는 활동 6가지' },
+          { type:'p', text:'친구 한 명만 있어도 그 친구가 **아래 6가지 활동** 전부에서 네 쪽으로 %를 태워줘. 자고 있어도 돈이 들어와.' },
+          { type:'table',
+            headers:['활동','설명'],
+            rows:[
+              ['💰 입금',        'USDT를 게임에 넣을 때'],
+              ['🔄 스왑',        'USDT ↔ PP 교환'],
+              ['🛒 상점',        '아이템·코스메틱 구매'],
+              ['⛏ 수확',        '패시브 채굴 수령'],
+              ['🎰 칸티나',       '카지노 베팅'],
+              ['⚔ 하이잭',       '영토 탈취']
+            ]},
+          { type:'callout', variant:'info', title:'실시간 정산',
+            text:'피추천인이 활동할 때마다 즉시 **PP 형태**로 내 지갑에 들어와. 적립 지연 없음. 알림 토스트로도 뜨고.' },
+
+          { type:'h2', text:'3. 리더보드와 트리 뷰' },
+          { type:'p', text:'`DYNASTY` 탭에서 내 추천 트리와 전체 리더보드를 볼 수 있어.' },
+          { type:'table',
+            headers:['항목','내용'],
+            rows:[
+              ['추천 코드',      '내 지갑 기반 고유 코드'],
+              ['직접 초대 수',    '내가 Tier 1로 가진 인원'],
+              ['총 다운라인',     'T1 + T2 + T3 합계'],
+              ['누적 수익',       '지금까지 모든 Tier에서 받은 PP']
+            ]},
+
+          { type:'h2', text:'4. 장기 전략' },
+          { type:'callout', variant:'pro', title:'DYNASTY는 게임 내 최고 EV 액션',
+            text:'영토·채굴은 내가 일한 만큼만 벌어 (선형). DYNASTY는 네트워크가 커지면 **복리**로 불어나. 활발한 유저 5명만 초대해도 패시브 수익이 내 채굴보다 많아지는 시점이 반드시 와.' },
+          { type:'callout', variant:'warn', title:'봇 초대는 의미 없다',
+            text:'커미션은 피추천인의 **실제 지출**에 연동돼. 봇 100명 초대해도 걔네가 활동을 안 하면 0 PP야. 활동하는 한 명이 봇 1000명보다 가치 있어.' }
+        ]
+      },
       { id: 'cosmetics', icon: '✨', title: '코스메틱 & 아이템',
-        body: '**테두리:** 네온·플레임·아이스·골드·스타쉽. 궤도에서 영토 시각 변화.\n\n**글로우:** 펄스·레인보우·다크 오라. 애니메이션 오버레이.\n\n**지형:** 볼케이닉·프로즌·크리스탈·톡식. 영토 텍스처 변경.\n\n**획득:** 상점(직구매)·POI 드롭(랜덤)·로켓 전리품(레어)·시즌 보상(한정).\n\n**아이템:** 쉴드·속도부스트·현상금 토큰·복권. 인벤토리에서 사용.\n\n**선물하기:** BASE → GIFT에서 다른 유저에게 아이템 전송. 지갑과 닉네임 검색 지원.' },
+        blocks: [
+          { type:'p', text:'영토를 꾸미는 **시각 코스메틱**과 전투·효율을 바꾸는 **소비 아이템**, 두 종류가 있어. 둘 다 `SHOP` 탭에서 PP·USDT·GP로 구매 가능.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '코스메틱 3종 카테고리',
+            '쉴드·부스트·유틸 아이템',
+            '통화별 결제 옵션',
+            '드롭 전용 코스메틱'
+          ]},
+
+          { type:'h2', text:'1. 코스메틱 3종 카테고리' },
+          { type:'p', text:'영토마다 **테두리 1개 + 글로우 1개 + 지형 1개**씩 장착 가능. 중복 장착 불가.' },
+          { type:'table',
+            headers:['카테고리','종류','가격대'],
+            rows:[
+              [{v:'🟧 테두리',cls:'mars'}, '네온 · 플레임 · 아이스 · 골드', {v:'3 ~ 15 PP',cls:'num'}],
+              [{v:'✨ 글로우',cls:'mars'}, '펄스 · 레인보우 · 다크 오라',   {v:'4 ~ 8 PP',cls:'num'}],
+              [{v:'⛰ 지형',cls:'mars'},   '볼케이닉 · 프로즌 · 크리스탈 · 톡식', {v:'5 ~ 7 PP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'시즌 끝나도 유지',
+            text:'한 번 구매한 코스메틱은 **영구 보유**. 시즌 리셋돼도 남아있고, 여러 영토에 번갈아 장착할 수 있어.' },
+
+          { type:'h2', text:'2. 쉴드·부스트·유틸 아이템' },
+          { type:'table',
+            headers:['아이템','효과','비용'],
+            rows:[
+              [{v:'⚡ 에너지 쉴드',cls:'mars'},    '하이잭 피해 50% 흡수 (12h)', {v:'2.5 PP',cls:'num'}],
+              [{v:'💠 플라즈마 쉴드',cls:'mars'},  '하이잭 피해 75% 흡수 (24h)', {v:'5.0 PP',cls:'num'}],
+              [{v:'🔥 Mars Rage',cls:'mars'},    '공격 +20% × 3회',            {v:'2.0 PP',cls:'num'}],
+              [{v:'🫥 스텔스 클록',cls:'mars'},   '영토 숨김 (8h)',             {v:'1.5 PP',cls:'num'}],
+              [{v:'📡 레이더 스캔',cls:'mars'},   '클록 영토 공개 1회',          {v:'1.0 PP',cls:'num'}],
+              [{v:'⛏ 마이닝 부스트',cls:'mars'}, '채굴 × 2 (6h)',               {v:'3.0 PP',cls:'num'}],
+              [{v:'🟡 픽셀 더블러',cls:'mars'},  '다음 클레임 픽셀 카운트 × 2',  {v:'4.0 PP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'pro', title:'가성비 No.1 — 에너지 쉴드',
+            text:'2.5 PP면 일일 미션 2~3개 보상으로 충당돼. 매일 하나 걸어두면 24시간 방어 공짜. 시즌 상위권 노리면 항상 플라즈마 쉴드를 꽂아둬야 해.' },
+
+          { type:'h2', text:'3. 통화별 결제 옵션' },
+          { type:'p', text:'모든 상점 아이템은 **PP·USDT·GP** 세 가지로 결제 가능. 가격 비율은 다음과 같아.' },
+          { type:'table',
+            headers:['통화','환산'],
+            rows:[
+              ['PP',   {v:'기준가',cls:'num'}],
+              ['USDT', {v:'PP 가격과 동일 (1:1)',cls:'num'}],
+              ['GP',   {v:'PP 가격 × 4',cls:'num'}]
+            ]},
+          { type:'callout', variant:'tip', title:'GP 썩히지 마',
+            text:'GP는 거버넌스가 메인 용도지만 코스메틱도 살 수 있어. 거버너 선거 참여할 생각 없으면 GP로 코스메틱 사서 소각하는 게 영토 꾸미기에 유리해.' },
+
+          { type:'h2', text:'4. 드롭 전용 코스메틱' },
+          { type:'p', text:'일부 코스메틱은 상점에서 팔지 않아. 로켓 드롭·시즌 보상·POI 같은 **이벤트에서만** 나와.' },
+          { type:'table',
+            headers:['아이템','출처','희귀도'],
+            rows:[
+              [{v:'🚀 스타쉽 테두리',cls:'mars'}, '로켓 드롭 (2% 가중치)', {v:'한정',cls:'num'}],
+              [{v:'시즌 엠블렘',cls:'mars'},     '시즌 TOP 10',          {v:'한정',cls:'num'}],
+              [{v:'💎 POI 특수 코스메틱',cls:'mars'}, 'POI 발견 +5% 추가 굴림', {v:'랜덤',cls:'num'}]
+            ]},
+          { type:'callout', variant:'warn', title:'한 번 놓치면 끝',
+            text:'시즌 리워드 코스메틱은 해당 시즌이 지나면 **다시는 구할 수 없어**. 시즌 상위권에 들 자신 없으면 최소 로켓 드롭은 챙겨봐.' }
+        ]
+      },
       { id: 'strategy', icon: '🎯', title: '전략 팁',
-        body: '**초반 (첫 날):** 무료 시작 영토 받기, 일일 퀘스트 3개 완료, 싸게 1-2픽셀 추가, 친구 1명 초대로 커미션 세팅.\n\n**중반 (첫 주):** 길드 가입, 계급 3 언락해서 수수료 부스트, 쉴드 낀 5×5 요새 구축, 일일 채굴 루틴.\n\n**후반:** 트래픽 많은 섹터 거버너 도전, 세금 수급, GP 축적, 커맨더 입찰. DYNASTY로 패시브 PP 파밍.\n\n**흔한 실수:**\n• 채굴 인프라 없이 카지노부터 USDT 태우기\n• 아무도 안 보는 외진 좌표에 예술 ← 무의미\n• 쉴드 무시 → 하이잭 당함\n• 일일 퀘스트 잊기 (제일 큰 무료 PP/XP)\n• 친구 초대 안 하기 — DYNASTY가 게임에서 가장 기대값 높은 액션'
+        blocks: [
+          { type:'p', text:'마지막 섹션은 **실전 운영 팁**. 첫 날·첫 주·장기 플레이 단계별로 무엇을 우선해야 하는지, 그리고 이 게임에서 자주 실패하는 패턴들을 정리해뒀어.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '첫 날 체크리스트',
+            '첫 주 운영법',
+            '장기 빌드',
+            '흔한 실수 TOP 5'
+          ]},
+
+          { type:'h2', text:'1. 첫 날 체크리스트' },
+          { type:'p', text:'가입한 첫 날에 이 5가지만 끝내면 **다음 날부터 자동 수익**이 돌아가기 시작해.' },
+          { type:'table',
+            headers:['순서','할 일','보상'],
+            rows:[
+              [{v:'1',cls:'num'}, '로그인 보너스 수령',          {v:'5 GP',cls:'num'}],
+              [{v:'2',cls:'num'}, '일일 미션 3개 완료',          {v:'+50 GP',cls:'num'}],
+              [{v:'3',cls:'num'}, 'FRONTIER 섹터에 작은 클레임', {v:'수확 시작',cls:'num'}],
+              [{v:'4',cls:'num'}, 'POI 1개 발견',               {v:'10~50 GP',cls:'num'}],
+              [{v:'5',cls:'num'}, '추천 코드로 친구 1명 초대',   {v:'Tier 1 셋업',cls:'num'}]
+            ]},
+
+          { type:'h2', text:'2. 첫 주 운영법' },
+          { type:'p', text:'**목표: 영토 100~300 px + 에너지 쉴드 상시 장착 + 길드 가입.**' },
+          { type:'callout', variant:'tip', title:'10일 루틴',
+            text:'매일 ① 로그인 ② 미션 3개 ③ POI 2~3개 ④ 수확 1~2회 ⑤ 쉴드 갱신. 이것만 해도 일 100 GP + 1 PP 쌓여. 7일이면 700 GP · 7 PP.' },
+          { type:'callout', variant:'info', title:'길드는 언제 가입?',
+            text:'활동 인원 10명 이상 + 채팅이 살아있는 길드. 생성은 늦게 하는 게 유리 — 혼자 만들면 50 GP 쓰고 멤버가 안 찰 수 있어.' },
+
+          { type:'h2', text:'3. 장기 빌드' },
+          { type:'table',
+            headers:['목표','전략'],
+            rows:[
+              ['🏛 거버너 당선',     '저트래픽 섹터부터 노려. 1000~3000 GP 쌓으면 현직 거버너를 밀어낼 수 있어.'],
+              ['⚔ 시즌 TOP 10',    'POI 중심 운영 (POI 1개 = 15점). 상위권 보상 대부분은 GP라 거버너 파워로 재투자.'],
+              ['👑 커맨더 도전',     '전역 1위 GP는 수만 GP 단위. 길드 리더 + 꾸준한 POI + 추천 네트워크 없이는 불가능.'],
+              ['💸 DYNASTY 복리',   '활발한 큰손 3~5명 초대. 그들이 쓰는 모든 PP·USDT가 내 수익으로 환원.']
+            ]},
+
+          { type:'h2', text:'4. 흔한 실수 TOP 5' },
+          { type:'callout', variant:'warn', title:'① 채굴 인프라 없이 카지노',
+            text:'USDT 입금 → 바로 칸티나 직행은 최악. 하우스 엣지 3~4%는 진짜로 적용돼. 영토와 POI부터 안정화시켜.' },
+          { type:'callout', variant:'warn', title:'② 외진 좌표에 큰 클레임',
+            text:'변방에 대형 영토 사도 아무도 안 봐. CORE 섹터 한 칸이 FRONTIER 100칸보다 노출이 높아.' },
+          { type:'callout', variant:'warn', title:'③ 쉴드 무시',
+            text:'쉴드 하나 아끼려다 하이잭으로 영토 날리면 복구 비용이 20배. 일일 2.5 PP는 무조건 쉴드에 써.' },
+          { type:'callout', variant:'warn', title:'④ 일일 미션 스킵',
+            text:'일일 미션 + 로그인 보너스 = 매일 공짜 50~150 GP. 한 달 쌓으면 1500~4500 GP. 이걸 놓치는 건 거버너 자리를 포기하는 것과 같아.' },
+          { type:'callout', variant:'warn', title:'⑤ 친구 초대 안 함',
+            text:'DYNASTY는 이 게임에서 **기대값(EV)이 가장 높은 액션**. 친구 1명만 초대해도 선형 성장이 복리로 바뀌어. 추천 코드 자랑은 부끄러운 게 아냐.' }
+        ]
       }
     ]
   }
 };
-// Copy EN content for JA/ZH fallback (can be translated later)
-CODEX_CONTENT.ja = CODEX_CONTENT.en;
-CODEX_CONTENT.zh = CODEX_CONTENT.en;
+// ── Japanese / Chinese guidebook (translated from verified EN/KO content) ──
+CODEX_CONTENT.ja = {
+  sections: [
+    { id: 'overview', icon: '🌍', title: 'ゲーム概要',
+      body: '**Occupy Mars** は Base チェーン上で動く**領土征服 MMO** だ。3D 火星グローブにピクセル領土をクレームし、採掘と POI で PP を稼ぎ、敵を襲撃し、ギルドで結束し、シーズンリーダーボードで競い合う。\n\n**コアループ:** CLAIM → MINE → DEFEND → RAID → GROW。\n\n**4 種類の通貨:** USDT(Base 本物)、PP(ゲーム内ソフト通貨)、GP(譲渡不可なガバナンスパワー)、XP(アカウントランク進行)。\n\n**終了状態は無し。** シーズンはスコアをリセットするが、ピクセル・コスメ・GP は残る。最終目標は **コマンダー** または **ガバナー** のガバナンス権力で、マップ全体を動かせる。' },
+    { id: 'tokens', icon: '🪙', title: 'トークン経済',
+      body: '**USDT**(Base チェーン) — 本物のお金。ブリッジ経由でデポジット、PP と 1:1 でスワップ、全ての上位購入に使用。ゲームが発行することはない。\n\n**PP(Potato Points)** — ソフト通貨。パッシブ採掘(1 ハーベスト最大約 1 PP)・POI ドロップ・クエスト報酬・ロケット戦利品・ギルド/シーズンボーナス・DYNASTY コミッションで入手。クレーム・ショップ・カンティナベット・領土リネーム(0.3 PP)・ギルド手数料に使用。\n\n**GP(Governance Points)** — 譲渡不可の政治通貨。**購入不可、活動でのみ入手**: 日次ログイン(7日サイクルで 5-100 GP/日)、デイリーミッション(各 10-25、3 つ全て完了で +50 ボーナス)、POI ドロップ(10-50、ドロップ重み 70%)、ロケット(10-40)、シーズン報酬(500-5000)。使途はギルド作成(50 GP)、ギルドリネーム(100 GP)、セクターバフ(100-150 GP、ガバナーのみ)、グローバルイベント(300-500 GP、コマンダーのみ、1日最大 1 回)。\n\n**XP** — ランク進行を駆動(Lv.1 Dust Walker → Lv.30 Architect of Worlds、0 → 2,600,000 XP)。クレームで +2 XP/px、ハイジャック勝利で +3、POI 発見で +5。Lv.30 で 5,000 PP 報酬。' },
+    { id: 'territory', icon: '🏴', title: '領土システム',
+      body: '**クレーム:** グローブ上で最大 **500×500 px** の矩形をドラッグし、画像(≤5 MB、PNG/JPG/GIF/WEBP)をアップロードして PP または USDT で決済。±70° を超える緯度は不可。\n\n**セクターティア:** CORE(採掘周期 24h、最も混雑、最も高価)→ MID(48h)→ FRONTIER(72h、最安)。価格は動的で、セクターが埋まるほど上昇。\n\n**ハイジャック:** 他人の領土に重ねてクレームすると **原価の 1.2 倍**。防衛者には 50% が返却される。基本成功率 50%(最小 10%、最大 90%)。失敗時は 90% 返金。ハイジャック 1 ピクセルごとに **+3 XP**。\n\n**シールド:** Energy Shield(2.5 PP、12h、50% 吸収)または Plasma Shield(5 PP、24h、75% 吸収)。SHOP で購入。\n\n**画像:** 静止画またはアニメ GIF。`https://` で始まるリンクのみ。\n\n**リネーム:** カスタム名(0.3 PP)はハイジャック抑止に効く。\n\n**メンテナンス料:** 100 ピクセル超過部分には週次 0.5 PP/px が自動引き落とし。PP 不足時は古いクレームから放棄される。' },
+    { id: 'mining', icon: '⛏', title: '採掘 & 収益',
+      body: '**パッシブハーベスト式:** `yield = random(0.01, 0.5) × min(√pixels/10, 3.0)`、**1 ハーベスト最大 1.0 PP** の上限。ピクセル係数は平方根 — 1 px=0.10、100 px=1.0、1,000 px=3.0(上限)。**1,000 ピクセル以上買っても採掘収入は増えない**。\n\n**ハーベスト周期:** CORE 24h / MID 48h / FRONTIER 72h。複数ティアにまたがる領土は最短周期を採用。\n\n**ブースト(全て上限でキャップ):** ガバナー +20%、セクター mining_boost +20%、コマンダー Double Mining ×2、天候(solar_flare +100%、sandstorm +50%、cold_wave +30%)、Starlink 通過 +10%/通過、Mining Accelerator ×2(6h)。\n\n**POI:** 4 時間ごと 6 個スポーン(最大同時 12、12h で消滅)。ドロップ重み: **GP 70%(10-50)**、アイテム 20%、PP 10%(0.05-0.3)、+5% コスメ追加ロール。発見で +5 XP。先着順で誰でも取れる。\n\n**ロケット:** 12 時間ごと(2h 前告知 → 1h 回収窓)。通常 15 アイテム、5% 確率で RUD 爆発(30 アイテム、半径 ×2)。限定 Starship Border コスメが 2% 重み。\n\n**デイリーミッション:** 毎日 7 種類中 3 ミッションをランダム選出。各 10-25 GP + 5 XP、全 3 完了で +50 GP ボーナス。日次ログインは 7 日サイクルで 5-100 GP。\n\n**ランク報酬:** Lv.7=35 PP、Lv.15=250 PP、Lv.20=700 PP、Lv.30=5,000 PP。\n\n**DYNASTY コミッション:** 紹介者の入金・スワップ・ショップ・ハーベスト・カンティナ・ハイジャックから 3 ティアで PP が入る。§8 参照。' },
+    { id: 'governance', icon: '🏛', title: 'ガバナンス',
+      body: '**コマンダー** — 単一のグローバルリーダー。1 日最大 1 回のグローバルイベントを発動: **Double Mining**(ハーベスト ×2)、**War Time**(ハイジャック XP 増加)、**Peace Treaty**(一時ハイジャック凍結)。各イベントは 300-500 GP。\n\n**副コマンダー** — グローバル 2 位。コマンダー不在時に代行。\n\n**ガバナー** — セクターごとに 1 名。セクター税率(1-5%、デフォルト 2%)とセクターバフ(各 100-150 GP)を設定: mining_boost、defense_bonus、claim_discount。\n\n**副ガバナー** — セクター 2 位。セクター税の 20% を受取。\n\n**税分配:** 70% ガバナー / 20% 副ガバナー / 10% セクタープール。\n\n**選挙:** 常時。GP 最多保有者がポジションを獲得。いつでも挑戦可。\n\n**賞金:** コマンダーとガバナーは特定ウォレットに GP +(任意 PP)の賞金を掛けられる。先にハイジャックした者が獲得。状態: active → claimed / expired / cancelled。' },
+    { id: 'guilds', icon: '⚔', title: 'ギルド & シーズン',
+      body: '**作成費:** 50 GP。**最大メンバー:** 20 名。**役職:** リーダー / オフィサー / メンバー(1 ウォレット = 1 ギルド)。\n\n**カスタマイズ(リーダーのみ):** リネーム 100 GP、説明 20 GP、絵文字エンブレム 50 GP、ピクセルアート画像エンブレム 50 GP(最大 32×32 px、8 KB)。招待は 72h で期限切れ。\n\n**ギルドチャット:** ポーリング方式。最大 300 文字、3 秒クールダウン、最新 100 メッセージ保持。\n\n**シーズン:** 30 日サイクル(90 日ではない)。4 テーマ: **Volcanic**、**Ice Age**、**Solar Storm**、**Dust Epoch** — 天候とビジュアルティントが変わる。\n\n**シーズンスコア:** クレームピクセル(+1)、ハーベスト(+5)、ハイジャック勝利(+10)、POI 発見(+15)。POI が圧倒的に高効率。\n\n**シーズン報酬:** シーズン 1 の 1 位 = 3000 GP + 0.5 PP + 500 XP + アイテム、Top 3 = 1500 GP、Top 10 = 500 GP。シーズン 3 の 1 位 = 5000 GP + 1.0 PP + 800 XP。RANK タブから受取。' },
+    { id: 'casino', icon: '🎰', title: 'カンティナカジノ',
+      body: '**カンティナ**は 5 種類のミニゲームカジノ。全て PP か USDT で賭け可能:\n\n**Crash** — 倍率が上昇、クラッシュ前にキャッシュアウト。ベット 0.1-50、ハウスエッジ 4%。\n\n**Mines** — グリッドのタイルを開示、爆弾を避ける。安全タイルごとに倍率上昇。ベット 0.1-20、ハウスエッジ 3%。\n\n**Sandstorm Survival**(コインフリップテーマ) — 生き残るか吹き飛ばされるか。ベット 0.1-500。\n\n**Meteorite Prediction**(サイコロテーマ) — 衝突範囲の上/下を予測。狭いほど高倍率。ベット 0.1-500。\n\n**Terrain Survey**(ハイロー) — 次のカードが高いか低いか。連勝で倍率累積。ベット 0.1-500。\n\n**警告:** ハウスエッジは本物 — 平均ベット額の 3-4% が消える。楽しむため、収益源ではない。カンティナ行動は紹介者の DYNASTY コミッションも発生させる(§8 参照)。' },
+    { id: 'dynasty', icon: '👑', title: 'DYNASTY 紹介',
+      body: '**3 ティア MLM:** 紹介した相手の活動 **6 種類**(入金・スワップ・ショップ・ハーベスト・カンティナ・ハイジャック)からコミッションが入る。彼らの紹介が Tier 2、その下が Tier 3。\n\n**追跡:** `referral_rewards` テーブルに各支払いのティア(1/2/3)とトリガータイプが記録される。ティア割合は管理者が設定可能で、現在のレートは DYNASTY タブでライブ確認できる。\n\n**支払い:** PP として即時入金。コミッション発生ごとに「+X PP earned」トースト通知。\n\n**リーダーボード:** DYNASTY タブで直接招待数・総ダウンライン数・累計 PP を表示。\n\n**戦略:** コミッションは被紹介者の**実際の支出**に連動するのでボットは無意味。活発な課金勢 3-5 名を呼べば、数週間で個人採掘を超えるパッシブ収入になる。' },
+    { id: 'cosmetics', icon: '✨', title: 'コスメ & アイテム',
+      body: '**ボーダー(購入 4 種 + ドロップ限定 1 種):** Neon、Flame、Ice、Gold — 3-15 PP。**Starship Border** はロケットドロップ限定(2% 重み)。\n\n**グロー(3 種):** Pulse、Rainbow、Dark Aura — 4-8 PP。\n\n**テレイン(4 種):** Volcanic、Frozen、Crystal、Toxic — 5-7 PP。\n\n各クレームにカテゴリごと 1 つまで装備可能(ボーダー + グロー + テレイン)。コスメは永続で、シーズンリセットを超えて保持される。\n\n**アイテム(PP 価格):** Energy Shield 2.5(12h、50% 吸収)、Plasma Shield 5.0(24h、75% 吸収)、Mars Rage 2.0(+20% 攻撃 × 3 回)、Stealth Cloak 1.5(8h 隠密)、Radar Scan 1.0(隠密看破)、Mining Accelerator 3.0(×2 採掘 6h)、Pixel Doubler 4.0(次クレームピクセル ×2)。\n\n**決済オプション:** 全ショップアイテムは PP / USDT(1:1)/ GP(PP 価格 × 4 倍)で購入可。ガバナンスを狙わないなら GP の余りはここで消化しよう。\n\n**ドロップ限定報酬:** Starship Border(ロケット)、シーズンエンブレム(TOP 10)、POI 特殊コスメ(発見ごと +5% 追加ロール)。シーズンが過ぎるとそのエンブレムは二度と入手不可。' },
+    { id: 'strategy', icon: '🎯', title: '戦略のヒント',
+      body: '**Day 1 チェックリスト:** ログイン報酬 → デイリーミッション 3 つ全て完了(+50 GP ボーナス)→ FRONTIER セクターに小さなクレームを置いてハーベスト開始 → POI を 1 個発見 → 友人 1 人を紹介コードで登録。\n\n**最初の 1 週間(目標 100-300 px):** Energy Shield を 24 時間常時装着、デイリーミッションを必ず完了、活発なギルドに加入(1 人で作らない — 50 GP が無駄になる)、POI を追う(シーズンスコア 15 点/発見)。\n\n**長期ビルド:**\n• **ガバナー当選** — 低交通セクターを狙い、1,000-3,000 GP を貯めて現職を追い出す。\n• **シーズン Top 10** — POI 中心プレイ(POI 15 点 = ピクセル 10 倍)。\n• **コマンダー** — 数万 GP と継続的な活動が必要。ギルド + 紹介ネットワーク + POI が揃って初めて実現。\n• **DYNASTY 複利** — 活発な課金勢 3-5 名を紹介。ネットワーク成熟後、パッシブ収入が個人採掘を超える。\n\n**よくあるミス TOP 5:**\n① 採掘インフラなしで USDT → カンティナ直行(ハウスエッジは本物)。\n② 誰も見ない辺境座標に巨大クレーム。\n③ 2.5 PP のシールドをケチってハイジャックで数十ピクセル失う。\n④ デイリーミッションを飛ばす = 月 1,500-4,500 GP の無料収入を捨てる。\n⑤ 友人を招待しない — DYNASTY はゲーム内で最も期待値が高い行動。'
+    }
+  ]
+};
+
+CODEX_CONTENT.zh = {
+  sections: [
+    { id: 'overview', icon: '🌍', title: '游戏概述',
+      body: '**Occupy Mars** 是运行在 Base 链上的**领土征服 MMO**。你在 3D 火星球体上占领像素领地,通过采矿和 POI 被动赚取 PP,袭击对手,加入公会,争夺赛季排行榜。\n\n**核心循环:** 占领 → 采矿 → 防御 → 劫掠 → 扩张。\n\n**四种货币:** USDT(Base 真实货币)、PP(游戏内软通货)、GP(不可转让的治理权力)、XP(账号等级进度)。\n\n**没有终局。** 赛季会重置积分,但像素、饰品和 GP 会保留。长期目标是**指挥官**或**总督**这样的治理权力,能够塑造整张地图。' },
+    { id: 'tokens', icon: '🪙', title: '代币经济',
+      body: '**USDT**(Base 链) — 真钱。通过桥接充值,与 PP 1:1 互换,用于所有高级购买。游戏不铸造。\n\n**PP(Potato Points)** — 软通货。获取方式: 被动采矿(每次收获最多约 1 PP)、POI 掉落、任务奖励、火箭战利品、公会/赛季奖励、DYNASTY 推荐佣金。用途: 占领、商店、卡提纳投注、领地改名(0.3 PP)、公会费用。\n\n**GP(Governance Points)** — 不可转让的政治货币。**无法购买,只能通过活动获取**: 每日登录(7 日循环 5-100 GP/天)、每日任务(各 10-25,三个全完成再 +50 奖励)、POI 掉落(10-50,掉落权重 70%)、火箭(10-40)、赛季排行榜奖励(500-5000)。花费: 公会创建(50 GP)、公会改名(100 GP)、扇区增益(100-150 GP,仅总督)、全局事件(300-500 GP,仅指挥官,每日最多 1 次)。\n\n**XP** — 驱动等级进度(Lv.1 Dust Walker → Lv.30 Architect of Worlds,0 → 2,600,000 XP)。占领获得 +2 XP/像素,劫掠胜利 +3,POI 发现 +5。Lv.30 奖励 5,000 PP。' },
+    { id: 'territory', icon: '🏴', title: '领土系统',
+      body: '**占领:** 在球体上拖拽最大 **500×500 像素**的矩形,上传图片(≤5 MB,PNG/JPG/GIF/WEBP),用 PP 或 USDT 付款。超过 ±70° 纬度的占领被阻止。\n\n**扇区等级:** CORE(收获周期 24 小时,最繁忙,最贵)→ MID(48 小时)→ FRONTIER(72 小时,最便宜)。定价动态变化 — 扇区越满,每像素价格越高。\n\n**劫掠:** 覆盖他人领地要支付**原价的 1.2 倍**,防守者返还 50% 作为补偿。基础成功率 50%(最小 10%,最大 90%)。失败时 90% 返还。劫掠的每个像素获得 **+3 XP**。\n\n**护盾:** 能量护盾(2.5 PP,12 小时,吸收 50%)或等离子护盾(5 PP,24 小时,吸收 75%)。从 SHOP 购买。\n\n**图像:** 静态或动态 GIF。链接必须以 `https://` 开头。\n\n**改名:** 自定义领地名(0.3 PP),对劫掠有威慑作用。\n\n**维护费:** 持有超过 100 像素时,超额部分每周自动扣除 0.5 PP/像素。PP 不足时最老的占领先被放弃。' },
+    { id: 'mining', icon: '⛏', title: '采矿 & 收入',
+      body: '**被动收获公式:** `yield = random(0.01, 0.5) × min(√pixels/10, 3.0)`,**每次收获硬上限 1.0 PP**。像素系数是平方根 — 1 像素 = 0.10,100 像素 = 1.0,1,000 像素 = 3.0(封顶)。**超过 1,000 像素,额外像素采矿收入为零**。\n\n**收获周期:** CORE 24 小时 / MID 48 小时 / FRONTIER 72 小时。跨越多个等级的领地使用最短周期。\n\n**增益(全部受 1 PP 上限约束):** 总督 +20%,扇区 mining_boost +20%,指挥官 Double Mining ×2,天气(solar_flare +100%,sandstorm +50%,cold_wave +30%),Starlink 卫星经过 +10%/次,Mining Accelerator ×2(6 小时)。\n\n**POI:** 每 4 小时刷新 6 个(最多同时 12 个,12 小时过期)。掉落权重: **GP 70%(10-50)**,物品 20%,PP 10%(0.05-0.3),+5% 饰品额外投掷。发现 +5 XP。先到先得。\n\n**火箭:** 每 12 小时一次(2 小时预警 → 1 小时拾取窗口)。普通 15 个战利品,5% 概率 RUD 爆炸(30 个,半径 ×2)。稀有 Starship Border 饰品 2% 权重。\n\n**每日任务:** 每天从 7 种中随机 3 个。各 10-25 GP + 5 XP,全部完成 +50 GP 奖励。每日登录 7 天循环 5-100 GP。\n\n**等级奖励:** Lv.7=35 PP,Lv.15=250 PP,Lv.20=700 PP,Lv.30=5,000 PP。\n\n**DYNASTY 佣金:** 从推荐者的存款、互换、商店、收获、卡提纳、劫掠 6 种活动中 3 级获得 PP。详见 §8。' },
+    { id: 'governance', icon: '🏛', title: '治理',
+      body: '**指挥官** — 单一全局领袖。每日最多触发 1 次全局事件: **Double Mining**(收获 ×2)、**War Time**(劫掠 XP 增加)、**Peace Treaty**(暂时冻结劫掠)。每事件 300-500 GP。\n\n**副指挥官** — 全局第二。指挥官不在时代理。\n\n**总督** — 每扇区 1 名。设定扇区税率(1-5%,默认 2%)和扇区增益(各 100-150 GP): mining_boost、defense_bonus、claim_discount。\n\n**副总督** — 扇区第二。接收 20% 扇区税收。\n\n**税收分配:** 70% 总督 / 20% 副总督 / 10% 扇区池。\n\n**选举:** 持续进行。GP 最多者占据职位。任何时候都可挑战。\n\n**悬赏:** 指挥官和总督可向特定钱包发布 GP +(可选 PP)悬赏。首个劫掠者获得奖励。状态: active → claimed / expired / cancelled。' },
+    { id: 'guilds', icon: '⚔', title: '公会 & 赛季',
+      body: '**创建费用:** 50 GP。**最大成员:** 20 人。**角色:** 会长 / 干事 / 成员(1 钱包 = 1 公会)。\n\n**自定义(仅会长):** 改名 100 GP,描述 20 GP,表情徽章 50 GP,像素艺术徽章 50 GP(最大 32×32 像素,8 KB)。邀请 72 小时后过期。\n\n**公会聊天:** 轮询方式。最多 300 字符,3 秒冷却,保留最新 100 条消息。\n\n**赛季:** 30 天周期(不是 90 天)。4 个主题: **Volcanic**、**Ice Age**、**Solar Storm**、**Dust Epoch** — 天气权重和视觉色调变化。\n\n**赛季计分:** 占领像素(+1/像素)、收获(+5)、劫掠胜利(+10)、POI 发现(+15)。POI 效率最高。\n\n**赛季奖励:** 赛季 1 第一名 = 3000 GP + 0.5 PP + 500 XP + 物品,前 3 = 1500 GP,前 10 = 500 GP。赛季 3 第一名 = 5000 GP + 1.0 PP + 800 XP。从 RANK 标签领取。' },
+    { id: 'casino', icon: '🎰', title: '卡提纳赌场',
+      body: '**卡提纳**是 5 款小游戏赌场。所有游戏都能用 PP 或 USDT 投注:\n\n**Crash** — 倍率上升,崩盘前套现。投注 0.1-50,庄家优势 4%。\n\n**Mines** — 在网格中翻开方块,避开炸弹。每个安全方块提高倍率。投注 0.1-20,庄家优势 3%。\n\n**Sandstorm Survival**(主题硬币) — 幸存或被卷走。投注 0.1-500。\n\n**Meteorite Prediction**(主题骰子) — 预测撞击范围上下。范围越窄倍率越高。投注 0.1-500。\n\n**Terrain Survey**(主题高低) — 下一张牌高还是低?连胜倍率累积。投注 0.1-500。\n\n**警告:** 庄家优势是真实的 — 每次投注平均 3-4% 会蒸发。只为娱乐,不是收入来源。卡提纳行动也会为你的推荐人产生 DYNASTY 佣金(见 §8)。' },
+    { id: 'dynasty', icon: '👑', title: 'DYNASTY 推荐',
+      body: '**3 级 MLM:** 推荐玩家后,你从他们的 **6 种活动**(存款、互换、商店、收获、卡提纳、劫掠)中获得佣金。他们的推荐人成为你的 Tier 2,再下一级是 Tier 3。\n\n**追踪:** `referral_rewards` 表记录每笔支付的级别(1/2/3)和触发类型。级别百分比由管理员配置,DYNASTY 标签实时显示当前费率 — 始终查看游戏内数字。\n\n**支付:** 即时 PP 到账。每次佣金都会触发「+X PP earned」提示。\n\n**排行榜:** DYNASTY 标签显示你的直接推荐数、总下线数、累计 PP 收益。\n\n**策略:** 佣金以被推荐者的**实际消费**为上限 — 机器人毫无价值。引入 3-5 个活跃大户,几周后被动 PP 就会超过你的个人采矿。' },
+    { id: 'cosmetics', icon: '✨', title: '饰品 & 物品',
+      body: '**边框(4 种可购买 + 1 种仅掉落):** Neon、Flame、Ice、Gold — 价格 3-15 PP。**Starship Border** 仅从火箭掉落(2% 权重)。\n\n**光效(3 种):** Pulse、Rainbow、Dark Aura — 4-8 PP。\n\n**地形(4 种):** Volcanic、Frozen、Crystal、Toxic — 5-7 PP。\n\n每个领地每类最多装备一个(边框 + 光效 + 地形)。饰品永久保留,跨赛季存活。\n\n**物品(PP 价格):** 能量护盾 2.5(12 小时,50% 吸收)、等离子护盾 5.0(24 小时,75% 吸收)、Mars Rage 2.0(+20% 攻击 × 3 次)、隐形斗篷 1.5(8 小时隐身)、雷达扫描 1.0(揭示隐身)、Mining Accelerator 3.0(×2 采矿 6 小时)、Pixel Doubler 4.0(下次占领像素 ×2)。\n\n**付款选项:** 每个商店物品都可用 PP / USDT(与 PP 1:1)/ GP(PP 价格 × 4 倍)购买。如果你不追求治理,用多余 GP 在这里消耗。\n\n**仅掉落奖励:** Starship Border(火箭)、赛季徽章(赛季前 10)、特殊 POI 饰品(每次发现 +5% 额外投掷)。赛季过后,该赛季徽章永远无法获取。' },
+    { id: 'strategy', icon: '🎯', title: '战略要点',
+      body: '**第 1 天清单:** 领取登录奖励 → 完成所有 3 个每日任务(+50 GP 奖励)→ 在 FRONTIER 扇区放置小占领开始收获 → 发现 1 个 POI → 用你的推荐码注册 1 个朋友。\n\n**第一周(目标 100-300 像素):** 持续装备能量护盾 24/7,坚持每日任务,加入活跃公会(不要独自创建 — 会浪费 50 GP),追击 POI 赚 GP(赛季 15 分/发现)。\n\n**长期构建:**\n• **成为总督** — 首先瞄准低交通扇区,积累 1,000-3,000 GP,赶走现任。\n• **赛季前 10** — 以 POI 为中心的玩法(POI = 每个 15 分,是像素的 10 倍)。\n• **指挥官** — 需要数万 GP 和持续活动。必须有公会 + 推荐网络 + POI 搬运。\n• **DYNASTY 复利** — 推荐 3-5 个活跃消费者。网络成熟后,被动收入会超过你的个人采矿。\n\n**前 5 大错误:**\n① 没有采矿基础就用 USDT → 卡提纳 — 庄家优势是真实的。\n② 在没人看到的偏远坐标大面积占领。\n③ 省下 2.5 PP 护盾却因劫掠损失数十像素。\n④ 跳过每日任务 = 放弃每月 1,500-4,500 GP 的免费收入。\n⑤ 不邀请朋友 — DYNASTY 是游戏中期望值最高的行动。'
+    }
+  ]
+};
 
 var _codexIdx = 0;
 function openCodex() {
