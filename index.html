@@ -9,6 +9,7 @@
 <link rel="manifest" href="/manifest.json">
 <title>OCCUPY MARS — Claim Your Territory</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <script src="/assets/lib/globe.gl.min.js"></script>
 <style>
 :root{
@@ -18,7 +19,9 @@
   --tx:#E8E0D8;--tx2:#9A8878;--tx3:#6A5848;
   --mars:#FF7840;--red:#E84855;--gold:#FFD166;--gn:#4CD89A;--pp:#B888E0;
   --cyan:#5BB8E8;
-  --fn:'Orbitron',sans-serif;
+  /* Orbitron = Latin sci-fi display; Pretendard = Korean/CJK Gothic (clean, readable).
+     Browser auto-picks Pretendard for Hangul glyphs since Orbitron has no CJK. */
+  --fn:'Orbitron','Pretendard Variable','Pretendard','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   --fs-xs:9px;--fs-sm:10px;--fs-md:11px;--fs-lg:13px;--fs-xl:15px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1422,14 +1425,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .arena-topbar{border-radius:16px 16px 0 0;padding:6px 10px}
   .arena-topbar .tb-title{font-size:var(--fs-lg)}
   .arena-topbar .tb-bal{font-size:9px;padding:4px 8px;gap:6px}
-  .crash-sidebar{display:none}
+  /* CRASH mobile: stack sidebar BELOW canvas so BET INPUT + PLACE button are visible */
+  .crash-sidebar{width:100%;max-height:none;border-left:none;border-top:1px solid var(--bdr);flex-shrink:0;padding:8px 10px;gap:6px}
+  .crash-sb-title{display:none}
+  .crash-bets-list{max-height:60px!important;min-height:0!important;padding:2px 4px}
   .mines-sidebar{width:100%;max-height:none;overflow-y:visible}
-  .crash-wrap{flex-direction:column;flex:1;overflow:hidden}
-  .crash-main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
-  .mines-wrap{flex-direction:column;flex:1;overflow-y:auto}
+  .crash-wrap{flex-direction:column;flex:1;overflow-y:auto}
+  .crash-main{flex-shrink:0;display:flex;flex-direction:column;min-height:0}
+  .mines-wrap{flex-direction:column;flex:1;min-height:0;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0)}
   .mines-main{min-height:auto;flex-shrink:0;padding:6px 0}
-  .mines-grid{width:min(240px,65vw);gap:4px;padding:10px}
-  .mines-sidebar{padding:10px !important;gap:8px !important}
+  .mines-grid{width:min(220px,60vw);gap:3px;padding:8px}
+  .mines-sidebar{padding:8px !important;gap:6px !important;padding-bottom:calc(12px + env(safe-area-inset-bottom,0)) !important}
+  .game-panel.active{min-height:0}
   .btn-mines{padding:12px;font-size:var(--fs-sm)}
   .crash-canvas-wrap{flex:1;min-height:80px;max-height:35vh}
   .crash-mult-val{font-size:32px}
@@ -1654,6 +1661,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .legal-footer a:hover{color:var(--mars)}
 .legal-footer .lf-sep{opacity:0.4}
 @media(max-width:768px){.legal-footer{bottom:68px}}
+/* ── Main screen cleanup for mobile (≤600px): hide low-value clutter ── */
+@media(max-width:600px){
+  /* Legal footer: redundant on main view, available in profile */
+  .legal-footer{display:none!important}
+  /* Marquee announce bar overlaps season banner visually */
+  .announce-bar{display:none!important}
+  /* Dynasty sector ticker: redundant with BASE > SECTORS */
+  #tbSectorAnnounce{display:none!important}
+  /* Side drawer pulls: redundant with BASE modal tabs */
+  .mob-toggle{display:none!important}
+  /* Tighten commander + rocket spacing now that sector ticker is gone */
+  .rocket-banner{top:130px!important}
+}
 
 /* ── Cookie Consent Banner ── */
 .cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:9999;
@@ -3246,6 +3266,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           Use DEPOSIT to get your deposit address.
         </div>
 
+        <!-- CODEX / WHITEPAPER BUTTON -->
+        <button class="cfm" onclick="openCodex()" style="margin:10px 0 4px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(184,136,224,.08));border:1px solid rgba(91,184,232,.35);color:var(--cyan);font-weight:700;letter-spacing:1.2px;display:flex;align-items:center;justify-content:center;gap:8px">
+          <span style="font-size:16px">📖</span>
+          <span data-i18n="codex_open">GAME CODEX / WHITEPAPER</span>
+        </button>
+        <div style="font-size:9px;color:var(--tx3);text-align:center;line-height:1.6;margin:2px 0 10px" data-i18n="codex_tagline">
+          Complete guide to every system, token, and strategy
+        </div>
+
         <!-- SETTINGS SECTION (collapsible) -->
         <div style="border-top:1px solid var(--bdr);margin:12px 0 8px;padding-top:12px">
           <div onclick="var b=document.getElementById('settingsBody');b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.chevron').textContent=b.style.display==='none'?'▸':'▾'" style="font-size:9px;color:var(--tx3);letter-spacing:2px;cursor:pointer;display:flex;align-items:center;gap:6px">
@@ -3438,8 +3467,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="game-tabs">
           <div class="game-tab active" data-game="crash" onclick="switchGame('crash')">CRASH <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_crash')" style="width:14px;height:14px;font-size:8px">?</span></div>
           <div class="game-tab" data-game="mines" onclick="switchGame('mines')">MINES <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_mines')" style="width:14px;height:14px;font-size:8px">?</span></div>
-          <div class="game-tab" data-game="coinflip" onclick="switchGame('coinflip')">SANDSTORM <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_sandstorm')" style="width:14px;height:14px;font-size:8px">?</span></div>
-          <div class="game-tab" data-game="dice" onclick="switchGame('dice')">METEORITE <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_meteorite')" style="width:14px;height:14px;font-size:8px">?</span></div>
+          <div class="game-tab" data-game="coinflip" onclick="switchGame('coinflip')">COINFLIP <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_sandstorm')" style="width:14px;height:14px;font-size:8px">?</span></div>
+          <div class="game-tab" data-game="dice" onclick="switchGame('dice')">DICE <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_meteorite')" style="width:14px;height:14px;font-size:8px">?</span></div>
           <div class="game-tab" data-game="hilo" onclick="switchGame('hilo')">HI-LO <span class="help-tip" onclick="event.stopPropagation();showHelpTip('game_hilo')" style="width:14px;height:14px;font-size:8px">?</span></div>
         </div>
         <div class="game-area">
@@ -3572,14 +3601,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <div class="cf-main">
                 <div class="cf-arena">
                   <div class="cf-coin" id="cfCoin">
-                    <div class="cf-coin-face cf-survive">SURVIVE</div>
-                    <div class="cf-coin-face cf-perish">PERISH</div>
+                    <div class="cf-coin-face cf-survive">HEADS</div>
+                    <div class="cf-coin-face cf-perish">TAILS</div>
                   </div>
                   <div class="cf-result" id="cfResult"></div>
                 </div>
               </div>
               <div class="cf-sidebar">
-                <div class="cf-sb-title">SANDSTORM</div>
+                <div class="cf-sb-title">COINFLIP</div>
                 <div>
                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
                     <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
@@ -3603,10 +3632,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                   </div>
                 </div>
                 <div class="divider"></div>
-                <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px;margin-bottom:6px">CHOOSE YOUR FATE</div>
+                <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px;margin-bottom:6px">PICK A SIDE</div>
                 <div class="cf-choice-row">
-                  <button class="cf-choice-btn survive active" id="cfChoiceSurvive" onclick="setCfChoice('survive')">&#x1F6E1; SURVIVE</button>
-                  <button class="cf-choice-btn perish" id="cfChoicePerish" onclick="setCfChoice('perish')">&#x1F480; PERISH</button>
+                  <button class="cf-choice-btn survive active" id="cfChoiceSurvive" onclick="setCfChoice('survive')">🪙 HEADS</button>
+                  <button class="cf-choice-btn perish" id="cfChoicePerish" onclick="setCfChoice('perish')">⚪ TAILS</button>
                 </div>
                 <div class="divider"></div>
                 <button class="btn-mines start" id="cfPlayBtn" onclick="playCoinflip()">
@@ -3657,7 +3686,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 </div>
               </div>
               <div class="dice-sidebar">
-                <div class="dice-sb-title">METEORITE</div>
+                <div class="dice-sb-title">DICE</div>
                 <div>
                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
                     <span style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">BET AMOUNT</span>
@@ -8544,9 +8573,9 @@ var I18N = {
     help_game_crash_body: 'A rocket launches and the multiplier rises! Place your bet and cash out before it crashes. The longer you wait, the higher the reward — but if the rocket explodes before you cash out, you lose everything. Bet PP to play.',
     help_game_mines: 'MINES',
     help_game_mines_body: 'A 5x5 grid hides gems and mines. Choose how many mines (more mines = higher multiplier). Reveal tiles one by one — each gem increases your payout. Hit a mine and you lose. Cash out anytime to keep your winnings!',
-    help_game_sandstorm: 'SANDSTORM',
-    help_game_sandstorm_body: 'A coin flip game with a Mars twist! Pick DUST or STORM, place your bet, and flip. Win = 1.96x your bet. Simple, fast, 50/50 chance. Perfect for quick plays.',
-    help_game_meteorite: 'METEORITE',
+    help_game_sandstorm: 'COINFLIP',
+    help_game_sandstorm_body: 'Classic coin flip. Pick HEADS or TAILS, place your bet, and flip. Win = 1.96× your bet. Simple, fast, 50/50. Perfect for quick plays.',
+    help_game_meteorite: 'DICE',
     help_game_meteorite_body: 'Roll the dice! Set a target range (the narrower the range, the higher the multiplier). If the roll lands in your range, you win. Adjust risk vs reward to your preference.',
     help_game_hilo: 'HI-LO',
     help_game_hilo_body: 'A card is shown face up. Guess whether the next card will be HIGHER or LOWER. Each correct guess increases your multiplier. You can cash out after any correct guess, or keep going for bigger rewards. Wrong guess = lose all!',
@@ -8621,9 +8650,9 @@ var I18N = {
     help_game_crash_body: '로켓이 발사되고 배율이 올라갑니다! 베팅 후 폭발 전에 캐시아웃하세요. 오래 기다릴수록 보상이 커지지만, 캐시아웃 전에 폭발하면 전부 잃습니다. PP로 베팅.',
     help_game_mines: 'MINES',
     help_game_mines_body: '5x5 그리드에 보석과 지뢰가 숨겨져 있습니다. 지뢰 수를 선택하세요(많을수록 배율↑). 타일을 하나씩 열어보세요 — 보석마다 당첨금 증가. 지뢰를 밟으면 끝! 언제든 캐시아웃 가능.',
-    help_game_sandstorm: 'SANDSTORM',
-    help_game_sandstorm_body: '화성풍 동전 던지기! DUST 또는 STORM을 고르고 베팅, 뒤집기. 맞추면 1.96배. 간단하고 빠른 50/50 확률 게임.',
-    help_game_meteorite: 'METEORITE',
+    help_game_sandstorm: 'COINFLIP',
+    help_game_sandstorm_body: '클래식 동전 던지기. HEADS 또는 TAILS 선택하고 베팅, 뒤집기. 맞추면 1.96배. 간단하고 빠른 50/50 게임.',
+    help_game_meteorite: 'DICE',
     help_game_meteorite_body: '주사위 굴리기! 목표 범위를 설정하세요(좁을수록 배율↑). 결과가 범위 안에 들면 승리. 위험 대 보상을 취향에 맞게 조절.',
     help_game_hilo: 'HI-LO',
     help_game_hilo_body: '카드가 한 장 공개됩니다. 다음 카드가 더 높을지 낮을지 맞추세요. 맞출 때마다 배율 증가. 맞춘 후 언제든 캐시아웃 가능, 또는 더 큰 보상을 위해 계속! 틀리면 전부 잃습니다.',
@@ -8698,9 +8727,9 @@ var I18N = {
     help_game_crash_body: 'ロケットが発射され倍率が上昇！爆発前にキャッシュアウトしよう。長く待つほど報酬は大きいが、キャッシュアウト前に爆発すると全額失う。PPでベット。',
     help_game_mines: 'MINES',
     help_game_mines_body: '5x5グリッドに宝石と地雷が隠されている。地雷数を選択（多いほど倍率↑）。タイルを1つずつ開けよう — 宝石ごとに配当増加。地雷を踏んだら終了！いつでもキャッシュアウト可能。',
-    help_game_sandstorm: 'SANDSTORM',
+    help_game_sandstorm: 'COINFLIP',
     help_game_sandstorm_body: '火星風コイントス！DUSTかSTORMを選んでベット。当たれば1.96倍。シンプルで速い50/50ゲーム。',
-    help_game_meteorite: 'METEORITE',
+    help_game_meteorite: 'DICE',
     help_game_meteorite_body: 'サイコロを振ろう！目標範囲を設定（狭いほど倍率↑）。結果が範囲内なら勝利。リスクと報酬を好みに調整。',
     help_game_hilo: 'HI-LO',
     help_game_hilo_body: 'カードが1枚公開。次のカードが高いか低いか当てよう。正解ごとに倍率上昇。いつでもキャッシュアウト可能、または大きな報酬を狙って続行！不正解で全額失う。',
@@ -8775,9 +8804,9 @@ var I18N = {
     help_game_crash_body: '火箭发射，倍率上升！在爆炸前提现。等待越久奖励越高，但如果在提现前爆炸则全部损失。用PP下注。',
     help_game_mines: 'MINES',
     help_game_mines_body: '5x5网格中隐藏着宝石和地雷。选择地雷数量（越多倍率越高）。逐个翻开方块——每颗宝石增加奖金。踩到地雷就结束！随时可以提现。',
-    help_game_sandstorm: 'SANDSTORM',
+    help_game_sandstorm: 'COINFLIP',
     help_game_sandstorm_body: '火星风格抛硬币！选择DUST或STORM，下注，翻转。赢了=1.96倍。简单快速的50/50概率游戏。',
-    help_game_meteorite: 'METEORITE',
+    help_game_meteorite: 'DICE',
     help_game_meteorite_body: '掷骰子！设置目标范围（范围越窄倍率越高）。结果在范围内则获胜。根据偏好调整风险与回报。',
     help_game_hilo: 'HI-LO',
     help_game_hilo_body: '翻开一张牌。猜下一张牌是更高还是更低。每次猜对倍率增加。猜对后随时可以提现，或继续追求更大奖励！猜错则全部损失。',
@@ -13301,7 +13330,7 @@ function loadCoinflipHistory() {
     items.forEach(function(item){
       var dot = document.createElement('div');
       dot.className = 'cf-dot ' + (item.result || 'survive');
-      dot.title = (item.result === 'survive' ? 'SURVIVE' : 'PERISH') + ' | Bet: ' + item.bet + ' | Payout: ' + (item.payout || 0);
+      dot.title = (item.result === 'survive' ? 'HEADS' : 'TAILS') + ' | Bet: ' + item.bet + ' | Payout: ' + (item.payout || 0);
       el.appendChild(dot);
     });
   }).catch(function(){});
@@ -15388,6 +15417,143 @@ if(typeof _origTrackQuestAction === 'function'){
   };
 }
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CODEX / WHITEPAPER MODAL — Complete game guide
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="codexOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:780px;max-height:92vh;background:linear-gradient(160deg,#0E0C18,#14121F);border:1px solid rgba(91,184,232,.3);border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 60px rgba(91,184,232,.08);display:flex;flex-direction:column;overflow:hidden">
+    <!-- header -->
+    <div style="padding:18px 22px;border-bottom:1px solid rgba(91,184,232,.2);background:linear-gradient(135deg,rgba(91,184,232,.1),rgba(184,136,224,.06));display:flex;align-items:center;gap:12px">
+      <div style="font-size:24px">📖</div>
+      <div style="flex:1">
+        <div style="font-size:15px;color:#fff;letter-spacing:2px;font-weight:700">OCCUPY MARS — CODEX</div>
+        <div style="font-size:10px;color:var(--tx3);letter-spacing:1px" data-i18n="codex_subtitle">Official game whitepaper & player guide · v1.0</div>
+      </div>
+      <button onclick="closeCodex()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--tx2);font-size:18px;width:32px;height:32px;border-radius:8px;cursor:pointer">✕</button>
+    </div>
+    <!-- tabs -->
+    <div id="codexTabs" style="display:flex;gap:4px;padding:10px 14px 0;overflow-x:auto;border-bottom:1px solid rgba(91,184,232,.1);flex-shrink:0">
+      <!-- populated by JS -->
+    </div>
+    <!-- content -->
+    <div id="codexBody" style="flex:1;overflow-y:auto;padding:22px 26px;font-size:12px;line-height:1.85;color:var(--tx2);font-family:var(--fn)">
+      <!-- populated by JS -->
+    </div>
+    <!-- footer -->
+    <div style="padding:10px 22px;border-top:1px solid rgba(91,184,232,.15);font-size:9px;color:var(--tx3);text-align:center;letter-spacing:1px">
+      🛰 OCCUPY MARS · BASE CHAIN · <span data-i18n="codex_footer">Read carefully. Strategy wins territories.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CODEX / WHITEPAPER CONTENT (multilingual) ──
+var CODEX_CONTENT = {
+  en: {
+    sections: [
+      { id: 'overview', icon: '🌍', title: 'Overview',
+        body: '**Occupy Mars** is a territorial conquest game on Base chain. You claim pixel plots on a 3D Mars globe, earn PP (Pepe Points) from mining, raid enemies, join guilds, and compete in seasonal leaderboards.\n\n**Core loop:** CLAIM → MINE → DEFEND → RAID → GROW.\n\n**Win condition:** There is no end state. Your goal is to accumulate territory, reputation, and governance power. Top players become Commanders and Governors who shape the entire map.\n\n**Payment:** Base USDT for real purchases, PP for all in-game economy, GP (Governance Points) for voting.' },
+      { id: 'tokens', icon: '🪙', title: 'Token Economy',
+        body: '**USDT** (Base chain) — Real money. Used to buy premium plots, cosmetics, and cantina credits. Never minted, only deposited/withdrawn.\n\n**PP (Pepe Points)** — Game currency. Earned from mining, POI drops, hijacks, referrals, casino wins, quest rewards. Spent on basic claims, shop items, guild fees, and casino bets. Can be swapped to USDT at market rate (fee applies).\n\n**GP (Governance Points)** — Political power. Earned by holding territory, winning elections, completing governance quests. Spent on votes, commanding sectors, and special policies. Cannot be swapped.\n\n**XP** — Account level. Unlocks rank perks, commission boosts, and exclusive cosmetics. Earned from any activity.' },
+      { id: 'territory', icon: '🏴', title: 'Territory',
+        body: '**Claiming:** Open the CLAIM modal, choose a size (1×1 to 10×10 px), pick coordinates, upload an image, pay. New plots on empty land cost base × pixels.\n\n**Hijacking:** If a plot overlaps an existing owner, you pay 2× the current price to the old owner (minus fees). Contested pixels transfer. Good targets: inactive big plots.\n\n**Shields:** Buy from Shop → protects pixels from hijack for N hours. Auto-renew available.\n\n**Image:** Static PNG/JPG or GIF. Cropped to your plot bounds. Animated GIFs display on hover/focus. Link URL optional (https only).\n\n**Rename:** Custom name shown on territory info. Costs PP.' },
+      { id: 'mining', icon: '⛏', title: 'Mining & Income',
+        body: '**Passive mining:** Every owned pixel generates PP per hour based on rank multiplier and sector tax. Claim from BASE → MINE tab. Bigger plots = bigger mining pool.\n\n**POIs (Points of Interest):** Random resource spots spawn on the map. Walk (click) onto one to harvest. Drops PP, items, or cosmetics. Tiered rewards (common → legendary).\n\n**Rockets:** Timed events — rockets land in random sectors with valuable loot. First-come drop. Check ROCKET tab for next launch.\n\n**Daily quests:** 3 quests per day. Mine, battle, social. Complete for PP + XP.\n\n**Commissions:** If you referred someone, you earn automatic cuts from their deposits, swaps, harvests, shop purchases, hijacks, and cantina spending (3-tier DYNASTY, see §8).' },
+      { id: 'governance', icon: '🏛', title: 'Governance',
+        body: '**Commander:** One global leader elected by GP votes. Sets announcement, declares events (Double Mining, War Time, Peace Treaty), posts bounties, collects % of global fees.\n\n**Governors:** Per-sector leaders. Collect sector tax, decide sector buffs, veto hijacks.\n\n**Elections:** Continuous. Whoever holds the most GP in a position wins. Challenge anytime.\n\n**Bounties:** Commander can post a bounty on a target wallet. First to hijack them gets the reward.\n\n**DAO votes:** Global proposals affect game balance (fee rates, event weights). Vote with GP.' },
+      { id: 'guilds', icon: '⚔', title: 'Guilds & Seasons',
+        body: '**Guilds:** Team up with 2-20 players under a common banner. Share chat, collective stats, emblem on territories. Costs 50 GP to create.\n\n**Roles:** Leader, Officer, Member. Leader can kick, promote, disband.\n\n**Seasons:** ~90-day competitive cycles. Themed weather (volcanic, ice age, solar storm, dust epoch). Top players earn exclusive cosmetics, PP bonus, commander-worthy XP.\n\n**Leaderboards:** Updated live. Top 10 earn PP rewards at season end. Top 3 get unique titles.' },
+      { id: 'casino', icon: '🎰', title: 'Cantina Casino',
+        body: '**Cantina** is the in-game casino. Bet PP or USDT on 5 games:\n\n**CRASH** — Multiplier rises. Cash out before it crashes. House edge ~3%.\n\n**MINES** — Reveal tiles on a grid. Avoid bombs. Each safe tile multiplies your bet.\n\n**COINFLIP** — 50/50 on HEADS/TAILS. 1.96× payout.\n\n**DICE** — Roll over/under a target. Narrower range = higher multiplier.\n\n**HI-LO** — Guess next card higher or lower. Streak payouts stack.\n\n**Warning:** House always wins long-term. Play for fun, not income. Casino commissions feed referral payouts (see §8).' },
+      { id: 'dynasty', icon: '👑', title: 'DYNASTY Referrals',
+        body: '**3-tier MLM system:** When you refer someone, you earn a % of their activity across **6 revenue sources**: deposits, swaps, shop purchases, harvests, cantina bets, hijacks.\n\n**Tier 1** (direct): 15% of their fees\n**Tier 2** (their referrals): 10%\n**Tier 3** (indirect): 5%\n\n**Payout:** Instant PP credit. Check DYNASTY tab for leaderboard and tree view.\n\n**Notifications:** Every commission triggers a "+X PP earned" toast.\n\n**Strategy:** Invite active big spenders, not bots. Your commission is capped at the referee\'s actual spending.' },
+      { id: 'cosmetics', icon: '✨', title: 'Cosmetics & Items',
+        body: '**Borders:** Neon, Flame, Ice, Gold, Starship. Visible on your plots from orbit.\n\n**Glows:** Pulse, Rainbow, Dark Aura. Animated overlays.\n\n**Terrains:** Volcanic, Frozen, Crystal, Toxic. Change plot base texture.\n\n**How to get:** Shop (direct purchase), POI drops (random), rocket loot (rare), season rewards (exclusive).\n\n**Items:** Shields, speed boosts, bounty tokens, lottery tickets. Use from inventory.\n\n**Gifting:** Send items to other players via BASE → GIFT. Wallet & nickname supported.' },
+      { id: 'strategy', icon: '🎯', title: 'Strategy Tips',
+        body: '**Early game (first day):** Get your free starter plot, complete 3 daily quests, claim 1-2 more pixels on cheap land, invite 1 friend for commission.\n\n**Mid game (first week):** Join a guild, unlock rank 3 for commission boost, build a 5×5 fortress with a shield, start mining dailies.\n\n**Late game:** Challenge a Governor election in a high-traffic sector, collect tax, stack GP, bid on Commander. Farm referral DYNASTY for passive PP.\n\n**Common mistakes:**\n• Spending USDT on casino before mining infrastructure is set up\n• Building on remote coords where no one sees your art\n• Ignoring shields → losing hijacked pixels\n• Forgetting daily quests (biggest free PP/XP)\n• Not inviting friends — DYNASTY is the highest-EV action in the game'
+      }
+    ]
+  },
+  ko: {
+    sections: [
+      { id: 'overview', icon: '🌍', title: '게임 개요',
+        body: '**Occupy Mars**는 Base 체인에서 돌아가는 영토 정복 게임이야. 3D 화성 지구본 위에 픽셀 영토를 클레임하고, 채굴로 PP(Pepe Points)를 벌고, 적을 습격하고, 길드에 가입하고, 시즌 순위를 겨루지.\n\n**핵심 루프:** 클레임 → 채굴 → 방어 → 습격 → 성장\n\n**승리 조건:** 엔딩은 없어. 영토·명성·거버넌스 파워를 쌓는 게 목표. 상위 플레이어는 커맨더/거버너가 되어 맵 전체의 정책을 정함.\n\n**결제:** USDT는 실돈 구매, PP는 인게임 경제, GP는 투표 전용.' },
+      { id: 'tokens', icon: '🪙', title: '토큰 이코노미',
+        body: '**USDT** (Base 체인) — 실돈. 프리미엄 클레임, 코스메틱, 칸티나 크레딧 구매. 민팅 불가, 입출금만 가능.\n\n**PP (Pepe Points)** — 인게임 통화. 채굴, POI 드롭, 하이잭, 추천 수수료, 카지노 승리, 퀘스트 보상으로 획득. 기본 클레임, 상점, 길드비, 카지노 베팅에 사용. 수수료 내고 USDT로 스왑 가능.\n\n**GP (Governance Points)** — 정치 권력. 영토 보유·선거 승리·거버넌스 퀘스트로 획득. 투표·섹터 지배·특수 정책에 사용. 스왑 불가.\n\n**XP** — 계정 레벨. 계급 특전, 수수료 부스트, 전용 코스메틱 언락.' },
+      { id: 'territory', icon: '🏴', title: '영토 시스템',
+        body: '**클레임:** CLAIM 모달 열고 크기(1×1 ~ 10×10 px), 좌표, 이미지 선택하고 결제. 빈 땅 가격은 기본가 × 픽셀수.\n\n**하이잭:** 기존 영토와 겹치면 현재 가격의 2배를 소유주에게 지불(수수료 차감). 겹친 픽셀이 넘어옴. 좋은 타겟: 활동 없는 큰 영토.\n\n**쉴드:** 상점에서 구매 → N시간 동안 하이잭 차단. 자동갱신 옵션 있음.\n\n**이미지:** PNG/JPG/GIF 가능. 영토 경계에 맞춰 크롭. GIF는 호버시 애니메이션. 외부 링크(https만) 선택 가능.\n\n**이름 지정:** 영토 정보에 커스텀 이름 표시. PP 지불.' },
+      { id: 'mining', icon: '⛏', title: '채굴 & 수익',
+        body: '**패시브 채굴:** 보유 픽셀당 시간당 PP 생성. 계급 배수와 섹터 세율 적용. BASE → MINE 탭에서 수령. 영토 크면 채굴 풀도 커짐.\n\n**POI:** 맵에 랜덤으로 자원 지점 등장. 클릭해 수확. PP·아이템·코스메틱 드롭. 등급별 보상(커먼~레전더리).\n\n**로켓 이벤트:** 일정 시간마다 로켓이 섹터에 착륙, 선착순 전리품. ROCKET 탭에서 다음 발사 시간 확인.\n\n**일일 퀘스트:** 하루 3개. 채굴·전투·소셜. 완료시 PP+XP.\n\n**수수료 수익(DYNASTY):** 누군가를 초대하면 그들의 입금·스왑·수확·상점·하이잭·칸티나 활동에서 자동 커미션(§8 참고).' },
+      { id: 'governance', icon: '🏛', title: '거버넌스',
+        body: '**커맨더:** GP 투표로 선출되는 전역 지도자. 공지·이벤트 선언(더블 마이닝·전시·평화조약)·현상금·글로벌 수수료 분배.\n\n**거버너:** 섹터별 지도자. 섹터세 징수·버프 결정·하이잭 거부권.\n\n**선거:** 상시 진행. 해당 포지션에 GP 가장 많이 투표한 사람이 승리. 언제든 도전 가능.\n\n**현상금:** 커맨더가 특정 지갑에 현상금 공지. 먼저 하이잭한 사람이 보상.\n\n**DAO 투표:** 글로벌 제안으로 게임 밸런스 변경(수수료율·이벤트 가중치). GP로 투표.' },
+      { id: 'guilds', icon: '⚔', title: '길드 & 시즌',
+        body: '**길드:** 2-20명이 공동 깃발 아래 팀 결성. 길드 채팅·집단 스탯·영토에 엠블렘 표시. 생성비 50 GP.\n\n**역할:** 리더, 장교, 멤버. 리더는 추방·승격·해산 권한.\n\n**시즌:** 약 90일 경쟁 주기. 테마별 날씨(화산기·빙하기·태양폭풍·먼지시대). 상위 플레이어는 전용 코스메틱·PP 보너스·XP 대량 획득.\n\n**리더보드:** 실시간 업데이트. TOP 10 시즌 종료시 PP 보상. TOP 3 고유 타이틀.' },
+      { id: 'casino', icon: '🎰', title: '칸티나 카지노',
+        body: '**칸티나**는 인게임 카지노. PP 또는 USDT로 5게임 베팅:\n\n**CRASH** — 배수 상승. 추락 전에 캐시아웃. 하우스 엣지 ~3%.\n\n**MINES** — 타일 공개. 폭탄 피하기. 안전 타일마다 배수 증가.\n\n**COINFLIP** — HEADS/TAILS 50/50. 1.96배 배당.\n\n**DICE** — 목표 위/아래 굴리기. 범위 좁을수록 배수↑.\n\n**HI-LO** — 다음 카드 높은지 낮은지 맞추기. 연승 누적.\n\n**경고:** 하우스는 장기적으로 무조건 이겨. 재미로만, 수익원으로 보지 마. 카지노 수수료는 추천 커미션 풀로 분배됨(§8).' },
+      { id: 'dynasty', icon: '👑', title: 'DYNASTY 추천',
+        body: '**3단계 MLM:** 누군가를 추천하면 그들의 활동 중 **6가지 수익원**에서 %를 받아: 입금·스왑·상점·수확·칸티나·하이잭.\n\n**티어 1** (직접): 15%\n**티어 2** (그의 추천인): 10%\n**티어 3** (간접): 5%\n\n**지급:** PP 즉시 입금. DYNASTY 탭에서 리더보드와 트리 확인.\n\n**알림:** 커미션 들어오면 "+X PP earned" 토스트 표시.\n\n**전략:** 활동적인 큰손 초대. 봇은 무의미. 커미션은 피추천인의 실제 지출에 캡이 걸림.' },
+      { id: 'cosmetics', icon: '✨', title: '코스메틱 & 아이템',
+        body: '**테두리:** 네온·플레임·아이스·골드·스타쉽. 궤도에서 영토 시각 변화.\n\n**글로우:** 펄스·레인보우·다크 오라. 애니메이션 오버레이.\n\n**지형:** 볼케이닉·프로즌·크리스탈·톡식. 영토 텍스처 변경.\n\n**획득:** 상점(직구매)·POI 드롭(랜덤)·로켓 전리품(레어)·시즌 보상(한정).\n\n**아이템:** 쉴드·속도부스트·현상금 토큰·복권. 인벤토리에서 사용.\n\n**선물하기:** BASE → GIFT에서 다른 유저에게 아이템 전송. 지갑과 닉네임 검색 지원.' },
+      { id: 'strategy', icon: '🎯', title: '전략 팁',
+        body: '**초반 (첫 날):** 무료 시작 영토 받기, 일일 퀘스트 3개 완료, 싸게 1-2픽셀 추가, 친구 1명 초대로 커미션 세팅.\n\n**중반 (첫 주):** 길드 가입, 계급 3 언락해서 수수료 부스트, 쉴드 낀 5×5 요새 구축, 일일 채굴 루틴.\n\n**후반:** 트래픽 많은 섹터 거버너 도전, 세금 수급, GP 축적, 커맨더 입찰. DYNASTY로 패시브 PP 파밍.\n\n**흔한 실수:**\n• 채굴 인프라 없이 카지노부터 USDT 태우기\n• 아무도 안 보는 외진 좌표에 예술 ← 무의미\n• 쉴드 무시 → 하이잭 당함\n• 일일 퀘스트 잊기 (제일 큰 무료 PP/XP)\n• 친구 초대 안 하기 — DYNASTY가 게임에서 가장 기대값 높은 액션'
+      }
+    ]
+  }
+};
+// Copy EN content for JA/ZH fallback (can be translated later)
+CODEX_CONTENT.ja = CODEX_CONTENT.en;
+CODEX_CONTENT.zh = CODEX_CONTENT.en;
+
+function openCodex() {
+  document.getElementById('codexOverlay').style.display = 'flex';
+  renderCodex(0);
+}
+function closeCodex() {
+  document.getElementById('codexOverlay').style.display = 'none';
+}
+function renderCodex(activeIdx) {
+  var lang = window.LANG || 'en';
+  var content = CODEX_CONTENT[lang] || CODEX_CONTENT.en;
+  // tabs
+  var tabsEl = document.getElementById('codexTabs');
+  tabsEl.innerHTML = '';
+  content.sections.forEach(function(sec, i) {
+    var btn = document.createElement('button');
+    var active = i === activeIdx;
+    btn.style.cssText = 'flex-shrink:0;padding:8px 14px;font-size:10px;font-family:var(--fn);letter-spacing:1px;background:' +
+      (active ? 'linear-gradient(135deg,rgba(91,184,232,.2),rgba(91,184,232,.08))' : 'transparent') +
+      ';border:1px solid ' + (active ? 'rgba(91,184,232,.5)' : 'rgba(255,255,255,.08)') +
+      ';border-bottom:none;border-radius:8px 8px 0 0;color:' + (active ? 'var(--cyan)' : 'var(--tx3)') +
+      ';cursor:pointer;white-space:nowrap;margin-bottom:-1px';
+    btn.innerHTML = sec.icon + ' ' + sec.title.toUpperCase();
+    btn.onclick = function() { renderCodex(i); };
+    tabsEl.appendChild(btn);
+  });
+  // body
+  var sec = content.sections[activeIdx];
+  var body = document.getElementById('codexBody');
+  var html = '<div style="font-size:18px;color:#fff;letter-spacing:1px;margin-bottom:4px">' + sec.icon + ' ' + sec.title + '</div>' +
+             '<div style="font-size:9px;color:var(--tx3);letter-spacing:1.5px;margin-bottom:16px">§ ' + (activeIdx + 1) + ' / ' + content.sections.length + '</div>';
+  // Simple markdown-ish formatter: **bold**, \n linebreaks, • bullets
+  var text = sec.body
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:var(--gold)">$1</strong>')
+    .replace(/\n\n/g, '</p><p style="margin:10px 0">')
+    .replace(/\n/g, '<br>');
+  html += '<p style="margin:10px 0">' + text + '</p>';
+  body.innerHTML = html;
+  body.scrollTop = 0;
+}
+// Close on background click / ESC
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('codexOverlay').style.display === 'flex') closeCodex();
+});
+document.getElementById('codexOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeCodex();
+});
+</script>
+
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </body>
 </html>
