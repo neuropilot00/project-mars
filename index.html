@@ -794,7 +794,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* BASE sub-components */
 .base-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .base-stat-box{background:rgba(0,0,0,.2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px}
-.base-stat-box .bsb-label{font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px;font-family:var(--fn)}
+.base-stat-box .bsb-label{font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px;font-family:var(--fn);display:flex;align-items:center;gap:6px;min-height:18px}
 .base-stat-box .bsb-val{font-size:14px;color:var(--mars);font-family:var(--fn)}
 .base-stat-box .bsb-val.gn{color:var(--gn)}
 .base-stat-box .bsb-val.pp{color:var(--pp)}
@@ -5226,19 +5226,63 @@ function compositeClaimsOnTexture(previewOnly){
       });
 
       // Infamy aura (hijack count >= 15 = red glow, >= 5 = skull icon)
+      // NOTE: Draw as a single strip-based outer border (like governor glow),
+      // NOT per-claim strokeRect — otherwise every sub-claim's rectangle
+      // shows through as overlapping red "ghost" boxes inside the territory.
       var ownerHijackCount=0;
       sortedClaims.forEach(function(sc){ if(sc.owner===c.owner && sc.hijackCount) ownerHijackCount=Math.max(ownerHijackCount,sc.hijackCount); });
       if(ownerHijackCount>=15){
-        var infPulse=Math.sin(Date.now()/800)*0.12+0.28;
-        sortedClaims.forEach(function(sc){
-          if(sc.owner!==c.owner) return;
-          var ir=getCellRect(sc.lat,sc.lng,sc.w||20,sc.h||20,w,h);
+        var _infStrips=_ownerStrips[c.owner];
+        if(_infStrips&&_infStrips.length){
+          var _infByLat=_stripsByOwnerLat[c.owner]||{};
+          var _infGsKey=_infByLat._latStep||Math.round(_gs*100);
+          var infPulse=Math.sin(Date.now()/800)*0.12+0.28;
           ctx.save();
           ctx.globalAlpha=infPulse;
-          ctx.strokeStyle='rgba(255,40,40,0.8)';ctx.shadowColor='rgba(255,0,0,0.6)';ctx.shadowBlur=12;ctx.lineWidth=2;
-          ctx.strokeRect(ir.x,ir.y,ir.w,ir.h);
+          ctx.strokeStyle='rgba(255,40,40,0.9)';
+          ctx.shadowColor='rgba(255,0,0,0.55)';ctx.shadowBlur=10;
+          ctx.lineWidth=2;ctx.setLineDash([]);
+          ctx.beginPath();
+          for(var _isi=0;_isi<_infStrips.length;_isi++){
+            var _iss=_infStrips[_isi], _isr=_sRect(_iss);
+            var _ilk=Math.round(_iss.lat*100);
+            // Vertical edges
+            ctx.moveTo(_isr.x,_isr.y);ctx.lineTo(_isr.x,_isr.y+_isr.h);
+            ctx.moveTo(_isr.x+_isr.w,_isr.y);ctx.lineTo(_isr.x+_isr.w,_isr.y+_isr.h);
+            // Top edge — skip where adjacent strip above exists
+            var _iadj=_infByLat[_ilk+_infGsKey]||[];
+            var _icovX=[];
+            for(var _iai=0;_iai<_iadj.length;_iai++){
+              var _iar=_sRect(_iadj[_iai]);
+              var _io1=Math.max(_isr.x,_iar.x),_io2=Math.min(_isr.x+_isr.w,_iar.x+_iar.w);
+              if(_io2>_io1)_icovX.push([_io1,_io2]);
+            }
+            _icovX.sort(function(a,b){return a[0]-b[0]});
+            var _ipos=_isr.x;
+            for(var _ici=0;_ici<_icovX.length;_ici++){
+              if(_icovX[_ici][0]>_ipos+0.5){ctx.moveTo(_ipos,_isr.y);ctx.lineTo(_icovX[_ici][0],_isr.y);}
+              _ipos=_icovX[_ici][1];
+            }
+            if(_ipos<_isr.x+_isr.w-0.5){ctx.moveTo(_ipos,_isr.y);ctx.lineTo(_isr.x+_isr.w,_isr.y);}
+            // Bottom edge — skip where adjacent strip below exists
+            var _iadj2=_infByLat[_ilk-_infGsKey]||[];
+            var _icovX2=[];
+            for(var _iai2=0;_iai2<_iadj2.length;_iai2++){
+              var _iar2=_sRect(_iadj2[_iai2]);
+              var _io12=Math.max(_isr.x,_iar2.x),_io22=Math.min(_isr.x+_isr.w,_iar2.x+_iar2.w);
+              if(_io22>_io12)_icovX2.push([_io12,_io22]);
+            }
+            _icovX2.sort(function(a,b){return a[0]-b[0]});
+            var _ipos2=_isr.x, _iyb=_isr.y+_isr.h;
+            for(var _ici2=0;_ici2<_icovX2.length;_ici2++){
+              if(_icovX2[_ici2][0]>_ipos2+0.5){ctx.moveTo(_ipos2,_iyb);ctx.lineTo(_icovX2[_ici2][0],_iyb);}
+              _ipos2=_icovX2[_ici2][1];
+            }
+            if(_ipos2<_isr.x+_isr.w-0.5){ctx.moveTo(_ipos2,_iyb);ctx.lineTo(_isr.x+_isr.w,_iyb);}
+          }
+          ctx.stroke();
           ctx.restore();
-        });
+        }
       }
       if(ownerHijackCount>=5){
         // Draw skull on first claim of this owner
@@ -10721,6 +10765,14 @@ var _baseUserData=null;
 
 function openBaseModal(){
   document.getElementById('baseModal').classList.add('open');
+  // Always start on MY TERRITORY tab
+  try{
+    var territoryTab = document.getElementById('baseTabTerritory');
+    if(territoryTab){
+      switchBaseTab('territory', territoryTab);
+      if(typeof clearBaseTabDot==='function') clearBaseTabDot('territory');
+    }
+  }catch(_){}
   loadBaseData();
 }
 function closeBaseModal(){document.getElementById('baseModal').classList.remove('open')}
