@@ -202,30 +202,9 @@ async function discoverPOI(wallet, poiId) {
     }
     const poi = poiRes.rows[0];
 
-    // Check user has pixels in same sector
-    // Compare case-insensitively to avoid owner case mismatches
-    const pixelCheck = await client.query(
-      'SELECT COUNT(*)::int AS cnt FROM pixels WHERE LOWER(owner) = LOWER($1) AND sector_id = $2',
-      [wallet, poi.sector_id]
-    );
-    if (!pixelCheck.rows[0].cnt) {
-      // Diagnostic: count user's total pixels + distinct sectors for debugging
-      const diagRes = await client.query(
-        'SELECT COUNT(*)::int AS total, COUNT(DISTINCT sector_id)::int AS sectors FROM pixels WHERE LOWER(owner) = LOWER($1)',
-        [wallet]
-      );
-      const diag = diagRes.rows[0] || { total: 0, sectors: 0 };
-      // Also get sector name for a friendlier error
-      const sectorRes = await client.query('SELECT name FROM sectors WHERE id = $1', [poi.sector_id]);
-      const sectorName = sectorRes.rows[0]?.name || ('Sector ' + poi.sector_id);
-      console.log(`[EXPLORE] Discover rejected: wallet=${wallet} poi=${poiId} sector=${poi.sector_id}(${sectorName}) userPixels=${diag.total} userSectors=${diag.sectors}`);
-      await client.query('ROLLBACK');
-      return {
-        error: `No territory in ${sectorName}. You have ${diag.total} pixels across ${diag.sectors} sectors.`,
-        needSector: poi.sector_id,
-        needSectorName: sectorName
-      };
-    }
+    // NOTE: POI discovery is open to all wallets (territory-agnostic).
+    // Previously required pixels in the same sector; removed to boost activation.
+    // Any connected wallet may discover any active POI, first-come first-served.
 
     // PP fee for exploration
     const explorationFee = parseFloat(await getSetting('exploration_fee_pp') || 0);

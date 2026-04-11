@@ -13204,14 +13204,13 @@ function _showPOIPopup(poi) {
     + '<div style="font-size:16px;font-weight:700;color:#FFF;margin-bottom:4px;text-shadow:0 0 12px ' + def.color + '66">' + (poi.label || def.label || 'Unknown POI') + '</div>'
     // Sector
     + '<div style="font-size:10px;color:var(--tx3);margin-bottom:6px">📍 ' + (poi.sectorName || 'Unknown Sector') + '</div>'
-    // Territory status
+    // Territory bonus badge (territory is NOT required — just a bonus indicator)
     + (function(){
         var owned = (window._myOwnedSectors||[]).indexOf(poi.sectorId)>=0;
         if(owned){
-          return '<div style="font-size:9px;color:#4CD89A;margin-bottom:10px">✓ You own territory in this sector</div>';
-        } else {
-          return '<div style="font-size:9px;color:#E84855;margin-bottom:10px">⚠ No territory in this sector — claim land in ' + (poi.sectorName||'this sector') + ' first</div>';
+          return '<div style="font-size:9px;color:#4CD89A;margin-bottom:10px">✓ Home turf — you own territory here</div>';
         }
+        return '';
       })()
     // Reward hint
     + '<div style="display:flex;justify-content:center;gap:12px;margin:10px 0 14px">'
@@ -13225,20 +13224,16 @@ function _showPOIPopup(poi) {
         var feeLine = fee>0
           ? '<div style="font-size:10px;color:var(--gold);margin-bottom:10px">💠 Cost: '+fee+' PP <span style="color:var(--tx3)">(you have '+(window._userPP||0).toFixed(2)+' PP)</span></div>'
           : '';
-        return feeLine + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">Discover to earn rewards! 100% success if you own territory here.</div>';
+        return feeLine + '<div style="font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.5">Anyone can discover — no territory required. First come, first served!</div>';
       })()
-    // Discover button — greyed out if no territory or insufficient PP
+    // Discover button — open to all wallets (no territory gate). Only blocked if PP fee unaffordable.
     + (function(){
-        var owned = (window._myOwnedSectors||[]).indexOf(poi.sectorId)>=0;
         var fee = window._explorationFee||0;
         var hasPP = (window._userPP||0) >= fee;
-        if(!owned){
-          return '<button onclick="showToast(\'Claim territory in \' + (' + JSON.stringify(poi.sectorName||'this sector') + ') + \' first\')" style="width:100%;padding:12px;background:rgba(80,80,80,0.4);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:1.5px">🔒 TERRITORY REQUIRED</button>';
-        } else if(!hasPP){
+        if(!hasPP){
           return '<button onclick="showToast(\'Need '+fee+' PP to discover — earn more by harvesting\')" style="width:100%;padding:12px;background:rgba(232,72,85,0.2);color:#E84855;border:1px solid rgba(232,72,85,0.4);border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:1.5px">💠 NEED '+fee+' PP</button>';
-        } else {
-          return '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">🔍 DISCOVER'+(fee>0?' ('+fee+' PP)':'')+'</button>';
         }
+        return '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">🔍 DISCOVER'+(fee>0?' ('+fee+' PP)':'')+'</button>';
       })()
     // Hint button
     + '<button onclick="getPOIHint()" style="width:100%;margin-top:8px;padding:9px;background:transparent;color:var(--gold);border:1px solid rgba(255,209,102,.25);border-radius:10px;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px">'
@@ -16895,6 +16890,85 @@ if(typeof _origTrackQuestAction === 'function'){
   .codex-header{padding:12px 14px}
   .codex-body{padding:16px 16px}
 }
+
+/* ── Codex rich content blocks ── */
+.codex-body p{margin:10px 0;color:var(--tx2);line-height:1.85}
+.codex-body strong{color:var(--mars);font-weight:700}
+.codex-body a{color:var(--mars);text-decoration:underline;text-underline-offset:2px}
+.codex-h2{font-size:12px;color:var(--mars);letter-spacing:1.8px;font-weight:700;
+  margin:22px 0 10px;padding:6px 10px;
+  background:linear-gradient(90deg,rgba(255,120,60,.14),rgba(255,120,60,0));
+  border-left:3px solid var(--mars);border-radius:0 4px 4px 0;
+  font-family:var(--fn);text-transform:uppercase}
+.codex-toc{margin:10px 0 18px;padding:10px 12px;
+  background:rgba(255,120,60,.04);border:1px dashed rgba(255,120,60,.2);
+  border-radius:6px;font-size:10px;color:var(--tx3);line-height:1.7;font-family:var(--fn)}
+.codex-toc b{display:block;font-size:9px;color:var(--mars);letter-spacing:1.5px;margin-bottom:4px}
+.codex-toc ul{margin:0;padding-left:18px;list-style:none}
+.codex-toc li{position:relative}
+.codex-toc li::before{content:'›';position:absolute;left:-14px;color:var(--mars);font-weight:700}
+
+.codex-formula{margin:14px 0;padding:14px 16px;
+  background:linear-gradient(135deg,rgba(255,120,60,.08),rgba(0,0,0,.35));
+  border:1px solid rgba(255,120,60,.35);border-radius:8px;
+  box-shadow:inset 0 1px 0 rgba(255,120,60,.12)}
+.codex-formula-label{font-size:8px;color:var(--mars);letter-spacing:1.8px;font-weight:700;
+  margin-bottom:8px;font-family:var(--fn);opacity:.75}
+.codex-formula-eq{font-family:'SF Mono','Menlo','Consolas',monospace;font-size:12px;
+  color:#fff;line-height:1.7;letter-spacing:.2px;
+  white-space:nowrap;overflow-x:auto;padding-bottom:2px;
+  -webkit-overflow-scrolling:touch}
+.codex-formula-eq em{color:var(--mars);font-style:normal;font-weight:700}
+.codex-formula-eq .op{color:var(--tx3);padding:0 2px}
+.codex-formula-note{font-size:9px;color:var(--tx3);margin-top:8px;line-height:1.6;
+  padding-top:8px;border-top:1px dashed rgba(255,120,60,.15);font-family:var(--fn)}
+
+.codex-table-wrap{margin:14px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  border:1px solid rgba(255,120,60,.18);border-radius:8px;
+  background:rgba(0,0,0,.2)}
+.codex-table{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:10px;min-width:480px}
+.codex-table thead th{background:rgba(255,120,60,.1);color:var(--mars);
+  font-size:9px;letter-spacing:1.2px;font-weight:700;text-align:left;
+  padding:9px 10px;border-bottom:1px solid rgba(255,120,60,.22);white-space:nowrap}
+.codex-table tbody td{padding:9px 10px;color:var(--tx2);
+  border-bottom:1px solid rgba(255,255,255,.04);font-size:10px}
+.codex-table tbody tr:last-child td{border-bottom:none}
+.codex-table tbody tr:hover{background:rgba(255,120,60,.04)}
+.codex-table .num{font-variant-numeric:tabular-nums;color:#fff;font-weight:700}
+.codex-table .mars{color:var(--mars);font-weight:700}
+
+.codex-callout{margin:14px 0;padding:10px 12px 10px 38px;border-radius:8px;
+  font-size:10.5px;line-height:1.7;position:relative;
+  border:1px solid;font-family:var(--fn)}
+.codex-callout::before{position:absolute;left:10px;top:9px;font-size:16px;line-height:1}
+.codex-callout-title{display:block;font-size:9px;letter-spacing:1.5px;font-weight:700;
+  margin-bottom:3px;text-transform:uppercase}
+.codex-callout.tip{background:rgba(91,184,232,.06);border-color:rgba(91,184,232,.28);color:#bfe2f5}
+.codex-callout.tip::before{content:'💡'}
+.codex-callout.tip .codex-callout-title{color:#5bb8e8}
+.codex-callout.warn{background:rgba(255,120,60,.06);border-color:rgba(255,120,60,.35);color:#ffd0b8}
+.codex-callout.warn::before{content:'⚠'}
+.codex-callout.warn .codex-callout-title{color:var(--mars)}
+.codex-callout.info{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.12);color:var(--tx2)}
+.codex-callout.info::before{content:'ℹ'}
+.codex-callout.info .codex-callout-title{color:var(--tx)}
+.codex-callout.pro{background:rgba(255,209,102,.06);border-color:rgba(255,209,102,.32);color:#ffe9a8}
+.codex-callout.pro::before{content:'♛'}
+.codex-callout.pro .codex-callout-title{color:var(--gold)}
+
+.codex-diagram{margin:14px 0;padding:14px;
+  background:radial-gradient(ellipse at center,rgba(255,120,60,.05),rgba(0,0,0,.35));
+  border:1px solid rgba(255,120,60,.18);border-radius:8px;text-align:center}
+.codex-diagram svg{max-width:100%;height:auto}
+.codex-diagram-cap{font-size:9px;color:var(--tx3);letter-spacing:.8px;
+  margin-top:6px;font-family:var(--fn);font-style:italic}
+
+.codex-xref{display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;background:rgba(255,120,60,.1);
+  border:1px solid rgba(255,120,60,.3);border-radius:4px;
+  color:var(--mars);font-size:9px;letter-spacing:1px;font-family:var(--fn);
+  font-weight:700;cursor:pointer;text-decoration:none;margin:0 2px}
+.codex-xref:hover{background:rgba(255,120,60,.2)}
 </style>
 
 <script>
@@ -16928,13 +17002,276 @@ var CODEX_CONTENT = {
   ko: {
     sections: [
       { id: 'overview', icon: '🌍', title: '게임 개요',
-        body: '**Occupy Mars**는 Base 체인에서 돌아가는 영토 정복 게임이야. 3D 화성 지구본 위에 픽셀 영토를 클레임하고, 채굴로 PP(Potato Points)를 벌고, 적을 습격하고, 길드에 가입하고, 시즌 순위를 겨루지.\n\n**핵심 루프:** 클레임 → 채굴 → 방어 → 습격 → 성장\n\n**승리 조건:** 엔딩은 없어. 영토·명성·거버넌스 파워를 쌓는 게 목표. 상위 플레이어는 커맨더/거버너가 되어 맵 전체의 정책을 정함.\n\n**결제:** USDT는 실돈 구매, PP는 인게임 경제, GP는 투표 전용.' },
+        blocks: [
+          { type:'p', text:'**Occupy Mars**는 Base 체인에서 돌아가는 **영토 정복 MMO**야. 3D 화성 지구본 위에 픽셀 영토를 클레임하고, 채굴로 돈을 벌고, 적을 습격하고, 길드로 뭉치고, 시즌 순위를 겨루는 — 짧게 말해 **디지털 화성 식민지화 게임**이지.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '핵심 게임 루프',
+            '통화 구조 (USDT / PP / GP / XP)',
+            '승리 조건',
+            '첫 5분 체크리스트'
+          ]},
+
+          { type:'h2', text:'1. 핵심 게임 루프' },
+          { type:'p', text:'모든 활동은 아래 **5단계 루프**를 중심으로 돌아가. 한 바퀴 돌 때마다 영토·자본·명성이 커져.' },
+          { type:'diagram',
+            svg:'<svg viewBox="0 0 520 140" xmlns="http://www.w3.org/2000/svg">'+
+              '<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ff783c"/></marker></defs>'+
+              '<g font-family="monospace" font-size="10" fill="#fff" text-anchor="middle">'+
+              '<circle cx="60"  cy="70" r="32" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/><text x="60"  y="66">🏴</text><text x="60"  y="82" fill="#ff783c">CLAIM</text>'+
+              '<circle cx="170" cy="70" r="32" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/><text x="170" y="66">⛏</text><text x="170" y="82" fill="#ff783c">MINE</text>'+
+              '<circle cx="280" cy="70" r="32" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/><text x="280" y="66">🛡</text><text x="280" y="82" fill="#ff783c">DEFEND</text>'+
+              '<circle cx="390" cy="70" r="32" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/><text x="390" y="66">⚔</text><text x="390" y="82" fill="#ff783c">RAID</text>'+
+              '<circle cx="480" cy="70" r="32" fill="rgba(255,120,60,.18)" stroke="#ffd166" stroke-width="2"/><text x="480" y="66">📈</text><text x="480" y="82" fill="#ffd166">GROW</text>'+
+              '</g>'+
+              '<line x1="94"  y1="70" x2="134" y2="70" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar)"/>'+
+              '<line x1="204" y1="70" x2="244" y2="70" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar)"/>'+
+              '<line x1="314" y1="70" x2="354" y2="70" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar)"/>'+
+              '<line x1="424" y1="70" x2="444" y2="70" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar)"/>'+
+              '<path d="M480,100 Q480,130 260,130 Q60,130 60,100" fill="none" stroke="#ff783c" stroke-opacity=".35" stroke-width="1.2" stroke-dasharray="4,4" marker-end="url(#ar)"/>'+
+            '</svg>',
+            caption:'CLAIM → MINE → DEFEND → RAID → GROW → (다시 CLAIM)' },
+
+          { type:'h2', text:'2. 통화 구조' },
+          { type:'p', text:'게임 안에는 **4가지 자산**이 돌아다녀. 각각 역할이 다르니 혼동하지 마.' },
+          { type:'table',
+            headers:['자산','종류','획득','용도','교환 가능?'],
+            rows:[
+              [{v:'💵 USDT',cls:'mars'},  '실제 암호화폐', '입금 (Base 체인)',        '프리미엄 클레임·코스메틱·칸티나', {v:'○',cls:'num'}],
+              [{v:'🥔 PP',cls:'mars'},    '인게임 토큰',   '채굴·POI·커미션·퀘스트',  '기본 클레임·상점·길드비·베팅',   {v:'△ (USDT로 스왑)',cls:'num'}],
+              [{v:'🏛 GP',cls:'mars'},    '정치 포인트',   '영토 보유·선거 승리',      '투표·섹터 지배·정책',           {v:'✕',cls:'num'}],
+              [{v:'⭐ XP',cls:'mars'},    '계정 레벨',     '모든 활동',                '계급 특전·수수료 부스트',        {v:'✕',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'통화 구별이 중요하다',
+            text:'USDT는 **실돈**이야. 카지노에서 USDT 베팅하는 건 실제로 돈 잃는 거야. PP는 인게임 점수, GP는 투표권. 각자 역할 섞지 마. 자세한 건 [토큰 이코노미](#tokens) §2 참고.' },
+
+          { type:'h2', text:'3. 승리 조건' },
+          { type:'callout', variant:'pro', title:'엔딩은 없다',
+            text:'Occupy Mars는 **영원히 돌아가는 세계**야. 목표는 점수가 아니라 **영토 + 명성 + 거버넌스 파워**를 쌓아서 "아무도 무시 못 하는 커맨더"가 되는 거지. 시즌마다 리셋되는 건 랭킹 뿐, 영토와 자산은 영구야.' },
+
+          { type:'h2', text:'4. 첫 5분 체크리스트' },
+          { type:'p', text:'게임 처음 켰을 때 이 순서대로 하면 빠르게 본게임 진입 가능:' },
+          { type:'table',
+            headers:['#','할 일','실제 보상'],
+            rows:[
+              [{v:'1'}, '지갑 연결 & 닉네임 등록',                  {v:'+100 PP (신규 보너스)',cls:'num'}],
+              [{v:'2'}, '첫 픽셀 CLAIM',                             {v:'+2 XP / px',cls:'num'}],
+              [{v:'3'}, '첫 USDT 입금',                              {v:'+50 XP + 10% PP 보너스',cls:'num'}],
+              [{v:'4'}, '일일 퀘스트 무료티어 전부 완료',            {v:'≈ 0.1~0.3 PP + 15 XP',cls:'num'}],
+              [{v:'5'}, '추천 코드 입력 → 내 코드 공유',              {v:'DYNASTY 체인 활성',cls:'num'}]
+            ]},
+          { type:'callout', variant:'tip', title:'막막하면 여기부터',
+            text:'장기 수익의 핵심은 **일일 퀘스트 루틴 + POI 사냥 + DYNASTY 추천**이야. 채굴은 소액 베이스라인일 뿐. 자세한 건 [채굴 & 수익](#mining) §4 와 [DYNASTY](#dynasty) §8 참고.' }
+        ]
+      },
       { id: 'tokens', icon: '🪙', title: '토큰 이코노미',
-        body: '**USDT** (Base 체인) — 실돈. 프리미엄 클레임, 코스메틱, 칸티나 크레딧 구매. 민팅 불가, 입출금만 가능.\n\n**PP (Potato Points)** — 인게임 통화. 채굴, POI 드롭, 하이잭, 추천 수수료, 카지노 승리, 퀘스트 보상으로 획득. 기본 클레임, 상점, 길드비, 카지노 베팅에 사용. 수수료 내고 USDT로 스왑 가능.\n\n**GP (Governance Points)** — 정치 권력. 영토 보유·선거 승리·거버넌스 퀘스트로 획득. 투표·섹터 지배·특수 정책에 사용. 스왑 불가.\n\n**XP** — 계정 레벨. 계급 특전, 수수료 부스트, 전용 코스메틱 언락.' },
+        blocks: [
+          { type:'p', text:'게임 내 모든 숫자는 4개의 자산 중 하나야. **각자 역할이 다르고 서로 완전히 호환되지 않아.** 이 섹션은 어떻게 벌고 어떻게 쓰는지 전부 정리.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            'USDT — 실제 화폐',
+            'PP — 인게임 메인 통화',
+            'GP — 거버넌스 포인트',
+            'XP — 계정 레벨',
+            '자산 흐름도 (스왑·변환)'
+          ]},
+
+          { type:'h2', text:'1. USDT — 실제 화폐' },
+          { type:'p', text:'**Base 체인의 Tether USD**. 진짜 돈이야. 게임에서 민팅되지 않고, 오직 네 지갑에서 **입금/출금**만 가능해. 픽셀 클레임의 **기본 가격 단위**도 USDT로 매겨져.' },
+          { type:'table',
+            headers:['섹터 티어','픽셀당 기본가','배수 적용 후'],
+            rows:[
+              [{v:'🔴 CORE',cls:'mars'},     {v:'0.15 USDT',cls:'num'}, {v:'× 최대 3 (동적)',cls:'num'}],
+              [{v:'🟡 MID',cls:'mars'},      {v:'0.05 USDT',cls:'num'}, {v:'× 최대 2',cls:'num'}],
+              [{v:'⚪ FRONTIER',cls:'mars'}, {v:'0.02 USDT',cls:'num'}, {v:'× 1',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'입금 보너스',
+            text:'USDT 입금시 자동으로 **+10% PP 보너스** 지급 (`deposit_pp_bonus=10`). 첫 입금은 추가로 **+50 XP** 일회성 보너스.' },
+          { type:'callout', variant:'warn', title:'USDT는 실돈이다',
+            text:'게임 내에서 `USDT` 라벨이 붙은 모든 숫자는 **네 실제 자금**이야. 카지노 탭에서 USDT로 베팅하면 실제 돈이 날아가. 항상 신중하게.' },
+
+          { type:'h2', text:'2. PP — Potato Points' },
+          { type:'p', text:'인게임 메인 통화. 신규 가입시 **+100 PP** 무료 지급 (`signup_pp_bonus=100`).' },
+          { type:'formula', label:'PP 획득 경로 (6가지)',
+            eq:'PP = ~채굴~ + ~POI~ + ~하이잭~ + ~DYNASTY 커미션~ + ~카지노 승리~ + ~일일 퀘스트~',
+            note:'채굴은 최대 1 PP/하베스트로 제한. 큰 수익은 퀘스트·POI·DYNASTY 쪽.' },
+          { type:'table',
+            headers:['지출 항목','비용 (서버 기본값)'],
+            rows:[
+              ['기본 에너지 쉴드 (12h)',   {v:'2.5 PP',cls:'num'}],
+              ['플라즈마 쉴드 (24h)',      {v:'5.0 PP',cls:'num'}],
+              ['POI 힌트',                {v:'0.2 PP',cls:'num'}],
+              ['PP → USDT 스왑',          {v:'수수료 5%',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'PP ↔ USDT 스왑',
+            text:'`SWAP` 탭에서 PP를 USDT로 바꿀 수 있어. 수수료 `swap_fee_percent=5%` 차감. 반대 방향(USDT → PP)도 가능.' },
+
+          { type:'h2', text:'3. GP — Governance Points' },
+          { type:'p', text:'**정치 권력**. 섹터 세수·거버너 선거·DAO 투표의 재료야. 돈으로 직접 못 사.' },
+          { type:'table',
+            headers:['획득 방법','상세'],
+            rows:[
+              ['POI 드롭 (70% 비중)',     {v:'10 ~ 50 GP/POI',cls:'num'}],
+              ['로켓 드롭 (50% 비중)',    {v:'10 ~ 40 GP/드롭',cls:'num'}],
+              ['섹터 세수 분배',          {v:'세금의 20%가 시민 몫',cls:'num'}],
+              ['거버너 선거 승리',        {v:'섹터 세수 20% 지속 수입',cls:'num'}]
+            ]},
+          { type:'callout', variant:'pro', title:'GP는 장기 축적 자산',
+            text:'GP는 **환전 불가**지만 섹터 세금·거버너 수입으로 연결되면서 결국 PP로 회전돼. 자세한 건 [거버넌스](#governance) §5 참고.' },
+
+          { type:'h2', text:'4. XP & 계급' },
+          { type:'p', text:'**모든 활동**에서 XP가 쌓여. 실제 계급 테이블 (총 30단계 — 일부만 표시):' },
+          { type:'table',
+            headers:['Lv','이름','필요 XP','랭크업 보상'],
+            rows:[
+              [{v:'1',cls:'num'},  'Dust Walker',    {v:'0',cls:'num'},       {v:'—',cls:'num'}],
+              [{v:'5',cls:'num'},  'Storm Chaser',   {v:'1,600',cls:'num'},   {v:'+18 PP',cls:'num'}],
+              [{v:'10',cls:'num'}, 'Lava Walker',    {v:'12,500',cls:'num'},  {v:'+85 PP',cls:'num'}],
+              [{v:'15',cls:'num'}, 'Storm Commander',{v:'42,000',cls:'num'},  {v:'+260 PP',cls:'num'}],
+              [{v:'20',cls:'num'}, 'God of Mars',    {v:'100,000',cls:'num'}, {v:'+700 PP',cls:'num'}],
+              [{v:'25',cls:'num'}, 'Crimson Archon', {v:'260,000',cls:'num'}, {v:'+2,000 PP',cls:'num'}],
+              [{v:'30',cls:'num'}, 'Architect of Worlds', {v:'1,000,000',cls:'num'}, {v:'+6,000 PP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'XP 획득량',
+            text:'`xp_per_claim=2/px`, `xp_per_hijack=3/px`, 일일 퀘스트 `5 XP`, 주간 퀘스트 `30 XP`, 일일 로그인 `5 XP`, 첫 입금 `50 XP`, 영토 방어 1주 생존 시 `1 XP/px`.' },
+          { type:'callout', variant:'pro', title:'랭크업 게이트',
+            text:'Lv 5 · 10 · 15 · 20 · 25 에서 단순 XP 외에 **활동 요건**이 있어 (보유 픽셀 수, 게임 플레이 일수, 하이잭 횟수, 입금액 등). XP만 쌓아선 못 뚫어.' },
+
+          { type:'h2', text:'5. 자산 흐름도' },
+          { type:'diagram',
+            svg:'<svg viewBox="0 0 500 180" xmlns="http://www.w3.org/2000/svg" font-family="monospace">'+
+              '<defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ff783c"/></marker></defs>'+
+              '<rect x="30"  y="30" width="110" height="50" rx="6" fill="rgba(91,184,232,.1)" stroke="#5bb8e8" stroke-width="1.5"/>'+
+              '<text x="85"  y="55" text-anchor="middle" font-size="12" fill="#5bb8e8" font-weight="700">USDT</text>'+
+              '<text x="85"  y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">실제 화폐</text>'+
+              '<rect x="195" y="30" width="110" height="50" rx="6" fill="rgba(255,120,60,.12)" stroke="#ff783c" stroke-width="1.5"/>'+
+              '<text x="250" y="55" text-anchor="middle" font-size="12" fill="#ff783c" font-weight="700">PP</text>'+
+              '<text x="250" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">인게임 통화</text>'+
+              '<rect x="360" y="30" width="110" height="50" rx="6" fill="rgba(255,209,102,.1)" stroke="#ffd166" stroke-width="1.5"/>'+
+              '<text x="415" y="55" text-anchor="middle" font-size="12" fill="#ffd166" font-weight="700">GP</text>'+
+              '<text x="415" y="70" text-anchor="middle" font-size="8"  fill="#9aa3b0">정치 권력</text>'+
+              '<line x1="140" y1="55" x2="190" y2="55" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
+              '<text x="165" y="48" text-anchor="middle" font-size="8" fill="#ff783c">SWAP</text>'+
+              '<line x1="190" y1="60" x2="140" y2="60" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)" stroke-dasharray="3,3"/>'+
+              '<line x1="305" y1="55" x2="355" y2="55" stroke="#ff783c" stroke-width="1.5" stroke-dasharray="3,3"/>'+
+              '<text x="330" y="48" text-anchor="middle" font-size="8" fill="#9aa3b0">환전 ✕</text>'+
+              '<text x="250" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">채굴·퀘스트·커미션 ↓</text>'+
+              '<line x1="250" y1="125" x2="250" y2="80" stroke="#ff783c" stroke-width="1.5" marker-end="url(#ar2)"/>'+
+              '<text x="415" y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">영토 보유 ↓</text>'+
+              '<line x1="415" y1="125" x2="415" y2="80" stroke="#ffd166" stroke-width="1.5" marker-end="url(#ar2)"/>'+
+              '<text x="85"  y="115" text-anchor="middle" font-size="9" fill="#9aa3b0">입금 ↓</text>'+
+              '<line x1="85"  y1="125" x2="85"  y2="80" stroke="#5bb8e8" stroke-width="1.5" marker-end="url(#ar2)"/>'+
+              '<text x="250" y="160" text-anchor="middle" font-size="9" fill="#ff783c" letter-spacing="1">ASSET FLOW — USDT ⇄ PP (PG는 단방향 축적)</text>'+
+            '</svg>',
+            caption:'USDT ⇄ PP 양방향 스왑 / GP는 스왑 불가 단방향 축적' }
+        ]
+      },
       { id: 'territory', icon: '🏴', title: '영토 시스템',
         body: '**클레임:** CLAIM 모달 열고 화성에서 사각형 드래그(클레임당 최대 500×500 px), 이미지 업로드, 결제. 빈 땅 가격은 기본가 × 픽셀수.\n\n**하이잭:** 기존 영토와 겹치면 **현재 가격의 1.2배**를 소유주에게 지불(수수료 차감). 겹친 픽셀이 넘어옴. 좋은 타겟: 활동 없는 큰 영토.\n\n**쉴드:** 상점에서 구매 → N시간 동안 하이잭 차단. 자동갱신 옵션 있음.\n\n**이미지:** PNG/JPG/GIF 가능. 영토 경계에 맞춰 크롭. GIF는 호버시 애니메이션. 외부 링크(https만) 선택 가능.\n\n**이름 지정:** 영토 정보에 커스텀 이름 표시. PP 지불.' },
       { id: 'mining', icon: '⛏', title: '채굴 & 수익',
-        body: '**패시브 채굴:** 보유 픽셀당 시간당 PP 생성. 계급 배수와 섹터 세율 적용. BASE → MINE 탭에서 수령. 영토 크면 채굴 풀도 커짐.\n\n**POI:** 맵에 랜덤으로 자원 지점 등장. 클릭해 수확. PP·아이템·코스메틱 드롭. 등급별 보상(커먼~레전더리).\n\n**로켓 이벤트:** 일정 시간마다 로켓이 섹터에 착륙, 선착순 전리품. ROCKET 탭에서 다음 발사 시간 확인.\n\n**일일 퀘스트:** 하루 3개. 채굴·전투·소셜. 완료시 PP+XP.\n\n**수수료 수익(DYNASTY):** 누군가를 초대하면 그들의 입금·스왑·수확·상점·하이잭·칸티나 활동에서 자동 커미션(§8 참고).' },
+        blocks: [
+          { type:'p', text:'화성에서 PP(Potato Points)를 버는 방법은 5가지야. **패시브 채굴**은 안정적인 기본 수입이지만 **수익률은 크지 않아**. 큰 돈은 POI·로켓·일퀘·커미션(DYNASTY)에서 나와.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '패시브 채굴 공식 (실제 수치)',
+            '보유 픽셀별 수확량',
+            '티어별 수확 주기',
+            'POI (자원 지점)',
+            '로켓 이벤트',
+            '일일 퀘스트',
+            '커미션 수익 (DYNASTY)'
+          ]},
+
+          { type:'h2', text:'1. 패시브 채굴 공식' },
+          { type:'p', text:'영토를 보유하고 있는 한, 매 수확 주기마다 **자동으로** PP가 쌓여. BASE → MINE 탭에서 `HARVEST ALL` 버튼으로 한 번에 수령해.' },
+          { type:'formula', label:'HARVEST YIELD PER CYCLE',
+            eq:'Yield = rand(~0.01~, ~0.5~) × min( ~√pixels~ ÷ 10, ~3.0~ )   →   max ~1.0 PP~ / harvest',
+            note:'핵심: **제곱근 스케일 + 3배 캡 + 하베스트당 1 PP 상한**. 픽셀을 10,000배 더 사도 수익은 3배 밖에 안 올라. 고래 방지 설계야.' },
+          { type:'callout', variant:'warn', title:'중요 — 픽셀은 무한 스케일 아니다',
+            text:'`pixelFactor`가 √pixels/10 으로 **제곱근**이야. 1 픽셀 → 0.1, 100 → 1.0, 1,000 → 3.0 (상한). 1,000 픽셀 넘으면 **추가 픽셀당 채굴 수익은 0**이야. 채굴만 노리고 땅 계속 사는 건 낭비.' },
+          { type:'callout', variant:'info', title:'티어 배수는 "주기"에만 적용',
+            text:'CORE/MID/FRONTIER 차이는 **수확 주기**(24h / 48h / 72h)지 **보상 금액**이 아니야. 영토가 여러 티어에 걸쳐있으면 가장 좋은 티어(CORE > MID > FRONTIER) 주기가 전체에 적용돼.' },
+
+          { type:'h2', text:'2. 보유 픽셀별 수확량 (평균)' },
+          { type:'table',
+            headers:['보유 픽셀','pixelFactor','주기당 평균','CORE 일일','FRONTIER 일일'],
+            rows:[
+              [{v:'1 px'},      {v:'0.10',cls:'num'}, {v:'≈ 0.026 PP',cls:'num'}, {v:'≈ 0.026 PP',cls:'num'}, {v:'≈ 0.009 PP',cls:'num'}],
+              [{v:'10 px'},     {v:'0.32',cls:'num'}, {v:'≈ 0.081 PP',cls:'num'}, {v:'≈ 0.081 PP',cls:'num'}, {v:'≈ 0.027 PP',cls:'num'}],
+              [{v:'100 px'},    {v:'1.00',cls:'num'}, {v:'≈ 0.255 PP',cls:'num'}, {v:'≈ 0.255 PP',cls:'num'}, {v:'≈ 0.085 PP',cls:'num'}],
+              [{v:'1,000 px'},  {v:'3.00 (캡)',cls:'num'}, {v:'≈ 0.765 PP',cls:'num'}, {v:'≈ 0.765 PP',cls:'num'}, {v:'≈ 0.255 PP',cls:'num'}],
+              [{v:'10,000 px'}, {v:'3.00 (캡)',cls:'num'}, {v:'≈ 0.765 PP',cls:'num'}, {v:'≈ 0.765 PP',cls:'num'}, {v:'≈ 0.255 PP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'하드 캡',
+            text:'각종 부스트(거버너 +20%·섹터 버프 +20%·더블마이닝 ×2·날씨·스타링크·아이템)가 곱해지지만, 최종값은 **1 하베스트당 1.0 PP**로 고정 상한. 즉 최상위 플레이어도 **하루 최대 약 1 PP** 정도만 패시브로 받아.' },
+          { type:'callout', variant:'pro', title:'프로 팁',
+            text:'채굴만으론 상위권 못 가. 패시브 채굴은 "기본 생활비" 수준. 실제 성장은 **POI 사냥 + 일일 퀘스트 + DYNASTY 커미션**에서 터져. 아래 섹션들 잘 봐.' },
+
+          { type:'h2', text:'3. 티어별 수확 주기' },
+          { type:'table',
+            headers:['티어','수확 주기','일일 하베스트 횟수','비고'],
+            rows:[
+              [{v:'🔴 CORE',cls:'mars'},     {v:'24 h',cls:'num'}, {v:'1회',cls:'num'}, '중심부 — 고트래픽·하이잭 타겟'],
+              [{v:'🟡 MID',cls:'mars'},      {v:'48 h',cls:'num'}, {v:'0.5회',cls:'num'}, '중간 — 균형형'],
+              [{v:'⚪ FRONTIER',cls:'mars'}, {v:'72 h',cls:'num'}, {v:'0.33회',cls:'num'}, '변방 — 싸지만 느려']
+            ]},
+          { type:'callout', variant:'tip', title:'동일 면적 3배 효율',
+            text:'CORE 1픽셀 + FRONTIER 999픽셀 > FRONTIER 1000픽셀. 주기가 24h로 짧아져서 **같은 면적으로 3배 더 자주** 수확해. 가장 싼 CORE 부동산 한 칸을 앵커로 꽂는 게 국룰.' },
+
+          { type:'h2', text:'3. POI — 자원 지점' },
+          { type:'p', text:'화성 표면에 랜덤으로 **자원 포인트**가 생성돼. `EXPLORE` 탭에서 지도를 열고 찾아가서 `🔍 DISCOVER` 버튼 누르면 보상 수령. **영토 없어도 누구나 수확 가능** — 선착순이야.' },
+          { type:'table',
+            headers:['항목','값','출처'],
+            rows:[
+              ['스폰 주기',          {v:'4시간마다',cls:'num'},             '`poi_spawn_interval_hours=4`'],
+              ['주기당 생성 수',      {v:'6개 (최대 12개 동시)',cls:'num'},  '`poi_count_per_cycle=6, poi_max_active=12`'],
+              ['만료 시간',          {v:'12시간',cls:'num'},                '`poi_expire_hours=12`'],
+              ['탐사 수수료',        {v:'관리자 설정 (기본 0 PP)',cls:'num'}, '`exploration_fee_pp`'],
+              ['발견 XP 보너스',      {v:'+5 XP',cls:'num'},                 '`poi_discovery_xp=5`']
+            ]},
+          { type:'h2', text:'POI 드롭 테이블 (실제 가중치)' },
+          { type:'table',
+            headers:['드롭 종류','가중치','보상 범위','비고'],
+            rows:[
+              [{v:'🏛 GP',cls:'mars'},   {v:'70 %',cls:'num'},  {v:'10 ~ 50 GP',cls:'num'},      '가장 흔함'],
+              [{v:'📦 아이템',cls:'mars'}, {v:'20 %',cls:'num'},  {v:'드롭 테이블 무작위',cls:'num'}, '쉴드·부스트 등'],
+              [{v:'🥔 PP',cls:'mars'},   {v:'10 %',cls:'num'},  {v:'0.05 ~ 0.3 PP',cls:'num'},   '가장 드뭄'],
+              [{v:'✨ 코스메틱',cls:'mars'}, {v:'+5 %',cls:'num'},  {v:'위에 추가 굴림',cls:'num'},  '모든 발견에 추가 보너스']
+            ]},
+          { type:'callout', variant:'info', title:'스케일 보정',
+            text:'보상량은 **활성 유저 수**에 따라 자동 스케일 — 10명당 +10%, 최대 ×3까지. 유저가 많을수록 보상도 커져.' },
+          { type:'callout', variant:'pro', title:'POI가 가장 활동적 수익원',
+            text:'채굴은 하루 1 PP 남짓이지만 POI는 **GP 드롭**이 커. 12시간 안에 6개 POI 중 몇 개만 먹어도 수십 GP가 쌓여. GP는 거버너 선거·섹터 세수로 연결되니 장기 수익.' },
+
+          { type:'h2', text:'4. 로켓 이벤트' },
+          { type:'p', text:'**12시간마다** 로켓이 랜덤 위치에 착륙해 대규모 전리품을 뿌려. 착륙 2시간 전 경고 → 1시간 루팅 창. 5% 확률로 `RUD` (폭발) — 드롭 2배·반경 2배.' },
+          { type:'table',
+            headers:['드롭 종류','가중치','값','비고'],
+            rows:[
+              [{v:'🏛 GP',cls:'mars'},       {v:'50 %',cls:'num'}, {v:'10 ~ 40 GP',cls:'num'}, '가장 흔함'],
+              [{v:'📦 아이템',cls:'mars'},    {v:'25 %',cls:'num'}, '드롭 테이블', '쉴드·부스트'],
+              [{v:'⭐ XP',cls:'mars'},       {v:'17 %',cls:'num'}, {v:'5 ~ 25 XP',cls:'num'}, '—'],
+              [{v:'🥔 PP',cls:'mars'},       {v:'6 %',cls:'num'},  {v:'0.02 ~ 0.1 PP',cls:'num'}, '드뭄'],
+              [{v:'🚀 스타쉽 테두리',cls:'mars'}, {v:'2 %',cls:'num'},  {v:'1개',cls:'num'},        '한정 코스메틱']
+            ]},
+          { type:'callout', variant:'warn', title:'RUD는 대박이지만',
+            text:'5% 확률로 발동되는 **RUD(Rapid Unscheduled Disassembly)** = 폭발. 일반 15개 → RUD 30개 드롭. 반경도 5km → 10km 2배. 경쟁자가 몰릴 수 있으니 준비하고 가.' },
+
+          { type:'h2', text:'5. 일일 퀘스트' },
+          { type:'p', text:'매일 퀘스트가 리셋돼. 무료/활동/지출 3티어로 나뉘어 있고 완료하면 PP + XP 획득. 완료 XP는 고정 **5 XP/퀘스트** (주간 퀘스트는 30 XP).' },
+          { type:'table',
+            headers:['티어','퀘스트 예시','보상 범위'],
+            rows:[
+              ['💫 무료',   '로그인 / 섹터 보기 / 첫 픽셀',   {v:'0.01 ~ 0.05 PP',cls:'num'}],
+              ['⚡ 활동',   '클레임 / 수확 / 섹터 탐험 / 연속 로그인',  {v:'0.05 ~ 0.50 PP',cls:'num'}],
+              ['💎 지출',   '입금 / 프리미엄 클레임 / 스왑 / 대규모 확장', {v:'0.30 ~ 1.50 PP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'tip', title:'매일 5분, 확정 수익',
+            text:'일일 퀘스트는 **확정 보상**이야. 채굴보다 상위 퀘스트가 훨씬 PP 수익이 좋고 XP도 쌓여. 랭크 업 속도는 퀘스트가 결정해.' },
+
+          { type:'h2', text:'6. 커미션 수익 (DYNASTY)' },
+          { type:'p', text:'누군가를 추천하면, 그들이 쓰는 **6가지 활동**(입금 · 스왑 · 상점 · 수확 · 칸티나 · 하이잭) 전부에서 자동 커미션이 네 지갑으로 들어와. 3단계 MLM 구조로 친구의 친구의 친구까지 쌓여.' },
+          { type:'callout', variant:'pro', title:'장기적으로는 이게 제일 크다',
+            text:'영토·채굴은 선형 성장(내가 일한 만큼), **DYNASTY는 네트워크 효과**야. 활발한 유저 5명만 초대해도 패시브 PP가 본인 채굴보다 많아지는 시점이 와. 자세한 건 [DYNASTY 추천](#dynasty) §8 참고.' }
+        ]
+      },
       { id: 'governance', icon: '🏛', title: '거버넌스',
         body: '**커맨더:** GP 투표로 선출되는 전역 지도자. 공지·이벤트 선언(더블 마이닝·전시·평화조약)·현상금·글로벌 수수료 분배.\n\n**거버너:** 섹터별 지도자. 섹터세 징수·버프 결정·하이잭 거부권.\n\n**선거:** 상시 진행. 해당 포지션에 GP 가장 많이 투표한 사람이 승리. 언제든 도전 가능.\n\n**현상금:** 커맨더가 특정 지갑에 현상금 공지. 먼저 하이잭한 사람이 보상.\n\n**DAO 투표:** 글로벌 제안으로 게임 밸런스 변경(수수료율·이벤트 가중치). GP로 투표.' },
       { id: 'guilds', icon: '⚔', title: '길드 & 시즌',
@@ -16977,6 +17314,79 @@ function codexNav(delta){
   if(next === _codexIdx) return;
   renderCodex(next);
 }
+// ── Rich block renderer ──
+function _codexEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function _codexInline(s){
+  // Inline markdown: **bold**, [text](#section-id) xref, line breaks, backtick code
+  return _codexEsc(s)
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`]+)`/g,'<code style="font-family:SF Mono,Menlo,monospace;font-size:10.5px;color:var(--mars);background:rgba(255,120,60,.08);padding:1px 5px;border-radius:3px">$1</code>')
+    .replace(/\[([^\]]+)\]\(#([a-z0-9_-]+)\)/gi,'<a class="codex-xref" href="#" onclick="codexGoto(\'$2\');return false;">$1</a>')
+    .replace(/\n/g,'<br>');
+}
+function _codexRenderBlock(b){
+  if(!b || !b.type) return '';
+  switch(b.type){
+    case 'p':
+      return '<p>'+_codexInline(b.text||'')+'</p>';
+    case 'h2':
+      return '<div class="codex-h2">'+_codexEsc(b.text||'')+'</div>';
+    case 'toc': {
+      var items = (b.items||[]).map(function(it){return '<li>'+_codexInline(it)+'</li>';}).join('');
+      return '<div class="codex-toc"><b>'+_codexEsc(b.label||'IN THIS SECTION')+'</b><ul>'+items+'</ul></div>';
+    }
+    case 'formula': {
+      // eq: array of tokens like [{v:'Yield'},{op:'='},{v:'pixels'},{op:'×'},{v:'base',hi:true}]
+      // Or simpler: b.eq is a raw string with ~x~ around emphasized tokens
+      var eqHtml;
+      if(typeof b.eq === 'string'){
+        eqHtml = _codexEsc(b.eq).replace(/~([^~]+)~/g,'<em>$1</em>');
+      } else {
+        eqHtml = '';
+      }
+      var note = b.note ? '<div class="codex-formula-note">'+_codexInline(b.note)+'</div>' : '';
+      return '<div class="codex-formula">'+
+        '<div class="codex-formula-label">'+_codexEsc(b.label||'FORMULA')+'</div>'+
+        '<div class="codex-formula-eq">'+eqHtml+'</div>'+ note +
+      '</div>';
+    }
+    case 'table': {
+      var head = (b.headers||[]).map(function(h){return '<th>'+_codexEsc(h)+'</th>';}).join('');
+      var rows = (b.rows||[]).map(function(r){
+        var tds = r.map(function(c){
+          if(c && typeof c === 'object'){
+            var cls = c.cls ? ' class="'+c.cls+'"' : '';
+            return '<td'+cls+'>'+_codexInline(c.v||'')+'</td>';
+          }
+          return '<td>'+_codexInline(c||'')+'</td>';
+        }).join('');
+        return '<tr>'+tds+'</tr>';
+      }).join('');
+      return '<div class="codex-table-wrap"><table class="codex-table">'+
+        '<thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+    }
+    case 'callout': {
+      var v = b.variant || 'info';
+      var title = b.title ? '<span class="codex-callout-title">'+_codexEsc(b.title)+'</span>' : '';
+      return '<div class="codex-callout '+v+'">'+title+_codexInline(b.text||'')+'</div>';
+    }
+    case 'diagram': {
+      var cap = b.caption ? '<div class="codex-diagram-cap">'+_codexEsc(b.caption)+'</div>' : '';
+      return '<div class="codex-diagram">'+(b.svg||'')+cap+'</div>';
+    }
+    default:
+      return '';
+  }
+}
+// Jump to a section by id (for xref links)
+function codexGoto(id){
+  var lang = window.LANG || 'en';
+  var content = CODEX_CONTENT[lang] || CODEX_CONTENT.en;
+  for(var i=0;i<content.sections.length;i++){
+    if(content.sections[i].id === id){ renderCodex(i); return; }
+  }
+}
+
 function renderCodex(activeIdx) {
   _codexIdx = activeIdx;
   var lang = window.LANG || 'en';
@@ -17002,13 +17412,18 @@ function renderCodex(activeIdx) {
   var body = document.getElementById('codexBody');
   var html = '<div style="font-size:18px;color:#fff;letter-spacing:1px;margin-bottom:4px">' + sec.icon + ' ' + sec.title + '</div>' +
              '<div style="font-size:9px;color:var(--mars);letter-spacing:1.5px;margin-bottom:16px;opacity:.75">§ ' + (activeIdx + 1) + ' / ' + content.sections.length + '</div>';
-  // Simple markdown-ish formatter: **bold**, \n linebreaks, • bullets
-  var text = sec.body
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:var(--mars)">$1</strong>')
-    .replace(/\n\n/g, '</p><p style="margin:10px 0">')
-    .replace(/\n/g, '<br>');
-  html += '<p style="margin:10px 0">' + text + '</p>';
+  if (Array.isArray(sec.blocks) && sec.blocks.length) {
+    // New rich block format
+    html += sec.blocks.map(_codexRenderBlock).join('');
+  } else if (typeof sec.body === 'string') {
+    // Legacy markdown-ish string format: **bold**, \n linebreaks
+    var text = sec.body
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+    html += '<p>' + text + '</p>';
+  }
   body.innerHTML = html;
   body.scrollTop = 0;
   // Update nav footer
