@@ -32,23 +32,13 @@ async function scheduleRocketEvent(triggeredBy) {
   const wCosmetic = parseInt(await getSetting('rocket_drop_cosmetic_weight') || '2');
   const totalWeight = wGP + wItem + wXP + wPP + wCosmetic || 1;
 
-  // Load battle item drop table (shared with POI system). Falls back to a small
-  // default pool if poi_drop_table isn't seeded — keeps rockets functional.
+  // Load battle item drop table (shared with POI system — admin-managed).
+  // If empty, item slot is redistributed to other reward types (no hardcoded pool).
   let dropTable = [];
   try {
     const dtRes = await pool.query('SELECT item_code, weight, min_qty, max_qty FROM poi_drop_table WHERE active = true');
     dropTable = dtRes.rows;
-  } catch (_e) { /* table may not exist yet */ }
-  if (!dropTable.length) {
-    dropTable = [
-      { item_code: 'shield_basic',    weight: 30, min_qty: 1, max_qty: 1 },
-      { item_code: 'shield_advanced', weight: 10, min_qty: 1, max_qty: 1 },
-      { item_code: 'emp_strike',      weight: 20, min_qty: 1, max_qty: 1 },
-      { item_code: 'attack_boost',    weight: 20, min_qty: 1, max_qty: 1 },
-      { item_code: 'mining_boost',    weight: 15, min_qty: 1, max_qty: 1 },
-      { item_code: 'pixel_doubler',   weight:  5, min_qty: 1, max_qty: 1 }
-    ];
-  }
+  } catch (_e) { /* table missing — handled below */ }
 
   // Check for existing incoming/landed events
   const existing = await pool.query(
@@ -303,13 +293,16 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
           [wallet, item.id, Math.max(1, loot.amount || 1)]
         );
       } else {
-        // Fallback: item not found → give small GP instead
+        // Fallback: item code no longer exists in item_types → give min GP
+        // (uses admin-configurable rocket_loot_min_gp, not a hardcoded number).
+        const { getSetting } = require('../db');
+        const fallbackGP = parseFloat(await getSetting('rocket_loot_min_gp') || '10');
         rewardGiven.type = 'gp';
-        rewardGiven.amount = 10;
+        rewardGiven.amount = fallbackGP;
         rewardGiven.itemCode = null;
         await client.query(
-          'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + 10 WHERE wallet_address = $1',
-          [wallet]
+          'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2',
+          [fallbackGP, wallet]
         );
       }
     } else if (loot.type === 'pp') {

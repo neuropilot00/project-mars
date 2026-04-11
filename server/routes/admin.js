@@ -67,7 +67,14 @@ router.use(adminAuth);
 router.get('/stats', async (req, res) => {
   try {
     const [users, volume, revenue, active24h, totalClaims, totalPixels] = await Promise.all([
-      pool.query('SELECT COUNT(*) as cnt FROM users'),
+      // Split real users vs NPCs so the dashboard doesn't overstate activity.
+      pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE wallet_address NOT LIKE '0xnpc_%') AS real_cnt,
+          COUNT(*) FILTER (WHERE wallet_address LIKE '0xnpc_%') AS npc_cnt,
+          COUNT(*) AS all_cnt
+        FROM users
+      `),
       pool.query('SELECT COALESCE(SUM(amount), 0) as total FROM deposits'),
       pool.query("SELECT COALESCE(SUM(fee), 0) as total FROM transactions WHERE fee > 0"),
       pool.query("SELECT COUNT(*) as cnt FROM deposits WHERE created_at > NOW() - INTERVAL '24 hours'"),
@@ -94,7 +101,9 @@ router.get('/stats', async (req, res) => {
     `);
 
     res.json({
-      totalUsers: parseInt(users.rows[0].cnt),
+      totalUsers: parseInt(users.rows[0].all_cnt),
+      realUsers: parseInt(users.rows[0].real_cnt),
+      npcUsers: parseInt(users.rows[0].npc_cnt),
       totalVolume: parseFloat(volume.rows[0].total),
       totalRevenue: parseFloat(revenue.rows[0].total),
       active24h: parseInt(active24h.rows[0].cnt),
@@ -125,19 +134,34 @@ router.get('/users', async (req, res) => {
     const search = (req.query.search || '').toLowerCase();
     const sort = req.query.sort || 'created_at';
     const order = req.query.order === 'asc' ? 'ASC' : 'DESC';
+    // kind: 'all' (default) | 'real' (exclude NPCs) | 'npc' (only NPCs)
+    // NPCs follow the project convention: wallet_address LIKE '0xnpc_%'
+    const kind = (req.query.kind || 'all').toLowerCase();
 
     const validSorts = ['created_at', 'usdt_balance', 'pp_balance', 'wallet_address'];
     const sortCol = validSorts.includes(sort) ? sort : 'created_at';
 
-    let where = '';
+    const clauses = [];
     const params = [];
     if (search) {
-      where = 'WHERE LOWER(wallet_address) LIKE $1 OR LOWER(email) LIKE $1 OR LOWER(nickname) LIKE $1';
       params.push(`%${search}%`);
+      clauses.push(`(LOWER(wallet_address) LIKE $${params.length} OR LOWER(email) LIKE $${params.length} OR LOWER(nickname) LIKE $${params.length})`);
     }
+    if (kind === 'real') clauses.push(`wallet_address NOT LIKE '0xnpc_%'`);
+    else if (kind === 'npc') clauses.push(`wallet_address LIKE '0xnpc_%'`);
+    const where = clauses.length ? 'WHERE ' + clauses.join(' AND ') : '';
 
     const countRes = await pool.query(`SELECT COUNT(*) as cnt FROM users ${where}`, params);
     const total = parseInt(countRes.rows[0].cnt);
+
+    // Counts for the filter badges (always return all three so UI can show totals)
+    const kindCounts = await pool.query(
+      `SELECT
+         COUNT(*) FILTER (WHERE wallet_address NOT LIKE '0xnpc_%') AS real_cnt,
+         COUNT(*) FILTER (WHERE wallet_address LIKE '0xnpc_%') AS npc_cnt,
+         COUNT(*) AS all_cnt
+       FROM users`
+    );
 
     const usersRes = await pool.query(
       `SELECT u.wallet_address, u.email, u.nickname, u.usdt_balance, u.pp_balance, COALESCE(u.gp_balance,0) as gp_balance, u.created_at,
@@ -154,6 +178,7 @@ router.get('/users', async (req, res) => {
         wallet: r.wallet_address,
         email: r.email || '',
         nickname: r.nickname || '',
+        isNpc: r.wallet_address.startsWith('0xnpc_'),
         usdtBalance: parseFloat(r.usdt_balance),
         ppBalance: parseFloat(r.pp_balance),
         gpBalance: parseFloat(r.gp_balance),
@@ -161,6 +186,12 @@ router.get('/users', async (req, res) => {
         totalDeposited: parseFloat(r.total_deposited),
         createdAt: r.created_at
       })),
+      counts: {
+        all: parseInt(kindCounts.rows[0].all_cnt),
+        real: parseInt(kindCounts.rows[0].real_cnt),
+        npc: parseInt(kindCounts.rows[0].npc_cnt)
+      },
+      kind,
       total, page, limit,
       pages: Math.ceil(total / limit)
     });

@@ -357,13 +357,17 @@ router.get('/referral/:wallet', async (req, res) => {
 router.get('/referral/leaderboard/top', async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit) || 50, 100);
+    // Exclude NPC uplines — NPCs should never appear on the dynasty leaderboard.
     const rows = await pool.query(
       `SELECT rr.to_wallet AS wallet,
+              u.nickname,
               COALESCE(SUM(rr.pp_amount), 0) AS total_earned,
               COUNT(DISTINCT rr.from_wallet) AS downline_count,
-              (SELECT COUNT(*) FROM users u WHERE u.referred_by = rr.to_wallet) AS direct_count
+              (SELECT COUNT(*) FROM users u2 WHERE u2.referred_by = rr.to_wallet) AS direct_count
        FROM referral_rewards rr
-       GROUP BY rr.to_wallet
+       LEFT JOIN users u ON u.wallet_address = rr.to_wallet
+       WHERE rr.to_wallet NOT LIKE '0xnpc_%'
+       GROUP BY rr.to_wallet, u.nickname
        ORDER BY total_earned DESC
        LIMIT $1`,
       [limit]
@@ -372,6 +376,7 @@ router.get('/referral/leaderboard/top', async (req, res) => {
       leaderboard: rows.rows.map((r, i) => ({
         rank: i + 1,
         wallet: r.wallet,
+        nickname: r.nickname || null,
         totalEarned: parseFloat(r.total_earned),
         downlineCount: parseInt(r.downline_count),
         directCount: parseInt(r.direct_count)
@@ -389,15 +394,16 @@ router.get('/referral/leaderboard/top', async (req, res) => {
 router.get('/referral/tree/:wallet', async (req, res) => {
   try {
     const w = req.params.wallet.toLowerCase();
-    // Tier 1: direct referrals
+    // Tier 1: direct referrals (include nickname for display)
     const t1 = await pool.query(
       `SELECT u.wallet_address AS wallet,
+              u.nickname,
               COALESCE(SUM(rr.pp_amount) FILTER (WHERE rr.to_wallet = $1 AND rr.from_wallet = u.wallet_address), 0) AS earned_from,
               (SELECT COUNT(*) FROM users u2 WHERE u2.referred_by = u.wallet_address) AS sub_count
        FROM users u
        LEFT JOIN referral_rewards rr ON rr.from_wallet = u.wallet_address
        WHERE u.referred_by = $1
-       GROUP BY u.wallet_address
+       GROUP BY u.wallet_address, u.nickname
        ORDER BY earned_from DESC
        LIMIT 100`,
       [w]
@@ -412,6 +418,7 @@ router.get('/referral/tree/:wallet', async (req, res) => {
     res.json({
       directReferrals: t1.rows.map(r => ({
         wallet: r.wallet,
+        nickname: r.nickname || null,
         earnedFrom: parseFloat(r.earned_from),
         subCount: parseInt(r.sub_count)
       })),
@@ -1350,9 +1357,10 @@ router.post('/swap', writeLimiter, async (req, res) => {
     // Fund quest pool from swap fees
     await fundQuestPool(client, fee);
 
-    // Referral commission — uplines get USDT cut from the swap fee
+    // Referral commission — swap fee is deducted from PP, so upline commission
+    // must be minted as PP too (crediting USDT here would mint USDT out of nothing).
     try {
-      await creditReferralCommission(client, wallet, 'swap', fee, 'usdt');
+      await creditReferralCommission(client, wallet, 'swap', fee, 'pp');
     } catch (_e) { /* non-critical */ }
 
     await client.query('COMMIT');

@@ -2146,14 +2146,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="stat-row"><span class="stat-label">REFERRALS</span><span class="stat-val" id="refCount">0</span></div>
       <div class="stat-row"><span class="stat-label">TOTAL EARNED</span><span class="stat-val" style="color:var(--pp)" id="refEarned">0 PP</span></div>
       <div style="font-size:8px;color:var(--tx3);margin-top:6px;line-height:1.6">
-        Tier 1: 15% · Tier 2: 10% · Tier 3: 5%<br>
-        (deposit · swap · shop · harvest · cantina · hijack)
+        <span data-i18n="ref_tiers">Tier 1: 15% · Tier 2: 10% · Tier 3: 5%</span><br>
+        <span data-i18n="ref_sources">Earn from: deposit · swap · shop · harvest · cantina · hijack</span>
       </div>
-      <button class="sz-btn" onclick="toggleDynastyView()" style="width:100%;margin-top:8px;font-size:9px;padding:6px;color:var(--gold);border-color:rgba(255,184,77,.4);background:linear-gradient(135deg,rgba(255,184,77,.1),rgba(255,120,60,.05))">👑 VIEW DYNASTY</button>
+      <button class="sz-btn" onclick="toggleDynastyView()" style="width:100%;margin-top:8px;font-size:9px;padding:6px;color:var(--gold);border-color:rgba(255,184,77,.4);background:linear-gradient(135deg,rgba(255,184,77,.1),rgba(255,120,60,.05))"><span data-i18n="view_dynasty">👑 VIEW DYNASTY</span></button>
       <div id="dynastyViewWrap" style="display:none;margin-top:8px">
         <div style="display:flex;gap:4px;margin-bottom:6px">
-          <button class="sz-btn" id="dynTabLb" onclick="showDynastyTab('lb')" style="flex:1;font-size:8px;padding:4px">LEADERBOARD</button>
-          <button class="sz-btn" id="dynTabTree" onclick="showDynastyTab('tree')" style="flex:1;font-size:8px;padding:4px">MY TREE</button>
+          <button class="sz-btn" id="dynTabLb" onclick="showDynastyTab('lb')" style="flex:1;font-size:8px;padding:4px"><span data-i18n="dyn_leaderboard">LEADERBOARD</span></button>
+          <button class="sz-btn" id="dynTabTree" onclick="showDynastyTab('tree')" style="flex:1;font-size:8px;padding:4px"><span data-i18n="dyn_my_tree">MY TREE</span></button>
         </div>
         <div id="dynastyLb" style="max-height:240px;overflow-y:auto"></div>
         <div id="dynastyTree" style="display:none;max-height:240px;overflow-y:auto"></div>
@@ -8495,6 +8495,9 @@ var I18N = {
     my_alerts: 'MY ALERTS', live_feed: 'LIVE FEED', place_image: 'PLACE YOUR IMAGE',
     choose_file: 'CHOOSE IMAGE FILE', item_shop: 'ITEM SHOP', open_shop: 'OPEN SHOP',
     referral_program: 'REFERRAL PROGRAM', referral_desc: 'Share your code & earn PP<br>when referrals hijack territory!',
+    ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
+    ref_sources: 'Earn from: deposit · swap · shop · harvest · cantina · hijack',
+    view_dynasty: '👑 VIEW DYNASTY', dyn_leaderboard: 'LEADERBOARD', dyn_my_tree: 'MY TREE',
     my_ref_code: 'MY REFERRAL CODE', enter_ref_code: 'ENTER REFERRAL CODE',
     referrals: 'REFERRALS', total_earned: 'TOTAL EARNED', coming_soon: 'COMING SOON',
     deposit_usdt: 'DEPOSIT USDT', withdraw_usdt: 'WITHDRAW USDT', swap_pp: 'SWAP PP → USDT',
@@ -8569,6 +8572,9 @@ var I18N = {
     my_alerts: '내 알림', live_feed: '실시간 피드', place_image: '이미지 배치',
     choose_file: '이미지 파일 선택', item_shop: '아이템 상점', open_shop: '상점 열기',
     referral_program: '추천 프로그램', referral_desc: '코드를 공유하고 추천인이<br>영토를 탈취할 때 PP를 획득하세요!',
+    ref_tiers: '1단계: 15% · 2단계: 10% · 3단계: 5%',
+    ref_sources: '수익원: 입금 · 스왑 · 상점 · 채굴 · 칸티나 · 탈취',
+    view_dynasty: '👑 다이너스티 보기', dyn_leaderboard: '리더보드', dyn_my_tree: '내 트리',
     my_ref_code: '내 추천 코드', enter_ref_code: '추천 코드 입력',
     referrals: '추천 수', total_earned: '총 수익', coming_soon: '준비 중',
     deposit_usdt: 'USDT 입금', withdraw_usdt: 'USDT 출금', swap_pp: 'PP → USDT 교환',
@@ -8643,6 +8649,9 @@ var I18N = {
     my_alerts: 'アラート', live_feed: 'ライブフィード', place_image: '画像を配置',
     choose_file: '画像ファイルを選択', item_shop: 'アイテムショップ', open_shop: 'ショップを開く',
     referral_program: '紹介プログラム', referral_desc: 'コードを共有して紹介者が<br>領土を奪取するとPPを獲得！',
+    ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
+    ref_sources: '収益源: 入金 · スワップ · ショップ · 採掘 · カンティーナ · 奪取',
+    view_dynasty: '👑 ダイナスティ表示', dyn_leaderboard: 'ランキング', dyn_my_tree: 'マイツリー',
     my_ref_code: '紹介コード', enter_ref_code: '紹介コード入力',
     referrals: '紹介数', total_earned: '総収益', coming_soon: '準備中',
     deposit_usdt: 'USDT入金', withdraw_usdt: 'USDT出金', swap_pp: 'PP → USDT交換',
@@ -8717,6 +8726,9 @@ var I18N = {
     my_alerts: '我的提醒', live_feed: '实时动态', place_image: '放置图片',
     choose_file: '选择图片文件', item_shop: '道具商店', open_shop: '打开商店',
     referral_program: '推荐计划', referral_desc: '分享你的推荐码，<br>当推荐人劫持领土时获得PP！',
+    ref_tiers: '一级: 15% · 二级: 10% · 三级: 5%',
+    ref_sources: '收益来源: 充值 · 兑换 · 商店 · 挖矿 · 赌场 · 劫持',
+    view_dynasty: '👑 查看王朝', dyn_leaderboard: '排行榜', dyn_my_tree: '我的树',
     my_ref_code: '我的推荐码', enter_ref_code: '输入推荐码',
     referrals: '推荐数', total_earned: '总收益', coming_soon: '即将上线',
     deposit_usdt: 'USDT充值', withdraw_usdt: 'USDT提现', swap_pp: 'PP → USDT兑换',
@@ -9689,27 +9701,57 @@ function toggleDynastyView(){
 function showDynastyTab(tab){
   var lb=document.getElementById('dynastyLb'),tr=document.getElementById('dynastyTree');
   var tlb=document.getElementById('dynTabLb'),ttr=document.getElementById('dynTabTree');
+  // Active tab = gold text + gold border + gold-tinted background
+  var activeStyle={background:'rgba(255,184,77,.15)',borderColor:'rgba(255,184,77,.6)',color:'var(--gold)'};
+  var idleStyle={background:'',borderColor:'',color:''};
+  function apply(btn,style){if(!btn)return;btn.style.background=style.background;btn.style.borderColor=style.borderColor;btn.style.color=style.color;}
   if(tab==='lb'){
     lb.style.display='';tr.style.display='none';
-    if(tlb) tlb.style.color='var(--gold)';
-    if(ttr) ttr.style.color='';
+    apply(tlb,activeStyle);apply(ttr,idleStyle);
     loadDynastyLb();
   } else {
     lb.style.display='none';tr.style.display='';
-    if(tlb) tlb.style.color='';
-    if(ttr) ttr.style.color='var(--gold)';
+    apply(tlb,idleStyle);apply(ttr,activeStyle);
     loadDynastyTree();
   }
+}
+// Trigger-type → human label + emoji. Matches creditReferralCommission trigger keys.
+var DYNASTY_TRIGGER_LABELS = {
+  hijack:   {ko:'영토 탈취', en:'Hijack',    ja:'奪取',      zh:'劫持',    icon:'⚔️'},
+  deposit:  {ko:'입금',     en:'Deposit',   ja:'入金',      zh:'充值',    icon:'💵'},
+  swap:     {ko:'스왑 수수료',en:'Swap Fee', ja:'スワップ手数料',zh:'兑换费',icon:'🔄'},
+  shop:     {ko:'상점 구매', en:'Shop Buy',  ja:'ショップ',   zh:'商店',    icon:'🛒'},
+  cantina:  {ko:'칸티나',    en:'Cantina',   ja:'カンティーナ', zh:'赌场',    icon:'🎰'},
+  harvest:  {ko:'채굴',      en:'Mining',    ja:'採掘',       zh:'挖矿',    icon:'⛏️'}
+};
+function dynastyLabel(trigger){
+  var lang=(window.LANG||'en');
+  var key=(trigger||'').replace(/_usdt$/,'');
+  var tag=DYNASTY_TRIGGER_LABELS[key];
+  // tag is keyed by lang code (ko/en/ja/zh) + icon. Fall back to en.
+  var name=tag?(tag[lang]||tag.en||key):key.toUpperCase();
+  var icon=tag?tag.icon:'•';
+  var suffix=/_usdt$/.test(trigger)?' (USDT)':'';
+  return icon+' '+name+suffix;
+}
+function displayName(wallet, nickname){
+  if(nickname) return nickname;
+  if(!wallet) return '--';
+  return wallet.slice(0,6)+'...'+wallet.slice(-4);
 }
 async function loadDynastyLb(){
   var el=document.getElementById('dynastyLb');
   if(!el) return;
-  el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">Loading...</div>';
+  var lang=(window.LANG||'en');
+  var msgs={loading:{ko:'불러오는 중...',en:'Loading...',ja:'読み込み中...',zh:'加载中...'},
+            empty:{ko:'아직 다이너스티 없음',en:'No dynasty yet',ja:'ダイナスティなし',zh:'暂无王朝'},
+            failed:{ko:'불러오기 실패',en:'Load failed',ja:'読み込み失敗',zh:'加载失败'}};
+  el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">'+(msgs.loading[lang]||msgs.loading.en)+'</div>';
   try{
     var r=await fetch('/api/referral/leaderboard/top?limit=20');
     var d=await r.json();
     var rows=d.leaderboard||[];
-    if(!rows.length){el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">No dynasty yet</div>';return}
+    if(!rows.length){el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">'+(msgs.empty[lang]||msgs.empty.en)+'</div>';return}
     var me=(walletState.address||'').toLowerCase();
     var html='';
     rows.forEach(function(r){
@@ -9717,19 +9759,26 @@ async function loadDynastyLb(){
       var medal=r.rank===1?'🥇':r.rank===2?'🥈':r.rank===3?'🥉':'#'+r.rank;
       html+='<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-bottom:1px solid var(--bdr);font-size:9px;'+(isMe?'background:rgba(255,184,77,.1)':'')+'">'+
         '<span style="width:24px;color:var(--gold);font-size:8px">'+medal+'</span>'+
-        '<span style="flex:1;color:'+(isMe?'var(--gold)':'var(--tx2)')+'">'+r.wallet.slice(0,6)+'...'+r.wallet.slice(-4)+'</span>'+
+        '<span style="flex:1;color:'+(isMe?'var(--gold)':'var(--tx2)')+'" title="'+r.wallet+'">'+displayName(r.wallet,r.nickname)+'</span>'+
         '<span style="color:var(--tx3);font-size:8px">'+r.directCount+'👥</span>'+
         '<span style="color:var(--pp);min-width:60px;text-align:right">'+r.totalEarned.toFixed(2)+' PP</span>'+
         '</div>';
     });
     el.innerHTML=html;
-  }catch(e){el.innerHTML='<div style="font-size:8px;color:var(--red);text-align:center;padding:8px">Load failed</div>'}
+  }catch(e){el.innerHTML='<div style="font-size:8px;color:var(--red);text-align:center;padding:8px">'+(msgs.failed[lang]||msgs.failed.en)+'</div>'}
 }
 async function loadDynastyTree(){
   var el=document.getElementById('dynastyTree');
   if(!el) return;
-  if(!walletState.address){el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">Login first</div>';return}
-  el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">Loading...</div>';
+  var lang=(window.LANG||'en');
+  var msgs={loading:{ko:'불러오는 중...',en:'Loading...',ja:'読み込み中...',zh:'加载中...'},
+            needLogin:{ko:'먼저 로그인하세요',en:'Login first',ja:'ログインしてください',zh:'请先登录'},
+            bySource:{ko:'수익원별 집계',en:'EARNINGS BY SOURCE',ja:'収益源別',zh:'按来源'},
+            direct:{ko:'다이렉트 다운라인',en:'DIRECT DOWNLINE',ja:'直接ダウンライン',zh:'直接下线'},
+            noRefs:{ko:'아직 추천인 없음',en:'No referrals yet',ja:'紹介者なし',zh:'暂无推荐'},
+            failed:{ko:'불러오기 실패',en:'Load failed',ja:'読み込み失敗',zh:'加载失败'}};
+  if(!walletState.address){el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">'+(msgs.needLogin[lang]||msgs.needLogin.en)+'</div>';return}
+  el.innerHTML='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">'+(msgs.loading[lang]||msgs.loading.en)+'</div>';
   try{
     var r=await fetch('/api/referral/tree/'+walletState.address);
     var d=await r.json();
@@ -9737,29 +9786,28 @@ async function loadDynastyTree(){
     var byTrig=d.byTrigger||[];
     var html='';
     if(byTrig.length){
-      html+='<div style="font-size:8px;color:var(--tx3);margin-bottom:4px">EARNINGS BY SOURCE</div>';
+      html+='<div style="font-size:8px;color:var(--tx3);margin-bottom:4px">'+(msgs.bySource[lang]||msgs.bySource.en)+'</div>';
       byTrig.forEach(function(t){
-        var label=(t.trigger||'').replace(/_usdt$/,' (USDT)').toUpperCase();
         html+='<div style="display:flex;justify-content:space-between;font-size:9px;padding:2px 4px;border-bottom:1px solid var(--bdr)">'+
-          '<span style="color:var(--tx2)">'+label+'</span>'+
+          '<span style="color:var(--tx2)">'+dynastyLabel(t.trigger)+'</span>'+
           '<span style="color:var(--pp)">'+t.total.toFixed(2)+'</span>'+
           '</div>';
       });
     }
-    html+='<div style="font-size:8px;color:var(--tx3);margin:8px 0 4px">DIRECT DOWNLINE ('+direct.length+')</div>';
+    html+='<div style="font-size:8px;color:var(--tx3);margin:8px 0 4px">'+(msgs.direct[lang]||msgs.direct.en)+' ('+direct.length+')</div>';
     if(!direct.length){
-      html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px">No referrals yet</div>';
+      html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px">'+(msgs.noRefs[lang]||msgs.noRefs.en)+'</div>';
     } else {
       direct.forEach(function(r){
         html+='<div style="display:flex;align-items:center;gap:6px;padding:3px 4px;border-bottom:1px solid var(--bdr);font-size:9px">'+
-          '<span style="flex:1;color:var(--tx2)">'+r.wallet.slice(0,6)+'...'+r.wallet.slice(-4)+'</span>'+
+          '<span style="flex:1;color:var(--tx2)" title="'+r.wallet+'">'+displayName(r.wallet,r.nickname)+'</span>'+
           (r.subCount>0?'<span style="color:var(--tx3);font-size:8px">+'+r.subCount+' sub</span>':'')+
           '<span style="color:var(--pp);min-width:60px;text-align:right">'+r.earnedFrom.toFixed(2)+' PP</span>'+
           '</div>';
       });
     }
     el.innerHTML=html;
-  }catch(e){el.innerHTML='<div style="font-size:8px;color:var(--red);text-align:center;padding:8px">Load failed</div>'}
+  }catch(e){el.innerHTML='<div style="font-size:8px;color:var(--red);text-align:center;padding:8px">'+(msgs.failed[lang]||msgs.failed.en)+'</div>'}
 }
 
 /* ── UI Helpers ──────────────────────────────────── */

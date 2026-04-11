@@ -231,7 +231,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
 
   <!-- Stats Cards (dashboard) -->
   <div class="stats-grid cat-dashboard" id="statsGrid">
-    <div class="stat-card"><div class="sc-label" data-i18n="stat_total_users">TOTAL USERS</div><div class="sc-value mars" id="sTotalUsers">--</div></div>
+    <div class="stat-card"><div class="sc-label" data-i18n="stat_total_users">TOTAL USERS</div><div class="sc-value mars" id="sTotalUsers">--</div><div class="sc-sub"><span style="color:var(--cyan)" id="sRealUsers">--</span> real · <span style="color:var(--tx3)" id="sNpcUsers">--</span> NPC</div></div>
     <div class="stat-card"><div class="sc-label" data-i18n="stat_total_volume">TOTAL VOLUME</div><div class="sc-value gn" id="sTotalVolume">--</div><div class="sc-sub" data-i18n="stat_usdt_deposited">USDT deposited</div></div>
     <div class="stat-card"><div class="sc-label" data-i18n="stat_total_revenue">TOTAL REVENUE</div><div class="sc-value gold" id="sTotalRevenue">--</div><div class="sc-sub" data-i18n="stat_fees_earned">fees earned</div></div>
     <div class="stat-card"><div class="sc-label" data-i18n="stat_active_24h">ACTIVE 24H</div><div class="sc-value cyan" id="sActive24h">--</div><div class="sc-sub" data-i18n="stat_deposits_today">deposits today</div></div>
@@ -372,7 +372,12 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <div class="section cat-users">
     <div class="sec-header">
       <span class="sec-title" data-i18n="sec_users">USERS</span>
-      <div class="sec-tools">
+      <div class="sec-tools" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;gap:2px;border:1px solid var(--bdr);border-radius:4px;overflow:hidden">
+          <button class="uk-pill" id="ukAll"  onclick="setUserKind('all')"  style="padding:4px 10px;font-size:8px;background:rgba(91,184,232,.15);color:var(--cyan);border:none;cursor:pointer">ALL <span id="ukAllCnt" style="opacity:.6"></span></button>
+          <button class="uk-pill" id="ukReal" onclick="setUserKind('real')" style="padding:4px 10px;font-size:8px;background:transparent;color:var(--tx2);border:none;cursor:pointer;border-left:1px solid var(--bdr)">REAL <span id="ukRealCnt" style="opacity:.6"></span></button>
+          <button class="uk-pill" id="ukNpc"  onclick="setUserKind('npc')"  style="padding:4px 10px;font-size:8px;background:transparent;color:var(--tx2);border:none;cursor:pointer;border-left:1px solid var(--bdr)">NPC <span id="ukNpcCnt" style="opacity:.6"></span></button>
+        </div>
         <input type="text" class="adm-input" id="userSearch" data-i18n-placeholder="search_users" placeholder="Search email/nickname/wallet..." oninput="debouncedLoadUsers()" style="width:240px">
       </div>
     </div>
@@ -1198,6 +1203,8 @@ function loadAll() {
 function loadStats() {
   api('/admin/api/stats').then(function(d) {
     document.getElementById('sTotalUsers').textContent = d.totalUsers.toLocaleString();
+    if (d.realUsers != null) document.getElementById('sRealUsers').textContent = d.realUsers.toLocaleString();
+    if (d.npcUsers  != null) document.getElementById('sNpcUsers').textContent  = d.npcUsers.toLocaleString();
     document.getElementById('sTotalVolume').textContent = '$' + d.totalVolume.toLocaleString(undefined, {minimumFractionDigits: 2});
     document.getElementById('sTotalRevenue').textContent = '$' + d.totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2});
     document.getElementById('sActive24h').textContent = d.active24h.toLocaleString();
@@ -1228,6 +1235,7 @@ function loadStats() {
 
 // ── Users ──
 var userDebounce = null;
+var userKind = 'all'; // all | real | npc
 function debouncedLoadUsers() {
   clearTimeout(userDebounce);
   userDebounce = setTimeout(function() { loadUsers(1); }, 300);
@@ -1239,13 +1247,36 @@ function sortUsers(col) {
   loadUsers(1);
 }
 
+function setUserKind(kind) {
+  userKind = kind;
+  // visually highlight the active pill
+  ['all','real','npc'].forEach(function(k) {
+    var el = document.getElementById('uk' + k[0].toUpperCase() + k.slice(1));
+    if (!el) return;
+    if (k === kind) {
+      el.style.background = 'rgba(91,184,232,.15)';
+      el.style.color = 'var(--cyan)';
+    } else {
+      el.style.background = 'transparent';
+      el.style.color = 'var(--tx2)';
+    }
+  });
+  loadUsers(1);
+}
+
 function loadUsers(page) {
   userPage = page;
   var search = document.getElementById('userSearch').value;
-  var url = '/admin/api/users?page=' + page + '&sort=' + userSort + '&order=' + userOrder;
+  var url = '/admin/api/users?page=' + page + '&sort=' + userSort + '&order=' + userOrder + '&kind=' + userKind;
   if (search) url += '&search=' + encodeURIComponent(search);
 
   api(url).then(function(d) {
+    // Update count badges on the filter pills
+    if (d.counts) {
+      document.getElementById('ukAllCnt').textContent  = '(' + d.counts.all + ')';
+      document.getElementById('ukRealCnt').textContent = '(' + d.counts.real + ')';
+      document.getElementById('ukNpcCnt').textContent  = '(' + d.counts.npc + ')';
+    }
     var tbody = document.getElementById('usersBody');
     tbody.innerHTML = '';
     if (!d.users.length) {
@@ -1254,8 +1285,13 @@ function loadUsers(page) {
     }
     d.users.forEach(function(u) {
       var tr = document.createElement('tr');
+      // NPC rows: dim + orange tint so they're instantly visible; REAL rows: normal.
+      var npcBadge = u.isNpc
+        ? '<span style="display:inline-block;padding:1px 5px;background:rgba(255,120,60,.15);color:var(--mars);border:1px solid rgba(255,120,60,.3);border-radius:3px;font-size:6px;margin-left:4px">NPC</span>'
+        : '';
+      if (u.isNpc) tr.style.opacity = '0.65';
       tr.innerHTML =
-        '<td class="addr">' + u.wallet.slice(0,10) + '...' + '</td>' +
+        '<td class="addr">' + u.wallet.slice(0,10) + '...' + npcBadge + '</td>' +
         '<td>' + (u.email || '-') + '</td>' +
         '<td>' + (u.nickname || '-') + '</td>' +
         '<td class="val-gn">' + u.usdtBalance.toFixed(2) + '</td>' +
@@ -1508,7 +1544,7 @@ var settingDescI18n = {
     referral_deposit_pct: '입금 시 업라인 분배 비율 (%) — 0=비활성',
     referral_swap_pct: '스왑 수수료 중 업라인 분배 비율 (%)',
     referral_shop_pct: '상점 USDT 구매 시 업라인 분배 비율 (%)',
-    referral_cantina_pct: '카지노 손실액 중 업라인 분배 비율 (%)',
+    referral_cantina_pct: '칸티나 PP 베팅액 중 업라인 분배 비율 (%)',
     referral_harvest_pct: '채굴 PP 중 업라인 분배 비율 (%)',
     referral_enabled: '전체 레퍼럴 시스템 활성화/비활성화'
   },
