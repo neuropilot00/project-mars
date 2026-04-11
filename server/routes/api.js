@@ -21,6 +21,8 @@ let guildService;
 try { guildService = require('../services/guild'); } catch (_e) { /* guild service not available */ }
 let seasonService;
 try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }
+let missionService;
+try { missionService = require('../services/missions'); } catch (_e) { /* mission service not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -2301,11 +2303,27 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       [harvestedPP, w]
     );
 
+    // ── Guild harvest contribution (auto-siphon into guild treasury) ──
+    let guildContrib = null;
+    try {
+      if (guildService && guildService.contributeHarvest) {
+        const gr = await guildService.contributeHarvest(client, w, harvestedPP);
+        if (gr.contributed > 0) {
+          // Move the contribution out of user balance
+          await client.query(
+            'UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address = $2',
+            [gr.contributed, w]
+          );
+          guildContrib = gr;
+        }
+      }
+    } catch (_gce) { /* non-critical */ }
+
     // Transaction log
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
        VALUES ('mining', $1, $2, 0, $3)`,
-      [w, harvestedPP, JSON.stringify({ totalPixels, bestTier, tierCounts, isGovernor, pixelFactor: Math.round(pixelFactor * 100) / 100 })]
+      [w, harvestedPP, JSON.stringify({ totalPixels, bestTier, tierCounts, isGovernor, pixelFactor: Math.round(pixelFactor * 100) / 100, guildContrib })]
     );
 
     // Award XP for harvesting (5 XP per harvest)
@@ -2322,6 +2340,8 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     res.json({
       success: true,
       harvestedPP,
+      netPP: guildContrib ? (harvestedPP - guildContrib.contributed) : harvestedPP,
+      guildContribPP: guildContrib ? guildContrib.contributed : 0,
       totalPixels,
       bestTier,
       rankUp: harvestRankUp || null,
@@ -4137,6 +4157,156 @@ router.get('/guild/chat/:guildId', readLimiter, async (req, res) => {
   } catch (e) {
     console.error('[GUILD] chat read error:', e.message);
     res.status(500).json({ error: 'Failed to load messages' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  MISSIONS — single-player OPS (invasion + exploration)
+// ══════════════════════════════════════════════════
+
+// Launch a new mission
+router.post('/missions/launch', writeLimiter, async (req, res) => {
+  const { wallet, type, targetLat, targetLng, targetWallet } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  if (!w || !type) return res.status(400).json({ error: 'Missing wallet or type' });
+  if (typeof targetLat !== 'number' || typeof targetLng !== 'number') {
+    return res.status(400).json({ error: 'Invalid target coordinates' });
+  }
+  if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
+  try {
+    const result = await missionService.launchMission(
+      w, type, targetLat, targetLng,
+      targetWallet ? targetWallet.toLowerCase() : null
+    );
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[MISSION] launch error:', e.message);
+    res.status(500).json({ error: 'Failed to launch mission' });
+  }
+});
+
+// List active + completed missions for a wallet (private to caller)
+router.get('/missions/active', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
+  try {
+    const missions = await missionService.getActiveMissions(w);
+    const slotCap = await missionService.slotCapForWallet(w);
+    res.json({ missions, slotCap });
+  } catch (e) {
+    console.error('[MISSION] list error:', e.message);
+    res.status(500).json({ error: 'Failed to load missions' });
+  }
+});
+
+// Claim a completed mission's rewards
+router.post('/missions/:id/claim', writeLimiter, async (req, res) => {
+  const { wallet } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  const missionId = parseInt(req.params.id);
+  if (!w || !missionId) return res.status(400).json({ error: 'Missing fields' });
+  if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
+  try {
+    const result = await missionService.claimMission(w, missionId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+    // Season tracking (best-effort)
+    if (seasonService && result.success) {
+      const m = result.mission;
+      if (m.type === 'exploration') seasonService.addSeasonScore(w, 'poi', 1).catch(() => {});
+      if (m.type === 'invasion' && m.won && m.reward?.stolenPixelsActual) {
+        seasonService.addSeasonScore(w, 'hijack', m.reward.stolenPixelsActual).catch(() => {});
+      }
+    }
+  } catch (e) {
+    console.error('[MISSION] claim error:', e.message);
+    res.status(500).json({ error: 'Failed to claim mission' });
+  }
+});
+
+// Cancel a traveling mission (partial refund)
+router.post('/missions/:id/cancel', writeLimiter, async (req, res) => {
+  const { wallet } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  const missionId = parseInt(req.params.id);
+  if (!w || !missionId) return res.status(400).json({ error: 'Missing fields' });
+  if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
+  try {
+    const result = await missionService.cancelMission(w, missionId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[MISSION] cancel error:', e.message);
+    res.status(500).json({ error: 'Failed to cancel mission' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GUILD UPGRADES — treasury contribution, level up, research
+// ══════════════════════════════════════════════════
+
+// Set the caller's harvest contribution percentage (0-30)
+router.post('/guild/contribution', writeLimiter, async (req, res) => {
+  const { wallet, pct } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  if (!w || pct === undefined) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.setContributionPct(w, parseInt(pct));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] contrib-pct error:', e.message);
+    res.status(500).json({ error: 'Failed to set contribution' });
+  }
+});
+
+// Trigger a guild level-up (consumes treasury)
+router.post('/guild/levelup', writeLimiter, async (req, res) => {
+  const { wallet, guildId } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.upgradeGuildLevel(w, parseInt(guildId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] levelup error:', e.message);
+    res.status(500).json({ error: 'Failed to level up' });
+  }
+});
+
+// Unlock a research perk (consumes treasury)
+router.post('/guild/research', writeLimiter, async (req, res) => {
+  const { wallet, guildId, key } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  if (!w || !guildId || !key) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.unlockResearch(w, parseInt(guildId), key);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] research error:', e.message);
+    res.status(500).json({ error: 'Failed to unlock research' });
+  }
+});
+
+// Treasury ledger (recent transactions)
+router.get('/guild/:id/ledger', readLimiter, async (req, res) => {
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const entries = await guildService.getTreasuryLedger(
+      parseInt(req.params.id),
+      parseInt(req.query.limit) || 50
+    );
+    res.json({ entries });
+  } catch (e) {
+    console.error('[GUILD] ledger error:', e.message);
+    res.status(500).json({ error: 'Failed to load ledger' });
   }
 });
 

@@ -394,6 +394,16 @@ async function start() {
       console.log('[EXPLORE] Scheduled tasks initialized (expire: 5min, POI spawn: 4h, starlink: 10min)');
     } catch(e) { console.warn('[EXPLORE] Could not init scheduled tasks:', e.message); }
 
+    // ── Missions Scheduler (resolves elapsed missions) ──
+    try {
+      const { tickMissions } = require('./services/missions');
+      // Resolve due missions every 30 seconds
+      setInterval(async () => {
+        try { await tickMissions(); } catch(e) { console.warn('[MISSION] tick error:', e.message); }
+      }, 30 * 1000);
+      console.log('[MISSION] Scheduled tasks initialized (tick: 30s)');
+    } catch(e) { console.warn('[MISSION] Could not init scheduled tasks:', e.message); }
+
     // ── Maintenance Fee Scheduled Tasks ──
     try {
       const { processMaintenanceFees } = require('./services/maintenance');

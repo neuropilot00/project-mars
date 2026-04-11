@@ -2736,6 +2736,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)">SEASON<span class="tab-dot" id="rankDot"></span></div>
       <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')">MINING<span class="tab-dot" id="miningDot"></span></div>
       <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests')">QUESTS<span class="tab-dot" id="questsDot"></span></div>
+      <div class="base-tab" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)">OPS<span class="tab-dot" id="opsDot"></span></div>
       <div class="base-tab" onclick="switchBaseTab('shop',this);loadBaseShopItems()">SHOP</div>
       <div class="base-tab" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)">GUILD<span class="tab-dot" id="guildDot"></span></div>
       <div class="base-tab" onclick="switchBaseTab('govern',this)" style="color:var(--cyan)">GOVERN</div>
@@ -3160,6 +3161,37 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 <div style="font-size:14px;color:var(--gn);font-weight:700" id="guildTreasury">0</div>
               </div>
             </div>
+
+            <!-- ═════ GUILD UPGRADES (level / PP treasury / contribution / research) ═════ -->
+            <div style="padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(184,136,224,.08),rgba(184,136,224,.02));border:1px solid rgba(184,136,224,.25);margin-bottom:12px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <span style="font-size:14px">🏛</span>
+                <span style="font-size:10px;color:var(--pp);font-family:var(--fn);font-weight:700;letter-spacing:1px">GUILD UPGRADES</span>
+                <span id="guildLevelBadge" style="margin-left:auto;padding:3px 8px;border-radius:10px;background:rgba(184,136,224,.2);border:1px solid rgba(184,136,224,.4);color:var(--pp);font-family:var(--fn);font-size:10px;font-weight:700">LV.1</span>
+              </div>
+              <!-- PP treasury + levelup -->
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:rgba(0,0,0,.2);border-radius:6px">
+                <div style="flex:1">
+                  <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)">PP TREASURY</div>
+                  <div style="font-size:13px;color:var(--pp);font-weight:700" id="guildPpTreasury">0.00</div>
+                  <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)" id="guildNextLevelCost">Next: –</div>
+                </div>
+                <button id="guildLevelupBtn" onclick="guildLevelUp()" style="padding:8px 12px;border-radius:6px;background:linear-gradient(135deg,var(--pp),#9060C0);border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">LEVEL UP ▲</button>
+              </div>
+              <!-- Contribution slider -->
+              <div style="padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:8px">
+                <div style="display:flex;align-items:center;justify-content:space-between;font-size:9px;color:var(--tx3);font-family:var(--fn);margin-bottom:4px">
+                  <span>MY HARVEST CONTRIBUTION</span>
+                  <span id="guildContribPctLabel" style="color:var(--pp);font-weight:700">5%</span>
+                </div>
+                <input type="range" min="0" max="30" step="1" id="guildContribSlider" value="5" oninput="document.getElementById('guildContribPctLabel').textContent=this.value+'%'" onchange="guildSetContribution(this.value)" style="width:100%;accent-color:#B888E0">
+                <div style="font-size:8px;color:var(--tx3);font-family:var(--fn);margin-top:2px">Portion of every harvest siphoned into the guild treasury.</div>
+              </div>
+              <!-- Research perks -->
+              <div class="base-section-title" style="color:var(--pp);font-size:9px;margin-top:4px">RESEARCH</div>
+              <div id="guildResearchGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:var(--fn);font-size:9px"></div>
+            </div>
+
             <!-- Members list -->
             <div class="base-section-title">MEMBERS</div>
             <div id="guildMembersList" style="margin-bottom:12px"></div>
@@ -3206,6 +3238,44 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <button onclick="guildDisband()" style="padding:6px 12px;border-radius:4px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.3);color:var(--red);font-size:9px;cursor:pointer;font-family:var(--fn)">DISBAND GUILD</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- TAB: OPS — single-player invasion + exploration missions -->
+      <div class="base-pane" id="basePane_ops">
+        <div style="padding:8px 2px 12px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="font-size:22px">🛰️</div>
+            <div style="flex:1">
+              <div style="font-size:12px;color:var(--cyan);font-family:var(--fn);font-weight:700;letter-spacing:1px">TACTICAL OPERATIONS</div>
+              <div style="font-size:9px;color:var(--tx3);font-family:var(--fn)">Launch invasion &amp; exploration missions from your territory</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)">SLOTS</div>
+              <div style="font-size:14px;color:var(--cyan);font-weight:700" id="opsSlotInfo">–/–</div>
+            </div>
+          </div>
+
+          <!-- Launch form -->
+          <div style="padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(91,184,232,.06),rgba(91,184,232,.02));border:1px solid rgba(91,184,232,.25);margin-bottom:12px">
+            <div style="font-size:10px;color:var(--cyan);font-family:var(--fn);font-weight:700;margin-bottom:8px;letter-spacing:1px">LAUNCH NEW MISSION</div>
+            <div style="display:flex;gap:4px;margin-bottom:8px">
+              <button id="opsTypeInvasion" onclick="setOpsType('invasion')" style="flex:1;padding:7px;border-radius:6px;background:rgba(255,120,60,.15);border:1px solid rgba(255,120,60,.45);color:var(--mars);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">⚔ INVASION</button>
+              <button id="opsTypeExplore" onclick="setOpsType('exploration')" style="flex:1;padding:7px;border-radius:6px;background:rgba(76,216,154,.06);border:1px solid rgba(76,216,154,.2);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">🛰 EXPLORE</button>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:6px">
+              <input type="number" step="0.1" id="opsTargetLat" placeholder="Target Lat" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)">
+              <input type="number" step="0.1" id="opsTargetLng" placeholder="Target Lng" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)">
+              <button onclick="opsPickRandom()" title="Random Mars coord" style="padding:7px 10px;border-radius:6px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer">🎲</button>
+            </div>
+            <input type="text" id="opsTargetWallet" placeholder="Target wallet / nickname (invasion only)" style="width:100%;box-sizing:border-box;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn);margin-bottom:8px">
+            <div id="opsLaunchPreview" style="font-size:9px;color:var(--tx3);font-family:var(--fn);margin-bottom:8px;min-height:14px"></div>
+            <button onclick="launchOpsMission()" style="width:100%;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),#3B8BCC);border:none;color:#001;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:900;letter-spacing:1px">LAUNCH MISSION ▶</button>
+          </div>
+
+          <!-- Active mission list -->
+          <div class="base-section-title" style="color:var(--cyan)">ACTIVE OPERATIONS</div>
+          <div id="opsMissionList" style="font-size:10px;color:var(--tx3);padding:6px 0">No active missions. Launch one above.</div>
         </div>
       </div>
 
@@ -5399,6 +5469,7 @@ function compositeClaimsOnTexture(previewOnly){
     // Weather overlay
     if(typeof _drawWeatherOverlay==='function') _drawWeatherOverlay(ctx,w,h);
     if(typeof _drawPOIMarkers==='function') _drawPOIMarkers(ctx,w,h);
+    if(typeof _drawMissionRoutes==='function') _drawMissionRoutes(ctx,w,h);
     if(typeof _drawRocketOverlay==='function') _drawRocketOverlay(ctx,w,h);
     if(typeof _drawStarlinkTrails==='function') _drawStarlinkTrails(ctx,w,h);
 
@@ -11014,14 +11085,14 @@ window._baseDotSeen = (function(){
 })();
 function _saveDotSeen(){ try{ localStorage.setItem('base_tab_seen', JSON.stringify(window._baseDotSeen)); }catch(_e){} }
 window.clearBaseTabDot = function(tab){
-  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot'};
+  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot'};
   var id = map[tab]; if(!id) return;
   var el = document.getElementById(id); if(el) el.style.display='none';
   window._baseDotSeen[tab] = Date.now();
   _saveDotSeen();
 };
 window.setBaseTabDot = function(tab, on){
-  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot'};
+  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot'};
   var id = map[tab]; if(!id) return;
   var el = document.getElementById(id); if(el) el.style.display = on ? 'block' : 'none';
 };
@@ -11165,6 +11236,240 @@ function renderGuildState(guild, wallet){
       el.innerHTML=btns;
     });
   }
+
+  // ── Guild upgrade panel (migration 058) ──
+  try{ renderGuildUpgrades(guild, myRole); }catch(_e){}
+}
+
+// ── Guild upgrade panel ──
+var _guildLevelCosts = {2:500, 3:2000, 4:8000, 5:25000, 6:80000};
+var _guildResearchCatalog = [
+  {key:'mining_eff_1',  label:'⛏ MINING EFF. I',   cost:1000},
+  {key:'shield_disc',   label:'🛡 SHIELD DISCIPL.', cost:1000},
+  {key:'diplomatic',    label:'🕊 DIPLOMATIC',      cost:1000},
+  {key:'orbital_scan',  label:'🛰 ORBITAL SCAN',    cost:5000},
+  {key:'rapid_deploy',  label:'🚀 RAPID DEPLOY',    cost:5000},
+  {key:'logistics',     label:'📦 LOGISTICS',       cost:5000},
+  {key:'mars_dominion', label:'🔥 MARS DOMINION',   cost:20000}
+];
+function renderGuildUpgrades(guild, myRole){
+  var lvl = parseInt(guild.level||1);
+  var treasury = parseFloat(guild.ppTreasury||guild.pp_treasury||0);
+  document.getElementById('guildLevelBadge').textContent = 'LV.'+lvl;
+  document.getElementById('guildPpTreasury').textContent = treasury.toFixed(2)+' PP';
+  var nextCost = _guildLevelCosts[lvl+1];
+  var btn = document.getElementById('guildLevelupBtn');
+  var costEl = document.getElementById('guildNextLevelCost');
+  if(!nextCost){
+    costEl.textContent = 'MAX LEVEL';
+    btn.style.display='none';
+  } else {
+    costEl.textContent = 'Next: '+nextCost+' PP (→ Lv.'+(lvl+1)+')';
+    btn.style.display = '';
+    btn.disabled = treasury < nextCost;
+    btn.style.opacity = (treasury < nextCost) ? 0.5 : 1;
+  }
+  // Contribution slider — populate with my current %
+  var me = (guild.members||[]).find(function(m){return m.wallet===walletState.address});
+  var myPct = (me && me.contributionPct!=null) ? me.contributionPct : 5;
+  var slider = document.getElementById('guildContribSlider');
+  if(slider){
+    slider.value = myPct;
+    document.getElementById('guildContribPctLabel').textContent = myPct+'%';
+  }
+  // Research grid
+  var flags = guild.researchFlags || guild.research_flags || {};
+  var canSpend = (myRole==='leader'||myRole==='officer');
+  var grid = document.getElementById('guildResearchGrid');
+  grid.innerHTML = _guildResearchCatalog.map(function(r){
+    var unlocked = !!flags[r.key];
+    var affordable = treasury >= r.cost;
+    var bg = unlocked ? 'rgba(76,216,154,.1)' : 'rgba(255,255,255,.03)';
+    var bdr = unlocked ? 'rgba(76,216,154,.35)' : 'rgba(184,136,224,.2)';
+    var col = unlocked ? 'var(--gn)' : (affordable ? 'var(--pp)' : 'var(--tx3)');
+    var status = unlocked ? '✓ UNLOCKED' : (r.cost+' PP');
+    var click = (unlocked||!canSpend||!affordable) ? '' : ' onclick="guildUnlockResearch(\''+r.key+'\')"';
+    return '<div'+click+' style="padding:6px 8px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';cursor:'+(click?'pointer':'default')+'">'+
+      '<div style="color:'+col+';font-weight:700">'+r.label+'</div>'+
+      '<div style="color:var(--tx3);font-size:8px">'+status+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function guildLevelUp(){
+  if(!_myGuildData) return;
+  fetch('/api/guild/levelup',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address,guildId:_myGuildData.id})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error); return; }
+    showAlert('Guild leveled up to Lv.'+d.level+'!','success');
+    loadGuildTab();
+  }).catch(function(e){ showAlert('Level up failed: '+e.message); });
+}
+function guildSetContribution(pct){
+  fetch('/api/guild/contribution',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address,pct:parseInt(pct)})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error); }
+  }).catch(function(){});
+}
+function guildUnlockResearch(key){
+  if(!_myGuildData) return;
+  fetch('/api/guild/research',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address,guildId:_myGuildData.id,key:key})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error); return; }
+    showAlert('Research unlocked!','success');
+    loadGuildTab();
+  }).catch(function(e){ showAlert('Research failed: '+e.message); });
+}
+
+// ══════════════════════════════════════════════════════════
+//  OPS (Missions) — launch / list / claim / canvas routes
+// ══════════════════════════════════════════════════════════
+window._opsType = 'invasion';
+window._opsMissions = [];
+window._opsSlotCap = 0;
+window._opsTimer = null;
+
+function setOpsType(t){
+  window._opsType = t;
+  var inv = document.getElementById('opsTypeInvasion');
+  var exp = document.getElementById('opsTypeExplore');
+  var targetW = document.getElementById('opsTargetWallet');
+  if(t==='invasion'){
+    inv.style.background='rgba(255,120,60,.15)'; inv.style.borderColor='rgba(255,120,60,.45)'; inv.style.color='var(--mars)';
+    exp.style.background='rgba(76,216,154,.06)'; exp.style.borderColor='rgba(76,216,154,.2)'; exp.style.color='var(--tx3)';
+    if(targetW) targetW.style.display='';
+  } else {
+    exp.style.background='rgba(76,216,154,.15)'; exp.style.borderColor='rgba(76,216,154,.45)'; exp.style.color='var(--gn)';
+    inv.style.background='rgba(255,120,60,.06)'; inv.style.borderColor='rgba(255,120,60,.2)'; inv.style.color='var(--tx3)';
+    if(targetW) targetW.style.display='none';
+  }
+  updateOpsLaunchPreview();
+}
+function opsPickRandom(){
+  var lat = (Math.random()*140 - 70).toFixed(2);
+  var lng = (Math.random()*360 - 180).toFixed(2);
+  document.getElementById('opsTargetLat').value = lat;
+  document.getElementById('opsTargetLng').value = lng;
+  updateOpsLaunchPreview();
+}
+function updateOpsLaunchPreview(){
+  var lat = parseFloat(document.getElementById('opsTargetLat').value);
+  var lng = parseFloat(document.getElementById('opsTargetLng').value);
+  var el = document.getElementById('opsLaunchPreview');
+  if(isNaN(lat)||isNaN(lng)){ el.textContent=''; return; }
+  el.innerHTML = 'Target: <b style="color:var(--cyan)">'+lat.toFixed(1)+'°, '+lng.toFixed(1)+'°</b>';
+}
+document.addEventListener('input', function(e){
+  if(e.target && (e.target.id==='opsTargetLat'||e.target.id==='opsTargetLng')) updateOpsLaunchPreview();
+});
+
+function loadOpsTab(){
+  var w = walletState.address; if(!w) return;
+  fetch('/api/missions/active?wallet='+encodeURIComponent(w))
+    .then(function(r){return r.json()})
+    .then(function(d){
+      window._opsMissions = d.missions || [];
+      window._opsSlotCap = d.slotCap || 0;
+      var used = _opsMissions.filter(function(m){return m.status!=='claimed'}).length;
+      document.getElementById('opsSlotInfo').textContent = used+'/'+_opsSlotCap;
+      renderOpsMissionList();
+    })
+    .catch(function(){ document.getElementById('opsMissionList').innerHTML='Failed to load missions.'; });
+  if(!_opsTimer) _opsTimer = setInterval(renderOpsMissionList, 1000);
+}
+
+function renderOpsMissionList(){
+  var el = document.getElementById('opsMissionList');
+  if(!el) return;
+  if(!_opsMissions.length){ el.innerHTML='<div style="color:var(--tx3);padding:12px;text-align:center">No active missions. Launch one above.</div>'; return; }
+  var now = Date.now();
+  el.innerHTML = _opsMissions.map(function(m){
+    var start = new Date(m.startTime).getTime();
+    var end = start + m.durationSec*1000;
+    var remaining = Math.max(0, end - now);
+    var pct = Math.min(100, 100*(1 - remaining/(m.durationSec*1000)));
+    var typIcon = m.type==='invasion' ? '⚔' : '🛰';
+    var typCol = m.type==='invasion' ? 'var(--mars)' : 'var(--gn)';
+    var ready = m.readyToClaim;
+    var barCol = ready ? 'var(--gold)' : typCol;
+    var label = ready
+      ? (m.status==='failed' ? 'FAILED' : 'READY TO CLAIM')
+      : _opsFormatTime(remaining);
+    var tgt = m.type==='invasion'
+      ? ('VS '+(m.targetWallet||'').slice(0,8)+'...')
+      : ('EXPLORE '+m.targetLat.toFixed(1)+'°, '+m.targetLng.toFixed(1)+'°');
+    var btn = ready
+      ? '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">CLAIM</button>'
+      : '<button onclick="cancelOpsMission('+m.id+')" style="padding:4px 8px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--tx3);font-family:var(--fn);font-size:8px;cursor:pointer">ABORT</button>';
+    return '<div style="padding:8px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid var(--bdr);margin-bottom:6px">'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
+        '<span style="font-size:14px">'+typIcon+'</span>'+
+        '<span style="font-size:10px;color:'+typCol+';font-weight:700">'+m.type.toUpperCase()+'</span>'+
+        '<span style="font-size:8px;color:var(--tx3);margin-left:auto">'+label+'</span>'+
+      '</div>'+
+      '<div style="font-size:9px;color:var(--tx2);font-family:var(--fn);margin-bottom:4px">'+tgt+' · '+m.distanceDeg.toFixed(1)+'°</div>'+
+      '<div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+pct+'%;background:'+barCol+';transition:width .5s"></div></div>'+
+      '<div style="display:flex;justify-content:flex-end">'+btn+'</div>'+
+    '</div>';
+  }).join('');
+}
+function _opsFormatTime(ms){
+  var s = Math.floor(ms/1000);
+  var h = Math.floor(s/3600); s -= h*3600;
+  var m = Math.floor(s/60); s -= m*60;
+  if(h>0) return h+'h '+m+'m';
+  if(m>0) return m+'m '+s+'s';
+  return s+'s';
+}
+function launchOpsMission(){
+  var w = walletState.address; if(!w){ showAlert('Connect wallet first'); return; }
+  var lat = parseFloat(document.getElementById('opsTargetLat').value);
+  var lng = parseFloat(document.getElementById('opsTargetLng').value);
+  if(isNaN(lat)||isNaN(lng)){ showAlert('Enter target coordinates'); return; }
+  var body = { wallet:w, type:_opsType, targetLat:lat, targetLng:lng };
+  if(_opsType==='invasion'){
+    var tgt = (document.getElementById('opsTargetWallet').value||'').trim();
+    if(!tgt){ showAlert('Target wallet or nickname required'); return; }
+    body.targetWallet = tgt;
+  }
+  fetch('/api/missions/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.error){ showAlert(d.error); return; }
+      showAlert('Mission launched!','success');
+      loadOpsTab();
+    })
+    .catch(function(e){ showAlert('Launch failed: '+e.message); });
+}
+function claimOpsMission(id){
+  fetch('/api/missions/'+id+'/claim',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error); return; }
+    var r = d.mission.reward || {};
+    var parts = [];
+    if(r.pp>0) parts.push(r.pp.toFixed(3)+' PP');
+    if(r.gp>0) parts.push(r.gp+' GP');
+    if(r.xp>0) parts.push(r.xp+' XP');
+    if(r.stolenPixelsActual>0) parts.push(r.stolenPixelsActual+' pixels captured');
+    if(r.item) parts.push(r.item.name);
+    showAlert('✓ '+parts.join(' · '),'success');
+    loadOpsTab();
+    if(typeof loadUserData==='function') loadUserData();
+  }).catch(function(e){ showAlert('Claim failed: '+e.message); });
+}
+function cancelOpsMission(id){
+  if(!confirm('Abort this mission? Partial refund only.')) return;
+  fetch('/api/missions/'+id+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error); return; }
+    showAlert('Mission aborted · '+(d.refund||0).toFixed(2)+' PP refunded','success');
+    loadOpsTab();
+  }).catch(function(e){ showAlert('Cancel failed: '+e.message); });
 }
 
 function renderGuildInvites(invites){
@@ -12835,6 +13140,127 @@ function _drawPOIMarkers(ctx, w, h) {
     else if (x > w - MARKER_MARGIN) _drawOnePOI(poi, x - w, y, def);
   });
 
+  ctx.restore();
+}
+
+// ═══════ MISSION ROUTES (private — only my missions visible) ═══════
+function _drawMissionRoutes(ctx, w, h){
+  var missions = window._opsMissions || [];
+  if(!missions.length) return;
+  var myW = (walletState && walletState.address) || null;
+  if(!myW) return;
+  var t = Date.now();
+  ctx.save();
+  missions.forEach(function(m){
+    if(m.status === 'claimed' || m.status === 'cancelled') return;
+    var ox = ((m.originLng + 180) / 360) * w;
+    var oy = ((90 - m.originLat) / 180) * h;
+    var tx = ((m.targetLng + 180) / 360) * w;
+    var ty = ((90 - m.targetLat) / 180) * h;
+    // Handle antimeridian: pick shortest wrap
+    if(Math.abs(tx - ox) > w/2){ if(tx < ox) tx += w; else tx -= w; }
+    var col = m.type === 'invasion' ? '255,120,60' : '76,216,154';
+    var start = new Date(m.startTime).getTime();
+    var end = start + m.durationSec * 1000;
+    var prog = Math.min(1, Math.max(0, (t - start) / (end - start)));
+    var ready = m.readyToClaim;
+
+    // Path builder: invasion = ballistic arc (lifted midpoint), exploration = straight line
+    function buildPath(offset){
+      var ox2 = ox + offset, tx2 = tx + offset;
+      if(m.type === 'invasion'){
+        var mx = (ox2 + tx2) / 2;
+        var my = (oy + ty) / 2;
+        var dist = Math.hypot(tx2 - ox2, ty - oy);
+        var lift = Math.min(120, dist * 0.35);
+        var cx = mx;
+        var cy = my - lift;
+        ctx.beginPath();
+        ctx.moveTo(ox2, oy);
+        ctx.quadraticCurveTo(cx, cy, tx2, ty);
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(ox2, oy);
+        ctx.lineTo(tx2, ty);
+      }
+    }
+
+    for(var pass = 0; pass < 2; pass++){
+      var off = pass === 0 ? 0 : (tx > w ? -w : (tx < 0 ? w : 0));
+      if(pass === 1 && off === 0) break;
+
+      // ── Faint full route ──
+      ctx.globalAlpha = 0.25;
+      ctx.strokeStyle = 'rgba('+col+',0.9)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.lineDashOffset = -(t / 50) % 8;
+      buildPath(off);
+      ctx.stroke();
+
+      // ── Traveled portion (bright) ──
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 0.9;
+      ctx.strokeStyle = 'rgba('+col+',1)';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = 'rgba('+col+',0.8)';
+      ctx.shadowBlur = 4;
+      // Approximate the traveled portion by sampling the same path with clip
+      ctx.save();
+      buildPath(off);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.clip();
+      // Draw a filled rect from left up to the progress point as mask — simpler:
+      // redraw the whole path under a moving gradient instead.
+      ctx.restore();
+      // Instead, draw dashes growing from start to current progress point.
+      // Simpler approach: draw a second path with reduced length using a gradient.
+      var grad = ctx.createLinearGradient(ox + off, oy, tx + off, ty);
+      grad.addColorStop(0, 'rgba('+col+',1)');
+      grad.addColorStop(Math.max(0.01, prog), 'rgba('+col+',1)');
+      grad.addColorStop(Math.min(0.99, prog + 0.0001), 'rgba('+col+',0)');
+      grad.addColorStop(1, 'rgba('+col+',0)');
+      ctx.strokeStyle = grad;
+      buildPath(off);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // ── Origin ping ──
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = 'rgba('+col+',1)';
+      ctx.beginPath();
+      ctx.arc(ox + off, oy, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ── Target pulse ──
+      var pulseR = ready ? (10 + Math.sin(t / 200) * 3) : (6 + Math.sin(t / 300) * 2);
+      ctx.globalAlpha = 0.6;
+      ctx.strokeStyle = 'rgba('+col+',0.9)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(tx + off, ty, pulseR, 0, Math.PI * 2);
+      ctx.stroke();
+      if(ready){
+        // Second expanding ring
+        var r2 = 10 + ((t / 40) % 20);
+        ctx.globalAlpha = Math.max(0, 0.6 - r2 / 35);
+        ctx.beginPath();
+        ctx.arc(tx + off, ty, r2, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // ── Type label at target ──
+      ctx.globalAlpha = 0.85;
+      ctx.fillStyle = 'rgba('+col+',1)';
+      ctx.font = 'bold 8px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      var lbl = m.type === 'invasion' ? '⚔ INVADE' : '🛰 SCAN';
+      ctx.fillText(lbl, tx + off, ty + 10);
+    }
+  });
+  ctx.setLineDash([]);
+  ctx.shadowBlur = 0;
   ctx.restore();
 }
 
