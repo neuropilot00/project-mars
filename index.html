@@ -470,57 +470,77 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
 .auth-err-msg{font-size:var(--fs-xs);color:var(--red);min-height:16px;text-align:center}
 
-/* Profile Section — compact hero */
-.profile-header{display:flex;flex-direction:row;align-items:center;padding:10px 4px;gap:12px}
-.profile-avatar{width:52px;height:52px;border-radius:10px;border:2px solid var(--mars);
-  background:var(--surface2);display:flex;align-items:center;justify-content:center;
-  font-size:24px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s;
-  flex-shrink:0}
-.profile-avatar:hover{border-color:var(--gold)}
-.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:7px}
-.profile-avatar .avatar-edit{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);
-  font-size:7px;color:var(--tx2);text-align:center;padding:2px 0;font-family:var(--fn);
-  opacity:0;transition:opacity .2s}
-.profile-avatar:hover .avatar-edit{opacity:1}
-.profile-hero-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.profile-name{font-size:14px;color:var(--tx);letter-spacing:.5px;font-weight:700;
+/* Profile Section — hero card with big avatar + dense info column */
+.profile-header{display:flex;flex-direction:row;align-items:stretch;padding:8px 6px 12px;gap:14px;
+  border-bottom:1px solid rgba(255,120,60,.12)}
+.profile-avatar{width:92px;height:92px;border-radius:12px;border:1px solid rgba(255,120,60,.3);
+  background:linear-gradient(135deg,rgba(255,120,60,.08),rgba(0,0,0,.3));
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;color:var(--mars);cursor:pointer;position:relative;overflow:hidden;
+  transition:border-color .15s,transform .1s;flex-shrink:0;align-self:flex-start}
+.profile-avatar:hover{border-color:rgba(255,120,60,.55)}
+.profile-avatar:active{transform:scale(.97)}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:11px}
+.profile-avatar .avatar-edit{position:absolute;right:3px;bottom:3px;
+  width:20px;height:20px;border-radius:50%;background:rgba(255,120,60,.95);
+  color:#111;font-size:11px;display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(0,0,0,.65);font-family:var(--fn);font-weight:700;line-height:1;
+  pointer-events:none}
+.profile-hero-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.profile-name{font-size:16px;color:var(--tx);letter-spacing:.4px;font-weight:700;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-hero-meta{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.profile-meta-chip{display:inline-flex;align-items:center;gap:3px;
+  font-size:9px;padding:2px 7px;border-radius:10px;
+  background:rgba(255,120,60,.08);border:1px solid rgba(255,120,60,.22);
+  color:var(--mars);font-family:var(--fn);font-weight:700;letter-spacing:.3px;
+  max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-meta-chip.muted{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08);color:var(--tx3)}
+.profile-xp-row{display:flex;align-items:center;gap:6px;margin-top:4px}
+.profile-xp-lv{font-size:9px;color:var(--mars);font-family:var(--fn);font-weight:700;letter-spacing:.5px;white-space:nowrap}
+.profile-xp-lv b{font-size:11px;margin-left:2px}
+.profile-xp-bar{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;border:1px solid rgba(255,120,60,.14)}
+.profile-xp-fill{height:100%;background:linear-gradient(90deg,var(--mars),#ffb37a);width:0;transition:width .4s}
+.profile-xp-val{font-size:8px;color:var(--tx3);font-family:var(--fn);white-space:nowrap}
 .profile-email{font-size:10px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .profile-edit-name{background:none;border:none;color:var(--mars);font-size:11px;
   font-family:var(--fn);cursor:pointer;padding:2px 6px}
 .profile-edit-name:hover{text-decoration:underline}
-.wallet-copy-row{display:flex;align-items:center;gap:6px;padding:7px 10px;
-  background:rgba(0,0,0,.22);border:1px solid var(--bdr);border-radius:8px;margin:6px 0}
-.wallet-copy-addr{flex:1;font-size:9px;color:var(--cyan);word-break:break-all;line-height:1.4}
-.wallet-copy-btn{padding:6px 10px;font-size:9px;font-family:var(--fn);
-  background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.28);border-radius:6px;
-  color:var(--cyan);cursor:pointer;white-space:nowrap;min-height:30px;font-weight:700}
-.wallet-copy-btn:hover{background:rgba(91,184,232,.18)}
+.wallet-copy-row{display:flex;align-items:center;gap:6px;padding:3px 8px;min-height:26px;
+  background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.05);border-radius:4px;margin:4px 0}
+.wallet-copy-addr{flex:1;font-size:11px;color:var(--mars);line-height:1.1;opacity:.92;
+  letter-spacing:.3px;font-family:var(--fn);font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wallet-copy-btn{padding:2px 8px;font-size:8px;font-family:var(--fn);
+  background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.22);border-radius:3px;
+  color:var(--mars);cursor:pointer;white-space:nowrap;min-height:20px;font-weight:700}
+.wallet-copy-btn:hover{background:rgba(255,120,60,.18)}
 /* Compact 3-up balance strip (USDT | PP | GP) */
 .profile-balance-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0}
-.profile-bal-card{padding:8px 6px;background:rgba(0,0,0,.2);border:1px solid var(--bdr);
-  border-radius:8px;text-align:center;min-height:50px;display:flex;flex-direction:column;justify-content:center}
-.profile-bal-label{font-size:8px;color:var(--tx3);margin-bottom:3px;letter-spacing:.8px;text-transform:uppercase}
+.profile-bal-card{padding:8px 6px;background:rgba(0,0,0,.22);border:1px solid rgba(255,120,60,.12);
+  border-radius:6px;text-align:center;min-height:48px;display:flex;flex-direction:column;justify-content:center}
+.profile-bal-label{font-size:8px;color:var(--mars);opacity:.7;margin-bottom:3px;letter-spacing:.8px;text-transform:uppercase}
 .profile-bal-val{font-size:13px;letter-spacing:.3px;font-weight:700}
-/* Collapsible section header — bigger tap target */
-.prof-section{border-top:1px solid var(--bdr);margin:6px 0 0;padding-top:8px}
-.prof-section-header{display:flex;align-items:center;gap:8px;cursor:pointer;
-  font-size:11px;letter-spacing:1.2px;font-weight:700;padding:10px 6px;min-height:42px;
-  border-radius:8px;transition:background .15s;user-select:none}
-.prof-section-header:hover,.prof-section-header:active{background:rgba(255,255,255,.04)}
-.prof-section-header .chevron{font-size:12px;transition:transform .2s;width:14px;display:inline-block;text-align:center}
-.prof-section-header.open .chevron{transform:rotate(90deg)}
+/* Collapsible section header — Mars tone, sharp thin divider */
+.prof-section{border-top:1px solid rgba(255,120,60,.08);margin:2px 0 0;padding-top:2px}
+.prof-section-header{display:flex;align-items:center;gap:6px;cursor:pointer;
+  color:var(--mars);
+  font-size:10px;letter-spacing:1px;font-weight:700;padding:5px 6px;min-height:28px;
+  border-radius:4px;transition:background .15s;user-select:none}
+.prof-section-header:hover,.prof-section-header:active{background:rgba(255,120,60,.05)}
+.prof-section-header .chevron{font-size:9px;transition:transform .2s;width:10px;display:inline-block;text-align:center;opacity:.65}
+.prof-section-header.open .chevron{transform:rotate(90deg);opacity:1}
 .prof-section-body{display:none;padding:4px 6px 8px}
 .prof-section.open .prof-section-body{display:block}
-/* Primary CTA button — big tap target */
+/* Primary CTA button — Mars tone, slim border */
 .prof-cta{display:flex;align-items:center;justify-content:center;gap:8px;
-  width:100%;min-height:52px;padding:12px 14px;margin:10px 0 4px;
-  background:linear-gradient(135deg,rgba(91,184,232,.16),rgba(184,136,224,.1));
-  border:1px solid rgba(91,184,232,.4);border-radius:10px;color:var(--cyan);
-  font-family:var(--fn);font-size:12px;font-weight:700;letter-spacing:1.2px;cursor:pointer;
-  box-shadow:0 2px 10px rgba(91,184,232,.08)}
-.prof-cta:hover{background:linear-gradient(135deg,rgba(91,184,232,.24),rgba(184,136,224,.14));border-color:var(--cyan)}
-.prof-cta .cta-icon{font-size:18px;line-height:1}
+  width:100%;min-height:46px;padding:10px 14px;margin:8px 0 4px;
+  background:linear-gradient(135deg,rgba(255,120,60,.14),rgba(255,120,60,.04));
+  border:1px solid rgba(255,120,60,.32);border-radius:8px;color:var(--mars);
+  font-family:var(--fn);font-size:11px;font-weight:700;letter-spacing:1.2px;cursor:pointer}
+.prof-cta:hover{background:linear-gradient(135deg,rgba(255,120,60,.22),rgba(255,120,60,.08));border-color:rgba(255,120,60,.5)}
+.prof-cta:active{transform:scale(.98)}
+.prof-cta .cta-icon{font-size:15px;line-height:1}
 .profile-setting-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;font-size:11px;color:var(--tx2);min-height:36px}
 .profile-toggle{position:relative;width:34px;height:18px;flex-shrink:0}
 .profile-toggle input{opacity:0;width:0;height:0}
@@ -3449,12 +3469,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="mbd">
       <!-- Logged-in state: Full profile -->
       <div id="authLoggedIn" style="display:none">
-        <!-- ═══ COMPACT HERO: avatar + name + email inline ═══ -->
+        <!-- ═══ HERO: big avatar + dense info column ═══ -->
         <div class="profile-header">
           <div class="profile-avatar" id="profileAvatar" onclick="changeAvatar()">
-            <span id="avatarEmoji">👤</span>
+            <span id="avatarEmoji" style="opacity:.55">◔</span>
             <img id="avatarImg" style="display:none" alt="">
-            <div class="avatar-edit">EDIT</div>
+            <div class="avatar-edit">✎</div>
           </div>
           <div class="profile-hero-info">
             <div style="display:flex;align-items:center;gap:4px">
@@ -3462,9 +3482,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <button class="profile-edit-name" onclick="editNickname()">✎</button>
             </div>
             <div class="profile-email" id="authEmail">--</div>
-            <div style="display:flex;align-items:center;gap:5px;font-size:9px;color:var(--tx3);margin-top:2px">
-              <span class="chain-dot base" id="profileChainDot"></span>
-              <span id="profileChainName">BASE</span>
+            <!-- Level + XP bar inline -->
+            <div class="profile-xp-row">
+              <span class="profile-xp-lv">LV<b id="profileXpLv">1</b></span>
+              <div class="profile-xp-bar"><div class="profile-xp-fill" id="profileXpFill"></div></div>
+              <span class="profile-xp-val" id="profileXpVal">0/0</span>
+            </div>
+            <div class="profile-hero-meta">
+              <span class="profile-meta-chip"><span class="chain-dot base" id="profileChainDot"></span><span id="profileChainName">BASE</span></span>
+              <span class="profile-meta-chip" id="profileRankChip">★ <span id="profileRankTitle">Cadet</span></span>
+              <span class="profile-meta-chip" id="profileGuildChip" style="display:none">⚔ <span id="profileGuildName">--</span></span>
+              <span class="profile-meta-chip muted" id="profilePxChip">◼ <span id="profilePxCount">0</span> PX</span>
+              <span class="profile-meta-chip muted" id="profileJoinedChip">⌛ <span id="profileJoinedDays">0</span>d</span>
             </div>
           </div>
         </div>
@@ -3478,14 +3507,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- Game Wallet with copy -->
-        <div style="font-size:9px;color:var(--tx3);margin:8px 0 4px;letter-spacing:1px" data-i18n="game_wallet">GAME WALLET</div>
+        <!-- Game Wallet with copy (compact single-line) -->
         <div class="wallet-copy-row">
           <div class="wallet-copy-addr" id="authWallet">--</div>
           <button class="wallet-copy-btn" onclick="copyGameWallet()">COPY</button>
         </div>
 
-        <!-- Compact 3-up balance strip -->
+        <!-- Compact 3-up balance strip (currency colors kept for quick distinction) -->
         <div class="profile-balance-grid">
           <div class="profile-bal-card">
             <div class="profile-bal-label">USDT</div>
@@ -3496,7 +3524,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div class="profile-bal-val" style="color:var(--pp)" id="authPPBal">0.00</div>
           </div>
           <div class="profile-bal-card">
-            <div class="profile-bal-label" style="color:var(--gold)">GP</div>
+            <div class="profile-bal-label">GP</div>
             <div class="profile-bal-val" style="color:var(--gold)" id="authGPBal">0</div>
           </div>
         </div>
@@ -3511,8 +3539,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
              REFERRAL PROGRAM (collapsible)
              ═══════════════════════════════════════════════════ -->
         <div class="prof-section" id="profSecRef">
-          <div class="prof-section-header" onclick="_togProfSec('profSecRef')" style="color:var(--gold)">
-            <span class="chevron">▸</span><span>🎁 REFERRAL PROGRAM</span>
+          <div class="prof-section-header" onclick="_togProfSec('profSecRef')">
+            <span class="chevron">▸</span><span>REFERRAL</span>
           </div>
           <div class="prof-section-body">
             <div style="font-size:9px;color:var(--tx3);line-height:1.6;margin-bottom:6px">Share your code & earn PP when referrals deposit, harvest, or hijack.</div>
@@ -3551,8 +3579,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- ═══ LIVE FEED (collapsible) ═══ -->
         <div class="prof-section" id="profSecFeed">
-          <div class="prof-section-header" onclick="_togProfSec('profSecFeed')" style="color:var(--cyan)">
-            <span class="chevron">▸</span><span>⚡ LIVE FEED</span>
+          <div class="prof-section-header" onclick="_togProfSec('profSecFeed')">
+            <span class="chevron">▸</span><span>LIVE FEED</span>
           </div>
           <div class="prof-section-body">
             <div id="profileLiveFeed" style="max-height:140px;overflow-y:auto;font-size:10px;color:var(--tx2);line-height:1.8"></div>
@@ -3561,9 +3589,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- ═══ MY ALERTS (collapsible) ═══ -->
         <div class="prof-section" id="profSecAlerts">
-          <div class="prof-section-header" onclick="_togProfSec('profSecAlerts');if(document.getElementById('profSecAlerts').classList.contains('open'))refreshProfileAlerts()" style="color:var(--red)">
-            <span class="chevron">▸</span><span>🔔 MY ALERTS</span>
-            <span id="profileAlertBadge" style="display:none;background:var(--red);color:#fff;font-size:9px;padding:2px 8px;border-radius:10px;margin-left:auto">0</span>
+          <div class="prof-section-header" onclick="_togProfSec('profSecAlerts');if(document.getElementById('profSecAlerts').classList.contains('open'))refreshProfileAlerts()">
+            <span class="chevron">▸</span><span>ALERTS</span>
+            <span id="profileAlertBadge" style="display:none;background:var(--mars);color:#111;font-size:9px;padding:2px 8px;border-radius:10px;margin-left:auto;font-weight:700">0</span>
           </div>
           <div class="prof-section-body">
             <div id="profileAlertsList" style="max-height:160px;overflow-y:auto;font-size:10px;color:var(--tx2);line-height:1.8">
@@ -3574,8 +3602,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- ═══ SETTINGS (collapsible) ═══ -->
         <div class="prof-section" id="profSecSettings">
-          <div class="prof-section-header" onclick="_togProfSec('profSecSettings')" style="color:var(--tx3)">
-            <span class="chevron">▸</span><span>⚙ SETTINGS</span>
+          <div class="prof-section-header" onclick="_togProfSec('profSecSettings')">
+            <span class="chevron">▸</span><span>SETTINGS</span>
           </div>
           <div class="prof-section-body">
             <!-- Display Settings -->
@@ -3654,17 +3682,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- ═══ Profile utilities: language + Telegram ═══ -->
-        <div style="border-top:1px solid var(--bdr);margin:12px 0 6px;padding-top:10px">
-          <div style="font-size:9px;color:var(--tx3);letter-spacing:1.5px;margin-bottom:8px;text-align:center" data-i18n="profile_prefs">PREFERENCES</div>
-          <div style="display:flex;gap:6px;margin-bottom:8px">
-            <button class="sz-btn prof-lang-btn" data-plang="en" onclick="setLang('en');_syncProfileLangBtns()" style="flex:1;font-size:9px">EN</button>
-            <button class="sz-btn prof-lang-btn" data-plang="ko" onclick="setLang('ko');_syncProfileLangBtns()" style="flex:1;font-size:9px">한국어</button>
-            <button class="sz-btn prof-lang-btn" data-plang="ja" onclick="setLang('ja');_syncProfileLangBtns()" style="flex:1;font-size:9px">日本語</button>
-            <button class="sz-btn prof-lang-btn" data-plang="zh" onclick="setLang('zh');_syncProfileLangBtns()" style="flex:1;font-size:9px">中文</button>
+        <!-- ═══ LANGUAGE (collapsible) ═══ -->
+        <div class="prof-section" id="profSecLang">
+          <div class="prof-section-header" onclick="_togProfSec('profSecLang')">
+            <span class="chevron">▸</span><span data-i18n="profile_language">LANGUAGE</span>
           </div>
-          <button class="sz-btn" onclick="openTelegramGroup()" style="width:100%;font-size:10px;color:#24A1DE;border-color:rgba(36,161,222,.3);background:rgba(36,161,222,.08);padding:8px">✈ JOIN TELEGRAM</button>
+          <div class="prof-section-body">
+            <div style="display:flex;gap:6px;margin-bottom:6px">
+              <button class="sz-btn prof-lang-btn" data-plang="en" onclick="setLang('en');_syncProfileLangBtns()" style="flex:1;font-size:9px">EN</button>
+              <button class="sz-btn prof-lang-btn" data-plang="ko" onclick="setLang('ko');_syncProfileLangBtns()" style="flex:1;font-size:9px">한국어</button>
+              <button class="sz-btn prof-lang-btn" data-plang="ja" onclick="setLang('ja');_syncProfileLangBtns()" style="flex:1;font-size:9px">日本語</button>
+              <button class="sz-btn prof-lang-btn" data-plang="zh" onclick="setLang('zh');_syncProfileLangBtns()" style="flex:1;font-size:9px">中文</button>
+            </div>
+          </div>
         </div>
+
+        <button class="sz-btn" onclick="openTelegramGroup()" style="width:100%;font-size:10px;color:var(--mars);border-color:rgba(255,120,60,.22);background:rgba(255,120,60,.06);padding:8px;margin-top:8px">✈ JOIN TELEGRAM</button>
 
         <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.15);color:var(--red);margin-top:8px" data-i18n="logout">LOGOUT</button>
       </div>
@@ -8921,7 +8954,7 @@ var I18N = {
     my_alerts: 'MY ALERTS', live_feed: 'LIVE FEED', place_image: 'PLACE YOUR IMAGE',
     choose_file: 'CHOOSE IMAGE FILE', item_shop: 'ITEM SHOP', open_shop: 'OPEN SHOP',
     referral_program: 'REFERRAL PROGRAM', referral_desc: 'Share your code & earn PP<br>when referrals hijack territory!',
-    codex_open: 'GAME GUIDEBOOK', codex_tagline: 'Learn the lore & mechanics', profile_prefs: 'PREFERENCES',
+    codex_open: 'GAME GUIDEBOOK', codex_tagline: 'Learn the lore & mechanics', profile_prefs: 'PREFERENCES', profile_language: 'LANGUAGE',
     ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
     ref_sources: 'Earn from: deposit · swap · shop · harvest · cantina · hijack',
     view_dynasty: '👑 VIEW DYNASTY', dyn_leaderboard: 'LEADERBOARD', dyn_my_tree: 'MY TREE',
@@ -8999,7 +9032,7 @@ var I18N = {
     my_alerts: '내 알림', live_feed: '실시간 피드', place_image: '이미지 배치',
     choose_file: '이미지 파일 선택', item_shop: '아이템 상점', open_shop: '상점 열기',
     referral_program: '추천 프로그램', referral_desc: '코드를 공유하고 추천인이<br>영토를 탈취할 때 PP를 획득하세요!',
-    codex_open: '게임 가이드북', codex_tagline: '세계관과 게임 구조 안내', profile_prefs: '환경 설정',
+    codex_open: '게임 가이드북', codex_tagline: '세계관과 게임 구조 안내', profile_prefs: '환경 설정', profile_language: '언어',
     ref_tiers: '1단계: 15% · 2단계: 10% · 3단계: 5%',
     ref_sources: '수익원: 입금 · 스왑 · 상점 · 채굴 · 칸티나 · 탈취',
     view_dynasty: '👑 다이너스티 보기', dyn_leaderboard: '리더보드', dyn_my_tree: '내 트리',
@@ -9077,7 +9110,7 @@ var I18N = {
     my_alerts: 'アラート', live_feed: 'ライブフィード', place_image: '画像を配置',
     choose_file: '画像ファイルを選択', item_shop: 'アイテムショップ', open_shop: 'ショップを開く',
     referral_program: '紹介プログラム', referral_desc: 'コードを共有して紹介者が<br>領土を奪取するとPPを獲得！',
-    codex_open: 'ゲームガイド', codex_tagline: '世界観とシステム解説', profile_prefs: '環境設定',
+    codex_open: 'ゲームガイド', codex_tagline: '世界観とシステム解説', profile_prefs: '環境設定', profile_language: '言語',
     ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
     ref_sources: '収益源: 入金 · スワップ · ショップ · 採掘 · カンティーナ · 奪取',
     view_dynasty: '👑 ダイナスティ表示', dyn_leaderboard: 'ランキング', dyn_my_tree: 'マイツリー',
@@ -9155,7 +9188,7 @@ var I18N = {
     my_alerts: '我的提醒', live_feed: '实时动态', place_image: '放置图片',
     choose_file: '选择图片文件', item_shop: '道具商店', open_shop: '打开商店',
     referral_program: '推荐计划', referral_desc: '分享你的推荐码，<br>当推荐人劫持领土时获得PP！',
-    codex_open: '游戏指南', codex_tagline: '了解世界观与玩法机制', profile_prefs: '偏好设置',
+    codex_open: '游戏指南', codex_tagline: '了解世界观与玩法机制', profile_prefs: '偏好设置', profile_language: '语言',
     ref_tiers: '一级: 15% · 二级: 10% · 三级: 5%',
     ref_sources: '收益来源: 充值 · 兑换 · 商店 · 挖矿 · 赌场 · 劫持',
     view_dynasty: '👑 查看王朝', dyn_leaderboard: '排行榜', dyn_my_tree: '我的树',
@@ -9865,7 +9898,10 @@ function showAuthLoggedIn(){
   if(emailAuth.user){
     document.getElementById('authNickname').textContent=emailAuth.user.nickname||'--';
     document.getElementById('authEmail').textContent=emailAuth.user.email||'--';
-    document.getElementById('authWallet').textContent=emailAuth.user.wallet||'--';
+    var _addr=emailAuth.user.wallet||'--';
+    var _awEl=document.getElementById('authWallet');
+    _awEl.dataset.full=_addr;
+    _awEl.textContent=_addr;
     // Avatar
     var avatar=localStorage.getItem('pw_avatar');
     if(avatar){
@@ -9884,7 +9920,8 @@ function showAuthLoggedIn(){
 }
 
 function copyGameWallet(){
-  var addr=document.getElementById('authWallet').textContent;
+  var el=document.getElementById('authWallet');
+  var addr=(el && el.dataset && el.dataset.full)||el.textContent;
   if(!addr||addr==='--'){showToast('NO WALLET');return}
   navigator.clipboard.writeText(addr).then(function(){showToast('WALLET ADDRESS COPIED!')});
 }
@@ -11699,6 +11736,35 @@ function renderBaseUser(data){
   var pxc=document.getElementById('profileXpCurrent');if(pxc)pxc.textContent=u.xp+' XP';
   var pxn=document.getElementById('profileXpNext');if(pxn)pxn.textContent=nextRank?'Next: '+nextRank.requiredXp+' XP':'MAX LEVEL';
   var pxb=document.getElementById('profileXpBar');if(pxb)pxb.style.width=xpPct+'%';
+
+  // ACCOUNT modal hero — level + xp + rank title
+  var pxLv=document.getElementById('profileXpLv');if(pxLv)pxLv.textContent=u.rank;
+  var pxFill=document.getElementById('profileXpFill');if(pxFill)pxFill.style.width=xpPct+'%';
+  var pxVal=document.getElementById('profileXpVal');if(pxVal)pxVal.textContent=(nextRank?(u.xp+'/'+nextRank.requiredXp):(u.xp+' XP'));
+  var pRankTitle=document.getElementById('profileRankTitle');if(pRankTitle)pRankTitle.textContent=rank.name;
+  // Pixels owned + joined days
+  try{
+    var pxCnt=document.getElementById('profilePxCount');
+    if(pxCnt && data.territory) pxCnt.textContent=(data.territory.totalPixels||0).toLocaleString();
+    var jDays=document.getElementById('profileJoinedDays');
+    if(jDays && u.joinedAt){
+      var d=Math.floor((Date.now()-new Date(u.joinedAt).getTime())/(24*3600*1000));
+      jDays.textContent=(isFinite(d)&&d>=0?d:0);
+    }
+  }catch(_ej){}
+  // Guild chip (from _myGuildData if set)
+  try{
+    var gChip=document.getElementById('profileGuildChip');
+    var gName=document.getElementById('profileGuildName');
+    if(gChip && gName){
+      if(typeof _myGuildData!=='undefined' && _myGuildData && _myGuildData.name){
+        gName.textContent=(_myGuildData.tag?('['+_myGuildData.tag+'] '):'')+_myGuildData.name;
+        gChip.style.display='';
+      }else{
+        gChip.style.display='none';
+      }
+    }
+  }catch(_eg){}
 
   // Highlight current rank in table
   document.querySelectorAll('.rank-table tbody tr').forEach(function(tr){
