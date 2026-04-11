@@ -16829,42 +16829,72 @@ if(typeof _origTrackQuestAction === 'function'){
 <!-- ═══════════════════════════════════════════════════════════════
      GAME GUIDEBOOK MODAL — Complete game guide (id kept as codex* for compat)
      ═══════════════════════════════════════════════════════════════ -->
-<div id="codexOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
-  <div style="width:100%;max-width:780px;max-height:92vh;background:linear-gradient(160deg,#0E0C18,#14121F);border:1px solid rgba(255,120,60,.28);border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 60px rgba(255,120,60,.06);display:flex;flex-direction:column;overflow:hidden">
-    <!-- header -->
-    <div style="padding:14px 18px;border-bottom:1px solid rgba(255,120,60,.18);background:linear-gradient(135deg,rgba(255,120,60,.1),rgba(255,120,60,.02));display:flex;align-items:center;gap:12px">
-      <div style="font-size:22px">📖</div>
+<div id="codexOverlay" class="codex-overlay">
+  <div class="codex-shell">
+    <!-- header (fixed) -->
+    <div class="codex-header">
+      <div style="font-size:22px;flex-shrink:0">📖</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;color:#fff;letter-spacing:1.5px;font-weight:700">OCCUPY MARS — GUIDEBOOK</div>
-        <div style="font-size:9px;color:var(--tx3);letter-spacing:1px" data-i18n="codex_subtitle">Official game guidebook · Everything you need to dominate Mars</div>
+        <div style="font-size:9px;color:var(--tx3);letter-spacing:1px" data-i18n="codex_subtitle">Official game guidebook</div>
       </div>
-      <button onclick="closeCodex()" style="background:none;border:1px solid rgba(255,120,60,.22);color:var(--mars);font-size:16px;width:28px;height:28px;border-radius:6px;cursor:pointer">✕</button>
+      <button onclick="closeCodex()" class="codex-close">✕</button>
     </div>
-    <!-- tabs -->
-    <div id="codexTabs" style="display:flex;gap:4px;padding:8px 12px 0;overflow-x:auto;border-bottom:1px solid rgba(255,120,60,.10);flex-shrink:0">
-      <!-- populated by JS -->
-    </div>
-    <!-- content -->
-    <div id="codexBody" style="flex:1;overflow-y:auto;padding:18px 22px;font-size:12px;line-height:1.85;color:var(--tx2);font-family:var(--fn)">
-      <!-- populated by JS -->
-    </div>
-    <!-- nav footer: prev / indicator / next -->
-    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid rgba(255,120,60,.15);background:rgba(255,120,60,.02)">
+    <!-- tabs (fixed) -->
+    <div id="codexTabs" class="codex-tabs"></div>
+    <!-- content (only this scrolls) -->
+    <div id="codexBody" class="codex-body"></div>
+    <!-- nav footer (fixed) -->
+    <div class="codex-footer">
       <button id="codexPrev" onclick="codexNav(-1)" class="codex-nav-btn" title="Previous">◀ <span data-i18n="codex_prev">PREV</span></button>
-      <div id="codexStepInd" style="flex:1;text-align:center;font-size:9px;color:var(--mars);letter-spacing:1.5px;font-family:var(--fn);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">§ 1 / 1</div>
+      <div id="codexStepInd" class="codex-step-ind">§ 1 / 1</div>
       <button id="codexNext" onclick="codexNav(1)" class="codex-nav-btn" title="Next"><span data-i18n="codex_next">NEXT</span> ▶</button>
     </div>
   </div>
 </div>
 <style>
+.codex-overlay{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);
+  backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
+.codex-overlay.open{display:flex}
+.codex-shell{width:100%;max-width:780px;
+  height:min(92vh,92dvh);
+  background:linear-gradient(160deg,#0E0C18,#14121F);
+  border:1px solid rgba(255,120,60,.28);border-radius:14px;
+  box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 60px rgba(255,120,60,.06);
+  display:flex;flex-direction:column;overflow:hidden;
+  contain:layout size}
+.codex-header{flex:0 0 auto;flex-shrink:0;padding:14px 18px;
+  border-bottom:1px solid rgba(255,120,60,.18);
+  background:linear-gradient(135deg,rgba(255,120,60,.1),rgba(255,120,60,.02));
+  display:flex;align-items:center;gap:12px}
+.codex-close{background:none;border:1px solid rgba(255,120,60,.22);color:var(--mars);
+  font-size:16px;width:28px;height:28px;border-radius:6px;cursor:pointer;flex-shrink:0}
+.codex-tabs{flex:0 0 auto;flex-shrink:0;display:flex;gap:4px;padding:8px 12px 0;
+  overflow-x:auto;overflow-y:hidden;border-bottom:1px solid rgba(255,120,60,.10);
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.codex-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;
+  padding:18px 22px;font-size:12px;line-height:1.85;color:var(--tx2);font-family:var(--fn);
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+.codex-footer{flex:0 0 auto;flex-shrink:0;display:flex;align-items:center;gap:8px;
+  padding:10px 14px;border-top:1px solid rgba(255,120,60,.15);
+  background:rgba(255,120,60,.02)}
+.codex-step-ind{flex:1;text-align:center;font-size:9px;color:var(--mars);
+  letter-spacing:1.5px;font-family:var(--fn);font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .codex-nav-btn{background:rgba(255,120,60,.08);border:1px solid rgba(255,120,60,.3);color:var(--mars);
   font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:1.2px;
   padding:8px 14px;min-height:36px;border-radius:6px;cursor:pointer;
-  white-space:nowrap;transition:background .15s,transform .1s}
+  white-space:nowrap;transition:background .15s,transform .1s;flex-shrink:0}
 .codex-nav-btn:hover{background:rgba(255,120,60,.18);border-color:rgba(255,120,60,.5)}
 .codex-nav-btn:active{transform:scale(.96)}
 .codex-nav-btn:disabled{opacity:.35;cursor:not-allowed}
-@media(max-width:520px){.codex-nav-btn{padding:8px 10px;font-size:9px;min-height:40px}}
+@media(max-width:520px){
+  .codex-overlay{padding:0}
+  .codex-shell{height:100dvh;max-height:100dvh;border-radius:0;border:none}
+  .codex-nav-btn{padding:8px 10px;font-size:9px;min-height:40px}
+  .codex-header{padding:12px 14px}
+  .codex-body{padding:16px 16px}
+}
 </style>
 
 <script>
@@ -16927,11 +16957,15 @@ CODEX_CONTENT.zh = CODEX_CONTENT.en;
 
 var _codexIdx = 0;
 function openCodex() {
-  document.getElementById('codexOverlay').style.display = 'flex';
+  var ov = document.getElementById('codexOverlay');
+  ov.classList.add('open');
+  ov.style.display = 'flex';
   renderCodex(0);
 }
 function closeCodex() {
-  document.getElementById('codexOverlay').style.display = 'none';
+  var ov = document.getElementById('codexOverlay');
+  ov.classList.remove('open');
+  ov.style.display = 'none';
 }
 function codexNav(delta){
   var lang = window.LANG || 'en';
