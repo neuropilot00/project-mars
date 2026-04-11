@@ -502,7 +502,10 @@ async function getCommanderInfo() {
   const [cmdRes, eventsRes, bountiesRes, cmdPosRes, vicePosRes] = await Promise.all([
     pool.query('SELECT * FROM commander WHERE id = 1'),
     getActiveGovEvents(),
-    pool.query(`SELECT id, target_wallet, gp_reward, pp_reward, reason, expires_at FROM bounties WHERE status = 'active' ORDER BY created_at DESC`),
+    pool.query(`SELECT b.id, b.target_wallet, u.nickname AS target_nickname, b.gp_reward, b.pp_reward, b.reason, b.expires_at
+                  FROM bounties b
+                  LEFT JOIN users u ON u.wallet_address = b.target_wallet
+                  WHERE b.status = 'active' ORDER BY b.created_at DESC`),
     pool.query(`SELECT gp_balance FROM governance_positions WHERE role = 'commander' AND sector_id IS NULL`),
     pool.query(`SELECT gp_balance FROM governance_positions WHERE role = 'vice_commander' AND sector_id IS NULL`)
   ]);

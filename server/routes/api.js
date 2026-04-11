@@ -313,9 +313,12 @@ router.get('/referral/:wallet', async (req, res) => {
   try {
     const w = req.params.wallet.toLowerCase();
     const userRes = await pool.query(
-      'SELECT referral_code, referred_by FROM users WHERE wallet_address = $1', [w]
+      `SELECT u.referral_code, u.referred_by, r.nickname AS referred_by_nickname
+         FROM users u
+         LEFT JOIN users r ON r.wallet_address = u.referred_by
+        WHERE u.wallet_address = $1`, [w]
     );
-    if (!userRes.rows.length) return res.json({ code: null, referredBy: null, referrals: 0, totalEarned: 0 });
+    if (!userRes.rows.length) return res.json({ code: null, referredBy: null, referredByNickname: null, referrals: 0, totalEarned: 0 });
 
     let code = userRes.rows[0].referral_code;
     // Auto-generate code if none
@@ -341,6 +344,7 @@ router.get('/referral/:wallet', async (req, res) => {
     res.json({
       code,
       referredBy: userRes.rows[0].referred_by,
+      referredByNickname: userRes.rows[0].referred_by_nickname || null,
       referrals: parseInt(refCount.rows[0].cnt),
       totalEarned: parseFloat(earned.rows[0].total),
       tiers: tiers.rows.map(t => ({ tier: t.tier, count: parseInt(t.cnt), earned: parseFloat(t.total) }))
@@ -522,16 +526,21 @@ router.get('/search/owner/:query', async (req, res) => {
       return res.status(400).json({ error: 'Search query is required (max 100 chars)' });
     }
     const result = await pool.query(
-      `SELECT center_lat, center_lng, width, height, image_url, total_paid, owner
-       FROM claims WHERE LOWER(owner) LIKE $1 AND deleted_at IS NULL
-       ORDER BY created_at DESC LIMIT 50`,
+      `SELECT c.center_lat, c.center_lng, c.width, c.height, c.image_url, c.total_paid, c.owner,
+              u.nickname
+       FROM claims c
+       LEFT JOIN users u ON u.wallet_address = c.owner
+       WHERE (LOWER(c.owner) LIKE $1 OR LOWER(COALESCE(u.nickname,'')) LIKE $1)
+         AND c.deleted_at IS NULL
+       ORDER BY c.created_at DESC LIMIT 50`,
       [`%${q}%`]
     );
 
     res.json(result.rows.map(r => ({
       lat: parseFloat(r.center_lat), lng: parseFloat(r.center_lng),
       width: r.width, height: r.height,
-      imageUrl: r.image_url, price: parseFloat(r.total_paid), owner: r.owner
+      imageUrl: r.image_url, price: parseFloat(r.total_paid),
+      owner: r.owner, nickname: r.nickname || null
     })));
   } catch (e) {
     console.error('[API] search error:', e.message);

@@ -291,8 +291,14 @@ router.get('/transactions', async (req, res) => {
     const total = parseInt(countRes.rows[0].cnt);
 
     const txRes = await pool.query(
-      `SELECT * FROM transactions ${where}
-       ORDER BY created_at DESC
+      `SELECT t.*,
+              u_from.nickname AS from_nickname,
+              u_to.nickname AS to_nickname
+         FROM transactions t
+         LEFT JOIN users u_from ON u_from.wallet_address = t.from_wallet
+         LEFT JOIN users u_to   ON u_to.wallet_address   = t.to_wallet
+         ${where}
+       ORDER BY t.created_at DESC
        LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
       [...params, limit, offset]
     );
@@ -301,6 +307,10 @@ router.get('/transactions', async (req, res) => {
       transactions: txRes.rows.map(r => ({
         id: r.id, type: r.type,
         fromWallet: r.from_wallet, toWallet: r.to_wallet,
+        fromNickname: r.from_nickname || null,
+        toNickname: r.to_nickname || null,
+        fromIsNpc: r.from_wallet ? r.from_wallet.startsWith('0xnpc_') : false,
+        toIsNpc: r.to_wallet ? r.to_wallet.startsWith('0xnpc_') : false,
         usdtAmount: parseFloat(r.usdt_amount),
         ppAmount: parseFloat(r.pp_amount),
         fee: parseFloat(r.fee),
@@ -554,18 +564,40 @@ router.put('/items/:id', async (req, res) => {
 // ══════════════════════════════════════════════════
 router.get('/referrals', async (req, res) => {
   try {
-    const [totalRefs, totalRewards, topReferrers, recentRewards] = await Promise.all([
-      pool.query('SELECT COUNT(*) as cnt FROM users WHERE referred_by IS NOT NULL'),
+    const [totalRefs, totalRewards, topReferrers, recentRewards, triggerBreakdown] = await Promise.all([
+      pool.query("SELECT COUNT(*) as cnt FROM users WHERE referred_by IS NOT NULL AND wallet_address NOT LIKE '0xnpc_%'"),
       pool.query('SELECT COALESCE(SUM(pp_amount), 0) as total, COUNT(*) as cnt FROM referral_rewards'),
       pool.query(`
-        SELECT to_wallet, COUNT(*) as reward_count, SUM(pp_amount) as total_earned,
-          (SELECT COUNT(*) FROM users WHERE referred_by = rr.to_wallet) as referral_count
-        FROM referral_rewards rr
-        GROUP BY to_wallet ORDER BY total_earned DESC LIMIT 10
+        SELECT rr.to_wallet,
+               u.nickname AS to_nickname,
+               COUNT(*) as reward_count,
+               SUM(rr.pp_amount) as total_earned,
+               (SELECT COUNT(*) FROM users WHERE referred_by = rr.to_wallet) as referral_count
+          FROM referral_rewards rr
+          LEFT JOIN users u ON u.wallet_address = rr.to_wallet
+         WHERE rr.to_wallet NOT LIKE '0xnpc_%'
+         GROUP BY rr.to_wallet, u.nickname
+         ORDER BY total_earned DESC
+         LIMIT 10
       `),
       pool.query(`
-        SELECT from_wallet, to_wallet, tier, pp_amount, trigger_type, created_at
-        FROM referral_rewards ORDER BY created_at DESC LIMIT 20
+        SELECT rr.from_wallet, rr.to_wallet, rr.tier, rr.pp_amount, rr.trigger_type, rr.created_at,
+               u_from.nickname AS from_nickname,
+               u_to.nickname   AS to_nickname
+          FROM referral_rewards rr
+          LEFT JOIN users u_from ON u_from.wallet_address = rr.from_wallet
+          LEFT JOIN users u_to   ON u_to.wallet_address   = rr.to_wallet
+         ORDER BY rr.created_at DESC
+         LIMIT 20
+      `),
+      // Per-trigger revenue breakdown — answers 'which money source feeds the referral tree most?'
+      pool.query(`
+        SELECT trigger_type,
+               COUNT(*) as cnt,
+               COALESCE(SUM(pp_amount), 0) as total
+          FROM referral_rewards
+         GROUP BY trigger_type
+         ORDER BY total DESC
       `)
     ]);
 
@@ -582,14 +614,20 @@ router.get('/referrals', async (req, res) => {
       tierBreakdown: tierBreakdown.rows.map(r => ({
         tier: r.tier, count: parseInt(r.cnt), total: parseFloat(r.total)
       })),
+      triggerBreakdown: triggerBreakdown.rows.map(r => ({
+        trigger: r.trigger_type, count: parseInt(r.cnt), total: parseFloat(r.total)
+      })),
       topReferrers: topReferrers.rows.map(r => ({
         wallet: r.to_wallet,
+        nickname: r.to_nickname || null,
         rewardCount: parseInt(r.reward_count),
         totalEarned: parseFloat(r.total_earned),
         referralCount: parseInt(r.referral_count)
       })),
       recentRewards: recentRewards.rows.map(r => ({
         from: r.from_wallet, to: r.to_wallet,
+        fromNickname: r.from_nickname || null,
+        toNickname: r.to_nickname || null,
         tier: r.tier, ppAmount: parseFloat(r.pp_amount),
         triggerType: r.trigger_type,
         createdAt: r.created_at
@@ -897,18 +935,21 @@ router.get('/claims', async (req, res) => {
     const params = [];
     if (search) {
       params.push('%' + search + '%');
-      where += ` AND c.owner ILIKE $${params.length}`;
+      where += ` AND (c.owner ILIKE $${params.length} OR u.nickname ILIKE $${params.length})`;
     }
 
     const countRes = await pool.query(
-      `SELECT COUNT(*) as cnt FROM claims c ${where}`, params
+      `SELECT COUNT(*) as cnt FROM claims c LEFT JOIN users u ON u.wallet_address = c.owner ${where}`, params
     );
     const total = parseInt(countRes.rows[0].cnt);
 
     const claimsRes = await pool.query(
       `SELECT c.id, c.owner, c.center_lat, c.center_lng, c.width, c.height,
-              c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at
-       FROM claims c ${where}
+              c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
+              u.nickname AS owner_nickname
+       FROM claims c
+       LEFT JOIN users u ON u.wallet_address = c.owner
+       ${where}
        ORDER BY c.created_at DESC
        LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
       [...params, limit, offset]
@@ -917,6 +958,8 @@ router.get('/claims', async (req, res) => {
     const claims = claimsRes.rows.map(r => ({
       id: r.id,
       owner: r.owner,
+      ownerNickname: r.owner_nickname || null,
+      ownerIsNpc: r.owner ? r.owner.startsWith('0xnpc_') : false,
       lat: parseFloat(r.center_lat),
       lng: parseFloat(r.center_lng),
       width: r.width,

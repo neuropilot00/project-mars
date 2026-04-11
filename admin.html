@@ -309,16 +309,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <div class="rev-item"><div class="rev-type">TIER 2 (10%)</div><div class="rev-val" style="color:var(--cyan)" id="rTier2">--</div><div class="rev-count" id="rTier2Count">0 rewards</div></div>
         <div class="rev-item"><div class="rev-type">TIER 3 (5%)</div><div class="rev-val" style="color:var(--pp)" id="rTier3">--</div><div class="rev-count" id="rTier3Count">0 rewards</div></div>
       </div>
+      <!-- Revenue by Trigger -->
+      <div style="font-size:8px;color:var(--tx2);margin-bottom:8px;letter-spacing:1px" data-i18n="ref_trigger_breakdown">REVENUE BY SOURCE</div>
+      <div id="refTriggerGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:16px">
+        <div class="loading" style="grid-column:1/-1">Loading...</div>
+      </div>
       <!-- Top Referrers -->
       <div style="font-size:8px;color:var(--tx2);margin-bottom:8px;letter-spacing:1px" data-i18n="ref_top_referrers">TOP REFERRERS</div>
       <table class="adm-table">
-        <thead><tr><th>#</th><th>WALLET</th><th>REFERRALS</th><th>REWARDS</th><th>TOTAL EARNED</th></tr></thead>
+        <thead><tr><th>#</th><th>NAME / WALLET</th><th>REFERRALS</th><th>REWARDS</th><th>TOTAL EARNED</th></tr></thead>
         <tbody id="refTopBody"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
       </table>
       <!-- Recent Rewards -->
       <div style="font-size:8px;color:var(--tx2);margin:16px 0 8px;letter-spacing:1px" data-i18n="ref_recent_rewards">RECENT REWARDS</div>
       <table class="adm-table">
-        <thead><tr><th>FROM</th><th>TO</th><th>TIER</th><th>PP AMOUNT</th><th>TYPE</th><th>TIME</th></tr></thead>
+        <thead><tr><th>FROM</th><th>TO</th><th>TIER</th><th>PP AMOUNT</th><th>SOURCE</th><th>TIME</th></tr></thead>
         <tbody id="refRecentBody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
       </table>
     </div>
@@ -1322,10 +1327,11 @@ function loadTransactions(page) {
     }
     d.transactions.forEach(function(tx) {
       var tr = document.createElement('tr');
+      var fromCell = tx.fromWallet ? nameCell(tx.fromNickname, tx.fromWallet, tx.fromIsNpc) : '<span style="color:var(--tx3)">—</span>';
       tr.innerHTML =
         '<td style="color:var(--tx3)">#' + tx.id + '</td>' +
         '<td><span class="type-badge ' + tx.type + '">' + tx.type.toUpperCase() + '</span></td>' +
-        '<td class="addr">' + (tx.fromWallet ? tx.fromWallet.slice(0, 8) + '...' : '--') + '</td>' +
+        '<td>' + fromCell + '</td>' +
         '<td class="val-gn">' + tx.usdtAmount.toFixed(2) + '</td>' +
         '<td class="val-pp">' + tx.ppAmount.toFixed(2) + '</td>' +
         '<td class="val-gold">' + tx.fee.toFixed(2) + '</td>' +
@@ -1788,6 +1794,28 @@ function deleteEvent(id) {
 
 // ── Game Items ──
 // ── Referrals ──
+var TRIGGER_ICONS = {
+  deposit: '💵', swap: '🔄', shop: '🛒', harvest: '⛏️',
+  cantina: '🍹', hijack: '⚔️', claim: '🏴', unknown: '❓'
+};
+function nameCell(nickname, wallet, isNpc) {
+  var w = wallet ? (wallet.slice(0, 6) + '...' + wallet.slice(-4)) : '—';
+  var nameHtml;
+  if (nickname) {
+    nameHtml = '<span style="color:var(--tx1);font-weight:bold">' + escapeHtml(nickname) + '</span>' +
+               '<span style="color:var(--tx3);font-size:9px;margin-left:4px">' + w + '</span>';
+  } else {
+    nameHtml = '<span class="addr">' + w + '</span>';
+  }
+  if (isNpc) nameHtml += ' <span style="color:var(--tx3);font-size:8px">[NPC]</span>';
+  return nameHtml;
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
 function loadReferrals() {
   api('/admin/api/referrals').then(function(d) {
     document.getElementById('rTotalRefs').textContent = d.totalReferrals.toLocaleString();
@@ -1803,6 +1831,21 @@ function loadReferrals() {
       document.getElementById(tierCountEls[t]).textContent = tier ? tier.count + ' rewards' : '0 rewards';
     });
 
+    // Trigger breakdown — revenue by source
+    var trigGrid = document.getElementById('refTriggerGrid');
+    if (d.triggerBreakdown && d.triggerBreakdown.length) {
+      trigGrid.innerHTML = d.triggerBreakdown.map(function(b) {
+        var icon = TRIGGER_ICONS[b.trigger] || TRIGGER_ICONS.unknown;
+        return '<div class="rev-item">' +
+               '<div class="rev-type">' + icon + ' ' + (b.trigger || 'UNKNOWN').toUpperCase() + '</div>' +
+               '<div class="rev-val" style="color:var(--gold)">' + b.total.toFixed(2) + ' PP</div>' +
+               '<div class="rev-count">' + b.count + ' rewards</div>' +
+               '</div>';
+      }).join('');
+    } else {
+      trigGrid.innerHTML = '<div class="loading" style="grid-column:1/-1">No rewards yet</div>';
+    }
+
     // Top referrers
     var topBody = document.getElementById('refTopBody');
     topBody.innerHTML = '';
@@ -1813,7 +1856,7 @@ function loadReferrals() {
         var tr = document.createElement('tr');
         tr.innerHTML =
           '<td style="color:' + (i < 3 ? 'var(--gold)' : 'var(--tx3)') + '">' + (i + 1) + '</td>' +
-          '<td class="addr">' + r.wallet.slice(0, 8) + '...' + r.wallet.slice(-4) + '</td>' +
+          '<td>' + nameCell(r.nickname, r.wallet, false) + '</td>' +
           '<td>' + r.referralCount + '</td>' +
           '<td>' + r.rewardCount + '</td>' +
           '<td class="val-pp">' + r.totalEarned.toFixed(2) + ' PP</td>';
@@ -1829,12 +1872,15 @@ function loadReferrals() {
     } else {
       d.recentRewards.forEach(function(r) {
         var tr = document.createElement('tr');
+        var fromNpc = r.from && r.from.indexOf('0xnpc_') === 0;
+        var toNpc = r.to && r.to.indexOf('0xnpc_') === 0;
+        var icon = TRIGGER_ICONS[r.triggerType] || TRIGGER_ICONS.unknown;
         tr.innerHTML =
-          '<td class="addr">' + r.from.slice(0, 6) + '...' + '</td>' +
-          '<td class="addr">' + r.to.slice(0, 6) + '...' + '</td>' +
+          '<td>' + nameCell(r.fromNickname, r.from, fromNpc) + '</td>' +
+          '<td>' + nameCell(r.toNickname, r.to, toNpc) + '</td>' +
           '<td><span class="type-badge claim">T' + r.tier + '</span></td>' +
           '<td class="val-pp">' + r.ppAmount.toFixed(2) + '</td>' +
-          '<td><span class="type-badge hijack">' + r.triggerType.toUpperCase() + '</span></td>' +
+          '<td>' + icon + ' ' + (r.triggerType || '').toUpperCase() + '</td>' +
           '<td>' + new Date(r.createdAt).toLocaleString() + '</td>';
         recentBody.appendChild(tr);
       });
@@ -1970,13 +2016,13 @@ function loadClaims() {
         var thumb = c.image_url
           ? '<img src="' + c.image_url + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--bdr)">'
           : '<span style="color:var(--tx3)">—</span>';
-        var owner = c.owner ? (c.owner.slice(0,6) + '...' + c.owner.slice(-4)) : '—';
+        var ownerHtml = c.owner ? nameCell(c.ownerNickname, c.owner, c.ownerIsNpc) : '<span style="color:var(--tx3)">—</span>';
         var size = (c.width || '?') + '×' + (c.height || '?');
         var date = c.created_at ? new Date(c.created_at).toLocaleDateString() : '—';
         return '<tr>' +
           '<td>' + c.id + '</td>' +
           '<td>' + thumb + '</td>' +
-          '<td class="addr">' + owner + '</td>' +
+          '<td>' + ownerHtml + '</td>' +
           '<td>' + (c.lat != null ? parseFloat(c.lat).toFixed(1) : '—') + '°</td>' +
           '<td>' + (c.lng != null ? parseFloat(c.lng).toFixed(1) : '—') + '°</td>' +
           '<td>' + size + '</td>' +

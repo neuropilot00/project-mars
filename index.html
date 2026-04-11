@@ -9638,10 +9638,24 @@ async function loadReferralInfo(){
     document.getElementById('myRefCode').textContent=d.code||'--';
     document.getElementById('refCount').textContent=d.referrals||0;
     document.getElementById('refEarned').textContent=(d.totalEarned||0).toFixed(2)+' PP';
+    // Real-time commission toast — diff against last seen value
+    try{
+      var key='refEarned:'+walletState.address.toLowerCase();
+      var prev=parseFloat(localStorage.getItem(key)||'NaN');
+      var curr=parseFloat(d.totalEarned||0);
+      if(!isNaN(prev) && curr>prev+0.0001){
+        var delta=(curr-prev).toFixed(2);
+        showToast('💰 +'+delta+' PP commission earned!');
+      }
+      localStorage.setItem(key,String(curr));
+    }catch(e){}
     if(d.referredBy){
       document.getElementById('enterRefWrap').style.display='none';
       document.getElementById('alreadyReferred').style.display='';
-      document.getElementById('referredByAddr').textContent=d.referredBy.slice(0,6)+'...'+d.referredBy.slice(-4);
+      var refByName=d.referredByNickname||(d.referredBy.slice(0,6)+'...'+d.referredBy.slice(-4));
+      var el=document.getElementById('referredByAddr');
+      el.textContent=refByName;
+      el.title=d.referredBy;
     } else {
       document.getElementById('enterRefWrap').style.display='';
       document.getElementById('alreadyReferred').style.display='none';
@@ -9757,11 +9771,11 @@ async function loadDynastyLb(){
     rows.forEach(function(r){
       var isMe=r.wallet.toLowerCase()===me;
       var medal=r.rank===1?'🥇':r.rank===2?'🥈':r.rank===3?'🥉':'#'+r.rank;
-      html+='<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-bottom:1px solid var(--bdr);font-size:9px;'+(isMe?'background:rgba(255,184,77,.1)':'')+'">'+
-        '<span style="width:24px;color:var(--gold);font-size:8px">'+medal+'</span>'+
-        '<span style="flex:1;color:'+(isMe?'var(--gold)':'var(--tx2)')+'" title="'+r.wallet+'">'+displayName(r.wallet,r.nickname)+'</span>'+
-        '<span style="color:var(--tx3);font-size:8px">'+r.directCount+'👥</span>'+
-        '<span style="color:var(--pp);min-width:60px;text-align:right">'+r.totalEarned.toFixed(2)+' PP</span>'+
+      html+='<div style="display:flex;align-items:center;gap:6px;padding:6px;border-bottom:1px solid var(--bdr);font-size:10px;min-height:36px;'+(isMe?'background:rgba(255,184,77,.1)':'')+'">'+
+        '<span style="width:26px;color:var(--gold);font-size:9px;flex-shrink:0">'+medal+'</span>'+
+        '<span style="flex:1;min-width:0;color:'+(isMe?'var(--gold)':'var(--tx2)')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+r.wallet+'">'+displayName(r.wallet,r.nickname)+'</span>'+
+        '<span style="color:var(--tx3);font-size:9px;flex-shrink:0">'+r.directCount+'👥</span>'+
+        '<span style="color:var(--pp);min-width:64px;text-align:right;flex-shrink:0">'+r.totalEarned.toFixed(2)+' PP</span>'+
         '</div>';
     });
     el.innerHTML=html;
@@ -9799,10 +9813,10 @@ async function loadDynastyTree(){
       html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px">'+(msgs.noRefs[lang]||msgs.noRefs.en)+'</div>';
     } else {
       direct.forEach(function(r){
-        html+='<div style="display:flex;align-items:center;gap:6px;padding:3px 4px;border-bottom:1px solid var(--bdr);font-size:9px">'+
-          '<span style="flex:1;color:var(--tx2)" title="'+r.wallet+'">'+displayName(r.wallet,r.nickname)+'</span>'+
-          (r.subCount>0?'<span style="color:var(--tx3);font-size:8px">+'+r.subCount+' sub</span>':'')+
-          '<span style="color:var(--pp);min-width:60px;text-align:right">'+r.earnedFrom.toFixed(2)+' PP</span>'+
+        html+='<div style="display:flex;align-items:center;gap:6px;padding:6px;border-bottom:1px solid var(--bdr);font-size:10px;min-height:34px">'+
+          '<span style="flex:1;min-width:0;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+r.wallet+'">'+displayName(r.wallet,r.nickname)+'</span>'+
+          (r.subCount>0?'<span style="color:var(--tx3);font-size:9px;flex-shrink:0">+'+r.subCount+' sub</span>':'')+
+          '<span style="color:var(--pp);min-width:64px;text-align:right;flex-shrink:0">'+r.earnedFrom.toFixed(2)+' PP</span>'+
           '</div>';
       });
     }
@@ -12603,6 +12617,12 @@ loadPublicStats();
 loadLeaderboard();
 setInterval(loadPublicStats,30000);
 setInterval(loadLeaderboard,60000);
+// Poll referral info periodically so commission toasts fire in real time
+setInterval(function(){
+  if(walletState.connected && walletState.address){
+    try{ loadReferralInfo(); }catch(e){}
+  }
+}, 45000);
 
 /* ── Init i18n ──────────────────────────────────── */
 setLang(LANG);
@@ -14309,8 +14329,12 @@ window.addEventListener('resize', function(){
       var cmdEl = document.getElementById('govCommanderInfo');
       if(cmdInfo && cmdInfo.commander){
         var chtml = '<div style="display:flex;flex-direction:column;gap:4px">';
-        chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">COMMANDER</span><span style="font-size:10px;color:var(--gold);font-family:var(--fn)">'+shortAddr(cmdInfo.commander)+'</span></div>';
-        if(cmdInfo.vice) chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">VICE</span><span style="font-size:10px;color:var(--tx2);font-family:var(--fn)">'+shortAddr(cmdInfo.vice)+'</span></div>';
+        var cmdName = cmdInfo.commanderNickname || shortAddr(cmdInfo.commander);
+        chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">COMMANDER</span><span style="font-size:10px;color:var(--gold);font-family:var(--fn)" title="'+(cmdInfo.commander||'')+'">'+cmdName+'</span></div>';
+        if(cmdInfo.vice){
+          var viceName = cmdInfo.viceNickname || shortAddr(cmdInfo.vice);
+          chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">VICE</span><span style="font-size:10px;color:var(--tx2);font-family:var(--fn)" title="'+(cmdInfo.vice||'')+'">'+viceName+'</span></div>';
+        }
         if(cmdInfo.commanderGP!=null) chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">GP BALANCE</span><span style="font-size:10px;color:var(--cyan);font-family:var(--fn)">'+parseFloat(cmdInfo.commanderGP).toFixed(0)+'</span></div>';
         if(cmdInfo.poolGP!=null) chtml += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">POOL</span><span style="font-size:10px;color:var(--gn);font-family:var(--fn)">'+parseFloat(cmdInfo.poolGP).toFixed(0)+' GP</span></div>';
         if(cmdInfo.announcement) chtml += '<div style="margin-top:4px;padding:6px 8px;background:rgba(255,209,102,.06);border-radius:4px;font-size:10px;color:var(--gold)">📢 '+cmdInfo.announcement+'</div>';
@@ -14355,7 +14379,8 @@ window.addEventListener('resize', function(){
           var daysLeft = Math.max(0, Math.ceil((exp - Date.now())/(24*60*60*1000)));
           bhtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:rgba(232,72,85,.04);border-radius:6px;margin-bottom:4px;border:1px solid rgba(232,72,85,.15)">';
           bhtml += '<div style="display:flex;flex-direction:column;gap:2px">';
-          bhtml += '<span style="font-size:10px;color:var(--red);font-family:var(--fn)">🎯 '+shortAddr(b.target_wallet)+'</span>';
+          var bName = b.target_nickname || shortAddr(b.target_wallet);
+          bhtml += '<span style="font-size:10px;color:var(--red);font-family:var(--fn)" title="'+(b.target_wallet||'')+'">🎯 '+bName+'</span>';
           if(b.reason) bhtml += '<span style="font-size:8px;color:var(--tx3)">'+b.reason+'</span>';
           bhtml += '</div>';
           bhtml += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">';
