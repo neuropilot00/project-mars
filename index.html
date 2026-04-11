@@ -181,8 +181,8 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
   cursor:pointer;color:var(--mars);transition:all .2s;height:36px;display:flex;align-items:center}
 .tb-btn:hover{background:rgba(255,120,60,0.12);box-shadow:0 0 20px rgba(255,120,60,0.1)}
 
-/* Panels (glass-morphism) */
-.panel-l,.panel-r{position:fixed;top:52px;bottom:0;width:250px;z-index:50;
+/* Panels (glass-morphism) — stacked above bottom nav so stats stay on top */
+.panel-l,.panel-r{position:fixed;top:52px;bottom:0;width:250px;z-index:110;
   background:rgba(14,12,22,0.94);backdrop-filter:blur(24px);overflow-y:auto;padding:14px 12px;
   transition:transform .3s cubic-bezier(.22,1,.36,1);
   box-shadow:0 0 40px rgba(0,0,0,0.5)}
@@ -624,35 +624,38 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   color:#fff;cursor:pointer;font-weight:bold;letter-spacing:1px;
   box-shadow:0 2px 10px rgba(255,120,60,.3)}
 
-/* Collapsed-mode action dock — desktop-only. Painted image (tight crop
-   around the orange outer frame) with click zones on each inner button. */
-.col-fab-wrap{display:none;position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
-  z-index:95;width:980px;aspect-ratio:4575/530;padding:0;background:transparent;
-  border:none;box-shadow:none;pointer-events:none}
+/* Collapsed-mode action dock — desktop/tablet. Painted PNG nav
+   (main_buttons_desktop.png, 1143x218) with transparent click zones. */
+.col-fab-wrap{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  z-index:95;width:min(504px,62vw);aspect-ratio:1143/218;
+  background:transparent;border:none;border-radius:0;box-shadow:none;padding:0;
+  pointer-events:none}
 .col-fab-wrap.show{display:block}
 .col-fab-wrap .cf-bg{position:absolute;inset:0;width:100%;height:100%;
-  display:block;pointer-events:none;filter:drop-shadow(0 6px 18px rgba(0,0,0,.55))}
-.col-fab{position:absolute;top:8.5%;height:83%;padding:0;background:transparent;
-  border:none;border-radius:14px;cursor:pointer;pointer-events:auto;
-  transition:transform .15s ease-out,box-shadow .15s ease-out;
-  font-size:0;color:transparent}
-.col-fab:hover{transform:translateY(-2px)}
-.col-fab:active{transform:translateY(0) scale(.98)}
-/* Click zone positions match the 5 inner button regions inside main_buttons.png
-   (4575×530 source, orange outer frame included). */
-.col-fab.myland {left:1.7%;   width:20.2%}
-.col-fab.arena  {left:22.5%;  width:19.7%}
-.col-fab.place  {left:42.9%;  width:16.6%}
-.col-fab.items  {left:60.2%;  width:18.4%}
-.col-fab.base   {left:79.3%;  width:17.2%}
-.col-fab.myland:hover{box-shadow:0 0 24px rgba(76,216,154,.6)}
-.col-fab.arena:hover {box-shadow:0 0 24px rgba(255,209,102,.6)}
-.col-fab.place:hover {box-shadow:0 0 28px rgba(255,120,60,.75)}
-.col-fab.items:hover {box-shadow:0 0 24px rgba(255,255,255,.4)}
-.col-fab.base:hover  {box-shadow:0 0 24px rgba(91,184,232,.6)}
-@media(max-width:1400px){.col-fab-wrap{width:820px}}
-@media(max-width:1200px){.col-fab-wrap{width:700px}}
-@media(max-width:1000px){.col-fab-wrap{width:600px}}
+  object-fit:contain;display:block;pointer-events:none;user-select:none;
+  -webkit-user-drag:none}
+.col-fab{position:absolute;top:0;bottom:0;background:transparent;border:none;padding:0;margin:0;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;
+  transition:filter .15s ease;pointer-events:auto}
+.col-fab:hover{filter:brightness(1.15) drop-shadow(0 0 10px rgba(255,255,255,.2))}
+.col-fab:active{filter:brightness(.85)}
+.col-fab .cf-ic,.col-fab .cf-lb{display:none}
+/* Click-zone percentages measured from painted image (1143x218).
+   Gaps detected between buttons via brightness/saturation profiling. */
+.col-fab.myland{left:2.8%;  width:19.8%}
+.col-fab.arena {left:22.7%; width:20.2%}
+.col-fab.place {left:42.9%; width:19.0%}
+.col-fab.items {left:62.0%; width:17.0%}
+.col-fab.base  {left:79.1%; width:18.6%}
+/* Blinking red dot positioned directly above the "BASE" text.
+   Image is 1143x218; BASE pill y 57-176, text top ~y 95.
+   top:30% → ~65px from image top, just inside the pill top, clear of text. */
+.col-fab.base{position:absolute}
+.col-fab.base .cf-dot{position:absolute;top:calc(30% + 4px);left:72%;width:9px;height:9px;
+  border-radius:50%;background:#ff3e3e;
+  box-shadow:0 0 0 2px rgba(14,12,22,.85),0 0 10px rgba(255,62,62,.9);
+  animation:cfBaseBlink 1.2s ease-in-out infinite;pointer-events:none}
+@keyframes cfBaseBlink{0%,100%{opacity:1}50%{opacity:.2}}
 @media(max-width:768px){.col-fab-wrap{display:none!important}.panel-tab{display:none!important}#myLandBtn{display:none!important}}
 
 /* Mobile FAB container (PLACE only, centered) */
@@ -667,38 +670,36 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   box-shadow:0 4px 16px rgba(255,120,60,.4);letter-spacing:1px}
 .stamp-fab:active{transform:scale(.95)}
 
-/* ── Mobile Bottom Navigation Bar ── */
+/* ── Mobile Bottom Navigation Bar ──
+   Painted PNG nav (main_buttons_mobile.png 1319x189, protruding CLAIM)
+   rendered as a single image with absolutely-positioned click zones. */
 .mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;
-  height:64px;background:rgba(14,12,22,0.97);backdrop-filter:blur(20px);
-  border-top:1px solid rgba(255,120,60,0.28);
-  box-shadow:0 -4px 18px rgba(0,0,0,.45),0 -1px 0 rgba(255,120,60,.08) inset;
-  padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
-.mob-bottom-nav .nav-items{display:flex;height:64px;align-items:stretch;justify-content:space-around;gap:4px;padding:6px 2px}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  flex:1;gap:2px;background:rgba(255,255,255,0.025);
-  border:1px solid rgba(255,255,255,0.18);border-radius:10px;
-  cursor:pointer;padding:4px 2px;
-  transition:all .2s;position:relative;-webkit-tap-highlight-color:transparent;
-  box-shadow:0 1px 4px rgba(0,0,0,.3),0 0 0 1px rgba(0,0,0,.25) inset}
-.mob-nav-item .nav-icon{font-size:20px;line-height:1;transition:all .2s;
-  filter:drop-shadow(0 1px 2px rgba(0,0,0,.55))}
-.mob-nav-item .nav-label{font-size:9px;font-family:var(--fn);letter-spacing:0.4px;
-  color:var(--tx2);transition:all .2s;white-space:nowrap;
-  text-shadow:0 1px 2px rgba(0,0,0,.6);font-weight:600}
-.mob-nav-item:active{transform:scale(.94);background:rgba(255,120,60,.08)}
-.mob-nav-item.active{border-color:rgba(255,120,60,.55);background:rgba(255,120,60,.08)}
-.mob-nav-item.active .nav-label{color:var(--mars)}
-.mob-nav-item.active .nav-icon{transform:scale(1.12)}
-.mob-nav-item.active::after{content:'';position:absolute;top:-1px;left:18%;right:18%;
-  height:2px;background:var(--mars);border-radius:0 0 2px 2px;
-  box-shadow:0 0 6px rgba(255,120,60,.6)}
-/* Claim button — special center accent */
-.mob-nav-item.claim-nav .nav-icon{width:44px;height:44px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;font-size:22px;
-  background:linear-gradient(135deg,var(--mars),var(--red));color:#fff;
-  box-shadow:0 4px 16px rgba(255,120,60,.35);margin-top:-14px;
-  border:2px solid rgba(255,120,60,0.3)}
-.mob-nav-item.claim-nav .nav-label{color:var(--mars);font-weight:bold;margin-top:-2px}
+  background:transparent;padding:0 6px;padding-bottom:env(safe-area-inset-bottom);
+  pointer-events:none}
+.mob-bottom-nav .nav-img-wrap{position:relative;width:100%;max-width:560px;margin:0 auto;
+  aspect-ratio:1319/189;pointer-events:none}
+.mob-bottom-nav .mob-nav-bg{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;display:block;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.mob-nav-item{position:absolute;top:0;bottom:0;background:transparent;border:none;padding:0;margin:0;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;
+  transition:filter .15s ease;pointer-events:auto}
+.mob-nav-item:active{filter:brightness(.82)}
+.mob-nav-item .nav-icon,.mob-nav-item .nav-label{display:none}
+/* Click-zone percentages measured from painted image (1319x189).
+   CLAIM zone is wider to cover the protruding center circle. */
+.mob-nav-item.mn-myland {left:8.9%;  width:19.7%}
+.mob-nav-item.mn-cantina{left:28.7%; width:15.9%}
+.mob-nav-item.mn-claim  {left:44.7%; width:14.0%;top:0}
+.mob-nav-item.mn-items  {left:58.8%; width:16.5%}
+.mob-nav-item.mn-base   {left:75.3%; width:17.9%}
+/* Blinking red notification dot positioned directly above the "BASE" text.
+   Image is 1319x189; BASE pill y 32-168, text top ~y 85.
+   top:22% → ~42px, just inside the pill top, clear of text. */
+.mob-nav-item.mn-base .mob-base-dot{position:absolute;top:calc(22% + 4px);left:80%;
+  width:9px;height:9px;border-radius:50%;background:#ff3e3e;
+  box-shadow:0 0 0 2px rgba(14,12,22,.85),0 0 10px rgba(255,62,62,.9);
+  animation:mobBaseBlink 1.2s ease-in-out infinite;pointer-events:none}
+@keyframes mobBaseBlink{0%,100%{opacity:1}50%{opacity:.2}}
 /* Mobile land select controls — hidden on desktop */
 @media(min-width:769px){#mobSizeControls{display:none!important}}
 /* Size adjust buttons for mobile land select */
@@ -1165,11 +1166,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 /* ── Landscape mode ── */
 @media(max-height:500px) and (orientation:landscape){
-  .mob-bottom-nav{height:48px}
-  .mob-bottom-nav .nav-items{height:48px}
-  .mob-nav-item .nav-icon{font-size:16px}
-  .mob-nav-item .nav-label{font-size:8px}
-  .mob-nav-item.claim-nav .nav-icon{width:36px;height:36px;font-size:18px;margin-top:-10px}
+  .mob-bottom-nav .nav-img-wrap{max-width:460px}
   .base-card{height:95vh;max-height:95vh}
   .base-banner{height:60px}
   .topbar{padding:4px 10px;padding-top:max(4px,env(safe-area-inset-top))}
@@ -1982,11 +1979,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .mtl{font-size:10px}
   .mbd{padding:12px;gap:10px}
   .mob-toggle{font-size:8px;padding:5px 8px}
-  .mob-bottom-nav{height:56px}
-  .mob-bottom-nav .nav-items{height:56px}
-  .mob-nav-item .nav-icon{font-size:17px}
-  .mob-nav-item .nav-label{font-size:8px}
-  .mob-nav-item.claim-nav .nav-icon{width:38px;height:38px;font-size:18px;margin-top:-10px}
+  .mob-bottom-nav .nav-img-wrap{max-width:440px}
   .base-card{height:82vh;max-height:82vh}
   .base-header{padding:10px 12px}
   .base-header-title{font-size:11px;letter-spacing:1.5px}
@@ -2076,11 +2069,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .chain-indicator{height:26px}
   .tb-avatar,.tb-avatar-emoji{width:26px;height:26px}
   .lang-dropdown .lang-current{height:26px}
-  .mob-bottom-nav{height:40px}
-  .mob-bottom-nav .nav-items{height:40px}
-  .mob-nav-item .nav-icon{font-size:14px}
-  .mob-nav-item .nav-label{font-size:7px}
-  .mob-nav-item.claim-nav .nav-icon{width:32px;height:32px;font-size:16px;margin-top:-8px}
+  .mob-bottom-nav .nav-img-wrap{max-width:380px}
   .panel-l,.panel-r{top:40px}
   .base-card{height:95vh;max-height:95vh}
   .base-header{padding:6px 12px}
@@ -2231,14 +2220,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div class="panel-tab left" id="panelTabL" onclick="collapsePanel('left')">◀</div>
 <div class="panel-tab right" id="panelTabR" onclick="collapsePanel('right')">▶</div>
 
-<!-- Collapsed-mode bottom nav (single painted image + click zones) -->
+<!-- Collapsed-mode bottom nav (desktop/tablet painted image) -->
 <div class="col-fab-wrap" id="colFabWrap">
-  <img class="cf-bg" src="/assets/nav/main_buttons.png" alt="">
+  <img class="cf-bg" src="/assets/nav/main_buttons_desktop.png" alt="">
   <button class="col-fab myland" onclick="toggleMyLand()" title="My Land" aria-label="My Land"></button>
   <button class="col-fab arena"  onclick="openArena()"    title="Cantina" aria-label="Cantina"></button>
   <button class="col-fab place"  onclick="activateLandSelect()" title="Claim" aria-label="Claim"></button>
   <button class="col-fab items"  onclick="openItemShop();shopSwitchTab('inv')" title="Items" aria-label="Items"></button>
-  <button class="col-fab base"   onclick="openBaseModal()" title="Base" aria-label="Base"></button>
+  <button class="col-fab base"   onclick="openBaseModal()" title="Base" aria-label="Base">
+    <span class="cf-dot" aria-hidden="true"></span>
+  </button>
 </div>
 
 <!-- Mobile Panel Toggles -->
@@ -3285,27 +3276,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <nav class="mob-bottom-nav" id="mobBottomNav">
-  <div class="nav-items">
-    <button class="mob-nav-item" onclick="toggleMyLand()" id="mobNavMyLand">
-      <span class="nav-icon" data-icon="myland">🌍</span>
-      <span class="nav-label">MY LAND</span>
-    </button>
-    <button class="mob-nav-item" onclick="openArena()">
-      <span class="nav-icon" data-icon="cantina">⚔️</span>
-      <span class="nav-label">CANTINA</span>
-    </button>
-    <button class="mob-nav-item claim-nav" onclick="activateLandSelect()" id="mobNavClaim">
-      <span class="nav-icon" data-icon="claim">＋</span>
-      <span class="nav-label">CLAIM</span>
-    </button>
-    <button class="mob-nav-item" onclick="openItemShop();shopSwitchTab('inv')">
-      <span class="nav-icon" data-icon="inventory">📦</span>
-      <span class="nav-label">ITEMS</span>
-    </button>
-    <button class="mob-nav-item" onclick="openBaseModal()" style="position:relative">
-      <span class="nav-icon" data-icon="base">🏠</span>
-      <span class="nav-label">BASE</span>
-      <span id="mobBaseDot" class="tab-dot" style="top:2px;right:6px;width:8px;height:8px"></span>
+  <div class="nav-img-wrap">
+    <img class="mob-nav-bg" src="/assets/nav/main_buttons_mobile.png" alt="">
+    <button class="mob-nav-item mn-myland"  onclick="toggleMyLand()"           id="mobNavMyLand" aria-label="My Land"></button>
+    <button class="mob-nav-item mn-cantina" onclick="openArena()"              aria-label="Cantina"></button>
+    <button class="mob-nav-item mn-claim"   onclick="activateLandSelect()"     id="mobNavClaim"  aria-label="Claim"></button>
+    <button class="mob-nav-item mn-items"   onclick="openItemShop();shopSwitchTab('inv')" aria-label="Items"></button>
+    <button class="mob-nav-item mn-base"    onclick="openBaseModal()"          aria-label="Base">
+      <span id="mobBaseDot" class="mob-base-dot" aria-hidden="true"></span>
     </button>
   </div>
 </nav>
@@ -14990,7 +14968,11 @@ window.addEventListener('resize', function(){
     if (collapsed) {
       // Compact chip: just count + icon, click to expand
       var iconSet = _weatherData.slice(0,3).map(function(w){return w.icon||'🌡️'}).join('');
-      el.innerHTML = '<div class="wx-item" onclick="_toggleWeatherBar()" title="Expand weather bar">'
+      // NOTE: stopPropagation is required. _toggleWeatherBar replaces the
+      // banner's innerHTML, which detaches the click target. The document-level
+      // "click outside banner" listener would then see wxBar.contains(target)
+      // as false (detached) and auto-collapse the banner we just expanded.
+      el.innerHTML = '<div class="wx-item" onclick="event.stopPropagation();_toggleWeatherBar()" title="Expand weather bar">'
         + '<span class="wx-icon">'+iconSet+'</span>'
         + '<span class="wx-sector">'+_weatherData.length+' ACTIVE</span>'
         + '<span style="color:var(--tx3);font-size:8px;margin-left:4px">▸</span>'
@@ -17144,7 +17126,81 @@ var CODEX_CONTENT = {
         ]
       },
       { id: 'territory', icon: '🏴', title: '영토 시스템',
-        body: '**클레임:** CLAIM 모달 열고 화성에서 사각형 드래그(클레임당 최대 500×500 px), 이미지 업로드, 결제. 빈 땅 가격은 기본가 × 픽셀수.\n\n**하이잭:** 기존 영토와 겹치면 **현재 가격의 1.2배**를 소유주에게 지불(수수료 차감). 겹친 픽셀이 넘어옴. 좋은 타겟: 활동 없는 큰 영토.\n\n**쉴드:** 상점에서 구매 → N시간 동안 하이잭 차단. 자동갱신 옵션 있음.\n\n**이미지:** PNG/JPG/GIF 가능. 영토 경계에 맞춰 크롭. GIF는 호버시 애니메이션. 외부 링크(https만) 선택 가능.\n\n**이름 지정:** 영토 정보에 커스텀 이름 표시. PP 지불.' },
+        blocks: [
+          { type:'p', text:'화성 표면의 **픽셀**을 사는 게 이 게임의 출발점이야. 한 번의 클레임으로 사각형 영역을 지정하고 이미지를 업로드해서 네 깃발을 꽂아.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '클레임 기본 규칙',
+            '섹터 티어별 가격',
+            '하이잭 (영토 탈취)',
+            '쉴드 (방어)',
+            '이미지 업로드 제한',
+            '영토 이름 변경'
+          ]},
+
+          { type:'h2', text:'1. 클레임 기본 규칙' },
+          { type:'p', text:'`CLAIM` 버튼을 누르고 지구본 위에서 사각형을 드래그 → 이미지 업로드 → 결제. 한 번의 트랜잭션으로 최대 **500×500 px** 까지 잡을 수 있어 (`max_claim_width=500`, `max_claim_height=500`).' },
+          { type:'callout', variant:'info', title:'픽셀은 영구 소유',
+            text:'한 번 산 픽셀은 **시즌이 리셋돼도 사라지지 않아**. 하이잭 당하거나 스스로 포기하기 전까지는 영구 자산이야.' },
+
+          { type:'h2', text:'2. 섹터 티어별 가격' },
+          { type:'p', text:'화성 표면은 3개 티어로 나뉘어 있어. 중심부로 갈수록 비싸지만 수확 주기도 빨라져.' },
+          { type:'table',
+            headers:['티어','픽셀당 기본가','동적 배수','특징'],
+            rows:[
+              [{v:'🔴 CORE',cls:'mars'},     {v:'0.15 USDT',cls:'num'}, {v:'× 최대 3.0',cls:'num'}, '수확 24h·하이잭 타겟'],
+              [{v:'🟡 MID',cls:'mars'},      {v:'0.05 USDT',cls:'num'}, {v:'× 최대 2.0',cls:'num'}, '수확 48h·밸런스형'],
+              [{v:'⚪ FRONTIER',cls:'mars'}, {v:'0.02 USDT',cls:'num'}, {v:'× 1.0',cls:'num'},      '수확 72h·변방']
+            ]},
+          { type:'callout', variant:'tip', title:'가격은 수요에 따라 움직인다',
+            text:'티어별 가격은 **동적 배수**가 곱해져. 해당 섹터에 이미 팔린 픽셀이 많을수록 가격이 올라가서 최대 3배까지 튀어. 싸게 사고 싶으면 활동 없는 섹터를 노려.' },
+
+          { type:'h2', text:'3. 하이잭 — 영토 탈취' },
+          { type:'p', text:'누군가 이미 소유한 픽셀 위에 클레임하면 **하이잭**이야. 기존 가격의 **1.2배**를 지불하면 영토가 넘어와 (`hijack_multiplier=1.2`).' },
+          { type:'table',
+            headers:['항목','값','비고'],
+            rows:[
+              ['기본 배수',         {v:'× 1.2',cls:'num'},    '원소유자에게 1.2배 지불'],
+              ['원주인 환급',       {v:'+50 %',cls:'num'},    '하이잭 비용의 50%를 보너스로 돌려줌'],
+              ['쉴드 차감',         {v:'50 ~ 75 %',cls:'num'},'쉴드가 걸려있으면 피해 흡수']
+            ]},
+          { type:'callout', variant:'warn', title:'섣부른 하이잭은 손해',
+            text:'비싼 CORE 섹터에서 하이잭하면 비용이 금방 수십 USDT로 뛰어. 타겟은 **1주일 이상 활동 없는 대형 영토**가 가성비 최고. 작은 땅 빼앗으려고 하이잭 하면 수수료만 날려.' },
+          { type:'callout', variant:'pro', title:'하이잭도 시즌 점수',
+            text:'하이잭으로 뺏은 픽셀마다 `xp_per_hijack=3 XP`. 시즌 리더보드 상위권은 전부 하이잭 달인이야.' },
+
+          { type:'h2', text:'4. 쉴드 — 방어 아이템' },
+          { type:'p', text:'쉴드를 장착하면 하이잭 피해를 일정 % **흡수**해. 상점에서 PP/USDT 어느 쪽으로도 살 수 있어.' },
+          { type:'table',
+            headers:['아이템','비용','지속','흡수율'],
+            rows:[
+              [{v:'⚡ 기본 에너지 쉴드',cls:'mars'},{v:'2.5 PP / 2.5 USDT',cls:'num'}, {v:'12 시간',cls:'num'}, {v:'50 %',cls:'num'}],
+              [{v:'💠 플라즈마 쉴드',cls:'mars'},{v:'5.0 PP / 5.0 USDT',cls:'num'}, {v:'24 시간',cls:'num'}, {v:'75 %',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'기본은 12h 에너지 쉴드',
+            text:'2.5 PP면 하이잭 피해 절반을 깎아. 일일 퀘스트 보상 하나만 챙겨도 쉴드 하나 살 수 있으니 매일 걸어두는 게 국룰.' },
+
+          { type:'h2', text:'5. 이미지 업로드 제한' },
+          { type:'table',
+            headers:['항목','제한','비고'],
+            rows:[
+              ['최대 용량', {v:'5 MB',cls:'num'},                '`max_image_size_mb=5`'],
+              ['허용 포맷', {v:'PNG · JPG · GIF · WEBP',cls:'num'},'애니메이션 GIF 지원'],
+              ['링크 URL', {v:'https:// 만',cls:'num'},          '보안상 http 금지']
+            ]},
+          { type:'callout', variant:'tip', title:'움직이는 GIF는 호버에서 재생',
+            text:'애니메이션 GIF를 올리면 지구본에서 네 영토가 호버될 때 재생돼. 중요한 영토일수록 움직이는 걸 쓰는 게 눈에 띄어.' },
+
+          { type:'h2', text:'6. 영토 이름 변경' },
+          { type:'p', text:'영토를 클릭하면 뜨는 정보 팝업에 **커스텀 이름**을 붙일 수 있어. 비용은 아주 저렴해.' },
+          { type:'table',
+            headers:['항목','비용'],
+            rows:[
+              ['영토 이름 변경', {v:'0.3 PP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'pro', title:'이름은 길드·하이잭 심리전 무기',
+            text:'"Do Not Hijack — Woo\'s HQ" 같은 이름을 붙이면 실제로 하이잭 시도가 줄어. 커뮤니티 매너가 있는 플레이어들은 대부분 이름 있는 영토는 건드리지 않거든.' }
+        ]
+      },
       { id: 'mining', icon: '⛏', title: '채굴 & 수익',
         blocks: [
           { type:'p', text:'화성에서 PP(Potato Points)를 버는 방법은 5가지야. **패시브 채굴**은 안정적인 기본 수입이지만 **수익률은 크지 않아**. 큰 돈은 POI·로켓·일퀘·커미션(DYNASTY)에서 나와.' },
