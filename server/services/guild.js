@@ -470,11 +470,98 @@ async function refreshGuildPixelCount(guildId) {
   );
 }
 
+// ═══════════════════════════════════════
+//  GUILD CHAT
+// ═══════════════════════════════════════
+//  Simple polling-based chat. Members only.
+//  Rate-limited by guild_chat_cooldown_sec.
+//  Messages trimmed to guild_chat_max_len chars.
+
+async function sendGuildMessage(wallet, guildId, rawMessage) {
+  if (!wallet || !guildId) return { error: 'Missing wallet or guild' };
+  const text = (rawMessage || '').toString().trim();
+  if (!text) return { error: 'Empty message' };
+
+  const maxLen   = parseInt(await getSetting('guild_chat_max_len')      || '300');
+  const cooldown = parseInt(await getSetting('guild_chat_cooldown_sec') || '3');
+  const message = text.slice(0, maxLen);
+
+  // Must be a member of this guild
+  const memberRes = await pool.query(
+    'SELECT 1 FROM guild_members WHERE guild_id = $1 AND wallet = $2',
+    [guildId, wallet]
+  );
+  if (!memberRes.rows.length) return { error: 'Not a guild member' };
+
+  // Cooldown check
+  const lastRes = await pool.query(
+    `SELECT created_at FROM guild_messages
+     WHERE guild_id = $1 AND wallet = $2
+     ORDER BY created_at DESC LIMIT 1`,
+    [guildId, wallet]
+  );
+  if (lastRes.rows.length) {
+    const last = new Date(lastRes.rows[0].created_at).getTime();
+    const waited = (Date.now() - last) / 1000;
+    if (waited < cooldown) {
+      return { error: `Slow down — wait ${Math.ceil(cooldown - waited)}s` };
+    }
+  }
+
+  // Fetch nickname (snapshot at send time for display)
+  const nickRes = await pool.query(
+    'SELECT nickname FROM users WHERE wallet_address = $1',
+    [wallet]
+  );
+  const nickname = nickRes.rows[0]?.nickname || null;
+
+  const ins = await pool.query(
+    `INSERT INTO guild_messages (guild_id, wallet, nickname, message)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id, created_at`,
+    [guildId, wallet, nickname, message]
+  );
+  return { success: true, id: ins.rows[0].id, at: ins.rows[0].created_at };
+}
+
+async function getGuildMessages(wallet, guildId, sinceId) {
+  if (!wallet || !guildId) return { error: 'Missing wallet or guild' };
+  // Must be a member
+  const memberRes = await pool.query(
+    'SELECT 1 FROM guild_members WHERE guild_id = $1 AND wallet = $2',
+    [guildId, wallet]
+  );
+  if (!memberRes.rows.length) return { error: 'Not a guild member' };
+
+  const limit = parseInt(await getSetting('guild_chat_history_limit') || '100');
+  const sinceFilter = sinceId ? 'AND id > $3' : '';
+  const params = sinceId ? [guildId, limit, parseInt(sinceId)] : [guildId, limit];
+
+  const res = await pool.query(
+    `SELECT id, wallet, nickname, message, created_at
+     FROM guild_messages
+     WHERE guild_id = $1 ${sinceFilter}
+     ORDER BY id DESC
+     LIMIT $2`,
+    params
+  );
+  // Return in chronological order (oldest first) for simpler UI append
+  const messages = res.rows.map(r => ({
+    id: r.id,
+    wallet: r.wallet,
+    nickname: r.nickname,
+    message: r.message,
+    at: r.created_at
+  })).reverse();
+  return { messages };
+}
+
 module.exports = {
   createGuild, getGuild, getGuildByWallet,
   inviteMember, acceptInvite, declineInvite, getMyInvites,
   leaveGuild, kickMember,
   promoteToOfficer, demoteToMember, transferLeadership, disbandGuild,
   getGuildLeaderboard, refreshGuildPixelCount,
-  updateGuildInfo
+  updateGuildInfo,
+  sendGuildMessage, getGuildMessages
 };

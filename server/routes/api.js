@@ -583,7 +583,9 @@ router.get('/claims', async (req, res) => {
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 c.custom_name,
-                u.nickname, g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
+                u.nickname, g.id AS guild_id, g.name AS guild_name,
+                g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
+                g.emblem_image AS guild_emblem_image,
                 ps.id AS shield_id, ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires, ps.auto_renew AS shield_auto_renew
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
          LEFT JOIN guilds g ON g.id = u.guild_id
@@ -598,7 +600,9 @@ router.get('/claims', async (req, res) => {
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 c.custom_name,
-                u.nickname, g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
+                u.nickname, g.id AS guild_id, g.name AS guild_name,
+                g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
+                g.emblem_image AS guild_emblem_image,
                 ps.id AS shield_id, ps.shield_type, ps.hp AS shield_hp, ps.max_hp AS shield_max_hp, ps.expires_at AS shield_expires, ps.auto_renew AS shield_auto_renew
          FROM claims c LEFT JOIN users u ON c.owner = u.wallet_address
          LEFT JOIN guilds g ON g.id = u.guild_id
@@ -650,8 +654,11 @@ router.get('/claims', async (req, res) => {
       shield: r.shield_type ? { id: r.shield_id, type: r.shield_type, hp: r.shield_hp, maxHp: r.shield_max_hp, expires: new Date(r.shield_expires).getTime(), autoRenew: r.shield_auto_renew || false } : null,
       hijackCount: hijackMap[r.owner] || 0,
       cosmetics: cosmeticsMap[r.id] || null,
+      guildId: r.guild_id || null,
+      guildName: r.guild_name || null,
       guildTag: r.guild_tag || null,
-      guildEmblem: r.guild_emblem || null
+      guildEmblem: r.guild_emblem || null,
+      guildEmblemImage: r.guild_emblem_image || null
     })));
   } catch (e) {
     console.error('[API] claims error:', e.message);
@@ -4082,6 +4089,40 @@ router.post('/guild/disband', writeLimiter, async (req, res) => {
   } catch (e) {
     console.error('[GUILD] disband error:', e.message);
     res.status(500).json({ error: 'Failed to disband' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  GUILD CHAT — polling based
+// ══════════════════════════════════════════════════
+router.post('/guild/chat', writeLimiter, async (req, res) => {
+  const { wallet, guildId, message } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.sendGuildMessage(w, parseInt(guildId), message);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] chat send error:', e.message);
+    res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
+router.get('/guild/chat/:guildId', readLimiter, async (req, res) => {
+  const { wallet, sinceId } = req.query;
+  const w = (wallet || '').toLowerCase();
+  const guildId = parseInt(req.params.guildId);
+  if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.getGuildMessages(w, guildId, sinceId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] chat read error:', e.message);
+    res.status(500).json({ error: 'Failed to load messages' });
   }
 });
 

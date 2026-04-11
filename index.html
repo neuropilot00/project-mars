@@ -315,7 +315,8 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .toast.show{opacity:1}
 
 /* Notification stack */
-#notifStack{position:fixed;top:12px;right:12px;z-index:10000;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:340px}
+#notifStack{position:fixed;top:60px;right:12px;z-index:10000;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:340px}
+@media(max-width:768px){#notifStack{top:max(60px,calc(env(safe-area-inset-top) + 56px))}}
 .notif-card{pointer-events:auto;display:flex;align-items:flex-start;gap:10px;padding:12px 16px;
   background:rgba(18,18,24,.94);backdrop-filter:blur(16px);border-radius:10px;
   border-left:3px solid var(--notif-color,var(--cyan));
@@ -2047,7 +2048,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Season Banner -->
-<div id="seasonBanner" onclick="openBaseModal();switchBaseTab('rank',document.querySelector('[onclick*=rank]'))" style="display:none;position:fixed;left:50%;transform:translateX(-50%);z-index:107;
+<div id="seasonBanner" onclick="openBaseModal();switchBaseTab('rank',document.querySelector('[onclick*=rank]'))" style="display:none;position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:107;
   font-family:var(--fn);font-size:10px;padding:6px 14px;border-radius:0 0 12px 12px;
   background:linear-gradient(135deg,rgba(255,80,30,0.2),rgba(255,40,10,0.1));backdrop-filter:blur(10px);
   border:1px solid rgba(255,80,30,0.3);border-top:none;color:var(--mars);white-space:nowrap;
@@ -2588,6 +2589,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <!-- TAB: MY TERRITORY -->
       <div class="base-pane active" id="basePane_territory">
         <div class="base-banner" id="bannerTerritory"><img src="/assets/base/territory.png" alt=""></div>
+
+        <!-- Commander's Message (global broadcast) -->
+        <div id="baseCmdAnnounceBox" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(232,72,85,.10),rgba(232,72,85,.02));border:1px solid rgba(232,72,85,.3)">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span style="font-size:12px">📢</span>
+            <span style="font-size:9px;color:var(--red);font-weight:700;letter-spacing:1px">COMMANDER'S MESSAGE</span>
+            <span style="font-size:8px;color:var(--tx3);margin-left:auto" id="baseCmdAnnounceName"></span>
+          </div>
+          <div id="baseCmdAnnounceText" style="font-size:10px;color:var(--tx);line-height:1.5;word-break:break-word"></div>
+        </div>
+
         <div class="base-stat-grid">
           <div class="base-stat-box">
             <div class="bsb-label">TOTAL PIXELS</div>
@@ -2653,8 +2665,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </table>
         </div>
 
-        <div class="base-section-title" style="margin-top:12px">MY SECTORS</div>
-        <div id="baseMySectors" style="font-size:10px;color:var(--tx3)">Login to view your territories.</div>
+        <div class="base-section-title" onclick="toggleMySectors()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+          <span>MY SECTORS</span>
+          <span id="mySectorsToggle" style="font-size:8px;color:var(--tx3)">▼ SHOW</span>
+        </div>
+        <div id="baseMySectors" style="display:none;font-size:10px;color:var(--tx3)">Login to view your territories.</div>
       </div>
 
       <!-- TAB: SECTORS -->
@@ -2666,6 +2681,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <button class="base-filter-btn" onclick="filterSectors('core',this)" style="font-size:9px;font-family:var(--fn);padding:4px 8px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);border-radius:4px;color:var(--red);cursor:pointer">CORE</button>
           <button class="base-filter-btn" onclick="filterSectors('mid',this)" style="font-size:9px;font-family:var(--fn);padding:4px 8px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);border-radius:4px;color:var(--gold);cursor:pointer">MID</button>
           <button class="base-filter-btn" onclick="filterSectors('frontier',this)" style="font-size:9px;font-family:var(--fn);padding:4px 8px;background:rgba(76,216,154,.08);border:1px solid rgba(76,216,154,.2);border-radius:4px;color:var(--gn);cursor:pointer">FRONTIER</button>
+          <button class="base-filter-btn" onclick="filterSectors('mine',this)" style="font-size:9px;font-family:var(--fn);padding:4px 8px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.2);border-radius:4px;color:var(--cyan);cursor:pointer">⭐ MY SECTORS</button>
         </div>
         <div class="sector-list" id="baseSectorList">
           <div style="font-size:10px;color:var(--tx3);padding:20px;text-align:center">Loading sectors...</div>
@@ -2998,6 +3014,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 <input type="text" id="guildInviteInput" placeholder="Wallet address or nickname..." style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
                 <button onclick="guildInviteMember()" style="padding:6px 12px;border-radius:4px;background:rgba(91,184,232,.12);border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-size:9px;cursor:pointer;font-family:var(--fn)">INVITE</button>
               </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════
+                 GUILD CHAT (members-only, polling-based)
+                 ═══════════════════════════════════════════ -->
+            <div class="base-section-title" style="color:var(--cyan);display:flex;align-items:center;justify-content:space-between">
+              <span>💬 GUILD CHAT</span>
+              <span style="font-size:8px;color:var(--tx3);font-weight:400;cursor:pointer" onclick="refreshGuildChat()">↻ REFRESH</span>
+            </div>
+            <div id="guildChatBox" style="height:180px;overflow-y:auto;padding:8px;background:rgba(0,0,0,.25);border:1px solid var(--bdr);border-radius:6px;font-size:10px;line-height:1.6;color:var(--tx2);margin-bottom:6px;display:flex;flex-direction:column;gap:4px">
+              <div style="color:var(--tx3);text-align:center;font-size:9px;margin:auto">No messages yet. Say hi!</div>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:12px">
+              <input type="text" id="guildChatInput" maxlength="300" placeholder="Type message..." onkeydown="if(event.key==='Enter')sendGuildChat()" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:8px 10px;border-radius:6px;font-family:var(--fn)">
+              <button onclick="sendGuildChat()" style="padding:8px 14px;border-radius:6px;background:linear-gradient(135deg,rgba(91,184,232,.2),rgba(91,184,232,.08));border:1px solid rgba(91,184,232,.4);color:var(--cyan);font-size:10px;cursor:pointer;font-family:var(--fn);font-weight:700">SEND</button>
             </div>
           </div>
 
@@ -3383,13 +3414,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- CODEX / WHITEPAPER BUTTON -->
+        <!-- GAME GUIDEBOOK BUTTON (onclick kept as openCodex for compat) -->
         <button class="cfm" onclick="openCodex()" style="margin:10px 0 4px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(184,136,224,.08));border:1px solid rgba(91,184,232,.35);color:var(--cyan);font-weight:700;letter-spacing:1.2px;display:flex;align-items:center;justify-content:center;gap:8px">
           <span style="font-size:16px">📖</span>
-          <span data-i18n="codex_open">GAME CODEX / WHITEPAPER</span>
+          <span data-i18n="codex_open">GAME GUIDEBOOK</span>
         </button>
         <div style="font-size:9px;color:var(--tx3);text-align:center;line-height:1.6;margin:2px 0 10px" data-i18n="codex_tagline">
-          Complete guide to every system, token, and strategy
+          게임 가이드북 · Everything you need to dominate Mars
         </div>
 
         <!-- SETTINGS SECTION (collapsible) -->
@@ -3398,8 +3429,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <span class="chevron">▸</span> ⚙ SETTINGS
           </div>
           <div id="settingsBody" style="display:none;margin-top:8px">
+            <!-- Display Settings -->
+            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:6px">DISPLAY</div>
+            <div class="profile-setting-row">
+              <span>Show Weather Bar</span>
+              <label class="profile-toggle"><input type="checkbox" id="dispWeatherBar" checked onchange="saveDisplaySettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+            <div class="profile-setting-row">
+              <span>Show Commander Banner</span>
+              <label class="profile-toggle"><input type="checkbox" id="dispCommanderBar" checked onchange="saveDisplaySettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+            <div class="profile-setting-row">
+              <span>Show Guild Emblems</span>
+              <label class="profile-toggle"><input type="checkbox" id="dispGuildEmblem" checked onchange="saveDisplaySettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+            <div class="profile-setting-row">
+              <span>Show Guild Tags</span>
+              <label class="profile-toggle"><input type="checkbox" id="dispGuildTag" checked onchange="saveDisplaySettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+
             <!-- Notification Settings -->
-            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:6px">NOTIFICATIONS</div>
+            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px">NOTIFICATIONS</div>
             <div class="profile-setting-row">
               <span>Hijack Alerts</span>
               <label class="profile-toggle"><input type="checkbox" id="notifHijack" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
@@ -4103,7 +4153,7 @@ var _loadLore=[
   {y:'2138',t:'Earth goes silent. The last transmission from Houston: "You\'re on your own now. Make it count."'},
   {y:'2141',t:'The Governor\'s Accord — sector leaders agree to tax-based governance. Peace lasts exactly 47 days.'},
   {y:'2149',t:'A massive sandstorm buries Colony Three for two weeks. When it clears, the colony has been hijacked.'},
-  {y:'2152',t:'Planet Points (PP) become the universal currency. The old Earth dollar is worthless. Only Mars resources matter.'},
+  {y:'2152',t:'Potato Points (PP) become the universal currency — named after Mark Watney\'s legendary Martian potato farms from the 21st century. The old Earth dollar is worthless. Only Mars resources matter.'},
   {y:'2155',t:'Ancient alien artifacts discovered near the north pole. Their purpose remains unknown. Explorers report strange signals.'},
   {y:'2157',t:'Present day. You arrive on Mars. No welcome party. No instructions. Just red dust and opportunity.'},
   // ── Gameplay Tips ──
@@ -7053,11 +7103,23 @@ function showTerritoryInfo(plot){
   var _ownerName=plot.nickname||plot.label||shortAddr(plot.owner);
   var _ownerBadge=typeof govBadgeHTML==='function'?govBadgeHTML(plot.owner):'';
   document.getElementById('infoOwner').innerHTML=_ownerName+(_ownerBadge?' '+_ownerBadge:'');
-  // Guild tag
+  // Guild tag + emblem (custom pixel-art or emoji) — respects display toggles
   var guildRow=document.getElementById('infoGuildRow');
-  if(plot.guildTag){
+  var _showGEm=(typeof getDisplaySetting==='function')?getDisplaySetting('guildEmblem'):true;
+  var _showGTag=(typeof getDisplaySetting==='function')?getDisplaySetting('guildTag'):true;
+  if(plot.guildTag && (_showGEm || _showGTag)){
     guildRow.style.display='';
-    document.getElementById('infoGuild').textContent=(plot.guildEmblem||'')+'['+plot.guildTag+']';
+    var _gCell=document.getElementById('infoGuild');
+    var _gEmblem='';
+    if(_showGEm){
+      _gEmblem=plot.guildEmblemImage
+        ? '<img src="'+plot.guildEmblemImage+'" style="width:14px;height:14px;image-rendering:pixelated;image-rendering:crisp-edges;vertical-align:middle;margin-right:4px;border-radius:2px">'
+        : '<span style="margin-right:4px">'+(plot.guildEmblem||'')+'</span>';
+    }
+    var _gTagHtml=_showGTag
+      ? ('<span style="color:var(--mars)">['+plot.guildTag+']</span>'+(plot.guildName?' <span style="color:var(--tx3);font-size:9px">'+(plot.guildName).replace(/[<>]/g,'')+'</span>':''))
+      : '';
+    _gCell.innerHTML=_gEmblem+_gTagHtml;
   }else{ guildRow.style.display='none'; }
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   var pxCount=plot._pixelCount||(pw*ph);
@@ -7632,6 +7694,7 @@ function editorReset(){
 
 // File upload for editor
 document.addEventListener('DOMContentLoaded',function(){
+  try{loadDisplaySettings();}catch(_e){}
   var fi=document.getElementById('editorFileInput');
   if(fi) fi.addEventListener('change',function(e){
     var file=e.target.files[0];
@@ -7755,9 +7818,21 @@ function openMobTerritoryModal(){
   // Fill modal data
   document.getElementById('mtCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
   document.getElementById('mtOwner').textContent=plot.nickname||plot.label||plot.owner;
-  if(plot.guildTag){
+  var _mtShowGEm=(typeof getDisplaySetting==='function')?getDisplaySetting('guildEmblem'):true;
+  var _mtShowGTag=(typeof getDisplaySetting==='function')?getDisplaySetting('guildTag'):true;
+  if(plot.guildTag && (_mtShowGEm || _mtShowGTag)){
     document.getElementById('mtGuildRow').style.display='';
-    document.getElementById('mtGuild').textContent=(plot.guildEmblem||'')+'['+plot.guildTag+']';
+    var _mtCell=document.getElementById('mtGuild');
+    var _mtEmblem='';
+    if(_mtShowGEm){
+      _mtEmblem=plot.guildEmblemImage
+        ? '<img src="'+plot.guildEmblemImage+'" style="width:14px;height:14px;image-rendering:pixelated;image-rendering:crisp-edges;vertical-align:middle;margin-right:4px;border-radius:2px">'
+        : '<span style="margin-right:4px">'+(plot.guildEmblem||'')+'</span>';
+    }
+    var _mtTagHtml=_mtShowGTag
+      ? ('<span style="color:var(--mars)">['+plot.guildTag+']</span>'+(plot.guildName?' <span style="color:var(--tx3);font-size:9px">'+(plot.guildName).replace(/[<>]/g,'')+'</span>':''))
+      : '';
+    _mtCell.innerHTML=_mtEmblem+_mtTagHtml;
   }else{ document.getElementById('mtGuildRow').style.display='none'; }
   var pw=plot.w||plot.size||10, ph=plot.h||plot.size||10;
   document.getElementById('mtSize').textContent=pw+'×'+ph+' px ('+pw*ph+' pixels)';
@@ -8674,19 +8749,19 @@ var I18N = {
     tut_step5: 'Hijack enemy territory to expand your empire and earn more rewards!',
     tut_next: 'NEXT', tut_skip: 'SKIP', tut_done: 'START PLAYING!',
     help_claim: 'CLAIM TERRITORY',
-    help_claim_body: 'Drag on Mars to select pixels, then pay USDT to claim them as your territory. You earn PP (Planet Points) by harvesting your land. You can also HIJACK other players\' territory by paying a premium!',
+    help_claim_body: 'Drag on Mars to select pixels, then pay USDT to claim them as your territory. You earn PP (Potato Points) by harvesting your land. You can also HIJACK other players\' territory by paying a premium!',
     help_cantina: 'CANTINA',
     help_cantina_body: 'The PvP battle arena! Enter the Cantina to fight other players, buy battle items from the shop, and earn rewards. Use shields to protect your territory and weapons to attack others.',
     help_base: 'MY BASE',
     help_base_body: 'Your command center. View your territory stats, harvest PP from your land, manage your inventory, equip cosmetics, and access governance if you\'re a sector governor.',
     help_harvest: 'HARVEST PP',
-    help_harvest_body: 'Your territory generates PP (Planet Points) over time. Tap HARVEST to collect them. PP can be converted to USDT or used to buy items. Weather and Starlink boosts can increase harvest rates!',
+    help_harvest_body: 'Your territory generates PP (Potato Points) over time. Tap HARVEST to collect them. PP can be converted to USDT or used to buy items. Weather and Starlink boosts can increase harvest rates!',
     help_governance: 'GOVERNANCE',
     help_governance_body: 'Own the most pixels in a sector to become its Governor! Governors can set tax rates (earn PP from all transactions in their sector), post announcements, and activate sector-wide buffs.',
     help_referral: 'REFERRAL PROGRAM',
     help_referral_body: 'Share your referral code with friends. When they hijack territory, you earn PP rewards! Tier 1: 15%, Tier 2: 10%, Tier 3: 5% of their hijack premium.',
     help_currency: 'PP & USDT',
-    help_currency_body: 'USDT: Stablecoin used to buy and hijack territory. Deposit from your wallet.\nPP (Planet Points): In-game currency earned by harvesting land. Convert PP to USDT anytime, or spend PP on items and cosmetics.',
+    help_currency_body: 'USDT: Stablecoin used to buy and hijack territory. Deposit from your wallet.\nPP (Potato Points): In-game currency earned by harvesting land. Convert PP to USDT anytime, or spend PP on items and cosmetics.',
     help_weather: 'WEATHER EVENTS',
     help_weather_body: 'Mars weather affects gameplay! Sandstorms reduce defense but boost mining. Solar flares double mining but weaken shields. Meteor showers drop bonus PP. Dust devils reduce claim costs but boost attacks.',
     help_about: 'ABOUT OCCUPY MARS',
@@ -8751,7 +8826,7 @@ var I18N = {
     tut_step5: '적의 영토를 탈취하여 제국을 확장하고 더 많은 보상을 받으세요!',
     tut_next: '다음', tut_skip: '건너뛰기', tut_done: '시작하기!',
     help_claim: '영토 점령',
-    help_claim_body: '화성을 드래그하여 픽셀을 선택하고 USDT로 구매하세요. 영토에서 PP(Planet Points)를 수확할 수 있습니다. 다른 플레이어의 영토를 프리미엄을 내고 하이잭할 수도 있습니다!',
+    help_claim_body: '화성을 드래그하여 픽셀을 선택하고 USDT로 구매하세요. 영토에서 PP(Potato Points)를 수확할 수 있습니다. 다른 플레이어의 영토를 프리미엄을 내고 하이잭할 수도 있습니다!',
     help_cantina: '칸티나',
     help_cantina_body: 'PvP 배틀 아레나! 칸티나에서 다른 플레이어와 싸우고, 상점에서 전투 아이템을 구매하고, 보상을 획득하세요. 쉴드로 영토를 방어하고 무기로 공격하세요.',
     help_base: '마이 베이스',
@@ -8763,7 +8838,7 @@ var I18N = {
     help_referral: '추천인 프로그램',
     help_referral_body: '추천 코드를 친구에게 공유하세요. 친구가 영토를 하이잭하면 PP 보상을 받습니다! 1단계: 15%, 2단계: 10%, 3단계: 5%',
     help_currency: 'PP & USDT',
-    help_currency_body: 'USDT: 영토 구매/하이잭에 사용하는 스테이블코인. 지갑에서 입금하세요.\nPP (Planet Points): 영토 수확으로 얻는 게임 내 화폐. PP를 USDT로 교환하거나 아이템/코스메틱 구매에 사용하세요.',
+    help_currency_body: 'USDT: 영토 구매/하이잭에 사용하는 스테이블코인. 지갑에서 입금하세요.\nPP (Potato Points): 영토 수확으로 얻는 게임 내 화폐. PP를 USDT로 교환하거나 아이템/코스메틱 구매에 사용하세요.',
     help_weather: '날씨 이벤트',
     help_weather_body: '화성 날씨가 게임에 영향을 줍니다! 모래폭풍: 방어↓ 채굴↑. 태양 플레어: 채굴 2배, 쉴드↓. 유성우: 보너스 PP 드랍. 먼지 소용돌이: 클레임 비용↓ 공격↑.',
     help_about: 'OCCUPY MARS 소개',
@@ -8828,7 +8903,7 @@ var I18N = {
     tut_step5: '敵の領土を奪取して帝国を拡大し、より多くの報酬を獲得しよう！',
     tut_next: '次へ', tut_skip: 'スキップ', tut_done: 'プレイ開始!',
     help_claim: '領土獲得',
-    help_claim_body: '火星をドラッグしてピクセルを選択し、USDTで購入しましょう。領土からPP（プラネットポイント）を収穫できます。他プレイヤーの領土をプレミアム付きで乗っ取ることも可能です！',
+    help_claim_body: '火星をドラッグしてピクセルを選択し、USDTで購入しましょう。領土からPP（ポテトポイント）を収穫できます。他プレイヤーの領土をプレミアム付きで乗っ取ることも可能です！',
     help_cantina: 'カンティーナ',
     help_cantina_body: 'PvPバトルアリーナ！カンティーナで他プレイヤーと戦い、ショップでバトルアイテムを購入し、報酬を獲得しましょう。シールドで領土を守り、武器で攻撃しましょう。',
     help_base: 'マイベース',
@@ -8840,7 +8915,7 @@ var I18N = {
     help_referral: '紹介プログラム',
     help_referral_body: '紹介コードを友達に共有しましょう。友達が領土を乗っ取るとPP報酬を獲得！Tier 1: 15%, Tier 2: 10%, Tier 3: 5%',
     help_currency: 'PP & USDT',
-    help_currency_body: 'USDT: 領土購入・乗っ取りに使用するステーブルコイン。ウォレットから入金。\nPP（プラネットポイント）: 領土収穫で獲得するゲーム内通貨。USDTに変換やアイテム・コスメティック購入に使用。',
+    help_currency_body: 'USDT: 領土購入・乗っ取りに使用するステーブルコイン。ウォレットから入金。\nPP（ポテトポイント）: 領土収穫で獲得するゲーム内通貨。USDTに変換やアイテム・コスメティック購入に使用。',
     help_weather: '天候イベント',
     help_weather_body: '火星の天候がゲームに影響！砂嵐：防御↓採掘↑。太陽フレア：採掘2倍、シールド↓。流星群：ボーナスPPドロップ。ダストデビル：クレームコスト↓攻撃↑。',
     help_about: 'OCCUPY MARSについて',
@@ -8905,7 +8980,7 @@ var I18N = {
     tut_step5: '劫持敌方领土来扩大你的帝国，获得更多奖励！',
     tut_next: '下一步', tut_skip: '跳过', tut_done: '开始游戏!',
     help_claim: '占领领土',
-    help_claim_body: '在火星上拖动选择像素，用USDT购买成为你的领土。从领土中收获PP（星球积分）。还可以支付溢价劫持其他玩家的领土！',
+    help_claim_body: '在火星上拖动选择像素，用USDT购买成为你的领土。从领土中收获PP（马铃薯积分）。还可以支付溢价劫持其他玩家的领土！',
     help_cantina: '酒吧',
     help_cantina_body: 'PvP战斗竞技场！进入酒吧与其他玩家战斗，在商店购买战斗道具，获得奖励。使用护盾保护领土，使用武器攻击敌人。',
     help_base: '我的基地',
@@ -8917,7 +8992,7 @@ var I18N = {
     help_referral: '推荐计划',
     help_referral_body: '分享推荐码给朋友。朋友劫持领土时你获得PP奖励！一级：15%，二级：10%，三级：5%。',
     help_currency: 'PP & USDT',
-    help_currency_body: 'USDT：用于购买和劫持领土的稳定币。从钱包充值。\nPP（星球积分）：通过收获领土获得的游戏货币。可兑换为USDT或用于购买道具和装饰品。',
+    help_currency_body: 'USDT：用于购买和劫持领土的稳定币。从钱包充值。\nPP（马铃薯积分）：通过收获领土获得的游戏货币。可兑换为USDT或用于购买道具和装饰品。',
     help_weather: '天气事件',
     help_weather_body: '火星天气影响游戏！沙暴：防御↓采矿↑。太阳耀斑：采矿2倍、护盾↓。流星雨：掉落奖励PP。尘旋风：领地费用↓攻击↑。',
     help_about: '关于OCCUPY MARS',
@@ -9561,6 +9636,7 @@ function showAuthLoggedIn(){
   document.getElementById('authForm').style.display='none';
   document.getElementById('authLoggedIn').style.display='';
   loadNotifSettings();
+  try{loadDisplaySettings();}catch(_e){}
   if(emailAuth.user){
     document.getElementById('authNickname').textContent=emailAuth.user.nickname||'--';
     document.getElementById('authEmail').textContent=emailAuth.user.email||'--';
@@ -9666,6 +9742,33 @@ function loadNotifSettings(){
 }
 function getNotifSetting(key){
   try{var s=JSON.parse(localStorage.getItem('pw_notif_settings'));return s?s[key]!==false:true;}catch(_e){return true;}
+}
+// ─── Display Settings (HUD visibility toggles) ───
+function saveDisplaySettings(){
+  var _get=function(id){var e=document.getElementById(id);return e?e.checked:true;};
+  var s={
+    weatherBar:_get('dispWeatherBar'),
+    commanderBar:_get('dispCommanderBar'),
+    guildEmblem:_get('dispGuildEmblem'),
+    guildTag:_get('dispGuildTag')
+  };
+  localStorage.setItem('pw_display_settings',JSON.stringify(s));
+  // Apply immediately
+  try{ if(typeof updateWeatherBanner==='function') updateWeatherBanner(); }catch(_e){}
+  try{ if(typeof loadCommanderBanner==='function') loadCommanderBanner(); }catch(_e){}
+  try{ if(typeof selectedPlot!=='undefined' && selectedPlot && selectedPlot.owner) showTerritoryInfo(selectedPlot); }catch(_e){}
+}
+function loadDisplaySettings(){
+  try{var s=JSON.parse(localStorage.getItem('pw_display_settings'));if(!s)return;
+    var _set=function(id,v){var e=document.getElementById(id);if(e&&v!==undefined)e.checked=v;};
+    _set('dispWeatherBar',s.weatherBar);
+    _set('dispCommanderBar',s.commanderBar);
+    _set('dispGuildEmblem',s.guildEmblem);
+    _set('dispGuildTag',s.guildTag);
+  }catch(_e){}
+}
+function getDisplaySetting(key){
+  try{var s=JSON.parse(localStorage.getItem('pw_display_settings'));return s?s[key]!==false:true;}catch(_e){return true;}
 }
 function openChangePassword(){
   var el=document.getElementById('profileChangePw');
@@ -10560,6 +10663,8 @@ function switchBaseTab(tab,el){
   document.querySelectorAll('.base-pane').forEach(function(p){p.classList.remove('active')});
   el.classList.add('active');
   document.getElementById('basePane_'+tab).classList.add('active');
+  // Stop polls when leaving tabs
+  if(tab!=='guild') try{stopGuildChatPoll()}catch(_e){}
   // Quest tracking for tab views
   if(tab==='sectors') try{trackQuestAction('view_sectors',1)}catch(e){}
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
@@ -10587,7 +10692,14 @@ function loadGuildTab(){
     renderGuildState(myGuild, w);
     renderGuildLeaderboard(lb);
     renderGuildInvites(invites);
+    _syncGuildChatPoll();
   }).catch(function(e){console.warn('[GUILD] load error:',e)});
+}
+
+// Start/stop chat poll based on whether user is in a guild
+function _syncGuildChatPoll(){
+  if(_myGuildData) startGuildChatPoll();
+  else stopGuildChatPoll();
 }
 
 function renderGuildState(guild, wallet){
@@ -10697,6 +10809,74 @@ function renderGuildLeaderboard(guilds){
       '<div style="text-align:right"><div style="font-size:12px;color:var(--gold);font-weight:700">'+(g.totalPixels||0).toLocaleString()+'</div><div style="font-size:7px;color:var(--tx3)">PIXELS</div></div>'+
     '</div>';
   }).join('');
+}
+
+// ── Guild Chat (polling) ──
+var _lastGuildMsgId=0;
+var _guildChatPoll=null;
+function escapeHTML(s){ return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]}); }
+function appendGuildChatMsgs(msgs){
+  var box=document.getElementById('guildChatBox');
+  if(!box||!msgs||!msgs.length) return;
+  // Remove placeholder
+  var ph=box.querySelector('[data-placeholder]');
+  if(ph) ph.remove();
+  // Also strip the default empty-state div if still present
+  if(box.children.length===1 && box.children[0].textContent && box.children[0].textContent.indexOf('No messages')>=0) box.innerHTML='';
+  var w=walletState.address||'';
+  msgs.forEach(function(m){
+    if(m.id<=_lastGuildMsgId) return;
+    _lastGuildMsgId=m.id;
+    var mine=(m.wallet||'').toLowerCase()===w.toLowerCase();
+    var t=new Date(m.at||m.createdAt||m.created_at||Date.now());
+    var hh=String(t.getHours()).padStart(2,'0'), mm=String(t.getMinutes()).padStart(2,'0');
+    var name=escapeHTML(m.nickname||(m.wallet||'').slice(0,8)+'...');
+    var div=document.createElement('div');
+    div.style.cssText='display:flex;gap:6px;align-items:flex-start';
+    div.innerHTML='<span style="color:'+(mine?'var(--mars)':'var(--cyan)')+';font-weight:700;flex-shrink:0">'+name+'</span>'+
+      '<span style="flex:1;color:var(--tx);word-break:break-word">'+escapeHTML(m.message)+'</span>'+
+      '<span style="color:var(--tx3);font-size:8px;flex-shrink:0">'+hh+':'+mm+'</span>';
+    box.appendChild(div);
+  });
+  box.scrollTop=box.scrollHeight;
+}
+function refreshGuildChat(){
+  var w=walletState.address;
+  if(!w||!_myGuildData) return;
+  var url='/api/guild/chat/'+_myGuildData.id+'?wallet='+encodeURIComponent(w)+(_lastGuildMsgId?('&sinceId='+_lastGuildMsgId):'');
+  fetch(url).then(function(r){return r.json()}).then(function(data){
+    if(data.error) return;
+    appendGuildChatMsgs(data.messages||[]);
+  }).catch(function(){});
+}
+function sendGuildChat(){
+  var w=walletState.address;
+  if(!w){showToast('Login first','error');return;}
+  if(!_myGuildData){showToast('No guild','error');return;}
+  var input=document.getElementById('guildChatInput');
+  var msg=(input.value||'').trim();
+  if(!msg) return;
+  input.disabled=true;
+  fetch('/api/guild/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,guildId:_myGuildData.id,message:msg})})
+    .then(function(r){return r.json()}).then(function(data){
+      input.disabled=false;
+      if(data.error){showToast(data.error,'error');return;}
+      input.value='';
+      input.focus();
+      refreshGuildChat();
+    }).catch(function(){input.disabled=false;showToast('Failed to send','error')});
+}
+function startGuildChatPoll(){
+  if(_guildChatPoll) return;
+  _lastGuildMsgId=0;
+  // Reset chat box
+  var box=document.getElementById('guildChatBox');
+  if(box) box.innerHTML='<div data-placeholder style="color:var(--tx3);text-align:center;font-size:9px;margin:auto">Loading chat...</div>';
+  refreshGuildChat();
+  _guildChatPoll=setInterval(refreshGuildChat, 5000);
+}
+function stopGuildChatPoll(){
+  if(_guildChatPoll){ clearInterval(_guildChatPoll); _guildChatPoll=null; }
 }
 
 function createGuild(){
@@ -11009,6 +11189,13 @@ function toggleRankTable(){
   if(wrap.style.display==='none'){wrap.style.display='';tog.textContent='▲ HIDE';}
   else{wrap.style.display='none';tog.textContent='▼ SHOW';}
 }
+function toggleMySectors(){
+  var wrap=document.getElementById('baseMySectors');
+  var tog=document.getElementById('mySectorsToggle');
+  if(!wrap)return;
+  if(wrap.style.display==='none'){wrap.style.display='';tog.textContent='▲ HIDE';}
+  else{wrap.style.display='none';tog.textContent='▼ SHOW';}
+}
 
 function showSeasonGuide(season){
   var guide=document.getElementById('seasonGuide');
@@ -11275,7 +11462,7 @@ function renderSectorList(sectors){
     var occ=s.stats.occupancyRate;
     var occPx=s.stats.occupiedPixels;
     var totPx=s.stats.totalPixels||1;
-    html+='<div class="sector-card" data-tier="'+s.tier+'">';
+    html+='<div class="sector-card" data-tier="'+s.tier+'" data-owned="'+(s.myPixels>0?'1':'0')+'">';
     // Header
     html+='<div class="sc-header">';
     html+='<span class="sc-tier '+s.tier+'">'+s.tier+'</span>';
@@ -11335,10 +11522,28 @@ function renderSectorList(sectors){
 function filterSectors(tier,el){
   document.querySelectorAll('.base-filter-btn').forEach(function(b){b.classList.remove('active');b.style.opacity='.5'});
   el.classList.add('active');el.style.opacity='1';
-  document.querySelectorAll('#baseSectorList .sector-card').forEach(function(item){
-    if(tier==='all'||item.dataset.tier===tier) item.style.display='';
-    else item.style.display='none';
+  var cards=document.querySelectorAll('#baseSectorList .sector-card');
+  var shown=0;
+  cards.forEach(function(item){
+    var match=false;
+    if(tier==='all') match=true;
+    else if(tier==='mine') match=item.dataset.owned==='1';
+    else match=item.dataset.tier===tier;
+    item.style.display=match?'':'none';
+    if(match) shown++;
   });
+  // Empty-state hint for MY SECTORS
+  var list=document.getElementById('baseSectorList');
+  var hint=document.getElementById('baseSectorEmptyHint');
+  if(tier==='mine' && shown===0){
+    if(!hint){
+      hint=document.createElement('div');
+      hint.id='baseSectorEmptyHint';
+      hint.style.cssText='font-size:10px;color:var(--tx3);padding:20px;text-align:center';
+      hint.textContent="You don't own any pixels yet. Claim territory to see your sectors here.";
+      list.appendChild(hint);
+    } else { hint.style.display=''; }
+  } else if(hint){ hint.style.display='none'; }
 }
 
 function renderRankTable(ranks){
@@ -14183,21 +14388,36 @@ window.addEventListener('resize', function(){
       var el = document.getElementById('tbCommander');
       var nameEl = document.getElementById('tbCmdName');
       if (!el || !nameEl) return;
-      if (info.commander) {
+      // Respect user display toggle — hide banner + announcement if off
+      var showBar = (typeof getDisplaySetting==='function') ? getDisplaySetting('commanderBar') : true;
+      if (info.commander && showBar) {
         var name = info.commanderNickname || (info.commander.slice(0,6)+'...'+info.commander.slice(-4));
         nameEl.textContent = name;
         el.classList.add('show');
       } else {
         el.classList.remove('show');
       }
-      // Show commander announcement below commander banner
+      // Show commander announcement below commander banner (only if banner shown)
       var cmdAnnEl = document.getElementById('tbCmdAnnounce');
       if (cmdAnnEl) {
-        if (info.announcement) {
+        if (info.announcement && showBar) {
           cmdAnnEl.textContent = '📢 ' + info.announcement;
           cmdAnnEl.style.display = 'block';
         } else {
           cmdAnnEl.style.display = 'none';
+        }
+      }
+      // Also mirror into BASE > TERRITORY tab
+      var baseAnnBox = document.getElementById('baseCmdAnnounceBox');
+      var baseAnnText = document.getElementById('baseCmdAnnounceText');
+      var baseAnnName = document.getElementById('baseCmdAnnounceName');
+      if (baseAnnBox && baseAnnText) {
+        if (info.announcement) {
+          baseAnnText.textContent = info.announcement;
+          if (baseAnnName) baseAnnName.textContent = info.commanderNickname ? ('— ' + info.commanderNickname) : '';
+          baseAnnBox.style.display = '';
+        } else {
+          baseAnnBox.style.display = 'none';
         }
       }
       updateGovRoles();
@@ -14218,12 +14438,32 @@ window.addEventListener('resize', function(){
       if (_weatherData.length > 0) compositeClaimsOnTexture();
     }).catch(function(){ _weatherData = []; });
   }
+  // Collapsed state persists in localStorage
+  window._toggleWeatherBar = function(){
+    var collapsed = localStorage.getItem('pw_wx_collapsed')==='1';
+    localStorage.setItem('pw_wx_collapsed', collapsed?'0':'1');
+    updateWeatherBanner();
+  };
   function updateWeatherBanner() {
     var el = document.getElementById('weatherBanner');
     if (!el) return;
-    if (!_weatherData.length) { el.classList.remove('show'); el.innerHTML = ''; return; }
+    // Respect user display toggle
+    var showBar = (typeof getDisplaySetting==='function') ? getDisplaySetting('weatherBar') : true;
+    if (!showBar || !_weatherData.length) { el.classList.remove('show'); el.innerHTML = ''; return; }
     var now = Date.now();
-    el.innerHTML = _weatherData.slice(0, 5).map(function(wx, idx) {
+    var collapsed = localStorage.getItem('pw_wx_collapsed')==='1';
+    if (collapsed) {
+      // Compact chip: just count + icon, click to expand
+      var iconSet = _weatherData.slice(0,3).map(function(w){return w.icon||'🌡️'}).join('');
+      el.innerHTML = '<div class="wx-item" onclick="_toggleWeatherBar()" title="Expand weather bar">'
+        + '<span class="wx-icon">'+iconSet+'</span>'
+        + '<span class="wx-sector">'+_weatherData.length+' ACTIVE</span>'
+        + '<span style="color:var(--tx3);font-size:8px;margin-left:4px">▸</span>'
+        + '</div>';
+      el.classList.add('show');
+      return;
+    }
+    var items = _weatherData.slice(0, 5).map(function(wx, idx) {
       var remaining = Math.max(0, new Date(wx.endsAt).getTime() - now);
       var mins = Math.floor(remaining / 60000);
       var timeStr = mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
@@ -14233,6 +14473,9 @@ window.addEventListener('resize', function(){
         + '<span class="wx-time">' + timeStr + '</span>'
         + '</div>';
     }).join('');
+    // Minimize button at the end
+    items += '<div class="wx-item" onclick="event.stopPropagation();_toggleWeatherBar()" title="Minimize" style="padding:0 8px;color:var(--tx3);border-left:1px solid rgba(255,140,60,.25)">—</div>';
+    el.innerHTML = items;
     el.classList.add('show');
   }
 
@@ -15102,7 +15345,7 @@ function openTelegramGroup(){
       <p>Occupy Mars is a browser-based territory strategy game set on a virtual Mars. Players claim land, mine resources, battle opponents, and trade in-game currency. The game is provided "as is" for entertainment purposes.</p>
 
       <h3>2. PLANET POINTS (PP) &mdash; IN-GAME CURRENCY</h3>
-      <p>Planet Points (PP) is the primary in-game currency used within Occupy Mars. PP is <strong>not</strong> real money, legal tender, or a cryptocurrency. PP has no inherent monetary value outside the game.</p>
+      <p>Potato Points (PP) is the primary in-game currency used within Occupy Mars. PP is <strong>not</strong> real money, legal tender, or a cryptocurrency. PP has no inherent monetary value outside the game.</p>
       <p>PP can be earned through gameplay (mining, quests, battles) or purchased via supported payment methods. All PP purchases are final and non-refundable unless required by applicable law.</p>
 
       <h3>3. USDT WITHDRAWALS</h3>
@@ -15252,7 +15495,7 @@ function openTelegramGroup(){
     <div class="gd-title">CANTINA GAMES DISCLAIMER</div>
     <div class="gd-text">
       The Cantina contains games of chance and skill.<br>
-      <strong>You may lose PP (Planet Points). Play responsibly.</strong><br><br>
+      <strong>You may lose PP (Potato Points). Play responsibly.</strong><br><br>
       PP spent in games is gone &mdash; wins are not guaranteed.<br>
       You must be <strong>18 years or older</strong> to play.<br><br>
       If you feel you are developing a problem with gambling,<br>
@@ -15893,7 +16136,7 @@ if(typeof _origTrackQuestAction === 'function'){
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     CODEX / WHITEPAPER MODAL — Complete game guide
+     GAME GUIDEBOOK MODAL — Complete game guide (id kept as codex* for compat)
      ═══════════════════════════════════════════════════════════════ -->
 <div id="codexOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
   <div style="width:100%;max-width:780px;max-height:92vh;background:linear-gradient(160deg,#0E0C18,#14121F);border:1px solid rgba(91,184,232,.3);border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 60px rgba(91,184,232,.08);display:flex;flex-direction:column;overflow:hidden">
@@ -15901,8 +16144,8 @@ if(typeof _origTrackQuestAction === 'function'){
     <div style="padding:18px 22px;border-bottom:1px solid rgba(91,184,232,.2);background:linear-gradient(135deg,rgba(91,184,232,.1),rgba(184,136,224,.06));display:flex;align-items:center;gap:12px">
       <div style="font-size:24px">📖</div>
       <div style="flex:1">
-        <div style="font-size:15px;color:#fff;letter-spacing:2px;font-weight:700">OCCUPY MARS — CODEX</div>
-        <div style="font-size:10px;color:var(--tx3);letter-spacing:1px" data-i18n="codex_subtitle">Official game whitepaper & player guide · v1.0</div>
+        <div style="font-size:15px;color:#fff;letter-spacing:2px;font-weight:700">OCCUPY MARS — GAME GUIDEBOOK</div>
+        <div style="font-size:10px;color:var(--tx3);letter-spacing:1px" data-i18n="codex_subtitle">Official game guidebook · Everything you need to dominate Mars · v2.0</div>
       </div>
       <button onclick="closeCodex()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--tx2);font-size:18px;width:32px;height:32px;border-radius:8px;cursor:pointer">✕</button>
     </div>
@@ -15927,11 +16170,11 @@ var CODEX_CONTENT = {
   en: {
     sections: [
       { id: 'overview', icon: '🌍', title: 'Overview',
-        body: '**Occupy Mars** is a territorial conquest game on Base chain. You claim pixel plots on a 3D Mars globe, earn PP (Pepe Points) from mining, raid enemies, join guilds, and compete in seasonal leaderboards.\n\n**Core loop:** CLAIM → MINE → DEFEND → RAID → GROW.\n\n**Win condition:** There is no end state. Your goal is to accumulate territory, reputation, and governance power. Top players become Commanders and Governors who shape the entire map.\n\n**Payment:** Base USDT for real purchases, PP for all in-game economy, GP (Governance Points) for voting.' },
+        body: '**Occupy Mars** is a territorial conquest game on Base chain. You claim pixel plots on a 3D Mars globe, earn PP (Potato Points) from mining, raid enemies, join guilds, and compete in seasonal leaderboards.\n\n**Core loop:** CLAIM → MINE → DEFEND → RAID → GROW.\n\n**Win condition:** There is no end state. Your goal is to accumulate territory, reputation, and governance power. Top players become Commanders and Governors who shape the entire map.\n\n**Payment:** Base USDT for real purchases, PP for all in-game economy, GP (Governance Points) for voting.' },
       { id: 'tokens', icon: '🪙', title: 'Token Economy',
-        body: '**USDT** (Base chain) — Real money. Used to buy premium plots, cosmetics, and cantina credits. Never minted, only deposited/withdrawn.\n\n**PP (Pepe Points)** — Game currency. Earned from mining, POI drops, hijacks, referrals, casino wins, quest rewards. Spent on basic claims, shop items, guild fees, and casino bets. Can be swapped to USDT at market rate (fee applies).\n\n**GP (Governance Points)** — Political power. Earned by holding territory, winning elections, completing governance quests. Spent on votes, commanding sectors, and special policies. Cannot be swapped.\n\n**XP** — Account level. Unlocks rank perks, commission boosts, and exclusive cosmetics. Earned from any activity.' },
+        body: '**USDT** (Base chain) — Real money. Used to buy premium plots, cosmetics, and cantina credits. Never minted, only deposited/withdrawn.\n\n**PP (Potato Points)** — Game currency. Earned from mining, POI drops, hijacks, referrals, casino wins, quest rewards. Spent on basic claims, shop items, guild fees, and casino bets. Can be swapped to USDT at market rate (fee applies).\n\n**GP (Governance Points)** — Political power. Earned by holding territory, winning elections, completing governance quests. Spent on votes, commanding sectors, and special policies. Cannot be swapped.\n\n**XP** — Account level. Unlocks rank perks, commission boosts, and exclusive cosmetics. Earned from any activity.' },
       { id: 'territory', icon: '🏴', title: 'Territory',
-        body: '**Claiming:** Open the CLAIM modal, choose a size (1×1 to 10×10 px), pick coordinates, upload an image, pay. New plots on empty land cost base × pixels.\n\n**Hijacking:** If a plot overlaps an existing owner, you pay 2× the current price to the old owner (minus fees). Contested pixels transfer. Good targets: inactive big plots.\n\n**Shields:** Buy from Shop → protects pixels from hijack for N hours. Auto-renew available.\n\n**Image:** Static PNG/JPG or GIF. Cropped to your plot bounds. Animated GIFs display on hover/focus. Link URL optional (https only).\n\n**Rename:** Custom name shown on territory info. Costs PP.' },
+        body: '**Claiming:** Open the CLAIM modal, drag on Mars to select a rectangle (up to 500×500 px per claim), upload an image, pay. New plots on empty land cost base × pixels.\n\n**Hijacking:** If a plot overlaps an existing owner, you pay 1.2× the current price to the old owner (minus fees). Contested pixels transfer. Good targets: inactive big plots.\n\n**Shields:** Buy from Shop → protects pixels from hijack for N hours. Auto-renew available.\n\n**Image:** Static PNG/JPG or GIF. Cropped to your plot bounds. Animated GIFs display on hover/focus. Link URL optional (https only).\n\n**Rename:** Custom name shown on territory info. Costs PP.' },
       { id: 'mining', icon: '⛏', title: 'Mining & Income',
         body: '**Passive mining:** Every owned pixel generates PP per hour based on rank multiplier and sector tax. Claim from BASE → MINE tab. Bigger plots = bigger mining pool.\n\n**POIs (Points of Interest):** Random resource spots spawn on the map. Walk (click) onto one to harvest. Drops PP, items, or cosmetics. Tiered rewards (common → legendary).\n\n**Rockets:** Timed events — rockets land in random sectors with valuable loot. First-come drop. Check ROCKET tab for next launch.\n\n**Daily quests:** 3 quests per day. Mine, battle, social. Complete for PP + XP.\n\n**Commissions:** If you referred someone, you earn automatic cuts from their deposits, swaps, harvests, shop purchases, hijacks, and cantina spending (3-tier DYNASTY, see §8).' },
       { id: 'governance', icon: '🏛', title: 'Governance',
@@ -15952,11 +16195,11 @@ var CODEX_CONTENT = {
   ko: {
     sections: [
       { id: 'overview', icon: '🌍', title: '게임 개요',
-        body: '**Occupy Mars**는 Base 체인에서 돌아가는 영토 정복 게임이야. 3D 화성 지구본 위에 픽셀 영토를 클레임하고, 채굴로 PP(Pepe Points)를 벌고, 적을 습격하고, 길드에 가입하고, 시즌 순위를 겨루지.\n\n**핵심 루프:** 클레임 → 채굴 → 방어 → 습격 → 성장\n\n**승리 조건:** 엔딩은 없어. 영토·명성·거버넌스 파워를 쌓는 게 목표. 상위 플레이어는 커맨더/거버너가 되어 맵 전체의 정책을 정함.\n\n**결제:** USDT는 실돈 구매, PP는 인게임 경제, GP는 투표 전용.' },
+        body: '**Occupy Mars**는 Base 체인에서 돌아가는 영토 정복 게임이야. 3D 화성 지구본 위에 픽셀 영토를 클레임하고, 채굴로 PP(Potato Points)를 벌고, 적을 습격하고, 길드에 가입하고, 시즌 순위를 겨루지.\n\n**핵심 루프:** 클레임 → 채굴 → 방어 → 습격 → 성장\n\n**승리 조건:** 엔딩은 없어. 영토·명성·거버넌스 파워를 쌓는 게 목표. 상위 플레이어는 커맨더/거버너가 되어 맵 전체의 정책을 정함.\n\n**결제:** USDT는 실돈 구매, PP는 인게임 경제, GP는 투표 전용.' },
       { id: 'tokens', icon: '🪙', title: '토큰 이코노미',
-        body: '**USDT** (Base 체인) — 실돈. 프리미엄 클레임, 코스메틱, 칸티나 크레딧 구매. 민팅 불가, 입출금만 가능.\n\n**PP (Pepe Points)** — 인게임 통화. 채굴, POI 드롭, 하이잭, 추천 수수료, 카지노 승리, 퀘스트 보상으로 획득. 기본 클레임, 상점, 길드비, 카지노 베팅에 사용. 수수료 내고 USDT로 스왑 가능.\n\n**GP (Governance Points)** — 정치 권력. 영토 보유·선거 승리·거버넌스 퀘스트로 획득. 투표·섹터 지배·특수 정책에 사용. 스왑 불가.\n\n**XP** — 계정 레벨. 계급 특전, 수수료 부스트, 전용 코스메틱 언락.' },
+        body: '**USDT** (Base 체인) — 실돈. 프리미엄 클레임, 코스메틱, 칸티나 크레딧 구매. 민팅 불가, 입출금만 가능.\n\n**PP (Potato Points)** — 인게임 통화. 채굴, POI 드롭, 하이잭, 추천 수수료, 카지노 승리, 퀘스트 보상으로 획득. 기본 클레임, 상점, 길드비, 카지노 베팅에 사용. 수수료 내고 USDT로 스왑 가능.\n\n**GP (Governance Points)** — 정치 권력. 영토 보유·선거 승리·거버넌스 퀘스트로 획득. 투표·섹터 지배·특수 정책에 사용. 스왑 불가.\n\n**XP** — 계정 레벨. 계급 특전, 수수료 부스트, 전용 코스메틱 언락.' },
       { id: 'territory', icon: '🏴', title: '영토 시스템',
-        body: '**클레임:** CLAIM 모달 열고 크기(1×1 ~ 10×10 px), 좌표, 이미지 선택하고 결제. 빈 땅 가격은 기본가 × 픽셀수.\n\n**하이잭:** 기존 영토와 겹치면 현재 가격의 2배를 소유주에게 지불(수수료 차감). 겹친 픽셀이 넘어옴. 좋은 타겟: 활동 없는 큰 영토.\n\n**쉴드:** 상점에서 구매 → N시간 동안 하이잭 차단. 자동갱신 옵션 있음.\n\n**이미지:** PNG/JPG/GIF 가능. 영토 경계에 맞춰 크롭. GIF는 호버시 애니메이션. 외부 링크(https만) 선택 가능.\n\n**이름 지정:** 영토 정보에 커스텀 이름 표시. PP 지불.' },
+        body: '**클레임:** CLAIM 모달 열고 화성에서 사각형 드래그(클레임당 최대 500×500 px), 이미지 업로드, 결제. 빈 땅 가격은 기본가 × 픽셀수.\n\n**하이잭:** 기존 영토와 겹치면 **현재 가격의 1.2배**를 소유주에게 지불(수수료 차감). 겹친 픽셀이 넘어옴. 좋은 타겟: 활동 없는 큰 영토.\n\n**쉴드:** 상점에서 구매 → N시간 동안 하이잭 차단. 자동갱신 옵션 있음.\n\n**이미지:** PNG/JPG/GIF 가능. 영토 경계에 맞춰 크롭. GIF는 호버시 애니메이션. 외부 링크(https만) 선택 가능.\n\n**이름 지정:** 영토 정보에 커스텀 이름 표시. PP 지불.' },
       { id: 'mining', icon: '⛏', title: '채굴 & 수익',
         body: '**패시브 채굴:** 보유 픽셀당 시간당 PP 생성. 계급 배수와 섹터 세율 적용. BASE → MINE 탭에서 수령. 영토 크면 채굴 풀도 커짐.\n\n**POI:** 맵에 랜덤으로 자원 지점 등장. 클릭해 수확. PP·아이템·코스메틱 드롭. 등급별 보상(커먼~레전더리).\n\n**로켓 이벤트:** 일정 시간마다 로켓이 섹터에 착륙, 선착순 전리품. ROCKET 탭에서 다음 발사 시간 확인.\n\n**일일 퀘스트:** 하루 3개. 채굴·전투·소셜. 완료시 PP+XP.\n\n**수수료 수익(DYNASTY):** 누군가를 초대하면 그들의 입금·스왑·수확·상점·하이잭·칸티나 활동에서 자동 커미션(§8 참고).' },
       { id: 'governance', icon: '🏛', title: '거버넌스',
