@@ -64,7 +64,7 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
   .announce-bar{left:55px;right:49px;top:77px;height:20px}
   #seasonBanner{top:51px!important;max-width:75vw;font-size:9px!important;padding:3px 10px!important}
   .tb-commander{top:101px!important}
-  .active-buffs-bar{top:130px!important;bottom:auto!important;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+  .active-buffs-bar{top:101px!important;bottom:auto!important;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
 }
 
 /* Weather Banner — small chip, bottom-left corner by default on desktop.
@@ -105,7 +105,11 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .wx-detail-popup .wx-d-label{font-size:9px;color:var(--tx3)}
 .wx-detail-popup .wx-d-val{font-size:9px;font-weight:700}
 .wx-d-val.buff{color:var(--gn)}.wx-d-val.debuff{color:var(--red)}.wx-d-val.neutral{color:var(--cyan)}
-@media(max-width:768px){.weather-banner{bottom:116px;left:50%;transform:translateX(-50%);font-size:8px;padding:3px 10px;max-width:92vw}
+@media(max-width:768px){.weather-banner{bottom:130px;left:12px;right:auto;transform:none;font-size:10px;padding:6px 12px;max-width:92vw}
+.weather-banner .wx-item{padding:5px 9px;gap:6px}
+.weather-banner .wx-icon{font-size:15px}
+.weather-banner .wx-sector{font-size:10px}
+.weather-banner .wx-time{font-size:9px}
 .wx-detail-popup{padding-bottom:80px;z-index:210}}
 
 /* Rocket Event Banner */
@@ -587,28 +591,30 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   border:1px solid rgba(255,120,60,0.25);border-radius:11px;
   box-shadow:0 6px 22px rgba(0,0,0,.55),0 0 20px rgba(255,120,60,.06),inset 0 0 0 1px rgba(255,120,60,.04)}
 .col-fab-wrap.show{display:flex}
+/* All buttons share a consistent square frame (like the items button) —
+   per-button color comes through in the label + border tint + hover glow. */
 .col-fab{padding:6px 12px;min-width:68px;height:38px;font-family:var(--fn);
-  background:transparent;border:1px solid transparent;border-radius:8px;color:var(--tx2);
-  cursor:pointer;transition:background .12s,color .12s,border-color .12s;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.14);
+  border-radius:8px;color:#E8E8EE;
+  cursor:pointer;transition:background .12s,color .12s,border-color .12s,box-shadow .12s;
   display:flex;flex-direction:row;align-items:center;justify-content:center;gap:6px}
 .col-fab .cf-ic{font-size:15px;line-height:1}
-.col-fab .cf-lb{font-size:10px;letter-spacing:.8px;font-weight:700;opacity:.9}
-.col-fab:hover{background:rgba(255,255,255,0.05);color:var(--tx)}
-.col-fab:hover .cf-lb{opacity:1}
+.col-fab .cf-lb{font-size:10px;letter-spacing:.8px;font-weight:700;opacity:.95}
+.col-fab:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.28);color:#fff}
 .col-fab:active{transform:scale(.96)}
 .col-fab.place{color:var(--mars);background:linear-gradient(135deg,rgba(255,120,64,0.18),rgba(232,72,85,0.1));
-  border-color:rgba(255,120,60,0.42)}
+  border-color:rgba(255,120,60,0.45)}
 .col-fab.place .cf-ic{filter:drop-shadow(0 0 5px rgba(255,120,60,.5))}
 .col-fab.place:hover{background:linear-gradient(135deg,rgba(255,120,64,0.3),rgba(232,72,85,0.18));
-  box-shadow:0 2px 12px rgba(255,120,60,.22)}
-.col-fab.base{color:var(--cyan)}
-.col-fab.base:hover{background:rgba(91,184,232,0.1);border-color:rgba(91,184,232,0.3)}
-.col-fab.arena{color:var(--gold)}
-.col-fab.arena:hover{background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.3)}
-.col-fab.myland{color:var(--gn)}
-.col-fab.myland:hover{background:rgba(76,216,154,0.1);border-color:rgba(76,216,154,0.3)}
-.col-fab.items{color:#E8E8EE;border-color:rgba(255,255,255,0.14)}
-.col-fab.items:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.3);color:#fff}
+  border-color:rgba(255,120,60,0.6);box-shadow:0 2px 12px rgba(255,120,60,.22)}
+.col-fab.base{color:var(--cyan);border-color:rgba(91,184,232,0.35)}
+.col-fab.base:hover{background:rgba(91,184,232,0.12);border-color:rgba(91,184,232,0.55);box-shadow:0 2px 10px rgba(91,184,232,.18)}
+.col-fab.arena{color:var(--gold);border-color:rgba(255,209,102,0.35)}
+.col-fab.arena:hover{background:rgba(255,209,102,0.12);border-color:rgba(255,209,102,0.55);box-shadow:0 2px 10px rgba(255,209,102,.18)}
+.col-fab.myland{color:var(--gn);border-color:rgba(76,216,154,0.35)}
+.col-fab.myland:hover{background:rgba(76,216,154,0.12);border-color:rgba(76,216,154,0.55);box-shadow:0 2px 10px rgba(76,216,154,.18)}
+.col-fab.items{color:#E8E8EE;border-color:rgba(255,255,255,0.22)}
+.col-fab.items:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.4);color:#fff}
 @media(max-width:1100px){.col-fab{min-width:46px;padding:5px 7px}.col-fab .cf-lb{font-size:7px}}
 @media(max-width:900px){.col-fab{min-width:38px;padding:5px 6px;gap:3px}.col-fab .cf-ic{font-size:12px}.col-fab .cf-lb{display:none}}
 @media(max-width:768px){.col-fab-wrap{display:none!important}.panel-tab{display:none!important}#myLandBtn{display:none!important}}
@@ -995,10 +1001,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* Desktop overrides (ensure not overridden by mobile rules) */
 @media(min-width:769px){
   .mode-badge{bottom:17px!important;left:266px}
-  .active-buffs-bar{top:140px!important;bottom:auto!important;left:266px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+  .active-buffs-bar{top:121px!important;bottom:auto!important;left:266px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
 }
-/* Active buff bar — default (desktop): top-left below topbar, grows downward */
-.active-buffs-bar{top:140px;bottom:auto;left:266px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+/* Active buff bar — default (desktop): aligned with commander banner top, grows downward */
+.active-buffs-bar{top:121px;bottom:auto;left:266px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
 /* Active buff pills */
 .tb-buff{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;
   font-size:9px;font-family:var(--fn);letter-spacing:.3px;white-space:nowrap;
@@ -1075,8 +1081,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .shop-main-tab{padding:8px 14px;font-size:10px;min-height:40px}
   #shopConfirmModal{align-items:center!important}
   #shopConfirmModal .mdl{align-self:center;border-radius:14px;max-width:90vw}
-  .tb-buff{font-size:8px;padding:2px 6px}
-  .active-buffs-bar{top:130px;bottom:auto;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+  .tb-buff{font-size:10px;padding:5px 11px;border-radius:12px;min-height:28px}
+  .active-buffs-bar{top:101px;bottom:auto;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:5px}
   .shop-cat-btn{padding:10px 4px;font-size:10px;min-height:44px}
   .si-price{min-height:36px;display:flex;align-items:center;padding:6px 12px!important;font-size:11px!important}
   .inv-item{padding:12px}
@@ -1959,7 +1965,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   #seasonBanner{max-width:70vw;font-size:8px!important}
   .tb-commander{top:92px;font-size:8px;padding:2px 8px}
   .rocket-banner{top:168px;font-size:8px;padding:3px 10px}
-  .weather-banner{font-size:7px;padding:2px 8px}
+  .weather-banner{font-size:9px;padding:5px 10px}
+  .weather-banner .wx-item{padding:4px 8px}
+  .weather-banner .wx-icon{font-size:14px}
   .feed-item{font-size:8px;padding:4px 0}
   .lb-row{padding:3px 0}
   .lb-name{font-size:9px}.lb-val{font-size:9px}
@@ -2040,7 +2048,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .announce-bar{top:68px}
   .tb-commander{top:76px;font-size:8px}
   .rocket-banner{top:130px;font-size:8px}
-  .weather-banner{bottom:52px;font-size:7px}
+  .weather-banner{bottom:115px;font-size:7px}
   .zc{bottom:52px}
   .mode-badge{bottom:48px;font-size:8px;padding:4px 8px}
   #mobSizeControls{bottom:44px}
@@ -13266,6 +13274,25 @@ function toggleRight(){
 }
 function closeLeft(){document.getElementById('panelL').classList.remove('open');updateMobToggles()}
 function closeRight(){document.getElementById('panelR').classList.remove('open');updateMobToggles()}
+// Mobile: tapping outside an open status/live panel auto-closes it
+// (no need to hunt for the close button — respect mobile thumb ergonomics)
+document.addEventListener('click', function(e){
+  if(window.innerWidth > 768) return;
+  var pL = document.getElementById('panelL');
+  var pR = document.getElementById('panelR');
+  if(!pL || !pR) return;
+  var lOpen = pL.classList.contains('open');
+  var rOpen = pR.classList.contains('open');
+  if(!lOpen && !rOpen) return;
+  // Ignore taps inside the panel itself, on the toggles, on the close buttons,
+  // or on any modal/overlay that sits above the panel
+  var t = e.target;
+  if(t.closest('#panelL')||t.closest('#panelR')) return;
+  if(t.closest('.mob-toggle')||t.closest('#closeBtnLeft')||t.closest('#closeBtnRight')) return;
+  if(t.closest('.mbg')||t.closest('.mdl')) return;
+  if(lOpen) closeLeft();
+  if(rOpen) closeRight();
+}, true);
 
 /* Desktop/Tablet panel collapse */
 function collapsePanel(side){
@@ -13282,21 +13309,44 @@ function collapsePanel(side){
   updateCollapsedUI();
 }
 function updateCollapsedUI(){
+  var isMobile = window.innerWidth <= 768;
   var lCol = document.getElementById('panelL').classList.contains('collapsed');
   var rCol = document.getElementById('panelR').classList.contains('collapsed');
-  // Announce bar position
+  // Announce bar position (desktop only — mobile uses its own CSS)
   var bar = document.getElementById('announceBanner');
-  if(bar){
+  if(bar && !isMobile){
     bar.style.left = (lCol ? 30 : 280) + 'px';
     bar.style.right = (rCol ? 30 : 280) + 'px';
+  } else if(bar && isMobile){
+    bar.style.left = '';
+    bar.style.right = '';
   }
   // Bottom nav: show whenever right panel is collapsed. It's always centered
   // via CSS transform — do NOT set inline left/right or centering breaks.
+  // Mobile has its own nav — hide the desktop dock entirely.
   var fab = document.getElementById('colFabWrap');
   var navShown = false;
   if(fab){
-    navShown = rCol;
+    navShown = !isMobile && rCol;
     fab.classList.toggle('show', navShown);
+  }
+  // On mobile, clear any desktop-only inline overrides so the mobile @media
+  // rules for weather/buffs/rocketBanner take effect cleanly.
+  if(isMobile){
+    ['weatherBanner','tbActiveBuffs','rocketBanner','modeBadge'].forEach(function(id){
+      var e = document.getElementById(id);
+      if(!e) return;
+      e.style.left = '';
+      e.style.right = '';
+      e.style.top = '';
+      e.style.bottom = '';
+      e.style.transform = '';
+    });
+    var zcm = document.querySelector('.zc');
+    if(zcm){ zcm.style.right=''; zcm.style.bottom=''; }
+    var lfm = document.getElementById('legalFooter');
+    if(lfm) lfm.style.display = '';
+    return;
   }
   // Zoom controls: right panel collapsed → hug the right edge, lifted above nav
   var zc = document.querySelector('.zc');
@@ -13315,7 +13365,7 @@ function updateCollapsedUI(){
   var buffs = document.getElementById('tbActiveBuffs');
   if(buffs){
     buffs.style.left = lCol ? '12px' : '';
-    buffs.style.top = navShown ? '140px' : '';
+    buffs.style.top = navShown ? '121px' : '';
     buffs.style.bottom = 'auto';
   }
   // Weather chip: bottom-left corner, stacked above mode badge so they don't
@@ -14944,6 +14994,17 @@ window.addEventListener('resize', function(){
     var popup = document.getElementById('wxDetailPopup');
     if(popup && popup.classList.contains('open') && !popup.contains(e.target) && !e.target.closest('.wx-item')){
       popup.classList.remove('open');
+    }
+    // Auto-collapse expanded weather bar when tapping outside
+    // (mobile UX: don't force users to hunt for the tiny "—" button)
+    var wxBar = document.getElementById('weatherBanner');
+    if(wxBar && wxBar.classList.contains('show') && !wxBar.classList.contains('compact')
+       && !wxBar.contains(e.target) && (!popup || !popup.contains(e.target))){
+      var isCollapsed = localStorage.getItem('pw_wx_collapsed')==='1';
+      if(!isCollapsed){
+        localStorage.setItem('pw_wx_collapsed','1');
+        try{ updateWeatherBanner(); }catch(_e){}
+      }
     }
   });
   setTimeout(loadWeatherData, 4000);
