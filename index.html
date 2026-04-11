@@ -1661,18 +1661,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .legal-footer a:hover{color:var(--mars)}
 .legal-footer .lf-sep{opacity:0.4}
 @media(max-width:768px){.legal-footer{bottom:68px}}
-/* ── Main screen cleanup for mobile (≤600px): hide low-value clutter ── */
+/* ── Main screen cleanup for mobile (≤600px) ──
+   Hidden items are RE-ROUTED to profile/BASE, not deleted. See profile panel
+   (referral, live feed, alerts, legal) and BASE > SECTORS (sector announces). */
 @media(max-width:600px){
-  /* Legal footer: redundant on main view, available in profile */
+  /* Legal footer: moved to profile > SETTINGS > LEGAL */
   .legal-footer{display:none!important}
-  /* Marquee announce bar overlaps season banner visually */
-  .announce-bar{display:none!important}
-  /* Dynasty sector ticker: redundant with BASE > SECTORS */
+  /* Dynasty sector ticker: moved to BASE > SECTORS (now shown to everyone) */
   #tbSectorAnnounce{display:none!important}
-  /* Side drawer pulls: redundant with BASE modal tabs */
-  .mob-toggle{display:none!important}
-  /* Tighten commander + rocket spacing now that sector ticker is gone */
-  .rocket-banner{top:130px!important}
+  /* Shrink mob-toggle drawer pulls to small subtle tabs (not hidden — access to
+     global stats/leaderboard/top governors + owner search/alerts/live feed) */
+  .mob-toggle{font-size:7px!important;padding:4px 6px!important;min-height:34px!important;opacity:0.7;letter-spacing:.3px!important}
+  .mob-toggle.right{right:0!important}
+  /* announce-bar IS kept — it carries critical EVENT ACTIVE gov announcements */
 }
 
 /* ── Cookie Consent Banner ── */
@@ -2722,6 +2723,48 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="seasonRewardsList"></div>
         </div>
 
+        <!-- GLOBAL STATS (mirrored from left panel for mobile) -->
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--bdr)">
+          <div style="font-size:9px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:8px">🌐 GLOBAL STATS</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px">
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">TOTAL PIXELS</div>
+              <div style="font-size:12px;color:var(--tx2);font-family:var(--fn);font-weight:700" id="bsStatTotalPx">--</div>
+            </div>
+            <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px">
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">PIXELS SOLD</div>
+              <div style="font-size:12px;color:var(--gn);font-family:var(--fn);font-weight:700" id="bsStatPlots">--</div>
+            </div>
+            <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px">
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">TOTAL VOLUME</div>
+              <div style="font-size:12px;color:var(--gold);font-family:var(--fn);font-weight:700" id="bsStatTVL">--</div>
+            </div>
+            <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px">
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">HIJACKS / HR</div>
+              <div style="font-size:12px;color:var(--red);font-family:var(--fn);font-weight:700" id="bsStatHijacks">--</div>
+            </div>
+            <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px;grid-column:span 2">
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">ACTIVE USERS (24H)</div>
+              <div style="font-size:12px;color:var(--tx);font-family:var(--fn);font-weight:700" id="bsStatActiveUsers">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIXEL LEADERBOARD (mirrored from left panel) -->
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr)">
+          <div style="font-size:9px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+            <span>🏆 TOP PIXEL HOLDERS</span>
+            <span style="font-size:8px;color:var(--mars);cursor:pointer" onclick="loadLeaderboard()">↻ REFRESH</span>
+          </div>
+          <div id="bsLeaderboardList" style="font-size:9px"></div>
+        </div>
+
+        <!-- TOP GOVERNORS (mirrored) -->
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr)">
+          <div style="font-size:9px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px">👑 TOP GOVERNORS</div>
+          <div id="bsGovLeaderboardList" style="font-size:9px;color:var(--tx3)">Loading...</div>
+        </div>
+
       </div>
 
       <!-- TAB: MINING -->
@@ -2916,14 +2959,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <!-- Has guild state -->
           <div id="guildMyGuild" style="display:none">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-              <span id="guildEmblem" style="font-size:28px">🔴</span>
-              <div style="flex:1">
+              <!-- Emblem: either custom image (32x32 pixel art) or emoji fallback -->
+              <div id="guildEmblemWrap" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <span id="guildEmblem" style="font-size:28px">🔴</span>
+                <img id="guildEmblemImg" style="display:none;width:40px;height:40px;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:4px;border:1px solid rgba(255,120,60,.3);background:#000">
+              </div>
+              <div style="flex:1;min-width:0">
                 <div style="display:flex;align-items:center;gap:6px">
-                  <span id="guildName" style="font-size:14px;color:var(--tx);font-weight:700"></span>
+                  <span id="guildName" style="font-size:14px;color:var(--tx);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
                   <span id="guildTag" style="font-size:10px;color:var(--mars);font-family:var(--fn);padding:2px 6px;border:1px solid rgba(255,120,60,.3);border-radius:4px;font-weight:700"></span>
                 </div>
                 <div style="font-size:9px;color:var(--tx3);margin-top:2px" id="guildDesc"></div>
               </div>
+              <!-- Edit button (leader-only, shown/hidden in renderGuildState) -->
+              <button id="guildEditBtn" onclick="openGuildEditModal()" style="display:none;padding:5px 9px;border-radius:6px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.35);color:var(--gold);font-size:9px;cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px">✎ EDIT</button>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
               <div style="text-align:center;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid var(--bdr)">
@@ -3266,6 +3315,74 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           Use DEPOSIT to get your deposit address.
         </div>
 
+        <!-- ═══════════════════════════════════════════════════
+             REFERRAL PROGRAM (collapsible, mirrors left panel)
+             ═══════════════════════════════════════════════════ -->
+        <div style="border-top:1px solid var(--bdr);margin:10px 0 4px;padding-top:10px">
+          <div onclick="var b=document.getElementById('profileRefBody');b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.chevron').textContent=b.style.display==='none'?'▸':'▾'" style="font-size:9px;color:var(--gold);letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:700">
+            <span class="chevron">▸</span> 🎁 REFERRAL PROGRAM
+          </div>
+          <div id="profileRefBody" style="display:none;margin-top:8px">
+            <div style="font-size:9px;color:var(--tx3);line-height:1.6;margin-bottom:6px">Share your code & earn PP when referrals deposit, harvest, or hijack.</div>
+            <div style="background:rgba(255,120,60,.06);border:1px solid var(--bdr);border-radius:6px;padding:8px;margin-bottom:8px">
+              <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">MY REFERRAL CODE</div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <span style="font-size:13px;color:var(--gold);letter-spacing:2px;flex:1;font-family:var(--fn);font-weight:700" id="profileMyRefCode">--</span>
+                <button class="sz-btn" onclick="(function(){var c=document.getElementById('profileMyRefCode').textContent;if(c&&c!=='--')navigator.clipboard.writeText(c).then(function(){showToast('Code copied!')});})()" style="font-size:8px;padding:3px 8px">COPY</button>
+              </div>
+            </div>
+            <div id="profileEnterRefWrap">
+              <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">ENTER REFERRAL CODE</div>
+              <div style="display:flex;gap:4px">
+                <input type="text" class="ui" id="profileRefInput" placeholder="CODE..." style="flex:1;text-transform:uppercase;letter-spacing:1px">
+                <button class="sz-btn" onclick="profileApplyRef()" style="font-size:8px;padding:3px 8px;color:var(--gn);border-color:rgba(76,216,154,.3)">APPLY</button>
+              </div>
+              <div id="profileRefStatus" style="font-size:8px;margin-top:3px;min-height:12px"></div>
+            </div>
+            <div id="profileAlreadyReferred" style="display:none;font-size:8px;color:var(--gn);margin:6px 0">
+              Referred by: <span id="profileReferredBy" style="color:var(--cyan)">--</span>
+            </div>
+            <div style="height:1px;background:var(--bdr);margin:8px 0"></div>
+            <div style="display:flex;gap:8px;font-size:9px">
+              <div style="flex:1;text-align:center;padding:6px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:4px">
+                <div style="color:var(--tx3);font-size:7px">REFERRALS</div>
+                <div style="color:var(--tx);font-weight:700" id="profileRefCount">0</div>
+              </div>
+              <div style="flex:1;text-align:center;padding:6px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:4px">
+                <div style="color:var(--tx3);font-size:7px">TOTAL EARNED</div>
+                <div style="color:var(--pp);font-weight:700" id="profileRefEarned">0 PP</div>
+              </div>
+            </div>
+            <div style="font-size:8px;color:var(--tx3);margin-top:6px;line-height:1.6">Tier 1: 15% · Tier 2: 10% · Tier 3: 5%</div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             LIVE FEED (collapsible)
+             ═══════════════════════════════════════════════════ -->
+        <div style="border-top:1px solid var(--bdr);margin:8px 0 4px;padding-top:10px">
+          <div onclick="var b=document.getElementById('profileFeedBody');b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.chevron').textContent=b.style.display==='none'?'▸':'▾'" style="font-size:9px;color:var(--cyan);letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:700">
+            <span class="chevron">▸</span> ⚡ LIVE FEED
+          </div>
+          <div id="profileFeedBody" style="display:none;margin-top:8px">
+            <div id="profileLiveFeed" style="max-height:140px;overflow-y:auto;font-size:9px;color:var(--tx2);line-height:1.8"></div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             MY ALERTS (collapsible)
+             ═══════════════════════════════════════════════════ -->
+        <div style="border-top:1px solid var(--bdr);margin:8px 0 4px;padding-top:10px">
+          <div onclick="var b=document.getElementById('profileAlertsBody');b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.chevron').textContent=b.style.display==='none'?'▸':'▾';if(b.style.display!=='none')refreshProfileAlerts()" style="font-size:9px;color:var(--red);letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:700">
+            <span class="chevron">▸</span> 🔔 MY ALERTS <span id="profileAlertBadge" style="display:none;background:var(--red);color:#fff;font-size:8px;padding:1px 6px;border-radius:8px">0</span>
+          </div>
+          <div id="profileAlertsBody" style="display:none;margin-top:8px">
+            <div id="profileAlertsList" style="max-height:140px;overflow-y:auto;font-size:9px;color:var(--tx2);line-height:1.8">
+              <div style="color:var(--tx3)">No alerts yet</div>
+            </div>
+          </div>
+        </div>
+
         <!-- CODEX / WHITEPAPER BUTTON -->
         <button class="cfm" onclick="openCodex()" style="margin:10px 0 4px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(184,136,224,.08));border:1px solid rgba(91,184,232,.35);color:var(--cyan);font-weight:700;letter-spacing:1.2px;display:flex;align-items:center;justify-content:center;gap:8px">
           <span style="font-size:16px">📖</span>
@@ -3309,6 +3426,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <button class="profile-acct-btn" onclick="openChangePassword()">🔒 Change Password</button>
             <button class="profile-acct-btn" onclick="exportAccountData()">📦 Export My Data</button>
             <button class="profile-acct-btn profile-acct-danger" onclick="requestDeleteAccount()">🗑 Delete Account</button>
+
+            <!-- Legal Links (moved from main-screen footer) -->
+            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px">LEGAL</div>
+            <button class="profile-acct-btn" onclick="openTosModal()">📜 Terms of Service</button>
+            <button class="profile-acct-btn" onclick="openPrivacyModal()">🔒 Privacy Policy</button>
           </div>
         </div>
 
@@ -9660,13 +9782,21 @@ async function refreshEmailBalances(){
 /* ── Referral System ─────────────────────────────── */
 async function loadReferralInfo(){
   if(!walletState.connected||!walletState.address) return;
-  document.getElementById('referralSection').style.display='';
+  var refSec=document.getElementById('referralSection'); if(refSec) refSec.style.display='';
   try{
     var resp=await fetch('/api/referral/'+walletState.address);
     var d=await resp.json();
-    document.getElementById('myRefCode').textContent=d.code||'--';
-    document.getElementById('refCount').textContent=d.referrals||0;
-    document.getElementById('refEarned').textContent=(d.totalEarned||0).toFixed(2)+' PP';
+    var code=d.code||'--';
+    var refs=d.referrals||0;
+    var earnedStr=(d.totalEarned||0).toFixed(2)+' PP';
+    var setText=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
+    setText('myRefCode',code);
+    setText('refCount',refs);
+    setText('refEarned',earnedStr);
+    // Profile panel mirror
+    setText('profileMyRefCode',code);
+    setText('profileRefCount',refs);
+    setText('profileRefEarned',earnedStr);
     // Real-time commission toast — diff against last seen value
     try{
       var key='refEarned:'+walletState.address.toLowerCase();
@@ -9678,18 +9808,47 @@ async function loadReferralInfo(){
       }
       localStorage.setItem(key,String(curr));
     }catch(e){}
+    var show=function(id,v){var el=document.getElementById(id);if(el)el.style.display=v;};
     if(d.referredBy){
-      document.getElementById('enterRefWrap').style.display='none';
-      document.getElementById('alreadyReferred').style.display='';
+      show('enterRefWrap','none');
+      show('alreadyReferred','');
+      show('profileEnterRefWrap','none');
+      show('profileAlreadyReferred','');
       var refByName=d.referredByNickname||(d.referredBy.slice(0,6)+'...'+d.referredBy.slice(-4));
       var el=document.getElementById('referredByAddr');
-      el.textContent=refByName;
-      el.title=d.referredBy;
+      if(el){ el.textContent=refByName; el.title=d.referredBy; }
+      var pel=document.getElementById('profileReferredBy');
+      if(pel){ pel.textContent=refByName; pel.title=d.referredBy; }
     } else {
-      document.getElementById('enterRefWrap').style.display='';
-      document.getElementById('alreadyReferred').style.display='none';
+      show('enterRefWrap','');
+      show('alreadyReferred','none');
+      show('profileEnterRefWrap','');
+      show('profileAlreadyReferred','none');
     }
   }catch(e){console.error('Referral load error:',e)}
+}
+
+async function profileApplyRef(){
+  if(!walletState.connected){showToast('LOGIN FIRST');return}
+  var inp=document.getElementById('profileRefInput');
+  var code=(inp?inp.value:'').trim().toUpperCase();
+  if(!code){showToast('ENTER A CODE');return}
+  var status=document.getElementById('profileRefStatus');
+  if(status){ status.style.color='var(--tx3)'; status.textContent='Registering...'; }
+  try{
+    var resp=await fetch('/api/referral/register',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:walletState.address,referralCode:code})
+    });
+    var d=await resp.json();
+    if(d.success){
+      if(status){ status.style.color='var(--gn)'; status.textContent='Referred by '+d.referrer; }
+      showToast('REFERRAL REGISTERED!');
+      loadReferralInfo();
+    } else {
+      if(status){ status.style.color='var(--red)'; status.textContent=d.error||'Failed'; }
+    }
+  }catch(e){ if(status){ status.style.color='var(--red)'; status.textContent='Network error'; } }
 }
 
 function copyRefCode(){
@@ -10444,7 +10603,18 @@ function renderGuildState(guild, wallet){
   }
   noGuild.style.display='none';
   myGuild.style.display='';
-  document.getElementById('guildEmblem').textContent=guild.emblem||'🔴';
+  // Emblem: prefer custom pixel-art image over emoji
+  var emblemSpan=document.getElementById('guildEmblem');
+  var emblemImg=document.getElementById('guildEmblemImg');
+  if(guild.emblemImage){
+    emblemSpan.style.display='none';
+    emblemImg.style.display='';
+    emblemImg.src=guild.emblemImage;
+  } else {
+    emblemSpan.style.display='';
+    emblemImg.style.display='none';
+    emblemSpan.textContent=guild.emblem||'🔴';
+  }
   document.getElementById('guildName').textContent=guild.name;
   document.getElementById('guildTag').textContent='['+guild.tag+']';
   document.getElementById('guildDesc').textContent=guild.description||'';
@@ -10473,6 +10643,9 @@ function renderGuildState(guild, wallet){
   document.getElementById('guildInviteSection').style.display=(myRole==='leader'||myRole==='officer')?'':'none';
   document.getElementById('guildLeaderSection').style.display=(myRole==='leader')?'':'none';
   document.getElementById('guildLeaveSection').style.display=(myRole!=='leader')?'':'none';
+  // Edit button: leader only
+  var editBtn=document.getElementById('guildEditBtn');
+  if(editBtn) editBtn.style.display=(myRole==='leader')?'':'none';
 
   // Add action buttons for leader
   if(myRole==='leader'){
@@ -10511,9 +10684,12 @@ function renderGuildLeaderboard(guilds){
   if(!guilds||!guilds.length){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px;font-size:10px">No guilds yet. Be the first!</div>';return;}
   el.innerHTML=guilds.map(function(g,i){
     var myGuild=_myGuildData&&_myGuildData.id===g.id;
+    var emblemHtml=g.emblemImage
+      ? '<img src="'+g.emblemImage+'" style="width:20px;height:20px;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:3px;border:1px solid rgba(255,255,255,.1);flex-shrink:0">'
+      : '<span style="font-size:14px">'+(g.emblem||'🔴')+'</span>';
     return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;'+(myGuild?'background:rgba(255,120,60,.06);border:1px solid rgba(255,120,60,.15)':'border-bottom:1px solid var(--bdr)')+'">'+
       '<span style="font-size:11px;color:'+(i<3?'var(--gold)':'var(--tx3)')+';font-weight:700;min-width:20px">#'+(i+1)+'</span>'+
-      '<span style="font-size:14px">'+(g.emblem||'🔴')+'</span>'+
+      emblemHtml+
       '<div style="flex:1;min-width:0">'+
         '<div style="font-size:11px;color:var(--tx);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+g.name+' <span style="color:var(--mars);font-size:9px">['+g.tag+']</span></div>'+
         '<div style="font-size:8px;color:var(--tx3)">'+g.memberCount+' members · Leader: '+(g.leaderNickname||'Unknown')+'</div>'+
@@ -10626,6 +10802,146 @@ function guildTransfer(targetWallet){
     showToast('Leadership transferred','success');
     loadGuildTab();
   }).catch(function(){showToast('Failed','error')});
+}
+
+// ── Guild Edit Modal (leader only) ─────────────────
+// Lineage-style pixel-art emblem: any image is canvas-resized to 32×32.
+var _guildEmblemDataUrl=null;      // staged image payload
+var _guildEmblemMode='emoji';      // 'emoji' | 'image' | 'clear'
+
+function openGuildEditModal(){
+  if(!_myGuildData){ showToast('No guild','error'); return; }
+  var g=_myGuildData;
+  document.getElementById('geName').value=g.name||'';
+  document.getElementById('geDesc').value=g.description||'';
+  document.getElementById('geEmojiSelect').value=g.emblem||'🔴';
+  _guildEmblemDataUrl=null;
+  _guildEmblemMode='emoji';
+  // Preview: show current emblem
+  var prev=document.getElementById('gePreview');
+  if(g.emblemImage){
+    prev.innerHTML='<img src="'+g.emblemImage+'" style="width:64px;height:64px;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:6px;border:1px solid var(--bdr)">';
+    _guildEmblemMode='image';
+    _guildEmblemDataUrl=g.emblemImage; // keep current until user changes
+  } else {
+    prev.innerHTML='<div style="font-size:48px">'+(g.emblem||'🔴')+'</div>';
+  }
+  document.getElementById('guildEditModal').style.display='flex';
+  updateGuildEditCost();
+}
+
+function closeGuildEditModal(){
+  document.getElementById('guildEditModal').style.display='none';
+  _guildEmblemDataUrl=null;
+}
+
+// Calculate total GP cost based on which fields changed
+function updateGuildEditCost(){
+  if(!_myGuildData) return;
+  var g=_myGuildData;
+  var nm=document.getElementById('geName').value.trim();
+  var ds=document.getElementById('geDesc').value;
+  var em=document.getElementById('geEmojiSelect').value;
+  var cost=0;
+  var parts=[];
+  // Cost constants mirror server settings (guild_rename_cost_gp etc.)
+  if(nm && nm !== g.name)       { cost += 100; parts.push('Name 100'); }
+  if(ds !== (g.description||'')){ cost += 20;  parts.push('Desc 20'); }
+  if(_guildEmblemMode==='image' && _guildEmblemDataUrl && _guildEmblemDataUrl !== g.emblemImage) { cost += 50; parts.push('Emblem 50'); }
+  else if(_guildEmblemMode==='clear' && g.emblemImage) { cost += 50; parts.push('Emblem 50'); }
+  else if(_guildEmblemMode==='emoji' && em !== g.emblem && !g.emblemImage) { cost += 50; parts.push('Emblem 50'); }
+  document.getElementById('geCost').textContent=cost;
+  document.getElementById('geCostBreakdown').textContent=parts.length?('('+parts.join(' · ')+')'):'(no changes)';
+  var btn=document.getElementById('geSaveBtn');
+  btn.disabled=(cost===0);
+  btn.style.opacity=(cost===0)?'0.4':'1';
+}
+
+// File picker: resize uploaded image to 32×32 with nearest-neighbor (pixelated)
+function onGuildEmblemFile(input){
+  var f=input.files && input.files[0];
+  if(!f) return;
+  if(f.size > 2*1024*1024){ showToast('Max 2MB image','error'); return; }
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      // Downscale to 32×32 on an offscreen canvas
+      var SIZE=32;
+      var c=document.createElement('canvas'); c.width=SIZE; c.height=SIZE;
+      var ctx=c.getContext('2d');
+      ctx.imageSmoothingEnabled=false;
+      // Contain the source into the square (letterbox transparent)
+      var s=Math.max(img.width,img.height);
+      var dx=(s-img.width)/2, dy=(s-img.height)/2;
+      // Draw on a temp full-size canvas first so scaling is exact
+      var tmp=document.createElement('canvas'); tmp.width=s; tmp.height=s;
+      var tctx=tmp.getContext('2d');
+      tctx.imageSmoothingEnabled=false;
+      tctx.drawImage(img, dx, dy);
+      ctx.drawImage(tmp, 0, 0, SIZE, SIZE);
+      var dataUrl=c.toDataURL('image/png');
+      if(dataUrl.length > 8192){
+        showToast('Image too complex — try a simpler one','error');
+        return;
+      }
+      _guildEmblemDataUrl=dataUrl;
+      _guildEmblemMode='image';
+      document.getElementById('gePreview').innerHTML=
+        '<img src="'+dataUrl+'" style="width:64px;height:64px;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:6px;border:1px solid var(--bdr);background:#000">';
+      updateGuildEditCost();
+    };
+    img.onerror=function(){ showToast('Invalid image','error'); };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(f);
+}
+
+// Clear custom image, revert to emoji
+function clearGuildEmblemImage(){
+  _guildEmblemDataUrl=null;
+  _guildEmblemMode='clear';
+  var em=document.getElementById('geEmojiSelect').value;
+  document.getElementById('gePreview').innerHTML='<div style="font-size:48px">'+em+'</div>';
+  updateGuildEditCost();
+}
+
+function onGuildEmojiChange(){
+  if(_guildEmblemMode==='image') return; // don't stomp image preview
+  var em=document.getElementById('geEmojiSelect').value;
+  document.getElementById('gePreview').innerHTML='<div style="font-size:48px">'+em+'</div>';
+  _guildEmblemMode='emoji';
+  updateGuildEditCost();
+}
+
+function saveGuildEdit(){
+  if(!_myGuildData || !walletState.address){ showToast('Login first','error'); return; }
+  var g=_myGuildData;
+  var nm=document.getElementById('geName').value.trim();
+  var ds=document.getElementById('geDesc').value;
+  var em=document.getElementById('geEmojiSelect').value;
+  var body={ wallet: walletState.address, guildId: g.id };
+  if(nm && nm !== g.name) body.name = nm;
+  if(ds !== (g.description||'')) body.description = ds;
+  if(_guildEmblemMode==='image' && _guildEmblemDataUrl && _guildEmblemDataUrl !== g.emblemImage) body.emblemImage = _guildEmblemDataUrl;
+  if(_guildEmblemMode==='clear' && g.emblemImage) body.emblemImage = null;
+  if(_guildEmblemMode==='emoji' && em !== g.emblem && !g.emblemImage) body.emblemEmoji = em;
+
+  if(Object.keys(body).length <= 2){ showToast('No changes','info'); return; }
+
+  var btn=document.getElementById('geSaveBtn');
+  btn.disabled=true; btn.textContent='SAVING…';
+  fetch('/api/guild/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json()})
+    .then(function(data){
+      btn.disabled=false; btn.textContent='SAVE CHANGES';
+      if(data.error){ showToast(data.error,'error'); return; }
+      showToast('Guild updated (-'+data.cost+' GP)','success');
+      closeGuildEditModal();
+      loadGuildTab();
+      try{ refreshEmailBalances(); }catch(_re){}
+    })
+    .catch(function(){ btn.disabled=false; btn.textContent='SAVE CHANGES'; showToast('Failed to update','error'); });
 }
 
 function guildDisband(){
@@ -10980,12 +11296,20 @@ function renderSectorList(sectors){
     html+='<div class="sc-stat"><span class="sc-stat-label">CUR. PRICE</span><span class="sc-stat-val" style="color:var(--gn)">$'+s.currentPrice.toFixed(4)+'</span></div>';
     html+='<div class="sc-stat"><span class="sc-stat-label">OWNERS</span><span class="sc-stat-val">'+s.stats.uniqueOwners+'</span></div>';
     html+='</div>';
-    // Top holder / Governor / Tax
+    // Top holder / Governor / Tax — prefer nickname, fall back to short wallet
     if(s.topHolder){
+      var thName = s.topHolder.nickname || s.topHolder.wallet;
+      var govName = '';
+      if(s.governor){
+        govName = s.governor.nickname || s.governor.wallet;
+      }
       html+='<div class="sc-stats" style="margin-top:2px">';
-      html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">TOP HOLDER / GOVERNOR</span><span class="sc-stat-val" style="font-size:10px;color:var(--gold)">'+s.topHolder.wallet+' ('+s.topHolder.pixels+'px)</span></div>';
+      html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">TOP HOLDER'+(govName?' / GOV':'')+'</span><span class="sc-stat-val" style="font-size:10px;color:var(--gold)" title="'+(s.topHolder.fullWallet||'')+'">👑 '+thName+' ('+s.topHolder.pixels+'px)</span></div>';
       html+='<div class="sc-stat"><span class="sc-stat-label">TAX RATE</span><span class="sc-stat-val" style="color:var(--cyan)">'+(s.taxRate||2)+'%</span></div>';
-      if(s.viceGovernor) html+='<div class="sc-stat"><span class="sc-stat-label">VICE GOV</span><span class="sc-stat-val" style="font-size:10px">'+s.viceGovernor+'</span></div>';
+      if(govName && (!s.topHolder.fullWallet || (s.governor.fullWallet||'').toLowerCase()!==(s.topHolder.fullWallet||'').toLowerCase())){
+        html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">GOVERNOR</span><span class="sc-stat-val" style="font-size:10px;color:var(--cyan)" title="'+(s.governor.fullWallet||'')+'">🏛️ '+govName+'</span></div>';
+      }
+      if(s.viceGovernor) html+='<div class="sc-stat"><span class="sc-stat-label">VICE GOV</span><span class="sc-stat-val" style="font-size:10px">'+(s.viceGovernor.nickname||s.viceGovernor.wallet||s.viceGovernor)+'</span></div>';
       html+='</div>';
     }
     // Active buffs
@@ -10995,9 +11319,9 @@ function renderSectorList(sectors){
       s.activeBuffs.forEach(function(b){ html+='<span style="font-size:9px;padding:2px 6px;background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.2);border-radius:4px;color:var(--cyan);font-family:var(--fn)">'+(buffIcons[b.buff_type]||b.buff_type)+'</span>'; });
       html+='</div>';
     }
-    // Sector announcement (only visible to sector members)
-    if(s.announcement && s.myPixels>0){
-      html+='<div style="font-size:9px;color:var(--gold);margin-top:4px;font-style:italic;font-family:var(--fn)">"'+s.announcement+'"</div>';
+    // Sector announcement from governor (visible to everyone in BASE tab)
+    if(s.announcement){
+      html+='<div style="font-size:9px;color:var(--gold);margin-top:4px;font-style:italic;font-family:var(--fn)">📢 "'+s.announcement+'"</div>';
     }
     // My holdings
     if(s.myPixels>0){
@@ -12364,9 +12688,20 @@ function _showRewardSplash(label, rwText, xp, bonusCosmetic, poiType) {
 
 function addFeed(text){
   var f=document.getElementById('liveFeed');
-  var d=document.createElement('div');d.className='feed-item new';d.textContent=text;
-  f.insertBefore(d,f.firstChild);
-  if(f.children.length>15)f.removeChild(f.lastChild);
+  if(f){
+    var d=document.createElement('div');d.className='feed-item new';d.textContent=text;
+    f.insertBefore(d,f.firstChild);
+    if(f.children.length>15)f.removeChild(f.lastChild);
+  }
+  // Mirror to profile panel live feed
+  var pf=document.getElementById('profileLiveFeed');
+  if(pf){
+    var pd=document.createElement('div');
+    pd.style.cssText='padding:3px 0;border-bottom:1px dashed rgba(255,255,255,.05)';
+    pd.textContent='• '+text;
+    pf.insertBefore(pd,pf.firstChild);
+    if(pf.children.length>20) pf.removeChild(pf.lastChild);
+  }
 }
 function toggleLeft(){
   var panel=document.getElementById('panelL');
@@ -12565,56 +12900,89 @@ function addAlert(type,msg,coords){
 }
 function renderAlerts(){
   var box=document.getElementById('alertsList');
-  if(!box)return;
-  box.innerHTML='';
-  if(!alerts.length){box.innerHTML='<div style="font-size:9px;color:var(--tx3)">No alerts yet</div>';return}
+  var pbox=document.getElementById('profileAlertsList');
   var badge=document.getElementById('alertBadge');
-  badge.style.display='';badge.textContent=alerts.length;
+  var pbadge=document.getElementById('profileAlertBadge');
+  if(!alerts.length){
+    if(box) box.innerHTML='<div style="font-size:9px;color:var(--tx3)">No alerts yet</div>';
+    if(pbox) pbox.innerHTML='<div style="color:var(--tx3)">No alerts yet</div>';
+    if(badge) badge.style.display='none';
+    if(pbadge) pbadge.style.display='none';
+    return;
+  }
+  if(box) box.innerHTML='';
+  if(pbox) pbox.innerHTML='';
+  if(badge){ badge.style.display=''; badge.textContent=alerts.length; }
+  if(pbadge){ pbadge.style.display='inline-block'; pbadge.textContent=alerts.length; }
   alerts.forEach(function(a){
-    var d=document.createElement('div');
-    d.className='alert-item '+(a.type||'');
     var icon=a.type==='hijack'?'💀':a.type==='earn'?'💰':'🔔';
     var ago=Math.round((Date.now()-a.time.getTime())/1000);
     var timeStr=ago<60?ago+'s ago':Math.round(ago/60)+'m ago';
-    var alertText=document.createTextNode(icon+' '+a.msg);
-    d.appendChild(alertText);
-    var timeSpan=document.createElement('span');
-    timeSpan.className='alert-time';
-    timeSpan.textContent=timeStr;
-    d.appendChild(timeSpan);
-    if(a.coords){
-      d.onclick=function(){
-        globe.pointOfView({lat:a.coords.lat,lng:a.coords.lng,altitude:0.15},800);
-        isZoomedIn=true;
-      };
+    if(box){
+      var d=document.createElement('div');
+      d.className='alert-item '+(a.type||'');
+      d.appendChild(document.createTextNode(icon+' '+a.msg));
+      var timeSpan=document.createElement('span');
+      timeSpan.className='alert-time';
+      timeSpan.textContent=timeStr;
+      d.appendChild(timeSpan);
+      if(a.coords){
+        d.onclick=function(){
+          globe.pointOfView({lat:a.coords.lat,lng:a.coords.lng,altitude:0.15},800);
+          isZoomedIn=true;
+        };
+      }
+      box.appendChild(d);
     }
-    box.appendChild(d);
+    if(pbox){
+      var pd=document.createElement('div');
+      pd.style.cssText='padding:4px 6px;margin-bottom:3px;background:rgba(255,255,255,.03);border-left:2px solid '+(a.type==='hijack'?'var(--red)':a.type==='earn'?'var(--gold)':'var(--cyan)')+';border-radius:3px;display:flex;justify-content:space-between;gap:6px;cursor:'+(a.coords?'pointer':'default');
+      var txt=document.createElement('span');
+      txt.style.cssText='flex:1;color:var(--tx2)';
+      txt.textContent=icon+' '+a.msg;
+      pd.appendChild(txt);
+      var ptime=document.createElement('span');
+      ptime.style.cssText='color:var(--tx3);font-size:8px';
+      ptime.textContent=timeStr;
+      pd.appendChild(ptime);
+      if(a.coords){
+        pd.onclick=function(){
+          try{ globe.pointOfView({lat:a.coords.lat,lng:a.coords.lng,altitude:0.15},800); isZoomedIn=true; }catch(e){}
+        };
+      }
+      pbox.appendChild(pd);
+    }
   });
 }
+function refreshProfileAlerts(){ renderAlerts(); }
 
 /* ── Live Stats & Leaderboard from API ───────────── */
 function fmtNum(n){return Number(n).toLocaleString();}
 
 function loadPublicStats(){
   fetch('/api/stats').then(function(r){return r.json();}).then(function(d){
-    if(d.totalPixelsSold!=null) document.getElementById('statPlots').textContent=fmtNum(d.totalPixelsSold);
-    if(d.totalVolume!=null) document.getElementById('statTVL').textContent='$'+fmtNum(d.totalVolume);
-    if(d.hijacksPerHour!=null) document.getElementById('statHijacks').textContent=fmtNum(d.hijacksPerHour);
-    if(d.activeUsers24h!=null) document.getElementById('statActiveUsers').textContent=fmtNum(d.activeUsers24h);
+    var setT=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
+    if(d.totalPixels!=null){ setT('statTotalPx',fmtNum(d.totalPixels)); setT('bsStatTotalPx',fmtNum(d.totalPixels)); }
+    if(d.totalPixelsSold!=null){ setT('statPlots',fmtNum(d.totalPixelsSold)); setT('bsStatPlots',fmtNum(d.totalPixelsSold)); }
+    if(d.totalVolume!=null){ setT('statTVL','$'+fmtNum(d.totalVolume)); setT('bsStatTVL','$'+fmtNum(d.totalVolume)); }
+    if(d.hijacksPerHour!=null){ setT('statHijacks',fmtNum(d.hijacksPerHour)); setT('bsStatHijacks',fmtNum(d.hijacksPerHour)); }
+    if(d.activeUsers24h!=null){ setT('statActiveUsers',fmtNum(d.activeUsers24h)); setT('bsStatActiveUsers',fmtNum(d.activeUsers24h)); }
   }).catch(function(e){console.warn('[Stats] fetch failed:',e);});
 }
 
 function loadLeaderboard(){
   fetch('/api/leaderboard?sort=pixels&limit=10').then(function(r){return r.json();}).then(function(arr){
     var container=document.getElementById('leaderboardList');
-    if(!container) return;
+    var bsContainer=document.getElementById('bsLeaderboardList');
     if(!Array.isArray(arr)||arr.length===0){
-      container.innerHTML='<div style="font-size:var(--fs-xs);color:var(--tx3);padding:8px 0;text-align:center">No claims yet</div>';
-      document.getElementById('lbToggle').style.display='none';
+      var empty='<div style="font-size:var(--fs-xs);color:var(--tx3);padding:8px 0;text-align:center">No claims yet</div>';
+      if(container){ container.innerHTML=empty; var tg=document.getElementById('lbToggle'); if(tg) tg.style.display='none'; }
+      if(bsContainer) bsContainer.innerHTML=empty;
       return;
     }
     var rankClasses=['gold','silver','bronze'];
     var html='';
+    var bsHtml='';
     arr.forEach(function(entry,i){
       var rank=i+1;
       var rankCls=rankClasses[i]||'';
@@ -12626,10 +12994,20 @@ function loadLeaderboard(){
       html+='<div'+hide+'><span class="lb-rank'+(rankCls?' '+rankCls:'')+'"'+rankStyle+'>'+rank+'</span>'
         +'<span class="lb-name">'+name+'</span>'
         +'<span class="lb-val">'+fmtNum(px)+' px</span></div>';
+      // Base season mirror (no hide)
+      var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':('#'+rank);
+      bsHtml+='<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin-bottom:3px;background:rgba(255,255,255,.03);border-radius:4px;font-size:9px">'
+        +'<span style="width:22px;color:'+(i<3?'var(--gold)':'var(--tx3)')+';font-weight:700">'+medal+'</span>'
+        +'<span style="flex:1;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+name+'</span>'
+        +'<span style="color:var(--gn);font-family:var(--fn)">'+fmtNum(px)+' px</span>'
+        +'</div>';
     });
-    container.innerHTML=html;
-    var toggle=document.getElementById('lbToggle');
-    if(toggle) toggle.style.display=arr.length>3?'block':'none';
+    if(container){
+      container.innerHTML=html;
+      var toggle=document.getElementById('lbToggle');
+      if(toggle) toggle.style.display=arr.length>3?'block':'none';
+    }
+    if(bsContainer) bsContainer.innerHTML=bsHtml;
   }).catch(function(e){console.warn('[Leaderboard] fetch failed:',e);});
 }
 var _lbExpanded=false;
@@ -14148,14 +14526,19 @@ window.addEventListener('resize', function(){
     return '';
   }
 
-  // Governance leaderboard (sidebar)
+  // Governance leaderboard (sidebar + BASE > SEASON mirror)
   function loadGovLeaderboard() {
     fetch('/api/governance/leaderboard?sort=tax').then(function(r){return r.json()}).then(function(rows){
       var el = document.getElementById('govLeaderboardList');
-      if (!el) return;
-      if (!rows || !rows.length) { el.innerHTML = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">No governors yet</div>'; return; }
+      var bsEl = document.getElementById('bsGovLeaderboardList');
+      if (!rows || !rows.length) {
+        var empty = '<div style="font-size:9px;color:var(--tx3);padding:4px 0">No governors yet</div>';
+        if (el) el.innerHTML = empty;
+        if (bsEl) bsEl.innerHTML = empty;
+        return;
+      }
       var cmdWallet = _cmdInfo ? _cmdInfo.commander : null;
-      el.innerHTML = rows.slice(0, 8).map(function(r, i) {
+      var html = rows.slice(0, 8).map(function(r, i) {
         var isCmd = cmdWallet && r.wallet === cmdWallet;
         var name = r.nickname || (r.wallet.slice(0,6)+'...'+r.wallet.slice(-4));
         var tax = parseFloat(r.total_tax || 0);
@@ -14169,6 +14552,23 @@ window.addEventListener('resize', function(){
           + '<span class="glb-val">'+taxStr+' GP</span>'
           + '</div>';
       }).join('');
+      if (el) el.innerHTML = html;
+      if (bsEl) {
+        // Slightly different layout for BASE tab
+        bsEl.innerHTML = rows.slice(0,8).map(function(r,i){
+          var isCmd = cmdWallet && r.wallet === cmdWallet;
+          var name = r.nickname || (r.wallet.slice(0,6)+'...'+r.wallet.slice(-4));
+          var tax = parseFloat(r.total_tax || 0);
+          var taxStr = tax >= 1000 ? (tax/1000).toFixed(1)+'K' : tax.toFixed(0);
+          var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':('#'+(i+1));
+          return '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin-bottom:3px;background:rgba(255,209,102,.04);border-left:2px solid '+(isCmd?'var(--red)':'var(--gold)')+';border-radius:4px;font-size:9px">'
+            +'<span style="width:22px;color:var(--gold);font-weight:700">'+medal+'</span>'
+            +(isCmd?'<span title="Commander">👑</span>':'')
+            +'<span style="flex:1;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+name+'</span>'
+            +'<span style="color:var(--gold);font-family:var(--fn)">'+taxStr+' GP</span>'
+            +'</div>';
+        }).join('');
+      }
     }).catch(function(){});
   }
   setTimeout(loadGovLeaderboard, 3000);
@@ -15417,6 +15817,80 @@ if(typeof _origTrackQuestAction === 'function'){
   };
 }
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GUILD EDIT MODAL — leader-only, GP-gated customization
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="guildEditModal" style="display:none;position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeGuildEditModal()">
+  <div style="width:100%;max-width:440px;background:linear-gradient(160deg,#140D0A,#1F1510);border:1px solid rgba(255,120,60,.35);border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 60px rgba(255,120,60,.08);display:flex;flex-direction:column;overflow:hidden;max-height:92vh">
+    <div style="padding:14px 18px;border-bottom:1px solid rgba(255,120,60,.25);background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(232,72,85,.04));display:flex;align-items:center;gap:10px">
+      <div style="font-size:20px">✎</div>
+      <div style="flex:1">
+        <div style="font-size:13px;color:#fff;letter-spacing:1.5px;font-weight:700">EDIT GUILD</div>
+        <div style="font-size:9px;color:var(--tx3);letter-spacing:.5px">Rename · customize emblem · update description</div>
+      </div>
+      <button onclick="closeGuildEditModal()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--tx2);font-size:16px;width:28px;height:28px;border-radius:6px;cursor:pointer">✕</button>
+    </div>
+    <div style="padding:16px 18px;overflow-y:auto;flex:1">
+      <!-- Preview -->
+      <div style="display:flex;align-items:center;gap:14px;padding:12px;background:rgba(0,0,0,.3);border:1px solid var(--bdr);border-radius:8px;margin-bottom:14px">
+        <div id="gePreview" style="width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.02);border-radius:6px"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px">PREVIEW</div>
+          <div style="font-size:8px;color:var(--tx3);line-height:1.5">Pixel-art emblem is auto-resized to 32×32 (Lineage-style). PNG/JPG under 2MB.</div>
+        </div>
+      </div>
+
+      <!-- Name -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:9px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">GUILD NAME <span style="color:var(--gold)">(100 GP to change)</span></label>
+        <input type="text" id="geName" maxlength="50" oninput="updateGuildEditCost()" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:12px;padding:8px 10px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">
+      </div>
+
+      <!-- Description -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:9px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">DESCRIPTION <span style="color:var(--gold)">(20 GP to change)</span></label>
+        <input type="text" id="geDesc" maxlength="200" oninput="updateGuildEditCost()" placeholder="Guild slogan / description..." style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px 10px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">
+      </div>
+
+      <!-- Emblem: emoji OR image upload -->
+      <div style="margin-bottom:14px;padding:12px;background:rgba(255,120,60,.04);border:1px solid rgba(255,120,60,.15);border-radius:8px">
+        <label style="font-size:9px;color:var(--mars);letter-spacing:1px;display:block;margin-bottom:8px;font-weight:700">EMBLEM <span style="color:var(--gold)">(50 GP to change)</span></label>
+        <!-- Emoji fallback -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:9px;color:var(--tx3);letter-spacing:.5px;flex:0 0 60px">EMOJI</span>
+          <select id="geEmojiSelect" onchange="onGuildEmojiChange()" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:16px;padding:6px;border-radius:6px;text-align:center">
+            <option>🔴</option><option>🔵</option><option>🟢</option><option>🟡</option><option>🟣</option><option>⚫</option><option>🟠</option><option>⚔️</option><option>🛡️</option><option>🚀</option><option>💀</option><option>🐉</option><option>🦅</option><option>🔥</option><option>⭐</option><option>🌋</option><option>❄️</option><option>⚡</option><option>👑</option><option>🎭</option>
+          </select>
+        </div>
+        <!-- Custom pixel-art upload -->
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:9px;color:var(--tx3);letter-spacing:.5px;flex:0 0 60px">UPLOAD</span>
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;padding:7px 10px;border-radius:6px;background:rgba(91,184,232,.1);border:1px dashed rgba(91,184,232,.35);color:var(--cyan);font-size:9px;cursor:pointer;font-family:var(--fn);letter-spacing:.5px">
+            <input type="file" accept="image/*" onchange="onGuildEmblemFile(this)" style="display:none">
+            📁 CHOOSE IMAGE (AUTO 32×32)
+          </label>
+          <button onclick="clearGuildEmblemImage()" style="padding:7px 10px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx3);font-size:9px;cursor:pointer;font-family:var(--fn)">CLEAR</button>
+        </div>
+        <div style="font-size:8px;color:var(--tx3);margin-top:6px;line-height:1.5">Bold silhouettes work best at 32×32. Transparent PNG is recommended for crisp pixel art.</div>
+      </div>
+
+      <!-- Cost summary -->
+      <div style="padding:10px 12px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.25);border-radius:8px;display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="flex:1">
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1px">TOTAL COST</div>
+          <div style="font-size:8px;color:var(--tx3)" id="geCostBreakdown">(no changes)</div>
+        </div>
+        <div style="font-size:18px;color:var(--gold);font-weight:700"><span id="geCost">0</span> GP</div>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button onclick="closeGuildEditModal()" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx3);font-size:11px;cursor:pointer;font-family:var(--fn);letter-spacing:1px">CANCEL</button>
+        <button id="geSaveBtn" onclick="saveGuildEdit()" disabled style="flex:2;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));border:none;color:#fff;font-size:11px;cursor:pointer;font-family:var(--fn);letter-spacing:1px;font-weight:700;opacity:0.4">SAVE CHANGES</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      CODEX / WHITEPAPER MODAL — Complete game guide

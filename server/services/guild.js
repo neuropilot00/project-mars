@@ -92,6 +92,7 @@ async function getGuild(guildId) {
     id: g.id, name: g.name, tag: g.tag,
     leaderWallet: g.leader_wallet,
     emblem: g.emblem_emoji,
+    emblemImage: g.emblem_image || null,
     description: g.description,
     memberCount: g.member_count,
     totalPixels: g.total_pixels,
@@ -102,6 +103,128 @@ async function getGuild(guildId) {
       claimCount: m.claim_count, pixelCount: m.pixel_count, joinedAt: m.joined_at
     }))
   };
+}
+
+// ═══════════════════════════════════════
+//  CUSTOMIZE GUILD (leader-only, GP cost)
+// ═══════════════════════════════════════
+//
+//  fields = { name?, description?, emblemEmoji?, emblemImage? }
+//  Each provided field is charged independently (from settings).
+//  emblemImage is a base64 data URL (PNG). Service caps payload size.
+//  Passing emblemImage: null clears a previously uploaded image.
+//
+async function updateGuildInfo(callerWallet, guildId, fields) {
+  if (!fields || typeof fields !== 'object') return { error: 'No changes requested' };
+  const maxBytes = parseInt(await getSetting('guild_emblem_max_bytes') || '8192');
+  const renameCost = parseInt(await getSetting('guild_rename_cost_gp') || '100');
+  const descCost   = parseInt(await getSetting('guild_desc_cost_gp')   || '20');
+  const emblemCost = parseInt(await getSetting('guild_emblem_cost_gp') || '50');
+
+  // Validate inputs upfront
+  const updates = [];
+  const changes = {};
+  let totalCost = 0;
+
+  if (typeof fields.name === 'string') {
+    const nm = fields.name.trim();
+    if (nm.length < 2 || nm.length > 50) return { error: 'Guild name must be 2-50 characters' };
+    changes.name = nm;
+    totalCost += renameCost;
+  }
+  if (typeof fields.description === 'string') {
+    const d = fields.description.substring(0, 200);
+    changes.description = d;
+    totalCost += descCost;
+  }
+  if (typeof fields.emblemEmoji === 'string' && fields.emblemEmoji.trim()) {
+    const e = fields.emblemEmoji.trim().substring(0, 10);
+    changes.emblemEmoji = e;
+    totalCost += emblemCost;
+  }
+  if (fields.emblemImage !== undefined) {
+    // Either a data URL string or null (clear)
+    if (fields.emblemImage === null) {
+      changes.emblemImage = null;
+      totalCost += emblemCost;
+    } else if (typeof fields.emblemImage === 'string') {
+      const img = fields.emblemImage;
+      if (!img.startsWith('data:image/')) return { error: 'Emblem must be an image data URL' };
+      if (img.length > maxBytes) return { error: `Emblem image too large (max ${Math.floor(maxBytes/1024)}KB)` };
+      changes.emblemImage = img;
+      totalCost += emblemCost;
+    } else {
+      return { error: 'Invalid emblem image' };
+    }
+  }
+
+  if (!Object.keys(changes).length) return { error: 'No changes requested' };
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Verify caller is the leader of this guild
+    const leaderCheck = await client.query(
+      'SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2',
+      [guildId, callerWallet]
+    );
+    if (!leaderCheck.rows.length || leaderCheck.rows[0].role !== 'leader') {
+      await client.query('ROLLBACK');
+      return { error: 'Only the guild leader can edit guild info' };
+    }
+
+    // Check GP balance (lock row)
+    const gpRes = await client.query(
+      'SELECT COALESCE(gp_balance,0) AS gp FROM users WHERE wallet_address = $1 FOR UPDATE',
+      [callerWallet]
+    );
+    const gp = parseFloat(gpRes.rows[0]?.gp || 0);
+    if (gp < totalCost) {
+      await client.query('ROLLBACK');
+      return { error: `Need ${totalCost} GP. You have ${Math.floor(gp)} GP.` };
+    }
+
+    // Name uniqueness check
+    if (changes.name) {
+      const nameCheck = await client.query(
+        'SELECT id FROM guilds WHERE LOWER(name) = LOWER($1) AND id <> $2',
+        [changes.name, guildId]
+      );
+      if (nameCheck.rows.length) {
+        await client.query('ROLLBACK');
+        return { error: 'Guild name already taken' };
+      }
+    }
+
+    // Build dynamic UPDATE
+    const setParts = [];
+    const values = [];
+    let idx = 1;
+    if (changes.name !== undefined)        { setParts.push(`name = $${idx++}`);         values.push(changes.name); }
+    if (changes.description !== undefined) { setParts.push(`description = $${idx++}`);  values.push(changes.description); }
+    if (changes.emblemEmoji !== undefined) { setParts.push(`emblem_emoji = $${idx++}`); values.push(changes.emblemEmoji); }
+    if (changes.emblemImage !== undefined) { setParts.push(`emblem_image = $${idx++}`); values.push(changes.emblemImage); }
+    values.push(guildId);
+
+    await client.query(
+      `UPDATE guilds SET ${setParts.join(', ')} WHERE id = $${idx}`,
+      values
+    );
+
+    // Deduct GP
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2', [totalCost, callerWallet]);
+
+    await client.query('COMMIT');
+    console.log(`[GUILD] #${guildId} updated by ${callerWallet} (-${totalCost} GP) ${Object.keys(changes).join(',')}`);
+    return { success: true, cost: totalCost, changes: Object.keys(changes) };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    if (e.code === '23505') return { error: 'Guild name already taken' };
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 async function getGuildByWallet(wallet) {
@@ -318,7 +441,7 @@ async function disbandGuild(leaderWallet, guildId) {
 
 async function getGuildLeaderboard(limit = 20) {
   const res = await pool.query(
-    `SELECT g.id, g.name, g.tag, g.emblem_emoji, g.member_count, g.total_pixels, g.created_at,
+    `SELECT g.id, g.name, g.tag, g.emblem_emoji, g.emblem_image, g.member_count, g.total_pixels, g.created_at,
             u.nickname AS leader_nickname
      FROM guilds g
      LEFT JOIN users u ON u.wallet_address = g.leader_wallet
@@ -328,6 +451,7 @@ async function getGuildLeaderboard(limit = 20) {
   );
   return res.rows.map(r => ({
     id: r.id, name: r.name, tag: r.tag, emblem: r.emblem_emoji,
+    emblemImage: r.emblem_image || null,
     memberCount: r.member_count, totalPixels: r.total_pixels,
     leaderNickname: r.leader_nickname, createdAt: r.created_at
   }));
@@ -351,5 +475,6 @@ module.exports = {
   inviteMember, acceptInvite, declineInvite, getMyInvites,
   leaveGuild, kickMember,
   promoteToOfficer, demoteToMember, transferLeadership, disbandGuild,
-  getGuildLeaderboard, refreshGuildPixelCount
+  getGuildLeaderboard, refreshGuildPixelCount,
+  updateGuildInfo
 };

@@ -1630,10 +1630,18 @@ router.get('/stats', async (req, res) => {
       )
     ]);
 
+    // Total pixel capacity across all sectors
+    let totalPixelsCapacity = 0;
+    try {
+      const capRes = await pool.query('SELECT COALESCE(SUM(total_pixels),0) AS cap FROM sectors');
+      totalPixelsCapacity = parseInt(capRes.rows[0].cap) || 0;
+    } catch (_) {}
+
     res.json({
       totalUsers: parseInt(usersRes.rows[0].cnt),
       totalClaims: parseInt(claimsRes.rows[0].cnt),
       totalVolume: parseFloat(volumeRes.rows[0].total),
+      totalPixels: totalPixelsCapacity,
       totalPixelsSold: parseInt(pixelsRes.rows[0].cnt),
       activeUsers24h: parseInt(activeRes.rows[0].cnt),
       hijacksPerHour: parseInt(hijacksRes.rows[0].cnt)
@@ -1705,15 +1713,19 @@ router.get('/sectors', readLimiter, async (req, res) => {
       ORDER BY s.tier, s.name
     `);
 
-    // Top holder per sector
+    // Top holder per sector (join users for nickname)
     const topRes = await pool.query(`
-      SELECT DISTINCT ON (sector_id) sector_id, owner, COUNT(*) AS cnt
-      FROM pixels WHERE owner IS NOT NULL AND sector_id IS NOT NULL
-      GROUP BY sector_id, owner
-      ORDER BY sector_id, cnt DESC
+      SELECT t.sector_id, t.owner, t.cnt, u.nickname
+      FROM (
+        SELECT DISTINCT ON (sector_id) sector_id, owner, COUNT(*) AS cnt
+        FROM pixels WHERE owner IS NOT NULL AND sector_id IS NOT NULL
+        GROUP BY sector_id, owner
+        ORDER BY sector_id, cnt DESC
+      ) t
+      LEFT JOIN users u ON u.wallet_address = t.owner
     `);
     const topMap = {};
-    topRes.rows.forEach(r => { topMap[r.sector_id] = { wallet: r.owner, pixels: parseInt(r.cnt) }; });
+    topRes.rows.forEach(r => { topMap[r.sector_id] = { wallet: r.owner, nickname: r.nickname || null, pixels: parseInt(r.cnt) }; });
 
     // User's pixels per sector
     let myMap = {};
@@ -1773,6 +1785,8 @@ router.get('/sectors', readLimiter, async (req, res) => {
         announcement: r.announcement || null,
         topHolder: top ? {
           wallet: top.wallet.slice(0, 6) + '...' + top.wallet.slice(-4),
+          fullWallet: top.wallet,
+          nickname: top.nickname || null,
           pixels: top.pixels
         } : null,
         myPixels: myMap[r.id] || 0,
@@ -4034,6 +4048,28 @@ router.post('/guild/transfer', writeLimiter, async (req, res) => {
 });
 
 // Disband guild
+// Update guild info (leader-only, charges GP per changed field)
+router.post('/guild/update', writeLimiter, async (req, res) => {
+  const { wallet, guildId, name, description, emblemEmoji, emblemImage } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  // Build fields dict (only include keys that were actually sent)
+  const fields = {};
+  if (typeof name === 'string')          fields.name = name;
+  if (typeof description === 'string')   fields.description = description;
+  if (typeof emblemEmoji === 'string')   fields.emblemEmoji = emblemEmoji;
+  if (emblemImage !== undefined)         fields.emblemImage = emblemImage; // may be null to clear
+  try {
+    const result = await guildService.updateGuildInfo(w, parseInt(guildId), fields);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] update error:', e.message);
+    res.status(500).json({ error: 'Failed to update guild' });
+  }
+});
+
 router.post('/guild/disband', writeLimiter, async (req, res) => {
   const { wallet, guildId } = req.body;
   const w = (wallet || '').toLowerCase();
