@@ -3919,14 +3919,28 @@ router.get('/guild/:id', readLimiter, async (req, res) => {
   }
 });
 
-// Invite member
+// Invite member — accepts either wallet address (0x…) or nickname.
+// If the input doesn't look like a wallet we resolve it via the users table.
 router.post('/guild/invite', writeLimiter, async (req, res) => {
   const { wallet, targetWallet, guildId } = req.body;
   const w = (wallet || '').toLowerCase();
-  const tw = (targetWallet || '').toLowerCase();
-  if (!w || !tw || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  let target = (targetWallet || '').trim();
+  if (!w || !target || !guildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
+    // Resolve nickname → wallet if the input doesn't look like a 0x address.
+    const looksLikeWallet = /^0x[0-9a-fA-F]{40}$/.test(target);
+    if (!looksLikeWallet) {
+      const nickRow = await pool.query(
+        'SELECT wallet_address FROM users WHERE LOWER(nickname) = LOWER($1) LIMIT 1',
+        [target]
+      );
+      if (!nickRow.rows.length) {
+        return res.status(400).json({ error: 'No user with that nickname' });
+      }
+      target = nickRow.rows[0].wallet_address;
+    }
+    const tw = target.toLowerCase();
     const result = await guildService.inviteMember(w, tw, parseInt(guildId));
     if (result.error) return res.status(400).json(result);
     res.json(result);

@@ -39,6 +39,9 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .scan{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.015;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.3) 2px,rgba(0,0,0,0.3) 3px)}
 
+/* Force-hide HUD elements when user turns them off in DISPLAY settings */
+.hud-hidden{display:none!important}
+
 /* Announcement Banner — transparent overlay below topbar */
 .announce-bar{position:fixed;top:89px;left:280px;right:280px;z-index:110;height:28px;
   background:transparent;overflow:hidden;display:none;align-items:center;
@@ -61,36 +64,48 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
   .announce-bar{left:55px;right:49px;top:77px;height:20px}
   #seasonBanner{top:51px!important;max-width:75vw;font-size:9px!important;padding:3px 10px!important}
   .tb-commander{top:101px!important}
-  .active-buffs-bar{top:auto;bottom:148px;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+  .active-buffs-bar{top:130px!important;bottom:auto!important;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
 }
 
-/* Weather Banner */
-.weather-banner{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:108;
-  display:none;align-items:center;gap:6px;padding:4px 14px;
-  background:linear-gradient(90deg,rgba(20,12,8,0.8),rgba(40,20,10,0.9),rgba(20,12,8,0.8));
-  border:1px solid rgba(255,140,60,0.35);border-radius:16px;backdrop-filter:blur(6px);
+/* Weather Banner — small chip, bottom-left corner by default on desktop.
+   Default state is collapsed (icon-only). When expanded, it grows UPWARD
+   vertically rather than sideways so it never collides with other HUD. */
+.weather-banner{position:fixed;bottom:18px;left:260px;z-index:108;
+  display:none;flex-direction:column;align-items:flex-start;gap:3px;padding:6px 10px;
+  background:linear-gradient(135deg,rgba(20,12,8,0.88),rgba(40,20,10,0.95));
+  border:1px solid rgba(255,140,60,0.3);border-radius:12px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   font-family:var(--fn);font-size:9px;color:#FF9944;letter-spacing:0.5px;
-  white-space:nowrap;pointer-events:auto;max-width:92vw;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+  white-space:nowrap;pointer-events:auto;max-height:60vh;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;
+  box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.weather-banner.compact{flex-direction:row;align-items:center}
 .weather-banner::-webkit-scrollbar{display:none}
 .weather-banner.show{display:flex}
-.weather-banner .wx-item{display:flex;align-items:center;gap:4px;padding:0 6px}
-.weather-banner .wx-item+.wx-item{border-left:1px solid rgba(255,140,60,0.2)}
+.weather-banner .wx-item{display:flex;align-items:center;gap:4px;padding:3px 6px;width:100%}
+.weather-banner .wx-item+.wx-item{border-top:1px solid rgba(255,140,60,0.18)}
+.weather-banner.compact .wx-item{padding:0 6px;width:auto}
+.weather-banner.compact .wx-item+.wx-item{border-top:none;border-left:1px solid rgba(255,140,60,0.2)}
 .weather-banner .wx-icon{font-size:12px}
 .weather-banner .wx-sector{color:#FFD166;font-size:8px;font-weight:700}
 .weather-banner .wx-time{color:rgba(255,153,68,0.7);font-size:7px}
 .weather-banner .wx-item{cursor:pointer;transition:background .15s;border-radius:8px}
 .weather-banner .wx-item:active{background:rgba(255,140,60,0.15)}
-.wx-detail-popup{position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(180deg,rgba(15,10,8,0.97),rgba(25,15,10,0.99));
-  border-top:1px solid rgba(255,140,60,0.3);padding:16px 20px 24px;transform:translateY(100%);transition:transform .25s ease;
-  font-family:var(--fn);backdrop-filter:blur(10px);max-height:50vh;overflow-y:auto}
-.wx-detail-popup.open{transform:translateY(0)}
-.wx-detail-popup .wx-d-close{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--tx3);font-size:18px;cursor:pointer}
-.wx-detail-popup .wx-d-title{font-size:14px;color:#FFD166;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.wx-detail-popup .wx-d-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,140,60,0.1)}
-.wx-detail-popup .wx-d-label{font-size:10px;color:var(--tx3)}
-.wx-detail-popup .wx-d-val{font-size:11px;font-weight:700}
+/* Weather detail popover — small card anchored next to the weather chip.
+   Positioned via JS using the chip's bounding rect so it feels attached. */
+.wx-detail-popup{position:fixed;z-index:200;background:linear-gradient(180deg,rgba(15,10,8,0.97),rgba(25,15,10,0.99));
+  border:1px solid rgba(255,140,60,0.35);border-radius:12px;padding:12px 14px;
+  font-family:var(--fn);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  max-width:260px;min-width:220px;max-height:50vh;overflow-y:auto;
+  box-shadow:0 8px 26px rgba(0,0,0,.55),0 0 20px rgba(255,140,60,.1);
+  opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .2s,transform .2s;
+  display:none}
+.wx-detail-popup.open{opacity:1;transform:translateY(0);pointer-events:auto;display:block}
+.wx-detail-popup .wx-d-close{position:absolute;top:6px;right:10px;background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer;line-height:1}
+.wx-detail-popup .wx-d-title{font-size:11px;color:#FFD166;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;padding-right:18px}
+.wx-detail-popup .wx-d-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,140,60,0.1);font-size:9px}
+.wx-detail-popup .wx-d-label{font-size:9px;color:var(--tx3)}
+.wx-detail-popup .wx-d-val{font-size:9px;font-weight:700}
 .wx-d-val.buff{color:var(--gn)}.wx-d-val.debuff{color:var(--red)}.wx-d-val.neutral{color:var(--cyan)}
-@media(max-width:768px){.weather-banner{bottom:116px;font-size:8px;padding:3px 10px}
+@media(max-width:768px){.weather-banner{bottom:116px;left:50%;transform:translateX(-50%);font-size:8px;padding:3px 10px;max-width:92vw}
 .wx-detail-popup{padding-bottom:80px;z-index:210}}
 
 /* Rocket Event Banner */
@@ -562,23 +577,40 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   color:#fff;cursor:pointer;font-weight:bold;letter-spacing:1px;
   box-shadow:0 2px 10px rgba(255,120,60,.3)}
 
-/* Collapsed-mode floating action buttons (when both panels folded) */
-.col-fab-wrap{display:none;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);
-  z-index:90;gap:10px;align-items:center;justify-content:center;flex-direction:row}
+/* Collapsed-mode action dock — compact horizontal pill, bottom-center.
+   Desktop-only. Sized like a Blizzard launcher / Dota HUD command bar:
+   5 icon buttons in one tight pill so it reads as a single control, not a bar.
+   Dimensions: ~296px wide × 40px tall — small footprint, never overlaps globe. */
+.col-fab-wrap{display:none;position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
+  z-index:95;gap:3px;align-items:center;justify-content:center;flex-direction:row;
+  padding:5px;background:rgba(14,12,22,0.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,120,60,0.25);border-radius:11px;
+  box-shadow:0 6px 22px rgba(0,0,0,.55),0 0 20px rgba(255,120,60,.06),inset 0 0 0 1px rgba(255,120,60,.04)}
 .col-fab-wrap.show{display:flex}
-.col-fab{padding:10px 18px;font-size:9px;font-family:var(--fn);letter-spacing:1.5px;
-  border:1px solid var(--bdr2);border-radius:10px;cursor:pointer;
-  backdrop-filter:blur(12px);transition:all .2s;
-  box-shadow:0 4px 16px rgba(0,0,0,0.5)}
-.col-fab:active{transform:scale(.94)}
-.col-fab.place{background:linear-gradient(135deg,rgba(255,120,64,0.2),rgba(232,72,85,0.15));
-  color:var(--mars);border-color:rgba(255,120,60,0.4)}
-.col-fab.place:hover{background:linear-gradient(135deg,rgba(255,120,64,0.35),rgba(232,72,85,0.25));
-  box-shadow:0 4px 24px rgba(255,120,60,0.3)}
-.col-fab.base{background:rgba(91,184,232,0.1);color:var(--cyan);border-color:rgba(91,184,232,0.35)}
-.col-fab.base:hover{background:rgba(91,184,232,0.2);box-shadow:0 4px 24px rgba(91,184,232,0.2)}
-.col-fab.arena{background:rgba(255,209,102,0.1);color:var(--gold);border-color:rgba(255,209,102,0.3)}
-.col-fab.arena:hover{background:rgba(255,209,102,0.2);box-shadow:0 4px 24px rgba(255,209,102,0.2)}
+.col-fab{padding:6px 12px;min-width:68px;height:38px;font-family:var(--fn);
+  background:transparent;border:1px solid transparent;border-radius:8px;color:var(--tx2);
+  cursor:pointer;transition:background .12s,color .12s,border-color .12s;
+  display:flex;flex-direction:row;align-items:center;justify-content:center;gap:6px}
+.col-fab .cf-ic{font-size:15px;line-height:1}
+.col-fab .cf-lb{font-size:10px;letter-spacing:.8px;font-weight:700;opacity:.9}
+.col-fab:hover{background:rgba(255,255,255,0.05);color:var(--tx)}
+.col-fab:hover .cf-lb{opacity:1}
+.col-fab:active{transform:scale(.96)}
+.col-fab.place{color:var(--mars);background:linear-gradient(135deg,rgba(255,120,64,0.18),rgba(232,72,85,0.1));
+  border-color:rgba(255,120,60,0.42)}
+.col-fab.place .cf-ic{filter:drop-shadow(0 0 5px rgba(255,120,60,.5))}
+.col-fab.place:hover{background:linear-gradient(135deg,rgba(255,120,64,0.3),rgba(232,72,85,0.18));
+  box-shadow:0 2px 12px rgba(255,120,60,.22)}
+.col-fab.base{color:var(--cyan)}
+.col-fab.base:hover{background:rgba(91,184,232,0.1);border-color:rgba(91,184,232,0.3)}
+.col-fab.arena{color:var(--gold)}
+.col-fab.arena:hover{background:rgba(255,209,102,0.1);border-color:rgba(255,209,102,0.3)}
+.col-fab.myland{color:var(--gn)}
+.col-fab.myland:hover{background:rgba(76,216,154,0.1);border-color:rgba(76,216,154,0.3)}
+.col-fab.items{color:#E8E8EE;border-color:rgba(255,255,255,0.14)}
+.col-fab.items:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.3);color:#fff}
+@media(max-width:1100px){.col-fab{min-width:46px;padding:5px 7px}.col-fab .cf-lb{font-size:7px}}
+@media(max-width:900px){.col-fab{min-width:38px;padding:5px 6px;gap:3px}.col-fab .cf-ic{font-size:12px}.col-fab .cf-lb{display:none}}
 @media(max-width:768px){.col-fab-wrap{display:none!important}.panel-tab{display:none!important}#myLandBtn{display:none!important}}
 
 /* Mobile FAB container (PLACE only, centered) */
@@ -963,10 +995,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* Desktop overrides (ensure not overridden by mobile rules) */
 @media(min-width:769px){
   .mode-badge{bottom:17px!important;left:266px}
-  .active-buffs-bar{top:auto!important;bottom:92px!important;left:266px;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+  .active-buffs-bar{top:140px!important;bottom:auto!important;left:266px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
 }
-/* Active buff bar — default (desktop): bottom left above weather */
-.active-buffs-bar{top:auto;bottom:92px;left:266px;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+/* Active buff bar — default (desktop): top-left below topbar, grows downward */
+.active-buffs-bar{top:140px;bottom:auto;left:266px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
 /* Active buff pills */
 .tb-buff{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;
   font-size:9px;font-family:var(--fn);letter-spacing:.3px;white-space:nowrap;
@@ -995,7 +1027,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .tb-right{gap:4px;flex-wrap:wrap;justify-content:flex-end}
   .tb-btn{font-size:9px;padding:6px 10px;min-height:36px;height:36px;white-space:nowrap}
   .chain-indicator{height:30px;padding:4px 8px;font-size:10px}
-  .lang-dropdown .lang-current{height:34px;padding:4px 10px;font-size:9px}
+  .lang-dropdown{display:none!important}
+  /* Telegram button moved to profile menu on mobile */
+  #telegramBtn{display:none!important}
   .tb-avatar,.tb-avatar-emoji{width:30px;height:30px;font-size:13px;border-radius:5px}
   /* Modal — full width bottom sheet style */
   .mdl{width:100vw;max-width:100vw;max-height:90vh;border-radius:16px 16px 0 0;margin:0;align-self:flex-end;animation:slideUp .25s ease-out}
@@ -1042,7 +1076,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   #shopConfirmModal{align-items:center!important}
   #shopConfirmModal .mdl{align-self:center;border-radius:14px;max-width:90vw}
   .tb-buff{font-size:8px;padding:2px 6px}
-  .active-buffs-bar{top:auto;bottom:148px;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
+  .active-buffs-bar{top:130px;bottom:auto;left:12px;right:auto;transform:none;flex-direction:column;align-items:flex-start;gap:4px}
   .shop-cat-btn{padding:10px 4px;font-size:10px;min-height:44px}
   .si-price{min-height:36px;display:flex;align-items:center;padding:6px 12px!important;font-size:11px!important}
   .inv-item{padding:12px}
@@ -1502,6 +1536,74 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   border:1px solid rgba(91,184,232,.35);color:var(--cyan);font-size:10px;font-family:var(--fn);
   padding:8px 28px;border-radius:8px;cursor:pointer;letter-spacing:1px;transition:all .2s}
 .help-popup-close button:hover{background:rgba(91,184,232,.25);border-color:var(--cyan)}
+
+/* ══════════════════════════════════════════════════
+   Game-themed Confirm Dialog (Mars HUD style)
+   ══════════════════════════════════════════════════ */
+.game-confirm{display:none;position:fixed;inset:0;z-index:9997;background:rgba(5,3,10,.78);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;
+  padding:20px}
+.game-confirm.open{display:flex}
+.gc-card{max-width:380px;width:100%;background:linear-gradient(160deg,rgba(18,12,22,.98),rgba(26,18,32,.98));
+  border:1px solid var(--bdr2);border-radius:14px;overflow:hidden;
+  box-shadow:0 16px 50px rgba(0,0,0,.8),0 0 40px rgba(255,120,60,.12),inset 0 0 0 1px rgba(255,120,60,.08);
+  animation:gcPopIn .25s cubic-bezier(.4,0,.2,1);
+  position:relative}
+.gc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--mars),var(--red),var(--mars),transparent)}
+@keyframes gcPopIn{from{opacity:0;transform:scale(.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.gc-header{display:flex;align-items:center;gap:10px;padding:16px 20px 12px;
+  background:linear-gradient(135deg,rgba(255,120,60,.12),rgba(232,72,85,.06));
+  border-bottom:1px solid rgba(255,120,60,.15)}
+.gc-icon{font-size:20px;filter:drop-shadow(0 0 8px rgba(255,120,60,.5))}
+.gc-title{font-family:var(--fn);font-size:13px;color:var(--mars);letter-spacing:2px;font-weight:700}
+.gc-body{padding:16px 20px 12px;color:var(--tx);font-size:12px;line-height:1.6;font-family:var(--fn)}
+.gc-info{margin:0 20px 16px;padding:10px 12px;border-radius:8px;
+  background:rgba(91,184,232,.04);border:1px solid rgba(91,184,232,.18)}
+.gc-info .gc-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:10px;font-family:var(--fn)}
+.gc-info .gc-row .gc-k{color:var(--tx3);letter-spacing:1px}
+.gc-info .gc-row .gc-v{font-weight:700}
+.gc-info .gc-row.gc-insufficient .gc-v{color:var(--red)}
+.gc-info .gc-row.gc-ok .gc-v{color:var(--gn)}
+.gc-actions{display:flex;gap:8px;padding:0 20px 18px}
+.gc-btn{flex:1;padding:11px 14px;border-radius:8px;font-family:var(--fn);font-size:11px;
+  letter-spacing:1.5px;cursor:pointer;font-weight:700;transition:all .15s;border:1px solid}
+.gc-cancel{background:rgba(255,255,255,.03);border-color:var(--bdr2);color:var(--tx3)}
+.gc-cancel:hover{background:rgba(255,255,255,.06);color:var(--tx2)}
+.gc-confirm{background:linear-gradient(135deg,var(--mars),var(--red));border-color:var(--mars);color:#fff;
+  box-shadow:0 4px 18px rgba(255,120,60,.3)}
+.gc-confirm:hover{filter:brightness(1.1);box-shadow:0 6px 24px rgba(255,120,60,.5)}
+.gc-confirm:disabled{background:rgba(80,40,30,.3);border-color:rgba(120,60,40,.3);color:rgba(200,120,80,.4);
+  cursor:not-allowed;box-shadow:none}
+
+/* ══════════════════════════════════════════════════
+   Game-themed Picker (replaces native select popups)
+   ══════════════════════════════════════════════════ */
+.game-picker{display:none;position:fixed;inset:0;z-index:9996;background:rgba(5,3,10,.78);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;
+  padding:20px}
+.game-picker.open{display:flex}
+.gp-card{max-width:360px;width:100%;max-height:70vh;background:linear-gradient(160deg,rgba(18,12,22,.98),rgba(26,18,32,.98));
+  border:1px solid var(--bdr2);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 16px 50px rgba(0,0,0,.8),0 0 30px rgba(91,184,232,.12);
+  animation:gcPopIn .25s cubic-bezier(.4,0,.2,1);position:relative}
+.gp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--mars),var(--cyan),transparent)}
+.gp-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+  background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(255,120,60,.06));
+  border-bottom:1px solid rgba(91,184,232,.15)}
+.gp-title{font-family:var(--fn);font-size:11px;color:var(--cyan);letter-spacing:2px;font-weight:700}
+.gp-close{background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer;padding:4px 8px}
+.gp-close:hover{color:var(--tx)}
+.gp-list{flex:1;overflow-y:auto;padding:6px 0}
+.gp-item{display:flex;align-items:center;padding:11px 18px;cursor:pointer;
+  border-left:3px solid transparent;transition:all .12s;
+  font-family:var(--fn);font-size:11px;color:var(--tx);letter-spacing:.5px}
+.gp-item:hover{background:rgba(255,120,60,.08);border-left-color:var(--mars);color:var(--mars)}
+.gp-item.selected{background:rgba(91,184,232,.1);border-left-color:var(--cyan);color:var(--cyan)}
+.gp-item.selected::before{content:'◉';margin-right:8px;color:var(--cyan)}
+.gp-item:not(.selected)::before{content:'○';margin-right:8px;color:var(--tx3)}
+.gp-empty{padding:20px;text-align:center;font-size:10px;color:var(--tx3);font-family:var(--fn)}
 
 /* ══════════════════════════════════════════════════
    Lore / Story Popup (Star Wars crawl style)
@@ -2001,18 +2103,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
 </div>
 
-<!-- Commander Banner -->
-<div class="tb-commander" id="tbCommander">
+<!-- Commander Banner (tap to open BASE > TERRITORY for full announcement) -->
+<div class="tb-commander" id="tbCommander" onclick="openBaseModal();switchBaseTab('territory',document.querySelector('[onclick*=territory]'))" style="cursor:pointer" title="Open Commander's Message in BASE">
   <span class="cmd-icon">👑</span>
   <span class="cmd-label">COMMANDER</span>
   <span class="cmd-name" id="tbCmdName">--</span>
 </div>
 <div id="tbCmdAnnounce" style="display:none;position:fixed;top:152px;left:50%;transform:translateX(-50%);z-index:108;
-  font-family:var(--fn);font-size:9px;color:var(--gold);opacity:0.8;white-space:nowrap;pointer-events:none;
-  padding:3px 12px;background:rgba(20,16,10,0.6);border-radius:10px;backdrop-filter:blur(4px);max-width:60%;overflow:hidden;text-overflow:ellipsis"></div>
+  font-family:var(--fn);font-size:9px;color:var(--gold);opacity:0.9;white-space:nowrap;pointer-events:auto;
+  padding:3px 12px;background:rgba(20,16,10,0.72);border-radius:10px;backdrop-filter:blur(4px);max-width:60%;overflow:hidden;text-overflow:ellipsis"></div>
 <div id="tbSectorAnnounce" style="display:none;position:fixed;top:176px;left:50%;transform:translateX(-50%);z-index:108;
-  font-family:var(--fn);font-size:8px;color:var(--cyan);opacity:0.7;white-space:nowrap;pointer-events:none;
-  padding:2px 10px;background:rgba(10,16,20,0.5);border-radius:8px;backdrop-filter:blur(4px);max-width:70%;overflow:hidden;text-overflow:ellipsis"></div>
+  font-family:var(--fn);font-size:8px;color:var(--cyan);opacity:0.8;white-space:nowrap;pointer-events:auto;
+  padding:2px 10px;background:rgba(10,16,20,0.6);border-radius:8px;backdrop-filter:blur(4px);max-width:70%;overflow:hidden;text-overflow:ellipsis"></div>
 
 <!-- Weather Banner -->
 <div class="weather-banner" id="weatherBanner"></div>
@@ -2069,11 +2171,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div class="panel-tab left" id="panelTabL" onclick="collapsePanel('left')">◀</div>
 <div class="panel-tab right" id="panelTabR" onclick="collapsePanel('right')">▶</div>
 
-<!-- Collapsed-mode floating buttons (both panels folded) -->
+<!-- Collapsed-mode bottom nav (mirrors mobile 5-button layout) -->
 <div class="col-fab-wrap" id="colFabWrap">
-  <button class="col-fab" onclick="activateLandSelect()" style="color:var(--mars)">CLAIM</button>
-  <button class="col-fab base" onclick="openBaseModal()">BASE</button>
-  <button class="col-fab arena" onclick="openArena()">CANTINA</button>
+  <button class="col-fab myland" onclick="toggleMyLand()" title="My Land">
+    <span class="cf-ic">🌍</span><span class="cf-lb">MY LAND</span>
+  </button>
+  <button class="col-fab arena" onclick="openArena()" title="Cantina">
+    <span class="cf-ic">⚔️</span><span class="cf-lb">CANTINA</span>
+  </button>
+  <button class="col-fab place" onclick="activateLandSelect()" title="Claim">
+    <span class="cf-ic">＋</span><span class="cf-lb">CLAIM</span>
+  </button>
+  <button class="col-fab items" onclick="openItemShop();shopSwitchTab('inv')" title="Items">
+    <span class="cf-ic">📦</span><span class="cf-lb">ITEMS</span>
+  </button>
+  <button class="col-fab base" onclick="openBaseModal()" title="Base">
+    <span class="cf-ic">🏠</span><span class="cf-lb">BASE</span>
+  </button>
 </div>
 
 <!-- Mobile Panel Toggles -->
@@ -2575,13 +2689,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <button class="base-close" onclick="closeBaseModal()">✕</button>
     </div>
     <div class="base-tabs">
-      <div class="base-tab active" onclick="switchBaseTab('territory',this)">MY TERRITORY</div>
-      <div class="base-tab" onclick="switchBaseTab('sectors',this)">SECTORS</div>
-      <div class="base-tab" onclick="switchBaseTab('rank',this)" style="color:var(--mars)">SEASON</div>
-      <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this)">MINING<span class="tab-dot" id="miningDot"></span></div>
-      <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this)">QUESTS<span class="tab-dot" id="questsDot"></span></div>
+      <div class="base-tab active" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')">MY TERRITORY<span class="tab-dot" id="territoryDot"></span></div>
+      <div class="base-tab" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')">SECTORS<span class="tab-dot" id="sectorsDot"></span></div>
+      <div class="base-tab" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)">SEASON<span class="tab-dot" id="rankDot"></span></div>
+      <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')">MINING<span class="tab-dot" id="miningDot"></span></div>
+      <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests')">QUESTS<span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" onclick="switchBaseTab('shop',this);loadBaseShopItems()">SHOP</div>
-      <div class="base-tab" onclick="switchBaseTab('guild',this);loadGuildTab()" style="color:var(--mars)">GUILD</div>
+      <div class="base-tab" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)">GUILD<span class="tab-dot" id="guildDot"></span></div>
       <div class="base-tab" onclick="switchBaseTab('govern',this)" style="color:var(--cyan)">GOVERN</div>
     </div>
     <div class="base-body">
@@ -2860,9 +2974,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="govEventsList" style="display:flex;flex-direction:column;gap:6px"></div>
         </div>
 
-        <!-- My Positions (collapsible) -->
-        <div class="base-section-title" style="cursor:pointer" onclick="(function(el){var c=document.getElementById('govMyPositions');var t=el.querySelector('.gov-toggle');if(c.style.display==='none'){c.style.display='';t.textContent='▲'}else{c.style.display='none';t.textContent='▼'}})(this)">MY POSITIONS <span class="gov-toggle" style="font-size:8px;color:var(--tx3)">▲</span></div>
-        <div id="govMyPositions" style="margin-bottom:12px">
+        <!-- My Positions (collapsible, default collapsed) -->
+        <div class="base-section-title" style="cursor:pointer" onclick="(function(el){var c=document.getElementById('govMyPositions');var t=el.querySelector('.gov-toggle');if(c.style.display==='none'){c.style.display='';t.textContent='▲'}else{c.style.display='none';t.textContent='▼'}})(this)">MY POSITIONS <span class="gov-toggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
+        <div id="govMyPositions" style="margin-bottom:12px;display:none">
           <div style="font-size:10px;color:var(--tx3);padding:8px 0">Login to view your governance positions.</div>
         </div>
 
@@ -2900,7 +3014,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- Governor Dashboard (only visible to governors) -->
         <div id="govGovernorDash" style="display:none;margin-bottom:12px;padding:12px;border-radius:8px;background:rgba(91,184,232,.04);border:1px solid rgba(91,184,232,.15)">
-          <div style="font-size:10px;color:var(--cyan);font-family:var(--fn);margin-bottom:8px;font-weight:700;display:flex;align-items:center;gap:6px">GOVERNOR CONTROLS <select id="govSectorSelect" onchange="govSwitchSector(this.value)" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--cyan);font-size:9px;padding:2px 6px;border-radius:4px;font-family:var(--fn)"></select></div>
+          <div style="font-size:10px;color:var(--cyan);font-family:var(--fn);margin-bottom:8px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap">GOVERNOR CONTROLS
+            <button id="govSectorPickerBtn" type="button" onclick="openGovSectorPicker()" style="background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-size:9px;padding:4px 10px;border-radius:4px;font-family:var(--fn);cursor:pointer;letter-spacing:.5px">SELECT SECTOR ▾</button>
+          </div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <div style="display:flex;align-items:center;gap:8px">
               <span style="font-size:9px;color:var(--tx3)">TAX RATE</span>
@@ -2932,9 +3048,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="base-section-title" style="color:var(--gold);cursor:pointer" onclick="toggleHallOfFame()">🏆 HALL OF FAME <span id="hofToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
         <div id="govHallOfFame" style="display:none;margin-bottom:12px">
           <div style="margin-bottom:8px">
-            <select id="hofSectorSelect" onchange="loadHallOfFame()" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
-              <option value="">Select sector...</option>
-            </select>
+            <button id="hofSectorPickerBtn" type="button" onclick="openHofSectorPicker()" style="width:100%;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.2);color:var(--gold);font-size:10px;padding:8px 10px;border-radius:6px;font-family:var(--fn);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center"><span id="hofSectorLabel">Select sector...</span><span style="color:var(--tx3)">▾</span></button>
           </div>
           <div id="hofList" style="font-size:10px;color:var(--tx3);padding:4px 0">Select a sector to view history.</div>
         </div>
@@ -3440,6 +3554,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <label class="profile-toggle"><input type="checkbox" id="dispCommanderBar" checked onchange="saveDisplaySettings()"><span class="profile-toggle-slider"></span></label>
             </div>
             <div class="profile-setting-row">
+              <span>Show Rocket Event Banner</span>
+              <label class="profile-toggle"><input type="checkbox" id="dispRocketBar" checked onchange="saveDisplaySettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+            <div class="profile-setting-row">
+              <span>Show Announce Marquee</span>
+              <label class="profile-toggle"><input type="checkbox" id="dispAnnounceBar" checked onchange="saveDisplaySettings()"><span class="profile-toggle-slider"></span></label>
+            </div>
+            <div class="profile-setting-row">
               <span>Show Guild Emblems</span>
               <label class="profile-toggle"><input type="checkbox" id="dispGuildEmblem" checked onchange="saveDisplaySettings()"><span class="profile-toggle-slider"></span></label>
             </div>
@@ -3495,6 +3617,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <button class="cfm" onclick="doChangePassword()" style="flex:1;background:rgba(76,216,154,.06);border-color:rgba(76,216,154,.15);color:var(--gn)">SAVE</button>
             <button class="cfm" onclick="document.getElementById('profileChangePw').style.display='none'" style="flex:1;color:var(--tx3);border-color:var(--bdr)">CANCEL</button>
           </div>
+        </div>
+
+        <!-- ═══ Profile utilities: language + Telegram ═══ -->
+        <div style="border-top:1px solid var(--bdr);margin:12px 0 6px;padding-top:10px">
+          <div style="font-size:9px;color:var(--tx3);letter-spacing:1.5px;margin-bottom:8px;text-align:center" data-i18n="profile_prefs">PREFERENCES</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <button class="sz-btn prof-lang-btn" data-plang="en" onclick="setLang('en');_syncProfileLangBtns()" style="flex:1;font-size:9px">EN</button>
+            <button class="sz-btn prof-lang-btn" data-plang="ko" onclick="setLang('ko');_syncProfileLangBtns()" style="flex:1;font-size:9px">한국어</button>
+            <button class="sz-btn prof-lang-btn" data-plang="ja" onclick="setLang('ja');_syncProfileLangBtns()" style="flex:1;font-size:9px">日本語</button>
+            <button class="sz-btn prof-lang-btn" data-plang="zh" onclick="setLang('zh');_syncProfileLangBtns()" style="flex:1;font-size:9px">中文</button>
+          </div>
+          <button class="sz-btn" onclick="openTelegramGroup()" style="width:100%;font-size:10px;color:#24A1DE;border-color:rgba(36,161,222,.3);background:rgba(36,161,222,.08);padding:8px">✈ JOIN TELEGRAM</button>
         </div>
 
         <button class="cfm" onclick="logoutEmail()" style="background:rgba(232,72,85,.06);border-color:rgba(232,72,85,.15);color:var(--red);margin-top:8px" data-i18n="logout">LOGOUT</button>
@@ -3593,6 +3727,33 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <div class="toast" id="toast"></div>
 <div id="notifStack"></div>
+
+<!-- Game-themed confirm dialog (Mars HUD style) -->
+<div id="gameConfirm" class="game-confirm" onclick="if(event.target===this)gameConfirmResolve(false)">
+  <div class="gc-card">
+    <div class="gc-header">
+      <span class="gc-icon" id="gcIcon">⚠</span>
+      <span class="gc-title" id="gcTitle">CONFIRM</span>
+    </div>
+    <div class="gc-body" id="gcBody"></div>
+    <div class="gc-info" id="gcInfo" style="display:none"></div>
+    <div class="gc-actions">
+      <button class="gc-btn gc-cancel" onclick="gameConfirmResolve(false)">CANCEL</button>
+      <button class="gc-btn gc-confirm" id="gcConfirmBtn" onclick="gameConfirmResolve(true)">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
+<!-- Game-themed picker (replaces native select) -->
+<div id="gamePicker" class="game-picker" onclick="if(event.target===this)closeGamePicker()">
+  <div class="gp-card">
+    <div class="gp-header">
+      <span class="gp-title" id="gpTitle">SELECT</span>
+      <button class="gp-close" onclick="closeGamePicker()">✕</button>
+    </div>
+    <div class="gp-list" id="gpList"></div>
+  </div>
+</div>
 <!-- Help Tooltip Popup -->
 <div class="help-popup-bg" id="helpPopupBg" onclick="closeHelpTip()">
   <div class="help-popup" onclick="event.stopPropagation()">
@@ -4289,12 +4450,13 @@ function craterAt(u,v){
 }
 
 /* ── Generate Procedural Mars Texture (HD) ───────── */
-// Desktop: 4096x2048 (matches NASA 4K). Mobile: 2048x1024 (JPEG upload size constraint).
+// Desktop: 4096x2048 (matches NASA 4K). Mobile: 3072x1536 — bumped from 2048 so
+// claim images and sector labels stay readable on mobile globe. Memory: ~18MB.
 var marsCanvas=document.createElement('canvas');
 (function(){
   var _isMobCanvas=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-  marsCanvas.width  = _isMobCanvas ? 2048 : 4096;
-  marsCanvas.height = _isMobCanvas ? 1024 : 2048;
+  marsCanvas.width  = _isMobCanvas ? 3072 : 4096;
+  marsCanvas.height = _isMobCanvas ? 1536 : 2048;
 })();
 var marsBaseData=null;
 
@@ -4581,9 +4743,11 @@ function compositeClaimsOnTexture(previewOnly){
           if(gStripsClip.length===0) return;
           ctx.save();
           ctx.beginPath();
+          // Pad each strip rect by 0.75px so adjacent strips overlap — eliminates
+          // subpixel gaps that produce dark horizontal lines inside claim images.
           for(var sci=0;sci<gStripsClip.length;sci++){
             var ssr=_sRect(gStripsClip[sci]);
-            ctx.rect(ssr.x, ssr.y, ssr.w, ssr.h);
+            ctx.rect(ssr.x-0.75, ssr.y-0.75, ssr.w+1.5, ssr.h+1.5);
           }
           ctx.clip();
           // Solid fill under image (covers all clipped area — prevents Mars surface bleed)
@@ -4640,13 +4804,14 @@ function compositeClaimsOnTexture(previewOnly){
             return s.lat>=gb.minLat-_gs*0.5&&s.lat<=gb.maxLat+_gs*0.5&&
                    s.lng1>=gb.minLng-_gs*0.5&&s.lng2<=gb.maxLng+_gs*0.5;
           });
-          // Fill with strips (pixel-accurate, matches border exactly)
+          // Fill with strips (pixel-accurate, matches border exactly).
+          // Pad by 0.75px so adjacent strips overlap — eliminates subpixel gap lines.
           var tc=oc||{r:255,g:120,b:60};
           ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',0.35)';
           var fbx1=Infinity,fby1=Infinity,fbx2=-Infinity,fby2=-Infinity;
           for(var fi=0;fi<gStrips.length;fi++){
             var fr=_sRect(gStrips[fi]);
-            ctx.fillRect(fr.x,fr.y,fr.w,fr.h);
+            ctx.fillRect(fr.x-0.75,fr.y-0.75,fr.w+1.5,fr.h+1.5);
             if(fr.x<fbx1)fbx1=fr.x;if(fr.y<fby1)fby1=fr.y;
             if(fr.x+fr.w>fbx2)fbx2=fr.x+fr.w;if(fr.y+fr.h>fby2)fby2=fr.y+fr.h;
           }
@@ -9030,7 +9195,19 @@ function setLang(lang){
   document.querySelectorAll('.lang-menu-item').forEach(function(item){
     item.classList.toggle('active',item.textContent.trim().startsWith(lang.toUpperCase()));
   });
+  _syncProfileLangBtns();
   applyI18n();
+}
+// Highlight the active language button in the profile menu
+function _syncProfileLangBtns(){
+  try{
+    document.querySelectorAll('.prof-lang-btn').forEach(function(b){
+      var act = b.getAttribute('data-plang')===LANG;
+      b.style.background = act ? 'rgba(91,184,232,.2)' : '';
+      b.style.borderColor = act ? 'var(--cyan)' : '';
+      b.style.color = act ? 'var(--cyan)' : '';
+    });
+  }catch(_e){}
 }
 
 function toggleLangDropdown(e){
@@ -9749,6 +9926,8 @@ function saveDisplaySettings(){
   var s={
     weatherBar:_get('dispWeatherBar'),
     commanderBar:_get('dispCommanderBar'),
+    rocketBar:_get('dispRocketBar'),
+    announceBar:_get('dispAnnounceBar'),
     guildEmblem:_get('dispGuildEmblem'),
     guildTag:_get('dispGuildTag')
   };
@@ -9756,16 +9935,28 @@ function saveDisplaySettings(){
   // Apply immediately
   try{ if(typeof updateWeatherBanner==='function') updateWeatherBanner(); }catch(_e){}
   try{ if(typeof loadCommanderBanner==='function') loadCommanderBanner(); }catch(_e){}
+  try{ applyHudToggles(); }catch(_e){}
   try{ if(typeof selectedPlot!=='undefined' && selectedPlot && selectedPlot.owner) showTerritoryInfo(selectedPlot); }catch(_e){}
 }
 function loadDisplaySettings(){
-  try{var s=JSON.parse(localStorage.getItem('pw_display_settings'));if(!s)return;
+  try{var s=JSON.parse(localStorage.getItem('pw_display_settings'));if(!s){ applyHudToggles(); return; }
     var _set=function(id,v){var e=document.getElementById(id);if(e&&v!==undefined)e.checked=v;};
     _set('dispWeatherBar',s.weatherBar);
     _set('dispCommanderBar',s.commanderBar);
+    _set('dispRocketBar',s.rocketBar);
+    _set('dispAnnounceBar',s.announceBar);
     _set('dispGuildEmblem',s.guildEmblem);
     _set('dispGuildTag',s.guildTag);
+    applyHudToggles();
   }catch(_e){}
+}
+// Apply rocket/announce toggles by adding a .hud-hidden class
+// (their show state is managed elsewhere via .show classList)
+function applyHudToggles(){
+  var rb=document.getElementById('rocketBanner');
+  if(rb) rb.classList.toggle('hud-hidden', !getDisplaySetting('rocketBar'));
+  var ab=document.getElementById('announceBanner');
+  if(ab) ab.classList.toggle('hud-hidden', !getDisplaySetting('announceBar'));
 }
 function getDisplaySetting(key){
   try{var s=JSON.parse(localStorage.getItem('pw_display_settings'));return s?s[key]!==false:true;}catch(_e){return true;}
@@ -10671,7 +10862,68 @@ function switchBaseTab(tab,el){
   if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w);}
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
+  try{ clearBaseTabDot(tab); }catch(_e){}
 }
+
+// ── BASE tab "new info" blink dots ──────────────────
+// Each dot turns on when a tab has new info since user last opened it, and
+// clears on open. Uses localStorage for last-seen timestamps so users return
+// for new content (guild chat, season rewards, quest claims, etc.).
+window._baseDotSeen = (function(){
+  try{ return JSON.parse(localStorage.getItem('base_tab_seen')||'{}'); }catch(_e){return {}}
+})();
+function _saveDotSeen(){ try{ localStorage.setItem('base_tab_seen', JSON.stringify(window._baseDotSeen)); }catch(_e){} }
+window.clearBaseTabDot = function(tab){
+  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot'};
+  var id = map[tab]; if(!id) return;
+  var el = document.getElementById(id); if(el) el.style.display='none';
+  window._baseDotSeen[tab] = Date.now();
+  _saveDotSeen();
+};
+window.setBaseTabDot = function(tab, on){
+  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot'};
+  var id = map[tab]; if(!id) return;
+  var el = document.getElementById(id); if(el) el.style.display = on ? 'block' : 'none';
+};
+// Poll once a minute for new info across tabs. Minimal server hits —
+// piggybacks on existing endpoints.
+function _pollBaseTabDots(){
+  var w = walletState.address; if(!w) return;
+  var seen = window._baseDotSeen || {};
+  // TERRITORY: new commander announcement
+  try{
+    if(window._cmdInfo && _cmdInfo.announcementAt){
+      var t = new Date(_cmdInfo.announcementAt).getTime();
+      if(t && t > (seen.territory||0)) setBaseTabDot('territory', true);
+    }
+  }catch(_e){}
+  // SECTORS: new sector announcement from any owned sector
+  try{
+    var secs = (_sectorsData||[]).filter(function(s){return s.announcementAt});
+    var newest = 0;
+    secs.forEach(function(s){ var t=new Date(s.announcementAt).getTime(); if(t>newest) newest=t; });
+    if(newest && newest > (seen.sectors||0)) setBaseTabDot('sectors', true);
+  }catch(_e){}
+  // SEASON: claimable rewards or new season
+  fetch('/api/season/active').then(function(r){return r.json()}).then(function(d){
+    try{
+      var s = d && d.season;
+      if(s){
+        var start = new Date(s.startsAt).getTime();
+        if(start && start > (seen.rank||0)) setBaseTabDot('rank', true);
+      }
+    }catch(_e){}
+  }).catch(function(){});
+  // GUILD: unread chat or pending invites
+  fetch('/api/guild/invites?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+    try{
+      var invites = (d && d.invites) || [];
+      if(invites.length) setBaseTabDot('guild', true);
+    }catch(_e){}
+  }).catch(function(){});
+}
+setTimeout(_pollBaseTabDots, 8000);
+setInterval(_pollBaseTabDots, 60000);
 
 // ── Guild System ──────────────────────────────────
 var _myGuildData=null;
@@ -10900,8 +11152,9 @@ function createGuild(){
 function guildInviteMember(){
   var w=walletState.address;
   if(!w||!_myGuildData){showToast('No guild','error');return;}
-  var target=document.getElementById('guildInviteInput').value.trim().toLowerCase();
-  if(!target){showToast('Enter wallet address','error');return;}
+  // Preserve original case — server resolves nickname→wallet case-insensitively.
+  var target=document.getElementById('guildInviteInput').value.trim();
+  if(!target){showToast('Enter wallet or nickname','error');return;}
   fetch('/api/guild/invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:target,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
@@ -11995,45 +12248,60 @@ function _drawSectorOverlay(ctx,w,h){
     var xs=poly.map(function(v){return toXY(v)[0]});
     var polyW=Math.max.apply(null,xs)-Math.min.apply(null,xs);
 
-    // 70% of previous size (was max 96 → now max 67)
-    var fontSize=Math.max(32,Math.min(67,polyW/s.name.length*2.4));
+    // Responsive font size — smaller on mobile canvas to avoid overlap
+    var _isMobTex=(w<=2560);
+    var _maxF=_isMobTex?36:56;
+    var _minF=_isMobTex?14:22;
+    // Tighter multiplier so long names don't blow up + clamp to polyW (never wider than sector box)
+    var fontSize=Math.max(_minF,Math.min(_maxF,polyW/s.name.length*1.6));
+    // Also cap so single-line label fits within 80% of polyW
+    if(s.name.length*fontSize*0.55>polyW*0.85) fontSize=Math.max(_minF,Math.floor(polyW*0.85/(s.name.length*0.55)));
     ctx.font='bold '+fontSize+'px monospace';
     ctx.textAlign='center';ctx.textBaseline='middle';
+
+    // Truncate name if still too wide
+    var nameText=s.name;
+    while(ctx.measureText(nameText).width>polyW*0.9 && nameText.length>4){
+      nameText=nameText.slice(0,-2);
+    }
+    if(nameText!==s.name) nameText=nameText+'…';
 
     // Text shadow for readability
     ctx.globalAlpha=0.95;
     ctx.shadowColor='rgba(0,0,0,0.9)';
-    ctx.shadowBlur=8;
-    ctx.shadowOffsetX=2;ctx.shadowOffsetY=2;
+    ctx.shadowBlur=6;
+    ctx.shadowOffsetX=1;ctx.shadowOffsetY=1;
     ctx.fillStyle=_sectorColor(s.tier);
-    ctx.fillText(s.name,cx,cy);
+    ctx.fillText(nameText,cx,cy);
 
-    // Tier label below
-    var tierSize=Math.max(18,fontSize*0.4);
+    // Tier label below (smaller)
+    var tierSize=Math.max(_isMobTex?10:14,fontSize*0.38);
     ctx.font='bold '+tierSize+'px monospace';
-    ctx.globalAlpha=0.8;
+    ctx.globalAlpha=0.75;
     ctx.fillText(s.tier.toUpperCase(),cx,cy+fontSize*0.55+tierSize*0.2);
 
     // Governor name below tier
     var govName=s.governor?s.governor.nickname:null;
     if(govName){
-      var govSize=Math.max(14,tierSize*0.8);
+      var govSize=Math.max(_isMobTex?9:12,tierSize*0.8);
       var govY=cy+fontSize*0.55+tierSize*0.2+tierSize*0.8+4;
       ctx.font='bold '+govSize+'px monospace';
       ctx.globalAlpha=0.9;
       var isCommander=_cmdInfo&&_cmdInfo.commander&&s.governor&&s.governor.fullWallet&&_cmdInfo.commander.toLowerCase()===s.governor.fullWallet.toLowerCase();
       ctx.fillStyle=isCommander?'#FFD166':'#FFD166';
-      ctx.fillText((isCommander?'⭐ ':'👑 ')+govName,cx,govY);
+      var govText=(isCommander?'⭐ ':'👑 ')+govName;
+      while(ctx.measureText(govText).width>polyW*0.9 && govText.length>6){ govText=govText.slice(0,-2); }
+      ctx.fillText(govText,cx,govY);
     }
 
     // Sector announcement below governor name (only for sector members)
     if(s.announcement && s.myPixels > 0){
-      var annSize=Math.max(11,tierSize*0.55);
+      var annSize=Math.max(_isMobTex?8:11,tierSize*0.55);
       var annY=govName?(govY+annSize+4):(cy+fontSize*0.55+tierSize*0.2+tierSize*0.8+4);
       ctx.font='italic '+annSize+'px monospace';
       ctx.globalAlpha=0.6;
       ctx.fillStyle='#FFD166';
-      var annText=s.announcement.length>30?s.announcement.slice(0,30)+'…':s.announcement;
+      var annText=s.announcement.length>24?s.announcement.slice(0,24)+'…':s.announcement;
       ctx.fillText('📢 '+annText,cx,annY);
     }
 
@@ -12621,6 +12889,81 @@ function zoomOut(){
 }
 function showToast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3500)}
 
+// ══════ Game-themed confirm dialog (Mars HUD style) ══════
+var _gcResolver=null;
+function gameConfirm(opts){
+  // opts: { title, icon, body, info:[{k,v,insufficient}], confirmText, disabled }
+  return new Promise(function(resolve){
+    _gcResolver=resolve;
+    var dlg=document.getElementById('gameConfirm');
+    if(!dlg) return resolve(false);
+    document.getElementById('gcTitle').textContent=opts.title||'CONFIRM';
+    document.getElementById('gcIcon').textContent=opts.icon||'⚠';
+    document.getElementById('gcBody').innerHTML=opts.body||'';
+    var info=document.getElementById('gcInfo');
+    if(opts.info && opts.info.length){
+      info.innerHTML=opts.info.map(function(r){
+        var cls=r.insufficient?'gc-insufficient':(r.ok?'gc-ok':'');
+        return '<div class="gc-row '+cls+'"><span class="gc-k">'+escapeHTML(r.k)+'</span><span class="gc-v">'+escapeHTML(r.v)+'</span></div>';
+      }).join('');
+      info.style.display='';
+    }else{
+      info.style.display='none';
+    }
+    var btn=document.getElementById('gcConfirmBtn');
+    btn.textContent=opts.confirmText||'CONFIRM';
+    btn.disabled=!!opts.disabled;
+    dlg.classList.add('open');
+  });
+}
+function gameConfirmResolve(val){
+  var dlg=document.getElementById('gameConfirm');
+  if(dlg) dlg.classList.remove('open');
+  var r=_gcResolver; _gcResolver=null;
+  if(r) r(val);
+}
+// escapeHTML may already exist; safe fallback if not
+if(typeof escapeHTML!=='function'){
+  window.escapeHTML=function(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});};
+}
+
+// ══════ Game-themed picker (replaces native <select>) ══════
+var _gpResolver=null;
+function gamePicker(opts){
+  // opts: { title, items:[{value,label,icon}], selected }
+  return new Promise(function(resolve){
+    _gpResolver=resolve;
+    var dlg=document.getElementById('gamePicker');
+    if(!dlg) return resolve(null);
+    document.getElementById('gpTitle').textContent=opts.title||'SELECT';
+    var list=document.getElementById('gpList');
+    if(!opts.items || !opts.items.length){
+      list.innerHTML='<div class="gp-empty">No options available</div>';
+    }else{
+      list.innerHTML=opts.items.map(function(it){
+        var sel=(it.value==opts.selected)?' selected':'';
+        var icon=it.icon?('<span style="margin-right:6px">'+it.icon+'</span>'):'';
+        return '<div class="gp-item'+sel+'" data-val="'+escapeHTML(String(it.value))+'">'+icon+escapeHTML(it.label)+'</div>';
+      }).join('');
+      Array.prototype.forEach.call(list.querySelectorAll('.gp-item'),function(el){
+        el.addEventListener('click',function(){
+          var v=el.getAttribute('data-val');
+          var r=_gpResolver; _gpResolver=null;
+          dlg.classList.remove('open');
+          if(r) r(v);
+        });
+      });
+    }
+    dlg.classList.add('open');
+  });
+}
+function closeGamePicker(){
+  var dlg=document.getElementById('gamePicker');
+  if(dlg) dlg.classList.remove('open');
+  var r=_gpResolver; _gpResolver=null;
+  if(r) r(null);
+}
+
 // ═══════ NOTIFICATION SYSTEM ═══════
 var _notifTypes={
   hijack:  {icon:'\u2694\uFE0F', color:'var(--red)'},
@@ -12947,25 +13290,83 @@ function updateCollapsedUI(){
     bar.style.left = (lCol ? 30 : 280) + 'px';
     bar.style.right = (rCol ? 30 : 280) + 'px';
   }
-  // Floating action buttons when both collapsed
+  // Bottom nav: show whenever right panel is collapsed. It's always centered
+  // via CSS transform — do NOT set inline left/right or centering breaks.
   var fab = document.getElementById('colFabWrap');
+  var navShown = false;
   if(fab){
-    fab.classList.toggle('show', lCol && rCol);
-    if(lCol && rCol) fab.style.bottom='56px'; else fab.style.bottom='';
+    navShown = rCol;
+    fab.classList.toggle('show', navShown);
   }
-  // Move zoom controls + mode badge when panels collapsed
+  // Zoom controls: right panel collapsed → hug the right edge, lifted above nav
   var zc = document.querySelector('.zc');
-  if(zc) zc.style.right = rCol ? '10px' : '';
+  if(zc){
+    zc.style.right = rCol ? '12px' : '';
+    zc.style.bottom = navShown ? '66px' : '';
+  }
+  // Mode badge: left panel collapsed → hug left edge, lifted above nav
   var badge = document.getElementById('modeBadge');
-  if(badge) badge.style.left = lCol ? '12px' : '';
+  if(badge){
+    badge.style.left = lCol ? '12px' : '';
+    badge.style.bottom = navShown ? '66px' : '';
+  }
+  // Active buffs: anchored to top-left below topbar so they grow downward
+  // as more buffs are added, never colliding with the bottom nav.
+  var buffs = document.getElementById('tbActiveBuffs');
+  if(buffs){
+    buffs.style.left = lCol ? '12px' : '';
+    buffs.style.top = navShown ? '140px' : '';
+    buffs.style.bottom = 'auto';
+  }
+  // Weather chip: bottom-left corner, stacked above mode badge so they don't
+  // overlap. Lowered 50% from previous position.
+  var wx = document.getElementById('weatherBanner');
+  if(wx){
+    if(navShown){
+      wx.style.left = (lCol ? '12px' : '260px');
+      wx.style.right = 'auto';
+      wx.style.transform = 'none';
+      wx.style.bottom = '55px';
+    } else {
+      wx.style.left = '';
+      wx.style.right = '';
+      wx.style.transform = '';
+      wx.style.bottom = '';
+    }
+  }
+  // Rocket / supply drop banner: move to top-right under topbar when collapsed,
+  // instead of covering the globe center
+  var rk = document.getElementById('rocketBanner');
+  if(rk){
+    if(navShown){
+      rk.style.top = '88px';
+      rk.style.left = 'auto';
+      rk.style.right = (rCol ? '12px' : '260px');
+      rk.style.transform = 'none';
+    } else {
+      rk.style.top = '';
+      rk.style.left = '';
+      rk.style.right = '';
+      rk.style.transform = '';
+    }
+  }
+  // Hide legal footer when nav is showing (redundant with topbar links)
+  var lf = document.getElementById('legalFooter');
+  if(lf) lf.style.display = navShown ? 'none' : '';
 }
 // Restore collapsed state on load
+// Left panel contains the claim image editor → must stay open by default on desktop.
+// Right panel (LIVE feed) is safe to default-collapse on desktop.
 (function(){
   var lSaved = localStorage.getItem('panel_left_collapsed');
   var rSaved = localStorage.getItem('panel_right_collapsed');
+  var isDesktop = window.innerWidth > 768;
   if(lSaved==='1') collapsePanel('left');
-  if(rSaved==='1') collapsePanel('right');
+  var wantR = (rSaved===null) ? isDesktop : (rSaved==='1');
+  if(wantR) collapsePanel('right');
 })();
+// Re-apply zoom/announce positions on window resize
+window.addEventListener('resize', function(){ try{updateCollapsedUI()}catch(_e){} });
 function updateMobToggles(){
   var lOpen=document.getElementById('panelL').classList.contains('open');
   var rOpen=document.getElementById('panelR').classList.contains('open');
@@ -14382,6 +14783,12 @@ window.addEventListener('resize', function(){
 
   // Commander banner: poll + display (global for _drawSectorOverlay access)
   window._cmdInfo = null;
+  window._cmdExpanded = localStorage.getItem('pw_cmd_expanded')==='1';
+  window.toggleCmdExpand = function(){
+    window._cmdExpanded = !window._cmdExpanded;
+    localStorage.setItem('pw_cmd_expanded', window._cmdExpanded?'1':'0');
+    if(typeof loadCommanderBanner==='function') loadCommanderBanner();
+  };
   function loadCommanderBanner() {
     fetch('/api/governance/commander').then(function(r){return r.json()}).then(function(info){
       _cmdInfo = info;
@@ -14397,16 +14804,10 @@ window.addEventListener('resize', function(){
       } else {
         el.classList.remove('show');
       }
-      // Show commander announcement below commander banner (only if banner shown)
+      // Commander announcement is now shown ONLY inside BASE > TERRITORY tab.
+      // Never display on main screen — keep overlay hidden.
       var cmdAnnEl = document.getElementById('tbCmdAnnounce');
-      if (cmdAnnEl) {
-        if (info.announcement && showBar) {
-          cmdAnnEl.textContent = '📢 ' + info.announcement;
-          cmdAnnEl.style.display = 'block';
-        } else {
-          cmdAnnEl.style.display = 'none';
-        }
-      }
+      if (cmdAnnEl) cmdAnnEl.style.display = 'none';
       // Also mirror into BASE > TERRITORY tab
       var baseAnnBox = document.getElementById('baseCmdAnnounceBox');
       var baseAnnText = document.getElementById('baseCmdAnnounceText');
@@ -14451,6 +14852,10 @@ window.addEventListener('resize', function(){
     var showBar = (typeof getDisplaySetting==='function') ? getDisplaySetting('weatherBar') : true;
     if (!showBar || !_weatherData.length) { el.classList.remove('show'); el.innerHTML = ''; return; }
     var now = Date.now();
+    // Default to collapsed — expand only when user opts in. Keeps HUD clean.
+    if (localStorage.getItem('pw_wx_collapsed') === null) {
+      localStorage.setItem('pw_wx_collapsed', '1');
+    }
     var collapsed = localStorage.getItem('pw_wx_collapsed')==='1';
     if (collapsed) {
       // Compact chip: just count + icon, click to expand
@@ -14461,8 +14866,10 @@ window.addEventListener('resize', function(){
         + '<span style="color:var(--tx3);font-size:8px;margin-left:4px">▸</span>'
         + '</div>';
       el.classList.add('show');
+      el.classList.add('compact');
       return;
     }
+    el.classList.remove('compact');
     var items = _weatherData.slice(0, 5).map(function(wx, idx) {
       var remaining = Math.max(0, new Date(wx.endsAt).getTime() - now);
       var mins = Math.floor(remaining / 60000);
@@ -14499,16 +14906,38 @@ window.addEventListener('resize', function(){
     var timeStr = mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
 
     var html = '<div class="wx-d-title">' + (wx.icon||'🌡️') + ' ' + info.name + '</div>';
-    html += '<div style="font-size:10px;color:var(--tx2);margin-bottom:12px">' + info.desc + '</div>';
+    html += '<div style="font-size:9px;color:var(--tx2);margin-bottom:8px;line-height:1.4">' + info.desc + '</div>';
     html += '<div class="wx-d-row"><div class="wx-d-label">Sector</div><div class="wx-d-val neutral">' + (wx.sectorName||'Sector '+wx.sectorId) + '</div></div>';
-    html += '<div class="wx-d-row"><div class="wx-d-label">Time Remaining</div><div class="wx-d-val neutral">' + timeStr + '</div></div>';
+    html += '<div class="wx-d-row"><div class="wx-d-label">Time Left</div><div class="wx-d-val neutral">' + timeStr + '</div></div>';
     info.effects.forEach(function(e){
       html += '<div class="wx-d-row"><div class="wx-d-label">'+e.label+'</div><div class="wx-d-val '+e.type+'">'+e.val+'</div></div>';
     });
-    html += '<div style="margin-top:12px;font-size:8px;color:var(--tx3);text-align:center">Tap outside to close</div>';
 
+    var pop = document.getElementById('wxDetailPopup');
     document.getElementById('wxDetailContent').innerHTML = html;
-    document.getElementById('wxDetailPopup').classList.add('open');
+    // Anchor the popover to the right of the weather chip — grows outward, not
+    // a giant bottom sheet that eats the screen.
+    var chip = document.getElementById('weatherBanner');
+    if(chip){
+      var r = chip.getBoundingClientRect();
+      var isMobile = window.innerWidth <= 768;
+      if(isMobile){
+        // On mobile, center horizontally, above the chip so thumbs don't cover it
+        pop.style.left = '50%';
+        pop.style.right = 'auto';
+        pop.style.top = 'auto';
+        pop.style.bottom = (window.innerHeight - r.top + 8) + 'px';
+        pop.style.transform = 'translateX(-50%)';
+      } else {
+        // Desktop: to the right of the chip, aligned to its top
+        pop.style.left = (r.right + 10) + 'px';
+        pop.style.right = 'auto';
+        pop.style.top = Math.max(80, r.top - 20) + 'px';
+        pop.style.bottom = 'auto';
+        pop.style.transform = '';
+      }
+    }
+    pop.classList.add('open');
   };
   // Close on outside tap
   document.addEventListener('click', function(e){
@@ -14614,7 +15043,23 @@ window.addEventListener('resize', function(){
       + (ev.status === 'looting' ? '<span class="rk-loot">' + remaining2 + '/' + ev.totalRewards + ' loot</span>' : '')
       + priorityBtn;
     el.title = tooltipText;
-    el.classList.add('show');
+    // Push event into announce banner so users see it in their normal scan path.
+    // Hide the standalone rocket chip to avoid duplication — announce banner is
+    // the single source of truth for active events.
+    try{
+      var sectorPart = ev.sectorName ? (' — ' + ev.sectorName) : '';
+      var announceText;
+      if (ev.status === 'incoming') {
+        announceText = '🚀 ' + typeLabel + ' INCOMING' + sectorPart + ' · LANDS IN ' + timeStr;
+      } else {
+        announceText = '📦 SUPPLY DROP LANDED' + sectorPart + ' · ' + timeStr + ' · ' + remaining2 + '/' + ev.totalRewards + ' LOOT';
+      }
+      if (typeof showAnnounce === 'function') showAnnounce(announceText);
+      // Hide the duplicate chip since the announce marquee carries the info
+      el.classList.remove('show');
+    }catch(_e){
+      el.classList.add('show');
+    }
   }
   setTimeout(loadRocketData, 7000);
   setInterval(loadRocketData, 30000);
@@ -14817,15 +15262,10 @@ window.addEventListener('resize', function(){
   setTimeout(loadGovLeaderboard, 3000);
   setInterval(loadGovLeaderboard, 120000);
 
-  // Sector announcements overlay
+  // Sector announcements — hidden from main screen; visible inside BASE sector list.
   window.updateSectorAnnounces = function() {
     var el = document.getElementById('tbSectorAnnounce');
-    if (!el) return;
-    var announces = (_sectorsData || []).filter(function(s) { return s.announcement; });
-    if (!announces.length) { el.style.display = 'none'; return; }
-    var text = announces.map(function(s) { return '🏛 ' + s.name + ': ' + s.announcement; }).join('  ·  ');
-    el.textContent = text;
-    el.style.display = 'block';
+    if (el) el.style.display = 'none';
   };
 
   // Gov change feed alerts
@@ -14853,7 +15293,8 @@ window.addEventListener('resize', function(){
     });
   }
 
-  // Hall of Fame toggle + loader
+  // Hall of Fame toggle + loader (uses game picker instead of native select)
+  var _hofSelectedSectorId = null;
   window.toggleHallOfFame = function() {
     var el = document.getElementById('govHallOfFame');
     var tog = document.getElementById('hofToggle');
@@ -14861,24 +15302,22 @@ window.addEventListener('resize', function(){
     var show = el.style.display === 'none';
     el.style.display = show ? 'block' : 'none';
     if (tog) tog.textContent = show ? '▲' : '▼';
-    if (show) {
-      // Populate sector selector if empty
-      var sel = document.getElementById('hofSectorSelect');
-      if (sel && sel.options.length <= 1 && _sectorsData.length) {
-        _sectorsData.forEach(function(s) {
-          var opt = document.createElement('option');
-          opt.value = s.id;
-          opt.textContent = s.name;
-          sel.appendChild(opt);
-        });
-      }
-    }
   }
+  window.openHofSectorPicker = function(){
+    var items = (_sectorsData||[]).map(function(s){return {value:String(s.id),label:s.name}});
+    gamePicker({title:'HALL OF FAME · SELECT SECTOR', items:items, selected:_hofSelectedSectorId}).then(function(v){
+      if(!v) return;
+      _hofSelectedSectorId = v;
+      var lbl = document.getElementById('hofSectorLabel');
+      var sec = (_sectorsData||[]).find(function(s){return String(s.id)===String(v)});
+      if(lbl) lbl.textContent = sec ? sec.name : 'Sector '+v;
+      loadHallOfFame();
+    });
+  };
   window.loadHallOfFame = function() {
-    var sel = document.getElementById('hofSectorSelect');
     var list = document.getElementById('hofList');
-    if (!sel || !list) return;
-    var sectorId = sel.value;
+    if (!list) return;
+    var sectorId = _hofSelectedSectorId;
     if (!sectorId) { list.innerHTML = '<div style="padding:4px 0">Select a sector to view history.</div>'; return; }
     list.innerHTML = '<div style="padding:4px 0">Loading...</div>';
     fetch('/api/governance/history/' + sectorId).then(function(r){return r.json()}).then(function(rows){
@@ -14968,14 +15407,11 @@ window.addEventListener('resize', function(){
       if(isGovernor && _govMySectorIds.length){
         // Set initial selected sector (keep previous if still valid)
         if(!_govMySectorId || _govMySectorIds.indexOf(_govMySectorId)===-1) _govMySectorId = _govMySectorIds[0];
-        // Populate sector selector dropdown
-        var sel = document.getElementById('govSectorSelect');
-        if(sel){
-          sel.innerHTML = _govMySectorIds.map(function(sid){
-            var sn = (_sectorsData||[]).find(function(s){return s.id===sid});
-            var name = sn ? sn.name : 'Sector '+sid;
-            return '<option value="'+sid+'"'+(sid===_govMySectorId?' selected':'')+'>'+name+'</option>';
-          }).join('');
+        // Update picker button label (replaces native dropdown)
+        var pickerBtn = document.getElementById('govSectorPickerBtn');
+        if(pickerBtn){
+          var curSec = (_sectorsData||[]).find(function(s){return s.id===_govMySectorId});
+          pickerBtn.textContent = (curSec ? curSec.name : 'Sector '+_govMySectorId) + ' ▾';
         }
         // Pre-fill sector announcement & tax rate
         var mySector = _sectorsData && _sectorsData.find(function(s){return s.id===_govMySectorId});
@@ -15071,33 +15507,83 @@ window.addEventListener('resize', function(){
     });
   };
 
+  // ── Governance Action Costs (defaults; server is authoritative) ──
+  // Commander pays from commander position GP pool; governor pays from
+  // governor position GP pool (per sector). User's personal GP is NOT used.
+  var GOV_EVENT_COSTS = { double_mining: 300, war_time: 300, peace_treaty: 300 };
+  var GOV_EVENT_HOURS = { double_mining: 1, war_time: 1, peace_treaty: 1 };
+  var GOV_BUFF_COSTS  = { mining_boost: 100, defense_bonus: 100, claim_discount: 100 };
+  var GOV_BUFF_HOURS  = { mining_boost: 24, defense_bonus: 24, claim_discount: 24 };
+  var GOV_EVENT_LABELS = { double_mining: '⛏ DOUBLE MINING', war_time: '⚔ WAR TIME', peace_treaty: '🕊 PEACE TREATY' };
+  var GOV_BUFF_LABELS  = { mining_boost: '⛏ MINING +20%', defense_bonus: '🛡 DEFENSE +10%', claim_discount: '💰 CLAIM -10%' };
+
+  function _getCommanderGP(){
+    // Look up commander position in _govMyPositions
+    var p = (_govMyPositions||[]).find(function(pp){return pp.role==='commander'});
+    return p ? parseFloat(p.gp_balance||0) : 0;
+  }
+  function _getGovernorGP(sectorId){
+    var p = (_govMyPositions||[]).find(function(pp){return pp.role==='governor' && pp.sector_id===sectorId});
+    return p ? parseFloat(p.gp_balance||0) : 0;
+  }
+
   // ── Governance Actions ──
   window.govTriggerEvent = function(eventType){
     var w = walletState.address;
     if(!w){showToast('Connect wallet first');return}
-    fetch('/api/governance/commander/event',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wallet:w,eventType:eventType})
-    }).then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error);return}
-      showToast('Event triggered: '+eventType+' ('+d.hours+'h)');
-      loadGovernanceData();
-    }).catch(function(){showToast('Failed to trigger event')});
+    var cost = GOV_EVENT_COSTS[eventType] || 300;
+    var hours = GOV_EVENT_HOURS[eventType] || 1;
+    var label = GOV_EVENT_LABELS[eventType] || eventType;
+    var cmdGP = _getCommanderGP();
+    var insufficient = cmdGP < cost;
+    gameConfirm({
+      title: 'TRIGGER GLOBAL EVENT',
+      icon: '📡',
+      body: 'Activate <b style="color:var(--mars)">'+label+'</b> for the entire planet?<br>Duration: <b>'+hours+'h</b> · Daily limit: <b>1/day</b>',
+      info: [
+        { k:'COST', v: cost+' GP' },
+        { k:'COMMANDER GP', v: cmdGP.toFixed(0), insufficient: insufficient, ok: !insufficient },
+        { k:'AFTER', v: (cmdGP - cost).toFixed(0)+' GP', insufficient: insufficient }
+      ],
+      confirmText: insufficient ? 'INSUFFICIENT GP' : 'LAUNCH EVENT',
+      disabled: insufficient
+    }).then(function(ok){
+      if(!ok) return;
+      fetch('/api/governance/commander/event',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({wallet:w,eventType:eventType})
+      }).then(function(r){return r.json()}).then(function(d){
+        if(d.error){showToast(d.error);return}
+        showToast('Event triggered: '+label+' ('+d.hours+'h · -'+d.gpSpent+' GP)');
+        loadGovernanceData();
+      }).catch(function(){showToast('Failed to trigger event')});
+    });
   };
 
   window.govTriggerRocket = function(){
     var w = walletState.address;
     if(!w){showToast('Connect wallet first');return}
-    if(!confirm('Launch a rocket supply drop?')) return;
-    fetch('/api/rockets/trigger',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wallet:w})
-    }).then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error);return}
-      showToast('🚀 Rocket supply drop scheduled!');
-    }).catch(function(){showToast('Failed to trigger rocket')});
+    var cmdGP = _getCommanderGP();
+    gameConfirm({
+      title:'LAUNCH SUPPLY DROP',
+      icon:'🚀',
+      body:'Schedule a rocket supply drop across Mars? Players will receive rewards at the landing zone.',
+      info:[
+        { k:'COMMANDER GP', v: cmdGP.toFixed(0), ok:true }
+      ],
+      confirmText:'LAUNCH ROCKET'
+    }).then(function(ok){
+      if(!ok) return;
+      fetch('/api/rockets/trigger',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({wallet:w})
+      }).then(function(r){return r.json()}).then(function(d){
+        if(d.error){showToast(d.error);return}
+        showToast('🚀 Rocket supply drop scheduled!');
+      }).catch(function(){showToast('Failed to trigger rocket')});
+    });
   };
 
   window.govSetCmdAnnouncement = function(){
@@ -15151,15 +15637,36 @@ window.addEventListener('resize', function(){
   window.govBuyBuff = function(buffType){
     var w = walletState.address;
     if(!w||!_govMySectorId){showToast('Not a governor');return}
-    fetch('/api/governance/sector/'+_govMySectorId+'/buff',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wallet:w,buffType:buffType})
-    }).then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(d.error);return}
-      showToast('Buff activated: '+buffType+' for '+d.hours+'h (-'+d.gpSpent+' GP)');
-      loadGovernanceData();
-    }).catch(function(){showToast('Failed to buy buff')});
+    var cost = GOV_BUFF_COSTS[buffType] || 100;
+    var hours = GOV_BUFF_HOURS[buffType] || 24;
+    var label = GOV_BUFF_LABELS[buffType] || buffType;
+    var govGP = _getGovernorGP(_govMySectorId);
+    var sec = (_sectorsData||[]).find(function(s){return s.id===_govMySectorId});
+    var sectorName = sec ? sec.name : 'Sector '+_govMySectorId;
+    var insufficient = govGP < cost;
+    gameConfirm({
+      title: 'ACTIVATE SECTOR BUFF',
+      icon: '⚡',
+      body: 'Apply <b style="color:var(--gn)">'+label+'</b> to <b style="color:var(--cyan)">'+sectorName+'</b>?<br>Duration: <b>'+hours+'h</b>',
+      info: [
+        { k:'COST', v: cost+' GP' },
+        { k:'GOVERNOR GP', v: govGP.toFixed(0), insufficient: insufficient, ok: !insufficient },
+        { k:'AFTER', v: (govGP - cost).toFixed(0)+' GP', insufficient: insufficient }
+      ],
+      confirmText: insufficient ? 'INSUFFICIENT GP' : 'ACTIVATE BUFF',
+      disabled: insufficient
+    }).then(function(ok){
+      if(!ok) return;
+      fetch('/api/governance/sector/'+_govMySectorId+'/buff',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({wallet:w,buffType:buffType})
+      }).then(function(r){return r.json()}).then(function(d){
+        if(d.error){showToast(d.error);return}
+        showToast('Buff activated: '+label+' ('+d.hours+'h · -'+d.gpSpent+' GP)');
+        loadGovernanceData();
+      }).catch(function(){showToast('Failed to buy buff')});
+    });
   };
 
   window.govSwitchSector = function(sectorId) {
@@ -15175,6 +15682,23 @@ window.addEventListener('resize', function(){
         if(taxVal) taxVal.textContent = mySector.taxRate+'%';
       }
     }
+    // Update picker button label
+    var pickerBtn = document.getElementById('govSectorPickerBtn');
+    if(pickerBtn){
+      pickerBtn.textContent = (mySector ? mySector.name : 'Sector '+_govMySectorId) + ' ▾';
+    }
+  };
+
+  window.openGovSectorPicker = function(){
+    if(!_govMySectorIds.length){ showToast('No sectors to manage'); return; }
+    var items = _govMySectorIds.map(function(sid){
+      var sn = (_sectorsData||[]).find(function(s){return s.id===sid});
+      return { value: String(sid), label: sn ? sn.name : 'Sector '+sid };
+    });
+    gamePicker({title:'SELECT SECTOR TO MANAGE', items:items, selected:String(_govMySectorId||'')}).then(function(v){
+      if(v==null) return;
+      govSwitchSector(v);
+    });
   };
 
   window.govSetSectorAnnouncement = function(){
