@@ -673,7 +673,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* ── Mobile Bottom Navigation Bar ──
    Painted PNG nav (main_buttons_mobile.png 1319x189, protruding CLAIM)
    rendered as a single image with absolutely-positioned click zones. */
-.mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;
+.mob-bottom-nav{display:none;position:fixed;bottom:5px;left:0;right:0;z-index:200;
   background:transparent;padding:0 6px;padding-bottom:env(safe-area-inset-bottom);
   pointer-events:none}
 .mob-bottom-nav .nav-img-wrap{position:relative;width:100%;max-width:560px;margin:0 auto;
@@ -695,7 +695,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* Blinking red notification dot positioned directly above the "BASE" text.
    Image is 1319x189; BASE pill y 32-168, text top ~y 85.
    top:22% → ~42px, just inside the pill top, clear of text. */
-.mob-nav-item.mn-base .mob-base-dot{position:absolute;top:calc(22% + 4px);left:80%;
+.mob-nav-item.mn-base .mob-base-dot{position:absolute;top:calc(22% + 3px);left:calc(80% - 3px);
   width:9px;height:9px;border-radius:50%;background:#ff3e3e;
   box-shadow:0 0 0 2px rgba(14,12,22,.85),0 0 10px rgba(255,62,62,.9);
   animation:mobBaseBlink 1.2s ease-in-out infinite;pointer-events:none}
