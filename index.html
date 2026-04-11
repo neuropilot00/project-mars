@@ -624,27 +624,35 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   color:#fff;cursor:pointer;font-weight:bold;letter-spacing:1px;
   box-shadow:0 2px 10px rgba(255,120,60,.3)}
 
-/* Collapsed-mode action dock — desktop-only. Pure image-based buttons using
-   custom-painted assets under /assets/nav/. Each button is just the image;
-   the transparent wrapper gives a subtle hover glow. */
+/* Collapsed-mode action dock — desktop-only. Single painted image with
+   invisible click zones overlaid on each button region. */
 .col-fab-wrap{display:none;position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
-  z-index:95;gap:6px;align-items:flex-end;justify-content:center;flex-direction:row;
-  padding:0;background:transparent;border:none;box-shadow:none}
-.col-fab-wrap.show{display:flex}
-.col-fab{padding:0;background:transparent;border:none;cursor:pointer;
-  transition:transform .15s ease-out,filter .15s ease-out;
-  display:block;line-height:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.55))}
-.col-fab img{width:168px;height:auto;display:block;pointer-events:none}
-.col-fab:hover{transform:translateY(-3px) scale(1.03);filter:drop-shadow(0 6px 18px rgba(255,120,60,.55))}
-.col-fab:active{transform:translateY(-1px) scale(.98)}
-.col-fab.place:hover{filter:drop-shadow(0 6px 22px rgba(255,120,60,.85))}
-.col-fab.base:hover{filter:drop-shadow(0 6px 18px rgba(91,184,232,.7))}
-.col-fab.arena:hover{filter:drop-shadow(0 6px 18px rgba(255,209,102,.7))}
-.col-fab.myland:hover{filter:drop-shadow(0 6px 18px rgba(76,216,154,.7))}
-.col-fab.items:hover{filter:drop-shadow(0 6px 18px rgba(255,255,255,.5))}
-@media(max-width:1400px){.col-fab img{width:148px}}
-@media(max-width:1200px){.col-fab img{width:128px}}
-@media(max-width:1000px){.col-fab img{width:108px}.col-fab-wrap{gap:4px}}
+  z-index:95;width:900px;aspect-ratio:4690/896;padding:0;background:transparent;
+  border:none;box-shadow:none;pointer-events:none}
+.col-fab-wrap.show{display:block}
+.col-fab-wrap .cf-bg{position:absolute;inset:0;width:100%;height:100%;
+  display:block;pointer-events:none;filter:drop-shadow(0 6px 18px rgba(0,0,0,.55))}
+.col-fab{position:absolute;top:29%;height:50%;padding:0;background:transparent;
+  border:none;border-radius:14px;cursor:pointer;pointer-events:auto;
+  transition:transform .15s ease-out,box-shadow .15s ease-out;
+  font-size:0;color:transparent}
+.col-fab:hover{transform:translateY(-2px);box-shadow:0 0 22px rgba(255,120,60,.45)}
+.col-fab:active{transform:translateY(0) scale(.98)}
+/* Click zone positions match the 5 button regions inside main_buttons.png.
+   Values were measured from the source art (4690×896). */
+.col-fab.myland {left:4.07%;  width:19.68%}
+.col-fab.arena  {left:24.44%; width:19.23%}
+.col-fab.place  {left:44.31%; width:16.18%}
+.col-fab.items  {left:61.13%; width:18.00%}
+.col-fab.base   {left:79.76%; width:16.79%}
+.col-fab.myland:hover{box-shadow:0 0 22px rgba(76,216,154,.55)}
+.col-fab.arena:hover {box-shadow:0 0 22px rgba(255,209,102,.55)}
+.col-fab.place:hover {box-shadow:0 0 26px rgba(255,120,60,.7)}
+.col-fab.items:hover {box-shadow:0 0 22px rgba(255,255,255,.35)}
+.col-fab.base:hover  {box-shadow:0 0 22px rgba(91,184,232,.55)}
+@media(max-width:1400px){.col-fab-wrap{width:780px}}
+@media(max-width:1200px){.col-fab-wrap{width:680px}}
+@media(max-width:1000px){.col-fab-wrap{width:580px}}
 @media(max-width:768px){.col-fab-wrap{display:none!important}.panel-tab{display:none!important}#myLandBtn{display:none!important}}
 
 /* Mobile FAB container (PLACE only, centered) */
@@ -2223,23 +2231,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div class="panel-tab left" id="panelTabL" onclick="collapsePanel('left')">◀</div>
 <div class="panel-tab right" id="panelTabR" onclick="collapsePanel('right')">▶</div>
 
-<!-- Collapsed-mode bottom nav (custom painted button art) -->
+<!-- Collapsed-mode bottom nav (single painted image + click zones) -->
 <div class="col-fab-wrap" id="colFabWrap">
-  <button class="col-fab myland" onclick="toggleMyLand()" title="My Land" aria-label="My Land">
-    <img src="/assets/nav/myland.png" alt="MY LAND">
-  </button>
-  <button class="col-fab arena" onclick="openArena()" title="Cantina" aria-label="Cantina">
-    <img src="/assets/nav/cantina.png" alt="CANTINA">
-  </button>
-  <button class="col-fab place" onclick="activateLandSelect()" title="Claim" aria-label="Claim">
-    <img src="/assets/nav/claim.png" alt="CLAIM">
-  </button>
-  <button class="col-fab items" onclick="openItemShop();shopSwitchTab('inv')" title="Items" aria-label="Items">
-    <img src="/assets/nav/items.png" alt="ITEMS">
-  </button>
-  <button class="col-fab base" onclick="openBaseModal()" title="Base" aria-label="Base">
-    <img src="/assets/nav/base.png" alt="BASE">
-  </button>
+  <img class="cf-bg" src="/assets/nav/main_buttons.png" alt="">
+  <button class="col-fab myland" onclick="toggleMyLand()" title="My Land" aria-label="My Land"></button>
+  <button class="col-fab arena"  onclick="openArena()"    title="Cantina" aria-label="Cantina"></button>
+  <button class="col-fab place"  onclick="activateLandSelect()" title="Claim" aria-label="Claim"></button>
+  <button class="col-fab items"  onclick="openItemShop();shopSwitchTab('inv')" title="Items" aria-label="Items"></button>
+  <button class="col-fab base"   onclick="openBaseModal()" title="Base" aria-label="Base"></button>
 </div>
 
 <!-- Mobile Panel Toggles -->
