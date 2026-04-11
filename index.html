@@ -5248,31 +5248,50 @@ function compositeClaimsOnTexture(previewOnly){
         }
       });
 
-      // Infamy aura (hijack count >= 15 = red glow, >= 5 = skull icon)
-      // NOTE: Draw as a single strip-based outer border (like governor glow),
-      // NOT per-claim strokeRect — otherwise every sub-claim's rectangle
-      // shows through as overlapping red "ghost" boxes inside the territory.
+      // ═══ INFAMY TIER SYSTEM (replaces the old skull + red-glow) ═══
+      // Four escalating tiers based on hijackCount. Each tier stacks its own
+      // marker icon + glow color. Higher tiers get stronger pulsing auras.
+      //
+      //  Tier 1  (  10+ hijacks): 🎯  BOUNTY       — gold marker, no aura
+      //  Tier 2  (  50+ hijacks): ⚔   WARBLADE     — amber marker, subtle glow
+      //  Tier 3  ( 100+ hijacks): 🔥  MARS RAGE    — orange glow
+      //  Tier 4  ( 250+ hijacks): ☢   RADIOACTIVE  — red pulsing hazard aura
       var ownerHijackCount=0;
       sortedClaims.forEach(function(sc){ if(sc.owner===c.owner && sc.hijackCount) ownerHijackCount=Math.max(ownerHijackCount,sc.hijackCount); });
-      if(ownerHijackCount>=15){
+      var _infTier = ownerHijackCount>=250 ? 4
+                   : ownerHijackCount>=100 ? 3
+                   : ownerHijackCount>=50  ? 2
+                   : ownerHijackCount>=10  ? 1 : 0;
+      // Tier config (color, aura alpha, icon, glow blur)
+      var _infTierCfg = [
+        null,
+        { icon:'🎯', marker:'#FFD166', aura:null,       pulseMs:0    }, // Tier 1: icon only
+        { icon:'⚔',  marker:'#FFB045', aura:'255,160,60',pulseMs:1400}, // Tier 2: bronze glow
+        { icon:'🔥', marker:'#FF6B2C', aura:'255,90,20', pulseMs:1000}, // Tier 3: orange rage
+        { icon:'☢',  marker:'#FF2E2E', aura:'255,20,20', pulseMs:700 }  // Tier 4: radioactive red
+      ];
+      var _infCfg = _infTierCfg[_infTier];
+      // Strip-based aura outline for Tier 2+ (skips interior lines — avoids
+      // the old per-claim strokeRect "ghost box" bug inside large territories)
+      if(_infCfg && _infCfg.aura){
         var _infStrips=_ownerStrips[c.owner];
         if(_infStrips&&_infStrips.length){
           var _infByLat=_stripsByOwnerLat[c.owner]||{};
           var _infGsKey=_infByLat._latStep||Math.round(_gs*100);
-          var infPulse=Math.sin(Date.now()/800)*0.12+0.28;
+          var _infPulse = 0.22 + Math.sin(Date.now()/_infCfg.pulseMs)*0.12;
           ctx.save();
-          ctx.globalAlpha=infPulse;
-          ctx.strokeStyle='rgba(255,40,40,0.9)';
-          ctx.shadowColor='rgba(255,0,0,0.55)';ctx.shadowBlur=10;
-          ctx.lineWidth=2;ctx.setLineDash([]);
+          ctx.globalAlpha = _infPulse + (_infTier>=4 ? 0.12 : 0);
+          ctx.strokeStyle = 'rgba('+_infCfg.aura+',0.9)';
+          ctx.shadowColor = 'rgba('+_infCfg.aura+',0.55)';
+          ctx.shadowBlur  = _infTier>=4 ? 14 : (_infTier>=3 ? 11 : 8);
+          ctx.lineWidth   = _infTier>=4 ? 2.5 : 2;
+          ctx.setLineDash(_infTier>=4 ? [] : []);
           ctx.beginPath();
           for(var _isi=0;_isi<_infStrips.length;_isi++){
             var _iss=_infStrips[_isi], _isr=_sRect(_iss);
             var _ilk=Math.round(_iss.lat*100);
-            // Vertical edges
             ctx.moveTo(_isr.x,_isr.y);ctx.lineTo(_isr.x,_isr.y+_isr.h);
             ctx.moveTo(_isr.x+_isr.w,_isr.y);ctx.lineTo(_isr.x+_isr.w,_isr.y+_isr.h);
-            // Top edge — skip where adjacent strip above exists
             var _iadj=_infByLat[_ilk+_infGsKey]||[];
             var _icovX=[];
             for(var _iai=0;_iai<_iadj.length;_iai++){
@@ -5287,7 +5306,6 @@ function compositeClaimsOnTexture(previewOnly){
               _ipos=_icovX[_ici][1];
             }
             if(_ipos<_isr.x+_isr.w-0.5){ctx.moveTo(_ipos,_isr.y);ctx.lineTo(_isr.x+_isr.w,_isr.y);}
-            // Bottom edge — skip where adjacent strip below exists
             var _iadj2=_infByLat[_ilk-_infGsKey]||[];
             var _icovX2=[];
             for(var _iai2=0;_iai2<_iadj2.length;_iai2++){
@@ -5307,17 +5325,27 @@ function compositeClaimsOnTexture(previewOnly){
           ctx.restore();
         }
       }
-      if(ownerHijackCount>=5){
-        // Draw skull on first claim of this owner
+      // Tier icon badge on the anchor claim (all tiers 1-4)
+      if(_infCfg){
         var fc=sortedClaims.find(function(sc){return sc.owner===c.owner});
         if(fc){
           var sr=getCellRect(fc.lat,fc.lng,fc.w||20,fc.h||20,w,h);
           var skSz=Math.min(sr.w,sr.h)*0.3;
           if(skSz>=4){
-            ctx.save();ctx.font=skSz+'px sans-serif';ctx.textAlign='right';ctx.textBaseline='top';
-            ctx.globalAlpha=0.7;
-            ctx.shadowColor='rgba(0,0,0,0.8)';ctx.shadowBlur=4;
-            ctx.fillText('💀',sr.x+sr.w-1,sr.y+1);
+            ctx.save();
+            ctx.font='bold '+skSz+'px sans-serif';
+            ctx.textAlign='right';ctx.textBaseline='top';
+            ctx.globalAlpha=0.85;
+            // Dark plate behind icon for legibility
+            ctx.shadowColor='rgba(0,0,0,0.9)';
+            ctx.shadowBlur=5;
+            ctx.fillText(_infCfg.icon, sr.x+sr.w-1, sr.y+1);
+            // Tier 3+: colored outer glow on the icon itself
+            if(_infTier>=3){
+              ctx.shadowColor=_infCfg.marker;
+              ctx.shadowBlur=10;
+              ctx.fillText(_infCfg.icon, sr.x+sr.w-1, sr.y+1);
+            }
             ctx.restore();
           }
         }
@@ -13715,7 +13743,7 @@ function renderAlerts(){
   if(badge){ badge.style.display=''; badge.textContent=alerts.length; }
   if(pbadge){ pbadge.style.display='inline-block'; pbadge.textContent=alerts.length; }
   alerts.forEach(function(a){
-    var icon=a.type==='hijack'?'💀':a.type==='earn'?'💰':'🔔';
+    var icon=a.type==='hijack'?'🎯':a.type==='earn'?'💰':'🔔';
     var ago=Math.round((Date.now()-a.time.getTime())/1000);
     var timeStr=ago<60?ago+'s ago':Math.round(ago/60)+'m ago';
     if(box){
