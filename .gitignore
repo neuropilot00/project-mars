@@ -6,6 +6,8 @@ node_modules/
 assets/*
 !assets/textures/
 !assets/lib/
+!assets/avatars/
+!assets/nav/
 server/node_modules/
 uploads/
 logs/
