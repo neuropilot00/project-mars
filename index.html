@@ -8954,7 +8954,7 @@ var I18N = {
     my_alerts: 'MY ALERTS', live_feed: 'LIVE FEED', place_image: 'PLACE YOUR IMAGE',
     choose_file: 'CHOOSE IMAGE FILE', item_shop: 'ITEM SHOP', open_shop: 'OPEN SHOP',
     referral_program: 'REFERRAL PROGRAM', referral_desc: 'Share your code & earn PP<br>when referrals hijack territory!',
-    codex_open: 'GAME GUIDEBOOK', codex_tagline: 'Learn the lore & mechanics', profile_prefs: 'PREFERENCES', profile_language: 'LANGUAGE',
+    codex_open: 'GAME GUIDEBOOK', codex_tagline: 'Learn the lore & mechanics', profile_prefs: 'PREFERENCES', profile_language: 'LANGUAGE', codex_prev: 'PREV', codex_next: 'NEXT',
     ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
     ref_sources: 'Earn from: deposit · swap · shop · harvest · cantina · hijack',
     view_dynasty: '👑 VIEW DYNASTY', dyn_leaderboard: 'LEADERBOARD', dyn_my_tree: 'MY TREE',
@@ -9032,7 +9032,7 @@ var I18N = {
     my_alerts: '내 알림', live_feed: '실시간 피드', place_image: '이미지 배치',
     choose_file: '이미지 파일 선택', item_shop: '아이템 상점', open_shop: '상점 열기',
     referral_program: '추천 프로그램', referral_desc: '코드를 공유하고 추천인이<br>영토를 탈취할 때 PP를 획득하세요!',
-    codex_open: '게임 가이드북', codex_tagline: '세계관과 게임 구조 안내', profile_prefs: '환경 설정', profile_language: '언어',
+    codex_open: '게임 가이드북', codex_tagline: '세계관과 게임 구조 안내', profile_prefs: '환경 설정', profile_language: '언어', codex_prev: '이전', codex_next: '다음',
     ref_tiers: '1단계: 15% · 2단계: 10% · 3단계: 5%',
     ref_sources: '수익원: 입금 · 스왑 · 상점 · 채굴 · 칸티나 · 탈취',
     view_dynasty: '👑 다이너스티 보기', dyn_leaderboard: '리더보드', dyn_my_tree: '내 트리',
@@ -9110,7 +9110,7 @@ var I18N = {
     my_alerts: 'アラート', live_feed: 'ライブフィード', place_image: '画像を配置',
     choose_file: '画像ファイルを選択', item_shop: 'アイテムショップ', open_shop: 'ショップを開く',
     referral_program: '紹介プログラム', referral_desc: 'コードを共有して紹介者が<br>領土を奪取するとPPを獲得！',
-    codex_open: 'ゲームガイド', codex_tagline: '世界観とシステム解説', profile_prefs: '環境設定', profile_language: '言語',
+    codex_open: 'ゲームガイド', codex_tagline: '世界観とシステム解説', profile_prefs: '環境設定', profile_language: '言語', codex_prev: '前へ', codex_next: '次へ',
     ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
     ref_sources: '収益源: 入金 · スワップ · ショップ · 採掘 · カンティーナ · 奪取',
     view_dynasty: '👑 ダイナスティ表示', dyn_leaderboard: 'ランキング', dyn_my_tree: 'マイツリー',
@@ -9188,7 +9188,7 @@ var I18N = {
     my_alerts: '我的提醒', live_feed: '实时动态', place_image: '放置图片',
     choose_file: '选择图片文件', item_shop: '道具商店', open_shop: '打开商店',
     referral_program: '推荐计划', referral_desc: '分享你的推荐码，<br>当推荐人劫持领土时获得PP！',
-    codex_open: '游戏指南', codex_tagline: '了解世界观与玩法机制', profile_prefs: '偏好设置', profile_language: '语言',
+    codex_open: '游戏指南', codex_tagline: '了解世界观与玩法机制', profile_prefs: '偏好设置', profile_language: '语言', codex_prev: '上一页', codex_next: '下一页',
     ref_tiers: '一级: 15% · 二级: 10% · 三级: 5%',
     ref_sources: '收益来源: 充值 · 兑换 · 商店 · 挖矿 · 赌场 · 劫持',
     view_dynasty: '👑 查看王朝', dyn_leaderboard: '排行榜', dyn_my_tree: '我的树',
@@ -16830,30 +16830,42 @@ if(typeof _origTrackQuestAction === 'function'){
      GAME GUIDEBOOK MODAL — Complete game guide (id kept as codex* for compat)
      ═══════════════════════════════════════════════════════════════ -->
 <div id="codexOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
-  <div style="width:100%;max-width:780px;max-height:92vh;background:linear-gradient(160deg,#0E0C18,#14121F);border:1px solid rgba(91,184,232,.3);border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 60px rgba(91,184,232,.08);display:flex;flex-direction:column;overflow:hidden">
+  <div style="width:100%;max-width:780px;max-height:92vh;background:linear-gradient(160deg,#0E0C18,#14121F);border:1px solid rgba(255,120,60,.28);border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 60px rgba(255,120,60,.06);display:flex;flex-direction:column;overflow:hidden">
     <!-- header -->
-    <div style="padding:18px 22px;border-bottom:1px solid rgba(91,184,232,.2);background:linear-gradient(135deg,rgba(91,184,232,.1),rgba(184,136,224,.06));display:flex;align-items:center;gap:12px">
-      <div style="font-size:24px">📖</div>
-      <div style="flex:1">
-        <div style="font-size:15px;color:#fff;letter-spacing:2px;font-weight:700">OCCUPY MARS — GAME GUIDEBOOK</div>
-        <div style="font-size:10px;color:var(--tx3);letter-spacing:1px" data-i18n="codex_subtitle">Official game guidebook · Everything you need to dominate Mars · v2.0</div>
+    <div style="padding:14px 18px;border-bottom:1px solid rgba(255,120,60,.18);background:linear-gradient(135deg,rgba(255,120,60,.1),rgba(255,120,60,.02));display:flex;align-items:center;gap:12px">
+      <div style="font-size:22px">📖</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;color:#fff;letter-spacing:1.5px;font-weight:700">OCCUPY MARS — GUIDEBOOK</div>
+        <div style="font-size:9px;color:var(--tx3);letter-spacing:1px" data-i18n="codex_subtitle">Official game guidebook · Everything you need to dominate Mars</div>
       </div>
-      <button onclick="closeCodex()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--tx2);font-size:18px;width:32px;height:32px;border-radius:8px;cursor:pointer">✕</button>
+      <button onclick="closeCodex()" style="background:none;border:1px solid rgba(255,120,60,.22);color:var(--mars);font-size:16px;width:28px;height:28px;border-radius:6px;cursor:pointer">✕</button>
     </div>
     <!-- tabs -->
-    <div id="codexTabs" style="display:flex;gap:4px;padding:10px 14px 0;overflow-x:auto;border-bottom:1px solid rgba(91,184,232,.1);flex-shrink:0">
+    <div id="codexTabs" style="display:flex;gap:4px;padding:8px 12px 0;overflow-x:auto;border-bottom:1px solid rgba(255,120,60,.10);flex-shrink:0">
       <!-- populated by JS -->
     </div>
     <!-- content -->
-    <div id="codexBody" style="flex:1;overflow-y:auto;padding:22px 26px;font-size:12px;line-height:1.85;color:var(--tx2);font-family:var(--fn)">
+    <div id="codexBody" style="flex:1;overflow-y:auto;padding:18px 22px;font-size:12px;line-height:1.85;color:var(--tx2);font-family:var(--fn)">
       <!-- populated by JS -->
     </div>
-    <!-- footer -->
-    <div style="padding:10px 22px;border-top:1px solid rgba(91,184,232,.15);font-size:9px;color:var(--tx3);text-align:center;letter-spacing:1px">
-      🛰 OCCUPY MARS · BASE CHAIN · <span data-i18n="codex_footer">Read carefully. Strategy wins territories.</span>
+    <!-- nav footer: prev / indicator / next -->
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid rgba(255,120,60,.15);background:rgba(255,120,60,.02)">
+      <button id="codexPrev" onclick="codexNav(-1)" class="codex-nav-btn" title="Previous">◀ <span data-i18n="codex_prev">PREV</span></button>
+      <div id="codexStepInd" style="flex:1;text-align:center;font-size:9px;color:var(--mars);letter-spacing:1.5px;font-family:var(--fn);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">§ 1 / 1</div>
+      <button id="codexNext" onclick="codexNav(1)" class="codex-nav-btn" title="Next"><span data-i18n="codex_next">NEXT</span> ▶</button>
     </div>
   </div>
 </div>
+<style>
+.codex-nav-btn{background:rgba(255,120,60,.08);border:1px solid rgba(255,120,60,.3);color:var(--mars);
+  font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:1.2px;
+  padding:8px 14px;min-height:36px;border-radius:6px;cursor:pointer;
+  white-space:nowrap;transition:background .15s,transform .1s}
+.codex-nav-btn:hover{background:rgba(255,120,60,.18);border-color:rgba(255,120,60,.5)}
+.codex-nav-btn:active{transform:scale(.96)}
+.codex-nav-btn:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:520px){.codex-nav-btn{padding:8px 10px;font-size:9px;min-height:40px}}
+</style>
 
 <script>
 // ── CODEX / WHITEPAPER CONTENT (multilingual) ──
@@ -16913,6 +16925,7 @@ var CODEX_CONTENT = {
 CODEX_CONTENT.ja = CODEX_CONTENT.en;
 CODEX_CONTENT.zh = CODEX_CONTENT.en;
 
+var _codexIdx = 0;
 function openCodex() {
   document.getElementById('codexOverlay').style.display = 'flex';
   renderCodex(0);
@@ -16920,7 +16933,18 @@ function openCodex() {
 function closeCodex() {
   document.getElementById('codexOverlay').style.display = 'none';
 }
+function codexNav(delta){
+  var lang = window.LANG || 'en';
+  var content = CODEX_CONTENT[lang] || CODEX_CONTENT.en;
+  var total = content.sections.length;
+  var next = _codexIdx + delta;
+  if(next < 0) next = 0;
+  if(next > total - 1) next = total - 1;
+  if(next === _codexIdx) return;
+  renderCodex(next);
+}
 function renderCodex(activeIdx) {
+  _codexIdx = activeIdx;
   var lang = window.LANG || 'en';
   var content = CODEX_CONTENT[lang] || CODEX_CONTENT.en;
   // tabs
@@ -16929,37 +16953,70 @@ function renderCodex(activeIdx) {
   content.sections.forEach(function(sec, i) {
     var btn = document.createElement('button');
     var active = i === activeIdx;
-    btn.style.cssText = 'flex-shrink:0;padding:8px 14px;font-size:10px;font-family:var(--fn);letter-spacing:1px;background:' +
-      (active ? 'linear-gradient(135deg,rgba(91,184,232,.2),rgba(91,184,232,.08))' : 'transparent') +
-      ';border:1px solid ' + (active ? 'rgba(91,184,232,.5)' : 'rgba(255,255,255,.08)') +
-      ';border-bottom:none;border-radius:8px 8px 0 0;color:' + (active ? 'var(--cyan)' : 'var(--tx3)') +
-      ';cursor:pointer;white-space:nowrap;margin-bottom:-1px';
+    btn.style.cssText = 'flex-shrink:0;padding:7px 12px;font-size:10px;font-family:var(--fn);letter-spacing:1px;background:' +
+      (active ? 'linear-gradient(135deg,rgba(255,120,60,.18),rgba(255,120,60,.05))' : 'transparent') +
+      ';border:1px solid ' + (active ? 'rgba(255,120,60,.45)' : 'rgba(255,255,255,.06)') +
+      ';border-bottom:none;border-radius:7px 7px 0 0;color:' + (active ? 'var(--mars)' : 'var(--tx3)') +
+      ';cursor:pointer;white-space:nowrap;margin-bottom:-1px;font-weight:' + (active ? '700' : '500');
     btn.innerHTML = sec.icon + ' ' + sec.title.toUpperCase();
     btn.onclick = function() { renderCodex(i); };
+    if(active){ try{ btn.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'}); }catch(_e){} }
     tabsEl.appendChild(btn);
   });
   // body
   var sec = content.sections[activeIdx];
   var body = document.getElementById('codexBody');
   var html = '<div style="font-size:18px;color:#fff;letter-spacing:1px;margin-bottom:4px">' + sec.icon + ' ' + sec.title + '</div>' +
-             '<div style="font-size:9px;color:var(--tx3);letter-spacing:1.5px;margin-bottom:16px">§ ' + (activeIdx + 1) + ' / ' + content.sections.length + '</div>';
+             '<div style="font-size:9px;color:var(--mars);letter-spacing:1.5px;margin-bottom:16px;opacity:.75">§ ' + (activeIdx + 1) + ' / ' + content.sections.length + '</div>';
   // Simple markdown-ish formatter: **bold**, \n linebreaks, • bullets
   var text = sec.body
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:var(--gold)">$1</strong>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:var(--mars)">$1</strong>')
     .replace(/\n\n/g, '</p><p style="margin:10px 0">')
     .replace(/\n/g, '<br>');
   html += '<p style="margin:10px 0">' + text + '</p>';
   body.innerHTML = html;
   body.scrollTop = 0;
+  // Update nav footer
+  var total = content.sections.length;
+  var prevBtn = document.getElementById('codexPrev');
+  var nextBtn = document.getElementById('codexNext');
+  var ind = document.getElementById('codexStepInd');
+  if(prevBtn) prevBtn.disabled = (activeIdx <= 0);
+  if(nextBtn) nextBtn.disabled = (activeIdx >= total - 1);
+  if(ind) ind.textContent = '§ ' + (activeIdx+1) + ' / ' + total + ' · ' + sec.title.toUpperCase();
 }
-// Close on background click / ESC
+// Close on background click / ESC; ←/→ to navigate
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && document.getElementById('codexOverlay').style.display === 'flex') closeCodex();
+  var ov = document.getElementById('codexOverlay');
+  if(!ov || ov.style.display !== 'flex') return;
+  if (e.key === 'Escape') { closeCodex(); return; }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); codexNav(-1); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); codexNav(1); }
 });
 document.getElementById('codexOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeCodex();
 });
+// Touch swipe navigation on body
+(function(){
+  var body = document.getElementById('codexBody');
+  if(!body) return;
+  var sx = 0, sy = 0, tracking = false;
+  body.addEventListener('touchstart', function(e){
+    if(!e.touches || !e.touches[0]) return;
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY; tracking = true;
+  }, {passive:true});
+  body.addEventListener('touchend', function(e){
+    if(!tracking) return;
+    tracking = false;
+    if(!e.changedTouches || !e.changedTouches[0]) return;
+    var dx = e.changedTouches[0].clientX - sx;
+    var dy = e.changedTouches[0].clientY - sy;
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5){
+      codexNav(dx < 0 ? 1 : -1);
+    }
+  }, {passive:true});
+})();
 </script>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
