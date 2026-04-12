@@ -5029,30 +5029,15 @@ function compositeClaimsOnTexture(previewOnly){
       var isAdvanced=shieldType==='shield_advanced';
       var glowColor=isAdvanced?'rgba(80,200,255,':'rgba(60,160,255,';
       ctx.save();
-      ctx.globalAlpha=_shieldPulse*(isAdvanced?0.18:0.14);
-      // Soft fill over all strips (no individual borders)
-      ctx.fillStyle=isAdvanced?'rgba(80,200,255,1)':'rgba(60,160,255,1)';
-      for(var si=0;si<groupStrips.length;si++){
-        var sr=_sRect(groupStrips[si]);
-        ctx.fillRect(sr.x-0.5,sr.y-0.5,sr.w+1,sr.h+1);
-      }
-      // Outer glow on bounding box only
-      ctx.globalAlpha=_shieldPulse*0.7;
-      ctx.shadowColor=isAdvanced?'#50C8FF':'#3CA0FF';
-      ctx.shadowBlur=isAdvanced?14:8;
-      ctx.strokeStyle=glowColor+'0.8)';
-      ctx.lineWidth=isAdvanced?2.5:1.8;
-      ctx.setLineDash(isAdvanced?[]:[5,4]);
-      ctx.strokeRect(bx1,by1,bx2-bx1,by2-by1);
-      ctx.setLineDash([]);
-      // Shield icon at top-right corner (outside territory)
+      // Shield icon only — no border lines
       ctx.globalAlpha=_shieldPulse;
-      var iconSz=Math.max(12,Math.min(bx2-bx1,by2-by1)*0.15);
-      iconSz=Math.min(iconSz,28);
-      ctx.font='bold '+iconSz+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';
-      ctx.shadowBlur=0;
+      var iconSz=Math.max(14,Math.min(bx2-bx1,by2-by1)*0.18);
+      iconSz=Math.min(iconSz,32);
+      ctx.font='bold '+iconSz+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.shadowColor=isAdvanced?'#50C8FF':'#3CA0FF';
+      ctx.shadowBlur=6;
       ctx.fillStyle=glowColor+'0.9)';
-      ctx.fillText(isAdvanced?'🔰':'🛡️',bx2,by1-2);
+      ctx.fillText(isAdvanced?'🔰':'🛡️',bx2-iconSz*0.6,by1+iconSz*0.6);
       ctx.globalAlpha=1;
       ctx.restore();
     }
