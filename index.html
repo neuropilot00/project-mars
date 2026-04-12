@@ -16123,6 +16123,9 @@ function _initStarlinkSatellites() {}
 var _rocketData = { events: [] };
 var _rocketMesh = null;
 var _rocketParticles = [];
+// Preload starship pixel art
+var _starshipImg = new Image();
+_starshipImg.src = '/assets/textures/starship.png';
 
 function _drawRocketOverlay(ctx, w, h) {
   if (!_rocketData.events.length) return;
@@ -16156,8 +16159,13 @@ function _drawRocketOverlay(ctx, w, h) {
       ctx.textAlign = 'center';
       ctx.fillStyle = '#FF4422';
       ctx.fillText('INCOMING', x, y - 32);
-      ctx.font = '14px sans-serif';
-      ctx.fillText('\u{1F680}', x, y + 42);
+      if (_starshipImg.complete && _starshipImg.naturalWidth) {
+        ctx.globalAlpha = 0.9;
+        ctx.drawImage(_starshipImg, x - 14, y + 28, 28, 28);
+      } else {
+        ctx.font = '14px sans-serif';
+        ctx.fillText('\u{1F680}', x, y + 42);
+      }
     } else if (ev.status === 'looting') {
       // Glow circle with loot dots
       var glowR = 30 + Math.sin(t / 500) * 5;
@@ -18455,7 +18463,7 @@ window.addEventListener('resize', function(){
     var now = Date.now();
     var icon, typeLabel, timeStr;
     if (ev.status === 'incoming') {
-      icon = '\u{1F680}';
+      icon = '<img src="/assets/textures/starship.png" style="width:16px;height:16px;vertical-align:middle">';
       typeLabel = ev.eventType === 'rud_explosion' ? 'UNKNOWN OBJECT' : 'SUPPLY DROP';
       var remaining = Math.max(0, new Date(ev.landingAt).getTime() - now);
       var mins = Math.floor(remaining / 60000);
