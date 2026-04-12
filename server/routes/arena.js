@@ -7,6 +7,8 @@ const router = express.Router();
 
 let seasonService;
 try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }
+let dailyService;
+try { dailyService = require('../services/daily'); } catch (_e) { /* daily service not available */ }
 
 const isDev = process.env.NODE_ENV !== 'production';
 const betLimiter = rateLimit({
@@ -245,6 +247,7 @@ router.post('/crash/cashout', betLimiter, async (req, res) => {
 
     await client.query('COMMIT');
     res.json({ success: true, cashoutAt, payout, currency: bet.currency });
+    if (dailyService) { try { await dailyService.updateMissionProgress(w, 'play_cantina', 1); } catch (_de) {} }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[Arena] crash cashout:', e.message);
@@ -622,6 +625,7 @@ router.post('/mines/cashout', betLimiter, async (req, res) => {
     ]);
 
     await client.query('COMMIT');
+    if (dailyService) { try { await dailyService.updateMissionProgress(w, 'play_cantina', 1); } catch (_de) {} }
     res.json({
       success: true, payout,
       multiplier: parseFloat(game.current_multiplier),
@@ -724,6 +728,7 @@ router.post('/coinflip/play', betLimiter, async (req, res) => {
     await client.query('COMMIT');
 
     res.json({ result, won, choice: pick, payout, balance: parseFloat(balRes.rows[0].bal), hash: hash.slice(0, 16), seed });
+    if (dailyService) { try { dailyService.updateMissionProgress(w, 'play_cantina', 1); } catch (_de) {} }
     if (seasonService) {
       seasonService.addSeasonScore(w, 'cantina', 1).catch(() => {});
       if (cur === 'PP') seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
@@ -810,6 +815,7 @@ router.post('/dice/play', betLimiter, async (req, res) => {
     await client.query('COMMIT');
 
     res.json({ roll, target: tgt, direction: dir, won, multiplier, payout, balance: parseFloat(balRes.rows[0].bal) });
+    if (dailyService) { try { dailyService.updateMissionProgress(w, 'play_cantina', 1); } catch (_de) {} }
     if (seasonService) {
       seasonService.addSeasonScore(w, 'cantina', 1).catch(() => {});
       if (cur === 'PP') seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
@@ -1010,6 +1016,7 @@ router.post('/hilo/cashout', betLimiter, async (req, res) => {
       payout, multiplier: parseFloat(g.current_multiplier),
       balance: parseFloat(balRes.rows[0].bal), rounds: cards.length - 1
     });
+    if (dailyService) { try { dailyService.updateMissionProgress(g.wallet, 'play_cantina', 1); } catch (_de) {} }
   } catch (e) {
     await client.query('ROLLBACK');
     res.status(500).json({ error: e.message });

@@ -3247,9 +3247,12 @@ router.get('/weather', readLimiter, async (req, res) => {
   try {
     if (!weatherService) return res.json({ active: [] });
     const active = await weatherService.getActiveWeather();
-    // Season tracking: weather check (non-blocking, needs wallet)
+    // Daily mission + Season tracking: weather check (non-blocking, needs wallet)
     const ww = (req.query.wallet || '').toLowerCase();
-    if (ww && seasonService) { seasonService.addSeasonScore(ww, 'weather', 1).catch(() => {}); }
+    if (ww) {
+      try { const ds = require('../services/daily'); ds.updateMissionProgress(ww, 'view_weather', 1); } catch (_de) {}
+      if (seasonService) { seasonService.addSeasonScore(ww, 'weather', 1).catch(() => {}); }
+    }
     res.json({ active, serverTime: new Date().toISOString() });
   } catch (e) {
     console.error('[WEATHER] get error:', e.message);
@@ -3471,7 +3474,8 @@ router.post('/cosmetic/equip', writeLimiter, async (req, res) => {
 
     await client.query('COMMIT');
     res.json({ success: true, cosmeticType, cosmeticCode: itemCode, feePP: equipFee });
-    // Season tracking: cosmetic equip + pp_spend (non-blocking)
+    // Daily mission + Season tracking (non-blocking)
+    try { const ds = require('../services/daily'); ds.updateMissionProgress(w, 'equip_cosmetic', 1); } catch (_de) {}
     if (seasonService) {
       seasonService.addSeasonScore(w, 'cosmetic', 1).catch(() => {}); // fashionista
       if (equipFee > 0) seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
