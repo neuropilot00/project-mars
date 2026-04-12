@@ -21011,7 +21011,7 @@ function _updateBaseBtnDot(){
   var dotIds = ['territoryDot','sectorsDot','rankDot','miningDot','questsDot','guildDot','opsDot','governDot'];
   dotIds.forEach(function(id){
     var el = document.getElementById(id);
-    if(el && el.style.display !== 'none') anyDot = true;
+    if(el && getComputedStyle(el).display !== 'none') anyDot = true;
   });
   // OPEN BASE button dot (desktop) — use FAB .cf-dot since dailyHudDot gets
   // destroyed by i18n text replacement on openBaseBtn
