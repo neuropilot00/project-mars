@@ -11233,7 +11233,62 @@ var _itemI18n = {
                      desc_en:'+15% cantina win rate for 3h.',
                      desc_ko:'3시간 동안 칸티나 승률 15% 증가.',
                      desc_ja:'3時間カンティーナ勝率15%アップ。',
-                     desc_zh:'3小时内酒吧胜率+15%。' }
+                     desc_zh:'3小时内酒吧胜率+15%。' },
+  neon_border:     { en:'Neon Border',       ko:'네온 테두리',       ja:'ネオンボーダー',     zh:'霓虹边框',
+                     desc_en:'Glowing cyan neon outline.',
+                     desc_ko:'빛나는 시안색 네온 외곽선.',
+                     desc_ja:'光るシアンのネオンアウトライン。',
+                     desc_zh:'发光的青色霓虹轮廓。' },
+  flame_border:    { en:'Flame Border',      ko:'화염 테두리',       ja:'フレイムボーダー',   zh:'火焰边框',
+                     desc_en:'Fiery orange border effect.',
+                     desc_ko:'불타는 오렌지색 테두리 효과.',
+                     desc_ja:'燃えるオレンジの境界効果。',
+                     desc_zh:'炽热的橙色边框效果。' },
+  ice_border:      { en:'Ice Border',        ko:'얼음 테두리',       ja:'アイスボーダー',     zh:'冰霜边框',
+                     desc_en:'Frozen crystalline border.',
+                     desc_ko:'얼어붙은 결정 테두리.',
+                     desc_ja:'凍りついた結晶の境界。',
+                     desc_zh:'冰冻的水晶边框。' },
+  gold_border:     { en:'Gold Border',       ko:'황금 테두리',       ja:'ゴールドボーダー',   zh:'黄金边框',
+                     desc_en:'Prestigious gold trim.',
+                     desc_ko:'고급스러운 금색 장식.',
+                     desc_ja:'高貴なゴールドトリム。',
+                     desc_zh:'尊贵的金色装饰。' },
+  pulse_glow:      { en:'Pulse Glow',        ko:'펄스 글로우',       ja:'パルスグロウ',       zh:'脉冲光芒',
+                     desc_en:'Rhythmic pulsing aura.',
+                     desc_ko:'리드미컬한 맥동 오라.',
+                     desc_ja:'リズミカルに脈動するオーラ。',
+                     desc_zh:'有节奏的脉动光环。' },
+  rainbow_glow:    { en:'Rainbow Glow',      ko:'무지개 글로우',     ja:'レインボーグロウ',   zh:'彩虹光芒',
+                     desc_en:'Shifting spectrum glow.',
+                     desc_ko:'변화하는 스펙트럼 빛.',
+                     desc_ja:'移り変わるスペクトラムの光。',
+                     desc_zh:'变幻的光谱辉光。' },
+  dark_aura:       { en:'Dark Aura',         ko:'어둠의 오라',       ja:'ダークオーラ',       zh:'暗黑光环',
+                     desc_en:'Ominous dark energy.',
+                     desc_ko:'불길한 어둠의 에너지.',
+                     desc_ja:'不吉なダークエネルギー。',
+                     desc_zh:'不祥的黑暗能量。' },
+  volcanic_terrain:{ en:'Volcanic Terrain',   ko:'화산 지형',         ja:'火山地形',           zh:'火山地形',
+                     desc_en:'Lava-tinted territory fill.',
+                     desc_ko:'용암 색조의 영토 채움.',
+                     desc_ja:'溶岩色の領土フィル。',
+                     desc_zh:'熔岩色调的领土填充。' },
+  frozen_terrain:  { en:'Frozen Terrain',     ko:'빙결 지형',         ja:'凍結地形',           zh:'冰封地形',
+                     desc_en:'Ice-blue territory fill.',
+                     desc_ko:'얼음빛 파란색 영토 채움.',
+                     desc_ja:'氷の青い領土フィル。',
+                     desc_zh:'冰蓝色领土填充。' },
+  crystal_terrain: { en:'Crystal Terrain',    ko:'크리스탈 지형',     ja:'クリスタル地形',     zh:'水晶地形',
+                     desc_en:'Purple crystal tint.',
+                     desc_ko:'보라색 크리스탈 색조.',
+                     desc_ja:'紫のクリスタルティント。',
+                     desc_zh:'紫色水晶色调。' },
+  toxic_terrain:   { en:'Toxic Terrain',      ko:'독성 지형',         ja:'トキシック地形',     zh:'毒性地形',
+                     desc_en:'Green toxic haze overlay.',
+                     desc_ko:'녹색 독성 안개 오버레이.',
+                     desc_ja:'緑の有毒ヘイズオーバーレイ。',
+                     desc_zh:'绿色毒雾覆盖。' }
 };
 function _itemName(code){ var m=_itemI18n[code]; return m ? (m[LANG]||m.en) : ''; }
 function _itemDesc(code){ var m=_itemI18n[code]; var k='desc_'+LANG; return m ? (m[k]||m.desc_en||'') : ''; }
@@ -13153,7 +13208,7 @@ function renderBaseShop(){
       +'<span style="font-size:8px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--tx3)">'+(it.category||'')+'</span>'
       +'</div>'
       +'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+(_itemDesc(it.code||it.item_code)||it.description||'')+'</div>'
-      +'<div style="display:flex;justify-content:flex-end;gap:4px;align-items:center;margin-top:auto;flex-wrap:wrap">'
+      +'<div style="display:flex;justify-content:center;gap:3px;align-items:center;margin-top:auto;flex-wrap:wrap">'
       +ppBtn+usdtBtn+gpBtn
       +'</div></div>';
   }).join('');
