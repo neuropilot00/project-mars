@@ -3002,6 +3002,146 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
     } else if (item.code === 'radar_scan') {
       // Instant effect — reveal nearby enemies (no active state needed)
       effectResult = { applied: true, code: item.code, instant: true };
+    } else if (item.code === 'shield_regen') {
+      // Regenerating shield — same as shield_basic but with regen properties
+      if (!claimId) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'claimId required for shield' }); }
+      const claimRes = await client.query('SELECT owner FROM claims WHERE id = $1', [claimId]);
+      if (claimRes.rows.length === 0 || (claimRes.rows[0].owner || '').toLowerCase() !== w) {
+        await client.query('ROLLBACK'); return res.status(403).json({ error: 'Not your territory' });
+      }
+      let groupIds = [parseInt(claimId)];
+      try {
+        if (missionService && missionService.resolveClaimGroup) {
+          const group = await missionService.resolveClaimGroup(w, parseInt(claimId));
+          if (group && group.length) groupIds = group.map(g => g.id);
+        }
+      } catch (_e) { /* fall back to single claim */ }
+      const hp = item.effect_value;
+      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      await client.query('DELETE FROM pixel_shields WHERE claim_id = ANY($1::int[])', [groupIds]);
+      for (const cid of groupIds) {
+        await client.query(
+          'INSERT INTO pixel_shields (claim_id, owner, shield_type, hp, max_hp, expires_at) VALUES ($1,$2,$3,$4,$5,$6)',
+          [cid, w, item.code, hp, hp, expiresAt]
+        );
+      }
+      effectResult = { shielded: true, hp, expiresAt, claimsShielded: groupIds.length, regen: true };
+    } else if (item.code === 'decoy_beacon') {
+      // Decoy beacon — duration-based active effect (like stealth_cloak)
+      if (!claimId) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'claimId required for decoy' }); }
+      const claimRes = await client.query('SELECT owner FROM claims WHERE id = $1', [claimId]);
+      if (claimRes.rows.length === 0 || (claimRes.rows[0].owner || '').toLowerCase() !== w) {
+        await client.query('ROLLBACK'); return res.status(403).json({ error: 'Not your territory' });
+      }
+      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'decoy_beacon' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at, source_item_code) VALUES ($1, 'decoy_beacon', 1, $2, $3)`,
+        [w, expiresAt, item.code]
+      );
+      effectResult = { applied: true, code: item.code, expiresAt };
+    } else if (item.code === 'orbital_strike') {
+      // Orbital strike — guaranteed shield break on enemy territory
+      if (!claimId) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'claimId required for orbital strike' }); }
+      const tgtOwnerRes = await client.query('SELECT owner FROM claims WHERE id = $1', [claimId]);
+      if (tgtOwnerRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Target claim not found' }); }
+      const tgtOwner = (tgtOwnerRes.rows[0].owner || '').toLowerCase();
+      if (tgtOwner === w) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Cannot target your own territory' }); }
+      let groupIds = [parseInt(claimId)];
+      try {
+        if (missionService && missionService.resolveClaimGroup && tgtOwner) {
+          const group = await missionService.resolveClaimGroup(tgtOwner, parseInt(claimId));
+          if (group && group.length) groupIds = group.map(g => g.id);
+        }
+      } catch (_e) { /* fall back to single claim */ }
+      await client.query('DELETE FROM pixel_shields WHERE claim_id = ANY($1::int[])', [groupIds]);
+      effectResult = { applied: true, code: item.code, targetClaim: claimId, claimsHit: groupIds.length };
+    } else if (item.code === 'virus_payload') {
+      // Virus payload — reduce target's mining rate by 50% for 6h
+      if (!claimId) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'claimId required for virus payload' }); }
+      const tgtOwnerRes = await client.query('SELECT owner FROM claims WHERE id = $1', [claimId]);
+      if (tgtOwnerRes.rows.length === 0) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Target claim not found' }); }
+      const tgtOwner = (tgtOwnerRes.rows[0].owner || '').toLowerCase();
+      if (tgtOwner === w) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Cannot target your own territory' }); }
+      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'virus_payload' AND active = true`, [tgtOwner]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at, source_item_code) VALUES ($1, 'virus_payload', $2, $3, $4)`,
+        [tgtOwner, item.effect_value, expiresAt, item.code]
+      );
+      effectResult = { applied: true, code: item.code, targetClaim: claimId, expiresAt };
+    } else if (item.code === 'siege_ram') {
+      // Siege ram — +40% attack for next claim (1 use, like attack_boost)
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'siege_ram' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining) VALUES ($1, 'siege_ram', $2, 1)`,
+        [w, item.effect_value]
+      );
+      effectResult = { applied: true, code: item.code, uses: 1, value: item.effect_value };
+    } else if (item.code === 'supply_crate') {
+      // Supply crate — instant random PP grant
+      const randomPP = +(Math.random() * 0.4 + 0.1).toFixed(4);
+      await client.query('UPDATE users SET game_pp = game_pp + $1 WHERE wallet_address = $2', [randomPP, w]);
+      effectResult = { applied: true, code: item.code, ppGained: randomPP };
+    } else if (item.code === 'recall_beacon') {
+      // Recall beacon — instantly complete oldest in-transit mission
+      const missionRes = await client.query(
+        "UPDATE missions SET arrival_at = NOW() WHERE wallet = $1 AND status = 'in_transit' ORDER BY arrival_at ASC LIMIT 1 RETURNING id",
+        [w]
+      );
+      effectResult = { applied: true, code: item.code, missionRecalled: missionRes.rows.length > 0 };
+    } else if (item.code === 'territory_scan') {
+      // Territory scan — instant effect (like radar_scan)
+      effectResult = { applied: true, code: item.code, instant: true };
+    } else if (item.code === 'harvest_surge') {
+      // Harvest surge — 3x PP on next harvest (1 use, like pixel_doubler)
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'harvest_surge' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, uses_remaining) VALUES ($1, 'harvest_surge', $2, 1)`,
+        [w, item.effect_value]
+      );
+      effectResult = { applied: true, code: item.code, uses: 1, value: item.effect_value };
+    } else if (item.code === 'xp_amplifier') {
+      // XP amplifier — 2x XP for 4h (duration-based, like mining_boost)
+      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'xp_amplifier' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at, source_item_code) VALUES ($1, 'xp_amplifier', $2, $3, $4)`,
+        [w, item.effect_value, expiresAt, item.code]
+      );
+      effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
+    } else if (item.code === 'gp_generator') {
+      // GP generator — 5 GP/hr for 12h (duration-based, like mining_boost)
+      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'gp_generator' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at, source_item_code) VALUES ($1, 'gp_generator', $2, $3, $4)`,
+        [w, item.effect_value, expiresAt, item.code]
+      );
+      effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
+    } else if (item.code === 'lucky_charm') {
+      // Lucky charm — +15% cantina win rate for 3h (duration-based)
+      const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
+      await client.query(
+        `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'lucky_charm' AND active = true`, [w]
+      );
+      await client.query(
+        `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at, source_item_code) VALUES ($1, 'lucky_charm', $2, $3, $4)`,
+        [w, item.effect_value, expiresAt, item.code]
+      );
+      effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
     } else {
       effectResult = { applied: true, code: item.code };
     }
@@ -3012,7 +3152,7 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
     // Season tracking: item used
     if (seasonService) {
       seasonService.addSeasonScore(w, 'item_use', 1).catch(() => {});
-      if (item.code === 'shield_basic' || item.code === 'shield_advanced') {
+      if (item.code === 'shield_basic' || item.code === 'shield_advanced' || item.code === 'shield_regen') {
         seasonService.addSeasonScore(w, 'shield', 1).catch(() => {}); // fortifier
       }
     }

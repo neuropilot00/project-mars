@@ -5023,32 +5023,36 @@ function compositeClaimsOnTexture(previewOnly){
       else if(r.x+r.w>w) _drawOneRect(ctx,img,r.x-w,r.y,r.w,r.h,noImage,ownerLabel,oc,imgParams);
     }
     // Shield glow effect — drawn once per merged territory group, not per claim.
-    // Uses strips to trace the exterior outline and places a single icon at center.
+    // Shield glow: soft tinted overlay on territory + single icon at center.
     function _drawShieldGroup(ctx,groupStrips,bx1,by1,bx2,by2,shieldType){
       if(!groupStrips.length) return;
       var isAdvanced=shieldType==='shield_advanced';
       var glowColor=isAdvanced?'rgba(80,200,255,':'rgba(60,160,255,';
       ctx.save();
-      ctx.globalAlpha=_shieldPulse;
-      ctx.shadowColor=isAdvanced?'#50C8FF':'#3CA0FF';
-      ctx.shadowBlur=isAdvanced?10:6;
-      ctx.strokeStyle=glowColor+'0.6)';
-      ctx.lineWidth=isAdvanced?2.5:1.8;
-      ctx.setLineDash(isAdvanced?[]:[5,4]);
-      ctx.beginPath();
+      ctx.globalAlpha=_shieldPulse*(isAdvanced?0.18:0.14);
+      // Soft fill over all strips (no individual borders)
+      ctx.fillStyle=isAdvanced?'rgba(80,200,255,1)':'rgba(60,160,255,1)';
       for(var si=0;si<groupStrips.length;si++){
         var sr=_sRect(groupStrips[si]);
-        ctx.rect(sr.x,sr.y,sr.w,sr.h);
+        ctx.fillRect(sr.x-0.5,sr.y-0.5,sr.w+1,sr.h+1);
       }
-      ctx.stroke();
+      // Outer glow on bounding box only
+      ctx.globalAlpha=_shieldPulse*0.7;
+      ctx.shadowColor=isAdvanced?'#50C8FF':'#3CA0FF';
+      ctx.shadowBlur=isAdvanced?14:8;
+      ctx.strokeStyle=glowColor+'0.8)';
+      ctx.lineWidth=isAdvanced?2.5:1.8;
+      ctx.setLineDash(isAdvanced?[]:[5,4]);
+      ctx.strokeRect(bx1,by1,bx2-bx1,by2-by1);
       ctx.setLineDash([]);
-      // Single shield icon at group center
-      var cx=(bx1+bx2)/2, cy=(by1+by2)/2;
-      var iconSz=Math.max(10,Math.min(bx2-bx1,by2-by1)*0.18);
-      iconSz=Math.min(iconSz,24);
-      ctx.font='bold '+iconSz+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      // Shield icon at top-right corner (outside territory)
+      ctx.globalAlpha=_shieldPulse;
+      var iconSz=Math.max(12,Math.min(bx2-bx1,by2-by1)*0.15);
+      iconSz=Math.min(iconSz,28);
+      ctx.font='bold '+iconSz+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+      ctx.shadowBlur=0;
       ctx.fillStyle=glowColor+'0.9)';
-      ctx.fillText(isAdvanced?'🔰':'🛡️',cx,cy);
+      ctx.fillText(isAdvanced?'🔰':'🛡️',bx2,by1-2);
       ctx.globalAlpha=1;
       ctx.restore();
     }
@@ -9588,6 +9592,8 @@ var I18N = {
     guild_contribution_hint: 'Portion of every harvest siphoned into the guild treasury.',
     guild_research_title: 'RESEARCH',
     guild_research_unlocked: '✓ UNLOCKED',
+    research_mining_eff_1: '⛏ MINING EFF. I', research_shield_disc: '🛡 SHIELD DISCIPL.', research_diplomatic: '🕊 DIPLOMATIC',
+    research_orbital_scan: '🛰 ORBITAL SCAN', research_rapid_deploy: '🚀 RAPID DEPLOY', research_logistics: '📦 LOGISTICS', research_mars_dominion: '🔥 MARS DOMINION',
     guild_join_requests: 'JOIN REQUESTS',
     guild_no_requests: 'No pending requests.',
     guild_invite_title: 'INVITE PLAYER',
@@ -10026,6 +10032,8 @@ var I18N = {
     guild_contribution_hint: '매 수확량 중 일부가 길드 금고로 적립됩니다.',
     guild_research_title: '연구',
     guild_research_unlocked: '✓ 해금됨',
+    research_mining_eff_1: '⛏ 채굴 효율 I', research_shield_disc: '🛡 방패 훈련', research_diplomatic: '🕊 외교술',
+    research_orbital_scan: '🛰 궤도 스캔', research_rapid_deploy: '🚀 신속 배치', research_logistics: '📦 병참 관리', research_mars_dominion: '🔥 화성 지배',
     guild_join_requests: '가입 요청',
     guild_no_requests: '대기 중인 요청이 없습니다.',
     guild_invite_title: '플레이어 초대',
@@ -10464,6 +10472,8 @@ var I18N = {
     guild_contribution_hint: '収穫の一部がギルド金庫に入ります。',
     guild_research_title: '研究',
     guild_research_unlocked: '✓ 解禁済み',
+    research_mining_eff_1: '⛏ 採掘効率 I', research_shield_disc: '🛡 シールド訓練', research_diplomatic: '🕊 外交術',
+    research_orbital_scan: '🛰 軌道スキャン', research_rapid_deploy: '🚀 高速展開', research_logistics: '📦 兵站管理', research_mars_dominion: '🔥 火星制覇',
     guild_join_requests: '参加リクエスト',
     guild_no_requests: '保留中のリクエストはありません。',
     guild_invite_title: 'プレイヤーを招待',
@@ -10886,6 +10896,8 @@ var I18N = {
     guild_contribution_hint: '每次收成的一部分将流入公会金库。',
     guild_research_title: '研究',
     guild_research_unlocked: '✓ 已解锁',
+    research_mining_eff_1: '⛏ 采矿效率 I', research_shield_disc: '🛡 盾牌训练', research_diplomatic: '🕊 外交术',
+    research_orbital_scan: '🛰 轨道扫描', research_rapid_deploy: '🚀 快速部署', research_logistics: '📦 后勤管理', research_mars_dominion: '🔥 火星统治',
     guild_join_requests: '加入申请',
     guild_no_requests: '暂无待处理申请。',
     guild_invite_title: '邀请玩家',
@@ -11119,6 +11131,300 @@ var I18N = {
 };
 
 function t(key){ return (I18N[LANG]&&I18N[LANG][key]) || I18N.en[key] || key; }
+
+// ── Item i18n mapping (shop items come from DB with English names) ──
+var _itemI18n = {
+  shield_basic:    { en:'Energy Shield',  ko:'에너지 실드',      ja:'エネルギーシールド', zh:'能量护盾',
+                     desc_en:'Protects territory for 12h. Absorbs 50% damage.',
+                     desc_ko:'12시간 동안 영토를 보호합니다. 피해의 50%를 흡수합니다.',
+                     desc_ja:'12時間領土を保護。ダメージの50%を吸収。',
+                     desc_zh:'保护领土12小时。吸收50%伤害。' },
+  shield_advanced: { en:'Plasma Shield',  ko:'플라즈마 실드',    ja:'プラズマシールド',   zh:'等离子护盾',
+                     desc_en:'Protects territory for 24h. Absorbs 80% damage.',
+                     desc_ko:'24시간 동안 영토를 보호합니다. 피해의 80%를 흡수합니다.',
+                     desc_ja:'24時間領土を保護。ダメージの80%を吸収。',
+                     desc_zh:'保护领土24小时。吸收80%伤害。' },
+  emp_strike:      { en:'EMP Strike',     ko:'EMP 공격',         ja:'EMP攻撃',           zh:'EMP打击',
+                     desc_en:'Disables target shields for 6h.',
+                     desc_ko:'대상 실드를 6시간 동안 비활성화합니다.',
+                     desc_ja:'ターゲットのシールドを6時間無効化。',
+                     desc_zh:'使目标护盾失效6小时。' },
+  stealth_cloak:   { en:'Stealth Cloak',  ko:'스텔스 망토',      ja:'ステルスクローク',   zh:'隐身斗篷',
+                     desc_en:'Hides your territories for 1h.',
+                     desc_ko:'1시간 동안 영토를 숨깁니다.',
+                     desc_ja:'1時間領土を非表示にする。',
+                     desc_zh:'隐藏领土1小时。' },
+  radar_scan:      { en:'Radar Scan',     ko:'레이더 스캔',      ja:'レーダースキャン',   zh:'雷达扫描',
+                     desc_en:'Reveals hidden territories nearby.',
+                     desc_ko:'근처 숨겨진 영토를 표시합니다.',
+                     desc_ja:'近くの隠された領土を表示。',
+                     desc_zh:'显示附近隐藏的领土。' },
+  attack_boost:    { en:'Mars Rage',      ko:'화성의 분노',      ja:'マーズレイジ',       zh:'火星之怒',
+                     desc_en:'Boosts attack power for next claim.',
+                     desc_ko:'다음 점령 시 공격력을 강화합니다.',
+                     desc_ja:'次の占領で攻撃力アップ。',
+                     desc_zh:'下次占领时增强攻击力。' },
+  pixel_doubler:   { en:'Pixel Doubler',  ko:'픽셀 더블러',      ja:'ピクセルダブラー',   zh:'像素翻倍器',
+                     desc_en:'Doubles pixel output for next claim.',
+                     desc_ko:'다음 점령 시 픽셀 수가 2배가 됩니다.',
+                     desc_ja:'次の占領でピクセル数が2倍。',
+                     desc_zh:'下次占领像素翻倍。' },
+  mining_boost:    { en:'Mining Boost',   ko:'채굴 부스트',      ja:'採掘ブースト',       zh:'采矿加速',
+                     desc_en:'Doubles mining rate for 2h.',
+                     desc_ko:'2시간 동안 채굴 속도가 2배가 됩니다.',
+                     desc_ja:'2時間採掘速度2倍。',
+                     desc_zh:'2小时内采矿速度翻倍。' }
+};
+function _itemName(code){ var m=_itemI18n[code]; return m ? (m[LANG]||m.en) : ''; }
+function _itemDesc(code){ var m=_itemI18n[code]; var k='desc_'+LANG; return m ? (m[k]||m.desc_en||'') : ''; }
+
+// ── Quest i18n mapping (keyed by title_template from DB) ──
+var _questI18n = {
+  'Daily Check-In':        { ko:'일일 체크인',       ja:'デイリーチェックイン', zh:'每日签到',
+                             desc_ko:'콜로니 터미널에 로그인하세요.',         desc_ja:'コロニー端末にログイン。',           desc_zh:'登录殖民地终端。' },
+  'Morning Patrol':        { ko:'아침 순찰',         ja:'朝のパトロール',       zh:'晨间巡逻',
+                             desc_ko:'출근 신고 — 오늘 로그인하세요.',       desc_ja:'任務報告 — 今日ログイン。',         desc_zh:'出勤报到 — 今天登录。' },
+  'Colony Roll Call':      { ko:'콜로니 점호',       ja:'コロニー点呼',         zh:'殖民地点名',
+                             desc_ko:'기지에서 출석을 확인하세요.',           desc_ja:'基地で出席を確認。',               desc_zh:'在基地确认出席。' },
+  'Steady Colonist':       { ko:'꾸준한 이주민',     ja:'堅実な入植者',         zh:'稳定的殖民者',
+                             desc_ko:'{n}일 연속 로그인하세요.',             desc_ja:'{n}日連続ログイン。',              desc_zh:'连续登录{n}天。' },
+  'Dedicated Settler':     { ko:'헌신적인 정착민',   ja:'献身的な開拓者',       zh:'专注的定居者',
+                             desc_ko:'{n}일 연속 로그인을 유지하세요.',      desc_ja:'{n}日間のログイン記録を維持。',    desc_zh:'保持{n}天连续登录。' },
+  'Week-Long Vigil':       { ko:'일주일 연속 출석',  ja:'1週間連続ログイン',    zh:'一周连续登录',
+                             desc_ko:'{n}일 연속 로그인하세요.',             desc_ja:'{n}日連続ログイン。',              desc_zh:'连续登录{n}天。' },
+  'First Footprint':       { ko:'첫 발자국',         ja:'最初の足跡',           zh:'第一个脚印',
+                             desc_ko:'화성 영토 {n}픽셀을 점령하세요.',      desc_ja:'火星の領土{n}ピクセルを占領。',    desc_zh:'占领{n}像素火星领土。' },
+  'Small Claim':           { ko:'소규모 점령',       ja:'小規模占領',           zh:'小规模占领',
+                             desc_ko:'오늘 {n}픽셀을 점령하세요.',           desc_ja:'今日{n}ピクセルを占領。',          desc_zh:'今天占领{n}像素。' },
+  'Land Grab':             { ko:'영토 확보',         ja:'領土確保',             zh:'抢占领地',
+                             desc_ko:'영토 {n}픽셀을 점령하세요.',           desc_ja:'領土{n}ピクセルを占領。',          desc_zh:'占领{n}像素领土。' },
+  'Territory Scout':       { ko:'영토 정찰병',       ja:'領土偵察兵',           zh:'领土侦察兵',
+                             desc_ko:'맵 전체에서 {n}픽셀을 점령하세요.',    desc_ja:'マップ全体で{n}ピクセルを占領。',  desc_zh:'在地图上占领{n}像素。' },
+  'Expansion Order':       { ko:'확장 명령',         ja:'拡張命令',             zh:'扩张命令',
+                             desc_ko:'이번 주 {n}픽셀을 점령하세요.',        desc_ja:'今週{n}ピクセルを占領。',          desc_zh:'本周占领{n}像素。' },
+  'Dust Harvest':          { ko:'먼지 수확',         ja:'ダスト収穫',           zh:'尘埃收获',
+                             desc_ko:'영토에서 PP를 수확하세요.',             desc_ja:'領土からPPを収穫。',               desc_zh:'从领土收获PP。' },
+  'Resource Sweep':        { ko:'자원 수집',         ja:'資源スイープ',         zh:'资源扫荡',
+                             desc_ko:'오늘 {n}번 수확하세요.',               desc_ja:'今日{n}回収穫。',                  desc_zh:'今天收获{n}次。' },
+  'Diligent Farmer':       { ko:'근면한 농부',       ja:'勤勉な農夫',           zh:'勤劳的农夫',
+                             desc_ko:'이번 주 {n}번 수확하세요.',             desc_ja:'今週{n}回収穫。',                  desc_zh:'本周收获{n}次。' },
+  'Recon Scan':            { ko:'정찰 스캔',         ja:'偵察スキャン',         zh:'侦察扫描',
+                             desc_ko:'섹터 맵을 여세요.',                     desc_ja:'セクターマップを開く。',           desc_zh:'打开扇区地图。' },
+  'Map Review':            { ko:'지도 검토',         ja:'マップ確認',           zh:'地图查看',
+                             desc_ko:'섹터 상태를 {n}번 확인하세요.',         desc_ja:'セクター状態を{n}回確認。',        desc_zh:'查看扇区状态{n}次。' },
+  'Tactical Overview':     { ko:'전술 개요',         ja:'戦術概観',             zh:'战术概览',
+                             desc_ko:'섹터를 {n}번 검토하세요.',              desc_ja:'セクターを{n}回確認。',            desc_zh:'查看扇区{n}次。' },
+  'Rank Check':            { ko:'순위 확인',         ja:'ランク確認',           zh:'排名查看',
+                             desc_ko:'리더보드를 확인하세요.',                desc_ja:'リーダーボードを確認。',           desc_zh:'查看排行榜。' },
+  'Know Your Rivals':      { ko:'라이벌 파악',       ja:'ライバルを知る',       zh:'了解对手',
+                             desc_ko:'순위를 {n}번 확인하세요.',              desc_ja:'ランキングを{n}回確認。',          desc_zh:'查看排名{n}次。' },
+  'Intel Report':          { ko:'정보 보고서',       ja:'情報レポート',         zh:'情报报告',
+                             desc_ko:'리더보드를 {n}번 확인하세요.',          desc_ja:'リーダーボードを{n}回確認。',      desc_zh:'查看排行榜{n}次。' },
+  'Base Inspection':       { ko:'기지 점검',         ja:'基地点検',             zh:'基地检查',
+                             desc_ko:'기지 대시보드를 여세요.',               desc_ja:'基地ダッシュボードを開く。',       desc_zh:'打开基地仪表盘。' },
+  'HQ Briefing':           { ko:'사령부 브리핑',     ja:'司令部ブリーフィング', zh:'总部简报',
+                             desc_ko:'오늘 기지를 {n}번 방문하세요.',         desc_ja:'今日基地を{n}回訪問。',            desc_zh:'今天访问基地{n}次。' },
+  'Ops Center Run':        { ko:'작전실 순회',       ja:'作戦室巡回',           zh:'作战室巡查',
+                             desc_ko:'기지를 {n}번 확인하세요.',              desc_ja:'基地を{n}回確認。',                desc_zh:'检查基地{n}次。' },
+  'Cantina Break':         { ko:'캔티나 휴식',       ja:'カンティーナ休憩',     zh:'酒馆休息',
+                             desc_ko:'캔티나 미니게임을 플레이하세요.',       desc_ja:'カンティーナミニゲームをプレイ。', desc_zh:'玩酒馆小游戏。' },
+  'Game Night':            { ko:'게임의 밤',         ja:'ゲームナイト',         zh:'游戏之夜',
+                             desc_ko:'캔티나 게임을 {n}번 플레이하세요.',     desc_ja:'カンティーナゲームを{n}回プレイ。',desc_zh:'玩{n}次酒馆游戏。' },
+  'Lucky Round':           { ko:'행운의 라운드',     ja:'ラッキーラウンド',     zh:'幸运回合',
+                             desc_ko:'캔티나 게임에서 승리하세요.',           desc_ja:'カンティーナゲームで勝利。',       desc_zh:'赢得酒馆游戏。' },
+  'Cantina Regular':       { ko:'캔티나 단골',       ja:'カンティーナ常連',     zh:'酒馆常客',
+                             desc_ko:'캔티나 게임을 {n}번 플레이하세요.',     desc_ja:'カンティーナゲームを{n}回プレイ。',desc_zh:'玩{n}次酒馆游戏。' },
+  'Comms Check':           { ko:'통신 확인',         ja:'通信チェック',         zh:'通讯检查',
+                             desc_ko:'길드 채팅 메시지를 보내세요.',          desc_ja:'ギルドチャットメッセージを送信。', desc_zh:'发送公会聊天消息。' },
+  'Squad Talk':            { ko:'분대 대화',         ja:'分隊トーク',           zh:'小队对话',
+                             desc_ko:'길드 메시지를 {n}개 보내세요.',         desc_ja:'ギルドメッセージを{n}件送信。',    desc_zh:'发送{n}条公会消息。' },
+  'Active Comms':          { ko:'활발한 통신',       ja:'活発な通信',           zh:'活跃通讯',
+                             desc_ko:'오늘 길드 메시지를 {n}개 보내세요.',    desc_ja:'今日ギルドメッセージを{n}件送信。',desc_zh:'今天发送{n}条公会消息。' },
+  'Chatterbox':            { ko:'수다쟁이',          ja:'おしゃべり',           zh:'话痨',
+                             desc_ko:'길드 메시지를 {n}개 보내세요.',         desc_ja:'ギルドメッセージを{n}件送信。',    desc_zh:'发送{n}条公会消息。' },
+  'Border Skirmish':       { ko:'국경 교전',         ja:'国境小競り合い',       zh:'边境冲突',
+                             desc_ko:'적 픽셀 {n}개를 탈취하세요.',           desc_ja:'敵のピクセルを{n}個奪取。',        desc_zh:'夺取{n}个敌方像素。' },
+  'Raider Instinct':       { ko:'약탈자의 본능',     ja:'襲撃者の本能',         zh:'掠夺者直觉',
+                             desc_ko:'적 픽셀 {n}개를 탈취하세요.',           desc_ja:'敵のピクセルを{n}個奪取。',        desc_zh:'夺取{n}个敌方像素。' },
+  'Scout Launch':          { ko:'정찰 출격',         ja:'偵察出撃',             zh:'侦察出击',
+                             desc_ko:'탐사 미션을 시작하세요.',               desc_ja:'探査ミッションを開始。',           desc_zh:'启动探索任务。' },
+  'Sortie Order':          { ko:'출격 명령',         ja:'出撃命令',             zh:'出击命令',
+                             desc_ko:'침공 미션을 시작하세요.',               desc_ja:'侵攻ミッションを開始。',           desc_zh:'启动入侵任务。' },
+  'Explorer Badge':        { ko:'탐험가 뱃지',       ja:'探検家バッジ',         zh:'探险家徽章',
+                             desc_ko:'탐사 미션을 완료하세요.',               desc_ja:'探査ミッションを完了。',           desc_zh:'完成探索任务。' },
+  'Combat Veteran':        { ko:'전투 베테랑',       ja:'戦闘ベテラン',         zh:'战斗老兵',
+                             desc_ko:'침공 미션을 완료하세요.',               desc_ja:'侵攻ミッションを完了。',           desc_zh:'完成入侵任务。' },
+  'Field Kit':             { ko:'야전 장비',         ja:'フィールドキット',     zh:'野战装备',
+                             desc_ko:'인벤토리에서 아이템을 사용하세요.',     desc_ja:'インベントリからアイテムを使用。', desc_zh:'使用库存中的物品。' },
+  'Gear Up':               { ko:'장비 착용',         ja:'装備装着',             zh:'装备就绪',
+                             desc_ko:'오늘 아이템 {n}개를 사용하세요.',       desc_ja:'今日アイテムを{n}個使用。',        desc_zh:'今天使用{n}个物品。' },
+  'Sector Claim':          { ko:'섹터 점령',         ja:'セクター占領',         zh:'扇区占领',
+                             desc_ko:'특정 섹터에서 픽셀을 점령하세요.',      desc_ja:'特定セクターでピクセルを占領。',   desc_zh:'在特定扇区占领像素。' },
+  'Core Probe':            { ko:'코어 탐사',         ja:'コアプローブ',         zh:'核心探测',
+                             desc_ko:'코어 구역에서 {n}픽셀을 점령하세요.',   desc_ja:'コアゾーンで{n}ピクセルを占領。',  desc_zh:'在核心区域占领{n}像素。' },
+  'Routine Ops':           { ko:'일상 작전',         ja:'日常オペレーション',   zh:'日常行动',
+                             desc_ko:'로그인하고 섹터 맵을 확인하세요.',      desc_ja:'ログインしてセクターマップを確認。',desc_zh:'登录并查看扇区地图。' },
+  'Patrol Sweep':          { ko:'순찰 정리',         ja:'パトロールスイープ',   zh:'巡逻清扫',
+                             desc_ko:'기지 확인 후 수확하세요.',              desc_ja:'基地確認後に収穫。',               desc_zh:'检查基地后收获。' },
+  'Signal Ping':           { ko:'신호 핑',           ja:'シグナルピング',       zh:'信号脉冲',
+                             desc_ko:'길드 채팅에서 메시지를 보내세요.',      desc_ja:'ギルドチャットでメッセージを送信。',desc_zh:'在公会聊天中发送消息。' },
+  'Daily Recon':           { ko:'일일 정찰',         ja:'日次偵察',             zh:'每日侦察',
+                             desc_ko:'섹터와 리더보드를 확인하세요.',         desc_ja:'セクターとリーダーボードを確認。', desc_zh:'查看扇区和排行榜。' },
+  'Terrain Walk':          { ko:'지형 탐사',         ja:'地形ウォーク',         zh:'地形行走',
+                             desc_ko:'오늘 {n}픽셀을 점령하세요.',            desc_ja:'今日{n}ピクセルを占領。',          desc_zh:'今天占领{n}像素。' },
+  'Quick Harvest':         { ko:'빠른 수확',         ja:'クイック収穫',         zh:'快速收获',
+                             desc_ko:'영토에서 한 번 수확하세요.',            desc_ja:'領土から一度収穫。',               desc_zh:'从领土收获一次。' },
+  'Weekly Settler':        { ko:'주간 정착민',       ja:'週間開拓者',           zh:'每周定居者',
+                             desc_ko:'이번 주 {n}일 로그인하세요.',           desc_ja:'今週{n}日ログイン。',              desc_zh:'本周登录{n}天。' },
+  'Map Analyst':           { ko:'지도 분석가',       ja:'マップアナリスト',     zh:'地图分析师',
+                             desc_ko:'섹터를 {n}번 확인하세요.',              desc_ja:'セクターを{n}回確認。',            desc_zh:'查看扇区{n}次。' },
+  'Base Commander':        { ko:'기지 사령관',       ja:'基地司令官',           zh:'基地指挥官',
+                             desc_ko:'기지를 {n}번 방문하세요.',              desc_ja:'基地を{n}回訪問。',                desc_zh:'访问基地{n}次。' },
+  // ACTIVITY TIER
+  'Land Rush':             { ko:'영토 러시',         ja:'ランドラッシュ',       zh:'土地争夺',
+                             desc_ko:'하루에 {n}픽셀을 점령하세요.',          desc_ja:'1日に{n}ピクセルを占領。',         desc_zh:'一天内占领{n}像素。' },
+  'Territory Push':        { ko:'영토 진격',         ja:'領土プッシュ',         zh:'领土推进',
+                             desc_ko:'오늘 {n}픽셀을 점령하세요.',            desc_ja:'今日{n}ピクセルを占領。',          desc_zh:'今天占领{n}像素。' },
+  'Expansion Campaign':    { ko:'확장 캠페인',       ja:'拡張キャンペーン',     zh:'扩张战役',
+                             desc_ko:'이번 주 {n}픽셀을 점령하세요.',         desc_ja:'今週{n}ピクセルを占領。',          desc_zh:'本周占领{n}像素。' },
+  'Colony Growth':         { ko:'콜로니 성장',       ja:'コロニー成長',         zh:'殖民地增长',
+                             desc_ko:'이번 주 {n}픽셀을 점령하세요.',         desc_ja:'今週{n}ピクセルを占領。',          desc_zh:'本周占领{n}像素。' },
+  'Sector Assault':        { ko:'섹터 공격',         ja:'セクター攻撃',         zh:'扇区突击',
+                             desc_ko:'한 섹터에서 {n}픽셀을 점령하세요.',     desc_ja:'1セクターで{n}ピクセルを占領。',   desc_zh:'在一个扇区占领{n}像素。' },
+  'Core Incursion':        { ko:'코어 침입',         ja:'コア侵入',             zh:'核心入侵',
+                             desc_ko:'코어 구역 픽셀 {n}개를 점령하세요.',    desc_ja:'コアゾーンピクセルを{n}個占領。',  desc_zh:'占领{n}个核心区像素。' },
+  'Sector Domination':     { ko:'섹터 지배',         ja:'セクター支配',         zh:'扇区统治',
+                             desc_ko:'섹터 픽셀 {n}개를 점령하세요.',         desc_ja:'セクターピクセルを{n}個占領。',    desc_zh:'占领{n}个扇区像素。' },
+  'Core Lockdown':         { ko:'코어 봉쇄',         ja:'コアロックダウン',     zh:'核心封锁',
+                             desc_ko:'코어 구역 픽셀 {n}개를 점령하세요.',    desc_ja:'コアゾーンピクセルを{n}個占領。',  desc_zh:'占领{n}个核心区像素。' },
+  'Harvest Cycle':         { ko:'수확 주기',         ja:'収穫サイクル',         zh:'收获周期',
+                             desc_ko:'오늘 {n}번 수확하세요.',                desc_ja:'今日{n}回収穫。',                  desc_zh:'今天收获{n}次。' },
+  'Full Harvest':          { ko:'완전 수확',         ja:'フル収穫',             zh:'全面收获',
+                             desc_ko:'하루에 {n}번 수확하세요.',              desc_ja:'1日に{n}回収穫。',                 desc_zh:'一天内收获{n}次。' },
+  'Harvest Marathon':      { ko:'수확 마라톤',       ja:'収穫マラソン',         zh:'收获马拉松',
+                             desc_ko:'이번 주 {n}번 수확하세요.',             desc_ja:'今週{n}回収穫。',                  desc_zh:'本周收获{n}次。' },
+  'Raid Party':            { ko:'습격 파티',         ja:'レイドパーティー',     zh:'突袭小队',
+                             desc_ko:'적 픽셀 {n}개를 탈취하세요.',           desc_ja:'敵のピクセルを{n}個奪取。',        desc_zh:'夺取{n}个敌方像素。' },
+  'Hostile Takeover':      { ko:'적대적 인수',       ja:'敵対的買収',           zh:'敌意收购',
+                             desc_ko:'적 픽셀 {n}개를 탈취하세요.',           desc_ja:'敵のピクセルを{n}個奪取。',        desc_zh:'夺取{n}个敌方像素。' },
+  "Warlord's March":       { ko:'군벌의 행군',       ja:'ウォーロードの行軍',   zh:'军阀行军',
+                             desc_ko:'이번 주 픽셀 {n}개를 탈취하세요.',      desc_ja:'今週ピクセルを{n}個奪取。',        desc_zh:'本周夺取{n}个像素。' },
+  'Double Sortie':         { ko:'이중 출격',         ja:'ダブルソーティー',     zh:'双重出击',
+                             desc_ko:'침공 미션을 {n}개 시작하세요.',         desc_ja:'侵攻ミッションを{n}個開始。',      desc_zh:'启动{n}个入侵任务。' },
+  'Recon Fleet':           { ko:'정찰 함대',         ja:'偵察艦隊',             zh:'侦察舰队',
+                             desc_ko:'탐사 미션을 {n}개 시작하세요.',         desc_ja:'探査ミッションを{n}個開始。',      desc_zh:'启动{n}个探索任务。' },
+  'Blitz Command':         { ko:'전격 지휘',         ja:'電撃司令',             zh:'闪击指挥',
+                             desc_ko:'오늘 침공을 {n}개 시작하세요.',         desc_ja:'今日侵攻を{n}個開始。',            desc_zh:'今天启动{n}个入侵。' },
+  'Invasion Spree':        { ko:'침공 연속',         ja:'侵攻ラッシュ',         zh:'入侵狂潮',
+                             desc_ko:'침공 미션 {n}개를 완료하세요.',         desc_ja:'侵攻ミッションを{n}個完了。',      desc_zh:'完成{n}个入侵任务。' },
+  'Expedition Corps':      { ko:'탐험 군단',         ja:'探検軍団',             zh:'远征军团',
+                             desc_ko:'탐사 {n}개를 완료하세요.',              desc_ja:'探査を{n}個完了。',                desc_zh:'完成{n}次探索。' },
+  'War Council':           { ko:'전쟁 평의회',       ja:'戦争評議会',           zh:'战争议会',
+                             desc_ko:'총 {n}개 미션을 시작하세요.',           desc_ja:'合計{n}個のミッションを開始。',    desc_zh:'共启动{n}个任务。' },
+  'Deep Space Survey':     { ko:'심우주 조사',       ja:'深宇宙調査',           zh:'深空调查',
+                             desc_ko:'탐사 {n}개를 완료하세요.',              desc_ja:'探査を{n}個完了。',                desc_zh:'完成{n}次探索。' },
+  'Cantina Champion':      { ko:'캔티나 챔피언',     ja:'カンティーナチャンピオン', zh:'酒馆冠军',
+                             desc_ko:'캔티나 게임에서 {n}번 승리하세요.',     desc_ja:'カンティーナゲームで{n}回勝利。',  desc_zh:'赢得{n}次酒馆游戏。' },
+  'High Roller':           { ko:'하이 롤러',         ja:'ハイローラー',         zh:'豪赌客',
+                             desc_ko:'캔티나 게임을 {n}번 플레이하세요.',     desc_ja:'カンティーナゲームを{n}回プレイ。',desc_zh:'玩{n}次酒馆游戏。' },
+  'Cantina Legend':        { ko:'캔티나 전설',       ja:'カンティーナ伝説',     zh:'酒馆传奇',
+                             desc_ko:'캔티나 게임에서 {n}번 승리하세요.',     desc_ja:'カンティーナゲームで{n}回勝利。',  desc_zh:'赢得{n}次酒馆游戏。' },
+  'Arcade Addict':         { ko:'아케이드 중독',     ja:'アーケード中毒',       zh:'街机迷',
+                             desc_ko:'캔티나 게임을 {n}번 플레이하세요.',     desc_ja:'カンティーナゲームを{n}回プレイ。',desc_zh:'玩{n}次酒馆游戏。' },
+  'Rally The Troops':      { ko:'군대 집결',         ja:'軍隊集結',             zh:'集结部队',
+                             desc_ko:'길드 메시지를 {n}개 보내세요.',         desc_ja:'ギルドメッセージを{n}件送信。',    desc_zh:'发送{n}条公会消息。' },
+  'Comms Officer':         { ko:'통신 장교',         ja:'通信士官',             zh:'通讯官',
+                             desc_ko:'길드 메시지를 {n}개 보내세요.',         desc_ja:'ギルドメッセージを{n}件送信。',    desc_zh:'发送{n}条公会消息。' },
+  'Supply Run':            { ko:'보급 작전',         ja:'補給作戦',             zh:'补给行动',
+                             desc_ko:'오늘 아이템 {n}개를 사용하세요.',       desc_ja:'今日アイテムを{n}個使用。',        desc_zh:'今天使用{n}个物品。' },
+  'Loadout Swap':          { ko:'장비 교체',         ja:'ロードアウト変更',     zh:'装备更换',
+                             desc_ko:'하루에 아이템 {n}개를 사용하세요.',     desc_ja:'1日にアイテムを{n}個使用。',       desc_zh:'一天内使用{n}个物品。' },
+  'Quartermaster':         { ko:'보급관',            ja:'兵站係',               zh:'军需官',
+                             desc_ko:'이번 주 아이템 {n}개를 사용하세요.',    desc_ja:'今週アイテムを{n}個使用。',        desc_zh:'本周使用{n}个物品。' },
+  'Iron Discipline':       { ko:'철의 규율',         ja:'鉄の規律',             zh:'铁的纪律',
+                             desc_ko:'{n}일 연속 로그인하세요.',              desc_ja:'{n}日連続ログイン。',              desc_zh:'连续登录{n}天。' },
+  'Fortnight Watch':       { ko:'2주 감시',          ja:'2週間の監視',          zh:'两周值守',
+                             desc_ko:'{n}일 연속 로그인하세요.',              desc_ja:'{n}日連続ログイン。',              desc_zh:'连续登录{n}天。' },
+  'Monthly Devotion':      { ko:'한 달의 헌신',      ja:'1ヶ月の献身',          zh:'一月忠诚',
+                             desc_ko:'{n}일 연속 로그인하세요.',              desc_ja:'{n}日連続ログイン。',              desc_zh:'连续登录{n}天。' },
+  'Frontline Ops':         { ko:'전선 작전',         ja:'前線オペレーション',   zh:'前线行动',
+                             desc_ko:'픽셀 탈취와 미션을 시작하세요.',        desc_ja:'ピクセル奪取とミッションを開始。', desc_zh:'夺取像素并启动任务。' },
+  'Combat Patrol':         { ko:'전투 순찰',         ja:'戦闘パトロール',       zh:'战斗巡逻',
+                             desc_ko:'침공을 완료하고 수확하세요.',           desc_ja:'侵攻を完了して収穫。',             desc_zh:'完成入侵并收获。' },
+  'Colony Builder':        { ko:'콜로니 건설자',     ja:'コロニービルダー',     zh:'殖民地建设者',
+                             desc_ko:'{n}픽셀을 점령하고 수확하세요.',        desc_ja:'{n}ピクセルを占領して収穫。',      desc_zh:'占领{n}像素并收获。' },
+  'Sector Scout':          { ko:'섹터 정찰',         ja:'セクター偵察',         zh:'扇区侦察',
+                             desc_ko:'섹터를 {n}번 확인하세요.',              desc_ja:'セクターを{n}回確認。',            desc_zh:'查看扇区{n}次。' },
+  'Rank Climber':          { ko:'순위 상승',         ja:'ランクアップ',         zh:'排名攀升',
+                             desc_ko:'리더보드를 {n}번 확인하세요.',          desc_ja:'リーダーボードを{n}回確認。',      desc_zh:'查看排行榜{n}次。' },
+  'Mission Ready':         { ko:'미션 준비 완료',    ja:'ミッション準備完了',   zh:'任务就绪',
+                             desc_ko:'아무 미션이나 {n}개 시작하세요.',       desc_ja:'任意のミッションを{n}個開始。',    desc_zh:'启动任意{n}个任务。' },
+  'Full Spectrum Ops':     { ko:'전방위 작전',       ja:'全方位オペレーション', zh:'全谱行动',
+                             desc_ko:'아무 유형 미션 {n}개를 완료하세요.',    desc_ja:'任意のミッションを{n}個完了。',    desc_zh:'完成任意类型{n}个任务。' },
+  // SPENDING TIER
+  'Supply Drop':           { ko:'보급 투하',         ja:'補給投下',             zh:'补给投放',
+                             desc_ko:'계정에 {n} USDT를 입금하세요.',         desc_ja:'アカウントに{n} USDTを入金。',     desc_zh:'向账户存入{n} USDT。' },
+  'War Chest':             { ko:'전쟁 자금',         ja:'軍資金',               zh:'战争基金',
+                             desc_ko:'오늘 {n} USDT를 입금하세요.',           desc_ja:'今日{n} USDTを入金。',             desc_zh:'今天存入{n} USDT。' },
+  'Treasury Fill':         { ko:'금고 충전',         ja:'金庫充填',             zh:'金库充值',
+                             desc_ko:'하루에 {n} USDT를 입금하세요.',         desc_ja:'1日に{n} USDTを入金。',            desc_zh:'一天内存入{n} USDT。' },
+  'Big Investor':          { ko:'대형 투자자',       ja:'大口投資家',           zh:'大投资者',
+                             desc_ko:'이번 주 {n} USDT를 입금하세요.',        desc_ja:'今週{n} USDTを入金。',             desc_zh:'本周存入{n} USDT。' },
+  "Whale's Bounty":        { ko:'고래의 보상',       ja:'クジラの報奨',         zh:'鲸鱼赏金',
+                             desc_ko:'이번 주 {n} USDT를 입금하세요.',        desc_ja:'今週{n} USDTを入金。',             desc_zh:'本周存入{n} USDT。' },
+  'Token Exchange':        { ko:'토큰 교환',         ja:'トークン交換',         zh:'代币交换',
+                             desc_ko:'{n} USDT 상당의 토큰을 스왑하세요.',    desc_ja:'{n} USDT分のトークンをスワップ。', desc_zh:'兑换价值{n} USDT的代币。' },
+  'Market Maker':          { ko:'마켓 메이커',       ja:'マーケットメイカー',   zh:'做市商',
+                             desc_ko:'{n} USDT의 토큰을 스왑하세요.',         desc_ja:'{n} USDTのトークンをスワップ。',   desc_zh:'兑换{n} USDT的代币。' },
+  'Liquidity Provider':    { ko:'유동성 공급자',     ja:'流動性プロバイダー',   zh:'流动性提供者',
+                             desc_ko:'오늘 {n} USDT를 스왑하세요.',           desc_ja:'今日{n} USDTをスワップ。',         desc_zh:'今天兑换{n} USDT。' },
+  'Trading Mogul':         { ko:'트레이딩 거물',     ja:'トレーディング王',     zh:'交易大亨',
+                             desc_ko:'이번 주 {n} USDT를 스왑하세요.',        desc_ja:'今週{n} USDTをスワップ。',         desc_zh:'本周兑换{n} USDT。' },
+  'Exchange Baron':        { ko:'거래소 남작',       ja:'取引所男爵',           zh:'交易所男爵',
+                             desc_ko:'이번 주 {n} USDT를 스왑하세요.',        desc_ja:'今週{n} USDTをスワップ。',         desc_zh:'本周兑换{n} USDT。' },
+  'Quick Purchase':        { ko:'빠른 구매',         ja:'クイック購入',         zh:'快速购买',
+                             desc_ko:'상점에서 아이템 {n}개를 구매하세요.',   desc_ja:'ショップからアイテムを{n}個購入。',desc_zh:'从商店购买{n}个物品。' },
+  'Shopping Spree':        { ko:'쇼핑 스프리',       ja:'ショッピングスプリー', zh:'疯狂购物',
+                             desc_ko:'상점에서 아이템 {n}개를 구매하세요.',   desc_ja:'ショップからアイテムを{n}個購入。',desc_zh:'从商店购买{n}个物品。' },
+  'Bulk Order':            { ko:'대량 주문',         ja:'大量注文',             zh:'批量订购',
+                             desc_ko:'오늘 상점 아이템 {n}개를 구매하세요.',  desc_ja:'今日ショップアイテムを{n}個購入。',desc_zh:'今天购买{n}个商店物品。' },
+  'Supply Contract':       { ko:'보급 계약',         ja:'補給契約',             zh:'补给合同',
+                             desc_ko:'이번 주 아이템 {n}개를 구매하세요.',    desc_ja:'今週アイテムを{n}個購入。',        desc_zh:'本周购买{n}个物品。' },
+  'Arsenal Stockpile':     { ko:'무기고 비축',       ja:'武器庫備蓄',           zh:'军火库储备',
+                             desc_ko:'이번 주 아이템 {n}개를 구매하세요.',    desc_ja:'今週アイテムを{n}個購入。',        desc_zh:'本周购买{n}个物品。' },
+  'Blitz Expansion':       { ko:'전격 확장',         ja:'電撃拡張',             zh:'闪电扩张',
+                             desc_ko:'하루에 {n}픽셀을 점령하세요.',          desc_ja:'1日に{n}ピクセルを占領。',         desc_zh:'一天内占领{n}像素。' },
+  'Mass Colonization':     { ko:'대규모 식민',       ja:'大規模植民',           zh:'大规模殖民',
+                             desc_ko:'오늘 {n}픽셀을 점령하세요.',            desc_ja:'今日{n}ピクセルを占領。',          desc_zh:'今天占领{n}像素。' },
+  'Terraform Initiative':  { ko:'테라포밍 계획',     ja:'テラフォーミング計画', zh:'改造计划',
+                             desc_ko:'이번 주 {n}픽셀을 점령하세요.',         desc_ja:'今週{n}ピクセルを占領。',          desc_zh:'本周占领{n}像素。' },
+  'Continental Claim':     { ko:'대륙 점령',         ja:'大陸占領',             zh:'大陆占领',
+                             desc_ko:'이번 주 {n}픽셀을 점령하세요.',         desc_ja:'今週{n}ピクセルを占領。',          desc_zh:'本周占领{n}像素。' },
+  'Core Strike':           { ko:'코어 타격',         ja:'コアストライク',       zh:'核心打击',
+                             desc_ko:'코어 구역 픽셀 {n}개를 점령하세요.',    desc_ja:'コアゾーンピクセルを{n}個占領。',  desc_zh:'占领{n}个核心区像素。' },
+  'Core Supremacy':        { ko:'코어 패권',         ja:'コア覇権',             zh:'核心霸权',
+                             desc_ko:'코어 구역 픽셀 {n}개를 점령하세요.',    desc_ja:'コアゾーンピクセルを{n}個占領。',  desc_zh:'占领{n}个核心区像素。' },
+  'Invasion Fleet':        { ko:'침공 함대',         ja:'侵攻艦隊',             zh:'入侵舰队',
+                             desc_ko:'오늘 침공을 {n}개 시작하세요.',         desc_ja:'今日侵攻を{n}個開始。',            desc_zh:'今天启动{n}个入侵。' },
+  'Grand Offensive':       { ko:'대공세',            ja:'大攻勢',               zh:'大攻势',
+                             desc_ko:'침공을 {n}개 시작하세요.',              desc_ja:'侵攻を{n}個開始。',                desc_zh:'启动{n}个入侵。' },
+  "Conqueror's Path":      { ko:'정복자의 길',       ja:'征服者の道',           zh:'征服者之路',
+                             desc_ko:'침공을 {n}개 완료하세요.',              desc_ja:'侵攻を{n}個完了。',                desc_zh:'完成{n}个入侵。' },
+  'Survey Armada':         { ko:'조사 함대',         ja:'調査艦隊',             zh:'调查舰队',
+                             desc_ko:'탐사를 {n}개 시작하세요.',              desc_ja:'探査を{n}個開始。',                desc_zh:'启动{n}个探索。' },
+  'Charted Frontier':      { ko:'탐사된 변경',       ja:'踏査済みフロンティア', zh:'已探索边疆',
+                             desc_ko:'탐사 {n}개를 완료하세요.',              desc_ja:'探査を{n}個完了。',                desc_zh:'完成{n}次探索。' },
+  'Siege Operations':      { ko:'포위 작전',         ja:'包囲作戦',             zh:'围攻行动',
+                             desc_ko:'적 픽셀 {n}개를 탈취하세요.',           desc_ja:'敵のピクセルを{n}個奪取。',        desc_zh:'夺取{n}个敌方像素。' },
+  'Total War':             { ko:'전면전',            ja:'全面戦争',             zh:'全面战争',
+                             desc_ko:'이번 주 픽셀 {n}개를 탈취하세요.',      desc_ja:'今週ピクセルを{n}個奪取。',        desc_zh:'本周夺取{n}个像素。' },
+  'Arsenal Deploy':        { ko:'무기 배치',         ja:'兵器配備',             zh:'军火部署',
+                             desc_ko:'오늘 아이템 {n}개를 사용하세요.',       desc_ja:'今日アイテムを{n}個使用。',        desc_zh:'今天使用{n}个物品。' },
+  'Armory Burn':           { ko:'무기고 소진',       ja:'武器庫消費',           zh:'军火库消耗',
+                             desc_ko:'이번 주 아이템 {n}개를 사용하세요.',    desc_ja:'今週アイテムを{n}個使用。',        desc_zh:'本周使用{n}个物品。' }
+};
+function _questTitle(q){ var m=_questI18n[q.title]; if(!m||LANG==='en') return q.title; return m[LANG]||q.title; }
+function _questDesc(q){ var m=_questI18n[q.title]; if(!m||LANG==='en') return q.description; var k='desc_'+LANG; return m[k]||q.description; }
 
 function setLang(lang){
   LANG=lang;
@@ -12324,7 +12630,7 @@ function renderActiveBuffs(){
       var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
       label+=mins>60?Math.floor(mins/60)+'h':mins+'m';
     }
-    return '<div class="tb-buff '+cat+'" title="'+e.name+'">'+label+'</div>';
+    return '<div class="tb-buff '+cat+'" title="'+(_itemName(e.effect_type)||e.name)+'">'+label+'</div>';
   }).join('');
 }
 
@@ -12333,9 +12639,24 @@ function renderActiveBuffs(){
 function openItemShop(){
   try{ openBaseModal(); }catch(_){}
   setTimeout(function(){
-    var shopTab = Array.from(document.querySelectorAll('.base-tab')).find(function(t){return (t.textContent||'').trim()==='SHOP';});
-    if(shopTab) shopTab.click();
-    else if(typeof loadBaseShopItems==='function') loadBaseShopItems();
+    // Find SHOP tab by pane id, not text (works regardless of language)
+    var tabs = document.querySelectorAll('.base-tab');
+    var panes = document.querySelectorAll('.base-pane');
+    for(var i=0;i<panes.length;i++){
+      if(panes[i].id==='basePane_shop' && tabs[i]){
+        tabs[i].click();
+        // Switch to inventory view inside shop tab
+        setTimeout(function(){
+          var invBtn = document.querySelector('.base-shop-view:not(.active)');
+          if(invBtn && invBtn.textContent.indexOf('ITEM')>=0 || invBtn && invBtn.getAttribute('data-i18n')==='base_inv_btn'){
+            invBtn.click();
+          } else {
+            switchBaseShopView('inventory', document.querySelectorAll('.base-shop-view')[1]);
+          }
+        },50);
+        break;
+      }
+    }
   }, 100);
 }
 function closeItemShop(){
@@ -12388,8 +12709,8 @@ function renderShopItems(){
     return '<div class="shop-item-card" data-code="'+item.code+'">'
       +'<span class="si-cat '+item.category+'">'+item.category+'</span>'
       +'<span class="si-icon">'+item.icon+'</span>'
-      +'<div class="si-name">'+item.name+'</div>'
-      +'<div class="si-desc">'+item.description+'</div>'
+      +'<div class="si-name">'+(_itemName(item.code)||item.name)+'</div>'
+      +'<div class="si-desc">'+(_itemDesc(item.code)||item.description)+'</div>'
       +'<div class="si-effect">'+durTxt+(item.effect_value?' · '+item.effect_value+(item.category==='defense'?'% absorb':item.code==='attack_boost'?'% boost':'x effect'):'')+'</div>'
       +'<div class="si-prices">'
       +'<span class="si-price pp" onclick="event.stopPropagation();buyShopItem(\''+item.code+'\',\'PP\')">'+parseFloat(item.price_pp).toFixed(1)+' PP</span>'
@@ -12432,12 +12753,12 @@ function renderShopInventory(){
       return;
     }
     list.innerHTML=inv.map(function(item){
-      var needsClaim=item.code.indexOf('shield')===0||item.code==='emp_strike';
+      var needsClaim=item.code.indexOf('shield')===0||item.code==='emp_strike'||item.code==='orbital_strike'||item.code==='virus_payload'||item.code==='decoy_beacon';
       var isCosmetic=item.category==='cosmetic';
       return '<div class="inv-item">'
         +'<span class="inv-icon">'+item.icon+'</span>'
         +'<div class="inv-info">'
-        +'<div class="inv-name">'+item.name+'</div>'
+        +'<div class="inv-name">'+(_itemName(item.code)||item.name)+'</div>'
         +'<div class="inv-qty">×'+item.quantity+'</div>'
         +'</div>'
         +(isCosmetic
@@ -12454,7 +12775,7 @@ function renderShopInventory(){
   if(_activeEffects.length>0){
     actSec.style.display='';
     actList.innerHTML=_activeEffects.map(function(e){
-      var info=e.icon+' <b>'+e.name+'</b> — ';
+      var info=e.icon+' <b>'+(_itemName(e.effect_type)||e.name)+'</b> — ';
       if(e.uses_remaining!==null) info+=e.uses_remaining+' uses left';
       else if(e.expires_at){
         var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
@@ -12487,7 +12808,7 @@ function buyShopItem(code,currency){
   else if(currency==='GP') price=parseFloat(item.price_gp||0).toFixed(0)+' GP';
   else price=parseFloat(item.price_pp).toFixed(1)+' PP';
   shopConfirm(item.icon||'🛒','Purchase Item',
-    '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+item.name+'</div>'
+    '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+(_itemName(code)||item.name)+'</div>'
     +'<div style="font-size:var(--fs-md);color:var(--gold)">'+price+'</div>','BUY NOW'
   ).then(function(ok){
     if(!ok)return;
@@ -12495,7 +12816,7 @@ function buyShopItem(code,currency){
       body:JSON.stringify({wallet:w,itemCode:code,currency:currency,quantity:1})
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
-      showToast('Purchased '+item.name+'!','success');
+      showToast('Purchased '+(_itemName(code)||item.name)+'!','success');
       try{trackQuestAction('buy_item',1)}catch(e){}
       try{_sfx.purchase()}catch(e){}
       // Refresh balances from server (PP/USDT always, GP needs daily endpoint)
@@ -12520,19 +12841,26 @@ function useShopItem(code,needsClaim){
     // Case-insensitive owner match — claim.owner can be mixed-case from server
     var myClaims=claims.filter(function(c){return (c.owner||'').toLowerCase()===wl});
     if(myClaims.length===0){showToast('You have no territories','error');return;}
-    var isEMP=code==='emp_strike';
-    if(isEMP){
-      // EMP targets enemy shielded claims
-      var targetClaims=claims.filter(function(c){return (c.owner||'').toLowerCase()!==wl && c.shield});
-      if(targetClaims.length===0){showToast('No shielded enemy territories found','error');return;}
-      _showClaimPicker(targetClaims,code,'Select target to EMP');
+    var isEnemyTarget=code==='emp_strike'||code==='orbital_strike'||code==='virus_payload';
+    if(isEnemyTarget){
+      // These items target enemy claims
+      var targetClaims;
+      if(code==='emp_strike'||code==='orbital_strike'){
+        targetClaims=claims.filter(function(c){return (c.owner||'').toLowerCase()!==wl && c.shield});
+        if(targetClaims.length===0){showToast('No shielded enemy territories found','error');return;}
+      }else{
+        targetClaims=claims.filter(function(c){return (c.owner||'').toLowerCase()!==wl});
+        if(targetClaims.length===0){showToast('No enemy territories found','error');return;}
+      }
+      var label=code==='emp_strike'?'Select target to EMP':code==='orbital_strike'?'Select target to strike':code==='virus_payload'?'Select target to infect':'Select enemy target';
+      _showClaimPicker(targetClaims,code,label);
     }else{
       _showClaimPicker(myClaims,code,'Select your territory');
     }
   }else{
     var invItem=_shopInventory.find(function(i){return i.code===code});
     shopConfirm(invItem?invItem.icon:'⚡','Use Item',
-      '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+(invItem?invItem.name:code)+'</div>'
+      '<div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px">'+(_itemName(code)||(invItem?invItem.name:code))+'</div>'
       +'<div style="font-size:var(--fs-xs);color:var(--tx3)">This will activate immediately</div>','USE NOW'
     ).then(function(ok){
       if(!ok)return;
@@ -12645,6 +12973,18 @@ function _doUseItem(w,code,claimId){
     else if(code==='attack_boost') _showItemEffect('boost',null);
     else if(code==='pixel_doubler') _showItemEffect('doubler',null);
     else if(code==='mining_boost') _showItemEffect('mining',null);
+    else if(code==='orbital_strike'&&claimId) _showItemEffect('emp',claimId);
+    else if(code==='virus_payload'&&claimId) _showItemEffect('emp',claimId);
+    else if(code==='siege_ram') _showItemEffect('boost',null);
+    else if(code==='supply_crate') _showItemEffect('mining',null);
+    else if(code==='harvest_surge') _showItemEffect('mining',null);
+    else if(code==='xp_amplifier') _showItemEffect('boost',null);
+    else if(code==='gp_generator') _showItemEffect('boost',null);
+    else if(code==='lucky_charm') _showItemEffect('boost',null);
+    else if(code==='recall_beacon') _showItemEffect('radar',null);
+    else if(code==='territory_scan') _showItemEffect('radar',null);
+    else if(code==='decoy_beacon') _showItemEffect('stealth',null);
+    else if(code==='shield_regen'&&claimId) _showItemEffect('shield',claimId);
     renderShopInventory();
     loadActiveEffects();
     // Refresh claims to update shield status on globe
@@ -12758,10 +13098,10 @@ function renderBaseShop(){
       : '';
     return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center">'
-      +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+ ' ' +(it.name||it.item_code)+'</span>'
+      +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+ ' ' +(_itemName(it.code||it.item_code)||it.name||it.item_code)+'</span>'
       +'<span style="font-size:8px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--tx3)">'+(it.category||'')+'</span>'
       +'</div>'
-      +'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+(it.description||'')+'</div>'
+      +'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+(_itemDesc(it.code||it.item_code)||it.description||'')+'</div>'
       +'<div style="display:flex;justify-content:flex-end;gap:4px;align-items:center;margin-top:auto;flex-wrap:wrap">'
       +ppBtn+usdtBtn+gpBtn
       +'</div></div>';
@@ -12825,7 +13165,7 @@ function renderBaseInventory(){
   // Active effects bar
   if(_activeEffects&&_activeEffects.length>0){
     var effHTML=_activeEffects.map(function(e){
-      var info=e.icon+' <b>'+e.name+'</b>';
+      var info=e.icon+' <b>'+(_itemName(e.effect_type)||e.name)+'</b>';
       if(e.uses_remaining!=null) info+=' · '+e.uses_remaining+' uses';
       else if(e.expires_at){
         var mins=Math.max(0,Math.round((new Date(e.expires_at)-Date.now())/60000));
@@ -12858,7 +13198,7 @@ function renderBaseInventory(){
       +'</div>');
     items.forEach(function(it){
       var code=(it.code||'').replace(/'/g,"\\'");
-      var needsClaim=code.indexOf('shield')===0||code==='emp_strike';
+      var needsClaim=code.indexOf('shield')===0||code==='emp_strike'||code==='orbital_strike'||code==='virus_payload'||code==='decoy_beacon';
       var isCosmetic=cat==='cosmetic';
       var useBtn;
       if(isCosmetic){
@@ -12870,10 +13210,10 @@ function renderBaseInventory(){
       }
       parts.push('<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
         +'<div style="display:flex;justify-content:space-between;align-items:center">'
-        +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+' '+(it.name||it.code)+'</span>'
+        +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+' '+(_itemName(it.code)||it.name||it.code)+'</span>'
         +'<span style="font-size:9px;color:var(--gold);font-weight:700">×'+it.quantity+'</span>'
         +'</div>'
-        +(it.description?'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+it.description+'</div>':'')
+        +(function(){var d=_itemDesc(it.code)||it.description;return d?'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+d+'</div>':'';})()
         +'<div style="display:flex;justify-content:flex-end;margin-top:auto">'+useBtn+'</div>'
         +'</div>');
     });
@@ -13069,13 +13409,13 @@ function renderGuildState(guild, wallet){
 // ── Guild upgrade panel ──
 var _guildLevelCosts = {2:500, 3:2000, 4:8000, 5:25000, 6:80000};
 var _guildResearchCatalog = [
-  {key:'mining_eff_1',  label:'⛏ MINING EFF. I',   cost:1000},
-  {key:'shield_disc',   label:'🛡 SHIELD DISCIPL.', cost:1000},
-  {key:'diplomatic',    label:'🕊 DIPLOMATIC',      cost:1000},
-  {key:'orbital_scan',  label:'🛰 ORBITAL SCAN',    cost:5000},
-  {key:'rapid_deploy',  label:'🚀 RAPID DEPLOY',    cost:5000},
-  {key:'logistics',     label:'📦 LOGISTICS',       cost:5000},
-  {key:'mars_dominion', label:'🔥 MARS DOMINION',   cost:20000}
+  {key:'mining_eff_1',  labelKey:'research_mining_eff_1',  cost:1000},
+  {key:'shield_disc',   labelKey:'research_shield_disc',   cost:1000},
+  {key:'diplomatic',    labelKey:'research_diplomatic',    cost:1000},
+  {key:'orbital_scan',  labelKey:'research_orbital_scan',  cost:5000},
+  {key:'rapid_deploy',  labelKey:'research_rapid_deploy',  cost:5000},
+  {key:'logistics',     labelKey:'research_logistics',     cost:5000},
+  {key:'mars_dominion', labelKey:'research_mars_dominion', cost:20000}
 ];
 function renderGuildUpgrades(guild, myRole){
   var lvl = parseInt(guild.level||1);
@@ -13115,7 +13455,7 @@ function renderGuildUpgrades(guild, myRole){
     var status = unlocked ? t('guild_research_unlocked') : (r.cost+' PP');
     var click = (unlocked||!canSpend||!affordable) ? '' : ' onclick="guildUnlockResearch(\''+r.key+'\')"';
     return '<div'+click+' style="padding:6px 8px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';cursor:'+(click?'pointer':'default')+'">'+
-      '<div style="color:'+col+';font-weight:700">'+r.label+'</div>'+
+      '<div style="color:'+col+';font-weight:700">'+t(r.labelKey)+'</div>'+
       '<div style="color:var(--tx3);font-size:8px">'+status+'</div>'+
     '</div>';
   }).join('');
@@ -14570,14 +14910,14 @@ function renderQuests(quests, container){
     html+='<div class="quest-card'+(isComplete?' completed':'')+'" data-qid="'+q.id+'">';
     html+='<div class="qc-header">';
     html+='<span class="quest-tier-label '+q.tier+'">'+q.tier.toUpperCase()+'</span>';
-    html+='<span class="qc-title">'+q.title+'</span>';
+    html+='<span class="qc-title">'+_questTitle(q)+'</span>';
     if(displayReward>0){
       html+='<span class="qc-reward">+'+displayReward.toFixed(4)+' PP</span>';
     }else{
       html+='<span class="qc-reward" style="color:var(--tx3)">—</span>';
     }
     html+='</div>';
-    html+='<div class="qc-desc">'+q.description+'</div>';
+    html+='<div class="qc-desc">'+_questDesc(q)+'</div>';
     html+='<div class="qc-progress">';
     html+='<div class="qc-bar"><div class="qc-fill '+q.tier+'" style="width:'+q.progress_pct+'%"></div></div>';
     html+='<span class="qc-pct">'+q.progress_pct+'%</span>';
@@ -14599,7 +14939,7 @@ function renderClaimedQuests(claimed, container){
   claimed.forEach(function(c){
     html+='<div class="quest-claimed-item">';
     html+='<span class="qci-check">✓</span>';
-    html+='<span>'+c.title+'</span>';
+    html+='<span>'+_questTitle(c)+'</span>';
     html+='<span class="qci-reward">+'+c.reward_pp.toFixed(1)+' PP</span>';
     html+='</div>';
   });
@@ -14630,7 +14970,7 @@ async function claimQuest(questId){
     });
     var d=await resp.json();
     if(!resp.ok){showToast(d.error||t('quests_claim_failed'));try{_sfx.error()}catch(e){}return}
-    showToast(t('quests_claim_success').replace('{pp}',d.rewardPP.toFixed(1)).replace('{title}',d.title));
+    showToast(t('quests_claim_success').replace('{pp}',d.rewardPP.toFixed(1)).replace('{title}',_questTitle(d)));
     try{_sfx.harvest()}catch(e){}
     loadQuests(w); // Refresh
     try{refreshEmailBalances()}catch(e){}
@@ -14650,7 +14990,7 @@ function trackQuestAction(action, amount){
   }).then(function(r){return r.json()}).then(function(d){
     if(d.quests){
       d.quests.forEach(function(q){
-        if(q.justCompleted){showToast(t('quests_completed_toast').replace('{title}',q.title));try{_sfx.notification()}catch(e){}}
+        if(q.justCompleted){showToast(t('quests_completed_toast').replace('{title}',_questTitle(q)));try{_sfx.notification()}catch(e){}}
       });
     }
   }).catch(function(){});
