@@ -2498,7 +2498,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <div class="p-section" id="walletSection" style="display:none">
     <div class="p-title" data-i18n="my_wallet">MY WALLET <span class="help-tip" onclick="event.stopPropagation();showHelpTip('currency')">?</span></div>
     <div class="wallet-panel">
-      <div class="wallet-addr" id="walletAddr" style="display:flex;align-items:center;gap:4px">--<button class="help-tip" onclick="(function(){var a=document.getElementById('walletAddr').textContent.replace('--','').trim();if(a)navigator.clipboard.writeText(a).then(function(){showToast('Address copied!')});})()" style="width:16px;height:16px;font-size:8px;margin-left:4px;border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:var(--tx3)">⎘</button></div>
+      <div class="wallet-addr" id="walletAddr" style="display:flex;align-items:center;gap:4px">--<button class="help-tip" onclick="(function(){var a=document.getElementById('walletAddr').textContent.replace('--','').trim();if(a)navigator.clipboard.writeText(a).then(function(){showToast(t('address_copied'))});})()" style="width:16px;height:16px;font-size:8px;margin-left:4px;border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:var(--tx3)">⎘</button></div>
       <div style="display:flex;gap:4px;align-items:center;margin:2px 0">
         <span class="chain-dot base" id="chainDotPanel"></span>
         <span style="font-size:var(--fs-xs);color:var(--tx2)" id="walletChain">--</span>
@@ -2898,10 +2898,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
       </div>
       <div class="dw-info">
-        Swap fee: <span style="color:var(--red)">5%</span><br>
-        You receive: <span id="swpReceive" style="color:var(--gn)">0.00 USDT</span>
+        <span data-i18n="swap_fee">Swap fee:</span> <span style="color:var(--red)">5%</span><br>
+        <span data-i18n="you_receive">You receive:</span> <span id="swpReceive" style="color:var(--gn)">0.00 USDT</span>
       </div>
-      <button class="cfm" onclick="confirmSwap()">CONFIRM SWAP</button>
+      <button class="cfm" onclick="confirmSwap()" data-i18n="confirm_swap">CONFIRM SWAP</button>
     </div>
   </div>
 </div>
@@ -2956,7 +2956,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <div class="mdl" style="max-width:340px;padding:0;border-radius:14px;overflow:hidden;animation:modalIn .15s ease-out">
     <div style="padding:20px 20px 12px;text-align:center">
       <div id="shopConfirmIcon" style="font-size:36px;margin-bottom:8px">🛒</div>
-      <div id="shopConfirmTitle" style="font-size:var(--fs-lg);font-weight:700;color:var(--tx);margin-bottom:6px">Confirm Purchase</div>
+      <div id="shopConfirmTitle" style="font-size:var(--fs-lg);font-weight:700;color:var(--tx);margin-bottom:6px" data-i18n="shop_confirm_title">Confirm Purchase</div>
       <div id="shopConfirmMsg" style="font-size:var(--fs-sm);color:var(--tx3);line-height:1.6"></div>
     </div>
     <div style="display:flex;border-top:1px solid var(--bdr);margin-top:8px">
@@ -3858,7 +3858,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <div style="font-size:8px;color:var(--tx3);margin-bottom:3px" data-i18n="ref_my_code">MY REFERRAL CODE</div>
               <div style="display:flex;align-items:center;gap:4px">
                 <span style="font-size:13px;color:var(--gold);letter-spacing:2px;flex:1;font-family:var(--fn);font-weight:700" id="profileMyRefCode">--</span>
-                <button class="sz-btn" onclick="(function(){var c=document.getElementById('profileMyRefCode').textContent;if(c&&c!=='--')navigator.clipboard.writeText(c).then(function(){showToast('Code copied!')});})()" style="font-size:8px;padding:3px 8px">COPY</button>
+                <button class="sz-btn" onclick="(function(){var c=document.getElementById('profileMyRefCode').textContent;if(c&&c!=='--')navigator.clipboard.writeText(c).then(function(){showToast(t('ref_code_copied'))});})()" style="font-size:8px;padding:3px 8px">COPY</button>
               </div>
             </div>
             <div id="profileEnterRefWrap">
@@ -3870,7 +3870,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <div id="profileRefStatus" style="font-size:8px;margin-top:3px;min-height:12px"></div>
             </div>
             <div id="profileAlreadyReferred" style="display:none;font-size:8px;color:var(--gn);margin:6px 0">
-              Referred by: <span id="profileReferredBy" style="color:var(--cyan)">--</span>
+              <span data-i18n="ref_referred_by">Referred by:</span> <span id="profileReferredBy" style="color:var(--cyan)">--</span>
             </div>
             <div style="height:1px;background:var(--bdr);margin:8px 0"></div>
             <div style="display:flex;gap:8px;font-size:9px">
@@ -5022,23 +5022,34 @@ function compositeClaimsOnTexture(previewOnly){
       if(r.x<0) _drawOneRect(ctx,img,r.x+w,r.y,r.w,r.h,noImage,ownerLabel,oc,imgParams);
       else if(r.x+r.w>w) _drawOneRect(ctx,img,r.x-w,r.y,r.w,r.h,noImage,ownerLabel,oc,imgParams);
     }
-    // Shield glow effect on a claim rect
-    function _drawShieldEffect(ctx,rx,ry,rw,rh,shieldType){
+    // Shield glow effect — drawn once per merged territory group, not per claim.
+    // Uses strips to trace the exterior outline and places a single icon at center.
+    function _drawShieldGroup(ctx,groupStrips,bx1,by1,bx2,by2,shieldType){
+      if(!groupStrips.length) return;
       var isAdvanced=shieldType==='shield_advanced';
       var glowColor=isAdvanced?'rgba(80,200,255,':'rgba(60,160,255,';
       ctx.save();
+      ctx.globalAlpha=_shieldPulse;
       ctx.shadowColor=isAdvanced?'#50C8FF':'#3CA0FF';
-      ctx.shadowBlur=isAdvanced?8:5;
-      ctx.strokeStyle=glowColor+'0.7)';
-      ctx.lineWidth=isAdvanced?2:1.5;
-      ctx.setLineDash(isAdvanced?[]:[4,3]);
-      ctx.strokeRect(rx,ry,rw,rh);
+      ctx.shadowBlur=isAdvanced?10:6;
+      ctx.strokeStyle=glowColor+'0.6)';
+      ctx.lineWidth=isAdvanced?2.5:1.8;
+      ctx.setLineDash(isAdvanced?[]:[5,4]);
+      ctx.beginPath();
+      for(var si=0;si<groupStrips.length;si++){
+        var sr=_sRect(groupStrips[si]);
+        ctx.rect(sr.x,sr.y,sr.w,sr.h);
+      }
+      ctx.stroke();
       ctx.setLineDash([]);
-      // Shield icon indicator
-      var iconSz=Math.max(6,Math.min(rw,rh)*0.25);
-      ctx.font='bold '+iconSz+'px sans-serif';ctx.textAlign='left';ctx.textBaseline='top';
+      // Single shield icon at group center
+      var cx=(bx1+bx2)/2, cy=(by1+by2)/2;
+      var iconSz=Math.max(10,Math.min(bx2-bx1,by2-by1)*0.18);
+      iconSz=Math.min(iconSz,24);
+      ctx.font='bold '+iconSz+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.fillStyle=glowColor+'0.9)';
-      ctx.fillText(isAdvanced?'🔰':'🛡️',rx+1,ry+1);
+      ctx.fillText(isAdvanced?'🔰':'🛡️',cx,cy);
+      ctx.globalAlpha=1;
       ctx.restore();
     }
     var myAddr=walletState.address||'';
@@ -5697,16 +5708,34 @@ function compositeClaimsOnTexture(previewOnly){
         }
       }
 
-      // Shield effects
-      sortedClaims.forEach(function(sc){
-        if(sc.owner!==c.owner) return;
-        if(sc.shield&&sc.shield.expires>Date.now()){
-          var sr2=getCellRect(sc.lat,sc.lng,sc.w||20,sc.h||20,w,h);
-          ctx.globalAlpha=_shieldPulse;
-          _drawShieldEffect(ctx,sr2.x,sr2.y,sr2.w,sr2.h,sc.shield.type);
-          ctx.globalAlpha=1;
-        }
+      // Shield effects — per merged territory group, not per claim
+      var shieldType=null;
+      var shieldedInGroup=ownerGroups.some(function(grp){
+        var gc=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
+        return gc.some(function(sc){return sc.shield&&sc.shield.expires>Date.now()});
       });
+      if(shieldedInGroup){
+        ownerGroups.forEach(function(grp){
+          var gc=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
+          var hasShield=gc.some(function(sc){return sc.shield&&sc.shield.expires>Date.now()});
+          if(!hasShield) return;
+          var sType=null;
+          gc.forEach(function(sc){if(sc.shield&&sc.shield.expires>Date.now()&&!sType)sType=sc.shield.type;});
+          // Collect strips for this group
+          var gb=grp.bounds;
+          var gStrips=(strips||[]).filter(function(s){
+            return s.lat>=gb.minLat-_gs*0.5&&s.lat<=gb.maxLat+_gs*0.5&&
+                   s.lng1>=gb.minLng-_gs*0.5&&s.lng2<=gb.maxLng+_gs*0.5;
+          });
+          var sbx1=Infinity,sby1=Infinity,sbx2=-Infinity,sby2=-Infinity;
+          for(var ssi=0;ssi<gStrips.length;ssi++){
+            var ssr=_sRect(gStrips[ssi]);
+            if(ssr.x<sbx1)sbx1=ssr.x;if(ssr.y<sby1)sby1=ssr.y;
+            if(ssr.x+ssr.w>sbx2)sbx2=ssr.x+ssr.w;if(ssr.y+ssr.h>sby2)sby2=ssr.y+ssr.h;
+          }
+          _drawShieldGroup(ctx,gStrips,sbx1,sby1,sbx2,sby2,sType);
+        });
+      }
     });
 
     // Governor glow effect: gold border around governor/commander territories
@@ -11112,6 +11141,13 @@ function setLang(lang){
   try{ if(typeof renderInlineCheckin==='function') renderInlineCheckin(); }catch(_e){}
   try{ if(typeof renderDailyMissions==='function' && _dailyState && _dailyState.missions.length) renderDailyMissions(); }catch(_e){}
   try{ if(typeof loadQuests==='function' && walletState && walletState.address) loadQuests(walletState.address); }catch(_e){}
+  // Re-render locale-sensitive dynamic content
+  try{ if(typeof _buildWxEffectMap==='function') _wxEffectMap=_buildWxEffectMap(); }catch(_e){}
+  try{ if(typeof updateWeatherBanner==='function') updateWeatherBanner(); }catch(_e){}
+  try{ if(typeof _baseUserData!=='undefined' && _baseUserData && typeof renderBaseUser==='function') renderBaseUser(_baseUserData); }catch(_e){}
+  try{ if(typeof _sectorsData!=='undefined' && _sectorsData && typeof renderSectorList==='function') renderSectorList(_sectorsData); }catch(_e){}
+  try{ if(typeof renderOpsPadList==='function' && window._opsPads) renderOpsPadList(); }catch(_e){}
+  try{ if(typeof renderOpsMissionList==='function' && typeof _opsMissions!=='undefined') renderOpsMissionList(); }catch(_e){}
 }
 // Highlight the active language button in the profile menu
 function _syncProfileLangBtns(){
@@ -11814,7 +11850,7 @@ function changeAvatar(){
         document.getElementById('tbAvatarImg').src=small;
         document.getElementById('tbAvatarImg').style.display='block';
         document.getElementById('tbAvatarEmoji').style.display='none';
-        showToast('PROFILE PHOTO UPDATED!');
+        showToast(t('prof_photo_updated'));
       };
       img.src=dataUrl;
     };
@@ -12801,28 +12837,43 @@ function renderBaseInventory(){
     return;
   }
   var catColors={defense:'var(--cyan)',attack:'var(--red)',utility:'var(--pp)',cosmetic:'#c088e0',boost:'var(--gold)'};
-  parts=parts.concat(_baseInventory.map(function(it){
-    var code=(it.code||'').replace(/'/g,"\\'");
-    var c=catColors[(it.category||'').toLowerCase()]||'var(--tx2)';
-    var needsClaim=code.indexOf('shield')===0||code==='emp_strike';
-    var isCosmetic=(it.category||'').toLowerCase()==='cosmetic';
-    var useBtn;
-    if(isCosmetic){
-      useBtn='<button onclick="showToast(\'Select your territory then click CUSTOMIZE\',\'info\')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(192,136,224,.45);background:rgba(192,136,224,.12);color:#c088e0;cursor:pointer;font-family:var(--fn)">EQUIP ON LAND</button>';
-    }else if(needsClaim){
-      useBtn='<button onclick="useShopItem(\''+code+'\',true)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(255,120,60,.45);background:rgba(255,120,60,.12);color:var(--mars);cursor:pointer;font-family:var(--fn)">USE ON LAND</button>';
-    }else{
-      useBtn='<button onclick="useShopItem(\''+code+'\',false)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.45);background:rgba(76,216,154,.12);color:var(--gn);cursor:pointer;font-family:var(--fn)">USE</button>';
-    }
-    return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center">'
-      +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+' '+(it.name||it.code)+'</span>'
-      +'<span style="font-size:9px;color:var(--gold);font-weight:700">×'+it.quantity+'</span>'
-      +'</div>'
-      +(it.description?'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+it.description+'</div>':'')
-      +'<div style="display:flex;justify-content:flex-end;margin-top:auto">'+useBtn+'</div>'
-      +'</div>';
-  }));
+  var catLabels={defense:'🛡 DEFENSE',attack:'⚔ ATTACK',utility:'🔧 UTILITY',boost:'⚡ BOOST',cosmetic:'🎨 COSMETIC'};
+  var catOrder=['defense','attack','utility','boost','cosmetic'];
+  var grouped={};
+  _baseInventory.forEach(function(it){
+    var cat=(it.category||'utility').toLowerCase();
+    if(!grouped[cat]) grouped[cat]=[];
+    grouped[cat].push(it);
+  });
+  catOrder.forEach(function(cat){
+    var items=grouped[cat]; if(!items||!items.length) return;
+    var c=catColors[cat]||'var(--tx2)';
+    parts.push('<div style="grid-column:1/-1;margin-top:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:6px">'
+      +'<span style="font-size:10px;font-weight:800;color:'+c+';letter-spacing:1px">'+(catLabels[cat]||cat.toUpperCase())+'</span>'
+      +'<span style="font-size:9px;color:var(--tx3)">('+items.length+')</span>'
+      +'</div>');
+    items.forEach(function(it){
+      var code=(it.code||'').replace(/'/g,"\\'");
+      var needsClaim=code.indexOf('shield')===0||code==='emp_strike';
+      var isCosmetic=cat==='cosmetic';
+      var useBtn;
+      if(isCosmetic){
+        useBtn='<button onclick="showToast(\'Select your territory then click CUSTOMIZE\',\'info\')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(192,136,224,.45);background:rgba(192,136,224,.12);color:#c088e0;cursor:pointer;font-family:var(--fn)">EQUIP ON LAND</button>';
+      }else if(needsClaim){
+        useBtn='<button onclick="useShopItem(\''+code+'\',true)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(255,120,60,.45);background:rgba(255,120,60,.12);color:var(--mars);cursor:pointer;font-family:var(--fn)">USE ON LAND</button>';
+      }else{
+        useBtn='<button onclick="useShopItem(\''+code+'\',false)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.45);background:rgba(76,216,154,.12);color:var(--gn);cursor:pointer;font-family:var(--fn)">USE</button>';
+      }
+      parts.push('<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center">'
+        +'<span style="font-size:10px;font-weight:700;color:'+c+'">'+(it.icon||'')+' '+(it.name||it.code)+'</span>'
+        +'<span style="font-size:9px;color:var(--gold);font-weight:700">×'+it.quantity+'</span>'
+        +'</div>'
+        +(it.description?'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+it.description+'</div>':'')
+        +'<div style="display:flex;justify-content:flex-end;margin-top:auto">'+useBtn+'</div>'
+        +'</div>');
+    });
+  });
   grid.innerHTML=parts.join('');
 }
 
@@ -13227,7 +13278,7 @@ function loadOpsPads(){
 function renderOpsPadList(){
   var el=document.getElementById('opsPadList'); if(!el) return;
   if(!window._opsPads.length){
-    el.innerHTML='<div class="ops-pad-empty">⛔ You don\'t own any territory yet — claim a pixel patch first to get a launch pad.</div>';
+    el.innerHTML='<div class="ops-pad-empty">'+t('ops_no_pads')+'</div>';
     return;
   }
   // Sort: READY pads first, LAUNCHED pads last
@@ -13252,15 +13303,15 @@ function renderOpsPadList(){
     var statusLine;
     if(busy){
       var typIcon = busy.type==='invasion'?'⚔':'🛰';
-      statusLine='<div class="pad-status">'+typIcon+' LAUNCHED</div>';
+      statusLine='<div class="pad-status">'+typIcon+' '+t('ops_launched')+'</div>';
     } else {
-      statusLine='<div class="pad-status ready">● READY</div>';
+      statusLine='<div class="pad-status ready">'+t('ops_ready_status')+'</div>';
     }
-    var memberLbl = (p.claimCount && p.claimCount>1) ? (' · '+p.claimCount+' merged') : '';
-    return '<div class="'+classes+'" '+(busy?'':'onclick="selectOpsPad('+p.id+')"')+' title="'+(busy?'Territory busy with active mission':'Click to select this territory')+'">'
+    var memberLbl = (p.claimCount && p.claimCount>1) ? (' · '+p.claimCount+' '+t('ops_merged')) : '';
+    return '<div class="'+classes+'" '+(busy?'':'onclick="selectOpsPad('+p.id+')"')+'">'
       + '<div class="pad-mult">'+multLabel+'</div>'
       + '<div>'
-      +   '<div class="pad-id">TERRITORY'+memberLbl+'</div>'
+      +   '<div class="pad-id">'+t('ops_territory')+memberLbl+'</div>'
       +   '<div class="pad-coord">'+p.lat.toFixed(1)+'°, '+p.lng.toFixed(1)+'°</div>'
       + '</div>'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-end">'
@@ -13375,7 +13426,7 @@ function loadOpsTab(){
 function renderOpsMissionList(){
   var el = document.getElementById('opsMissionList');
   if(!el) return;
-  if(!_opsMissions.length){ el.innerHTML='<div style="color:var(--tx3);padding:12px;text-align:center">No active missions. Launch one above.</div>'; return; }
+  if(!_opsMissions.length){ el.innerHTML='<div style="color:var(--tx3);padding:12px;text-align:center">'+t('ops_no_missions')+'</div>'; return; }
   var now = Date.now();
   el.innerHTML = _opsMissions.map(function(m){
     var start = new Date(m.startTime).getTime();
@@ -13387,14 +13438,14 @@ function renderOpsMissionList(){
     var ready = m.readyToClaim;
     var barCol = ready ? 'var(--gold)' : typCol;
     var label = ready
-      ? (m.status==='failed' ? 'FAILED' : 'READY TO CLAIM')
+      ? (m.status==='failed' ? t('ops_failed') : t('ops_ready_claim'))
       : _opsFormatTime(remaining);
     var tgt = m.type==='invasion'
       ? ('VS '+(m.targetWallet||'').slice(0,8)+'...')
-      : ('EXPLORE '+m.targetLat.toFixed(1)+'°, '+m.targetLng.toFixed(1)+'°');
+      : (t('ops_explore_label')+' '+m.targetLat.toFixed(1)+'°, '+m.targetLng.toFixed(1)+'°');
     var btn = ready
-      ? '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">CLAIM</button>'
-      : '<button onclick="cancelOpsMission('+m.id+')" style="padding:4px 8px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--tx3);font-family:var(--fn);font-size:8px;cursor:pointer">ABORT</button>';
+      ? '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">'+t('ops_claim')+'</button>'
+      : '<button onclick="cancelOpsMission('+m.id+')" style="padding:4px 8px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--tx3);font-family:var(--fn);font-size:8px;cursor:pointer">'+t('ops_abort')+'</button>';
     return '<div style="padding:8px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid var(--bdr);margin-bottom:6px">'+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
         '<span style="font-size:14px">'+typIcon+'</span>'+
@@ -13416,25 +13467,25 @@ function _opsFormatTime(ms){
   return s+'s';
 }
 function launchOpsMission(){
-  var w = walletState.address; if(!w){ showAlert('Connect wallet first'); return; }
-  if(!window._opsSelectedPad){ showAlert('Pick a launch pad first'); return; }
+  var w = walletState.address; if(!w){ showAlert(t('ops_connect_first')); return; }
+  if(!window._opsSelectedPad){ showAlert(t('ops_pick_pad')); return; }
   var lat = parseFloat(document.getElementById('opsTargetLat').value);
   var lng = parseFloat(document.getElementById('opsTargetLng').value);
-  if(isNaN(lat)||isNaN(lng)){ showAlert('Enter target coordinates'); return; }
+  if(isNaN(lat)||isNaN(lng)){ showAlert(t('ops_enter_coords')); return; }
   var body = { wallet:w, type:_opsType, originClaimId:window._opsSelectedPad.id, targetLat:lat, targetLng:lng };
   if(_opsType==='invasion'){
     var tgt = (document.getElementById('opsTargetWallet').value||'').trim();
-    if(!tgt){ showAlert('Target wallet or nickname required'); return; }
+    if(!tgt){ showAlert(t('ops_target_required')); return; }
     body.targetWallet = tgt;
   }
   fetch('/api/missions/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
     .then(function(r){return r.json()})
     .then(function(d){
       if(d.error){ showAlert(d.error); return; }
-      showAlert('Mission launched!','success');
+      showAlert(t('ops_mission_launched'),'success');
       loadOpsTab();
     })
-    .catch(function(e){ showAlert('Launch failed: '+e.message); });
+    .catch(function(e){ showAlert(t('ops_launch_failed')+' '+e.message); });
 }
 function claimOpsMission(id){
   fetch('/api/missions/'+id+'/claim',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -13451,14 +13502,14 @@ function claimOpsMission(id){
     showAlert('✓ '+parts.join(' · '),'success');
     loadOpsTab();
     if(typeof loadUserData==='function') loadUserData();
-  }).catch(function(e){ showAlert('Claim failed: '+e.message); });
+  }).catch(function(e){ showAlert(t('ops_claim_failed')+' '+e.message); });
 }
 function cancelOpsMission(id){
   gameConfirm({
-    title:'ABORT MISSION',
+    title:t('ops_abort_title'),
     icon:'⚠',
-    body:'Recall this mission back to base? Only a partial fuel refund will be issued.',
-    confirmText:'ABORT'
+    body:t('ops_abort_body'),
+    confirmText:t('ops_abort_btn')
   }).then(function(ok){
     if(!ok) return;
     fetch('/api/missions/'+id+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -14760,14 +14811,14 @@ function startMineTimer(nextAt){
   window._mineTimerInterval=setInterval(function(){
     var diff=nextAt-Date.now();
     if(diff<=0){
-      el.textContent='Harvest available now!';
+      el.textContent=t('harvest_available');
       instantBtn.style.display='none';
       var md=document.getElementById('miningDot');if(md)md.style.display='block';
       clearInterval(window._mineTimerInterval);
       return;
     }
     var h=Math.floor(diff/3600000);var m=Math.floor((diff%3600000)/60000);var s=Math.floor((diff%60000)/1000);
-    el.textContent='Next harvest in '+h+'h '+m+'m '+s+'s';
+    el.textContent=t('mine_timer_prefix')+' '+h+'h '+m+'m '+s+'s';
   },1000);
 }
 
@@ -17772,7 +17823,7 @@ window.addEventListener('resize', function(){
       // as false (detached) and auto-collapse the banner we just expanded.
       el.innerHTML = '<div class="wx-item" onclick="event.stopPropagation();_toggleWeatherBar()" title="Expand weather bar">'
         + '<span class="wx-icon">'+iconSet+'</span>'
-        + '<span class="wx-sector">'+_weatherData.length+' ACTIVE</span>'
+        + '<span class="wx-sector">'+_weatherData.length+' '+t('wx_active')+'</span>'
         + '<span style="color:var(--tx3);font-size:8px;margin-left:4px">▸</span>'
         + '</div>';
       el.classList.add('show');
@@ -17786,7 +17837,7 @@ window.addEventListener('resize', function(){
       var timeStr = mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
       return '<div class="wx-item" onclick="_showWeatherDetail('+idx+')">'
         + '<span class="wx-icon">' + (wx.icon || '🌡️') + '</span>'
-        + '<span class="wx-sector">' + (wx.sectorName || 'Sector ' + wx.sectorId) + '</span>'
+        + '<span class="wx-sector">' + (wx.sectorName || t('wx_sector')+' ' + wx.sectorId) + '</span>'
         + '<span class="wx-time">' + timeStr + '</span>'
         + '</div>';
     }).join('');
@@ -17796,29 +17847,31 @@ window.addEventListener('resize', function(){
     el.classList.add('show');
   }
 
-  var _wxEffectMap = {
-    sandstorm:   { name: 'Sandstorm', desc: 'Harsh winds carry abrasive particles across the surface',
-      effects: [{label:'Mining Yield',val:'+50%',type:'buff'},{label:'Movement Speed',val:'-20%',type:'debuff'},{label:'Visibility',val:'Reduced',type:'debuff'}]},
-    solar_flare: { name: 'Solar Flare', desc: 'Intense radiation from the sun disrupts electronics',
-      effects: [{label:'Mining Yield',val:'+100%',type:'buff'},{label:'Shield Strength',val:'-50%',type:'debuff'},{label:'Hijack Cost',val:'+25%',type:'buff'}]},
-    meteor_shower:{ name: 'Meteor Shower', desc: 'Debris from passing asteroids rains down on the surface',
-      effects: [{label:'Rare Drop Chance',val:'+30%',type:'buff'},{label:'Harvest Bonus',val:'+20%',type:'buff'},{label:'Structure Damage',val:'Possible',type:'debuff'}]},
-    dust_devil:  { name: 'Dust Devil', desc: 'Swirling columns of dust reduce operational efficiency',
-      effects: [{label:'Claim Cost',val:'-15%',type:'buff'},{label:'Mining Yield',val:'-10%',type:'debuff'},{label:'Exploration Speed',val:'+25%',type:'buff'}]}
-  };
+  function _buildWxEffectMap(){return {
+    sandstorm:   { name: t('wx_sandstorm'), desc: t('wx_sandstorm_desc'),
+      effects: [{label:t('wx_mining_yield'),val:'+50%',type:'buff'},{label:t('wx_movement_speed'),val:'-20%',type:'debuff'},{label:t('wx_visibility'),val:'Reduced',type:'debuff'}]},
+    solar_flare: { name: t('wx_solar_flare'), desc: t('wx_solar_flare_desc'),
+      effects: [{label:t('wx_mining_yield'),val:'+100%',type:'buff'},{label:t('wx_shield_strength'),val:'-50%',type:'debuff'},{label:t('wx_hijack_cost'),val:'+25%',type:'buff'}]},
+    meteor_shower:{ name: t('wx_meteor_shower'), desc: t('wx_meteor_shower_desc'),
+      effects: [{label:t('wx_rare_drop'),val:'+30%',type:'buff'},{label:t('wx_harvest_bonus'),val:'+20%',type:'buff'},{label:t('wx_structure_damage'),val:'Possible',type:'debuff'}]},
+    dust_devil:  { name: t('wx_dust_devil'), desc: t('wx_dust_devil_desc'),
+      effects: [{label:t('wx_claim_cost'),val:'-15%',type:'buff'},{label:t('wx_mining_yield'),val:'-10%',type:'debuff'},{label:t('wx_exploration_speed'),val:'+25%',type:'buff'}]}
+  };}
+  var _wxEffectMap = _buildWxEffectMap();
 
   window._showWeatherDetail = function(idx) {
     var wx = _weatherData[idx];
     if(!wx) return;
-    var info = _wxEffectMap[wx.weatherType] || {name:wx.weatherType,desc:'Unknown weather event',effects:[]};
+    var wxMap = _buildWxEffectMap();
+    var info = wxMap[wx.weatherType] || {name:wx.weatherType,desc:'Unknown weather event',effects:[]};
     var remaining = Math.max(0, new Date(wx.endsAt).getTime() - Date.now());
     var mins = Math.floor(remaining / 60000);
     var timeStr = mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
 
     var html = '<div class="wx-d-title">' + (wx.icon||'🌡️') + ' ' + info.name + '</div>';
     html += '<div style="font-size:9px;color:var(--tx2);margin-bottom:8px;line-height:1.4">' + info.desc + '</div>';
-    html += '<div class="wx-d-row"><div class="wx-d-label">Sector</div><div class="wx-d-val neutral">' + (wx.sectorName||'Sector '+wx.sectorId) + '</div></div>';
-    html += '<div class="wx-d-row"><div class="wx-d-label">Time Left</div><div class="wx-d-val neutral">' + timeStr + '</div></div>';
+    html += '<div class="wx-d-row"><div class="wx-d-label">'+t('wx_sector')+'</div><div class="wx-d-val neutral">' + (wx.sectorName||t('wx_sector')+' '+wx.sectorId) + '</div></div>';
+    html += '<div class="wx-d-row"><div class="wx-d-label">'+t('wx_time_left')+'</div><div class="wx-d-val neutral">' + timeStr + '</div></div>';
     info.effects.forEach(function(e){
       html += '<div class="wx-d-row"><div class="wx-d-label">'+e.label+'</div><div class="wx-d-val '+e.type+'">'+e.val+'</div></div>';
     });
