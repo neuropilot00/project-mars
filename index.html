@@ -14091,50 +14091,77 @@ function renderGuildWars(guildId){
 }
 
 var _warDeclareTarget = null;
+var _warAllGuilds = [];
 function showDeclareWarModal(){
   if(!_myGuildData) return;
   _warDeclareTarget = null;
   var treasury = parseFloat(_myGuildData.gpTreasury||_myGuildData.gp_treasury||0);
   document.getElementById('warTreasuryBal').textContent = Math.floor(treasury)+' GP';
   document.getElementById('warConfirmSection').style.display = 'none';
-  document.getElementById('warTargetList').innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">2글자 이상 입력하세요</div>';
+  document.getElementById('warTargetList').innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">로딩중...</div>';
   var inp = document.getElementById('warSearchInput');
   if(inp) inp.value = '';
   document.getElementById('declareWarModal').style.display='flex';
-  setTimeout(function(){ if(inp) inp.focus(); },200);
+  // Auto-load all guilds
+  fetch('/api/guild/leaderboard?limit=50').then(function(r){return r.json()}).then(function(d){
+    _warAllGuilds = (d.guilds||[]).filter(function(g){return g.id!==_myGuildData.id});
+    _renderWarGuildList(_warAllGuilds);
+  }).catch(function(){ document.getElementById('warTargetList').innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">길드 목록을 불러올 수 없습니다</div>'; });
 }
 function closeDeclareWarModal(){
   document.getElementById('declareWarModal').style.display='none';
 }
 function searchWarTargetModal(q){
-  if(q.length<2){
-    document.getElementById('warTargetList').innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">2글자 이상 입력하세요</div>';
-    return;
+  var filtered = _warAllGuilds;
+  if(q && q.length>=1){
+    var lq = q.toLowerCase();
+    filtered = _warAllGuilds.filter(function(g){
+      return (g.name||'').toLowerCase().indexOf(lq)>=0 || (g.tag||'').toLowerCase().indexOf(lq)>=0;
+    });
   }
-  fetch('/api/guild/search?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){
-    var box=document.getElementById('warTargetList');
-    if(!box) return;
-    var guilds=(d.results||d.guilds||[]).filter(function(g){return g.id!==_myGuildData.id});
-    if(!guilds.length){ box.innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">결과 없음</div>'; return; }
-    box.innerHTML=guilds.map(function(g){
-      return '<div onclick="selectWarTarget('+g.id+',\''+((g.emblem||'🔴').replace(/'/g,"\\&#39;"))+'\',\'['+g.tag+'] '+g.name.replace(/'/g,"\\&#39;")+'\','+
-        (g.level||1)+','+(g.memberCount||g.member_count||0)+')" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);margin-bottom:6px;cursor:pointer;transition:all .12s" '+
-        'onmouseenter="this.style.background=\'rgba(232,72,85,.1)\';this.style.borderColor=\'rgba(232,72,85,.35)\'" '+
-        'onmouseleave="this.style.background=\'rgba(255,255,255,.03)\';this.style.borderColor=\'var(--bdr)\'">'+
-        '<span style="font-size:20px">'+(g.emblem||'🔴')+'</span>'+
-        '<div style="flex:1"><div style="font-size:12px;color:var(--tx);font-weight:700">['+g.tag+'] '+g.name+'</div>'+
-        '<div style="font-size:9px;color:var(--tx3);margin-top:2px">Lv.'+(g.level||1)+' · '+(g.memberCount||g.member_count||0)+'명</div></div>'+
-        '<span style="font-size:14px;color:var(--red)">⚔️</span>'+
-      '</div>';
-    }).join('');
-  });
+  _renderWarGuildList(filtered);
 }
-function selectWarTarget(id,emblem,name,level,members){
+function _renderWarGuildList(guilds){
+  var box=document.getElementById('warTargetList');
+  if(!box) return;
+  if(!guilds.length){ box.innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">선포 가능한 길드가 없습니다</div>'; return; }
+  box.innerHTML=guilds.map(function(g){
+    var emblem = g.emblem||g.emblem_emoji||'🔴';
+    var name = g.name||'';
+    var tag = g.tag||'';
+    var lvl = g.level||1;
+    var cnt = g.memberCount||g.member_count||0;
+    var px = g.totalPixels||g.total_pixels||0;
+    return '<div onclick="selectWarTarget('+g.id+')" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);margin-bottom:6px;cursor:pointer;transition:all .12s" '+
+      'onmouseenter="this.style.background=\'rgba(232,72,85,.1)\';this.style.borderColor=\'rgba(232,72,85,.35)\'" '+
+      'onmouseleave="this.style.background=\'rgba(255,255,255,.03)\';this.style.borderColor=\'var(--bdr)\'" '+
+      'data-gid="'+g.id+'">'+
+      '<span style="font-size:22px">'+emblem+'</span>'+
+      '<div style="flex:1"><div style="font-size:12px;color:var(--tx);font-weight:700">['+tag+'] '+name+'</div>'+
+      '<div style="font-size:9px;color:var(--tx3);margin-top:2px">Lv.'+lvl+' · '+cnt+'명 · '+px+' PX</div></div>'+
+      '<span style="font-size:16px;color:var(--red)">⚔️</span>'+
+    '</div>';
+  }).join('');
+}
+function selectWarTarget(id){
   _warDeclareTarget = id;
-  document.getElementById('warTargetEmblem').textContent = emblem;
-  document.getElementById('warTargetName').textContent = name;
-  document.getElementById('warTargetInfo').textContent = 'Lv.'+level+' · '+members+'명';
+  var g = _warAllGuilds.find(function(x){return x.id===id});
+  if(!g) return;
+  document.getElementById('warTargetEmblem').textContent = g.emblem||g.emblem_emoji||'🔴';
+  document.getElementById('warTargetName').textContent = '['+g.tag+'] '+g.name;
+  document.getElementById('warTargetInfo').textContent = 'Lv.'+(g.level||1)+' · '+(g.memberCount||g.member_count||0)+'명 · '+(g.totalPixels||g.total_pixels||0)+' PX';
   document.getElementById('warConfirmSection').style.display = 'block';
+  // Highlight selected
+  var items = document.querySelectorAll('#warTargetList > div[data-gid]');
+  items.forEach(function(el){
+    if(parseInt(el.getAttribute('data-gid'))===id){
+      el.style.background='rgba(232,72,85,.15)';
+      el.style.borderColor='rgba(232,72,85,.5)';
+    } else {
+      el.style.background='rgba(255,255,255,.03)';
+      el.style.borderColor='var(--bdr)';
+    }
+  });
 }
 function confirmDeclareWar(){
   if(!_warDeclareTarget||!_myGuildData) return;
@@ -20786,7 +20813,7 @@ if(typeof _origTrackQuestAction === 'function'){
     </div>
     <!-- Search -->
     <div style="padding:12px 18px">
-      <input id="warSearchInput" placeholder="길드 이름 또는 태그 검색..." oninput="searchWarTargetModal(this.value)"
+      <input id="warSearchInput" placeholder="🔍 필터: 길드 이름 또는 태그" oninput="searchWarTargetModal(this.value)"
         style="width:100%;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(232,72,85,.2);color:var(--tx);font-size:12px;box-sizing:border-box;outline:none;font-family:var(--fn)"
         onfocus="this.style.borderColor='rgba(232,72,85,.5)'" onblur="this.style.borderColor='rgba(232,72,85,.2)'">
     </div>
