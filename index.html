@@ -13869,11 +13869,11 @@ window.clearBaseTabDot = function(tab){
     window._baseDotSeen.guild_chat = Date.now();
     window._baseDotSeen._guild_invite_seen = _pollDotState.guild_invites || 0;
   }
-  // Snapshot polled counts — dot won't re-enable until count increases
-  if(tab==='quests') window._baseDotSeen._quests_seen = _pollDotState.quests_claimable || 0;
-  if(tab==='ops') window._baseDotSeen._ops_seen = _pollDotState.ops_claimable || 0;
+  // INFO tabs: snapshot count — dot won't re-enable until count increases
+  // (govern, guild invites = "you saw it" is enough)
   if(tab==='govern') window._baseDotSeen._govern_seen = _pollDotState.govern_count || 0;
-  if(tab==='rank') window._baseDotSeen._rank_unclaimed_seen = _pollDotState.rank_unclaimed || 0;
+  // ACTION tabs (quests, ops, rank/season): do NOT snapshot — dot re-appears
+  // on next poll if unclaimed items still exist, until user actually claims them
   _saveDotSeen();
   if(typeof _updateBaseBtnDot==='function') _updateBaseBtnDot();
 };
@@ -13937,10 +13937,8 @@ function _pollBaseTabDots(){
       if(d && d.myRewards && d.myRewards.length){
         var unclaimed = d.myRewards.filter(function(r){ return !r.claimed; }).length;
         _pollDotState.rank_unclaimed = unclaimed;
-        _autoSnap('rank','_rank_unclaimed_seen',unclaimed);
-        if(unclaimed > 0 && unclaimed > (seen._rank_unclaimed_seen||0)){
-          setBaseTabDot('rank', true);
-        }
+        // ACTION: unclaimed rewards → dot persists until claimed
+        if(unclaimed > 0) setBaseTabDot('rank', true);
       }
     }catch(_e){}
   }).catch(function(){});
@@ -13976,10 +13974,8 @@ function _pollBaseTabDots(){
       var quests = d && d.quests || [];
       var claimable = quests.filter(function(q){ return q.status==='completed'; }).length;
       _pollDotState.quests_claimable = claimable;
-      _autoSnap('quests','_quests_seen',claimable);
-      if(claimable > 0 && claimable > (seen._quests_seen||0)){
-        setBaseTabDot('quests', true);
-      }
+      // ACTION: claimable quests → dot persists until claimed
+      if(claimable > 0) setBaseTabDot('quests', true);
     }catch(_e){}
   }).catch(function(){});
   // OPS: only dot if claimable count INCREASED since user last viewed
@@ -13988,10 +13984,8 @@ function _pollBaseTabDots(){
       var missions = d && d.missions || [];
       var claimable = missions.filter(function(m){ return m.status==='complete'; }).length;
       _pollDotState.ops_claimable = claimable;
-      _autoSnap('ops','_ops_seen',claimable);
-      if(claimable > 0 && claimable > (seen._ops_seen||0)){
-        setBaseTabDot('ops', true);
-      }
+      // ACTION: claimable missions → dot persists until claimed
+      if(claimable > 0) setBaseTabDot('ops', true);
     }catch(_e){}
   }).catch(function(){});
   // GOVERN: only dot if active bounty/event count INCREASED since user last viewed
