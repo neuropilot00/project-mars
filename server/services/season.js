@@ -323,9 +323,255 @@ async function getMyRewards(wallet) {
   }));
 }
 
+// ═══════════════════════════════════════
+//  SEASON PASS
+// ═══════════════════════════════════════
+
+async function getSeasonPass(wallet) {
+  const season = await getActiveSeason();
+  if (!season) return { error: 'No active season' };
+
+  // Get or create progress
+  await pool.query(
+    `INSERT INTO season_pass_progress (season_id, wallet) VALUES ($1, $2)
+     ON CONFLICT DO NOTHING`,
+    [season.id, wallet]
+  );
+  const prog = await pool.query(
+    'SELECT * FROM season_pass_progress WHERE season_id = $1 AND wallet = $2',
+    [season.id, wallet]
+  );
+  const p = prog.rows[0];
+
+  // Get tiers
+  const tiers = await getOrCreatePassTiers(season.id);
+
+  // Get claimed tiers
+  const claimed = await pool.query(
+    'SELECT tier, is_premium FROM season_pass_claims WHERE season_id = $1 AND wallet = $2',
+    [season.id, wallet]
+  );
+  const claimedSet = new Set(claimed.rows.map(r => `${r.tier}-${r.is_premium}`));
+
+  return {
+    seasonId: season.id,
+    seasonName: season.name,
+    xp: p.pass_xp,
+    currentTier: p.current_tier,
+    isPremium: p.is_premium,
+    tiers: tiers.map(t => ({
+      ...t,
+      claimed: claimedSet.has(`${t.tier}-${t.is_premium}`),
+      unlocked: p.pass_xp >= t.xp_required
+    }))
+  };
+}
+
+async function getOrCreatePassTiers(seasonId) {
+  const existing = await pool.query(
+    'SELECT * FROM season_pass_tiers WHERE season_id = $1 ORDER BY tier, is_premium',
+    [seasonId]
+  );
+  if (existing.rows.length > 0) return existing.rows;
+
+  // Auto-generate default tiers
+  const maxTier = parseInt(await getSetting('season_pass_max_tier') || '30');
+  const baseXp = parseInt(await getSetting('season_pass_xp_per_tier') || '100');
+
+  const tiers = [];
+  for (let t = 1; t <= maxTier; t++) {
+    const xpReq = Math.floor(baseXp * Math.pow(1.15, t - 1) * t);
+
+    // Free track rewards
+    let freeType = 'gp', freeAmount = 10 * t;
+    if (t % 5 === 0) { freeType = 'pp'; freeAmount = Math.floor(t / 5) * 0.5; }
+    if (t === maxTier) { freeType = 'pp'; freeAmount = 5; }
+
+    tiers.push({ season_id: seasonId, tier: t, is_premium: false,
+      reward_type: freeType, reward_amount: freeAmount, xp_required: xpReq });
+
+    // Premium track rewards (better)
+    let premType = 'gp', premAmount = 25 * t;
+    if (t % 3 === 0) { premType = 'pp'; premAmount = Math.floor(t / 3) * 0.3; }
+    if (t % 10 === 0) { premType = 'item'; premAmount = 1; }
+    if (t === maxTier) { premType = 'pp'; premAmount = 15; }
+
+    tiers.push({ season_id: seasonId, tier: t, is_premium: true,
+      reward_type: premType, reward_amount: premAmount, xp_required: xpReq });
+  }
+
+  // Batch insert
+  for (const t of tiers) {
+    await pool.query(
+      `INSERT INTO season_pass_tiers (season_id, tier, is_premium, reward_type, reward_amount, xp_required)
+       VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING`,
+      [t.season_id, t.tier, t.is_premium, t.reward_type, t.reward_amount, t.xp_required]
+    );
+  }
+
+  return tiers;
+}
+
+async function addPassXP(wallet, action) {
+  const season = await getActiveSeason();
+  if (!season) return;
+
+  const xpMap = {
+    harvest: 'season_pass_xp_per_harvest',
+    claim: 'season_pass_xp_per_claim',
+    invasion: 'season_pass_xp_per_invasion',
+    exploration: 'season_pass_xp_per_exploration',
+    quest: 'season_pass_xp_per_quest'
+  };
+  const settingKey = xpMap[action];
+  if (!settingKey) return;
+
+  const xp = parseInt(await getSetting(settingKey) || '5');
+
+  await pool.query(
+    `INSERT INTO season_pass_progress (season_id, wallet, pass_xp) VALUES ($1, $2, $3)
+     ON CONFLICT (season_id, wallet) DO UPDATE SET pass_xp = season_pass_progress.pass_xp + $3`,
+    [season.id, wallet, xp]
+  );
+}
+
+async function purchasePremiumPass(wallet) {
+  const season = await getActiveSeason();
+  if (!season) return { error: 'No active season' };
+
+  const cost = parseInt(await getSetting('season_pass_premium_cost_gp') || '500');
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Check already premium
+    const prog = await client.query(
+      'SELECT is_premium FROM season_pass_progress WHERE season_id = $1 AND wallet = $2',
+      [season.id, wallet]
+    );
+    if (prog.rows[0]?.is_premium) {
+      await client.query('ROLLBACK');
+      return { error: 'Already have premium pass' };
+    }
+
+    // Check GP
+    const gp = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [wallet]);
+    if (parseFloat(gp.rows[0]?.gp_balance || 0) < cost) {
+      await client.query('ROLLBACK');
+      return { error: `Need ${cost} GP for premium pass` };
+    }
+
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2', [cost, wallet]);
+    await client.query(
+      `INSERT INTO season_pass_progress (season_id, wallet, is_premium, purchased_at)
+       VALUES ($1, $2, true, NOW())
+       ON CONFLICT (season_id, wallet) DO UPDATE SET is_premium = true, purchased_at = NOW()`,
+      [season.id, wallet]
+    );
+
+    await client.query('COMMIT');
+    return { success: true, cost };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    return { error: e.message };
+  } finally { client.release(); }
+}
+
+async function claimPassTier(wallet, tier, isPremium) {
+  const season = await getActiveSeason();
+  if (!season) return { error: 'No active season' };
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Get progress
+    const prog = await client.query(
+      'SELECT * FROM season_pass_progress WHERE season_id = $1 AND wallet = $2 FOR UPDATE',
+      [season.id, wallet]
+    );
+    if (!prog.rows.length) { await client.query('ROLLBACK'); return { error: 'No progress found' }; }
+    const p = prog.rows[0];
+
+    // Premium check
+    if (isPremium && !p.is_premium) {
+      await client.query('ROLLBACK');
+      return { error: 'Need premium pass for premium rewards' };
+    }
+
+    // Get tier info
+    const tierRes = await client.query(
+      'SELECT * FROM season_pass_tiers WHERE season_id = $1 AND tier = $2 AND is_premium = $3',
+      [season.id, tier, isPremium]
+    );
+    if (!tierRes.rows.length) { await client.query('ROLLBACK'); return { error: 'Tier not found' }; }
+    const t = tierRes.rows[0];
+
+    // XP check
+    if (p.pass_xp < t.xp_required) {
+      await client.query('ROLLBACK');
+      return { error: `Need ${t.xp_required} XP (have ${p.pass_xp})` };
+    }
+
+    // Already claimed check
+    const already = await client.query(
+      'SELECT id FROM season_pass_claims WHERE season_id=$1 AND wallet=$2 AND tier=$3 AND is_premium=$4',
+      [season.id, wallet, tier, isPremium]
+    );
+    if (already.rows.length) { await client.query('ROLLBACK'); return { error: 'Already claimed' }; }
+
+    // Give reward
+    let label = '';
+    if (t.reward_type === 'pp') {
+      await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [t.reward_amount, wallet]);
+      label = t.reward_amount + ' PP';
+    } else if (t.reward_type === 'gp') {
+      await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE wallet_address = $2', [t.reward_amount, wallet]);
+      label = t.reward_amount + ' GP';
+    } else if (t.reward_type === 'xp') {
+      await client.query('UPDATE users SET xp = xp + $1 WHERE wallet_address = $2', [t.reward_amount, wallet]);
+      label = t.reward_amount + ' XP';
+    } else if (t.reward_type === 'item') {
+      const meta = t.reward_meta || {};
+      if (meta.item_code) {
+        const itemRes = await client.query('SELECT id FROM item_types WHERE code = $1', [meta.item_code]);
+        if (itemRes.rows.length) {
+          await client.query(
+            `INSERT INTO user_items (wallet, item_type_id, quantity) VALUES ($1, $2, $3)
+             ON CONFLICT (wallet, item_type_id) DO UPDATE SET quantity = user_items.quantity + $3`,
+            [wallet, itemRes.rows[0].id, Math.max(1, t.reward_amount)]
+          );
+        }
+      }
+      label = 'Item reward';
+    }
+
+    // Record claim
+    await client.query(
+      'INSERT INTO season_pass_claims (season_id, wallet, tier, is_premium) VALUES ($1,$2,$3,$4)',
+      [season.id, wallet, tier, isPremium]
+    );
+
+    // Update current tier
+    await client.query(
+      'UPDATE season_pass_progress SET current_tier = GREATEST(current_tier, $1) WHERE season_id = $2 AND wallet = $3',
+      [tier, season.id, wallet]
+    );
+
+    await client.query('COMMIT');
+    return { success: true, tier, isPremium, rewardType: t.reward_type, rewardAmount: parseFloat(t.reward_amount), label };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    return { error: e.message };
+  } finally { client.release(); }
+}
+
 module.exports = {
   ALL_CATEGORIES,
   getActiveSeason, addSeasonScore,
   getSeasonLeaderboard, finalizeSeasonRewards,
-  claimSeasonReward, getMyRewards
+  claimSeasonReward, getMyRewards,
+  // Season Pass (migration 068)
+  getSeasonPass, addPassXP, purchasePremiumPass, claimPassTier
 };

@@ -585,6 +585,15 @@ async function launchMission(wallet, type, originClaimId, targetLat, targetLng, 
       durationSec = Math.max(60, Math.round(durationSec * multiplier));
     }
 
+    // ── Guild research: rapid_deploy (speed) + logistics (cost reduction) ──
+    try {
+      const guildService = require('./guild');
+      const rb = await guildService.getResearchBonuses(wallet);
+      if (rb.speed > 0) {
+        durationSec = Math.max(60, Math.round(durationSec * (1 - rb.speed / 100)));
+      }
+    } catch (_grb) { /* guild service unavailable */ }
+
     // ── Deduct PP fuel
     const balRes = await client.query(
       'SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
@@ -759,7 +768,18 @@ async function invasionSuccessRate(attackerWallet, targetWallet) {
     if (sh.rows.length) shieldPen = shieldMaxPen;
   } catch (_e) { /* user_active_effects may not exist */ }
 
-  return Math.max(minR, Math.min(maxR, base + pxBonus - shieldPen));
+  // ── Guild research bonuses ──
+  let guildDefBonus = 0;
+  try {
+    const guildService = require('./guild');
+    // Defender's shield_disc research → harder to invade
+    const defBonuses = await guildService.getResearchBonuses(targetWallet);
+    if (defBonuses.defense > 0) guildDefBonus += defBonuses.defense / 100;
+    // Defender's diplomatic research → also reduces invasion success
+    if (defBonuses.diplomatic > 0) guildDefBonus += defBonuses.diplomatic / 100;
+  } catch (_ge) { /* guild service unavailable */ }
+
+  return Math.max(minR, Math.min(maxR, base + pxBonus - shieldPen - guildDefBonus));
 }
 
 /** Resolve a single mission to complete/failed with rewards attached. */
@@ -856,6 +876,16 @@ async function resolveMission(missionId) {
         }
       }
       applyMult(reward);
+      // Guild research: orbital_scan → exploration reward bonus
+      try {
+        const guildService = require('./guild');
+        const rb = await guildService.getResearchBonuses(m.wallet);
+        if (rb.exploration > 0 && reward) {
+          const expBonus = 1 + rb.exploration / 100;
+          if (reward.pp) reward.pp = Math.round(reward.pp * expBonus * 1000000) / 1000000;
+          if (reward.xp) reward.xp = Math.floor(reward.xp * expBonus);
+        }
+      } catch (_grb) { /* guild research unavailable */ }
       // Exploration channels: PP / XP / item. NEAR distance collapses
       // to a single channel; MID/FAR keep all.
       const exploreFactor = tier === 'near' ? 0.5 : tier === 'mid' ? 1.0 : 2.0;
@@ -901,6 +931,23 @@ async function resolveMission(missionId) {
     }
 
     await client.query('COMMIT');
+
+    // ── Post-resolve hooks (non-blocking) ──
+    try {
+      const seasonService = require('./season');
+      const guildService = require('./guild');
+      if (m.type === 'exploration') {
+        if (seasonService.addPassXP) seasonService.addPassXP(m.wallet, 'exploration').catch(() => {});
+      } else if (m.type === 'invasion') {
+        if (seasonService.addPassXP) seasonService.addPassXP(m.wallet, 'invasion').catch(() => {});
+        // Guild war: invasion points
+        const warPts = parseInt(await getSetting('guild_war_hijack_points') || '10');
+        if (guildService.recordWarAction) {
+          guildService.recordWarAction(m.wallet, 'invasion', warPts, { target: m.target_wallet, success: m.type === 'invasion' }).catch(() => {});
+        }
+      }
+    } catch (_hook) { /* non-critical */ }
+
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;

@@ -1025,6 +1025,273 @@ async function getTreasuryLedger(guildId, limit = 50) {
   }));
 }
 
+// ═══════════════════════════════════════
+//  RESEARCH EFFECTS — query bonuses for a wallet
+// ═══════════════════════════════════════
+
+async function getResearchBonuses(wallet) {
+  const bonuses = {
+    mining: 0,        // +% harvest PP
+    defense: 0,       // +% defense (reduces invasion success against)
+    diplomatic: 0,    // -% invasion success against members
+    exploration: 0,   // +% exploration rewards
+    speed: 0,         // -% mission travel time
+    logistics: 0,     // -% claim costs
+    dominion: 0       // +% all bonuses
+  };
+  try {
+    const r = await pool.query(
+      `SELECT g.research_flags FROM guilds g
+       JOIN guild_members gm ON gm.guild_id = g.id
+       WHERE gm.wallet = $1`, [wallet]
+    );
+    if (!r.rows.length) return bonuses;
+    const flags = r.rows[0].research_flags || {};
+
+    if (flags.mining_eff_1) bonuses.mining = parseFloat(await getSetting('guild_research_mining_eff_1_bonus') || '10');
+    if (flags.shield_disc) bonuses.defense = parseFloat(await getSetting('guild_research_shield_disc_bonus') || '15');
+    if (flags.diplomatic) bonuses.diplomatic = parseFloat(await getSetting('guild_research_diplomatic_bonus') || '10');
+    if (flags.orbital_scan) bonuses.exploration = parseFloat(await getSetting('guild_research_orbital_scan_bonus') || '15');
+    if (flags.rapid_deploy) bonuses.speed = parseFloat(await getSetting('guild_research_rapid_deploy_bonus') || '20');
+    if (flags.logistics) bonuses.logistics = parseFloat(await getSetting('guild_research_logistics_bonus') || '10');
+    if (flags.mars_dominion) {
+      bonuses.dominion = parseFloat(await getSetting('guild_research_mars_dominion_bonus') || '5');
+      // Mars Dominion stacks on top of all other bonuses
+      bonuses.mining += bonuses.dominion;
+      bonuses.defense += bonuses.dominion;
+      bonuses.diplomatic += bonuses.dominion;
+      bonuses.exploration += bonuses.dominion;
+      bonuses.speed += bonuses.dominion;
+      bonuses.logistics += bonuses.dominion;
+    }
+  } catch (e) { console.warn('[GUILD] getResearchBonuses:', e.message); }
+  return bonuses;
+}
+
+// ═══════════════════════════════════════
+//  GUILD WARS
+// ═══════════════════════════════════════
+
+async function declareWar(wallet, guildId, targetGuildId) {
+  if (guildId === targetGuildId) return { error: 'Cannot declare war on your own guild' };
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Verify caller is leader/officer
+    const mem = await client.query(
+      'SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2', [guildId, wallet]
+    );
+    if (!mem.rows.length || mem.rows[0].role === 'member') {
+      await client.query('ROLLBACK');
+      return { error: 'Only leader or officers can declare war' };
+    }
+
+    // Check min members
+    const minMembers = parseInt(await getSetting('guild_war_min_members') || '3');
+    const memCount = await client.query('SELECT COUNT(*)::int AS cnt FROM guild_members WHERE guild_id = $1', [guildId]);
+    if (memCount.rows[0].cnt < minMembers) {
+      await client.query('ROLLBACK');
+      return { error: `Need at least ${minMembers} members to declare war` };
+    }
+
+    // Check target guild exists
+    const tg = await client.query('SELECT id, name, member_count FROM guilds WHERE id = $1', [targetGuildId]);
+    if (!tg.rows.length) { await client.query('ROLLBACK'); return { error: 'Target guild not found' }; }
+
+    // Check max active wars
+    const maxActive = parseInt(await getSetting('guild_war_max_active') || '1');
+    const activeWars = await client.query(
+      `SELECT COUNT(*)::int AS cnt FROM guild_wars
+       WHERE status IN ('declared','active')
+         AND (attacker_guild_id = $1 OR defender_guild_id = $1)`,
+      [guildId]
+    );
+    if (activeWars.rows[0].cnt >= maxActive) {
+      await client.query('ROLLBACK');
+      return { error: `Already in ${maxActive} active war(s)` };
+    }
+
+    // Check cooldown between same guilds
+    const cooldown = parseInt(await getSetting('guild_war_cooldown_hours') || '48');
+    const recentWar = await client.query(
+      `SELECT id FROM guild_wars
+       WHERE ((attacker_guild_id = $1 AND defender_guild_id = $2)
+           OR (attacker_guild_id = $2 AND defender_guild_id = $1))
+         AND created_at > NOW() - INTERVAL '1 hour' * $3
+       LIMIT 1`,
+      [guildId, targetGuildId, cooldown]
+    );
+    if (recentWar.rows.length) {
+      await client.query('ROLLBACK');
+      return { error: `War cooldown: wait ${cooldown}h between wars with the same guild` };
+    }
+
+    // Deduct PP from treasury
+    const cost = parseFloat(await getSetting('guild_war_declare_cost_pp') || '5000');
+    const gRes = await client.query('SELECT pp_treasury FROM guilds WHERE id = $1 FOR UPDATE', [guildId]);
+    const treasury = parseFloat(gRes.rows[0]?.pp_treasury || 0);
+    if (treasury < cost) {
+      await client.query('ROLLBACK');
+      return { error: `Need ${cost} PP in treasury. Have ${treasury.toFixed(0)}.` };
+    }
+
+    await client.query('UPDATE guilds SET pp_treasury = pp_treasury - $1 WHERE id = $2', [cost, guildId]);
+    const newBal = treasury - cost;
+    await client.query(
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+       VALUES ($1, $2, 'war_declare', $3, $4, $5)`,
+      [guildId, wallet, -cost, newBal, `War declared vs guild #${targetGuildId}`]
+    );
+
+    // Create war — starts immediately
+    const durHours = parseInt(await getSetting('guild_war_duration_hours') || '24');
+    const war = await client.query(
+      `INSERT INTO guild_wars (attacker_guild_id, defender_guild_id, declared_by, status, war_start, war_end, duration_hours)
+       VALUES ($1, $2, $3, 'active', NOW(), NOW() + INTERVAL '1 hour' * $4, $4)
+       RETURNING *`,
+      [guildId, targetGuildId, wallet, durHours]
+    );
+
+    await client.query('COMMIT');
+    console.log(`[GUILD WAR] #${guildId} declared war on #${targetGuildId} by ${wallet} (-${cost} PP)`);
+    return { success: true, war: war.rows[0] };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    return { error: e.message };
+  } finally { client.release(); }
+}
+
+async function getActiveWars(guildId) {
+  const r = await pool.query(
+    `SELECT w.*,
+            ag.name AS attacker_name, ag.tag AS attacker_tag, ag.emblem_emoji AS attacker_emblem,
+            dg.name AS defender_name, dg.tag AS defender_tag, dg.emblem_emoji AS defender_emblem
+     FROM guild_wars w
+     JOIN guilds ag ON ag.id = w.attacker_guild_id
+     JOIN guilds dg ON dg.id = w.defender_guild_id
+     WHERE w.status IN ('declared','active')
+       AND (w.attacker_guild_id = $1 OR w.defender_guild_id = $1)
+     ORDER BY w.created_at DESC`,
+    [guildId]
+  );
+  return r.rows;
+}
+
+async function getWarHistory(guildId, limit = 20) {
+  const r = await pool.query(
+    `SELECT w.*,
+            ag.name AS attacker_name, ag.tag AS attacker_tag,
+            dg.name AS defender_name, dg.tag AS defender_tag
+     FROM guild_wars w
+     JOIN guilds ag ON ag.id = w.attacker_guild_id
+     JOIN guilds dg ON dg.id = w.defender_guild_id
+     WHERE w.status = 'resolved'
+       AND (w.attacker_guild_id = $1 OR w.defender_guild_id = $1)
+     ORDER BY w.war_end DESC
+     LIMIT $2`,
+    [guildId, limit]
+  );
+  return r.rows;
+}
+
+async function recordWarAction(wallet, actionType, points, meta) {
+  try {
+    // Find player's guild
+    const gm = await pool.query('SELECT guild_id FROM guild_members WHERE wallet = $1', [wallet]);
+    if (!gm.rows.length) return null;
+    const guildId = gm.rows[0].guild_id;
+
+    // Find active war involving this guild
+    const war = await pool.query(
+      `SELECT id, attacker_guild_id, defender_guild_id FROM guild_wars
+       WHERE status = 'active'
+         AND (attacker_guild_id = $1 OR defender_guild_id = $1)
+       LIMIT 1`,
+      [guildId]
+    );
+    if (!war.rows.length) return null;
+    const w = war.rows[0];
+
+    // Record action
+    await pool.query(
+      `INSERT INTO guild_war_actions (war_id, guild_id, wallet, action_type, points, meta)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [w.id, guildId, wallet, actionType, points, JSON.stringify(meta || {})]
+    );
+
+    // Update war scores
+    const scoreCol = guildId === w.attacker_guild_id ? 'attacker_score' : 'defender_score';
+    await pool.query(
+      `UPDATE guild_wars SET ${scoreCol} = ${scoreCol} + $1 WHERE id = $2`,
+      [points, w.id]
+    );
+
+    return { warId: w.id, guildId, points, side: scoreCol.replace('_score', '') };
+  } catch (e) {
+    console.warn('[GUILD WAR] recordWarAction:', e.message);
+    return null;
+  }
+}
+
+async function resolveExpiredWars() {
+  const client = await pool.connect();
+  try {
+    const expired = await client.query(
+      `SELECT * FROM guild_wars WHERE status = 'active' AND war_end <= NOW()`
+    );
+    for (const w of expired.rows) {
+      await client.query('BEGIN');
+      let winnerId = null;
+      if (w.attacker_score > w.defender_score) winnerId = w.attacker_guild_id;
+      else if (w.defender_score > w.attacker_score) winnerId = w.defender_guild_id;
+      // else draw — no winner
+
+      const rewardPP = parseFloat(await getSetting('guild_war_winner_pp') || '10000');
+
+      await client.query(
+        `UPDATE guild_wars SET status = 'resolved', winner_guild_id = $1, reward_pp = $2 WHERE id = $3`,
+        [winnerId, winnerId ? rewardPP : 0, w.id]
+      );
+
+      // Award PP to winner's treasury
+      if (winnerId && rewardPP > 0) {
+        await client.query('UPDATE guilds SET pp_treasury = pp_treasury + $1 WHERE id = $2', [rewardPP, winnerId]);
+        await client.query(
+          `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+           VALUES ($1, 'system', 'war_reward', $2,
+                   (SELECT pp_treasury FROM guilds WHERE id = $1), $3)`,
+          [winnerId, rewardPP, `War victory reward (War #${w.id})`]
+        );
+      }
+      await client.query('COMMIT');
+      console.log(`[GUILD WAR] #${w.id} resolved. Winner: ${winnerId || 'draw'}. Score: ${w.attacker_score}-${w.defender_score}`);
+    }
+    return expired.rows.length;
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[GUILD WAR] resolveExpiredWars:', e.message);
+    return 0;
+  } finally { client.release(); }
+}
+
+async function getWarLeaderboard(warId) {
+  const r = await pool.query(
+    `SELECT wa.wallet, u.nickname, wa.guild_id, g.tag AS guild_tag,
+            SUM(wa.points)::int AS total_points, COUNT(*)::int AS actions
+     FROM guild_war_actions wa
+     JOIN users u ON u.wallet_address = wa.wallet
+     JOIN guilds g ON g.id = wa.guild_id
+     WHERE wa.war_id = $1
+     GROUP BY wa.wallet, u.nickname, wa.guild_id, g.tag
+     ORDER BY total_points DESC
+     LIMIT 20`,
+    [warId]
+  );
+  return r.rows;
+}
+
 module.exports = {
   createGuild, getGuild, getGuildByWallet,
   inviteMember, acceptInvite, declineInvite, getMyInvites, searchUsersForInvite,
@@ -1037,5 +1304,10 @@ module.exports = {
   // Upgrades (migration 058)
   contributeHarvest, setContributionPct,
   upgradeGuildLevel, getGuildMaxMembers,
-  unlockResearch, getTreasuryLedger
+  unlockResearch, getTreasuryLedger,
+  // Research effects (migration 067)
+  getResearchBonuses,
+  // Guild Wars (migration 067)
+  declareWar, getActiveWars, getWarHistory,
+  recordWarAction, resolveExpiredWars, getWarLeaderboard
 };

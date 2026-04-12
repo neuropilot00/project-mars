@@ -2183,6 +2183,30 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   }
 }
 
+/* ── Mobile polish: touch targets, scroll, panels ── */
+@media(max-width:768px){
+  /* Minimum touch target size for interactive elements */
+  #guildMembersList button,
+  #guildResearchGrid > div[onclick],
+  #guildWarSection button,
+  #seasonPassTiers button,
+  .ops-type-card{min-height:36px}
+
+  /* Scrollable panels */
+  #guildMembersList{max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  #seasonPassTiers{-webkit-overflow-scrolling:touch}
+  #seasonLeaderboard{max-height:50vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+  /* Guild research grid: single column on small screens */
+  #guildResearchGrid{grid-template-columns:1fr!important}
+
+  /* Font size floor */
+  #guildWarSection, #seasonPassTiers, #guildResearchGrid{font-size:10px}
+
+  /* Bottom nav safe area */
+  .mob-nav-bar{padding-bottom:env(safe-area-inset-bottom)}
+}
+
 /* ── 2. Small device optimization (380px and below) ── */
 @media(max-width:380px){
   :root{--fs-xs:8px;--fs-sm:9px;--fs-md:10px;--fs-lg:12px;--fs-xl:13px}
@@ -3133,6 +3157,24 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
         <div id="seasonLeaderboard" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="season_loading">Loading...</div>
 
+        <!-- Season Pass -->
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:9px;color:var(--pp);font-family:var(--fn);letter-spacing:1px">🎫 SEASON PASS</span>
+            <button id="seasonPassPremiumBtn" onclick="purchaseSeasonPass()" style="display:none;font-size:8px;padding:3px 10px;border-radius:4px;background:linear-gradient(135deg,var(--pp),var(--mars));border:none;color:#fff;cursor:pointer;font-weight:700">⭐ PREMIUM</button>
+          </div>
+          <div id="seasonPassXPBar" style="margin-bottom:6px">
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:2px">
+              <span id="seasonPassXPLabel">0 XP</span>
+              <span id="seasonPassTierLabel">Tier 0</span>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden">
+              <div id="seasonPassXPFill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--pp),var(--gold));border-radius:3px;transition:width .3s"></div>
+            </div>
+          </div>
+          <div id="seasonPassTiers" style="display:flex;gap:4px;overflow-x:auto;padding:4px 0;scrollbar-width:thin"></div>
+        </div>
+
         <!-- Unclaimed Season Rewards -->
         <div id="seasonRewardsSection" style="display:none;margin-top:12px">
           <div style="font-size:9px;color:var(--gold);font-family:var(--fn);margin-bottom:4px" data-i18n="season_your_rewards">🎁 YOUR REWARDS</div>
@@ -3442,6 +3484,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <!-- Research perks -->
               <div class="base-section-title" style="color:var(--pp);font-size:9px;margin-top:4px" data-i18n="guild_research_title">RESEARCH</div>
               <div id="guildResearchGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:var(--fn);font-size:9px"></div>
+              <!-- Guild Wars -->
+              <div class="base-section-title" style="color:var(--red);font-size:9px;margin-top:8px">⚔️ GUILD WAR</div>
+              <div id="guildWarSection" style="font-family:var(--fn);font-size:10px"></div>
             </div>
 
             <!-- Members list -->
@@ -6710,21 +6755,8 @@ function _rebuildOwnerData(){
     if(!byOL[o][latS]) byOL[o][latS]=[];
     byOL[o][latS].push(lng);
   }
-  // Detect actual grid step from data (may differ from GRID_SIZE if old data)
-  var _stepCounts={};
-  for(var _ao in byOL){
-    for(var _al in byOL[_ao]){
-      var _alng=byOL[_ao][_al].sort(function(a,b){return a-b});
-      for(var _ai=1;_ai<Math.min(_alng.length,10);_ai++){
-        var _ag=Math.round((_alng[_ai]-_alng[_ai-1])*100);
-        if(_ag>0&&_ag<100) _stepCounts[_ag]=(_stepCounts[_ag]||0)+1;
-      }
-    }
-    break; // sample first owner only
-  }
-  var _bestStep=Math.round(GRID_SIZE*100),_bestCnt=0;
-  for(var _sk in _stepCounts){if(_stepCounts[_sk]>_bestCnt){_bestCnt=_stepCounts[_sk];_bestStep=parseInt(_sk);}}
-  _actualGridStep=_bestStep/100;
+  // Use constant grid step — dynamic detection was fragile and caused image position jumps
+  _actualGridStep=GRID_SIZE;
 
   var gs=_actualGridStep;
   for(var owner in byOL){
@@ -8007,7 +8039,8 @@ function openImageEditor(plot){
   }
   // Territory dimensions — find the EXACT group this claim belongs to
   var tw,th;
-  var _egs=_actualGridStep||GRID_SIZE;
+  _editor.gs=_actualGridStep||GRID_SIZE;
+  var _egs=_editor.gs;
   var owner=plot.owner;
   var groups=_ownerGroups[owner]||[];
   // Find the group that contains THIS specific claim
@@ -8182,7 +8215,7 @@ function _editorDraw(){
       var grp=grpIdx>=0&&grpIdx<groups.length?groups[grpIdx]:groups[0];
       if(grp){
         var cls=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
-        var gs2=_actualGridStep||GRID_SIZE;
+        var gs2=_editor.gs;
         cls.forEach(function(gc){
           var cw2=gc.w||20,ch2=gc.h||20;
           var rx=terrX+((gc.lng-b.minLng)/gs2-cw2/2)*gridPx;
@@ -8211,7 +8244,7 @@ function _editorDraw(){
   if(_editor.isMerged&&_editor.bounds&&_editor.claim){
     // Build cell grid to detect outer edges
     var b2=_editor.bounds;
-    var gs3=_actualGridStep||GRID_SIZE;
+    var gs3=_editor.gs;
     var gW=Math.round(_editor.maskW),gH=Math.round(_editor.maskH);
     var grd=[];for(var gi2=0;gi2<gH;gi2++) grd[gi2]=new Uint8Array(gW);
     var owner2=_editor.claim.owner;
@@ -8273,7 +8306,7 @@ function _editorBuildClip(ctx,terrX,terrY,gridPx){
     var grp=grpIdx3>=0&&grpIdx3<groups.length?groups[grpIdx3]:groups[0];
     if(grp){
       var cls=grp.claimIndices.map(function(ci){return claims[ci]}).filter(Boolean);
-      var gs=_actualGridStep||GRID_SIZE;
+      var gs=_editor.gs;
       cls.forEach(function(gc){
         var cw=gc.w||20,ch=gc.h||20;
         var colLeft=(gc.lng-b.minLng)/gs-cw/2;
@@ -8317,16 +8350,39 @@ function editorReset(){
     if(!canvas) canvas=document.getElementById('editorCanvas');
     return canvas;
   }
+  var _pinchDist=0;
   function onDown(e){
     if(!_editor.img) return;
     e.preventDefault();
+    if(e.touches&&e.touches.length===2){
+      // Pinch start
+      var dx=e.touches[0].clientX-e.touches[1].clientX;
+      var dy=e.touches[0].clientY-e.touches[1].clientY;
+      _pinchDist=Math.sqrt(dx*dx+dy*dy);
+      _editor.dragging=false;
+      return;
+    }
     _editor.dragging=true;
     var p=e.touches?e.touches[0]:e;
     _editor.lastX=p.clientX;_editor.lastY=p.clientY;
     getCanvas().style.cursor='grabbing';
   }
   function onMove(e){
-    if(!_editor.dragging||!_editor.img) return;
+    if(!_editor.img) return;
+    // Pinch to zoom
+    if(e.touches&&e.touches.length===2){
+      e.preventDefault();
+      var dx=e.touches[0].clientX-e.touches[1].clientX;
+      var dy=e.touches[0].clientY-e.touches[1].clientY;
+      var dist=Math.sqrt(dx*dx+dy*dy);
+      if(_pinchDist>0){
+        var delta=(dist-_pinchDist)*0.3;
+        if(Math.abs(delta)>1) editorZoom(delta>0?3:-3);
+        _pinchDist=dist;
+      }
+      return;
+    }
+    if(!_editor.dragging) return;
     e.preventDefault();
     var p=e.touches?e.touches[0]:e;
     // Convert screen pixels to grid units via imgCS (image cover scale)
@@ -8342,6 +8398,7 @@ function editorReset(){
   }
   function onUp(){
     _editor.dragging=false;
+    _pinchDist=0;
     if(getCanvas()) getCanvas().style.cursor='grab';
   }
   function onWheel(e){
@@ -13501,18 +13558,20 @@ function renderGuildState(guild, wallet){
 
   // ── Guild upgrade panel (migration 058) ──
   try{ renderGuildUpgrades(guild, myRole); }catch(_e){}
+  // ── Guild wars ──
+  try{ renderGuildWars(guild.id); }catch(_e){}
 }
 
 // ── Guild upgrade panel ──
 var _guildLevelCosts = {2:500, 3:2000, 4:8000, 5:25000, 6:80000};
 var _guildResearchCatalog = [
-  {key:'mining_eff_1',  labelKey:'research_mining_eff_1',  cost:1000},
-  {key:'shield_disc',   labelKey:'research_shield_disc',   cost:1000},
-  {key:'diplomatic',    labelKey:'research_diplomatic',    cost:1000},
-  {key:'orbital_scan',  labelKey:'research_orbital_scan',  cost:5000},
-  {key:'rapid_deploy',  labelKey:'research_rapid_deploy',  cost:5000},
-  {key:'logistics',     labelKey:'research_logistics',     cost:5000},
-  {key:'mars_dominion', labelKey:'research_mars_dominion', cost:20000}
+  {key:'mining_eff_1',  labelKey:'research_mining_eff_1',  cost:1000, desc:'채굴 PP +10%', icon:'⛏️'},
+  {key:'shield_disc',   labelKey:'research_shield_disc',   cost:1000, desc:'침공 방어 +15%', icon:'🛡️'},
+  {key:'diplomatic',    labelKey:'research_diplomatic',    cost:1000, desc:'침공 성공률 -10%', icon:'🕊️'},
+  {key:'orbital_scan',  labelKey:'research_orbital_scan',  cost:5000, desc:'탐험 보상 +15%', icon:'🔭'},
+  {key:'rapid_deploy',  labelKey:'research_rapid_deploy',  cost:5000, desc:'미션 시간 -20%', icon:'⚡'},
+  {key:'logistics',     labelKey:'research_logistics',     cost:5000, desc:'비용 -10%', icon:'📦'},
+  {key:'mars_dominion', labelKey:'research_mars_dominion', cost:20000, desc:'전체 +5% 중첩', icon:'👑'}
 ];
 function renderGuildUpgrades(guild, myRole){
   var lvl = parseInt(guild.level||1);
@@ -13552,8 +13611,9 @@ function renderGuildUpgrades(guild, myRole){
     var status = unlocked ? t('guild_research_unlocked') : (r.cost+' PP');
     var click = (unlocked||!canSpend||!affordable) ? '' : ' onclick="guildUnlockResearch(\''+r.key+'\')"';
     return '<div'+click+' style="padding:6px 8px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';cursor:'+(click?'pointer':'default')+'">'+
-      '<div style="color:'+col+';font-weight:700">'+t(r.labelKey)+'</div>'+
-      '<div style="color:var(--tx3);font-size:8px">'+status+'</div>'+
+      '<div style="display:flex;align-items:center;gap:3px;color:'+col+';font-weight:700"><span>'+r.icon+'</span> '+t(r.labelKey)+'</div>'+
+      '<div style="color:var(--tx3);font-size:7px;margin-top:1px">'+r.desc+'</div>'+
+      '<div style="color:'+(unlocked?'var(--gn)':'var(--tx3)')+';font-size:8px;margin-top:2px">'+status+'</div>'+
     '</div>';
   }).join('');
 }
@@ -13584,6 +13644,91 @@ function guildUnlockResearch(key){
     showAlert(t('guild_toast_research_unlocked'),'success');
     loadGuildTab();
   }).catch(function(e){ showAlert(t('guild_toast_research_failed')+': '+e.message); });
+}
+
+// ═══════════════════════════════════════
+//  GUILD WARS UI
+// ═══════════════════════════════════════
+
+function renderGuildWars(guildId){
+  var warBox = document.getElementById('guildWarSection');
+  if(!warBox) return;
+  fetch('/api/guild/war/active?guildId='+guildId).then(function(r){return r.json()}).then(function(d){
+    var wars = d.wars||[];
+    if(!wars.length){
+      warBox.innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">'+
+        '⚔️ 전쟁 없음'+
+        '<br><button onclick="showDeclareWarModal()" style="margin-top:8px;padding:6px 16px;border-radius:6px;background:linear-gradient(135deg,#E84855,#C62828);border:none;color:#fff;font-size:10px;font-weight:700;cursor:pointer">⚔️ 전쟁 선포</button>'+
+      '</div>';
+      return;
+    }
+    warBox.innerHTML=wars.map(function(w){
+      var isAtk = w.attacker_guild_id === guildId;
+      var enemy = isAtk ? w.defender_name : w.attacker_name;
+      var enemyTag = isAtk ? w.defender_tag : w.attacker_tag;
+      var myScore = isAtk ? w.attacker_score : w.defender_score;
+      var theirScore = isAtk ? w.defender_score : w.attacker_score;
+      var total = Math.max(1, myScore+theirScore);
+      var pct = Math.round(myScore/total*100);
+      var endMs = new Date(w.war_end).getTime()-Date.now();
+      var hrs = Math.max(0,Math.floor(endMs/3600000));
+      var mins = Math.max(0,Math.floor((endMs%3600000)/60000));
+      return '<div style="background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.2);border-radius:8px;padding:10px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+          '<span style="font-size:11px;font-weight:700;color:var(--red)">⚔️ vs ['+enemyTag+'] '+enemy+'</span>'+
+          '<span style="font-size:8px;color:var(--tx3)">'+hrs+'h '+mins+'m</span>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
+          '<span style="font-size:12px;font-weight:700;color:var(--cyan)">'+myScore+'</span>'+
+          '<div style="flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden">'+
+            '<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--pp));border-radius:4px"></div>'+
+          '</div>'+
+          '<span style="font-size:12px;font-weight:700;color:var(--red)">'+theirScore+'</span>'+
+        '</div>'+
+        '<div style="font-size:7px;color:var(--tx3);text-align:center">채굴·침공·방어로 점수 획득</div>'+
+      '</div>';
+    }).join('')+
+    '<button onclick="showDeclareWarModal()" style="margin-top:6px;width:100%;padding:6px;border-radius:6px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:9px;cursor:pointer">+ 전쟁 선포</button>';
+  }).catch(function(){ warBox.innerHTML=''; });
+}
+
+function showDeclareWarModal(){
+  if(!_myGuildData) return;
+  var warBox=document.getElementById('guildWarSection');
+  if(!warBox) return;
+  warBox.innerHTML='<div style="padding:8px;background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.2);border-radius:8px">'+
+    '<div style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:6px">⚔️ 전쟁 선포</div>'+
+    '<input id="warTargetSearch" placeholder="길드 이름 또는 태그 검색" style="width:100%;padding:8px;border-radius:6px;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);font-size:11px;box-sizing:border-box" oninput="searchWarTarget(this.value)">'+
+    '<div id="warTargetResults" style="max-height:200px;overflow-y:auto;margin-top:8px"></div>'+
+    '<button onclick="renderGuildWars('+_myGuildData.id+')" style="margin-top:6px;padding:4px 12px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--tx3);font-size:8px;cursor:pointer">취소</button>'+
+  '</div>';
+}
+
+function searchWarTarget(q){
+  if(q.length<2) return;
+  fetch('/api/guild/search?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){
+    var box=document.getElementById('warTargetResults');
+    if(!box) return;
+    var guilds=(d.results||d.guilds||[]).filter(function(g){return g.id!==_myGuildData.id});
+    box.innerHTML=guilds.map(function(g){
+      return '<div onclick="declareWar('+g.id+')" style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);margin-bottom:4px;cursor:pointer">'+
+        '<span style="font-size:14px">'+(g.emblem||'🔴')+'</span>'+
+        '<div><div style="font-size:11px;color:var(--tx);font-weight:700">['+g.tag+'] '+g.name+'</div>'+
+        '<div style="font-size:8px;color:var(--tx3)">Lv.'+g.level+' · '+g.member_count+'명</div></div>'+
+      '</div>';
+    }).join('')||'<div style="color:var(--tx3);font-size:10px;text-align:center">결과 없음</div>';
+  });
+}
+
+function declareWar(targetId){
+  if(!confirm('전쟁을 선포하시겠습니까? 길드 재무에서 PP가 차감됩니다.')) return;
+  fetch('/api/guild/war/declare',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address,guildId:_myGuildData.id,targetGuildId:targetId})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error); return; }
+    showAlert('⚔️ 전쟁 선포 완료!','success');
+    loadGuildTab();
+  }).catch(function(e){ showAlert(e.message); });
 }
 
 // Quick-launch: open BASE → OPS with a mission type pre-selected.
@@ -14480,6 +14625,7 @@ function loadSeasonData(){
       showSeasonBanner(_seasonData);
       showSeasonTint(_seasonData);
       showSeasonGuide(_seasonData);
+      try{ loadSeasonPass(); }catch(_e){}
     }
   }).catch(function(){});
 }
@@ -14584,6 +14730,111 @@ function showSeasonTint(season){
   if(!season||!season.visualTint){overlay.style.display='none';return;}
   overlay.style.display='';
   overlay.style.background=season.visualTint;
+}
+
+// ═══════════════════════════════════════
+//  SEASON PASS
+// ═══════════════════════════════════════
+
+function loadSeasonPass(){
+  if(!walletState.address) return;
+  fetch('/api/season/pass?wallet='+walletState.address).then(function(r){return r.json()}).then(function(d){
+    if(d.error) return;
+    renderSeasonPass(d);
+  }).catch(function(){});
+}
+
+function renderSeasonPass(data){
+  var xpLabel=document.getElementById('seasonPassXPLabel');
+  var tierLabel=document.getElementById('seasonPassTierLabel');
+  var fill=document.getElementById('seasonPassXPFill');
+  var premBtn=document.getElementById('seasonPassPremiumBtn');
+  if(!xpLabel) return;
+
+  xpLabel.textContent=data.xp+' XP';
+  tierLabel.textContent='Tier '+data.currentTier+(data.isPremium?' ⭐':'');
+  premBtn.style.display=data.isPremium?'none':'';
+
+  // Find next tier XP requirement
+  var tiers=data.tiers||[];
+  var nextTier=tiers.find(function(t){return !t.is_premium && t.xp_required>data.xp});
+  if(nextTier){
+    var prevXp=data.currentTier>0?tiers.filter(function(t){return !t.is_premium&&t.tier===data.currentTier})[0]:{xp_required:0};
+    var pXp=prevXp?prevXp.xp_required:0;
+    var pct=Math.min(100,Math.round((data.xp-pXp)/(nextTier.xp_required-pXp)*100));
+    fill.style.width=pct+'%';
+  } else {
+    fill.style.width='100%';
+  }
+
+  // Render tier nodes
+  var box=document.getElementById('seasonPassTiers');
+  var uniqueTiers={};
+  tiers.forEach(function(t){ if(!uniqueTiers[t.tier]) uniqueTiers[t.tier]={free:null,premium:null}; if(t.is_premium) uniqueTiers[t.tier].premium=t; else uniqueTiers[t.tier].free=t; });
+
+  var html='';
+  Object.keys(uniqueTiers).sort(function(a,b){return a-b}).forEach(function(tierNum){
+    var tt=uniqueTiers[tierNum];
+    var free=tt.free||{};
+    var prem=tt.premium||{};
+    var unlocked=data.xp>=free.xp_required;
+    var freeClaimed=free.claimed;
+    var premClaimed=prem.claimed;
+
+    var rewardIcon=free.reward_type==='pp'?'💎':free.reward_type==='gp'?'🪙':'🎁';
+    var premIcon=prem.reward_type==='pp'?'💎':prem.reward_type==='gp'?'🪙':prem.reward_type==='item'?'📦':'🎁';
+
+    var bg=unlocked?(freeClaimed?'rgba(76,216,154,.08)':'rgba(255,209,102,.1)'):'rgba(255,255,255,.02)';
+    var bdr=unlocked?(freeClaimed?'rgba(76,216,154,.3)':'rgba(255,209,102,.3)'):'rgba(255,255,255,.06)';
+
+    html+='<div style="min-width:60px;padding:6px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';text-align:center;flex-shrink:0">'+
+      '<div style="font-size:7px;color:var(--tx3)">Tier '+tierNum+'</div>'+
+      // Free track
+      '<div style="margin:3px 0">';
+    if(freeClaimed){
+      html+='<span style="font-size:9px;color:var(--gn)">✓</span>';
+    } else if(unlocked){
+      html+='<button onclick="claimPassTier('+tierNum+',false)" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--gold);border:none;color:#000;cursor:pointer;font-weight:700">'+rewardIcon+' '+free.reward_amount+'</button>';
+    } else {
+      html+='<span style="font-size:8px;color:var(--tx3)">'+rewardIcon+' '+free.reward_amount+'</span>';
+    }
+    html+='</div>';
+    // Premium track
+    if(data.isPremium){
+      html+='<div style="border-top:1px solid rgba(184,136,224,.15);padding-top:2px;margin-top:2px">';
+      if(premClaimed){
+        html+='<span style="font-size:9px;color:var(--gn)">✓</span>';
+      } else if(unlocked){
+        html+='<button onclick="claimPassTier('+tierNum+',true)" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--pp);border:none;color:#fff;cursor:pointer;font-weight:700">'+premIcon+' '+prem.reward_amount+'</button>';
+      } else {
+        html+='<span style="font-size:8px;color:var(--tx3)">'+premIcon+' '+prem.reward_amount+'</span>';
+      }
+      html+='</div>';
+    }
+    html+='</div>';
+  });
+  box.innerHTML=html;
+}
+
+function claimPassTier(tier,isPremium){
+  fetch('/api/season/pass/claim',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address,tier:tier,isPremium:isPremium})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error); return; }
+    showAlert('🎁 Tier '+tier+' 보상 수령: '+d.label,'success');
+    loadSeasonPass();
+  }).catch(function(e){ showAlert(e.message); });
+}
+
+function purchaseSeasonPass(){
+  if(!confirm('프리미엄 시즌 패스를 구매하시겠습니까? (GP 차감)')) return;
+  fetch('/api/season/pass/purchase',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error); return; }
+    showAlert('⭐ 프리미엄 패스 구매 완료!','success');
+    loadSeasonPass();
+  }).catch(function(e){ showAlert(e.message); });
 }
 
 function loadSeasonLeaderboard(){

@@ -2242,6 +2242,16 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       }
     } catch(me) { /* item system unavailable */ }
 
+    // ── Guild research: mining_eff_1 bonus ──
+    try {
+      if (guildService && guildService.getResearchBonuses) {
+        const rb = await guildService.getResearchBonuses(w);
+        if (rb.mining > 0) {
+          harvestedPP = Math.round(harvestedPP * (1 + rb.mining / 100) * 10000) / 10000;
+        }
+      }
+    } catch (_grb) { /* guild research unavailable */ }
+
     // Apply hard cap per harvest
     harvestedPP = Math.min(harvestedPP, harvestCap);
 
@@ -2359,8 +2369,17 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       try {
         seasonService.addSeasonScore(w, 'harvest', 1).catch(() => {});
         if (harvestedPP > 0) seasonService.addSeasonScore(w, 'pp_earn', 1).catch(() => {});
+        // Season pass XP
+        if (seasonService.addPassXP) seasonService.addPassXP(w, 'harvest').catch(() => {});
       } catch (_se) { /* non-critical */ }
     }
+    // Guild war: harvest points
+    try {
+      if (guildService && guildService.recordWarAction) {
+        const warPts = parseInt(await getSetting('guild_war_harvest_points') || '1');
+        guildService.recordWarAction(w, 'harvest', warPts, { pp: harvestedPP }).catch(() => {});
+      }
+    } catch (_gw) { /* non-critical */ }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[API] harvest error:', e.message);
@@ -4598,6 +4617,103 @@ router.get('/guild/:id/ledger', readLimiter, async (req, res) => {
     console.error('[GUILD] ledger error:', e.message);
     res.status(500).json({ error: 'Failed to load ledger' });
   }
+});
+
+// ═══════════════════════════════════════
+//  GUILD WARS
+// ═══════════════════════════════════════
+
+router.post('/guild/war/declare', writeLimiter, async (req, res) => {
+  const { wallet, guildId, targetGuildId } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  if (!w || !guildId || !targetGuildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const r = await guildService.declareWar(w, parseInt(guildId), parseInt(targetGuildId));
+    if (r.error) return res.status(400).json(r);
+    res.json(r);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.get('/guild/war/active', readLimiter, async (req, res) => {
+  const guildId = parseInt(req.query.guildId);
+  if (!guildId) return res.status(400).json({ error: 'Missing guildId' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const wars = await guildService.getActiveWars(guildId);
+    res.json({ wars });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.get('/guild/war/history', readLimiter, async (req, res) => {
+  const guildId = parseInt(req.query.guildId);
+  if (!guildId) return res.status(400).json({ error: 'Missing guildId' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const wars = await guildService.getWarHistory(guildId);
+    res.json({ wars });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.get('/guild/war/:id/leaderboard', readLimiter, async (req, res) => {
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const lb = await guildService.getWarLeaderboard(parseInt(req.params.id));
+    res.json({ leaderboard: lb });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ═══════════════════════════════════════
+//  GUILD RESEARCH BONUSES (public query)
+// ═══════════════════════════════════════
+
+router.get('/guild/research-bonuses', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!guildService) return res.json({ bonuses: {} });
+  try {
+    const bonuses = await guildService.getResearchBonuses(w);
+    res.json({ bonuses });
+  } catch (e) { res.json({ bonuses: {} }); }
+});
+
+// ═══════════════════════════════════════
+//  SEASON PASS
+// ═══════════════════════════════════════
+
+router.get('/season/pass', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  try {
+    const seasonService = require('../services/season');
+    const pass = await seasonService.getSeasonPass(w);
+    if (pass.error) return res.status(400).json(pass);
+    res.json(pass);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/season/pass/purchase', writeLimiter, async (req, res) => {
+  const { wallet } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  try {
+    const seasonService = require('../services/season');
+    const r = await seasonService.purchasePremiumPass(w);
+    if (r.error) return res.status(400).json(r);
+    res.json(r);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/season/pass/claim', writeLimiter, async (req, res) => {
+  const { wallet, tier, isPremium } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  if (!w || tier === undefined) return res.status(400).json({ error: 'Missing fields' });
+  try {
+    const seasonService = require('../services/season');
+    const r = await seasonService.claimPassTier(w, parseInt(tier), !!isPremium);
+    if (r.error) return res.status(400).json(r);
+    res.json(r);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 module.exports = router;

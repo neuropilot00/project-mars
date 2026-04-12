@@ -404,6 +404,15 @@ async function start() {
       console.log('[MISSION] Scheduled tasks initialized (tick: 30s)');
     } catch(e) { console.warn('[MISSION] Could not init scheduled tasks:', e.message); }
 
+    // ── Guild War Resolution ──
+    try {
+      const guildService = require('./services/guild');
+      setInterval(async () => {
+        try { await guildService.resolveExpiredWars(); } catch(e) { console.warn('[GUILD WAR] resolve error:', e.message); }
+      }, 60 * 1000); // check every minute
+      console.log('[GUILD WAR] War resolution timer initialized (60s)');
+    } catch(e) { console.warn('[GUILD WAR] Could not init:', e.message); }
+
     // ── Maintenance Fee Scheduled Tasks ──
     try {
       const { processMaintenanceFees } = require('./services/maintenance');

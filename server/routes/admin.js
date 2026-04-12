@@ -1462,6 +1462,41 @@ router.delete('/guilds/:id', adminAuth, async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+//  GUILD WARS ADMIN
+// ══════════════════════════════════════════════════
+
+router.get('/guild-wars', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT w.*, ag.name AS attacker_name, dg.name AS defender_name
+       FROM guild_wars w
+       LEFT JOIN guilds ag ON ag.id = w.attacker_guild_id
+       LEFT JOIN guilds dg ON dg.id = w.defender_guild_id
+       ORDER BY w.created_at DESC LIMIT 50`
+    );
+    res.json({ wars: r.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/guild-wars/:id/resolve', adminAuth, async (req, res) => {
+  try {
+    const warId = parseInt(req.params.id);
+    const w = await pool.query('SELECT * FROM guild_wars WHERE id = $1', [warId]);
+    if (!w.rows.length) return res.status(404).json({ error: 'War not found' });
+    const war = w.rows[0];
+    let winnerId = null;
+    if (war.attacker_score > war.defender_score) winnerId = war.attacker_guild_id;
+    else if (war.defender_score > war.attacker_score) winnerId = war.defender_guild_id;
+    await pool.query(
+      'UPDATE guild_wars SET status = $1, winner_guild_id = $2, war_end = NOW() WHERE id = $3',
+      ['resolved', winnerId, warId]
+    );
+    await auditLog(req, 'guild_war_force_resolve', 'guild_war', { warId, winnerId });
+    res.json({ success: true, winnerId });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ══════════════════════════════════════════════════
 //  SEASON MANAGEMENT
 // ══════════════════════════════════════════════════
 

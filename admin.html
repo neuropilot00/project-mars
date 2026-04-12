@@ -728,6 +728,15 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <thead><tr><th>ID</th><th>NAME</th><th>TAG</th><th>EMBLEM</th><th>LEADER</th><th>MEMBERS</th><th>PIXELS</th><th>CREATED</th><th>ACTIONS</th></tr></thead>
         <tbody id="guildsBody"><tr><td colspan="9" class="loading">Loading...</td></tr></tbody>
       </table>
+      <!-- Guild Wars -->
+      <div class="sec-header" style="margin-top:16px">
+        <span class="sec-title" style="color:#E84855">⚔️ GUILD WARS</span>
+        <div class="sec-tools"><button class="ev-btn" onclick="loadAdminGuildWars()">REFRESH</button></div>
+      </div>
+      <table class="adm-table">
+        <thead><tr><th>ID</th><th>ATTACKER</th><th>DEFENDER</th><th>SCORE</th><th>STATUS</th><th>ENDS</th><th>ACTIONS</th></tr></thead>
+        <tbody id="guildWarsBody"><tr><td colspan="7" class="loading">Click REFRESH</td></tr></tbody>
+      </table>
     </div>
   </div>
 
@@ -2575,6 +2584,38 @@ function disbandGuildAdmin(id, name) {
   fetch('/admin/api/guilds/' + id, { method: 'DELETE', headers: {'x-admin-secret': adminSecret} })
     .then(function(r) { return r.json(); })
     .then(function(d) { if (d.success) loadAdminGuilds(); else alert(d.error); });
+}
+
+// ═══ GUILD WARS ADMIN ═══
+function loadAdminGuildWars() {
+  api('/admin/api/guild-wars').then(function(d) {
+    var el = document.getElementById('guildWarsBody');
+    if(!el) return;
+    el.innerHTML = '';
+    var wars = d.wars || [];
+    if(!wars.length) { el.innerHTML = '<tr><td colspan="7" class="loading">No wars</td></tr>'; return; }
+    wars.forEach(function(w) {
+      var tr = document.createElement('tr');
+      var statusClass = w.status==='active'?'ok':w.status==='resolved'?'':'';
+      tr.innerHTML =
+        '<td>#' + w.id + '</td>' +
+        '<td style="color:var(--cyan)">' + (w.attacker_name||'#'+w.attacker_guild_id) + '</td>' +
+        '<td style="color:var(--mars)">' + (w.defender_name||'#'+w.defender_guild_id) + '</td>' +
+        '<td>' + w.attacker_score + ' vs ' + w.defender_score + '</td>' +
+        '<td><span class="tb-status ' + statusClass + '">' + w.status.toUpperCase() + '</span></td>' +
+        '<td>' + (w.war_end ? new Date(w.war_end).toLocaleString() : '--') + '</td>' +
+        '<td>' + (w.status==='active'?'<button class="ev-btn del" onclick="forceResolveWar('+w.id+')">FORCE END</button>':'') + '</td>';
+      el.appendChild(tr);
+    });
+  }).catch(function(e) { console.warn('Guild wars load error:', e); });
+}
+
+function forceResolveWar(warId) {
+  if(!confirm('Force resolve war #'+warId+'?')) return;
+  fetch('/admin/api/guild-wars/'+warId+'/resolve', {method:'POST', headers:{'x-admin-secret':adminSecret}})
+    .then(function(r){return r.json()})
+    .then(function(d){ if(d.success) loadAdminGuildWars(); else alert(d.error||'Failed'); })
+    .catch(function(e){ alert(e.message); });
 }
 
 // ═══ SEASON MANAGEMENT ═══
