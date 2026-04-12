@@ -15467,6 +15467,9 @@ function renderSeasonPass(data){
 
     var rewardIcon=free.reward_type==='pp'?'💎':free.reward_type==='gp'?'🪙':'🎁';
     var premIcon=prem.reward_type==='pp'?'💎':prem.reward_type==='gp'?'🪙':prem.reward_type==='item'?'📦':'🎁';
+    var fmtAmt=function(amt,type){ var n=parseFloat(amt||0); if(type==='gp') return Math.floor(n); return n%1===0?n:n.toFixed(2); };
+    var freeAmt=fmtAmt(free.reward_amount,free.reward_type);
+    var premAmt=fmtAmt(prem.reward_amount,prem.reward_type);
 
     var bg=unlocked?(freeClaimed?'rgba(76,216,154,.08)':'rgba(255,209,102,.1)'):'rgba(255,255,255,.02)';
     var bdr=unlocked?(freeClaimed?'rgba(76,216,154,.3)':'rgba(255,209,102,.3)'):'rgba(255,255,255,.06)';
@@ -15478,9 +15481,9 @@ function renderSeasonPass(data){
     if(freeClaimed){
       html+='<span style="font-size:9px;color:var(--gn)">✓</span>';
     } else if(unlocked){
-      html+='<button onclick="claimPassTier('+tierNum+',false)" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--gold);border:none;color:#000;cursor:pointer;font-weight:700">'+rewardIcon+' '+free.reward_amount+'</button>';
+      html+='<button onclick="claimPassTier('+tierNum+',false)" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--gold);border:none;color:#000;cursor:pointer;font-weight:700">'+rewardIcon+' '+freeAmt+'</button>';
     } else {
-      html+='<span style="font-size:8px;color:var(--tx3)">'+rewardIcon+' '+free.reward_amount+'</span>';
+      html+='<span style="font-size:8px;color:var(--tx3)">'+rewardIcon+' '+freeAmt+'</span>';
     }
     html+='</div>';
     // Premium track
@@ -15489,9 +15492,9 @@ function renderSeasonPass(data){
       if(premClaimed){
         html+='<span style="font-size:9px;color:var(--gn)">✓</span>';
       } else if(unlocked){
-        html+='<button onclick="claimPassTier('+tierNum+',true)" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--pp);border:none;color:#fff;cursor:pointer;font-weight:700">'+premIcon+' '+prem.reward_amount+'</button>';
+        html+='<button onclick="claimPassTier('+tierNum+',true)" style="font-size:7px;padding:2px 6px;border-radius:3px;background:var(--pp);border:none;color:#fff;cursor:pointer;font-weight:700">'+premIcon+' '+premAmt+'</button>';
       } else {
-        html+='<span style="font-size:8px;color:var(--tx3)">'+premIcon+' '+prem.reward_amount+'</span>';
+        html+='<span style="font-size:8px;color:var(--tx3)">'+premIcon+' '+premAmt+'</span>';
       }
       html+='</div>';
     }
