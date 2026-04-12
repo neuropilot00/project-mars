@@ -6,8 +6,8 @@ window.MarsRunner = (function () {
   const W = 360, H = 640, COLS = 15, ROWS = 20, CELL = 24;
   const OX = (W - COLS * CELL) / 2, OY = (H - ROWS * CELL) / 2;
   const DOT_R = 3, PWR_R = 5, PLR_R = 9, ENM_R = 9;
-  const MOVE_SPD = 3, ENM_SPD_BASE = 1.8, ENM_SPD_INC = 0.4;
-  const PWR_TIME = 5000, TIME_LIMIT = 90, MAX_LIVES = 3;
+  const MOVE_SPD = 2, ENM_SPD_BASE = 1.2, ENM_SPD_INC = 0.2;
+  const PWR_TIME = 5000, TIME_LIMIT = 240, MAX_LIVES = 3;
   const DOT_SCORE = 10, EAT_SCORE = 50;
 
   let canvas, ctx, onGameEnd, rafId;
@@ -192,181 +192,154 @@ window.MarsRunner = (function () {
     var powered = Date.now() < pwrEnd;
     var t = (now || Date.now()) * 0.001;
 
-    /* Background */
-    var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-    bgGrad.addColorStop(0, '#06000f');
-    bgGrad.addColorStop(1, '#0f0008');
-    ctx.fillStyle = bgGrad;
+    /* Background (flat pixel style) */
+    ctx.fillStyle = '#08040C';
     ctx.fillRect(0, 0, W, H);
 
-    /* Maze */
+    /* Maze (pixel brick tiles) */
+    var PS = 4; // pixel size for tile texture
     for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
       var x = OX + c * CELL, y = OY + r * CELL;
       if (grid[r][c] === 1) {
-        /* Mars rock walls */
-        var depth = r / ROWS;
-        var wallGrad = ctx.createLinearGradient(x, y, x, y + CELL);
-        wallGrad.addColorStop(0, 'hsl(15,' + (40 + depth * 20) + '%,' + (22 - depth * 8) + '%)');
-        wallGrad.addColorStop(1, 'hsl(12,' + (35 + depth * 15) + '%,' + (18 - depth * 6) + '%)');
-        ctx.fillStyle = wallGrad;
+        /* Mars brick — flat pixel art style */
+        ctx.fillStyle = '#4A2810';
         ctx.fillRect(x, y, CELL, CELL);
-        /* Rock texture highlights */
-        ctx.fillStyle = 'rgba(255,200,150,0.08)';
-        ctx.fillRect(x + 1, y + 1, CELL - 2, 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.15)';
-        ctx.fillRect(x, y + CELL - 1, CELL, 1);
-        ctx.fillRect(x + CELL - 1, y, 1, CELL);
-        /* Occasional crack */
-        if ((r * 17 + c * 31) % 7 === 0) {
-          ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.moveTo(x + CELL * 0.3, y + CELL * 0.2);
-          ctx.lineTo(x + CELL * 0.6, y + CELL * 0.5);
-          ctx.lineTo(x + CELL * 0.4, y + CELL * 0.8);
-          ctx.stroke();
+        /* Brick mortar lines */
+        ctx.fillStyle = '#351C08';
+        ctx.fillRect(x, y + 12, CELL, 2); // horizontal mortar
+        if ((r + c) % 2 === 0) {
+          ctx.fillRect(x + 12, y, 2, 12); // vertical top half
+          ctx.fillRect(x + 4, y + 14, 2, 10); // vertical bottom half offset
+        } else {
+          ctx.fillRect(x + 4, y, 2, 12);
+          ctx.fillRect(x + 16, y + 14, 2, 10);
         }
+        /* Highlight pixels (top-left of each brick) */
+        ctx.fillStyle = '#5C3418';
+        ctx.fillRect(x + 2, y + 2, PS, PS);
+        ctx.fillRect(x + 2, y + 16, PS, PS);
+        /* Shadow pixels (bottom-right) */
+        ctx.fillStyle = '#2E1406';
+        ctx.fillRect(x + CELL - PS - 2, y + CELL - PS - 2, PS, PS);
       } else {
-        /* Tunnel floor */
-        ctx.fillStyle = 'rgba(10,5,15,0.9)';
+        /* Tunnel floor — dark pixel checkerboard */
+        ctx.fillStyle = '#0C0610';
         ctx.fillRect(x, y, CELL, CELL);
-        /* Subtle floor detail */
-        ctx.fillStyle = 'rgba(80,40,20,0.1)';
-        if ((r + c) % 2 === 0) ctx.fillRect(x, y, CELL, CELL);
+        if ((r + c) % 2 === 0) {
+          ctx.fillStyle = '#100814';
+          ctx.fillRect(x, y, CELL, CELL);
+        }
+        /* Subtle floor pixel dots */
+        if ((r * 7 + c * 13) % 11 === 0) {
+          ctx.fillStyle = '#1A0E1E';
+          ctx.fillRect(x + 10, y + 10, PS, PS);
+        }
       }
     }
 
-    /* Dots (minerals) */
+    /* Dots (pixel diamond shape) */
     dots.forEach(function (d) {
       var dx = OX + d.c * CELL + CELL / 2, dy = OY + d.r * CELL + CELL / 2;
-      var glow = ctx.createRadialGradient(dx, dy, 0, dx, dy, 8);
-      glow.addColorStop(0, 'rgba(255,215,0,0.3)');
-      glow.addColorStop(1, 'transparent');
-      ctx.fillStyle = glow;
-      ctx.fillRect(dx - 8, dy - 8, 16, 16);
-      /* Crystal shape */
+      /* 5x5 pixel diamond */
       ctx.fillStyle = '#FFD700';
-      ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 4;
-      ctx.beginPath();
-      ctx.moveTo(dx, dy - DOT_R);
-      ctx.lineTo(dx + DOT_R, dy);
-      ctx.lineTo(dx, dy + DOT_R);
-      ctx.lineTo(dx - DOT_R, dy);
-      ctx.closePath();
-      ctx.fill();
-      ctx.shadowBlur = 0;
+      ctx.fillRect(dx - 1, dy - 3, 2, 2);
+      ctx.fillRect(dx - 3, dy - 1, 2, 2);
+      ctx.fillRect(dx + 1, dy - 1, 2, 2);
+      ctx.fillRect(dx - 1, dy + 1, 2, 2);
+      /* Center highlight */
+      ctx.fillStyle = '#FFEE88';
+      ctx.fillRect(dx - 1, dy - 1, 2, 2);
     });
 
-    /* Power dots */
-    var pulse = 0.8 + 0.4 * Math.sin(t * 4);
+    /* Power dots (pixel cross, flicker) */
+    var blink = Math.floor(t * 3) % 2 === 0;
     powers.forEach(function (p) {
       var px = OX + p.c * CELL + CELL / 2, py = OY + p.r * CELL + CELL / 2;
-      var pglow = ctx.createRadialGradient(px, py, 0, px, py, 14);
-      pglow.addColorStop(0, 'rgba(79,195,247,' + (0.4 * pulse) + ')');
-      pglow.addColorStop(1, 'transparent');
-      ctx.fillStyle = pglow;
-      ctx.fillRect(px - 14, py - 14, 28, 28);
-      ctx.fillStyle = 'rgba(79,195,247,' + pulse + ')';
-      ctx.shadowColor = '#4FC3F7'; ctx.shadowBlur = 8;
-      ctx.beginPath(); ctx.arc(px, py, PWR_R * pulse, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.6)';
-      ctx.beginPath(); ctx.arc(px - 1, py - 1, PWR_R * 0.4, 0, Math.PI * 2); ctx.fill();
-      ctx.shadowBlur = 0;
+      ctx.fillStyle = blink ? '#66CCFF' : '#3399CC';
+      /* 7x7 pixel cross */
+      ctx.fillRect(px - 1, py - 5, 2, 10);
+      ctx.fillRect(px - 5, py - 1, 10, 2);
+      ctx.fillRect(px - 3, py - 3, 6, 6);
+      /* Center */
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(px - 1, py - 1, 2, 2);
     });
 
-    /* Enemies (Mars aliens) */
-    var enemyColors = ['#E53935', '#FF6F00', '#AD1457'];
+    /* Enemies (Mars aliens — pixel art sprites) */
+    var ENM_COLORS = [
+      { E: '#CC3333', e: '#991111' },  // red alien
+      { E: '#DD7700', e: '#AA5500' },  // orange alien
+      { E: '#AA2266', e: '#771144' },  // magenta alien
+    ];
+    var ENM_SCARED = { E: '#3366CC', e: '#224488' };
+    /* Alien sprite 9x8 */
+    var ALIEN_SPR = [
+      '..KKKKK..',
+      '.KEEEEEK.',
+      'KEEWKWEEK',
+      'KEEPKPEEK',
+      'KEEEEEEEK',
+      '.KEEEEEK.',
+      '.Ke.E.eK.',
+      '..K.K.K..',
+    ];
+    /* Scared sprite */
+    var ALIEN_SCARED = [
+      '..KKKKK..',
+      '.KEEEEEK.',
+      'KEEWKWEEK',
+      'KEEEEEEEK',
+      'KEW.W.WEK',
+      '.KEEEEEK.',
+      '.Ke.E.eK.',
+      '..K.K.K..',
+    ];
+    var esc = 2.2; // enemy pixel scale
     enemies.forEach(function (e, idx) {
       var bob = Math.sin(e.phase) * 1.5;
       var ex = e.px, ey = e.py + bob;
-      var baseColor = powered ? '#2196F3' : enemyColors[idx % 3];
-
-      /* Glow */
-      var eglow = ctx.createRadialGradient(ex, ey, 0, ex, ey, ENM_R + 6);
-      eglow.addColorStop(0, (powered ? 'rgba(33,150,243,' : 'rgba(229,57,53,') + '0.2)');
-      eglow.addColorStop(1, 'transparent');
-      ctx.fillStyle = eglow;
-      ctx.fillRect(ex - ENM_R - 6, ey - ENM_R - 6, (ENM_R + 6) * 2, (ENM_R + 6) * 2);
-
-      /* Ghost body */
-      ctx.fillStyle = baseColor;
-      ctx.beginPath();
-      ctx.arc(ex, ey - 2, ENM_R, Math.PI, 0);
-      ctx.lineTo(ex + ENM_R, ey + ENM_R - 2);
-      /* Wavy bottom */
-      for (var w = 0; w < 4; w++) {
-        var wx = ex + ENM_R - w * (ENM_R * 2 / 4);
-        var wy = ey + ENM_R - 2 + Math.sin(e.phase * 2 + w) * 2;
-        ctx.lineTo(wx - ENM_R / 4, wy - 3);
-        ctx.lineTo(wx - ENM_R / 2, wy);
-      }
-      ctx.closePath();
-      ctx.fill();
-
-      /* Highlight */
-      ctx.fillStyle = 'rgba(255,255,255,0.15)';
-      ctx.beginPath();
-      ctx.arc(ex - 2, ey - 4, ENM_R * 0.6, Math.PI, 0);
-      ctx.fill();
-
-      if (powered) {
-        /* Scared face */
-        ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.arc(ex - 3, ey - 3, 2, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(ex + 3, ey - 3, 2, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(ex - 4, ey + 3); ctx.lineTo(ex - 2, ey + 1); ctx.lineTo(ex, ey + 3); ctx.lineTo(ex + 2, ey + 1); ctx.lineTo(ex + 4, ey + 3); ctx.stroke();
-      } else {
-        /* Normal eyes */
-        ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.ellipse(ex - 3.5, ey - 3, 3, 3.5, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(ex + 3.5, ey - 3, 3, 3.5, 0, 0, Math.PI * 2); ctx.fill();
-        /* Pupils track player */
-        var angle = Math.atan2(player.py - ey, player.px - ex);
-        ctx.fillStyle = '#000';
-        ctx.beginPath(); ctx.arc(ex - 3.5 + Math.cos(angle) * 1.2, ey - 3 + Math.sin(angle) * 1.2, 1.5, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(ex + 3.5 + Math.cos(angle) * 1.2, ey - 3 + Math.sin(angle) * 1.2, 1.5, 0, Math.PI * 2); ctx.fill();
+      var cols = ALIEN_SPR[0].length, rows = ALIEN_SPR.length;
+      var ew = cols * esc, eh = rows * esc;
+      var eox = ex - ew / 2, eoy = ey - eh / 2;
+      var pal = powered ? ENM_SCARED : ENM_COLORS[idx % 3];
+      var spr = powered ? ALIEN_SCARED : ALIEN_SPR;
+      for (var sr = 0; sr < rows; sr++) {
+        for (var sc2 = 0; sc2 < cols; sc2++) {
+          var ch = spr[sr][sc2]; if (ch === '.') continue;
+          var color;
+          if (ch === 'K') color = '#111111';
+          else if (ch === 'E') color = pal.E;
+          else if (ch === 'e') color = pal.e;
+          else if (ch === 'W') color = '#ffffff';
+          else if (ch === 'P') color = '#111111'; // pupils
+          else color = '#fff';
+          ctx.fillStyle = color;
+          ctx.fillRect(Math.floor(eox + sc2 * esc), Math.floor(eoy + sr * esc), Math.ceil(esc), Math.ceil(esc));
+        }
       }
     });
 
-    /* Player (astronaut) */
-    var mouth = Math.abs(Math.sin(player.mouthAngle)) * 0.5;
-    var dirAngle = 0;
-    if (player.dir[0] === 1) dirAngle = 0;
-    else if (player.dir[0] === -1) dirAngle = Math.PI;
-    else if (player.dir[1] === -1) dirAngle = -Math.PI / 2;
-    else if (player.dir[1] === 1) dirAngle = Math.PI / 2;
-
-    /* Astronaut glow */
-    var pGlow = ctx.createRadialGradient(player.px, player.py, 0, player.px, player.py, PLR_R + 8);
-    pGlow.addColorStop(0, 'rgba(255,152,0,0.25)');
+    /* Player (pixel art astronaut) */
+    var psc = 2; // pixel scale
+    var flipX = player.dir[0] === -1;
+    var rows = ASTRONAUT.length, cols = ASTRONAUT[0].length;
+    var pw = cols * psc, ph = rows * psc;
+    var pox = player.px - pw / 2, poy = player.py - ph / 2;
+    /* Glow */
+    var pGlow = ctx.createRadialGradient(player.px, player.py, 0, player.px, player.py, 14);
+    pGlow.addColorStop(0, 'rgba(255,136,0,0.15)');
     pGlow.addColorStop(1, 'transparent');
     ctx.fillStyle = pGlow;
-    ctx.fillRect(player.px - PLR_R - 8, player.py - PLR_R - 8, (PLR_R + 8) * 2, (PLR_R + 8) * 2);
-
-    /* Suit body */
-    var suitGrad = ctx.createRadialGradient(player.px - 2, player.py - 2, 0, player.px, player.py, PLR_R);
-    suitGrad.addColorStop(0, '#FFB74D');
-    suitGrad.addColorStop(0.7, '#FF9800');
-    suitGrad.addColorStop(1, '#E65100');
-    ctx.fillStyle = suitGrad;
-    ctx.beginPath();
-    ctx.arc(player.px, player.py, PLR_R, dirAngle + mouth, dirAngle + Math.PI * 2 - mouth);
-    ctx.lineTo(player.px, player.py);
-    ctx.closePath();
-    ctx.fill();
-
-    /* Helmet visor */
-    ctx.fillStyle = 'rgba(100,200,255,0.5)';
-    ctx.beginPath();
-    ctx.arc(player.px, player.py, PLR_R - 2, dirAngle - 0.8, dirAngle + 0.8);
-    ctx.lineTo(player.px, player.py);
-    ctx.closePath();
-    ctx.fill();
-    /* Visor reflection */
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.beginPath();
-    ctx.arc(player.px + Math.cos(dirAngle) * 2, player.py + Math.sin(dirAngle) * 2 - 1, 2, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillRect(player.px - 14, player.py - 14, 28, 28);
+    /* Draw sprite */
+    for (var sr = 0; sr < rows; sr++) {
+      for (var sc2 = 0; sc2 < cols; sc2++) {
+        var ch = ASTRONAUT[sr][flipX ? (cols - 1 - sc2) : sc2];
+        if (ch === '.') continue;
+        ctx.fillStyle = ASTRO_PAL[ch] || '#fff';
+        ctx.fillRect(Math.floor(pox + sc2 * psc), Math.floor(poy + sr * psc), psc, psc);
+      }
+    }
 
     /* Particles */
     for (var p = 0; p < particles.length; p++) {
@@ -384,7 +357,7 @@ window.MarsRunner = (function () {
     ctx.fillStyle = 'rgba(255,152,0,0.1)';
     ctx.fillRect(0, 30, W, 2);
 
-    ctx.font = 'bold 13px monospace'; ctx.textBaseline = 'top';
+    ctx.font = 'bold 13px "Courier New",monospace'; ctx.textBaseline = 'top';
     ctx.fillStyle = '#FFD700'; ctx.textAlign = 'left';
     ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 3;
     ctx.fillText('SCORE ' + score, 10, 9);
@@ -397,16 +370,17 @@ window.MarsRunner = (function () {
     ctx.fillText(remain + 's', W / 2, 9);
     ctx.shadowBlur = 0;
 
-    /* Lives */
-    ctx.textAlign = 'right';
+    /* Lives (mini astronaut sprites) */
     for (var li = 0; li < lives; li++) {
-      var lx = W - 46 - li * 20, ly = 15;
-      ctx.fillStyle = '#FF9800';
-      ctx.shadowColor = '#FF9800'; ctx.shadowBlur = 3;
-      ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(100,200,255,0.5)';
-      ctx.beginPath(); ctx.arc(lx + 1, ly - 1, 3, 0, Math.PI * 2); ctx.fill();
-      ctx.shadowBlur = 0;
+      var lx = W - 46 - li * 16, ly = 6;
+      var lsc = 1.2;
+      for (var lr = 0; lr < ASTRONAUT.length; lr++) {
+        for (var lc = 0; lc < ASTRONAUT[0].length; lc++) {
+          var lch = ASTRONAUT[lr][lc]; if (lch === '.') continue;
+          ctx.fillStyle = ASTRO_PAL[lch] || '#fff';
+          ctx.fillRect(Math.floor(lx + lc * lsc - ASTRONAUT[0].length * lsc / 2), Math.floor(ly + lr * lsc), Math.ceil(lsc), Math.ceil(lsc));
+        }
+      }
     }
 
     /* Power-up indicator */
@@ -420,15 +394,53 @@ window.MarsRunner = (function () {
   function drawGameOver() {
     ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = 'bold 32px monospace';
+    ctx.font = 'bold 32px "Courier New",monospace';
     ctx.fillStyle = '#ff4400';
     ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 20;
     ctx.fillText(lives <= 0 ? 'GAME OVER' : 'COMPLETE!', W / 2, H / 2 - 30);
     ctx.shadowBlur = 10;
-    ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 22px monospace';
+    ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 22px "Courier New",monospace';
     ctx.fillText('SCORE: ' + score, W / 2, H / 2 + 10);
     ctx.shadowBlur = 0;
   }
 
-  return { init: init, start: start, stop: stop, getScore: getScore, continueGame: continueGame, get continueCount() { return continueCount; } };
+  /* Astronaut icon sprite for selection panel */
+  var ASTRO_PAL = {
+    '.': null,
+    'K': '#111111', 'O': '#FF8800', 'o': '#CC5500',
+    'r': '#AA3322', 'R': '#CC4433', 'S': '#DDAA88',
+    'V': '#6699AA', 'v': '#445566', 'w': '#AABBCC', 'G': '#555555',
+  };
+  var ASTRONAUT = [
+    '...KKK...',
+    '..KOOOK..',
+    '.KOvwVOK.',
+    '.KOVSVOK.',
+    '..KoOoK..',
+    '.KOOrOOK.',
+    'KOOrOrOOK',
+    'KROrOrORK',
+    '.KRoKoRK.',
+    '.KRK.KRK.',
+    '..KK.KK..',
+  ];
+  function getAstronautIcon(size) {
+    var c = document.createElement('canvas');
+    c.width = size; c.height = size;
+    var cx = c.getContext('2d');
+    var rows = ASTRONAUT.length, cols = ASTRONAUT[0].length;
+    var sc = Math.floor(Math.min(size / cols, size / rows));
+    var ox = (size - cols * sc) / 2, oy = (size - rows * sc) / 2;
+    for (var r = 0; r < rows; r++) {
+      for (var cc = 0; cc < cols; cc++) {
+        var ch = ASTRONAUT[r][cc];
+        if (ch === '.') continue;
+        cx.fillStyle = ASTRO_PAL[ch] || '#fff';
+        cx.fillRect(Math.floor(ox + cc * sc), Math.floor(oy + r * sc), sc, sc);
+      }
+    }
+    return c.toDataURL();
+  }
+
+  return { init: init, start: start, stop: stop, getScore: getScore, continueGame: continueGame, getAstronautIcon: getAstronautIcon, get continueCount() { return continueCount; } };
 })();

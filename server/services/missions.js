@@ -438,7 +438,11 @@ async function launchMission(wallet, type, originClaimId, targetLat, targetLng, 
       const rawTarget = String(targetWallet || '').trim();
       let resolvedTarget = rawTarget.toLowerCase();
       const looksLikeWallet = /^0x[0-9a-f]{40}$/i.test(rawTarget);
-      if (!looksLikeWallet) {
+      const isNPC = rawTarget.toLowerCase().startsWith('0xnpc_');
+      if (isNPC) {
+        // NPC identifiers are used directly as owner in claims table
+        resolvedTarget = rawTarget.toLowerCase();
+      } else if (!looksLikeWallet) {
         // Try exact match first, then partial match
         let nickRes = await client.query(
           'SELECT wallet_address FROM users WHERE LOWER(nickname) = LOWER($1) LIMIT 1',
@@ -481,13 +485,20 @@ async function launchMission(wallet, type, originClaimId, targetLat, targetLng, 
         }
       } catch (_ge) { /* guild table missing → skip check */ }
 
+      // Check pixels first, then claims (NPCs only have claims, not pixels)
       const tgtOwned = await client.query(
         'SELECT COUNT(*)::int AS cnt FROM pixels WHERE owner = $1',
         [targetWallet]
       );
       if ((tgtOwned.rows[0]?.cnt || 0) === 0) {
-        await client.query('ROLLBACK');
-        return { error: 'Target has no territory' };
+        const tgtClaims = await client.query(
+          'SELECT COUNT(*)::int AS cnt FROM claims WHERE owner = $1 AND deleted_at IS NULL',
+          [targetWallet]
+        );
+        if ((tgtClaims.rows[0]?.cnt || 0) === 0) {
+          await client.query('ROLLBACK');
+          return { error: 'Target has no territory' };
+        }
       }
     }
 

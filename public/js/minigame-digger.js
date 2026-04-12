@@ -1,17 +1,158 @@
 /**
  * Mars Digger — Canvas-based Dig Dug minigame (화성 채굴)
- * Enhanced graphics with glow effects and detailed sprites.
+ * Full pixel-art / dot-sprite style with Mars orange theme.
  */
 window.MarsDigger = (function () {
   const W = 360, H = 640, COLS = 15, ROWS = 25, CS = 24;
-  const SURFACE = 2, MAX_LIVES = 3, TIME_LIMIT = 90;
+  const SURFACE = 2, MAX_LIVES = 3, TIME_LIMIT = 240;
   const PUMP_RANGE = 2, POPS_NEEDED = 3, DEFLATE_MS = 1000;
+  const PLAYER_MOVE_RATE = 7; // frames between player moves (slower)
   let canvas, ctx, onGameEnd, rafId;
   let grid, player, minerals, worms, rocks, score, lives;
   let startTime, running, gameOver, keys = {};
   let touchStart, moveDir, pumpPressed;
   let sparkles, particles;
   let continueCount = 0;
+  let playerMoveCD = 0;
+
+  /* ── Pixel-art palettes & sprites ── */
+  var DIG_PAL = {
+    '.': null,
+    'K': '#111111', 'W': '#ffffff', 'w': '#bbbbcc', 'g': '#777788',
+    'O': '#FF8800', 'o': '#CC5500', 'S': '#DD6622', 's': '#993311',
+    'R': '#CC4433', 'r': '#AA3322',
+    'V': '#6699AA', 'v': '#445566', 'B': '#AABBCC',
+    'G': '#555555', 'Y': '#ffcc00',
+  };
+
+  /* Astronaut player sprite (9x11) */
+  var ASTRO = [
+    '...KKK...',
+    '..KOOOK..',
+    '.KOvBVOK.',
+    '.KOVSVOK.',
+    '..KoOoK..',
+    '.KOOrOOK.',
+    'KOOrOrOOK',
+    'KROrOrORK',
+    '.KRoKoRK.',
+    '.KRK.KRK.',
+    '..KK.KK..',
+  ];
+
+  /* Sandworm head sprite (9x7) — no eyes, round mouth with teeth/mandibles */
+  var WORM_HEAD = [
+    '..KKKKK..',
+    '.KSoSoSK.',
+    'KSoOOOoSK',
+    'KSoOKOoSK',
+    'KSoOOOoSK',
+    '.KSoSoSK.',
+    '..KKKKK..',
+  ];
+  /* Pumped head (red tones) */
+  var WORM_HEAD_P = [
+    '..KKKKK..',
+    '.KrrRrRK.',
+    'KrRPPPRrK',
+    'KrRPKPRrK',
+    'KrRPPPRrK',
+    '.KrrRrRK.',
+    '..KKKKK..',
+  ];
+  var WORM_PAL = {
+    '.': null, 'K': '#111111',
+    'O': '#FF8800', 'o': '#CC5500', 'S': '#DD6622', 's': '#993311',
+    'R': '#ff6666', 'r': '#CC4444', 'P': '#ff8888', 'p': '#882222',
+    'T': '#DDDDBB',
+  };
+
+  /* Sandworm body segment (5x5) */
+  var WORM_BODY = [
+    '.KKK.',
+    'KOoOK',
+    'KoSoK',
+    'KOoOK',
+    '.KKK.',
+  ];
+  var WORM_BODY_P = [
+    '.KKK.',
+    'KRrRK',
+    'KrprK',
+    'KRrRK',
+    '.KKK.',
+  ];
+
+  /* Rock pixel sprite (7x7) */
+  var ROCK_SPR = [
+    '..KKK..',
+    '.KgwgK.',
+    'KgwWwgK',
+    'KwWgWwK',
+    'KgwWwgK',
+    '.KgwgK.',
+    '..KKK..',
+  ];
+  var ROCK_PAL = {
+    '.': null, 'K': '#333333',
+    'W': '#AAAAAA', 'w': '#888888', 'g': '#666666',
+  };
+
+  /* Mineral pixel sprites */
+  var MIN_COMMON = [
+    '..K..',
+    '.KYK.',
+    'KYWYK',
+    '.KYK.',
+    '..K..',
+  ];
+  var MIN_RARE = [
+    '..K..',
+    '.KBK.',
+    'KBWBK',
+    '.KBK.',
+    '..K..',
+  ];
+  var MIN_CRYSTAL = [
+    '..K..',
+    '.KPK.',
+    'KPWPK',
+    '.KPK.',
+    '..K..',
+  ];
+  var MIN_PAL = {
+    '.': null, 'K': '#111111',
+    'Y': '#FFD700', 'B': '#4488ff', 'P': '#bb44ff', 'W': '#ffffff',
+  };
+
+  /* ── Sprite renderer ── */
+  function drawSprite(sprite, palette, x, y, scale, flipH) {
+    var rows = sprite.length, cols = sprite[0].length;
+    var w = cols * scale, h = rows * scale;
+    var sx = flipH ? x + w / 2 : x - w / 2;
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var ch = sprite[r][c];
+        if (ch === '.') continue;
+        var color = palette[ch];
+        if (!color) continue;
+        ctx.fillStyle = color;
+        var px = flipH ? sx + (cols - 1 - c) * scale : sx + c * scale;
+        ctx.fillRect(Math.floor(px), Math.floor(y - h / 2 + r * scale), scale, scale);
+      }
+    }
+  }
+
+  /* ── Star field (pre-generated) ── */
+  var stars = [];
+  for (var _si = 0; _si < 25; _si++) {
+    stars.push({
+      x: (_si * 97 + 13) % W,
+      y: (_si * 31 + 7) % (SURFACE * CS),
+      color: _si % 3 === 0 ? '#FF8800' : _si % 3 === 1 ? '#4488ff' : '#ffffff',
+      blink: _si * 1.7
+    });
+  }
 
   function init(canvasId, cb) {
     canvas = typeof canvasId === 'string' ? document.getElementById(canvasId) : canvasId;
@@ -41,6 +182,7 @@ window.MarsDigger = (function () {
     grid = []; for (var r = 0; r < ROWS; r++) { grid[r] = []; for (var c = 0; c < COLS; c++) grid[r][c] = r < SURFACE ? 0 : 1; }
     player = { col: 7, row: 0, dir: 'd', pumping: false, pumpTarget: null };
     minerals = []; worms = []; rocks = []; sparkles = []; particles = []; score = 0; lives = MAX_LIVES; gameOver = false;
+    playerMoveCD = 0;
     var tunnels = [[3,2,3,12],[6,5,6,10],[10,8,10,14],[12,3,12,9]];
     for (var i = 0; i < tunnels.length; i++) {
       var tr = tunnels[i][0], c1 = tunnels[i][1], c2 = tunnels[i][3], wr = tunnels[i][2] || tr;
@@ -80,17 +222,27 @@ window.MarsDigger = (function () {
     if (gameOver) return;
     var elapsed = (Date.now() - startTime) / 1000;
     if (elapsed >= TIME_LIMIT || lives <= 0) { endGame(); return; }
-    var dx = 0, dy = 0;
-    if (keys['ArrowLeft'] || moveDir === 'l') { dx = -1; player.dir = 'l'; }
-    else if (keys['ArrowRight'] || moveDir === 'r') { dx = 1; player.dir = 'r'; }
-    else if (keys['ArrowUp'] || moveDir === 'u') { dy = -1; player.dir = 'u'; }
-    else if (keys['ArrowDown'] || moveDir === 'd') { dy = 1; player.dir = 'd'; }
-    moveDir = null;
-    var nc = player.col + dx, nr = player.row + dy;
-    if (nc >= 0 && nc < COLS && nr >= 0 && nr < ROWS) {
-      if (grid[nr][nc] === 2) { /* rock blocks */ }
-      else { if (grid[nr][nc] === 1) { grid[nr][nc] = 0; addCrumble(nc, nr); } player.col = nc; player.row = nr; }
+
+    /* Player movement with throttle */
+    playerMoveCD++;
+    var wantMove = keys['ArrowLeft'] || keys['ArrowRight'] || keys['ArrowUp'] || keys['ArrowDown'] || moveDir;
+    if (wantMove && (playerMoveCD >= PLAYER_MOVE_RATE || moveDir)) {
+      playerMoveCD = 0;
+      var dx = 0, dy = 0;
+      if (keys['ArrowLeft'] || moveDir === 'l') { dx = -1; player.dir = 'l'; }
+      else if (keys['ArrowRight'] || moveDir === 'r') { dx = 1; player.dir = 'r'; }
+      else if (keys['ArrowUp'] || moveDir === 'u') { dy = -1; player.dir = 'u'; }
+      else if (keys['ArrowDown'] || moveDir === 'd') { dy = 1; player.dir = 'd'; }
+      moveDir = null;
+      var nc = player.col + dx, nr = player.row + dy;
+      if (nc >= 0 && nc < COLS && nr >= 0 && nr < ROWS) {
+        if (grid[nr][nc] === 2) { /* rock blocks */ }
+        else { if (grid[nr][nc] === 1) { grid[nr][nc] = 0; addCrumble(nc, nr); } player.col = nc; player.row = nr; }
+      }
+    } else {
+      moveDir = null;
     }
+
     for (var i = 0; i < minerals.length; i++) { var m = minerals[i];
       if (!m.collected && m.col === player.col && m.row === player.row) {
         m.collected = true; score += m.pts;
@@ -106,7 +258,7 @@ window.MarsDigger = (function () {
     }
     for (var i = 0; i < worms.length; i++) { var w = worms[i];
       if (w.dead) continue; w.moveT++; w.phase += 0.05;
-      if (w.moveT < 12) continue; w.moveT = 0;
+      if (w.moveT < 20) continue; w.moveT = 0;
       w.digTimer++;
       if (w.digTimer > 8 && Math.abs(player.row - w.row) + Math.abs(player.col - w.col) < 8) {
         w.digTimer = 0;
@@ -138,7 +290,7 @@ window.MarsDigger = (function () {
   }
 
   function wormCollision(w) { if (w.col === player.col && w.row === player.row) { lives--; spawnParticles(player.col * CS + CS / 2, player.row * CS + CS / 2, '#ff4444', 8); respawn(); } }
-  function respawn() { player.col = 7; player.row = 0; }
+  function respawn() { player.col = 7; player.row = 0; playerMoveCD = 0; }
 
   function tryPump() {
     var dc = 0, dr = 0;
@@ -156,241 +308,216 @@ window.MarsDigger = (function () {
 
   function addCrumble(c, r) { for (var i = 0; i < 4; i++) sparkles.push({ x: c * CS + rand(2, CS - 2), y: r * CS + rand(2, CS - 2), life: 12, type: 'crumble' }); }
 
+  /* ════════════════════════════════════════
+     DRAW — Full pixel-art rendering
+     ════════════════════════════════════════ */
   function draw() {
     var t = Date.now() * 0.001;
 
-    /* Sky - Mars atmosphere */
-    var skyGrad = ctx.createLinearGradient(0, 0, 0, SURFACE * CS);
-    skyGrad.addColorStop(0, '#0a0208');
-    skyGrad.addColorStop(0.6, '#1a0810');
-    skyGrad.addColorStop(1, '#3a1510');
-    ctx.fillStyle = skyGrad;
+    /* ── Sky: flat dark ── */
+    ctx.fillStyle = '#0a0208';
     ctx.fillRect(0, 0, W, SURFACE * CS);
 
-    /* Stars in sky */
-    for (var si = 0; si < 20; si++) {
-      var sx = (si * 97 + 13) % W, sy = (si * 31 + 7) % (SURFACE * CS);
-      var sb = 0.3 + 0.5 * Math.sin(t * 2 + si);
-      ctx.fillStyle = 'rgba(255,220,200,' + sb + ')';
-      ctx.beginPath(); ctx.arc(sx, sy, 0.8, 0, Math.PI * 2); ctx.fill();
+    /* ── Pixel stars ── */
+    for (var si = 0; si < stars.length; si++) {
+      var st = stars[si];
+      var on = Math.sin(t * 2 + st.blink) > 0;
+      if (!on) continue;
+      ctx.fillStyle = st.color;
+      ctx.fillRect(st.x, st.y, 2, 2);
     }
 
-    /* Surface line */
-    ctx.fillStyle = '#5a2a1a';
-    ctx.fillRect(0, SURFACE * CS - 2, W, 4);
+    /* ── Surface line: orange pixel dashes ── */
+    var surfY = SURFACE * CS - 2;
+    for (var sx = 0; sx < W; sx += 6) {
+      ctx.fillStyle = (sx / 6 | 0) % 2 === 0 ? '#DD6622' : '#993311';
+      ctx.fillRect(sx, surfY, 4, 2);
+    }
 
-    /* Soil layers */
+    /* ── Soil / Tunnels / Rocks ── */
     for (var r = SURFACE; r < ROWS; r++) for (var c = 0; c < COLS; c++) {
       var x = c * CS, y = r * CS;
       if (grid[r][c] === 1) {
+        /* Soil: pixel dirt tiles */
         var depth = (r - SURFACE) / (ROWS - SURFACE);
-        /* Soil gradient */
         var rb = Math.floor(130 - depth * 70), gb = Math.floor(65 - depth * 40), bb = Math.floor(30 - depth * 20);
         ctx.fillStyle = 'rgb(' + rb + ',' + gb + ',' + bb + ')';
         ctx.fillRect(x, y, CS, CS);
-        /* Texture */
-        ctx.fillStyle = 'rgba(255,200,150,0.06)';
-        ctx.fillRect(x + 1, y + 1, CS - 2, 1);
-        ctx.fillStyle = 'rgba(0,0,0,0.12)';
-        ctx.fillRect(x, y + CS - 1, CS, 1);
-        /* Random pebbles */
+
+        /* Pixel mortar lines */
+        var mOff = (r % 2) * (CS / 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillRect(x, y + CS - 1, CS, 1); // horizontal mortar
+        ctx.fillRect(x + ((c * CS + mOff) % CS), y, 1, CS); // vertical mortar
+
+        /* Pixel highlight on top edge */
+        ctx.fillStyle = 'rgba(255,200,150,0.08)';
+        ctx.fillRect(x + 2, y + 1, CS - 4, 1);
+
+        /* Pixel pebbles */
         if ((r * 13 + c * 7) % 5 === 0) {
-          ctx.fillStyle = 'rgba(0,0,0,0.15)';
-          ctx.beginPath(); ctx.arc(x + CS * 0.3, y + CS * 0.6, 2, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = 'rgba(0,0,0,0.2)';
+          ctx.fillRect(x + 6, y + 14, 3, 2);
         }
         if ((r * 11 + c * 23) % 7 === 0) {
-          ctx.fillStyle = 'rgba(255,200,150,0.08)';
-          ctx.beginPath(); ctx.arc(x + CS * 0.7, y + CS * 0.4, 1.5, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = 'rgba(255,200,150,0.1)';
+          ctx.fillRect(x + 16, y + 8, 2, 2);
         }
-      } else if (grid[r][c] === 0) {
-        /* Dug tunnel */
+      } else if (grid[r][c] === 0 && r >= SURFACE) {
+        /* Dug tunnel: dark flat */
         ctx.fillStyle = '#080406';
         ctx.fillRect(x, y, CS, CS);
-        /* Tunnel edges */
-        var hasWallLeft = c > 0 && grid[r][c - 1] === 1;
-        var hasWallRight = c < COLS - 1 && grid[r][c + 1] === 1;
-        var hasWallTop = r > 0 && grid[r - 1][c] === 1;
-        var hasWallBot = r < ROWS - 1 && grid[r + 1][c] === 1;
-        if (hasWallLeft) { ctx.fillStyle = 'rgba(100,50,25,0.3)'; ctx.fillRect(x, y, 2, CS); }
-        if (hasWallRight) { ctx.fillStyle = 'rgba(100,50,25,0.3)'; ctx.fillRect(x + CS - 2, y, 2, CS); }
-        if (hasWallTop) { ctx.fillStyle = 'rgba(100,50,25,0.3)'; ctx.fillRect(x, y, CS, 2); }
-        if (hasWallBot) { ctx.fillStyle = 'rgba(100,50,25,0.3)'; ctx.fillRect(x, y + CS - 2, CS, 2); }
+
+        /* Pixel edge blocks at tunnel boundaries */
+        var ps = 2; // pixel size for edges
+        var edgeColor = 'rgba(120,60,30,0.4)';
+        if (c > 0 && grid[r][c - 1] === 1) {
+          ctx.fillStyle = edgeColor;
+          for (var ey = 0; ey < CS; ey += ps * 2) ctx.fillRect(x, y + ey, ps, ps);
+        }
+        if (c < COLS - 1 && grid[r][c + 1] === 1) {
+          ctx.fillStyle = edgeColor;
+          for (var ey = 0; ey < CS; ey += ps * 2) ctx.fillRect(x + CS - ps, y + ey, ps, ps);
+        }
+        if (r > 0 && grid[r - 1][c] === 1) {
+          ctx.fillStyle = edgeColor;
+          for (var ex = 0; ex < CS; ex += ps * 2) ctx.fillRect(x + ex, y, ps, ps);
+        }
+        if (r < ROWS - 1 && grid[r + 1][c] === 1) {
+          ctx.fillStyle = edgeColor;
+          for (var ex = 0; ex < CS; ex += ps * 2) ctx.fillRect(x + ex, y + CS - ps, ps, ps);
+        }
       } else if (grid[r][c] === 2) {
-        /* Rock */
-        var rkGrad = ctx.createRadialGradient(x + CS * 0.4, y + CS * 0.3, 0, x + CS / 2, y + CS / 2, CS * 0.7);
-        rkGrad.addColorStop(0, '#aaa');
-        rkGrad.addColorStop(0.6, '#777');
-        rkGrad.addColorStop(1, '#444');
-        ctx.fillStyle = rkGrad;
-        ctx.beginPath();
-        ctx.moveTo(x + 2, y + CS * 0.3);
-        ctx.lineTo(x + CS * 0.3, y + 2);
-        ctx.lineTo(x + CS * 0.7, y + 1);
-        ctx.lineTo(x + CS - 2, y + CS * 0.3);
-        ctx.lineTo(x + CS - 1, y + CS * 0.7);
-        ctx.lineTo(x + CS * 0.6, y + CS - 2);
-        ctx.lineTo(x + CS * 0.2, y + CS - 1);
-        ctx.lineTo(x + 1, y + CS * 0.6);
-        ctx.closePath();
-        ctx.fill();
-        /* Rock crack */
-        ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 0.5;
-        ctx.beginPath(); ctx.moveTo(x + CS * 0.4, y + CS * 0.3); ctx.lineTo(x + CS * 0.5, y + CS * 0.6); ctx.stroke();
+        /* Rock: pixel sprite */
+        /* Draw soil behind first */
+        var depth2 = (r - SURFACE) / (ROWS - SURFACE);
+        var rb2 = Math.floor(130 - depth2 * 70), gb2 = Math.floor(65 - depth2 * 40), bb2 = Math.floor(30 - depth2 * 20);
+        ctx.fillStyle = 'rgb(' + rb2 + ',' + gb2 + ',' + bb2 + ')';
+        ctx.fillRect(x, y, CS, CS);
+        /* Rock sprite centered in cell */
+        drawSprite(ROCK_SPR, ROCK_PAL, x + CS / 2, y + CS / 2, 3, false);
       }
     }
 
-    /* Minerals */
+    /* ── Minerals: pixel diamonds ── */
     for (var i = 0; i < minerals.length; i++) { var m = minerals[i]; if (m.collected) continue;
-      var cx = m.col * CS + CS / 2, cy = m.row * CS + CS / 2;
-      var mcolor = m.type === 'common' ? '#FFD700' : m.type === 'rare' ? '#4488ff' : '#bb44ff';
-      /* Glow */
-      var mglow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 10);
-      mglow.addColorStop(0, mcolor.replace('#', 'rgba(') ? 'rgba(' + parseInt(mcolor.slice(1, 3), 16) + ',' + parseInt(mcolor.slice(3, 5), 16) + ',' + parseInt(mcolor.slice(5, 7), 16) + ',0.3)' : 'rgba(255,215,0,0.3)');
-      mglow.addColorStop(1, 'transparent');
-      ctx.fillStyle = mglow;
-      ctx.fillRect(cx - 10, cy - 10, 20, 20);
-      /* Crystal shape */
-      ctx.fillStyle = mcolor;
-      ctx.shadowColor = mcolor; ctx.shadowBlur = 4;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - 6);
-      ctx.lineTo(cx + 4, cy - 2);
-      ctx.lineTo(cx + 3, cy + 4);
-      ctx.lineTo(cx - 3, cy + 4);
-      ctx.lineTo(cx - 4, cy - 2);
-      ctx.closePath();
-      ctx.fill();
-      /* Highlight */
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.beginPath(); ctx.moveTo(cx - 1, cy - 4); ctx.lineTo(cx + 2, cy - 1); ctx.lineTo(cx - 1, cy - 1); ctx.fill();
-      ctx.shadowBlur = 0;
+      var mx = m.col * CS + CS / 2, my = m.row * CS + CS / 2;
+      var mspr = m.type === 'common' ? MIN_COMMON : m.type === 'rare' ? MIN_RARE : MIN_CRYSTAL;
+      /* Pixel glow pulse */
+      var glowOn = Math.sin(t * 3 + i) > 0.3;
+      if (glowOn) {
+        var gc = m.type === 'common' ? '#FFD700' : m.type === 'rare' ? '#4488ff' : '#bb44ff';
+        ctx.fillStyle = gc;
+        ctx.globalAlpha = 0.15;
+        ctx.fillRect(mx - 6, my - 6, 12, 12);
+        ctx.globalAlpha = 1;
+      }
+      drawSprite(mspr, MIN_PAL, mx, my, 2, false);
     }
 
-    /* Worms */
+    /* ── Sandworms (Dune-style, no eyes, mouth at front) ── */
     for (var i = 0; i < worms.length; i++) { var w = worms[i]; if (w.dead) continue;
       var wx = w.col * CS + CS / 2, wy = w.row * CS + CS / 2;
-      var inflate = 1 + w.pumps * 0.35;
+      var inflate = 1 + w.pumps * 0.3;
       var bob = Math.sin(w.phase) * 1.5;
+      var facingR = w.dir === 'r';
+      var pumped = w.pumps >= 2;
+      var sc = Math.max(1, Math.floor(1.5 * inflate));
 
-      /* Body segments */
-      var segCount = 4;
+      /* Body segments (back to front) */
+      var segCount = 3;
       for (var s = segCount - 1; s >= 0; s--) {
-        var off = (w.dir === 'r' ? -1 : 1) * s * 4 * inflate;
-        var segSize = (s === 0 ? 5 : 4) * inflate;
-        /* Segment gradient */
-        var sgrd = ctx.createRadialGradient(wx + off - 1, wy + bob - 1, 0, wx + off, wy + bob, segSize);
-        sgrd.addColorStop(0, w.pumps >= 2 ? '#ff8888' : '#66ee66');
-        sgrd.addColorStop(0.6, w.pumps >= 2 ? '#cc4444' : '#33bb33');
-        sgrd.addColorStop(1, w.pumps >= 2 ? '#882222' : '#117711');
-        ctx.fillStyle = sgrd;
-        ctx.beginPath(); ctx.arc(wx + off, wy + bob, segSize, 0, Math.PI * 2); ctx.fill();
+        var segOff = (facingR ? -1 : 1) * (s + 1) * 6 * inflate;
+        var segBob = Math.sin(w.phase + s * 0.5) * 1.2;
+        var bspr = pumped ? WORM_BODY_P : WORM_BODY;
+        drawSprite(bspr, WORM_PAL, wx + segOff, wy + bob + segBob, sc, facingR);
       }
 
-      /* Eyes */
-      var eyeOff = w.dir === 'r' ? 3 : -3;
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.ellipse(wx + eyeOff - 2, wy + bob - 2, 2.5, 3, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(wx + eyeOff + 2, wy + bob - 2, 2.5, 3, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = w.pumps > 0 ? '#ff0000' : '#000';
-      ctx.beginPath(); ctx.arc(wx + eyeOff - 2, wy + bob - 1.5, 1.2, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(wx + eyeOff + 2, wy + bob - 1.5, 1.2, 0, Math.PI * 2); ctx.fill();
+      /* Head */
+      var hspr = pumped ? WORM_HEAD_P : WORM_HEAD;
+      drawSprite(hspr, WORM_PAL, wx, wy + bob, sc, !facingR);
 
-      /* Pump indicator */
+      /* Teeth detail on mouth side */
+      var toothX = facingR ? wx + 5 * sc : wx - 5 * sc;
+      ctx.fillStyle = '#DDDDBB';
+      ctx.fillRect(Math.floor(toothX), Math.floor(wy + bob - 2 * sc), sc, sc);
+      ctx.fillRect(Math.floor(toothX), Math.floor(wy + bob + 1 * sc), sc, sc);
+      ctx.fillRect(Math.floor(toothX + (facingR ? sc : -sc)), Math.floor(wy + bob), sc, sc);
+
+      /* Pump indicator ring (pixel blocks in arc) */
       if (w.pumps > 0) {
-        ctx.strokeStyle = '#ff4444'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.arc(wx, wy + bob, 6 * inflate + 2, 0, Math.PI * 2 * (w.pumps / POPS_NEEDED)); ctx.stroke();
+        var ringR = 8 * inflate;
+        var segments = Math.floor(12 * (w.pumps / POPS_NEEDED));
+        ctx.fillStyle = '#ff4444';
+        for (var ri = 0; ri < segments; ri++) {
+          var ra = (ri / 12) * Math.PI * 2 - Math.PI / 2;
+          ctx.fillRect(Math.floor(wx + Math.cos(ra) * ringR), Math.floor(wy + bob + Math.sin(ra) * ringR), 2, 2);
+        }
       }
     }
 
-    /* Player (astronaut) */
+    /* ── Player (astronaut pixel sprite) ── */
     var px = player.col * CS + CS / 2, py = player.row * CS + CS / 2;
+    var flipPlayer = player.dir === 'l';
+    drawSprite(ASTRO, DIG_PAL, px, py, 2, flipPlayer);
 
-    /* Helmet glow */
-    var pglow = ctx.createRadialGradient(px, py, 0, px, py, 14);
-    pglow.addColorStop(0, 'rgba(200,220,255,0.1)');
-    pglow.addColorStop(1, 'transparent');
-    ctx.fillStyle = pglow;
-    ctx.fillRect(px - 14, py - 14, 28, 28);
+    /* Direction indicator (small pixel arrow) */
+    var adx = player.dir === 'r' ? 1 : player.dir === 'l' ? -1 : 0;
+    var ady = player.dir === 'd' ? 1 : player.dir === 'u' ? -1 : 0;
+    ctx.fillStyle = '#FF8800';
+    ctx.globalAlpha = 0.5;
+    ctx.fillRect(Math.floor(px + adx * 12), Math.floor(py + ady * 12), 3, 3);
+    ctx.globalAlpha = 1;
 
-    /* Suit body */
-    var suitGrad = ctx.createRadialGradient(px - 1, py - 1, 0, px, py, 9);
-    suitGrad.addColorStop(0, '#f0f0f0');
-    suitGrad.addColorStop(0.5, '#d0d0d8');
-    suitGrad.addColorStop(1, '#909098');
-    ctx.fillStyle = suitGrad;
-    ctx.beginPath(); ctx.arc(px, py, 9, 0, Math.PI * 2); ctx.fill();
-
-    /* Backpack */
-    var bpx = player.dir === 'r' ? -5 : player.dir === 'l' ? 5 : 0;
-    var bpy = player.dir === 'u' ? 5 : player.dir === 'd' ? -5 : 0;
-    ctx.fillStyle = '#888';
-    ctx.fillRect(px + bpx - 3, py + bpy - 3, 6, 8);
-
-    /* Visor */
-    var vdx = player.dir === 'r' ? 3 : player.dir === 'l' ? -3 : 0;
-    var vdy = player.dir === 'd' ? 3 : player.dir === 'u' ? -3 : 0;
-    var visorGrad = ctx.createRadialGradient(px + vdx - 1, py + vdy - 1, 0, px + vdx, py + vdy, 4);
-    visorGrad.addColorStop(0, '#88ccff');
-    visorGrad.addColorStop(1, '#2266aa');
-    ctx.fillStyle = visorGrad;
-    ctx.shadowColor = '#4488ff'; ctx.shadowBlur = 4;
-    ctx.beginPath(); ctx.arc(px + vdx, py + vdy, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.shadowBlur = 0;
-    /* Visor reflection */
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.beginPath(); ctx.arc(px + vdx - 1, py + vdy - 1, 1.5, 0, Math.PI * 2); ctx.fill();
-
-    /* Sparkles */
+    /* ── Sparkles (pixel blocks) ── */
     for (var i = 0; i < sparkles.length; i++) { var sp = sparkles[i]; var a = sp.life / 12;
-      if (sp.type === 'crumble') {
-        ctx.fillStyle = 'rgba(160,100,40,' + a + ')';
-        ctx.beginPath(); ctx.arc(sp.x, sp.y, 2, 0, Math.PI * 2); ctx.fill();
-      }
+      ctx.fillStyle = 'rgba(160,100,40,' + a + ')';
+      ctx.fillRect(Math.floor(sp.x), Math.floor(sp.y), 2, 2);
     }
 
-    /* Particles */
+    /* ── Particles (pixel blocks, no shadow) ── */
     for (var p = 0; p < particles.length; p++) {
       var pt = particles[p];
       ctx.globalAlpha = pt.life;
       ctx.fillStyle = pt.color;
-      ctx.shadowColor = pt.color; ctx.shadowBlur = 3;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.size * pt.life, 0, Math.PI * 2); ctx.fill();
+      var ps = Math.max(1, Math.floor(pt.size * pt.life));
+      ctx.fillRect(Math.floor(pt.x), Math.floor(pt.y), ps, ps);
     }
-    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
 
-    /* HUD */
+    /* ── HUD ── */
     ctx.fillStyle = 'rgba(0,0,0,0.75)';
     ctx.fillRect(0, 0, W, 26);
-    ctx.fillStyle = 'rgba(200,100,50,0.15)';
-    ctx.fillRect(0, 24, W, 2);
+    /* HUD bottom accent pixels */
+    for (var hx = 0; hx < W; hx += 4) {
+      ctx.fillStyle = (hx / 4 | 0) % 2 === 0 ? 'rgba(200,100,50,0.2)' : 'rgba(200,100,50,0.05)';
+      ctx.fillRect(hx, 24, 2, 2);
+    }
 
     var elapsed = Math.min(TIME_LIMIT, (Date.now() - startTime) / 1000);
-    ctx.font = 'bold 12px monospace'; ctx.textBaseline = 'top';
+    ctx.font = 'bold 12px "Courier New",monospace'; ctx.textBaseline = 'top';
 
     ctx.fillStyle = '#FFD700'; ctx.textAlign = 'left';
-    ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 3;
     ctx.fillText('SCORE ' + score, 6, 6);
-    ctx.shadowBlur = 0;
 
     var remain = Math.ceil(TIME_LIMIT - elapsed);
     ctx.fillStyle = remain <= 10 ? '#ff4444' : '#fff'; ctx.textAlign = 'center';
-    if (remain <= 10) { ctx.shadowColor = '#ff4444'; ctx.shadowBlur = 4; }
     ctx.fillText(remain + 's', W / 2, 6);
-    ctx.shadowBlur = 0;
 
+    /* Lives: mini pixel astronaut helmets */
     ctx.textAlign = 'right';
     for (var li = 0; li < lives; li++) {
-      var lx = W - 44 - li * 16, ly = 12;
-      ctx.fillStyle = '#ff4444';
-      ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 3;
-      ctx.beginPath();
-      ctx.moveTo(lx, ly + 1.5);
-      ctx.bezierCurveTo(lx, ly - 0.5, lx - 4, ly - 3, lx - 4, ly);
-      ctx.bezierCurveTo(lx - 4, ly + 2, lx, ly + 5, lx, ly + 6);
-      ctx.bezierCurveTo(lx, ly + 5, lx + 4, ly + 2, lx + 4, ly);
-      ctx.bezierCurveTo(lx + 4, ly - 3, lx, ly - 0.5, lx, ly + 1.5);
-      ctx.fill();
-      ctx.shadowBlur = 0;
+      var lx = W - 44 - li * 16, ly = 5;
+      /* Mini helmet: 5x5 pixel art */
+      ctx.fillStyle = '#FF8800';
+      ctx.fillRect(lx - 1, ly + 1, 2, 2);
+      ctx.fillRect(lx + 1, ly + 1, 2, 2);
+      ctx.fillRect(lx - 2, ly + 3, 6, 2);
+      ctx.fillRect(lx - 2, ly + 5, 6, 4);
+      ctx.fillRect(lx - 1, ly + 9, 4, 2);
+      /* Visor */
+      ctx.fillStyle = '#6699AA';
+      ctx.fillRect(lx, ly + 1, 2, 2);
     }
 
     if (gameOver) drawGameOver();
@@ -401,14 +528,11 @@ window.MarsDigger = (function () {
   function drawGameOver() {
     ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = 'bold 32px monospace';
+    ctx.font = 'bold 32px "Courier New",monospace';
     ctx.fillStyle = '#ff4400';
-    ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 20;
     ctx.fillText('GAME OVER', W / 2, H / 2 - 30);
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 22px monospace';
+    ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 22px "Courier New",monospace';
     ctx.fillText('SCORE: ' + score, W / 2, H / 2 + 10);
-    ctx.shadowBlur = 0;
   }
 
   function continueGame() {
@@ -416,5 +540,44 @@ window.MarsDigger = (function () {
     respawn(); rafId = requestAnimationFrame(loop);
   }
 
-  return { init: init, start: start, stop: stop, getScore: getScore, continueGame: continueGame, get continueCount() { return continueCount; } };
+  /* Pickaxe icon sprite for selection panel */
+  var PICK_PAL = {
+    '.': null,
+    'K': '#111111', 'M': '#444455', 'm': '#666677',
+    'O': '#DD8833', 'H': '#CC7733', 'h': '#AA5522', 'r': '#886644',
+  };
+  var PICKAXE = [
+    'Kmm.....mmK',
+    'KMmK...KmMK',
+    '.KMmKKKmMK.',
+    '..KMmMmMK..',
+    '...KmOmK...',
+    '...KrHrK...',
+    '....KHK....',
+    '....KHK....',
+    '....KhK....',
+    '....KHK....',
+    '....KhK....',
+    '....KHK....',
+    '....KKK....',
+  ];
+  function getPickaxeIcon(size) {
+    var c = document.createElement('canvas');
+    c.width = size; c.height = size;
+    var cx = c.getContext('2d');
+    var rows = PICKAXE.length, cols = PICKAXE[0].length;
+    var sc = Math.floor(Math.min(size / cols, size / rows));
+    var ox = (size - cols * sc) / 2, oy = (size - rows * sc) / 2;
+    for (var r = 0; r < rows; r++) {
+      for (var cc = 0; cc < cols; cc++) {
+        var ch = PICKAXE[r][cc];
+        if (ch === '.') continue;
+        cx.fillStyle = PICK_PAL[ch] || '#fff';
+        cx.fillRect(Math.floor(ox + cc * sc), Math.floor(oy + r * sc), sc, sc);
+      }
+    }
+    return c.toDataURL();
+  }
+
+  return { init: init, start: start, stop: stop, getScore: getScore, continueGame: continueGame, getPickaxeIcon: getPickaxeIcon, get continueCount() { return continueCount; } };
 })();
