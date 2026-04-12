@@ -11,6 +11,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <script src="/assets/lib/globe.gl.min.js"></script>
+<script src="/js/minigame-invaders.js"></script>
+<script src="/js/minigame-runner.js"></script>
+<script src="/js/minigame-digger.js"></script>
 <style>
 :root{
   --bg:#0D0B14;--panel:rgba(14,12,24,0.93);--panel2:rgba(20,16,32,0.95);
@@ -2538,6 +2541,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
       <div class="wallet-actions">
         <button class="wa-btn swp" onclick="openSwapModal()">PP→USDT</button>
+        <button class="wa-btn swp" onclick="openExchangeModal()" style="color:var(--gn);border-color:rgba(0,230,118,.3)">PP→GP</button>
         <button class="wa-btn dis" onclick="logoutEmail()" data-i18n="logout_btn">LOGOUT</button>
       </div>
     </div>
@@ -2926,6 +2930,77 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <span data-i18n="you_receive">You receive:</span> <span id="swpReceive" style="color:var(--gn)">0.00 USDT</span>
       </div>
       <button class="cfm" onclick="confirmSwap()" data-i18n="confirm_swap">CONFIRM SWAP</button>
+    </div>
+  </div>
+</div>
+
+<!-- PP → GP Exchange Modal -->
+<div class="mbg" id="exchangeModal">
+  <div class="mdl" style="width:400px">
+    <div class="mhd">
+      <span class="mtl" style="color:var(--pp)">EXCHANGE PP → GP</span>
+      <button class="mx" onclick="closeExchangeModal()">×</button>
+    </div>
+    <div class="mbd">
+      <div class="mf"><div class="mfl">PP BALANCE</div><div class="mfv" style="color:var(--pp)" id="exchPPBal">0.00 PP</div></div>
+      <div class="mf"><div class="mfl">GP BALANCE</div><div class="mfv" style="color:var(--gn)" id="exchGPBal">0 GP</div></div>
+      <div class="mdv"></div>
+      <div style="text-align:center;font-size:10px;color:var(--tx3);font-family:var(--fn);margin:4px 0">
+        Rate: <span id="exchRate" style="color:var(--gn)">1 PP = 100 GP</span> · Fee: <span id="exchFee" style="color:var(--red)">5%</span>
+      </div>
+      <div class="mf">
+        <div class="mfl">EXCHANGE AMOUNT (PP)</div>
+        <div class="dw-amount-wrap">
+          <input type="number" class="dw-amount" id="exchAmount" placeholder="0.00" min="0" step="0.01" oninput="updateExchangePreview()">
+          <button class="dw-max" onclick="setExchMax()">MAX</button>
+        </div>
+      </div>
+      <div class="dw-info">
+        <span>You receive:</span> <span id="exchReceive" style="color:var(--gn);font-weight:700">0 GP</span>
+        <br><span style="font-size:8px;color:var(--tx3)">Daily limit: <span id="exchDailyLeft">50</span> PP remaining</span>
+      </div>
+      <button class="cfm" onclick="confirmExchange()" style="background:linear-gradient(135deg,var(--pp),#ff6600)">CONFIRM EXCHANGE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mini-game Overlay -->
+<div class="arena-overlay" id="minigameOverlay" style="z-index:3100">
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <!-- Game selection (shown when no game active) -->
+    <div id="mgSelectPanel" style="width:340px;max-width:92vw;background:var(--surface1);border-radius:12px;border:1px solid var(--bdr);padding:16px;font-family:var(--fn)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:14px;font-weight:700;color:var(--red)">⚔️ WAR GAMES</div>
+        <button onclick="closeMinigameOverlay()" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer">✕</button>
+      </div>
+      <div id="mgWarInfo" style="font-size:9px;color:var(--tx3);margin-bottom:8px;text-align:center"></div>
+      <div id="mgPlaysLeft" style="font-size:10px;color:var(--cyan);text-align:center;margin-bottom:10px"></div>
+      <div style="display:flex;gap:8px">
+        <button onclick="launchMinigame('invaders')" style="flex:1;padding:16px 8px;border-radius:8px;background:linear-gradient(135deg,#1a0a2e,#0d0020);border:1px solid rgba(255,100,0,.3);color:#ff8c00;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn)">
+          🚀<br>MARS<br>INVADERS
+        </button>
+        <button onclick="launchMinigame('runner')" style="flex:1;padding:16px 8px;border-radius:8px;background:linear-gradient(135deg,#1a1a00,#0d0d00);border:1px solid rgba(255,215,0,.3);color:#ffd700;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn)">
+          👨‍🚀<br>MARS<br>RUNNER
+        </button>
+        <button onclick="launchMinigame('digger')" style="flex:1;padding:16px 8px;border-radius:8px;background:linear-gradient(135deg,#1a0a00,#0d0500);border:1px solid rgba(139,69,19,.5);color:#cd853f;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn)">
+          ⛏️<br>MARS<br>DIGGER
+        </button>
+      </div>
+    </div>
+    <!-- Game canvas (shown during gameplay) -->
+    <div id="mgCanvasWrap" style="display:none;position:relative">
+      <canvas id="mgCanvas" width="360" height="640" style="border-radius:8px;border:1px solid var(--bdr)"></canvas>
+      <!-- Continue overlay -->
+      <div id="mgContinueOverlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);display:none;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-family:var(--fn)">
+        <div style="font-size:24px;font-weight:900;color:#ff4400;margin-bottom:8px">GAME OVER</div>
+        <div id="mgFinalScore" style="font-size:18px;font-weight:700;color:#ffcc00;margin-bottom:16px"></div>
+        <div id="mgContinueCost" style="font-size:12px;color:var(--tx3);margin-bottom:12px"></div>
+        <div style="display:flex;gap:10px">
+          <button id="mgContinueBtn" onclick="payAndContinue()" style="padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,#00E676,#00C853);border:none;color:#000;font-size:14px;font-weight:900;cursor:pointer;font-family:var(--fn)">CONTINUE</button>
+          <button onclick="submitMinigameScore()" style="padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,#ff6600,#ff4400);border:none;color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:var(--fn)">SUBMIT</button>
+        </div>
+      </div>
+      <button onclick="closeMinigameOverlay()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;z-index:10">✕</button>
     </div>
   </div>
 </div>
@@ -9359,6 +9434,182 @@ function openWithdrawModal(){
 function closeWithdrawModal(){document.getElementById('withdrawModal').classList.remove('open')}
 function setWdrMax(){document.getElementById('wdrAmount').value=walletState.gameUsdt.toFixed(2)}
 
+// ═══════════════════════════════════════
+//  PP → GP EXCHANGE
+// ═══════════════════════════════════════
+var _exchInfo = { rate:100, min:0.1, max:10, fee:5, dailyLimit:50, enabled:true };
+
+async function openExchangeModal(){
+  if(!walletState.connected){ showToast('LOGIN FIRST'); return; }
+  try{
+    var r = await fetch('/api/exchange/pp-to-gp/info');
+    var d = await r.json();
+    if(d.rate) _exchInfo = d;
+  }catch(e){}
+  document.getElementById('exchPPBal').textContent = (walletState.gamePP||0).toFixed(2)+' PP';
+  document.getElementById('exchGPBal').textContent = Math.floor(walletState.gameGP||0)+' GP';
+  document.getElementById('exchRate').textContent = '1 PP = '+_exchInfo.rate+' GP';
+  document.getElementById('exchFee').textContent = _exchInfo.fee+'%';
+  document.getElementById('exchDailyLeft').textContent = _exchInfo.dailyLimit;
+  document.getElementById('exchAmount').value = '';
+  document.getElementById('exchReceive').textContent = '0 GP';
+  document.getElementById('exchangeModal').classList.add('open');
+}
+function closeExchangeModal(){ document.getElementById('exchangeModal').classList.remove('open'); }
+function setExchMax(){
+  var max = Math.min(walletState.gamePP||0, _exchInfo.max);
+  document.getElementById('exchAmount').value = max.toFixed(2);
+  updateExchangePreview();
+}
+function updateExchangePreview(){
+  var amt = parseFloat(document.getElementById('exchAmount').value)||0;
+  var fee = amt * (_exchInfo.fee/100);
+  var gp = Math.floor((amt-fee)*_exchInfo.rate);
+  document.getElementById('exchReceive').textContent = gp.toLocaleString()+' GP';
+}
+async function confirmExchange(){
+  var amt = parseFloat(document.getElementById('exchAmount').value);
+  if(!amt||amt<=0){ showToast('ENTER AMOUNT'); return; }
+  if(amt > (walletState.gamePP||0)){ showToast('INSUFFICIENT PP'); return; }
+  try{
+    var resp = await fetch('/api/exchange/pp-to-gp',{
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(emailAuth&&emailAuth.token||'')},
+      body:JSON.stringify({ wallet:walletState.address, amount:amt })
+    });
+    var d = await resp.json();
+    if(!resp.ok){ showToast(d.error||'EXCHANGE FAILED'); return; }
+    walletState.gamePP = d.ppBalance!=null ? d.ppBalance : (walletState.gamePP-amt);
+    walletState.gameGP = d.gpBalance!=null ? d.gpBalance : (walletState.gameGP+(d.gpReceived||0));
+    refreshEmailBalances();
+    closeExchangeModal();
+    showToast('💱 '+amt.toFixed(2)+' PP → '+(d.gpReceived||0)+' GP','success');
+    addFeed('💱 '+shortAddr(walletState.address)+' exchanged '+amt.toFixed(1)+' PP → '+(d.gpReceived||0)+' GP');
+  }catch(e){ showToast('EXCHANGE FAILED'); console.error(e); }
+}
+
+// ═══════════════════════════════════════
+//  MINI-GAME OVERLAY (Guild War Games)
+// ═══════════════════════════════════════
+var _mgCurrentGame = null;    // 'invaders'|'runner'|'digger'
+var _mgCurrentEngine = null;  // MarsInvaders|MarsRunner|MarsDigger
+var _mgWarId = null;
+var _mgContinueNum = 0;
+var _mgFinalScore = 0;
+var _mgContinueCosts = { gpCosts:[5,15,30], ppBase:0.1, ppMult:2, maxContinues:10 };
+
+function openMinigameOverlay(warId){
+  _mgWarId = warId;
+  _mgCurrentGame = null;
+  _mgCurrentEngine = null;
+  _mgContinueNum = 0;
+  document.getElementById('mgSelectPanel').style.display = '';
+  document.getElementById('mgCanvasWrap').style.display = 'none';
+  document.getElementById('mgContinueOverlay').style.display = 'none';
+  document.getElementById('mgWarInfo').textContent = 'War #'+warId+' — Play games to earn points for your guild!';
+  // Load continue costs
+  fetch('/api/guild/war/continue-cost').then(function(r){return r.json()}).then(function(d){
+    if(d.gpCosts) _mgContinueCosts = d;
+  }).catch(function(){});
+  document.getElementById('minigameOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMinigameOverlay(){
+  if(_mgCurrentEngine){ try{ _mgCurrentEngine.stop(); }catch(e){} }
+  _mgCurrentEngine = null;
+  _mgCurrentGame = null;
+  document.getElementById('minigameOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function launchMinigame(type){
+  _mgCurrentGame = type;
+  _mgContinueNum = 0;
+  document.getElementById('mgSelectPanel').style.display = 'none';
+  document.getElementById('mgCanvasWrap').style.display = '';
+  document.getElementById('mgContinueOverlay').style.display = 'none';
+  var canvas = document.getElementById('mgCanvas');
+  var engines = { invaders: window.MarsInvaders, runner: window.MarsRunner, digger: window.MarsDigger };
+  _mgCurrentEngine = engines[type];
+  if(!_mgCurrentEngine){ showToast('Game not found'); return; }
+  _mgCurrentEngine.init(canvas, function(score){
+    // Game ended - show continue overlay
+    _mgFinalScore = score;
+    showContinueOverlay(score);
+  });
+  _mgCurrentEngine.start();
+}
+
+function showContinueOverlay(score){
+  var ov = document.getElementById('mgContinueOverlay');
+  ov.style.display = 'flex';
+  document.getElementById('mgFinalScore').textContent = 'SCORE: '+score;
+  var nextNum = _mgContinueNum + 1;
+  var btn = document.getElementById('mgContinueBtn');
+  if(nextNum > _mgContinueCosts.maxContinues){
+    btn.style.display = 'none';
+    document.getElementById('mgContinueCost').textContent = 'Max continues reached';
+    return;
+  }
+  btn.style.display = '';
+  var costText = '';
+  var gc = _mgContinueCosts.gpCosts;
+  if(nextNum <= gc.length){
+    costText = gc[nextNum-1]+' GP';
+    btn.style.background = 'linear-gradient(135deg,#00E676,#00C853)';
+    btn.style.color = '#000';
+  }else{
+    var ppCost = _mgContinueCosts.ppBase * Math.pow(_mgContinueCosts.ppMult, nextNum - gc.length - 1);
+    costText = ppCost.toFixed(2)+' PP';
+    btn.style.background = 'linear-gradient(135deg,#B388FF,#7C4DFF)';
+    btn.style.color = '#fff';
+  }
+  document.getElementById('mgContinueCost').textContent = 'Continue #'+nextNum+': '+costText;
+  btn.textContent = 'CONTINUE ('+costText+')';
+}
+
+async function payAndContinue(){
+  if(!_mgCurrentEngine || !_mgWarId) return;
+  var nextNum = _mgContinueNum + 1;
+  try{
+    var resp = await fetch('/api/guild/war/continue',{
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(emailAuth&&emailAuth.token||'')},
+      body:JSON.stringify({ wallet:walletState.address, warId:_mgWarId, continueNum:nextNum })
+    });
+    var d = await resp.json();
+    if(!resp.ok){ showToast(d.error||'CONTINUE FAILED'); return; }
+    // Update balances
+    if(d.ppBalance!=null) walletState.gamePP = d.ppBalance;
+    if(d.gpBalance!=null) walletState.gameGP = d.gpBalance;
+    refreshEmailBalances();
+    // Continue the game
+    _mgContinueNum = nextNum;
+    document.getElementById('mgContinueOverlay').style.display = 'none';
+    _mgCurrentEngine.continueGame();
+    showToast('▶ CONTINUE! (paid '+d.paid.amount+(d.paid.type==='pp'?' PP':' GP')+')');
+  }catch(e){ showToast('CONTINUE FAILED'); console.error(e); }
+}
+
+async function submitMinigameScore(){
+  if(!_mgCurrentEngine) return;
+  var score = _mgCurrentEngine.getScore();
+  document.getElementById('mgContinueOverlay').style.display = 'none';
+  try{
+    var resp = await fetch('/api/guild/war/score',{
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(emailAuth&&emailAuth.token||'')},
+      body:JSON.stringify({ wallet:walletState.address, warId:_mgWarId, gameType:_mgCurrentGame, score:score })
+    });
+    var d = await resp.json();
+    if(!resp.ok){ showToast(d.error||'SUBMIT FAILED'); return; }
+    showToast('🎮 Score '+score+' submitted! (Plays left: '+(d.playsRemaining||0)+')','success');
+    // Go back to game select
+    _mgCurrentEngine = null;
+    document.getElementById('mgCanvasWrap').style.display = 'none';
+    document.getElementById('mgSelectPanel').style.display = '';
+    if(d.playsRemaining!=null) document.getElementById('mgPlaysLeft').textContent = d.playsRemaining+' plays remaining today';
+  }catch(e){ showToast('SUBMIT FAILED'); console.error(e); }
+}
+
 async function confirmWithdraw(){
   var amt=parseFloat(document.getElementById('wdrAmount').value);
   if(!amt||amt<=0){showToast('ENTER AMOUNT');return}
@@ -13565,7 +13816,7 @@ function renderGuildState(guild, wallet){
 // ── Guild upgrade panel ──
 var _guildLevelCosts = {2:500, 3:2000, 4:8000, 5:25000, 6:80000};
 var _guildResearchCatalog = [
-  {key:'mining_eff_1',  labelKey:'research_mining_eff_1',  cost:1000, desc:'채굴 PP +10%', icon:'⛏️'},
+  {key:'mining_eff_1',  labelKey:'research_mining_eff_1',  cost:1000, desc:'채굴 PP +3%', icon:'⛏️'},
   {key:'shield_disc',   labelKey:'research_shield_disc',   cost:1000, desc:'침공 방어 +15%', icon:'🛡️'},
   {key:'diplomatic',    labelKey:'research_diplomatic',    cost:1000, desc:'침공 성공률 -10%', icon:'🕊️'},
   {key:'orbital_scan',  labelKey:'research_orbital_scan',  cost:5000, desc:'탐험 보상 +15%', icon:'🔭'},
@@ -13685,7 +13936,10 @@ function renderGuildWars(guildId){
           '</div>'+
           '<span style="font-size:12px;font-weight:700;color:var(--red)">'+theirScore+'</span>'+
         '</div>'+
-        '<div style="font-size:7px;color:var(--tx3);text-align:center">채굴·침공·방어로 점수 획득</div>'+
+        '<div style="display:flex;gap:4px;margin-top:6px">'+
+          '<button onclick="openMinigameOverlay('+w.id+')" style="flex:1;padding:6px;border-radius:6px;background:linear-gradient(135deg,#00E676,#00C853);border:none;color:#000;font-size:10px;font-weight:700;cursor:pointer">🎮 PLAY GAMES</button>'+
+          '<button onclick="viewWarScoreboard('+w.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--gn);font-size:9px;cursor:pointer">📊 SCORES</button>'+
+        '</div>'+
       '</div>';
     }).join('')+
     '<button onclick="showDeclareWarModal()" style="margin-top:6px;width:100%;padding:6px;border-radius:6px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:9px;cursor:pointer">+ 전쟁 선포</button>';
@@ -13714,14 +13968,51 @@ function searchWarTarget(q){
       return '<div onclick="declareWar('+g.id+')" style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);margin-bottom:4px;cursor:pointer">'+
         '<span style="font-size:14px">'+(g.emblem||'🔴')+'</span>'+
         '<div><div style="font-size:11px;color:var(--tx);font-weight:700">['+g.tag+'] '+g.name+'</div>'+
-        '<div style="font-size:8px;color:var(--tx3)">Lv.'+g.level+' · '+g.member_count+'명</div></div>'+
+        '<div style="font-size:8px;color:var(--tx3)">Lv.'+(g.level||1)+' · '+(g.memberCount||0)+'명</div></div>'+
       '</div>';
     }).join('')||'<div style="color:var(--tx3);font-size:10px;text-align:center">결과 없음</div>';
   });
 }
 
+async function viewWarScoreboard(warId){
+  try{
+    var resp = await fetch('/api/guild/war/'+warId+'/scores');
+    var d = await resp.json();
+    if(d.error){ showAlert(d.error); return; }
+    var html='<div style="padding:12px;font-family:var(--fn)">';
+    html+='<div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">📊 WAR SCOREBOARD</div>';
+    // Guild scores
+    if(d.guildScores){
+      var gs = d.guildScores;
+      html+='<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:11px">';
+      html+='<span style="color:var(--cyan)">'+(gs.attacker?gs.attacker.name:'Attacker')+': '+(gs.attacker?gs.attacker.total:0)+'</span>';
+      html+='<span style="color:var(--red)">'+(gs.defender?gs.defender.name:'Defender')+': '+(gs.defender?gs.defender.total:0)+'</span>';
+      html+='</div>';
+    }
+    // Top players
+    if(d.topPlayers&&d.topPlayers.length){
+      html+='<div style="font-size:9px;color:var(--tx3);margin-bottom:4px">TOP PLAYERS</div>';
+      d.topPlayers.slice(0,10).forEach(function(p,i){
+        html+='<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:10px;border-bottom:1px solid var(--bdr)">';
+        html+='<span style="color:var(--tx)">'+(i+1)+'. '+(p.nickname||shortAddr(p.wallet))+'</span>';
+        html+='<span style="color:var(--gn)">'+p.total_points+' pts</span>';
+        html+='</div>';
+      });
+    }
+    // Game breakdown
+    if(d.gameBreakdown&&d.gameBreakdown.length){
+      html+='<div style="font-size:9px;color:var(--tx3);margin-top:8px;margin-bottom:4px">BY GAME</div>';
+      d.gameBreakdown.forEach(function(g){
+        html+='<div style="font-size:10px;color:var(--tx)">'+g.game_type+': '+g.total_points+' pts ('+g.play_count+' plays)</div>';
+      });
+    }
+    html+='</div>';
+    showAlert(html);
+  }catch(e){ showAlert('Failed to load scoreboard'); }
+}
+
 function declareWar(targetId){
-  if(!confirm('전쟁을 선포하시겠습니까? 길드 재무에서 PP가 차감됩니다.')) return;
+  if(!confirm('전쟁을 선포하시겠습니까? 길드 재무에서 GP가 차감됩니다.')) return;
   fetch('/api/guild/war/declare',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({wallet:walletState.address,guildId:_myGuildData.id,targetGuildId:targetId})
   }).then(function(r){return r.json()}).then(function(d){
@@ -18388,6 +18679,10 @@ document.addEventListener('keydown', function(e){
     if(document.getElementById('claimModal').classList.contains('open')){ closeClaimModal(); return; }
     // Base modal
     if(document.getElementById('baseModal').classList.contains('open')){ closeBaseModal(); return; }
+    // Minigame overlay
+    if(document.getElementById('minigameOverlay').classList.contains('active')){ closeMinigameOverlay(); return; }
+    // Exchange modal
+    if(document.getElementById('exchangeModal').classList.contains('open')){ closeExchangeModal(); return; }
     // Arena
     if(document.getElementById('arenaOverlay').classList.contains('active')){ closeArena(); return; }
   }

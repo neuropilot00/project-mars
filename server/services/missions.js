@@ -943,7 +943,7 @@ async function resolveMission(missionId) {
         // Guild war: invasion points
         const warPts = parseInt(await getSetting('guild_war_hijack_points') || '10');
         if (guildService.recordWarAction) {
-          guildService.recordWarAction(m.wallet, 'invasion', warPts, { target: m.target_wallet, success: m.type === 'invasion' }).catch(() => {});
+          guildService.recordWarAction(m.wallet, 'invasion', warPts, { target: m.target_wallet }).catch(() => {});
         }
       }
     } catch (_hook) { /* non-critical */ }

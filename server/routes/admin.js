@@ -1487,12 +1487,28 @@ router.post('/guild-wars/:id/resolve', adminAuth, async (req, res) => {
     let winnerId = null;
     if (war.attacker_score > war.defender_score) winnerId = war.attacker_guild_id;
     else if (war.defender_score > war.attacker_score) winnerId = war.defender_guild_id;
+
+    const { getSetting } = require('../db');
+    const rewardGP = parseFloat(await getSetting('guild_war_winner_gp') || '500');
+
     await pool.query(
-      'UPDATE guild_wars SET status = $1, winner_guild_id = $2, war_end = NOW() WHERE id = $3',
-      ['resolved', winnerId, warId]
+      'UPDATE guild_wars SET status = $1, winner_guild_id = $2, reward_pp = $3, war_end = NOW() WHERE id = $4',
+      ['resolved', winnerId, winnerId ? rewardGP : 0, warId]
     );
-    await auditLog(req, 'guild_war_force_resolve', 'guild_war', { warId, winnerId });
-    res.json({ success: true, winnerId });
+
+    // Award GP to winner's treasury
+    if (winnerId && rewardGP > 0) {
+      await pool.query('UPDATE guilds SET gp_treasury = gp_treasury + $1 WHERE id = $2', [rewardGP, winnerId]);
+      await pool.query(
+        `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+         VALUES ($1, 'admin', 'war_reward', $2,
+                 (SELECT gp_treasury FROM guilds WHERE id = $1), $3)`,
+        [winnerId, rewardGP, `Admin force-resolve war GP reward (War #${warId})`]
+      );
+    }
+
+    await auditLog(req, 'guild_war_force_resolve', 'guild_war', { warId, winnerId, rewardGP: winnerId ? rewardGP : 0 });
+    res.json({ success: true, winnerId, rewardGP: winnerId ? rewardGP : 0 });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

@@ -1048,7 +1048,7 @@ async function getResearchBonuses(wallet) {
     if (!r.rows.length) return bonuses;
     const flags = r.rows[0].research_flags || {};
 
-    if (flags.mining_eff_1) bonuses.mining = parseFloat(await getSetting('guild_research_mining_eff_1_bonus') || '10');
+    if (flags.mining_eff_1) bonuses.mining = parseFloat(await getSetting('guild_research_mining_eff_1_bonus') || '3');
     if (flags.shield_disc) bonuses.defense = parseFloat(await getSetting('guild_research_shield_disc_bonus') || '15');
     if (flags.diplomatic) bonuses.diplomatic = parseFloat(await getSetting('guild_research_diplomatic_bonus') || '10');
     if (flags.orbital_scan) bonuses.exploration = parseFloat(await getSetting('guild_research_orbital_scan_bonus') || '15');
@@ -1128,21 +1128,33 @@ async function declareWar(wallet, guildId, targetGuildId) {
       return { error: `War cooldown: wait ${cooldown}h between wars with the same guild` };
     }
 
-    // Deduct PP from treasury
-    const cost = parseFloat(await getSetting('guild_war_declare_cost_pp') || '5000');
-    const gRes = await client.query('SELECT pp_treasury FROM guilds WHERE id = $1 FOR UPDATE', [guildId]);
-    const treasury = parseFloat(gRes.rows[0]?.pp_treasury || 0);
-    if (treasury < cost) {
+    // Check defender max active wars
+    const defenderWars = await client.query(
+      `SELECT COUNT(*)::int AS cnt FROM guild_wars
+       WHERE status IN ('declared','active')
+         AND (attacker_guild_id = $1 OR defender_guild_id = $1)`,
+      [targetGuildId]
+    );
+    if (defenderWars.rows[0].cnt >= maxActive) {
       await client.query('ROLLBACK');
-      return { error: `Need ${cost} PP in treasury. Have ${treasury.toFixed(0)}.` };
+      return { error: 'Target guild is already in an active war' };
     }
 
-    await client.query('UPDATE guilds SET pp_treasury = pp_treasury - $1 WHERE id = $2', [cost, guildId]);
+    // Deduct GP from treasury
+    const cost = parseFloat(await getSetting('guild_war_declare_cost_gp') || '200');
+    const gRes = await client.query('SELECT gp_treasury FROM guilds WHERE id = $1 FOR UPDATE', [guildId]);
+    const treasury = parseFloat(gRes.rows[0]?.gp_treasury || 0);
+    if (treasury < cost) {
+      await client.query('ROLLBACK');
+      return { error: `Need ${cost} GP in treasury. Have ${treasury.toFixed(0)}.` };
+    }
+
+    await client.query('UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2', [cost, guildId]);
     const newBal = treasury - cost;
     await client.query(
       `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
        VALUES ($1, $2, 'war_declare', $3, $4, $5)`,
-      [guildId, wallet, -cost, newBal, `War declared vs guild #${targetGuildId}`]
+      [guildId, wallet, -cost, newBal, `War declared vs guild #${targetGuildId} (-${cost} GP)`]
     );
 
     // Create war — starts immediately
@@ -1155,7 +1167,7 @@ async function declareWar(wallet, guildId, targetGuildId) {
     );
 
     await client.query('COMMIT');
-    console.log(`[GUILD WAR] #${guildId} declared war on #${targetGuildId} by ${wallet} (-${cost} PP)`);
+    console.log(`[GUILD WAR] #${guildId} declared war on #${targetGuildId} by ${wallet} (-${cost} GP)`);
     return { success: true, war: war.rows[0] };
   } catch (e) {
     await client.query('ROLLBACK');
@@ -1242,35 +1254,39 @@ async function resolveExpiredWars() {
       `SELECT * FROM guild_wars WHERE status = 'active' AND war_end <= NOW()`
     );
     for (const w of expired.rows) {
-      await client.query('BEGIN');
-      let winnerId = null;
-      if (w.attacker_score > w.defender_score) winnerId = w.attacker_guild_id;
-      else if (w.defender_score > w.attacker_score) winnerId = w.defender_guild_id;
-      // else draw — no winner
+      try {
+        await client.query('BEGIN');
+        let winnerId = null;
+        if (w.attacker_score > w.defender_score) winnerId = w.attacker_guild_id;
+        else if (w.defender_score > w.attacker_score) winnerId = w.defender_guild_id;
+        // else draw — no winner
 
-      const rewardPP = parseFloat(await getSetting('guild_war_winner_pp') || '10000');
+        const rewardGP = parseFloat(await getSetting('guild_war_winner_gp') || '500');
 
-      await client.query(
-        `UPDATE guild_wars SET status = 'resolved', winner_guild_id = $1, reward_pp = $2 WHERE id = $3`,
-        [winnerId, winnerId ? rewardPP : 0, w.id]
-      );
-
-      // Award PP to winner's treasury
-      if (winnerId && rewardPP > 0) {
-        await client.query('UPDATE guilds SET pp_treasury = pp_treasury + $1 WHERE id = $2', [rewardPP, winnerId]);
         await client.query(
-          `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
-           VALUES ($1, 'system', 'war_reward', $2,
-                   (SELECT pp_treasury FROM guilds WHERE id = $1), $3)`,
-          [winnerId, rewardPP, `War victory reward (War #${w.id})`]
+          `UPDATE guild_wars SET status = 'resolved', winner_guild_id = $1, reward_pp = $2 WHERE id = $3`,
+          [winnerId, winnerId ? rewardGP : 0, w.id]
         );
+
+        // Award GP to winner's treasury
+        if (winnerId && rewardGP > 0) {
+          await client.query('UPDATE guilds SET gp_treasury = gp_treasury + $1 WHERE id = $2', [rewardGP, winnerId]);
+          await client.query(
+            `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+             VALUES ($1, 'system', 'war_reward', $2,
+                     (SELECT gp_treasury FROM guilds WHERE id = $1), $3)`,
+            [winnerId, rewardGP, `War victory GP reward (War #${w.id})`]
+          );
+        }
+        await client.query('COMMIT');
+        console.log(`[GUILD WAR] #${w.id} resolved. Winner: ${winnerId || 'draw'}. Score: ${w.attacker_score}-${w.defender_score}`);
+      } catch (warErr) {
+        await client.query('ROLLBACK');
+        console.error(`[GUILD WAR] Failed to resolve war #${w.id}:`, warErr.message);
       }
-      await client.query('COMMIT');
-      console.log(`[GUILD WAR] #${w.id} resolved. Winner: ${winnerId || 'draw'}. Score: ${w.attacker_score}-${w.defender_score}`);
     }
     return expired.rows.length;
   } catch (e) {
-    await client.query('ROLLBACK');
     console.error('[GUILD WAR] resolveExpiredWars:', e.message);
     return 0;
   } finally { client.release(); }
@@ -1292,6 +1308,159 @@ async function getWarLeaderboard(warId) {
   return r.rows;
 }
 
+// ═══════════════════════════════════════
+//  GUILD WAR MINIGAME SCORE SUBMISSION
+// ═══════════════════════════════════════
+
+const VALID_GAME_TYPES = ['invaders', 'runner', 'digger'];
+
+async function submitGameScore(wallet, warId, gameType, score) {
+  if (!VALID_GAME_TYPES.includes(gameType)) {
+    return { error: `Invalid game type. Must be one of: ${VALID_GAME_TYPES.join(', ')}` };
+  }
+  score = parseInt(score);
+  if (!score || score < 1) return { error: 'Score must be a positive integer' };
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Validate war exists and is active
+    const warRes = await client.query(
+      'SELECT * FROM guild_wars WHERE id = $1 AND status = $2 FOR UPDATE',
+      [warId, 'active']
+    );
+    if (!warRes.rows.length) {
+      await client.query('ROLLBACK');
+      return { error: 'War not found or not active' };
+    }
+    const war = warRes.rows[0];
+
+    // Validate player is in a guild participating in this war
+    const gmRes = await client.query('SELECT guild_id FROM guild_members WHERE wallet = $1', [wallet]);
+    if (!gmRes.rows.length) {
+      await client.query('ROLLBACK');
+      return { error: 'You are not in a guild' };
+    }
+    const guildId = gmRes.rows[0].guild_id;
+    if (guildId !== war.attacker_guild_id && guildId !== war.defender_guild_id) {
+      await client.query('ROLLBACK');
+      return { error: 'Your guild is not participating in this war' };
+    }
+
+    // Check daily play limit (all minigame types combined for this wallet+war today)
+    const maxPlays = parseInt(await getSetting('guild_war_game_plays_per_day') || '3');
+    const todayPlays = await client.query(
+      `SELECT COUNT(*)::int AS cnt FROM guild_war_actions
+       WHERE war_id = $1 AND wallet = $2
+         AND action_type LIKE 'minigame_%'
+         AND created_at >= CURRENT_DATE`,
+      [warId, wallet]
+    );
+    const playCount = todayPlays.rows[0].cnt;
+    if (playCount >= maxPlays) {
+      await client.query('ROLLBACK');
+      return { error: `Daily play limit reached (${maxPlays} per day). Try again tomorrow.` };
+    }
+
+    // Apply score multiplier
+    const multiplier = parseFloat(await getSetting('guild_war_game_score_multiplier') || '1');
+    const points = Math.round(score * multiplier);
+
+    // Insert action
+    const actionType = 'minigame_' + gameType;
+    await client.query(
+      `INSERT INTO guild_war_actions (war_id, guild_id, wallet, action_type, points, meta)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [warId, guildId, wallet, actionType, points, JSON.stringify({ rawScore: score, multiplier, gameType })]
+    );
+
+    // Update war score
+    const scoreCol = guildId === war.attacker_guild_id ? 'attacker_score' : 'defender_score';
+    await client.query(
+      `UPDATE guild_wars SET ${scoreCol} = ${scoreCol} + $1 WHERE id = $2`,
+      [points, warId]
+    );
+
+    await client.query('COMMIT');
+
+    const playsRemaining = maxPlays - playCount - 1;
+
+    // Get total score for this player in this war
+    const totalRes = await pool.query(
+      `SELECT COALESCE(SUM(points),0)::int AS total FROM guild_war_actions
+       WHERE war_id = $1 AND wallet = $2 AND action_type LIKE 'minigame_%'`,
+      [warId, wallet]
+    );
+
+    console.log(`[GUILD WAR MINIGAME] ${wallet} scored ${points} pts (${gameType}) in war #${warId}`);
+    return {
+      success: true,
+      points,
+      totalScore: totalRes.rows[0].total,
+      playsRemaining
+    };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[GUILD WAR MINIGAME] submitGameScore:', e.message);
+    return { error: e.message };
+  } finally { client.release(); }
+}
+
+async function getWarScoreboard(warId) {
+  // Get war info
+  const warRes = await pool.query(
+    `SELECT w.*, ag.name AS attacker_name, ag.tag AS attacker_tag,
+            dg.name AS defender_name, dg.tag AS defender_tag
+     FROM guild_wars w
+     JOIN guilds ag ON ag.id = w.attacker_guild_id
+     JOIN guilds dg ON dg.id = w.defender_guild_id
+     WHERE w.id = $1`,
+    [warId]
+  );
+  if (!warRes.rows.length) return { error: 'War not found' };
+  const war = warRes.rows[0];
+
+  // Per-guild total scores (all actions)
+  const guildScores = {
+    attacker: { guildId: war.attacker_guild_id, name: war.attacker_name, tag: war.attacker_tag, score: war.attacker_score },
+    defender: { guildId: war.defender_guild_id, name: war.defender_name, tag: war.defender_tag, score: war.defender_score }
+  };
+
+  // Individual top players (minigame only)
+  const topPlayers = await pool.query(
+    `SELECT wa.wallet, u.nickname, wa.guild_id, g.tag AS guild_tag,
+            SUM(wa.points)::int AS total_points, COUNT(*)::int AS plays
+     FROM guild_war_actions wa
+     JOIN users u ON u.wallet_address = wa.wallet
+     JOIN guilds g ON g.id = wa.guild_id
+     WHERE wa.war_id = $1 AND wa.action_type LIKE 'minigame_%'
+     GROUP BY wa.wallet, u.nickname, wa.guild_id, g.tag
+     ORDER BY total_points DESC
+     LIMIT 20`,
+    [warId]
+  );
+
+  // Game-type breakdown
+  const gameBreakdown = await pool.query(
+    `SELECT wa.action_type, wa.guild_id, g.tag AS guild_tag,
+            SUM(wa.points)::int AS total_points, COUNT(*)::int AS plays
+     FROM guild_war_actions wa
+     JOIN guilds g ON g.id = wa.guild_id
+     WHERE wa.war_id = $1 AND wa.action_type LIKE 'minigame_%'
+     GROUP BY wa.action_type, wa.guild_id, g.tag
+     ORDER BY wa.action_type, total_points DESC`,
+    [warId]
+  );
+
+  return {
+    war: { id: war.id, status: war.status, warStart: war.war_start, warEnd: war.war_end },
+    guildScores,
+    topPlayers: topPlayers.rows,
+    gameBreakdown: gameBreakdown.rows
+  };
+}
+
 module.exports = {
   createGuild, getGuild, getGuildByWallet,
   inviteMember, acceptInvite, declineInvite, getMyInvites, searchUsersForInvite,
@@ -1309,5 +1478,7 @@ module.exports = {
   getResearchBonuses,
   // Guild Wars (migration 067)
   declareWar, getActiveWars, getWarHistory,
-  recordWarAction, resolveExpiredWars, getWarLeaderboard
+  recordWarAction, resolveExpiredWars, getWarLeaderboard,
+  // Guild War Minigames (migration 070)
+  submitGameScore, getWarScoreboard
 };
