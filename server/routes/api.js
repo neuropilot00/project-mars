@@ -4521,13 +4521,14 @@ router.get('/missions/active', readLimiter, async (req, res) => {
 
 // Claim a completed mission's rewards
 router.post('/missions/:id/claim', writeLimiter, async (req, res) => {
-  const { wallet } = req.body || {};
+  const { wallet, minigameScore } = req.body || {};
   const w = (wallet || '').toLowerCase();
   const missionId = parseInt(req.params.id);
   if (!w || !missionId) return res.status(400).json({ error: 'Missing fields' });
   if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
   try {
-    const result = await missionService.claimMission(w, missionId);
+    const score = minigameScore ? parseInt(minigameScore) : 0;
+    const result = await missionService.claimMission(w, missionId, score);
     if (result.error) return res.status(400).json(result);
     res.json(result);
     // Season tracking (best-effort)

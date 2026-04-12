@@ -962,7 +962,7 @@ async function resolveMission(missionId) {
 //  Invasion never transfers territory — territory is money and stays
 //  with the defender. Invasion is paid in PP/GP/XP only.
 //
-async function claimMission(wallet, missionId) {
+async function claimMission(wallet, missionId, minigameScore) {
   if (!wallet || !missionId) return { error: 'Missing args' };
   const client = await pool.connect();
   try {
@@ -981,6 +981,24 @@ async function claimMission(wallet, missionId) {
     }
     const m = mRes.rows[0];
     const reward = typeof m.reward_json === 'string' ? JSON.parse(m.reward_json) : (m.reward_json || {});
+
+    // ── Minigame bonus: score → reward multiplier ──
+    // Score thresholds: 0→1x, 100→1.15x, 300→1.3x, 500→1.5x, 1000→1.8x, 2000+→2x
+    if (minigameScore && minigameScore > 0 && !reward.failed) {
+      let bonus = 1.0;
+      if (minigameScore >= 2000) bonus = 2.0;
+      else if (minigameScore >= 1000) bonus = 1.8;
+      else if (minigameScore >= 500) bonus = 1.5;
+      else if (minigameScore >= 300) bonus = 1.3;
+      else if (minigameScore >= 100) bonus = 1.15;
+      if (bonus > 1.0) {
+        if (reward.pp) reward.pp = Math.round(reward.pp * bonus * 1000000) / 1000000;
+        if (reward.gp) reward.gp = Math.round(reward.gp * bonus);
+        if (reward.xp) reward.xp = Math.floor(reward.xp * bonus);
+        reward.minigameBonus = bonus;
+        reward.minigameScore = minigameScore;
+      }
+    }
 
     // ── PP + GP credit
     if ((reward.pp || 0) > 0) {

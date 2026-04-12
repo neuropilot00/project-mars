@@ -9643,6 +9643,109 @@ async function submitMinigameScore(){
   }catch(e){ showToast('SUBMIT FAILED'); console.error(e); }
 }
 
+// ═══════════════════════════════════════
+//  MISSION MINIGAME (invasion/exploration bonus)
+// ═══════════════════════════════════════
+var _missionMgId = null;       // mission id to claim after game
+var _missionMgType = null;     // 'invasion' | 'exploration'
+
+function playMissionMinigame(missionId, missionType){
+  _missionMgId = missionId;
+  _missionMgType = missionType;
+  _mgWarId = null; // not guild war mode
+  _mgCurrentGame = null;
+  _mgCurrentEngine = null;
+  _mgContinueNum = 0;
+  // Show game select panel
+  document.getElementById('mgSelectPanel').style.display = '';
+  document.getElementById('mgCanvasWrap').style.display = 'none';
+  document.getElementById('mgContinueOverlay').style.display = 'none';
+  var typeLabel = missionType==='invasion' ? '⚔️ INVASION BONUS' : '🛰 EXPLORATION BONUS';
+  document.getElementById('mgWarInfo').textContent = typeLabel+' — Play a game to boost your rewards!';
+  document.getElementById('minigameOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function _isMissionMinigame(){ return _missionMgId && !_mgWarId; }
+
+// Override submit for mission mode
+var _origSubmitMinigameScore = submitMinigameScore;
+submitMinigameScore = async function(){
+  if(!_isMissionMinigame()) return _origSubmitMinigameScore();
+  // Mission mode: claim with score
+  if(!_mgCurrentEngine) return;
+  var score = _mgCurrentEngine.getScore();
+  document.getElementById('mgContinueOverlay').style.display = 'none';
+  _mgCurrentEngine.stop();
+  _mgCurrentEngine = null;
+  closeMinigameOverlay();
+  // Calculate bonus preview
+  var bonus = 1.0;
+  if(score>=2000) bonus=2.0;
+  else if(score>=1000) bonus=1.8;
+  else if(score>=500) bonus=1.5;
+  else if(score>=300) bonus=1.3;
+  else if(score>=100) bonus=1.15;
+  showToast('🎮 Score: '+score+' → Bonus: '+bonus+'x','success');
+  // Claim mission with minigame score
+  try{
+    var resp = await fetch('/api/missions/'+_missionMgId+'/claim',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:walletState.address, minigameScore:score})
+    });
+    var d = await resp.json();
+    _missionMgId = null;
+    _missionMgType = null;
+    if(d.error){ showAlert(d.error); return; }
+    var r = d.mission.reward||{};
+    var parts=[];
+    if(r.pp>0) parts.push(r.pp.toFixed(3)+' PP');
+    if(r.gp>0) parts.push(r.gp+' GP');
+    if(r.xp>0) parts.push(r.xp+' XP');
+    if(r.item) parts.push(r.item.name);
+    if(!parts.length) parts.push('No reward');
+    var bonusTag = r.minigameBonus>1 ? ' (🎮×'+r.minigameBonus+')' : '';
+    showAlert('✓ '+parts.join(' · ')+bonusTag,'success');
+    if(d.mission.type==='invasion'){try{trackQuestAction('complete_invasion',1)}catch(e){}}
+    if(d.mission.type==='exploration'){try{trackQuestAction('complete_exploration',1)}catch(e){}}
+    loadOpsTab();
+    if(typeof loadUserData==='function') loadUserData();
+  }catch(e){ showAlert('Claim failed: '+e.message); }
+};
+
+// Override payAndContinue for mission mode (free continues, no payment)
+var _origPayAndContinue = payAndContinue;
+payAndContinue = async function(){
+  if(!_isMissionMinigame()) return _origPayAndContinue();
+  // Mission mode: free continue (limited to 1)
+  if(_mgContinueNum >= 1){ showToast('미션 미니게임은 컨티뉴 1회만 가능'); return; }
+  _mgContinueNum = 1;
+  document.getElementById('mgContinueOverlay').style.display = 'none';
+  _mgCurrentEngine.continueGame();
+  showToast('▶ FREE CONTINUE!');
+};
+
+// Override showContinueOverlay for mission mode
+var _origShowContinueOverlay = showContinueOverlay;
+showContinueOverlay = function(score){
+  if(!_isMissionMinigame()) return _origShowContinueOverlay(score);
+  var ov = document.getElementById('mgContinueOverlay');
+  ov.style.display = 'flex';
+  document.getElementById('mgFinalScore').textContent = 'SCORE: '+score;
+  _mgFinalScore = score;
+  var btn = document.getElementById('mgContinueBtn');
+  if(_mgContinueNum >= 1){
+    btn.style.display = 'none';
+    document.getElementById('mgContinueCost').textContent = 'No more continues';
+  } else {
+    btn.style.display = '';
+    btn.style.background = 'linear-gradient(135deg,#00E676,#00C853)';
+    btn.style.color = '#000';
+    btn.textContent = 'FREE CONTINUE';
+    document.getElementById('mgContinueCost').textContent = '무료 컨티뉴 1회 (미션 보너스)';
+  }
+};
+
 async function confirmWithdraw(){
   var amt=parseFloat(document.getElementById('wdrAmount').value);
   if(!amt||amt<=0){showToast('ENTER AMOUNT');return}
@@ -13987,32 +14090,65 @@ function renderGuildWars(guildId){
   }).catch(function(){ warBox.innerHTML=''; });
 }
 
+var _warDeclareTarget = null;
 function showDeclareWarModal(){
   if(!_myGuildData) return;
-  var warBox=document.getElementById('guildWarSection');
-  if(!warBox) return;
-  warBox.innerHTML='<div style="padding:8px;background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.2);border-radius:8px">'+
-    '<div style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:6px">⚔️ 전쟁 선포</div>'+
-    '<input id="warTargetSearch" placeholder="길드 이름 또는 태그 검색" style="width:100%;padding:8px;border-radius:6px;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);font-size:11px;box-sizing:border-box" oninput="searchWarTarget(this.value)">'+
-    '<div id="warTargetResults" style="max-height:200px;overflow-y:auto;margin-top:8px"></div>'+
-    '<button onclick="renderGuildWars('+_myGuildData.id+')" style="margin-top:6px;padding:4px 12px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--tx3);font-size:8px;cursor:pointer">취소</button>'+
-  '</div>';
+  _warDeclareTarget = null;
+  var treasury = parseFloat(_myGuildData.gpTreasury||_myGuildData.gp_treasury||0);
+  document.getElementById('warTreasuryBal').textContent = Math.floor(treasury)+' GP';
+  document.getElementById('warConfirmSection').style.display = 'none';
+  document.getElementById('warTargetList').innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">2글자 이상 입력하세요</div>';
+  var inp = document.getElementById('warSearchInput');
+  if(inp) inp.value = '';
+  document.getElementById('declareWarModal').style.display='flex';
+  setTimeout(function(){ if(inp) inp.focus(); },200);
 }
-
-function searchWarTarget(q){
-  if(q.length<2) return;
+function closeDeclareWarModal(){
+  document.getElementById('declareWarModal').style.display='none';
+}
+function searchWarTargetModal(q){
+  if(q.length<2){
+    document.getElementById('warTargetList').innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">2글자 이상 입력하세요</div>';
+    return;
+  }
   fetch('/api/guild/search?q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){
-    var box=document.getElementById('warTargetResults');
+    var box=document.getElementById('warTargetList');
     if(!box) return;
     var guilds=(d.results||d.guilds||[]).filter(function(g){return g.id!==_myGuildData.id});
+    if(!guilds.length){ box.innerHTML='<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">결과 없음</div>'; return; }
     box.innerHTML=guilds.map(function(g){
-      return '<div onclick="declareWar('+g.id+')" style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);margin-bottom:4px;cursor:pointer">'+
-        '<span style="font-size:14px">'+(g.emblem||'🔴')+'</span>'+
-        '<div><div style="font-size:11px;color:var(--tx);font-weight:700">['+g.tag+'] '+g.name+'</div>'+
-        '<div style="font-size:8px;color:var(--tx3)">Lv.'+(g.level||1)+' · '+(g.memberCount||0)+'명</div></div>'+
+      return '<div onclick="selectWarTarget('+g.id+',\''+((g.emblem||'🔴').replace(/'/g,"\\&#39;"))+'\',\'['+g.tag+'] '+g.name.replace(/'/g,"\\&#39;")+'\','+
+        (g.level||1)+','+(g.memberCount||g.member_count||0)+')" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);margin-bottom:6px;cursor:pointer;transition:all .12s" '+
+        'onmouseenter="this.style.background=\'rgba(232,72,85,.1)\';this.style.borderColor=\'rgba(232,72,85,.35)\'" '+
+        'onmouseleave="this.style.background=\'rgba(255,255,255,.03)\';this.style.borderColor=\'var(--bdr)\'">'+
+        '<span style="font-size:20px">'+(g.emblem||'🔴')+'</span>'+
+        '<div style="flex:1"><div style="font-size:12px;color:var(--tx);font-weight:700">['+g.tag+'] '+g.name+'</div>'+
+        '<div style="font-size:9px;color:var(--tx3);margin-top:2px">Lv.'+(g.level||1)+' · '+(g.memberCount||g.member_count||0)+'명</div></div>'+
+        '<span style="font-size:14px;color:var(--red)">⚔️</span>'+
       '</div>';
-    }).join('')||'<div style="color:var(--tx3);font-size:10px;text-align:center">결과 없음</div>';
+    }).join('');
   });
+}
+function selectWarTarget(id,emblem,name,level,members){
+  _warDeclareTarget = id;
+  document.getElementById('warTargetEmblem').textContent = emblem;
+  document.getElementById('warTargetName').textContent = name;
+  document.getElementById('warTargetInfo').textContent = 'Lv.'+level+' · '+members+'명';
+  document.getElementById('warConfirmSection').style.display = 'block';
+}
+function confirmDeclareWar(){
+  if(!_warDeclareTarget||!_myGuildData) return;
+  var btn = document.getElementById('warConfirmBtn');
+  btn.disabled=true; btn.textContent='DECLARING...';
+  fetch('/api/guild/war/declare',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address,guildId:_myGuildData.id,targetGuildId:_warDeclareTarget})
+  }).then(function(r){return r.json()}).then(function(d){
+    btn.disabled=false; btn.textContent='⚔️ DECLARE WAR';
+    if(d.error){ showToast(d.error,'error'); return; }
+    closeDeclareWarModal();
+    showToast('⚔️ 전쟁 선포 완료!','success');
+    loadGuildTab();
+  }).catch(function(e){ btn.disabled=false; btn.textContent='⚔️ DECLARE WAR'; showToast(e.message,'error'); });
 }
 
 async function viewWarScoreboard(warId){
@@ -14052,16 +14188,7 @@ async function viewWarScoreboard(warId){
   }catch(e){ showAlert('Failed to load scoreboard'); }
 }
 
-function declareWar(targetId){
-  if(!confirm('전쟁을 선포하시겠습니까? 길드 재무에서 GP가 차감됩니다.')) return;
-  fetch('/api/guild/war/declare',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({wallet:walletState.address,guildId:_myGuildData.id,targetGuildId:targetId})
-  }).then(function(r){return r.json()}).then(function(d){
-    if(d.error){ showAlert(d.error); return; }
-    showAlert('⚔️ 전쟁 선포 완료!','success');
-    loadGuildTab();
-  }).catch(function(e){ showAlert(e.message); });
-}
+// declareWar replaced by confirmDeclareWar (modal-based)
 
 // Quick-launch: open BASE → OPS with a mission type pre-selected.
 function openOpsLauncher(type){
@@ -14361,9 +14488,15 @@ function renderOpsMissionList(){
     var tgt = m.type==='invasion'
       ? ('VS '+(m.targetWallet||'').slice(0,8)+'...')
       : (t('ops_explore_label')+' '+m.targetLat.toFixed(1)+'°, '+m.targetLng.toFixed(1)+'°');
-    var btn = ready
-      ? '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">'+t('ops_claim')+'</button>'
-      : '<button onclick="cancelOpsMission('+m.id+')" style="padding:4px 8px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--tx3);font-family:var(--fn);font-size:8px;cursor:pointer">'+t('ops_abort')+'</button>';
+    var btn;
+    if(ready && m.status!=='failed'){
+      btn = '<button onclick="playMissionMinigame('+m.id+',\''+m.type+'\')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,#00E676,#00C853);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;margin-right:4px">🎮 PLAY</button>'+
+        '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">'+t('ops_claim')+' (1x)</button>';
+    } else if(ready){
+      btn = '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">'+t('ops_claim')+'</button>';
+    } else {
+      btn = '<button onclick="cancelOpsMission('+m.id+')" style="padding:4px 8px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--tx3);font-family:var(--fn);font-size:8px;cursor:pointer">'+t('ops_abort')+'</button>';
+    }
     return '<div style="padding:8px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid var(--bdr);margin-bottom:6px">'+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
         '<span style="font-size:14px">'+typIcon+'</span>'+
@@ -18722,6 +18855,8 @@ document.addEventListener('keydown', function(e){
     if(document.getElementById('baseModal').classList.contains('open')){ closeBaseModal(); return; }
     // Minigame overlay
     if(document.getElementById('minigameOverlay').classList.contains('active')){ closeMinigameOverlay(); return; }
+    // Declare War modal
+    if(document.getElementById('declareWarModal').style.display==='flex'){ closeDeclareWarModal(); return; }
     // Exchange modal
     if(document.getElementById('exchangeModal').classList.contains('open')){ closeExchangeModal(); return; }
     // Arena
@@ -20623,6 +20758,57 @@ if(typeof _origTrackQuestAction === 'function'){
   };
 }
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GUILD WAR DECLARATION MODAL
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="declareWarModal" style="display:none;position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeDeclareWarModal()">
+  <div style="width:100%;max-width:420px;background:linear-gradient(160deg,#1A0A0A,#2A1010);border:1px solid rgba(232,72,85,.4);border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 60px rgba(232,72,85,.12);display:flex;flex-direction:column;overflow:hidden;max-height:90vh">
+    <!-- Header -->
+    <div style="padding:16px 18px;border-bottom:1px solid rgba(232,72,85,.3);background:linear-gradient(135deg,rgba(232,72,85,.15),rgba(200,40,40,.05));display:flex;align-items:center;gap:10px">
+      <div style="font-size:22px">⚔️</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--red);letter-spacing:1px">DECLARE WAR</div>
+        <div style="font-size:9px;color:var(--tx3);margin-top:2px" data-i18n="war_declare_subtitle">전쟁을 선포할 길드를 선택하세요</div>
+      </div>
+      <button onclick="closeDeclareWarModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:20px;cursor:pointer;padding:4px">×</button>
+    </div>
+    <!-- Cost info -->
+    <div style="padding:10px 18px;background:rgba(232,72,85,.04);border-bottom:1px solid rgba(232,72,85,.15)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:10px;color:var(--tx3)">선포 비용</span>
+        <span style="font-size:12px;font-weight:700;color:var(--gold)" id="warDeclareCost">200 GP</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <span style="font-size:10px;color:var(--tx3)">길드 재무</span>
+        <span style="font-size:12px;font-weight:700;color:var(--gn)" id="warTreasuryBal">0 GP</span>
+      </div>
+    </div>
+    <!-- Search -->
+    <div style="padding:12px 18px">
+      <input id="warSearchInput" placeholder="길드 이름 또는 태그 검색..." oninput="searchWarTargetModal(this.value)"
+        style="width:100%;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(232,72,85,.2);color:var(--tx);font-size:12px;box-sizing:border-box;outline:none;font-family:var(--fn)"
+        onfocus="this.style.borderColor='rgba(232,72,85,.5)'" onblur="this.style.borderColor='rgba(232,72,85,.2)'">
+    </div>
+    <!-- Results -->
+    <div id="warTargetList" style="padding:0 18px 14px;overflow-y:auto;max-height:45vh;min-height:80px;flex:1">
+      <div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">2글자 이상 입력하세요</div>
+    </div>
+    <!-- Selected target + confirm -->
+    <div id="warConfirmSection" style="display:none;padding:12px 18px;border-top:1px solid rgba(232,72,85,.2);background:rgba(232,72,85,.06)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span id="warTargetEmblem" style="font-size:24px">🔴</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--tx)" id="warTargetName">[TAG] Guild Name</div>
+          <div style="font-size:9px;color:var(--tx3)" id="warTargetInfo">Lv.1 · 5명</div>
+        </div>
+      </div>
+      <button id="warConfirmBtn" onclick="confirmDeclareWar()" style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,#E84855,#C62828);border:none;color:#fff;font-size:13px;font-weight:800;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px rgba(232,72,85,.3);transition:all .15s">
+        ⚔️ DECLARE WAR
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      GUILD EDIT MODAL — leader-only, GP-gated customization
