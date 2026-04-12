@@ -4792,7 +4792,7 @@ router.post('/exchange/pp-to-gp', writeLimiter, async (req, res) => {
     }
 
     // Check PP balance
-    const { rows: [user] } = await client.query('SELECT pp_balance FROM users WHERE wallet=$1', [w]);
+    const { rows: [user] } = await client.query('SELECT pp_balance FROM users WHERE wallet_address=$1', [w]);
     if (!user || parseFloat(user.pp_balance) < ppAmount) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Insufficient PP' });
@@ -4804,9 +4804,9 @@ router.post('/exchange/pp-to-gp', writeLimiter, async (req, res) => {
     const gpReceived = Math.floor(netPP * rate);
 
     // Deduct PP (full amount including fee)
-    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet=$2', [ppAmount, w]);
+    await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address=$2', [ppAmount, w]);
     // Credit GP
-    await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet=$2', [gpReceived, w]);
+    await client.query('UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address=$2', [gpReceived, w]);
 
     // Log transaction
     await client.query(
@@ -4816,7 +4816,7 @@ router.post('/exchange/pp-to-gp', writeLimiter, async (req, res) => {
 
     await client.query('COMMIT');
 
-    const { rows: [bal] } = await client.query('SELECT pp_balance, gp_balance FROM users WHERE wallet=$1', [w]);
+    const { rows: [bal] } = await client.query('SELECT pp_balance, gp_balance FROM users WHERE wallet_address=$1', [w]);
 
     res.json({
       ok: true,
@@ -4882,7 +4882,7 @@ router.post('/guild/war/continue', writeLimiter, async (req, res) => {
     await client.query('BEGIN');
 
     // Check balance and deduct
-    const { rows: [user] } = await client.query('SELECT pp_balance, gp_balance FROM users WHERE wallet=$1', [w]);
+    const { rows: [user] } = await client.query('SELECT pp_balance, gp_balance FROM users WHERE wallet_address=$1', [w]);
     if (!user) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'User not found' }); }
 
     if (costType === 'gp') {
@@ -4890,13 +4890,13 @@ router.post('/guild/war/continue', writeLimiter, async (req, res) => {
         await client.query('ROLLBACK');
         return res.status(400).json({ error: `Insufficient GP (need ${costAmount})` });
       }
-      await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet=$2', [costAmount, w]);
+      await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [costAmount, w]);
     } else {
       if (parseFloat(user.pp_balance) < costAmount) {
         await client.query('ROLLBACK');
         return res.status(400).json({ error: `Insufficient PP (need ${costAmount.toFixed(2)})` });
       }
-      await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet=$2', [costAmount, w]);
+      await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE wallet_address=$2', [costAmount, w]);
     }
 
     // Log
@@ -4918,7 +4918,7 @@ router.post('/guild/war/continue', writeLimiter, async (req, res) => {
       nextCostAmount = ppBase * Math.pow(ppMult, num - gpCosts.length);
     }
 
-    const { rows: [newBal] } = await client.query('SELECT pp_balance, gp_balance FROM users WHERE wallet=$1', [w]);
+    const { rows: [newBal] } = await client.query('SELECT pp_balance, gp_balance FROM users WHERE wallet_address=$1', [w]);
 
     res.json({
       ok: true,

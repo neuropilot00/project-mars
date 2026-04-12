@@ -2200,8 +2200,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   #seasonPassTiers{-webkit-overflow-scrolling:touch}
   #seasonLeaderboard{max-height:50vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 
-  /* Guild research grid: single column on small screens */
-  #guildResearchGrid{grid-template-columns:1fr!important}
+  /* Guild research grid: keep 2 columns on mobile */
+  #guildResearchGrid{grid-template-columns:1fr 1fr!important;gap:4px!important}
 
   /* Font size floor */
   #guildWarSection, #seasonPassTiers, #guildResearchGrid{font-size:10px}
@@ -2930,7 +2930,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Swap Modal (PP → USDT) -->
-<div class="mbg" id="swapModal">
+<div class="mbg" id="swapModal" style="z-index:600">
   <div class="mdl" style="width:400px">
     <div class="mhd">
       <span class="mtl" style="color:var(--pp)">SWAP PP → USDT</span>
@@ -2956,7 +2956,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- PP → GP Exchange Modal -->
-<div class="mbg" id="exchangeModal">
+<div class="mbg" id="exchangeModal" style="z-index:600">
   <div class="mdl" style="width:400px">
     <div class="mhd">
       <span class="mtl" style="color:var(--pp)">EXCHANGE PP → GP</span>
@@ -3978,6 +3978,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div class="profile-bal-label">GP</div>
             <div class="profile-bal-val" style="color:var(--gold)" id="authGPBal">0</div>
           </div>
+        </div>
+
+        <!-- ═══ Quick action buttons ═══ -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+          <button class="prof-cta" onclick="openExchangeModal()" style="margin:0;background:linear-gradient(135deg,rgba(0,230,118,.12),rgba(255,215,0,.08));border:1px solid rgba(0,230,118,.3)">
+            <span class="cta-icon">💱</span>
+            <span>PP → GP</span>
+          </button>
+          <button class="prof-cta" onclick="openSwapModal()" style="margin:0;background:linear-gradient(135deg,rgba(255,120,60,.1),rgba(255,180,60,.06));border:1px solid rgba(255,120,60,.25)">
+            <span class="cta-icon">🔄</span>
+            <span>PP → USDT</span>
+          </button>
         </div>
 
         <!-- ═══ PRIMARY CTA: Game Guidebook (separated from alerts) ═══ -->
@@ -13677,11 +13689,13 @@ window.clearBaseTabDot = function(tab){
   var el = document.getElementById(id); if(el) el.style.display='none';
   window._baseDotSeen[tab] = Date.now();
   _saveDotSeen();
+  if(typeof _updateBaseBtnDot==='function') _updateBaseBtnDot();
 };
 window.setBaseTabDot = function(tab, on){
   var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot'};
   var id = map[tab]; if(!id) return;
   var el = document.getElementById(id); if(el) el.style.display = on ? 'block' : 'none';
+  if(typeof _updateBaseBtnDot==='function') _updateBaseBtnDot();
 };
 // Poll once a minute for new info across tabs. Minimal server hits —
 // piggybacks on existing endpoints.
@@ -13719,6 +13733,12 @@ function _pollBaseTabDots(){
       if(invites.length) setBaseTabDot('guild', true);
     }catch(_e){}
   }).catch(function(){});
+  // MINING: harvestable PP available
+  try{
+    var owned = (window._ownedPixels||[]);
+    var harvestable = owned.some(function(p){ return parseFloat(p.pendingPP||p.pending_pp||0) > 0; });
+    if(harvestable) setBaseTabDot('mining', true);
+  }catch(_e){}
 }
 setTimeout(_pollBaseTabDots, 8000);
 setInterval(_pollBaseTabDots, 60000);
@@ -13882,10 +13902,10 @@ function renderGuildUpgrades(guild, myRole){
     var col = unlocked ? 'var(--gn)' : (affordable ? 'var(--pp)' : 'var(--tx3)');
     var status = unlocked ? t('guild_research_unlocked') : (r.cost+' GP');
     var click = (unlocked||!canSpend||!affordable) ? '' : ' onclick="guildUnlockResearch(\''+r.key+'\')"';
-    return '<div'+click+' style="padding:6px 8px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';cursor:'+(click?'pointer':'default')+'">'+
-      '<div style="display:flex;align-items:center;gap:3px;color:'+col+';font-weight:700">'+t(r.labelKey)+'</div>'+
-      '<div style="color:var(--tx3);font-size:7px;margin-top:1px">'+r.desc+'</div>'+
-      '<div style="color:'+(unlocked?'var(--gn)':'var(--tx3)')+';font-size:8px;margin-top:2px">'+status+'</div>'+
+    return '<div'+click+' style="padding:5px 6px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';cursor:'+(click?'pointer':'default')+';min-height:0">'+
+      '<div style="color:'+col+';font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+t(r.labelKey)+'</div>'+
+      '<div style="color:var(--tx3);font-size:8px;margin-top:1px">'+r.desc+'</div>'+
+      '<div style="color:'+(unlocked?'var(--gn)':'var(--tx3)')+';font-size:9px;margin-top:2px;font-weight:600">'+status+'</div>'+
     '</div>';
   }).join('');
 }
@@ -20558,15 +20578,25 @@ function updateDailyHudDot(){
       });
     }
   }
-  // OPEN BASE button dot
-  var baseDot = document.getElementById('dailyHudDot');
-  if(baseDot) baseDot.style.display = hasClaimable ? 'block' : 'none';
-  // Mobile bottom nav BASE dot
-  var mobBaseDot = document.getElementById('mobBaseDot');
-  if(mobBaseDot) mobBaseDot.style.display = hasClaimable ? 'block' : 'none';
   // QUESTS tab dot inside BASE modal
   var questsDot = document.getElementById('questsDot');
   if(questsDot) questsDot.style.display = hasClaimable ? 'block' : 'none';
+  // Update main BASE button dot — shows if ANY tab has a dot active
+  _updateBaseBtnDot();
+}
+function _updateBaseBtnDot(){
+  var anyDot = false;
+  var dotIds = ['territoryDot','sectorsDot','rankDot','miningDot','questsDot','guildDot','opsDot'];
+  dotIds.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && el.style.display !== 'none') anyDot = true;
+  });
+  // OPEN BASE button dot (desktop)
+  var baseDot = document.getElementById('dailyHudDot');
+  if(baseDot) baseDot.style.display = anyDot ? 'block' : 'none';
+  // Mobile bottom nav BASE dot
+  var mobBaseDot = document.getElementById('mobBaseDot');
+  if(mobBaseDot) mobBaseDot.style.display = anyDot ? 'block' : 'none';
 }
 
 function openDailyPanel(){
