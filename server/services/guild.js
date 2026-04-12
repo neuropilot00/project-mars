@@ -237,7 +237,28 @@ async function getGuildByWallet(wallet) {
 //  INVITE / ACCEPT / DECLINE
 // ═══════════════════════════════════════
 
-async function inviteMember(callerWallet, targetWallet, guildId) {
+// Resolve a free-form input (wallet address OR nickname, case-insensitive)
+// to a canonical wallet_address. Returns null if no match.
+async function resolveWalletByInput(input) {
+  const raw = (input || '').trim();
+  if (!raw) return null;
+  // Wallet form: 0x + 40 hex chars
+  if (/^0x[0-9a-fA-F]{40}$/.test(raw)) {
+    const r = await pool.query(
+      'SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1)',
+      [raw]
+    );
+    return r.rows[0]?.wallet_address || null;
+  }
+  // Nickname form: case-insensitive exact match
+  const r = await pool.query(
+    'SELECT wallet_address FROM users WHERE LOWER(nickname) = LOWER($1)',
+    [raw]
+  );
+  return r.rows[0]?.wallet_address || null;
+}
+
+async function inviteMember(callerWallet, targetInput, guildId) {
   const maxMembers = parseInt(await getSetting('guild_max_members') || '20');
 
   // Verify caller role
@@ -251,6 +272,10 @@ async function inviteMember(callerWallet, targetWallet, guildId) {
   // Check guild size
   const guild = await pool.query('SELECT member_count FROM guilds WHERE id = $1', [guildId]);
   if (guild.rows[0]?.member_count >= maxMembers) return { error: 'Guild is full' };
+
+  // Resolve nickname or wallet → canonical wallet
+  const targetWallet = await resolveWalletByInput(targetInput);
+  if (!targetWallet) return { error: 'User not found' };
 
   // Check target not in a guild
   const targetCheck = await pool.query('SELECT guild_id FROM users WHERE wallet_address = $1', [targetWallet]);
@@ -269,6 +294,58 @@ async function inviteMember(callerWallet, targetWallet, guildId) {
     [guildId, targetWallet, callerWallet]
   );
   return { success: true };
+}
+
+// ──────────────────────────────────────────────
+//  USER SEARCH (for invite UI: nickname/wallet → list)
+//  Returns up to `limit` users matching the query who are NOT
+//  in any guild and don't already have a pending invite to this guild.
+// ──────────────────────────────────────────────
+async function searchUsersForInvite(callerWallet, guildId, query, limit) {
+  const q = (query || '').trim();
+  if (!q || q.length < 1) return [];
+  const cap = Math.min(parseInt(limit) || 15, 30);
+
+  // Verify caller is leader/officer of this guild
+  const roleRes = await pool.query(
+    'SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2', [guildId, callerWallet]
+  );
+  if (!roleRes.rows.length || roleRes.rows[0].role === 'member') return [];
+
+  const like = '%' + q.replace(/[%_\\]/g, '\\$&') + '%';
+  const r = await pool.query(
+    `SELECT u.wallet_address AS wallet,
+            u.nickname,
+            (SELECT COUNT(*)::int FROM claims
+              WHERE owner = u.wallet_address AND deleted_at IS NULL) AS pixel_count,
+            EXISTS(
+              SELECT 1 FROM guild_invites gi
+               WHERE gi.guild_id = $2
+                 AND gi.invited_wallet = u.wallet_address
+                 AND gi.status = 'pending'
+            ) AS has_pending_invite
+       FROM users u
+      WHERE u.guild_id IS NULL
+        AND ( LOWER(u.nickname)       LIKE LOWER($1) ESCAPE '\\'
+           OR LOWER(u.wallet_address) LIKE LOWER($1) ESCAPE '\\' )
+      ORDER BY
+        CASE
+          WHEN LOWER(u.nickname) = LOWER($3) THEN 0
+          WHEN LOWER(u.nickname) LIKE LOWER($4) ESCAPE '\\' THEN 1
+          ELSE 2
+        END,
+        pixel_count DESC NULLS LAST,
+        u.nickname ASC
+      LIMIT $5`,
+    [like, guildId, q, q.replace(/[%_\\]/g, '\\$&') + '%', cap]
+  );
+
+  return r.rows.map(row => ({
+    wallet: row.wallet,
+    nickname: row.nickname || null,
+    pixelCount: row.pixel_count || 0,
+    hasPendingInvite: !!row.has_pending_invite,
+  }));
 }
 
 async function acceptInvite(wallet, inviteId) {
@@ -316,6 +393,8 @@ async function declineInvite(wallet, inviteId) {
 }
 
 async function getMyInvites(wallet) {
+  // Exclude self-requests (invited_by = invited_wallet) — those are join
+  // requests the caller sent to a guild, not invites they received.
   const res = await pool.query(
     `SELECT gi.id, gi.guild_id, gi.invited_by, gi.created_at,
             g.name AS guild_name, g.tag AS guild_tag, g.emblem_emoji,
@@ -323,11 +402,137 @@ async function getMyInvites(wallet) {
      FROM guild_invites gi
      JOIN guilds g ON g.id = gi.guild_id
      LEFT JOIN users u ON u.wallet_address = gi.invited_by
-     WHERE gi.invited_wallet = $1 AND gi.status = 'pending'
+     WHERE gi.invited_wallet = $1
+       AND gi.status = 'pending'
+       AND gi.invited_by <> gi.invited_wallet
      ORDER BY gi.created_at DESC`,
     [wallet]
   );
   return res.rows;
+}
+
+// ═══════════════════════════════════════
+//  JOIN REQUESTS (player → guild, approval-based)
+// ═══════════════════════════════════════
+//  Reuses the guild_invites table: we record the row with
+//  invited_by = invited_wallet = requester.  Leaders/officers see the rows
+//  via getGuildJoinRequests() and approve via approveJoinRequest().
+async function createJoinRequest(wallet, guildId) {
+  if (!wallet || !guildId) return { error: 'Missing fields' };
+
+  // Not already in a guild
+  const u = await pool.query('SELECT guild_id FROM users WHERE wallet_address = $1', [wallet]);
+  if (!u.rows.length) return { error: 'User not found' };
+  if (u.rows[0].guild_id) return { error: 'You are already in a guild' };
+
+  // Guild must exist and not be full
+  const maxMembers = parseInt(await getSetting('guild_max_members') || '20');
+  const g = await pool.query('SELECT id, member_count, name FROM guilds WHERE id = $1', [guildId]);
+  if (!g.rows.length) return { error: 'Guild not found' };
+  if (g.rows[0].member_count >= maxMembers) return { error: 'Guild is full' };
+
+  // Don't duplicate a pending row (self-invite or normal invite)
+  const existing = await pool.query(
+    "SELECT id FROM guild_invites WHERE guild_id = $1 AND invited_wallet = $2 AND status = 'pending'",
+    [guildId, wallet]
+  );
+  if (existing.rows.length) return { error: 'Already requested' };
+
+  await pool.query(
+    `INSERT INTO guild_invites (guild_id, invited_wallet, invited_by) VALUES ($1, $2, $2)`,
+    [guildId, wallet]
+  );
+  return { success: true, guildName: g.rows[0].name };
+}
+
+async function getGuildJoinRequests(callerWallet, guildId) {
+  // Only leaders/officers can see incoming requests
+  const role = await pool.query(
+    'SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2',
+    [guildId, callerWallet]
+  );
+  if (!role.rows.length || role.rows[0].role === 'member') return [];
+  const res = await pool.query(
+    `SELECT gi.id, gi.invited_wallet AS wallet, gi.created_at,
+            u.nickname,
+            (SELECT COALESCE(SUM(width*height),0)::int
+               FROM claims WHERE owner = gi.invited_wallet AND deleted_at IS NULL) AS pixel_count
+     FROM guild_invites gi
+     LEFT JOIN users u ON u.wallet_address = gi.invited_wallet
+     WHERE gi.guild_id = $1
+       AND gi.status = 'pending'
+       AND gi.invited_by = gi.invited_wallet
+     ORDER BY gi.created_at DESC`,
+    [guildId]
+  );
+  return res.rows;
+}
+
+async function approveJoinRequest(callerWallet, inviteId) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const maxMembers = parseInt(await getSetting('guild_max_members') || '20');
+
+    const inv = await client.query(
+      "SELECT * FROM guild_invites WHERE id = $1 AND status = 'pending' FOR UPDATE",
+      [inviteId]
+    );
+    if (!inv.rows.length) { await client.query('ROLLBACK'); return { error: 'Request not found' }; }
+
+    const { guild_id, invited_wallet, invited_by } = inv.rows[0];
+    if (invited_wallet !== invited_by) {
+      await client.query('ROLLBACK'); return { error: 'Not a join request' };
+    }
+
+    // Caller must be leader/officer of the target guild
+    const role = await client.query(
+      'SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2',
+      [guild_id, callerWallet]
+    );
+    if (!role.rows.length || role.rows[0].role === 'member') {
+      await client.query('ROLLBACK'); return { error: 'Only leader/officers can approve' };
+    }
+
+    // Requester must still be guild-less
+    const uCheck = await client.query('SELECT guild_id FROM users WHERE wallet_address = $1 FOR UPDATE', [invited_wallet]);
+    if (uCheck.rows[0]?.guild_id) { await client.query('ROLLBACK'); return { error: 'Player is already in a guild' }; }
+
+    // Guild not full
+    const gCheck = await client.query('SELECT member_count FROM guilds WHERE id = $1 FOR UPDATE', [guild_id]);
+    if (gCheck.rows[0]?.member_count >= maxMembers) { await client.query('ROLLBACK'); return { error: 'Guild is full' }; }
+
+    // Perform the join
+    await client.query("UPDATE guild_invites SET status = 'accepted' WHERE id = $1", [inviteId]);
+    await client.query("INSERT INTO guild_members (guild_id, wallet, role) VALUES ($1, $2, 'member')", [guild_id, invited_wallet]);
+    await client.query('UPDATE guilds SET member_count = member_count + 1 WHERE id = $1', [guild_id]);
+    await client.query('UPDATE users SET guild_id = $1 WHERE wallet_address = $2', [guild_id, invited_wallet]);
+
+    await client.query('COMMIT');
+    return { success: true };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally { client.release(); }
+}
+
+async function rejectJoinRequest(callerWallet, inviteId) {
+  const inv = await pool.query(
+    "SELECT guild_id, invited_wallet, invited_by FROM guild_invites WHERE id = $1 AND status = 'pending'",
+    [inviteId]
+  );
+  if (!inv.rows.length) return { error: 'Request not found' };
+  const { guild_id, invited_wallet, invited_by } = inv.rows[0];
+  if (invited_wallet !== invited_by) return { error: 'Not a join request' };
+  const role = await pool.query(
+    'SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2',
+    [guild_id, callerWallet]
+  );
+  if (!role.rows.length || role.rows[0].role === 'member') {
+    return { error: 'Only leader/officers can reject' };
+  }
+  await pool.query("UPDATE guild_invites SET status = 'declined' WHERE id = $1", [inviteId]);
+  return { success: true };
 }
 
 // ═══════════════════════════════════════
@@ -454,6 +659,52 @@ async function getGuildLeaderboard(limit = 20) {
     emblemImage: r.emblem_image || null,
     memberCount: r.member_count, totalPixels: r.total_pixels,
     leaderNickname: r.leader_nickname, createdAt: r.created_at
+  }));
+}
+
+// ═══════════════════════════════════════
+//  SEARCH GUILDS (by id / tag / name)
+// ═══════════════════════════════════════
+//  Free-text search used by the "join guild" screen.  Accepts a numeric id,
+//  a guild tag (exact or prefix), or a partial guild name (case-insensitive).
+//  Results are ranked: id exact > tag exact > tag prefix > name contains,
+//  then by total_pixels desc, and capped to `limit`.
+async function searchGuilds(query, limit = 20) {
+  const q = (query || '').trim();
+  if (!q) return [];
+  const cap = Math.min(parseInt(limit) || 20, 50);
+  const like = '%' + q.replace(/[%_]/g, '\\$&') + '%';
+  const asNum = /^\d+$/.test(q) ? parseInt(q) : null;
+
+  const res = await pool.query(
+    `SELECT g.id, g.name, g.tag, g.emblem_emoji, g.emblem_image, g.member_count, g.total_pixels,
+            g.description, g.level, g.created_at,
+            u.nickname AS leader_nickname,
+            CASE
+              WHEN $2::int IS NOT NULL AND g.id = $2::int THEN 0
+              WHEN LOWER(g.tag) = LOWER($1) THEN 1
+              WHEN LOWER(g.tag) LIKE LOWER($1) || '%' THEN 2
+              WHEN LOWER(g.name) = LOWER($1) THEN 3
+              WHEN LOWER(g.name) LIKE LOWER($3) THEN 4
+              ELSE 5
+            END AS rank_score
+     FROM guilds g
+     LEFT JOIN users u ON u.wallet_address = g.leader_wallet
+     WHERE ($2::int IS NOT NULL AND g.id = $2::int)
+        OR LOWER(g.tag) LIKE LOWER($1) || '%'
+        OR LOWER(g.name) LIKE LOWER($3)
+     ORDER BY rank_score ASC, g.total_pixels DESC NULLS LAST
+     LIMIT $4`,
+    [q, asNum, like, cap]
+  );
+  return res.rows.map(r => ({
+    id: r.id, name: r.name, tag: r.tag,
+    emblem: r.emblem_emoji, emblemImage: r.emblem_image || null,
+    memberCount: r.member_count, totalPixels: r.total_pixels,
+    description: r.description || '',
+    level: r.level || 1,
+    leaderNickname: r.leader_nickname,
+    createdAt: r.created_at
   }));
 }
 
@@ -776,10 +1027,11 @@ async function getTreasuryLedger(guildId, limit = 50) {
 
 module.exports = {
   createGuild, getGuild, getGuildByWallet,
-  inviteMember, acceptInvite, declineInvite, getMyInvites,
+  inviteMember, acceptInvite, declineInvite, getMyInvites, searchUsersForInvite,
+  createJoinRequest, getGuildJoinRequests, approveJoinRequest, rejectJoinRequest,
   leaveGuild, kickMember,
   promoteToOfficer, demoteToMember, transferLeadership, disbandGuild,
-  getGuildLeaderboard, refreshGuildPixelCount,
+  getGuildLeaderboard, searchGuilds, refreshGuildPixelCount,
   updateGuildInfo,
   sendGuildMessage, getGuildMessages,
   // Upgrades (migration 058)

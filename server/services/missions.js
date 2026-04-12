@@ -67,7 +67,7 @@ async function slotCapForWallet(wallet) {
   return base + Math.floor(lvl / Math.max(1, step));
 }
 
-/** Find the player's closest-to-target owned pixel (the launch origin). */
+/** Find the player's closest-to-target owned pixel (legacy fallback). */
 async function findClosestOwnedPixel(wallet, targetLat, targetLng) {
   const r = await pool.query(
     `SELECT lat, lng FROM pixels WHERE owner = $1`,
@@ -82,35 +82,307 @@ async function findClosestOwnedPixel(wallet, targetLat, targetLng) {
   return best ? { ...best, distance: bestDist } : null;
 }
 
+/**
+ * Resolve a launch pad (claim) for a player. Returns the claim's centroid +
+ * great-circle distance to the target. Enforces ownership.
+ */
+async function resolveLaunchPad(wallet, originClaimId, targetLat, targetLng) {
+  const r = await pool.query(
+    `SELECT id, owner, center_lat AS lat, center_lng AS lng
+       FROM claims
+      WHERE id = $1 AND deleted_at IS NULL`,
+    [originClaimId]
+  );
+  if (!r.rows.length) return { error: 'Launch pad not found' };
+  if ((r.rows[0].owner || '').toLowerCase() !== (wallet || '').toLowerCase()) {
+    return { error: 'You do not own that launch pad' };
+  }
+  const lat = parseFloat(r.rows[0].lat);
+  const lng = parseFloat(r.rows[0].lng);
+  const distance = greatCircleDeg(lat, lng, targetLat, targetLng);
+  return { claimId: r.rows[0].id, lat, lng, distance };
+}
+
+// ── Adjacency / merged-territory helpers ────────────────────────
+//
+//  The map merges touching claims into a single visible "territory".
+//  Launch pads must do the same — otherwise a player with one big
+//  merged territory split into 5 internal claims would see 5 separate
+//  pads. We run union-find on each wallet's claims and treat each
+//  connected group as one pad.
+//
+const PAD_GRID = 0.22; // matches GRID_SIZE on server/routes/api.js
+
+/** Union-find groups of touching claim rows from a single wallet. */
+function _groupAdjacentClaims(rows) {
+  const n = rows.length;
+  const parent = rows.map((_, i) => i);
+  function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+  function union(a, b) { const ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; }
+  // Adjacency: bounding boxes overlap or touch within 1 grid cell
+  for (let i = 0; i < n; i++) {
+    const a = rows[i];
+    const aw = (a.width || 1) * PAD_GRID / 2;
+    const ah = (a.height || 1) * PAD_GRID / 2;
+    for (let j = i + 1; j < n; j++) {
+      const b = rows[j];
+      const bw = (b.width || 1) * PAD_GRID / 2;
+      const bh = (b.height || 1) * PAD_GRID / 2;
+      const margin = PAD_GRID * 1.1;
+      if (Math.abs(a.lat - b.lat) < ah + bh + margin &&
+          Math.abs(a.lng - b.lng) < aw + bw + margin) {
+        union(i, j);
+      }
+    }
+  }
+  const buckets = {};
+  for (let i = 0; i < n; i++) {
+    const root = find(i);
+    if (!buckets[root]) buckets[root] = [];
+    buckets[root].push(i);
+  }
+  return Object.values(buckets); // Array<Array<index>>
+}
+
+/** Resolve all claim IDs in the merged group containing repClaimId. */
+async function resolveClaimGroup(wallet, repClaimId) {
+  const rows = await _fetchOwnerClaims(wallet);
+  if (!rows.length) return null;
+  const groups = _groupAdjacentClaims(rows);
+  for (const idxs of groups) {
+    if (idxs.some(i => rows[i].id === parseInt(repClaimId))) {
+      return idxs.map(i => rows[i]);
+    }
+  }
+  return null;
+}
+
+async function _fetchOwnerClaims(wallet) {
+  const r = await pool.query(
+    `SELECT id, center_lat AS lat, center_lng AS lng, width, height
+       FROM claims
+      WHERE owner = $1 AND deleted_at IS NULL
+      ORDER BY id ASC`,
+    [wallet]
+  );
+  return r.rows.map(row => ({
+    id: row.id,
+    lat: parseFloat(row.lat),
+    lng: parseFloat(row.lng),
+    width: row.width,
+    height: row.height
+  }));
+}
+
+/** List the player's MERGED launch pads (one entry per connected territory). */
+async function listLaunchPads(wallet) {
+  if (!wallet) return [];
+  const rows = await _fetchOwnerClaims(wallet);
+  if (!rows.length) return [];
+
+  // Pixel counts per claim
+  const ids = rows.map(r => r.id);
+  const pxRes = await pool.query(
+    'SELECT claim_id, COUNT(*)::int AS cnt FROM pixels WHERE claim_id = ANY($1::int[]) GROUP BY claim_id',
+    [ids]
+  );
+  const pxMap = {};
+  pxRes.rows.forEach(r => { pxMap[r.claim_id] = r.cnt; });
+
+  // Active missions per claim (most recent unresolved per claim)
+  const mRes = await pool.query(
+    `SELECT origin_claim_id, id, type, start_time, duration_sec,
+            target_lat, target_lng, target_wallet, status
+       FROM missions
+      WHERE origin_claim_id = ANY($1::int[])
+        AND status IN ('traveling','complete')
+      ORDER BY start_time DESC`,
+    [ids]
+  );
+  const activeByClaim = {};
+  mRes.rows.forEach(m => {
+    if (!activeByClaim[m.origin_claim_id]) {
+      activeByClaim[m.origin_claim_id] = {
+        id: m.id,
+        type: m.type,
+        startTime: m.start_time,
+        durationSec: m.duration_sec,
+        targetLat: m.target_lat,
+        targetLng: m.target_lng,
+        targetWallet: m.target_wallet,
+        status: m.status
+      };
+    }
+  });
+
+  const groups = _groupAdjacentClaims(rows);
+  return groups.map(idxs => {
+    const memberRows = idxs.map(i => rows[i]);
+    // Sum pixels, find centroid (weighted by pixel count), pick rep = largest claim
+    let totalPx = 0, latSum = 0, lngSum = 0;
+    let rep = memberRows[0];
+    let repPx = pxMap[rep.id] || 0;
+    let activeMission = null;
+    for (const m of memberRows) {
+      const px = pxMap[m.id] || 0;
+      totalPx += px;
+      latSum += m.lat * Math.max(1, px);
+      lngSum += m.lng * Math.max(1, px);
+      if (px > repPx) { rep = m; repPx = px; }
+      if (!activeMission && activeByClaim[m.id]) activeMission = activeByClaim[m.id];
+    }
+    const wsum = Math.max(1, totalPx);
+    return {
+      id: rep.id,                   // representative claim id (used as originClaimId)
+      memberIds: memberRows.map(m => m.id),
+      lat: latSum / wsum,
+      lng: lngSum / wsum,
+      pixelCount: totalPx,
+      claimCount: memberRows.length,
+      activeMission
+    };
+  }).sort((a, b) => b.pixelCount - a.pixelCount);
+}
+
+/**
+ * Reward multiplier for a launch pad — sums pixels across the merged
+ * territory the rep claim belongs to, so a player who actually owns
+ * a big contiguous block gets the bonus.
+ */
+async function padRewardMultiplier(repClaimId, wallet) {
+  const baseline = parseFloat(await getSetting('mission_pad_baseline_pixels') || '25');
+  const min = parseFloat(await getSetting('mission_pad_mult_min') || '0.5');
+  const max = parseFloat(await getSetting('mission_pad_mult_max') || '3.0');
+
+  let totalPx = 0;
+  if (wallet) {
+    const group = await resolveClaimGroup(wallet, repClaimId);
+    if (group && group.length) {
+      const ids = group.map(c => c.id);
+      const r = await pool.query(
+        'SELECT COUNT(*)::int AS cnt FROM pixels WHERE claim_id = ANY($1::int[])',
+        [ids]
+      );
+      totalPx = r.rows[0]?.cnt || 0;
+    }
+  }
+  if (totalPx <= 0) {
+    // Fallback to single-claim count when wallet/group lookup fails
+    const r = await pool.query(
+      'SELECT COUNT(*)::int AS cnt FROM pixels WHERE claim_id = $1',
+      [repClaimId]
+    );
+    totalPx = r.rows[0]?.cnt || 0;
+  }
+  if (totalPx <= 0) return min;
+  const raw = Math.sqrt(totalPx / Math.max(1, baseline));
+  return Math.max(min, Math.min(max, Math.round(raw * 1000) / 1000));
+}
+
+/**
+ * Defender size factor for invasion — bigger target = bigger reward
+ * (and longer travel time). Uses the same baseline / clamp settings
+ * as the pad multiplier so the curve feels symmetric.
+ */
+async function defenderSizeFactor(targetWallet) {
+  if (!targetWallet) return 1.0;
+  const baseline = parseFloat(await getSetting('mission_pad_baseline_pixels') || '25');
+  const min = parseFloat(await getSetting('mission_pad_mult_min') || '0.5');
+  const max = parseFloat(await getSetting('mission_pad_mult_max') || '3.0');
+  const r = await pool.query(
+    'SELECT COUNT(*)::int AS cnt FROM pixels WHERE owner = $1',
+    [targetWallet.toLowerCase()]
+  );
+  const cnt = r.rows[0]?.cnt || 0;
+  if (cnt <= 0) return min;
+  const raw = Math.sqrt(cnt / Math.max(1, baseline));
+  return Math.max(min, Math.min(max, Math.round(raw * 1000) / 1000));
+}
+
+/**
+ * Combine attacker pad + defender territory size factors into a
+ * single invasion multiplier (geometric mean keeps small + small
+ * small, big + big big, mismatched in the middle).
+ */
+function combineInvasionFactors(padMult, defFactor) {
+  return Math.round(Math.sqrt(padMult * defFactor) * 1000) / 1000;
+}
+
+// ── PREVIEW (no DB writes) ──────────────────────────────────────
+//
+//  Returns { distanceDeg, tier, durationSec, costPP, multiplier }
+//  for the chosen LAUNCH PAD + target. The pad's centroid is the
+//  origin; multiplier scales with the pad's pixel count.
+//
+async function previewMission(wallet, type, originClaimId, targetLat, targetLng, targetWallet) {
+  if (!wallet) return { error: 'Wallet required' };
+  if (type !== 'invasion' && type !== 'exploration') return { error: 'Invalid mission type' };
+  if (!originClaimId) return { error: 'Pick a launch pad first' };
+  const lat = parseFloat(targetLat), lng = parseFloat(targetLng);
+  if (!isFinite(lat) || !isFinite(lng)) return { error: 'Invalid coordinates' };
+
+  const pad = await resolveLaunchPad(wallet, parseInt(originClaimId), lat, lng);
+  if (pad.error) return pad;
+
+  const tier = await distanceTier(pad.distance);
+  const durKey = type === 'invasion'
+    ? `mission_invade_${tier}_sec`
+    : `mission_explore_${tier}_sec`;
+  const durFallback = tier === 'near' ? '1800' : tier === 'mid' ? '5400' : '14400';
+  let durationSec = parseInt(await getSetting(durKey) || durFallback);
+
+  const costKey = type === 'invasion'
+    ? `mission_invade_cost_${tier}`
+    : `mission_explore_cost_${tier}`;
+  const costFallback = type === 'invasion'
+    ? (tier === 'near' ? '0.5' : tier === 'mid' ? '1.5' : '3.0')
+    : (tier === 'near' ? '0.2' : tier === 'mid' ? '0.8' : '2.0');
+  const costPP = parseFloat(await getSetting(costKey) || costFallback);
+
+  const padMult = await padRewardMultiplier(pad.claimId, wallet);
+  let multiplier = padMult;
+  let defFactor = null;
+  if (type === 'invasion' && targetWallet) {
+    defFactor = await defenderSizeFactor(targetWallet);
+    multiplier = combineInvasionFactors(padMult, defFactor);
+    // Bigger combined size = longer travel/op time
+    durationSec = Math.max(60, Math.round(durationSec * multiplier));
+  }
+
+  return {
+    success: true,
+    distanceDeg: pad.distance,
+    tier,
+    durationSec,
+    costPP,
+    multiplier,
+    padMultiplier: padMult,
+    defenderFactor: defFactor,
+    originLat: pad.lat,
+    originLng: pad.lng,
+    originClaimId: pad.claimId
+  };
+}
+
 // ── LAUNCH ───────────────────────────────────────────────────────
 //
-//  Types:
-//    'invasion'    — attacker picks a target wallet. Resolved on tick.
-//    'exploration' — target is a random Mars coordinate. 100% payout.
+//  Each mission MUST originate from a specific launch pad (claim).
+//  A pad can host only one active mission at a time → max concurrent
+//  missions for a player = number of free pads they own. Larger pads
+//  earn a bigger reward multiplier.
 //
-async function launchMission(wallet, type, targetLat, targetLng, targetWallet) {
+async function launchMission(wallet, type, originClaimId, targetLat, targetLng, targetWallet) {
   if (!wallet) return { error: 'Wallet required' };
   if (type !== 'invasion' && type !== 'exploration') return { error: 'Invalid mission type' };
   if (type === 'invasion' && !targetWallet) return { error: 'Target wallet required for invasion' };
+  if (!originClaimId) return { error: 'Pick a launch pad first' };
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     await ensureUser(client, wallet);
 
-    // ── Slot check
-    const slotCap = await slotCapForWallet(wallet);
-    const active = await client.query(
-      `SELECT COUNT(*)::int AS cnt FROM missions
-       WHERE wallet = $1 AND status IN ('traveling','complete')`,
-      [wallet]
-    );
-    if ((active.rows[0]?.cnt || 0) >= slotCap) {
-      await client.query('ROLLBACK');
-      return { error: `All ${slotCap} mission slots in use. Claim a completed mission first.` };
-    }
-
-    // ── Daily cap
+    // ── Daily cap (still useful as anti-spam)
     const dailyCap = parseInt(await getSetting('mission_daily_cap') || '12');
     const daily = await client.query(
       `SELECT COUNT(*)::int AS cnt FROM missions
@@ -122,11 +394,40 @@ async function launchMission(wallet, type, targetLat, targetLng, targetWallet) {
       return { error: `Daily mission cap reached (${dailyCap}/24h)` };
     }
 
-    // ── Find origin (closest owned pixel)
-    const origin = await findClosestOwnedPixel(wallet, targetLat, targetLng);
-    if (!origin) {
+    // ── Resolve & lock the launch pad
+    const padRes = await client.query(
+      `SELECT id, owner, center_lat AS lat, center_lng AS lng
+         FROM claims
+        WHERE id = $1 AND deleted_at IS NULL
+        FOR UPDATE`,
+      [parseInt(originClaimId)]
+    );
+    if (!padRes.rows.length) {
       await client.query('ROLLBACK');
-      return { error: 'You must own territory to launch missions' };
+      return { error: 'Launch pad not found' };
+    }
+    if ((padRes.rows[0].owner || '').toLowerCase() !== wallet.toLowerCase()) {
+      await client.query('ROLLBACK');
+      return { error: 'You do not own that launch pad' };
+    }
+    const padLat = parseFloat(padRes.rows[0].lat);
+    const padLng = parseFloat(padRes.rows[0].lng);
+    const padId  = padRes.rows[0].id;
+
+    // ── Pad-busy check spans the entire merged territory the pad belongs to.
+    //    Otherwise a player with one big merged territory split across many
+    //    internal claims could launch a mission from each one separately.
+    const group = await resolveClaimGroup(wallet, padId);
+    const groupIds = group && group.length ? group.map(c => c.id) : [padId];
+    const busy = await client.query(
+      `SELECT 1 FROM missions
+        WHERE origin_claim_id = ANY($1::int[]) AND status IN ('traveling','complete')
+        LIMIT 1`,
+      [groupIds]
+    );
+    if (busy.rows.length) {
+      await client.query('ROLLBACK');
+      return { error: 'This territory already has an active mission' };
     }
 
     // ── Invasion-specific validation
@@ -135,7 +436,6 @@ async function launchMission(wallet, type, targetLat, targetLng, targetWallet) {
         await client.query('ROLLBACK');
         return { error: "Can't invade yourself" };
       }
-      // Target must actually own something
       const tgtOwned = await client.query(
         'SELECT COUNT(*)::int AS cnt FROM pixels WHERE owner = $1',
         [targetWallet.toLowerCase()]
@@ -146,16 +446,15 @@ async function launchMission(wallet, type, targetLat, targetLng, targetWallet) {
       }
     }
 
-    const tier = await distanceTier(origin.distance);
+    const distance = greatCircleDeg(padLat, padLng, parseFloat(targetLat), parseFloat(targetLng));
+    const tier = await distanceTier(distance);
 
-    // ── Duration (seconds)
+    // ── Duration (seconds) — invasion stretches with the combined size factor below
     const durKey = type === 'invasion'
       ? `mission_invade_${tier}_sec`
       : `mission_explore_${tier}_sec`;
-    const durFallback = type === 'invasion'
-      ? (tier === 'near' ? '900' : tier === 'mid' ? '3600' : '10800')
-      : (tier === 'near' ? '1200' : tier === 'mid' ? '4500' : '13500');
-    const durationSec = parseInt(await getSetting(durKey) || durFallback);
+    const durFallback = tier === 'near' ? '1800' : tier === 'mid' ? '5400' : '14400';
+    let durationSec = parseInt(await getSetting(durKey) || durFallback);
 
     // ── Launch cost
     const costKey = type === 'invasion'
@@ -165,6 +464,18 @@ async function launchMission(wallet, type, targetLat, targetLng, targetWallet) {
       ? (tier === 'near' ? '0.5' : tier === 'mid' ? '1.5' : '3.0')
       : (tier === 'near' ? '0.2' : tier === 'mid' ? '0.8' : '2.0');
     const costPP = parseFloat(await getSetting(costKey) || costFallback);
+
+    // ── Reward multiplier (frozen at launch time)
+    //    Exploration: pad-only.
+    //    Invasion: combine attacker pad size + defender territory size.
+    //              Larger combined size also stretches mission duration.
+    const padMult = await padRewardMultiplier(padId, wallet);
+    let multiplier = padMult;
+    if (type === 'invasion') {
+      const defFactor = await defenderSizeFactor(targetWallet);
+      multiplier = combineInvasionFactors(padMult, defFactor);
+      durationSec = Math.max(60, Math.round(durationSec * multiplier));
+    }
 
     // ── Deduct PP fuel
     const balRes = await client.query(
@@ -184,16 +495,17 @@ async function launchMission(wallet, type, targetLat, targetLng, targetWallet) {
     // ── Insert mission row
     const ins = await client.query(
       `INSERT INTO missions
-         (wallet, type, origin_lat, origin_lng, target_lat, target_lng, target_wallet,
-          distance_deg, duration_sec, launch_cost_pp, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'traveling')
+         (wallet, type, origin_claim_id, origin_lat, origin_lng,
+          target_lat, target_lng, target_wallet,
+          distance_deg, duration_sec, launch_cost_pp, reward_multiplier, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'traveling')
        RETURNING id, start_time`,
       [
-        wallet, type,
-        origin.lat, origin.lng,
+        wallet, type, padId,
+        padLat, padLng,
         targetLat, targetLng,
         type === 'invasion' ? targetWallet.toLowerCase() : null,
-        origin.distance, durationSec, costPP
+        distance, durationSec, costPP, multiplier
       ]
     );
     const mission = ins.rows[0];
@@ -202,7 +514,8 @@ async function launchMission(wallet, type, targetLat, targetLng, targetWallet) {
 
     console.log(
       `[MISSION] ${type.toUpperCase()} #${mission.id} ${wallet.slice(0, 8)}`
-      + ` tier=${tier} dist=${origin.distance.toFixed(1)}° dur=${durationSec}s cost=${costPP}PP`
+      + ` pad=${padId} tier=${tier} dist=${distance.toFixed(1)}° dur=${durationSec}s`
+      + ` cost=${costPP}PP mult=${multiplier}x`
     );
 
     return {
@@ -211,13 +524,15 @@ async function launchMission(wallet, type, targetLat, targetLng, targetWallet) {
         id: mission.id,
         type,
         tier,
-        originLat: origin.lat,
-        originLng: origin.lng,
+        originClaimId: padId,
+        originLat: padLat,
+        originLng: padLng,
         targetLat, targetLng,
         targetWallet: type === 'invasion' ? targetWallet.toLowerCase() : null,
-        distanceDeg: origin.distance,
+        distanceDeg: distance,
         durationSec,
         launchCostPP: costPP,
+        rewardMultiplier: multiplier,
         startTime: mission.start_time,
         status: 'traveling'
       }
@@ -266,34 +581,39 @@ async function tickMissions() {
 
 /** Roll a reward object for a mission, given its type + tier. */
 async function rollRewards(type, tier) {
+  // Reward profile by type:
+  //   invasion    → PP + GP + XP  (no items — combat is paid in currency)
+  //   exploration → PP + XP + item (no GP — discovery is paid in loot)
   const prefix = type === 'invasion' ? 'mission_invade_reward' : 'mission_explore_reward';
   const [ppMin, ppMax] = await parseRange(`${prefix}_${tier}_pp`, '0.1,1.0');
-  const [gpMin, gpMax] = await parseRange(`${prefix}_${tier}_gp`, '5,30');
   const [xpMin, xpMax] = await parseRange(`${prefix}_${tier}_xp`, '10,50');
 
   const pp = Math.round(randBetween(ppMin, ppMax) * 1000000) / 1000000;
-  const gp = Math.round(randBetween(gpMin, gpMax));
   const xp = randIntBetween(Math.floor(xpMin), Math.floor(xpMax));
 
-  // Item drop chance
+  let gp = 0;
+  if (type === 'invasion') {
+    const [gpMin, gpMax] = await parseRange(`${prefix}_${tier}_gp`, '5,30');
+    gp = Math.round(randBetween(gpMin, gpMax));
+  }
+
+  // Item drop — exploration only
   let item = null;
-  const dropKey = type === 'invasion'
-    ? `mission_invade_item_drop_${tier}`
-    : `mission_explore_rare_drop_${tier}`;
-  const dropPct = parseFloat(await getSetting(dropKey) || '5');
-  if (Math.random() * 100 < dropPct) {
-    try {
-      const pool_ = require('../db').pool;
-      const filter = type === 'invasion'
-        ? "category IN ('combat','booster') AND active = true"
-        : "category IN ('cosmetic','booster') AND active = true";
-      const itRes = await pool_.query(
-        `SELECT code, name, icon FROM item_types WHERE ${filter} ORDER BY RANDOM() LIMIT 1`
-      );
-      if (itRes.rows.length) {
-        item = { code: itRes.rows[0].code, name: itRes.rows[0].name, icon: itRes.rows[0].icon, qty: 1 };
-      }
-    } catch (_e) { /* item_types table may not exist yet */ }
+  if (type === 'exploration') {
+    const dropPct = parseFloat(await getSetting(`mission_explore_rare_drop_${tier}`) || '5');
+    if (Math.random() * 100 < dropPct) {
+      try {
+        const pool_ = require('../db').pool;
+        const itRes = await pool_.query(
+          `SELECT code, name, icon FROM item_types
+           WHERE category IN ('cosmetic','booster') AND active = true
+           ORDER BY RANDOM() LIMIT 1`
+        );
+        if (itRes.rows.length) {
+          item = { code: itRes.rows[0].code, name: itRes.rows[0].name, icon: itRes.rows[0].icon, qty: 1 };
+        }
+      } catch (_e) { /* item_types table may not exist yet */ }
+    }
   }
 
   return { pp, gp, xp, item };
@@ -347,10 +667,93 @@ async function resolveMission(missionId) {
     const m = mRes.rows[0];
 
     const tier = await distanceTier(parseFloat(m.distance_deg));
+    const sizeFactor = parseFloat(m.reward_multiplier || 1);
+    function applyMult(reward) {
+      if (!reward) return reward;
+      if (reward.pp) reward.pp = Math.round(reward.pp * sizeFactor * 1000000) / 1000000;
+      if (reward.gp) reward.gp = Math.round(reward.gp * sizeFactor);
+      if (reward.xp) reward.xp = Math.floor(reward.xp * sizeFactor);
+      reward.sizeFactor = sizeFactor;
+      return reward;
+    }
+
+    // Threshold below which a mission only pays out ONE of its reward
+    // channels (random pick). Keeps small ops from feeling like jackpots.
+    const gateThreshold = parseFloat(
+      await getSetting('mission_full_reward_size_threshold') || '1.0'
+    );
+    function gateRewardChannels(reward, allowedKeys, factor) {
+      if (!reward || factor >= gateThreshold) return reward;
+      // Pick which channel survives, weighted equally
+      const present = allowedKeys.filter(k => {
+        if (k === 'item') return reward.item != null;
+        return (reward[k] || 0) > 0;
+      });
+      const pool = present.length ? present : allowedKeys;
+      const keep = pool[Math.floor(Math.random() * pool.length)];
+      for (const k of allowedKeys) {
+        if (k === keep) continue;
+        if (k === 'item') reward.item = null;
+        else reward[k] = 0;
+      }
+      reward.gatedChannel = keep;
+      return reward;
+    }
 
     if (m.type === 'exploration') {
-      // Always succeeds — exploration pays on delivery
-      const reward = await rollRewards('exploration', tier);
+      // Roll an outcome tier — empty / partial / full / jackpot
+      const emptyPct   = parseFloat(await getSetting('mission_explore_outcome_empty_pct')   || '25');
+      const partialPct = parseFloat(await getSetting('mission_explore_outcome_partial_pct') || '40');
+      const jackpotPct = parseFloat(await getSetting('mission_explore_outcome_jackpot_pct') || '10');
+      const roll = Math.random() * 100;
+      let outcome;
+      if (roll < emptyPct) outcome = 'empty';
+      else if (roll < emptyPct + partialPct) outcome = 'partial';
+      else if (roll < emptyPct + partialPct + (100 - emptyPct - partialPct - jackpotPct)) outcome = 'full';
+      else outcome = 'jackpot';
+
+      let reward;
+      if (outcome === 'empty') {
+        // Scan signal lost — only a tiny XP scrap, nothing else
+        reward = { pp: 0, gp: 0, xp: randIntBetween(3, 8), item: null, outcome: 'empty' };
+      } else {
+        reward = await rollRewards('exploration', tier);
+        if (outcome === 'partial') {
+          // 60% range, no item
+          reward.pp = Math.round(reward.pp * 0.6 * 1000000) / 1000000;
+          reward.gp = Math.round(reward.gp * 0.6);
+          reward.xp = Math.floor(reward.xp * 0.6);
+          reward.item = null;
+          reward.outcome = 'partial';
+        } else if (outcome === 'jackpot') {
+          // 1.6x range + guaranteed item (re-roll if rollRewards didn't give one)
+          reward.pp = Math.round(reward.pp * 1.6 * 1000000) / 1000000;
+          reward.gp = Math.round(reward.gp * 1.6);
+          reward.xp = Math.floor(reward.xp * 1.6);
+          if (!reward.item) {
+            try {
+              const itRes = await pool.query(
+                `SELECT code, name, icon FROM item_types
+                 WHERE category IN ('cosmetic','booster') AND active = true
+                 ORDER BY RANDOM() LIMIT 1`
+              );
+              if (itRes.rows.length) {
+                reward.item = { code: itRes.rows[0].code, name: itRes.rows[0].name, icon: itRes.rows[0].icon, qty: 1 };
+              }
+            } catch (_e) { /* item_types missing */ }
+          }
+          reward.outcome = 'jackpot';
+        } else {
+          reward.outcome = 'full';
+        }
+      }
+      applyMult(reward);
+      // Exploration channels: PP / XP / item. NEAR distance collapses
+      // to a single channel; MID/FAR keep all.
+      const exploreFactor = tier === 'near' ? 0.5 : tier === 'mid' ? 1.0 : 2.0;
+      if (reward && !reward.failed && reward.outcome !== 'empty') {
+        gateRewardChannels(reward, ['pp', 'xp', 'item'], exploreFactor);
+      }
       await client.query(
         `UPDATE missions
            SET status = 'complete', success = true, reward_json = $1
@@ -363,24 +766,11 @@ async function resolveMission(missionId) {
       const won = Math.random() < rate;
 
       if (won) {
-        // Roll base rewards
-        const reward = await rollRewards('invasion', tier);
-
-        // Steal pixels (mechanic: transfer N% of defender's pixels closest to target)
-        const stealMin = parseInt(await getSetting('mission_invade_steal_pct_min') || '3');
-        const stealMax = parseInt(await getSetting('mission_invade_steal_pct_max') || '8');
-        const stealPct = randIntBetween(stealMin, stealMax);
-
-        const defCountR = await client.query(
-          'SELECT COUNT(*)::int AS cnt FROM pixels WHERE owner = $1',
-          [m.target_wallet]
-        );
-        const defTotal = defCountR.rows[0]?.cnt || 0;
-        const stealCount = Math.max(1, Math.floor(defTotal * stealPct / 100));
-
-        // Resolve to stolen_pixels metadata only — actual transfer happens on claim
-        reward.stolenPixels = stealCount;
-        reward.stealPct = stealPct;
+        // Roll base rewards (scaled by combined size factor)
+        // Invasion never takes pixels — territory = money. Reward is PP/GP/XP.
+        const reward = applyMult(await rollRewards('invasion', tier));
+        // Invasion channels: PP / GP / XP. Small ops collapse to one.
+        gateRewardChannels(reward, ['pp', 'gp', 'xp'], sizeFactor);
 
         await client.query(
           `UPDATE missions
@@ -413,9 +803,9 @@ async function resolveMission(missionId) {
 
 // ── CLAIM ────────────────────────────────────────────────────────
 //
-//  Credits rewards to the caller's account. For successful invasion,
-//  additionally transfers pixels from defender to attacker (those
-//  closest to the target coordinate).
+//  Credits rewards (PP/GP/XP/items) to the caller's account.
+//  Invasion never transfers territory — territory is money and stays
+//  with the defender. Invasion is paid in PP/GP/XP only.
 //
 async function claimMission(wallet, missionId) {
   if (!wallet || !missionId) return { error: 'Missing args' };
@@ -499,98 +889,6 @@ async function claimMission(wallet, missionId) {
       catch (_e) { /* non-critical */ }
     }
 
-    // ── Invasion: transfer stolen pixels on success
-    if (m.type === 'invasion' && m.success && reward.stolenPixels > 0 && m.target_wallet) {
-      // Pick N defender pixels closest to the mission target coord,
-      // re-assign ownership, and spawn a new "captured" claim for the attacker.
-      const defPixR = await client.query(
-        'SELECT lat, lng, price FROM pixels WHERE owner = $1',
-        [m.target_wallet]
-      );
-      const pixels = defPixR.rows.map(r => ({
-        lat: parseFloat(r.lat),
-        lng: parseFloat(r.lng),
-        price: parseFloat(r.price)
-      }));
-      // Sort by distance to the target point
-      const tgtLat = parseFloat(m.target_lat), tgtLng = parseFloat(m.target_lng);
-      pixels.sort((a, b) =>
-        greatCircleDeg(a.lat, a.lng, tgtLat, tgtLng)
-        - greatCircleDeg(b.lat, b.lng, tgtLat, tgtLng)
-      );
-      const take = pixels.slice(0, reward.stolenPixels);
-
-      if (take.length) {
-        // Create a new claim so the captured patch is grouped and discoverable
-        let mnLat = Infinity, mxLat = -Infinity, mnLng = Infinity, mxLng = -Infinity;
-        for (const p of take) {
-          if (p.lat < mnLat) mnLat = p.lat;
-          if (p.lat > mxLat) mxLat = p.lat;
-          if (p.lng < mnLng) mnLng = p.lng;
-          if (p.lng > mxLng) mxLng = p.lng;
-        }
-        const GRID_SIZE = 0.22;
-        const cx = (mnLat + mxLat) / 2;
-        const cy = (mnLng + mxLng) / 2;
-        const w = Math.round((mxLng - mnLng) / GRID_SIZE) + 1;
-        const h = Math.round((mxLat - mnLat) / GRID_SIZE) + 1;
-        const totalPaid = take.reduce((s, p) => s + p.price, 0);
-
-        const claimRes = await client.query(
-          `INSERT INTO claims (owner, center_lat, center_lng, width, height, total_paid)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           RETURNING id`,
-          [wallet, cx, cy, w, h, totalPaid]
-        );
-        const claimId = claimRes.rows[0].id;
-
-        // Reassign pixels in chunks
-        const chunk = 400;
-        for (let i = 0; i < take.length; i += chunk) {
-          const slice = take.slice(i, i + chunk);
-          const values = [];
-          const params = [];
-          let idx = 1;
-          for (const p of slice) {
-            values.push(`($${idx++}, $${idx++})`);
-            params.push(p.lat, p.lng);
-          }
-          await client.query(
-            `UPDATE pixels
-                SET owner = $${idx}, claim_id = $${idx + 1}, updated_at = NOW()
-              WHERE (lat, lng) IN (${values.join(',')})`,
-            [...params, wallet, claimId]
-          );
-        }
-
-        // Log transaction
-        await client.query(
-          `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
-           VALUES ('hijack', $1, 0, 0, $2)`,
-          [wallet, JSON.stringify({
-            source: 'mission_invasion',
-            missionId: m.id,
-            victim: m.target_wallet,
-            pixels: take.length,
-            claimId
-          })]
-        );
-
-        // Refresh guild pixel counts for both sides (best-effort)
-        try {
-          const guildSrv = require('./guild');
-          const [atkG, defG] = await Promise.all([
-            client.query('SELECT guild_id FROM users WHERE wallet_address = $1', [wallet]),
-            client.query('SELECT guild_id FROM users WHERE wallet_address = $1', [m.target_wallet])
-          ]);
-          if (atkG.rows[0]?.guild_id) await guildSrv.refreshGuildPixelCount(atkG.rows[0].guild_id);
-          if (defG.rows[0]?.guild_id) await guildSrv.refreshGuildPixelCount(defG.rows[0].guild_id);
-        } catch (_e) { /* non-critical */ }
-
-        reward.stolenPixelsActual = take.length;
-      }
-    }
-
     // ── Referral commission on PP paid out (missions count as earn events)
     if ((reward.pp || 0) > 0) {
       try {
@@ -631,9 +929,10 @@ async function claimMission(wallet, missionId) {
 async function getActiveMissions(wallet) {
   if (!wallet) return [];
   const r = await pool.query(
-    `SELECT id, type, origin_lat, origin_lng, target_lat, target_lng, target_wallet,
-            distance_deg, duration_sec, launch_cost_pp, status, success,
-            reward_json, start_time, claimed_at, created_at
+    `SELECT id, type, origin_claim_id, origin_lat, origin_lng,
+            target_lat, target_lng, target_wallet,
+            distance_deg, duration_sec, launch_cost_pp, reward_multiplier,
+            status, success, reward_json, start_time, claimed_at, created_at
      FROM missions
      WHERE wallet = $1
        AND status IN ('traveling','complete','failed')
@@ -649,6 +948,7 @@ async function getActiveMissions(wallet) {
     return {
       id: m.id,
       type: m.type,
+      originClaimId: m.origin_claim_id,
       originLat: parseFloat(m.origin_lat),
       originLng: parseFloat(m.origin_lng),
       targetLat: parseFloat(m.target_lat),
@@ -657,6 +957,7 @@ async function getActiveMissions(wallet) {
       distanceDeg: parseFloat(m.distance_deg),
       durationSec: parseInt(m.duration_sec),
       launchCostPP: parseFloat(m.launch_cost_pp),
+      rewardMultiplier: parseFloat(m.reward_multiplier || 1),
       status: m.status,
       success: m.success,
       reward: m.reward_json || {},
@@ -700,13 +1001,17 @@ async function cancelMission(wallet, missionId) {
 
 module.exports = {
   launchMission,
+  previewMission,
   tickMissions,
   resolveMission,
   claimMission,
   getActiveMissions,
+  listLaunchPads,
   cancelMission,
-  // expose helpers for tests/admin
+  // expose helpers for tests/admin/other services
   greatCircleDeg,
   distanceTier,
-  slotCapForWallet
+  slotCapForWallet,
+  padRewardMultiplier,
+  resolveClaimGroup
 };

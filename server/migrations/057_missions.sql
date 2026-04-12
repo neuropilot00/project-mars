@@ -52,15 +52,15 @@ INSERT INTO settings (key, value, category, description) VALUES
   ('mission_slot_level_step',         '10',   'missions', 'Levels per extra slot (+1 slot per step)'),
   ('mission_daily_cap',               '12',   'missions', 'Max missions launched per wallet per day'),
 
-  -- Invasion durations (seconds) — NEAR / MID / FAR tiers
-  ('mission_invade_near_sec',         '900',  'missions', 'NEAR (<30°) invasion duration seconds'),
-  ('mission_invade_mid_sec',          '3600', 'missions', 'MID (30-90°) invasion duration seconds'),
-  ('mission_invade_far_sec',          '10800','missions', 'FAR (90°+) invasion duration seconds'),
+  -- Invasion durations (seconds) — NEAR / MID / FAR tiers (minimum 30min)
+  ('mission_invade_near_sec',         '1800', 'missions', 'NEAR (<30°) invasion duration seconds'),
+  ('mission_invade_mid_sec',          '5400', 'missions', 'MID (30-90°) invasion duration seconds'),
+  ('mission_invade_far_sec',          '14400','missions', 'FAR (90°+) invasion duration seconds'),
 
-  -- Exploration durations
-  ('mission_explore_near_sec',        '1200', 'missions', 'NEAR exploration seconds'),
-  ('mission_explore_mid_sec',         '4500', 'missions', 'MID exploration seconds'),
-  ('mission_explore_far_sec',         '13500','missions', 'FAR exploration seconds'),
+  -- Exploration durations (minimum 30min)
+  ('mission_explore_near_sec',        '1800', 'missions', 'NEAR exploration seconds'),
+  ('mission_explore_mid_sec',         '5400', 'missions', 'MID exploration seconds'),
+  ('mission_explore_far_sec',         '14400','missions', 'FAR exploration seconds'),
 
   -- Invasion launch costs (PP)
   ('mission_invade_cost_near',        '0.5',  'missions', 'NEAR invasion launch cost PP'),
@@ -111,6 +111,15 @@ INSERT INTO settings (key, value, category, description) VALUES
   ('mission_explore_rare_drop_far',   '12',        'missions', 'FAR exploration rare item %'),
   ('mission_explore_poi_spawn_near',  '2',         'missions', 'NEAR exploration chance of spawning a POI %'),
   ('mission_explore_poi_spawn_far',   '2',         'missions', 'FAR exploration chance of spawning a POI %'),
+
+  -- Exploration outcome variance — % chance of each tier (sum should be ~100)
+  -- empty   = only minor XP, scan finds nothing
+  -- partial = 60% of normal range, no item
+  -- full    = full range + normal item drop chance
+  -- jackpot = 1.6x range + guaranteed item
+  ('mission_explore_outcome_empty_pct',   '25', 'missions', 'Exploration empty-result chance %'),
+  ('mission_explore_outcome_partial_pct', '40', 'missions', 'Exploration partial-result chance %'),
+  ('mission_explore_outcome_jackpot_pct', '10', 'missions', 'Exploration jackpot chance %'),
 
   -- Distance tier thresholds (degrees)
   ('mission_dist_near_max_deg',       '30',   'missions', 'NEAR tier max great-circle distance'),

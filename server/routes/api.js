@@ -2918,23 +2918,45 @@ router.post('/shop/use', writeLimiter, async (req, res) => {
       if (!claimId) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'claimId required for shield' }); }
       // Check claim ownership
       const claimRes = await client.query('SELECT owner FROM claims WHERE id = $1', [claimId]);
-      if (claimRes.rows.length === 0 || claimRes.rows[0].owner !== w) {
+      if (claimRes.rows.length === 0 || (claimRes.rows[0].owner || '').toLowerCase() !== w) {
         await client.query('ROLLBACK'); return res.status(403).json({ error: 'Not your territory' });
       }
+      // Resolve the merged territory: a single shield item covers every claim
+      // in the connected group, so player feedback matches what they see on
+      // the map (one merged territory = one shield = one item consumed).
+      let groupIds = [parseInt(claimId)];
+      try {
+        if (missionService && missionService.resolveClaimGroup) {
+          const group = await missionService.resolveClaimGroup(w, parseInt(claimId));
+          if (group && group.length) groupIds = group.map(g => g.id);
+        }
+      } catch (_e) { /* fall back to single claim */ }
+
       const hp = item.effect_value;
       const expiresAt = new Date(Date.now() + item.duration_hours * 3600000);
-      // Remove old shield if exists, add new
-      await client.query('DELETE FROM pixel_shields WHERE claim_id = $1', [claimId]);
-      await client.query(
-        'INSERT INTO pixel_shields (claim_id, owner, shield_type, hp, max_hp, expires_at) VALUES ($1,$2,$3,$4,$5,$6)',
-        [claimId, w, item.code, hp, hp, expiresAt]
-      );
-      effectResult = { shielded: true, hp, expiresAt };
+      // Remove old shields on every member, then re-shield each one
+      await client.query('DELETE FROM pixel_shields WHERE claim_id = ANY($1::int[])', [groupIds]);
+      for (const cid of groupIds) {
+        await client.query(
+          'INSERT INTO pixel_shields (claim_id, owner, shield_type, hp, max_hp, expires_at) VALUES ($1,$2,$3,$4,$5,$6)',
+          [cid, w, item.code, hp, hp, expiresAt]
+        );
+      }
+      effectResult = { shielded: true, hp, expiresAt, claimsShielded: groupIds.length };
     } else if (item.code === 'emp_strike') {
       if (!claimId) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'claimId required for EMP' }); }
-      // Disable shield on target claim
-      await client.query('DELETE FROM pixel_shields WHERE claim_id = $1', [claimId]);
-      effectResult = { empApplied: true, targetClaim: claimId };
+      // EMP also nukes the entire merged target territory
+      const tgtOwnerRes = await client.query('SELECT owner FROM claims WHERE id = $1', [claimId]);
+      const tgtOwner = (tgtOwnerRes.rows[0]?.owner || '').toLowerCase();
+      let groupIds = [parseInt(claimId)];
+      try {
+        if (missionService && missionService.resolveClaimGroup && tgtOwner) {
+          const group = await missionService.resolveClaimGroup(tgtOwner, parseInt(claimId));
+          if (group && group.length) groupIds = group.map(g => g.id);
+        }
+      } catch (_e) { /* fall back to single claim */ }
+      await client.query('DELETE FROM pixel_shields WHERE claim_id = ANY($1::int[])', [groupIds]);
+      effectResult = { empApplied: true, targetClaim: claimId, claimsHit: groupIds.length };
     } else if (item.code === 'attack_boost') {
       // +20% attack success for next 3 attacks (uses-based)
       await client.query(
@@ -3926,6 +3948,20 @@ router.get('/guild/leaderboard', readLimiter, async (req, res) => {
   }
 });
 
+// Search guilds by id / tag / name (used by the join screen)
+router.get('/guild/search', readLimiter, async (req, res) => {
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const q = (req.query.q || '').toString().slice(0, 64);
+    if (!q.trim()) return res.json({ guilds: [] });
+    const guilds = await guildService.searchGuilds(q, parseInt(req.query.limit) || 20);
+    res.json({ guilds });
+  } catch (e) {
+    console.error('[GUILD] search error:', e.message);
+    res.status(500).json({ error: 'Failed to search guilds' });
+  }
+});
+
 // Get guild by ID
 router.get('/guild/:id', readLimiter, async (req, res) => {
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
@@ -3985,6 +4021,83 @@ router.post('/guild/invite/accept', writeLimiter, async (req, res) => {
   } catch (e) {
     console.error('[GUILD] accept error:', e.message);
     res.status(500).json({ error: 'Failed to accept invite' });
+  }
+});
+
+// ── Join requests (player → guild, approval by leader/officer) ──
+router.post('/guild/join-request', writeLimiter, async (req, res) => {
+  const { wallet, guildId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !guildId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.createJoinRequest(w, parseInt(guildId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] join-request error:', e.message);
+    res.status(500).json({ error: 'Failed to send request' });
+  }
+});
+
+router.get('/guild/:id/requests', readLimiter, async (req, res) => {
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  try {
+    const requests = await guildService.getGuildJoinRequests(w, parseInt(req.params.id));
+    res.json({ requests });
+  } catch (e) {
+    console.error('[GUILD] get-requests error:', e.message);
+    res.status(500).json({ error: 'Failed to load requests' });
+  }
+});
+
+// Search free users (not in any guild) by nickname or wallet, for invite UI.
+// Caller must be leader/officer of the guild.
+router.get('/guild/:id/search-users', readLimiter, async (req, res) => {
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  const w = (req.query.wallet || '').toLowerCase();
+  const q = req.query.q || '';
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  try {
+    const users = await guildService.searchUsersForInvite(
+      w, parseInt(req.params.id), q, parseInt(req.query.limit) || 15
+    );
+    res.json({ users });
+  } catch (e) {
+    console.error('[GUILD] search-users error:', e.message);
+    res.status(500).json({ error: 'Failed to search users' });
+  }
+});
+
+router.post('/guild/request/approve', writeLimiter, async (req, res) => {
+  const { wallet, inviteId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !inviteId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.approveJoinRequest(w, parseInt(inviteId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] approve-request error:', e.message);
+    res.status(500).json({ error: 'Failed to approve request' });
+  }
+});
+
+router.post('/guild/request/reject', writeLimiter, async (req, res) => {
+  const { wallet, inviteId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !inviteId) return res.status(400).json({ error: 'Missing fields' });
+  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
+  try {
+    const result = await guildService.rejectJoinRequest(w, parseInt(inviteId));
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[GUILD] reject-request error:', e.message);
+    res.status(500).json({ error: 'Failed to reject request' });
   }
 });
 
@@ -4164,18 +4277,55 @@ router.get('/guild/chat/:guildId', readLimiter, async (req, res) => {
 //  MISSIONS — single-player OPS (invasion + exploration)
 // ══════════════════════════════════════════════════
 
+// List the player's launch pads (claims) with active-mission status
+router.get('/missions/pads', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  if (!w) return res.status(400).json({ error: 'Missing wallet' });
+  if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
+  try {
+    const pads = await missionService.listLaunchPads(w);
+    res.json({ pads });
+  } catch (e) {
+    console.error('[MISSION] pads error:', e.message);
+    res.status(500).json({ error: 'Failed to load pads' });
+  }
+});
+
+// Preview a mission (distance, tier, duration, cost, multiplier) without committing
+router.get('/missions/preview', readLimiter, async (req, res) => {
+  const w = (req.query.wallet || '').toLowerCase();
+  const type = req.query.type;
+  const originClaimId = parseInt(req.query.originClaimId);
+  const lat = parseFloat(req.query.lat);
+  const lng = parseFloat(req.query.lng);
+  const targetWallet = req.query.targetWallet ? String(req.query.targetWallet).toLowerCase() : null;
+  if (!w || !type) return res.status(400).json({ error: 'Missing wallet or type' });
+  if (!originClaimId) return res.status(400).json({ error: 'Pick a launch pad first' });
+  if (!isFinite(lat) || !isFinite(lng)) return res.status(400).json({ error: 'Invalid coordinates' });
+  if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
+  try {
+    const result = await missionService.previewMission(w, type, originClaimId, lat, lng, targetWallet);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[MISSION] preview error:', e.message);
+    res.status(500).json({ error: 'Failed to preview mission' });
+  }
+});
+
 // Launch a new mission
 router.post('/missions/launch', writeLimiter, async (req, res) => {
-  const { wallet, type, targetLat, targetLng, targetWallet } = req.body || {};
+  const { wallet, type, originClaimId, targetLat, targetLng, targetWallet } = req.body || {};
   const w = (wallet || '').toLowerCase();
   if (!w || !type) return res.status(400).json({ error: 'Missing wallet or type' });
+  if (!originClaimId) return res.status(400).json({ error: 'Pick a launch pad first' });
   if (typeof targetLat !== 'number' || typeof targetLng !== 'number') {
     return res.status(400).json({ error: 'Invalid target coordinates' });
   }
   if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
   try {
     const result = await missionService.launchMission(
-      w, type, targetLat, targetLng,
+      w, type, parseInt(originClaimId), targetLat, targetLng,
       targetWallet ? targetWallet.toLowerCase() : null
     );
     if (result.error) return res.status(400).json(result);
@@ -4193,8 +4343,7 @@ router.get('/missions/active', readLimiter, async (req, res) => {
   if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
   try {
     const missions = await missionService.getActiveMissions(w);
-    const slotCap = await missionService.slotCapForWallet(w);
-    res.json({ missions, slotCap });
+    res.json({ missions });
   } catch (e) {
     console.error('[MISSION] list error:', e.message);
     res.status(500).json({ error: 'Failed to load missions' });
@@ -4216,8 +4365,9 @@ router.post('/missions/:id/claim', writeLimiter, async (req, res) => {
     if (seasonService && result.success) {
       const m = result.mission;
       if (m.type === 'exploration') seasonService.addSeasonScore(w, 'poi', 1).catch(() => {});
-      if (m.type === 'invasion' && m.won && m.reward?.stolenPixelsActual) {
-        seasonService.addSeasonScore(w, 'hijack', m.reward.stolenPixelsActual).catch(() => {});
+      // Invasion no longer steals territory — score by successful raid count
+      if (m.type === 'invasion' && m.won) {
+        seasonService.addSeasonScore(w, 'hijack', 1).catch(() => {});
       }
     }
   } catch (e) {

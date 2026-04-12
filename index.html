@@ -249,6 +249,229 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 
 /* Zoom Controls */
 .zc{position:fixed;bottom:24px;right:266px;z-index:60;display:flex;flex-direction:column;gap:4px}
+
+/* ── OPS quick-launch image cards (INVADE / EXPLORE) ──────
+   Vertical stack of two illustrated buttons; the artwork is the
+   button face with a tinted gradient overlay and a corner label. */
+.ops-quick{position:fixed;left:50%;bottom:152px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:row;gap:10px;pointer-events:auto}
+.ops-card{position:relative;display:block;width:148px;height:64px;padding:0;margin:0;
+  border-radius:10px;cursor:pointer;overflow:hidden;background:#0e0c16;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.4);
+  transition:transform .14s ease, filter .14s ease, box-shadow .14s ease}
+.ops-card:hover{transform:translateY(-1px) scale(1.025);filter:brightness(1.12)}
+.ops-card:active{transform:translateY(0) scale(.97);filter:brightness(.9)}
+.ops-card .ops-card-img{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:block;pointer-events:none;user-select:none;
+  -webkit-user-drag:none;image-rendering:auto}
+.ops-card .ops-card-glow{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.65) 100%)}
+.ops-card .ops-card-label{position:absolute;left:8px;bottom:6px;
+  font-family:var(--fn);font-size:11px;font-weight:800;letter-spacing:.6px;
+  color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 6px rgba(0,0,0,.8);
+  pointer-events:none}
+.ops-invade{border-color:rgba(255,120,60,.55);
+  box-shadow:0 6px 20px rgba(255,120,60,.22),0 0 0 1px rgba(0,0,0,.4)}
+.ops-invade:hover{box-shadow:0 10px 26px rgba(255,120,60,.38),0 0 0 1px rgba(255,160,90,.4)}
+.ops-invade .ops-card-label{color:#ffd6b5;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 8px rgba(255,90,40,.7)}
+.ops-explore{border-color:rgba(76,216,154,.55);
+  box-shadow:0 6px 20px rgba(76,216,154,.20),0 0 0 1px rgba(0,0,0,.4)}
+.ops-explore:hover{box-shadow:0 10px 26px rgba(76,216,154,.36),0 0 0 1px rgba(140,240,200,.45)}
+.ops-explore .ops-card-label{color:#c8f4dc;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 8px rgba(40,200,140,.7)}
+/* ── OPS quick-launch SPLIT card ──
+   Single container with two diagonally-clipped halves: left = INVADE,
+   right = EXPLORE. The diagonal slash goes from (60% top) to (40% bottom),
+   which on a 150×40 card maps to a ~127° gradient angle (used for the
+   subtle seam highlight). Image is dimmed so the label dominates. */
+.ops-quick-split{position:fixed;left:50%;bottom:123px;transform:translateX(-50%);
+  z-index:60;display:block;width:195px;height:52px;
+  pointer-events:auto;
+  border-radius:8px;overflow:hidden;background:#0e0c16;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 5px 16px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.4)}
+.ops-quick-split .ops-split-half{position:absolute;top:0;bottom:0;width:100%;
+  padding:0;margin:0;background:#0e0c16;border:0;cursor:pointer;overflow:hidden;
+  transition:filter .14s ease}
+.ops-quick-split .ops-invade{left:0;
+  clip-path:polygon(0 0, 60% 0, 40% 100%, 0 100%);
+  -webkit-clip-path:polygon(0 0, 60% 0, 40% 100%, 0 100%)}
+.ops-quick-split .ops-explore{left:0;
+  clip-path:polygon(60% 0, 100% 0, 100% 100%, 40% 100%);
+  -webkit-clip-path:polygon(60% 0, 100% 0, 100% 100%, 40% 100%)}
+.ops-quick-split .ops-split-half:hover{filter:brightness(1.18) saturate(1.05)}
+.ops-quick-split .ops-split-half:active{filter:brightness(.85)}
+.ops-quick-split .ops-card-img{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:block;pointer-events:none;user-select:none;
+  -webkit-user-drag:none;opacity:.95}
+/* Anchor each half's image so the meaningful action is visible inside the clip */
+.ops-quick-split .ops-invade .ops-card-img{object-position:left center}
+.ops-quick-split .ops-explore .ops-card-img{object-position:right center}
+.ops-quick-split .ops-card-glow{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35))}
+.ops-quick-split .ops-card-label{position:absolute;
+  font-family:var(--fn);font-size:15px;font-weight:900;letter-spacing:.5px;
+  color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 6px rgba(0,0,0,.9);
+  pointer-events:none;white-space:nowrap}
+.ops-quick-split .ops-invade .ops-card-label{top:3px;left:8px;color:#ffd6b5}
+.ops-quick-split .ops-explore .ops-card-label{bottom:3px;right:8px;color:#c8f4dc}
+/* Diagonal seam highlight aligned to the clip-path slash (127°) */
+.ops-quick-split::after{content:'';position:absolute;left:0;right:0;top:0;bottom:0;
+  pointer-events:none;
+  background:linear-gradient(127deg,transparent calc(50% - 1px),
+    rgba(255,255,255,.55) 50%,transparent calc(50% + 1px))}
+/* Mobile: vertical (portrait) split card on the right, just above the zoom column.
+   Top half = INVADE, bottom half = EXPLORE, slash from upper-right to lower-left. */
+@media (max-width:768px){
+  .ops-quick-split{right:8px;left:auto;top:auto;transform:none;
+    bottom:calc(env(safe-area-inset-bottom) + 320px);
+    width:60px;height:120px}
+  .ops-quick-split .ops-invade{
+    clip-path:polygon(0 0, 100% 0, 100% 40%, 0 60%);
+    -webkit-clip-path:polygon(0 0, 100% 0, 100% 40%, 0 60%)}
+  .ops-quick-split .ops-explore{
+    clip-path:polygon(0 60%, 100% 40%, 100% 100%, 0 100%);
+    -webkit-clip-path:polygon(0 60%, 100% 40%, 100% 100%, 0 100%)}
+  /* Mobile INVADE: use a mobile-optimized image (taller framing of the
+     destroyed shelters / fighter jet) via background-image so we can
+     pan/scale freely; the original <img> is hidden on mobile only. */
+  .ops-quick-split .ops-invade .ops-card-img{display:none}
+  .ops-quick-split .ops-invade{
+    background-color:#0e0c16;
+    background-image:url('/assets/nav/ops_invade_mobile.png');
+    background-size:auto 80%;
+    background-position:center 30%;
+    background-repeat:no-repeat}
+  /* Mobile EXPLORE: cover-crop, anchored so the rover/astronauts are
+     centered in the bottom-half clip area. */
+  .ops-quick-split .ops-explore .ops-card-img{
+    object-position:30% center}
+  .ops-quick-split .ops-card-label{font-size:11px}
+  .ops-quick-split .ops-invade .ops-card-label{top:5px;left:50%;transform:translateX(-50%);bottom:auto;right:auto}
+  .ops-quick-split .ops-explore .ops-card-label{bottom:5px;left:50%;transform:translateX(-50%);top:auto;right:auto}
+  /* Seam axis perpendicular to the new horizontal-ish slash (~163°) */
+  .ops-quick-split::after{
+    background:linear-gradient(163deg,transparent calc(50% - 1px),
+      rgba(255,255,255,.55) 50%,transparent calc(50% + 1px))}
+}
+/* OPS panel mission-type selector cards (inside BASE → OPS) */
+.ops-type-row{display:flex;gap:8px;margin-bottom:10px}
+.ops-type-card{position:relative;flex:1;height:62px;padding:0;margin:0;
+  border-radius:9px;cursor:pointer;overflow:hidden;background:#0e0c16;
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 4px 14px rgba(0,0,0,.4);
+  filter:brightness(.55) saturate(.6);
+  transition:filter .14s ease, border-color .14s ease, box-shadow .14s ease, transform .14s ease}
+.ops-type-card:hover{filter:brightness(.85) saturate(.9);transform:translateY(-1px)}
+.ops-type-card.ops-invade.active{filter:brightness(1.05) saturate(1.05);
+  border-color:rgba(255,120,60,.7);box-shadow:0 8px 22px rgba(255,120,60,.32),0 0 0 1px rgba(255,160,90,.45)}
+.ops-type-card.ops-explore.active{filter:brightness(1.05) saturate(1.05);
+  border-color:rgba(76,216,154,.7);box-shadow:0 8px 22px rgba(76,216,154,.30),0 0 0 1px rgba(140,240,200,.5)}
+.ops-type-card .ops-card-img{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:block;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.ops-type-card .ops-card-glow{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.7) 100%)}
+.ops-type-card .ops-card-label{position:absolute;left:8px;bottom:6px;
+  font-family:var(--fn);font-size:11px;font-weight:800;letter-spacing:.6px;
+  color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 8px rgba(0,0,0,.8);
+  pointer-events:none}
+.ops-type-card.ops-invade .ops-card-label{color:#ffd6b5}
+.ops-type-card.ops-explore .ops-card-label{color:#c8f4dc}
+/* Active type card pulse */
+.ops-type-card.active::after{content:'';position:absolute;inset:0;border-radius:9px;pointer-events:none;
+  border:1px solid transparent;animation:opsPulseBorder 1.6s ease-in-out infinite}
+.ops-type-card.ops-invade.active::after{box-shadow:inset 0 0 18px rgba(255,120,60,.35)}
+.ops-type-card.ops-explore.active::after{box-shadow:inset 0 0 18px rgba(76,216,154,.35)}
+@keyframes opsPulseBorder{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* Launch form scanning line — adds life to the static panel */
+.ops-launch-form{position:relative;overflow:hidden}
+.ops-launch-form::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(91,184,232,.85),transparent);
+  animation:opsScan 4s linear infinite;z-index:1}
+@keyframes opsScan{
+  0%{transform:translateY(0);opacity:0}
+  6%{opacity:1}
+  94%{opacity:1}
+  100%{transform:translateY(280px);opacity:0}
+}
+.ops-launch-form::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at top right,rgba(91,184,232,.07),transparent 60%);
+  z-index:0}
+.ops-launch-form>*{position:relative;z-index:2}
+
+/* Live preview readout (replaces the static "Target: x°, y°") */
+#opsLaunchPreview{display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  font-size:9px;font-family:var(--fn);min-height:18px;padding:5px 8px;border-radius:5px;
+  background:rgba(0,0,0,.25);border:1px solid rgba(91,184,232,.18);
+  color:var(--tx2);transition:border-color .25s, background .25s}
+#opsLaunchPreview.locked{border-color:rgba(91,184,232,.45);background:rgba(91,184,232,.06);
+  box-shadow:inset 0 0 12px rgba(91,184,232,.08)}
+.ops-prev-hint{color:var(--tx3);font-style:italic;letter-spacing:.4px}
+.ops-prev-coord{color:var(--cyan);font-weight:700;letter-spacing:.5px;
+  text-shadow:0 0 6px rgba(91,184,232,.45)}
+.ops-prev-eta{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ops-prev-eta.scanning{color:var(--tx3);font-style:italic;
+  animation:opsBlink 1.1s ease-in-out infinite}
+.ops-prev-eta.error{color:var(--rd)}
+@keyframes opsBlink{0%,100%{opacity:.4}50%{opacity:1}}
+.ops-prev-tier{display:inline-block;padding:1px 6px;border-radius:3px;border:1px solid;
+  font-size:8px;font-weight:800;letter-spacing:.6px}
+.ops-prev-dist{color:var(--tx2);opacity:.85}
+.ops-prev-time{color:var(--gold);font-weight:700;text-shadow:0 0 6px rgba(255,170,40,.35)}
+.ops-prev-cost{color:var(--cyan);opacity:.9}
+
+/* Active mission row — animated stripe progress bar */
+.ops-mission-bar{position:relative;height:6px;border-radius:3px;overflow:hidden;
+  background:rgba(255,255,255,.05)}
+.ops-mission-bar-fill{position:absolute;top:0;left:0;bottom:0;
+  background-image:linear-gradient(135deg,
+    rgba(255,255,255,.18) 25%,transparent 25%,
+    transparent 50%,rgba(255,255,255,.18) 50%,
+    rgba(255,255,255,.18) 75%,transparent 75%,transparent);
+  background-size:14px 14px;
+  animation:opsStripes 1.2s linear infinite}
+@keyframes opsStripes{0%{background-position:0 0}100%{background-position:14px 0}}
+.ops-mission-bar-fill.ready{animation:opsStripes .6s linear infinite, opsReadyGlow 1.2s ease-in-out infinite}
+@keyframes opsReadyGlow{0%,100%{box-shadow:0 0 4px rgba(255,170,40,.4)}50%{box-shadow:0 0 12px rgba(255,170,40,.85)}}
+
+/* Launch pad picker — horizontal scroller of the player's claims */
+.ops-pad-list{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:2px 0 6px;margin-bottom:8px;
+  scrollbar-width:thin;scrollbar-color:rgba(91,184,232,.4) transparent}
+.ops-pad-list::-webkit-scrollbar{height:4px}
+.ops-pad-list::-webkit-scrollbar-thumb{background:rgba(91,184,232,.4);border-radius:2px}
+.ops-pad-empty{padding:14px;font-size:9px;color:var(--tx3);font-family:var(--fn);font-style:italic;
+  text-align:center;width:100%}
+.ops-pad-card{position:relative;flex:0 0 92px;height:62px;border-radius:7px;cursor:pointer;
+  background:linear-gradient(135deg,rgba(91,184,232,.06),rgba(0,0,0,.4));
+  border:1px solid rgba(255,255,255,.10);padding:6px 7px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  transition:all .14s ease;font-family:var(--fn);overflow:hidden}
+.ops-pad-card:hover{transform:translateY(-1px);border-color:rgba(91,184,232,.5);
+  box-shadow:0 6px 14px rgba(91,184,232,.18)}
+.ops-pad-card.selected{border-color:rgba(91,184,232,.85);
+  background:linear-gradient(135deg,rgba(91,184,232,.18),rgba(91,184,232,.04));
+  box-shadow:0 0 0 1px rgba(91,184,232,.55),0 6px 18px rgba(91,184,232,.28)}
+.ops-pad-card.selected::after{content:'';position:absolute;inset:0;border-radius:7px;pointer-events:none;
+  border:1px solid rgba(140,210,255,.6);animation:opsPulseBorder 1.4s ease-in-out infinite}
+.ops-pad-card.busy{cursor:not-allowed;opacity:.78;border-color:rgba(255,170,40,.45);
+  background:linear-gradient(135deg,rgba(255,170,40,.10),rgba(0,0,0,.5))}
+.ops-pad-card.busy:hover{transform:none;box-shadow:none}
+.ops-pad-card.busy.invade{border-color:rgba(255,120,60,.55);
+  background:linear-gradient(135deg,rgba(255,120,60,.15),rgba(0,0,0,.5))}
+.ops-pad-card.busy.explore{border-color:rgba(76,216,154,.5);
+  background:linear-gradient(135deg,rgba(76,216,154,.12),rgba(0,0,0,.5))}
+.ops-pad-card .pad-id{font-size:8px;color:var(--tx3);letter-spacing:.4px}
+.ops-pad-card .pad-coord{font-size:9.5px;color:var(--cyan);font-weight:700;letter-spacing:.3px;
+  text-shadow:0 0 6px rgba(91,184,232,.4)}
+.ops-pad-card.selected .pad-coord{color:#a3dcff}
+.ops-pad-card .pad-mult{position:absolute;top:4px;right:5px;font-size:8px;color:var(--gold);
+  font-weight:800;letter-spacing:.3px;text-shadow:0 0 6px rgba(255,170,40,.45)}
+.ops-pad-card .pad-status{font-size:8px;font-weight:700;letter-spacing:.4px}
+.ops-pad-card .pad-status.ready{color:#7be0a8}
+.ops-pad-card.busy .pad-status{color:var(--gold)}
+.ops-pad-card.busy.invade .pad-status{color:var(--mars)}
+.ops-pad-card.busy.explore .pad-status{color:var(--gn)}
+.ops-pad-card .pad-px{font-size:7.5px;color:var(--tx3);opacity:.85}
 .zb{width:42px;height:42px;display:flex;align-items:center;justify-content:center;
   background:var(--surface2);backdrop-filter:blur(10px);border:1px solid var(--bdr);border-radius:8px;
   color:var(--tx);font-size:24px;cursor:pointer;font-family:var(--fn);transition:all .15s}
@@ -2458,6 +2681,26 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <button class="zb" id="myLandBtn" onclick="toggleMyLand()" title="My territories" style="margin-top:4px;font-size:9px;line-height:1.1;padding:6px 4px;color:var(--mars)">MY<br>LAND</button>
 </div>
 
+<!-- ═════════════════════════════════════════════════
+     OPS quick-launch — INVADE / EXPLORE image cards
+     Desktop: vertical stack, right side above the zoom column
+     Mobile:  vertical stack, right side above the zoom column
+     Both open BASE → OPS tab with the type pre-selected
+     ═════════════════════════════════════════════════ -->
+<!-- Single split card: diagonal divider, left half = INVADE, right half = EXPLORE -->
+<div class="ops-quick ops-quick-split" id="opsQuick">
+  <button class="ops-split-half ops-invade" onclick="openOpsLauncher('invasion')" title="Launch an invasion">
+    <img src="/assets/nav/ops_invade.png" alt="" class="ops-card-img" draggable="false">
+    <span class="ops-card-glow"></span>
+    <span class="ops-card-label">INVADE</span>
+  </button>
+  <button class="ops-split-half ops-explore" onclick="openOpsLauncher('exploration')" title="Launch an exploration">
+    <img src="/assets/nav/ops_explore.png" alt="" class="ops-card-img" draggable="false">
+    <span class="ops-card-glow"></span>
+    <span class="ops-card-label">EXPLORE</span>
+  </button>
+</div>
+
 <div class="mode-badge" id="modeBadge">🔴 CLICK MARS TO SELECT TERRITORY</div>
 
 <!-- Claim Modal -->
@@ -3112,6 +3355,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <div class="base-section-title" style="color:var(--gold)">PENDING INVITES</div>
               <div id="guildInvitesList"></div>
             </div>
+            <!-- Guild search -->
+            <div style="margin-bottom:16px;padding:12px;border-radius:8px;background:rgba(91,184,232,.04);border:1px solid rgba(91,184,232,.15)">
+              <div style="font-size:10px;color:var(--cyan);font-family:var(--fn);font-weight:700;margin-bottom:8px">FIND A GUILD <span style="font-size:8px;color:var(--tx3);font-weight:400">(ID · TAG · NAME)</span></div>
+              <div style="display:flex;gap:6px">
+                <input type="text" id="guildSearchInput" maxlength="64" placeholder="e.g.  42 · MARS · Red Legion" onkeydown="if(event.key==='Enter')searchGuildsQuery()" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px 10px;border-radius:6px;font-family:var(--fn)">
+                <button onclick="searchGuildsQuery()" style="padding:8px 14px;border-radius:6px;background:rgba(91,184,232,.15);border:1px solid rgba(91,184,232,.4);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">SEARCH</button>
+              </div>
+              <div id="guildSearchResults" style="margin-top:8px;display:flex;flex-direction:column;gap:4px"></div>
+            </div>
             <!-- Create guild form -->
             <div style="padding:12px;border-radius:8px;background:rgba(255,120,60,.04);border:1px solid rgba(255,120,60,.15)">
               <div style="font-size:10px;color:var(--mars);font-family:var(--fn);font-weight:700;margin-bottom:10px">CREATE NEW GUILD <span style="font-size:8px;color:var(--tx3);font-weight:400">(costs 50 GP)</span></div>
@@ -3195,13 +3447,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <!-- Members list -->
             <div class="base-section-title">MEMBERS</div>
             <div id="guildMembersList" style="margin-bottom:12px"></div>
+            <!-- Join requests (leader/officer only) -->
+            <div id="guildRequestsSection" style="display:none;margin-bottom:12px">
+              <div class="base-section-title" style="color:var(--gn)">JOIN REQUESTS <span id="guildRequestsCount" style="font-size:8px;color:var(--tx3);font-weight:400"></span></div>
+              <div id="guildRequestsList" style="display:flex;flex-direction:column;gap:4px"></div>
+            </div>
             <!-- Invite (leader/officer only) -->
             <div id="guildInviteSection" style="display:none;margin-bottom:12px">
-              <div class="base-section-title" style="color:var(--cyan)">INVITE PLAYER</div>
-              <div style="display:flex;gap:6px">
-                <input type="text" id="guildInviteInput" placeholder="Wallet address or nickname..." style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+              <div class="base-section-title" style="color:var(--cyan)">INVITE PLAYER <span style="font-size:8px;color:var(--tx3);font-weight:400">(SEARCH BY NICKNAME OR WALLET)</span></div>
+              <div style="display:flex;gap:6px;position:relative">
+                <input type="text" id="guildInviteInput" placeholder="Type 1+ char to search..." autocomplete="off" oninput="onGuildInviteSearchInput()" onkeydown="if(event.key==='Enter')guildInviteMember()" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
                 <button onclick="guildInviteMember()" style="padding:6px 12px;border-radius:4px;background:rgba(91,184,232,.12);border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-size:9px;cursor:pointer;font-family:var(--fn)">INVITE</button>
               </div>
+              <div id="guildInviteSearchResults" style="margin-top:6px;display:flex;flex-direction:column;gap:3px"></div>
             </div>
 
             <!-- ═══════════════════════════════════════════
@@ -3251,22 +3509,36 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <div style="font-size:9px;color:var(--tx3);font-family:var(--fn)">Launch invasion &amp; exploration missions from your territory</div>
             </div>
             <div style="text-align:right">
-              <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)">SLOTS</div>
+              <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)">PADS READY</div>
               <div style="font-size:14px;color:var(--cyan);font-weight:700" id="opsSlotInfo">–/–</div>
             </div>
           </div>
 
           <!-- Launch form -->
-          <div style="padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(91,184,232,.06),rgba(91,184,232,.02));border:1px solid rgba(91,184,232,.25);margin-bottom:12px">
+          <div class="ops-launch-form" style="padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(91,184,232,.06),rgba(91,184,232,.02));border:1px solid rgba(91,184,232,.25);margin-bottom:12px">
             <div style="font-size:10px;color:var(--cyan);font-family:var(--fn);font-weight:700;margin-bottom:8px;letter-spacing:1px">LAUNCH NEW MISSION</div>
-            <div style="display:flex;gap:4px;margin-bottom:8px">
-              <button id="opsTypeInvasion" onclick="setOpsType('invasion')" style="flex:1;padding:7px;border-radius:6px;background:rgba(255,120,60,.15);border:1px solid rgba(255,120,60,.45);color:var(--mars);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">⚔ INVASION</button>
-              <button id="opsTypeExplore" onclick="setOpsType('exploration')" style="flex:1;padding:7px;border-radius:6px;background:rgba(76,216,154,.06);border:1px solid rgba(76,216,154,.2);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">🛰 EXPLORE</button>
+            <div class="ops-type-row">
+              <button class="ops-type-card ops-invade" id="opsTypeInvasion" onclick="setOpsType('invasion')">
+                <img src="/assets/nav/ops_invade.png" alt="" class="ops-card-img" draggable="false">
+                <span class="ops-card-glow"></span>
+                <span class="ops-card-label">⚔ INVASION</span>
+              </button>
+              <button class="ops-type-card ops-explore" id="opsTypeExplore" onclick="setOpsType('exploration')">
+                <img src="/assets/nav/ops_explore.png" alt="" class="ops-card-img" draggable="false">
+                <span class="ops-card-glow"></span>
+                <span class="ops-card-label">🛰 EXPLORE</span>
+              </button>
             </div>
-            <div style="display:flex;gap:6px;margin-bottom:6px">
-              <input type="number" step="0.1" id="opsTargetLat" placeholder="Target Lat" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)">
-              <input type="number" step="0.1" id="opsTargetLng" placeholder="Target Lng" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)">
-              <button onclick="opsPickRandom()" title="Random Mars coord" style="padding:7px 10px;border-radius:6px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer">🎲</button>
+            <!-- Launch pad picker — each owned claim is a launch silo, max 1 active mission per pad -->
+            <div style="font-size:9px;color:var(--tx3);font-family:var(--fn);margin:0 0 4px;letter-spacing:.5px">SELECT LAUNCH PAD <span style="color:var(--gold)">(bigger pad → bigger reward)</span></div>
+            <div id="opsPadList" class="ops-pad-list">
+              <div class="ops-pad-empty">Loading launch pads…</div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+              <input type="number" step="0.1" id="opsTargetLat" placeholder="Target Lat" style="flex:1 1 100px;min-width:0;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)">
+              <input type="number" step="0.1" id="opsTargetLng" placeholder="Target Lng" style="flex:1 1 100px;min-width:0;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn)">
+              <button onclick="opsPickRandom()" title="Pick a random target (invasion = random enemy, exploration = random coord)" style="flex:0 0 auto;padding:7px 10px;border-radius:6px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer">🎲</button>
+              <button id="opsBrowseTargetsBtn" onclick="opsBrowseTargets()" title="Browse all enemy territories" style="flex:0 0 auto;padding:7px 10px;border-radius:6px;background:rgba(255,120,60,.10);border:1px solid rgba(255,120,60,.35);color:var(--mars);font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">🎯 BROWSE</button>
             </div>
             <input type="text" id="opsTargetWallet" placeholder="Target wallet / nickname (invasion only)" style="width:100%;box-sizing:border-box;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:7px;border-radius:6px;font-family:var(--fn);margin-bottom:8px">
             <div id="opsLaunchPreview" style="font-size:9px;color:var(--tx3);font-family:var(--fn);margin-bottom:8px;min-height:14px"></div>
@@ -3391,11 +3663,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </button>
     </div>
     <div id="mtCosmeticBtnWrap" style="display:none;padding:4px 0">
-      <button onclick="closeMobTerritoryModal();setTimeout(function(){openCosmeticPanel(selectedPlot)},200)"
+      <button onclick="toggleMobCosmeticPanel()"
         style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(180,100,255,.15),rgba(255,100,200,.1));
         border:1px solid rgba(180,100,255,.3);color:#c088e0;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
         ✨ CUSTOMIZE
       </button>
+      <div id="mtCosmeticPanel" style="display:none;margin-top:8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
+        <div style="font-size:9px;color:#c088e0;font-family:var(--fn);letter-spacing:1px;margin-bottom:8px;font-weight:700">COSMETICS</div>
+        <div id="mtCosmeticSlots" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
     </div>
     <div id="mtLinkEditWrap" style="display:none;padding:4px 0 8px">
       <div style="font-size:10px;color:var(--tx3);margin-bottom:4px">PROMO LINK</div>
@@ -5470,6 +5746,7 @@ function compositeClaimsOnTexture(previewOnly){
     if(typeof _drawWeatherOverlay==='function') _drawWeatherOverlay(ctx,w,h);
     if(typeof _drawPOIMarkers==='function') _drawPOIMarkers(ctx,w,h);
     if(typeof _drawMissionRoutes==='function') _drawMissionRoutes(ctx,w,h);
+    if(typeof _drawMissionPreview==='function') _drawMissionPreview(ctx,w,h);
     if(typeof _drawRocketOverlay==='function') _drawRocketOverlay(ctx,w,h);
     if(typeof _drawStarlinkTrails==='function') _drawStarlinkTrails(ctx,w,h);
 
@@ -5696,6 +5973,10 @@ function compositeClaimsOnTexture(previewOnly){
   }
 
 }
+
+// Simple alias used by short-lived previews (mission routes, hover hints, etc.)
+// — kicks the texture re-composite without callers needing to know the function name.
+window.requestRedraw = function(){ try{ compositeClaimsOnTexture(true); }catch(_e){} };
 
 /* ── Generate Bump Map (higher detail) ───────────── */
 function genMarsBump(){
@@ -7540,15 +7821,22 @@ var _cosmeticDefs={
   terrain:{volcanic_terrain:{label:'Volcanic',icon:'🌋',color:'#FF5014'},frozen_terrain:{label:'Frozen',icon:'🧊',color:'#64B4FF'},crystal_terrain:{label:'Crystal',icon:'💎',color:'#B464FF'},toxic_terrain:{label:'Toxic',icon:'☣️',color:'#64FF50'}}
 };
 
-function openCosmeticPanel(plot){
-  var panel=document.getElementById('cosmeticPanel');
-  if(panel.style.display!=='none'){panel.style.display='none';return;}
+// Mobile: toggle cosmetic panel inside the mobile territory modal
+function toggleMobCosmeticPanel(){
+  var panel=document.getElementById('mtCosmeticPanel');
+  if(!panel) return;
+  if(panel.style.display!=='none'){ panel.style.display='none'; return; }
   panel.style.display='';
-  var slots=document.getElementById('cosmeticSlots');
+  _renderCosmeticSlotsInto('mtCosmeticSlots', selectedPlot);
+}
+// Shared renderer: fills a slots container with cosmetic rows for a plot.
+function _renderCosmeticSlotsInto(slotsId, plot){
+  var slots=document.getElementById(slotsId);
+  if(!slots) return;
   if(!plot||!plot.id){slots.innerHTML='<div style="font-size:9px;color:var(--tx3)">Select a claim first</div>';return;}
   var cos=plot.cosmetics||{};
   var w=walletState.address;
-  // Load inventory to know what user owns
+  slots.innerHTML='<div style="font-size:9px;color:var(--tx3)">Loading…</div>';
   fetch('/api/shop/inventory?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(inv){
     var html='';
     ['border','glow','terrain'].forEach(function(type){
@@ -7564,7 +7852,6 @@ function openCosmeticPanel(plot){
         html+='<span style="font-size:9px;color:var(--tx3)">None</span>';
       }
       html+='</div><div style="display:flex;gap:4px">';
-      // Dropdown of owned cosmetics of this type
       var owned=inv.filter(function(i){return i.quantity>0&&_cosmeticDefs[type]&&_cosmeticDefs[type][i.code]});
       if(owned.length>0){
         html+='<select onchange="equipCosmetic('+plot.id+',this.value)" style="font-size:8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:4px;padding:2px 4px;font-family:var(--fn)">';
@@ -7581,10 +7868,18 @@ function openCosmeticPanel(plot){
       html+='</div></div>';
     });
     if(!inv.some(function(i){return i.quantity>0&&(i.category==='cosmetic')})){
-      html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px 0;margin-top:4px">No cosmetics owned. <span style="color:#c088e0;cursor:pointer;text-decoration:underline" onclick="openItemShop();shopFilterCat(\'cosmetic\',document.querySelectorAll(\'.shop-cat-btn\')[5])">Visit Shop</span></div>';
+      html+='<div style="font-size:8px;color:var(--tx3);text-align:center;padding:4px 0;margin-top:4px">No cosmetics owned. <span style="color:#c088e0;cursor:pointer;text-decoration:underline" onclick="closeMobTerritoryModal();openItemShop();shopFilterCat(\'cosmetic\',document.querySelectorAll(\'.shop-cat-btn\')[5])">Visit Shop</span></div>';
     }
     slots.innerHTML=html;
   }).catch(function(){slots.innerHTML='<div style="font-size:9px;color:var(--red)">Failed to load</div>'});
+}
+
+function openCosmeticPanel(plot){
+  var panel=document.getElementById('cosmeticPanel');
+  if(!panel) return;
+  if(panel.style.display!=='none'){panel.style.display='none';return;}
+  panel.style.display='';
+  _renderCosmeticSlotsInto('cosmeticSlots', plot);
 }
 
 function equipCosmetic(claimId,itemCode){
@@ -7605,8 +7900,16 @@ function equipCosmetic(claimId,itemCode){
       selectedPlot.cosmetics[d.cosmeticType]=d.cosmeticCode;
     }
     claimsSnapshot=null;compositeClaimsOnTexture();
-    openCosmeticPanel(selectedPlot);// refresh panel
+    _refreshCosmeticPanels();
   }).catch(function(){showToast('Failed to equip','error')});
+}
+
+// Refresh whichever cosmetic panel is currently visible (desktop or mobile).
+function _refreshCosmeticPanels(){
+  var desk=document.getElementById('cosmeticPanel');
+  var mob=document.getElementById('mtCosmeticPanel');
+  if(desk&&desk.style.display!=='none'){ _renderCosmeticSlotsInto('cosmeticSlots', selectedPlot); }
+  if(mob&&mob.style.display!=='none'){ _renderCosmeticSlotsInto('mtCosmeticSlots', selectedPlot); }
 }
 
 function unequipCosmetic(claimId,cosmeticType){
@@ -7619,7 +7922,7 @@ function unequipCosmetic(claimId,cosmeticType){
     if(cl&&cl.cosmetics) delete cl.cosmetics[cosmeticType];
     if(selectedPlot&&selectedPlot.id===claimId&&selectedPlot.cosmetics) delete selectedPlot.cosmetics[cosmeticType];
     claimsSnapshot=null;compositeClaimsOnTexture();
-    openCosmeticPanel(selectedPlot);
+    _refreshCosmeticPanels();
   }).catch(function(){showToast('Failed to remove','error')});
 }
 
@@ -10784,6 +11087,37 @@ function useShopItem(code,needsClaim){
     });return;
   }
 }
+// Group adjacent claims (same owner) into merged territories — mirrors
+// the server-side union-find used by mission launch pads. Two claims are
+// considered touching if their bounding boxes are within ~1 grid cell.
+function _cpGroupAdjacent(rows){
+  var GRID=0.22;
+  var n=rows.length;
+  var parent=[]; for(var i=0;i<n;i++) parent.push(i);
+  function find(x){ while(parent[x]!==x){ parent[x]=parent[parent[x]]; x=parent[x]; } return x; }
+  function uni(a,b){ var ra=find(a),rb=find(b); if(ra!==rb) parent[ra]=rb; }
+  for(var i=0;i<n;i++){
+    var a=rows[i];
+    var alat=parseFloat(a.lat), alng=parseFloat(a.lng);
+    var aw=(a.w||1)*GRID/2, ah=(a.h||1)*GRID/2;
+    for(var j=i+1;j<n;j++){
+      var b=rows[j];
+      // Only group same-owner adjacent claims
+      if((a.owner||'').toLowerCase()!==(b.owner||'').toLowerCase()) continue;
+      var blat=parseFloat(b.lat), blng=parseFloat(b.lng);
+      var bw=(b.w||1)*GRID/2, bh=(b.h||1)*GRID/2;
+      var margin=GRID*1.1;
+      if(Math.abs(alat-blat)<ah+bh+margin && Math.abs(alng-blng)<aw+bw+margin) uni(i,j);
+    }
+  }
+  var buckets={};
+  for(var i=0;i<n;i++){
+    var r=find(i);
+    if(!buckets[r]) buckets[r]=[];
+    buckets[r].push(rows[i]);
+  }
+  return Object.keys(buckets).map(function(k){ return buckets[k]; });
+}
 function _showClaimPicker(claimList,itemCode,title){
   // Remove any stale picker first (prevents stacking)
   document.querySelectorAll('.mbg.claim-picker').forEach(function(el){el.remove();});
@@ -10800,13 +11134,30 @@ function _showClaimPicker(claimList,itemCode,title){
   if(!claimList||!claimList.length){
     inner+='<div style="padding:16px;text-align:center;color:var(--tx3);font-size:12px">No valid targets found</div>';
   }else{
-    claimList.forEach(function(c){
-      var lbl=c.nickname||c.label||('Claim #'+c.id);
-      var shieldInfo=c.shield?' <span style="color:#50C8FF;font-size:10px">🛡️</span>':'';
-      inner+='<button data-claim-id="'+c.id+'" class="_cp-btn" '
+    // Group adjacent claims into merged territories so the picker shows
+    // one button per visible territory (matches the launch-pad picker)
+    var groups=_cpGroupAdjacent(claimList);
+    // Order by total pixel size, biggest first
+    groups.sort(function(a,b){
+      var ap=a.reduce(function(s,c){return s+(c.w||0)*(c.h||0);},0);
+      var bp=b.reduce(function(s,c){return s+(c.w||0)*(c.h||0);},0);
+      return bp-ap;
+    });
+    groups.forEach(function(grp){
+      // Use largest claim in the group as the representative target
+      var rep=grp.slice().sort(function(a,b){
+        return ((b.w||0)*(b.h||0))-((a.w||0)*(a.h||0));
+      })[0];
+      var totalPx=grp.reduce(function(s,c){return s+(c.w||0)*(c.h||0);},0);
+      var anyShield=grp.some(function(c){return c.shield;});
+      var shieldInfo=anyShield?' <span style="color:#50C8FF;font-size:10px">🛡️</span>':'';
+      var nicks=grp.map(function(c){return c.nickname;}).filter(function(x){return !!x;});
+      var lbl=nicks[0]||rep.label||('Territory');
+      var sub=grp.length>1?(grp.length+' merged'):'1 claim';
+      inner+='<button data-claim-id="'+rep.id+'" class="_cp-btn" '
         +'style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--tx1);cursor:pointer;width:100%;text-align:left;font-size:13px">'
-        +'<span><strong>#'+c.id+'</strong> '+lbl+'</span>'
-        +'<span style="font-size:11px;color:var(--tx3)">'+Math.round((c.w||0)*(c.h||0))+'px'+shieldInfo+'</span>'
+        +'<span><strong>'+lbl+'</strong> <span style="color:var(--tx3);font-size:10px">· '+sub+'</span></span>'
+        +'<span style="font-size:11px;color:var(--tx3)">'+Math.round(totalPx)+'px'+shieldInfo+'</span>'
         +'</button>';
     });
   }
@@ -11216,6 +11567,9 @@ function renderGuildState(guild, wallet){
 
   // Show/hide management sections based on role
   document.getElementById('guildInviteSection').style.display=(myRole==='leader'||myRole==='officer')?'':'none';
+  var reqSec=document.getElementById('guildRequestsSection');
+  if(reqSec) reqSec.style.display=(myRole==='leader'||myRole==='officer')?'':'none';
+  if(myRole==='leader'||myRole==='officer') loadGuildJoinRequests(guild.id);
   document.getElementById('guildLeaderSection').style.display=(myRole==='leader')?'':'none';
   document.getElementById('guildLeaveSection').style.display=(myRole!=='leader')?'':'none';
   // Edit button: leader only
@@ -11324,6 +11678,19 @@ function guildUnlockResearch(key){
   }).catch(function(e){ showAlert('Research failed: '+e.message); });
 }
 
+// Quick-launch: open BASE → OPS with a mission type pre-selected.
+function openOpsLauncher(type){
+  try{
+    if(!walletState||!walletState.address){ showToast('Sign in first','error'); return; }
+    openBaseModal();
+    setTimeout(function(){
+      var tab=document.getElementById('baseTabOps');
+      if(tab){ switchBaseTab('ops', tab); try{clearBaseTabDot('ops')}catch(_e){} loadOpsTab(); }
+      setTimeout(function(){ if(typeof setOpsType==='function') setOpsType(type||'invasion'); }, 80);
+    }, 120);
+  }catch(e){ console.warn('openOpsLauncher failed', e); }
+}
+
 // ══════════════════════════════════════════════════════════
 //  OPS (Missions) — launch / list / claim / canvas routes
 // ══════════════════════════════════════════════════════════
@@ -11337,45 +11704,247 @@ function setOpsType(t){
   var inv = document.getElementById('opsTypeInvasion');
   var exp = document.getElementById('opsTypeExplore');
   var targetW = document.getElementById('opsTargetWallet');
-  if(t==='invasion'){
-    inv.style.background='rgba(255,120,60,.15)'; inv.style.borderColor='rgba(255,120,60,.45)'; inv.style.color='var(--mars)';
-    exp.style.background='rgba(76,216,154,.06)'; exp.style.borderColor='rgba(76,216,154,.2)'; exp.style.color='var(--tx3)';
-    if(targetW) targetW.style.display='';
-  } else {
-    exp.style.background='rgba(76,216,154,.15)'; exp.style.borderColor='rgba(76,216,154,.45)'; exp.style.color='var(--gn)';
-    inv.style.background='rgba(255,120,60,.06)'; inv.style.borderColor='rgba(255,120,60,.2)'; inv.style.color='var(--tx3)';
-    if(targetW) targetW.style.display='none';
-  }
+  var browseBtn = document.getElementById('opsBrowseTargetsBtn');
+  if(inv) inv.classList.toggle('active', t==='invasion');
+  if(exp) exp.classList.toggle('active', t==='exploration');
+  if(targetW) targetW.style.display = (t==='invasion') ? '' : 'none';
+  if(browseBtn) browseBtn.style.display = (t==='invasion') ? '' : 'none';
   updateOpsLaunchPreview();
 }
 function opsPickRandom(){
+  // Invasion → random ENEMY territory (someone else's claim).
+  // Exploration → random Mars coordinate.
+  if(window._opsType === 'invasion'){
+    var me = (walletState&&walletState.address||'').toLowerCase();
+    var enemies = (window.claims||[]).filter(function(c){
+      return c && c.owner && (c.owner||'').toLowerCase() !== me
+        && typeof c.lat==='number' && typeof c.lng==='number';
+    });
+    if(!enemies.length){
+      showToast('No enemy territories found on the map yet','error');
+      return;
+    }
+    var pick = enemies[Math.floor(Math.random()*enemies.length)];
+    document.getElementById('opsTargetLat').value = pick.lat.toFixed(2);
+    document.getElementById('opsTargetLng').value = pick.lng.toFixed(2);
+    document.getElementById('opsTargetWallet').value = pick.nickname || pick.owner;
+    updateOpsLaunchPreview();
+    var who = pick.nickname || (pick.owner.slice(0,6)+'…'+pick.owner.slice(-4));
+    showToast('Target locked: '+who+' @ '+pick.lat.toFixed(1)+'°, '+pick.lng.toFixed(1)+'°','success');
+    return;
+  }
+  // Exploration: free-form Mars coord
   var lat = (Math.random()*140 - 70).toFixed(2);
   var lng = (Math.random()*360 - 180).toFixed(2);
   document.getElementById('opsTargetLat').value = lat;
   document.getElementById('opsTargetLng').value = lng;
   updateOpsLaunchPreview();
 }
+
+// Browse all enemy territories in a picker modal — pick by click.
+function opsBrowseTargets(){
+  var me = (walletState&&walletState.address||'').toLowerCase();
+  var enemies = (window.claims||[]).filter(function(c){
+    return c && c.owner && (c.owner||'').toLowerCase() !== me
+      && typeof c.lat==='number' && typeof c.lng==='number';
+  });
+  if(!enemies.length){
+    showToast('No enemy territories on the map yet','error');
+    return;
+  }
+  // Sort by hijack count (juiciest first), then pixel-area
+  enemies.sort(function(a,b){
+    var ha=a.hijackCount||0, hb=b.hijackCount||0;
+    if(ha!==hb) return hb-ha;
+    return ((b.w||0)*(b.h||0)) - ((a.w||0)*(a.h||0));
+  });
+  var items = enemies.slice(0,80).map(function(c){
+    var label = c.nickname || (c.owner.slice(0,6)+'…'+c.owner.slice(-4));
+    var sub = c.lat.toFixed(1)+'°, '+c.lng.toFixed(1)+'°';
+    if(c.guildTag) sub += ' · ['+c.guildTag+']';
+    if(c.hijackCount) sub += ' · '+c.hijackCount+'⚔';
+    return { value:String(c.id), label:label+'  —  '+sub };
+  });
+  gamePicker({ title:'SELECT INVASION TARGET', items:items }).then(function(id){
+    if(!id) return;
+    var pick = enemies.find(function(c){return String(c.id)===id});
+    if(!pick) return;
+    document.getElementById('opsTargetLat').value = pick.lat.toFixed(2);
+    document.getElementById('opsTargetLng').value = pick.lng.toFixed(2);
+    document.getElementById('opsTargetWallet').value = pick.nickname || pick.owner;
+    updateOpsLaunchPreview();
+  });
+}
+// ── Launch pad picker state ────────────────────────────────────
+window._opsPads = [];
+window._opsSelectedPad = null;       // { id, lat, lng, ... }
+window._opsPreviewData = null;        // last successful preview { tier, durationSec, costPP, multiplier }
+window._opsPreviewTarget = null;      // { lat, lng } pair the preview is for
+
+function loadOpsPads(){
+  var w=walletState&&walletState.address; if(!w) return Promise.resolve();
+  return fetch('/api/missions/pads?wallet='+encodeURIComponent(w))
+    .then(function(r){return r.json()})
+    .then(function(d){
+      window._opsPads = d.pads || [];
+      // Drop selection if the pad is now busy or gone
+      if(window._opsSelectedPad){
+        var still = window._opsPads.find(function(p){return p.id===window._opsSelectedPad.id});
+        if(!still || still.activeMission) window._opsSelectedPad = null;
+      }
+      // Auto-select the first ready pad if nothing is selected
+      if(!window._opsSelectedPad){
+        var ready = window._opsPads.find(function(p){return !p.activeMission});
+        if(ready) window._opsSelectedPad = ready;
+      }
+      renderOpsPadList();
+      var slotEl=document.getElementById('opsSlotInfo');
+      if(slotEl){
+        var freeCnt = window._opsPads.filter(function(p){return !p.activeMission}).length;
+        slotEl.textContent = freeCnt+'/'+window._opsPads.length;
+      }
+      updateOpsLaunchPreview();
+    })
+    .catch(function(){});
+}
+
+function renderOpsPadList(){
+  var el=document.getElementById('opsPadList'); if(!el) return;
+  if(!window._opsPads.length){
+    el.innerHTML='<div class="ops-pad-empty">⛔ You don\'t own any territory yet — claim a pixel patch first to get a launch pad.</div>';
+    return;
+  }
+  var html = window._opsPads.map(function(p){
+    var busy = p.activeMission;
+    var sel = (window._opsSelectedPad && window._opsSelectedPad.id===p.id);
+    var classes='ops-pad-card';
+    if(busy){
+      classes += ' busy '+(busy.type==='invasion'?'invade':'explore');
+    } else if(sel){
+      classes += ' selected';
+    }
+    // Reward multiplier preview from pad pixel count (matches backend padRewardMultiplier)
+    var px=p.pixelCount||0;
+    var mult = px>0 ? Math.max(0.5, Math.min(3.0, Math.sqrt(px/25))) : 0.5;
+    var multLabel = '×'+mult.toFixed(1);
+    var statusLine;
+    if(busy){
+      var typIcon = busy.type==='invasion'?'⚔':'🛰';
+      statusLine='<div class="pad-status">'+typIcon+' LAUNCHED</div>';
+    } else {
+      statusLine='<div class="pad-status ready">● READY</div>';
+    }
+    var memberLbl = (p.claimCount && p.claimCount>1) ? (' · '+p.claimCount+' merged') : '';
+    return '<div class="'+classes+'" '+(busy?'':'onclick="selectOpsPad('+p.id+')"')+' title="'+(busy?'Territory busy with active mission':'Click to select this territory')+'">'
+      + '<div class="pad-mult">'+multLabel+'</div>'
+      + '<div>'
+      +   '<div class="pad-id">TERRITORY'+memberLbl+'</div>'
+      +   '<div class="pad-coord">'+p.lat.toFixed(1)+'°, '+p.lng.toFixed(1)+'°</div>'
+      + '</div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-end">'
+      +   statusLine
+      +   '<div class="pad-px">'+px+' px</div>'
+      + '</div>'
+    + '</div>';
+  }).join('');
+  el.innerHTML = html;
+}
+
+function selectOpsPad(padId){
+  var pad = window._opsPads.find(function(p){return p.id===padId});
+  if(!pad || pad.activeMission) return;
+  window._opsSelectedPad = pad;
+  renderOpsPadList();
+  updateOpsLaunchPreview();
+}
+
+var _opsPreviewTimer=null;
+var _opsPreviewSeq=0;
 function updateOpsLaunchPreview(){
-  var lat = parseFloat(document.getElementById('opsTargetLat').value);
-  var lng = parseFloat(document.getElementById('opsTargetLng').value);
-  var el = document.getElementById('opsLaunchPreview');
-  if(isNaN(lat)||isNaN(lng)){ el.textContent=''; return; }
-  el.innerHTML = 'Target: <b style="color:var(--cyan)">'+lat.toFixed(1)+'°, '+lng.toFixed(1)+'°</b>';
+  var latRaw=document.getElementById('opsTargetLat').value;
+  var lngRaw=document.getElementById('opsTargetLng').value;
+  var lat=parseFloat(latRaw);
+  var lng=parseFloat(lngRaw);
+  var el=document.getElementById('opsLaunchPreview');
+  if(!el) return;
+  // Update the live route preview on the map regardless of API state
+  window._opsPreviewTarget = (isFinite(lat)&&isFinite(lng)) ? {lat:lat,lng:lng} : null;
+  if(typeof requestRedraw==='function') requestRedraw();
+  if(!window._opsSelectedPad){
+    el.classList.remove('locked');
+    el.innerHTML='<span class="ops-prev-hint">⌖ Pick a launch pad above</span>';
+    window._opsPreviewData = null;
+    return;
+  }
+  if(isNaN(lat)||isNaN(lng)){
+    el.classList.remove('locked');
+    el.innerHTML='<span class="ops-prev-hint">⌖ Awaiting target lock…</span>';
+    window._opsPreviewData = null;
+    return;
+  }
+  el.classList.add('locked');
+  el.innerHTML='<span class="ops-prev-coord">⌖ PAD #'+window._opsSelectedPad.id+' → '+lat.toFixed(1)+'°, '+lng.toFixed(1)+'°</span>'
+    +'<span class="ops-prev-eta scanning">…computing trajectory</span>';
+  if(_opsPreviewTimer) clearTimeout(_opsPreviewTimer);
+  var seq=++_opsPreviewSeq;
+  var padId = window._opsSelectedPad.id;
+  // For invasion, pass the target wallet so the preview can include the
+  // defender-size factor in the multiplier + duration
+  var tgtParam = '';
+  if((window._opsType||'invasion')==='invasion'){
+    var twEl = document.getElementById('opsTargetWallet');
+    var tw = twEl ? (twEl.value||'').trim() : '';
+    if(/^0x[a-fA-F0-9]{40}$/.test(tw)) tgtParam = '&targetWallet='+encodeURIComponent(tw.toLowerCase());
+  }
+  _opsPreviewTimer=setTimeout(function(){
+    var w=walletState&&walletState.address; if(!w) return;
+    fetch('/api/missions/preview?wallet='+encodeURIComponent(w)
+      +'&type='+encodeURIComponent(window._opsType||'invasion')
+      +'&originClaimId='+encodeURIComponent(padId)
+      +'&lat='+encodeURIComponent(lat)+'&lng='+encodeURIComponent(lng)+tgtParam)
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(seq!==_opsPreviewSeq) return;
+        var el2=document.getElementById('opsLaunchPreview');
+        if(!el2) return;
+        if(d.error){
+          window._opsPreviewData = null;
+          el2.innerHTML='<span class="ops-prev-coord">⌖ PAD #'+padId+' → '+lat.toFixed(1)+'°, '+lng.toFixed(1)+'°</span>'
+            +'<span class="ops-prev-eta error">⚠ '+escapeHTML(d.error)+'</span>';
+          if(typeof requestRedraw==='function') requestRedraw();
+          return;
+        }
+        window._opsPreviewData = d;
+        var tierCol={near:'var(--gn)',mid:'var(--gold)',far:'var(--mars)'}[d.tier]||'var(--cyan)';
+        var tierLabel=(d.tier||'').toUpperCase();
+        var travel=_opsFormatTime(d.durationSec*1000);
+        var multStr='×'+(d.multiplier||1).toFixed(2);
+        el2.innerHTML='<span class="ops-prev-coord">⌖ PAD #'+padId+' → '+lat.toFixed(1)+'°, '+lng.toFixed(1)+'°</span>'
+          +'<span class="ops-prev-eta">'
+          +'<span class="ops-prev-tier" style="color:'+tierCol+';border-color:'+tierCol+'">'+tierLabel+'</span>'
+          +'<span class="ops-prev-dist">'+d.distanceDeg.toFixed(1)+'°</span>'
+          +'<span class="ops-prev-time">⌛ '+travel+'</span>'
+          +'<span class="ops-prev-cost">⛽ '+d.costPP.toFixed(2)+' PP</span>'
+          +'<span class="ops-prev-cost" style="color:var(--gold);font-weight:800">💎 '+multStr+'</span>'
+          +'</span>';
+        if(typeof requestRedraw==='function') requestRedraw();
+      })
+      .catch(function(){});
+  },150);
 }
 document.addEventListener('input', function(e){
-  if(e.target && (e.target.id==='opsTargetLat'||e.target.id==='opsTargetLng')) updateOpsLaunchPreview();
+  if(e.target && (e.target.id==='opsTargetLat'||e.target.id==='opsTargetLng'||e.target.id==='opsTargetWallet')) updateOpsLaunchPreview();
 });
 
 function loadOpsTab(){
   var w = walletState.address; if(!w) return;
+  loadOpsPads();
   fetch('/api/missions/active?wallet='+encodeURIComponent(w))
     .then(function(r){return r.json()})
     .then(function(d){
       window._opsMissions = d.missions || [];
-      window._opsSlotCap = d.slotCap || 0;
-      var used = _opsMissions.filter(function(m){return m.status!=='claimed'}).length;
-      document.getElementById('opsSlotInfo').textContent = used+'/'+_opsSlotCap;
       renderOpsMissionList();
+      if(typeof requestRedraw==='function') requestRedraw();
     })
     .catch(function(){ document.getElementById('opsMissionList').innerHTML='Failed to load missions.'; });
   if(!_opsTimer) _opsTimer = setInterval(renderOpsMissionList, 1000);
@@ -11411,7 +11980,7 @@ function renderOpsMissionList(){
         '<span style="font-size:8px;color:var(--tx3);margin-left:auto">'+label+'</span>'+
       '</div>'+
       '<div style="font-size:9px;color:var(--tx2);font-family:var(--fn);margin-bottom:4px">'+tgt+' · '+m.distanceDeg.toFixed(1)+'°</div>'+
-      '<div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+pct+'%;background:'+barCol+';transition:width .5s"></div></div>'+
+      '<div class="ops-mission-bar" style="margin-bottom:6px"><div class="ops-mission-bar-fill'+(ready?' ready':'')+'" style="width:'+pct+'%;background-color:'+barCol+';transition:width .5s"></div></div>'+
       '<div style="display:flex;justify-content:flex-end">'+btn+'</div>'+
     '</div>';
   }).join('');
@@ -11426,10 +11995,11 @@ function _opsFormatTime(ms){
 }
 function launchOpsMission(){
   var w = walletState.address; if(!w){ showAlert('Connect wallet first'); return; }
+  if(!window._opsSelectedPad){ showAlert('Pick a launch pad first'); return; }
   var lat = parseFloat(document.getElementById('opsTargetLat').value);
   var lng = parseFloat(document.getElementById('opsTargetLng').value);
   if(isNaN(lat)||isNaN(lng)){ showAlert('Enter target coordinates'); return; }
-  var body = { wallet:w, type:_opsType, targetLat:lat, targetLng:lng };
+  var body = { wallet:w, type:_opsType, originClaimId:window._opsSelectedPad.id, targetLat:lat, targetLng:lng };
   if(_opsType==='invasion'){
     var tgt = (document.getElementById('opsTargetWallet').value||'').trim();
     if(!tgt){ showAlert('Target wallet or nickname required'); return; }
@@ -11454,22 +12024,29 @@ function claimOpsMission(id){
     if(r.pp>0) parts.push(r.pp.toFixed(3)+' PP');
     if(r.gp>0) parts.push(r.gp+' GP');
     if(r.xp>0) parts.push(r.xp+' XP');
-    if(r.stolenPixelsActual>0) parts.push(r.stolenPixelsActual+' pixels captured');
     if(r.item) parts.push(r.item.name);
+    if(!parts.length) parts.push('No reward');
     showAlert('✓ '+parts.join(' · '),'success');
     loadOpsTab();
     if(typeof loadUserData==='function') loadUserData();
   }).catch(function(e){ showAlert('Claim failed: '+e.message); });
 }
 function cancelOpsMission(id){
-  if(!confirm('Abort this mission? Partial refund only.')) return;
-  fetch('/api/missions/'+id+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({wallet:walletState.address})
-  }).then(function(r){return r.json()}).then(function(d){
-    if(d.error){ showAlert(d.error); return; }
-    showAlert('Mission aborted · '+(d.refund||0).toFixed(2)+' PP refunded','success');
-    loadOpsTab();
-  }).catch(function(e){ showAlert('Cancel failed: '+e.message); });
+  gameConfirm({
+    title:'ABORT MISSION',
+    icon:'⚠',
+    body:'Recall this mission back to base? Only a partial fuel refund will be issued.',
+    confirmText:'ABORT'
+  }).then(function(ok){
+    if(!ok) return;
+    fetch('/api/missions/'+id+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:walletState.address})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){ showToast(d.error,'error'); return; }
+      showToast('Mission aborted · '+(d.refund||0).toFixed(2)+' PP refunded','success');
+      loadOpsTab();
+    }).catch(function(e){ showToast('Cancel failed: '+e.message,'error'); });
+  });
 }
 
 function renderGuildInvites(invites){
@@ -11594,18 +12171,50 @@ function createGuild(){
   }).catch(function(){showToast('Failed to create guild','error')});
 }
 
-function guildInviteMember(){
+function guildInviteMember(targetOverride){
   var w=walletState.address;
   if(!w||!_myGuildData){showToast('No guild','error');return;}
   // Preserve original case — server resolves nickname→wallet case-insensitively.
-  var target=document.getElementById('guildInviteInput').value.trim();
+  var target=targetOverride||document.getElementById('guildInviteInput').value.trim();
   if(!target){showToast('Enter wallet or nickname','error');return;}
   fetch('/api/guild/invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:target,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
     if(data.error){showToast(data.error,'error');return;}
     showToast('Invite sent!','success');
-    document.getElementById('guildInviteInput').value='';
+    var inp=document.getElementById('guildInviteInput'); if(inp) inp.value='';
+    var box=document.getElementById('guildInviteSearchResults'); if(box) box.innerHTML='';
   }).catch(function(){showToast('Failed to invite','error')});
+}
+
+// ── Live search for invite candidates (debounced) ──
+var _guildInviteSearchTimer=null;
+function onGuildInviteSearchInput(){
+  if(_guildInviteSearchTimer) clearTimeout(_guildInviteSearchTimer);
+  _guildInviteSearchTimer=setTimeout(runGuildInviteSearch,200);
+}
+function runGuildInviteSearch(){
+  var inp=document.getElementById('guildInviteInput');
+  var box=document.getElementById('guildInviteSearchResults');
+  if(!inp||!box||!_myGuildData) return;
+  var q=(inp.value||'').trim();
+  if(!q){ box.innerHTML=''; return; }
+  var w=walletState&&walletState.address; if(!w) return;
+  fetch('/api/guild/'+_myGuildData.id+'/search-users?wallet='+encodeURIComponent(w)+'&q='+encodeURIComponent(q))
+    .then(function(r){return r.json()})
+    .then(function(d){
+      var users=(d&&d.users)||[];
+      if(!users.length){ box.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:4px 6px">No matches.</div>'; return; }
+      box.innerHTML=users.map(function(u){
+        var label=u.nickname?escapeHTML(u.nickname):shortAddr(u.wallet);
+        var sub=u.nickname?('<span style="font-size:8px;color:var(--tx3);margin-left:6px">'+shortAddr(u.wallet)+'</span>'):'';
+        var pix='<span style="font-size:8px;color:var(--tx3);margin-left:6px">'+(u.pixelCount||0)+'px</span>';
+        var btn=u.hasPendingInvite
+          ? '<span style="font-size:8px;color:var(--tx3);padding:3px 8px">PENDING</span>'
+          : '<button onclick="guildInviteMember(\''+u.wallet+'\')" style="padding:3px 8px;border-radius:3px;background:rgba(91,184,232,.14);border:1px solid rgba(91,184,232,.35);color:var(--cyan);font-size:8px;cursor:pointer;font-family:var(--fn)">INVITE</button>';
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 6px;background:var(--surface1);border:1px solid var(--bdr);border-radius:4px"><div style="font-size:10px;color:var(--tx)">'+label+sub+pix+'</div>'+btn+'</div>';
+      }).join('');
+    })
+    .catch(function(){ box.innerHTML='<div style="font-size:9px;color:var(--rd);padding:4px 6px">Search failed.</div>'; });
 }
 
 function guildAcceptInvite(inviteId){
@@ -11626,6 +12235,104 @@ function guildDeclineInvite(inviteId){
     showToast('Invite declined','info');
     loadGuildTab();
   }).catch(function(){showToast('Failed','error')});
+}
+
+// ── Search guilds by id/tag/name (join screen) ──
+function searchGuildsQuery(){
+  var inp=document.getElementById('guildSearchInput');
+  var out=document.getElementById('guildSearchResults');
+  if(!inp||!out) return;
+  var q=(inp.value||'').trim();
+  if(!q){out.innerHTML='';return;}
+  out.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:4px">Searching…</div>';
+  fetch('/api/guild/search?q='+encodeURIComponent(q)+'&limit=15')
+    .then(function(r){return r.json()})
+    .then(function(data){
+      var gs=(data&&data.guilds)||[];
+      if(!gs.length){out.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:6px 4px">No guilds match "'+escapeHTML(q)+'"</div>';return;}
+      out.innerHTML=gs.map(function(g){
+        var emblem=g.emblemImage
+          ? '<img src="'+g.emblemImage+'" style="width:22px;height:22px;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:3px;border:1px solid rgba(255,255,255,.1);flex-shrink:0">'
+          : '<span style="font-size:16px">'+(g.emblem||'🔴')+'</span>';
+        return '<div style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid var(--bdr)">'+
+          emblem+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="font-size:11px;color:var(--tx);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHTML(g.name)+' <span style="color:var(--mars);font-size:9px">['+escapeHTML(g.tag)+']</span><span style="color:var(--tx3);font-size:8px;margin-left:4px">#'+g.id+'</span></div>'+
+            '<div style="font-size:8px;color:var(--tx3)">Lv.'+(g.level||1)+' · '+g.memberCount+' members · '+(g.totalPixels||0).toLocaleString()+' px · '+escapeHTML(g.leaderNickname||'—')+'</div>'+
+          '</div>'+
+          '<button onclick="requestJoinGuild('+g.id+',\''+escapeHTML(g.name).replace(/\'/g,'&#39;')+'\')" style="padding:6px 10px;border-radius:5px;background:rgba(76,216,154,.12);border:1px solid rgba(76,216,154,.35);color:var(--gn);font-size:9px;cursor:pointer;font-family:var(--fn);font-weight:700;flex-shrink:0">JOIN</button>'+
+        '</div>';
+      }).join('');
+    })
+    .catch(function(){out.innerHTML='<div style="font-size:9px;color:var(--red);padding:4px">Search failed</div>'});
+}
+
+// ── Leader/officer: incoming join requests ──
+function loadGuildJoinRequests(guildId){
+  var w=walletState.address;
+  if(!w||!guildId) return;
+  fetch('/api/guild/'+guildId+'/requests?wallet='+encodeURIComponent(w))
+    .then(function(r){return r.json()})
+    .then(function(data){
+      var list=(data&&data.requests)||[];
+      var el=document.getElementById('guildRequestsList');
+      var cnt=document.getElementById('guildRequestsCount');
+      var sec=document.getElementById('guildRequestsSection');
+      if(cnt) cnt.textContent=list.length?('('+list.length+')'):'';
+      if(!list.length){
+        if(el) el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:4px 0">No pending requests.</div>';
+        return;
+      }
+      if(el){
+        el.innerHTML=list.map(function(r){
+          var name=escapeHTML(r.nickname||r.wallet);
+          return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:rgba(76,216,154,.04);border:1px solid rgba(76,216,154,.18);border-radius:6px">'+
+            '<div style="flex:1;min-width:0">'+
+              '<div style="font-size:10px;color:var(--tx);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+name+'</div>'+
+              '<div style="font-size:8px;color:var(--tx3)">'+(r.pixel_count||0).toLocaleString()+' px owned</div>'+
+            '</div>'+
+            '<button onclick="approveGuildRequest('+r.id+')" style="font-size:8px;padding:4px 8px;border-radius:4px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.4);color:var(--gn);cursor:pointer;font-family:var(--fn);font-weight:700">ACCEPT</button>'+
+            '<button onclick="rejectGuildRequest('+r.id+')" style="font-size:8px;padding:4px 8px;border-radius:4px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25);color:var(--red);cursor:pointer;font-family:var(--fn)">✕</button>'+
+          '</div>';
+        }).join('');
+      }
+    })
+    .catch(function(){});
+}
+function approveGuildRequest(inviteId){
+  var w=walletState.address;
+  fetch('/api/guild/request/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,inviteId:inviteId})})
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(data.error){showToast(data.error,'error');return;}
+      showToast('Player added to guild','success');
+      loadGuildTab();
+    }).catch(function(){showToast('Failed','error')});
+}
+function rejectGuildRequest(inviteId){
+  var w=walletState.address;
+  fetch('/api/guild/request/reject',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,inviteId:inviteId})})
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(data.error){showToast(data.error,'error');return;}
+      if(_myGuildData&&_myGuildData.id) loadGuildJoinRequests(_myGuildData.id);
+    }).catch(function(){});
+}
+
+// Send a self-invite so a leader/officer can approve the join.  Uses the
+// existing guild_invites table; the server marks invited_by = requester so
+// leaders see the row as an incoming request instead of a normal invite.
+function requestJoinGuild(guildId, guildName){
+  var w=walletState.address;
+  if(!w){showToast('Sign in first','error');return;}
+  if(!confirm('Send a join request to '+guildName+'?\n\nA leader or officer of this guild must approve your request.')) return;
+  fetch('/api/guild/join-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,guildId:guildId})})
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(data.error){showToast(data.error,'error');return;}
+      showToast('Join request sent to '+guildName,'success');
+    })
+    .catch(function(){showToast('Failed to send request','error')});
 }
 
 function guildLeave(){
@@ -13144,6 +13851,55 @@ function _drawPOIMarkers(ctx, w, h) {
 }
 
 // ═══════ MISSION ROUTES (private — only my missions visible) ═══════
+// Drawn into the 4096×2048 equirectangular Mars texture, which is then wrapped
+// onto the 3D globe — straight lineTo's become great-circle curves on the sphere
+// for free. Lines are deliberately thick (8–22 px) so they survive the
+// texture→sphere downsampling and remain visible at any zoom.
+// ── Great-circle path between two lat/lng points, sampled into N+1 points.
+//    Returns an array of [lat,lng]. Used so mission lines follow the actual
+//    shortest path on the sphere (more natural arc than a straight equirectangular
+//    line, which would just be linear in lat/lng space). ──
+function _greatCirclePath(lat1, lng1, lat2, lng2, segments){
+  var d = Math.PI/180;
+  var f1 = lat1*d, l1 = lng1*d, f2 = lat2*d, l2 = lng2*d;
+  var x1 = Math.cos(f1)*Math.cos(l1), y1 = Math.cos(f1)*Math.sin(l1), z1 = Math.sin(f1);
+  var x2 = Math.cos(f2)*Math.cos(l2), y2 = Math.cos(f2)*Math.sin(l2), z2 = Math.sin(f2);
+  var dot = Math.max(-1, Math.min(1, x1*x2 + y1*y2 + z1*z2));
+  var omega = Math.acos(dot);
+  var sinO = Math.sin(omega);
+  var pts = [];
+  if(sinO < 1e-9){ pts.push([lat1,lng1]); pts.push([lat2,lng2]); return pts; }
+  for(var i=0;i<=segments;i++){
+    var t = i/segments;
+    var a = Math.sin((1-t)*omega)/sinO;
+    var b = Math.sin(t*omega)/sinO;
+    var px = a*x1 + b*x2, py = a*y1 + b*y2, pz = a*z1 + b*z2;
+    var lat = Math.atan2(pz, Math.sqrt(px*px + py*py))/d;
+    var lng = Math.atan2(py, px)/d;
+    pts.push([lat,lng]);
+  }
+  return pts;
+}
+
+// Convert a great-circle [lat,lng] list to canvas (x,y) points, keeping each
+// successive x within ±w/2 of the previous so the polyline doesn't jump across
+// the antimeridian (±180° longitude wrap).
+function _projectGreatCirclePts(pts, w, h){
+  var out = [];
+  var lastX = null;
+  for(var i=0;i<pts.length;i++){
+    var x = ((pts[i][1] + 180) / 360) * w;
+    var y = ((90 - pts[i][0]) / 180) * h;
+    if(lastX !== null){
+      while(x - lastX >  w/2) x -= w;
+      while(lastX - x >  w/2) x += w;
+    }
+    out.push([x,y]);
+    lastX = x;
+  }
+  return out;
+}
+
 function _drawMissionRoutes(ctx, w, h){
   var missions = window._opsMissions || [];
   if(!missions.length) return;
@@ -13151,114 +13907,191 @@ function _drawMissionRoutes(ctx, w, h){
   if(!myW) return;
   var t = Date.now();
   ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
   missions.forEach(function(m){
     if(m.status === 'claimed' || m.status === 'cancelled') return;
-    var ox = ((m.originLng + 180) / 360) * w;
-    var oy = ((90 - m.originLat) / 180) * h;
-    var tx = ((m.targetLng + 180) / 360) * w;
-    var ty = ((90 - m.targetLat) / 180) * h;
-    // Handle antimeridian: pick shortest wrap
-    if(Math.abs(tx - ox) > w/2){ if(tx < ox) tx += w; else tx -= w; }
-    var col = m.type === 'invasion' ? '255,120,60' : '76,216,154';
-    var start = new Date(m.startTime).getTime();
-    var end = start + m.durationSec * 1000;
-    var prog = Math.min(1, Math.max(0, (t - start) / (end - start)));
+    // Sample the great-circle path between origin and target so the line
+    // follows the actual shortest path on the sphere. Then project each
+    // sample to canvas (x,y) with antimeridian-safe continuity.
+    var gcPts = _greatCirclePath(m.originLat, m.originLng, m.targetLat, m.targetLng, 32);
+    var screen = _projectGreatCirclePts(gcPts, w, h);
+    var ox = screen[0][0], oy = screen[0][1];
+    var tx = screen[screen.length-1][0], ty = screen[screen.length-1][1];
+    // Lines are yellow regardless of type — much more visible against
+    // the textured globe than the previous orange/green which blended
+    // into mars/foliage colors and got lost when overlapping.
+    var col = '255,210,40';
     var ready = m.readyToClaim;
+    var isInvade = m.type === 'invasion';
 
-    // Path builder: invasion = ballistic arc (lifted midpoint), exploration = straight line
-    function buildPath(offset){
-      var ox2 = ox + offset, tx2 = tx + offset;
-      if(m.type === 'invasion'){
-        var mx = (ox2 + tx2) / 2;
-        var my = (oy + ty) / 2;
-        var dist = Math.hypot(tx2 - ox2, ty - oy);
-        var lift = Math.min(120, dist * 0.35);
-        var cx = mx;
-        var cy = my - lift;
-        ctx.beginPath();
-        ctx.moveTo(ox2, oy);
-        ctx.quadraticCurveTo(cx, cy, tx2, ty);
-      } else {
-        ctx.beginPath();
-        ctx.moveTo(ox2, oy);
-        ctx.lineTo(tx2, ty);
-      }
+    // Width scales with the texture so the line stays visible on the globe.
+    // Invasion tapers thin (origin) → thick (target). Exploration is uniform.
+    var baseW = Math.max(2, w/1400);    // ~3 px on a 4096-wide canvas
+    var thickW = Math.max(4, w/650);    // ~6 px
+
+    // Compute screen-x range so we know whether to draw a wrapped copy
+    var minX = screen[0][0], maxX = screen[0][0];
+    for(var k=1;k<screen.length;k++){
+      if(screen[k][0] < minX) minX = screen[k][0];
+      if(screen[k][0] > maxX) maxX = screen[k][0];
     }
 
     for(var pass = 0; pass < 2; pass++){
-      var off = pass === 0 ? 0 : (tx > w ? -w : (tx < 0 ? w : 0));
-      if(pass === 1 && off === 0) break;
+      var off = 0;
+      if(pass === 1){
+        if(maxX > w) off = -w;
+        else if(minX < 0) off = w;
+        else break;
+      }
+      var ox2 = ox + off, tx2 = tx + off;
 
-      // ── Faint full route ──
-      ctx.globalAlpha = 0.25;
-      ctx.strokeStyle = 'rgba('+col+',0.9)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 4]);
-      ctx.lineDashOffset = -(t / 50) % 8;
-      buildPath(off);
-      ctx.stroke();
-
-      // ── Traveled portion (bright) ──
-      ctx.setLineDash([]);
-      ctx.globalAlpha = 0.9;
+      // ── Uniform thin dashed great-circle polyline ──
+      ctx.globalAlpha = 0.85;
       ctx.strokeStyle = 'rgba('+col+',1)';
-      ctx.lineWidth = 2;
-      ctx.shadowColor = 'rgba('+col+',0.8)';
+      ctx.lineWidth = baseW;
+      ctx.setLineDash([16, 10]);
+      ctx.lineDashOffset = -(t / 25) % 26;
+      ctx.shadowColor = 'rgba('+col+',0.6)';
       ctx.shadowBlur = 4;
-      // Approximate the traveled portion by sampling the same path with clip
-      ctx.save();
-      buildPath(off);
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.clip();
-      // Draw a filled rect from left up to the progress point as mask — simpler:
-      // redraw the whole path under a moving gradient instead.
-      ctx.restore();
-      // Instead, draw dashes growing from start to current progress point.
-      // Simpler approach: draw a second path with reduced length using a gradient.
-      var grad = ctx.createLinearGradient(ox + off, oy, tx + off, ty);
-      grad.addColorStop(0, 'rgba('+col+',1)');
-      grad.addColorStop(Math.max(0.01, prog), 'rgba('+col+',1)');
-      grad.addColorStop(Math.min(0.99, prog + 0.0001), 'rgba('+col+',0)');
-      grad.addColorStop(1, 'rgba('+col+',0)');
-      ctx.strokeStyle = grad;
-      buildPath(off);
+      ctx.beginPath();
+      for(var k2=0;k2<screen.length;k2++){
+        var sx = screen[k2][0] + off;
+        var sy = screen[k2][1];
+        if(k2===0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+      }
       ctx.stroke();
+      ctx.setLineDash([]);
       ctx.shadowBlur = 0;
 
-      // ── Origin ping ──
-      ctx.globalAlpha = 0.9;
+      // ── Origin marker ──
+      ctx.globalAlpha = 0.95;
       ctx.fillStyle = 'rgba('+col+',1)';
       ctx.beginPath();
-      ctx.arc(ox + off, oy, 3, 0, Math.PI * 2);
+      ctx.arc(ox2, oy, baseW * 0.55, 0, Math.PI * 2);
       ctx.fill();
 
-      // ── Target pulse ──
-      var pulseR = ready ? (10 + Math.sin(t / 200) * 3) : (6 + Math.sin(t / 300) * 2);
-      ctx.globalAlpha = 0.6;
-      ctx.strokeStyle = 'rgba('+col+',0.9)';
-      ctx.lineWidth = 1.5;
+      // ── Target pulse ring ──
+      var pulseR = (ready ? thickW * 1.6 : thickW * 1.1) + Math.sin(t/220) * (thickW*0.15);
+      ctx.globalAlpha = 0.85;
+      ctx.strokeStyle = 'rgba('+col+',1)';
+      ctx.lineWidth = Math.max(3, w/700);
       ctx.beginPath();
-      ctx.arc(tx + off, ty, pulseR, 0, Math.PI * 2);
+      ctx.arc(tx2, ty, pulseR, 0, Math.PI * 2);
       ctx.stroke();
       if(ready){
-        // Second expanding ring
-        var r2 = 10 + ((t / 40) % 20);
-        ctx.globalAlpha = Math.max(0, 0.6 - r2 / 35);
+        var r2 = thickW * 1.3 + ((t / 20) % (thickW*2));
+        ctx.globalAlpha = Math.max(0, 0.6 - r2 / (thickW*4));
         ctx.beginPath();
-        ctx.arc(tx + off, ty, r2, 0, Math.PI * 2);
+        ctx.arc(tx2, ty, r2, 0, Math.PI * 2);
         ctx.stroke();
       }
 
       // ── Type label at target ──
-      ctx.globalAlpha = 0.85;
+      ctx.globalAlpha = 0.9;
       ctx.fillStyle = 'rgba('+col+',1)';
-      ctx.font = 'bold 8px sans-serif';
+      ctx.font = 'bold ' + Math.max(12, Math.floor(w/280)) + 'px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      var lbl = m.type === 'invasion' ? '⚔ INVADE' : '🛰 SCAN';
-      ctx.fillText(lbl, tx + off, ty + 10);
+      var lbl = isInvade ? '⚔ INVADE' : '🛰 SCAN';
+      ctx.fillText(lbl, tx2, ty + thickW);
     }
   });
+  ctx.setLineDash([]);
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+// ═══════ MISSION PREVIEW (route shown WHILE picking target, before launch) ═══════
+function _drawMissionPreview(ctx, w, h){
+  var pad = window._opsSelectedPad;
+  var tgt = window._opsPreviewTarget;
+  if(!pad || !tgt) return;
+  if(!isFinite(pad.lat) || !isFinite(pad.lng)) return;
+  if(!isFinite(tgt.lat) || !isFinite(tgt.lng)) return;
+  var type = window._opsType || 'invasion';
+  // Great-circle polyline so the preview matches the in-flight render.
+  var gcPts = _greatCirclePath(pad.lat, pad.lng, tgt.lat, tgt.lng, 32);
+  var screen = _projectGreatCirclePts(gcPts, w, h);
+  var ox = screen[0][0], oy = screen[0][1];
+  var tx = screen[screen.length-1][0], ty = screen[screen.length-1][1];
+  var minX = ox, maxX = ox;
+  for(var k=1;k<screen.length;k++){
+    if(screen[k][0] < minX) minX = screen[k][0];
+    if(screen[k][0] > maxX) maxX = screen[k][0];
+  }
+  // Yellow preview line — stays visible against any terrain
+  var col = '255,210,40';
+  var isInvade = type === 'invasion';
+  var t = Date.now();
+  var baseW = Math.max(2, w/1400);
+  var thickW = Math.max(4, w/650);
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  for(var pass = 0; pass < 2; pass++){
+    var off = 0;
+    if(pass === 1){
+      if(maxX > w) off = -w;
+      else if(minX < 0) off = w;
+      else break;
+    }
+    var ox2 = ox + off, tx2 = tx + off;
+
+    // ── Uniform thin dashed great-circle polyline ──
+    var pulse = 0.7 + 0.25 * Math.sin(t / 250);
+    ctx.globalAlpha = pulse;
+    ctx.strokeStyle = 'rgba('+col+',1)';
+    ctx.lineWidth = baseW;
+    ctx.setLineDash([18, 12]);
+    ctx.lineDashOffset = -(t / 22) % 30;
+    ctx.shadowColor = 'rgba('+col+',0.6)';
+    ctx.shadowBlur = 4;
+    ctx.beginPath();
+    for(var k2=0;k2<screen.length;k2++){
+      var sx = screen[k2][0] + off;
+      var sy = screen[k2][1];
+      if(k2===0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
+
+    // ── Origin pad marker ──
+    ctx.globalAlpha = 0.95;
+    ctx.fillStyle = 'rgba('+col+',1)';
+    var padR = baseW * 0.6;
+    ctx.fillRect(ox2 - padR, oy - padR, padR*2, padR*2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+    ctx.lineWidth = Math.max(2, w/900);
+    ctx.strokeRect(ox2 - padR, oy - padR, padR*2, padR*2);
+
+    // ── Target reticle ──
+    var rR = thickW * 1.2 + Math.sin(t / 200) * (thickW*0.18);
+    ctx.globalAlpha = 0.95;
+    ctx.strokeStyle = 'rgba('+col+',1)';
+    ctx.lineWidth = Math.max(3, w/650);
+    ctx.beginPath();
+    ctx.arc(tx2, ty, rR, 0, Math.PI * 2);
+    ctx.stroke();
+    // crosshair ticks
+    ctx.beginPath();
+    ctx.moveTo(tx2 - rR - 6, ty); ctx.lineTo(tx2 - rR + 4, ty);
+    ctx.moveTo(tx2 + rR - 4, ty); ctx.lineTo(tx2 + rR + 6, ty);
+    ctx.moveTo(tx2, ty - rR - 6); ctx.lineTo(tx2, ty - rR + 4);
+    ctx.moveTo(tx2, ty + rR - 4); ctx.lineTo(tx2, ty + rR + 6);
+    ctx.stroke();
+
+    // ── PREVIEW tag ──
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = 'rgba('+col+',1)';
+    ctx.font = 'bold ' + Math.max(20, Math.floor(w/180)) + 'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('▸ PREVIEW', tx2, ty + thickW);
+  }
+
   ctx.setLineDash([]);
   ctx.shadowBlur = 0;
   ctx.restore();
@@ -13499,6 +14332,9 @@ function zoomOut(){
   if(newAlt>2)isZoomedIn=false;
 }
 function showToast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3500)}
+// Alias: legacy callers (OPS, guild upgrades) use showAlert(msg[,type]).
+// Route them through the toast so they don't ReferenceError.
+window.showAlert=function(m){return showToast(m);};
 
 // ══════ Game-themed confirm dialog (Mars HUD style) ══════
 var _gcResolver=null;
@@ -15729,6 +16565,19 @@ window.addEventListener('resize', function(){
   setInterval(updateRocketBanner, 15000);
   setTimeout(_initRocketMesh, 3500);
   setInterval(_updateRocketMesh, 2000);
+
+  // Keep mission routes visible on the map even when OPS tab isn't open.
+  function _refreshOpsMissionsGlobal(){
+    var w = walletState && walletState.address; if(!w) return;
+    fetch('/api/missions/active?wallet='+encodeURIComponent(w))
+      .then(function(r){return r.json()})
+      .then(function(d){
+        window._opsMissions = d.missions || [];
+        if(typeof requestRedraw==='function') requestRedraw();
+      }).catch(function(){});
+  }
+  setTimeout(_refreshOpsMissionsGlobal, 4000);
+  setInterval(_refreshOpsMissionsGlobal, 30000);
 
   // ═══════ GENERIC MOBILE-FRIENDLY MODAL ═══════
   // Works on both mobile and desktop — uses the .mbg/.mdl pattern, z-index above HUD.
