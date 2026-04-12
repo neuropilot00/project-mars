@@ -938,13 +938,15 @@ async function upgradeGuildLevel(wallet, guildId) {
 }
 
 // Computed max-member cap that honors level bonuses.
+// Default: Lv1=20, Lv2=+5, Lv3=+5, Lv4=+10, Lv5=+10, Lv6=+10 → max 60
+const MEMBER_BONUS_DEFAULTS = { 2: '5', 3: '5', 4: '10', 5: '10', 6: '10' };
 async function getGuildMaxMembers(guildId) {
   const base = parseInt(await getSetting('guild_max_members') || '20');
   const r = await pool.query('SELECT level FROM guilds WHERE id = $1', [guildId]);
   const lvl = parseInt(r.rows[0]?.level || 1);
   let bonus = 0;
   for (let l = 2; l <= lvl; l++) {
-    bonus += parseInt(await getSetting(`guild_level_${l}_member_bonus`) || '0');
+    bonus += parseInt(await getSetting(`guild_level_${l}_member_bonus`) || MEMBER_BONUS_DEFAULTS[l] || '0');
   }
   return base + bonus;
 }
@@ -956,6 +958,20 @@ async function getGuildMaxMembers(guildId) {
 //  Leader/officer spends from treasury to unlock a research flag.
 //  Flags are stored as a JSONB { [key]: true } map on guilds.
 //
+// Research slot order — index determines which guild level unlocks it
+const RESEARCH_SLOT_ORDER = [
+  'mining_eff_1', 'shield_disc', 'diplomatic',
+  'orbital_scan', 'rapid_deploy', 'logistics',
+  'mars_dominion'
+];
+
+async function getResearchSlots(guildLevel) {
+  // Lv.1→2 slots, Lv.2→3, Lv.3→4, Lv.4→5, Lv.5→6, Lv.6→7(all)
+  const base = parseInt(await getSetting('guild_research_base_slots') || '2');
+  const perLevel = parseInt(await getSetting('guild_research_slots_per_level') || '1');
+  return Math.min(RESEARCH_SLOT_ORDER.length, base + (guildLevel - 1) * perLevel);
+}
+
 async function unlockResearch(wallet, guildId, researchKey) {
   if (!researchKey) return { error: 'Missing research key' };
   const costSetting = `guild_research_${researchKey}_gp`;
@@ -976,13 +992,25 @@ async function unlockResearch(wallet, guildId, researchKey) {
     }
 
     const gRes = await client.query(
-      'SELECT gp_treasury, research_flags FROM guilds WHERE id = $1 FOR UPDATE',
+      'SELECT level, gp_treasury, research_flags FROM guilds WHERE id = $1 FOR UPDATE',
       [guildId]
     );
     if (!gRes.rows.length) { await client.query('ROLLBACK'); return { error: 'Guild not found' }; }
+    const guildLevel = parseInt(gRes.rows[0].level || 1);
     const treasury = parseFloat(gRes.rows[0].gp_treasury || 0);
     const flags = gRes.rows[0].research_flags || {};
     if (flags[researchKey]) { await client.query('ROLLBACK'); return { error: 'Already unlocked' }; }
+
+    // Check if slot is available at this guild level
+    const maxSlots = await getResearchSlots(guildLevel);
+    const slotIdx = RESEARCH_SLOT_ORDER.indexOf(researchKey);
+    if (slotIdx < 0) { await client.query('ROLLBACK'); return { error: 'Unknown research key' }; }
+    if (slotIdx >= maxSlots) {
+      const neededLvl = Math.ceil((slotIdx - 1) / 1) + 1; // approximate
+      await client.query('ROLLBACK');
+      return { error: `Research slot locked. Guild level ${guildLevel} allows ${maxSlots} slots. Level up to unlock more.` };
+    }
+
     if (treasury < cost) { await client.query('ROLLBACK'); return { error: `Need ${cost} GP. Have ${treasury.toFixed(2)}.` }; }
 
     flags[researchKey] = true;
@@ -1478,7 +1506,7 @@ module.exports = {
   // Upgrades (migration 058)
   contributeHarvest, setContributionPct,
   upgradeGuildLevel, getGuildMaxMembers,
-  unlockResearch, getTreasuryLedger,
+  unlockResearch, getResearchSlots, getTreasuryLedger,
   // Research effects (migration 067)
   getResearchBonuses,
   // Guild Wars (migration 067)

@@ -4084,6 +4084,11 @@ router.get('/guild/my', readLimiter, async (req, res) => {
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
     const guild = await guildService.getGuildByWallet(w);
+    if (guild) {
+      const lvl = parseInt(guild.level || 1);
+      guild.researchSlots = await guildService.getResearchSlots(lvl);
+      guild.maxMembers = await guildService.getGuildMaxMembers(guild.id);
+    }
     res.json({ guild });
   } catch (e) {
     console.error('[GUILD] get-my error:', e.message);

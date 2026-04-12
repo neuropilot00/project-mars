@@ -3569,9 +3569,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 <button id="guildLevelupBtn" onclick="guildLevelUp()" style="padding:8px 12px;border-radius:6px;background:linear-gradient(135deg,var(--pp),#9060C0);border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="guild_levelup_btn">LEVEL UP ▲</button>
               </div>
               <!-- GP Donate -->
-              <div style="display:flex;align-items:center;gap:6px;padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:8px">
-                <input id="guildDonateAmt" type="number" min="1" placeholder="GP" style="flex:1;padding:6px 8px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx);font-size:11px;font-family:var(--fn);box-sizing:border-box">
-                <button onclick="guildDonateGP()" style="padding:6px 12px;border-radius:5px;background:linear-gradient(135deg,rgba(0,230,118,.2),rgba(0,200,83,.1));border:1px solid rgba(0,230,118,.35);color:var(--gn);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700;white-space:nowrap">💰 기부</button>
+              <div style="padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:8px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                  <span style="font-size:8px;color:var(--tx3);font-family:var(--fn)">💰 GP 기부</span>
+                  <span style="font-size:9px;color:var(--gold);font-family:var(--fn)" id="guildDonateMyGP">내 GP: 0</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <input id="guildDonateAmt" type="number" min="1" placeholder="기부할 GP 입력" style="flex:1;padding:6px 8px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx);font-size:11px;font-family:var(--fn);box-sizing:border-box">
+                  <button onclick="guildDonateGP()" style="padding:6px 12px;border-radius:5px;background:linear-gradient(135deg,rgba(0,230,118,.2),rgba(0,200,83,.1));border:1px solid rgba(0,230,118,.35);color:var(--gn);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700;white-space:nowrap">기부</button>
+                </div>
               </div>
               <!-- Contribution slider -->
               <div style="padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:8px">
@@ -13976,6 +13982,9 @@ var _guildResearchCatalog = [
 function renderGuildUpgrades(guild, myRole){
   var lvl = parseInt(guild.level||1);
   var treasury = parseFloat(guild.gpTreasury||guild.gp_treasury||0);
+  var maxMembers = guild.maxMembers || 20;
+  var memberCount = (guild.members||[]).length;
+  var researchSlots = guild.researchSlots || (1 + lvl); // fallback: 2 base + 1 per level
   document.getElementById('guildLevelBadge').textContent = 'LV.'+lvl;
   document.getElementById('guildPpTreasury').textContent = Math.floor(treasury)+' GP';
   var nextCost = _guildLevelCosts[lvl+1];
@@ -13985,11 +13994,18 @@ function renderGuildUpgrades(guild, myRole){
     costEl.textContent = t('guild_max_level');
     btn.style.display='none';
   } else {
-    costEl.textContent = t('guild_next_prefix')+' '+nextCost+' GP (→ Lv.'+(lvl+1)+')';
+    var nextSlots = Math.min(7, researchSlots + 1);
+    var memberDefaults = {2:5,3:5,4:10,5:10,6:10};
+    var nextMembers = maxMembers + (memberDefaults[lvl+1]||0);
+    costEl.innerHTML = t('guild_next_prefix')+' '+nextCost+' GP (→ Lv.'+(lvl+1)+')'+
+      '<br><span style="color:var(--gn);font-size:7px">🔬 연구 '+nextSlots+'슬롯 · 👥 최대 '+nextMembers+'명</span>';
     btn.style.display = '';
     btn.disabled = treasury < nextCost;
     btn.style.opacity = (treasury < nextCost) ? 0.5 : 1;
   }
+  // Member count / cap display
+  var treasuryEl = document.getElementById('guildPpTreasury');
+  if(treasuryEl) treasuryEl.innerHTML = Math.floor(treasury)+' GP<br><span style="font-size:7px;color:var(--tx3)">👥 '+memberCount+'/'+maxMembers+' · 🔬 '+researchSlots+'/7</span>';
   // Contribution slider — populate with my current %
   var me = (guild.members||[]).find(function(m){return m.wallet===walletState.address});
   var myPct = (me && me.contributionPct!=null) ? me.contributionPct : 5;
@@ -13998,13 +14014,26 @@ function renderGuildUpgrades(guild, myRole){
     slider.value = myPct;
     document.getElementById('guildContribPctLabel').textContent = myPct+'%';
   }
-  // Research grid
+  // Show my GP balance in donate section
+  var donateGPEl = document.getElementById('guildDonateMyGP');
+  if(donateGPEl) donateGPEl.textContent = '내 GP: '+Math.floor(walletState.gameGP||0);
+  // Research grid — slot-locked based on guild level
   var flags = guild.researchFlags || guild.research_flags || {};
   var canSpend = (myRole==='leader'||myRole==='officer');
   var grid = document.getElementById('guildResearchGrid');
-  grid.innerHTML = _guildResearchCatalog.map(function(r){
+  grid.innerHTML = _guildResearchCatalog.map(function(r, idx){
     var unlocked = !!flags[r.key];
+    var slotLocked = idx >= researchSlots;
     var affordable = treasury >= r.cost;
+    if(slotLocked){
+      // Locked slot — greyed out with lock icon
+      var neededLvl = Math.max(2, idx); // approximate level needed
+      return '<div style="padding:5px 6px;border-radius:6px;background:rgba(255,255,255,.01);border:1px solid rgba(255,255,255,.06);cursor:default;min-height:0;opacity:.4">'+
+        '<div style="color:var(--tx3);font-weight:700;font-size:11px">🔒 '+t(r.labelKey)+'</div>'+
+        '<div style="color:var(--tx3);font-size:8px;margin-top:1px">'+r.desc+'</div>'+
+        '<div style="color:var(--tx3);font-size:8px;margin-top:2px">Lv.'+(idx)+' 필요</div>'+
+      '</div>';
+    }
     var bg = unlocked ? 'rgba(76,216,154,.1)' : 'rgba(255,255,255,.03)';
     var bdr = unlocked ? 'rgba(76,216,154,.35)' : 'rgba(184,136,224,.2)';
     var col = unlocked ? 'var(--gn)' : (affordable ? 'var(--pp)' : 'var(--tx3)');
@@ -14022,7 +14051,6 @@ function guildDonateGP(){
   if(!_myGuildData) return;
   var amt = parseInt(document.getElementById('guildDonateAmt').value);
   if(!amt||amt<=0){ showToast('금액을 입력하세요'); return; }
-  if(amt > (walletState.gameGP||0)){ showToast('GP가 부족합니다'); return; }
   fetch('/api/guild/donate',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({wallet:walletState.address, guildId:_myGuildData.id, amount:amt})
   }).then(function(r){return r.json()}).then(function(d){
