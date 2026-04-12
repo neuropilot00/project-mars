@@ -2210,6 +2210,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .mob-nav-bar{padding-bottom:env(safe-area-inset-bottom)}
 }
 
+/* ── Minigame overlay mobile ── */
+@media(max-width:768px){
+  #minigameOverlay .arena-overlay,
+  #minigameOverlay{padding:0!important}
+  #mgSelectPanel{width:calc(100vw - 24px)!important;max-width:100%!important;margin:12px;padding:12px!important;border-radius:10px}
+  #mgSelectPanel button{min-height:44px;font-size:11px!important}
+  #mgCanvasWrap{max-width:100vw;max-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center}
+  #mgCanvas{max-width:calc(100vw - 16px)!important;max-height:calc(100vh - 60px)!important;width:auto!important;height:auto!important;object-fit:contain}
+  #mgContinueOverlay{padding:12px!important}
+  #mgContinueOverlay button{min-height:44px;min-width:100px;font-size:13px!important}
+  /* Exchange modal mobile */
+  #exchangeModal .mdl{width:calc(100vw - 24px)!important;max-width:400px;margin:12px auto}
+  #exchangeModal .dw-amount{font-size:14px;min-height:40px}
+  #exchangeModal .cfm{min-height:44px;font-size:14px}
+}
+@media(max-width:380px){
+  #mgSelectPanel button{padding:12px 4px!important;font-size:10px!important}
+  #mgContinueOverlay div[style*="font-size:24px"]{font-size:20px!important}
+  #mgContinueOverlay button{min-height:40px;min-width:80px;padding:10px 16px!important;font-size:12px!important}
+}
+
 /* ── 2. Small device optimization (380px and below) ── */
 @media(max-width:380px){
   :root{--fs-xs:8px;--fs-sm:9px;--fs-md:10px;--fs-lg:12px;--fs-xl:13px}
@@ -2988,19 +3009,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
     </div>
     <!-- Game canvas (shown during gameplay) -->
-    <div id="mgCanvasWrap" style="display:none;position:relative">
-      <canvas id="mgCanvas" width="360" height="640" style="border-radius:8px;border:1px solid var(--bdr)"></canvas>
+    <div id="mgCanvasWrap" style="display:none;position:relative;max-width:100vw;max-height:100vh">
+      <canvas id="mgCanvas" width="360" height="640" style="border-radius:8px;border:1px solid var(--bdr);max-width:calc(100vw - 16px);max-height:calc(100vh - 40px);object-fit:contain;touch-action:none"></canvas>
       <!-- Continue overlay -->
-      <div id="mgContinueOverlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);display:none;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-family:var(--fn)">
+      <div id="mgContinueOverlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-family:var(--fn)">
         <div style="font-size:24px;font-weight:900;color:#ff4400;margin-bottom:8px">GAME OVER</div>
         <div id="mgFinalScore" style="font-size:18px;font-weight:700;color:#ffcc00;margin-bottom:16px"></div>
-        <div id="mgContinueCost" style="font-size:12px;color:var(--tx3);margin-bottom:12px"></div>
-        <div style="display:flex;gap:10px">
-          <button id="mgContinueBtn" onclick="payAndContinue()" style="padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,#00E676,#00C853);border:none;color:#000;font-size:14px;font-weight:900;cursor:pointer;font-family:var(--fn)">CONTINUE</button>
-          <button onclick="submitMinigameScore()" style="padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,#ff6600,#ff4400);border:none;color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:var(--fn)">SUBMIT</button>
+        <div id="mgContinueCost" style="font-size:12px;color:var(--tx3);margin-bottom:12px;text-align:center;padding:0 12px"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding:0 12px">
+          <button id="mgContinueBtn" onclick="payAndContinue()" style="padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,#00E676,#00C853);border:none;color:#000;font-size:14px;font-weight:900;cursor:pointer;font-family:var(--fn);min-height:44px">CONTINUE</button>
+          <button onclick="submitMinigameScore()" style="padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,#ff6600,#ff4400);border:none;color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:var(--fn);min-height:44px">SUBMIT</button>
         </div>
       </div>
-      <button onclick="closeMinigameOverlay()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;z-index:10">✕</button>
+      <button onclick="closeMinigameOverlay()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer;z-index:10">✕</button>
     </div>
   </div>
 </div>
@@ -21453,6 +21474,121 @@ var CODEX_CONTENT = {
             text:'Early seasons pay less and rewards scale up later. The longer you play, the bigger the compounding payoff.' }
         ]
       },
+      { id: 'guildwar', icon: '🎮', title: 'Guild Wars & Minigames',
+        blocks: [
+          { type:'p', text:'Guild wars pit two guilds against each other in a **24-hour arcade competition**. Members play Mars-themed minigames and combine scores. Highest total wins GP for the guild treasury.' },
+          { type:'toc', label:'In this section', items:[
+            'Declaring war', 'Minigames overview', 'Continue mechanic', 'Scoring & rewards'
+          ]},
+          { type:'h2', text:'1. Declaring War' },
+          { type:'table',
+            headers:['Item','Value','Source'],
+            rows:[
+              ['Declaration cost',  {v:'200 GP (from treasury)',cls:'num'}, '`guild_war_declare_cost_gp`'],
+              ['Min members',       {v:'3',cls:'num'},                      '`guild_war_min_members`'],
+              ['Duration',          {v:'24 hours',cls:'num'},               '`guild_war_duration_hours`'],
+              ['Cooldown',          {v:'48 hours',cls:'num'},               '`guild_war_cooldown_hours`'],
+              ['Max active wars',   {v:'1 per guild',cls:'num'},            '`guild_war_max_active`'],
+              ['Winner reward',     {v:'500 GP → treasury',cls:'num'},      '`guild_war_winner_gp`']
+            ]},
+          { type:'callout', variant:'info', title:'Both sides are checked',
+            text:'Neither attacker nor defender can have another active war. A guild already at war cannot be targeted.' },
+
+          { type:'h2', text:'2. Minigames' },
+          { type:'p', text:'Three Mars-themed arcade games. Each guild member gets a limited number of plays per day.' },
+          { type:'table',
+            headers:['Game','Theme','How to play'],
+            rows:[
+              [{v:'🚀 Mars Invaders',cls:'mars'}, 'Space Invaders', 'Shoot alien waves. Boss every 5th wave. 90s timer, 3 lives, auto-fire.'],
+              [{v:'👨‍🚀 Mars Runner',cls:'mars'},  'Pacman maze',    'Explore tunnels, collect minerals, avoid aliens. Power-ups let you eat enemies.'],
+              [{v:'⛏️ Mars Digger',cls:'mars'},   'Dig Dug',        'Dig through Mars soil, collect crystals, pump alien worms. Falling rocks crush enemies.']
+            ]},
+          { type:'callout', variant:'tip', title:'Daily play limit',
+            text:'Default 3 plays/day per member (`guild_war_game_plays_per_day`). Coordinate with your guild — every member\'s plays count!' },
+
+          { type:'h2', text:'3. Continue Mechanic' },
+          { type:'p', text:'When you die, you can **pay to continue** — keeping your score and resuming. This is how competitive guilds push scores sky-high.' },
+          { type:'table',
+            headers:['Continue #','Cost','Type'],
+            rows:[
+              ['1st', {v:'5 GP',cls:'num'},    'GP'],
+              ['2nd', {v:'15 GP',cls:'num'},   'GP'],
+              ['3rd', {v:'30 GP',cls:'num'},   'GP'],
+              ['4th', {v:'0.1 PP',cls:'num'},  'PP (real money!)'],
+              ['5th', {v:'0.2 PP',cls:'num'},  'PP (doubles each time)'],
+              ['6th', {v:'0.4 PP',cls:'num'},  'PP'],
+              ['7th+', {v:'keeps doubling',cls:'num'}, 'PP']
+            ]},
+          { type:'callout', variant:'warn', title:'PP continues are real money',
+            text:'After the 3rd continue, costs switch to PP which equals real money. Spend wisely — or go broke trying to win.' },
+
+          { type:'h2', text:'4. Scoring & Rewards' },
+          { type:'p', text:'All member scores in a war are summed per guild. When the 24h timer expires, the guild with the higher total wins 500 GP to their treasury. Score multiplier is admin-tunable (`guild_war_game_score_multiplier`).' }
+        ]
+      },
+      { id: 'research', icon: '🔬', title: 'Guild Research',
+        blocks: [
+          { type:'p', text:'Guilds can unlock **7 research perks** using GP from the treasury. Each research gives a permanent bonus to all guild members.' },
+          { type:'table',
+            headers:['Research','Effect','Source'],
+            rows:[
+              ['⛏ Mining Efficiency I',     {v:'+3% harvest PP',cls:'num'},          '`mining_eff_1_bonus`'],
+              ['🛡 Shield Discipline',       {v:'+15% defense',cls:'num'},            '`shield_disc_bonus`'],
+              ['🕊 Diplomatic Immunity',     {v:'-10% invasion success vs members',cls:'num'}, '`diplomatic_bonus`'],
+              ['🔭 Orbital Scanning',        {v:'+15% exploration rewards',cls:'num'},'`orbital_scan_bonus`'],
+              ['🚀 Rapid Deployment',        {v:'-20% mission travel time',cls:'num'},'`rapid_deploy_bonus`'],
+              ['📦 Logistics Network',       {v:'-10% claim costs',cls:'num'},        '`logistics_bonus`'],
+              ['👑 Mars Dominion',           {v:'+5% to ALL bonuses',cls:'num'},      '`mars_dominion_bonus`']
+            ]},
+          { type:'callout', variant:'pro', title:'Mars Dominion stacks on everything',
+            text:'Unlock Mars Dominion last — it adds +5% on top of every other research bonus. Mining becomes +3.15%, defense becomes +15.75%, etc.' }
+        ]
+      },
+      { id: 'seasonpass', icon: '🎫', title: 'Season Pass',
+        blocks: [
+          { type:'p', text:'Each season has a **30-tier battle pass** with free and premium tracks. Earn XP from gameplay actions to unlock tier rewards.' },
+          { type:'h2', text:'1. Earning XP' },
+          { type:'table',
+            headers:['Action','XP','Source'],
+            rows:[
+              ['Harvest',     {v:'+5 XP',cls:'num'},  '`season_pass_xp_harvest`'],
+              ['Claim',       {v:'+10 XP',cls:'num'}, '`season_pass_xp_claim`'],
+              ['Invasion',    {v:'+15 XP',cls:'num'}, '`season_pass_xp_invasion`'],
+              ['Exploration', {v:'+10 XP',cls:'num'}, '`season_pass_xp_exploration`'],
+              ['Quest',       {v:'+8 XP',cls:'num'},  '`season_pass_xp_quest`']
+            ]},
+          { type:'h2', text:'2. Tier Rewards' },
+          { type:'p', text:'Free track gives GP every tier. Premium track gives more GP plus special items at milestone tiers. **All rewards are GP — no PP is given away.**' },
+          { type:'table',
+            headers:['Tier','Free reward','Premium reward'],
+            rows:[
+              ['Every tier',      {v:'10×tier GP',cls:'num'},   {v:'25×tier GP',cls:'num'}],
+              ['Every 5th (free)',{v:'50×tier GP bonus',cls:'num'}, '—'],
+              ['Every 10th (premium)', '—',                     'Special item'],
+              ['Tier 30 (max)',   {v:'500 GP',cls:'num'},       {v:'1500 GP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'Premium pass costs GP',
+            text:'The premium pass upgrade costs GP (admin-configurable). It unlocks the premium reward track for the current season only.' }
+        ]
+      },
+      { id: 'exchange', icon: '💱', title: 'PP → GP Exchange',
+        blocks: [
+          { type:'p', text:'Need GP fast? Exchange your PP (real money token) into GP at a configurable rate. This is a **PP sink** — the fee portion is burned permanently.' },
+          { type:'table',
+            headers:['Setting','Default','Source'],
+            rows:[
+              ['Exchange rate', {v:'1 PP = 100 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['Fee',           {v:'5% (burned)',cls:'num'},    '`pp_to_gp_exchange_fee_pct`'],
+              ['Min per tx',    {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
+              ['Max per tx',    {v:'10 PP',cls:'num'},           '`pp_to_gp_exchange_max`'],
+              ['Daily limit',   {v:'50 PP/day',cls:'num'},       '`pp_to_gp_exchange_daily_limit`']
+            ]},
+          { type:'callout', variant:'warn', title:'One-way exchange',
+            text:'PP → GP only. You cannot convert GP back to PP. Think of it as buying in-game currency with real money. The 5% fee is destroyed, reducing total PP supply.' },
+          { type:'callout', variant:'tip', title:'When to exchange',
+            text:'Exchange when you need GP for guild wars (continues!), season pass premium, guild creation, or research unlocks. Day-to-day GP comes from harvesting and quests.' }
+        ]
+      },
       { id: 'casino', icon: '🎰', title: 'Cantina Casino',
         blocks: [
           { type:'p', text:'**Cantina** is the in-game casino made of 5 mini-games. All games take PP or USDT. There\'s a real house edge — treat it as entertainment, not income.' },
@@ -22347,6 +22483,121 @@ var CODEX_CONTENT = {
             ]},
           { type:'callout', variant:'pro', title:'시즌별로 보상이 커진다',
             text:'첫 시즌이 가장 작고 시즌이 갈수록 보상이 커지도록 설계되어 있어. 오래 플레이할수록 복리처럼 보상이 늘어.' }
+        ]
+      },
+      { id: 'guildwar', icon: '🎮', title: '길드전 & 미니게임',
+        blocks: [
+          { type:'p', text:'길드전은 두 길드가 **24시간 아케이드 대전**을 벌이는 시스템이다. 길드원들이 화성 테마 미니게임을 플레이하고 점수를 합산한다. 합산 점수가 높은 길드가 GP를 획득.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '전쟁 선포', '미니게임 소개', '컨티뉴 메카닉', '점수 & 보상'
+          ]},
+          { type:'h2', text:'1. 전쟁 선포' },
+          { type:'table',
+            headers:['항목','값','설정'],
+            rows:[
+              ['선포 비용',  {v:'200 GP (재무에서)',cls:'num'}, '`guild_war_declare_cost_gp`'],
+              ['최소 멤버',  {v:'3명',cls:'num'},               '`guild_war_min_members`'],
+              ['전쟁 시간',  {v:'24시간',cls:'num'},            '`guild_war_duration_hours`'],
+              ['쿨다운',     {v:'48시간',cls:'num'},            '`guild_war_cooldown_hours`'],
+              ['동시 전쟁',  {v:'길드당 1개',cls:'num'},         '`guild_war_max_active`'],
+              ['승리 보상',  {v:'500 GP → 재무',cls:'num'},     '`guild_war_winner_gp`']
+            ]},
+          { type:'callout', variant:'info', title:'양쪽 다 체크됨',
+            text:'공격측과 방어측 모두 활성 전쟁이 없어야 선포 가능. 이미 전쟁 중인 길드는 타겟 불가.' },
+
+          { type:'h2', text:'2. 미니게임' },
+          { type:'p', text:'화성 테마 아케이드 게임 3종. 길드원마다 하루 플레이 횟수 제한 있음.' },
+          { type:'table',
+            headers:['게임','테마','플레이 방법'],
+            rows:[
+              [{v:'🚀 Mars Invaders',cls:'mars'}, '갤러그 스타일', '에일리언 웨이브 사격. 5웨이브마다 보스. 90초 제한, 3목숨, 오토파이어.'],
+              [{v:'👨‍🚀 Mars Runner',cls:'mars'},  '팩맨 미로',    '터널 탐험, 미네랄 수집, 에일리언 회피. 파워업으로 적 잡기 가능.'],
+              [{v:'⛏️ Mars Digger',cls:'mars'},   '디그더그',     '화성 토양 굴착, 크리스탈 수집, 에일리언 웜 펌프. 낙석으로 적 처치.']
+            ]},
+          { type:'callout', variant:'tip', title:'일일 플레이 제한',
+            text:'기본 멤버당 하루 3회 (`guild_war_game_plays_per_day`). 길드원과 조율하자 — 모든 플레이가 합산된다!' },
+
+          { type:'h2', text:'3. 컨티뉴 메카닉' },
+          { type:'p', text:'죽으면 **돈 내고 이어하기** 가능 — 점수 유지, 게임 재개. 경쟁 길드들이 점수를 끝없이 올리는 비결.' },
+          { type:'table',
+            headers:['컨티뉴 #','비용','유형'],
+            rows:[
+              ['1회차', {v:'5 GP',cls:'num'},    'GP'],
+              ['2회차', {v:'15 GP',cls:'num'},   'GP'],
+              ['3회차', {v:'30 GP',cls:'num'},   'GP'],
+              ['4회차', {v:'0.1 PP',cls:'num'},  'PP (실제 돈!)'],
+              ['5회차', {v:'0.2 PP',cls:'num'},  'PP (매번 2배)'],
+              ['6회차', {v:'0.4 PP',cls:'num'},  'PP'],
+              ['7회차+', {v:'계속 2배',cls:'num'}, 'PP']
+            ]},
+          { type:'callout', variant:'warn', title:'PP 컨티뉴는 실제 돈',
+            text:'3회차 이후부터 PP로 결제. PP = 실제 돈이다. 현명하게 쓰자 — 아니면 이기려다 파산.' },
+
+          { type:'h2', text:'4. 점수 & 보상' },
+          { type:'p', text:'전쟁 중 모든 길드원의 게임 점수를 합산. 24시간 후 합산 점수가 높은 길드가 500 GP를 재무로 획득. 점수 배율은 어드민 조정 가능 (`guild_war_game_score_multiplier`).' }
+        ]
+      },
+      { id: 'research', icon: '🔬', title: '길드 연구',
+        blocks: [
+          { type:'p', text:'길드는 재무의 GP를 써서 **7가지 연구 퍼크**를 해금할 수 있다. 각 연구는 모든 길드원에게 영구 보너스를 준다.' },
+          { type:'table',
+            headers:['연구','효과','설정'],
+            rows:[
+              ['⛏ 채굴 효율 I',     {v:'+3% 채굴 PP',cls:'num'},          '`mining_eff_1_bonus`'],
+              ['🛡 쉴드 규율',       {v:'+15% 방어력',cls:'num'},          '`shield_disc_bonus`'],
+              ['🕊 외교 면책',       {v:'-10% 침공 성공률 감소',cls:'num'}, '`diplomatic_bonus`'],
+              ['🔭 궤도 스캔',       {v:'+15% 탐사 보상',cls:'num'},       '`orbital_scan_bonus`'],
+              ['🚀 고속 배치',       {v:'-20% 미션 이동 시간',cls:'num'},  '`rapid_deploy_bonus`'],
+              ['📦 물류 네트워크',   {v:'-10% 클레임 비용',cls:'num'},     '`logistics_bonus`'],
+              ['👑 화성 지배',       {v:'+5% 모든 보너스 중첩',cls:'num'}, '`mars_dominion_bonus`']
+            ]},
+          { type:'callout', variant:'pro', title:'화성 지배는 마지막에 해금',
+            text:'화성 지배는 모든 연구 보너스에 +5%를 추가한다. 채굴이 +3.15%, 방어가 +15.75%가 되는 식.' }
+        ]
+      },
+      { id: 'seasonpass', icon: '🎫', title: '시즌 패스',
+        blocks: [
+          { type:'p', text:'매 시즌마다 **30단계 배틀패스** (무료+프리미엄). 게임플레이로 XP를 모아 단계 보상을 해금한다.' },
+          { type:'h2', text:'1. XP 획득' },
+          { type:'table',
+            headers:['활동','XP','설정'],
+            rows:[
+              ['채굴',   {v:'+5 XP',cls:'num'},  '`season_pass_xp_harvest`'],
+              ['클레임', {v:'+10 XP',cls:'num'}, '`season_pass_xp_claim`'],
+              ['침공',   {v:'+15 XP',cls:'num'}, '`season_pass_xp_invasion`'],
+              ['탐사',   {v:'+10 XP',cls:'num'}, '`season_pass_xp_exploration`'],
+              ['퀘스트', {v:'+8 XP',cls:'num'},  '`season_pass_xp_quest`']
+            ]},
+          { type:'h2', text:'2. 단계 보상' },
+          { type:'p', text:'무료 트랙은 매 단계 GP 지급. 프리미엄은 더 많은 GP + 마일스톤 아이템. **모든 보상은 GP — PP는 절대 안 줌.**' },
+          { type:'table',
+            headers:['단계','무료 보상','프리미엄 보상'],
+            rows:[
+              ['매 단계',       {v:'10×단계 GP',cls:'num'},  {v:'25×단계 GP',cls:'num'}],
+              ['5단계마다(무료)',{v:'50×단계 GP 보너스',cls:'num'}, '—'],
+              ['10단계마다(프리미엄)', '—',                    '특수 아이템'],
+              ['30단계(최대)',   {v:'500 GP',cls:'num'},      {v:'1500 GP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'프리미엄 패스는 GP로 구매',
+            text:'프리미엄 업그레이드는 GP로 구매 (어드민 조정 가능). 현재 시즌에만 적용.' }
+        ]
+      },
+      { id: 'exchange', icon: '💱', title: 'PP → GP 환전',
+        blocks: [
+          { type:'p', text:'GP가 급하면 PP(실제 돈 토큰)를 GP로 환전. 수수료 부분은 영구 소각 = **PP 싱크**.' },
+          { type:'table',
+            headers:['설정','기본값','소스'],
+            rows:[
+              ['환전 비율', {v:'1 PP = 100 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['수수료',    {v:'5% (소각)',cls:'num'},      '`pp_to_gp_exchange_fee_pct`'],
+              ['최소',      {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
+              ['최대',      {v:'10 PP',cls:'num'},           '`pp_to_gp_exchange_max`'],
+              ['일일 한도', {v:'50 PP/일',cls:'num'},        '`pp_to_gp_exchange_daily_limit`']
+            ]},
+          { type:'callout', variant:'warn', title:'단방향 환전',
+            text:'PP → GP만 가능. GP를 PP로 되돌릴 수 없다. 인게임 화폐를 실제 돈으로 사는 것. 5% 수수료는 소각되어 PP 총 공급량 감소.' },
+          { type:'callout', variant:'tip', title:'언제 환전?',
+            text:'길드전 컨티뉴, 시즌패스 프리미엄, 길드 창설, 연구 해금에 GP가 필요할 때. 평소 GP는 채굴과 퀘스트로 충분.' }
         ]
       },
       { id: 'casino', icon: '🎰', title: '칸티나 카지노',
@@ -23246,6 +23497,117 @@ CODEX_CONTENT.ja = {
           text:'最初のシーズンが一番小さく、シーズンが進むほど報酬が大きくなるよう設計されている。長くプレイするほど複利のように報酬が増える。' }
       ]
     },
+      { id: 'guildwar', icon: '🎮', title: 'ギルド戦 & ミニゲーム',
+        blocks: [
+          { type:'p', text:'ギルド戦は2つのギルドが**24時間のアーケード対決**を行うシステム。メンバーが火星テーマのミニゲームをプレイしてスコアを合算。合計スコアが高いギルドがGPを獲得。' },
+          { type:'toc', label:'このセクションの内容', items:[
+            '宣戦布告', 'ミニゲーム紹介', 'コンティニュー', 'スコア & 報酬'
+          ]},
+          { type:'h2', text:'1. 宣戦布告' },
+          { type:'table',
+            headers:['項目','値','設定'],
+            rows:[
+              ['宣戦コスト',  {v:'200 GP(財務から)',cls:'num'}, '`guild_war_declare_cost_gp`'],
+              ['最低人数',    {v:'3人',cls:'num'},              '`guild_war_min_members`'],
+              ['戦争時間',    {v:'24時間',cls:'num'},           '`guild_war_duration_hours`'],
+              ['クールダウン', {v:'48時間',cls:'num'},           '`guild_war_cooldown_hours`'],
+              ['同時戦争数',  {v:'ギルドあたり1',cls:'num'},    '`guild_war_max_active`'],
+              ['勝利報酬',    {v:'500 GP → 財務',cls:'num'},   '`guild_war_winner_gp`']
+            ]},
+          { type:'callout', variant:'info', title:'両方チェック済み',
+            text:'攻撃側も防衛側もアクティブな戦争がないことが必要。既に戦争中のギルドはターゲット不可。' },
+
+          { type:'h2', text:'2. ミニゲーム' },
+          { type:'table',
+            headers:['ゲーム','テーマ','遊び方'],
+            rows:[
+              [{v:'🚀 Mars Invaders',cls:'mars'}, 'ギャラガ風', 'エイリアンウェーブを撃て。5波ごとにボス。90秒、3ライフ、オートファイア。'],
+              [{v:'👨‍🚀 Mars Runner',cls:'mars'},  'パックマン迷路', 'トンネル探索、ミネラル収集、エイリアン回避。パワーアップで敵を食える。'],
+              [{v:'⛏️ Mars Digger',cls:'mars'},   'ディグダグ',  '火星の土を掘り、クリスタル収集、エイリアンワームをポンプ。落石で敵を潰せ。']
+            ]},
+
+          { type:'h2', text:'3. コンティニュー' },
+          { type:'p', text:'死んでも**お金を払ってコンティニュー**できる。スコアを維持したまま再開。競争ギルドがスコアを極限まで伸ばす秘訣。' },
+          { type:'table',
+            headers:['回数','コスト','種類'],
+            rows:[
+              ['1回目', {v:'5 GP',cls:'num'},   'GP'],
+              ['2回目', {v:'15 GP',cls:'num'},  'GP'],
+              ['3回目', {v:'30 GP',cls:'num'},  'GP'],
+              ['4回目', {v:'0.1 PP',cls:'num'}, 'PP(リアルマネー!)'],
+              ['5回目', {v:'0.2 PP',cls:'num'}, 'PP(毎回2倍)'],
+              ['6回目+', {v:'倍増し続ける',cls:'num'}, 'PP']
+            ]},
+          { type:'callout', variant:'warn', title:'PPコンティニューはリアルマネー',
+            text:'3回目以降はPPで支払い。PP = リアルマネーだ。賢く使おう。' },
+
+          { type:'h2', text:'4. スコア & 報酬' },
+          { type:'p', text:'戦争中の全メンバーのゲームスコアをギルドごとに合算。24時間後、合計スコアが高いギルドが500 GPを財務に獲得。' }
+        ]
+      },
+      { id: 'research', icon: '🔬', title: 'ギルド研究',
+        blocks: [
+          { type:'p', text:'ギルドは財務のGPで**7つの研究パーク**を解放できる。各研究は全メンバーに永久ボーナスを付与。' },
+          { type:'table',
+            headers:['研究','効果','設定'],
+            rows:[
+              ['⛏ 採掘効率 I',     {v:'+3% 収穫PP',cls:'num'},           '`mining_eff_1_bonus`'],
+              ['🛡 シールド規律',   {v:'+15% 防御',cls:'num'},            '`shield_disc_bonus`'],
+              ['🕊 外交免除',       {v:'-10% 侵攻成功率減少',cls:'num'},  '`diplomatic_bonus`'],
+              ['🔭 軌道スキャン',   {v:'+15% 探索報酬',cls:'num'},        '`orbital_scan_bonus`'],
+              ['🚀 高速展開',       {v:'-20% ミッション移動時間',cls:'num'},'`rapid_deploy_bonus`'],
+              ['📦 物流ネットワーク', {v:'-10% クレームコスト',cls:'num'}, '`logistics_bonus`'],
+              ['👑 火星支配',       {v:'+5% 全ボーナス重複',cls:'num'},   '`mars_dominion_bonus`']
+            ]},
+          { type:'callout', variant:'pro', title:'火星支配は最後に解放',
+            text:'火星支配は全研究ボーナスに+5%を追加。採掘が+3.15%、防御が+15.75%になる。' }
+        ]
+      },
+      { id: 'seasonpass', icon: '🎫', title: 'シーズンパス',
+        blocks: [
+          { type:'p', text:'各シーズンに**30段階バトルパス**(無料+プレミアム)。ゲームプレイでXPを貯めて段階報酬を解放。' },
+          { type:'h2', text:'1. XP獲得' },
+          { type:'table',
+            headers:['アクション','XP','設定'],
+            rows:[
+              ['収穫',   {v:'+5 XP',cls:'num'},  '`season_pass_xp_harvest`'],
+              ['クレーム', {v:'+10 XP',cls:'num'}, '`season_pass_xp_claim`'],
+              ['侵攻',   {v:'+15 XP',cls:'num'}, '`season_pass_xp_invasion`'],
+              ['探索',   {v:'+10 XP',cls:'num'}, '`season_pass_xp_exploration`'],
+              ['クエスト', {v:'+8 XP',cls:'num'}, '`season_pass_xp_quest`']
+            ]},
+          { type:'h2', text:'2. 段階報酬' },
+          { type:'p', text:'無料トラックは毎段階GP。プレミアムはより多くのGP+マイルストーンアイテム。**全報酬はGP — PPは一切なし。**' },
+          { type:'table',
+            headers:['段階','無料報酬','プレミアム報酬'],
+            rows:[
+              ['毎段階',         {v:'10×段階 GP',cls:'num'},  {v:'25×段階 GP',cls:'num'}],
+              ['5段階ごと(無料)',{v:'50×段階 GPボーナス',cls:'num'}, '—'],
+              ['10段階ごと(プレミアム)', '—',                  '特殊アイテム'],
+              ['30段階(最大)',   {v:'500 GP',cls:'num'},      {v:'1500 GP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'プレミアムパスはGPで購入',
+            text:'プレミアムアップグレードはGPで購入(管理者調整可)。現シーズンのみ有効。' }
+        ]
+      },
+      { id: 'exchange', icon: '💱', title: 'PP → GP 両替',
+        blocks: [
+          { type:'p', text:'GPが急ぎで必要? PP(リアルマネートークン)をGPに両替。手数料分は永久バーン = **PPシンク**。' },
+          { type:'table',
+            headers:['設定','デフォルト','ソース'],
+            rows:[
+              ['両替レート', {v:'1 PP = 100 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['手数料',     {v:'5%(バーン)',cls:'num'},     '`pp_to_gp_exchange_fee_pct`'],
+              ['最小',       {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
+              ['最大',       {v:'10 PP',cls:'num'},           '`pp_to_gp_exchange_max`'],
+              ['日次上限',   {v:'50 PP/日',cls:'num'},       '`pp_to_gp_exchange_daily_limit`']
+            ]},
+          { type:'callout', variant:'warn', title:'一方通行',
+            text:'PP → GPのみ。GPをPPに戻すことは不可。5%手数料はバーンされ、PP総供給量が減少。' },
+          { type:'callout', variant:'tip', title:'いつ両替する?',
+            text:'ギルド戦コンティニュー、シーズンパスプレミアム、ギルド創設、研究解放にGPが必要な時。普段のGPは採掘とクエストで十分。' }
+        ]
+      },
     { id: 'casino', icon: '🎰', title: 'カンティナカジノ',
       blocks: [
         { type:'p', text:'**カンティナ** は 5 種ミニゲームで構成されるゲーム内カジノだ。すべて PP と USDT どちらでもベット可能。実際のハウスエッジがあるので収益源ではなくエンタメとして捉えよう。' },
@@ -24142,6 +24504,117 @@ CODEX_CONTENT.zh = {
           text:'第一个赛季最小,后续赛季奖励设计成递增。玩得越久,奖励像复利一样越多。' }
       ]
     },
+      { id: 'guildwar', icon: '🎮', title: '公会战 & 小游戏',
+        blocks: [
+          { type:'p', text:'公会战是两个公会进行**24小时街机对决**的系统。成员玩火星主题小游戏并合算分数。总分高的公会赢得GP。' },
+          { type:'toc', label:'本节内容', items:[
+            '宣战', '小游戏介绍', '续命机制', '计分 & 奖励'
+          ]},
+          { type:'h2', text:'1. 宣战' },
+          { type:'table',
+            headers:['项目','值','设置'],
+            rows:[
+              ['宣战费用',  {v:'200 GP(从金库)',cls:'num'}, '`guild_war_declare_cost_gp`'],
+              ['最少成员',  {v:'3人',cls:'num'},             '`guild_war_min_members`'],
+              ['战争时长',  {v:'24小时',cls:'num'},          '`guild_war_duration_hours`'],
+              ['冷却时间',  {v:'48小时',cls:'num'},          '`guild_war_cooldown_hours`'],
+              ['同时战争',  {v:'每公会1场',cls:'num'},       '`guild_war_max_active`'],
+              ['胜利奖励',  {v:'500 GP → 金库',cls:'num'},  '`guild_war_winner_gp`']
+            ]},
+          { type:'callout', variant:'info', title:'双方都会检查',
+            text:'攻击方和防守方都必须没有进行中的战争。已在战争中的公会无法被选为目标。' },
+
+          { type:'h2', text:'2. 小游戏' },
+          { type:'table',
+            headers:['游戏','主题','玩法'],
+            rows:[
+              [{v:'🚀 Mars Invaders',cls:'mars'}, '太空侵略者', '射击外星人波次。每5波出Boss。90秒限时，3条命，自动射击。'],
+              [{v:'👨‍🚀 Mars Runner',cls:'mars'},  '吃豆人迷宫', '探索隧道，收集矿物，躲避外星人。能量道具可以吃敌人。'],
+              [{v:'⛏️ Mars Digger',cls:'mars'},   '挖掘机',     '挖掘火星土壤，收集水晶，用泵打外星虫。落石可以砸死敌人。']
+            ]},
+
+          { type:'h2', text:'3. 续命机制' },
+          { type:'p', text:'死亡后可以**付费续命** — 保持当前分数继续游戏。竞争公会把分数推到极限的秘诀。' },
+          { type:'table',
+            headers:['次数','费用','类型'],
+            rows:[
+              ['第1次', {v:'5 GP',cls:'num'},   'GP'],
+              ['第2次', {v:'15 GP',cls:'num'},  'GP'],
+              ['第3次', {v:'30 GP',cls:'num'},  'GP'],
+              ['第4次', {v:'0.1 PP',cls:'num'}, 'PP(真金白银!)'],
+              ['第5次', {v:'0.2 PP',cls:'num'}, 'PP(每次翻倍)'],
+              ['第6次+', {v:'持续翻倍',cls:'num'}, 'PP']
+            ]},
+          { type:'callout', variant:'warn', title:'PP续命是真钱',
+            text:'第3次之后用PP支付。PP = 真钱。明智消费 — 否则为了赢倾家荡产。' },
+
+          { type:'h2', text:'4. 计分 & 奖励' },
+          { type:'p', text:'战争期间所有成员的游戏分数按公会合算。24小时后总分高的公会获得500 GP到金库。' }
+        ]
+      },
+      { id: 'research', icon: '🔬', title: '公会研究',
+        blocks: [
+          { type:'p', text:'公会可以用金库GP解锁**7项研究特权**。每项研究给所有成员永久加成。' },
+          { type:'table',
+            headers:['研究','效果','设置'],
+            rows:[
+              ['⛏ 采矿效率 I',     {v:'+3% 采矿PP',cls:'num'},         '`mining_eff_1_bonus`'],
+              ['🛡 护盾纪律',       {v:'+15% 防御',cls:'num'},           '`shield_disc_bonus`'],
+              ['🕊 外交豁免',       {v:'-10% 入侵成功率降低',cls:'num'}, '`diplomatic_bonus`'],
+              ['🔭 轨道扫描',       {v:'+15% 探索奖励',cls:'num'},       '`orbital_scan_bonus`'],
+              ['🚀 快速部署',       {v:'-20% 任务旅行时间',cls:'num'},   '`rapid_deploy_bonus`'],
+              ['📦 物流网络',       {v:'-10% 占领费用',cls:'num'},       '`logistics_bonus`'],
+              ['👑 火星统治',       {v:'+5% 所有加成叠加',cls:'num'},    '`mars_dominion_bonus`']
+            ]},
+          { type:'callout', variant:'pro', title:'火星统治最后解锁',
+            text:'火星统治在所有研究加成上额外+5%。采矿变成+3.15%，防御变成+15.75%。' }
+        ]
+      },
+      { id: 'seasonpass', icon: '🎫', title: '赛季通行证',
+        blocks: [
+          { type:'p', text:'每赛季有**30级战斗通行证**(免费+高级)。通过游戏获取XP来解锁级别奖励。' },
+          { type:'h2', text:'1. 获取XP' },
+          { type:'table',
+            headers:['活动','XP','设置'],
+            rows:[
+              ['采矿',   {v:'+5 XP',cls:'num'},  '`season_pass_xp_harvest`'],
+              ['占领',   {v:'+10 XP',cls:'num'}, '`season_pass_xp_claim`'],
+              ['入侵',   {v:'+15 XP',cls:'num'}, '`season_pass_xp_invasion`'],
+              ['探索',   {v:'+10 XP',cls:'num'}, '`season_pass_xp_exploration`'],
+              ['任务',   {v:'+8 XP',cls:'num'},  '`season_pass_xp_quest`']
+            ]},
+          { type:'h2', text:'2. 级别奖励' },
+          { type:'p', text:'免费轨道每级给GP。高级轨道给更多GP加里程碑物品。**所有奖励都是GP — 绝不给PP。**' },
+          { type:'table',
+            headers:['级别','免费奖励','高级奖励'],
+            rows:[
+              ['每级',          {v:'10×级 GP',cls:'num'},     {v:'25×级 GP',cls:'num'}],
+              ['每5级(免费)',   {v:'50×级 GP额外',cls:'num'}, '—'],
+              ['每10级(高级)',  '—',                          '特殊物品'],
+              ['30级(最高)',    {v:'500 GP',cls:'num'},       {v:'1500 GP',cls:'num'}]
+            ]},
+          { type:'callout', variant:'info', title:'高级通行证用GP购买',
+            text:'高级升级用GP购买(管理员可调)。仅当前赛季有效。' }
+        ]
+      },
+      { id: 'exchange', icon: '💱', title: 'PP → GP 兑换',
+        blocks: [
+          { type:'p', text:'急需GP？用PP(真钱代币)兑换GP。手续费部分永久销毁 = **PP通缩**。' },
+          { type:'table',
+            headers:['设置','默认值','来源'],
+            rows:[
+              ['兑换比率', {v:'1 PP = 100 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['手续费',   {v:'5%(销毁)',cls:'num'},       '`pp_to_gp_exchange_fee_pct`'],
+              ['最小',     {v:'0.1 PP',cls:'num'},          '`pp_to_gp_exchange_min`'],
+              ['最大',     {v:'10 PP',cls:'num'},            '`pp_to_gp_exchange_max`'],
+              ['每日上限', {v:'50 PP/天',cls:'num'},        '`pp_to_gp_exchange_daily_limit`']
+            ]},
+          { type:'callout', variant:'warn', title:'单向兑换',
+            text:'只能PP → GP。不能把GP换回PP。5%手续费被销毁，减少PP总供应量。' },
+          { type:'callout', variant:'tip', title:'什么时候兑换？',
+            text:'公会战续命、赛季通行证高级版、公会创建、研究解锁需要GP时。平时GP靠采矿和任务就够。' }
+        ]
+      },
     { id: 'casino', icon: '🎰', title: '卡提纳赌场',
       blocks: [
         { type:'p', text:'**卡提纳** 是由 5 款小游戏组成的游戏内赌场。全部游戏都能用 PP 或 USDT 下注。庄家优势是真的,把它当娱乐,不要当收入。' },

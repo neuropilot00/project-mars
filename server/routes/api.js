@@ -879,6 +879,16 @@ router.post('/claim', writeLimiter, async (req, res) => {
       }
     } catch(pe) { /* item system unavailable */ }
 
+    // ── Guild research: logistics bonus (claim cost reduction) ──
+    try {
+      if (guildService && guildService.getResearchBonuses) {
+        const rb = await guildService.getResearchBonuses(walletLower);
+        if (rb.logistics > 0) {
+          baseCost = Math.round(baseCost * (1 - rb.logistics / 100) * 1000000) / 1000000;
+        }
+      }
+    } catch(le) { /* guild service unavailable */ }
+
     // ── BATTLE: Roll ONCE per defender (all-or-nothing per owner overlap) ──
     let attackWon = 0, attackLost = 0, refundFromFailed = 0, platformFee = 0;
     const wonPixels = [];

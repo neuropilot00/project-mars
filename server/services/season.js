@@ -380,7 +380,7 @@ async function getOrCreatePassTiers(seasonId) {
 
   const tiers = [];
   for (let t = 1; t <= maxTier; t++) {
-    const xpReq = Math.floor(baseXp * Math.pow(1.15, t - 1) * t);
+    const xpReq = Math.floor(baseXp * Math.pow(1.15, t - 1));
 
     // Free track rewards (GP only, no PP)
     let freeType = 'gp', freeAmount = 10 * t;
@@ -392,7 +392,7 @@ async function getOrCreatePassTiers(seasonId) {
 
     // Premium track rewards (GP + items, no PP)
     let premType = 'gp', premAmount = 25 * t;
-    if (t % 10 === 0) { premType = 'item'; premAmount = 1; }
+    if (t % 10 === 0) { premType = 'gp'; premAmount = 100 * t; }
     if (t === maxTier) { premType = 'gp'; premAmount = 1500; }
 
     tiers.push({ season_id: seasonId, tier: t, is_premium: true,
