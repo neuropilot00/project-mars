@@ -484,6 +484,76 @@ async function launchMission(wallet, type, originClaimId, targetLat, targetLng, 
       }
     }
 
+    // ── De-duplicate: if an active mission already targets the same area,
+    //    auto-redirect to a different part of the target's territory (invasion)
+    //    or offset the coordinates (exploration).
+    const DEDUP_RADIUS_DEG = 5; // missions within 5° are considered overlapping
+    const existingMissions = await client.query(
+      `SELECT target_lat, target_lng FROM missions
+       WHERE wallet = $1 AND status IN ('traveling','complete')
+         AND type = $2`,
+      [wallet, type]
+    );
+    const occupied = existingMissions.rows.map(r => ({
+      lat: parseFloat(r.target_lat), lng: parseFloat(r.target_lng)
+    }));
+
+    function _isOverlapping(lat, lng) {
+      return occupied.some(o => greatCircleDeg(o.lat, o.lng, lat, lng) < DEDUP_RADIUS_DEG);
+    }
+
+    let finalTargetLat = parseFloat(targetLat);
+    let finalTargetLng = parseFloat(targetLng);
+
+    if (_isOverlapping(finalTargetLat, finalTargetLng)) {
+      let redirected = false;
+
+      if (type === 'invasion' && targetWallet) {
+        // Pick a different claim from the target that isn't near existing attacks
+        const altClaims = await client.query(
+          `SELECT DISTINCT center_lat AS lat, center_lng AS lng
+             FROM claims
+            WHERE owner = $1 AND deleted_at IS NULL
+            ORDER BY RANDOM()`,
+          [targetWallet]
+        );
+        for (const alt of altClaims.rows) {
+          const aLat = parseFloat(alt.lat), aLng = parseFloat(alt.lng);
+          if (!_isOverlapping(aLat, aLng)) {
+            finalTargetLat = aLat;
+            finalTargetLng = aLng;
+            redirected = true;
+            break;
+          }
+        }
+      }
+
+      if (!redirected && type === 'exploration') {
+        // Offset in a random direction until no overlap (up to 8 attempts)
+        for (let attempt = 1; attempt <= 8; attempt++) {
+          const angle = Math.random() * Math.PI * 2;
+          const offset = DEDUP_RADIUS_DEG * attempt;
+          const tryLat = Math.max(-85, Math.min(85, finalTargetLat + Math.sin(angle) * offset));
+          const tryLng = ((finalTargetLng + Math.cos(angle) * offset) + 540) % 360 - 180;
+          if (!_isOverlapping(tryLat, tryLng)) {
+            finalTargetLat = tryLat;
+            finalTargetLng = tryLng;
+            redirected = true;
+            break;
+          }
+        }
+      }
+
+      if (!redirected && type === 'invasion') {
+        // All of the target's claims are already under attack
+        await client.query('ROLLBACK');
+        return { error: 'All of this target\'s territories are already under attack' };
+      }
+    }
+
+    targetLat = finalTargetLat;
+    targetLng = finalTargetLng;
+
     const distance = greatCircleDeg(padLat, padLng, parseFloat(targetLat), parseFloat(targetLng));
     const tier = await distanceTier(distance);
 
