@@ -7,7 +7,7 @@
 
 -- PP → GP Exchange Settings
 INSERT INTO settings (key, value, description, category) VALUES
-  ('pp_to_gp_exchange_rate', '100', 'How much GP per 1 PP exchanged', 'economy'),
+  ('pp_to_gp_exchange_rate', '4', 'How much GP per 1 PP exchanged', 'economy'),
   ('pp_to_gp_exchange_min', '0.1', 'Minimum PP per exchange transaction', 'economy'),
   ('pp_to_gp_exchange_max', '10', 'Maximum PP per single exchange', 'economy'),
   ('pp_to_gp_exchange_fee_pct', '5', 'Fee percentage on PP→GP exchange (PP burned)', 'economy'),

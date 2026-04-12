@@ -2967,7 +2967,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="mf"><div class="mfl">GP BALANCE</div><div class="mfv" style="color:var(--gn)" id="exchGPBal">0 GP</div></div>
       <div class="mdv"></div>
       <div style="text-align:center;font-size:10px;color:var(--tx3);font-family:var(--fn);margin:4px 0">
-        Rate: <span id="exchRate" style="color:var(--gn)">1 PP = 100 GP</span> · Fee: <span id="exchFee" style="color:var(--red)">5%</span>
+        Rate: <span id="exchRate" style="color:var(--gn)">1 PP = 4 GP</span> · Fee: <span id="exchFee" style="color:var(--red)">5%</span>
       </div>
       <div class="mf">
         <div class="mfl">EXCHANGE AMOUNT (PP)</div>
@@ -9458,7 +9458,7 @@ function setWdrMax(){document.getElementById('wdrAmount').value=walletState.game
 // ═══════════════════════════════════════
 //  PP → GP EXCHANGE
 // ═══════════════════════════════════════
-var _exchInfo = { rate:100, min:0.1, max:10, fee:5, dailyLimit:50, enabled:true };
+var _exchInfo = { rate:4, min:0.1, max:10, fee:5, dailyLimit:50, enabled:true };
 
 async function openExchangeModal(){
   if(!walletState.connected){ showToast('LOGIN FIRST'); return; }
@@ -21577,7 +21577,7 @@ var CODEX_CONTENT = {
           { type:'table',
             headers:['Setting','Default','Source'],
             rows:[
-              ['Exchange rate', {v:'1 PP = 100 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['Exchange rate', {v:'1 PP = 4 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
               ['Fee',           {v:'5% (burned)',cls:'num'},    '`pp_to_gp_exchange_fee_pct`'],
               ['Min per tx',    {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
               ['Max per tx',    {v:'10 PP',cls:'num'},           '`pp_to_gp_exchange_max`'],
@@ -22588,7 +22588,7 @@ var CODEX_CONTENT = {
           { type:'table',
             headers:['설정','기본값','소스'],
             rows:[
-              ['환전 비율', {v:'1 PP = 100 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['환전 비율', {v:'1 PP = 4 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
               ['수수료',    {v:'5% (소각)',cls:'num'},      '`pp_to_gp_exchange_fee_pct`'],
               ['최소',      {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
               ['최대',      {v:'10 PP',cls:'num'},           '`pp_to_gp_exchange_max`'],
@@ -23596,7 +23596,7 @@ CODEX_CONTENT.ja = {
           { type:'table',
             headers:['設定','デフォルト','ソース'],
             rows:[
-              ['両替レート', {v:'1 PP = 100 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['両替レート', {v:'1 PP = 4 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
               ['手数料',     {v:'5%(バーン)',cls:'num'},     '`pp_to_gp_exchange_fee_pct`'],
               ['最小',       {v:'0.1 PP',cls:'num'},         '`pp_to_gp_exchange_min`'],
               ['最大',       {v:'10 PP',cls:'num'},           '`pp_to_gp_exchange_max`'],
@@ -24603,7 +24603,7 @@ CODEX_CONTENT.zh = {
           { type:'table',
             headers:['设置','默认值','来源'],
             rows:[
-              ['兑换比率', {v:'1 PP = 100 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
+              ['兑换比率', {v:'1 PP = 4 GP',cls:'num'}, '`pp_to_gp_exchange_rate`'],
               ['手续费',   {v:'5%(销毁)',cls:'num'},       '`pp_to_gp_exchange_fee_pct`'],
               ['最小',     {v:'0.1 PP',cls:'num'},          '`pp_to_gp_exchange_min`'],
               ['最大',     {v:'10 PP',cls:'num'},            '`pp_to_gp_exchange_max`'],

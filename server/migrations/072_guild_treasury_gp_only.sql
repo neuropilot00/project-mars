@@ -3,8 +3,8 @@
 --  PP = real money. Guild treasury must run on GP only.
 -- ══════════════════════════════════════════════════════
 
--- Merge any PP treasury into GP treasury (at 100:1 rate)
-UPDATE guilds SET gp_treasury = COALESCE(gp_treasury, 0) + COALESCE(pp_treasury, 0) * 100;
+-- Merge any PP treasury into GP treasury (at 4:1 rate, matching pp_to_gp_exchange_rate)
+UPDATE guilds SET gp_treasury = COALESCE(gp_treasury, 0) + COALESCE(pp_treasury, 0) * 4;
 
 -- Research costs: replace PP costs with GP costs
 UPDATE settings SET key = 'guild_research_mining_eff_1_gp', value = '500', description = 'Research cost: Mining Efficiency I (GP)' WHERE key = 'guild_research_mining_eff_1_pp';
@@ -28,7 +28,7 @@ UPDATE guild_members SET gp_contribution_pct = COALESCE(pp_contribution_pct, 5);
 
 -- Rename ledger column
 ALTER TABLE guild_treasury_ledger ADD COLUMN IF NOT EXISTS delta_gp NUMERIC(20,6) DEFAULT 0;
-UPDATE guild_treasury_ledger SET delta_gp = COALESCE(delta_pp, 0) * 100;
+UPDATE guild_treasury_ledger SET delta_gp = COALESCE(delta_pp, 0) * 4;
 
 -- Update contribution setting names
 UPDATE settings SET key = 'guild_contrib_default_pct', value = '5' WHERE key = 'guild_contrib_default_pct';
