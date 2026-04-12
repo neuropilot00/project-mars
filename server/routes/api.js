@@ -1985,8 +1985,11 @@ router.get('/user/:wallet/base', async (req, res) => {
         totalMined: parseFloat(mining.total_mined_pp),
         todayMined: parseFloat(mining.today_mined_pp),
         harvestAvailable,
-        nextHarvestAt
-      } : { lastHarvest: null, totalMined: 0, todayMined: 0, harvestAvailable, nextHarvestAt: null },
+        nextHarvestAt,
+        estimatedMin: totalPixels > 0 ? Math.round((parseFloat(s.mining_reward_min) || 0.01) * Math.min(Math.sqrt(totalPixels) / 10, 3.0) * 10000) / 10000 : 0,
+        estimatedMax: totalPixels > 0 ? Math.round((parseFloat(s.mining_reward_max) || 0.5) * Math.min(Math.sqrt(totalPixels) / 10, 3.0) * 10000) / 10000 : 0,
+        instantCost: parseFloat(s.instant_harvest_cost_pp) || 0.5
+      } : { lastHarvest: null, totalMined: 0, todayMined: 0, harvestAvailable, nextHarvestAt: null, estimatedMin: 0, estimatedMax: 0, instantCost: parseFloat(s.instant_harvest_cost_pp) || 0.5 },
       ranks: rankRes.rows.map(r => {
         const obj = { level: r.level, name: r.name, requiredXp: r.required_xp, rewardPp: parseFloat(r.reward_pp) };
         if (r.breakthrough) {

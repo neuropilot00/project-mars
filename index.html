@@ -11,9 +11,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <script src="/assets/lib/globe.gl.min.js"></script>
-<script src="/public/js/minigame-invaders.js?v=10"></script>
-<script src="/public/js/minigame-runner.js?v=10"></script>
-<script src="/public/js/minigame-digger.js?v=10"></script>
+<script src="/public/js/minigame-invaders.js?v=11"></script>
+<script src="/public/js/minigame-runner.js?v=11"></script>
+<script src="/public/js/minigame-digger.js?v=11"></script>
 <script>
 // Render game sprites as icons
 document.addEventListener('DOMContentLoaded', function() {
@@ -13641,7 +13641,7 @@ function openBaseModal(){
   }catch(_){}
   loadBaseData();
 }
-function closeBaseModal(){document.getElementById('baseModal').classList.remove('open')}
+function closeBaseModal(){document.getElementById('baseModal').classList.remove('open');_updateBaseBtnDot()}
 
 // ── Base Inline Shop ──
 var _baseShopItems = [];
@@ -13849,12 +13849,14 @@ window._baseDotSeen = (function(){
   try{ return JSON.parse(localStorage.getItem('base_tab_seen')||'{}'); }catch(_e){return {}}
 })();
 function _saveDotSeen(){ try{ localStorage.setItem('base_tab_seen', JSON.stringify(window._baseDotSeen)); }catch(_e){} }
+// Tracks latest polled counts so clearBaseTabDot can snapshot them
+var _pollDotState = {};
 window.clearBaseTabDot = function(tab){
   var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot',govern:'governDot'};
   var id = map[tab]; if(!id) return;
   var el = document.getElementById(id); if(el) el.style.display='none';
   window._baseDotSeen[tab] = Date.now();
-  // Save current state so dot resets when things change
+  // Save current state so dot resets only when things CHANGE
   if(tab==='territory' && window._cmdInfo){
     window._baseDotSeen.territory_cmd = (_cmdInfo.commander||'').toLowerCase();
   }
@@ -13865,7 +13867,13 @@ window.clearBaseTabDot = function(tab){
   }
   if(tab==='guild'){
     window._baseDotSeen.guild_chat = Date.now();
+    window._baseDotSeen._guild_invite_seen = _pollDotState.guild_invites || 0;
   }
+  // Snapshot polled counts — dot won't re-enable until count increases
+  if(tab==='quests') window._baseDotSeen._quests_seen = _pollDotState.quests_claimable || 0;
+  if(tab==='ops') window._baseDotSeen._ops_seen = _pollDotState.ops_claimable || 0;
+  if(tab==='govern') window._baseDotSeen._govern_seen = _pollDotState.govern_count || 0;
+  if(tab==='rank') window._baseDotSeen._rank_unclaimed_seen = _pollDotState.rank_unclaimed || 0;
   _saveDotSeen();
   if(typeof _updateBaseBtnDot==='function') _updateBaseBtnDot();
 };
@@ -13877,42 +13885,48 @@ window.setBaseTabDot = function(tab, on){
 };
 // Poll once a minute for new info across tabs. Minimal server hits —
 // piggybacks on existing endpoints.
+// Key principle: dots only appear for CHANGES since user last viewed.
+// _pollDotState tracks latest counts; clearBaseTabDot snapshots them
+// so the same state won't re-trigger a dot.
 function _pollBaseTabDots(){
   var w = walletState.address; if(!w) return;
   var seen = window._baseDotSeen || {};
-  // TERRITORY: new commander announcement OR commander changed
+  // TERRITORY: commander announcement OR commander changed
   try{
     if(window._cmdInfo){
       var cmdChanged = false;
-      // Check if commander wallet changed since last seen
       var curCmd = (_cmdInfo.commander||'').toLowerCase();
       if(curCmd && curCmd !== (seen.territory_cmd||'')) cmdChanged = true;
-      // Check announcement timestamp
       if(_cmdInfo.announcementAt){
-        var t = new Date(_cmdInfo.announcementAt).getTime();
-        if(t && t > (seen.territory||0)) cmdChanged = true;
+        var tt = new Date(_cmdInfo.announcementAt).getTime();
+        if(tt && tt > (seen.territory||0)) cmdChanged = true;
       }
       if(cmdChanged) setBaseTabDot('territory', true);
     }
   }catch(_e){}
-  // SECTORS: new sector announcement OR governor changed
+  // SECTORS: sector announcement OR governor changed
   try{
     var secs = (_sectorsData||[]);
     var sectorsChanged = false;
     secs.forEach(function(s){
-      // Check announcement
       if(s.announcementAt){
-        var t=new Date(s.announcementAt).getTime();
-        if(t > (seen.sectors||0)) sectorsChanged = true;
+        var tt=new Date(s.announcementAt).getTime();
+        if(tt > (seen.sectors||0)) sectorsChanged = true;
       }
-      // Check governor change
       var gov = (s.governor||'').toLowerCase();
       var seenGovKey = 'sectors_gov_'+s.id;
       if(gov && gov !== (seen[seenGovKey]||'')) sectorsChanged = true;
     });
     if(sectorsChanged) setBaseTabDot('sectors', true);
   }catch(_e){}
-  // SEASON: claimable rewards or new season
+  // Helper: auto-snapshot if user already viewed a tab before this code update
+  // (prevents dots from firing for existing state when _X_seen keys don't exist yet)
+  function _autoSnap(tab, snapKey, count){
+    if(!(snapKey in seen) && seen[tab]){
+      seen[snapKey] = count; _saveDotSeen();
+    }
+  }
+  // SEASON: new season or NEW unclaimed rewards (count must increase)
   fetch('/api/season/active').then(function(r){return r.json()}).then(function(d){
     try{
       var s = d && d.season;
@@ -13920,21 +13934,28 @@ function _pollBaseTabDots(){
         var start = new Date(s.startsAt).getTime();
         if(start && start > (seen.rank||0)) setBaseTabDot('rank', true);
       }
-      // Check claimable season rewards
       if(d && d.myRewards && d.myRewards.length){
-        var hasUnclaimed = d.myRewards.some(function(r){ return !r.claimed; });
-        if(hasUnclaimed) setBaseTabDot('rank', true);
+        var unclaimed = d.myRewards.filter(function(r){ return !r.claimed; }).length;
+        _pollDotState.rank_unclaimed = unclaimed;
+        _autoSnap('rank','_rank_unclaimed_seen',unclaimed);
+        if(unclaimed > 0 && unclaimed > (seen._rank_unclaimed_seen||0)){
+          setBaseTabDot('rank', true);
+        }
       }
     }catch(_e){}
   }).catch(function(){});
-  // GUILD: pending invites + new chat messages
+  // GUILD: NEW invites (count must increase) + new chat messages
   fetch('/api/guild/invites?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
     try{
       var invites = (d && d.invites) || [];
-      if(invites.length) setBaseTabDot('guild', true);
+      _pollDotState.guild_invites = invites.length;
+      _autoSnap('guild','_guild_invite_seen',invites.length);
+      if(invites.length > 0 && invites.length > (seen._guild_invite_seen||0)){
+        setBaseTabDot('guild', true);
+      }
     }catch(_e){}
   }).catch(function(){});
-  // Also check guild chat for new messages
+  // Guild chat: new messages since last seen
   try{
     if(window._myGuildData && _myGuildData.id){
       fetch('/api/guild/chat/'+_myGuildData.id+'?limit=1').then(function(r){return r.json()}).then(function(d){
@@ -13948,29 +13969,32 @@ function _pollBaseTabDots(){
       }).catch(function(){});
     }
   }catch(_e){}
-  // MINING: harvestable PP available
-  try{
-    var owned = (window._ownedPixels||[]);
-    var harvestable = owned.some(function(p){ return parseFloat(p.pendingPP||p.pending_pp||0) > 0; });
-    if(harvestable) setBaseTabDot('mining', true);
-  }catch(_e){}
-  // QUESTS: claimable quest rewards
+  // MINING: REMOVED from poll — startMineTimer already shows dot when cooldown expires
+  // QUESTS: only dot if claimable count INCREASED since user last viewed
   fetch('/api/quests?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
     try{
       var quests = d && d.quests || [];
-      var hasClaimable = quests.some(function(q){ return q.status==='completed'; });
-      if(hasClaimable) setBaseTabDot('quests', true);
+      var claimable = quests.filter(function(q){ return q.status==='completed'; }).length;
+      _pollDotState.quests_claimable = claimable;
+      _autoSnap('quests','_quests_seen',claimable);
+      if(claimable > 0 && claimable > (seen._quests_seen||0)){
+        setBaseTabDot('quests', true);
+      }
     }catch(_e){}
   }).catch(function(){});
-  // OPS: claimable mission rewards
+  // OPS: only dot if claimable count INCREASED since user last viewed
   fetch('/api/missions/active?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
     try{
       var missions = d && d.missions || [];
-      var hasClaimable = missions.some(function(m){ return m.status==='complete'; });
-      if(hasClaimable) setBaseTabDot('ops', true);
+      var claimable = missions.filter(function(m){ return m.status==='complete'; }).length;
+      _pollDotState.ops_claimable = claimable;
+      _autoSnap('ops','_ops_seen',claimable);
+      if(claimable > 0 && claimable > (seen._ops_seen||0)){
+        setBaseTabDot('ops', true);
+      }
     }catch(_e){}
   }).catch(function(){});
-  // GOVERN: active bounties or events user might want to see
+  // GOVERN: only dot if active bounty/event count INCREASED since user last viewed
   Promise.all([
     fetch('/api/governance/bounties').then(function(r){return r.json()}).catch(function(){return []}),
     fetch('/api/governance/events').then(function(r){return r.json()}).catch(function(){return []})
@@ -13978,9 +14002,14 @@ function _pollBaseTabDots(){
     try{
       var bounties = Array.isArray(results[0]) ? results[0] : [];
       var events = Array.isArray(results[1]) ? results[1] : [];
-      var activeBounties = bounties.filter(function(b){ return b.status==='open' || b.status==='active'; });
-      var activeEvents = events.filter(function(e){ return e.status==='active'; });
-      if(activeBounties.length || activeEvents.length) setBaseTabDot('govern', true);
+      var ab = bounties.filter(function(b){ return b.status==='open' || b.status==='active'; }).length;
+      var ae = events.filter(function(e){ return e.status==='active'; }).length;
+      var total = ab + ae;
+      _pollDotState.govern_count = total;
+      _autoSnap('govern','_govern_seen',total);
+      if(total > 0 && total > (seen._govern_seen||0)){
+        setBaseTabDot('govern', true);
+      }
     }catch(_e){}
   }).catch(function(){});
 }
@@ -15716,20 +15745,35 @@ function renderBaseUser(data){
   if(data.mining){
     document.getElementById('baseMineTotalMined').textContent=data.mining.totalMined.toFixed(2);
 
+    // Show estimated harvest range on button
+    var hBtn=document.getElementById('baseHarvestBtn');
+    var iBtn=document.getElementById('baseInstantHarvestBtn');
+    window._miningEstMin=data.mining.estimatedMin||0;
+    window._miningEstMax=data.mining.estimatedMax||0;
+    window._instantHarvestCost=data.mining.instantCost||0.5;
+    var rangeStr='';
+    if(window._miningEstMin>0){
+      rangeStr=' ('+window._miningEstMin.toFixed(2)+'~'+window._miningEstMax.toFixed(2)+' PP)';
+    }
     if(data.mining.harvestAvailable){
       document.getElementById('baseMineTimer').textContent=t('harvest_available');
       document.getElementById('baseMineAvail').textContent=t('harvest_ready');
-      document.getElementById('baseHarvestBtn').disabled=false;
-      document.getElementById('baseInstantHarvestBtn').style.display='none';
+      hBtn.disabled=false;
+      hBtn.innerHTML='<span>'+t('harvest_pp')+rangeStr+'</span>';
+      iBtn.style.display='none';
     }else if(data.mining.nextHarvestAt){
       startMineTimer(new Date(data.mining.nextHarvestAt));
       document.getElementById('baseMineAvail').textContent='0.00';
-      document.getElementById('baseHarvestBtn').disabled=true;
+      hBtn.disabled=true;
+      hBtn.innerHTML='<span>'+t('harvest_pp')+'</span>';
+      // Show instant harvest with real cost
+      iBtn.innerHTML='<span>'+t('harvest_now').replace('{cost}',window._instantHarvestCost)+'</span>';
     }else if(data.territory.totalPixels===0){
       document.getElementById('baseMineTimer').textContent=t('claim_to_mine');
       document.getElementById('baseMineAvail').textContent='--';
-      document.getElementById('baseHarvestBtn').disabled=true;
-      document.getElementById('baseInstantHarvestBtn').style.display='none';
+      hBtn.disabled=true;
+      hBtn.innerHTML='<span>'+t('harvest_pp')+'</span>';
+      iBtn.style.display='none';
     }
   }
 
@@ -16066,7 +16110,11 @@ async function harvestMining(){
     // Refresh balances
     try{refreshEmailBalances()}catch(e){}
   }catch(e){showToast('Network error')}
-  finally{btn.disabled=false;btn.textContent='HARVEST PP'}
+  finally{
+    btn.disabled=false;
+    var rng='';if(window._miningEstMin>0) rng=' ('+window._miningEstMin.toFixed(2)+'~'+window._miningEstMax.toFixed(2)+' PP)';
+    btn.innerHTML='<span>'+t('harvest_pp')+rng+'</span>';
+  }
 }
 
 // ── Instant Harvest (skip cooldown micro-transaction) ──
@@ -16074,10 +16122,11 @@ async function instantHarvest(){
   try{_sfx.click()}catch(e){}
   var w=walletState.address;
   if(!w){showToast('LOGIN FIRST');return}
+  var ihCost=window._instantHarvestCost||0.5;
   var ok=await shopConfirm('','Skip Cooldown',
     '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">INSTANT HARVEST</div>'
     +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">Skip the harvest cooldown and harvest immediately.</div>'
-    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.5 PP</div>','SKIP COOLDOWN');
+    +'<div style="font-size:var(--fs-md);color:var(--gold)">'+ihCost+' PP</div>','SKIP COOLDOWN');
   if(!ok)return;
   var btn=document.getElementById('baseInstantHarvestBtn');
   btn.disabled=true;btn.textContent='PROCESSING...';
@@ -16093,7 +16142,7 @@ async function instantHarvest(){
     if(window._mineTimerInterval) clearInterval(window._mineTimerInterval);
     try{refreshEmailBalances()}catch(e){}
   }catch(e){showToast('Network error','error')}
-  finally{btn.disabled=false;btn.textContent='HARVEST NOW (0.5 PP)'}
+  finally{btn.disabled=false;var ic=window._instantHarvestCost||0.5;btn.innerHTML='<span>HARVEST NOW ('+ic+' PP)</span>'}
 }
 
 // ── Territory Rename (micro-transaction) ──
@@ -16207,6 +16256,13 @@ function startMineTimer(nextAt){
       el.textContent=t('harvest_available');
       instantBtn.style.display='none';
       var md=document.getElementById('miningDot');if(md)md.style.display='block';
+      // Enable harvest button with range
+      var hBtn=document.getElementById('baseHarvestBtn');
+      if(hBtn){
+        hBtn.disabled=false;
+        var rng='';if(window._miningEstMin>0) rng=' ('+window._miningEstMin.toFixed(2)+'~'+window._miningEstMax.toFixed(2)+' PP)';
+        hBtn.innerHTML='<span>'+t('harvest_pp')+rng+'</span>';
+      }
       clearInterval(window._mineTimerInterval);
       return;
     }
