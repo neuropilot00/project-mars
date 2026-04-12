@@ -2,6 +2,7 @@
 -- Expand quest_templates from 14 to 120 (FREE:50, ACTIVITY:40, SPENDING:30)
 -- Clean slate: delete all existing templates first
 
+DELETE FROM user_quests;
 DELETE FROM quest_templates;
 
 -- =============================================================
