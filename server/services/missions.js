@@ -439,10 +439,17 @@ async function launchMission(wallet, type, originClaimId, targetLat, targetLng, 
       let resolvedTarget = rawTarget.toLowerCase();
       const looksLikeWallet = /^0x[0-9a-f]{40}$/i.test(rawTarget);
       if (!looksLikeWallet) {
-        const nickRes = await client.query(
+        // Try exact match first, then partial match
+        let nickRes = await client.query(
           'SELECT wallet_address FROM users WHERE LOWER(nickname) = LOWER($1) LIMIT 1',
           [rawTarget]
         );
+        if (!nickRes.rows.length) {
+          nickRes = await client.query(
+            'SELECT wallet_address FROM users WHERE LOWER(nickname) LIKE LOWER($1) LIMIT 1',
+            ['%' + rawTarget + '%']
+          );
+        }
         if (!nickRes.rows.length) {
           await client.query('ROLLBACK');
           return { error: `No player named "${rawTarget}"` };

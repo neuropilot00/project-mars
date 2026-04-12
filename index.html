@@ -14317,7 +14317,8 @@ function opsPickRandom(){
     var pick = enemies[Math.floor(Math.random()*enemies.length)];
     document.getElementById('opsTargetLat').value = pick.lat.toFixed(2);
     document.getElementById('opsTargetLng').value = pick.lng.toFixed(2);
-    document.getElementById('opsTargetWallet').value = pick.nickname || pick.owner;
+    document.getElementById('opsTargetWallet').value = pick.owner;
+    document.getElementById('opsTargetWallet').dataset.display = pick.nickname || pick.owner.slice(0,10);
     updateOpsLaunchPreview();
     var who = pick.nickname || (pick.owner.slice(0,6)+'…'+pick.owner.slice(-4));
     showToast('Target locked: '+who+' @ '+pick.lat.toFixed(1)+'°, '+pick.lng.toFixed(1)+'°','success');
@@ -14361,7 +14362,7 @@ function opsBrowseTargets(){
     if(!pick) return;
     document.getElementById('opsTargetLat').value = pick.lat.toFixed(2);
     document.getElementById('opsTargetLng').value = pick.lng.toFixed(2);
-    document.getElementById('opsTargetWallet').value = pick.nickname || pick.owner;
+    document.getElementById('opsTargetWallet').value = pick.owner;
     updateOpsLaunchPreview();
   });
 }
