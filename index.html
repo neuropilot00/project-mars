@@ -3297,10 +3297,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- Season Pass -->
         <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
             <span style="font-size:9px;color:var(--pp);font-family:var(--fn);letter-spacing:1px">🎫 SEASON PASS</span>
-            <button id="seasonPassPremiumBtn" onclick="purchaseSeasonPass()" style="display:none;font-size:8px;padding:3px 10px;border-radius:4px;background:linear-gradient(135deg,var(--pp),var(--mars));border:none;color:#fff;cursor:pointer;font-weight:700">⭐ PREMIUM</button>
+            <button id="seasonPassPremiumBtn" onclick="purchaseSeasonPass()" style="display:none;font-size:8px;padding:4px 12px;border-radius:6px;background:linear-gradient(135deg,#b888e0,var(--mars));border:1px solid rgba(184,136,224,.4);color:#fff;cursor:pointer;font-weight:700;box-shadow:0 0 8px rgba(184,136,224,.3)">⭐ PREMIUM</button>
           </div>
+          <div id="seasonPassTip" style="font-size:8px;color:var(--tx3);margin-bottom:6px;line-height:1.4;opacity:.7" data-i18n="season_pass_tip">Earn XP by playing. Unlock tier rewards as you level up! Premium pass doubles rewards.</div>
           <div id="seasonPassXPBar" style="margin-bottom:6px">
             <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:2px">
               <span id="seasonPassXPLabel">0 XP</span>
@@ -9991,6 +9992,12 @@ var I18N = {
     season_loading: 'Loading...',
     season_no_scores: 'No season scores yet',
     season_your_rewards: '🎁 YOUR REWARDS',
+    season_pass_tip: 'Earn XP by playing (claim, harvest, invade, explore, quest). Unlock tier rewards as you level up! Premium pass doubles rewards.',
+    season_pass_buy_title: 'PREMIUM PASS',
+    season_pass_buy_body: 'Unlock the premium reward track for this season. Double rewards at every tier!',
+    season_pass_cost_label: 'Cost',
+    season_pass_balance_label: 'Your GP',
+    season_pass_buy_confirm: 'PURCHASE',
     season_categories_title: "THIS SEASON'S RANKING CATEGORIES",
     season_default_desc: 'Compete for the top of the leaderboard!',
     season_ending_soon: 'Season ending soon!',
@@ -10459,6 +10466,12 @@ var I18N = {
     season_loading: '불러오는 중...',
     season_no_scores: '아직 시즌 기록이 없습니다',
     season_your_rewards: '🎁 획득 보상',
+    season_pass_tip: '플레이하면 XP 획득 (클레임, 채굴, 침공, 탐사, 퀘스트). 티어를 올려 보상을 받으세요! 프리미엄 패스는 보상 2배!',
+    season_pass_buy_title: '프리미엄 패스',
+    season_pass_buy_body: '이번 시즌 프리미엄 보상 트랙을 잠금 해제합니다. 모든 티어에서 2배 보상!',
+    season_pass_cost_label: '비용',
+    season_pass_balance_label: '보유 GP',
+    season_pass_buy_confirm: '구매하기',
     season_categories_title: '이번 시즌 랭킹 부문',
     season_default_desc: '리더보드 최상위를 노리세요!',
     season_ending_soon: '시즌이 곧 종료됩니다!',
@@ -10927,6 +10940,12 @@ var I18N = {
     season_loading: '読込中...',
     season_no_scores: 'まだシーズンスコアがありません',
     season_your_rewards: '🎁 獲得報酬',
+    season_pass_tip: 'プレイでXP獲得（クレーム、採掘、侵攻、探索、クエスト）。ティアを上げて報酬をゲット！プレミアムパスで報酬2倍！',
+    season_pass_buy_title: 'プレミアムパス',
+    season_pass_buy_body: '今シーズンのプレミアム報酬トラックを解放します。全ティアで2倍報酬！',
+    season_pass_cost_label: '費用',
+    season_pass_balance_label: '所持GP',
+    season_pass_buy_confirm: '購入する',
     season_categories_title: '今シーズンのランキング部門',
     season_default_desc: 'リーダーボードの頂点を目指しましょう！',
     season_ending_soon: 'シーズン終了間近！',
@@ -11379,6 +11398,12 @@ var I18N = {
     season_loading: '加载中...',
     season_no_scores: '暂无赛季分数',
     season_your_rewards: '🎁 你的奖励',
+    season_pass_tip: '游玩获得XP（占领、采矿、入侵、探索、任务）。升级解锁奖励！高级通行证双倍奖励！',
+    season_pass_buy_title: '高级通行证',
+    season_pass_buy_body: '解锁本赛季高级奖励轨道。所有等级双倍奖励！',
+    season_pass_cost_label: '费用',
+    season_pass_balance_label: '你的GP',
+    season_pass_buy_confirm: '购买',
     season_categories_title: '本赛季排名类别',
     season_default_desc: '争夺排行榜榜首！',
     season_ending_soon: '赛季即将结束！',
@@ -15564,6 +15589,7 @@ function loadSeasonPass(){
   if(!walletState.address) return;
   fetch('/api/season/pass?wallet='+walletState.address).then(function(r){return r.json()}).then(function(d){
     if(d.error) return;
+    if(d.premiumCost) window._seasonPassCost=d.premiumCost;
     renderSeasonPass(d);
   }).catch(function(){});
 }
@@ -15654,14 +15680,29 @@ function claimPassTier(tier,isPremium){
 }
 
 function purchaseSeasonPass(){
-  if(!confirm('프리미엄 시즌 패스를 구매하시겠습니까? (GP 차감)')) return;
-  fetch('/api/season/pass/purchase',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({wallet:walletState.address})
-  }).then(function(r){return r.json()}).then(function(d){
-    if(d.error){ showAlert(d.error); return; }
-    showAlert('⭐ 프리미엄 패스 구매 완료!','success');
-    loadSeasonPass();
-  }).catch(function(e){ showAlert(e.message); });
+  var cost=window._seasonPassCost||500;
+  var myGP=walletState.gameGP||0;
+  var insufficient=myGP<cost;
+  gameConfirm({
+    title:t('season_pass_buy_title'),
+    icon:'⭐',
+    body:t('season_pass_buy_body'),
+    info:[
+      {k:t('season_pass_cost_label'),v:cost+' GP'},
+      {k:t('season_pass_balance_label'),v:Math.floor(myGP)+' GP',insufficient:insufficient}
+    ],
+    confirmText:t('season_pass_buy_confirm'),
+    disabled:insufficient
+  }).then(function(ok){
+    if(!ok) return;
+    fetch('/api/season/pass/purchase',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:walletState.address})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){ showAlert(d.error); return; }
+      showAlert('⭐ '+t('season_pass_buy_title')+' OK!','success');
+      loadSeasonPass();
+    }).catch(function(e){ showAlert(e.message); });
+  });
 }
 
 function loadSeasonLeaderboard(){

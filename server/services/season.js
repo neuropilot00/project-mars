@@ -566,11 +566,129 @@ async function claimPassTier(wallet, tier, isPremium) {
   } finally { client.release(); }
 }
 
+// ═══════════════════════════════════════
+//  AUTO SEASON ROTATION
+// ═══════════════════════════════════════
+
+const THEME_CONFIG = {
+  volcanic:     { tint: 'rgba(255,80,30,0.06)',  weather: { dust_storm:0.10, meteor_shower:0.15, solar_flare:0.10, cold_wave:0.05, clear:0.60 } },
+  ice_age:      { tint: 'rgba(100,180,255,0.06)', weather: { dust_storm:0.05, meteor_shower:0.08, solar_flare:0.02, cold_wave:0.30, clear:0.55 } },
+  solar_storm:  { tint: 'rgba(255,200,50,0.06)',  weather: { dust_storm:0.08, meteor_shower:0.10, solar_flare:0.30, cold_wave:0.02, clear:0.50 } },
+  dust_epoch:   { tint: 'rgba(180,140,80,0.06)',   weather: { dust_storm:0.30, meteor_shower:0.10, solar_flare:0.05, cold_wave:0.05, clear:0.50 } }
+};
+
+const THEME_NAMES = {
+  volcanic:    ['Volcanic Dawn','Molten Core','Magma Rising','Eruption','Lava Surge'],
+  ice_age:     ['Frozen Frontier','Glacial Epoch','Permafrost','Cryo Storm','Ice Rift'],
+  solar_storm: ['Solar Inferno','Plasma Blaze','Sunfire','Corona Burst','Stellar Flare'],
+  dust_epoch:  ['Dust Epoch','Sandstorm','Rust Wind','Desert Fury','Dune Tide']
+};
+
+// Generate default rewards for a category
+function _defaultRewards(catKey) {
+  return [
+    { category: catKey, rank: 1, type: 'gp', amount: catKey === 'overall' ? 3000 : 2000 },
+    { category: catKey, rank: 1, type: 'xp', amount: catKey === 'overall' ? 500 : 400 },
+    { category: catKey, rank: 3, type: 'gp', amount: catKey === 'overall' ? 1500 : 1000 },
+    { category: catKey, rank: 3, type: 'xp', amount: 200 },
+    { category: catKey, rank: 10, type: 'gp', amount: catKey === 'overall' ? 500 : 300 },
+    { category: catKey, rank: 10, type: 'xp', amount: 100 }
+  ];
+}
+
+async function autoRotateSeason() {
+  try {
+    const enabled = await getSetting('season_auto_rotation', true);
+    if (enabled === false || enabled === 'false') return null;
+
+    // Check if there's a currently active season
+    const active = await pool.query(
+      `SELECT * FROM seasons WHERE active = true AND starts_at <= NOW() ORDER BY starts_at DESC LIMIT 1`
+    );
+
+    if (active.rows.length) {
+      const s = active.rows[0];
+      // Still running?
+      if (new Date(s.ends_at).getTime() > Date.now()) return null;
+
+      // Season ended — finalize rewards and deactivate
+      console.log(`[SEASON] Season #${s.id} "${s.name}" ended. Finalizing...`);
+      try {
+        await finalizeSeasonRewards(s.id);
+      } catch (e) {
+        console.error('[SEASON] Finalize error:', e.message);
+      }
+      await pool.query('UPDATE seasons SET active = false WHERE id = $1', [s.id]);
+    }
+
+    // Check if there's a pre-created future season waiting
+    const queued = await pool.query(
+      `SELECT * FROM seasons WHERE active = false AND starts_at <= NOW() AND ends_at > NOW() ORDER BY starts_at ASC LIMIT 1`
+    );
+    if (queued.rows.length) {
+      // Activate the queued season
+      await pool.query('UPDATE seasons SET active = true WHERE id = $1', [queued.rows[0].id]);
+      console.log(`[SEASON] Activated queued season #${queued.rows[0].id} "${queued.rows[0].name}"`);
+      return queued.rows[0].id;
+    }
+
+    // No queued season — auto-create a new one
+    const durationDays = parseInt(await getSetting('season_duration_days', 30));
+
+    // Pick theme: avoid repeating the last one
+    const lastSeason = await pool.query('SELECT theme FROM seasons ORDER BY id DESC LIMIT 1');
+    const lastTheme = lastSeason.rows.length ? lastSeason.rows[0].theme : null;
+    const themes = Object.keys(THEME_CONFIG).filter(t => t !== lastTheme);
+    const theme = themes[Math.floor(Math.random() * themes.length)];
+    const cfg = THEME_CONFIG[theme];
+
+    // Pick random season name
+    const names = THEME_NAMES[theme];
+    const seasonNum = await pool.query('SELECT COUNT(*) AS cnt FROM seasons');
+    const num = parseInt(seasonNum.rows[0].cnt) + 1;
+    const nameBase = names[Math.floor(Math.random() * names.length)];
+    const seasonName = 'Season ' + num + ': ' + nameBase;
+
+    // Pick 5 random categories (excluding 'overall') + always include 'overall'
+    const nonOverall = ALL_CATEGORIES.filter(c => c.key !== 'overall');
+    const shuffled = nonOverall.sort(() => Math.random() - 0.5);
+    const picked = shuffled.slice(0, 5).map(c => c.key);
+    const activeCats = ['overall'].concat(picked);
+
+    // Build rewards for each active category
+    let rewards = [];
+    for (const catKey of activeCats) {
+      rewards = rewards.concat(_defaultRewards(catKey));
+    }
+    // Bonus: overall rank 1 gets PP
+    rewards.push({ category: 'overall', rank: 1, type: 'pp', amount: 0.5 });
+
+    const startsAt = new Date();
+    const endsAt = new Date(startsAt.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+    const res = await pool.query(
+      `INSERT INTO seasons (name, theme, starts_at, ends_at, active, rewards_json, weather_weights, visual_tint, active_categories)
+       VALUES ($1, $2, $3, $4, true, $5, $6, $7, $8) RETURNING id`,
+      [seasonName, theme, startsAt.toISOString(), endsAt.toISOString(),
+       JSON.stringify(rewards), JSON.stringify(cfg.weather), cfg.tint,
+       JSON.stringify(activeCats)]
+    );
+
+    console.log(`[SEASON] Auto-created "${seasonName}" (#${res.rows[0].id}), theme=${theme}, categories=[${activeCats.join(',')}], ends=${endsAt.toISOString()}`);
+    return res.rows[0].id;
+  } catch (e) {
+    console.error('[SEASON] Auto-rotation error:', e.message);
+    return null;
+  }
+}
+
 module.exports = {
   ALL_CATEGORIES,
   getActiveSeason, addSeasonScore,
   getSeasonLeaderboard, finalizeSeasonRewards,
   claimSeasonReward, getMyRewards,
   // Season Pass (migration 068)
-  getSeasonPass, addPassXP, purchasePremiumPass, claimPassTier
+  getSeasonPass, addPassXP, purchasePremiumPass, claimPassTier,
+  // Auto rotation
+  autoRotateSeason
 };

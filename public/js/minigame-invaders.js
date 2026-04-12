@@ -14,7 +14,7 @@ window.MarsInvaders = (function () {
   const ALIEN_DROP = 8;
   const ALIEN_STEP_MS_BASE = 1200; // ms between alien steps (gets faster)
   const ALIEN_FIRE_CHANCE = 0.008; // per alien per step
-  const MAX_LIVES = 3, TIME_LIMIT = 90;
+  const MAX_LIVES = 3, TIME_LIMIT = 240;
   const ALIEN_SCORE = 10, BOSS_SCORE = 100, WAVE_BONUS = 20;
   const BOSS_EVERY = 5, BOSS_HP = 5;
 
@@ -31,12 +31,12 @@ window.MarsInvaders = (function () {
   /* ── Palette ── */
   var PAL = {
     '.': null,
-    'W': '#ffffff', 'w': '#bbbbcc', 'g': '#888899',
+    'W': '#ffffff', 'w': '#bbbbcc', 'g': '#777788',
     'G': '#33ff55', 'D': '#22aa33', 'd': '#116622', 'L': '#88ffaa',
-    'R': '#ff2222', 'r': '#bb1111', 'P': '#ff6666', 'p': '#771111',
-    'O': '#ff8800', 'o': '#cc6600', 'Y': '#ffcc00', 'y': '#998800',
-    'B': '#4488ff', 'b': '#2244aa', 'C': '#44ccff', 'c': '#2288aa',
-    'K': '#000000', 'S': '#bbbbcc', 's': '#888899', 'F': '#ff4400',
+    'R': '#ff2222', 'r': '#AA3322', 'P': '#ff6666', 'p': '#771111',
+    'O': '#FF8800', 'o': '#CC5500', 'Y': '#ffcc00', 'y': '#998800',
+    'B': '#4488ff', 'b': '#2244aa', 'C': '#4499CC', 'c': '#2288aa',
+    'K': '#111111', 'S': '#DD6622', 's': '#993311', 'F': '#ff4400',
   };
 
   function drawSprite(data, x, y, sc) {
@@ -54,86 +54,89 @@ window.MarsInvaders = (function () {
 
   /* ── Sprites (small pixel grids, drawn at 2-3x scale) ── */
 
-  /* Player ship 13x7 */
+  /* Player ship — Mars fighter (orange/red, reference pixel art) 13x10 */
   var SHIP = [
-    '......S......',
-    '.....SSS.....',
-    '.....SCS.....',
-    '....SSSSS....',
-    '.SSSSSSSSSSS.',
-    'SsSSSrSrSSsSS',
-    'Ss.ss.S.ss.sS',
+    '......K......',
+    '.....KsK.....',
+    '....KsOsK....',
+    '....KrCrK....',
+    '..KgrOOOrgK..',
+    '.KgOrOrOrOgK.',
+    'KgsOrOrOrOsgK',
+    'KKOOrO.OrOOKK',
+    '.KOrK...KrOK.',
+    '..KK.....KK..',
   ];
 
-  /* Alien type A 11x8 — squid */
+  /* Alien type A 11x8 — squid (orange tones with eyes) */
   var ALIEN_A1 = [
-    '.....G.....',
-    '....GGG....',
-    '...GGGGG...',
-    '..GG.G.GG..',
-    '..GGGGGGG..',
-    '....G.G....',
-    '...G...G...',
-    '..G.....G..',
+    '.....o.....',
+    '....oOo....',
+    '...oOSOo...',
+    '..oW.o.Wo..',
+    '..oOOOOOo..',
+    '....O.O....',
+    '...s...s...',
+    '..s.....s..',
   ];
   var ALIEN_A2 = [
-    '.....G.....',
-    '....GGG....',
-    '...GGGGG...',
-    '..GG.G.GG..',
-    '..GGGGGGG..',
-    '...G.G.G...',
-    '..G.G.G.G..',
-    '...G...G...',
+    '.....o.....',
+    '....oOo....',
+    '...oOSOo...',
+    '..oW.o.Wo..',
+    '..oOOOOOo..',
+    '...o.O.o...',
+    '..s.o.o.s..',
+    '...s...s...',
   ];
 
-  /* Alien type B 11x8 — crab */
+  /* Alien type B 11x8 — crab (orange tones with eyes) */
   var ALIEN_B1 = [
-    '..G.....G..',
-    '...G...G...',
-    '..GGGGGGG..',
-    '.GG.GGG.GG.',
-    'GGGGGGGGGGG',
-    'G.GGGGGGG.G',
-    'G.G.....G.G',
-    '...GG.GG...',
+    '..s.....s..',
+    '...o...o...',
+    '..oOOOOOo..',
+    '.oOWOOOWOo.',
+    'oOOOOOOOOOo',
+    'o.oOOOOOo.o',
+    'o.o.....o.o',
+    '...os.so...',
   ];
   var ALIEN_B2 = [
-    '..G.....G..',
-    'G..G...G..G',
-    'G.GGGGGGG.G',
-    'GGG.GGG.GGG',
-    'GGGGGGGGGGG',
-    '.GGGGGGGGG.',
-    '..G.....G..',
-    '.G.......G.',
+    '..s.....s..',
+    's..o...o..s',
+    's.oOOOOOo.s',
+    'ooOWOOOWOoo',
+    'oOOOOOOOOOo',
+    '.oOOOOOOOo.',
+    '..o.....o..',
+    '.s.......s.',
   ];
 
-  /* Boss 13x9 */
+  /* Boss 13x9 — red/orange with detailed eyes */
   var BOSS_SPRITE = [
     '....RRRRR....',
-    '..RRRRRRRRR..',
+    '..RRRORORRRR.',
+    '.RRRRORORRR..',
+    '.RWKRRRRRWKR.',
     '.RRRRRRRRRRR.',
-    '.RRW.RRR.WRR.',
-    '.RRRRRRRRRRR.',
-    '.RRRRRRRRRRR.',
+    '..RROORROORR.',
     '...RR.R.RR...',
-    '..RR.....RR..',
-    '.RR.......RR.',
+    '..Rr.....rR..',
+    '.Rr.......rR.',
   ];
 
-  /* Shield block 16x10 */
+  /* Shield block 16x10 — orange pixel bunker */
   var SHIELD_DATA = [
-    '....GGGGGGGG....',
-    '..GGGGGGGGGGGG..',
-    '.GGGGGGGGGGGGGG.',
-    'GGGGGGGGGGGGGGGG',
-    'GGGGGGGGGGGGGGGG',
-    'GGGGGGGGGGGGGGGG',
-    'GGGGGGGGGGGGGGGG',
-    'GGGGG......GGGGG',
-    'GGGG........GGGG',
-    'GGG..........GGG',
+    '....OOOOOOOO....',
+    '..OOoOOOOOoOOO..',
+    '.OOOOOOOOOOOOOO.',
+    'OOoOOOOOOOOOoOOO',
+    'OOOOOOOOOOOOOOOO',
+    'OOOOoOOOOOoOOOOO',
+    'OOOOOOOOOOOOOOOO',
+    'OOOOO......OOOOO',
+    'OOOO........OOOO',
+    'OOO..........OOO',
   ];
 
   function initStars() {
@@ -157,8 +160,9 @@ window.MarsInvaders = (function () {
       var cells = [];
       for (var r = 0; r < SHIELD_DATA.length; r++) {
         for (var c = 0; c < SHIELD_DATA[0].length; c++) {
-          if (SHIELD_DATA[r][c] !== '.') {
-            cells.push({ x: positions[i] - 16 + c * 2, y: H - 140 + r * 2, alive: true });
+          var ch = SHIELD_DATA[r][c];
+          if (ch !== '.') {
+            cells.push({ x: positions[i] - 16 + c * 2, y: H - 150 + r * 2, alive: true, shade: ch });
           }
         }
       }
@@ -217,7 +221,7 @@ window.MarsInvaders = (function () {
   }
 
   function start() {
-    player = { x: W / 2, y: H - 40 };
+    player = { x: W / 2, y: H - 50 };
     playerBullet = null; alienBullets = [];
     aliens = []; particles = [];
     score = 0; lives = MAX_LIVES; wave = 0; continueCount = 0;
@@ -376,24 +380,26 @@ window.MarsInvaders = (function () {
     var t = ts * 0.001;
     var anim = Math.floor(frameCount / 30) % 2;
 
-    /* Background */
-    ctx.fillStyle = '#000008';
+    /* Background (pure black, pixel style) */
+    ctx.fillStyle = '#000004';
     ctx.fillRect(0, 0, W, H);
 
-    /* Stars */
+    /* Stars (pixel blocks, on/off flicker) */
     for (var si = 0; si < stars.length; si++) {
       var st = stars[si];
-      var b = 0.3 + 0.4 * Math.sin(t + st.blink);
-      ctx.fillStyle = 'rgba(255,255,255,' + b + ')';
-      ctx.fillRect(Math.floor(st.x), Math.floor(st.y), 1, 1);
+      var on = Math.sin(t * 0.8 + st.blink) > -0.2;
+      if (!on) continue;
+      var sz = (si % 3 === 0) ? 2 : 1; // some stars are 2x2
+      ctx.fillStyle = (si % 5 === 0) ? '#FF8844' : (si % 7 === 0) ? '#8888CC' : '#CCCCCC';
+      ctx.fillRect(Math.floor(st.x), Math.floor(st.y), sz, sz);
     }
 
-    /* Shields */
-    ctx.fillStyle = '#22cc44';
+    /* Shields (orange pixel bunker) */
     for (var si = 0; si < shields.length; si++) {
       var cells = shields[si];
       for (var ci = 0; ci < cells.length; ci++) {
         if (cells[ci].alive) {
+          ctx.fillStyle = cells[ci].shade === 'o' ? '#CC5500' : '#FF8800';
           ctx.fillRect(cells[ci].x, cells[ci].y, 2, 2);
         }
       }
@@ -451,36 +457,60 @@ window.MarsInvaders = (function () {
     }
     ctx.globalAlpha = 1;
 
-    /* Ground line */
-    ctx.fillStyle = '#22cc44';
-    ctx.fillRect(0, H - 16, W, 1);
+    /* Ground line (orange pixel dashes) */
+    for (var gi = 0; gi < W; gi += 4) {
+      ctx.fillStyle = (gi % 8 < 4) ? '#FF8800' : '#CC5500';
+      ctx.fillRect(gi, H - 30, 3, 2);
+    }
 
     /* HUD */
-    ctx.font = 'bold 12px monospace'; ctx.textBaseline = 'top';
+    ctx.font = 'bold 12px "Courier New",monospace'; ctx.textBaseline = 'top';
     ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
     ctx.fillText('SCORE  ' + String(score).padStart(6, '0'), 8, 4);
     ctx.textAlign = 'center';
     ctx.fillStyle = timeLeft < 15 ? '#ff4444' : '#aaaaaa';
     ctx.fillText(Math.ceil(timeLeft) + 's', W / 2, 4);
     ctx.textAlign = 'right';
-    ctx.fillStyle = '#aaaaaa';
+    ctx.fillStyle = '#FF8800';
     ctx.fillText('WAVE ' + wave, W - 40, 4);
-    /* Lives (bottom left) */
+    /* Lives (bottom, with vertical padding) */
     for (var li = 0; li < lives - 1; li++) {
-      drawSprite(SHIP, 24 + li * 28, H - 6, 1.5);
+      drawSprite(SHIP, 24 + li * 28, H - 18, 1.5);
     }
   }
 
   function drawGameOver() {
     ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = 'bold 28px monospace'; ctx.fillStyle = '#ff2222';
+    ctx.font = 'bold 28px "Courier New",monospace'; ctx.fillStyle = '#ff4400';
+    ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 16;
     ctx.fillText('GAME OVER', W / 2, H / 2 - 30);
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 20px monospace';
+    ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 20px "Courier New",monospace';
+    ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 8;
     ctx.fillText('SCORE: ' + score, W / 2, H / 2 + 10);
-    ctx.fillStyle = '#888888'; ctx.font = '12px monospace';
+    ctx.fillStyle = '#FF8800'; ctx.font = '12px "Courier New",monospace';
+    ctx.shadowColor = '#FF8800'; ctx.shadowBlur = 4;
     ctx.fillText('WAVE ' + wave, W / 2, H / 2 + 35);
+    ctx.shadowBlur = 0;
   }
 
-  return { init: init, start: start, stop: stop, getScore: getScore, continueGame: continueGame, get continueCount() { return continueCount; } };
+  function getShipIcon(size) {
+    var c = document.createElement('canvas');
+    c.width = size; c.height = size;
+    var cx = c.getContext('2d');
+    var rows = SHIP.length, cols = SHIP[0].length;
+    var sc = Math.floor(Math.min(size / cols, size / rows));
+    var ox = (size - cols * sc) / 2, oy = (size - rows * sc) / 2;
+    for (var r = 0; r < rows; r++) {
+      for (var cc = 0; cc < cols; cc++) {
+        var ch = SHIP[r][cc];
+        if (ch === '.') continue;
+        cx.fillStyle = PAL[ch] || '#fff';
+        cx.fillRect(Math.floor(ox + cc * sc), Math.floor(oy + r * sc), sc, sc);
+      }
+    }
+    return c.toDataURL();
+  }
+
+  return { init: init, start: start, stop: stop, getScore: getScore, continueGame: continueGame, getShipIcon: getShipIcon, get continueCount() { return continueCount; } };
 })();

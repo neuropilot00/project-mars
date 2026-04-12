@@ -570,6 +570,20 @@ async function start() {
       console.log('[AUTO-RENEW] Scheduled tasks initialized (check: 5min)');
     } catch(e) { console.warn('[AUTO-RENEW] Could not init scheduled tasks:', e.message); }
 
+    // ── Season Auto-Rotation ──
+    try {
+      const { autoRotateSeason } = require('./services/season');
+      // Check on startup (after 2 min delay to let DB settle)
+      setTimeout(async () => {
+        try { await autoRotateSeason(); } catch(e) { console.warn('[SEASON] startup rotation error:', e.message); }
+      }, 120 * 1000);
+      // Check every 1 hour
+      setInterval(async () => {
+        try { await autoRotateSeason(); } catch(e) { console.warn('[SEASON] rotation error:', e.message); }
+      }, 60 * 60 * 1000);
+      console.log('[SEASON] Auto-rotation scheduled (check: startup+2min, then 1h)');
+    } catch(e) { console.warn('[SEASON] Could not init auto-rotation:', e.message); }
+
     // ── Daily Engagement Cleanup ──
     try {
       // Daily cleanup - remove old mission data

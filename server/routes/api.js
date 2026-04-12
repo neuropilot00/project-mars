@@ -4745,6 +4745,7 @@ router.get('/season/pass', readLimiter, async (req, res) => {
     const seasonService = require('../services/season');
     const pass = await seasonService.getSeasonPass(w);
     if (pass.error) return res.status(400).json(pass);
+    pass.premiumCost = parseInt(await getSetting('season_pass_premium_cost_gp') || '500');
     res.json(pass);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
