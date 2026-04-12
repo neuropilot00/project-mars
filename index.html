@@ -3568,6 +3568,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 </div>
                 <button id="guildLevelupBtn" onclick="guildLevelUp()" style="padding:8px 12px;border-radius:6px;background:linear-gradient(135deg,var(--pp),#9060C0);border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="guild_levelup_btn">LEVEL UP ▲</button>
               </div>
+              <!-- GP Donate -->
+              <div style="display:flex;align-items:center;gap:6px;padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:8px">
+                <input id="guildDonateAmt" type="number" min="1" placeholder="GP" style="flex:1;padding:6px 8px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--tx);font-size:11px;font-family:var(--fn);box-sizing:border-box">
+                <button onclick="guildDonateGP()" style="padding:6px 12px;border-radius:5px;background:linear-gradient(135deg,rgba(0,230,118,.2),rgba(0,200,83,.1));border:1px solid rgba(0,230,118,.35);color:var(--gn);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700;white-space:nowrap">💰 기부</button>
+              </div>
               <!-- Contribution slider -->
               <div style="padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:8px">
                 <div style="display:flex;align-items:center;justify-content:space-between;font-size:9px;color:var(--tx3);font-family:var(--fn);margin-bottom:4px">
@@ -14013,6 +14018,22 @@ function renderGuildUpgrades(guild, myRole){
   }).join('');
 }
 
+function guildDonateGP(){
+  if(!_myGuildData) return;
+  var amt = parseInt(document.getElementById('guildDonateAmt').value);
+  if(!amt||amt<=0){ showToast('금액을 입력하세요'); return; }
+  if(amt > (walletState.gameGP||0)){ showToast('GP가 부족합니다'); return; }
+  fetch('/api/guild/donate',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({wallet:walletState.address, guildId:_myGuildData.id, amount:amt})
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showToast(d.error,'error'); return; }
+    walletState.gameGP = d.gpBalance!=null ? d.gpBalance : (walletState.gameGP - amt);
+    refreshEmailBalances();
+    document.getElementById('guildDonateAmt').value = '';
+    showToast('💰 '+amt+' GP 기부 완료!','success');
+    loadGuildTab();
+  }).catch(function(e){ showToast('기부 실패: '+e.message,'error'); });
+}
 function guildLevelUp(){
   if(!_myGuildData) return;
   fetch('/api/guild/levelup',{method:'POST',headers:{'Content-Type':'application/json'},

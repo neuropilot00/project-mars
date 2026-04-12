@@ -4600,6 +4600,43 @@ router.post('/guild/levelup', writeLimiter, async (req, res) => {
 });
 
 // Unlock a research perk (consumes treasury)
+// ── Guild GP Donation ──
+router.post('/guild/donate', writeLimiter, async (req, res) => {
+  const { wallet, guildId, amount } = req.body || {};
+  const w = (wallet || '').toLowerCase();
+  const amt = parseInt(amount);
+  if (!w || !guildId || !amt || amt <= 0) return res.status(400).json({ error: 'Missing fields' });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // Verify user is member
+    const mem = await client.query('SELECT guild_id FROM guild_members WHERE wallet=$1 AND guild_id=$2', [w, guildId]);
+    if (!mem.rows.length) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Not a guild member' }); }
+    // Check balance
+    const usr = await client.query('SELECT gp_balance FROM users WHERE wallet_address=$1', [w]);
+    if (!usr.rows.length || parseInt(usr.rows[0].gp_balance) < amt) {
+      await client.query('ROLLBACK'); return res.status(400).json({ error: 'Insufficient GP' });
+    }
+    // Deduct from user
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [amt, w]);
+    // Credit guild treasury
+    await client.query('UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id=$2', [amt, guildId]);
+    // Ledger
+    try {
+      await client.query(
+        `INSERT INTO guild_treasury_ledger (guild_id, wallet, delta_gp, reason) VALUES ($1, $2, $3, 'donate')`,
+        [guildId, w, amt]
+      );
+    } catch (_e) { /* ledger table may not exist */ }
+    await client.query('COMMIT');
+    const bal = await pool.query('SELECT gp_balance FROM users WHERE wallet_address=$1', [w]);
+    res.json({ ok: true, gpBalance: parseInt(bal.rows[0]?.gp_balance || 0) });
+  } catch (e) {
+    await client.query('ROLLBACK').catch(() => {});
+    res.status(500).json({ error: e.message });
+  } finally { client.release(); }
+});
+
 router.post('/guild/research', writeLimiter, async (req, res) => {
   const { wallet, guildId, key } = req.body || {};
   const w = (wallet || '').toLowerCase();
