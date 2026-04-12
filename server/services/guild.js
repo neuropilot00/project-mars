@@ -846,8 +846,8 @@ async function contributeHarvest(client, wallet, grossPP) {
     );
     const balance = parseFloat(upd.rows[0]?.gp_treasury || 0);
     await client.query(
-      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
-       VALUES ($1, $2, 'harvest_contrib', $3, $4, $5)`,
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+       VALUES ($1, $2, 'harvest_contrib', 0, $3, $4, $5)`,
       [guild_id, wallet, gpCredit, balance, `${pct}% harvest → ${ppCut.toFixed(4)} PP → ${gpCredit} GP`]
     );
     await client.query(
@@ -915,8 +915,8 @@ async function upgradeGuildLevel(wallet, guildId) {
     );
     const newBal = treasury - cost;
     await client.query(
-      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
-       VALUES ($1, $2, 'levelup', $3, $4, $5)`,
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+       VALUES ($1, $2, 'levelup', 0, $3, $4, $5)`,
       [guildId, wallet, -cost, newBal, `Level ${curLvl} → ${nextLvl}`]
     );
 
@@ -1023,8 +1023,8 @@ async function unlockResearch(wallet, guildId, researchKey) {
     );
     const newBal = treasury - cost;
     await client.query(
-      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
-       VALUES ($1, $2, 'research', $3, $4, $5)`,
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+       VALUES ($1, $2, 'research', 0, $3, $4, $5)`,
       [guildId, wallet, -cost, newBal, `Research: ${researchKey}`]
     );
     await client.query('COMMIT');
@@ -1122,7 +1122,7 @@ async function declareWar(wallet, guildId, targetGuildId) {
     }
 
     // Check min members
-    const minMembers = parseInt(await getSetting('guild_war_min_members') || '3');
+    const minMembers = parseInt(await getSetting('guild_war_min_members') || '1');
     const memCount = await client.query('SELECT COUNT(*)::int AS cnt FROM guild_members WHERE guild_id = $1', [guildId]);
     if (memCount.rows[0].cnt < minMembers) {
       await client.query('ROLLBACK');
@@ -1185,8 +1185,8 @@ async function declareWar(wallet, guildId, targetGuildId) {
     await client.query('UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2', [cost, guildId]);
     const newBal = treasury - cost;
     await client.query(
-      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
-       VALUES ($1, $2, 'war_declare', $3, $4, $5)`,
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+       VALUES ($1, $2, 'war_declare', 0, $3, $4, $5)`,
       [guildId, wallet, -cost, newBal, `War declared vs guild #${targetGuildId} (-${cost} GP)`]
     );
 
@@ -1305,8 +1305,8 @@ async function resolveExpiredWars() {
         if (winnerId && rewardGP > 0) {
           await client.query('UPDATE guilds SET gp_treasury = gp_treasury + $1 WHERE id = $2', [rewardGP, winnerId]);
           await client.query(
-            `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
-             VALUES ($1, 'system', 'war_reward', $2,
+            `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+             VALUES ($1, 'system', 'war_reward', 0, $2,
                      (SELECT gp_treasury FROM guilds WHERE id = $1), $3)`,
             [winnerId, rewardGP, `War victory GP reward (War #${w.id})`]
           );

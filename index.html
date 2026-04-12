@@ -11,9 +11,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <script src="/assets/lib/globe.gl.min.js"></script>
-<script src="/js/minigame-invaders.js"></script>
-<script src="/js/minigame-runner.js"></script>
-<script src="/js/minigame-digger.js"></script>
+<script src="/public/js/minigame-invaders.js?v=2"></script>
+<script src="/public/js/minigame-runner.js?v=2"></script>
+<script src="/public/js/minigame-digger.js?v=2"></script>
 <style>
 :root{
   --bg:#0D0B14;--panel:rgba(14,12,24,0.93);--panel2:rgba(20,16,32,0.95);
@@ -556,7 +556,7 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .toast{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% - 160px));padding:8px 20px;
   background:rgba(18,18,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.25);
   border-radius:20px;font-size:var(--fs-sm);color:var(--gn);opacity:0;transition:opacity .3s;
-  z-index:10001;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+  z-index:99999;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
 .toast.show{opacity:1}
 
 /* Notification stack */
@@ -1722,7 +1722,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .arena-overlay .arena-toast{position:absolute;top:12px;left:50%;transform:translateX(-50%);padding:8px 20px;
   background:rgba(18,18,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.25);
   border-radius:20px;font-size:var(--fs-sm);color:var(--gn);opacity:0;transition:opacity .3s;
-  z-index:10001;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+  z-index:99999;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
 .arena-overlay .arena-toast.err{border-color:rgba(232,72,85,.25);color:var(--red)}
 .arena-overlay .arena-toast.show{opacity:1}
 
@@ -2989,22 +2989,51 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div class="arena-overlay" id="minigameOverlay" style="z-index:3100">
   <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
     <!-- Game selection (shown when no game active) -->
-    <div id="mgSelectPanel" style="width:340px;max-width:92vw;background:var(--surface1);border-radius:12px;border:1px solid var(--bdr);padding:16px;font-family:var(--fn)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:14px;font-weight:700;color:var(--red)">⚔️ WAR GAMES</div>
-        <button onclick="closeMinigameOverlay()" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer">✕</button>
+    <div id="mgSelectPanel" style="width:380px;max-width:94vw;background:linear-gradient(180deg,rgba(20,10,30,.97),rgba(12,6,18,.99));border-radius:16px;border:1px solid rgba(255,60,60,.2);padding:20px;font-family:var(--fn);box-shadow:0 0 60px rgba(255,40,40,.15),inset 0 1px 0 rgba(255,255,255,.05)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div style="font-size:16px;font-weight:900;color:#ff4444;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 20px rgba(255,60,60,.5)">WAR GAMES</div>
+        <button onclick="closeMinigameOverlay()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:20px;cursor:pointer;transition:color .2s" onmouseenter="this.style.color='#ff4444'" onmouseleave="this.style.color='rgba(255,255,255,.4)'">✕</button>
       </div>
-      <div id="mgWarInfo" style="font-size:9px;color:var(--tx3);margin-bottom:8px;text-align:center"></div>
-      <div id="mgPlaysLeft" style="font-size:10px;color:var(--cyan);text-align:center;margin-bottom:10px"></div>
-      <div style="display:flex;gap:8px">
-        <button onclick="launchMinigame('invaders')" style="flex:1;padding:16px 8px;border-radius:8px;background:linear-gradient(135deg,#1a0a2e,#0d0020);border:1px solid rgba(255,100,0,.3);color:#ff8c00;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn)">
-          🚀<br>MARS<br>INVADERS
+      <div id="mgWarInfo" style="font-size:9px;color:var(--tx3);margin-bottom:6px;text-align:center"></div>
+      <div id="mgPlaysLeft" style="font-size:10px;color:var(--cyan);text-align:center;margin-bottom:14px"></div>
+      <div style="display:flex;gap:10px">
+        <button onclick="launchMinigame('invaders')" style="flex:1;padding:0;border-radius:12px;background:linear-gradient(180deg,#1a0a3e,#0a0018);border:1px solid rgba(255,100,0,.25);cursor:pointer;font-family:var(--fn);overflow:hidden;transition:all .2s;box-shadow:0 4px 20px rgba(255,100,0,.1)" onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 30px rgba(255,100,0,.25)';this.style.borderColor='rgba(255,100,0,.5)'" onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(255,100,0,.1)';this.style.borderColor='rgba(255,100,0,.25)'">
+          <div style="height:80px;background:linear-gradient(180deg,#0d0030,#1a0a3e);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 80%,rgba(255,100,0,.15),transparent 70%)"></div>
+            <div style="font-size:40px;filter:drop-shadow(0 0 10px rgba(255,100,0,.6));position:relative;z-index:1">🚀</div>
+            <div style="position:absolute;top:8px;left:12px;width:3px;height:3px;background:#fff;border-radius:50%;opacity:.6"></div>
+            <div style="position:absolute;top:20px;right:16px;width:2px;height:2px;background:#ff8c00;border-radius:50%;opacity:.8"></div>
+            <div style="position:absolute;bottom:12px;left:20px;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.4"></div>
+          </div>
+          <div style="padding:10px 6px;text-align:center">
+            <div style="font-size:11px;font-weight:900;color:#ff8c00;letter-spacing:1px;text-shadow:0 0 8px rgba(255,140,0,.4)">MARS</div>
+            <div style="font-size:13px;font-weight:900;color:#ffaa33;letter-spacing:1.5px;text-shadow:0 0 8px rgba(255,170,50,.3)">INVADERS</div>
+            <div style="font-size:7px;color:rgba(255,140,0,.5);margin-top:3px;letter-spacing:.5px">SHOOT & SURVIVE</div>
+          </div>
         </button>
-        <button onclick="launchMinigame('runner')" style="flex:1;padding:16px 8px;border-radius:8px;background:linear-gradient(135deg,#1a1a00,#0d0d00);border:1px solid rgba(255,215,0,.3);color:#ffd700;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn)">
-          👨‍🚀<br>MARS<br>RUNNER
+        <button onclick="launchMinigame('runner')" style="flex:1;padding:0;border-radius:12px;background:linear-gradient(180deg,#1a1a00,#0a0a00);border:1px solid rgba(255,215,0,.25);cursor:pointer;font-family:var(--fn);overflow:hidden;transition:all .2s;box-shadow:0 4px 20px rgba(255,215,0,.1)" onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 30px rgba(255,215,0,.25)';this.style.borderColor='rgba(255,215,0,.5)'" onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(255,215,0,.1)';this.style.borderColor='rgba(255,215,0,.25)'">
+          <div style="height:80px;background:linear-gradient(180deg,#1a1500,#1a1a00);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 80%,rgba(255,215,0,.12),transparent 70%)"></div>
+            <div style="font-size:40px;filter:drop-shadow(0 0 10px rgba(255,215,0,.6));position:relative;z-index:1">👨‍🚀</div>
+            <div style="position:absolute;bottom:0;left:0;right:0;height:8px;background:linear-gradient(90deg,rgba(139,90,43,.6),rgba(180,120,50,.4),rgba(139,90,43,.6))"></div>
+          </div>
+          <div style="padding:10px 6px;text-align:center">
+            <div style="font-size:11px;font-weight:900;color:#ffd700;letter-spacing:1px;text-shadow:0 0 8px rgba(255,215,0,.4)">MARS</div>
+            <div style="font-size:13px;font-weight:900;color:#ffe44d;letter-spacing:1.5px;text-shadow:0 0 8px rgba(255,228,77,.3)">RUNNER</div>
+            <div style="font-size:7px;color:rgba(255,215,0,.5);margin-top:3px;letter-spacing:.5px">RUN & DODGE</div>
+          </div>
         </button>
-        <button onclick="launchMinigame('digger')" style="flex:1;padding:16px 8px;border-radius:8px;background:linear-gradient(135deg,#1a0a00,#0d0500);border:1px solid rgba(139,69,19,.5);color:#cd853f;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn)">
-          ⛏️<br>MARS<br>DIGGER
+        <button onclick="launchMinigame('digger')" style="flex:1;padding:0;border-radius:12px;background:linear-gradient(180deg,#1a0a00,#0d0500);border:1px solid rgba(205,133,63,.25);cursor:pointer;font-family:var(--fn);overflow:hidden;transition:all .2s;box-shadow:0 4px 20px rgba(205,133,63,.1)" onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 30px rgba(205,133,63,.25)';this.style.borderColor='rgba(205,133,63,.5)'" onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(205,133,63,.1)';this.style.borderColor='rgba(205,133,63,.25)'">
+          <div style="height:80px;background:linear-gradient(180deg,#1a0800,#1a0a00);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 80%,rgba(205,133,63,.15),transparent 70%)"></div>
+            <div style="font-size:40px;filter:drop-shadow(0 0 10px rgba(205,133,63,.6));position:relative;z-index:1">⛏️</div>
+            <div style="position:absolute;bottom:0;left:0;right:0;height:12px;background:repeating-linear-gradient(90deg,rgba(139,69,19,.5) 0px,rgba(160,82,45,.3) 8px,rgba(101,67,33,.5) 16px)"></div>
+          </div>
+          <div style="padding:10px 6px;text-align:center">
+            <div style="font-size:11px;font-weight:900;color:#cd853f;letter-spacing:1px;text-shadow:0 0 8px rgba(205,133,63,.4)">MARS</div>
+            <div style="font-size:13px;font-weight:900;color:#daa06d;letter-spacing:1.5px;text-shadow:0 0 8px rgba(218,160,109,.3)">DIGGER</div>
+            <div style="font-size:7px;color:rgba(205,133,63,.5);margin-top:3px;letter-spacing:.5px">DIG & COLLECT</div>
+          </div>
         </button>
       </div>
     </div>
@@ -14613,6 +14642,14 @@ function launchOpsMission(){
     .then(function(d){
       if(d.error){ showAlert(d.error); return; }
       showAlert(t('ops_mission_launched'),'success');
+      // Reset input fields
+      document.getElementById('opsTargetLat').value = '';
+      document.getElementById('opsTargetLng').value = '';
+      document.getElementById('opsTargetWallet').value = '';
+      window._opsPreviewData = null;
+      window._opsPreviewTarget = null;
+      var prevEl = document.getElementById('opsPreviewInfo');
+      if(prevEl) prevEl.innerHTML = '';
       if(_opsType==='invasion'){try{trackQuestAction('launch_invasion',1)}catch(e){}}
       if(_opsType==='exploration'){try{trackQuestAction('launch_exploration',1)}catch(e){}}
       loadOpsTab();

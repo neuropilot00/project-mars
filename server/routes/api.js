@@ -4625,12 +4625,13 @@ router.post('/guild/donate', writeLimiter, async (req, res) => {
     // Deduct from user
     await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [amt, w]);
     // Credit guild treasury
-    await client.query('UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id=$2', [amt, guildId]);
+    const tRes = await client.query('UPDATE guilds SET gp_treasury = COALESCE(gp_treasury,0) + $1 WHERE id=$2 RETURNING gp_treasury', [amt, guildId]);
+    const newTreasury = parseFloat(tRes.rows[0]?.gp_treasury || 0);
     // Ledger
     try {
       await client.query(
-        `INSERT INTO guild_treasury_ledger (guild_id, wallet, delta_gp, reason) VALUES ($1, $2, $3, 'donate')`,
-        [guildId, w, amt]
+        `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo) VALUES ($1, $2, 'donate', 0, $3, $4, $5)`,
+        [guildId, w, amt, newTreasury, `GP donation: ${amt} GP`]
       );
     } catch (_e) { /* ledger table may not exist */ }
     await client.query('COMMIT');
