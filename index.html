@@ -12699,23 +12699,14 @@ function renderActiveBuffs(){
 function openItemShop(){
   try{ openBaseModal(); }catch(_){}
   setTimeout(function(){
-    // Find SHOP tab by pane id, not text (works regardless of language)
-    var tabs = document.querySelectorAll('.base-tab');
-    var panes = document.querySelectorAll('.base-pane');
-    for(var i=0;i<panes.length;i++){
-      if(panes[i].id==='basePane_shop' && tabs[i]){
-        tabs[i].click();
-        // Switch to inventory view inside shop tab
-        setTimeout(function(){
-          var invBtn = document.querySelector('.base-shop-view:not(.active)');
-          if(invBtn && invBtn.textContent.indexOf('ITEM')>=0 || invBtn && invBtn.getAttribute('data-i18n')==='base_inv_btn'){
-            invBtn.click();
-          } else {
-            switchBaseShopView('inventory', document.querySelectorAll('.base-shop-view')[1]);
-          }
-        },50);
-        break;
-      }
+    // Find SHOP tab directly by data-i18n attribute
+    var shopTab = document.querySelector('.base-tab[data-i18n="base_tab_shop"]');
+    if(shopTab){
+      shopTab.click();
+      // Switch to inventory view
+      setTimeout(function(){
+        switchBaseShopView('inventory', document.querySelectorAll('.base-shop-view')[1]);
+      },50);
     }
   }, 100);
 }
