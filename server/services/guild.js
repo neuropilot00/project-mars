@@ -812,45 +812,50 @@ async function getGuildMessages(wallet, guildId, sinceId) {
 // ═══════════════════════════════════════
 //
 //  Called from harvest flow: if the wallet is in a guild, redirects
-//  `pct%` of the gross PP reward into the guild PP treasury and
-//  records it on the ledger. Returns { contributed, remaining }.
+//  `pct%` of the gross PP reward → converted to GP at exchange rate
+//  → credited to guild GP treasury. Returns { contributed (PP), remaining (PP) }.
 //  Pct is per-member (users set it themselves 0–max% via slider).
 //
 async function contributeHarvest(client, wallet, grossPP) {
   if (!grossPP || grossPP <= 0) return { contributed: 0, remaining: grossPP };
   try {
     const memRes = await client.query(
-      `SELECT gm.guild_id, gm.pp_contribution_pct
+      `SELECT gm.guild_id, gm.gp_contribution_pct
        FROM guild_members gm
        WHERE gm.wallet = $1`,
       [wallet]
     );
     if (!memRes.rows.length) return { contributed: 0, remaining: grossPP };
-    const { guild_id, pp_contribution_pct } = memRes.rows[0];
-    const pct = Math.max(0, Math.min(30, parseInt(pp_contribution_pct || 0)));
+    const { guild_id, gp_contribution_pct } = memRes.rows[0];
+    const pct = Math.max(0, Math.min(30, parseInt(gp_contribution_pct || 0)));
     if (pct === 0) return { contributed: 0, remaining: grossPP };
 
-    const cut = Math.round(grossPP * pct / 100 * 1000000) / 1000000;
-    if (cut <= 0) return { contributed: 0, remaining: grossPP };
+    const ppCut = Math.round(grossPP * pct / 100 * 1000000) / 1000000;
+    if (ppCut <= 0) return { contributed: 0, remaining: grossPP };
 
-    // Credit treasury + ledger
+    // Convert PP contribution to GP (rate from settings, default 100)
+    const ppToGpRate = parseFloat(await getSetting('pp_to_gp_exchange_rate') || '100');
+    const gpCredit = Math.floor(ppCut * ppToGpRate);
+    if (gpCredit <= 0) return { contributed: 0, remaining: grossPP };
+
+    // Credit GP treasury + ledger
     const upd = await client.query(
-      `UPDATE guilds SET pp_treasury = COALESCE(pp_treasury, 0) + $1
-       WHERE id = $2 RETURNING pp_treasury`,
-      [cut, guild_id]
+      `UPDATE guilds SET gp_treasury = COALESCE(gp_treasury, 0) + $1
+       WHERE id = $2 RETURNING gp_treasury`,
+      [gpCredit, guild_id]
     );
-    const balance = parseFloat(upd.rows[0]?.pp_treasury || 0);
+    const balance = parseFloat(upd.rows[0]?.gp_treasury || 0);
     await client.query(
-      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
        VALUES ($1, $2, 'harvest_contrib', $3, $4, $5)`,
-      [guild_id, wallet, cut, balance, `${pct}% harvest contribution`]
+      [guild_id, wallet, gpCredit, balance, `${pct}% harvest → ${ppCut.toFixed(4)} PP → ${gpCredit} GP`]
     );
     await client.query(
       `UPDATE guild_members SET total_contributed = COALESCE(total_contributed, 0) + $1
        WHERE guild_id = $2 AND wallet = $3`,
-      [cut, guild_id, wallet]
+      [ppCut, guild_id, wallet]
     );
-    return { contributed: cut, remaining: grossPP - cut, guildId: guild_id };
+    return { contributed: ppCut, remaining: grossPP - ppCut, guildId: guild_id };
   } catch (e) {
     console.warn('[GUILD] contributeHarvest failed:', e.message);
     return { contributed: 0, remaining: grossPP };
@@ -862,7 +867,7 @@ async function setContributionPct(wallet, pct) {
   const max = parseInt(await getSetting('guild_contrib_max_pct') || '30');
   const clamped = Math.max(min, Math.min(max, parseInt(pct || 0)));
   const r = await pool.query(
-    `UPDATE guild_members SET pp_contribution_pct = $1 WHERE wallet = $2 RETURNING guild_id`,
+    `UPDATE guild_members SET gp_contribution_pct = $1 WHERE wallet = $2 RETURNING guild_id`,
     [clamped, wallet]
   );
   if (!r.rowCount) return { error: 'Not in a guild' };
@@ -888,29 +893,29 @@ async function upgradeGuildLevel(wallet, guildId) {
     if (!mem.rows.length) { await client.query('ROLLBACK'); return { error: 'Not a guild member' }; }
 
     const gRes = await client.query(
-      'SELECT level, pp_treasury FROM guilds WHERE id = $1 FOR UPDATE',
+      'SELECT level, gp_treasury FROM guilds WHERE id = $1 FOR UPDATE',
       [guildId]
     );
     if (!gRes.rows.length) { await client.query('ROLLBACK'); return { error: 'Guild not found' }; }
     const curLvl = parseInt(gRes.rows[0].level || 1);
-    const treasury = parseFloat(gRes.rows[0].pp_treasury || 0);
+    const treasury = parseFloat(gRes.rows[0].gp_treasury || 0);
     const maxLvl = parseInt(await getSetting('guild_level_max') || '6');
     if (curLvl >= maxLvl) { await client.query('ROLLBACK'); return { error: 'Already at max level' }; }
 
     const nextLvl = curLvl + 1;
-    const costKey = `guild_level_${nextLvl}_cost_pp`;
+    const costKey = `guild_level_${nextLvl}_cost_gp`;
     const cost = parseFloat(await getSetting(costKey) || '0');
     if (cost <= 0) { await client.query('ROLLBACK'); return { error: 'Level cost not configured' }; }
-    if (treasury < cost) { await client.query('ROLLBACK'); return { error: `Need ${cost} PP in treasury. Have ${treasury.toFixed(2)}.` }; }
+    if (treasury < cost) { await client.query('ROLLBACK'); return { error: `Need ${cost} GP in treasury. Have ${treasury.toFixed(2)}.` }; }
 
     // Deduct + upgrade
     await client.query(
-      'UPDATE guilds SET pp_treasury = pp_treasury - $1, level = $2 WHERE id = $3',
+      'UPDATE guilds SET gp_treasury = gp_treasury - $1, level = $2 WHERE id = $3',
       [cost, nextLvl, guildId]
     );
     const newBal = treasury - cost;
     await client.query(
-      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
        VALUES ($1, $2, 'levelup', $3, $4, $5)`,
       [guildId, wallet, -cost, newBal, `Level ${curLvl} → ${nextLvl}`]
     );
@@ -953,7 +958,7 @@ async function getGuildMaxMembers(guildId) {
 //
 async function unlockResearch(wallet, guildId, researchKey) {
   if (!researchKey) return { error: 'Missing research key' };
-  const costSetting = `guild_research_${researchKey}_pp`;
+  const costSetting = `guild_research_${researchKey}_gp`;
   const cost = parseFloat(await getSetting(costSetting) || '0');
   if (cost <= 0) return { error: 'Unknown research' };
 
@@ -971,26 +976,26 @@ async function unlockResearch(wallet, guildId, researchKey) {
     }
 
     const gRes = await client.query(
-      'SELECT pp_treasury, research_flags FROM guilds WHERE id = $1 FOR UPDATE',
+      'SELECT gp_treasury, research_flags FROM guilds WHERE id = $1 FOR UPDATE',
       [guildId]
     );
     if (!gRes.rows.length) { await client.query('ROLLBACK'); return { error: 'Guild not found' }; }
-    const treasury = parseFloat(gRes.rows[0].pp_treasury || 0);
+    const treasury = parseFloat(gRes.rows[0].gp_treasury || 0);
     const flags = gRes.rows[0].research_flags || {};
     if (flags[researchKey]) { await client.query('ROLLBACK'); return { error: 'Already unlocked' }; }
-    if (treasury < cost) { await client.query('ROLLBACK'); return { error: `Need ${cost} PP. Have ${treasury.toFixed(2)}.` }; }
+    if (treasury < cost) { await client.query('ROLLBACK'); return { error: `Need ${cost} GP. Have ${treasury.toFixed(2)}.` }; }
 
     flags[researchKey] = true;
     await client.query(
       `UPDATE guilds
-         SET pp_treasury = pp_treasury - $1,
+         SET gp_treasury = gp_treasury - $1,
              research_flags = $2::jsonb
        WHERE id = $3`,
       [cost, JSON.stringify(flags), guildId]
     );
     const newBal = treasury - cost;
     await client.query(
-      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
        VALUES ($1, $2, 'research', $3, $4, $5)`,
       [guildId, wallet, -cost, newBal, `Research: ${researchKey}`]
     );
@@ -1004,7 +1009,7 @@ async function unlockResearch(wallet, guildId, researchKey) {
 
 async function getTreasuryLedger(guildId, limit = 50) {
   const r = await pool.query(
-    `SELECT l.id, l.wallet, l.kind, l.delta_pp, l.balance_after, l.memo, l.created_at,
+    `SELECT l.id, l.wallet, l.kind, l.delta_gp, l.balance_after, l.memo, l.created_at,
             u.nickname
      FROM guild_treasury_ledger l
      LEFT JOIN users u ON u.wallet_address = l.wallet
@@ -1018,7 +1023,7 @@ async function getTreasuryLedger(guildId, limit = 50) {
     wallet: row.wallet,
     nickname: row.nickname,
     kind: row.kind,
-    deltaPP: parseFloat(row.delta_pp),
+    deltaGP: parseFloat(row.delta_gp),
     balanceAfter: parseFloat(row.balance_after),
     memo: row.memo,
     at: row.created_at
@@ -1152,7 +1157,7 @@ async function declareWar(wallet, guildId, targetGuildId) {
     await client.query('UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2', [cost, guildId]);
     const newBal = treasury - cost;
     await client.query(
-      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+      `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
        VALUES ($1, $2, 'war_declare', $3, $4, $5)`,
       [guildId, wallet, -cost, newBal, `War declared vs guild #${targetGuildId} (-${cost} GP)`]
     );
@@ -1272,7 +1277,7 @@ async function resolveExpiredWars() {
         if (winnerId && rewardGP > 0) {
           await client.query('UPDATE guilds SET gp_treasury = gp_treasury + $1 WHERE id = $2', [rewardGP, winnerId]);
           await client.query(
-            `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+            `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
              VALUES ($1, 'system', 'war_reward', $2,
                      (SELECT gp_treasury FROM guilds WHERE id = $1), $3)`,
             [winnerId, rewardGP, `War victory GP reward (War #${w.id})`]

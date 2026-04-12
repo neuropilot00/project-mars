@@ -3559,11 +3559,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
                 <span style="font-size:10px;color:var(--pp);font-family:var(--fn);font-weight:700;letter-spacing:1px" data-i18n="guild_upgrades_title">GUILD UPGRADES</span>
                 <span id="guildLevelBadge" style="margin-left:auto;padding:3px 8px;border-radius:10px;background:rgba(184,136,224,.2);border:1px solid rgba(184,136,224,.4);color:var(--pp);font-family:var(--fn);font-size:10px;font-weight:700">LV.1</span>
               </div>
-              <!-- PP treasury + levelup -->
+              <!-- GP treasury + levelup -->
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:rgba(0,0,0,.2);border-radius:6px">
                 <div style="flex:1">
-                  <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)" data-i18n="guild_pp_treasury">PP TREASURY</div>
-                  <div style="font-size:13px;color:var(--pp);font-weight:700" id="guildPpTreasury">0.00</div>
+                  <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)">GP TREASURY</div>
+                  <div style="font-size:13px;color:var(--gn);font-weight:700" id="guildPpTreasury">0</div>
                   <div style="font-size:8px;color:var(--tx3);font-family:var(--fn)" id="guildNextLevelCost" data-i18n="guild_next_dash">Next: –</div>
                 </div>
                 <button id="guildLevelupBtn" onclick="guildLevelUp()" style="padding:8px 12px;border-radius:6px;background:linear-gradient(135deg,var(--pp),#9060C0);border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="guild_levelup_btn">LEVEL UP ▲</button>
@@ -13835,21 +13835,21 @@ function renderGuildState(guild, wallet){
 }
 
 // ── Guild upgrade panel ──
-var _guildLevelCosts = {2:500, 3:2000, 4:8000, 5:25000, 6:80000};
+var _guildLevelCosts = {2:200, 3:500, 4:1500, 5:5000, 6:15000};
 var _guildResearchCatalog = [
-  {key:'mining_eff_1',  labelKey:'research_mining_eff_1',  cost:1000, desc:'채굴 PP +3%', icon:'⛏️'},
-  {key:'shield_disc',   labelKey:'research_shield_disc',   cost:1000, desc:'침공 방어 +15%', icon:'🛡️'},
-  {key:'diplomatic',    labelKey:'research_diplomatic',    cost:1000, desc:'침공 성공률 -10%', icon:'🕊️'},
-  {key:'orbital_scan',  labelKey:'research_orbital_scan',  cost:5000, desc:'탐험 보상 +15%', icon:'🔭'},
-  {key:'rapid_deploy',  labelKey:'research_rapid_deploy',  cost:5000, desc:'미션 시간 -20%', icon:'⚡'},
-  {key:'logistics',     labelKey:'research_logistics',     cost:5000, desc:'비용 -10%', icon:'📦'},
-  {key:'mars_dominion', labelKey:'research_mars_dominion', cost:20000, desc:'전체 +5% 중첩', icon:'👑'}
+  {key:'mining_eff_1',  labelKey:'research_mining_eff_1',  cost:500,  desc:'채굴 PP +3%', icon:'⛏️'},
+  {key:'shield_disc',   labelKey:'research_shield_disc',   cost:500,  desc:'침공 방어 +15%', icon:'🛡️'},
+  {key:'diplomatic',    labelKey:'research_diplomatic',    cost:500,  desc:'침공 성공률 -10%', icon:'🕊️'},
+  {key:'orbital_scan',  labelKey:'research_orbital_scan',  cost:2000, desc:'탐험 보상 +15%', icon:'🔭'},
+  {key:'rapid_deploy',  labelKey:'research_rapid_deploy',  cost:2000, desc:'미션 시간 -20%', icon:'⚡'},
+  {key:'logistics',     labelKey:'research_logistics',     cost:2000, desc:'비용 -10%', icon:'📦'},
+  {key:'mars_dominion', labelKey:'research_mars_dominion', cost:5000,  desc:'전체 +5% 중첩', icon:'👑'}
 ];
 function renderGuildUpgrades(guild, myRole){
   var lvl = parseInt(guild.level||1);
-  var treasury = parseFloat(guild.ppTreasury||guild.pp_treasury||0);
+  var treasury = parseFloat(guild.gpTreasury||guild.gp_treasury||0);
   document.getElementById('guildLevelBadge').textContent = 'LV.'+lvl;
-  document.getElementById('guildPpTreasury').textContent = treasury.toFixed(2)+' PP';
+  document.getElementById('guildPpTreasury').textContent = Math.floor(treasury)+' GP';
   var nextCost = _guildLevelCosts[lvl+1];
   var btn = document.getElementById('guildLevelupBtn');
   var costEl = document.getElementById('guildNextLevelCost');
@@ -13857,7 +13857,7 @@ function renderGuildUpgrades(guild, myRole){
     costEl.textContent = t('guild_max_level');
     btn.style.display='none';
   } else {
-    costEl.textContent = t('guild_next_prefix')+' '+nextCost+' PP (→ Lv.'+(lvl+1)+')';
+    costEl.textContent = t('guild_next_prefix')+' '+nextCost+' GP (→ Lv.'+(lvl+1)+')';
     btn.style.display = '';
     btn.disabled = treasury < nextCost;
     btn.style.opacity = (treasury < nextCost) ? 0.5 : 1;
@@ -13880,10 +13880,10 @@ function renderGuildUpgrades(guild, myRole){
     var bg = unlocked ? 'rgba(76,216,154,.1)' : 'rgba(255,255,255,.03)';
     var bdr = unlocked ? 'rgba(76,216,154,.35)' : 'rgba(184,136,224,.2)';
     var col = unlocked ? 'var(--gn)' : (affordable ? 'var(--pp)' : 'var(--tx3)');
-    var status = unlocked ? t('guild_research_unlocked') : (r.cost+' PP');
+    var status = unlocked ? t('guild_research_unlocked') : (r.cost+' GP');
     var click = (unlocked||!canSpend||!affordable) ? '' : ' onclick="guildUnlockResearch(\''+r.key+'\')"';
     return '<div'+click+' style="padding:6px 8px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';cursor:'+(click?'pointer':'default')+'">'+
-      '<div style="display:flex;align-items:center;gap:3px;color:'+col+';font-weight:700"><span>'+r.icon+'</span> '+t(r.labelKey)+'</div>'+
+      '<div style="display:flex;align-items:center;gap:3px;color:'+col+';font-weight:700">'+t(r.labelKey)+'</div>'+
       '<div style="color:var(--tx3);font-size:7px;margin-top:1px">'+r.desc+'</div>'+
       '<div style="color:'+(unlocked?'var(--gn)':'var(--tx3)')+';font-size:8px;margin-top:2px">'+status+'</div>'+
     '</div>';

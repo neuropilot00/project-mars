@@ -1500,7 +1500,7 @@ router.post('/guild-wars/:id/resolve', adminAuth, async (req, res) => {
     if (winnerId && rewardGP > 0) {
       await pool.query('UPDATE guilds SET gp_treasury = gp_treasury + $1 WHERE id = $2', [rewardGP, winnerId]);
       await pool.query(
-        `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, balance_after, memo)
+        `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_gp, balance_after, memo)
          VALUES ($1, 'admin', 'war_reward', $2,
                  (SELECT gp_treasury FROM guilds WHERE id = $1), $3)`,
         [winnerId, rewardGP, `Admin force-resolve war GP reward (War #${warId})`]
