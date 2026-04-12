@@ -20954,8 +20954,9 @@ function _updateBaseBtnDot(){
     var el = document.getElementById(id);
     if(el && el.style.display !== 'none') anyDot = true;
   });
-  // OPEN BASE button dot (desktop)
-  var baseDot = document.getElementById('dailyHudDot');
+  // OPEN BASE button dot (desktop) — use FAB .cf-dot since dailyHudDot gets
+  // destroyed by i18n text replacement on openBaseBtn
+  var baseDot = document.querySelector('.col-fab.base .cf-dot');
   if(baseDot) baseDot.style.display = anyDot ? 'block' : 'none';
   // Mobile bottom nav BASE dot
   var mobBaseDot = document.getElementById('mobBaseDot');
