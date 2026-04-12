@@ -12703,9 +12703,9 @@ function openItemShop(){
     var shopTab = document.querySelector('.base-tab[data-i18n="base_tab_shop"]');
     if(shopTab){
       shopTab.click();
-      // Switch to inventory view
+      // Switch to shop view (store, not inventory)
       setTimeout(function(){
-        switchBaseShopView('inventory', document.querySelectorAll('.base-shop-view')[1]);
+        switchBaseShopView('shop', document.querySelectorAll('.base-shop-view')[0]);
       },50);
     }
   }, 100);
