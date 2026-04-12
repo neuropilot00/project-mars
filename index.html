@@ -9140,6 +9140,7 @@ async function confirmClaim(){
 
     // Track quest progress for claim actions
     try{trackQuestAction('claim_pixels',d.pixelCount||1)}catch(e){}
+    if(hasBattle&&d.attackWon>0){try{trackQuestAction('hijack',d.attackWon)}catch(e){}}
 
     // Update balances from server response
     if(d.ppUsed!==undefined||d.usdtUsed!==undefined){
@@ -12495,6 +12496,7 @@ function buyShopItem(code,currency){
     }).then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
       showToast('Purchased '+item.name+'!','success');
+      try{trackQuestAction('buy_item',1)}catch(e){}
       try{_sfx.purchase()}catch(e){}
       // Refresh balances from server (PP/USDT always, GP needs daily endpoint)
       try{ if(typeof refreshEmailBalances==='function') refreshEmailBalances(); }catch(_){}
@@ -12633,6 +12635,7 @@ function _doUseItem(w,code,claimId){
   }).then(function(r){return r.json()}).then(function(d){
     if(d.error){showToast(d.error,'error');try{_sfx.error()}catch(e){}return;}
     showToast(d.item+' activated!','success');
+    try{trackQuestAction('use_item',1)}catch(e){}
     try{code.indexOf('shield')===0?_sfx.shield():_sfx.purchase()}catch(e){}
     // Visual feedback based on item type
     if(code.indexOf('shield')===0&&claimId) _showItemEffect('shield',claimId);
@@ -12684,6 +12687,7 @@ var _baseUserData=null;
 
 function openBaseModal(){
   document.getElementById('baseModal').classList.add('open');
+  try{trackQuestAction('visit_base',1)}catch(e){}
   // Always start on MY TERRITORY tab
   try{
     var territoryTab = document.getElementById('baseTabTerritory');
@@ -13483,6 +13487,8 @@ function launchOpsMission(){
     .then(function(d){
       if(d.error){ showAlert(d.error); return; }
       showAlert(t('ops_mission_launched'),'success');
+      if(_opsType==='invasion'){try{trackQuestAction('launch_invasion',1)}catch(e){}}
+      if(_opsType==='exploration'){try{trackQuestAction('launch_exploration',1)}catch(e){}}
       loadOpsTab();
     })
     .catch(function(e){ showAlert(t('ops_launch_failed')+' '+e.message); });
@@ -13500,6 +13506,8 @@ function claimOpsMission(id){
     if(r.item) parts.push(r.item.name);
     if(!parts.length) parts.push('No reward');
     showAlert('✓ '+parts.join(' · '),'success');
+    if(d.mission.type==='invasion'){try{trackQuestAction('complete_invasion',1)}catch(e){}}
+    if(d.mission.type==='exploration'){try{trackQuestAction('complete_exploration',1)}catch(e){}}
     loadOpsTab();
     if(typeof loadUserData==='function') loadUserData();
   }).catch(function(e){ showAlert(t('ops_claim_failed')+' '+e.message); });
@@ -13608,6 +13616,7 @@ function sendGuildChat(){
     .then(function(r){return r.json()}).then(function(data){
       input.disabled=false;
       if(data.error){showToast(data.error,'error');return;}
+      try{trackQuestAction('guild_chat',1)}catch(e){}
       input.value='';
       input.focus();
       refreshGuildChat();
@@ -17309,8 +17318,10 @@ window.playCoinflip = function() {
         return;
       }
       var d = res.data;
+      try{trackQuestAction('cantina_play',1)}catch(e){}
       coin.className = 'cf-coin flip-' + d.result;
       if (d.won) {
+        try{trackQuestAction('cantina_win',1)}catch(e){}
         resultEl.textContent = 'WIN! +' + (d.payout || 0).toFixed(4) + ' ' + cfCurrency;
         resultEl.style.color = 'var(--gn)';
         arenaToast('You survived! +' + (d.payout || 0).toFixed(4) + ' ' + cfCurrency);
@@ -17420,9 +17431,11 @@ window.playDice = function() {
         return;
       }
       var d = res.data;
+      try{trackQuestAction('cantina_play',1)}catch(e){}
       resultEl.className = 'dice-roll-result ' + (d.won ? 'win' : 'lose');
       resultEl.textContent = d.roll.toFixed(2);
       if (d.won) {
+        try{trackQuestAction('cantina_win',1)}catch(e){}
         labelEl.textContent = 'WIN! +' + (d.payout || 0).toFixed(4) + ' ' + diceCurrency + ' @ ' + (d.multiplier || 0).toFixed(2) + 'x';
         labelEl.style.color = 'var(--gn)';
         arenaToast('Roll ' + d.roll.toFixed(2) + ' — WIN! +' + (d.payout || 0).toFixed(4));
@@ -20231,6 +20244,135 @@ var CODEX_CONTENT = {
             text:'Daily login + 3 missions + a few POIs easily nets ~100 GP a day. That\'s 3,000 GP a month — enough to unseat a low-traffic sector governor.' }
         ]
       },
+      { id: 'ops', icon: '🚀', title: 'OPS Missions',
+        blocks: [
+          { type:'p', text:'OPS Missions are your military operations hub. Launch **Invasion (⚔)** or **Exploration (🛰)** sorties from your merged territory launch pads. Invasions raid another player\'s territory for PP, GP, and XP; Explorations fire probes at coordinates to discover PP, XP, and rare items.' },
+          { type:'toc', label:'In this section', items:[
+            'What are OPS Missions',
+            'Launch Pads',
+            'Mission Tiers',
+            'Rewards',
+            'Target Deduplication',
+            'Tips'
+          ]},
+
+          { type:'h2', text:'1. What Are OPS Missions?' },
+          { type:'p', text:'Your merged territories serve as launch pads. Each merged region = 1 launch pad, and from each pad you can deploy two types of military operations:' },
+          { type:'table',
+            headers:['Type','Icon','Target','Rewards'],
+            rows:[
+              [{v:'Invasion',cls:'mars'}, '⚔', 'Another player\'s territory', 'PP + GP + XP'],
+              [{v:'Exploration',cls:'mars'}, '🛰', 'Coordinate probe', 'PP + XP + rare items']
+            ]},
+          { type:'callout', variant:'info', title:'Two sortie modes',
+            text:'Invasion is direct PvP — strike an enemy territory and loot their resources. Exploration is PvE — launch a probe to specified coordinates and discover rewards. Each carries different risk-reward profiles.' },
+
+          { type:'h2', text:'2. Launch Pads' },
+          { type:'p', text:'Each merged territory automatically becomes a launch pad. Bigger pads = higher reward multiplier.' },
+          { type:'table',
+            headers:['Attribute','Details'],
+            rows:[
+              ['Pad source',        '1 merged territory = 1 launch pad'],
+              ['Size multiplier',   {v:'×0.5 ~ ×3.0',cls:'num'}],
+              ['Multiplier formula', '√(pixels / 25), clamped to min/max'],
+              ['Concurrency limit',  '1 active mission per pad at a time']
+            ]},
+          { type:'callout', variant:'pro', title:'Bigger territory = bigger multiplier',
+            text:'A sufficiently large merged territory hits ×3.0 — triple rewards on every sortie. Building massive merged territories is the core strategy for maximizing OPS income.' },
+
+          { type:'h2', text:'3. Mission Tiers' },
+          { type:'p', text:'Missions are tiered by distance to target. Farther = more expensive and slower, but with better rewards on success.' },
+          { type:'table',
+            headers:['Tier','Distance','Cost (PP)','Duration','Success Rate'],
+            rows:[
+              [{v:'NEAR',cls:'mars'}, '< 30°',   {v:'0.2 (inv) / 0.1 (exp)',cls:'num'}, {v:'~30 min',cls:'num'}, {v:'80%',cls:'num'}],
+              [{v:'MID',cls:'mars'},  '30–90°',  {v:'0.8 / 0.4',cls:'num'},              {v:'~2 hr',cls:'num'},   {v:'65%',cls:'num'}],
+              [{v:'FAR',cls:'mars'},  '> 90°',   {v:'1.5 / 1.0',cls:'num'},              {v:'~5 hr',cls:'num'},   {v:'50%',cls:'num'}]
+            ]},
+          { type:'callout', variant:'warn', title:'Failure = fuel lost',
+            text:'Failed missions yield zero rewards, but the PP spent on launch is not refunded. FAR missions are high-risk, high-reward — pick your battles.' },
+
+          { type:'h2', text:'4. Rewards' },
+          { type:'table',
+            headers:['Mission Type','Reward Contents','Multiplier'],
+            rows:[
+              ['⚔ Invasion', 'PP + GP + XP',              'All scaled by pad multiplier'],
+              ['🛰 Exploration', 'PP + XP + rare item chance', 'All scaled by pad multiplier']
+            ]},
+          { type:'callout', variant:'info', title:'Multiplier is everything',
+            text:'The same FAR invasion from a ×1.0 pad vs. a ×3.0 pad yields 3× the PP. Always prioritize launching from your largest pad.' },
+
+          { type:'h2', text:'5. Target Deduplication' },
+          { type:'p', text:'The system automatically prevents target collisions so missions never overlap:' },
+          { type:'list', items:[
+            'Same territory cannot be invaded by two missions simultaneously',
+            'On overlap, the system auto-redirects to a different territory of the same target',
+            'Exploration probes auto-offset if coordinates collide'
+          ]},
+
+          { type:'h2', text:'6. Tips' },
+          { type:'list', items:[
+            'Build large merged territories to chase the ×3.0 multiplier',
+            'FAR missions carry the most risk but the best rewards — for when you want to gamble',
+            'Cannot invade your own guild members',
+            'READY pads are sorted to the top of the list for quick access'
+          ]},
+          { type:'callout', variant:'pro', title:'OPS is the core of active income',
+            text:'Mining is passive; OPS is active. Combine OPS sorties with daily mining and you\'ll out-earn pure AFK play by a wide margin.' }
+        ]
+      },
+      { id: 'quests', icon: '📋', title: 'Quests',
+        blocks: [
+          { type:'p', text:'The quest system auto-tracks progress as you play — no manual action needed. You always have 3 active quests (one per tier), claim PP rewards on completion, and new quests auto-refresh after claiming.' },
+          { type:'toc', label:'In this section', items:[
+            'Quest Tiers',
+            'How Quests Work',
+            'Quest Actions',
+            'Tips'
+          ]},
+
+          { type:'h2', text:'1. Quest Tiers' },
+          { type:'p', text:'Quests come in three tiers with escalating difficulty and rewards:' },
+          { type:'table',
+            headers:['Tier','Type','Rewards','Examples'],
+            rows:[
+              [{v:'FREE',cls:'mars'},     'Simple daily tasks', {v:'0.01 ~ 0.05 PP',cls:'num'}, 'Login, view sectors, visit base'],
+              [{v:'ACTIVITY',cls:'mars'}, 'Gameplay actions',   {v:'0.05 ~ 0.25 PP',cls:'num'}, 'Claim pixels, harvest, launch missions, play cantina'],
+              [{v:'SPENDING',cls:'mars'}, 'Spending USDT/PP',   {v:'0.30 ~ 1.50 PP',cls:'num'}, 'Deposit USDT, premium claims, big expansions']
+            ]},
+          { type:'callout', variant:'info', title:'Three tiers in parallel',
+            text:'You always have 3 quests active (one per tier). FREE tier is pure profit; SPENDING tier has the biggest payouts but requires spending.' },
+
+          { type:'h2', text:'2. How Quests Work' },
+          { type:'list', items:[
+            '3 active quests at a time (1 per tier)',
+            'Quests auto-progress as you play — no manual tracking needed',
+            'Completed quests can be claimed for PP rewards',
+            'New quests refresh after claiming, with cooldowns (24h ~ 168h)'
+          ]},
+
+          { type:'h2', text:'3. Quest Actions' },
+          { type:'p', text:'The system tracks a wide range of actions, covering nearly every in-game behavior:' },
+          { type:'table',
+            headers:['Category','Actions'],
+            rows:[
+              ['Territory',  'Claim pixels, harvest, hijack'],
+              ['Missions',   'Launch/complete invasions and explorations'],
+              ['Social',     'Guild chat, cantina games'],
+              ['Economy',    'Buy items, use items, deposit USDT, swap tokens']
+            ]},
+
+          { type:'h2', text:'4. Tips' },
+          { type:'list', items:[
+            'Check the QUESTS tab in BASE regularly',
+            'Free quests are pure profit — never skip them',
+            'Stack quest goals with your normal gameplay (e.g., claim pixels while a claim quest is active)',
+            'Consecutive login quests give the best free-tier rewards'
+          ]},
+          { type:'callout', variant:'pro', title:'Zero-cost PP',
+            text:'FREE tier quests alone deliver steady PP rewards every day, at absolutely no cost. Layer them on top of your normal play and the returns compound.' }
+        ]
+      },
       { id: 'guilds', icon: '⚔', title: 'Guilds & Seasons',
         blocks: [
           { type:'p', text:'When solo growth stalls, **join a guild**. Pixel holdings aggregate, and guild chat, emblems, and season leaderboards are all wired up. Seasons rotate every **30 days** with new themes.' },
@@ -20996,6 +21138,135 @@ var CODEX_CONTENT = {
             ]},
           { type:'callout', variant:'tip', title:'거버너 되는 가장 빠른 길',
             text:'매일 출석 + 미션 3개 + POI 몇 개만 먹어도 일 100 GP는 쌓여. 한 달이면 3000 GP. 활동 없는 섹터 거버너는 그 정도면 밀어낼 수 있어.' }
+        ]
+      },
+      { id: 'ops', icon: '🚀', title: 'OPS 미션',
+        blocks: [
+          { type:'p', text:'OPS 미션은 네 군사 작전 본부야. 합병된 영토의 발사대에서 **침공(⚔)** 또는 **탐사(🛰)** 두 종류를 출격시켜. 침공은 다른 플레이어 영토를 습격해서 PP·GP·XP를 빼앗고, 탐사는 좌표에 탐침을 쏘아서 PP·XP·희귀 아이템을 발견해.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            'OPS 미션이란',
+            '발사대',
+            '미션 등급',
+            '보상',
+            '타깃 중복 방지',
+            '팁'
+          ]},
+
+          { type:'h2', text:'1. OPS 미션이란' },
+          { type:'p', text:'합병한 영토가 곧 발사대야. 각 합병 영역 = 발사대 1개, 여기서 두 종류의 군사 작전을 출격시켜:' },
+          { type:'table',
+            headers:['종류','아이콘','타깃','수익'],
+            rows:[
+              [{v:'침공',cls:'mars'}, '⚔', '다른 플레이어 영토', 'PP + GP + XP'],
+              [{v:'탐사',cls:'mars'}, '🛰', '좌표 탐침', 'PP + XP + 희귀 아이템']
+            ]},
+          { type:'callout', variant:'info', title:'두 가지 출격 방식',
+            text:'침공은 직접 대결 — 상대 영토를 공격해서 자원을 탈취해. 탐사는 PvE — 지정 좌표에 탐침을 쏴서 보상을 발견해. 각각 리스크와 리턴이 달라.' },
+
+          { type:'h2', text:'2. 발사대' },
+          { type:'p', text:'합병된 영토가 자동으로 발사대가 돼. 발사대가 클수록 보상 배율이 높아져.' },
+          { type:'table',
+            headers:['속성','상세'],
+            rows:[
+              ['발사대 출처',    '합병 영토 1개 = 발사대 1기'],
+              ['크기 배율',      {v:'×0.5 ~ ×3.0',cls:'num'}],
+              ['배율 공식',      '√(픽셀 수 / 25), 상한·하한 클램프'],
+              ['동시 제한',      '발사대 하나에 동시에 미션 1개만']
+            ]},
+          { type:'callout', variant:'pro', title:'큰 영토 = 큰 배율',
+            text:'충분히 큰 합병 영토는 ×3.0 배율에 도달해 — 미션 보상이 통째로 3배야. 대형 합병 영토 건설이 OPS 수익을 끌어올리는 핵심 전략이야.' },
+
+          { type:'h2', text:'3. 미션 등급' },
+          { type:'p', text:'미션은 타깃까지의 거리에 따라 3등급으로 나뉘어. 거리가 멀수록 비용과 시간이 늘어나지만, 성공 시 보상도 커져.' },
+          { type:'table',
+            headers:['등급','거리','비용 (PP)','소요 시간','성공률'],
+            rows:[
+              [{v:'NEAR',cls:'mars'}, '< 30°',   {v:'0.2(침공) / 0.1(탐사)',cls:'num'}, {v:'~30분',cls:'num'}, {v:'80%',cls:'num'}],
+              [{v:'MID',cls:'mars'},  '30–90°',  {v:'0.8 / 0.4',cls:'num'},              {v:'~2시간',cls:'num'},  {v:'65%',cls:'num'}],
+              [{v:'FAR',cls:'mars'},  '> 90°',   {v:'1.5 / 1.0',cls:'num'},              {v:'~5시간',cls:'num'},  {v:'50%',cls:'num'}]
+            ]},
+          { type:'callout', variant:'warn', title:'실패 = 연료 손실',
+            text:'미션 실패 시 보상은 제로지만, 발사 시 소모한 PP는 돌아오지 않아. 원거리 미션은 하이리스크·하이리턴 — 무리하지 마.' },
+
+          { type:'h2', text:'4. 보상' },
+          { type:'table',
+            headers:['미션 종류','보상 내용','배율 적용'],
+            rows:[
+              ['⚔ 침공', 'PP + GP + XP',             '전부 발사대 배율 적용'],
+              ['🛰 탐사', 'PP + XP + 희귀 아이템 확률', '전부 발사대 배율 적용']
+            ]},
+          { type:'callout', variant:'info', title:'배율이 전부를 결정해',
+            text:'같은 FAR 침공이라도 ×1.0 발사대와 ×3.0 발사대에서 받는 PP는 3배 차이야. 가장 큰 발사대에서 먼저 출격시켜.' },
+
+          { type:'h2', text:'5. 타깃 중복 방지' },
+          { type:'p', text:'시스템이 자동으로 타깃 충돌을 방지해서 미션이 겹치지 않게 해:' },
+          { type:'list', items:[
+            '같은 영토에 두 개의 침공이 동시에 걸릴 수 없어',
+            '중복 시 시스템이 자동으로 타깃의 다른 영토로 리다이렉트',
+            '탐사 탐침 좌표가 겹치면 자동 오프셋'
+          ]},
+
+          { type:'h2', text:'6. 팁' },
+          { type:'list', items:[
+            '대형 합병 영토를 만들어서 ×3.0 배율을 노려',
+            'FAR 미션은 리스크가 가장 높지만 보상도 최고 — 한판 걸어볼 때',
+            '같은 길드 멤버는 침공 불가',
+            'READY 상태 발사대가 리스트 맨 위에 정렬되니 편해'
+          ]},
+          { type:'callout', variant:'pro', title:'OPS는 능동 수익의 핵심',
+            text:'채굴은 수동이고, OPS는 능동이야. OPS 미션을 일상적인 채굴과 결합하면 단순 방치보다 훨씬 많이 벌어.' }
+        ]
+      },
+      { id: 'quests', icon: '📋', title: '퀘스트',
+        blocks: [
+          { type:'p', text:'퀘스트 시스템은 평소 플레이하면서 자동으로 진행도를 추적해 — 수동 조작 필요 없어. 항상 3개의 활성 퀘스트(등급별 1개씩)가 있고, 완료하면 PP 보상을 수령하고 새 퀘스트가 자동 갱신돼.' },
+          { type:'toc', label:'이 섹션 내용', items:[
+            '퀘스트 등급',
+            '퀘스트 작동 방식',
+            '퀘스트 액션',
+            '팁'
+          ]},
+
+          { type:'h2', text:'1. 퀘스트 등급' },
+          { type:'p', text:'퀘스트는 3개 등급으로 나뉘고, 난이도와 보상이 단계적으로 올라가:' },
+          { type:'table',
+            headers:['등급','유형','보상','예시'],
+            rows:[
+              [{v:'FREE',cls:'mars'},     '간단한 일과', {v:'0.01 ~ 0.05 PP',cls:'num'}, '로그인, 섹터 보기, 기지 방문'],
+              [{v:'ACTIVITY',cls:'mars'}, '게임플레이',   {v:'0.05 ~ 0.25 PP',cls:'num'}, '픽셀 클레임, 수확, 미션 출격, 칸티나'],
+              [{v:'SPENDING',cls:'mars'}, '소비 행위',    {v:'0.30 ~ 1.50 PP',cls:'num'}, 'USDT 입금, 프리미엄 클레임, 대규모 확장']
+            ]},
+          { type:'callout', variant:'info', title:'3단계 병행',
+            text:'항상 3개 퀘스트(등급별 1개)가 동시 활성. FREE 등급은 순수익, SPENDING 등급은 보상이 가장 크지만 지출이 필요해.' },
+
+          { type:'h2', text:'2. 퀘스트 작동 방식' },
+          { type:'list', items:[
+            '동시에 3개 활성 퀘스트 (등급별 1개)',
+            '평소 플레이하면 자동으로 진행도 추적 — 수동 클릭 불필요',
+            '완료 후 PP 보상 수령',
+            '수령 후 새 퀘스트 자동 갱신, 쿨다운 24h ~ 168h'
+          ]},
+
+          { type:'h2', text:'3. 퀘스트 액션' },
+          { type:'p', text:'시스템이 추적하는 액션 범위는 넓어서 거의 모든 게임 행동을 커버해:' },
+          { type:'table',
+            headers:['분류','액션'],
+            rows:[
+              ['영토',  '픽셀 클레임·수확·하이잭'],
+              ['미션',  '침공/탐사 출격·완료'],
+              ['소셜',  '길드 채팅·칸티나 게임'],
+              ['경제',  '아이템 구매·사용, USDT 입금, 토큰 스왑']
+            ]},
+
+          { type:'h2', text:'4. 팁' },
+          { type:'list', items:[
+            '기지의 「퀘스트」 탭을 수시로 확인해',
+            'FREE 등급 퀘스트는 순수익 — 절대 건너뛰지 마',
+            '퀘스트 목표를 평소 플레이와 겹쳐(예: 클레임 퀘스트 있을 때 픽셀 클레임)',
+            '연속 로그인 퀘스트가 FREE 등급에서 보상이 가장 좋아'
+          ]},
+          { type:'callout', variant:'pro', title:'무비용 PP',
+            text:'FREE 등급 퀘스트만으로도 매일 안정적으로 PP를 받을 수 있어, 완전 무료야. 평소 플레이와 겹치면 효율이 배로 뛰어.' }
         ]
       },
       { id: 'guilds', icon: '⚔', title: '길드 & 시즌',
@@ -21766,6 +22037,135 @@ CODEX_CONTENT.ja = {
           text:'毎日出席 + ミッション 3 個 + POI 数個こなすだけでも 1 日 100 GP は貯まる。1 ヶ月で 3000 GP。活動のないセクターのガバナーならその程度で追い出せる。' }
       ]
     },
+    { id: 'ops', icon: '🚀', title: 'OPSミッション',
+      blocks: [
+        { type:'p', text:'OPS ミッションは君の軍事行動の中枢だ。合併済み領土の発射台から **侵攻(⚔)** と **探査(🛰)** の 2 種類を出撃させる。侵攻は他プレイヤーの領土を襲撃して PP・GP・XP を奪い、探査は座標にプローブを射出して PP・XP・レアアイテムを発見する。' },
+        { type:'toc', label:'このセクションの内容', items:[
+          'OPS ミッションとは',
+          '発射台',
+          'ミッションティア',
+          '報酬',
+          'ターゲット重複排除',
+          'ヒント'
+        ]},
+
+        { type:'h2', text:'1. OPS ミッションとは' },
+        { type:'p', text:'合併した領土がそのまま発射台になる。各合併領域 = 1 発射台、ここから 2 種類の軍事行動を出撃させる:' },
+        { type:'table',
+          headers:['種類','アイコン','ターゲット','収益'],
+          rows:[
+            [{v:'侵攻',cls:'mars'}, '⚔', '他プレイヤーの領土', 'PP + GP + XP'],
+            [{v:'探査',cls:'mars'}, '🛰', '座標プローブ', 'PP + XP + レアアイテム']
+          ]},
+        { type:'callout', variant:'info', title:'2 つの出撃方式',
+          text:'侵攻は直接対決 — 相手の領土を襲って資源を奪う。探査は PvE — 指定座標にプローブを射出して報酬を発見する。それぞれリスクとリターンが違う。' },
+
+        { type:'h2', text:'2. 発射台' },
+        { type:'p', text:'合併した領土が自動的に発射台になる。発射台が大きいほど報酬倍率が高い。' },
+        { type:'table',
+          headers:['属性','詳細'],
+          rows:[
+            ['発射台の由来',    '合併領土 1 つ = 発射台 1 基'],
+            ['サイズ倍率',      {v:'×0.5 ~ ×3.0',cls:'num'}],
+            ['倍率計算式',      '√(ピクセル数 / 25)、上下限クランプ'],
+            ['同時制限',        '1 発射台につき同時に 1 ミッションのみ']
+          ]},
+        { type:'callout', variant:'pro', title:'大きい領土 = 高倍率',
+          text:'十分に大きい合併領土なら ×3.0 倍率に到達できる — ミッション報酬が丸ごと 3 倍だ。大型合併領土の建設が OPS 収益を伸ばす核心戦略。' },
+
+        { type:'h2', text:'3. ミッションティア' },
+        { type:'p', text:'ミッションはターゲットまでの距離で 3 段階に分かれる。遠いほどコストと時間がかかるが、成功時のリターンも大きい。' },
+        { type:'table',
+          headers:['ティア','距離','コスト (PP)','所要時間','成功率'],
+          rows:[
+            [{v:'NEAR',cls:'mars'}, '< 30°',   {v:'0.2(侵攻) / 0.1(探査)',cls:'num'}, {v:'約 30 分',cls:'num'}, {v:'80%',cls:'num'}],
+            [{v:'MID',cls:'mars'},  '30–90°',  {v:'0.8 / 0.4',cls:'num'},              {v:'約 2 時間',cls:'num'},  {v:'65%',cls:'num'}],
+            [{v:'FAR',cls:'mars'},  '> 90°',   {v:'1.5 / 1.0',cls:'num'},              {v:'約 5 時間',cls:'num'},  {v:'50%',cls:'num'}]
+          ]},
+        { type:'callout', variant:'warn', title:'失敗 = 燃料損失',
+          text:'ミッション失敗時は報酬ゼロだが、発射時に消費した PP は戻らない。遠距離ミッションはハイリスク・ハイリターン — 無理は禁物。' },
+
+        { type:'h2', text:'4. 報酬' },
+        { type:'table',
+          headers:['ミッション種別','報酬内容','倍率適用'],
+          rows:[
+            ['⚔ 侵攻', 'PP + GP + XP',             '全て発射台倍率が乗る'],
+            ['🛰 探査', 'PP + XP + レアアイテム確率', '全て発射台倍率が乗る']
+          ]},
+        { type:'callout', variant:'info', title:'倍率が全てを決める',
+          text:'同じ FAR 侵攻でも ×1.0 発射台と ×3.0 発射台では PP が 3 倍違う。最も大きな発射台から優先出撃させろ。' },
+
+        { type:'h2', text:'5. ターゲット重複排除' },
+        { type:'p', text:'システムが自動的にターゲットの衝突を回避し、ミッションが被らないようにする:' },
+        { type:'list', items:[
+          '同一領土に 2 つの侵攻が同時に当たることはない',
+          '重複時はシステムが自動的にターゲットの別の領土にリダイレクト',
+          '探査プローブの座標が重複した場合は自動オフセット'
+        ]},
+
+        { type:'h2', text:'6. ヒント' },
+        { type:'list', items:[
+          '大型合併領土を作って ×3.0 倍率を目指せ',
+          'FAR ミッションはリスク最大だがリターンも最高 — 賭けに出るなら',
+          '同じギルドのメンバーには侵攻できない',
+          'READY 状態の発射台がリストの先頭にソートされるので便利'
+        ]},
+        { type:'callout', variant:'pro', title:'OPS はアクティブ収益の中核',
+          text:'採掘はパッシブ、OPS はアクティブだ。OPS ミッションを日常の採掘と組み合わせれば、放置だけより遥かに稼げる。' }
+      ]
+    },
+    { id: 'quests', icon: '📋', title: 'クエスト',
+      blocks: [
+        { type:'p', text:'クエストシステムは通常プレイ中に自動で進捗を追跡する — 手動操作は不要だ。常に 3 つのアクティブクエスト(各ティア 1 つずつ)があり、完了したら PP 報酬を受け取り、新しいクエストが自動リフレッシュされる。' },
+        { type:'toc', label:'このセクションの内容', items:[
+          'クエストティア',
+          'クエストの仕組み',
+          'クエストアクション',
+          'ヒント'
+        ]},
+
+        { type:'h2', text:'1. クエストティア' },
+        { type:'p', text:'クエストは 3 つのティアに分かれ、難易度と報酬が段階的に上がる:' },
+        { type:'table',
+          headers:['ティア','種類','報酬','例'],
+          rows:[
+            [{v:'FREE',cls:'mars'},     'シンプル日課', {v:'0.01 ~ 0.05 PP',cls:'num'}, 'ログイン、セクター閲覧、ベース訪問'],
+            [{v:'ACTIVITY',cls:'mars'}, 'ゲームプレイ', {v:'0.05 ~ 0.25 PP',cls:'num'}, 'ピクセル占領、収穫、ミッション出撃、カンティーナ'],
+            [{v:'SPENDING',cls:'mars'}, '消費アクション', {v:'0.30 ~ 1.50 PP',cls:'num'}, 'USDT 入金、プレミアム占領、大規模拡張']
+          ]},
+        { type:'callout', variant:'info', title:'3 ティア並行',
+          text:'常に 3 つのクエスト(各ティア 1 つ)が同時にアクティブ。FREE ティアは純利益、SPENDING ティアは報酬最大だが消費が必要。' },
+
+        { type:'h2', text:'2. クエストの仕組み' },
+        { type:'list', items:[
+          '同時に 3 つのアクティブクエスト(各ティア 1 つ)',
+          '通常プレイで自動進捗 — 手動クリック不要',
+          '完了したら PP 報酬を受取り',
+          '受取り後は新クエストが自動リフレッシュ、クールダウン 24h ~ 168h'
+        ]},
+
+        { type:'h2', text:'3. クエストアクション' },
+        { type:'p', text:'システムが追跡するアクションの範囲は広く、ほぼ全てのゲーム行動をカバー:' },
+        { type:'table',
+          headers:['カテゴリ','アクション'],
+          rows:[
+            ['領土',  'ピクセル占領・収穫・ハイジャック'],
+            ['ミッション',  '侵攻/探査の出撃・完了'],
+            ['ソーシャル',  'ギルドチャット・カンティーナゲーム'],
+            ['経済',  'アイテム購入・使用、USDT 入金、トークンスワップ']
+          ]},
+
+        { type:'h2', text:'4. ヒント' },
+        { type:'list', items:[
+          'ベースの「クエスト」タブを定期的にチェック',
+          'FREE ティアのクエストは純利益 — 絶対にスキップするな',
+          'クエスト目標を普段のプレイと重ねろ(例:占領クエスト中にピクセル占領)',
+          '連続ログインクエストは FREE ティアで最高の報酬'
+        ]},
+        { type:'callout', variant:'pro', title:'ゼロコスト PP',
+          text:'FREE ティアのクエストだけでも毎日安定して PP が手に入る。完全無料だ。普段のプレイと重ねれば効率は倍増する。' }
+      ]
+    },
     { id: 'guilds', icon: '⚔', title: 'ギルド & シーズン',
       blocks: [
         { type:'p', text:'単独成長に限界が来たら **ギルド** で結束しよう。ピクセルが自動合算され、ギルドチャット・エンブレム・シーズンリーダーボードまでチームプレイ要素は全部実装されている。シーズンは **30 日周期** で回り、毎シーズンテーマが変わる。' },
@@ -22531,6 +22931,135 @@ CODEX_CONTENT.zh = {
           ]},
         { type:'callout', variant:'tip', title:'当总督的最快路径',
           text:'每天出席 + 3 个任务 + 几个 POI,一天也能攒 100 GP。一个月就是 3000 GP。冷清扇区的总督靠这个量就能掀翻。' }
+      ]
+    },
+    { id: 'ops', icon: '🚀', title: 'OPS任务',
+      blocks: [
+        { type:'p', text:'OPS 任务是你的军事行动中心。从你的领地发射台上出动 **入侵(⚔)** 或 **探索(🛰)** 两类任务。入侵抢其他玩家的 PP、GP 和 XP;探索向坐标发射探针,发现 PP、XP 和稀有道具。' },
+        { type:'toc', label:'本节内容', items:[
+          'OPS 任务是什么',
+          '发射台',
+          '任务等级',
+          '奖励',
+          '目标去重',
+          '小贴士'
+        ]},
+
+        { type:'h2', text:'1. OPS 任务是什么' },
+        { type:'p', text:'你的合并领地就是发射台。每个合并区域 = 一个发射台,从这里可以出动两种军事行动:' },
+        { type:'table',
+          headers:['类型','图标','目标','收益'],
+          rows:[
+            [{v:'入侵',cls:'mars'}, '⚔', '其他玩家领地', 'PP + GP + XP'],
+            [{v:'探索',cls:'mars'}, '🛰', '坐标探针', 'PP + XP + 稀有道具']
+          ]},
+        { type:'callout', variant:'info', title:'两种出击方式',
+          text:'入侵是直接对抗 — 攻击他人领地窃取资源。探索是 PvE — 向指定坐标发射探针发现奖励。两者各有风险与回报。' },
+
+        { type:'h2', text:'2. 发射台' },
+        { type:'p', text:'每个合并领地自动成为一个发射台。发射台越大,报酬倍率越高。' },
+        { type:'table',
+          headers:['属性','详情'],
+          rows:[
+            ['发射台来源',    '每个合并领地 = 1 个发射台'],
+            ['大小倍率',      {v:'×0.5 ~ ×3.0',cls:'num'}],
+            ['倍率公式',      '√(像素数 / 25),上下限钳制'],
+            ['并发限制',      '一个发射台同时只能执行一个任务']
+          ]},
+        { type:'callout', variant:'pro', title:'大领地 = 大倍率',
+          text:'一个足够大的合并领地可以达到 ×3.0 倍率 — 每次任务奖励直接翻三倍。建设大型合并领地是提升 OPS 收益的核心策略。' },
+
+        { type:'h2', text:'3. 任务等级' },
+        { type:'p', text:'任务根据目标距离分为三个等级。距离越远,花费越高、时间越长,但成功时回报更丰厚。' },
+        { type:'table',
+          headers:['等级','距离','花费 (PP)','持续时间','成功率'],
+          rows:[
+            [{v:'NEAR',cls:'mars'}, '< 30°',   {v:'0.2(入侵) / 0.1(探索)',cls:'num'}, {v:'~30 分钟',cls:'num'}, {v:'80%',cls:'num'}],
+            [{v:'MID',cls:'mars'},  '30–90°',  {v:'0.8 / 0.4',cls:'num'},              {v:'~2 小时',cls:'num'},  {v:'65%',cls:'num'}],
+            [{v:'FAR',cls:'mars'},  '> 90°',   {v:'1.5 / 1.0',cls:'num'},              {v:'~5 小时',cls:'num'},  {v:'50%',cls:'num'}]
+          ]},
+        { type:'callout', variant:'warn', title:'失败 = 燃料白费',
+          text:'任务失败不会获得任何奖励,但发射时消耗的 PP 不会退还。远程任务高风险高回报 — 量力而行。' },
+
+        { type:'h2', text:'4. 奖励' },
+        { type:'table',
+          headers:['任务类型','奖励内容','倍率加成'],
+          rows:[
+            ['⚔ 入侵', 'PP + GP + XP',             '全部受发射台倍率影响'],
+            ['🛰 探索', 'PP + XP + 稀有道具概率', '全部受发射台倍率影响']
+          ]},
+        { type:'callout', variant:'info', title:'倍率就是一切',
+          text:'同样的 FAR 入侵,×1.0 发射台和 ×3.0 发射台拿到的 PP 差三倍。优先从最大的发射台出动。' },
+
+        { type:'h2', text:'5. 目标去重' },
+        { type:'p', text:'系统自动避免目标冲突,确保任务不会撞车:' },
+        { type:'list', items:[
+          '同一领地不能被两个入侵同时攻击',
+          '重复时系统自动重定向到目标的其他领地',
+          '探索探针坐标重叠时自动偏移'
+        ]},
+
+        { type:'h2', text:'6. 小贴士' },
+        { type:'list', items:[
+          '建设大型合并领地来追求 ×3.0 倍率',
+          'FAR 任务风险最高但收益最好 — 适合赌一把',
+          '不能入侵自己的公会成员',
+          'READY 状态的发射台会排在列表最前面,方便操作'
+        ]},
+        { type:'callout', variant:'pro', title:'OPS 是主动收益的核心',
+          text:'采矿是被动的,OPS 是主动的。把 OPS 任务和日常采矿结合起来,收益远超单纯挂机。' }
+      ]
+    },
+    { id: 'quests', icon: '📋', title: '任务',
+      blocks: [
+        { type:'p', text:'任务系统会在你正常游玩时自动追踪进度 — 不需要手动操作。始终有 3 个活跃任务(每个等级各一个),完成后领取 PP 奖励,新任务自动刷新。' },
+        { type:'toc', label:'本节内容', items:[
+          '任务等级',
+          '任务运作机制',
+          '任务动作',
+          '小贴士'
+        ]},
+
+        { type:'h2', text:'1. 任务等级' },
+        { type:'p', text:'任务分为三个等级,难度和奖励逐级递增:' },
+        { type:'table',
+          headers:['等级','类型','奖励','举例'],
+          rows:[
+            [{v:'FREE',cls:'mars'},     '简单日常', {v:'0.01 ~ 0.05 PP',cls:'num'}, '登录、查看扇区、访问基地'],
+            [{v:'ACTIVITY',cls:'mars'}, '游玩操作', {v:'0.05 ~ 0.25 PP',cls:'num'}, '占领像素、收获、出动任务、玩酒吧'],
+            [{v:'SPENDING',cls:'mars'}, '消费行为', {v:'0.30 ~ 1.50 PP',cls:'num'}, '充值 USDT、高级占领、大规模扩张']
+          ]},
+        { type:'callout', variant:'info', title:'三级并行',
+          text:'始终有 3 个任务(每级一个)同时活跃。FREE 级是纯利润,SPENDING 级奖励最多但需要花钱。' },
+
+        { type:'h2', text:'2. 任务运作机制' },
+        { type:'list', items:[
+          '同时 3 个活跃任务(每个等级各 1 个)',
+          '正常游玩自动追踪进度 — 无需手动点击',
+          '完成后领取 PP 奖励',
+          '领取后新任务自动刷新,冷却时间 24h ~ 168h'
+        ]},
+
+        { type:'h2', text:'3. 任务动作' },
+        { type:'p', text:'系统追踪的动作范围很广,覆盖几乎所有游戏行为:' },
+        { type:'table',
+          headers:['分类','动作'],
+          rows:[
+            ['领地',  '占领像素、收获、劫掠'],
+            ['任务',  '发射/完成入侵和探索'],
+            ['社交',  '公会聊天、酒吧游戏'],
+            ['经济',  '购买道具、使用道具、充值 USDT、兑换代币']
+          ]},
+
+        { type:'h2', text:'4. 小贴士' },
+        { type:'list', items:[
+          '定期查看基地中的「任务」标签页',
+          'FREE 级任务是纯利润 — 千万别跳过',
+          '把任务目标和日常游玩结合(比如有占领任务时去占领像素)',
+          '连续登录任务在 FREE 级中奖励最高'
+        ]},
+        { type:'callout', variant:'pro', title:'零成本 PP',
+          text:'仅靠 FREE 级任务每天就能稳定获得 PP 奖励,完全不花钱。把它们和正常游玩叠加,收益更上一层楼。' }
       ]
     },
     { id: 'guilds', icon: '⚔', title: '公会 & 赛季',
