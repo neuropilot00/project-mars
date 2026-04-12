@@ -3144,7 +3144,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
       <div class="base-tab" onclick="switchBaseTab('shop',this);loadBaseShopItems()" data-i18n="base_tab_shop">SHOP</div>
       <div class="base-tab" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
-      <div class="base-tab" onclick="switchBaseTab('govern',this)" style="color:var(--cyan)" data-i18n="base_tab_govern">GOVERN</div>
+      <div class="base-tab" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
     </div>
     <div class="base-body">
 
@@ -13850,15 +13850,27 @@ window._baseDotSeen = (function(){
 })();
 function _saveDotSeen(){ try{ localStorage.setItem('base_tab_seen', JSON.stringify(window._baseDotSeen)); }catch(_e){} }
 window.clearBaseTabDot = function(tab){
-  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot'};
+  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot',govern:'governDot'};
   var id = map[tab]; if(!id) return;
   var el = document.getElementById(id); if(el) el.style.display='none';
   window._baseDotSeen[tab] = Date.now();
+  // Save current state so dot resets when things change
+  if(tab==='territory' && window._cmdInfo){
+    window._baseDotSeen.territory_cmd = (_cmdInfo.commander||'').toLowerCase();
+  }
+  if(tab==='sectors' && window._sectorsData){
+    (_sectorsData||[]).forEach(function(s){
+      if(s.governor) window._baseDotSeen['sectors_gov_'+s.id] = (s.governor||'').toLowerCase();
+    });
+  }
+  if(tab==='guild'){
+    window._baseDotSeen.guild_chat = Date.now();
+  }
   _saveDotSeen();
   if(typeof _updateBaseBtnDot==='function') _updateBaseBtnDot();
 };
 window.setBaseTabDot = function(tab, on){
-  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot'};
+  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot',govern:'governDot'};
   var id = map[tab]; if(!id) return;
   var el = document.getElementById(id); if(el) el.style.display = on ? 'block' : 'none';
   if(typeof _updateBaseBtnDot==='function') _updateBaseBtnDot();
@@ -13868,19 +13880,37 @@ window.setBaseTabDot = function(tab, on){
 function _pollBaseTabDots(){
   var w = walletState.address; if(!w) return;
   var seen = window._baseDotSeen || {};
-  // TERRITORY: new commander announcement
+  // TERRITORY: new commander announcement OR commander changed
   try{
-    if(window._cmdInfo && _cmdInfo.announcementAt){
-      var t = new Date(_cmdInfo.announcementAt).getTime();
-      if(t && t > (seen.territory||0)) setBaseTabDot('territory', true);
+    if(window._cmdInfo){
+      var cmdChanged = false;
+      // Check if commander wallet changed since last seen
+      var curCmd = (_cmdInfo.commander||'').toLowerCase();
+      if(curCmd && curCmd !== (seen.territory_cmd||'')) cmdChanged = true;
+      // Check announcement timestamp
+      if(_cmdInfo.announcementAt){
+        var t = new Date(_cmdInfo.announcementAt).getTime();
+        if(t && t > (seen.territory||0)) cmdChanged = true;
+      }
+      if(cmdChanged) setBaseTabDot('territory', true);
     }
   }catch(_e){}
-  // SECTORS: new sector announcement from any owned sector
+  // SECTORS: new sector announcement OR governor changed
   try{
-    var secs = (_sectorsData||[]).filter(function(s){return s.announcementAt});
-    var newest = 0;
-    secs.forEach(function(s){ var t=new Date(s.announcementAt).getTime(); if(t>newest) newest=t; });
-    if(newest && newest > (seen.sectors||0)) setBaseTabDot('sectors', true);
+    var secs = (_sectorsData||[]);
+    var sectorsChanged = false;
+    secs.forEach(function(s){
+      // Check announcement
+      if(s.announcementAt){
+        var t=new Date(s.announcementAt).getTime();
+        if(t > (seen.sectors||0)) sectorsChanged = true;
+      }
+      // Check governor change
+      var gov = (s.governor||'').toLowerCase();
+      var seenGovKey = 'sectors_gov_'+s.id;
+      if(gov && gov !== (seen[seenGovKey]||'')) sectorsChanged = true;
+    });
+    if(sectorsChanged) setBaseTabDot('sectors', true);
   }catch(_e){}
   // SEASON: claimable rewards or new season
   fetch('/api/season/active').then(function(r){return r.json()}).then(function(d){
@@ -13890,21 +13920,69 @@ function _pollBaseTabDots(){
         var start = new Date(s.startsAt).getTime();
         if(start && start > (seen.rank||0)) setBaseTabDot('rank', true);
       }
+      // Check claimable season rewards
+      if(d && d.myRewards && d.myRewards.length){
+        var hasUnclaimed = d.myRewards.some(function(r){ return !r.claimed; });
+        if(hasUnclaimed) setBaseTabDot('rank', true);
+      }
     }catch(_e){}
   }).catch(function(){});
-  // GUILD: unread chat or pending invites
+  // GUILD: pending invites + new chat messages
   fetch('/api/guild/invites?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
     try{
       var invites = (d && d.invites) || [];
       if(invites.length) setBaseTabDot('guild', true);
     }catch(_e){}
   }).catch(function(){});
+  // Also check guild chat for new messages
+  try{
+    if(window._myGuildData && _myGuildData.id){
+      fetch('/api/guild/chat/'+_myGuildData.id+'?limit=1').then(function(r){return r.json()}).then(function(d){
+        try{
+          var msgs = d && d.messages || [];
+          if(msgs.length){
+            var newest = new Date(msgs[0].created_at).getTime();
+            if(newest > (seen.guild_chat||0)) setBaseTabDot('guild', true);
+          }
+        }catch(_e){}
+      }).catch(function(){});
+    }
+  }catch(_e){}
   // MINING: harvestable PP available
   try{
     var owned = (window._ownedPixels||[]);
     var harvestable = owned.some(function(p){ return parseFloat(p.pendingPP||p.pending_pp||0) > 0; });
     if(harvestable) setBaseTabDot('mining', true);
   }catch(_e){}
+  // QUESTS: claimable quest rewards
+  fetch('/api/quests?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+    try{
+      var quests = d && d.quests || [];
+      var hasClaimable = quests.some(function(q){ return q.status==='completed'; });
+      if(hasClaimable) setBaseTabDot('quests', true);
+    }catch(_e){}
+  }).catch(function(){});
+  // OPS: claimable mission rewards
+  fetch('/api/missions/active?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+    try{
+      var missions = d && d.missions || [];
+      var hasClaimable = missions.some(function(m){ return m.status==='complete'; });
+      if(hasClaimable) setBaseTabDot('ops', true);
+    }catch(_e){}
+  }).catch(function(){});
+  // GOVERN: active bounties or events user might want to see
+  Promise.all([
+    fetch('/api/governance/bounties').then(function(r){return r.json()}).catch(function(){return []}),
+    fetch('/api/governance/events').then(function(r){return r.json()}).catch(function(){return []})
+  ]).then(function(results){
+    try{
+      var bounties = Array.isArray(results[0]) ? results[0] : [];
+      var events = Array.isArray(results[1]) ? results[1] : [];
+      var activeBounties = bounties.filter(function(b){ return b.status==='open' || b.status==='active'; });
+      var activeEvents = events.filter(function(e){ return e.status==='active'; });
+      if(activeBounties.length || activeEvents.length) setBaseTabDot('govern', true);
+    }catch(_e){}
+  }).catch(function(){});
 }
 setTimeout(_pollBaseTabDots, 8000);
 setInterval(_pollBaseTabDots, 60000);
@@ -14592,6 +14670,9 @@ function loadOpsTab(){
     .then(function(d){
       window._opsMissions = d.missions || [];
       renderOpsMissionList();
+      // Set OPS dot if any mission is claimable
+      var hasClaimableOps = (d.missions||[]).some(function(m){ return m.status==='complete' || m.readyToClaim; });
+      if(hasClaimableOps){ setBaseTabDot('ops', true); }
       if(typeof requestRedraw==='function') requestRedraw();
     })
     .catch(function(){ document.getElementById('opsMissionList').innerHTML='Failed to load missions.'; });
@@ -20868,7 +20949,7 @@ function updateDailyHudDot(){
 }
 function _updateBaseBtnDot(){
   var anyDot = false;
-  var dotIds = ['territoryDot','sectorsDot','rankDot','miningDot','questsDot','guildDot','opsDot'];
+  var dotIds = ['territoryDot','sectorsDot','rankDot','miningDot','questsDot','guildDot','opsDot','governDot'];
   dotIds.forEach(function(id){
     var el = document.getElementById(id);
     if(el && el.style.display !== 'none') anyDot = true;
