@@ -12863,6 +12863,7 @@ async function refreshEmailBalances(){
       // GP balance from server
       if(d.gpBalance !== undefined){
         _dailyState.gpBalance = parseFloat(d.gpBalance)||0;
+        walletState.gameGP = parseFloat(d.gpBalance)||0;
         updateGPDisplay();
       }
     }
@@ -14016,7 +14017,8 @@ function renderGuildUpgrades(guild, myRole){
   }
   // Show my GP balance in donate section
   var donateGPEl = document.getElementById('guildDonateMyGP');
-  if(donateGPEl) donateGPEl.textContent = '내 GP: '+Math.floor(walletState.gameGP||0);
+  var myGP = walletState.gameGP || (_dailyState&&_dailyState.gpBalance) || 0;
+  if(donateGPEl) donateGPEl.textContent = '내 GP: '+Math.floor(myGP);
   // Research grid — slot-locked based on guild level
   var flags = guild.researchFlags || guild.research_flags || {};
   var canSpend = (myRole==='leader'||myRole==='officer');
