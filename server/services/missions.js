@@ -432,13 +432,51 @@ async function launchMission(wallet, type, originClaimId, targetLat, targetLng, 
 
     // ── Invasion-specific validation
     if (type === 'invasion') {
-      if (targetWallet.toLowerCase() === wallet.toLowerCase()) {
+      // Resolve target: accept either a wallet (0x…) or a nickname.
+      // Without this, typing a nickname into the launcher would fail with
+      // "Target has no territory" even when the player owns plenty of land.
+      const rawTarget = String(targetWallet || '').trim();
+      let resolvedTarget = rawTarget.toLowerCase();
+      const looksLikeWallet = /^0x[0-9a-f]{40}$/i.test(rawTarget);
+      if (!looksLikeWallet) {
+        const nickRes = await client.query(
+          'SELECT wallet_address FROM users WHERE LOWER(nickname) = LOWER($1) LIMIT 1',
+          [rawTarget]
+        );
+        if (!nickRes.rows.length) {
+          await client.query('ROLLBACK');
+          return { error: `No player named "${rawTarget}"` };
+        }
+        resolvedTarget = nickRes.rows[0].wallet_address.toLowerCase();
+      }
+      targetWallet = resolvedTarget;
+
+      if (targetWallet === wallet.toLowerCase()) {
         await client.query('ROLLBACK');
         return { error: "Can't invade yourself" };
       }
+
+      // Block invading guild-mates so guild members don't grief each other.
+      try {
+        const gm = await client.query(
+          `SELECT a.guild_id AS me_guild, b.guild_id AS them_guild
+             FROM users a, users b
+            WHERE a.wallet_address = $1 AND b.wallet_address = $2`,
+          [wallet.toLowerCase(), targetWallet]
+        );
+        if (gm.rows.length) {
+          const me = gm.rows[0].me_guild;
+          const them = gm.rows[0].them_guild;
+          if (me && them && me === them) {
+            await client.query('ROLLBACK');
+            return { error: 'Target is in your guild' };
+          }
+        }
+      } catch (_ge) { /* guild table missing → skip check */ }
+
       const tgtOwned = await client.query(
         'SELECT COUNT(*)::int AS cnt FROM pixels WHERE owner = $1',
-        [targetWallet.toLowerCase()]
+        [targetWallet]
       );
       if ((tgtOwned.rows[0]?.cnt || 0) === 0) {
         await client.query('ROLLBACK');

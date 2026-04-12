@@ -18116,7 +18116,7 @@ if(typeof _origTrackQuestAction === 'function'){
         <div id="gePreview" style="width:64px;height:64px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.02);border-radius:6px"></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin-bottom:4px">PREVIEW</div>
-          <div style="font-size:8px;color:var(--tx3);line-height:1.5">Pixel-art emblem is auto-resized to 32×32 (Lineage-style). PNG/JPG under 2MB.</div>
+          <div style="font-size:8px;color:var(--tx3);line-height:1.5">Pixel-art emblem is auto-resized to 32×32. PNG/JPG under 2MB.</div>
         </div>
       </div>
 
@@ -18732,7 +18732,7 @@ var CODEX_CONTENT = {
             text:'`max_global_events_per_day=1`. No matter how much GP, commanders trigger only one event per day. Timing is strategy.' },
 
           { type:'h2', text:'5. Bounty System' },
-          { type:'p', text:'Commanders and governors can post **bounties** on specific wallets. The first player to hijack the target claims the full reward.' },
+          { type:'p', text:'Commanders and governors can post **bounties** on specific players. The first player to hijack the target claims the full reward.' },
           { type:'table',
             headers:['Item','Value'],
             rows:[
@@ -18810,30 +18810,30 @@ var CODEX_CONTENT = {
             text:'Not websockets — polling. Messages sync every few seconds rather than instantly. In live combat, reactions can feel slightly delayed.' },
 
           { type:'h2', text:'4. Season System' },
-          { type:'p', text:'Seasons run on a **30-day cycle**. Weather and visual effects change by theme, and top ranks earn rewards at season end.' },
+          { type:'p', text:'Seasons run on a **30-day cycle**. Each season picks a Mars-weather **theme** and **6 ranking categories** out of 26 — so the leaderboard you grind for changes every season.' },
           { type:'table',
-            headers:['Season','Theme','Traits'],
+            headers:['Season','Theme','Mars conditions'],
             rows:[
-              [{v:'Season 1',cls:'mars'}, '🌋 Volcanic',    'Lava · volcanic activity'],
-              [{v:'Season 2',cls:'mars'}, '❄ Ice Age',     'Ice age'],
-              [{v:'Season 3',cls:'mars'}, '☀ Solar Storm', 'Solar storm'],
-              [{v:'Season 4',cls:'mars'}, '🌪 Dust Epoch', 'Sandstorm']
+              [{v:'Season 1',cls:'mars'}, '🌋 Volcanic Dawn',    'Magma vents reactivate'],
+              [{v:'Season 2',cls:'mars'}, '❄ Frozen Frontier',  'Polar ice creeps equatorward'],
+              [{v:'Season 3',cls:'mars'}, '☀ Solar Inferno',    'Coronal mass ejections'],
+              [{v:'Season 4',cls:'mars'}, '🌪 Dust Epoch',      'Planet-wide sandstorm']
             ]},
           { type:'callout', variant:'warn', title:'Seasons are 30 days — not decorative',
-            text:'Season length is **hard-set to 30 days** (`seasons.ends_at`). Weather probabilities shift with the theme, and a visual tint overlays the globe.' },
+            text:'Season length is **hard-set to 30 days** (`seasons.ends_at`). Weather probabilities shift with the theme, and a colored tint paints the Mars surface.' },
 
           { type:'h2', text:'5. Season Score Calculation' },
-          { type:'p', text:'Season score aggregates **6 categories** per player. Rankings update live.' },
+          { type:'p', text:'There are **26 ranking categories** total — territory, mining, combat, defender, explorer, quester, gambler, recruiter, namer, etc. Each season **only 6** of them are active, picked from the pool, so a category that mattered last season may be dormant this one.' },
           { type:'table',
             headers:['Activity','Points','Source'],
             rows:[
-              ['Claimed pixels',   {v:'+1 / px',cls:'num'},  '`season_pixel_score`'],
-              ['Harvest complete', {v:'+5',cls:'num'},       '`season_harvest_score`'],
-              ['Hijack win',       {v:'+10',cls:'num'},      '`season_hijack_score`'],
-              ['POI discovery',    {v:'+15',cls:'num'},      '`season_poi_score`']
+              ['Claimed pixels',   {v:'+1 / px',cls:'num'},  '`season_mult_pixels`'],
+              ['Harvest complete', {v:'+5',cls:'num'},       '`season_mult_harvest`'],
+              ['Hijack win',       {v:'+10',cls:'num'},      '`season_mult_hijack`'],
+              ['POI discovery',    {v:'+15',cls:'num'},      '`season_mult_poi`']
             ]},
-          { type:'callout', variant:'tip', title:'POI is the best point-per-action',
-            text:'A single POI is **15×** the score of 1 pixel. Hunting season rank? Open the map and chase POIs first. 6 POIs × 15 = 90 points easily in 12 hours.' },
+          { type:'callout', variant:'tip', title:'Read the active 6 first',
+            text:'Open the SEASON tab to see which 6 categories are live this season. Going for *combat* in a season where combat isn\'t active is a waste — chase only the active leaderboards.' },
 
           { type:'h2', text:'6. Season Rewards' },
           { type:'p', text:'At season end, top ranks by category auto-receive rewards. Claim them in the `RANK` tab.' },
@@ -18854,21 +18854,21 @@ var CODEX_CONTENT = {
           { type:'toc', label:'In this section', items:[
             '5-game summary',
             'Bet limits & house edge',
-            'Sandstorm Survival (Coinflip)',
-            'Meteorite Prediction (Dice)',
-            'Terrain Survey (Hi-Lo)',
+            'Coinflip',
+            'Dice',
+            'Hi-Lo',
             'Crash / Mines'
           ]},
 
           { type:'h2', text:'1. 5-Game Summary' },
           { type:'table',
-            headers:['Game','Type','Theme','Currency'],
+            headers:['Game','Type','Currency'],
             rows:[
-              [{v:'🚀 Crash',cls:'mars'},             'Live multiplier','Rocket altitude',     'PP · USDT'],
-              [{v:'💣 Mines',cls:'mars'},             'Grid',           'Minesweeper',         'PP · USDT'],
-              [{v:'🌪 Sandstorm',cls:'mars'},         '50/50',          'Sandstorm survival',  'PP · USDT'],
-              [{v:'☄ Meteorite',cls:'mars'},          'Dice',           'Meteorite prediction','PP · USDT'],
-              [{v:'🏔 Terrain Survey',cls:'mars'},    'Card',           'Terrain hi-lo',       'PP · USDT']
+              [{v:'🚀 Crash',cls:'mars'},   'Live multiplier','PP · USDT'],
+              [{v:'💣 Mines',cls:'mars'},   'Grid',           'PP · USDT'],
+              [{v:'🪙 Coinflip',cls:'mars'},'50/50',          'PP · USDT'],
+              [{v:'🎲 Dice',cls:'mars'},    'Range roll',     'PP · USDT'],
+              [{v:'🃏 Hi-Lo',cls:'mars'},   'Card streak',    'PP · USDT']
             ]},
 
           { type:'h2', text:'2. Bet Limits & House Edge' },
@@ -18877,25 +18877,25 @@ var CODEX_CONTENT = {
             rows:[
               [{v:'Crash',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'50',cls:'num'},  {v:'4 %',cls:'num'}],
               [{v:'Mines',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'20',cls:'num'},  {v:'3 %',cls:'num'}],
-              [{v:'Sandstorm',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 3 %',cls:'num'}],
-              [{v:'Meteorite',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'variable',cls:'num'}],
-              [{v:'Terrain',cls:'mars'},  {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 4 %',cls:'num'}]
+              [{v:'Coinflip',cls:'mars'}, {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 3 %',cls:'num'}],
+              [{v:'Dice',cls:'mars'},     {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'variable',cls:'num'}],
+              [{v:'Hi-Lo',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 4 %',cls:'num'}]
             ]},
           { type:'callout', variant:'warn', title:'House edge is real',
             text:'Long-term, the house always wins. A 3-4% edge means on average **3-4% of every bet disappears**. Bet 100 PP and you lose 3-4 PP on average.' },
 
-          { type:'h2', text:'3. Sandstorm Survival (Coinflip)' },
-          { type:'p', text:'Stand in front of a sandstorm and bet **survive / get swept away**. A themed coinflip.' },
+          { type:'h2', text:'3. Coinflip' },
+          { type:'p', text:'Pick **HEADS or TAILS**, place your bet, flip. Win = 1.96× your bet. Simple, fast 50/50.' },
           { type:'callout', variant:'info', title:'Simple but still has edge',
             text:'It looks like 50/50, but the payout is under 2.0× — that\'s where the edge lives. Upside: you can cycle many rounds fast.' },
 
-          { type:'h2', text:'4. Meteorite Prediction (Dice)' },
-          { type:'p', text:'Guess the meteorite impact angle. Pick **over/under a range**; narrower range = higher multiplier.' },
+          { type:'h2', text:'4. Dice' },
+          { type:'p', text:'Roll the dice. Pick **over/under a range**; the narrower the range, the higher the multiplier.' },
           { type:'callout', variant:'tip', title:'Risk tuning via range',
             text:'Pick low-mult/high-prob or high-mult/low-prob yourself. Biggest dial in the cantina.' },
 
-          { type:'h2', text:'5. Terrain Survey (Hi-Lo)' },
-          { type:'p', text:'Guess whether the next card is **higher or lower** than the current one. Streaks compound multiplicatively.' },
+          { type:'h2', text:'5. Hi-Lo' },
+          { type:'p', text:'A card is shown. Guess whether the next card is **higher or lower**. Streaks compound multiplicatively.' },
           { type:'callout', variant:'pro', title:'Streaks are everything',
             text:'Base payout is small, but **streaks** grow exponentially. Knowing when to cash out is the whole game.' },
 
@@ -19289,8 +19289,9 @@ var CODEX_CONTENT = {
           { type:'table',
             headers:['항목','값','비고'],
             rows:[
-              ['기본 배수',         {v:'× 1.2',cls:'num'},    '원소유자에게 1.2배 지불'],
-              ['원주인 환급',       {v:'+50 %',cls:'num'},    '하이잭 비용의 50%를 보너스로 돌려줌'],
+              ['기본 배수',         {v:'× 1.2',cls:'num'},    '공격자가 원가의 1.2배 지불'],
+              ['원주인 회수',       {v:'110 %',cls:'num'},    '원가 100% + 프리미엄(0.2x)의 절반 → 원주인 합 1.1x'],
+              ['플랫폼 수수료',     {v:'10 %',cls:'num'},     '나머지 0.1x는 금고로'],
               ['쉴드 차감',         {v:'50 ~ 75 %',cls:'num'},'쉴드가 걸려있으면 피해 흡수']
             ]},
           { type:'callout', variant:'warn', title:'섣부른 하이잭은 손해',
@@ -19498,7 +19499,7 @@ var CODEX_CONTENT = {
             text:'`max_global_events_per_day=1`. 커맨더가 아무리 GP가 많아도 하루에 한 번만 이벤트를 발동할 수 있어. 타이밍이 전략이야.' },
 
           { type:'h2', text:'5. 현상금 시스템' },
-          { type:'p', text:'커맨더와 거버너는 특정 지갑에 **현상금**을 걸 수 있어. 현상금 타깃을 먼저 하이잭하는 사람이 보상을 전부 가져가.' },
+          { type:'p', text:'커맨더와 거버너는 특정 유저에게 **현상금**을 걸 수 있어. 현상금 타깃을 먼저 하이잭하는 사람이 보상을 전부 가져가.' },
           { type:'table',
             headers:['항목','값'],
             rows:[
@@ -19562,7 +19563,7 @@ var CODEX_CONTENT = {
               ['엠블렘 픽셀 아트',   {v:'50 GP',cls:'num'},  {v:'32×32 · 최대 8 KB',cls:'num'}]
             ]},
           { type:'callout', variant:'pro', title:'픽셀 아트 엠블렘은 강력한 브랜딩',
-            text:'길드 픽셀 아트 엠블렘은 리니지 스타일로 **32×32**까지 업로드 가능. 작은 사이즈라도 영토 팝업에 뜨면 인식력이 엄청 높아.' },
+            text:'길드 픽셀 아트 엠블렘은 **32×32**까지 업로드 가능. 작은 사이즈라도 영토 팝업에 뜨면 인식력이 엄청 높아.' },
 
           { type:'h2', text:'3. 길드 채팅' },
           { type:'table',
@@ -19576,30 +19577,30 @@ var CODEX_CONTENT = {
             text:'웹소켓 아니고 **폴링** 방식이야. 메시지 한 번에 새로고침되는 게 아니라 몇 초 간격으로 동기화돼. 실시간 전투 상황에서는 반응이 살짝 느릴 수 있어.' },
 
           { type:'h2', text:'4. 시즌 시스템' },
-          { type:'p', text:'시즌은 **30일 주기**. 테마별로 날씨·시각 효과가 바뀌고 시즌 끝에 상위권에게 보상이 지급돼.' },
+          { type:'p', text:'시즌은 **30일 주기**. 매 시즌마다 화성 날씨 **테마**가 바뀌고, **26개 카테고리 중 6개**가 무작위로 선정돼서 그 시즌의 랭킹 종목이 돼.' },
           { type:'table',
-            headers:['시즌','테마','특징'],
+            headers:['시즌','테마','화성 환경'],
             rows:[
-              [{v:'시즌 1',cls:'mars'}, '🌋 Volcanic',    '용암·화산활동 테마'],
-              [{v:'시즌 2',cls:'mars'}, '❄ Ice Age',     '빙하기 테마'],
-              [{v:'시즌 3',cls:'mars'}, '☀ Solar Storm', '태양 폭풍 테마'],
-              [{v:'시즌 4',cls:'mars'}, '🌪 Dust Epoch', '모래폭풍 테마']
+              [{v:'시즌 1',cls:'mars'}, '🌋 Volcanic Dawn',    '마그마 분화구 재가동'],
+              [{v:'시즌 2',cls:'mars'}, '❄ Frozen Frontier',  '극지 빙하가 적도까지 확장'],
+              [{v:'시즌 3',cls:'mars'}, '☀ Solar Inferno',    '코로나 질량 방출'],
+              [{v:'시즌 4',cls:'mars'}, '🌪 Dust Epoch',      '행성 전체 모래폭풍']
             ]},
           { type:'callout', variant:'warn', title:'시즌은 30일 — 장식 아님',
-            text:'시즌 길이는 **30일**로 하드 설정되어 있어 (`seasons.ends_at`). 테마에 따라 날씨 확률이 달라지고 시각적 틴트가 지구본에 오버레이돼.' },
+            text:'시즌 길이는 **30일**로 하드 설정되어 있어 (`seasons.ends_at`). 테마에 따라 날씨 확률이 달라지고, 시각 틴트가 화성 표면 위에 입혀져.' },
 
           { type:'h2', text:'5. 시즌 점수 계산' },
-          { type:'p', text:'시즌 점수는 **6가지 카테고리**로 집계돼. 플레이어당 점수가 쌓이고 랭킹이 실시간 갱신돼.' },
+          { type:'p', text:'시즌 카테고리는 총 **26종** — territory, mining, combat, defender, explorer, quester, gambler, recruiter, namer 등등. 매 시즌엔 그 중 **6종만 활성화**돼서 풀에서 무작위로 뽑혀. 지난 시즌엔 의미 있던 카테고리가 이번엔 비활성일 수 있어.' },
           { type:'table',
-            headers:['활동','점수','출처'],
+            headers:['활동','점수','설정 키'],
             rows:[
-              ['클레임한 픽셀',   {v:'+1 점 / px',cls:'num'},  '`season_pixel_score`'],
-              ['수확 완료',      {v:'+5 점',cls:'num'},       '`season_harvest_score`'],
-              ['하이잭 승리',    {v:'+10 점',cls:'num'},      '`season_hijack_score`'],
-              ['POI 발견',      {v:'+15 점',cls:'num'},      '`season_poi_score`']
+              ['클레임한 픽셀',   {v:'+1 점 / px',cls:'num'},  '`season_mult_pixels`'],
+              ['수확 완료',      {v:'+5 점',cls:'num'},       '`season_mult_harvest`'],
+              ['하이잭 승리',    {v:'+10 점',cls:'num'},      '`season_mult_hijack`'],
+              ['POI 발견',      {v:'+15 점',cls:'num'},      '`season_mult_poi`']
             ]},
-          { type:'callout', variant:'tip', title:'POI가 점수 가성비 최고',
-            text:'픽셀 1개보다 POI 1개가 **15배** 점수야. 시즌 상위권 노리면 지도 켜놓고 POI부터 달려. 12시간 안에 6개 × 15점 = 90점은 그냥 주워지는 거야.' },
+          { type:'callout', variant:'tip', title:'활성 6개부터 확인해라',
+            text:'SEASON 탭에서 이번 시즌 활성 카테고리 6개부터 확인해. *combat*이 비활성인 시즌에 전투만 파면 점수 헛돈다 — 활성 리더보드만 노려.' },
 
           { type:'h2', text:'6. 시즌 보상' },
           { type:'p', text:'시즌이 끝나면 카테고리별 상위권에게 자동 지급. 수령은 `RANK` 탭에서.' },
@@ -19620,48 +19621,48 @@ var CODEX_CONTENT = {
           { type:'toc', label:'이 섹션 내용', items:[
             '게임 5종 요약',
             '베팅 한도 & 하우스 엣지',
-            '모래폭풍 서바이벌 (Coinflip)',
-            '운석 예측 (Dice)',
-            '지형 조사 (Hi-Lo)',
+            '코인플립',
+            '다이스',
+            '하이로우',
             '크래쉬 / 마인스'
           ]},
 
           { type:'h2', text:'1. 게임 5종 요약' },
           { type:'table',
-            headers:['게임','유형','테마','통화'],
+            headers:['게임','유형','통화'],
             rows:[
-              [{v:'🚀 Crash',cls:'mars'},             '라이브 배수',  '로켓 고도',        'PP · USDT'],
-              [{v:'💣 Mines',cls:'mars'},             '그리드',      '지뢰 찾기',       'PP · USDT'],
-              [{v:'🌪 Sandstorm',cls:'mars'},         '50/50',       '모래폭풍 서바이벌','PP · USDT'],
-              [{v:'☄ Meteorite',cls:'mars'},          '주사위',      '운석 예측',       'PP · USDT'],
-              [{v:'🏔 Terrain Survey',cls:'mars'},    '카드',        '지형 고저 추측',  'PP · USDT']
+              [{v:'🚀 Crash',cls:'mars'},   '라이브 배수','PP · USDT'],
+              [{v:'💣 Mines',cls:'mars'},   '그리드',    'PP · USDT'],
+              [{v:'🪙 코인플립',cls:'mars'},'50/50',     'PP · USDT'],
+              [{v:'🎲 다이스',cls:'mars'},  '범위 굴리기','PP · USDT'],
+              [{v:'🃏 하이로우',cls:'mars'},'카드 스트릭','PP · USDT']
             ]},
 
           { type:'h2', text:'2. 베팅 한도 & 하우스 엣지' },
           { type:'table',
             headers:['게임','최소 베팅','최대 베팅','하우스 엣지'],
             rows:[
-              [{v:'Crash',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'50',cls:'num'},  {v:'4 %',cls:'num'}],
-              [{v:'Mines',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'20',cls:'num'},  {v:'3 %',cls:'num'}],
-              [{v:'Sandstorm',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 3 %',cls:'num'}],
-              [{v:'Meteorite',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'가변',cls:'num'}],
-              [{v:'Terrain',cls:'mars'},  {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 4 %',cls:'num'}]
+              [{v:'Crash',cls:'mars'},   {v:'0.1',cls:'num'},  {v:'50',cls:'num'},  {v:'4 %',cls:'num'}],
+              [{v:'Mines',cls:'mars'},   {v:'0.1',cls:'num'},  {v:'20',cls:'num'},  {v:'3 %',cls:'num'}],
+              [{v:'코인플립',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 3 %',cls:'num'}],
+              [{v:'다이스',cls:'mars'},  {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'가변',cls:'num'}],
+              [{v:'하이로우',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 4 %',cls:'num'}]
             ]},
           { type:'callout', variant:'warn', title:'하우스 엣지는 진짜로 적용됨',
             text:'장기적으로 모든 게임은 하우스가 이겨. 엣지가 3~4%라는 건 베팅한 모든 금액의 평균 **3~4%가 사라진다**는 뜻. 100 PP 베팅하면 평균 3~4 PP가 증발.' },
 
-          { type:'h2', text:'3. 모래폭풍 서바이벌 (Coinflip)' },
-          { type:'p', text:'모래폭풍 앞에 서서 **살아남을지 / 쓸려갈지**를 고르는 50/50 게임. 테마가 바뀐 동전던지기야.' },
+          { type:'h2', text:'3. 코인플립' },
+          { type:'p', text:'**HEADS 또는 TAILS**를 고르고 베팅, 뒤집기. 맞추면 1.96배. 단순하고 빠른 50/50.' },
           { type:'callout', variant:'info', title:'단순하지만 하우스 엣지는 있다',
             text:'50/50처럼 보이지만 배당이 2.0배가 아니라 그보다 낮아서 엣지가 발생해. 빠른 시간에 많은 판을 할 수 있는 게 장점.' },
 
-          { type:'h2', text:'4. 운석 예측 (Dice)' },
-          { type:'p', text:'운석 낙하 각도를 예측하는 주사위 게임. **특정 범위 위/아래**를 고르고, 범위가 좁을수록 배수가 커져.' },
+          { type:'h2', text:'4. 다이스' },
+          { type:'p', text:'주사위를 굴려. **특정 범위 위/아래**를 고르고, 범위가 좁을수록 배수가 커져.' },
           { type:'callout', variant:'tip', title:'범위 조정으로 리스크 조절',
             text:'낮은 배수·높은 확률 또는 높은 배수·낮은 확률을 직접 선택해. 번 게임에서 가장 조절 폭이 넓어.' },
 
-          { type:'h2', text:'5. 지형 조사 (Hi-Lo)' },
-          { type:'p', text:'다음에 뽑힐 카드가 **현재보다 높을지 / 낮을지** 맞추는 카드 게임. 연속으로 맞추면 배수가 누적돼.' },
+          { type:'h2', text:'5. 하이로우' },
+          { type:'p', text:'카드 한 장이 공개돼. 다음 카드가 **현재보다 높을지 / 낮을지** 맞춰. 연속으로 맞추면 배수가 누적돼.' },
           { type:'callout', variant:'pro', title:'연승이 핵심',
             text:'베이스 배당은 작지만 **스트릭**으로 기하급수적으로 커져. 적절한 타이밍에 캐시아웃하는 감각이 전부.' },
 
@@ -20266,7 +20267,7 @@ CODEX_CONTENT.ja = {
           text:'`max_global_events_per_day=1`。コマンダーがどれだけ GP を持っていても 1 日にイベントは 1 回しか発動できない。タイミングが戦略だ。' },
 
         { type:'h2', text:'5. 賞金システム' },
-        { type:'p', text:'コマンダーとガバナーは特定のウォレットに **賞金** を掛けられる。賞金対象を最初にハイジャックした者が報酬を総取り。' },
+        { type:'p', text:'コマンダーとガバナーは特定のユーザーに **賞金** を掛けられる。賞金対象を最初にハイジャックした者が報酬を総取り。' },
         { type:'table',
           headers:['項目','値'],
           rows:[
@@ -20330,7 +20331,7 @@ CODEX_CONTENT.ja = {
             ['ピクセルアートエンブレム',   {v:'50 GP',cls:'num'},  {v:'32×32 · 最大 8 KB',cls:'num'}]
           ]},
         { type:'callout', variant:'pro', title:'ピクセルアートエンブレムは強力なブランディング',
-          text:'ギルドのピクセルアートエンブレムはリネージュ風に **32×32** までアップロード可能。小さくても領土ポップアップに出れば認識力は抜群だ。' },
+          text:'ギルドのピクセルアートエンブレムは **32×32** までアップロード可能。小さくても領土ポップアップに出れば認識力は抜群だ。' },
 
         { type:'h2', text:'3. ギルドチャット' },
         { type:'table',
@@ -20344,30 +20345,30 @@ CODEX_CONTENT.ja = {
           text:'WebSocket ではなく **ポーリング** 方式だ。メッセージが一回で更新されるのではなく数秒間隔で同期される。リアルタイム戦闘中は反応がやや遅く感じるかも。' },
 
         { type:'h2', text:'4. シーズンシステム' },
-        { type:'p', text:'シーズンは **30 日周期**。テーマごとに天候・視覚効果が変化し、シーズン終わりに上位へ報酬が支給される。' },
+        { type:'p', text:'シーズンは **30 日周期**。各シーズンで火星天候の **テーマ** が選ばれ、**26 カテゴリの中から 6 つ** がランキング種目として無作為に活性化される。' },
         { type:'table',
-          headers:['シーズン','テーマ','特徴'],
+          headers:['シーズン','テーマ','火星環境'],
           rows:[
-            [{v:'シーズン 1',cls:'mars'}, '🌋 Volcanic',    '溶岩・火山活動テーマ'],
-            [{v:'シーズン 2',cls:'mars'}, '❄ Ice Age',     '氷河期テーマ'],
-            [{v:'シーズン 3',cls:'mars'}, '☀ Solar Storm', '太陽嵐テーマ'],
-            [{v:'シーズン 4',cls:'mars'}, '🌪 Dust Epoch', '砂嵐テーマ']
+            [{v:'シーズン 1',cls:'mars'}, '🌋 Volcanic Dawn',    'マグマ噴出口の再活性化'],
+            [{v:'シーズン 2',cls:'mars'}, '❄ Frozen Frontier',  '極冠氷が赤道方向へ拡大'],
+            [{v:'シーズン 3',cls:'mars'}, '☀ Solar Inferno',    'コロナ質量放出'],
+            [{v:'シーズン 4',cls:'mars'}, '🌪 Dust Epoch',      '惑星規模の砂嵐']
           ]},
         { type:'callout', variant:'warn', title:'シーズンは 30 日 — 装飾ではない',
-          text:'シーズン長は **30 日** にハード設定されている(`seasons.ends_at`)。テーマに応じて天候確率が変わり、視覚的ティントがグローブにオーバーレイされる。' },
+          text:'シーズン長は **30 日** にハード設定されている(`seasons.ends_at`)。テーマに応じて天候確率が変わり、視覚ティントが火星表面に被さる。' },
 
         { type:'h2', text:'5. シーズンスコア計算' },
-        { type:'p', text:'シーズンスコアは **6 つのカテゴリ** で集計される。プレイヤーごとにスコアが積み上がり、ランキングがリアルタイム更新される。' },
+        { type:'p', text:'ランキングカテゴリは合計 **26 種** — territory, mining, combat, defender, explorer, quester, gambler, recruiter, namer など。各シーズンで **そのうち 6 つだけ** が活性化され、プールから無作為に選ばれる。前シーズンに重要だったカテゴリが今シーズンは休眠している場合もある。' },
         { type:'table',
-          headers:['活動','スコア','出典'],
+          headers:['活動','スコア','設定キー'],
           rows:[
-            ['クレーム済みピクセル',   {v:'+1 点 / px',cls:'num'},  '`season_pixel_score`'],
-            ['ハーベスト完了',      {v:'+5 点',cls:'num'},       '`season_harvest_score`'],
-            ['ハイジャック勝利',    {v:'+10 点',cls:'num'},      '`season_hijack_score`'],
-            ['POI 発見',      {v:'+15 点',cls:'num'},      '`season_poi_score`']
+            ['クレーム済みピクセル',   {v:'+1 点 / px',cls:'num'},  '`season_mult_pixels`'],
+            ['ハーベスト完了',      {v:'+5 点',cls:'num'},       '`season_mult_harvest`'],
+            ['ハイジャック勝利',    {v:'+10 点',cls:'num'},      '`season_mult_hijack`'],
+            ['POI 発見',      {v:'+15 点',cls:'num'},      '`season_mult_poi`']
           ]},
-        { type:'callout', variant:'tip', title:'POI がスコアコスパ最強',
-          text:'ピクセル 1 個より POI 1 個が **15 倍** のスコアだ。シーズン上位を狙うならマップを開いて POI を優先して走れ。12 時間以内に 6 個 × 15 点 = 90 点は簡単に拾える。' },
+        { type:'callout', variant:'tip', title:'まず活性 6 種を確認',
+          text:'SEASON タブで今シーズンの活性カテゴリ 6 つを最初にチェック。*combat* が非活性のシーズンで戦闘ばかり狙うのは無駄 — 活性リーダーボードだけを追え。' },
 
         { type:'h2', text:'6. シーズン報酬' },
         { type:'p', text:'シーズンが終わるとカテゴリ別上位に自動支給される。受取は `RANK` タブで。' },
@@ -20388,48 +20389,48 @@ CODEX_CONTENT.ja = {
         { type:'toc', label:'このセクションの内容', items:[
           'ゲーム 5 種サマリ',
           'ベット上限 & ハウスエッジ',
-          'サンドストームサバイバル(Coinflip)',
-          'メテオライト予測(Dice)',
-          '地形調査(Hi-Lo)',
+          'コインフリップ',
+          'ダイス',
+          'ハイロー',
           'クラッシュ / マインズ'
         ]},
 
         { type:'h2', text:'1. ゲーム 5 種サマリ' },
         { type:'table',
-          headers:['ゲーム','タイプ','テーマ','通貨'],
+          headers:['ゲーム','タイプ','通貨'],
           rows:[
-            [{v:'🚀 Crash',cls:'mars'},             'ライブ倍率',  'ロケット高度',        'PP · USDT'],
-            [{v:'💣 Mines',cls:'mars'},             'グリッド',      'マインスイーパー',       'PP · USDT'],
-            [{v:'🌪 Sandstorm',cls:'mars'},         '50/50',       'サンドストームサバイバル','PP · USDT'],
-            [{v:'☄ Meteorite',cls:'mars'},          'サイコロ',      '隕石予測',       'PP · USDT'],
-            [{v:'🏔 Terrain Survey',cls:'mars'},    'カード',        '地形高低予測',  'PP · USDT']
+            [{v:'🚀 Crash',cls:'mars'},      'ライブ倍率','PP · USDT'],
+            [{v:'💣 Mines',cls:'mars'},      'グリッド',  'PP · USDT'],
+            [{v:'🪙 コインフリップ',cls:'mars'},'50/50',     'PP · USDT'],
+            [{v:'🎲 ダイス',cls:'mars'},     'レンジロール','PP · USDT'],
+            [{v:'🃏 ハイロー',cls:'mars'},   'カードストリーク','PP · USDT']
           ]},
 
         { type:'h2', text:'2. ベット上限 & ハウスエッジ' },
         { type:'table',
           headers:['ゲーム','最小ベット','最大ベット','ハウスエッジ'],
           rows:[
-            [{v:'Crash',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'50',cls:'num'},  {v:'4 %',cls:'num'}],
-            [{v:'Mines',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'20',cls:'num'},  {v:'3 %',cls:'num'}],
-            [{v:'Sandstorm',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 3 %',cls:'num'}],
-            [{v:'Meteorite',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'可変',cls:'num'}],
-            [{v:'Terrain',cls:'mars'},  {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 4 %',cls:'num'}]
+            [{v:'Crash',cls:'mars'},      {v:'0.1',cls:'num'},  {v:'50',cls:'num'},  {v:'4 %',cls:'num'}],
+            [{v:'Mines',cls:'mars'},      {v:'0.1',cls:'num'},  {v:'20',cls:'num'},  {v:'3 %',cls:'num'}],
+            [{v:'コインフリップ',cls:'mars'},{v:'0.1',cls:'num'},{v:'500',cls:'num'},{v:'~ 3 %',cls:'num'}],
+            [{v:'ダイス',cls:'mars'},     {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'可変',cls:'num'}],
+            [{v:'ハイロー',cls:'mars'},   {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 4 %',cls:'num'}]
           ]},
         { type:'callout', variant:'warn', title:'ハウスエッジは本当に効く',
           text:'長期的には全ゲームでハウスが勝つ。エッジが 3~4% ということは、ベットした全金額の平均 **3~4% が消える** という意味だ。100 PP ベットすれば平均 3~4 PP が蒸発する。' },
 
-        { type:'h2', text:'3. サンドストームサバイバル(Coinflip)' },
-        { type:'p', text:'砂嵐の前に立って **生き残るか/吹き飛ばされるか** を選ぶ 50/50 ゲーム。テーマ違いのコインフリップだ。' },
+        { type:'h2', text:'3. コインフリップ' },
+        { type:'p', text:'**HEADS か TAILS** を選んでベット、フリップ。当たれば 1.96 倍。シンプルで速い 50/50。' },
         { type:'callout', variant:'info', title:'シンプルだがハウスエッジはある',
           text:'50/50 に見えるが配当が 2.0 倍ではなくそれより低いためエッジが発生する。短時間で多数の試合ができるのが利点。' },
 
-        { type:'h2', text:'4. メテオライト予測(Dice)' },
-        { type:'p', text:'隕石の落下角度を予測するサイコロゲーム。**特定範囲の上/下** を選び、範囲が狭いほど倍率が大きくなる。' },
+        { type:'h2', text:'4. ダイス' },
+        { type:'p', text:'サイコロを振る。**特定範囲の上/下** を選び、範囲が狭いほど倍率が大きくなる。' },
         { type:'callout', variant:'tip', title:'範囲調整でリスク管理',
           text:'低倍率・高確率、または高倍率・低確率を自分で選べる。5 ゲーム中で最も調整幅が広い。' },
 
-        { type:'h2', text:'5. 地形調査(Hi-Lo)' },
-        { type:'p', text:'次に引かれるカードが **現在より高いか/低いか** を当てるカードゲーム。連続で当てると倍率が累積する。' },
+        { type:'h2', text:'5. ハイロー' },
+        { type:'p', text:'カードが 1 枚公開される。次のカードが **現在より高いか/低いか** を当てる。連続で当てると倍率が累積する。' },
         { type:'callout', variant:'pro', title:'連勝が肝',
           text:'ベース配当は小さいが **ストリーク** で指数関数的に膨らむ。適切なタイミングでキャッシュアウトする感覚がすべて。' },
 
@@ -21033,7 +21034,7 @@ CODEX_CONTENT.zh = {
           text:'`max_global_events_per_day=1`。不管指挥官有多少 GP,每天只能发动一次事件。时机就是策略。' },
 
         { type:'h2', text:'5. 悬赏系统' },
-        { type:'p', text:'指挥官和总督可以对特定钱包发布 **悬赏**。第一个劫掠目标的人拿走全部奖励。' },
+        { type:'p', text:'指挥官和总督可以对特定玩家发布 **悬赏**。第一个劫掠目标的人拿走全部奖励。' },
         { type:'table',
           headers:['项目','值'],
           rows:[
@@ -21097,7 +21098,7 @@ CODEX_CONTENT.zh = {
             ['像素艺术徽章',   {v:'50 GP',cls:'num'},  {v:'32×32 · 最多 8 KB',cls:'num'}]
           ]},
         { type:'callout', variant:'pro', title:'像素艺术徽章是强力品牌',
-          text:'公会像素艺术徽章最大可以上传到 **32×32**,像早期天堂风格。尺寸虽小,但一在领土弹窗里出现识别度就爆表。' },
+          text:'公会像素艺术徽章最大可以上传到 **32×32**。尺寸虽小,但一在领土弹窗里出现识别度就爆表。' },
 
         { type:'h2', text:'3. 公会聊天' },
         { type:'table',
@@ -21111,30 +21112,30 @@ CODEX_CONTENT.zh = {
           text:'不是 WebSocket,而是 **轮询** 方式。消息不是一发就刷新,而是每几秒同步一次。实时战斗里反应可能会稍微慢一点。' },
 
         { type:'h2', text:'4. 赛季系统' },
-        { type:'p', text:'赛季是 **30 天周期**。按主题天气和视觉效果会变,赛季末给上位玩家发奖励。' },
+        { type:'p', text:'赛季是 **30 天周期**。每个赛季会选定一个火星天气 **主题**,并从 **26 个排名类别中随机选 6 个** 作为该赛季的排行榜项目。' },
         { type:'table',
-          headers:['赛季','主题','特征'],
+          headers:['赛季','主题','火星环境'],
           rows:[
-            [{v:'赛季 1',cls:'mars'}, '🌋 Volcanic',    '熔岩·火山活动主题'],
-            [{v:'赛季 2',cls:'mars'}, '❄ Ice Age',     '冰河时代主题'],
-            [{v:'赛季 3',cls:'mars'}, '☀ Solar Storm', '太阳风暴主题'],
-            [{v:'赛季 4',cls:'mars'}, '🌪 Dust Epoch', '沙尘暴主题']
+            [{v:'赛季 1',cls:'mars'}, '🌋 Volcanic Dawn',    '岩浆喷口重新激活'],
+            [{v:'赛季 2',cls:'mars'}, '❄ Frozen Frontier',  '极地冰盖向赤道扩张'],
+            [{v:'赛季 3',cls:'mars'}, '☀ Solar Inferno',    '日冕物质抛射'],
+            [{v:'赛季 4',cls:'mars'}, '🌪 Dust Epoch',      '行星级沙尘暴']
           ]},
         { type:'callout', variant:'warn', title:'赛季 30 天 — 不是装饰',
-          text:'赛季长度硬编码为 **30 天**(`seasons.ends_at`)。主题不同天气概率也不同,还会在球体上叠加视觉色调。' },
+          text:'赛季长度硬编码为 **30 天**(`seasons.ends_at`)。主题不同天气概率也不同,视觉色调会覆盖在火星表面上。' },
 
         { type:'h2', text:'5. 赛季计分' },
-        { type:'p', text:'赛季积分按 **6 类** 汇总。每玩家的积分持续累积,排行榜实时更新。' },
+        { type:'p', text:'排名类别共 **26 种** — territory, mining, combat, defender, explorer, quester, gambler, recruiter, namer 等等。每个赛季 **只有 6 种** 被激活,从池子里随机抽取。上赛季关键的类别这赛季可能根本不参与计分。' },
         { type:'table',
-          headers:['活动','分数','来源'],
+          headers:['活动','分数','配置项'],
           rows:[
-            ['占领像素',   {v:'+1 分 / px',cls:'num'},  '`season_pixel_score`'],
-            ['完成收获',      {v:'+5 分',cls:'num'},       '`season_harvest_score`'],
-            ['劫掠胜利',    {v:'+10 分',cls:'num'},      '`season_hijack_score`'],
-            ['POI 发现',      {v:'+15 分',cls:'num'},      '`season_poi_score`']
+            ['占领像素',   {v:'+1 分 / px',cls:'num'},  '`season_mult_pixels`'],
+            ['完成收获',      {v:'+5 分',cls:'num'},       '`season_mult_harvest`'],
+            ['劫掠胜利',    {v:'+10 分',cls:'num'},      '`season_mult_hijack`'],
+            ['POI 发现',      {v:'+15 分',cls:'num'},      '`season_mult_poi`']
           ]},
-        { type:'callout', variant:'tip', title:'POI 的分数性价比最高',
-          text:'1 个 POI 抵得上 **15 倍** 的像素分数。要冲赛季榜就打开地图先抢 POI。12 小时里捞 6 × 15 = 90 分随手就有了。' },
+        { type:'callout', variant:'tip', title:'先看本赛季的 6 种活跃类别',
+          text:'打开 SEASON 标签,先确认本赛季激活的 6 个类别。在 *combat* 不活跃的赛季硬刷战斗就是浪费 — 只追当前活跃的排行榜。' },
 
         { type:'h2', text:'6. 赛季奖励' },
         { type:'p', text:'赛季结束后,自动按分类给上位玩家发奖励。在 `RANK` 标签领取。' },
@@ -21155,48 +21156,48 @@ CODEX_CONTENT.zh = {
         { type:'toc', label:'本节内容', items:[
           '5 款游戏概要',
           '投注上限 & 庄家优势',
-          '沙尘暴求生(Coinflip)',
-          '陨石预测(Dice)',
-          '地形勘查(Hi-Lo)',
+          '掷硬币',
+          '骰子',
+          '比大小',
           'Crash / Mines'
         ]},
 
         { type:'h2', text:'1. 5 款游戏概要' },
         { type:'table',
-          headers:['游戏','类型','主题','货币'],
+          headers:['游戏','类型','货币'],
           rows:[
-            [{v:'🚀 Crash',cls:'mars'},             '实时倍率',  '火箭高度',        'PP · USDT'],
-            [{v:'💣 Mines',cls:'mars'},             '网格',      '扫雷',       'PP · USDT'],
-            [{v:'🌪 Sandstorm',cls:'mars'},         '50/50',       '沙尘暴求生','PP · USDT'],
-            [{v:'☄ Meteorite',cls:'mars'},          '骰子',      '陨石预测',       'PP · USDT'],
-            [{v:'🏔 Terrain Survey',cls:'mars'},    '纸牌',        '地形高低猜测',  'PP · USDT']
+            [{v:'🚀 Crash',cls:'mars'},  '实时倍率','PP · USDT'],
+            [{v:'💣 Mines',cls:'mars'},  '网格',    'PP · USDT'],
+            [{v:'🪙 掷硬币',cls:'mars'},'50/50',   'PP · USDT'],
+            [{v:'🎲 骰子',cls:'mars'},  '范围掷骰','PP · USDT'],
+            [{v:'🃏 比大小',cls:'mars'},'纸牌连胜','PP · USDT']
           ]},
 
         { type:'h2', text:'2. 投注上限 & 庄家优势' },
         { type:'table',
           headers:['游戏','最小投注','最大投注','庄家优势'],
           rows:[
-            [{v:'Crash',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'50',cls:'num'},  {v:'4 %',cls:'num'}],
-            [{v:'Mines',cls:'mars'},    {v:'0.1',cls:'num'},  {v:'20',cls:'num'},  {v:'3 %',cls:'num'}],
-            [{v:'Sandstorm',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 3 %',cls:'num'}],
-            [{v:'Meteorite',cls:'mars'},{v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'可变',cls:'num'}],
-            [{v:'Terrain',cls:'mars'},  {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 4 %',cls:'num'}]
+            [{v:'Crash',cls:'mars'},  {v:'0.1',cls:'num'},  {v:'50',cls:'num'},  {v:'4 %',cls:'num'}],
+            [{v:'Mines',cls:'mars'},  {v:'0.1',cls:'num'},  {v:'20',cls:'num'},  {v:'3 %',cls:'num'}],
+            [{v:'掷硬币',cls:'mars'}, {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 3 %',cls:'num'}],
+            [{v:'骰子',cls:'mars'},   {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'可变',cls:'num'}],
+            [{v:'比大小',cls:'mars'}, {v:'0.1',cls:'num'},  {v:'500',cls:'num'}, {v:'~ 4 %',cls:'num'}]
           ]},
         { type:'callout', variant:'warn', title:'庄家优势是真的',
           text:'长期来看所有游戏都是庄家赢。优势 3~4% 意味着每次投注平均 **3~4% 会蒸发**。投 100 PP,平均 3~4 PP 就没了。' },
 
-        { type:'h2', text:'3. 沙尘暴求生(Coinflip)' },
-        { type:'p', text:'站在沙尘暴前选择 **活下来/被卷走** 的 50/50 游戏。其实就是换了主题的掷硬币。' },
+        { type:'h2', text:'3. 掷硬币' },
+        { type:'p', text:'选择 **HEADS 或 TAILS**,下注,翻转。赢 = 1.96 倍。简单快速的 50/50。' },
         { type:'callout', variant:'info', title:'简单但仍有庄家优势',
           text:'看起来像 50/50,但赔率不是 2.0 倍而是更低,庄家优势就在这里。优点是短时间可以玩很多局。' },
 
-        { type:'h2', text:'4. 陨石预测(Dice)' },
-        { type:'p', text:'预测陨石落下角度的骰子游戏。选 **某范围的上/下**,范围越窄倍率越高。' },
+        { type:'h2', text:'4. 骰子' },
+        { type:'p', text:'掷骰子。选 **某范围的上/下**,范围越窄倍率越高。' },
         { type:'callout', variant:'tip', title:'靠范围调整风险',
           text:'可以自己选低倍率·高概率或高倍率·低概率。是卡提纳里调节幅度最大的游戏。' },
 
-        { type:'h2', text:'5. 地形勘查(Hi-Lo)' },
-        { type:'p', text:'猜下一张牌比现在 **高还是低** 的纸牌游戏。连续猜中,倍率累计。' },
+        { type:'h2', text:'5. 比大小' },
+        { type:'p', text:'公开一张牌。猜下一张比现在 **高还是低**。连续猜中,倍率累计。' },
         { type:'callout', variant:'pro', title:'连胜是关键',
           text:'基础赔率不大,但 **连胜** 会指数级膨胀。关键是在合适的时机套现。' },
 
