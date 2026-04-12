@@ -3141,26 +3141,26 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- GLOBAL STATS (mirrored from left panel for mobile) -->
         <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--bdr)">
-          <div style="font-size:9px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:8px">🌐 GLOBAL STATS</div>
+          <div style="font-size:9px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:8px" data-i18n="global_stats_label">🌐 GLOBAL STATS</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
             <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px">
-              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">TOTAL PIXELS</div>
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px" data-i18n="total_pixels">TOTAL PIXELS</div>
               <div style="font-size:12px;color:var(--tx2);font-family:var(--fn);font-weight:700" id="bsStatTotalPx">--</div>
             </div>
             <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px">
-              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">PIXELS SOLD</div>
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px" data-i18n="pixels_sold">PIXELS SOLD</div>
               <div style="font-size:12px;color:var(--gn);font-family:var(--fn);font-weight:700" id="bsStatPlots">--</div>
             </div>
             <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px">
-              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">TOTAL VOLUME</div>
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px" data-i18n="total_volume">TOTAL VOLUME</div>
               <div style="font-size:12px;color:var(--gold);font-family:var(--fn);font-weight:700" id="bsStatTVL">--</div>
             </div>
             <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px">
-              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">HIJACKS / HR</div>
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px" data-i18n="hijacks_hr">HIJACKS / HR</div>
               <div style="font-size:12px;color:var(--red);font-family:var(--fn);font-weight:700" id="bsStatHijacks">--</div>
             </div>
             <div style="padding:8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px;grid-column:span 2">
-              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">ACTIVE USERS (24H)</div>
+              <div style="font-size:7px;color:var(--tx3);letter-spacing:.5px" data-i18n="active_users">ACTIVE USERS (24H)</div>
               <div style="font-size:12px;color:var(--tx);font-family:var(--fn);font-weight:700" id="bsStatActiveUsers">--</div>
             </div>
           </div>
@@ -3169,16 +3169,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- PIXEL LEADERBOARD (mirrored from left panel) -->
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr)">
           <div style="font-size:9px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
-            <span>🏆 TOP PIXEL HOLDERS</span>
-            <span style="font-size:8px;color:var(--mars);cursor:pointer" onclick="loadLeaderboard()">↻ REFRESH</span>
+            <span data-i18n="top_pixel_holders">🏆 TOP PIXEL HOLDERS</span>
+            <span style="font-size:8px;color:var(--mars);cursor:pointer" onclick="loadLeaderboard()" data-i18n="refresh_btn">↻ REFRESH</span>
           </div>
           <div id="bsLeaderboardList" style="font-size:9px"></div>
         </div>
 
         <!-- TOP GOVERNORS (mirrored) -->
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr)">
-          <div style="font-size:9px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px">👑 TOP GOVERNORS</div>
-          <div id="bsGovLeaderboardList" style="font-size:9px;color:var(--tx3)">Loading...</div>
+          <div style="font-size:9px;color:var(--gold);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px" data-i18n="top_governors">👑 TOP GOVERNORS</div>
+          <div id="bsGovLeaderboardList" style="font-size:9px;color:var(--tx3)" data-i18n="loading_dots">Loading...</div>
         </div>
 
       </div>
@@ -3611,8 +3611,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <!-- Actions (fixed width) -->
     <div style="display:flex;flex-direction:column;gap:6px;flex:0 0 110px">
-      <button onclick="_mobConfirmLand()" style="padding:12px 0;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));border:none;color:#fff;font-family:var(--fn);font-size:13px;cursor:pointer;font-weight:700;width:100%">CONFIRM</button>
-      <button onclick="cancelLandSelect();_showMobSizeControls(false)" style="padding:8px 0;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--tx3);font-family:var(--fn);font-size:11px;cursor:pointer;width:100%">CANCEL</button>
+      <button onclick="_mobConfirmLand()" style="padding:12px 0;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));border:none;color:#fff;font-family:var(--fn);font-size:13px;cursor:pointer;font-weight:700;width:100%" data-i18n="confirm_btn">CONFIRM</button>
+      <button onclick="cancelLandSelect();_showMobSizeControls(false)" style="padding:8px 0;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--tx3);font-family:var(--fn);font-size:11px;cursor:pointer;width:100%" data-i18n="cancel_btn">CANCEL</button>
     </div>
   </div>
 </div>
@@ -3636,22 +3636,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 </div>
 
 <!-- Mobile: Territory Info Button (floats on globe near clicked claim) -->
-<button class="mob-info-btn" id="mobInfoBtn" onclick="openMobTerritoryModal()">INFO</button>
+<button class="mob-info-btn" id="mobInfoBtn" onclick="openMobTerritoryModal()" data-i18n="territory_info">INFO</button>
 
 <!-- Mobile: Territory Info Modal -->
 <div class="mob-territory-modal" id="mobTerritoryModal" onclick="if(event.target===this)closeMobTerritoryModal()">
   <div class="mob-territory-card">
     <div class="mt-handle"></div>
     <div class="mt-title">
-      <span>TERRITORY INFO</span>
+      <span data-i18n="territory_info">TERRITORY INFO</span>
       <button class="mt-close" onclick="closeMobTerritoryModal()">✕</button>
     </div>
-    <div class="mt-row"><span class="mt-label">COORDS</span><span class="mt-val" id="mtCoords">--</span></div>
-    <div class="mt-row"><span class="mt-label">OWNER</span><span class="mt-val" id="mtOwner" style="color:var(--gold)">--</span></div>
-    <div class="mt-row" id="mtGuildRow" style="display:none"><span class="mt-label">GUILD</span><span class="mt-val" id="mtGuild" style="color:var(--mars)">--</span></div>
-    <div class="mt-row" id="mtLinkRow" style="display:none"><span class="mt-label">LINK</span><a class="mt-val" id="mtLink" href="#" target="_blank" rel="noopener" style="color:var(--cyan)">--</a></div>
-    <div class="mt-row"><span class="mt-label">SIZE</span><span class="mt-val" id="mtSize">--</span></div>
-    <div class="mt-row"><span class="mt-label">PRICE PAID</span><span class="mt-val" id="mtPrice" style="color:var(--gn)">--</span></div>
+    <div class="mt-row"><span class="mt-label" data-i18n="coords">COORDS</span><span class="mt-val" id="mtCoords">--</span></div>
+    <div class="mt-row"><span class="mt-label" data-i18n="owner">OWNER</span><span class="mt-val" id="mtOwner" style="color:var(--gold)">--</span></div>
+    <div class="mt-row" id="mtGuildRow" style="display:none"><span class="mt-label" data-i18n="info_guild">GUILD</span><span class="mt-val" id="mtGuild" style="color:var(--mars)">--</span></div>
+    <div class="mt-row" id="mtLinkRow" style="display:none"><span class="mt-label" data-i18n="info_link">LINK</span><a class="mt-val" id="mtLink" href="#" target="_blank" rel="noopener" style="color:var(--cyan)">--</a></div>
+    <div class="mt-row"><span class="mt-label" data-i18n="size">SIZE</span><span class="mt-val" id="mtSize">--</span></div>
+    <div class="mt-row"><span class="mt-label" data-i18n="price_paid">PRICE PAID</span><span class="mt-val" id="mtPrice" style="color:var(--gn)">--</span></div>
     <div class="mt-img" id="mtImgWrap" style="display:none">
       <img id="mtImgPreview" src="" onclick="expandMtImg()">
     </div>
@@ -3659,32 +3659,32 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <button id="mtEditImgBtn" onclick="closeMobTerritoryModal();openImageEditor(selectedPlot)"
         style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,var(--mars),var(--red));
         border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
-        ADD IMAGE
+        <span data-i18n="claim_add_img">ADD IMAGE</span>
       </button>
     </div>
     <div id="mtCosmeticBtnWrap" style="display:none;padding:4px 0">
       <button onclick="toggleMobCosmeticPanel()"
         style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(180,100,255,.15),rgba(255,100,200,.1));
         border:1px solid rgba(180,100,255,.3);color:#c088e0;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
-        ✨ CUSTOMIZE
+        ✨ <span data-i18n="customize_btn">CUSTOMIZE</span>
       </button>
       <div id="mtCosmeticPanel" style="display:none;margin-top:8px;padding:10px;background:rgba(180,100,255,.04);border:1px solid rgba(180,100,255,.15);border-radius:8px">
-        <div style="font-size:9px;color:#c088e0;font-family:var(--fn);letter-spacing:1px;margin-bottom:8px;font-weight:700">COSMETICS</div>
+        <div style="font-size:9px;color:#c088e0;font-family:var(--fn);letter-spacing:1px;margin-bottom:8px;font-weight:700" data-i18n="cosmetics_title">COSMETICS</div>
         <div id="mtCosmeticSlots" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
     </div>
     <div id="mtLinkEditWrap" style="display:none;padding:4px 0 8px">
-      <div style="font-size:10px;color:var(--tx3);margin-bottom:4px">PROMO LINK</div>
+      <div style="font-size:10px;color:var(--tx3);margin-bottom:4px" data-i18n="promo_link">PROMO LINK</div>
       <div style="display:flex;gap:6px">
         <input type="url" id="mtLinkInput" placeholder="https://..." style="flex:1;background:var(--bg2);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px;border-radius:6px">
-        <button onclick="savePromoLink()" style="padding:8px 14px;border-radius:6px;background:var(--mars);border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700">SAVE</button>
+        <button onclick="savePromoLink()" style="padding:8px 14px;border-radius:6px;background:var(--mars);border:none;color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="save_btn">SAVE</button>
       </div>
     </div>
     <div style="padding:4px 0">
       <button onclick="shareTerritory(selectedPlot)"
         style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));
         border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700">
-        📤 SHARE
+        📤 <span data-i18n="share_btn">SHARE</span>
       </button>
     </div>
   </div>
@@ -3811,7 +3811,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- Nickname edit (hidden by default) -->
         <div id="nickEditWrap" style="display:none;margin-bottom:10px">
           <div style="display:flex;gap:4px">
-            <input type="text" class="auth-input" id="nickEditInput" placeholder="New nickname" style="margin:0;flex:1">
+            <input type="text" class="auth-input" id="nickEditInput" data-i18n-placeholder="nick_new_placeholder" placeholder="New nickname" style="margin:0;flex:1">
             <button class="wallet-copy-btn" onclick="saveNickname()" style="background:rgba(76,216,154,.08);border-color:rgba(76,216,154,.2);color:var(--gn)">SAVE</button>
             <button class="wallet-copy-btn" onclick="cancelEditNick()" style="color:var(--tx3);border-color:var(--bdr)">X</button>
           </div>
@@ -3944,33 +3944,33 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             </div>
 
             <!-- Notification Settings -->
-            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px">NOTIFICATIONS</div>
+            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px" data-i18n="settings_notifications">NOTIFICATIONS</div>
             <div class="profile-setting-row">
-              <span>Hijack Alerts</span>
+              <span data-i18n="notif_hijack">Hijack Alerts</span>
               <label class="profile-toggle"><input type="checkbox" id="notifHijack" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
             </div>
             <div class="profile-setting-row">
-              <span>Weather Events</span>
+              <span data-i18n="notif_weather">Weather Events</span>
               <label class="profile-toggle"><input type="checkbox" id="notifWeather" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
             </div>
             <div class="profile-setting-row">
-              <span>Rocket Drops</span>
+              <span data-i18n="notif_rocket">Rocket Drops</span>
               <label class="profile-toggle"><input type="checkbox" id="notifRocket" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
             </div>
             <div class="profile-setting-row">
-              <span>Mining Complete</span>
+              <span data-i18n="notif_mining">Mining Complete</span>
               <label class="profile-toggle"><input type="checkbox" id="notifMining" checked onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
             </div>
             <div class="profile-setting-row">
-              <span>Sound Effects</span>
+              <span data-i18n="notif_sound">Sound Effects</span>
               <label class="profile-toggle"><input type="checkbox" id="notifSound" onchange="saveNotifSettings()"><span class="profile-toggle-slider"></span></label>
             </div>
 
             <!-- Account Management -->
-            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px">ACCOUNT</div>
-            <button class="profile-acct-btn" onclick="openChangePassword()">🔒 Change Password</button>
-            <button class="profile-acct-btn" onclick="exportAccountData()">📦 Export My Data</button>
-            <button class="profile-acct-btn profile-acct-danger" onclick="requestDeleteAccount()">🗑 Delete Account</button>
+            <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px" data-i18n="settings_account">ACCOUNT</div>
+            <button class="profile-acct-btn" onclick="openChangePassword()" data-i18n="acct_change_pw">🔒 Change Password</button>
+            <button class="profile-acct-btn" onclick="exportAccountData()" data-i18n="acct_export">📦 Export My Data</button>
+            <button class="profile-acct-btn profile-acct-danger" onclick="requestDeleteAccount()" data-i18n="acct_delete">🗑 Delete Account</button>
 
             <!-- Legal Links (moved from main-screen footer) -->
             <div style="font-size:9px;color:var(--tx3);letter-spacing:1px;margin:12px 0 6px">LEGAL</div>
@@ -13230,7 +13230,13 @@ function renderOpsPadList(){
     el.innerHTML='<div class="ops-pad-empty">⛔ You don\'t own any territory yet — claim a pixel patch first to get a launch pad.</div>';
     return;
   }
-  var html = window._opsPads.map(function(p){
+  // Sort: READY pads first, LAUNCHED pads last
+  var sorted = window._opsPads.slice().sort(function(a,b){
+    var aB = a.activeMission ? 1 : 0;
+    var bB = b.activeMission ? 1 : 0;
+    return aB - bB;
+  });
+  var html = sorted.map(function(p){
     var busy = p.activeMission;
     var sel = (window._opsSelectedPad && window._opsSelectedPad.id===p.id);
     var classes='ops-pad-card';
@@ -14187,7 +14193,7 @@ function renderBaseUser(data){
   // Detect rank up
   if(_prevUserRank>0&&u.rank>_prevUserRank){
     try{_sfx.levelUp()}catch(e){}
-    showNotification('system','RANK UP!','You reached Level '+u.rank+'!');
+    showNotification('system',t('rank_up_title'),t('rank_up_msg').replace('{n}',u.rank));
   }
   _prevUserRank=u.rank;
   document.getElementById('baseTotalPx').textContent=data.territory.totalPixels.toLocaleString();
@@ -14208,7 +14214,7 @@ function renderBaseUser(data){
   var rl=document.getElementById('baseRankLevel');if(rl)rl.textContent=u.rank;
   var rn=document.getElementById('baseRankName');if(rn)rn.textContent=rank.name;
   var xc=document.getElementById('baseXpCurrent');if(xc)xc.textContent=u.xp+' XP';
-  var xn=document.getElementById('baseXpNext');if(xn)xn.textContent=nextRank?nextRank.requiredXp+' XP':'MAX';
+  var xn=document.getElementById('baseXpNext');if(xn)xn.textContent=nextRank?nextRank.requiredXp+' XP':t('max_level');
   var rb=document.getElementById('baseRankBar');if(rb)rb.style.width=xpPct+'%';
 
   // Profile level card (MY TERRITORY tab)
@@ -14217,7 +14223,7 @@ function renderBaseUser(data){
   var pn=document.getElementById('profileNickname');if(pn)pn.textContent=u.nickname||u.wallet.slice(0,8)+'...';
   var prn=document.getElementById('profileRankName');if(prn)prn.textContent=rank.name;
   var pxc=document.getElementById('profileXpCurrent');if(pxc)pxc.textContent=u.xp+' XP';
-  var pxn=document.getElementById('profileXpNext');if(pxn)pxn.textContent=nextRank?'Next: '+nextRank.requiredXp+' XP':'MAX LEVEL';
+  var pxn=document.getElementById('profileXpNext');if(pxn)pxn.textContent=nextRank?t('xp_next').replace('{n}',nextRank.requiredXp):t('max_level');
   var pxb=document.getElementById('profileXpBar');if(pxb)pxb.style.width=xpPct+'%';
 
   // ACCOUNT modal hero — level + xp + rank title
@@ -14257,7 +14263,7 @@ function renderBaseUser(data){
   // My sectors
   var mySec=document.getElementById('baseMySectors');
   if(data.territory.bySector.length===0){
-    mySec.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px 0">No territories claimed yet. Explore the map!</div>';
+    mySec.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px 0">'+t('no_sectors_yet')+'</div>';
   }else{
     var html='<div class="sector-list">';
     data.territory.bySector.forEach(function(s){
@@ -14276,8 +14282,8 @@ function renderBaseUser(data){
     document.getElementById('baseMineTotalMined').textContent=data.mining.totalMined.toFixed(2);
 
     if(data.mining.harvestAvailable){
-      document.getElementById('baseMineTimer').textContent='Harvest available now!';
-      document.getElementById('baseMineAvail').textContent='Ready!';
+      document.getElementById('baseMineTimer').textContent=t('harvest_available');
+      document.getElementById('baseMineAvail').textContent=t('harvest_ready');
       document.getElementById('baseHarvestBtn').disabled=false;
       document.getElementById('baseInstantHarvestBtn').style.display='none';
     }else if(data.mining.nextHarvestAt){
@@ -14285,7 +14291,7 @@ function renderBaseUser(data){
       document.getElementById('baseMineAvail').textContent='0.00';
       document.getElementById('baseHarvestBtn').disabled=true;
     }else if(data.territory.totalPixels===0){
-      document.getElementById('baseMineTimer').textContent='Claim pixels to start mining!';
+      document.getElementById('baseMineTimer').textContent=t('claim_to_mine');
       document.getElementById('baseMineAvail').textContent='--';
       document.getElementById('baseHarvestBtn').disabled=true;
       document.getElementById('baseInstantHarvestBtn').style.display='none';
@@ -14297,11 +14303,11 @@ function renderBaseUser(data){
     var mr=data.miningRates;
     var bestInt=data.miningInterval.best||72;
     var ratesHtml='';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Reward Range</span><span class="stat-val" style="font-size:10px">'+mr.rewardMin+' ~ '+mr.rewardMax+' PP</span></div>';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Harvest Interval</span><span class="stat-val" style="font-size:10px;color:var(--cyan)">'+bestInt+'h</span></div>';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Core Bonus</span><span class="stat-val" style="font-size:10px;color:var(--red)">×'+mr.coreMult+'</span></div>';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Mid Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gold)">×'+mr.midMult+'</span></div>';
-    ratesHtml+='<div class="stat-row"><span class="stat-label">Frontier Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gn)">×'+mr.frontierMult+'</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">'+t('rate_reward_range')+'</span><span class="stat-val" style="font-size:10px">'+mr.rewardMin+' ~ '+mr.rewardMax+' PP</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">'+t('rate_interval')+'</span><span class="stat-val" style="font-size:10px;color:var(--cyan)">'+bestInt+'h</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">'+t('rate_core')+'</span><span class="stat-val" style="font-size:10px;color:var(--red)">×'+mr.coreMult+'</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">'+t('rate_mid')+'</span><span class="stat-val" style="font-size:10px;color:var(--gold)">×'+mr.midMult+'</span></div>';
+    ratesHtml+='<div class="stat-row"><span class="stat-label">'+t('rate_frontier')+'</span><span class="stat-val" style="font-size:10px;color:var(--gn)">×'+mr.frontierMult+'</span></div>';
     document.getElementById('baseMineRates').innerHTML=ratesHtml;
   }
 }
@@ -14318,20 +14324,20 @@ function renderSectorList(sectors){
     html+='<span class="sc-tier '+s.tier+'">'+s.tier+'</span>';
     html+='<span class="sc-name">'+s.name+'</span>';
     html+='<span class="sc-mining">'+s.miningBonus+'x</span>';
-    html+='<span class="sc-go" onclick="focusSector('+s.id+')">GO</span>';
+    html+='<span class="sc-go" onclick="focusSector('+s.id+')">'+t('sector_go')+'</span>';
     html+='</div>';
     // Activity badge (inline, below header)
-    if(s.stats.activity24h>0) html+='<div class="sc-activity"><span class="sc-activity-dot"></span>'+s.stats.activity24h+' claims in 24h</div>';
+    if(s.stats.activity24h>0) html+='<div class="sc-activity"><span class="sc-activity-dot"></span>'+t('sector_claims_24h').replace('{n}',s.stats.activity24h)+'</div>';
     // Occupancy bar
     html+='<div class="sc-occ-wrap">';
-    html+='<div class="sc-occ-labels"><span>OCCUPIED</span><span>'+occPx.toLocaleString()+' / '+totPx.toLocaleString()+' ('+occ+'%)</span></div>';
+    html+='<div class="sc-occ-labels"><span>'+t('sector_occupied')+'</span><span>'+occPx.toLocaleString()+' / '+totPx.toLocaleString()+' ('+occ+'%)</span></div>';
     html+='<div class="sc-occ-bar"><div class="sc-occ-fill '+s.tier+'" style="width:'+Math.min(occ,100)+'%"></div></div>';
     html+='</div>';
     // Stats grid
     html+='<div class="sc-stats">';
-    html+='<div class="sc-stat"><span class="sc-stat-label">AVG PRICE</span><span class="sc-stat-val" style="color:var(--gn)">$'+s.stats.avgPrice.toFixed(4)+'</span></div>';
-    html+='<div class="sc-stat"><span class="sc-stat-label">CUR. PRICE</span><span class="sc-stat-val" style="color:var(--gn)">$'+s.currentPrice.toFixed(4)+'</span></div>';
-    html+='<div class="sc-stat"><span class="sc-stat-label">OWNERS</span><span class="sc-stat-val">'+s.stats.uniqueOwners+'</span></div>';
+    html+='<div class="sc-stat"><span class="sc-stat-label">'+t('sector_avg_price')+'</span><span class="sc-stat-val" style="color:var(--gn)">$'+s.stats.avgPrice.toFixed(4)+'</span></div>';
+    html+='<div class="sc-stat"><span class="sc-stat-label">'+t('sector_cur_price')+'</span><span class="sc-stat-val" style="color:var(--gn)">$'+s.currentPrice.toFixed(4)+'</span></div>';
+    html+='<div class="sc-stat"><span class="sc-stat-label">'+t('sector_owners')+'</span><span class="sc-stat-val">'+s.stats.uniqueOwners+'</span></div>';
     html+='</div>';
     // Top holder / Governor / Tax — prefer nickname, fall back to short wallet
     if(s.topHolder){
@@ -14341,12 +14347,12 @@ function renderSectorList(sectors){
         govName = s.governor.nickname || s.governor.wallet;
       }
       html+='<div class="sc-stats" style="margin-top:2px">';
-      html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">TOP HOLDER'+(govName?' / GOV':'')+'</span><span class="sc-stat-val" style="font-size:10px;color:var(--gold)" title="'+(s.topHolder.fullWallet||'')+'">👑 '+thName+' ('+s.topHolder.pixels+'px)</span></div>';
-      html+='<div class="sc-stat"><span class="sc-stat-label">TAX RATE</span><span class="sc-stat-val" style="color:var(--cyan)">'+(s.taxRate||2)+'%</span></div>';
+      html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">'+t('sector_top_holder')+(govName?' / '+t('sector_gov'):'')+'</span><span class="sc-stat-val" style="font-size:10px;color:var(--gold)" title="'+(s.topHolder.fullWallet||'')+'">👑 '+thName+' ('+s.topHolder.pixels+'px)</span></div>';
+      html+='<div class="sc-stat"><span class="sc-stat-label">'+t('sector_tax')+'</span><span class="sc-stat-val" style="color:var(--cyan)">'+(s.taxRate||2)+'%</span></div>';
       if(govName && (!s.topHolder.fullWallet || (s.governor.fullWallet||'').toLowerCase()!==(s.topHolder.fullWallet||'').toLowerCase())){
-        html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">GOVERNOR</span><span class="sc-stat-val" style="font-size:10px;color:var(--cyan)" title="'+(s.governor.fullWallet||'')+'">🏛️ '+govName+'</span></div>';
+        html+='<div class="sc-stat" style="grid-column:span 2"><span class="sc-stat-label">'+t('sector_gov')+'</span><span class="sc-stat-val" style="font-size:10px;color:var(--cyan)" title="'+(s.governor.fullWallet||'')+'">🏛️ '+govName+'</span></div>';
       }
-      if(s.viceGovernor) html+='<div class="sc-stat"><span class="sc-stat-label">VICE GOV</span><span class="sc-stat-val" style="font-size:10px">'+(s.viceGovernor.nickname||s.viceGovernor.wallet||s.viceGovernor)+'</span></div>';
+      if(s.viceGovernor) html+='<div class="sc-stat"><span class="sc-stat-label">'+t('sector_vice_gov')+'</span><span class="sc-stat-val" style="font-size:10px">'+(s.viceGovernor.nickname||s.viceGovernor.wallet||s.viceGovernor)+'</span></div>';
       html+='</div>';
     }
     // Active buffs
@@ -14362,7 +14368,7 @@ function renderSectorList(sectors){
     }
     // My holdings
     if(s.myPixels>0){
-      html+='<div class="sc-my"><span class="sc-my-label">MY PIXELS</span><span class="sc-my-val">'+s.myPixels+'</span></div>';
+      html+='<div class="sc-my"><span class="sc-my-label">'+t('sector_my_px')+'</span><span class="sc-my-val">'+s.myPixels+'</span></div>';
     }
     html+='</div>';
   });
@@ -14390,7 +14396,7 @@ function filterSectors(tier,el){
       hint=document.createElement('div');
       hint.id='baseSectorEmptyHint';
       hint.style.cssText='font-size:10px;color:var(--tx3);padding:20px;text-align:center';
-      hint.textContent="You don't own any pixels yet. Claim territory to see your sectors here.";
+      hint.textContent=t('sector_empty_hint');
       list.appendChild(hint);
     } else { hint.style.display=''; }
   } else if(hint){ hint.style.display='none'; }
