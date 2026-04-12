@@ -3142,9 +3142,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')"><span data-i18n="base_tab_mining">MINING</span><span class="tab-dot" id="miningDot"></span></div>
       <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests')"><span data-i18n="base_tab_quests">QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
-      <div class="base-tab" onclick="switchBaseTab('shop',this);loadBaseShopItems()" data-i18n="base_tab_shop">SHOP</div>
+      <div class="base-tab" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems()" data-i18n="base_tab_shop">SHOP</div>
       <div class="base-tab" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
-      <div class="base-tab" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
+      <div class="base-tab" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
     </div>
     <div class="base-body">
 
@@ -13828,8 +13828,11 @@ function renderBaseInventory(){
 function switchBaseTab(tab,el){
   document.querySelectorAll('.base-tab').forEach(function(t){t.classList.remove('active')});
   document.querySelectorAll('.base-pane').forEach(function(p){p.classList.remove('active')});
-  el.classList.add('active');
-  document.getElementById('basePane_'+tab).classList.add('active');
+  // el can be null when called programmatically — find tab button by id fallback
+  if(!el) el = document.getElementById('baseTab'+tab.charAt(0).toUpperCase()+tab.slice(1));
+  if(el) el.classList.add('active');
+  var pane = document.getElementById('basePane_'+tab);
+  if(pane) pane.classList.add('active');
   // Stop polls when leaving tabs
   if(tab!=='guild') try{stopGuildChatPoll()}catch(_e){}
   // Quest tracking for tab views
