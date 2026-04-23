@@ -3980,6 +3980,44 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
+        <!-- 📢 GP BROADCASTS -->
+        <div style="padding:8px 10px;border-top:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:9px;color:#90caf9;letter-spacing:2px;font-family:var(--fn);font-weight:700">📢 <span data-i18n="broadcast_title">GP BROADCASTS</span></span>
+            <button onclick="openBroadcastModal()" style="font-size:9px;padding:3px 8px;border-radius:10px;background:rgba(144,202,249,.12);border:1px solid rgba(144,202,249,.3);color:#90caf9;cursor:pointer;font-family:var(--fn)" data-i18n="broadcast_buy_btn">📢 BUY BROADCAST</button>
+          </div>
+          <div id="activeBroadcastsPanel" style="display:flex;flex-direction:column;gap:4px;margin-bottom:4px">
+            <div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading broadcasts…</div>
+          </div>
+        </div>
+
+        <!-- Broadcast Modal -->
+        <div id="broadcastModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:8000;align-items:center;justify-content:center">
+          <div style="background:#1a1a2e;border:1px solid rgba(144,202,249,.3);border-radius:12px;padding:20px;width:90%;max-width:420px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <span style="color:#90caf9;font-weight:700;font-size:13px" data-i18n="broadcast_modal_title">📢 BROADCAST MESSAGE</span>
+              <button onclick="closeBroadcastModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+            </div>
+            <div style="font-size:9px;color:var(--tx3);margin-bottom:8px" data-i18n="broadcast_modal_desc">Your message will be featured to all players for the selected duration.</div>
+            <textarea id="broadcastMessageInput" maxlength="120" rows="3" placeholder="Your message to all Mars colonists…" style="width:100%;background:rgba(144,202,249,.06);border:1px solid rgba(144,202,249,.2);color:var(--tx);padding:8px;border-radius:6px;font-size:10px;font-family:var(--fn);resize:none;box-sizing:border-box;margin-bottom:8px"></textarea>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <span style="font-size:9px;color:var(--tx3)" data-i18n="broadcast_duration_label">Duration:</span>
+              <select id="broadcastDurationSelect" style="background:rgba(144,202,249,.06);border:1px solid rgba(144,202,249,.2);color:var(--tx);padding:4px 8px;border-radius:6px;font-size:10px">
+                <option value="1">1 hour</option>
+                <option value="3">3 hours</option>
+                <option value="6">6 hours</option>
+                <option value="12">12 hours</option>
+                <option value="24">24 hours</option>
+              </select>
+              <span id="broadcastCostPreview" style="font-size:10px;color:var(--gold);font-family:var(--fn)"></span>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end">
+              <button onclick="closeBroadcastModal()" style="padding:8px 16px;background:rgba(255,255,255,.06);border:1px solid #333;color:#aaa;border-radius:6px;cursor:pointer;font-size:10px">Cancel</button>
+              <button onclick="submitBroadcast()" style="padding:8px 16px;background:rgba(144,202,249,.15);border:1px solid rgba(144,202,249,.4);color:#90caf9;border-radius:6px;cursor:pointer;font-family:var(--fn);font-weight:700;font-size:10px" data-i18n="broadcast_submit_btn">📢 BROADCAST</button>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /quests pane -->
 
       <!-- TAB: GOVERN -->
@@ -11064,6 +11102,7 @@ var I18N = {
     branding_title: 'TERRITORY BRANDING', branding_select_territory: 'Select a territory to brand:', branding_name_label: 'TERRITORY NAME', branding_tagline_label: 'TAGLINE', branding_color_label: 'THEME COLOR', branding_set_btn: 'SET', branding_set_name_title: 'Set Territory Name?', branding_set_tag_title: 'Set Tagline?', branding_set_color_title: 'Set Theme Color?',
     spells_title: 'TERRITORY SPELLS', spells_select_target: 'Target territory (enter claim # or select yours):', spells_active_label: 'ACTIVE SPELLS:', spells_history_btn: '📜 SPELL HISTORY', spells_cast_confirm: 'Cast Spell?',
     tournament_title: 'TOURNAMENTS', tournament_none: 'No open tournaments right now', tournament_join_btn: 'JOIN TOURNAMENT', tournament_join_confirm: 'Join Tournament?', tournament_my_btn: '📋 MY TOURNAMENTS',
+    broadcast_title: 'GP BROADCASTS', broadcast_buy_btn: '📢 BUY BROADCAST', broadcast_modal_title: '📢 BROADCAST MESSAGE', broadcast_modal_desc: 'Your message will be featured to all players for the selected duration.', broadcast_duration_label: 'Duration:', broadcast_submit_btn: '📢 BROADCAST', broadcast_confirm_title: 'Buy Broadcast?', broadcast_none: 'No active broadcasts right now.',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11658,6 +11697,7 @@ var I18N = {
     branding_title: '영토 브랜딩', branding_select_territory: '브랜딩할 영토 선택:', branding_name_label: '영토 이름', branding_tagline_label: '태그라인', branding_color_label: '테마 색상', branding_set_btn: '설정', branding_set_name_title: '영토 이름 설정?', branding_set_tag_title: '태그라인 설정?', branding_set_color_title: '테마 색상 설정?',
     spells_title: '영토 주문', spells_select_target: '대상 영토 (클레임 번호 입력):', spells_active_label: '활성 주문:', spells_history_btn: '📜 주문 기록', spells_cast_confirm: '주문 시전?',
     tournament_title: '토너먼트', tournament_none: '현재 열린 토너먼트 없음', tournament_join_btn: '참가하기', tournament_join_confirm: '토너먼트 참가?', tournament_my_btn: '📋 내 토너먼트',
+    broadcast_title: 'GP 방송', broadcast_buy_btn: '📢 방송 구매', broadcast_modal_title: '📢 방송 메시지', broadcast_modal_desc: '선택한 시간 동안 모든 플레이어에게 메시지가 노출됩니다.', broadcast_duration_label: '기간:', broadcast_submit_btn: '📢 방송하기', broadcast_confirm_title: '방송 구매?', broadcast_none: '현재 활성 방송이 없습니다.',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -12251,6 +12291,7 @@ var I18N = {
     branding_title: '領土ブランディング', branding_select_territory: 'ブランディングする領土を選択:', branding_name_label: '領土名', branding_tagline_label: 'タグライン', branding_color_label: 'テーマカラー', branding_set_btn: '設定', branding_set_name_title: '領土名を設定？', branding_set_tag_title: 'タグラインを設定？', branding_set_color_title: 'テーマカラーを設定？',
     spells_title: '領土スペル', spells_select_target: '対象領土（クレーム番号を入力）:', spells_active_label: '有効なスペル:', spells_history_btn: '📜 スペル履歴', spells_cast_confirm: 'スペル発動？',
     tournament_title: 'トーナメント', tournament_none: 'オープントーナメントなし', tournament_join_btn: '参加する', tournament_join_confirm: 'トーナメントに参加？', tournament_my_btn: '📋 マイトーナメント',
+    broadcast_title: 'GPブロードキャスト', broadcast_buy_btn: '📢 ブロードキャスト購入', broadcast_modal_title: '📢 ブロードキャストメッセージ', broadcast_modal_desc: '選択した時間、全プレイヤーにメッセージが表示されます。', broadcast_duration_label: '期間:', broadcast_submit_btn: '📢 ブロードキャスト', broadcast_confirm_title: 'ブロードキャスト購入？', broadcast_none: '現在アクティブなブロードキャストはありません。',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12828,6 +12869,7 @@ var I18N = {
     branding_title: '领土品牌化', branding_select_territory: '选择要品牌化的领土:', branding_name_label: '领土名称', branding_tagline_label: '标语', branding_color_label: '主题颜色', branding_set_btn: '设置', branding_set_name_title: '设置领土名称？', branding_set_tag_title: '设置标语？', branding_set_color_title: '设置主题颜色？',
     spells_title: '领土法术', spells_select_target: '目标领土（输入地块编号）:', spells_active_label: '当前法术:', spells_history_btn: '📜 法术记录', spells_cast_confirm: '施放法术？',
     tournament_title: '锦标赛', tournament_none: '暂无开放的锦标赛', tournament_join_btn: '加入锦标赛', tournament_join_confirm: '加入锦标赛？', tournament_my_btn: '📋 我的锦标赛',
+    broadcast_title: 'GP广播', broadcast_buy_btn: '📢 购买广播', broadcast_modal_title: '📢 广播消息', broadcast_modal_desc: '您的消息将在所选时间内向所有玩家展示。', broadcast_duration_label: '时长:', broadcast_submit_btn: '📢 广播', broadcast_confirm_title: '购买广播？', broadcast_none: '当前没有活跃广播。',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -16569,7 +16611,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   try{ clearBaseTabDot(tab); }catch(_e){}
@@ -27014,6 +27056,101 @@ function loadMyTournaments() {
 try {
   var _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
 } catch(_) {}
+
+// ── GP Broadcast System (Migration 126) ──────────────────────────────────────
+
+var _broadcastCosts = null;
+
+function openBroadcastModal() {
+  var modal = document.getElementById('broadcastModal');
+  if (!modal) return;
+  var msgEl = document.getElementById('broadcastMessageInput');
+  var durEl = document.getElementById('broadcastDurationSelect');
+  if (msgEl) msgEl.value = '';
+  modal.style.display = 'flex';
+  // Load costs for preview
+  fetch('/api/broadcasts/costs').then(function(r){return r.json();}).then(function(c){
+    _broadcastCosts = c;
+    _updateBroadcastCostPreview();
+  }).catch(function(){});
+  if (durEl) {
+    durEl.onchange = _updateBroadcastCostPreview;
+    _updateBroadcastCostPreview();
+  }
+}
+
+function _updateBroadcastCostPreview() {
+  var el = document.getElementById('broadcastCostPreview');
+  if (!el) return;
+  var durEl = document.getElementById('broadcastDurationSelect');
+  var dur = durEl ? parseInt(durEl.value)||1 : 1;
+  if (!_broadcastCosts) { el.textContent = ''; return; }
+  var cost = Math.max(_broadcastCosts.minGp||50, dur * (_broadcastCosts.costPerH||25));
+  el.textContent = cost + ' GP';
+}
+
+function closeBroadcastModal() {
+  var modal = document.getElementById('broadcastModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function submitBroadcast() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast('Connect wallet first', 'error'); return; }
+  var msgEl = document.getElementById('broadcastMessageInput');
+  var durEl = document.getElementById('broadcastDurationSelect');
+  var msg = msgEl ? msgEl.value.trim() : '';
+  var dur = durEl ? parseInt(durEl.value)||1 : 1;
+  if (!msg) { showToast('Message cannot be empty', 'error'); return; }
+  var costEl = document.getElementById('broadcastCostPreview');
+  var costStr = costEl ? costEl.textContent : '';
+  gameConfirm({
+    title: t('broadcast_confirm_title')||'Buy Broadcast?',
+    body: 'Message: <b>' + _escHtml(msg) + '</b><br>Duration: <b>' + dur + 'h</b><br>Cost: <b>' + costStr + '</b>'
+  }).then(function(ok) {
+    if (!ok) return;
+    fetch('/api/broadcasts/create', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w, message: msg, durationH: dur })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error, 'error'); return; }
+      showToast('Broadcast live! 📢', 'success');
+      closeBroadcastModal();
+      loadActiveBroadcasts();
+      if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  }).catch(function(){});
+}
+
+function loadActiveBroadcasts() {
+  var el = document.getElementById('activeBroadcastsPanel');
+  if (!el) return;
+  fetch('/api/broadcasts/active').then(function(r){return r.json();}).then(function(rows){
+    if (!rows || !rows.length) {
+      el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">' + (t('broadcast_none')||'No active broadcasts right now.') + '</div>';
+      return;
+    }
+    el.innerHTML = rows.map(function(b){
+      var now = Date.now();
+      var until = new Date(b.show_until).getTime();
+      var remMs = Math.max(0, until - now);
+      var remH = Math.floor(remMs/3600000);
+      var remM = Math.floor((remMs%3600000)/60000);
+      var remStr = remH > 0 ? remH+'h '+remM+'m' : remM+'m';
+      var addr = b.wallet ? (b.wallet.slice(0,6)+'…'+b.wallet.slice(-4)) : '?';
+      return '<div style="padding:5px 8px;background:rgba(144,202,249,.06);border:1px solid rgba(144,202,249,.15);border-radius:6px;margin-bottom:3px">'
+        + '<div style="font-size:10px;color:var(--tx);line-height:1.4">' + _escHtml(b.message) + '</div>'
+        + '<div style="display:flex;justify-content:space-between;margin-top:3px">'
+          + '<span style="font-size:8px;color:var(--tx3)">' + addr + ' · ' + b.gp_paid + ' GP</span>'
+          + '<span style="font-size:8px;color:#90caf9">⏱ ' + remStr + '</span>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }).catch(function(e){
+    if (el) el.innerHTML = '<div style="color:var(--red);font-size:9px;padding:6px">' + e.message + '</div>';
+  });
+}
 
 // ── Alliance System (Migration 119) ──────────────────────────────────────────
 

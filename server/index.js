@@ -100,6 +100,7 @@ const expeditionRoutes  = require('./routes/expedition');
 const brandingRoutes    = require('./routes/branding');
 const spellRoutes       = require('./routes/spells');
 const tournamentRoutes  = require('./routes/tournaments');
+const broadcastRoutes   = require('./routes/broadcasts');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -232,6 +233,7 @@ app.use('/api', expeditionRoutes);
 app.use('/api', brandingRoutes);
 app.use('/api', spellRoutes);
 app.use('/api', tournamentRoutes);
+app.use('/api', broadcastRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -960,6 +962,15 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[SPELLS] Spell expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[SPELLS] Could not init expiry scheduler:', e.message); }
+
+    // ── Broadcasts: Expire old broadcasts (every 5 minutes) ──
+    try {
+      const { expireBroadcasts } = require('./services/broadcasts');
+      setInterval(async () => {
+        try { await expireBroadcasts(); } catch(e) { console.warn('[BROADCASTS] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[BROADCASTS] Expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[BROADCASTS] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

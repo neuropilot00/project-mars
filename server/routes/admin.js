@@ -3082,4 +3082,39 @@ router.post('/tournaments/setting', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// GP BROADCASTS — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/broadcasts — stats + active + recent + settings
+router.get('/broadcasts', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/broadcasts'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/broadcasts/:id — moderate (remove) broadcast
+router.delete('/broadcasts/:id', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  let svc; try { svc = require('../services/broadcasts'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    await svc.adminRemoveBroadcast(id);
+    await auditLog(req, 'broadcast_remove', `broadcast:${id}`, {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/broadcasts/setting
+router.post('/broadcasts/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('broadcast_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query('UPDATE game_settings SET value=$1 WHERE key=$2', [String(value), key]);
+    await auditLog(req, 'broadcast_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

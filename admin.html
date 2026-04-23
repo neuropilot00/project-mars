@@ -1295,6 +1295,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ GP BROADCASTS ═══ -->
+  <div class="section cat-gp" style="display:none" id="broadcastsAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#90caf9">📢 GP BROADCASTS</span>
+      <button onclick="loadBroadcastsAdmin()" style="font-size:10px;background:rgba(144,202,249,.12);border:1px solid rgba(144,202,249,.3);color:#90caf9;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="bcAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#90caf9">ACTIVE BROADCASTS</span></div>
+    <div id="bcAdmActive" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#90caf9">RECENT</span></div>
+    <div id="bcAdmRecent" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#90caf9">SETTINGS</span></div>
+    <div id="bcAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ VIP PASS SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="vipAdminSection">
     <div class="sec-header">
@@ -2010,7 +2025,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -5174,6 +5189,90 @@ function saveTournamentSetting(key) {
   var el = document.getElementById('tourn_'+key);
   if (!el) return;
   fetch('/admin/api/tournaments/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  GP BROADCASTS ADMIN (Migration 126)
+// ══════════════════════════════════════
+function loadBroadcastsAdmin() {
+  var statsEl    = document.getElementById('bcAdmStats');
+  var activeEl   = document.getElementById('bcAdmActive');
+  var recentEl   = document.getElementById('bcAdmRecent');
+  var settingsEl = document.getElementById('bcAdmSettings');
+  if (!statsEl) return;
+  [statsEl, activeEl, recentEl, settingsEl].forEach(function(el) {
+    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
+  });
+  fetch('/admin/api/broadcasts', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:#e8485580">'+d.error+'</span>'; return; }
+
+      statsEl.innerHTML = [
+        ['TOTAL BROADCASTS', d.totalBroadcasts || 0],
+        ['TOTAL GP BURNED', (d.totalGP || 0) + ' GP'],
+        ['ACTIVE NOW', (d.active || []).length],
+      ].map(function(x){
+        return '<div style="background:rgba(144,202,249,.06);border:1px solid rgba(144,202,249,.15);border-radius:6px;padding:10px;text-align:center">'
+          + '<div style="color:#90caf9;font-size:18px;font-weight:700">'+x[1]+'</div>'
+          + '<div style="color:#666;font-size:10px;margin-top:2px">'+x[0]+'</div></div>';
+      }).join('');
+
+      function renderBcTable(list, el, showRemove) {
+        if (!list.length) { el.innerHTML = '<span style="color:#555;font-size:11px">None</span>'; return; }
+        el.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px">'
+          + list.map(function(b){
+              var until = b.show_until ? new Date(b.show_until).toLocaleString() : '';
+              return '<div style="padding:8px;border-radius:6px;background:rgba(144,202,249,.04);border:1px solid rgba(144,202,249,.15)">'
+                + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+                + '<div style="flex:1">'
+                  + '<div style="font-size:10px;color:#eee;margin-bottom:2px">📢 '+_escHtml(b.message)+'</div>'
+                  + '<div style="font-size:9px;color:#888">by '+(b.wallet||'').slice(0,8)+'… · '+b.gp_paid+' GP · until '+until+'</div>'
+                + '</div>'
+                + (showRemove && b.is_active ? '<button onclick="adminRemoveBroadcast('+b.id+')" style="font-size:10px;padding:2px 8px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.3);color:#e84855;border-radius:4px;cursor:pointer;margin-left:8px;flex-shrink:0">REMOVE</button>' : '')
+                + '</div></div>';
+            }).join('')
+          + '</div>';
+      }
+
+      renderBcTable(d.active || [], activeEl, true);
+      renderBcTable(d.recent || [], recentEl, false);
+
+      var cfg = d.settings || {};
+      settingsEl.innerHTML = Object.keys(cfg).map(function(k){
+        return '<div style="background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:8px">'
+          + '<div style="color:#888;font-size:10px;margin-bottom:4px">'+k+'</div>'
+          + '<div style="display:flex;gap:6px">'
+          + '<input id="bcs_'+k+'" value="'+_escHtml(cfg[k])+'" style="flex:1;background:#0d0d1a;border:1px solid #333;color:#eee;padding:6px;border-radius:4px;font-size:12px">'
+          + '<button onclick="saveBroadcastSetting(\''+k+'\')" style="padding:6px 10px;background:rgba(144,202,249,.15);border:1px solid rgba(144,202,249,.3);color:#90caf9;border-radius:4px;cursor:pointer;font-size:11px">SAVE</button>'
+          + '</div></div>';
+      }).join('');
+    }).catch(function(e){ if (statsEl) statsEl.innerHTML = '<span style="color:#e8485580">'+e.message+'</span>'; });
+}
+
+function adminRemoveBroadcast(id) {
+  if (!confirm('Remove broadcast #'+id+'?')) return;
+  fetch('/admin/api/broadcasts/'+id, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: '+d.error);
+    showToast('📢 Broadcast removed');
+    loadBroadcastsAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveBroadcastSetting(key) {
+  var el = document.getElementById('bcs_'+key);
+  if (!el) return;
+  fetch('/admin/api/broadcasts/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
