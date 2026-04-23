@@ -80,7 +80,8 @@ const bettingRoutes = require('./routes/betting');
 const auctionRoutes = require('./routes/auction');
 const shipRoutes    = require('./routes/ships');
 const battleRoutes  = require('./routes/battle');
-const lotteryRoutes = require('./routes/lottery');
+const lotteryRoutes  = require('./routes/lottery');
+const stakingRoutes  = require('./routes/staking');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -194,6 +195,7 @@ app.use('/api', auctionRoutes);
 app.use('/api', shipRoutes);
 app.use('/api', battleRoutes);
 app.use('/api', lotteryRoutes);
+app.use('/api', stakingRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -773,6 +775,18 @@ async function start() {
       }, 60 * 1000);
       console.log('[LOTTERY] Draw scheduler started (1min interval)');
     } catch(e) { console.warn('[LOTTERY] Could not init draw scheduler:', e.message); }
+
+    // ── Staking: Mark matured stakes as ready (every 5 minutes) ──
+    try {
+      const { markReadyStakes } = require('./services/staking');
+      setInterval(async () => {
+        try {
+          const rows = await markReadyStakes();
+          if (rows.length > 0) console.log(`[STAKING] Marked ${rows.length} stake(s) as ready`);
+        } catch(e) { console.warn('[STAKING] markReady error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[STAKING] Ready-check scheduler started (5min interval)');
+    } catch(e) { console.warn('[STAKING] Could not init scheduler:', e.message); }
 
     // ── Chronicle: Weekly Report (every Monday UTC 00:00) ──
     try {

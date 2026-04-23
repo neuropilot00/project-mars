@@ -2058,4 +2058,77 @@ router.delete('/news/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ── GP Staking Admin (Migration 107) ─────────────────────────────────────────
+
+// GET /admin/api/staking — stats + settings
+router.get('/staking', adminAuth, async (req, res) => {
+  try {
+    let stakingService;
+    try { stakingService = require('../services/staking'); } catch (_) {}
+    if (!stakingService) return res.status(503).json({ error: 'Staking service unavailable' });
+    const stats = await stakingService.getAdminStats();
+    res.json(stats);
+  } catch (e) {
+    console.error('[Admin] staking error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/staking/setting — update a staking setting
+router.post('/staking/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body;
+  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
+  if (!key.startsWith('staking_')) return res.status(400).json({ error: 'Invalid staking key' });
+  try {
+    await pool.query(
+      `UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`,
+      [key, String(value)]
+    );
+    await auditLog(req, 'update_staking_setting', key, { value });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/staking/force-withdraw — admin force-withdraw a specific stake
+router.post('/staking/force-withdraw', adminAuth, async (req, res) => {
+  const { stakeId } = req.body;
+  if (!stakeId) return res.status(400).json({ error: 'stakeId required' });
+  try {
+    const stakeRes = await pool.query(
+      `SELECT * FROM gp_stakes WHERE id = $1`, [parseInt(stakeId)]
+    );
+    if (!stakeRes.rows.length) return res.status(404).json({ error: 'Stake not found' });
+    const stake = stakeRes.rows[0];
+    if (stake.status === 'withdrawn') return res.status(400).json({ error: 'Stake already withdrawn' });
+
+    const totalReturn = +(parseFloat(stake.amount) + parseFloat(stake.yield_earned)).toFixed(6);
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query(
+        `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
+        [stake.wallet, totalReturn]
+      );
+      await client.query(
+        `UPDATE gp_stakes SET status = 'withdrawn', withdrawn_at = NOW() WHERE id = $1`,
+        [stakeId]
+      );
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+
+    await auditLog(req, 'force_withdraw_stake', `stake:${stakeId}`, { wallet: stake.wallet, totalReturn });
+    res.json({ success: true, totalReturn, wallet: stake.wallet });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

@@ -949,6 +949,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="lotteryAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ GP STAKING TAB ═══ -->
+  <div class="section cat-gp" style="display:none" id="stakingAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--cyan)">💎 GP STAKING</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadStakingAdmin()" style="font-size:10px;background:rgba(91,184,232,.12);border:1px solid rgba(91,184,232,.3);color:var(--cyan);padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+      </div>
+    </div>
+    <div id="stakingAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:var(--cyan)">TOP STAKERS</span></div>
+    <div id="stakingAdmTopTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:var(--cyan)">STAKING SETTINGS</span></div>
+    <div id="stakingAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ POI DROP TABLE TAB ═══ -->
   <div class="section cat-poi" style="display:none">
     <div class="sec-header">
@@ -1399,7 +1414,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -3488,6 +3503,71 @@ function forceLotteryDraw() {
     if (d.error) return alert('Error: ' + d.error);
     alert('Draw triggered! Rounds drawn: ' + d.drew);
     loadLotteryAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  GP STAKING ADMIN (Migration 107)
+// ══════════════════════════════════════
+function loadStakingAdmin() {
+  var statsEl    = document.getElementById('stakingAdmStats');
+  var topEl      = document.getElementById('stakingAdmTopTable');
+  var settingsEl = document.getElementById('stakingAdmSettings');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  apiJson('/admin/api/staking').catch(function(){ return null; }).then(function(data) {
+    if (!data) { statsEl.innerHTML = '<div style="color:red;font-size:10px">Failed to load — run migration 107</div>'; return; }
+
+    statsEl.innerHTML = [
+      statCard('Total Stakes',    data.total_stakes      || 0,                                 'var(--cyan)'),
+      statCard('Active Stakes',   data.active_count      || 0,                                 '#4cd89a'),
+      statCard('Currently Locked', Math.round(data.currently_locked||0) + ' GP',              'var(--gold)'),
+      statCard('Pending Yield',   Math.round(data.pending_yield||0) + ' GP',                  'var(--mars)'),
+      statCard('Total Staked Ever', Math.round(data.total_staked||0) + ' GP',                 '#5cbbff'),
+      statCard('Total Yield Paid', Math.round(data.total_yield||0) + ' GP',                   '#a064dc'),
+    ].join('');
+
+    var top = data.top_stakers || [];
+    topEl.innerHTML = top.length ? (
+      '<table class="adm-table" style="font-size:9px"><thead><tr>'
+      +'<th>#</th><th>PLAYER</th><th>LOCKED</th><th>STAKES</th><th>YIELD</th></tr></thead><tbody>'
+      + top.map(function(s, i) {
+        var name = s.nickname || (s.wallet||'').slice(0,10)+'...';
+        return '<tr>'
+          +'<td>'+(i+1)+'</td>'
+          +'<td>'+escapeHtml(name)+'</td>'
+          +'<td style="color:var(--gold)">'+Math.round(parseFloat(s.total_amount||0))+' GP</td>'
+          +'<td>'+s.stake_count+'</td>'
+          +'<td style="color:#4cd89a">+'+Math.round(parseFloat(s.total_yield||0))+' GP</td>'
+          +'</tr>';
+      }).join('')
+      +'</tbody></table>'
+    ) : '<div style="font-size:10px;color:#888">No active stakers</div>';
+
+    var settings = data.settings || {};
+    settingsEl.innerHTML = Object.keys(settings).length ? Object.keys(settings).map(function(key) {
+      return '<div style="background:rgba(91,184,232,.04);border:1px solid rgba(91,184,232,.12);border-radius:6px;padding:8px">'
+        +'<div style="font-size:9px;color:var(--cyan);font-weight:700;margin-bottom:2px">'+escapeHtml(key)+'</div>'
+        +'<div style="display:flex;gap:4px;align-items:center">'
+        +'<input id="stk_set_'+escapeHtml(key)+'" value="'+escapeHtml(String(settings[key]))+'" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
+        +'<button onclick="saveStakingSetting(\''+escapeHtml(key)+'\')" style="font-size:9px;padding:3px 8px;background:rgba(91,184,232,.15);border:1px solid rgba(91,184,232,.3);color:var(--cyan);border-radius:3px;cursor:pointer">SAVE</button>'
+        +'</div></div>';
+    }).join('') : '<div style="font-size:10px;color:#888">No settings found. Run migration 107.</div>';
+  });
+}
+
+function saveStakingSetting(key) {
+  var inp = document.getElementById('stk_set_' + key);
+  if (!inp) return;
+  fetch('/admin/api/staking/setting', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ key: key, value: inp.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ ' + key + ' saved');
+    loadStakingAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 

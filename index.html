@@ -3575,6 +3575,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
           </div>
         </div>
+
+        <!-- STAKING Section (collapsible) -->
+        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
+             onclick="toggleStaking()">
+          <span>💎 <span data-i18n="staking_title">GP STAKING</span></span>
+          <span id="stakingToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="stakingPanel" style="display:none;padding:0 0 8px">
+          <div id="stakingContent" style="padding:8px 0">
+            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: QUESTS -->
@@ -10499,6 +10511,7 @@ var I18N = {
     achievements_title: 'ACHIEVEMENTS', achievements_loading: 'Loading achievements...',
     news_title: 'PLANET NEWS',
     lottery_title: 'GP LOTTERY', lottery_disabled: 'Lottery disabled', lottery_round: 'ROUND', lottery_ends: 'ENDS IN', lottery_recent_winners: 'RECENT WINNERS',
+    staking_title: 'GP STAKING', staking_stake_btn: '💎 STAKE GP', staking_confirm_title: 'STAKE GP', staking_confirm_btn: 'STAKE', staking_withdraw_title: 'WITHDRAW STAKE', staking_withdraw_btn: 'WITHDRAW',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11075,6 +11088,7 @@ var I18N = {
     achievements_title: '업적', achievements_loading: '업적 로딩 중...',
     news_title: '행성 뉴스',
     lottery_title: 'GP 복권', lottery_disabled: '복권 비활성화', lottery_round: '라운드', lottery_ends: '종료까지', lottery_recent_winners: '최근 당첨자',
+    staking_title: 'GP 스테이킹', staking_stake_btn: '💎 GP 스테이크', staking_confirm_title: 'GP 스테이킹', staking_confirm_btn: '스테이크', staking_withdraw_title: '스테이크 인출', staking_withdraw_btn: '인출',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -11650,6 +11664,7 @@ var I18N = {
     achievements_title: '実績', achievements_loading: '実績を読込中...',
     news_title: '惑星ニュース',
     lottery_title: 'GP宝くじ', lottery_disabled: '宝くじ無効', lottery_round: 'ラウンド', lottery_ends: '終了まで', lottery_recent_winners: '最近の当選者',
+    staking_title: 'GPステーキング', staking_stake_btn: '💎 ステーク', staking_confirm_title: 'GPステーキング', staking_confirm_btn: 'ステーク', staking_withdraw_title: '引き出し', staking_withdraw_btn: '引き出す',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12209,6 +12224,7 @@ var I18N = {
     achievements_title: '成就', achievements_loading: '正在加载成就...',
     news_title: '星球新闻',
     lottery_title: 'GP抽奖', lottery_disabled: '抽奖已禁用', lottery_round: '轮次', lottery_ends: '剩余时间', lottery_recent_winners: '近期中奖者',
+    staking_title: 'GP质押', staking_stake_btn: '💎 质押GP', staking_confirm_title: 'GP质押', staking_confirm_btn: '质押', staking_withdraw_title: '提取质押', staking_withdraw_btn: '提取',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -18637,6 +18653,202 @@ function quickBuyTickets(count) {
     });
 }
 
+
+// ── GP STAKING (Migration 107) ──────────────────────────────────────────────
+var _stakingPanelOpen = false;
+var _stakingInfo = null;
+
+function toggleStaking() {
+  _stakingPanelOpen = !_stakingPanelOpen;
+  document.getElementById('stakingPanel').style.display = _stakingPanelOpen ? '' : 'none';
+  document.getElementById('stakingToggle').textContent = _stakingPanelOpen ? '▲' : '▼';
+  if (_stakingPanelOpen) loadStakingPanel();
+}
+
+function loadStakingPanel() {
+  var el = document.getElementById('stakingContent');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
+  var wallet = walletState.address || '';
+
+  Promise.all([
+    fetch('/api/staking/info?wallet=' + wallet).then(function(r){ return r.json(); }),
+    wallet ? fetch('/api/staking/my-stakes?wallet=' + wallet).then(function(r){ return r.json(); }) : Promise.resolve({ stakes: [] })
+  ])
+    .then(function(results) {
+      _stakingInfo = results[0];
+      var stakes = results[1].stakes || [];
+      if (!_stakingInfo.enabled) {
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Staking currently disabled</div>';
+        return;
+      }
+      renderStakingPanel(_stakingInfo, stakes);
+    })
+    .catch(function() {
+      el.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:10px;padding:8px">Failed to load</div>';
+    });
+}
+
+function renderStakingPanel(info, stakes) {
+  var el = document.getElementById('stakingContent');
+  if (!el) return;
+
+  var opts = info.lock_days_options || [7, 14, 30];
+  var bonuses = info.bonus_multipliers || {};
+  var yields = info.yield_per_1000 || {};
+  var apy = info.apy_pct || 15;
+
+  // Build lock options
+  var optsHtml = opts.map(function(d) {
+    var mult = bonuses[d] || 1;
+    var yld  = (yields[d] || 0).toFixed(2);
+    var label = d === 30 ? '🔥' : d === 14 ? '⭐' : '';
+    return '<div onclick="selectLockDays(this,' + d + ')" data-days="' + d + '" class="stake-day-opt" style="flex:1;text-align:center;padding:8px 4px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:all .2s">'
+      + '<div style="font-size:11px;color:var(--gold);font-weight:700">' + label + d + 'd</div>'
+      + '<div style="font-size:8px;color:var(--tx3)">×' + mult.toFixed(1) + '</div>'
+      + '<div style="font-size:8px;color:var(--gn)">+' + yld + '/1k</div>'
+      + '</div>';
+  }).join('');
+
+  var html = '<div style="background:linear-gradient(135deg,rgba(91,184,232,.08),rgba(76,216,154,.05));border:1px solid rgba(91,184,232,.2);border-radius:8px;padding:10px;margin-bottom:8px">'
+    + '<div style="font-size:8px;color:var(--tx3);margin-bottom:6px;letter-spacing:1px">APY: <span style="color:var(--gn);font-weight:700">' + apy + '%</span> &nbsp;|&nbsp; Active: <span style="color:var(--cyan)">' + (info.active_stakes || 0) + '/' + (info.max_active || 5) + '</span></div>'
+    + '<div style="display:flex;gap:4px;margin-bottom:10px">' + optsHtml + '</div>'
+    + '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
+    + '<input type="number" id="stakeAmountInput" min="' + (info.min_amount||100) + '" max="' + (info.max_amount||10000) + '" placeholder="' + (info.min_amount||100) + '–' + (info.max_amount||10000) + ' GP" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;padding:8px 10px;border-radius:6px;font-family:var(--fn)">'
+    + '<div id="stakeYieldPreview" style="font-size:10px;color:var(--gn);min-width:60px;text-align:center"></div>'
+    + '</div>'
+    + '<button onclick="doStake()" style="width:100%;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(91,184,232,.25),rgba(76,216,154,.2));border:1px solid rgba(91,184,232,.35);color:#fff;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px" data-i18n="staking_stake_btn">💎 STAKE GP</button>'
+    + '</div>';
+
+  // Active stakes list
+  var activeStakes = stakes.filter(function(s){ return s.status === 'active' || s.status === 'ready'; });
+  var pastStakes   = stakes.filter(function(s){ return s.status === 'withdrawn'; }).slice(0, 3);
+
+  if (activeStakes.length) {
+    html += '<div style="font-size:9px;color:var(--gold);font-weight:700;margin-bottom:4px;letter-spacing:1px">ACTIVE STAKES</div>';
+    activeStakes.forEach(function(s) {
+      var isReady = s.status === 'ready';
+      var secsRem = parseFloat(s.seconds_remaining) || 0;
+      var timeStr;
+      if (isReady || secsRem <= 0) {
+        timeStr = '<span style="color:var(--gn);font-weight:700">✅ READY</span>';
+      } else {
+        var h = Math.floor(secsRem / 3600);
+        var d2 = Math.floor(secsRem / 86400);
+        timeStr = d2 > 0 ? d2 + 'd ' + (h % 24) + 'h' : h + 'h ' + Math.floor((secsRem % 3600)/60) + 'm';
+      }
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;margin-bottom:4px;border:1px solid rgba(255,255,255,.07)">'
+        + '<div><div style="font-size:11px;color:var(--tx);font-weight:700">' + Math.round(s.amount) + ' GP <span style="font-size:9px;color:var(--tx3)">locked ' + s.lock_days + 'd</span></div>'
+        + '<div style="font-size:9px;color:var(--gn)">+' + s.yield_earned.toFixed(2) + ' GP yield</div></div>'
+        + '<div style="text-align:right">'
+        + (isReady ? '<button onclick="doWithdraw(' + s.id + ')" style="font-size:9px;padding:5px 10px;background:rgba(76,216,154,.2);border:1px solid rgba(76,216,154,.35);color:var(--gn);border-radius:5px;cursor:pointer;font-weight:700">WITHDRAW</button>' : '<div style="font-size:9px">' + timeStr + '</div>')
+        + '</div></div>';
+    });
+  }
+
+  if (pastStakes.length) {
+    html += '<div style="font-size:9px;color:var(--tx3);margin-top:6px;margin-bottom:4px;letter-spacing:1px">RECENT WITHDRAWALS</div>';
+    pastStakes.forEach(function(s) {
+      html += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:9px;color:var(--tx3)">'
+        + '<span>' + Math.round(s.amount) + ' GP × ' + s.lock_days + 'd</span>'
+        + '<span style="color:var(--gn)">+' + s.yield_earned.toFixed(2) + ' GP</span>'
+        + '</div>';
+    });
+  }
+
+  el.innerHTML = html;
+
+  // Default select first lock option
+  var firstOpt = el.querySelector('.stake-day-opt');
+  if (firstOpt) selectLockDays(firstOpt, opts[0]);
+
+  // Live yield preview
+  var amtInput = document.getElementById('stakeAmountInput');
+  if (amtInput) amtInput.addEventListener('input', updateStakePreview);
+}
+
+var _selectedLockDays = 7;
+
+function selectLockDays(el, days) {
+  _selectedLockDays = days;
+  document.querySelectorAll('.stake-day-opt').forEach(function(b) {
+    b.style.background = 'rgba(255,255,255,.04)';
+    b.style.borderColor = 'rgba(255,255,255,.1)';
+  });
+  el.style.background = 'rgba(91,184,232,.15)';
+  el.style.borderColor = 'rgba(91,184,232,.4)';
+  updateStakePreview();
+}
+
+function updateStakePreview() {
+  var amtEl = document.getElementById('stakeAmountInput');
+  var previewEl = document.getElementById('stakeYieldPreview');
+  if (!amtEl || !previewEl || !_stakingInfo) return;
+  var amt = parseFloat(amtEl.value) || 0;
+  if (amt <= 0) { previewEl.textContent = ''; return; }
+  var info = _stakingInfo;
+  var apy = info.apy_pct || 15;
+  var mult = (info.bonus_multipliers || {})[_selectedLockDays] || 1;
+  var yld = +(amt * (apy / 100) * (_selectedLockDays / 365) * mult).toFixed(2);
+  previewEl.textContent = '+' + yld + ' GP';
+}
+
+function doStake() {
+  if (!walletState.address) return showToast('Connect wallet first', 'error');
+  var amt = parseFloat(document.getElementById('stakeAmountInput')?.value);
+  if (!amt || amt <= 0) return showToast('Enter an amount', 'error');
+  var info = _stakingInfo || {};
+  if (amt < (info.min_amount || 100)) return showToast('Minimum ' + (info.min_amount||100) + ' GP', 'error');
+  if (amt > (info.max_amount || 10000)) return showToast('Maximum ' + (info.max_amount||10000) + ' GP per stake', 'error');
+
+  var yld = document.getElementById('stakeYieldPreview')?.textContent || '';
+  gameConfirm({
+    icon: '💎',
+    title: (window.i18n?.staking_confirm_title) || 'STAKE GP',
+    body: 'Lock <b>' + Math.round(amt) + ' GP</b> for <b>' + _selectedLockDays + ' days</b><br>Expected yield: <b style="color:var(--gn)">' + yld + '</b>',
+    confirmLabel: (window.i18n?.staking_confirm_btn) || 'STAKE',
+    onConfirm: function() {
+      fetch('/api/staking/stake', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ wallet: walletState.address, amount: amt, lockDays: _selectedLockDays })
+      })
+        .then(function(r){ return r.json(); })
+        .then(function(d) {
+          if (d.error) return showToast(d.error, 'error');
+          showToast('💎 Staked ' + Math.round(amt) + ' GP for ' + _selectedLockDays + 'd!', 'success');
+          loadStakingPanel();
+          loadWalletData();
+        })
+        .catch(function() { showToast('Stake failed', 'error'); });
+    }
+  });
+}
+
+function doWithdraw(stakeId) {
+  if (!walletState.address) return showToast('Connect wallet first', 'error');
+  gameConfirm({
+    icon: '✅',
+    title: (window.i18n?.staking_withdraw_title) || 'WITHDRAW STAKE',
+    body: 'Withdraw your matured stake and collect principal + yield?',
+    confirmLabel: (window.i18n?.staking_withdraw_btn) || 'WITHDRAW',
+    onConfirm: function() {
+      fetch('/api/staking/withdraw', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ wallet: walletState.address, stakeId: stakeId })
+      })
+        .then(function(r){ return r.json(); })
+        .then(function(d) {
+          if (d.error) return showToast(d.error, 'error');
+          showToast('✅ Received ' + d.totalReturn.toFixed(2) + ' GP!', 'success');
+          loadStakingPanel();
+          loadWalletData();
+        })
+        .catch(function() { showToast('Withdrawal failed', 'error'); });
+    }
+  });
+}
 
 async function harvestMining(){
   try{_sfx.click()}catch(e){}
