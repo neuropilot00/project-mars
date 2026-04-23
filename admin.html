@@ -1460,6 +1460,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="statusAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY DESCRIPTIONS (Migration 137) ═══ -->
+  <div class="section cat-gp" style="display:none" id="tdescAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ffab91">📝 TERRITORY DESCRIPTIONS</span>
+      <button onclick="loadTdescAdmin()" style="font-size:10px;background:rgba(255,171,145,.12);border:1px solid rgba(255,171,145,.3);color:#ffab91;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="tdescAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ffab91">RECENT DESCRIPTIONS</span></div>
+    <div id="tdescAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ffab91">SETTINGS</span></div>
+    <div id="tdescAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ COMMUNITY POLLS (Migration 135) ═══ -->
   <div class="section cat-gp" style="display:none" id="pollsAdminSection">
     <div class="sec-header">
@@ -2214,7 +2227,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -6493,6 +6506,84 @@ function saveStatusSetting(key) {
   var el = document.getElementById('status_'+key);
   if (!el) return;
   fetch('/admin/api/status/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  TERRITORY DESCRIPTIONS ADMIN (Migration 137)
+// ══════════════════════════════════════
+function loadTdescAdmin() {
+  var statsEl    = document.getElementById('tdescAdmStats');
+  var listEl     = document.getElementById('tdescAdmList');
+  var settingsEl = document.getElementById('tdescAdmSettings');
+  if (!statsEl) return;
+  [statsEl, listEl, settingsEl].forEach(function(el) { if(el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>'; });
+  fetch('/admin/api/tdesc', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['Descriptions', s.total       || 0],
+        ['GP Sunk',      (s.total_gp_sunk||0)+' GP'],
+      ].map(function(kv) {
+        return '<div style="background:rgba(255,171,145,.07);border:1px solid rgba(255,171,145,.2);border-radius:6px;padding:8px 10px">'
+          +'<div style="color:#888;font-size:9px;letter-spacing:1px">'+kv[0]+'</div>'
+          +'<div style="color:#ffab91;font-size:15px;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      var rows = d.recent || [];
+      listEl.innerHTML = rows.length ? '<table class="adm-table"><thead><tr><th>Claim</th><th>Player</th><th>Description</th><th>GP</th><th>Updated</th><th></th></tr></thead><tbody>'
+        + rows.map(function(r) {
+            var upd = new Date(r.updated_at).toLocaleString();
+            return '<tr>'
+              +'<td>#'+r.claim_id+'</td>'
+              +'<td>'+escapeHtml(r.nickname||r.wallet)+'</td>'
+              +'<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(r.description)+'</td>'
+              +'<td>'+r.gp_paid+'</td>'
+              +'<td style="font-size:9px">'+upd+'</td>'
+              +'<td><button onclick="adminDeleteTdesc('+r.claim_id+')" style="font-size:9px;background:rgba(255,100,100,.1);border:1px solid rgba(255,100,100,.3);color:#ef9a9a;padding:2px 6px;border-radius:4px;cursor:pointer">DEL</button></td>'
+              +'</tr>';
+          }).join('')
+        + '</tbody></table>' : '<span style="color:#555;font-size:11px">No descriptions yet.</span>';
+
+      var keys = ['tdesc_enabled','tdesc_first_gp','tdesc_change_gp','tdesc_max_length','tdesc_cooldown_h'];
+      settingsEl.innerHTML = keys.map(function(k) {
+        return '<div style="display:flex;align-items:center;gap:6px">'
+          +'<span style="color:#888;font-size:10px;flex:1">'+k+'</span>'
+          +'<input id="tdesc_'+k+'" style="background:#111;border:1px solid #333;color:#eee;padding:4px 6px;border-radius:4px;font-size:11px;width:80px" '
+          +'onchange="saveTdescSetting(\''+k+'\')">'
+          +'</div>';
+      }).join('');
+      fetch('/admin/api/settings?prefix=tdesc_', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+        .then(function(r) { return r.json(); })
+        .then(function(s) { (s.settings||s||[]).forEach(function(row) { var el=document.getElementById('tdesc_'+row.key); if(el) el.value=row.value; }); })
+        .catch(function(){});
+    }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function adminDeleteTdesc(claimId) {
+  if (!confirm('Delete description for claim #'+claimId+'?')) return;
+  fetch('/admin/api/tdesc/'+claimId, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('📝 Description deleted');
+    loadTdescAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveTdescSetting(key) {
+  var el = document.getElementById('tdesc_'+key);
+  if (!el) return;
+  fetch('/admin/api/tdesc/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })

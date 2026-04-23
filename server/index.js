@@ -111,6 +111,7 @@ const beaconRoutes      = require('./routes/beacon');
 const donationRoutes    = require('./routes/donation');
 const pollsRoutes       = require('./routes/polls');
 const statusRoutes      = require('./routes/status');
+const tdescRoutes       = require('./routes/tdesc');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -254,6 +255,7 @@ app.use('/api', beaconRoutes);
 app.use('/api', donationRoutes);
 app.use('/api', pollsRoutes);
 app.use('/api', statusRoutes);
+app.use('/api', tdescRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);

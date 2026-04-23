@@ -2718,6 +2718,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <img id="infoImgPreview" src="" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid var(--bdr2);cursor:pointer" onclick="expandInfoImg()">
     </div>
     <div class="stat-row" id="infoNameRow" style="display:none"><span class="stat-label" data-i18n="info_name">NAME</span><span class="stat-val" id="infoCustomName" style="color:var(--gold)">--</span></div>
+    <div id="infoDescRow" style="display:none;margin:6px 0;padding:6px 8px;background:rgba(255,171,145,.05);border:1px solid rgba(255,171,145,.12);border-radius:6px">
+      <div style="font-size:8px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:3px">📝 DESCRIPTION</div>
+      <div id="infoDescText" style="font-size:9px;color:var(--tx2);line-height:1.5"></div>
+    </div>
     <button class="uf" id="infoShareBtn" style="margin-top:6px;font-size:9px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border-color:rgba(91,184,232,.3);color:var(--cyan)" onclick="shareTerritory(selectedPlot)" data-i18n="share_btn">📤 SHARE</button>
     <button class="uf" id="infoRenameBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)" onclick="renameTerritory(selectedPlot)" data-i18n="rename_btn">RENAME</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)" data-i18n="edit_image">EDIT IMAGE</button>
@@ -3578,6 +3582,47 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
             <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:6px" data-i18n="beacon_active_label">ACTIVE BEACONS</div>
             <div id="activeBeaconsPanel" style="font-size:9px;color:var(--tx3)">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📝 TERRITORY DESCRIPTION (Migration 137, collapsible) -->
+      <div style="padding:8px 10px;border-top:1px solid var(--bdr)">
+        <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0" onclick="toggleTdescPanel()">
+          <span style="font-size:9px;color:#ffab91;letter-spacing:2px;font-family:var(--fn);font-weight:700">📝 <span data-i18n="tdesc_title">TERRITORY DESCRIPTION</span></span>
+          <span id="tdescPanelArrow" style="color:#ffab91;font-size:10px">▼</span>
+        </div>
+        <div id="tdescPanel" style="display:none;margin-top:8px">
+          <div style="font-size:9px;color:var(--tx3);margin-bottom:8px" data-i18n="tdesc_desc">Add a custom description to your territory. Visible to all players.</div>
+          <!-- Claim selector -->
+          <div style="margin-bottom:8px">
+            <div style="font-size:9px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="tdesc_claim_label">CLAIM #</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input id="tdescClaimInput" type="number" min="1" placeholder="e.g. 42"
+                style="flex:1;background:rgba(255,171,145,.06);border:1px solid rgba(255,171,145,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box"
+                oninput="loadClaimDescriptionPreview()">
+              <button onclick="useMyClaim()" style="padding:7px 10px;background:rgba(255,171,145,.1);border:1px solid rgba(255,171,145,.2);color:#ffab91;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px" data-i18n="tdesc_use_claim">📍 MINE</button>
+            </div>
+          </div>
+          <!-- Current description preview -->
+          <div id="tdescCurrentWrap" style="display:none;margin-bottom:8px;padding:6px 8px;background:rgba(255,171,145,.04);border:1px solid rgba(255,171,145,.1);border-radius:6px">
+            <div style="font-size:8px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:3px" data-i18n="tdesc_current_label">CURRENT</div>
+            <div id="tdescCurrentText" style="font-size:9px;color:var(--tx2);line-height:1.5"></div>
+          </div>
+          <!-- Description textarea -->
+          <div style="margin-bottom:8px">
+            <div style="font-size:9px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="tdesc_text_label">DESCRIPTION</div>
+            <textarea id="tdescTextInput" maxlength="200" rows="3" placeholder="e.g. Trade hub — all resources available!"
+              style="width:100%;background:rgba(255,171,145,.06);border:1px solid rgba(255,171,145,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box;resize:vertical"
+              oninput="document.getElementById('tdescCharCount').textContent=this.value.length+'/200'"></textarea>
+            <div style="font-size:8px;color:var(--tx3);text-align:right;margin-top:2px" id="tdescCharCount">0/200</div>
+          </div>
+          <div style="font-size:8px;color:var(--tx3);margin-bottom:8px" id="tdescCostHint"></div>
+          <button onclick="saveTdescDescription()" style="width:100%;padding:9px;background:rgba(255,171,145,.15);border:1px solid rgba(255,171,145,.35);color:#ffab91;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700" data-i18n="tdesc_save_btn">📝 SAVE DESCRIPTION</button>
+          <!-- My descriptions list -->
+          <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
+            <div style="font-size:9px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:6px" data-i18n="tdesc_my_label">MY DESCRIPTIONS</div>
+            <div id="myTdescList" style="font-size:9px;color:var(--tx3)">Loading…</div>
           </div>
         </div>
       </div>
@@ -9288,6 +9333,10 @@ function showTerritoryInfo(plot){
   }else{
     nameRow.style.display='none';
   }
+  // Load territory description
+  var descRow=document.getElementById('infoDescRow');
+  if(descRow) descRow.style.display='none';
+  if(plot.claimId) loadClaimDescriptionForInfo(plot.claimId);
   // Show EDIT IMAGE + PROMO LINK + RENAME only for own territories
   var editBtn=document.getElementById('infoEditImgBtn');
   var linkEdit=document.getElementById('infoLinkEdit');
@@ -11438,6 +11487,7 @@ var I18N = {
     donation_title: 'COLONY FUND', donation_amount_label: 'AMOUNT (GP)', donation_msg_label: 'MESSAGE (optional)', donation_donate_btn: '🏛️ DONATE', donation_none: 'No donations yet. Be the first!', donation_top_btn: '🏆 TOP DONORS', donation_top_title: 'TOP DONORS', donation_confirm: 'Donate to Colony Fund?', donation_min_hint: 'Enter an amount',
     poll_title: 'COMMUNITY POLLS', poll_create_btn: '+ POLL', poll_create_title: 'CREATE POLL', poll_question_label: 'QUESTION', poll_options_label: 'OPTIONS', poll_add_option: '+ ADD OPTION', poll_duration_label: 'DURATION (h):', poll_publish_btn: '📊 PUBLISH', poll_none: 'No active polls. Create the first one!', poll_publish_confirm: 'Publish Poll?', poll_question_required: 'Enter a question', poll_min_options_hint: 'Need at least 2 options',
     status_label: '💬 STATUS MESSAGE', status_set_btn: 'SET', status_none: 'No active status', status_required: 'Enter a status message', status_set_confirm: 'Set Status Message?',
+    tdesc_title: 'TERRITORY DESCRIPTION', tdesc_desc: 'Add a custom description to your territory. Visible to all players.', tdesc_claim_label: 'CLAIM #', tdesc_use_claim: '📍 MINE', tdesc_current_label: 'CURRENT', tdesc_text_label: 'DESCRIPTION', tdesc_save_btn: '📝 SAVE DESCRIPTION', tdesc_my_label: 'MY DESCRIPTIONS', tdesc_none: 'No descriptions set yet.', tdesc_save_confirm: 'Save Territory Description?', tdesc_required: 'Enter a description', tdesc_claim_required: 'Enter a Claim #', tdesc_no_claim: 'Select a territory first', tdesc_free: 'Free', tdesc_saved: '✅ Description saved!', tdesc_free_hint: 'First description is free. Updates cost {cost} GP.',
     base_profile_btn: '👤 PROFILE', profile_nickname_label: 'NICKNAME', profile_motto_label: 'MOTTO', profile_color_label: 'AVATAR COLOR', profile_set_btn: 'SET', profile_history_btn: '📜 CHANGE HISTORY', profile_no_motto: 'No motto set', profile_nick_confirm: 'Set Nickname?', profile_motto_confirm: 'Set Motto?', profile_color_confirm: 'Set Avatar Color?',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
@@ -12043,6 +12093,7 @@ var I18N = {
     donation_title: '콜로니 펀드', donation_amount_label: '금액 (GP)', donation_msg_label: '메시지 (선택)', donation_donate_btn: '🏛️ 기부하기', donation_none: '아직 기부 없음.', donation_top_btn: '🏆 최고 기부자', donation_top_title: '최고 기부자', donation_confirm: '콜로니 펀드에 기부?', donation_min_hint: '금액을 입력하세요',
     poll_title: '커뮤니티 투표', poll_create_btn: '+ 투표', poll_create_title: '투표 만들기', poll_question_label: '질문', poll_options_label: '선택지', poll_add_option: '+ 선택지 추가', poll_duration_label: '기간(h):', poll_publish_btn: '📊 게시', poll_none: '현재 진행 중인 투표가 없습니다.', poll_publish_confirm: '투표 게시?', poll_question_required: '질문을 입력하세요', poll_min_options_hint: '선택지 2개 이상 필요',
     status_label: '💬 상태 메시지', status_set_btn: '설정', status_none: '활성 상태 없음', status_required: '상태 메시지를 입력하세요', status_set_confirm: '상태 메시지 설정?',
+    tdesc_title: '영토 설명', tdesc_desc: '내 영토에 설명을 추가하세요. 모든 플레이어에게 보입니다.', tdesc_claim_label: '클레임 #', tdesc_use_claim: '📍 내 것', tdesc_current_label: '현재 설명', tdesc_text_label: '설명', tdesc_save_btn: '📝 설명 저장', tdesc_my_label: '내 설명 목록', tdesc_none: '아직 설명 없음.', tdesc_save_confirm: '영토 설명 저장?', tdesc_required: '설명을 입력하세요', tdesc_claim_required: '클레임 번호를 입력하세요', tdesc_no_claim: '먼저 영토를 선택하세요', tdesc_free: '무료', tdesc_saved: '✅ 설명 저장 완료!', tdesc_free_hint: '첫 설명은 무료입니다. 수정 시 {cost} GP.',
     base_profile_btn: '👤 프로필', profile_nickname_label: '닉네임', profile_motto_label: '좌우명', profile_color_label: '아바타 색상', profile_set_btn: '설정', profile_history_btn: '📜 변경 기록', profile_no_motto: '좌우명 없음', profile_nick_confirm: '닉네임 설정?', profile_motto_confirm: '좌우명 설정?', profile_color_confirm: '아바타 색상 설정?',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
@@ -12647,6 +12698,7 @@ var I18N = {
     donation_title: 'コロニーファンド', donation_amount_label: '金額（GP）', donation_msg_label: 'メッセージ（任意）', donation_donate_btn: '🏛️ 寄付する', donation_none: 'まだ寄付なし。', donation_top_btn: '🏆 トップ寄付者', donation_top_title: 'トップ寄付者', donation_confirm: 'コロニーファンドに寄付？', donation_min_hint: '金額を入力してください',
     poll_title: 'コミュニティ投票', poll_create_btn: '+ 投票', poll_create_title: '投票作成', poll_question_label: '質問', poll_options_label: '選択肢', poll_add_option: '+ 選択肢追加', poll_duration_label: '期間（h）:', poll_publish_btn: '📊 公開', poll_none: '現在進行中の投票なし。', poll_publish_confirm: '投票を公開？', poll_question_required: '質問を入力してください', poll_min_options_hint: '選択肢2つ以上必要',
     status_label: '💬 ステータスメッセージ', status_set_btn: '設定', status_none: 'アクティブなステータスなし', status_required: 'ステータスを入力してください', status_set_confirm: 'ステータスを設定？',
+    tdesc_title: '領土の説明', tdesc_desc: '自分の領土に説明を追加します。全プレイヤーに表示されます。', tdesc_claim_label: 'クレイム #', tdesc_use_claim: '📍 自分の', tdesc_current_label: '現在の説明', tdesc_text_label: '説明', tdesc_save_btn: '📝 説明を保存', tdesc_my_label: '自分の説明一覧', tdesc_none: '説明なし。', tdesc_save_confirm: '領土説明を保存？', tdesc_required: '説明を入力してください', tdesc_claim_required: 'クレイム番号を入力してください', tdesc_no_claim: '先に領土を選択してください', tdesc_free: '無料', tdesc_saved: '✅ 説明を保存しました！', tdesc_free_hint: '最初の説明は無料。変更時は{cost} GP。',
     base_profile_btn: '👤 プロフィール', profile_nickname_label: 'ニックネーム', profile_motto_label: 'モットー', profile_color_label: 'アバターカラー', profile_set_btn: '設定', profile_history_btn: '📜 変更履歴', profile_no_motto: 'モットーなし', profile_nick_confirm: 'ニックネームを設定？', profile_motto_confirm: 'モットーを設定？', profile_color_confirm: 'アバターカラーを設定？',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
@@ -13235,6 +13287,7 @@ var I18N = {
     donation_title: '殖民基金', donation_amount_label: '金额（GP）', donation_msg_label: '消息（可选）', donation_donate_btn: '🏛️ 捐赠', donation_none: '暂无捐赠记录。', donation_top_btn: '🏆 顶级捐赠者', donation_top_title: '顶级捐赠者', donation_confirm: '向殖民基金捐赠？', donation_min_hint: '请输入金额',
     poll_title: '社区投票', poll_create_btn: '+ 投票', poll_create_title: '创建投票', poll_question_label: '问题', poll_options_label: '选项', poll_add_option: '+ 添加选项', poll_duration_label: '时长（h）:', poll_publish_btn: '📊 发布', poll_none: '暂无进行中的投票。', poll_publish_confirm: '发布投票？', poll_question_required: '请输入问题', poll_min_options_hint: '至少需要2个选项',
     status_label: '💬 状态消息', status_set_btn: '设置', status_none: '暂无活跃状态', status_required: '请输入状态消息', status_set_confirm: '设置状态消息？',
+    tdesc_title: '领地描述', tdesc_desc: '为您的领地添加自定义描述，所有玩家可见。', tdesc_claim_label: '领地编号', tdesc_use_claim: '📍 我的', tdesc_current_label: '当前描述', tdesc_text_label: '描述', tdesc_save_btn: '📝 保存描述', tdesc_my_label: '我的描述', tdesc_none: '暂无描述。', tdesc_save_confirm: '保存领地描述？', tdesc_required: '请输入描述', tdesc_claim_required: '请输入领地编号', tdesc_no_claim: '请先选择一个领地', tdesc_free: '免费', tdesc_saved: '✅ 描述已保存！', tdesc_free_hint: '首次描述免费，修改需要{cost} GP。',
     base_profile_btn: '👤 个人资料', profile_nickname_label: '昵称', profile_motto_label: '座右铭', profile_color_label: '头像颜色', profile_set_btn: '设置', profile_history_btn: '📜 修改记录', profile_no_motto: '未设置座右铭', profile_nick_confirm: '设置昵称？', profile_motto_confirm: '设置座右铭？', profile_color_confirm: '设置头像颜色？',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
@@ -28454,6 +28507,138 @@ function submitCreatePoll() {
       if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
     }).catch(function(e){ showToast(e.message,'error'); });
   });
+}
+
+// ── Territory Description (Migration 137) ────────────────────────────────────
+
+var _tdescCfg = null;
+
+function toggleTdescPanel() {
+  var p = document.getElementById('tdescPanel');
+  var a = document.getElementById('tdescPanelArrow');
+  if (!p) return;
+  if (p.style.display === 'none') {
+    p.style.display = 'block';
+    if (a) a.textContent = '▲';
+    loadTdescCfg();
+    loadMyTdescs();
+  } else {
+    p.style.display = 'none';
+    if (a) a.textContent = '▼';
+  }
+}
+
+function loadTdescCfg() {
+  var hint = document.getElementById('tdescCostHint');
+  fetch('/api/tdesc/config').then(function(r){return r.json();}).then(function(d){
+    _tdescCfg = d;
+    if (hint) {
+      if (d.firstGP === 0) {
+        hint.textContent = t('tdesc_free_hint') || 'First description is free. Updates cost '+d.changeGP+' GP.';
+      } else {
+        hint.textContent = 'First: '+d.firstGP+' GP · Updates: '+d.changeGP+' GP';
+      }
+    }
+  }).catch(function(){});
+}
+
+function useMyClaim() {
+  // Pre-fill with the currently selected claim if available
+  var sel = window.selectedPlot;
+  if (!sel || !sel.claimId) { showToast(t('tdesc_no_claim')||'Select a territory first', 'error'); return; }
+  var inp = document.getElementById('tdescClaimInput');
+  if (inp) { inp.value = sel.claimId; loadClaimDescriptionPreview(); }
+}
+
+function loadClaimDescriptionPreview() {
+  var inp = document.getElementById('tdescClaimInput');
+  if (!inp || !inp.value) return;
+  var claimId = parseInt(inp.value, 10);
+  if (isNaN(claimId) || claimId < 1) return;
+  var wrap = document.getElementById('tdescCurrentWrap');
+  var text = document.getElementById('tdescCurrentText');
+  fetch('/api/tdesc/claim/'+claimId).then(function(r){return r.json();}).then(function(d){
+    if (d.description) {
+      if (wrap) wrap.style.display = 'block';
+      if (text) text.textContent = d.description.description || '';
+    } else {
+      if (wrap) wrap.style.display = 'none';
+    }
+  }).catch(function(){});
+}
+
+function loadMyTdescs() {
+  var listEl = document.getElementById('myTdescList');
+  if (!listEl) return;
+  var wallet = window._walletAddress;
+  if (!wallet) { listEl.textContent = '—'; return; }
+  listEl.innerHTML = '<span style="color:var(--tx3)">Loading…</span>';
+  fetch('/api/tdesc/my?wallet='+encodeURIComponent(wallet)).then(function(r){return r.json();}).then(function(rows){
+    if (!rows.length) { listEl.innerHTML = '<span style="color:var(--tx3)" data-i18n="tdesc_none">No descriptions set yet.</span>'; return; }
+    listEl.innerHTML = rows.map(function(r){
+      var name = r.claim_name ? r.claim_name : '#'+r.claim_id;
+      return '<div style="padding:6px 8px;background:rgba(255,171,145,.04);border:1px solid rgba(255,171,145,.1);border-radius:6px;margin-bottom:4px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">'
+          +'<span style="font-size:9px;color:#ffab91;font-family:var(--fn);font-weight:700">'+_escHtml(name)+'</span>'
+          +'<button onclick="prefillTdescEdit('+r.claim_id+',\''+_escHtml(r.description).replace(/'/g,'\\\'')+'\')" style="font-size:8px;background:rgba(255,171,145,.1);border:1px solid rgba(255,171,145,.2);color:#ffab91;padding:2px 6px;border-radius:4px;cursor:pointer">EDIT</button>'
+        +'</div>'
+        +'<div style="font-size:9px;color:var(--tx2)">'+_escHtml(r.description)+'</div>'
+      +'</div>';
+    }).join('');
+  }).catch(function(e){ listEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function prefillTdescEdit(claimId, text) {
+  var inp = document.getElementById('tdescClaimInput');
+  var ta  = document.getElementById('tdescTextInput');
+  var cnt = document.getElementById('tdescCharCount');
+  if (inp) inp.value  = claimId;
+  if (ta)  { ta.value = text; if (cnt) cnt.textContent = text.length+'/200'; }
+  loadClaimDescriptionPreview();
+  document.getElementById('tdescPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function saveTdescDescription() {
+  var wallet  = window._walletAddress;
+  var claimId = parseInt((document.getElementById('tdescClaimInput')||{}).value, 10);
+  var text    = ((document.getElementById('tdescTextInput')||{}).value || '').trim();
+  if (!wallet) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+  if (isNaN(claimId) || claimId < 1) { showToast(t('tdesc_claim_required')||'Enter a claim #','error'); return; }
+  if (!text) { showToast(t('tdesc_required')||'Enter a description','error'); return; }
+  var cfg = _tdescCfg || {};
+  var cost = cfg.firstGP != null ? cfg.firstGP : 0; // assume first for confirmation (actual check server-side)
+  gameConfirm({
+    title: t('tdesc_save_confirm') || 'Save Territory Description?',
+    body:  text,
+    cost:  cost > 0 ? cost+' GP' : (t('tdesc_free')||'Free'),
+    onConfirm: function() {
+      fetch('/api/tdesc/set', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet, claimId, text })
+      }).then(function(r){return r.json();}).then(function(d){
+        if (d.error) { showToast(d.error,'error'); return; }
+        showToast(t('tdesc_saved')||'✅ Description saved!');
+        loadMyTdescs();
+        loadClaimDescriptionPreview();
+        if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+      }).catch(function(e){ showToast(e.message,'error'); });
+    }
+  });
+}
+
+// Load description into territory info panel when clicking a claim
+function loadClaimDescriptionForInfo(claimId) {
+  var row  = document.getElementById('infoDescRow');
+  var text = document.getElementById('infoDescText');
+  if (!row || !text || !claimId) return;
+  row.style.display = 'none';
+  fetch('/api/tdesc/claim/'+claimId).then(function(r){return r.json();}).then(function(d){
+    if (d.description && d.description.description) {
+      text.textContent = d.description.description;
+      row.style.display = 'block';
+    }
+  }).catch(function(){});
 }
 
 // ── GP Broadcast System (Migration 126) ──────────────────────────────────────

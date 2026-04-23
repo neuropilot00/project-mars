@@ -3516,4 +3516,33 @@ router.post('/status/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── GP Territory Description Admin (Migration 137) ───────────────────────────
+
+router.get('/tdesc', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/tdesc'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, recent: [] });
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/tdesc/:claimId', adminAuth, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    await pool.query(`DELETE FROM territory_descriptions WHERE claim_id=$1`, [req.params.claimId]);
+    await auditLog(req, 'tdesc_delete', req.params.claimId, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/tdesc/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('tdesc_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'tdesc_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
