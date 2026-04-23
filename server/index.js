@@ -108,6 +108,7 @@ const wagerRoutes       = require('./routes/wager');
 const tevtRoutes        = require('./routes/tevt');
 const prestigeRoutes    = require('./routes/prestige');
 const beaconRoutes      = require('./routes/beacon');
+const donationRoutes    = require('./routes/donation');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -248,6 +249,7 @@ app.use('/api', wagerRoutes);
 app.use('/api', tevtRoutes);
 app.use('/api', prestigeRoutes);
 app.use('/api', beaconRoutes);
+app.use('/api', donationRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);

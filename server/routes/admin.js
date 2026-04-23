@@ -3438,4 +3438,24 @@ router.post('/beacons/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Donation Wall Admin (Migration 134) ──────────────────────────────────────
+
+router.get('/donation', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/donation'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, top: [] });
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/donation/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('donation_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'donation_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
