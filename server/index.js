@@ -77,6 +77,7 @@ const sectorRoutes = require('./routes/sectors');
 const siegeRoutes = require('./routes/siege');
 const publicRoutes = require('./routes/public');
 const bettingRoutes = require('./routes/betting');
+const auctionRoutes = require('./routes/auction');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -186,6 +187,7 @@ app.use('/api', sectorRoutes);
 app.use('/api', siegeRoutes);
 app.use('/api', publicRoutes);
 app.use('/api', bettingRoutes);
+app.use('/api', auctionRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -692,6 +694,18 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[BETTING] Close-expired-events scheduler started (5min interval)');
     } catch(e) { console.warn('[BETTING] Could not init close-expired scheduler:', e.message); }
+
+    // ── Auction: Settle Expired Auctions (every 5 minutes) ──
+    try {
+      const { settleExpiredAuctions } = require('./services/auction');
+      setInterval(async () => {
+        try {
+          const n = await settleExpiredAuctions();
+          if (n > 0) console.log(`[AUCTION] Auto-settled ${n} expired auction(s)`);
+        } catch(e) { console.warn('[AUCTION] settle error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[AUCTION] Auto-settle scheduler started (5min interval)');
+    } catch(e) { console.warn('[AUCTION] Could not init auto-settle scheduler:', e.message); }
 
     // ── Marketplace Listing Expiry ──
     try {

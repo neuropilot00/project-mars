@@ -3885,9 +3885,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-pane" id="basePane_market">
         <!-- Sub-view toggle -->
         <div style="display:flex;gap:6px;justify-content:space-between;align-items:center;padding:4px 2px 8px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:8px">
-          <div style="display:flex;gap:4px">
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
             <button class="mkt-view-btn active" onclick="switchMarketView('browse',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.15);color:#a064dc;cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="mkt_browse">🏪 BROWSE</button>
             <button class="mkt-view-btn" onclick="switchMarketView('sell',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="mkt_sell">💰 SELL</button>
+            <button class="mkt-view-btn" onclick="switchMarketView('auction',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="mkt_auction">🔨 AUCTION</button>
             <button class="mkt-view-btn" onclick="switchMarketView('mine',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="mkt_my_listings">📋 MY LISTINGS</button>
           </div>
         </div>
@@ -3914,6 +3915,24 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
         <!-- Sell view (hidden) -->
         <div id="mktSellView" style="display:none"></div>
+        <!-- Auction view (hidden) -->
+        <div id="mktAuctionView" style="display:none">
+          <!-- Auction filters -->
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+            <select id="auctFilterType" onchange="loadAuctions()" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+              <option value="">ALL TYPES</option>
+              <option value="cosmetic">🎨 COSMETIC</option>
+              <option value="item">📦 ITEM</option>
+              <option value="claim">🗺️ TERRITORY</option>
+              <option value="resource">⛏️ RESOURCE</option>
+            </select>
+            <button class="sz-btn" onclick="loadAuctions()" style="font-size:8px;padding:4px 8px;color:var(--gold);border-color:rgba(255,209,102,.3)">↻ REFRESH</button>
+          </div>
+          <!-- Auction cards -->
+          <div id="auctionGrid" style="display:flex;flex-direction:column;gap:8px">
+            <div style="text-align:center;color:var(--tx3);padding:32px 0;font-size:10px" data-i18n="mkt_loading">Loading auctions...</div>
+          </div>
+        </div>
         <!-- My listings (hidden) -->
         <div id="mktMyView" style="display:none"></div>
       </div>
@@ -10193,6 +10212,18 @@ var I18N = {
     mkt_fee_note: 'Listing fee: 2 GP · Sale fee: 5%', mkt_listed: 'Item listed on marketplace!',
     mkt_sellable_items: 'SELLABLE ITEMS', mkt_no_items: 'No items to sell. Materialize cosmetics from SHOP → MY ITEMS first.',
     mkt_no_listings: 'No listings yet',
+    // ── AUCTION section ──
+    mkt_auction: '🔨 AUCTION',
+    auc_none: 'No active auctions', auc_ended: 'ENDED', auc_current_bid: 'Bid',
+    auc_buyout: 'Buyout', auc_bid: 'BID', auc_buy_now: 'BUY NOW', auc_cancel: 'CANCEL',
+    auc_bid_title: 'Place Bid', auc_min_bid: 'Minimum bid', auc_your_bid: 'Your bid',
+    auc_confirm_bid: 'PLACE BID', auc_too_low: 'Bid must be at least ',
+    auc_bid_placed: 'Bid placed!', auc_buyout_title: 'Buy Now',
+    auc_buyout_confirm: 'Purchase this item at the buyout price?',
+    auc_confirm_buyout: 'BUY NOW', auc_bought: 'Item purchased!',
+    auc_cancel_title: 'Cancel Auction',
+    auc_cancel_confirm: 'Cancel this auction? (Only allowed with no bids)',
+    auc_confirm_cancel: 'CANCEL AUCTION', auc_cancelled: 'Auction cancelled',
     // ── RESOURCE section ──
     res_section_title: 'RESOURCES',
     res_empty: 'No resources yet. Harvest your territory to find minerals!',
@@ -10729,6 +10760,18 @@ var I18N = {
     mkt_fee_note: '등록비: 2 GP · 판매 수수료: 5%', mkt_listed: '마켓에 등록되었습니다!',
     mkt_sellable_items: '판매 가능 아이템', mkt_no_items: '판매할 아이템이 없습니다. 상점→내 아이템에서 코스메틱을 먼저 변환하세요.',
     mkt_no_listings: '등록된 리스팅이 없습니다',
+    // ── AUCTION section ──
+    mkt_auction: '🔨 경매',
+    auc_none: '진행 중인 경매가 없습니다', auc_ended: '종료됨', auc_current_bid: '입찰가',
+    auc_buyout: '즉구', auc_bid: '입찰', auc_buy_now: '즉구', auc_cancel: '취소',
+    auc_bid_title: '입찰하기', auc_min_bid: '최소 입찰가', auc_your_bid: '내 입찰가',
+    auc_confirm_bid: '입찰하기', auc_too_low: '최소 입찰가는 ',
+    auc_bid_placed: '입찰 완료!', auc_buyout_title: '즉시 구매',
+    auc_buyout_confirm: '즉구가로 아이템을 구매하시겠습니까?',
+    auc_confirm_buyout: '즉구하기', auc_bought: '구매 완료!',
+    auc_cancel_title: '경매 취소',
+    auc_cancel_confirm: '경매를 취소하시겠습니까? (입찰 없는 경우만 가능)',
+    auc_confirm_cancel: '경매 취소', auc_cancelled: '경매가 취소되었습니다',
     // ── RESOURCE section ──
     res_section_title: '광물 자원',
     res_empty: '자원이 없습니다. 영토를 수확하면 광물이 드롭됩니다!',
@@ -11264,6 +11307,18 @@ var I18N = {
     mkt_fee_note: '出品料: 2 GP · 販売手数料: 5%', mkt_listed: 'マーケットに出品しました！',
     mkt_sellable_items: '出品可能アイテム', mkt_no_items: '出品できるアイテムがありません。ショップ→マイアイテムでコスメを変換してください。',
     mkt_no_listings: '出品がありません',
+    // ── AUCTION section ──
+    mkt_auction: '🔨 オークション',
+    auc_none: 'アクティブなオークションはありません', auc_ended: '終了', auc_current_bid: '現在の入札',
+    auc_buyout: '即決', auc_bid: '入札', auc_buy_now: '即決', auc_cancel: 'キャンセル',
+    auc_bid_title: '入札する', auc_min_bid: '最低入札額', auc_your_bid: '入札額',
+    auc_confirm_bid: '入札する', auc_too_low: '入札は最低でも',
+    auc_bid_placed: '入札完了！', auc_buyout_title: '即決購入',
+    auc_buyout_confirm: '即決価格でこのアイテムを購入しますか？',
+    auc_confirm_buyout: '即決購入', auc_bought: '購入完了！',
+    auc_cancel_title: 'オークションキャンセル',
+    auc_cancel_confirm: 'このオークションをキャンセルしますか？（入札なしの場合のみ）',
+    auc_confirm_cancel: 'キャンセル', auc_cancelled: 'オークションがキャンセルされました',
     // ── RESOURCE section ──
     res_section_title: '鉱物資源',
     res_empty: 'まだ資源がありません。領土をハーベストして鉱物を見つけよう！',
@@ -11783,6 +11838,18 @@ var I18N = {
     mkt_fee_note: '上架费: 2 GP · 销售手续费: 5%', mkt_listed: '已上架到市场！',
     mkt_sellable_items: '可出售道具', mkt_no_items: '没有可出售的道具。请先在商店→我的道具中转换装饰品。',
     mkt_no_listings: '暂无上架',
+    // ── AUCTION section ──
+    mkt_auction: '🔨 拍卖',
+    auc_none: '暂无活跃拍卖', auc_ended: '已结束', auc_current_bid: '当前出价',
+    auc_buyout: '一口价', auc_bid: '出价', auc_buy_now: '立即购买', auc_cancel: '取消',
+    auc_bid_title: '出价', auc_min_bid: '最低出价', auc_your_bid: '您的出价',
+    auc_confirm_bid: '确认出价', auc_too_low: '出价至少需要',
+    auc_bid_placed: '出价成功！', auc_buyout_title: '立即购买',
+    auc_buyout_confirm: '以一口价购买此道具？',
+    auc_confirm_buyout: '立即购买', auc_bought: '购买成功！',
+    auc_cancel_title: '取消拍卖',
+    auc_cancel_confirm: '取消此拍卖？（仅限无出价时）',
+    auc_confirm_cancel: '取消拍卖', auc_cancelled: '拍卖已取消',
     // ── RESOURCE section ──
     res_section_title: '矿物资源',
     res_empty: '还没有资源。收获领土来发现矿物！',
@@ -14488,9 +14555,11 @@ function switchMarketView(view,el){
   document.getElementById('mktBrowseGrid').style.display=(view==='browse')?'grid':'none';
   document.getElementById('mktFilters').style.display=(view==='browse')?'flex':'none';
   document.getElementById('mktSellView').style.display=(view==='sell')?'block':'none';
+  document.getElementById('mktAuctionView').style.display=(view==='auction')?'block':'none';
   document.getElementById('mktMyView').style.display=(view==='mine')?'block':'none';
   if(view==='browse') loadMarketListings();
   if(view==='sell') loadSellView();
+  if(view==='auction') loadAuctions();
   if(view==='mine') loadMyListings();
 }
 
@@ -14709,6 +14778,133 @@ function loadMyListings(){
     el.innerHTML=html;
   }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px">Failed to load</div>'});
 }
+
+// ══════════════════════════════════════
+// AUCTION SYSTEM
+// ══════════════════════════════════════
+var _auctionTimers=[];
+
+function _auctionTimeLeft(endsAt){
+  var diff=Math.max(0,new Date(endsAt)-Date.now());
+  if(!diff) return t('auc_ended')||'ENDED';
+  var h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+  if(h>0) return h+'h '+m+'m';
+  if(m>0) return m+'m '+s+'s';
+  return s+'s';
+}
+
+function loadAuctions(){
+  var el=document.getElementById('auctionGrid');
+  if(!el) return;
+  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
+  var typeFilter=document.getElementById('auctFilterType');
+  var typeVal=typeFilter?typeFilter.value:'';
+  var url='/api/auctions?status=active&limit=30'+(typeVal?'&type='+encodeURIComponent(typeVal):'');
+  fetch(url).then(function(r){return r.json()}).then(function(d){
+    var auctions=d.auctions||[];
+    if(!auctions.length){
+      el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('auc_none')||'No active auctions')+'</div>';
+      return;
+    }
+    var html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
+    auctions.forEach(function(a){
+      var meta=a.meta||{};
+      var w=(walletState&&walletState.address)||'';
+      var isSelf=(w&&a.seller_wallet&&w.toLowerCase()===a.seller_wallet.toLowerCase());
+      var hasBid=a.current_bid>0;
+      var minBid=hasBid?Math.ceil(a.current_bid*1.05):a.start_price;
+      var itemLabel=a.item_type==='cosmetic'?(meta.itemIcon||'🎨')+' '+(meta.itemName||'Cosmetic')
+        :a.item_type==='item'?'📦 '+(meta.itemName||'Item')
+        :a.item_type==='claim'?'🗺️ Territory #'+a.claim_id
+        :'⚙️ '+(a.resource_quantity||0)+'× '+(a.resource_code||'Resource');
+      var enhLv=meta.enhancementLevel||0;
+      html+='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,165,0,.15);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px">'
+        +'<div style="font-size:10px;font-weight:700;color:var(--gold)">'+itemLabel+(enhLv>0?_enhBadge(enhLv):'')+'</div>'
+        +'<div style="font-size:9px;color:var(--tx3)">'+(t('auc_current_bid')||'Bid')+': <span style="color:#fff;font-weight:700">'+(hasBid?a.current_bid:a.start_price)+' '+a.currency+'</span></div>'
+        +(a.buyout_price?'<div style="font-size:8px;color:#4cd89a">'+(t('auc_buyout')||'Buyout')+': '+a.buyout_price+' '+a.currency+'</div>':'')
+        +'<div class="auc-timer-'+a.id+'" style="font-size:8px;color:var(--tx3)">⏱ '+_auctionTimeLeft(a.ends_at)+'</div>'
+        +'<div style="display:flex;gap:4px;margin-top:auto">'
+        +(!isSelf?'<button onclick="govPlaceAuctionBid('+a.id+','+minBid+',\''+a.currency+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(255,165,0,.4);background:rgba(255,165,0,.1);color:var(--gold);cursor:pointer;font-family:var(--fn)">🔨 '+(t('auc_bid')||'BID')+'</button>':'')
+        +(a.buyout_price&&!isSelf?'<button onclick="govAuctionBuyout('+a.id+',\''+a.currency+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(76,216,154,.4);background:rgba(76,216,154,.1);color:#4cd89a;cursor:pointer;font-family:var(--fn)">⚡ '+(t('auc_buy_now')||'BUY')+'</button>':'')
+        +(isSelf&&!hasBid?'<button onclick="govCancelAuction('+a.id+')" style="flex:1;font-size:8px;padding:4px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('auc_cancel')||'CANCEL')+'</button>':'')
+        +'</div>'
+        +'</div>';
+    });
+    html+='</div>';
+    el.innerHTML=html;
+    // live timers
+    _auctionTimers.forEach(function(id){clearInterval(id)});
+    _auctionTimers=[];
+    auctions.forEach(function(a){
+      var tid=setInterval(function(){
+        var span=el.querySelector('.auc-timer-'+a.id);
+        if(span) span.textContent='⏱ '+_auctionTimeLeft(a.ends_at);
+      },1000);
+      _auctionTimers.push(tid);
+    });
+  }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px">Failed to load</div>'});
+}
+
+window.govPlaceAuctionBid=function(auctionId,minBid,currency){
+  var w=(walletState&&walletState.address)||'';
+  if(!w){showToast(t('connect_wallet')||'Connect wallet first','error');return;}
+  gameConfirm({
+    title:t('auc_bid_title')||'Place Bid',icon:'🔨',
+    body:'<div style="margin-bottom:8px;font-size:10px;color:var(--gold)">'+(t('auc_min_bid')||'Minimum bid')+': <strong>'+minBid+' '+currency+'</strong></div>'
+      +'<div style="display:flex;gap:6px;align-items:center">'
+      +'<label style="font-size:9px;color:var(--tx3);min-width:50px">'+(t('auc_your_bid')||'Your bid')+'</label>'
+      +'<input id="aucBidAmt" type="number" min="'+minBid+'" value="'+minBid+'" style="flex:1;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,165,0,.3);color:#fff;border-radius:4px;font-family:var(--fn)">'
+      +'<span style="font-size:9px;color:var(--tx3)">'+currency+'</span>'
+      +'</div>',
+    info:[],confirmText:t('auc_confirm_bid')||'PLACE BID'
+  }).then(function(ok){
+    if(!ok) return;
+    var amt=parseInt(document.getElementById('aucBidAmt').value);
+    if(!amt||amt<minBid){showToast((t('auc_too_low')||'Bid must be at least ')+minBid,'error');return;}
+    fetch('/api/auction/'+auctionId+'/bid',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,amount:amt})})
+    .then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error,'error');return;}
+      showToast('🔨 '+(t('auc_bid_placed')||'Bid placed!'));
+      refreshBalance();loadAuctions();
+    }).catch(function(){showToast('Bid failed','error')});
+  });
+};
+
+window.govAuctionBuyout=function(auctionId,currency){
+  var w=(walletState&&walletState.address)||'';
+  if(!w){showToast(t('connect_wallet')||'Connect wallet first','error');return;}
+  gameConfirm({
+    title:t('auc_buyout_title')||'Buy Now',icon:'⚡',
+    body:'<div style="font-size:10px;color:#4cd89a">'+(t('auc_buyout_confirm')||'Purchase this item at the buyout price?')+'</div>',
+    info:[],confirmText:t('auc_confirm_buyout')||'BUY NOW'
+  }).then(function(ok){
+    if(!ok) return;
+    fetch('/api/auction/'+auctionId+'/buyout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w})})
+    .then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error,'error');return;}
+      showToast('⚡ '+(t('auc_bought')||'Item purchased!'));
+      refreshBalance();loadAuctions();loadItemInstances();
+    }).catch(function(){showToast('Buyout failed','error')});
+  });
+};
+
+window.govCancelAuction=function(auctionId){
+  var w=(walletState&&walletState.address)||'';
+  if(!w) return;
+  gameConfirm({
+    title:t('auc_cancel_title')||'Cancel Auction',icon:'❌',
+    body:'<div style="font-size:10px;color:var(--tx3)">'+(t('auc_cancel_confirm')||'Cancel this auction? (Only allowed with no bids)')+'</div>',
+    info:[],confirmText:t('auc_confirm_cancel')||'CANCEL AUCTION'
+  }).then(function(ok){
+    if(!ok) return;
+    fetch('/api/auction/'+auctionId+'/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w})})
+    .then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error,'error');return;}
+      showToast('✅ '+(t('auc_cancelled')||'Auction cancelled'));
+      refreshBalance();loadAuctions();
+    }).catch(function(){showToast('Cancel failed','error')});
+  });
+};
 
 // ══════════════════════════════════════
 // ITEM ENHANCEMENT SYSTEM
