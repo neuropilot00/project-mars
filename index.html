@@ -4206,6 +4206,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <button class="base-shop-view active" onclick="switchBaseShopView('shop',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.15);color:var(--gold);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_shop_btn">🛒 SHOP</button>
             <button class="base-shop-view" onclick="switchBaseShopView('inventory',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_inv_btn">🎒 MY ITEMS</button>
             <button class="base-shop-view" onclick="switchBaseShopView('crafting',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_craft_btn">⚗️ CRAFT</button>
+            <button class="base-shop-view" onclick="switchBaseShopView('lucky',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_lucky_btn">📦 CRATES</button>
           </div>
           <div style="display:flex;gap:8px">
             <span style="color:var(--pp)"><b id="baseShopBalPP">0</b> PP</span>
@@ -4250,6 +4251,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div id="craftHistoryPanel" style="display:none;margin-top:8px"></div>
           </div>
         </div>
+
+        <!-- Lucky Box panel (hidden by default) -->
+        <div id="baseLuckyBoxPanel" style="display:none">
+          <div id="luckyBoxList" style="display:flex;flex-direction:column;gap:8px">
+            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">Loading crates…</div>
+          </div>
+          <!-- Recent opens feed -->
+          <div style="border-top:1px solid rgba(255,255,255,.06);margin-top:12px;padding-top:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <span style="font-size:9px;color:#ffcc02;font-family:var(--fn);font-weight:700;letter-spacing:1px" data-i18n="lucky_box_recent_title">🎉 RECENT OPENS</span>
+              <button onclick="loadLuckyBoxRecentFeed()" style="font-size:9px;background:rgba(255,204,2,.08);border:1px solid rgba(255,204,2,.2);color:#ffcc02;padding:2px 7px;border-radius:4px;cursor:pointer">↻</button>
+            </div>
+            <div id="luckyBoxFeed" style="display:flex;flex-direction:column;gap:3px;max-height:160px;overflow-y:auto"></div>
+          </div>
+          <!-- My history toggle -->
+          <div style="margin-top:8px">
+            <button onclick="toggleLuckyBoxHistory()" style="font-size:9px;padding:4px 12px;border-radius:10px;border:1px solid rgba(255,204,2,.2);background:rgba(255,204,2,.06);color:#ffcc02;cursor:pointer;font-family:var(--fn)" data-i18n="lucky_box_my_history">📜 MY HISTORY</button>
+            <div id="luckyBoxHistoryPanel" style="display:none;margin-top:8px"></div>
+          </div>
+        </div>
+
       </div>
 
       <!-- TAB: MARKET -->
@@ -10873,6 +10895,7 @@ var I18N = {
     rental_title: 'TERRITORY RENTAL', rental_tab_browse: 'BROWSE', rental_tab_my: 'MY RENTALS', rental_list_btn: '+ LIST TERRITORY', rental_rent_btn: '🏘️ RENT', rental_cancel_btn: 'CANCEL LISTING', rental_no_listings: 'No territories listed for rent', rental_no_my: 'No rental activity yet', rental_no_territories: 'No territories to list', rental_cancelled: 'Listing cancelled', rental_gp_prompt: 'GP per period:',
     duel_title: 'GP DUELS', duel_challenge_btn: '⚔️ CHALLENGE', duel_tab_pending: 'INCOMING', duel_tab_my: 'MY DUELS', duel_tab_recent: 'LEADERBOARD', duel_modal_title: 'CHALLENGE TO DUEL', duel_modal_sub: 'Winner takes pot minus 5% house fee', duel_target_label: 'OPPONENT WALLET / NICKNAME', duel_wager_label: 'YOUR WAGER (GP)', duel_challenge_submit: '⚔️ SEND CHALLENGE', duel_accept_btn: '⚔️ ACCEPT', duel_decline_btn: '✕ DECLINE', duel_cancel_btn: 'CANCEL', duel_no_pending: 'No incoming challenges', duel_no_history: 'No duel history', duel_no_recent: 'No recent duels', duel_accept_confirm: 'Accept duel and match the wager?', duel_decline_confirm: 'Decline this duel challenge?', duel_cancelled_refund: 'Duel cancelled. GP refunded.', duel_challenge_sent: '⚔️ Challenge sent! Opponent has 30 min to accept.', duel_enter_target: 'Enter opponent wallet or nickname', duel_enter_wager: 'Enter a valid wager',
     alliance_title: 'ALLIANCES', alliance_members: 'MEMBERS', alliance_treasury: 'TREASURY', alliance_defense: 'DEFENSE BONUS', alliance_join_btn: 'JOIN', alliance_join_confirm: 'Join Alliance?', alliance_leave_btn: '🚪 LEAVE', alliance_leave_title: 'Leave Alliance?', alliance_leave_confirm: 'You will be removed from the alliance.', alliance_deposit_btn: '💰 DEPOSIT', alliance_withdraw_btn: '📤 WITHDRAW', alliance_deposit_prompt: 'How much GP to deposit?', alliance_withdraw_prompt: 'Withdraw GP from treasury (fee applies):', alliance_withdraw_note_prompt: 'Note (optional):', alliance_create_title: 'CREATE ALLIANCE', alliance_create_btn: '🛡️ CREATE ALLIANCE', alliance_browse_title: 'BROWSE ALLIANCES', alliance_browse_hint: 'Search or scroll to find alliances',
+    base_lucky_btn: '📦 CRATES', lucky_box_open_btn: '🎁 OPEN', lucky_box_recent_title: '🎉 RECENT OPENS', lucky_box_my_history: '📜 MY HISTORY', lucky_box_confirm_title: 'Open Crate?',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11461,6 +11484,7 @@ var I18N = {
     rental_title: '영토 임대', rental_tab_browse: '둘러보기', rental_tab_my: '내 임대', rental_list_btn: '+ 영토 등록', rental_rent_btn: '🏘️ 임대하기', rental_cancel_btn: '등록 취소', rental_no_listings: '임대 가능한 영토 없음', rental_no_my: '임대 활동 없음', rental_no_territories: '등록할 영토 없음', rental_cancelled: '등록 취소됨', rental_gp_prompt: '기간당 GP:',
     duel_title: 'GP 결투', duel_challenge_btn: '⚔️ 도전', duel_tab_pending: '받은 도전', duel_tab_my: '내 결투', duel_tab_recent: '리더보드', duel_modal_title: '결투 도전', duel_modal_sub: '승자가 팟 가져감 (5% 수수료 차감)', duel_target_label: '상대 지갑/닉네임', duel_wager_label: '베팅 금액 (GP)', duel_challenge_submit: '⚔️ 도전장 보내기', duel_accept_btn: '⚔️ 수락', duel_decline_btn: '✕ 거절', duel_cancel_btn: '취소', duel_no_pending: '받은 도전 없음', duel_no_history: '결투 기록 없음', duel_no_recent: '최근 결투 없음', duel_accept_confirm: '도전을 수락하고 GP를 베팅하시겠습니까?', duel_decline_confirm: '이 결투 도전을 거절하시겠습니까?', duel_cancelled_refund: '결투 취소. GP 환급됨.', duel_challenge_sent: '⚔️ 도전장 전송! 상대방이 30분 내에 수락해야 합니다.', duel_enter_target: '상대 지갑 또는 닉네임을 입력하세요', duel_enter_wager: '유효한 베팅 금액을 입력하세요',
     alliance_title: '동맹', alliance_members: '멤버', alliance_treasury: '금고', alliance_defense: '방어 보너스', alliance_join_btn: '가입', alliance_join_confirm: '동맹에 가입하시겠습니까?', alliance_leave_btn: '🚪 탈퇴', alliance_leave_title: '동맹 탈퇴?', alliance_leave_confirm: '동맹에서 제거됩니다.', alliance_deposit_btn: '💰 입금', alliance_withdraw_btn: '📤 출금', alliance_deposit_prompt: '입금할 GP 금액:', alliance_withdraw_prompt: '금고에서 출금 (수수료 적용):', alliance_withdraw_note_prompt: '메모 (선택):', alliance_create_title: '동맹 창설', alliance_create_btn: '🛡️ 동맹 창설', alliance_browse_title: '동맹 목록', alliance_browse_hint: '검색하거나 스크롤하여 동맹을 찾으세요',
+    base_lucky_btn: '📦 크레이트', lucky_box_open_btn: '🎁 열기', lucky_box_recent_title: '🎉 최근 오픈', lucky_box_my_history: '📜 내 기록', lucky_box_confirm_title: '크레이트 오픈?',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -12048,6 +12072,7 @@ var I18N = {
     rental_title: '領土レンタル', rental_tab_browse: '参照', rental_tab_my: 'マイレンタル', rental_list_btn: '+ 領土登録', rental_rent_btn: '🏘️ 賃借', rental_cancel_btn: '登録取消', rental_no_listings: 'レンタル可能な領土なし', rental_no_my: 'レンタル活動なし', rental_no_territories: '登録する領土なし', rental_cancelled: '登録取消済', rental_gp_prompt: '期間あたりGP:',
     duel_title: 'GP決闘', duel_challenge_btn: '⚔️ 挑戦', duel_tab_pending: '受け取った挑戦', duel_tab_my: 'マイ決闘', duel_tab_recent: 'リーダーボード', duel_modal_title: '決闘に挑む', duel_modal_sub: '勝者がポット獲得（5%手数料）', duel_target_label: '相手のウォレット/ニックネーム', duel_wager_label: '賭け金（GP）', duel_challenge_submit: '⚔️ 挑戦状を送る', duel_accept_btn: '⚔️ 受け入れる', duel_decline_btn: '✕ 断る', duel_cancel_btn: 'キャンセル', duel_no_pending: '受け取った挑戦なし', duel_no_history: '決闘履歴なし', duel_no_recent: '最近の決闘なし', duel_accept_confirm: '挑戦を受け入れてGPを賭けますか？', duel_decline_confirm: 'この決闘挑戦を断りますか？', duel_cancelled_refund: '決闘キャンセル。GPが返金されました。', duel_challenge_sent: '⚔️ 挑戦状送信！相手が30分以内に受け入れる必要があります。', duel_enter_target: '相手のウォレットまたはニックネームを入力', duel_enter_wager: '有効な賭け金を入力してください',
     alliance_title: '同盟', alliance_members: 'メンバー', alliance_treasury: '金庫', alliance_defense: '防衛ボーナス', alliance_join_btn: '参加', alliance_join_confirm: '同盟に参加しますか？', alliance_leave_btn: '🚪 脱退', alliance_leave_title: '同盟を脱退？', alliance_leave_confirm: '同盟から削除されます。', alliance_deposit_btn: '💰 入金', alliance_withdraw_btn: '📤 出金', alliance_deposit_prompt: '入金するGP額:', alliance_withdraw_prompt: '金庫から出金（手数料あり）:', alliance_withdraw_note_prompt: 'メモ（任意）:', alliance_create_title: '同盟結成', alliance_create_btn: '🛡️ 同盟を結成', alliance_browse_title: '同盟一覧', alliance_browse_hint: '検索またはスクロールして同盟を探す',
+    base_lucky_btn: '📦 クレート', lucky_box_open_btn: '🎁 開ける', lucky_box_recent_title: '🎉 最近のオープン', lucky_box_my_history: '📜 マイ履歴', lucky_box_confirm_title: 'クレートを開く？',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12619,6 +12644,7 @@ var I18N = {
     rental_title: '领土租赁', rental_tab_browse: '浏览', rental_tab_my: '我的租赁', rental_list_btn: '+ 挂牌出租', rental_rent_btn: '🏘️ 租赁', rental_cancel_btn: '取消挂牌', rental_no_listings: '暂无可租领土', rental_no_my: '暂无租赁活动', rental_no_territories: '无可挂牌领土', rental_cancelled: '挂牌已取消', rental_gp_prompt: '每周期GP:',
     duel_title: 'GP决斗', duel_challenge_btn: '⚔️ 挑战', duel_tab_pending: '收到的挑战', duel_tab_my: '我的决斗', duel_tab_recent: '排行榜', duel_modal_title: '发起决斗', duel_modal_sub: '胜者获得奖池（扣除5%手续费）', duel_target_label: '对手钱包/昵称', duel_wager_label: '赌注（GP）', duel_challenge_submit: '⚔️ 发送挑战', duel_accept_btn: '⚔️ 接受', duel_decline_btn: '✕ 拒绝', duel_cancel_btn: '取消', duel_no_pending: '暂无收到的挑战', duel_no_history: '暂无决斗记录', duel_no_recent: '暂无近期决斗', duel_accept_confirm: '接受决斗并押注GP？', duel_decline_confirm: '拒绝此决斗挑战？', duel_cancelled_refund: '决斗已取消。GP已退还。', duel_challenge_sent: '⚔️ 挑战已发送！对手需在30分钟内接受。', duel_enter_target: '输入对手钱包或昵称', duel_enter_wager: '请输入有效赌注',
     alliance_title: '联盟', alliance_members: '成员', alliance_treasury: '金库', alliance_defense: '防御加成', alliance_join_btn: '加入', alliance_join_confirm: '加入联盟？', alliance_leave_btn: '🚪 退出', alliance_leave_title: '退出联盟？', alliance_leave_confirm: '您将被移出联盟。', alliance_deposit_btn: '💰 存入', alliance_withdraw_btn: '📤 提取', alliance_deposit_prompt: '存入多少GP？', alliance_withdraw_prompt: '从金库提取GP（含手续费）:', alliance_withdraw_note_prompt: '备注（可选）:', alliance_create_title: '创建联盟', alliance_create_btn: '🛡️ 创建联盟', alliance_browse_title: '浏览联盟', alliance_browse_hint: '搜索或滚动查找联盟',
+    base_lucky_btn: '📦 宝箱', lucky_box_open_btn: '🎁 开启', lucky_box_recent_title: '🎉 最近开启', lucky_box_my_history: '📜 我的记录', lucky_box_confirm_title: '开启宝箱？',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -15173,20 +15199,145 @@ function switchBaseShopView(view,el){
   var shopGrid=document.getElementById('baseShopGrid');
   var invGrid=document.getElementById('baseInvGrid');
   var craftPanel=document.getElementById('baseCraftingPanel');
+  var luckyPanel=document.getElementById('baseLuckyBoxPanel');
   var catRow=document.getElementById('baseShopCatRow');
   shopGrid.style.display='none';
   invGrid.style.display='none';
   if(craftPanel) craftPanel.style.display='none';
+  if(luckyPanel) luckyPanel.style.display='none';
   catRow.style.display='none';
   if(view==='inventory'){
     invGrid.style.display='grid';
     loadBaseInventory();
   }else if(view==='crafting'){
     if(craftPanel){ craftPanel.style.display='block'; loadCraftingView(); }
+  }else if(view==='lucky'){
+    if(el){
+      el.style.borderColor='rgba(255,204,2,.45)';
+      el.style.background='rgba(255,204,2,.15)';
+      el.style.color='#ffcc02';
+    }
+    if(luckyPanel){ luckyPanel.style.display='block'; loadLuckyBoxView(); }
   }else{
     shopGrid.style.display='grid';
     catRow.style.display='flex';
   }
+}
+
+// ── LUCKY BOX VIEW (Migration 120) ────────────────────────────────────────
+
+function loadLuckyBoxView() {
+  loadLuckyBoxTypes();
+  loadLuckyBoxRecentFeed();
+}
+
+function loadLuckyBoxTypes() {
+  var el = document.getElementById('luckyBoxList');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">Loading crates…</div>';
+  fetch('/api/lucky-boxes').then(function(r){return r.json();}).then(function(boxes){
+    if (!Array.isArray(boxes) || !boxes.length) {
+      el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">No crates available</div>';
+      return;
+    }
+    el.innerHTML = boxes.map(function(box) {
+      var catColor = {standard:'var(--gold)',premium:'#ce93d8',seasonal:'#81d4fa',event:'#ff8c42'}[box.category]||'var(--gold)';
+      var lootEntries = box.loot_table || [];
+      var topPrize = '';
+      var maxAmt = 0;
+      (lootEntries).forEach(function(e) { if (Number(e.amount) > maxAmt) { maxAmt = Number(e.amount); topPrize = e.label || String(e.amount); } });
+      return '<div style="padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(255,204,2,.08),rgba(255,204,2,.02));border:1px solid rgba(255,204,2,.2);display:flex;gap:10px;align-items:flex-start">'
+        + '<span style="font-size:36px;line-height:1;flex-shrink:0">' + (box.icon||'📦') + '</span>'
+        + '<div style="flex:1;min-width:0">'
+          + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
+            + '<span style="font-size:12px;color:var(--tx);font-weight:700">' + _escHtml(box.name) + '</span>'
+            + '<span style="font-size:8px;color:'+catColor+';font-family:var(--fn);padding:2px 5px;border:1px solid '+catColor+';border-radius:3px;opacity:.7">' + (box.category||'').toUpperCase() + '</span>'
+          + '</div>'
+          + '<div style="font-size:9px;color:var(--tx3);margin-bottom:6px">' + _escHtml(box.description||'') + '</div>'
+          + '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+            + '<div style="font-size:10px;color:#ffcc02;font-weight:700">' + parseFloat(box.cost_gp).toFixed(0) + ' GP</div>'
+            + (topPrize ? '<div style="font-size:9px;color:var(--tx3)">Top prize: <span style="color:#ffcc02">' + _escHtml(topPrize) + '</span></div>' : '')
+            + (box.max_per_day > 0 ? '<div style="font-size:9px;color:var(--tx3)">' + box.max_per_day + '/day</div>' : '')
+          + '</div>'
+        + '</div>'
+        + '<button onclick="openLuckyBox(' + box.id + ',\'' + _escHtml(box.name) + '\',' + parseFloat(box.cost_gp) + ')" style="flex-shrink:0;padding:8px 14px;border-radius:6px;background:linear-gradient(135deg,rgba(255,204,2,.3),rgba(255,204,2,.12));border:1px solid rgba(255,204,2,.5);color:#ffcc02;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700;white-space:nowrap" data-i18n="lucky_box_open_btn">🎁 OPEN</button>'
+        + '</div>';
+    }).join('');
+  }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:10px;text-align:center;padding:12px">'+e.message+'</div>'; });
+}
+
+function loadLuckyBoxRecentFeed() {
+  var el = document.getElementById('luckyBoxFeed');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading…</div>';
+  fetch('/api/lucky-boxes/recent?limit=15').then(function(r){return r.json();}).then(function(rows){
+    if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">No opens yet</div>'; return; }
+    el.innerHTML = rows.map(function(r) {
+      var nick = r.nick || (r.wallet.slice(0,8) + '…');
+      var rewardColor = r.reward_type === 'gp' || r.reward_type === 'gp_percent' ? '#ffcc02' : '#a0e8a0';
+      return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+        + '<span style="font-size:14px">' + (r.box_icon||'📦') + '</span>'
+        + '<span style="font-size:9px;color:var(--tx);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _escHtml(nick) + ' opened <b>' + _escHtml(r.box_name||'') + '</b></span>'
+        + '<span style="font-size:9px;color:'+rewardColor+';white-space:nowrap;font-weight:700">' + _escHtml(r.reward_label||'') + '</span>'
+        + '</div>';
+    }).join('');
+  }).catch(function(){});
+}
+
+function openLuckyBox(boxId, name, cost) {
+  var w = walletState && walletState.address;
+  if (!w) { showToast(t('err_connect_wallet')||'Connect wallet first','error'); return; }
+  gameConfirm({ title: t('lucky_box_confirm_title')||'Open Crate?', body: 'Open <b>' + _escHtml(name) + '</b> for <b>' + cost + ' GP</b>?' }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/lucky-boxes/open', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w, boxTypeId: boxId })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      var reward = d.reward || {};
+      var rewardStr = reward.label || (reward.type === 'gp' ? reward.amount + ' GP' : reward.type);
+      // Show result in a fun way
+      var isGood = (reward.type === 'gp' || reward.type === 'gp_percent') && reward.amount >= cost;
+      var resultColor = isGood ? '#ffcc02' : (reward.amount > 0 ? '#a0e8a0' : 'var(--tx)');
+      showToast((isGood ? '🎉 ' : '📦 ') + d.boxIcon + ' ' + rewardStr + (reward.type.includes('gp') ? ' received!' : ' won!'), 'success');
+      // Refresh boxes for daily limit update
+      loadLuckyBoxTypes();
+      loadLuckyBoxRecentFeed();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
+}
+
+function toggleLuckyBoxHistory() {
+  var panel = document.getElementById('luckyBoxHistoryPanel');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (!open) loadLuckyBoxHistory();
+}
+
+function loadLuckyBoxHistory() {
+  var el = document.getElementById('luckyBoxHistoryPanel');
+  if (!el) return;
+  var w = walletState && walletState.address;
+  if (!w) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Connect wallet first</div>'; return; }
+  el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Loading…</div>';
+  fetch('/api/lucky-boxes/my?wallet=' + encodeURIComponent(w) + '&limit=20')
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">No history yet</div>'; return; }
+      el.innerHTML = rows.map(function(r) {
+        var rewardColor = (r.reward_type === 'gp' || r.reward_type === 'gp_percent') ? '#ffcc02' : '#a0e8a0';
+        return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+          + '<span style="font-size:12px">' + (r.box_icon||'📦') + '</span>'
+          + '<div style="flex:1;min-width:0">'
+            + '<div style="font-size:9px;color:var(--tx)">' + _escHtml(r.box_name||'') + '</div>'
+            + '<div style="font-size:8px;color:var(--tx3)">' + new Date(r.created_at).toLocaleDateString() + ' · spent: ' + r.gp_spent + ' GP</div>'
+          + '</div>'
+          + '<span style="font-size:9px;color:'+rewardColor+';font-weight:700">' + _escHtml(r.reward_label||'') + '</span>'
+          + '</div>';
+      }).join('');
+    }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:10px">'+e.message+'</div>'; });
 }
 
 // ── CRAFTING VIEW ──────────────────────────────────────────────────────────

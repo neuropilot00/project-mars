@@ -94,6 +94,7 @@ const duelRoutes        = require('./routes/duel');
 const rentalRoutes      = require('./routes/rental');
 const contestRoutes     = require('./routes/contest');
 const allianceRoutes    = require('./routes/alliance');
+const luckyBoxRoutes    = require('./routes/luckyBox');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -220,6 +221,7 @@ app.use('/api', duelRoutes);
 app.use('/api', rentalRoutes);
 app.use('/api', contestRoutes);
 app.use('/api', allianceRoutes);
+app.use('/api', luckyBoxRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);

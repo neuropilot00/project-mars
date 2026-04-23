@@ -2746,4 +2746,73 @@ router.post('/alliances/:id/kick/:wallet', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// LUCKY BOX SYSTEM — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/lucky-boxes — stats + box types + settings
+router.get('/lucky-boxes', adminAuth, async (req, res) => {
+  let svc;
+  try { svc = require('../services/luckyBox'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/lucky-boxes/type — create a new box type
+router.post('/lucky-boxes/type', adminAuth, async (req, res) => {
+  const { name, icon, description, cost_gp, loot_table, max_per_day, category, sort_order } = req.body || {};
+  if (!name || !cost_gp || !loot_table) return res.status(400).json({ error: 'name, cost_gp, loot_table required' });
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO lucky_box_types (name, icon, description, cost_gp, loot_table, max_per_day, category, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
+      [name, icon||'📦', description||null, parseFloat(cost_gp),
+       typeof loot_table === 'string' ? loot_table : JSON.stringify(loot_table),
+       parseInt(max_per_day||10), category||'standard', parseInt(sort_order||0)]);
+    await auditLog(req, 'lucky_box_type_create', `box:${rows[0].id}`, { name });
+    res.json({ ok: true, id: rows[0].id });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// PUT /admin/api/lucky-boxes/type/:id — update box type
+router.put('/lucky-boxes/type/:id', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { name, icon, description, cost_gp, loot_table, max_per_day, category, sort_order, is_active } = req.body || {};
+  try {
+    await pool.query(
+      `UPDATE lucky_box_types SET
+         name=$1, icon=$2, description=$3, cost_gp=$4, loot_table=$5,
+         max_per_day=$6, category=$7, sort_order=$8, is_active=$9
+       WHERE id=$10`,
+      [name, icon||'📦', description||null, parseFloat(cost_gp),
+       typeof loot_table === 'string' ? loot_table : JSON.stringify(loot_table),
+       parseInt(max_per_day||10), category||'standard', parseInt(sort_order||0),
+       is_active !== false && is_active !== 'false', id]);
+    await auditLog(req, 'lucky_box_type_update', `box:${id}`, { name });
+    res.json({ ok: true });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/lucky-boxes/type/:id — soft-delete (deactivate) box type
+router.delete('/lucky-boxes/type/:id', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  try {
+    await pool.query('UPDATE lucky_box_types SET is_active=false WHERE id=$1', [id]);
+    await auditLog(req, 'lucky_box_type_delete', `box:${id}`, {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/lucky-boxes/setting — update lucky_box_* settings
+router.post('/lucky-boxes/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('lucky_box_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'lucky_box_setting_update', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
