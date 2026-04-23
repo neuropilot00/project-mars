@@ -3617,6 +3617,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="fleetPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_fleet_hint">Connect wallet to view your fleet.</div>
         </div>
 
+        <!-- Battles (Migration 093) -->
+        <div class="base-section-title" style="color:var(--red);cursor:pointer" onclick="toggleBattleSection()"><span data-i18n="gov_battle_title">⚔️ NAVAL BATTLES</span> <span id="battleToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
+        <div id="govBattleSection" style="display:none;margin-bottom:12px">
+          <div id="battlePanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_battle_hint">Connect wallet to view battles.</div>
+        </div>
+
         <!-- Hall of Fame -->
         <div class="base-section-title" style="color:var(--gold);cursor:pointer" onclick="toggleHallOfFame()"><span data-i18n="gov_hall_of_fame">🏆 HALL OF FAME</span> <span id="hofToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
         <div id="govHallOfFame" style="display:none;margin-bottom:12px">
@@ -10601,6 +10607,15 @@ var I18N = {
     gov_fleet_my: 'MY SHIPS', gov_fleet_max: '10 max', gov_shipyard: 'SHIPYARD',
     gov_ship_build: 'BUILD SHIP', gov_ship_built: 'built!', gov_ship_repair: 'REPAIR',
     gov_ship_repaired: 'Ship repaired!', gov_ship_repair_confirm: 'Repair this ship to full HP?',
+    gov_battle_title: '⚔️ NAVAL BATTLES', gov_battle_hint: 'Connect wallet to view battles.',
+    gov_battle_active: 'ACTIVE BATTLES', gov_battle_declare: 'DECLARE ATTACK',
+    gov_battle_declared: 'Battle declared! Awaiting defender response.',
+    gov_battle_history: 'BATTLE HISTORY', gov_battle_no_ships: 'Build ships first! No docked ships available.',
+    gov_battle_target_label: 'Target wallet', gov_battle_select_ships: 'Select ships (max 5)',
+    gov_battle_declare_confirm: 'DECLARE BATTLE', gov_battle_respond: 'Respond to Battle',
+    gov_battle_select_defender: 'Select ships to defend with', gov_battle_accept: 'ACCEPT & FIGHT',
+    gov_battle_fighting: 'Battle started! Results in ~60 seconds.',
+    gov_battle_cancelled_ok: 'Battle cancelled. GP refunded.',
     gov_hall_of_fame: '🏆 HALL OF FAME', gov_select_sector_hof: 'Select sector...',
     gov_select_hof_hint: 'Select a sector to view history.',
     // ── OPS tab ──
@@ -11154,6 +11169,15 @@ var I18N = {
     gov_fleet_my: '내 함선', gov_fleet_max: '최대 10', gov_shipyard: '조선소',
     gov_ship_build: '함선 건조', gov_ship_built: '건조 완료!', gov_ship_repair: '수리',
     gov_ship_repaired: '함선 수리 완료!', gov_ship_repair_confirm: '함선을 완전히 수리하시겠습니까?',
+    gov_battle_title: '⚔️ 해상 전투', gov_battle_hint: '지갑을 연결하여 전투를 확인하세요.',
+    gov_battle_active: '진행 중인 전투', gov_battle_declare: '전투 선포',
+    gov_battle_declared: '전투 선포 완료! 수비자의 응답을 기다리는 중.',
+    gov_battle_history: '전투 기록', gov_battle_no_ships: '함선을 먼저 건조하세요!',
+    gov_battle_target_label: '대상 지갑 주소', gov_battle_select_ships: '함선 선택 (최대 5)',
+    gov_battle_declare_confirm: '전투 선포', gov_battle_respond: '전투 응답',
+    gov_battle_select_defender: '방어에 사용할 함선 선택', gov_battle_accept: '응전!',
+    gov_battle_fighting: '전투 시작! 약 60초 후 결과 확인.',
+    gov_battle_cancelled_ok: '전투 취소됨. GP 환불.',
     gov_hall_of_fame: '🏆 명예의 전당', gov_select_sector_hof: '섹터 선택...',
     gov_select_hof_hint: '섹터를 선택하여 이력을 확인하세요.',
     // ── OPS tab ──
@@ -11698,6 +11722,15 @@ var I18N = {
     gov_fleet_my: '艦船一覧', gov_fleet_max: '最大10隻', gov_shipyard: '造船所',
     gov_ship_build: '建造', gov_ship_built: '建造完了！', gov_ship_repair: '修理',
     gov_ship_repaired: '修理完了！', gov_ship_repair_confirm: '艦船をフルHPに修理しますか？',
+    gov_battle_title: '⚔️ 海戦', gov_battle_hint: 'ウォレットを接続して海戦を確認。',
+    gov_battle_active: '進行中の戦闘', gov_battle_declare: '戦闘宣言',
+    gov_battle_declared: '戦闘宣言！防衛者の応答待ち。',
+    gov_battle_history: '戦闘履歴', gov_battle_no_ships: '先に艦船を建造してください！',
+    gov_battle_target_label: '標的ウォレット', gov_battle_select_ships: '艦船選択（最大5）',
+    gov_battle_declare_confirm: '戦闘宣言', gov_battle_respond: '戦闘応答',
+    gov_battle_select_defender: '防衛に使う艦船を選択', gov_battle_accept: '迎撃！',
+    gov_battle_fighting: '戦闘開始！約60秒後に結果。',
+    gov_battle_cancelled_ok: '戦闘キャンセル。GPを返還。',
     gov_hall_of_fame: '🏆 殿堂', gov_select_sector_hof: 'セクター選択...',
     gov_select_hof_hint: 'セクターを選択して履歴を表示。',
     ops_title: '戦術作戦',
@@ -12235,6 +12268,15 @@ var I18N = {
     gov_fleet_my: '我的战舰', gov_fleet_max: '最多10艘', gov_shipyard: '造船厂',
     gov_ship_build: '建造舰船', gov_ship_built: '建造完成！', gov_ship_repair: '修理',
     gov_ship_repaired: '舰船修理完成！', gov_ship_repair_confirm: '将此舰船修理至满HP？',
+    gov_battle_title: '⚔️ 海战', gov_battle_hint: '连接钱包以查看海战。',
+    gov_battle_active: '进行中的战斗', gov_battle_declare: '宣战',
+    gov_battle_declared: '已宣战！等待防守方响应。',
+    gov_battle_history: '战斗记录', gov_battle_no_ships: '请先建造战舰！',
+    gov_battle_target_label: '目标钱包地址', gov_battle_select_ships: '选择战舰（最多5艘）',
+    gov_battle_declare_confirm: '宣战', gov_battle_respond: '响应战斗',
+    gov_battle_select_defender: '选择防守战舰', gov_battle_accept: '应战！',
+    gov_battle_fighting: '战斗开始！约60秒后查看结果。',
+    gov_battle_cancelled_ok: '战斗已取消。GP已退还。',
     gov_hall_of_fame: '🏆 名人堂', gov_select_sector_hof: '选择区域...',
     gov_select_hof_hint: '选择区域以查看历史。',
     ops_title: '战术行动',
@@ -22119,6 +22161,173 @@ window.addEventListener('resize', function(){
         loadFleetPanel();
       }).catch(function(){showToast('Repair failed','error')});
     });
+  };
+
+  // ──────────────────────────────────────────────────────
+  // NAVAL BATTLES (Migration 093)
+  // ──────────────────────────────────────────────────────
+  window.toggleBattleSection = function() {
+    var el = document.getElementById('govBattleSection');
+    var tog = document.getElementById('battleToggle');
+    if (!el) return;
+    if (el.style.display === 'none') {
+      el.style.display = '';
+      if (tog) tog.textContent = '▲';
+      loadBattlePanel();
+    } else {
+      el.style.display = 'none';
+      if (tog) tog.textContent = '▼';
+    }
+  };
+
+  function loadBattlePanel() {
+    var panel = document.getElementById('battlePanel');
+    if (!panel) return;
+    var w = walletState.address;
+    if (!w) {
+      panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">'+(t('gov_battle_hint')||'Connect wallet to view battles.')+'</div>';
+      return;
+    }
+    panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
+    Promise.all([
+      fetch('/api/user/battles?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {battles:[]}}),
+      fetch('/api/battles?limit=5').then(function(r){return r.json()}).catch(function(){return {battles:[]}})
+    ]).then(function(res) {
+      var myBattles = res[0].battles || [];
+      var activeBattles = res[1].battles || [];
+      var myActive = myBattles.filter(function(b){return b.status==='pending'||b.status==='active'});
+      var html = '';
+      // Active battles involving me
+      if (myActive.length) {
+        html += '<div style="margin-bottom:8px">';
+        html += '<div style="font-size:9px;color:var(--red);font-weight:700;margin-bottom:5px">⚔️ '+(t('gov_battle_active')||'ACTIVE BATTLES')+'</div>';
+        myActive.forEach(function(b) {
+          var isAtk = b.attacker_wallet.toLowerCase() === w.toLowerCase();
+          var oppNick = isAtk ? (b.defender_nick || b.defender_wallet.slice(0,10)+'…') : (b.attacker_nick || b.attacker_wallet.slice(0,10)+'…');
+          var statusColor = b.status==='active'?'var(--red)':'var(--gold)';
+          html += '<div style="background:rgba(232,72,85,.05);border:1px solid rgba(232,72,85,.2);border-radius:6px;padding:8px;margin-bottom:6px">';
+          html += '<div style="font-size:10px;font-weight:700;color:var(--red)">';
+          html += (isAtk?'⚔️ ATTACKING: ':'🛡 DEFENDING vs ')+oppNick;
+          html += '</div>';
+          html += '<div style="font-size:8px;color:var(--tx3);margin:3px 0">Stake: <span style="color:var(--gold)">'+b.gp_stake+' GP</span> · <span style="color:'+statusColor+'">'+b.status.toUpperCase()+'</span></div>';
+          if (b.status === 'pending' && !isAtk) {
+            html += '<button onclick="govAcceptBattle('+b.id+')" style="margin-top:4px;font-size:8px;padding:4px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.4);background:rgba(76,216,154,.1);color:#4cd89a;cursor:pointer;font-family:var(--fn);font-weight:700">⚔️ RESPOND</button> ';
+          }
+          if (b.status === 'pending' && isAtk) {
+            html += '<button onclick="govCancelBattle('+b.id+')" style="margin-top:4px;font-size:8px;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">✕ CANCEL</button>';
+          }
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+      // Declare attack button
+      html += '<div style="border-top:1px solid rgba(232,72,85,.1);padding-top:8px">';
+      html += '<button onclick="govDeclareAttack()" style="width:100%;font-size:9px;font-weight:700;padding:7px;border-radius:5px;border:1px solid rgba(232,72,85,.4);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">⚔️ '+(t('gov_battle_declare')||'DECLARE ATTACK')+'</button>';
+      html += '</div>';
+      // Recent battles
+      var recent = myBattles.filter(function(b){return b.status==='completed'||b.status==='cancelled'}).slice(0,5);
+      if (recent.length) {
+        html += '<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px">';
+        html += '<div style="font-size:9px;color:var(--tx3);font-weight:700;margin-bottom:5px">'+(t('gov_battle_history')||'BATTLE HISTORY')+'</div>';
+        recent.forEach(function(b) {
+          var won = b.winner_wallet && b.winner_wallet.toLowerCase() === w.toLowerCase();
+          var oppNick = b.attacker_wallet.toLowerCase()===w.toLowerCase() ? (b.defender_nick||b.defender_wallet.slice(0,8)+'…') : (b.attacker_nick||b.attacker_wallet.slice(0,8)+'…');
+          html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:9px;border-radius:4px;margin-bottom:2px;background:rgba(255,255,255,.02)">';
+          html += '<span style="color:var(--tx2)">vs '+oppNick+'</span>';
+          html += '<span style="color:'+(won?'#4cd89a':'var(--red)')+';font-weight:700">'+(won?'✓ WIN':'✗ LOSS')+'</span>';
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+      panel.innerHTML = html;
+    });
+  }
+
+  window.govDeclareAttack = function() {
+    var w = walletState.address;
+    if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+    // Get docked ships for selection
+    fetch('/api/ships?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d) {
+      var docked = (d.ships||[]).filter(function(s){return s.status==='docked'});
+      if (!docked.length) { showToast(t('gov_battle_no_ships')||'Build ships first! No docked ships available.','error'); return; }
+      var shipOptions = docked.map(function(s){
+        return '<label style="display:flex;align-items:center;gap:6px;font-size:9px;cursor:pointer;margin-bottom:4px"><input type="checkbox" class="btl-ship-chk" value="'+s.id+'" style="accent-color:var(--red)">'+s.icon+' '+s.name+' (⚔'+s.attack+' 🛡'+s.defense+')</label>';
+      }).join('');
+      gameConfirm({
+        title: t('gov_battle_declare')||'Declare Attack', icon:'⚔️',
+        body: '<div style="margin-bottom:6px;font-size:9px;color:var(--tx3)">'+(t('gov_battle_target_label')||'Target wallet')+':</div>'
+          +'<input id="btlTargetWallet" placeholder="0x..." style="width:100%;font-size:9px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(232,72,85,.3);color:#fff;border-radius:4px;font-family:var(--fn);margin-bottom:8px;box-sizing:border-box">'
+          +'<div style="margin-bottom:4px;font-size:9px;color:var(--tx3)">'+(t('gov_battle_select_ships')||'Select ships (max 5)')+':</div>'
+          +shipOptions
+          +'<div style="display:flex;gap:6px;align-items:center;margin-top:6px">'
+          +'<label style="font-size:9px;color:var(--tx3);white-space:nowrap">GP Stake:</label>'
+          +'<input id="btlGpStake" type="number" min="10" value="50" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(232,72,85,.3);color:#fff;border-radius:4px;font-family:var(--fn)">'
+          +'</div>',
+        info: [], confirmText: '⚔️ '+(t('gov_battle_declare_confirm')||'DECLARE BATTLE')
+      }).then(function(ok) {
+        if (!ok) return;
+        var defender = (document.getElementById('btlTargetWallet').value||'').trim().toLowerCase();
+        var gpStake  = parseInt(document.getElementById('btlGpStake').value||'50');
+        var checked  = document.querySelectorAll('.btl-ship-chk:checked');
+        var shipIds  = Array.from(checked).map(function(el){return parseInt(el.value)});
+        if (!defender || defender.length < 10) { showToast('Enter a valid target wallet','error'); return; }
+        if (!shipIds.length) { showToast('Select at least 1 ship','error'); return; }
+        fetch('/api/battle/declare', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({wallet:w, defenderWallet:defender, shipIds:shipIds, gpStake:gpStake})
+        }).then(function(r){return r.json()}).then(function(d) {
+          if (d.error) { showToast(d.error,'error'); return; }
+          showToast('⚔️ '+(t('gov_battle_declared')||'Battle declared! Awaiting defender response.'));
+          loadBattlePanel();
+          loadFleetPanel();
+        }).catch(function(){showToast('Failed','error')});
+      });
+    });
+  };
+
+  window.govAcceptBattle = function(battleId) {
+    var w = walletState.address;
+    if (!w) return;
+    fetch('/api/ships?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d) {
+      var docked = (d.ships||[]).filter(function(s){return s.status==='docked'});
+      var shipOptions = docked.length
+        ? docked.map(function(s){
+            return '<label style="display:flex;align-items:center;gap:6px;font-size:9px;cursor:pointer;margin-bottom:4px"><input type="checkbox" class="btl-def-chk" value="'+s.id+'" style="accent-color:#4cd89a">'+s.icon+' '+s.name+' (⚔'+s.attack+' 🛡'+s.defense+')</label>';
+          }).join('')
+        : '<div style="font-size:9px;color:var(--tx3)">No ships available — you will auto-lose</div>';
+      gameConfirm({
+        title: t('gov_battle_respond')||'Respond to Battle', icon:'🛡',
+        body: '<div style="font-size:9px;color:var(--tx3);margin-bottom:6px">'+(t('gov_battle_select_defender')||'Select ships to defend with')+':</div>'+shipOptions,
+        info: [], confirmText: '🛡 '+(t('gov_battle_accept')||'ACCEPT & FIGHT')
+      }).then(function(ok) {
+        if (!ok) return;
+        var checked = document.querySelectorAll('.btl-def-chk:checked');
+        var shipIds = Array.from(checked).map(function(el){return parseInt(el.value)});
+        fetch('/api/battle/'+battleId+'/accept', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({wallet:w, shipIds:shipIds})
+        }).then(function(r){return r.json()}).then(function(d) {
+          if (d.error) { showToast(d.error,'error'); return; }
+          showToast('🛡 '+(t('gov_battle_fighting')||'Battle started! Results in ~60 seconds.'));
+          loadBattlePanel();
+          loadFleetPanel();
+        }).catch(function(){showToast('Failed','error')});
+      });
+    });
+  };
+
+  window.govCancelBattle = function(battleId) {
+    var w = walletState.address;
+    if (!w) return;
+    fetch('/api/battle/'+battleId+'/cancel', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({wallet:w})
+    }).then(function(r){return r.json()}).then(function(d) {
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast('✅ '+(t('gov_battle_cancelled_ok')||'Battle cancelled. GP refunded.'));
+      loadBattlePanel();
+      loadFleetPanel();
+    }).catch(function(){showToast('Failed','error')});
   };
 
   // Hall of Fame toggle + loader (uses game picker instead of native select)

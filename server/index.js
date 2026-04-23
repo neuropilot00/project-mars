@@ -79,6 +79,7 @@ const publicRoutes = require('./routes/public');
 const bettingRoutes = require('./routes/betting');
 const auctionRoutes = require('./routes/auction');
 const shipRoutes    = require('./routes/ships');
+const battleRoutes  = require('./routes/battle');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -190,6 +191,7 @@ app.use('/api', publicRoutes);
 app.use('/api', bettingRoutes);
 app.use('/api', auctionRoutes);
 app.use('/api', shipRoutes);
+app.use('/api', battleRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -708,6 +710,15 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[AUCTION] Auto-settle scheduler started (5min interval)');
     } catch(e) { console.warn('[AUCTION] Could not init auto-settle scheduler:', e.message); }
+
+    // ── Battle Engine: Settle Expired Battles (every 30 seconds) ──
+    try {
+      const { settleExpiredBattles } = require('./services/battle');
+      setInterval(async () => {
+        try { await settleExpiredBattles(); } catch(e) { console.warn('[BATTLE] settle error:', e.message); }
+      }, 30 * 1000);
+      console.log('[BATTLE] Auto-settle scheduler started (30s interval)');
+    } catch(e) { console.warn('[BATTLE] Could not init auto-settle scheduler:', e.message); }
 
     // ── Marketplace Listing Expiry ──
     try {

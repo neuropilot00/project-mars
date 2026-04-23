@@ -1191,6 +1191,16 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <p style="font-size:10px;color:#888;margin-top:8px">Ship settings: GAME SETTINGS → category <b>ships</b></p>
   </div>
 
+  <!-- ═══ BATTLES TAB (inside ships section) ═══ -->
+  <div class="section cat-ships" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--red)">⚔️ BATTLES</span>
+      <button onclick="loadBattlesAdmin()" style="font-size:10px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:var(--red);padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="battlesAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div id="battlesAdmList" style="overflow-x:auto"></div>
+  </div>
+
   <!-- ═══ ONBOARDING TAB ═══ -->
   <div class="section cat-onboarding" style="display:none">
     <div class="sec-header">
@@ -1264,7 +1274,7 @@ function switchTab(tab) {
   if (tab === 'resources') { loadResourcesAdmin(); }
   if (tab === 'onboarding') { loadOnboardingAdmin(); }
   if (tab === 'siege') { loadSiegeAdmin(); loadBettingAdmin(); loadHofAdmin(); }
-  if (tab === 'ships') { loadShipsAdmin(); }
+  if (tab === 'ships') { loadShipsAdmin(); loadBattlesAdmin(); }
 }
 
 // ── Language System ──
@@ -3938,6 +3948,53 @@ function loadShipsAdmin() {
         }).join('') + '</tbody></table>';
     })
     .catch(function(e) { statsEl.innerHTML = '<div style="color:red;font-size:10px">'+e.message+'</div>'; });
+}
+
+// BATTLES ADMIN
+// ══════════════════════════════════════
+function loadBattlesAdmin() {
+  var statsEl = document.getElementById('battlesAdmStats');
+  var listEl  = document.getElementById('battlesAdmList');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  fetch('/api/battles?limit=50', { headers: {'x-admin-secret':adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var battles = d.battles || [];
+      statsEl.innerHTML = [
+        statCard('Active', battles.filter(function(b){return b.status==='active'}).length, 'var(--red)'),
+        statCard('Pending', battles.filter(function(b){return b.status==='pending'}).length, 'var(--gold)')
+      ].join('');
+      if (!battles.length) { listEl.innerHTML = '<div style="font-size:10px;color:#888">No active battles</div>'; return; }
+      listEl.innerHTML = '<table class="data-table" style="font-size:9px"><thead><tr>'
+        + '<th>ID</th><th>Attacker</th><th>Defender</th><th>Status</th><th>Stake</th><th>Expires</th><th>Action</th></tr></thead><tbody>'
+        + battles.map(function(b) {
+          var exp = new Date(b.expires_at);
+          var expired = exp < new Date();
+          return '<tr>'
+            + '<td>#'+b.id+'</td>'
+            + '<td style="font-size:8px">'+(b.attacker_nick||b.attacker_wallet.slice(0,8)+'…')+'</td>'
+            + '<td style="font-size:8px">'+(b.defender_nick||b.defender_wallet.slice(0,8)+'…')+'</td>'
+            + '<td style="color:'+(b.status==='active'?'var(--red)':'var(--gold)')+'">'+b.status+'</td>'
+            + '<td>'+b.gp_stake+' GP</td>'
+            + '<td style="color:'+(expired?'#f44':'#888')+';font-size:8px">'+exp.toLocaleString()+'</td>'
+            + '<td><button onclick="adminResolveBattle('+b.id+')" style="font-size:8px;padding:2px 8px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:var(--red);border-radius:3px;cursor:pointer">RESOLVE</button></td>'
+            + '</tr>';
+        }).join('') + '</tbody></table>';
+    })
+    .catch(function(e) { statsEl.innerHTML = '<div style="color:red;font-size:10px">'+e.message+'</div>'; });
+}
+
+function adminResolveBattle(battleId) {
+  if (!confirm('Force resolve battle #'+battleId+'?')) return;
+  fetch('/api/admin/battle/'+battleId+'/resolve', {
+    method:'POST', headers:{'x-admin-secret':adminSecret}
+  }).then(function(r){return r.json()}).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    alert('Battle #'+battleId+' resolved. Winner: '+(d.winner||'?')+' · GP: '+d.gpAwarded);
+    loadBattlesAdmin();
+  }).catch(function(e){alert('Error: '+e.message)});
 }
 
 // Auto-focus auth input
