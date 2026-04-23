@@ -29,7 +29,11 @@ const ALL_CATEGORIES = [
   { key: 'astronaut',    col: 'rockets_joined',     label: 'Rocket Rider',      icon: '🚀', desc: 'Claim loot from the most rocket supply drops' },
   { key: 'weatherman',   col: 'weather_checks',     label: 'Storm Chaser',      icon: '🌪️', desc: 'Check the Mars weather forecast frequently' },
   { key: 'namer',        col: 'territory_renames',  label: 'Name Artist',       icon: '✏️', desc: 'Rename your territories the most times' },
-  { key: 'influencer',   col: 'shares_count',       label: 'Mars Influencer',   icon: '📤', desc: 'Share your stats and territory the most' }
+  { key: 'influencer',   col: 'shares_count',       label: 'Mars Influencer',   icon: '📤', desc: 'Share your stats and territory the most' },
+  { key: 'enhancer',    col: 'enhancements_done',  label: 'Master Crafter',    icon: '⚗️', desc: 'Attempt the most cosmetic item enhancements' },
+  { key: 'trader',      col: 'trades_completed',   label: 'Market Mogul',      icon: '🛒', desc: 'Complete the most marketplace & auction trades' },
+  { key: 'naval_champ', col: 'naval_wins',         label: 'Naval Champion',    icon: '⚓', desc: 'Win the most naval battles against other fleets' },
+  { key: 'shipwright',  col: 'ships_built',        label: 'Grand Shipwright',  icon: '🚢', desc: 'Build the most ships in your fleet' }
 ];
 
 // ═══════════════════════════════════════
@@ -95,7 +99,11 @@ async function addSeasonScore(wallet, category, amount) {
     rocket:         { col: 'rockets_joined',      settingKey: 'season_mult_rocket',    defaultMult: 0 },
     weather:        { col: 'weather_checks',      settingKey: 'season_mult_weather',   defaultMult: 0 },
     rename:         { col: 'territory_renames',   settingKey: 'season_mult_rename',    defaultMult: 0 },
-    share:          { col: 'shares_count',        settingKey: 'season_mult_share',     defaultMult: 0 }
+    share:          { col: 'shares_count',        settingKey: 'season_mult_share',     defaultMult: 0 },
+    enhance:        { col: 'enhancements_done',   settingKey: 'season_mult_enhance',   defaultMult: 1 },
+    trade:          { col: 'trades_completed',    settingKey: 'season_mult_trade',     defaultMult: 5 },
+    naval_win:      { col: 'naval_wins',          settingKey: 'season_mult_naval_win', defaultMult: 20 },
+    ship_build:     { col: 'ships_built',         settingKey: 'season_mult_ship_build',defaultMult: 3 }
   };
   const mapping = colMap[category];
   if (!mapping) return;

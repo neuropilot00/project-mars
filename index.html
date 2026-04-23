@@ -3925,6 +3925,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="mktBrowseGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
           <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px" data-i18n="mkt_loading">Loading marketplace...</div>
         </div>
+        <!-- Recent Sales (browse view) -->
+        <div id="mktRecentSalesWrap" style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:8px;color:var(--tx3);letter-spacing:1.5px" data-i18n="mkt_recent_sales">📈 RECENT SALES</span>
+            <button onclick="loadRecentSales()" style="font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)">↻</button>
+          </div>
+          <div id="mktRecentSalesGrid" style="display:flex;flex-direction:column;gap:4px">
+            <div style="text-align:center;color:var(--tx3);padding:12px 0;font-size:9px" data-i18n="mkt_loading">Loading...</div>
+          </div>
+        </div>
         <!-- Sell view (hidden) -->
         <div id="mktSellView" style="display:none"></div>
         <!-- Auction view (hidden) -->
@@ -10239,6 +10249,7 @@ var I18N = {
     mkt_browse: '🏪 BROWSE', mkt_sell: '💰 SELL', mkt_my_listings: '📋 MY LISTINGS',
     mkt_sort_newest: 'NEWEST', mkt_sort_cheap: 'CHEAPEST', mkt_sort_expensive: 'EXPENSIVE', mkt_sort_ending: 'ENDING SOON',
     mkt_loading: 'Loading marketplace...', mkt_empty: 'No listings found',
+    mkt_recent_sales: '📈 RECENT SALES', mkt_no_sales: 'No recent sales yet',
     mkt_buy: 'BUY', mkt_cancel: 'CANCEL', mkt_list_sell: 'SELL',
     mkt_buy_title: 'Purchase Item', mkt_price: 'Price', mkt_your_balance: 'Your Balance',
     mkt_buy_confirm: 'BUY NOW', mkt_bought: 'Purchase successful!',
@@ -10802,6 +10813,7 @@ var I18N = {
     mkt_browse: '🏪 둘러보기', mkt_sell: '💰 판매', mkt_my_listings: '📋 내 리스팅',
     mkt_sort_newest: '최신순', mkt_sort_cheap: '저렴한순', mkt_sort_expensive: '비싼순', mkt_sort_ending: '마감임박',
     mkt_loading: '마켓 로딩 중...', mkt_empty: '등록된 상품이 없습니다',
+    mkt_recent_sales: '📈 최근 거래', mkt_no_sales: '최근 거래 내역이 없습니다',
     mkt_buy: '구매', mkt_cancel: '취소', mkt_list_sell: '판매',
     mkt_buy_title: '아이템 구매', mkt_price: '가격', mkt_your_balance: '내 잔액',
     mkt_buy_confirm: '지금 구매', mkt_bought: '구매 성공!',
@@ -11364,6 +11376,7 @@ var I18N = {
     mkt_browse: '🏪 閲覧', mkt_sell: '💰 出品', mkt_my_listings: '📋 マイ出品',
     mkt_sort_newest: '新着順', mkt_sort_cheap: '安い順', mkt_sort_expensive: '高い順', mkt_sort_ending: '終了間近',
     mkt_loading: 'マーケット読込中...', mkt_empty: '出品がありません',
+    mkt_recent_sales: '📈 最近の取引', mkt_no_sales: '最近の取引はありません',
     mkt_buy: '購入', mkt_cancel: 'キャンセル', mkt_list_sell: '出品',
     mkt_buy_title: 'アイテム購入', mkt_price: '価格', mkt_your_balance: '残高',
     mkt_buy_confirm: '今すぐ購入', mkt_bought: '購入成功！',
@@ -11910,6 +11923,7 @@ var I18N = {
     mkt_browse: '🏪 浏览', mkt_sell: '💰 出售', mkt_my_listings: '📋 我的上架',
     mkt_sort_newest: '最新', mkt_sort_cheap: '最便宜', mkt_sort_expensive: '最贵', mkt_sort_ending: '即将结束',
     mkt_loading: '加载市场中...', mkt_empty: '暂无商品',
+    mkt_recent_sales: '📈 最近成交', mkt_no_sales: '暂无成交记录',
     mkt_buy: '购买', mkt_cancel: '取消', mkt_list_sell: '出售',
     mkt_buy_title: '购买道具', mkt_price: '价格', mkt_your_balance: '余额',
     mkt_buy_confirm: '立即购买', mkt_bought: '购买成功！',
@@ -14653,7 +14667,9 @@ function switchMarketView(view,el){
   document.getElementById('mktSellView').style.display=(view==='sell')?'block':'none';
   document.getElementById('mktAuctionView').style.display=(view==='auction')?'block':'none';
   document.getElementById('mktMyView').style.display=(view==='mine')?'block':'none';
-  if(view==='browse') loadMarketListings();
+  var rsWrap=document.getElementById('mktRecentSalesWrap');
+  if(rsWrap) rsWrap.style.display=(view==='browse')?'block':'none';
+  if(view==='browse'){ loadMarketListings(); loadRecentSales(); }
   if(view==='sell') loadSellView();
   if(view==='auction') loadAuctions();
   if(view==='mine') loadMyListings();
@@ -14678,6 +14694,37 @@ function loadMarketListings(){
     }
     grid.innerHTML=items.map(function(l){ return renderMarketCard(l); }).join('');
   }).catch(function(){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);font-size:10px">Failed to load</div>'});
+}
+
+function loadRecentSales(){
+  var el=document.getElementById('mktRecentSalesGrid');
+  if(!el) return;
+  fetch('/api/marketplace/recent-sales?limit=10')
+    .then(function(r){return r.json()})
+    .then(function(d){
+      var sales=(d.sales||d.recent||[]);
+      if(!sales.length){
+        el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">'+(t('mkt_no_sales')||'No recent sales')+'</div>';
+        return;
+      }
+      el.innerHTML=sales.map(function(s){
+        var meta=s.meta||{};
+        var icon=meta.itemIcon||'🗺️';
+        var name=meta.itemName||(s.listing_type==='claim'?'Territory':'Item');
+        var enh=meta.enhancementLevel>0?' <span style="color:var(--gold);font-weight:800">+'+meta.enhancementLevel+'</span>':'';
+        var ago=Math.round((Date.now()-new Date(s.sold_at))/60000);
+        var agoStr=ago<60?ago+'m':(Math.floor(ago/60)+'h');
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:6px">'
+          +'<span style="font-size:9px;color:var(--tx2)">'+icon+' '+name+enh+'</span>'
+          +'<div style="display:flex;align-items:center;gap:8px">'
+          +'<span style="font-size:10px;font-weight:800;color:var(--gold)">'+parseFloat(s.sale_price||s.price).toLocaleString()+'</span>'
+          +'<span style="font-size:8px;color:var(--tx3)">'+s.currency+'</span>'
+          +'<span style="font-size:8px;color:var(--tx3)">'+agoStr+'</span>'
+          +'</div></div>';
+      }).join('');
+    }).catch(function(){
+      if(el) el.innerHTML='';
+    });
 }
 
 function renderMarketCard(l){

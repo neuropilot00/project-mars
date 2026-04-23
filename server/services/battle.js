@@ -311,6 +311,13 @@ async function resolveBattle(battleId) {
     );
 
     await client.query('COMMIT');
+
+    // ✅ Season score for naval victory
+    try {
+      const seasonSvc = require('./season');
+      seasonSvc.addSeasonScore(winnerWallet, 'naval_win', 1).catch(() => {});
+    } catch (_re) {}
+
     return {
       success: true,
       battleId,

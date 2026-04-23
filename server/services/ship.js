@@ -97,6 +97,16 @@ async function buildShip(walletAddress, shipType) {
     );
 
     await client.query('COMMIT');
+
+    // ✅ Referral commission + season score
+    try {
+      const { creditReferralCommission } = require('../db');
+      const seasonSvc = require('./season');
+      await creditReferralCommission(client, walletAddress, 'ship_build', gpCost, 'gp');
+      seasonSvc.addSeasonScore(walletAddress, 'gp_spend', gpCost).catch(() => {});
+      seasonSvc.addSeasonScore(walletAddress, 'ship_build', 1).catch(() => {});
+    } catch (_re) {}
+
     return {
       success: true,
       ship: { ...ship, name: def.name, icon: def.icon },

@@ -220,6 +220,17 @@ async function buyListing(client, listingId, buyer) {
   // Deduct buyer balance
   await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [price, b]);
 
+  // ✅ Referral commission + season score (GP purchases only)
+  try {
+    const { creditReferralCommission } = require('../db');
+    const seasonSvc = require('./season');
+    if (currency === 'GP') {
+      await creditReferralCommission(client, b, 'market_buy', price, 'gp');
+      seasonSvc.addSeasonScore(b, 'gp_spend', price).catch(() => {});
+    }
+    seasonSvc.addSeasonScore(b, 'trade', 1).catch(() => {});
+  } catch (_re) {}
+
   // Calculate fee
   let feePct = parseFloat(await getSetting('marketplace_fee_pct') || '5');
   // ✅ [Job System] Merchant market fee discount (applied to seller)

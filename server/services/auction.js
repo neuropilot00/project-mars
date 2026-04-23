@@ -304,6 +304,15 @@ async function buyout(buyerWallet, auctionId) {
 
     await client.query('COMMIT');
 
+    // ✅ Referral commission + season score
+    try {
+      const { creditReferralCommission } = require('../db');
+      const seasonSvc = require('./season');
+      await creditReferralCommission(client, w, 'auction_buy', buyoutAmt, 'gp');
+      seasonSvc.addSeasonScore(w, 'gp_spend', buyoutAmt).catch(() => {});
+      seasonSvc.addSeasonScore(w, 'trade', 1).catch(() => {});
+    } catch (_re) {}
+
     // Marketplace sales title check
     if (titleService) {
       _checkMarketplaceSalesTitle(auction.seller_wallet).catch(() => {});
@@ -384,6 +393,15 @@ async function settleAuction(auctionId) {
         "UPDATE auctions SET status = 'settled', settled_at = NOW() WHERE id = $1", [id]
       );
       await client.query('COMMIT');
+
+      // ✅ Referral commission + season score for winner
+      try {
+        const { creditReferralCommission } = require('../db');
+        const seasonSvc = require('./season');
+        await creditReferralCommission(client, auction.current_bidder_wallet, 'auction_buy', auction.current_bid, 'gp');
+        seasonSvc.addSeasonScore(auction.current_bidder_wallet, 'gp_spend', auction.current_bid).catch(() => {});
+        seasonSvc.addSeasonScore(auction.current_bidder_wallet, 'trade', 1).catch(() => {});
+      } catch (_re) {}
 
       if (titleService) {
         _checkMarketplaceSalesTitle(auction.seller_wallet).catch(() => {});

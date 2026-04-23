@@ -144,6 +144,15 @@ async function enhanceItem(client, wallet, instanceId) {
     [cost, w]
   );
 
+  // ✅ Referral commission + season score
+  try {
+    const { creditReferralCommission } = require('../db');
+    const seasonSvc = require('./season');
+    await creditReferralCommission(client, w, 'enhance', cost, 'gp');
+    seasonSvc.addSeasonScore(w, 'gp_spend', cost).catch(() => {});
+    seasonSvc.addSeasonScore(w, 'enhance', 1).catch(() => {});
+  } catch (_re) {}
+
   // Log transaction
   await client.query(
     `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
