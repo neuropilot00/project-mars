@@ -715,6 +715,15 @@ async function start() {
       console.log('[DAILY] Scheduled tasks initialized (cleanup: 24h)');
     } catch(e) { console.warn('[DAILY] Could not init scheduled tasks:', e.message); }
 
+    // ── Title: Governor Milestone Check (every 6 hours) ──
+    try {
+      const { checkGovernorTitleMilestones } = require('./services/title');
+      setInterval(async () => {
+        try { await checkGovernorTitleMilestones(); } catch(e) { console.warn('[TITLE] governor milestone error:', e.message); }
+      }, 6 * 60 * 60 * 1000);
+      console.log('[TITLE] Governor milestone scheduler started (6h interval)');
+    } catch(e) { console.warn('[TITLE] Could not init governor milestone scheduler:', e.message); }
+
     // ── Chronicle: Weekly Report (every Monday UTC 00:00) ──
     try {
       const { sendWeeklyReport } = require('./services/chronicle');

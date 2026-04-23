@@ -1144,6 +1144,23 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ TITLES / HALL OF FAME TAB (inside siege section) ═══ -->
+  <div class="section cat-siege" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#FFD166;font-size:12px">🎖 HALL OF FAME</span>
+      <button onclick="loadHofAdmin()" style="font-size:10px;background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);color:#FFD166;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>ID</th><th>CATEGORY</th><th>USER</th><th>GUILD</th>
+          <th>SECTOR</th><th>VALUE</th><th>DESCRIPTION</th><th>DATE</th><th>FEATURED</th>
+        </tr></thead>
+        <tbody id="hofAdmTable"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- ═══ ONBOARDING TAB ═══ -->
   <div class="section cat-onboarding" style="display:none">
     <div class="sec-header">
@@ -1216,7 +1233,7 @@ function switchTab(tab) {
   if (tab === 'jobs') { loadJobsAdmin(); }
   if (tab === 'resources') { loadResourcesAdmin(); }
   if (tab === 'onboarding') { loadOnboardingAdmin(); }
-  if (tab === 'siege') { loadSiegeAdmin(); loadBettingAdmin(); }
+  if (tab === 'siege') { loadSiegeAdmin(); loadBettingAdmin(); loadHofAdmin(); }
 }
 
 // ── Language System ──
@@ -3573,6 +3590,42 @@ function adminCancelBet(eventId) {
     }
     loadBettingAdmin();
   }).catch(function(){ alert('Request failed'); });
+}
+
+// ══════════════════════════════════════
+// HALL OF FAME ADMIN
+// ══════════════════════════════════════
+function loadHofAdmin() {
+  var tbl = document.getElementById('hofAdmTable');
+  if (!tbl) return;
+  tbl.innerHTML = '<tr><td colspan="9" style="color:#aaa;text-align:center;padding:16px">Loading...</td></tr>';
+  fetch('/api/hall-of-fame?limit=100').then(function(r){return r.json()}).then(function(data) {
+    var entries = data.entries || [];
+    if (!entries.length) {
+      tbl.innerHTML = '<tr><td colspan="9" style="color:#555;text-align:center;padding:20px">No Hall of Fame entries yet</td></tr>';
+      return;
+    }
+    tbl.innerHTML = entries.map(function(e) {
+      var user = e.user_nickname || (e.user_wallet ? e.user_wallet.slice(0,10)+'...' : '—');
+      var guild = e.guild_name || '—';
+      var val = e.value_numeric != null ? parseFloat(e.value_numeric).toLocaleString() : '—';
+      var desc = (e.description_en || '').slice(0,40) || '—';
+      var date = e.achieved_at ? new Date(e.achieved_at).toLocaleDateString() : '—';
+      return '<tr>'
+        +'<td style="font-size:10px">'+e.id+'</td>'
+        +'<td style="font-size:10px;color:#FFD166">'+e.category+'</td>'
+        +'<td style="font-size:10px">'+user+'</td>'
+        +'<td style="font-size:10px">'+guild+'</td>'
+        +'<td style="font-size:10px">'+( e.sector_code||'—' )+'</td>'
+        +'<td style="font-size:10px">'+val+'</td>'
+        +'<td style="font-size:9px;color:#888" title="'+(e.description_en||'')+'">'+desc+'</td>'
+        +'<td style="font-size:9px;color:#777">'+date+'</td>'
+        +'<td style="font-size:10px">'+(e.is_featured?'⭐':'—')+'</td>'
+        +'</tr>';
+    }).join('');
+  }).catch(function(e) {
+    tbl.innerHTML = '<tr><td colspan="9" style="color:#f44336;text-align:center">Error: '+e.message+'</td></tr>';
+  });
 }
 
 // ══════════════════════════════════════

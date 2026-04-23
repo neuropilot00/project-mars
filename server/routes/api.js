@@ -33,6 +33,8 @@ let onboardingService;
 try { onboardingService = require('../services/onboarding'); } catch (_e) { /* onboarding service not available */ }
 let chronicleService;
 try { chronicleService = require('../services/chronicle'); } catch (_e) { /* chronicle service not available */ }
+let titleService;
+try { titleService = require('../services/title'); } catch (_e) { /* title service not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -1291,6 +1293,32 @@ router.post('/claim', writeLimiter, async (req, res) => {
         const firstDefender = Object.keys(affectedOwners || {})[0] || null;
         await chronicleService.checkHijackRecord(walletLower, firstDefender, claimId, ppUsed);
       } catch (_ce) { /* chronicle non-critical */ }
+    }
+
+    // Title checks (non-blocking)
+    if (titleService) {
+      try {
+        // 첫 영토 점령 칭호
+        if (newCount > 0) {
+          const claimCntRes = await pool.query(
+            'SELECT COUNT(*) AS cnt FROM claims WHERE owner = $1 AND deleted_at IS NULL',
+            [walletLower]
+          );
+          const totalClaims = parseInt(claimCntRes.rows[0]?.cnt ?? 0);
+          if (totalClaims >= 1) titleService.checkAndAwardTitles(walletLower, 'first_territory', {}).catch(() => {});
+          if (totalClaims >= 10) titleService.checkAndAwardTitles(walletLower, 'territory_milestone', { count: totalClaims }).catch(() => {});
+          if (totalClaims >= 50) titleService.checkAndAwardTitles(walletLower, 'territory_milestone', { count: totalClaims }).catch(() => {});
+        }
+        // 탈취 횟수 칭호
+        if (attackWon > 0) {
+          const hijackCntRes = await pool.query(
+            'SELECT COUNT(*) AS cnt FROM transactions WHERE type = $1 AND from_wallet = $2',
+            ['hijack', walletLower]
+          );
+          const hijackTotal = parseInt(hijackCntRes.rows[0]?.cnt ?? 0);
+          if (hijackTotal >= 50) titleService.checkAndAwardTitles(walletLower, 'hijack_kills', { count: hijackTotal }).catch(() => {});
+        }
+      } catch (_te) { /* title check non-critical */ }
     }
 
     // Daily mission progress hooks (non-blocking, never breaks main flow)
@@ -5189,6 +5217,67 @@ router.get('/guild/war/continue-cost', readLimiter, async (req, res) => {
     const maxContinues = parseInt(await getSetting('guild_war_continue_max') || '10');
     res.json({ gpCosts, ppBase, ppMult, maxContinues });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ─────────────────────────────────────────────────────────────
+// TITLES & HALL OF FAME (Migration 088)
+// ─────────────────────────────────────────────────────────────
+
+// GET /api/user/titles?wallet=
+router.get('/user/titles', readLimiter, async (req, res) => {
+  const wallet = (req.query.wallet || '').toLowerCase().trim();
+  if (!wallet) return res.status(400).json({ error: 'wallet_required' });
+  try {
+    if (!titleService) return res.json({ titles: [] });
+    const titles = await titleService.getUserTitles(wallet);
+    const equipped = titles.find(t => t.is_equipped) || null;
+    res.json({ titles, equipped });
+  } catch (e) {
+    console.error('[TITLE] GET /user/titles error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// POST /api/user/titles/equip — 칭호 장착
+// body: { wallet, titleCode }
+router.post('/user/titles/equip', async (req, res) => {
+  const { wallet, titleCode } = req.body;
+  if (!wallet || !titleCode) return res.status(400).json({ error: 'missing_fields' });
+  try {
+    if (!titleService) return res.status(503).json({ error: 'title_service_unavailable' });
+    const result = await titleService.equipTitle(wallet, titleCode);
+    if (!result.success) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[TITLE] POST /user/titles/equip error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// GET /api/hall-of-fame?category=&limit=
+router.get('/hall-of-fame', readLimiter, async (req, res) => {
+  const category = req.query.category || null;
+  const limit = Math.min(parseInt(req.query.limit ?? '50'), 100);
+  try {
+    if (!titleService) return res.json({ entries: [] });
+    const entries = await titleService.getHallOfFame(category, limit);
+    res.json({ entries });
+  } catch (e) {
+    console.error('[TITLE] GET /hall-of-fame error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// GET /api/hall-of-fame/categories — 카테고리 목록
+router.get('/hall-of-fame/categories', readLimiter, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT DISTINCT category, COUNT(*) AS cnt FROM hall_of_fame GROUP BY category ORDER BY category'
+    );
+    res.json({ categories: result.rows });
+  } catch (e) {
+    res.status(500).json({ error: 'internal_error' });
+  }
 });
 
 module.exports = router;

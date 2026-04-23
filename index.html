@@ -2628,6 +2628,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <div class="p-title" data-i18n="my_wallet">MY WALLET <span class="help-tip" onclick="event.stopPropagation();showHelpTip('currency')">?</span></div>
     <div class="wallet-panel">
       <div class="wallet-addr" id="walletAddr" style="display:flex;align-items:center;gap:4px">--<button class="help-tip" onclick="(function(){var a=document.getElementById('walletAddr').textContent.replace('--','').trim();if(a)navigator.clipboard.writeText(a).then(function(){showToast(t('address_copied'))});})()" style="width:16px;height:16px;font-size:8px;margin-left:4px;border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:var(--tx3)">⎘</button></div>
+      <div id="equippedTitleBadge" style="display:none;margin-top:2px"></div>
       <div style="display:flex;gap:4px;align-items:center;margin:2px 0">
         <span class="chain-dot base" id="chainDotPanel"></span>
         <span style="font-size:var(--fs-xs);color:var(--tx2)" id="walletChain">--</span>
@@ -3602,6 +3603,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <button id="siegeSectorPickerBtn" type="button" onclick="openSiegeSectorPicker()" style="width:100%;background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:10px;padding:8px 10px;border-radius:6px;font-family:var(--fn);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center"><span id="siegeSectorLabel" data-i18n="gov_select_sector_siege">Select sector...</span><span style="color:var(--tx3)">▾</span></button>
           </div>
           <div id="siegeInfoPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_select_siege_hint">Select a sector to view siege status.</div>
+        </div>
+
+        <!-- My Titles -->
+        <div class="base-section-title" style="color:var(--gold);cursor:pointer" onclick="toggleTitlesSection()"><span data-i18n="gov_titles_title">🎖 MY TITLES</span> <span id="titlesToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
+        <div id="govTitlesSection" style="display:none;margin-bottom:12px">
+          <div id="titlesPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_titles_hint">Connect wallet to view your titles.</div>
         </div>
 
         <!-- Hall of Fame -->
@@ -9611,6 +9618,26 @@ function updateWalletUI(){
   if((el=document.getElementById('alertsSection'))) el.style.display='';
   if((el=document.getElementById('walletAddr'))) el.textContent=walletState.address;
   try{loadActiveEffects()}catch(e){}
+  // Load equipped title badge
+  if (walletState.address) {
+    fetch('/api/user/titles?wallet='+encodeURIComponent(walletState.address))
+      .then(function(r){return r.json()}).then(function(d) {
+        var badge = document.getElementById('equippedTitleBadge');
+        if (!badge) return;
+        if (d.equipped) {
+          var lang = window._currentLang || 'en';
+          var titleTxt = d.equipped['title_'+lang] || d.equipped.title_en || d.equipped.title_code;
+          badge.style.display = '';
+          badge.innerHTML = '<span style="font-size:9px;color:var(--gold);font-family:var(--fn);background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.25);border-radius:3px;padding:1px 6px">🎖 '+escapeHtmlSafe(titleTxt)+'</span>';
+        } else {
+          badge.style.display = 'none';
+        }
+      }).catch(function(){});
+  }
+}
+
+function escapeHtmlSafe(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function updateChainUI(){
@@ -10506,6 +10533,7 @@ var I18N = {
     gov_declaration: 'GOVERNOR DECLARATION (5 GP)',
     gov_declare_save: 'DECLARE',
     gov_policy_open: 'Open (All Welcome)', gov_policy_ally: 'Allies Only', gov_policy_closed: 'Closed',
+    gov_titles_title: '🎖 MY TITLES', gov_titles_hint: 'Connect wallet to view your titles.',
     gov_hall_of_fame: '🏆 HALL OF FAME', gov_select_sector_hof: 'Select sector...',
     gov_select_hof_hint: 'Select a sector to view history.',
     // ── OPS tab ──
@@ -11040,6 +11068,7 @@ var I18N = {
     gov_declaration: '총독 선언문 (5 GP)',
     gov_declare_save: '선언',
     gov_policy_open: '개방 (모두 환영)', gov_policy_ally: '동맹만', gov_policy_closed: '폐쇄',
+    gov_titles_title: '🎖 내 칭호', gov_titles_hint: '지갑을 연결하여 칭호를 확인하세요.',
     gov_hall_of_fame: '🏆 명예의 전당', gov_select_sector_hof: '섹터 선택...',
     gov_select_hof_hint: '섹터를 선택하여 이력을 확인하세요.',
     // ── OPS tab ──
@@ -11565,6 +11594,7 @@ var I18N = {
     gov_declaration: '総督宣言 (5 GP)',
     gov_declare_save: '宣言',
     gov_policy_open: 'オープン（誰でも歓迎）', gov_policy_ally: '同盟のみ', gov_policy_closed: '閉鎖',
+    gov_titles_title: '🎖 称号', gov_titles_hint: 'ウォレットを接続して称号を確認。',
     gov_hall_of_fame: '🏆 殿堂', gov_select_sector_hof: 'セクター選択...',
     gov_select_hof_hint: 'セクターを選択して履歴を表示。',
     ops_title: '戦術作戦',
@@ -12083,6 +12113,7 @@ var I18N = {
     gov_declaration: '总督宣言 (5 GP)',
     gov_declare_save: '宣言',
     gov_policy_open: '开放（欢迎所有人）', gov_policy_ally: '仅同盟', gov_policy_closed: '封闭',
+    gov_titles_title: '🎖 我的称号', gov_titles_hint: '连接钱包以查看您的称号。',
     gov_hall_of_fame: '🏆 名人堂', gov_select_sector_hof: '选择区域...',
     gov_select_hof_hint: '选择区域以查看历史。',
     ops_title: '战术行动',
@@ -21554,6 +21585,88 @@ window.addEventListener('resize', function(){
   function escapeHtml(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+  // ──────────────────────────────────────────────────────
+  // MY TITLES
+  // ──────────────────────────────────────────────────────
+  window.toggleTitlesSection = function() {
+    var el = document.getElementById('govTitlesSection');
+    var tog = document.getElementById('titlesToggle');
+    if (!el) return;
+    if (el.style.display === 'none') {
+      el.style.display = '';
+      if (tog) tog.textContent = '▲';
+      loadTitlesPanel();
+    } else {
+      el.style.display = 'none';
+      if (tog) tog.textContent = '▼';
+    }
+  };
+
+  function loadTitlesPanel() {
+    var panel = document.getElementById('titlesPanel');
+    if (!panel) return;
+    var w = walletState.address;
+    if (!w) {
+      panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Connect wallet to view titles.</div>';
+      return;
+    }
+    panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
+    var lang = window._currentLang || 'en';
+
+    fetch('/api/user/titles?wallet='+encodeURIComponent(w))
+      .then(function(r){return r.json()}).then(function(d) {
+        var titles = d.titles || [];
+        if (!titles.length) {
+          panel.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:6px 0">No titles yet. Complete achievements to earn them!</div>';
+          return;
+        }
+        var gpCost = 20;
+        var html = '<div style="display:flex;flex-direction:column;gap:6px">';
+        titles.forEach(function(t) {
+          var name = t['title_'+lang] || t.title_en || t.title_code;
+          var equipped = t.is_equipped;
+          var btnStyle = equipped
+            ? 'color:var(--gold);border-color:rgba(255,209,102,.5);background:rgba(255,209,102,.08)'
+            : 'color:var(--tx3);border-color:rgba(255,255,255,.1)';
+          html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;background:rgba(255,255,255,.03);border-radius:4px">';
+          html += '<span style="font-size:10px;color:'+(equipped?'var(--gold)':'var(--tx)')+'">'+
+            (equipped?'🎖 ':'')+ escapeHtml(name)+'</span>';
+          html += '<button class="sz-btn" onclick="govEquipTitle(\''+escapeHtml(t.title_code)+'\')" style="font-size:8px;padding:3px 8px;'+btnStyle+'">'+
+            (equipped ? 'UNEQUIP' : 'EQUIP ('+gpCost+' GP)')+'</button>';
+          html += '</div>';
+        });
+        html += '</div>';
+        html += '<div style="font-size:9px;color:var(--tx3);margin-top:6px">Equip cost: '+gpCost+' GP · Unequip is free</div>';
+        panel.innerHTML = html;
+      }).catch(function() {
+        panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Failed to load titles.</div>';
+      });
+  }
+
+  window.govEquipTitle = function(titleCode) {
+    var w = walletState.address;
+    if (!w) { showToast('Connect wallet first'); return; }
+    fetch('/api/user/titles/equip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: w, titleCode: titleCode })
+    }).then(function(r){return r.json()}).then(function(d) {
+      if (!d.success) {
+        var msg = d.error === 'insufficient_gp' ? 'Not enough GP (need '+d.required+')' :
+                  d.error === 'title_not_owned'  ? 'You don\'t own this title' : d.error;
+        showToast('⚠️ '+msg); return;
+      }
+      if (d.equipped) {
+        showToast('🎖 Title equipped! (-'+d.gp_spent+' GP)');
+      } else {
+        showToast('Title unequipped');
+      }
+      loadTitlesPanel();
+      // Refresh badge
+      try { updateWalletUI(); } catch(e) {}
+    }).catch(function(){ showToast('Failed'); });
+  };
 
   // Hall of Fame toggle + loader (uses game picker instead of native select)
   var _hofSelectedSectorId = null;

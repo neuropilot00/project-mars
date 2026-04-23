@@ -24,6 +24,10 @@ try { chronicleService = require('./chronicle'); } catch (_) {}
 let bettingService;
 try { bettingService = require('./betting'); } catch (_) {}
 
+// Title 서비스 (없으면 무시)
+let titleService;
+try { titleService = require('./title'); } catch (_) {}
+
 // ─────────────────────────────────────────────────────────────
 // 1. Siege 선언
 // ─────────────────────────────────────────────────────────────
@@ -277,6 +281,11 @@ async function resolveSiege(siegeId) {
       } catch (betErr) {
         console.warn('[SIEGE] Betting settlement failed (non-critical):', betErr.message);
       }
+    }
+
+    // 칭호 부여 (non-blocking)
+    if (titleService && winnerWallet) {
+      titleService.checkAndAwardTitles(winnerWallet, 'siege_win', { sector_code: code }).catch(() => {});
     }
 
     // Chronicle 기록 (non-blocking)
