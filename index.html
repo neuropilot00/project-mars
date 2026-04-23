@@ -4510,6 +4510,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <button class="base-shop-view" onclick="switchBaseShopView('lucky',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_lucky_btn">📦 CRATES</button>
             <button class="base-shop-view" onclick="switchBaseShopView('vip',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_vip_btn">💫 VIP</button>
             <button class="base-shop-view" onclick="switchBaseShopView('profile',this);loadMyProfile()" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_profile_btn">👤 PROFILE</button>
+            <button class="base-shop-view" onclick="switchBaseShopView('prestige',this);loadMyPrestige()" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="prestige_btn">⭐ PRESTIGE</button>
           </div>
           <div style="display:flex;gap:8px">
             <span style="color:var(--pp)"><b id="baseShopBalPP">0</b> PP</span>
@@ -4641,6 +4642,32 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div>
             <button onclick="toggleProfileHistory()" style="font-size:9px;padding:4px 12px;border-radius:10px;border:1px solid rgba(244,143,177,.2);background:rgba(244,143,177,.06);color:#f48fb1;cursor:pointer;font-family:var(--fn)" data-i18n="profile_history_btn">📜 CHANGE HISTORY</button>
             <div id="profileHistoryPanel" style="display:none;margin-top:8px"></div>
+          </div>
+        </div>
+        <!-- Prestige panel -->
+        <div id="basePrestigePanel" style="display:none">
+          <!-- Rank card -->
+          <div id="myPrestigeCard" style="margin-bottom:12px;padding:14px;border-radius:8px;background:linear-gradient(135deg,rgba(255,213,79,.08),rgba(255,213,79,.02));border:1px solid rgba(255,213,79,.25)">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div id="prestigeIconCircle" style="width:44px;height:44px;border-radius:50%;background:rgba(255,213,79,.15);border:2px solid rgba(255,213,79,.4);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🪨</div>
+              <div style="flex:1">
+                <div id="prestigeRankName" style="font-size:13px;color:#ffd54f;font-weight:700">Colonist</div>
+                <div id="prestigePointsLabel" style="font-size:9px;color:var(--tx3);margin-top:2px">0 pts — next rank: 10 pts needed</div>
+                <div id="prestigeProgressBar" style="margin-top:5px;height:4px;background:rgba(255,255,255,.08);border-radius:2px">
+                  <div id="prestigeProgressFill" style="height:100%;width:0%;background:#ffd54f;border-radius:2px;transition:width .4s"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Buy button -->
+          <div style="text-align:center;margin-bottom:12px">
+            <button id="prestigeBuyBtn" onclick="buyPrestige()" style="padding:10px 28px;background:rgba(255,213,79,.18);border:1px solid rgba(255,213,79,.45);color:#ffd54f;border-radius:8px;cursor:pointer;font-family:var(--fn);font-size:11px;font-weight:700;letter-spacing:1px" data-i18n="prestige_buy_btn">⭐ BUY PRESTIGE POINT</button>
+            <div id="prestigeCostHint" style="font-size:9px;color:var(--tx3);margin-top:4px"></div>
+          </div>
+          <!-- Leaderboard -->
+          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
+            <div style="font-size:9px;color:#ffd54f;font-family:var(--fn);font-weight:700;letter-spacing:1.5px;margin-bottom:6px" data-i18n="prestige_lb_title">🏆 PRESTIGE LEADERS</div>
+            <div id="prestigeLeaderboard" style="font-size:10px;color:var(--tx3)">Loading…</div>
           </div>
         </div>
 
@@ -11278,6 +11305,7 @@ var I18N = {
     raffle_title: 'GP RAFFLES', raffle_none: 'No open raffles right now.', raffle_my_btn: '🎟️ MY TICKETS', raffle_buy_btn: '🎟️ BUY', raffle_tickets_label: 'Tickets:', raffle_buy_confirm: 'Buy Raffle Tickets?',
     wager_title: 'GP WAGER POOLS', wager_none: 'No active wager pools right now.', wager_my_btn: '🎯 MY BETS', wager_bet_btn: '🎯 BET', wager_target_label: 'Bet on (wallet/nickname):', wager_amount_label: 'Amount:', wager_confirm: 'Place Bet?',
     tevt_title: 'TERRITORY EVENTS', tevt_desc: 'Activate time-limited boosts on your territory using GP.', tevt_select_label: 'Select a Claim:', tevt_load_btn: '⚡ LOAD EVENTS', tevt_active_label: 'ACTIVE EVENTS', tevt_none: 'No active events.', tevt_activate_confirm: 'Activate Territory Event?',
+    prestige_btn: '⭐ PRESTIGE', prestige_buy_btn: '⭐ BUY PRESTIGE POINT', prestige_buy_confirm: 'Buy Prestige Point?', prestige_lb_title: '🏆 PRESTIGE LEADERS', prestige_lb_none: 'No prestige players yet.',
     base_profile_btn: '👤 PROFILE', profile_nickname_label: 'NICKNAME', profile_motto_label: 'MOTTO', profile_color_label: 'AVATAR COLOR', profile_set_btn: 'SET', profile_history_btn: '📜 CHANGE HISTORY', profile_no_motto: 'No motto set', profile_nick_confirm: 'Set Nickname?', profile_motto_confirm: 'Set Motto?', profile_color_confirm: 'Set Avatar Color?',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
@@ -11878,6 +11906,7 @@ var I18N = {
     raffle_title: 'GP 래플', raffle_none: '현재 열린 래플이 없습니다.', raffle_my_btn: '🎟️ 내 티켓', raffle_buy_btn: '🎟️ 구매', raffle_tickets_label: '티켓 수:', raffle_buy_confirm: '래플 티켓 구매?',
     wager_title: 'GP 예측 베팅', wager_none: '현재 활성 베팅 풀이 없습니다.', wager_my_btn: '🎯 내 베팅', wager_bet_btn: '🎯 베팅', wager_target_label: '베팅 대상 (지갑/닉네임):', wager_amount_label: '금액:', wager_confirm: '베팅 확인?',
     tevt_title: '영토 이벤트', tevt_desc: 'GP를 사용해 영토에 시간 제한 부스트를 활성화하세요.', tevt_select_label: '클레임 선택:', tevt_load_btn: '⚡ 이벤트 로드', tevt_active_label: '활성 이벤트', tevt_none: '활성 이벤트 없음.', tevt_activate_confirm: '영토 이벤트 활성화?',
+    prestige_btn: '⭐ 프레스티지', prestige_buy_btn: '⭐ 프레스티지 포인트 구매', prestige_buy_confirm: '프레스티지 포인트 구매?', prestige_lb_title: '🏆 프레스티지 순위', prestige_lb_none: '프레스티지 플레이어 없음.',
     base_profile_btn: '👤 프로필', profile_nickname_label: '닉네임', profile_motto_label: '좌우명', profile_color_label: '아바타 색상', profile_set_btn: '설정', profile_history_btn: '📜 변경 기록', profile_no_motto: '좌우명 없음', profile_nick_confirm: '닉네임 설정?', profile_motto_confirm: '좌우명 설정?', profile_color_confirm: '아바타 색상 설정?',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
@@ -12477,6 +12506,7 @@ var I18N = {
     raffle_title: 'GPラッフル', raffle_none: 'オープンなラッフルはありません。', raffle_my_btn: '🎟️ マイチケット', raffle_buy_btn: '🎟️ 購入', raffle_tickets_label: 'チケット数:', raffle_buy_confirm: 'ラッフルチケットを購入？',
     wager_title: 'GP予測ベット', wager_none: 'アクティブなベットプールなし。', wager_my_btn: '🎯 マイベット', wager_bet_btn: '🎯 ベット', wager_target_label: 'ベット対象（ウォレット/ニックネーム）:', wager_amount_label: '金額:', wager_confirm: 'ベットを確定？',
     tevt_title: 'テリトリーイベント', tevt_desc: 'GPを使用してテリトリーに時限ブーストを有効化します。', tevt_select_label: 'クレームを選択:', tevt_load_btn: '⚡ イベント読込', tevt_active_label: 'アクティブイベント', tevt_none: 'アクティブなイベントなし。', tevt_activate_confirm: 'テリトリーイベントを有効化？',
+    prestige_btn: '⭐ プレステージ', prestige_buy_btn: '⭐ プレステージポイント購入', prestige_buy_confirm: 'プレステージポイントを購入？', prestige_lb_title: '🏆 プレステージランキング', prestige_lb_none: 'プレステージプレイヤーなし。',
     base_profile_btn: '👤 プロフィール', profile_nickname_label: 'ニックネーム', profile_motto_label: 'モットー', profile_color_label: 'アバターカラー', profile_set_btn: '設定', profile_history_btn: '📜 変更履歴', profile_no_motto: 'モットーなし', profile_nick_confirm: 'ニックネームを設定？', profile_motto_confirm: 'モットーを設定？', profile_color_confirm: 'アバターカラーを設定？',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
@@ -13060,6 +13090,7 @@ var I18N = {
     raffle_title: 'GP抽奖', raffle_none: '暂无开放的抽奖。', raffle_my_btn: '🎟️ 我的票', raffle_buy_btn: '🎟️ 购买', raffle_tickets_label: '张数:', raffle_buy_confirm: '购买抽奖票？',
     wager_title: 'GP预测投注', wager_none: '暂无活跃投注池。', wager_my_btn: '🎯 我的投注', wager_bet_btn: '🎯 投注', wager_target_label: '投注对象（钱包/昵称）:', wager_amount_label: '金额:', wager_confirm: '确认投注？',
     tevt_title: '领地事件', tevt_desc: '使用GP为您的领地激活限时加成。', tevt_select_label: '选择领地:', tevt_load_btn: '⚡ 加载事件', tevt_active_label: '活跃事件', tevt_none: '暂无活跃事件。', tevt_activate_confirm: '激活领地事件？',
+    prestige_btn: '⭐ 声望', prestige_buy_btn: '⭐ 购买声望点', prestige_buy_confirm: '购买声望点？', prestige_lb_title: '🏆 声望排行榜', prestige_lb_none: '暂无声望玩家。',
     base_profile_btn: '👤 个人资料', profile_nickname_label: '昵称', profile_motto_label: '座右铭', profile_color_label: '头像颜色', profile_set_btn: '设置', profile_history_btn: '📜 修改记录', profile_no_motto: '未设置座右铭', profile_nick_confirm: '设置昵称？', profile_motto_confirm: '设置座右铭？', profile_color_confirm: '设置头像颜色？',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
@@ -15618,6 +15649,7 @@ function switchBaseShopView(view,el){
   var luckyPanel=document.getElementById('baseLuckyBoxPanel');
   var vipPanel=document.getElementById('baseVipPanel');
   var profilePanel=document.getElementById('baseProfilePanel');
+  var prestigePanel=document.getElementById('basePrestigePanel');
   var catRow=document.getElementById('baseShopCatRow');
   shopGrid.style.display='none';
   invGrid.style.display='none';
@@ -15625,6 +15657,7 @@ function switchBaseShopView(view,el){
   if(luckyPanel) luckyPanel.style.display='none';
   if(vipPanel) vipPanel.style.display='none';
   if(profilePanel) profilePanel.style.display='none';
+  if(prestigePanel) prestigePanel.style.display='none';
   catRow.style.display='none';
   if(view==='inventory'){
     invGrid.style.display='grid';
@@ -15652,6 +15685,13 @@ function switchBaseShopView(view,el){
       el.style.color='#f48fb1';
     }
     if(profilePanel){ profilePanel.style.display='block'; }
+  }else if(view==='prestige'){
+    if(el){
+      el.style.borderColor='rgba(255,213,79,.45)';
+      el.style.background='rgba(255,213,79,.15)';
+      el.style.color='#ffd54f';
+    }
+    if(prestigePanel){ prestigePanel.style.display='block'; }
   }else{
     shopGrid.style.display='grid';
     catRow.style.display='flex';
@@ -27592,6 +27632,84 @@ function loadProfileHistory() {
           + '</div>';
       }).join('');
     }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:9px">'+e.message+'</div>'; });
+}
+
+// ── Colony Prestige (Migration 132) ──────────────────────────────────────────
+
+var _prestigeCfg = null;
+
+function loadMyPrestige() {
+  var w = walletState && walletState.address;
+  fetch('/api/prestige/config').then(function(r){return r.json();}).then(function(cfg){
+    _prestigeCfg = cfg;
+    var hint = document.getElementById('prestigeCostHint');
+    if (hint) hint.textContent = cfg.costGP + ' GP per Prestige Point';
+    var btn = document.getElementById('prestigeBuyBtn');
+    if (btn) btn.disabled = !cfg.enabled;
+  }).catch(function(){});
+  if (w) {
+    fetch('/api/prestige/my?wallet='+encodeURIComponent(w)).then(function(r){return r.json();}).then(function(d){
+      var icon = document.getElementById('prestigeIconCircle');
+      var name = document.getElementById('prestigeRankName');
+      var pts  = document.getElementById('prestigePointsLabel');
+      var fill = document.getElementById('prestigeProgressFill');
+      if (icon) icon.textContent = d.rankIcon || '🪨';
+      if (name) { name.textContent = d.rankName || 'Colonist'; name.style.color = d.rankColor || '#ffd54f'; }
+      if (pts) {
+        if (d.isMaxRank) pts.textContent = d.prestige_points + ' pts — MAX RANK';
+        else pts.textContent = d.prestige_points + ' pts — ' + d.pointsToNext + ' pts to ' + d.nextRankName;
+      }
+      if (fill) {
+        var cfg = _prestigeCfg;
+        var pct = 0;
+        if (cfg && !d.isMaxRank) {
+          var cur = cfg.thresholds[d.prestige_rank] || 0;
+          var nxt = d.nextThresh || 1;
+          pct = Math.min(100, Math.round((d.prestige_points - cur) / (nxt - cur) * 100));
+        } else if (d.isMaxRank) { pct = 100; }
+        fill.style.width = pct + '%';
+      }
+    }).catch(function(){});
+  }
+  // Load leaderboard
+  fetch('/api/prestige/leaderboard').then(function(r){return r.json();}).then(function(rows){
+    var el = document.getElementById('prestigeLeaderboard');
+    if (!el) return;
+    if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:10px">'+t('prestige_lb_none')+'</div>'; return; }
+    el.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:9px">'
+      + rows.slice(0,10).map(function(r,i){
+          return '<tr style="border-bottom:1px solid rgba(255,255,255,.05)">'
+            +'<td style="padding:4px 6px;color:#ffd54f;width:22px">'+(i+1)+'.</td>'
+            +'<td style="padding:4px 6px;color:var(--tx)">'+(r.nickname||r.wallet.slice(0,8)+'…')+'</td>'
+            +'<td style="padding:4px 6px;text-align:center">'+r.rankIcon+'</td>'
+            +'<td style="padding:4px 6px;color:#ffd54f;text-align:right">'+r.prestige_points+' pts</td>'
+            +'</tr>';
+        }).join('')
+      + '</table>';
+  }).catch(function(){ var el=document.getElementById('prestigeLeaderboard'); if(el) el.innerHTML=''; });
+}
+
+function buyPrestige() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+  var cfg = _prestigeCfg;
+  var cost = cfg ? cfg.costGP : 50;
+  gameConfirm({
+    title: t('prestige_buy_confirm')||'Buy Prestige Point?',
+    body: 'Spend <b>'+cost+' GP</b> to gain 1 Prestige Point.<br>Earn ranks and show your colony status!'
+  }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/prestige/buy', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      var msg = d.rankedUp ? (d.rankIcon+' Ranked up to '+d.rankName+'!') : ('⭐ +1 Prestige Point!');
+      showToast(msg,'success');
+      loadMyPrestige();
+      if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
 }
 
 // ── GP Wager System (Migration 130) ──────────────────────────────────────────

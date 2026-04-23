@@ -106,6 +106,7 @@ const tiersRoutes       = require('./routes/tiers');
 const raffleRoutes      = require('./routes/raffle');
 const wagerRoutes       = require('./routes/wager');
 const tevtRoutes        = require('./routes/tevt');
+const prestigeRoutes    = require('./routes/prestige');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -244,6 +245,7 @@ app.use('/api', tiersRoutes);
 app.use('/api', raffleRoutes);
 app.use('/api', wagerRoutes);
 app.use('/api', tevtRoutes);
+app.use('/api', prestigeRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);

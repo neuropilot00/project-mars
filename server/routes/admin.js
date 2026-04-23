@@ -3385,4 +3385,28 @@ router.post('/tevt/setting', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Colony Prestige Admin (Migration 132) ────────────────────────────────────
+
+// GET /admin/api/prestige
+router.get('/prestige', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/prestige'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, dist: [] });
+  try {
+    const [{ stats, dist }, lb] = await Promise.all([svc.getAdminStats(), svc.getLeaderboard()]);
+    res.json({ stats, dist, leaderboard: lb.slice(0, 20) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/prestige/setting
+router.post('/prestige/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('prestige_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'prestige_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
