@@ -1891,4 +1891,62 @@ router.get('/gp-transfers', adminAuth, async (req, res) => {
   }
 });
 
+// GET /admin/api/marketplace/price-analytics — price history aggregate stats (Migration 103)
+router.get('/marketplace/price-analytics', adminAuth, async (req, res) => {
+  try {
+    const [totalRes, claimRes, topRes, settingsRes] = await Promise.all([
+      pool.query(`
+        SELECT COUNT(*)                                                   AS total_sales,
+               COALESCE(SUM(sale_price), 0)                              AS total_volume,
+               COUNT(*) FILTER (WHERE sold_at >= NOW() - INTERVAL '7 days')        AS sales_7d,
+               COALESCE(SUM(sale_price) FILTER (
+                 WHERE sold_at >= NOW() - INTERVAL '7 days'), 0)         AS volume_7d
+          FROM marketplace_price_history
+      `).catch(() => ({ rows: [{}] })),
+      pool.query(`
+        SELECT COUNT(*) AS claim_sales
+          FROM marketplace_price_history WHERE claim_id IS NOT NULL
+      `).catch(() => ({ rows: [{}] })),
+      pool.query(`
+        SELECT item_type_id, enhancement_level,
+               COUNT(*)              AS cnt,
+               AVG(sale_price)       AS avg_price,
+               MAX(sold_at)          AS last_sale
+          FROM marketplace_price_history
+         WHERE item_type_id IS NOT NULL
+         GROUP BY item_type_id, enhancement_level
+         ORDER BY cnt DESC
+         LIMIT 20
+      `).catch(() => ({ rows: [] })),
+      pool.query(`
+        SELECT key, value FROM settings WHERE key LIKE 'mkt_%' ORDER BY key
+      `).catch(() => ({ rows: [] })),
+    ]);
+
+    const settingsMap = {};
+    settingsRes.rows.forEach(r => { settingsMap[r.key] = r.value; });
+    const t = totalRes.rows[0] || {};
+    const c = claimRes.rows[0] || {};
+
+    res.json({
+      total_sales:  parseInt(t.total_sales)    || 0,
+      total_volume: parseFloat(t.total_volume) || 0,
+      sales_7d:     parseInt(t.sales_7d)       || 0,
+      volume_7d:    parseFloat(t.volume_7d)    || 0,
+      claim_sales:  parseInt(c.claim_sales)    || 0,
+      top_items:    topRes.rows.map(r => ({
+        item_type_id:       r.item_type_id,
+        enhancement_level:  parseInt(r.enhancement_level),
+        cnt:                parseInt(r.cnt),
+        avg_price:          parseFloat(r.avg_price),
+        last_sale:          r.last_sale,
+      })),
+      settings: settingsMap,
+    });
+  } catch (e) {
+    console.error('[Admin] marketplace/price-analytics error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

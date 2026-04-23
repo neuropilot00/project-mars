@@ -14957,10 +14957,12 @@ function renderMarketCard(l){
   var isOwn=walletState&&walletState.address&&l.seller===walletState.address.toLowerCase();
   var claimInfo='';
   if(l.listing_type==='claim'&&meta.pixelCount) claimInfo='<div style="font-size:8px;color:var(--tx3)">'+meta.pixelCount+' px</div>';
+  // Price history chart trigger params
+  var chartParam=l.listing_type==='claim'?'claimId='+l.claim_id:'itemTypeId='+(meta.itemTypeId||0)+'&enhLevel='+enhLv;
   return '<div class="'+_enhGlowClass(enhLv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center">'
     +'<span style="font-size:10px;font-weight:700;color:'+rarityColor+'">'+icon+' '+name+enhTag+'</span>'
-    +'<span style="font-size:8px;color:var(--tx3)">'+typeLabel+'</span>'
+    +'<button onclick="showMarketDetail('+l.id+',\''+chartParam+'\',\''+name.replace(/'/g,"\\'")+'\')" style="font-size:8px;color:var(--tx3);background:none;border:none;cursor:pointer;padding:2px 4px;font-family:var(--fn)" title="Price history">📊</button>'
     +'</div>'
     +claimInfo
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">'
@@ -14971,6 +14973,87 @@ function renderMarketCard(l){
     +(isOwn?'<button onclick="cancelMarketListing('+l.id+')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.4);background:rgba(232,72,85,.1);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('mkt_cancel')||'CANCEL')+'</button>'
     :'<button onclick="buyMarketListing('+l.id+','+price+',\''+currency+'\',\''+name.replace(/'/g,"\\'")+'\')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn)">'+(t('mkt_buy')||'BUY')+'</button>')
     +'</div></div>';
+}
+
+// ── Market Price History Detail (Migration 103) ──
+function _renderSparkline(points, width, height){
+  if(!points||points.length<2) return '<div style="font-size:8px;color:var(--tx3);text-align:center;padding:8px">No history yet</div>';
+  var prices=points.map(function(p){return p.price});
+  var mn=Math.min.apply(null,prices), mx=Math.max.apply(null,prices);
+  var range=mx-mn||1;
+  var pad=4;
+  var W=width-pad*2, H=height-pad*2;
+  var pts=points.map(function(p,i){
+    var x=pad+i*(W/(points.length-1));
+    var y=pad+H-(p.price-mn)/range*H;
+    return x.toFixed(1)+','+y.toFixed(1);
+  });
+  // Trend color: last price vs first
+  var trendUp=prices[prices.length-1]>=prices[0];
+  var lineColor=trendUp?'var(--gn)':'var(--red)';
+  // Filled area path
+  var areaPath='M'+pts[0]+' L'+pts.join(' L')
+    +' L'+(pad+W).toFixed(1)+','+(pad+H).toFixed(1)
+    +' L'+pad+','+(pad+H).toFixed(1)+' Z';
+  var linePath='M'+pts[0]+' L'+pts.join(' L');
+  return '<svg viewBox="0 0 '+width+' '+height+'" style="width:100%;height:'+height+'px;display:block">'
+    +'<defs><linearGradient id="spgr" x1="0" y1="0" x2="0" y2="1">'
+    +'<stop offset="0%" stop-color="'+lineColor+'" stop-opacity=".3"/>'
+    +'<stop offset="100%" stop-color="'+lineColor+'" stop-opacity=".0"/>'
+    +'</linearGradient></defs>'
+    +'<path d="'+areaPath+'" fill="url(#spgr)"/>'
+    +'<path d="'+linePath+'" fill="none" stroke="'+lineColor+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'
+    // Last price dot
+    +'<circle cx="'+(pad+W).toFixed(1)+'" cy="'+(pad+H-(prices[prices.length-1]-mn)/range*H).toFixed(1)+'" r="3" fill="'+lineColor+'"/>'
+    +'</svg>';
+}
+
+function showMarketDetail(listingId, chartParam, name){
+  // Show a gameConfirm-style modal with price history
+  var dlg=document.createElement('div');
+  dlg.id='mktDetailDlg';
+  dlg.style.cssText='position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7)';
+  dlg.innerHTML='<div style="background:var(--surface1);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;width:min(340px,calc(100vw - 32px));max-height:80vh;overflow-y:auto">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    +'<span style="font-size:11px;font-weight:700;color:#a064dc">📊 '+(name||'Price History')+'</span>'
+    +'<button onclick="document.getElementById(\'mktDetailDlg\').remove()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:14px">✕</button>'
+    +'</div>'
+    +'<div id="mktDetailChart" style="width:100%;min-height:80px;display:flex;align-items:center;justify-content:center">'
+    +'<div style="font-size:9px;color:var(--tx3)">Loading chart...</div>'
+    +'</div>'
+    +'<div id="mktDetailStats" style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px"></div>'
+    +'</div>';
+  document.body.appendChild(dlg);
+  dlg.onclick=function(e){if(e.target===dlg) dlg.remove();};
+
+  fetch('/api/marketplace/price-stats?'+chartParam+'&points=20')
+    .then(function(r){return r.json()})
+    .then(function(d){
+      var chartEl=document.getElementById('mktDetailChart');
+      var statsEl=document.getElementById('mktDetailStats');
+      if(!chartEl||!statsEl) return;
+      if(!d.points||!d.points.length){
+        chartEl.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:12px;text-align:center">No sales history yet.</div>';
+      } else {
+        chartEl.innerHTML=_renderSparkline(d.points, 300, 80);
+      }
+      var currency=(d.points&&d.points[0]&&d.points[0].currency)||'GP';
+      statsEl.innerHTML=[
+        {k:'SALES',v:d.count||0},
+        {k:'AVG',v:d.avg?(Math.round(d.avg)+' '+currency):'—'},
+        {k:'MIN',v:d.min?(Math.round(d.min)+' '+currency):'—'},
+        {k:'MAX',v:d.max?(Math.round(d.max)+' '+currency):'—'},
+        {k:'7D AVG',v:d.avg7d?(Math.round(d.avg7d)+' '+currency):'—'},
+      ].map(function(s){
+        return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px;text-align:center">'
+          +'<div style="font-size:7px;color:var(--tx3);letter-spacing:.5px">'+s.k+'</div>'
+          +'<div style="font-size:10px;font-weight:700;color:var(--gold)">'+s.v+'</div>'
+          +'</div>';
+      }).join('');
+    }).catch(function(){
+      var chartEl=document.getElementById('mktDetailChart');
+      if(chartEl) chartEl.innerHTML='<div style="font-size:9px;color:var(--red);padding:8px">Failed to load.</div>';
+    });
 }
 
 function buyMarketListing(listingId,price,currency,name){

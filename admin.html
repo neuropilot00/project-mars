@@ -1089,6 +1089,16 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- Price History Analytics -->
+  <div class="section cat-marketplace" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a064dc">📊 PRICE HISTORY</span>
+      <button onclick="loadMktPriceAnalytics()" style="font-size:10px;background:rgba(160,100,220,.12);border:1px solid rgba(160,100,220,.3);color:#a064dc;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="mktPriceAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:10px"></div>
+    <div id="mktPriceAdmTable" style="overflow-x:auto"></div>
+  </div>
+
   <div class="section cat-marketplace" style="display:none">
     <div class="sec-header">
       <span class="sec-title" style="color:#a064dc">ACTIVE LISTINGS</span>
@@ -1339,7 +1349,7 @@ function switchTab(tab) {
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
   if (tab === 'enhance') { loadEnhanceStats(); }
-  if (tab === 'marketplace') { loadMarketplaceAdmin(); loadAuctionAdmin(); }
+  if (tab === 'marketplace') { loadMarketplaceAdmin(); loadMktPriceAnalytics(); loadAuctionAdmin(); }
   if (tab === 'jobs') { loadJobsAdmin(); }
   if (tab === 'resources') { loadResourcesAdmin(); }
   if (tab === 'onboarding') { loadOnboardingAdmin(); }
@@ -4022,6 +4032,44 @@ function saveMktSetting(key) {
     if (d.error) return alert('Error: ' + d.error);
     alert('Saved: ' + key + ' = ' + val);
   }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// PRICE HISTORY ANALYTICS
+// ══════════════════════════════════════
+function loadMktPriceAnalytics() {
+  var statsEl = document.getElementById('mktPriceAdmStats');
+  var tableEl = document.getElementById('mktPriceAdmTable');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  apiJson('/admin/api/marketplace/price-analytics').catch(function(){return null}).then(function(data) {
+    if (!data) { statsEl.innerHTML = '<div style="color:#f44;font-size:10px">Failed to load</div>'; return; }
+    statsEl.innerHTML = [
+      statCard('Total Sales',      data.total_sales || 0,                          '#a064dc'),
+      statCard('Total Volume',     Math.round(data.total_volume || 0)+' GP',       'var(--gold)'),
+      statCard('7d Sales',         data.sales_7d || 0,                              '#4cd89a'),
+      statCard('7d Volume',        Math.round(data.volume_7d || 0)+' GP',           'var(--cyan)'),
+      statCard('Territory Sales',  data.claim_sales || 0,                           'var(--mars)'),
+    ].join('');
+
+    var top = data.top_items || [];
+    if (!top.length) {
+      tableEl.innerHTML = '<div style="font-size:10px;color:#888">No sales history yet</div>';
+      return;
+    }
+    tableEl.innerHTML = '<div style="font-size:9px;color:#a064dc;font-weight:700;margin-bottom:6px">TOP SELLING ITEMS (ALL TIME)</div>'
+      +'<table class="data-table" style="font-size:9px"><thead><tr>'
+      +'<th>Item Type</th><th>Enh</th><th>Sales</th><th>Avg Price</th><th>Last Sale</th></tr></thead><tbody>'
+      + top.map(function(r){
+        return '<tr>'
+          +'<td>'+(r.item_type_id||'—')+'</td>'
+          +'<td style="color:var(--gold)">+'+(r.enhancement_level||0)+'</td>'
+          +'<td>'+r.cnt+'</td>'
+          +'<td style="color:var(--gold)">'+Math.round(r.avg_price)+' GP</td>'
+          +'<td style="font-size:8px">'+new Date(r.last_sale).toLocaleDateString()+'</td>'
+          +'</tr>';
+      }).join('') + '</tbody></table>';
+  });
 }
 
 // AUCTION ADMIN
