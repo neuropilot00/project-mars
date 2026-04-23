@@ -112,6 +112,8 @@ const donationRoutes    = require('./routes/donation');
 const pollsRoutes       = require('./routes/polls');
 const statusRoutes      = require('./routes/status');
 const tdescRoutes       = require('./routes/tdesc');
+const capsuleRoutes     = require('./routes/capsule');
+const sponsorRoutes     = require('./routes/sponsor');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -256,6 +258,8 @@ app.use('/api', donationRoutes);
 app.use('/api', pollsRoutes);
 app.use('/api', statusRoutes);
 app.use('/api', tdescRoutes);
+app.use('/api', capsuleRoutes);
+app.use('/api', sponsorRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -1041,6 +1045,25 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[STATUS] Status expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[STATUS] Could not init expiry scheduler:', e.message); }
+
+    try {
+      const { expireSponsors } = require('./services/sponsor');
+      setInterval(async () => {
+        try { await expireSponsors(); } catch(e) { console.warn('[SPONSOR] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[SPONSOR] Sponsor expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[SPONSOR] Could not init expiry scheduler:', e.message); }
+
+    try {
+      const { revealDueCapsules } = require('./services/capsule');
+      setInterval(async () => {
+        try {
+          const revealed = await revealDueCapsules();
+          if (revealed.length > 0) console.log(`[CAPSULE] Revealed ${revealed.length} time capsule(s)`);
+        } catch(e) { console.warn('[CAPSULE] reveal error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[CAPSULE] Reveal scheduler started (5min interval)');
+    } catch(e) { console.warn('[CAPSULE] Could not init reveal scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

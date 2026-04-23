@@ -3545,4 +3545,42 @@ router.post('/tdesc/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── GP Time Capsule Admin (Migration 138) ────────────────────────────────────
+
+router.get('/capsule', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/capsule'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, recent: [] });
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/capsule/:id', adminAuth, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    await pool.query(`DELETE FROM time_capsules WHERE id=$1`, [req.params.id]);
+    await auditLog(req, 'capsule_delete', req.params.id, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/capsule/reveal/:id', adminAuth, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE time_capsules SET is_revealed=true, revealed_at=NOW() WHERE id=$1`, [req.params.id]);
+    await auditLog(req, 'capsule_force_reveal', req.params.id, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/capsule/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('capsule_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'capsule_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
