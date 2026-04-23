@@ -272,6 +272,12 @@ async function drawRound(round, cfg) {
 
       console.log(`[LOTTERY] Round #${round.round_number} drawn — winner: ${winnerWallet?.slice(0,8)}... prize: ${prize} GP`);
 
+      // Dividend pool: route portion of house cut
+      const houseGp = parseFloat(round.house_gp) || 0;
+      if (houseGp > 0) {
+        try { const divSvc = require('./dividends'); divSvc.addToPool(houseGp, 'lottery').catch(() => {}); } catch (_dv) {}
+      }
+
       // Notifications fire-and-forget
       if (winnerWallet && notifyPlayer) {
         notifyPlayer(winnerWallet, `🎰 You won the lottery! +${Math.round(prize)} GP`, 'lottery').catch(() => {});

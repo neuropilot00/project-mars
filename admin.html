@@ -980,6 +980,22 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="stakingAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ GP DIVIDENDS TAB ═══ -->
+  <div class="section cat-gp" style="display:none" id="dividendAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a064dc">💰 GP DIVIDENDS</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadDividendAdmin()" style="font-size:10px;background:rgba(160,100,220,.12);border:1px solid rgba(160,100,220,.3);color:#a064dc;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+        <button onclick="forceDistributeDividend()" style="font-size:10px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);padding:4px 10px;border-radius:4px;cursor:pointer">FORCE DISTRIBUTE</button>
+      </div>
+    </div>
+    <div id="divAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#a064dc">POOL HISTORY</span></div>
+    <div id="divAdmTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#a064dc">DIVIDEND SETTINGS</span></div>
+    <div id="divAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ GP BURN TAB ═══ -->
   <div class="section cat-gp" style="display:none" id="burnAdminSection">
     <div class="sec-header">
@@ -1445,7 +1461,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -3612,6 +3628,81 @@ function forceLotteryDraw() {
     if (d.error) return alert('Error: ' + d.error);
     alert('Draw triggered! Rounds drawn: ' + d.drew);
     loadLotteryAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  GP DIVIDENDS ADMIN (Migration 110)
+// ══════════════════════════════════════
+function loadDividendAdmin() {
+  var statsEl    = document.getElementById('divAdmStats');
+  var tableEl    = document.getElementById('divAdmTable');
+  var settingsEl = document.getElementById('divAdmSettings');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  apiJson('/admin/api/dividends').catch(function(){ return null; }).then(function(data) {
+    if (!data) { statsEl.innerHTML = '<div style="color:red;font-size:10px">Failed to load — run migration 110</div>'; return; }
+
+    var curr = data.current_pool;
+    statsEl.innerHTML = [
+      statCard('Current Pool',      Math.round(parseFloat(curr?.pool_gp||0)) + ' GP',    '#a064dc'),
+      statCard('Total Distributed', Math.round(data.total_distributed||0) + ' GP',       'var(--gold)'),
+      statCard('Weeks Tracked',     (data.pools||[]).length,                              'var(--cyan)'),
+    ].join('');
+
+    var pools = data.pools || [];
+    tableEl.innerHTML = pools.length ? (
+      '<table class="adm-table" style="font-size:9px"><thead><tr>'
+      +'<th>WEEK</th><th>POOL</th><th>DISTRIBUTED</th><th>RECIPIENTS</th><th>STATUS</th></tr></thead><tbody>'
+      + pools.map(function(p) {
+        return '<tr>'
+          +'<td>'+p.week_start+'</td>'
+          +'<td style="color:#a064dc">'+Math.round(parseFloat(p.pool_gp||0))+' GP</td>'
+          +'<td style="color:var(--gold)">'+Math.round(parseFloat(p.actual_distributed||0))+' GP</td>'
+          +'<td>'+parseInt(p.recipient_count||0)+'</td>'
+          +'<td style="color:'+(p.is_distributed?'var(--gn)':'var(--tx3)')+'">'+( p.is_distributed?'✅ Done':'⏳ Pending')+'</td>'
+          +'</tr>';
+      }).join('')
+      +'</tbody></table>'
+    ) : '<div style="font-size:10px;color:#888">No dividend pools yet</div>';
+
+    var settings = data.settings || {};
+    settingsEl.innerHTML = Object.keys(settings).length ? Object.keys(settings).map(function(key) {
+      return '<div style="background:rgba(160,100,220,.04);border:1px solid rgba(160,100,220,.12);border-radius:6px;padding:8px">'
+        +'<div style="font-size:9px;color:#a064dc;font-weight:700;margin-bottom:2px">'+escapeHtml(key)+'</div>'
+        +'<div style="display:flex;gap:4px;align-items:center">'
+        +'<input id="div_set_'+escapeHtml(key)+'" value="'+escapeHtml(String(settings[key]))+'" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
+        +'<button onclick="saveDividendSetting(\''+escapeHtml(key)+'\')" style="font-size:9px;padding:3px 8px;background:rgba(160,100,220,.15);border:1px solid rgba(160,100,220,.3);color:#a064dc;border-radius:3px;cursor:pointer">SAVE</button>'
+        +'</div></div>';
+    }).join('') : '<div style="font-size:10px;color:#888">No settings found. Run migration 110.</div>';
+  });
+}
+
+function saveDividendSetting(key) {
+  var inp = document.getElementById('div_set_' + key);
+  if (!inp) return;
+  fetch('/admin/api/dividends/setting', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ key: key, value: inp.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ ' + key + ' saved');
+    loadDividendAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function forceDistributeDividend() {
+  if (!confirm('Force distribute last week\'s GP dividend pool now?')) return;
+  fetch('/admin/api/dividends/force-distribute', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    alert('Distribution done! Recipients: ' + d.recipients);
+    loadDividendAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 

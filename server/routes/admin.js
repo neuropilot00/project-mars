@@ -2058,6 +2058,50 @@ router.delete('/news/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ── GP Dividends Admin (Migration 110) ───────────────────────────────────────
+
+// GET /admin/api/dividends — pool history + settings
+router.get('/dividends', adminAuth, async (req, res) => {
+  try {
+    let divSvc;
+    try { divSvc = require('../services/dividends'); } catch (_) {}
+    if (!divSvc) return res.status(503).json({ error: 'Dividend service unavailable' });
+    const stats = await divSvc.getAdminStats();
+    res.json(stats);
+  } catch (e) {
+    console.error('[Admin] dividends error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/dividends/setting
+router.post('/dividends/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body;
+  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
+  if (!key.startsWith('dividends_')) return res.status(400).json({ error: 'Invalid dividends key' });
+  try {
+    await pool.query(`UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`, [key, String(value)]);
+    await auditLog(req, 'update_dividends_setting', key, { value });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/dividends/force-distribute — manually trigger distribution
+router.post('/dividends/force-distribute', adminAuth, async (req, res) => {
+  try {
+    let divSvc;
+    try { divSvc = require('../services/dividends'); } catch (_) {}
+    if (!divSvc) return res.status(503).json({ error: 'Dividend service unavailable' });
+    const n = await divSvc.distributeLastWeek();
+    await auditLog(req, 'force_dividend_distribution', 'all', { recipients: n });
+    res.json({ success: true, recipients: n });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── Weekly Challenges Admin (Migration 109) ───────────────────────────────────
 
 // GET /admin/api/weekly — stats + this week's instances

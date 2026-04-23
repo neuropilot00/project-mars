@@ -18705,23 +18705,25 @@ function loadStakingPanel() {
 
   Promise.all([
     fetch('/api/staking/info?wallet=' + wallet).then(function(r){ return r.json(); }),
-    wallet ? fetch('/api/staking/my-stakes?wallet=' + wallet).then(function(r){ return r.json(); }) : Promise.resolve({ stakes: [] })
+    wallet ? fetch('/api/staking/my-stakes?wallet=' + wallet).then(function(r){ return r.json(); }) : Promise.resolve({ stakes: [] }),
+    fetch('/api/dividends/info?wallet=' + wallet).then(function(r){ return r.json(); }).catch(function(){ return null; })
   ])
     .then(function(results) {
       _stakingInfo = results[0];
       var stakes = results[1].stakes || [];
+      var divInfo = results[2];
       if (!_stakingInfo.enabled) {
         el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Staking currently disabled</div>';
         return;
       }
-      renderStakingPanel(_stakingInfo, stakes);
+      renderStakingPanel(_stakingInfo, stakes, divInfo);
     })
     .catch(function() {
       el.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:10px;padding:8px">Failed to load</div>';
     });
 }
 
-function renderStakingPanel(info, stakes) {
+function renderStakingPanel(info, stakes, divInfo) {
   var el = document.getElementById('stakingContent');
   if (!el) return;
 
@@ -18786,6 +18788,19 @@ function renderStakingPanel(info, stakes) {
         + '<span style="color:var(--gn)">+' + s.yield_earned.toFixed(2) + ' GP</span>'
         + '</div>';
     });
+  }
+
+  // Dividend info
+  if (divInfo && divInfo.enabled) {
+    var pool = parseFloat(divInfo.current_pool || 0);
+    html += '<div style="margin-top:8px;padding:8px;background:rgba(160,100,220,.06);border-radius:6px;border:1px solid rgba(160,100,220,.2)">'
+      + '<div style="font-size:9px;color:#a064dc;font-weight:700;margin-bottom:4px;letter-spacing:1px">💰 WEEKLY DIVIDENDS</div>'
+      + '<div style="font-size:9px;color:var(--tx3)">This week\'s pool: <span style="color:var(--gold);font-weight:700">' + Math.round(pool) + ' GP</span> · Distributed every Monday to active stakers</div>';
+    if (divInfo.my_history && divInfo.my_history.length) {
+      var lastDiv = divInfo.my_history[0];
+      html += '<div style="font-size:9px;color:var(--gn);margin-top:2px">Last dividend: +' + parseFloat(lastDiv.dividend_gp).toFixed(2) + ' GP (week ' + lastDiv.week_start + ')</div>';
+    }
+    html += '</div>';
   }
 
   el.innerHTML = html;

@@ -84,6 +84,7 @@ const lotteryRoutes  = require('./routes/lottery');
 const stakingRoutes  = require('./routes/staking');
 const gpBurnRoutes      = require('./routes/gpBurn');
 const weeklyRoutes      = require('./routes/weeklyChallenges');
+const dividendRoutes    = require('./routes/dividends');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -200,6 +201,7 @@ app.use('/api', lotteryRoutes);
 app.use('/api', stakingRoutes);
 app.use('/api', gpBurnRoutes);
 app.use('/api', weeklyRoutes);
+app.use('/api', dividendRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -803,6 +805,27 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[STAKING] Ready-check scheduler started (5min interval)');
     } catch(e) { console.warn('[STAKING] Could not init scheduler:', e.message); }
+
+    // ── GP Dividends: Distribute last week's pool (every Monday, checked hourly) ──
+    try {
+      const { distributeLastWeek, ensureCurrentPool } = require('./services/dividends');
+      // Ensure pool exists on startup
+      setTimeout(async () => {
+        try { await ensureCurrentPool(); } catch(e) { console.warn('[DIV] startup pool error:', e.message); }
+      }, 30 * 1000);
+      // Check every 6 hours; distribute if Monday
+      setInterval(async () => {
+        try {
+          const now = new Date();
+          if (now.getUTCDay() === 1) { // Monday
+            const n = await distributeLastWeek();
+            if (n > 0) console.log(`[DIV] Distributed to ${n} stakers`);
+          }
+          await ensureCurrentPool();
+        } catch(e) { console.warn('[DIV] hourly task error:', e.message); }
+      }, 6 * 60 * 60 * 1000);
+      console.log('[DIV] Dividend scheduler started (6h check, distributes on Monday)');
+    } catch(e) { console.warn('[DIV] Could not init dividend scheduler:', e.message); }
 
     // ── Weekly Challenges: Ensure instances + settle competitive (every 1 hour) ──
     try {

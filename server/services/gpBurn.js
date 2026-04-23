@@ -162,6 +162,9 @@ async function burnGP(client, wallet, burnType) {
     );
   }
 
+  // Dividend pool: route portion of burned GP
+  try { const divSvc = require('./dividends'); divSvc.addToPool(cost, 'burn').catch(() => {}); } catch (_dv) {}
+
   return { burnType, cost, hours, mult, expiresAt, extended: !!existing, name: typeDef.name, icon: typeDef.icon };
 }
 

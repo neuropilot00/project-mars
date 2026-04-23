@@ -319,6 +319,14 @@ async function buyListing(client, listingId, buyer) {
     ).catch(() => {});
   } catch (_ne) {}
 
+  // ✅ Dividend pool: route portion of marketplace fee
+  if (fee > 0 && currency === 'GP') {
+    try {
+      const divSvc = require('./dividends');
+      divSvc.addToPool(fee, 'marketplace').catch(() => {});
+    } catch (_dv) {}
+  }
+
   return { success: true, price, fee, sellerReceives, currency, listing };
 }
 
