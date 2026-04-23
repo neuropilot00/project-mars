@@ -2743,6 +2743,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <!-- Graffiti button (anyone can spray) -->
     <button class="uf" id="infoGraffitiBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(176,190,197,.12),rgba(176,190,197,.06));border-color:rgba(176,190,197,.3);color:#b0bec5" onclick="openGraffitiModal()" data-i18n="graffiti_btn">✍️ GRAFFITI</button>
+    <!-- Star rating display -->
+    <div id="infoRatingRow" style="display:none;margin:6px 0;padding:5px 8px;background:rgba(255,213,79,.04);border:1px solid rgba(255,213,79,.12);border-radius:6px">
+      <span style="color:#ffd54f;font-size:11px" id="infoRatingStars">⭐⭐⭐⭐⭐</span>
+      <span style="color:var(--tx3);font-size:8px;margin-left:4px" id="infoRatingText"></span>
+    </div>
+    <!-- Rate button (others' territories only) -->
+    <div id="infoRateWidget" style="display:none;margin-top:4px">
+      <div style="font-size:8px;color:#ffd54f;margin-bottom:3px" data-i18n="rating_your_label">YOUR RATING</div>
+      <div style="display:flex;gap:3px" id="infoRateStars"></div>
+    </div>
     <!-- Active highlight display -->
     <div id="infoHighlightRow" style="display:none;margin:6px 0;padding:5px 8px;border-radius:6px">
       <span id="infoHighlightDot" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle"></span>
@@ -9527,6 +9537,12 @@ function showTerritoryInfo(plot){
   if(highlightRow) highlightRow.style.display='none';
   if(highlightBtn) highlightBtn.style.display=(myW&&plot.owner===myW)?'':'none';
   if(plot.claimId) try{loadHighlightForInfo(plot.claimId);}catch(_){}
+  // Rating (load for all, rate for others' territories)
+  var ratingRow=document.getElementById('infoRatingRow');
+  var rateWidget=document.getElementById('infoRateWidget');
+  if(ratingRow) ratingRow.style.display='none';
+  if(rateWidget) rateWidget.style.display=(myW&&plot.owner!==myW&&plot.claimId)?'':'none';
+  if(plot.claimId) try{loadRatingForInfo(plot.claimId);}catch(_){}
   // Show EDIT IMAGE + PROMO LINK + RENAME only for own territories
   var editBtn=document.getElementById('infoEditImgBtn');
   var linkEdit=document.getElementById('infoLinkEdit');
@@ -11680,6 +11696,7 @@ var I18N = {
     vtag_label: '🏷️ VANITY TAG', vtag_set_btn: 'SET', vtag_clear_btn: '✕', vtag_none: 'No vanity tag set', vtag_required: 'Enter a tag', vtag_set_confirm: 'Set Vanity Tag?', vtag_clear_confirm: 'Remove Vanity Tag?', vtag_free: 'Free', vtag_set_success: '🏷️ Vanity tag set!', vtag_cleared: 'Tag removed', vtag_cost_hint: 'First tag: {first} GP · Change: {change} GP', vtag_disabled: 'Vanity tags disabled',
     tribute_label: 'TRIBUTES', tribute_btn: '🪙 TRIBUTE', tribute_modal_title: 'TRIBUTE TERRITORY', tribute_modal_desc: 'Send a GP tribute to the owner of territory', tribute_amount_label: 'AMOUNT (GP)', tribute_msg_label: 'MESSAGE (optional)', tribute_send_btn: '🪙 TRIBUTE', tribute_confirm: 'Send GP Tribute?', tribute_sent: '🪙 Tribute sent!', tribute_amount_required: 'Enter a valid GP amount',
     graffiti_label: 'GRAFFITI', graffiti_btn: '✍️ GRAFFITI', graffiti_modal_title: 'SPRAY GRAFFITI', graffiti_modal_desc: 'Spray graffiti on territory', graffiti_text_label: 'TEXT / EMOJI (max 30)', graffiti_spray_btn: '✍️ SPRAY', graffiti_confirm: 'Spray Graffiti?', graffiti_placed: '✍️ Graffiti placed!', graffiti_text_required: 'Enter graffiti text',
+    rating_your_label: 'YOUR RATING', rating_confirm: 'Rate Territory?', rating_submitted: '⭐ Rating submitted!',
     highlight_btn: '✨ HIGHLIGHT', highlight_modal_title: 'HIGHLIGHT TERRITORY', highlight_modal_desc: 'Make your territory glow on the map', highlight_color_label: 'GLOW COLOR', highlight_activate_btn: '✨ ACTIVATE', highlight_confirm: 'Highlight Territory?', highlight_activated: '✨ Territory highlighted!', highlight_active_label: 'HIGHLIGHTED',
     tdesc_title: 'TERRITORY DESCRIPTION', tdesc_desc: 'Add a custom description to your territory. Visible to all players.', tdesc_claim_label: 'CLAIM #', tdesc_use_claim: '📍 MINE', tdesc_current_label: 'CURRENT', tdesc_text_label: 'DESCRIPTION', tdesc_save_btn: '📝 SAVE DESCRIPTION', tdesc_my_label: 'MY DESCRIPTIONS', tdesc_none: 'No descriptions set yet.', tdesc_save_confirm: 'Save Territory Description?', tdesc_required: 'Enter a description', tdesc_claim_required: 'Enter a Claim #', tdesc_no_claim: 'Select a territory first', tdesc_free: 'Free', tdesc_saved: '✅ Description saved!', tdesc_free_hint: 'First description is free. Updates cost {cost} GP.',
     sponsor_label: 'SPONSORS', sponsor_btn: '🎗️ SPONSOR', sponsor_modal_title: 'SPONSOR TERRITORY', sponsor_modal_desc: 'Sponsor territory #', sponsor_msg_label: 'MESSAGE (optional)', sponsor_place_btn: '🎗️ SPONSOR', sponsor_confirm: 'Sponsor Territory?', sponsor_placed: '🎗️ Sponsored!',
@@ -12292,6 +12309,7 @@ var I18N = {
     vtag_label: '🏷️ 배니티 태그', vtag_set_btn: '설정', vtag_clear_btn: '✕', vtag_none: '배니티 태그 없음', vtag_required: '태그를 입력하세요', vtag_set_confirm: '배니티 태그 설정?', vtag_clear_confirm: '배니티 태그 삭제?', vtag_free: '무료', vtag_set_success: '🏷️ 배니티 태그 설정!', vtag_cleared: '태그 삭제됨', vtag_cost_hint: '첫 태그: {first} GP · 변경: {change} GP', vtag_disabled: '배니티 태그 비활성화됨',
     tribute_label: '공물', tribute_btn: '🪙 공물', tribute_modal_title: '영토 공물', tribute_modal_desc: '이 영토 소유자에게 GP 공물을 보냅니다', tribute_amount_label: '금액 (GP)', tribute_msg_label: '메시지 (선택)', tribute_send_btn: '🪙 공물 보내기', tribute_confirm: 'GP 공물을 보내시겠습니까?', tribute_sent: '🪙 공물 전송!', tribute_amount_required: '유효한 GP 금액을 입력하세요',
     graffiti_label: '낙서', graffiti_btn: '✍️ 낙서', graffiti_modal_title: '낙서 분사', graffiti_modal_desc: '이 영토에 낙서를 남깁니다', graffiti_text_label: '텍스트/이모지 (최대 30)', graffiti_spray_btn: '✍️ 분사', graffiti_confirm: '낙서를 남기시겠습니까?', graffiti_placed: '✍️ 낙서 완료!', graffiti_text_required: '텍스트를 입력하세요',
+    rating_your_label: '내 평점', rating_confirm: '영토 평점?', rating_submitted: '⭐ 평점 제출!',
     highlight_btn: '✨ 하이라이트', highlight_modal_title: '영토 하이라이트', highlight_modal_desc: '지도에서 영토를 빛나게 하세요', highlight_color_label: '글로우 색상', highlight_activate_btn: '✨ 활성화', highlight_confirm: '영토 하이라이트?', highlight_activated: '✨ 영토 하이라이트 완료!', highlight_active_label: '하이라이트 중',
     tdesc_title: '영토 설명', tdesc_desc: '내 영토에 설명을 추가하세요. 모든 플레이어에게 보입니다.', tdesc_claim_label: '클레임 #', tdesc_use_claim: '📍 내 것', tdesc_current_label: '현재 설명', tdesc_text_label: '설명', tdesc_save_btn: '📝 설명 저장', tdesc_my_label: '내 설명 목록', tdesc_none: '아직 설명 없음.', tdesc_save_confirm: '영토 설명 저장?', tdesc_required: '설명을 입력하세요', tdesc_claim_required: '클레임 번호를 입력하세요', tdesc_no_claim: '먼저 영토를 선택하세요', tdesc_free: '무료', tdesc_saved: '✅ 설명 저장 완료!', tdesc_free_hint: '첫 설명은 무료입니다. 수정 시 {cost} GP.',
     sponsor_label: '후원자', sponsor_btn: '🎗️ 후원하기', sponsor_modal_title: '영토 후원', sponsor_modal_desc: '영토 #', sponsor_msg_label: '메시지 (선택)', sponsor_place_btn: '🎗️ 후원', sponsor_confirm: '영토를 후원?', sponsor_placed: '🎗️ 후원 완료!',
@@ -12903,6 +12921,7 @@ var I18N = {
     vtag_label: '🏷️ バニティタグ', vtag_set_btn: '設定', vtag_clear_btn: '✕', vtag_none: 'バニティタグなし', vtag_required: 'タグを入力してください', vtag_set_confirm: 'バニティタグを設定？', vtag_clear_confirm: 'バニティタグを削除？', vtag_free: '無料', vtag_set_success: '🏷️ バニティタグ設定！', vtag_cleared: 'タグを削除しました', vtag_cost_hint: '初回: {first} GP · 変更: {change} GP', vtag_disabled: 'バニティタグ無効',
     tribute_label: '贈り物', tribute_btn: '🪙 贈る', tribute_modal_title: '領土への贈り物', tribute_modal_desc: 'この領土のオーナーにGP贈り物を送ります', tribute_amount_label: '金額 (GP)', tribute_msg_label: 'メッセージ（任意）', tribute_send_btn: '🪙 贈る', tribute_confirm: 'GP贈り物を送りますか？', tribute_sent: '🪙 贈り物を送りました！', tribute_amount_required: '有効なGP金額を入力してください',
     graffiti_label: 'グラフィティ', graffiti_btn: '✍️ グラフィティ', graffiti_modal_title: 'グラフィティを描く', graffiti_modal_desc: 'この領土にグラフィティを描きます', graffiti_text_label: 'テキスト/絵文字（最大30文字）', graffiti_spray_btn: '✍️ 描く', graffiti_confirm: 'グラフィティを描きますか？', graffiti_placed: '✍️ グラフィティ完了！', graffiti_text_required: 'テキストを入力してください',
+    rating_your_label: 'あなたの評価', rating_confirm: '領土を評価？', rating_submitted: '⭐ 評価を送信！',
     highlight_btn: '✨ ハイライト', highlight_modal_title: '領土ハイライト', highlight_modal_desc: 'マップで領土を輝かせます', highlight_color_label: 'グロウカラー', highlight_activate_btn: '✨ 有効化', highlight_confirm: '領土をハイライトしますか？', highlight_activated: '✨ ハイライト完了！', highlight_active_label: 'ハイライト中',
     tdesc_title: '領土の説明', tdesc_desc: '自分の領土に説明を追加します。全プレイヤーに表示されます。', tdesc_claim_label: 'クレイム #', tdesc_use_claim: '📍 自分の', tdesc_current_label: '現在の説明', tdesc_text_label: '説明', tdesc_save_btn: '📝 説明を保存', tdesc_my_label: '自分の説明一覧', tdesc_none: '説明なし。', tdesc_save_confirm: '領土説明を保存？', tdesc_required: '説明を入力してください', tdesc_claim_required: 'クレイム番号を入力してください', tdesc_no_claim: '先に領土を選択してください', tdesc_free: '無料', tdesc_saved: '✅ 説明を保存しました！', tdesc_free_hint: '最初の説明は無料。変更時は{cost} GP。',
     sponsor_label: 'スポンサー', sponsor_btn: '🎗️ スポンサー', sponsor_modal_title: '領土スポンサー', sponsor_modal_desc: '領土 #', sponsor_msg_label: 'メッセージ（任意）', sponsor_place_btn: '🎗️ スポンサー', sponsor_confirm: '領土をスポンサー？', sponsor_placed: '🎗️ スポンサー完了！',
@@ -13498,6 +13517,7 @@ var I18N = {
     vtag_label: '🏷️ 个性标签', vtag_set_btn: '设置', vtag_clear_btn: '✕', vtag_none: '未设置个性标签', vtag_required: '请输入标签', vtag_set_confirm: '设置个性标签？', vtag_clear_confirm: '删除个性标签？', vtag_free: '免费', vtag_set_success: '🏷️ 个性标签已设置！', vtag_cleared: '标签已删除', vtag_cost_hint: '首次: {first} GP · 修改: {change} GP', vtag_disabled: '个性标签已禁用',
     tribute_label: '贡品', tribute_btn: '🪙 贡品', tribute_modal_title: '领土贡品', tribute_modal_desc: '向该领土的所有者发送GP贡品', tribute_amount_label: '金额 (GP)', tribute_msg_label: '消息（可选）', tribute_send_btn: '🪙 发送贡品', tribute_confirm: '发送GP贡品？', tribute_sent: '🪙 贡品已发送！', tribute_amount_required: '请输入有效的GP金额',
     graffiti_label: '涂鸦', graffiti_btn: '✍️ 涂鸦', graffiti_modal_title: '喷涂涂鸦', graffiti_modal_desc: '在该领土喷涂涂鸦', graffiti_text_label: '文字/表情（最多30字）', graffiti_spray_btn: '✍️ 喷涂', graffiti_confirm: '喷涂涂鸦？', graffiti_placed: '✍️ 涂鸦完成！', graffiti_text_required: '请输入文字',
+    rating_your_label: '我的评分', rating_confirm: '评价领土？', rating_submitted: '⭐ 评分已提交！',
     highlight_btn: '✨ 高亮', highlight_modal_title: '领土高亮', highlight_modal_desc: '让您的领土在地图上发光', highlight_color_label: '光晕颜色', highlight_activate_btn: '✨ 激活', highlight_confirm: '高亮领土？', highlight_activated: '✨ 领土高亮成功！', highlight_active_label: '高亮中',
     tdesc_title: '领地描述', tdesc_desc: '为您的领地添加自定义描述，所有玩家可见。', tdesc_claim_label: '领地编号', tdesc_use_claim: '📍 我的', tdesc_current_label: '当前描述', tdesc_text_label: '描述', tdesc_save_btn: '📝 保存描述', tdesc_my_label: '我的描述', tdesc_none: '暂无描述。', tdesc_save_confirm: '保存领地描述？', tdesc_required: '请输入描述', tdesc_claim_required: '请输入领地编号', tdesc_no_claim: '请先选择一个领地', tdesc_free: '免费', tdesc_saved: '✅ 描述已保存！', tdesc_free_hint: '首次描述免费，修改需要{cost} GP。',
     sponsor_label: '赞助商', sponsor_btn: '🎗️ 赞助', sponsor_modal_title: '赞助领地', sponsor_modal_desc: '赞助领地 #', sponsor_msg_label: '消息（可选）', sponsor_place_btn: '🎗️ 赞助', sponsor_confirm: '赞助此领地？', sponsor_placed: '🎗️ 赞助成功！',
@@ -29103,6 +29123,75 @@ function submitSponsor() {
         if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
       }).catch(function(e){ showToast(e.message,'error'); });
     }
+  });
+}
+
+// ── GP Territory Star Rating (Migration 144) ─────────────────────────────────
+var _ratingCfg = null;
+
+function loadRatingForInfo(claimId) {
+  var row     = document.getElementById('infoRatingRow');
+  var stars   = document.getElementById('infoRatingStars');
+  var rtext   = document.getElementById('infoRatingText');
+  var widget  = document.getElementById('infoRateWidget');
+  var rStars  = document.getElementById('infoRateStars');
+  if (!row) return;
+  // Load config once
+  if (!_ratingCfg) {
+    fetch('/api/rating/config').then(function(r){return r.json();}).then(function(c){ _ratingCfg = c; }).catch(function(){});
+  }
+  fetch('/api/rating/claim/'+claimId)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if (!d) return;
+      if (d.isPublic && d.avgRating !== null) {
+        row.style.display = '';
+        var filled = Math.round(d.avgRating);
+        if (stars) stars.textContent = '★'.repeat(filled)+'☆'.repeat(5-filled);
+        if (rtext) rtext.textContent = d.avgRating.toFixed(1)+' ('+d.voteCount+' votes)';
+      } else {
+        row.style.display = 'none';
+      }
+    }).catch(function(){ row.style.display='none'; });
+
+  // Load my rating
+  var myW = walletState&&walletState.address;
+  if (myW && widget && rStars) {
+    fetch('/api/rating/my?claimId='+claimId+'&wallet='+encodeURIComponent(myW))
+      .then(function(r){return r.json();})
+      .then(function(existing){
+        var myRating = existing ? existing.rating : 0;
+        rStars.innerHTML = [1,2,3,4,5].map(function(v){
+          return '<span onclick="submitRating('+claimId+','+v+')" style="font-size:20px;cursor:pointer;color:'+(v<=myRating?'#ffd54f':'#333')+';transition:color .15s" onmouseover="this.style.color=\'#ffd54f\'" onmouseout="this.style.color=\''+(v<=myRating?'#ffd54f':'#333')+'\'">★</span>';
+        }).join('');
+      }).catch(function(){
+        rStars.innerHTML = [1,2,3,4,5].map(function(v){
+          return '<span onclick="submitRating('+claimId+','+v+')" style="font-size:20px;cursor:pointer;color:#333;transition:color .15s" onmouseover="this.style.color=\'#ffd54f\'" onmouseout="this.style.color=\'#333\'">★</span>';
+        }).join('');
+      });
+  }
+}
+
+function submitRating(claimId, rating) {
+  var wallet = walletState&&walletState.address;
+  if (!wallet) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+  var cost = _ratingCfg ? _ratingCfg.costGP : 5;
+  gameConfirm({
+    title: t('rating_confirm')||'Rate Territory?',
+    body:  rating+'★ for territory #'+claimId,
+    cost:  cost+' GP'
+  }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/rating/rate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet, claimId, rating })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast(t('rating_submitted')||'⭐ Rating submitted!','success');
+      loadRatingForInfo(claimId);
+      if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+    }).catch(function(e){ showToast(e.message,'error'); });
   });
 }
 

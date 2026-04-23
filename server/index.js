@@ -118,6 +118,7 @@ const vtagRoutes        = require('./routes/vtag');
 const tributeRoutes     = require('./routes/tribute');
 const graffitiRoutes    = require('./routes/graffiti');
 const highlightRoutes   = require('./routes/highlight');
+const ratingRoutes      = require('./routes/rating');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -268,6 +269,7 @@ app.use('/api', vtagRoutes);
 app.use('/api', tributeRoutes);
 app.use('/api', graffitiRoutes);
 app.use('/api', highlightRoutes);
+app.use('/api', ratingRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);

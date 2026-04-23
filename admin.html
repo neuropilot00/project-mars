@@ -1499,6 +1499,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="sponsorAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY RATINGS (Migration 144) ═══ -->
+  <div class="section cat-gp" style="display:none" id="ratingAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ffd54f">⭐ TERRITORY RATINGS</span>
+      <button onclick="loadRatingAdmin()" style="font-size:10px;background:rgba(255,213,79,.12);border:1px solid rgba(255,213,79,.3);color:#ffd54f;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="ratingAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ffd54f">TOP RATED</span></div>
+    <div id="ratingAdmTop" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ffd54f">SETTINGS</span></div>
+    <div id="ratingAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ TERRITORY HIGHLIGHT (Migration 143) ═══ -->
   <div class="section cat-gp" style="display:none" id="highlightAdminSection">
     <div class="sec-header">
@@ -2305,7 +2318,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -6762,6 +6775,78 @@ function saveSponsorSetting(key) {
 // ══════════════════════════════════════
 //  VANITY TAGS ADMIN (Migration 140)
 // ══════════════════════════════════════
+function loadRatingAdmin() {
+  var statsEl    = document.getElementById('ratingAdmStats');
+  var topEl      = document.getElementById('ratingAdmTop');
+  var settingsEl = document.getElementById('ratingAdmSettings');
+  if (!statsEl) return;
+  [statsEl, topEl, settingsEl].forEach(function(el) { if(el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>'; });
+  document.getElementById('ratingAdminSection').style.display = '';
+  fetch('/admin/api/rating', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['Total Ratings',    s.total_ratings      || 0],
+        ['GP Burned',        (s.total_gp||0)+' GP'],
+        ['Rated Territories',s.rated_territories  || 0],
+        ['Ratings (24h)',    s.ratings_24h        || 0],
+      ].map(function(p) {
+        return '<div style="background:rgba(255,213,79,.06);border:1px solid rgba(255,213,79,.15);border-radius:6px;padding:8px 10px">'
+          +'<div style="color:#ffd54f;font-size:18px;font-weight:700">'+p[1]+'</div>'
+          +'<div style="color:#888;font-size:9px;margin-top:2px">'+p[0]+'</div></div>';
+      }).join('');
+
+      var rows = d.topRated || [];
+      topEl.innerHTML = rows.length
+        ? '<table style="width:100%;border-collapse:collapse;font-size:11px">'
+          +'<thead><tr>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">CLAIM</th>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">NAME</th>'
+          +'<th style="text-align:right;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">AVG</th>'
+          +'<th style="text-align:right;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">VOTES</th>'
+          +'</tr></thead><tbody>'
+          + rows.map(function(r) {
+            var stars = '★'.repeat(Math.round(r.avg_rating||0))+'☆'.repeat(5-Math.round(r.avg_rating||0));
+            return '<tr style="border-bottom:1px solid #1a1a1a">'
+              +'<td style="padding:4px 8px;color:#888">#'+r.claim_id+'</td>'
+              +'<td style="padding:4px 8px;color:#aaa">'+(r.claim_name||'—')+'</td>'
+              +'<td style="padding:4px 8px;color:#ffd54f;text-align:right">'+stars+' '+parseFloat(r.avg_rating||0).toFixed(1)+'</td>'
+              +'<td style="padding:4px 8px;color:#888;text-align:right">'+r.votes+'</td>'
+              +'</tr>';
+          }).join('')
+          +'</tbody></table>'
+        : '<span style="color:#555;font-size:11px">No ratings yet.</span>';
+
+      var keys = ['rating_enabled','rating_cost_gp','rating_change_gp','rating_min_votes'];
+      settingsEl.innerHTML = keys.map(function(k) {
+        return '<div style="display:flex;align-items:center;gap:6px">'
+          +'<span style="color:#888;font-size:10px;flex:1">'+k+'</span>'
+          +'<input id="ratingAdm_'+k+'" style="background:#111;border:1px solid #333;color:#eee;padding:4px 6px;border-radius:4px;font-size:11px;width:80px" '
+          +'onchange="saveRatingSetting(\''+k+'\')">'
+          +'</div>';
+      }).join('');
+      fetch('/admin/api/settings?prefix=rating_', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+        .then(function(r) { return r.json(); })
+        .then(function(s) { (s.settings||s||[]).forEach(function(row) { var el=document.getElementById('ratingAdm_'+row.key); if(el) el.value=row.value; }); })
+        .catch(function(){});
+    }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function saveRatingSetting(key) {
+  var el = document.getElementById('ratingAdm_'+key);
+  if (!el) return;
+  fetch('/admin/api/rating/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
 function loadHighlightAdmin() {
   var statsEl    = document.getElementById('highlightAdmStats');
   var listEl     = document.getElementById('highlightAdmList');
