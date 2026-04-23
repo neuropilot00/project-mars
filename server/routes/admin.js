@@ -3612,6 +3612,32 @@ router.post('/sponsor/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Colony Announcement Admin (Migration 148) ──
+router.get('/announce', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/announcement'); } catch(_) {}
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/announce/:id', adminAuth, async (req, res) => {
+  try {
+    let svc; try { svc = require('../services/announcement'); } catch(_) {}
+    await svc.adminExpireAnnouncement(req.params.id);
+    await auditLog(req, 'announce_expire', req.params.id, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/announce/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('announce_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'announce_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Territory Prestige Frame Admin (Migration 147) ──
 router.get('/tprestige', adminAuth, async (req, res) => {
   let svc; try { svc = require('../services/tprestige'); } catch(_) {}

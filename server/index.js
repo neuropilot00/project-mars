@@ -122,6 +122,7 @@ const ratingRoutes      = require('./routes/rating');
 const bannerRoutes      = require('./routes/banner');
 const journalRoutes     = require('./routes/journal');
 const tprestigeRoutes   = require('./routes/tprestige');
+const announceRoutes    = require('./routes/announcement');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -276,6 +277,7 @@ app.use('/api', ratingRoutes);
 app.use('/api', bannerRoutes);
 app.use('/api', journalRoutes);
 app.use('/api', tprestigeRoutes);
+app.use('/api', announceRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -1093,6 +1095,14 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[GRAFFITI] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[GRAFFITI] Could not init expiry scheduler:', e.message); }
+
+    try {
+      const { expireAnnouncements } = require('./services/announcement');
+      setInterval(async () => {
+        try { await expireAnnouncements(); } catch(e) { console.warn('[ANNOUNCE] expire error:', e.message); }
+      }, 2 * 60 * 1000);
+      console.log('[ANNOUNCE] Expiry scheduler started (2min interval)');
+    } catch(e) { console.warn('[ANNOUNCE] Could not init expiry scheduler:', e.message); }
 
     try {
       const { revealDueCapsules } = require('./services/capsule');
