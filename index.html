@@ -4085,6 +4085,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="display:flex;gap:4px">
             <button class="base-shop-view active" onclick="switchBaseShopView('shop',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.15);color:var(--gold);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_shop_btn">🛒 SHOP</button>
             <button class="base-shop-view" onclick="switchBaseShopView('inventory',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_inv_btn">🎒 MY ITEMS</button>
+            <button class="base-shop-view" onclick="switchBaseShopView('crafting',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_craft_btn">⚗️ CRAFT</button>
           </div>
           <div style="display:flex;gap:8px">
             <span style="color:var(--pp)"><b id="baseShopBalPP">0</b> PP</span>
@@ -4109,6 +4110,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- Inventory view (hidden by default) -->
         <div id="baseInvGrid" style="display:none;grid-template-columns:1fr 1fr;gap:6px">
           <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading inventory...</div>
+        </div>
+        <!-- Crafting view (hidden by default) -->
+        <div id="baseCraftingPanel" style="display:none">
+          <!-- Category filter -->
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px" id="craftCatRow">
+            <button class="craft-cat active" onclick="filterCraftingView('all',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(160,232,160,.3);background:rgba(160,232,160,.12);color:#a0e8a0;cursor:pointer;font-family:var(--fn)" data-i18n="craft_cat_all">ALL</button>
+            <button class="craft-cat" onclick="filterCraftingView('general',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="craft_cat_general">GENERAL</button>
+            <button class="craft-cat" onclick="filterCraftingView('elite',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="craft_cat_elite">ELITE</button>
+            <button class="craft-cat" onclick="filterCraftingView('seasonal',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="craft_cat_seasonal">SEASONAL</button>
+            <button class="craft-cat" onclick="filterCraftingView('event',this)" style="font-size:9px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="craft_cat_event">EVENT</button>
+          </div>
+          <div id="craftingGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading recipes…</div>
+          </div>
+          <!-- Crafting history toggle -->
+          <div style="border-top:1px solid rgba(255,255,255,.06);margin-top:12px;padding-top:8px">
+            <button onclick="toggleCraftHistory()" style="font-size:9px;padding:4px 12px;border-radius:10px;border:1px solid rgba(160,232,160,.2);background:rgba(160,232,160,.06);color:#a0e8a0;cursor:pointer;font-family:var(--fn)" data-i18n="craft_history_btn">📜 MY CRAFT HISTORY</button>
+            <div id="craftHistoryPanel" style="display:none;margin-top:8px"></div>
+          </div>
         </div>
       </div>
 
@@ -10687,6 +10707,7 @@ var I18N = {
     bounty_title: 'BOUNTY BOARD', bounty_post_btn: '+ POST BOUNTY', bounty_tab_active: 'ACTIVE', bounty_tab_mine: 'MY BOUNTIES', bounty_tab_onme: 'ON ME', bounty_modal_title: 'POST BOUNTY', bounty_modal_sub: 'Reward the first player to hijack this territory', bounty_target_label: 'TARGET WALLET / NICKNAME', bounty_amount_label: 'GP REWARD', bounty_msg_label: 'TAUNT MESSAGE', bounty_post_submit: '🎯 POST BOUNTY',
     upgrades_title: 'TERRITORY UPGRADES', upgrades_upgrade_btn: 'UPGRADE TERRITORY',
     monuments_title: 'MY MONUMENTS', monument_place_title: 'PLACE MONUMENT', monument_place_btn: 'PLACE MONUMENT', monument_territory: 'TERRITORY', monument_type: 'TYPE', monument_name_label: 'MONUMENT NAME', monument_inscription: 'INSCRIPTION', monument_cost: 'Cost',
+    base_craft_btn: '⚗️ CRAFT', craft_cat_all: 'ALL', craft_cat_general: 'GENERAL', craft_cat_elite: 'ELITE', craft_cat_seasonal: 'SEASONAL', craft_cat_event: 'EVENT', craft_btn: '⚗️ CRAFT', craft_history_btn: '📜 MY CRAFT HISTORY', craft_no_recipes: 'No recipes available', craft_load_fail: 'Failed to load recipes', craft_no_history: 'No crafting history', craft_success: 'Craft success!', craft_fail: 'Craft failed', craft_refund_partial: 'Partial GP refunded', craft_confirm_title: 'Confirm Craft', craft_missing_ingredients: 'Missing ingredients',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11270,6 +11291,7 @@ var I18N = {
     bounty_title: '현상금 게시판', bounty_post_btn: '+ 현상금 게시', bounty_tab_active: '활성', bounty_tab_mine: '내 현상금', bounty_tab_onme: '나에게', bounty_modal_title: '현상금 게시', bounty_modal_sub: '영토를 탈취하는 첫 번째 플레이어에게 보상', bounty_target_label: '대상 지갑/닉네임', bounty_amount_label: 'GP 보상', bounty_msg_label: '도발 메시지', bounty_post_submit: '🎯 현상금 게시',
     upgrades_title: '영토 강화', upgrades_upgrade_btn: '영토 강화',
     monuments_title: '내 기념비', monument_place_title: '기념비 설치', monument_place_btn: '기념비 설치', monument_territory: '영토', monument_type: '유형', monument_name_label: '기념비 이름', monument_inscription: '비문', monument_cost: '비용',
+    base_craft_btn: '⚗️ 제작', craft_cat_all: '전체', craft_cat_general: '일반', craft_cat_elite: '고급', craft_cat_seasonal: '시즌', craft_cat_event: '이벤트', craft_btn: '⚗️ 제작', craft_history_btn: '📜 제작 기록', craft_no_recipes: '레시피 없음', craft_load_fail: '레시피 로딩 실패', craft_no_history: '제작 기록 없음', craft_success: '제작 성공!', craft_fail: '제작 실패', craft_refund_partial: 'GP 부분 환급', craft_confirm_title: '제작 확인', craft_missing_ingredients: '재료 부족',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -11852,6 +11874,7 @@ var I18N = {
     bounty_title: '賞金ボード', bounty_post_btn: '+ 賞金を掲示', bounty_tab_active: 'アクティブ', bounty_tab_mine: 'マイ賞金', bounty_tab_onme: '自分への', bounty_modal_title: '賞金を掲示', bounty_modal_sub: '最初に領土を占領したプレイヤーへの報酬', bounty_target_label: 'ターゲット', bounty_amount_label: 'GP報酬', bounty_msg_label: '挑発メッセージ', bounty_post_submit: '🎯 賞金を掲示',
     upgrades_title: '領土強化', upgrades_upgrade_btn: '領土を強化',
     monuments_title: '記念碑', monument_place_title: '記念碑を設置', monument_place_btn: '記念碑を設置', monument_territory: '領土', monument_type: 'タイプ', monument_name_label: '記念碑名', monument_inscription: '銘文', monument_cost: 'コスト',
+    base_craft_btn: '⚗️ 製作', craft_cat_all: '全て', craft_cat_general: '一般', craft_cat_elite: '高級', craft_cat_seasonal: 'シーズン', craft_cat_event: 'イベント', craft_btn: '⚗️ 製作', craft_history_btn: '📜 製作履歴', craft_no_recipes: 'レシピなし', craft_load_fail: 'レシピ読込失敗', craft_no_history: '製作履歴なし', craft_success: '製作成功！', craft_fail: '製作失敗', craft_refund_partial: 'GP一部返金', craft_confirm_title: '製作確認', craft_missing_ingredients: '素材不足',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12418,6 +12441,7 @@ var I18N = {
     bounty_title: '赏金板', bounty_post_btn: '+ 发布赏金', bounty_tab_active: '活跃', bounty_tab_mine: '我的赏金', bounty_tab_onme: '针对我', bounty_modal_title: '发布赏金', bounty_modal_sub: '奖励第一个夺取该领地的玩家', bounty_target_label: '目标钱包/昵称', bounty_amount_label: 'GP奖励', bounty_msg_label: '嘲讽消息', bounty_post_submit: '🎯 发布赏金',
     upgrades_title: '领土升级', upgrades_upgrade_btn: '升级领土',
     monuments_title: '我的纪念碑', monument_place_title: '放置纪念碑', monument_place_btn: '放置纪念碑', monument_territory: '领土', monument_type: '类型', monument_name_label: '纪念碑名称', monument_inscription: '铭文', monument_cost: '费用',
+    base_craft_btn: '⚗️ 制作', craft_cat_all: '全部', craft_cat_general: '通用', craft_cat_elite: '精英', craft_cat_seasonal: '赛季', craft_cat_event: '活动', craft_btn: '⚗️ 制作', craft_history_btn: '📜 制作记录', craft_no_recipes: '暂无配方', craft_load_fail: '配方加载失败', craft_no_history: '暂无制作记录', craft_success: '制作成功！', craft_fail: '制作失败', craft_refund_partial: 'GP部分退还', craft_confirm_title: '确认制作', craft_missing_ingredients: '材料不足',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -14946,8 +14970,8 @@ function renderBaseShop(){
   }).join('');
 }
 
-// ── BASE Shop <-> Inventory View Toggle ──
-var _baseShopView='shop'; // 'shop' | 'inventory'
+// ── BASE Shop / Inventory / Crafting View Toggle ──
+var _baseShopView='shop'; // 'shop' | 'inventory' | 'crafting'
 function switchBaseShopView(view,el){
   _baseShopView=view;
   // Update view-toggle button styles
@@ -14958,25 +14982,189 @@ function switchBaseShopView(view,el){
     b.classList.remove('active');
   });
   if(el){
-    el.style.borderColor='rgba(255,209,102,.45)';
-    el.style.background='rgba(255,209,102,.15)';
-    el.style.color='var(--gold)';
+    if(view==='crafting'){
+      el.style.borderColor='rgba(160,232,160,.45)';
+      el.style.background='rgba(160,232,160,.15)';
+      el.style.color='#a0e8a0';
+    }else{
+      el.style.borderColor='rgba(255,209,102,.45)';
+      el.style.background='rgba(255,209,102,.15)';
+      el.style.color='var(--gold)';
+    }
     el.classList.add('active');
   }
   var shopGrid=document.getElementById('baseShopGrid');
   var invGrid=document.getElementById('baseInvGrid');
+  var craftPanel=document.getElementById('baseCraftingPanel');
   var catRow=document.getElementById('baseShopCatRow');
+  shopGrid.style.display='none';
+  invGrid.style.display='none';
+  if(craftPanel) craftPanel.style.display='none';
+  catRow.style.display='none';
   if(view==='inventory'){
-    shopGrid.style.display='none';
-    catRow.style.display='none';
     invGrid.style.display='grid';
     loadBaseInventory();
+  }else if(view==='crafting'){
+    if(craftPanel){ craftPanel.style.display='block'; loadCraftingView(); }
   }else{
     shopGrid.style.display='grid';
     catRow.style.display='flex';
-    invGrid.style.display='none';
   }
 }
+
+// ── CRAFTING VIEW ──────────────────────────────────────────────────────────
+var _craftingRecipes=[];
+var _craftingCatFilter='all';
+
+function loadCraftingView(){
+  var grid=document.getElementById('craftingGrid');
+  if(!grid) return;
+  var w=(walletState&&walletState.address)||'';
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px" data-i18n="loading">Loading…</div>';
+  var url='/api/crafting/recipes?wallet='+encodeURIComponent(w);
+  if(_craftingCatFilter&&_craftingCatFilter!=='all') url+='&category='+_craftingCatFilter;
+  fetch(url).then(function(r){return r.json();}).then(function(recipes){
+    _craftingRecipes=Array.isArray(recipes)?recipes:[];
+    renderCraftingGrid();
+  }).catch(function(){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--mars);padding:20px 0;font-size:10px" data-i18n="craft_load_fail">Failed to load recipes</div>';
+  });
+}
+
+function filterCraftingView(cat,el){
+  _craftingCatFilter=cat;
+  document.querySelectorAll('.craft-cat').forEach(function(b){
+    b.style.borderColor='rgba(255,255,255,.1)';
+    b.style.background='rgba(255,255,255,.03)';
+    b.style.color='var(--tx3)';
+    b.classList.remove('active');
+  });
+  if(el){
+    el.style.borderColor='rgba(160,232,160,.3)';
+    el.style.background='rgba(160,232,160,.12)';
+    el.style.color='#a0e8a0';
+    el.classList.add('active');
+  }
+  loadCraftingView();
+}
+
+function renderCraftingGrid(){
+  var grid=document.getElementById('craftingGrid');
+  if(!grid) return;
+  if(!_craftingRecipes.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px" data-i18n="craft_no_recipes">No recipes available</div>';
+    return;
+  }
+  grid.innerHTML=_craftingRecipes.map(function(r){
+    var canCraft=!!r.canCraft;
+    var ingText=(r.ingredients||[]).map(function(i){
+      return (i.item_name||('Item #'+i.item_type_id))+' ×'+i.qty;
+    }).join(', ')||'—';
+    var costText=Number(r.gp_cost)>0?(Number(r.gp_cost).toFixed(0)+' GP'):'Free';
+    var rateText=r.success_rate+'%';
+    var seasonBadge=r.is_seasonal?'<span style="font-size:8px;background:rgba(255,183,77,.2);color:#ffb74d;border:1px solid rgba(255,183,77,.3);border-radius:8px;padding:1px 5px;margin-left:3px">SEASONAL</span>':'';
+    var catBadge=r.category!=='general'?'<span style="font-size:8px;background:rgba(160,232,160,.1);color:#a0e8a0;border:1px solid rgba(160,232,160,.2);border-radius:8px;padding:1px 5px;margin-left:3px">'+r.category.toUpperCase()+'</span>':'';
+    var btnStyle=canCraft
+      ?'cursor:pointer;background:rgba(160,232,160,.2);border:1px solid rgba(160,232,160,.5);color:#a0e8a0'
+      :'cursor:not-allowed;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--tx3);opacity:.6';
+    return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(160,232,160,'+(canCraft?'.2':'.07')+');border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:5px">'
+      +'<div style="font-size:11px;font-weight:700;color:#a0e8a0">⚗️ '+_escHtml(r.output_name||r.name)+' ×'+r.output_qty+'</div>'
+      +(r.description?'<div style="font-size:9px;color:var(--tx3)">'+_escHtml(r.description)+'</div>':'')
+      +'<div style="font-size:9px;color:#888">'+seasonBadge+catBadge+'</div>'
+      +'<div style="font-size:9px;color:var(--tx3)"><b style="color:#888">Need:</b> '+_escHtml(ingText)+'</div>'
+      +'<div style="display:flex;justify-content:space-between;font-size:9px">'
+        +'<span style="color:var(--gold)">'+costText+'</span>'
+        +'<span style="color:'+(Number(r.success_rate)>=80?'#a0e8a0':'#ffb74d')+'">'+rateText+' success</span>'
+      +'</div>'
+      +(Number(r.fail_refund_pct)>0?'<div style="font-size:9px;color:#888">Fail refund: '+r.fail_refund_pct+'%</div>':'')
+      +'<button onclick="attemptCraft('+r.id+')" style="width:100%;padding:6px;border-radius:6px;font-size:9px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;'+btnStyle+'" data-i18n="craft_btn">⚗️ CRAFT</button>'
+      +'</div>';
+  }).join('');
+}
+
+function attemptCraft(recipeId){
+  var w=(walletState&&walletState.address)||'';
+  if(!w){ gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
+  var recipe=_craftingRecipes.find(function(r){return r.id===recipeId;});
+  if(!recipe) return;
+  if(!recipe.canCraft){ gameAlert(t('craft_missing_ingredients')||'Missing ingredients'); return; }
+
+  var gpCost=Number(recipe.gp_cost);
+  var ingList=(recipe.ingredients||[]).map(function(i){
+    return '• '+(i.item_name||('Item #'+i.item_type_id))+' ×'+i.qty;
+  }).join('\n');
+  var confirmMsg=t('craft_confirm_title')||'Craft: '+recipe.output_name;
+  var subMsg=(ingList?ingList+'\n':'')+(gpCost>0?'Cost: '+gpCost+' GP\n':'')+'Success: '+recipe.success_rate+'%';
+
+  gameConfirm(confirmMsg, subMsg, function(){
+    var btn=document.querySelector('[onclick="attemptCraft('+recipeId+')"]');
+    if(btn){ btn.disabled=true; btn.textContent='Crafting…'; }
+    fetch('/api/crafting/craft',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w,recipeId:recipeId})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(btn){ btn.disabled=false; btn.textContent='⚗️ CRAFT'; }
+      if(d.error){ gameAlert(d.error); return; }
+      if(d.success){
+        gameAlert('✅ '+(t('craft_success')||'Craft success!')
+          +'\n+'+(d.outputQty||1)+'× '+(d.outputName||'item'));
+      }else{
+        var refMsg=d.gpRefunded>0?'\n'+t('craft_refund_partial')||'\nPartial GP refunded: '+d.gpRefunded:'';
+        gameAlert('❌ '+(t('craft_fail')||'Craft failed')+refMsg);
+      }
+      // Refresh recipes & balances
+      loadCraftingView();
+      if(typeof updateBalanceDisplays==='function') updateBalanceDisplays();
+    }).catch(function(e){
+      if(btn){ btn.disabled=false; btn.textContent='⚗️ CRAFT'; }
+      gameAlert('Error: '+e.message);
+    });
+  });
+}
+
+var _craftHistoryOpen=false;
+function toggleCraftHistory(){
+  var panel=document.getElementById('craftHistoryPanel');
+  if(!panel) return;
+  _craftHistoryOpen=!_craftHistoryOpen;
+  if(_craftHistoryOpen){
+    panel.style.display='block';
+    loadCraftHistory();
+  }else{
+    panel.style.display='none';
+  }
+}
+
+function loadCraftHistory(){
+  var panel=document.getElementById('craftHistoryPanel');
+  if(!panel) return;
+  var w=(walletState&&walletState.address)||'';
+  if(!w){ panel.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px">Connect wallet</div>'; return; }
+  panel.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px">Loading…</div>';
+  fetch('/api/crafting/log?wallet='+encodeURIComponent(w)+'&limit=20')
+    .then(function(r){return r.json();}).then(function(log){
+      if(!log.length){
+        panel.innerHTML='<div style="color:var(--tx3);font-size:10px;padding:8px" data-i18n="craft_no_history">No crafting history</div>';
+        return;
+      }
+      panel.innerHTML=log.map(function(l){
+        var dt=new Date(l.created_at).toLocaleDateString();
+        var result=l.success
+          ?'<span style="color:#a0e8a0">✅</span>'
+          :'<span style="color:var(--mars)">❌</span>';
+        var refund=l.gp_refunded>0?' <span style="color:#888;font-size:8px">+'+l.gp_refunded+' GP back</span>':'';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px">'
+          +'<span>'+result+' '+_escHtml(l.recipe_name||'Recipe #'+l.recipe_id)+'</span>'
+          +'<span style="color:#666">'+dt+' · '+l.gp_cost+' GP'+refund+'</span>'
+          +'</div>';
+      }).join('');
+    }).catch(function(){
+      panel.innerHTML='<div style="color:var(--mars);font-size:10px;padding:8px">Failed to load</div>';
+    });
+}
+
+function _escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 var _baseInventory=[];
 var _resourceInventory=[];

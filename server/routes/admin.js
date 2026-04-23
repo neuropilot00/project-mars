@@ -2426,4 +2426,95 @@ router.post('/bounties/cancel/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// CRAFTING SYSTEM — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/crafting — stats + recipes + settings
+router.get('/crafting', adminAuth, async (req, res) => {
+  let craftingSvc;
+  try { craftingSvc = require('../services/crafting'); } catch (_) {}
+  if (!craftingSvc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const [stats, recipes] = await Promise.all([
+      craftingSvc.getAdminStats(),
+      craftingSvc.getRecipes(null, null)
+    ]);
+    res.json({ ...stats, recipes });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/crafting/setting — update a crafting setting
+router.post('/crafting/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('crafting_')) {
+    return res.status(400).json({ error: 'Invalid setting key' });
+  }
+  try {
+    await pool.query(
+      `UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]
+    );
+    await auditLog(req, 'crafting_setting_update', key, { value });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/crafting/recipe — create new recipe
+router.post('/crafting/recipe', adminAuth, async (req, res) => {
+  let craftingSvc;
+  try { craftingSvc = require('../services/crafting'); } catch (_) {}
+  if (!craftingSvc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const recipe = await craftingSvc.adminCreateRecipe(req.body);
+    await auditLog(req, 'crafting_recipe_create', `recipe:${recipe.id}`, { name: recipe.name });
+    res.json(recipe);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// PUT /admin/api/crafting/recipe/:id — update recipe
+router.put('/crafting/recipe/:id', adminAuth, async (req, res) => {
+  let craftingSvc;
+  try { craftingSvc = require('../services/crafting'); } catch (_) {}
+  if (!craftingSvc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const recipe = await craftingSvc.adminUpdateRecipe(parseInt(req.params.id, 10), req.body);
+    await auditLog(req, 'crafting_recipe_update', `recipe:${req.params.id}`, req.body);
+    res.json(recipe);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// DELETE /admin/api/crafting/recipe/:id — deactivate recipe
+router.delete('/crafting/recipe/:id', adminAuth, async (req, res) => {
+  let craftingSvc;
+  try { craftingSvc = require('../services/crafting'); } catch (_) {}
+  if (!craftingSvc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    await craftingSvc.adminDeleteRecipe(parseInt(req.params.id, 10));
+    await auditLog(req, 'crafting_recipe_delete', `recipe:${req.params.id}`, {});
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /admin/api/crafting/item-types — for recipe ingredient picker
+router.get('/crafting/item-types', adminAuth, async (req, res) => {
+  let craftingSvc;
+  try { craftingSvc = require('../services/crafting'); } catch (_) {}
+  if (!craftingSvc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    res.json(await craftingSvc.getItemTypes());
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

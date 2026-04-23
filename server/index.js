@@ -89,6 +89,7 @@ const monumentRoutes    = require('./routes/monuments');
 const upgradeRoutes     = require('./routes/claimUpgrades');
 const bountyRoutes      = require('./routes/bounty');
 const shieldRoutes      = require('./routes/shield');
+const craftingRoutes    = require('./routes/crafting');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -210,6 +211,7 @@ app.use('/api', monumentRoutes);
 app.use('/api', upgradeRoutes);
 app.use('/api', bountyRoutes);
 app.use('/api', shieldRoutes);
+app.use('/api', craftingRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
