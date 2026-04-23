@@ -344,14 +344,19 @@ router.get('/referral/:wallet', async (req, res) => {
     // Count direct referrals
     const refCount = await pool.query('SELECT COUNT(*) as cnt FROM users WHERE referred_by = $1', [w]);
 
-    // Total earned from referrals
+    // Total earned from referrals (PP + GP separately) — Migration 099
     const earned = await pool.query(
-      'SELECT COALESCE(SUM(pp_amount), 0) as total FROM referral_rewards WHERE to_wallet = $1', [w]
+      `SELECT
+         COALESCE(SUM(pp_amount) FILTER (WHERE COALESCE(currency,'pp') != 'gp'), 0) AS total_pp,
+         COALESCE(SUM(COALESCE(gp_amount, 0)) FILTER (WHERE currency = 'gp'), 0) AS total_gp
+       FROM referral_rewards WHERE to_wallet = $1`, [w]
     );
 
-    // Tier breakdown
+    // Tier breakdown (PP)
     const tiers = await pool.query(
-      `SELECT tier, COUNT(*) as cnt, COALESCE(SUM(pp_amount), 0) as total
+      `SELECT tier, COUNT(*) as cnt,
+              COALESCE(SUM(pp_amount) FILTER (WHERE COALESCE(currency,'pp') != 'gp'), 0) as pp_total,
+              COALESCE(SUM(COALESCE(gp_amount, 0)) FILTER (WHERE currency = 'gp'), 0) as gp_total
        FROM referral_rewards WHERE to_wallet = $1 GROUP BY tier ORDER BY tier`, [w]
     );
 
@@ -360,8 +365,9 @@ router.get('/referral/:wallet', async (req, res) => {
       referredBy: userRes.rows[0].referred_by,
       referredByNickname: userRes.rows[0].referred_by_nickname || null,
       referrals: parseInt(refCount.rows[0].cnt),
-      totalEarned: parseFloat(earned.rows[0].total),
-      tiers: tiers.rows.map(t => ({ tier: t.tier, count: parseInt(t.cnt), earned: parseFloat(t.total) }))
+      totalEarned: parseFloat(earned.rows[0].total_pp),
+      totalEarnedGP: parseFloat(earned.rows[0].total_gp || 0),
+      tiers: tiers.rows.map(t => ({ tier: t.tier, count: parseInt(t.cnt), earned: parseFloat(t.pp_total), earnedGP: parseFloat(t.gp_total) }))
     });
   } catch (e) {
     console.error('[API] referral info error:', e.message);
@@ -379,14 +385,15 @@ router.get('/referral/leaderboard/top', async (req, res) => {
     const rows = await pool.query(
       `SELECT rr.to_wallet AS wallet,
               u.nickname,
-              COALESCE(SUM(rr.pp_amount), 0) AS total_earned,
+              COALESCE(SUM(rr.pp_amount) FILTER (WHERE COALESCE(rr.currency,'pp') != 'gp'), 0) AS total_pp,
+              COALESCE(SUM(COALESCE(rr.gp_amount, 0)) FILTER (WHERE rr.currency = 'gp'), 0) AS total_gp,
               COUNT(DISTINCT rr.from_wallet) AS downline_count,
               (SELECT COUNT(*) FROM users u2 WHERE u2.referred_by = rr.to_wallet) AS direct_count
        FROM referral_rewards rr
        LEFT JOIN users u ON u.wallet_address = rr.to_wallet
        WHERE rr.to_wallet NOT LIKE '0xnpc_%'
        GROUP BY rr.to_wallet, u.nickname
-       ORDER BY total_earned DESC
+       ORDER BY total_pp DESC
        LIMIT $1`,
       [limit]
     );
@@ -395,7 +402,8 @@ router.get('/referral/leaderboard/top', async (req, res) => {
         rank: i + 1,
         wallet: r.wallet,
         nickname: r.nickname || null,
-        totalEarned: parseFloat(r.total_earned),
+        totalEarned: parseFloat(r.total_pp),
+        totalEarnedGP: parseFloat(r.total_gp || 0),
         downlineCount: parseInt(r.downline_count),
         directCount: parseInt(r.direct_count)
       }))

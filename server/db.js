@@ -382,33 +382,52 @@ async function creditReferralCommission(client, fromWallet, triggerType, baseAmo
     if (!chain.length) return [];
 
     const cur = (currency || 'pp').toLowerCase();
-    const balCol = cur === 'usdt' ? 'usdt_balance' : 'pp_balance';
-    const ppCol = cur === 'usdt' ? 0 : 1; // for referral_rewards.pp_amount column
+    // ✅ Fix (Migration 099): correctly map currency to the right balance column
+    const balCol = cur === 'usdt' ? 'usdt_balance' : cur === 'gp' ? 'gp_balance' : 'pp_balance';
 
     // Pool that the tree shares for this event
-    const pool = baseAmount * (triggerPct / 100);
+    const commissionPool = baseAmount * (triggerPct / 100);
     const credited = [];
 
     for (const ref of chain) {
       const tierIdx = ref.tier - 1;
       const pct = tierPcts[tierIdx] || 0;
       if (pct <= 0) continue;
-      const reward = Math.round(pool * (pct / 100) * 1000000) / 1000000;
+      const reward = Math.round(commissionPool * (pct / 100) * 1000000) / 1000000;
       if (reward <= 0) continue;
 
-      // Credit upline balance
+      // Credit upline balance (correct column per currency)
       await client.query(
         `UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`,
         [reward, ref.wallet]
       );
 
-      // Log to referral_rewards (existing schema uses pp_amount; we record amount
-      // there regardless of currency, with currency tagged via trigger_type prefix).
-      await client.query(
-        `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [fromWallet.toLowerCase(), ref.wallet, ref.tier, reward, triggerType + (cur === 'usdt' ? '_usdt' : '')]
-      );
+      // Log to referral_rewards — use gp_amount for GP, pp_amount for PP/USDT
+      // Migration 099 adds gp_amount + currency columns
+      try {
+        if (cur === 'gp') {
+          await client.query(
+            `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, gp_amount, currency, trigger_type)
+             VALUES ($1, $2, $3, 0, $4, 'gp', $5)`,
+            [fromWallet.toLowerCase(), ref.wallet, ref.tier, reward, triggerType]
+          );
+        } else {
+          await client.query(
+            `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, gp_amount, currency, trigger_type)
+             VALUES ($1, $2, $3, $4, 0, $5, $6)`,
+            [fromWallet.toLowerCase(), ref.wallet, ref.tier, reward, cur, triggerType + (cur === 'usdt' ? '_usdt' : '')]
+          );
+        }
+      } catch (_le) {
+        // Fallback for pre-migration schema (no gp_amount column yet)
+        try {
+          await client.query(
+            `INSERT INTO referral_rewards (from_wallet, to_wallet, tier, pp_amount, trigger_type)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [fromWallet.toLowerCase(), ref.wallet, ref.tier, reward, triggerType + (cur !== 'pp' ? '_' + cur : '')]
+          );
+        } catch (_le2) {}
+      }
 
       credited.push({ tier: ref.tier, wallet: ref.wallet, amount: reward, currency: cur });
     }

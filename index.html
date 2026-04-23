@@ -2676,10 +2676,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
       <div style="height:1px;background:var(--bdr);margin:8px 0"></div>
       <div class="stat-row"><span class="stat-label">REFERRALS</span><span class="stat-val" id="refCount">0</span></div>
-      <div class="stat-row"><span class="stat-label">TOTAL EARNED</span><span class="stat-val" style="color:var(--pp)" id="refEarned">0 PP</span></div>
+      <div class="stat-row"><span class="stat-label" data-i18n="total_earned">TOTAL EARNED</span><span class="stat-val" style="color:var(--pp)" id="refEarned">0 PP</span></div>
       <div style="font-size:8px;color:var(--tx3);margin-top:6px;line-height:1.6">
         <span data-i18n="ref_tiers">Tier 1: 15% · Tier 2: 10% · Tier 3: 5%</span><br>
-        <span data-i18n="ref_sources">Earn from: deposit · swap · shop · harvest · cantina · hijack</span>
+        <span data-i18n="ref_sources">Earn from: deposit · swap · shop · harvest · cantina · hijack · enhance · marketplace · ships · battles</span>
       </div>
       <button class="sz-btn" onclick="toggleDynastyView()" style="width:100%;margin-top:8px;font-size:9px;padding:6px;color:var(--gold);border-color:rgba(255,184,77,.4);background:linear-gradient(135deg,rgba(255,184,77,.1),rgba(255,120,60,.05))"><span data-i18n="view_dynasty">👑 VIEW DYNASTY</span></button>
       <div id="dynastyViewWrap" style="display:none;margin-top:8px">
@@ -10228,7 +10228,7 @@ var I18N = {
     referral_program: 'REFERRAL PROGRAM', referral_desc: 'Share your code & earn PP<br>when referrals hijack territory!',
     codex_open: 'GAME GUIDEBOOK', codex_tagline: 'Learn the lore & mechanics', profile_prefs: 'PREFERENCES', profile_language: 'LANGUAGE', codex_prev: 'PREV', codex_next: 'NEXT',
     ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
-    ref_sources: 'Earn from: deposit · swap · shop · harvest · cantina · hijack',
+    ref_sources: 'Earn from: deposit · swap · shop · harvest · cantina · hijack · enhance · marketplace · ships · battles',
     view_dynasty: '👑 VIEW DYNASTY', dyn_leaderboard: 'LEADERBOARD', dyn_my_tree: 'MY TREE',
     my_ref_code: 'MY REFERRAL CODE', enter_ref_code: 'ENTER REFERRAL CODE',
     referrals: 'REFERRALS', total_earned: 'TOTAL EARNED', coming_soon: 'COMING SOON',
@@ -10797,7 +10797,7 @@ var I18N = {
     referral_program: '추천 프로그램', referral_desc: '코드를 공유하고 추천인이<br>영토를 탈취할 때 PP를 획득하세요!',
     codex_open: '게임 가이드북', codex_tagline: '세계관과 게임 구조 안내', profile_prefs: '환경 설정', profile_language: '언어', codex_prev: '이전', codex_next: '다음',
     ref_tiers: '1단계: 15% · 2단계: 10% · 3단계: 5%',
-    ref_sources: '수익원: 입금 · 스왑 · 상점 · 채굴 · 칸티나 · 탈취',
+    ref_sources: '수익원: 입금 · 스왑 · 상점 · 채굴 · 칸티나 · 탈취 · 강화 · 마켓 · 함선 · 전투',
     view_dynasty: '👑 다이너스티 보기', dyn_leaderboard: '리더보드', dyn_my_tree: '내 트리',
     my_ref_code: '내 추천 코드', enter_ref_code: '추천 코드 입력',
     referrals: '추천 수', total_earned: '총 수익', coming_soon: '준비 중',
@@ -11364,7 +11364,7 @@ var I18N = {
     referral_program: '紹介プログラム', referral_desc: 'コードを共有して紹介者が<br>領土を奪取するとPPを獲得！',
     codex_open: 'ゲームガイド', codex_tagline: '世界観とシステム解説', profile_prefs: '環境設定', profile_language: '言語', codex_prev: '前へ', codex_next: '次へ',
     ref_tiers: 'Tier 1: 15% · Tier 2: 10% · Tier 3: 5%',
-    ref_sources: '収益源: 入金 · スワップ · ショップ · 採掘 · カンティーナ · 奪取',
+    ref_sources: '収益源: 入金 · スワップ · ショップ · 採掘 · カンティーナ · 奪取 · 強化 · マーケット · 艦船 · 海戦',
     view_dynasty: '👑 ダイナスティ表示', dyn_leaderboard: 'ランキング', dyn_my_tree: 'マイツリー',
     my_ref_code: '紹介コード', enter_ref_code: '紹介コード入力',
     referrals: '紹介数', total_earned: '総収益', coming_soon: '準備中',
@@ -11915,7 +11915,7 @@ var I18N = {
     referral_program: '推荐计划', referral_desc: '分享你的推荐码，<br>当推荐人劫持领土时获得PP！',
     codex_open: '游戏指南', codex_tagline: '了解世界观与玩法机制', profile_prefs: '偏好设置', profile_language: '语言', codex_prev: '上一页', codex_next: '下一页',
     ref_tiers: '一级: 15% · 二级: 10% · 三级: 5%',
-    ref_sources: '收益来源: 充值 · 兑换 · 商店 · 挖矿 · 赌场 · 劫持',
+    ref_sources: '收益来源: 充值 · 兑换 · 商店 · 挖矿 · 赌场 · 劫持 · 强化 · 市场 · 舰船 · 海战',
     view_dynasty: '👑 查看王朝', dyn_leaderboard: '排行榜', dyn_my_tree: '我的树',
     my_ref_code: '我的推荐码', enter_ref_code: '输入推荐码',
     referrals: '推荐数', total_earned: '总收益', coming_soon: '即将上线',
@@ -13790,7 +13790,10 @@ async function loadReferralInfo(){
     var d=await resp.json();
     var code=d.code||'--';
     var refs=d.referrals||0;
-    var earnedStr=(d.totalEarned||0).toFixed(2)+' PP';
+    var earnedPP=(d.totalEarned||0).toFixed(2);
+    var earnedGP=(d.totalEarnedGP||0).toFixed(0);
+    // Build display string: show GP if non-zero (Migration 099)
+    var earnedStr=earnedPP+' PP'+(parseFloat(earnedGP)>0?' + '+earnedGP+' GP':'');
     var setText=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
     setText('myRefCode',code);
     setText('refCount',refs);
@@ -13799,7 +13802,7 @@ async function loadReferralInfo(){
     setText('profileMyRefCode',code);
     setText('profileRefCount',refs);
     setText('profileRefEarned',earnedStr);
-    // Real-time commission toast — diff against last seen value
+    // Real-time commission toast — diff against last seen PP value
     try{
       var key='refEarned:'+walletState.address.toLowerCase();
       var prev=parseFloat(localStorage.getItem(key)||'NaN');
@@ -13809,6 +13812,15 @@ async function loadReferralInfo(){
         showToast('💰 +'+delta+' PP commission earned!');
       }
       localStorage.setItem(key,String(curr));
+      // GP toast
+      var gpKey='refEarnedGP:'+walletState.address.toLowerCase();
+      var prevGP=parseFloat(localStorage.getItem(gpKey)||'NaN');
+      var currGP=parseFloat(d.totalEarnedGP||0);
+      if(!isNaN(prevGP) && currGP>prevGP+0.01){
+        var deltaGP=(currGP-prevGP).toFixed(0);
+        showToast('💎 +'+deltaGP+' GP referral commission!');
+      }
+      localStorage.setItem(gpKey,String(currGP));
     }catch(e){}
     var show=function(id,v){var el=document.getElementById(id);if(el)el.style.display=v;};
     if(d.referredBy){
