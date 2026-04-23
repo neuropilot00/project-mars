@@ -6923,8 +6923,15 @@ function _updateMyTerritories(){
       (function(claimItem){
         sellBtn.onclick=function(e){
           e.stopPropagation();
-          switchBaseTab('market',document.getElementById('baseTabMarket'));
-          setTimeout(function(){switchMarketView('sell',document.querySelectorAll('.mkt-view-btn')[1]);},200);
+          if(!walletState||!walletState.address){showToast(t('connect_wallet')||'Connect wallet first','error');return;}
+          // Direct sell: open listing modal immediately if we have the claim id
+          if(claimItem&&claimItem.id){
+            openListModal('claim',claimItem.id,'Territory #'+claimItem.id,'🗺️',0);
+          } else {
+            // Fallback: navigate to market sell tab
+            switchBaseTab('market',document.getElementById('baseTabMarket'));
+            setTimeout(function(){switchMarketView('sell',document.querySelectorAll('.mkt-view-btn')[1]);},200);
+          }
         };
       })(ec[0]);
     }
@@ -10318,8 +10325,9 @@ var I18N = {
     mkt_cancel_title: 'Cancel Listing', mkt_cancel_body: 'Cancel this listing and return the item?',
     mkt_cancel_confirm: 'CANCEL LISTING', mkt_cancelled: 'Listing cancelled',
     mkt_list_title: 'List for Sale', mkt_list_confirm: 'LIST FOR SALE',
-    mkt_fee_note: 'Listing fee: 2 GP · Sale fee: 5%', mkt_listed: 'Item listed on marketplace!',
+    mkt_fee_note: 'Listing fee: 2 GP · Sale fee: 5%', mkt_listed: 'Item listed on marketplace!', mkt_listed_territory: 'Territory listed on marketplace!',
     mkt_sellable_items: 'SELLABLE ITEMS', mkt_no_items: 'No items to sell. Materialize cosmetics from SHOP → MY ITEMS first.',
+    mkt_sellable_terr: 'MY TERRITORIES', mkt_no_territories: 'No territories owned.',
     mkt_no_listings: 'No listings yet',
     // ── AUCTION section ──
     mkt_auction: '🔨 AUCTION',
@@ -10887,8 +10895,9 @@ var I18N = {
     mkt_cancel_title: '리스팅 취소', mkt_cancel_body: '리스팅을 취소하고 아이템을 반환하시겠습니까?',
     mkt_cancel_confirm: '리스팅 취소', mkt_cancelled: '리스팅이 취소되었습니다',
     mkt_list_title: '판매 등록', mkt_list_confirm: '판매 등록',
-    mkt_fee_note: '등록비: 2 GP · 판매 수수료: 5%', mkt_listed: '마켓에 등록되었습니다!',
+    mkt_fee_note: '등록비: 2 GP · 판매 수수료: 5%', mkt_listed: '마켓에 등록되었습니다!', mkt_listed_territory: '영토가 마켓에 등록되었습니다!',
     mkt_sellable_items: '판매 가능 아이템', mkt_no_items: '판매할 아이템이 없습니다. 상점→내 아이템에서 코스메틱을 먼저 변환하세요.',
+    mkt_sellable_terr: '내 영토', mkt_no_territories: '보유 영토가 없습니다.',
     mkt_no_listings: '등록된 리스팅이 없습니다',
     // ── AUCTION section ──
     mkt_auction: '🔨 경매',
@@ -11455,8 +11464,9 @@ var I18N = {
     mkt_cancel_title: '出品キャンセル', mkt_cancel_body: '出品をキャンセルしてアイテムを返却しますか？',
     mkt_cancel_confirm: '出品キャンセル', mkt_cancelled: '出品がキャンセルされました',
     mkt_list_title: '出品する', mkt_list_confirm: '出品する',
-    mkt_fee_note: '出品料: 2 GP · 販売手数料: 5%', mkt_listed: 'マーケットに出品しました！',
+    mkt_fee_note: '出品料: 2 GP · 販売手数料: 5%', mkt_listed: 'マーケットに出品しました！', mkt_listed_territory: '領土をマーケットに出品しました！',
     mkt_sellable_items: '出品可能アイテム', mkt_no_items: '出品できるアイテムがありません。ショップ→マイアイテムでコスメを変換してください。',
+    mkt_sellable_terr: 'マイ領土', mkt_no_territories: '所有している領土がありません。',
     mkt_no_listings: '出品がありません',
     // ── AUCTION section ──
     mkt_auction: '🔨 オークション',
@@ -12007,8 +12017,9 @@ var I18N = {
     mkt_cancel_title: '取消上架', mkt_cancel_body: '取消上架并返还道具？',
     mkt_cancel_confirm: '取消上架', mkt_cancelled: '已取消上架',
     mkt_list_title: '上架出售', mkt_list_confirm: '确认上架',
-    mkt_fee_note: '上架费: 2 GP · 销售手续费: 5%', mkt_listed: '已上架到市场！',
+    mkt_fee_note: '上架费: 2 GP · 销售手续费: 5%', mkt_listed: '已上架到市场！', mkt_listed_territory: '领土已上架到市场！',
     mkt_sellable_items: '可出售道具', mkt_no_items: '没有可出售的道具。请先在商店→我的道具中转换装饰品。',
+    mkt_sellable_terr: '我的领土', mkt_no_territories: '暂无拥有的领土。',
     mkt_no_listings: '暂无上架',
     // ── AUCTION section ──
     mkt_auction: '🔨 拍卖',
@@ -14967,11 +14978,41 @@ function loadSellView(){
   var w=(walletState&&walletState.address)||'';
   if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Connect wallet first</div>';return;}
   el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
-  // Load instances available for selling
-  fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(instances){
-    var html='<div style="font-size:10px;color:var(--gold);font-weight:800;letter-spacing:.5px;margin-bottom:8px">📦 '+(t('mkt_sellable_items')||'SELLABLE ITEMS')+'</div>';
+  Promise.all([
+    fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
+    fetch('/api/user/my-territories?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {territories:[]}})
+  ]).then(function(res){
+    var instances=Array.isArray(res[0])?res[0]:(res[0]||[]);
+    var territories=(res[1].territories)||[];
+    var html='';
+
+    // ── TERRITORIES section ──
+    html+='<div style="font-size:10px;color:var(--mars);font-weight:800;letter-spacing:.5px;margin-bottom:6px">🗺️ '+(t('mkt_sellable_terr')||'MY TERRITORIES')+'</div>';
+    if(!territories.length){
+      html+='<div style="text-align:center;color:var(--tx3);padding:10px 0 14px;font-size:10px">'+(t('mkt_no_territories')||'No territories owned.')+'</div>';
+    }else{
+      html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px">';
+      territories.forEach(function(terr){
+        var locked=terr.marketplace_locked;
+        var px=parseInt(terr.pixel_count)||0;
+        var coordStr=parseFloat(terr.center_lat).toFixed(1)+'°, '+parseFloat(terr.center_lng).toFixed(1)+'°';
+        html+='<div style="background:rgba(255,120,60,.04);border:1px solid rgba(255,120,60,'+(locked?.25:.1)+');border-radius:8px;padding:9px;display:flex;flex-direction:column;gap:3px">';
+        html+='<div style="font-size:9px;font-weight:700;color:var(--mars)">🗺️ Territory #'+terr.id+'</div>';
+        html+='<div style="font-size:7px;color:var(--tx3)">'+coordStr+' · '+px+'px</div>';
+        if(locked){
+          html+='<div style="font-size:8px;color:#4cd89a;font-weight:700;margin-top:2px">💰 '+(t('terr_for_sale')||'FOR SALE')+'</div>';
+        }else{
+          html+='<button onclick="openListModal(\'claim\','+terr.id+',\'Territory #'+terr.id+'\',\'🗺️\',0)" style="font-size:8px;font-weight:700;padding:4px 8px;border-radius:4px;border:1px solid rgba(255,120,60,.4);background:rgba(255,120,60,.1);color:var(--mars);cursor:pointer;font-family:var(--fn);margin-top:2px">💰 '+(t('mkt_list_sell')||'SELL')+'</button>';
+        }
+        html+='</div>';
+      });
+      html+='</div>';
+    }
+
+    // ── ITEMS section ──
+    html+='<div style="font-size:10px;color:var(--gold);font-weight:800;letter-spacing:.5px;margin-bottom:6px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px">📦 '+(t('mkt_sellable_items')||'SELLABLE ITEMS')+'</div>';
     if(!instances||!instances.length){
-      html+='<div style="text-align:center;color:var(--tx3);padding:16px;font-size:10px">'+(t('mkt_no_items')||'No items to sell. Materialize cosmetics from SHOP → MY ITEMS first.')+'</div>';
+      html+='<div style="text-align:center;color:var(--tx3);padding:10px 0;font-size:10px">'+(t('mkt_no_items')||'No items to sell. Materialize cosmetics from SHOP → MY ITEMS first.')+'</div>';
     }else{
       html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
       instances.forEach(function(inst){
@@ -15009,8 +15050,11 @@ function openListModal(type,idVal,name,icon,enhLv){
     fetch('/api/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
     .then(function(r){return r.json()}).then(function(d){
       if(d.error){showToast(d.error,'error');return;}
-      showToast('✅ '+(t('mkt_listed')||'Item listed on marketplace!'));
-      refreshBalance(); loadSellView();
+      showToast('✅ '+(type==='claim'?(t('mkt_listed_territory')||'Territory listed on marketplace!'):(t('mkt_listed')||'Item listed on marketplace!')));
+      refreshBalance();
+      loadSellView();
+      // Refresh FOR SALE map overlay + territory list if claim was listed
+      if(type==='claim'){ try{loadForSaleOverlay();}catch(_){} try{_updateMyTerritories();}catch(_){} }
     }).catch(function(){showToast('Listing failed','error')});
   });
 }

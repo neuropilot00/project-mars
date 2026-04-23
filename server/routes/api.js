@@ -5474,4 +5474,34 @@ router.get('/gp/activity', readLimiter, async (req, res) => {
   }
 });
 
+// GET /api/user/my-territories?wallet= — user's claim list for marketplace sell view (Migration 101)
+router.get('/user/my-territories', readLimiter, async (req, res) => {
+  const wallet = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+  if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+  try {
+    const enabled = await pool.query("SELECT value FROM settings WHERE key='territory_sell_enabled'");
+    if (enabled.rows[0]?.value === 'false') return res.json({ territories: [], disabled: true });
+
+    const result = await pool.query(
+      `SELECT c.id, c.center_lat, c.center_lng, c.width, c.height,
+              c.image_url, c.link_url, c.marketplace_locked,
+              c.total_paid,
+              COUNT(p.id) AS pixel_count,
+              u.nickname AS owner_nick
+         FROM claims c
+         LEFT JOIN pixels p ON p.claim_id = c.id
+         LEFT JOIN users  u ON u.wallet_address = c.owner
+        WHERE c.owner = $1 AND c.deleted_at IS NULL
+        GROUP BY c.id, u.nickname
+        ORDER BY c.created_at DESC
+        LIMIT 50`,
+      [wallet]
+    );
+    res.json({ territories: result.rows });
+  } catch (err) {
+    console.error('[API] my-territories error:', err.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
 module.exports = router;
