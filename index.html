@@ -3587,6 +3587,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
           </div>
         </div>
+
+        <!-- GP BURN Section (collapsible) -->
+        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
+             onclick="toggleBurn()">
+          <span>🔥 <span data-i18n="burn_title">GP BURN</span></span>
+          <span id="burnToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="burnPanel" style="display:none;padding:0 0 8px">
+          <div id="burnContent" style="padding:8px 0">
+            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: QUESTS -->
@@ -10512,6 +10524,7 @@ var I18N = {
     news_title: 'PLANET NEWS',
     lottery_title: 'GP LOTTERY', lottery_disabled: 'Lottery disabled', lottery_round: 'ROUND', lottery_ends: 'ENDS IN', lottery_recent_winners: 'RECENT WINNERS',
     staking_title: 'GP STAKING', staking_stake_btn: '💎 STAKE GP', staking_confirm_title: 'STAKE GP', staking_confirm_btn: 'STAKE', staking_withdraw_title: 'WITHDRAW STAKE', staking_withdraw_btn: 'WITHDRAW',
+    burn_title: 'GP BURN',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11089,6 +11102,7 @@ var I18N = {
     news_title: '행성 뉴스',
     lottery_title: 'GP 복권', lottery_disabled: '복권 비활성화', lottery_round: '라운드', lottery_ends: '종료까지', lottery_recent_winners: '최근 당첨자',
     staking_title: 'GP 스테이킹', staking_stake_btn: '💎 GP 스테이크', staking_confirm_title: 'GP 스테이킹', staking_confirm_btn: '스테이크', staking_withdraw_title: '스테이크 인출', staking_withdraw_btn: '인출',
+    burn_title: 'GP 소각',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -11665,6 +11679,7 @@ var I18N = {
     news_title: '惑星ニュース',
     lottery_title: 'GP宝くじ', lottery_disabled: '宝くじ無効', lottery_round: 'ラウンド', lottery_ends: '終了まで', lottery_recent_winners: '最近の当選者',
     staking_title: 'GPステーキング', staking_stake_btn: '💎 ステーク', staking_confirm_title: 'GPステーキング', staking_confirm_btn: 'ステーク', staking_withdraw_title: '引き出し', staking_withdraw_btn: '引き出す',
+    burn_title: 'GP焼却',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12225,6 +12240,7 @@ var I18N = {
     news_title: '星球新闻',
     lottery_title: 'GP抽奖', lottery_disabled: '抽奖已禁用', lottery_round: '轮次', lottery_ends: '剩余时间', lottery_recent_winners: '近期中奖者',
     staking_title: 'GP质押', staking_stake_btn: '💎 质押GP', staking_confirm_title: 'GP质押', staking_confirm_btn: '质押', staking_withdraw_title: '提取质押', staking_withdraw_btn: '提取',
+    burn_title: 'GP销毁',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -18846,6 +18862,104 @@ function doWithdraw(stakeId) {
           loadWalletData();
         })
         .catch(function() { showToast('Withdrawal failed', 'error'); });
+    }
+  });
+}
+
+// ── GP BURN (Migration 108) ──────────────────────────────────────────────────
+var _burnPanelOpen = false;
+
+function toggleBurn() {
+  _burnPanelOpen = !_burnPanelOpen;
+  document.getElementById('burnPanel').style.display = _burnPanelOpen ? '' : 'none';
+  document.getElementById('burnToggle').textContent = _burnPanelOpen ? '▲' : '▼';
+  if (_burnPanelOpen) loadBurnPanel();
+}
+
+function loadBurnPanel() {
+  var el = document.getElementById('burnContent');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
+  var wallet = walletState.address || '';
+
+  fetch('/api/burn/catalog?wallet=' + wallet)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (!data.enabled) {
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">GP Burn is currently disabled</div>';
+        return;
+      }
+      renderBurnPanel(data.types || []);
+    })
+    .catch(function() {
+      el.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:10px;padding:8px">Failed to load</div>';
+    });
+}
+
+function renderBurnPanel(types) {
+  var el = document.getElementById('burnContent');
+  if (!el) return;
+
+  var html = '<div style="font-size:9px;color:var(--tx3);margin-bottom:8px;padding:0 2px">Permanently burn GP to activate exclusive time-limited buffs.</div>';
+
+  types.forEach(function(t) {
+    var isActive = t.active;
+    var secsRem = t.seconds_remaining || 0;
+    var timeStr = '';
+    if (isActive && secsRem > 0) {
+      var h = Math.floor(secsRem / 3600);
+      var m = Math.floor((secsRem % 3600) / 60);
+      timeStr = h > 0 ? h + 'h ' + m + 'm' : m + 'm';
+    }
+
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:6px;margin-bottom:4px;border:1px solid rgba(255,255,255,.07)'
+      + (isActive ? ';border-color:' + t.color + '40;background:rgba(255,255,255,.06)' : '') + '">'
+      + '<div style="font-size:20px;min-width:28px;text-align:center">' + t.icon + '</div>'
+      + '<div style="flex:1">'
+      + '<div style="font-size:10px;font-weight:700;color:' + t.color + '">' + t.name + '</div>'
+      + '<div style="font-size:9px;color:var(--tx3)">' + t.desc + '</div>'
+      + (isActive ? '<div style="font-size:9px;color:var(--gn);margin-top:2px">✅ Active — ' + timeStr + ' left</div>' : '')
+      + '</div>'
+      + '<div style="text-align:right">'
+      + '<button onclick="doBurnGP(\'' + t.key + '\',' + t.cost + ')" '
+      + 'style="font-size:9px;padding:5px 8px;border-radius:5px;cursor:pointer;font-weight:700;white-space:nowrap;'
+      + (isActive
+        ? 'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);color:var(--tx3)'
+        : 'background:rgba(255,80,30,.2);border:1px solid rgba(255,80,30,.35);color:var(--mars)')
+      + '">'
+      + (isActive ? '+' + t.hours + 'h ' : '') + '🔥 ' + Math.round(t.cost) + ' GP</button>'
+      + '</div>'
+      + '</div>';
+  });
+
+  el.innerHTML = html;
+}
+
+function doBurnGP(burnType, cost) {
+  if (!walletState.address) return showToast('Connect wallet first', 'error');
+  gameConfirm({
+    icon: '🔥',
+    title: 'BURN GP',
+    body: 'Permanently burn <b style="color:var(--mars)">' + Math.round(cost) + ' GP</b> for this effect?<br><span style="font-size:10px;color:var(--tx3)">This GP is gone forever.</span>',
+    confirmLabel: '🔥 BURN',
+    confirmStyle: 'background:rgba(255,80,30,.3);border-color:rgba(255,80,30,.5);color:var(--mars)',
+    onConfirm: function() {
+      fetch('/api/burn/burn', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ wallet: walletState.address, burnType: burnType })
+      })
+        .then(function(r){ return r.json(); })
+        .then(function(d) {
+          if (d.error) return showToast(d.error, 'error');
+          var msg = d.extended
+            ? '🔥 ' + d.name + ' extended! (' + d.hours + 'h added)'
+            : '🔥 ' + d.name + ' activated! (' + d.hours + 'h)';
+          showToast(msg, 'success');
+          loadBurnPanel();
+          loadWalletData();
+        })
+        .catch(function() { showToast('Burn failed', 'error'); });
     }
   });
 }

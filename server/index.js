@@ -82,6 +82,7 @@ const shipRoutes    = require('./routes/ships');
 const battleRoutes  = require('./routes/battle');
 const lotteryRoutes  = require('./routes/lottery');
 const stakingRoutes  = require('./routes/staking');
+const gpBurnRoutes   = require('./routes/gpBurn');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -196,6 +197,7 @@ app.use('/api', shipRoutes);
 app.use('/api', battleRoutes);
 app.use('/api', lotteryRoutes);
 app.use('/api', stakingRoutes);
+app.use('/api', gpBurnRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -775,6 +777,18 @@ async function start() {
       }, 60 * 1000);
       console.log('[LOTTERY] Draw scheduler started (1min interval)');
     } catch(e) { console.warn('[LOTTERY] Could not init draw scheduler:', e.message); }
+
+    // ── GP Burn: Clean expired burn effects (every 10 minutes) ──
+    try {
+      const { cleanExpiredBurns } = require('./services/gpBurn');
+      setInterval(async () => {
+        try {
+          const n = await cleanExpiredBurns();
+          if (n > 0) console.log(`[BURN] Cleaned ${n} expired burn effect(s)`);
+        } catch(e) { console.warn('[BURN] cleanup error:', e.message); }
+      }, 10 * 60 * 1000);
+      console.log('[BURN] Expired-burn cleanup scheduler started (10min interval)');
+    } catch(e) { console.warn('[BURN] Could not init cleanup scheduler:', e.message); }
 
     // ── Staking: Mark matured stakes as ready (every 5 minutes) ──
     try {

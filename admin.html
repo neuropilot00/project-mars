@@ -964,6 +964,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="stakingAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ GP BURN TAB ═══ -->
+  <div class="section cat-gp" style="display:none" id="burnAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--mars)">🔥 GP BURN SINK</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadBurnAdmin()" style="font-size:10px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+      </div>
+    </div>
+    <div id="burnAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:var(--mars)">RECENT BURNS</span></div>
+    <div id="burnAdmRecentTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:var(--mars)">BURN SETTINGS</span></div>
+    <div id="burnAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ POI DROP TABLE TAB ═══ -->
   <div class="section cat-poi" style="display:none">
     <div class="sec-header">
@@ -1414,7 +1429,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -3568,6 +3583,77 @@ function saveStakingSetting(key) {
     if (d.error) return alert('Error: ' + d.error);
     showToast('✅ ' + key + ' saved');
     loadStakingAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  GP BURN ADMIN (Migration 108)
+// ══════════════════════════════════════
+function loadBurnAdmin() {
+  var statsEl   = document.getElementById('burnAdmStats');
+  var recentEl  = document.getElementById('burnAdmRecentTable');
+  var settingsEl = document.getElementById('burnAdmSettings');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  apiJson('/admin/api/burn').catch(function(){ return null; }).then(function(data) {
+    if (!data) { statsEl.innerHTML = '<div style="color:red;font-size:10px">Failed to load — run migration 108</div>'; return; }
+
+    statsEl.innerHTML = [
+      statCard('Total Burns',     data.total_burns     || 0,                                          'var(--mars)'),
+      statCard('Total GP Burned', Math.round(data.total_gp_burned||0) + ' GP',                        '#FFD166'),
+      statCard('Unique Burners',  data.unique_burners  || 0,                                          'var(--cyan)'),
+    ].join('');
+
+    // By-type breakdown
+    var byType = data.by_type || [];
+    if (byType.length) {
+      var typeHtml = '<table class="adm-table" style="font-size:9px;margin-bottom:8px"><thead><tr><th>TYPE</th><th>BURNS</th><th>TOTAL BURNED</th></tr></thead><tbody>'
+        + byType.map(function(b) {
+          return '<tr><td>'+escapeHtml(b.burn_type)+'</td><td>'+b.cnt+'</td><td style="color:var(--mars)">'+Math.round(parseFloat(b.total_burned||0))+' GP</td></tr>';
+        }).join('') + '</tbody></table>';
+      statsEl.innerHTML += typeHtml;
+    }
+
+    var recent = data.recent_burns || [];
+    recentEl.innerHTML = recent.length ? (
+      '<table class="adm-table" style="font-size:9px"><thead><tr>'
+      +'<th>PLAYER</th><th>TYPE</th><th>BURNED</th><th>WHEN</th></tr></thead><tbody>'
+      + recent.map(function(r) {
+        var name = r.nickname || (r.wallet||'').slice(0,10)+'...';
+        return '<tr>'
+          +'<td>'+escapeHtml(name)+'</td>'
+          +'<td>'+escapeHtml(r.burn_type)+'</td>'
+          +'<td style="color:var(--mars)">'+Math.round(parseFloat(r.gp_burned||0))+' GP</td>'
+          +'<td style="font-size:8px">'+(r.created_at ? new Date(r.created_at).toLocaleDateString() : '—')+'</td>'
+          +'</tr>';
+      }).join('')
+      +'</tbody></table>'
+    ) : '<div style="font-size:10px;color:#888">No burns yet</div>';
+
+    var settings = data.settings || {};
+    settingsEl.innerHTML = Object.keys(settings).length ? Object.keys(settings).map(function(key) {
+      return '<div style="background:rgba(255,80,30,.04);border:1px solid rgba(255,80,30,.12);border-radius:6px;padding:8px">'
+        +'<div style="font-size:9px;color:var(--mars);font-weight:700;margin-bottom:2px">'+escapeHtml(key)+'</div>'
+        +'<div style="display:flex;gap:4px;align-items:center">'
+        +'<input id="burn_set_'+escapeHtml(key)+'" value="'+escapeHtml(String(settings[key]))+'" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
+        +'<button onclick="saveBurnSetting(\''+escapeHtml(key)+'\')" style="font-size:9px;padding:3px 8px;background:rgba(255,80,30,.15);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">SAVE</button>'
+        +'</div></div>';
+    }).join('') : '<div style="font-size:10px;color:#888">No settings found. Run migration 108.</div>';
+  });
+}
+
+function saveBurnSetting(key) {
+  var inp = document.getElementById('burn_set_' + key);
+  if (!inp) return;
+  fetch('/admin/api/burn/setting', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ key: key, value: inp.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ ' + key + ' saved');
+    loadBurnAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 

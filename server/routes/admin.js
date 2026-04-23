@@ -2058,6 +2058,39 @@ router.delete('/news/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ── GP Burn Admin (Migration 108) ────────────────────────────────────────────
+
+// GET /admin/api/burn — stats + settings
+router.get('/burn', adminAuth, async (req, res) => {
+  try {
+    let burnService;
+    try { burnService = require('../services/gpBurn'); } catch (_) {}
+    if (!burnService) return res.status(503).json({ error: 'Burn service unavailable' });
+    const stats = await burnService.getAdminStats();
+    res.json(stats);
+  } catch (e) {
+    console.error('[Admin] burn error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/burn/setting — update a burn setting
+router.post('/burn/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body;
+  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
+  if (!key.startsWith('burn_')) return res.status(400).json({ error: 'Invalid burn key' });
+  try {
+    await pool.query(
+      `UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`,
+      [key, String(value)]
+    );
+    await auditLog(req, 'update_burn_setting', key, { value });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── GP Staking Admin (Migration 107) ─────────────────────────────────────────
 
 // GET /admin/api/staking — stats + settings
