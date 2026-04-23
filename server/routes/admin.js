@@ -3348,4 +3348,41 @@ router.post('/wager/setting', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Territory Events Admin (Migration 131) ───────────────────────────────────
+
+// GET /admin/api/tevt
+router.get('/tevt', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/tevt'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, active: [] });
+  try {
+    const [stats, active] = await Promise.all([
+      svc.getAdminStats(),
+      svc.getActiveEvents()
+    ]);
+    res.json({ stats, active });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/tevt/:id — force-expire an event
+router.delete('/tevt/:id', adminAuth, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE territory_events SET is_active=false WHERE id=$1`, [req.params.id]);
+    await auditLog(req, 'tevt_force_expire', `tevt:${req.params.id}`, {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/tevt/setting
+router.post('/tevt/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('tevt_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'tevt_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

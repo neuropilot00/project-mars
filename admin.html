@@ -1419,6 +1419,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ TERRITORY EVENTS (Migration 131) ═══ -->
+  <div class="section cat-gp" style="display:none" id="tevtAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#80cbc4">⚡ TERRITORY EVENTS</span>
+      <button onclick="loadTevtAdmin()" style="font-size:10px;background:rgba(128,203,196,.12);border:1px solid rgba(128,203,196,.3);color:#80cbc4;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="tevtAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80cbc4">ACTIVE EVENTS</span></div>
+    <div id="tevtAdmActive" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80cbc4">SETTINGS</span></div>
+    <div id="tevtAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ VIP PASS SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="vipAdminSection">
     <div class="sec-header">
@@ -2134,7 +2147,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -5920,6 +5933,118 @@ function saveWagerSetting(key) {
   var el = document.getElementById('wgr_'+key);
   if (!el) return;
   fetch('/admin/api/wager/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  TERRITORY EVENTS ADMIN (Migration 131)
+// ══════════════════════════════════════
+function loadTevtAdmin() {
+  var statsEl  = document.getElementById('tevtAdmStats');
+  var activeEl = document.getElementById('tevtAdmActive');
+  var setsEl   = document.getElementById('tevtAdmSettings');
+  if (!statsEl) return;
+  [statsEl, activeEl, setsEl].forEach(function(el){ if(el) el.innerHTML='<span style="color:#555;font-size:11px">Loading…</span>'; });
+  fetch('/admin/api/tevt', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var s = d.stats || {};
+      if (statsEl) statsEl.innerHTML = [
+        { l:'Active Events',        v: s.active_events||0 },
+        { l:'Total GP Spent',       v: (s.total_gp_spent||0)+' GP' },
+        { l:'Unique Players',       v: s.unique_players||0 },
+        { l:'Mining Rush',          v: s.mining_rush_count||0 },
+        { l:'Harvest Festival',     v: s.harvest_festival_count||0 },
+        { l:'Beacon Pulse',         v: s.beacon_pulse_count||0 },
+        { l:'Fortify Surge',        v: s.fortify_surge_count||0 },
+        { l:'Tax Holiday',          v: s.tax_holiday_count||0 },
+      ].map(function(x){
+        return '<div style="background:#0d0d1a;border:1px solid #1a1a2e;border-radius:6px;padding:8px;text-align:center">'
+          + '<div style="color:#80cbc4;font-size:14px;font-weight:700">'+x.v+'</div>'
+          + '<div style="color:#555;font-size:9px;margin-top:2px">'+x.l+'</div></div>';
+      }).join('');
+      var rows = d.active || [];
+      var evtIcons = { mining_rush:'⛏️', harvest_festival:'🌾', beacon_pulse:'📡', fortify_surge:'🛡️', tax_holiday:'💸' };
+      if (activeEl) {
+        if (!rows.length) { activeEl.innerHTML = '<div style="color:#555;font-size:11px">No active events</div>'; }
+        else {
+          activeEl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:10px">'
+            + '<thead><tr style="color:#888">'
+              + '<th style="text-align:left;padding:4px 6px">Type</th>'
+              + '<th style="text-align:left;padding:4px 6px">Claim</th>'
+              + '<th style="text-align:left;padding:4px 6px">Player</th>'
+              + '<th style="text-align:right;padding:4px 6px">GP</th>'
+              + '<th style="text-align:right;padding:4px 6px">Expires</th>'
+              + '<th style="text-align:center;padding:4px 6px">Action</th></tr></thead><tbody>'
+            + rows.map(function(ev){
+              var icon = evtIcons[ev.event_type]||'⚡';
+              var nick = ev.nickname || (ev.wallet ? ev.wallet.slice(0,6)+'…'+ev.wallet.slice(-4) : '?');
+              var exp = new Date(ev.expires_at).toLocaleString();
+              return '<tr style="border-top:1px solid #1a1a2e">'
+                + '<td style="padding:4px 6px;color:#80cbc4">'+icon+' '+ev.event_type+'</td>'
+                + '<td style="padding:4px 6px;color:#aaa">#'+ev.claim_id+'</td>'
+                + '<td style="padding:4px 6px;color:#aaa">'+nick+'</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#80cbc4">'+ev.gp_cost+' GP</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#555">'+exp+'</td>'
+                + '<td style="padding:4px 6px;text-align:center"><button onclick="adminExpireTevt('+ev.id+')" style="font-size:9px;padding:2px 6px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:#e84855;border-radius:4px;cursor:pointer">EXPIRE</button></td></tr>';
+            }).join('')
+            + '</tbody></table>';
+        }
+      }
+      var settingKeys = [
+        { k:'tevt_enabled',                l:'Enabled',               t:'select', opts:['true','false'] },
+        { k:'tevt_mining_rush_gp',         l:'Mining Rush GP',        t:'number' },
+        { k:'tevt_mining_rush_h',          l:'Mining Rush Hours',     t:'number' },
+        { k:'tevt_mining_rush_bonus_pct',  l:'Mining Rush Bonus %',   t:'number' },
+        { k:'tevt_harvest_festival_gp',    l:'Harvest Festival GP',   t:'number' },
+        { k:'tevt_harvest_festival_h',     l:'Harvest Festival Hours',t:'number' },
+        { k:'tevt_beacon_pulse_gp',        l:'Beacon Pulse GP',       t:'number' },
+        { k:'tevt_beacon_pulse_h',         l:'Beacon Pulse Hours',    t:'number' },
+        { k:'tevt_fortify_surge_gp',       l:'Fortify Surge GP',      t:'number' },
+        { k:'tevt_fortify_surge_h',        l:'Fortify Surge Hours',   t:'number' },
+        { k:'tevt_tax_holiday_gp',         l:'Tax Holiday GP',        t:'number' },
+        { k:'tevt_tax_holiday_h',          l:'Tax Holiday Hours',     t:'number' },
+        { k:'tevt_max_concurrent',         l:'Max Concurrent/Claim',  t:'number' },
+        { k:'tevt_cooldown_h',             l:'Cooldown Hours',        t:'number' },
+      ];
+      fetch('/admin/api/settings?category=tevt', { headers: { 'x-admin-secret': window.ADMIN_SECRET||'' } })
+        .then(function(r){return r.json();}).then(function(sets){
+          var map = {};
+          (sets||[]).forEach(function(s){ map[s.key]=s.value; });
+          if (setsEl) setsEl.innerHTML = settingKeys.map(function(sk){
+            var cur = map[sk.k] !== undefined ? map[sk.k] : '';
+            var inp = sk.t === 'select'
+              ? '<select id="tevt_'+sk.k+'" onchange="saveTevtSetting(\''+sk.k+'\')" style="background:#0d0d1a;border:1px solid #222;color:#eee;padding:4px 6px;border-radius:4px;width:100%">'
+                + sk.opts.map(function(o){ return '<option value="'+o+'"'+(cur===o?' selected':'')+'>'+o+'</option>'; }).join('')
+                + '</select>'
+              : '<input id="tevt_'+sk.k+'" type="'+(sk.t||'text')+'" value="'+cur+'" onblur="saveTevtSetting(\''+sk.k+'\')" style="background:#0d0d1a;border:1px solid #222;color:#eee;padding:4px 6px;border-radius:4px;width:100%;box-sizing:border-box">';
+            return '<div style="background:#0d0d1a;border:1px solid #1a1a2e;border-radius:6px;padding:8px"><div style="color:#888;font-size:9px;margin-bottom:4px">'+sk.l+'</div>'+inp+'</div>';
+          }).join('');
+        }).catch(function(){});
+    }).catch(function(e){ if(statsEl) statsEl.innerHTML='<span style="color:#e84855">'+e.message+'</span>'; });
+}
+
+function adminExpireTevt(id) {
+  if (!confirm('Force expire event #'+id+'?')) return;
+  fetch('/admin/api/tevt/'+id, {
+    method: 'DELETE', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('⚡ Event expired');
+    loadTevtAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveTevtSetting(key) {
+  var el = document.getElementById('tevt_'+key);
+  if (!el) return;
+  fetch('/admin/api/tevt/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })

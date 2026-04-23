@@ -105,6 +105,7 @@ const profileRoutes     = require('./routes/profile');
 const tiersRoutes       = require('./routes/tiers');
 const raffleRoutes      = require('./routes/raffle');
 const wagerRoutes       = require('./routes/wager');
+const tevtRoutes        = require('./routes/tevt');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -242,6 +243,7 @@ app.use('/api', profileRoutes);
 app.use('/api', tiersRoutes);
 app.use('/api', raffleRoutes);
 app.use('/api', wagerRoutes);
+app.use('/api', tevtRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -995,6 +997,14 @@ async function start() {
       }, 60 * 1000);
       console.log('[WAGER] Auto-lock scheduler started (1min interval)');
     } catch(e) { console.warn('[WAGER] Could not init lock scheduler:', e.message); }
+
+    try {
+      const { expireEvents } = require('./services/tevt');
+      setInterval(async () => {
+        try { await expireEvents(); } catch(e) { console.warn('[TEVT] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[TEVT] Event expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[TEVT] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {
