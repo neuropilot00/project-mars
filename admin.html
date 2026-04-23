@@ -1499,6 +1499,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="sponsorAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY HIGHLIGHT (Migration 143) ═══ -->
+  <div class="section cat-gp" style="display:none" id="highlightAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#fff176">✨ TERRITORY HIGHLIGHTS</span>
+      <button onclick="loadHighlightAdmin()" style="font-size:10px;background:rgba(255,241,118,.12);border:1px solid rgba(255,241,118,.3);color:#fff176;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="highlightAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#fff176">ACTIVE HIGHLIGHTS</span></div>
+    <div id="highlightAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#fff176">SETTINGS</span></div>
+    <div id="highlightAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ TERRITORY GRAFFITI (Migration 142) ═══ -->
   <div class="section cat-gp" style="display:none" id="graffitiAdminSection">
     <div class="sec-header">
@@ -2292,7 +2305,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -6749,6 +6762,93 @@ function saveSponsorSetting(key) {
 // ══════════════════════════════════════
 //  VANITY TAGS ADMIN (Migration 140)
 // ══════════════════════════════════════
+function loadHighlightAdmin() {
+  var statsEl    = document.getElementById('highlightAdmStats');
+  var listEl     = document.getElementById('highlightAdmList');
+  var settingsEl = document.getElementById('highlightAdmSettings');
+  if (!statsEl) return;
+  [statsEl, listEl, settingsEl].forEach(function(el) { if(el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>'; });
+  document.getElementById('highlightAdminSection').style.display = '';
+  fetch('/admin/api/highlight', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['Total',        s.total       || 0],
+        ['Active',       s.active      || 0],
+        ['GP Burned',    (s.total_gp||0)+' GP'],
+        ['New (24h)',    s.created_24h || 0],
+      ].map(function(p) {
+        return '<div style="background:rgba(255,241,118,.06);border:1px solid rgba(255,241,118,.15);border-radius:6px;padding:8px 10px">'
+          +'<div style="color:#fff176;font-size:18px;font-weight:700">'+p[1]+'</div>'
+          +'<div style="color:#888;font-size:9px;margin-top:2px">'+p[0]+'</div></div>';
+      }).join('');
+
+      var rows = d.recent || [];
+      listEl.innerHTML = rows.length
+        ? '<table style="width:100%;border-collapse:collapse;font-size:11px">'
+          +'<thead><tr>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">OWNER</th>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">CLAIM</th>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">COLOR</th>'
+          +'<th style="text-align:right;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">GP</th>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">STATUS</th>'
+          +'<th style="padding:4px 8px;border-bottom:1px solid #222"></th>'
+          +'</tr></thead><tbody>'
+          + rows.map(function(r) {
+            return '<tr style="border-bottom:1px solid #1a1a1a">'
+              +'<td style="padding:4px 8px;color:#aaa">'+(r.nickname||r.wallet.slice(0,8)+'…')+'</td>'
+              +'<td style="padding:4px 8px;color:#888">#'+r.claim_id+'</td>'
+              +'<td style="padding:4px 8px"><span style="background:'+escapeHtml(r.color)+';padding:2px 8px;border-radius:3px;font-size:10px;color:#000">'+escapeHtml(r.color)+'</span></td>'
+              +'<td style="padding:4px 8px;color:#ffd166;text-align:right">'+r.gp_paid_total+'</td>'
+              +'<td style="padding:4px 8px;color:'+(r.is_active?'#a5d6a7':'#555')+';font-size:9px">'+(r.is_active?'Active':'Off')+'</td>'
+              +'<td style="padding:4px 8px"><button onclick="adminRemoveHighlight('+r.id+')" style="font-size:10px;background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.3);color:#f66;padding:2px 8px;border-radius:3px;cursor:pointer">OFF</button></td>'
+              +'</tr>';
+          }).join('')
+          +'</tbody></table>'
+        : '<span style="color:#555;font-size:11px">No highlights yet.</span>';
+
+      var keys = ['highlight_enabled','highlight_cost_gp','highlight_duration_h','highlight_max_active'];
+      settingsEl.innerHTML = keys.map(function(k) {
+        return '<div style="display:flex;align-items:center;gap:6px">'
+          +'<span style="color:#888;font-size:10px;flex:1">'+k+'</span>'
+          +'<input id="highlightAdm_'+k+'" style="background:#111;border:1px solid #333;color:#eee;padding:4px 6px;border-radius:4px;font-size:11px;width:80px" '
+          +'onchange="saveHighlightSetting(\''+k+'\')">'
+          +'</div>';
+      }).join('');
+      fetch('/admin/api/settings?prefix=highlight_', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+        .then(function(r) { return r.json(); })
+        .then(function(s) { (s.settings||s||[]).forEach(function(row) { var el=document.getElementById('highlightAdm_'+row.key); if(el) el.value=row.value; }); })
+        .catch(function(){});
+    }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function adminRemoveHighlight(id) {
+  if (!confirm('Remove highlight #'+id+'?')) return;
+  fetch('/admin/api/highlight/'+id, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('✨ Highlight removed');
+    loadHighlightAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveHighlightSetting(key) {
+  var el = document.getElementById('highlightAdm_'+key);
+  if (!el) return;
+  fetch('/admin/api/highlight/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
 function loadGraffitiAdmin() {
   var statsEl    = document.getElementById('graffitiAdmStats');
   var listEl     = document.getElementById('graffitiAdmList');
