@@ -1172,6 +1172,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="duelAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ ALLIANCE SYSTEM ═══ -->
+  <div class="section cat-gp" style="display:none" id="allianceAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#80cbc4">🛡️ ALLIANCES</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadAllianceAdmin()" style="font-size:10px;background:rgba(128,203,196,.12);border:1px solid rgba(128,203,196,.3);color:#80cbc4;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+      </div>
+    </div>
+    <div id="allianceAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80cbc4">ALLIANCE LIST</span></div>
+    <div id="allianceAdmTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80cbc4">ALLIANCE SETTINGS</span></div>
+    <div id="allianceAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ ITEM CRAFTING ═══ -->
   <div class="section cat-gp" style="display:none" id="craftingAdminSection">
     <div class="sec-header">
@@ -1726,7 +1741,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -4462,6 +4477,123 @@ function adminCancelDuel(id) {
     showToast('✅ Duel #'+id+' cancelled, refunded: '+d.refunded+' GP');
     loadDuelAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  ALLIANCE ADMIN (Migration 119)
+// ══════════════════════════════════════
+function loadAllianceAdmin() {
+  var statsEl    = document.getElementById('allianceAdmStats');
+  var tableEl    = document.getElementById('allianceAdmTable');
+  var settingsEl = document.getElementById('allianceAdmSettings');
+  if (!statsEl) return;
+  [statsEl, tableEl, settingsEl].forEach(function(el) {
+    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
+  });
+  fetch('/admin/api/alliances', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var t = d.totals || {};
+      statsEl.innerHTML = [
+        ['Alliances',      t.total_alliances  || 0],
+        ['Members',        t.total_members    || 0],
+        ['Total Treasury', parseFloat(t.total_treasury_gp || 0).toFixed(2)+' GP'],
+        ['Total GP Burned',parseFloat(t.total_gp_burned   || 0).toFixed(2)+' GP']
+      ].map(function(kv) {
+        return '<div style="background:rgba(128,203,196,.06);border:1px solid rgba(128,203,196,.15);border-radius:6px;padding:8px;text-align:center">'
+          +'<div style="color:#888;font-size:10px;margin-bottom:2px">'+kv[0]+'</div>'
+          +'<div style="color:#80cbc4;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      var rows = (d.alliances || []).map(function(a) {
+        var leaderNick = escapeHtml(a.leader_nick || a.leader.slice(0,10)+'…');
+        return '<tr>'
+          +'<td>'+a.id+'</td>'
+          +'<td><b style="color:#80cbc4">['+escapeHtml(a.tag)+']</b> '+escapeHtml(a.name)+'</td>'
+          +'<td>'+leaderNick+'</td>'
+          +'<td>'+a.member_count+'/'+a.max_members+'</td>'
+          +'<td>'+parseFloat(a.treasury_gp||0).toFixed(2)+' GP</td>'
+          +'<td>'+parseFloat(a.total_gp_burned||0).toFixed(2)+' GP</td>'
+          +'<td>'+(a.is_recruiting?'<span style="color:#a0e8a0">✓</span>':'<span style="color:#888">—</span>')+'</td>'
+          +'<td style="display:flex;gap:4px">'
+            +'<button onclick="viewAllianceLog('+a.id+',\''+escapeHtml(a.name)+'\')" style="font-size:9px;padding:2px 6px;background:rgba(128,203,196,.12);border:1px solid rgba(128,203,196,.3);color:#80cbc4;border-radius:3px;cursor:pointer">LOG</button>'
+            +'<button onclick="adminDissolveAlliance('+a.id+',\''+escapeHtml(a.name)+'\')" style="font-size:9px;padding:2px 6px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">DISSOLVE</button>'
+          +'</td>'
+          +'</tr>';
+      }).join('');
+      tableEl.innerHTML = rows.length
+        ? '<table class="adm-table"><thead><tr><th>#</th><th>Alliance</th><th>Leader</th><th>Members</th><th>Treasury</th><th>GP Burned</th><th>Recruiting</th><th>Actions</th></tr></thead><tbody>'+rows+'</tbody></table>'
+        : '<div style="color:#555;font-size:12px;padding:8px">No alliances yet.</div>';
+
+      settingsEl.innerHTML = (d.settings || []).map(function(s) {
+        return '<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:6px 10px">'
+          +'<span style="color:#888;font-size:11px;flex:1">'+escapeHtml(s.key.replace('alliance_',''))+'</span>'
+          +'<input id="als_'+s.key+'" value="'+escapeHtml(s.value)+'" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:4px 8px;border-radius:4px;width:90px;font-size:11px">'
+          +'<button onclick="saveAllianceSetting(\''+s.key+'\')" style="font-size:10px;background:rgba(128,203,196,.12);border:1px solid rgba(128,203,196,.3);color:#80cbc4;padding:3px 8px;border-radius:4px;cursor:pointer">SAVE</button>'
+          +'</div>';
+      }).join('');
+    })
+    .catch(function(e) { if (statsEl) statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function saveAllianceSetting(key) {
+  var val = document.getElementById('als_'+key);
+  if (!val) return;
+  fetch('/admin/api/alliances/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key: key, value: val.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ '+key+' saved');
+    loadAllianceAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function adminDissolveAlliance(id, name) {
+  if (!confirm('Dissolve alliance "'+name+'" (#'+id+')? Leader gets 50% of treasury refunded. This cannot be undone.')) return;
+  fetch('/admin/api/alliances/'+id+'/dissolve', {
+    method: 'POST',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ Alliance dissolved');
+    loadAllianceAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function viewAllianceLog(id, name) {
+  fetch('/admin/api/alliances/'+id+'/log', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(rows) {
+      if (!Array.isArray(rows)) { alert('Error loading log'); return; }
+      var html = rows.map(function(r) {
+        return '<tr><td>'+new Date(r.created_at).toLocaleString()+'</td>'
+          +'<td>'+(r.nickname || (r.wallet||'').slice(0,10)+'…')+'</td>'
+          +'<td>'+escapeHtml(r.event_type)+'</td>'
+          +'<td>'+(r.amount_gp>0?r.amount_gp+' GP':'—')+'</td>'
+          +'<td>'+escapeHtml(r.note||'')+'</td></tr>';
+      }).join('');
+      var modal = document.getElementById('allianceLogModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'allianceLogModal';
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9000;display:flex;align-items:center;justify-content:center';
+        document.body.appendChild(modal);
+      }
+      modal.innerHTML = '<div style="background:#1a1a2e;border:1px solid rgba(128,203,196,.3);border-radius:12px;padding:20px;width:90%;max-width:700px;max-height:80vh;overflow-y:auto">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+        +'<span style="color:#80cbc4;font-weight:700">🛡️ Alliance Log — '+escapeHtml(name)+'</span>'
+        +'<button onclick="document.getElementById(\'allianceLogModal\').remove()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>'
+        +'</div>'
+        +(html.length
+          ? '<table class="adm-table"><thead><tr><th>Time</th><th>Member</th><th>Event</th><th>Amount</th><th>Note</th></tr></thead><tbody>'+html+'</tbody></table>'
+          : '<div style="color:#555;font-size:12px">No log entries.</div>')
+        +'</div>';
+      modal.style.display = 'flex';
+    })
+    .catch(function(e) { alert('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════

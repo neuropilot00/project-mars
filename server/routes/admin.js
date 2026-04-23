@@ -2666,4 +2666,84 @@ router.post('/duels/cancel/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ALLIANCE SYSTEM — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/alliances — stats + alliance list + settings
+router.get('/alliances', adminAuth, async (req, res) => {
+  let svc;
+  try { svc = require('../services/alliance'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /admin/api/alliances/:id/log — alliance activity log
+router.get('/alliances/:id/log', adminAuth, async (req, res) => {
+  let svc;
+  try { svc = require('../services/alliance'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAllianceLog(parseInt(req.params.id, 10), 50)); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/alliances/setting — update alliance_* setting
+router.post('/alliances/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('alliance_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'alliance_setting_update', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/alliances/:id/dissolve — force-dissolve an alliance (refund treasury 50%)
+router.post('/alliances/:id/dissolve', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(`SELECT * FROM alliances WHERE id=$1 FOR UPDATE`, [id]);
+    if (!rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Not found' }); }
+    const a = rows[0];
+    // Refund 50% of treasury to leader
+    if (Number(a.treasury_gp) > 0) {
+      const refund = parseFloat((Number(a.treasury_gp) * 0.5).toFixed(6));
+      await client.query(
+        `INSERT INTO gp_balances (wallet, balance) VALUES ($1,$2)
+         ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
+        [a.leader, refund]);
+    }
+    await client.query(`DELETE FROM alliances WHERE id=$1`, [id]);
+    await client.query('COMMIT');
+    await auditLog(req, 'alliance_admin_dissolve', `alliance:${id}`, { name: a.name });
+    res.json({ ok: true });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /admin/api/alliances/:id/kick/:wallet — kick member from alliance
+router.post('/alliances/:id/kick/:wallet', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const wallet = req.params.wallet.toLowerCase();
+  try {
+    const { rows } = await pool.query(`SELECT leader FROM alliances WHERE id=$1`, [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Alliance not found' });
+    if (rows[0].leader === wallet) return res.status(400).json({ error: 'Cannot kick leader — use dissolve' });
+    await pool.query(`DELETE FROM alliance_members WHERE alliance_id=$1 AND wallet=$2`, [id, wallet]);
+    await pool.query(`UPDATE alliances SET member_count = member_count - 1 WHERE id=$1`, [id]);
+    await pool.query(
+      `INSERT INTO alliance_log (alliance_id, wallet, event_type, note) VALUES ($1,$2,'kicked','Admin kick')`,
+      [id, wallet]);
+    await auditLog(req, 'alliance_admin_kick', `alliance:${id}`, { wallet });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

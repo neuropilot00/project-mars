@@ -3761,7 +3761,86 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">Connect wallet to view duels</div>
           </div>
         </div>
-      </div>
+
+        <!-- 🛡️ ALLIANCE SECTION -->
+        <div id="allianceSection" style="padding:8px 10px;border-top:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
+            <span style="font-size:9px;color:#80cbc4;letter-spacing:2px;font-family:var(--fn);font-weight:700">🛡️ <span data-i18n="alliance_title">ALLIANCES</span></span>
+            <div style="display:flex;gap:4px">
+              <button onclick="loadAlliancePanel()" style="font-size:9px;background:rgba(128,203,196,.1);border:1px solid rgba(128,203,196,.2);color:#80cbc4;padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+            </div>
+          </div>
+
+          <!-- My alliance (shown when in one) -->
+          <div id="myAllianceCard" style="display:none;margin-bottom:10px;padding:10px;border-radius:8px;background:rgba(128,203,196,.06);border:1px solid rgba(128,203,196,.2)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span id="myAllianceEmblem" style="font-size:22px">⚔️</span>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span id="myAllianceName" style="font-size:12px;color:var(--tx);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
+                  <span id="myAllianceTag" style="font-size:9px;color:#80cbc4;font-family:var(--fn);padding:1px 5px;border:1px solid rgba(128,203,196,.3);border-radius:3px;font-weight:700"></span>
+                </div>
+                <div id="myAllianceDesc" style="font-size:9px;color:var(--tx3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px">
+              <div style="text-align:center;padding:5px;background:rgba(255,255,255,.03);border-radius:5px;border:1px solid var(--bdr)">
+                <div style="font-size:7px;color:var(--tx3)" data-i18n="alliance_members">MEMBERS</div>
+                <div style="font-size:12px;color:var(--tx);font-weight:700" id="myAllianceMembers">0</div>
+              </div>
+              <div style="text-align:center;padding:5px;background:rgba(255,255,255,.03);border-radius:5px;border:1px solid var(--bdr)">
+                <div style="font-size:7px;color:var(--tx3)" data-i18n="alliance_treasury">TREASURY</div>
+                <div style="font-size:11px;color:#80cbc4;font-weight:700" id="myAllianceTreasury">0 GP</div>
+              </div>
+              <div style="text-align:center;padding:5px;background:rgba(255,255,255,.03);border-radius:5px;border:1px solid var(--bdr)">
+                <div style="font-size:7px;color:var(--tx3)" data-i18n="alliance_defense">DEFENSE BONUS</div>
+                <div style="font-size:12px;color:var(--gn);font-weight:700" id="myAllianceDefense">+0%</div>
+              </div>
+            </div>
+            <!-- Members list -->
+            <div id="myAllianceMemberList" style="display:flex;flex-direction:column;gap:3px;margin-bottom:8px;max-height:120px;overflow-y:auto"></div>
+            <!-- Deposit / Withdraw / Leave -->
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <button onclick="openAllianceDepositModal()" style="font-size:9px;padding:4px 10px;border-radius:4px;background:rgba(128,203,196,.15);border:1px solid rgba(128,203,196,.35);color:#80cbc4;cursor:pointer;font-weight:700" data-i18n="alliance_deposit_btn">💰 DEPOSIT</button>
+              <button id="allianceWithdrawBtn" onclick="openAllianceWithdrawModal()" style="display:none;font-size:9px;padding:4px 10px;border-radius:4px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.3);color:var(--gold);cursor:pointer;font-weight:700" data-i18n="alliance_withdraw_btn">📤 WITHDRAW</button>
+              <button onclick="leaveAllianceConfirm()" style="font-size:9px;padding:4px 8px;border-radius:4px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.2);color:var(--red);cursor:pointer" data-i18n="alliance_leave_btn">🚪 LEAVE</button>
+            </div>
+          </div>
+
+          <!-- No alliance: browse + create -->
+          <div id="noAlliancePanel">
+            <!-- Browse alliances -->
+            <div style="margin-bottom:10px;padding:10px;border-radius:6px;background:rgba(128,203,196,.03);border:1px solid rgba(128,203,196,.12)">
+              <div style="font-size:9px;color:#80cbc4;font-family:var(--fn);font-weight:700;margin-bottom:6px" data-i18n="alliance_browse_title">BROWSE ALLIANCES</div>
+              <div style="display:flex;gap:5px;margin-bottom:6px">
+                <input id="allianceSearchInput" type="text" placeholder="Search by name or tag…" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)" onkeydown="if(event.key==='Enter')searchAlliances()">
+                <button onclick="searchAlliances()" style="font-size:9px;padding:4px 10px;border-radius:4px;background:rgba(128,203,196,.12);border:1px solid rgba(128,203,196,.3);color:#80cbc4;cursor:pointer">SEARCH</button>
+              </div>
+              <div id="allianceBrowseList" style="display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto">
+                <div style="color:var(--tx3);font-size:10px;text-align:center;padding:10px" data-i18n="alliance_browse_hint">Search or scroll to find alliances</div>
+              </div>
+            </div>
+            <!-- Create alliance -->
+            <div style="padding:10px;border-radius:6px;background:rgba(128,203,196,.03);border:1px solid rgba(128,203,196,.12)">
+              <div style="font-size:9px;color:#80cbc4;font-family:var(--fn);font-weight:700;margin-bottom:6px" data-i18n="alliance_create_title">CREATE ALLIANCE <span id="allianceCreateCostLabel" style="color:var(--tx3);font-weight:400">(200 GP)</span></div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <input id="newAllianceName" type="text" maxlength="50" placeholder="Alliance name (2-50 chars)" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+                <div style="display:flex;gap:6px">
+                  <input id="newAllianceTag" type="text" maxlength="6" placeholder="TAG" style="flex:0 0 60px;background:var(--surface1);border:1px solid var(--bdr);color:#80cbc4;font-size:11px;padding:6px 8px;border-radius:4px;font-family:var(--fn);text-transform:uppercase;font-weight:700;text-align:center">
+                  <select id="newAllianceEmblem" style="flex:0 0 50px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:16px;padding:4px;border-radius:4px;text-align:center">
+                    <option>⚔️</option><option>🛡️</option><option>🔥</option><option>🚀</option><option>💎</option><option>⭐</option><option>🐉</option><option>🦅</option><option>🌟</option><option>🔮</option>
+                  </select>
+                  <input id="newAllianceDesc" type="text" maxlength="200" placeholder="Description (optional)" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+                </div>
+                <button onclick="createAllianceAction()" style="padding:8px;border-radius:6px;background:linear-gradient(135deg,rgba(128,203,196,.3),rgba(128,203,196,.12));border:1px solid rgba(128,203,196,.4);color:#80cbc4;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="alliance_create_btn">🛡️ CREATE ALLIANCE</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="allianceContainer"></div>
+        </div>
+
+      </div><!-- /quests pane -->
 
       <!-- TAB: GOVERN -->
       <div class="base-pane" id="basePane_govern">
@@ -10793,6 +10872,7 @@ var I18N = {
     contest_title: 'PIXEL ART CONTESTS', contest_none: 'No contests yet. Check back soon!', contest_view_btn: '👁 VIEW ENTRIES', contest_submit_btn: '✏️ SUBMIT', contest_vote_btn: '🗳️ VOTE', contest_title_prompt: 'Your artwork title:', contest_image_prompt: 'Image URL (optional):', contest_desc_prompt: 'Brief description (optional):',
     rental_title: 'TERRITORY RENTAL', rental_tab_browse: 'BROWSE', rental_tab_my: 'MY RENTALS', rental_list_btn: '+ LIST TERRITORY', rental_rent_btn: '🏘️ RENT', rental_cancel_btn: 'CANCEL LISTING', rental_no_listings: 'No territories listed for rent', rental_no_my: 'No rental activity yet', rental_no_territories: 'No territories to list', rental_cancelled: 'Listing cancelled', rental_gp_prompt: 'GP per period:',
     duel_title: 'GP DUELS', duel_challenge_btn: '⚔️ CHALLENGE', duel_tab_pending: 'INCOMING', duel_tab_my: 'MY DUELS', duel_tab_recent: 'LEADERBOARD', duel_modal_title: 'CHALLENGE TO DUEL', duel_modal_sub: 'Winner takes pot minus 5% house fee', duel_target_label: 'OPPONENT WALLET / NICKNAME', duel_wager_label: 'YOUR WAGER (GP)', duel_challenge_submit: '⚔️ SEND CHALLENGE', duel_accept_btn: '⚔️ ACCEPT', duel_decline_btn: '✕ DECLINE', duel_cancel_btn: 'CANCEL', duel_no_pending: 'No incoming challenges', duel_no_history: 'No duel history', duel_no_recent: 'No recent duels', duel_accept_confirm: 'Accept duel and match the wager?', duel_decline_confirm: 'Decline this duel challenge?', duel_cancelled_refund: 'Duel cancelled. GP refunded.', duel_challenge_sent: '⚔️ Challenge sent! Opponent has 30 min to accept.', duel_enter_target: 'Enter opponent wallet or nickname', duel_enter_wager: 'Enter a valid wager',
+    alliance_title: 'ALLIANCES', alliance_members: 'MEMBERS', alliance_treasury: 'TREASURY', alliance_defense: 'DEFENSE BONUS', alliance_join_btn: 'JOIN', alliance_join_confirm: 'Join Alliance?', alliance_leave_btn: '🚪 LEAVE', alliance_leave_title: 'Leave Alliance?', alliance_leave_confirm: 'You will be removed from the alliance.', alliance_deposit_btn: '💰 DEPOSIT', alliance_withdraw_btn: '📤 WITHDRAW', alliance_deposit_prompt: 'How much GP to deposit?', alliance_withdraw_prompt: 'Withdraw GP from treasury (fee applies):', alliance_withdraw_note_prompt: 'Note (optional):', alliance_create_title: 'CREATE ALLIANCE', alliance_create_btn: '🛡️ CREATE ALLIANCE', alliance_browse_title: 'BROWSE ALLIANCES', alliance_browse_hint: 'Search or scroll to find alliances',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11380,6 +11460,7 @@ var I18N = {
     contest_title: '픽셀 아트 콘테스트', contest_none: '진행 중인 콘테스트 없음. 곧 돌아오세요!', contest_view_btn: '👁 참가작 보기', contest_submit_btn: '✏️ 제출', contest_vote_btn: '🗳️ 투표', contest_title_prompt: '작품 제목:', contest_image_prompt: '이미지 URL (선택):', contest_desc_prompt: '간단한 설명 (선택):',
     rental_title: '영토 임대', rental_tab_browse: '둘러보기', rental_tab_my: '내 임대', rental_list_btn: '+ 영토 등록', rental_rent_btn: '🏘️ 임대하기', rental_cancel_btn: '등록 취소', rental_no_listings: '임대 가능한 영토 없음', rental_no_my: '임대 활동 없음', rental_no_territories: '등록할 영토 없음', rental_cancelled: '등록 취소됨', rental_gp_prompt: '기간당 GP:',
     duel_title: 'GP 결투', duel_challenge_btn: '⚔️ 도전', duel_tab_pending: '받은 도전', duel_tab_my: '내 결투', duel_tab_recent: '리더보드', duel_modal_title: '결투 도전', duel_modal_sub: '승자가 팟 가져감 (5% 수수료 차감)', duel_target_label: '상대 지갑/닉네임', duel_wager_label: '베팅 금액 (GP)', duel_challenge_submit: '⚔️ 도전장 보내기', duel_accept_btn: '⚔️ 수락', duel_decline_btn: '✕ 거절', duel_cancel_btn: '취소', duel_no_pending: '받은 도전 없음', duel_no_history: '결투 기록 없음', duel_no_recent: '최근 결투 없음', duel_accept_confirm: '도전을 수락하고 GP를 베팅하시겠습니까?', duel_decline_confirm: '이 결투 도전을 거절하시겠습니까?', duel_cancelled_refund: '결투 취소. GP 환급됨.', duel_challenge_sent: '⚔️ 도전장 전송! 상대방이 30분 내에 수락해야 합니다.', duel_enter_target: '상대 지갑 또는 닉네임을 입력하세요', duel_enter_wager: '유효한 베팅 금액을 입력하세요',
+    alliance_title: '동맹', alliance_members: '멤버', alliance_treasury: '금고', alliance_defense: '방어 보너스', alliance_join_btn: '가입', alliance_join_confirm: '동맹에 가입하시겠습니까?', alliance_leave_btn: '🚪 탈퇴', alliance_leave_title: '동맹 탈퇴?', alliance_leave_confirm: '동맹에서 제거됩니다.', alliance_deposit_btn: '💰 입금', alliance_withdraw_btn: '📤 출금', alliance_deposit_prompt: '입금할 GP 금액:', alliance_withdraw_prompt: '금고에서 출금 (수수료 적용):', alliance_withdraw_note_prompt: '메모 (선택):', alliance_create_title: '동맹 창설', alliance_create_btn: '🛡️ 동맹 창설', alliance_browse_title: '동맹 목록', alliance_browse_hint: '검색하거나 스크롤하여 동맹을 찾으세요',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -11966,6 +12047,7 @@ var I18N = {
     contest_title: 'ピクセルアートコンテスト', contest_none: 'コンテストなし。後でまた確認してください！', contest_view_btn: '👁 作品を見る', contest_submit_btn: '✏️ 提出', contest_vote_btn: '🗳️ 投票', contest_title_prompt: '作品タイトル:', contest_image_prompt: '画像URL（任意）:', contest_desc_prompt: '簡単な説明（任意）:',
     rental_title: '領土レンタル', rental_tab_browse: '参照', rental_tab_my: 'マイレンタル', rental_list_btn: '+ 領土登録', rental_rent_btn: '🏘️ 賃借', rental_cancel_btn: '登録取消', rental_no_listings: 'レンタル可能な領土なし', rental_no_my: 'レンタル活動なし', rental_no_territories: '登録する領土なし', rental_cancelled: '登録取消済', rental_gp_prompt: '期間あたりGP:',
     duel_title: 'GP決闘', duel_challenge_btn: '⚔️ 挑戦', duel_tab_pending: '受け取った挑戦', duel_tab_my: 'マイ決闘', duel_tab_recent: 'リーダーボード', duel_modal_title: '決闘に挑む', duel_modal_sub: '勝者がポット獲得（5%手数料）', duel_target_label: '相手のウォレット/ニックネーム', duel_wager_label: '賭け金（GP）', duel_challenge_submit: '⚔️ 挑戦状を送る', duel_accept_btn: '⚔️ 受け入れる', duel_decline_btn: '✕ 断る', duel_cancel_btn: 'キャンセル', duel_no_pending: '受け取った挑戦なし', duel_no_history: '決闘履歴なし', duel_no_recent: '最近の決闘なし', duel_accept_confirm: '挑戦を受け入れてGPを賭けますか？', duel_decline_confirm: 'この決闘挑戦を断りますか？', duel_cancelled_refund: '決闘キャンセル。GPが返金されました。', duel_challenge_sent: '⚔️ 挑戦状送信！相手が30分以内に受け入れる必要があります。', duel_enter_target: '相手のウォレットまたはニックネームを入力', duel_enter_wager: '有効な賭け金を入力してください',
+    alliance_title: '同盟', alliance_members: 'メンバー', alliance_treasury: '金庫', alliance_defense: '防衛ボーナス', alliance_join_btn: '参加', alliance_join_confirm: '同盟に参加しますか？', alliance_leave_btn: '🚪 脱退', alliance_leave_title: '同盟を脱退？', alliance_leave_confirm: '同盟から削除されます。', alliance_deposit_btn: '💰 入金', alliance_withdraw_btn: '📤 出金', alliance_deposit_prompt: '入金するGP額:', alliance_withdraw_prompt: '金庫から出金（手数料あり）:', alliance_withdraw_note_prompt: 'メモ（任意）:', alliance_create_title: '同盟結成', alliance_create_btn: '🛡️ 同盟を結成', alliance_browse_title: '同盟一覧', alliance_browse_hint: '検索またはスクロールして同盟を探す',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12536,6 +12618,7 @@ var I18N = {
     contest_title: '像素艺术竞赛', contest_none: '暂无竞赛。请稍后再来！', contest_view_btn: '👁 查看参赛作品', contest_submit_btn: '✏️ 提交', contest_vote_btn: '🗳️ 投票', contest_title_prompt: '作品标题:', contest_image_prompt: '图片URL（可选）:', contest_desc_prompt: '简短描述（可选）:',
     rental_title: '领土租赁', rental_tab_browse: '浏览', rental_tab_my: '我的租赁', rental_list_btn: '+ 挂牌出租', rental_rent_btn: '🏘️ 租赁', rental_cancel_btn: '取消挂牌', rental_no_listings: '暂无可租领土', rental_no_my: '暂无租赁活动', rental_no_territories: '无可挂牌领土', rental_cancelled: '挂牌已取消', rental_gp_prompt: '每周期GP:',
     duel_title: 'GP决斗', duel_challenge_btn: '⚔️ 挑战', duel_tab_pending: '收到的挑战', duel_tab_my: '我的决斗', duel_tab_recent: '排行榜', duel_modal_title: '发起决斗', duel_modal_sub: '胜者获得奖池（扣除5%手续费）', duel_target_label: '对手钱包/昵称', duel_wager_label: '赌注（GP）', duel_challenge_submit: '⚔️ 发送挑战', duel_accept_btn: '⚔️ 接受', duel_decline_btn: '✕ 拒绝', duel_cancel_btn: '取消', duel_no_pending: '暂无收到的挑战', duel_no_history: '暂无决斗记录', duel_no_recent: '暂无近期决斗', duel_accept_confirm: '接受决斗并押注GP？', duel_decline_confirm: '拒绝此决斗挑战？', duel_cancelled_refund: '决斗已取消。GP已退还。', duel_challenge_sent: '⚔️ 挑战已发送！对手需在30分钟内接受。', duel_enter_target: '输入对手钱包或昵称', duel_enter_wager: '请输入有效赌注',
+    alliance_title: '联盟', alliance_members: '成员', alliance_treasury: '金库', alliance_defense: '防御加成', alliance_join_btn: '加入', alliance_join_confirm: '加入联盟？', alliance_leave_btn: '🚪 退出', alliance_leave_title: '退出联盟？', alliance_leave_confirm: '您将被移出联盟。', alliance_deposit_btn: '💰 存入', alliance_withdraw_btn: '📤 提取', alliance_deposit_prompt: '存入多少GP？', alliance_withdraw_prompt: '从金库提取GP（含手续费）:', alliance_withdraw_note_prompt: '备注（可选）:', alliance_create_title: '创建联盟', alliance_create_btn: '🛡️ 创建联盟', alliance_browse_title: '浏览联盟', alliance_browse_hint: '搜索或滚动查找联盟',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -16062,7 +16145,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   try{ clearBaseTabDot(tab); }catch(_e){}
@@ -25955,6 +26038,189 @@ function cancelRentalListing(rentalId) {
     showToast(t('rental_cancelled')||'Listing cancelled','success');
     loadRentalPanel();
   }).catch(function(e){ showToast(e.message,'error'); });
+}
+
+// ── Alliance System (Migration 119) ──────────────────────────────────────────
+
+var _allianceSettings = null;
+
+function loadAlliancePanel() {
+  var w = walletState && walletState.address;
+  // Load settings for cost label
+  fetch('/api/alliances/settings').then(function(r){return r.json();}).then(function(s){
+    _allianceSettings = s;
+    var costEl = document.getElementById('allianceCreateCostLabel');
+    if (costEl) costEl.textContent = '(' + (s.createCost||200) + ' GP)';
+  }).catch(function(){});
+
+  if (!w) {
+    document.getElementById('myAllianceCard')   && (document.getElementById('myAllianceCard').style.display = 'none');
+    document.getElementById('noAlliancePanel')  && (document.getElementById('noAlliancePanel').style.display = '');
+    return;
+  }
+  fetch('/api/alliances/my?wallet=' + encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if (!d || !d.id) {
+        document.getElementById('myAllianceCard').style.display  = 'none';
+        document.getElementById('noAlliancePanel').style.display = '';
+      } else {
+        renderMyAlliance(d, w);
+      }
+    }).catch(function(e){ showToast(e.message,'error'); });
+}
+
+function renderMyAlliance(a, wallet) {
+  document.getElementById('myAllianceCard').style.display  = '';
+  document.getElementById('noAlliancePanel').style.display = 'none';
+  document.getElementById('myAllianceEmblem').textContent  = a.emblem || '⚔️';
+  document.getElementById('myAllianceName').textContent    = a.name;
+  document.getElementById('myAllianceTag').textContent     = '[' + a.tag + ']';
+  document.getElementById('myAllianceDesc').textContent    = a.description || '';
+  document.getElementById('myAllianceMembers').textContent = (a.member_count || 0) + '/' + (a.max_members || 5);
+  document.getElementById('myAllianceTreasury').textContent = parseFloat(a.treasury_gp||0).toFixed(2) + ' GP';
+  document.getElementById('myAllianceDefense').textContent = '+' + (a.defense_bonus||5) + '%';
+
+  // Show withdraw button for leader/officer
+  var isLeader = false;
+  var memberList = document.getElementById('myAllianceMemberList');
+  var members = a.members || [];
+  memberList.innerHTML = members.map(function(m) {
+    var isMe = m.wallet === wallet.toLowerCase();
+    if (isMe && (m.role === 'leader' || m.role === 'officer')) isLeader = true;
+    var roleColor = {leader:'var(--gold)',officer:'#80cbc4',member:'var(--tx3)'}[m.role] || 'var(--tx3)';
+    var nick = m.nick || (m.wallet.slice(0,8) + '…');
+    return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+      + '<span style="font-size:10px;color:var(--tx);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _escHtml(nick) + (isMe?' <span style="color:var(--tx3);font-size:8px">(you)</span>':'') + '</span>'
+      + '<span style="font-size:8px;color:'+roleColor+';font-family:var(--fn);font-weight:700">' + m.role.toUpperCase() + '</span>'
+      + '</div>';
+  }).join('');
+
+  var wBtn = document.getElementById('allianceWithdrawBtn');
+  if (wBtn) wBtn.style.display = isLeader ? '' : 'none';
+}
+
+function searchAlliances() {
+  var q = (document.getElementById('allianceSearchInput') && document.getElementById('allianceSearchInput').value) || '';
+  var list = document.getElementById('allianceBrowseList');
+  if (!list) return;
+  list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Loading…</div>';
+  fetch('/api/alliances?search=' + encodeURIComponent(q))
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!rows.length) {
+        list.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">No alliances found</div>';
+        return;
+      }
+      list.innerHTML = rows.map(function(a) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:5px;background:rgba(255,255,255,.03);border:1px solid rgba(128,203,196,.1)">'
+          + '<span style="font-size:18px">' + (a.emblem||'⚔️') + '</span>'
+          + '<div style="flex:1;min-width:0">'
+            + '<div style="font-size:11px;color:var(--tx);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
+              + _escHtml(a.name) + ' <span style="color:#80cbc4;font-size:9px;font-family:var(--fn)">[' + _escHtml(a.tag) + ']</span></div>'
+            + '<div style="font-size:9px;color:var(--tx3)">' + (a.member_count||1) + '/' + (a.max_members||5) + ' members · ' + parseFloat(a.total_gp_burned||0).toFixed(0) + ' GP burned</div>'
+          + '</div>'
+          + '<button onclick="joinAllianceAction(' + a.id + ',\'' + _escHtml(a.name) + '\')" style="font-size:9px;padding:4px 8px;border-radius:4px;background:rgba(128,203,196,.15);border:1px solid rgba(128,203,196,.35);color:#80cbc4;cursor:pointer;font-weight:700;white-space:nowrap" data-i18n="alliance_join_btn">JOIN</button>'
+          + '</div>';
+      }).join('');
+    }).catch(function(e){ list.innerHTML = '<div style="color:var(--red);font-size:10px;text-align:center;padding:8px">'+e.message+'</div>'; });
+}
+
+function joinAllianceAction(id, name) {
+  var w = walletState && walletState.address;
+  if (!w) { showToast(t('err_connect_wallet')||'Connect wallet first','error'); return; }
+  gameConfirm({ title: t('alliance_join_confirm')||'Join Alliance?', body: 'Join <b>' + _escHtml(name) + '</b>?' }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/alliances/join', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w, allianceId: id })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast('🛡️ Joined ' + _escHtml(name) + '!', 'success');
+      loadAlliancePanel();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
+}
+
+function createAllianceAction() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast(t('err_connect_wallet')||'Connect wallet first','error'); return; }
+  var name    = (document.getElementById('newAllianceName')  && document.getElementById('newAllianceName').value)  || '';
+  var tag     = (document.getElementById('newAllianceTag')   && document.getElementById('newAllianceTag').value)   || '';
+  var emblem  = (document.getElementById('newAllianceEmblem')&& document.getElementById('newAllianceEmblem').value)||'⚔️';
+  var desc    = (document.getElementById('newAllianceDesc')  && document.getElementById('newAllianceDesc').value)  || '';
+  if (!name || name.length < 2) { showToast('Alliance name must be at least 2 characters','error'); return; }
+  if (!tag  || tag.length  < 2) { showToast('Tag must be at least 2 characters','error'); return; }
+  var cost = (_allianceSettings && _allianceSettings.createCost) || 200;
+  gameConfirm({ title: t('alliance_create_title')||'Create Alliance', body: 'Create <b>'+_escHtml(name)+'</b> for <b>'+cost+' GP</b>?' }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/alliances/create', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w, name: name, tag: tag, emblem: emblem, description: desc })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast('🛡️ Alliance created!','success');
+      loadAlliancePanel();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
+}
+
+function openAllianceDepositModal() {
+  var w = walletState && walletState.address;
+  if (!w) return;
+  var amt = prompt(t('alliance_deposit_prompt')||'How much GP to deposit?', '50');
+  if (!amt) return;
+  amt = parseFloat(amt);
+  if (isNaN(amt) || amt <= 0) { showToast('Invalid amount','error'); return; }
+  fetch('/api/alliances/deposit', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ wallet: w, amount: amt })
+  }).then(function(r){return r.json();}).then(function(d){
+    if (d.error) { showToast(d.error,'error'); return; }
+    showToast('💰 '+amt+' GP deposited to treasury!','success');
+    loadAlliancePanel();
+  }).catch(function(e){ showToast(e.message,'error'); });
+}
+
+function openAllianceWithdrawModal() {
+  var w = walletState && walletState.address;
+  if (!w) return;
+  var min = (_allianceSettings && _allianceSettings.withdrawMin) || 10;
+  var fee = (_allianceSettings && _allianceSettings.withdrawFeePct) || 5;
+  var amt = prompt((t('alliance_withdraw_prompt')||'Withdraw GP from treasury (min '+min+', '+fee+'% fee):'), String(min));
+  if (!amt) return;
+  amt = parseFloat(amt);
+  if (isNaN(amt) || amt < min) { showToast('Minimum withdrawal is '+min+' GP','error'); return; }
+  var note = prompt((t('alliance_withdraw_note_prompt')||'Note (optional):'), '');
+  fetch('/api/alliances/withdraw', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ wallet: w, amount: amt, note: note })
+  }).then(function(r){return r.json();}).then(function(d){
+    if (d.error) { showToast(d.error,'error'); return; }
+    showToast('📤 Withdrew '+d.payout.toFixed(2)+' GP (fee: '+d.fee.toFixed(2)+')','success');
+    loadAlliancePanel();
+  }).catch(function(e){ showToast(e.message,'error'); });
+}
+
+function leaveAllianceConfirm() {
+  var w = walletState && walletState.address;
+  if (!w) return;
+  gameConfirm({ title: t('alliance_leave_title')||'Leave Alliance?', body: t('alliance_leave_confirm')||'You will be removed from the alliance. The leader must transfer leadership or dissolve before leaving.' }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/alliances/leave', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast('You left the alliance','success');
+      loadAlliancePanel();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
 }
 
 // ── Territory Upgrades ────────────────────────────────────────────────────────

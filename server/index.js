@@ -93,6 +93,7 @@ const craftingRoutes    = require('./routes/crafting');
 const duelRoutes        = require('./routes/duel');
 const rentalRoutes      = require('./routes/rental');
 const contestRoutes     = require('./routes/contest');
+const allianceRoutes    = require('./routes/alliance');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -218,6 +219,7 @@ app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);
 app.use('/api', rentalRoutes);
 app.use('/api', contestRoutes);
+app.use('/api', allianceRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
