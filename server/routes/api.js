@@ -597,6 +597,8 @@ router.get('/claims', async (req, res) => {
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 c.custom_name,
+                COALESCE(c.marketplace_locked, FALSE) AS marketplace_locked,
+                COALESCE(c.auction_locked, FALSE) AS auction_locked,
                 u.nickname, g.id AS guild_id, g.name AS guild_name,
                 g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
                 g.emblem_image AS guild_emblem_image,
@@ -614,6 +616,8 @@ router.get('/claims', async (req, res) => {
                 c.image_url, c.original_image_url, c.link_url, c.total_paid, c.created_at,
                 c.img_scale, c.img_rotate, c.img_offset_x, c.img_offset_y,
                 c.custom_name,
+                COALESCE(c.marketplace_locked, FALSE) AS marketplace_locked,
+                COALESCE(c.auction_locked, FALSE) AS auction_locked,
                 u.nickname, g.id AS guild_id, g.name AS guild_name,
                 g.tag AS guild_tag, g.emblem_emoji AS guild_emblem,
                 g.emblem_image AS guild_emblem_image,
@@ -5314,6 +5318,51 @@ router.get('/hall-of-fame/categories', readLimiter, async (req, res) => {
     );
     res.json({ categories: result.rows });
   } catch (e) {
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// ── GET /api/for-sale-territories ──
+// Returns territories currently listed on marketplace or in active auction
+// Used by frontend to draw FOR SALE / AUCTION map overlays
+router.get('/for-sale-territories', readLimiter, async (req, res) => {
+  try {
+    const rows = [];
+    // Marketplace listings (active, claim type)
+    try {
+      const mkt = await pool.query(
+        `SELECT c.id AS claim_id, c.owner, c.center_lat AS lat, c.center_lng AS lng,
+                c.width, c.height, ml.price, ml.currency, 'marketplace' AS sale_type,
+                ml.expires_at AS ends_at, ml.id AS listing_id,
+                u.nickname AS seller_nick
+         FROM claims c
+         JOIN marketplace_listings ml ON ml.claim_id = c.id AND ml.status = 'active'
+         LEFT JOIN users u ON u.wallet_address = c.owner
+         WHERE c.deleted_at IS NULL`
+      );
+      rows.push(...mkt.rows);
+    } catch (_e) { /* marketplace_listings may not exist */ }
+
+    // Auction listings (active, claim type)
+    try {
+      const auc = await pool.query(
+        `SELECT c.id AS claim_id, c.owner, c.center_lat AS lat, c.center_lng AS lng,
+                c.width, c.height,
+                COALESCE(a.current_bid, a.start_price) AS price,
+                a.currency, 'auction' AS sale_type, a.ends_at,
+                a.id AS auction_id,
+                u.nickname AS seller_nick
+         FROM claims c
+         JOIN auctions a ON a.claim_id = c.id AND a.status = 'active'
+         LEFT JOIN users u ON u.wallet_address = c.owner
+         WHERE c.deleted_at IS NULL`
+      );
+      rows.push(...auc.rows);
+    } catch (_e) { /* auctions may not exist */ }
+
+    res.json(rows);
+  } catch (e) {
+    console.error('[ForSale] territories error:', e.message);
     res.status(500).json({ error: 'internal_error' });
   }
 });

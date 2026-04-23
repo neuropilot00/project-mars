@@ -6154,6 +6154,9 @@ function compositeClaimsOnTexture(previewOnly){
       });
     }
 
+    // FOR SALE / AUCTION territory overlay
+    if(typeof _drawForSaleOverlay==='function') _drawForSaleOverlay(ctx,w,h);
+
     // Sector boundaries overlay
     _drawSectorOverlay(ctx,w,h);
 
@@ -6824,8 +6827,29 @@ function _updateMyTerritories(){
     var subLabel=ec.length>1?' <span style="color:var(--gold);font-size:9px">('+ec.length+' merged)</span>':'';
     left.innerHTML='<div style="font-size:10px;color:var(--tx2)">#'+(i+1)+' · '+centerLat.toFixed(1)+'°, '+centerLng.toFixed(1)+'°'+subLabel+'</div><div style="font-size:9px;color:var(--tx3)">'+totalPx+'px · '+(entry.hasImg?'📷':'🏴 No image')+'</div>';
     var right=document.createElement('div');
-    right.style.cssText='font-size:10px;color:var(--gold);text-align:right;white-space:nowrap';
-    right.textContent=entry.totalPP.toFixed(1)+' PP';
+    right.style.cssText='display:flex;flex-direction:column;align-items:flex-end;gap:3px;min-width:60px';
+    right.innerHTML='<span style="font-size:10px;color:var(--gold);white-space:nowrap">'+entry.totalPP.toFixed(1)+' PP</span>';
+    // FOR SALE badge or SELL button
+    var anyForSale=ec.some(function(c){return _forSaleMap[c.id]});
+    var anyAuction=ec.some(function(c){var fs=_forSaleMap[c.id];return fs&&fs.saleType==='auction'});
+    var sellBtn=document.createElement('button');
+    if(anyForSale){
+      sellBtn.textContent=anyAuction?'🔨 AUCTION':'💰 FOR SALE';
+      sellBtn.style.cssText='font-size:7px;padding:2px 6px;border-radius:4px;border:1px solid rgba(76,216,154,.4);background:rgba(76,216,154,.12);color:#4cd89a;cursor:pointer;font-family:var(--fn);font-weight:700;white-space:nowrap';
+      sellBtn.title='Currently listed for sale';
+      sellBtn.onclick=function(e){e.stopPropagation();switchBaseTab('market',document.getElementById('baseTabMarket'));};
+    } else {
+      sellBtn.textContent='💰 SELL';
+      sellBtn.style.cssText='font-size:7px;padding:2px 6px;border-radius:4px;border:1px solid rgba(160,100,220,.35);background:rgba(160,100,220,.08);color:#a064dc;cursor:pointer;font-family:var(--fn);font-weight:700;white-space:nowrap';
+      (function(claimItem){
+        sellBtn.onclick=function(e){
+          e.stopPropagation();
+          switchBaseTab('market',document.getElementById('baseTabMarket'));
+          setTimeout(function(){switchMarketView('sell',document.querySelectorAll('.mkt-view-btn')[1]);},200);
+        };
+      })(ec[0]);
+    }
+    right.appendChild(sellBtn);
     mainRow.appendChild(left);mainRow.appendChild(right);
     d.appendChild(mainRow);
     // Click: zoom to territory
@@ -10224,6 +10248,8 @@ var I18N = {
     auc_cancel_title: 'Cancel Auction',
     auc_cancel_confirm: 'Cancel this auction? (Only allowed with no bids)',
     auc_confirm_cancel: 'CANCEL AUCTION', auc_cancelled: 'Auction cancelled',
+    // ── TERRITORY VISUAL section ──
+    terr_sell_btn: '💰 SELL', terr_for_sale: '💰 FOR SALE', terr_auction_label: '🔨 AUCTION',
     // ── RESOURCE section ──
     res_section_title: 'RESOURCES',
     res_empty: 'No resources yet. Harvest your territory to find minerals!',
@@ -10772,6 +10798,8 @@ var I18N = {
     auc_cancel_title: '경매 취소',
     auc_cancel_confirm: '경매를 취소하시겠습니까? (입찰 없는 경우만 가능)',
     auc_confirm_cancel: '경매 취소', auc_cancelled: '경매가 취소되었습니다',
+    // ── TERRITORY VISUAL section ──
+    terr_sell_btn: '💰 판매', terr_for_sale: '💰 판매중', terr_auction_label: '🔨 경매중',
     // ── RESOURCE section ──
     res_section_title: '광물 자원',
     res_empty: '자원이 없습니다. 영토를 수확하면 광물이 드롭됩니다!',
@@ -11319,6 +11347,8 @@ var I18N = {
     auc_cancel_title: 'オークションキャンセル',
     auc_cancel_confirm: 'このオークションをキャンセルしますか？（入札なしの場合のみ）',
     auc_confirm_cancel: 'キャンセル', auc_cancelled: 'オークションがキャンセルされました',
+    // ── TERRITORY VISUAL section ──
+    terr_sell_btn: '💰 売る', terr_for_sale: '💰 出品中', terr_auction_label: '🔨 競売中',
     // ── RESOURCE section ──
     res_section_title: '鉱物資源',
     res_empty: 'まだ資源がありません。領土をハーベストして鉱物を見つけよう！',
@@ -11850,6 +11880,8 @@ var I18N = {
     auc_cancel_title: '取消拍卖',
     auc_cancel_confirm: '取消此拍卖？（仅限无出价时）',
     auc_confirm_cancel: '取消拍卖', auc_cancelled: '拍卖已取消',
+    // ── TERRITORY VISUAL section ──
+    terr_sell_btn: '💰 出售', terr_for_sale: '💰 出售中', terr_auction_label: '🔨 竞拍中',
     // ── RESOURCE section ──
     res_section_title: '矿物资源',
     res_empty: '还没有资源。收获领土来发现矿物！',
@@ -18303,6 +18335,75 @@ var _poiDefs = {
   water_ice:      { icon: '◇', color: '#5BB8E8', glow: '#A8DCF5', label: 'WATER ICE',      illust: '🧊' },
   alien_artifact: { icon: '✦', color: '#B888E0', glow: '#DCBCF0', label: 'ALIEN ARTIFACT', illust: '🔮' }
 };
+
+// ══════════════════════════════════════
+// FOR SALE / AUCTION MAP OVERLAY (Migration 091)
+// ══════════════════════════════════════
+var _forSaleMap={}; // {claimId: {price, currency, saleType, endsAt, sellerNick}}
+
+function loadForSaleTerritories(){
+  fetch('/api/for-sale-territories').then(function(r){return r.json()}).then(function(rows){
+    var map={};
+    if(Array.isArray(rows)) rows.forEach(function(r){
+      map[r.claim_id]={price:r.price,currency:r.currency,saleType:r.sale_type,endsAt:r.ends_at,sellerNick:r.seller_nick};
+    });
+    _forSaleMap=map;
+    claimsSnapshot=null; compositeClaimsOnTexture();
+  }).catch(function(){});
+}
+
+// Poll every 60s
+setInterval(loadForSaleTerritories, 60000);
+// Initial load after claims are ready
+setTimeout(loadForSaleTerritories, 3000);
+
+function _drawForSaleOverlay(ctx,w,h){
+  if(!Object.keys(_forSaleMap).length) return;
+  ctx.save();
+  var _pxDeg=w/360;
+  function _claimCx(c){return ((c.lng||c.center_lng||0)+180)/360*w;}
+  function _claimCy(c){return (90-(c.lat||c.center_lat||0))/180*h;}
+  claims.forEach(function(c){
+    var info=_forSaleMap[c.id];
+    if(!info) return;
+    var cx=_claimCx(c), cy=_claimCy(c);
+    var claimW=(c.w||c.width||20)*_pxDeg*0.5;
+    var claimH=(c.h||c.height||20)*(_pxDeg)*0.5;
+    var bx=cx-claimW/2, by=cy-claimH/2;
+    var bw=claimW, bh=claimH;
+    // Badge background
+    var isAuction=info.saleType==='auction';
+    var badgeColor=isAuction?'rgba(255,165,0,0.88)':'rgba(76,216,154,0.88)';
+    var icon=isAuction?'🔨':'💰';
+    var priceStr=Math.round(info.price||0)+' '+(info.currency||'GP');
+    var lbl=icon+' '+priceStr;
+    var fz=Math.max(6,Math.min(bw*0.22,bh*0.28,11));
+    ctx.font='bold '+fz+'px sans-serif';
+    var tw=ctx.measureText(lbl).width;
+    var padX=4, padY=3;
+    var rx=bx+bw/2-tw/2-padX, ry=by+2;
+    var rw=tw+padX*2, rh=fz+padY*2;
+    // Only draw if territory is big enough
+    if(bw<10||bh<8) return;
+    // Pill background
+    ctx.globalAlpha=0.92;
+    ctx.fillStyle=badgeColor;
+    ctx.beginPath();
+    var rad=rh/2;
+    ctx.moveTo(rx+rad,ry);ctx.lineTo(rx+rw-rad,ry);
+    ctx.arc(rx+rw-rad,ry+rad,rad,-Math.PI/2,Math.PI/2);
+    ctx.lineTo(rx+rad,ry+rh);
+    ctx.arc(rx+rad,ry+rad,rad,Math.PI/2,3*Math.PI/2);
+    ctx.closePath();
+    ctx.fill();
+    // Text
+    ctx.globalAlpha=1;
+    ctx.fillStyle='rgba(0,0,0,0.85)';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(lbl,rx+rw/2,ry+rh/2);
+  });
+  ctx.restore();
+}
 
 function _drawPOIMarkers(ctx, w, h) {
   if (!_poiData.length) return;
