@@ -540,6 +540,25 @@ async function awardXP(client, wallet, xpAmount) {
   return blockedAt ? { blockedAt } : null;
 }
 
+// ── Helper: log a GP activity entry (fire-and-forget) ──
+// delta > 0 = earned, delta < 0 = spent
+async function logGPActivity(wallet, delta, source, note = '') {
+  if (!wallet || !delta || delta === 0) return;
+  try {
+    const enabled = await getSetting('gp_log_enabled');
+    if (enabled === false || enabled === 'false') return;
+    await pool.query(
+      'INSERT INTO gp_activity_log (wallet, delta, source, note) VALUES ($1,$2,$3,$4)',
+      [wallet.toLowerCase(), delta, source, note || '']
+    );
+    // Periodic cleanup of old entries
+    if (Math.random() < 0.02) { // ~2% of calls trigger cleanup
+      const ttl = parseInt(await getSetting('gp_log_ttl_days') || '30');
+      pool.query(`DELETE FROM gp_activity_log WHERE created_at < NOW() - INTERVAL '${ttl} days'`).catch(() => {});
+    }
+  } catch (e) { /* non-critical */ }
+}
+
 // ── Helper: send in-game notification to a player (fire-and-forget) ──
 // type: 'battle_declared'|'battle_won'|'battle_lost'|'listing_sold'|'auction_outbid'|'auction_won'
 async function notifyPlayer(wallet, type, message, metadata = {}) {
@@ -576,4 +595,4 @@ async function notifyPlayer(wallet, type, message, metadata = {}) {
   }
 }
 
-module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer };
+module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer, logGPActivity };

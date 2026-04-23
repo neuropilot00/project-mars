@@ -77,6 +77,10 @@ async function recordDailyLogin(wallet) {
       'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1, pp_balance = pp_balance + $2 WHERE wallet_address = $3',
       [rewardGP, rewardPP, w]
     );
+    // ✅ Log GP activity
+    if (rewardGP > 0) {
+      try { const { logGPActivity } = require('../db'); logGPActivity(w, rewardGP, 'daily_login', `Day ${streakDay} check-in`).catch(()=>{}); } catch (_le) {}
+    }
   }
 
   // Count total login days for milestone check
@@ -240,6 +244,8 @@ async function claimMissionReward(wallet, missionId) {
       'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2',
       [rewardGP, w]
     );
+    // ✅ Log GP activity
+    try { const { logGPActivity } = require('../db'); logGPActivity(w, rewardGP, 'mission_reward', mission.mission_type).catch(()=>{}); } catch (_le) {}
   }
 
   // Award XP if applicable

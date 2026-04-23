@@ -107,6 +107,9 @@ async function buildShip(walletAddress, shipType) {
       seasonSvc.addSeasonScore(walletAddress, 'ship_build', 1).catch(() => {});
     } catch (_re) {}
 
+    // ✅ GP Activity log
+    try { const { logGPActivity } = require('../db'); logGPActivity(walletAddress, -gpCost, 'ship_build', `${def.name}`).catch(()=>{}); } catch (_le) {}
+
     // ✅ Daily mission progress: build_ship
     try {
       const dailySvc = require('./daily');

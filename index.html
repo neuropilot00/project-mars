@@ -3481,6 +3481,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div class="stat-row"><span class="stat-label">Mid Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gold)">×--</span></div>
           <div class="stat-row"><span class="stat-label">Frontier Bonus</span><span class="stat-val" style="font-size:10px;color:var(--gn)">×--</span></div>
         </div>
+
+        <!-- GP Activity Log (collapsible) -->
+        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
+             onclick="toggleGpActivityLog()">
+          <span data-i18n="gp_activity_title">GP ACTIVITY</span>
+          <span id="gpActivityToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="gpActivityPanel" style="display:none">
+          <div id="gpActivityList" style="font-size:10px;color:var(--tx2);line-height:1.8">
+            <div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: QUESTS -->
@@ -10270,6 +10282,7 @@ var I18N = {
     // Notifications
     notif_title: '🔔 NOTIFICATIONS', notif_read_all: 'MARK ALL READ',
     notif_loading: 'Loading...', notif_empty: 'No notifications yet',
+    gp_activity_title: 'GP ACTIVITY', gp_activity_login: 'Login to view GP activity.', gp_activity_empty: 'No GP activity yet.',
     mkt_buy: 'BUY', mkt_cancel: 'CANCEL', mkt_list_sell: 'SELL',
     mkt_buy_title: 'Purchase Item', mkt_price: 'Price', mkt_your_balance: 'Your Balance',
     mkt_buy_confirm: 'BUY NOW', mkt_bought: 'Purchase successful!',
@@ -10836,6 +10849,7 @@ var I18N = {
     mkt_recent_sales: '📈 최근 거래', mkt_no_sales: '최근 거래 내역이 없습니다',
     notif_title: '🔔 알림', notif_read_all: '모두 읽음으로 표시',
     notif_loading: '로딩 중...', notif_empty: '알림이 없습니다',
+    gp_activity_title: 'GP 활동 내역', gp_activity_login: '로그인 후 확인하세요.', gp_activity_empty: 'GP 활동 내역이 없습니다.',
     mkt_buy: '구매', mkt_cancel: '취소', mkt_list_sell: '판매',
     mkt_buy_title: '아이템 구매', mkt_price: '가격', mkt_your_balance: '내 잔액',
     mkt_buy_confirm: '지금 구매', mkt_bought: '구매 성공!',
@@ -11401,6 +11415,7 @@ var I18N = {
     mkt_recent_sales: '📈 最近の取引', mkt_no_sales: '最近の取引はありません',
     notif_title: '🔔 通知', notif_read_all: 'すべて既読',
     notif_loading: '読込中...', notif_empty: '通知はありません',
+    gp_activity_title: 'GP 履歴', gp_activity_login: 'ログインして確認してください。', gp_activity_empty: 'GP活動履歴がありません。',
     mkt_buy: '購入', mkt_cancel: 'キャンセル', mkt_list_sell: '出品',
     mkt_buy_title: 'アイテム購入', mkt_price: '価格', mkt_your_balance: '残高',
     mkt_buy_confirm: '今すぐ購入', mkt_bought: '購入成功！',
@@ -11950,6 +11965,7 @@ var I18N = {
     mkt_recent_sales: '📈 最近成交', mkt_no_sales: '暂无成交记录',
     notif_title: '🔔 通知', notif_read_all: '全部标为已读',
     notif_loading: '加载中...', notif_empty: '暂无通知',
+    gp_activity_title: 'GP 活动记录', gp_activity_login: '登录后查看GP活动。', gp_activity_empty: '暂无GP活动记录。',
     mkt_buy: '购买', mkt_cancel: '取消', mkt_list_sell: '出售',
     mkt_buy_title: '购买道具', mkt_price: '价格', mkt_your_balance: '余额',
     mkt_buy_confirm: '立即购买', mkt_bought: '购买成功！',
@@ -17961,6 +17977,44 @@ function trackQuestAction(action, amount){
       if(anyCompleted){ setBaseTabDot('quests', true); _updateBaseBtnDot(); }
     }
   }).catch(function(){});
+}
+
+// ── GP Activity Log (Migration 097) ──
+var _gpActivityLoaded = false;
+function toggleGpActivityLog(){
+  var panel=document.getElementById('gpActivityPanel');
+  var toggle=document.getElementById('gpActivityToggle');
+  if(panel.style.display==='none'){
+    panel.style.display='';toggle.textContent='▲';
+    if(!_gpActivityLoaded){loadGpActivity();}
+  } else {panel.style.display='none';toggle.textContent='▼';}
+}
+async function loadGpActivity(){
+  var w=walletState.address;
+  var el=document.getElementById('gpActivityList');
+  if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="gp_activity_login">Login to view GP activity.</div>';applyI18n(el);return;}
+  try{
+    var r=await fetch('/api/gp/activity?wallet='+encodeURIComponent(w)+'&limit=15',{headers:{'x-wallet':w}});
+    var d=await r.json();
+    if(!d.entries||!d.entries.length){
+      el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="gp_activity_empty">No GP activity yet.</div>';applyI18n(el);
+      _gpActivityLoaded=true;return;
+    }
+    var SOURCE_LABEL={'daily_login':'Daily Login','mission_reward':'Mission','enhance':'Enhancement','ship_build':'Ship Build','battle_stake':'Battle Stake','battle_win':'Battle Win','marketplace_buy':'Market Buy','marketplace_sell':'Market Sell','marketplace_list':'Listing Fee','auction_list':'Auction Fee','auction_bid':'Auction Bid','auction_buy':'Auction Buy','auction_sell':'Auction Sold'};
+    var html='';
+    d.entries.forEach(function(e){
+      var plus=e.delta>0;
+      var amt=(plus?'+':'')+Math.floor(e.delta)+' GP';
+      var clr=plus?'var(--gn)':'var(--mars)';
+      var lbl=SOURCE_LABEL[e.source]||e.source;
+      var note=e.note?(' · '+e.note):'';
+      var dt=new Date(e.created_at);
+      var dtStr=(dt.getMonth()+1)+'/'+(dt.getDate())+' '+dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0');
+      html+='<div class="stat-row" style="font-size:9px;opacity:.95"><span class="stat-label" style="color:var(--tx3);font-size:9px">'+lbl+note+'<br><span style="opacity:.6">'+dtStr+'</span></span><span class="stat-val" style="color:'+clr+';font-size:10px;font-weight:700">'+amt+'</span></div>';
+    });
+    el.innerHTML=html;
+    _gpActivityLoaded=true;
+  }catch(e){el.innerHTML='<div style="text-align:center;color:var(--mars);padding:8px;font-size:9px">Failed to load</div>';}
 }
 
 async function harvestMining(){

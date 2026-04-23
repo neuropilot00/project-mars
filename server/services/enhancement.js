@@ -144,13 +144,14 @@ async function enhanceItem(client, wallet, instanceId) {
     [cost, w]
   );
 
-  // ✅ Referral commission + season score
+  // ✅ Referral commission + season score + GP log
   try {
-    const { creditReferralCommission } = require('../db');
+    const { creditReferralCommission, logGPActivity } = require('../db');
     const seasonSvc = require('./season');
     await creditReferralCommission(client, w, 'enhance', cost, 'gp');
     seasonSvc.addSeasonScore(w, 'gp_spend', cost).catch(() => {});
     seasonSvc.addSeasonScore(w, 'enhance', 1).catch(() => {});
+    logGPActivity(w, -cost, 'enhance', `+${inst.code} lv${currentLevel}→lv${currentLevel+1} attempt`).catch(() => {});
   } catch (_re) {}
 
   // Log transaction

@@ -84,6 +84,9 @@ async function declareBattle(attackerWallet, defenderWallet, attackerShipIds, gp
       [gpStake, attackerWallet]
     );
 
+    // ✅ Log GP stake
+    try { const { logGPActivity } = require('../db'); logGPActivity(attackerWallet, -gpStake, 'battle_stake', `vs ${defenderWallet.slice(0,8)}…`).catch(()=>{}); } catch (_le) {}
+
     // Calculate attacker power
     const atkPower = _calcPower(shipRes.rows);
 
@@ -334,6 +337,9 @@ async function resolveBattle(battleId) {
       const dailySvc = require('./daily');
       dailySvc.updateMissionProgress(winnerWallet, 'win_naval_battle', 1).catch(() => {});
     } catch (_de) {}
+
+    // ✅ GP Activity log
+    try { const { logGPActivity } = require('../db'); logGPActivity(winnerWallet, totalGP, 'battle_win', `vs ${loserWallet.slice(0,8)}…`).catch(()=>{}); } catch (_le) {}
 
     // ✅ Notify both winner and loser
     try {

@@ -5415,4 +5415,28 @@ router.post('/notifications/read-all', async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════
+// GP ACTIVITY LOG (Migration 097)
+// ═══════════════════════════════════════════════════════
+
+// GET /api/gp/activity — fetch GP activity log for current user
+router.get('/gp/activity', readLimiter, async (req, res) => {
+  const wallet = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+  if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+  try {
+    const limit = Math.min(parseInt(req.query.limit || '20'), 50);
+    const rows = await pool.query(
+      `SELECT id, delta, source, note, created_at
+       FROM gp_activity_log
+       WHERE wallet = $1
+       ORDER BY created_at DESC
+       LIMIT $2`,
+      [wallet, limit]
+    );
+    res.json({ entries: rows.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
 module.exports = router;

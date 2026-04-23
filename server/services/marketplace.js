@@ -48,6 +48,8 @@ async function createListing(client, seller, type, params) {
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('marketplace_listing_fee', $1, 0, 0, $2)`,
       [w, JSON.stringify({ fee: listingFee, active_listings: currentListings })]
     );
+    // ✅ GP Activity log
+    try { const { logGPActivity } = require('../db'); logGPActivity(w, -listingFee, 'marketplace_list', `listing fee`).catch(()=>{}); } catch (_le) {}
   }
 
   // Expiry
@@ -294,6 +296,17 @@ async function buyListing(client, listingId, buyer) {
     const dailySvc = require('./daily');
     dailySvc.updateMissionProgress(b, 'marketplace_trade', 1).catch(() => {});
   } catch (_de) {}
+
+  // ✅ GP Activity log (buyer spent, seller received)
+  try {
+    const { logGPActivity } = require('../db');
+    if (currency === 'GP') {
+      const meta2 = listing.meta || {};
+      const itemLabel = meta2.itemName || (listing.listing_type === 'claim' ? 'Territory' : 'Item');
+      logGPActivity(b, -price, 'marketplace_buy', `"${itemLabel}"`).catch(()=>{});
+      logGPActivity(listing.seller, sellerReceives, 'marketplace_sell', `"${itemLabel}"`).catch(()=>{});
+    }
+  } catch (_le) {}
 
   // ✅ Notify seller
   try {

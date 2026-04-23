@@ -838,6 +838,26 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         </div>
       </div>
     </div>
+
+    <!-- GP Activity Log Settings -->
+    <div style="margin-top:16px;padding:12px;border:1px solid rgba(255,209,102,.15);border-radius:6px;background:rgba(255,209,102,.02)">
+      <div style="font-size:8px;color:var(--gold);letter-spacing:1px;margin-bottom:10px;font-weight:700">GP ACTIVITY LOG SETTINGS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">
+        <div>
+          <label style="font-size:7px;color:#888;display:block;margin-bottom:3px">gp_log_enabled</label>
+          <select class="adm-input" id="set_gp_log_enabled" onchange="saveSetting('gp_log_enabled',this.value)" style="width:100%">
+            <option value="true">true</option><option value="false">false</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:7px;color:#888;display:block;margin-bottom:3px">gp_log_ttl_days</label>
+          <input class="adm-input" id="set_gp_log_ttl_days" type="number" placeholder="30" style="width:100%" onblur="saveSetting('gp_log_ttl_days',this.value)">
+        </div>
+        <div>
+          <button class="adm-btn" onclick="loadGPLogSettings()" style="width:100%;font-size:8px">LOAD</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ POI DROP TABLE TAB ═══ -->
@@ -1789,6 +1809,8 @@ var settingDescI18n = {
     referral_auction_buy_pct: '옥션 낙찰 → 추천인 커미션 %',
     referral_ship_build_pct: '함선 건조 GP → 추천인 커미션 %',
     referral_battle_stake_pct: '전투 GP 스테이크 → 추천인 커미션 %',
+    gp_log_enabled: 'GP 활동 로그 활성화/비활성화',
+    gp_log_ttl_days: 'GP 로그 보관 기간 (일)',
     // 길드
     guild_create_cost_gp: '길드 생성 비용 (GP)',
     guild_max_members: '길드 최대 인원',
@@ -3052,6 +3074,15 @@ function loadGPStats() {
     document.getElementById('gpAvg').textContent = parseFloat(d.avg_gp || 0).toFixed(1);
     document.getElementById('gpMax').textContent = parseFloat(d.max_gp || 0).toLocaleString();
     document.getElementById('gpUsers').textContent = d.users_with_gp || 0;
+  });
+}
+
+function loadGPLogSettings() {
+  ['gp_log_enabled','gp_log_ttl_days'].forEach(function(k) {
+    api('/admin/api/settings/' + k).then(function(d) {
+      var el = document.getElementById('set_' + k);
+      if (el && d.value !== undefined) { el.value = d.value; }
+    }).catch(function(){});
   });
 }
 

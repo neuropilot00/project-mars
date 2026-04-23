@@ -74,6 +74,8 @@ async function createAuction(sellerWallet, data) {
     }
     if (listingFee > 0) {
       await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2', [listingFee, w]);
+      // ✅ GP Activity log
+      try { const { logGPActivity } = require('../db'); logGPActivity(w, -listingFee, 'auction_list', `listing fee`).catch(()=>{}); } catch (_le) {}
     }
 
     let itemInstanceId = null;
@@ -244,6 +246,9 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
 
     await client.query('COMMIT');
 
+    // ✅ GP Activity log (bid held)
+    try { const { logGPActivity } = require('../db'); logGPActivity(w, -amt, 'auction_bid', `auction #${id}`).catch(()=>{}); } catch (_le) {}
+
     // ✅ Notify outbid player
     if (auction.current_bidder_wallet && auction.current_bidder_wallet !== w) {
       try {
@@ -324,6 +329,12 @@ async function buyout(buyerWallet, auctionId) {
       seasonSvc.addSeasonScore(w, 'gp_spend', buyoutAmt).catch(() => {});
       seasonSvc.addSeasonScore(w, 'trade', 1).catch(() => {});
     } catch (_re) {}
+
+    // ✅ GP Activity log
+    try { const { logGPActivity } = require('../db');
+      logGPActivity(w, -buyoutAmt, 'auction_buy', `auction #${id} buyout`).catch(()=>{});
+      logGPActivity(auction.seller_wallet, sellerPayout, 'auction_sell', `auction #${id} buyout`).catch(()=>{});
+    } catch (_le) {}
 
     // ✅ Daily mission progress: marketplace_trade
     try {
@@ -429,6 +440,12 @@ async function settleAuction(auctionId) {
         seasonSvc.addSeasonScore(auction.current_bidder_wallet, 'gp_spend', auction.current_bid).catch(() => {});
         seasonSvc.addSeasonScore(auction.current_bidder_wallet, 'trade', 1).catch(() => {});
       } catch (_re) {}
+
+      // ✅ GP Activity log
+      try { const { logGPActivity } = require('../db');
+        logGPActivity(auction.current_bidder_wallet, -auction.current_bid, 'auction_buy', `auction #${id}`).catch(()=>{});
+        logGPActivity(auction.seller_wallet, payout, 'auction_sell', `auction #${id}`).catch(()=>{});
+      } catch (_le) {}
 
       // ✅ Daily mission progress: marketplace_trade
       try {
