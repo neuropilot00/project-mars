@@ -109,6 +109,7 @@ const tevtRoutes        = require('./routes/tevt');
 const prestigeRoutes    = require('./routes/prestige');
 const beaconRoutes      = require('./routes/beacon');
 const donationRoutes    = require('./routes/donation');
+const pollsRoutes       = require('./routes/polls');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -250,6 +251,7 @@ app.use('/api', tevtRoutes);
 app.use('/api', prestigeRoutes);
 app.use('/api', beaconRoutes);
 app.use('/api', donationRoutes);
+app.use('/api', pollsRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -1019,6 +1021,14 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[BEACON] Beacon expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[BEACON] Could not init expiry scheduler:', e.message); }
+
+    try {
+      const { expirePolls } = require('./services/polls');
+      setInterval(async () => {
+        try { await expirePolls(); } catch(e) { console.warn('[POLLS] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[POLLS] Poll expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[POLLS] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

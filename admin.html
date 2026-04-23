@@ -1447,6 +1447,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="prestigeAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ COMMUNITY POLLS (Migration 135) ═══ -->
+  <div class="section cat-gp" style="display:none" id="pollsAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a5d6a7">📊 COMMUNITY POLLS</span>
+      <button onclick="loadPollsAdmin()" style="font-size:10px;background:rgba(165,214,167,.12);border:1px solid rgba(165,214,167,.3);color:#a5d6a7;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="pollsAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#a5d6a7">POLLS</span></div>
+    <div id="pollsAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#a5d6a7">SETTINGS</span></div>
+    <div id="pollsAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ DONATION WALL (Migration 134) ═══ -->
   <div class="section cat-gp" style="display:none" id="donationAdminSection">
     <div class="sec-header">
@@ -2188,7 +2201,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -6309,6 +6322,86 @@ function saveDonationSetting(key) {
   var el = document.getElementById('donation_'+key);
   if (!el) return;
   fetch('/admin/api/donation/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  COMMUNITY POLLS ADMIN (Migration 135)
+// ══════════════════════════════════════
+function loadPollsAdmin() {
+  var statsEl    = document.getElementById('pollsAdmStats');
+  var listEl     = document.getElementById('pollsAdmList');
+  var settingsEl = document.getElementById('pollsAdmSettings');
+  if (!statsEl) return;
+  [statsEl, listEl, settingsEl].forEach(function(el) { if(el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>'; });
+  fetch('/admin/api/polls', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['Total Polls', s.total_polls  || 0],
+        ['Active',      s.active_polls || 0],
+        ['GP Sunk',     (s.total_gp_sunk||0)+' GP'],
+        ['Total Votes', s.total_votes  || 0],
+      ].map(function(kv) {
+        return '<div style="background:rgba(165,214,167,.07);border:1px solid rgba(165,214,167,.2);border-radius:6px;padding:8px 10px">'
+          +'<div style="color:#888;font-size:9px;letter-spacing:1px">'+kv[0]+'</div>'
+          +'<div style="color:#a5d6a7;font-size:15px;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      var rows = d.recent || [];
+      listEl.innerHTML = rows.length ? '<table class="adm-table"><thead><tr><th>ID</th><th>Creator</th><th>Question</th><th>Votes</th><th>Status</th><th></th></tr></thead><tbody>'
+        + rows.map(function(r) {
+            var active = r.is_active && new Date(r.ends_at) > new Date();
+            return '<tr>'
+              +'<td>'+r.id+'</td>'
+              +'<td>'+escapeHtml(r.nickname||r.wallet)+'</td>'
+              +'<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(r.question)+'</td>'
+              +'<td>'+r.vote_count+'</td>'
+              +'<td style="color:'+(active?'#a5d6a7':'#555')+'">'+(active?'ACTIVE':'CLOSED')+'</td>'
+              +'<td>'+(active ? '<button onclick="adminClosePoll('+r.id+')" style="font-size:9px;background:rgba(255,100,100,.1);border:1px solid rgba(255,100,100,.3);color:#ef9a9a;padding:2px 6px;border-radius:4px;cursor:pointer">CLOSE</button>' : '')+'</td>'
+              +'</tr>';
+          }).join('')
+        + '</tbody></table>' : '<span style="color:#555;font-size:11px">No polls yet.</span>';
+
+      var keys = ['poll_cost_gp','poll_min_options','poll_max_options','poll_max_question_len','poll_max_duration_h','poll_max_active','poll_cooldown_h'];
+      settingsEl.innerHTML = keys.map(function(k) {
+        return '<div style="display:flex;align-items:center;gap:6px">'
+          +'<span style="color:#888;font-size:10px;flex:1">'+k+'</span>'
+          +'<input id="poll_'+k+'" style="background:#111;border:1px solid #333;color:#eee;padding:4px 6px;border-radius:4px;font-size:11px;width:80px" '
+          +'onchange="savePollSetting(\''+k+'\')">'
+          +'</div>';
+      }).join('');
+      fetch('/admin/api/settings?prefix=poll_', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+        .then(function(r) { return r.json(); })
+        .then(function(s) { (s.settings||s||[]).forEach(function(row) { var el=document.getElementById('poll_'+row.key); if(el) el.value=row.value; }); })
+        .catch(function(){});
+    }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function adminClosePoll(id) {
+  if (!confirm('Close poll #'+id+'?')) return;
+  fetch('/admin/api/polls/'+id, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('📊 Poll closed');
+    loadPollsAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function savePollSetting(key) {
+  var el = document.getElementById('poll_'+key);
+  if (!el) return;
+  fetch('/admin/api/polls/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
