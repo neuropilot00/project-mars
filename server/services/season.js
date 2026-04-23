@@ -136,7 +136,12 @@ async function getSeasonLeaderboard(seasonId, limit = 20) {
 
   const res = await pool.query(
     `SELECT ss.wallet, ss.score, ss.pixels_claimed, ss.harvests, ss.hijacks_won, ss.pois_discovered,
-            COALESCE(ss.tap_count, 0) AS tap_count, u.nickname
+            COALESCE(ss.tap_count, 0) AS tap_count,
+            COALESCE(ss.enhancements_done, 0) AS enhancements_done,
+            COALESCE(ss.trades_completed, 0) AS trades_completed,
+            COALESCE(ss.naval_wins, 0) AS naval_wins,
+            COALESCE(ss.ships_built, 0) AS ships_built,
+            u.nickname
      FROM season_scores ss
      LEFT JOIN users u ON u.wallet_address = ss.wallet
      WHERE ss.season_id = $1
@@ -154,8 +159,120 @@ async function getSeasonLeaderboard(seasonId, limit = 20) {
     harvests: r.harvests,
     hijacksWon: r.hijacks_won,
     poisDiscovered: r.pois_discovered,
-    tapCount: parseInt(r.tap_count)
+    tapCount: parseInt(r.tap_count),
+    enhancementsDone: parseInt(r.enhancements_done),
+    tradesCompleted: parseInt(r.trades_completed),
+    navalWins: parseInt(r.naval_wins),
+    shipsBuilt: parseInt(r.ships_built)
   }));
+}
+
+// ═══════════════════════════════════════
+//  CATEGORY LEADERBOARD
+// ═══════════════════════════════════════
+
+async function getCategoryLeaderboard(categoryKey, limit = 10) {
+  const cat = ALL_CATEGORIES.find(c => c.key === categoryKey);
+  if (!cat) return null;
+
+  const season = await getActiveSeason();
+  if (!season) return { category: cat, entries: [], seasonId: null };
+
+  const res = await pool.query(
+    `SELECT ss.wallet, ss.${cat.col} AS val, u.nickname
+     FROM season_scores ss
+     LEFT JOIN users u ON u.wallet_address = ss.wallet
+     WHERE ss.season_id = $1 AND ss.${cat.col} > 0
+     ORDER BY ss.${cat.col} DESC
+     LIMIT $2`,
+    [season.id, Math.min(limit, 50)]
+  );
+
+  return {
+    category: { key: cat.key, label: cat.label, icon: cat.icon, desc: cat.desc },
+    seasonId: season.id,
+    entries: res.rows.map((r, i) => ({
+      rank: i + 1,
+      wallet: r.wallet,
+      nickname: r.nickname || r.wallet.slice(0, 8) + '...',
+      value: parseInt(r.val) || 0
+    }))
+  };
+}
+
+// ═══════════════════════════════════════
+//  CAREER STATS
+// ═══════════════════════════════════════
+
+async function getCareerStats(wallet) {
+  const w = wallet.toLowerCase();
+
+  const [userRes, battleRes, enhRes, shipRes, tradeRes, seasonRes] = await Promise.all([
+    pool.query('SELECT nickname, created_at, xp FROM users WHERE wallet_address = $1', [w]),
+    pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE winner_wallet = $1) AS wins,
+        COUNT(*) FILTER (WHERE (attacker_wallet = $1 OR defender_wallet = $1) AND winner_wallet != $1) AS losses,
+        COALESCE(SUM(gp_stake) FILTER (WHERE winner_wallet = $1), 0) AS gp_won
+      FROM battles WHERE (attacker_wallet = $1 OR defender_wallet = $1) AND status = 'completed'`, [w]),
+    pool.query(`
+      SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE success = true) AS successes,
+             COALESCE(SUM(gp_cost), 0) AS total_gp
+      FROM enhancement_log WHERE wallet = $1`, [w]),
+    pool.query(`
+      SELECT COUNT(*) AS total, COALESCE(SUM(gp_cost), 0) AS total_gp
+      FROM ship_build_log WHERE wallet_address = $1`, [w]),
+    pool.query(`
+      SELECT COUNT(*) AS total
+      FROM marketplace_listings WHERE (seller = $1 OR buyer = $1) AND status = 'sold'`, [w]),
+    pool.query(`
+      SELECT SUM(ss.score) AS total_score, SUM(ss.pixels_claimed) AS pixels,
+             SUM(ss.harvests) AS harvests, SUM(ss.enhancements_done) AS enhancements,
+             SUM(ss.trades_completed) AS trades, SUM(ss.naval_wins) AS naval_wins,
+             SUM(ss.ships_built) AS ships_built
+      FROM season_scores ss WHERE ss.wallet = $1`, [w])
+  ]);
+
+  const user = userRes.rows[0] || {};
+  const battle = battleRes.rows[0] || {};
+  const enh = enhRes.rows[0] || {};
+  const ship = shipRes.rows[0] || {};
+  const trade = tradeRes.rows[0] || {};
+  const season = seasonRes.rows[0] || {};
+
+  return {
+    wallet: w,
+    nickname: user.nickname || w.slice(0, 8) + '...',
+    memberSince: user.created_at,
+    xp: parseInt(user.xp) || 0,
+    battles: {
+      wins: parseInt(battle.wins) || 0,
+      losses: parseInt(battle.losses) || 0,
+      gpWon: parseFloat(battle.gp_won) || 0
+    },
+    enhancements: {
+      total: parseInt(enh.total) || 0,
+      successes: parseInt(enh.successes) || 0,
+      totalGP: parseFloat(enh.total_gp) || 0,
+      successRate: enh.total > 0 ? ((enh.successes / enh.total) * 100).toFixed(1) : '0.0'
+    },
+    ships: {
+      built: parseInt(ship.total) || 0,
+      totalGP: parseFloat(ship.total_gp) || 0
+    },
+    trades: {
+      total: parseInt(trade.total) || 0
+    },
+    allTime: {
+      score: parseInt(season.total_score) || 0,
+      pixelsClaimed: parseInt(season.pixels) || 0,
+      harvests: parseInt(season.harvests) || 0,
+      enhancements: parseInt(season.enhancements) || 0,
+      trades: parseInt(season.trades) || 0,
+      navalWins: parseInt(season.naval_wins) || 0,
+      shipsBuilt: parseInt(season.ships_built) || 0
+    }
+  };
 }
 
 // ═══════════════════════════════════════
@@ -695,6 +812,8 @@ module.exports = {
   getActiveSeason, addSeasonScore,
   getSeasonLeaderboard, finalizeSeasonRewards,
   claimSeasonReward, getMyRewards,
+  // Category leaderboards + career stats (migration 098)
+  getCategoryLeaderboard, getCareerStats,
   // Season Pass (migration 068)
   getSeasonPass, addPassXP, purchasePremiumPass, claimPassTier,
   // Auto rotation

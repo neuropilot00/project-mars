@@ -4227,6 +4227,33 @@ router.get('/season/leaderboard', readLimiter, async (req, res) => {
   }
 });
 
+// GET /api/season/category/:key — top players for a specific season category (Migration 098)
+router.get('/season/category/:key', readLimiter, async (req, res) => {
+  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
+  try {
+    const result = await seasonService.getCategoryLeaderboard(req.params.key, parseInt(req.query.limit) || 10);
+    if (!result) return res.status(404).json({ error: 'Category not found' });
+    res.json(result);
+  } catch (e) {
+    console.error('[SEASON] category lb error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// GET /api/stats/career?wallet= — career lifetime stats (Migration 098)
+router.get('/stats/career', readLimiter, async (req, res) => {
+  if (!seasonService) return res.status(503).json({ error: 'Season service unavailable' });
+  const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+  if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+  try {
+    const stats = await seasonService.getCareerStats(wallet);
+    res.json(stats);
+  } catch (e) {
+    console.error('[STATS] career error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
 // Get my season rewards
 router.get('/season/rewards', readLimiter, async (req, res) => {
   const w = (req.query.wallet || '').toLowerCase();

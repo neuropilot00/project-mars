@@ -793,9 +793,29 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <button class="ev-btn del" onclick="document.getElementById('seasonScoresPanel').style.display='none'">CLOSE ✕</button>
       </div>
       <table class="adm-table">
-        <thead><tr><th>#</th><th>PLAYER</th><th>SCORE</th><th>PIXELS</th><th>HARVESTS</th><th>HIJACKS</th></tr></thead>
+        <thead><tr><th>#</th><th>PLAYER</th><th>SCORE</th><th>PIXELS</th><th>HARVESTS</th><th>HIJACKS</th><th>NAVAL</th><th>CRAFTS</th><th>TRADES</th><th>SHIPS</th></tr></thead>
         <tbody id="seasonScoresBody"></tbody>
       </table>
+    </div>
+
+    <!-- Career Stats Settings -->
+    <div style="margin-top:16px;padding:12px;border:1px solid rgba(255,69,0,.15);border-radius:6px;background:rgba(255,69,0,.02)">
+      <div style="font-size:8px;color:#ff4500;letter-spacing:1px;margin-bottom:10px;font-weight:700">CAREER STATS SETTINGS (Migration 098)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">
+        <div>
+          <label style="font-size:7px;color:#888;display:block;margin-bottom:3px">career_stats_enabled</label>
+          <select class="adm-input" id="set_career_stats_enabled" onchange="saveSetting('career_stats_enabled',this.value)" style="width:100%">
+            <option value="true">true</option><option value="false">false</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:7px;color:#888;display:block;margin-bottom:3px">category_lb_size</label>
+          <input class="adm-input" id="set_category_lb_size" type="number" placeholder="10" style="width:100%" onblur="saveSetting('category_lb_size',this.value)">
+        </div>
+        <div>
+          <button class="adm-btn" onclick="loadCareerStatsSettings()" style="width:100%;font-size:8px">LOAD</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1811,6 +1831,9 @@ var settingDescI18n = {
     referral_battle_stake_pct: '전투 GP 스테이크 → 추천인 커미션 %',
     gp_log_enabled: 'GP 활동 로그 활성화/비활성화',
     gp_log_ttl_days: 'GP 로그 보관 기간 (일)',
+    career_stats_enabled: '커리어 통계 플레이어 공개 여부',
+    career_stats_public: '다른 플레이어 커리어 통계 열람 허용',
+    category_lb_size: '카테고리 리더보드 표시 인원 수',
     // 길드
     guild_create_cost_gp: '길드 생성 비용 (GP)',
     guild_max_members: '길드 최대 인원',
@@ -3050,7 +3073,7 @@ function viewSeasonScores(id) {
     var tbody = document.getElementById('seasonScoresBody');
     tbody.innerHTML = '';
     if (!d.scores || !d.scores.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="loading">No scores yet</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="loading">No scores yet</td></tr>';
       return;
     }
     d.scores.forEach(function(s, i) {
@@ -3061,7 +3084,11 @@ function viewSeasonScores(id) {
         '<td class="val-gn">' + s.score + '</td>' +
         '<td>' + (s.pixels_claimed || 0) + '</td>' +
         '<td>' + (s.harvests || 0) + '</td>' +
-        '<td class="val-red">' + (s.hijacks_won || 0) + '</td>';
+        '<td class="val-red">' + (s.hijacks_won || 0) + '</td>' +
+        '<td style="color:var(--cyan)">' + (s.naval_wins || 0) + '</td>' +
+        '<td style="color:var(--gold)">' + (s.enhancements_done || 0) + '</td>' +
+        '<td style="color:var(--pp)">' + (s.trades_completed || 0) + '</td>' +
+        '<td style="color:var(--gn)">' + (s.ships_built || 0) + '</td>';
       tbody.appendChild(tr);
     });
   });
@@ -3074,6 +3101,15 @@ function loadGPStats() {
     document.getElementById('gpAvg').textContent = parseFloat(d.avg_gp || 0).toFixed(1);
     document.getElementById('gpMax').textContent = parseFloat(d.max_gp || 0).toLocaleString();
     document.getElementById('gpUsers').textContent = d.users_with_gp || 0;
+  });
+}
+
+function loadCareerStatsSettings() {
+  ['career_stats_enabled','category_lb_size'].forEach(function(k) {
+    api('/admin/api/settings/' + k).then(function(d) {
+      var el = document.getElementById('set_' + k);
+      if (el && d.value !== undefined) { el.value = d.value; }
+    }).catch(function(){});
   });
 }
 

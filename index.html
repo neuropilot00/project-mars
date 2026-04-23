@@ -3377,12 +3377,40 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- Season Leaderboard -->
+        <!-- Season Leaderboard + Category Tabs -->
         <div style="font-size:9px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
           <span data-i18n="season_leaderboard">SEASON LEADERBOARD</span>
           <span style="font-size:8px;color:var(--mars);cursor:pointer" onclick="loadSeasonData()" data-i18n="season_refresh">↻ REFRESH</span>
         </div>
+
+        <!-- Category Pills -->
+        <div id="catLbPills" style="display:flex;gap:4px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+          <button class="cat-lb-pill active" id="catPill_overall" onclick="switchCatLb('overall',this)" style="white-space:nowrap;font-size:8px;padding:4px 10px;border-radius:12px;background:rgba(255,120,60,.15);border:1px solid rgba(255,120,60,.4);color:var(--mars);cursor:pointer;font-family:var(--fn)">🏆 OVERALL</button>
+          <button class="cat-lb-pill" id="catPill_naval_champ" onclick="switchCatLb('naval_champ',this)" style="white-space:nowrap;font-size:8px;padding:4px 10px;border-radius:12px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--tx3);cursor:pointer;font-family:var(--fn)">⚓ NAVAL</button>
+          <button class="cat-lb-pill" id="catPill_enhancer" onclick="switchCatLb('enhancer',this)" style="white-space:nowrap;font-size:8px;padding:4px 10px;border-radius:12px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--tx3);cursor:pointer;font-family:var(--fn)">⚗️ CRAFTER</button>
+          <button class="cat-lb-pill" id="catPill_trader" onclick="switchCatLb('trader',this)" style="white-space:nowrap;font-size:8px;padding:4px 10px;border-radius:12px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--tx3);cursor:pointer;font-family:var(--fn)">🛒 TRADER</button>
+          <button class="cat-lb-pill" id="catPill_shipwright" onclick="switchCatLb('shipwright',this)" style="white-space:nowrap;font-size:8px;padding:4px 10px;border-radius:12px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--tx3);cursor:pointer;font-family:var(--fn)">🚢 FLEET</button>
+          <button class="cat-lb-pill" id="catPill_territory" onclick="switchCatLb('territory',this)" style="white-space:nowrap;font-size:8px;padding:4px 10px;border-radius:12px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--tx3);cursor:pointer;font-family:var(--fn)">🏴 TERRITORY</button>
+          <button class="cat-lb-pill" id="catPill_combat" onclick="switchCatLb('combat',this)" style="white-space:nowrap;font-size:8px;padding:4px 10px;border-radius:12px;background:rgba(91,184,232,.08);border:1px solid rgba(91,184,232,.25);color:var(--tx3);cursor:pointer;font-family:var(--fn)">⚔️ COMBAT</button>
+        </div>
+
+        <!-- Category label -->
+        <div id="catLbLabel" style="font-size:8px;color:var(--tx3);margin-bottom:4px;opacity:.7"></div>
+
         <div id="seasonLeaderboard" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="season_loading">Loading...</div>
+
+        <!-- Career Stats (My Stats) — collapsible -->
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleCareerStats()">
+            <span style="font-size:9px;color:var(--gold);font-family:var(--fn);letter-spacing:1px" data-i18n="career_stats_title">📊 MY CAREER STATS</span>
+            <span id="careerStatsToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+          </div>
+          <div id="careerStatsPanel" style="display:none;margin-top:8px">
+            <div id="careerStatsList" style="font-size:10px">
+              <div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="loading_dots">Loading...</div>
+            </div>
+          </div>
+        </div>
 
         <!-- Season Pass -->
         <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)">
@@ -10283,6 +10311,7 @@ var I18N = {
     notif_title: '🔔 NOTIFICATIONS', notif_read_all: 'MARK ALL READ',
     notif_loading: 'Loading...', notif_empty: 'No notifications yet',
     gp_activity_title: 'GP ACTIVITY', gp_activity_login: 'Login to view GP activity.', gp_activity_empty: 'No GP activity yet.',
+    career_stats_title: '📊 MY CAREER STATS', cat_naval: 'Naval Wins', cat_enhance: 'Enhancements', cat_ships: 'Ships Built', cat_trades: 'Trades',
     mkt_buy: 'BUY', mkt_cancel: 'CANCEL', mkt_list_sell: 'SELL',
     mkt_buy_title: 'Purchase Item', mkt_price: 'Price', mkt_your_balance: 'Your Balance',
     mkt_buy_confirm: 'BUY NOW', mkt_bought: 'Purchase successful!',
@@ -10850,6 +10879,7 @@ var I18N = {
     notif_title: '🔔 알림', notif_read_all: '모두 읽음으로 표시',
     notif_loading: '로딩 중...', notif_empty: '알림이 없습니다',
     gp_activity_title: 'GP 활동 내역', gp_activity_login: '로그인 후 확인하세요.', gp_activity_empty: 'GP 활동 내역이 없습니다.',
+    career_stats_title: '📊 내 커리어 통계', cat_naval: '해전 승리', cat_enhance: '강화 시도', cat_ships: '건조한 함선', cat_trades: '거래',
     mkt_buy: '구매', mkt_cancel: '취소', mkt_list_sell: '판매',
     mkt_buy_title: '아이템 구매', mkt_price: '가격', mkt_your_balance: '내 잔액',
     mkt_buy_confirm: '지금 구매', mkt_bought: '구매 성공!',
@@ -11416,6 +11446,7 @@ var I18N = {
     notif_title: '🔔 通知', notif_read_all: 'すべて既読',
     notif_loading: '読込中...', notif_empty: '通知はありません',
     gp_activity_title: 'GP 履歴', gp_activity_login: 'ログインして確認してください。', gp_activity_empty: 'GP活動履歴がありません。',
+    career_stats_title: '📊 キャリア統計', cat_naval: '海戦勝利', cat_enhance: '強化試行', cat_ships: '建造艦数', cat_trades: '取引数',
     mkt_buy: '購入', mkt_cancel: 'キャンセル', mkt_list_sell: '出品',
     mkt_buy_title: 'アイテム購入', mkt_price: '価格', mkt_your_balance: '残高',
     mkt_buy_confirm: '今すぐ購入', mkt_bought: '購入成功！',
@@ -11966,6 +11997,7 @@ var I18N = {
     notif_title: '🔔 通知', notif_read_all: '全部标为已读',
     notif_loading: '加载中...', notif_empty: '暂无通知',
     gp_activity_title: 'GP 活动记录', gp_activity_login: '登录后查看GP活动。', gp_activity_empty: '暂无GP活动记录。',
+    career_stats_title: '📊 生涯统计', cat_naval: '海战胜利', cat_enhance: '强化次数', cat_ships: '建造舰船', cat_trades: '交易次数',
     mkt_buy: '购买', mkt_cancel: '取消', mkt_list_sell: '出售',
     mkt_buy_title: '购买道具', mkt_price: '价格', mkt_your_balance: '余额',
     mkt_buy_confirm: '立即购买', mkt_bought: '购买成功！',
@@ -17029,11 +17061,90 @@ function purchaseSeasonPass(){
   });
 }
 
+// ── Category Leaderboard (Migration 098) ──
+var _currentCatLb = 'overall';
+function switchCatLb(key, el) {
+  _currentCatLb = key;
+  document.querySelectorAll('.cat-lb-pill').forEach(function(p) {
+    var isActive = p.id === 'catPill_' + key;
+    p.style.background = isActive ? 'rgba(255,120,60,.15)' : 'rgba(91,184,232,.08)';
+    p.style.borderColor = isActive ? 'rgba(255,120,60,.4)' : 'rgba(91,184,232,.25)';
+    p.style.color = isActive ? 'var(--mars)' : 'var(--tx3)';
+  });
+  loadSeasonLeaderboard();
+}
+
+// Career stats toggle
+var _careerStatsLoaded = false;
+function toggleCareerStats() {
+  var panel = document.getElementById('careerStatsPanel');
+  var toggle = document.getElementById('careerStatsToggle');
+  if (panel.style.display === 'none') {
+    panel.style.display = '';
+    toggle.textContent = '▲';
+    if (!_careerStatsLoaded) loadCareerStats();
+  } else { panel.style.display = 'none'; toggle.textContent = '▼'; }
+}
+
+async function loadCareerStats() {
+  var w = walletState.address;
+  var el = document.getElementById('careerStatsList');
+  if (!w) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px" data-i18n="gp_activity_login">Login to view.</div>'; applyI18n(el); return; }
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">...</div>';
+  try {
+    var r = await fetch('/api/stats/career?wallet=' + encodeURIComponent(w));
+    var d = await r.json();
+    var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
+    var rows = [
+      ['⚓ ' + (t('cat_naval') || 'Naval Wins'), d.battles.wins + ' W / ' + d.battles.losses + ' L', d.battles.wins > 0 ? 'var(--cyan)' : 'var(--tx3)'],
+      ['⚗️ ' + (t('cat_enhance') || 'Enhancements'), d.enhancements.total + ' ('+d.enhancements.successRate+'%)', 'var(--gold)'],
+      ['🚢 ' + (t('cat_ships') || 'Ships Built'), d.ships.built + '', 'var(--gn)'],
+      ['🛒 ' + (t('cat_trades') || 'Trades'), d.trades.total + '', 'var(--pp)'],
+      ['💰 GP in Battles', '+' + Math.floor(d.battles.gpWon) + ' GP', d.battles.gpWon > 0 ? 'var(--gn)' : 'var(--tx3)'],
+      ['⚗️ GP on Enhance', Math.floor(d.enhancements.totalGP) + ' GP', 'var(--mars)']
+    ];
+    rows.forEach(function(row) {
+      html += '<div style="padding:6px;background:rgba(255,255,255,.02);border:1px solid var(--bdr);border-radius:6px">' +
+        '<div style="font-size:8px;color:var(--tx3);margin-bottom:2px">'+row[0]+'</div>' +
+        '<div style="font-size:11px;color:'+row[2]+';font-family:var(--fn);font-weight:700">'+row[1]+'</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+    _careerStatsLoaded = true;
+  } catch(e) { el.innerHTML = '<div style="color:var(--mars);font-size:9px;text-align:center">Failed to load</div>'; }
+}
+
 function loadSeasonLeaderboard(){
   var w=walletState.address||'';
+  var el=document.getElementById('seasonLeaderboard');
+  var labelEl=document.getElementById('catLbLabel');
+
+  if(_currentCatLb!=='overall'){
+    // Category leaderboard
+    fetch('/api/season/category/'+encodeURIComponent(_currentCatLb)+'?limit=10')
+      .then(function(r){return r.json()}).then(function(d){
+        if(labelEl && d.category) labelEl.textContent = d.category.icon + ' ' + d.category.desc;
+        document.getElementById('mySeasonRank').style.display='none';
+        var entries=d.entries||[];
+        if(!entries.length){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:10px">'+t('season_no_scores')+'</div>';return;}
+        var medals=['🥇','🥈','🥉'];
+        el.innerHTML=entries.map(function(p,i){
+          var isMe=p.wallet===w;
+          var medal=i<3?medals[i]:'';
+          return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;margin-bottom:2px;'+(isMe?'background:rgba(255,120,60,.08);border:1px solid rgba(255,120,60,.15)':'background:rgba(255,255,255,.01)')+'">'+
+            '<span style="font-size:'+(i<3?'14px':'10px')+';min-width:24px;text-align:center">'+(medal||'<span style="color:var(--tx3);font-weight:700">#'+p.rank+'</span>')+'</span>'+
+            '<div style="flex:1;min-width:0"><div style="font-size:10px;color:'+(isMe?'var(--mars)':'var(--tx)')+';font-weight:'+(isMe?'700':'400')+'">'+p.nickname+'</div></div>'+
+            '<div style="font-size:11px;color:var(--gold);font-weight:700">'+p.value.toLocaleString()+'</div>'+
+          '</div>';
+        }).join('');
+      }).catch(function(){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Failed</div>';});
+    return;
+  }
+
+  if(labelEl) labelEl.textContent='';
   fetch('/api/season/leaderboard?limit=20').then(function(r){return r.json()}).then(function(d){
     var lb=d.leaderboard||[];
-    var el=document.getElementById('seasonLeaderboard');
     if(!lb.length){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:8px;font-size:10px">'+t('season_no_scores')+'</div>';document.getElementById('mySeasonRank').style.display='none';return;}
 
     // Find my rank
