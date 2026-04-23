@@ -2548,6 +2548,270 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .faction-toast.error { border-color: rgba(239,83,80,0.5); color: #ff8a80; }
 .faction-toast.success { border-color: rgba(129,199,132,0.5); color: #a5d6a7; }
 @keyframes factionToastIn { from { transform: translate(-50%,10px); opacity:0; } to { transform: translate(-50%,0); opacity:1; } }
+
+/* ═════ Shipyard Modal ═════ */
+.shipyard-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+  z-index: 9998;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 10px;
+}
+.shipyard-modal-backdrop.active { display: flex; }
+.shipyard-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(100, 150, 255, 0.2);
+  border-radius: 10px;
+  width: 100%; max-width: 1100px;
+  max-height: 95vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.shipyard-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.shipyard-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px; font-weight: 900; letter-spacing: 3px;
+}
+.shipyard-close {
+  background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.5);
+  padding: 4px 10px; font-size: 12px; cursor: pointer;
+  border-radius: 3px;
+}
+.shipyard-close:hover { color: #fff; background: rgba(255,255,255,.06); }
+.shipyard-tabs {
+  display: flex; background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.sy-tab {
+  flex: 1; background: transparent; border: none;
+  padding: 12px; cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.4);
+  border-bottom: 2px solid transparent;
+  transition: all .15s;
+}
+.sy-tab:hover { color: rgba(255, 255, 255, 0.7); }
+.sy-tab.active { color: #4fc3f7; border-bottom-color: #4fc3f7; background: rgba(79,195,247,.05); }
+.sy-tab .badge {
+  display: inline-block; margin-left: 6px;
+  background: rgba(255,180,40,.2); color: #ffb74d;
+  padding: 1px 6px; border-radius: 10px;
+  font-size: 9px;
+}
+.shipyard-filters {
+  display: flex; gap: 8px; padding: 10px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  flex-wrap: wrap;
+  font-size: 10px;
+}
+.sy-filter-chip {
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  border-radius: 12px;
+  letter-spacing: 1px;
+  transition: all .1s;
+}
+.sy-filter-chip:hover { background: rgba(255,255,255,.07); }
+.sy-filter-chip.active { background: rgba(79,195,247,.15); color: #4fc3f7; border-color: rgba(79,195,247,.4); }
+.shipyard-body {
+  flex: 1; overflow-y: auto;
+  padding: 14px 20px;
+}
+.bp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+.bp-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 12px;
+  position: relative;
+}
+.bp-card.mcc { border-left: 3px solid #4fc3f7; }
+.bp-card.fsp { border-left: 3px solid #81c784; }
+.bp-card.cv  { border-left: 3px solid #ef5350; }
+.bp-card.locked { opacity: 0.5; }
+.bp-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.bp-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px; font-weight: 900;
+  letter-spacing: 2px;
+}
+.bp-name.mcc { color: #4fc3f7; }
+.bp-name.fsp { color: #81c784; }
+.bp-name.cv  { color: #ef5350; }
+.bp-tier {
+  font-size: 8px; padding: 1px 6px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #ffd700; letter-spacing: 1px;
+  border-radius: 2px;
+}
+.bp-tier.t1 { background: rgba(100,100,100,.1); border-color: rgba(150,150,150,.3); color: #aaa; }
+.bp-class {
+  font-size: 9px; color: rgba(255,255,255,.4);
+  letter-spacing: 1.5px; margin-bottom: 8px;
+}
+.bp-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  margin-bottom: 8px;
+  font-size: 9px;
+}
+.bp-stat {
+  background: rgba(0,0,0,0.2);
+  padding: 3px 5px;
+  border-radius: 3px;
+  text-align: center;
+}
+.bp-stat-label { color: rgba(255,255,255,.35); font-size: 8px; }
+.bp-stat-value { color: rgba(255,255,255,.9); font-weight: 700; }
+.bp-cost {
+  font-size: 9px; margin-bottom: 8px;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  line-height: 1.6;
+}
+.bp-cost-line { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.bp-cost-gp { color: #ffd700; font-weight: 700; }
+.bp-cost-item {
+  display: inline-block;
+  padding: 1px 6px;
+  background: rgba(255,255,255,.04);
+  border-radius: 3px;
+  color: rgba(255,255,255,.7);
+  font-size: 9px;
+}
+.bp-cost-item.ok { color: #a5d6a7; }
+.bp-cost-item.short { color: #ef9a9a; background: rgba(239,83,80,.1); }
+.bp-build-time {
+  font-size: 8px; color: rgba(255,255,255,.4);
+  margin-top: 4px;
+}
+.bp-limits {
+  font-size: 8px; color: rgba(255, 180, 77, 0.7);
+  margin-bottom: 6px;
+}
+.bp-build-btn {
+  width: 100%;
+  padding: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  border: 1px solid;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all .15s;
+}
+.bp-card.mcc .bp-build-btn { color: #4fc3f7; border-color: rgba(79,195,247,.4); }
+.bp-card.mcc .bp-build-btn:hover:not(:disabled) { background: rgba(79,195,247,.1); }
+.bp-card.fsp .bp-build-btn { color: #81c784; border-color: rgba(129,199,132,.4); }
+.bp-card.fsp .bp-build-btn:hover:not(:disabled) { background: rgba(129,199,132,.1); }
+.bp-card.cv  .bp-build-btn { color: #ef5350; border-color: rgba(239,83,80,.4); }
+.bp-card.cv  .bp-build-btn:hover:not(:disabled) { background: rgba(239,83,80,.1); }
+.bp-build-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.queue-list { display: flex; flex-direction: column; gap: 8px; }
+.queue-item {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+.queue-item-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.queue-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+}
+.queue-time { font-size: 10px; color: #ffb74d; font-weight: 700; }
+.queue-time.ready { color: #81c784; }
+.queue-bar-bg {
+  height: 4px; background: rgba(255,255,255,.05);
+  border-radius: 2px; overflow: hidden;
+  margin-bottom: 4px;
+}
+.queue-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4fc3f7, #81c784);
+  transition: width 1s linear;
+}
+.queue-bar-fill.ready {
+  background: linear-gradient(90deg, #81c784, #ffd700);
+  animation: pulse-ready 1.5s ease-in-out infinite;
+}
+@keyframes pulse-ready {
+  0%,100% { opacity: 1; } 50% { opacity: 0.6; }
+}
+.queue-actions { display: flex; gap: 6px; margin-top: 6px; }
+.queue-btn {
+  padding: 3px 10px; font-size: 9px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: transparent;
+  color: rgba(255,255,255,.6);
+  cursor: pointer; border-radius: 3px;
+  letter-spacing: 1px;
+}
+.queue-btn.primary { background: rgba(129,199,132,.15); color: #a5d6a7; border-color: rgba(129,199,132,.4); }
+.queue-btn.danger  { color: #ef9a9a; border-color: rgba(239,83,80,.3); }
+.queue-btn:hover:not(:disabled) { background: rgba(255,255,255,.08); }
+.ship-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.ship-item {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 5px;
+  padding: 8px 10px;
+}
+.ship-item.flagship {
+  border-color: rgba(255,215,0,.4);
+  background: rgba(255,215,0,.05);
+}
+.ship-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+}
+.ship-class { font-size: 8px; color: rgba(255,255,255,.4); margin-bottom: 4px; }
+.ship-hp-bar {
+  height: 3px; background: rgba(255,255,255,.05); border-radius: 2px; overflow: hidden;
+  margin-bottom: 2px;
+}
+.ship-hp-fill { height: 100%; background: #66bb6a; transition: width .3s; }
+.ship-hp-fill.low { background: #ff9800; }
+.ship-hp-fill.crit { background: #ef5350; }
+.ship-hp-text { font-size: 8px; color: rgba(255,255,255,.4); }
+.sy-empty {
+  text-align: center; padding: 40px 20px;
+  color: rgba(255,255,255,.3); font-size: 11px; letter-spacing: 2px;
+}
+.shipyard-footer {
+  padding: 10px 20px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.2);
+  display: flex; gap: 20px; flex-wrap: wrap;
+  font-size: 10px; letter-spacing: 1px;
+}
+.sy-balance { display: flex; align-items: center; gap: 5px; }
+.sy-balance b { color: #ffd700; }
+.sy-balance.minerals b { color: #4fc3f7; }
 </style>
 </head>
 <body>
@@ -35870,6 +36134,355 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
   </div>
 </div>
 <div class="faction-toast" id="factionToast"></div>
+
+<!-- ═══ A-2: Shipyard Modal ═══ -->
+<div class="shipyard-modal-backdrop" id="shipyardModal">
+  <div class="shipyard-modal">
+    <div class="shipyard-header">
+      <div class="shipyard-title">⚒ SHIPYARD · 조선소</div>
+      <button class="shipyard-close" onclick="closeShipyard()">✕</button>
+    </div>
+    <div class="shipyard-tabs">
+      <button class="sy-tab active" data-tab="blueprints" onclick="switchSyTab('blueprints')">
+        📋 BLUEPRINTS
+      </button>
+      <button class="sy-tab" data-tab="queue" onclick="switchSyTab('queue')">
+        🔨 BUILD QUEUE <span class="badge" id="syQueueBadge" style="display:none"></span>
+      </button>
+      <button class="sy-tab" data-tab="fleet" onclick="switchSyTab('fleet')">
+        🚀 MY FLEET
+      </button>
+    </div>
+    <div class="shipyard-filters" id="syFilters">
+      <span style="color:rgba(255,255,255,.3);letter-spacing:2px;font-size:9px">SIZE:</span>
+      <button class="sy-filter-chip active" data-size="" onclick="filterBySize('')">ALL</button>
+      <button class="sy-filter-chip" data-size="frigate" onclick="filterBySize('frigate')">Frigate</button>
+      <button class="sy-filter-chip" data-size="destroyer" onclick="filterBySize('destroyer')">Destroyer</button>
+      <button class="sy-filter-chip" data-size="cruiser" onclick="filterBySize('cruiser')">Cruiser</button>
+      <button class="sy-filter-chip" data-size="battleship" onclick="filterBySize('battleship')">Battleship</button>
+      <button class="sy-filter-chip" data-size="titan" onclick="filterBySize('titan')">Titan</button>
+    </div>
+    <div class="shipyard-body">
+      <div id="syBlueprintsTab">
+        <div class="bp-grid" id="bpGrid"></div>
+      </div>
+      <div id="syQueueTab" style="display:none">
+        <div class="queue-list" id="queueList"></div>
+      </div>
+      <div id="syFleetTab" style="display:none">
+        <div class="ship-list" id="shipList"></div>
+      </div>
+    </div>
+    <div class="shipyard-footer" id="syFooter">
+      <div class="sy-balance"><span>GP</span> <b id="syGpBalance">-</b></div>
+      <div class="sy-balance minerals"><span>광물</span> <b id="syMineralSummary">-</b></div>
+      <div class="sy-balance" style="margin-left:auto"><span>함선</span> <b id="syShipCount">0 / 200</b></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═════ Shipyard State ═════
+var shipyardState = {
+  currentTab: 'blueprints',
+  currentSize: '',
+  blueprints: [],
+  queue: [],
+  ships: [],
+  summary: null,
+  myFaction: null,
+  myInventory: {},
+  queueTimer: null,
+};
+
+function openShipyard() {
+  if (!isLoggedIn()) {
+    showFactionToast('로그인이 필요합니다', 'error');
+    return;
+  }
+  document.getElementById('shipyardModal').classList.add('active');
+  switchSyTab('blueprints');
+  refreshShipyard();
+  if (shipyardState.queueTimer) clearInterval(shipyardState.queueTimer);
+  shipyardState.queueTimer = setInterval(updateQueueProgress, 1000);
+}
+
+function closeShipyard() {
+  document.getElementById('shipyardModal').classList.remove('active');
+  if (shipyardState.queueTimer) {
+    clearInterval(shipyardState.queueTimer);
+    shipyardState.queueTimer = null;
+  }
+}
+
+function switchSyTab(tab) {
+  shipyardState.currentTab = tab;
+  document.querySelectorAll('.sy-tab').forEach(function(t) {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  document.getElementById('syBlueprintsTab').style.display = tab === 'blueprints' ? '' : 'none';
+  document.getElementById('syQueueTab').style.display      = tab === 'queue'      ? '' : 'none';
+  document.getElementById('syFleetTab').style.display      = tab === 'fleet'      ? '' : 'none';
+  document.getElementById('syFilters').style.display       = tab === 'blueprints' ? '' : 'none';
+  if (tab === 'queue') renderQueue();
+  else if (tab === 'fleet') renderShips();
+  else renderBlueprints();
+}
+
+function filterBySize(size) {
+  shipyardState.currentSize = size;
+  document.querySelectorAll('.sy-filter-chip').forEach(function(c) {
+    c.classList.toggle('active', c.dataset.size === size);
+  });
+  renderBlueprints();
+}
+
+async function refreshShipyard() {
+  try {
+    var headers = getAuthHeaders();
+    var [bpRes, jobsRes, shipsRes, summaryRes, factionRes] = await Promise.all([
+      fetch('/api/ships/blueprints?includeLocked=1', { headers: headers }),
+      fetch('/api/ships/build-jobs', { headers: headers }),
+      fetch('/api/ships/my', { headers: headers }),
+      fetch('/api/ships/summary', { headers: headers }),
+      fetch('/api/factions/mine', { headers: headers }),
+    ]);
+    var bpData      = await bpRes.json();
+    var jobsData    = await jobsRes.json();
+    var shipsData   = await shipsRes.json();
+    var summaryData = await summaryRes.json();
+    var factionData = await factionRes.json();
+    shipyardState.blueprints = bpData.ships || [];
+    shipyardState.queue      = jobsData.jobs || [];
+    shipyardState.ships      = shipsData.ships || [];
+    shipyardState.summary    = summaryData;
+    shipyardState.myFaction  = factionData.faction;
+    await loadMyInventory();
+    var badge = document.getElementById('syQueueBadge');
+    if (shipyardState.queue.length > 0) {
+      badge.textContent = shipyardState.queue.length;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+    updateFooter();
+    if (shipyardState.currentTab === 'blueprints') renderBlueprints();
+    else if (shipyardState.currentTab === 'queue') renderQueue();
+    else renderShips();
+  } catch (err) {
+    console.error('refreshShipyard error:', err);
+  }
+}
+
+async function loadMyInventory() {
+  try {
+    var res = await fetch('/api/resources/my', { headers: getAuthHeaders() });
+    if (res.ok) {
+      var data = await res.json();
+      shipyardState.myInventory = {};
+      for (var item of (data.inventory || [])) {
+        shipyardState.myInventory[item.resource_code || item.code] = parseInt(item.quantity);
+      }
+    }
+  } catch(e) {}
+}
+
+function renderBlueprints() {
+  var grid = document.getElementById('bpGrid');
+  var size = shipyardState.currentSize;
+  var myFactionCode = shipyardState.myFaction && shipyardState.myFaction.code;
+  var ships = shipyardState.blueprints;
+  if (myFactionCode) ships = ships.filter(function(s){ return s.faction_code === myFactionCode; });
+  if (size) ships = ships.filter(function(s){ return s.size_class === size; });
+  if (!myFactionCode) {
+    grid.innerHTML = '<div class="sy-empty" style="grid-column:1/-1">파벌을 먼저 선택해주세요<br><button style="margin-top:12px;padding:6px 14px;background:rgba(79,195,247,.1);border:1px solid #4fc3f7;color:#4fc3f7;cursor:pointer;border-radius:4px" onclick="closeShipyard();setTimeout(openFactionModal,200)">파벌 선택하기</button></div>';
+    return;
+  }
+  if (ships.length === 0) {
+    grid.innerHTML = '<div class="sy-empty" style="grid-column:1/-1">조건에 맞는 함선이 없습니다</div>';
+    return;
+  }
+  grid.innerHTML = ships.map(renderBlueprintCard).join('');
+}
+
+function renderBlueprintCard(s) {
+  var recipe = s.recipe_minerals || {};
+  var mineralCheck = Object.entries(recipe).map(function(e) {
+    var code = e[0], need = e[1];
+    var have = shipyardState.myInventory[code] || 0;
+    var enough = have >= need;
+    var label = (MINERAL_ICONS[code] || '') + ' ' + (MINERAL_KO[code] || code) + ' ×' + need;
+    return '<span class="bp-cost-item ' + (enough ? 'ok' : 'short') + '" title="보유: ' + have + '">' + label + '</span>';
+  }).join('');
+  var gpShort = s.build_gp_cost > ((shipyardState.summary && shipyardState.summary.gp_balance) || 0);
+  var buildMinutes = Math.round(s.build_time_seconds / 60);
+  var buildTime = buildMinutes >= 60 ? (Math.floor(buildMinutes/60) + '시간 ' + (buildMinutes%60) + '분') : (buildMinutes + '분');
+  var limitsText = '';
+  if (s.max_per_server) limitsText += '⚠ 서버 한도: ' + s.server_alive_count + ' / ' + s.max_per_server;
+  if (s.max_per_player) { if (limitsText) limitsText += ' · '; limitsText += '유저 한도: ' + s.my_count + ' / ' + s.max_per_player; }
+  var lockReasons = { 'NO_FACTION':'파벌 미선택', 'WRONG_FACTION':'다른 파벌', 'SERVER_LIMIT':'서버 한도', 'PLAYER_LIMIT':'보유 한도' };
+  var lockMsg = '';
+  for (var lock of (s.locks || [])) {
+    if (lock.startsWith('RANK_REQUIRED_')) { lockMsg = '레벨 ' + lock.replace('RANK_REQUIRED_','') + ' 필요'; break; }
+    lockMsg = lockReasons[lock] || lock; break;
+  }
+  return '<div class="bp-card ' + s.faction_code + ' ' + (!s.can_build ? 'locked' : '') + '">' +
+    '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + s.name_ko + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
+    '<div class="bp-class">' + (s.class_label || '') + '</div>' +
+    '<div class="bp-stats">' +
+      '<div class="bp-stat"><div class="bp-stat-label">HP</div><div class="bp-stat-value">' + syFmt(s.base_hp) + '</div></div>' +
+      '<div class="bp-stat"><div class="bp-stat-label">ATK</div><div class="bp-stat-value">' + s.base_atk + '</div></div>' +
+      '<div class="bp-stat"><div class="bp-stat-label">DEF</div><div class="bp-stat-value">' + s.base_def + '</div></div>' +
+      '<div class="bp-stat"><div class="bp-stat-label">SPD</div><div class="bp-stat-value">' + s.base_speed + '</div></div>' +
+    '</div>' +
+    '<div class="bp-cost"><div class="bp-cost-line"><span class="bp-cost-gp ' + (gpShort ? 'short' : '') + '">💰 ' + syFmt(s.build_gp_cost) + ' GP</span></div>' +
+      (mineralCheck ? '<div class="bp-cost-line" style="margin-top:4px">' + mineralCheck + '</div>' : '') +
+      '<div class="bp-build-time">⏱ 건조: ' + buildTime + '</div></div>' +
+    (limitsText ? '<div class="bp-limits">' + limitsText + '</div>' : '') +
+    '<button class="bp-build-btn" ' + (!s.can_build ? 'disabled' : '') + ' onclick="buildShip(\'' + s.code + '\')">' +
+      (s.can_build ? '⚒ 건조 시작' : (lockMsg || '불가')) +
+    '</button></div>';
+}
+
+async function buildShip(shipTypeCode) {
+  var ship = shipyardState.blueprints.find(function(s){ return s.code === shipTypeCode; });
+  if (!ship) return;
+  var confirmMsg = ship.name_ko + ' 건조를 시작하시겠습니까?\n\nGP: ' + ship.build_gp_cost + '\n시간: ' + Math.round(ship.build_time_seconds/60) + '분';
+  if (!confirm(confirmMsg)) return;
+  try {
+    var res = await fetch('/api/ships/build', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ ship_type_code: shipTypeCode })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      var msgMap = {
+        'NO_FACTION':'파벌을 먼저 선택하세요','WRONG_FACTION':'다른 파벌의 함선입니다',
+        'RANK_REQUIRED':'레벨 ' + ((data.meta && data.meta.required) || '?') + ' 필요',
+        'SERVER_LIMIT_REACHED':'서버 한도에 도달했습니다','PLAYER_LIMIT_REACHED':'보유 한도에 도달했습니다',
+        'PLAYER_FLEET_FULL':'함대가 가득 찼습니다 (최대 200척)',
+        'INSUFFICIENT_GP':'GP 부족: ' + ((data.meta && data.meta.required) || '?') + ' 필요',
+        'INSUFFICIENT_MINERALS':'광물 부족: ' + ((data.meta && data.meta.missing) || []).map(function(m){ return m.code + ' ' + m.have + '/' + m.need; }).join(', '),
+      };
+      showFactionToast(msgMap[data.error] || ('오류: ' + data.error), 'error');
+      return;
+    }
+    showFactionToast(ship.name_ko + ' 건조 시작!', 'success');
+    await refreshShipyard();
+    switchSyTab('queue');
+  } catch(err) {
+    console.error('buildShip error:', err);
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+function renderQueue() {
+  var list = document.getElementById('queueList');
+  if (shipyardState.queue.length === 0) {
+    list.innerHTML = '<div class="sy-empty">건조 중인 함선이 없습니다</div>';
+    return;
+  }
+  list.innerHTML = shipyardState.queue.map(function(j) {
+    var isReady = j.seconds_remaining <= 0;
+    var timeText = isReady ? '✓ 완료됨' : syFmtTime(j.seconds_remaining);
+    return '<div class="queue-item" data-job-id="' + j.id + '">' +
+      '<div class="queue-item-header">' +
+        '<div class="queue-name" style="color:' + (j.faction_color || '#fff') + '">' + j.name_ko + '</div>' +
+        '<div class="queue-time ' + (isReady ? 'ready' : '') + '">' + timeText + '</div>' +
+      '</div>' +
+      '<div class="queue-bar-bg"><div class="queue-bar-fill ' + (isReady ? 'ready' : '') + '" style="width:' + Math.min(100, j.progress_pct) + '%"></div></div>' +
+      '<div style="font-size:8px;color:rgba(255,255,255,.35);margin-top:2px">' + (j.class_label || '') + ' · ' + syFmt(j.gp_cost) + ' GP</div>' +
+      '<div class="queue-actions">' +
+        (isReady ? '<button class="queue-btn primary" onclick="claimJob(' + j.id + ')">🎁 수령하기</button>'
+                 : '<button class="queue-btn danger" onclick="cancelJob(' + j.id + ')">✕ 취소 (50% 환불)</button>') +
+      '</div></div>';
+  }).join('');
+}
+
+function updateQueueProgress() {
+  for (var j of shipyardState.queue) {
+    j.seconds_remaining = Math.max(0, j.seconds_remaining - 1);
+    j.seconds_elapsed += 1;
+    j.progress_pct = Math.min(100, (j.seconds_elapsed / j.total_seconds) * 100);
+  }
+  if (shipyardState.currentTab === 'queue') renderQueue();
+}
+
+async function claimJob(jobId) {
+  try {
+    var res = await fetch('/api/ships/build-jobs/' + jobId + '/complete', { method: 'POST', headers: getAuthHeaders() });
+    var data = await res.json();
+    if (!res.ok) { showFactionToast('수령 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast(data.is_flagship ? '🚀 함선 수령! (기함 지정됨)' : '🚀 함선 수령 완료', 'success');
+    await refreshShipyard();
+  } catch(err) { showFactionToast('네트워크 오류', 'error'); }
+}
+
+async function cancelJob(jobId) {
+  if (!confirm('건조를 취소하시겠습니까?\n50%만 환불됩니다.')) return;
+  try {
+    var res = await fetch('/api/ships/build-jobs/' + jobId + '/cancel', { method: 'POST', headers: getAuthHeaders() });
+    var data = await res.json();
+    if (!res.ok) { showFactionToast('취소 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast('환불 완료: +' + data.refunded_gp + ' GP', 'success');
+    await refreshShipyard();
+  } catch(err) { showFactionToast('네트워크 오류', 'error'); }
+}
+
+function renderShips() {
+  var list = document.getElementById('shipList');
+  if (shipyardState.ships.length === 0) {
+    list.innerHTML = '<div class="sy-empty" style="grid-column:1/-1">보유 함선이 없습니다<br><span style="font-size:9px;opacity:.6">블루프린트에서 건조를 시작하세요</span></div>';
+    return;
+  }
+  list.innerHTML = shipyardState.ships.map(function(s) {
+    var hpPct = (s.current_hp / s.max_hp) * 100;
+    var hpClass = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
+    return '<div class="ship-item ' + (s.is_flagship ? 'flagship' : '') + '">' +
+      '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + (s.is_flagship ? '⚔ ' : '') + s.name_ko + '</div>' +
+      '<div class="ship-class">' + s.class_label + '</div>' +
+      '<div class="ship-hp-bar"><div class="ship-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></div></div>' +
+      '<div class="ship-hp-text">HP ' + syFmt(s.current_hp) + ' / ' + syFmt(s.max_hp) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function updateFooter() {
+  var gpEl = document.getElementById('gpBalance');
+  if (gpEl) document.getElementById('syGpBalance').textContent = gpEl.textContent;
+  var totalMinerals = Object.values(shipyardState.myInventory).reduce(function(a,b){ return a+b; }, 0);
+  document.getElementById('syMineralSummary').textContent = syFmt(totalMinerals) + ' 개';
+  var alive = parseInt((shipyardState.summary && shipyardState.summary.ships_alive) || 0);
+  var inProg = parseInt((shipyardState.summary && shipyardState.summary.jobs_in_progress) || 0);
+  document.getElementById('syShipCount').textContent = alive + ' (+' + inProg + ' 건조중) / 200';
+}
+
+function syFmt(n) {
+  n = parseInt(n) || 0;
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n.toString();
+}
+
+function syFmtTime(seconds) {
+  seconds = Math.max(0, Math.floor(seconds));
+  if (seconds >= 3600) return Math.floor(seconds/3600) + 'h ' + Math.floor((seconds%3600)/60) + 'm';
+  if (seconds >= 60) return Math.floor(seconds/60) + 'm ' + (seconds%60) + 's';
+  return seconds + 's';
+}
+
+var MINERAL_ICONS = {
+  iron_dust:'🟤', red_sand:'🔴', regolith_ore:'⚪', basalt_chip:'🟫',
+  ice_crystal:'🔵', volcanic_shard:'🌋', plasma_dust:'🟣', ancient_metal:'⭐',
+  meteorite_fragment:'☄️', xenomatter:'💠', hull_plate:'▣', plasma_coil:'⚡', alloy_frame:'⬢'
+};
+var MINERAL_KO = {
+  iron_dust:'철먼지', red_sand:'붉모래', regolith_ore:'레골리스', basalt_chip:'현무암',
+  ice_crystal:'얼음', volcanic_shard:'화산파편', plasma_dust:'플라즈마', ancient_metal:'고대금속',
+  meteorite_fragment:'운석', xenomatter:'외계물질', hull_plate:'장갑판', plasma_coil:'플라즈마코일', alloy_frame:'합금프레임'
+};
+</script>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </body>

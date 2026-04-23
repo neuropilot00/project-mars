@@ -166,6 +166,7 @@ const announceRoutes    = require('./routes/announcement');
 const tombstoneRoutes   = require('./routes/tombstone');
 const milestoneRoutes   = require('./routes/milestone');
 const factionRoutes     = require('./routes/factions');  // A-1: 파벌 선택 시스템
+const newResourcesRoutes = require('./routes/resources'); // A-2: 자원 인벤토리 (복수형, 함선 UI용)
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -276,7 +277,7 @@ app.use('/api', siegeRoutes);
 app.use('/api', publicRoutes);
 app.use('/api', bettingRoutes);
 app.use('/api', auctionRoutes);
-app.use('/api', shipRoutes);
+app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
 app.use('/api', battleRoutes);
 app.use('/api', lotteryRoutes);
 app.use('/api', stakingRoutes);
@@ -328,6 +329,7 @@ app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
 app.use('/api/arena', arenaRoutes);
 app.use('/api/factions', factionRoutes);      // A-1: 파벌 선택 시스템
+app.use('/api/resources', newResourcesRoutes); // A-2: 자원 인벤토리
 app.use('/api/governance', governanceRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 
@@ -1160,6 +1162,11 @@ async function start() {
       }, 2 * 60 * 1000);
       console.log('[ANNOUNCE] Expiry scheduler started (2min interval)');
     } catch(e) { console.warn('[ANNOUNCE] Could not init expiry scheduler:', e.message); }
+
+    // ── Ship Build Scheduler: Complete finished build jobs (every 30s) ──
+    try {
+      require('./services/shipScheduler').start();
+    } catch(e) { console.warn('[shipScheduler] Could not start:', e.message); }
 
     // ── Time Capsule: Reveal due capsules (every 5 minutes) ──
     try {

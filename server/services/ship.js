@@ -1,389 +1,670 @@
-'use strict';
+// server/services/ship.js
+// ═══════════════════════════════════════════════════════════════
+// Ship Service — 함선 건조/조회/완료 처리
+// 
+// 주요 기능:
+//   - getBlueprints()    : 건조 가능 함선 목록 (파벌 필터)
+//   - getMyShips()       : 내 함선 목록
+//   - getBuildJobs()     : 진행 중 건조 작업
+//   - startBuild()       : 함선 건조 시작 (GP + 광물 차감)
+//   - completeBuildJob() : 건조 완료 처리 (스케줄러용)
+//   - cancelBuildJob()   : 건조 취소 (환불)
+//   - checkCompleted()   : 완료된 작업 자동 처리 (스케줄러)
+// ═══════════════════════════════════════════════════════════════
+
+const { pool } = require('../db');
+
+// ─── 건조 가능 함선 블루프린트 조회 ───
 
 /**
- * services/ship.js
- * Ship Construction System (Migration 092)
- *
- * buildShip(walletAddress, shipType)
- * getUserShips(walletAddress)
- * getFleetStats(walletAddress)
- * repairShip(walletAddress, shipId)
- * destroyShip(client, shipId)         ← called by battle engine
- * getBlueprints()
+ * 유저가 건조 가능한 함선 목록
+ * @param {string} walletAddress
+ * @param {Object} options - { factionCode?, sizeClass?, includeLocked? }
  */
-
-const pool = require('../db');
-
-// ── Ship type definitions ──
-const SHIP_TYPES = {
-  fishing:     { name: 'Fishing Boat',   icon: '🎣', hp: 60,  atk: 5,  def: 3,  spd: 6,  settingKey: 'ship_fishing_gp'     },
-  container:   { name: 'Container Ship', icon: '📦', hp: 120, atk: 4,  def: 10, spd: 2,  settingKey: 'ship_container_gp'   },
-  explorer:    { name: 'Explorer',       icon: '🔭', hp: 80,  atk: 8,  def: 6,  spd: 7,  settingKey: 'ship_explorer_gp'    },
-  tugboat:     { name: 'Tugboat',        icon: '⚓', hp: 70,  atk: 4,  def: 8,  spd: 3,  settingKey: 'ship_tugboat_gp'     },
-  dreadnought: { name: 'Dreadnought',    icon: '⚔️', hp: 300, atk: 40, def: 25, spd: 2,  settingKey: 'ship_dreadnought_gp' },
-  drilling:    { name: 'Drilling Ship',  icon: '⛏️', hp: 100, atk: 6,  def: 12, spd: 3,  settingKey: 'ship_drilling_gp'    },
-  speedboat:   { name: 'Speedboat',      icon: '🚤', hp: 40,  atk: 12, def: 2,  spd: 10, settingKey: 'ship_speedboat_gp'   },
-  survey:      { name: 'Survey Ship',    icon: '📡', hp: 75,  atk: 5,  def: 8,  spd: 5,  settingKey: 'ship_survey_gp'      },
-  galleon:     { name: 'Galleon',        icon: '⛵', hp: 180, atk: 22, def: 15, spd: 5,  settingKey: 'ship_galleon_gp'     },
-  submarine:   { name: 'Submarine',      icon: '🤿', hp: 150, atk: 30, def: 18, spd: 4,  settingKey: 'ship_submarine_gp'   },
-};
-
-async function getSetting(key, fallback = null) {
-  try {
-    const r = await pool.query('SELECT value FROM settings WHERE key = $1', [key]);
-    return r.rows[0]?.value ?? fallback;
-  } catch (_) { return fallback; }
-}
-
-// ── buildShip ──
-async function buildShip(walletAddress, shipType) {
-  const def = SHIP_TYPES[shipType];
-  if (!def) return { success: false, error: 'invalid_ship_type' };
-
-  const enabled = await getSetting('ship_enabled', 'true');
-  if (enabled !== 'true') return { success: false, error: 'ship_system_disabled' };
-
-  const maxFleet = parseInt(await getSetting('ship_max_fleet_size', '10')) || 10;
-  const gpCost   = parseInt(await getSetting(def.settingKey, '100')) || 100;
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    // Check fleet size
-    const fleetRes = await client.query(
-      "SELECT COUNT(*) AS cnt FROM user_ships WHERE wallet_address = $1 AND status != 'destroyed'",
-      [walletAddress]
-    );
-    const fleetSize = parseInt(fleetRes.rows[0].cnt) || 0;
-    if (fleetSize >= maxFleet) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'fleet_full', max: maxFleet };
-    }
-
-    // Deduct GP
-    const balRes = await client.query(
-      'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
-      [walletAddress]
-    );
-    if (!balRes.rows.length) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'user_not_found' };
-    }
-    const currentGP = parseFloat(balRes.rows[0].gp_balance) || 0;
-    if (currentGP < gpCost) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'insufficient_gp', required: gpCost, balance: currentGP };
-    }
-    await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2',
-      [gpCost, walletAddress]
-    );
-
-    // Create ship
-    const shipRes = await client.query(
-      `INSERT INTO user_ships (wallet_address, ship_type, hp, max_hp, attack, defense, speed, build_cost_gp)
-       VALUES ($1, $2, $3, $3, $4, $5, $6, $7)
-       RETURNING *`,
-      [walletAddress, shipType, def.hp, def.atk, def.def, def.spd, gpCost]
-    );
-    const ship = shipRes.rows[0];
-
-    // Log
-    await client.query(
-      `INSERT INTO ship_build_log (wallet_address, ship_type, gp_cost, result, ship_id)
-       VALUES ($1, $2, $3, 'built', $4)`,
-      [walletAddress, shipType, gpCost, ship.id]
-    );
-
-    await client.query('COMMIT');
-
-    // ✅ Referral commission + season score
-    try {
-      const { creditReferralCommission } = require('../db');
-      const seasonSvc = require('./season');
-      await creditReferralCommission(client, walletAddress, 'ship_build', gpCost, 'gp');
-      seasonSvc.addSeasonScore(walletAddress, 'gp_spend', gpCost).catch(() => {});
-      seasonSvc.addSeasonScore(walletAddress, 'ship_build', 1).catch(() => {});
-    } catch (_re) {}
-
-    // ✅ GP Activity log
-    try { const { logGPActivity } = require('../db'); logGPActivity(walletAddress, -gpCost, 'ship_build', `${def.name}`).catch(()=>{}); } catch (_le) {}
-
-    // ✅ Daily mission progress: build_ship
-    try {
-      const dailySvc = require('./daily');
-      dailySvc.updateMissionProgress(walletAddress, 'build_ship', 1).catch(() => {});
-    } catch (_de) {}
-
-    return {
-      success: true,
-      ship: { ...ship, name: def.name, icon: def.icon },
-      gp_spent: gpCost
-    };
-  } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('[SHIP] buildShip error:', err.message);
-    return { success: false, error: 'internal_error' };
-  } finally {
-    client.release();
-  }
-}
-
-// ── getUserShips ──
-async function getUserShips(walletAddress) {
-  const res = await pool.query(
-    `SELECT * FROM user_ships WHERE wallet_address = $1 ORDER BY created_at DESC`,
+async function getBlueprints(walletAddress, options = {}) {
+  // 유저 파벌 확인
+  const { rows: userRows } = await pool.query(
+    `SELECT faction_code, rank_level, gp_balance FROM users WHERE wallet_address = $1`,
     [walletAddress]
   );
-  return res.rows.map(r => ({
-    ...r,
-    name: SHIP_TYPES[r.ship_type]?.name || r.ship_type,
-    icon: SHIP_TYPES[r.ship_type]?.icon || '🚢'
+  if (!userRows[0]) throw new Error('USER_NOT_FOUND');
+  const user = userRows[0];
+  
+  // 기본 쿼리: 활성 함선만
+  let query = `
+    SELECT 
+      st.code, st.faction_code, st.size_class, st.role, st.tier,
+      st.name_en, st.name_ko, st.class_label, st.description_ko,
+      st.base_hp, st.base_atk, st.base_def, st.base_speed,
+      st.fire_type, st.render_radius,
+      st.build_time_seconds, st.max_per_server, st.max_per_player, st.min_player_rank,
+      st.build_gp_cost, st.recipe_minerals,
+      st.is_capital, st.sort_order,
+      f.name_ko AS faction_name_ko, f.color_primary AS faction_color,
+      -- 서버 생존 함선 수 (Titan 한도 체크)
+      (SELECT COUNT(*) FROM ships WHERE ship_type_code = st.code AND is_alive = true) AS server_alive_count,
+      -- 내가 가진 수
+      (SELECT COUNT(*) FROM ships WHERE ship_type_code = st.code AND owner_wallet = $1 AND is_alive = true) AS my_count
+    FROM ship_types st
+    LEFT JOIN factions f ON f.code = st.faction_code
+    WHERE st.is_active = true
+  `;
+  const params = [walletAddress];
+  
+  // 파벌 필터: 유저 파벌이 있으면 해당 파벌만
+  if (user.faction_code && !options.includeLocked) {
+    params.push(user.faction_code);
+    query += ` AND st.faction_code = $${params.length}`;
+  }
+  if (options.factionCode) {
+    params.push(options.factionCode);
+    query += ` AND st.faction_code = $${params.length}`;
+  }
+  if (options.sizeClass) {
+    params.push(options.sizeClass);
+    query += ` AND st.size_class = $${params.length}`;
+  }
+  
+  query += ` ORDER BY st.faction_code, st.sort_order`;
+  
+  const { rows } = await pool.query(query, params);
+  
+  // 각 함선에 "건조 가능 여부" 플래그 추가
+  return rows.map(ship => {
+    const locks = [];
+    
+    // 파벌 미선택
+    if (!user.faction_code) locks.push('NO_FACTION');
+    // 다른 파벌 함선
+    else if (ship.faction_code !== user.faction_code) locks.push('WRONG_FACTION');
+    // 레벨 부족
+    if ((user.rank_level || 1) < ship.min_player_rank) {
+      locks.push(`RANK_REQUIRED_${ship.min_player_rank}`);
+    }
+    // 서버 한도 (Titan)
+    if (ship.max_per_server && parseInt(ship.server_alive_count) >= ship.max_per_server) {
+      locks.push('SERVER_LIMIT');
+    }
+    // 유저 한도 (Titan/Battleship)
+    if (ship.max_per_player && parseInt(ship.my_count) >= ship.max_per_player) {
+      locks.push('PLAYER_LIMIT');
+    }
+    
+    return {
+      ...ship,
+      server_alive_count: parseInt(ship.server_alive_count),
+      my_count: parseInt(ship.my_count),
+      can_build: locks.length === 0,
+      locks,
+    };
+  });
+}
+
+// ─── 내 함선 조회 ───
+
+async function getMyShips(walletAddress, options = {}) {
+  let query = `
+    SELECT 
+      s.id, s.fleet_id, s.ship_type_code,
+      s.current_hp, s.max_hp, s.is_flagship, s.is_alive,
+      s.upgrade_level, s.bonus_atk, s.bonus_def, s.bonus_hp,
+      s.kills_dealt, s.damage_dealt,
+      s.built_at,
+      st.name_ko, st.class_label, st.size_class, st.role, st.render_radius,
+      st.base_atk, st.base_def, st.base_speed,
+      f.code AS faction_code, f.name_ko AS faction_name, f.color_primary AS faction_color,
+      fl.name AS fleet_name
+    FROM ships s
+    JOIN ship_types st ON st.code = s.ship_type_code
+    LEFT JOIN factions f ON f.code = st.faction_code
+    LEFT JOIN fleets fl ON fl.id = s.fleet_id
+    WHERE s.owner_wallet = $1
+  `;
+  const params = [walletAddress];
+  
+  if (!options.includeDead) {
+    query += ` AND s.is_alive = true`;
+  }
+  if (options.fleetId) {
+    params.push(options.fleetId);
+    query += ` AND s.fleet_id = $${params.length}`;
+  }
+  
+  query += ` ORDER BY st.sort_order DESC, s.built_at DESC`;
+  
+  const { rows } = await pool.query(query, params);
+  return rows;
+}
+
+// ─── 진행 중 건조 작업 ───
+
+async function getBuildJobs(walletAddress) {
+  const { rows } = await pool.query(`
+    SELECT 
+      j.id, j.ship_type_code, j.fleet_id,
+      j.started_at, j.completes_at, j.status,
+      j.gp_cost, j.minerals_used,
+      st.name_ko, st.class_label, st.size_class,
+      f.color_primary AS faction_color,
+      EXTRACT(EPOCH FROM (j.completes_at - NOW())) AS seconds_remaining,
+      EXTRACT(EPOCH FROM (NOW() - j.started_at)) AS seconds_elapsed,
+      EXTRACT(EPOCH FROM (j.completes_at - j.started_at)) AS total_seconds
+    FROM ship_build_jobs j
+    JOIN ship_types st ON st.code = j.ship_type_code
+    LEFT JOIN factions f ON f.code = st.faction_code
+    WHERE j.wallet_address = $1 AND j.status = 'building'
+    ORDER BY j.completes_at ASC
+  `, [walletAddress]);
+  
+  return rows.map(j => ({
+    ...j,
+    seconds_remaining: Math.max(0, parseFloat(j.seconds_remaining) || 0),
+    seconds_elapsed: parseFloat(j.seconds_elapsed) || 0,
+    total_seconds: parseFloat(j.total_seconds) || 1,
+    progress_pct: Math.min(100, 
+      ((parseFloat(j.seconds_elapsed) || 0) / (parseFloat(j.total_seconds) || 1)) * 100
+    ),
   }));
 }
 
-// ── getFleetStats ──
-async function getFleetStats(walletAddress) {
-  const ships = await getUserShips(walletAddress);
-  const active = ships.filter(s => s.status !== 'destroyed');
-  return {
-    total: active.length,
-    docked: active.filter(s => s.status === 'docked').length,
-    deployed: active.filter(s => s.status === 'deployed').length,
-    totalAtk: active.reduce((s, r) => s + (r.attack || 0), 0),
-    totalDef: active.reduce((s, r) => s + (r.defense || 0), 0),
+// ─── 건조 시작 ───
+
+/**
+ * @returns {Object} { job_id, completes_at, gp_cost, minerals_used }
+ */
+async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // 1. 유저 정보
+    const { rows: userRows } = await client.query(
+      `SELECT wallet_address, faction_code, rank_level, gp_balance
+       FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      [walletAddress]
+    );
+    if (!userRows[0]) throw new Error('USER_NOT_FOUND');
+    const user = userRows[0];
+    
+    if (!user.faction_code) throw new Error('NO_FACTION');
+    
+    // 2. 함선 타입 정보
+    const { rows: stRows } = await client.query(
+      `SELECT * FROM ship_types WHERE code = $1 AND is_active = true`,
+      [shipTypeCode]
+    );
+    if (!stRows[0]) throw new Error('INVALID_SHIP_TYPE');
+    const st = stRows[0];
+    
+    // 3. 파벌 일치 확인
+    if (st.faction_code !== user.faction_code) {
+      throw new Error('WRONG_FACTION');
+    }
+    
+    // 4. 레벨 체크
+    if ((user.rank_level || 1) < st.min_player_rank) {
+      const err = new Error('RANK_REQUIRED');
+      err.meta = { required: st.min_player_rank, current: user.rank_level };
+      throw err;
+    }
+    
+    // 5. 서버 한도 체크 (Titan)
+    if (st.max_per_server) {
+      const { rows: cntRows } = await client.query(
+        `SELECT COUNT(*) AS c FROM ships WHERE ship_type_code = $1 AND is_alive = true`,
+        [shipTypeCode]
+      );
+      // 건조 중인 것도 포함해야 공정
+      const { rows: jobCntRows } = await client.query(
+        `SELECT COUNT(*) AS c FROM ship_build_jobs WHERE ship_type_code = $1 AND status = 'building'`,
+        [shipTypeCode]
+      );
+      const total = parseInt(cntRows[0].c) + parseInt(jobCntRows[0].c);
+      if (total >= st.max_per_server) {
+        const err = new Error('SERVER_LIMIT_REACHED');
+        err.meta = { max: st.max_per_server, current: total };
+        throw err;
+      }
+    }
+    
+    // 6. 유저 한도 체크
+    if (st.max_per_player) {
+      const { rows: cntRows } = await client.query(
+        `SELECT COUNT(*) AS c FROM ships 
+         WHERE owner_wallet = $1 AND ship_type_code = $2 AND is_alive = true`,
+        [walletAddress, shipTypeCode]
+      );
+      const { rows: jobCntRows } = await client.query(
+        `SELECT COUNT(*) AS c FROM ship_build_jobs 
+         WHERE wallet_address = $1 AND ship_type_code = $2 AND status = 'building'`,
+        [walletAddress, shipTypeCode]
+      );
+      const total = parseInt(cntRows[0].c) + parseInt(jobCntRows[0].c);
+      if (total >= st.max_per_player) {
+        throw new Error('PLAYER_LIMIT_REACHED');
+      }
+    }
+    
+    // 7. 유저 총 함선 수 체크 (기본 200척)
+    const { rows: totalCntRows } = await client.query(
+      `SELECT COUNT(*) AS c FROM ships WHERE owner_wallet = $1 AND is_alive = true`,
+      [walletAddress]
+    );
+    const { rows: totalJobCntRows } = await client.query(
+      `SELECT COUNT(*) AS c FROM ship_build_jobs WHERE wallet_address = $1 AND status = 'building'`,
+      [walletAddress]
+    );
+    const maxPerPlayer = await getSettingInt(client, 'max_ships_per_player', 200);
+    const totalCount = parseInt(totalCntRows[0].c) + parseInt(totalJobCntRows[0].c);
+    if (totalCount >= maxPerPlayer) {
+      throw new Error('PLAYER_FLEET_FULL');
+    }
+    
+    // 8. GP 차감
+    const gpCost = st.build_gp_cost || 0;
+    if (parseInt(user.gp_balance) < gpCost) {
+      const err = new Error('INSUFFICIENT_GP');
+      err.meta = { required: gpCost, balance: user.gp_balance };
+      throw err;
+    }
+    if (gpCost > 0) {
+      await client.query(
+        `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+        [gpCost, walletAddress]
+      );
+    }
+    
+    // 9. 광물 차감
+    const recipe = st.recipe_minerals || {};
+    const mineralEntries = Object.entries(recipe);
+    
+    // 재고 확인 (한번에)
+    if (mineralEntries.length > 0) {
+      const mineralCodes = mineralEntries.map(([code]) => code);
+      const { rows: invRows } = await client.query(`
+        SELECT resource_code, quantity 
+        FROM user_resource_inventory 
+        WHERE wallet_address = $1 AND resource_code = ANY($2::text[])
+        FOR UPDATE
+      `, [walletAddress, mineralCodes]);
+      
+      const inv = {};
+      for (const r of invRows) inv[r.resource_code] = parseInt(r.quantity);
+      
+      // 부족 체크
+      const missing = [];
+      for (const [code, need] of mineralEntries) {
+        const have = inv[code] || 0;
+        if (have < need) {
+          missing.push({ code, need, have });
+        }
+      }
+      if (missing.length > 0) {
+        // GP 롤백
+        await client.query('ROLLBACK');
+        const err = new Error('INSUFFICIENT_MINERALS');
+        err.meta = { missing };
+        throw err;
+      }
+      
+      // 차감
+      for (const [code, need] of mineralEntries) {
+        await client.query(`
+          UPDATE user_resource_inventory 
+          SET quantity = quantity - $1 
+          WHERE wallet_address = $2 AND resource_code = $3
+        `, [need, walletAddress, code]);
+      }
+    }
+    
+    // 10. fleet_id 확인 (주어졌으면 소유권 확인)
+    if (fleetId) {
+      const { rows: fleetRows } = await client.query(
+        `SELECT id FROM fleets WHERE id = $1 AND owner_wallet = $2`,
+        [fleetId, walletAddress]
+      );
+      if (!fleetRows[0]) {
+        throw new Error('FLEET_NOT_FOUND');
+      }
+    }
+    
+    // 11. 건조 작업 생성
+    const buildSeconds = st.build_time_seconds || 600;
+    const { rows: jobRows } = await client.query(`
+      INSERT INTO ship_build_jobs (
+        wallet_address, fleet_id, ship_type_code,
+        started_at, completes_at, status,
+        gp_cost, minerals_used
+      ) VALUES ($1, $2, $3, NOW(), NOW() + ($4 || ' seconds')::INTERVAL, 'building', $5, $6)
+      RETURNING id, started_at, completes_at
+    `, [walletAddress, fleetId, shipTypeCode, String(buildSeconds), gpCost, JSON.stringify(recipe)]);
+    const job = jobRows[0];
+    
+    // 12. 로그
+    await client.query(`
+      INSERT INTO ship_build_log (wallet_address, ship_type_code, gp_cost, minerals_used, result)
+      VALUES ($1, $2, $3, $4, 'success')
+    `, [walletAddress, shipTypeCode, gpCost, JSON.stringify(recipe)]);
+    
+    // GP activity log (있으면)
+    if (gpCost > 0) {
+      await client.query(`
+        INSERT INTO fleet_gp_activity (wallet_address, activity_type, gp_delta, meta)
+        VALUES ($1, 'ship_build_gp_spent', $2, $3)
+      `, [walletAddress, -gpCost, JSON.stringify({ 
+        ship_type: shipTypeCode, 
+        job_id: job.id 
+      })]).catch(() => {});
+    }
+    
+    await client.query('COMMIT');
+    
+    return {
+      job_id: job.id,
+      ship_type_code: shipTypeCode,
+      started_at: job.started_at,
+      completes_at: job.completes_at,
+      build_seconds: buildSeconds,
+      gp_cost: gpCost,
+      minerals_used: recipe,
+    };
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// ─── 건조 완료 처리 (단일 작업) ───
+
+/**
+ * 특정 작업을 완료 처리. 스케줄러 또는 유저 클릭으로 호출 가능
+ */
+async function completeBuildJob(jobId) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // 작업 조회 (락)
+    const { rows: jobRows } = await client.query(
+      `SELECT * FROM ship_build_jobs WHERE id = $1 FOR UPDATE`,
+      [jobId]
+    );
+    if (!jobRows[0]) throw new Error('JOB_NOT_FOUND');
+    const job = jobRows[0];
+    
+    if (job.status !== 'building') {
+      await client.query('ROLLBACK');
+      return { already_completed: true, job };
+    }
+    
+    // 완료 시간 체크
+    if (new Date(job.completes_at) > new Date()) {
+      await client.query('ROLLBACK');
+      throw new Error('NOT_YET_COMPLETE');
+    }
+    
+    // 함선 타입 정보
+    const { rows: stRows } = await client.query(
+      `SELECT * FROM ship_types WHERE code = $1`,
+      [job.ship_type_code]
+    );
+    const st = stRows[0];
+    
+    // fleet_id 결정: 지정된 함대 없으면 기본 함대 사용/생성
+    let fleetId = job.fleet_id;
+    if (!fleetId) {
+      fleetId = await getOrCreateDefaultFleet(client, job.wallet_address);
+    } else {
+      // 지정된 함대가 아직 존재하는지 확인
+      const { rows: flRows } = await client.query(
+        `SELECT id FROM fleets WHERE id = $1 AND owner_wallet = $2`,
+        [fleetId, job.wallet_address]
+      );
+      if (!flRows[0]) {
+        fleetId = await getOrCreateDefaultFleet(client, job.wallet_address);
+      }
+    }
+    
+    // 기함 여부: 함대에 기함이 없으면 이 함선을 기함으로
+    const { rows: flagRows } = await client.query(
+      `SELECT COUNT(*) AS c FROM ships 
+       WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true`,
+      [fleetId]
+    );
+    const isFlagship = parseInt(flagRows[0].c) === 0 && st.is_flagship_capable;
+    
+    // 함선 생성 (트리거가 Titan/유저 한도 체크)
+    const { rows: shipRows } = await client.query(`
+      INSERT INTO ships (
+        fleet_id, ship_type_code, owner_wallet,
+        current_hp, max_hp, is_flagship, is_alive,
+        built_at, built_by_wallet
+      ) VALUES ($1, $2, $3, $4, $4, $5, true, NOW(), $3)
+      RETURNING id
+    `, [fleetId, job.ship_type_code, job.wallet_address, st.base_hp, isFlagship]);
+    
+    const shipId = shipRows[0].id;
+    
+    // 작업 완료 처리
+    await client.query(`
+      UPDATE ship_build_jobs 
+      SET status = 'completed', completed_at = NOW(), result_ship_id = $1
+      WHERE id = $2
+    `, [shipId, jobId]);
+    
+    await client.query('COMMIT');
+    
+    return {
+      success: true,
+      job_id: jobId,
+      ship_id: shipId,
+      fleet_id: fleetId,
+      is_flagship: isFlagship,
+    };
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// ─── 완료된 작업 일괄 처리 (스케줄러) ───
+
+/**
+ * 스케줄러에서 주기적으로 호출. 완료 시각 지난 작업들 자동 처리
+ */
+async function processCompletedJobs() {
+  const { rows } = await pool.query(`
+    SELECT id FROM ship_build_jobs 
+    WHERE status = 'building' AND completes_at <= NOW()
+    ORDER BY completes_at ASC
+    LIMIT 100
+  `);
+  
+  const results = { success: 0, failed: 0, errors: [] };
+  
+  for (const row of rows) {
+    try {
+      await completeBuildJob(row.id);
+      results.success++;
+    } catch (err) {
+      results.failed++;
+      results.errors.push({ job_id: row.id, error: err.message });
+      console.error(`[ship] completeBuildJob ${row.id} failed:`, err.message);
+    }
+  }
+  
+  return results;
+}
+
+// ─── 건조 취소 (환불) ───
+
+async function cancelBuildJob(jobId, walletAddress) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    const { rows: jobRows } = await client.query(
+      `SELECT * FROM ship_build_jobs 
+       WHERE id = $1 AND wallet_address = $2 FOR UPDATE`,
+      [jobId, walletAddress]
+    );
+    if (!jobRows[0]) throw new Error('JOB_NOT_FOUND');
+    const job = jobRows[0];
+    
+    if (job.status !== 'building') {
+      throw new Error('JOB_NOT_CANCELLABLE');
+    }
+    
+    // 환불율 (기본 50%)
+    const refundPct = await getSettingInt(client, 'ship_build_cancel_refund_pct', 50);
+    
+    // GP 환불
+    const refundedGp = Math.floor((job.gp_cost || 0) * refundPct / 100);
+    if (refundedGp > 0) {
+      await client.query(
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+        [refundedGp, walletAddress]
+      );
+    }
+    
+    // 광물 환불
+    const minerals = job.minerals_used || {};
+    const refundedMinerals = {};
+    for (const [code, qty] of Object.entries(minerals)) {
+      const refundQty = Math.floor(qty * refundPct / 100);
+      if (refundQty > 0) {
+        refundedMinerals[code] = refundQty;
+        // UPSERT into user_resource_inventory
+        await client.query(`
+          INSERT INTO user_resource_inventory (wallet_address, resource_code, quantity)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (wallet_address, resource_code) 
+          DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity
+        `, [walletAddress, code, refundQty]);
+      }
+    }
+    
+    // 작업 취소 처리
+    await client.query(`
+      UPDATE ship_build_jobs 
+      SET status = 'cancelled', completed_at = NOW()
+      WHERE id = $1
+    `, [jobId]);
+    
+    // 로그
+    await client.query(`
+      INSERT INTO ship_build_log (wallet_address, ship_type_code, gp_cost, minerals_used, result)
+      VALUES ($1, $2, $3, $4, 'cancelled')
+    `, [walletAddress, job.ship_type_code, -refundedGp, JSON.stringify(refundedMinerals)]);
+    
+    // GP activity log
+    if (refundedGp > 0) {
+      await client.query(`
+        INSERT INTO fleet_gp_activity (wallet_address, activity_type, gp_delta, meta)
+        VALUES ($1, 'ship_build_refund', $2, $3)
+      `, [walletAddress, refundedGp, JSON.stringify({ 
+        job_id: jobId, 
+        refund_pct: refundPct,
+        cancelled: true
+      })]).catch(() => {});
+    }
+    
+    await client.query('COMMIT');
+    
+    return {
+      success: true,
+      refunded_gp: refundedGp,
+      refunded_minerals: refundedMinerals,
+      refund_pct: refundPct,
+    };
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// ─── 함대 자동 생성 (유저의 첫 함선용) ───
+
+async function getOrCreateDefaultFleet(client, walletAddress) {
+  // 기존 함대가 있으면 첫 번째 반환
+  const { rows: existing } = await client.query(
+    `SELECT id FROM fleets WHERE owner_wallet = $1 ORDER BY id ASC LIMIT 1`,
+    [walletAddress]
+  );
+  if (existing[0]) return existing[0].id;
+  
+  // 없으면 기본 함대 생성
+  const { rows: nick } = await client.query(
+    `SELECT nickname FROM users WHERE wallet_address = $1`,
+    [walletAddress]
+  );
+  const name = `${nick[0]?.nickname || 'Commander'} 제1함대`;
+  
+  const { rows } = await client.query(`
+    INSERT INTO fleets (owner_wallet, name, formation, movement)
+    VALUES ($1, $2, 'sphere', 'advance')
+    RETURNING id
+  `, [walletAddress, name]);
+  
+  return rows[0].id;
+}
+
+// ─── 유저 함대 요약 (간단 stats) ───
+
+async function getFleetSummary(walletAddress) {
+  const { rows } = await pool.query(`
+    SELECT 
+      COUNT(DISTINCT f.id) AS fleet_count,
+      COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive,
+      COUNT(s.id) FILTER (WHERE s.is_alive AND st.is_capital) AS capital_ships,
+      COALESCE(SUM(s.current_hp) FILTER (WHERE s.is_alive), 0) AS total_hp,
+      (SELECT COUNT(*) FROM ship_build_jobs 
+       WHERE wallet_address = $1 AND status = 'building') AS jobs_in_progress
+    FROM fleets f
+    LEFT JOIN ships s ON s.fleet_id = f.id
+    LEFT JOIN ship_types st ON st.code = s.ship_type_code
+    WHERE f.owner_wallet = $1
+  `, [walletAddress]);
+  
+  return rows[0] || { 
+    fleet_count: 0, ships_alive: 0, capital_ships: 0, 
+    total_hp: 0, jobs_in_progress: 0 
   };
 }
 
-// ── repairShip ──
-async function repairShip(walletAddress, shipId) {
-  const repairPct = parseInt(await getSetting('ship_repair_pct', '30')) || 30;
+// ─── 헬퍼 ───
 
-  const client = await pool.connect();
+async function getSettingInt(client, key, fallback) {
   try {
-    await client.query('BEGIN');
-
-    const shipRes = await client.query(
-      "SELECT * FROM user_ships WHERE id = $1 AND wallet_address = $2 AND status != 'destroyed' FOR UPDATE",
-      [shipId, walletAddress]
+    const { rows } = await client.query(
+      `SELECT value FROM settings WHERE category = 'fleet' AND key = $1`,
+      [key]
     );
-    if (!shipRes.rows.length) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'ship_not_found' };
+    if (!rows[0]) return fallback;
+    const val = rows[0].value;
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string') {
+      const cleaned = val.replace(/^"|"$/g, '');
+      const n = parseInt(cleaned, 10);
+      return isNaN(n) ? fallback : n;
     }
-    const ship = shipRes.rows[0];
-    if (ship.hp >= ship.max_hp) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'ship_full_hp' };
-    }
-
-    const repairCost = Math.ceil(ship.build_cost_gp * (repairPct / 100));
-    const balRes = await client.query(
-      'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
-      [walletAddress]
-    );
-    const gp = parseFloat(balRes.rows[0]?.gp_balance) || 0;
-    if (gp < repairCost) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'insufficient_gp', required: repairCost };
-    }
-
-    await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2',
-      [repairCost, walletAddress]
-    );
-    await client.query(
-      `UPDATE user_ships SET hp = max_hp, status = 'docked', last_repaired_at = NOW()
-       WHERE id = $1`,
-      [shipId]
-    );
-
-    await client.query('COMMIT');
-    return { success: true, repairCost };
-  } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('[SHIP] repairShip error:', err.message);
-    return { success: false, error: 'internal_error' };
-  } finally {
-    client.release();
-  }
-}
-
-// ── destroyShip ── (called by battle engine with existing client)
-async function destroyShip(client, shipId) {
-  await client.query(
-    "UPDATE user_ships SET status = 'destroyed', hp = 0, destroyed_at = NOW() WHERE id = $1",
-    [shipId]
-  );
-}
-
-// ── getUpgradeCosts ── returns cost table for levels 1..max
-async function getUpgradeCosts() {
-  const maxLevel  = parseInt(await getSetting('ship_upgrade_max_level',    '5'))   || 5;
-  const baseCost  = parseInt(await getSetting('ship_upgrade_base_cost_gp', '100')) || 100;
-  const mult      = parseFloat(await getSetting('ship_upgrade_cost_mult',  '2.0')) || 2.0;
-  const atkPerLvl = parseInt(await getSetting('ship_upgrade_atk_per_lvl',  '5'))   || 5;
-  const defPerLvl = parseInt(await getSetting('ship_upgrade_def_per_lvl',  '5'))   || 5;
-  const hpPerLvl  = parseInt(await getSetting('ship_upgrade_hp_per_lvl',   '30'))  || 30;
-
-  const costs = [];
-  for (let lvl = 1; lvl <= maxLevel; lvl++) {
-    costs.push({
-      level:      lvl,
-      gp_cost:    Math.round(baseCost * Math.pow(mult, lvl - 1)),
-      bonus_atk:  atkPerLvl * lvl,
-      bonus_def:  defPerLvl * lvl,
-      bonus_hp:   hpPerLvl  * lvl,
-    });
-  }
-  return { maxLevel, baseCost, mult, atkPerLvl, defPerLvl, hpPerLvl, costs };
-}
-
-// ── upgradeShip ──
-async function upgradeShip(walletAddress, shipId) {
-  const enabled = await getSetting('ship_upgrade_enabled', 'true');
-  if (enabled !== 'true') return { success: false, error: 'ship_upgrade_disabled' };
-
-  const maxLevel  = parseInt(await getSetting('ship_upgrade_max_level',    '5'))   || 5;
-  const baseCost  = parseInt(await getSetting('ship_upgrade_base_cost_gp', '100')) || 100;
-  const mult      = parseFloat(await getSetting('ship_upgrade_cost_mult',  '2.0')) || 2.0;
-  const atkPerLvl = parseInt(await getSetting('ship_upgrade_atk_per_lvl',  '5'))   || 5;
-  const defPerLvl = parseInt(await getSetting('ship_upgrade_def_per_lvl',  '5'))   || 5;
-  const hpPerLvl  = parseInt(await getSetting('ship_upgrade_hp_per_lvl',   '30'))  || 30;
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    // Lock ship row
-    const shipRes = await client.query(
-      "SELECT * FROM user_ships WHERE id = $1 AND wallet_address = $2 AND status != 'destroyed' FOR UPDATE",
-      [shipId, walletAddress]
-    );
-    if (!shipRes.rows.length) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'ship_not_found' };
-    }
-    const ship = shipRes.rows[0];
-
-    if (ship.status === 'deployed') {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'ship_deployed' };
-    }
-
-    const curLevel = parseInt(ship.upgrade_level) || 0;
-    if (curLevel >= maxLevel) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'max_level_reached', max: maxLevel };
-    }
-
-    // Escalating cost: baseCost × mult^curLevel
-    const gpCost = Math.round(baseCost * Math.pow(mult, curLevel));
-    const newLevel = curLevel + 1;
-
-    // Check and deduct GP
-    const balRes = await client.query(
-      'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
-      [walletAddress]
-    );
-    if (!balRes.rows.length) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'user_not_found' };
-    }
-    const gp = parseFloat(balRes.rows[0].gp_balance) || 0;
-    if (gp < gpCost) {
-      await client.query('ROLLBACK');
-      return { success: false, error: 'insufficient_gp', required: gpCost, balance: gp };
-    }
-    await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2',
-      [gpCost, walletAddress]
-    );
-
-    // Apply stat boosts (cumulative by raising absolute bonus columns)
-    const newBonusAtk = (parseInt(ship.upgrade_bonus_atk) || 0) + atkPerLvl;
-    const newBonusDef = (parseInt(ship.upgrade_bonus_def) || 0) + defPerLvl;
-    const newBonusHp  = (parseInt(ship.upgrade_bonus_hp)  || 0) + hpPerLvl;
-    await client.query(
-      `UPDATE user_ships
-          SET upgrade_level      = $1,
-              upgrade_bonus_atk  = $2,
-              upgrade_bonus_def  = $3,
-              upgrade_bonus_hp   = $4,
-              attack             = attack  + $5,
-              defense            = defense + $6,
-              max_hp             = max_hp  + $7,
-              hp                 = hp      + $7
-        WHERE id = $8`,
-      [newLevel, newBonusAtk, newBonusDef, newBonusHp,
-       atkPerLvl, defPerLvl, hpPerLvl, shipId]
-    );
-
-    // Log the upgrade
-    await client.query(
-      `INSERT INTO ship_upgrade_log (ship_id, wallet, from_level, to_level, gp_cost)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [shipId, walletAddress, curLevel, newLevel, gpCost]
-    );
-
-    await client.query('COMMIT');
-
-    // Fire-and-forget hooks
-    try {
-      const { creditReferralCommission, logGPActivity } = require('../db');
-      const seasonSvc = require('./season');
-      creditReferralCommission(client, walletAddress, 'ship_upgrade', gpCost, 'gp').catch(() => {});
-      seasonSvc.addSeasonScore(walletAddress, 'gp_spend', gpCost).catch(() => {});
-      logGPActivity(walletAddress, -gpCost, 'ship_upgrade', `${ship.ship_type} → +${newLevel}`).catch(() => {});
-    } catch (_he) {}
-
-    return {
-      success:    true,
-      shipId,
-      fromLevel:  curLevel,
-      toLevel:    newLevel,
-      gpCost,
-      newAtk:     (parseInt(ship.attack)  || 0) + atkPerLvl,
-      newDef:     (parseInt(ship.defense) || 0) + defPerLvl,
-      newMaxHp:   (parseInt(ship.max_hp)  || 0) + hpPerLvl,
-    };
-  } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('[SHIP] upgradeShip error:', err.message);
-    return { success: false, error: 'internal_error' };
-  } finally {
-    client.release();
-  }
-}
-
-// ── getBlueprints ── (public — no auth required)
-async function getBlueprints() {
-  const blueprints = [];
-  for (const [type, def] of Object.entries(SHIP_TYPES)) {
-    const gpCost = parseInt(await getSetting(def.settingKey, '100')) || 100;
-    blueprints.push({
-      type,
-      name: def.name,
-      icon: def.icon,
-      hp: def.hp,
-      attack: def.atk,
-      defense: def.def,
-      speed: def.spd,
-      gp_cost: gpCost,
-    });
-  }
-  return blueprints;
+    return val || fallback;
+  } catch { return fallback; }
 }
 
 module.exports = {
-  buildShip,
-  getUserShips,
-  getFleetStats,
-  repairShip,
-  destroyShip,
-  upgradeShip,
-  getUpgradeCosts,
   getBlueprints,
-  SHIP_TYPES,
+  getMyShips,
+  getBuildJobs,
+  startBuild,
+  completeBuildJob,
+  processCompletedJobs,
+  cancelBuildJob,
+  getFleetSummary,
 };
