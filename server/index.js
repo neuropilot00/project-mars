@@ -167,6 +167,7 @@ const tombstoneRoutes   = require('./routes/tombstone');
 const milestoneRoutes   = require('./routes/milestone');
 const factionRoutes     = require('./routes/factions');  // A-1: 파벌 선택 시스템
 const newResourcesRoutes = require('./routes/resources'); // A-2: 자원 인벤토리 (복수형, 함선 UI용)
+const fleetRoutes       = require('./routes/fleets');    // A-3: 함대 편성 시스템
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -330,6 +331,7 @@ app.use('/admin/api', adminRoutes);
 app.use('/api/arena', arenaRoutes);
 app.use('/api/factions', factionRoutes);      // A-1: 파벌 선택 시스템
 app.use('/api/resources', newResourcesRoutes); // A-2: 자원 인벤토리
+app.use('/api/fleets', fleetRoutes);           // A-3: 함대 편성
 app.use('/api/governance', governanceRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 

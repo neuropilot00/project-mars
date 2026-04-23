@@ -2812,6 +2812,141 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .sy-balance { display: flex; align-items: center; gap: 5px; }
 .sy-balance b { color: #ffd700; }
 .sy-balance.minerals b { color: #4fc3f7; }
+
+/* ═════ Fleet Command Modal ═════ */
+.fleetcmd-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+  z-index: 9997;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 10px;
+}
+.fleetcmd-modal-backdrop.active { display: flex; }
+.fleetcmd-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(100, 150, 255, 0.2);
+  border-radius: 10px;
+  width: 100%; max-width: 1200px;
+  max-height: 95vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.fleetcmd-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.fleetcmd-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px; font-weight: 900; letter-spacing: 3px;
+}
+.fleetcmd-body {
+  flex: 1; overflow-y: auto; padding: 14px 20px;
+  display: grid; grid-template-columns: 300px 1fr;
+  gap: 14px;
+  min-height: 500px;
+}
+.fleet-list {
+  display: flex; flex-direction: column; gap: 6px;
+  border-right: 1px solid rgba(255,255,255,.05);
+  padding-right: 14px;
+}
+.fleet-list-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.fleet-list-title { font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,.5); }
+.fleet-new-btn {
+  font-size: 9px; padding: 3px 10px;
+  background: rgba(79,195,247,.1); border: 1px solid rgba(79,195,247,.4);
+  color: #4fc3f7; cursor: pointer; border-radius: 3px; letter-spacing: 1px;
+}
+.fleet-new-btn:hover { background: rgba(79,195,247,.2); }
+.fleet-card {
+  background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 5px; padding: 8px 10px; cursor: pointer; transition: all .15s;
+}
+.fleet-card:hover { background: rgba(255,255,255,.05); }
+.fleet-card.active { background: rgba(79,195,247,.08); border-color: rgba(79,195,247,.4); }
+.fleet-card.in-battle { border-color: rgba(239,83,80,.4); background: rgba(239,83,80,.05); }
+.fleet-card-name {
+  font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  color: rgba(255,255,255,.9); margin-bottom: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fleet-card-meta { font-size: 8px; color: rgba(255,255,255,.4); display: flex; gap: 6px; flex-wrap: wrap; }
+.fleet-card-bar { height: 3px; background: rgba(255,255,255,.05); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.fleet-card-bar-fill { height: 100%; background: #66bb6a; transition: width .3s; }
+.fleet-card-bar-fill.low { background: #ff9800; }
+.fleet-card-bar-fill.crit { background: #ef5350; }
+.fleet-card-battle-tag {
+  display: inline-block; font-size: 8px; padding: 1px 4px;
+  background: rgba(239,83,80,.2); color: #ff8a80; border-radius: 2px;
+}
+.fleet-detail { display: flex; flex-direction: column; gap: 10px; }
+.fleet-detail-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.fleet-detail-name {
+  font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; letter-spacing: 2px;
+}
+.fleet-detail-actions { display: flex; gap: 6px; }
+.fd-btn {
+  padding: 4px 10px; font-size: 9px; letter-spacing: 1px;
+  border: 1px solid rgba(255,255,255,.15); background: transparent;
+  color: rgba(255,255,255,.6); cursor: pointer; border-radius: 3px;
+}
+.fd-btn:hover { background: rgba(255,255,255,.05); color: #fff; }
+.fd-btn.danger { color: #ef9a9a; border-color: rgba(239,83,80,.3); }
+.fd-btn.primary { color: #4fc3f7; border-color: rgba(79,195,247,.4); background: rgba(79,195,247,.05); }
+.tactics-panel {
+  background: rgba(0,0,0,.25); padding: 10px 14px; border-radius: 6px;
+  display: flex; gap: 20px; flex-wrap: wrap;
+}
+.tactics-group { display: flex; flex-direction: column; gap: 4px; }
+.tactics-label { font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,.4); }
+.tactics-options { display: flex; gap: 4px; flex-wrap: wrap; }
+.tactic-btn {
+  padding: 4px 10px; font-size: 10px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.6); cursor: pointer; border-radius: 3px;
+  letter-spacing: 1px; transition: all .1s;
+}
+.tactic-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
+.tactic-btn.active { background: rgba(79,195,247,.15); border-color: rgba(79,195,247,.5); color: #4fc3f7; }
+.tactic-btn[disabled] { opacity: .4; cursor: not-allowed; }
+.fleet-ships-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
+}
+.fs-summary { font-size: 10px; color: rgba(255,255,255,.5); display: flex; gap: 12px; flex-wrap: wrap; }
+.fs-summary b { color: rgba(255,255,255,.9); font-weight: 700; }
+.fs-select-actions { display: none; gap: 6px; font-size: 10px; align-items: center; }
+.fs-select-actions.active { display: flex; }
+.fs-select-count { color: #4fc3f7; font-weight: 700; }
+.fleet-ships-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px; max-height: 400px; overflow-y: auto; padding: 2px;
+}
+.fs-card {
+  background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 4px; padding: 7px 9px; cursor: pointer; position: relative; transition: all .1s;
+}
+.fs-card:hover { background: rgba(255,255,255,.05); }
+.fs-card.selected { background: rgba(79,195,247,.1); border-color: rgba(79,195,247,.5); }
+.fs-card.flagship { border-color: rgba(255,215,0,.5); background: rgba(255,215,0,.04); }
+.fs-card-name {
+  font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fs-card-class { font-size: 8px; color: rgba(255,255,255,.4); margin-bottom: 4px; }
+.fs-card-hp-bar { height: 3px; background: rgba(255,255,255,.05); border-radius: 2px; overflow: hidden; }
+.fs-card-hp-fill { height: 100%; background: #66bb6a; transition: width .3s; }
+.fs-card-hp-fill.low { background: #ff9800; }
+.fs-card-hp-fill.crit { background: #ef5350; }
+.fs-card-flagship-badge { position: absolute; top: 4px; right: 4px; font-size: 9px; color: #ffd700; }
+.fs-empty { text-align: center; padding: 40px; color: rgba(255,255,255,.3); font-size: 10px; letter-spacing: 2px; }
 </style>
 </head>
 <body>
@@ -36482,6 +36617,301 @@ var MINERAL_KO = {
   ice_crystal:'얼음', volcanic_shard:'화산파편', plasma_dust:'플라즈마', ancient_metal:'고대금속',
   meteorite_fragment:'운석', xenomatter:'외계물질', hull_plate:'장갑판', plasma_coil:'플라즈마코일', alloy_frame:'합금프레임'
 };
+</script>
+
+<!-- ═══ A-3: Fleet Command Modal ═══ -->
+<div class="fleetcmd-modal-backdrop" id="fleetCmdModal">
+  <div class="fleetcmd-modal">
+    <div class="fleetcmd-header">
+      <div class="fleetcmd-title">🎖 FLEET COMMAND · 함대 지휘</div>
+      <button class="shipyard-close" onclick="closeFleetCmd()">✕</button>
+    </div>
+    <div class="fleetcmd-body">
+      <div class="fleet-list">
+        <div class="fleet-list-header">
+          <div class="fleet-list-title">MY FLEETS (<span id="fleetCountLabel">0</span>)</div>
+          <button class="fleet-new-btn" onclick="createNewFleet()">+ 새 함대</button>
+        </div>
+        <div id="fleetListContent"></div>
+      </div>
+      <div class="fleet-detail" id="fleetDetailContent">
+        <div class="fs-empty">함대를 선택하세요</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═════ Fleet Command State ═════
+var fleetCmdState = {
+  fleets: [],
+  selectedFleetId: null,
+  selectedFleet: null,
+  selectedShipIds: new Set(),
+  formations: [],
+  movements: [],
+};
+
+function openFleetCmd() {
+  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  document.getElementById('fleetCmdModal').classList.add('active');
+  loadFleetOptions().then(function(){ refreshFleetList(); });
+}
+
+function closeFleetCmd() {
+  document.getElementById('fleetCmdModal').classList.remove('active');
+}
+
+async function loadFleetOptions() {
+  if (fleetCmdState.formations.length > 0) return;
+  try {
+    var res = await fetch('/api/fleets/options');
+    var data = await res.json();
+    fleetCmdState.formations = data.formations || [];
+    fleetCmdState.movements  = data.movements  || [];
+  } catch(e) { console.error('loadFleetOptions error:', e); }
+}
+
+async function refreshFleetList() {
+  try {
+    var res = await fetch('/api/fleets', { headers: getAuthHeaders() });
+    var data = await res.json();
+    fleetCmdState.fleets = data.fleets || [];
+    document.getElementById('fleetCountLabel').textContent = fleetCmdState.fleets.length;
+    renderFleetList();
+    if (fleetCmdState.selectedFleetId) {
+      var still = fleetCmdState.fleets.find(function(f){ return f.id === fleetCmdState.selectedFleetId; });
+      if (still) await loadFleetDetail(fleetCmdState.selectedFleetId);
+      else { fleetCmdState.selectedFleetId = null; fleetCmdState.selectedFleet = null; renderFleetDetail(); }
+    }
+  } catch(e) { console.error('refreshFleetList error:', e); }
+}
+
+function renderFleetList() {
+  var container = document.getElementById('fleetListContent');
+  if (fleetCmdState.fleets.length === 0) {
+    container.innerHTML = '<div class="fs-empty" style="padding:20px">함대가 없습니다<br><button class="fleet-new-btn" style="margin-top:10px" onclick="createNewFleet()">+ 첫 함대 생성</button></div>';
+    return;
+  }
+  container.innerHTML = fleetCmdState.fleets.map(function(f) {
+    var isActive = fleetCmdState.selectedFleetId === f.id;
+    var hpPct = f.total_max_hp > 0 ? (f.total_hp / f.total_max_hp) * 100 : 0;
+    var hpCls = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
+    var formIcon = (f.formation_info && f.formation_info.icon) || '●';
+    var moveIcon = (f.movement_info && f.movement_info.icon) || '→';
+    return '<div class="fleet-card ' + (isActive ? 'active' : '') + ' ' + (f.is_in_battle ? 'in-battle' : '') + '" onclick="selectFleet(' + f.id + ')">' +
+      '<div class="fleet-card-name" title="' + fcEsc(f.name) + '">' + fcEsc(f.name || '이름없음') + '</div>' +
+      '<div class="fleet-card-meta"><span>' + f.ships_alive + '척</span>' +
+        '<span>' + formIcon + ' ' + ((f.formation_info && f.formation_info.name_ko) || '-') + '</span>' +
+        '<span>' + moveIcon + ' ' + ((f.movement_info && f.movement_info.name_ko) || '-') + '</span>' +
+        (f.is_in_battle ? '<span class="fleet-card-battle-tag">전투중</span>' : '') +
+      '</div>' +
+      '<div class="fleet-card-bar"><div class="fleet-card-bar-fill ' + hpCls + '" style="width:' + hpPct + '%"></div></div>' +
+    '</div>';
+  }).join('');
+}
+
+async function selectFleet(fleetId) {
+  fleetCmdState.selectedFleetId = fleetId;
+  fleetCmdState.selectedShipIds.clear();
+  await loadFleetDetail(fleetId);
+  renderFleetList();
+}
+
+async function loadFleetDetail(fleetId) {
+  try {
+    var res = await fetch('/api/fleets/' + fleetId, { headers: getAuthHeaders() });
+    var data = await res.json();
+    fleetCmdState.selectedFleet = data.fleet;
+    renderFleetDetail();
+  } catch(e) { console.error('loadFleetDetail error:', e); }
+}
+
+function renderFleetDetail() {
+  var container = document.getElementById('fleetDetailContent');
+  var f = fleetCmdState.selectedFleet;
+  if (!f) { container.innerHTML = '<div class="fs-empty">함대를 선택하세요</div>'; return; }
+  var formations = fleetCmdState.formations || [];
+  var movements  = fleetCmdState.movements  || [];
+  var inBattle   = f.is_in_battle;
+  var selCount   = fleetCmdState.selectedShipIds.size;
+  var formBtns = formations.map(function(fm) {
+    return '<button class="tactic-btn ' + (f.formation === fm.code ? 'active' : '') + '" onclick="setFleetTactic(\'formation\',\'' + fm.code + '\')" title="' + fcEsc(fm.desc) + '">' + fm.icon + ' ' + fm.name_ko + '</button>';
+  }).join('');
+  var moveBtns = movements.map(function(mv) {
+    return '<button class="tactic-btn ' + (f.movement === mv.code ? 'active' : '') + '" onclick="setFleetTactic(\'movement\',\'' + mv.code + '\')" title="' + fcEsc(mv.desc) + '">' + mv.icon + ' ' + mv.name_ko + '</button>';
+  }).join('');
+  var shipCards = (f.ships || []).length === 0
+    ? '<div class="fs-empty" style="grid-column:1/-1">이 함대에 함선이 없습니다</div>'
+    : (f.ships || []).map(function(s){ return renderFcShipCard(s, inBattle); }).join('');
+  container.innerHTML =
+    '<div class="fleet-detail-header">' +
+      '<div class="fleet-detail-name">' + fcEsc(f.name || '이름없음') + '</div>' +
+      '<div class="fleet-detail-actions">' +
+        '<button class="fd-btn" onclick="renameFleet()" ' + (inBattle ? 'disabled' : '') + '>✎ 이름</button>' +
+        '<button class="fd-btn danger" onclick="deleteFleetPrompt()" ' + (inBattle ? 'disabled' : '') + '>🗑 해체</button>' +
+      '</div>' +
+    '</div>' +
+    (inBattle ? '<div style="color:#ef5350;font-size:10px;letter-spacing:1px;padding:6px 10px;background:rgba(239,83,80,.08);border-radius:4px">⚠ 전투 중 — 일부 기능 제한</div>' : '') +
+    '<div class="tactics-panel">' +
+      '<div class="tactics-group"><div class="tactics-label">진형 (FORMATION)</div><div class="tactics-options">' + formBtns + '</div></div>' +
+      '<div class="tactics-group"><div class="tactics-label">기동 (MOVEMENT)</div><div class="tactics-options">' + moveBtns + '</div></div>' +
+    '</div>' +
+    '<div class="fleet-ships-header">' +
+      '<div class="fs-summary"><span>총 <b>' + f.ships_alive + '</b>척</span><span>HP <b>' + syFmt(f.total_hp) + ' / ' + syFmt(f.total_max_hp) + '</b></span><span>전적 <b>' + (f.battles_won || 0) + 'W / ' + (f.battles_lost || 0) + 'L</b></span></div>' +
+      '<div class="fs-select-actions ' + (selCount > 0 ? 'active' : '') + '">' +
+        '<span class="fs-select-count">' + selCount + '척 선택</span>' +
+        '<button class="fd-btn" onclick="fleetCmdState.selectedShipIds.clear();renderFleetDetail()">해제</button>' +
+        '<button class="fd-btn primary" onclick="showMoveShipsDialog()" ' + (inBattle ? 'disabled' : '') + '>→ 이동</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="fleet-ships-grid">' + shipCards + '</div>';
+}
+
+function renderFcShipCard(s, fleetInBattle) {
+  var isSel = fleetCmdState.selectedShipIds.has(s.id);
+  var hpPct = (s.current_hp / s.max_hp) * 100;
+  var hpCls = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
+  var color = s.faction_color || '#fff';
+  return '<div class="fs-card ' + (isSel ? 'selected' : '') + ' ' + (s.is_flagship ? 'flagship' : '') + '" onclick="toggleShipSel(' + s.id + ',event)">' +
+    (s.is_flagship ? '<span class="fs-card-flagship-badge">⚔</span>' : '') +
+    '<div class="fs-card-name" style="color:' + color + '" title="' + fcEsc(s.name_ko) + '">' + fcEsc(s.name_ko) + '</div>' +
+    '<div class="fs-card-class">' + fcEsc(s.class_label || '') + '</div>' +
+    '<div class="fs-card-hp-bar"><div class="fs-card-hp-fill ' + hpCls + '" style="width:' + hpPct + '%"></div></div>' +
+    (!s.is_flagship && s.is_flagship_capable && !fleetInBattle
+      ? '<button class="fd-btn" style="margin-top:4px;width:100%;font-size:8px" onclick="event.stopPropagation();setAsFlagship(' + s.id + ')">기함 지정</button>'
+      : '') +
+  '</div>';
+}
+
+function toggleShipSel(shipId, event) {
+  if (event) event.stopPropagation();
+  if (fleetCmdState.selectedShipIds.has(shipId)) fleetCmdState.selectedShipIds.delete(shipId);
+  else fleetCmdState.selectedShipIds.add(shipId);
+  renderFleetDetail();
+}
+
+async function setFleetTactic(type, value) {
+  var fleetId = fleetCmdState.selectedFleetId;
+  if (!fleetId) return;
+  try {
+    var body = {}; body[type] = value;
+    var res = await fetch('/api/fleets/' + fleetId, {
+      method: 'PUT',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!res.ok) { showFactionToast('변경 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast((type === 'formation' ? '진형' : '기동') + ' 변경됨', 'success');
+    await refreshFleetList();
+  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+}
+
+async function createNewFleet() {
+  var name = prompt('새 함대 이름을 입력하세요 (비워두면 자동):');
+  if (name === null) return;
+  try {
+    var res = await fetch('/api/fleets', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ name: name.trim() || undefined })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      var msgMap = { 'FLEET_LIMIT_REACHED': '함대 최대 ' + ((data.meta && data.meta.max) || 5) + '개까지 생성 가능', 'NAME_TOO_LONG': '이름이 너무 깁니다 (60자 이하)' };
+      showFactionToast(msgMap[data.error] || ('오류: ' + data.error), 'error'); return;
+    }
+    showFactionToast('\'' + data.name + '\' 생성됨', 'success');
+    await refreshFleetList();
+    await selectFleet(data.id);
+  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+}
+
+async function renameFleet() {
+  var f = fleetCmdState.selectedFleet; if (!f) return;
+  var newName = prompt('새 이름:', f.name);
+  if (newName === null || newName.trim() === f.name) return;
+  if (!newName.trim()) { showFactionToast('이름이 비어있습니다', 'error'); return; }
+  try {
+    var res = await fetch('/api/fleets/' + f.id, {
+      method: 'PUT',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ name: newName.trim() })
+    });
+    var data = await res.json();
+    if (!res.ok) { showFactionToast('변경 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast('이름 변경됨', 'success');
+    await refreshFleetList();
+  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+}
+
+async function deleteFleetPrompt() {
+  var f = fleetCmdState.selectedFleet; if (!f) return;
+  var msg = f.ships_alive > 0
+    ? '\'' + f.name + '\'을(를) 해체하시겠습니까?\n\n함선 ' + f.ships_alive + '척이 다른 함대로 이동됩니다.'
+    : '\'' + f.name + '\'을(를) 해체하시겠습니까?';
+  if (!confirm(msg)) return;
+  try {
+    var res = await fetch('/api/fleets/' + f.id, { method: 'DELETE', headers: getAuthHeaders() });
+    var data = await res.json();
+    if (!res.ok) {
+      var msgMap = { 'LAST_FLEET': '마지막 함대는 해체할 수 없습니다', 'FLEET_IN_BATTLE': '전투 중인 함대는 해체할 수 없습니다' };
+      showFactionToast(msgMap[data.error] || ('오류: ' + data.error), 'error'); return;
+    }
+    showFactionToast(data.ships_moved > 0 ? ('해체 완료 — ' + data.ships_moved + '척 이동') : '해체 완료', 'success');
+    fleetCmdState.selectedFleetId = null; fleetCmdState.selectedFleet = null;
+    await refreshFleetList();
+  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+}
+
+async function showMoveShipsDialog() {
+  var shipIds = Array.from(fleetCmdState.selectedShipIds);
+  if (!shipIds.length) return;
+  var otherFleets = fleetCmdState.fleets.filter(function(f){ return f.id !== fleetCmdState.selectedFleetId && !f.is_in_battle; });
+  if (!otherFleets.length) { showFactionToast('이동할 함대가 없습니다. 새 함대를 만드세요.', 'error'); return; }
+  var options = otherFleets.map(function(f, i){ return (i+1) + '. ' + f.name + ' (' + f.ships_alive + '척)'; }).join('\n');
+  var choice = prompt(shipIds.length + '척 이동 — 대상 함대 번호 입력:\n\n' + options, '1');
+  if (choice === null) return;
+  var idx = parseInt(choice) - 1;
+  if (isNaN(idx) || idx < 0 || idx >= otherFleets.length) { showFactionToast('잘못된 선택', 'error'); return; }
+  var target = otherFleets[idx];
+  try {
+    var res = await fetch('/api/fleets/' + target.id + '/move-ships', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ ship_ids: shipIds })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      var msgMap = { 'TARGET_FLEET_IN_BATTLE':'대상 함대가 전투 중입니다', 'SHIPS_IN_BATTLE':'선택한 함선이 전투 중입니다', 'SHIP_NOT_OWNED':'소유하지 않은 함선이 포함됨' };
+      showFactionToast(msgMap[data.error] || ('오류: ' + data.error), 'error'); return;
+    }
+    showFactionToast(data.moved_count + '척 이동 완료', 'success');
+    fleetCmdState.selectedShipIds.clear();
+    await refreshFleetList();
+  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+}
+
+async function setAsFlagship(shipId) {
+  var fleetId = fleetCmdState.selectedFleetId; if (!fleetId) return;
+  try {
+    var res = await fetch('/api/fleets/' + fleetId + '/flagship', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ ship_id: shipId })
+    });
+    var data = await res.json();
+    if (!res.ok) { showFactionToast('지정 실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast('기함 변경됨', 'success');
+    await refreshFleetList();
+  } catch(e) { showFactionToast('네트워크 오류', 'error'); }
+}
+
+function fcEsc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
 </script>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
