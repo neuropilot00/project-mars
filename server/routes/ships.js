@@ -14,6 +14,7 @@
 const express = require('express');
 const router  = express.Router();
 const shipService = require('../services/ship');
+let achSvc; try { achSvc = require('../services/achievements'); } catch (_) {}
 
 function getWallet(req) {
   return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
@@ -75,6 +76,8 @@ router.post('/ships/build', async (req, res) => {
     const result = await shipService.buildShip(wallet, shipType);
     if (!result.success) return res.status(400).json(result);
     res.json(result);
+    // Achievement check: ship count
+    if (achSvc) { achSvc.checkAndUnlock(wallet, 'ship_count').catch(() => {}); }
   } catch (err) {
     console.error('[SHIPS] build error:', err.message);
     res.status(500).json({ error: 'internal_error' });

@@ -8,6 +8,8 @@ let marketService;
 try { marketService = require('../services/marketplace'); } catch (_e) {}
 let seasonService;
 try { seasonService = require('../services/season'); } catch (_e) {}
+let achSvc;
+try { achSvc = require('../services/achievements'); } catch (_e) {}
 
 const isDev = process.env.NODE_ENV !== 'production';
 const readLimiter = rateLimit({ windowMs: 60 * 1000, max: isDev ? 600 : 120, message: { error: 'Too many requests' } });
@@ -62,6 +64,8 @@ router.post('/list', writeLimiter, async (req, res) => {
 
     // Season tracking
     if (seasonService) seasonService.addSeasonScore(w, 'gp_spend', 1).catch(() => {});
+    // Achievement check: first listing
+    if (achSvc) achSvc.checkAndUnlock(w, 'marketplace_sell_count').catch(() => {});
 
     res.json({ success: true, listing });
   } catch (e) {
@@ -116,6 +120,11 @@ router.post('/buy', writeLimiter, async (req, res) => {
     }
 
     res.json({ success: true, price: result.price, fee: result.fee, currency: result.currency });
+    // Achievement check: marketplace purchase + gp balance
+    if (achSvc) {
+      achSvc.checkAndUnlock(w, 'marketplace_buy_count').catch(() => {});
+      achSvc.checkAndUnlock(w, 'gp_balance').catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[MARKET] buy error:', e.message);

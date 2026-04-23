@@ -21,6 +21,8 @@ let guildService;
 try { guildService = require('../services/guild'); } catch (_e) { /* guild service not available */ }
 let seasonService;
 try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }
+let achSvc;
+try { achSvc = require('../services/achievements'); } catch (_e) {}
 let missionService;
 try { missionService = require('../services/missions'); } catch (_e) { /* mission service not available */ }
 let enhancementService;
@@ -314,6 +316,8 @@ router.post('/referral/register', async (req, res) => {
     res.json({ success: true, referrer: referrer.slice(0, 6) + '...' + referrer.slice(-4) });
     // Season tracking: referral
     if (seasonService) { seasonService.addSeasonScore(w, 'referral', 1).catch(() => {}); }
+    // Achievement: check referral count for the person who recruited
+    if (achSvc) { achSvc.checkAndUnlock(referrer, 'referral_count').catch(() => {}); }
   } catch (e) {
     console.error('[API] referral register error:', e.message);
     res.status(500).json({ error: 'Internal error' });
@@ -1378,6 +1382,8 @@ router.post('/claim', writeLimiter, async (req, res) => {
         }
       } catch (_se) { /* season tracking non-critical */ }
     }
+    // Achievement check: territory count
+    if (achSvc && newCount > 0) { achSvc.checkAndUnlock(walletLower, 'claim_count').catch(() => {}); }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[API] claim error:', e.message);
@@ -3030,6 +3036,11 @@ router.post('/shop/buy', writeLimiter, async (req, res) => {
       if (cur === 'PP') seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {});
       else seasonService.addSeasonScore(w, 'gp_spend', Math.round(totalCost)).catch(() => {});
     }
+    // Achievement check: cosmetic count + GP balance
+    if (achSvc) {
+      achSvc.checkAndUnlock(w, 'cosmetic_count').catch(() => {});
+      achSvc.checkAndUnlock(w, 'gp_balance').catch(() => {});
+    }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[SHOP] buy error:', e.message);
@@ -3459,6 +3470,11 @@ router.post('/enhance', writeLimiter, async (req, res) => {
     if (seasonService) {
       seasonService.addSeasonScore(w, 'gp_spend', Math.round(result.cost)).catch(() => {});
     }
+    // Achievement check: enhancement count + max level
+    if (achSvc && result.success) {
+      achSvc.checkAndUnlock(w, 'enhancement_count').catch(() => {});
+      achSvc.checkAndUnlock(w, 'max_enhancement_level').catch(() => {});
+    }
 
     res.json(result);
   } catch (e) {
@@ -3827,6 +3843,10 @@ router.post('/daily/login', writeLimiter, async (req, res) => {
       seasonService.addSeasonScore(sw, 'login', 1).catch(() => {}); // dedicated
       if (result.streakDay > 1) seasonService.addSeasonScore(sw, 'streak', result.streakDay).catch(() => {}); // streaker
       if (result.rewardGP > 0) seasonService.addSeasonScore(sw, 'gp_earn', result.rewardGP).catch(() => {});
+    }
+    // Achievement check: GP balance milestone
+    if (achSvc && !result.alreadyClaimed && result.rewardGP > 0) {
+      achSvc.checkAndUnlock(wallet.toLowerCase(), 'gp_balance').catch(() => {});
     }
   } catch (e) {
     console.error('[DAILY] login error:', e.message);
@@ -5660,6 +5680,25 @@ router.get('/gp/transfers', readLimiter, async (req, res) => {
   } catch (err) {
     console.error('[GP TRANSFER] transfers list error:', err.message);
     res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+
+// ── ACHIEVEMENTS (Migration 104) ─────────────────────────────────────────────
+let achievementService;
+try { achievementService = require('../services/achievements'); } catch (_) {}
+
+// GET /api/achievements?wallet= — all achievements with unlock status
+router.get('/achievements', readLimiter, async (req, res) => {
+  const wallet = (req.query.wallet || '').toLowerCase();
+  if (!wallet) return res.status(400).json({ error: 'wallet required' });
+  try {
+    if (!achievementService) return res.status(503).json({ error: 'Achievement service unavailable' });
+    const list = await achievementService.getUserAchievements(wallet);
+    res.json({ achievements: list });
+  } catch (e) {
+    console.error('[Achievements] list error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
   }
 });
 

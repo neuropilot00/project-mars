@@ -1949,4 +1949,46 @@ router.get('/marketplace/price-analytics', adminAuth, async (req, res) => {
   }
 });
 
+// ── ACHIEVEMENTS ADMIN (Migration 104) ────────────────────────────────────────
+// GET /admin/api/achievements — stats + achievement list with unlock counts + settings
+router.get('/achievements', adminAuth, async (req, res) => {
+  let achSvc;
+  try { achSvc = require('../services/achievements'); } catch (_) {}
+
+  try {
+    const statsPromise = achSvc ? achSvc.getAdminStats() : Promise.resolve({ total_unlocks: 0, total_gp_given: 0, today_unlocks: 0, top: [] });
+    const [stats, settingsRes] = await Promise.all([
+      statsPromise,
+      pool.query(`SELECT key, value FROM settings WHERE key LIKE 'achievement%' ORDER BY key`).catch(() => ({ rows: [] })),
+    ]);
+
+    const settingsMap = {};
+    settingsRes.rows.forEach(r => { settingsMap[r.key] = r.value; });
+
+    res.json({ ...stats, settings: settingsMap });
+  } catch (e) {
+    console.error('[Admin] achievements error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/achievements/grant — manually grant achievement to player
+router.post('/achievements/grant', adminAuth, async (req, res) => {
+  const { wallet, achievementKey } = req.body;
+  if (!wallet || !achievementKey) return res.status(400).json({ error: 'wallet and achievementKey required' });
+  let achSvc;
+  try { achSvc = require('../services/achievements'); } catch (_) {}
+  if (!achSvc) return res.status(503).json({ error: 'Achievement service unavailable' });
+  try {
+    // Get reward_gp for this achievement
+    const achRes = await pool.query(`SELECT reward_gp FROM achievements WHERE key = $1`, [achievementKey]);
+    if (!achRes.rows.length) return res.status(404).json({ error: 'Achievement not found' });
+    const unlocked = await achSvc.unlockAchievement(wallet.toLowerCase(), achievementKey, parseFloat(achRes.rows[0].reward_gp));
+    res.json({ success: true, alreadyHad: !unlocked });
+  } catch (e) {
+    console.error('[Admin] grant achievement error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

@@ -3587,6 +3587,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="questsList"></div>
           <div id="questsClaimed" style="margin-top:12px"></div>
         </div>
+
+        <!-- ACHIEVEMENTS Section -->
+        <div id="achievementsSection" style="padding:8px 10px;border-top:1px solid var(--bdr);display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="font-size:9px;color:var(--gold);letter-spacing:2px;font-family:var(--fn);font-weight:700">🏆 <span data-i18n="achievements_title">ACHIEVEMENTS</span></span>
+            <button onclick="loadAchievements()" style="font-size:9px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);color:var(--gold);padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+          </div>
+          <div id="achievementsFilter" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="ach-cat-btn active" data-cat="all" onclick="filterAchievements('all',this)" style="font-size:8px;padding:2px 8px;border-radius:10px;background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);color:var(--gold);cursor:pointer">ALL</button>
+            <button class="ach-cat-btn" data-cat="territory" onclick="filterAchievements('territory',this)" style="font-size:8px;padding:2px 8px;border-radius:10px;background:rgba(76,216,154,.1);border:1px solid rgba(76,216,154,.2);color:#4cd89a;cursor:pointer">🌍</button>
+            <button class="ach-cat-btn" data-cat="economy" onclick="filterAchievements('economy',this)" style="font-size:8px;padding:2px 8px;border-radius:10px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);color:var(--gold);cursor:pointer">💰</button>
+            <button class="ach-cat-btn" data-cat="combat" onclick="filterAchievements('combat',this)" style="font-size:8px;padding:2px 8px;border-radius:10px;background:rgba(255,80,30,.1);border:1px solid rgba(255,80,30,.2);color:var(--mars);cursor:pointer">⚔️</button>
+            <button class="ach-cat-btn" data-cat="social" onclick="filterAchievements('social',this)" style="font-size:8px;padding:2px 8px;border-radius:10px;background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.2);color:var(--cyan);cursor:pointer">👥</button>
+            <button class="ach-cat-btn" data-cat="collection" onclick="filterAchievements('collection',this)" style="font-size:8px;padding:2px 8px;border-radius:10px;background:rgba(160,100,220,.1);border:1px solid rgba(160,100,220,.2);color:#a064dc;cursor:pointer">✨</button>
+          </div>
+          <div id="achievementsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px">
+            <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1" data-i18n="achievements_loading">Loading achievements...</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: GOVERN -->
@@ -10452,6 +10471,7 @@ var I18N = {
     season_cat_influencer: 'Mars Influencer', season_cat_influencer_d: 'Share your stats and territory the most',
     // ── QUESTS tab ──
     quests_loading: 'Loading quests...',
+    achievements_title: 'ACHIEVEMENTS', achievements_loading: 'Loading achievements...',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11025,6 +11045,7 @@ var I18N = {
     season_cat_influencer: '화성 인플루언서', season_cat_influencer_d: '전적과 영토를 가장 많이 공유하세요',
     // ── QUESTS tab ──
     quests_loading: '퀘스트를 불러오는 중...',
+    achievements_title: '업적', achievements_loading: '업적 로딩 중...',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -11597,6 +11618,7 @@ var I18N = {
     season_cat_influencer: '火星インフルエンサー', season_cat_influencer_d: '戦績とテリトリーを最多共有',
     // ── QUESTS tab ──
     quests_loading: 'クエストを読込中...',
+    achievements_title: '実績', achievements_loading: '実績を読込中...',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12153,6 +12175,7 @@ var I18N = {
     season_cat_influencer: '火星网红', season_cat_influencer_d: '分享战绩和领土次数最多',
     // ── QUESTS tab ──
     quests_loading: '正在加载任务...',
+    achievements_title: '成就', achievements_loading: '正在加载成就...',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -15515,7 +15538,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') try{trackQuestAction('view_sectors',1)}catch(e){}
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w);}
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   try{ clearBaseTabDot(tab); }catch(_e){}
@@ -24031,6 +24054,109 @@ function loadDailyMissions(){
 
   startDailyTimer();
 }
+
+// ── ACHIEVEMENTS (Migration 104) ────────────────────────────────────────────────
+var _achievements = [];
+var _achFilter = 'all';
+
+var ACH_CAT_COLOR = {
+  territory:  '#4cd89a',
+  economy:    'var(--gold)',
+  combat:     'var(--mars)',
+  social:     'var(--cyan)',
+  collection: '#a064dc'
+};
+var ACH_RARITY_COLOR = {
+  common:    'rgba(255,255,255,.5)',
+  rare:      '#5cbbff',
+  epic:      '#a064dc',
+  legendary: 'var(--gold)'
+};
+var ACH_RARITY_GLOW = {
+  common:    'none',
+  rare:      '0 0 8px rgba(92,187,255,.4)',
+  epic:      '0 0 10px rgba(160,100,220,.5)',
+  legendary: '0 0 14px rgba(255,209,102,.6)'
+};
+
+function loadAchievements() {
+  var sec = document.getElementById('achievementsSection');
+  if (!sec) return;
+  sec.style.display = '';
+  var grid = document.getElementById('achievementsGrid');
+  if (!walletState.address) {
+    grid.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">Connect wallet to view achievements</div>';
+    return;
+  }
+  grid.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">Loading...</div>';
+
+  fetch('/api/achievements?wallet=' + walletState.address)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      _achievements = data.achievements || [];
+      renderAchievementCards();
+    })
+    .catch(function(e) {
+      grid.innerHTML = '<div style="color:var(--mars);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">Failed to load</div>';
+    });
+}
+
+function filterAchievements(cat, btn) {
+  _achFilter = cat;
+  document.querySelectorAll('.ach-cat-btn').forEach(function(b) {
+    b.style.opacity = (b === btn) ? '1' : '0.5';
+    b.style.fontWeight = (b === btn) ? '700' : '400';
+  });
+  renderAchievementCards();
+}
+
+function renderAchievementCards() {
+  var grid = document.getElementById('achievementsGrid');
+  if (!grid) return;
+  var list = _achFilter === 'all' ? _achievements : _achievements.filter(function(a){ return a.category === _achFilter; });
+  // Sort: unlocked first, then by category+sort_order
+  list = list.slice().sort(function(a,b){
+    if (a.unlocked && !b.unlocked) return -1;
+    if (!a.unlocked && b.unlocked) return 1;
+    return 0;
+  });
+  if (!list.length) {
+    grid.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">No achievements in this category yet</div>';
+    return;
+  }
+  var lang = (typeof uiLang !== 'undefined' ? uiLang : 'en') || 'en';
+  grid.innerHTML = list.map(function(a) {
+    var unlocked = !!a.unlocked;
+    var catColor = ACH_CAT_COLOR[a.category] || 'var(--tx1)';
+    var rarityColor = ACH_RARITY_COLOR[a.rarity] || ACH_RARITY_COLOR.common;
+    var glowStyle = unlocked ? (ACH_RARITY_GLOW[a.rarity] || 'none') : 'none';
+    var name = a['name_' + lang] || a.name_en || a.key;
+    var desc = a['desc_' + lang] || a.desc_en || '';
+    var bgStyle = unlocked
+      ? 'background:rgba(255,209,102,.06);border-color:rgba(255,209,102,.25)'
+      : 'background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.06);filter:grayscale(.6)';
+    var unlockedDate = unlocked && a.unlocked_at
+      ? new Date(a.unlocked_at).toLocaleDateString()
+      : '';
+    return '<div style="border:1px solid;border-radius:8px;padding:8px;box-shadow:' + glowStyle + ';' + bgStyle + ';position:relative;cursor:default" title="' + desc + '">'
+      + '<div style="font-size:20px;text-align:center;margin-bottom:4px;' + (unlocked ? '' : 'opacity:.4') + '">' + (a.icon || '🏆') + '</div>'
+      + '<div style="font-size:8px;font-weight:700;color:' + (unlocked ? catColor : 'var(--tx3)') + ';text-align:center;line-height:1.3;margin-bottom:2px">' + name + '</div>'
+      + '<div style="font-size:7px;color:' + rarityColor + ';text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">' + (a.rarity || 'common') + '</div>'
+      + (a.reward_gp > 0 ? '<div style="font-size:8px;color:' + (unlocked ? 'var(--gold)' : 'var(--tx3)') + ';text-align:center">+' + Math.round(a.reward_gp) + ' GP</div>' : '')
+      + (unlocked && unlockedDate ? '<div style="font-size:7px;color:var(--tx3);text-align:center;margin-top:2px">' + unlockedDate + '</div>' : '')
+      + (!unlocked ? '<div style="position:absolute;top:4px;right:4px;font-size:10px;opacity:.3">🔒</div>' : '<div style="position:absolute;top:4px;right:4px;font-size:10px">✅</div>')
+      + '</div>';
+  }).join('');
+
+  // Show unlocked count summary
+  var totalUnlocked = _achievements.filter(function(a){ return a.unlocked; }).length;
+  var totalAch = _achievements.length;
+  var summary = document.createElement('div');
+  summary.style.cssText = 'grid-column:1/-1;text-align:center;font-size:9px;color:var(--tx3);padding:4px 0;border-top:1px solid var(--bdr);margin-top:4px';
+  summary.textContent = totalUnlocked + ' / ' + totalAch + ' unlocked';
+  grid.appendChild(summary);
+}
+
 
 function renderDailyMissions(){
   var container = document.getElementById('dailyMissionCards');
