@@ -165,6 +165,7 @@ const tprestigeRoutes   = require('./routes/tprestige');
 const announceRoutes    = require('./routes/announcement');
 const tombstoneRoutes   = require('./routes/tombstone');
 const milestoneRoutes   = require('./routes/milestone');
+const factionRoutes     = require('./routes/factions');  // A-1: 파벌 선택 시스템
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -326,6 +327,7 @@ app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
 app.use('/api/arena', arenaRoutes);
+app.use('/api/factions', factionRoutes);      // A-1: 파벌 선택 시스템
 app.use('/api/governance', governanceRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 

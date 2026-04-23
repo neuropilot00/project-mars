@@ -2453,6 +2453,101 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .job-buff-pill{display:inline-block;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:700;margin:1px;font-family:var(--fn)}
 @keyframes jobGlow{0%,100%{box-shadow:0 0 8px rgba(240,200,64,.3)}50%{box-shadow:0 0 18px rgba(240,200,64,.6)}}
 .job-choose-pulse{animation:jobGlow 2s ease-in-out infinite}
+
+/* ═════ A-1: Faction Selection Modal ═════ */
+.faction-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.faction-modal-backdrop.active { display: flex; }
+.faction-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(100, 150, 255, 0.2);
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+.faction-modal-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #fff;
+  margin-bottom: 6px;
+  text-align: center;
+}
+.faction-modal-subtitle {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  margin-bottom: 24px;
+}
+.faction-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.faction-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.faction-card:hover { background: rgba(255, 255, 255, 0.05); transform: translateY(-2px); }
+.faction-card.selected { background: rgba(255, 255, 255, 0.08); }
+.faction-card.selected.mcc { border-color: #4fc3f7; box-shadow: 0 0 20px rgba(79, 195, 247, 0.3); }
+.faction-card.selected.fsp { border-color: #81c784; box-shadow: 0 0 20px rgba(129, 199, 132, 0.3); }
+.faction-card.selected.cv  { border-color: #ef5350; box-shadow: 0 0 20px rgba(239, 83, 80, 0.3); }
+.faction-card.current::before {
+  content: '현재';
+  position: absolute;
+  top: 8px; right: 8px;
+  font-size: 8px;
+  padding: 2px 8px;
+  background: rgba(255, 215, 0, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  color: #ffd700;
+  border-radius: 3px;
+  letter-spacing: 1px;
+}
+.faction-icon { font-size: 32px; text-align: center; margin-bottom: 8px; }
+.faction-name { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-align: center; margin-bottom: 4px; }
+.faction-name.mcc { color: #4fc3f7; }
+.faction-name.fsp { color: #81c784; }
+.faction-name.cv  { color: #ef5350; }
+.faction-desc { font-size: 10px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 10px; line-height: 1.5; }
+.faction-specialty { font-size: 9px; color: rgba(255,255,255,0.7); padding: 6px 8px; background: rgba(0,0,0,0.3); border-radius: 4px; text-align: center; letter-spacing: 0.5px; margin-bottom: 8px; }
+.faction-stats { display: flex; justify-content: space-between; font-size: 8px; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
+.faction-stats span { text-align: center; }
+.faction-stats b { color: rgba(255,255,255,0.8); font-weight: normal; }
+.faction-warning { background: rgba(255,180,40,0.08); border: 1px solid rgba(255,180,40,0.3); border-radius: 6px; padding: 10px 14px; font-size: 10px; color: #ffb74d; margin-bottom: 16px; line-height: 1.6; }
+.faction-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.faction-btn { padding: 10px 20px; font-family: var(--fn); font-size: 11px; letter-spacing: 2px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: rgba(255,255,255,0.7); border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+.faction-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.faction-btn.primary { background: linear-gradient(135deg, #0277bd, #4fc3f7); border-color: #4fc3f7; color: #fff; }
+.faction-btn.primary:hover { box-shadow: 0 0 20px rgba(79,195,247,0.5); }
+.faction-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.faction-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a1d2e; border: 1px solid rgba(100,150,255,0.3); padding: 12px 20px; border-radius: 6px; font-size: 11px; letter-spacing: 1px; z-index: 10000; display: none; min-width: 240px; text-align: center; }
+.faction-toast.show { display: block; animation: factionToastIn 0.3s ease; }
+.faction-toast.error { border-color: rgba(239,83,80,0.5); color: #ff8a80; }
+.faction-toast.success { border-color: rgba(129,199,132,0.5); color: #a5d6a7; }
+@keyframes factionToastIn { from { transform: translate(-50%,10px); opacity:0; } to { transform: translate(-50%,0); opacity:1; } }
 </style>
 </head>
 <body>
@@ -35624,7 +35719,157 @@ document.getElementById('codexOverlay').addEventListener('click', function(e) {
     }
   }, {passive:true});
 })();
+
+// ═════ A-1: Faction System ═════
+
+var factionState = {
+  list: [],
+  current: null,   // 내 현재 파벌
+  selected: null,  // 모달에서 선택된 파벌
+};
+
+async function loadFactions() {
+  try {
+    var listRes = await fetch('/api/factions');
+    var listData = await listRes.json();
+    factionState.list = listData.factions || [];
+    if (_factionIsLoggedIn()) {
+      var myRes = await fetch('/api/factions/mine', { headers: _factionAuthHeaders() });
+      var myData = await myRes.json();
+      factionState.current = myData.faction;
+      _updateFactionBadge();
+    }
+  } catch(err) { console.warn('[Faction] loadFactions error:', err); }
+}
+
+function openFactionModal() {
+  if (!_factionIsLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  var modal = document.getElementById('factionModal');
+  var cardsEl = document.getElementById('factionCards');
+  var subtitle = document.getElementById('factionModalSubtitle');
+  var warning = document.getElementById('factionWarning');
+  subtitle.textContent = factionState.current ? '// 파벌을 변경하시겠습니까?' : '// 파벌을 선택하세요';
+  if (factionState.current && factionState.current.is_locked) {
+    var hoursLeft = Math.ceil((new Date(factionState.current.can_change_at) - new Date()) / 3600000);
+    warning.style.display = 'block';
+    warning.innerHTML = '⏱ 파벌 변경 쿨다운 중<br>' + hoursLeft + '시간 후 변경 가능';
+  } else if (factionState.current) {
+    warning.style.display = 'block';
+    warning.innerHTML = '⚠ 파벌 변경 시 <b>500 GP</b>가 소모됩니다.<br>변경 후 7일간 재변경이 불가능합니다.';
+  } else {
+    warning.style.display = 'none';
+  }
+  cardsEl.innerHTML = factionState.list.map(function(f) {
+    var isCurrent = factionState.current && factionState.current.code === f.code;
+    return '<div class="faction-card ' + f.code + (isCurrent ? ' current' : '') + '" data-code="' + f.code + '" onclick="selectFaction(\'' + f.code + '\')">'
+      + '<div class="faction-icon">' + (f.icon_emoji||'⬢') + '</div>'
+      + '<div class="faction-name ' + f.code + '">' + f.name_ko + '</div>'
+      + '<div class="faction-desc">' + (f.description_ko||'') + '</div>'
+      + '<div class="faction-specialty">' + (f.specialty_ko||'') + '</div>'
+      + '<div class="faction-stats"><span>공격<b>' + f.atk_multiplier + '</b></span><span>방어<b>' + f.def_multiplier + '</b></span><span>속도<b>' + f.spd_multiplier + '</b></span></div>'
+      + '</div>';
+  }).join('');
+  factionState.selected = null;
+  document.getElementById('factionConfirmBtn').disabled = true;
+  modal.classList.add('active');
+}
+
+function closeFactionModal() {
+  document.getElementById('factionModal').classList.remove('active');
+  factionState.selected = null;
+}
+
+function selectFaction(code) {
+  if (factionState.current && factionState.current.code === code) return;
+  if (factionState.current && factionState.current.is_locked) { showFactionToast('쿨다운 중입니다', 'error'); return; }
+  factionState.selected = code;
+  document.querySelectorAll('.faction-card').forEach(function(el) {
+    el.classList.remove('selected');
+    if (el.dataset.code === code) el.classList.add('selected');
+  });
+  document.getElementById('factionConfirmBtn').disabled = false;
+}
+
+async function confirmFaction() {
+  if (!factionState.selected) return;
+  var btn = document.getElementById('factionConfirmBtn');
+  btn.disabled = true; btn.textContent = '처리 중...';
+  try {
+    var res = await fetch('/api/factions/choose', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, _factionAuthHeaders()),
+      body: JSON.stringify({ faction_code: factionState.selected })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      if (data.error === 'FACTION_CHANGE_COOLDOWN') {
+        showFactionToast('쿨다운: ' + Math.ceil((new Date(data.meta.can_change_at)-new Date())/3600000) + '시간 남음', 'error');
+      } else if (data.error === 'INSUFFICIENT_GP') {
+        showFactionToast('GP 부족: ' + data.meta.required + ' GP 필요', 'error');
+      } else if (data.error === 'SAME_FACTION') {
+        showFactionToast('이미 같은 파벌입니다', 'error');
+      } else {
+        showFactionToast('선택 실패: ' + (data.error||'UNKNOWN'), 'error');
+      }
+      btn.disabled = false; btn.textContent = '선택';
+      return;
+    }
+    showFactionToast(data.is_first_choice ? '파벌 선택 완료' : '파벌 변경 완료 (-' + data.fee_paid + ' GP)', 'success');
+    closeFactionModal();
+    await loadFactions();
+  } catch(err) {
+    console.error('[Faction] confirmFaction error:', err);
+    showFactionToast('네트워크 오류', 'error');
+    btn.disabled = false; btn.textContent = '선택';
+  }
+}
+
+function _updateFactionBadge() {
+  var badge = document.getElementById('factionBadge');
+  if (!badge) return;
+  if (factionState.current) {
+    badge.textContent = factionState.current.name_ko;
+    badge.style.color = factionState.current.color;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.textContent = '파벌 미선택';
+    badge.style.color = 'rgba(255,255,255,0.4)';
+    badge.style.display = 'inline-block';
+  }
+}
+
+function showFactionToast(msg, type) {
+  var toast = document.getElementById('factionToast');
+  toast.textContent = msg;
+  toast.className = 'faction-toast show ' + (type||'info');
+  setTimeout(function(){ toast.classList.remove('show'); }, 3000);
+}
+
+// 이 프로젝트의 토큰 키는 'pw_token'
+function _factionIsLoggedIn() { return !!localStorage.getItem('pw_token'); }
+function _factionAuthHeaders() {
+  var token = localStorage.getItem('pw_token');
+  return token ? { 'Authorization': 'Bearer ' + token } : {};
+}
+
+// 페이지 로드 시 파벌 정보 로드
+document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
 </script>
+
+<!-- ═══ A-1: Faction Selection Modal ═══ -->
+<div class="faction-modal-backdrop" id="factionModal">
+  <div class="faction-modal">
+    <div class="faction-modal-title">FACTION SELECTION</div>
+    <div class="faction-modal-subtitle" id="factionModalSubtitle">// 파벌을 선택하세요</div>
+    <div class="faction-cards" id="factionCards"></div>
+    <div class="faction-warning" id="factionWarning" style="display:none"></div>
+    <div class="faction-actions">
+      <button class="faction-btn" onclick="closeFactionModal()">취소</button>
+      <button class="faction-btn primary" id="factionConfirmBtn" onclick="confirmFaction()" disabled>선택</button>
+    </div>
+  </div>
+</div>
+<div class="faction-toast" id="factionToast"></div>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </body>
