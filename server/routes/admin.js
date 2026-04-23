@@ -2518,6 +2518,67 @@ router.get('/crafting/item-types', adminAuth, async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// PIXEL ART CONTESTS — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+router.get('/contests', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/contest'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/contests/create', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/contest'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const contest = await svc.adminCreateContest(req.body);
+    await auditLog(req, 'contest_create', `contest:${contest.id}`, { title: contest.title });
+    res.json(contest);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+router.put('/contests/:id', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/contest'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const contest = await svc.adminUpdateContest(parseInt(req.params.id, 10), req.body);
+    await auditLog(req, 'contest_update', `contest:${req.params.id}`, req.body);
+    res.json(contest);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+router.post('/contests/:id/finalize', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/contest'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const result = await svc.finalizeContest(parseInt(req.params.id, 10));
+    await auditLog(req, 'contest_finalize', `contest:${req.params.id}`, result);
+    res.json(result);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+router.post('/contests/entry/:id/disqualify', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/contest'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    await svc.adminDisqualifyEntry(parseInt(req.params.id, 10));
+    await auditLog(req, 'contest_dq_entry', `entry:${req.params.id}`, {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/contests/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('contest_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'contest_setting_update', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // TERRITORY RENTAL — admin
 // ═══════════════════════════════════════════════════════════════════════════
 

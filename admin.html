@@ -1058,6 +1058,90 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="monumentAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ PIXEL ART CONTESTS ═══ -->
+  <div class="section cat-gp" style="display:none" id="contestAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ce93d8">🎨 PIXEL ART CONTESTS</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadContestAdmin()" style="font-size:10px;background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.3);color:#ce93d8;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+        <button onclick="openContestCreateModal()" style="font-size:10px;background:rgba(206,147,216,.2);border:1px solid rgba(206,147,216,.5);color:#ce93d8;padding:4px 10px;border-radius:4px;cursor:pointer">+ NEW CONTEST</button>
+      </div>
+    </div>
+    <div id="contestAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ce93d8">CONTESTS</span></div>
+    <div id="contestAdmTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ce93d8">SETTINGS</span></div>
+    <div id="contestAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
+  <!-- Contest Create/Edit Modal -->
+  <div id="contestCreateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;align-items:center;justify-content:center">
+    <div style="background:#1a1a2e;border:1px solid rgba(206,147,216,.3);border-radius:12px;padding:24px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="color:#ce93d8;font-weight:700;font-size:14px" id="contestModalTitle">🎨 NEW CONTEST</span>
+        <button onclick="closeContestCreateModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+      </div>
+      <div style="display:grid;gap:10px">
+        <input id="ccTitle" placeholder="Contest title" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+        <input id="ccTheme" placeholder="Theme (e.g. Space, Nature)" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+        <textarea id="ccDesc" placeholder="Description" rows="2" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box;resize:vertical"></textarea>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">ENTRY FEE GP</div>
+            <input id="ccEntryFee" type="number" min="0" value="20" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">VOTE FEE GP (0=free)</div>
+            <input id="ccVoteFee" type="number" min="0" value="0" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">1ST % PRIZE</div>
+            <input id="cc1st" type="number" min="0" max="100" value="60" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">2ND %</div>
+            <input id="cc2nd" type="number" min="0" max="100" value="25" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">3RD %</div>
+            <input id="cc3rd" type="number" min="0" max="100" value="15" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">SEED PRIZE POOL GP</div>
+            <input id="ccPrize" type="number" min="0" value="500" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">MAX ENTRIES</div>
+            <input id="ccMaxEntries" type="number" min="1" value="50" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <div style="color:#888;font-size:11px;margin-bottom:3px">SUBMISSION START → END (local time)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <input id="ccSubStart" type="datetime-local" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px">
+          <input id="ccSubEnd"   type="datetime-local" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px">
+        </div>
+        <div style="color:#888;font-size:11px;margin-bottom:3px">VOTING END</div>
+        <input id="ccVoteEnd" type="datetime-local" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+        <select id="ccStatus" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px">
+          <option value="upcoming">Upcoming</option>
+          <option value="open">Open</option>
+          <option value="voting">Voting</option>
+          <option value="finished">Finished</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <input type="hidden" id="ccEditId" value="">
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+          <button onclick="closeContestCreateModal()" style="padding:8px 18px;background:rgba(255,255,255,.06);border:1px solid #333;color:#aaa;border-radius:6px;cursor:pointer">Cancel</button>
+          <button onclick="saveContestAdmin()" style="padding:8px 18px;background:rgba(206,147,216,.2);border:1px solid rgba(206,147,216,.5);color:#ce93d8;border-radius:6px;cursor:pointer;font-weight:700">SAVE CONTEST</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ TERRITORY RENTAL ═══ -->
   <div class="section cat-gp" style="display:none" id="rentalAdminSection">
     <div class="sec-header">
@@ -1642,7 +1726,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -4025,6 +4109,187 @@ function adminCancelBounty(id) {
     if (d.error) return alert('Error: ' + d.error);
     showToast('✅ Bounty #' + id + ' cancelled, refunded: ' + d.refunded + ' GP');
     loadBountyAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  PIXEL ART CONTEST ADMIN (Migration 118)
+// ══════════════════════════════════════
+function loadContestAdmin() {
+  var statsEl    = document.getElementById('contestAdmStats');
+  var tableEl    = document.getElementById('contestAdmTable');
+  var settingsEl = document.getElementById('contestAdmSettings');
+  if (!statsEl) return;
+  [statsEl, tableEl, settingsEl].forEach(function(el) {
+    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
+  });
+  fetch('/admin/api/contests', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      _contestAdminData = d;
+      var t = d.totals || {};
+      statsEl.innerHTML = [
+        ['Open',         t.open_contests       || 0],
+        ['Voting',       t.voting_contests     || 0],
+        ['Finished',     t.finished_contests   || 0],
+        ['Total Entries',t.total_entries       || 0],
+        ['Total Votes',  t.total_votes         || 0],
+        ['Prizes Paid',  parseFloat(t.total_prizes_paid||0).toFixed(2)+' GP'],
+        ['Prize Pools',  parseFloat(t.total_prize_pools||0).toFixed(2)+' GP']
+      ].map(function(kv) {
+        return '<div style="background:rgba(206,147,216,.06);border:1px solid rgba(206,147,216,.15);border-radius:6px;padding:8px;text-align:center">'
+          +'<div style="color:#888;font-size:10px;margin-bottom:2px">'+kv[0]+'</div>'
+          +'<div style="color:#ce93d8;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      var rows = (d.contests || []).map(function(c) {
+        var statusColor = {upcoming:'#888',open:'#ffb74d',voting:'#81d4fa',finished:'#a0e8a0',cancelled:'#555'}[c.status]||'#888';
+        return '<tr>'
+          +'<td>'+c.id+'</td>'
+          +'<td>'+escapeHtml(c.title)+(c.theme?' <span style="color:#ce93d8;font-size:9px">['+escapeHtml(c.theme)+']</span>':'')+'</td>'
+          +'<td style="color:'+statusColor+'">'+c.status+'</td>'
+          +'<td>'+c.entry_fee_gp+' GP</td>'
+          +'<td>'+parseFloat(c.prize_pool_gp).toFixed(0)+' GP</td>'
+          +'<td>'+new Date(c.submission_start).toLocaleDateString()+' → '+new Date(c.submission_end).toLocaleDateString()+'</td>'
+          +'<td>'
+            +'<button onclick="openContestCreateModal('+c.id+')" style="font-size:9px;padding:2px 6px;background:rgba(206,147,216,.15);border:1px solid rgba(206,147,216,.3);color:#ce93d8;border-radius:3px;cursor:pointer">EDIT</button> '
+            +(c.status==='voting'?'<button onclick="adminFinalizeContest('+c.id+')" style="font-size:9px;padding:2px 6px;background:rgba(160,232,160,.15);border:1px solid rgba(160,232,160,.3);color:#a0e8a0;border-radius:3px;cursor:pointer">FINALIZE</button>':'')
+          +'</td>'
+          +'</tr>';
+      }).join('');
+      tableEl.innerHTML = rows.length
+        ? '<table class="adm-table"><thead><tr><th>#</th><th>Title</th><th>Status</th><th>Entry Fee</th><th>Prize Pool</th><th>Dates</th><th>Actions</th></tr></thead><tbody>'+rows+'</tbody></table>'
+        : '<div style="color:#555;font-size:12px;padding:8px">No contests yet. Create one!</div>';
+
+      settingsEl.innerHTML = (d.settings || []).map(function(s) {
+        return '<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:6px 10px">'
+          +'<span style="color:#888;font-size:11px;flex:1">'+escapeHtml(s.key.replace('contest_',''))+'</span>'
+          +'<input id="cos_'+s.key+'" value="'+escapeHtml(s.value)+'" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:4px 8px;border-radius:4px;width:90px;font-size:11px">'
+          +'<button onclick="saveContestSetting(\''+s.key+'\')" style="font-size:10px;background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.3);color:#ce93d8;padding:3px 8px;border-radius:4px;cursor:pointer">SAVE</button>'
+          +'</div>';
+      }).join('');
+    })
+    .catch(function(e) { if (statsEl) statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function saveContestSetting(key) {
+  var val = document.getElementById('cos_'+key);
+  if (!val) return;
+  fetch('/admin/api/contests/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key: key, value: val.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ Setting saved');
+    loadContestAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+var _contestAdminData = null;
+
+function openContestCreateModal(id) {
+  var modal = document.getElementById('contestCreateModal');
+  if (!modal) return;
+  document.getElementById('ccEditId').value = id || '';
+  document.getElementById('contestModalTitle').textContent = id ? '🎨 EDIT CONTEST #'+id : '🎨 NEW CONTEST';
+
+  if (id && _contestAdminData) {
+    var c = (_contestAdminData.contests || []).find(function(x){ return x.id === id; });
+    if (c) {
+      document.getElementById('ccTitle').value = c.title || '';
+      document.getElementById('ccTheme').value = c.theme || '';
+      document.getElementById('ccDesc').value  = c.description || '';
+      document.getElementById('ccEntryFee').value = c.entry_fee_gp || 20;
+      document.getElementById('ccVoteFee').value  = c.vote_fee_gp  || 0;
+      document.getElementById('cc1st').value = c.prize_1st_pct || 60;
+      document.getElementById('cc2nd').value = c.prize_2nd_pct || 25;
+      document.getElementById('cc3rd').value = c.prize_3rd_pct || 15;
+      document.getElementById('ccPrize').value = c.prize_pool_gp || 500;
+      document.getElementById('ccMaxEntries').value = c.max_entries || 50;
+      document.getElementById('ccStatus').value = c.status || 'upcoming';
+      // Format datetime-local
+      function toLocalDT(dt) {
+        if (!dt) return '';
+        var d = new Date(dt);
+        return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)
+          +'T'+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+      }
+      document.getElementById('ccSubStart').value = toLocalDT(c.submission_start);
+      document.getElementById('ccSubEnd').value   = toLocalDT(c.submission_end);
+      document.getElementById('ccVoteEnd').value  = toLocalDT(c.voting_end);
+    }
+  } else {
+    // Defaults: submissions start tomorrow, end in 7 days, voting ends in 10 days
+    var now = new Date();
+    function addDays(n){ var d2=new Date(now); d2.setDate(d2.getDate()+n); return d2.toISOString().slice(0,16); }
+    document.getElementById('ccTitle').value = '';
+    document.getElementById('ccTheme').value = '';
+    document.getElementById('ccDesc').value  = '';
+    document.getElementById('ccEntryFee').value = 20;
+    document.getElementById('ccVoteFee').value  = 0;
+    document.getElementById('cc1st').value = 60;
+    document.getElementById('cc2nd').value = 25;
+    document.getElementById('cc3rd').value = 15;
+    document.getElementById('ccPrize').value = 500;
+    document.getElementById('ccMaxEntries').value = 50;
+    document.getElementById('ccStatus').value = 'upcoming';
+    document.getElementById('ccSubStart').value = addDays(1);
+    document.getElementById('ccSubEnd').value   = addDays(7);
+    document.getElementById('ccVoteEnd').value  = addDays(10);
+  }
+  modal.style.display = 'flex';
+}
+
+function closeContestCreateModal() {
+  var modal = document.getElementById('contestCreateModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function saveContestAdmin() {
+  var editId = document.getElementById('ccEditId').value;
+  var body = {
+    title:            document.getElementById('ccTitle').value.trim(),
+    theme:            document.getElementById('ccTheme').value.trim() || null,
+    description:      document.getElementById('ccDesc').value.trim() || null,
+    entry_fee_gp:     parseFloat(document.getElementById('ccEntryFee').value) || 0,
+    vote_fee_gp:      parseFloat(document.getElementById('ccVoteFee').value) || 0,
+    prize_1st_pct:    parseInt(document.getElementById('cc1st').value, 10) || 60,
+    prize_2nd_pct:    parseInt(document.getElementById('cc2nd').value, 10) || 25,
+    prize_3rd_pct:    parseInt(document.getElementById('cc3rd').value, 10) || 15,
+    prize_pool_gp:    parseFloat(document.getElementById('ccPrize').value) || 500,
+    max_entries:      parseInt(document.getElementById('ccMaxEntries').value, 10) || 50,
+    status:           document.getElementById('ccStatus').value,
+    submission_start: document.getElementById('ccSubStart').value,
+    submission_end:   document.getElementById('ccSubEnd').value,
+    voting_end:       document.getElementById('ccVoteEnd').value
+  };
+  if (!body.title) return alert('Title is required');
+  if (!body.submission_start || !body.submission_end || !body.voting_end) return alert('All dates required');
+  var url    = editId ? '/admin/api/contests/'+editId : '/admin/api/contests/create';
+  var method = editId ? 'PUT' : 'POST';
+  fetch(url, {
+    method: method,
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ Contest saved');
+    closeContestCreateModal();
+    loadContestAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function adminFinalizeContest(id) {
+  if (!confirm('Finalize contest #'+id+' and pay out prizes now?')) return;
+  fetch('/admin/api/contests/'+id+'/finalize', {
+    method: 'POST',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ Contest finalized! Winners paid.');
+    loadContestAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 

@@ -92,6 +92,7 @@ const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
 const duelRoutes        = require('./routes/duel');
 const rentalRoutes      = require('./routes/rental');
+const contestRoutes     = require('./routes/contest');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -216,6 +217,7 @@ app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);
 app.use('/api', rentalRoutes);
+app.use('/api', contestRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -890,6 +892,15 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[SHIELD] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[SHIELD] Could not init expiry scheduler:', e.message); }
+
+    // ── Contest: Advance statuses + auto-finalize (every 5 minutes) ──
+    try {
+      const { advanceContestStatuses } = require('./services/contest');
+      setInterval(async () => {
+        try { await advanceContestStatuses(); } catch(e) { console.warn('[CONTEST] advance error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[CONTEST] Status scheduler started (5min interval)');
+    } catch(e) { console.warn('[CONTEST] Could not init scheduler:', e.message); }
 
     // ── Rental: Expire ended rentals (every 5 minutes) ──
     try {

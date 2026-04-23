@@ -3732,6 +3732,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
+        <!-- 🎨 PIXEL ART CONTEST SECTION -->
+        <div id="contestSection" style="padding:8px 10px;border-top:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
+            <span style="font-size:9px;color:#ce93d8;letter-spacing:2px;font-family:var(--fn);font-weight:700">🎨 <span data-i18n="contest_title">PIXEL ART CONTESTS</span></span>
+            <button onclick="loadContestSection()" style="font-size:9px;background:rgba(206,147,216,.1);border:1px solid rgba(206,147,216,.2);color:#ce93d8;padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+          </div>
+          <div id="contestContainer">
+            <div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading contests…</div>
+          </div>
+        </div>
+
         <!-- ⚔️ GP DUEL SECTION -->
         <div id="duelSection" style="padding:8px 10px;border-top:1px solid var(--bdr)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
@@ -10779,6 +10790,7 @@ var I18N = {
     upgrades_title: 'TERRITORY UPGRADES', upgrades_upgrade_btn: 'UPGRADE TERRITORY',
     monuments_title: 'MY MONUMENTS', monument_place_title: 'PLACE MONUMENT', monument_place_btn: 'PLACE MONUMENT', monument_territory: 'TERRITORY', monument_type: 'TYPE', monument_name_label: 'MONUMENT NAME', monument_inscription: 'INSCRIPTION', monument_cost: 'Cost',
     base_craft_btn: '⚗️ CRAFT', craft_cat_all: 'ALL', craft_cat_general: 'GENERAL', craft_cat_elite: 'ELITE', craft_cat_seasonal: 'SEASONAL', craft_cat_event: 'EVENT', craft_btn: '⚗️ CRAFT', craft_history_btn: '📜 MY CRAFT HISTORY', craft_no_recipes: 'No recipes available', craft_load_fail: 'Failed to load recipes', craft_no_history: 'No crafting history', craft_success: 'Craft success!', craft_fail: 'Craft failed', craft_refund_partial: 'Partial GP refunded', craft_confirm_title: 'Confirm Craft', craft_missing_ingredients: 'Missing ingredients',
+    contest_title: 'PIXEL ART CONTESTS', contest_none: 'No contests yet. Check back soon!', contest_view_btn: '👁 VIEW ENTRIES', contest_submit_btn: '✏️ SUBMIT', contest_vote_btn: '🗳️ VOTE', contest_title_prompt: 'Your artwork title:', contest_image_prompt: 'Image URL (optional):', contest_desc_prompt: 'Brief description (optional):',
     rental_title: 'TERRITORY RENTAL', rental_tab_browse: 'BROWSE', rental_tab_my: 'MY RENTALS', rental_list_btn: '+ LIST TERRITORY', rental_rent_btn: '🏘️ RENT', rental_cancel_btn: 'CANCEL LISTING', rental_no_listings: 'No territories listed for rent', rental_no_my: 'No rental activity yet', rental_no_territories: 'No territories to list', rental_cancelled: 'Listing cancelled', rental_gp_prompt: 'GP per period:',
     duel_title: 'GP DUELS', duel_challenge_btn: '⚔️ CHALLENGE', duel_tab_pending: 'INCOMING', duel_tab_my: 'MY DUELS', duel_tab_recent: 'LEADERBOARD', duel_modal_title: 'CHALLENGE TO DUEL', duel_modal_sub: 'Winner takes pot minus 5% house fee', duel_target_label: 'OPPONENT WALLET / NICKNAME', duel_wager_label: 'YOUR WAGER (GP)', duel_challenge_submit: '⚔️ SEND CHALLENGE', duel_accept_btn: '⚔️ ACCEPT', duel_decline_btn: '✕ DECLINE', duel_cancel_btn: 'CANCEL', duel_no_pending: 'No incoming challenges', duel_no_history: 'No duel history', duel_no_recent: 'No recent duels', duel_accept_confirm: 'Accept duel and match the wager?', duel_decline_confirm: 'Decline this duel challenge?', duel_cancelled_refund: 'Duel cancelled. GP refunded.', duel_challenge_sent: '⚔️ Challenge sent! Opponent has 30 min to accept.', duel_enter_target: 'Enter opponent wallet or nickname', duel_enter_wager: 'Enter a valid wager',
     quests_failed: 'Failed to load quests',
@@ -11365,6 +11377,7 @@ var I18N = {
     upgrades_title: '영토 강화', upgrades_upgrade_btn: '영토 강화',
     monuments_title: '내 기념비', monument_place_title: '기념비 설치', monument_place_btn: '기념비 설치', monument_territory: '영토', monument_type: '유형', monument_name_label: '기념비 이름', monument_inscription: '비문', monument_cost: '비용',
     base_craft_btn: '⚗️ 제작', craft_cat_all: '전체', craft_cat_general: '일반', craft_cat_elite: '고급', craft_cat_seasonal: '시즌', craft_cat_event: '이벤트', craft_btn: '⚗️ 제작', craft_history_btn: '📜 제작 기록', craft_no_recipes: '레시피 없음', craft_load_fail: '레시피 로딩 실패', craft_no_history: '제작 기록 없음', craft_success: '제작 성공!', craft_fail: '제작 실패', craft_refund_partial: 'GP 부분 환급', craft_confirm_title: '제작 확인', craft_missing_ingredients: '재료 부족',
+    contest_title: '픽셀 아트 콘테스트', contest_none: '진행 중인 콘테스트 없음. 곧 돌아오세요!', contest_view_btn: '👁 참가작 보기', contest_submit_btn: '✏️ 제출', contest_vote_btn: '🗳️ 투표', contest_title_prompt: '작품 제목:', contest_image_prompt: '이미지 URL (선택):', contest_desc_prompt: '간단한 설명 (선택):',
     rental_title: '영토 임대', rental_tab_browse: '둘러보기', rental_tab_my: '내 임대', rental_list_btn: '+ 영토 등록', rental_rent_btn: '🏘️ 임대하기', rental_cancel_btn: '등록 취소', rental_no_listings: '임대 가능한 영토 없음', rental_no_my: '임대 활동 없음', rental_no_territories: '등록할 영토 없음', rental_cancelled: '등록 취소됨', rental_gp_prompt: '기간당 GP:',
     duel_title: 'GP 결투', duel_challenge_btn: '⚔️ 도전', duel_tab_pending: '받은 도전', duel_tab_my: '내 결투', duel_tab_recent: '리더보드', duel_modal_title: '결투 도전', duel_modal_sub: '승자가 팟 가져감 (5% 수수료 차감)', duel_target_label: '상대 지갑/닉네임', duel_wager_label: '베팅 금액 (GP)', duel_challenge_submit: '⚔️ 도전장 보내기', duel_accept_btn: '⚔️ 수락', duel_decline_btn: '✕ 거절', duel_cancel_btn: '취소', duel_no_pending: '받은 도전 없음', duel_no_history: '결투 기록 없음', duel_no_recent: '최근 결투 없음', duel_accept_confirm: '도전을 수락하고 GP를 베팅하시겠습니까?', duel_decline_confirm: '이 결투 도전을 거절하시겠습니까?', duel_cancelled_refund: '결투 취소. GP 환급됨.', duel_challenge_sent: '⚔️ 도전장 전송! 상대방이 30분 내에 수락해야 합니다.', duel_enter_target: '상대 지갑 또는 닉네임을 입력하세요', duel_enter_wager: '유효한 베팅 금액을 입력하세요',
     quests_failed: '퀘스트 로딩 실패',
@@ -11950,6 +11963,7 @@ var I18N = {
     upgrades_title: '領土強化', upgrades_upgrade_btn: '領土を強化',
     monuments_title: '記念碑', monument_place_title: '記念碑を設置', monument_place_btn: '記念碑を設置', monument_territory: '領土', monument_type: 'タイプ', monument_name_label: '記念碑名', monument_inscription: '銘文', monument_cost: 'コスト',
     base_craft_btn: '⚗️ 製作', craft_cat_all: '全て', craft_cat_general: '一般', craft_cat_elite: '高級', craft_cat_seasonal: 'シーズン', craft_cat_event: 'イベント', craft_btn: '⚗️ 製作', craft_history_btn: '📜 製作履歴', craft_no_recipes: 'レシピなし', craft_load_fail: 'レシピ読込失敗', craft_no_history: '製作履歴なし', craft_success: '製作成功！', craft_fail: '製作失敗', craft_refund_partial: 'GP一部返金', craft_confirm_title: '製作確認', craft_missing_ingredients: '素材不足',
+    contest_title: 'ピクセルアートコンテスト', contest_none: 'コンテストなし。後でまた確認してください！', contest_view_btn: '👁 作品を見る', contest_submit_btn: '✏️ 提出', contest_vote_btn: '🗳️ 投票', contest_title_prompt: '作品タイトル:', contest_image_prompt: '画像URL（任意）:', contest_desc_prompt: '簡単な説明（任意）:',
     rental_title: '領土レンタル', rental_tab_browse: '参照', rental_tab_my: 'マイレンタル', rental_list_btn: '+ 領土登録', rental_rent_btn: '🏘️ 賃借', rental_cancel_btn: '登録取消', rental_no_listings: 'レンタル可能な領土なし', rental_no_my: 'レンタル活動なし', rental_no_territories: '登録する領土なし', rental_cancelled: '登録取消済', rental_gp_prompt: '期間あたりGP:',
     duel_title: 'GP決闘', duel_challenge_btn: '⚔️ 挑戦', duel_tab_pending: '受け取った挑戦', duel_tab_my: 'マイ決闘', duel_tab_recent: 'リーダーボード', duel_modal_title: '決闘に挑む', duel_modal_sub: '勝者がポット獲得（5%手数料）', duel_target_label: '相手のウォレット/ニックネーム', duel_wager_label: '賭け金（GP）', duel_challenge_submit: '⚔️ 挑戦状を送る', duel_accept_btn: '⚔️ 受け入れる', duel_decline_btn: '✕ 断る', duel_cancel_btn: 'キャンセル', duel_no_pending: '受け取った挑戦なし', duel_no_history: '決闘履歴なし', duel_no_recent: '最近の決闘なし', duel_accept_confirm: '挑戦を受け入れてGPを賭けますか？', duel_decline_confirm: 'この決闘挑戦を断りますか？', duel_cancelled_refund: '決闘キャンセル。GPが返金されました。', duel_challenge_sent: '⚔️ 挑戦状送信！相手が30分以内に受け入れる必要があります。', duel_enter_target: '相手のウォレットまたはニックネームを入力', duel_enter_wager: '有効な賭け金を入力してください',
     quests_failed: 'クエストの読込に失敗',
@@ -12519,6 +12533,7 @@ var I18N = {
     upgrades_title: '领土升级', upgrades_upgrade_btn: '升级领土',
     monuments_title: '我的纪念碑', monument_place_title: '放置纪念碑', monument_place_btn: '放置纪念碑', monument_territory: '领土', monument_type: '类型', monument_name_label: '纪念碑名称', monument_inscription: '铭文', monument_cost: '费用',
     base_craft_btn: '⚗️ 制作', craft_cat_all: '全部', craft_cat_general: '通用', craft_cat_elite: '精英', craft_cat_seasonal: '赛季', craft_cat_event: '活动', craft_btn: '⚗️ 制作', craft_history_btn: '📜 制作记录', craft_no_recipes: '暂无配方', craft_load_fail: '配方加载失败', craft_no_history: '暂无制作记录', craft_success: '制作成功！', craft_fail: '制作失败', craft_refund_partial: 'GP部分退还', craft_confirm_title: '确认制作', craft_missing_ingredients: '材料不足',
+    contest_title: '像素艺术竞赛', contest_none: '暂无竞赛。请稍后再来！', contest_view_btn: '👁 查看参赛作品', contest_submit_btn: '✏️ 提交', contest_vote_btn: '🗳️ 投票', contest_title_prompt: '作品标题:', contest_image_prompt: '图片URL（可选）:', contest_desc_prompt: '简短描述（可选）:',
     rental_title: '领土租赁', rental_tab_browse: '浏览', rental_tab_my: '我的租赁', rental_list_btn: '+ 挂牌出租', rental_rent_btn: '🏘️ 租赁', rental_cancel_btn: '取消挂牌', rental_no_listings: '暂无可租领土', rental_no_my: '暂无租赁活动', rental_no_territories: '无可挂牌领土', rental_cancelled: '挂牌已取消', rental_gp_prompt: '每周期GP:',
     duel_title: 'GP决斗', duel_challenge_btn: '⚔️ 挑战', duel_tab_pending: '收到的挑战', duel_tab_my: '我的决斗', duel_tab_recent: '排行榜', duel_modal_title: '发起决斗', duel_modal_sub: '胜者获得奖池（扣除5%手续费）', duel_target_label: '对手钱包/昵称', duel_wager_label: '赌注（GP）', duel_challenge_submit: '⚔️ 发送挑战', duel_accept_btn: '⚔️ 接受', duel_decline_btn: '✕ 拒绝', duel_cancel_btn: '取消', duel_no_pending: '暂无收到的挑战', duel_no_history: '暂无决斗记录', duel_no_recent: '暂无近期决斗', duel_accept_confirm: '接受决斗并押注GP？', duel_decline_confirm: '拒绝此决斗挑战？', duel_cancelled_refund: '决斗已取消。GP已退还。', duel_challenge_sent: '⚔️ 挑战已发送！对手需在30分钟内接受。', duel_enter_target: '输入对手钱包或昵称', duel_enter_wager: '请输入有效赌注',
     quests_failed: '任务加载失败',
@@ -16047,7 +16062,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadDuelPanel();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   try{ clearBaseTabDot(tab); }catch(_e){}
@@ -25615,6 +25630,142 @@ function openShieldModal() {
         }).catch(function(e) { showToast(e.message || 'Failed', 'error'); });
     });
   });
+}
+
+// ── Pixel Art Contests ────────────────────────────────────────────────────────
+
+var _contestViewId = null; // currently viewing entries for this contest
+
+function loadContestSection() {
+  var container = document.getElementById('contestContainer');
+  if (!container) return;
+  var w = (walletState && walletState.address) || '';
+  container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading…</div>';
+
+  if (_contestViewId) {
+    _loadContestEntries(_contestViewId, w);
+    return;
+  }
+
+  fetch('/api/contests').then(function(r){return r.json();}).then(function(contests) {
+    if (!Array.isArray(contests) || !contests.length) {
+      container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px" data-i18n="contest_none">No contests yet. Check back soon!</div>';
+      return;
+    }
+    container.innerHTML = contests.map(function(c) {
+      var statusColor = {upcoming:'#888',open:'#ffb74d',voting:'#81d4fa',finished:'#a0e8a0',cancelled:'#555'}[c.status]||'#888';
+      var prizeStr = Number(c.prize_pool_gp).toFixed(0)+' GP';
+      var entryFeeStr = Number(c.entry_fee_gp) > 0 ? Number(c.entry_fee_gp).toFixed(0)+' GP' : 'Free';
+      var voteFeeStr  = Number(c.vote_fee_gp)  > 0 ? Number(c.vote_fee_gp).toFixed(0)+' GP'  : 'Free';
+      var canSubmit = c.status === 'open';
+      var canVote   = c.status === 'voting';
+      return '<div style="background:rgba(206,147,216,.04);border:1px solid rgba(206,147,216,.12);border-radius:8px;padding:10px;margin-bottom:8px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'
+          +'<div style="font-size:10px;font-weight:700;color:#ce93d8">🎨 '+_escHtml(c.title)+'</div>'
+          +'<span style="font-size:9px;color:'+statusColor+';font-weight:700">'+c.status.toUpperCase()+'</span>'
+        +'</div>'
+        +(c.theme?'<div style="font-size:9px;color:#888;margin-bottom:3px">Theme: '+_escHtml(c.theme)+'</div>':'')
+        +'<div style="display:flex;gap:10px;font-size:9px;color:var(--tx3);margin-bottom:5px">'
+          +'<span>🏆 '+prizeStr+' pool</span>'
+          +'<span>📝 Entry: '+entryFeeStr+'</span>'
+          +'<span>🗳️ Vote: '+voteFeeStr+'</span>'
+        +'</div>'
+        +'<div style="display:flex;gap:4px">'
+          +'<button onclick="viewContestEntries('+c.id+')" style="flex:1;padding:4px;font-size:9px;font-family:var(--fn);background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.3);color:#ce93d8;border-radius:5px;cursor:pointer" data-i18n="contest_view_btn">👁 VIEW ENTRIES</button>'
+          +(canSubmit && w ?'<button onclick="openContestSubmitModal('+c.id+','+c.entry_fee_gp+')" style="flex:1;padding:4px;font-size:9px;font-family:var(--fn);font-weight:700;background:rgba(206,147,216,.2);border:1px solid rgba(206,147,216,.5);color:#ce93d8;border-radius:5px;cursor:pointer" data-i18n="contest_submit_btn">✏️ SUBMIT</button>':'')
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }).catch(function() {
+    container.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">Failed to load contests</div>';
+  });
+}
+
+function viewContestEntries(contestId) {
+  _contestViewId = contestId;
+  var w = (walletState && walletState.address) || '';
+  _loadContestEntries(contestId, w);
+}
+
+function _loadContestEntries(contestId, wallet) {
+  var container = document.getElementById('contestContainer');
+  if (!container) return;
+  container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading…</div>';
+  Promise.all([
+    fetch('/api/contests/'+contestId).then(function(r){return r.json();}),
+    fetch('/api/contests/'+contestId+'/entries'+(wallet?'?wallet='+encodeURIComponent(wallet):'')).then(function(r){return r.json();})
+  ]).then(function(res) {
+    var contest = res[0] || {};
+    var entries = Array.isArray(res[1]) ? res[1] : [];
+    var statusColor = {upcoming:'#888',open:'#ffb74d',voting:'#81d4fa',finished:'#a0e8a0'}[contest.status]||'#888';
+    var iVotedInContest = entries.some(function(e){ return e.i_voted_in_contest; });
+
+    var backBtn = '<button onclick="_contestViewId=null;loadContestSection()" style="font-size:9px;padding:3px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--tx3);border-radius:4px;cursor:pointer;margin-bottom:8px">← Back</button>';
+    var header = '<div style="font-size:10px;font-weight:700;color:#ce93d8;margin-bottom:4px">🎨 '+_escHtml(contest.title||'')+'</div>'
+      +'<div style="font-size:9px;color:'+statusColor+';margin-bottom:8px">'+((contest.status||'').toUpperCase())+' · '+entries.length+' entries · 🏆 '+Number(contest.prize_pool_gp||0).toFixed(0)+' GP pool</div>';
+
+    var entriesHtml = entries.length ? entries.map(function(e, idx) {
+      var rank = idx+1;
+      var rankBadge = e.rank ? ['🥇','🥈','🥉'][e.rank-1]||('#'+e.rank) : (rank<=3?['🥇','🥈','🥉'][rank-1]:'');
+      var canVote = contest.status === 'voting' && wallet && e.wallet !== wallet.toLowerCase() && !iVotedInContest;
+      return '<div style="background:rgba(206,147,216,.04);border:1px solid rgba(206,147,216,'+(rank===1?'.25':'.08')+');border-radius:8px;padding:8px;margin-bottom:5px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+          +'<div style="font-size:10px;font-weight:700;color:#ce93d8">'+(rankBadge?' '+rankBadge+' ':'')+_escHtml(e.title||'Untitled')+'</div>'
+          +'<span style="font-size:9px;color:#888">'+e.vote_count+' votes</span>'
+        +'</div>'
+        +'<div style="font-size:9px;color:var(--tx3)">by '+(e.submitter_nick||e.wallet.slice(0,10)+'…')+'</div>'
+        +(e.description?'<div style="font-size:9px;color:#888;margin:3px 0">'+_escHtml(e.description)+'</div>':'')
+        +(e.image_url?'<a href="'+e.image_url+'" target="_blank" rel="noopener" style="font-size:9px;color:#ce93d8">View Image →</a>':'')
+        +(e.prize_paid>0?'<div style="font-size:9px;color:var(--gold);margin-top:3px">Prize: '+e.prize_paid+' GP</div>':'')
+        +(canVote?'<button onclick="voteForEntry('+e.id+')" style="margin-top:5px;width:100%;padding:4px;font-size:9px;font-family:var(--fn);font-weight:700;background:rgba(206,147,216,.18);border:1px solid rgba(206,147,216,.45);color:#ce93d8;border-radius:5px;cursor:pointer" data-i18n="contest_vote_btn">🗳️ VOTE</button>':'')
+        +'</div>';
+    }).join('') : '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">No entries yet</div>';
+
+    container.innerHTML = backBtn + header + entriesHtml;
+  }).catch(function() {
+    container.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">Failed to load entries</div>';
+  });
+}
+
+function openContestSubmitModal(contestId, entryFeeGp) {
+  var w = walletState && walletState.address;
+  if (!w) { gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
+  var feeMsg = Number(entryFeeGp) > 0 ? '\nEntry fee: '+entryFeeGp+' GP' : '';
+  var title  = prompt((t('contest_title_prompt')||'Your artwork title:'));
+  if (!title || !title.trim()) return;
+  var imageUrl = prompt((t('contest_image_prompt')||'Image URL for your artwork (optional):'));
+  var desc     = prompt((t('contest_desc_prompt') ||'Brief description (optional):'));
+
+  gameConfirm('🎨', 'SUBMIT ARTWORK',
+    'Title: '+title.trim()+feeMsg)
+    .then(function(ok) {
+      if (!ok) return;
+      return fetch('/api/contests/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: w, contestId: contestId, title: title.trim(),
+          description: desc || null, imageUrl: imageUrl || null })
+      }).then(function(r){ return r.json(); }).then(function(d) {
+        if (d.error) { showToast(d.error, 'error'); return; }
+        showToast('🎨 Entry submitted!', 'success');
+        loadContestSection();
+        if (typeof updateBalanceDisplays === 'function') updateBalanceDisplays();
+      });
+    });
+}
+
+function voteForEntry(entryId) {
+  var w = walletState && walletState.address;
+  if (!w) { gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
+  fetch('/api/contests/vote', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wallet: w, entryId: entryId })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) { showToast(d.error, 'error'); return; }
+    showToast('🗳️ Vote cast!', 'success');
+    if (_contestViewId) _loadContestEntries(_contestViewId, w);
+  }).catch(function(e){ showToast(e.message, 'error'); });
 }
 
 // ── Territory Rental ──────────────────────────────────────────────────────────
