@@ -1323,6 +1323,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="profAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY TIERS (Migration 128) ═══ -->
+  <div class="section cat-gp" style="display:none" id="tiersAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#80deea">💎 TERRITORY TIERS</span>
+      <button onclick="loadTiersAdmin()" style="font-size:10px;background:rgba(128,222,234,.12);border:1px solid rgba(128,222,234,.3);color:#80deea;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="tiersAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80deea">TIER DISTRIBUTION</span></div>
+    <div id="tiersAdmDist" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80deea">RECENT UPGRADES</span></div>
+    <div id="tiersAdmRecent" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80deea">SETTINGS</span></div>
+    <div id="tiersAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ VIP PASS SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="vipAdminSection">
     <div class="sec-header">
@@ -2038,7 +2053,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -5403,6 +5418,115 @@ function adminResetNickname(wallet) {
     if (d.error) return alert('Error: '+d.error);
     showToast('👤 Nickname reset');
     loadProfileAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  TERRITORY TIERS ADMIN (Migration 128)
+// ══════════════════════════════════════
+function loadTiersAdmin() {
+  var statsEl  = document.getElementById('tiersAdmStats');
+  var distEl   = document.getElementById('tiersAdmDist');
+  var recentEl = document.getElementById('tiersAdmRecent');
+  var setsEl   = document.getElementById('tiersAdmSettings');
+  if (!statsEl) return;
+  [statsEl, distEl, recentEl, setsEl].forEach(function(el){ if(el) el.innerHTML='<span style="color:#555;font-size:11px">Loading…</span>'; });
+  fetch('/admin/api/tiers', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var s = d.stats || {};
+      if (statsEl) statsEl.innerHTML = [
+        { l:'Tiered Territories', v: s.total_tiered||0 },
+        { l:'Highest Tier',       v: s.highest_tier||1 },
+        { l:'Total GP Spent',     v: (s.total_gp_spent||0)+' GP' },
+        { l:'Unique Wallets',     v: s.unique_wallets||0 },
+      ].map(function(x){
+        return '<div style="background:#0d0d1a;border:1px solid #1a1a2e;border-radius:6px;padding:8px;text-align:center">'
+          + '<div style="color:#80deea;font-size:16px;font-weight:700">'+x.v+'</div>'
+          + '<div style="color:#555;font-size:9px;margin-top:2px">'+x.l+'</div></div>';
+      }).join('');
+      if (distEl) {
+        var icons = ['🥉','🥈','🥇','💠','💎'];
+        var names = ['Bronze','Silver','Gold','Platinum','Diamond'];
+        distEl.innerHTML = (d.distribution||[]).map(function(row){
+          var icon = icons[row.tier-1]||'⭐';
+          var nm = names[row.tier-1]||('Tier '+row.tier);
+          return '<div style="background:#0d0d1a;border:1px solid #1a1a2e;border-radius:6px;padding:8px;text-align:center;min-width:80px">'
+            + '<div style="font-size:20px">'+icon+'</div>'
+            + '<div style="color:#80deea;font-size:13px;font-weight:700">'+row.cnt+'</div>'
+            + '<div style="color:#555;font-size:8px">'+nm+'</div></div>';
+        }).join('') || '<span style="color:#555;font-size:11px">No tiered territories yet</span>';
+      }
+      var rows = d.recent || [];
+      if (recentEl) {
+        if (!rows.length) { recentEl.innerHTML = '<div style="color:#555;font-size:11px">No upgrades yet</div>'; }
+        else {
+          var tIcons = ['🥉','🥈','🥇','💠','💎'];
+          recentEl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:10px">'
+            + '<thead><tr style="color:#888">'
+              + '<th style="text-align:left;padding:4px 6px">Player</th>'
+              + '<th style="text-align:left;padding:4px 6px">Claim</th>'
+              + '<th style="text-align:center;padding:4px 6px">From</th>'
+              + '<th style="text-align:center;padding:4px 6px">To</th>'
+              + '<th style="text-align:right;padding:4px 6px">GP</th>'
+              + '<th style="text-align:right;padding:4px 6px">Time</th></tr></thead><tbody>'
+            + rows.map(function(r){
+              var short = r.wallet ? (r.wallet.slice(0,6)+'…'+r.wallet.slice(-4)) : '?';
+              var name = r.nickname || short;
+              var t = new Date(r.created_at).toLocaleString();
+              return '<tr style="border-top:1px solid #1a1a2e">'
+                + '<td style="padding:4px 6px;color:#aaa">'+name+'</td>'
+                + '<td style="padding:4px 6px;color:#aaa">#'+r.claim_id+'</td>'
+                + '<td style="padding:4px 6px;text-align:center">'+(tIcons[r.from_tier-1]||r.from_tier)+'</td>'
+                + '<td style="padding:4px 6px;text-align:center">'+(tIcons[r.to_tier-1]||r.to_tier)+'</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#80deea">'+r.gp_spent+' GP</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#555">'+t+'</td></tr>';
+            }).join('')
+            + '</tbody></table>';
+        }
+      }
+      // Settings
+      var settingKeys = [
+        { k:'tier_enabled',          l:'Enabled',             t:'select', opts:['true','false'] },
+        { k:'tier_names',            l:'Tier Names',          t:'text' },
+        { k:'tier_icons',            l:'Tier Icons',          t:'text' },
+        { k:'tier_costs_gp',         l:'Upgrade Costs (GP)',  t:'text' },
+        { k:'tier_mining_bonus_pct', l:'Mining Bonus (%)',    t:'text' },
+        { k:'tier_pixel_bonus_pct',  l:'Pixel Bonus (%)',     t:'text' },
+        { k:'tier_max',              l:'Max Tier',            t:'number' },
+        { k:'tier_per_wallet_max',   l:'Per-Wallet Limit (0=∞)', t:'number' },
+      ];
+      fetch('/admin/api/settings?category=tier', { headers: { 'x-admin-secret': window.ADMIN_SECRET||'' } })
+        .then(function(r){return r.json();}).then(function(sets){
+          var map = {};
+          (sets||[]).forEach(function(s){ map[s.key]=s.value; });
+          if (setsEl) setsEl.innerHTML = settingKeys.map(function(sk){
+            var cur = map[sk.k] !== undefined ? map[sk.k] : '';
+            var inp = sk.t === 'select'
+              ? '<select id="tiers_'+sk.k+'" onchange="saveTiersSetting(\''+sk.k+'\')" style="background:#0d0d1a;border:1px solid #222;color:#eee;padding:4px 6px;border-radius:4px;width:100%">'
+                + sk.opts.map(function(o){ return '<option value="'+o+'"'+(cur===o?' selected':'')+'>'+o+'</option>'; }).join('')
+                + '</select>'
+              : '<input id="tiers_'+sk.k+'" type="'+(sk.t||'text')+'" value="'+cur+'" '
+                + 'onblur="saveTiersSetting(\''+sk.k+'\')" '
+                + 'style="background:#0d0d1a;border:1px solid #222;color:#eee;padding:4px 6px;border-radius:4px;width:100%;box-sizing:border-box">';
+            return '<div style="background:#0d0d1a;border:1px solid #1a1a2e;border-radius:6px;padding:8px">'
+              + '<div style="color:#888;font-size:9px;margin-bottom:4px">'+sk.l+'</div>'
+              + inp + '</div>';
+          }).join('');
+        }).catch(function(){});
+    }).catch(function(e){ if(statsEl) statsEl.innerHTML='<span style="color:#e84855">'+e.message+'</span>'; });
+}
+
+function saveTiersSetting(key) {
+  var el = document.getElementById('tiers_'+key);
+  if (!el) return;
+  fetch('/admin/api/tiers/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
   }).catch(function(e){ alert('Error: '+e.message); });
 }
 

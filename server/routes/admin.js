@@ -3159,4 +3159,48 @@ router.delete('/profile/nickname/:wallet', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Territory Tiers Admin (Migration 128) ────────────────────────────────────
+
+// GET /admin/api/tiers
+router.get('/tiers', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/tiers'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, distribution: [], recent: [] });
+  try {
+    const [adminStats, recentRes] = await Promise.all([
+      svc.getAdminStats(),
+      require('../db').pool.query(
+        `SELECT l.claim_id, l.wallet, l.from_tier, l.to_tier, l.gp_spent, l.created_at,
+                u.nickname
+           FROM territory_tier_log l
+           LEFT JOIN users u ON LOWER(l.wallet)=LOWER(u.wallet_address)
+           ORDER BY l.created_at DESC LIMIT 50`
+      )
+    ]);
+    res.json({ ...adminStats, recent: recentRes.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/tiers/setting
+router.post('/tiers/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('tier_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'tier_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/tiers/claim/:claimId — admin reset tier to 1
+router.delete('/tiers/claim/:claimId', adminAuth, async (req, res) => {
+  const claimId = parseInt(req.params.claimId);
+  try {
+    const { pool } = require('../db');
+    await pool.query(`DELETE FROM territory_tiers WHERE claim_id=$1`, [claimId]);
+    await auditLog(req, 'tier_reset', `claim:${claimId}`, {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
