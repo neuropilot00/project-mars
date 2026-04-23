@@ -1187,6 +1187,89 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="allianceAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ VIP PASS SYSTEM ═══ -->
+  <div class="section cat-gp" style="display:none" id="vipAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ce93d8">💫 VIP PASS SYSTEM</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadVipAdmin()" style="font-size:10px;background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.3);color:#ce93d8;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+        <button onclick="openVipTierModal(null)" style="font-size:10px;background:rgba(206,147,216,.2);border:1px solid rgba(206,147,216,.5);color:#ce93d8;padding:4px 10px;border-radius:4px;cursor:pointer">+ NEW TIER</button>
+      </div>
+    </div>
+    <div id="vipAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ce93d8">VIP TIERS</span></div>
+    <div id="vipAdmTiers" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ce93d8">ACTIVE PASSES</span></div>
+    <div id="vipAdmActive" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ce93d8">SETTINGS</span></div>
+    <div id="vipAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
+  <!-- VIP Tier Edit Modal -->
+  <div id="vipTierModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;align-items:center;justify-content:center">
+    <div style="background:#1a1a2e;border:1px solid rgba(206,147,216,.3);border-radius:12px;padding:22px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="color:#ce93d8;font-weight:700;font-size:14px" id="vipTierModalTitle">💫 NEW VIP TIER</span>
+        <button onclick="closeVipTierModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+      </div>
+      <div style="display:grid;gap:10px">
+        <div style="display:grid;grid-template-columns:60px 1fr 100px;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">BADGE</div>
+            <input id="vtBadge" value="⭐" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box;text-align:center;font-size:20px">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">TIER NAME</div>
+            <input id="vtName" placeholder="e.g. Pioneer" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">BADGE COLOR</div>
+            <input id="vtColor" type="color" value="#ffcc02" style="background:#0d0d1a;border:1px solid #333;padding:4px;border-radius:6px;width:100%;height:36px;cursor:pointer">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">COST (GP)</div>
+            <input id="vtCost" type="number" min="1" value="100" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">DURATION (days)</div>
+            <input id="vtDays" type="number" min="1" value="30" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">MINING BOOST %</div>
+            <input id="vtMining" type="number" min="0" max="100" value="5" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">FEE DISCOUNT %</div>
+            <input id="vtFee" type="number" min="0" max="100" value="0" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">GP EARN BONUS %</div>
+            <input id="vtGpBonus" type="number" min="0" max="100" value="0" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">SORT ORDER</div>
+            <input id="vtSort" type="number" min="0" value="0" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="vtActive" checked style="width:14px;height:14px;accent-color:#ce93d8">
+          <label for="vtActive" style="color:#aaa;font-size:12px">Active (visible to players)</label>
+        </div>
+        <input type="hidden" id="vtEditId" value="">
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+          <button onclick="closeVipTierModal()" style="padding:8px 18px;background:rgba(255,255,255,.06);border:1px solid #333;color:#aaa;border-radius:6px;cursor:pointer">Cancel</button>
+          <button onclick="saveVipTier()" style="padding:8px 18px;background:rgba(206,147,216,.2);border:1px solid rgba(206,147,216,.5);color:#ce93d8;border-radius:6px;cursor:pointer;font-weight:700">SAVE TIER</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ LUCKY BOX SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="luckyBoxAdminSection">
     <div class="sec-header">
@@ -1819,7 +1902,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -4555,6 +4638,178 @@ function adminCancelDuel(id) {
     showToast('✅ Duel #'+id+' cancelled, refunded: '+d.refunded+' GP');
     loadDuelAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  VIP PASS ADMIN (Migration 121)
+// ══════════════════════════════════════
+var _vipAdmTiers = [];
+
+function loadVipAdmin() {
+  var statsEl    = document.getElementById('vipAdmStats');
+  var tiersEl    = document.getElementById('vipAdmTiers');
+  var activeEl   = document.getElementById('vipAdmActive');
+  var settingsEl = document.getElementById('vipAdmSettings');
+  if (!statsEl) return;
+  [statsEl, tiersEl, activeEl, settingsEl].forEach(function(el) {
+    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
+  });
+  fetch('/admin/api/vip', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      _vipAdmTiers = d.tiers || [];
+      var t = d.totals || {};
+      statsEl.innerHTML = [
+        ['Total Purchases', t.total_purchases || 0],
+        ['GP Spent',        parseFloat(t.total_gp_spent || 0).toFixed(0)+' GP'],
+        ['Active Passes',   t.active_passes || 0]
+      ].map(function(kv) {
+        return '<div style="background:rgba(206,147,216,.06);border:1px solid rgba(206,147,216,.15);border-radius:6px;padding:8px;text-align:center">'
+          +'<div style="color:#888;font-size:10px;margin-bottom:2px">'+kv[0]+'</div>'
+          +'<div style="color:#ce93d8;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      // Tiers
+      var tierRows = _vipAdmTiers.map(function(tier) {
+        return '<tr>'
+          +'<td>'+tier.id+'</td>'
+          +'<td><span style="color:'+escapeHtml(tier.badge_color||'#ffcc02')+'">'+tier.badge+'</span> '+escapeHtml(tier.name)+'</td>'
+          +'<td>'+tier.cost_gp+' GP</td>'
+          +'<td>'+tier.period_days+'d</td>'
+          +'<td>+'+tier.mining_boost_pct+'%</td>'
+          +'<td>-'+tier.fee_discount_pct+'%</td>'
+          +'<td>+'+tier.gp_earn_bonus_pct+'%</td>'
+          +'<td>'+(tier.is_active?'<span style="color:#a0e8a0">✓</span>':'<span style="color:#555">✗</span>')+'</td>'
+          +'<td><button onclick="openVipTierModal('+tier.id+')" style="font-size:9px;padding:2px 6px;background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.3);color:#ce93d8;border-radius:3px;cursor:pointer">EDIT</button></td>'
+          +'</tr>';
+      }).join('');
+      tiersEl.innerHTML = tierRows.length
+        ? '<table class="adm-table"><thead><tr><th>#</th><th>Tier</th><th>Cost</th><th>Period</th><th>Mining</th><th>Fee</th><th>GP Earn</th><th>Active</th><th></th></tr></thead><tbody>'+tierRows+'</tbody></table>'
+        : '<div style="color:#555;font-size:12px;padding:8px">No tiers yet.</div>';
+
+      // Active passes
+      var passRows = (d.active || []).map(function(p) {
+        var exp = new Date(p.expires_at);
+        var daysLeft = Math.ceil((exp - new Date()) / 86400000);
+        return '<tr>'
+          +'<td>'+(p.nickname || p.wallet.slice(0,10)+'…')+'</td>'
+          +'<td>'+(p.badge||'')+''+escapeHtml(p.tier_name||'')+'</td>'
+          +'<td>'+p.gp_spent+' GP</td>'
+          +'<td style="color:'+(daysLeft<=3?'var(--mars)':'#a0e8a0')+'">'+daysLeft+'d left</td>'
+          +'<td><button onclick="adminRevokeVip(\''+escapeHtml(p.wallet)+'\')" style="font-size:9px;padding:2px 6px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">REVOKE</button></td>'
+          +'</tr>';
+      }).join('');
+      activeEl.innerHTML = passRows.length
+        ? '<table class="adm-table"><thead><tr><th>Player</th><th>Tier</th><th>Paid</th><th>Expiry</th><th>Action</th></tr></thead><tbody>'+passRows+'</tbody></table>'
+        : '<div style="color:#555;font-size:12px;padding:8px">No active passes.</div>';
+
+      settingsEl.innerHTML = (d.settings || []).map(function(s) {
+        return '<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:6px 10px">'
+          +'<span style="color:#888;font-size:11px;flex:1">'+escapeHtml(s.key.replace('vip_',''))+'</span>'
+          +'<input id="vips_'+s.key+'" value="'+escapeHtml(s.value)+'" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:4px 8px;border-radius:4px;width:90px;font-size:11px">'
+          +'<button onclick="saveVipSetting(\''+s.key+'\')" style="font-size:10px;background:rgba(206,147,216,.12);border:1px solid rgba(206,147,216,.3);color:#ce93d8;padding:3px 8px;border-radius:4px;cursor:pointer">SAVE</button>'
+          +'</div>';
+      }).join('');
+    })
+    .catch(function(e) { if (statsEl) statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function saveVipSetting(key) {
+  var val = document.getElementById('vips_'+key);
+  if (!val) return;
+  fetch('/admin/api/vip/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key: key, value: val.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e) { alert('Error: '+e.message); });
+}
+
+function openVipTierModal(id) {
+  var m = document.getElementById('vipTierModal');
+  var titleEl = document.getElementById('vipTierModalTitle');
+  if (!m) return;
+  document.getElementById('vtEditId').value  = '';
+  document.getElementById('vtBadge').value   = '⭐';
+  document.getElementById('vtName').value    = '';
+  document.getElementById('vtColor').value   = '#ffcc02';
+  document.getElementById('vtCost').value    = '100';
+  document.getElementById('vtDays').value    = '30';
+  document.getElementById('vtMining').value  = '5';
+  document.getElementById('vtFee').value     = '0';
+  document.getElementById('vtGpBonus').value = '0';
+  document.getElementById('vtSort').value    = '0';
+  document.getElementById('vtActive').checked= true;
+
+  if (id) {
+    var tier = null;
+    for (var i=0;i<_vipAdmTiers.length;i++) { if (_vipAdmTiers[i].id === id) { tier=_vipAdmTiers[i]; break; } }
+    if (tier) {
+      document.getElementById('vtEditId').value  = tier.id;
+      document.getElementById('vtBadge').value   = tier.badge||'⭐';
+      document.getElementById('vtName').value    = tier.name||'';
+      document.getElementById('vtColor').value   = tier.badge_color||'#ffcc02';
+      document.getElementById('vtCost').value    = tier.cost_gp||'100';
+      document.getElementById('vtDays').value    = tier.period_days||'30';
+      document.getElementById('vtMining').value  = tier.mining_boost_pct||'0';
+      document.getElementById('vtFee').value     = tier.fee_discount_pct||'0';
+      document.getElementById('vtGpBonus').value = tier.gp_earn_bonus_pct||'0';
+      document.getElementById('vtSort').value    = tier.sort_order||'0';
+      document.getElementById('vtActive').checked= tier.is_active !== false;
+    }
+    if (titleEl) titleEl.textContent = '💫 EDIT VIP TIER #'+id;
+  } else {
+    if (titleEl) titleEl.textContent = '💫 NEW VIP TIER';
+  }
+  m.style.display = 'flex';
+}
+
+function closeVipTierModal() {
+  var m = document.getElementById('vipTierModal');
+  if (m) m.style.display = 'none';
+}
+
+function saveVipTier() {
+  var id = document.getElementById('vtEditId').value;
+  var payload = {
+    name:              document.getElementById('vtName').value,
+    badge:             document.getElementById('vtBadge').value,
+    badge_color:       document.getElementById('vtColor').value,
+    cost_gp:           parseFloat(document.getElementById('vtCost').value),
+    period_days:       parseInt(document.getElementById('vtDays').value),
+    mining_boost_pct:  parseInt(document.getElementById('vtMining').value),
+    fee_discount_pct:  parseInt(document.getElementById('vtFee').value),
+    gp_earn_bonus_pct: parseInt(document.getElementById('vtGpBonus').value),
+    sort_order:        parseInt(document.getElementById('vtSort').value),
+    is_active:         document.getElementById('vtActive').checked
+  };
+  var method = id ? 'PUT' : 'POST';
+  var url = id ? '/admin/api/vip/tier/'+id : '/admin/api/vip/tier';
+  fetch(url, {
+    method: method,
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify(payload)
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ VIP tier saved');
+    closeVipTierModal();
+    loadVipAdmin();
+  }).catch(function(e) { alert('Error: '+e.message); });
+}
+
+function adminRevokeVip(wallet) {
+  if (!confirm('Revoke VIP pass for '+wallet+'?')) return;
+  fetch('/admin/api/vip/revoke/'+encodeURIComponent(wallet), {
+    method: 'POST',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ VIP pass revoked');
+    loadVipAdmin();
+  }).catch(function(e) { alert('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════

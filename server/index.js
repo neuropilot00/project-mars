@@ -95,6 +95,7 @@ const rentalRoutes      = require('./routes/rental');
 const contestRoutes     = require('./routes/contest');
 const allianceRoutes    = require('./routes/alliance');
 const luckyBoxRoutes    = require('./routes/luckyBox');
+const vipRoutes         = require('./routes/vip');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -222,6 +223,7 @@ app.use('/api', rentalRoutes);
 app.use('/api', contestRoutes);
 app.use('/api', allianceRoutes);
 app.use('/api', luckyBoxRoutes);
+app.use('/api', vipRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -923,6 +925,15 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[DUEL] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[DUEL] Could not init expiry scheduler:', e.message); }
+
+    // ── VIP: Expire stale passes (every 15 minutes) ──
+    try {
+      const { expireOldPasses } = require('./services/vip');
+      setInterval(async () => {
+        try { await expireOldPasses(); } catch(e) { console.warn('[VIP] expire error:', e.message); }
+      }, 15 * 60 * 1000);
+      console.log('[VIP] Pass expiry scheduler started (15min interval)');
+    } catch(e) { console.warn('[VIP] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

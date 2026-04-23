@@ -2815,4 +2815,76 @@ router.post('/lucky-boxes/setting', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// VIP PASS SYSTEM — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/vip — stats + active passes + tiers + settings
+router.get('/vip', adminAuth, async (req, res) => {
+  let svc;
+  try { svc = require('../services/vip'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/vip/tier — create VIP tier
+router.post('/vip/tier', adminAuth, async (req, res) => {
+  const { name, badge, badge_color, cost_gp, period_days, mining_boost_pct,
+          fee_discount_pct, gp_earn_bonus_pct, sort_order } = req.body || {};
+  if (!name || !cost_gp) return res.status(400).json({ error: 'name and cost_gp required' });
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO vip_tiers (name, badge, badge_color, cost_gp, period_days,
+         mining_boost_pct, fee_discount_pct, gp_earn_bonus_pct, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
+      [name, badge||'⭐', badge_color||'#ffcc02', parseFloat(cost_gp),
+       parseInt(period_days||30), parseInt(mining_boost_pct||0),
+       parseInt(fee_discount_pct||0), parseInt(gp_earn_bonus_pct||0), parseInt(sort_order||0)]);
+    await auditLog(req, 'vip_tier_create', `tier:${rows[0].id}`, { name });
+    res.json({ ok: true, id: rows[0].id });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// PUT /admin/api/vip/tier/:id — update VIP tier
+router.put('/vip/tier/:id', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { name, badge, badge_color, cost_gp, period_days, mining_boost_pct,
+          fee_discount_pct, gp_earn_bonus_pct, sort_order, is_active } = req.body || {};
+  try {
+    await pool.query(
+      `UPDATE vip_tiers SET name=$1, badge=$2, badge_color=$3, cost_gp=$4, period_days=$5,
+         mining_boost_pct=$6, fee_discount_pct=$7, gp_earn_bonus_pct=$8, sort_order=$9, is_active=$10
+       WHERE id=$11`,
+      [name, badge||'⭐', badge_color||'#ffcc02', parseFloat(cost_gp),
+       parseInt(period_days||30), parseInt(mining_boost_pct||0),
+       parseInt(fee_discount_pct||0), parseInt(gp_earn_bonus_pct||0), parseInt(sort_order||0),
+       is_active !== false && is_active !== 'false', id]);
+    await auditLog(req, 'vip_tier_update', `tier:${id}`, { name });
+    res.json({ ok: true });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/vip/revoke/:wallet — revoke VIP from a player
+router.post('/vip/revoke/:wallet', adminAuth, async (req, res) => {
+  const wallet = req.params.wallet.toLowerCase();
+  try {
+    await pool.query(
+      `UPDATE vip_passes SET is_active=false WHERE wallet=$1 AND is_active=true`, [wallet]);
+    await auditLog(req, 'vip_admin_revoke', wallet, {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/vip/setting — update vip_* settings
+router.post('/vip/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('vip_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'vip_setting_update', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
