@@ -1,3 +1,30 @@
+/**
+ * server/db.js — 데이터베이스 연결 & 공통 유틸리티
+ * ══════════════════════════════════════════════════════════════
+ *
+ * exports:
+ *   pool                    — pg.Pool 인스턴스 (직접 query 사용 가능)
+ *   initDB()                — 서버 시작 시 1회 호출, 마이그레이션 + 기본 테이블 생성
+ *   getSetting(key, fallback) — settings 테이블에서 값 조회 (fallback=기본값)
+ *   getSettings()           — settings 테이블 전체 반환 { key: value }
+ *   ensureUser(client, wallet) — 지갑이 없으면 users 테이블에 자동 생성
+ *   generateReferralCode()  — 유니크 추천인 코드 생성
+ *   getReferralChain(client, wallet) — 추천인 체인 조회 (최대 3단계)
+ *   creditReferralCommission(client, from, type, amount, currency)
+ *                           — 추천인 수수료 분배 (services에서 COMMIT 전에 호출)
+ *   awardXP(client, wallet, xp) — XP 부여 + 레벨업 처리
+ *   logGPActivity(wallet, delta, source, note) — GP 증감 로그 기록 (fire-and-forget)
+ *   notifyPlayer(wallet, type, message, meta)  — 인앱 알림 저장
+ *   getActiveEvents()       — 현재 활성 이벤트 목록
+ *   checkBreakthroughCondition(client, wallet, condition) — 업적 조건 체크
+ *
+ * 사용 패턴:
+ *   const { pool, getSetting, logGPActivity } = require('../db');
+ *   const val = await getSetting('my_key', 'default');
+ *   logGPActivity(wallet, -cost, 'action', 'desc').catch(() => {});
+ *
+ * ══════════════════════════════════════════════════════════════
+ */
 const { Pool } = require('pg');
 const { runMigrations } = require('./migrate');
 

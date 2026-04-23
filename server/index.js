@@ -1,3 +1,38 @@
+/**
+ * server/index.js — OCCUPY MARS 메인 서버 진입점
+ * ══════════════════════════════════════════════════════════════
+ *
+ * 역할:
+ *   1. Express 앱 초기화 + 미들웨어 설정
+ *   2. 61개 라우트 파일 등록 (모두 /api/* prefix)
+ *   3. 정적 파일 서빙 (index.html, admin.html, assets/)
+ *   4. 50개+ setInterval 스케줄러 (서비스별 만료/정리/정산 작업)
+ *   5. DB 초기화 + 자동 마이그레이션 실행
+ *
+ * 주요 경로:
+ *   GET  /health               — 서버 상태 확인 (DB ping 포함)
+ *   /api/*                     — 게임 API (JWT 또는 x-wallet 헤더 인증)
+ *   /admin/api/*               — 어드민 API (x-admin-secret 헤더 인증)
+ *   /                          — index.html (메인 앱)
+ *   /admin                     — admin.html (어드민 패널)
+ *
+ * 새 라우트 추가 방법:
+ *   1. server/routes/xxx.js 작성
+ *   2. 이 파일 상단 require 목록에 추가
+ *   3. app.use('/api', xxxRoutes); 라인 추가 (~line 285 근처)
+ *
+ * 새 스케줄러 추가 방법:
+ *   start() 함수 내 마지막 setInterval 블록 이후에 동일 패턴으로 추가:
+ *   try {
+ *     const { myFunc } = require('./services/xxx');
+ *     setInterval(async () => {
+ *       try { await myFunc(); } catch(e) { console.warn('[XXX] error:', e.message); }
+ *     }, 5 * 60 * 1000);
+ *   } catch(e) { console.warn('[XXX] Could not init scheduler:', e.message); }
+ *
+ * ══════════════════════════════════════════════════════════════
+ */
+
 // Load environment-specific .env file, fallback to .env
 const _path = require('path');
 const _envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
@@ -64,6 +99,11 @@ if (process.env.NODE_ENV === 'production') {
 const { pool, initDB } = require('./db');
 const { init: initSigner } = require('./services/signer');
 const { startListeners } = require('./services/chain');
+
+// ══════════════════════════════════════════════════════════════
+// 라우트 파일 로드 (61개)
+// 등록 순서는 아래 app.use() 섹션과 동일
+// ══════════════════════════════════════════════════════════════
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
@@ -1020,6 +1060,7 @@ async function start() {
       console.log('[BROADCASTS] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[BROADCASTS] Could not init expiry scheduler:', e.message); }
 
+    // ── Raffle: Auto-draw expired rounds (every 1 minute) ──
     try {
       const { autoDrawExpired } = require('./services/raffle');
       setInterval(async () => {
@@ -1028,6 +1069,7 @@ async function start() {
       console.log('[RAFFLE] Auto-draw scheduler started (1min interval)');
     } catch(e) { console.warn('[RAFFLE] Could not init draw scheduler:', e.message); }
 
+    // ── Wager: Lock expired wagers (every 1 minute) ──
     try {
       const { autoLockExpired } = require('./services/wager');
       setInterval(async () => {
@@ -1036,6 +1078,7 @@ async function start() {
       console.log('[WAGER] Auto-lock scheduler started (1min interval)');
     } catch(e) { console.warn('[WAGER] Could not init lock scheduler:', e.message); }
 
+    // ── Territory Events (tevt): Expire old events (every 5 minutes) ──
     try {
       const { expireEvents } = require('./services/tevt');
       setInterval(async () => {
@@ -1044,6 +1087,7 @@ async function start() {
       console.log('[TEVT] Event expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[TEVT] Could not init expiry scheduler:', e.message); }
 
+    // ── Beacon: Expire old beacons (every 5 minutes) ──
     try {
       const { expireBeacons } = require('./services/beacon');
       setInterval(async () => {
@@ -1052,6 +1096,7 @@ async function start() {
       console.log('[BEACON] Beacon expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[BEACON] Could not init expiry scheduler:', e.message); }
 
+    // ── Polls: Expire ended polls (every 5 minutes) ──
     try {
       const { expirePolls } = require('./services/polls');
       setInterval(async () => {
@@ -1060,6 +1105,7 @@ async function start() {
       console.log('[POLLS] Poll expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[POLLS] Could not init expiry scheduler:', e.message); }
 
+    // ── Status: Expire player statuses (every 5 minutes) ──
     try {
       const { expireStatuses } = require('./services/status');
       setInterval(async () => {
@@ -1068,6 +1114,7 @@ async function start() {
       console.log('[STATUS] Status expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[STATUS] Could not init expiry scheduler:', e.message); }
 
+    // ── Sponsor: Expire territory sponsors (every 5 minutes) ──
     try {
       const { expireSponsors } = require('./services/sponsor');
       setInterval(async () => {
@@ -1076,6 +1123,7 @@ async function start() {
       console.log('[SPONSOR] Sponsor expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[SPONSOR] Could not init expiry scheduler:', e.message); }
 
+    // ── Banner: Expire territory banners (every 5 minutes) ──
     try {
       const { expireBanners } = require('./services/banner');
       setInterval(async () => {
@@ -1084,6 +1132,7 @@ async function start() {
       console.log('[BANNER] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[BANNER] Could not init expiry scheduler:', e.message); }
 
+    // ── Highlight: Expire territory highlights (every 5 minutes) ──
     try {
       const { expireHighlights } = require('./services/highlight');
       setInterval(async () => {
@@ -1092,6 +1141,7 @@ async function start() {
       console.log('[HIGHLIGHT] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[HIGHLIGHT] Could not init expiry scheduler:', e.message); }
 
+    // ── Graffiti: Expire territory graffiti (every 5 minutes) ──
     try {
       const { expireGraffiti } = require('./services/graffiti');
       setInterval(async () => {
@@ -1100,6 +1150,7 @@ async function start() {
       console.log('[GRAFFITI] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[GRAFFITI] Could not init expiry scheduler:', e.message); }
 
+    // ── Announcement: Expire old announcements (every 2 minutes) ──
     try {
       const { expireAnnouncements } = require('./services/announcement');
       setInterval(async () => {
@@ -1108,6 +1159,7 @@ async function start() {
       console.log('[ANNOUNCE] Expiry scheduler started (2min interval)');
     } catch(e) { console.warn('[ANNOUNCE] Could not init expiry scheduler:', e.message); }
 
+    // ── Time Capsule: Reveal due capsules (every 5 minutes) ──
     try {
       const { revealDueCapsules } = require('./services/capsule');
       setInterval(async () => {

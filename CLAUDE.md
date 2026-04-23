@@ -1,0 +1,376 @@
+# OCCUPY MARS — Claude Code 핸드오프 문서
+> 최종 업데이트: 2026-04-24 | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+
+---
+
+## 1. 프로젝트 한 줄 요약
+
+**화성 세계 지도 위 픽셀 영토를 GP(게임 포인트)로 클레임하고, 섹터 거버넌스·함대전·길드전을 벌이는 Web3 게임형 광고 플랫폼.**
+백엔드 Express + PostgreSQL, 프론트 단일 파일 `index.html` (35k줄 인라인 앱).
+
+---
+
+## 2. 환경 & 실행
+
+```bash
+# DB
+DATABASE_URL=postgresql://jongho@localhost:5432/pixelwar   # 로컬
+# 로컬 서버 시작
+cd server && node index.js          # 또는 npm run dev (watch 모드)
+# 포트
+3000 (기본, PORT env로 오버라이드)
+```
+
+**필수 env 변수** (`server/.env`):
+```
+DATABASE_URL=postgresql://jongho@localhost:5432/pixelwar
+JWT_SECRET=...
+ADMIN_SECRET=...          # 어드민 API 인증 헤더값
+NODE_ENV=development
+```
+
+---
+
+## 3. 디렉터리 구조
+
+```
+/
+├── index.html              ← 메인 앱 (CSS+HTML+JS 인라인, 35k줄 — 절대 분리 시도하지 말 것)
+├── admin.html              ← 어드민 패널 (동일 구조, 인라인)
+├── CLAUDE.md               ← 이 파일
+├── CLAUDE_CODE_BRIEF.md    ← 구버전 브리핑 (v1.0, 참고용만)
+├── server/
+│   ├── index.js            ← Express 앱 + 스케줄러 (~1,151줄)
+│   ├── db.js               ← Pool + initDB + getSetting + logGPActivity + 공통 유틸
+│   ├── migrate.js          ← 파일 기반 마이그레이션 러너
+│   ├── migrations/         ← SQL 파일 001~095 (089~095는 오늘 적용)
+│   │   └── archived/       ← 사용 안 하는 구버전 마이그레이션 (51개, 건드리지 말 것)
+│   ├── routes/             ← 61개 라우트 파일 (/api/* 경로)
+│   └── services/           ← 73개 서비스 파일 (비즈니스 로직)
+├── public/
+│   └── js/                 ← 미니게임 3개 (minigame-invaders/runner/digger.js)
+└── assets/
+    ├── lib/globe.gl.min.js ← 3D 지구본
+    ├── base/, nav/, textures/, avatars/
+```
+
+---
+
+## 4. DB 현재 상태
+
+- **DB명**: `pixelwar` (PostgreSQL)
+- **적용된 마이그레이션**: 001 ~ **095** (2026-04-24 기준)
+- **총 테이블 수**: 109개
+- **마지막 마이그레이션**: `095_fleet_combat_finalize.sql`
+
+### 핵심 테이블 목록
+
+| 테이블 | 설명 |
+|--------|------|
+| `users` | wallet_address PK, gp_balance, pp_balance, faction_code |
+| `claims` | 영토 클레임 (owner, sector_code, pixels) |
+| `pixels` | 개별 픽셀 소유권 |
+| `settings` | key PK (JSONB value) — 모든 게임 밸런스 값 저장 |
+| `schema_migrations` | filename UNIQUE — 적용된 마이그레이션 기록 |
+| **Fleet Combat** | |
+| `factions` | mcc/fsp/cv 3파벌 |
+| `ship_types` | 22종 함선 (frigate/destroyer/cruiser/battleship/titan × 3파벌) |
+| `fleets` | 유저 함대 인스턴스 |
+| `ships` | 개별 함선 인스턴스 |
+| `ship_build_jobs` | 건조 큐 (비동기) |
+| `fleet_battles` | 함대전 세션 |
+| `fleet_battle_participants` | 전투 참여자 |
+| `fleet_battle_events` | 전투 이벤트 로그 (tick별) |
+| `hijack_battles` | hijack 2단계 전투 연결 |
+| `hijack_stats` | hijack 통계 누적 |
+| `fleet_gp_activity` | 함대 GP 소비 로그 |
+
+### DB 뷰
+- `v_player_fleet_summary` — 유저별 함대 요약
+- `v_fleet_composition` — 함대 구성 (함선 종류별)
+- `v_titan_status` — Titan 함선 서버 제한 현황 (max 3척/종)
+
+---
+
+## 5. 코딩 패턴 — 반드시 준수
+
+### ① 설정값 조회 (하드코딩 금지)
+```javascript
+// db.js에서 export된 getSetting 사용
+const { getSetting } = require('../db');  // services에서
+// 또는 로컬 함수로:
+async function getSetting(key, fallback = null) {
+  try {
+    const r = await pool.query('SELECT value FROM settings WHERE key = $1', [key]);
+    return r.rows[0]?.value ?? fallback;
+  } catch (_) { return fallback; }
+}
+// 사용 예:
+const enabled = await getSetting('fleet_combat_enabled', 'false');
+const maxFleets = parseInt(await getSetting('max_fleets_per_player', '5')) || 5;
+```
+
+### ② 트랜잭션 패턴
+```javascript
+const client = await pool.connect();
+try {
+  await client.query('BEGIN');
+  // ... DB 작업 ...
+  await client.query('COMMIT');
+  return { success: true, ... };
+} catch (err) {
+  await client.query('ROLLBACK');
+  console.error('[SERVICE_NAME] funcName error:', err.message);
+  return { success: false, error: 'internal_error' };
+} finally {
+  client.release();  // 반드시 release
+}
+```
+
+### ③ GP 활동 로그 (fire-and-forget)
+```javascript
+// COMMIT 후 실행 — 실패해도 메인 로직 영향 없음
+try {
+  const { logGPActivity } = require('../db');
+  logGPActivity(wallet, -gpCost, 'action_type', '설명').catch(() => {});
+} catch (_) {}
+```
+
+### ④ 시즌 점수 업데이트 (fire-and-forget)
+```javascript
+try {
+  const seasonSvc = require('./season');
+  seasonSvc.addSeasonScore(wallet, 'gp_spend', gpCost).catch(() => {});
+  seasonSvc.addSeasonScore(wallet, 'fleet_action', 1).catch(() => {});
+} catch (_) {}
+```
+
+### ⑤ 어드민 인증
+```javascript
+function requireAdmin(req, res) {
+  const s = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
+  if (!s || s !== process.env.ADMIN_SECRET) {
+    res.status(403).json({ error: 'forbidden' });
+    return false;
+  }
+  return true;
+}
+```
+
+### ⑥ wallet 추출 (라우트 공통)
+```javascript
+function getWallet(req) {
+  return (req.body?.wallet || req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+}
+function requireWallet(req, res) {
+  const w = getWallet(req);
+  if (!w || w.length < 10) { res.status(400).json({ error: 'wallet_required' }); return null; }
+  return w;
+}
+```
+
+### ⑦ settings INSERT (SQL 파일)
+```sql
+-- settings PK는 key 단독 — (category, key) 복합 아님
+INSERT INTO settings (category, key, value, description) VALUES
+  ('fleet', 'some_key', 'true', '설명')
+ON CONFLICT (key) DO NOTHING;  -- ← 반드시 (key)만 사용
+
+-- value 컬럼은 JSONB:
+-- 문자열: '"text_value"'  (쌍따옴표 포함)
+-- 숫자:   '42'            (따옴표로 감싸도 jsonb가 파싱)
+-- 불린:   'true'/'false'
+-- 1.0.0 같은 버전 문자열: '"1.0.0"'  ← jsonb는 점(.)이 있으면 에러
+```
+
+### ⑧ 마이그레이션 등록 (psql 직접 실행 시)
+```bash
+# psql로 직접 실행하면 schema_migrations에 자동 등록 안 됨
+# 수동으로 등록 필요:
+psql $DATABASE_URL -c "INSERT INTO schema_migrations (filename) VALUES ('096_xxx.sql') ON CONFLICT DO NOTHING;"
+```
+
+---
+
+## 6. 인증 시스템
+
+- **방식**: JWT (email + bcrypt password)
+- **토큰**: `Authorization: Bearer <token>` 헤더
+- **wallet**: 모든 게임 행동의 PK — `x-wallet` 헤더 또는 body.wallet
+- **WebSocket**: 미구현 (REST + polling 방식)
+
+---
+
+## 7. 라우트 등록 방식 (server/index.js)
+
+모든 API 라우트는 `/api` prefix:
+```javascript
+// server/index.js
+const fleetRoutes = require('./routes/fleets');
+app.use('/api', fleetRoutes);
+```
+
+어드민 라우트:
+```javascript
+app.use('/admin/api', adminRoutes);  // 단일 파일 admin.js로 통합
+```
+
+---
+
+## 8. 현재 개발 상태 & 다음 작업
+
+### ✅ 완료된 것
+- Migration 001~095 전부 DB 적용 완료
+- Fleet Combat DB 스키마 (factions, ship_types, fleets, ships, fleet_battles 등)
+- 파벌 시드 데이터 (mcc/fsp/cv)
+- 함선 22종 정의 (frigate/destroyer/cruiser/battleship/titan × 3파벌)
+- 광물 tier 시스템 (tier 0~3, 13종)
+- 기존 hijack 시스템과 DB 연동 테이블 준비
+- fleet_combat_enabled = **false** (아직 비활성 상태)
+
+### 🔴 다음 작업: Fleet Combat 백엔드 서비스 작성
+
+다음 파일들을 **새로 작성**해야 함:
+
+#### `server/services/fleet.js` (NEW)
+```
+담당: 함대 CRUD
+- createFleet(wallet, name, factionCode)
+- getPlayerFleets(wallet)
+- getFleetById(fleetId)
+- disbandFleet(wallet, fleetId)
+- addShipToFleet(wallet, fleetId, shipId)
+- removeShipFromFleet(wallet, fleetId, shipId)
+```
+
+#### `server/services/fleetShip.js` (NEW)  
+```
+담당: 함선 건조/관리 (구버전 ship.js와 다름 — faction 기반)
+- buildShip(wallet, shipTypeCode)  → ship_build_jobs 큐에 추가
+- processBuildJobs()               → 스케줄러에서 호출
+- getPlayerShips(wallet)
+- scrапShip(wallet, shipId)        → GP 일부 환불
+```
+
+#### `server/services/fleetBattle.js` (NEW)
+```
+담당: 함대전 엔진
+- declareBattle(attackerWallet, defenderWallet, attackerFleetId, gpStake)
+- acceptBattle(defenderWallet, battleId, defenderFleetId)
+- resolveBattle(battleId)          → tick 기반 시뮬레이션
+- settleExpiredBattles()           → 스케줄러 (30초마다)
+- getActiveBattles(limit)
+- getBattleDetails(battleId)
+```
+
+#### `server/routes/fleets.js` (NEW)
+```
+GET  /api/fleets              — 내 함대 목록
+GET  /api/fleets/:id          — 함대 상세
+POST /api/fleets              — 함대 생성
+DELETE /api/fleets/:id        — 해산
+POST /api/fleets/:id/ships    — 함선 추가
+DELETE /api/fleets/:id/ships/:shipId — 함선 제거
+GET  /api/ships               — 내 함선 목록
+POST /api/ships/build         — 함선 건조 주문
+GET  /api/factions            — 파벌 목록 (공개)
+POST /api/faction/choose      — 파벌 선택 (최초 1회 or 500GP)
+GET  /api/fleet-battles       — 활성 전투 목록
+POST /api/fleet-battles/declare — 전투 선언
+POST /api/fleet-battles/:id/accept — 전투 수락
+GET  /api/fleet-battles/:id   — 전투 상세
+```
+
+#### `admin.html` 추가 필요 섹션
+- 파벌별 유저 분포
+- 함선 건조 현황 (건조 큐 + 완성 함선)
+- 활성 전투 목록 + 강제 해결 버튼
+- fleet_combat_enabled 토글
+- 함선 건조 비용 인라인 편집
+
+#### `index.html` 추가 필요 UI
+- BASE 모달에 FLEET 탭 추가
+- 파벌 선택 화면 (최초 로그인 후)
+- 함대 관리 (함선 목록, 건조, 함대 구성)
+- 전투 선언/수락 UI
+
+---
+
+## 9. 주요 기존 서비스 파일 역할 요약
+
+| 파일 | 역할 |
+|------|------|
+| `services/season.js` | 시즌 점수 추적 — addSeasonScore(wallet, category, amount) |
+| `services/battle.js` | 구버전 픽셀 전투 (Migration 026기반) — fleet battle과 다름 |
+| `services/siege.js` | 섹터 거버너 공성전 (Migration 085) |
+| `services/ship.js` | 구버전 단순 함선 건조 (archived migrations 기반) — fleet ship과 다름 |
+| `services/gpBurn.js` | GP 소각 메커니즘 |
+| `services/guild.js` | 길드 시스템 |
+| `services/marketplace.js` | 아이템 마켓플레이스 |
+| `services/enhancement.js` | 아이템 강화 시스템 |
+| `services/achievement.js` | 업적 시스템 |
+| `services/daily.js` | 일일 미션 |
+| `services/lottery.js` | 복권 시스템 |
+| `services/profile.js` | 유저 프로필 (motto, avatar) |
+| `services/tdesc.js` | 영토 설명 (GP 비용) |
+| `services/capsule.js` | 타임캡슐 (GP 비용) |
+| `services/sponsor.js` | 영토 스폰서 (GP 비용) |
+
+---
+
+## 10. index.html 구조 (35k줄 단일 파일)
+
+> ⚠️ **절대 파일 분리 시도 금지** — 너무 복잡하게 얽혀있어 깨질 위험이 높음
+> 섹션 검색: `Ctrl+F` 또는 grep으로 아래 키워드 찾기
+
+| 섹션 | 찾는 방법 |
+|------|-----------|
+| CSS 변수 / 테마 | `:root{` |
+| 전역 컴포넌트 CSS | `/* BASE MODAL` 또는 `/* TERRITORY` |
+| HTML 구조 시작 | `<body>` |
+| 지구본 초기화 | `initGlobe(` |
+| BASE 모달 탭들 | `baseTabTerritory\|baseTabQuests\|baseTabShop` |
+| 영토 정보 패널 | `showTerritoryInfo(` |
+| GP 관련 함수 | `loadGPBalance\|refreshGP` |
+| i18n 번역 | `const i18n = {` (EN/KO/JA/ZH) |
+| WebSocket 없음 | polling 방식 — `setInterval` + `fetch('/api/...')` |
+
+---
+
+## 11. 설정값 (fleet 카테고리) — settings 테이블
+
+```
+fleet_combat_enabled       = false  ← 서비스 완성 후 true로 변경
+max_fleets_per_player      = 5
+max_ships_per_fleet        = 1000
+max_ships_per_player       = 200
+faction_change_cooldown_hours = 168
+faction_change_fee_gp      = 500
+flagship_required          = true
+battle_max_concurrent      = 3
+battle_tick_rate_ms        = 200
+hijack_phase1_duration_seconds = 300
+hijack_phase1_ships_max    = 20
+```
+
+---
+
+## 12. Git 상태 & 커밋 규칙
+
+- **마이그레이션 적용 후 반드시 커밋 & 푸시**
+- 커밋 메시지 형식: `Migration XXX: 기능명` 또는 `feat: 기능명`
+- Branch: `main`
+
+---
+
+## 13. 알려진 이슈
+
+1. `server/routes/ships.js` — 구버전 단순 함선 시스템. 새 fleet 시스템과 충돌할 수 있음. fleet 구현 시 비활성화 or 분리 필요.
+2. `server/migrations/archived/` — 89~139번 구버전 마이그레이션. 건드리지 말 것.
+3. `admin.html` — fleet/faction 관련 섹션 아직 없음. 새 fleet 서비스 작성 후 추가 필요.
+4. settings 테이블 value 컬럼이 JSONB — 버전 문자열(1.0.0) INSERT 시 `'"1.0.0"'`으로 감싸야 함.
+
+---
+
+*이 문서는 새 Claude Code 세션이 컨텍스트 없이도 즉시 작업을 이어갈 수 있도록 작성됐습니다.*
+*상세 히스토리가 필요하면 git log 또는 server/migrations/ 파일 순서를 참고하세요.*
