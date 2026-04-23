@@ -2518,6 +2518,38 @@ router.get('/crafting/item-types', adminAuth, async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// TERRITORY RENTAL — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+router.get('/rental', adminAuth, async (req, res) => {
+  let svc;
+  try { svc = require('../services/rental'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/rental/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('rental_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'rental_setting_update', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/rental/cancel/:id', adminAuth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query(
+      `UPDATE territory_rentals SET status='cancelled' WHERE id=$1 AND status='listed'`, [id]);
+    await auditLog(req, 'rental_admin_cancel', `rental:${id}`, {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // GP DUEL SYSTEM — admin
 // ═══════════════════════════════════════════════════════════════════════════
 

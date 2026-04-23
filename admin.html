@@ -1058,6 +1058,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="monumentAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY RENTAL ═══ -->
+  <div class="section cat-gp" style="display:none" id="rentalAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#81d4fa">🏘️ TERRITORY RENTAL</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadRentalAdmin()" style="font-size:10px;background:rgba(129,212,250,.12);border:1px solid rgba(129,212,250,.3);color:#81d4fa;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+      </div>
+    </div>
+    <div id="rentalAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#81d4fa">RECENT LISTINGS</span></div>
+    <div id="rentalAdmTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#81d4fa">RENTAL SETTINGS</span></div>
+    <div id="rentalAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ GP DUEL SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="duelAdminSection">
     <div class="sec-header">
@@ -1627,7 +1642,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -4010,6 +4025,91 @@ function adminCancelBounty(id) {
     if (d.error) return alert('Error: ' + d.error);
     showToast('✅ Bounty #' + id + ' cancelled, refunded: ' + d.refunded + ' GP');
     loadBountyAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  TERRITORY RENTAL ADMIN (Migration 117)
+// ══════════════════════════════════════
+function loadRentalAdmin() {
+  var statsEl    = document.getElementById('rentalAdmStats');
+  var tableEl    = document.getElementById('rentalAdmTable');
+  var settingsEl = document.getElementById('rentalAdmSettings');
+  if (!statsEl) return;
+  [statsEl, tableEl, settingsEl].forEach(function(el) {
+    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
+  });
+  fetch('/admin/api/rental', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var t = d.totals || {};
+      statsEl.innerHTML = [
+        ['Listed',     t.total_listed   || 0],
+        ['Rented',     t.total_rented   || 0],
+        ['Expired',    t.total_expired  || 0],
+        ['GP Paid',    parseFloat(t.total_gp_paid    || 0).toFixed(2)+' GP'],
+        ['Fees Earned',parseFloat(t.total_fees       || 0).toFixed(2)+' GP'],
+        ['To Owners',  parseFloat(t.total_to_owners  || 0).toFixed(2)+' GP']
+      ].map(function(kv) {
+        return '<div style="background:rgba(129,212,250,.06);border:1px solid rgba(129,212,250,.15);border-radius:6px;padding:8px;text-align:center">'
+          +'<div style="color:#888;font-size:10px;margin-bottom:2px">'+kv[0]+'</div>'
+          +'<div style="color:#81d4fa;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      var rows = (d.recent || []).map(function(r) {
+        var on = escapeHtml(r.owner_nick || r.owner.slice(0,10)+'…');
+        var tn = r.tenant_nick ? escapeHtml(r.tenant_nick) : (r.tenant ? escapeHtml(r.tenant.slice(0,8)+'…') : '—');
+        var statusColor = {listed:'#ffb74d', rented:'#a0e8a0', expired:'#555', cancelled:'#888'}[r.status]||'#888';
+        return '<tr>'
+          +'<td>'+r.id+'</td>'
+          +'<td>#'+r.claim_id+' ('+r.pixel_count+' px)</td>'
+          +'<td>'+on+'</td>'
+          +'<td>'+tn+'</td>'
+          +'<td>'+r.gp_per_period+' GP/'+r.period_hours+'h</td>'
+          +'<td style="color:'+statusColor+'">'+r.status+'</td>'
+          +'<td>'+new Date(r.created_at).toLocaleDateString()+'</td>'
+          +'<td>'+(r.status==='listed'?'<button onclick="adminCancelRental('+r.id+')" style="font-size:9px;padding:2px 6px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">CANCEL</button>':'—')+'</td>'
+          +'</tr>';
+      }).join('');
+      tableEl.innerHTML = rows.length
+        ? '<table class="adm-table"><thead><tr><th>#</th><th>Claim</th><th>Owner</th><th>Tenant</th><th>Price</th><th>Status</th><th>Date</th><th>Act</th></tr></thead><tbody>'+rows+'</tbody></table>'
+        : '<div style="color:#555;font-size:12px;padding:8px">No rentals yet.</div>';
+
+      settingsEl.innerHTML = (d.settings || []).map(function(s) {
+        return '<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:6px 10px">'
+          +'<span style="color:#888;font-size:11px;flex:1">'+escapeHtml(s.key.replace('rental_',''))+'</span>'
+          +'<input id="rns_'+s.key+'" value="'+escapeHtml(s.value)+'" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:4px 8px;border-radius:4px;width:90px;font-size:11px">'
+          +'<button onclick="saveRentalSetting(\''+s.key+'\')" style="font-size:10px;background:rgba(129,212,250,.12);border:1px solid rgba(129,212,250,.3);color:#81d4fa;padding:3px 8px;border-radius:4px;cursor:pointer">SAVE</button>'
+          +'</div>';
+      }).join('');
+    })
+    .catch(function(e) { if (statsEl) statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function saveRentalSetting(key) {
+  var val = document.getElementById('rns_'+key);
+  if (!val) return;
+  fetch('/admin/api/rental/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key: key, value: val.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ '+key+' saved');
+    loadRentalAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function adminCancelRental(id) {
+  if (!confirm('Cancel rental listing #'+id+'?')) return;
+  fetch('/admin/api/rental/cancel/'+id, {
+    method: 'POST',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ Rental #'+id+' cancelled');
+    loadRentalAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 

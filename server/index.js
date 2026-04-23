@@ -91,6 +91,7 @@ const bountyRoutes      = require('./routes/bounty');
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
 const duelRoutes        = require('./routes/duel');
+const rentalRoutes      = require('./routes/rental');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -214,6 +215,7 @@ app.use('/api', bountyRoutes);
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);
+app.use('/api', rentalRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -888,6 +890,15 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[SHIELD] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[SHIELD] Could not init expiry scheduler:', e.message); }
+
+    // ── Rental: Expire ended rentals (every 5 minutes) ──
+    try {
+      const { expireRentals } = require('./services/rental');
+      setInterval(async () => {
+        try { await expireRentals(); } catch(e) { console.warn('[RENTAL] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[RENTAL] Expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[RENTAL] Could not init expiry scheduler:', e.message); }
 
     // ── Duel: Expire pending duels (every 5 minutes) ──
     try {
