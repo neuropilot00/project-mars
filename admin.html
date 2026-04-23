@@ -1231,6 +1231,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <p style="font-size:10px;color:#888;margin-top:8px">Ship settings: GAME SETTINGS → category <b>ships</b></p>
   </div>
 
+  <!-- ═══ SHIP UPGRADES (inside ships section) ═══ -->
+  <div class="section cat-ships" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#c97bff">⬆ SHIP UPGRADES</span>
+      <button onclick="loadShipUpgradesAdmin()" style="font-size:10px;background:rgba(201,123,255,.12);border:1px solid rgba(201,123,255,.3);color:#c97bff;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="shipUpgAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div id="shipUpgAdmLog"   style="overflow-x:auto;margin-bottom:12px"></div>
+    <!-- Settings -->
+    <div class="sec-header" style="margin-top:8px">
+      <span class="sec-title" style="color:#c97bff">UPGRADE SETTINGS</span>
+    </div>
+    <div id="shipUpgSettings" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px"></div>
+  </div>
+
   <!-- ═══ BATTLES TAB (inside ships section) ═══ -->
   <div class="section cat-ships" style="display:none">
     <div class="sec-header">
@@ -1314,7 +1329,7 @@ function switchTab(tab) {
   if (tab === 'resources') { loadResourcesAdmin(); }
   if (tab === 'onboarding') { loadOnboardingAdmin(); }
   if (tab === 'siege') { loadSiegeAdmin(); loadBettingAdmin(); loadHofAdmin(); }
-  if (tab === 'ships') { loadShipsAdmin(); loadBattlesAdmin(); }
+  if (tab === 'ships') { loadShipsAdmin(); loadShipUpgradesAdmin(); loadBattlesAdmin(); }
 }
 
 // ── Language System ──
@@ -4026,6 +4041,84 @@ function loadShipsAdmin() {
         }).join('') + '</tbody></table>';
     })
     .catch(function(e) { statsEl.innerHTML = '<div style="color:red;font-size:10px">'+e.message+'</div>'; });
+}
+
+// SHIP UPGRADES ADMIN
+// ══════════════════════════════════════
+function loadShipUpgradesAdmin() {
+  var statsEl    = document.getElementById('shipUpgAdmStats');
+  var logEl      = document.getElementById('shipUpgAdmLog');
+  var settingsEl = document.getElementById('shipUpgSettings');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  Promise.all([
+    apiJson('/admin/api/ship-upgrades').catch(function(){return null}),
+    apiJson('/api/ships/upgrade-costs').catch(function(){return null})
+  ]).then(function(res) {
+    var data     = res[0] || {};
+    var upgInfo  = res[1] || {};
+    var total    = data.total_upgrades || 0;
+    var gpSpent  = data.total_gp_spent || 0;
+    var maxLevel = data.max_level_ships || 0;
+    statsEl.innerHTML = [
+      statCard('Total Upgrades',  total,                    '#c97bff'),
+      statCard('GP Spent',        Math.round(gpSpent)+' GP','var(--gold)'),
+      statCard('Max Lv Ships',    maxLevel,                  '#5cbbff'),
+      statCard('Max Level',       upgInfo.maxLevel||5,       '#4cd89a')
+    ].join('');
+
+    // Recent upgrade log
+    var log = data.log || [];
+    if (!log.length) {
+      logEl.innerHTML = '<div style="font-size:10px;color:#888">No upgrades yet</div>';
+    } else {
+      logEl.innerHTML = '<table class="data-table" style="font-size:9px"><thead><tr>'
+        +'<th>#</th><th>Ship</th><th>Wallet</th><th>Level</th><th>GP</th><th>Date</th></tr></thead><tbody>'
+        + log.map(function(r){
+          return '<tr>'
+            +'<td>#'+r.id+'</td>'
+            +'<td>Ship #'+r.ship_id+'</td>'
+            +'<td style="font-size:8px">'+(r.nickname||r.wallet.slice(0,10)+'…')+'</td>'
+            +'<td style="color:#c97bff">+'+r.to_level+'</td>'
+            +'<td style="color:var(--gold)">'+r.gp_cost+'</td>'
+            +'<td style="font-size:8px">'+new Date(r.created_at).toLocaleDateString()+'</td>'
+            +'</tr>';
+        }).join('') + '</tbody></table>';
+    }
+
+    // Settings
+    var UPGRADE_KEYS = [
+      'ship_upgrade_enabled', 'ship_upgrade_max_level', 'ship_upgrade_base_cost_gp',
+      'ship_upgrade_cost_mult', 'ship_upgrade_atk_per_lvl', 'ship_upgrade_def_per_lvl',
+      'ship_upgrade_hp_per_lvl'
+    ];
+    var descs = {
+      ship_upgrade_enabled:      '강화 시스템 활성화',
+      ship_upgrade_max_level:    '최대 강화 레벨',
+      ship_upgrade_base_cost_gp: '첫 강화 GP 비용 (레벨 0→1)',
+      ship_upgrade_cost_mult:    '레벨당 비용 배율',
+      ship_upgrade_atk_per_lvl:  '레벨당 ATK 보너스',
+      ship_upgrade_def_per_lvl:  '레벨당 DEF 보너스',
+      ship_upgrade_hp_per_lvl:   '레벨당 HP 보너스'
+    };
+    settingsEl.innerHTML = UPGRADE_KEYS.map(function(k){
+      var v = (data.settings||{})[k] || '';
+      return '<div style="background:rgba(201,123,255,.06);border:1px solid rgba(201,123,255,.15);border-radius:6px;padding:10px">'
+        +'<div style="font-size:9px;color:#c97bff;margin-bottom:4px">'+k+'</div>'
+        +'<div style="font-size:8px;color:#888;margin-bottom:6px">'+(descs[k]||'')+'</div>'
+        +'<div style="display:flex;gap:4px">'
+        +'<input id="sUpgKey_'+k+'" value="'+escapeHtml(String(v))+'" style="flex:1;background:#111;border:1px solid #333;color:#fff;padding:3px 6px;border-radius:3px;font-size:9px;font-family:var(--fn)">'
+        +'<button onclick="saveShipUpgSetting(\''+k+'\')" style="font-size:8px;padding:2px 8px;background:rgba(201,123,255,.15);border:1px solid rgba(201,123,255,.3);color:#c97bff;border-radius:3px;cursor:pointer">SAVE</button>'
+        +'</div></div>';
+    }).join('');
+  });
+}
+
+function saveShipUpgSetting(key) {
+  var input = document.getElementById('sUpgKey_'+key);
+  if (!input) return;
+  saveSetting(key, input.value);
 }
 
 // BATTLES ADMIN

@@ -1800,4 +1800,51 @@ router.post('/marketplace/cancel', adminAuth, async (req, res) => {
   }
 });
 
+// GET /admin/api/ship-upgrades — upgrade stats + recent log + settings
+router.get('/ship-upgrades', adminAuth, async (req, res) => {
+  try {
+    const [statsRes, logRes, settingsRes] = await Promise.all([
+      pool.query(`
+        SELECT
+          COUNT(*)                         AS total_upgrades,
+          COALESCE(SUM(gp_cost), 0)        AS total_gp_spent,
+          COUNT(DISTINCT s.id) FILTER (
+            WHERE s.upgrade_level >= (
+              SELECT COALESCE(value::int, 5) FROM settings WHERE key='ship_upgrade_max_level' LIMIT 1
+            )
+          )                                AS max_level_ships
+        FROM ship_upgrade_log ul
+        JOIN user_ships s ON s.id = ul.ship_id
+      `).catch(() => ({ rows: [{}] })),
+      pool.query(`
+        SELECT ul.id, ul.ship_id, ul.wallet, ul.from_level, ul.to_level, ul.gp_cost, ul.created_at,
+               u.nickname
+          FROM ship_upgrade_log ul
+          LEFT JOIN users u ON u.wallet_address = ul.wallet
+         ORDER BY ul.created_at DESC LIMIT 50
+      `).catch(() => ({ rows: [] })),
+      pool.query(`
+        SELECT key, value FROM settings
+         WHERE key LIKE 'ship_upgrade_%'
+         ORDER BY key
+      `).catch(() => ({ rows: [] })),
+    ]);
+
+    const settingsMap = {};
+    settingsRes.rows.forEach(r => { settingsMap[r.key] = r.value; });
+    const s = statsRes.rows[0] || {};
+
+    res.json({
+      total_upgrades:  parseInt(s.total_upgrades)  || 0,
+      total_gp_spent:  parseFloat(s.total_gp_spent) || 0,
+      max_level_ships: parseInt(s.max_level_ships)  || 0,
+      log:      logRes.rows,
+      settings: settingsMap,
+    });
+  } catch (e) {
+    console.error('[Admin] ship-upgrades error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

@@ -97,6 +97,33 @@ router.post('/ships/:id/repair', async (req, res) => {
   }
 });
 
+// ── GET /api/ships/upgrade-costs ──
+router.get('/ships/upgrade-costs', async (req, res) => {
+  try {
+    const data = await shipService.getUpgradeCosts();
+    res.json(data);
+  } catch (err) {
+    console.error('[SHIPS] upgrade-costs error:', err.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// ── POST /api/ships/:id/upgrade ──
+router.post('/ships/:id/upgrade', async (req, res) => {
+  const wallet = requireWallet(req, res);
+  if (!wallet) return;
+  const shipId = parseInt(req.params.id);
+  if (!shipId) return res.status(400).json({ error: 'invalid_ship_id' });
+  try {
+    const result = await shipService.upgradeShip(wallet, shipId);
+    if (!result.success) return res.status(400).json(result);
+    res.json(result);
+  } catch (err) {
+    console.error('[SHIPS] upgrade error:', err.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
 // ── ADMIN: GET /api/admin/ships ──
 router.get('/admin/ships', async (req, res) => {
   if (!requireAdmin(req, res)) return;

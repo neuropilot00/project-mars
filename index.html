@@ -10680,6 +10680,7 @@ var I18N = {
     gov_fleet_my: 'MY SHIPS', gov_fleet_max: '10 max', gov_shipyard: 'SHIPYARD',
     gov_ship_build: 'BUILD SHIP', gov_ship_built: 'built!', gov_ship_repair: 'REPAIR',
     gov_ship_repaired: 'Ship repaired!', gov_ship_repair_confirm: 'Repair this ship to full HP?',
+    gov_ship_upgrade: 'UPGRADE', gov_ship_upgraded: 'upgraded!', gov_ship_upgrade_cost: 'Upgrade Cost',
     gov_battle_title: '⚔️ NAVAL BATTLES', gov_battle_hint: 'Connect wallet to view battles.',
     gov_battle_active: 'ACTIVE BATTLES', gov_battle_declare: 'DECLARE ATTACK',
     gov_battle_declared: 'Battle declared! Awaiting defender response.',
@@ -11247,6 +11248,7 @@ var I18N = {
     gov_fleet_my: '내 함선', gov_fleet_max: '최대 10', gov_shipyard: '조선소',
     gov_ship_build: '함선 건조', gov_ship_built: '건조 완료!', gov_ship_repair: '수리',
     gov_ship_repaired: '함선 수리 완료!', gov_ship_repair_confirm: '함선을 완전히 수리하시겠습니까?',
+    gov_ship_upgrade: '강화', gov_ship_upgraded: '강화 완료!', gov_ship_upgrade_cost: '강화 비용',
     gov_battle_title: '⚔️ 해상 전투', gov_battle_hint: '지갑을 연결하여 전투를 확인하세요.',
     gov_battle_active: '진행 중인 전투', gov_battle_declare: '전투 선포',
     gov_battle_declared: '전투 선포 완료! 수비자의 응답을 기다리는 중.',
@@ -11805,6 +11807,7 @@ var I18N = {
     gov_fleet_my: '艦船一覧', gov_fleet_max: '最大10隻', gov_shipyard: '造船所',
     gov_ship_build: '建造', gov_ship_built: '建造完了！', gov_ship_repair: '修理',
     gov_ship_repaired: '修理完了！', gov_ship_repair_confirm: '艦船をフルHPに修理しますか？',
+    gov_ship_upgrade: 'アップグレード', gov_ship_upgraded: 'アップグレード完了！', gov_ship_upgrade_cost: 'アップグレード費用',
     gov_battle_title: '⚔️ 海戦', gov_battle_hint: 'ウォレットを接続して海戦を確認。',
     gov_battle_active: '進行中の戦闘', gov_battle_declare: '戦闘宣言',
     gov_battle_declared: '戦闘宣言！防衛者の応答待ち。',
@@ -12356,6 +12359,7 @@ var I18N = {
     gov_fleet_my: '我的战舰', gov_fleet_max: '最多10艘', gov_shipyard: '造船厂',
     gov_ship_build: '建造舰船', gov_ship_built: '建造完成！', gov_ship_repair: '修理',
     gov_ship_repaired: '舰船修理完成！', gov_ship_repair_confirm: '将此舰船修理至满HP？',
+    gov_ship_upgrade: '升级', gov_ship_upgraded: '升级完成！', gov_ship_upgrade_cost: '升级费用',
     gov_battle_title: '⚔️ 海战', gov_battle_hint: '连接钱包以查看海战。',
     gov_battle_active: '进行中的战斗', gov_battle_declare: '宣战',
     gov_battle_declared: '已宣战！等待防守方响应。',
@@ -22367,6 +22371,8 @@ window.addEventListener('resize', function(){
     }
   };
 
+  var _upgradeCosts = null;
+
   function loadFleetPanel() {
     var panel = document.getElementById('fleetPanel');
     if (!panel) return;
@@ -22378,11 +22384,14 @@ window.addEventListener('resize', function(){
     panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
     Promise.all([
       fetch('/api/ships?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {ships:[]}}),
-      _blueprints ? Promise.resolve({blueprints:_blueprints}) : fetch('/api/ships/blueprints').then(function(r){return r.json()}).catch(function(){return {blueprints:[]}})
+      _blueprints ? Promise.resolve({blueprints:_blueprints}) : fetch('/api/ships/blueprints').then(function(r){return r.json()}).catch(function(){return {blueprints:[]}}),
+      _upgradeCosts ? Promise.resolve(_upgradeCosts) : fetch('/api/ships/upgrade-costs').then(function(r){return r.json()}).catch(function(){return null})
     ]).then(function(res) {
       var ships = res[0].ships || [];
       if (!_blueprints && res[1].blueprints) _blueprints = res[1].blueprints;
+      if (!_upgradeCosts && res[2] && res[2].costs) _upgradeCosts = res[2];
       var blueprints = _blueprints || [];
+      var upgInfo    = _upgradeCosts || {};
       var active = ships.filter(function(s){return s.status !== 'destroyed'});
       var html = '';
       // Fleet header
@@ -22399,14 +22408,32 @@ window.addEventListener('resize', function(){
             s.status === 'repairing' ?
             '<span style="color:var(--gold);font-size:7px">🔧 REPAIR</span>' :
             '<span style="color:#4cd89a;font-size:7px">⚓ DOCKED</span>';
+          var upgLevel = parseInt(s.upgrade_level) || 0;
+          var maxLevel = parseInt(upgInfo.maxLevel) || 5;
+          // Upgrade level badge with escalating glow colours
+          var upgBadgeColor = upgLevel === 0 ? 'var(--tx3)' :
+                              upgLevel <= 2  ? '#fff'        :
+                              upgLevel <= 4  ? 'var(--gold)' : '#c97bff';
+          var upgBadge = upgLevel > 0
+            ? '<span style="color:'+upgBadgeColor+';font-size:7px;font-weight:700"> +'+upgLevel+'</span>'
+            : '';
+          // Next upgrade cost
+          var costEntry = (upgInfo.costs || []).find(function(c){return c.level === upgLevel+1});
+          var nextCostStr = costEntry ? costEntry.gp_cost+' GP' : '';
+
           html += '<div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.12);border-radius:6px;padding:8px">';
-          html += '<div style="font-size:10px;font-weight:700;color:#5cbbff">'+s.icon+' '+s.name+'</div>';
+          html += '<div style="font-size:10px;font-weight:700;color:#5cbbff">'+s.icon+' '+s.name+upgBadge+'</div>';
           html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px">';
           html += '<div style="font-size:8px;color:var(--tx3)">HP: <span style="color:'+hpColor+'">'+hpPct+'%</span></div>';
           html += statusBadge+'</div>';
           html += '<div style="font-size:7px;color:var(--tx3);margin-top:2px">⚔'+s.attack+' 🛡'+s.defense+' ⚡'+s.speed+'</div>';
           if (s.hp < s.max_hp && s.status !== 'deployed') {
             html += '<button onclick="govRepairShip('+s.id+')" style="width:100%;margin-top:4px;font-size:7px;padding:3px;border-radius:3px;border:1px solid rgba(255,209,102,.3);background:rgba(255,209,102,.08);color:var(--gold);cursor:pointer;font-family:var(--fn)">🔧 '+(t('gov_ship_repair')||'REPAIR')+'</button>';
+          }
+          if (s.status !== 'deployed' && upgLevel < maxLevel && costEntry) {
+            html += '<button onclick="govUpgradeShip('+s.id+','+upgLevel+',\''+s.name.replace(/'/g,"\\'")+'\','+costEntry.gp_cost+')" style="width:100%;margin-top:4px;font-size:7px;padding:3px;border-radius:3px;border:1px solid rgba(201,123,255,.3);background:rgba(201,123,255,.08);color:#c97bff;cursor:pointer;font-family:var(--fn)">⬆ '+(t('gov_ship_upgrade')||'UPGRADE')+' ('+costEntry.gp_cost+' GP)</button>';
+          } else if (upgLevel >= maxLevel) {
+            html += '<div style="font-size:7px;color:#c97bff;text-align:center;margin-top:4px">✨ MAX</div>';
           }
           html += '</div>';
         });
@@ -22479,6 +22506,34 @@ window.addEventListener('resize', function(){
         refreshBalance();
         loadFleetPanel();
       }).catch(function(){showToast('Repair failed','error')});
+    });
+  };
+
+  window.govUpgradeShip = function(shipId, curLevel, shipName, gpCost) {
+    var w = walletState.address;
+    if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+    var upgInfo = _upgradeCosts || {};
+    var atkGain = upgInfo.atkPerLvl || 5;
+    var defGain = upgInfo.defPerLvl || 5;
+    var hpGain  = upgInfo.hpPerLvl  || 30;
+    gameConfirm({
+      title: (t('gov_ship_upgrade')||'Upgrade Ship'), icon: '⬆',
+      body: '<div style="font-size:11px;color:#c97bff;font-weight:700;margin-bottom:6px">'+shipName+' +'+curLevel+' → +'+(curLevel+1)+'</div>'
+        +'<div style="font-size:9px;color:var(--tx3)">+'+atkGain+' ATK &nbsp; +'+defGain+' DEF &nbsp; +'+hpGain+' HP</div>',
+      info: [{k: (t('gov_ship_upgrade_cost')||'Upgrade Cost'), v: gpCost+' GP'}],
+      confirmText: '⬆ '+(t('gov_ship_upgrade')||'UPGRADE')
+    }).then(function(ok) {
+      if (!ok) return;
+      fetch('/api/ships/'+shipId+'/upgrade', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({wallet: w})
+      }).then(function(r){return r.json()}).then(function(d) {
+        if (d.error) { showToast(d.error, 'error'); return; }
+        showToast('⬆ '+shipName+' +'+(d.toLevel||'?')+' '+(t('gov_ship_upgraded')||'upgraded!'));
+        refreshBalance();
+        loadFleetPanel();
+      }).catch(function(){showToast('Upgrade failed','error')});
     });
   };
 

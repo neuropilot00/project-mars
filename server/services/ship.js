@@ -218,6 +218,145 @@ async function destroyShip(client, shipId) {
   );
 }
 
+// ── getUpgradeCosts ── returns cost table for levels 1..max
+async function getUpgradeCosts() {
+  const maxLevel  = parseInt(await getSetting('ship_upgrade_max_level',    '5'))   || 5;
+  const baseCost  = parseInt(await getSetting('ship_upgrade_base_cost_gp', '100')) || 100;
+  const mult      = parseFloat(await getSetting('ship_upgrade_cost_mult',  '2.0')) || 2.0;
+  const atkPerLvl = parseInt(await getSetting('ship_upgrade_atk_per_lvl',  '5'))   || 5;
+  const defPerLvl = parseInt(await getSetting('ship_upgrade_def_per_lvl',  '5'))   || 5;
+  const hpPerLvl  = parseInt(await getSetting('ship_upgrade_hp_per_lvl',   '30'))  || 30;
+
+  const costs = [];
+  for (let lvl = 1; lvl <= maxLevel; lvl++) {
+    costs.push({
+      level:      lvl,
+      gp_cost:    Math.round(baseCost * Math.pow(mult, lvl - 1)),
+      bonus_atk:  atkPerLvl * lvl,
+      bonus_def:  defPerLvl * lvl,
+      bonus_hp:   hpPerLvl  * lvl,
+    });
+  }
+  return { maxLevel, baseCost, mult, atkPerLvl, defPerLvl, hpPerLvl, costs };
+}
+
+// ── upgradeShip ──
+async function upgradeShip(walletAddress, shipId) {
+  const enabled = await getSetting('ship_upgrade_enabled', 'true');
+  if (enabled !== 'true') return { success: false, error: 'ship_upgrade_disabled' };
+
+  const maxLevel  = parseInt(await getSetting('ship_upgrade_max_level',    '5'))   || 5;
+  const baseCost  = parseInt(await getSetting('ship_upgrade_base_cost_gp', '100')) || 100;
+  const mult      = parseFloat(await getSetting('ship_upgrade_cost_mult',  '2.0')) || 2.0;
+  const atkPerLvl = parseInt(await getSetting('ship_upgrade_atk_per_lvl',  '5'))   || 5;
+  const defPerLvl = parseInt(await getSetting('ship_upgrade_def_per_lvl',  '5'))   || 5;
+  const hpPerLvl  = parseInt(await getSetting('ship_upgrade_hp_per_lvl',   '30'))  || 30;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Lock ship row
+    const shipRes = await client.query(
+      "SELECT * FROM user_ships WHERE id = $1 AND wallet_address = $2 AND status != 'destroyed' FOR UPDATE",
+      [shipId, walletAddress]
+    );
+    if (!shipRes.rows.length) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'ship_not_found' };
+    }
+    const ship = shipRes.rows[0];
+
+    if (ship.status === 'deployed') {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'ship_deployed' };
+    }
+
+    const curLevel = parseInt(ship.upgrade_level) || 0;
+    if (curLevel >= maxLevel) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'max_level_reached', max: maxLevel };
+    }
+
+    // Escalating cost: baseCost × mult^curLevel
+    const gpCost = Math.round(baseCost * Math.pow(mult, curLevel));
+    const newLevel = curLevel + 1;
+
+    // Check and deduct GP
+    const balRes = await client.query(
+      'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      [walletAddress]
+    );
+    if (!balRes.rows.length) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'user_not_found' };
+    }
+    const gp = parseFloat(balRes.rows[0].gp_balance) || 0;
+    if (gp < gpCost) {
+      await client.query('ROLLBACK');
+      return { success: false, error: 'insufficient_gp', required: gpCost, balance: gp };
+    }
+    await client.query(
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2',
+      [gpCost, walletAddress]
+    );
+
+    // Apply stat boosts (cumulative by raising absolute bonus columns)
+    const newBonusAtk = (parseInt(ship.upgrade_bonus_atk) || 0) + atkPerLvl;
+    const newBonusDef = (parseInt(ship.upgrade_bonus_def) || 0) + defPerLvl;
+    const newBonusHp  = (parseInt(ship.upgrade_bonus_hp)  || 0) + hpPerLvl;
+    await client.query(
+      `UPDATE user_ships
+          SET upgrade_level      = $1,
+              upgrade_bonus_atk  = $2,
+              upgrade_bonus_def  = $3,
+              upgrade_bonus_hp   = $4,
+              attack             = attack  + $5,
+              defense            = defense + $6,
+              max_hp             = max_hp  + $7,
+              hp                 = hp      + $7
+        WHERE id = $8`,
+      [newLevel, newBonusAtk, newBonusDef, newBonusHp,
+       atkPerLvl, defPerLvl, hpPerLvl, shipId]
+    );
+
+    // Log the upgrade
+    await client.query(
+      `INSERT INTO ship_upgrade_log (ship_id, wallet, from_level, to_level, gp_cost)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [shipId, walletAddress, curLevel, newLevel, gpCost]
+    );
+
+    await client.query('COMMIT');
+
+    // Fire-and-forget hooks
+    try {
+      const { creditReferralCommission, logGPActivity } = require('../db');
+      const seasonSvc = require('./season');
+      creditReferralCommission(client, walletAddress, 'ship_upgrade', gpCost, 'gp').catch(() => {});
+      seasonSvc.addSeasonScore(walletAddress, 'gp_spend', gpCost).catch(() => {});
+      logGPActivity(walletAddress, -gpCost, 'ship_upgrade', `${ship.ship_type} → +${newLevel}`).catch(() => {});
+    } catch (_he) {}
+
+    return {
+      success:    true,
+      shipId,
+      fromLevel:  curLevel,
+      toLevel:    newLevel,
+      gpCost,
+      newAtk:     (parseInt(ship.attack)  || 0) + atkPerLvl,
+      newDef:     (parseInt(ship.defense) || 0) + defPerLvl,
+      newMaxHp:   (parseInt(ship.max_hp)  || 0) + hpPerLvl,
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('[SHIP] upgradeShip error:', err.message);
+    return { success: false, error: 'internal_error' };
+  } finally {
+    client.release();
+  }
+}
+
 // ── getBlueprints ── (public — no auth required)
 async function getBlueprints() {
   const blueprints = [];
@@ -243,6 +382,8 @@ module.exports = {
   getFleetStats,
   repairShip,
   destroyShip,
+  upgradeShip,
+  getUpgradeCosts,
   getBlueprints,
   SHIP_TYPES,
 };
