@@ -23,6 +23,8 @@ let seasonService;
 try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }
 let achSvc;
 try { achSvc = require('../services/achievements'); } catch (_e) {}
+let weeklySvc;
+try { weeklySvc = require('../services/weeklyChallenges'); } catch (_e) {}
 let newsSvc;
 try { newsSvc = require('../services/news'); } catch (_e) {}
 let missionService;
@@ -1386,6 +1388,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
     }
     // Achievement check: territory count
     if (achSvc && newCount > 0) { achSvc.checkAndUnlock(walletLower, 'claim_count').catch(() => {}); }
+    if (weeklySvc) { weeklySvc.trackProgress(walletLower, 'claim_count', newCount).catch(() => {}); }
     // News: new territory claimed
     if (newsSvc && newCount > 0) { newsSvc.onTerritoryClaimed(walletLower, null).catch(() => {}); }
   } catch (e) {
@@ -2504,6 +2507,8 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     if (dailyService) {
       try { await dailyService.updateMissionProgress(w, 'harvest', 1); } catch (_de) { /* non-critical */ }
     }
+    // Weekly challenge: harvest
+    if (weeklySvc) { weeklySvc.trackProgress(w, 'harvest_pp', 1).catch(() => {}); }
     // Season score hooks (non-blocking)
     if (seasonService) {
       try {
@@ -3851,6 +3856,10 @@ router.post('/daily/login', writeLimiter, async (req, res) => {
     // Achievement check: GP balance milestone
     if (achSvc && !result.alreadyClaimed && result.rewardGP > 0) {
       achSvc.checkAndUnlock(wallet.toLowerCase(), 'gp_balance').catch(() => {});
+    }
+    // Weekly challenge: GP earn (from daily login)
+    if (weeklySvc && !result.alreadyClaimed && result.rewardGP > 0) {
+      weeklySvc.trackProgress(wallet.toLowerCase(), 'gp_earn', result.rewardGP).catch(() => {});
     }
   } catch (e) {
     console.error('[DAILY] login error:', e.message);

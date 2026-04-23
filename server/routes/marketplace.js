@@ -12,6 +12,8 @@ let achSvc;
 try { achSvc = require('../services/achievements'); } catch (_e) {}
 let newsSvc;
 try { newsSvc = require('../services/news'); } catch (_e) {}
+let weeklySvc;
+try { weeklySvc = require('../services/weeklyChallenges'); } catch (_e) {}
 
 const isDev = process.env.NODE_ENV !== 'production';
 const readLimiter = rateLimit({ windowMs: 60 * 1000, max: isDev ? 600 : 120, message: { error: 'Too many requests' } });
@@ -127,6 +129,8 @@ router.post('/buy', writeLimiter, async (req, res) => {
       achSvc.checkAndUnlock(w, 'marketplace_buy_count').catch(() => {});
       achSvc.checkAndUnlock(w, 'gp_balance').catch(() => {});
     }
+    // Weekly challenge: marketplace buy
+    if (weeklySvc) { weeklySvc.trackProgress(w, 'marketplace_buy', 1).catch(() => {}); }
     // News: big marketplace sale
     if (newsSvc && result.currency === 'GP') {
       const itemName = result.itemName || result.name || 'item';

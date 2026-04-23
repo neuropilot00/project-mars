@@ -2058,6 +2058,50 @@ router.delete('/news/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ── Weekly Challenges Admin (Migration 109) ───────────────────────────────────
+
+// GET /admin/api/weekly — stats + this week's instances
+router.get('/weekly', adminAuth, async (req, res) => {
+  try {
+    let weeklySvc;
+    try { weeklySvc = require('../services/weeklyChallenges'); } catch (_) {}
+    if (!weeklySvc) return res.status(503).json({ error: 'Weekly service unavailable' });
+    const stats = await weeklySvc.getAdminStats();
+    res.json(stats);
+  } catch (e) {
+    console.error('[Admin] weekly error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/weekly/setting
+router.post('/weekly/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body;
+  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
+  if (!key.startsWith('weekly_')) return res.status(400).json({ error: 'Invalid weekly key' });
+  try {
+    await pool.query(`UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`, [key, String(value)]);
+    await auditLog(req, 'update_weekly_setting', key, { value });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/weekly/settle — manually settle competitive challenges
+router.post('/weekly/settle', adminAuth, async (req, res) => {
+  try {
+    let weeklySvc;
+    try { weeklySvc = require('../services/weeklyChallenges'); } catch (_) {}
+    if (!weeklySvc) return res.status(503).json({ error: 'Weekly service unavailable' });
+    await weeklySvc.settleCompetitiveChallenges();
+    await auditLog(req, 'settle_weekly_competitive', 'all', {});
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── GP Burn Admin (Migration 108) ────────────────────────────────────────────
 
 // GET /admin/api/burn — stats + settings

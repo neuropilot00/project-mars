@@ -10,6 +10,8 @@ let logGPActivity;
 try { logGPActivity = require('../db').logGPActivity; } catch (_) {}
 let seasonService;
 try { seasonService = require('../services/season'); } catch (_) {}
+let weeklySvc;
+try { weeklySvc = require('../services/weeklyChallenges'); } catch (_) {}
 
 const isDev = process.env.NODE_ENV !== 'production';
 const readLimiter  = rateLimit({ windowMs: 60 * 1000, max: isDev ? 300 : 60,  message: { error: 'Too many requests' } });
@@ -47,6 +49,9 @@ router.post('/burn/burn', writeLimiter, async (req, res) => {
     }
     if (seasonService) {
       seasonService.addSeasonScore(w, 'gp_spend', Math.round(result.cost)).catch(() => {});
+    }
+    if (weeklySvc) {
+      weeklySvc.trackProgress(w, 'burn_gp', Math.round(result.cost)).catch(() => {});
     }
 
     res.json({ success: true, ...result });

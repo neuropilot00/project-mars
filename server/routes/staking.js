@@ -12,6 +12,8 @@ let seasonService;
 try { seasonService = require('../services/season'); } catch (_) {}
 let achSvc;
 try { achSvc = require('../services/achievements'); } catch (_) {}
+let weeklySvc;
+try { weeklySvc = require('../services/weeklyChallenges'); } catch (_) {}
 
 const isDev = process.env.NODE_ENV !== 'production';
 const readLimiter  = rateLimit({ windowMs: 60 * 1000, max: isDev ? 300 : 60,  message: { error: 'Too many requests' } });
@@ -69,6 +71,9 @@ router.post('/staking/stake', writeLimiter, async (req, res) => {
     }
     if (seasonService) {
       seasonService.addSeasonScore(w, 'gp_spend', Math.round(amt)).catch(() => {});
+    }
+    if (weeklySvc) {
+      weeklySvc.trackProgress(w, 'stake_gp', Math.round(amt)).catch(() => {});
     }
 
     res.json({ success: true, stake: result.stake, yieldEarned: result.yieldEarned, unlocksAt: result.unlocksAt });

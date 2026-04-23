@@ -857,6 +857,22 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="achAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ WEEKLY CHALLENGES TAB ═══ -->
+  <div class="section cat-season" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--cyan)">🎯 WEEKLY CHALLENGES</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadWeeklyAdmin()" style="font-size:10px;background:rgba(91,184,232,.12);border:1px solid rgba(91,184,232,.3);color:var(--cyan);padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+        <button onclick="settleWeeklyCompetitive()" style="font-size:10px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);padding:4px 10px;border-radius:4px;cursor:pointer">SETTLE COMPETITIVE</button>
+      </div>
+    </div>
+    <div id="weeklyAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:var(--cyan)">THIS WEEK'S INSTANCES</span></div>
+    <div id="weeklyAdmTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:var(--cyan)">WEEKLY SETTINGS</span></div>
+    <div id="weeklyAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ GP ECONOMY TAB ═══ -->
   <div class="section cat-gp" style="display:none">
     <div class="sec-header">
@@ -1428,7 +1444,7 @@ function switchTab(tab) {
   if (tab === 'shop') { loadShopItems(); loadShopStats(); loadAdminShields(); }
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
-  if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); }
+  if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
   if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
@@ -3448,6 +3464,84 @@ function saveGPXferSetting(key) {
   var input = document.getElementById('sXferKey_' + key);
   if (!input) return;
   saveSetting(key, input.value);
+}
+
+// ══════════════════════════════════════
+//  WEEKLY CHALLENGES ADMIN (Migration 109)
+// ══════════════════════════════════════
+function loadWeeklyAdmin() {
+  var statsEl    = document.getElementById('weeklyAdmStats');
+  var tableEl    = document.getElementById('weeklyAdmTable');
+  var settingsEl = document.getElementById('weeklyAdmSettings');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  apiJson('/admin/api/weekly').catch(function(){ return null; }).then(function(data) {
+    if (!data) { statsEl.innerHTML = '<div style="color:red;font-size:10px">Failed to load — run migration 109</div>'; return; }
+
+    var p = data.progress_stats || {};
+    statsEl.innerHTML = [
+      statCard('Participants',  parseInt(p.participants||0),  'var(--cyan)'),
+      statCard('Completions',   parseInt(p.completions||0),   '#4cd89a'),
+      statCard('Rewards Claimed', parseInt(p.claims||0),      'var(--gold)'),
+      statCard('Active Defs',   parseInt((data.defs||{}).active||0), 'var(--mars)'),
+    ].join('')
+    + '<div style="font-size:8px;color:var(--tx3);padding:4px 0">Week: '+data.week_start+' → '+data.week_end+'</div>';
+
+    var instances = data.instances || [];
+    tableEl.innerHTML = instances.length ? (
+      '<table class="adm-table" style="font-size:9px"><thead><tr>'
+      +'<th>NAME</th><th>TYPE</th><th>PROGRESS</th><th>TARGET</th><th>DONE?</th></tr></thead><tbody>'
+      + instances.map(function(i) {
+        var pct = Math.round((i.collective_progress / i.target_value) * 100);
+        return '<tr>'
+          +'<td>'+escapeHtml(i.name_en)+'</td>'
+          +'<td style="color:var(--cyan)">'+i.challenge_type+'</td>'
+          +'<td style="color:var(--gold)">'+i.collective_progress+'</td>'
+          +'<td>'+i.target_value+'</td>'
+          +'<td style="color:'+(i.collective_completed?'var(--gn)':'var(--tx3)')+'">'+( i.collective_completed?'✅':'—')+'</td>'
+          +'</tr>';
+      }).join('')
+      +'</tbody></table>'
+    ) : '<div style="font-size:10px;color:#888">No instances this week. Restart server to initialize.</div>';
+
+    var settings = data.settings || {};
+    settingsEl.innerHTML = Object.keys(settings).length ? Object.keys(settings).map(function(key) {
+      return '<div style="background:rgba(91,184,232,.04);border:1px solid rgba(91,184,232,.12);border-radius:6px;padding:8px">'
+        +'<div style="font-size:9px;color:var(--cyan);font-weight:700;margin-bottom:2px">'+escapeHtml(key)+'</div>'
+        +'<div style="display:flex;gap:4px;align-items:center">'
+        +'<input id="wkly_set_'+escapeHtml(key)+'" value="'+escapeHtml(String(settings[key]))+'" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
+        +'<button onclick="saveWeeklySetting(\''+escapeHtml(key)+'\')" style="font-size:9px;padding:3px 8px;background:rgba(91,184,232,.15);border:1px solid rgba(91,184,232,.3);color:var(--cyan);border-radius:3px;cursor:pointer">SAVE</button>'
+        +'</div></div>';
+    }).join('') : '<div style="font-size:10px;color:#888">No settings found. Run migration 109.</div>';
+  });
+}
+
+function saveWeeklySetting(key) {
+  var inp = document.getElementById('wkly_set_' + key);
+  if (!inp) return;
+  fetch('/admin/api/weekly/setting', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ key: key, value: inp.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ ' + key + ' saved');
+    loadWeeklyAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function settleWeeklyCompetitive() {
+  if (!confirm('Manually settle last week\'s competitive challenges now?')) return;
+  fetch('/admin/api/weekly/settle', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    alert('Competitive challenges settled!');
+    loadWeeklyAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════

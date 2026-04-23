@@ -3655,6 +3655,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px;grid-column:1/-1" data-i18n="achievements_loading">Loading achievements...</div>
           </div>
         </div>
+
+        <!-- WEEKLY CHALLENGES Section -->
+        <div id="weeklyChallengesSection" style="padding:8px 10px;border-top:1px solid var(--bdr);display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:9px;color:var(--cyan);letter-spacing:2px;font-family:var(--fn);font-weight:700">🎯 <span data-i18n="weekly_title">WEEKLY CHALLENGES</span></span>
+            <button onclick="loadWeeklyChallenges()" style="font-size:9px;background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.2);color:var(--cyan);padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+          </div>
+          <div id="weeklyWeekLabel" style="font-size:8px;color:var(--tx3);margin-bottom:6px"></div>
+          <div id="weeklyChallengesContainer">
+            <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: GOVERN -->
@@ -10525,6 +10537,7 @@ var I18N = {
     lottery_title: 'GP LOTTERY', lottery_disabled: 'Lottery disabled', lottery_round: 'ROUND', lottery_ends: 'ENDS IN', lottery_recent_winners: 'RECENT WINNERS',
     staking_title: 'GP STAKING', staking_stake_btn: '💎 STAKE GP', staking_confirm_title: 'STAKE GP', staking_confirm_btn: 'STAKE', staking_withdraw_title: 'WITHDRAW STAKE', staking_withdraw_btn: 'WITHDRAW',
     burn_title: 'GP BURN',
+    weekly_title: 'WEEKLY CHALLENGES',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11103,6 +11116,7 @@ var I18N = {
     lottery_title: 'GP 복권', lottery_disabled: '복권 비활성화', lottery_round: '라운드', lottery_ends: '종료까지', lottery_recent_winners: '최근 당첨자',
     staking_title: 'GP 스테이킹', staking_stake_btn: '💎 GP 스테이크', staking_confirm_title: 'GP 스테이킹', staking_confirm_btn: '스테이크', staking_withdraw_title: '스테이크 인출', staking_withdraw_btn: '인출',
     burn_title: 'GP 소각',
+    weekly_title: '주간 챌린지',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -11680,6 +11694,7 @@ var I18N = {
     lottery_title: 'GP宝くじ', lottery_disabled: '宝くじ無効', lottery_round: 'ラウンド', lottery_ends: '終了まで', lottery_recent_winners: '最近の当選者',
     staking_title: 'GPステーキング', staking_stake_btn: '💎 ステーク', staking_confirm_title: 'GPステーキング', staking_confirm_btn: 'ステーク', staking_withdraw_title: '引き出し', staking_withdraw_btn: '引き出す',
     burn_title: 'GP焼却',
+    weekly_title: 'ウィークリーチャレンジ',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12241,6 +12256,7 @@ var I18N = {
     lottery_title: 'GP抽奖', lottery_disabled: '抽奖已禁用', lottery_round: '轮次', lottery_ends: '剩余时间', lottery_recent_winners: '近期中奖者',
     staking_title: 'GP质押', staking_stake_btn: '💎 质押GP', staking_confirm_title: 'GP质押', staking_confirm_btn: '质押', staking_withdraw_title: '提取质押', staking_withdraw_btn: '提取',
     burn_title: 'GP销毁',
+    weekly_title: '每周挑战',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -15603,7 +15619,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   try{ clearBaseTabDot(tab); }catch(_e){}
@@ -24618,6 +24634,108 @@ var ACH_RARITY_GLOW = {
   epic:      '0 0 10px rgba(160,100,220,.5)',
   legendary: '0 0 14px rgba(255,209,102,.6)'
 };
+
+// ── WEEKLY CHALLENGES (Migration 109) ────────────────────────────────────────
+var WEEKLY_DIFF_COLOR = { easy: '#4cd89a', normal: 'var(--cyan)', hard: 'var(--gold)', epic: 'var(--mars)' };
+
+function loadWeeklyChallenges() {
+  var sec = document.getElementById('weeklyChallengesSection');
+  if (!sec) return;
+  sec.style.display = '';
+  var container = document.getElementById('weeklyChallengesContainer');
+  container.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
+
+  var wallet = walletState.address || '';
+  fetch('/api/weekly/challenges?wallet=' + wallet)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (!data.enabled) {
+        container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Weekly challenges are currently disabled</div>';
+        return;
+      }
+      var label = document.getElementById('weeklyWeekLabel');
+      if (label) label.textContent = 'Week: ' + data.week_start + ' — ' + data.week_end;
+      renderWeeklyChallenges(data.challenges || []);
+    })
+    .catch(function() {
+      container.innerHTML = '<div style="color:var(--mars);font-size:10px;text-align:center;padding:8px">Failed to load weekly challenges</div>';
+    });
+}
+
+function renderWeeklyChallenges(challenges) {
+  var container = document.getElementById('weeklyChallengesContainer');
+  if (!container || !challenges.length) {
+    if (container) container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">No challenges this week</div>';
+    return;
+  }
+
+  // Group by type
+  var personal    = challenges.filter(function(c){ return c.challenge_type === 'personal'; });
+  var collective  = challenges.filter(function(c){ return c.challenge_type === 'collective'; });
+  var competitive = challenges.filter(function(c){ return c.challenge_type === 'competitive'; });
+
+  function renderGroup(title, list, color) {
+    if (!list.length) return '';
+    var html = '<div style="font-size:9px;font-weight:700;color:'+color+';letter-spacing:1px;margin:8px 0 4px">'+title+'</div>';
+    list.forEach(function(c) {
+      var pct = c.challenge_type === 'collective' ? c.collective_pct : c.pct;
+      var progress = c.challenge_type === 'collective' ? c.collective_progress : c.user_progress;
+      var diffColor = WEEKLY_DIFF_COLOR[c.difficulty] || 'var(--tx2)';
+      var canClaim = c.user_completed && !c.reward_claimed && c.challenge_type !== 'competitive';
+      var collectiveDone = c.collective_completed;
+      var collectiveCanClaim = c.challenge_type === 'collective' && collectiveDone && !c.reward_claimed;
+
+      html += '<div style="padding:8px;background:rgba(255,255,255,.03);border-radius:6px;margin-bottom:4px;border:1px solid rgba(255,255,255,.06)'
+        + (c.user_completed ? ';border-color:rgba(76,216,154,.3)' : '')
+        + (collectiveDone ? ';border-color:rgba(91,184,232,.3)' : '')
+        + '">'
+        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'
+        + '<div style="flex:1">'
+        + '<div style="font-size:10px;color:var(--tx);font-weight:700">' + c.icon + ' ' + c.name + '</div>'
+        + '<div style="font-size:9px;color:var(--tx3)">' + c.desc + '</div>'
+        + '</div>'
+        + '<div style="text-align:right;min-width:60px">'
+        + '<div style="font-size:9px;color:'+diffColor+';font-weight:700">'+c.difficulty.toUpperCase()+'</div>'
+        + '<div style="font-size:9px;color:var(--gold)">+'+c.reward_gp+' GP</div>'
+        + '</div>'
+        + '</div>'
+        // Progress bar
+        + '<div style="background:rgba(255,255,255,.06);border-radius:3px;height:4px;margin-bottom:4px">'
+        + '<div style="background:'+color+';width:'+pct+'%;height:4px;border-radius:3px;transition:width .3s"></div>'
+        + '</div>'
+        + '<div style="display:flex;justify-content:space-between;align-items:center">'
+        + '<span style="font-size:9px;color:var(--tx3)">'+progress+' / '+c.target_value+'</span>'
+        + (canClaim || collectiveCanClaim ? '<button onclick="claimWeeklyReward('+c.instance_id+')" style="font-size:9px;padding:3px 10px;background:rgba(76,216,154,.2);border:1px solid rgba(76,216,154,.35);color:var(--gn);border-radius:4px;cursor:pointer;font-weight:700">CLAIM +'+c.reward_gp+' GP</button>' : '')
+        + (c.reward_claimed ? '<span style="font-size:9px;color:var(--gn)">✅ Claimed</span>' : '')
+        + (c.challenge_type === 'competitive' ? '<span style="font-size:8px;color:var(--tx3)">Top scorer wins</span>' : '')
+        + '</div>'
+        + '</div>';
+    });
+    return html;
+  }
+
+  container.innerHTML =
+    renderGroup('PERSONAL', personal, 'var(--cyan)')
+    + renderGroup('🌐 COLLECTIVE (Server-Wide)', collective, '#a064dc')
+    + renderGroup('🏆 COMPETITIVE', competitive, 'var(--gold)');
+}
+
+function claimWeeklyReward(instanceId) {
+  if (!walletState.address) return showToast('Connect wallet first', 'error');
+  fetch('/api/weekly/claim', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ wallet: walletState.address, instanceId: instanceId })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.error) return showToast(d.error, 'error');
+      showToast('🎯 +' + d.reward_gp + ' GP claimed!', 'success');
+      loadWeeklyChallenges();
+      loadWalletData();
+    })
+    .catch(function() { showToast('Claim failed', 'error'); });
+}
 
 function loadAchievements() {
   var sec = document.getElementById('achievementsSection');

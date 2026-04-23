@@ -82,7 +82,8 @@ const shipRoutes    = require('./routes/ships');
 const battleRoutes  = require('./routes/battle');
 const lotteryRoutes  = require('./routes/lottery');
 const stakingRoutes  = require('./routes/staking');
-const gpBurnRoutes   = require('./routes/gpBurn');
+const gpBurnRoutes      = require('./routes/gpBurn');
+const weeklyRoutes      = require('./routes/weeklyChallenges');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -198,6 +199,7 @@ app.use('/api', battleRoutes);
 app.use('/api', lotteryRoutes);
 app.use('/api', stakingRoutes);
 app.use('/api', gpBurnRoutes);
+app.use('/api', weeklyRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -801,6 +803,23 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[STAKING] Ready-check scheduler started (5min interval)');
     } catch(e) { console.warn('[STAKING] Could not init scheduler:', e.message); }
+
+    // ── Weekly Challenges: Ensure instances + settle competitive (every 1 hour) ──
+    try {
+      const { ensureWeekInstances, settleCompetitiveChallenges } = require('./services/weeklyChallenges');
+      // Ensure instances on startup
+      setTimeout(async () => {
+        try { await ensureWeekInstances(); } catch(e) { console.warn('[WEEKLY] startup ensure error:', e.message); }
+      }, 30 * 1000);
+      // Hourly: ensure instances for new week + settle last week's competitive
+      setInterval(async () => {
+        try {
+          await ensureWeekInstances();
+          await settleCompetitiveChallenges();
+        } catch(e) { console.warn('[WEEKLY] hourly task error:', e.message); }
+      }, 60 * 60 * 1000);
+      console.log('[WEEKLY] Challenge scheduler started (hourly)');
+    } catch(e) { console.warn('[WEEKLY] Could not init scheduler:', e.message); }
 
     // ── Chronicle: Weekly Report (every Monday UTC 00:00) ──
     try {
