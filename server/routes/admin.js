@@ -2252,4 +2252,54 @@ router.post('/staking/force-withdraw', adminAuth, async (req, res) => {
   }
 });
 
+// ── Territory Monuments Admin ──────────────────────────────────────────────────
+
+// GET /admin/api/monuments
+router.get('/monuments', adminAuth, async (req, res) => {
+  try {
+    let monumentSvc;
+    try { monumentSvc = require('../services/monuments'); } catch (_) {}
+    if (!monumentSvc) return res.status(503).json({ error: 'Monument service unavailable' });
+    const stats = await monumentSvc.getAdminStats();
+    res.json(stats);
+  } catch (e) {
+    console.error('[Admin] monuments error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/monuments/setting
+router.post('/monuments/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body;
+  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
+  if (!key.startsWith('monument_')) return res.status(400).json({ error: 'Invalid monument key' });
+  try {
+    await pool.query(`UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`, [key, String(value)]);
+    await auditLog(req, 'update_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/monuments/moderate/:id  — hide/restore a monument
+router.post('/monuments/moderate/:id', adminAuth, async (req, res) => {
+  const { id } = req.params;
+  const { action, note } = req.body; // action: 'hide' | 'restore'
+  if (!['hide', 'restore'].includes(action)) return res.status(400).json({ error: 'action must be hide or restore' });
+  try {
+    const isActive = action === 'restore';
+    await pool.query(
+      `UPDATE territory_monuments
+          SET is_active = $2, moderated_at = NOW(), moderation_note = $3
+        WHERE id = $1`,
+      [id, isActive, note || null]
+    );
+    await auditLog(req, `monument_${action}`, `monument:${id}`, { note });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

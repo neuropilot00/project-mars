@@ -25,6 +25,8 @@ let achSvc;
 try { achSvc = require('../services/achievements'); } catch (_e) {}
 let weeklySvc;
 try { weeklySvc = require('../services/weeklyChallenges'); } catch (_e) {}
+let monumentSvc;
+try { monumentSvc = require('../services/monuments'); } catch (_e) {}
 let newsSvc;
 try { newsSvc = require('../services/news'); } catch (_e) {}
 let missionService;
@@ -1278,6 +1280,21 @@ router.post('/claim', writeLimiter, async (req, res) => {
       try {
         await client.query(`UPDATE user_active_effects SET uses_remaining = 0, active = false WHERE id = $1`, [pixelDoublerEffectId]);
       } catch(pe) { /* non-critical */ }
+    }
+
+    // ── Destroy monuments on hijacked claims (safe: savepoint-guarded) ──
+    if (monumentSvc && wonPixels.length > 0) {
+      try {
+        await client.query('SAVEPOINT monument_sp');
+        const hijackedClaimIds = [...new Set(wonPixels.map(ep => ep.existing.claim_id).filter(Boolean))];
+        for (const hcId of hijackedClaimIds) {
+          await monumentSvc.destroyClaimMonuments(client, hcId, walletLower);
+        }
+        await client.query('RELEASE SAVEPOINT monument_sp');
+      } catch (_mde) {
+        await client.query('ROLLBACK TO SAVEPOINT monument_sp');
+        console.warn('[Monument] destroy on hijack failed:', _mde.message);
+      }
     }
 
     await client.query('COMMIT');

@@ -3321,6 +3321,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <span id="mySectorsToggle" style="font-size:8px;color:var(--tx3)" data-i18n="show_label">▼ SHOW</span>
         </div>
         <div id="baseMySectors" style="display:none;font-size:10px;color:var(--tx3)" data-i18n="login_to_view">Login to view your territories.</div>
+
+        <!-- 🗿 MY MONUMENTS (collapsible) -->
+        <div class="base-section-title" onclick="toggleMonuments()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+          <span>🗿 <span data-i18n="monuments_title">MY MONUMENTS</span></span>
+          <span id="monumentsToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="monumentsPanel" style="display:none;padding:4px 0 8px">
+          <div id="monumentsContent">
+            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: SECTORS -->
@@ -4704,6 +4715,59 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <button class="gc-btn gc-cancel" onclick="gameConfirmResolve(false)">CANCEL</button>
       <button class="gc-btn gc-confirm" id="gcConfirmBtn" onclick="gameConfirmResolve(true)">CONFIRM</button>
     </div>
+  </div>
+</div>
+
+<!-- Monument Placement Modal -->
+<div id="monumentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2200;display:none;align-items:center;justify-content:center" onclick="if(event.target===this)closeMonumentModal()">
+  <div style="width:360px;max-width:94vw;background:var(--panel2);border:1px solid rgba(255,160,50,.3);border-radius:14px;padding:20px;font-family:var(--fn);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <span style="font-size:22px">🗿</span>
+      <div>
+        <div style="font-size:13px;font-weight:800;color:var(--gold);letter-spacing:1px" data-i18n="monument_place_title">PLACE MONUMENT</div>
+        <div style="font-size:9px;color:var(--tx3)" id="monumentModalSubtitle">Select a territory</div>
+      </div>
+      <button onclick="closeMonumentModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer">✕</button>
+    </div>
+
+    <!-- Territory Picker -->
+    <div style="margin-bottom:12px">
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px" data-i18n="monument_territory">TERRITORY</div>
+      <select id="monumentClaimSelect" onchange="onMonumentClaimChange()"
+        style="width:100%;font-size:10px;padding:7px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,160,50,.25);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+        <option value="">-- Select territory --</option>
+      </select>
+    </div>
+
+    <!-- Cost display -->
+    <div id="monumentCostRow" style="display:none;background:rgba(255,160,50,.07);border:1px solid rgba(255,160,50,.2);border-radius:6px;padding:8px 10px;margin-bottom:12px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--tx3)" data-i18n="monument_cost">Cost</span>
+      <span id="monumentCostVal" style="color:var(--gold);font-weight:700">-- GP</span>
+    </div>
+
+    <!-- Type Selector -->
+    <div style="margin-bottom:12px">
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:6px;letter-spacing:.5px" data-i18n="monument_type">TYPE</div>
+      <div id="monumentTypeGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px"></div>
+    </div>
+
+    <!-- Name -->
+    <div style="margin-bottom:10px">
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px" data-i18n="monument_name_label">MONUMENT NAME</div>
+      <input id="monumentNameInput" type="text" maxlength="60" placeholder="e.g. Martian Obelisk Alpha"
+        style="width:100%;box-sizing:border-box;font-size:10px;padding:7px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:6px;font-family:var(--fn)">
+    </div>
+
+    <!-- Message / Inscription -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px" data-i18n="monument_inscription">INSCRIPTION (optional)</div>
+      <textarea id="monumentMsgInput" maxlength="200" rows="3" placeholder="A message for all who pass..."
+        style="width:100%;box-sizing:border-box;font-size:10px;padding:7px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:6px;font-family:var(--fn);resize:none"></textarea>
+    </div>
+
+    <button onclick="submitPlaceMonument()"
+      style="width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(255,160,50,.18),rgba(255,160,50,.06));border:1px solid rgba(255,160,50,.45);color:var(--gold);font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:1px"
+      data-i18n="monument_place_btn">🗿 PLACE MONUMENT</button>
   </div>
 </div>
 
@@ -10538,6 +10602,7 @@ var I18N = {
     staking_title: 'GP STAKING', staking_stake_btn: '💎 STAKE GP', staking_confirm_title: 'STAKE GP', staking_confirm_btn: 'STAKE', staking_withdraw_title: 'WITHDRAW STAKE', staking_withdraw_btn: 'WITHDRAW',
     burn_title: 'GP BURN',
     weekly_title: 'WEEKLY CHALLENGES',
+    monuments_title: 'MY MONUMENTS', monument_place_title: 'PLACE MONUMENT', monument_place_btn: 'PLACE MONUMENT', monument_territory: 'TERRITORY', monument_type: 'TYPE', monument_name_label: 'MONUMENT NAME', monument_inscription: 'INSCRIPTION', monument_cost: 'Cost',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11117,6 +11182,7 @@ var I18N = {
     staking_title: 'GP 스테이킹', staking_stake_btn: '💎 GP 스테이크', staking_confirm_title: 'GP 스테이킹', staking_confirm_btn: '스테이크', staking_withdraw_title: '스테이크 인출', staking_withdraw_btn: '인출',
     burn_title: 'GP 소각',
     weekly_title: '주간 챌린지',
+    monuments_title: '내 기념비', monument_place_title: '기념비 설치', monument_place_btn: '기념비 설치', monument_territory: '영토', monument_type: '유형', monument_name_label: '기념비 이름', monument_inscription: '비문', monument_cost: '비용',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -11695,6 +11761,7 @@ var I18N = {
     staking_title: 'GPステーキング', staking_stake_btn: '💎 ステーク', staking_confirm_title: 'GPステーキング', staking_confirm_btn: 'ステーク', staking_withdraw_title: '引き出し', staking_withdraw_btn: '引き出す',
     burn_title: 'GP焼却',
     weekly_title: 'ウィークリーチャレンジ',
+    monuments_title: '記念碑', monument_place_title: '記念碑を設置', monument_place_btn: '記念碑を設置', monument_territory: '領土', monument_type: 'タイプ', monument_name_label: '記念碑名', monument_inscription: '銘文', monument_cost: 'コスト',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12257,6 +12324,7 @@ var I18N = {
     staking_title: 'GP质押', staking_stake_btn: '💎 质押GP', staking_confirm_title: 'GP质押', staking_confirm_btn: '质押', staking_withdraw_title: '提取质押', staking_withdraw_btn: '提取',
     burn_title: 'GP销毁',
     weekly_title: '每周挑战',
+    monuments_title: '我的纪念碑', monument_place_title: '放置纪念碑', monument_place_btn: '放置纪念碑', monument_territory: '领土', monument_type: '类型', monument_name_label: '纪念碑名称', monument_inscription: '铭文', monument_cost: '费用',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -24750,6 +24818,191 @@ function claimWeeklyReward(instanceId) {
       loadWalletData();
     })
     .catch(function() { showToast('Claim failed', 'error'); });
+}
+
+// ── Territory Monuments ──────────────────────────────────────────────────────
+
+var _monumentTypes = [];
+var _selectedMonumentType = 'pillar';
+var _monumentClaims = [];
+
+function toggleMonuments() {
+  var panel = document.getElementById('monumentsPanel');
+  var tog = document.getElementById('monumentsToggle');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : '';
+  if (tog) tog.textContent = open ? '▼' : '▲';
+  if (!open) loadMonumentsPanel();
+}
+
+function loadMonumentsPanel() {
+  var el = document.getElementById('monumentsContent');
+  if (!el) return;
+  if (!walletState.address) {
+    el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Connect wallet to view monuments</div>';
+    return;
+  }
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
+  Promise.all([
+    fetch('/api/monuments/my-monuments?wallet=' + walletState.address).then(function(r){ return r.json(); }),
+    fetch('/api/monuments/recent?limit=5').then(function(r){ return r.json(); })
+  ]).then(function(results) {
+    var myData = results[0];
+    var recent = results[1];
+    renderMonumentsPanel(myData.monuments || [], recent.monuments || []);
+  }).catch(function() {
+    el.innerHTML = '<div style="color:var(--mars);font-size:10px;text-align:center;padding:12px">Failed to load monuments</div>';
+  });
+}
+
+function renderMonumentsPanel(myMonuments, recentMonuments) {
+  var el = document.getElementById('monumentsContent');
+  if (!el) return;
+  var active = myMonuments.filter(function(m){ return m.is_active; });
+  var html = '';
+
+  html += '<button onclick="openMonumentModal()" style="width:100%;margin-bottom:10px;padding:9px;border-radius:8px;background:linear-gradient(135deg,rgba(255,160,50,.14),rgba(255,160,50,.04));border:1px solid rgba(255,160,50,.35);color:var(--gold);font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.5px">🗿 <span data-i18n="monument_place_btn">PLACE MONUMENT</span></button>';
+
+  if (active.length === 0) {
+    html += '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:8px 0">No active monuments yet</div>';
+  } else {
+    html += '<div style="font-size:9px;color:var(--tx3);margin-bottom:6px;letter-spacing:.5px">MY ACTIVE MONUMENTS (' + active.length + ')</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    active.forEach(function(m) {
+      html += '<div style="background:rgba(255,160,50,.05);border:1px solid rgba(255,160,50,.18);border-radius:8px;padding:8px 10px">';
+      html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">';
+      html += '<span style="font-size:16px">' + (m.icon || '🗿') + '</span>';
+      html += '<div style="flex:1"><div style="font-size:10px;font-weight:700;color:var(--tx)">' + escHtml(m.name) + '</div>';
+      html += '<div style="font-size:8px;color:var(--tx3)">Sector ' + (m.sector_x||'?') + ',' + (m.sector_y||'?') + ' · ' + m.gp_spent + ' GP spent</div></div>';
+      html += '</div>';
+      if (m.message) html += '<div style="font-size:9px;color:var(--tx2);font-style:italic;border-top:1px solid rgba(255,255,255,.05);padding-top:4px;margin-top:4px">"' + escHtml(m.message) + '"</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (recentMonuments && recentMonuments.length > 0) {
+    html += '<div style="font-size:9px;color:var(--tx3);margin-top:10px;margin-bottom:6px;letter-spacing:.5px">RECENT MONUMENTS</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:4px">';
+    recentMonuments.slice(0,5).forEach(function(m) {
+      var nick = m.owner_nick || (m.owner||'').slice(0,8)+'…';
+      html += '<div style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--tx2);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">';
+      html += '<span style="font-size:13px">' + (m.icon||'🗿') + '</span>';
+      html += '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(m.name) + '</span>';
+      html += '<span style="color:var(--tx3)">' + nick + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function openMonumentModal() {
+  if (!walletState.address) { showToast('Connect wallet first', 'error'); return; }
+  var modal = document.getElementById('monumentModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  _selectedMonumentType = 'pillar';
+
+  // Load types
+  fetch('/api/monuments/types').then(function(r){ return r.json(); }).then(function(d) {
+    _monumentTypes = d.types || [];
+    renderMonumentTypeGrid();
+  }).catch(function(){});
+
+  // Populate territory picker
+  var sel = document.getElementById('monumentClaimSelect');
+  if (!sel) return;
+  var myClaims = (window.claims||[]).filter(function(c){ return (c.owner||'').toLowerCase() === walletState.address.toLowerCase(); });
+  _monumentClaims = myClaims;
+  sel.innerHTML = '<option value="">-- Select territory --</option>';
+  myClaims.forEach(function(c, i) {
+    var label = (c.custom_name || ('Territory ' + (c.id||i+1))) + ' (' + (c.width||1) + '×' + (c.height||1) + ')';
+    var opt = document.createElement('option');
+    opt.value = c.id || i;
+    opt.textContent = label;
+    sel.appendChild(opt);
+  });
+
+  document.getElementById('monumentCostRow').style.display = 'none';
+  document.getElementById('monumentNameInput').value = '';
+  document.getElementById('monumentMsgInput').value = '';
+}
+
+function renderMonumentTypeGrid() {
+  var grid = document.getElementById('monumentTypeGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  _monumentTypes.forEach(function(t) {
+    var div = document.createElement('div');
+    div.setAttribute('onclick', 'selectMonumentType("' + t.key + '",this)');
+    div.style.cssText = 'cursor:pointer;border-radius:8px;border:2px solid rgba(255,255,255,.12);padding:8px 4px;text-align:center;transition:.15s';
+    div.id = 'mtype_' + t.key;
+    if (t.key === _selectedMonumentType) div.style.borderColor = 'rgba(255,160,50,.65)';
+    div.innerHTML = '<div style="font-size:18px">' + t.icon + '</div><div style="font-size:7px;color:var(--tx3);margin-top:2px">' + t.name + '</div>';
+    grid.appendChild(div);
+  });
+}
+
+function selectMonumentType(key, el) {
+  _selectedMonumentType = key;
+  document.querySelectorAll('#monumentTypeGrid > div').forEach(function(d) {
+    d.style.borderColor = 'rgba(255,255,255,.12)';
+  });
+  if (el) el.style.borderColor = 'rgba(255,160,50,.65)';
+}
+
+function onMonumentClaimChange() {
+  var sel = document.getElementById('monumentClaimSelect');
+  var costRow = document.getElementById('monumentCostRow');
+  var costVal = document.getElementById('monumentCostVal');
+  if (!sel || !sel.value) { if (costRow) costRow.style.display = 'none'; return; }
+  var claimId = sel.value;
+  fetch('/api/monuments/cost?claimId=' + claimId)
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (costRow) costRow.style.display = 'flex';
+      if (costVal) costVal.textContent = (d.cost || '?') + ' GP';
+    }).catch(function(){});
+}
+
+function closeMonumentModal() {
+  var modal = document.getElementById('monumentModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function submitPlaceMonument() {
+  var sel = document.getElementById('monumentClaimSelect');
+  var nameEl = document.getElementById('monumentNameInput');
+  var msgEl = document.getElementById('monumentMsgInput');
+  if (!sel || !sel.value) { showToast('Select a territory', 'error'); return; }
+  var name = (nameEl ? nameEl.value : '').trim();
+  if (!name) { showToast('Monument name is required', 'error'); return; }
+  if (!walletState.address) { showToast('Connect wallet', 'error'); return; }
+
+  gameConfirm('🗿', 'PLACE MONUMENT', 'Permanently spend GP to place "' + escHtml(name) + '" on your territory? GP is burned and cannot be recovered.')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      return fetch('/api/monuments/place', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          wallet: walletState.address,
+          claimId: parseInt(sel.value),
+          monumentType: _selectedMonumentType,
+          name: name,
+          message: msgEl ? msgEl.value.trim() : ''
+        })
+      }).then(function(r){ return r.json(); }).then(function(d) {
+        if (d.error) { showToast(d.error, 'error'); return; }
+        showToast('🗿 Monument placed! (' + d.cost + ' GP burned)', 'success');
+        closeMonumentModal();
+        loadMonumentsPanel();
+        loadWalletData();
+      });
+    }).catch(function(e) { showToast(e.message || 'Failed to place monument', 'error'); });
 }
 
 function loadAchievements() {

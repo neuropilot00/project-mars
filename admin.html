@@ -996,6 +996,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="divAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY MONUMENTS ═══ -->
+  <div class="section cat-gp" style="display:none" id="monumentAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#e8c040">🗿 TERRITORY MONUMENTS</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadMonumentAdmin()" style="font-size:10px;background:rgba(232,192,64,.12);border:1px solid rgba(232,192,64,.3);color:#e8c040;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+      </div>
+    </div>
+    <div id="monumentAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#e8c040">RECENT MONUMENTS</span></div>
+    <div id="monumentAdmTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#e8c040">MONUMENT SETTINGS</span></div>
+    <div id="monumentAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ GP BURN TAB ═══ -->
   <div class="section cat-gp" style="display:none" id="burnAdminSection">
     <div class="sec-header">
@@ -1461,7 +1476,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -3703,6 +3718,79 @@ function forceDistributeDividend() {
     if (d.error) return alert('Error: ' + d.error);
     alert('Distribution done! Recipients: ' + d.recipients);
     loadDividendAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  TERRITORY MONUMENTS ADMIN (Migration 111)
+// ══════════════════════════════════════
+function loadMonumentAdmin() {
+  var statsEl    = document.getElementById('monumentAdmStats');
+  var tableEl    = document.getElementById('monumentAdmTable');
+  var settingsEl = document.getElementById('monumentAdmSettings');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  apiJson('/admin/api/monuments').catch(function(){ return null; }).then(function(data) {
+    if (!data) { statsEl.innerHTML = '<div style="color:#f88;font-size:10px">Service unavailable</div>'; return; }
+
+    statsEl.innerHTML = [
+      mkStatBox('TOTAL', data.total||0, '#e8c040'),
+      mkStatBox('ACTIVE', data.active||0, '#4cd89a'),
+      mkStatBox('DESTROYED', data.destroyed||0, '#f86c6b'),
+      mkStatBox('TOTAL GP', (parseFloat(data.total_gp||0)).toFixed(0)+' GP', '#e8c040'),
+    ].join('');
+
+    // Recent monuments table
+    var rows = (data.recent||[]).map(function(m) {
+      var nick = escapeHtml(m.owner_nick || m.owner.slice(0,10)+'…');
+      var status = m.is_active ? '<span style="color:#4cd89a">ACTIVE</span>' : '<span style="color:#f86c6b">DESTROYED</span>';
+      var modBtn = m.is_active
+        ? '<button onclick="moderateMonument('+m.id+',\'hide\')" style="font-size:9px;padding:2px 6px;background:rgba(255,80,30,.15);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">HIDE</button>'
+        : '<button onclick="moderateMonument('+m.id+',\'restore\')" style="font-size:9px;padding:2px 6px;background:rgba(76,216,154,.15);border:1px solid rgba(76,216,154,.3);color:#4cd89a;border-radius:3px;cursor:pointer">RESTORE</button>';
+      return '<tr><td>'+m.id+'</td><td>'+escapeHtml(m.icon||'🗿')+'</td><td>'+escapeHtml(m.name)+'</td><td>'+nick+'</td><td>'+m.gp_spent+'</td><td>'+status+'</td><td>'+modBtn+'</td></tr>';
+    }).join('');
+    tableEl.innerHTML = rows.length
+      ? '<table class="adm-table"><thead><tr><th>ID</th><th>Icon</th><th>Name</th><th>Owner</th><th>GP</th><th>Status</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      : '<div style="color:#888;font-size:10px;padding:8px">No monuments yet</div>';
+
+    // Settings
+    var sets = data.settings || {};
+    settingsEl.innerHTML = Object.entries(sets).map(function(e) {
+      var k = e[0]; var v = e[1];
+      return '<div style="display:flex;align-items:center;gap:6px;font-size:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+        + '<span style="flex:1;color:#888">'+k+'</span>'
+        + '<input id="mset_'+k+'" value="'+escapeHtml(String(v))+'" style="width:90px;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.4);border:1px solid rgba(232,192,64,.25);color:#fff;border-radius:3px">'
+        + '<button onclick="saveMonumentSetting(\''+k+'\')" style="font-size:9px;padding:3px 8px;background:rgba(232,192,64,.15);border:1px solid rgba(232,192,64,.3);color:#e8c040;border-radius:3px;cursor:pointer">SAVE</button>'
+        + '</div>';
+    }).join('');
+  });
+}
+
+function saveMonumentSetting(key) {
+  var inp = document.getElementById('mset_' + key);
+  if (!inp) return;
+  fetch('/admin/api/monuments/setting', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ key: key, value: inp.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ ' + key + ' saved');
+    loadMonumentAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function moderateMonument(id, action) {
+  var note = action === 'hide' ? (prompt('Moderation note (optional):') || '') : '';
+  fetch('/admin/api/monuments/moderate/' + id, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ action: action, note: note })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ Monument ' + action + 'd');
+    loadMonumentAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
