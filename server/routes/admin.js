@@ -3487,4 +3487,33 @@ router.post('/polls/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── GP Status Messages Admin (Migration 136) ─────────────────────────────────
+
+router.get('/status', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/status'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, recent: [] });
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/status/:wallet', adminAuth, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    await pool.query(`DELETE FROM player_status WHERE wallet=$1`, [req.params.wallet]);
+    await auditLog(req, 'status_clear', req.params.wallet, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/status/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('status_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'status_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;
