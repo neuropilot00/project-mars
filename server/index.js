@@ -69,6 +69,14 @@ const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const arenaRoutes = require('./routes/arena');
 const governanceRoutes = require('./routes/governance');
+const marketplaceRoutes = require('./routes/marketplace');
+const jobRoutes = require('./routes/job');
+const resourceRoutes = require('./routes/resource');
+const onboardingRoutes = require('./routes/onboarding');
+const sectorRoutes = require('./routes/sectors');
+const siegeRoutes = require('./routes/siege');
+const publicRoutes = require('./routes/public');
+const bettingRoutes = require('./routes/betting');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -170,11 +178,20 @@ app.use((req, res, next) => {
 // ── API Routes ──
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
+// ⚠️ job/resource/onboarding/sector routes must come BEFORE apiRoutes to avoid /user/:wallet wildcard conflict
+app.use('/api', jobRoutes);
+app.use('/api', resourceRoutes);
+app.use('/api', onboardingRoutes);
+app.use('/api', sectorRoutes);
+app.use('/api', siegeRoutes);
+app.use('/api', publicRoutes);
+app.use('/api', bettingRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
 app.use('/api/arena', arenaRoutes);
 app.use('/api/governance', governanceRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
 
 // ── Public Leaderboard Page ──
 app.get('/leaderboard', async (req, res) => {
@@ -302,6 +319,59 @@ app.get('/admin', (req, res) => {
 });
 app.get('/arena', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'arena.html'));
+});
+
+// ── OG Share Card: /share/chronicle/:id ──
+app.get('/share/chronicle/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) return res.status(400).send('Invalid ID');
+  try {
+    const { pool: dbPool } = require('./db');
+    const result = await dbPool.query(
+      `SELECT sc.*, u.nickname AS actor_nickname
+       FROM server_chronicles sc
+       LEFT JOIN users u ON u.wallet_address = sc.actor_wallet
+       WHERE sc.id = $1 AND sc.is_public = true`,
+      [id]
+    );
+    if (!result.rows.length) return res.status(404).send('Chronicle not found');
+    const c = result.rows[0];
+    const title = c.title_en || c.event_type;
+    const desc  = c.body_en  || `Occupy Mars chronicle event: ${c.event_type}`;
+    const url   = `https://occupymars.io/share/chronicle/${id}`;
+    res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>${title} — Occupy Mars</title>
+  <meta name="description" content="${desc}">
+  <meta property="og:title" content="${title}">
+  <meta property="og:description" content="${desc}">
+  <meta property="og:url" content="${url}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Occupy Mars">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="${title}">
+  <meta name="twitter:description" content="${desc}">
+  <meta http-equiv="refresh" content="2;url=/">
+  <style>
+    body{margin:0;background:#0d1b2a;color:#eee;font-family:monospace;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;padding:20px;text-align:center}
+    h1{color:#5bb8e8;font-size:1.4em;margin:0}
+    p{color:#aaa;font-size:.9em;margin:0}
+    a{color:#5bb8e8}
+  </style>
+</head>
+<body>
+  <div style="font-size:2em">📋</div>
+  <h1>${title}</h1>
+  <p>${desc}</p>
+  <p style="margin-top:8px;font-size:.8em;color:#555">Redirecting to <a href="/">Occupy Mars</a>...</p>
+</body>
+</html>`);
+  } catch (err) {
+    console.error('[SHARE] chronicle error:', err.message);
+    res.status(500).send('Error');
+  }
 });
 
 // ── Error handler ──
@@ -584,6 +654,54 @@ async function start() {
       console.log('[SEASON] Auto-rotation scheduled (check: startup+2min, then 1h)');
     } catch(e) { console.warn('[SEASON] Could not init auto-rotation:', e.message); }
 
+    // ── Weekly Job Change Count Reset (every Monday UTC 00:00) ──
+    try {
+      const { resetWeeklyJobChangeCounts } = require('./services/job');
+      setInterval(async () => {
+        try {
+          const now = new Date();
+          if (now.getUTCDay() === 1 && now.getUTCHours() === 0) {
+            await resetWeeklyJobChangeCounts();
+            console.log('[JOB] Weekly job change counts reset');
+          }
+        } catch(e) { console.warn('[JOB] weekly reset error:', e.message); }
+      }, 60 * 60 * 1000); // Check every hour
+      console.log('[JOB] Weekly reset scheduler started (check: 1h)');
+    } catch(e) { console.warn('[JOB] Could not init weekly reset scheduler:', e.message); }
+
+    // ── Siege Auto-Resolve (every 5 minutes) ──
+    try {
+      const { resolveExpiredSieges } = require('./services/siege');
+      setInterval(async () => {
+        try {
+          const n = await resolveExpiredSieges();
+          if (n > 0) console.log(`[SIEGE] Auto-resolved ${n} expired siege(s)`);
+        } catch(e) { console.warn('[SIEGE] auto-resolve error:', e.message); }
+      }, 5 * 60 * 1000); // every 5 minutes
+      console.log('[SIEGE] Auto-resolve scheduler started (5min interval)');
+    } catch(e) { console.warn('[SIEGE] Could not init auto-resolve scheduler:', e.message); }
+
+    // ── War Betting: Close Expired Events (every 5 minutes) ──
+    try {
+      const { closeExpiredEvents } = require('./services/betting');
+      setInterval(async () => {
+        try {
+          const n = await closeExpiredEvents();
+          if (n > 0) console.log(`[BETTING] Auto-closed ${n} expired betting event(s)`);
+        } catch(e) { console.warn('[BETTING] closeExpired error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[BETTING] Close-expired-events scheduler started (5min interval)');
+    } catch(e) { console.warn('[BETTING] Could not init close-expired scheduler:', e.message); }
+
+    // ── Marketplace Listing Expiry ──
+    try {
+      const { expireListings } = require('./services/marketplace');
+      setInterval(async () => {
+        try { const n = await expireListings(); if (n > 0) console.log(`[MARKET] Expired ${n} listings`); } catch(e) { console.warn('[MARKET] expiry error:', e.message); }
+      }, 5 * 60 * 1000); // every 5 minutes
+      console.log('[MARKET] Listing expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[MARKET] Could not init expiry scheduler:', e.message); }
+
     // ── Daily Engagement Cleanup ──
     try {
       // Daily cleanup - remove old mission data
@@ -596,6 +714,21 @@ async function start() {
       }, 24 * 60 * 60 * 1000);
       console.log('[DAILY] Scheduled tasks initialized (cleanup: 24h)');
     } catch(e) { console.warn('[DAILY] Could not init scheduled tasks:', e.message); }
+
+    // ── Chronicle: Weekly Report (every Monday UTC 00:00) ──
+    try {
+      const { sendWeeklyReport } = require('./services/chronicle');
+      setInterval(async () => {
+        try {
+          const now = new Date();
+          if (now.getUTCDay() === 1 && now.getUTCHours() === 0) {
+            await sendWeeklyReport();
+            console.log('[CHRONICLE] Weekly report sent');
+          }
+        } catch(e) { console.warn('[CHRONICLE] weekly report error:', e.message); }
+      }, 60 * 60 * 1000); // Check every hour
+      console.log('[CHRONICLE] Weekly report scheduler started (check: 1h)');
+    } catch(e) { console.warn('[CHRONICLE] Could not init weekly report scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

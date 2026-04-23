@@ -1698,4 +1698,106 @@ router.post('/poi-reset-all', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ══════════════════════════════════════
+// ENHANCEMENT SYSTEM ADMIN
+// ══════════════════════════════════════
+
+// GET /admin/enhancement/stats — enhancement statistics
+router.get('/enhancement/stats', adminAuth, async (req, res) => {
+  try {
+    let enhService;
+    try { enhService = require('../services/enhancement'); } catch (_) {}
+    if (!enhService) return res.json({ total_attempts: 0, successes: 0, stays: 0, downgrades: 0, destroys: 0, total_gp_spent: 0, topItems: [], recentAttempts: [] });
+
+    const stats = await enhService.getEnhancementStats();
+    res.json(stats);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /admin/enhancement/instances — all enhanced items (with filters)
+router.get('/enhancement/instances', adminAuth, async (req, res) => {
+  try {
+    const minLevel = parseInt(req.query.minLevel) || 0;
+    const result = await pool.query(
+      `SELECT ii.*, it.name, it.icon, it.code, it.category
+       FROM item_instances ii JOIN item_types it ON it.id = ii.item_type_id
+       WHERE ii.enhancement_level >= $1
+       ORDER BY ii.enhancement_level DESC, ii.created_at DESC
+       LIMIT 100`, [minLevel]
+    );
+    res.json(result.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /admin/enhancement/log — recent enhancement attempts
+router.get('/enhancement/log', adminAuth, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const wallet = (req.query.wallet || '').toLowerCase();
+    let q = `SELECT el.*, it.name AS item_name, it.icon AS item_icon
+             FROM enhancement_log el
+             LEFT JOIN item_instances ii ON ii.id = el.instance_id
+             LEFT JOIN item_types it ON it.id = ii.item_type_id`;
+    const params = [];
+    if (wallet) { q += ' WHERE el.wallet = $1'; params.push(wallet); }
+    q += ' ORDER BY el.created_at DESC LIMIT ' + limit;
+    const result = await pool.query(q, params);
+    res.json(result.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ══════════════════════════════════════
+// MARKETPLACE ADMIN
+// ══════════════════════════════════════
+
+// GET /admin/marketplace/stats
+router.get('/marketplace/stats', adminAuth, async (req, res) => {
+  try {
+    let mktService;
+    try { mktService = require('../services/marketplace'); } catch (_) {}
+    if (!mktService) return res.json({ active_listings: 0, total_sold: 0, total_volume: 0, total_fees: 0, recentSales: [] });
+    const stats = await mktService.getMarketplaceStats();
+    res.json(stats);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /admin/marketplace/listings — all listings (with filters)
+router.get('/marketplace/listings', adminAuth, async (req, res) => {
+  try {
+    const status = req.query.status || 'active';
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const result = await pool.query(
+      `SELECT ml.*, u.nickname AS seller_name
+       FROM marketplace_listings ml
+       LEFT JOIN users u ON u.wallet_address = ml.seller
+       WHERE ml.status = $1
+       ORDER BY ml.listed_at DESC LIMIT $2`,
+      [status, limit]
+    );
+    res.json(result.rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/marketplace/cancel — force cancel a listing
+router.post('/marketplace/cancel', adminAuth, async (req, res) => {
+  const { listingId } = req.body;
+  if (!listingId) return res.status(400).json({ error: 'listingId required' });
+  let mktService;
+  try { mktService = require('../services/marketplace'); } catch (_) {}
+  if (!mktService) return res.status(503).json({ error: 'Marketplace service unavailable' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await mktService.adminCancelListing(client, parseInt(listingId));
+    await client.query('COMMIT');
+    res.json({ success: true });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    res.status(400).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
 module.exports = router;

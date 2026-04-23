@@ -1,0 +1,140 @@
+/**
+ * routes/job.js
+ * 직업 시스템 API — MASTER_PLAN Phase 1.7
+ *
+ * GET  /api/jobs                   → 전체 직업 목록
+ * GET  /api/user/job               → 내 현재 직업 + 버프 + 변경 상태
+ * POST /api/user/job               → 직업 선택/변경
+ * GET  /api/user/job/change-status → 변경 가능 여부
+ * GET  /api/admin/jobs             → 어드민: 직업별 유저 분포 통계
+ * PUT  /api/admin/job-buff         → 어드민: 버프 수치 수정
+ */
+
+const express = require('express');
+const router = express.Router();
+const { pool } = require('../db');
+const jobService = require('../services/job');
+
+// ── 미들웨어: wallet 추출 헬퍼 ──
+function getWallet(req) {
+  return (req.query.wallet || req.body.wallet || req.headers['x-wallet'] || '').toLowerCase();
+}
+
+// ─────────────────────────────────────────
+// GET /api/jobs
+// 전체 직업 목록 (프론트엔드 선택 UI용)
+// ─────────────────────────────────────────
+router.get('/jobs', async (req, res) => {
+  try {
+    const lang = ['en','ko','ja','zh'].includes(req.query.lang) ? req.query.lang : 'en';
+    const jobs = await jobService.getAllJobs(lang);
+    res.json({ jobs });
+  } catch (err) {
+    console.error('[JOB] GET /jobs error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────
+// GET /api/user/job
+// 내 현재 직업 + 버프 목록 + 변경 상태
+// ─────────────────────────────────────────
+router.get('/user/job', async (req, res) => {
+  const wallet = getWallet(req);
+  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+  try {
+    const lang = ['en','ko','ja','zh'].includes(req.query.lang) ? req.query.lang : 'en';
+    const data = await jobService.getUserJob(wallet, lang);
+    if (!data) return res.status(404).json({ error: 'User not found' });
+    res.json(data);
+  } catch (err) {
+    console.error('[JOB] GET /user/job error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────
+// POST /api/user/job
+// 직업 선택/변경 { wallet, jobCode }
+// ─────────────────────────────────────────
+router.post('/user/job', async (req, res) => {
+  const wallet = getWallet(req);
+  const { jobCode } = req.body;
+  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+  if (!jobCode) return res.status(400).json({ error: 'jobCode required' });
+  try {
+    const result = await jobService.selectJob(wallet, jobCode);
+    if (!result.success) return res.status(400).json({ error: result.message, cooldownEndsAt: result.cooldownEndsAt });
+    res.json(result);
+  } catch (err) {
+    console.error('[JOB] POST /user/job error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────
+// GET /api/user/job/change-status
+// 직업 변경 가능 여부 상세 조회
+// ─────────────────────────────────────────
+router.get('/user/job/change-status', async (req, res) => {
+  const wallet = getWallet(req);
+  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+  try {
+    const data = await jobService.getUserJob(wallet, 'en');
+    if (!data) return res.status(404).json({ error: 'User not found' });
+    res.json({ changeStatus: data.changeStatus });
+  } catch (err) {
+    console.error('[JOB] GET /user/job/change-status error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────
+// GET /api/admin/jobs
+// 어드민: 직업별 유저 분포 + 통계
+// ─────────────────────────────────────────
+router.get('/admin/jobs', async (req, res) => {
+  try {
+    const stats = await jobService.getJobStats();
+    // 최근 변경 로그 20건도 함께
+    const logRes = await pool.query(`
+      SELECT jcl.changed_at, jcl.change_type, jcl.gp_cost,
+             u.nickname, u.wallet_address,
+             fj.name_en AS from_job, tj.name_en AS to_job
+      FROM job_change_log jcl
+      JOIN users u ON u.wallet_address = jcl.user_id
+      LEFT JOIN jobs fj ON fj.id = jcl.from_job_id
+      JOIN jobs tj ON tj.id = jcl.to_job_id
+      ORDER BY jcl.changed_at DESC
+      LIMIT 20
+    `);
+    res.json({ ...stats, recentLog: logRes.rows });
+  } catch (err) {
+    console.error('[JOB] GET /admin/jobs error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────
+// PUT /api/admin/job-buff
+// 어드민: 버프 수치 수정 { jobId, buffKey, value }
+// ─────────────────────────────────────────
+router.put('/admin/job-buff', async (req, res) => {
+  const { jobId, buffKey, value } = req.body;
+  if (!jobId || !buffKey || value === undefined) {
+    return res.status(400).json({ error: 'jobId, buffKey, value required' });
+  }
+  const numValue = parseFloat(value);
+  if (isNaN(numValue) || numValue < 0) {
+    return res.status(400).json({ error: 'value must be a non-negative number' });
+  }
+  try {
+    const updated = await jobService.updateJobBuff(parseInt(jobId), buffKey, numValue);
+    res.json({ success: true, buff: updated });
+  } catch (err) {
+    console.error('[JOB] PUT /admin/job-buff error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;

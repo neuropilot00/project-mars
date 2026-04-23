@@ -1,9 +1,21 @@
 const express = require('express');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
-const { pool, getSettings, awardXP, creditReferralCommission } = require('../db');
+const { pool, getSettings, awardXP, creditReferralCommission, getSetting } = require('../db');
 
 const router = express.Router();
+
+// ── Cantina 비활성화 미들웨어 (BIBLE Migration 080) ──
+// cantina_enabled = false 이면 모든 /api/arena/* 요청에 503 반환
+router.use(async (req, res, next) => {
+  try {
+    const enabled = (await getSetting('cantina_enabled') ?? 'true').toString();
+    if (enabled === 'false') {
+      return res.status(503).json({ error: 'Cantina is currently disabled', code: 'CANTINA_DISABLED' });
+    }
+  } catch (_e) { /* getSetting 실패 시 통과 (안전 우선) */ }
+  next();
+});
 
 let seasonService;
 try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }

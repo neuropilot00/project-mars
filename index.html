@@ -2397,6 +2397,62 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .crash-bet-panel{padding:8px}
   .crash-input{padding:6px 4px}
 }
+
+/* ── Enhancement glow effects ── */
+@keyframes enhPulse{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes enhPulse10{0%,100%{box-shadow:0 0 8px rgba(232,72,85,.4),0 0 20px rgba(232,72,85,.2)}50%{box-shadow:0 0 14px rgba(232,72,85,.7),0 0 30px rgba(232,72,85,.35)}}
+.enh-0{}
+.enh-1{box-shadow:0 0 4px rgba(200,200,220,.25);border-color:rgba(200,200,220,.3)!important}
+.enh-2{box-shadow:0 0 5px rgba(200,200,220,.35);border-color:rgba(200,200,220,.4)!important}
+.enh-3{box-shadow:0 0 6px rgba(200,200,220,.45);border-color:rgba(200,200,220,.5)!important}
+.enh-4{box-shadow:0 0 6px rgba(255,209,102,.3);border-color:rgba(255,209,102,.4)!important}
+.enh-5{box-shadow:0 0 8px rgba(255,209,102,.4);border-color:rgba(255,209,102,.5)!important}
+.enh-6{box-shadow:0 0 10px rgba(255,209,102,.5);border-color:rgba(255,209,102,.6)!important}
+.enh-7{box-shadow:0 0 8px rgba(160,100,220,.4);border-color:rgba(160,100,220,.5)!important}
+.enh-8{box-shadow:0 0 10px rgba(160,100,220,.5);border-color:rgba(160,100,220,.6)!important}
+.enh-9{box-shadow:0 0 12px rgba(160,100,220,.6);border-color:rgba(160,100,220,.7)!important;animation:enhPulse 2s ease-in-out infinite}
+.enh-10{border-color:rgba(232,72,85,.7)!important;animation:enhPulse10 1.5s ease-in-out infinite}
+.enh-badge{display:inline-block;font-size:8px;font-weight:800;padding:1px 4px;border-radius:3px;margin-left:4px;font-family:var(--fn)}
+.enh-badge-low{background:rgba(200,200,220,.15);color:rgba(200,200,220,.8)}
+.enh-badge-mid{background:rgba(255,209,102,.15);color:var(--gold)}
+.enh-badge-high{background:rgba(160,100,220,.15);color:#a064dc}
+.enh-badge-max{background:rgba(232,72,85,.2);color:var(--red);animation:enhPulse 1.5s ease-in-out infinite}
+/* ── Job System ── */
+.job-card-mini{padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.1);margin-bottom:12px;cursor:pointer;transition:border-color .2s}
+.job-card-mini:hover{border-color:rgba(255,255,255,.25)}
+.job-card-mini.no-job{border-color:rgba(240,200,64,.3);background:linear-gradient(135deg,rgba(240,200,64,.06),rgba(240,200,64,.01))}
+/* ── Onboarding Overlay ── */
+.ob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:4000;backdrop-filter:blur(8px)}
+.ob-modal{width:min(460px,96vw);background:linear-gradient(160deg,#0d1b2a 0%,#1a1a2e 100%);border-radius:20px;border:1px solid rgba(255,255,255,.12);padding:28px 24px;box-shadow:0 24px 80px rgba(0,0,0,.7);animation:ob-in .3s ease}
+@keyframes ob-in{from{transform:scale(.92) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.ob-step-dots{display:flex;justify-content:center;gap:6px;margin-bottom:20px}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);transition:all .3s}
+.ob-dot.active{background:var(--mars);box-shadow:0 0 8px var(--mars);width:20px;border-radius:4px}
+.ob-dot.done{background:rgba(240,200,64,.6)}
+.ob-emoji{font-size:40px;text-align:center;margin-bottom:12px;animation:ob-bounce .6s ease}
+@keyframes ob-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ob-title{font-size:16px;font-weight:900;color:#fff;text-align:center;margin-bottom:8px;font-family:var(--fn);letter-spacing:.5px}
+.ob-sub{font-size:11px;color:var(--tx3);text-align:center;line-height:1.6;margin-bottom:20px}
+.ob-highlight{background:rgba(229,57,53,.12);border:1px solid rgba(229,57,53,.3);border-radius:8px;padding:10px 14px;font-size:10px;color:var(--tx2);margin-bottom:16px;line-height:1.7}
+.ob-highlight b{color:var(--mars)}
+.ob-actions{display:flex;gap:8px;margin-top:4px}
+.ob-btn-next{flex:2;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--mars),#b71c1c);border:none;color:#fff;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.5px;transition:opacity .2s}
+.ob-btn-next:hover{opacity:.85}
+.ob-btn-skip{flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer}
+.ob-reward-row{display:flex;justify-content:center;gap:16px;margin-bottom:18px}
+.ob-reward-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:6px 12px;font-size:11px;color:#fff;font-family:var(--fn)}
+.job-select-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(4px)}
+.job-select-modal{width:min(420px,95vw);background:#1a1a2e;border-radius:16px;border:1px solid rgba(255,255,255,.12);padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.job-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.job-choice-card{padding:14px 10px;border-radius:10px;border:2px solid rgba(255,255,255,.08);text-align:center;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.03)}
+.job-choice-card:hover{border-color:var(--jc);background:rgba(255,255,255,.07);transform:translateY(-2px)}
+.job-choice-card.selected{border-color:var(--jc);background:rgba(var(--jcr),var(--jcg),var(--jcb),.12);box-shadow:0 0 0 1px var(--jc)}
+.job-choice-icon{font-size:28px;margin-bottom:6px}
+.job-choice-name{font-size:11px;font-weight:800;color:var(--tx);font-family:var(--fn);letter-spacing:.5px;margin-bottom:4px}
+.job-choice-buff{font-size:9px;color:var(--tx3);line-height:1.4}
+.job-buff-pill{display:inline-block;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:700;margin:1px;font-family:var(--fn)}
+@keyframes jobGlow{0%,100%{box-shadow:0 0 8px rgba(240,200,64,.3)}50%{box-shadow:0 0 18px rgba(240,200,64,.6)}}
+.job-choose-pulse{animation:jobGlow 2s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -2520,7 +2576,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div class="col-fab-wrap" id="colFabWrap">
   <img class="cf-bg" src="/assets/nav/main_buttons_desktop.png" alt="">
   <button class="col-fab myland" onclick="toggleMyLand()" title="My Land" aria-label="My Land"></button>
-  <button class="col-fab arena"  onclick="openArena()"    title="Cantina" aria-label="Cantina"></button>
+  <button class="col-fab arena"  onclick="openArena()"    title="Cantina" aria-label="Cantina" style="display:none"></button><!-- BIBLE Migration 080: Cantina hidden -->
   <button class="col-fab place"  onclick="activateLandSelect()" title="Claim" aria-label="Claim"></button>
   <button class="col-fab items"  onclick="openItemShop();shopSwitchTab('inv')" title="Items" aria-label="Items"></button>
   <button class="col-fab base"   onclick="openBaseModal()" title="Base" aria-label="Base">
@@ -2727,8 +2783,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
   </div>
 
-  <!-- CANTINA -->
-  <div class="p-section">
+  <!-- CANTINA — BIBLE Migration 080: hidden -->
+  <div class="p-section" style="display:none">
     <div class="p-title"><span data-i18n="nav_cantina">CANTINA</span> <span class="help-tip" onclick="event.stopPropagation();showHelpTip('cantina')">?</span></div>
     <button class="action-btn" onclick="openArena()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.35);color:var(--gold);font-size:10px;letter-spacing:1.5px" data-i18n="enter_cantina">
       ⚔ ENTER THE CANTINA
@@ -3143,6 +3199,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests')"><span data-i18n="base_tab_quests">QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
       <div class="base-tab" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems()" data-i18n="base_tab_shop">SHOP</div>
+      <div class="base-tab" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab()" style="color:#a064dc" data-i18n="base_tab_market">MARKET</div>
       <div class="base-tab" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
       <div class="base-tab" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
     </div>
@@ -3201,6 +3258,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden">
             <div id="profileXpBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--mars),#FF8800);border-radius:3px;transition:width .6s"></div>
           </div>
+        </div>
+
+        <!-- Job Card -->
+        <div id="jobCardMini" class="job-card-mini no-job job-choose-pulse" onclick="openJobSelectModal()" style="display:none">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="jobCardIcon" style="font-size:24px;width:38px;text-align:center">⚔️</div>
+            <div style="flex:1">
+              <div style="font-size:8px;color:var(--tx3);font-family:var(--fn);letter-spacing:1px;margin-bottom:2px" data-i18n="job_label">JOB</div>
+              <div id="jobCardName" style="font-size:13px;font-weight:800;color:var(--tx);font-family:var(--fn)" data-i18n="job_none">Choose Your Destiny</div>
+              <div id="jobCardBuffs" style="margin-top:4px;font-size:9px;color:var(--tx3)"></div>
+            </div>
+            <div id="jobCardBtn" style="font-size:8px;color:var(--gold);font-family:var(--fn);font-weight:700;white-space:nowrap" data-i18n="job_choose_btn">CHOOSE ▶</div>
+          </div>
+          <div id="jobCardChangeStatus" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.07);font-size:9px;color:var(--tx3)"></div>
         </div>
 
         <button onclick="shareBaseStats()" style="width:100%;margin-bottom:12px;padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border:1px solid rgba(91,184,232,.3);color:var(--cyan);font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px" data-i18n="share_stats">📤 SHARE MY STATS</button>
@@ -3502,6 +3573,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <input type="text" id="govSectorAnnounce" maxlength="100" placeholder="Sector message..." style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
               <button class="sz-btn" onclick="govSetSectorAnnouncement()" style="color:var(--cyan);border-color:rgba(91,184,232,.3);font-size:8px;padding:4px 8px">SET</button>
             </div>
+            <!-- Governor Declaration (new sector system) -->
+            <div id="govDeclarationRow" style="display:none;flex-direction:column;gap:6px">
+              <div style="font-size:9px;color:var(--tx3);margin-top:4px" data-i18n="gov_declaration">GOVERNOR DECLARATION (5 GP)</div>
+              <textarea id="govDeclarationText" maxlength="1000" rows="3" placeholder="Your declaration to the sector..." style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn);resize:vertical;box-sizing:border-box"></textarea>
+              <div style="display:flex;gap:4px;align-items:center">
+                <select id="govPolicySelect" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+                  <option value="open" data-i18n="gov_policy_open">Open (All Welcome)</option>
+                  <option value="ally_only" data-i18n="gov_policy_ally">Allies Only</option>
+                  <option value="closed" data-i18n="gov_policy_closed">Closed</option>
+                </select>
+                <button class="sz-btn" onclick="govSaveDeclaration()" style="color:var(--red);border-color:rgba(232,72,85,.3);font-size:8px;padding:4px 8px" data-i18n="gov_declare_save">DECLARE</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -3509,6 +3593,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div class="base-section-title" style="color:var(--red);cursor:pointer" onclick="(function(el){var c=document.getElementById('govBountyList');var t=el.querySelector('.gov-toggle');if(c.style.display==='none'){c.style.display='';t.textContent='▲'}else{c.style.display='none';t.textContent='▼'}})(this)"><span data-i18n="gov_bounty_board">BOUNTY BOARD</span> <span class="gov-toggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
         <div id="govBountyList" style="display:none;margin-bottom:12px">
           <div style="font-size:10px;color:var(--tx3);padding:8px 0" data-i18n="gov_no_bounties">No active bounties.</div>
+        </div>
+
+        <!-- Sector Siege -->
+        <div class="base-section-title" style="color:var(--red);cursor:pointer" onclick="toggleSiegeSection()"><span data-i18n="gov_siege_title">⚔️ SECTOR SIEGE</span> <span id="siegeToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
+        <div id="govSiegeSection" style="display:none;margin-bottom:12px">
+          <div style="margin-bottom:8px">
+            <button id="siegeSectorPickerBtn" type="button" onclick="openSiegeSectorPicker()" style="width:100%;background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:10px;padding:8px 10px;border-radius:6px;font-family:var(--fn);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center"><span id="siegeSectorLabel" data-i18n="gov_select_sector_siege">Select sector...</span><span style="color:var(--tx3)">▾</span></button>
+          </div>
+          <div id="siegeInfoPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_select_siege_hint">Select a sector to view siege status.</div>
         </div>
 
         <!-- Hall of Fame -->
@@ -3781,6 +3874,43 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
       </div>
 
+      <!-- TAB: MARKET -->
+      <div class="base-pane" id="basePane_market">
+        <!-- Sub-view toggle -->
+        <div style="display:flex;gap:6px;justify-content:space-between;align-items:center;padding:4px 2px 8px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:8px">
+          <div style="display:flex;gap:4px">
+            <button class="mkt-view-btn active" onclick="switchMarketView('browse',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.15);color:#a064dc;cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="mkt_browse">🏪 BROWSE</button>
+            <button class="mkt-view-btn" onclick="switchMarketView('sell',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="mkt_sell">💰 SELL</button>
+            <button class="mkt-view-btn" onclick="switchMarketView('mine',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="mkt_my_listings">📋 MY LISTINGS</button>
+          </div>
+        </div>
+        <!-- Filters (browse view) -->
+        <div id="mktFilters" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+          <select id="mktFilterType" onchange="loadMarketListings()" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+            <option value="">ALL TYPES</option>
+            <option value="cosmetic">🎨 COSMETIC</option>
+            <option value="item">📦 ITEM</option>
+            <option value="claim">🗺️ TERRITORY</option>
+            <option value="resource">⛏️ RESOURCE</option>
+          </select>
+          <select id="mktFilterSort" onchange="loadMarketListings()" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+            <option value="newest" data-i18n="mkt_sort_newest">NEWEST</option>
+            <option value="price_asc" data-i18n="mkt_sort_cheap">CHEAPEST</option>
+            <option value="price_desc" data-i18n="mkt_sort_expensive">EXPENSIVE</option>
+            <option value="ending" data-i18n="mkt_sort_ending">ENDING SOON</option>
+          </select>
+          <input id="mktSearch" placeholder="Search..." onkeyup="if(event.key==='Enter')loadMarketListings()" style="font-size:9px;padding:4px 8px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn);flex:1;min-width:80px">
+        </div>
+        <!-- Browse grid -->
+        <div id="mktBrowseGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px" data-i18n="mkt_loading">Loading marketplace...</div>
+        </div>
+        <!-- Sell view (hidden) -->
+        <div id="mktSellView" style="display:none"></div>
+        <!-- My listings (hidden) -->
+        <div id="mktMyView" style="display:none"></div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -3816,7 +3946,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <div class="nav-img-wrap">
     <img class="mob-nav-bg" src="/assets/nav/main_buttons_mobile.png" alt="">
     <button class="mob-nav-item mn-myland"  onclick="toggleMyLand()"           id="mobNavMyLand" aria-label="My Land"></button>
-    <button class="mob-nav-item mn-cantina" onclick="openArena()"              aria-label="Cantina"></button>
+    <button class="mob-nav-item mn-cantina" onclick="openArena()"              aria-label="Cantina" style="display:none"></button><!-- BIBLE Migration 080: Cantina hidden -->
     <button class="mob-nav-item mn-claim"   onclick="activateLandSelect()"     id="mobNavClaim"  aria-label="Claim"></button>
     <button class="mob-nav-item mn-items"   onclick="openItemShop();shopSwitchTab('inv')" aria-label="Items"></button>
     <button class="mob-nav-item mn-base"    onclick="openBaseModal()"          aria-label="Base">
@@ -4314,6 +4444,40 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 <div id="notifStack"></div>
 
 <!-- Game-themed confirm dialog (Mars HUD style) -->
+<!-- ── Job Selection Modal ── -->
+<div id="jobSelectModal" class="job-select-overlay" style="display:none">
+  <div class="job-select-modal">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:24px;margin-bottom:6px">🚀</div>
+      <div style="font-size:14px;font-weight:900;color:var(--tx);font-family:var(--fn);letter-spacing:1px" data-i18n="job_modal_title">CHOOSE YOUR DESTINY</div>
+      <div style="font-size:9px;color:var(--tx3);margin-top:4px" id="jobModalSubtitle" data-i18n="job_modal_sub">Select a specialization that matches your playstyle</div>
+    </div>
+    <div class="job-choice-grid" id="jobChoiceGrid"></div>
+    <div id="jobModalSelectedInfo" style="display:none;padding:10px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-bottom:12px;font-size:9px;color:var(--tx3)"></div>
+    <div id="jobModalCostInfo" style="display:none;padding:8px 10px;border-radius:6px;background:rgba(240,200,64,.08);border:1px solid rgba(240,200,64,.2);margin-bottom:12px;font-size:9px;color:var(--gold);text-align:center"></div>
+    <div style="display:flex;gap:8px">
+      <button id="jobModalCancelBtn" onclick="closeJobSelectModal()" style="flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer" data-i18n="job_modal_cancel">LATER</button>
+      <button id="jobModalConfirmBtn" onclick="confirmJobSelect()" disabled style="flex:2;padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(240,200,64,.3),rgba(240,200,64,.1));border:1px solid rgba(240,200,64,.4);color:var(--gold);font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px;opacity:.5" data-i18n="job_modal_confirm">CONFIRM SELECTION</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Onboarding Tutorial Overlay ── -->
+<div id="obOverlay" class="ob-overlay" style="display:none">
+  <div class="ob-modal">
+    <!-- Step progress dots -->
+    <div class="ob-step-dots">
+      <div class="ob-dot" id="obDot1"></div>
+      <div class="ob-dot" id="obDot2"></div>
+      <div class="ob-dot" id="obDot3"></div>
+      <div class="ob-dot" id="obDot4"></div>
+      <div class="ob-dot" id="obDot5"></div>
+    </div>
+    <!-- Dynamic content area -->
+    <div id="obContent"></div>
+  </div>
+</div>
+
 <div id="gameConfirm" class="game-confirm" onclick="if(event.target===this)gameConfirmResolve(false)">
   <div class="gc-card">
     <div class="gc-header">
@@ -9350,6 +9514,11 @@ async function confirmClaim(){
     try{trackQuestAction('claim_pixels',d.pixelCount||1)}catch(e){}
     if(hasBattle&&d.attackWon>0){try{trackQuestAction('hijack',d.attackWon)}catch(e){}}
 
+    // ── [Onboarding] Tutorial free claim → advance to step 2 ──
+    if (d.tutorialFreeClaim) {
+      try { onTutorialClaimSuccess(); } catch(_oe) {}
+    }
+
     // Update balances from server response
     if(d.ppUsed!==undefined||d.usdtUsed!==undefined){
       walletState.gamePP-=(d.ppUsed||0);
@@ -9972,7 +10141,36 @@ var I18N = {
     // ── BASE tab labels ──
     base_tab_territory: 'MY TERRITORY', base_tab_sectors: 'SECTORS', base_tab_season: 'SEASON',
     base_tab_mining: 'MINING', base_tab_quests: 'QUESTS', base_tab_ops: 'OPS',
-    base_tab_shop: 'SHOP', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN',
+    base_tab_shop: 'SHOP', base_tab_market: 'MARKET', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN',
+    // ── Job System ──
+    job_label: 'JOB', job_none: 'Choose Your Destiny', job_locked: 'Reach Lv.{n} to Unlock',
+    job_choose_btn: 'CHOOSE ▶', job_change_btn: 'CHANGE JOB',
+    job_cooldown: 'Change available after {t}', job_free_change: 'Free change: {n} remaining',
+    job_paid_change: 'Change costs {n} GP', job_current: 'CURRENT',
+    job_modal_title: 'CHOOSE YOUR DESTINY', job_modal_sub: 'Select a specialization that matches your playstyle',
+    job_modal_cancel: 'LATER', job_modal_confirm: 'CONFIRM SELECTION',
+    job_modal_free: 'Free change — {n} remaining this week',
+    job_modal_paid: 'Costs {n} GP (weekly free change used)',
+    job_modal_cooldown_warn: 'Job change on cooldown — cannot change now',
+    job_selected_toast: 'Job selected: {n}',
+    // ── Marketplace ──
+    mkt_browse: '🏪 BROWSE', mkt_sell: '💰 SELL', mkt_my_listings: '📋 MY LISTINGS',
+    mkt_sort_newest: 'NEWEST', mkt_sort_cheap: 'CHEAPEST', mkt_sort_expensive: 'EXPENSIVE', mkt_sort_ending: 'ENDING SOON',
+    mkt_loading: 'Loading marketplace...', mkt_empty: 'No listings found',
+    mkt_buy: 'BUY', mkt_cancel: 'CANCEL', mkt_list_sell: 'SELL',
+    mkt_buy_title: 'Purchase Item', mkt_price: 'Price', mkt_your_balance: 'Your Balance',
+    mkt_buy_confirm: 'BUY NOW', mkt_bought: 'Purchase successful!',
+    mkt_cancel_title: 'Cancel Listing', mkt_cancel_body: 'Cancel this listing and return the item?',
+    mkt_cancel_confirm: 'CANCEL LISTING', mkt_cancelled: 'Listing cancelled',
+    mkt_list_title: 'List for Sale', mkt_list_confirm: 'LIST FOR SALE',
+    mkt_fee_note: 'Listing fee: 2 GP · Sale fee: 5%', mkt_listed: 'Item listed on marketplace!',
+    mkt_sellable_items: 'SELLABLE ITEMS', mkt_no_items: 'No items to sell. Materialize cosmetics from SHOP → MY ITEMS first.',
+    mkt_no_listings: 'No listings yet',
+    // ── RESOURCE section ──
+    res_section_title: 'RESOURCES',
+    res_empty: 'No resources yet. Harvest your territory to find minerals!',
+    res_sell: 'SELL',
+    res_sell_title: 'Sell Resource',
     // ── SEASON tab ──
     season_no_active: 'No Active Season',
     season_check_back: 'Check back soon for the next season!',
@@ -10245,6 +10443,19 @@ var I18N = {
     shop_active_effects: 'ACTIVE EFFECTS', shop_my_inventory: 'MY INVENTORY',
     shop_confirm_title: 'Confirm Purchase',
     shop_loading: 'Loading items...', shop_inv_loading: 'Loading inventory...',
+    // ── Enhancement ──
+    enh_enhance: 'ENHANCE', enh_workshop: 'ENHANCEMENT WORKSHOP',
+    enh_materialized: 'Item ready for enhancement!', enh_returned: 'Item returned to inventory',
+    enh_materialize_tip: 'Convert to individual item for enhancement',
+    enh_return_tip: 'Return to inventory stack',
+    enh_current_level: 'Current Level', enh_next_level: 'Next Level',
+    enh_cost: 'Cost', enh_balance: 'Balance', enh_success_rate: 'Success Rate',
+    enh_body: 'Attempt to enhance this item. On failure: level may stay, drop, or the item may be destroyed.',
+    enh_maxed_body: 'This item has reached maximum enhancement.',
+    enh_confirm: 'ENHANCE', enh_success: 'Enhancement succeeded!',
+    enh_fail_stay: 'Enhancement failed. Level unchanged.',
+    enh_fail_down: 'Enhancement failed! Level dropped to',
+    enh_fail_destroy: 'Enhancement failed! Item destroyed!',
     // ── MY TERRITORY tab (base) ──
     cmd_message: "COMMANDER'S MESSAGE",
     total_px_label: 'TOTAL PIXELS', usdt_bal_label: 'USDT BALANCE', pp_bal_label: 'PP BALANCE',
@@ -10288,6 +10499,13 @@ var I18N = {
     gov_mining_20: '⛏ MINING +20%', gov_defense_10: '🛡 DEFENSE +10%', gov_claim_10: '💰 CLAIM -10%',
     gov_sector_announce: 'SECTOR ANNOUNCEMENT', gov_sector_msg: 'Sector message...',
     gov_bounty_board: 'BOUNTY BOARD', gov_no_bounties: 'No active bounties.',
+    gov_siege_title: '⚔️ SECTOR SIEGE', gov_select_sector_siege: 'Select sector...',
+    gov_select_siege_hint: 'Select a sector to view siege status.',
+    gov_challenge_btn: '⚔️ CHALLENGE FOR GOVERNOR',
+    gov_betting_title: '🎰 SIEGE BETTING', gov_bet_challenger: '⚔️ Challenger', gov_bet_governor: '🛡 Governor',
+    gov_declaration: 'GOVERNOR DECLARATION (5 GP)',
+    gov_declare_save: 'DECLARE',
+    gov_policy_open: 'Open (All Welcome)', gov_policy_ally: 'Allies Only', gov_policy_closed: 'Closed',
     gov_hall_of_fame: '🏆 HALL OF FAME', gov_select_sector_hof: 'Select sector...',
     gov_select_hof_hint: 'Select a sector to view history.',
     // ── OPS tab ──
@@ -10458,7 +10676,36 @@ var I18N = {
     // ── BASE tab labels ──
     base_tab_territory: '내 영토', base_tab_sectors: '섹터', base_tab_season: '시즌',
     base_tab_mining: '채굴', base_tab_quests: '퀘스트', base_tab_ops: '작전',
-    base_tab_shop: '상점', base_tab_guild: '길드', base_tab_govern: '거버넌스',
+    base_tab_shop: '상점', base_tab_market: '마켓', base_tab_guild: '길드', base_tab_govern: '거버넌스',
+    // ── 직업 시스템 ──
+    job_label: '직업', job_none: '운명을 선택하세요', job_locked: 'Lv.{n} 달성 후 해금',
+    job_choose_btn: '선택 ▶', job_change_btn: '직업 변경',
+    job_cooldown: '{t} 이후 변경 가능', job_free_change: '무료 변경 {n}회 남음',
+    job_paid_change: '변경 비용: {n} GP', job_current: '현재 직업',
+    job_modal_title: '운명을 선택하세요', job_modal_sub: '나의 플레이 스타일에 맞는 직업을 선택하세요',
+    job_modal_cancel: '나중에', job_modal_confirm: '선택 확정',
+    job_modal_free: '무료 변경 — 이번 주 {n}회 남음',
+    job_modal_paid: '{n} GP 소모 (이번 주 무료 변경 사용됨)',
+    job_modal_cooldown_warn: '직업 변경 쿨다운 중 — 지금 변경 불가',
+    job_selected_toast: '직업 선택: {n}',
+    // ── 마켓플레이스 ──
+    mkt_browse: '🏪 둘러보기', mkt_sell: '💰 판매', mkt_my_listings: '📋 내 리스팅',
+    mkt_sort_newest: '최신순', mkt_sort_cheap: '저렴한순', mkt_sort_expensive: '비싼순', mkt_sort_ending: '마감임박',
+    mkt_loading: '마켓 로딩 중...', mkt_empty: '등록된 상품이 없습니다',
+    mkt_buy: '구매', mkt_cancel: '취소', mkt_list_sell: '판매',
+    mkt_buy_title: '아이템 구매', mkt_price: '가격', mkt_your_balance: '내 잔액',
+    mkt_buy_confirm: '지금 구매', mkt_bought: '구매 성공!',
+    mkt_cancel_title: '리스팅 취소', mkt_cancel_body: '리스팅을 취소하고 아이템을 반환하시겠습니까?',
+    mkt_cancel_confirm: '리스팅 취소', mkt_cancelled: '리스팅이 취소되었습니다',
+    mkt_list_title: '판매 등록', mkt_list_confirm: '판매 등록',
+    mkt_fee_note: '등록비: 2 GP · 판매 수수료: 5%', mkt_listed: '마켓에 등록되었습니다!',
+    mkt_sellable_items: '판매 가능 아이템', mkt_no_items: '판매할 아이템이 없습니다. 상점→내 아이템에서 코스메틱을 먼저 변환하세요.',
+    mkt_no_listings: '등록된 리스팅이 없습니다',
+    // ── RESOURCE section ──
+    res_section_title: '광물 자원',
+    res_empty: '자원이 없습니다. 영토를 수확하면 광물이 드롭됩니다!',
+    res_sell: '판매',
+    res_sell_title: '자원 판매',
     // ── SEASON tab ──
     season_no_active: '진행 중인 시즌 없음',
     season_check_back: '다음 시즌을 기다려 주세요!',
@@ -10730,6 +10977,19 @@ var I18N = {
     shop_active_effects: '활성 효과', shop_my_inventory: '내 인벤토리',
     shop_confirm_title: '구매 확인',
     shop_loading: '아이템 불러오는 중...', shop_inv_loading: '인벤토리 불러오는 중...',
+    // ── 강화 ──
+    enh_enhance: '강화', enh_workshop: '강화 작업장',
+    enh_materialized: '강화 준비 완료!', enh_returned: '인벤토리로 반환됨',
+    enh_materialize_tip: '강화를 위해 개별 아이템으로 변환',
+    enh_return_tip: '인벤토리 스택으로 반환',
+    enh_current_level: '현재 레벨', enh_next_level: '다음 레벨',
+    enh_cost: '비용', enh_balance: '잔액', enh_success_rate: '성공률',
+    enh_body: '아이템 강화를 시도합니다. 실패 시: 레벨 유지, 하락 또는 파괴될 수 있습니다.',
+    enh_maxed_body: '이 아이템은 최대 강화 레벨에 도달했습니다.',
+    enh_confirm: '강화', enh_success: '강화 성공!',
+    enh_fail_stay: '강화 실패. 레벨 유지.',
+    enh_fail_down: '강화 실패! 레벨이 하락했습니다:',
+    enh_fail_destroy: '강화 실패! 아이템이 파괴되었습니다!',
     // ── MY TERRITORY tab ──
     cmd_message: '사령관 메시지',
     total_px_label: '총 픽셀', usdt_bal_label: 'USDT 잔액', pp_bal_label: 'PP 잔액',
@@ -10773,6 +11033,13 @@ var I18N = {
     gov_mining_20: '⛏ 채굴 +20%', gov_defense_10: '🛡 방어 +10%', gov_claim_10: '💰 점령 -10%',
     gov_sector_announce: '섹터 공지', gov_sector_msg: '섹터 메시지...',
     gov_bounty_board: '현상금 게시판', gov_no_bounties: '활성 현상금이 없습니다.',
+    gov_siege_title: '⚔️ 섹터 공성전', gov_select_sector_siege: '섹터 선택...',
+    gov_select_siege_hint: '섹터를 선택하여 공성전 현황을 확인하세요.',
+    gov_challenge_btn: '⚔️ 총독 도전',
+    gov_betting_title: '🎰 공성전 베팅', gov_bet_challenger: '⚔️ 도전자', gov_bet_governor: '🛡 총독',
+    gov_declaration: '총독 선언문 (5 GP)',
+    gov_declare_save: '선언',
+    gov_policy_open: '개방 (모두 환영)', gov_policy_ally: '동맹만', gov_policy_closed: '폐쇄',
     gov_hall_of_fame: '🏆 명예의 전당', gov_select_sector_hof: '섹터 선택...',
     gov_select_hof_hint: '섹터를 선택하여 이력을 확인하세요.',
     // ── OPS tab ──
@@ -10943,7 +11210,36 @@ var I18N = {
     // ── BASE tab labels ──
     base_tab_territory: 'マイ領土', base_tab_sectors: 'セクター', base_tab_season: 'シーズン',
     base_tab_mining: 'マイニング', base_tab_quests: 'クエスト', base_tab_ops: '作戦',
-    base_tab_shop: 'ショップ', base_tab_guild: 'ギルド', base_tab_govern: 'ガバナンス',
+    base_tab_shop: 'ショップ', base_tab_market: 'マーケット', base_tab_guild: 'ギルド', base_tab_govern: 'ガバナンス',
+    // ── ジョブシステム ──
+    job_label: 'ジョブ', job_none: '運命を選んでください', job_locked: 'Lv.{n}で解放',
+    job_choose_btn: '選択 ▶', job_change_btn: 'ジョブ変更',
+    job_cooldown: '{t}以降に変更可能', job_free_change: '無料変更 {n}回残り',
+    job_paid_change: '変更コスト: {n} GP', job_current: '現在のジョブ',
+    job_modal_title: '運命を選んでください', job_modal_sub: 'プレイスタイルに合った専門職を選択してください',
+    job_modal_cancel: '後で', job_modal_confirm: '選択を確定',
+    job_modal_free: '無料変更 — 今週あと{n}回',
+    job_modal_paid: '{n} GP消費（今週の無料変更使用済み）',
+    job_modal_cooldown_warn: 'ジョブ変更クールダウン中',
+    job_selected_toast: 'ジョブ選択: {n}',
+    // ── マーケットプレイス ──
+    mkt_browse: '🏪 閲覧', mkt_sell: '💰 出品', mkt_my_listings: '📋 マイ出品',
+    mkt_sort_newest: '新着順', mkt_sort_cheap: '安い順', mkt_sort_expensive: '高い順', mkt_sort_ending: '終了間近',
+    mkt_loading: 'マーケット読込中...', mkt_empty: '出品がありません',
+    mkt_buy: '購入', mkt_cancel: 'キャンセル', mkt_list_sell: '出品',
+    mkt_buy_title: 'アイテム購入', mkt_price: '価格', mkt_your_balance: '残高',
+    mkt_buy_confirm: '今すぐ購入', mkt_bought: '購入成功！',
+    mkt_cancel_title: '出品キャンセル', mkt_cancel_body: '出品をキャンセルしてアイテムを返却しますか？',
+    mkt_cancel_confirm: '出品キャンセル', mkt_cancelled: '出品がキャンセルされました',
+    mkt_list_title: '出品する', mkt_list_confirm: '出品する',
+    mkt_fee_note: '出品料: 2 GP · 販売手数料: 5%', mkt_listed: 'マーケットに出品しました！',
+    mkt_sellable_items: '出品可能アイテム', mkt_no_items: '出品できるアイテムがありません。ショップ→マイアイテムでコスメを変換してください。',
+    mkt_no_listings: '出品がありません',
+    // ── RESOURCE section ──
+    res_section_title: '鉱物資源',
+    res_empty: 'まだ資源がありません。領土をハーベストして鉱物を見つけよう！',
+    res_sell: '売る',
+    res_sell_title: '資源を売る',
     // ── SEASON tab ──
     season_no_active: '進行中のシーズンなし',
     season_check_back: '次のシーズンをお待ちください！',
@@ -11210,6 +11506,19 @@ var I18N = {
     shop_active_effects: 'アクティブ効果', shop_my_inventory: 'マイインベントリ',
     shop_confirm_title: '購入確認',
     shop_loading: '���イテム読込中...', shop_inv_loading: 'インベントリ読込中...',
+    // ── 強化 ──
+    enh_enhance: '強化', enh_workshop: '強化工房',
+    enh_materialized: '強化準備完了！', enh_returned: 'インベントリに返却',
+    enh_materialize_tip: '強化のため個別アイテムに変換',
+    enh_return_tip: 'インベントリスタックに返却',
+    enh_current_level: '現在レベル', enh_next_level: '次のレベル',
+    enh_cost: 'コスト', enh_balance: '残高', enh_success_rate: '成功率',
+    enh_body: 'アイテム強化を試みます。失敗時：レベル維持・低下、またはアイテム破壊の可能性があります。',
+    enh_maxed_body: 'このアイテムは最大強化レベルに到達しています。',
+    enh_confirm: '強化', enh_success: '強化成功！',
+    enh_fail_stay: '強化失敗。レベル維持。',
+    enh_fail_down: '強化失敗！レベルが低下：',
+    enh_fail_destroy: '強化失敗！アイテムが破壊されました！',
     cmd_message: '司令官メッセージ',
     total_px_label: '総ピクセル', usdt_bal_label: 'USDT残高', pp_bal_label: 'PP残高',
     level_label: 'レベル', xp_next: '次：{n} XP', max_level: '最大レベル',
@@ -11249,6 +11558,13 @@ var I18N = {
     gov_mining_20: '⛏ マイニング+20%', gov_defense_10: '🛡 防御+10%', gov_claim_10: '💰 獲得-10%',
     gov_sector_announce: 'セクターアナウンス', gov_sector_msg: 'セクターメッセージ...',
     gov_bounty_board: '賞金掲示板', gov_no_bounties: 'アクティブな賞金はありません。',
+    gov_siege_title: '⚔️ セクター攻城戦', gov_select_sector_siege: 'セクター選択...',
+    gov_select_siege_hint: 'セクターを選択して攻城状況を表示。',
+    gov_challenge_btn: '⚔️ 総督に挑戦',
+    gov_betting_title: '🎰 攻城戦ベッティング', gov_bet_challenger: '⚔️ 挑戦者', gov_bet_governor: '🛡 総督',
+    gov_declaration: '総督宣言 (5 GP)',
+    gov_declare_save: '宣言',
+    gov_policy_open: 'オープン（誰でも歓迎）', gov_policy_ally: '同盟のみ', gov_policy_closed: '閉鎖',
     gov_hall_of_fame: '🏆 殿堂', gov_select_sector_hof: 'セクター選択...',
     gov_select_hof_hint: 'セクターを選択して履歴を表示。',
     ops_title: '戦術作戦',
@@ -11412,7 +11728,36 @@ var I18N = {
     // ── BASE tab labels ──
     base_tab_territory: '我的领土', base_tab_sectors: '区域', base_tab_season: '赛季',
     base_tab_mining: '采矿', base_tab_quests: '任务', base_tab_ops: '作战',
-    base_tab_shop: '商店', base_tab_guild: '公会', base_tab_govern: '治理',
+    base_tab_shop: '商店', base_tab_market: '市场', base_tab_guild: '公会', base_tab_govern: '治理',
+    // ── 职业系统 ──
+    job_label: '职业', job_none: '选择你的命运', job_locked: '达到Lv.{n}后解锁',
+    job_choose_btn: '选择 ▶', job_change_btn: '更换职业',
+    job_cooldown: '{t}之后可以更换', job_free_change: '免费更换剩余{n}次',
+    job_paid_change: '更换费用: {n} GP', job_current: '当前职业',
+    job_modal_title: '选择你的命运', job_modal_sub: '请选择符合你游戏风格的专业',
+    job_modal_cancel: '稍后', job_modal_confirm: '确认选择',
+    job_modal_free: '免费更换 — 本周剩余{n}次',
+    job_modal_paid: '消耗{n} GP（本周免费次数已用完）',
+    job_modal_cooldown_warn: '职业更换冷却中',
+    job_selected_toast: '职业已选择: {n}',
+    // ── 市场 ──
+    mkt_browse: '🏪 浏览', mkt_sell: '💰 出售', mkt_my_listings: '📋 我的上架',
+    mkt_sort_newest: '最新', mkt_sort_cheap: '最便宜', mkt_sort_expensive: '最贵', mkt_sort_ending: '即将结束',
+    mkt_loading: '加载市场中...', mkt_empty: '暂无商品',
+    mkt_buy: '购买', mkt_cancel: '取消', mkt_list_sell: '出售',
+    mkt_buy_title: '购买道具', mkt_price: '价格', mkt_your_balance: '余额',
+    mkt_buy_confirm: '立即购买', mkt_bought: '购买成功！',
+    mkt_cancel_title: '取消上架', mkt_cancel_body: '取消上架并返还道具？',
+    mkt_cancel_confirm: '取消上架', mkt_cancelled: '已取消上架',
+    mkt_list_title: '上架出售', mkt_list_confirm: '确认上架',
+    mkt_fee_note: '上架费: 2 GP · 销售手续费: 5%', mkt_listed: '已上架到市场！',
+    mkt_sellable_items: '可出售道具', mkt_no_items: '没有可出售的道具。请先在商店→我的道具中转换装饰品。',
+    mkt_no_listings: '暂无上架',
+    // ── RESOURCE section ──
+    res_section_title: '矿物资源',
+    res_empty: '还没有资源。收获领土来发现矿物！',
+    res_sell: '出售',
+    res_sell_title: '出售资源',
     // ── SEASON tab ──
     season_no_active: '暂无进行中的赛季',
     season_check_back: '请期待下个赛季！',
@@ -11679,6 +12024,19 @@ var I18N = {
     shop_active_effects: '激活效果', shop_my_inventory: '我的库存',
     shop_confirm_title: '确认购买',
     shop_loading: '加载道具中...', shop_inv_loading: '加载库存中...',
+    // ── 强化 ──
+    enh_enhance: '强化', enh_workshop: '强化工坊',
+    enh_materialized: '强化准备完成！', enh_returned: '已返回库存',
+    enh_materialize_tip: '转换为可强化的单独道具',
+    enh_return_tip: '返回库存堆叠',
+    enh_current_level: '当前等级', enh_next_level: '下一等级',
+    enh_cost: '费用', enh_balance: '余额', enh_success_rate: '成功率',
+    enh_body: '尝试强化此道具。失败可能：等级不变、降级或道具销毁。',
+    enh_maxed_body: '此道具已达最高强化等级。',
+    enh_confirm: '强化', enh_success: '强化成功！',
+    enh_fail_stay: '强化失败，等级不变。',
+    enh_fail_down: '强化失败！等级降至',
+    enh_fail_destroy: '强化失败！道具已销毁！',
     cmd_message: '指挥官消息',
     total_px_label: '总像素', usdt_bal_label: 'USDT余额', pp_bal_label: 'PP余额',
     level_label: '等级', xp_next: '下一级：{n} XP', max_level: '满级',
@@ -11718,6 +12076,13 @@ var I18N = {
     gov_mining_20: '⛏ 采矿+20%', gov_defense_10: '🛡 防御+10%', gov_claim_10: '💰 占领-10%',
     gov_sector_announce: '区域公告', gov_sector_msg: '区域消息...',
     gov_bounty_board: '悬赏板', gov_no_bounties: '暂无活动悬赏。',
+    gov_siege_title: '⚔️ 区域攻城战', gov_select_sector_siege: '选择区域...',
+    gov_select_siege_hint: '选择区域以查看攻城状态。',
+    gov_challenge_btn: '⚔️ 挑战总督',
+    gov_betting_title: '🎰 攻城战投注', gov_bet_challenger: '⚔️ 挑战者', gov_bet_governor: '🛡 总督',
+    gov_declaration: '总督宣言 (5 GP)',
+    gov_declare_save: '宣言',
+    gov_policy_open: '开放（欢迎所有人）', gov_policy_ally: '仅同盟', gov_policy_closed: '封闭',
     gov_hall_of_fame: '🏆 名人堂', gov_select_sector_hof: '选择区域...',
     gov_select_hof_hint: '选择区域以查看历史。',
     ops_title: '战术行动',
@@ -12548,6 +12913,7 @@ var emailAuth = {
         try{refreshEmailBalances()}catch(e){}
         try{loadReferralInfo()}catch(e){}
         try{trackQuestAction('login',1)}catch(e){}
+        try{initOnboarding(d.wallet)}catch(e){}
         console.log('[Auth] Auto-login OK:',d.nickname);
       })
       .catch(function(){
@@ -12587,6 +12953,7 @@ function _tryCredentialAutoLogin(){
       try{refreshEmailBalances()}catch(e){}
       try{loadReferralInfo()}catch(e){}
       try{trackQuestAction('login',1)}catch(e){}
+      try{initOnboarding(d.user.wallet)}catch(e){}
       console.log('[Auth] Credential auto-login OK:',d.user.nickname);
     }).catch(function(e){console.log('[Auth] Credential auto-login error:',e)});
   }catch(e){}
@@ -12835,6 +13202,7 @@ async function submitAuth(){
     try{ refreshEmailBalances(); }catch(e2){ console.error('[Auth] refreshEmailBalances:',e2); }
     try{ trackQuestAction('login',1); }catch(e2){}
     try{ checkDailyLogin(); }catch(e2){ console.error('[Auth] checkDailyLogin:',e2); }
+    try{ initOnboarding(d.user.wallet); }catch(e2){}
 
   }catch(e){
     console.error('[Auth] submitAuth error:', e);
@@ -13927,18 +14295,23 @@ function switchBaseShopView(view,el){
 }
 
 var _baseInventory=[];
+var _resourceInventory=[];
 function loadBaseInventory(){
   var w=(walletState&&walletState.address)||'';
   var grid=document.getElementById('baseInvGrid');
   if(!w){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Connect wallet first</div>';return;}
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px">Loading...</div>';
-  // Load inventory + active effects in parallel
+  // Load inventory + active effects + instances + resources in parallel
   Promise.all([
     fetch('/api/shop/inventory?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}),
-    fetch('/api/shop/active-effects?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []})
+    fetch('/api/shop/active-effects?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
+    fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return []}),
+    fetch('/api/user/resources?wallet='+encodeURIComponent(w)+'&lang='+(window._lang||'en')).then(function(r){return r.json()}).catch(function(){return {inventory:[]}})
   ]).then(function(results){
     _baseInventory=results[0]||[];
     _activeEffects=results[1]||[];
+    _enhInstances=results[2]||[];
+    _resourceInventory=(results[3]&&results[3].inventory)||[];
     renderBaseInventory();
   }).catch(function(){
     grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);padding:20px 0;font-size:10px">Failed to load inventory</div>';
@@ -13989,6 +14362,7 @@ function renderBaseInventory(){
       var useBtn;
       if(isCosmetic){
         useBtn='<button onclick="showToast(\'Select your territory then click CUSTOMIZE\',\'info\')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(192,136,224,.45);background:rgba(192,136,224,.12);color:#c088e0;cursor:pointer;font-family:var(--fn)">EQUIP ON LAND</button>';
+        useBtn+=' <button onclick="materializeItem('+it.item_type_id+')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)" title="'+(t('enh_materialize_tip')||'Convert to individual item for enhancement')+'">🔨 '+(t('enh_enhance')||'ENHANCE')+'</button>';
       }else if(needsClaim){
         useBtn='<button onclick="useShopItem(\''+code+'\',true)" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(255,120,60,.45);background:rgba(255,120,60,.12);color:var(--mars);cursor:pointer;font-family:var(--fn)">USE ON LAND</button>';
       }else{
@@ -14000,12 +14374,436 @@ function renderBaseInventory(){
         +'<span style="font-size:9px;color:var(--gold);font-weight:700">×'+it.quantity+'</span>'
         +'</div>'
         +(function(){var d=_itemDesc(it.code)||it.description;return d?'<div style="font-size:9px;color:var(--tx3);line-height:1.4">'+d+'</div>':'';})()
-        +'<div style="display:flex;justify-content:flex-end;margin-top:auto">'+useBtn+'</div>'
+        +'<div style="display:flex;justify-content:flex-end;gap:4px;margin-top:auto;flex-wrap:wrap">'+useBtn+'</div>'
         +'</div>');
     });
+    // Show materialized instances for this cosmetic category
+    if(cat==='cosmetic' && _enhInstances && _enhInstances.length>0){
+      var cosInst=_enhInstances.filter(function(i){return i.category==='cosmetic'});
+      if(cosInst.length>0){
+        parts.push('<div style="grid-column:1/-1;margin-top:6px;padding:6px 8px;background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.12);border-radius:6px">'
+          +'<div style="font-size:9px;color:var(--gold);font-weight:800;letter-spacing:.5px;margin-bottom:6px">🔨 '+(t('enh_workshop')||'ENHANCEMENT WORKSHOP')+'</div>');
+        cosInst.forEach(function(inst){
+          var lv=inst.enhancement_level||0;
+          var lvColor=_enhLevelColor(lv);
+          parts.push('<div class="'+_enhGlowClass(lv)+'" style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.08);border-radius:6px;margin-bottom:4px">'
+            +'<div style="display:flex;align-items:center;gap:6px">'
+            +'<span style="font-size:10px">'+(inst.icon||'🎨')+'</span>'
+            +'<span style="font-size:10px;font-weight:700;color:'+lvColor+'">'+(inst.name||'Item')+_enhBadge(lv)+'</span>'
+            +'</div>'
+            +'<div style="display:flex;gap:4px">'
+            +'<button onclick="openEnhanceModal('+inst.id+')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.12);color:var(--gold);cursor:pointer;font-family:var(--fn)">'+(lv>=10?'✨ MAX':'🔨 +'+(lv+1))+'</button>'
+            +(lv===0?'<button onclick="dematerializeItem('+inst.id+')" style="font-size:8px;padding:4px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:none;color:var(--tx3);cursor:pointer;font-family:var(--fn)" title="'+(t('enh_return_tip')||'Return to inventory stack')+'">↩</button>':'')
+            +'</div>'
+            +'</div>');
+        });
+        parts.push('</div>');
+      }
+    }
   });
+
+  // ── RESOURCES section (Phase 2) ──
+  var resWithQty=(_resourceInventory||[]).filter(function(r){return r.quantity>0});
+  var rarityColor={common:'var(--tx2)',rare:'var(--cyan)',special:'var(--gold)'};
+  var rarityLabel={common:'⚪ COMMON',rare:'🔵 RARE',special:'⭐ SPECIAL'};
+  if(resWithQty.length>0){
+    parts.push('<div style="grid-column:1/-1;margin-top:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:6px">'
+      +'<span style="font-size:10px;font-weight:800;color:#5cbbff;letter-spacing:1px">⛏️ '+(t('res_section_title')||'RESOURCES')+'</span>'
+      +'<span style="font-size:9px;color:var(--tx3)">('+resWithQty.length+')</span>'
+      +'</div>');
+    // group by rarity
+    var resGrouped={common:[],rare:[],special:[]};
+    resWithQty.forEach(function(r){ (resGrouped[r.rarity]||resGrouped.common).push(r); });
+    ['common','rare','special'].forEach(function(rar){
+      var items=resGrouped[rar];if(!items||!items.length)return;
+      var c=rarityColor[rar]||'var(--tx2)';
+      parts.push('<div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px;padding:4px 0">');
+      items.forEach(function(r){
+        var marketBtn=r.is_tradeable
+          ? '<button onclick="openResourceMarketListing(\''+r.code+'\')" style="font-size:8px;padding:3px 7px;border-radius:4px;border:1px solid rgba(160,100,220,.4);background:rgba(160,100,220,.1);color:#c088e0;cursor:pointer;font-family:var(--fn);font-weight:700">'+(t('res_sell')||'SELL')+'</button>'
+          : '';
+        parts.push('<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;min-width:120px">'
+          +'<span style="font-size:18px;line-height:1">'+(r.icon_emoji||'🔷')+'</span>'
+          +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:10px;font-weight:700;color:'+c+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(r.name||r.code)+'</div>'
+          +'<div style="font-size:9px;color:var(--tx3)">×<b style="color:var(--tx2)">'+r.quantity+'</b> · '+(r.base_pp_value||0)+' PP</div>'
+          +'</div>'
+          +marketBtn
+          +'</div>');
+      });
+      parts.push('</div>');
+    });
+  } else {
+    parts.push('<div style="grid-column:1/-1;margin-top:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+      +'<span style="font-size:10px;font-weight:800;color:#5cbbff;letter-spacing:1px">⛏️ '+(t('res_section_title')||'RESOURCES')+'</span>'
+      +'</div>');
+    parts.push('<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:12px 0;font-size:9px">'+(t('res_empty')||'No resources yet. Harvest your territory to find minerals!')+'</div>');
+  }
+
   grid.innerHTML=parts.join('');
 }
+
+// ══════════════════════════════════════
+// MARKETPLACE
+// ══════════════════════════════════════
+var _mktView='browse';
+
+function switchMarketView(view,el){
+  _mktView=view;
+  document.querySelectorAll('.mkt-view-btn').forEach(function(b){
+    b.style.borderColor='rgba(255,255,255,.1)'; b.style.background='rgba(255,255,255,.03)'; b.style.color='var(--tx3)';
+  });
+  if(el){ el.style.borderColor='rgba(160,100,220,.45)'; el.style.background='rgba(160,100,220,.15)'; el.style.color='#a064dc'; }
+  document.getElementById('mktBrowseGrid').style.display=(view==='browse')?'grid':'none';
+  document.getElementById('mktFilters').style.display=(view==='browse')?'flex':'none';
+  document.getElementById('mktSellView').style.display=(view==='sell')?'block':'none';
+  document.getElementById('mktMyView').style.display=(view==='mine')?'block':'none';
+  if(view==='browse') loadMarketListings();
+  if(view==='sell') loadSellView();
+  if(view==='mine') loadMyListings();
+}
+
+function loadMarketTab(){ switchMarketView('browse',document.querySelectorAll('.mkt-view-btn')[0]); }
+
+function loadMarketListings(){
+  var grid=document.getElementById('mktBrowseGrid');
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">Loading...</div>';
+  var type=document.getElementById('mktFilterType').value;
+  var sort=document.getElementById('mktFilterSort').value;
+  var search=(document.getElementById('mktSearch').value||'').trim();
+  var url='/api/marketplace/listings?sort='+sort+'&limit=40';
+  if(type) url+='&type='+type;
+  if(search) url+='&search='+encodeURIComponent(search);
+  fetch(url).then(function(r){return r.json()}).then(function(d){
+    var items=d.listings||[];
+    if(!items.length){
+      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_empty')||'No listings found')+'</div>';
+      return;
+    }
+    grid.innerHTML=items.map(function(l){ return renderMarketCard(l); }).join('');
+  }).catch(function(){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);font-size:10px">Failed to load</div>'});
+}
+
+function renderMarketCard(l){
+  var meta=l.meta||{};
+  // ✅ [Resource System] 자원 타입 처리
+  var isResource=l.listing_type==='resource';
+  var icon=isResource?(meta.resourceIcon||'⛏️'):meta.itemIcon||'🗺️';
+  var name=isResource?((meta.resourceName||l.resource_code||'Resource')+' ×'+(l.resource_quantity||meta.resourceQty||1))
+    :(meta.itemName||(l.listing_type==='claim'?'Territory #'+l.claim_id:'Item'));
+  var enhLv=meta.enhancementLevel||0;
+  var enhTag=enhLv>0?_enhBadge(enhLv):'';
+  var typeLabel=l.listing_type==='claim'?'🗺️':isResource?'⛏️':'🎨';
+  var rarityColor=isResource?{common:'var(--tx2)',rare:'var(--cyan)',special:'var(--gold)'}[meta.rarity||'common']:'#a064dc';
+  var price=parseFloat(l.price);
+  var currency=l.currency||'GP';
+  var seller=l.seller_name||((l.seller||'').slice(0,6)+'…');
+  var remaining=Math.max(0,Math.round((new Date(l.expires_at)-Date.now())/3600000));
+  var timeStr=remaining>24?Math.floor(remaining/24)+'d':remaining+'h';
+  var isOwn=walletState&&walletState.address&&l.seller===walletState.address.toLowerCase();
+  var claimInfo='';
+  if(l.listing_type==='claim'&&meta.pixelCount) claimInfo='<div style="font-size:8px;color:var(--tx3)">'+meta.pixelCount+' px</div>';
+  return '<div class="'+_enhGlowClass(enhLv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center">'
+    +'<span style="font-size:10px;font-weight:700;color:'+rarityColor+'">'+icon+' '+name+enhTag+'</span>'
+    +'<span style="font-size:8px;color:var(--tx3)">'+typeLabel+'</span>'
+    +'</div>'
+    +claimInfo
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">'
+    +'<div><span style="font-size:12px;font-weight:800;color:var(--gold)">'+price+'</span> <span style="font-size:9px;color:var(--tx3)">'+currency+'</span></div>'
+    +'<div style="font-size:8px;color:var(--tx3)">'+seller+' · '+timeStr+'</div>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:flex-end;gap:4px;margin-top:4px">'
+    +(isOwn?'<button onclick="cancelMarketListing('+l.id+')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.4);background:rgba(232,72,85,.1);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('mkt_cancel')||'CANCEL')+'</button>'
+    :'<button onclick="buyMarketListing('+l.id+','+price+',\''+currency+'\',\''+name.replace(/'/g,"\\'")+'\')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn)">'+(t('mkt_buy')||'BUY')+'</button>')
+    +'</div></div>';
+}
+
+function buyMarketListing(listingId,price,currency,name){
+  var w=(walletState&&walletState.address)||'';
+  if(!w){showToast('Connect wallet first','error');return;}
+  var myBal=currency==='GP'?(walletState.gameGP||0):(walletState.pp||0);
+  var insufficient=myBal<price;
+  gameConfirm({
+    title:t('mkt_buy_title')||'Purchase Item', icon:'🛒',
+    body:name,
+    info:[
+      {k:t('mkt_price')||'Price',v:price+' '+currency},
+      {k:t('mkt_your_balance')||'Your Balance',v:Math.floor(myBal)+' '+currency,insufficient:insufficient}
+    ],
+    confirmText:t('mkt_buy_confirm')||'BUY NOW', disabled:insufficient
+  }).then(function(ok){
+    if(!ok) return;
+    fetch('/api/marketplace/buy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,listingId:listingId})})
+    .then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error,'error');return;}
+      showToast('✅ '+(t('mkt_bought')||'Purchase successful!'),'success');
+      refreshBalance(); loadMarketListings();
+    }).catch(function(){showToast('Purchase failed','error')});
+  });
+}
+
+function cancelMarketListing(listingId){
+  var w=(walletState&&walletState.address)||'';
+  gameConfirm({
+    title:t('mkt_cancel_title')||'Cancel Listing', icon:'🗑️',
+    body:t('mkt_cancel_body')||'Cancel this listing and return the item to your inventory?',
+    info:[], confirmText:t('mkt_cancel_confirm')||'CANCEL LISTING'
+  }).then(function(ok){
+    if(!ok) return;
+    fetch('/api/marketplace/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,listingId:listingId})})
+    .then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error,'error');return;}
+      showToast('✅ '+(t('mkt_cancelled')||'Listing cancelled'));
+      loadMarketListings(); loadItemInstances();
+    }).catch(function(){showToast('Cancel failed','error')});
+  });
+}
+
+function loadSellView(){
+  var el=document.getElementById('mktSellView');
+  var w=(walletState&&walletState.address)||'';
+  if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Connect wallet first</div>';return;}
+  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
+  // Load instances available for selling
+  fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(instances){
+    var html='<div style="font-size:10px;color:var(--gold);font-weight:800;letter-spacing:.5px;margin-bottom:8px">📦 '+(t('mkt_sellable_items')||'SELLABLE ITEMS')+'</div>';
+    if(!instances||!instances.length){
+      html+='<div style="text-align:center;color:var(--tx3);padding:16px;font-size:10px">'+(t('mkt_no_items')||'No items to sell. Materialize cosmetics from SHOP → MY ITEMS first.')+'</div>';
+    }else{
+      html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
+      instances.forEach(function(inst){
+        var lv=inst.enhancement_level||0;
+        html+='<div class="'+_enhGlowClass(lv)+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:4px">'
+          +'<div style="font-size:10px;font-weight:700;color:'+_enhLevelColor(lv)+'">'+(inst.icon||'🎨')+' '+(inst.name||'Item')+_enhBadge(lv)+'</div>'
+          +'<button onclick="openListModal(\'cosmetic\','+inst.id+',\''+(inst.name||'').replace(/'/g,"\\'")+'\','+(inst.icon?'\''+inst.icon+'\'':'null')+','+lv+')" style="font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;border:1px solid rgba(160,100,220,.45);background:rgba(160,100,220,.12);color:#a064dc;cursor:pointer;font-family:var(--fn);margin-top:auto">💰 '+(t('mkt_list_sell')||'SELL')+'</button>'
+          +'</div>';
+      });
+      html+='</div>';
+    }
+    el.innerHTML=html;
+  }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px">Failed to load</div>'});
+}
+
+function openListModal(type,idVal,name,icon,enhLv){
+  var w=(walletState&&walletState.address)||'';
+  gameConfirm({
+    title:(t('mkt_list_title')||'List for Sale'), icon:icon||'💰',
+    body:'<div style="margin-bottom:8px;font-size:10px;color:#a064dc;font-weight:700">'+(icon||'')+(name||'Item')+(enhLv>0?' +'+enhLv:'')+'</div>'
+      +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">'
+      +'<label style="font-size:9px;color:var(--tx3);min-width:40px">'+(t('mkt_price')||'Price')+'</label>'
+      +'<input id="mktListPrice" type="number" min="1" placeholder="100" style="flex:1;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:4px;font-family:var(--fn)">'
+      +'<select id="mktListCurrency" style="font-size:10px;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:4px;font-family:var(--fn)"><option value="GP">GP</option><option value="PP">PP</option></select>'
+      +'</div>'
+      +'<div style="font-size:8px;color:var(--tx3)">'+(t('mkt_fee_note')||'Listing fee: 2 GP · Sale fee: 5%')+'</div>',
+    info:[], confirmText:t('mkt_list_confirm')||'LIST FOR SALE'
+  }).then(function(ok){
+    if(!ok) return;
+    var priceVal=parseFloat(document.getElementById('mktListPrice').value);
+    var curr=document.getElementById('mktListCurrency').value;
+    if(!priceVal||priceVal<=0){showToast('Enter a valid price','error');return;}
+    var body={wallet:w,type:type,price:priceVal,currency:curr};
+    if(type==='claim') body.claimId=idVal; else body.instanceId=idVal;
+    fetch('/api/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error,'error');return;}
+      showToast('✅ '+(t('mkt_listed')||'Item listed on marketplace!'));
+      refreshBalance(); loadSellView();
+    }).catch(function(){showToast('Listing failed','error')});
+  });
+}
+
+// ── 자원 마켓 등록 (인벤토리 → 마켓 SELL 탭 열기) ──
+function openResourceMarketListing(resourceCode){
+  var w=(walletState&&walletState.address)||'';
+  if(!w){showToast('Connect wallet first','error');return;}
+  var resItem=(_resourceInventory||[]).find(function(r){return r.code===resourceCode;});
+  if(!resItem||resItem.quantity<=0){showToast('No resources to sell','error');return;}
+  var maxQty=resItem.quantity;
+  gameConfirm({
+    title:'⛏️ '+(t('res_sell_title')||'Sell Resource'), icon:resItem.icon_emoji||'🔷',
+    body:'<div style="margin-bottom:8px;font-size:10px;color:#5cbbff;font-weight:700">'+(resItem.icon_emoji||'')+(resItem.name||resItem.code)+'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px">'
+      +'<div>'
+      +'<label style="font-size:9px;color:var(--tx3)">QTY (max '+maxQty+')</label>'
+      +'<input id="resListQty" type="number" min="1" max="'+maxQty+'" value="'+Math.min(maxQty,10)+'" style="width:100%;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
+      +'</div>'
+      +'<div>'
+      +'<label style="font-size:9px;color:var(--tx3)">PRICE EACH</label>'
+      +'<input id="resListPrice" type="number" min="1" placeholder="'+resItem.base_pp_value+'" style="width:100%;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
+      +'</div>'
+      +'</div>'
+      +'<select id="resListCurrency" style="width:100%;font-size:10px;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box"><option value="GP">GP</option><option value="PP">PP</option></select>'
+      +'<div style="font-size:8px;color:var(--tx3);margin-top:4px">'+(t('mkt_fee_note')||'Listing fee: 2 GP · Sale fee: 5%')+'</div>',
+    info:[], confirmText:t('mkt_list_confirm')||'LIST FOR SALE'
+  }).then(function(ok){
+    if(!ok) return;
+    var qty=parseInt(document.getElementById('resListQty').value)||1;
+    var price=parseFloat(document.getElementById('resListPrice').value);
+    var curr=document.getElementById('resListCurrency').value;
+    if(!price||price<=0){showToast('Enter a valid price','error');return;}
+    if(qty<1||qty>maxQty){showToast('Invalid quantity','error');return;}
+    fetch('/api/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,type:'resource',resourceCode:resourceCode,resourceQuantity:qty,price:price,currency:curr})})
+    .then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast(d.error,'error');return;}
+      showToast('✅ '+(qty)+'× '+(resItem.name||resItem.code)+' listed!');
+      loadBaseInventory();
+    }).catch(function(){showToast('Listing failed','error')});
+  });
+}
+
+function loadMyListings(){
+  var el=document.getElementById('mktMyView');
+  var w=(walletState&&walletState.address)||'';
+  if(!w){el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Connect wallet first</div>';return;}
+  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:20px;font-size:10px">Loading...</div>';
+  fetch('/api/marketplace/my-listings?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(listings){
+    if(!listings||!listings.length){
+      el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:32px 0;font-size:10px">'+(t('mkt_no_listings')||'No listings yet')+'</div>';
+      return;
+    }
+    var html='<div style="display:grid;grid-template-columns:1fr;gap:6px">';
+    listings.forEach(function(l){
+      var meta=l.meta||{};
+      var statusColor=l.status==='active'?'#4cd89a':l.status==='sold'?'var(--gold)':l.status==='expired'?'var(--tx3)':'var(--red)';
+      html+='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;display:flex;justify-content:space-between;align-items:center">'
+        +'<div>'
+        +'<div style="font-size:10px;font-weight:700;color:#a064dc">'+(meta.itemIcon||'🗺️')+' '+(meta.itemName||(l.listing_type==='claim'?'Territory #'+l.claim_id:'Item'))+(meta.enhancementLevel>0?_enhBadge(meta.enhancementLevel):'')+'</div>'
+        +'<div style="font-size:9px;color:var(--tx3)">'+parseFloat(l.price)+' '+l.currency+' · <span style="color:'+statusColor+'">'+l.status.toUpperCase()+'</span></div>'
+        +'</div>'
+        +(l.status==='active'?'<button onclick="cancelMarketListing('+l.id+')" style="font-size:9px;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('mkt_cancel')||'CANCEL')+'</button>':'')
+        +'</div>';
+    });
+    html+='</div>';
+    el.innerHTML=html;
+  }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px">Failed to load</div>'});
+}
+
+// ══════════════════════════════════════
+// ITEM ENHANCEMENT SYSTEM
+// ══════════════════════════════════════
+var _enhCosts=null,_enhRates=null,_enhInstances=[];
+
+function _enhBadge(lv){
+  if(!lv||lv<=0) return '';
+  var cls=lv<=3?'enh-badge-low':lv<=6?'enh-badge-mid':lv<=9?'enh-badge-high':'enh-badge-max';
+  return '<span class="enh-badge '+cls+'">+'+lv+'</span>';
+}
+function _enhGlowClass(lv){ return 'enh-'+(lv||0); }
+function _enhLevelColor(lv){
+  if(!lv||lv<=0) return 'var(--tx3)';
+  if(lv<=3) return 'rgba(200,200,220,.8)';
+  if(lv<=6) return 'var(--gold)';
+  if(lv<=9) return '#a064dc';
+  return 'var(--red)';
+}
+
+function loadEnhancementData(){
+  Promise.all([
+    fetch('/api/enhance/costs').then(function(r){return r.json()}).catch(function(){return null}),
+    fetch('/api/enhance/rates').then(function(r){return r.json()}).catch(function(){return null})
+  ]).then(function(res){
+    _enhCosts=res[0]; _enhRates=res[1];
+  });
+}
+
+function loadItemInstances(cb){
+  var w=(walletState&&walletState.address)||'';
+  if(!w) return;
+  fetch('/api/items/instances?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d){
+    _enhInstances=d||[];
+    if(cb) cb();
+  }).catch(function(){ _enhInstances=[]; if(cb) cb(); });
+}
+
+function materializeItem(itemTypeId){
+  var w=(walletState&&walletState.address)||'';
+  if(!w) return;
+  fetch('/api/items/materialize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,itemTypeId:itemTypeId})})
+  .then(function(r){return r.json()}).then(function(d){
+    if(d.error){showToast(d.error,'error');return;}
+    showToast(t('enh_materialized')||'Item ready for enhancement!');
+    loadBaseInventory();
+    loadItemInstances();
+  }).catch(function(){showToast('Failed','error')});
+}
+
+function dematerializeItem(instanceId){
+  var w=(walletState&&walletState.address)||'';
+  if(!w) return;
+  fetch('/api/items/dematerialize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,instanceId:instanceId})})
+  .then(function(r){return r.json()}).then(function(d){
+    if(d.error){showToast(d.error,'error');return;}
+    showToast(t('enh_returned')||'Item returned to inventory');
+    loadBaseInventory();
+    loadItemInstances();
+  }).catch(function(){showToast('Failed','error')});
+}
+
+function openEnhanceModal(instanceId){
+  var inst=_enhInstances.find(function(i){return i.id===instanceId});
+  if(!inst) return showToast('Item not found','error');
+  var lv=inst.enhancement_level||0;
+  var cost=_enhCosts?_enhCosts.find(function(c){return c.from===lv}):null;
+  var rate=(_enhRates&&!_enhRates.hidden)?_enhRates.find(function(r){return r.from===lv}):null;
+  var gpCost=cost?cost.cost:0;
+  var myGP=walletState.gameGP||0;
+  var insufficient=myGP<gpCost;
+  var maxed=lv>=10;
+
+  var infoRows=[];
+  if(!maxed){
+    infoRows.push({k:t('enh_current_level')||'Current Level',v:'+'+lv});
+    infoRows.push({k:t('enh_next_level')||'Next Level',v:'+'+(lv+1)});
+    infoRows.push({k:t('enh_cost')||'Cost',v:gpCost+' GP'});
+    infoRows.push({k:t('enh_balance')||'Balance',v:Math.floor(myGP)+' GP',insufficient:insufficient});
+    if(rate) infoRows.push({k:t('enh_success_rate')||'Success Rate',v:rate.rate+'%'});
+  }else{
+    infoRows.push({k:t('enh_current_level')||'Current Level',v:'+10 MAX',ok:true});
+  }
+
+  gameConfirm({
+    title:(inst.icon||'')+' '+(inst.name||'Item')+_enhBadge(lv).replace(/<[^>]+>/g,' +'+lv),
+    icon:'🔨',
+    body:maxed?(t('enh_maxed_body')||'This item has reached maximum enhancement.'):(t('enh_body')||'Attempt to enhance this item. On failure: level may stay, drop, or the item may be destroyed.'),
+    info:infoRows,
+    confirmText:maxed?'MAX':t('enh_confirm')||'ENHANCE',
+    disabled:maxed||insufficient
+  }).then(function(ok){
+    if(!ok) return;
+    attemptEnhance(instanceId);
+  });
+}
+
+function attemptEnhance(instanceId){
+  var w=(walletState&&walletState.address)||'';
+  if(!w) return;
+  fetch('/api/enhance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,instanceId:instanceId})})
+  .then(function(r){return r.json()}).then(function(d){
+    if(d.error){showToast(d.error,'error');return;}
+    // Refresh GP balance
+    refreshBalance();
+    loadItemInstances(function(){
+      // Show result
+      if(d.success){
+        showToast('✨ '+(t('enh_success')||'Enhancement succeeded!')+' +'+(d.toLevel),'success');
+        // Re-open modal for next attempt if not maxed
+        if(d.toLevel<10 && d.instanceId) setTimeout(function(){ openEnhanceModal(d.instanceId); },600);
+      }else if(d.outcome==='stay'){
+        showToast('😤 '+(t('enh_fail_stay')||'Enhancement failed. Level unchanged.')+' +'+d.toLevel,'warn');
+        if(d.instanceId) setTimeout(function(){ openEnhanceModal(d.instanceId); },600);
+      }else if(d.outcome==='downgrade'){
+        showToast('📉 '+(t('enh_fail_down')||'Enhancement failed! Level dropped to')+' +'+d.toLevel,'error');
+        if(d.instanceId) setTimeout(function(){ openEnhanceModal(d.instanceId); },600);
+      }else if(d.outcome==='destroy'){
+        showToast('💥 '+(t('enh_fail_destroy')||'Enhancement failed! Item destroyed!'),'error');
+      }
+    });
+  }).catch(function(){showToast('Enhancement failed','error')});
+}
+
+// Load enhancement data on init
+setTimeout(function(){ loadEnhancementData(); },3000);
 
 function switchBaseTab(tab,el){
   document.querySelectorAll('.base-tab').forEach(function(t){t.classList.remove('active')});
@@ -14469,7 +15267,7 @@ function renderGuildWars(guildId){
           '<span style="font-size:12px;font-weight:700;color:var(--red)">'+theirScore+'</span>'+
         '</div>'+
         '<div style="display:flex;gap:4px;margin-top:6px">'+
-          '<button onclick="openMinigameOverlay('+w.id+')" style="flex:1;padding:6px;border-radius:6px;background:linear-gradient(135deg,#00E676,#00C853);border:none;color:#000;font-size:10px;font-weight:700;cursor:pointer">🎮 PLAY GAMES</button>'+
+          /* BIBLE Migration 080: Arcade hidden */ ''+
           '<button onclick="viewWarScoreboard('+w.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--gn);font-size:9px;cursor:pointer">📊 SCORES</button>'+
         '</div>'+
       '</div>';
@@ -15986,6 +16784,425 @@ function renderBaseUser(data){
     ratesHtml+='<div class="stat-row"><span class="stat-label">'+t('rate_frontier')+'</span><span class="stat-val" style="font-size:10px;color:var(--gn)">×'+mr.frontierMult+'</span></div>';
     document.getElementById('baseMineRates').innerHTML=ratesHtml;
   }
+
+  // ✅ [Job System] Load job card after base data renders
+  var jw = walletState && walletState.address ? walletState.address : null;
+  if(jw && u.rank >= 1) loadUserJob(jw, u.rank);
+}
+
+// ══════════════════════════════════════════════════════
+// JOB SYSTEM — Phase 1 Frontend
+// ══════════════════════════════════════════════════════
+var _jobData = null; // current user's job data
+var _allJobs = [];   // all available jobs
+var _selectedJobCode = null; // selection in modal
+
+function loadUserJob(wallet, rank){
+  if(!wallet) return;
+  var lang = (window._lang||'en');
+  fetch('/api/user/job?wallet='+encodeURIComponent(wallet)+'&lang='+lang)
+    .then(function(r){return r.json()})
+    .then(function(data){
+      _jobData = data;
+      renderJobCard(data, rank);
+      // If level >= required and no job: show modal (only once per session)
+      if(rank >= 5 && !data.job && !sessionStorage.getItem('jobModalShown')){
+        sessionStorage.setItem('jobModalShown','1');
+        setTimeout(function(){ openJobSelectModal(); }, 1200);
+      }
+    }).catch(function(){});
+}
+
+function renderJobCard(data, rank){
+  var card = document.getElementById('jobCardMini');
+  if(!card) return;
+  var requiredLevel = 5; // matches settings job_required_level default
+
+  // Show card only if level >= 1 (always visible as a prompt or status)
+  card.style.display = '';
+
+  var icon = document.getElementById('jobCardIcon');
+  var name = document.getElementById('jobCardName');
+  var buffs = document.getElementById('jobCardBuffs');
+  var btn = document.getElementById('jobCardBtn');
+  var status = document.getElementById('jobCardChangeStatus');
+
+  if(data && data.job){
+    // Has a job
+    card.classList.remove('no-job','job-choose-pulse');
+    card.style.borderColor = data.job.color_hex ? data.job.color_hex+'55' : 'rgba(255,255,255,.15)';
+    if(icon) icon.textContent = data.job.icon_emoji || '⚔️';
+    if(name){ name.textContent = data.job.name; name.style.color = data.job.color_hex || 'var(--tx)'; }
+
+    // Show top 3 positive buffs
+    if(buffs && data.buffs){
+      var pills = [];
+      Object.entries(data.buffs).forEach(function(e){
+        if(e[1] > 1.0) pills.push('<span class="job-buff-pill" style="background:rgba(100,220,100,.1);color:#6dc86d">+'+Math.round((e[1]-1)*100)+'% '+_buffLabelShort(e[0])+'</span>');
+      });
+      buffs.innerHTML = pills.slice(0,3).join('');
+    }
+
+    if(btn) btn.textContent = t('job_change_btn');
+
+    // Change status
+    if(status && data.changeStatus){
+      var cs = data.changeStatus;
+      status.style.display = '';
+      if(cs.cooldownEndsAt){
+        var d = new Date(cs.cooldownEndsAt);
+        status.textContent = t('job_cooldown').replace('{t}', d.toLocaleDateString());
+        status.style.color = 'var(--red)';
+      } else if(cs.canChangeFree){
+        status.textContent = t('job_free_change').replace('{n}', cs.freeChangesLeft);
+        status.style.color = 'var(--gn)';
+      } else {
+        status.textContent = t('job_paid_change').replace('{n}', cs.paidCostGp);
+        status.style.color = 'var(--gold)';
+      }
+    }
+  } else {
+    // No job
+    card.classList.add('no-job');
+    if(rank >= requiredLevel) card.classList.add('job-choose-pulse');
+    else card.classList.remove('job-choose-pulse');
+    if(icon) icon.textContent = '❓';
+    if(name){ name.textContent = rank >= requiredLevel ? t('job_none') : t('job_locked').replace('{n}', requiredLevel); name.style.color = rank >= requiredLevel ? 'var(--gold)' : 'var(--tx3)'; }
+    if(buffs) buffs.innerHTML = '';
+    if(btn) btn.textContent = rank >= requiredLevel ? t('job_choose_btn') : '';
+    if(status) status.style.display = 'none';
+  }
+}
+
+function _buffLabelShort(key){
+  var m = {
+    miner_mining_rate:'MINE', miner_harvest_speed:'HARVEST', miner_poi_reward:'POI',
+    warrior_combat_power:'COMBAT', warrior_hijack_success:'HIJACK', warrior_defense_item_effect:'DEF',
+    crafter_enhancement_success:'ENHANCE', crafter_enhancement_cost:'COST', crafter_enhancement_break_protection:'BREAK',
+    merchant_market_fee:'FEE', merchant_listing_limit:'LISTING', merchant_price_history_days:'HISTORY'
+  };
+  return m[key] || key.split('_').slice(-1)[0].toUpperCase();
+}
+
+// ══════════════════════════════════════════════════════════════
+// ONBOARDING TUTORIAL SYSTEM (Migration 083 — MASTER_PLAN Phase 3)
+// ══════════════════════════════════════════════════════════════
+var _obState = null; // cached onboarding state from server
+
+async function initOnboarding(wallet) {
+  if (!wallet) return;
+  try {
+    var r = await fetch('/api/user/onboarding?wallet=' + wallet);
+    if (!r.ok) return;
+    var state = await r.json();
+    _obState = state;
+    if (!state.enabled || state.completed || state.skipped) return;
+    // Show onboarding for incomplete users
+    var step = state.currentStep || 0;
+    if (step === 0) {
+      // Brand new user — show step 1 intro
+      setTimeout(function() { showOnboardingStep(1); }, 800);
+    } else if (step < 5) {
+      // Returning mid-onboarding user — show resume prompt
+      setTimeout(function() { showOnboardingStep(step + 1); }, 800);
+    }
+  } catch (e) { /* non-critical */ }
+}
+
+function _obSetDots(activeStep) {
+  for (var i = 1; i <= 5; i++) {
+    var dot = document.getElementById('obDot' + i);
+    if (!dot) continue;
+    dot.className = 'ob-dot';
+    if (i < activeStep) dot.classList.add('done');
+    else if (i === activeStep) dot.classList.add('active');
+  }
+}
+
+var _OB_STEPS = {
+  1: {
+    emoji: '🚀',
+    title_en: 'CLAIM YOUR FIRST TERRITORY',
+    title_ko: '첫 영토를 점령하세요',
+    body_en: '<b>Mars is yours for the taking.</b><br>Tap anywhere on the red map to plant your flag on your first territory.<br><br>⭐ Your first claim is <b>FREE</b> — no PP required.',
+    body_ko: '<b>화성은 당신의 것입니다.</b><br>지도의 빨간 영역을 탭해서 첫 영토를 점령하세요.<br><br>⭐ 첫 번째 클레임은 <b>무료</b>입니다 — PP 불필요.',
+    next_en: 'GOT IT — SHOW ME THE MAP',
+    next_ko: '알겠어요 — 지도 보기'
+  },
+  2: {
+    emoji: '⛏️',
+    title_en: 'YOUR TERRITORY GENERATES PP',
+    title_ko: '영토에서 PP가 생성됩니다',
+    body_en: 'Every 4 hours, your territory <b>generates PP</b> — the game\'s currency.<br><br>→ Tap <b>[HARVEST]</b> to collect it.<br>→ Use PP to expand your empire.',
+    body_ko: '4시간마다 영토에서 <b>PP</b>가 생성됩니다.<br><br>→ <b>[수확하기]</b>를 탭해서 수집하세요.<br>→ PP로 영토를 확장할 수 있습니다.',
+    next_en: 'UNDERSTOOD',
+    next_ko: '이해했어요'
+  },
+  3: {
+    emoji: '⚔️',
+    title_en: 'CHOOSE YOUR PATH',
+    title_ko: '당신의 길을 선택하세요',
+    body_en: 'At <b>Level 5</b>, you can choose a Job:<br>⛏️ <b>Miner</b> — harvest more resources<br>⚔️ <b>Warrior</b> — dominate in combat<br>🔨 <b>Crafter</b> — master enhancement<br>💼 <b>Merchant</b> — rule the market',
+    body_ko: '<b>레벨 5</b>가 되면 직업을 선택할 수 있어요:<br>⛏️ <b>광부</b> — 더 많은 자원 수집<br>⚔️ <b>전사</b> — 전투 지배<br>🔨 <b>제작자</b> — 강화 전문<br>💼 <b>상인</b> — 마켓 지배',
+    next_en: 'NEXT',
+    next_ko: '다음'
+  },
+  4: {
+    emoji: '🛡️',
+    title_en: 'JOIN A GUILD',
+    title_ko: '길드에 가입하세요',
+    body_en: '<b>Alone you survive. Together you conquer.</b><br><br>Guilds give you sector buffs, teammates in war, and shared treasury rewards.<br><br>Find a guild in the <b>GUILD</b> tab.',
+    body_ko: '<b>혼자서는 살아남고, 함께라면 정복합니다.</b><br><br>길드는 섹터 버프, 전쟁 동료, 공유 treasury 보상을 제공합니다.<br><br><b>GUILD</b> 탭에서 길드를 찾아보세요.',
+    next_en: 'NEXT',
+    next_ko: '다음'
+  },
+  5: {
+    emoji: '🎯',
+    title_en: 'COMPLETE DAILY MISSIONS',
+    title_ko: '일일 미션을 완료하세요',
+    body_en: 'Every day there are <b>7 missions</b> waiting.<br>Complete them for GP, XP, and special rewards.<br><br>Find them in the <b>OPS</b> tab.',
+    body_ko: '매일 <b>7개의 미션</b>이 기다리고 있습니다.<br>완료하면 GP, XP, 특별 보상을 얻을 수 있어요.<br><br><b>OPS</b> 탭에서 확인하세요.',
+    next_en: '🎉 CLAIM REWARD',
+    next_ko: '🎉 보상 수령'
+  }
+};
+
+function _obStepContent(step) {
+  var lang = (typeof _lang !== 'undefined' ? _lang : 'en') || 'en';
+  var s = _OB_STEPS[step];
+  if (!s) return '';
+  var title = s['title_' + lang] || s.title_en;
+  var body  = s['body_'  + lang] || s.body_en;
+  var next  = s['next_'  + lang] || s.next_en;
+  var rewardHtml = '';
+  if (step === 5 && _obState && _obState.rewards) {
+    var r = _obState.rewards;
+    rewardHtml = '<div class="ob-reward-row">'
+      + (r.pp  ? '<div class="ob-reward-chip">🟣 ' + r.pp  + ' PP</div>'  : '')
+      + (r.gp  ? '<div class="ob-reward-chip">🟡 ' + r.gp  + ' GP</div>'  : '')
+      + (r.xp  ? '<div class="ob-reward-chip">⚡ ' + r.xp  + ' XP</div>'  : '')
+      + '</div>';
+  }
+  var skipBtn = (_obState && _obState.skipAllowed && step < 5)
+    ? '<button class="ob-btn-skip" onclick="obSkip()">SKIP</button>'
+    : '';
+  return '<div class="ob-emoji">' + s.emoji + '</div>'
+    + '<div class="ob-title">' + title + '</div>'
+    + '<div class="ob-sub">' + body + '</div>'
+    + rewardHtml
+    + '<div class="ob-actions">'
+    + skipBtn
+    + '<button class="ob-btn-next" onclick="obNextStep(' + step + ')">' + next + '</button>'
+    + '</div>';
+}
+
+function showOnboardingStep(step) {
+  var ov = document.getElementById('obOverlay');
+  var ct = document.getElementById('obContent');
+  if (!ov || !ct) return;
+  _obSetDots(step);
+  ct.innerHTML = _obStepContent(step);
+  ov.style.display = 'flex';
+}
+
+async function obNextStep(currentStep) {
+  var wallet = walletState && walletState.address;
+  if (!wallet) return;
+
+  // Step 5 = final step → claim reward
+  if (currentStep === 5) {
+    try {
+      var r = await fetch('/api/user/onboarding/reward', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: wallet })
+      });
+      var d = await r.json();
+      if (d.ok) {
+        document.getElementById('obOverlay').style.display = 'none';
+        showToast('🎉 ' + (d.rewards.pp || 0) + ' PP + ' + (d.rewards.gp || 0) + ' GP 보상 지급!');
+        try { refreshEmailBalances(); } catch(e) {}
+        return;
+      }
+      if (d.error === 'already_claimed') {
+        document.getElementById('obOverlay').style.display = 'none'; return;
+      }
+    } catch(e) {}
+    document.getElementById('obOverlay').style.display = 'none';
+    return;
+  }
+
+  // Steps 1~4 → mark complete + advance
+  var next = currentStep + 1;
+  try {
+    await fetch('/api/user/onboarding/step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: wallet, step: currentStep })
+    });
+  } catch(e) {}
+
+  // Step 1 → hide overlay so user can interact with map
+  if (currentStep === 1) {
+    document.getElementById('obOverlay').style.display = 'none';
+    showToast('👆 영토를 탭해서 첫 클레임을 시작하세요!');
+    return;
+  }
+
+  // Steps 2~4 → show next step
+  if (_obState) _obState.currentStep = currentStep;
+  showOnboardingStep(next);
+}
+
+async function obSkip() {
+  var wallet = walletState && walletState.address;
+  if (!wallet) return;
+  try {
+    await fetch('/api/user/onboarding/skip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: wallet })
+    });
+  } catch(e) {}
+  document.getElementById('obOverlay').style.display = 'none';
+  _obState = null;
+}
+
+// Called from claim success handler when tutorialFreeClaim = true
+function onTutorialClaimSuccess() {
+  // Mark step 1 done (backend already did it), show step 2
+  try { fetch('/api/user/onboarding/step', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wallet: walletState.address, step: 1 })
+  }); } catch(e) {}
+  if (_obState) _obState.currentStep = 1;
+  setTimeout(function() { showOnboardingStep(2); }, 400);
+}
+// ══════════════════════════════════════════════════════════════
+// END ONBOARDING SYSTEM
+// ══════════════════════════════════════════════════════════════
+
+function openJobSelectModal(){
+  if(!walletState||!walletState.address) return;
+  var modal = document.getElementById('jobSelectModal');
+  if(!modal) return;
+  _selectedJobCode = null;
+  var confirmBtn = document.getElementById('jobModalConfirmBtn');
+  if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.style.opacity='.5'; }
+
+  var costInfo = document.getElementById('jobModalCostInfo');
+  if(costInfo) costInfo.style.display='none';
+  var selInfo = document.getElementById('jobModalSelectedInfo');
+  if(selInfo) selInfo.style.display='none';
+
+  // Close allowed if already has a job
+  var cancelBtn = document.getElementById('jobModalCancelBtn');
+  if(cancelBtn) cancelBtn.style.display = (_jobData && _jobData.job) ? '' : 'none';
+
+  modal.style.display = 'flex';
+
+  var lang = window._lang || 'en';
+  fetch('/api/jobs?lang='+lang)
+    .then(function(r){return r.json()})
+    .then(function(d){
+      _allJobs = d.jobs || [];
+      renderJobChoiceGrid();
+    }).catch(function(){});
+}
+
+function renderJobChoiceGrid(){
+  var grid = document.getElementById('jobChoiceGrid');
+  if(!grid) return;
+  var html = '';
+  _allJobs.forEach(function(job){
+    var isCurrent = _jobData && _jobData.job && _jobData.job.code === job.code;
+    var posBuffs = (job.buffs||[]).filter(function(b){return b.value>1.0;});
+    var negBuffs = (job.buffs||[]).filter(function(b){return b.value<1.0;});
+    html += '<div class="job-choice-card'+(isCurrent?' selected':'')+'"';
+    html += ' style="--jc:'+job.color_hex+'"';
+    html += ' onclick="selectJobCard(\''+job.code+'\',this)">';
+    html += '<div class="job-choice-icon">'+job.icon_emoji+'</div>';
+    html += '<div class="job-choice-name" style="color:'+job.color_hex+'">'+job.name+'</div>';
+    if(isCurrent) html += '<div style="font-size:8px;color:var(--gn);margin-bottom:4px">✓ '+t('job_current')+'</div>';
+    html += '<div class="job-choice-buff">';
+    posBuffs.slice(0,2).forEach(function(b){
+      html += '<span class="job-buff-pill" style="background:rgba(100,220,100,.12);color:#6dc86d">+'+Math.round((b.value-1)*100)+'% '+_buffLabelShort(b.key)+'</span>';
+    });
+    negBuffs.slice(0,1).forEach(function(b){
+      html += '<span class="job-buff-pill" style="background:rgba(232,72,85,.1);color:var(--red)">'+Math.round((b.value-1)*100)+'% '+_buffLabelShort(b.key)+'</span>';
+    });
+    html += '</div></div>';
+  });
+  grid.innerHTML = html;
+}
+
+function selectJobCard(jobCode, el){
+  _selectedJobCode = jobCode;
+  document.querySelectorAll('.job-choice-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+
+  var job = _allJobs.find(function(j){return j.code===jobCode;});
+  var confirmBtn = document.getElementById('jobModalConfirmBtn');
+  if(confirmBtn){ confirmBtn.disabled=false; confirmBtn.style.opacity='1'; }
+
+  // Show cost info if changing (not first selection)
+  var costInfo = document.getElementById('jobModalCostInfo');
+  var selInfo = document.getElementById('jobModalSelectedInfo');
+  if(_jobData && _jobData.job && _jobData.job.code !== jobCode){
+    var cs = _jobData.changeStatus || {};
+    if(costInfo){
+      costInfo.style.display = '';
+      if(cs.cooldownEndsAt){
+        costInfo.textContent = t('job_modal_cooldown_warn');
+        if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.style.opacity='.5'; }
+      } else if(cs.canChangeFree){
+        costInfo.textContent = t('job_modal_free').replace('{n}', cs.freeChangesLeft);
+      } else {
+        costInfo.textContent = t('job_modal_paid').replace('{n}', cs.paidCostGp);
+      }
+    }
+  } else if(costInfo) {
+    costInfo.style.display = 'none';
+  }
+
+  if(selInfo && job){
+    selInfo.style.display = '';
+    var allBuffs = (job.buffs||[]).map(function(b){
+      var sign = b.value>=1?'+':'';
+      return sign+Math.round((b.value-1)*100)+'% '+_buffLabelShort(b.key);
+    }).join(' · ');
+    selInfo.textContent = job.name + ': ' + allBuffs;
+  }
+}
+
+function closeJobSelectModal(){
+  var modal = document.getElementById('jobSelectModal');
+  if(modal) modal.style.display='none';
+  _selectedJobCode = null;
+}
+
+function confirmJobSelect(){
+  if(!_selectedJobCode || !walletState || !walletState.address) return;
+  var confirmBtn = document.getElementById('jobModalConfirmBtn');
+  if(confirmBtn){ confirmBtn.disabled=true; confirmBtn.textContent='...'; }
+
+  fetch('/api/user/job', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ wallet: walletState.address, jobCode: _selectedJobCode })
+  }).then(function(r){return r.json()})
+  .then(function(d){
+    if(d.error){ showAlert(d.error,'error'); if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=t('job_modal_confirm');} return; }
+    closeJobSelectModal();
+    showToast(t('job_selected_toast').replace('{n}', _selectedJobCode));
+    try{_sfx.success()}catch(e){}
+    // Reload job card
+    if(walletState && walletState.address){
+      var rank = parseInt(document.getElementById('profileLevel')&&document.getElementById('profileLevel').textContent||'1');
+      loadUserJob(walletState.address, rank);
+    }
+  }).catch(function(e){ showAlert(e.message,'error'); if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=t('job_modal_confirm');} });
 }
 
 function renderSectorList(sectors){
@@ -16294,6 +17511,11 @@ async function harvestMining(){
     var d=await resp.json();
     if(!resp.ok){showToast(d.error||'Harvest failed');try{_sfx.error()}catch(e){}return}
     showNotification('mining','HARVEST COMPLETE','+'+d.harvestedPP.toFixed(4)+' PP collected from your territory');
+    // ✅ [Resource System] 자원 드롭 알림 (Phase 2)
+    if(d.resources&&d.resources.length>0){
+      var resMsg=d.resources.map(function(r){return (r.quantity>1?'+'+r.quantity+' ':'+1 ')+r.code.replace(/_/g,' ')}).join(', ');
+      showToast('⛏️ '+resMsg,'success');
+    }
     try{_sfx.harvest()}catch(e){}
     try{trackQuestAction('harvest',1)}catch(e){}
     // Update UI
@@ -19943,6 +21165,394 @@ window.addEventListener('resize', function(){
         while (feed.children.length > 20) feed.removeChild(feed.lastChild);
       }
     });
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // SECTOR SIEGE UI
+  // ─────────────────────────────────────────────────────────
+  var _siegeSectorCode = null;
+  var _siegeSectorDefs = null; // cached from /api/sector-defs
+
+  function _loadSectorDefs(cb) {
+    if (_siegeSectorDefs) { cb(_siegeSectorDefs); return; }
+    fetch('/api/sector-defs').then(function(r){return r.json()}).then(function(d){
+      _siegeSectorDefs = (d.sectors || []);
+      cb(_siegeSectorDefs);
+    }).catch(function(){ cb([]); });
+  }
+
+  window.toggleSiegeSection = function() {
+    var el = document.getElementById('govSiegeSection');
+    var tog = document.getElementById('siegeToggle');
+    if (!el) return;
+    if (el.style.display === 'none') {
+      el.style.display = '';
+      if (tog) tog.textContent = '▲';
+      // Auto-load sector list if not yet selected
+      if (!_siegeSectorCode) {
+        _loadSectorDefs(function(defs) {
+          if (defs.length && !_siegeSectorCode) {
+            _siegeSectorCode = defs[0].code;
+            var lbl = document.getElementById('siegeSectorLabel');
+            if (lbl) lbl.textContent = defs[0].name || defs[0].name_en || defs[0].code;
+            loadSiegeInfoPanel(_siegeSectorCode);
+          }
+        });
+      }
+    } else {
+      el.style.display = 'none';
+      if (tog) tog.textContent = '▼';
+    }
+  };
+
+  window.openSiegeSectorPicker = function() {
+    _loadSectorDefs(function(defs) {
+      var items = defs.map(function(s) {
+        var typeTag = s.sector_type === 'core' ? ' [CORE]' : s.sector_type === 'mid' ? ' [MID]' : '';
+        return { value: s.code, label: (s.name || s.name_en || s.code) + typeTag };
+      });
+      gamePicker({ title: 'SELECT SECTOR', items: items, selected: _siegeSectorCode || '' }).then(function(v) {
+        if (v == null) return;
+        _siegeSectorCode = v;
+        var chosen = defs.find(function(s){ return s.code === v; });
+        var lbl = document.getElementById('siegeSectorLabel');
+        if (lbl) lbl.textContent = chosen ? (chosen.name || chosen.name_en || v) : v;
+        loadSiegeInfoPanel(v);
+      });
+    });
+  };
+
+  window.loadSiegeInfoPanel = function(code) {
+    var panel = document.getElementById('siegeInfoPanel');
+    if (!panel) return;
+    panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
+
+    Promise.all([
+      fetch('/api/sector-defs/' + encodeURIComponent(code) + '/governance').then(function(r){return r.json()}).catch(function(){return null}),
+      fetch('/api/siege/' + encodeURIComponent(code)).then(function(r){return r.json()}).catch(function(){return {active:false}})
+    ]).then(function(results) {
+      var gov = results[0];
+      var siegeData = results[1];
+      var w = walletState.address ? walletState.address.toLowerCase() : null;
+      var html = '';
+
+      // Governor info
+      html += '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;padding:8px;background:rgba(91,184,232,.04);border-radius:6px;border:1px solid rgba(91,184,232,.12)">';
+      if (gov && gov.governor) {
+        var govName = gov.governor.nickname || gov.governor.wallet.slice(0,8)+'...';
+        var daysTxt = gov.governor.days != null ? ' · '+gov.governor.days+'d' : '';
+        html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">GOVERNOR</span><span style="font-size:10px;color:var(--cyan);font-family:var(--fn)">👑 '+govName+daysTxt+'</span></div>';
+        html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">TAX RATE</span><span style="font-size:10px;color:var(--gold)">'+parseFloat(gov.tax_rate||2).toFixed(1)+'%</span></div>';
+        html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">POLICY</span><span style="font-size:10px;color:var(--tx2)">'+_siegePolicyLabel(gov.sector_policy)+'</span></div>';
+        if (gov.declaration_text) {
+          html += '<div style="margin-top:4px;padding:6px 8px;background:rgba(232,72,85,.04);border-radius:4px;font-size:9px;color:var(--tx2);font-style:italic">"'+escapeHtml(gov.declaration_text.slice(0,120))+(gov.declaration_text.length>120?'…':'')+'"</div>';
+        }
+      } else {
+        html += '<div style="font-size:10px;color:var(--tx3)">No Governor — first to challenge wins!</div>';
+      }
+      html += '</div>';
+
+      // Active siege
+      if (siegeData && siegeData.active && siegeData.siege) {
+        var s = siegeData.siege;
+        var chalName = s.challenger_nickname || (s.challenger_wallet||'').slice(0,8)+'...';
+        var defName  = s.defender_nickname  || (s.defender_wallet  ? s.defender_wallet.slice(0,8)+'...' : 'None');
+        var endsAt   = s.siege_ends_at ? new Date(s.siege_ends_at) : null;
+        var remaining = endsAt ? Math.max(0, Math.ceil((endsAt - Date.now()) / (1000*60))) : null;
+        var timeStr  = remaining != null ? (remaining > 60 ? Math.floor(remaining/60)+'h '+remaining%60+'m' : remaining+'m') : '—';
+        var statusColor = s.status === 'active' ? 'var(--red)' : 'var(--gold)';
+        html += '<div style="padding:8px;background:rgba(232,72,85,.06);border-radius:6px;border:1px solid rgba(232,72,85,.25);margin-bottom:8px">';
+        html += '<div style="font-size:9px;color:var(--red);font-family:var(--fn);font-weight:700;margin-bottom:6px">⚔️ ACTIVE SIEGE · '+s.status.toUpperCase()+'</div>';
+        html += '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:9px;color:var(--tx3)">CHALLENGER</span><span style="font-size:10px;color:var(--red)">'+chalName+'</span></div>';
+        html += '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:9px;color:var(--tx3)">DEFENDER</span><span style="font-size:10px;color:var(--cyan)">'+defName+'</span></div>';
+        if (s.status === 'active') {
+          html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">ENDS IN</span><span style="font-size:10px;color:'+statusColor+';font-family:var(--fn)">'+timeStr+'</span></div>';
+        } else {
+          var startsAt = s.siege_starts_at ? new Date(s.siege_starts_at) : null;
+          var startsIn = startsAt ? Math.max(0, Math.ceil((startsAt - Date.now()) / (1000*60))) : null;
+          var stStr = startsIn != null ? (startsIn > 60 ? Math.floor(startsIn/60)+'h '+startsIn%60+'m' : startsIn+'m') : '—';
+          html += '<div style="display:flex;justify-content:space-between"><span style="font-size:9px;color:var(--tx3)">STARTS IN</span><span style="font-size:10px;color:var(--gold);font-family:var(--fn)">'+stStr+'</span></div>';
+        }
+        html += '</div>';
+
+        // Betting panel placeholder (filled async below)
+        if (s.betting_event_id) {
+          html += '<div id="siegeBettingPanel_'+code+'" style="margin-bottom:8px"><div style="font-size:9px;color:var(--tx3);padding:4px 0">Loading betting...</div></div>';
+        }
+      } else {
+        // Challenge button
+        if (w) {
+          html += '<button class="sz-btn" onclick="govDeclareSiege(\''+escapeHtml(code)+'\')" style="width:100%;color:var(--red);border-color:rgba(232,72,85,.4);font-size:9px;padding:8px 12px;margin-bottom:6px" data-i18n="gov_challenge_btn">⚔️ CHALLENGE FOR GOVERNOR</button>';
+        } else {
+          html += '<div style="font-size:10px;color:var(--tx3);padding:4px 0">Connect wallet to challenge.</div>';
+        }
+      }
+
+      // Governor controls (if current user is governor of this sector)
+      if (w && gov && gov.governor && gov.governor.wallet && gov.governor.wallet.toLowerCase() === w) {
+        html += '<div style="padding:8px;background:rgba(91,184,232,.04);border-radius:6px;border:1px solid rgba(91,184,232,.15);margin-top:4px">';
+        html += '<div style="font-size:9px;color:var(--cyan);font-family:var(--fn);font-weight:700;margin-bottom:6px">GOVERNOR CONTROLS</div>';
+        // Tax rate
+        html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
+        html += '<span style="font-size:9px;color:var(--tx3);white-space:nowrap">TAX RATE</span>';
+        html += '<input type="range" id="siegeTaxSlider_'+code+'" min="0" max="10" step="0.5" value="'+parseFloat(gov.tax_rate||2)+'" style="flex:1;accent-color:var(--cyan)" oninput="document.getElementById(\'siegeTaxVal_'+code+'\').textContent=this.value+\'%\'">';
+        html += '<span id="siegeTaxVal_'+code+'" style="font-size:10px;color:var(--cyan);font-family:var(--fn);min-width:32px">'+parseFloat(gov.tax_rate||2)+'%</span>';
+        html += '<button class="sz-btn" onclick="govSaveTaxRate(\''+escapeHtml(code)+'\')" style="font-size:8px;padding:4px 8px;color:var(--cyan);border-color:rgba(91,184,232,.3)">SET</button>';
+        html += '</div>';
+        // Policy
+        html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
+        html += '<span style="font-size:9px;color:var(--tx3);white-space:nowrap">POLICY</span>';
+        html += '<select id="siegePolicy_'+code+'" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:4px 6px;border-radius:4px;font-family:var(--fn)">';
+        ['open','ally_only','closed'].forEach(function(p){
+          html += '<option value="'+p+'"'+(gov.sector_policy===p?' selected':'')+'>'+_siegePolicyLabel(p)+'</option>';
+        });
+        html += '</select>';
+        html += '<button class="sz-btn" onclick="govSavePolicy(\''+escapeHtml(code)+'\')" style="font-size:8px;padding:4px 8px;color:var(--gold);border-color:rgba(255,209,102,.3)">SET</button>';
+        html += '</div>';
+        // Declaration
+        html += '<div style="display:flex;flex-direction:column;gap:4px">';
+        html += '<span style="font-size:9px;color:var(--tx3)">DECLARATION (5 GP)</span>';
+        html += '<textarea id="siegeDecl_'+code+'" maxlength="1000" rows="2" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:9px;padding:6px 8px;border-radius:4px;font-family:var(--fn);resize:none;box-sizing:border-box">'+escapeHtml(gov.declaration_text||'')+'</textarea>';
+        html += '<button class="sz-btn" onclick="govSaveDeclarationByCode(\''+escapeHtml(code)+'\')" style="font-size:8px;padding:4px 8px;color:var(--red);border-color:rgba(232,72,85,.3);align-self:flex-end">DECLARE</button>';
+        html += '</div>';
+        html += '</div>';
+      }
+
+      panel.innerHTML = html;
+
+      // Load betting panel async if there's a betting_event_id
+      if (siegeData && siegeData.siege && siegeData.siege.betting_event_id) {
+        _loadSiegeBettingPanel(code, siegeData.siege.betting_event_id, w);
+      }
+    });
+  };
+
+  // ── Betting panel loader ──
+  function _loadSiegeBettingPanel(code, betEventId, w) {
+    var container = document.getElementById('siegeBettingPanel_'+code);
+    if (!container) return;
+
+    Promise.all([
+      fetch('/api/betting/events/'+betEventId+'/odds').then(function(r){return r.json()}).catch(function(){return null}),
+      w ? fetch('/api/user/bets?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {bets:[]}}) : Promise.resolve({bets:[]})
+    ]).then(function(res) {
+      var odds = res[0];
+      var userBets = (res[1] && res[1].bets) || [];
+      if (!odds || odds.status === 'resolved' || odds.status === 'cancelled') {
+        container.innerHTML = '';
+        return;
+      }
+
+      // Check if user already bet on this event
+      var myBet = userBets.find(function(b){ return b.event_id === betEventId; });
+
+      var html = '<div style="padding:8px;background:rgba(255,209,102,.04);border-radius:6px;border:1px solid rgba(255,209,102,.2)">';
+      html += '<div style="font-size:9px;color:var(--gold);font-family:var(--fn);font-weight:700;margin-bottom:8px">🎰 SIEGE BETTING</div>';
+
+      // Odds display
+      var aGP  = odds.option_a.total_gp || 0;
+      var bGP  = odds.option_b.total_gp || 0;
+      var total = aGP + bGP;
+      var aOdds = odds.option_a.odds ? odds.option_a.odds.toFixed(2)+'×' : '—';
+      var bOdds = odds.option_b.odds ? odds.option_b.odds.toFixed(2)+'×' : '—';
+      var aLabel = (odds.option_a.label || 'Challenger').slice(0,22);
+      var bLabel = (odds.option_b.label || 'Governor').slice(0,22);
+
+      // Pool bar
+      var aFrac = total > 0 ? Math.round(aGP/total*100) : 50;
+      var bFrac = 100 - aFrac;
+      html += '<div style="margin-bottom:8px">';
+      html += '<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:3px">';
+      html += '<span>'+escapeHtml(aLabel)+'</span><span>'+escapeHtml(bLabel)+'</span>';
+      html += '</div>';
+      html += '<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.06)">';
+      html += '<div style="width:'+aFrac+'%;background:var(--red);transition:width .4s"></div>';
+      html += '<div style="flex:1;background:var(--cyan)"></div>';
+      html += '</div>';
+      html += '<div style="display:flex;justify-content:space-between;font-size:9px;margin-top:3px">';
+      html += '<span style="color:var(--red)">'+aFrac+'% · '+aOdds+'</span>';
+      html += '<span style="color:var(--tx3);font-size:8px">'+total+' GP pool</span>';
+      html += '<span style="color:var(--cyan)">'+bFrac+'% · '+bOdds+'</span>';
+      html += '</div>';
+      html += '</div>';
+
+      if (myBet) {
+        // Show existing bet
+        var optColor = myBet.option === 'a' ? 'var(--red)' : 'var(--cyan)';
+        var optName  = myBet.option === 'a' ? aLabel : bLabel;
+        var statusTxt = myBet.status === 'won' ? '✅ WON +'+myBet.payout_gp+' GP' : myBet.status === 'lost' ? '❌ LOST' : '⏳ PENDING';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:rgba(255,255,255,.04);border-radius:4px;font-size:9px">';
+        html += '<span style="color:var(--tx3)">MY BET</span>';
+        html += '<span style="color:'+optColor+'">'+escapeHtml(optName.slice(0,16))+'</span>';
+        html += '<span style="color:var(--gold);font-family:var(--fn)">'+myBet.amount_gp+' GP</span>';
+        html += '<span style="color:var(--tx2)">'+statusTxt+'</span>';
+        html += '</div>';
+      } else if (w && odds.status === 'open') {
+        // Bet input
+        html += '<div style="display:flex;flex-direction:column;gap:6px">';
+        html += '<div style="display:flex;gap:4px">';
+        html += '<button onclick="window._setSiegeBetOption(\''+code+'\',\'a\')" id="betOptA_'+code+'" class="sz-btn" style="flex:1;font-size:8px;padding:5px;color:var(--red);border-color:rgba(232,72,85,.4)">⚔️ '+escapeHtml(aLabel.slice(0,16))+'</button>';
+        html += '<button onclick="window._setSiegeBetOption(\''+code+'\',\'b\')" id="betOptB_'+code+'" class="sz-btn" style="flex:1;font-size:8px;padding:5px;color:var(--cyan);border-color:rgba(91,184,232,.4)">🛡 '+escapeHtml(bLabel.slice(0,16))+'</button>';
+        html += '</div>';
+        html += '<div style="display:flex;gap:4px;align-items:center">';
+        html += '<input type="number" id="betAmt_'+code+'" min="10" max="1000" placeholder="GP" style="flex:1;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:5px 8px;border-radius:4px;font-family:var(--fn)">';
+        html += '<button onclick="govPlaceBet(\''+code+'\','+betEventId+')" class="sz-btn" style="font-size:8px;padding:5px 10px;color:var(--gold);border-color:rgba(255,209,102,.4)">BET</button>';
+        html += '</div>';
+        html += '<div id="betOptSel_'+code+'" style="font-size:9px;color:var(--tx3);text-align:center">Select a side above</div>';
+        html += '</div>';
+      } else if (!w) {
+        html += '<div style="font-size:9px;color:var(--tx3)">Connect wallet to bet</div>';
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    });
+  }
+
+  // ── Bet option selector (toggle highlight) ──
+  window._siegeBetOptions = {};
+  window._setSiegeBetOption = function(code, opt) {
+    window._siegeBetOptions[code] = opt;
+    var aBtn = document.getElementById('betOptA_'+code);
+    var bBtn = document.getElementById('betOptB_'+code);
+    var info = document.getElementById('betOptSel_'+code);
+    if (aBtn) aBtn.style.opacity = opt === 'a' ? '1' : '0.4';
+    if (bBtn) bBtn.style.opacity = opt === 'b' ? '1' : '0.4';
+    if (info) info.textContent = 'Betting on: ' + (opt === 'a' ? '⚔️ Challenger' : '🛡 Governor');
+  };
+
+  // ── Place bet ──
+  window.govPlaceBet = function(code, betEventId) {
+    var w = walletState.address;
+    if (!w) { showToast('Connect wallet first'); return; }
+    var opt = window._siegeBetOptions[code];
+    if (!opt) { showToast('Select a side to bet on'); return; }
+    var amtEl = document.getElementById('betAmt_'+code);
+    var amt = amtEl ? parseInt(amtEl.value) : 0;
+    if (!amt || amt < 10) { showToast('Minimum bet is 10 GP'); return; }
+
+    fetch('/api/betting/bet', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-wallet': w },
+      body: JSON.stringify({ eventId: betEventId, option: opt, amount: amt })
+    }).then(function(r){return r.json()}).then(function(d) {
+      if (!d.success) {
+        var msg = {
+          insufficient_gp: 'Not enough GP',
+          already_bet: 'Already placed a bet on this siege',
+          max_bets_reached: 'Max active bets reached',
+          bet_too_small: 'Minimum bet is '+d.min+' GP',
+          bet_too_large: 'Maximum bet is '+d.max+' GP',
+          event_closed: 'Betting is closed',
+          betting_disabled: 'Betting is currently disabled'
+        }[d.error] || d.error;
+        showToast('⚠️ '+msg);
+        return;
+      }
+      showToast('🎰 Bet placed! '+amt+' GP on '+(opt==='a'?'Challenger':'Governor'));
+      delete window._siegeBetOptions[code];
+      loadSiegeInfoPanel(code);
+    }).catch(function(){ showToast('Failed to place bet'); });
+  };
+
+  function _siegePolicyLabel(p) {
+    if (p === 'open') return '🌐 Open';
+    if (p === 'ally_only') return '🤝 Allies Only';
+    if (p === 'closed') return '🔒 Closed';
+    return p || 'Open';
+  }
+
+  window.govDeclareSiege = function(code) {
+    var w = walletState.address;
+    if (!w) { showToast('Connect wallet first'); return; }
+    var gpBal = parseFloat(walletState.gpBalance || 0);
+    var cost = 100; // default, should match settings
+    gameConfirm({
+      title: 'CHALLENGE FOR GOVERNOR',
+      icon: '⚔️',
+      body: 'Challenge for control of <b style="color:var(--red)">'+code+'</b>?<br>You need 3+ territories in the sector.',
+      info: [
+        { k: 'SIEGE COST', v: cost+' GP' },
+        { k: 'YOUR GP', v: gpBal.toFixed(0), ok: gpBal >= cost, insufficient: gpBal < cost },
+        { k: 'WARNING PERIOD', v: '48h before battle starts' }
+      ],
+      confirmText: gpBal < cost ? 'INSUFFICIENT GP' : 'DECLARE SIEGE',
+      disabled: gpBal < cost
+    }).then(function(ok) {
+      if (!ok) return;
+      fetch('/api/siege/declare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: w, sectorCode: code })
+      }).then(function(r){return r.json()}).then(function(d) {
+        if (d.error) {
+          var msg = d.error === 'insufficient_territories' ? 'Need '+d.detail.required+' territories in this sector (you have '+d.detail.current+')' :
+                    d.error === 'insufficient_gp' ? 'Not enough GP (need '+d.detail.required+')' :
+                    d.error === 'siege_already_active' ? 'A siege is already active in this sector' :
+                    d.error;
+          showToast('⚠️ ' + msg);
+          return;
+        }
+        showToast('⚔️ Siege declared! Battle starts in 48h');
+        loadSiegeInfoPanel(code);
+      }).catch(function(){ showToast('Failed to declare siege'); });
+    });
+  };
+
+  window.govSaveTaxRate = function(code) {
+    var w = walletState.address;
+    if (!w) { showToast('Not connected'); return; }
+    var slider = document.getElementById('siegeTaxSlider_'+code);
+    if (!slider) return;
+    var rate = parseFloat(slider.value);
+    fetch('/api/governor/tax-rate', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: w, sectorCode: code, taxRate: rate })
+    }).then(function(r){return r.json()}).then(function(d) {
+      if (d.error) { showToast('Error: '+d.error); return; }
+      showToast('Tax rate set to '+d.tax_rate+'%');
+      loadSiegeInfoPanel(code);
+    }).catch(function(){ showToast('Failed'); });
+  };
+
+  window.govSavePolicy = function(code) {
+    var w = walletState.address;
+    if (!w) { showToast('Not connected'); return; }
+    var sel = document.getElementById('siegePolicy_'+code);
+    if (!sel) return;
+    fetch('/api/governor/policy', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: w, sectorCode: code, policy: sel.value })
+    }).then(function(r){return r.json()}).then(function(d) {
+      if (d.error) { showToast('Error: '+d.error); return; }
+      showToast('Policy updated: '+_siegePolicyLabel(d.policy));
+      loadSiegeInfoPanel(code);
+    }).catch(function(){ showToast('Failed'); });
+  };
+
+  window.govSaveDeclarationByCode = function(code) {
+    var w = walletState.address;
+    if (!w) { showToast('Not connected'); return; }
+    var ta = document.getElementById('siegeDecl_'+code);
+    if (!ta) return;
+    var text = ta.value.trim();
+    if (!text) { showToast('Enter declaration text'); return; }
+    fetch('/api/governor/declaration', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: w, sectorCode: code, text: text })
+    }).then(function(r){return r.json()}).then(function(d) {
+      if (d.error) { showToast('Error: '+d.error); return; }
+      showToast('Declaration saved! (-5 GP)');
+      loadSiegeInfoPanel(code);
+    }).catch(function(){ showToast('Failed'); });
+  };
+
+  // Helper to escape HTML
+  function escapeHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   // Hall of Fame toggle + loader (uses game picker instead of native select)

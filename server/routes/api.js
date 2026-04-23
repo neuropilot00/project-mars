@@ -23,6 +23,16 @@ let seasonService;
 try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }
 let missionService;
 try { missionService = require('../services/missions'); } catch (_e) { /* mission service not available */ }
+let enhancementService;
+try { enhancementService = require('../services/enhancement'); } catch (_e) { /* enhancement service not available */ }
+let jobService;
+try { jobService = require('../services/job'); } catch (_e) { /* job service not available */ }
+let resourceService;
+try { resourceService = require('../services/resource'); } catch (_e) { /* resource service not available */ }
+let onboardingService;
+try { onboardingService = require('../services/onboarding'); } catch (_e) { /* onboarding service not available */ }
+let chronicleService;
+try { chronicleService = require('../services/chronicle'); } catch (_e) { /* chronicle service not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -842,6 +852,15 @@ router.post('/claim', writeLimiter, async (req, res) => {
             client.release();
             return res.status(400).json({ error: 'Peace Treaty active — hijacking is temporarily disabled' });
           }
+          // Marketplace lock blocks hijacks on listed territory
+          if (existing.claim_id) {
+            const mlRes = await client.query('SELECT marketplace_locked FROM claims WHERE id = $1', [existing.claim_id]);
+            if (mlRes.rows.length && mlRes.rows[0].marketplace_locked) {
+              await client.query('ROLLBACK');
+              client.release();
+              return res.status(400).json({ error: 'This territory is listed on the marketplace and cannot be hijacked' });
+            }
+          }
           // Enemy pixel — attack (war_time gives 20% discount)
           let pxCost = parseFloat(existing.price) * HIJACK_MULT;
           if (_isWarTime) pxCost = Math.round(pxCost * 0.8 * 1000000) / 1000000;
@@ -938,6 +957,9 @@ router.post('/claim', writeLimiter, async (req, res) => {
           }
         }
       } catch (_we) { /* weather unavailable */ }
+      // ✅ [Job System] Warrior hijack success buff (attacker) + defense item effect buff (defender)
+      try { if (jobService) effectiveSuccessRate *= await jobService.getJobBuff(walletLower, 'warrior_hijack_success', 1.0); } catch (_je) {}
+      try { if (jobService) effectiveSuccessRate /= await jobService.getJobBuff(prevOwner, 'warrior_defense_item_effect', 1.0); } catch (_je) {}
       effectiveSuccessRate = Math.max(10, Math.min(90, effectiveSuccessRate));
       const roll = Math.random() * 100;
       if (roll < effectiveSuccessRate) {
@@ -982,6 +1004,26 @@ router.post('/claim', writeLimiter, async (req, res) => {
     const failedAttackCost = attackLost > 0 ? (attackCost - wonAttackCost) : 0;
     const totalCost = Math.round((baseCost + wonAttackCost + failedAttackCost - refundFromFailed) * 1000000) / 1000000;
 
+    // ── [Onboarding] Tutorial Free First Claim ──
+    let isTutorialFreeClaim = false;
+    try {
+      if (onboardingService && attackLost === 0 && enemyPixels.length === 0 && totalCost > 0) {
+        const freeEnabled = (await getSetting('onboarding_free_claim_enabled') ?? 'true').toString() === 'true';
+        const freeSize    = parseInt(await getSetting('onboarding_free_claim_size') ?? '25');
+        if (freeEnabled && newPixels.length <= freeSize) {
+          const obState = await onboardingService.getOnboardingState(wallet.toLowerCase());
+          const existingClaims = await client.query(
+            'SELECT COUNT(*) AS cnt FROM claims WHERE owner = $1',
+            [wallet.toLowerCase()]
+          );
+          const claimCount = parseInt(existingClaims.rows[0]?.cnt ?? 0);
+          if (obState.enabled && !obState.completed && !obState.skipped && claimCount === 0) {
+            isTutorialFreeClaim = true;
+          }
+        }
+      }
+    } catch (_oe) { /* onboarding check non-critical */ }
+
     // Check user balance based on selected payment method
     const userRes = await client.query(
       'SELECT usdt_balance, pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
@@ -993,7 +1035,10 @@ router.post('/claim', writeLimiter, async (req, res) => {
     const usdtBal = parseFloat(user.usdt_balance);
     const method = payMethod || 'pp';
 
-    if (method === 'usdt') {
+    if (isTutorialFreeClaim) {
+      // Tutorial free claim — no balance deduction
+      ppUsed = 0; usdtUsed = 0;
+    } else if (method === 'usdt') {
       // USDT only
       if (usdtBal < totalCost) {
         await client.query('ROLLBACK');
@@ -1029,6 +1074,14 @@ router.post('/claim', writeLimiter, async (req, res) => {
       [wallet.toLowerCase(), lat, lng, width, height, safeImageUrl, safeOriginalImageUrl, safeLinkUrl, totalCost]
     );
     const claimId = claimRes.rows[0].id;
+
+    // ── [Onboarding] Record tutorial claim + advance step 1 ──
+    if (isTutorialFreeClaim && onboardingService) {
+      try {
+        await onboardingService.recordTutorialClaim(wallet.toLowerCase(), claimId);
+        await onboardingService.completeStep(wallet.toLowerCase(), 1);
+      } catch (_oe) { /* non-critical */ }
+    }
 
     // ── Update claim dimensions if some battles were lost ──
     const claimPixels = [...newPixels, ...wonPixels];
@@ -1228,8 +1281,17 @@ router.post('/claim', writeLimiter, async (req, res) => {
       battleResults,
       wonPixels: wonPixels.map(p => [p.lat, p.lng]),
       newPixels: newPixels.map(p => [p.lat, p.lng]),
-      govChanges: govChanges || []
+      govChanges: govChanges || [],
+      tutorialFreeClaim: isTutorialFreeClaim
     });
+
+    // Chronicle: large hijack check (non-blocking, 1줄 추가)
+    if (chronicleService && attackWon > 0 && ppUsed > 0) {
+      try {
+        const firstDefender = Object.keys(affectedOwners || {})[0] || null;
+        await chronicleService.checkHijackRecord(walletLower, firstDefender, claimId, ppUsed);
+      } catch (_ce) { /* chronicle non-critical */ }
+    }
 
     // Daily mission progress hooks (non-blocking, never breaks main flow)
     if (dailyService) {
@@ -2265,6 +2327,9 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       }
     } catch (_grb) { /* guild research unavailable */ }
 
+    // ✅ [Job System] Miner mining rate buff (Phase 1)
+    try { if (jobService) harvestedPP = Math.round(harvestedPP * await jobService.getJobBuff(w, 'miner_mining_rate', 1.0) * 10000) / 10000; } catch (_je) { /* job service unavailable */ }
+
     // Apply hard cap per harvest
     harvestedPP = Math.min(harvestedPP, harvestCap);
 
@@ -2359,6 +2424,17 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
 
     await client.query('COMMIT');
 
+    // ✅ [Resource System] 자원 드롭 (독립 로직, 기존 PP 지급에 영향 없음, Phase 2)
+    let resourceDrops = [];
+    try {
+      if (resourceService) {
+        resourceDrops = await resourceService.rollResourceDrop(w, bestTier);
+        if (resourceDrops.length > 0) {
+          await resourceService.addResourcesToInventory(null, w, resourceDrops);
+        }
+      }
+    } catch (_re) { /* resource system unavailable */ }
+
     const nextHarvestAt = new Date(now.getTime() + intervalHours * 3600000);
     res.json({
       success: true,
@@ -2370,7 +2446,8 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       rankUp: harvestRankUp || null,
       isGovernor,
       intervalHours,
-      nextHarvestAt
+      nextHarvestAt,
+      resources: resourceDrops
     });
 
     // Daily mission progress hook (non-blocking)
@@ -3235,6 +3312,121 @@ router.get('/shop/active-effects', readLimiter, async (req, res) => {
   } catch (e) {
     console.error('[SHOP] active-effects error:', e.message);
     res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════
+// ITEM INSTANCES & ENHANCEMENT
+// ══════════════════════════════════════
+
+// GET /api/items/instances?wallet= — get user's materialized item instances
+router.get('/items/instances', readLimiter, async (req, res) => {
+  const wallet = (req.query.wallet || '').toLowerCase();
+  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+  try {
+    if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
+    const instances = await enhancementService.getInstances(wallet);
+    res.json(instances);
+  } catch (e) {
+    console.error('[ITEMS] instances error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// POST /api/items/materialize — split 1 from stack into individual instance
+router.post('/items/materialize', writeLimiter, async (req, res) => {
+  const { wallet, itemTypeId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !itemTypeId) return res.status(400).json({ error: 'Missing wallet or itemTypeId' });
+  if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await enhancementService.materializeItem(client, w, parseInt(itemTypeId));
+    await client.query('COMMIT');
+    res.json({ success: true, ...result });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[ITEMS] materialize error:', e.message);
+    res.status(400).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// POST /api/items/dematerialize — return +0 instance back to stack
+router.post('/items/dematerialize', writeLimiter, async (req, res) => {
+  const { wallet, instanceId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !instanceId) return res.status(400).json({ error: 'Missing wallet or instanceId' });
+  if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await enhancementService.dematerializeItem(client, w, parseInt(instanceId));
+    await client.query('COMMIT');
+    res.json({ success: true });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[ITEMS] dematerialize error:', e.message);
+    res.status(400).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// GET /api/enhance/costs — enhancement cost table
+router.get('/enhance/costs', readLimiter, async (req, res) => {
+  try {
+    if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
+    const costs = await enhancementService.getEnhancementCosts();
+    res.json(costs);
+  } catch (e) {
+    console.error('[ENHANCE] costs error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// GET /api/enhance/rates — enhancement success rates (may be hidden by setting)
+router.get('/enhance/rates', readLimiter, async (req, res) => {
+  try {
+    if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
+    const rates = await enhancementService.getEnhancementRates();
+    if (rates === null) return res.json({ hidden: true });
+    res.json(rates);
+  } catch (e) {
+    console.error('[ENHANCE] rates error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// POST /api/enhance — attempt enhancement on an item instance
+router.post('/enhance', writeLimiter, async (req, res) => {
+  const { wallet, instanceId } = req.body;
+  const w = (wallet || '').toLowerCase();
+  if (!w || !instanceId) return res.status(400).json({ error: 'Missing wallet or instanceId' });
+  if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await enhancementService.enhanceItem(client, w, parseInt(instanceId));
+    await client.query('COMMIT');
+
+    // Season tracking: GP spent on enhancement (non-blocking)
+    if (seasonService) {
+      seasonService.addSeasonScore(w, 'gp_spend', Math.round(result.cost)).catch(() => {});
+    }
+
+    res.json(result);
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[ENHANCE] attempt error:', e.message);
+    res.status(400).json({ error: e.message });
+  } finally {
+    client.release();
   }
 });
 

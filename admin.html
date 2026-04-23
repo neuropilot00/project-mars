@@ -226,6 +226,12 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('poi')" data-tab="poi" style="color:#00FF88">POI</button>
   <button class="adm-tab" onclick="switchTab('governance')" data-tab="governance" style="color:var(--cyan)">GOVERNANCE</button>
   <button class="adm-tab" onclick="switchTab('lore')" data-tab="lore" style="color:#FFD700">LORE</button>
+  <button class="adm-tab" onclick="switchTab('enhance')" data-tab="enhance" style="color:#a064dc">ENHANCE</button>
+  <button class="adm-tab" onclick="switchTab('marketplace')" data-tab="marketplace" style="color:#a064dc">MARKETPLACE</button>
+  <button class="adm-tab" onclick="switchTab('jobs')" data-tab="jobs" style="color:#F4A460">JOBS</button>
+  <button class="adm-tab" onclick="switchTab('resources')" data-tab="resources" style="color:#5cbbff">RESOURCES</button>
+  <button class="adm-tab" onclick="switchTab('onboarding')" data-tab="onboarding" style="color:#00E676">ONBOARDING</button>
+  <button class="adm-tab" onclick="switchTab('siege')" data-tab="siege" style="color:#FF5252">SIEGE</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -953,6 +959,217 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ ENHANCEMENT TAB ═══ -->
+  <div class="section cat-enhance" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a064dc">🔨 ENHANCEMENT STATS</span>
+      <button onclick="loadEnhanceStats()" style="font-size:10px;background:rgba(160,100,220,.15);border:1px solid rgba(160,100,220,.3);color:#a064dc;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="enhStatsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div style="margin-top:8px">
+      <span style="font-size:11px;color:#a064dc;font-weight:800">TOP ENHANCED ITEMS</span>
+      <div id="enhTopItems" style="margin-top:6px"></div>
+    </div>
+  </div>
+
+  <div class="section cat-enhance" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a064dc">ENHANCEMENT LOG</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input id="enhLogWallet" placeholder="Filter by wallet..." style="font-size:10px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:4px;width:200px">
+        <button onclick="loadEnhanceLog()" style="font-size:10px;background:rgba(160,100,220,.15);border:1px solid rgba(160,100,220,.3);color:#a064dc;padding:4px 10px;border-radius:4px;cursor:pointer">SEARCH</button>
+      </div>
+    </div>
+    <div id="enhLogTable" style="overflow-x:auto"></div>
+  </div>
+
+  <div class="section cat-enhance" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a064dc">ENHANCEMENT SETTINGS</span>
+    </div>
+    <p style="font-size:10px;color:#888;margin-bottom:8px">Edit enhancement settings in the GAME SETTINGS tab → category: <b>enhancement</b></p>
+    <div id="enhSettingsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
+  <!-- ═══ JOBS TAB ═══ -->
+  <div class="section cat-jobs" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#F4A460">⚔️ JOB SYSTEM STATS</span>
+    </div>
+    <div id="jobStatsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px"></div>
+
+    <div class="sec-header" style="margin-top:8px">
+      <span class="sec-title" style="color:#F4A460">JOB DISTRIBUTION</span>
+    </div>
+    <table class="adm-table" id="jobDistTable">
+      <thead><tr><th>Job</th><th>Users</th><th>%</th><th>Avg GP</th><th>Avg PP</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="sec-header" style="margin-top:16px">
+      <span class="sec-title" style="color:#F4A460">BUFF VALUES (click to edit)</span>
+    </div>
+    <div id="jobBuffTable" style="overflow-x:auto"></div>
+
+    <div class="sec-header" style="margin-top:16px">
+      <span class="sec-title" style="color:#F4A460">RECENT CHANGE LOG</span>
+    </div>
+    <table class="adm-table" id="jobLogTable">
+      <thead><tr><th>Time</th><th>User</th><th>From</th><th>To</th><th>Type</th><th>GP</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- ═══ MARKETPLACE TAB ═══ -->
+  <div class="section cat-marketplace" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a064dc">🏪 MARKETPLACE STATS</span>
+      <button onclick="loadMarketplaceAdmin()" style="font-size:10px;background:rgba(160,100,220,.15);border:1px solid rgba(160,100,220,.3);color:#a064dc;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="mktAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div style="margin-top:8px">
+      <span style="font-size:11px;color:#a064dc;font-weight:800">RECENT SALES</span>
+      <div id="mktAdmRecent" style="margin-top:6px"></div>
+    </div>
+  </div>
+
+  <div class="section cat-marketplace" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a064dc">ACTIVE LISTINGS</span>
+    </div>
+    <div id="mktAdmListings" style="overflow-x:auto"></div>
+  </div>
+
+  <div class="section cat-marketplace" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a064dc">MARKETPLACE SETTINGS</span>
+    </div>
+    <p style="font-size:10px;color:#888;margin-bottom:8px">Edit marketplace settings in the GAME SETTINGS tab → category: <b>marketplace</b></p>
+    <div id="mktAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
+  <!-- ═══ RESOURCES TAB ═══ -->
+  <div class="section cat-resources" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#5cbbff">⛏️ RESOURCE SYSTEM STATS</span>
+      <button onclick="loadResourcesAdmin()" style="font-size:10px;background:rgba(92,187,255,.15);border:1px solid rgba(92,187,255,.3);color:#5cbbff;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="resAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:16px"></div>
+
+    <div class="sec-header" style="margin-top:8px">
+      <span class="sec-title" style="color:#5cbbff">DROP RATES (by sector)</span>
+    </div>
+    <div id="resAdmRates" style="overflow-x:auto"></div>
+
+    <div class="sec-header" style="margin-top:16px">
+      <span class="sec-title" style="color:#5cbbff">RECENT RESOURCE SALES</span>
+    </div>
+    <div id="resAdmSales" style="overflow-x:auto"></div>
+
+    <div class="sec-header" style="margin-top:16px">
+      <span class="sec-title" style="color:#5cbbff">RESOURCE SETTINGS</span>
+    </div>
+    <p style="font-size:10px;color:#888;margin-bottom:8px">Edit in GAME SETTINGS → category: <b>resource</b></p>
+  </div>
+
+  <!-- ═══ SIEGE TAB ═══ -->
+  <div class="section cat-siege" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#FF5252">⚔️ GOVERNOR SIEGE</span>
+      <button onclick="loadSiegeAdmin()" style="font-size:10px;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);color:#FF5252;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+
+    <!-- Stats row -->
+    <div id="siegeAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px"></div>
+
+    <!-- Filter bar -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:11px;color:#aaa">FILTER:</span>
+      <button id="siegeFilterAll"    onclick="setSiegeFilter('all')"     style="font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;background:rgba(255,82,82,.2);border:1px solid rgba(255,82,82,.4);color:#FF5252">ALL</button>
+      <button id="siegeFilterActive" onclick="setSiegeFilter('active')"  style="font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#aaa">ACTIVE</button>
+      <button id="siegeFilterPending" onclick="setSiegeFilter('pending')" style="font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#aaa">PENDING</button>
+      <button id="siegeFilterResolved" onclick="setSiegeFilter('resolved')" style="font-size:10px;padding:4px 10px;border-radius:4px;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#aaa">RESOLVED</button>
+    </div>
+
+    <!-- Sieges table -->
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>ID</th><th>SECTOR</th><th>STATUS</th>
+          <th>CHALLENGER</th><th>DEFENDER</th><th>WINNER</th>
+          <th>GP COST</th><th>STARTS</th><th>ENDS</th><th>ACTION</th>
+        </tr></thead>
+        <tbody id="siegeAdmTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Sector Governance Table -->
+    <div class="sec-header" style="margin-top:16px">
+      <span class="sec-title" style="color:#42A5F5;font-size:12px">👑 SECTOR GOVERNORS</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>SECTOR</th><th>TYPE</th><th>GOVERNOR</th><th>SINCE</th>
+          <th>TAX RATE</th><th>POLICY</th><th>TOTAL TAX</th><th>ACTIVE SIEGE</th>
+        </tr></thead>
+        <tbody id="siegeGovTable"></tbody>
+      </table>
+    </div>
+
+    <!-- War Betting Events -->
+    <div class="sec-header" style="margin-top:16px">
+      <span class="sec-title" style="color:#FFD166;font-size:12px">🎰 WAR BETTING EVENTS</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="betAdmFilter" onchange="loadBettingAdmin()" style="font-size:10px;background:#1a1f2e;border:1px solid rgba(255,255,255,.15);color:#ccc;padding:3px 8px;border-radius:4px">
+          <option value="">ALL</option>
+          <option value="open">OPEN</option>
+          <option value="closed">CLOSED</option>
+          <option value="resolved">RESOLVED</option>
+          <option value="cancelled">CANCELLED</option>
+        </select>
+        <button onclick="loadBettingAdmin()" style="font-size:10px;background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);color:#FFD166;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>ID</th><th>TYPE</th><th>STATUS</th>
+          <th>OPTION A</th><th>BET A (GP)</th>
+          <th>OPTION B</th><th>BET B (GP)</th>
+          <th>POOL</th><th>CLOSES</th><th>ACTION</th>
+        </tr></thead>
+        <tbody id="bettingAdmTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ ONBOARDING TAB ═══ -->
+  <div class="section cat-onboarding" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#00E676">🚀 ONBOARDING STATS</span>
+      <button onclick="loadOnboardingAdmin()" style="font-size:10px;background:rgba(0,230,118,.15);border:1px solid rgba(0,230,118,.3);color:#00E676;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="obAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:16px"></div>
+
+    <!-- Step funnel -->
+    <div class="sec-header" style="margin-top:8px">
+      <span class="sec-title" style="color:#00E676">STEP FUNNEL</span>
+    </div>
+    <div id="obAdmFunnel" style="margin-bottom:16px"></div>
+
+    <!-- Recent users -->
+    <div class="sec-header" style="margin-top:8px">
+      <span class="sec-title" style="color:#00E676">RECENT ONBOARDINGS</span>
+    </div>
+    <div id="obAdmRecent" style="overflow-x:auto"></div>
+
+    <div class="sec-header" style="margin-top:16px">
+      <span class="sec-title" style="color:#00E676">ONBOARDING SETTINGS</span>
+    </div>
+    <p style="font-size:10px;color:#888;margin-bottom:8px">Edit in GAME SETTINGS → keys: <b>onboarding_*</b></p>
+  </div>
+
 </div>
 
 <script>
@@ -977,7 +1194,7 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore', 'enhance', 'marketplace', 'jobs', 'resources', 'onboarding', 'siege'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
@@ -994,6 +1211,12 @@ function switchTab(tab) {
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
+  if (tab === 'enhance') { loadEnhanceStats(); }
+  if (tab === 'marketplace') { loadMarketplaceAdmin(); }
+  if (tab === 'jobs') { loadJobsAdmin(); }
+  if (tab === 'resources') { loadResourcesAdmin(); }
+  if (tab === 'onboarding') { loadOnboardingAdmin(); }
+  if (tab === 'siege') { loadSiegeAdmin(); loadBettingAdmin(); }
 }
 
 // ── Language System ──
@@ -2900,6 +3123,633 @@ function resetAllPOIs() {
   }).then(function(r) { return r.json(); }).then(function(r) {
     alert('Deleted ' + (r.deleted || 0) + ' POIs');
     loadPOIDrops();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+// ENHANCEMENT ADMIN
+// ══════════════════════════════════════
+function loadEnhanceStats() {
+  var grid = document.getElementById('enhStatsGrid');
+  grid.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+  fetch('/admin/api/enhancement/stats', { headers: {'x-admin-secret':adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var total = parseInt(d.total_attempts) || 0;
+      var succ = parseInt(d.successes) || 0;
+      var rate = total > 0 ? ((succ/total)*100).toFixed(1) + '%' : '0%';
+      grid.innerHTML = [
+        statCard('Total Attempts', total, '#a064dc'),
+        statCard('Successes', succ, '#4cd89a'),
+        statCard('Success Rate', rate, '#FFD166'),
+        statCard('Stays', d.stays || 0, '#888'),
+        statCard('Downgrades', d.downgrades || 0, '#ff6b35'),
+        statCard('Destroys', d.destroys || 0, '#e84855'),
+        statCard('GP Spent', Math.floor(parseFloat(d.total_gp_spent) || 0), '#FFD166'),
+        statCard('Avg Cost', Math.floor(parseFloat(d.avg_gp_cost) || 0) + ' GP', '#a064dc')
+      ].join('');
+
+      // Top items
+      var topEl = document.getElementById('enhTopItems');
+      if (!d.topItems || !d.topItems.length) {
+        topEl.innerHTML = '<div style="font-size:10px;color:#888">No enhanced items yet</div>';
+        return;
+      }
+      topEl.innerHTML = '<table class="data-table" style="font-size:9px"><thead><tr>'
+        + '<th>Item</th><th>+Level</th><th>Owner</th></tr></thead><tbody>'
+        + d.topItems.map(function(it) {
+          return '<tr><td>' + (it.icon||'') + ' ' + (it.name||it.code) + '</td>'
+            + '<td style="color:' + enhLevelColor(it.enhancement_level) + ';font-weight:800">+' + it.enhancement_level + '</td>'
+            + '<td style="font-size:8px">' + (it.wallet||'').slice(0,8) + '…</td></tr>';
+        }).join('') + '</tbody></table>';
+    })
+    .catch(function(e) { grid.innerHTML = '<div style="color:red;font-size:10px">Error: ' + e.message + '</div>'; });
+
+  loadEnhanceLog();
+  loadEnhanceSettings();
+}
+
+function statCard(label, val, color) {
+  return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;text-align:center">'
+    + '<div style="font-size:16px;font-weight:800;color:' + color + '">' + val + '</div>'
+    + '<div style="font-size:9px;color:#888;margin-top:2px">' + label + '</div></div>';
+}
+
+function enhLevelColor(lv) {
+  if (lv <= 3) return 'rgba(200,200,220,.8)';
+  if (lv <= 6) return '#FFD166';
+  if (lv <= 9) return '#a064dc';
+  return '#e84855';
+}
+
+function loadEnhanceLog() {
+  var wallet = (document.getElementById('enhLogWallet').value || '').trim().toLowerCase();
+  var url = '/admin/api/enhancement/log?limit=50';
+  if (wallet) url += '&wallet=' + encodeURIComponent(wallet);
+  var el = document.getElementById('enhLogTable');
+  el.innerHTML = '<div style="font-size:10px;color:#888">Loading...</div>';
+  fetch(url, { headers: {'x-admin-secret':adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(rows) {
+      if (!rows.length) { el.innerHTML = '<div style="font-size:10px;color:#888">No enhancement attempts found</div>'; return; }
+      el.innerHTML = '<table class="data-table" style="font-size:9px"><thead><tr>'
+        + '<th>Time</th><th>Item</th><th>+From</th><th>+To</th><th>Outcome</th><th>GP Cost</th><th>Wallet</th></tr></thead><tbody>'
+        + rows.map(function(r) {
+          var outcomeColor = r.outcome === 'success' ? '#4cd89a' : r.outcome === 'destroy' ? '#e84855' : r.outcome === 'downgrade' ? '#ff6b35' : '#888';
+          return '<tr><td>' + new Date(r.created_at).toLocaleString() + '</td>'
+            + '<td>' + (r.item_icon||'') + ' ' + (r.item_name||'?') + '</td>'
+            + '<td>+' + r.from_level + '</td><td>+' + r.to_level + '</td>'
+            + '<td style="color:' + outcomeColor + ';font-weight:700">' + (r.outcome||'').toUpperCase() + '</td>'
+            + '<td>' + Math.floor(parseFloat(r.gp_cost)||0) + '</td>'
+            + '<td style="font-size:8px">' + (r.wallet||'').slice(0,8) + '…</td></tr>';
+        }).join('') + '</tbody></table>';
+    })
+    .catch(function(e) { el.innerHTML = '<div style="color:red;font-size:10px">Error: ' + e.message + '</div>'; });
+}
+
+function loadEnhanceSettings() {
+  var el = document.getElementById('enhSettingsGrid');
+  // Load settings with category=enhancement from the existing settings endpoint
+  fetch('/admin/api/settings', { headers: {'x-admin-secret':adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(all) {
+      var enhSettings = all.filter(function(s){ return s.category === 'enhancement'; });
+      if (!enhSettings.length) { el.innerHTML = '<div style="font-size:10px;color:#888">No enhancement settings found. Run migration 078.</div>'; return; }
+      el.innerHTML = enhSettings.map(function(s) {
+        return '<div style="background:rgba(160,100,220,.04);border:1px solid rgba(160,100,220,.12);border-radius:6px;padding:8px">'
+          + '<div style="font-size:9px;color:#a064dc;font-weight:700;margin-bottom:2px">' + s.key + '</div>'
+          + '<div style="font-size:8px;color:#888;margin-bottom:4px">' + (s.description||'') + '</div>'
+          + '<div style="display:flex;gap:4px;align-items:center">'
+          + '<input id="enh_set_' + s.key + '" value="' + (s.value||'').replace(/"/g,'&quot;') + '" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
+          + '<button onclick="saveEnhSetting(\'' + s.key + '\')" style="font-size:9px;padding:3px 8px;background:rgba(160,100,220,.15);border:1px solid rgba(160,100,220,.3);color:#a064dc;border-radius:3px;cursor:pointer">SAVE</button>'
+          + '</div></div>';
+      }).join('');
+    })
+    .catch(function(e) { el.innerHTML = '<div style="color:red;font-size:10px">' + e.message + '</div>'; });
+}
+
+function saveEnhSetting(key) {
+  var val = document.getElementById('enh_set_' + key).value;
+  fetch('/admin/api/settings', {
+    method: 'PUT',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ key: key, value: val })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    alert('Saved: ' + key + ' = ' + val);
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+// ── JOBS ADMIN ──
+function loadJobsAdmin(){
+  fetch('/api/admin/jobs').then(function(r){return r.json()}).then(function(d){
+    // Stats grid
+    var total = (d.byJob||[]).reduce(function(s,j){return s+j.user_count;},0) + (d.noJob||0);
+    var sg = document.getElementById('jobStatsGrid');
+    if(sg) sg.innerHTML =
+      statCard('TOTAL WITH JOB', total - (d.noJob||0), '') +
+      statCard('NO JOB YET', d.noJob||0, '') +
+      statCard('RECENT CHANGES (7d)', (d.recentChanges||[]).reduce(function(s,c){return s+parseInt(c.cnt);},0), '') +
+      statCard('PAID CHANGES', (d.recentChanges||[]).find(function(c){return c.change_type==='paid'})?.cnt||0, '');
+
+    // Distribution table
+    var tbody = document.querySelector('#jobDistTable tbody');
+    if(tbody){
+      tbody.innerHTML = (d.byJob||[]).map(function(j){
+        var pct = total>0?Math.round(j.user_count/total*100):0;
+        return '<tr><td>'+j.icon_emoji+' '+j.name+'</td><td>'+j.user_count+'</td><td>'+pct+'%</td><td>'+j.avg_gp+'</td><td>'+j.avg_pp+'</td></tr>';
+      }).join('');
+    }
+
+    // Buff table (per job)
+    fetch('/api/jobs?lang=en').then(function(r){return r.json()}).then(function(jd){
+      var bt = document.getElementById('jobBuffTable');
+      if(!bt) return;
+      var html = '<table class="adm-table"><thead><tr><th>Job</th><th>Buff Key</th><th>Value</th><th></th></tr></thead><tbody>';
+      (jd.jobs||[]).forEach(function(job){
+        (job.buffs||[]).forEach(function(b){
+          html += '<tr><td style="color:'+job.color_hex+'">'+job.icon_emoji+' '+job.name+'</td>';
+          html += '<td style="font-size:9px;color:#aaa">'+b.key+'</td>';
+          html += '<td><input type="number" step="0.01" min="0" value="'+b.value+'" id="jbuff_'+job.id+'_'+b.key.replace(/[^a-z_]/g,'')+'" style="width:70px;background:#111;border:1px solid #333;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px"></td>';
+          html += '<td><button onclick="saveJobBuff('+job.id+',\''+b.key+'\',\'jbuff_'+job.id+'_'+b.key.replace(/[^a-z_]/g,'')+'\')" style="padding:3px 8px;background:#222;border:1px solid #444;color:#F4A460;border-radius:4px;cursor:pointer;font-size:10px">SAVE</button></td></tr>';
+        });
+      });
+      html += '</tbody></table>';
+      bt.innerHTML = html;
+    });
+
+    // Change log
+    var lt = document.querySelector('#jobLogTable tbody');
+    if(lt){
+      lt.innerHTML = (d.recentLog||[]).map(function(r){
+        return '<tr><td style="font-size:9px">'+new Date(r.changed_at).toLocaleString()+'</td>'
+          +'<td>'+(r.nickname||r.wallet_address.slice(0,8))+'</td>'
+          +'<td>'+(r.from_job||'—')+'</td>'
+          +'<td>'+r.to_job+'</td>'
+          +'<td style="color:'+(r.change_type==='paid'?'var(--gold)':'#6dc86d')+'">'+r.change_type+'</td>'
+          +'<td>'+(r.gp_cost||0)+'</td></tr>';
+      }).join('') || '<tr><td colspan="6" style="color:#888;text-align:center">No recent changes</td></tr>';
+    }
+  }).catch(function(e){ console.error('[JOBS ADMIN]',e); });
+}
+
+function saveJobBuff(jobId, buffKey, inputId){
+  var val = parseFloat(document.getElementById(inputId)?.value);
+  if(isNaN(val)) return;
+  fetch('/api/admin/job-buff',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobId,buffKey,value:val})})
+    .then(function(r){return r.json()})
+    .then(function(d){ if(d.success) showToast('Saved: '+buffKey+' = '+val); else alert(d.error); })
+    .catch(function(e){ alert(e.message); });
+}
+
+// ══════════════════════════════════════
+// ── RESOURCES ADMIN ──
+function loadResourcesAdmin(){
+  var statsEl=document.getElementById('resAdmStats');
+  var ratesEl=document.getElementById('resAdmRates');
+  var salesEl=document.getElementById('resAdmSales');
+  if(!statsEl) return;
+  statsEl.innerHTML='<div style="color:#888;font-size:10px">Loading...</div>';
+
+  fetch('/api/admin/resources').then(function(r){return r.json()}).then(function(d){
+    // Stats grid
+    var statsHtml='';
+    (d.resources||[]).forEach(function(r){
+      var rarColor=r.rarity==='special'?'var(--gold)':r.rarity==='rare'?'#5cbbff':'#aaa';
+      statsHtml+='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px">'
+        +'<div style="font-size:18px;margin-bottom:4px">'+(r.icon_emoji||'🔷')+'</div>'
+        +'<div style="font-size:11px;font-weight:700;color:'+rarColor+'">'+r.name_en+'</div>'
+        +'<div style="font-size:10px;color:#888;margin-top:4px">Held: <b style="color:#fff">'+r.total_held+'</b> · Holders: <b style="color:#fff">'+r.holder_count+'</b></div>'
+        +'<div style="font-size:9px;color:#666;margin-top:2px">'+r.rarity.toUpperCase()+'</div>'
+        +'</div>';
+    });
+    statsEl.innerHTML=statsHtml||'<div style="color:#888">No data</div>';
+
+    // Drop rates table
+    var sectorTypes=['frontier','mid','core'];
+    var ratesByResource={};
+    (d.dropRates||[]).forEach(function(row){
+      if(!ratesByResource[row.resource_code]) ratesByResource[row.resource_code]={name:row.name_en,icon:row.icon_emoji,rarity:row.rarity,rates:{}};
+      ratesByResource[row.resource_code].rates[row.sector_type]={base:row.base_rate,bonus:row.miner_bonus,active:row.is_active};
+    });
+    var rtHtml='<table class="adm-table"><thead><tr><th>Resource</th><th>Frontier base</th><th>Frontier+Miner</th><th>Mid base</th><th>Mid+Miner</th><th>Core base</th><th>Core+Miner</th></tr></thead><tbody>';
+    Object.keys(ratesByResource).forEach(function(code){
+      var res=ratesByResource[code];
+      rtHtml+='<tr><td>'+(res.icon||'')+'<b>'+res.name+'</b><br><span style="font-size:9px;color:#888">'+code+'</span></td>';
+      sectorTypes.forEach(function(st){
+        var rate=res.rates[st]||{base:0,bonus:0};
+        var pct=Math.round(parseFloat(rate.base)*10000)/100;
+        var mnr=Math.round((parseFloat(rate.base)+parseFloat(rate.bonus))*10000)/100;
+        var baseId='rate_'+st+'_'+code.replace(/[^a-z_]/g,'')+'_base';
+        var bonusId='rate_'+st+'_'+code.replace(/[^a-z_]/g,'')+'_bonus';
+        rtHtml+='<td>'
+          +'<input type="number" step="0.0001" min="0" max="1" value="'+(parseFloat(rate.base)||0)+'" id="'+baseId+'" style="width:60px;background:#111;border:1px solid #333;color:#fff;padding:2px 4px;border-radius:3px;font-size:10px">'
+          +' <button onclick="saveResourceRate(\''+st+'\',\''+code+'\',\''+baseId+'\',\''+bonusId+'\')" style="padding:2px 6px;background:#111;border:1px solid #444;color:#5cbbff;border-radius:3px;cursor:pointer;font-size:9px">✓</button>'
+          +'<br><input type="number" step="0.0001" min="0" max="1" value="'+(parseFloat(rate.bonus)||0)+'" id="'+bonusId+'" style="width:60px;background:#111;border:1px solid #333;color:#5cbbff;padding:2px 4px;border-radius:3px;font-size:10px;margin-top:2px">'
+          +'</td>';
+      });
+      rtHtml+='</tr>';
+    });
+    rtHtml+='</tbody></table>';
+    ratesEl.innerHTML=rtHtml;
+
+    // Recent sales
+    if(d.recentSales&&d.recentSales.length){
+      var sh='<table class="adm-table"><thead><tr><th>Time</th><th>Seller</th><th>Resource</th><th>Qty</th><th>Price</th><th>Buyer</th></tr></thead><tbody>';
+      d.recentSales.forEach(function(s){
+        sh+='<tr><td style="font-size:9px">'+(s.sold_at?new Date(s.sold_at).toLocaleString():'')+'</td>'
+          +'<td style="font-size:9px">'+(s.seller||'').slice(0,8)+'…</td>'
+          +'<td>'+s.resource_code+'</td>'
+          +'<td>'+s.resource_quantity+'</td>'
+          +'<td>'+parseFloat(s.price)+' '+s.currency+'</td>'
+          +'<td style="font-size:9px">'+(s.buyer||'').slice(0,8)+'…</td></tr>';
+      });
+      sh+='</tbody></table>';
+      salesEl.innerHTML=sh;
+    } else {
+      salesEl.innerHTML='<div style="color:#888;font-size:10px;padding:8px">No resource sales yet</div>';
+    }
+  }).catch(function(e){
+    statsEl.innerHTML='<div style="color:red;font-size:10px">Error: '+e.message+'</div>';
+  });
+}
+
+function saveResourceRate(sectorType, resourceCode, baseInputId, bonusInputId){
+  var baseVal=parseFloat(document.getElementById(baseInputId)?.value);
+  var bonusVal=parseFloat(document.getElementById(bonusInputId)?.value)||0;
+  if(isNaN(baseVal)||baseVal<0||baseVal>1){alert('Base rate must be 0~1');return;}
+  fetch('/api/admin/resource-rate',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({sectorType,resourceCode,baseRate:baseVal,minerBonus:bonusVal})})
+    .then(function(r){return r.json()})
+    .then(function(d){ if(d.success) showToast(sectorType+'/'+resourceCode+' = '+baseVal+' (miner+'+bonusVal+')',3000); else alert(d.error||'Error'); })
+    .catch(function(e){ alert(e.message); });
+}
+
+// ══════════════════════════════════════
+// SIEGE ADMIN
+// ══════════════════════════════════════
+var _siegeAdmFilter = 'all';
+
+function setSiegeFilter(f) {
+  _siegeAdmFilter = f;
+  ['all','active','pending','resolved'].forEach(function(x) {
+    var btn = document.getElementById('siegeFilter'+x.charAt(0).toUpperCase()+x.slice(1));
+    if (btn) btn.style.background = (x === f) ? 'rgba(255,82,82,.2)' : 'rgba(255,255,255,.05)';
+  });
+  loadSiegeAdmin();
+}
+
+function loadSiegeAdmin() {
+  var statsEl = document.getElementById('siegeAdmStats');
+  var tbl = document.getElementById('siegeAdmTable');
+  var govTbl = document.getElementById('siegeGovTable');
+  if (!statsEl || !tbl) return;
+  statsEl.innerHTML = '<div style="color:#aaa;font-size:11px">Loading...</div>';
+
+  Promise.all([
+    fetch('/api/admin/sieges?status='+_siegeAdmFilter+'&limit=100').then(function(r){return r.json()}).catch(function(){return {sieges:[]}}),
+    fetch('/api/admin/sector-defs').then(function(r){return r.json()}).catch(function(){return {sectors:[]}})
+  ]).then(function(results) {
+    var sieges = results[0].sieges || [];
+    var sectorStats = results[1].sectors || [];
+
+    // Stats
+    var total = sieges.length;
+    var active = sieges.filter(function(s){return s.status==='active'}).length;
+    var pending = sieges.filter(function(s){return s.status==='pending'}).length;
+    var resolved = sieges.filter(function(s){return s.status==='resolved'}).length;
+    statsEl.innerHTML = [
+      {label:'TOTAL SIEGES', val: total, color:'#FF5252'},
+      {label:'ACTIVE', val: active, color:'#f44336'},
+      {label:'PENDING', val: pending, color:'#FF9800'},
+      {label:'RESOLVED', val: resolved, color:'#4CAF50'}
+    ].map(function(s){
+      return '<div style="background:rgba(255,82,82,.06);border:1px solid rgba(255,82,82,.15);border-radius:8px;padding:12px">'
+        +'<div style="font-size:18px;font-weight:700;color:'+s.color+'">'+s.val+'</div>'
+        +'<div style="font-size:9px;color:#aaa;margin-top:2px">'+s.label+'</div></div>';
+    }).join('');
+
+    // Sieges table
+    if (!sieges.length) {
+      tbl.innerHTML = '<tr><td colspan="10" style="color:#555;text-align:center;padding:20px">No sieges found</td></tr>';
+    } else {
+      var statusColors = {active:'#f44336',pending:'#FF9800',resolved:'#4CAF50',cancelled:'#9E9E9E'};
+      tbl.innerHTML = sieges.map(function(s){
+        var chalName = s.challenger_nickname || (s.challenger_wallet||'').slice(0,8)+'...';
+        var defName  = s.defender_nickname  || (s.defender_wallet  ? s.defender_wallet.slice(0,8)+'...' : '—');
+        var winName  = s.winner_nickname    || (s.winner_wallet    ? s.winner_wallet.slice(0,8)+'...' : '—');
+        var sCol = statusColors[s.status] || '#aaa';
+        var startsAt = s.siege_starts_at ? new Date(s.siege_starts_at).toLocaleString() : '—';
+        var endsAt   = s.siege_ends_at   ? new Date(s.siege_ends_at).toLocaleString()   : '—';
+        var forceBtn = (s.status !== 'resolved' && s.status !== 'cancelled')
+          ? '<button onclick="adminForceSiege('+s.id+')" style="font-size:9px;padding:3px 7px;background:rgba(244,67,54,.2);border:1px solid rgba(244,67,54,.4);color:#f44336;border-radius:4px;cursor:pointer">FORCE END</button>'
+          : '—';
+        return '<tr>'
+          +'<td style="font-size:10px">'+s.id+'</td>'
+          +'<td style="font-size:10px;color:#42A5F5">'+s.sector_code+'</td>'
+          +'<td><span style="font-size:10px;color:'+sCol+'">'+s.status.toUpperCase()+'</span></td>'
+          +'<td style="font-size:10px">'+chalName+'</td>'
+          +'<td style="font-size:10px">'+defName+'</td>'
+          +'<td style="font-size:10px;color:#FFD700">'+winName+'</td>'
+          +'<td style="font-size:10px">'+s.gp_cost+' GP</td>'
+          +'<td style="font-size:9px;color:#777">'+startsAt+'</td>'
+          +'<td style="font-size:9px;color:#777">'+endsAt+'</td>'
+          +'<td>'+forceBtn+'</td>'
+          +'</tr>';
+      }).join('');
+    }
+
+    // Sector governors table
+    if (govTbl) {
+      if (!sectorStats.length) {
+        govTbl.innerHTML = '<tr><td colspan="8" style="color:#555;text-align:center;padding:16px">No sectors</td></tr>';
+      } else {
+        govTbl.innerHTML = sectorStats.map(function(s){
+          var govName = s.governor_nickname || (s.governor_wallet ? s.governor_wallet.slice(0,8)+'...' : '—');
+          var typeColors = {core:'#FF5252',mid:'#42A5F5',frontier:'#4CAF50'};
+          var tCol = typeColors[s.sector_type] || '#aaa';
+          return '<tr>'
+            +'<td style="font-size:10px;color:#42A5F5">'+s.code+'</td>'
+            +'<td><span style="font-size:9px;color:'+tCol+'">'+s.sector_type+'</span></td>'
+            +'<td style="font-size:10px;color:#FFD700">'+govName+'</td>'
+            +'<td style="font-size:9px;color:#777">—</td>'
+            +'<td style="font-size:10px">'+parseFloat(s.tax_rate||2).toFixed(1)+'%</td>'
+            +'<td style="font-size:10px">'+( s.sector_policy||'open' )+'</td>'
+            +'<td style="font-size:10px">'+parseFloat(s.total_tax_collected||0).toFixed(2)+' PP</td>'
+            +'<td style="font-size:10px">'+(s.active_siege_id?'⚔️ #'+s.active_siege_id:'—')+'</td>'
+            +'</tr>';
+        }).join('');
+      }
+    }
+  }).catch(function(e) {
+    statsEl.innerHTML = '<div style="color:#f44336">Error loading siege data: '+e.message+'</div>';
+  });
+}
+
+function adminForceSiege(siegeId) {
+  if (!confirm('Force-resolve siege #'+siegeId+'? This cannot be undone.')) return;
+  fetch('/api/admin/sieges/'+siegeId+'/resolve', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }).then(function(r){return r.json()}).then(function(d){
+    alert(d.success ? 'Siege #'+siegeId+' resolved. Winner: '+(d.winner||'no-change') : 'Error: '+d.error);
+    loadSiegeAdmin();
+  }).catch(function(){ alert('Request failed'); });
+}
+
+// ══════════════════════════════════════
+// WAR BETTING ADMIN
+// ══════════════════════════════════════
+function loadBettingAdmin() {
+  var tbl = document.getElementById('bettingAdmTable');
+  if (!tbl) return;
+  tbl.innerHTML = '<tr><td colspan="10" style="color:#aaa;text-align:center;padding:16px">Loading...</td></tr>';
+  var filterEl = document.getElementById('betAdmFilter');
+  var status = filterEl ? filterEl.value : '';
+  var url = '/api/admin/betting/events' + (status ? '?status='+encodeURIComponent(status) : '');
+  fetch(url).then(function(r){return r.json()}).then(function(data) {
+    var events = data.events || [];
+    if (!events.length) {
+      tbl.innerHTML = '<tr><td colspan="10" style="color:#555;text-align:center;padding:20px">No betting events</td></tr>';
+      return;
+    }
+    var statusColors = {open:'#4CAF50',closed:'#FF9800',resolved:'#42A5F5',cancelled:'#9E9E9E'};
+    tbl.innerHTML = events.map(function(e) {
+      var sCol = statusColors[e.status] || '#aaa';
+      var pool = (parseInt(e.total_bet_a)||0) + (parseInt(e.total_bet_b)||0);
+      var closesAt = e.closes_at ? new Date(e.closes_at).toLocaleString() : '—';
+      var actionBtns = '';
+      if (e.status === 'open' || e.status === 'closed') {
+        actionBtns += '<button onclick="adminSettleBet('+e.id+',\'a\')" style="font-size:8px;padding:2px 6px;background:rgba(232,72,85,.2);border:1px solid rgba(232,72,85,.4);color:#e84855;border-radius:3px;cursor:pointer;margin-right:2px">A WINS</button>';
+        actionBtns += '<button onclick="adminSettleBet('+e.id+',\'b\')" style="font-size:8px;padding:2px 6px;background:rgba(91,184,232,.2);border:1px solid rgba(91,184,232,.4);color:#5bb8e8;border-radius:3px;cursor:pointer;margin-right:2px">B WINS</button>';
+        actionBtns += '<button onclick="adminCancelBet('+e.id+')" style="font-size:8px;padding:2px 6px;background:rgba(158,158,158,.2);border:1px solid rgba(158,158,158,.3);color:#9E9E9E;border-radius:3px;cursor:pointer">CANCEL</button>';
+      } else {
+        var winTxt = e.winner_option ? (e.winner_option.toUpperCase()+' WON') : '—';
+        actionBtns = '<span style="font-size:9px;color:#777">'+winTxt+'</span>';
+      }
+      return '<tr>'
+        +'<td style="font-size:10px">'+e.id+'</td>'
+        +'<td style="font-size:10px;color:#42A5F5">'+e.event_type+'#'+e.event_id+'</td>'
+        +'<td><span style="font-size:9px;color:'+sCol+'">'+e.status.toUpperCase()+'</span></td>'
+        +'<td style="font-size:9px;color:#e84855" title="'+e.option_a_label+'">'+(e.option_a_label||'A').slice(0,18)+'</td>'
+        +'<td style="font-size:10px;color:#e84855">'+(e.total_bet_a||0)+' GP</td>'
+        +'<td style="font-size:9px;color:#5bb8e8" title="'+e.option_b_label+'">'+(e.option_b_label||'B').slice(0,18)+'</td>'
+        +'<td style="font-size:10px;color:#5bb8e8">'+(e.total_bet_b||0)+' GP</td>'
+        +'<td style="font-size:10px;color:#FFD166">'+pool+' GP</td>'
+        +'<td style="font-size:9px;color:#777">'+closesAt+'</td>'
+        +'<td>'+actionBtns+'</td>'
+        +'</tr>';
+    }).join('');
+  }).catch(function(e) {
+    tbl.innerHTML = '<tr><td colspan="10" style="color:#f44336;text-align:center">Error: '+e.message+'</td></tr>';
+  });
+}
+
+function adminSettleBet(eventId, winnerOption) {
+  if (!confirm('Settle betting event #'+eventId+' with winner option "'+winnerOption+'"?\nThis will pay out all winning bets.')) return;
+  fetch('/api/admin/betting/events/'+eventId+'/settle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }).then(function(r){return r.json()}).then(function(d){
+    if (d.success) {
+      alert('Settled! Payout: '+d.total_payout+' GP to '+d.payout_count+' winners. House: '+d.house_amount+' GP');
+    } else {
+      alert('Error: '+(d.error||'unknown'));
+    }
+    loadBettingAdmin();
+  }).catch(function(){ alert('Request failed'); });
+}
+
+function adminCancelBet(eventId) {
+  if (!confirm('Cancel betting event #'+eventId+' and refund all bets?')) return;
+  fetch('/api/admin/betting/events/'+eventId+'/cancel', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }).then(function(r){return r.json()}).then(function(d){
+    if (d.success) {
+      alert('Cancelled. Refunded '+d.refunded+' bet(s).');
+    } else {
+      alert('Error: '+(d.error||'unknown'));
+    }
+    loadBettingAdmin();
+  }).catch(function(){ alert('Request failed'); });
+}
+
+// ══════════════════════════════════════
+// ONBOARDING ADMIN
+// ══════════════════════════════════════
+function loadOnboardingAdmin(){
+  var statsEl=document.getElementById('obAdmStats');
+  var funnelEl=document.getElementById('obAdmFunnel');
+  var recentEl=document.getElementById('obAdmRecent');
+  if(!statsEl) return;
+  statsEl.innerHTML='<div style="color:#888;font-size:10px">Loading...</div>';
+
+  fetch('/api/admin/onboarding').then(function(r){return r.json()}).then(function(d){
+    var s=d.stats||{};
+    var total=parseInt(s.total||0);
+    var completed=parseInt(s.completed||0);
+    var skipped=parseInt(s.skipped||0);
+    var inProgress=parseInt(s.in_progress||0);
+    var rate=parseFloat(s.completion_rate_pct||0);
+    statsEl.innerHTML=[
+      statCard('Total Started', total, '#00E676'),
+      statCard('Completed', completed, '#4cd89a'),
+      statCard('Skipped', skipped, '#ff6b35'),
+      statCard('In Progress', inProgress, '#5cbbff'),
+      statCard('Completion Rate', rate+'%', rate>=50?'#4cd89a':'var(--gold)'),
+      statCard('Reward Claimed', parseInt(s.reward_claimed||0), '#00E676')
+    ].join('');
+
+    // Funnel
+    var steps=[
+      {n:1,label:'Step 1: Claim',  val:parseInt(s.reached_step1||0)},
+      {n:2,label:'Step 2: Mining', val:parseInt(s.reached_step2||0)},
+      {n:3,label:'Step 3: Jobs',   val:parseInt(s.reached_step3||0)},
+      {n:4,label:'Step 4: Guild',  val:parseInt(s.reached_step4||0)},
+      {n:5,label:'Step 5: Mission',val:parseInt(s.reached_step5||0)}
+    ];
+    var fHtml='<table class="adm-table"><thead><tr><th>Step</th><th>Reached</th><th>% of Started</th><th>Drop-off</th></tr></thead><tbody>';
+    steps.forEach(function(step,i){
+      var pct=total>0?Math.round(step.val/total*100):0;
+      var drop=i>0?steps[i-1].val-step.val:0;
+      var dropPct=i>0&&steps[i-1].val>0?Math.round(drop/steps[i-1].val*100):0;
+      fHtml+='<tr>'
+        +'<td>'+step.label+'</td>'
+        +'<td><b style="color:#00E676">'+step.val+'</b></td>'
+        +'<td>'
+          +'<div style="display:flex;align-items:center;gap:6px">'
+          +'<div style="flex:1;height:6px;background:rgba(255,255,255,.1);border-radius:3px">'
+          +'<div style="height:100%;width:'+pct+'%;background:#00E676;border-radius:3px"></div></div>'
+          +'<span style="font-size:10px">'+pct+'%</span></div>'
+        +'</td>'
+        +'<td style="color:'+(drop>0?'#ff6b35':'#888')+'">'+(i>0?'-'+drop+' (-'+dropPct+'%)':'—')+'</td>'
+        +'</tr>';
+    });
+    fHtml+='</tbody></table>';
+    funnelEl.innerHTML=fHtml;
+
+    // Recent users
+    var rHtml='<table class="adm-table"><thead><tr><th>User</th><th>Step</th><th>Status</th><th>Started</th><th>Completed</th></tr></thead><tbody>';
+    rHtml+=(d.recent||[]).map(function(r){
+      var status=r.completed?'<span style="color:#4cd89a">✓ Done</span>':r.skipped?'<span style="color:#ff6b35">Skipped</span>':'<span style="color:#5cbbff">Step '+r.current_step+'</span>';
+      return '<tr><td>'+(r.nickname||r.wallet_address.slice(0,10))+'</td>'
+        +'<td>'+r.current_step+'/5</td>'
+        +'<td>'+status+'</td>'
+        +'<td style="font-size:9px">'+new Date(r.created_at).toLocaleDateString()+'</td>'
+        +'<td style="font-size:9px">'+(r.completed_at?new Date(r.completed_at).toLocaleDateString():'—')+'</td></tr>';
+    }).join('')||'<tr><td colspan="5" style="color:#888;text-align:center">No data</td></tr>';
+    rHtml+='</tbody></table>';
+    recentEl.innerHTML=rHtml;
+  }).catch(function(e){ statsEl.innerHTML='<div style="color:#f44">Error: '+e.message+'</div>'; });
+}
+
+// MARKETPLACE ADMIN
+// ══════════════════════════════════════
+function loadMarketplaceAdmin() {
+  var statsEl = document.getElementById('mktAdmStats');
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+  fetch('/admin/api/marketplace/stats', { headers: {'x-admin-secret':adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      statsEl.innerHTML = [
+        statCard('Active Listings', d.active_listings || 0, '#a064dc'),
+        statCard('Total Sold', d.total_sold || 0, '#4cd89a'),
+        statCard('Total Expired', d.total_expired || 0, '#888'),
+        statCard('Total Cancelled', d.total_cancelled || 0, '#ff6b35'),
+        statCard('Volume', Math.floor(parseFloat(d.total_volume) || 0) + ' GP', '#FFD166'),
+        statCard('Fees Earned', Math.floor(parseFloat(d.total_fees) || 0) + ' GP', '#4cd89a')
+      ].join('');
+
+      // Recent sales
+      var recentEl = document.getElementById('mktAdmRecent');
+      var sales = d.recentSales || [];
+      if (!sales.length) { recentEl.innerHTML = '<div style="font-size:10px;color:#888">No sales yet</div>'; }
+      else {
+        recentEl.innerHTML = '<table class="data-table" style="font-size:9px"><thead><tr>'
+          + '<th>Time</th><th>Item</th><th>Price</th><th>Seller</th><th>Buyer</th></tr></thead><tbody>'
+          + sales.map(function(s) {
+            var meta = s.meta || {};
+            return '<tr><td>' + new Date(s.sold_at).toLocaleString() + '</td>'
+              + '<td>' + (meta.itemIcon||'🗺️') + ' ' + (meta.itemName || 'Territory #' + (s.claim_id||'?')) + '</td>'
+              + '<td style="color:var(--gold);font-weight:700">' + parseFloat(s.price) + ' ' + s.currency + '</td>'
+              + '<td style="font-size:8px">' + (s.seller_name || (s.seller||'').slice(0,8) + '…') + '</td>'
+              + '<td style="font-size:8px">' + (s.buyer_name || (s.buyer||'').slice(0,8) + '…') + '</td></tr>';
+          }).join('') + '</tbody></table>';
+      }
+    })
+    .catch(function(e) { statsEl.innerHTML = '<div style="color:red;font-size:10px">' + e.message + '</div>'; });
+
+  // Load active listings
+  loadMktAdmListings();
+  loadMktAdmSettings();
+}
+
+function loadMktAdmListings() {
+  var el = document.getElementById('mktAdmListings');
+  el.innerHTML = '<div style="font-size:10px;color:#888">Loading...</div>';
+  fetch('/admin/api/marketplace/listings?status=active', { headers: {'x-admin-secret':adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(rows) {
+      if (!rows.length) { el.innerHTML = '<div style="font-size:10px;color:#888">No active listings</div>'; return; }
+      el.innerHTML = '<table class="data-table" style="font-size:9px"><thead><tr>'
+        + '<th>ID</th><th>Type</th><th>Item</th><th>Price</th><th>Seller</th><th>Expires</th><th>Action</th></tr></thead><tbody>'
+        + rows.map(function(l) {
+          var meta = l.meta || {};
+          return '<tr><td>#' + l.id + '</td>'
+            + '<td>' + l.listing_type + '</td>'
+            + '<td>' + (meta.itemIcon||'🗺️') + ' ' + (meta.itemName || 'Territory') + (meta.enhancementLevel > 0 ? ' +' + meta.enhancementLevel : '') + '</td>'
+            + '<td style="color:var(--gold)">' + parseFloat(l.price) + ' ' + l.currency + '</td>'
+            + '<td style="font-size:8px">' + (l.seller_name || (l.seller||'').slice(0,8)) + '</td>'
+            + '<td>' + new Date(l.expires_at).toLocaleString() + '</td>'
+            + '<td><button onclick="adminCancelListing(' + l.id + ')" style="font-size:8px;padding:2px 8px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.3);color:#e84855;border-radius:3px;cursor:pointer">CANCEL</button></td></tr>';
+        }).join('') + '</tbody></table>';
+    })
+    .catch(function(e) { el.innerHTML = '<div style="color:red;font-size:10px">' + e.message + '</div>'; });
+}
+
+function adminCancelListing(listingId) {
+  if (!confirm('Force cancel listing #' + listingId + '? Item will be returned to seller.')) return;
+  fetch('/admin/api/marketplace/cancel', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ listingId: listingId })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    alert('Listing cancelled');
+    loadMktAdmListings();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function loadMktAdmSettings() {
+  var el = document.getElementById('mktAdmSettings');
+  fetch('/admin/api/settings', { headers: {'x-admin-secret':adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(all) {
+      var mktSettings = all.filter(function(s){ return s.category === 'marketplace'; });
+      if (!mktSettings.length) { el.innerHTML = '<div style="font-size:10px;color:#888">No marketplace settings found. Run migration 079.</div>'; return; }
+      el.innerHTML = mktSettings.map(function(s) {
+        return '<div style="background:rgba(160,100,220,.04);border:1px solid rgba(160,100,220,.12);border-radius:6px;padding:8px">'
+          + '<div style="font-size:9px;color:#a064dc;font-weight:700;margin-bottom:2px">' + s.key + '</div>'
+          + '<div style="font-size:8px;color:#888;margin-bottom:4px">' + (s.description||'') + '</div>'
+          + '<div style="display:flex;gap:4px;align-items:center">'
+          + '<input id="mkt_set_' + s.key + '" value="' + (s.value||'').replace(/"/g,'&quot;') + '" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
+          + '<button onclick="saveMktSetting(\'' + s.key + '\')" style="font-size:9px;padding:3px 8px;background:rgba(160,100,220,.15);border:1px solid rgba(160,100,220,.3);color:#a064dc;border-radius:3px;cursor:pointer">SAVE</button>'
+          + '</div></div>';
+      }).join('');
+    })
+    .catch(function(e) { el.innerHTML = '<div style="color:red;font-size:10px">' + e.message + '</div>'; });
+}
+
+function saveMktSetting(key) {
+  var val = document.getElementById('mkt_set_' + key).value;
+  fetch('/admin/api/settings', {
+    method: 'PUT',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ key: key, value: val })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    alert('Saved: ' + key + ' = ' + val);
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
