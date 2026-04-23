@@ -123,6 +123,7 @@ const bannerRoutes      = require('./routes/banner');
 const journalRoutes     = require('./routes/journal');
 const tprestigeRoutes   = require('./routes/tprestige');
 const announceRoutes    = require('./routes/announcement');
+const tombstoneRoutes   = require('./routes/tombstone');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -278,6 +279,7 @@ app.use('/api', bannerRoutes);
 app.use('/api', journalRoutes);
 app.use('/api', tprestigeRoutes);
 app.use('/api', announceRoutes);
+app.use('/api', tombstoneRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);

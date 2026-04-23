@@ -3612,6 +3612,32 @@ router.post('/sponsor/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Territory Tombstone Admin (Migration 149) ──
+router.get('/tombstone', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/tombstone'); } catch(_) {}
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/tombstone/:id', adminAuth, async (req, res) => {
+  try {
+    let svc; try { svc = require('../services/tombstone'); } catch(_) {}
+    await svc.adminRemoveTombstone(req.params.id);
+    await auditLog(req, 'tombstone_remove', req.params.id, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/tombstone/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('tombstone_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'tombstone_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Colony Announcement Admin (Migration 148) ──
 router.get('/announce', adminAuth, async (req, res) => {
   let svc; try { svc = require('../services/announcement'); } catch(_) {}
