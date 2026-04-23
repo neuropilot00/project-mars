@@ -1847,4 +1847,48 @@ router.get('/ship-upgrades', adminAuth, async (req, res) => {
   }
 });
 
+// GET /admin/api/gp-transfers — GP transfer stats + recent log + settings
+router.get('/gp-transfers', adminAuth, async (req, res) => {
+  try {
+    const [statsRes, todayRes, logRes, settingsRes] = await Promise.all([
+      pool.query(`
+        SELECT COUNT(*) AS total_count, COALESCE(SUM(amount), 0) AS total_volume
+          FROM gp_transfers
+      `).catch(() => ({ rows: [{}] })),
+      pool.query(`
+        SELECT COUNT(*) AS today_count, COALESCE(SUM(amount), 0) AS today_volume
+          FROM gp_transfers WHERE created_at >= CURRENT_DATE
+      `).catch(() => ({ rows: [{}] })),
+      pool.query(`
+        SELECT t.id, t.from_wallet, t.to_wallet, t.amount, t.note, t.created_at,
+               uf.nickname AS from_nick, ut.nickname AS to_nick
+          FROM gp_transfers t
+          LEFT JOIN users uf ON uf.wallet_address = t.from_wallet
+          LEFT JOIN users ut ON ut.wallet_address = t.to_wallet
+         ORDER BY t.created_at DESC LIMIT 100
+      `).catch(() => ({ rows: [] })),
+      pool.query(`
+        SELECT key, value FROM settings WHERE key LIKE 'gp_transfer_%' ORDER BY key
+      `).catch(() => ({ rows: [] })),
+    ]);
+
+    const settingsMap = {};
+    settingsRes.rows.forEach(r => { settingsMap[r.key] = r.value; });
+    const s = statsRes.rows[0] || {};
+    const td = todayRes.rows[0] || {};
+
+    res.json({
+      total_count:  parseInt(s.total_count)  || 0,
+      total_volume: parseFloat(s.total_volume) || 0,
+      today_count:  parseInt(td.today_count)  || 0,
+      today_volume: parseFloat(td.today_volume) || 0,
+      log:      logRes.rows,
+      settings: settingsMap,
+    });
+  } catch (e) {
+    console.error('[Admin] gp-transfers error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

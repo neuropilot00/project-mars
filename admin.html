@@ -880,6 +880,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ GP TRANSFERS (inside gp section) ═══ -->
+  <div class="section cat-gp" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#5cbbff">💸 GP TRANSFERS</span>
+      <button onclick="loadGPTransfersAdmin()" style="font-size:10px;background:rgba(92,187,255,.12);border:1px solid rgba(92,187,255,.3);color:#5cbbff;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="gpXferStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div id="gpXferLog"   style="overflow-x:auto;margin-bottom:12px"></div>
+    <!-- Transfer Settings -->
+    <div class="sec-header" style="margin-top:8px">
+      <span class="sec-title" style="color:#5cbbff">TRANSFER SETTINGS</span>
+    </div>
+    <div id="gpXferSettings" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px"></div>
+  </div>
+
   <!-- ═══ POI DROP TABLE TAB ═══ -->
   <div class="section cat-poi" style="display:none">
     <div class="sec-header">
@@ -1319,7 +1334,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); }
-  if (tab === 'gp') { loadGPStats(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -3167,6 +3182,75 @@ function grantAllGP() {
       if (d.success) { el.textContent = '✓ Granted to ' + d.affected + ' users'; el.style.color = 'var(--gn)'; loadGPStats(); }
       else { el.textContent = '✗ ' + (d.error || 'Failed'); el.style.color = 'var(--red)'; }
     });
+}
+
+// ══════════════════════════════════════
+//  GP TRANSFERS ADMIN
+// ══════════════════════════════════════
+function loadGPTransfersAdmin() {
+  var statsEl    = document.getElementById('gpXferStats');
+  var logEl      = document.getElementById('gpXferLog');
+  var settingsEl = document.getElementById('gpXferSettings');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  Promise.all([
+    apiJson('/admin/api/gp-transfers').catch(function(){return null}),
+  ]).then(function(res) {
+    var data = res[0] || {};
+    statsEl.innerHTML = [
+      statCard('Total Transfers',  data.total_count || 0,                        '#5cbbff'),
+      statCard('Total Volume',     Math.round(data.total_volume || 0)+' GP',     'var(--gold)'),
+      statCard('Today Transfers',  data.today_count || 0,                        '#4cd89a'),
+      statCard('Today Volume',     Math.round(data.today_volume || 0)+' GP',     'var(--cyan)')
+    ].join('');
+
+    var log = data.log || [];
+    if (!log.length) {
+      logEl.innerHTML = '<div style="font-size:10px;color:#888">No transfers yet</div>';
+    } else {
+      logEl.innerHTML = '<table class="data-table" style="font-size:9px"><thead><tr>'
+        +'<th>#</th><th>From</th><th>To</th><th>Amount</th><th>Note</th><th>Date</th></tr></thead><tbody>'
+        + log.map(function(r){
+          return '<tr>'
+            +'<td>#'+r.id+'</td>'
+            +'<td style="font-size:8px">'+(r.from_nick||r.from_wallet.slice(0,10)+'…')+'</td>'
+            +'<td style="font-size:8px">'+(r.to_nick||r.to_wallet.slice(0,10)+'…')+'</td>'
+            +'<td style="color:var(--gold)">'+r.amount+' GP</td>'
+            +'<td style="font-size:8px;color:var(--tx3)">'+(r.note||'—')+'</td>'
+            +'<td style="font-size:8px">'+new Date(r.created_at).toLocaleDateString()+'</td>'
+            +'</tr>';
+        }).join('') + '</tbody></table>';
+    }
+
+    var XFER_KEYS = [
+      'gp_transfer_enabled','gp_transfer_min_amount','gp_transfer_max_amount',
+      'gp_transfer_daily_limit','gp_transfer_fee_pct'
+    ];
+    var descs = {
+      gp_transfer_enabled:     'P2P GP 전송 활성화',
+      gp_transfer_min_amount:  '최소 전송 금액',
+      gp_transfer_max_amount:  '1회 최대 전송 금액',
+      gp_transfer_daily_limit: '1일 최대 발신 한도',
+      gp_transfer_fee_pct:     '수수료 % (0 = 무료)'
+    };
+    settingsEl.innerHTML = XFER_KEYS.map(function(k){
+      var v = (data.settings||{})[k] || '';
+      return '<div style="background:rgba(92,187,255,.06);border:1px solid rgba(92,187,255,.15);border-radius:6px;padding:10px">'
+        +'<div style="font-size:9px;color:#5cbbff;margin-bottom:4px">'+k+'</div>'
+        +'<div style="font-size:8px;color:#888;margin-bottom:6px">'+(descs[k]||'')+'</div>'
+        +'<div style="display:flex;gap:4px">'
+        +'<input id="sXferKey_'+k+'" value="'+escapeHtml(String(v))+'" style="flex:1;background:#111;border:1px solid #333;color:#fff;padding:3px 6px;border-radius:3px;font-size:9px;font-family:var(--fn)">'
+        +'<button onclick="saveGPXferSetting(\''+k+'\')" style="font-size:8px;padding:2px 8px;background:rgba(92,187,255,.15);border:1px solid rgba(92,187,255,.3);color:#5cbbff;border-radius:3px;cursor:pointer">SAVE</button>'
+        +'</div></div>';
+    }).join('');
+  });
+}
+
+function saveGPXferSetting(key) {
+  var input = document.getElementById('sXferKey_' + key);
+  if (!input) return;
+  saveSetting(key, input.value);
 }
 
 // ══════════════════════════════════════

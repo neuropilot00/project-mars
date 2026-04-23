@@ -3521,6 +3521,35 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="loading_dots">Loading...</div>
           </div>
         </div>
+
+        <!-- SEND GP (collapsible) -->
+        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
+             onclick="toggleSendGP()">
+          <span data-i18n="gp_send_title">💸 SEND GP</span>
+          <span id="sendGPToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="sendGPPanel" style="display:none;padding:8px 0">
+          <!-- Send form -->
+          <div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.1);border-radius:8px;padding:10px;margin-bottom:8px">
+            <div style="font-size:9px;color:var(--tx3);margin-bottom:6px" data-i18n="gp_send_subtitle">Send GP to another player</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <input id="sendGPRecipient" type="text" placeholder="Wallet address or nickname"
+                style="font-size:10px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.25);color:#fff;border-radius:4px;font-family:var(--fn);width:100%;box-sizing:border-box">
+              <div style="display:flex;gap:6px">
+                <input id="sendGPAmount" type="number" min="1" placeholder="Amount"
+                  style="flex:1;font-size:10px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.25);color:#fff;border-radius:4px;font-family:var(--fn)">
+                <span style="font-size:10px;color:#5cbbff;padding:6px 4px;white-space:nowrap">GP</span>
+              </div>
+              <input id="sendGPNote" type="text" placeholder="Note (optional)"
+                style="font-size:10px;padding:6px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.15);color:#fff;border-radius:4px;font-family:var(--fn);width:100%;box-sizing:border-box">
+              <button onclick="sendGP()" style="font-size:10px;font-weight:700;padding:7px 0;border-radius:4px;border:1px solid rgba(92,187,255,.45);background:rgba(92,187,255,.12);color:#5cbbff;cursor:pointer;font-family:var(--fn);letter-spacing:.5px" data-i18n="gp_send_btn">💸 SEND</button>
+            </div>
+          </div>
+          <!-- Transfer history -->
+          <div id="gpTransferList" style="font-size:9px;color:var(--tx2)">
+            <div style="text-align:center;color:var(--tx3);padding:8px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: QUESTS -->
@@ -10318,6 +10347,9 @@ var I18N = {
     notif_title: '🔔 NOTIFICATIONS', notif_read_all: 'MARK ALL READ',
     notif_loading: 'Loading...', notif_empty: 'No notifications yet',
     gp_activity_title: 'GP ACTIVITY', gp_activity_login: 'Login to view GP activity.', gp_activity_empty: 'No GP activity yet.',
+    gp_send_title: '💸 SEND GP', gp_send_subtitle: 'Send GP to another player', gp_send_btn: 'SEND',
+    gp_send_no_recipient: 'Enter recipient wallet or nickname', gp_send_invalid_amount: 'Enter a valid amount',
+    gp_send_amount_label: 'Amount', gp_transfer_history: 'TRANSFER HISTORY', gp_transfer_empty: 'No transfers yet.',
     career_stats_title: '📊 MY CAREER STATS', cat_naval: 'Naval Wins', cat_enhance: 'Enhancements', cat_ships: 'Ships Built', cat_trades: 'Trades',
     mkt_buy: 'BUY', mkt_cancel: 'CANCEL', mkt_list_sell: 'SELL',
     mkt_buy_title: 'Purchase Item', mkt_price: 'Price', mkt_your_balance: 'Your Balance',
@@ -10888,6 +10920,9 @@ var I18N = {
     notif_title: '🔔 알림', notif_read_all: '모두 읽음으로 표시',
     notif_loading: '로딩 중...', notif_empty: '알림이 없습니다',
     gp_activity_title: 'GP 활동 내역', gp_activity_login: '로그인 후 확인하세요.', gp_activity_empty: 'GP 활동 내역이 없습니다.',
+    gp_send_title: '💸 GP 전송', gp_send_subtitle: '다른 플레이어에게 GP 보내기', gp_send_btn: '전송',
+    gp_send_no_recipient: '수신자 지갑 또는 닉네임 입력', gp_send_invalid_amount: '유효한 금액을 입력하세요',
+    gp_send_amount_label: '금액', gp_transfer_history: '전송 내역', gp_transfer_empty: '전송 내역이 없습니다.',
     career_stats_title: '📊 내 커리어 통계', cat_naval: '해전 승리', cat_enhance: '강화 시도', cat_ships: '건조한 함선', cat_trades: '거래',
     mkt_buy: '구매', mkt_cancel: '취소', mkt_list_sell: '판매',
     mkt_buy_title: '아이템 구매', mkt_price: '가격', mkt_your_balance: '내 잔액',
@@ -11457,6 +11492,9 @@ var I18N = {
     notif_title: '🔔 通知', notif_read_all: 'すべて既読',
     notif_loading: '読込中...', notif_empty: '通知はありません',
     gp_activity_title: 'GP 履歴', gp_activity_login: 'ログインして確認してください。', gp_activity_empty: 'GP活動履歴がありません。',
+    gp_send_title: '💸 GP送信', gp_send_subtitle: '他のプレイヤーにGPを送る', gp_send_btn: '送信',
+    gp_send_no_recipient: '受取人のウォレットまたはニックネームを入力', gp_send_invalid_amount: '有効な金額を入力してください',
+    gp_send_amount_label: '金額', gp_transfer_history: '送信履歴', gp_transfer_empty: '送信履歴がありません。',
     career_stats_title: '📊 キャリア統計', cat_naval: '海戦勝利', cat_enhance: '強化試行', cat_ships: '建造艦数', cat_trades: '取引数',
     mkt_buy: '購入', mkt_cancel: 'キャンセル', mkt_list_sell: '出品',
     mkt_buy_title: 'アイテム購入', mkt_price: '価格', mkt_your_balance: '残高',
@@ -12010,6 +12048,9 @@ var I18N = {
     notif_title: '🔔 通知', notif_read_all: '全部标为已读',
     notif_loading: '加载中...', notif_empty: '暂无通知',
     gp_activity_title: 'GP 活动记录', gp_activity_login: '登录后查看GP活动。', gp_activity_empty: '暂无GP活动记录。',
+    gp_send_title: '💸 发送GP', gp_send_subtitle: '向其他玩家发送GP', gp_send_btn: '发送',
+    gp_send_no_recipient: '输入收款人钱包或昵称', gp_send_invalid_amount: '请输入有效金额',
+    gp_send_amount_label: '金额', gp_transfer_history: '转账记录', gp_transfer_empty: '暂无转账记录。',
     career_stats_title: '📊 生涯统计', cat_naval: '海战胜利', cat_enhance: '强化次数', cat_ships: '建造舰船', cat_trades: '交易次数',
     mkt_buy: '购买', mkt_cancel: '取消', mkt_list_sell: '出售',
     mkt_buy_title: '购买道具', mkt_price: '价格', mkt_your_balance: '余额',
@@ -18171,7 +18212,7 @@ async function loadGpActivity(){
       el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="gp_activity_empty">No GP activity yet.</div>';applyI18n(el);
       _gpActivityLoaded=true;return;
     }
-    var SOURCE_LABEL={'daily_login':'Daily Login','mission_reward':'Mission','enhance':'Enhancement','ship_build':'Ship Build','battle_stake':'Battle Stake','battle_win':'Battle Win','marketplace_buy':'Market Buy','marketplace_sell':'Market Sell','marketplace_list':'Listing Fee','auction_list':'Auction Fee','auction_bid':'Auction Bid','auction_buy':'Auction Buy','auction_sell':'Auction Sold'};
+    var SOURCE_LABEL={'daily_login':'Daily Login','mission_reward':'Mission','enhance':'Enhancement','ship_build':'Ship Build','ship_upgrade':'Ship Upgrade','battle_stake':'Battle Stake','battle_win':'Battle Win','marketplace_buy':'Market Buy','marketplace_sell':'Market Sell','marketplace_list':'Listing Fee','auction_list':'Auction Fee','auction_bid':'Auction Bid','auction_buy':'Auction Buy','auction_sell':'Auction Sold','gp_transfer_out':'Sent GP','gp_transfer_in':'Received GP'};
     var html='';
     d.entries.forEach(function(e){
       var plus=e.delta>0;
@@ -18186,6 +18227,95 @@ async function loadGpActivity(){
     el.innerHTML=html;
     _gpActivityLoaded=true;
   }catch(e){el.innerHTML='<div style="text-align:center;color:var(--mars);padding:8px;font-size:9px">Failed to load</div>';}
+}
+
+// ── GP Transfer (Migration 102) ──
+var _gpTransferLoaded = false;
+
+function toggleSendGP(){
+  var panel  = document.getElementById('sendGPPanel');
+  var toggle = document.getElementById('sendGPToggle');
+  if (!panel) return;
+  if (panel.style.display === 'none') {
+    panel.style.display = ''; toggle.textContent = '▲';
+    if (!_gpTransferLoaded) loadGPTransfers();
+  } else {
+    panel.style.display = 'none'; toggle.textContent = '▼';
+  }
+}
+
+async function loadGPTransfers() {
+  var w = walletState.address;
+  var el = document.getElementById('gpTransferList');
+  if (!el) return;
+  if (!w) { el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">Connect wallet to view.</div>'; return; }
+  try {
+    var r = await fetch('/api/gp/transfers?wallet=' + encodeURIComponent(w), { headers: {'x-wallet': w} });
+    var d = await r.json();
+    var transfers = d.transfers || [];
+    if (!transfers.length) {
+      el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:8px;font-size:9px">' + (t('gp_transfer_empty') || 'No transfers yet.') + '</div>';
+      _gpTransferLoaded = true; return;
+    }
+    var html = '<div style="font-size:8px;color:var(--tx3);margin-bottom:4px">' + (t('gp_transfer_history') || 'TRANSFER HISTORY') + '</div>';
+    transfers.forEach(function(tr) {
+      var isSent = (tr.from_wallet || '').toLowerCase() === w.toLowerCase();
+      var counterNick = isSent ? (tr.to_nick || tr.to_wallet.slice(0,8)+'…') : (tr.from_nick || tr.from_wallet.slice(0,8)+'…');
+      var sign = isSent ? '-' : '+';
+      var clr  = isSent ? 'var(--mars)' : 'var(--gn)';
+      var dir  = isSent ? '→ ' : '← ';
+      var note = tr.note ? (' · <span style="opacity:.7">' + tr.note + '</span>') : '';
+      var dt   = new Date(tr.created_at);
+      var dtStr = (dt.getMonth()+1) + '/' + dt.getDate() + ' ' + dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
+      html += '<div class="stat-row" style="font-size:9px">'
+        + '<span class="stat-label" style="color:var(--tx3);font-size:8px">' + dir + counterNick + note + '<br><span style="opacity:.6">' + dtStr + '</span></span>'
+        + '<span class="stat-val" style="color:' + clr + ';font-size:10px;font-weight:700">' + sign + Math.floor(tr.amount) + ' GP</span>'
+        + '</div>';
+    });
+    el.innerHTML = html;
+    _gpTransferLoaded = true;
+  } catch (err) {
+    if (el) el.innerHTML = '<div style="color:var(--mars);font-size:9px;padding:4px">Failed to load.</div>';
+  }
+}
+
+async function sendGP() {
+  var w = walletState.address;
+  if (!w) { showToast(t('connect_wallet') || 'Connect wallet first', 'error'); return; }
+  var recipient = (document.getElementById('sendGPRecipient').value || '').trim();
+  var amount    = parseFloat(document.getElementById('sendGPAmount').value);
+  var note      = (document.getElementById('sendGPNote').value || '').trim();
+  if (!recipient) { showToast(t('gp_send_no_recipient') || 'Enter recipient', 'error'); return; }
+  if (!amount || amount <= 0) { showToast(t('gp_send_invalid_amount') || 'Enter a valid amount', 'error'); return; }
+
+  gameConfirm({
+    title: t('gp_send_title') || '💸 SEND GP', icon: '💸',
+    body: '<div style="font-size:10px;color:#5cbbff;margin-bottom:8px">→ ' + recipient + '</div>'
+      + (note ? '<div style="font-size:9px;color:var(--tx3);margin-bottom:4px">"' + note + '"</div>' : ''),
+    info: [{ k: t('gp_send_amount_label') || 'Amount', v: amount + ' GP' }],
+    confirmText: '💸 ' + (t('gp_send_btn') || 'SEND')
+  }).then(async function(ok) {
+    if (!ok) return;
+    try {
+      var r = await fetch('/api/gp/transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: w, toWallet: recipient, amount: amount, note: note })
+      });
+      var d = await r.json();
+      if (d.error) { showToast(d.error, 'error'); return; }
+      showToast('💸 ' + amount + ' GP → ' + (d.toNick || recipient));
+      // Clear form
+      document.getElementById('sendGPRecipient').value = '';
+      document.getElementById('sendGPAmount').value = '';
+      document.getElementById('sendGPNote').value = '';
+      refreshBalance();
+      _gpTransferLoaded = false;
+      loadGPTransfers();
+    } catch (err) {
+      showToast('Transfer failed', 'error');
+    }
+  });
 }
 
 async function harvestMining(){

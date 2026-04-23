@@ -5504,4 +5504,163 @@ router.get('/user/my-territories', readLimiter, async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════════
+// GP TRANSFER (Migration 102)
+// POST /api/gp/transfer  — send GP to another player
+// GET  /api/gp/transfers — transfer history for wallet
+// ══════════════════════════════════════════════════════
+
+router.post('/gp/transfer', writeLimiter, async (req, res) => {
+  const fromWallet = (req.body?.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+  if (!fromWallet || fromWallet.length < 10)
+    return res.status(400).json({ error: 'wallet_required' });
+
+  const { toWallet: rawTo, amount: rawAmount, note: rawNote } = req.body || {};
+  const toWallet = (rawTo || '').toLowerCase().trim();
+  const amount   = parseFloat(rawAmount);
+  const note     = (rawNote || '').slice(0, 200).trim();
+
+  if (!toWallet || toWallet.length < 10)
+    return res.status(400).json({ error: 'to_wallet_required' });
+  if (toWallet === fromWallet)
+    return res.status(400).json({ error: 'cannot_send_to_self' });
+  if (!amount || amount <= 0 || isNaN(amount))
+    return res.status(400).json({ error: 'invalid_amount' });
+
+  try {
+    // Settings check
+    const [enabledRow, minRow, maxRow, limitRow, feeRow] = await Promise.all([
+      pool.query("SELECT value FROM settings WHERE key='gp_transfer_enabled'"),
+      pool.query("SELECT value FROM settings WHERE key='gp_transfer_min_amount'"),
+      pool.query("SELECT value FROM settings WHERE key='gp_transfer_max_amount'"),
+      pool.query("SELECT value FROM settings WHERE key='gp_transfer_daily_limit'"),
+      pool.query("SELECT value FROM settings WHERE key='gp_transfer_fee_pct'"),
+    ]);
+    if (enabledRow.rows[0]?.value === 'false')
+      return res.status(400).json({ error: 'gp_transfer_disabled' });
+
+    const minAmt   = parseFloat(minRow.rows[0]?.value   || '1');
+    const maxAmt   = parseFloat(maxRow.rows[0]?.value   || '10000');
+    const dayLimit = parseFloat(limitRow.rows[0]?.value || '50000');
+    const feePct   = parseFloat(feeRow.rows[0]?.value   || '0');
+
+    if (amount < minAmt) return res.status(400).json({ error: 'amount_too_small', min: minAmt });
+    if (amount > maxAmt) return res.status(400).json({ error: 'amount_too_large', max: maxAmt });
+
+    // Check recipient exists
+    const recipRes = await pool.query(
+      'SELECT wallet_address, nickname FROM users WHERE wallet_address = $1', [toWallet]
+    );
+    if (!recipRes.rows.length)
+      return res.status(400).json({ error: 'recipient_not_found' });
+    const recipNick = recipRes.rows[0].nickname || toWallet.slice(0, 8) + '…';
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Daily limit check
+      const dayRes = await client.query(
+        `SELECT COALESCE(SUM(amount), 0) AS sent_today
+           FROM gp_transfers
+          WHERE from_wallet = $1 AND created_at >= CURRENT_DATE`,
+        [fromWallet]
+      );
+      const sentToday = parseFloat(dayRes.rows[0].sent_today) || 0;
+      if (sentToday + amount > dayLimit) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({
+          error: 'daily_limit_exceeded',
+          remaining: Math.max(0, dayLimit - sentToday),
+          limit: dayLimit
+        });
+      }
+
+      // Deduct from sender
+      const senderRes = await client.query(
+        'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+        [fromWallet]
+      );
+      if (!senderRes.rows.length) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'sender_not_found' });
+      }
+      const senderGP = parseFloat(senderRes.rows[0].gp_balance) || 0;
+      if (senderGP < amount) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'insufficient_gp', balance: senderGP });
+      }
+      const fee      = Math.floor(amount * feePct / 100 * 1000000) / 1000000;
+      const received = amount - fee;
+
+      await client.query(
+        'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2',
+        [amount, fromWallet]
+      );
+      // Credit recipient
+      await client.query(
+        'UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2',
+        [received, toWallet]
+      );
+      // Log transfer
+      await client.query(
+        'INSERT INTO gp_transfers (from_wallet, to_wallet, amount, note) VALUES ($1, $2, $3, $4)',
+        [fromWallet, toWallet, amount, note || null]
+      );
+
+      await client.query('COMMIT');
+
+      // Fire-and-forget activity logs
+      try {
+        const { logGPActivity, notifyPlayer } = require('../db');
+        logGPActivity(fromWallet, -amount, 'gp_transfer_out', `→ ${recipNick}`).catch(() => {});
+        logGPActivity(toWallet,   received, 'gp_transfer_in',  `← ${fromWallet.slice(0,8)}…`).catch(() => {});
+        notifyPlayer(toWallet, 'gp_received', `You received ${received} GP from ${fromWallet.slice(0,8)}…`, { amount: received }).catch(() => {});
+      } catch (_le) {}
+
+      res.json({
+        success:   true,
+        sent:      amount,
+        fee,
+        received,
+        to:        toWallet,
+        toNick:    recipNick,
+      });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('[GP TRANSFER] error:', err.message);
+      res.status(500).json({ error: 'internal_error' });
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error('[GP TRANSFER] outer error:', err.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+router.get('/gp/transfers', readLimiter, async (req, res) => {
+  const wallet = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+  if (!wallet || wallet.length < 10)
+    return res.status(400).json({ error: 'wallet_required' });
+  try {
+    const result = await pool.query(
+      `SELECT t.*,
+              uf.nickname AS from_nick,
+              ut.nickname AS to_nick
+         FROM gp_transfers t
+         LEFT JOIN users uf ON uf.wallet_address = t.from_wallet
+         LEFT JOIN users ut ON ut.wallet_address = t.to_wallet
+        WHERE t.from_wallet = $1 OR t.to_wallet = $1
+        ORDER BY t.created_at DESC
+        LIMIT 30`,
+      [wallet]
+    );
+    res.json({ transfers: result.rows });
+  } catch (err) {
+    console.error('[GP TRANSFER] transfers list error:', err.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
 module.exports = router;
