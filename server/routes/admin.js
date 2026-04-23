@@ -3203,4 +3203,75 @@ router.delete('/tiers/claim/:claimId', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Raffle Admin (Migration 129) ─────────────────────────────────────────────
+
+// GET /admin/api/raffle — stats + all raffles
+router.get('/raffle', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/raffle'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, raffles: [] });
+  try {
+    const { pool } = require('../db');
+    const [stats, rafflesRes] = await Promise.all([
+      svc.getAdminStats(),
+      pool.query(`SELECT * FROM raffles ORDER BY created_at DESC LIMIT 50`)
+    ]);
+    res.json({ stats, raffles: rafflesRes.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /admin/api/raffle/:id/entrants
+router.get('/raffle/:id/entrants', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/raffle'); } catch (_) {}
+  if (!svc) return res.json([]);
+  try {
+    const entrants = await svc.getEntrants(parseInt(req.params.id));
+    res.json(entrants);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/raffle/create
+router.post('/raffle/create', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/raffle'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const rf = await svc.adminCreateRaffle(req.body || {});
+    await auditLog(req, 'raffle_create', `raffle:${rf.id}`, { title: rf.title });
+    res.json(rf);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/raffle/:id/draw — force draw
+router.post('/raffle/:id/draw', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/raffle'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const result = await svc.drawWinner(parseInt(req.params.id));
+    await auditLog(req, 'raffle_draw', `raffle:${req.params.id}`, result);
+    res.json(result);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/raffle/:id/cancel
+router.post('/raffle/:id/cancel', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/raffle'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const result = await svc.adminCancelRaffle(parseInt(req.params.id));
+    await auditLog(req, 'raffle_cancel', `raffle:${req.params.id}`, result);
+    res.json(result);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/raffle/setting
+router.post('/raffle/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('raffle_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'raffle_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

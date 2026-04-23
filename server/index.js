@@ -103,6 +103,7 @@ const tournamentRoutes  = require('./routes/tournaments');
 const broadcastRoutes   = require('./routes/broadcasts');
 const profileRoutes     = require('./routes/profile');
 const tiersRoutes       = require('./routes/tiers');
+const raffleRoutes      = require('./routes/raffle');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -238,6 +239,7 @@ app.use('/api', tournamentRoutes);
 app.use('/api', broadcastRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', tiersRoutes);
+app.use('/api', raffleRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -975,6 +977,14 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[BROADCASTS] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[BROADCASTS] Could not init expiry scheduler:', e.message); }
+
+    try {
+      const { autoDrawExpired } = require('./services/raffle');
+      setInterval(async () => {
+        try { await autoDrawExpired(); } catch(e) { console.warn('[RAFFLE] draw error:', e.message); }
+      }, 60 * 1000); // every 1 min
+      console.log('[RAFFLE] Auto-draw scheduler started (1min interval)');
+    } catch(e) { console.warn('[RAFFLE] Could not init draw scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

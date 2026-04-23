@@ -1338,6 +1338,47 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="tiersAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ GP RAFFLE SYSTEM (Migration 129) ═══ -->
+  <div class="section cat-gp" style="display:none" id="raffleAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ffcc02">🎟️ GP RAFFLE SYSTEM</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadRaffleAdmin()" style="font-size:10px;background:rgba(255,204,2,.12);border:1px solid rgba(255,204,2,.3);color:#ffcc02;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+        <button onclick="openRaffleCreateModal()" style="font-size:10px;background:rgba(255,204,2,.2);border:1px solid rgba(255,204,2,.5);color:#ffcc02;padding:4px 10px;border-radius:4px;cursor:pointer">+ NEW RAFFLE</button>
+      </div>
+    </div>
+    <div id="raffleAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ffcc02">RAFFLES</span></div>
+    <div id="raffleAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ffcc02">SETTINGS</span></div>
+    <div id="raffleAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
+  <!-- Raffle Create Modal -->
+  <div id="raffleCreateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;align-items:center;justify-content:center">
+    <div style="background:#1a1a2e;border:1px solid rgba(255,204,2,.3);border-radius:12px;padding:22px;width:90%;max-width:460px;max-height:85vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="color:#ffcc02;font-weight:700;font-size:14px">🎟️ CREATE RAFFLE</span>
+        <button onclick="closeRaffleCreateModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+      </div>
+      <div style="display:grid;gap:10px">
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">ICON</div><input id="rfIcon" value="🎟️" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:60px;text-align:center;font-size:18px"></div>
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">TITLE *</div><input id="rfTitle" placeholder="e.g. Mars Colony Jackpot" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">DESCRIPTION</div><textarea id="rfDesc" rows="2" placeholder="What players win…" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box;resize:none"></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">TICKET COST (GP) *</div><input id="rfCost" type="number" min="1" value="10" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">MAX TICKETS (0=∞)</div><input id="rfMax" type="number" min="0" value="0" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">HOUSE CUT %</div><input id="rfHouse" type="number" min="0" max="100" value="10" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">ENDS AT *</div><input id="rfEndsAt" type="datetime-local" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        </div>
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">PRIZE DESCRIPTION</div><input id="rfPrize" placeholder="e.g. 1000 GP + Rare Item" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        <button onclick="createRaffle()" style="width:100%;padding:10px;background:rgba(255,204,2,.2);border:1px solid rgba(255,204,2,.4);color:#ffcc02;border-radius:6px;cursor:pointer;font-weight:700">🎟️ CREATE RAFFLE</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ VIP PASS SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="vipAdminSection">
     <div class="sec-header">
@@ -2053,7 +2094,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -5521,6 +5562,165 @@ function saveTiersSetting(key) {
   var el = document.getElementById('tiers_'+key);
   if (!el) return;
   fetch('/admin/api/tiers/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  RAFFLE ADMIN (Migration 129)
+// ══════════════════════════════════════
+function loadRaffleAdmin() {
+  var statsEl = document.getElementById('raffleAdmStats');
+  var listEl  = document.getElementById('raffleAdmList');
+  var setsEl  = document.getElementById('raffleAdmSettings');
+  if (!statsEl) return;
+  [statsEl, listEl, setsEl].forEach(function(el){ if(el) el.innerHTML='<span style="color:#555;font-size:11px">Loading…</span>'; });
+  fetch('/admin/api/raffle', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var s = d.stats || {};
+      if (statsEl) statsEl.innerHTML = [
+        { l:'Open Raffles',    v: s.open_raffles||0 },
+        { l:'Completed',       v: s.completed||0 },
+        { l:'Cancelled',       v: s.cancelled||0 },
+        { l:'Total Prizes',    v: (s.total_prizes_gp||0)+' GP' },
+        { l:'Tickets Sold',    v: s.total_tickets||0 },
+        { l:'Unique Winners',  v: s.unique_winners||0 },
+      ].map(function(x){
+        return '<div style="background:#0d0d1a;border:1px solid #1a1a2e;border-radius:6px;padding:8px;text-align:center">'
+          + '<div style="color:#ffcc02;font-size:16px;font-weight:700">'+x.v+'</div>'
+          + '<div style="color:#555;font-size:9px;margin-top:2px">'+x.l+'</div></div>';
+      }).join('');
+      var rows = d.raffles || [];
+      if (listEl) {
+        if (!rows.length) { listEl.innerHTML = '<div style="color:#555;font-size:11px">No raffles yet</div>'; }
+        else {
+          var statusColors = { open:'#a0e8a0', completed:'#ffb74d', cancelled:'#555', drawing:'#80deea' };
+          listEl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:10px">'
+            + '<thead><tr style="color:#888">'
+              + '<th style="text-align:left;padding:4px 6px">Title</th>'
+              + '<th style="text-align:right;padding:4px 6px">Cost</th>'
+              + '<th style="text-align:right;padding:4px 6px">Tickets</th>'
+              + '<th style="text-align:right;padding:4px 6px">Prize Pool</th>'
+              + '<th style="text-align:center;padding:4px 6px">Status</th>'
+              + '<th style="text-align:center;padding:4px 6px">Ends</th>'
+              + '<th style="text-align:center;padding:4px 6px">Actions</th></tr></thead><tbody>'
+            + rows.map(function(rf){
+              var sc = statusColors[rf.status]||'#888';
+              var ends = new Date(rf.ends_at).toLocaleDateString();
+              return '<tr style="border-top:1px solid #1a1a2e">'
+                + '<td style="padding:4px 6px;color:#eee">'+rf.icon+' '+rf.title+'</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#ffcc02">'+rf.ticket_cost_gp+' GP</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#aaa">'+rf.tickets_sold+(rf.max_tickets?'/'+rf.max_tickets:'')+'</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#a0e8a0">'+rf.prize_pool_gp+' GP</td>'
+                + '<td style="padding:4px 6px;text-align:center;color:'+sc+'">'+rf.status+'</td>'
+                + '<td style="padding:4px 6px;text-align:center;color:#555">'+ends+'</td>'
+                + '<td style="padding:4px 6px;text-align:center">'
+                  + (rf.status==='open' ? '<button onclick="adminDrawRaffle('+rf.id+')" style="font-size:9px;padding:2px 6px;background:rgba(255,204,2,.15);border:1px solid rgba(255,204,2,.3);color:#ffcc02;border-radius:4px;cursor:pointer;margin-right:3px">DRAW</button>' : '')
+                  + (rf.status==='open' ? '<button onclick="adminCancelRaffle('+rf.id+')" style="font-size:9px;padding:2px 6px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:#e84855;border-radius:4px;cursor:pointer">CANCEL</button>' : '')
+                + '</td></tr>';
+            }).join('')
+            + '</tbody></table>';
+        }
+      }
+      var settingKeys = [
+        { k:'raffle_enabled',           l:'Enabled',               t:'select', opts:['true','false'] },
+        { k:'raffle_max_tickets_pp',    l:'Max Tickets/Player',    t:'number' },
+        { k:'raffle_min_cost_gp',       l:'Min Ticket Cost (GP)',  t:'number' },
+        { k:'raffle_house_cut_pct',     l:'House Cut %',           t:'number' },
+        { k:'raffle_auto_draw',         l:'Auto Draw',             t:'select', opts:['true','false'] },
+        { k:'raffle_min_tickets_draw',  l:'Min Tickets to Draw',   t:'number' },
+      ];
+      fetch('/admin/api/settings?category=raffle', { headers: { 'x-admin-secret': window.ADMIN_SECRET||'' } })
+        .then(function(r){return r.json();}).then(function(sets){
+          var map = {};
+          (sets||[]).forEach(function(s){ map[s.key]=s.value; });
+          if (setsEl) setsEl.innerHTML = settingKeys.map(function(sk){
+            var cur = map[sk.k] !== undefined ? map[sk.k] : '';
+            var inp = sk.t === 'select'
+              ? '<select id="rfl_'+sk.k+'" onchange="saveRaffleSetting(\''+sk.k+'\')" style="background:#0d0d1a;border:1px solid #222;color:#eee;padding:4px 6px;border-radius:4px;width:100%">'
+                + sk.opts.map(function(o){ return '<option value="'+o+'"'+(cur===o?' selected':'')+'>'+o+'</option>'; }).join('')
+                + '</select>'
+              : '<input id="rfl_'+sk.k+'" type="'+(sk.t||'text')+'" value="'+cur+'" onblur="saveRaffleSetting(\''+sk.k+'\')" style="background:#0d0d1a;border:1px solid #222;color:#eee;padding:4px 6px;border-radius:4px;width:100%;box-sizing:border-box">';
+            return '<div style="background:#0d0d1a;border:1px solid #1a1a2e;border-radius:6px;padding:8px"><div style="color:#888;font-size:9px;margin-bottom:4px">'+sk.l+'</div>'+inp+'</div>';
+          }).join('');
+        }).catch(function(){});
+    }).catch(function(e){ if(statsEl) statsEl.innerHTML='<span style="color:#e84855">'+e.message+'</span>'; });
+}
+
+function openRaffleCreateModal() {
+  var modal = document.getElementById('raffleCreateModal');
+  if (!modal) return;
+  // Set default ends_at to 24h from now
+  var d = new Date(Date.now() + 24*3600*1000);
+  var local = new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  var endsEl = document.getElementById('rfEndsAt');
+  if (endsEl) endsEl.value = local;
+  modal.style.display = 'flex';
+}
+
+function closeRaffleCreateModal() {
+  var modal = document.getElementById('raffleCreateModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function createRaffle() {
+  var title = (document.getElementById('rfTitle')||{}).value || '';
+  var endsAt = (document.getElementById('rfEndsAt')||{}).value || '';
+  if (!title || !endsAt) { alert('Title and end date are required'); return; }
+  var body = {
+    title: title,
+    description: (document.getElementById('rfDesc')||{}).value || '',
+    icon: (document.getElementById('rfIcon')||{}).value || '🎟️',
+    ticketCostGp: parseInt((document.getElementById('rfCost')||{}).value||'10'),
+    maxTickets: parseInt((document.getElementById('rfMax')||{}).value||'0') || null,
+    houseCutPct: parseInt((document.getElementById('rfHouse')||{}).value||'10'),
+    endsAt: new Date(endsAt).toISOString(),
+    prizeDesc: (document.getElementById('rfPrize')||{}).value || '',
+  };
+  fetch('/admin/api/raffle/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('🎟️ Raffle created!');
+    closeRaffleCreateModal();
+    loadRaffleAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function adminDrawRaffle(id) {
+  if (!confirm('Force draw raffle #'+id+' now?')) return;
+  fetch('/admin/api/raffle/'+id+'/draw', {
+    method: 'POST', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast(d.drawn ? '🎉 Winner: '+d.winner : 'No draw: '+d.reason);
+    loadRaffleAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function adminCancelRaffle(id) {
+  if (!confirm('Cancel raffle #'+id+' and refund all tickets?')) return;
+  fetch('/admin/api/raffle/'+id+'/cancel', {
+    method: 'POST', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('Raffle cancelled, '+d.refunded+' players refunded');
+    loadRaffleAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveRaffleSetting(key) {
+  var el = document.getElementById('rfl_'+key);
+  if (!el) return;
+  fetch('/admin/api/raffle/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
