@@ -3117,4 +3117,46 @@ router.post('/broadcasts/setting', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Profile Customization Admin (Migration 127) ──────────────────────────────
+
+// GET /admin/api/profile — stats + recent changes
+router.get('/profile', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/profile'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, recent: [] });
+  try {
+    const [stats, recentRes] = await Promise.all([
+      svc.getAdminStats(),
+      require('../db').pool.query(
+        `SELECT wallet, field, old_value, new_value, gp_spent, created_at
+           FROM profile_change_log ORDER BY created_at DESC LIMIT 50`
+      )
+    ]);
+    res.json({ stats, recent: recentRes.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/profile/setting
+router.post('/profile/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('profile_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'profile_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/profile/nickname/:wallet — admin force-reset nickname
+router.delete('/profile/nickname/:wallet', adminAuth, async (req, res) => {
+  const wallet = req.params.wallet;
+  try {
+    const { pool } = require('../db');
+    const old = await pool.query(`SELECT nickname FROM users WHERE LOWER(wallet_address)=LOWER($1)`, [wallet]);
+    await pool.query(`UPDATE users SET nickname=NULL WHERE LOWER(wallet_address)=LOWER($1)`, [wallet]);
+    await auditLog(req, 'profile_reset_nickname', `wallet:${wallet}`, { old: old.rows[0]?.nickname });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

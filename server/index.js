@@ -101,6 +101,7 @@ const brandingRoutes    = require('./routes/branding');
 const spellRoutes       = require('./routes/spells');
 const tournamentRoutes  = require('./routes/tournaments');
 const broadcastRoutes   = require('./routes/broadcasts');
+const profileRoutes     = require('./routes/profile');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -234,6 +235,7 @@ app.use('/api', brandingRoutes);
 app.use('/api', spellRoutes);
 app.use('/api', tournamentRoutes);
 app.use('/api', broadcastRoutes);
+app.use('/api', profileRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);

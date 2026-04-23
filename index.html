@@ -4386,6 +4386,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <button class="base-shop-view" onclick="switchBaseShopView('crafting',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_craft_btn">⚗️ CRAFT</button>
             <button class="base-shop-view" onclick="switchBaseShopView('lucky',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_lucky_btn">📦 CRATES</button>
             <button class="base-shop-view" onclick="switchBaseShopView('vip',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_vip_btn">💫 VIP</button>
+            <button class="base-shop-view" onclick="switchBaseShopView('profile',this);loadMyProfile()" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_profile_btn">👤 PROFILE</button>
           </div>
           <div style="display:flex;gap:8px">
             <span style="color:var(--pp)"><b id="baseShopBalPP">0</b> PP</span>
@@ -4470,6 +4471,53 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="margin-top:8px">
             <button onclick="toggleLuckyBoxHistory()" style="font-size:9px;padding:4px 12px;border-radius:10px;border:1px solid rgba(255,204,2,.2);background:rgba(255,204,2,.06);color:#ffcc02;cursor:pointer;font-family:var(--fn)" data-i18n="lucky_box_my_history">📜 MY HISTORY</button>
             <div id="luckyBoxHistoryPanel" style="display:none;margin-top:8px"></div>
+          </div>
+        </div>
+
+        <!-- Profile Customization panel (hidden by default) -->
+        <div id="baseProfilePanel" style="display:none">
+          <!-- Current profile display -->
+          <div id="myProfileCard" style="margin-bottom:12px;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(244,143,177,.08),rgba(244,143,177,.02));border:1px solid rgba(244,143,177,.2)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div id="profileAvatarCircle" style="width:40px;height:40px;border-radius:50%;background:#FF7840;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div>
+              <div style="flex:1">
+                <div style="font-size:12px;color:var(--tx);font-weight:700" id="profileNicknameDisplay">—</div>
+                <div style="font-size:9px;color:var(--tx3);margin-top:2px" id="profileMottoDisplay">No motto set</div>
+                <div style="font-size:8px;color:var(--tx3);margin-top:1px" id="profileWalletDisplay">—</div>
+              </div>
+            </div>
+          </div>
+          <!-- Nickname -->
+          <div style="margin-bottom:10px">
+            <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:4px" data-i18n="profile_nickname_label">NICKNAME</div>
+            <div style="display:flex;gap:6px">
+              <input id="profileNicknameInput" maxlength="20" placeholder="Your display name…" style="flex:1;background:rgba(244,143,177,.06);border:1px solid rgba(244,143,177,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+              <button onclick="saveProfileNickname()" style="padding:7px 12px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="profile_set_btn">SET</button>
+            </div>
+            <div style="font-size:8px;color:var(--tx3);margin-top:3px" id="profileNicknameCostHint"></div>
+          </div>
+          <!-- Motto -->
+          <div style="margin-bottom:10px">
+            <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:4px" data-i18n="profile_motto_label">MOTTO</div>
+            <div style="display:flex;gap:6px">
+              <input id="profileMottoInput" maxlength="80" placeholder="Your colony motto…" style="flex:1;background:rgba(244,143,177,.06);border:1px solid rgba(244,143,177,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+              <button onclick="saveProfileMotto()" style="padding:7px 12px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="profile_set_btn">SET</button>
+            </div>
+            <div style="font-size:8px;color:var(--tx3);margin-top:3px" id="profileMottoCostHint"></div>
+          </div>
+          <!-- Avatar Color -->
+          <div style="margin-bottom:10px">
+            <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:4px" data-i18n="profile_color_label">AVATAR COLOR</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input id="profileColorInput" type="color" value="#FF7840" style="width:48px;height:36px;background:transparent;border:1px solid rgba(244,143,177,.2);border-radius:6px;cursor:pointer;padding:2px">
+              <button onclick="saveProfileColor()" style="padding:7px 12px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="profile_set_btn">SET</button>
+              <span style="font-size:9px;color:var(--tx3)" id="profileColorCostHint"></span>
+            </div>
+          </div>
+          <!-- Change log -->
+          <div>
+            <button onclick="toggleProfileHistory()" style="font-size:9px;padding:4px 12px;border-radius:10px;border:1px solid rgba(244,143,177,.2);background:rgba(244,143,177,.06);color:#f48fb1;cursor:pointer;font-family:var(--fn)" data-i18n="profile_history_btn">📜 CHANGE HISTORY</button>
+            <div id="profileHistoryPanel" style="display:none;margin-top:8px"></div>
           </div>
         </div>
 
@@ -11103,6 +11151,7 @@ var I18N = {
     spells_title: 'TERRITORY SPELLS', spells_select_target: 'Target territory (enter claim # or select yours):', spells_active_label: 'ACTIVE SPELLS:', spells_history_btn: '📜 SPELL HISTORY', spells_cast_confirm: 'Cast Spell?',
     tournament_title: 'TOURNAMENTS', tournament_none: 'No open tournaments right now', tournament_join_btn: 'JOIN TOURNAMENT', tournament_join_confirm: 'Join Tournament?', tournament_my_btn: '📋 MY TOURNAMENTS',
     broadcast_title: 'GP BROADCASTS', broadcast_buy_btn: '📢 BUY BROADCAST', broadcast_modal_title: '📢 BROADCAST MESSAGE', broadcast_modal_desc: 'Your message will be featured to all players for the selected duration.', broadcast_duration_label: 'Duration:', broadcast_submit_btn: '📢 BROADCAST', broadcast_confirm_title: 'Buy Broadcast?', broadcast_none: 'No active broadcasts right now.',
+    base_profile_btn: '👤 PROFILE', profile_nickname_label: 'NICKNAME', profile_motto_label: 'MOTTO', profile_color_label: 'AVATAR COLOR', profile_set_btn: 'SET', profile_history_btn: '📜 CHANGE HISTORY', profile_no_motto: 'No motto set', profile_nick_confirm: 'Set Nickname?', profile_motto_confirm: 'Set Motto?', profile_color_confirm: 'Set Avatar Color?',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11698,6 +11747,7 @@ var I18N = {
     spells_title: '영토 주문', spells_select_target: '대상 영토 (클레임 번호 입력):', spells_active_label: '활성 주문:', spells_history_btn: '📜 주문 기록', spells_cast_confirm: '주문 시전?',
     tournament_title: '토너먼트', tournament_none: '현재 열린 토너먼트 없음', tournament_join_btn: '참가하기', tournament_join_confirm: '토너먼트 참가?', tournament_my_btn: '📋 내 토너먼트',
     broadcast_title: 'GP 방송', broadcast_buy_btn: '📢 방송 구매', broadcast_modal_title: '📢 방송 메시지', broadcast_modal_desc: '선택한 시간 동안 모든 플레이어에게 메시지가 노출됩니다.', broadcast_duration_label: '기간:', broadcast_submit_btn: '📢 방송하기', broadcast_confirm_title: '방송 구매?', broadcast_none: '현재 활성 방송이 없습니다.',
+    base_profile_btn: '👤 프로필', profile_nickname_label: '닉네임', profile_motto_label: '좌우명', profile_color_label: '아바타 색상', profile_set_btn: '설정', profile_history_btn: '📜 변경 기록', profile_no_motto: '좌우명 없음', profile_nick_confirm: '닉네임 설정?', profile_motto_confirm: '좌우명 설정?', profile_color_confirm: '아바타 색상 설정?',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -12292,6 +12342,7 @@ var I18N = {
     spells_title: '領土スペル', spells_select_target: '対象領土（クレーム番号を入力）:', spells_active_label: '有効なスペル:', spells_history_btn: '📜 スペル履歴', spells_cast_confirm: 'スペル発動？',
     tournament_title: 'トーナメント', tournament_none: 'オープントーナメントなし', tournament_join_btn: '参加する', tournament_join_confirm: 'トーナメントに参加？', tournament_my_btn: '📋 マイトーナメント',
     broadcast_title: 'GPブロードキャスト', broadcast_buy_btn: '📢 ブロードキャスト購入', broadcast_modal_title: '📢 ブロードキャストメッセージ', broadcast_modal_desc: '選択した時間、全プレイヤーにメッセージが表示されます。', broadcast_duration_label: '期間:', broadcast_submit_btn: '📢 ブロードキャスト', broadcast_confirm_title: 'ブロードキャスト購入？', broadcast_none: '現在アクティブなブロードキャストはありません。',
+    base_profile_btn: '👤 プロフィール', profile_nickname_label: 'ニックネーム', profile_motto_label: 'モットー', profile_color_label: 'アバターカラー', profile_set_btn: '設定', profile_history_btn: '📜 変更履歴', profile_no_motto: 'モットーなし', profile_nick_confirm: 'ニックネームを設定？', profile_motto_confirm: 'モットーを設定？', profile_color_confirm: 'アバターカラーを設定？',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12870,6 +12921,7 @@ var I18N = {
     spells_title: '领土法术', spells_select_target: '目标领土（输入地块编号）:', spells_active_label: '当前法术:', spells_history_btn: '📜 法术记录', spells_cast_confirm: '施放法术？',
     tournament_title: '锦标赛', tournament_none: '暂无开放的锦标赛', tournament_join_btn: '加入锦标赛', tournament_join_confirm: '加入锦标赛？', tournament_my_btn: '📋 我的锦标赛',
     broadcast_title: 'GP广播', broadcast_buy_btn: '📢 购买广播', broadcast_modal_title: '📢 广播消息', broadcast_modal_desc: '您的消息将在所选时间内向所有玩家展示。', broadcast_duration_label: '时长:', broadcast_submit_btn: '📢 广播', broadcast_confirm_title: '购买广播？', broadcast_none: '当前没有活跃广播。',
+    base_profile_btn: '👤 个人资料', profile_nickname_label: '昵称', profile_motto_label: '座右铭', profile_color_label: '头像颜色', profile_set_btn: '设置', profile_history_btn: '📜 修改记录', profile_no_motto: '未设置座右铭', profile_nick_confirm: '设置昵称？', profile_motto_confirm: '设置座右铭？', profile_color_confirm: '设置头像颜色？',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -15426,12 +15478,14 @@ function switchBaseShopView(view,el){
   var craftPanel=document.getElementById('baseCraftingPanel');
   var luckyPanel=document.getElementById('baseLuckyBoxPanel');
   var vipPanel=document.getElementById('baseVipPanel');
+  var profilePanel=document.getElementById('baseProfilePanel');
   var catRow=document.getElementById('baseShopCatRow');
   shopGrid.style.display='none';
   invGrid.style.display='none';
   if(craftPanel) craftPanel.style.display='none';
   if(luckyPanel) luckyPanel.style.display='none';
   if(vipPanel) vipPanel.style.display='none';
+  if(profilePanel) profilePanel.style.display='none';
   catRow.style.display='none';
   if(view==='inventory'){
     invGrid.style.display='grid';
@@ -15452,6 +15506,13 @@ function switchBaseShopView(view,el){
       el.style.color='#ce93d8';
     }
     if(vipPanel){ vipPanel.style.display='block'; loadVipView(); }
+  }else if(view==='profile'){
+    if(el){
+      el.style.borderColor='rgba(244,143,177,.45)';
+      el.style.background='rgba(244,143,177,.15)';
+      el.style.color='#f48fb1';
+    }
+    if(profilePanel){ profilePanel.style.display='block'; }
   }else{
     shopGrid.style.display='grid';
     catRow.style.display='flex';
@@ -27056,6 +27117,146 @@ function loadMyTournaments() {
 try {
   var _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
 } catch(_) {}
+
+// ── GP Profile Customization (Migration 127) ─────────────────────────────────
+
+var _profileCfg = null;
+
+function loadMyProfile() {
+  var w = walletState && walletState.address;
+  var nickDisp = document.getElementById('profileNicknameDisplay');
+  var mottoDisp = document.getElementById('profileMottoDisplay');
+  var walletDisp = document.getElementById('profileWalletDisplay');
+  var avatarCircle = document.getElementById('profileAvatarCircle');
+  var nickInput = document.getElementById('profileNicknameInput');
+  var mottoInput = document.getElementById('profileMottoInput');
+  var colorInput = document.getElementById('profileColorInput');
+  var nickHint = document.getElementById('profileNicknameCostHint');
+  var mottoHint = document.getElementById('profileMottoCostHint');
+  var colorHint = document.getElementById('profileColorCostHint');
+
+  if (walletDisp) walletDisp.textContent = w ? (w.slice(0,6)+'…'+w.slice(-4)) : '—';
+
+  fetch('/api/profile/costs').then(function(r){return r.json();}).then(function(cfg){
+    _profileCfg = cfg;
+    if (nickHint) nickHint.textContent = cfg.nickname.firstGp > 0 ? 'First: '+cfg.nickname.firstGp+' GP · Change: '+cfg.nickname.changeGp+' GP' : 'First set free · Change: '+cfg.nickname.changeGp+' GP';
+    if (mottoHint) mottoHint.textContent = cfg.motto.firstGp > 0 ? 'First: '+cfg.motto.firstGp+' GP · Change: '+cfg.motto.changeGp+' GP' : 'First set free · Change: '+cfg.motto.changeGp+' GP';
+    if (colorHint) colorHint.textContent = cfg.avatar.gp+' GP';
+  }).catch(function(){});
+
+  if (!w) return;
+
+  fetch('/api/profile?wallet='+encodeURIComponent(w)).then(function(r){return r.json();}).then(function(p){
+    if (!p || p.error) return;
+    if (nickDisp) nickDisp.textContent = p.nickname || '(no nickname)';
+    if (mottoDisp) mottoDisp.textContent = p.motto || (t('profile_no_motto')||'No motto set');
+    var color = p.avatar_color || '#FF7840';
+    if (avatarCircle) avatarCircle.style.background = color;
+    if (colorInput) colorInput.value = color;
+    if (nickInput && p.nickname) nickInput.value = p.nickname;
+    if (mottoInput && p.motto) mottoInput.value = p.motto;
+  }).catch(function(){});
+}
+
+function saveProfileNickname() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast('Connect wallet first', 'error'); return; }
+  var val = (document.getElementById('profileNicknameInput')||{}).value || '';
+  val = val.trim();
+  if (!val) { showToast('Enter a nickname', 'error'); return; }
+  var currentNick = (document.getElementById('profileNicknameDisplay')||{}).textContent;
+  var isFirst = (currentNick === '(no nickname)');
+  var cost = _profileCfg ? (isFirst ? _profileCfg.nickname.firstGp : _profileCfg.nickname.changeGp) : 100;
+  var costStr = cost > 0 ? cost+' GP' : 'Free';
+  gameConfirm({ title: t('profile_nick_confirm')||'Set Nickname?', body: 'Set nickname: <b>'+_escHtml(val)+'</b><br>Cost: <b>'+costStr+'</b>' })
+    .then(function(ok){
+      if (!ok) return;
+      fetch('/api/profile/nickname', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ wallet: w, nickname: val })
+      }).then(function(r){return r.json();}).then(function(d){
+        if (d.error) { showToast(d.error,'error'); return; }
+        showToast('Nickname set! 👤','success');
+        loadMyProfile();
+        if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+      }).catch(function(e){ showToast(e.message,'error'); });
+    }).catch(function(){});
+}
+
+function saveProfileMotto() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast('Connect wallet first', 'error'); return; }
+  var val = (document.getElementById('profileMottoInput')||{}).value || '';
+  val = val.trim();
+  if (!val) { showToast('Enter a motto', 'error'); return; }
+  var currentMotto = (document.getElementById('profileMottoDisplay')||{}).textContent;
+  var isFirst = (currentMotto === (t('profile_no_motto')||'No motto set'));
+  var cost = _profileCfg ? (isFirst ? _profileCfg.motto.firstGp : _profileCfg.motto.changeGp) : 30;
+  var costStr = cost > 0 ? cost+' GP' : 'Free';
+  gameConfirm({ title: t('profile_motto_confirm')||'Set Motto?', body: 'Motto: <b>'+_escHtml(val)+'</b><br>Cost: <b>'+costStr+'</b>' })
+    .then(function(ok){
+      if (!ok) return;
+      fetch('/api/profile/motto', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ wallet: w, motto: val })
+      }).then(function(r){return r.json();}).then(function(d){
+        if (d.error) { showToast(d.error,'error'); return; }
+        showToast('Motto saved! 📝','success');
+        loadMyProfile();
+      }).catch(function(e){ showToast(e.message,'error'); });
+    }).catch(function(){});
+}
+
+function saveProfileColor() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast('Connect wallet first', 'error'); return; }
+  var val = (document.getElementById('profileColorInput')||{}).value || '#FF7840';
+  var cost = _profileCfg ? _profileCfg.avatar.gp : 50;
+  gameConfirm({ title: t('profile_color_confirm')||'Set Avatar Color?', body: 'Color: <b style="color:'+_escHtml(val)+'">'+_escHtml(val)+'</b><br>Cost: <b>'+cost+' GP</b>' })
+    .then(function(ok){
+      if (!ok) return;
+      fetch('/api/profile/avatar-color', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ wallet: w, color: val })
+      }).then(function(r){return r.json();}).then(function(d){
+        if (d.error) { showToast(d.error,'error'); return; }
+        showToast('Avatar color updated! 🎨','success');
+        loadMyProfile();
+      }).catch(function(e){ showToast(e.message,'error'); });
+    }).catch(function(){});
+}
+
+function toggleProfileHistory() {
+  var panel = document.getElementById('profileHistoryPanel');
+  if (!panel) return;
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    loadProfileHistory();
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function loadProfileHistory() {
+  var w = walletState && walletState.address;
+  var el = document.getElementById('profileHistoryPanel');
+  if (!el || !w) return;
+  el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading…</div>';
+  fetch('/api/profile/history?wallet='+encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!rows || !rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">No changes yet</div>'; return; }
+      el.innerHTML = rows.map(function(r){
+        var t2 = new Date(r.created_at).toLocaleDateString();
+        return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:9px">'
+          + '<span style="color:#f48fb1;min-width:60px">'+r.field+'</span>'
+          + '<span style="color:var(--tx);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(r.new_value||'cleared')+'</span>'
+          + '<span style="color:var(--gold)">'+(r.gp_spent?r.gp_spent+' GP':'free')+'</span>'
+          + '<span style="color:var(--tx3);min-width:60px;text-align:right">'+t2+'</span>'
+          + '</div>';
+      }).join('');
+    }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:9px">'+e.message+'</div>'; });
+}
 
 // ── GP Broadcast System (Migration 126) ──────────────────────────────────────
 
