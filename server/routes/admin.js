@@ -2965,4 +2965,37 @@ router.delete('/branding/:claimId', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// TERRITORY SPELLS — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/spells — stats + active + recent + settings
+router.get('/spells', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/spells'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/spells/setting — update spell_* setting
+router.post('/spells/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('spell_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query('UPDATE game_settings SET value=$1 WHERE key=$2', [String(value), key]);
+    await auditLog(req, 'spell_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/spells/:id — force-expire a spell
+router.delete('/spells/:id', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  try {
+    await pool.query("UPDATE territory_spells SET is_active=false WHERE id=$1", [id]);
+    await auditLog(req, 'spell_expire', `spell:${id}`, {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

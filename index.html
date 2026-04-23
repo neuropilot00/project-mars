@@ -3461,6 +3461,34 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             </div>
           </div>
         </div>
+
+        <!-- ✨ TERRITORY SPELLS (collapsible) -->
+        <div class="base-section-title" onclick="toggleSpellsPanel()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+          <span>✨ <span data-i18n="spells_title">TERRITORY SPELLS</span></span>
+          <span id="spellsToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="spellsPanel" style="display:none;padding:4px 0 8px">
+          <!-- Spell target selector -->
+          <div style="margin-bottom:8px">
+            <div style="font-size:9px;color:var(--tx3);margin-bottom:4px" data-i18n="spells_select_target">Target territory (enter claim # or select yours):</div>
+            <div style="display:flex;gap:6px">
+              <input id="spellClaimInput" type="number" min="1" placeholder="Claim #" style="width:100px;background:rgba(244,143,177,.06);border:1px solid rgba(244,143,177,.2);color:var(--tx);padding:6px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+              <button onclick="loadSpellsOnClaim()" style="padding:6px 10px;border-radius:6px;background:rgba(244,143,177,.12);border:1px solid rgba(244,143,177,.3);color:#f48fb1;font-family:var(--fn);font-size:9px;cursor:pointer">🔍</button>
+            </div>
+          </div>
+          <!-- Active spells on target -->
+          <div id="spellsActiveOnTarget" style="display:none;padding:6px;border-radius:6px;background:rgba(244,143,177,.04);border:1px solid rgba(244,143,177,.12);margin-bottom:8px;font-size:9px">
+            <div style="color:var(--tx3);margin-bottom:4px" data-i18n="spells_active_label">ACTIVE SPELLS:</div>
+            <div id="spellsActiveList"></div>
+          </div>
+          <!-- Spell buttons grid -->
+          <div id="spellsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+          <!-- My spell history -->
+          <div style="margin-top:8px">
+            <button onclick="toggleMySpellsHistory()" style="font-size:9px;padding:3px 10px;border-radius:10px;border:1px solid rgba(244,143,177,.2);background:rgba(244,143,177,.06);color:#f48fb1;cursor:pointer;font-family:var(--fn)" data-i18n="spells_history_btn">📜 SPELL HISTORY</button>
+            <div id="spellsHistoryPanel" style="display:none;margin-top:8px"></div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: SECTORS -->
@@ -11018,6 +11046,7 @@ var I18N = {
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 GET VIP', vip_status_active: 'VIP ACTIVE', vip_expires: 'Expires', vip_purchase_title: 'Get VIP Pass?',
     expedition_title: 'EXPEDITIONS', expedition_returns: 'Returns', expedition_cancel_btn: 'CANCEL', expedition_launch_btn: '🚀 LAUNCH EXPEDITION', expedition_history_btn: '📜 EXPEDITION LOG', expedition_select_claim: 'SELECT TERRITORY & TYPE', expedition_launch_confirm: 'Launch Expedition?', expedition_cancel_confirm: 'Cancel Expedition?',
     branding_title: 'TERRITORY BRANDING', branding_select_territory: 'Select a territory to brand:', branding_name_label: 'TERRITORY NAME', branding_tagline_label: 'TAGLINE', branding_color_label: 'THEME COLOR', branding_set_btn: 'SET', branding_set_name_title: 'Set Territory Name?', branding_set_tag_title: 'Set Tagline?', branding_set_color_title: 'Set Theme Color?',
+    spells_title: 'TERRITORY SPELLS', spells_select_target: 'Target territory (enter claim # or select yours):', spells_active_label: 'ACTIVE SPELLS:', spells_history_btn: '📜 SPELL HISTORY', spells_cast_confirm: 'Cast Spell?',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11610,6 +11639,7 @@ var I18N = {
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 VIP 구매', vip_status_active: 'VIP 활성', vip_expires: '만료', vip_purchase_title: 'VIP 패스 구매?',
     expedition_title: '원정대', expedition_returns: '귀환', expedition_cancel_btn: '취소', expedition_launch_btn: '🚀 원정 출발', expedition_history_btn: '📜 원정 기록', expedition_select_claim: '영토 및 유형 선택', expedition_launch_confirm: '원정 출발?', expedition_cancel_confirm: '원정 취소?',
     branding_title: '영토 브랜딩', branding_select_territory: '브랜딩할 영토 선택:', branding_name_label: '영토 이름', branding_tagline_label: '태그라인', branding_color_label: '테마 색상', branding_set_btn: '설정', branding_set_name_title: '영토 이름 설정?', branding_set_tag_title: '태그라인 설정?', branding_set_color_title: '테마 색상 설정?',
+    spells_title: '영토 주문', spells_select_target: '대상 영토 (클레임 번호 입력):', spells_active_label: '활성 주문:', spells_history_btn: '📜 주문 기록', spells_cast_confirm: '주문 시전?',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -12201,6 +12231,7 @@ var I18N = {
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 VIP取得', vip_status_active: 'VIP有効', vip_expires: '有効期限', vip_purchase_title: 'VIPパス購入？',
     expedition_title: '遠征', expedition_returns: '帰還', expedition_cancel_btn: 'キャンセル', expedition_launch_btn: '🚀 遠征開始', expedition_history_btn: '📜 遠征ログ', expedition_select_claim: '領土とタイプを選択', expedition_launch_confirm: '遠征開始？', expedition_cancel_confirm: '遠征キャンセル？',
     branding_title: '領土ブランディング', branding_select_territory: 'ブランディングする領土を選択:', branding_name_label: '領土名', branding_tagline_label: 'タグライン', branding_color_label: 'テーマカラー', branding_set_btn: '設定', branding_set_name_title: '領土名を設定？', branding_set_tag_title: 'タグラインを設定？', branding_set_color_title: 'テーマカラーを設定？',
+    spells_title: '領土スペル', spells_select_target: '対象領土（クレーム番号を入力）:', spells_active_label: '有効なスペル:', spells_history_btn: '📜 スペル履歴', spells_cast_confirm: 'スペル発動？',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12776,6 +12807,7 @@ var I18N = {
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 获取VIP', vip_status_active: 'VIP已激活', vip_expires: '过期', vip_purchase_title: '购买VIP通行证？',
     expedition_title: '远征', expedition_returns: '归来', expedition_cancel_btn: '取消', expedition_launch_btn: '🚀 发动远征', expedition_history_btn: '📜 远征记录', expedition_select_claim: '选择领土与类型', expedition_launch_confirm: '发动远征？', expedition_cancel_confirm: '取消远征？',
     branding_title: '领土品牌化', branding_select_territory: '选择要品牌化的领土:', branding_name_label: '领土名称', branding_tagline_label: '标语', branding_color_label: '主题颜色', branding_set_btn: '设置', branding_set_name_title: '设置领土名称？', branding_set_tag_title: '设置标语？', branding_set_color_title: '设置主题颜色？',
+    spells_title: '领土法术', spells_select_target: '目标领土（输入地块编号）:', spells_active_label: '当前法术:', spells_history_btn: '📜 法术记录', spells_cast_confirm: '施放法术？',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -26757,6 +26789,121 @@ function setBrandingColor() {
           if (typeof loadBaseStats === 'function') loadBaseStats();
         }).catch(function(e){ showToast(e.message,'error'); });
     });
+}
+
+// ── Territory Spells (Migration 124) ──────────────────────────────────────────
+
+var _spellsCfg    = null;
+var _spellTarget  = null;
+
+function toggleSpellsPanel() {
+  var panel = document.getElementById('spellsPanel');
+  var tog   = document.getElementById('spellsToggle');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  tog.textContent = open ? '▼' : '▲';
+  if (!open) loadSpellsPanel();
+}
+
+function loadSpellsPanel() {
+  fetch('/api/spells/info').then(function(r){return r.json();}).then(function(d){
+    _spellsCfg = d.cfg;
+    renderSpellsGrid(d.spells, d.cfg);
+  }).catch(function(){});
+}
+
+function renderSpellsGrid(spells, cfg) {
+  var grid = document.getElementById('spellsGrid');
+  if (!grid || !spells) return;
+  grid.innerHTML = spells.map(function(s) {
+    var cost = cfg && cfg.costs ? cfg.costs[s.key] : '?';
+    var isHex = s.type === 'hex';
+    var col = isHex ? '#f48fb1' : '#a5d6a7';
+    var bg  = isHex ? 'rgba(244,143,177,.08)' : 'rgba(165,214,167,.08)';
+    var bdr = isHex ? 'rgba(244,143,177,.25)' : 'rgba(165,214,167,.25)';
+    return '<button onclick="castSpellAction(\''+s.key+'\')" style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:6px;background:'+bg+';border:1px solid '+bdr+';color:'+col+';font-family:var(--fn);font-size:9px;cursor:pointer;text-align:center">'
+      + '<span style="font-size:18px">'+s.icon+'</span>'
+      + '<span style="font-weight:700">'+s.label+'</span>'
+      + '<span style="color:var(--gold)">'+cost+' GP</span>'
+      + '<span style="color:var(--tx3);font-size:8px">'+s.desc+'</span>'
+      + '</button>';
+  }).join('');
+}
+
+function loadSpellsOnClaim() {
+  var val = (document.getElementById('spellClaimInput') || {}).value;
+  if (!val) return;
+  _spellTarget = parseInt(val, 10);
+  var el = document.getElementById('spellsActiveOnTarget');
+  var listEl = document.getElementById('spellsActiveList');
+  if (!el || !listEl) return;
+  el.style.display = '';
+  listEl.innerHTML = '<span style="color:var(--tx3)">Loading…</span>';
+  fetch('/api/spells/claim/' + _spellTarget)
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!rows.length) { listEl.innerHTML = '<span style="color:var(--tx3)">No active spells</span>'; return; }
+      listEl.innerHTML = rows.map(function(s){
+        var exp = s.expires_at ? new Date(s.expires_at).toLocaleTimeString() : '';
+        return '<span style="margin-right:8px">'+s.icon+' <b>'+s.label+'</b> <span style="color:var(--tx3)">until '+exp+'</span></span>';
+      }).join('');
+    }).catch(function(){ listEl.innerHTML = '<span style="color:var(--red);font-size:9px">Failed to load</span>'; });
+}
+
+function castSpellAction(spellType) {
+  var w = walletState && walletState.address;
+  if (!w) return showToast(t('err_connect_wallet')||'Connect wallet first','error');
+  var claimId = _spellTarget || parseInt((document.getElementById('spellClaimInput')||{}).value, 10);
+  if (!claimId) return showToast(t('spells_select_target')||'Enter a target territory first','error');
+  var cfg  = _spellsCfg;
+  var cost = cfg && cfg.costs ? (cfg.costs[spellType] || '?') : '?';
+  // Spell icon/label lookup from grid
+  var btn = document.querySelector('#spellsGrid button[onclick="castSpellAction(\''+spellType+'\')"]');
+  var label = btn ? btn.querySelector('span:nth-child(2)').textContent : spellType;
+  gameConfirm({ title: t('spells_cast_confirm')||'Cast Spell?', body: 'Cast <b>'+label+'</b> on territory #'+claimId+'<br>Cost: <b>'+cost+' GP</b>' })
+    .then(function(ok){ if (!ok) return;
+      fetch('/api/spells/cast', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,claimId:claimId,spellType:spellType}) })
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if (d.error) return showToast(d.error,'error');
+          showToast(d.icon+' '+d.label+' cast! -'+d.gpSpent+' GP','success');
+          loadSpellsOnClaim();
+          if (typeof loadBaseStats === 'function') loadBaseStats();
+        }).catch(function(e){ showToast(e.message,'error'); });
+    });
+}
+
+function toggleMySpellsHistory() {
+  var panel = document.getElementById('spellsHistoryPanel');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (!open) loadMySpellsHistory();
+}
+
+function loadMySpellsHistory() {
+  var el = document.getElementById('spellsHistoryPanel');
+  if (!el) return;
+  var w = walletState && walletState.address;
+  if (!w) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Connect wallet first</div>'; return; }
+  el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Loading…</div>';
+  fetch('/api/spells/my?wallet=' + encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">No spells cast yet</div>'; return; }
+      el.innerHTML = rows.map(function(s){
+        var active = s.is_active && new Date(s.expires_at) > new Date();
+        var statusColor = active ? '#a0e8a0' : '#555';
+        return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+          + '<span style="font-size:14px">'+s.icon+'</span>'
+          + '<div style="flex:1">'
+            + '<div style="font-size:9px;color:var(--tx)">'+s.label+' → #'+s.target_claim_id+'</div>'
+            + '<div style="font-size:8px;color:'+statusColor+'">'+(active ? '⚡ active' : '✓ expired')+' · '+s.gp_cost+' GP</div>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:10px">'+e.message+'</div>'; });
 }
 
 // ── Alliance System (Migration 119) ──────────────────────────────────────────

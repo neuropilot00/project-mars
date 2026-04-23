@@ -98,6 +98,7 @@ const luckyBoxRoutes    = require('./routes/luckyBox');
 const vipRoutes         = require('./routes/vip');
 const expeditionRoutes  = require('./routes/expedition');
 const brandingRoutes    = require('./routes/branding');
+const spellRoutes       = require('./routes/spells');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -228,6 +229,7 @@ app.use('/api', luckyBoxRoutes);
 app.use('/api', vipRoutes);
 app.use('/api', expeditionRoutes);
 app.use('/api', brandingRoutes);
+app.use('/api', spellRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -947,6 +949,15 @@ async function start() {
       }, 15 * 60 * 1000);
       console.log('[VIP] Pass expiry scheduler started (15min interval)');
     } catch(e) { console.warn('[VIP] Could not init expiry scheduler:', e.message); }
+
+    // ── Spells: Expire old spells (every 5 minutes) ──
+    try {
+      const { expireSpells } = require('./services/spells');
+      setInterval(async () => {
+        try { await expireSpells(); } catch(e) { console.warn('[SPELLS] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[SPELLS] Spell expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[SPELLS] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {
