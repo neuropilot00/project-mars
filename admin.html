@@ -1499,6 +1499,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="sponsorAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY PRESTIGE (Migration 147) ═══ -->
+  <div class="section cat-gp" style="display:none" id="tprestigeAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#b9f2ff">💎 TERRITORY PRESTIGE</span>
+      <button onclick="loadTprestigeAdmin()" style="font-size:10px;background:rgba(185,242,255,.12);border:1px solid rgba(185,242,255,.3);color:#b9f2ff;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="tprestigeAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#b9f2ff">BY TIER</span></div>
+    <div id="tprestigeAdmTiers" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#b9f2ff">RECENT UPGRADES</span></div>
+    <div id="tprestigeAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#b9f2ff">SETTINGS</span></div>
+    <div id="tprestigeAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ COLONY JOURNAL (Migration 146) ═══ -->
   <div class="section cat-gp" style="display:none" id="journalAdminSection">
     <div class="sec-header">
@@ -2344,7 +2359,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); loadBannerAdmin(); loadJournalAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); loadBannerAdmin(); loadJournalAdmin(); loadTprestigeAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -6879,6 +6894,110 @@ function saveBannerSetting(key) {
   var el = document.getElementById('bannerAdm_'+key);
   if (!el) return;
   fetch('/admin/api/banner/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  TERRITORY PRESTIGE ADMIN (Migration 147)
+// ══════════════════════════════════════
+var PRESTIGE_TIER_NAMES  = ['None','Bronze','Silver','Gold','Platinum','Diamond'];
+var PRESTIGE_TIER_COLORS = ['#555','#cd7f32','#c0c0c0','#ffd700','#e5e4e2','#b9f2ff'];
+
+function loadTprestigeAdmin() {
+  var statsEl    = document.getElementById('tprestigeAdmStats');
+  var tiersEl    = document.getElementById('tprestigeAdmTiers');
+  var listEl     = document.getElementById('tprestigeAdmList');
+  var settingsEl = document.getElementById('tprestigeAdmSettings');
+  if (!statsEl) return;
+  [statsEl, tiersEl, listEl, settingsEl].forEach(function(el) { if(el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>'; });
+  document.getElementById('tprestigeAdminSection').style.display = '';
+  fetch('/admin/api/tprestige', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['Total Prestige',    s.total_prestige || 0],
+        ['Diamond Count',     s.diamond_count  || 0],
+        ['Upgrades (24h)',    s.upgrades_24h   || 0],
+        ['Total GP Burned',   s.total_gp       || 0],
+      ].map(function(pair) {
+        return '<div style="background:#111;border:1px solid #222;border-radius:6px;padding:8px 10px">'
+          +'<div style="color:#555;font-size:10px;margin-bottom:2px">'+pair[0]+'</div>'
+          +'<div style="color:#b9f2ff;font-size:16px;font-weight:700">'+pair[1]+'</div></div>';
+      }).join('');
+      // By tier
+      tiersEl.innerHTML = (d.byTier || []).map(function(row) {
+        var c = PRESTIGE_TIER_COLORS[row.tier] || '#555';
+        return '<div style="background:#111;border:1px solid #222;border-radius:6px;padding:6px 10px;text-align:center">'
+          +'<div style="color:'+c+';font-size:11px;font-weight:700">'+PRESTIGE_TIER_NAMES[row.tier]+'</div>'
+          +'<div style="color:#aaa;font-size:11px">'+row.cnt+' territories</div>'
+          +'<div style="color:#f0c040;font-size:10px">'+row.gp+' GP</div>'
+          +'</div>';
+      }).join('');
+      // Recent table
+      if (d.recent && d.recent.length) {
+        listEl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:11px">'
+          +'<thead><tr style="color:#555;border-bottom:1px solid #222">'
+          +'<th style="text-align:left;padding:4px 6px">Claim</th>'
+          +'<th style="text-align:left;padding:4px 6px">Owner</th>'
+          +'<th style="text-align:left;padding:4px 6px">Tier</th>'
+          +'<th style="text-align:right;padding:4px 6px">GP</th>'
+          +'<th style="text-align:left;padding:4px 6px">Updated</th>'
+          +'<th style="padding:4px 6px"></th>'
+          +'</tr></thead><tbody>'
+          + d.recent.map(function(e) {
+            var c = PRESTIGE_TIER_COLORS[e.tier] || '#555';
+            return '<tr style="border-bottom:1px solid #1a1a1a;color:#aaa">'
+              +'<td style="padding:4px 6px;color:#555">#'+e.claim_id+'</td>'
+              +'<td style="padding:4px 6px;color:#b9f2ff">'+escapeHtml(e.nickname || e.wallet.slice(0,8)+'…')+'</td>'
+              +'<td style="padding:4px 6px;color:'+c+';font-weight:700">'+PRESTIGE_TIER_NAMES[e.tier]+'</td>'
+              +'<td style="padding:4px 6px;color:#f0c040;text-align:right">'+e.gp_paid+'</td>'
+              +'<td style="padding:4px 6px;color:#555">'+new Date(e.updated_at).toLocaleDateString()+'</td>'
+              +'<td style="padding:4px 6px"><button onclick="adminResetPrestige('+e.claim_id+')" style="font-size:10px;background:rgba(239,83,80,.12);border:1px solid rgba(239,83,80,.3);color:#ef5350;padding:2px 7px;border-radius:3px;cursor:pointer">RESET</button></td>'
+              +'</tr>';
+          }).join('')
+          +'</tbody></table>';
+      } else {
+        listEl.innerHTML = '<span style="color:#555;font-size:11px">No prestige upgrades yet.</span>';
+      }
+      var pKeys = ['tprestige_enabled','tprestige_tier1_gp','tprestige_tier2_gp','tprestige_tier3_gp','tprestige_tier4_gp','tprestige_tier5_gp'];
+      settingsEl.innerHTML = pKeys.map(function(k) {
+        return '<div style="display:flex;justify-content:space-between;align-items:center;background:#111;border:1px solid #222;border-radius:4px;padding:5px 8px">'
+          +'<span style="color:#888;font-size:11px">'+k.replace('tprestige_','')+'</span>'
+          +'<input id="tprestigeAdm_'+k+'" style="background:#111;border:1px solid #333;color:#eee;padding:4px 6px;border-radius:4px;font-size:11px;width:80px" '
+          +'onchange="saveTprestigeSetting(\''+k+'\')">'
+          +'</div>';
+      }).join('');
+      fetch('/admin/api/settings?prefix=tprestige_', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+        .then(function(r) { return r.json(); })
+        .then(function(s) { (s.settings||s||[]).forEach(function(row) { var el=document.getElementById('tprestigeAdm_'+row.key); if(el) el.value=row.value; }); })
+        .catch(function(){});
+    }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function adminResetPrestige(claimId) {
+  if (!confirm('Reset prestige for territory #'+claimId+'? (GP not refunded)')) return;
+  fetch('/admin/api/tprestige/'+claimId, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('💎 Prestige reset');
+    loadTprestigeAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveTprestigeSetting(key) {
+  var el = document.getElementById('tprestigeAdm_'+key);
+  if (!el) return;
+  fetch('/admin/api/tprestige/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
