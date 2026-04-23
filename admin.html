@@ -1499,6 +1499,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="sponsorAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ COLONY JOURNAL (Migration 146) ═══ -->
+  <div class="section cat-gp" style="display:none" id="journalAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#80cbc4">📖 COLONY JOURNAL</span>
+      <button onclick="loadJournalAdmin()" style="font-size:10px;background:rgba(128,203,196,.12);border:1px solid rgba(128,203,196,.3);color:#80cbc4;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="journalAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80cbc4">RECENT ENTRIES</span></div>
+    <div id="journalAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80cbc4">SETTINGS</span></div>
+    <div id="journalAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ VICTORY BANNERS (Migration 145) ═══ -->
   <div class="section cat-gp" style="display:none" id="bannerAdminSection">
     <div class="sec-header">
@@ -2331,7 +2344,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); loadBannerAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); loadBannerAdmin(); loadJournalAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -6866,6 +6879,99 @@ function saveBannerSetting(key) {
   var el = document.getElementById('bannerAdm_'+key);
   if (!el) return;
   fetch('/admin/api/banner/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  COLONY JOURNAL ADMIN (Migration 146)
+// ══════════════════════════════════════
+function loadJournalAdmin() {
+  var statsEl    = document.getElementById('journalAdmStats');
+  var listEl     = document.getElementById('journalAdmList');
+  var settingsEl = document.getElementById('journalAdmSettings');
+  if (!statsEl) return;
+  [statsEl, listEl, settingsEl].forEach(function(el) { if(el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>'; });
+  document.getElementById('journalAdminSection').style.display = '';
+  fetch('/admin/api/journal', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['Total Entries',    s.total          || 0],
+        ['Unique Authors',   s.unique_authors || 0],
+        ['Entries (24h)',    s.entries_24h    || 0],
+        ['Total GP Burned',  s.total_gp       || 0],
+      ].map(function(pair) {
+        return '<div style="background:#111;border:1px solid #222;border-radius:6px;padding:8px 10px">'
+          +'<div style="color:#555;font-size:10px;margin-bottom:2px">'+pair[0]+'</div>'
+          +'<div style="color:#80cbc4;font-size:16px;font-weight:700">'+pair[1]+'</div></div>';
+      }).join('');
+      // Table of recent entries
+      if (d.recent && d.recent.length) {
+        listEl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:11px">'
+          +'<thead><tr style="color:#555;border-bottom:1px solid #222">'
+          +'<th style="text-align:left;padding:4px 6px">ID</th>'
+          +'<th style="text-align:left;padding:4px 6px">Author</th>'
+          +'<th style="text-align:left;padding:4px 6px">Title</th>'
+          +'<th style="text-align:left;padding:4px 6px">Preview</th>'
+          +'<th style="text-align:right;padding:4px 6px">GP</th>'
+          +'<th style="text-align:left;padding:4px 6px">Date</th>'
+          +'<th style="padding:4px 6px"></th>'
+          +'</tr></thead><tbody>'
+          + d.recent.map(function(e) {
+            return '<tr style="border-bottom:1px solid #1a1a1a;color:#aaa">'
+              +'<td style="padding:4px 6px;color:#555">'+e.id+'</td>'
+              +'<td style="padding:4px 6px;color:#80cbc4">'+escapeHtml(e.nickname || e.wallet.slice(0,8)+'…')+'</td>'
+              +'<td style="padding:4px 6px;color:#eee;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(e.title)+'</td>'
+              +'<td style="padding:4px 6px;color:#888;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(e.preview||'')+'</td>'
+              +'<td style="padding:4px 6px;color:#f0c040;text-align:right">'+e.gp_paid+'</td>'
+              +'<td style="padding:4px 6px;color:#555">'+new Date(e.created_at).toLocaleDateString()+'</td>'
+              +'<td style="padding:4px 6px"><button onclick="adminDeleteJournalEntry('+e.id+')" style="font-size:10px;background:rgba(239,83,80,.12);border:1px solid rgba(239,83,80,.3);color:#ef5350;padding:2px 7px;border-radius:3px;cursor:pointer">DEL</button></td>'
+              +'</tr>';
+          }).join('')
+          +'</tbody></table>';
+      } else {
+        listEl.innerHTML = '<span style="color:#555;font-size:11px">No entries yet.</span>';
+      }
+      // Settings
+      var journalKeys = ['journal_enabled','journal_cost_gp','journal_title_max','journal_content_max','journal_cooldown_h','journal_feed_count'];
+      settingsEl.innerHTML = journalKeys.map(function(k) {
+        return '<div style="display:flex;justify-content:space-between;align-items:center;background:#111;border:1px solid #222;border-radius:4px;padding:5px 8px">'
+          +'<span style="color:#888;font-size:11px">'+k.replace('journal_','')+'</span>'
+          +'<input id="journalAdm_'+k+'" style="background:#111;border:1px solid #333;color:#eee;padding:4px 6px;border-radius:4px;font-size:11px;width:80px" '
+          +'onchange="saveJournalSetting(\''+k+'\')">'
+          +'</div>';
+      }).join('');
+      fetch('/admin/api/settings?prefix=journal_', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+        .then(function(r) { return r.json(); })
+        .then(function(s) { (s.settings||s||[]).forEach(function(row) { var el=document.getElementById('journalAdm_'+row.key); if(el) el.value=row.value; }); })
+        .catch(function(){});
+    }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function adminDeleteJournalEntry(id) {
+  if (!confirm('Permanently delete journal entry #'+id+'?')) return;
+  fetch('/admin/api/journal/'+id, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('📖 Journal entry deleted');
+    loadJournalAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveJournalSetting(key) {
+  var el = document.getElementById('journalAdm_'+key);
+  if (!el) return;
+  fetch('/admin/api/journal/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
