@@ -1,14 +1,20 @@
 const { pool, getSetting } = require('../db');
 
 // Mission pool definitions
+// rewardGP is the default; admin can override via daily_mission_<type>_reward_gp setting
 const MISSION_POOL = [
-  { type: 'claim_pixels',    label: 'Expand Territory',  desc: 'Claim land pixels on the Mars globe', icon: '🏴', targetMin: 3, targetMax: 8, rewardGP: 15, rewardXP: 5 },
-  { type: 'harvest',         label: 'Collect Resources', desc: 'Harvest PP from your owned territory', icon: '⛏️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
-  { type: 'explore_poi',     label: 'Recon Mission',     desc: 'Discover a POI marker on the globe', icon: '🔭', targetMin: 1, targetMax: 1, rewardGP: 20, rewardXP: 5 },
-  { type: 'hijack',          label: 'Hostile Takeover',   desc: 'Hijack enemy territory with GP', icon: '⚔️', targetMin: 1, targetMax: 3, rewardGP: 25, rewardXP: 5 },
-  { type: 'play_cantina',    label: 'Cantina Night',     desc: 'Play a mini-game in the Cantina', icon: '🎰', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
-  { type: 'equip_cosmetic',  label: 'Mars Fashion',      desc: 'Equip a cosmetic item from your inventory', icon: '👗', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
-  { type: 'view_weather',    label: 'Storm Chaser',      desc: 'Check the Mars weather forecast', icon: '🌪️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'claim_pixels',        label: 'Expand Territory',      desc: 'Claim land pixels on the Mars globe',              icon: '🏴',  targetMin: 3, targetMax: 8, rewardGP: 15, rewardXP: 5 },
+  { type: 'harvest',             label: 'Collect Resources',     desc: 'Harvest PP from your owned territory',             icon: '⛏️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'explore_poi',         label: 'Recon Mission',         desc: 'Discover a POI marker on the globe',               icon: '🔭',  targetMin: 1, targetMax: 1, rewardGP: 20, rewardXP: 5 },
+  { type: 'hijack',              label: 'Hostile Takeover',      desc: 'Hijack enemy territory with GP',                   icon: '⚔️', targetMin: 1, targetMax: 3, rewardGP: 25, rewardXP: 5 },
+  { type: 'play_cantina',        label: 'Cantina Night',         desc: 'Play a mini-game in the Cantina',                  icon: '🎰',  targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'equip_cosmetic',      label: 'Mars Fashion',          desc: 'Equip a cosmetic item from your inventory',        icon: '👗',  targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  { type: 'view_weather',        label: 'Storm Chaser',          desc: 'Check the Mars weather forecast',                  icon: '🌪️', targetMin: 1, targetMax: 1, rewardGP: 10, rewardXP: 5 },
+  // ── Migration 095: New activity missions ──
+  { type: 'enhance_item',        label: 'Cosmetic Enhancement',  desc: 'Attempt to enhance a cosmetic item',               icon: '⚗️',  targetMin: 1, targetMax: 1, rewardGP: 20, rewardXP: 5 },
+  { type: 'marketplace_trade',   label: 'Market Day',            desc: 'Buy an item on the marketplace or auction',        icon: '🛒',  targetMin: 1, targetMax: 1, rewardGP: 15, rewardXP: 5 },
+  { type: 'win_naval_battle',    label: 'Naval Victory',         desc: 'Win a naval battle against another fleet',         icon: '⚓',  targetMin: 1, targetMax: 1, rewardGP: 40, rewardXP: 10 },
+  { type: 'build_ship',          label: 'Shipyard Rush',         desc: 'Build a new ship for your fleet',                  icon: '🚢',  targetMin: 1, targetMax: 2, rewardGP: 25, rewardXP: 5 },
 ];
 
 function randInt(min, max) {
@@ -135,12 +141,16 @@ async function getDailyMissions(wallet) {
   for (let i = 0; i < 3; i++) {
     const m = selected[i];
     const target = randInt(m.targetMin, m.targetMax);
+    // Admin-configurable reward override (falls back to pool default)
+    const settingKey = 'daily_mission_' + m.type + '_reward_gp';
+    const settingVal = await getSetting(settingKey);
+    const rewardGP = settingVal !== null && settingVal !== '' ? parseFloat(settingVal) : m.rewardGP;
     const res = await pool.query(
       `INSERT INTO daily_missions (wallet, mission_date, slot, mission_type, target_value, reward_gp, reward_xp)
        VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6)
        ON CONFLICT (wallet, mission_date, slot) DO NOTHING
        RETURNING *`,
-      [w, i + 1, m.type, target, m.rewardGP, m.rewardXP]
+      [w, i + 1, m.type, target, rewardGP, m.rewardXP]
     );
     if (res.rows.length) {
       missions.push(formatMission(res.rows[0]));

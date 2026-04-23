@@ -107,6 +107,12 @@ async function buildShip(walletAddress, shipType) {
       seasonSvc.addSeasonScore(walletAddress, 'ship_build', 1).catch(() => {});
     } catch (_re) {}
 
+    // ✅ Daily mission progress: build_ship
+    try {
+      const dailySvc = require('./daily');
+      dailySvc.updateMissionProgress(walletAddress, 'build_ship', 1).catch(() => {});
+    } catch (_de) {}
+
     return {
       success: true,
       ship: { ...ship, name: def.name, icon: def.icon },

@@ -313,6 +313,12 @@ async function buyout(buyerWallet, auctionId) {
       seasonSvc.addSeasonScore(w, 'trade', 1).catch(() => {});
     } catch (_re) {}
 
+    // ✅ Daily mission progress: marketplace_trade
+    try {
+      const dailySvc = require('./daily');
+      dailySvc.updateMissionProgress(w, 'marketplace_trade', 1).catch(() => {});
+    } catch (_de) {}
+
     // Marketplace sales title check
     if (titleService) {
       _checkMarketplaceSalesTitle(auction.seller_wallet).catch(() => {});
@@ -402,6 +408,12 @@ async function settleAuction(auctionId) {
         seasonSvc.addSeasonScore(auction.current_bidder_wallet, 'gp_spend', auction.current_bid).catch(() => {});
         seasonSvc.addSeasonScore(auction.current_bidder_wallet, 'trade', 1).catch(() => {});
       } catch (_re) {}
+
+      // ✅ Daily mission progress: marketplace_trade
+      try {
+        const dailySvc = require('./daily');
+        dailySvc.updateMissionProgress(auction.current_bidder_wallet, 'marketplace_trade', 1).catch(() => {});
+      } catch (_de) {}
 
       if (titleService) {
         _checkMarketplaceSalesTitle(auction.seller_wallet).catch(() => {});

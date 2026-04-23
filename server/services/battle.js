@@ -318,6 +318,12 @@ async function resolveBattle(battleId) {
       seasonSvc.addSeasonScore(winnerWallet, 'naval_win', 1).catch(() => {});
     } catch (_re) {}
 
+    // ✅ Daily mission progress: win_naval_battle
+    try {
+      const dailySvc = require('./daily');
+      dailySvc.updateMissionProgress(winnerWallet, 'win_naval_battle', 1).catch(() => {});
+    } catch (_de) {}
+
     return {
       success: true,
       battleId,

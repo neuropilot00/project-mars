@@ -262,6 +262,12 @@ async function enhanceItem(client, wallet, instanceId) {
     [instanceId, w, currentLevel, newLevel, success, outcome, cost]
   );
 
+  // ✅ Daily mission progress: enhance_item
+  try {
+    const dailySvc = require('./daily');
+    dailySvc.updateMissionProgress(w, 'enhance_item', 1).catch(() => {});
+  } catch (_de) {}
+
   return {
     success,
     outcome,

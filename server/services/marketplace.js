@@ -289,6 +289,12 @@ async function buyListing(client, listingId, buyer) {
     [listing.listing_type, meta.itemTypeId || null, meta.enhancementLevel || 0, listing.claim_id, price, currency]
   );
 
+  // ✅ Daily mission progress: marketplace_trade
+  try {
+    const dailySvc = require('./daily');
+    dailySvc.updateMissionProgress(b, 'marketplace_trade', 1).catch(() => {});
+  } catch (_de) {}
+
   return { success: true, price, fee, sellerReceives, currency, listing };
 }
 
