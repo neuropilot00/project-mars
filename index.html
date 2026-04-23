@@ -3550,6 +3550,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="text-align:center;color:var(--tx3);padding:8px" data-i18n="loading_dots">Loading...</div>
           </div>
         </div>
+
+        <!-- LOTTERY Section (collapsible) -->
+        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
+             onclick="toggleLottery()">
+          <span>🎰 <span data-i18n="lottery_title">GP LOTTERY</span></span>
+          <span id="lotteryToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="lotteryPanel" style="display:none;padding:0 0 8px">
+          <div id="lotteryContent" style="padding:8px 0">
+            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: QUESTS -->
@@ -10472,6 +10484,7 @@ var I18N = {
     // ── QUESTS tab ──
     quests_loading: 'Loading quests...',
     achievements_title: 'ACHIEVEMENTS', achievements_loading: 'Loading achievements...',
+    lottery_title: 'GP LOTTERY', lottery_disabled: 'Lottery disabled', lottery_round: 'ROUND', lottery_ends: 'ENDS IN', lottery_recent_winners: 'RECENT WINNERS',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11046,6 +11059,7 @@ var I18N = {
     // ── QUESTS tab ──
     quests_loading: '퀘스트를 불러오는 중...',
     achievements_title: '업적', achievements_loading: '업적 로딩 중...',
+    lottery_title: 'GP 복권', lottery_disabled: '복권 비활성화', lottery_round: '라운드', lottery_ends: '종료까지', lottery_recent_winners: '최근 당첨자',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -11619,6 +11633,7 @@ var I18N = {
     // ── QUESTS tab ──
     quests_loading: 'クエストを読込中...',
     achievements_title: '実績', achievements_loading: '実績を読込中...',
+    lottery_title: 'GP宝くじ', lottery_disabled: '宝くじ無効', lottery_round: 'ラウンド', lottery_ends: '終了まで', lottery_recent_winners: '最近の当選者',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12176,6 +12191,7 @@ var I18N = {
     // ── QUESTS tab ──
     quests_loading: '正在加载任务...',
     achievements_title: '成就', achievements_loading: '正在加载成就...',
+    lottery_title: 'GP抽奖', lottery_disabled: '抽奖已禁用', lottery_round: '轮次', lottery_ends: '剩余时间', lottery_recent_winners: '近期中奖者',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -18423,6 +18439,124 @@ async function sendGP() {
     }
   });
 }
+
+// ── LOTTERY (Migration 105) ─────────────────────────────────────────────────
+var _lotteryPanelOpen = false;
+var _lotteryCountdownTimer = null;
+
+function toggleLottery() {
+  _lotteryPanelOpen = !_lotteryPanelOpen;
+  document.getElementById('lotteryPanel').style.display = _lotteryPanelOpen ? '' : 'none';
+  document.getElementById('lotteryToggle').textContent = _lotteryPanelOpen ? '▲' : '▼';
+  if (_lotteryPanelOpen) loadLottery();
+}
+
+function loadLottery() {
+  var el = document.getElementById('lotteryContent');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
+  var wallet = walletState.address || '';
+
+  fetch('/api/lottery/current?wallet=' + wallet)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var round = data.round;
+      if (!round) {
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="lottery_disabled">Lottery is currently disabled</div>';
+        return;
+      }
+      renderLotteryPanel(round);
+    })
+    .catch(function() {
+      el.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:10px;padding:8px">Failed to load</div>';
+    });
+}
+
+function renderLotteryPanel(round) {
+  var el = document.getElementById('lotteryContent');
+  if (!el) return;
+
+  // Clear existing timer
+  if (_lotteryCountdownTimer) { clearInterval(_lotteryCountdownTimer); _lotteryCountdownTimer = null; }
+
+  var endsAt = new Date(round.ends_at);
+  var prize = parseFloat(round.prize_pool_gp) || 0;
+  var userTickets = parseInt(round.user_tickets) || 0;
+  var maxTickets = parseInt(round.max_per_user) || 50;
+  var ticketPrice = parseFloat(round.ticket_price || round.ticket_price_gp) || 10;
+
+  var html = '<div style="background:linear-gradient(135deg,rgba(255,209,102,.08),rgba(160,100,220,.06));border:1px solid rgba(255,209,102,.2);border-radius:8px;padding:10px;margin-bottom:8px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'
+    + '<div><div style="font-size:8px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px" data-i18n="lottery_round">Round #' + round.round_number + '</div>'
+    + '<div style="font-size:20px;font-weight:900;color:var(--gold);font-family:var(--fn)">' + Math.round(prize) + '<span style="font-size:10px;margin-left:2px">GP</span></div>'
+    + '<div style="font-size:8px;color:var(--tx3)">' + round.ticket_count + ' tickets sold</div></div>'
+    + '<div style="text-align:right"><div style="font-size:8px;color:var(--tx3)" data-i18n="lottery_ends">Ends in</div>'
+    + '<div id="lotteryCountdown" style="font-size:11px;color:var(--cyan);font-family:var(--fn);font-weight:700">...</div>'
+    + '<div style="font-size:8px;color:var(--tx3)">' + ticketPrice + ' GP / ticket</div></div></div>'
+    + '<div style="display:flex;gap:6px;align-items:center">'
+    + '<button onclick="quickBuyTickets(1)" style="flex:1;font-size:10px;padding:7px 0;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(160,100,220,.15));border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:6px;cursor:pointer;font-weight:700">+1</button>'
+    + '<button onclick="quickBuyTickets(5)" style="flex:1;font-size:10px;padding:7px 0;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(160,100,220,.15));border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:6px;cursor:pointer;font-weight:700">+5</button>'
+    + '<button onclick="quickBuyTickets(10)" style="flex:1;font-size:10px;padding:7px 0;background:linear-gradient(135deg,rgba(255,209,102,.2),rgba(160,100,220,.15));border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:6px;cursor:pointer;font-weight:700">+10</button>'
+    + '<div style="text-align:center;font-size:8px;color:var(--tx3);padding:0 4px">My<br><span style="font-size:11px;color:var(--gold);font-weight:700">' + userTickets + '</span></div>'
+    + '</div></div>';
+
+  // Recent winners
+  var winners = round.recent_winners || [];
+  if (winners.length) {
+    html += '<div style="font-size:9px;color:var(--gold);font-weight:700;margin-bottom:4px" data-i18n="lottery_recent_winners">RECENT WINNERS</div>';
+    html += '<div style="font-size:9px;color:var(--tx2);line-height:1.8">';
+    winners.forEach(function(w) {
+      var nick = w.winner_nick || (w.winner_wallet||'').slice(0,8)+'...';
+      html += '<div style="display:flex;justify-content:space-between"><span>🏆 ' + nick + '</span><span style="color:var(--gold)">+' + Math.round(parseFloat(w.prize_pool_gp)) + ' GP</span></div>';
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+
+  // Countdown timer
+  function updateCountdown() {
+    var rem = Math.max(0, endsAt - new Date());
+    var h = Math.floor(rem / 3600000);
+    var m = Math.floor((rem % 3600000) / 60000);
+    var s = Math.floor((rem % 60000) / 1000);
+    var cdEl = document.getElementById('lotteryCountdown');
+    if (cdEl) cdEl.textContent = (h > 0 ? h + 'h ' : '') + m + 'm ' + s + 's';
+    if (rem <= 0) {
+      clearInterval(_lotteryCountdownTimer);
+      _lotteryCountdownTimer = null;
+      // Auto-reload after draw
+      setTimeout(loadLottery, 5000);
+    }
+  }
+  updateCountdown();
+  _lotteryCountdownTimer = setInterval(updateCountdown, 1000);
+}
+
+function quickBuyTickets(count) {
+  if (!walletState.address) return showToast('Connect wallet first', 'error');
+  var btn = event.target;
+  btn.disabled = true;
+
+  fetch('/api/lottery/buy', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ wallet: walletState.address, count: count })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      btn.disabled = false;
+      if (d.error) return showToast(d.error, 'error');
+      showToast('+' + count + ' ticket(s)! Spent ' + d.totalCost + ' GP 🎰', 'success');
+      loadLottery();
+      loadWalletData(); // refresh GP balance
+    })
+    .catch(function(e) {
+      btn.disabled = false;
+      showToast('Error: ' + e.message, 'error');
+    });
+}
+
 
 async function harvestMining(){
   try{_sfx.click()}catch(e){}

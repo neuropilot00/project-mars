@@ -922,6 +922,22 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="gpXferSettings" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px"></div>
   </div>
 
+  <!-- ═══ LOTTERY ADMIN (inside GP tab) ═══ -->
+  <div class="section cat-gp" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--gold)">🎰 GP LOTTERY</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadLotteryAdmin()" style="font-size:10px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.3);color:var(--gold);padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+        <button onclick="forceLotteryDraw()" style="font-size:10px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);padding:4px 10px;border-radius:4px;cursor:pointer">FORCE DRAW</button>
+      </div>
+    </div>
+    <div id="lotteryAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:var(--gold)">RECENT ROUNDS</span></div>
+    <div id="lotteryAdmTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:var(--gold)">LOTTERY SETTINGS</span></div>
+    <div id="lotteryAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ POI DROP TABLE TAB ═══ -->
   <div class="section cat-poi" style="display:none">
     <div class="sec-header">
@@ -1371,7 +1387,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -3356,6 +3372,77 @@ function saveGPXferSetting(key) {
   var input = document.getElementById('sXferKey_' + key);
   if (!input) return;
   saveSetting(key, input.value);
+}
+
+// ══════════════════════════════════════
+//  LOTTERY ADMIN
+// ══════════════════════════════════════
+function loadLotteryAdmin() {
+  var statsEl   = document.getElementById('lotteryAdmStats');
+  var tableEl   = document.getElementById('lotteryAdmTable');
+  var settingsEl = document.getElementById('lotteryAdmSettings');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  apiJson('/admin/api/lottery').catch(function(){ return null; }).then(function(data) {
+    if (!data) { statsEl.innerHTML = '<div style="color:red;font-size:10px">Failed to load</div>'; return; }
+
+    var active = data.active_round;
+    statsEl.innerHTML = [
+      statCard('Total Rounds',   data.total_rounds   || 0,                                 'var(--gold)'),
+      statCard('Total Tickets',  data.total_tickets  || 0,                                 '#4cd89a'),
+      statCard('Prizes Given',   Math.round(data.total_prizes_given||0) + ' GP',           'var(--mars)'),
+      statCard('House Earnings', Math.round(data.total_house_gp||0) + ' GP',               'var(--cyan)'),
+      active ? statCard('Jackpot Now', Math.round(parseFloat(active.prize_pool_gp||0)) + ' GP', 'var(--gold)') : '',
+    ].join('');
+
+    var rounds = data.recent_rounds || [];
+    tableEl.innerHTML = rounds.length ? (
+      '<table class="adm-table" style="font-size:9px"><thead><tr>'
+      +'<th>Round</th><th>Status</th><th>Tickets</th><th>Prize</th><th>Winner</th><th>Drawn</th></tr></thead><tbody>'
+      + rounds.map(function(r) {
+        var winnerLabel = r.winner_nick || (r.winner_wallet ? r.winner_wallet.slice(0,8)+'...' : '—');
+        return '<tr>'
+          +'<td>#'+r.round_number+'</td>'
+          +'<td style="color:'+(r.status==='completed'?'#4cd89a':r.status==='cancelled'?'var(--mars)':'var(--gold)')+'">'+r.status+'</td>'
+          +'<td>'+r.ticket_count+'</td>'
+          +'<td style="color:var(--gold)">'+Math.round(parseFloat(r.prize_pool_gp||0))+' GP</td>'
+          +'<td>'+(r.winner_wallet ? '🏆 '+winnerLabel : '—')+'</td>'
+          +'<td style="font-size:8px">'+(r.drawn_at ? new Date(r.drawn_at).toLocaleDateString() : '—')+'</td>'
+          +'</tr>';
+      }).join('')
+      + '</tbody></table>'
+    ) : '<div style="font-size:10px;color:#888">No lottery rounds yet</div>';
+
+    var settings = data.settings || {};
+    settingsEl.innerHTML = Object.keys(settings).length ? Object.keys(settings).map(function(key) {
+      return '<div style="background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.12);border-radius:6px;padding:8px">'
+        +'<div style="font-size:9px;color:var(--gold);font-weight:700;margin-bottom:2px">'+escapeHtml(key)+'</div>'
+        +'<div style="display:flex;gap:4px;align-items:center">'
+        +'<input id="lot_set_'+escapeHtml(key)+'" value="'+escapeHtml(String(settings[key]))+'" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
+        +'<button onclick="saveLotterySetting(\''+escapeHtml(key)+'\')" style="font-size:9px;padding:3px 8px;background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);color:var(--gold);border-radius:3px;cursor:pointer">SAVE</button>'
+        +'</div></div>';
+    }).join('') : '<div style="font-size:10px;color:#888">No settings found. Run migration 105.</div>';
+  });
+}
+
+function saveLotterySetting(key) {
+  var inp = document.getElementById('lot_set_' + key);
+  if (!inp) return;
+  saveSetting(key, inp.value);
+}
+
+function forceLotteryDraw() {
+  if (!confirm('Force draw the current lottery round now?')) return;
+  fetch('/admin/api/lottery/force-draw', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    alert('Draw triggered! Rounds drawn: ' + d.drew);
+    loadLotteryAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════

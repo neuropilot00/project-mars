@@ -1991,4 +1991,37 @@ router.post('/achievements/grant', adminAuth, async (req, res) => {
   }
 });
 
+// ── LOTTERY ADMIN (Migration 105) ────────────────────────────────────────────
+// GET /admin/api/lottery — stats + recent rounds + settings
+router.get('/lottery', adminAuth, async (req, res) => {
+  let lotteryService;
+  try { lotteryService = require('../services/lottery'); } catch (_) {}
+  try {
+    if (!lotteryService) return res.json({ total_rounds: 0, total_tickets: 0, settings: {}, recent_rounds: [] });
+    const stats = await lotteryService.getAdminStats();
+    res.json(stats);
+  } catch (e) {
+    console.error('[Admin] lottery error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/lottery/force-draw — manually trigger draw on current open round
+router.post('/lottery/force-draw', adminAuth, async (req, res) => {
+  let lotteryService;
+  try { lotteryService = require('../services/lottery'); } catch (_) {}
+  if (!lotteryService) return res.status(503).json({ error: 'Lottery service unavailable' });
+  try {
+    const round = (await pool.query(`SELECT * FROM lottery_rounds WHERE status='open' ORDER BY id DESC LIMIT 1`)).rows[0];
+    if (!round) return res.status(400).json({ error: 'No open round found' });
+    // Force-expire by setting ends_at to past
+    await pool.query(`UPDATE lottery_rounds SET ends_at = NOW() - INTERVAL '1 second' WHERE id = $1`, [round.id]);
+    const n = await lotteryService.drawExpiredRounds();
+    res.json({ success: true, drew: n });
+  } catch (e) {
+    console.error('[Admin] lottery force-draw error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

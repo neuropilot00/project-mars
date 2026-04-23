@@ -80,6 +80,7 @@ const bettingRoutes = require('./routes/betting');
 const auctionRoutes = require('./routes/auction');
 const shipRoutes    = require('./routes/ships');
 const battleRoutes  = require('./routes/battle');
+const lotteryRoutes = require('./routes/lottery');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -192,6 +193,7 @@ app.use('/api', bettingRoutes);
 app.use('/api', auctionRoutes);
 app.use('/api', shipRoutes);
 app.use('/api', battleRoutes);
+app.use('/api', lotteryRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -750,6 +752,18 @@ async function start() {
       }, 6 * 60 * 60 * 1000);
       console.log('[TITLE] Governor milestone scheduler started (6h interval)');
     } catch(e) { console.warn('[TITLE] Could not init governor milestone scheduler:', e.message); }
+
+    // ── Lottery: Draw expired rounds (every 1 minute) ──
+    try {
+      const { drawExpiredRounds } = require('./services/lottery');
+      setInterval(async () => {
+        try {
+          const n = await drawExpiredRounds();
+          if (n > 0) console.log(`[LOTTERY] Drew ${n} round(s)`);
+        } catch(e) { console.warn('[LOTTERY] draw error:', e.message); }
+      }, 60 * 1000);
+      console.log('[LOTTERY] Draw scheduler started (1min interval)');
+    } catch(e) { console.warn('[LOTTERY] Could not init draw scheduler:', e.message); }
 
     // ── Chronicle: Weekly Report (every Monday UTC 00:00) ──
     try {
