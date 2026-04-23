@@ -87,6 +87,7 @@ const weeklyRoutes      = require('./routes/weeklyChallenges');
 const dividendRoutes    = require('./routes/dividends');
 const monumentRoutes    = require('./routes/monuments');
 const upgradeRoutes     = require('./routes/claimUpgrades');
+const bountyRoutes      = require('./routes/bounty');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -206,6 +207,7 @@ app.use('/api', weeklyRoutes);
 app.use('/api', dividendRoutes);
 app.use('/api', monumentRoutes);
 app.use('/api', upgradeRoutes);
+app.use('/api', bountyRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -862,6 +864,15 @@ async function start() {
       }, 60 * 60 * 1000); // Check every hour
       console.log('[CHRONICLE] Weekly report scheduler started (check: 1h)');
     } catch(e) { console.warn('[CHRONICLE] Could not init weekly report scheduler:', e.message); }
+
+    // ── Bounty: Expire stale bounties (every 1 hour) ──
+    try {
+      const { expireBounties } = require('./services/bounty');
+      setInterval(async () => {
+        try { await expireBounties(); } catch(e) { console.warn('[BOUNTY] expire error:', e.message); }
+      }, 60 * 60 * 1000);
+      console.log('[BOUNTY] Expiry scheduler started (1h interval)');
+    } catch(e) { console.warn('[BOUNTY] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

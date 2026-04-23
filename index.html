@@ -3689,6 +3689,26 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px" data-i18n="loading_dots">Loading...</div>
           </div>
         </div>
+
+        <!-- 🎯 BOUNTY BOARD Section -->
+        <div id="bountyBoardSection" style="padding:8px 10px;border-top:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
+            <span style="font-size:9px;color:var(--mars);letter-spacing:2px;font-family:var(--fn);font-weight:700">🎯 <span data-i18n="bounty_title">BOUNTY BOARD</span></span>
+            <div style="display:flex;gap:4px">
+              <button onclick="loadBountyBoard()" style="font-size:9px;background:rgba(232,72,85,.1);border:1px solid rgba(232,72,85,.2);color:var(--mars);padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+              <button onclick="openPostBountyModal()" style="font-size:9px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.35);color:var(--mars);padding:3px 10px;border-radius:4px;cursor:pointer;font-weight:700" data-i18n="bounty_post_btn">+ POST BOUNTY</button>
+            </div>
+          </div>
+          <!-- Sub-tabs: Active | Mine | On Me -->
+          <div style="display:flex;gap:4px;margin-bottom:8px">
+            <button id="bbtabActive"  onclick="switchBountyTab('active')"  style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(232,72,85,.18);border:1px solid rgba(232,72,85,.45);color:var(--mars);cursor:pointer;font-weight:700" data-i18n="bounty_tab_active">ACTIVE</button>
+            <button id="bbtabMine"    onclick="switchBountyTab('mine')"    style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="bounty_tab_mine">MY BOUNTIES</button>
+            <button id="bbtabOnMe"    onclick="switchBountyTab('onme')"    style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="bounty_tab_onme">ON ME</button>
+          </div>
+          <div id="bountyBoardContainer">
+            <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">Connect wallet to view bounties</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: GOVERN -->
@@ -4779,6 +4799,45 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <button onclick="submitPlaceMonument()"
       style="width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(255,160,50,.18),rgba(255,160,50,.06));border:1px solid rgba(255,160,50,.45);color:var(--gold);font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:1px"
       data-i18n="monument_place_btn">🗿 PLACE MONUMENT</button>
+  </div>
+</div>
+
+<!-- Post Bounty Modal -->
+<div id="postBountyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2200;align-items:center;justify-content:center" onclick="if(event.target===this)closePostBountyModal()">
+  <div style="width:340px;max-width:94vw;background:var(--panel2);border:1px solid rgba(232,72,85,.35);border-radius:14px;padding:20px;font-family:var(--fn)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <span style="font-size:22px">🎯</span>
+      <div>
+        <div style="font-size:13px;font-weight:800;color:var(--mars);letter-spacing:1px" data-i18n="bounty_modal_title">POST BOUNTY</div>
+        <div style="font-size:9px;color:var(--tx3)" data-i18n="bounty_modal_sub">Reward the first player to hijack this territory</div>
+      </div>
+      <button onclick="closePostBountyModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer">✕</button>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px" data-i18n="bounty_target_label">TARGET WALLET / NICKNAME</div>
+      <input id="bountyTargetInput" type="text" placeholder="0x... or nickname"
+        style="width:100%;box-sizing:border-box;font-size:10px;padding:7px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(232,72,85,.25);color:#fff;border-radius:6px;font-family:var(--fn)">
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px" data-i18n="bounty_amount_label">GP REWARD</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input id="bountyAmountInput" type="number" min="50" placeholder="min 50"
+          style="flex:1;font-size:10px;padding:7px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(232,72,85,.25);color:#fff;border-radius:6px;font-family:var(--fn)">
+        <span style="font-size:10px;color:var(--gold);font-weight:700">GP</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px" data-i18n="bounty_msg_label">TAUNT MESSAGE (optional)</div>
+      <input id="bountyMsgInput" type="text" maxlength="150" placeholder="e.g. Take this territory and earn!"
+        style="width:100%;box-sizing:border-box;font-size:10px;padding:7px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:6px;font-family:var(--fn)">
+    </div>
+
+    <button onclick="submitPostBounty()"
+      style="width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(232,72,85,.18),rgba(232,72,85,.06));border:1px solid rgba(232,72,85,.5);color:var(--mars);font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:1px"
+      data-i18n="bounty_post_submit">🎯 POST BOUNTY</button>
   </div>
 </div>
 
@@ -10613,6 +10672,7 @@ var I18N = {
     staking_title: 'GP STAKING', staking_stake_btn: '💎 STAKE GP', staking_confirm_title: 'STAKE GP', staking_confirm_btn: 'STAKE', staking_withdraw_title: 'WITHDRAW STAKE', staking_withdraw_btn: 'WITHDRAW',
     burn_title: 'GP BURN',
     weekly_title: 'WEEKLY CHALLENGES',
+    bounty_title: 'BOUNTY BOARD', bounty_post_btn: '+ POST BOUNTY', bounty_tab_active: 'ACTIVE', bounty_tab_mine: 'MY BOUNTIES', bounty_tab_onme: 'ON ME', bounty_modal_title: 'POST BOUNTY', bounty_modal_sub: 'Reward the first player to hijack this territory', bounty_target_label: 'TARGET WALLET / NICKNAME', bounty_amount_label: 'GP REWARD', bounty_msg_label: 'TAUNT MESSAGE', bounty_post_submit: '🎯 POST BOUNTY',
     upgrades_title: 'TERRITORY UPGRADES', upgrades_upgrade_btn: 'UPGRADE TERRITORY',
     monuments_title: 'MY MONUMENTS', monument_place_title: 'PLACE MONUMENT', monument_place_btn: 'PLACE MONUMENT', monument_territory: 'TERRITORY', monument_type: 'TYPE', monument_name_label: 'MONUMENT NAME', monument_inscription: 'INSCRIPTION', monument_cost: 'Cost',
     quests_failed: 'Failed to load quests',
@@ -11194,6 +11254,7 @@ var I18N = {
     staking_title: 'GP 스테이킹', staking_stake_btn: '💎 GP 스테이크', staking_confirm_title: 'GP 스테이킹', staking_confirm_btn: '스테이크', staking_withdraw_title: '스테이크 인출', staking_withdraw_btn: '인출',
     burn_title: 'GP 소각',
     weekly_title: '주간 챌린지',
+    bounty_title: '현상금 게시판', bounty_post_btn: '+ 현상금 게시', bounty_tab_active: '활성', bounty_tab_mine: '내 현상금', bounty_tab_onme: '나에게', bounty_modal_title: '현상금 게시', bounty_modal_sub: '영토를 탈취하는 첫 번째 플레이어에게 보상', bounty_target_label: '대상 지갑/닉네임', bounty_amount_label: 'GP 보상', bounty_msg_label: '도발 메시지', bounty_post_submit: '🎯 현상금 게시',
     upgrades_title: '영토 강화', upgrades_upgrade_btn: '영토 강화',
     monuments_title: '내 기념비', monument_place_title: '기념비 설치', monument_place_btn: '기념비 설치', monument_territory: '영토', monument_type: '유형', monument_name_label: '기념비 이름', monument_inscription: '비문', monument_cost: '비용',
     quests_failed: '퀘스트 로딩 실패',
@@ -11774,6 +11835,7 @@ var I18N = {
     staking_title: 'GPステーキング', staking_stake_btn: '💎 ステーク', staking_confirm_title: 'GPステーキング', staking_confirm_btn: 'ステーク', staking_withdraw_title: '引き出し', staking_withdraw_btn: '引き出す',
     burn_title: 'GP焼却',
     weekly_title: 'ウィークリーチャレンジ',
+    bounty_title: '賞金ボード', bounty_post_btn: '+ 賞金を掲示', bounty_tab_active: 'アクティブ', bounty_tab_mine: 'マイ賞金', bounty_tab_onme: '自分への', bounty_modal_title: '賞金を掲示', bounty_modal_sub: '最初に領土を占領したプレイヤーへの報酬', bounty_target_label: 'ターゲット', bounty_amount_label: 'GP報酬', bounty_msg_label: '挑発メッセージ', bounty_post_submit: '🎯 賞金を掲示',
     upgrades_title: '領土強化', upgrades_upgrade_btn: '領土を強化',
     monuments_title: '記念碑', monument_place_title: '記念碑を設置', monument_place_btn: '記念碑を設置', monument_territory: '領土', monument_type: 'タイプ', monument_name_label: '記念碑名', monument_inscription: '銘文', monument_cost: 'コスト',
     quests_failed: 'クエストの読込に失敗',
@@ -12338,6 +12400,7 @@ var I18N = {
     staking_title: 'GP质押', staking_stake_btn: '💎 质押GP', staking_confirm_title: 'GP质押', staking_confirm_btn: '质押', staking_withdraw_title: '提取质押', staking_withdraw_btn: '提取',
     burn_title: 'GP销毁',
     weekly_title: '每周挑战',
+    bounty_title: '赏金板', bounty_post_btn: '+ 发布赏金', bounty_tab_active: '活跃', bounty_tab_mine: '我的赏金', bounty_tab_onme: '针对我', bounty_modal_title: '发布赏金', bounty_modal_sub: '奖励第一个夺取该领地的玩家', bounty_target_label: '目标钱包/昵称', bounty_amount_label: 'GP奖励', bounty_msg_label: '嘲讽消息', bounty_post_submit: '🎯 发布赏金',
     upgrades_title: '领土升级', upgrades_upgrade_btn: '升级领土',
     monuments_title: '我的纪念碑', monument_place_title: '放置纪念碑', monument_place_btn: '放置纪念碑', monument_territory: '领土', monument_type: '类型', monument_name_label: '纪念碑名称', monument_inscription: '铭文', monument_cost: '费用',
     quests_failed: '任务加载失败',
@@ -15702,7 +15765,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   try{ clearBaseTabDot(tab); }catch(_e){}
@@ -24833,6 +24896,142 @@ function claimWeeklyReward(instanceId) {
       loadWalletData();
     })
     .catch(function() { showToast('Claim failed', 'error'); });
+}
+
+// ── Bounty Board ──────────────────────────────────────────────────────────────
+
+var _bountyTab = 'active';
+
+function switchBountyTab(tab) {
+  _bountyTab = tab;
+  ['active','mine','onme'].forEach(function(t) {
+    var btn = document.getElementById('bbtab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (!btn) return;
+    btn.style.background = t === tab ? 'rgba(232,72,85,.18)' : 'rgba(255,255,255,.05)';
+    btn.style.borderColor = t === tab ? 'rgba(232,72,85,.45)' : 'rgba(255,255,255,.1)';
+    btn.style.color = t === tab ? 'var(--mars)' : 'var(--tx3)';
+    btn.style.fontWeight = t === tab ? '700' : '400';
+  });
+  loadBountyBoard();
+}
+
+function loadBountyBoard() {
+  var el = document.getElementById('bountyBoardContainer');
+  if (!el) return;
+
+  if (!walletState.address && _bountyTab !== 'active') {
+    el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Connect wallet to view</div>';
+    return;
+  }
+  el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading...</div>';
+
+  var url = '/api/bounties';
+  if (_bountyTab === 'mine') url = '/api/bounties/my-bounties?wallet=' + walletState.address;
+  else if (_bountyTab === 'onme') url = '/api/bounties/on-me?wallet=' + walletState.address;
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var list = data.bounties || [];
+      if (!list.length) {
+        el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">No bounties</div>';
+        return;
+      }
+      renderBountyList(list, el);
+    }).catch(function() {
+      el.innerHTML = '<div style="color:var(--mars);font-size:10px;text-align:center;padding:8px">Failed to load</div>';
+    });
+}
+
+function renderBountyList(bounties, el) {
+  var html = '<div style="display:flex;flex-direction:column;gap:6px">';
+  var now = Date.now();
+  bounties.forEach(function(b) {
+    var targetNick = b.target_nick || b.target_wallet.slice(0,10) + '…';
+    var posterNick = b.poster_nick || b.poster.slice(0,10) + '…';
+    var statusColor = b.status === 'active' ? 'var(--gn)' : b.status === 'claimed' ? '#5cbbff' : 'var(--tx3)';
+    var expires = b.expires_at ? Math.max(0, new Date(b.expires_at) - now) : 0;
+    var expiresStr = expires > 0 ? Math.floor(expires / 86400000) + 'd ' + Math.floor((expires % 86400000) / 3600000) + 'h' : 'expired';
+
+    html += '<div style="background:rgba(232,72,85,.05);border:1px solid rgba(232,72,85,.2);border-radius:8px;padding:8px 10px">';
+    html += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:4px">';
+    html += '<div style="flex:1">';
+    html += '<div style="font-size:10px;font-weight:700;color:var(--mars)">🎯 ' + escHtml(targetNick) + '</div>';
+    html += '<div style="font-size:8px;color:var(--tx3);margin-top:2px">by ' + escHtml(posterNick) + ' · ' + (b.status === 'active' ? 'expires in ' + expiresStr : b.status.toUpperCase()) + '</div>';
+    html += '</div>';
+    html += '<div style="text-align:right"><div style="font-size:12px;font-weight:800;color:var(--gold)">' + parseFloat(b.gp_amount).toFixed(0) + ' GP</div>';
+    html += '<div style="font-size:8px;color:' + statusColor + '">' + b.status.toUpperCase() + '</div>';
+    html += '</div></div>';
+    if (b.message) html += '<div style="font-size:9px;color:var(--tx2);font-style:italic;padding-top:4px;border-top:1px solid rgba(255,255,255,.05)">"' + escHtml(b.message) + '"</div>';
+
+    // Cancel button for own active bounties
+    if (_bountyTab === 'mine' && b.status === 'active' && walletState.address && b.poster === walletState.address.toLowerCase()) {
+      html += '<button onclick="cancelBounty(' + b.id + ')" style="margin-top:6px;font-size:8px;padding:2px 8px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:4px;cursor:pointer">CANCEL</button>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function openPostBountyModal() {
+  if (!walletState.address) { showToast('Connect wallet first', 'error'); return; }
+  var modal = document.getElementById('postBountyModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  document.getElementById('bountyTargetInput').value = '';
+  document.getElementById('bountyAmountInput').value = '';
+  document.getElementById('bountyMsgInput').value = '';
+}
+
+function closePostBountyModal() {
+  var modal = document.getElementById('postBountyModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function submitPostBounty() {
+  var target = (document.getElementById('bountyTargetInput') || {}).value.trim();
+  var amount = parseFloat((document.getElementById('bountyAmountInput') || {}).value);
+  var msg    = ((document.getElementById('bountyMsgInput') || {}).value || '').trim();
+
+  if (!target) { showToast('Enter a target wallet or nickname', 'error'); return; }
+  if (isNaN(amount) || amount < 50) { showToast('Minimum bounty is 50 GP', 'error'); return; }
+  if (!walletState.address) { showToast('Connect wallet', 'error'); return; }
+
+  gameConfirm('🎯', 'POST BOUNTY',
+    'Spend ' + amount + ' GP to place a bounty on "' + escHtml(target) + '"? GP is held in escrow until the bounty is claimed or expires.')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      return fetch('/api/bounties/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: walletState.address, targetWallet: target, gpAmount: amount, message: msg })
+      }).then(function(r){ return r.json(); }).then(function(d) {
+        if (d.error) { showToast(d.error, 'error'); return; }
+        showToast('🎯 Bounty posted! ' + amount + ' GP escrowed', 'success');
+        closePostBountyModal();
+        switchBountyTab('mine');
+        loadWalletData();
+      });
+    }).catch(function(e) { showToast(e.message || 'Failed', 'error'); });
+}
+
+function cancelBounty(bountyId) {
+  if (!walletState.address) return;
+  gameConfirm('🎯', 'CANCEL BOUNTY', 'Cancel this bounty? A small cancellation fee applies.')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      return fetch('/api/bounties/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: walletState.address, bountyId: bountyId })
+      }).then(function(r){ return r.json(); }).then(function(d) {
+        if (d.error) { showToast(d.error, 'error'); return; }
+        showToast('Bounty cancelled. ' + d.refund + ' GP refunded', 'success');
+        loadBountyBoard();
+        loadWalletData();
+      });
+    }).catch(function(e) { showToast(e.message || 'Failed', 'error'); });
 }
 
 // ── Territory Upgrades ────────────────────────────────────────────────────────

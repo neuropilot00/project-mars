@@ -2332,4 +2332,53 @@ router.post('/upgrades/setting', adminAuth, async (req, res) => {
   }
 });
 
+// ── Bounty Board Admin ─────────────────────────────────────────────────────────
+
+// GET /admin/api/bounties
+router.get('/bounties', adminAuth, async (req, res) => {
+  try {
+    let bountySvc;
+    try { bountySvc = require('../services/bounty'); } catch (_) {}
+    if (!bountySvc) return res.status(503).json({ error: 'Bounty service unavailable' });
+    const stats = await bountySvc.getAdminStats();
+    res.json(stats);
+  } catch (e) {
+    console.error('[Admin] bounties error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/bounties/setting
+router.post('/bounties/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body;
+  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
+  if (!key.startsWith('bounty_')) return res.status(400).json({ error: 'Invalid bounty key' });
+  try {
+    await pool.query(`UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`, [key, String(value)]);
+    await auditLog(req, 'update_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/bounties/cancel/:id — admin force cancel
+router.post('/bounties/cancel/:id', adminAuth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const res2 = await pool.query(
+      `UPDATE gp_bounties SET status='cancelled'
+        WHERE id=$1 AND status='active' RETURNING *`, [id]
+    );
+    if (!res2.rows.length) return res.status(404).json({ error: 'Bounty not found or not active' });
+    const b = res2.rows[0];
+    // Refund poster
+    await pool.query(`UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`, [b.poster, b.gp_amount]);
+    await auditLog(req, 'bounty_admin_cancel', `bounty:${id}`, { poster: b.poster, amount: b.gp_amount });
+    res.json({ ok: true, refunded: b.gp_amount });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

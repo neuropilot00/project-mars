@@ -29,6 +29,8 @@ let monumentSvc;
 try { monumentSvc = require('../services/monuments'); } catch (_e) {}
 let upgradeSvc;
 try { upgradeSvc = require('../services/claimUpgrades'); } catch (_e) {}
+let bountySvc;
+try { bountySvc = require('../services/bounty'); } catch (_e) {}
 let newsSvc;
 try { newsSvc = require('../services/news'); } catch (_e) {}
 let missionService;
@@ -1315,6 +1317,15 @@ router.post('/claim', writeLimiter, async (req, res) => {
     }
 
     await client.query('COMMIT');
+
+    // ── Bounty payouts (fire-and-forget, non-blocking) ──
+    if (bountySvc && attackWon > 0) {
+      const defenders = [...new Set(wonPixels.map(ep => ep.existing.owner).filter(Boolean))];
+      const lastBattleId = battleResults && battleResults.length ? battleResults[battleResults.length-1]?.id : null;
+      for (const defender of defenders) {
+        bountySvc.processHijackBounty(walletLower, defender, lastBattleId).catch(() => {});
+      }
+    }
 
     // Telegram notification for large hijacks (5+ pixels won)
     if (attackWon >= 5 && telegramService) {
