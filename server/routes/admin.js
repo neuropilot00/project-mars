@@ -2887,4 +2887,47 @@ router.post('/vip/setting', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPEDITION SYSTEM — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/expeditions — stats + recent + settings
+router.get('/expeditions', adminAuth, async (req, res) => {
+  let svc;
+  try { svc = require('../services/expedition'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/expeditions/setting — update expedition_* setting
+router.post('/expeditions/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('expedition_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'expedition_setting_update', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/expeditions/:id/cancel — admin force-cancel
+router.post('/expeditions/:id/cancel', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  try {
+    const { rows } = await pool.query(
+      `SELECT wallet, gp_spent FROM expeditions WHERE id=$1 AND status='active'`, [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Not found or not active' });
+    const exp = rows[0];
+    await pool.query(`UPDATE expeditions SET status='cancelled' WHERE id=$1`, [id]);
+    // Full refund on admin cancel
+    await pool.query(
+      `INSERT INTO gp_balances (wallet, balance) VALUES ($1,$2)
+       ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
+      [exp.wallet, exp.gp_spent]);
+    await auditLog(req, 'expedition_admin_cancel', `expedition:${id}`, { wallet: exp.wallet });
+    res.json({ ok: true, refunded: exp.gp_spent });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

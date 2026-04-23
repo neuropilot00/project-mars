@@ -1187,6 +1187,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="allianceAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ EXPEDITION SYSTEM ═══ -->
+  <div class="section cat-gp" style="display:none" id="expeditionAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#80deea">🚀 EXPEDITIONS</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadExpeditionAdmin()" style="font-size:10px;background:rgba(128,222,234,.12);border:1px solid rgba(128,222,234,.3);color:#80deea;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+      </div>
+    </div>
+    <div id="expAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80deea">RECENT EXPEDITIONS</span></div>
+    <div id="expAdmRecent" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#80deea">SETTINGS</span></div>
+    <div id="expAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ VIP PASS SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="vipAdminSection">
     <div class="sec-header">
@@ -1902,7 +1917,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -4638,6 +4653,88 @@ function adminCancelDuel(id) {
     showToast('✅ Duel #'+id+' cancelled, refunded: '+d.refunded+' GP');
     loadDuelAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  EXPEDITION ADMIN (Migration 122)
+// ══════════════════════════════════════
+function loadExpeditionAdmin() {
+  var statsEl    = document.getElementById('expAdmStats');
+  var recentEl   = document.getElementById('expAdmRecent');
+  var settingsEl = document.getElementById('expAdmSettings');
+  if (!statsEl) return;
+  [statsEl, recentEl, settingsEl].forEach(function(el) {
+    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
+  });
+  fetch('/admin/api/expeditions', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var t = d.totals || {};
+      statsEl.innerHTML = [
+        ['Total',          t.total_expeditions  || 0],
+        ['Active',         t.active_expeditions || 0],
+        ['GP Spent',       parseFloat(t.total_gp_spent    || 0).toFixed(0)+' GP'],
+        ['GP Rewarded',    parseFloat(t.total_gp_rewarded || 0).toFixed(0)+' GP'],
+        ['Unique Players', t.unique_players     || 0]
+      ].map(function(kv) {
+        return '<div style="background:rgba(128,222,234,.06);border:1px solid rgba(128,222,234,.15);border-radius:6px;padding:8px;text-align:center">'
+          +'<div style="color:#888;font-size:10px;margin-bottom:2px">'+kv[0]+'</div>'
+          +'<div style="color:#80deea;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      var rows = (d.recent || []).map(function(r) {
+        var statusColor = {active:'#ffb74d',completed:'#a0e8a0',cancelled:'#888',expired:'#555'}[r.status]||'#888';
+        var reward = r.reward_label || '—';
+        return '<tr>'
+          +'<td>'+r.id+'</td>'
+          +'<td>'+(r.nickname || r.wallet.slice(0,10)+'…')+'</td>'
+          +'<td>'+escapeHtml(r.expedition_type||'')+'</td>'
+          +'<td>'+r.gp_spent+' GP</td>'
+          +'<td>'+r.duration_h+'h</td>'
+          +'<td style="color:'+statusColor+'">'+r.status+'</td>'
+          +'<td style="color:#ffcc02">'+escapeHtml(reward)+'</td>'
+          +'<td>'+(r.status==='active'?'<button onclick="adminCancelExpedition('+r.id+')" style="font-size:9px;padding:2px 6px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">CANCEL</button>':'—')+'</td>'
+          +'</tr>';
+      }).join('');
+      recentEl.innerHTML = rows.length
+        ? '<table class="adm-table"><thead><tr><th>#</th><th>Player</th><th>Type</th><th>Cost</th><th>Dur</th><th>Status</th><th>Reward</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'
+        : '<div style="color:#555;font-size:12px;padding:8px">No expeditions yet.</div>';
+
+      settingsEl.innerHTML = (d.settings || []).map(function(s) {
+        return '<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:6px 10px">'
+          +'<span style="color:#888;font-size:11px;flex:1">'+escapeHtml(s.key.replace('expedition_',''))+'</span>'
+          +'<input id="exps_'+s.key+'" value="'+escapeHtml(s.value)+'" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:4px 8px;border-radius:4px;width:90px;font-size:11px">'
+          +'<button onclick="saveExpeditionSetting(\''+s.key+'\')" style="font-size:10px;background:rgba(128,222,234,.12);border:1px solid rgba(128,222,234,.3);color:#80deea;padding:3px 8px;border-radius:4px;cursor:pointer">SAVE</button>'
+          +'</div>';
+      }).join('');
+    })
+    .catch(function(e) { if (statsEl) statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function saveExpeditionSetting(key) {
+  var val = document.getElementById('exps_'+key);
+  if (!val) return;
+  fetch('/admin/api/expeditions/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key: key, value: val.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e) { alert('Error: '+e.message); });
+}
+
+function adminCancelExpedition(id) {
+  if (!confirm('Cancel expedition #'+id+' and refund GP?')) return;
+  fetch('/admin/api/expeditions/'+id+'/cancel', {
+    method: 'POST',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ Expedition cancelled, refunded: '+d.refunded+' GP');
+    loadExpeditionAdmin();
+  }).catch(function(e) { alert('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════

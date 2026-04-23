@@ -3365,6 +3365,43 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
           </div>
         </div>
+
+        <!-- 🚀 EXPEDITIONS (collapsible) -->
+        <div class="base-section-title" onclick="toggleExpeditionPanel()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+          <span>🚀 <span data-i18n="expedition_title">EXPEDITIONS</span></span>
+          <span id="expeditionToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="expeditionPanel" style="display:none;padding:4px 0 8px">
+          <!-- Active expedition status -->
+          <div id="expeditionActive" style="display:none;padding:8px;border-radius:6px;background:rgba(128,222,234,.06);border:1px solid rgba(128,222,234,.2);margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span id="expActiveIcon" style="font-size:20px">🚀</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:10px;color:var(--tx);font-weight:700" id="expActiveLabel"></div>
+                <div style="font-size:9px;color:var(--tx3)"><span data-i18n="expedition_returns">Returns</span>: <span id="expActiveReturns"></span></div>
+              </div>
+              <button onclick="cancelActiveExpedition()" style="font-size:8px;padding:3px 7px;border-radius:4px;background:rgba(232,72,85,.1);border:1px solid rgba(232,72,85,.25);color:var(--red);cursor:pointer" data-i18n="expedition_cancel_btn">CANCEL</button>
+            </div>
+          </div>
+          <!-- Launch new expedition -->
+          <div id="expeditionLauncher">
+            <div style="font-size:9px;color:var(--tx3);margin-bottom:6px" data-i18n="expedition_select_claim">SELECT TERRITORY & TYPE</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <select id="expClaimSelect" style="background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:6px 8px;border-radius:4px;font-family:var(--fn)">
+                <option value="">Loading territories…</option>
+              </select>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="expTypeButtons"></div>
+              <div style="display:flex;gap:4px;flex-wrap:wrap" id="expDurationButtons"></div>
+              <div style="font-size:9px;color:var(--tx3);padding:4px 0">Cost: <span id="expCostPreview" style="color:#80deea;font-weight:700">—</span></div>
+              <button onclick="launchExpeditionAction()" id="expLaunchBtn" style="padding:8px;border-radius:6px;background:linear-gradient(135deg,rgba(128,222,234,.3),rgba(128,222,234,.1));border:1px solid rgba(128,222,234,.4);color:#80deea;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="expedition_launch_btn">🚀 LAUNCH EXPEDITION</button>
+            </div>
+          </div>
+          <!-- History -->
+          <div style="margin-top:8px">
+            <button onclick="toggleExpeditionHistory()" style="font-size:9px;padding:3px 10px;border-radius:10px;border:1px solid rgba(128,222,234,.2);background:rgba(128,222,234,.06);color:#80deea;cursor:pointer;font-family:var(--fn)" data-i18n="expedition_history_btn">📜 EXPEDITION LOG</button>
+            <div id="expeditionHistoryPanel" style="display:none;margin-top:8px"></div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: SECTORS -->
@@ -10920,6 +10957,7 @@ var I18N = {
     alliance_title: 'ALLIANCES', alliance_members: 'MEMBERS', alliance_treasury: 'TREASURY', alliance_defense: 'DEFENSE BONUS', alliance_join_btn: 'JOIN', alliance_join_confirm: 'Join Alliance?', alliance_leave_btn: '🚪 LEAVE', alliance_leave_title: 'Leave Alliance?', alliance_leave_confirm: 'You will be removed from the alliance.', alliance_deposit_btn: '💰 DEPOSIT', alliance_withdraw_btn: '📤 WITHDRAW', alliance_deposit_prompt: 'How much GP to deposit?', alliance_withdraw_prompt: 'Withdraw GP from treasury (fee applies):', alliance_withdraw_note_prompt: 'Note (optional):', alliance_create_title: 'CREATE ALLIANCE', alliance_create_btn: '🛡️ CREATE ALLIANCE', alliance_browse_title: 'BROWSE ALLIANCES', alliance_browse_hint: 'Search or scroll to find alliances',
     base_lucky_btn: '📦 CRATES', lucky_box_open_btn: '🎁 OPEN', lucky_box_recent_title: '🎉 RECENT OPENS', lucky_box_my_history: '📜 MY HISTORY', lucky_box_confirm_title: 'Open Crate?',
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 GET VIP', vip_status_active: 'VIP ACTIVE', vip_expires: 'Expires', vip_purchase_title: 'Get VIP Pass?',
+    expedition_title: 'EXPEDITIONS', expedition_returns: 'Returns', expedition_cancel_btn: 'CANCEL', expedition_launch_btn: '🚀 LAUNCH EXPEDITION', expedition_history_btn: '📜 EXPEDITION LOG', expedition_select_claim: 'SELECT TERRITORY & TYPE', expedition_launch_confirm: 'Launch Expedition?', expedition_cancel_confirm: 'Cancel Expedition?',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11510,6 +11548,7 @@ var I18N = {
     alliance_title: '동맹', alliance_members: '멤버', alliance_treasury: '금고', alliance_defense: '방어 보너스', alliance_join_btn: '가입', alliance_join_confirm: '동맹에 가입하시겠습니까?', alliance_leave_btn: '🚪 탈퇴', alliance_leave_title: '동맹 탈퇴?', alliance_leave_confirm: '동맹에서 제거됩니다.', alliance_deposit_btn: '💰 입금', alliance_withdraw_btn: '📤 출금', alliance_deposit_prompt: '입금할 GP 금액:', alliance_withdraw_prompt: '금고에서 출금 (수수료 적용):', alliance_withdraw_note_prompt: '메모 (선택):', alliance_create_title: '동맹 창설', alliance_create_btn: '🛡️ 동맹 창설', alliance_browse_title: '동맹 목록', alliance_browse_hint: '검색하거나 스크롤하여 동맹을 찾으세요',
     base_lucky_btn: '📦 크레이트', lucky_box_open_btn: '🎁 열기', lucky_box_recent_title: '🎉 최근 오픈', lucky_box_my_history: '📜 내 기록', lucky_box_confirm_title: '크레이트 오픈?',
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 VIP 구매', vip_status_active: 'VIP 활성', vip_expires: '만료', vip_purchase_title: 'VIP 패스 구매?',
+    expedition_title: '원정대', expedition_returns: '귀환', expedition_cancel_btn: '취소', expedition_launch_btn: '🚀 원정 출발', expedition_history_btn: '📜 원정 기록', expedition_select_claim: '영토 및 유형 선택', expedition_launch_confirm: '원정 출발?', expedition_cancel_confirm: '원정 취소?',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -12099,6 +12138,7 @@ var I18N = {
     alliance_title: '同盟', alliance_members: 'メンバー', alliance_treasury: '金庫', alliance_defense: '防衛ボーナス', alliance_join_btn: '参加', alliance_join_confirm: '同盟に参加しますか？', alliance_leave_btn: '🚪 脱退', alliance_leave_title: '同盟を脱退？', alliance_leave_confirm: '同盟から削除されます。', alliance_deposit_btn: '💰 入金', alliance_withdraw_btn: '📤 出金', alliance_deposit_prompt: '入金するGP額:', alliance_withdraw_prompt: '金庫から出金（手数料あり）:', alliance_withdraw_note_prompt: 'メモ（任意）:', alliance_create_title: '同盟結成', alliance_create_btn: '🛡️ 同盟を結成', alliance_browse_title: '同盟一覧', alliance_browse_hint: '検索またはスクロールして同盟を探す',
     base_lucky_btn: '📦 クレート', lucky_box_open_btn: '🎁 開ける', lucky_box_recent_title: '🎉 最近のオープン', lucky_box_my_history: '📜 マイ履歴', lucky_box_confirm_title: 'クレートを開く？',
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 VIP取得', vip_status_active: 'VIP有効', vip_expires: '有効期限', vip_purchase_title: 'VIPパス購入？',
+    expedition_title: '遠征', expedition_returns: '帰還', expedition_cancel_btn: 'キャンセル', expedition_launch_btn: '🚀 遠征開始', expedition_history_btn: '📜 遠征ログ', expedition_select_claim: '領土とタイプを選択', expedition_launch_confirm: '遠征開始？', expedition_cancel_confirm: '遠征キャンセル？',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12672,6 +12712,7 @@ var I18N = {
     alliance_title: '联盟', alliance_members: '成员', alliance_treasury: '金库', alliance_defense: '防御加成', alliance_join_btn: '加入', alliance_join_confirm: '加入联盟？', alliance_leave_btn: '🚪 退出', alliance_leave_title: '退出联盟？', alliance_leave_confirm: '您将被移出联盟。', alliance_deposit_btn: '💰 存入', alliance_withdraw_btn: '📤 提取', alliance_deposit_prompt: '存入多少GP？', alliance_withdraw_prompt: '从金库提取GP（含手续费）:', alliance_withdraw_note_prompt: '备注（可选）:', alliance_create_title: '创建联盟', alliance_create_btn: '🛡️ 创建联盟', alliance_browse_title: '浏览联盟', alliance_browse_hint: '搜索或滚动查找联盟',
     base_lucky_btn: '📦 宝箱', lucky_box_open_btn: '🎁 开启', lucky_box_recent_title: '🎉 最近开启', lucky_box_my_history: '📜 我的记录', lucky_box_confirm_title: '开启宝箱？',
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 获取VIP', vip_status_active: 'VIP已激活', vip_expires: '过期', vip_purchase_title: '购买VIP通行证？',
+    expedition_title: '远征', expedition_returns: '归来', expedition_cancel_btn: '取消', expedition_launch_btn: '🚀 发动远征', expedition_history_btn: '📜 远征记录', expedition_select_claim: '选择领土与类型', expedition_launch_confirm: '发动远征？', expedition_cancel_confirm: '取消远征？',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -26306,6 +26347,208 @@ function cancelRentalListing(rentalId) {
     showToast(t('rental_cancelled')||'Listing cancelled','success');
     loadRentalPanel();
   }).catch(function(e){ showToast(e.message,'error'); });
+}
+
+// ── Expedition System (Migration 122) ────────────────────────────────────────
+
+var _expeditionInfo = null;
+var _expSelectedType = 'salvage';
+var _expSelectedDur  = 1;
+var _expActiveId     = null;
+
+function toggleExpeditionPanel() {
+  var panel = document.getElementById('expeditionPanel');
+  var tog   = document.getElementById('expeditionToggle');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : '';
+  if (tog) tog.textContent = open ? '▼' : '▲';
+  if (!open) loadExpeditionPanel();
+}
+
+function loadExpeditionPanel() {
+  var w = walletState && walletState.address;
+  if (!w) return;
+
+  // Load expedition info (types, costs)
+  fetch('/api/expeditions/info').then(function(r){return r.json();}).then(function(info){
+    _expeditionInfo = info;
+    renderExpeditionTypes(info);
+    renderExpeditionDurations(info);
+    updateExpeditionCostPreview();
+  }).catch(function(){});
+
+  // Load player's territories
+  var select = document.getElementById('expClaimSelect');
+  if (select) {
+    select.innerHTML = '<option value="">Loading…</option>';
+    fetch('/api/claims/my?wallet=' + encodeURIComponent(w))
+      .then(function(r){return r.json();}).then(function(claims){
+        if (!Array.isArray(claims) || !claims.length) {
+          select.innerHTML = '<option value="">No territories owned</option>';
+          return;
+        }
+        select.innerHTML = claims.map(function(c) {
+          return '<option value="'+c.id+'">'+(c.name||('Territory #'+c.id))+' ('+c.pixel_count+' px)</option>';
+        }).join('');
+      }).catch(function(){ select.innerHTML = '<option value="">Error loading territories</option>'; });
+  }
+
+  // Load active expedition
+  fetch('/api/expeditions/my?wallet=' + encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(exps){
+      var active = (exps||[]).find(function(e){ return e.status === 'active'; });
+      var activeEl = document.getElementById('expeditionActive');
+      var launchEl = document.getElementById('expeditionLauncher');
+      if (active) {
+        _expActiveId = active.id;
+        document.getElementById('expActiveIcon').textContent = getExpIcon(active.expedition_type);
+        document.getElementById('expActiveLabel').textContent = getExpLabel(active.expedition_type) + ' · ' + active.duration_h + 'h';
+        document.getElementById('expActiveReturns').textContent = new Date(active.returns_at).toLocaleString();
+        if (activeEl) activeEl.style.display = '';
+        if (launchEl) launchEl.style.opacity = '0.4';
+      } else {
+        _expActiveId = null;
+        if (activeEl) activeEl.style.display = 'none';
+        if (launchEl) launchEl.style.opacity = '1';
+      }
+    }).catch(function(){});
+}
+
+function getExpIcon(type) {
+  return {salvage:'🔍',survey:'📡',raid:'⚔️',deep_dive:'🚀'}[type] || '🚀';
+}
+function getExpLabel(type) {
+  return {salvage:'Salvage Run',survey:'Resource Survey',raid:'Border Raid',deep_dive:'Deep Space Dive'}[type] || type;
+}
+
+function renderExpeditionTypes(info) {
+  var el = document.getElementById('expTypeButtons');
+  if (!el || !info) return;
+  var types = info.types || {};
+  el.innerHTML = Object.keys(types).map(function(key) {
+    var tp = types[key];
+    var isActive = key === _expSelectedType;
+    return '<button onclick="selectExpType(\''+key+'\')" id="expType_'+key+'" style="font-size:9px;padding:5px 8px;border-radius:5px;'
+      +(isActive?'background:rgba(128,222,234,.2);border:1px solid rgba(128,222,234,.5);color:#80deea;font-weight:700;'
+               :'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);')
+      +'cursor:pointer;font-family:var(--fn)">'
+      + tp.icon + ' ' + tp.label
+      + '</button>';
+  }).join('');
+}
+
+function renderExpeditionDurations(info) {
+  var el = document.getElementById('expDurationButtons');
+  if (!el || !info) return;
+  var durs = info.durations || [1, 3, 6, 12, 24];
+  el.innerHTML = durs.map(function(d) {
+    var isActive = d === _expSelectedDur;
+    return '<button onclick="selectExpDur('+d+')" id="expDur_'+d+'" style="font-size:9px;padding:4px 8px;border-radius:5px;'
+      +(isActive?'background:rgba(128,222,234,.2);border:1px solid rgba(128,222,234,.5);color:#80deea;font-weight:700;'
+               :'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx3);')
+      +'cursor:pointer;font-family:var(--fn)">'+d+'h</button>';
+  }).join('');
+}
+
+function selectExpType(type) {
+  _expSelectedType = type;
+  if (_expeditionInfo) {
+    renderExpeditionTypes(_expeditionInfo);
+    updateExpeditionCostPreview();
+  }
+}
+
+function selectExpDur(dur) {
+  _expSelectedDur = dur;
+  if (_expeditionInfo) {
+    renderExpeditionDurations(_expeditionInfo);
+    updateExpeditionCostPreview();
+  }
+}
+
+function updateExpeditionCostPreview() {
+  var el = document.getElementById('expCostPreview');
+  if (!el || !_expeditionInfo) return;
+  var costs = (_expeditionInfo.costs || {})[_expSelectedType] || [];
+  var entry = costs.find(function(c) { return c.hours === _expSelectedDur; });
+  el.textContent = entry ? entry.cost + ' GP' : '—';
+}
+
+function launchExpeditionAction() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast(t('err_connect_wallet')||'Connect wallet first','error'); return; }
+  if (_expActiveId) { showToast('You already have an active expedition!','error'); return; }
+  var select = document.getElementById('expClaimSelect');
+  var claimId = select && select.value;
+  if (!claimId) { showToast('Select a territory first','error'); return; }
+  var costs = (_expeditionInfo && _expeditionInfo.costs || {})[_expSelectedType] || [];
+  var entry = costs.find(function(c){ return c.hours === _expSelectedDur; });
+  var cost = entry ? entry.cost : '?';
+  gameConfirm({ title: t('expedition_launch_confirm')||'Launch Expedition?',
+    body: getExpIcon(_expSelectedType) + ' <b>' + getExpLabel(_expSelectedType) + '</b> for <b>' + _expSelectedDur + 'h</b> · <b>' + cost + ' GP</b>'
+  }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/expeditions/launch', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w, claimId: parseInt(claimId), expeditionType: _expSelectedType, durationH: _expSelectedDur })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast(d.icon + ' Expedition launched! Returns in ' + d.durationH + 'h', 'success');
+      loadExpeditionPanel();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
+}
+
+function cancelActiveExpedition() {
+  var w = walletState && walletState.address;
+  if (!w || !_expActiveId) return;
+  gameConfirm({ title: t('expedition_cancel_confirm')||'Cancel Expedition?', body: '50% of remaining GP will be refunded.' }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/expeditions/cancel', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w, expeditionId: _expActiveId })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast('Expedition cancelled. Refunded: ' + d.refund.toFixed(2) + ' GP', 'success');
+      loadExpeditionPanel();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
+}
+
+function toggleExpeditionHistory() {
+  var panel = document.getElementById('expeditionHistoryPanel');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (!open) loadExpeditionHistory();
+}
+
+function loadExpeditionHistory() {
+  var el = document.getElementById('expeditionHistoryPanel');
+  if (!el) return;
+  var w = walletState && walletState.address;
+  if (!w) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Connect wallet first</div>'; return; }
+  el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Loading…</div>';
+  fetch('/api/expeditions/my?wallet=' + encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">No expeditions yet</div>'; return; }
+      el.innerHTML = rows.map(function(e) {
+        var statusColor = {active:'#ffb74d',completed:'#a0e8a0',cancelled:'#888'}[e.status]||'#888';
+        return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+          + '<span style="font-size:14px">' + getExpIcon(e.expedition_type) + '</span>'
+          + '<div style="flex:1;min-width:0">'
+            + '<div style="font-size:9px;color:var(--tx)">' + getExpLabel(e.expedition_type) + ' · ' + e.duration_h + 'h · ' + e.gp_spent + ' GP</div>'
+            + '<div style="font-size:8px;color:'+statusColor+'">' + e.status + (e.completed_at ? ' · ' + new Date(e.completed_at).toLocaleDateString() : '') + '</div>'
+          + '</div>'
+          + (e.reward_label ? '<span style="font-size:9px;color:#ffcc02;white-space:nowrap">' + _escHtml(e.reward_label) + '</span>' : '')
+          + '</div>';
+      }).join('');
+    }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:10px">'+e.message+'</div>'; });
 }
 
 // ── Alliance System (Migration 119) ──────────────────────────────────────────

@@ -96,6 +96,7 @@ const contestRoutes     = require('./routes/contest');
 const allianceRoutes    = require('./routes/alliance');
 const luckyBoxRoutes    = require('./routes/luckyBox');
 const vipRoutes         = require('./routes/vip');
+const expeditionRoutes  = require('./routes/expedition');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -224,6 +225,7 @@ app.use('/api', contestRoutes);
 app.use('/api', allianceRoutes);
 app.use('/api', luckyBoxRoutes);
 app.use('/api', vipRoutes);
+app.use('/api', expeditionRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -925,6 +927,15 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[DUEL] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[DUEL] Could not init expiry scheduler:', e.message); }
+
+    // ── Expedition: Resolve completed expeditions (every 2 minutes) ──
+    try {
+      const { resolveExpeditions } = require('./services/expedition');
+      setInterval(async () => {
+        try { await resolveExpeditions(); } catch(e) { console.warn('[EXPEDITION] resolve error:', e.message); }
+      }, 2 * 60 * 1000);
+      console.log('[EXPEDITION] Resolution scheduler started (2min interval)');
+    } catch(e) { console.warn('[EXPEDITION] Could not init scheduler:', e.message); }
 
     // ── VIP: Expire stale passes (every 15 minutes) ──
     try {
