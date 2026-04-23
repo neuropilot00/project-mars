@@ -3612,6 +3612,32 @@ router.post('/sponsor/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Colony Milestone Admin (Migration 150) ──
+router.get('/milestone', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/milestone'); } catch(_) {}
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/milestone/:id', adminAuth, async (req, res) => {
+  try {
+    let svc; try { svc = require('../services/milestone'); } catch(_) {}
+    await svc.adminDeleteMilestone(req.params.id);
+    await auditLog(req, 'milestone_delete', req.params.id, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/milestone/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('milestone_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'milestone_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Territory Tombstone Admin (Migration 149) ──
 router.get('/tombstone', adminAuth, async (req, res) => {
   let svc; try { svc = require('../services/tombstone'); } catch(_) {}
