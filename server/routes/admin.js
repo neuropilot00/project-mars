@@ -3612,6 +3612,32 @@ router.post('/sponsor/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Victory Banner Admin (Migration 145) ──
+router.get('/banner', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/banner'); } catch(_) {}
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/banner/:id', adminAuth, async (req, res) => {
+  try {
+    let svc; try { svc = require('../services/banner'); } catch(_) {}
+    await svc.adminRemoveBanner(req.params.id);
+    await auditLog(req, 'banner_remove', req.params.id, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/banner/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('banner_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'banner_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Territory Rating Admin (Migration 144) ──
 router.get('/rating', adminAuth, async (req, res) => {
   let svc; try { svc = require('../services/rating'); } catch(_) {}

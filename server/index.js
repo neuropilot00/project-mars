@@ -119,6 +119,7 @@ const tributeRoutes     = require('./routes/tribute');
 const graffitiRoutes    = require('./routes/graffiti');
 const highlightRoutes   = require('./routes/highlight');
 const ratingRoutes      = require('./routes/rating');
+const bannerRoutes      = require('./routes/banner');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -270,6 +271,7 @@ app.use('/api', tributeRoutes);
 app.use('/api', graffitiRoutes);
 app.use('/api', highlightRoutes);
 app.use('/api', ratingRoutes);
+app.use('/api', bannerRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -1063,6 +1065,14 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[SPONSOR] Sponsor expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[SPONSOR] Could not init expiry scheduler:', e.message); }
+
+    try {
+      const { expireBanners } = require('./services/banner');
+      setInterval(async () => {
+        try { await expireBanners(); } catch(e) { console.warn('[BANNER] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[BANNER] Expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[BANNER] Could not init expiry scheduler:', e.message); }
 
     try {
       const { expireHighlights } = require('./services/highlight');
