@@ -3964,6 +3964,22 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="allianceContainer"></div>
         </div>
 
+        <!-- 🏆 TOURNAMENTS -->
+        <div style="padding:8px 10px;border-top:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:9px;color:#ffb74d;letter-spacing:2px;font-family:var(--fn);font-weight:700">🏆 <span data-i18n="tournament_title">TOURNAMENTS</span></span>
+            <button onclick="refreshTournaments()" style="font-size:9px;padding:3px 8px;border-radius:10px;background:rgba(255,183,77,.1);border:1px solid rgba(255,183,77,.25);color:#ffb74d;cursor:pointer;font-family:var(--fn)">↺</button>
+          </div>
+          <div id="tournamentList" style="display:flex;flex-direction:column;gap:6px">
+            <div style="text-align:center;padding:12px;color:var(--tx3);font-size:10px">Loading…</div>
+          </div>
+          <!-- My tournaments -->
+          <div style="margin-top:6px">
+            <button onclick="toggleMyTournaments()" style="font-size:9px;padding:3px 10px;border-radius:10px;border:1px solid rgba(255,183,77,.2);background:rgba(255,183,77,.06);color:#ffb74d;cursor:pointer;font-family:var(--fn)" data-i18n="tournament_my_btn">📋 MY TOURNAMENTS</button>
+            <div id="myTournamentsPanel" style="display:none;margin-top:6px"></div>
+          </div>
+        </div>
+
       </div><!-- /quests pane -->
 
       <!-- TAB: GOVERN -->
@@ -11047,6 +11063,7 @@ var I18N = {
     expedition_title: 'EXPEDITIONS', expedition_returns: 'Returns', expedition_cancel_btn: 'CANCEL', expedition_launch_btn: '🚀 LAUNCH EXPEDITION', expedition_history_btn: '📜 EXPEDITION LOG', expedition_select_claim: 'SELECT TERRITORY & TYPE', expedition_launch_confirm: 'Launch Expedition?', expedition_cancel_confirm: 'Cancel Expedition?',
     branding_title: 'TERRITORY BRANDING', branding_select_territory: 'Select a territory to brand:', branding_name_label: 'TERRITORY NAME', branding_tagline_label: 'TAGLINE', branding_color_label: 'THEME COLOR', branding_set_btn: 'SET', branding_set_name_title: 'Set Territory Name?', branding_set_tag_title: 'Set Tagline?', branding_set_color_title: 'Set Theme Color?',
     spells_title: 'TERRITORY SPELLS', spells_select_target: 'Target territory (enter claim # or select yours):', spells_active_label: 'ACTIVE SPELLS:', spells_history_btn: '📜 SPELL HISTORY', spells_cast_confirm: 'Cast Spell?',
+    tournament_title: 'TOURNAMENTS', tournament_none: 'No open tournaments right now', tournament_join_btn: 'JOIN TOURNAMENT', tournament_join_confirm: 'Join Tournament?', tournament_my_btn: '📋 MY TOURNAMENTS',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11640,6 +11657,7 @@ var I18N = {
     expedition_title: '원정대', expedition_returns: '귀환', expedition_cancel_btn: '취소', expedition_launch_btn: '🚀 원정 출발', expedition_history_btn: '📜 원정 기록', expedition_select_claim: '영토 및 유형 선택', expedition_launch_confirm: '원정 출발?', expedition_cancel_confirm: '원정 취소?',
     branding_title: '영토 브랜딩', branding_select_territory: '브랜딩할 영토 선택:', branding_name_label: '영토 이름', branding_tagline_label: '태그라인', branding_color_label: '테마 색상', branding_set_btn: '설정', branding_set_name_title: '영토 이름 설정?', branding_set_tag_title: '태그라인 설정?', branding_set_color_title: '테마 색상 설정?',
     spells_title: '영토 주문', spells_select_target: '대상 영토 (클레임 번호 입력):', spells_active_label: '활성 주문:', spells_history_btn: '📜 주문 기록', spells_cast_confirm: '주문 시전?',
+    tournament_title: '토너먼트', tournament_none: '현재 열린 토너먼트 없음', tournament_join_btn: '참가하기', tournament_join_confirm: '토너먼트 참가?', tournament_my_btn: '📋 내 토너먼트',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -12232,6 +12250,7 @@ var I18N = {
     expedition_title: '遠征', expedition_returns: '帰還', expedition_cancel_btn: 'キャンセル', expedition_launch_btn: '🚀 遠征開始', expedition_history_btn: '📜 遠征ログ', expedition_select_claim: '領土とタイプを選択', expedition_launch_confirm: '遠征開始？', expedition_cancel_confirm: '遠征キャンセル？',
     branding_title: '領土ブランディング', branding_select_territory: 'ブランディングする領土を選択:', branding_name_label: '領土名', branding_tagline_label: 'タグライン', branding_color_label: 'テーマカラー', branding_set_btn: '設定', branding_set_name_title: '領土名を設定？', branding_set_tag_title: 'タグラインを設定？', branding_set_color_title: 'テーマカラーを設定？',
     spells_title: '領土スペル', spells_select_target: '対象領土（クレーム番号を入力）:', spells_active_label: '有効なスペル:', spells_history_btn: '📜 スペル履歴', spells_cast_confirm: 'スペル発動？',
+    tournament_title: 'トーナメント', tournament_none: 'オープントーナメントなし', tournament_join_btn: '参加する', tournament_join_confirm: 'トーナメントに参加？', tournament_my_btn: '📋 マイトーナメント',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12808,6 +12827,7 @@ var I18N = {
     expedition_title: '远征', expedition_returns: '归来', expedition_cancel_btn: '取消', expedition_launch_btn: '🚀 发动远征', expedition_history_btn: '📜 远征记录', expedition_select_claim: '选择领土与类型', expedition_launch_confirm: '发动远征？', expedition_cancel_confirm: '取消远征？',
     branding_title: '领土品牌化', branding_select_territory: '选择要品牌化的领土:', branding_name_label: '领土名称', branding_tagline_label: '标语', branding_color_label: '主题颜色', branding_set_btn: '设置', branding_set_name_title: '设置领土名称？', branding_set_tag_title: '设置标语？', branding_set_color_title: '设置主题颜色？',
     spells_title: '领土法术', spells_select_target: '目标领土（输入地块编号）:', spells_active_label: '当前法术:', spells_history_btn: '📜 法术记录', spells_cast_confirm: '施放法术？',
+    tournament_title: '锦标赛', tournament_none: '暂无开放的锦标赛', tournament_join_btn: '加入锦标赛', tournament_join_confirm: '加入锦标赛？', tournament_my_btn: '📋 我的锦标赛',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -16549,7 +16569,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   try{ clearBaseTabDot(tab); }catch(_e){}
@@ -26905,6 +26925,95 @@ function loadMySpellsHistory() {
       }).join('');
     }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:10px">'+e.message+'</div>'; });
 }
+
+// ── Tournament System (Migration 125) ──────────────────────────────────────────
+
+function refreshTournaments() {
+  var el = document.getElementById('tournamentList');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:12px;color:var(--tx3);font-size:10px">Loading…</div>';
+  fetch('/api/tournaments')
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!rows.length) {
+        el.innerHTML = '<div style="text-align:center;padding:12px;color:var(--tx3);font-size:10px" data-i18n="tournament_none">No open tournaments right now</div>';
+        return;
+      }
+      var w = walletState && walletState.address;
+      el.innerHTML = rows.map(function(t){
+        var statusColor = {open:'#a0e8a0',running:'#80deea'}[t.status]||'#888';
+        return '<div style="padding:8px;border-radius:6px;background:rgba(255,183,77,.04);border:1px solid rgba(255,183,77,.15)">'
+          + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'
+          + '<div>'
+          + '<div style="font-size:11px;color:#ffb74d;font-family:var(--fn);font-weight:700">'+_escHtml(t.icon||'🏆')+' '+_escHtml(t.name)+'</div>'
+          + (t.description ? '<div style="font-size:9px;color:var(--tx3)">'+_escHtml(t.description)+'</div>' : '')
+          + '</div>'
+          + '<span style="font-size:9px;color:'+statusColor+';font-family:var(--fn)">'+t.status.toUpperCase()+'</span>'
+          + '</div>'
+          + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px">'
+          + '<div style="font-size:9px;color:var(--tx3)">Entry: <b style="color:var(--gold)">'+t.entry_fee_gp+' GP</b></div>'
+          + '<div style="font-size:9px;color:var(--tx3)">Prize: <b style="color:#a0e8a0">'+t.prize_pool_gp+' GP</b></div>'
+          + '<div style="font-size:9px;color:var(--tx3)">Players: <b style="color:#aaa">'+(t.entry_count||0)+(t.max_players?'/'+t.max_players:'')+'</b></div>'
+          + '</div>'
+          + (t.status === 'open' ? '<button onclick="joinTournamentAction('+t.id+',\''+_escHtml(t.name)+'\','+t.entry_fee_gp+')" style="width:100%;padding:6px;border-radius:6px;background:rgba(255,183,77,.15);border:1px solid rgba(255,183,77,.35);color:#ffb74d;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700" data-i18n="tournament_join_btn">JOIN TOURNAMENT</button>' : '')
+          + '</div>';
+      }).join('');
+    }).catch(function(e){ if (el) el.innerHTML = '<div style="color:var(--red);font-size:10px;padding:8px">'+e.message+'</div>'; });
+}
+
+function joinTournamentAction(id, name, fee) {
+  var w = walletState && walletState.address;
+  if (!w) return showToast(t('err_connect_wallet')||'Connect wallet first','error');
+  gameConfirm({ title: t('tournament_join_confirm')||'Join Tournament?', body: 'Join <b>'+_escHtml(name)+'</b><br>Entry fee: <b>'+fee+' GP</b>' })
+    .then(function(ok){ if (!ok) return;
+      fetch('/api/tournaments/join', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,tournamentId:id}) })
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if (d.error) return showToast(d.error,'error');
+          showToast('🏆 Joined '+d.tournamentName+'! -'+d.gpSpent+' GP','success');
+          refreshTournaments();
+          if (typeof loadBaseStats === 'function') loadBaseStats();
+        }).catch(function(e){ showToast(e.message,'error'); });
+    });
+}
+
+function toggleMyTournaments() {
+  var panel = document.getElementById('myTournamentsPanel');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (!open) loadMyTournaments();
+}
+
+function loadMyTournaments() {
+  var el = document.getElementById('myTournamentsPanel');
+  if (!el) return;
+  var w = walletState && walletState.address;
+  if (!w) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Connect wallet first</div>'; return; }
+  el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Loading…</div>';
+  fetch('/api/tournaments/my?wallet='+encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">No tournaments joined yet</div>'; return; }
+      el.innerHTML = rows.map(function(t){
+        var statusColor = {open:'#a0e8a0',running:'#80deea',completed:'#ffb74d',cancelled:'#555'}[t.status]||'#888';
+        var won = t.winner_wallet && t.winner_wallet.toLowerCase() === w.toLowerCase();
+        return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+          + '<span style="font-size:14px">'+(won ? '🏆' : (t.icon||'🎮'))+'</span>'
+          + '<div style="flex:1">'
+            + '<div style="font-size:9px;color:var(--tx)">'+_escHtml(t.name)+'</div>'
+            + '<div style="font-size:8px;color:'+statusColor+'">'+t.status+(won ? ' · YOU WON!' : '')+'</div>'
+          + '</div>'
+          + '<span style="font-size:9px;color:var(--gold)">'+t.entry_fee_gp+' GP</span>'
+          + '</div>';
+      }).join('');
+    }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:10px">'+e.message+'</div>'; });
+}
+
+// Auto-load tournaments when quests tab opens
+try {
+  var _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
+} catch(_) {}
 
 // ── Alliance System (Migration 119) ──────────────────────────────────────────
 

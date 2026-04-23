@@ -2998,4 +2998,88 @@ router.delete('/spells/:id', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// TOURNAMENTS — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/tournaments — stats + list
+router.get('/tournaments', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/tournaments'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/tournaments/create
+router.post('/tournaments/create', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/tournaments'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const t = await svc.adminCreateTournament(req.body || {});
+    await auditLog(req, 'tournament_create', `tournament:${t.id}`, { name: t.name });
+    res.json(t);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/tournaments/:id/status  { status }
+router.post('/tournaments/:id/status', adminAuth, async (req, res) => {
+  const id = req.params.id;
+  const { status } = req.body || {};
+  let svc; try { svc = require('../services/tournaments'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    await svc.adminUpdateStatus(id, status);
+    await auditLog(req, 'tournament_status', `tournament:${id}`, { status });
+    res.json({ ok: true });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/tournaments/:id/winner  { wallet }
+router.post('/tournaments/:id/winner', adminAuth, async (req, res) => {
+  const id = req.params.id;
+  const { wallet } = req.body || {};
+  if (!wallet) return res.status(400).json({ error: 'wallet required' });
+  let svc; try { svc = require('../services/tournaments'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const r = await svc.adminPickWinner(id, wallet);
+    await auditLog(req, 'tournament_winner', `tournament:${id}`, r);
+    res.json(r);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/tournaments/:id/cancel
+router.post('/tournaments/:id/cancel', adminAuth, async (req, res) => {
+  const id = req.params.id;
+  let svc; try { svc = require('../services/tournaments'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const r = await svc.adminCancelTournament(id);
+    await auditLog(req, 'tournament_cancel', `tournament:${id}`, r);
+    res.json(r);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// GET /admin/api/tournaments/:id/entries
+router.get('/tournaments/:id/entries', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/tournaments'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const t = await svc.getTournament(req.params.id);
+    if (!t) return res.status(404).json({ error: 'Not found' });
+    res.json(t.entries || []);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/tournaments/setting — tournament_* setting
+router.post('/tournaments/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('tournament_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query('UPDATE game_settings SET value=$1 WHERE key=$2', [String(value), key]);
+    await auditLog(req, 'tournament_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

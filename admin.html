@@ -1230,6 +1230,71 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="spellAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TOURNAMENTS ═══ -->
+  <div class="section cat-gp" style="display:none" id="tournamentsAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ffb74d">🏆 TOURNAMENTS</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadTournamentsAdmin()" style="font-size:10px;background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.3);color:#ffb74d;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+        <button onclick="openTournamentCreateModal()" style="font-size:10px;background:rgba(255,183,77,.2);border:1px solid rgba(255,183,77,.5);color:#ffb74d;padding:4px 10px;border-radius:4px;cursor:pointer">+ CREATE</button>
+      </div>
+    </div>
+    <div id="tournAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ffb74d">OPEN / RUNNING</span></div>
+    <div id="tournAdmOpen" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ffb74d">RECENT</span></div>
+    <div id="tournAdmRecent" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ffb74d">SETTINGS</span></div>
+    <div id="tournAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
+  <!-- Tournament Create Modal -->
+  <div id="tournamentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;align-items:center;justify-content:center">
+    <div style="background:#1a1a2e;border:1px solid rgba(255,183,77,.3);border-radius:12px;padding:22px;width:90%;max-width:480px;max-height:85vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="color:#ffb74d;font-weight:700;font-size:14px">🏆 CREATE TOURNAMENT</span>
+        <button onclick="closeTournamentModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+      </div>
+      <div style="display:grid;gap:10px">
+        <div style="display:grid;grid-template-columns:60px 1fr;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">ICON</div>
+            <input id="tnIcon" value="🏆" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box;text-align:center;font-size:20px">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">NAME</div>
+            <input id="tnName" placeholder="Tournament name" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <textarea id="tnDesc" placeholder="Description (optional)" rows="2" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box;resize:none"></textarea>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">ENTRY FEE (GP)</div>
+            <input id="tnFee" type="number" min="1" value="50" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">MAX PLAYERS (blank=unlimited)</div>
+            <input id="tnMax" type="number" min="2" placeholder="∞" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">STARTS AT (optional)</div>
+            <input id="tnStarts" type="datetime-local" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="color:#888;font-size:11px;margin-bottom:3px">ENDS AT (optional)</div>
+            <input id="tnEnds" type="datetime-local" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+          <button onclick="closeTournamentModal()" style="padding:8px 18px;background:rgba(255,255,255,.06);border:1px solid #333;color:#aaa;border-radius:6px;cursor:pointer">Cancel</button>
+          <button onclick="createTournament()" style="padding:8px 18px;background:rgba(255,183,77,.2);border:1px solid rgba(255,183,77,.5);color:#ffb74d;border-radius:6px;cursor:pointer;font-weight:700">CREATE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ VIP PASS SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="vipAdminSection">
     <div class="sec-header">
@@ -1945,7 +2010,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -4968,6 +5033,154 @@ function adminExpireSpell(id) {
     showToast('✨ Spell expired');
     loadSpellsAdmin();
   }).catch(function(e) { alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  TOURNAMENTS ADMIN (Migration 125)
+// ══════════════════════════════════════
+function loadTournamentsAdmin() {
+  var statsEl    = document.getElementById('tournAdmStats');
+  var openEl     = document.getElementById('tournAdmOpen');
+  var recentEl   = document.getElementById('tournAdmRecent');
+  var settingsEl = document.getElementById('tournAdmSettings');
+  if (!statsEl) return;
+  [statsEl, openEl, recentEl, settingsEl].forEach(function(el) {
+    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
+  });
+  fetch('/admin/api/tournaments', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:#e8485580">'+d.error+'</span>'; return; }
+
+      statsEl.innerHTML = [
+        ['TOTAL', d.totalTournaments || 0],
+        ['TOTAL PRIZES', (d.totalPrizes || 0) + ' GP'],
+      ].map(function(x){
+        return '<div style="background:rgba(255,183,77,.06);border:1px solid rgba(255,183,77,.15);border-radius:6px;padding:10px;text-align:center">'
+          + '<div style="color:#ffb74d;font-size:18px;font-weight:700">'+x[1]+'</div>'
+          + '<div style="color:#666;font-size:10px;margin-top:2px">'+x[0]+'</div></div>';
+      }).join('');
+
+      function renderTournTable(list, el, showActions) {
+        if (!list.length) { el.innerHTML = '<span style="color:#555;font-size:11px">None</span>'; return; }
+        el.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:11px">'
+          + '<thead><tr style="color:#555;border-bottom:1px solid #222">'
+          + '<th style="text-align:left;padding:4px 6px">NAME</th>'
+          + '<th style="text-align:right;padding:4px 6px">FEE</th>'
+          + '<th style="text-align:right;padding:4px 6px">PRIZE POOL</th>'
+          + '<th style="text-align:right;padding:4px 6px">ENTRIES</th>'
+          + '<th style="text-align:left;padding:4px 6px">STATUS</th>'
+          + (showActions ? '<th style="text-align:right;padding:4px 6px">ACTIONS</th>' : '')
+          + '</tr></thead><tbody>'
+          + list.map(function(t){
+              var statusColor = {open:'#a0e8a0',running:'#80deea',completed:'#ffb74d',cancelled:'#888'}[t.status]||'#888';
+              var acts = showActions
+                ? '<td style="padding:4px 6px;text-align:right;white-space:nowrap">'
+                    + '<button onclick="tournSetStatus('+t.id+',\'running\')" style="font-size:9px;padding:2px 6px;background:rgba(128,222,234,.12);border:1px solid rgba(128,222,234,.3);color:#80deea;border-radius:3px;cursor:pointer;margin-right:3px">START</button>'
+                    + '<button onclick="tournPickWinner('+t.id+')" style="font-size:9px;padding:2px 6px;background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.3);color:#ffb74d;border-radius:3px;cursor:pointer;margin-right:3px">PICK WINNER</button>'
+                    + '<button onclick="tournCancel('+t.id+')" style="font-size:9px;padding:2px 6px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:#e84855;border-radius:3px;cursor:pointer">CANCEL</button>'
+                  + '</td>'
+                : '';
+              return '<tr style="border-bottom:1px solid #1a1a1a">'
+                + '<td style="padding:4px 6px;color:#eee">'+t.icon+' '+_escHtml(t.name)+'</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:var(--gold)">'+t.entry_fee_gp+' GP</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#a0e8a0">'+t.prize_pool_gp+' GP</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#aaa">'+(t.entry_count||0)+(t.max_players?'/'+t.max_players:'')+'</td>'
+                + '<td style="padding:4px 6px;color:'+statusColor+'">'+t.status+'</td>'
+                + acts
+                + '</tr>';
+            }).join('')
+          + '</tbody></table>';
+      }
+
+      renderTournTable(d.open   || [], openEl,   true);
+      renderTournTable(d.recent || [], recentEl, false);
+
+      var cfg = d.settings || {};
+      settingsEl.innerHTML = Object.keys(cfg).map(function(k){
+        return '<div style="background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:8px">'
+          + '<div style="color:#888;font-size:10px;margin-bottom:4px">'+k+'</div>'
+          + '<div style="display:flex;gap:6px">'
+          + '<input id="tourn_'+k+'" value="'+_escHtml(cfg[k])+'" style="flex:1;background:#0d0d1a;border:1px solid #333;color:#eee;padding:6px;border-radius:4px;font-size:12px">'
+          + '<button onclick="saveTournamentSetting(\''+k+'\')" style="padding:6px 10px;background:rgba(255,183,77,.15);border:1px solid rgba(255,183,77,.3);color:#ffb74d;border-radius:4px;cursor:pointer;font-size:11px">SAVE</button>'
+          + '</div></div>';
+      }).join('');
+    }).catch(function(e){ if (statsEl) statsEl.innerHTML = '<span style="color:#e8485580">'+e.message+'</span>'; });
+}
+
+function openTournamentCreateModal() {
+  document.getElementById('tournamentModal').style.display = 'flex';
+}
+function closeTournamentModal() {
+  document.getElementById('tournamentModal').style.display = 'none';
+}
+function createTournament() {
+  var name    = document.getElementById('tnName').value.trim();
+  var desc    = document.getElementById('tnDesc').value.trim();
+  var icon    = document.getElementById('tnIcon').value.trim() || '🏆';
+  var fee     = parseInt(document.getElementById('tnFee').value, 10) || 50;
+  var maxP    = document.getElementById('tnMax').value ? parseInt(document.getElementById('tnMax').value, 10) : null;
+  var starts  = document.getElementById('tnStarts').value || null;
+  var ends    = document.getElementById('tnEnds').value || null;
+  if (!name) return alert('Name required');
+  fetch('/admin/api/tournaments/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ name, description: desc, icon, entryFeeGp: fee, maxPlayers: maxP, startsAt: starts, endsAt: ends })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: '+d.error);
+    showToast('🏆 Tournament created!');
+    closeTournamentModal();
+    loadTournamentsAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+function tournSetStatus(id, status) {
+  if (!confirm('Set tournament #'+id+' to '+status+'?')) return;
+  fetch('/admin/api/tournaments/'+id+'/status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ status })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ Status updated');
+    loadTournamentsAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+function tournPickWinner(id) {
+  var wallet = prompt('Enter winner wallet address:');
+  if (!wallet) return;
+  fetch('/admin/api/tournaments/'+id+'/winner', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ wallet })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: '+d.error);
+    showToast('🏆 Winner set! +'+d.prize+' GP awarded');
+    loadTournamentsAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+function tournCancel(id) {
+  if (!confirm('Cancel tournament #'+id+' and refund all entries?')) return;
+  fetch('/admin/api/tournaments/'+id+'/cancel', {
+    method: 'POST',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: '+d.error);
+    showToast('🔄 Cancelled. Refunded '+d.refunded+' entries');
+    loadTournamentsAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+function saveTournamentSetting(key) {
+  var el = document.getElementById('tourn_'+key);
+  if (!el) return;
+  fetch('/admin/api/tournaments/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
