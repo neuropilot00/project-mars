@@ -2722,6 +2722,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div style="font-size:8px;color:#ffab91;font-family:var(--fn);font-weight:700;margin-bottom:3px">📝 DESCRIPTION</div>
       <div id="infoDescText" style="font-size:9px;color:var(--tx2);line-height:1.5"></div>
     </div>
+    <!-- Sponsors display -->
+    <div id="infoSponsorRow" style="display:none;margin:6px 0;padding:6px 8px;background:rgba(244,143,177,.05);border:1px solid rgba(244,143,177,.12);border-radius:6px">
+      <div style="font-size:8px;color:#f48fb1;font-family:var(--fn);font-weight:700;margin-bottom:4px">🎗️ <span data-i18n="sponsor_label">SPONSORS</span></div>
+      <div id="infoSponsorList" style="font-size:9px;color:var(--tx2);line-height:1.7"></div>
+    </div>
+    <!-- Sponsor button for others' territories -->
+    <button class="uf" id="infoSponsorBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(244,143,177,.12),rgba(244,143,177,.06));border-color:rgba(244,143,177,.3);color:#f48fb1" onclick="openSponsorModal()" data-i18n="sponsor_btn">🎗️ SPONSOR</button>
     <button class="uf" id="infoShareBtn" style="margin-top:6px;font-size:9px;background:linear-gradient(135deg,rgba(91,184,232,.12),rgba(91,184,232,.06));border-color:rgba(91,184,232,.3);color:var(--cyan)" onclick="shareTerritory(selectedPlot)" data-i18n="share_btn">📤 SHARE</button>
     <button class="uf" id="infoRenameBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border-color:rgba(255,209,102,.3);color:var(--gold)" onclick="renameTerritory(selectedPlot)" data-i18n="rename_btn">RENAME</button>
     <button class="uf" id="infoEditImgBtn" style="display:none;margin-top:6px;font-size:9px" onclick="openImageEditor(selectedPlot)" data-i18n="edit_image">EDIT IMAGE</button>
@@ -4269,6 +4276,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="display:flex;gap:8px;justify-content:flex-end">
               <button onclick="closeCreatePollModal()" style="padding:8px 16px;background:rgba(255,255,255,.06);border:1px solid #333;color:#aaa;border-radius:6px;cursor:pointer;font-size:10px">Cancel</button>
               <button onclick="submitCreatePoll()" style="padding:8px 16px;background:rgba(165,214,167,.15);border:1px solid rgba(165,214,167,.4);color:#a5d6a7;border-radius:6px;cursor:pointer;font-family:var(--fn);font-weight:700;font-size:10px" data-i18n="poll_publish_btn">📊 PUBLISH</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🎗️ SPONSOR MODAL (Migration 139) -->
+        <div id="sponsorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:8000;align-items:center;justify-content:center">
+          <div style="background:#1a1a2e;border:1px solid rgba(244,143,177,.3);border-radius:12px;padding:18px;width:90%;max-width:360px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <span style="color:#f48fb1;font-weight:700;font-size:13px">🎗️ <span data-i18n="sponsor_modal_title">SPONSOR TERRITORY</span></span>
+              <button onclick="closeSponsorModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+            </div>
+            <div style="font-size:9px;color:var(--tx3);margin-bottom:10px" id="sponsorModalDesc"></div>
+            <div style="margin-bottom:10px">
+              <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);margin-bottom:4px" data-i18n="sponsor_msg_label">MESSAGE (optional)</div>
+              <input id="sponsorMsgInput" maxlength="60" placeholder="e.g. Best trade hub on Mars! 🚀"
+                style="width:100%;background:rgba(244,143,177,.06);border:1px solid rgba(244,143,177,.2);color:var(--tx);padding:8px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box">
+            </div>
+            <div style="font-size:8px;color:var(--tx3);margin-bottom:10px" id="sponsorCostHint"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end">
+              <button onclick="closeSponsorModal()" style="padding:8px 16px;background:rgba(255,255,255,.06);border:1px solid #333;color:#aaa;border-radius:6px;cursor:pointer;font-size:10px" data-i18n="cancel_btn">Cancel</button>
+              <button onclick="submitSponsor()" style="padding:8px 16px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.4);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-weight:700;font-size:10px" data-i18n="sponsor_place_btn">🎗️ SPONSOR</button>
             </div>
           </div>
         </div>
@@ -9372,6 +9400,13 @@ function showTerritoryInfo(plot){
   var descRow=document.getElementById('infoDescRow');
   if(descRow) descRow.style.display='none';
   if(plot.claimId) loadClaimDescriptionForInfo(plot.claimId);
+  // Load sponsors
+  var sponsorRow=document.getElementById('infoSponsorRow');
+  if(sponsorRow) sponsorRow.style.display='none';
+  if(plot.claimId) loadSponsorsForInfo(plot.claimId);
+  // Show sponsor button only for others' territories
+  var sponsorBtn=document.getElementById('infoSponsorBtn');
+  if(sponsorBtn) sponsorBtn.style.display=(myW && plot.owner!==myW)?'':'none';
   // Show EDIT IMAGE + PROMO LINK + RENAME only for own territories
   var editBtn=document.getElementById('infoEditImgBtn');
   var linkEdit=document.getElementById('infoLinkEdit');
@@ -11523,6 +11558,7 @@ var I18N = {
     poll_title: 'COMMUNITY POLLS', poll_create_btn: '+ POLL', poll_create_title: 'CREATE POLL', poll_question_label: 'QUESTION', poll_options_label: 'OPTIONS', poll_add_option: '+ ADD OPTION', poll_duration_label: 'DURATION (h):', poll_publish_btn: '📊 PUBLISH', poll_none: 'No active polls. Create the first one!', poll_publish_confirm: 'Publish Poll?', poll_question_required: 'Enter a question', poll_min_options_hint: 'Need at least 2 options',
     status_label: '💬 STATUS MESSAGE', status_set_btn: 'SET', status_none: 'No active status', status_required: 'Enter a status message', status_set_confirm: 'Set Status Message?',
     tdesc_title: 'TERRITORY DESCRIPTION', tdesc_desc: 'Add a custom description to your territory. Visible to all players.', tdesc_claim_label: 'CLAIM #', tdesc_use_claim: '📍 MINE', tdesc_current_label: 'CURRENT', tdesc_text_label: 'DESCRIPTION', tdesc_save_btn: '📝 SAVE DESCRIPTION', tdesc_my_label: 'MY DESCRIPTIONS', tdesc_none: 'No descriptions set yet.', tdesc_save_confirm: 'Save Territory Description?', tdesc_required: 'Enter a description', tdesc_claim_required: 'Enter a Claim #', tdesc_no_claim: 'Select a territory first', tdesc_free: 'Free', tdesc_saved: '✅ Description saved!', tdesc_free_hint: 'First description is free. Updates cost {cost} GP.',
+    sponsor_label: 'SPONSORS', sponsor_btn: '🎗️ SPONSOR', sponsor_modal_title: 'SPONSOR TERRITORY', sponsor_modal_desc: 'Sponsor territory #', sponsor_msg_label: 'MESSAGE (optional)', sponsor_place_btn: '🎗️ SPONSOR', sponsor_confirm: 'Sponsor Territory?', sponsor_placed: '🎗️ Sponsored!',
     capsule_title: 'TIME CAPSULE', capsule_desc: 'Bury a sealed message to be revealed to all players in the future.', capsule_msg_label: 'MESSAGE (max 280 chars)', capsule_days_label: 'REVEAL IN (days)', capsule_bury_btn: '⏳ BURY CAPSULE', capsule_revealed_label: 'RECENTLY REVEALED', capsule_none: 'No revealed capsules yet.', capsule_none_pending: 'No capsules buried yet. Be the first!', capsule_bury_confirm: 'Bury Time Capsule?', capsule_msg_required: 'Enter a message', capsule_days_required: 'Enter days > 0', capsule_buried: '⏳ Capsule buried!',
     base_profile_btn: '👤 PROFILE', profile_nickname_label: 'NICKNAME', profile_motto_label: 'MOTTO', profile_color_label: 'AVATAR COLOR', profile_set_btn: 'SET', profile_history_btn: '📜 CHANGE HISTORY', profile_no_motto: 'No motto set', profile_nick_confirm: 'Set Nickname?', profile_motto_confirm: 'Set Motto?', profile_color_confirm: 'Set Avatar Color?',
     quests_failed: 'Failed to load quests',
@@ -12130,6 +12166,7 @@ var I18N = {
     poll_title: '커뮤니티 투표', poll_create_btn: '+ 투표', poll_create_title: '투표 만들기', poll_question_label: '질문', poll_options_label: '선택지', poll_add_option: '+ 선택지 추가', poll_duration_label: '기간(h):', poll_publish_btn: '📊 게시', poll_none: '현재 진행 중인 투표가 없습니다.', poll_publish_confirm: '투표 게시?', poll_question_required: '질문을 입력하세요', poll_min_options_hint: '선택지 2개 이상 필요',
     status_label: '💬 상태 메시지', status_set_btn: '설정', status_none: '활성 상태 없음', status_required: '상태 메시지를 입력하세요', status_set_confirm: '상태 메시지 설정?',
     tdesc_title: '영토 설명', tdesc_desc: '내 영토에 설명을 추가하세요. 모든 플레이어에게 보입니다.', tdesc_claim_label: '클레임 #', tdesc_use_claim: '📍 내 것', tdesc_current_label: '현재 설명', tdesc_text_label: '설명', tdesc_save_btn: '📝 설명 저장', tdesc_my_label: '내 설명 목록', tdesc_none: '아직 설명 없음.', tdesc_save_confirm: '영토 설명 저장?', tdesc_required: '설명을 입력하세요', tdesc_claim_required: '클레임 번호를 입력하세요', tdesc_no_claim: '먼저 영토를 선택하세요', tdesc_free: '무료', tdesc_saved: '✅ 설명 저장 완료!', tdesc_free_hint: '첫 설명은 무료입니다. 수정 시 {cost} GP.',
+    sponsor_label: '후원자', sponsor_btn: '🎗️ 후원하기', sponsor_modal_title: '영토 후원', sponsor_modal_desc: '영토 #', sponsor_msg_label: '메시지 (선택)', sponsor_place_btn: '🎗️ 후원', sponsor_confirm: '영토를 후원?', sponsor_placed: '🎗️ 후원 완료!',
     capsule_title: '타임캡슐', capsule_desc: '봉인된 메시지를 묻어두면 미래에 모든 플레이어에게 공개됩니다.', capsule_msg_label: '메시지 (최대 280자)', capsule_days_label: '공개 예정 (일)', capsule_bury_btn: '⏳ 캡슐 묻기', capsule_revealed_label: '최근 공개됨', capsule_none: '아직 공개된 캡슐 없음.', capsule_none_pending: '아직 묻힌 캡슐 없음. 첫 번째가 되어보세요!', capsule_bury_confirm: '타임캡슐 묻기?', capsule_msg_required: '메시지를 입력하세요', capsule_days_required: '1일 이상 입력', capsule_buried: '⏳ 캡슐이 묻혔습니다!',
     base_profile_btn: '👤 프로필', profile_nickname_label: '닉네임', profile_motto_label: '좌우명', profile_color_label: '아바타 색상', profile_set_btn: '설정', profile_history_btn: '📜 변경 기록', profile_no_motto: '좌우명 없음', profile_nick_confirm: '닉네임 설정?', profile_motto_confirm: '좌우명 설정?', profile_color_confirm: '아바타 색상 설정?',
     quests_failed: '퀘스트 로딩 실패',
@@ -12736,6 +12773,7 @@ var I18N = {
     poll_title: 'コミュニティ投票', poll_create_btn: '+ 投票', poll_create_title: '投票作成', poll_question_label: '質問', poll_options_label: '選択肢', poll_add_option: '+ 選択肢追加', poll_duration_label: '期間（h）:', poll_publish_btn: '📊 公開', poll_none: '現在進行中の投票なし。', poll_publish_confirm: '投票を公開？', poll_question_required: '質問を入力してください', poll_min_options_hint: '選択肢2つ以上必要',
     status_label: '💬 ステータスメッセージ', status_set_btn: '設定', status_none: 'アクティブなステータスなし', status_required: 'ステータスを入力してください', status_set_confirm: 'ステータスを設定？',
     tdesc_title: '領土の説明', tdesc_desc: '自分の領土に説明を追加します。全プレイヤーに表示されます。', tdesc_claim_label: 'クレイム #', tdesc_use_claim: '📍 自分の', tdesc_current_label: '現在の説明', tdesc_text_label: '説明', tdesc_save_btn: '📝 説明を保存', tdesc_my_label: '自分の説明一覧', tdesc_none: '説明なし。', tdesc_save_confirm: '領土説明を保存？', tdesc_required: '説明を入力してください', tdesc_claim_required: 'クレイム番号を入力してください', tdesc_no_claim: '先に領土を選択してください', tdesc_free: '無料', tdesc_saved: '✅ 説明を保存しました！', tdesc_free_hint: '最初の説明は無料。変更時は{cost} GP。',
+    sponsor_label: 'スポンサー', sponsor_btn: '🎗️ スポンサー', sponsor_modal_title: '領土スポンサー', sponsor_modal_desc: '領土 #', sponsor_msg_label: 'メッセージ（任意）', sponsor_place_btn: '🎗️ スポンサー', sponsor_confirm: '領土をスポンサー？', sponsor_placed: '🎗️ スポンサー完了！',
     capsule_title: 'タイムカプセル', capsule_desc: '封印したメッセージを埋めると、将来すべてのプレイヤーに公開されます。', capsule_msg_label: 'メッセージ（最大280文字）', capsule_days_label: '公開まで（日数）', capsule_bury_btn: '⏳ カプセルを埋める', capsule_revealed_label: '最近公開されたカプセル', capsule_none: 'まだ公開されたカプセルなし。', capsule_none_pending: 'まだ埋められたカプセルなし。', capsule_bury_confirm: 'タイムカプセルを埋める？', capsule_msg_required: 'メッセージを入力してください', capsule_days_required: '1日以上入力してください', capsule_buried: '⏳ カプセルを埋めました！',
     base_profile_btn: '👤 プロフィール', profile_nickname_label: 'ニックネーム', profile_motto_label: 'モットー', profile_color_label: 'アバターカラー', profile_set_btn: '設定', profile_history_btn: '📜 変更履歴', profile_no_motto: 'モットーなし', profile_nick_confirm: 'ニックネームを設定？', profile_motto_confirm: 'モットーを設定？', profile_color_confirm: 'アバターカラーを設定？',
     quests_failed: 'クエストの読込に失敗',
@@ -13326,6 +13364,7 @@ var I18N = {
     poll_title: '社区投票', poll_create_btn: '+ 投票', poll_create_title: '创建投票', poll_question_label: '问题', poll_options_label: '选项', poll_add_option: '+ 添加选项', poll_duration_label: '时长（h）:', poll_publish_btn: '📊 发布', poll_none: '暂无进行中的投票。', poll_publish_confirm: '发布投票？', poll_question_required: '请输入问题', poll_min_options_hint: '至少需要2个选项',
     status_label: '💬 状态消息', status_set_btn: '设置', status_none: '暂无活跃状态', status_required: '请输入状态消息', status_set_confirm: '设置状态消息？',
     tdesc_title: '领地描述', tdesc_desc: '为您的领地添加自定义描述，所有玩家可见。', tdesc_claim_label: '领地编号', tdesc_use_claim: '📍 我的', tdesc_current_label: '当前描述', tdesc_text_label: '描述', tdesc_save_btn: '📝 保存描述', tdesc_my_label: '我的描述', tdesc_none: '暂无描述。', tdesc_save_confirm: '保存领地描述？', tdesc_required: '请输入描述', tdesc_claim_required: '请输入领地编号', tdesc_no_claim: '请先选择一个领地', tdesc_free: '免费', tdesc_saved: '✅ 描述已保存！', tdesc_free_hint: '首次描述免费，修改需要{cost} GP。',
+    sponsor_label: '赞助商', sponsor_btn: '🎗️ 赞助', sponsor_modal_title: '赞助领地', sponsor_modal_desc: '赞助领地 #', sponsor_msg_label: '消息（可选）', sponsor_place_btn: '🎗️ 赞助', sponsor_confirm: '赞助此领地？', sponsor_placed: '🎗️ 赞助成功！',
     capsule_title: '时间胶囊', capsule_desc: '封存一条消息，在未来某天向所有玩家揭示。', capsule_msg_label: '消息（最多280字符）', capsule_days_label: '揭示日期（天后）', capsule_bury_btn: '⏳ 埋入胶囊', capsule_revealed_label: '最近揭示', capsule_none: '暂无已揭示的胶囊。', capsule_none_pending: '暂无埋入的胶囊，成为第一个！', capsule_bury_confirm: '埋入时间胶囊？', capsule_msg_required: '请输入消息', capsule_days_required: '请输入大于0的天数', capsule_buried: '⏳ 胶囊已埋入！',
     base_profile_btn: '👤 个人资料', profile_nickname_label: '昵称', profile_motto_label: '座右铭', profile_color_label: '头像颜色', profile_set_btn: '设置', profile_history_btn: '📜 修改记录', profile_no_motto: '未设置座右铭', profile_nick_confirm: '设置昵称？', profile_motto_confirm: '设置座右铭？', profile_color_confirm: '设置头像颜色？',
     quests_failed: '任务加载失败',
@@ -28767,6 +28806,82 @@ function loadClaimDescriptionForInfo(claimId) {
       row.style.display = 'block';
     }
   }).catch(function(){});
+}
+
+// ── Territory Sponsor (Migration 139) ────────────────────────────────────────
+
+var _sponsorCfg = null;
+var _sponsorClaimId = null;
+
+function loadSponsorsForInfo(claimId) {
+  var row  = document.getElementById('infoSponsorRow');
+  var list = document.getElementById('infoSponsorList');
+  if (!row || !list) return;
+  fetch('/api/sponsor/claim/'+claimId).then(function(r){return r.json();}).then(function(d){
+    var sponsors = d.sponsors || [];
+    if (!sponsors.length) { row.style.display='none'; return; }
+    row.style.display = 'block';
+    list.innerHTML = sponsors.map(function(s){
+      var name = s.nickname || s.sponsor_wallet.slice(0,6)+'…'+s.sponsor_wallet.slice(-4);
+      var msg  = s.message ? ' — '+s.message : '';
+      var expH = Math.max(0, Math.ceil((new Date(s.expires_at)-Date.now())/3600000));
+      return '<div>🎗️ <b>'+_escHtml(name)+'</b>'+_escHtml(msg)+' <span style="color:var(--tx3);font-size:8px">'+expH+'h left</span></div>';
+    }).join('');
+  }).catch(function(){});
+}
+
+function openSponsorModal() {
+  var plot = window.selectedPlot;
+  if (!plot || !plot.claimId) return;
+  _sponsorClaimId = plot.claimId;
+  var modal = document.getElementById('sponsorModal');
+  var descEl = document.getElementById('sponsorModalDesc');
+  var hintEl = document.getElementById('sponsorCostHint');
+  var msgEl  = document.getElementById('sponsorMsgInput');
+  if (msgEl) msgEl.value = '';
+  if (descEl) descEl.textContent = (t('sponsor_modal_desc')||'Sponsor territory #')+_sponsorClaimId;
+  // Load config for cost hint
+  if (_sponsorCfg) {
+    if (hintEl) hintEl.textContent = _sponsorCfg.costGP+' GP · '+_sponsorCfg.durH+'h duration';
+  } else {
+    fetch('/api/sponsor/config').then(function(r){return r.json();}).then(function(cfg){
+      _sponsorCfg = cfg;
+      if (hintEl) hintEl.textContent = cfg.costGP+' GP · '+cfg.durH+'h duration';
+    }).catch(function(){});
+  }
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeSponsorModal() {
+  var modal = document.getElementById('sponsorModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function submitSponsor() {
+  var wallet  = window._walletAddress;
+  var claimId = _sponsorClaimId;
+  var message = ((document.getElementById('sponsorMsgInput')||{}).value||'').trim();
+  if (!wallet) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+  if (!claimId) return;
+  var cost = _sponsorCfg ? _sponsorCfg.costGP : '?';
+  gameConfirm({
+    title: t('sponsor_confirm')||'Sponsor Territory?',
+    body:  '#'+claimId+(message?' — "'+message+'"':''),
+    cost:  cost+' GP',
+    onConfirm: function() {
+      fetch('/api/sponsor/place', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet, claimId, message })
+      }).then(function(r){return r.json();}).then(function(d){
+        if (d.error) { showToast(d.error,'error'); return; }
+        closeSponsorModal();
+        showToast(t('sponsor_placed')||'🎗️ Sponsored!');
+        loadSponsorsForInfo(claimId);
+        if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+      }).catch(function(e){ showToast(e.message,'error'); });
+    }
+  });
 }
 
 // ── GP Broadcast System (Migration 126) ──────────────────────────────────────

@@ -1486,6 +1486,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="capsuleAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY SPONSOR (Migration 139) ═══ -->
+  <div class="section cat-gp" style="display:none" id="sponsorAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#f48fb1">🎗️ TERRITORY SPONSORS</span>
+      <button onclick="loadSponsorAdmin()" style="font-size:10px;background:rgba(244,143,177,.12);border:1px solid rgba(244,143,177,.3);color:#f48fb1;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="sponsorAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#f48fb1">RECENT SPONSORS</span></div>
+    <div id="sponsorAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#f48fb1">SETTINGS</span></div>
+    <div id="sponsorAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ COMMUNITY POLLS (Migration 135) ═══ -->
   <div class="section cat-gp" style="display:none" id="pollsAdminSection">
     <div class="sec-header">
@@ -2240,7 +2253,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -6604,6 +6617,87 @@ function saveCapsuleSetting(key) {
   var el = document.getElementById('capsule_'+key);
   if (!el) return;
   fetch('/admin/api/capsule/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  TERRITORY SPONSOR ADMIN (Migration 139)
+// ══════════════════════════════════════
+function loadSponsorAdmin() {
+  var statsEl    = document.getElementById('sponsorAdmStats');
+  var listEl     = document.getElementById('sponsorAdmList');
+  var settingsEl = document.getElementById('sponsorAdmSettings');
+  if (!statsEl) return;
+  [statsEl, listEl, settingsEl].forEach(function(el) { if(el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>'; });
+  fetch('/admin/api/sponsor', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['Total',   s.total   || 0],
+        ['Active',  s.active  || 0],
+        ['GP Sunk', (s.total_gp_sunk||0)+' GP'],
+      ].map(function(kv) {
+        return '<div style="background:rgba(244,143,177,.07);border:1px solid rgba(244,143,177,.2);border-radius:6px;padding:8px 10px">'
+          +'<div style="color:#888;font-size:9px;letter-spacing:1px">'+kv[0]+'</div>'
+          +'<div style="color:#f48fb1;font-size:15px;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      var rows = d.recent || [];
+      listEl.innerHTML = rows.length ? '<table class="adm-table"><thead><tr><th>ID</th><th>Sponsor</th><th>Claim</th><th>Message</th><th>GP</th><th>Expires</th><th></th></tr></thead><tbody>'
+        + rows.map(function(r) {
+            var status = r.is_active ? '<span style="color:#a5d6a7">✅</span>' : '<span style="color:#555">—</span>';
+            var exp = new Date(r.expires_at).toLocaleString();
+            return '<tr>'
+              +'<td>#'+r.id+'</td>'
+              +'<td>'+escapeHtml(r.nickname||r.sponsor_wallet)+'</td>'
+              +'<td>#'+r.claim_id+'</td>'
+              +'<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(r.message||'—')+'</td>'
+              +'<td>'+r.gp_paid+'</td>'
+              +'<td style="font-size:9px">'+exp+'</td>'
+              +'<td>'+status+'<button onclick="adminExpireSponsor('+r.id+')" style="font-size:9px;background:rgba(255,100,100,.1);border:1px solid rgba(255,100,100,.3);color:#ef9a9a;padding:2px 6px;border-radius:4px;cursor:pointer;margin-left:4px">EXP</button></td>'
+              +'</tr>';
+          }).join('')
+        + '</tbody></table>' : '<span style="color:#555;font-size:11px">No sponsors yet.</span>';
+
+      var keys = ['sponsor_enabled','sponsor_cost_gp','sponsor_duration_h','sponsor_max_msg_length','sponsor_max_per_territory','sponsor_cooldown_h'];
+      settingsEl.innerHTML = keys.map(function(k) {
+        return '<div style="display:flex;align-items:center;gap:6px">'
+          +'<span style="color:#888;font-size:10px;flex:1">'+k+'</span>'
+          +'<input id="sponsor_'+k+'" style="background:#111;border:1px solid #333;color:#eee;padding:4px 6px;border-radius:4px;font-size:11px;width:80px" '
+          +'onchange="saveSponsorSetting(\''+k+'\')">'
+          +'</div>';
+      }).join('');
+      fetch('/admin/api/settings?prefix=sponsor_', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+        .then(function(r) { return r.json(); })
+        .then(function(s) { (s.settings||s||[]).forEach(function(row) { var el=document.getElementById('sponsor_'+row.key); if(el) el.value=row.value; }); })
+        .catch(function(){});
+    }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function adminExpireSponsor(id) {
+  if (!confirm('Force-expire sponsor #'+id+'?')) return;
+  fetch('/admin/api/sponsor/'+id, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('🎗️ Sponsor expired');
+    loadSponsorAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveSponsorSetting(key) {
+  var el = document.getElementById('sponsor_'+key);
+  if (!el) return;
+  fetch('/admin/api/sponsor/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
