@@ -3612,4 +3612,30 @@ router.post('/sponsor/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Vanity Tag Admin (Migration 140) ──
+router.get('/vtag', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/vtag'); } catch(_) {}
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/vtag/:wallet', adminAuth, async (req, res) => {
+  try {
+    let svc; try { svc = require('../services/vtag'); } catch(_) {}
+    await svc.adminDeleteTag(req.params.wallet);
+    await auditLog(req, 'vtag_delete', req.params.wallet, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/vtag/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('vtag_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'vtag_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

@@ -4879,6 +4879,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             </div>
             <div style="font-size:8px;color:var(--tx3)" id="statusCostHint"></div>
           </div>
+          <!-- GP Vanity Tag (Migration 140) -->
+          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:10px">
+            <div style="font-size:9px;color:#ce93d8;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:6px" data-i18n="vtag_label">🏷️ VANITY TAG</div>
+            <div id="myVtagDisplay" style="font-size:9px;color:var(--tx3);margin-bottom:6px;font-style:italic" data-i18n="vtag_none">No vanity tag set</div>
+            <div style="display:flex;gap:6px;margin-bottom:6px">
+              <input id="vtagInput" maxlength="12" placeholder="Tag…" style="flex:1;background:rgba(206,147,216,.06);border:1px solid rgba(206,147,216,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+              <button onclick="setMyVtag()" style="padding:7px 12px;background:rgba(206,147,216,.15);border:1px solid rgba(206,147,216,.35);color:#ce93d8;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="vtag_set_btn">SET</button>
+              <button onclick="clearMyVtag()" id="vtagClearBtn" style="display:none;padding:7px 10px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.25);color:#f66;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700" data-i18n="vtag_clear_btn">✕</button>
+            </div>
+            <div style="font-size:8px;color:var(--tx3)" id="vtagCostHint"></div>
+          </div>
         </div>
         <!-- Prestige panel -->
         <div id="basePrestigePanel" style="display:none">
@@ -11557,6 +11568,7 @@ var I18N = {
     donation_title: 'COLONY FUND', donation_amount_label: 'AMOUNT (GP)', donation_msg_label: 'MESSAGE (optional)', donation_donate_btn: '🏛️ DONATE', donation_none: 'No donations yet. Be the first!', donation_top_btn: '🏆 TOP DONORS', donation_top_title: 'TOP DONORS', donation_confirm: 'Donate to Colony Fund?', donation_min_hint: 'Enter an amount',
     poll_title: 'COMMUNITY POLLS', poll_create_btn: '+ POLL', poll_create_title: 'CREATE POLL', poll_question_label: 'QUESTION', poll_options_label: 'OPTIONS', poll_add_option: '+ ADD OPTION', poll_duration_label: 'DURATION (h):', poll_publish_btn: '📊 PUBLISH', poll_none: 'No active polls. Create the first one!', poll_publish_confirm: 'Publish Poll?', poll_question_required: 'Enter a question', poll_min_options_hint: 'Need at least 2 options',
     status_label: '💬 STATUS MESSAGE', status_set_btn: 'SET', status_none: 'No active status', status_required: 'Enter a status message', status_set_confirm: 'Set Status Message?',
+    vtag_label: '🏷️ VANITY TAG', vtag_set_btn: 'SET', vtag_clear_btn: '✕', vtag_none: 'No vanity tag set', vtag_required: 'Enter a tag', vtag_set_confirm: 'Set Vanity Tag?', vtag_clear_confirm: 'Remove Vanity Tag?', vtag_free: 'Free', vtag_set_success: '🏷️ Vanity tag set!', vtag_cleared: 'Tag removed', vtag_cost_hint: 'First tag: {first} GP · Change: {change} GP', vtag_disabled: 'Vanity tags disabled',
     tdesc_title: 'TERRITORY DESCRIPTION', tdesc_desc: 'Add a custom description to your territory. Visible to all players.', tdesc_claim_label: 'CLAIM #', tdesc_use_claim: '📍 MINE', tdesc_current_label: 'CURRENT', tdesc_text_label: 'DESCRIPTION', tdesc_save_btn: '📝 SAVE DESCRIPTION', tdesc_my_label: 'MY DESCRIPTIONS', tdesc_none: 'No descriptions set yet.', tdesc_save_confirm: 'Save Territory Description?', tdesc_required: 'Enter a description', tdesc_claim_required: 'Enter a Claim #', tdesc_no_claim: 'Select a territory first', tdesc_free: 'Free', tdesc_saved: '✅ Description saved!', tdesc_free_hint: 'First description is free. Updates cost {cost} GP.',
     sponsor_label: 'SPONSORS', sponsor_btn: '🎗️ SPONSOR', sponsor_modal_title: 'SPONSOR TERRITORY', sponsor_modal_desc: 'Sponsor territory #', sponsor_msg_label: 'MESSAGE (optional)', sponsor_place_btn: '🎗️ SPONSOR', sponsor_confirm: 'Sponsor Territory?', sponsor_placed: '🎗️ Sponsored!',
     capsule_title: 'TIME CAPSULE', capsule_desc: 'Bury a sealed message to be revealed to all players in the future.', capsule_msg_label: 'MESSAGE (max 280 chars)', capsule_days_label: 'REVEAL IN (days)', capsule_bury_btn: '⏳ BURY CAPSULE', capsule_revealed_label: 'RECENTLY REVEALED', capsule_none: 'No revealed capsules yet.', capsule_none_pending: 'No capsules buried yet. Be the first!', capsule_bury_confirm: 'Bury Time Capsule?', capsule_msg_required: 'Enter a message', capsule_days_required: 'Enter days > 0', capsule_buried: '⏳ Capsule buried!',
@@ -12165,6 +12177,7 @@ var I18N = {
     donation_title: '콜로니 펀드', donation_amount_label: '금액 (GP)', donation_msg_label: '메시지 (선택)', donation_donate_btn: '🏛️ 기부하기', donation_none: '아직 기부 없음.', donation_top_btn: '🏆 최고 기부자', donation_top_title: '최고 기부자', donation_confirm: '콜로니 펀드에 기부?', donation_min_hint: '금액을 입력하세요',
     poll_title: '커뮤니티 투표', poll_create_btn: '+ 투표', poll_create_title: '투표 만들기', poll_question_label: '질문', poll_options_label: '선택지', poll_add_option: '+ 선택지 추가', poll_duration_label: '기간(h):', poll_publish_btn: '📊 게시', poll_none: '현재 진행 중인 투표가 없습니다.', poll_publish_confirm: '투표 게시?', poll_question_required: '질문을 입력하세요', poll_min_options_hint: '선택지 2개 이상 필요',
     status_label: '💬 상태 메시지', status_set_btn: '설정', status_none: '활성 상태 없음', status_required: '상태 메시지를 입력하세요', status_set_confirm: '상태 메시지 설정?',
+    vtag_label: '🏷️ 배니티 태그', vtag_set_btn: '설정', vtag_clear_btn: '✕', vtag_none: '배니티 태그 없음', vtag_required: '태그를 입력하세요', vtag_set_confirm: '배니티 태그 설정?', vtag_clear_confirm: '배니티 태그 삭제?', vtag_free: '무료', vtag_set_success: '🏷️ 배니티 태그 설정!', vtag_cleared: '태그 삭제됨', vtag_cost_hint: '첫 태그: {first} GP · 변경: {change} GP', vtag_disabled: '배니티 태그 비활성화됨',
     tdesc_title: '영토 설명', tdesc_desc: '내 영토에 설명을 추가하세요. 모든 플레이어에게 보입니다.', tdesc_claim_label: '클레임 #', tdesc_use_claim: '📍 내 것', tdesc_current_label: '현재 설명', tdesc_text_label: '설명', tdesc_save_btn: '📝 설명 저장', tdesc_my_label: '내 설명 목록', tdesc_none: '아직 설명 없음.', tdesc_save_confirm: '영토 설명 저장?', tdesc_required: '설명을 입력하세요', tdesc_claim_required: '클레임 번호를 입력하세요', tdesc_no_claim: '먼저 영토를 선택하세요', tdesc_free: '무료', tdesc_saved: '✅ 설명 저장 완료!', tdesc_free_hint: '첫 설명은 무료입니다. 수정 시 {cost} GP.',
     sponsor_label: '후원자', sponsor_btn: '🎗️ 후원하기', sponsor_modal_title: '영토 후원', sponsor_modal_desc: '영토 #', sponsor_msg_label: '메시지 (선택)', sponsor_place_btn: '🎗️ 후원', sponsor_confirm: '영토를 후원?', sponsor_placed: '🎗️ 후원 완료!',
     capsule_title: '타임캡슐', capsule_desc: '봉인된 메시지를 묻어두면 미래에 모든 플레이어에게 공개됩니다.', capsule_msg_label: '메시지 (최대 280자)', capsule_days_label: '공개 예정 (일)', capsule_bury_btn: '⏳ 캡슐 묻기', capsule_revealed_label: '최근 공개됨', capsule_none: '아직 공개된 캡슐 없음.', capsule_none_pending: '아직 묻힌 캡슐 없음. 첫 번째가 되어보세요!', capsule_bury_confirm: '타임캡슐 묻기?', capsule_msg_required: '메시지를 입력하세요', capsule_days_required: '1일 이상 입력', capsule_buried: '⏳ 캡슐이 묻혔습니다!',
@@ -12772,6 +12785,7 @@ var I18N = {
     donation_title: 'コロニーファンド', donation_amount_label: '金額（GP）', donation_msg_label: 'メッセージ（任意）', donation_donate_btn: '🏛️ 寄付する', donation_none: 'まだ寄付なし。', donation_top_btn: '🏆 トップ寄付者', donation_top_title: 'トップ寄付者', donation_confirm: 'コロニーファンドに寄付？', donation_min_hint: '金額を入力してください',
     poll_title: 'コミュニティ投票', poll_create_btn: '+ 投票', poll_create_title: '投票作成', poll_question_label: '質問', poll_options_label: '選択肢', poll_add_option: '+ 選択肢追加', poll_duration_label: '期間（h）:', poll_publish_btn: '📊 公開', poll_none: '現在進行中の投票なし。', poll_publish_confirm: '投票を公開？', poll_question_required: '質問を入力してください', poll_min_options_hint: '選択肢2つ以上必要',
     status_label: '💬 ステータスメッセージ', status_set_btn: '設定', status_none: 'アクティブなステータスなし', status_required: 'ステータスを入力してください', status_set_confirm: 'ステータスを設定？',
+    vtag_label: '🏷️ バニティタグ', vtag_set_btn: '設定', vtag_clear_btn: '✕', vtag_none: 'バニティタグなし', vtag_required: 'タグを入力してください', vtag_set_confirm: 'バニティタグを設定？', vtag_clear_confirm: 'バニティタグを削除？', vtag_free: '無料', vtag_set_success: '🏷️ バニティタグ設定！', vtag_cleared: 'タグを削除しました', vtag_cost_hint: '初回: {first} GP · 変更: {change} GP', vtag_disabled: 'バニティタグ無効',
     tdesc_title: '領土の説明', tdesc_desc: '自分の領土に説明を追加します。全プレイヤーに表示されます。', tdesc_claim_label: 'クレイム #', tdesc_use_claim: '📍 自分の', tdesc_current_label: '現在の説明', tdesc_text_label: '説明', tdesc_save_btn: '📝 説明を保存', tdesc_my_label: '自分の説明一覧', tdesc_none: '説明なし。', tdesc_save_confirm: '領土説明を保存？', tdesc_required: '説明を入力してください', tdesc_claim_required: 'クレイム番号を入力してください', tdesc_no_claim: '先に領土を選択してください', tdesc_free: '無料', tdesc_saved: '✅ 説明を保存しました！', tdesc_free_hint: '最初の説明は無料。変更時は{cost} GP。',
     sponsor_label: 'スポンサー', sponsor_btn: '🎗️ スポンサー', sponsor_modal_title: '領土スポンサー', sponsor_modal_desc: '領土 #', sponsor_msg_label: 'メッセージ（任意）', sponsor_place_btn: '🎗️ スポンサー', sponsor_confirm: '領土をスポンサー？', sponsor_placed: '🎗️ スポンサー完了！',
     capsule_title: 'タイムカプセル', capsule_desc: '封印したメッセージを埋めると、将来すべてのプレイヤーに公開されます。', capsule_msg_label: 'メッセージ（最大280文字）', capsule_days_label: '公開まで（日数）', capsule_bury_btn: '⏳ カプセルを埋める', capsule_revealed_label: '最近公開されたカプセル', capsule_none: 'まだ公開されたカプセルなし。', capsule_none_pending: 'まだ埋められたカプセルなし。', capsule_bury_confirm: 'タイムカプセルを埋める？', capsule_msg_required: 'メッセージを入力してください', capsule_days_required: '1日以上入力してください', capsule_buried: '⏳ カプセルを埋めました！',
@@ -13363,6 +13377,7 @@ var I18N = {
     donation_title: '殖民基金', donation_amount_label: '金额（GP）', donation_msg_label: '消息（可选）', donation_donate_btn: '🏛️ 捐赠', donation_none: '暂无捐赠记录。', donation_top_btn: '🏆 顶级捐赠者', donation_top_title: '顶级捐赠者', donation_confirm: '向殖民基金捐赠？', donation_min_hint: '请输入金额',
     poll_title: '社区投票', poll_create_btn: '+ 投票', poll_create_title: '创建投票', poll_question_label: '问题', poll_options_label: '选项', poll_add_option: '+ 添加选项', poll_duration_label: '时长（h）:', poll_publish_btn: '📊 发布', poll_none: '暂无进行中的投票。', poll_publish_confirm: '发布投票？', poll_question_required: '请输入问题', poll_min_options_hint: '至少需要2个选项',
     status_label: '💬 状态消息', status_set_btn: '设置', status_none: '暂无活跃状态', status_required: '请输入状态消息', status_set_confirm: '设置状态消息？',
+    vtag_label: '🏷️ 个性标签', vtag_set_btn: '设置', vtag_clear_btn: '✕', vtag_none: '未设置个性标签', vtag_required: '请输入标签', vtag_set_confirm: '设置个性标签？', vtag_clear_confirm: '删除个性标签？', vtag_free: '免费', vtag_set_success: '🏷️ 个性标签已设置！', vtag_cleared: '标签已删除', vtag_cost_hint: '首次: {first} GP · 修改: {change} GP', vtag_disabled: '个性标签已禁用',
     tdesc_title: '领地描述', tdesc_desc: '为您的领地添加自定义描述，所有玩家可见。', tdesc_claim_label: '领地编号', tdesc_use_claim: '📍 我的', tdesc_current_label: '当前描述', tdesc_text_label: '描述', tdesc_save_btn: '📝 保存描述', tdesc_my_label: '我的描述', tdesc_none: '暂无描述。', tdesc_save_confirm: '保存领地描述？', tdesc_required: '请输入描述', tdesc_claim_required: '请输入领地编号', tdesc_no_claim: '请先选择一个领地', tdesc_free: '免费', tdesc_saved: '✅ 描述已保存！', tdesc_free_hint: '首次描述免费，修改需要{cost} GP。',
     sponsor_label: '赞助商', sponsor_btn: '🎗️ 赞助', sponsor_modal_title: '赞助领地', sponsor_modal_desc: '赞助领地 #', sponsor_msg_label: '消息（可选）', sponsor_place_btn: '🎗️ 赞助', sponsor_confirm: '赞助此领地？', sponsor_placed: '🎗️ 赞助成功！',
     capsule_title: '时间胶囊', capsule_desc: '封存一条消息，在未来某天向所有玩家揭示。', capsule_msg_label: '消息（最多280字符）', capsule_days_label: '揭示日期（天后）', capsule_bury_btn: '⏳ 埋入胶囊', capsule_revealed_label: '最近揭示', capsule_none: '暂无已揭示的胶囊。', capsule_none_pending: '暂无埋入的胶囊，成为第一个！', capsule_bury_confirm: '埋入时间胶囊？', capsule_msg_required: '请输入消息', capsule_days_required: '请输入大于0的天数', capsule_buried: '⏳ 胶囊已埋入！',
@@ -27814,6 +27829,9 @@ function loadMyProfile() {
     var hint = document.getElementById('statusCostHint');
     if (hint) hint.textContent = cfg.costGP + ' GP · '+cfg.durH+'h duration';
   }).catch(function(){});
+
+  // Load vanity tag
+  try { loadVtagCfg(); loadMyVtagDisplay(); } catch(_) {}
 }
 
 function loadMyStatusDisplay() {
@@ -27849,6 +27867,89 @@ function setMyStatus() {
       if (d.error) { showToast(d.error,'error'); return; }
       showToast('💬 Status set!','success');
       loadMyStatusDisplay();
+      if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
+}
+
+// ═══════ VANITY TAG (Migration 140) ═══════
+var _vtagCfg = null;
+function loadVtagCfg() {
+  fetch('/api/vtag/config').then(function(r){return r.json();}).then(function(c){
+    _vtagCfg = c;
+    var hint = document.getElementById('vtagCostHint');
+    if (hint) hint.textContent = c.enabled
+      ? (t('vtag_cost_hint')||'First tag: '+c.firstGP+' GP • Change: '+c.changeGP+' GP')
+      : (t('vtag_disabled')||'Vanity tags disabled');
+  }).catch(function(){});
+}
+
+function loadMyVtagDisplay() {
+  var w = walletState && walletState.address;
+  if (!w) return;
+  var el = document.getElementById('myVtagDisplay');
+  var clearBtn = document.getElementById('vtagClearBtn');
+  if (!el) return;
+  fetch('/api/vtag/get?wallet='+encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if (!d || !d.tag) {
+        el.textContent = t('vtag_none')||'No vanity tag set';
+        el.style.color = 'var(--tx3)';
+        if (clearBtn) clearBtn.style.display = 'none';
+        return;
+      }
+      el.textContent = '🏷️ '+d.tag;
+      el.style.color = '#ce93d8';
+      if (clearBtn) clearBtn.style.display = '';
+      var input = document.getElementById('vtagInput');
+      if (input) input.value = d.tag;
+    }).catch(function(){ el.textContent = ''; });
+}
+
+function setMyVtag() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+  var val = (document.getElementById('vtagInput')||{}).value || '';
+  val = val.trim();
+  if (!val) { showToast(t('vtag_required')||'Enter a tag','error'); return; }
+  var cost = _vtagCfg ? _vtagCfg.firstGP : 50; // will be recalculated server-side
+  var costStr = cost > 0 ? cost+' GP' : t('vtag_free')||'Free';
+  gameConfirm({
+    title: t('vtag_set_confirm')||'Set Vanity Tag?',
+    body: 'Tag: <b>'+_escHtml(val)+'</b><br>Cost: <b>'+costStr+'</b>'
+  }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/vtag/set', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w, tag: val })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast((t('vtag_set_success')||'🏷️ Vanity tag set!'),'success');
+      loadMyVtagDisplay();
+      if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
+}
+
+function clearMyVtag() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+  var clearGP = _vtagCfg ? _vtagCfg.clearGP : 0;
+  var costStr = clearGP > 0 ? clearGP+' GP' : t('vtag_free')||'Free';
+  gameConfirm({
+    title: t('vtag_clear_confirm')||'Remove Vanity Tag?',
+    body: 'Clear your current vanity tag.<br>Cost: <b>'+costStr+'</b>'
+  }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/vtag/clear', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast((t('vtag_cleared')||'Tag removed'),'success');
+      loadMyVtagDisplay();
+      document.getElementById('vtagInput').value = '';
       if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
     }).catch(function(e){ showToast(e.message,'error'); });
   });
