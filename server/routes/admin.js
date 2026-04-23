@@ -3612,6 +3612,31 @@ router.post('/sponsor/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Territory Tribute Admin (Migration 141) ──
+router.get('/tribute', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/tribute'); } catch(_) {}
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/tribute/:id', adminAuth, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM territory_tributes WHERE id = $1', [req.params.id]);
+    await auditLog(req, 'tribute_delete', req.params.id, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/tribute/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('tribute_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'tribute_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Vanity Tag Admin (Migration 140) ──
 router.get('/vtag', adminAuth, async (req, res) => {
   let svc; try { svc = require('../services/vtag'); } catch(_) {}

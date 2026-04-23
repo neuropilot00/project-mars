@@ -115,6 +115,7 @@ const tdescRoutes       = require('./routes/tdesc');
 const capsuleRoutes     = require('./routes/capsule');
 const sponsorRoutes     = require('./routes/sponsor');
 const vtagRoutes        = require('./routes/vtag');
+const tributeRoutes     = require('./routes/tribute');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -262,6 +263,7 @@ app.use('/api', tdescRoutes);
 app.use('/api', capsuleRoutes);
 app.use('/api', sponsorRoutes);
 app.use('/api', vtagRoutes);
+app.use('/api', tributeRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
