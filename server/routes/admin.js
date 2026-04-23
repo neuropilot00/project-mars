@@ -3409,4 +3409,33 @@ router.post('/prestige/setting', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Map Beacon Admin (Migration 133) ─────────────────────────────────────────
+
+router.get('/beacons', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/beacon'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, recent: [] });
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/beacons/:id', adminAuth, async (req, res) => {
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE map_beacons SET is_active=false WHERE id=$1`, [req.params.id]);
+    await auditLog(req, 'beacon_expire', req.params.id, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/beacons/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('beacon_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'beacon_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

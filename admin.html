@@ -1447,6 +1447,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="prestigeAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ MAP BEACONS (Migration 133) ═══ -->
+  <div class="section cat-gp" style="display:none" id="beaconAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#81d4fa">📡 MAP BEACONS</span>
+      <button onclick="loadBeaconAdmin()" style="font-size:10px;background:rgba(129,212,250,.12);border:1px solid rgba(129,212,250,.3);color:#81d4fa;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="beaconAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#81d4fa">RECENT BEACONS</span></div>
+    <div id="beaconAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#81d4fa">SETTINGS</span></div>
+    <div id="beaconAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ VIP PASS SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="vipAdminSection">
     <div class="sec-header">
@@ -2162,7 +2175,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -6139,6 +6152,91 @@ function savePrestigeSetting(key) {
   var el = document.getElementById('prestige_'+key);
   if (!el) return;
   fetch('/admin/api/prestige/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  MAP BEACONS ADMIN (Migration 133)
+// ══════════════════════════════════════
+function loadBeaconAdmin() {
+  var statsEl    = document.getElementById('beaconAdmStats');
+  var listEl     = document.getElementById('beaconAdmList');
+  var settingsEl = document.getElementById('beaconAdmSettings');
+  if (!statsEl) return;
+  [statsEl, listEl, settingsEl].forEach(function(el) { if(el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>'; });
+  fetch('/admin/api/beacons', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['Total Beacons',  s.total_beacons  || 0],
+        ['Active',         s.active_beacons || 0],
+        ['GP Sunk',        (s.total_gp_sunk || 0)+' GP'],
+      ].map(function(kv) {
+        return '<div style="background:rgba(129,212,250,.07);border:1px solid rgba(129,212,250,.2);border-radius:6px;padding:8px 10px">'
+          +'<div style="color:#888;font-size:9px;letter-spacing:1px">'+kv[0]+'</div>'
+          +'<div style="color:#81d4fa;font-size:15px;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      var rows = d.recent || [];
+      listEl.innerHTML = rows.length ? '<table class="adm-table"><thead><tr><th>ID</th><th>Player</th><th>Icon</th><th>Msg</th><th>Coords</th><th>GP</th><th>Status</th><th></th></tr></thead><tbody>'
+        + rows.map(function(r) {
+            var active = r.is_active && new Date(r.expires_at) > new Date();
+            return '<tr>'
+              +'<td>'+r.id+'</td>'
+              +'<td>'+escapeHtml(r.nickname||r.wallet)+'</td>'
+              +'<td style="text-align:center">'+escapeHtml(r.icon)+'</td>'
+              +'<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(r.message||'—')+'</td>'
+              +'<td>('+r.x+','+r.y+')</td>'
+              +'<td>'+r.gp_paid+'</td>'
+              +'<td style="color:'+(active?'#81d4fa':'#555')+'">'+(active?'ACTIVE':'EXPIRED')+'</td>'
+              +'<td>'+(active ? '<button onclick="adminExpireBeacon('+r.id+')" style="font-size:9px;background:rgba(255,100,100,.1);border:1px solid rgba(255,100,100,.3);color:#ef9a9a;padding:2px 6px;border-radius:4px;cursor:pointer">EXPIRE</button>' : '')+'</td>'
+              +'</tr>';
+          }).join('')
+        + '</tbody></table>' : '<span style="color:#555;font-size:11px">No beacons yet.</span>';
+
+      var keys = ['beacon_cost_gp','beacon_duration_h','beacon_max_length','beacon_max_active_map','beacon_max_per_wallet','beacon_cooldown_h','beacon_icons'];
+      settingsEl.innerHTML = keys.map(function(k) {
+        return '<div style="display:flex;align-items:center;gap:6px">'
+          +'<span style="color:#888;font-size:10px;flex:1">'+k+'</span>'
+          +'<input id="beacon_'+k+'" style="background:#111;border:1px solid #333;color:#eee;padding:4px 6px;border-radius:4px;font-size:11px;width:160px" '
+          +'onchange="saveBeaconSetting(\''+k+'\')">'
+          +'</div>';
+      }).join('');
+      fetch('/admin/api/settings?prefix=beacon_', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+        .then(function(r) { return r.json(); })
+        .then(function(s) {
+          (s.settings || s || []).forEach(function(row) {
+            var el = document.getElementById('beacon_'+row.key);
+            if (el) el.value = row.value;
+          });
+        }).catch(function(){});
+    }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function adminExpireBeacon(id) {
+  if (!confirm('Force-expire beacon #'+id+'?')) return;
+  fetch('/admin/api/beacons/'+id, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('📡 Beacon expired');
+    loadBeaconAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveBeaconSetting(key) {
+  var el = document.getElementById('beacon_'+key);
+  if (!el) return;
+  fetch('/admin/api/beacons/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })

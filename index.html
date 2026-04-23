@@ -3540,6 +3540,48 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
       </div>
 
+      <!-- 📡 MAP BEACONS (collapsible) -->
+      <div style="padding:8px 10px;border-top:1px solid var(--bdr)">
+        <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0" onclick="toggleBeaconPanel()">
+          <span style="font-size:9px;color:#81d4fa;letter-spacing:2px;font-family:var(--fn);font-weight:700">📡 <span data-i18n="beacon_title">MAP BEACONS</span></span>
+          <span id="beaconPanelArrow" style="color:#81d4fa;font-size:10px">▼</span>
+        </div>
+        <div id="beaconPanel" style="display:none;margin-top:8px">
+          <div style="font-size:9px;color:var(--tx3);margin-bottom:8px" data-i18n="beacon_desc">Place a visible beacon on the map for other players to see.</div>
+          <!-- Icon selector -->
+          <div style="margin-bottom:8px">
+            <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="beacon_icon_label">ICON</div>
+            <div id="beaconIconRow" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+          </div>
+          <!-- Message -->
+          <div style="margin-bottom:8px">
+            <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="beacon_msg_label">MESSAGE (optional)</div>
+            <input id="beaconMsgInput" maxlength="60" placeholder="e.g. Trade here! 🏪" style="width:100%;background:rgba(129,212,250,.06);border:1px solid rgba(129,212,250,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box">
+          </div>
+          <!-- Coords (auto from selected plot or manual) -->
+          <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
+            <div style="flex:1">
+              <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="beacon_x_label">X</div>
+              <input id="beaconXInput" type="number" style="width:100%;background:rgba(129,212,250,.06);border:1px solid rgba(129,212,250,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box" placeholder="0">
+            </div>
+            <div style="flex:1">
+              <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:4px" data-i18n="beacon_y_label">Y</div>
+              <input id="beaconYInput" type="number" style="width:100%;background:rgba(129,212,250,.06);border:1px solid rgba(129,212,250,.2);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:10px;font-family:var(--fn);box-sizing:border-box" placeholder="0">
+            </div>
+            <div style="padding-top:18px">
+              <button onclick="useCurrentPlotForBeacon()" style="padding:7px 10px;background:rgba(129,212,250,.1);border:1px solid rgba(129,212,250,.2);color:#81d4fa;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px" data-i18n="beacon_use_plot">📍 PLOT</button>
+            </div>
+          </div>
+          <div style="font-size:8px;color:var(--tx3);margin-bottom:8px" id="beaconCostHint"></div>
+          <button onclick="placeBeacon()" style="width:100%;padding:9px;background:rgba(129,212,250,.15);border:1px solid rgba(129,212,250,.35);color:#81d4fa;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700" data-i18n="beacon_place_btn">📡 PLACE BEACON</button>
+          <!-- Active beacons list -->
+          <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
+            <div style="font-size:9px;color:#81d4fa;font-family:var(--fn);font-weight:700;margin-bottom:6px" data-i18n="beacon_active_label">ACTIVE BEACONS</div>
+            <div id="activeBeaconsPanel" style="font-size:9px;color:var(--tx3)">Loading…</div>
+          </div>
+        </div>
+      </div>
+
       <!-- TAB: SECTORS -->
       <div class="base-pane" id="basePane_sectors">
         <div class="base-banner" id="bannerSectors"><img src="assets/base/sectors.png" alt="Sectors"></div>
@@ -11306,6 +11348,7 @@ var I18N = {
     wager_title: 'GP WAGER POOLS', wager_none: 'No active wager pools right now.', wager_my_btn: '🎯 MY BETS', wager_bet_btn: '🎯 BET', wager_target_label: 'Bet on (wallet/nickname):', wager_amount_label: 'Amount:', wager_confirm: 'Place Bet?',
     tevt_title: 'TERRITORY EVENTS', tevt_desc: 'Activate time-limited boosts on your territory using GP.', tevt_select_label: 'Select a Claim:', tevt_load_btn: '⚡ LOAD EVENTS', tevt_active_label: 'ACTIVE EVENTS', tevt_none: 'No active events.', tevt_activate_confirm: 'Activate Territory Event?',
     prestige_btn: '⭐ PRESTIGE', prestige_buy_btn: '⭐ BUY PRESTIGE POINT', prestige_buy_confirm: 'Buy Prestige Point?', prestige_lb_title: '🏆 PRESTIGE LEADERS', prestige_lb_none: 'No prestige players yet.',
+    beacon_title: 'MAP BEACONS', beacon_desc: 'Place a visible beacon on the map for other players to see.', beacon_icon_label: 'ICON', beacon_msg_label: 'MESSAGE (optional)', beacon_x_label: 'X', beacon_y_label: 'Y', beacon_use_plot: '📍 PLOT', beacon_place_btn: '📡 PLACE BEACON', beacon_active_label: 'ACTIVE BEACONS', beacon_none: 'No active beacons.', beacon_place_confirm: 'Place Map Beacon?', beacon_no_plot: 'Select a plot on the map first', beacon_coords_required: 'Enter coordinates first',
     base_profile_btn: '👤 PROFILE', profile_nickname_label: 'NICKNAME', profile_motto_label: 'MOTTO', profile_color_label: 'AVATAR COLOR', profile_set_btn: 'SET', profile_history_btn: '📜 CHANGE HISTORY', profile_no_motto: 'No motto set', profile_nick_confirm: 'Set Nickname?', profile_motto_confirm: 'Set Motto?', profile_color_confirm: 'Set Avatar Color?',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
@@ -11907,6 +11950,7 @@ var I18N = {
     wager_title: 'GP 예측 베팅', wager_none: '현재 활성 베팅 풀이 없습니다.', wager_my_btn: '🎯 내 베팅', wager_bet_btn: '🎯 베팅', wager_target_label: '베팅 대상 (지갑/닉네임):', wager_amount_label: '금액:', wager_confirm: '베팅 확인?',
     tevt_title: '영토 이벤트', tevt_desc: 'GP를 사용해 영토에 시간 제한 부스트를 활성화하세요.', tevt_select_label: '클레임 선택:', tevt_load_btn: '⚡ 이벤트 로드', tevt_active_label: '활성 이벤트', tevt_none: '활성 이벤트 없음.', tevt_activate_confirm: '영토 이벤트 활성화?',
     prestige_btn: '⭐ 프레스티지', prestige_buy_btn: '⭐ 프레스티지 포인트 구매', prestige_buy_confirm: '프레스티지 포인트 구매?', prestige_lb_title: '🏆 프레스티지 순위', prestige_lb_none: '프레스티지 플레이어 없음.',
+    beacon_title: '맵 비콘', beacon_desc: '맵 위에 다른 플레이어에게 보이는 비콘을 설치하세요.', beacon_icon_label: '아이콘', beacon_msg_label: '메시지 (선택)', beacon_x_label: 'X 좌표', beacon_y_label: 'Y 좌표', beacon_use_plot: '📍 현재 플롯', beacon_place_btn: '📡 비콘 설치', beacon_active_label: '활성 비콘', beacon_none: '활성 비콘 없음.', beacon_place_confirm: '맵 비콘 설치?', beacon_no_plot: '먼저 맵에서 플롯을 선택하세요', beacon_coords_required: '좌표를 입력하세요',
     base_profile_btn: '👤 프로필', profile_nickname_label: '닉네임', profile_motto_label: '좌우명', profile_color_label: '아바타 색상', profile_set_btn: '설정', profile_history_btn: '📜 변경 기록', profile_no_motto: '좌우명 없음', profile_nick_confirm: '닉네임 설정?', profile_motto_confirm: '좌우명 설정?', profile_color_confirm: '아바타 색상 설정?',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
@@ -12507,6 +12551,7 @@ var I18N = {
     wager_title: 'GP予測ベット', wager_none: 'アクティブなベットプールなし。', wager_my_btn: '🎯 マイベット', wager_bet_btn: '🎯 ベット', wager_target_label: 'ベット対象（ウォレット/ニックネーム）:', wager_amount_label: '金額:', wager_confirm: 'ベットを確定？',
     tevt_title: 'テリトリーイベント', tevt_desc: 'GPを使用してテリトリーに時限ブーストを有効化します。', tevt_select_label: 'クレームを選択:', tevt_load_btn: '⚡ イベント読込', tevt_active_label: 'アクティブイベント', tevt_none: 'アクティブなイベントなし。', tevt_activate_confirm: 'テリトリーイベントを有効化？',
     prestige_btn: '⭐ プレステージ', prestige_buy_btn: '⭐ プレステージポイント購入', prestige_buy_confirm: 'プレステージポイントを購入？', prestige_lb_title: '🏆 プレステージランキング', prestige_lb_none: 'プレステージプレイヤーなし。',
+    beacon_title: 'マップビーコン', beacon_desc: '他のプレイヤーに見えるビーコンをマップに設置します。', beacon_icon_label: 'アイコン', beacon_msg_label: 'メッセージ（任意）', beacon_x_label: 'X', beacon_y_label: 'Y', beacon_use_plot: '📍 プロット', beacon_place_btn: '📡 ビーコン設置', beacon_active_label: 'アクティブビーコン', beacon_none: 'ビーコンなし。', beacon_place_confirm: 'マップビーコン設置？', beacon_no_plot: 'まずマップでプロットを選択', beacon_coords_required: '座標を入力してください',
     base_profile_btn: '👤 プロフィール', profile_nickname_label: 'ニックネーム', profile_motto_label: 'モットー', profile_color_label: 'アバターカラー', profile_set_btn: '設定', profile_history_btn: '📜 変更履歴', profile_no_motto: 'モットーなし', profile_nick_confirm: 'ニックネームを設定？', profile_motto_confirm: 'モットーを設定？', profile_color_confirm: 'アバターカラーを設定？',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
@@ -13091,6 +13136,7 @@ var I18N = {
     wager_title: 'GP预测投注', wager_none: '暂无活跃投注池。', wager_my_btn: '🎯 我的投注', wager_bet_btn: '🎯 投注', wager_target_label: '投注对象（钱包/昵称）:', wager_amount_label: '金额:', wager_confirm: '确认投注？',
     tevt_title: '领地事件', tevt_desc: '使用GP为您的领地激活限时加成。', tevt_select_label: '选择领地:', tevt_load_btn: '⚡ 加载事件', tevt_active_label: '活跃事件', tevt_none: '暂无活跃事件。', tevt_activate_confirm: '激活领地事件？',
     prestige_btn: '⭐ 声望', prestige_buy_btn: '⭐ 购买声望点', prestige_buy_confirm: '购买声望点？', prestige_lb_title: '🏆 声望排行榜', prestige_lb_none: '暂无声望玩家。',
+    beacon_title: '地图信标', beacon_desc: '在地图上放置其他玩家可见的信标。', beacon_icon_label: '图标', beacon_msg_label: '消息（可选）', beacon_x_label: 'X', beacon_y_label: 'Y', beacon_use_plot: '📍 当前地块', beacon_place_btn: '📡 放置信标', beacon_active_label: '活跃信标', beacon_none: '暂无活跃信标。', beacon_place_confirm: '放置地图信标？', beacon_no_plot: '请先在地图上选择地块', beacon_coords_required: '请输入坐标',
     base_profile_btn: '👤 个人资料', profile_nickname_label: '昵称', profile_motto_label: '座右铭', profile_color_label: '头像颜色', profile_set_btn: '设置', profile_history_btn: '📜 修改记录', profile_no_motto: '未设置座右铭', profile_nick_confirm: '设置昵称？', profile_motto_confirm: '设置座右铭？', profile_color_confirm: '设置头像颜色？',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
@@ -27707,6 +27753,104 @@ function buyPrestige() {
       var msg = d.rankedUp ? (d.rankIcon+' Ranked up to '+d.rankName+'!') : ('⭐ +1 Prestige Point!');
       showToast(msg,'success');
       loadMyPrestige();
+      if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
+    }).catch(function(e){ showToast(e.message,'error'); });
+  });
+}
+
+// ── Map Beacons (Migration 133) ──────────────────────────────────────────────
+
+var _beaconCfg = null;
+var _selectedBeaconIcon = '📡';
+
+function toggleBeaconPanel() {
+  var panel = document.getElementById('beaconPanel');
+  var arrow = document.getElementById('beaconPanelArrow');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (arrow) arrow.textContent = open ? '▼' : '▲';
+  if (!open) { loadBeaconCfg(); loadActiveBeacons(); }
+}
+
+function loadBeaconCfg() {
+  fetch('/api/beacons/config').then(function(r){return r.json();}).then(function(cfg){
+    _beaconCfg = cfg;
+    var hint = document.getElementById('beaconCostHint');
+    if (hint) hint.textContent = cfg.costGP + ' GP · ' + cfg.durH + 'h duration';
+    // Render icon picker
+    var row = document.getElementById('beaconIconRow');
+    if (row) {
+      row.innerHTML = cfg.icons.map(function(ic) {
+        return '<span onclick="selectBeaconIcon(\''+ic+'\')" id="beaconIcon_'+encodeURIComponent(ic)+'"'
+          +' style="cursor:pointer;font-size:18px;padding:4px 6px;border-radius:6px;border:1px solid '+(ic===_selectedBeaconIcon?'#81d4fa':'rgba(255,255,255,.1)')+';background:'+(ic===_selectedBeaconIcon?'rgba(129,212,250,.15)':'transparent')+'">'
+          +ic+'</span>';
+      }).join('');
+    }
+  }).catch(function(){});
+}
+
+function selectBeaconIcon(icon) {
+  _selectedBeaconIcon = icon;
+  document.querySelectorAll('[id^="beaconIcon_"]').forEach(function(el) {
+    el.style.borderColor = 'rgba(255,255,255,.1)';
+    el.style.background = 'transparent';
+  });
+  var target = document.getElementById('beaconIcon_'+encodeURIComponent(icon));
+  if (target) { target.style.borderColor = '#81d4fa'; target.style.background = 'rgba(129,212,250,.15)'; }
+}
+
+function useCurrentPlotForBeacon() {
+  if (typeof selectedPlot !== 'undefined' && selectedPlot) {
+    var xEl = document.getElementById('beaconXInput');
+    var yEl = document.getElementById('beaconYInput');
+    if (xEl) xEl.value = selectedPlot.x || 0;
+    if (yEl) yEl.value = selectedPlot.y || 0;
+  } else {
+    showToast(t('beacon_no_plot')||'Select a plot on the map first','error');
+  }
+}
+
+function loadActiveBeacons() {
+  var el = document.getElementById('activeBeaconsPanel');
+  if (!el) return;
+  el.innerHTML = '<span style="color:#555;font-size:9px">Loading…</span>';
+  fetch('/api/beacons/active').then(function(r){return r.json();}).then(function(rows){
+    if (!rows.length) { el.innerHTML = '<span style="color:#555;font-size:9px" data-i18n="beacon_none">'+t('beacon_none')+'</span>'; return; }
+    el.innerHTML = rows.slice(0,10).map(function(b) {
+      var expMs = new Date(b.expires_at) - Date.now();
+      var expStr = expMs > 0 ? Math.ceil(expMs/3600000)+'h left' : 'expired';
+      return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+        +'<span style="font-size:16px">'+b.icon+'</span>'
+        +'<div style="flex:1"><div style="font-size:9px;color:var(--tx)">'+(b.nickname||b.wallet.slice(0,8)+'…')+'</div>'
+        +(b.message ? '<div style="font-size:8px;color:var(--tx3)">'+b.message+'</div>' : '')
+        +'<div style="font-size:8px;color:#81d4fa">('+b.x+','+b.y+') · '+expStr+'</div></div></div>';
+    }).join('');
+  }).catch(function(){ el.innerHTML = ''; });
+}
+
+function placeBeacon() {
+  var w = walletState && walletState.address;
+  if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+  var x = parseInt(document.getElementById('beaconXInput').value, 10);
+  var y = parseInt(document.getElementById('beaconYInput').value, 10);
+  if (isNaN(x) || isNaN(y)) { showToast(t('beacon_coords_required')||'Enter coordinates first','error'); return; }
+  var msg = document.getElementById('beaconMsgInput').value.trim() || null;
+  var cfg = _beaconCfg;
+  var cost = cfg ? cfg.costGP : 30;
+  gameConfirm({
+    title: t('beacon_place_confirm')||'Place Map Beacon?',
+    body: _selectedBeaconIcon+' at ('+x+','+y+')<br>Cost: <b>'+cost+' GP</b>'+(msg ? '<br>Message: '+msg : '')
+  }).then(function(ok){
+    if (!ok) return;
+    fetch('/api/beacons/place', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ wallet: w, x: x, y: y, message: msg, icon: _selectedBeaconIcon })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.error) { showToast(d.error,'error'); return; }
+      showToast('📡 Beacon placed for '+d.durH+'h!','success');
+      document.getElementById('beaconMsgInput').value = '';
+      loadActiveBeacons();
       if (typeof refreshWalletInfo === 'function') refreshWalletInfo();
     }).catch(function(e){ showToast(e.message,'error'); });
   });

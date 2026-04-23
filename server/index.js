@@ -107,6 +107,7 @@ const raffleRoutes      = require('./routes/raffle');
 const wagerRoutes       = require('./routes/wager');
 const tevtRoutes        = require('./routes/tevt');
 const prestigeRoutes    = require('./routes/prestige');
+const beaconRoutes      = require('./routes/beacon');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -246,6 +247,7 @@ app.use('/api', raffleRoutes);
 app.use('/api', wagerRoutes);
 app.use('/api', tevtRoutes);
 app.use('/api', prestigeRoutes);
+app.use('/api', beaconRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -1007,6 +1009,14 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[TEVT] Event expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[TEVT] Could not init expiry scheduler:', e.message); }
+
+    try {
+      const { expireBeacons } = require('./services/beacon');
+      setInterval(async () => {
+        try { await expireBeacons(); } catch(e) { console.warn('[BEACON] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[BEACON] Beacon expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[BEACON] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {
