@@ -3326,6 +3326,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <!-- TAB: SECTORS -->
       <div class="base-pane" id="basePane_sectors">
         <div class="base-banner" id="bannerSectors"><img src="assets/base/sectors.png" alt="Sectors"></div>
+
+        <!-- PLANET NEWS Section -->
+        <div class="base-section-title" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"
+             onclick="toggleNewsPanel()">
+          <span>🌐 <span data-i18n="news_title">PLANET NEWS</span></span>
+          <span id="newsPanelToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="newsPanelWrap" style="display:none;margin-bottom:10px">
+          <div id="newsFeed" style="font-size:9px;color:var(--tx2);line-height:1.9;max-height:200px;overflow-y:auto;border:1px solid var(--bdr);border-radius:6px;padding:6px 8px;background:rgba(0,0,0,.2)">
+            <div style="text-align:center;color:var(--tx3);padding:12px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
+
         <div class="base-section-title" data-i18n="all_24_sectors">ALL 24 SECTORS</div>
         <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
           <button class="base-filter-btn active" onclick="filterSectors('all',this)" style="font-size:9px;font-family:var(--fn);padding:4px 8px;background:rgba(255,120,60,.1);border:1px solid var(--bdr2);border-radius:4px;color:var(--mars);cursor:pointer" data-i18n="sector_all">ALL</button>
@@ -10484,6 +10497,7 @@ var I18N = {
     // ── QUESTS tab ──
     quests_loading: 'Loading quests...',
     achievements_title: 'ACHIEVEMENTS', achievements_loading: 'Loading achievements...',
+    news_title: 'PLANET NEWS',
     lottery_title: 'GP LOTTERY', lottery_disabled: 'Lottery disabled', lottery_round: 'ROUND', lottery_ends: 'ENDS IN', lottery_recent_winners: 'RECENT WINNERS',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
@@ -11059,6 +11073,7 @@ var I18N = {
     // ── QUESTS tab ──
     quests_loading: '퀘스트를 불러오는 중...',
     achievements_title: '업적', achievements_loading: '업적 로딩 중...',
+    news_title: '행성 뉴스',
     lottery_title: 'GP 복권', lottery_disabled: '복권 비활성화', lottery_round: '라운드', lottery_ends: '종료까지', lottery_recent_winners: '최근 당첨자',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
@@ -11633,6 +11648,7 @@ var I18N = {
     // ── QUESTS tab ──
     quests_loading: 'クエストを読込中...',
     achievements_title: '実績', achievements_loading: '実績を読込中...',
+    news_title: '惑星ニュース',
     lottery_title: 'GP宝くじ', lottery_disabled: '宝くじ無効', lottery_round: 'ラウンド', lottery_ends: '終了まで', lottery_recent_winners: '最近の当選者',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
@@ -12191,6 +12207,7 @@ var I18N = {
     // ── QUESTS tab ──
     quests_loading: '正在加载任务...',
     achievements_title: '成就', achievements_loading: '正在加载成就...',
+    news_title: '星球新闻',
     lottery_title: 'GP抽奖', lottery_disabled: '抽奖已禁用', lottery_round: '轮次', lottery_ends: '剩余时间', lottery_recent_winners: '近期中奖者',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
@@ -15552,7 +15569,7 @@ function switchBaseTab(tab,el){
   // Stop polls when leaving tabs
   if(tab!=='guild') try{stopGuildChatPoll()}catch(_e){}
   // Quest tracking for tab views
-  if(tab==='sectors') try{trackQuestAction('view_sectors',1)}catch(e){}
+  if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
   if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
@@ -18082,6 +18099,69 @@ function renderSectorList(sectors){
   });
   document.getElementById('baseSectorList').innerHTML=html;
 }
+
+// ── PLANET NEWS (Migration 106) ─────────────────────────────────────────────
+var _newsPanelOpen = false;
+var _newsRefreshTimer = null;
+
+var NEWS_ICON = {
+  lottery_win:       '🎰',
+  battle_won:        '⚔️',
+  territory_claimed: '🌍',
+  market_sale:       '🛒',
+  achievement:       '🏅',
+  big_trade:         '💸',
+  guild_event:       '⚔️',
+};
+
+function toggleNewsPanel() {
+  _newsPanelOpen = !_newsPanelOpen;
+  document.getElementById('newsPanelWrap').style.display = _newsPanelOpen ? '' : 'none';
+  document.getElementById('newsPanelToggle').textContent = _newsPanelOpen ? '▲' : '▼';
+  if (_newsPanelOpen) {
+    loadNewsFeed();
+    // Auto-refresh every 30s while panel is open
+    if (_newsRefreshTimer) clearInterval(_newsRefreshTimer);
+    _newsRefreshTimer = setInterval(loadNewsFeed, 30000);
+  } else {
+    if (_newsRefreshTimer) { clearInterval(_newsRefreshTimer); _newsRefreshTimer = null; }
+  }
+}
+
+function loadNewsFeed() {
+  var el = document.getElementById('newsFeed');
+  if (!el) return;
+  fetch('/api/news?limit=30')
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var items = data.news || [];
+      if (!items.length) {
+        el.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:12px;font-size:9px">No events yet — play more to generate news!</div>';
+        return;
+      }
+      el.innerHTML = items.map(function(n) {
+        var icon = NEWS_ICON[n.event_type] || '📰';
+        var timeStr = timeSinceShort(new Date(n.created_at));
+        var headline = n.headline || '';
+        return '<div style="display:flex;justify-content:space-between;gap:6px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+          + '<span>' + icon + ' ' + escHtml(headline) + '</span>'
+          + '<span style="flex-shrink:0;color:var(--tx3);font-size:8px">' + timeStr + '</span>'
+          + '</div>';
+      }).join('');
+    })
+    .catch(function() {
+      if (el) el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:9px;padding:8px">Failed to load</div>';
+    });
+}
+
+function timeSinceShort(date) {
+  var secs = Math.floor((new Date() - date) / 1000);
+  if (secs < 60) return secs + 's';
+  if (secs < 3600) return Math.floor(secs/60) + 'm';
+  if (secs < 86400) return Math.floor(secs/3600) + 'h';
+  return Math.floor(secs/86400) + 'd';
+}
+
 
 function filterSectors(tier,el){
   document.querySelectorAll('.base-filter-btn').forEach(function(b){b.classList.remove('active');b.style.opacity='.5'});

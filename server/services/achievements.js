@@ -12,6 +12,8 @@ try { logGPActivity = require('../db').logGPActivity; } catch (_) {}
 
 let notifyPlayer;
 try { notifyPlayer = require('./notifications').notifyPlayer; } catch (_) {}
+let newsService;
+try { newsService = require('./news'); } catch (_) {}
 
 // ── Current-value resolvers ──────────────────────────────────────────────────
 
@@ -121,6 +123,13 @@ async function unlockAchievement(wallet, key, rewardGp) {
     // Fire-and-forget notification
     if (notifyPlayer) {
       notifyPlayer(w, `🏆 Achievement Unlocked! +${finalGp} GP`, 'achievement').catch(() => {});
+    }
+    // News feed for epic/legendary
+    if (newsService) {
+      pool.query(`SELECT name_en, rarity FROM achievements WHERE key = $1`, [key])
+        .then(r => {
+          if (r.rows.length) newsService.onAchievementUnlock(w, r.rows[0].name_en, r.rows[0].rarity).catch(() => {});
+        }).catch(() => {});
     }
     return true;
   } catch (e) {

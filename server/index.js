@@ -753,6 +753,15 @@ async function start() {
       console.log('[TITLE] Governor milestone scheduler started (6h interval)');
     } catch(e) { console.warn('[TITLE] Could not init governor milestone scheduler:', e.message); }
 
+    // ── Planet News: Clean old news (every 24 hours) ──
+    try {
+      const { cleanOldNews } = require('./services/news');
+      setInterval(async () => {
+        try { const n = await cleanOldNews(); if (n > 0) console.log(`[NEWS] Cleaned ${n} old items`); } catch(e) { console.warn('[NEWS] cleanup error:', e.message); }
+      }, 24 * 60 * 60 * 1000);
+      console.log('[NEWS] Cleanup scheduler started (24h interval)');
+    } catch(e) { console.warn('[NEWS] Could not init cleanup scheduler:', e.message); }
+
     // ── Lottery: Draw expired rounds (every 1 minute) ──
     try {
       const { drawExpiredRounds } = require('./services/lottery');

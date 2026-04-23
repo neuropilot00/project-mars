@@ -482,6 +482,17 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   </div>
 
   <!-- Error Log -->
+  <!-- ── Planet News (on Dashboard tab) ── -->
+  <div class="section cat-dashboard">
+    <div class="sec-header">
+      <span class="sec-title" style="color:var(--cyan)">🌐 PLANET NEWS</span>
+      <button onclick="loadNewsAdmin()" style="font-size:10px;background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.2);color:var(--cyan);padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="newsAdmFeed" style="font-size:9px;color:var(--tx2);max-height:240px;overflow-y:auto;border:1px solid var(--bdr);border-radius:6px;padding:6px 8px;background:rgba(0,0,0,.15)">
+      <div style="color:#888;text-align:center;padding:12px">Loading...</div>
+    </div>
+  </div>
+
   <div class="section cat-dashboard">
     <div class="sec-header">
       <span class="sec-title" data-i18n="sec_error_log">CLIENT ERROR LOG</span>
@@ -1382,6 +1393,7 @@ function switchTab(tab) {
   // Stats grid is always visible on dashboard
   document.getElementById('statsGrid').style.display = (tab === 'dashboard') ? '' : 'none';
   // Auto-load on tab switch
+  if (tab === 'dashboard') { try { loadNewsAdmin(); } catch(e) {} }
   if (tab === 'claims') { try { loadClaims(); } catch(e) { console.error('loadClaims:', e); } }
   if (tab === 'shop') { loadShopItems(); loadShopStats(); loadAdminShields(); }
   if (tab === 'battles') { loadBattles(); }
@@ -3245,6 +3257,40 @@ function viewSeasonScores(id) {
       tbody.appendChild(tr);
     });
   });
+}
+
+// ═══ PLANET NEWS ═══
+function loadNewsAdmin() {
+  var el = document.getElementById('newsAdmFeed');
+  if (!el) return;
+  apiJson('/admin/api/news?limit=50').catch(function(){ return null; }).then(function(data) {
+    if (!data) { el.innerHTML = '<div style="color:red;font-size:9px;padding:8px">Failed to load</div>'; return; }
+    var items = data.news || [];
+    if (!items.length) {
+      el.innerHTML = '<div style="color:#888;font-size:9px;text-align:center;padding:12px">No news yet</div>';
+      return;
+    }
+    var icons = {lottery_win:'🎰',battle_won:'⚔️',territory_claimed:'🌍',market_sale:'🛒',achievement:'🏅',big_trade:'💸',guild_event:'⚔️'};
+    el.innerHTML = items.map(function(n) {
+      var icon = icons[n.event_type] || '📰';
+      var t = new Date(n.created_at).toLocaleString();
+      return '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+        +'<span style="flex:1">' + icon + ' ' + escapeHtml(n.headline||'') + '</span>'
+        +'<span style="flex-shrink:0;font-size:8px;color:#666">' + t + '</span>'
+        +'<button onclick="deleteNewsItem('+n.id+')" style="flex-shrink:0;font-size:8px;background:rgba(232,72,85,.1);border:1px solid rgba(232,72,85,.2);color:var(--red);padding:1px 5px;border-radius:3px;cursor:pointer">✕</button>'
+        +'</div>';
+    }).join('');
+  });
+}
+
+function deleteNewsItem(id) {
+  fetch('/admin/api/news/' + id, {
+    method: 'DELETE',
+    headers: {'x-admin-secret': adminSecret}
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.success) loadNewsAdmin();
+    else alert('Error: ' + d.error);
+  }).catch(function(e){ alert('Error: ' + e.message); });
 }
 
 // ═══ GP ECONOMY ═══

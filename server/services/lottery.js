@@ -12,6 +12,8 @@ let logGPActivity;
 try { logGPActivity = require('../db').logGPActivity; } catch (_) {}
 let seasonService;
 try { seasonService = require('./season'); } catch (_) {}
+let newsService;
+try { newsService = require('./news'); } catch (_) {}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -276,6 +278,9 @@ async function drawRound(round, cfg) {
       }
       if (logGPActivity && winnerWallet && prize > 0) {
         logGPActivity(winnerWallet, prize, 'lottery_win', `Lottery Round #${round.round_number}`).catch(() => {});
+      }
+      if (newsService && winnerWallet) {
+        newsService.onLotteryWin(winnerWallet, prize, round.round_number).catch(() => {});
       }
       if (seasonService && winnerWallet) {
         seasonService.addSeasonScore(winnerWallet, 'gp_earn', Math.round(prize)).catch(() => {});

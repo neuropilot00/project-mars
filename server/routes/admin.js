@@ -2024,4 +2024,38 @@ router.post('/lottery/force-draw', adminAuth, async (req, res) => {
   }
 });
 
+// ── PLANET NEWS ADMIN (Migration 106) ─────────────────────────────────────────
+// GET /admin/api/news?limit=&type= — latest news items for admin view
+router.get('/news', adminAuth, async (req, res) => {
+  const limit = Math.min(200, parseInt(req.query.limit) || 100);
+  const type  = req.query.type || null;
+  let newsSvc;
+  try { newsSvc = require('../services/news'); } catch (_) {}
+  try {
+    if (!newsSvc) return res.json({ news: [] });
+    const [news, settingsRes] = await Promise.all([
+      newsSvc.getNews({ limit, eventType: type }),
+      pool.query(`SELECT key, value FROM settings WHERE key LIKE 'news_%' ORDER BY key`).catch(() => ({ rows: [] })),
+    ]);
+    const settingsMap = {};
+    settingsRes.rows.forEach(r => { settingsMap[r.key] = r.value; });
+    res.json({ news, settings: settingsMap });
+  } catch (e) {
+    console.error('[Admin] news error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// DELETE /admin/api/news/:id — delete a news item
+router.delete('/news/:id', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (!id) return res.status(400).json({ error: 'id required' });
+  try {
+    await pool.query('DELETE FROM planet_news WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

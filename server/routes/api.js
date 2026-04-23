@@ -23,6 +23,8 @@ let seasonService;
 try { seasonService = require('../services/season'); } catch (_e) { /* season service not available */ }
 let achSvc;
 try { achSvc = require('../services/achievements'); } catch (_e) {}
+let newsSvc;
+try { newsSvc = require('../services/news'); } catch (_e) {}
 let missionService;
 try { missionService = require('../services/missions'); } catch (_e) { /* mission service not available */ }
 let enhancementService;
@@ -1384,6 +1386,8 @@ router.post('/claim', writeLimiter, async (req, res) => {
     }
     // Achievement check: territory count
     if (achSvc && newCount > 0) { achSvc.checkAndUnlock(walletLower, 'claim_count').catch(() => {}); }
+    // News: new territory claimed
+    if (newsSvc && newCount > 0) { newsSvc.onTerritoryClaimed(walletLower, null).catch(() => {}); }
   } catch (e) {
     await client.query('ROLLBACK');
     console.error('[API] claim error:', e.message);
@@ -5646,6 +5650,8 @@ router.post('/gp/transfer', writeLimiter, async (req, res) => {
         to:        toWallet,
         toNick:    recipNick,
       });
+      // News: big GP transfer
+      if (newsSvc) { newsSvc.onBigTransfer(fromWallet, toWallet, amount).catch(() => {}); }
     } catch (err) {
       await client.query('ROLLBACK');
       console.error('[GP TRANSFER] error:', err.message);
@@ -5698,6 +5704,26 @@ router.get('/achievements', readLimiter, async (req, res) => {
     res.json({ achievements: list });
   } catch (e) {
     console.error('[Achievements] list error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+
+// ── PLANET NEWS (Migration 106) ──────────────────────────────────────────────
+let newsSvcApi;
+try { newsSvcApi = require('../services/news'); } catch (_) {}
+
+// GET /api/news?limit=&offset=&type= — public news feed
+router.get('/news', readLimiter, async (req, res) => {
+  const limit  = Math.min(100, parseInt(req.query.limit)  || 30);
+  const offset = Math.max(0,   parseInt(req.query.offset) || 0);
+  const type   = req.query.type || null;
+  try {
+    if (!newsSvcApi) return res.json({ news: [] });
+    const news = await newsSvcApi.getNews({ limit, offset, eventType: type });
+    res.json({ news });
+  } catch (e) {
+    console.error('[NEWS] get error:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
 });
