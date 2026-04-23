@@ -1499,6 +1499,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="sponsorAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY GRAFFITI (Migration 142) ═══ -->
+  <div class="section cat-gp" style="display:none" id="graffitiAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#b0bec5">✍️ TERRITORY GRAFFITI</span>
+      <button onclick="loadGraffitiAdmin()" style="font-size:10px;background:rgba(176,190,197,.12);border:1px solid rgba(176,190,197,.3);color:#b0bec5;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="graffitiAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#b0bec5">RECENT GRAFFITI</span></div>
+    <div id="graffitiAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#b0bec5">SETTINGS</span></div>
+    <div id="graffitiAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ TERRITORY TRIBUTES (Migration 141) ═══ -->
   <div class="section cat-gp" style="display:none" id="tributeAdminSection">
     <div class="sec-header">
@@ -2279,7 +2292,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -6736,6 +6749,94 @@ function saveSponsorSetting(key) {
 // ══════════════════════════════════════
 //  VANITY TAGS ADMIN (Migration 140)
 // ══════════════════════════════════════
+function loadGraffitiAdmin() {
+  var statsEl    = document.getElementById('graffitiAdmStats');
+  var listEl     = document.getElementById('graffitiAdmList');
+  var settingsEl = document.getElementById('graffitiAdmSettings');
+  if (!statsEl) return;
+  [statsEl, listEl, settingsEl].forEach(function(el) { if(el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>'; });
+  document.getElementById('graffitiAdminSection').style.display = '';
+  fetch('/admin/api/graffiti', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['Total',       s.total      || 0],
+        ['Active',      s.active     || 0],
+        ['GP Burned',   (s.total_gp||0)+' GP'],
+        ['Placed (24h)',s.placed_24h || 0],
+      ].map(function(p) {
+        return '<div style="background:rgba(176,190,197,.06);border:1px solid rgba(176,190,197,.15);border-radius:6px;padding:8px 10px">'
+          +'<div style="color:#b0bec5;font-size:18px;font-weight:700">'+p[1]+'</div>'
+          +'<div style="color:#888;font-size:9px;margin-top:2px">'+p[0]+'</div></div>';
+      }).join('');
+
+      var rows = d.recent || [];
+      listEl.innerHTML = rows.length
+        ? '<table style="width:100%;border-collapse:collapse;font-size:11px">'
+          +'<thead><tr>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">FROM</th>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">CLAIM</th>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">TEXT</th>'
+          +'<th style="text-align:right;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">GP</th>'
+          +'<th style="text-align:left;padding:4px 8px;color:#666;font-weight:400;border-bottom:1px solid #222">STATUS</th>'
+          +'<th style="padding:4px 8px;border-bottom:1px solid #222"></th>'
+          +'</tr></thead><tbody>'
+          + rows.map(function(r) {
+            var expiresStr = r.is_active ? new Date(r.expires_at).toLocaleDateString() : 'expired';
+            return '<tr style="border-bottom:1px solid #1a1a1a">'
+              +'<td style="padding:4px 8px;color:#aaa">'+(r.nickname||r.from_wallet.slice(0,8)+'…')+'</td>'
+              +'<td style="padding:4px 8px;color:#888">#'+r.claim_id+'</td>'
+              +'<td style="padding:4px 8px;color:#b0bec5;font-weight:600">'+escapeHtml(r.text)+'</td>'
+              +'<td style="padding:4px 8px;color:#ffd166;text-align:right">'+r.gp_paid+'</td>'
+              +'<td style="padding:4px 8px;color:'+(r.is_active?'#a5d6a7':'#555')+';font-size:9px">'+(r.is_active?'Active':'Expired')+'</td>'
+              +'<td style="padding:4px 8px"><button onclick="adminRemoveGraffiti('+r.id+')" style="font-size:10px;background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.3);color:#f66;padding:2px 8px;border-radius:3px;cursor:pointer">DEL</button></td>'
+              +'</tr>';
+          }).join('')
+          +'</tbody></table>'
+        : '<span style="color:#555;font-size:11px">No graffiti yet.</span>';
+
+      var keys = ['graffiti_enabled','graffiti_cost_gp','graffiti_max_length','graffiti_duration_h','graffiti_max_per_territory','graffiti_allow_own'];
+      settingsEl.innerHTML = keys.map(function(k) {
+        return '<div style="display:flex;align-items:center;gap:6px">'
+          +'<span style="color:#888;font-size:10px;flex:1">'+k+'</span>'
+          +'<input id="graffitiAdm_'+k+'" style="background:#111;border:1px solid #333;color:#eee;padding:4px 6px;border-radius:4px;font-size:11px;width:80px" '
+          +'onchange="saveGraffitiSetting(\''+k+'\')">'
+          +'</div>';
+      }).join('');
+      fetch('/admin/api/settings?prefix=graffiti_', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+        .then(function(r) { return r.json(); })
+        .then(function(s) { (s.settings||s||[]).forEach(function(row) { var el=document.getElementById('graffitiAdm_'+row.key); if(el) el.value=row.value; }); })
+        .catch(function(){});
+    }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function adminRemoveGraffiti(id) {
+  if (!confirm('Remove graffiti #'+id+'?')) return;
+  fetch('/admin/api/graffiti/'+id, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('✍️ Graffiti removed');
+    loadGraffitiAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveGraffitiSetting(key) {
+  var el = document.getElementById('graffitiAdm_'+key);
+  if (!el) return;
+  fetch('/admin/api/graffiti/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
 function loadTributeAdmin() {
   var statsEl    = document.getElementById('tributeAdmStats');
   var listEl     = document.getElementById('tributeAdmList');

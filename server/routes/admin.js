@@ -3612,6 +3612,32 @@ router.post('/sponsor/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Territory Graffiti Admin (Migration 142) ──
+router.get('/graffiti', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/graffiti'); } catch(_) {}
+  try { res.json(await svc.getAdminStats()); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.delete('/graffiti/:id', adminAuth, async (req, res) => {
+  try {
+    let svc; try { svc = require('../services/graffiti'); } catch(_) {}
+    await svc.adminDeleteGraffiti(req.params.id);
+    await auditLog(req, 'graffiti_delete', req.params.id, {});
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/graffiti/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('graffiti_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'graffiti_setting', key, { value });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Territory Tribute Admin (Migration 141) ──
 router.get('/tribute', adminAuth, async (req, res) => {
   let svc; try { svc = require('../services/tribute'); } catch(_) {}
