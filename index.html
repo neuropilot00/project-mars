@@ -3322,6 +3322,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
         <div id="baseMySectors" style="display:none;font-size:10px;color:var(--tx3)" data-i18n="login_to_view">Login to view your territories.</div>
 
+        <!-- ⬆️ MY TERRITORY UPGRADES (collapsible) -->
+        <div class="base-section-title" onclick="toggleTerritoryUpgrades()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+          <span>⬆️ <span data-i18n="upgrades_title">TERRITORY UPGRADES</span></span>
+          <span id="upgradesToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="upgradesPanel" style="display:none;padding:4px 0 8px">
+          <div id="upgradesContent">
+            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
+
         <!-- 🗿 MY MONUMENTS (collapsible) -->
         <div class="base-section-title" onclick="toggleMonuments()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
           <span>🗿 <span data-i18n="monuments_title">MY MONUMENTS</span></span>
@@ -10602,6 +10613,7 @@ var I18N = {
     staking_title: 'GP STAKING', staking_stake_btn: '💎 STAKE GP', staking_confirm_title: 'STAKE GP', staking_confirm_btn: 'STAKE', staking_withdraw_title: 'WITHDRAW STAKE', staking_withdraw_btn: 'WITHDRAW',
     burn_title: 'GP BURN',
     weekly_title: 'WEEKLY CHALLENGES',
+    upgrades_title: 'TERRITORY UPGRADES', upgrades_upgrade_btn: 'UPGRADE TERRITORY',
     monuments_title: 'MY MONUMENTS', monument_place_title: 'PLACE MONUMENT', monument_place_btn: 'PLACE MONUMENT', monument_territory: 'TERRITORY', monument_type: 'TYPE', monument_name_label: 'MONUMENT NAME', monument_inscription: 'INSCRIPTION', monument_cost: 'Cost',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
@@ -11182,6 +11194,7 @@ var I18N = {
     staking_title: 'GP 스테이킹', staking_stake_btn: '💎 GP 스테이크', staking_confirm_title: 'GP 스테이킹', staking_confirm_btn: '스테이크', staking_withdraw_title: '스테이크 인출', staking_withdraw_btn: '인출',
     burn_title: 'GP 소각',
     weekly_title: '주간 챌린지',
+    upgrades_title: '영토 강화', upgrades_upgrade_btn: '영토 강화',
     monuments_title: '내 기념비', monument_place_title: '기념비 설치', monument_place_btn: '기념비 설치', monument_territory: '영토', monument_type: '유형', monument_name_label: '기념비 이름', monument_inscription: '비문', monument_cost: '비용',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
@@ -11761,6 +11774,7 @@ var I18N = {
     staking_title: 'GPステーキング', staking_stake_btn: '💎 ステーク', staking_confirm_title: 'GPステーキング', staking_confirm_btn: 'ステーク', staking_withdraw_title: '引き出し', staking_withdraw_btn: '引き出す',
     burn_title: 'GP焼却',
     weekly_title: 'ウィークリーチャレンジ',
+    upgrades_title: '領土強化', upgrades_upgrade_btn: '領土を強化',
     monuments_title: '記念碑', monument_place_title: '記念碑を設置', monument_place_btn: '記念碑を設置', monument_territory: '領土', monument_type: 'タイプ', monument_name_label: '記念碑名', monument_inscription: '銘文', monument_cost: 'コスト',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
@@ -12324,6 +12338,7 @@ var I18N = {
     staking_title: 'GP质押', staking_stake_btn: '💎 质押GP', staking_confirm_title: 'GP质押', staking_confirm_btn: '质押', staking_withdraw_title: '提取质押', staking_withdraw_btn: '提取',
     burn_title: 'GP销毁',
     weekly_title: '每周挑战',
+    upgrades_title: '领土升级', upgrades_upgrade_btn: '升级领土',
     monuments_title: '我的纪念碑', monument_place_title: '放置纪念碑', monument_place_btn: '放置纪念碑', monument_territory: '领土', monument_type: '类型', monument_name_label: '纪念碑名称', monument_inscription: '铭文', monument_cost: '费用',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
@@ -24818,6 +24833,171 @@ function claimWeeklyReward(instanceId) {
       loadWalletData();
     })
     .catch(function() { showToast('Claim failed', 'error'); });
+}
+
+// ── Territory Upgrades ────────────────────────────────────────────────────────
+
+var _upgradeCatalog = [];
+var _upgradeMyList  = [];
+
+function toggleTerritoryUpgrades() {
+  var panel = document.getElementById('upgradesPanel');
+  var tog   = document.getElementById('upgradesToggle');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : '';
+  if (tog) tog.textContent = open ? '▼' : '▲';
+  if (!open) loadTerritoryUpgrades();
+}
+
+function loadTerritoryUpgrades() {
+  var el = document.getElementById('upgradesContent');
+  if (!el) return;
+  if (!walletState.address) {
+    el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Connect wallet to view upgrades</div>';
+    return;
+  }
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
+  Promise.all([
+    fetch('/api/upgrades/catalog').then(function(r){ return r.json(); }),
+    fetch('/api/upgrades/my-upgrades?wallet=' + walletState.address).then(function(r){ return r.json(); })
+  ]).then(function(results) {
+    _upgradeCatalog = results[0].catalog || [];
+    _upgradeMyList  = results[1].upgrades || [];
+    renderTerritoryUpgrades();
+  }).catch(function() {
+    el.innerHTML = '<div style="color:var(--mars);font-size:10px;text-align:center;padding:12px">Failed to load</div>';
+  });
+}
+
+function renderTerritoryUpgrades() {
+  var el = document.getElementById('upgradesContent');
+  if (!el) return;
+  var active = _upgradeMyList.filter(function(u){ return u.is_active; });
+
+  var html = '<button onclick="openUpgradeModal()" style="width:100%;margin-bottom:10px;padding:9px;border-radius:8px;background:linear-gradient(135deg,rgba(92,187,255,.14),rgba(92,187,255,.04));border:1px solid rgba(92,187,255,.35);color:var(--cyan);font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.5px">⬆️ <span data-i18n="upgrades_upgrade_btn">UPGRADE TERRITORY</span></button>';
+
+  if (active.length === 0) {
+    html += '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:8px 0">No territory upgrades yet</div>';
+  } else {
+    // Group by claim
+    var byClaim = {};
+    active.forEach(function(u) {
+      var key = u.claim_id;
+      if (!byClaim[key]) byClaim[key] = { name: u.custom_name || 'Territory ' + u.claim_id, upgrades: [] };
+      byClaim[key].upgrades.push(u);
+    });
+
+    html += '<div style="font-size:9px;color:var(--tx3);margin-bottom:6px;letter-spacing:.5px">ACTIVE UPGRADES</div>';
+    Object.entries(byClaim).forEach(function(kv) {
+      var claimName = kv[1].name;
+      var ups = kv[1].upgrades;
+      html += '<div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.15);border-radius:8px;padding:8px 10px;margin-bottom:6px">';
+      html += '<div style="font-size:9px;color:var(--cyan);font-weight:700;margin-bottom:6px">' + escHtml(claimName) + '</div>';
+      ups.forEach(function(u) {
+        var cat = _upgradeCatalog.find(function(c){ return c.key === u.upgrade_type; }) || {};
+        var stars = '★'.repeat(u.level) + '☆'.repeat(5 - u.level);
+        var bonus = (cat.levels && cat.levels[u.level-1]) ? '+' + cat.levels[u.level-1].bonus + (cat.bonusUnit||'') : '';
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:3px 0">';
+        html += '<span style="font-size:14px">' + (cat.icon||'⬆️') + '</span>';
+        html += '<div style="flex:1"><span style="font-size:9px;color:var(--tx)">' + (cat.name||u.upgrade_type) + '</span>';
+        html += '<span style="font-size:8px;color:var(--gold);margin-left:6px">' + stars + '</span></div>';
+        html += '<span style="font-size:9px;color:var(--gn)">' + bonus + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+  }
+
+  el.innerHTML = html;
+}
+
+var _upgradeSelectedClaim = null;
+
+function openUpgradeModal() {
+  if (!walletState.address) { showToast('Connect wallet first', 'error'); return; }
+  var myClaims = (window.claims||[]).filter(function(c){ return (c.owner||'').toLowerCase() === walletState.address.toLowerCase(); });
+  if (!myClaims.length) { showToast('You have no territories to upgrade', 'error'); return; }
+
+  // Build modal HTML on-the-fly using gameConfirm-style approach
+  // We'll use a simple inline approach: show claim picker then type picker
+  _showClaimPickerForUpgrade(myClaims);
+}
+
+function _showClaimPickerForUpgrade(claims) {
+  var items = claims.map(function(c) {
+    var name = c.custom_name || ('Territory ' + c.id);
+    var size = (c.width||1) + '×' + (c.height||1);
+    return { value: c.id, label: name + ' (' + size + ')' };
+  });
+  gamePicker({ title: 'SELECT TERRITORY TO UPGRADE', items: items }).then(function(claimId) {
+    if (!claimId) return;
+    _upgradeSelectedClaim = parseInt(claimId);
+    _showUpgradeTypePicker(_upgradeSelectedClaim);
+  });
+}
+
+function _showUpgradeTypePicker(claimId) {
+  fetch('/api/upgrades/claim/' + claimId)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var existing = {};
+      (data.upgrades || []).forEach(function(u) { existing[u.upgrade_type] = u.level; });
+
+      var items = _upgradeCatalog.map(function(cat) {
+        var curLevel = existing[cat.key] || 0;
+        var maxLevel = cat.maxLevel || 5;
+        if (curLevel >= maxLevel) return null;
+        var nextCostInfo = cat.levels && cat.levels[curLevel] ? cat.levels[curLevel] : null;
+        var cost = nextCostInfo ? nextCostInfo.cost : '?';
+        var bonus = nextCostInfo ? nextCostInfo.bonus : '?';
+        var stars = '★'.repeat(curLevel) + '→★'.slice(0, curLevel < maxLevel ? 2 : 0);
+        return {
+          value: cat.key,
+          label: cat.icon + ' ' + cat.name + ' (Lv.' + curLevel + '→' + (curLevel+1) + ') · ' + cost + 'GP / +' + bonus + (cat.bonusUnit||'')
+        };
+      }).filter(Boolean);
+
+      if (!items.length) { showToast('All upgrades maxed for this territory!', 'info'); return; }
+
+      gamePicker({ title: 'SELECT UPGRADE TYPE', items: items }).then(function(upgradeType) {
+        if (!upgradeType) return;
+        _confirmAndUpgrade(claimId, upgradeType);
+      });
+    }).catch(function() { showToast('Failed to load upgrade data', 'error'); });
+}
+
+function _confirmAndUpgrade(claimId, upgradeType) {
+  var cat = _upgradeCatalog.find(function(c){ return c.key === upgradeType; });
+  if (!cat) { showToast('Unknown upgrade type', 'error'); return; }
+
+  // Get current level from myUpgrades
+  var existing = _upgradeMyList.find(function(u){ return u.claim_id == claimId && u.upgrade_type === upgradeType && u.is_active; });
+  var curLevel = existing ? existing.level : 0;
+  var nextInfo = cat.levels && cat.levels[curLevel] ? cat.levels[curLevel] : null;
+  if (!nextInfo) { showToast('Already at max level', 'error'); return; }
+
+  var claimName = ((window.claims||[]).find(function(c){ return c.id == claimId; }) || {}).custom_name || 'Territory ' + claimId;
+
+  gameConfirm(cat.icon, 'UPGRADE: ' + cat.name.toUpperCase(),
+    'Upgrade "' + escHtml(claimName) + '" to ' + cat.name + ' Level ' + (curLevel+1) + '? Costs ' + nextInfo.cost + ' GP (permanent, lost if territory is hijacked).'
+  ).then(function(confirmed) {
+    if (!confirmed) return;
+    return fetch('/api/upgrades/upgrade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        wallet: walletState.address,
+        claimId: claimId,
+        upgradeType: upgradeType
+      })
+    }).then(function(r){ return r.json(); }).then(function(d) {
+      if (d.error) { showToast(d.error, 'error'); return; }
+      showToast(cat.icon + ' ' + cat.name + ' upgraded to Lv.' + d.level + '! (' + d.cost + ' GP)', 'success');
+      loadTerritoryUpgrades();
+      loadWalletData();
+    });
+  }).catch(function(e) { showToast(e.message || 'Upgrade failed', 'error'); });
 }
 
 // ── Territory Monuments ──────────────────────────────────────────────────────

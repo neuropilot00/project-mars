@@ -86,6 +86,7 @@ const gpBurnRoutes      = require('./routes/gpBurn');
 const weeklyRoutes      = require('./routes/weeklyChallenges');
 const dividendRoutes    = require('./routes/dividends');
 const monumentRoutes    = require('./routes/monuments');
+const upgradeRoutes     = require('./routes/claimUpgrades');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -204,6 +205,7 @@ app.use('/api', gpBurnRoutes);
 app.use('/api', weeklyRoutes);
 app.use('/api', dividendRoutes);
 app.use('/api', monumentRoutes);
+app.use('/api', upgradeRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);

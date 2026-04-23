@@ -2302,4 +2302,34 @@ router.post('/monuments/moderate/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ── Territory Upgrades Admin ───────────────────────────────────────────────────
+
+// GET /admin/api/upgrades
+router.get('/upgrades', adminAuth, async (req, res) => {
+  try {
+    let upgradeSvc;
+    try { upgradeSvc = require('../services/claimUpgrades'); } catch (_) {}
+    if (!upgradeSvc) return res.status(503).json({ error: 'Upgrade service unavailable' });
+    const stats = await upgradeSvc.getAdminStats();
+    res.json(stats);
+  } catch (e) {
+    console.error('[Admin] upgrades error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/upgrades/setting
+router.post('/upgrades/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body;
+  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
+  if (!key.startsWith('upgrade_')) return res.status(400).json({ error: 'Invalid upgrade key' });
+  try {
+    await pool.query(`UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`, [key, String(value)]);
+    await auditLog(req, 'update_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;

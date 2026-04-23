@@ -27,6 +27,8 @@ let weeklySvc;
 try { weeklySvc = require('../services/weeklyChallenges'); } catch (_e) {}
 let monumentSvc;
 try { monumentSvc = require('../services/monuments'); } catch (_e) {}
+let upgradeSvc;
+try { upgradeSvc = require('../services/claimUpgrades'); } catch (_e) {}
 let newsSvc;
 try { newsSvc = require('../services/news'); } catch (_e) {}
 let missionService;
@@ -1294,6 +1296,21 @@ router.post('/claim', writeLimiter, async (req, res) => {
       } catch (_mde) {
         await client.query('ROLLBACK TO SAVEPOINT monument_sp');
         console.warn('[Monument] destroy on hijack failed:', _mde.message);
+      }
+    }
+
+    // ── Destroy territory upgrades on hijacked claims (safe: savepoint-guarded) ──
+    if (upgradeSvc && wonPixels.length > 0) {
+      try {
+        await client.query('SAVEPOINT upgrade_sp');
+        const hijackedClaimIds = [...new Set(wonPixels.map(ep => ep.existing.claim_id).filter(Boolean))];
+        for (const hcId of hijackedClaimIds) {
+          await upgradeSvc.destroyClaimUpgrades(client, hcId);
+        }
+        await client.query('RELEASE SAVEPOINT upgrade_sp');
+      } catch (_ude) {
+        await client.query('ROLLBACK TO SAVEPOINT upgrade_sp');
+        console.warn('[Upgrade] destroy on hijack failed:', _ude.message);
       }
     }
 
