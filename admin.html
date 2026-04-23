@@ -1058,6 +1058,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="monumentAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ GP DUEL SYSTEM ═══ -->
+  <div class="section cat-gp" style="display:none" id="duelAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ff8c42">⚔️ GP DUELS</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadDuelAdmin()" style="font-size:10px;background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.3);color:#ff8c42;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+      </div>
+    </div>
+    <div id="duelAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ff8c42">RECENT DUELS</span></div>
+    <div id="duelAdmTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ff8c42">DUEL SETTINGS</span></div>
+    <div id="duelAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ ITEM CRAFTING ═══ -->
   <div class="section cat-gp" style="display:none" id="craftingAdminSection">
     <div class="sec-header">
@@ -1612,7 +1627,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -3995,6 +4010,92 @@ function adminCancelBounty(id) {
     if (d.error) return alert('Error: ' + d.error);
     showToast('✅ Bounty #' + id + ' cancelled, refunded: ' + d.refunded + ' GP');
     loadBountyAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  GP DUEL ADMIN (Migration 116)
+// ══════════════════════════════════════
+function loadDuelAdmin() {
+  var statsEl    = document.getElementById('duelAdmStats');
+  var tableEl    = document.getElementById('duelAdmTable');
+  var settingsEl = document.getElementById('duelAdmSettings');
+  if (!statsEl) return;
+  [statsEl, tableEl, settingsEl].forEach(function(el) {
+    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
+  });
+  fetch('/admin/api/duels', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
+      var t = d.totals || {};
+      statsEl.innerHTML = [
+        ['Resolved',  t.total_resolved  || 0],
+        ['Pending',   t.total_pending   || 0],
+        ['Expired',   t.total_expired   || 0],
+        ['Declined',  t.total_declined  || 0],
+        ['Total Pot', parseFloat(t.total_pot  || 0).toFixed(2)+' GP'],
+        ['Fees Earned', parseFloat(t.total_fees || 0).toFixed(2)+' GP']
+      ].map(function(kv) {
+        return '<div style="background:rgba(255,140,66,.06);border:1px solid rgba(255,140,66,.15);border-radius:6px;padding:8px;text-align:center">'
+          +'<div style="color:#888;font-size:10px;margin-bottom:2px">'+kv[0]+'</div>'
+          +'<div style="color:#ff8c42;font-weight:700">'+kv[1]+'</div></div>';
+      }).join('');
+
+      var rows = (d.recent || []).map(function(r) {
+        var cn = escapeHtml(r.challenger_nick || r.challenger.slice(0,10)+'…');
+        var dn = escapeHtml(r.defender_nick   || r.defender.slice(0,10)+'…');
+        var winLabel = r.winner ? (r.winner === r.challenger ? cn : dn) + ' won' : 'draw';
+        var statusColor = r.status === 'resolved' ? '#a0e8a0' : r.status === 'pending' ? '#ffb74d' : '#888';
+        return '<tr>'
+          +'<td>'+r.id+'</td>'
+          +'<td>'+cn+'</td>'
+          +'<td>'+dn+'</td>'
+          +'<td>'+r.wager_gp+' GP</td>'
+          +'<td style="color:'+statusColor+'">'+r.status+'</td>'
+          +'<td>'+(r.status==='resolved'?winLabel:'—')+'</td>'
+          +'<td>'+new Date(r.created_at).toLocaleDateString()+'</td>'
+          +'<td>'+(r.status==='pending'?'<button onclick="adminCancelDuel('+r.id+')" style="font-size:9px;padding:2px 6px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">CANCEL</button>':'—')+'</td>'
+          +'</tr>';
+      }).join('');
+      tableEl.innerHTML = rows.length
+        ? '<table class="adm-table"><thead><tr><th>#</th><th>Challenger</th><th>Defender</th><th>Wager</th><th>Status</th><th>Result</th><th>Date</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody></table>'
+        : '<div style="color:#555;font-size:12px;padding:8px">No duels yet.</div>';
+
+      settingsEl.innerHTML = (d.settings || []).map(function(s) {
+        return '<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:6px 10px">'
+          +'<span style="color:#888;font-size:11px;flex:1">'+escapeHtml(s.key.replace('duel_',''))+'</span>'
+          +'<input id="ds_'+s.key+'" value="'+escapeHtml(s.value)+'" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:4px 8px;border-radius:4px;width:90px;font-size:11px">'
+          +'<button onclick="saveDuelSetting(\''+s.key+'\')" style="font-size:10px;background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.3);color:#ff8c42;padding:3px 8px;border-radius:4px;cursor:pointer">SAVE</button>'
+          +'</div>';
+      }).join('');
+    })
+    .catch(function(e) { if (statsEl) statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
+}
+
+function saveDuelSetting(key) {
+  var val = document.getElementById('ds_'+key);
+  if (!val) return;
+  fetch('/admin/api/duels/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key: key, value: val.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ '+key+' saved');
+    loadDuelAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function adminCancelDuel(id) {
+  if (!confirm('Cancel duel #'+id+' and refund challenger?')) return;
+  fetch('/admin/api/duels/cancel/'+id, {
+    method: 'POST',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ Duel #'+id+' cancelled, refunded: '+d.refunded+' GP');
+    loadDuelAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 

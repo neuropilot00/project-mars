@@ -90,6 +90,7 @@ const upgradeRoutes     = require('./routes/claimUpgrades');
 const bountyRoutes      = require('./routes/bounty');
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
+const duelRoutes        = require('./routes/duel');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -212,6 +213,7 @@ app.use('/api', upgradeRoutes);
 app.use('/api', bountyRoutes);
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
+app.use('/api', duelRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -886,6 +888,15 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[SHIELD] Expiry scheduler started (5min interval)');
     } catch(e) { console.warn('[SHIELD] Could not init expiry scheduler:', e.message); }
+
+    // ── Duel: Expire pending duels (every 5 minutes) ──
+    try {
+      const { expireDuels } = require('./services/duel');
+      setInterval(async () => {
+        try { await expireDuels(); } catch(e) { console.warn('[DUEL] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[DUEL] Expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[DUEL] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

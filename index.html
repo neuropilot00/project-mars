@@ -3720,6 +3720,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">Connect wallet to view bounties</div>
           </div>
         </div>
+
+        <!-- ⚔️ GP DUEL SECTION -->
+        <div id="duelSection" style="padding:8px 10px;border-top:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
+            <span style="font-size:9px;color:#ff8c42;letter-spacing:2px;font-family:var(--fn);font-weight:700">⚔️ <span data-i18n="duel_title">GP DUELS</span></span>
+            <div style="display:flex;gap:4px">
+              <button onclick="loadDuelPanel()" style="font-size:9px;background:rgba(255,140,66,.1);border:1px solid rgba(255,140,66,.2);color:#ff8c42;padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+              <button onclick="openDuelModal()" style="font-size:9px;background:rgba(255,140,66,.18);border:1px solid rgba(255,140,66,.45);color:#ff8c42;padding:3px 10px;border-radius:4px;cursor:pointer;font-weight:700" data-i18n="duel_challenge_btn">⚔️ CHALLENGE</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;margin-bottom:8px">
+            <button id="dtabPending" onclick="switchDuelTab('pending')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,140,66,.18);border:1px solid rgba(255,140,66,.45);color:#ff8c42;cursor:pointer;font-weight:700" data-i18n="duel_tab_pending">INCOMING</button>
+            <button id="dtabMy"      onclick="switchDuelTab('my')"      style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="duel_tab_my">MY DUELS</button>
+            <button id="dtabRecent"  onclick="switchDuelTab('recent')"  style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="duel_tab_recent">LEADERBOARD</button>
+          </div>
+          <div id="duelContainer">
+            <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">Connect wallet to view duels</div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: GOVERN -->
@@ -4869,6 +4888,47 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <button onclick="submitPostBounty()"
       style="width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(232,72,85,.18),rgba(232,72,85,.06));border:1px solid rgba(232,72,85,.5);color:var(--mars);font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:1px"
       data-i18n="bounty_post_submit">🎯 POST BOUNTY</button>
+  </div>
+</div>
+
+<!-- GP Duel Challenge Modal -->
+<div id="duelModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2200;align-items:center;justify-content:center" onclick="if(event.target===this)closeDuelModal()">
+  <div style="width:340px;max-width:94vw;background:var(--panel2);border:1px solid rgba(255,140,66,.35);border-radius:14px;padding:20px;font-family:var(--fn)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <span style="font-size:22px">⚔️</span>
+      <div>
+        <div style="font-size:13px;font-weight:800;color:#ff8c42;letter-spacing:1px" data-i18n="duel_modal_title">CHALLENGE TO DUEL</div>
+        <div style="font-size:9px;color:var(--tx3)" data-i18n="duel_modal_sub">Winner takes pot minus 5% house fee</div>
+      </div>
+      <button onclick="closeDuelModal()" style="margin-left:auto;background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px" data-i18n="duel_target_label">OPPONENT WALLET / NICKNAME</div>
+      <input id="duelTargetInput" type="text" placeholder="0x… or nickname"
+        style="width:100%;box-sizing:border-box;font-size:10px;padding:7px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,140,66,.25);color:#fff;border-radius:6px;font-family:var(--fn)">
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:9px;color:var(--tx3);margin-bottom:4px;letter-spacing:.5px" data-i18n="duel_wager_label">YOUR WAGER (GP)</div>
+      <div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap">
+        <button onclick="setDuelWager(50)"   style="font-size:9px;padding:3px 8px;background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.3);color:#ff8c42;border-radius:4px;cursor:pointer">50</button>
+        <button onclick="setDuelWager(100)"  style="font-size:9px;padding:3px 8px;background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.3);color:#ff8c42;border-radius:4px;cursor:pointer">100</button>
+        <button onclick="setDuelWager(250)"  style="font-size:9px;padding:3px 8px;background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.3);color:#ff8c42;border-radius:4px;cursor:pointer">250</button>
+        <button onclick="setDuelWager(500)"  style="font-size:9px;padding:3px 8px;background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.3);color:#ff8c42;border-radius:4px;cursor:pointer">500</button>
+        <button onclick="setDuelWager(1000)" style="font-size:9px;padding:3px 8px;background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.3);color:#ff8c42;border-radius:4px;cursor:pointer">1000</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input id="duelWagerInput" type="number" min="10" placeholder="min 10"
+          style="flex:1;font-size:10px;padding:7px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,140,66,.25);color:#fff;border-radius:6px;font-family:var(--fn)">
+        <span style="font-size:10px;color:var(--gold);font-weight:700">GP each</span>
+      </div>
+      <div style="font-size:9px;color:#888;margin-top:4px" id="duelPotPreview"></div>
+    </div>
+
+    <button onclick="submitDuelChallenge()"
+      style="width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(255,140,66,.18),rgba(255,140,66,.06));border:1px solid rgba(255,140,66,.5);color:#ff8c42;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:1px"
+      data-i18n="duel_challenge_submit">⚔️ SEND CHALLENGE</button>
   </div>
 </div>
 
@@ -10708,6 +10768,7 @@ var I18N = {
     upgrades_title: 'TERRITORY UPGRADES', upgrades_upgrade_btn: 'UPGRADE TERRITORY',
     monuments_title: 'MY MONUMENTS', monument_place_title: 'PLACE MONUMENT', monument_place_btn: 'PLACE MONUMENT', monument_territory: 'TERRITORY', monument_type: 'TYPE', monument_name_label: 'MONUMENT NAME', monument_inscription: 'INSCRIPTION', monument_cost: 'Cost',
     base_craft_btn: '⚗️ CRAFT', craft_cat_all: 'ALL', craft_cat_general: 'GENERAL', craft_cat_elite: 'ELITE', craft_cat_seasonal: 'SEASONAL', craft_cat_event: 'EVENT', craft_btn: '⚗️ CRAFT', craft_history_btn: '📜 MY CRAFT HISTORY', craft_no_recipes: 'No recipes available', craft_load_fail: 'Failed to load recipes', craft_no_history: 'No crafting history', craft_success: 'Craft success!', craft_fail: 'Craft failed', craft_refund_partial: 'Partial GP refunded', craft_confirm_title: 'Confirm Craft', craft_missing_ingredients: 'Missing ingredients',
+    duel_title: 'GP DUELS', duel_challenge_btn: '⚔️ CHALLENGE', duel_tab_pending: 'INCOMING', duel_tab_my: 'MY DUELS', duel_tab_recent: 'LEADERBOARD', duel_modal_title: 'CHALLENGE TO DUEL', duel_modal_sub: 'Winner takes pot minus 5% house fee', duel_target_label: 'OPPONENT WALLET / NICKNAME', duel_wager_label: 'YOUR WAGER (GP)', duel_challenge_submit: '⚔️ SEND CHALLENGE', duel_accept_btn: '⚔️ ACCEPT', duel_decline_btn: '✕ DECLINE', duel_cancel_btn: 'CANCEL', duel_no_pending: 'No incoming challenges', duel_no_history: 'No duel history', duel_no_recent: 'No recent duels', duel_accept_confirm: 'Accept duel and match the wager?', duel_decline_confirm: 'Decline this duel challenge?', duel_cancelled_refund: 'Duel cancelled. GP refunded.', duel_challenge_sent: '⚔️ Challenge sent! Opponent has 30 min to accept.', duel_enter_target: 'Enter opponent wallet or nickname', duel_enter_wager: 'Enter a valid wager',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11292,6 +11353,7 @@ var I18N = {
     upgrades_title: '영토 강화', upgrades_upgrade_btn: '영토 강화',
     monuments_title: '내 기념비', monument_place_title: '기념비 설치', monument_place_btn: '기념비 설치', monument_territory: '영토', monument_type: '유형', monument_name_label: '기념비 이름', monument_inscription: '비문', monument_cost: '비용',
     base_craft_btn: '⚗️ 제작', craft_cat_all: '전체', craft_cat_general: '일반', craft_cat_elite: '고급', craft_cat_seasonal: '시즌', craft_cat_event: '이벤트', craft_btn: '⚗️ 제작', craft_history_btn: '📜 제작 기록', craft_no_recipes: '레시피 없음', craft_load_fail: '레시피 로딩 실패', craft_no_history: '제작 기록 없음', craft_success: '제작 성공!', craft_fail: '제작 실패', craft_refund_partial: 'GP 부분 환급', craft_confirm_title: '제작 확인', craft_missing_ingredients: '재료 부족',
+    duel_title: 'GP 결투', duel_challenge_btn: '⚔️ 도전', duel_tab_pending: '받은 도전', duel_tab_my: '내 결투', duel_tab_recent: '리더보드', duel_modal_title: '결투 도전', duel_modal_sub: '승자가 팟 가져감 (5% 수수료 차감)', duel_target_label: '상대 지갑/닉네임', duel_wager_label: '베팅 금액 (GP)', duel_challenge_submit: '⚔️ 도전장 보내기', duel_accept_btn: '⚔️ 수락', duel_decline_btn: '✕ 거절', duel_cancel_btn: '취소', duel_no_pending: '받은 도전 없음', duel_no_history: '결투 기록 없음', duel_no_recent: '최근 결투 없음', duel_accept_confirm: '도전을 수락하고 GP를 베팅하시겠습니까?', duel_decline_confirm: '이 결투 도전을 거절하시겠습니까?', duel_cancelled_refund: '결투 취소. GP 환급됨.', duel_challenge_sent: '⚔️ 도전장 전송! 상대방이 30분 내에 수락해야 합니다.', duel_enter_target: '상대 지갑 또는 닉네임을 입력하세요', duel_enter_wager: '유효한 베팅 금액을 입력하세요',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -11875,6 +11937,7 @@ var I18N = {
     upgrades_title: '領土強化', upgrades_upgrade_btn: '領土を強化',
     monuments_title: '記念碑', monument_place_title: '記念碑を設置', monument_place_btn: '記念碑を設置', monument_territory: '領土', monument_type: 'タイプ', monument_name_label: '記念碑名', monument_inscription: '銘文', monument_cost: 'コスト',
     base_craft_btn: '⚗️ 製作', craft_cat_all: '全て', craft_cat_general: '一般', craft_cat_elite: '高級', craft_cat_seasonal: 'シーズン', craft_cat_event: 'イベント', craft_btn: '⚗️ 製作', craft_history_btn: '📜 製作履歴', craft_no_recipes: 'レシピなし', craft_load_fail: 'レシピ読込失敗', craft_no_history: '製作履歴なし', craft_success: '製作成功！', craft_fail: '製作失敗', craft_refund_partial: 'GP一部返金', craft_confirm_title: '製作確認', craft_missing_ingredients: '素材不足',
+    duel_title: 'GP決闘', duel_challenge_btn: '⚔️ 挑戦', duel_tab_pending: '受け取った挑戦', duel_tab_my: 'マイ決闘', duel_tab_recent: 'リーダーボード', duel_modal_title: '決闘に挑む', duel_modal_sub: '勝者がポット獲得（5%手数料）', duel_target_label: '相手のウォレット/ニックネーム', duel_wager_label: '賭け金（GP）', duel_challenge_submit: '⚔️ 挑戦状を送る', duel_accept_btn: '⚔️ 受け入れる', duel_decline_btn: '✕ 断る', duel_cancel_btn: 'キャンセル', duel_no_pending: '受け取った挑戦なし', duel_no_history: '決闘履歴なし', duel_no_recent: '最近の決闘なし', duel_accept_confirm: '挑戦を受け入れてGPを賭けますか？', duel_decline_confirm: 'この決闘挑戦を断りますか？', duel_cancelled_refund: '決闘キャンセル。GPが返金されました。', duel_challenge_sent: '⚔️ 挑戦状送信！相手が30分以内に受け入れる必要があります。', duel_enter_target: '相手のウォレットまたはニックネームを入力', duel_enter_wager: '有効な賭け金を入力してください',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12442,6 +12505,7 @@ var I18N = {
     upgrades_title: '领土升级', upgrades_upgrade_btn: '升级领土',
     monuments_title: '我的纪念碑', monument_place_title: '放置纪念碑', monument_place_btn: '放置纪念碑', monument_territory: '领土', monument_type: '类型', monument_name_label: '纪念碑名称', monument_inscription: '铭文', monument_cost: '费用',
     base_craft_btn: '⚗️ 制作', craft_cat_all: '全部', craft_cat_general: '通用', craft_cat_elite: '精英', craft_cat_seasonal: '赛季', craft_cat_event: '活动', craft_btn: '⚗️ 制作', craft_history_btn: '📜 制作记录', craft_no_recipes: '暂无配方', craft_load_fail: '配方加载失败', craft_no_history: '暂无制作记录', craft_success: '制作成功！', craft_fail: '制作失败', craft_refund_partial: 'GP部分退还', craft_confirm_title: '确认制作', craft_missing_ingredients: '材料不足',
+    duel_title: 'GP决斗', duel_challenge_btn: '⚔️ 挑战', duel_tab_pending: '收到的挑战', duel_tab_my: '我的决斗', duel_tab_recent: '排行榜', duel_modal_title: '发起决斗', duel_modal_sub: '胜者获得奖池（扣除5%手续费）', duel_target_label: '对手钱包/昵称', duel_wager_label: '赌注（GP）', duel_challenge_submit: '⚔️ 发送挑战', duel_accept_btn: '⚔️ 接受', duel_decline_btn: '✕ 拒绝', duel_cancel_btn: '取消', duel_no_pending: '暂无收到的挑战', duel_no_history: '暂无决斗记录', duel_no_recent: '暂无近期决斗', duel_accept_confirm: '接受决斗并押注GP？', duel_decline_confirm: '拒绝此决斗挑战？', duel_cancelled_refund: '决斗已取消。GP已退还。', duel_challenge_sent: '⚔️ 挑战已发送！对手需在30分钟内接受。', duel_enter_target: '输入对手钱包或昵称', duel_enter_wager: '请输入有效赌注',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -15968,7 +16032,7 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} }
+  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadDuelPanel();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   try{ clearBaseTabDot(tab); }catch(_e){}
@@ -25235,6 +25299,202 @@ function cancelBounty(bountyId) {
         loadWalletData();
       });
     }).catch(function(e) { showToast(e.message || 'Failed', 'error'); });
+}
+
+// ── GP Duel System ────────────────────────────────────────────────────────────
+
+var _duelTab = 'pending';
+
+function switchDuelTab(tab) {
+  _duelTab = tab;
+  ['pending','my','recent'].forEach(function(t){
+    var btn = document.getElementById('dtab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (!btn) return;
+    var active = t === tab;
+    btn.style.background  = active ? 'rgba(255,140,66,.18)' : 'rgba(255,255,255,.05)';
+    btn.style.borderColor = active ? 'rgba(255,140,66,.45)' : 'rgba(255,255,255,.1)';
+    btn.style.color       = active ? '#ff8c42' : 'var(--tx3)';
+    btn.style.fontWeight  = active ? '700' : '400';
+  });
+  loadDuelPanel();
+}
+
+function loadDuelPanel() {
+  var container = document.getElementById('duelContainer');
+  if (!container) return;
+  var w = (walletState && walletState.address) || '';
+  if (!w && _duelTab !== 'recent') {
+    container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">Connect wallet</div>';
+    return;
+  }
+  container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Loading…</div>';
+
+  var url;
+  if (_duelTab === 'pending') url = '/api/duels/pending?wallet=' + encodeURIComponent(w);
+  else if (_duelTab === 'my')  url = '/api/duels/my?wallet='    + encodeURIComponent(w) + '&limit=20';
+  else                          url = '/api/duels/recent?limit=20';
+
+  fetch(url).then(function(r){ return r.json(); }).then(function(data) {
+    if (!Array.isArray(data)) { container.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">Error loading duels</div>'; return; }
+    if (!data.length) {
+      var emptyMsg = _duelTab === 'pending' ? (t('duel_no_pending') || 'No incoming challenges') :
+                     _duelTab === 'my'      ? (t('duel_no_history') || 'No duel history') :
+                                              (t('duel_no_recent')  || 'No recent duels');
+      container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">'+emptyMsg+'</div>';
+      return;
+    }
+    container.innerHTML = data.map(function(d) {
+      return renderDuelCard(d, w);
+    }).join('');
+  }).catch(function() {
+    container.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">Failed to load</div>';
+  });
+}
+
+function renderDuelCard(d, myWallet) {
+  var isMine = d.challenger === myWallet.toLowerCase();
+  var isDefender = d.defender === myWallet.toLowerCase();
+  var cNick = _escHtml(d.challenger_nick || d.challenger.slice(0,10)+'…');
+  var dNick = _escHtml(d.defender_nick   || d.defender.slice(0,10)+'…');
+  var statusColor = { resolved:'#a0e8a0', pending:'#ffb74d', expired:'#555', declined:'#888', cancelled:'#555' }[d.status] || '#888';
+
+  var resultStr = '';
+  if (d.status === 'resolved') {
+    if (!d.winner) resultStr = '🤝 DRAW';
+    else if (d.winner === myWallet.toLowerCase()) resultStr = '🏆 YOU WON +'+Number(d.payout_gp).toFixed(0)+' GP';
+    else resultStr = '💀 LOST −'+Number(d.wager_gp).toFixed(0)+' GP';
+  }
+
+  var scoreStr = (d.challenger_score != null)
+    ? cNick+': '+d.challenger_score+' vs '+dNick+': '+d.defender_score : '';
+
+  var actions = '';
+  if (d.status === 'pending' && isDefender) {
+    actions = '<div style="display:flex;gap:4px;margin-top:6px">'
+      +'<button onclick="respondDuel('+d.id+',true)" style="flex:1;padding:5px;font-size:9px;font-family:var(--fn);font-weight:700;background:rgba(160,232,160,.18);border:1px solid rgba(160,232,160,.45);color:#a0e8a0;border-radius:5px;cursor:pointer" data-i18n="duel_accept_btn">⚔️ ACCEPT</button>'
+      +'<button onclick="respondDuel('+d.id+',false)" style="flex:1;padding:5px;font-size:9px;font-family:var(--fn);background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:5px;cursor:pointer" data-i18n="duel_decline_btn">✕ DECLINE</button>'
+      +'</div>';
+  } else if (d.status === 'pending' && isMine) {
+    var mins = Math.max(0, Math.ceil((new Date(d.expires_at) - Date.now()) / 60000));
+    actions = '<div style="display:flex;gap:4px;margin-top:6px;align-items:center">'
+      +'<span style="flex:1;font-size:9px;color:#888">Expires in '+mins+'m</span>'
+      +'<button onclick="cancelMyDuel('+d.id+')" style="padding:4px 10px;font-size:9px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:5px;cursor:pointer" data-i18n="duel_cancel_btn">CANCEL</button>'
+      +'</div>';
+  }
+
+  return '<div style="background:rgba(255,140,66,.04);border:1px solid rgba(255,140,66,.15);border-radius:8px;padding:10px;margin-bottom:6px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'
+      +'<div style="font-size:10px;color:#ff8c42;font-weight:700">'+cNick+' ⚔️ '+dNick+'</div>'
+      +'<span style="font-size:9px;color:'+statusColor+';font-weight:700">'+d.status.toUpperCase()+'</span>'
+    +'</div>'
+    +'<div style="font-size:9px;color:var(--gold);margin-bottom:2px">💰 '+Number(d.wager_gp).toFixed(0)+' GP each → pot: '+Number(d.wager_gp*2).toFixed(0)+' GP</div>'
+    +(scoreStr?'<div style="font-size:9px;color:#888">'+scoreStr+'</div>':'')
+    +(resultStr?'<div style="font-size:10px;font-weight:700;margin-top:3px">'+resultStr+'</div>':'')
+    +actions
+    +'</div>';
+}
+
+function respondDuel(duelId, accept) {
+  var w = walletState && walletState.address;
+  if (!w) return;
+  var endpoint = accept ? '/api/duels/accept' : '/api/duels/decline';
+  var confirmMsg = accept ? (t('duel_accept_confirm') || 'Accept duel and match the wager?') : (t('duel_decline_confirm') || 'Decline this duel challenge?');
+  gameConfirm('⚔️', accept ? 'ACCEPT DUEL' : 'DECLINE DUEL', confirmMsg)
+    .then(function(ok) {
+      if (!ok) return;
+      return fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet: w, duelId: duelId })
+      }).then(function(r){ return r.json(); }).then(function(d) {
+        if (d.error) { showToast(d.error, 'error'); return; }
+        if (accept) {
+          var msg = d.winner
+            ? (d.winner === w.toLowerCase() ? '🏆 YOU WON! +'+Number(d.payout_gp).toFixed(0)+' GP' : '💀 You lost the duel')
+            : '🤝 Draw — partial refund';
+          showToast(msg, d.winner === w.toLowerCase() ? 'success' : 'warning');
+        } else {
+          showToast(t('duel_declined_msg') || 'Duel declined', 'info');
+        }
+        loadDuelPanel();
+        if (typeof updateBalanceDisplays === 'function') updateBalanceDisplays();
+      });
+    }).catch(function(e) { showToast(e.message || 'Failed', 'error'); });
+}
+
+function cancelMyDuel(duelId) {
+  var w = walletState && walletState.address;
+  if (!w) return;
+  fetch('/api/duels/cancel', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wallet: w, duelId: duelId })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) { showToast(d.error, 'error'); return; }
+    showToast(t('duel_cancelled_refund') || 'Duel cancelled. GP refunded.', 'success');
+    loadDuelPanel();
+    if (typeof updateBalanceDisplays === 'function') updateBalanceDisplays();
+  }).catch(function(e) { showToast(e.message || 'Failed', 'error'); });
+}
+
+function openDuelModal(prefilledDefender) {
+  var modal = document.getElementById('duelModal');
+  if (!modal) return;
+  document.getElementById('duelTargetInput').value = prefilledDefender || '';
+  document.getElementById('duelWagerInput').value = '';
+  document.getElementById('duelPotPreview').textContent = '';
+  modal.style.display = 'flex';
+  // Wire up wager preview
+  var wagerInput = document.getElementById('duelWagerInput');
+  wagerInput.oninput = function() {
+    var v = parseFloat(wagerInput.value) || 0;
+    var preview = document.getElementById('duelPotPreview');
+    if (preview && v > 0) {
+      var fee = (v * 2 * 0.05).toFixed(0);
+      var payout = (v * 2 - v * 2 * 0.05).toFixed(0);
+      preview.textContent = 'Pot: '+v*2+' GP → winner gets '+payout+' GP (5% fee: '+fee+' GP)';
+    } else if (preview) {
+      preview.textContent = '';
+    }
+  };
+}
+
+function closeDuelModal() {
+  var modal = document.getElementById('duelModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function setDuelWager(amount) {
+  var input = document.getElementById('duelWagerInput');
+  if (input) { input.value = amount; input.oninput && input.oninput(); }
+}
+
+function submitDuelChallenge() {
+  var w = walletState && walletState.address;
+  if (!w) { gameAlert(t('connect_wallet_first') || 'Connect wallet first'); return; }
+  var target = (document.getElementById('duelTargetInput').value || '').trim();
+  var wager  = parseFloat(document.getElementById('duelWagerInput').value);
+  if (!target) { gameAlert(t('duel_enter_target') || 'Enter opponent wallet or nickname'); return; }
+  if (!wager || wager <= 0) { gameAlert(t('duel_enter_wager') || 'Enter a valid wager'); return; }
+
+  var btn = document.querySelector('#duelModal button[onclick="submitDuelChallenge()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+  fetch('/api/duels/challenge', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wallet: w, defender: target, wagerGp: wager })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (btn) { btn.disabled = false; btn.textContent = '⚔️ SEND CHALLENGE'; }
+    if (d.error) { gameAlert(d.error); return; }
+    showToast(t('duel_challenge_sent') || '⚔️ Challenge sent! Opponent has 30 min to accept.', 'success');
+    closeDuelModal();
+    loadDuelPanel();
+    if (typeof updateBalanceDisplays === 'function') updateBalanceDisplays();
+  }).catch(function(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '⚔️ SEND CHALLENGE'; }
+    gameAlert(e.message || 'Failed to send challenge');
+  });
 }
 
 // ── Territory Shield ──────────────────────────────────────────────────────────

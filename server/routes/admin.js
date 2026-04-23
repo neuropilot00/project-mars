@@ -2517,4 +2517,60 @@ router.get('/crafting/item-types', adminAuth, async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// GP DUEL SYSTEM — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/duels — stats + recent + settings
+router.get('/duels', adminAuth, async (req, res) => {
+  let duelSvc;
+  try { duelSvc = require('../services/duel'); } catch (_) {}
+  if (!duelSvc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    res.json(await duelSvc.getAdminStats());
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/duels/setting
+router.post('/duels/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('duel_')) {
+    return res.status(400).json({ error: 'Invalid setting key' });
+  }
+  try {
+    await pool.query(
+      `UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]
+    );
+    await auditLog(req, 'duel_setting_update', key, { value });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/duels/cancel/:id — admin force cancel + refund
+router.post('/duels/cancel/:id', adminAuth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows } = await pool.query(
+      `SELECT * FROM gp_duels WHERE id=$1 AND status IN ('pending','accepted')`, [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Active duel not found' });
+    const d = rows[0];
+
+    // Refund challenger (wager was escrowed)
+    await pool.query(
+      'UPDATE gp_balances SET balance = balance + $1 WHERE wallet=$2',
+      [d.wager_gp, d.challenger]
+    );
+    await pool.query(
+      `UPDATE gp_duels SET status='cancelled' WHERE id=$1`, [id]);
+    await auditLog(req, 'duel_admin_cancel', `duel:${id}`, { challenger: d.challenger });
+    res.json({ ok: true, refunded: d.wager_gp });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;
