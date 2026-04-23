@@ -540,4 +540,40 @@ async function awardXP(client, wallet, xpAmount) {
   return blockedAt ? { blockedAt } : null;
 }
 
-module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP };
+// ── Helper: send in-game notification to a player (fire-and-forget) ──
+// type: 'battle_declared'|'battle_won'|'battle_lost'|'listing_sold'|'auction_outbid'|'auction_won'
+async function notifyPlayer(wallet, type, message, metadata = {}) {
+  if (!wallet || !type || !message) return;
+  try {
+    const enabled = await getSetting('notifications_enabled');
+    if (enabled === false || enabled === 'false') return;
+
+    const maxPerUser = parseInt(await getSetting('notifications_max_per_user') || '50');
+    const ttlDays    = parseInt(await getSetting('notifications_ttl_days') || '14');
+
+    await pool.query(
+      `INSERT INTO player_notifications (wallet, type, message, metadata)
+       VALUES ($1, $2, $3, $4)`,
+      [wallet.toLowerCase(), type, message, JSON.stringify(metadata)]
+    );
+
+    // Prune old notifications for this user (keep newest maxPerUser)
+    await pool.query(
+      `DELETE FROM player_notifications
+       WHERE wallet = $1 AND id NOT IN (
+         SELECT id FROM player_notifications WHERE wallet = $1 ORDER BY created_at DESC LIMIT $2
+       )`,
+      [wallet.toLowerCase(), maxPerUser]
+    );
+
+    // Global cleanup of expired notifications
+    await pool.query(
+      `DELETE FROM player_notifications WHERE created_at < NOW() - INTERVAL '${ttlDays} days'`
+    );
+  } catch (e) {
+    // Non-critical — never throw
+    console.warn('[NOTIFY] failed:', e.message);
+  }
+}
+
+module.exports = { pool, initDB, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer };

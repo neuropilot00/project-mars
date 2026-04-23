@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
-const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP } = require('../db');
+const { pool, ensureUser, getSettings, getSetting, getActiveEvents, getReferralChain, creditReferralCommission, generateReferralCode, awardXP, notifyPlayer } = require('../db');
 const { generateWithdrawSignature, CHAINS } = require('../services/signer');
 const { recalculateGovernor, recalculateCommander, collectTax, getActiveSectorBuffs, hasActiveEvent } = require('../services/governance');
 let weatherService;
@@ -5363,6 +5363,54 @@ router.get('/for-sale-territories', readLimiter, async (req, res) => {
     res.json(rows);
   } catch (e) {
     console.error('[ForSale] territories error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// PLAYER NOTIFICATIONS (Migration 096)
+// ═══════════════════════════════════════════════════════
+
+// GET /api/notifications — fetch notifications for current user
+router.get('/notifications', readLimiter, async (req, res) => {
+  const wallet = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+  if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+  try {
+    const limit = Math.min(parseInt(req.query.limit || '30'), 100);
+    const result = await pool.query(
+      `SELECT * FROM player_notifications WHERE wallet = $1 ORDER BY created_at DESC LIMIT $2`,
+      [wallet, limit]
+    );
+    const unreadCount = result.rows.filter(n => !n.read).length;
+    res.json({ notifications: result.rows, unread: unreadCount });
+  } catch (err) {
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// POST /api/notifications/read — mark a specific notification as read
+router.post('/notifications/read', async (req, res) => {
+  const wallet = (req.headers['x-wallet'] || req.body?.wallet || '').toLowerCase().trim();
+  if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+  const { id } = req.body || {};
+  try {
+    if (id) {
+      await pool.query('UPDATE player_notifications SET read = true WHERE id = $1 AND wallet = $2', [id, wallet]);
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// POST /api/notifications/read-all — mark all as read
+router.post('/notifications/read-all', async (req, res) => {
+  const wallet = (req.headers['x-wallet'] || req.body?.wallet || '').toLowerCase().trim();
+  if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+  try {
+    await pool.query('UPDATE player_notifications SET read = true WHERE wallet = $1 AND read = false', [wallet]);
+    res.json({ success: true });
+  } catch (err) {
     res.status(500).json({ error: 'internal_error' });
   }
 });

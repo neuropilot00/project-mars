@@ -113,6 +113,17 @@ async function declareBattle(attackerWallet, defenderWallet, attackerShipIds, gp
     }
 
     await client.query('COMMIT');
+
+    // ✅ Notify defender
+    try {
+      const { notifyPlayer } = require('../db');
+      const attackerNick = (await pool.query('SELECT nickname FROM users WHERE wallet_address=$1', [attackerWallet])).rows[0]?.nickname || attackerWallet.slice(0,8)+'…';
+      notifyPlayer(defenderWallet, 'battle_declared',
+        `⚔️ ${attackerNick} declared naval war on you! Stakes: ${gpStake} GP. Respond in GOVERN → NAVAL BATTLES.`,
+        { battleId: battle.id, attacker: attackerWallet, gpStake }
+      ).catch(() => {});
+    } catch (_ne) {}
+
     return { success: true, battleId: battle.id, atkPower, gpStake };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -323,6 +334,19 @@ async function resolveBattle(battleId) {
       const dailySvc = require('./daily');
       dailySvc.updateMissionProgress(winnerWallet, 'win_naval_battle', 1).catch(() => {});
     } catch (_de) {}
+
+    // ✅ Notify both winner and loser
+    try {
+      const { notifyPlayer } = require('../db');
+      notifyPlayer(winnerWallet, 'battle_won',
+        `🏆 Naval victory! You won battle #${battleId} and earned ${totalGP} GP!`,
+        { battleId, gpAwarded: totalGP, destroyedCount }
+      ).catch(() => {});
+      notifyPlayer(loserWallet, 'battle_lost',
+        `💀 Naval defeat. You lost battle #${battleId}. ${destroyedCount} ships were destroyed.`,
+        { battleId, destroyedCount }
+      ).catch(() => {});
+    } catch (_ne) {}
 
     return {
       success: true,

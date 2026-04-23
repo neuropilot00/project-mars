@@ -3190,8 +3190,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <div class="base-card">
     <div class="base-header">
       <span class="base-header-title" data-i18n="my_base">MY BASE</span>
-      <button class="base-close" onclick="closeBaseModal()">✕</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button id="notifBellBtn" onclick="toggleNotifPanel()" style="position:relative;background:none;border:none;cursor:pointer;padding:4px;color:var(--tx3);font-size:16px;line-height:1" title="Notifications">
+          🔔
+          <span id="notifUnreadBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--red);color:#fff;font-size:7px;font-weight:800;font-family:var(--fn);padding:1px 4px;border-radius:6px;min-width:14px;text-align:center;line-height:1.4">0</span>
+        </button>
+        <button class="base-close" onclick="closeBaseModal()">✕</button>
+      </div>
     </div>
+    <!-- Notification Panel (dropdown) -->
+    <div id="notifPanel" style="display:none;position:absolute;top:48px;right:12px;width:min(320px,calc(100vw - 24px));z-index:200;background:var(--surface1);border:1px solid var(--bdr);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06)">
+        <span style="font-size:9px;color:var(--tx2);letter-spacing:1.5px;font-family:var(--fn)" data-i18n="notif_title">🔔 NOTIFICATIONS</span>
+        <button onclick="markAllNotifsRead()" style="font-size:8px;color:var(--cyan);background:none;border:none;cursor:pointer;font-family:var(--fn)" data-i18n="notif_read_all">MARK ALL READ</button>
+      </div>
+      <div id="notifList" style="max-height:320px;overflow-y:auto;padding:6px 0">
+        <div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px" data-i18n="notif_loading">Loading...</div>
+      </div>
+    </div>
+
     <div class="base-tabs">
       <div class="base-tab active" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span data-i18n="base_tab_territory">MY TERRITORY</span><span class="tab-dot" id="territoryDot"></span></div>
       <div class="base-tab" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span data-i18n="base_tab_sectors">SECTORS</span><span class="tab-dot" id="sectorsDot"></span></div>
@@ -10250,6 +10267,9 @@ var I18N = {
     mkt_sort_newest: 'NEWEST', mkt_sort_cheap: 'CHEAPEST', mkt_sort_expensive: 'EXPENSIVE', mkt_sort_ending: 'ENDING SOON',
     mkt_loading: 'Loading marketplace...', mkt_empty: 'No listings found',
     mkt_recent_sales: '📈 RECENT SALES', mkt_no_sales: 'No recent sales yet',
+    // Notifications
+    notif_title: '🔔 NOTIFICATIONS', notif_read_all: 'MARK ALL READ',
+    notif_loading: 'Loading...', notif_empty: 'No notifications yet',
     mkt_buy: 'BUY', mkt_cancel: 'CANCEL', mkt_list_sell: 'SELL',
     mkt_buy_title: 'Purchase Item', mkt_price: 'Price', mkt_your_balance: 'Your Balance',
     mkt_buy_confirm: 'BUY NOW', mkt_bought: 'Purchase successful!',
@@ -10814,6 +10834,8 @@ var I18N = {
     mkt_sort_newest: '최신순', mkt_sort_cheap: '저렴한순', mkt_sort_expensive: '비싼순', mkt_sort_ending: '마감임박',
     mkt_loading: '마켓 로딩 중...', mkt_empty: '등록된 상품이 없습니다',
     mkt_recent_sales: '📈 최근 거래', mkt_no_sales: '최근 거래 내역이 없습니다',
+    notif_title: '🔔 알림', notif_read_all: '모두 읽음으로 표시',
+    notif_loading: '로딩 중...', notif_empty: '알림이 없습니다',
     mkt_buy: '구매', mkt_cancel: '취소', mkt_list_sell: '판매',
     mkt_buy_title: '아이템 구매', mkt_price: '가격', mkt_your_balance: '내 잔액',
     mkt_buy_confirm: '지금 구매', mkt_bought: '구매 성공!',
@@ -11377,6 +11399,8 @@ var I18N = {
     mkt_sort_newest: '新着順', mkt_sort_cheap: '安い順', mkt_sort_expensive: '高い順', mkt_sort_ending: '終了間近',
     mkt_loading: 'マーケット読込中...', mkt_empty: '出品がありません',
     mkt_recent_sales: '📈 最近の取引', mkt_no_sales: '最近の取引はありません',
+    notif_title: '🔔 通知', notif_read_all: 'すべて既読',
+    notif_loading: '読込中...', notif_empty: '通知はありません',
     mkt_buy: '購入', mkt_cancel: 'キャンセル', mkt_list_sell: '出品',
     mkt_buy_title: 'アイテム購入', mkt_price: '価格', mkt_your_balance: '残高',
     mkt_buy_confirm: '今すぐ購入', mkt_bought: '購入成功！',
@@ -11924,6 +11948,8 @@ var I18N = {
     mkt_sort_newest: '最新', mkt_sort_cheap: '最便宜', mkt_sort_expensive: '最贵', mkt_sort_ending: '即将结束',
     mkt_loading: '加载市场中...', mkt_empty: '暂无商品',
     mkt_recent_sales: '📈 最近成交', mkt_no_sales: '暂无成交记录',
+    notif_title: '🔔 通知', notif_read_all: '全部标为已读',
+    notif_loading: '加载中...', notif_empty: '暂无通知',
     mkt_buy: '购买', mkt_cancel: '取消', mkt_list_sell: '出售',
     mkt_buy_title: '购买道具', mkt_price: '价格', mkt_your_balance: '余额',
     mkt_buy_confirm: '立即购买', mkt_bought: '购买成功！',
@@ -14398,8 +14424,77 @@ function openBaseModal(){
     }
   }catch(_){}
   loadBaseData();
+  // Load notification count on open
+  setTimeout(loadNotifCount, 500);
 }
-function closeBaseModal(){document.getElementById('baseModal').classList.remove('open');_updateBaseBtnDot()}
+function closeBaseModal(){
+  document.getElementById('baseModal').classList.remove('open');
+  _updateBaseBtnDot();
+  // Close notif panel if open
+  var np=document.getElementById('notifPanel');
+  if(np) np.style.display='none';
+}
+
+// ── Notification System ──
+var _notifPanelOpen = false;
+function toggleNotifPanel(){
+  var panel=document.getElementById('notifPanel');
+  if(!panel) return;
+  _notifPanelOpen=!_notifPanelOpen;
+  panel.style.display=_notifPanelOpen?'block':'none';
+  if(_notifPanelOpen) loadNotifications();
+}
+function loadNotifCount(){
+  var w=(walletState&&walletState.address)||'';
+  if(!w) return;
+  fetch('/api/notifications?limit=1&wallet='+w,{headers:{'x-wallet':w}})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      var badge=document.getElementById('notifUnreadBadge');
+      if(!badge) return;
+      var cnt=d.unread||0;
+      badge.textContent=cnt>99?'99+':String(cnt);
+      badge.style.display=cnt>0?'block':'none';
+    }).catch(function(){});
+}
+function loadNotifications(){
+  var w=(walletState&&walletState.address)||'';
+  var el=document.getElementById('notifList');
+  if(!el||!w) return;
+  el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(t('notif_loading')||'Loading...')+'</div>';
+  fetch('/api/notifications?limit=30&wallet='+w,{headers:{'x-wallet':w}})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      var notifs=d.notifications||[];
+      if(!notifs.length){
+        el.innerHTML='<div style="text-align:center;color:var(--tx3);padding:24px;font-size:10px">'+(t('notif_empty')||'No notifications yet')+'</div>';
+        return;
+      }
+      el.innerHTML=notifs.map(function(n){
+        var ago=Math.round((Date.now()-new Date(n.created_at))/60000);
+        var agoStr=ago<60?ago+'m':(Math.floor(ago/60)+'h');
+        return '<div onclick="markNotifRead('+n.id+',this)" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);'+(n.read?'opacity:.5':'')+'">'
+          +'<div style="font-size:10px;color:'+(n.read?'var(--tx3)':'var(--tx)')+';line-height:1.4;margin-bottom:3px">'+n.message+'</div>'
+          +'<div style="font-size:8px;color:var(--tx3)">'+agoStr+' ago</div>'
+          +'</div>';
+      }).join('');
+      // Update badge
+      var badge=document.getElementById('notifUnreadBadge');
+      if(badge){badge.textContent=d.unread>99?'99+':String(d.unread||0);badge.style.display=(d.unread>0)?'block':'none';}
+    }).catch(function(){el.innerHTML='<div style="color:var(--red);font-size:10px;text-align:center;padding:16px">Failed to load</div>';});
+}
+function markNotifRead(id,el){
+  var w=(walletState&&walletState.address)||'';
+  if(!w||!id) return;
+  fetch('/api/notifications/read',{method:'POST',headers:{'Content-Type':'application/json','x-wallet':w},body:JSON.stringify({wallet:w,id:id})})
+    .then(function(){if(el)el.style.opacity='.5';loadNotifCount();}).catch(function(){});
+}
+function markAllNotifsRead(){
+  var w=(walletState&&walletState.address)||'';
+  if(!w) return;
+  fetch('/api/notifications/read-all',{method:'POST',headers:{'Content-Type':'application/json','x-wallet':w},body:JSON.stringify({wallet:w})})
+    .then(function(){loadNotifications();loadNotifCount();}).catch(function(){});
+}
 
 // ── Base Inline Shop ──
 var _baseShopItems = [];

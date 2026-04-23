@@ -243,6 +243,18 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
     }
 
     await client.query('COMMIT');
+
+    // ✅ Notify outbid player
+    if (auction.current_bidder_wallet && auction.current_bidder_wallet !== w) {
+      try {
+        const { notifyPlayer } = require('../db');
+        notifyPlayer(auction.current_bidder_wallet, 'auction_outbid',
+          `🔔 You were outbid on auction #${id}! New bid: ${amt} GP. Your ${auction.current_bid} GP was refunded.`,
+          { auctionId: id, newBid: amt, refunded: auction.current_bid }
+        ).catch(() => {});
+      } catch (_ne) {}
+    }
+
     return { success: true, bid_amount: amt, ends_at: newEndsAt, extended: newEndsAt !== auction.ends_at };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -318,6 +330,15 @@ async function buyout(buyerWallet, auctionId) {
       const dailySvc = require('./daily');
       dailySvc.updateMissionProgress(w, 'marketplace_trade', 1).catch(() => {});
     } catch (_de) {}
+
+    // ✅ Notify buyer (buyout = instant win)
+    try {
+      const { notifyPlayer } = require('../db');
+      notifyPlayer(w, 'auction_won',
+        `🎉 You bought out auction #${id} for ${buyoutAmt} GP! Item transferred to your inventory.`,
+        { auctionId: id, buyoutAmount: buyoutAmt }
+      ).catch(() => {});
+    } catch (_ne) {}
 
     // Marketplace sales title check
     if (titleService) {
@@ -414,6 +435,15 @@ async function settleAuction(auctionId) {
         const dailySvc = require('./daily');
         dailySvc.updateMissionProgress(auction.current_bidder_wallet, 'marketplace_trade', 1).catch(() => {});
       } catch (_de) {}
+
+      // ✅ Notify winner
+      try {
+        const { notifyPlayer } = require('../db');
+        notifyPlayer(auction.current_bidder_wallet, 'auction_won',
+          `🎉 You won auction #${id}! Item transferred to your inventory.`,
+          { auctionId: id, finalBid: auction.current_bid }
+        ).catch(() => {});
+      } catch (_ne) {}
 
       if (titleService) {
         _checkMarketplaceSalesTitle(auction.seller_wallet).catch(() => {});

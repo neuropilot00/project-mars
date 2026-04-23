@@ -295,6 +295,17 @@ async function buyListing(client, listingId, buyer) {
     dailySvc.updateMissionProgress(b, 'marketplace_trade', 1).catch(() => {});
   } catch (_de) {}
 
+  // ✅ Notify seller
+  try {
+    const { notifyPlayer } = require('../db');
+    const meta2 = listing.meta || {};
+    const itemLabel = meta2.itemName || (listing.listing_type === 'claim' ? 'Territory' : 'Item');
+    notifyPlayer(listing.seller, 'listing_sold',
+      `📦 Your "${itemLabel}" sold for ${sellerReceives.toFixed(0)} ${currency}!`,
+      { listingId, price, fee, sellerReceives, currency, buyer: b }
+    ).catch(() => {});
+  } catch (_ne) {}
+
   return { success: true, price, fee, sellerReceives, currency, listing };
 }
 
