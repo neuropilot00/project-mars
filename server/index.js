@@ -104,6 +104,7 @@ const broadcastRoutes   = require('./routes/broadcasts');
 const profileRoutes     = require('./routes/profile');
 const tiersRoutes       = require('./routes/tiers');
 const raffleRoutes      = require('./routes/raffle');
+const wagerRoutes       = require('./routes/wager');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -240,6 +241,7 @@ app.use('/api', broadcastRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', tiersRoutes);
 app.use('/api', raffleRoutes);
+app.use('/api', wagerRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -985,6 +987,14 @@ async function start() {
       }, 60 * 1000); // every 1 min
       console.log('[RAFFLE] Auto-draw scheduler started (1min interval)');
     } catch(e) { console.warn('[RAFFLE] Could not init draw scheduler:', e.message); }
+
+    try {
+      const { autoLockExpired } = require('./services/wager');
+      setInterval(async () => {
+        try { await autoLockExpired(); } catch(e) { console.warn('[WAGER] lock error:', e.message); }
+      }, 60 * 1000);
+      console.log('[WAGER] Auto-lock scheduler started (1min interval)');
+    } catch(e) { console.warn('[WAGER] Could not init lock scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

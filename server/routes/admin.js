@@ -3274,4 +3274,78 @@ router.post('/raffle/setting', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Wager Pool Admin (Migration 130) ─────────────────────────────────────────
+
+// GET /admin/api/wager
+router.get('/wager', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/wager'); } catch (_) {}
+  if (!svc) return res.json({ stats: null, pools: [] });
+  try {
+    const { pool } = require('../db');
+    const [stats, poolsRes] = await Promise.all([
+      svc.getAdminStats(),
+      pool.query(
+        `SELECT p.*, (SELECT COUNT(*) FROM wager_bets WHERE pool_id=p.id) AS bet_count
+           FROM wager_pools p ORDER BY p.created_at DESC LIMIT 50`
+      )
+    ]);
+    res.json({ stats, pools: poolsRes.rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /admin/api/wager/:id/bets
+router.get('/wager/:id/bets', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/wager'); } catch (_) {}
+  if (!svc) return res.json([]);
+  try { res.json(await svc.getPoolBets(parseInt(req.params.id))); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/wager/create
+router.post('/wager/create', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/wager'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const wp = await svc.adminCreatePool(req.body || {});
+    await auditLog(req, 'wager_create', `wager:${wp.id}`, { title: wp.title });
+    res.json(wp);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/wager/:id/settle  { winnerWallet }
+router.post('/wager/:id/settle', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/wager'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const { winnerWallet } = req.body || {};
+    if (!winnerWallet) return res.status(400).json({ error: 'winnerWallet required' });
+    const result = await svc.settlePool(parseInt(req.params.id), winnerWallet);
+    await auditLog(req, 'wager_settle', `wager:${req.params.id}`, result);
+    res.json(result);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/wager/:id/cancel
+router.post('/wager/:id/cancel', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/wager'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    const result = await svc.adminCancelPool(parseInt(req.params.id));
+    await auditLog(req, 'wager_cancel', `wager:${req.params.id}`, result);
+    res.json(result);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// POST /admin/api/wager/setting
+router.post('/wager/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('wager_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    const { pool } = require('../db');
+    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await auditLog(req, 'wager_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

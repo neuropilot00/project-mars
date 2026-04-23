@@ -1379,6 +1379,46 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ GP WAGER POOLS (Migration 130) ═══ -->
+  <div class="section cat-gp" style="display:none" id="wagerAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ef9a9a">🎯 GP WAGER POOLS</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadWagerAdmin()" style="font-size:10px;background:rgba(239,154,154,.12);border:1px solid rgba(239,154,154,.3);color:#ef9a9a;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+        <button onclick="openWagerCreateModal()" style="font-size:10px;background:rgba(239,154,154,.2);border:1px solid rgba(239,154,154,.5);color:#ef9a9a;padding:4px 10px;border-radius:4px;cursor:pointer">+ NEW POOL</button>
+      </div>
+    </div>
+    <div id="wagerAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ef9a9a">WAGER POOLS</span></div>
+    <div id="wagerAdmList" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#ef9a9a">SETTINGS</span></div>
+    <div id="wagerAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
+  <!-- Wager Pool Create Modal -->
+  <div id="wagerCreateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;align-items:center;justify-content:center">
+    <div style="background:#1a1a2e;border:1px solid rgba(239,154,154,.3);border-radius:12px;padding:22px;width:90%;max-width:460px;max-height:85vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="color:#ef9a9a;font-weight:700;font-size:14px">🎯 CREATE WAGER POOL</span>
+        <button onclick="closeWagerCreateModal()" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer">✕</button>
+      </div>
+      <div style="display:grid;gap:10px">
+        <div style="display:grid;grid-template-columns:60px 1fr;gap:8px">
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">ICON</div><input id="wpIcon" value="🎯" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;text-align:center;font-size:18px"></div>
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">TITLE *</div><input id="wpTitle" placeholder="e.g. Season 5 Top Colonist" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        </div>
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">DESCRIPTION</div><textarea id="wpDesc" rows="2" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box;resize:none"></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">MIN BET (GP)</div><input id="wpMinBet" type="number" min="1" value="10" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">MAX BET (0=∞)</div><input id="wpMaxBet" type="number" min="0" value="0" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+          <div><div style="color:#888;font-size:11px;margin-bottom:3px">HOUSE CUT %</div><input id="wpHouse" type="number" min="0" max="100" value="10" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        </div>
+        <div><div style="color:#888;font-size:11px;margin-bottom:3px">CLOSES AT *</div><input id="wpClosesAt" type="datetime-local" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:8px;border-radius:6px;width:100%;box-sizing:border-box"></div>
+        <button onclick="createWagerPool()" style="width:100%;padding:10px;background:rgba(239,154,154,.2);border:1px solid rgba(239,154,154,.4);color:#ef9a9a;border-radius:6px;cursor:pointer;font-weight:700">🎯 CREATE POOL</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ VIP PASS SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="vipAdminSection">
     <div class="sec-header">
@@ -2094,7 +2134,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -5721,6 +5761,165 @@ function saveRaffleSetting(key) {
   var el = document.getElementById('rfl_'+key);
   if (!el) return;
   fetch('/admin/api/raffle/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  WAGER POOLS ADMIN (Migration 130)
+// ══════════════════════════════════════
+function loadWagerAdmin() {
+  var statsEl = document.getElementById('wagerAdmStats');
+  var listEl  = document.getElementById('wagerAdmList');
+  var setsEl  = document.getElementById('wagerAdmSettings');
+  if (!statsEl) return;
+  [statsEl, listEl, setsEl].forEach(function(el){ if(el) el.innerHTML='<span style="color:#555;font-size:11px">Loading…</span>'; });
+  fetch('/admin/api/wager', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var s = d.stats || {};
+      if (statsEl) statsEl.innerHTML = [
+        { l:'Open Pools',    v: s.open_pools||0 },
+        { l:'Locked',        v: s.locked_pools||0 },
+        { l:'Settled',       v: s.settled_pools||0 },
+        { l:'Total Wagered', v: (s.total_wagered||0)+' GP' },
+        { l:'Total Bets',    v: s.total_bets||0 },
+      ].map(function(x){
+        return '<div style="background:#0d0d1a;border:1px solid #1a1a2e;border-radius:6px;padding:8px;text-align:center">'
+          + '<div style="color:#ef9a9a;font-size:16px;font-weight:700">'+x.v+'</div>'
+          + '<div style="color:#555;font-size:9px;margin-top:2px">'+x.l+'</div></div>';
+      }).join('');
+      var rows = d.pools || [];
+      if (listEl) {
+        if (!rows.length) { listEl.innerHTML = '<div style="color:#555;font-size:11px">No pools yet</div>'; }
+        else {
+          var statusColors = { open:'#a0e8a0', locked:'#80deea', settled:'#ffb74d', cancelled:'#555' };
+          listEl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:10px">'
+            + '<thead><tr style="color:#888">'
+              + '<th style="text-align:left;padding:4px 6px">Title</th>'
+              + '<th style="text-align:right;padding:4px 6px">Pot</th>'
+              + '<th style="text-align:right;padding:4px 6px">Bets</th>'
+              + '<th style="text-align:center;padding:4px 6px">Status</th>'
+              + '<th style="text-align:center;padding:4px 6px">Closes</th>'
+              + '<th style="text-align:center;padding:4px 6px">Actions</th></tr></thead><tbody>'
+            + rows.map(function(wp){
+              var sc = statusColors[wp.status]||'#888';
+              var closes = new Date(wp.closes_at).toLocaleDateString();
+              return '<tr style="border-top:1px solid #1a1a2e">'
+                + '<td style="padding:4px 6px;color:#eee">'+wp.icon+' '+wp.title+'</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#ef9a9a">'+wp.total_pot_gp+' GP</td>'
+                + '<td style="padding:4px 6px;text-align:right;color:#aaa">'+wp.bet_count+'</td>'
+                + '<td style="padding:4px 6px;text-align:center;color:'+sc+'">'+wp.status+'</td>'
+                + '<td style="padding:4px 6px;text-align:center;color:#555">'+closes+'</td>'
+                + '<td style="padding:4px 6px;text-align:center">'
+                  + (wp.status !== 'settled' && wp.status !== 'cancelled'
+                    ? '<button onclick="openWagerSettleModal('+wp.id+')" style="font-size:9px;padding:2px 6px;background:rgba(239,154,154,.15);border:1px solid rgba(239,154,154,.3);color:#ef9a9a;border-radius:4px;cursor:pointer;margin-right:3px">SETTLE</button>'
+                    + '<button onclick="adminCancelWager('+wp.id+')" style="font-size:9px;padding:2px 6px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:#e84855;border-radius:4px;cursor:pointer">CANCEL</button>'
+                    : '')
+                + '</td></tr>';
+            }).join('')
+            + '</tbody></table>';
+        }
+      }
+      var settingKeys = [
+        { k:'wager_enabled',       l:'Enabled',          t:'select', opts:['true','false'] },
+        { k:'wager_house_cut_pct', l:'House Cut %',      t:'number' },
+        { k:'wager_min_bet_gp',    l:'Min Bet (GP)',     t:'number' },
+        { k:'wager_max_bet_gp',    l:'Max Bet (0=∞)',    t:'number' },
+        { k:'wager_auto_lock',     l:'Auto Lock',        t:'select', opts:['true','false'] },
+      ];
+      fetch('/admin/api/settings?category=wager', { headers: { 'x-admin-secret': window.ADMIN_SECRET||'' } })
+        .then(function(r){return r.json();}).then(function(sets){
+          var map = {};
+          (sets||[]).forEach(function(s){ map[s.key]=s.value; });
+          if (setsEl) setsEl.innerHTML = settingKeys.map(function(sk){
+            var cur = map[sk.k] !== undefined ? map[sk.k] : '';
+            var inp = sk.t === 'select'
+              ? '<select id="wgr_'+sk.k+'" onchange="saveWagerSetting(\''+sk.k+'\')" style="background:#0d0d1a;border:1px solid #222;color:#eee;padding:4px 6px;border-radius:4px;width:100%">'
+                + sk.opts.map(function(o){ return '<option value="'+o+'"'+(cur===o?' selected':'')+'>'+o+'</option>'; }).join('')
+                + '</select>'
+              : '<input id="wgr_'+sk.k+'" type="'+(sk.t||'text')+'" value="'+cur+'" onblur="saveWagerSetting(\''+sk.k+'\')" style="background:#0d0d1a;border:1px solid #222;color:#eee;padding:4px 6px;border-radius:4px;width:100%;box-sizing:border-box">';
+            return '<div style="background:#0d0d1a;border:1px solid #1a1a2e;border-radius:6px;padding:8px"><div style="color:#888;font-size:9px;margin-bottom:4px">'+sk.l+'</div>'+inp+'</div>';
+          }).join('');
+        }).catch(function(){});
+    }).catch(function(e){ if(statsEl) statsEl.innerHTML='<span style="color:#e84855">'+e.message+'</span>'; });
+}
+
+function openWagerCreateModal() {
+  var modal = document.getElementById('wagerCreateModal');
+  if (!modal) return;
+  var d = new Date(Date.now() + 7*24*3600*1000);
+  var local = new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  var closesEl = document.getElementById('wpClosesAt');
+  if (closesEl) closesEl.value = local;
+  modal.style.display = 'flex';
+}
+
+function closeWagerCreateModal() {
+  var modal = document.getElementById('wagerCreateModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function createWagerPool() {
+  var title = (document.getElementById('wpTitle')||{}).value || '';
+  var closesAt = (document.getElementById('wpClosesAt')||{}).value || '';
+  if (!title || !closesAt) { alert('Title and close date are required'); return; }
+  var body = {
+    title: title,
+    description: (document.getElementById('wpDesc')||{}).value || '',
+    icon: (document.getElementById('wpIcon')||{}).value || '🎯',
+    minBetGp: parseInt((document.getElementById('wpMinBet')||{}).value||'10'),
+    maxBetGp: parseInt((document.getElementById('wpMaxBet')||{}).value||'0') || null,
+    houseCutPct: parseInt((document.getElementById('wpHouse')||{}).value||'10'),
+    closesAt: new Date(closesAt).toISOString(),
+  };
+  fetch('/admin/api/wager/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('🎯 Wager pool created!');
+    closeWagerCreateModal();
+    loadWagerAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function openWagerSettleModal(poolId) {
+  var winner = prompt('Enter winner wallet address for pool #'+poolId+':');
+  if (!winner || !winner.trim()) return;
+  if (!confirm('Settle pool #'+poolId+' with winner: '+winner+'?')) return;
+  fetch('/admin/api/wager/'+poolId+'/settle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ winnerWallet: winner.trim() })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('🎯 Pool settled! '+d.winners+' winner(s), '+d.payoutPot+' GP paid out');
+    loadWagerAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function adminCancelWager(id) {
+  if (!confirm('Cancel wager pool #'+id+' and refund all bets?')) return;
+  fetch('/admin/api/wager/'+id+'/cancel', {
+    method: 'POST', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { alert('Error: '+d.error); return; }
+    showToast('Wager cancelled, '+d.refunded+' bettors refunded');
+    loadWagerAdmin();
+  }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveWagerSetting(key) {
+  var el = document.getElementById('wgr_'+key);
+  if (!el) return;
+  fetch('/admin/api/wager/setting', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
