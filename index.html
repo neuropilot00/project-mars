@@ -3611,6 +3611,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="titlesPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_titles_hint">Connect wallet to view your titles.</div>
         </div>
 
+        <!-- Fleet / Ships (Migration 092) -->
+        <div class="base-section-title" style="color:#5cbbff;cursor:pointer" onclick="toggleFleetSection()"><span data-i18n="gov_fleet_title">⚓ MY FLEET</span> <span id="fleetToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
+        <div id="govFleetSection" style="display:none;margin-bottom:12px">
+          <div id="fleetPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_fleet_hint">Connect wallet to view your fleet.</div>
+        </div>
+
         <!-- Hall of Fame -->
         <div class="base-section-title" style="color:var(--gold);cursor:pointer" onclick="toggleHallOfFame()"><span data-i18n="gov_hall_of_fame">🏆 HALL OF FAME</span> <span id="hofToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
         <div id="govHallOfFame" style="display:none;margin-bottom:12px">
@@ -10591,6 +10597,10 @@ var I18N = {
     gov_declare_save: 'DECLARE',
     gov_policy_open: 'Open (All Welcome)', gov_policy_ally: 'Allies Only', gov_policy_closed: 'Closed',
     gov_titles_title: '🎖 MY TITLES', gov_titles_hint: 'Connect wallet to view your titles.',
+    gov_fleet_title: '⚓ MY FLEET', gov_fleet_hint: 'Connect wallet to view your fleet.',
+    gov_fleet_my: 'MY SHIPS', gov_fleet_max: '10 max', gov_shipyard: 'SHIPYARD',
+    gov_ship_build: 'BUILD SHIP', gov_ship_built: 'built!', gov_ship_repair: 'REPAIR',
+    gov_ship_repaired: 'Ship repaired!', gov_ship_repair_confirm: 'Repair this ship to full HP?',
     gov_hall_of_fame: '🏆 HALL OF FAME', gov_select_sector_hof: 'Select sector...',
     gov_select_hof_hint: 'Select a sector to view history.',
     // ── OPS tab ──
@@ -11140,6 +11150,10 @@ var I18N = {
     gov_declare_save: '선언',
     gov_policy_open: '개방 (모두 환영)', gov_policy_ally: '동맹만', gov_policy_closed: '폐쇄',
     gov_titles_title: '🎖 내 칭호', gov_titles_hint: '지갑을 연결하여 칭호를 확인하세요.',
+    gov_fleet_title: '⚓ 내 함대', gov_fleet_hint: '지갑을 연결하여 함대를 확인하세요.',
+    gov_fleet_my: '내 함선', gov_fleet_max: '최대 10', gov_shipyard: '조선소',
+    gov_ship_build: '함선 건조', gov_ship_built: '건조 완료!', gov_ship_repair: '수리',
+    gov_ship_repaired: '함선 수리 완료!', gov_ship_repair_confirm: '함선을 완전히 수리하시겠습니까?',
     gov_hall_of_fame: '🏆 명예의 전당', gov_select_sector_hof: '섹터 선택...',
     gov_select_hof_hint: '섹터를 선택하여 이력을 확인하세요.',
     // ── OPS tab ──
@@ -11680,6 +11694,10 @@ var I18N = {
     gov_declare_save: '宣言',
     gov_policy_open: 'オープン（誰でも歓迎）', gov_policy_ally: '同盟のみ', gov_policy_closed: '閉鎖',
     gov_titles_title: '🎖 称号', gov_titles_hint: 'ウォレットを接続して称号を確認。',
+    gov_fleet_title: '⚓ 艦隊', gov_fleet_hint: 'ウォレットを接続して艦隊を確認。',
+    gov_fleet_my: '艦船一覧', gov_fleet_max: '最大10隻', gov_shipyard: '造船所',
+    gov_ship_build: '建造', gov_ship_built: '建造完了！', gov_ship_repair: '修理',
+    gov_ship_repaired: '修理完了！', gov_ship_repair_confirm: '艦船をフルHPに修理しますか？',
     gov_hall_of_fame: '🏆 殿堂', gov_select_sector_hof: 'セクター選択...',
     gov_select_hof_hint: 'セクターを選択して履歴を表示。',
     ops_title: '戦術作戦',
@@ -12213,6 +12231,10 @@ var I18N = {
     gov_declare_save: '宣言',
     gov_policy_open: '开放（欢迎所有人）', gov_policy_ally: '仅同盟', gov_policy_closed: '封闭',
     gov_titles_title: '🎖 我的称号', gov_titles_hint: '连接钱包以查看您的称号。',
+    gov_fleet_title: '⚓ 我的舰队', gov_fleet_hint: '连接钱包以查看您的舰队。',
+    gov_fleet_my: '我的战舰', gov_fleet_max: '最多10艘', gov_shipyard: '造船厂',
+    gov_ship_build: '建造舰船', gov_ship_built: '建造完成！', gov_ship_repair: '修理',
+    gov_ship_repaired: '舰船修理完成！', gov_ship_repair_confirm: '将此舰船修理至满HP？',
     gov_hall_of_fame: '🏆 名人堂', gov_select_sector_hof: '选择区域...',
     gov_select_hof_hint: '选择区域以查看历史。',
     ops_title: '战术行动',
@@ -21963,6 +21985,140 @@ window.addEventListener('resize', function(){
       // Refresh badge
       try { updateWalletUI(); } catch(e) {}
     }).catch(function(){ showToast('Failed'); });
+  };
+
+  // ──────────────────────────────────────────────────────
+  // MY FLEET (Migration 092)
+  // ──────────────────────────────────────────────────────
+  var _blueprints = null;
+
+  window.toggleFleetSection = function() {
+    var el = document.getElementById('govFleetSection');
+    var tog = document.getElementById('fleetToggle');
+    if (!el) return;
+    if (el.style.display === 'none') {
+      el.style.display = '';
+      if (tog) tog.textContent = '▲';
+      loadFleetPanel();
+    } else {
+      el.style.display = 'none';
+      if (tog) tog.textContent = '▼';
+    }
+  };
+
+  function loadFleetPanel() {
+    var panel = document.getElementById('fleetPanel');
+    if (!panel) return;
+    var w = walletState.address;
+    if (!w) {
+      panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">'+(t('gov_fleet_hint')||'Connect wallet to view your fleet.')+'</div>';
+      return;
+    }
+    panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
+    Promise.all([
+      fetch('/api/ships?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {ships:[]}}),
+      _blueprints ? Promise.resolve({blueprints:_blueprints}) : fetch('/api/ships/blueprints').then(function(r){return r.json()}).catch(function(){return {blueprints:[]}})
+    ]).then(function(res) {
+      var ships = res[0].ships || [];
+      if (!_blueprints && res[1].blueprints) _blueprints = res[1].blueprints;
+      var blueprints = _blueprints || [];
+      var active = ships.filter(function(s){return s.status !== 'destroyed'});
+      var html = '';
+      // Fleet header
+      if (active.length) {
+        html += '<div style="margin-bottom:8px">';
+        html += '<div style="font-size:9px;color:#5cbbff;font-weight:700;margin-bottom:6px">'+
+          (t('gov_fleet_my')||'MY SHIPS')+'  <span style="color:var(--tx3)">'+active.length+'/'+(t('gov_fleet_max')||'10')+'</span></div>';
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">';
+        active.forEach(function(s) {
+          var hpPct = Math.round((s.hp/s.max_hp)*100);
+          var hpColor = hpPct>60?'#4cd89a':hpPct>30?'var(--gold)':'var(--red)';
+          var statusBadge = s.status === 'deployed' ?
+            '<span style="color:var(--cyan);font-size:7px">⚡ DEPLOYED</span>' :
+            s.status === 'repairing' ?
+            '<span style="color:var(--gold);font-size:7px">🔧 REPAIR</span>' :
+            '<span style="color:#4cd89a;font-size:7px">⚓ DOCKED</span>';
+          html += '<div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.12);border-radius:6px;padding:8px">';
+          html += '<div style="font-size:10px;font-weight:700;color:#5cbbff">'+s.icon+' '+s.name+'</div>';
+          html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px">';
+          html += '<div style="font-size:8px;color:var(--tx3)">HP: <span style="color:'+hpColor+'">'+hpPct+'%</span></div>';
+          html += statusBadge+'</div>';
+          html += '<div style="font-size:7px;color:var(--tx3);margin-top:2px">⚔'+s.attack+' 🛡'+s.defense+' ⚡'+s.speed+'</div>';
+          if (s.hp < s.max_hp && s.status !== 'deployed') {
+            html += '<button onclick="govRepairShip('+s.id+')" style="width:100%;margin-top:4px;font-size:7px;padding:3px;border-radius:3px;border:1px solid rgba(255,209,102,.3);background:rgba(255,209,102,.08);color:var(--gold);cursor:pointer;font-family:var(--fn)">🔧 '+(t('gov_ship_repair')||'REPAIR')+'</button>';
+          }
+          html += '</div>';
+        });
+        html += '</div></div>';
+      }
+      // Shipyard / Build
+      html += '<div style="border-top:1px solid rgba(92,187,255,.1);padding-top:8px;margin-top:8px">';
+      html += '<div style="font-size:9px;color:#5cbbff;font-weight:700;margin-bottom:6px">⚓ '+(t('gov_shipyard')||'SHIPYARD')+'</div>';
+      if (blueprints.length) {
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">';
+        blueprints.forEach(function(bp) {
+          html += '<div style="background:rgba(92,187,255,.03);border:1px solid rgba(92,187,255,.08);border-radius:6px;padding:8px">';
+          html += '<div style="font-size:10px;font-weight:700;color:#5cbbff">'+bp.icon+' '+bp.name+'</div>';
+          html += '<div style="font-size:7px;color:var(--tx3);margin:2px 0">⚔'+bp.attack+' 🛡'+bp.defense+' ⚡'+bp.speed+'</div>';
+          html += '<div style="font-size:9px;color:var(--gold);margin:2px 0">'+bp.gp_cost+' GP</div>';
+          html += '<button onclick="govBuildShip(\''+bp.type+'\')" style="width:100%;margin-top:4px;font-size:7px;padding:3px;border-radius:3px;border:1px solid rgba(92,187,255,.3);background:rgba(92,187,255,.08);color:#5cbbff;cursor:pointer;font-family:var(--fn)">🔨 '+(t('gov_ship_build')||'BUILD')+'</button>';
+          html += '</div>';
+        });
+        html += '</div>';
+      } else {
+        html += '<div style="font-size:9px;color:var(--tx3)">No blueprints available</div>';
+      }
+      html += '</div>';
+      panel.innerHTML = html;
+    });
+  }
+
+  window.govBuildShip = function(shipType) {
+    var w = walletState.address;
+    if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
+    var bp = (_blueprints||[]).find(function(b){return b.type===shipType});
+    if (!bp) return;
+    gameConfirm({
+      title: t('gov_ship_build')||'Build Ship', icon: bp.icon,
+      body: '<div style="font-size:11px;color:#5cbbff;font-weight:700;margin-bottom:8px">'+bp.icon+' '+bp.name+'</div>'
+        +'<div style="font-size:9px;color:var(--tx3);margin-bottom:4px">⚔ ATK: '+bp.attack+'  🛡 DEF: '+bp.defense+'  ⚡ SPD: '+bp.speed+'</div>',
+      info: [{k:'Cost', v: bp.gp_cost+' GP'}],
+      confirmText: '⚓ '+(t('gov_ship_build')||'BUILD SHIP')
+    }).then(function(ok) {
+      if (!ok) return;
+      fetch('/api/ships/build', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({wallet: w, shipType: shipType})
+      }).then(function(r){return r.json()}).then(function(d) {
+        if (d.error) { showToast(d.error, 'error'); return; }
+        showToast('⚓ '+(d.ship.name||shipType)+' '+(t('gov_ship_built')||'built!'));
+        refreshBalance();
+        loadFleetPanel();
+      }).catch(function(){showToast('Build failed','error')});
+    });
+  };
+
+  window.govRepairShip = function(shipId) {
+    var w = walletState.address;
+    if (!w) return;
+    gameConfirm({
+      title: t('gov_ship_repair')||'Repair Ship', icon: '🔧',
+      body: '<div style="font-size:10px;color:var(--tx3)">'+(t('gov_ship_repair_confirm')||'Repair this ship to full HP?')+'</div>',
+      info: [], confirmText: '🔧 '+(t('gov_ship_repair')||'REPAIR')
+    }).then(function(ok) {
+      if (!ok) return;
+      fetch('/api/ships/'+shipId+'/repair', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({wallet: w})
+      }).then(function(r){return r.json()}).then(function(d) {
+        if (d.error) { showToast(d.error, 'error'); return; }
+        showToast('🔧 '+(t('gov_ship_repaired')||'Ship repaired! -'+d.repairCost+' GP'));
+        refreshBalance();
+        loadFleetPanel();
+      }).catch(function(){showToast('Repair failed','error')});
+    });
   };
 
   // Hall of Fame toggle + loader (uses game picker instead of native select)

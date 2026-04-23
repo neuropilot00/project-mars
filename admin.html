@@ -232,6 +232,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('resources')" data-tab="resources" style="color:#5cbbff">RESOURCES</button>
   <button class="adm-tab" onclick="switchTab('onboarding')" data-tab="onboarding" style="color:#00E676">ONBOARDING</button>
   <button class="adm-tab" onclick="switchTab('siege')" data-tab="siege" style="color:#FF5252">SIEGE</button>
+  <button class="adm-tab" onclick="switchTab('ships')" data-tab="ships" style="color:#5cbbff">⚓ SHIPS</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -1175,6 +1176,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ═══ SHIPS TAB ═══ -->
+  <div class="section cat-ships" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#5cbbff">⚓ FLEET OVERVIEW</span>
+      <button onclick="loadShipsAdmin()" style="font-size:10px;background:rgba(92,187,255,.15);border:1px solid rgba(92,187,255,.3);color:#5cbbff;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="shipsAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div style="overflow-x:auto" id="shipsAdmTypeStats"></div>
+    <div class="sec-header" style="margin-top:12px">
+      <span class="sec-title" style="color:#5cbbff">RECENT SHIPS</span>
+    </div>
+    <div id="shipsAdmList" style="overflow-x:auto;margin-top:6px"></div>
+    <p style="font-size:10px;color:#888;margin-top:8px">Ship settings: GAME SETTINGS → category <b>ships</b></p>
+  </div>
+
   <!-- ═══ ONBOARDING TAB ═══ -->
   <div class="section cat-onboarding" style="display:none">
     <div class="sec-header">
@@ -1225,7 +1241,7 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore', 'enhance', 'marketplace', 'jobs', 'resources', 'onboarding', 'siege'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore', 'enhance', 'marketplace', 'jobs', 'resources', 'onboarding', 'siege', 'ships'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
@@ -1248,6 +1264,7 @@ function switchTab(tab) {
   if (tab === 'resources') { loadResourcesAdmin(); }
   if (tab === 'onboarding') { loadOnboardingAdmin(); }
   if (tab === 'siege') { loadSiegeAdmin(); loadBettingAdmin(); loadHofAdmin(); }
+  if (tab === 'ships') { loadShipsAdmin(); }
 }
 
 // ── Language System ──
@@ -3868,6 +3885,59 @@ function adminSettleAuction(auctionId) {
     alert('Auction #' + auctionId + ' settled. Status: ' + (d.status||'ok'));
     loadAuctionAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// SHIPS ADMIN
+// ══════════════════════════════════════
+function loadShipsAdmin() {
+  var statsEl = document.getElementById('shipsAdmStats');
+  var typeEl  = document.getElementById('shipsAdmTypeStats');
+  var listEl  = document.getElementById('shipsAdmList');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  fetch('/api/admin/ships', { headers: {'x-admin-secret':adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var ships  = d.ships  || [];
+      var stypes = d.stats  || [];
+
+      // Summary stats
+      var active   = ships.filter(function(s){return s.status !== 'destroyed'}).length;
+      var docked   = ships.filter(function(s){return s.status === 'docked'}).length;
+      var deployed = ships.filter(function(s){return s.status === 'deployed'}).length;
+      var destroyed= ships.filter(function(s){return s.status === 'destroyed'}).length;
+      statsEl.innerHTML = [
+        statCard('Total Ships', ships.length, '#5cbbff'),
+        statCard('Active', active, '#4cd89a'),
+        statCard('Deployed', deployed, 'var(--gold)'),
+        statCard('Destroyed', destroyed, '#f44')
+      ].join('');
+
+      // By type
+      typeEl.innerHTML = '<table class="data-table" style="font-size:9px"><thead><tr><th>Type</th><th>Status</th><th>Count</th></tr></thead><tbody>'
+        + stypes.map(function(r){
+          return '<tr><td>'+r.ship_type+'</td><td>'+r.status+'</td><td>'+r.cnt+'</td></tr>';
+        }).join('') + '</tbody></table>';
+
+      // Recent ships list
+      if (!ships.length) { listEl.innerHTML = '<div style="font-size:10px;color:#888">No ships yet</div>'; return; }
+      listEl.innerHTML = '<table class="data-table" style="font-size:9px"><thead><tr>'
+        + '<th>ID</th><th>Owner</th><th>Type</th><th>HP</th><th>ATK</th><th>DEF</th><th>Status</th><th>Built</th></tr></thead><tbody>'
+        + ships.slice(0,50).map(function(s){
+          return '<tr>'
+            +'<td>#'+s.id+'</td>'
+            +'<td style="font-size:8px">'+(s.nickname||s.wallet_address.slice(0,10)+'…')+'</td>'
+            +'<td>'+s.ship_type+'</td>'
+            +'<td>'+s.hp+'/'+s.max_hp+'</td>'
+            +'<td>'+s.attack+'</td>'
+            +'<td>'+s.defense+'</td>'
+            +'<td style="color:'+(s.status==='deployed'?'var(--gold)':s.status==='destroyed'?'#f44':'#4cd89a')+'">'+s.status+'</td>'
+            +'<td style="font-size:8px">'+new Date(s.created_at).toLocaleDateString()+'</td>'
+            +'</tr>';
+        }).join('') + '</tbody></table>';
+    })
+    .catch(function(e) { statsEl.innerHTML = '<div style="color:red;font-size:10px">'+e.message+'</div>'; });
 }
 
 // Auto-focus auth input

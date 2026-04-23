@@ -78,6 +78,7 @@ const siegeRoutes = require('./routes/siege');
 const publicRoutes = require('./routes/public');
 const bettingRoutes = require('./routes/betting');
 const auctionRoutes = require('./routes/auction');
+const shipRoutes    = require('./routes/ships');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -188,6 +189,7 @@ app.use('/api', siegeRoutes);
 app.use('/api', publicRoutes);
 app.use('/api', bettingRoutes);
 app.use('/api', auctionRoutes);
+app.use('/api', shipRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
