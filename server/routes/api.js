@@ -31,6 +31,8 @@ let upgradeSvc;
 try { upgradeSvc = require('../services/claimUpgrades'); } catch (_e) {}
 let bountySvc;
 try { bountySvc = require('../services/bounty'); } catch (_e) {}
+let shieldSvc;
+try { shieldSvc = require('../services/shield'); } catch (_e) {}
 let newsSvc;
 try { newsSvc = require('../services/news'); } catch (_e) {}
 let missionService;
@@ -889,6 +891,22 @@ router.post('/claim', writeLimiter, async (req, res) => {
               return res.status(400).json({ error: 'This territory is listed on the marketplace and cannot be hijacked' });
             }
           }
+          // Shield check: if the claim has an active shield, block the attack
+          if (shieldSvc && existing.claim_id) {
+            try {
+              const shield = await shieldSvc.isClaimShieldedTx(client, existing.claim_id);
+              if (shield) {
+                const minutesLeft = Math.ceil((new Date(shield.expires_at) - Date.now()) / 60000);
+                await client.query('ROLLBACK');
+                client.release();
+                return res.status(400).json({
+                  error: `Territory is shielded for ${minutesLeft} more minute(s)`,
+                  shielded: true, shieldExpiresAt: shield.expires_at
+                });
+              }
+            } catch (_shie) { /* shield check non-critical, allow attack to proceed */ }
+          }
+
           // Enemy pixel — attack (war_time gives 20% discount)
           let pxCost = parseFloat(existing.price) * HIJACK_MULT;
           if (_isWarTime) pxCost = Math.round(pxCost * 0.8 * 1000000) / 1000000;

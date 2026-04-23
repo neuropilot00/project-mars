@@ -88,6 +88,7 @@ const dividendRoutes    = require('./routes/dividends');
 const monumentRoutes    = require('./routes/monuments');
 const upgradeRoutes     = require('./routes/claimUpgrades');
 const bountyRoutes      = require('./routes/bounty');
+const shieldRoutes      = require('./routes/shield');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -208,6 +209,7 @@ app.use('/api', dividendRoutes);
 app.use('/api', monumentRoutes);
 app.use('/api', upgradeRoutes);
 app.use('/api', bountyRoutes);
+app.use('/api', shieldRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
@@ -873,6 +875,15 @@ async function start() {
       }, 60 * 60 * 1000);
       console.log('[BOUNTY] Expiry scheduler started (1h interval)');
     } catch(e) { console.warn('[BOUNTY] Could not init expiry scheduler:', e.message); }
+
+    // ── Shield: Expire expired shields (every 5 minutes) ──
+    try {
+      const { expireShields } = require('./services/shield');
+      setInterval(async () => {
+        try { await expireShields(); } catch(e) { console.warn('[SHIELD] expire error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[SHIELD] Expiry scheduler started (5min interval)');
+    } catch(e) { console.warn('[SHIELD] Could not init expiry scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

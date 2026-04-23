@@ -3322,6 +3322,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
         <div id="baseMySectors" style="display:none;font-size:10px;color:var(--tx3)" data-i18n="login_to_view">Login to view your territories.</div>
 
+        <!-- 🛡️ TERRITORY SHIELD (collapsible) -->
+        <div class="base-section-title" onclick="toggleShield()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+          <span>🛡️ <span data-i18n="shield_title">TERRITORY SHIELD</span></span>
+          <span id="shieldToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="shieldPanel" style="display:none;padding:4px 0 8px">
+          <div id="shieldContent">
+            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
+          </div>
+        </div>
+
         <!-- ⬆️ MY TERRITORY UPGRADES (collapsible) -->
         <div class="base-section-title" onclick="toggleTerritoryUpgrades()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
           <span>⬆️ <span data-i18n="upgrades_title">TERRITORY UPGRADES</span></span>
@@ -10672,6 +10683,7 @@ var I18N = {
     staking_title: 'GP STAKING', staking_stake_btn: '💎 STAKE GP', staking_confirm_title: 'STAKE GP', staking_confirm_btn: 'STAKE', staking_withdraw_title: 'WITHDRAW STAKE', staking_withdraw_btn: 'WITHDRAW',
     burn_title: 'GP BURN',
     weekly_title: 'WEEKLY CHALLENGES',
+    shield_title: 'TERRITORY SHIELD', shield_activate_btn: 'ACTIVATE SHIELD',
     bounty_title: 'BOUNTY BOARD', bounty_post_btn: '+ POST BOUNTY', bounty_tab_active: 'ACTIVE', bounty_tab_mine: 'MY BOUNTIES', bounty_tab_onme: 'ON ME', bounty_modal_title: 'POST BOUNTY', bounty_modal_sub: 'Reward the first player to hijack this territory', bounty_target_label: 'TARGET WALLET / NICKNAME', bounty_amount_label: 'GP REWARD', bounty_msg_label: 'TAUNT MESSAGE', bounty_post_submit: '🎯 POST BOUNTY',
     upgrades_title: 'TERRITORY UPGRADES', upgrades_upgrade_btn: 'UPGRADE TERRITORY',
     monuments_title: 'MY MONUMENTS', monument_place_title: 'PLACE MONUMENT', monument_place_btn: 'PLACE MONUMENT', monument_territory: 'TERRITORY', monument_type: 'TYPE', monument_name_label: 'MONUMENT NAME', monument_inscription: 'INSCRIPTION', monument_cost: 'Cost',
@@ -11254,6 +11266,7 @@ var I18N = {
     staking_title: 'GP 스테이킹', staking_stake_btn: '💎 GP 스테이크', staking_confirm_title: 'GP 스테이킹', staking_confirm_btn: '스테이크', staking_withdraw_title: '스테이크 인출', staking_withdraw_btn: '인출',
     burn_title: 'GP 소각',
     weekly_title: '주간 챌린지',
+    shield_title: '영토 보호막', shield_activate_btn: '보호막 활성화',
     bounty_title: '현상금 게시판', bounty_post_btn: '+ 현상금 게시', bounty_tab_active: '활성', bounty_tab_mine: '내 현상금', bounty_tab_onme: '나에게', bounty_modal_title: '현상금 게시', bounty_modal_sub: '영토를 탈취하는 첫 번째 플레이어에게 보상', bounty_target_label: '대상 지갑/닉네임', bounty_amount_label: 'GP 보상', bounty_msg_label: '도발 메시지', bounty_post_submit: '🎯 현상금 게시',
     upgrades_title: '영토 강화', upgrades_upgrade_btn: '영토 강화',
     monuments_title: '내 기념비', monument_place_title: '기념비 설치', monument_place_btn: '기념비 설치', monument_territory: '영토', monument_type: '유형', monument_name_label: '기념비 이름', monument_inscription: '비문', monument_cost: '비용',
@@ -11835,6 +11848,7 @@ var I18N = {
     staking_title: 'GPステーキング', staking_stake_btn: '💎 ステーク', staking_confirm_title: 'GPステーキング', staking_confirm_btn: 'ステーク', staking_withdraw_title: '引き出し', staking_withdraw_btn: '引き出す',
     burn_title: 'GP焼却',
     weekly_title: 'ウィークリーチャレンジ',
+    shield_title: '領土シールド', shield_activate_btn: 'シールド起動',
     bounty_title: '賞金ボード', bounty_post_btn: '+ 賞金を掲示', bounty_tab_active: 'アクティブ', bounty_tab_mine: 'マイ賞金', bounty_tab_onme: '自分への', bounty_modal_title: '賞金を掲示', bounty_modal_sub: '最初に領土を占領したプレイヤーへの報酬', bounty_target_label: 'ターゲット', bounty_amount_label: 'GP報酬', bounty_msg_label: '挑発メッセージ', bounty_post_submit: '🎯 賞金を掲示',
     upgrades_title: '領土強化', upgrades_upgrade_btn: '領土を強化',
     monuments_title: '記念碑', monument_place_title: '記念碑を設置', monument_place_btn: '記念碑を設置', monument_territory: '領土', monument_type: 'タイプ', monument_name_label: '記念碑名', monument_inscription: '銘文', monument_cost: 'コスト',
@@ -12400,6 +12414,7 @@ var I18N = {
     staking_title: 'GP质押', staking_stake_btn: '💎 质押GP', staking_confirm_title: 'GP质押', staking_confirm_btn: '质押', staking_withdraw_title: '提取质押', staking_withdraw_btn: '提取',
     burn_title: 'GP销毁',
     weekly_title: '每周挑战',
+    shield_title: '领土护盾', shield_activate_btn: '激活护盾',
     bounty_title: '赏金板', bounty_post_btn: '+ 发布赏金', bounty_tab_active: '活跃', bounty_tab_mine: '我的赏金', bounty_tab_onme: '针对我', bounty_modal_title: '发布赏金', bounty_modal_sub: '奖励第一个夺取该领地的玩家', bounty_target_label: '目标钱包/昵称', bounty_amount_label: 'GP奖励', bounty_msg_label: '嘲讽消息', bounty_post_submit: '🎯 发布赏金',
     upgrades_title: '领土升级', upgrades_upgrade_btn: '升级领土',
     monuments_title: '我的纪念碑', monument_place_title: '放置纪念碑', monument_place_btn: '放置纪念碑', monument_territory: '领土', monument_type: '类型', monument_name_label: '纪念碑名称', monument_inscription: '铭文', monument_cost: '费用',
@@ -25032,6 +25047,111 @@ function cancelBounty(bountyId) {
         loadWalletData();
       });
     }).catch(function(e) { showToast(e.message || 'Failed', 'error'); });
+}
+
+// ── Territory Shield ──────────────────────────────────────────────────────────
+
+var _shieldCatalog = null;
+
+function toggleShield() {
+  var panel = document.getElementById('shieldPanel');
+  var tog   = document.getElementById('shieldToggle');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : '';
+  if (tog) tog.textContent = open ? '▼' : '▲';
+  if (!open) loadShieldPanel();
+}
+
+function loadShieldPanel() {
+  var el = document.getElementById('shieldContent');
+  if (!el) return;
+  if (!walletState.address) {
+    el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Connect wallet to manage shields</div>';
+    return;
+  }
+  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
+  Promise.all([
+    fetch('/api/shield/catalog').then(function(r){ return r.json(); }),
+    fetch('/api/shield/my-shields?wallet=' + walletState.address).then(function(r){ return r.json(); })
+  ]).then(function(results) {
+    _shieldCatalog = results[0];
+    renderShieldPanel(_shieldCatalog, results[1].shields || []);
+  }).catch(function() {
+    el.innerHTML = '<div style="color:var(--mars);font-size:10px;text-align:center;padding:12px">Failed to load</div>';
+  });
+}
+
+function renderShieldPanel(catalog, shields) {
+  var el = document.getElementById('shieldContent');
+  if (!el) return;
+  var now = Date.now();
+  var active = shields.filter(function(s){ return s.is_active && new Date(s.expires_at) > now; });
+
+  var html = '<button onclick="openShieldModal()" style="width:100%;margin-bottom:10px;padding:9px;border-radius:8px;background:linear-gradient(135deg,rgba(92,187,255,.14),rgba(92,187,255,.04));border:1px solid rgba(92,187,255,.35);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.5px">🛡️ <span data-i18n="shield_activate_btn">ACTIVATE SHIELD</span></button>';
+
+  if (active.length === 0) {
+    html += '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:8px 0">No active shields</div>';
+  } else {
+    html += '<div style="font-size:9px;color:var(--tx3);margin-bottom:6px;letter-spacing:.5px">ACTIVE SHIELDS</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    active.forEach(function(s) {
+      var ms = new Date(s.expires_at) - now;
+      var hrs = Math.floor(ms / 3600000);
+      var mins = Math.floor((ms % 3600000) / 60000);
+      var timeStr = hrs > 0 ? hrs + 'h ' + mins + 'm' : mins + 'm';
+      var claimName = s.custom_name || ('Territory ' + s.claim_id);
+      var pct = Math.min(100, (ms / (s.duration_h * 3600000)) * 100);
+      html += '<div style="background:rgba(92,187,255,.05);border:1px solid rgba(92,187,255,.2);border-radius:8px;padding:8px 10px">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+      html += '<span style="font-size:10px;font-weight:700;color:var(--tx)">🛡️ ' + escHtml(claimName) + '</span>';
+      html += '<span style="font-size:10px;color:#5cbbff;font-weight:700">' + timeStr + '</span>';
+      html += '</div>';
+      html += '<div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden">';
+      html += '<div style="height:100%;width:' + pct.toFixed(0) + '%;background:linear-gradient(90deg,#5cbbff,#a0c8ff);border-radius:2px;transition:.5s"></div>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function openShieldModal() {
+  if (!walletState.address) { showToast('Connect wallet first', 'error'); return; }
+  if (!_shieldCatalog || !_shieldCatalog.enabled) { showToast('Shield system is disabled', 'error'); return; }
+  var myClaims = (window.claims||[]).filter(function(c){ return (c.owner||'').toLowerCase() === walletState.address.toLowerCase(); });
+  if (!myClaims.length) { showToast('You have no territories to shield', 'error'); return; }
+
+  gamePicker({ title: 'SELECT TERRITORY TO SHIELD', items: myClaims.map(function(c) {
+    return { value: c.id, label: (c.custom_name || 'Territory ' + c.id) + ' (' + (c.width||1) + '×' + (c.height||1) + ')' };
+  }) }).then(function(claimId) {
+    if (!claimId) return;
+    var items = (_shieldCatalog.options || []).map(function(opt) {
+      return { value: opt.hours, label: '🛡️ ' + opt.label + ' — ' + opt.cost + ' GP' };
+    });
+    gamePicker({ title: 'SELECT SHIELD DURATION', items: items }).then(function(hours) {
+      if (!hours) return;
+      var opt = (_shieldCatalog.options || []).find(function(o){ return o.hours == hours; });
+      var claimName = (myClaims.find(function(c){ return c.id == claimId; }) || {}).custom_name || 'Territory ' + claimId;
+      gameConfirm('🛡️', 'ACTIVATE SHIELD',
+        'Protect "' + escHtml(claimName) + '" for ' + (opt ? opt.label : hours + 'h') + '? Costs ' + (opt ? opt.cost : '?') + ' GP.')
+        .then(function(confirmed) {
+          if (!confirmed) return;
+          return fetch('/api/shield/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet: walletState.address, claimId: parseInt(claimId), durationH: parseInt(hours) })
+          }).then(function(r){ return r.json(); }).then(function(d) {
+            if (d.error) { showToast(d.error, 'error'); return; }
+            showToast('🛡️ Shield activated! Territory protected for ' + (opt ? opt.label : hours + 'h'), 'success');
+            loadShieldPanel();
+            loadWalletData();
+          });
+        }).catch(function(e) { showToast(e.message || 'Failed', 'error'); });
+    });
+  });
 }
 
 // ── Territory Upgrades ────────────────────────────────────────────────────────

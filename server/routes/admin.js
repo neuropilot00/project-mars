@@ -2362,6 +2362,51 @@ router.post('/bounties/setting', adminAuth, async (req, res) => {
   }
 });
 
+// ── Territory Shield Admin ────────────────────────────────────────────────────
+
+// GET /admin/api/shields
+router.get('/shields', adminAuth, async (req, res) => {
+  try {
+    let shieldSvc;
+    try { shieldSvc = require('../services/shield'); } catch (_) {}
+    if (!shieldSvc) return res.status(503).json({ error: 'Shield service unavailable' });
+    const stats = await shieldSvc.getAdminStats();
+    res.json(stats);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/shields/setting
+router.post('/shields/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body;
+  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
+  if (!key.startsWith('shield_')) return res.status(400).json({ error: 'Invalid shield key' });
+  try {
+    await pool.query(`UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`, [key, String(value)]);
+    await auditLog(req, 'update_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/shields/revoke/:claimId — admin force remove shield
+router.post('/shields/revoke/:claimId', adminAuth, async (req, res) => {
+  const { claimId } = req.params;
+  try {
+    const result = await pool.query(
+      `UPDATE territory_shields SET is_active = false WHERE claim_id = $1 AND is_active = true RETURNING *`,
+      [claimId]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'No active shield on this territory' });
+    await auditLog(req, 'shield_revoke', `claim:${claimId}`, {});
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // POST /admin/api/bounties/cancel/:id — admin force cancel
 router.post('/bounties/cancel/:id', adminAuth, async (req, res) => {
   const { id } = req.params;

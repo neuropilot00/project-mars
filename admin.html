@@ -996,6 +996,21 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="divAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY SHIELD ═══ -->
+  <div class="section cat-gp" style="display:none" id="shieldAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#5cbbff">🛡️ TERRITORY SHIELDS</span>
+      <div style="display:flex;gap:6px">
+        <button onclick="loadShieldAdmin()" style="font-size:10px;background:rgba(92,187,255,.12);border:1px solid rgba(92,187,255,.3);color:#5cbbff;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+      </div>
+    </div>
+    <div id="shieldAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#5cbbff">ACTIVE SHIELDS</span></div>
+    <div id="shieldAdmTable" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#5cbbff">SHIELD SETTINGS</span></div>
+    <div id="shieldAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ GP BOUNTY BOARD ═══ -->
   <div class="section cat-gp" style="display:none" id="bountyAdminSection">
     <div class="sec-header">
@@ -1508,7 +1523,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -3750,6 +3765,74 @@ function forceDistributeDividend() {
     if (d.error) return alert('Error: ' + d.error);
     alert('Distribution done! Recipients: ' + d.recipients);
     loadDividendAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+// ══════════════════════════════════════
+//  TERRITORY SHIELD ADMIN (Migration 114)
+// ══════════════════════════════════════
+function loadShieldAdmin() {
+  var statsEl   = document.getElementById('shieldAdmStats');
+  var tableEl   = document.getElementById('shieldAdmTable');
+  var settingsEl= document.getElementById('shieldAdmSettings');
+  if (!statsEl) return;
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+
+  apiJson('/admin/api/shields').catch(function(){ return null; }).then(function(data) {
+    if (!data) { statsEl.innerHTML = '<div style="color:#f88;font-size:10px">Service unavailable</div>'; return; }
+
+    statsEl.innerHTML = [
+      mkStatBox('TOTAL', data.total||0, '#5cbbff'),
+      mkStatBox('ACTIVE', data.active||0, '#4cd89a'),
+      mkStatBox('TOTAL GP', (parseFloat(data.total_gp||0)).toFixed(0)+' GP', '#e8c040'),
+    ].join('');
+
+    var rows = (data.recent||[]).filter(function(s){ return s.is_active && new Date(s.expires_at) > Date.now(); }).slice(0,15).map(function(s) {
+      var nick = escapeHtml(s.owner_nick || s.owner.slice(0,10)+'…');
+      var expiresIn = Math.ceil((new Date(s.expires_at) - Date.now()) / 3600000);
+      return '<tr><td>'+s.claim_id+'</td><td>'+nick+'</td><td>'+s.duration_h+'h</td><td>'+expiresIn+'h left</td><td>'
+        +'<button onclick="adminRevokeShield('+s.claim_id+')" style="font-size:9px;padding:2px 6px;background:rgba(255,80,30,.15);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">REVOKE</button></td></tr>';
+    }).join('');
+    tableEl.innerHTML = rows.length
+      ? '<table class="adm-table"><thead><tr><th>Claim</th><th>Owner</th><th>Duration</th><th>Remaining</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      : '<div style="color:#888;font-size:10px;padding:8px">No active shields</div>';
+
+    var sets = data.settings || {};
+    settingsEl.innerHTML = Object.entries(sets).map(function(e) {
+      var k = e[0]; var v = e[1];
+      return '<div style="display:flex;align-items:center;gap:6px;font-size:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+        + '<span style="flex:1;color:#888;font-size:9px">'+k+'</span>'
+        + '<input id="sset_'+k+'" value="'+escapeHtml(String(v))+'" style="width:90px;font-size:9px;padding:3px 6px;background:rgba(0,0,0,.4);border:1px solid rgba(92,187,255,.25);color:#fff;border-radius:3px">'
+        + '<button onclick="saveShieldSetting(\''+k+'\')" style="font-size:9px;padding:3px 8px;background:rgba(92,187,255,.15);border:1px solid rgba(92,187,255,.3);color:#5cbbff;border-radius:3px;cursor:pointer">SAVE</button>'
+        + '</div>';
+    }).join('');
+  });
+}
+
+function saveShieldSetting(key) {
+  var inp = document.getElementById('sset_' + key);
+  if (!inp) return;
+  fetch('/admin/api/shields/setting', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({ key: key, value: inp.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ ' + key + ' saved');
+    loadShieldAdmin();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function adminRevokeShield(claimId) {
+  if (!confirm('Revoke shield on claim #' + claimId + '?')) return;
+  fetch('/admin/api/shields/revoke/' + claimId, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify({})
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    showToast('✅ Shield revoked on claim #' + claimId);
+    loadShieldAdmin();
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
