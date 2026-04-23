@@ -2930,4 +2930,39 @@ router.post('/expeditions/:id/cancel', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// TERRITORY BRANDING — admin
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET /admin/api/branding — stats + recent + settings
+router.get('/branding', adminAuth, async (req, res) => {
+  let svc; try { svc = require('../services/branding'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try { res.json(await svc.getAdminStats()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /admin/api/branding/setting — update branding_* setting
+router.post('/branding/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !key.startsWith('branding_')) return res.status(400).json({ error: 'Invalid key' });
+  try {
+    await pool.query('UPDATE game_settings SET value=$1 WHERE key=$2', [String(value), key]);
+    await auditLog(req, 'branding_setting', key, { value });
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE /admin/api/branding/:claimId — clear branding for a territory
+router.delete('/branding/:claimId', adminAuth, async (req, res) => {
+  const claimId = parseInt(req.params.claimId, 10);
+  let svc; try { svc = require('../services/branding'); } catch (_) {}
+  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
+  try {
+    await svc.adminClearBranding(claimId);
+    await auditLog(req, 'branding_clear', `claim:${claimId}`, {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 module.exports = router;

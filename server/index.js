@@ -97,6 +97,7 @@ const allianceRoutes    = require('./routes/alliance');
 const luckyBoxRoutes    = require('./routes/luckyBox');
 const vipRoutes         = require('./routes/vip');
 const expeditionRoutes  = require('./routes/expedition');
+const brandingRoutes    = require('./routes/branding');
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -226,6 +227,7 @@ app.use('/api', allianceRoutes);
 app.use('/api', luckyBoxRoutes);
 app.use('/api', vipRoutes);
 app.use('/api', expeditionRoutes);
+app.use('/api', brandingRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);

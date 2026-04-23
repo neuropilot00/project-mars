@@ -1202,6 +1202,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <div id="expAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
   </div>
 
+  <!-- ═══ TERRITORY BRANDING ═══ -->
+  <div class="section cat-gp" style="display:none" id="brandingAdminSection">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#a5d6a7">🏷️ TERRITORY BRANDING</span>
+      <button onclick="loadBrandingAdmin()" style="font-size:10px;background:rgba(165,214,167,.12);border:1px solid rgba(165,214,167,.3);color:#a5d6a7;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+    <div id="brandAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#a5d6a7">RECENT BRANDING</span></div>
+    <div id="brandAdmRecent" style="overflow-x:auto;margin-bottom:12px"></div>
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#a5d6a7">SETTINGS</span></div>
+    <div id="brandAdmSettings" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
+  </div>
+
   <!-- ═══ VIP PASS SYSTEM ═══ -->
   <div class="section cat-gp" style="display:none" id="vipAdminSection">
     <div class="sec-header">
@@ -1917,7 +1930,7 @@ function switchTab(tab) {
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -4734,6 +4747,108 @@ function adminCancelExpedition(id) {
     if (d.error) return alert('Error: '+d.error);
     showToast('✅ Expedition cancelled, refunded: '+d.refunded+' GP');
     loadExpeditionAdmin();
+  }).catch(function(e) { alert('Error: '+e.message); });
+}
+
+// ══════════════════════════════════════
+//  TERRITORY BRANDING ADMIN (Migration 123)
+// ══════════════════════════════════════
+function loadBrandingAdmin() {
+  var statsEl    = document.getElementById('brandAdmStats');
+  var recentEl   = document.getElementById('brandAdmRecent');
+  var settingsEl = document.getElementById('brandAdmSettings');
+  if (!statsEl) return;
+  [statsEl, recentEl, settingsEl].forEach(function(el) {
+    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
+  });
+  fetch('/admin/api/branding', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) { statsEl.innerHTML = '<span style="color:#e8485580">'+d.error+'</span>'; return; }
+      // Stats
+      var s = d.stats || {};
+      statsEl.innerHTML = [
+        ['BRANDED TERRITORIES', s.total || 0],
+        ['NAMED', s.named || 0],
+        ['TAGLINES', s.tagged || 0],
+        ['COLORED', s.colored || 0],
+      ].map(function(x) {
+        return '<div style="background:rgba(165,214,167,.06);border:1px solid rgba(165,214,167,.15);border-radius:6px;padding:10px;text-align:center">'
+          + '<div style="color:#a5d6a7;font-size:18px;font-weight:700">'+x[1]+'</div>'
+          + '<div style="color:#666;font-size:10px;margin-top:2px">'+x[0]+'</div></div>';
+      }).join('');
+
+      // Recent
+      var rows = d.recent || [];
+      if (!rows.length) {
+        recentEl.innerHTML = '<span style="color:#555;font-size:11px">No branded territories yet</span>';
+      } else {
+        recentEl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:11px">'
+          + '<thead><tr style="color:#555;border-bottom:1px solid #222">'
+          + '<th style="text-align:left;padding:4px 6px">CLAIM</th>'
+          + '<th style="text-align:left;padding:4px 6px">NAME</th>'
+          + '<th style="text-align:left;padding:4px 6px">TAGLINE</th>'
+          + '<th style="text-align:center;padding:4px 6px">COLOR</th>'
+          + '<th style="text-align:left;padding:4px 6px">WALLET</th>'
+          + '<th style="text-align:right;padding:4px 6px">ACTION</th>'
+          + '</tr></thead><tbody>'
+          + rows.map(function(r) {
+              var colorCell = r.theme_color
+                ? '<div style="width:24px;height:16px;border-radius:3px;background:'+r.theme_color+';margin:0 auto;border:1px solid #444"></div>'
+                : '<span style="color:#444">—</span>';
+              var nick = r.wallet ? r.wallet.slice(0,8)+'…' : '—';
+              return '<tr style="border-bottom:1px solid #1a1a1a">'
+                + '<td style="padding:4px 6px;color:#80cbc4">#'+r.claim_id
+                  + (r.x1 != null ? ' ('+r.x1+','+r.y1+')' : '')+'</td>'
+                + '<td style="padding:4px 6px;color:#eee">'+_escHtml(r.territory_name||'—')+'</td>'
+                + '<td style="padding:4px 6px;color:#aaa;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+_escHtml(r.tagline||'—')+'</td>'
+                + '<td style="padding:4px 6px;text-align:center">'+colorCell+'</td>'
+                + '<td style="padding:4px 6px;color:#aaa">'+nick+'</td>'
+                + '<td style="padding:4px 6px;text-align:right">'
+                  + '<button onclick="adminClearBranding('+r.claim_id+')" style="font-size:10px;padding:2px 8px;background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.3);color:#e84855;border-radius:4px;cursor:pointer">CLEAR</button>'
+                + '</td></tr>';
+            }).join('')
+          + '</tbody></table>';
+      }
+
+      // Settings
+      var cfg = d.settings || {};
+      var keys = Object.keys(cfg);
+      settingsEl.innerHTML = keys.length ? keys.map(function(k) {
+        return '<div style="background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:8px">'
+          + '<div style="color:#888;font-size:10px;margin-bottom:4px">'+k+'</div>'
+          + '<div style="display:flex;gap:6px">'
+          + '<input id="brnds_'+k+'" value="'+_escHtml(cfg[k])+'" style="flex:1;background:#0d0d1a;border:1px solid #333;color:#eee;padding:6px;border-radius:4px;font-size:12px">'
+          + '<button onclick="saveBrandingSetting(\''+k+'\')" style="padding:6px 10px;background:rgba(165,214,167,.15);border:1px solid rgba(165,214,167,.3);color:#a5d6a7;border-radius:4px;cursor:pointer;font-size:11px">SAVE</button>'
+          + '</div></div>';
+      }).join('') : '<span style="color:#555;font-size:11px">No settings found</span>';
+    }).catch(function(e) {
+      if (statsEl) statsEl.innerHTML = '<span style="color:#e8485580">Failed: '+e.message+'</span>';
+    });
+}
+
+function saveBrandingSetting(key) {
+  var el = document.getElementById('brnds_'+key);
+  if (!el) return;
+  fetch('/admin/api/branding/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
+    body: JSON.stringify({ key: key, value: el.value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: '+d.error);
+    showToast('✅ '+key+' saved');
+  }).catch(function(e) { alert('Error: '+e.message); });
+}
+
+function adminClearBranding(claimId) {
+  if (!confirm('Clear all branding for territory #'+claimId+'?')) return;
+  fetch('/admin/api/branding/'+claimId, {
+    method: 'DELETE',
+    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: '+d.error);
+    showToast('🏷️ Branding cleared');
+    loadBrandingAdmin();
   }).catch(function(e) { alert('Error: '+e.message); });
 }
 

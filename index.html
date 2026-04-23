@@ -3402,6 +3402,65 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div id="expeditionHistoryPanel" style="display:none;margin-top:8px"></div>
           </div>
         </div>
+
+        <!-- 🏷️ TERRITORY BRANDING (collapsible) -->
+        <div class="base-section-title" onclick="toggleBrandingPanel()" style="cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+          <span>🏷️ <span data-i18n="branding_title">TERRITORY BRANDING</span></span>
+          <span id="brandingToggle" style="font-size:8px;color:var(--tx3)">▼</span>
+        </div>
+        <div id="brandingPanel" style="display:none;padding:4px 0 8px">
+          <!-- Territory selector -->
+          <div style="margin-bottom:8px">
+            <div style="font-size:9px;color:var(--tx3);margin-bottom:4px" data-i18n="branding_select_territory">Select a territory to brand:</div>
+            <select id="brandClaimSelect" onchange="onBrandClaimSelect(this.value)" style="width:100%;background:rgba(165,214,167,.06);border:1px solid rgba(165,214,167,.2);color:var(--tx);padding:6px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+              <option value="">— loading territories —</option>
+            </select>
+          </div>
+          <!-- Current branding preview -->
+          <div id="brandingPreview" style="display:none;padding:8px;border-radius:6px;background:rgba(165,214,167,.04);border:1px solid rgba(165,214,167,.15);margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <div id="brandColorDot" style="width:16px;height:16px;border-radius:50%;background:#a5d6a7;flex-shrink:0"></div>
+              <div>
+                <div id="brandNameDisplay" style="font-size:11px;color:var(--tx);font-family:var(--fn);font-weight:700"></div>
+                <div id="brandTaglineDisplay" style="font-size:9px;color:var(--tx3);font-style:italic"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Name field -->
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="font-size:9px;color:var(--tx3)" data-i18n="branding_name_label">TERRITORY NAME</span>
+              <span id="brandNameCostLabel" style="font-size:9px;color:var(--gold)"></span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <input id="brandNameInput" type="text" maxlength="24" placeholder="e.g. Fort Olympus" style="flex:1;background:rgba(165,214,167,.06);border:1px solid rgba(165,214,167,.2);color:var(--tx);padding:6px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+              <button onclick="setBrandingName()" style="padding:6px 10px;border-radius:6px;background:rgba(165,214,167,.15);border:1px solid rgba(165,214,167,.35);color:#a5d6a7;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700" data-i18n="branding_set_btn">SET</button>
+            </div>
+          </div>
+          <!-- Tagline field -->
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="font-size:9px;color:var(--tx3)" data-i18n="branding_tagline_label">TAGLINE</span>
+              <span id="brandTagCostLabel" style="font-size:9px;color:var(--gold)"></span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <input id="brandTagInput" type="text" maxlength="60" placeholder="e.g. The red frontier awaits" style="flex:1;background:rgba(165,214,167,.06);border:1px solid rgba(165,214,167,.2);color:var(--tx);padding:6px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+              <button onclick="setBrandingTagline()" style="padding:6px 10px;border-radius:6px;background:rgba(165,214,167,.15);border:1px solid rgba(165,214,167,.35);color:#a5d6a7;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700" data-i18n="branding_set_btn">SET</button>
+            </div>
+          </div>
+          <!-- Color field -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="font-size:9px;color:var(--tx3)" data-i18n="branding_color_label">THEME COLOR</span>
+              <span id="brandColorCostLabel" style="font-size:9px;color:var(--gold)"></span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input id="brandColorInput" type="color" value="#80cbc4" style="width:48px;height:32px;background:none;border:1px solid rgba(165,214,167,.3);border-radius:6px;cursor:pointer;padding:2px">
+              <span id="brandColorHex" style="font-size:10px;color:var(--tx3)">#80cbc4</span>
+              <button onclick="setBrandingColor()" style="margin-left:auto;padding:6px 10px;border-radius:6px;background:rgba(165,214,167,.15);border:1px solid rgba(165,214,167,.35);color:#a5d6a7;font-family:var(--fn);font-size:9px;cursor:pointer;font-weight:700" data-i18n="branding_set_btn">SET</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- TAB: SECTORS -->
@@ -10958,6 +11017,7 @@ var I18N = {
     base_lucky_btn: '📦 CRATES', lucky_box_open_btn: '🎁 OPEN', lucky_box_recent_title: '🎉 RECENT OPENS', lucky_box_my_history: '📜 MY HISTORY', lucky_box_confirm_title: 'Open Crate?',
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 GET VIP', vip_status_active: 'VIP ACTIVE', vip_expires: 'Expires', vip_purchase_title: 'Get VIP Pass?',
     expedition_title: 'EXPEDITIONS', expedition_returns: 'Returns', expedition_cancel_btn: 'CANCEL', expedition_launch_btn: '🚀 LAUNCH EXPEDITION', expedition_history_btn: '📜 EXPEDITION LOG', expedition_select_claim: 'SELECT TERRITORY & TYPE', expedition_launch_confirm: 'Launch Expedition?', expedition_cancel_confirm: 'Cancel Expedition?',
+    branding_title: 'TERRITORY BRANDING', branding_select_territory: 'Select a territory to brand:', branding_name_label: 'TERRITORY NAME', branding_tagline_label: 'TAGLINE', branding_color_label: 'THEME COLOR', branding_set_btn: 'SET', branding_set_name_title: 'Set Territory Name?', branding_set_tag_title: 'Set Tagline?', branding_set_color_title: 'Set Theme Color?',
     quests_failed: 'Failed to load quests',
     quests_none_active: 'No active quests. Check back soon!',
     quests_pool_depleted: 'REWARD POOL DEPLETED — Rewards temporarily paused',
@@ -11549,6 +11609,7 @@ var I18N = {
     base_lucky_btn: '📦 크레이트', lucky_box_open_btn: '🎁 열기', lucky_box_recent_title: '🎉 최근 오픈', lucky_box_my_history: '📜 내 기록', lucky_box_confirm_title: '크레이트 오픈?',
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 VIP 구매', vip_status_active: 'VIP 활성', vip_expires: '만료', vip_purchase_title: 'VIP 패스 구매?',
     expedition_title: '원정대', expedition_returns: '귀환', expedition_cancel_btn: '취소', expedition_launch_btn: '🚀 원정 출발', expedition_history_btn: '📜 원정 기록', expedition_select_claim: '영토 및 유형 선택', expedition_launch_confirm: '원정 출발?', expedition_cancel_confirm: '원정 취소?',
+    branding_title: '영토 브랜딩', branding_select_territory: '브랜딩할 영토 선택:', branding_name_label: '영토 이름', branding_tagline_label: '태그라인', branding_color_label: '테마 색상', branding_set_btn: '설정', branding_set_name_title: '영토 이름 설정?', branding_set_tag_title: '태그라인 설정?', branding_set_color_title: '테마 색상 설정?',
     quests_failed: '퀘스트 로딩 실패',
     quests_none_active: '진행 중인 퀘스트가 없습니다. 잠시 후 다시 확인해 주세요!',
     quests_pool_depleted: '보상 풀 고갈 — 보상이 일시 중단되었습니다',
@@ -12139,6 +12200,7 @@ var I18N = {
     base_lucky_btn: '📦 クレート', lucky_box_open_btn: '🎁 開ける', lucky_box_recent_title: '🎉 最近のオープン', lucky_box_my_history: '📜 マイ履歴', lucky_box_confirm_title: 'クレートを開く？',
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 VIP取得', vip_status_active: 'VIP有効', vip_expires: '有効期限', vip_purchase_title: 'VIPパス購入？',
     expedition_title: '遠征', expedition_returns: '帰還', expedition_cancel_btn: 'キャンセル', expedition_launch_btn: '🚀 遠征開始', expedition_history_btn: '📜 遠征ログ', expedition_select_claim: '領土とタイプを選択', expedition_launch_confirm: '遠征開始？', expedition_cancel_confirm: '遠征キャンセル？',
+    branding_title: '領土ブランディング', branding_select_territory: 'ブランディングする領土を選択:', branding_name_label: '領土名', branding_tagline_label: 'タグライン', branding_color_label: 'テーマカラー', branding_set_btn: '設定', branding_set_name_title: '領土名を設定？', branding_set_tag_title: 'タグラインを設定？', branding_set_color_title: 'テーマカラーを設定？',
     quests_failed: 'クエストの読込に失敗',
     quests_none_active: '進行中のクエストはありません。しばらくしてから確認してください！',
     quests_pool_depleted: '報酬プール枯渇 — 報酬は一時的に停止中',
@@ -12713,6 +12775,7 @@ var I18N = {
     base_lucky_btn: '📦 宝箱', lucky_box_open_btn: '🎁 开启', lucky_box_recent_title: '🎉 最近开启', lucky_box_my_history: '📜 我的记录', lucky_box_confirm_title: '开启宝箱？',
     base_vip_btn: '💫 VIP', vip_buy_btn: '💫 获取VIP', vip_status_active: 'VIP已激活', vip_expires: '过期', vip_purchase_title: '购买VIP通行证？',
     expedition_title: '远征', expedition_returns: '归来', expedition_cancel_btn: '取消', expedition_launch_btn: '🚀 发动远征', expedition_history_btn: '📜 远征记录', expedition_select_claim: '选择领土与类型', expedition_launch_confirm: '发动远征？', expedition_cancel_confirm: '取消远征？',
+    branding_title: '领土品牌化', branding_select_territory: '选择要品牌化的领土:', branding_name_label: '领土名称', branding_tagline_label: '标语', branding_color_label: '主题颜色', branding_set_btn: '设置', branding_set_name_title: '设置领土名称？', branding_set_tag_title: '设置标语？', branding_set_color_title: '设置主题颜色？',
     quests_failed: '任务加载失败',
     quests_none_active: '暂无进行中的任务。请稍后再来查看！',
     quests_pool_depleted: '奖池已耗尽 — 奖励暂时暂停',
@@ -26549,6 +26612,151 @@ function loadExpeditionHistory() {
           + '</div>';
       }).join('');
     }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:10px">'+e.message+'</div>'; });
+}
+
+// ── Territory Branding (Migration 123) ──────────────────────────────────────
+
+var _brandingCfg   = null;
+var _brandingClaim = null;  // currently selected claimId
+
+function toggleBrandingPanel() {
+  var panel = document.getElementById('brandingPanel');
+  var tog   = document.getElementById('brandingToggle');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  tog.textContent = open ? '▼' : '▲';
+  if (!open) loadBrandingPanel();
+}
+
+function loadBrandingPanel() {
+  var w = walletState && walletState.address;
+  // Load cost config
+  fetch('/api/branding/costs').then(function(r){return r.json();}).then(function(cfg){
+    _brandingCfg = cfg;
+    _updateBrandCostLabels();
+  }).catch(function(){});
+  // Populate territory selector
+  var sel = document.getElementById('brandClaimSelect');
+  if (!sel) return;
+  if (!w) { sel.innerHTML = '<option value="">— connect wallet —</option>'; return; }
+  fetch('/api/claims?wallet=' + encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(claims){
+      var arr = claims.claims || claims || [];
+      if (!arr.length) { sel.innerHTML = '<option value="">— no territories —</option>'; return; }
+      sel.innerHTML = '<option value="">— select territory —</option>'
+        + arr.map(function(c){
+            return '<option value="'+c.id+'">'
+              + '('+c.x1+','+c.y1+') '+((c.x2-c.x1+1)*(c.y2-c.y1+1))+' px'
+              + (c.territory_name ? ' · '+_escHtml(c.territory_name) : '')
+              + '</option>';
+          }).join('');
+    }).catch(function(){});
+  // Load existing branding for display
+  fetch('/api/branding/my?wallet=' + encodeURIComponent(w))
+    .then(function(r){return r.json();}).then(function(){}).catch(function(){});
+}
+
+function _updateBrandCostLabels() {
+  var cfg = _brandingCfg;
+  if (!cfg) return;
+  var nameEl  = document.getElementById('brandNameCostLabel');
+  var tagEl   = document.getElementById('brandTagCostLabel');
+  var colorEl = document.getElementById('brandColorCostLabel');
+  if (nameEl)  nameEl.textContent  = (cfg.nameCost  || 50)  + ' GP (first set) / ' + (cfg.updateCost || 15) + ' GP (update)';
+  if (tagEl)   tagEl.textContent   = (cfg.tagCost   || 25)  + ' GP (first set) / ' + (cfg.updateCost || 15) + ' GP (update)';
+  if (colorEl) colorEl.textContent = (cfg.colorCost || 100) + ' GP (first set) / ' + (cfg.updateCost || 15) + ' GP (update)';
+}
+
+function onBrandClaimSelect(claimId) {
+  _brandingClaim = claimId || null;
+  var preview = document.getElementById('brandingPreview');
+  if (!claimId) { if (preview) preview.style.display = 'none'; return; }
+  fetch('/api/branding/claim/' + claimId)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if (!d) { if (preview) preview.style.display = 'none'; return; }
+      if (preview) preview.style.display = '';
+      var nameEl = document.getElementById('brandNameDisplay');
+      var tagEl  = document.getElementById('brandTaglineDisplay');
+      var dotEl  = document.getElementById('brandColorDot');
+      if (nameEl)  nameEl.textContent  = d.territory_name || '';
+      if (tagEl)   tagEl.textContent   = d.tagline || '';
+      if (dotEl)   dotEl.style.background = d.theme_color || '#a5d6a7';
+      // Pre-fill inputs
+      var inp = document.getElementById('brandNameInput');
+      var tag = document.getElementById('brandTagInput');
+      var col = document.getElementById('brandColorInput');
+      if (inp && d.territory_name) inp.value = d.territory_name;
+      if (tag && d.tagline)        tag.value = d.tagline;
+      if (col && d.theme_color)    { col.value = d.theme_color; document.getElementById('brandColorHex') && (document.getElementById('brandColorHex').textContent = d.theme_color); }
+    }).catch(function(){});
+  // Wire color picker sync
+  var colInp = document.getElementById('brandColorInput');
+  if (colInp) colInp.oninput = function() {
+    var hex = document.getElementById('brandColorHex');
+    if (hex) hex.textContent = colInp.value;
+  };
+}
+
+function setBrandingName() {
+  var w  = walletState && walletState.address;
+  var id = _brandingClaim;
+  if (!w) return showToast(t('err_connect_wallet') || 'Connect wallet first', 'error');
+  if (!id) return showToast('Select a territory first', 'error');
+  var name = (document.getElementById('brandNameInput') || {}).value || '';
+  if (!name.trim()) return showToast('Enter a name', 'error');
+  var cfg = _brandingCfg;
+  gameConfirm({ title: t('branding_set_name_title') || 'Set Territory Name?', body: 'Name: <b>'+_escHtml(name)+'</b><br>Cost: <b>'+(cfg ? cfg.nameCost : 50)+' GP</b>' })
+    .then(function(ok){ if (!ok) return;
+      fetch('/api/branding/name', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,claimId:id,name:name}) })
+        .then(function(r){return r.json();}).then(function(d){
+          if (d.error) return showToast(d.error, 'error');
+          showToast('🏷️ Territory named! -' + d.gpSpent + ' GP', 'success');
+          onBrandClaimSelect(id);
+          if (typeof loadBaseStats === 'function') loadBaseStats();
+        }).catch(function(e){ showToast(e.message,'error'); });
+    });
+}
+
+function setBrandingTagline() {
+  var w  = walletState && walletState.address;
+  var id = _brandingClaim;
+  if (!w) return showToast(t('err_connect_wallet') || 'Connect wallet first', 'error');
+  if (!id) return showToast('Select a territory first', 'error');
+  var tag = (document.getElementById('brandTagInput') || {}).value || '';
+  if (!tag.trim()) return showToast('Enter a tagline', 'error');
+  var cfg = _brandingCfg;
+  gameConfirm({ title: t('branding_set_tag_title') || 'Set Tagline?', body: '"<i>'+_escHtml(tag)+'</i>"<br>Cost: <b>'+(cfg ? cfg.tagCost : 25)+' GP</b>' })
+    .then(function(ok){ if (!ok) return;
+      fetch('/api/branding/tagline', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,claimId:id,tagline:tag}) })
+        .then(function(r){return r.json();}).then(function(d){
+          if (d.error) return showToast(d.error, 'error');
+          showToast('💬 Tagline set! -' + d.gpSpent + ' GP', 'success');
+          onBrandClaimSelect(id);
+          if (typeof loadBaseStats === 'function') loadBaseStats();
+        }).catch(function(e){ showToast(e.message,'error'); });
+    });
+}
+
+function setBrandingColor() {
+  var w  = walletState && walletState.address;
+  var id = _brandingClaim;
+  if (!w) return showToast(t('err_connect_wallet') || 'Connect wallet first', 'error');
+  if (!id) return showToast('Select a territory first', 'error');
+  var color = (document.getElementById('brandColorInput') || {}).value || '#80cbc4';
+  var cfg = _brandingCfg;
+  gameConfirm({ title: t('branding_set_color_title') || 'Set Theme Color?', body: 'Color: <span style="display:inline-block;width:16px;height:16px;background:'+color+';border-radius:3px;vertical-align:middle"></span> <b>'+color+'</b><br>Cost: <b>'+(cfg ? cfg.colorCost : 100)+' GP</b>' })
+    .then(function(ok){ if (!ok) return;
+      fetch('/api/branding/color', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:w,claimId:id,color:color}) })
+        .then(function(r){return r.json();}).then(function(d){
+          if (d.error) return showToast(d.error, 'error');
+          showToast('🎨 Color set! -' + d.gpSpent + ' GP', 'success');
+          onBrandClaimSelect(id);
+          if (typeof loadBaseStats === 'function') loadBaseStats();
+        }).catch(function(e){ showToast(e.message,'error'); });
+    });
 }
 
 // ── Alliance System (Migration 119) ──────────────────────────────────────────
