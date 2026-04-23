@@ -5220,6 +5220,44 @@ router.get('/guild/war/continue-cost', readLimiter, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// PROTECTION SCROLLS (Migration 089)
+// ─────────────────────────────────────────────────────────────
+
+// GET /api/items/scrolls?wallet=
+router.get('/items/scrolls', readLimiter, async (req, res) => {
+  const wallet = (req.query.wallet || '').toLowerCase().trim();
+  try {
+    // Scroll item definitions
+    const scrollsRes = await pool.query(
+      `SELECT id, code, name, description, price_gp, price_usdt, icon, effect_value
+       FROM item_types WHERE code IN ('protect_scroll','blessed_scroll') AND active = true`
+    );
+    // User inventory quantities (if wallet provided)
+    let inventory = {};
+    if (wallet) {
+      const invRes = await pool.query(
+        `SELECT it.code, ui.quantity
+         FROM user_items ui
+         JOIN item_types it ON it.id = ui.item_type_id
+         WHERE ui.wallet = $1 AND it.code IN ('protect_scroll','blessed_scroll')`,
+        [wallet]
+      );
+      invRes.rows.forEach(r => { inventory[r.code] = parseInt(r.quantity) || 0; });
+    }
+    const scrolls = scrollsRes.rows.map(s => ({
+      ...s,
+      price_gp:   s.price_gp   ? parseFloat(s.price_gp)   : null,
+      price_usdt: s.price_usdt ? parseFloat(s.price_usdt) : null,
+      owned: inventory[s.code] || 0
+    }));
+    res.json({ scrolls });
+  } catch (e) {
+    console.error('[SCROLLS] GET error:', e.message);
+    res.status(500).json({ error: 'internal_error' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
 // TITLES & HALL OF FAME (Migration 088)
 // ─────────────────────────────────────────────────────────────
 

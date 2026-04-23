@@ -27,16 +27,26 @@ async function createListing(client, seller, type, params) {
   const maxPrice = parseFloat(await getSetting('marketplace_max_price') || '999999');
   if (isNaN(price) || price < minPrice || price > maxPrice) throw new Error(`Price must be between ${minPrice} and ${maxPrice}`);
 
-  // Listing fee
-  const listingFee = parseFloat(await getSetting('marketplace_listing_fee_gp') || '2');
+  // Listing fee — dynamic based on current active listing count
+  let listingFee = parseFloat(await getSetting('marketplace_listing_fee_gp') || '2');
+  const currentListings = parseInt(activeRes.rows[0].cnt) || 0;
+  if (currentListings >= 10) {
+    const mult10 = parseFloat(await getSetting('marketplace_dynamic_fee_10') || '2.0');
+    listingFee = Math.ceil(listingFee * mult10);
+  } else if (currentListings >= 5) {
+    const mult5 = parseFloat(await getSetting('marketplace_dynamic_fee_5') || '1.5');
+    listingFee = Math.ceil(listingFee * mult5);
+  }
+  // ✅ [Job System] Merchant fee discount buff
+  try { if (jobService) { const disc = await jobService.getJobBuff(w, 'merchant_fee_discount', 1.0); listingFee = Math.max(0, Math.floor(listingFee * disc)); } } catch (_je) {}
   if (listingFee > 0) {
-    const balRes = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1', [w]);
+    const balRes = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
     if (!balRes.rows.length) throw new Error('User not found');
     if (parseFloat(balRes.rows[0].gp_balance) < listingFee) throw new Error(`Insufficient GP for listing fee (${listingFee} GP)`);
     await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2', [listingFee, w]);
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('marketplace_listing_fee', $1, 0, 0, $2)`,
-      [w, JSON.stringify({ fee: listingFee })]
+      [w, JSON.stringify({ fee: listingFee, active_listings: currentListings })]
     );
   }
 

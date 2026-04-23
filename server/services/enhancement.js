@@ -164,7 +164,7 @@ async function enhanceItem(client, wallet, instanceId) {
   const roll = Math.random() * 100;
   const success = roll < successRate;
 
-  let outcome, newLevel;
+  let outcome, newLevel, scrollUsed = null;
 
   if (success) {
     outcome = 'success';
@@ -174,29 +174,76 @@ async function enhanceItem(client, wallet, instanceId) {
       [newLevel, instanceId]
     );
   } else {
-    // Failure: stay / downgrade / destroy
-    const stayPct = parseInt(await getSetting('enhance_fail_stay_pct') || '50');
-    let destroyPct = parseInt(await getSetting('enhance_fail_destroy_pct') || '10');
-    // ✅ [Job System] Crafter break protection buff (buff_value 0.50 = 파괴율 50% 감소)
-    try { if (jobService) destroyPct = Math.max(0, Math.round(destroyPct * await jobService.getJobBuff(w, 'crafter_enhancement_break_protection', 1.0))); } catch (_je) {}
-    const failRoll = Math.random() * 100;
+    // Failure: check protection scrolls first
+    // blessed_scroll (effect_value=2): blocks BOTH downgrade AND destroy
+    // protect_scroll (effect_value=1): blocks destroy only (downgrade still possible)
 
-    if (failRoll < stayPct) {
+    const blessedRes = await client.query(
+      `SELECT ui.item_type_id, ui.quantity FROM user_items ui
+       JOIN item_types it ON it.id = ui.item_type_id
+       WHERE ui.wallet = $1 AND it.code = 'blessed_scroll' AND ui.quantity > 0`,
+      [w]
+    );
+    const protectRes = await client.query(
+      `SELECT ui.item_type_id, ui.quantity FROM user_items ui
+       JOIN item_types it ON it.id = ui.item_type_id
+       WHERE ui.wallet = $1 AND it.code = 'protect_scroll' AND ui.quantity > 0`,
+      [w]
+    );
+
+    const hasBlessedScroll  = blessedRes.rows.length > 0;
+    const hasProtectScroll  = protectRes.rows.length > 0;
+
+    if (hasBlessedScroll) {
+      // Blessed: no negative effect at all — treat as stay
       outcome = 'stay';
       newLevel = currentLevel;
-    } else if (failRoll < stayPct + destroyPct) {
-      outcome = 'destroy';
-      newLevel = 0;
-      // Delete the instance
-      await client.query('DELETE FROM item_instances WHERE id = $1', [instanceId]);
-    } else {
-      outcome = 'downgrade';
-      newLevel = Math.max(0, currentLevel - 1);
+      scrollUsed = 'blessed_scroll';
+      // Consume 1 blessed_scroll
       await client.query(
-        'UPDATE item_instances SET enhancement_level = $1 WHERE id = $2',
-        [newLevel, instanceId]
+        'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2',
+        [w, blessedRes.rows[0].item_type_id]
       );
+    } else {
+      // Failure: stay / downgrade / destroy
+      const stayPct = parseInt(await getSetting('enhance_fail_stay_pct') || '50');
+      let destroyPct = parseInt(await getSetting('enhance_fail_destroy_pct') || '10');
+      // ✅ [Job System] Crafter break protection buff
+      try { if (jobService) destroyPct = Math.max(0, Math.round(destroyPct * await jobService.getJobBuff(w, 'crafter_enhancement_break_protection', 1.0))); } catch (_je) {}
+      const failRoll = Math.random() * 100;
+
+      if (failRoll < stayPct) {
+        outcome = 'stay';
+        newLevel = currentLevel;
+      } else if (failRoll < stayPct + destroyPct) {
+        if (hasProtectScroll) {
+          // Protect scroll: downgrade instead of destroy, consume scroll
+          outcome = 'downgrade';
+          newLevel = Math.max(0, currentLevel - 1);
+          scrollUsed = 'protect_scroll';
+          await client.query(
+            'UPDATE user_items SET quantity = quantity - 1 WHERE wallet = $1 AND item_type_id = $2',
+            [w, protectRes.rows[0].item_type_id]
+          );
+          await client.query(
+            'UPDATE item_instances SET enhancement_level = $1 WHERE id = $2',
+            [newLevel, instanceId]
+          );
+        } else {
+          outcome = 'destroy';
+          newLevel = 0;
+          await client.query('DELETE FROM item_instances WHERE id = $1', [instanceId]);
+        }
+      } else {
+        outcome = 'downgrade';
+        newLevel = Math.max(0, currentLevel - 1);
+        await client.query(
+          'UPDATE item_instances SET enhancement_level = $1 WHERE id = $2',
+          [newLevel, instanceId]
+        );
+      }
     }
+
   }
 
   // Log enhancement attempt
@@ -212,6 +259,7 @@ async function enhanceItem(client, wallet, instanceId) {
     fromLevel: currentLevel,
     toLevel: newLevel,
     cost,
+    scroll_used: scrollUsed,
     item: { id: inst.item_type_id, name: inst.name, code: inst.code, icon: inst.icon },
     instanceId: outcome === 'destroy' ? null : instanceId
   };
