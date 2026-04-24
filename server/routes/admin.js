@@ -4424,6 +4424,62 @@ router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
     return res.status(500).json({ error: 'lookup_failed: ' + lookupErr.message });
   }
 
+  // 자가치유: Railway에 migration 169가 안 돌았을 수 있으므로 트리거 함수를 매번 강제 최신화
+  // (settings.value가 JSONB인데 구버전 트리거가 NULLIF(value,'')로 비교하면 'invalid input syntax for type json' 발생)
+  try {
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION check_player_ship_limit() RETURNS TRIGGER AS $FN$
+      DECLARE
+        v_max_per_player INTEGER;
+        v_current_count  INTEGER;
+        v_total_count    INTEGER;
+        v_global_max     INTEGER;
+        v_raw_text       TEXT;
+      BEGIN
+        SELECT max_per_player INTO v_max_per_player FROM ship_types WHERE code = NEW.ship_type_code;
+        IF v_max_per_player IS NOT NULL THEN
+          SELECT COUNT(*) INTO v_current_count FROM ships
+            WHERE owner_wallet = NEW.owner_wallet AND ship_type_code = NEW.ship_type_code AND is_alive = true;
+          IF v_current_count >= v_max_per_player THEN
+            RAISE EXCEPTION 'SHIP_PLAYER_TYPE_LIMIT: % (max % per player)', NEW.ship_type_code, v_max_per_player;
+          END IF;
+        END IF;
+        SELECT value #>> '{}' INTO v_raw_text FROM settings WHERE category = 'fleet' AND key = 'max_ships_per_player' LIMIT 1;
+        BEGIN
+          v_global_max := COALESCE(NULLIF(TRIM(v_raw_text), ''), '200')::INTEGER;
+        EXCEPTION WHEN OTHERS THEN v_global_max := 200;
+        END;
+        IF v_global_max IS NULL OR v_global_max <= 0 THEN v_global_max := 200; END IF;
+        SELECT COUNT(*) INTO v_total_count FROM ships WHERE owner_wallet = NEW.owner_wallet AND is_alive = true;
+        IF v_total_count >= v_global_max THEN
+          RAISE EXCEPTION 'SHIP_PLAYER_TOTAL_LIMIT: max % ships per player', v_global_max;
+        END IF;
+        RETURN NEW;
+      END;
+      $FN$ LANGUAGE plpgsql;
+    `);
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION check_titan_server_limit() RETURNS TRIGGER AS $FN$
+      DECLARE
+        v_max_per_server INTEGER;
+        v_current_count  INTEGER;
+      BEGIN
+        SELECT max_per_server INTO v_max_per_server FROM ship_types WHERE code = NEW.ship_type_code;
+        IF v_max_per_server IS NOT NULL THEN
+          SELECT COUNT(*) INTO v_current_count FROM ships
+            WHERE ship_type_code = NEW.ship_type_code AND is_alive = true;
+          IF v_current_count >= v_max_per_server THEN
+            RAISE EXCEPTION 'SHIP_SERVER_LIMIT_REACHED: % (max %)', NEW.ship_type_code, v_max_per_server;
+          END IF;
+        END IF;
+        RETURN NEW;
+      END;
+      $FN$ LANGUAGE plpgsql;
+    `);
+  } catch (healErr) {
+    console.warn('[Admin] grant-starter trigger heal warning:', healErr.message);
+  }
+
   const client = await pool.connect();
   let step = 'begin';
   try {
