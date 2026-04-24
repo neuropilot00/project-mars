@@ -7075,6 +7075,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <!-- Guild Wars -->
               <div class="base-section-title" style="color:var(--red);font-size:9px;margin-top:8px">⚔️ GUILD WAR</div>
               <div id="guildWarSection" style="font-family:var(--fn);font-size:10px"></div>
+              <!-- Guild Alliance (M-157) -->
+              <div class="base-section-title" style="color:#80cbc4;font-size:9px;margin-top:8px" data-i18n="guild_alliance_title">🤝 ALLIANCE (UP TO 3 GUILDS)</div>
+              <div id="guildAllianceSection" style="font-family:var(--fn);font-size:10px;padding:8px;background:rgba(128,203,196,.04);border:1px solid rgba(128,203,196,.15);border-radius:6px"></div>
             </div>
 
             <!-- Members list -->
@@ -20073,6 +20076,195 @@ function renderGuildState(guild, wallet){
   try{ renderGuildUpgrades(guild, myRole); }catch(_e){}
   // ── Guild wars ──
   try{ renderGuildWars(guild.id); }catch(_e){}
+  // ── Guild alliance (M-157) ──
+  try{ renderGuildAlliance(guild, myRole); }catch(_e){}
+}
+
+// ═══════════════════════════════════════
+//  GUILD ALLIANCE (M-157, 3-guild cap)
+// ═══════════════════════════════════════
+function _esc(s){ return (typeof escapeHTML==='function')?escapeHTML(s):String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]}); }
+
+function _phaseDAuthHeaders(){
+  var h = {'Content-Type':'application/json'};
+  try {
+    var tok = localStorage.getItem('jwt_token') || localStorage.getItem('jwt') || (window.walletState && window.walletState.token);
+    if(tok) h['Authorization'] = 'Bearer '+tok;
+  } catch(_){}
+  return h;
+}
+
+// Lightweight inline modal — uses an existing #gameConfirm-style overlay div if present,
+// else falls back to the section itself for picker rendering.
+function _phdShowPicker(title, bodyHtml){
+  var ov = document.getElementById('_phdPickerOverlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = '_phdPickerOverlay';
+    ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px';
+    ov.onclick = function(e){ if(e.target===ov) _phdClosePicker(); };
+    var inner = document.createElement('div');
+    inner.style.cssText = 'width:100%;max-width:420px;background:linear-gradient(160deg,#0f1419,#191f26);border:1px solid rgba(128,203,196,.35);border-radius:14px;padding:14px 16px;box-shadow:0 24px 80px rgba(0,0,0,.7)';
+    inner.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div id="_phdPickerTitle" style="flex:1;font-size:12px;color:#80cbc4;font-family:var(--fn);font-weight:800;letter-spacing:1px"></div><button onclick="_phdClosePicker()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--tx2);font-size:14px;width:26px;height:26px;border-radius:6px;cursor:pointer">✕</button></div><div id="_phdPickerBody"></div>';
+    ov.appendChild(inner);
+    document.body.appendChild(ov);
+  }
+  document.getElementById('_phdPickerTitle').textContent = title || '';
+  document.getElementById('_phdPickerBody').innerHTML = bodyHtml || '';
+  ov.style.display = 'flex';
+}
+function _phdClosePicker(){ var ov = document.getElementById('_phdPickerOverlay'); if(ov) ov.style.display='none'; }
+
+function renderGuildAlliance(guild, myRole){
+  var box = document.getElementById('guildAllianceSection');
+  if(!box || !guild) return;
+  var isLeader = myRole === 'leader';
+  fetch('/api/guilds/'+guild.id+'/alliance').then(function(r){return r.json()}).then(function(d){
+    var a = d && d.alliance;
+    if(!a){
+      // Not in any alliance
+      var html = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:6px">'+
+        (window._lang==='ko' ? '동맹 미가입' : 'Not in any alliance')+
+      '</div>';
+      if(isLeader){
+        html += '<div style="display:flex;gap:4px;margin-top:6px">'+
+          '<button onclick="openJoinAllianceModal('+guild.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(128,203,196,.1);border:1px solid rgba(128,203,196,.3);color:#80cbc4;font-size:9px;cursor:pointer;font-family:var(--fn)">🤝 JOIN ALLIANCE</button>'+
+        '</div>';
+      }
+      box.innerHTML = html;
+      return;
+    }
+    // In an alliance: list member guilds
+    fetch('/api/alliances/'+a.id+'/guilds').then(function(r){return r.json()}).then(function(g){
+      var guilds = g.guilds || [];
+      var html = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'+
+        '<div style="font-size:11px;font-weight:700;color:#80cbc4">['+_esc(a.tag||'')+'] '+_esc(a.name)+'</div>'+
+        '<div style="font-size:8px;color:var(--tx3);margin-left:auto">'+guilds.length+'/3</div>'+
+      '</div>';
+      html += guilds.map(function(mg){
+        var emblem = mg.emblem_emoji || '🔴';
+        var name = '['+mg.guild_tag+'] '+mg.guild_name;
+        var leaderName = mg.leader_nickname || (mg.leader_wallet ? mg.leader_wallet.slice(0,8)+'...' : '');
+        var marker = mg.guild_id === guild.id ? '<span style="font-size:8px;color:var(--cyan)">• YOU</span>' : '';
+        return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px dashed rgba(128,203,196,.1)">'+
+          '<span style="font-size:13px">'+_esc(emblem)+'</span>'+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="font-size:10px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_esc(name)+'</div>'+
+            '<div style="font-size:8px;color:var(--tx3)">Lv.'+(mg.level||1)+' · '+(mg.member_count||0)+'명 · '+_esc(leaderName)+'</div>'+
+          '</div>'+
+          marker+
+        '</div>';
+      }).join('');
+      // Leader actions
+      if(isLeader){
+        html += '<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">';
+        if(guilds.length < 3){
+          html += '<button onclick="openInviteGuildToAllianceModal('+a.id+','+guild.id+')" style="flex:1;min-width:100px;padding:6px;border-radius:6px;background:rgba(128,203,196,.1);border:1px solid rgba(128,203,196,.3);color:#80cbc4;font-size:9px;cursor:pointer;font-family:var(--fn)">+ INVITE GUILD</button>';
+        }
+        html += '<button onclick="leaveAllianceAsGuild('+a.id+','+guild.id+')" style="flex:1;min-width:80px;padding:6px;border-radius:6px;background:rgba(255,140,66,.08);border:1px solid rgba(255,140,66,.25);color:#ff8c42;font-size:9px;cursor:pointer;font-family:var(--fn)">⚡ LEAVE</button>';
+        html += '<button onclick="openBetrayAllianceModal('+guild.id+','+a.id+')" style="flex:1;min-width:80px;padding:6px;border-radius:6px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25);color:var(--red);font-size:9px;cursor:pointer;font-family:var(--fn)" title="Switch to another alliance immediately">⚔️ BETRAY</button>';
+        html += '</div>';
+      }
+      box.innerHTML = html;
+    }).catch(function(){
+      box.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">Failed to load alliance guilds</div>';
+    });
+  }).catch(function(){
+    box.innerHTML = '<div style="color:var(--mars);font-size:10px;padding:8px">Failed to load alliance</div>';
+  });
+}
+
+function openJoinAllianceModal(guildId){
+  fetch('/api/alliances').then(function(r){return r.json()}).then(function(d){
+    var alliances = (d.alliances||[]).filter(function(a){ return !a.disbanded_at; });
+    if(!alliances.length){ showAlert('No alliances exist. Create one in the QUESTS tab → Alliance panel.'); return; }
+    var html = '<div style="font-size:10px;color:var(--tx2);margin-bottom:8px">Pick an alliance to join. (Leader cooldown applies after leaving.)</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto">';
+    alliances.forEach(function(a){
+      html += '<button onclick="addGuildToAlliance('+a.id+','+guildId+');_phdClosePicker();" style="padding:8px 10px;background:rgba(128,203,196,.08);border:1px solid rgba(128,203,196,.25);border-radius:6px;color:var(--tx);font-size:11px;text-align:left;cursor:pointer;font-family:var(--fn)">'+
+        '<div style="font-weight:700;color:#80cbc4">['+_esc(a.tag||'')+'] '+_esc(a.name)+'</div>'+
+        '<div style="font-size:8px;color:var(--tx3)">members: '+(a.member_count||0)+'/'+(a.max_members||0)+'</div>'+
+      '</button>';
+    });
+    html += '</div>';
+    _phdShowPicker('JOIN ALLIANCE', html);
+  });
+}
+
+function addGuildToAlliance(allianceId, guildId){
+  fetch('/api/alliances/'+allianceId+'/guilds/add',{
+    method:'POST', headers:_phaseDAuthHeaders(),
+    body: JSON.stringify({ guildId: guildId })
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error + (d.meta ? ' ('+JSON.stringify(d.meta)+')' : '')); return; }
+    showToast('🤝 Joined alliance');
+    loadGuildTab();
+  }).catch(function(e){ showAlert(e.message||'Failed'); });
+}
+
+function openInviteGuildToAllianceModal(allianceId, myGuildId){
+  var html = '<div style="font-size:10px;color:var(--tx2);margin-bottom:8px">Enter target guild ID or name to invite:</div>'+
+    '<input type="text" id="_invGuildInput" placeholder="guild name or ID" style="width:100%;padding:8px 10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:11px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">'+
+    '<button onclick="_doInviteGuildToAlliance('+allianceId+')" style="margin-top:8px;width:100%;padding:8px;background:linear-gradient(135deg,rgba(128,203,196,.3),rgba(128,203,196,.1));border:1px solid rgba(128,203,196,.5);color:#80cbc4;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;font-family:var(--fn)">INVITE</button>';
+  _phdShowPicker('INVITE GUILD TO ALLIANCE', html);
+}
+
+function _doInviteGuildToAlliance(allianceId){
+  var input = document.getElementById('_invGuildInput');
+  if(!input || !input.value.trim()) return;
+  var v = input.value.trim();
+  if(/^\d+$/.test(v)) { addGuildToAlliance(allianceId, parseInt(v)); _phdClosePicker(); return; }
+  fetch('/api/guild/search?q='+encodeURIComponent(v)).then(function(r){return r.json()}).then(function(d){
+    var matches = d.guilds || [];
+    if(!matches.length){ showAlert('No guild found with that name'); return; }
+    if(matches.length === 1){ addGuildToAlliance(allianceId, matches[0].id); _phdClosePicker(); return; }
+    var html = '<div style="font-size:10px;color:var(--tx2);margin-bottom:8px">Multiple guilds match — pick one:</div>';
+    matches.forEach(function(g){
+      html += '<button onclick="addGuildToAlliance('+allianceId+','+g.id+');_phdClosePicker();" style="display:block;width:100%;padding:6px 10px;margin-bottom:4px;background:rgba(128,203,196,.08);border:1px solid rgba(128,203,196,.25);border-radius:6px;color:var(--tx);font-size:11px;text-align:left;cursor:pointer;font-family:var(--fn)">['+_esc(g.tag)+'] '+_esc(g.name)+'</button>';
+    });
+    _phdShowPicker('PICK GUILD', html);
+  });
+}
+
+function leaveAllianceAsGuild(allianceId, guildId){
+  if(!confirm('Leave alliance? Your guild can re-join after the cooldown period.')) return;
+  fetch('/api/alliances/'+allianceId+'/guilds/remove',{
+    method:'POST', headers:_phaseDAuthHeaders(),
+    body: JSON.stringify({ guildId: guildId })
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error); return; }
+    showToast('Left alliance');
+    loadGuildTab();
+  }).catch(function(e){ showAlert(e.message||'Failed'); });
+}
+
+function openBetrayAllianceModal(guildId, fromAllianceId){
+  fetch('/api/alliances').then(function(r){return r.json()}).then(function(d){
+    var alliances = (d.alliances||[]).filter(function(a){
+      return !a.disbanded_at && parseInt(a.id) !== parseInt(fromAllianceId);
+    });
+    if(!alliances.length){ showAlert('No other alliance available to defect to.'); return; }
+    var html = '<div style="font-size:10px;color:var(--red);margin-bottom:8px">⚠️ BETRAYAL is permanent and recorded in the Chronicle. Pick the new alliance:</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto">';
+    alliances.forEach(function(a){
+      html += '<button onclick="confirmBetrayAlliance('+guildId+','+fromAllianceId+','+a.id+');_phdClosePicker();" style="padding:8px 10px;background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25);border-radius:6px;color:var(--tx);font-size:11px;text-align:left;cursor:pointer;font-family:var(--fn)">'+
+        '<div style="font-weight:700;color:var(--red)">['+_esc(a.tag||'')+'] '+_esc(a.name)+'</div>'+
+      '</button>';
+    });
+    html += '</div>';
+    _phdShowPicker('⚔️ BETRAY ALLIANCE', html);
+  });
+}
+
+function confirmBetrayAlliance(guildId, fromAllianceId, toAllianceId){
+  fetch('/api/alliances/betray',{
+    method:'POST', headers:_phaseDAuthHeaders(),
+    body: JSON.stringify({ guildId: guildId, fromAllianceId: fromAllianceId, toAllianceId: toAllianceId })
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.error){ showAlert(d.error + (d.meta ? ' ('+JSON.stringify(d.meta)+')' : '')); return; }
+    showToast('⚔️ BETRAYED — defected to new alliance!');
+    loadGuildTab();
+  }).catch(function(e){ showAlert(e.message||'Failed'); });
 }
 
 // ── Guild upgrade panel ──
@@ -20324,13 +20516,26 @@ function confirmDeclareWar(){
   if(!_warDeclareTarget||!_myGuildData) return;
   var btn = document.getElementById('warConfirmBtn');
   btn.disabled=true; btn.textContent='DECLARING...';
+  var stakeInput = document.getElementById('warStakeInput');
+  var durInput = document.getElementById('warDurationInput');
+  var stake = stakeInput ? parseInt(stakeInput.value) : 0;
+  var dur = durInput ? parseInt(durInput.value) : 0;
+  var body = {
+    wallet: walletState.address,
+    guildId: _myGuildData.id,
+    targetGuildId: _warDeclareTarget,
+  };
+  if (stake && stake > 0) body.stakeGp = stake;
+  if (dur && dur > 0) body.durationHours = dur;
   fetch('/api/guild/war/declare',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({wallet:walletState.address,guildId:_myGuildData.id,targetGuildId:_warDeclareTarget})
+    body:JSON.stringify(body)
   }).then(function(r){return r.json()}).then(function(d){
     btn.disabled=false; btn.textContent='⚔️ DECLARE WAR';
     if(d.error){ showToast(d.error,'error'); return; }
     closeDeclareWarModal();
-    showToast('⚔️ 전쟁 선포 완료!','success');
+    var msg = '⚔️ 전쟁 선포 완료!';
+    if (stake > 0) msg += ' (+'+stake+' GP stake)';
+    showToast(msg,'success');
     loadGuildTab();
   }).catch(function(e){ btn.disabled=false; btn.textContent='⚔️ DECLARE WAR'; showToast(e.message,'error'); });
 }
@@ -33489,6 +33694,17 @@ if(typeof _origTrackQuestAction === 'function'){
           <div style="font-size:13px;font-weight:700;color:var(--tx)" id="warTargetName">[TAG] Guild Name</div>
           <div style="font-size:9px;color:var(--tx3)" id="warTargetInfo">Lv.1 · 5명</div>
         </div>
+      </div>
+      <!-- Optional stake (M-157) -->
+      <div style="margin-bottom:10px">
+        <label style="font-size:9px;color:#ff8c42;letter-spacing:1px;display:block;margin-bottom:4px" data-i18n="war_stake_label">⚡ STAKE (OPTIONAL): bet GP from treasury — winner takes pot</label>
+        <input type="number" id="warStakeInput" min="0" placeholder="0 = no stake" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:12px;padding:8px 10px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">
+        <div id="warStakeHint" style="font-size:8px;color:var(--tx3);margin-top:4px"></div>
+      </div>
+      <!-- Duration override -->
+      <div style="margin-bottom:10px">
+        <label style="font-size:9px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px" data-i18n="war_duration_label">⏱ DURATION (h): default 72h</label>
+        <input type="number" id="warDurationInput" min="1" max="168" placeholder="72" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:12px;padding:8px 10px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">
       </div>
       <button id="warConfirmBtn" onclick="confirmDeclareWar()" style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,#E84855,#C62828);border:none;color:#fff;font-size:13px;font-weight:800;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px rgba(232,72,85,.3);transition:all .15s">
         ⚔️ DECLARE WAR
