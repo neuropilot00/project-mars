@@ -416,6 +416,16 @@ router.put('/settings/:key', async (req, res) => {
     );
     if (!result.rows.length) return res.status(404).json({ error: 'Setting not found' });
 
+    // ── Sync zone entry_min_level to sectors table ──
+    const k = req.params.key;
+    if (k === 'sector_core_min_level') {
+      const lv = parseInt(value) || 0;
+      if (lv > 0) await pool.query(`UPDATE sectors SET entry_min_level = $1 WHERE tier = 'core'`, [lv]);
+    } else if (k === 'sector_mid_min_level') {
+      const lv = parseInt(value) || 0;
+      if (lv > 0) await pool.query(`UPDATE sectors SET entry_min_level = $1 WHERE tier = 'mid'`, [lv]);
+    }
+
     await auditLog(req, 'setting_update', req.params.key, { value });
     console.log(`[Admin] Setting updated: ${req.params.key} = ${JSON.stringify(value)}`);
     res.json({ success: true, key: req.params.key, value });
