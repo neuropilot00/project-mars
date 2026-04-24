@@ -2947,6 +2947,459 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .fs-card-hp-fill.crit { background: #ef5350; }
 .fs-card-flagship-badge { position: absolute; top: 4px; right: 4px; font-size: 9px; color: #ffd700; }
 .fs-empty { text-align: center; padding: 40px; color: rgba(255,255,255,.3); font-size: 10px; letter-spacing: 2px; }
+
+/* ═══ A-5: Battle Renderer CSS ═══ */
+/* ═════ Battle Hub Modal ═════ */
+.bh-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
+  z-index: 9996;
+  display: none; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.bh-modal-backdrop.active { display: flex; }
+
+.bh-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(100,150,255,.2);
+  border-radius: 10px;
+  width: 100%; max-width: 900px;
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.bh-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.bh-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px; font-weight: 900; letter-spacing: 3px;
+}
+
+.bh-tabs {
+  display: flex;
+  background: rgba(0,0,0,.3);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.bh-tab {
+  flex: 1; background: transparent; border: none;
+  padding: 12px; cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  color: rgba(255,255,255,.4);
+  border-bottom: 2px solid transparent;
+}
+.bh-tab:hover { color: rgba(255,255,255,.7); }
+.bh-tab.active { color: #ef5350; border-bottom-color: #ef5350; background: rgba(239,83,80,.05); }
+
+.bh-body {
+  flex: 1; overflow-y: auto;
+  padding: 14px 20px;
+}
+
+.bh-declare-area {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  background: rgba(239,83,80,.03);
+  text-align: center;
+}
+.bh-declare-btn {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #c62828, #ef5350);
+  border: 1px solid #ef5350;
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+  font-size: 12px; font-weight: 900; letter-spacing: 3px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.bh-declare-btn:hover { box-shadow: 0 0 20px rgba(239,83,80,.5); }
+
+/* 전투 리스트 카드 */
+.battle-list { display: flex; flex-direction: column; gap: 8px; }
+.battle-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 6px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all .15s;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+.battle-card:hover { background: rgba(255,255,255,.05); }
+.battle-card.active-battle { border-color: rgba(239,83,80,.4); background: rgba(239,83,80,.03); }
+.battle-card.result-win { border-left: 3px solid #66bb6a; }
+.battle-card.result-loss { border-left: 3px solid #ef5350; }
+.battle-card.result-draw { border-left: 3px solid #ffb74d; }
+
+.bc-status {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  min-width: 80px; text-align: center;
+}
+.bc-status.preparing { background: rgba(255,180,77,.15); color: #ffb74d; border: 1px solid rgba(255,180,77,.3); }
+.bc-status.active { background: rgba(239,83,80,.15); color: #ef5350; border: 1px solid rgba(239,83,80,.3);
+  animation: pulse-status 1.5s infinite; }
+.bc-status.ended { background: rgba(255,255,255,.05); color: rgba(255,255,255,.6); }
+@keyframes pulse-status {
+  0%,100% { opacity: 1; } 50% { opacity: .5; }
+}
+
+.bc-info { font-size: 10px; }
+.bc-info-title {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700; letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+.bc-info-meta {
+  color: rgba(255,255,255,.5);
+  letter-spacing: 1px;
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.bc-info-meta span b { color: rgba(255,255,255,.8); font-weight: 700; }
+
+.bc-actions { display: flex; gap: 6px; }
+.bc-btn {
+  padding: 5px 12px;
+  font-size: 10px; letter-spacing: 1px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.7);
+  cursor: pointer; border-radius: 3px;
+}
+.bc-btn.primary { background: rgba(79,195,247,.1); color: #4fc3f7; border-color: rgba(79,195,247,.4); }
+.bc-btn:hover { background: rgba(255,255,255,.08); }
+
+.bh-empty {
+  text-align: center; padding: 40px 20px;
+  color: rgba(255,255,255,.3); font-size: 10px; letter-spacing: 2px;
+}
+
+/* ═════ Battle Declare Modal ═════ */
+.bd-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.9); backdrop-filter: blur(8px);
+  z-index: 9997;
+  display: none; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.bd-modal-backdrop.active { display: flex; }
+.bd-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(239,83,80,.3);
+  border-radius: 10px;
+  max-width: 700px; width: 100%;
+  padding: 20px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.bd-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px; font-weight: 900; letter-spacing: 3px;
+  color: #ef5350;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.bd-subtitle {
+  font-size: 10px; letter-spacing: 2px;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 16px; text-align: center;
+}
+
+.bd-section { margin-bottom: 16px; }
+.bd-section-label {
+  font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,.4);
+  margin-bottom: 6px;
+}
+.bd-my-fleet-select, .bd-target-input {
+  width: 100%; padding: 8px 10px;
+  background: rgba(0,0,0,.4);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  border-radius: 3px;
+}
+.bd-target-fleets {
+  display: flex; flex-direction: column; gap: 4px;
+  max-height: 180px; overflow-y: auto;
+  margin-top: 6px;
+}
+.bd-target-fleet {
+  padding: 8px 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.bd-target-fleet:hover { background: rgba(239,83,80,.08); border-color: rgba(239,83,80,.4); }
+.bd-target-fleet.selected { background: rgba(239,83,80,.15); border-color: #ef5350; }
+
+.bd-actions {
+  display: flex; gap: 8px; justify-content: flex-end;
+  padding-top: 10px;
+}
+
+/* ═════ Battle Viewer (Canvas Arena) ═════ */
+.bv-backdrop {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 10000;
+  display: none;
+}
+.bv-backdrop.active { display: block; }
+
+.bv-stage {
+  position: relative;
+  width: 100%; height: 100%;
+}
+
+.bv-canvas {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse at center, #0a0d1a 0%, #000 80%);
+  display: block;
+}
+
+/* 별 배경 */
+.bv-stars {
+  position: absolute; inset: 0;
+  background-image: 
+    radial-gradient(1px 1px at 20% 30%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 60% 70%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 80% 20%, rgba(200,220,255,.8) 50%, transparent),
+    radial-gradient(2px 2px at 40% 80%, rgba(255,220,200,.6) 50%, transparent),
+    radial-gradient(1px 1px at 90% 50%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 10% 60%, rgba(200,200,255,.5) 50%, transparent);
+  background-size: 800px 600px;
+  opacity: .5;
+  pointer-events: none;
+}
+
+/* HUD 상단 */
+.bv-hud-top {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 16px 24px;
+  background: linear-gradient(180deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.3) 60%, transparent 100%);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  z-index: 10;
+  pointer-events: none;
+}
+.bv-hud-top > * { pointer-events: auto; }
+
+.bv-hud-side {
+  min-width: 220px;
+}
+.bv-hud-side-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px; font-weight: 900; letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+.bv-hud-side-label.atk { color: #4fc3f7; }
+.bv-hud-side-label.def { color: #ff7043; }
+
+.bv-hud-fleets {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.bv-hud-fleet {
+  background: rgba(0,0,0,.6);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 9px;
+  min-width: 200px;
+}
+.bv-hud-fleet.dead {
+  opacity: .4;
+  text-decoration: line-through;
+}
+.bv-hud-fleet-name {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700; letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+.bv-hud-fleet-bar {
+  height: 3px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden;
+  margin-top: 3px;
+}
+.bv-hud-fleet-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #66bb6a, #81c784);
+  transition: width .3s;
+}
+.bv-hud-fleet-fill.low { background: linear-gradient(90deg, #ff9800, #ffb74d); }
+.bv-hud-fleet-fill.crit { background: linear-gradient(90deg, #ef5350, #f48fb1); }
+
+.bv-hud-center {
+  text-align: center;
+  color: #fff;
+}
+.bv-hud-battle-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px; font-weight: 900; letter-spacing: 4px;
+  margin-bottom: 2px;
+}
+.bv-hud-time {
+  font-size: 20px; font-weight: 900;
+  color: #ffd700;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 3px;
+}
+.bv-hud-time-total {
+  font-size: 9px; color: rgba(255,255,255,.4);
+  letter-spacing: 1px;
+}
+
+/* HUD 하단: 컨트롤 + 타임라인 */
+.bv-hud-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 14px 24px;
+  background: linear-gradient(0deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.3) 60%, transparent 100%);
+  z-index: 10;
+}
+
+.bv-event-feed {
+  max-height: 80px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 2px;
+  font-size: 10px;
+  margin-bottom: 10px;
+  font-family: 'Share Tech Mono', monospace;
+}
+.bv-event {
+  color: rgba(255,255,255,.7);
+  letter-spacing: 1px;
+  padding: 2px 0;
+  animation: evt-in .3s ease;
+}
+.bv-event .tick { color: rgba(255,255,255,.3); font-size: 9px; margin-right: 8px; }
+.bv-event.critical { color: #ff8a80; }
+.bv-event.tactic { color: #ffd54f; }
+.bv-event.kill { color: #81c784; }
+@keyframes evt-in { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; } }
+
+.bv-controls {
+  display: flex; align-items: center; gap: 12px;
+}
+.bv-ctrl-btn {
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 14px;
+}
+.bv-ctrl-btn:hover { background: rgba(255,255,255,.12); }
+.bv-ctrl-btn.active { background: rgba(79,195,247,.2); border-color: #4fc3f7; color: #4fc3f7; }
+
+.bv-speed-btns { display: flex; gap: 4px; }
+.bv-speed-btn {
+  padding: 4px 10px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.7);
+  cursor: pointer; border-radius: 3px;
+}
+.bv-speed-btn.active {
+  background: rgba(255,215,0,.15);
+  color: #ffd700; border-color: rgba(255,215,0,.5);
+}
+
+.bv-timeline-bar {
+  flex: 1; height: 8px;
+  background: rgba(255,255,255,.1); border-radius: 4px;
+  cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.bv-timeline-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4fc3f7 0%, #ef5350 100%);
+  transition: width .05s linear;
+}
+.bv-timeline-cursor {
+  position: absolute; top: -4px;
+  width: 3px; height: 16px;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(255,255,255,.5);
+}
+
+.bv-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.6);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  z-index: 20;
+  font-size: 14px;
+}
+.bv-close:hover { background: rgba(239,83,80,.3); border-color: #ef5350; }
+
+/* Battle 종료 오버레이 */
+.bv-result-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 15;
+}
+.bv-result-overlay.active { display: flex; }
+.bv-result-card {
+  background: #0a0d18;
+  border: 2px solid;
+  padding: 30px 40px;
+  border-radius: 8px;
+  text-align: center;
+  min-width: 300px;
+}
+.bv-result-card.atk-won { border-color: #4fc3f7; box-shadow: 0 0 40px rgba(79,195,247,.3); }
+.bv-result-card.def-won { border-color: #ff7043; box-shadow: 0 0 40px rgba(255,112,67,.3); }
+.bv-result-card.draw { border-color: #ffd700; }
+
+.bv-result-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 24px; font-weight: 900; letter-spacing: 6px;
+  margin-bottom: 6px;
+}
+.bv-result-subtitle {
+  font-size: 11px; letter-spacing: 2px;
+  color: rgba(255,255,255,.5);
+  margin-bottom: 20px;
+}
+.bv-result-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  font-size: 10px; text-align: left;
+  margin-bottom: 20px;
+}
+.bv-result-stat-group {
+  background: rgba(255,255,255,.03);
+  padding: 10px 14px;
+  border-radius: 4px;
+}
+.bv-result-stat-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px; font-weight: 900; letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.bv-result-stat-row { display: flex; justify-content: space-between; }
+.bv-result-stat-row b { color: rgba(255,255,255,.9); }
+
 </style>
 </head>
 <body>
@@ -36912,6 +37365,977 @@ function fcEsc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
+</script>
+
+<!-- ═══ A-5: Battle Hub/Declare/Viewer HTML ═══ -->
+<!-- Battle Hub -->
+<div class="bh-modal-backdrop" id="battleHubModal">
+  <div class="bh-modal">
+    <div class="bh-header">
+      <div class="bh-title">⚔ FLEET BATTLES · 함대전</div>
+      <button class="shipyard-close" onclick="closeBattleHub()">✕</button>
+    </div>
+    <div class="bh-tabs">
+      <button class="bh-tab active" data-tab="active" onclick="bhSwitchTab('active')">🔴 LIVE</button>
+      <button class="bh-tab" data-tab="recent" onclick="bhSwitchTab('recent')">📜 최근</button>
+      <button class="bh-tab" data-tab="history" onclick="bhSwitchTab('history')">🏆 내 기록</button>
+    </div>
+    <div class="bh-body">
+      <div class="battle-list" id="battleListContent"></div>
+    </div>
+    <div class="bh-declare-area">
+      <button class="bh-declare-btn" onclick="openDeclareBattle()">⚔ 전투 선언</button>
+    </div>
+  </div>
+</div>
+
+<!-- Declare Battle -->
+<div class="bd-modal-backdrop" id="declareBattleModal">
+  <div class="bd-modal">
+    <div class="bd-title">DECLARE WAR</div>
+    <div class="bd-subtitle">// 공격할 상대를 지정하세요</div>
+    
+    <div class="bd-section">
+      <div class="bd-section-label">내 함대 (공격자)</div>
+      <select class="bd-my-fleet-select" id="declareMyFleet"></select>
+    </div>
+    
+    <div class="bd-section">
+      <div class="bd-section-label">상대 찾기</div>
+      <input class="bd-target-input" id="declareTargetSearch" 
+             placeholder="상대 지갑 주소 또는 닉네임..." 
+             oninput="searchTargets()">
+      <div class="bd-target-fleets" id="declareTargetList"></div>
+    </div>
+    
+    <div class="bd-actions">
+      <button class="fd-btn" onclick="closeDeclareBattle()">취소</button>
+      <button class="bh-declare-btn" id="declareConfirmBtn" 
+              style="font-size:10px;padding:8px 16px" 
+              disabled onclick="confirmDeclareBattle()">
+        ⚔ 공격 시작
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Battle Viewer -->
+<div class="bv-backdrop" id="battleViewer">
+  <div class="bv-stage">
+    <canvas class="bv-canvas" id="battleCanvas"></canvas>
+    <div class="bv-stars"></div>
+    
+    <button class="bv-close" onclick="closeBattleViewer()">✕</button>
+    
+    <div class="bv-hud-top">
+      <div class="bv-hud-side">
+        <div class="bv-hud-side-label atk">⚔ ATTACKERS</div>
+        <div class="bv-hud-fleets" id="bvAtkFleets"></div>
+      </div>
+      <div class="bv-hud-center">
+        <div class="bv-hud-battle-title">FLEET BATTLE</div>
+        <div class="bv-hud-time" id="bvHudTime">0:00</div>
+        <div class="bv-hud-time-total" id="bvHudTotal">/ 0:00</div>
+      </div>
+      <div class="bv-hud-side">
+        <div class="bv-hud-side-label def">🛡 DEFENDERS</div>
+        <div class="bv-hud-fleets" id="bvDefFleets"></div>
+      </div>
+    </div>
+    
+    <div class="bv-hud-bottom">
+      <div class="bv-event-feed" id="bvEventFeed"></div>
+      <div class="bv-controls">
+        <button class="bv-ctrl-btn" id="bvPlayBtn" onclick="togglePlayback()">⏵</button>
+        <button class="bv-ctrl-btn" onclick="jumpBattle(-10)">⏪</button>
+        <button class="bv-ctrl-btn" onclick="jumpBattle(10)">⏩</button>
+        <div class="bv-speed-btns">
+          <button class="bv-speed-btn" data-speed="1" onclick="setSpeed(1)">1x</button>
+          <button class="bv-speed-btn active" data-speed="2" onclick="setSpeed(2)">2x</button>
+          <button class="bv-speed-btn" data-speed="4" onclick="setSpeed(4)">4x</button>
+          <button class="bv-speed-btn" data-speed="8" onclick="setSpeed(8)">8x</button>
+        </div>
+        <div class="bv-timeline-bar" id="bvTimelineBar" onclick="seekBattle(event)">
+          <div class="bv-timeline-fill" id="bvTimelineFill"></div>
+          <div class="bv-timeline-cursor" id="bvTimelineCursor"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bv-result-overlay" id="bvResultOverlay">
+      <div class="bv-result-card" id="bvResultCard">
+        <div class="bv-result-title" id="bvResultTitle"></div>
+        <div class="bv-result-subtitle" id="bvResultSubtitle"></div>
+        <div class="bv-result-stats" id="bvResultStats"></div>
+        <button class="bh-declare-btn" style="font-size:10px;padding:8px 16px" onclick="closeBattleViewer()">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 섹션 3: JavaScript                                               -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<script>
+// ── A-5: Auth & Util Helpers (used by A-2/A-3/A-5) ──
+function isLoggedIn() { return !!localStorage.getItem('pw_token'); }
+function getAuthHeaders() {
+  var t = localStorage.getItem('pw_token');
+  return t ? { 'Authorization': 'Bearer ' + t } : {};
+}
+function formatNum(n) {
+  return typeof syFmt === 'function' ? syFmt(n) : String(Number(n)||0);
+}
+// Global escapeHtml (escapeHtml is local-scoped in some places; this provides a global fallback)
+if (typeof escapeHtml === 'undefined') {
+  var escapeHtml = function(s) { return escapeHtmlSafe(s); };
+}
+
+// ═══ A-5: Battle Renderer JS ═══
+// ═════════════════════════════════════════════════════════════════
+// Battle Hub
+// ═════════════════════════════════════════════════════════════════
+
+let battleHubState = {
+  currentTab: 'active',
+  pollTimer: null,
+};
+
+async function openBattleHub() {
+  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  document.getElementById('battleHubModal').classList.add('active');
+  await bhLoad();
+  // 5초마다 active 탭 polling
+  if (battleHubState.pollTimer) clearInterval(battleHubState.pollTimer);
+  battleHubState.pollTimer = setInterval(() => {
+    if (battleHubState.currentTab === 'active') bhLoad();
+  }, 5000);
+}
+
+function closeBattleHub() {
+  document.getElementById('battleHubModal').classList.remove('active');
+  if (battleHubState.pollTimer) { clearInterval(battleHubState.pollTimer); battleHubState.pollTimer = null; }
+}
+
+function bhSwitchTab(tab) {
+  battleHubState.currentTab = tab;
+  document.querySelectorAll('.bh-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  bhLoad();
+}
+
+async function bhLoad() {
+  const tab = battleHubState.currentTab;
+  const container = document.getElementById('battleListContent');
+  container.innerHTML = '<div class="bh-empty">로딩 중...</div>';
+  
+  try {
+    let url = '';
+    if (tab === 'active') url = '/api/battles/list/active';
+    else if (tab === 'recent') url = '/api/battles/list/recent?limit=30';
+    else url = '/api/battles/list/history?limit=30';
+    
+    const res = await fetch(url, { headers: getAuthHeaders() });
+    const data = await res.json();
+    const battles = data.battles || [];
+    
+    if (battles.length === 0) {
+      container.innerHTML = `<div class="bh-empty">
+        ${tab === 'active' ? '진행 중인 전투가 없습니다' : 
+          tab === 'recent' ? '최근 전투가 없습니다' : 
+          '전투 기록이 없습니다'}
+      </div>`;
+      return;
+    }
+    
+    container.innerHTML = battles.map(b => renderBattleCard(b, tab)).join('');
+  } catch (err) {
+    console.error('bhLoad error:', err);
+    container.innerHTML = '<div class="bh-empty">로딩 실패</div>';
+  }
+}
+
+function renderBattleCard(b, tab) {
+  const isLive = b.status === 'active';
+  const isPreparing = b.status === 'preparing';
+  const statusCls = isLive ? 'active' : isPreparing ? 'preparing' : 'ended';
+  const statusLabel = isLive ? '● LIVE' : isPreparing ? '대기중' : 
+                      (b.winner_side === 'atk' ? '공격 승' : b.winner_side === 'def' ? '수비 승' : '무승부');
+  
+  const battleTypeMap = {
+    'pvp_duel': 'PvP 결투',
+    'siege': '공성전',
+    'hijack': '하이재킹',
+    'raid': '레이드',
+    'event': '이벤트',
+  };
+  
+  let resultClass = '';
+  let resultLabel = '';
+  if (tab === 'history' && b.my_result) {
+    resultClass = 'result-' + b.my_result;
+    resultLabel = b.my_result === 'win' ? '승리' : b.my_result === 'loss' ? '패배' : '무승부';
+  }
+  
+  const timeInfo = isLive ? '진행 중' : 
+                   isPreparing ? `예정: ${formatShortTime(b.scheduled_start_at)}` :
+                   formatShortTime(b.ended_at);
+  
+  return `
+    <div class="battle-card ${isLive ? 'active-battle' : ''} ${resultClass}">
+      <div class="bc-status ${statusCls}">${statusLabel}</div>
+      <div class="bc-info">
+        <div class="bc-info-title">
+          ${battleTypeMap[b.battle_type] || b.battle_type}
+          ${tab === 'history' && b.my_fleet_name ? ` · <span style="color:#4fc3f7">${escapeHtml(b.my_fleet_name)}</span>` : ''}
+        </div>
+        <div class="bc-info-meta">
+          <span>⚔ <b>${b.atk_ships_total || b.atk_fleets || 0}</b>척</span>
+          <span>vs <b>${b.def_ships_total || b.def_fleets || 0}</b>척</span>
+          ${b.duration_seconds ? `<span>⏱ <b>${Math.round(b.duration_seconds/60)}분</b></span>` : ''}
+          <span>${timeInfo}</span>
+        </div>
+      </div>
+      <div class="bc-actions">
+        ${(b.status === 'ended' || b.status === 'active') 
+          ? `<button class="bc-btn primary" onclick="openBattleViewer(${b.id})">${isLive ? '관전' : '리플레이'}</button>`
+          : `<button class="bc-btn" onclick="bhRunBattle(${b.id})">즉시 시작</button>`
+        }
+      </div>
+    </div>
+  `;
+}
+
+async function bhRunBattle(battleId) {
+  if (!confirm('이 전투를 즉시 시작하시겠습니까?')) return;
+  try {
+    const res = await fetch(`/api/battles/${battleId}/run`, {
+      method: 'POST', headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) { showFactionToast('실패: ' + (data.error || 'UNKNOWN'), 'error'); return; }
+    showFactionToast('전투 시작됨', 'success');
+    setTimeout(bhLoad, 1500);
+  } catch (err) {
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+function formatShortTime(isoStr) {
+  if (!isoStr) return '-';
+  const d = new Date(isoStr);
+  const now = new Date();
+  const diffMin = Math.floor((now - d) / 60000);
+  if (diffMin < 0) return `${Math.abs(diffMin)}분 후`;
+  if (diffMin < 1) return '방금';
+  if (diffMin < 60) return `${diffMin}분 전`;
+  if (diffMin < 1440) return `${Math.floor(diffMin/60)}시간 전`;
+  return `${Math.floor(diffMin/1440)}일 전`;
+}
+
+// ═════════════════════════════════════════════════════════════════
+// Declare Battle Modal
+// ═════════════════════════════════════════════════════════════════
+
+let declareState = {
+  myFleets: [],
+  targetFleets: [],
+  selectedTargetFleetId: null,
+};
+
+async function openDeclareBattle() {
+  closeBattleHub();
+  
+  // 내 함대 로드
+  try {
+    const res = await fetch('/api/fleets', { headers: getAuthHeaders() });
+    const data = await res.json();
+    declareState.myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
+  } catch { declareState.myFleets = []; }
+  
+  if (declareState.myFleets.length === 0) {
+    showFactionToast('전투 가능한 함대가 없습니다', 'error');
+    return;
+  }
+  
+  // 렌더
+  const sel = document.getElementById('declareMyFleet');
+  sel.innerHTML = declareState.myFleets.map(f =>
+    `<option value="${f.id}">${escapeHtml(f.name)} (${f.ships_alive}척)</option>`
+  ).join('');
+  
+  document.getElementById('declareTargetSearch').value = '';
+  document.getElementById('declareTargetList').innerHTML = 
+    '<div class="bh-empty" style="padding:16px">상대 검색: 지갑 주소나 닉네임 입력</div>';
+  declareState.selectedTargetFleetId = null;
+  declareState.targetFleets = [];
+  document.getElementById('declareConfirmBtn').disabled = true;
+  
+  document.getElementById('declareBattleModal').classList.add('active');
+}
+
+function closeDeclareBattle() {
+  document.getElementById('declareBattleModal').classList.remove('active');
+}
+
+// 검색 (디바운스)
+let searchTimer;
+function searchTargets() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(doSearchTargets, 400);
+}
+
+async function doSearchTargets() {
+  const q = document.getElementById('declareTargetSearch').value.trim();
+  const listEl = document.getElementById('declareTargetList');
+  
+  if (q.length < 2) {
+    listEl.innerHTML = '<div class="bh-empty" style="padding:16px">2자 이상 입력</div>';
+    return;
+  }
+  
+  // 단순히 모든 함대 가져와서 클라에서 필터 (API에 검색 엔드포인트 있으면 그거 사용)
+  // 지금은 내 함대 + 상대 후보를 public endpoint로 찾는 간이 방식
+  try {
+    // 함대 검색 API가 없으므로 대안: 
+    // /api/fleets/public 같은 게 필요. 지금은 지갑 주소 직접 입력 가정.
+    // 또는 /api/battles 모듈에 /search-targets 엔드포인트 추가 필요.
+    // 일단 프롬프트로 함대 ID 직접 입력 받는 fallback:
+    
+    // 지갑 주소면 주소로 검색
+    listEl.innerHTML = '<div class="bh-empty" style="padding:16px">해당 검색 기능은 백엔드 API 추가 후 동작</div>';
+    
+    // 임시: 유저가 상대 함대 ID를 직접 아는 경우 사용
+    listEl.innerHTML += `
+      <div style="padding:8px;font-size:9px;color:rgba(255,255,255,.4);text-align:center">
+        또는 상대 함대 ID를 직접 입력:
+      </div>
+      <input class="bd-target-input" id="declareManualFleetId" 
+             type="number" placeholder="함대 ID (예: 42)" 
+             oninput="selectManualTarget()">
+    `;
+  } catch (err) {
+    listEl.innerHTML = '<div class="bh-empty" style="padding:16px">검색 실패</div>';
+  }
+}
+
+function selectManualTarget() {
+  const input = document.getElementById('declareManualFleetId');
+  const val = parseInt(input.value);
+  if (!val) {
+    declareState.selectedTargetFleetId = null;
+    document.getElementById('declareConfirmBtn').disabled = true;
+    return;
+  }
+  declareState.selectedTargetFleetId = val;
+  document.getElementById('declareConfirmBtn').disabled = false;
+}
+
+async function confirmDeclareBattle() {
+  const myFleetId = parseInt(document.getElementById('declareMyFleet').value);
+  const targetFleetId = declareState.selectedTargetFleetId;
+  
+  if (!myFleetId || !targetFleetId) {
+    showFactionToast('함대 선택을 확인해주세요', 'error');
+    return;
+  }
+  
+  if (myFleetId === targetFleetId) {
+    showFactionToast('자기 자신은 공격할 수 없습니다', 'error');
+    return;
+  }
+  
+  if (!confirm(`⚔ 전투를 선언하시겠습니까?\n\n내 함대 ID: ${myFleetId}\n대상 함대 ID: ${targetFleetId}\n\n즉시 시뮬레이션됩니다.`)) return;
+  
+  try {
+    const res = await fetch('/api/battles/declare-pvp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({
+        my_fleet_id: myFleetId,
+        target_fleet_id: targetFleetId,
+        run_immediately: true,
+      })
+    });
+    const data = await res.json();
+    
+    if (!res.ok) {
+      const msgMap = {
+        'MY_FLEET_NOT_FOUND': '내 함대를 찾을 수 없음',
+        'MY_FLEET_IN_BATTLE': '내 함대가 전투 중',
+        'MY_FLEET_EMPTY': '내 함대에 함선이 없음',
+        'TARGET_FLEET_NOT_FOUND': '대상 함대를 찾을 수 없음',
+        'TARGET_IN_BATTLE': '대상이 이미 전투 중',
+        'TARGET_EMPTY': '대상 함대가 비어있음',
+        'CANNOT_ATTACK_OWN_FLEET': '자기 함대는 공격 불가',
+      };
+      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      return;
+    }
+    
+    showFactionToast('전투 선언 완료 · 시뮬레이션 중...', 'success');
+    closeDeclareBattle();
+    
+    // 3초 후 자동으로 뷰어 열기
+    const battleId = data.battle_id;
+    setTimeout(() => openBattleViewer(battleId), 3000);
+  } catch (err) {
+    console.error('confirmDeclareBattle error:', err);
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════
+// Battle Viewer (Canvas Renderer)
+// ═════════════════════════════════════════════════════════════════
+
+const bv = {
+  canvas: null,
+  ctx: null,
+  timeline: null,
+  battle: null,
+  events: [],
+  
+  // 재생 상태
+  playing: false,
+  speed: 2,
+  currentTick: 0,
+  animHandle: null,
+  lastFrameTime: 0,
+  
+  // 쇼한 이벤트 추적
+  shownEvents: new Set(),
+  eventMessages: [],
+  
+  // 함선 파티클 (격침)
+  particles: [],
+};
+
+async function openBattleViewer(battleId) {
+  // 준비 중이면 잠시 대기
+  document.getElementById('battleViewer').classList.add('active');
+  document.getElementById('bvResultOverlay').classList.remove('active');
+  
+  // Canvas 초기화
+  bv.canvas = document.getElementById('battleCanvas');
+  bv.ctx = bv.canvas.getContext('2d');
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  // 타임라인 로드 (최대 10초 폴링)
+  let loaded = false;
+  for (let i = 0; i < 10; i++) {
+    try {
+      // 전투 정보
+      const infoRes = await fetch(`/api/battles/${battleId}`);
+      const infoData = await infoRes.json();
+      if (!infoRes.ok) throw new Error(infoData.error);
+      bv.battle = infoData.battle;
+      bv.events = infoData.events || [];
+      
+      // 타임라인
+      const tlRes = await fetch(`/api/battles/${battleId}/timeline`);
+      if (tlRes.ok) {
+        const tlData = await tlRes.json();
+        bv.timeline = tlData.timeline;
+        loaded = true;
+        break;
+      }
+    } catch (err) {
+      // 아직 시뮬레이션 중
+    }
+    await new Promise(r => setTimeout(r, 1500));
+  }
+  
+  if (!loaded) {
+    showFactionToast('전투 데이터 로딩 실패', 'error');
+    closeBattleViewer();
+    return;
+  }
+  
+  // HUD 업데이트
+  renderHudSides();
+  
+  // 총 시간
+  const totalTicks = bv.timeline.frames[bv.timeline.frames.length - 1]?.t || 0;
+  document.getElementById('bvHudTotal').textContent = '/ ' + formatTickTime(totalTicks);
+  
+  // 이벤트 타임라인 정렬
+  bv.shownEvents.clear();
+  bv.eventMessages = [];
+  bv.currentTick = 0;
+  bv.particles = [];
+  
+  // 재생 시작
+  bv.playing = true;
+  bv.lastFrameTime = performance.now();
+  document.getElementById('bvPlayBtn').textContent = '⏸';
+  bv.animHandle = requestAnimationFrame(bvAnimLoop);
+}
+
+function closeBattleViewer() {
+  document.getElementById('battleViewer').classList.remove('active');
+  bv.playing = false;
+  if (bv.animHandle) cancelAnimationFrame(bv.animHandle);
+  window.removeEventListener('resize', resizeCanvas);
+  
+  // 배틀 허브 다시 열기 (있으면 리프레시)
+  if (document.getElementById('battleHubModal').classList.contains('active')) {
+    bhLoad();
+  }
+}
+
+function resizeCanvas() {
+  if (!bv.canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  bv.canvas.width = window.innerWidth * dpr;
+  bv.canvas.height = window.innerHeight * dpr;
+  bv.ctx.scale(dpr, dpr);
+}
+
+function togglePlayback() {
+  bv.playing = !bv.playing;
+  document.getElementById('bvPlayBtn').textContent = bv.playing ? '⏸' : '⏵';
+  if (bv.playing) {
+    bv.lastFrameTime = performance.now();
+    bv.animHandle = requestAnimationFrame(bvAnimLoop);
+  }
+}
+
+function setSpeed(s) {
+  bv.speed = s;
+  document.querySelectorAll('.bv-speed-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.speed) === s);
+  });
+}
+
+function jumpBattle(seconds) {
+  const tickDelta = seconds * (1000 / bv.timeline.tick_ms);
+  bv.currentTick = Math.max(0, Math.min(getLastTick(), bv.currentTick + tickDelta));
+  redrawCurrentFrame();
+}
+
+function seekBattle(event) {
+  const bar = document.getElementById('bvTimelineBar');
+  const rect = bar.getBoundingClientRect();
+  const pct = (event.clientX - rect.left) / rect.width;
+  bv.currentTick = Math.max(0, Math.min(getLastTick(), pct * getLastTick()));
+  
+  // 이전 이벤트들 shown으로 처리 (다시 안 뜨게)
+  for (const ev of bv.events) {
+    if (ev.tick < bv.currentTick) bv.shownEvents.add(ev.id || `${ev.tick}-${ev.type}`);
+  }
+  
+  redrawCurrentFrame();
+}
+
+function getLastTick() {
+  const frames = bv.timeline?.frames || [];
+  return frames.length > 0 ? frames[frames.length - 1].t : 0;
+}
+
+function bvAnimLoop(now) {
+  if (!bv.playing) return;
+  
+  const dt = Math.min(100, now - bv.lastFrameTime);
+  bv.lastFrameTime = now;
+  
+  // tick 진행
+  const tickAdvance = (dt / bv.timeline.tick_ms) * bv.speed;
+  bv.currentTick += tickAdvance;
+  
+  const lastTick = getLastTick();
+  if (bv.currentTick >= lastTick) {
+    bv.currentTick = lastTick;
+    bv.playing = false;
+    document.getElementById('bvPlayBtn').textContent = '⏵';
+    showBattleResult();
+  }
+  
+  redrawCurrentFrame();
+  
+  if (bv.playing) {
+    bv.animHandle = requestAnimationFrame(bvAnimLoop);
+  }
+}
+
+function redrawCurrentFrame() {
+  // 보간할 프레임 찾기
+  const frames = bv.timeline.frames;
+  let i = 0;
+  while (i < frames.length - 1 && frames[i+1].t <= bv.currentTick) i++;
+  const f1 = frames[i];
+  const f2 = frames[Math.min(i + 1, frames.length - 1)];
+  const t = f2.t > f1.t ? (bv.currentTick - f1.t) / (f2.t - f1.t) : 0;
+  
+  // 렌더링
+  drawBattleFrame(f1, f2, Math.min(1, Math.max(0, t)));
+  
+  // HUD 업데이트
+  document.getElementById('bvHudTime').textContent = formatTickTime(bv.currentTick);
+  const pct = (bv.currentTick / getLastTick()) * 100;
+  document.getElementById('bvTimelineFill').style.width = pct + '%';
+  document.getElementById('bvTimelineCursor').style.left = pct + '%';
+  
+  // 이벤트 발화 (현재 tick 이전의 미표시 이벤트)
+  for (const ev of bv.events) {
+    const key = ev.id || `${ev.tick}-${ev.type}`;
+    if (bv.shownEvents.has(key)) continue;
+    if (ev.tick > bv.currentTick) continue;
+    bv.shownEvents.add(key);
+    showBvEvent(ev);
+  }
+  
+  // HUD 사이드 (함대 HP) 재렌더
+  updateHudFleets(f1, f2, t);
+}
+
+function drawBattleFrame(f1, f2, t) {
+  const ctx = bv.ctx;
+  const canvas = bv.canvas;
+  const w = canvas.width / (window.devicePixelRatio || 1);
+  const h = canvas.height / (window.devicePixelRatio || 1);
+  
+  // 배경
+  ctx.clearRect(0, 0, w, h);
+  
+  // 좌표 스케일: 타임라인 field (1000x440) → 화면
+  const scaleX = w / bv.timeline.field_w;
+  const scaleY = h * 0.85 / bv.timeline.field_h; // 상하 HUD 자리 남김
+  const offsetY = h * 0.08;
+  const scale = Math.min(scaleX, scaleY);
+  const actualW = bv.timeline.field_w * scale;
+  const offsetX = (w - actualW) / 2;
+  
+  // 함대 aura 먼저 그리기
+  for (const fleetSrc of bv.timeline.fleets_meta) {
+    const f1Fleet = f1.fleets.find(x => x.id === fleetSrc.id);
+    const f2Fleet = f2.fleets.find(x => x.id === fleetSrc.id);
+    if (!f1Fleet || !f2Fleet || f1Fleet.dead) continue;
+    
+    const cx = offsetX + lerp(f1Fleet.cx, f2Fleet.cx, t) * scale;
+    const cy = offsetY + lerp(f1Fleet.cy, f2Fleet.cy, t) * scale;
+    const color = getSideColor(fleetSrc.side);
+    const radius = 50 * scale;
+    
+    // 은은한 오라
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 2);
+    grad.addColorStop(0, hexToRgba(color, 0.15));
+    grad.addColorStop(0.6, hexToRgba(color, 0.05));
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  // 함선 그리기
+  const shipMap1 = new Map(f1.ships.map(s => [s.id, s]));
+  const shipMap2 = new Map(f2.ships.map(s => [s.id, s]));
+  
+  // 함대 메타 맵 (function)
+  const fleetMetaById = new Map(bv.timeline.fleets_meta.map(f => [f.id, f]));
+  
+  // 모든 프레임1의 함선 그리기 (frame2에 없으면 서서히 페이드)
+  for (const [id, s1] of shipMap1) {
+    const s2 = shipMap2.get(id);
+    const fleet = fleetMetaById.get(s1.fid);
+    if (!fleet) continue;
+    
+    let x, y, alpha = 1;
+    if (s2) {
+      x = offsetX + lerp(s1.x, s2.x, t) * scale;
+      y = offsetY + lerp(s1.y, s2.y, t) * scale;
+    } else {
+      // 격침됨 - 파티클로 대체 (생성 한 번만)
+      x = offsetX + s1.x * scale;
+      y = offsetY + s1.y * scale;
+      alpha = Math.max(0, 1 - t * 2);
+      if (t < 0.1) createExplosion(x, y, getSideColor(fleet.side));
+    }
+    
+    drawShip(ctx, x, y, s1, fleet, scale, alpha);
+  }
+  
+  // 파티클 업데이트 & 그리기
+  updateParticles();
+  for (const p of bv.particles) {
+    ctx.fillStyle = hexToRgba(p.color, p.life);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawShip(ctx, x, y, shipData, fleet, scale, alpha) {
+  const color = getSideColor(fleet.side);
+  const factionStyle = getFactionStyle(fleet.faction_code);
+  const isFlagship = shipData.ff === 1;
+  const size = (isFlagship ? 6 : 3) * scale;
+  
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  
+  if (factionStyle === 'geometric') {
+    // MCC: 삼각형 (기하학)
+    ctx.fillStyle = color;
+    ctx.strokeStyle = lighten(color, 0.3);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + size, y);
+    ctx.lineTo(x - size * 0.7, y - size * 0.7);
+    ctx.lineTo(x - size * 0.7, y + size * 0.7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  } else if (factionStyle === 'organic') {
+    // FSP: 원형 (유기적)
+    ctx.fillStyle = color;
+    ctx.strokeStyle = lighten(color, 0.3);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  } else if (factionStyle === 'patchwork') {
+    // CV: 다이아몬드 (조립식)
+    ctx.fillStyle = color;
+    ctx.strokeStyle = lighten(color, 0.4);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, y - size);
+    ctx.lineTo(x + size, y);
+    ctx.lineTo(x, y + size);
+    ctx.lineTo(x - size, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  } else {
+    // 기본
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  // 기함 표시
+  if (isFlagship) {
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y, size + 3, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  
+  ctx.restore();
+}
+
+function createExplosion(x, y, color) {
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1 + Math.random() * 2;
+    bv.particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      r: 2 + Math.random() * 2,
+      color,
+      life: 1,
+    });
+  }
+}
+
+function updateParticles() {
+  bv.particles = bv.particles.filter(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.05;
+    p.life -= 0.02;
+    return p.life > 0;
+  });
+}
+
+function getSideColor(side) {
+  return side === 'atk' ? '#4fc3f7' : '#ff7043';
+}
+
+function getFactionStyle(code) {
+  if (code === 'mcc') return 'geometric';
+  if (code === 'fsp') return 'organic';
+  if (code === 'cv') return 'patchwork';
+  return 'geometric';
+}
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function hexToRgba(hex, alpha) {
+  if (!hex) return `rgba(255,255,255,${alpha})`;
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substr(0, 2), 16);
+  const g = parseInt(h.substr(2, 2), 16);
+  const b = parseInt(h.substr(4, 2), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function lighten(hex, amount) {
+  const h = hex.replace('#', '');
+  const r = Math.min(255, parseInt(h.substr(0, 2), 16) + Math.floor(amount * 255));
+  const g = Math.min(255, parseInt(h.substr(2, 2), 16) + Math.floor(amount * 255));
+  const b = Math.min(255, parseInt(h.substr(4, 2), 16) + Math.floor(amount * 255));
+  return `rgb(${r},${g},${b})`;
+}
+
+function formatTickTime(tick) {
+  const totalSeconds = Math.floor(tick * (bv.timeline?.tick_ms || 200) / 1000);
+  const min = Math.floor(totalSeconds / 60);
+  const sec = totalSeconds % 60;
+  return `${min}:${sec.toString().padStart(2,'0')}`;
+}
+
+// ── HUD ──
+
+function renderHudSides() {
+  const atkBox = document.getElementById('bvAtkFleets');
+  const defBox = document.getElementById('bvDefFleets');
+  const atk = bv.timeline.fleets_meta.filter(f => f.side === 'atk');
+  const def = bv.timeline.fleets_meta.filter(f => f.side === 'def');
+  
+  atkBox.innerHTML = atk.map(f => renderHudFleetCard(f)).join('');
+  defBox.innerHTML = def.map(f => renderHudFleetCard(f)).join('');
+}
+
+function renderHudFleetCard(f) {
+  return `
+    <div class="bv-hud-fleet" id="bvFleet${f.id}">
+      <div class="bv-hud-fleet-name">${escapeHtml(f.name || '')}</div>
+      <div style="color:rgba(255,255,255,.5);font-size:8px">
+        ${f.ships_total}척 · <span id="bvFleetHp${f.id}">-</span>
+      </div>
+      <div class="bv-hud-fleet-bar">
+        <div class="bv-hud-fleet-fill" id="bvFleetBar${f.id}" style="width:100%"></div>
+      </div>
+    </div>
+  `;
+}
+
+function updateHudFleets(f1, f2, t) {
+  for (const fleetMeta of bv.timeline.fleets_meta) {
+    const el = document.getElementById(`bvFleet${fleetMeta.id}`);
+    if (!el) continue;
+    const f1f = f1.fleets.find(x => x.id === fleetMeta.id);
+    const f2f = f2.fleets.find(x => x.id === fleetMeta.id);
+    if (!f1f || !f2f) continue;
+    
+    if (f1f.dead || f2f.dead) {
+      el.classList.add('dead');
+    }
+    
+    // HP 보간
+    const hp = lerp(f1f.hp, f2f.hp, t);
+    // maxHp는 fleets_meta에 없음. 첫 프레임 HP를 max로 가정
+    const maxHp = bv.timeline.frames[0].fleets.find(x => x.id === fleetMeta.id)?.hp || hp;
+    const pct = maxHp > 0 ? (hp / maxHp) * 100 : 0;
+    
+    const bar = document.getElementById(`bvFleetBar${fleetMeta.id}`);
+    const hpText = document.getElementById(`bvFleetHp${fleetMeta.id}`);
+    if (bar) {
+      bar.style.width = pct + '%';
+      bar.className = 'bv-hud-fleet-fill' + (pct < 30 ? ' crit' : pct < 60 ? ' low' : '');
+    }
+    if (hpText) hpText.textContent = Math.round(pct) + '%';
+  }
+}
+
+function showBvEvent(ev) {
+  const feed = document.getElementById('bvEventFeed');
+  let msg = '', cls = '';
+  
+  if (ev.event_type === 'flagship_destroyed' || ev.type === 'flagship_destroyed') {
+    msg = `🚨 기함 격침 — 함대 괴멸`;
+    cls = 'critical';
+  } else if (ev.event_type === 'ship_destroyed' || ev.type === 'ship_destroyed') {
+    const sc = ev.payload?.size_class || '';
+    if (sc === 'titan') {
+      msg = `💥 타이탄 격침!`;
+      cls = 'critical';
+    } else if (sc === 'battleship') {
+      msg = `⚔ 전함 격침`;
+      cls = 'kill';
+    } else {
+      msg = `⚔ ${sc} 격침`;
+      cls = 'kill';
+    }
+  } else if (ev.event_type === 'tactic_changed' || ev.type === 'tactic_changed') {
+    const p = ev.payload || {};
+    const reason = p.reason || '';
+    msg = `⟲ 전술 변경 (${reason})`;
+    cls = 'tactic';
+  } else {
+    return; // 다른 이벤트는 무시
+  }
+  
+  const div = document.createElement('div');
+  div.className = `bv-event ${cls}`;
+  div.innerHTML = `<span class="tick">${formatTickTime(ev.tick)}</span>${msg}`;
+  feed.appendChild(div);
+  
+  // 스크롤 맨 아래로
+  feed.scrollTop = feed.scrollHeight;
+  
+  // 20개 넘으면 오래된 거 삭제
+  while (feed.children.length > 20) feed.removeChild(feed.firstChild);
+}
+
+function showBattleResult() {
+  const overlay = document.getElementById('bvResultOverlay');
+  const card = document.getElementById('bvResultCard');
+  const title = document.getElementById('bvResultTitle');
+  const subtitle = document.getElementById('bvResultSubtitle');
+  const stats = document.getElementById('bvResultStats');
+  
+  const winner = bv.battle?.winner_side;
+  const summary = bv.battle?.battle_summary || {};
+  
+  card.className = 'bv-result-card';
+  if (winner === 'atk') {
+    card.classList.add('atk-won');
+    title.style.color = '#4fc3f7';
+    title.textContent = '⚔ ATTACKERS WIN';
+    subtitle.textContent = '공격군 승리';
+  } else if (winner === 'def') {
+    card.classList.add('def-won');
+    title.style.color = '#ff7043';
+    title.textContent = '🛡 DEFENDERS HOLD';
+    subtitle.textContent = '수비군 승리';
+  } else {
+    card.classList.add('draw');
+    title.style.color = '#ffd700';
+    title.textContent = '≋ DRAW';
+    subtitle.textContent = '무승부';
+  }
+  
+  stats.innerHTML = `
+    <div class="bv-result-stat-group">
+      <div class="bv-result-stat-label" style="color:#4fc3f7">⚔ ATTACKERS</div>
+      <div class="bv-result-stat-row"><span>총 함선</span><b>${bv.battle.atk_ships_total || 0}</b></div>
+      <div class="bv-result-stat-row"><span>손실</span><b>${bv.battle.atk_ships_lost || 0}</b></div>
+      <div class="bv-result-stat-row"><span>데미지</span><b>${formatNum(summary.atk?.damage_dealt || 0)}</b></div>
+    </div>
+    <div class="bv-result-stat-group">
+      <div class="bv-result-stat-label" style="color:#ff7043">🛡 DEFENDERS</div>
+      <div class="bv-result-stat-row"><span>총 함선</span><b>${bv.battle.def_ships_total || 0}</b></div>
+      <div class="bv-result-stat-row"><span>손실</span><b>${bv.battle.def_ships_lost || 0}</b></div>
+      <div class="bv-result-stat-row"><span>데미지</span><b>${formatNum(summary.def?.damage_dealt || 0)}</b></div>
+    </div>
+  `;
+  
+  setTimeout(() => overlay.classList.add('active'), 500);
+}
+</script>
+
 </script>
 
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>

@@ -120,6 +120,7 @@ const bettingRoutes = require('./routes/betting');
 const auctionRoutes = require('./routes/auction');
 const shipRoutes    = require('./routes/ships');
 const battleRoutes  = require('./routes/battle');
+const fleetBattleRoutes = require('./routes/fleetBattles'); // A-4: Fleet Battle Engine
 const lotteryRoutes  = require('./routes/lottery');
 const stakingRoutes  = require('./routes/staking');
 const gpBurnRoutes      = require('./routes/gpBurn');
@@ -279,6 +280,7 @@ app.use('/api', publicRoutes);
 app.use('/api', bettingRoutes);
 app.use('/api', auctionRoutes);
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
+app.use('/api/battles', fleetBattleRoutes); // A-4: Fleet Battle Engine (must be before /api for prefix priority)
 app.use('/api', battleRoutes);
 app.use('/api', lotteryRoutes);
 app.use('/api', stakingRoutes);
@@ -1169,6 +1171,11 @@ async function start() {
     try {
       require('./services/shipScheduler').start();
     } catch(e) { console.warn('[shipScheduler] Could not start:', e.message); }
+
+    // ── Battle Scheduler: Run scheduled fleet battles (every 30s) ──  A-4
+    try {
+      require('./services/battleScheduler').start();
+    } catch(e) { console.warn('[battleScheduler] Could not start:', e.message); }
 
     // ── Time Capsule: Reveal due capsules (every 5 minutes) ──
     try {
