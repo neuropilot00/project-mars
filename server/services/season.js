@@ -743,6 +743,11 @@ async function autoRotateSeason() {
       } catch (e) {
         console.error('[SEASON] Finalize error:', e.message);
       }
+      // titleExtended: 시즌 종료 칭호 부여 (non-blocking)
+      try {
+        const titleExt = require('./titleExtended');
+        titleExt.awardSeasonTitles(s.id, s.id).catch(() => {});
+      } catch (_) {}
       await pool.query('UPDATE seasons SET active = false WHERE id = $1', [s.id]);
     }
 

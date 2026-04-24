@@ -12,6 +12,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const { pool } = require('../db');
+let titleExt; try { titleExt = require('./titleExtended'); } catch (_) {}
 
 // ─── 온보딩 상태 조회 ───
 
@@ -176,6 +177,11 @@ async function completeStep(walletAddress, step, data = {}) {
     );
 
     await client.query('COMMIT');
+
+    // titleExtended: 온보딩 완료 시 개척자 칭호 (non-blocking)
+    if (step === 5 && titleExt) {
+      titleExt.onOnboardingComplete(walletAddress).catch(() => {});
+    }
 
     return {
       success: true,

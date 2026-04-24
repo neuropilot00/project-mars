@@ -28,6 +28,14 @@ try { bettingService = require('./betting'); } catch (_) {}
 let titleService;
 try { titleService = require('./title'); } catch (_) {}
 
+// Chronicle Enhanced (없으면 무시)
+let ceService;
+try { ceService = require('./chronicleEnhanced'); } catch (_) {}
+
+// Title Extended (없으면 무시)
+let titleExt;
+try { titleExt = require('./titleExtended'); } catch (_) {}
+
 // ─────────────────────────────────────────────────────────────
 // 1. Siege 선언
 // ─────────────────────────────────────────────────────────────
@@ -299,6 +307,39 @@ async function resolveSiege(siegeId) {
         defender_px: defPx
       }
     }).catch(() => {});
+
+    // titleExtended: Siege 승리 칭호 (non-blocking)
+    if (titleExt && winnerWallet) {
+      titleExt.onSiegeWin(winnerWallet, chalPx, defPx).catch(() => {});
+    }
+
+    // Chronicle Enhanced 이벤트 훅 (non-blocking)
+    if (ceService && winnerWallet && siege.defender_wallet && winnerWallet !== siege.defender_wallet) {
+      (async () => {
+        try {
+          const [winnerRes, loserRes, sectorRes] = await Promise.all([
+            pool.query('SELECT wallet_address, nickname, created_at FROM users WHERE wallet_address = $1', [winnerWallet]),
+            pool.query('SELECT wallet_address, nickname FROM users WHERE wallet_address = $1', [siege.defender_wallet]),
+            pool.query('SELECT code, name FROM sector_definitions WHERE code = $1', [code]),
+          ]);
+          const winner = winnerRes.rows[0];
+          const loser  = loserRes.rows[0];
+          const sector = sectorRes.rows[0] || { code, name: code };
+          if (winner && loser) {
+            await ceService.governorOverthrown({
+              sector: { code: sector.code, name: sector.name, name_ko: sector.name },
+              winner, loser,
+              participants: siege.participant_count || 0,
+            }).catch(() => {});
+            await ceService.underdogGovernor({
+              winner,
+              sectorCode: code,
+              sectorName: sector.name,
+            }).catch(() => {});
+          }
+        } catch (_) {}
+      })();
+    }
 
     console.log(`[SIEGE] Siege #${siegeId} resolved. Sector=${code}, Winner=${winnerWallet ?? 'no-change'}`);
     return { success: true, winner: winnerWallet, chalPx, defPx };

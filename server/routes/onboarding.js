@@ -97,8 +97,22 @@ router.post('/user/onboarding/reward', async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 router.get('/admin/onboarding', async (req, res) => {
   try {
-    const data = await onboardingService.getOnboardingStats();
-    res.json(data);
+    const { pool: db } = require('../db');
+    const [funnel, daily] = await Promise.all([
+      db.query(`SELECT * FROM admin_onboarding_funnel`).catch(() => ({ rows: [] })),
+      db.query(`
+        SELECT
+          DATE(created_at) AS date,
+          COUNT(*) AS started,
+          COUNT(*) FILTER (WHERE completed = true) AS completed,
+          COUNT(*) FILTER (WHERE skipped = true) AS skipped
+        FROM user_onboarding
+        WHERE created_at >= NOW() - INTERVAL '14 days'
+        GROUP BY DATE(created_at)
+        ORDER BY date DESC
+      `).catch(() => ({ rows: [] })),
+    ]);
+    res.json({ funnel: funnel.rows, daily: daily.rows });
   } catch (err) {
     console.error('[ONBOARDING] getStats error:', err.message);
     res.status(500).json({ error: 'internal error' });

@@ -91,24 +91,33 @@ router.get('/user/job/change-status', async (req, res) => {
 
 // ─────────────────────────────────────────
 // GET /api/admin/jobs
-// 어드민: 직업별 유저 분포 + 통계
+// 어드민: 직업별 유저 분포 + 버프 수치 + 최근 변경 로그
 // ─────────────────────────────────────────
 router.get('/admin/jobs', async (req, res) => {
   try {
-    const stats = await jobService.getJobStats();
-    // 최근 변경 로그 20건도 함께
-    const logRes = await pool.query(`
-      SELECT jcl.changed_at, jcl.change_type, jcl.gp_cost,
-             u.nickname, u.wallet_address,
-             fj.name_en AS from_job, tj.name_en AS to_job
-      FROM job_change_log jcl
-      JOIN users u ON u.wallet_address = jcl.user_id
-      LEFT JOIN jobs fj ON fj.id = jcl.from_job_id
-      JOIN jobs tj ON tj.id = jcl.to_job_id
-      ORDER BY jcl.changed_at DESC
-      LIMIT 20
-    `);
-    res.json({ ...stats, recentLog: logRes.rows });
+    const [distribution, buffs, recentLog] = await Promise.all([
+      pool.query(`SELECT * FROM admin_job_distribution`).catch(() => ({ rows: [] })),
+      pool.query(`
+        SELECT j.code, j.name_ko, j.icon_emoji,
+               jb.buff_key, jb.buff_value, jb.description
+        FROM jobs j
+        JOIN job_buffs jb ON jb.job_id = j.id
+        WHERE j.is_active = true
+        ORDER BY j.sort_order, jb.buff_key
+      `).catch(() => ({ rows: [] })),
+      pool.query(`
+        SELECT jcl.changed_at, jcl.change_type, jcl.gp_cost,
+               u.nickname, u.wallet_address,
+               fj.name_en AS from_job, tj.name_en AS to_job
+        FROM job_change_log jcl
+        JOIN users u ON u.wallet_address = jcl.wallet_address
+        LEFT JOIN jobs fj ON fj.id = jcl.from_job_id
+        JOIN jobs tj ON tj.id = jcl.to_job_id
+        ORDER BY jcl.changed_at DESC
+        LIMIT 20
+      `).catch(() => ({ rows: [] })),
+    ]);
+    res.json({ distribution: distribution.rows, buffs: buffs.rows, recentLog: recentLog.rows });
   } catch (err) {
     console.error('[JOB] GET /admin/jobs error:', err.message);
     res.status(500).json({ error: err.message });

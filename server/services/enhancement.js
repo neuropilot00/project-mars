@@ -1,5 +1,8 @@
 const { pool, getSetting } = require('../db');
 let jobService; try { jobService = require('./job'); } catch (_e) {}
+let ceService; try { ceService = require('./chronicleEnhanced'); } catch (_e) {}
+let titleExt;  try { titleExt  = require('./titleExtended');    } catch (_e) {}
+const advEnhance = require('./enhancementAdvanced');
 
 // ── Materialize: split 1 from user_items stack → individual item_instance ──
 async function materializeItem(client, wallet, itemTypeId) {
@@ -102,11 +105,14 @@ async function getEnhancementRates() {
 }
 
 // ── Enhance an item instance ──
-async function enhanceItem(client, wallet, instanceId) {
+async function enhanceItem(client, wallet, instanceId, options = {}) {
+  // options: { recipeIds: [], useProtectScroll: false, useBlessedScroll: false }
+  const { recipeIds = [], useProtectScroll = false, useBlessedScroll = false } = options;
   const w = wallet.toLowerCase();
 
   // Check system enabled
-  const enabled = (await getSetting('enhance_enabled') || 'true') === 'true';
+  const _enhEnabledRaw = await getSetting('enhance_enabled');
+  const enabled = _enhEnabledRaw === true || String(_enhEnabledRaw).replace(/"/g, '') === 'true';
   if (!enabled) throw new Error('Enhancement system is currently disabled');
 
   // Load instance
@@ -123,6 +129,12 @@ async function enhanceItem(client, wallet, instanceId) {
   if (inst.enhancement_level >= maxLevel) throw new Error('Item is already at maximum enhancement level');
 
   const currentLevel = inst.enhancement_level;
+
+  // ── 자원 소모 보너스 계산 ──
+  const materialBonus = await advEnhance.calculateMaterialBonus(w, recipeIds, currentLevel);
+  if (materialBonus.error) {
+    throw Object.assign(new Error(materialBonus.error), { meta: materialBonus.meta });
+  }
 
   // Calculate cost
   let cost = await getEnhancementCost(currentLevel);
@@ -161,6 +173,11 @@ async function enhanceItem(client, wallet, instanceId) {
     [w, JSON.stringify({ instanceId, item: inst.code, level: currentLevel, cost })]
   );
 
+  // ── 자원 실제 차감 ──
+  if (materialBonus.recipesToConsume.length > 0) {
+    await advEnhance.consumeMaterials(client, w, materialBonus.recipesToConsume);
+  }
+
   // Determine success/failure
   let rates;
   try {
@@ -171,6 +188,8 @@ async function enhanceItem(client, wallet, instanceId) {
   let successRate = rates[currentLevel] !== undefined ? rates[currentLevel] : 5;
   // ✅ [Job System] Crafter enhancement success rate buff
   try { if (jobService) successRate = Math.min(99, successRate * await jobService.getJobBuff(w, 'crafter_enhancement_success', 1.0)); } catch (_je) {}
+  // ── 자원 소모 보너스 적용 ──
+  successRate = Math.min(99, successRate + materialBonus.successBonus * 100);
   const roll = Math.random() * 100;
   const success = roll < successRate;
 
@@ -220,6 +239,8 @@ async function enhanceItem(client, wallet, instanceId) {
       let destroyPct = parseInt(await getSetting('enhance_fail_destroy_pct') || '10');
       // ✅ [Job System] Crafter break protection buff
       try { if (jobService) destroyPct = Math.max(0, Math.round(destroyPct * await jobService.getJobBuff(w, 'crafter_enhancement_break_protection', 1.0))); } catch (_je) {}
+      // ── 자원 소모 파괴 확률 감소 적용 ──
+      destroyPct = Math.max(0, destroyPct - Math.round(materialBonus.breakReduction * 100));
       const failRoll = Math.random() * 100;
 
       if (failRoll < stayPct) {
@@ -268,6 +289,26 @@ async function enhanceItem(client, wallet, instanceId) {
     const dailySvc = require('./daily');
     dailySvc.updateMissionProgress(w, 'enhance_item', 1).catch(() => {});
   } catch (_de) {}
+
+  // titleExtended: +max 강화 칭호 (non-blocking)
+  if (titleExt && success && newLevel >= maxLevel) {
+    titleExt.onMaxEnhancement(w).catch(() => {});
+  }
+
+  // Chronicle Enhanced: first +max enhancement (non-blocking)
+  if (ceService && success && newLevel >= maxLevel) {
+    (async () => {
+      try {
+        const userRes = await pool.query('SELECT nickname FROM users WHERE wallet_address = $1', [w]);
+        const nickname = userRes.rows[0]?.nickname || w;
+        await ceService.firstMaxEnhancement({
+          wallet_address: w,
+          nickname,
+          itemName: inst.name || inst.code,
+        });
+      } catch (_) {}
+    })();
+  }
 
   return {
     success,

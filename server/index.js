@@ -177,6 +177,8 @@ const factionRoutes     = require('./routes/factions');  // A-1: 파벌 선택 �
 const newResourcesRoutes = require('./routes/resources'); // A-2: 자원 인벤토리 (복수형, 함선 UI용)
 const fleetRoutes       = require('./routes/fleets');    // A-3: 함대 편성 시스템
 const weatherRoutes     = require('./routes/weatherRoutes'); // Weather Strategic v2
+const publicV2Routes    = require('./routes/publicRoutes');   // Chronicle Enhanced Public API
+const hofRoutes         = require('./routes/hallOfFameRoutes'); // Hall of Fame & Titles
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -294,6 +296,9 @@ app.use('/api', phaseCRoutes);               // Phase C: AI/Tournament/Hijack
 app.use('/api', phaseDRoutes);               // Phase D: Alliance/Replay/Mobile
 app.use('/api/jobs', jobsRoutes);            // Job System (mine/select/buffs)
 app.use('/api/onboarding', onboardingV2Routes); // Onboarding Tutorial v2
+app.use('/api/public', publicV2Routes);          // Chronicle Enhanced Public API
+app.use('/api/titles', hofRoutes);               // Hall of Fame & Titles
+app.use('/api/hof',    hofRoutes);               // Hall of Fame board
 app.use('/api/battles', battleExtrasRoutes); // Phase B: Rewards/Siege extras (before fleetBattles to capture /rewards/mine etc.)
 app.use('/api/battles', fleetBattleRoutes); // A-4: Fleet Battle Engine (must be before /api for prefix priority)
 app.use('/api', battleRoutes);
@@ -345,6 +350,7 @@ app.use('/api', milestoneRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
+app.use('/api/admin', require('./routes/adminEconomyRoutes'));
 app.use('/api/arena', arenaRoutes);
 app.use('/api/factions', factionRoutes);      // A-1: 파벌 선택 시스템
 app.use('/api/resources', newResourcesRoutes); // A-2: 자원 인벤토리
@@ -1218,6 +1224,35 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[CAPSULE] Reveal scheduler started (5min interval)');
     } catch(e) { console.warn('[CAPSULE] Could not init reveal scheduler:', e.message); }
+
+    // ── Veteran Titles: 매일 UTC 00:xx 체크 ──
+    try {
+      const titleExt = require('./services/titleExtended');
+      setInterval(async () => {
+        try {
+          const now = new Date();
+          if (now.getUTCHours() === 0 && now.getUTCMinutes() < 5) {
+            const count = await titleExt.checkVeteranTitles();
+            if (count > 0) console.log(`[TITLES] ${count} veteran title(s) awarded`);
+          }
+        } catch(e) { console.warn('[TITLES] veteran check error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[TITLES] Veteran scheduler started (5min interval)');
+    } catch(e) { console.warn('[TITLES] Could not init veteran scheduler:', e.message); }
+
+    // ── Weekly Chronicle (매주 월요일 UTC 00:00 생성) ──
+    try {
+      const ce = require('./services/chronicleEnhanced');
+      setInterval(async () => {
+        try {
+          const now = new Date();
+          if (now.getUTCDay() === 1 && now.getUTCHours() === 0 && now.getUTCMinutes() < 5) {
+            await ce.generateWeeklyChronicle();
+          }
+        } catch(e) { console.warn('[CHRONICLE] weekly error:', e.message); }
+      }, 5 * 60 * 1000);
+      console.log('[CHRONICLE] Weekly scheduler started (5min interval)');
+    } catch(e) { console.warn('[CHRONICLE] Could not init weekly scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

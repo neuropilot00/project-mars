@@ -49,6 +49,8 @@ let chronicleService;
 try { chronicleService = require('../services/chronicle'); } catch (_e) { /* chronicle service not available */ }
 let titleService;
 try { titleService = require('../services/title'); } catch (_e) { /* title service not available */ }
+let titleExt;
+try { titleExt = require('../services/titleExtended'); } catch (_e) { /* titleExtended not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -1402,6 +1404,19 @@ router.post('/claim', writeLimiter, async (req, res) => {
           if (hijackTotal >= 50) titleService.checkAndAwardTitles(walletLower, 'hijack_kills', { count: hijackTotal }).catch(() => {});
         }
       } catch (_te) { /* title check non-critical */ }
+    }
+
+    // titleExtended: 영토 점령 칭호 (non-blocking)
+    if (titleExt && newCount > 0) {
+      (async () => {
+        try {
+          const pxRes = await pool.query(
+            'SELECT COALESCE(SUM(width*height),0) AS total FROM claims WHERE owner=$1 AND deleted_at IS NULL',
+            [walletLower]
+          );
+          await titleExt.onClaimCreated(walletLower, parseInt(pxRes.rows[0]?.total) || 0);
+        } catch (_) {}
+      })();
     }
 
     // Daily mission progress hooks (non-blocking, never breaks main flow)
@@ -3526,8 +3541,39 @@ router.get('/enhance/rates', readLimiter, async (req, res) => {
 });
 
 // POST /api/enhance — attempt enhancement on an item instance
+// GET /api/enhance/info/:instanceId — 강화 전 정보 (레시피 + 주문서 현황)
+router.get('/enhance/info/:instanceId', readLimiter, async (req, res) => {
+  const wallet = (req.query.wallet || '').toLowerCase();
+  if (!wallet) return res.status(400).json({ error: 'Wallet required' });
+  if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
+  try {
+    const { pool: db } = require('../db');
+    const advEnhance = require('../services/enhancementAdvanced');
+    const instRes = await db.query(
+      'SELECT ii.enhancement_level, it.name FROM item_instances ii JOIN item_types it ON it.id = ii.item_type_id WHERE ii.id = $1 AND ii.wallet = $2',
+      [parseInt(req.params.instanceId), wallet]
+    );
+    if (!instRes.rows.length) return res.status(404).json({ error: 'Instance not found' });
+    const currentLevel = instRes.rows[0].enhancement_level;
+    const [cost, available_recipes, scroll_status] = await Promise.all([
+      enhancementService.getEnhancementCost(currentLevel),
+      advEnhance.getAvailableRecipes(currentLevel),
+      advEnhance.getScrollStatus(wallet),
+    ]);
+    res.json({ currentLevel, cost, available_recipes, scroll_status, item_name: instRes.rows[0].name });
+  } catch (e) {
+    console.error('[ENHANCE] info error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 router.post('/enhance', writeLimiter, async (req, res) => {
-  const { wallet, instanceId } = req.body;
+  const {
+    wallet, instanceId,
+    recipe_ids = [],
+    use_protect_scroll = false,
+    use_blessed_scroll = false,
+  } = req.body;
   const w = (wallet || '').toLowerCase();
   if (!w || !instanceId) return res.status(400).json({ error: 'Missing wallet or instanceId' });
   if (!enhancementService) return res.status(503).json({ error: 'Enhancement service unavailable' });
@@ -3535,7 +3581,11 @@ router.post('/enhance', writeLimiter, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const result = await enhancementService.enhanceItem(client, w, parseInt(instanceId));
+    const result = await enhancementService.enhanceItem(client, w, parseInt(instanceId), {
+      recipeIds: Array.isArray(recipe_ids) ? recipe_ids.map(Number) : [],
+      useProtectScroll: !!use_protect_scroll,
+      useBlessedScroll: !!use_blessed_scroll,
+    });
     await client.query('COMMIT');
 
     // Season tracking: GP spent on enhancement (non-blocking)
