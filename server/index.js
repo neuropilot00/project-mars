@@ -948,6 +948,18 @@ async function start() {
       console.log('[LOTTERY] Draw scheduler started (1min interval)');
     } catch(e) { console.warn('[LOTTERY] Could not init draw scheduler:', e.message); }
 
+    // ── Resource Crafting: Auto-claim completed jobs (every 1 minute) — M-091 ──
+    try {
+      const { processCompletedJobs } = require('./services/resourceCraft');
+      setInterval(async () => {
+        try {
+          const r = await processCompletedJobs();
+          if (r.success > 0) console.log(`[CRAFT] Auto-claimed ${r.success} job(s)`);
+        } catch(e) { console.warn('[CRAFT] processCompletedJobs error:', e.message); }
+      }, 60 * 1000);
+      console.log('[CRAFT] Auto-claim scheduler started (1min interval)');
+    } catch(e) { console.warn('[CRAFT] Could not init scheduler:', e.message); }
+
     // ── GP Burn: Clean expired burn effects (every 10 minutes) ──
     try {
       const { cleanExpiredBurns } = require('./services/gpBurn');
