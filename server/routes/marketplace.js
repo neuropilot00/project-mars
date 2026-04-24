@@ -219,7 +219,17 @@ router.get('/price-stats', readLimiter, async (req, res) => {
       params = [itemTypeId, enhLevel];
     }
 
-    const [statsRes, recentRes] = await Promise.all([
+    // ✅ [Job] Merchant market_insight: 최근 10건 상세 거래내역 (seller, buyer, 가격)
+    let hasMerchantInsight = false;
+    try {
+      const jobSvc = require('../services/job');
+      if (wallet && jobSvc) {
+        const insight = await jobSvc.getJobBuff(wallet, 'merchant_market_insight', 0);
+        if (insight > 0) hasMerchantInsight = true;
+      }
+    } catch (_) {}
+
+    const queries = [
       pool.query(
         `SELECT COUNT(*) AS cnt,
                 AVG(sale_price) AS avg_price,
@@ -237,19 +247,51 @@ router.get('/price-stats', readLimiter, async (req, res) => {
           ORDER BY sold_at DESC LIMIT $${params.length + 2}`,
         [...params, historyDays, points]
       ),
-    ]);
+    ];
+
+    // Merchant insight: fetch recent 10 full trade records
+    if (hasMerchantInsight) {
+      queries.push(pool.query(
+        `SELECT mph.sale_price, mph.currency, mph.sold_at,
+                ml.seller, ml.buyer
+           FROM marketplace_price_history mph
+           LEFT JOIN marketplace_listings ml
+             ON ml.item_type_id = mph.item_type_id
+            AND ml.status = 'sold'
+            AND ml.sold_at = mph.sold_at
+         WHERE mph.${where.replace(/\$1/g, '$1').replace(/\$2/g, '$2')}
+         ORDER BY mph.sold_at DESC LIMIT 10`,
+        params
+      ).catch(() => null));
+    }
+
+    const results = await Promise.all(queries);
+    const [statsRes, recentRes, insightRes] = results;
 
     const s = statsRes.rows[0] || {};
     const recent = recentRes.rows.reverse(); // oldest→newest for chart
 
-    res.json({
+    const response = {
       count:    parseInt(s.cnt)           || 0,
       avg:      parseFloat(s.avg_price)   || 0,
       min:      parseFloat(s.min_price)   || 0,
       max:      parseFloat(s.max_price)   || 0,
       avg7d:    parseFloat(s.avg_7d)      || 0,
       points:   recent.map(r => ({ price: parseFloat(r.sale_price), currency: r.currency, t: r.sold_at })),
-    });
+    };
+
+    // Attach merchant insight data if available
+    if (hasMerchantInsight && insightRes && insightRes.rows) {
+      response.recentTrades = insightRes.rows.map(r => ({
+        price:    parseFloat(r.sale_price),
+        currency: r.currency,
+        t:        r.sold_at,
+        seller:   r.seller || null,
+        buyer:    r.buyer  || null,
+      }));
+    }
+
+    res.json(response);
   } catch (e) {
     console.error('[MARKET] price-stats error:', e.message);
     res.status(500).json({ error: 'Internal error' });

@@ -1048,8 +1048,41 @@ router.post('/claim', writeLimiter, async (req, res) => {
       try { if (jobService) effectiveSuccessRate *= await jobService.getJobBuff(walletLower, 'warrior_hijack_success', 1.0); } catch (_je) {}
       try { if (jobService) effectiveSuccessRate /= await jobService.getJobBuff(prevOwner, 'warrior_defense_item_effect', 1.0); } catch (_je) {}
       effectiveSuccessRate = Math.max(10, Math.min(90, effectiveSuccessRate));
+
+      // ✅ [Job] decoy_beacon 체크 — 방어자가 디코이 사용 중이면 공격 차단
+      // warrior_spy_resistance = 0.7 → 30% 확률로 디코이를 꿰뚫음
+      let decoyBlocked = false;
+      try {
+        const decoyRes = await client.query(
+          `SELECT id FROM user_active_effects WHERE wallet = $1 AND effect_type = 'decoy_beacon'
+             AND active = true AND (expires_at IS NULL OR expires_at > NOW()) LIMIT 1`,
+          [prevOwner]
+        );
+        if (decoyRes.rows.length > 0) {
+          // 공격자가 Warrior인지 확인 → 30% 꿰뚫기 시도
+          let pierced = false;
+          try {
+            if (jobService) {
+              const spyResist = await jobService.getJobBuff(walletLower, 'warrior_spy_resistance', 1.0);
+              if (spyResist < 1.0) {
+                const resistChance = 1.0 - spyResist; // 0.3 = 30%
+                if (Math.random() < resistChance) pierced = true;
+              }
+            }
+          } catch (_je) {}
+          if (!pierced) {
+            decoyBlocked = true;
+            // 디코이 소모 (한 번 발동 시 비활성화)
+            await client.query(
+              `UPDATE user_active_effects SET active = false WHERE id = $1`,
+              [decoyRes.rows[0].id]
+            );
+          }
+        }
+      } catch (_de) {}
+
       const roll = Math.random() * 100;
-      if (roll < effectiveSuccessRate) {
+      if (!decoyBlocked && roll < effectiveSuccessRate) {
         // Attack SUCCESS — take ALL pixels from this owner
         for (const ep of ownerPixels) {
           const pxCost = parseFloat(ep.existing.price) * HIJACK_MULT;
