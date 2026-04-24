@@ -1849,7 +1849,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* ══════════════════════════════════════════════════
    Game-themed Confirm Dialog (Mars HUD style)
    ══════════════════════════════════════════════════ */
-.game-confirm{display:none;position:fixed;inset:0;z-index:9997;background:rgba(5,3,10,.78);
+.game-confirm{display:none;position:fixed;inset:0;z-index:10001;background:rgba(5,3,10,.78);
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;
   padding:20px}
 .game-confirm.open{display:flex}
@@ -6991,6 +6991,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- Sector Siege -->
         <div class="base-section-title" style="color:var(--red);cursor:pointer" onclick="toggleSiegeSection()"><span data-i18n="gov_siege_title">⚔️ SECTOR SIEGE</span> <span id="siegeToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
         <div id="govSiegeSection" style="display:none;margin-bottom:12px">
+          <!-- 설명 툴팁 -->
+          <div style="background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.15);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:9px;color:var(--tx3);line-height:1.6">
+            <b style="color:var(--red);font-size:10px">⚔️ 섹터 공성전이란?</b><br>
+            섹터 내 최대 점유자(거버너)의 자리를 빼앗는 전쟁입니다.<br>
+            <b style="color:var(--tx2)">① 섹터 선택</b> → <b style="color:var(--tx2)">② 공성전 선언 (GP 소모)</b> → <b style="color:var(--tx2)">③ 경고 기간 (거버너 방어 준비)</b> → <b style="color:var(--tx2)">④ 전투 기간 (픽셀 점령 경쟁)</b><br>
+            전투 종료 시 점유율이 높은 쪽이 섹터 거버너로 등극합니다.
+            <br><span style="color:var(--gold)">💡 진입 조건: 해당 섹터에 최소 영토 보유 필요</span>
+          </div>
           <div style="margin-bottom:8px">
             <button id="siegeSectorPickerBtn" type="button" onclick="openSiegeSectorPicker()" style="width:100%;background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:10px;padding:8px 10px;border-radius:6px;font-family:var(--fn);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center"><span id="siegeSectorLabel" data-i18n="gov_select_sector_siege">Select sector...</span><span style="color:var(--tx3)">▾</span></button>
           </div>
@@ -7019,6 +7027,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <!-- Battles (Migration 093) -->
         <div class="base-section-title" style="color:var(--red);cursor:pointer" onclick="toggleBattleSection()"><span data-i18n="gov_battle_title">⚔️ NAVAL BATTLES</span> <span id="battleToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
         <div id="govBattleSection" style="display:none;margin-bottom:12px">
+          <!-- 설명 툴팁 -->
+          <div style="background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.15);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:9px;color:var(--tx3);line-height:1.6">
+            <b style="color:var(--cyan);font-size:10px">⚓ 함대 전투란?</b><br>
+            내 함대를 이끌고 다른 플레이어에게 전투를 선언하는 PvP 전투입니다.<br>
+            <b style="color:var(--tx2)">① 조선소에서 함선 건조</b> → <b style="color:var(--tx2)">② 함대 편성</b> → <b style="color:var(--tx2)">③ 전투 허브에서 선포</b> → <b style="color:var(--tx2)">④ 전술 지시 선택</b> → <b style="color:var(--tx2)">⑤ 결과 확인</b><br>
+            <span style="color:var(--gold)">💡 아래 BATTLE HUB 버튼으로 바로 이동하세요</span>
+          </div>
+          <!-- Fleet Battle Hub 바로가기 -->
+          <button onclick="openFleetCmd()" style="width:100%;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.2),rgba(232,72,85,.07));border:1px solid rgba(232,72,85,.45);color:#ff8a80;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:8px">⚔️ FLEET BATTLE HUB 열기</button>
           <div id="battlePanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_battle_hint">Connect wallet to view battles.</div>
         </div>
 
@@ -7147,6 +7164,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
               <div id="guildResearchGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-family:var(--fn);font-size:9px"></div>
               <!-- Guild Wars -->
               <div class="base-section-title" style="color:var(--red);font-size:9px;margin-top:8px">⚔️ GUILD WAR</div>
+              <div id="guildWarBuff" style="display:none;margin-bottom:6px"></div>
               <div id="guildWarSection" style="font-family:var(--fn);font-size:10px"></div>
               <!-- Guild Alliance (M-157) -->
               <div class="base-section-title" style="color:#80cbc4;font-size:9px;margin-top:8px" data-i18n="guild_alliance_title">🤝 ALLIANCE (UP TO 3 GUILDS)</div>
@@ -20606,6 +20624,26 @@ function renderGuildState(guild, wallet){
   document.getElementById('guildMemberCount').textContent=guild.memberCount;
   document.getElementById('guildTotalPx').textContent=(guild.totalPixels||0).toLocaleString();
   document.getElementById('guildTreasury').textContent=Math.floor(guild.gpTreasury||0);
+
+  // 전쟁 승리 버프 표시
+  var buffEl = document.getElementById('guildWarBuff');
+  if(buffEl){
+    var buffExp = guild.war_buff_expires_at ? new Date(guild.war_buff_expires_at) : null;
+    var buffActive = buffExp && buffExp > Date.now();
+    if(buffActive && guild.war_buff_pct > 0){
+      var mins = Math.round((buffExp - Date.now())/60000);
+      var buffLabel = mins >= 60 ? (Math.floor(mins/60)+'h '+mins%60+'m') : mins+'m';
+      buffEl.style.display='';
+      buffEl.innerHTML='<div style="display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.3);border-radius:6px;padding:6px 10px">'
+        +'<span style="font-size:14px">🏆</span>'
+        +'<div style="flex:1"><div style="font-size:10px;font-weight:700;color:var(--gold)">전쟁 승리 버프 활성!</div>'
+        +'<div style="font-size:9px;color:var(--tx3)">GP 수익 +'+guild.war_buff_pct+'% · 남은 시간: '+buffLabel+'</div></div>'
+        +'</div>';
+    }else{
+      buffEl.style.display='none';
+      buffEl.innerHTML='';
+    }
+  }
 
   // Render members
   var ml=document.getElementById('guildMembersList');
@@ -39587,9 +39625,18 @@ function renderBlueprintCard(s) {
     if (lock.startsWith('RANK_REQUIRED_')) { lockMsg = '레벨 ' + lock.replace('RANK_REQUIRED_','') + ' 필요'; break; }
     lockMsg = lockReasons[lock] || lock; break;
   }
+  // GP + 광물 부족 여부 (버튼 비활성화용)
+  var mineralShort = Object.entries(recipe).some(function(e){
+    var code = e[0], need = e[1];
+    return (shipyardState.myInventory[code] || 0) < need;
+  });
+  var canAfford = !gpShort && !mineralShort;
+  var buildDisabled = !s.can_build || !canAfford;
+  var buildLabel = !s.can_build ? (lockMsg || '불가') : (!canAfford ? '💸 재료 부족' : '⚒ 건조 시작');
+
   var silhouette = shipSilhouetteSvg(s.size_class, s.faction_code, { role: s.role, code: s.code });
   var accent = shipFactionAccent(s.faction_code);
-  return '<div class="bp-card ' + s.faction_code + ' ' + (!s.can_build ? 'locked' : '') + '">' +
+  return '<div class="bp-card ' + s.faction_code + ' ' + (buildDisabled ? 'locked' : '') + '">' +
     '<div class="bp-visual" style="background:' + accent + ';display:flex;align-items:center;justify-content:center;height:64px;border-radius:6px;margin-bottom:6px"><div class="bp-starfield"></div>' + silhouette + '</div>' +
     '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + s.name_ko + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
     '<div class="bp-class">' + (s.class_label || '') + '</div>' +
@@ -39603,8 +39650,8 @@ function renderBlueprintCard(s) {
       (mineralCheck ? '<div class="bp-cost-line" style="margin-top:4px">' + mineralCheck + '</div>' : '') +
       '<div class="bp-build-time">⏱ 건조: ' + buildTime + '</div></div>' +
     (limitsText ? '<div class="bp-limits">' + limitsText + '</div>' : '') +
-    '<button class="bp-build-btn" ' + (!s.can_build ? 'disabled' : '') + ' onclick="buildShip(\'' + s.code + '\')">' +
-      (s.can_build ? '⚒ 건조 시작' : (lockMsg || '불가')) +
+    '<button class="bp-build-btn" ' + (buildDisabled ? 'disabled' : '') + ' onclick="buildShip(\'' + s.code + '\')">' +
+      buildLabel +
     '</button></div>';
 }
 

@@ -233,6 +233,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('onboarding')" data-tab="onboarding" style="color:#00E676">ONBOARDING</button>
   <button class="adm-tab" onclick="switchTab('siege')" data-tab="siege" style="color:#FF5252">SIEGE</button>
   <button class="adm-tab" onclick="switchTab('ships')" data-tab="ships" style="color:#5cbbff">⚓ SHIPS</button>
+  <button class="adm-tab" onclick="switchTab('worldevents')" data-tab="worldevents" style="color:#b088e0">👾 EVENTS</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -2490,6 +2491,74 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
     <div id="battlesAdmStats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px"></div>
     <div id="battlesAdmList" style="overflow-x:auto"></div>
+  </div>
+
+  <!-- ═══ WORLD EVENTS TAB ═══ -->
+  <div class="section cat-worldevents" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#b088e0">👾 WORLD EVENTS (Void Raiders)</span>
+      <button onclick="loadWorldEventsAdmin()" style="font-size:10px;background:rgba(176,136,224,.12);border:1px solid rgba(176,136,224,.3);color:#b088e0;padding:4px 10px;border-radius:4px;cursor:pointer">REFRESH</button>
+    </div>
+
+    <!-- 설명 -->
+    <div style="background:rgba(176,136,224,.06);border:1px solid rgba(176,136,224,.15);border-radius:6px;padding:10px;margin-bottom:16px;font-size:10px;color:#bbb;line-height:1.7">
+      <b style="color:#b088e0">Void Raider 이벤트란?</b><br>
+      외계함선 NPC가 특정 섹터에 침공합니다. 플레이어들이 함대를 보내 격퇴하면 보상을 받고, 시간 내에 격퇴 못 하면 플레이어 영토에 디버프가 적용됩니다.<br>
+      <b style="color:#ddd">자동 스폰:</b> 설정된 UTC 시각(void_raider_spawn_hour_utc)에 자동 생성 · 3일 간격(void_raider_spawn_interval_days)<br>
+      <b style="color:#ddd">수동 스폰:</b> 아래 폼으로 즉시 생성 가능
+    </div>
+
+    <!-- 활성 이벤트 목록 -->
+    <div class="sec-header" style="margin-bottom:8px">
+      <span class="sec-title" style="color:#b088e0;font-size:11px">ACTIVE EVENTS</span>
+    </div>
+    <div id="weAdmActiveList" style="margin-bottom:16px;color:#888;font-size:11px">로딩 중...</div>
+
+    <!-- 수동 스폰 -->
+    <div class="sec-header">
+      <span class="sec-title" style="color:#b088e0;font-size:11px">⚡ 수동 스폰 (테스트용)</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:10px">
+      <div>
+        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px">SECTOR ID (비워두면 랜덤)</label>
+        <input id="weSectorId" type="number" placeholder="예: 3" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
+      </div>
+      <div>
+        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px">SHIP TYPE (비워두면 기본값)</label>
+        <input id="weShipType" type="text" placeholder="예: mcc_frg" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
+      </div>
+      <div>
+        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px">SHIP COUNT (기본: 설정값)</label>
+        <input id="weShipCount" type="number" placeholder="예: 10" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
+      </div>
+      <div>
+        <label style="font-size:9px;color:#888;display:block;margin-bottom:3px">DURATION HOURS (기본: 설정값)</label>
+        <input id="weDuration" type="number" placeholder="예: 24" style="width:100%;font-size:11px;padding:6px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(176,136,224,.25);border-radius:4px;color:#fff">
+      </div>
+    </div>
+    <button onclick="spawnWorldEvent()" style="width:100%;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(176,136,224,.25),rgba(176,136,224,.08));border:1px solid rgba(176,136,224,.4);color:#b088e0;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:16px">👾 VOID RAIDER 즉시 스폰</button>
+
+    <!-- 설정 키 안내 -->
+    <div class="sec-header">
+      <span class="sec-title" style="color:#b088e0;font-size:11px">SETTINGS 키</span>
+    </div>
+    <div style="background:rgba(0,0,0,.3);border-radius:6px;padding:10px;font-size:10px;color:#aaa;line-height:1.8">
+      <code style="color:#b088e0">void_raider_enabled</code> = true/false (활성화 여부)<br>
+      <code style="color:#b088e0">void_raider_max_concurrent</code> = 동시 최대 이벤트 수 (기본 1)<br>
+      <code style="color:#b088e0">void_raider_ship_type</code> = NPC 함선 타입 코드 (예: mcc_frg)<br>
+      <code style="color:#b088e0">void_raider_ship_count</code> = NPC 함선 수 (기본 15)<br>
+      <code style="color:#b088e0">void_raider_duration_hours</code> = 이벤트 지속 시간 (기본 48)<br>
+      <code style="color:#b088e0">void_raider_spawn_hour_utc</code> = 자동 스폰 UTC 시각 (기본 19)<br>
+      <code style="color:#b088e0">void_raider_spawn_interval_days</code> = 재스폰 간격 일수 (기본 3)<br>
+      <code style="color:#b088e0">void_raider_reward_gp_base</code> = 기본 GP 보상 (기본 100)<br>
+      → <a href="#" onclick="switchTab('game');return false" style="color:#5cbbff">GAME SETTINGS 탭</a>에서 void_raider_* 로 검색
+    </div>
+
+    <!-- 최근 종료 이벤트 -->
+    <div class="sec-header" style="margin-top:16px">
+      <span class="sec-title" style="color:#888;font-size:11px">RECENT ENDED EVENTS</span>
+    </div>
+    <div id="weAdmHistoryList" style="color:#888;font-size:11px">-</div>
   </div>
 
   <!-- ═══ ONBOARDING TAB ═══ -->
@@ -10615,6 +10684,102 @@ function adminResolveBattle(battleId) {
     loadBattlesAdmin();
   }).catch(function(e){alert('Error: '+e.message)});
 }
+
+// ═══ WORLD EVENTS ADMIN ═══
+function loadWorldEventsAdmin() {
+  var activeEl  = document.getElementById('weAdmActiveList');
+  var historyEl = document.getElementById('weAdmHistoryList');
+  if (!activeEl) return;
+  activeEl.innerHTML = '<span style="color:#888">로딩 중...</span>';
+
+  fetch('/api/world-events', { headers: {'x-admin-secret': adminSecret} })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var events = d.events || [];
+      var active = events.filter(function(e){ return e.status === 'active' || e.status === 'engaged'; });
+      var ended  = events.filter(function(e){ return e.status === 'defeated' || e.status === 'expired'; }).slice(0, 5);
+
+      if (!active.length) {
+        activeEl.innerHTML = '<div style="color:#555;text-align:center;padding:12px">활성 이벤트 없음</div>';
+      } else {
+        activeEl.innerHTML = active.map(function(ev) {
+          var endsIn = Math.max(0, Math.round((new Date(ev.ends_at) - Date.now()) / 60000));
+          return '<div style="background:rgba(176,136,224,.07);border:1px solid rgba(176,136,224,.2);border-radius:6px;padding:10px;margin-bottom:8px">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+            +   '<b style="color:#b088e0">👾 #'+ev.id+' — 섹터 '+ev.sector_id+'</b>'
+            +   '<span style="font-size:9px;color:#888">남은 시간: '+(endsIn >= 60 ? Math.floor(endsIn/60)+'h '+endsIn%60+'m' : endsIn+'m')+'</span>'
+            + '</div>'
+            + '<div style="font-size:10px;color:#aaa">함선 타입: '+ev.npc_ship_type+' · '+ev.npc_ship_count+'척 · HP: '+ev.current_hp+'/'+ev.max_hp+'</div>'
+            + '<div style="font-size:10px;color:#aaa">상태: <b style="color:'+(ev.status==='engaged'?'#ffd166':'#b088e0')+'">'+ev.status.toUpperCase()+'</b> · 교전 수: '+(ev.engage_count||0)+'</div>'
+            + '<button onclick="forceEndWorldEvent('+ev.id+')" style="margin-top:6px;font-size:9px;padding:3px 10px;border-radius:4px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);color:#ff8a80;cursor:pointer">⛔ 강제 종료</button>'
+            + '</div>';
+        }).join('');
+      }
+
+      if (historyEl) {
+        if (!ended.length) {
+          historyEl.innerHTML = '<div style="color:#555;font-size:10px;padding:4px 0">이력 없음</div>';
+        } else {
+          historyEl.innerHTML = ended.map(function(ev) {
+            var resolvedAt = ev.resolved_at ? new Date(ev.resolved_at).toLocaleString() : '-';
+            return '<div style="font-size:10px;color:#888;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+              + '#'+ev.id+' 섹터 '+ev.sector_id+' · <b style="color:'+(ev.status==='defeated'?'#4cd89a':'#ff8a80')+'">'+ev.status.toUpperCase()+'</b>'
+              + ' · '+resolvedAt
+              + '</div>';
+          }).join('');
+        }
+      }
+    })
+    .catch(function(e) { activeEl.innerHTML = '<div style="color:var(--red)">오류: '+e.message+'</div>'; });
+}
+
+function spawnWorldEvent() {
+  var sectorId   = document.getElementById('weSectorId').value;
+  var shipType   = document.getElementById('weShipType').value.trim();
+  var shipCount  = document.getElementById('weShipCount').value;
+  var duration   = document.getElementById('weDuration').value;
+
+  var body = {};
+  if (sectorId)  body.sector_id       = parseInt(sectorId);
+  if (shipType)  body.ship_type_code   = shipType;
+  if (shipCount) body.ship_count       = parseInt(shipCount);
+  if (duration)  body.duration_hours   = parseInt(duration);
+
+  if (!confirm('Void Raider 이벤트를 수동으로 스폰하시겠습니까?')) return;
+
+  fetch('/api/admin/world-events/spawn', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.error) { alert('오류: '+d.error); return; }
+      alert('👾 이벤트 생성됨! ID: '+d.event.id+' · 섹터: '+d.event.sector_id);
+      loadWorldEventsAdmin();
+    })
+    .catch(function(e){ alert('Error: '+e.message); });
+}
+
+function forceEndWorldEvent(eventId) {
+  if (!confirm('#'+eventId+' 이벤트를 강제 종료하시겠습니까?')) return;
+  fetch('/api/admin/world-events/'+eventId+'/force-end', {
+    method: 'POST',
+    headers: { 'x-admin-secret': adminSecret }
+  }).then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.error) { alert('오류: '+d.error); return; }
+      alert('이벤트 #'+eventId+' 강제 종료됨');
+      loadWorldEventsAdmin();
+    })
+    .catch(function(e){ alert('Error: '+e.message); });
+}
+
+// switchTab 확장 — worldevents 탭 로드 시 자동 refresh
+var _origSwitchTab = switchTab;
+switchTab = function(tab) {
+  _origSwitchTab(tab);
+  if (tab === 'worldevents') setTimeout(loadWorldEventsAdmin, 100);
+};
 
 // Auto-focus auth input
 document.getElementById('authInput').focus();

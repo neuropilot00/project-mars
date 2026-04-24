@@ -98,6 +98,10 @@ async function getGuild(guildId) {
     totalPixels: g.total_pixels,
     gpTreasury: parseFloat(g.gp_treasury),
     createdAt: g.created_at,
+    // 전쟁 승리 버프
+    war_buff_type: g.war_buff_type || null,
+    war_buff_pct: g.war_buff_pct || 0,
+    war_buff_expires_at: g.war_buff_expires_at || null,
     members: membersRes.rows.map(m => ({
       wallet: m.wallet, nickname: m.nickname, role: m.role,
       claimCount: m.claim_count, pixelCount: m.pixel_count, joinedAt: m.joined_at
@@ -1441,6 +1445,21 @@ async function resolveExpiredWars() {
                        (SELECT gp_treasury FROM guilds WHERE id = $1), $3)`,
               [w.defender_guild_id, refundD, `War draw refund (War #${w.id})`]
             );
+          }
+        }
+
+        // 승리 길드에 일시적 버프 적용
+        if (winnerId) {
+          try {
+            const buffType  = (await getSetting('guild_war_victory_buff_type',  '"gp_bonus"')).replace(/"/g, '');
+            const buffPct   = parseInt(await getSetting('guild_war_victory_buff_pct', '20')) || 20;
+            const buffHours = parseInt(await getSetting('guild_war_victory_buff_hours', '48')) || 48;
+            await client.query(
+              `UPDATE guilds SET war_buff_type=$1, war_buff_pct=$2, war_buff_expires_at=NOW()+INTERVAL '1 hour'*$3 WHERE id=$4`,
+              [buffType, buffPct, buffHours, winnerId]
+            );
+          } catch (buffErr) {
+            console.warn('[GUILD WAR] victory buff failed:', buffErr.message);
           }
         }
 
