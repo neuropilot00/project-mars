@@ -14651,8 +14651,12 @@ var I18N = {
     refresh_short: '↻',
     guild_alliance_title: '🤝 ALLIANCE (UP TO 3 GUILDS)',
     war_declare_subtitle: 'Select a guild to declare war on',
+    war_declare_title: 'DECLARE WAR',
     war_stake_label: '⚡ STAKE (OPTIONAL): bet GP from treasury — winner takes pot',
     war_duration_label: '⏱ DURATION (h): default 72h',
+    war_declare_btn: '⚔️ DECLARE WAR',
+    war_declaring_btn: 'DECLARING...',
+    war_treasury_low: 'Insufficient treasury GP ({need} needed, have {have})',
     codex_subtitle: 'Official game guidebook',
     loading: 'Loading…'
   },
@@ -14737,6 +14741,7 @@ var I18N = {
     base_tab_territory: '내 영토', base_tab_sectors: '섹터', base_tab_season: '시즌',
     base_tab_mining: '채굴', base_tab_quests: '퀘스트', base_tab_ops: '작전',
     base_tab_shop: '상점', base_tab_market: '마켓', base_tab_guild: '길드', base_tab_govern: '거버넌스',
+    base_tab_transport: '수송',
     // ── 직업 시스템 ──
     job_label: '직업', job_none: '운명을 선택하세요', job_locked: 'Lv.{n} 달성 후 해금',
     job_choose_btn: '선택 ▶', job_change_btn: '직업 변경',
@@ -15303,8 +15308,12 @@ var I18N = {
     refresh_short: '↻',
     guild_alliance_title: '🤝 동맹 (최대 3길드)',
     war_declare_subtitle: '전쟁을 선포할 길드를 선택하세요',
+    war_declare_title: '전쟁 선포',
     war_stake_label: '⚡ 판돈 (선택): 금고에서 GP 투자 — 승자 독식',
     war_duration_label: '⏱ 지속시간 (시): 기본 72시간',
+    war_declare_btn: '⚔️ 전쟁 선포',
+    war_declaring_btn: '선포 중...',
+    war_treasury_low: '재무 GP 부족 ({need} 필요, 보유 {have})',
     codex_subtitle: '공식 게임 가이드북',
     loading: '불러오는 중…'
   },
@@ -15389,6 +15398,7 @@ var I18N = {
     base_tab_territory: 'マイ領土', base_tab_sectors: 'セクター', base_tab_season: 'シーズン',
     base_tab_mining: 'マイニング', base_tab_quests: 'クエスト', base_tab_ops: '作戦',
     base_tab_shop: 'ショップ', base_tab_market: 'マーケット', base_tab_guild: 'ギルド', base_tab_govern: 'ガバナンス',
+    base_tab_transport: '輸送',
     // ── ジョブシステム ──
     job_label: 'ジョブ', job_none: '運命を選んでください', job_locked: 'Lv.{n}で解放',
     job_choose_btn: '選択 ▶', job_change_btn: 'ジョブ変更',
@@ -15939,8 +15949,12 @@ var I18N = {
     refresh_short: '↻',
     guild_alliance_title: '🤝 アライアンス（最大3ギルド）',
     war_declare_subtitle: '宣戦布告するギルドを選択してください',
+    war_declare_title: '宣戦布告',
     war_stake_label: '⚡ 掛け金（任意）: 金庫からGPを賭ける — 勝者総取り',
     war_duration_label: '⏱ 期間 (時): デフォルト72時間',
+    war_declare_btn: '⚔️ 宣戦布告',
+    war_declaring_btn: '宣戦中...',
+    war_treasury_low: '金庫GP不足 ({need}必要、保有{have})',
     codex_subtitle: '公式ゲームガイドブック',
     loading: '読み込み中…'
   },
@@ -16025,6 +16039,7 @@ var I18N = {
     base_tab_territory: '我的领土', base_tab_sectors: '区域', base_tab_season: '赛季',
     base_tab_mining: '采矿', base_tab_quests: '任务', base_tab_ops: '作战',
     base_tab_shop: '商店', base_tab_market: '市场', base_tab_guild: '公会', base_tab_govern: '治理',
+    base_tab_transport: '运输',
     // ── 职业系统 ──
     job_label: '职业', job_none: '选择你的命运', job_locked: '达到Lv.{n}后解锁',
     job_choose_btn: '选择 ▶', job_change_btn: '更换职业',
@@ -16575,8 +16590,12 @@ var I18N = {
     refresh_short: '↻',
     guild_alliance_title: '🤝 联盟（最多3个公会）',
     war_declare_subtitle: '选择要宣战的公会',
+    war_declare_title: '宣战',
     war_stake_label: '⚡ 赌注（可选）: 从金库投入GP — 胜者通吃',
     war_duration_label: '⏱ 持续（时）: 默认72小时',
+    war_declare_btn: '⚔️ 宣战',
+    war_declaring_btn: '宣战中...',
+    war_treasury_low: '金库GP不足（需要{need}，拥有{have}）',
     codex_subtitle: '官方游戏指南',
     loading: '加载中…'
   }
@@ -20940,7 +20959,12 @@ function showDeclareWarModal(){
   if(!_myGuildData) return;
   _warDeclareTarget = null;
   var treasury = parseFloat(_myGuildData.gpTreasury||_myGuildData.gp_treasury||0);
-  document.getElementById('warTreasuryBal').textContent = Math.floor(treasury)+' GP';
+  var balEl = document.getElementById('warTreasuryBal');
+  balEl.textContent = Math.floor(treasury)+' GP';
+  // Parse cost from the already-displayed warDeclareCost label (set from guild data or default 200)
+  var costLabel = document.getElementById('warDeclareCost');
+  var declareCost = costLabel ? (parseInt(costLabel.textContent) || 200) : 200;
+  balEl.style.color = treasury < declareCost ? 'var(--red)' : 'var(--gn)';
   document.getElementById('warConfirmSection').style.display = 'none';
   document.getElementById('warTargetList').innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">로딩중...</div>';
   var inp = document.getElementById('warSearchInput');
@@ -21010,7 +21034,7 @@ function selectWarTarget(id){
 function confirmDeclareWar(){
   if(!_warDeclareTarget||!_myGuildData) return;
   var btn = document.getElementById('warConfirmBtn');
-  btn.disabled=true; btn.textContent='DECLARING...';
+  btn.disabled=true; btn.textContent=t('war_declaring_btn');
   var stakeInput = document.getElementById('warStakeInput');
   var durInput = document.getElementById('warDurationInput');
   var stake = stakeInput ? parseInt(stakeInput.value) : 0;
@@ -21025,14 +21049,14 @@ function confirmDeclareWar(){
   fetch('/api/guild/war/declare',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify(body)
   }).then(function(r){return r.json()}).then(function(d){
-    btn.disabled=false; btn.textContent='⚔️ DECLARE WAR';
+    btn.disabled=false; btn.textContent=t('war_declare_btn');
     if(d.error){ showToast(d.error,'error'); return; }
     closeDeclareWarModal();
     var msg = '⚔️ 전쟁 선포 완료!';
     if (stake > 0) msg += ' (+'+stake+' GP stake)';
     showToast(msg,'success');
     loadGuildTab();
-  }).catch(function(e){ btn.disabled=false; btn.textContent='⚔️ DECLARE WAR'; showToast(e.message,'error'); });
+  }).catch(function(e){ btn.disabled=false; btn.textContent=t('war_declare_btn'); showToast(e.message,'error'); });
 }
 
 async function viewWarScoreboard(warId){
@@ -26017,6 +26041,9 @@ setInterval(function(){
 
 /* ── Init i18n ──────────────────────────────────── */
 setLang(LANG);
+// Modals added after this script block (lines 29000+) aren't in the DOM yet.
+// Re-apply i18n once the full HTML is parsed so all [data-i18n] elements are translated.
+document.addEventListener('DOMContentLoaded', function(){ applyI18n(); });
 
 /* ── end main init ── */
 
@@ -34228,7 +34255,7 @@ if(typeof _origTrackQuestAction === 'function'){
     <div style="padding:16px 18px;border-bottom:1px solid rgba(232,72,85,.3);background:linear-gradient(135deg,rgba(232,72,85,.15),rgba(200,40,40,.05));display:flex;align-items:center;gap:10px">
       <div style="font-size:22px">⚔️</div>
       <div>
-        <div style="font-size:14px;font-weight:800;color:var(--red);letter-spacing:1px">DECLARE WAR</div>
+        <div style="font-size:14px;font-weight:800;color:var(--red);letter-spacing:1px" data-i18n="war_declare_title">DECLARE WAR</div>
         <div style="font-size:9px;color:var(--tx3);margin-top:2px" data-i18n="war_declare_subtitle">전쟁을 선포할 길드를 선택하세요</div>
       </div>
       <button onclick="closeDeclareWarModal()" style="margin-left:auto;background:none;border:none;color:var(--tx3);font-size:20px;cursor:pointer;padding:4px">×</button>
@@ -34274,9 +34301,7 @@ if(typeof _origTrackQuestAction === 'function'){
         <label style="font-size:9px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px" data-i18n="war_duration_label">⏱ DURATION (h): default 72h</label>
         <input type="number" id="warDurationInput" min="1" max="168" placeholder="72" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:12px;padding:8px 10px;border-radius:6px;font-family:var(--fn);box-sizing:border-box">
       </div>
-      <button id="warConfirmBtn" onclick="confirmDeclareWar()" style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,#E84855,#C62828);border:none;color:#fff;font-size:13px;font-weight:800;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px rgba(232,72,85,.3);transition:all .15s">
-        ⚔️ DECLARE WAR
-      </button>
+      <button id="warConfirmBtn" onclick="confirmDeclareWar()" style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,#E84855,#C62828);border:none;color:#fff;font-size:13px;font-weight:800;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px rgba(232,72,85,.3);transition:all .15s" data-i18n="war_declare_btn">⚔️ DECLARE WAR</button>
     </div>
   </div>
 </div>
@@ -40191,15 +40216,17 @@ function fcEsc(str) {
 
   async function fetchRegistryShips() {
     if (regState.ships) return regState.ships;
-    const token = localStorage.getItem('token');
-    if (!token) { showFactionToast && showFactionToast('지갑 연결 필요', 'error'); return null; }
     try {
-      const res = await fetch('/api/ships/blueprints?includeLocked=1', {
-        headers: { 'Authorization': 'Bearer ' + token },
-      });
+      // Public endpoint — no auth required (tactical-lab catalog has all ship data)
+      const res = await fetch('/api/tactical-lab/catalog');
       if (!res.ok) throw new Error('fetch failed');
       const data = await res.json();
-      regState.ships = data.ships || [];
+      // Normalize: catalog ships don't have can_build/locks (irrelevant for a public compendium)
+      regState.ships = (data.ships || []).map(function(s) {
+        return Object.assign({}, s, { can_build: true, locks: [] });
+      });
+      // Also populate resources from catalog if not already loaded
+      if (!regState.resources && data.resources) regState.resources = data.resources;
       return regState.ships;
     } catch (e) {
       console.error('[registry]', e);
