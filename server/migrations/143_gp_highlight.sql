@@ -17,7 +17,7 @@ CREATE INDEX IF NOT EXISTS idx_highlights_active  ON territory_highlights(is_act
 CREATE INDEX IF NOT EXISTS idx_highlights_wallet  ON territory_highlights(wallet);
 
 -- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('highlight_enabled',    'true', 'highlight', 'Enable Territory Highlight'),
   ('highlight_cost_gp',    '40',   'highlight', 'GP cost per highlight period'),
   ('highlight_duration_h', '24',   'highlight', 'Highlight duration (hours)'),

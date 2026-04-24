@@ -21,7 +21,7 @@ CREATE INDEX IF NOT EXISTS idx_milestone_time     ON colony_milestones(created_a
 CREATE INDEX IF NOT EXISTS idx_milestone_category ON colony_milestones(category);
 
 -- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('milestone_enabled',      'true', 'milestone', 'Enable Colony Milestones'),
   ('milestone_cost_gp',      '45',   'milestone', 'GP cost per milestone'),
   ('milestone_title_max',    '50',   'milestone', 'Max title length'),

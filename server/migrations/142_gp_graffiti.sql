@@ -16,7 +16,7 @@ CREATE INDEX IF NOT EXISTS idx_graffiti_claim  ON territory_graffiti(claim_id, i
 CREATE INDEX IF NOT EXISTS idx_graffiti_wallet ON territory_graffiti(from_wallet);
 
 -- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('graffiti_enabled',          'true', 'graffiti', 'Enable Territory Graffiti'),
   ('graffiti_cost_gp',          '20',   'graffiti', 'GP cost per graffiti'),
   ('graffiti_max_length',       '30',   'graffiti', 'Max graffiti text length'),

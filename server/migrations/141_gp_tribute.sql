@@ -17,7 +17,7 @@ CREATE INDEX IF NOT EXISTS idx_tributes_to      ON territory_tributes(to_wallet)
 CREATE INDEX IF NOT EXISTS idx_tributes_from    ON territory_tributes(from_wallet);
 
 -- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('tribute_enabled',      'true', 'tribute', 'Enable Territory Tribute'),
   ('tribute_min_gp',       '10',   'tribute', 'Minimum tribute GP'),
   ('tribute_max_gp',       '500',  'tribute', 'Maximum tribute GP'),

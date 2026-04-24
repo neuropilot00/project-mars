@@ -25,7 +25,7 @@ CREATE INDEX IF NOT EXISTS idx_tprestige_log_claim ON territory_prestige_log(cla
 CREATE INDEX IF NOT EXISTS idx_tprestige_wallet ON territory_prestige(wallet);
 
 -- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('tprestige_enabled',       'true',  'tprestige', 'Enable Territory Prestige Frames'),
   ('tprestige_tier1_gp',      '50',    'tprestige', 'GP cost for Bronze (Tier 1)'),
   ('tprestige_tier2_gp',      '150',   'tprestige', 'GP cost for Silver (Tier 2)'),

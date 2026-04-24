@@ -14,7 +14,7 @@ CREATE INDEX IF NOT EXISTS idx_journal_wallet ON colony_journal(wallet);
 CREATE INDEX IF NOT EXISTS idx_journal_time   ON colony_journal(created_at DESC);
 
 -- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('journal_enabled',       'true', 'journal', 'Enable Colony Journal'),
   ('journal_cost_gp',       '60',   'journal', 'GP cost per journal entry'),
   ('journal_title_max',     '60',   'journal', 'Max title length'),

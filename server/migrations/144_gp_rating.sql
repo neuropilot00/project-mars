@@ -17,7 +17,7 @@ CREATE INDEX IF NOT EXISTS idx_ratings_claim  ON territory_ratings(claim_id);
 CREATE INDEX IF NOT EXISTS idx_ratings_voter  ON territory_ratings(voter_wallet);
 
 -- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('rating_enabled',     'true', 'rating', 'Enable Territory Ratings'),
   ('rating_cost_gp',     '5',    'rating', 'GP cost for first rating'),
   ('rating_change_gp',   '3',    'rating', 'GP cost to change rating'),

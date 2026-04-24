@@ -18,7 +18,7 @@ CREATE INDEX IF NOT EXISTS idx_banners_claim  ON territory_banners(claim_id, is_
 CREATE INDEX IF NOT EXISTS idx_banners_wallet ON territory_banners(wallet);
 
 -- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('banner_enabled',     'true', 'banner', 'Enable Victory Banners'),
   ('banner_cost_gp',     '30',   'banner', 'GP cost per banner'),
   ('banner_duration_d',  '7',    'banner', 'Banner duration (days)'),

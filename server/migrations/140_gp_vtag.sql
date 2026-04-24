@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS vtag_log (
 CREATE INDEX IF NOT EXISTS idx_vtag_log_wallet ON vtag_log(wallet);
 
 -- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+INSERT INTO settings (key, value, category, description) VALUES
   ('vtag_enabled',    'true', 'vtag', 'Enable Vanity Tag System'),
   ('vtag_first_gp',   '50',   'vtag', 'GP cost for first vanity tag'),
   ('vtag_change_gp',  '25',   'vtag', 'GP cost to change vanity tag'),
