@@ -1261,6 +1261,93 @@ router.get('/battles', async (req, res) => {
   }
 });
 
+// ── Migration 173: 함대 전투 손실 회수율 대시보드 ──
+// GET /admin/api/fleet-battle-stats
+router.get('/fleet-battle-stats', async (req, res) => {
+  try {
+    const days = Math.min(parseInt(req.query.days) || 7, 90);
+
+    // 총 전투 수 + 공/방 생존율 (fleet_battles 요약 컬럼 사용)
+    const overall = await pool.query(`
+      SELECT
+        COUNT(*)::int AS total_battles,
+        COUNT(*) FILTER (WHERE status = 'ended')::int AS ended_battles,
+        COALESCE(SUM(atk_ships_total),0)::int AS atk_deployed,
+        COALESCE(SUM(atk_ships_lost),0)::int  AS atk_lost,
+        COALESCE(SUM(def_ships_total),0)::int AS def_deployed,
+        COALESCE(SUM(def_ships_lost),0)::int  AS def_lost,
+        AVG(duration_seconds)::numeric AS avg_duration_sec
+      FROM fleet_battles
+      WHERE COALESCE(battle_started_at, created_at) > NOW() - ($1::int || ' days')::interval
+    `, [days]).catch(() => ({ rows: [{}] }));
+
+    // 참가자별 손실 집계 (wallet별)
+    const topLosers = await pool.query(`
+      SELECT
+        fbp.wallet_address AS wallet,
+        COALESCE(u.nickname, fbp.wallet_address) AS nickname,
+        COUNT(*)::int AS battles,
+        COALESCE(SUM(fbp.ships_lost),0)::int AS ships_lost,
+        COALESCE(SUM(fbp.ships_at_start),0)::int AS ships_deployed
+      FROM fleet_battle_participants fbp
+      LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(fbp.wallet_address)
+      JOIN fleet_battles fb ON fb.id = fbp.battle_id
+      WHERE COALESCE(fb.battle_started_at, fb.created_at) > NOW() - ($1::int || ' days')::interval
+      GROUP BY fbp.wallet_address, u.nickname
+      ORDER BY ships_lost DESC
+      LIMIT 20
+    `, [days]).catch(() => ({ rows: [] }));
+
+    // 일별 집계
+    const daily = await pool.query(`
+      SELECT
+        DATE_TRUNC('day', COALESCE(fb.battle_started_at, fb.created_at))::date AS day,
+        COUNT(*)::int AS battles,
+        COALESCE(SUM(fb.atk_ships_lost + fb.def_ships_lost),0)::int  AS ships_lost,
+        COALESCE(SUM(fb.atk_ships_total + fb.def_ships_total),0)::int AS ships_deployed
+      FROM fleet_battles fb
+      WHERE COALESCE(fb.battle_started_at, fb.created_at) > NOW() - ($1::int || ' days')::interval
+      GROUP BY 1 ORDER BY 1 DESC
+    `, [days]).catch(() => ({ rows: [] }));
+
+    // 해체 통계 (Migration 173 신규 테이블) — Core sink 추적
+    const scrap = await pool.query(`
+      SELECT
+        COUNT(*)::int AS total_scraps,
+        COALESCE(SUM(gp_refunded),0)::numeric AS gp_refunded_total
+      FROM ship_scrap_log
+      WHERE created_at > NOW() - ($1::int || ' days')::interval
+    `, [days]).catch(() => ({ rows: [{}] }));
+
+    const ov = overall.rows[0] || {};
+    const atkDep = parseInt(ov.atk_deployed) || 0;
+    const defDep = parseInt(ov.def_deployed) || 0;
+    const atkLost = parseInt(ov.atk_lost) || 0;
+    const defLost = parseInt(ov.def_lost) || 0;
+    const atkSurvivalPct = atkDep > 0 ? Math.round((atkDep - atkLost) / atkDep * 10000) / 100 : 0;
+    const defSurvivalPct = defDep > 0 ? Math.round((defDep - defLost) / defDep * 10000) / 100 : 0;
+    const overallSurvivalPct = (atkDep + defDep) > 0
+      ? Math.round((atkDep + defDep - atkLost - defLost) / (atkDep + defDep) * 10000) / 100
+      : 0;
+
+    res.json({
+      days,
+      overall: {
+        ...ov,
+        atk_survival_pct: atkSurvivalPct,
+        def_survival_pct: defSurvivalPct,
+        overall_survival_pct: overallSurvivalPct
+      },
+      topLosers: topLosers.rows,
+      daily: daily.rows,
+      scrap: scrap.rows[0] || {}
+    });
+  } catch (e) {
+    console.error('[Admin] fleet-battle-stats error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 // GET /admin/api/shields — List active shields
 router.get('/shields', async (req, res) => {
   try {

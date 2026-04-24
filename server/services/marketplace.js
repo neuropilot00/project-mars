@@ -247,11 +247,10 @@ async function buyListing(client, listingId, buyer) {
   await client.query(`UPDATE users SET ${balCol} = ${balCol} - $1 WHERE wallet_address = $2`, [price, b]);
 
   // ✅ Referral commission + season score (GP purchases only)
+  // (레퍼럴 커미션은 fee 계산 후로 이동 — Migration 173: 마켓 수수료 연동)
   try {
-    const { creditReferralCommission } = require('../db');
     const seasonSvc = require('./season');
     if (currency === 'GP') {
-      await creditReferralCommission(client, b, 'market_buy', price, 'gp');
       seasonSvc.addSeasonScore(b, 'gp_spend', price).catch(() => {});
     }
     seasonSvc.addSeasonScore(b, 'trade', 1).catch(() => {});
@@ -372,6 +371,23 @@ async function buyListing(client, listingId, buyer) {
       [listing.seller, fee, JSON.stringify({ listingId, feePct })]
     );
   }
+
+  // ── Migration 173: 마켓 수수료의 일부를 레퍼럴 트리로 분배 ──
+  // referral_market_fee_pct setting으로 트리거 비율 조정 가능
+  try {
+    if (fee > 0) {
+      const { creditReferralCommission } = require('../db');
+      const refShareRaw = await getSetting('marketplace_referral_commission_pct_of_fee', '25');
+      const refSharePct = parseFloat(refShareRaw) || 0;
+      if (refSharePct > 0) {
+        const refBase = Math.floor(fee * refSharePct / 100 * 1000000) / 1000000;
+        if (refBase > 0) {
+          const cur = (currency || 'GP').toLowerCase();
+          await creditReferralCommission(client, b, 'market_fee', refBase, cur);
+        }
+      }
+    }
+  } catch (_rfe) { /* referral failure non-fatal */ }
 
   // Price history
   const meta = listing.meta || {};

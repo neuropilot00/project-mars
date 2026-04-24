@@ -277,6 +277,30 @@ router.post('/:id/repair', requireAuth, async (req, res) => {
 });
 
 /**
+ * POST /api/ships/:id/scrap — 함선 해체 (Migration 173: Core 광물 sink)
+ * 환불 %는 setting `ship_scrap_refund_pct`. 나머지는 소각.
+ */
+router.post('/:id/scrap', requireAuth, async (req, res) => {
+  try {
+    const wallet = (req.user?.wallet || '').toLowerCase();
+    const shipId = parseInt(req.params.id);
+    if (!wallet) return res.status(401).json({ error: 'UNAUTHORIZED' });
+    if (!shipId) return res.status(400).json({ error: 'INVALID_SHIP_ID' });
+    const result = await shipService.scrapShip(wallet, shipId);
+    res.json(result);
+  } catch (err) {
+    const map = {
+      SHIP_NOT_FOUND: 404,
+      SHIP_IN_BATTLE: 409
+    };
+    const s = map[err.message];
+    if (s) return res.status(s).json({ error: err.message });
+    console.error('[ships] scrap error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
  * POST /api/ships/:id/shield
  * 함선 실드 충전
  * Body: { units }  — 충전할 실드 HP 양

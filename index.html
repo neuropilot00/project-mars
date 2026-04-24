@@ -5659,17 +5659,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
     <div class="base-tabs">
       <div class="base-tab active" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span data-i18n="base_tab_territory">MY TERRITORY</span><span class="tab-dot" id="territoryDot"></span></div>
-      <div class="base-tab" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span data-i18n="base_tab_sectors">SECTORS</span><span class="tab-dot" id="sectorsDot"></span></div>
-      <div class="base-tab" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
       <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')"><span data-i18n="base_tab_mining">MINING</span><span class="tab-dot" id="miningDot"></span></div>
       <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests')"><span data-i18n="base_tab_quests">QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
-      <div class="base-tab" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
-      <div class="base-tab" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
-      <div class="base-tab" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" data-i18n="base_tab_shop"><span>SHOP</span><span class="tab-dot" id="shopDot"></span></div>
+      <div class="base-tab" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems();clearBaseTabDot('shop')" data-i18n="base_tab_shop" style="color:#ffd54f"><span>🛒 SHOP</span><span class="tab-dot" id="shopDot"></span></div>
       <div class="base-tab" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab();clearBaseTabDot('market')" style="color:#a064dc"><span data-i18n="base_tab_market">MARKET</span><span class="tab-dot" id="marketDot"></span></div>
       <div class="base-tab" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
-      <div class="base-tab" id="baseTabPvp" onclick="switchBaseTab('pvp',this);clearBaseTabDot('pvp')" style="color:#ff8a80"><span>⚔ PVP</span><span class="tab-dot" id="pvpDot"></span></div>
+      <div class="base-tab" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span data-i18n="base_tab_sectors">SECTORS</span><span class="tab-dot" id="sectorsDot"></span></div>
       <div class="base-tab" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
+      <div class="base-tab" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
+      <div class="base-tab" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
+      <div class="base-tab" id="baseTabPvp" onclick="switchBaseTab('pvp',this);clearBaseTabDot('pvp')" style="color:#ff8a80"><span>⚔ PVP</span><span class="tab-dot" id="pvpDot"></span></div>
+      <div class="base-tab" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
     </div>
     <div class="base-body">
 
@@ -40490,7 +40490,8 @@ function renderShips() {
       shieldBar +
       '<div style="display:flex;gap:4px;margin-top:6px">' +
         (isDamaged ? '<button onclick="syRepairShip(' + s.id + ',\'' + s.name_ko + '\',' + s.current_hp + ',' + s.max_hp + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>' : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">✅ 최대HP</button>') +
-        '<button onclick="syChargeShield(' + s.id + ',\'' + s.name_ko + '\',' + s.max_hp + ',' + shieldHp + ',' + shieldMax + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드 충전</button>' +
+        '<button onclick="syChargeShield(' + s.id + ',\'' + s.name_ko + '\',' + s.max_hp + ',' + shieldHp + ',' + shieldMax + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드</button>' +
+        '<button onclick="syScrapShip(' + s.id + ',\'' + s.name_ko + '\')" title="해체 (환불+소각)" style="padding:5px 6px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.35);color:#ff8a80;cursor:pointer;font-family:var(--fn)">🔥</button>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -40523,6 +40524,33 @@ async function syRepairShip(shipId, name, currentHp, maxHp) {
     refreshBalance();
     await refreshShipyard();
   } catch(e) { showFactionToast('수리 요청 실패', 'error'); }
+}
+
+async function syScrapShip(shipId, name) {
+  var ok = await gameConfirm({
+    title: '🔥 함선 해체', icon: '🔥',
+    body: '<div style="font-size:11px;color:#ff8a80;font-weight:700;margin-bottom:5px">' + name + '</div>'
+      + '<div style="font-size:10px;color:var(--tx3)">해체 시 GP와 광물의 일부가 환불됩니다. 나머지는 소각(경제 sink).</div>'
+      + '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">기본 환불 40% · admin 조정 가능</div>',
+    confirmText: '🔥 해체하기'
+  });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/ships/' + shipId + '/scrap', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders())
+    });
+    var d = await r.json();
+    if (d.error) { showFactionToast('해체 실패: ' + d.error, 'error'); return; }
+    var refundedParts = [];
+    if (d.gpRefunded) refundedParts.push('+' + d.gpRefunded + ' GP');
+    if (d.mineralsRefunded) {
+      for (var k in d.mineralsRefunded) refundedParts.push('+' + d.mineralsRefunded[k] + ' ' + k);
+    }
+    showFactionToast('🔥 해체 완료 — 환불: ' + (refundedParts.join(', ') || '없음'), 'success');
+    refreshBalance();
+    await refreshShipyard();
+  } catch(e) { showFactionToast('해체 요청 실패', 'error'); }
 }
 
 async function syChargeShield(shipId, name, maxHp, currentShield, shieldMax) {

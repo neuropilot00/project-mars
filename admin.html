@@ -677,6 +677,75 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     </div>
   </div>
 
+  <!-- ── Migration 173: 함대 전투 손실 회수율 대시보드 ── -->
+  <div class="section cat-battles" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title">FLEET BATTLE LOSS STATS (last
+        <select id="fbsDays" onchange="loadFleetBattleStats()" style="background:transparent;color:var(--tx);border:1px solid var(--bdr);padding:2px 6px">
+          <option value="1">1</option><option value="3">3</option>
+          <option value="7" selected>7</option><option value="30">30</option><option value="90">90</option>
+        </select> days)</span>
+      <div class="sec-tools"><button class="adm-btn primary" onclick="loadFleetBattleStats()">REFRESH</button></div>
+    </div>
+    <div class="stats-grid" style="padding:16px" id="fbsStatsGrid">
+      <div class="stat-card"><div class="sc-label">TOTAL BATTLES</div><div class="sc-value mars" id="fbsTotalBattles">--</div></div>
+      <div class="stat-card"><div class="sc-label">OVERALL SURVIVAL %</div><div class="sc-value gn" id="fbsSurvivalPct">--</div></div>
+      <div class="stat-card"><div class="sc-label">ATK SURVIVAL %</div><div class="sc-value cyan" id="fbsAtkSurvival">--</div></div>
+      <div class="stat-card"><div class="sc-label">DEF SURVIVAL %</div><div class="sc-value cyan" id="fbsDefSurvival">--</div></div>
+      <div class="stat-card"><div class="sc-label">SHIPS SCRAPPED (SINK)</div><div class="sc-value gold" id="fbsScrapCount">--</div></div>
+      <div class="stat-card"><div class="sc-label">GP REFUNDED (SCRAP)</div><div class="sc-value gold" id="fbsScrapGp">--</div></div>
+    </div>
+    <div style="padding:0 16px 16px">
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:6px">TOP LOSS WALLETS</div>
+      <div style="overflow-x:auto">
+        <table class="adm-table">
+          <thead><tr><th>WALLET</th><th>NICKNAME</th><th>BATTLES</th><th>SHIPS LOST</th><th>DEPLOYED</th><th>LOSS %</th></tr></thead>
+          <tbody id="fbsTopLosers"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  async function loadFleetBattleStats() {
+    const days = document.getElementById('fbsDays').value || 7;
+    try {
+      const res = await fetch('/admin/api/fleet-battle-stats?days=' + days, {
+        headers: { 'x-admin-secret': localStorage.getItem('admin_secret') || '' }
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const d = await res.json();
+      const ov = d.overall || {};
+      document.getElementById('fbsTotalBattles').textContent = ov.total_battles || 0;
+      document.getElementById('fbsSurvivalPct').textContent = (ov.overall_survival_pct || 0) + '%';
+      document.getElementById('fbsAtkSurvival').textContent = (ov.atk_survival_pct || 0) + '%';
+      document.getElementById('fbsDefSurvival').textContent = (ov.def_survival_pct || 0) + '%';
+      document.getElementById('fbsScrapCount').textContent = (d.scrap && d.scrap.total_scraps) || 0;
+      document.getElementById('fbsScrapGp').textContent = (d.scrap && d.scrap.gp_refunded_total) || 0;
+      const tb = document.getElementById('fbsTopLosers');
+      const rows = d.topLosers || [];
+      if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" class="loading">No data</td></tr>'; return; }
+      tb.innerHTML = rows.map(r => {
+        const dep = r.ships_deployed || 0, lost = r.ships_lost || 0;
+        const pct = dep > 0 ? Math.round(lost / dep * 10000) / 100 : 0;
+        return '<tr><td>' + (r.wallet||'').slice(0,10) + '…</td><td>' + (r.nickname||'-') + '</td><td>' + r.battles + '</td><td>' + lost + '</td><td>' + dep + '</td><td>' + pct + '%</td></tr>';
+      }).join('');
+    } catch(e) {
+      document.getElementById('fbsTopLosers').innerHTML = '<tr><td colspan="6" style="color:#f66">Error: ' + e.message + '</td></tr>';
+    }
+  }
+  // 배틀 탭 열 때 자동 로드
+  (function(){
+    const origSwitch = window.switchTab;
+    if (typeof origSwitch === 'function') {
+      window.switchTab = function(tab) {
+        origSwitch.apply(this, arguments);
+        if (tab === 'battles') { try { loadFleetBattleStats(); } catch(_){} }
+      };
+    }
+  })();
+  </script>
+
   <!-- ═══════ GOVERNANCE ═══════ -->
   <div class="section cat-governance" style="display:none">
     <div class="sec-header">

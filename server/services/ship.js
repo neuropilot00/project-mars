@@ -690,10 +690,10 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
   try {
     await client.query('BEGIN');
 
-    // 1. 함선 조회 (소유권 + 생존 확인)
+    // 1. 함선 조회 (소유권 + 생존 확인 + build_gp_cost)
     const { rows: shipRows } = await client.query(`
       SELECT s.id, s.current_hp, s.max_hp, s.bonus_hp,
-             st.name_ko
+             st.name_ko, st.build_gp_cost
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
       WHERE s.id = $1 AND s.owner_wallet = $2 AND s.is_alive = true
@@ -726,12 +726,20 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
       throw err;
     }
 
-    // 4. 비용 계산
+    // 4. 비용 계산 + 신조 대비 경제성 캡 (Migration 173)
     const gpPerHp     = parseInt(await getSetting('ship_repair_gp_per_hp', '2'))     || 2;
     const ironPer10hp = parseInt(await getSetting('ship_repair_iron_per_10hp', '1')) || 1;
+    const capPct      = parseInt(await getSetting('ship_repair_cost_cap_pct_of_build', '60')) || 60;
 
-    const gpCost   = healAmount * gpPerHp;
+    let gpCost   = healAmount * gpPerHp;
     const ironNeed = Math.ceil(healAmount / 10) * ironPer10hp;
+
+    // 신조 비용 대비 수리비 캡: 항상 신조보다 싸야 유의미
+    const buildCost = parseInt(ship.build_gp_cost) || 0;
+    if (buildCost > 0 && capPct > 0) {
+      const maxRepairGp = Math.floor(buildCost * capPct / 100);
+      if (gpCost > maxRepairGp) gpCost = maxRepairGp;
+    }
 
     // 5. GP 확인
     const { rows: userRows } = await client.query(
@@ -934,6 +942,119 @@ async function getSettingInt(client, key, fallback) {
   } catch { return fallback; }
 }
 
+// ── Migration 173: 함선 해체 (Core 광물 sink) ──
+// 해체 시 build 광물의 X%가 환불되고, 나머지는 소각됨.
+// ship_scrap_refund_pct로 admin 조정 가능. 기본 40% 환불 → 60% 소각 = Core sink.
+async function scrapShip(walletAddress, shipId) {
+  const { getSetting, pool: _pool } = require('../db');
+  const client = await _pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: shipRows } = await client.query(`
+      SELECT s.id, s.owner_wallet, s.ship_type_code, s.is_alive,
+             st.name_ko, st.build_gp_cost, st.recipe_minerals
+      FROM ships s
+      JOIN ship_types st ON st.code = s.ship_type_code
+      WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
+      FOR UPDATE OF s
+    `, [shipId, walletAddress]);
+
+    if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
+    const ship = shipRows[0];
+
+    // 전투 중이거나 battle에 참여 중이면 해체 불가
+    try {
+      const { rows: battleRows } = await client.query(
+        `SELECT 1 FROM fleet_battle_participants fbp
+         JOIN fleet_battles fb ON fb.id = fbp.battle_id
+         WHERE fbp.ship_id = $1 AND fb.status IN ('active','pending')
+         LIMIT 1`, [shipId]
+      );
+      if (battleRows.length) throw new Error('SHIP_IN_BATTLE');
+    } catch (e) {
+      if (e.message === 'SHIP_IN_BATTLE') throw e;
+      // table may not exist — ignore
+    }
+
+    const refundPct = parseInt(await getSetting('ship_scrap_refund_pct', '40')) || 40;
+    const gpRefund = Math.floor((parseInt(ship.build_gp_cost) || 0) * refundPct / 100);
+
+    // 광물 환불/소각 로그
+    let recipe = ship.recipe_minerals;
+    if (typeof recipe === 'string') {
+      try { recipe = JSON.parse(recipe); } catch(_) { recipe = null; }
+    }
+    const refundedMinerals = {};
+    const burnedMinerals = {};
+    if (recipe && typeof recipe === 'object') {
+      for (const [code, amtRaw] of Object.entries(recipe)) {
+        const amt = parseInt(amtRaw) || 0;
+        if (amt <= 0) continue;
+        const refund = Math.floor(amt * refundPct / 100);
+        const burned = amt - refund;
+        if (refund > 0) {
+          refundedMinerals[code] = refund;
+          // 광물 환불 (인벤토리 +)
+          await client.query(
+            `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+             SELECT $1, r.id, $2, NOW() FROM resources r WHERE r.code = $3
+             ON CONFLICT (wallet_address, resource_id) DO UPDATE
+               SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity,
+                   updated_at = NOW()`,
+            [walletAddress.toLowerCase(), refund, code]
+          );
+        }
+        if (burned > 0) burnedMinerals[code] = burned;
+      }
+    }
+
+    // GP 환불
+    if (gpRefund > 0) {
+      await client.query(
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+        [gpRefund, walletAddress.toLowerCase()]
+      );
+    }
+
+    // 함선 삭제 (is_alive=false, scrapped)
+    await client.query(
+      `UPDATE ships SET is_alive = false, destroyed_at = NOW(), destroyed_reason = 'scrapped'
+       WHERE id = $1`, [shipId]
+    );
+
+    // 해체 로그
+    try {
+      await client.query(
+        `INSERT INTO ship_scrap_log (ship_id, wallet, ship_type_code, gp_refunded, minerals_refunded, minerals_burned)
+         VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb)`,
+        [shipId, walletAddress.toLowerCase(), ship.ship_type_code, gpRefund,
+         JSON.stringify(refundedMinerals), JSON.stringify(burnedMinerals)]
+      );
+    } catch (_) { /* log table may not exist on older DBs */ }
+
+    await client.query('COMMIT');
+
+    try {
+      const { logGPActivity } = require('../db');
+      if (gpRefund > 0) logGPActivity(walletAddress, gpRefund, 'ship_scrap', `${ship.name_ko} 해체 환불`).catch(()=>{});
+    } catch(_) {}
+
+    return {
+      success: true,
+      shipName: ship.name_ko,
+      gpRefunded: gpRefund,
+      mineralsRefunded: refundedMinerals,
+      mineralsBurned: burnedMinerals
+    };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   getBlueprints,
   getMyShips,
@@ -945,4 +1066,5 @@ module.exports = {
   getFleetSummary,
   repairShip,
   chargeShield,
+  scrapShip,
 };
