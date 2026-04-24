@@ -354,16 +354,7 @@ async function handlePhase2Complete(phase2BattleId) {
           }
         }
 
-        // 원 소유자 빈 claim 정리
-        const prevOwners = [...new Set(pixels.map(p => p.prev_owner).filter(Boolean))];
-        for (const prevOwner of prevOwners) {
-          await client.query(
-            `DELETE FROM claims WHERE owner = $1 AND id NOT IN (
-               SELECT DISTINCT claim_id FROM pixels WHERE owner = $1 AND claim_id IS NOT NULL
-             )`,
-            [prevOwner]
-          );
-        }
+        // 원 소유자 claim은 보존 (Phase 2 승리 시에도 동일)
 
         console.log(`[hijack] ${hijack.id} ATK WIN: ${pixels.length}px → ${attackerWallet}`);
       }
@@ -554,16 +545,8 @@ async function declareHijackWithPP(params) {
           );
         }
 
-        // 원 소유자 빈 claim 정리
-        const prevOwners = [...new Set(enemy_pixels.map(p => p.prevOwner).filter(Boolean))];
-        for (const pOwner of prevOwners) {
-          await client.query(
-            `DELETE FROM claims WHERE owner = $1 AND id NOT IN (
-               SELECT DISTINCT claim_id FROM pixels WHERE owner = $1 AND claim_id IS NOT NULL
-             )`,
-            [pOwner]
-          );
-        }
+        // 원 소유자 claim은 보존 — 픽셀만 이전됐을 뿐, 클레임 레코드는 유지
+        // (이전엔 빈 클레임 자동 삭제했으나, 부분 점령 시 잘못 삭제되는 케이스로 인해 비활성화)
 
         // hijack_battles 기록 (완료 상태)
         const { rows: hjRows } = await client.query(`
