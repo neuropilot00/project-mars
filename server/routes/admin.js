@@ -3888,4 +3888,194 @@ router.post('/vtag/setting', adminAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ══════════════════════════════════════════════════════════════════
+//  PHASE D: Guild-War 72h + 1:1 Duel + 3-Guild Alliance admin
+// ══════════════════════════════════════════════════════════════════
+
+const PHASE_D_SETTING_KEYS = [
+  // Guild War
+  'guild_war_duration_hours_default',
+  'guild_war_min_stake_gp',
+  'guild_war_max_stake_gp',
+  'guild_war_truce_min_hours',
+  'guild_war_winner_pot_pct',
+  // Duel
+  'duel_default_expiry_hours',
+  'duel_min_stake_gp',
+  'duel_max_stake_gp',
+  'duel_max_pending_per_pair',
+  'duel_max_active_per_user',
+  // Alliance
+  'alliance_max_guilds',
+  'alliance_min_guilds',
+  'alliance_betrayal_cooldown_hours',
+  'alliance_chronicle_betrayal_enabled'
+];
+
+// GET /admin/api/phase-d/settings — fetch all 14 Phase D settings
+router.get('/phase-d/settings', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      'SELECT key, value, description, category FROM settings WHERE key = ANY($1::text[])',
+      [PHASE_D_SETTING_KEYS]
+    );
+    const out = {};
+    for (const row of r.rows) {
+      // JSONB value: unwrap to primitive for editing
+      let v = row.value;
+      if (typeof v === 'string' && /^".*"$/.test(v)) v = v.slice(1, -1);
+      out[row.key] = {
+        value: row.value,
+        description: row.description,
+        category: row.category
+      };
+    }
+    res.json({ settings: out, keys: PHASE_D_SETTING_KEYS });
+  } catch (e) {
+    console.error('[Admin] phase-d/settings error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/phase-d/setting — update a single Phase D setting
+router.post('/phase-d/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !PHASE_D_SETTING_KEYS.includes(key)) {
+    return res.status(400).json({ error: 'Invalid or non-Phase-D key' });
+  }
+  try {
+    const r = await pool.query(
+      'UPDATE settings SET value=$1, updated_at=NOW() WHERE key=$2 RETURNING key',
+      [JSON.stringify(value), key]
+    );
+    if (!r.rowCount) return res.status(404).json({ error: 'Setting not found' });
+    await auditLog(req, 'phase_d_setting_update', key, { value });
+    res.json({ ok: true, key, value });
+  } catch (e) {
+    console.error('[Admin] phase-d/setting error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /admin/api/phase-d/duel-stats — per-status counts + GP volume + recent fought
+router.get('/phase-d/duel-stats', adminAuth, async (req, res) => {
+  try {
+    let svc = null;
+    try { svc = require('../services/duel'); } catch (_) {}
+    const stats = svc && svc.getAdminStats ? await svc.getAdminStats() : { total: 0, by_status: {}, total_gp: 0 };
+    const recent = await pool.query(
+      `SELECT d.id, d.challenger, d.defender, d.wager_gp, d.status, d.winner,
+              d.created_at, d.resolved_at,
+              uc.nickname AS challenger_nick, ud.nickname AS defender_nick
+         FROM gp_duels d
+         LEFT JOIN users uc ON uc.wallet_address = d.challenger
+         LEFT JOIN users ud ON ud.wallet_address = d.defender
+        ORDER BY d.created_at DESC
+        LIMIT 30`
+    );
+    res.json({ stats, recent: recent.rows });
+  } catch (e) {
+    console.error('[Admin] phase-d/duel-stats error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /admin/api/phase-d/alliance-guilds — active 길드-동맹 composition
+router.get('/phase-d/alliance-guilds', adminAuth, async (req, res) => {
+  try {
+    const composition = await pool.query(
+      `SELECT ag.alliance_id,
+              a.name AS alliance_name,
+              COUNT(*) FILTER (WHERE ag.left_at IS NULL) AS active_guilds,
+              ARRAY_AGG(
+                JSON_BUILD_OBJECT(
+                  'guild_id', ag.guild_id,
+                  'guild_name', g.name,
+                  'guild_tag', g.tag,
+                  'joined_at', ag.joined_at,
+                  'left_at', ag.left_at,
+                  'betrayed_to', ag.betrayed_to
+                ) ORDER BY ag.joined_at DESC
+              ) AS guilds
+         FROM alliance_guilds ag
+         LEFT JOIN alliances a ON a.id = ag.alliance_id
+         LEFT JOIN guilds g ON g.id = ag.guild_id
+        WHERE ag.left_at IS NULL
+        GROUP BY ag.alliance_id, a.name
+        ORDER BY active_guilds DESC, ag.alliance_id ASC
+        LIMIT 50`
+    );
+    res.json({ alliances: composition.rows });
+  } catch (e) {
+    console.error('[Admin] phase-d/alliance-guilds error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /admin/api/phase-d/betrayal-log — recent betrayals (guild switched alliance)
+router.get('/phase-d/betrayal-log', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT ag.id, ag.guild_id, g.name AS guild_name, g.tag AS guild_tag,
+              ag.alliance_id AS from_alliance_id, af.name AS from_alliance_name,
+              ag.betrayed_to AS to_alliance_id, at_.name AS to_alliance_name,
+              ag.betrayed_at
+         FROM alliance_guilds ag
+         LEFT JOIN guilds g ON g.id = ag.guild_id
+         LEFT JOIN alliances af ON af.id = ag.alliance_id
+         LEFT JOIN alliances at_ ON at_.id = ag.betrayed_to
+        WHERE ag.betrayed_at IS NOT NULL
+        ORDER BY ag.betrayed_at DESC
+        LIMIT 50`
+    );
+    res.json({ betrayals: r.rows });
+  } catch (e) {
+    console.error('[Admin] phase-d/betrayal-log error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/phase-d/duel/:id/cancel — force-cancel a pending/accepted duel, refund wager
+router.post('/phase-d/duel/:id/cancel', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: 'Invalid duel id' });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const d = await client.query(
+      'SELECT * FROM gp_duels WHERE id=$1 FOR UPDATE', [id]
+    );
+    if (!d.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Not found' }); }
+    const duel = d.rows[0];
+    if (!['pending', 'accepted'].includes(duel.status)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Not cancellable (status=' + duel.status + ')' });
+    }
+    // Refund wager to challenger (and defender if accepted)
+    if (duel.wager_gp > 0) {
+      await client.query(
+        'UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2',
+        [duel.wager_gp, duel.challenger]
+      );
+      if (duel.status === 'accepted') {
+        await client.query(
+          'UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2',
+          [duel.wager_gp, duel.defender]
+        );
+      }
+    }
+    await client.query(
+      `UPDATE gp_duels SET status='cancelled', resolved_at=NOW() WHERE id=$1`,
+      [id]
+    );
+    await client.query('COMMIT');
+    await auditLog(req, 'phase_d_duel_force_cancel', 'duel:'+id, { refundedGp: duel.wager_gp });
+    res.json({ ok: true, id, refundedGp: duel.wager_gp });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[Admin] phase-d/duel cancel error:', e.message);
+    res.status(500).json({ error: e.message });
+  } finally { client.release(); }
+});
+
 module.exports = router;

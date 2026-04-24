@@ -755,6 +755,73 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <thead><tr><th>ID</th><th>ATTACKER</th><th>DEFENDER</th><th>SCORE</th><th>STATUS</th><th>ENDS</th><th>ACTIONS</th></tr></thead>
         <tbody id="guildWarsBody"><tr><td colspan="7" class="loading">Click REFRESH</td></tr></tbody>
       </table>
+
+      <!-- ═══ PHASE D: War/Duel/Alliance Settings + Stats ═══ -->
+      <div class="sec-header" style="margin-top:20px">
+        <span class="sec-title" style="color:#a064dc">🎯 PHASE D — WAR / DUEL / ALLIANCE</span>
+        <div class="sec-tools"><button class="ev-btn" onclick="loadPhaseDAdmin()">REFRESH ALL</button></div>
+      </div>
+      <div id="phdStatus" style="font-size:9px;color:var(--gold);min-height:12px;margin-bottom:8px"></div>
+
+      <!-- Settings -->
+      <div style="padding:12px;border:1px solid rgba(160,100,220,.18);border-radius:6px;background:rgba(160,100,220,.03);margin-bottom:12px">
+        <div style="font-size:8px;color:#a064dc;letter-spacing:1px;margin-bottom:10px;font-weight:700">⚙️ SETTINGS (M-157)</div>
+
+        <!-- War sub-section -->
+        <div style="font-size:8px;color:#E84855;letter-spacing:1px;margin:6px 0;font-weight:700">⚔️ GUILD WAR (72h ruleset)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px" id="phdWarSettings">
+          <div style="color:#888;font-size:9px">Click REFRESH ALL...</div>
+        </div>
+
+        <!-- Duel sub-section -->
+        <div style="font-size:8px;color:var(--cyan);letter-spacing:1px;margin:12px 0 6px;font-weight:700">⚔ 1:1 DUEL</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px" id="phdDuelSettings">
+          <div style="color:#888;font-size:9px">Click REFRESH ALL...</div>
+        </div>
+
+        <!-- Alliance sub-section -->
+        <div style="font-size:8px;color:var(--gold);letter-spacing:1px;margin:12px 0 6px;font-weight:700">🤝 ALLIANCE (guild-of-guilds)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px" id="phdAllianceSettings">
+          <div style="color:#888;font-size:9px">Click REFRESH ALL...</div>
+        </div>
+      </div>
+
+      <!-- Duel Stats -->
+      <div class="sec-header" style="margin-top:4px">
+        <span class="sec-title" style="color:var(--cyan)">⚔ DUEL STATS</span>
+        <div class="sec-tools"><button class="ev-btn" onclick="loadPhaseDDuelStats()">REFRESH</button></div>
+      </div>
+      <div id="phdDuelStatCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:8px"></div>
+      <div style="overflow-x:auto">
+        <table class="adm-table">
+          <thead><tr><th>ID</th><th>CHALLENGER</th><th>DEFENDER</th><th>WAGER</th><th>STATUS</th><th>WINNER</th><th>CREATED</th><th>ACTIONS</th></tr></thead>
+          <tbody id="phdDuelBody"><tr><td colspan="8" class="loading">Click REFRESH</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Alliance Composition -->
+      <div class="sec-header" style="margin-top:12px">
+        <span class="sec-title" style="color:var(--gold)">🤝 ALLIANCE COMPOSITION (3-guild cap)</span>
+        <div class="sec-tools"><button class="ev-btn" onclick="loadPhaseDAllianceGuilds()">REFRESH</button></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="adm-table">
+          <thead><tr><th>ALLIANCE</th><th>ACTIVE GUILDS</th><th>MEMBERS</th></tr></thead>
+          <tbody id="phdAllianceBody"><tr><td colspan="3" class="loading">Click REFRESH</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Betrayal Log -->
+      <div class="sec-header" style="margin-top:12px">
+        <span class="sec-title" style="color:var(--red)">🗡️ BETRAYAL LOG</span>
+        <div class="sec-tools"><button class="ev-btn" onclick="loadPhaseDBetrayalLog()">REFRESH</button></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="adm-table">
+          <thead><tr><th>WHEN</th><th>GUILD</th><th>LEFT ALLIANCE</th><th>JOINED ALLIANCE</th></tr></thead>
+          <tbody id="phdBetrayalBody"><tr><td colspan="4" class="loading">Click REFRESH</td></tr></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -2398,7 +2465,7 @@ function switchTab(tab) {
   if (tab === 'claims') { try { loadClaims(); } catch(e) { console.error('loadClaims:', e); } }
   if (tab === 'shop') { loadShopItems(); loadShopStats(); loadAdminShields(); }
   if (tab === 'battles') { loadBattles(); }
-  if (tab === 'guild') { loadAdminGuilds(); }
+  if (tab === 'guild') { loadAdminGuilds(); loadAdminGuildWars(); loadPhaseDAdmin(); }
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
   if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); loadBannerAdmin(); loadJournalAdmin(); loadTprestigeAdmin(); loadAnnounceAdmin(); loadTombstoneAdmin(); loadMilestoneAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
@@ -4049,6 +4116,196 @@ function forceResolveWar(warId) {
     .then(function(r){return r.json()})
     .then(function(d){ if(d.success) loadAdminGuildWars(); else alert(d.error||'Failed'); })
     .catch(function(e){ alert(e.message); });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PHASE D ADMIN (M-157): Guild War 72h / 1:1 Duel / 3-guild Alliance
+// ═══════════════════════════════════════════════════════════════════
+function loadPhaseDAdmin() {
+  loadPhaseDSettings();
+  loadPhaseDDuelStats();
+  loadPhaseDAllianceGuilds();
+  loadPhaseDBetrayalLog();
+}
+
+function _phdSetStatus(msg, isError) {
+  var el = document.getElementById('phdStatus');
+  if (!el) return;
+  el.style.color = isError ? 'var(--red)' : 'var(--gold)';
+  el.textContent = msg || '';
+  if (msg) setTimeout(function(){ if (el.textContent===msg) el.textContent=''; }, 2500);
+}
+
+function _phdUnwrap(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'string' && /^".*"$/.test(v)) return v.slice(1, -1);
+  return String(v);
+}
+
+function _phdRenderSetting(key, meta) {
+  var val = _phdUnwrap(meta.value);
+  var desc = meta.description || '';
+  var isBool = (val === 'true' || val === 'false');
+  var input;
+  if (isBool) {
+    input = '<select id="phd_set_'+key+'" onchange="savePhaseDSetting(\''+key+'\', this.value===\'true\')" '
+      + 'style="width:100%;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:3px">'
+      + '<option value="true"'+(val==='true'?' selected':'')+'>true</option>'
+      + '<option value="false"'+(val==='false'?' selected':'')+'>false</option>'
+      + '</select>';
+  } else {
+    input = '<input id="phd_set_'+key+'" value="'+escapeHtml(val)+'" '
+      + 'onchange="savePhaseDSettingInput(\''+key+'\')" '
+      + 'style="width:100%;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(160,100,220,.3);color:#fff;border-radius:3px">';
+  }
+  return '<div style="background:rgba(160,100,220,.04);border:1px solid rgba(160,100,220,.15);border-radius:5px;padding:6px">'
+    + '<div style="font-size:8px;color:#c080e0;font-weight:700;margin-bottom:2px" title="'+escapeHtml(desc)+'">'+escapeHtml(key)+'</div>'
+    + '<div style="display:flex;gap:4px;align-items:center">'
+    + input
+    + '<button onclick="savePhaseDSettingInput(\''+key+'\')" style="flex-shrink:0;font-size:9px;padding:3px 8px;background:rgba(160,100,220,.18);border:1px solid rgba(160,100,220,.4);color:#c080e0;border-radius:3px;cursor:pointer">💾</button>'
+    + '</div>'
+    + '<div style="font-size:7px;color:#777;margin-top:3px;line-height:1.3">'+escapeHtml(desc)+'</div>'
+    + '</div>';
+}
+
+function loadPhaseDSettings() {
+  api('/admin/api/phase-d/settings').then(function(d) {
+    var s = d.settings || {};
+    var warKeys = ['guild_war_duration_hours_default','guild_war_min_stake_gp','guild_war_max_stake_gp','guild_war_truce_min_hours','guild_war_winner_pot_pct'];
+    var duelKeys = ['duel_default_expiry_hours','duel_min_stake_gp','duel_max_stake_gp','duel_max_pending_per_pair','duel_max_active_per_user'];
+    var allyKeys = ['alliance_max_guilds','alliance_min_guilds','alliance_betrayal_cooldown_hours','alliance_chronicle_betrayal_enabled'];
+    var renderGroup = function(keys, hostId) {
+      var host = document.getElementById(hostId);
+      if (!host) return;
+      host.innerHTML = keys.map(function(k) {
+        return s[k] ? _phdRenderSetting(k, s[k]) : '<div style="color:#666;font-size:9px;padding:6px">'+escapeHtml(k)+': not found (run M-157)</div>';
+      }).join('');
+    };
+    renderGroup(warKeys, 'phdWarSettings');
+    renderGroup(duelKeys, 'phdDuelSettings');
+    renderGroup(allyKeys, 'phdAllianceSettings');
+  }).catch(function(e) {
+    _phdSetStatus('Settings load error: '+e.message, true);
+  });
+}
+
+function savePhaseDSettingInput(key) {
+  var inp = document.getElementById('phd_set_'+key);
+  if (!inp) return;
+  var raw = inp.value;
+  var val;
+  if (raw === 'true') val = true;
+  else if (raw === 'false') val = false;
+  else if (!isNaN(raw) && raw.trim() !== '') val = parseFloat(raw);
+  else val = raw;
+  savePhaseDSetting(key, val);
+}
+
+function savePhaseDSetting(key, value) {
+  fetch('/admin/api/phase-d/setting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({ key: key, value: value })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.ok) _phdSetStatus('✓ '+key+' = '+JSON.stringify(value));
+    else _phdSetStatus('✗ '+(d.error||'failed'), true);
+  }).catch(function(e) { _phdSetStatus('✗ '+e.message, true); });
+}
+
+function loadPhaseDDuelStats() {
+  api('/admin/api/phase-d/duel-stats').then(function(d) {
+    var stats = d.stats || {by_status:{}, total:0, total_gp:0};
+    var cards = document.getElementById('phdDuelStatCards');
+    if (cards) {
+      var cs = function(label, val, color){
+        return '<div style="padding:8px;border:1px solid rgba(91,184,232,.2);border-radius:5px;background:rgba(91,184,232,.03)">'
+          +'<div style="font-size:7px;color:'+color+';letter-spacing:1px">'+label+'</div>'
+          +'<div style="font-size:14px;color:'+color+';font-weight:700">'+val+'</div></div>';
+      };
+      var bs = stats.by_status || {};
+      cards.innerHTML = [
+        cs('TOTAL', stats.total, 'var(--cyan)'),
+        cs('PENDING', (bs.pending||{}).count||0, 'var(--gold)'),
+        cs('FOUGHT', (bs.fought||{}).count||0, 'var(--gn)'),
+        cs('EXPIRED', (bs.expired||{}).count||0, '#888'),
+        cs('TOTAL GP', stats.total_gp, 'var(--gold)')
+      ].join('');
+    }
+    var recent = d.recent || [];
+    var tbody = document.getElementById('phdDuelBody');
+    if (!tbody) return;
+    if (!recent.length) { tbody.innerHTML = '<tr><td colspan="8" class="loading">No duels</td></tr>'; return; }
+    tbody.innerHTML = recent.map(function(x) {
+      var canCancel = (x.status==='pending'||x.status==='accepted');
+      var statusColor = x.status==='fought'?'var(--gn)':x.status==='pending'?'var(--gold)':x.status==='cancelled'?'#888':x.status==='expired'?'#666':'var(--tx2)';
+      return '<tr>'
+        +'<td>#'+x.id+'</td>'
+        +'<td style="color:var(--cyan)">'+escapeHtml(x.challenger_nick||x.challenger.slice(0,10)+'...')+'</td>'
+        +'<td style="color:var(--mars)">'+escapeHtml(x.defender_nick||x.defender.slice(0,10)+'...')+'</td>'
+        +'<td class="val-gn">'+x.wager_gp+' GP</td>'
+        +'<td><span style="color:'+statusColor+'">'+x.status.toUpperCase()+'</span></td>'
+        +'<td>'+(x.winner?escapeHtml(x.winner.slice(0,10)+'...'):'--')+'</td>'
+        +'<td style="font-size:8px">'+new Date(x.created_at).toLocaleString()+'</td>'
+        +'<td>'+(canCancel?'<button class="ev-btn del" onclick="forceCancelDuel('+x.id+')">CANCEL</button>':'--')+'</td>'
+        +'</tr>';
+    }).join('');
+  }).catch(function(e) {
+    var tbody = document.getElementById('phdDuelBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="loading">Error: '+e.message+'</td></tr>';
+  });
+}
+
+function forceCancelDuel(id) {
+  if (!confirm('Force-cancel duel #'+id+' and refund wager?')) return;
+  fetch('/admin/api/phase-d/duel/'+id+'/cancel', { method:'POST', headers:{'x-admin-secret':adminSecret} })
+    .then(function(r){return r.json()})
+    .then(function(d){ if (d.ok) { _phdSetStatus('✓ duel #'+id+' cancelled, refunded '+d.refundedGp+' GP'); loadPhaseDDuelStats(); } else _phdSetStatus('✗ '+(d.error||'failed'), true); })
+    .catch(function(e){ _phdSetStatus('✗ '+e.message, true); });
+}
+
+function loadPhaseDAllianceGuilds() {
+  api('/admin/api/phase-d/alliance-guilds').then(function(d) {
+    var tbody = document.getElementById('phdAllianceBody');
+    if (!tbody) return;
+    var rows = d.alliances || [];
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="3" class="loading">No multi-guild alliances yet</td></tr>'; return; }
+    tbody.innerHTML = rows.map(function(r) {
+      var guilds = (r.guilds||[]).filter(function(g){ return !g.left_at; });
+      var guildHtml = guilds.map(function(g){
+        return '<span style="display:inline-block;margin:2px;padding:2px 6px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);border-radius:3px;font-size:9px;color:var(--gold)">'
+          +escapeHtml(g.guild_name||'#'+g.guild_id)+(g.guild_tag?' ['+escapeHtml(g.guild_tag)+']':'')
+          +'</span>';
+      }).join('');
+      return '<tr>'
+        +'<td style="color:var(--gold)">'+escapeHtml(r.alliance_name||'#'+r.alliance_id)+' <span style="color:#666;font-size:8px">(#'+r.alliance_id+')</span></td>'
+        +'<td class="val-gn">'+r.active_guilds+'</td>'
+        +'<td>'+guildHtml+'</td>'
+        +'</tr>';
+    }).join('');
+  }).catch(function(e) {
+    var tbody = document.getElementById('phdAllianceBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="3" class="loading">Error: '+e.message+'</td></tr>';
+  });
+}
+
+function loadPhaseDBetrayalLog() {
+  api('/admin/api/phase-d/betrayal-log').then(function(d) {
+    var tbody = document.getElementById('phdBetrayalBody');
+    if (!tbody) return;
+    var rows = d.betrayals || [];
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="4" class="loading">No betrayals yet</td></tr>'; return; }
+    tbody.innerHTML = rows.map(function(r) {
+      return '<tr>'
+        +'<td style="font-size:8px">'+new Date(r.betrayed_at).toLocaleString()+'</td>'
+        +'<td style="color:var(--red)">'+escapeHtml(r.guild_name||'#'+r.guild_id)+(r.guild_tag?' ['+escapeHtml(r.guild_tag)+']':'')+'</td>'
+        +'<td style="color:#888">'+escapeHtml(r.from_alliance_name||'#'+r.from_alliance_id)+'</td>'
+        +'<td style="color:var(--gold)">'+(r.to_alliance_id?escapeHtml(r.to_alliance_name||'#'+r.to_alliance_id):'<span style="color:#666">none</span>')+'</td>'
+        +'</tr>';
+    }).join('');
+  }).catch(function(e) {
+    var tbody = document.getElementById('phdBetrayalBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="loading">Error: '+e.message+'</td></tr>';
+  });
 }
 
 // ═══ SEASON MANAGEMENT ═══
