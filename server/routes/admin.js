@@ -4399,17 +4399,29 @@ router.get('/ships', adminAuth, async (req, res) => {
 // POST /admin/api/fleet/grant-starter — 파벌 스타터 팩 수동 지급 (함선 + 광물)
 // ══════════════════════════════════════════════════
 router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
-  const { wallet } = req.body;
+  const { wallet, faction: forceFaction } = req.body;
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
-  let w = wallet.toLowerCase().trim();
+  const input = wallet.trim();
 
-  // 닉네임으로 입력된 경우 wallet 조회
-  if (!w.startsWith('0x')) {
-    const { rows: byNick } = await pool.query(
-      `SELECT wallet_address FROM users WHERE LOWER(nickname) = $1 LIMIT 1`, [w]
+  // wallet 주소 조회 — ILIKE(대소문자 무시) + 닉네임 fallback
+  let w;
+  try {
+    // 1) 지갑주소로 직접 검색 (대소문자 무시)
+    const { rows: byWallet } = await pool.query(
+      `SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) LIMIT 1`, [input]
     );
-    if (!byNick[0]) return res.status(404).json({ error: 'user_not_found', hint: '닉네임으로 찾을 수 없음. 검색 기능으로 wallet을 먼저 찾아주세요.' });
-    w = byNick[0].wallet_address;
+    if (byWallet[0]) {
+      w = byWallet[0].wallet_address;
+    } else {
+      // 2) 닉네임으로 검색
+      const { rows: byNick } = await pool.query(
+        `SELECT wallet_address FROM users WHERE LOWER(nickname) = LOWER($1) LIMIT 1`, [input]
+      );
+      if (!byNick[0]) return res.status(404).json({ error: 'user_not_found', hint: `'${input}' 유저를 찾을 수 없음` });
+      w = byNick[0].wallet_address;
+    }
+  } catch (lookupErr) {
+    return res.status(500).json({ error: 'lookup_failed: ' + lookupErr.message });
   }
 
   const client = await pool.connect();
@@ -4420,8 +4432,12 @@ router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
       `SELECT faction_code FROM users WHERE wallet_address = $1`, [w]
     );
     if (!uRows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'user_not_found' }); }
-    const factionCode = uRows[0].faction_code;
-    if (!factionCode) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'no_faction_selected' }); }
+    // 파벌: 유저 파벌 우선, 없으면 forceFaction, 그래도 없으면 mcc 기본
+    let factionCode = uRows[0].faction_code || forceFaction || 'mcc';
+    if (!uRows[0].faction_code) {
+      // 파벌 DB에도 저장
+      await client.query(`UPDATE users SET faction_code = $1 WHERE wallet_address = $2`, [factionCode, w]);
+    }
 
     // 함대 생성 or 조회
     let fleetId;

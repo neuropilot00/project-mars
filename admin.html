@@ -2478,26 +2478,32 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
       지급 내용: <b style="color:#4cd89a">T1 프리깃 1척 (해당 파벌) + iron_ore 20 + carbon_fiber 20 + silicon_chip 10</b><br>
       ※ 이미 함선이 있는 유저는 광물만 지급됩니다.
     </div>
+    <!-- 유저 검색 (먼저) -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <input id="starterSearchNick" type="text" placeholder="닉네임 또는 wallet 입력..."
+        style="flex:1;max-width:320px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 10px;border-radius:4px;font-size:11px"
+        onkeydown="if(event.key==='Enter')searchUserForStarter()">
+      <button onclick="searchUserForStarter()"
+        style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#eee;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:11px">
+        🔍 검색
+      </button>
+    </div>
+    <div id="starterSearchResult" style="margin-bottom:10px;font-size:11px"></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <input id="starterPackWallet" type="text" placeholder="wallet address 또는 닉네임 조회 후 입력"
+      <input id="starterPackWallet" type="text" placeholder="wallet address (검색 후 선택 버튼 클릭)"
         style="flex:1;min-width:240px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 10px;border-radius:4px;font-size:11px">
+      <select id="starterPackFaction" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 8px;border-radius:4px;font-size:11px">
+        <option value="">파벌자동(유저설정)</option>
+        <option value="mcc">MCC</option>
+        <option value="fsp">FSP</option>
+        <option value="cv">CV</option>
+      </select>
       <button onclick="grantStarterPack()"
         style="background:rgba(76,216,154,.2);border:1px solid rgba(76,216,154,.4);color:#4cd89a;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700">
         🚀 스타터 팩 지급
       </button>
     </div>
     <div id="starterPackResult" style="margin-top:10px;font-size:11px"></div>
-    <!-- 유저 검색 -->
-    <div class="sec-header" style="margin-top:14px"><span class="sec-title" style="color:#aaa">유저 검색 (닉네임으로 wallet 찾기)</span></div>
-    <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
-      <input id="starterSearchNick" type="text" placeholder="닉네임 입력..."
-        style="flex:1;max-width:280px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 10px;border-radius:4px;font-size:11px">
-      <button onclick="searchUserForStarter()"
-        style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#eee;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:11px">
-        검색
-      </button>
-    </div>
-    <div id="starterSearchResult" style="margin-top:8px;font-size:11px"></div>
   </div>
 
   <!-- ═══ SHIP UPGRADES (inside ships section) ═══ -->
@@ -10593,13 +10599,14 @@ function loadShipsAdmin() {
 // ── 스타터 팩 수동 지급 ──
 function grantStarterPack() {
   var wallet = (document.getElementById('starterPackWallet').value || '').trim();
+  var faction = (document.getElementById('starterPackFaction').value || '').trim();
   var resultEl = document.getElementById('starterPackResult');
-  if (!wallet) { resultEl.innerHTML = '<span style="color:#f44">wallet 주소를 입력하세요</span>'; return; }
+  if (!wallet) { resultEl.innerHTML = '<span style="color:#f44">wallet 주소를 입력하세요 (위에서 검색 후 선택)</span>'; return; }
   resultEl.innerHTML = '<span style="color:#aaa">지급 중...</span>';
   fetch('/admin/api/fleet/grant-starter', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
-    body: JSON.stringify({ wallet: wallet })
+    body: JSON.stringify({ wallet: wallet, faction: faction || undefined })
   }).then(function(r){ return r.json(); }).then(function(d){
     if (d.success) {
       var shipInfo = typeof d.ship === 'object' ? (d.ship.name + ' (' + d.ship.code + ')') : (d.ship || '없음(이미 보유)');
