@@ -7714,8 +7714,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <!-- Game-themed confirm dialog (Mars HUD style) -->
 <!-- ── Job Selection Modal ── -->
-<div id="jobSelectModal" class="job-select-overlay" style="display:none">
-  <div class="job-select-modal">
+<div id="jobSelectModal" class="job-select-overlay" style="display:none" onclick="if(event.target===this)closeJobSelectModal()">
+  <div class="job-select-modal" style="position:relative">
+    <button onclick="closeJobSelectModal()" aria-label="Close" style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:var(--tx3);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:1;font-family:var(--fn)" onmouseover="this.style.color='var(--tx)';this.style.borderColor='rgba(255,255,255,.35)'" onmouseout="this.style.color='var(--tx3)';this.style.borderColor='rgba(255,255,255,.15)'">✕</button>
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:24px;margin-bottom:6px">🚀</div>
       <div style="font-size:14px;font-weight:900;color:var(--tx);font-family:var(--fn);letter-spacing:1px" data-i18n="job_modal_title">CHOOSE YOUR DESTINY</div>
@@ -21792,9 +21793,9 @@ function openJobSelectModal(){
   var selInfo = document.getElementById('jobModalSelectedInfo');
   if(selInfo) selInfo.style.display='none';
 
-  // Close allowed if already has a job
+  // Close button always visible (was hidden for new users — UX friction)
   var cancelBtn = document.getElementById('jobModalCancelBtn');
-  if(cancelBtn) cancelBtn.style.display = (_jobData && _jobData.job) ? '' : 'none';
+  if(cancelBtn) cancelBtn.style.display = '';
 
   modal.style.display = 'flex';
 
@@ -21906,7 +21907,22 @@ function confirmJobSelect(){
     body: JSON.stringify({ wallet: walletState.address, jobCode: _selectedJobCode })
   }).then(function(r){return r.json()})
   .then(function(d){
-    if(d.error){ showAlert(d.error,'error'); if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=t('job_modal_confirm');} return; }
+    if(d.error){
+      // Map raw server error codes to friendly messages
+      var lang = (window.LANG||'en');
+      var msgMap = {
+        'JOB_SYSTEM_DISABLED':{en:'Job system is currently disabled',ko:'직업 시스템이 비활성화 상태입니다',ja:'ジョブシステムは現在無効です',zh:'职业系统当前已禁用'},
+        'USER_NOT_FOUND':{en:'Wallet not registered yet',ko:'지갑이 등록되지 않았습니다',ja:'ウォレットが未登録です',zh:'钱包尚未注册'},
+        'JOB_NOT_FOUND':{en:'Unknown job code',ko:'알 수 없는 직업 코드',ja:'不明なジョブコード',zh:'未知职业代码'},
+        'SAME_JOB':{en:'You already have this job',ko:'이미 이 직업입니다',ja:'既にこのジョブです',zh:'您已是此职业'},
+        'JOB_CHANGE_COOLDOWN':{en:'Job change on cooldown',ko:'직업 변경 쿨다운 중입니다',ja:'ジョブ変更クールダウン中',zh:'职业变更冷却中'},
+        'INSUFFICIENT_GP':{en:'Not enough GP',ko:'GP가 부족합니다',ja:'GP不足',zh:'GP不足'},
+      };
+      var msg = (msgMap[d.error] && msgMap[d.error][lang]) || (msgMap[d.error] && msgMap[d.error].en) || d.error;
+      showAlert(msg,'error');
+      if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=t('job_modal_confirm');}
+      return;
+    }
     closeJobSelectModal();
     showToast(t('job_selected_toast').replace('{n}', _selectedJobCode));
     try{_sfx.success()}catch(e){}
@@ -37673,6 +37689,11 @@ async function confirmFaction() {
     showFactionToast(data.is_first_choice ? '파벌 선택 완료' : '파벌 변경 완료 (-' + data.fee_paid + ' GP)', 'success');
     closeFactionModal();
     await loadFactions();
+    // If user came from shipyard "파벌 선택하기" fallback, auto-reopen shipyard
+    if (factionState.returnToShipyard) {
+      factionState.returnToShipyard = false;
+      setTimeout(function(){ if(typeof openShipyard==='function') openShipyard(); }, 250);
+    }
   } catch(err) {
     console.error('[Faction] confirmFaction error:', err);
     showFactionToast('네트워크 오류', 'error');
@@ -37887,7 +37908,7 @@ function renderBlueprints() {
   if (myFactionCode) ships = ships.filter(function(s){ return s.faction_code === myFactionCode; });
   if (size) ships = ships.filter(function(s){ return s.size_class === size; });
   if (!myFactionCode) {
-    grid.innerHTML = '<div class="sy-empty" style="grid-column:1/-1">파벌을 먼저 선택해주세요<br><button style="margin-top:12px;padding:6px 14px;background:rgba(79,195,247,.1);border:1px solid #4fc3f7;color:#4fc3f7;cursor:pointer;border-radius:4px" onclick="closeShipyard();setTimeout(openFactionModal,200)">파벌 선택하기</button></div>';
+    grid.innerHTML = '<div class="sy-empty" style="grid-column:1/-1">파벌을 먼저 선택해주세요<br><button style="margin-top:12px;padding:6px 14px;background:rgba(79,195,247,.1);border:1px solid #4fc3f7;color:#4fc3f7;cursor:pointer;border-radius:4px" onclick="closeShipyard();factionState.returnToShipyard=true;setTimeout(openFactionModal,200)">파벌 선택하기</button></div>';
     return;
   }
   if (ships.length === 0) {
@@ -37895,6 +37916,24 @@ function renderBlueprints() {
     return;
   }
   grid.innerHTML = ships.map(renderBlueprintCard).join('');
+}
+
+// 함선 크기별 아이콘 (이미지 에셋 대체용)
+function shipSizeIcon(sizeClass) {
+  return ({
+    frigate:    '🛸',
+    destroyer:  '✈️',
+    cruiser:    '🛰️',
+    battleship: '🚀',
+    titan:      '⭐'
+  })[sizeClass] || '🚢';
+}
+function shipFactionAccent(factionCode) {
+  return ({
+    mcc: 'linear-gradient(135deg,#1a3b5c,#0a1a2a)',
+    fsp: 'linear-gradient(135deg,#5c1a1a,#2a0a0a)',
+    cv:  'linear-gradient(135deg,#2a5c1a,#0a2a0a)'
+  })[factionCode] || 'linear-gradient(135deg,#333,#111)';
 }
 
 function renderBlueprintCard(s) {
@@ -37918,7 +37957,10 @@ function renderBlueprintCard(s) {
     if (lock.startsWith('RANK_REQUIRED_')) { lockMsg = '레벨 ' + lock.replace('RANK_REQUIRED_','') + ' 필요'; break; }
     lockMsg = lockReasons[lock] || lock; break;
   }
+  var icon = shipSizeIcon(s.size_class);
+  var accent = shipFactionAccent(s.faction_code);
   return '<div class="bp-card ' + s.faction_code + ' ' + (!s.can_build ? 'locked' : '') + '">' +
+    '<div class="bp-visual" style="background:' + accent + ';display:flex;align-items:center;justify-content:center;height:64px;border-radius:6px;margin-bottom:6px;font-size:38px;filter:drop-shadow(0 0 8px rgba(255,255,255,.25))">' + icon + '</div>' +
     '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + s.name_ko + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
     '<div class="bp-class">' + (s.class_label || '') + '</div>' +
     '<div class="bp-stats">' +
@@ -37939,8 +37981,48 @@ function renderBlueprintCard(s) {
 async function buildShip(shipTypeCode) {
   var ship = shipyardState.blueprints.find(function(s){ return s.code === shipTypeCode; });
   if (!ship) return;
-  var confirmMsg = ship.name_ko + ' 건조를 시작하시겠습니까?\n\nGP: ' + ship.build_gp_cost + '\n시간: ' + Math.round(ship.build_time_seconds/60) + '분';
-  if (!confirm(confirmMsg)) return;
+  var icon = shipSizeIcon(ship.size_class);
+  var accent = shipFactionAccent(ship.faction_code);
+  var buildMin = Math.round((ship.build_time_seconds||0)/60);
+  var buildTimeTxt = buildMin >= 60 ? (Math.floor(buildMin/60)+'h '+(buildMin%60)+'m') : (buildMin+' min');
+  // 재료 체크
+  var recipe = ship.recipe_minerals || {};
+  var mineralList = Object.entries(recipe).map(function(e){
+    var code = e[0], need = e[1];
+    var have = (shipyardState.myInventory && shipyardState.myInventory[code]) || 0;
+    var enough = have >= need;
+    return { k:(MINERAL_ICONS[code]||'')+' '+(MINERAL_KO[code]||code), v: have+' / '+need, insufficient: !enough, ok: enough };
+  });
+  var gpHave = (shipyardState.summary && shipyardState.summary.gp_balance) || 0;
+  var gpShort = gpHave < ship.build_gp_cost;
+  var info = [{ k:'💰 GP', v: gpHave+' / '+ship.build_gp_cost, insufficient: gpShort, ok: !gpShort }]
+    .concat(mineralList)
+    .concat([
+      { k:'⏱ Build Time', v: buildTimeTxt },
+      { k:'🎯 Class',      v: (ship.class_label||ship.size_class||'—') + ' · T'+ship.tier }
+    ]);
+  var bodyHtml =
+    '<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:'+accent+';margin-bottom:8px">'
+    + '<div style="font-size:42px;filter:drop-shadow(0 0 10px rgba(255,255,255,.35))">'+icon+'</div>'
+    + '<div style="flex:1;min-width:0">'
+    +   '<div style="font-weight:700;font-size:14px;color:#fff;letter-spacing:.04em">'+ship.name_ko+'</div>'
+    +   '<div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-top:2px">'+ship.faction_code+' · '+(ship.class_label||ship.size_class)+'</div>'
+    + '</div></div>'
+    + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:6px">'
+    +   '<div style="text-align:center;background:rgba(255,255,255,.05);border-radius:4px;padding:4px"><div style="font-size:8px;color:#888">HP</div><div style="font-size:12px;color:#6cf;font-weight:700">'+ship.base_hp+'</div></div>'
+    +   '<div style="text-align:center;background:rgba(255,255,255,.05);border-radius:4px;padding:4px"><div style="font-size:8px;color:#888">ATK</div><div style="font-size:12px;color:#f66;font-weight:700">'+ship.base_atk+'</div></div>'
+    +   '<div style="text-align:center;background:rgba(255,255,255,.05);border-radius:4px;padding:4px"><div style="font-size:8px;color:#888">DEF</div><div style="font-size:12px;color:#fc6;font-weight:700">'+ship.base_def+'</div></div>'
+    +   '<div style="text-align:center;background:rgba(255,255,255,.05);border-radius:4px;padding:4px"><div style="font-size:8px;color:#888">SPD</div><div style="font-size:12px;color:#6f6;font-weight:700">'+ship.base_speed+'</div></div>'
+    + '</div>';
+  var ok = await gameConfirm({
+    title: '⚒ ' + (t && t('gov_ship_build') || 'BUILD SHIP'),
+    icon: icon,
+    body: bodyHtml,
+    info: info,
+    confirmText: '⚒ ' + (t && t('gov_ship_build') || 'START BUILD'),
+    disabled: gpShort || mineralList.some(function(m){ return m.insufficient; })
+  });
+  if (!ok) return;
   try {
     var res = await fetch('/api/ships/build', {
       method: 'POST',
