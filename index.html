@@ -2587,12 +2587,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   font-size: 14px; font-weight: 900; letter-spacing: 3px;
 }
 .shipyard-close {
-  background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.5);
-  padding: 4px 10px; font-size: 12px; cursor: pointer;
-  border-radius: 3px;
+  background: rgba(232,72,85,.12);
+  border: 1px solid rgba(232,72,85,.45);
+  color: #ff8a80;
+  padding: 6px 14px; font-size: 14px; font-weight: 700; cursor: pointer;
+  border-radius: 5px; line-height: 1;
 }
-.shipyard-close:hover { color: #fff; background: rgba(255,255,255,.06); }
+.shipyard-close:hover { background: rgba(232,72,85,.25); color: #fff; }
 .shipyard-tabs {
   display: flex; background: rgba(0, 0, 0, 0.3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -7404,6 +7405,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="text-align:right">
               <button class="ev-btn-sm" onclick="loadTransportTab()" style="background:rgba(255,179,71,.08);border:1px solid rgba(255,179,71,.3);color:#FFB347;padding:4px 8px;font-size:9px;border-radius:5px;cursor:pointer" data-i18n="btn_refresh">REFRESH</button>
             </div>
+          </div>
+
+          <!-- 수송 시스템 설명 툴팁 -->
+          <div style="background:rgba(255,179,71,.05);border:1px solid rgba(255,179,71,.2);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:9px;color:var(--tx3);line-height:1.7">
+            <b style="color:#FFB347;font-size:10px">🚚 GP 화물 수송이란?</b><br>
+            섹터 A → 섹터 B로 GP를 "화물"처럼 수송하는 PvP 수익 시스템입니다.<br>
+            <span style="color:var(--tx2)">✓ <b style="color:#FFB347">상인(Merchant) 직업</b>은 수송 완료 시 <b>추가 GP 보너스</b>를 획득</span><br>
+            <span style="color:var(--tx2)">⚔ 다른 플레이어가 중간에 <b style="color:#FF6B6B">화물을 약탈</b>할 수 있어 위험/보상 PvP 요소</span><br>
+            <span style="color:var(--tx2)">🏴 RAID TARGETS 탭에서 다른 유저 수송 화물을 약탈 가능</span><br>
+            <span style="color:rgba(255,255,255,.3);font-size:8px">💡 아이템 거래소(마켓플레이스)와 별개입니다 — 마켓은 MARKET 탭에서</span>
           </div>
 
           <!-- Sub-tabs -->
