@@ -306,6 +306,7 @@ app.use('/api/battles', battleExtrasRoutes); // Phase B: Rewards/Siege extras (b
 app.use('/api/battles', fleetBattleRoutes); // A-4: Fleet Battle Engine (must be before /api for prefix priority)
 try { app.use('/api', require('./routes/commanderActions')); } catch (e) { console.warn('[mount] commanderActions skipped:', e.message); } // M-151: Commander Actions
 try { app.use('/api/resource-craft', require('./routes/resourceCraft')); } catch (e) { console.warn('[mount] resourceCraft skipped:', e.message); } // M-091: Tier-3 crafting
+try { app.use('/api', require('./routes/worldEvents')); } catch (e) { console.warn('[mount] worldEvents skipped:', e.message); } // M-154: Void Raider
 app.use('/api', battleRoutes);
 app.use('/api', lotteryRoutes);
 app.use('/api', stakingRoutes);
@@ -959,6 +960,19 @@ async function start() {
       }, 60 * 1000);
       console.log('[CRAFT] Auto-claim scheduler started (1min interval)');
     } catch(e) { console.warn('[CRAFT] Could not init scheduler:', e.message); }
+
+    // ── World Events: Settle expired + maybe auto-spawn (every 2 minutes) — M-154 ──
+    try {
+      const we = require('./services/worldEvents');
+      setInterval(async () => {
+        try { await we.settleExpiredEvents(); } catch(e) { console.warn('[WE] settle error:', e.message); }
+        try {
+          const s = await we.maybeAutoSpawn();
+          if (s?.spawned) console.log(`[WE] Auto-spawned Void Raider ${s.event_code}`);
+        } catch(e) { console.warn('[WE] auto-spawn error:', e.message); }
+      }, 2 * 60 * 1000);
+      console.log('[WE] World Events scheduler started (2min interval)');
+    } catch(e) { console.warn('[WE] Could not init scheduler:', e.message); }
 
     // ── GP Burn: Clean expired burn effects (every 10 minutes) ──
     try {
