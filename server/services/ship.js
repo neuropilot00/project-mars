@@ -277,43 +277,45 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     // 9. 광물 차감
     const recipe = st.recipe_minerals || {};
     const mineralEntries = Object.entries(recipe);
-    
-    // 재고 확인 (한번에)
+
+    // 재고 확인 (resource_id FK 기반 — resources 테이블 조인)
     if (mineralEntries.length > 0) {
       const mineralCodes = mineralEntries.map(([code]) => code);
       const { rows: invRows } = await client.query(`
-        SELECT resource_code, quantity 
-        FROM user_resource_inventory 
-        WHERE wallet_address = $1 AND resource_code = ANY($2::text[])
-        FOR UPDATE
+        SELECT r.code AS resource_code, COALESCE(uri.quantity, 0) AS quantity, r.id AS resource_id
+        FROM resources r
+        LEFT JOIN user_resource_inventory uri
+          ON uri.resource_id = r.id AND uri.wallet_address = $1
+        WHERE r.code = ANY($2::text[])
+        FOR UPDATE OF uri
       `, [walletAddress, mineralCodes]);
-      
+
       const inv = {};
-      for (const r of invRows) inv[r.resource_code] = parseInt(r.quantity);
-      
+      for (const r of invRows) inv[r.resource_code] = { qty: parseInt(r.quantity), id: r.resource_id };
+
       // 부족 체크
       const missing = [];
       for (const [code, need] of mineralEntries) {
-        const have = inv[code] || 0;
+        const have = inv[code]?.qty || 0;
         if (have < need) {
           missing.push({ code, need, have });
         }
       }
       if (missing.length > 0) {
-        // GP 롤백
-        await client.query('ROLLBACK');
         const err = new Error('INSUFFICIENT_MINERALS');
         err.meta = { missing };
         throw err;
       }
-      
-      // 차감
+
+      // 차감 (resource_id 기반)
       for (const [code, need] of mineralEntries) {
+        const resourceId = inv[code]?.id;
+        if (!resourceId) throw new Error(`UNKNOWN_MINERAL: ${code}`);
         await client.query(`
-          UPDATE user_resource_inventory 
-          SET quantity = quantity - $1 
-          WHERE wallet_address = $2 AND resource_code = $3
-        `, [need, walletAddress, code]);
+          UPDATE user_resource_inventory
+          SET quantity = quantity - $1
+          WHERE wallet_address = $2 AND resource_id = $3
+        `, [need, walletAddress, resourceId]);
       }
     }
     
@@ -544,20 +546,22 @@ async function cancelBuildJob(jobId, walletAddress) {
       );
     }
     
-    // 광물 환불
+    // 광물 환불 (resource_id FK 기반 UPSERT)
     const minerals = job.minerals_used || {};
     const refundedMinerals = {};
     for (const [code, qty] of Object.entries(minerals)) {
       const refundQty = Math.floor(qty * refundPct / 100);
       if (refundQty > 0) {
         refundedMinerals[code] = refundQty;
-        // UPSERT into user_resource_inventory
         await client.query(`
-          INSERT INTO user_resource_inventory (wallet_address, resource_code, quantity)
-          VALUES ($1, $2, $3)
-          ON CONFLICT (wallet_address, resource_code) 
-          DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity
-        `, [walletAddress, code, refundQty]);
+          INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+          SELECT $1, r.id, $2, NOW()
+          FROM resources r WHERE r.code = $3
+          ON CONFLICT (wallet_address, resource_id)
+          DO UPDATE SET
+            quantity   = user_resource_inventory.quantity + EXCLUDED.quantity,
+            updated_at = NOW()
+        `, [walletAddress, refundQty, code]);
       }
     }
     
