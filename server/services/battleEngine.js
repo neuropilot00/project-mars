@@ -196,6 +196,49 @@ async function loadBattleData(battleId) {
     catch (e) { console.warn('[battleEngine] commanderActions load failed:', e.message); }
   }
 
+  // reinforce 적용 — 선언자의 함대에 synthetic 함선 추가 (DB에는 저장 안 함)
+  if (cmdActions?.reinforcements?.length) {
+    let synthId = -1;
+    for (const r of cmdActions.reinforcements) {
+      const targetFleet = fleets.find(f => f.owner_wallet === r.wallet && f.side === r.side);
+      if (!targetFleet) continue;
+      try {
+        const { rows: stRows } = await pool.query(
+          `SELECT code AS ship_type_code, name_ko, size_class, role,
+                  base_atk, base_def, base_speed,
+                  fire_interval, fire_type, shots, render_radius,
+                  max_hp
+           FROM ship_types WHERE code = $1 AND is_active = true`,
+          [r.shipTypeCode]
+        );
+        if (!stRows[0]) continue;
+        const st = stRows[0];
+        const n = Math.max(1, Math.min(20, parseInt(r.count) || 0));
+        for (let i = 0; i < n; i++) {
+          targetFleet.ships.push({
+            id: synthId--,                 // 음수 ID — DB 비지속, 이벤트 로그용
+            ship_type_code: st.ship_type_code,
+            current_hp: st.max_hp,
+            max_hp: st.max_hp,
+            is_flagship: false,
+            bonus_atk: 0, bonus_def: 0, bonus_hp: 0,
+            name_ko: st.name_ko,
+            size_class: st.size_class,
+            role: st.role,
+            base_atk: st.base_atk,
+            base_def: st.base_def,
+            base_speed: st.base_speed,
+            fire_interval: st.fire_interval,
+            fire_type: st.fire_type,
+            shots: st.shots,
+            render_radius: st.render_radius,
+            _synthetic_reinforce: true,
+          });
+        }
+      } catch (e) { console.warn('[battleEngine] reinforce load failed:', e.message); }
+    }
+  }
+
   return { battle, fleets, commanderActions: cmdActions };
 }
 

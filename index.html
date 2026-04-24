@@ -3153,6 +3153,188 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   padding-top: 10px;
 }
 
+/* ═════ Commander Actions (Pre-battle directives) ═════ */
+.ca-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.92); backdrop-filter: blur(10px);
+  z-index: 9998;
+  display: none; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.ca-modal-backdrop.active { display: flex; }
+.ca-modal {
+  background: linear-gradient(180deg, #0b0f1d 0%, #080a14 100%);
+  border: 1px solid rgba(255,193,7,.35);
+  border-radius: 10px;
+  max-width: 640px; width: 100%;
+  padding: 20px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 40px rgba(255,193,7,.08);
+}
+.ca-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 4px;
+}
+.ca-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px; font-weight: 900; letter-spacing: 3px;
+  color: #ffc107;
+}
+.ca-cost {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: #ffd54f;
+}
+.ca-cost b { font-size: 13px; color: #fff176; }
+.ca-subtitle {
+  font-size: 10px; letter-spacing: 2px;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 14px;
+}
+.ca-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 12px;
+}
+@media (max-width: 600px){ .ca-grid { grid-template-columns: 1fr; } }
+.ca-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+}
+.ca-card:hover {
+  background: rgba(255,193,7,.08);
+  border-color: rgba(255,193,7,.35);
+}
+.ca-card.selected {
+  background: rgba(255,193,7,.14);
+  border-color: #ffc107;
+  box-shadow: 0 0 12px rgba(255,193,7,.2);
+}
+.ca-card.locked {
+  opacity: .35;
+  cursor: not-allowed;
+  filter: grayscale(.8);
+}
+.ca-card-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 4px;
+}
+.ca-card-icon { font-size: 18px; }
+.ca-card-name {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #fff;
+}
+.ca-card-desc {
+  font-size: 9.5px; color: rgba(255,255,255,.55);
+  line-height: 1.45;
+}
+.ca-card-check {
+  position: absolute; top: 8px; right: 8px;
+  width: 14px; height: 14px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #ffc107;
+}
+.ca-card.selected .ca-card-check {
+  background: #ffc107; border-color: #ffc107; color: #000;
+}
+.ca-params {
+  display: none;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 5px;
+  padding: 10px 12px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+.ca-params.active { display: block; }
+.ca-params-label {
+  font-size: 9px; letter-spacing: 2px;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 6px;
+}
+.ca-input, .ca-select {
+  width: 100%;
+  padding: 7px 10px;
+  background: rgba(0,0,0,.5);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  border-radius: 3px;
+}
+.ca-param-row {
+  display: flex; gap: 8px; margin-top: 6px;
+}
+.ca-param-row > * { flex: 1; }
+.ca-hint {
+  font-size: 9px; color: rgba(255,255,255,.35);
+  margin-top: 4px;
+}
+.ca-quota {
+  font-size: 9.5px; color: rgba(255,255,255,.45);
+  text-align: center;
+  padding: 6px 0;
+}
+.ca-quota b { color: #ffc107; }
+.ca-actions {
+  display: flex; gap: 8px; justify-content: flex-end;
+  margin-top: 10px;
+}
+.ca-btn {
+  padding: 9px 16px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.7);
+  font-family: 'Orbitron', monospace;
+  font-size: 10px; letter-spacing: 2px; font-weight: 700;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.ca-btn:hover { background: rgba(255,255,255,.06); color: #fff; }
+.ca-btn.primary {
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  border-color: #ffc107; color: #000;
+}
+.ca-btn.primary:hover { filter: brightness(1.15); }
+.ca-btn.skip {
+  border-color: rgba(239,83,80,.45);
+  color: #ef8a87;
+}
+.ca-btn.skip:hover { background: rgba(239,83,80,.08); color: #fff; }
+
+/* Battle viewer commander-action banner (HUD badges) */
+.bv-cmd-banner {
+  position: absolute;
+  top: 82px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  z-index: 20;
+  pointer-events: none;
+  max-width: 90%;
+}
+.bv-cmd-badge {
+  background: rgba(255,193,7,.15);
+  border: 1px solid rgba(255,193,7,.55);
+  color: #ffd54f;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 1.5px;
+  padding: 4px 9px;
+  border-radius: 3px;
+  text-shadow: 0 0 6px rgba(255,193,7,.4);
+}
+.bv-cmd-badge.atk { border-color: rgba(79,195,247,.55); color: #81d4fa; text-shadow: 0 0 6px rgba(79,195,247,.4); background: rgba(79,195,247,.1); }
+.bv-cmd-badge.def { border-color: rgba(255,112,67,.55); color: #ffab91; text-shadow: 0 0 6px rgba(255,112,67,.4); background: rgba(255,112,67,.1); }
+
 /* ═════ Battle Viewer (Canvas Arena) ═════ */
 .bv-backdrop {
   position: fixed; inset: 0;
@@ -38511,6 +38693,88 @@ function fcEsc(str) {
   </div>
 </div>
 
+<!-- ═════ Commander Actions Modal (pre-battle directives) ═════ -->
+<div class="ca-modal-backdrop" id="cmdActionsModal">
+  <div class="ca-modal">
+    <div class="ca-header">
+      <div class="ca-title">⚡ COMMAND DIRECTIVES</div>
+      <div class="ca-cost">TOTAL COST <b id="caTotalCost">0</b> GP</div>
+    </div>
+    <div class="ca-subtitle">// 시뮬레이션 전 전술 지시 (최대 <span id="caMaxSel">2</span>개)</div>
+
+    <div class="ca-grid" id="caGrid">
+      <!-- focus_fire -->
+      <div class="ca-card" data-action="focus_fire" onclick="caToggle('focus_fire')">
+        <div class="ca-card-check">✓</div>
+        <div class="ca-card-head">
+          <span class="ca-card-icon">🎯</span>
+          <span class="ca-card-name">FOCUS FIRE</span>
+        </div>
+        <div class="ca-card-desc">지정 적 함대에 집중 공격 — <b style="color:#ffd54f">+15% 데미지</b></div>
+      </div>
+      <!-- emp -->
+      <div class="ca-card" data-action="emp" onclick="caToggle('emp')">
+        <div class="ca-card-check">✓</div>
+        <div class="ca-card-head">
+          <span class="ca-card-icon">⚡</span>
+          <span class="ca-card-name">EMP STRIKE</span>
+        </div>
+        <div class="ca-card-desc">특정 tick에 EMP → 적 발사주기 <b style="color:#ffd54f">×5배 감속</b> 30tick</div>
+      </div>
+      <!-- wedge -->
+      <div class="ca-card" data-action="wedge" onclick="caToggle('wedge')">
+        <div class="ca-card-check">✓</div>
+        <div class="ca-card-head">
+          <span class="ca-card-icon">🗡</span>
+          <span class="ca-card-name">WEDGE FORMATION</span>
+        </div>
+        <div class="ca-card-desc">돌격 전술 강제 — 속도/공격 ↑, 방어 ↓</div>
+      </div>
+      <!-- reinforce -->
+      <div class="ca-card" data-action="reinforce" onclick="caToggle('reinforce')">
+        <div class="ca-card-check">✓</div>
+        <div class="ca-card-head">
+          <span class="ca-card-icon">🚀</span>
+          <span class="ca-card-name">REINFORCE</span>
+        </div>
+        <div class="ca-card-desc">시작 시 추가 함선 투입 (1~20척)</div>
+      </div>
+    </div>
+
+    <!-- param panels -->
+    <div class="ca-params" id="caParams_focus_fire">
+      <div class="ca-params-label">대상 적 함대</div>
+      <div class="ca-hint" id="caFocusTargetLabel">선언 상대 함대가 자동 지정됩니다</div>
+    </div>
+
+    <div class="ca-params" id="caParams_emp">
+      <div class="ca-params-label">EMP 발동 tick (0~8000, 기본 1200 ≈ 4분)</div>
+      <input type="number" class="ca-input" id="caEmpTick" value="1200" min="0" max="8000">
+      <div class="ca-hint">1 tick = 200ms, 지속 30 tick</div>
+    </div>
+
+    <div class="ca-params" id="caParams_wedge">
+      <div class="ca-hint">파라미터 없음 — 내 함대 전원에 적용됩니다</div>
+    </div>
+
+    <div class="ca-params" id="caParams_reinforce">
+      <div class="ca-params-label">증원 함선</div>
+      <div class="ca-param-row">
+        <select class="ca-select" id="caReinforceShip"><option value="">불러오는 중...</option></select>
+        <input type="number" class="ca-input" id="caReinforceCount" value="5" min="1" max="20">
+      </div>
+      <div class="ca-hint">최대 20척 — 함선 코드 × 수량</div>
+    </div>
+
+    <div class="ca-quota">선택 <b id="caSelectedN">0</b> / <span id="caMaxSel2">2</span></div>
+
+    <div class="ca-actions">
+      <button class="ca-btn skip" onclick="caSkipAndFight()">⏭ 건너뛰고 전투 시작</button>
+      <button class="ca-btn primary" id="caApplyBtn" onclick="caApplyAndFight()">⚡ 지시 적용 & 전투</button>
+    </div>
+  </div>
+</div>
+
 <!-- 보상 토스트 (Phase B) -->
 <div class="reward-toast" id="rewardToast">
   <div class="reward-title" id="rewardToastTitle">🏆 전투 보상</div>
@@ -38912,6 +39176,7 @@ function fcEsc(str) {
         <div class="bv-hud-fleets" id="bvDefFleets"></div>
       </div>
     </div>
+    <div class="bv-cmd-banner" id="bvCmdBanner"></div>
     
     <div class="bv-hud-bottom">
       <div class="bv-event-feed" id="bvEventFeed"></div>
@@ -39262,7 +39527,7 @@ async function confirmDeclareBattle() {
     return;
   }
 
-  if (!confirm('⚔ 전투를 선언하시겠습니까?\n\n즉시 시뮬레이션됩니다.')) return;
+  if (!confirm('⚔ 전투를 선언하시겠습니까?\n\n선언 후 전술 지시(Commander Actions)를 선택할 수 있습니다.')) return;
 
   try {
     const res = await fetch('/api/battles/declare-pvp', {
@@ -39271,7 +39536,7 @@ async function confirmDeclareBattle() {
       body: JSON.stringify({
         my_fleet_id: myFleetId,
         target_fleet_id: targetFleetId,
-        run_immediately: true,
+        run_immediately: false,   // ← 지시 선택 후 별도로 /run 호출
       })
     });
     const data = await res.json();
@@ -39290,19 +39555,191 @@ async function confirmDeclareBattle() {
       return;
     }
 
-    showFactionToast('전투 선언 완료 · 시뮬레이션 중...', 'success');
-    closeDeclareBattle();
-
     const battleId = data.battle_id;
-    setTimeout(() => openBattleViewer(battleId), 3000);
-
-    // Phase B: 8초 후 보상 확인
-    setTimeout(() => showRewardIfAny(battleId), 8000);
+    closeDeclareBattle();
+    openCmdActionsModal(battleId, targetFleetId);
   } catch (err) {
     console.error('confirmDeclareBattle error:', err);
     showFactionToast('네트워크 오류', 'error');
   }
 }
+
+// ═════════════════════════════════════════════════════════════════
+// Commander Actions — pre-battle directives
+// ═════════════════════════════════════════════════════════════════
+
+const caState = {
+  battleId: null,
+  targetFleetId: null,
+  max: 2,
+  cost: 50,
+  selected: new Set(),       // action_type set
+  shipTypes: null,           // cached blueprints list
+};
+
+async function openCmdActionsModal(battleId, targetFleetId){
+  caState.battleId = battleId;
+  caState.targetFleetId = targetFleetId;
+  caState.selected.clear();
+
+  // settings 로드 (허용값 표시)
+  try {
+    // 참고: 전용 설정 조회 API 없으니 기본값만 사용. 서버가 최종 판단.
+    caState.max = 2; caState.cost = 50;
+  } catch(_) {}
+  document.getElementById('caMaxSel').textContent = caState.max;
+  document.getElementById('caMaxSel2').textContent = caState.max;
+
+  // UI 초기화
+  document.querySelectorAll('#cmdActionsModal .ca-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#cmdActionsModal .ca-params').forEach(p => p.classList.remove('active'));
+  caUpdateQuota();
+
+  // focus_fire 대상 라벨
+  const lbl = document.getElementById('caFocusTargetLabel');
+  if (lbl) lbl.textContent = `적 함대 #${targetFleetId} 가 자동 지정됩니다`;
+
+  // reinforce 함선 셀렉트 로드 (blueprints)
+  const sel = document.getElementById('caReinforceShip');
+  if (sel && !caState.shipTypes) {
+    try {
+      const r = await fetch('/api/ships/blueprints', { headers: getAuthHeaders() });
+      const j = await r.json();
+      caState.shipTypes = Array.isArray(j.ships) ? j.ships : [];
+    } catch(_) { caState.shipTypes = []; }
+  }
+  if (sel) {
+    sel.innerHTML = '<option value="">-- 함선 선택 --</option>' +
+      (caState.shipTypes || []).filter(s => !s.locked)
+        .map(s => `<option value="${s.code}">${s.code} (${s.size_class || ''})</option>`).join('');
+  }
+
+  document.getElementById('cmdActionsModal').classList.add('active');
+}
+
+function closeCmdActionsModal(){
+  document.getElementById('cmdActionsModal').classList.remove('active');
+}
+
+function caToggle(actionType){
+  const card = document.querySelector(`#cmdActionsModal .ca-card[data-action="${actionType}"]`);
+  if (!card || card.classList.contains('locked')) return;
+  const panel = document.getElementById('caParams_' + actionType);
+  if (caState.selected.has(actionType)) {
+    caState.selected.delete(actionType);
+    card.classList.remove('selected');
+    if (panel) panel.classList.remove('active');
+  } else {
+    if (caState.selected.size >= caState.max) {
+      showFactionToast(`최대 ${caState.max}개까지 선택`, 'error');
+      return;
+    }
+    caState.selected.add(actionType);
+    card.classList.add('selected');
+    if (panel) panel.classList.add('active');
+  }
+  caUpdateQuota();
+}
+
+function caUpdateQuota(){
+  const n = caState.selected.size;
+  document.getElementById('caSelectedN').textContent = n;
+  document.getElementById('caTotalCost').textContent = (n * caState.cost);
+}
+
+async function caSkipAndFight(){
+  if (!caState.battleId) return;
+  closeCmdActionsModal();
+  await caStartBattle(caState.battleId);
+}
+
+async function caApplyAndFight(){
+  if (!caState.battleId) { closeCmdActionsModal(); return; }
+  if (caState.selected.size === 0) { return caSkipAndFight(); }
+
+  const btn = document.getElementById('caApplyBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '적용 중...'; }
+
+  try {
+    const battleId = caState.battleId;
+    const actions = [];
+
+    for (const type of caState.selected) {
+      const params = {};
+      if (type === 'focus_fire') {
+        params.targetFleetId = caState.targetFleetId;
+      } else if (type === 'emp') {
+        const t = parseInt(document.getElementById('caEmpTick').value);
+        params.startTick = Number.isFinite(t) ? t : 1200;
+      } else if (type === 'reinforce') {
+        const code = (document.getElementById('caReinforceShip').value || '').trim();
+        const cnt = parseInt(document.getElementById('caReinforceCount').value);
+        if (!code) { showFactionToast('증원 함선을 선택하세요', 'error'); if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';} return; }
+        if (!cnt || cnt < 1 || cnt > 20) { showFactionToast('함선 수 1~20', 'error'); if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';} return; }
+        params.shipTypeCode = code;
+        params.count = cnt;
+      }
+      actions.push({ action_type: type, params });
+    }
+
+    // 순차 POST (실패 시 즉시 중단)
+    for (const a of actions) {
+      const r = await fetch(`/api/battles/${battleId}/commander-action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify(a),
+      });
+      const j = await r.json().catch(()=>({}));
+      if (!r.ok) {
+        const msgMap = {
+          INSUFFICIENT_GP: 'GP 부족',
+          ACTION_QUOTA_EXCEEDED: '지시 개수 초과',
+          ACTION_ALREADY_DECLARED: '이미 선언된 지시',
+          COMMANDER_ACTIONS_DISABLED: '현재 비활성',
+          TARGET_FLEET_ALLY: '대상이 아군',
+          SHIP_TYPE_NOT_FOUND: '함선 코드 없음',
+          BATTLE_NOT_ACCEPTING_ACTIONS: '전투가 이미 진행 중',
+        };
+        showFactionToast(`${a.action_type}: ${msgMap[j.error] || j.error || '실패'}`, 'error');
+        if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';}
+        return;
+      }
+    }
+
+    closeCmdActionsModal();
+    showFactionToast(`${actions.length}개 지시 적용 · 시뮬레이션 중...`, 'success');
+    await caStartBattle(battleId);
+  } catch (err) {
+    console.error('caApplyAndFight error:', err);
+    showFactionToast('네트워크 오류', 'error');
+    if (btn){btn.disabled=false;btn.textContent='⚡ 지시 적용 & 전투';}
+  }
+}
+
+async function caStartBattle(battleId){
+  try {
+    const r = await fetch(`/api/battles/${battleId}/run`, {
+      method: 'POST', headers: getAuthHeaders()
+    });
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok) {
+      showFactionToast('전투 시작 실패: ' + (j.error || 'UNKNOWN'), 'error');
+      return;
+    }
+    showFactionToast('전투 시작 · 잠시 후 관전 창이 열립니다', 'success');
+    setTimeout(() => openBattleViewer(battleId), 3000);
+    setTimeout(() => showRewardIfAny(battleId), 8000);
+  } catch (err) {
+    console.error('caStartBattle error:', err);
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+// expose for inline handlers
+window.caToggle = caToggle;
+window.caSkipAndFight = caSkipAndFight;
+window.caApplyAndFight = caApplyAndFight;
+window.closeCmdActionsModal = closeCmdActionsModal;
 
 // ─── Phase B: 보상 토스트 ───
 
@@ -39816,7 +40253,18 @@ async function openBattleViewer(battleId) {
   
   // HUD 업데이트
   renderHudSides();
-  
+
+  // Commander actions 뱃지 로드
+  try {
+    const caRes = await fetch(`/api/battles/${battleId}/commander-actions`);
+    if (caRes.ok) {
+      const caJ = await caRes.json();
+      renderBvCmdBanner(caJ.actions || []);
+    } else {
+      renderBvCmdBanner([]);
+    }
+  } catch (_) { renderBvCmdBanner([]); }
+
   // 총 시간
   const totalTicks = bv.timeline.frames[bv.timeline.frames.length - 1]?.t || 0;
   document.getElementById('bvHudTotal').textContent = '/ ' + formatTickTime(totalTicks);
@@ -40177,6 +40625,27 @@ function renderHudFleetCard(f) {
       </div>
     </div>
   `;
+}
+
+function renderBvCmdBanner(actions) {
+  const box = document.getElementById('bvCmdBanner');
+  if (!box) return;
+  if (!actions.length) { box.innerHTML = ''; return; }
+  const iconMap = {
+    focus_fire: '🎯 FOCUS',
+    emp: '⚡ EMP',
+    wedge: '🗡 WEDGE',
+    reinforce: '🚀 REINFORCE',
+  };
+  box.innerHTML = actions.map(a => {
+    const sideCls = a.side === 'atk' ? 'atk' : 'def';
+    let label = iconMap[a.action_type] || a.action_type;
+    const p = a.params || {};
+    if (a.action_type === 'focus_fire' && p.targetFleetId) label += ` #${p.targetFleetId}`;
+    else if (a.action_type === 'emp' && a.applied_at_tick) label += ` @${a.applied_at_tick}t`;
+    else if (a.action_type === 'reinforce' && p.shipTypeCode) label += ` ${p.shipTypeCode}×${p.count||0}`;
+    return `<div class="bv-cmd-badge ${sideCls}">${sideCls.toUpperCase()} · ${label}</div>`;
+  }).join('');
 }
 
 function updateHudFleets(f1, f2, t) {
