@@ -829,6 +829,30 @@ router.post('/claim', writeLimiter, async (req, res) => {
     const pixels = getClaimPixels(parseFloat(lat), parseFloat(lng), claimW, claimH);
     if (!pixels.length) throw new Error('No pixels in range');
 
+    // ── M-156 Phase A: 섹터 진입 제약 ──
+    // 클레임 중심 좌표 기준 sector → entry check (level + mid 영토 보유)
+    try {
+      const sectorService = require('../services/sector');
+      const centerSectorId = findSectorForPixelSync(parseFloat(lat), parseFloat(lng));
+      const entryCheck = await sectorService.checkEntryRequirementBySectorId(wallet.toLowerCase(), centerSectorId);
+      if (!entryCheck.allowed) {
+        await client.query('ROLLBACK');
+        return res.status(403).json({
+          error: 'sector_access_denied',
+          reason: entryCheck.reason,
+          sector_name: entryCheck.sector_name,
+          tier: entryCheck.tier,
+          required_level: entryCheck.required_level,
+          current_level: entryCheck.current_level,
+          required_mid: entryCheck.required_mid,
+          current_mid: entryCheck.current_mid,
+        });
+      }
+    } catch (entryErr) {
+      // 체크 자체 실패 시 통과 (안전 기본값) — 로그만 남김
+      console.warn('[CLAIM] sector entry check failed (allowing):', entryErr.message);
+    }
+
     // ── BATCH: Lock and read all affected pixels in one query ──
     let baseCost = 0, attackCost = 0, overlapCount = 0, newCount = 0, ownSkipCount = 0;
     const affectedOwners = {}; // owner → { refund, bonus }

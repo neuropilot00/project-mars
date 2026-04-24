@@ -251,11 +251,144 @@ async function getSectorStats() {
   return res.rows;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Phase A (M-156): sectors 테이블 기반 진입 체크 — 좌표 기반 sectors.id로 직접 조회
+// 기존 checkEntryRequirement는 sector_definitions(lore) 기준이라
+// 실제 좌표/거버넌스 SSOT인 sectors와 분리돼 있어 미연결 상태였음.
+// ─────────────────────────────────────────────────────────────
+async function checkEntryRequirementBySectorId(wallet, sectorId) {
+  const enabled = String(await getSetting('sector_entry_check_enabled', 'true')) === 'true';
+  if (!enabled) return { allowed: true, reason: 'entry_check_disabled' };
+  if (!sectorId) return { allowed: true, reason: 'no_sector' }; // 좌표가 매핑 안 되면 통과 (frontier 취급)
+
+  const r = await pool.query(
+    `SELECT id, name, tier, entry_min_level, entry_required_mid_owns, entry_check_active
+     FROM sectors WHERE id = $1`, [sectorId]
+  );
+  if (!r.rows[0]) return { allowed: true, reason: 'sector_not_found' };
+  const sec = r.rows[0];
+
+  if (sec.entry_check_active === false) return { allowed: true, reason: 'sector_open' };
+  if (sec.tier === 'frontier') return { allowed: true, reason: 'frontier_open' };
+
+  // 유저 레벨 (rank_level 사용 — users.level 폴리필도 있지만 SSOT는 rank_level)
+  const ur = await pool.query(
+    'SELECT rank_level FROM users WHERE wallet_address = $1',
+    [String(wallet || '').toLowerCase()]
+  );
+  if (!ur.rows[0]) return { allowed: false, reason: 'user_not_found' };
+  const userLevel = parseInt(ur.rows[0].rank_level) || 0;
+  const minLv = parseInt(sec.entry_min_level) || 0;
+  if (userLevel < minLv) {
+    return {
+      allowed: false,
+      reason: 'level_too_low',
+      sector_name: sec.name,
+      tier: sec.tier,
+      required_level: minLv,
+      current_level: userLevel,
+    };
+  }
+
+  // Core 섹터: Mid 영토 보유 체크
+  const reqMid = parseInt(sec.entry_required_mid_owns) || 0;
+  if (sec.tier === 'core' && reqMid > 0) {
+    const mr = await pool.query(
+      `SELECT COUNT(*)::int AS cnt FROM claims c
+       JOIN sectors s ON s.id = c.sector_id
+       WHERE LOWER(c.owner) = LOWER($1) AND s.tier = 'mid'`,
+      [wallet]
+    );
+    const midCnt = parseInt(mr.rows[0]?.cnt || 0);
+    if (midCnt < reqMid) {
+      return {
+        allowed: false,
+        reason: 'insufficient_mid_territories',
+        sector_name: sec.name,
+        tier: sec.tier,
+        required_mid: reqMid,
+        current_mid: midCnt,
+      };
+    }
+  }
+
+  return { allowed: true, reason: 'ok', sector_name: sec.name, tier: sec.tier };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Phase A (M-156): 관세 계산 — 거버너에게 갈 % + 면제 여부
+// 반환: { tariffPct, tariffAmount, governorWallet, exempted, reason }
+// ─────────────────────────────────────────────────────────────
+async function computeSectorTariff(sectorId, payerWallet, grossAmount) {
+  const enabled = String(await getSetting('sector_tariff_enabled', 'true')) === 'true';
+  if (!enabled) return { tariffPct: 0, tariffAmount: 0, governorWallet: null, exempted: false, reason: 'tariff_disabled' };
+  if (!sectorId || !grossAmount || grossAmount <= 0) {
+    return { tariffPct: 0, tariffAmount: 0, governorWallet: null, exempted: false, reason: 'no_sector_or_amount' };
+  }
+
+  const minAmt = parseFloat(await getSetting('sector_tariff_min_listing_pp', '0.001')) || 0;
+  if (grossAmount < minAmt) {
+    return { tariffPct: 0, tariffAmount: 0, governorWallet: null, exempted: false, reason: 'below_min_amount' };
+  }
+
+  const r = await pool.query(
+    `SELECT id, governor_wallet, tax_rate FROM sectors WHERE id = $1`, [sectorId]
+  );
+  if (!r.rows[0]) return { tariffPct: 0, tariffAmount: 0, governorWallet: null, exempted: false, reason: 'sector_not_found' };
+  const sec = r.rows[0];
+  if (!sec.governor_wallet) {
+    return { tariffPct: 0, tariffAmount: 0, governorWallet: null, exempted: false, reason: 'no_governor' };
+  }
+  // 자기 거래는 관세 면제
+  if (sec.governor_wallet.toLowerCase() === String(payerWallet || '').toLowerCase()) {
+    return { tariffPct: 0, tariffAmount: 0, governorWallet: sec.governor_wallet, exempted: true, reason: 'self_governor' };
+  }
+
+  const usePerSector = String(await getSetting('sector_tariff_uses_per_sector', 'true')) === 'true';
+  let tariffPct;
+  if (usePerSector) {
+    tariffPct = parseFloat(sec.tax_rate);
+    if (!Number.isFinite(tariffPct)) tariffPct = parseFloat(await getSetting('sector_tariff_pct', '2.0')) || 2.0;
+  } else {
+    tariffPct = parseFloat(await getSetting('sector_tariff_pct', '2.0')) || 2.0;
+  }
+
+  // 길드 면제: 결제자와 거버너가 같은 길드 소속이면 면제
+  const guildExempt = String(await getSetting('sector_tariff_guild_exempt', 'true')) === 'true';
+  if (guildExempt) {
+    try {
+      const g = await pool.query(
+        `SELECT gm1.guild_id AS payer_g, gm2.guild_id AS gov_g
+         FROM guild_members gm1, guild_members gm2
+         WHERE LOWER(gm1.wallet_address) = LOWER($1)
+           AND LOWER(gm2.wallet_address) = LOWER($2)`,
+        [payerWallet, sec.governor_wallet]
+      );
+      if (g.rows[0] && g.rows[0].payer_g && g.rows[0].payer_g === g.rows[0].gov_g) {
+        return {
+          tariffPct, tariffAmount: 0,
+          governorWallet: sec.governor_wallet,
+          exempted: true, reason: 'guild_exempt',
+        };
+      }
+    } catch (_) { /* guild table 없을 시 그냥 면제 적용 안 함 */ }
+  }
+
+  const tariffAmount = Math.round(grossAmount * (tariffPct / 100) * 1e8) / 1e8;
+  return {
+    tariffPct, tariffAmount,
+    governorWallet: sec.governor_wallet,
+    exempted: false, reason: 'ok',
+  };
+}
+
 module.exports = {
   getSector,
   getAllSectors,
   getSectorGovernance,
   checkEntryRequirement,
+  checkEntryRequirementBySectorId,   // M-156: sectors 기반
+  computeSectorTariff,                // M-156: 관세 계산
   calculateLandPrice,
   getSectorMiningBuff,
   getSectorStats,

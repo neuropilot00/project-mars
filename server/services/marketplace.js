@@ -147,15 +147,33 @@ async function createListing(client, seller, type, params) {
     throw new Error('Invalid listing type');
   }
 
+  // ── M-156 Phase A: sector_id 자동 결정 (관세 정산용) ──
+  // claim listing → claim의 sector_id
+  // 그 외 → 판매자의 가장 큰 claim의 sector_id (없으면 NULL → 관세 부과 안 함)
+  let sectorId = null;
+  try {
+    if (claimId) {
+      const sr = await client.query('SELECT sector_id FROM claims WHERE id = $1', [claimId]);
+      sectorId = sr.rows[0]?.sector_id || null;
+    } else {
+      const sr = await client.query(
+        `SELECT sector_id FROM claims
+         WHERE LOWER(owner) = LOWER($1) AND sector_id IS NOT NULL
+         ORDER BY (width * height) DESC NULLS LAST LIMIT 1`, [w]
+      );
+      sectorId = sr.rows[0]?.sector_id || null;
+    }
+  } catch (_) {}
+
   // Create listing (resource type includes resource_code + resource_quantity)
   const isResource = type === 'resource';
   const listRes = await client.query(
     `INSERT INTO marketplace_listings
-       (seller, listing_type, item_instance_id, claim_id, price, currency, expires_at, meta${isResource ? ', resource_code, resource_quantity' : ''})
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8${isResource ? ', $9, $10' : ''}) RETURNING *`,
+       (seller, listing_type, item_instance_id, claim_id, price, currency, expires_at, meta, sector_id${isResource ? ', resource_code, resource_quantity' : ''})
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9${isResource ? ', $10, $11' : ''}) RETURNING *`,
     isResource
-      ? [w, type, null, null, price, currency, expiresAt, JSON.stringify(meta), params.resourceCode, parseInt(params.resourceQuantity) || 1]
-      : [w, type, itemInstanceId, claimId, price, currency, expiresAt, JSON.stringify(meta)]
+      ? [w, type, null, null, price, currency, expiresAt, JSON.stringify(meta), sectorId, params.resourceCode, parseInt(params.resourceQuantity) || 1]
+      : [w, type, itemInstanceId, claimId, price, currency, expiresAt, JSON.stringify(meta), sectorId]
   );
 
   return listRes.rows[0];
@@ -238,10 +256,64 @@ async function buyListing(client, listingId, buyer) {
   // ✅ [Job System] Merchant market fee discount (applied to seller)
   try { if (jobService) feePct = Math.max(0, feePct * await jobService.getJobBuff(listing.seller, 'merchant_market_fee', 1.0)); } catch (_je) {}
   const fee = Math.floor(price * feePct / 100 * 1000000) / 1000000;
-  const sellerReceives = price - fee;
+
+  // ── M-156 Phase A: 섹터 관세 (거버너 수수료) ──
+  // listing.sector_id가 채워져 있으면 그 섹터 거버너에게 관세를 송금.
+  // 길드 멤버 면제·자기거래 면제는 computeSectorTariff 안에서 처리.
+  let tariffAmount = 0, tariffPct = 0, tariffGovernor = null, tariffExempted = false, tariffReason = 'skip';
+  try {
+    const sectorService = require('./sector');
+    const t = await sectorService.computeSectorTariff(listing.sector_id, b, price);
+    tariffAmount  = parseFloat(t.tariffAmount) || 0;
+    tariffPct     = parseFloat(t.tariffPct) || 0;
+    tariffGovernor = t.governorWallet || null;
+    tariffExempted = !!t.exempted;
+    tariffReason  = t.reason || 'ok';
+  } catch (_tariffErr) {
+    console.warn('[MARKETPLACE] tariff calc failed (skipping):', _tariffErr.message);
+  }
+
+  const sellerReceives = price - fee - tariffAmount;
 
   // Credit seller
   await client.query(`UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`, [sellerReceives, listing.seller]);
+
+  // Credit governor (if tariff applied)
+  if (tariffAmount > 0 && tariffGovernor) {
+    await client.query(
+      `UPDATE users SET ${balCol} = ${balCol} + $1 WHERE wallet_address = $2`,
+      [tariffAmount, tariffGovernor]
+    );
+    // sectors.total_tax_collected 누적 (있으면)
+    try {
+      await client.query(
+        `UPDATE sectors SET sector_pool_gp = COALESCE(sector_pool_gp,0) + 0
+         WHERE id = $1`, [listing.sector_id]
+      );
+    } catch (_) {}
+    // tariff log
+    try {
+      await client.query(
+        `INSERT INTO sector_tariff_log
+          (sector_id, governor_wallet, payer_wallet, source, source_ref_id,
+           gross_amount, tariff_pct, tariff_amount, guild_exempted)
+         VALUES ($1, $2, $3, 'marketplace_buy', $4, $5, $6, $7, $8)`,
+        [listing.sector_id, tariffGovernor, b, listingId, price, tariffPct, tariffAmount, false]
+      );
+    } catch (_logE) {}
+  } else if (tariffExempted && listing.sector_id) {
+    // 면제됐지만 로깅은 남겨서 어드민이 확인 가능
+    try {
+      await client.query(
+        `INSERT INTO sector_tariff_log
+          (sector_id, governor_wallet, payer_wallet, source, source_ref_id,
+           gross_amount, tariff_pct, tariff_amount, guild_exempted)
+         VALUES ($1, $2, $3, 'marketplace_buy', $4, $5, $6, 0, $7)`,
+        [listing.sector_id, tariffGovernor, b, listingId, price, tariffPct,
+         tariffReason === 'guild_exempt']
+      );
+    } catch (_) {}
+  }
 
   // Transfer asset
   if (listing.item_instance_id) {
