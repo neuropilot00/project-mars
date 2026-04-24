@@ -195,6 +195,87 @@ async function createAiFleet(factionCode, difficulty, index) {
   }
 }
 
+// ─── AI 함대 재생성 (함선만 교체, 함대 ID 유지) ───
+
+/**
+ * 전멸한 AI 함대를 랜덤 파벌로 재생성
+ * fleet 테이블 레코드는 유지 (FK 제약 회피), 함선만 교체
+ */
+async function respawnAiFleet(fleetId, aiWallet, newFactionCode, difficulty, index) {
+  const preset = AI_PRESETS[difficulty];
+  if (!preset) throw new Error('INVALID_DIFFICULTY');
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 기존 함선 삭제
+    await client.query(`DELETE FROM ships WHERE fleet_id = $1`, [fleetId]);
+
+    // 유저 파벌 업데이트
+    await client.query(`
+      UPDATE users SET faction_code = $1, ai_respawn_at = NULL
+      WHERE wallet_address = $2
+    `, [newFactionCode, aiWallet]);
+
+    // 함대 이름 업데이트
+    await client.query(`
+      UPDATE fleets SET name = $1 WHERE id = $2
+    `, [`[AI] ${preset.label} ${newFactionCode.toUpperCase()} #${index + 1}`, fleetId]);
+
+    // 파벌별 코드 별칭
+    const FACTION_CODE_ALIASES = {
+      fsp: { 'fsp_frg': 'fsp_int' },
+    };
+    const resolveShipCode = (template) => {
+      const code = template.replace('FACTION', newFactionCode);
+      return FACTION_CODE_ALIASES[newFactionCode]?.[code] || code;
+    };
+
+    let flagshipAssigned = false;
+    const flagshipCode = resolveShipCode(preset.flagship_ship);
+
+    for (const comp of preset.ship_composition) {
+      const shipCode = resolveShipCode(comp.ship_code);
+
+      const { rows: stRows } = await client.query(
+        `SELECT * FROM ship_types WHERE code = $1`, [shipCode]
+      );
+      if (!stRows[0]) {
+        // fallback: 해당 파벌 프리깃 중 가장 저렴한 것
+        const { rows: fallback } = await client.query(
+          `SELECT * FROM ship_types WHERE faction_code = $1 AND size_class = 'frigate' AND is_active = true ORDER BY build_gp_cost ASC LIMIT 1`,
+          [newFactionCode]
+        );
+        if (!fallback[0]) continue;
+        stRows.push(fallback[0]);
+      }
+      const st = stRows[0];
+
+      for (let j = 0; j < comp.count; j++) {
+        const isFlagship = !flagshipAssigned && shipCode === flagshipCode;
+        try {
+          await client.query(`
+            INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at)
+            VALUES ($1, $2, $3, $4, $4, $5, true, NOW())
+          `, [fleetId, st.code, aiWallet, st.base_hp, isFlagship]);
+          if (isFlagship) flagshipAssigned = true;
+        } catch (e) {
+          console.warn(`[aiFleet] respawn ship failed: ${st.code}`, e.message);
+        }
+      }
+    }
+
+    await client.query('COMMIT');
+    console.log(`[aiFleet] respawned fleet ${fleetId} as ${newFactionCode}/${difficulty} #${index + 1}`);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 // ─── 전체 AI 함대 수 유지 ───
 
 /**
@@ -242,13 +323,13 @@ async function ensureAiFleets() {
             console.error(`[aiFleet] create failed (${factionCode}/${difficulty}/${i}):`, err.message);
           }
         } else if (parseInt(fleet.ships_alive) === 0) {
-          // 함대 있지만 전멸 → respawn 시간 확인 후 재생성
+          // 함대 있지만 전멸 → respawn 시간 확인 후 함선만 교체
           const respawnAt = fleet.ai_respawn_at ? new Date(fleet.ai_respawn_at) : null;
           if (!respawnAt || respawnAt <= new Date()) {
-            // 기존 함대 삭제하고 재생성
-            await pool.query(`DELETE FROM fleets WHERE id = $1`, [fleet.id]);
+            // 랜덤 파벌 선택
+            const randomFaction = ['mcc', 'fsp', 'cv'][Math.floor(Math.random() * 3)];
             try {
-              await createAiFleet(factionCode, difficulty, i);
+              await respawnAiFleet(fleet.id, aiWallet, randomFaction, difficulty, i);
               created++;
             } catch (err) {
               console.error(`[aiFleet] respawn failed:`, err.message);

@@ -164,7 +164,7 @@ router.get('/users', async (req, res) => {
     );
 
     const usersRes = await pool.query(
-      `SELECT u.wallet_address, u.email, u.nickname, u.usdt_balance, u.pp_balance, COALESCE(u.gp_balance,0) as gp_balance, u.created_at,
+      `SELECT u.wallet_address, u.email, u.nickname, u.usdt_balance, u.pp_balance, COALESCE(u.gp_balance,0) as gp_balance, u.created_at, u.faction_code,
         (SELECT COUNT(*) FROM claims c WHERE c.owner = u.wallet_address AND c.deleted_at IS NULL) as claim_count,
         (SELECT COALESCE(SUM(amount),0) FROM deposits d WHERE d.wallet_address = u.wallet_address) as total_deposited
        FROM users u ${where}
@@ -176,8 +176,10 @@ router.get('/users', async (req, res) => {
     res.json({
       users: usersRes.rows.map(r => ({
         wallet: r.wallet_address,
+        wallet_address: r.wallet_address,
         email: r.email || '',
         nickname: r.nickname || '',
+        faction_code: r.faction_code || null,
         isNpc: r.wallet_address.startsWith('0xnpc_'),
         usdtBalance: parseFloat(r.usdt_balance),
         ppBalance: parseFloat(r.pp_balance),
@@ -4354,7 +4356,6 @@ router.post('/phase-c/transport/:id/force-complete', adminAuth, async (req, res)
 // POST /admin/api/fleet/grant-starter — 파벌 스타터 팩 수동 지급 (함선 + 광물)
 // ══════════════════════════════════════════════════
 router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
-  if (!requireAdmin(req, res)) return;
   const { wallet } = req.body;
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
   const w = wallet.toLowerCase().trim();
