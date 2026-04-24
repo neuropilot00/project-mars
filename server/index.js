@@ -369,6 +369,7 @@ app.use('/api/factions', factionRoutes);      // A-1: 파벌 선택 시스템
 app.use('/api/resources', newResourcesRoutes); // A-2: 자원 인벤토리
 app.use('/api/fleets', fleetSearchRoutes);      // Phase B: Fleet Search (before fleetRoutes)
 app.use('/api/fleets', fleetRoutes);           // A-3: 함대 편성
+app.use('/api/tactical-lab', require('./routes/tacticalLab')); // v11.1 simulator public catalog
 app.use('/api/governance', governanceRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 

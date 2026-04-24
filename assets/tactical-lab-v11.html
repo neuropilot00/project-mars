@@ -254,9 +254,9 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 'use strict';
 
 /* ═══════════════════════════════════════════════════════════
-   광물
+   광물 — 기본값(오프라인 폴백). boot()에서 /api/tactical-lab/catalog로 덮어씀
    ═══════════════════════════════════════════════════════════ */
-const MINERALS = {
+let MINERALS = {
   iron_dust:{ko:'철 먼지',en:'Iron Dust',icon:'🟤',color:'#795548',tier:0,src:'모든 섹터 · 흔함'},
   red_sand:{ko:'붉은 모래',en:'Red Sand',icon:'🔴',color:'#e57373',tier:0,src:'모든 섹터 · 흔함'},
   silicate:{ko:'규산염',en:'Silicate',icon:'⚪',color:'#cfd8dc',tier:0,src:'모든 섹터 · 흔함'},
@@ -272,9 +272,9 @@ const MINERALS = {
 };
 
 /* ═══════════════════════════════════════════════════════════
-   파벌
+   파벌 — 폴백. boot()에서 DB factions로 덮어씀
    ═══════════════════════════════════════════════════════════ */
-const FACTIONS = {
+let FACTIONS = {
   mcc:{name:'MCC',full:'Mars Corporate Consortium',desc:'기업 연합 · 기하학적 디자인 · 레일건 특화',
     color:'#4fc3f7',colorDark:'#0277bd',colorBright:'#81d4fa',
     specialty:'장거리 포격 · 정확도 높은 레일건',namingScheme:'금속성 명칭'},
@@ -287,9 +287,9 @@ const FACTIONS = {
 };
 
 /* ═══════════════════════════════════════════════════════════
-   함선 20종 (v10 완전 동일)
+   함선 — 폴백(참조 20종). boot()에서 DB ship_types(22종)로 덮어씀
    ═══════════════════════════════════════════════════════════ */
-const SHIPS = {
+let SHIPS = {
   mcc_int:{faction:'mcc',size:'frigate',role:'tackle',tier:1,name:'Prism',cls:'Interceptor · T1',r:1.8,hp:3000,atk:6,def:3,spd:2.4,fireInt:110,fireType:'bullet',shots:1,desc:'고속 정찰·태클',recipe:{iron_dust:30,silicate:10,plasma_coil:1},buildTime:'10분'},
   mcc_frg:{faction:'mcc',size:'frigate',role:'dps',tier:1,name:'Shard',cls:'Frigate · T1',r:2.5,hp:6000,atk:14,def:7,spd:1.8,fireInt:130,fireType:'bullet',shots:2,desc:'범용 DPS',recipe:{iron_dust:50,red_sand:20,plasma_coil:2},buildTime:'25분'},
   mcc_ewar:{faction:'mcc',size:'frigate',role:'ewar',tier:2,name:'Jammer',cls:'EW Frigate · T2',r:2.4,hp:4500,atk:5,def:6,spd:1.7,fireInt:180,fireType:'ew',shots:1,desc:'적 사격 방해',recipe:{iron_dust:80,ice_crystal:10,plasma_coil:3,alloy_frame:1},buildTime:'1시간'},
@@ -315,16 +315,16 @@ const SHIPS = {
 };
 
 /* ═══════════════════════════════════════════════════════════
-   함대 편성 (v10 그대로)
+   함대 편성 — 폴백. boot()에서 /api/tactical-lab/fleet-presets로 덮어씀
    ═══════════════════════════════════════════════════════════ */
-const ATK_FLEETS=[
+let ATK_FLEETS=[
   {id:'KimWarrior',tag:'MCC',flagship:'mcc_titan',escort:{mcc_bs:2,mcc_snp:3,mcc_crs:5,mcc_dst:10,mcc_ewar:3,mcc_frg:18,mcc_int:35}},
   {id:'RebelKing',tag:'MCC',flagship:'mcc_bs',escort:{mcc_crs:3,mcc_snp:2,mcc_dst:8,mcc_ewar:2,mcc_frg:14,mcc_int:28}},
   {id:'NovaStrike',tag:'FSP',flagship:'fsp_bs',escort:{fsp_logi_crs:2,fsp_crs:4,fsp_dst:8,fsp_logi:5,fsp_int:20}},
   {id:'DarkPilot',tag:'MCC',flagship:'mcc_crs',escort:{mcc_dst:3,mcc_frg:8,mcc_ewar:2,mcc_int:16}},
   {id:'SpeedDemon',tag:'FSP',flagship:'fsp_dst',escort:{fsp_logi:2,fsp_int:12}},
 ];
-const DEF_FLEETS=[
+let DEF_FLEETS=[
   {id:'FSP_Guard',tag:'FSP',flagship:'fsp_titan',escort:{fsp_bs:2,fsp_logi_crs:3,fsp_crs:6,fsp_dst:12,fsp_logi:6,fsp_int:32}},
   {id:'IronWall',tag:'CV',flagship:'cv_bs',escort:{cv_crs:4,cv_dst:8,cv_bomb:3,cv_frg:14,cv_int:28}},
   {id:'VoidHunter',tag:'CV',flagship:'cv_titan',escort:{cv_bs:1,cv_crs:3,cv_dst:6,cv_bomb:4,cv_frg:12,cv_int:24}},
@@ -1290,8 +1290,106 @@ function renderAnalysis(){
   `;
 }
 
-initBattle();
-requestAnimationFrame(loop);
+/* ═══════════════════════════════════════════════════════════
+   실제 DB 데이터 로더 — /api/tactical-lab/catalog + /fleet-presets
+   같은 origin(iframe 부모 server)에서 제공 → 별도 CORS 불필요
+   데이터 로드 실패 시 위에 정의된 하드코딩 폴백 유지
+   ═══════════════════════════════════════════════════════════ */
+async function loadCatalog(){
+  try {
+    const [catRes, fltRes] = await Promise.all([
+      fetch('/api/tactical-lab/catalog', { cache: 'no-cache' }),
+      fetch('/api/tactical-lab/fleet-presets', { cache: 'no-cache' }),
+    ]);
+    if (catRes.ok) {
+      const cat = await catRes.json();
+      // 광물 (13종)
+      if (cat.resources && cat.resources.length) {
+        const m = {};
+        for (const r of cat.resources) {
+          m[r.code] = {
+            ko: r.name_ko || r.code,
+            en: r.name_en || r.code,
+            icon: r.icon_emoji || '●',
+            color: r.color_hex || '#9e9e9e',
+            tier: r.tier || 0,
+            src: r.description_ko || r.description_en || '',
+          };
+        }
+        MINERALS = m;
+      }
+      // 파벌 (3종)
+      if (cat.factions && cat.factions.length) {
+        const f = {};
+        for (const r of cat.factions) {
+          f[r.code] = {
+            name: (r.code || '').toUpperCase(),
+            full: r.name_en || r.name_ko || r.code,
+            desc: r.description_ko || r.description_en || '',
+            color: r.color_primary || '#4fc3f7',
+            colorDark: r.color_dark || '#0277bd',
+            colorBright: r.color_bright || '#81d4fa',
+            specialty: r.specialty_ko || r.specialty_en || '',
+            namingScheme: r.naming_scheme || '',
+          };
+        }
+        FACTIONS = f;
+      }
+      // 함선 (22종)
+      if (cat.ships && cat.ships.length) {
+        const s = {};
+        for (const r of cat.ships) {
+          // render_radius가 null이면 사이즈별 기본값으로 폴백
+          let rr = parseFloat(r.render_radius);
+          if (!rr || isNaN(rr)) {
+            rr = r.size_class === 'titan' ? 13 :
+                 r.size_class === 'battleship' ? 8.5 :
+                 r.size_class === 'cruiser' ? 5 :
+                 r.size_class === 'destroyer' ? 3.6 : 2;
+          }
+          s[r.code] = {
+            faction: r.faction_code,
+            size: r.size_class,
+            role: r.role,
+            tier: r.tier || 1,
+            name: r.name_en || r.code,
+            cls: r.class_label || ((r.size_class || '') + ' · T' + (r.tier || 1)),
+            r: rr,
+            hp: r.base_hp,
+            atk: r.base_atk,
+            def: r.base_def,
+            spd: parseFloat(r.base_speed) || 1,
+            fireInt: r.fire_interval || 150,
+            fireType: r.fire_type || 'bullet',
+            shots: r.shots || 1,
+            desc: r.description_ko || r.description_en || '',
+            recipe: r.recipe_minerals || {},
+            buildTime: r.build_time_label || '-',
+          };
+        }
+        SHIPS = s;
+      }
+      console.log('[TacticalLab] catalog loaded:', cat.counts);
+    } else {
+      console.warn('[TacticalLab] catalog fetch !ok:', catRes.status);
+    }
+    if (fltRes.ok) {
+      const flt = await fltRes.json();
+      if (flt.atk && flt.atk.length) ATK_FLEETS = flt.atk;
+      if (flt.def && flt.def.length) DEF_FLEETS = flt.def;
+      console.log('[TacticalLab] fleet presets loaded:', {atk: ATK_FLEETS.length, def: DEF_FLEETS.length});
+    }
+  } catch (e) {
+    console.warn('[TacticalLab] catalog fetch failed, using hardcoded fallback:', e && e.message);
+  }
+}
+
+async function boot(){
+  await loadCatalog();
+  initBattle();
+  requestAnimationFrame(loop);
+}
+boot();
 </script>
 </body>
 </html>
