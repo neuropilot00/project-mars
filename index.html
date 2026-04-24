@@ -5563,6 +5563,32 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
+        <!-- FLEET COMMAND CARD — moved above Player Level (priority entry point for Shipyard/Fleets/Void Raider) -->
+        <div id="terrFleetCommand" style="margin-bottom:12px;padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(79,195,247,.12),rgba(79,195,247,.03));border:1px solid rgba(79,195,247,.3);box-shadow:0 0 14px rgba(79,195,247,.08)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
+            <div>
+              <div style="font-size:11px;font-weight:800;color:#5cbbff;letter-spacing:.5px" data-i18n="fcmd_title">⚓ FLEET COMMAND</div>
+              <div style="font-size:8px;color:var(--tx3);margin-top:2px" data-i18n="fcmd_sub">함대 · 조선소 · Void Raider</div>
+            </div>
+            <div style="font-size:8px;color:var(--tx3);text-align:right" id="fcmdSummary">—</div>
+          </div>
+          <!-- Quick actions -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+            <button onclick="(typeof openShipyard==='function')&&openShipyard()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(79,195,247,.18),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_open_shipyard">🔨 SHIPYARD</button>
+            <button onclick="(typeof openFleetManager==='function')&&openFleetManager()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(167,139,250,.04));border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_my_fleets">⚔ MY FLEETS</button>
+          </div>
+          <!-- World Events (Void Raider) — Phase B -->
+          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+              <div style="font-size:9px;font-weight:800;color:var(--mars);letter-spacing:.4px" data-i18n="we_active_title">⚠ ACTIVE WORLD EVENTS</div>
+              <button onclick="loadFleetCommandCard()" style="font-size:8px;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="refresh_short">↻</button>
+            </div>
+            <div id="fcmdWorldEventsList" style="display:flex;flex-direction:column;gap:5px">
+              <div style="text-align:center;color:var(--tx3);font-size:9px;padding:6px" data-i18n="we_none_active">활성 이벤트가 없습니다</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Player Level Card -->
         <div id="profileLevelCard" style="margin-bottom:12px;padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(255,120,60,.06),rgba(255,120,60,.02));border:1px solid rgba(255,120,60,.2)">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
@@ -5929,31 +5955,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- FLEET COMMAND CARD (M-154 / 사용자 요청 — SHIPYARD 탭 흡수, 조선소·함대·Void Raider 진입점) -->
-        <div id="terrFleetCommand" style="margin-top:14px;padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(79,195,247,.10),rgba(79,195,247,.02));border:1px solid rgba(79,195,247,.25)">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
-            <div>
-              <div style="font-size:11px;font-weight:800;color:#5cbbff;letter-spacing:.5px" data-i18n="fcmd_title">⚓ FLEET COMMAND</div>
-              <div style="font-size:8px;color:var(--tx3);margin-top:2px" data-i18n="fcmd_sub">함대 · 조선소 · Void Raider</div>
-            </div>
-            <div style="font-size:8px;color:var(--tx3);text-align:right" id="fcmdSummary">—</div>
-          </div>
-          <!-- Quick actions -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-            <button onclick="(typeof openShipyard==='function')&&openShipyard()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(79,195,247,.18),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_open_shipyard">🔨 SHIPYARD</button>
-            <button onclick="(typeof openFleetManager==='function')&&openFleetManager()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(167,139,250,.04));border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_my_fleets">⚔ MY FLEETS</button>
-          </div>
-          <!-- World Events (Void Raider) — Phase B -->
-          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-              <div style="font-size:9px;font-weight:800;color:var(--mars);letter-spacing:.4px" data-i18n="we_active_title">⚠ ACTIVE WORLD EVENTS</div>
-              <button onclick="loadFleetCommandCard()" style="font-size:8px;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer;font-family:var(--fn)" data-i18n="refresh_short">↻</button>
-            </div>
-            <div id="fcmdWorldEventsList" style="display:flex;flex-direction:column;gap:5px">
-              <div style="text-align:center;color:var(--tx3);font-size:9px;padding:6px" data-i18n="we_none_active">활성 이벤트가 없습니다</div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- TAB: SECTORS -->
