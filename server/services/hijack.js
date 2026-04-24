@@ -574,7 +574,7 @@ async function declareHijackWithPP(params) {
             allowed_size_classes_phase1
           ) VALUES ($1, $2, 'completed', 'attacker_won', NOW(), $3, $4, $5, $6, $7)
           RETURNING id`,
-          [attacker_wallet, -1, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
+          [attacker_wallet, newClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
         );
         hijackId = hjRows[0].id;
       } else {
@@ -617,7 +617,7 @@ async function declareHijackWithPP(params) {
             allowed_size_classes_phase1, started_at
           ) VALUES ($1, $2, 'phase1', $3, $4, $5, $6, $7, NOW())
           RETURNING id`,
-          [attacker_wallet, -1, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
+          [attacker_wallet, newClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
         );
         hijackId = hjRows[0].id;
 
