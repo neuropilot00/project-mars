@@ -324,12 +324,25 @@ function calcOdds(event) {
 
 // ─── 만료된 이벤트 자동 마감 ───
 
+let _warBetDisabled = false;
 async function closeExpiredEvents() {
-  const { rows } = await pool.query(`
-    UPDATE war_bet_events SET status = 'closed'
-    WHERE status = 'open' AND closes_at <= NOW()
-    RETURNING id, title_ko
-  `);
+  if (_warBetDisabled) return;
+  let rows;
+  try {
+    const r = await pool.query(`
+      UPDATE war_bet_events SET status = 'closed'
+      WHERE status = 'open' AND closes_at <= NOW()
+      RETURNING id, title_ko
+    `);
+    rows = r.rows;
+  } catch (e) {
+    if (e.code === '42P01' || e.code === '42703') {
+      _warBetDisabled = true;
+      console.log('[warBetting] disabled — schema not provisioned');
+      return;
+    }
+    throw e;
+  }
   if (rows.length > 0) {
     console.log(`[warBetting] closed ${rows.length} expired events`);
   }

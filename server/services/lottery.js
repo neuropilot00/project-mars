@@ -181,7 +181,9 @@ async function buyTickets(client, wallet, count) {
  * Draw the winner for an expired round.
  * Called by the scheduler every minute.
  */
+let _lotteryDisabled = false;
 async function drawExpiredRounds() {
+  if (_lotteryDisabled) return 0;
   const now = new Date();
 
   // Find rounds that are open and expired
@@ -192,7 +194,11 @@ async function drawExpiredRounds() {
       [now]
     );
   } catch (e) {
-    if (e.code === '42P01' || e.code === '42703') return 0;
+    if (e.code === '42P01' || e.code === '42703') {
+      _lotteryDisabled = true;
+      console.log('[LOTTERY] disabled — schema not provisioned');
+      return 0;
+    }
     throw e;
   }
   if (!expired.rows.length) return 0;

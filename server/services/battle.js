@@ -462,7 +462,9 @@ async function getBattle(battleId) {
 }
 
 // ── settleExpiredBattles ── (scheduler)
+let _settleDisabled = false;
 async function settleExpiredBattles() {
+  if (_settleDisabled) return;
   let expired;
   try {
     expired = await pool.query(
@@ -470,8 +472,12 @@ async function settleExpiredBattles() {
     );
   } catch (e) {
     // battles table on this deployment may use a different schema (no status/expires_at).
-    // Silently skip — Naval Battle Engine is orphaned legacy code.
-    if (e.code === '42P01' || e.code === '42703') return;
+    // Disable scheduler permanently — Naval Battle Engine is orphaned legacy code.
+    if (e.code === '42P01' || e.code === '42703') {
+      _settleDisabled = true;
+      console.log('[BATTLE] settle disabled — schema mismatch');
+      return;
+    }
     throw e;
   }
   for (const row of expired.rows) {

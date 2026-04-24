@@ -44,7 +44,9 @@ async function getSettings() {
 
 // ── Ensure pool exists for current week ──────────────────────────────────────
 
+let _divDisabled = false;
 async function ensureCurrentPool() {
+  if (_divDisabled) return null;
   const weekStart = getWeekStart();
   try {
     await pool.query(
@@ -54,8 +56,12 @@ async function ensureCurrentPool() {
     const res = await pool.query(`SELECT * FROM gp_dividend_pool WHERE week_start = $1`, [weekStart]);
     return res.rows[0];
   } catch (e) {
-    // Table not provisioned on this deployment (archived migration 110). Skip silently.
-    if (e.code === '42P01' || e.code === '42703') return null;
+    // Table not provisioned on this deployment (archived migration 110). Disable permanently.
+    if (e.code === '42P01' || e.code === '42703') {
+      _divDisabled = true;
+      console.log('[DIV] dividend pool disabled — schema not provisioned');
+      return null;
+    }
     throw e;
   }
 }

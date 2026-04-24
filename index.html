@@ -13739,7 +13739,7 @@ async function confirmClaim(){
         // 자동 승리 (수비자 함대 없음)
         showNotification('hijack','⚔ AUTO-WIN','상대 함대 없음 — 즉시 영토 점령!');
         try{_sfx.hijackWin()}catch(e){}
-        refreshGP();
+        if (typeof refreshGP === 'function') refreshGP();
         // 맵 새로고침 (짧은 딜레이) — 픽셀/클레임 데이터 다시 로드
         setTimeout(function(){
           fetch('/api/pixels').then(function(r){return r.json();}).then(function(sp){
@@ -13751,7 +13751,7 @@ async function confirmClaim(){
         // 함대전 진행 중
         showNotification('hijack','⚔ 함대전 진행 중','Phase 1 전투 시작! 결과는 Fleet Battle Hub에서 확인하세요.');
         try{_sfx.click()}catch(e){}
-        refreshGP();
+        if (typeof refreshGP === 'function') refreshGP();
       }
       return;
     }
@@ -35106,6 +35106,8 @@ function updateGPDisplay(){
     walletGP.textContent = gpVal.toFixed(0);
   }
 }
+// Legacy alias — 일부 코드 경로가 refreshGP() 호출 (정의 안 됨 → ReferenceError)
+window.refreshGP = function(){ try { updateGPDisplay(); } catch(_){} };
 
 // ── Daily Reset Timer ──
 var _dailyTimerInterval = null;

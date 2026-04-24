@@ -194,7 +194,9 @@ async function settlePool(poolId, winnerWallet) {
   }
 }
 
+let _wagerDisabled = false;
 async function autoLockExpired() {
+  if (_wagerDisabled) return;
   const cfg = await getCfg();
   if (!cfg.autoLock) return;
   try {
@@ -202,8 +204,11 @@ async function autoLockExpired() {
       `UPDATE wager_pools SET status='locked' WHERE status='open' AND closes_at <= NOW()`
     );
   } catch (e) {
-    // Table missing on this deployment — feature not provisioned. Skip silently.
-    if (e.code === '42P01' || e.code === '42703') return;
+    if (e.code === '42P01' || e.code === '42703') {
+      _wagerDisabled = true;
+      console.log('[WAGER] disabled — schema not provisioned');
+      return;
+    }
     throw e;
   }
 }

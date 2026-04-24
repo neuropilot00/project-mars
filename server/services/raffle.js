@@ -220,7 +220,9 @@ async function drawWinner(raffleId) {
   }
 }
 
+let _raffleDisabled = false;
 async function autoDrawExpired() {
+  if (_raffleDisabled) return;
   const cfg = await getCfg();
   if (!cfg.autoDraw) return;
   let expired;
@@ -229,8 +231,11 @@ async function autoDrawExpired() {
       `SELECT id FROM raffles WHERE status='open' AND ends_at <= NOW()`
     );
   } catch (e) {
-    // Table missing on this deployment — feature not provisioned. Skip silently.
-    if (e.code === '42P01' || e.code === '42703') return;
+    if (e.code === '42P01' || e.code === '42703') {
+      _raffleDisabled = true;
+      console.log('[RAFFLE] disabled — schema not provisioned');
+      return;
+    }
     throw e;
   }
   for (const row of expired.rows) {

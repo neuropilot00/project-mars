@@ -56,21 +56,32 @@ async function spawnWeatherEvents() {
     const durationHours = minHours + Math.random() * (maxHours - minHours);
     const effects = WEATHER_TYPES[weatherType];
 
-    try {
+    if (_strategicCols === false) {
+      // Migration 174 미적용 환경 — fallback 직접 사용
       await pool.query(
-        `INSERT INTO mars_weather (sector_id, weather_type, effects, starts_at, ends_at, status, is_strategic)
-         VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '1 hour' * $4, 'active', false)`,
+        `INSERT INTO mars_weather (sector_id, weather_type, effects, starts_at, ends_at)
+         VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '1 hour' * $4)`,
         [row.id, weatherType, JSON.stringify(effects), durationHours]
       );
-    } catch (e) {
-      // Migration 174 컬럼 미적용 환경 fallback — status/is_strategic 없이 INSERT
-      if (e.code === '42703') {
+    } else {
+      try {
         await pool.query(
-          `INSERT INTO mars_weather (sector_id, weather_type, effects, starts_at, ends_at)
-           VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '1 hour' * $4)`,
+          `INSERT INTO mars_weather (sector_id, weather_type, effects, starts_at, ends_at, status, is_strategic)
+           VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '1 hour' * $4, 'active', false)`,
           [row.id, weatherType, JSON.stringify(effects), durationHours]
         );
-      } else { throw e; }
+        _strategicCols = true;
+      } catch (e) {
+        if (e.code === '42703') {
+          _strategicCols = false;
+          console.log('[WEATHER] strategic columns missing — using legacy INSERT');
+          await pool.query(
+            `INSERT INTO mars_weather (sector_id, weather_type, effects, starts_at, ends_at)
+             VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '1 hour' * $4)`,
+            [row.id, weatherType, JSON.stringify(effects), durationHours]
+          );
+        } else { throw e; }
+      }
     }
     results.push({ sectorId: row.id, weatherType, durationHours: Math.round(durationHours * 10) / 10 });
   }
@@ -165,7 +176,9 @@ async function createForecast(params) {
  * starts_at <= NOW() 인 예보를 active로 전환
  * 매 1분마다 스케줄러에서 호출
  */
+let _activateDisabled = false;
 async function activateForecasts() {
+  if (_activateDisabled) return;
   const strategicEnabled = await getSetting('weather_strategic_enabled');
   if (strategicEnabled === 'false') return;
 
@@ -182,8 +195,12 @@ async function activateForecasts() {
     `);
     rows = r.rows;
   } catch (e) {
-    // Migration 174 미적용 — strategic 컬럼 없음. silently skip.
-    if (e.code === '42703') return;
+    // Migration 174 미적용 — strategic 컬럼 없음. 영구 비활성.
+    if (e.code === '42703' || e.code === '42P01') {
+      _activateDisabled = true;
+      console.log('[WEATHER] activateForecasts disabled — Migration 174 not applied');
+      return;
+    }
     throw e;
   }
 

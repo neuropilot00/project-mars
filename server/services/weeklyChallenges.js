@@ -41,7 +41,9 @@ async function isEnabled() {
 
 // ── Ensure instances exist for current week ───────────────────────────────────
 
+let _wcDisabled = false;
 async function ensureWeekInstances() {
+  if (_wcDisabled) return;
   const { start, end } = getWeekBounds();
   let defs;
   try {
@@ -49,8 +51,12 @@ async function ensureWeekInstances() {
       `SELECT id FROM weekly_challenge_defs WHERE active = true`
     );
   } catch (e) {
-    // Tables not provisioned on this deployment (archived migration 109). Skip silently.
-    if (e.code === '42P01' || e.code === '42703') return;
+    // Tables not provisioned (archived migration 109). Disable permanently.
+    if (e.code === '42P01' || e.code === '42703') {
+      _wcDisabled = true;
+      console.log('[WEEKLY] weekly_challenge_defs disabled — schema not provisioned');
+      return;
+    }
     throw e;
   }
   for (const d of defs.rows) {
@@ -61,7 +67,7 @@ async function ensureWeekInstances() {
         [d.id, start, end]
       );
     } catch (e) {
-      if (e.code === '42P01' || e.code === '42703') return;
+      if (e.code === '42P01' || e.code === '42703') { _wcDisabled = true; return; }
       throw e;
     }
   }
