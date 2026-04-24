@@ -17,11 +17,14 @@ UPDATE settings SET value = '0.05' WHERE key = 'shield_gp_per_unit';
 UPDATE settings SET value = '3' WHERE key = 'shield_decay_pct_per_hour';
 
 -- ── 3. 채굴 보상 조정 ───────────────────────────────────────────────────────
--- 1일 PP 캡 1 PP = $1 → 헌신적 유저 3 PP/day ($3/day) = $90/month
--- SE Asia: 월 $15-30 번다면 게임에 시간 투자 의미 있음
-UPDATE settings SET value = '3' WHERE key = 'pp_daily_earn_cap_per_user';
--- Frontier 채굴 1배 → 진입장벽 낮춤
+-- PP 일일 상한: 0.5 PP/day 상한
+-- 100픽셀 유저 = 0.1 PP/day (상한 미달), 500픽셀 = 0.5 PP/day (상한 도달)
+-- 운영사 비용: 1000 유저 × 0.5 PP = $500/day → 광고수익+PP구매로 커버 가능
+UPDATE settings SET value = '0.5' WHERE key = 'pp_daily_earn_cap_per_user';
+-- Frontier 채굴 1배 (유지)
 UPDATE settings SET value = '1.0' WHERE key = 'mining_bonus_frontier';
+-- 유지비: 100픽셀 초과분 주당 1 PP (대형 홀더 PP 소각 강화 → 운영사 PP 수입)
+UPDATE settings SET value = '1.0' WHERE key = 'maintenance_fee_rate';
 -- iron_ore 드롭량 max 5 → 10개로 상향 (수리 재료 수급 원활화)
 UPDATE settings SET value = '10' WHERE key = 'resource_drop_quantity_max';
 -- 1 harvest 최대 드롭 종류 3 → 5
