@@ -4140,7 +4140,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* ═════ 모바일 반응형 ═════ */
 
 @media (max-width: 768px) {
-  /* 전체 모달 풀스크린화 */
+  /* 전체 모달 풀스크린화 — safe-area 반영 */
   .fleetcmd-modal,
   .shipyard-modal,
   .faction-modal,
@@ -4152,9 +4152,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .bd-modal,
   .hj-modal {
     max-width: 100%;
-    max-height: 100vh;
-    height: 100vh;
     border-radius: 0;
+    /* safe-area-inset-top 으로 노치/상태표시줄 아래에서 시작 */
+    max-height: calc(100dvh - max(env(safe-area-inset-top, 44px), 44px));
+    height: calc(100dvh - max(env(safe-area-inset-top, 44px), 44px));
+  }
+  /* 풀스크린 모달의 backdrop도 top padding 확보 */
+  .shipyard-modal-backdrop,
+  .fleetcmd-backdrop,
+  .faction-modal-backdrop,
+  .bh-modal-backdrop,
+  .tn-modal-backdrop {
+    padding-top: max(env(safe-area-inset-top, 44px), 44px) !important;
+    align-items: flex-start !important;
   }
   
   /* Fleet Command 좌우 스택화 */
@@ -14835,6 +14845,10 @@ var I18N = {
     dm_play_cantina: 'Cantina Night', dm_play_cantina_d: 'Play a mini-game in the Cantina',
     dm_equip_cosmetic: 'Mars Fashion', dm_equip_cosmetic_d: 'Equip a cosmetic item from your inventory',
     dm_view_weather: 'Storm Chaser', dm_view_weather_d: 'Check the Mars weather forecast',
+    dm_enhance_item: 'Enhancement Lab', dm_enhance_item_d: 'Attempt to enhance a cosmetic item',
+    dm_marketplace_trade: 'Market Day', dm_marketplace_trade_d: 'Buy an item on the marketplace',
+    dm_win_naval_battle: 'Naval Victory', dm_win_naval_battle_d: 'Win a naval battle against another fleet',
+    dm_build_ship: 'Shipyard Rush', dm_build_ship_d: 'Order a new ship for your fleet',
     dm_daily_checkin: 'Daily Check-in', dm_daily_checkin_d: 'Log in and check in today',
     dm_claim_fallback: 'CLAIM TERRITORY', dm_claim_fallback_d: 'Claim land pixels on the Mars globe',
     dm_explore_fallback: 'EXPLORE SECTORS', dm_explore_fallback_d: 'Discover a POI marker on the globe',
@@ -15481,6 +15495,10 @@ var I18N = {
     dm_play_cantina: '칸티나 나이트', dm_play_cantina_d: '칸티나에서 미니게임을 플레이하세요',
     dm_equip_cosmetic: '화성 패션', dm_equip_cosmetic_d: '인벤토리에서 코스메틱을 장착하세요',
     dm_view_weather: '폭풍 추적자', dm_view_weather_d: '화성 날씨 예보를 확인하세요',
+    dm_enhance_item: '강화 실험실', dm_enhance_item_d: '코스메틱 아이템 강화에 도전하세요',
+    dm_marketplace_trade: '마켓 데이', dm_marketplace_trade_d: '마켓플레이스에서 아이템을 구매하세요',
+    dm_win_naval_battle: '해전 승리', dm_win_naval_battle_d: '다른 함대와 해전을 벌여 승리하세요',
+    dm_build_ship: '조선소 가동', dm_build_ship_d: '함대에 새 함선을 발주하세요',
     dm_daily_checkin: '일일 체크인', dm_daily_checkin_d: '오늘 로그인하고 출석하세요',
     dm_claim_fallback: '영토 점령', dm_claim_fallback_d: '화성 글로브에서 픽셀을 점령하세요',
     dm_explore_fallback: '섹터 탐사', dm_explore_fallback_d: '글로브에서 POI 마커를 발견하세요',
@@ -16137,6 +16155,10 @@ var I18N = {
     dm_play_cantina: 'カンティーナナイト', dm_play_cantina_d: 'カンティーナでミニゲームをプレイしよう',
     dm_equip_cosmetic: '火星ファッション', dm_equip_cosmetic_d: 'インベントリからコスメを装備しよう',
     dm_view_weather: 'ストームチェイサー', dm_view_weather_d: '火星の天気予報をチェックしよう',
+    dm_enhance_item: '強化ラボ', dm_enhance_item_d: 'コスメアイテムの強化に挑戦しよう',
+    dm_marketplace_trade: 'マーケットデー', dm_marketplace_trade_d: 'マーケットプレイスでアイテムを購入しよう',
+    dm_win_naval_battle: '海戦勝利', dm_win_naval_battle_d: '他の艦隊との海戦に勝利しよう',
+    dm_build_ship: '造船所稼働', dm_build_ship_d: '艦隊に新しい艦船を発注しよう',
     dm_daily_checkin: 'デイリーチェックイン', dm_daily_checkin_d: '今日ログインしてチェックインしよう',
     dm_claim_fallback: '領土占領', dm_claim_fallback_d: '火星のグローブでピクセルを占領しよう',
     dm_explore_fallback: 'セクター探索', dm_explore_fallback_d: 'グローブでPOIマーカーを発見しよう',
@@ -16778,6 +16800,10 @@ var I18N = {
     dm_play_cantina: '酒馆之夜', dm_play_cantina_d: '在酒馆玩一个小游戏',
     dm_equip_cosmetic: '火星时尚', dm_equip_cosmetic_d: '从背包装备一个装饰品',
     dm_view_weather: '风暴追踪者', dm_view_weather_d: '查看火星天气预报',
+    dm_enhance_item: '强化实验室', dm_enhance_item_d: '尝试强化一件装饰品',
+    dm_marketplace_trade: '市场之日', dm_marketplace_trade_d: '在市场上购买一件物品',
+    dm_win_naval_battle: '海战胜利', dm_win_naval_battle_d: '与另一支舰队作战并获胜',
+    dm_build_ship: '船坞冲刺', dm_build_ship_d: '为你的舰队订购一艘新船',
     dm_daily_checkin: '每日签到', dm_daily_checkin_d: '今天登录并签到',
     dm_claim_fallback: '占领领土', dm_claim_fallback_d: '在火星上占领像素',
     dm_explore_fallback: '探索扇区', dm_explore_fallback_d: '在地球仪上发现POI标记',
@@ -34902,7 +34928,8 @@ function renderDailyMissions(){
     var desc = (t(descKey) !== descKey) ? t(descKey) : descRaw;
     var target = m.target != null ? m.target : m.targetValue;
     var current = m.current != null ? m.current : m.currentValue;
-    var reward = m.reward != null ? m.reward : m.rewardGP;
+    var _r = m.reward != null ? m.reward : m.rewardGP;
+    var reward = (_r != null && !isNaN(Number(_r))) ? Number(_r) : 0;
     var pct = Math.min((current/target)*100, 100);
     var claimable = current >= target && !m.claimed;
     var cls = 'daily-mission-card';

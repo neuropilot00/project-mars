@@ -185,7 +185,7 @@ function formatMission(row) {
     desc: def ? def.desc : '',
     target: row.target_value,
     current: row.current_value,
-    reward: parseFloat(row.reward_gp),
+    reward: parseFloat(row.reward_gp) || 0,
     rewardXP: row.reward_xp,
     completed: row.completed,
     claimed: row.claimed
