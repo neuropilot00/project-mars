@@ -166,7 +166,8 @@ async function createAiFleet(factionCode, difficulty, index) {
       // N척 생성
       for (let i = 0; i < comp.count; i++) {
         const isFlagship = !flagshipAssigned && shipCode === flagshipCode;
-        
+        // SAVEPOINT — 개별 ship 실패 시 트랜잭션 전체 abort 방지
+        await client.query(`SAVEPOINT sp_ship`);
         try {
           await client.query(`
             INSERT INTO ships (
@@ -174,9 +175,10 @@ async function createAiFleet(factionCode, difficulty, index) {
               current_hp, max_hp, is_flagship, is_alive, built_at
             ) VALUES ($1, $2, $3, $4, $4, $5, true, NOW())
           `, [fleetId, shipCode, aiWallet, st.base_hp, isFlagship]);
-          
+          await client.query(`RELEASE SAVEPOINT sp_ship`);
           if (isFlagship) flagshipAssigned = true;
         } catch (err) {
+          await client.query(`ROLLBACK TO SAVEPOINT sp_ship`);
           // Titan 한도 등 제약으로 실패 가능. 무시하고 다음.
           console.warn(`[aiFleet] ship creation failed: ${shipCode}`, err.message);
         }
@@ -254,13 +256,16 @@ async function respawnAiFleet(fleetId, aiWallet, newFactionCode, difficulty, ind
 
       for (let j = 0; j < comp.count; j++) {
         const isFlagship = !flagshipAssigned && shipCode === flagshipCode;
+        await client.query(`SAVEPOINT sp_ship`);
         try {
           await client.query(`
             INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at)
             VALUES ($1, $2, $3, $4, $4, $5, true, NOW())
           `, [fleetId, st.code, aiWallet, st.base_hp, isFlagship]);
+          await client.query(`RELEASE SAVEPOINT sp_ship`);
           if (isFlagship) flagshipAssigned = true;
         } catch (e) {
+          await client.query(`ROLLBACK TO SAVEPOINT sp_ship`);
           console.warn(`[aiFleet] respawn ship failed: ${st.code}`, e.message);
         }
       }
