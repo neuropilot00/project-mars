@@ -35,7 +35,8 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 .hb{height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;width:160px;}
 .hf{height:100%;border-radius:3px;transition:width 1.5s;}
 .hf.a{background:linear-gradient(90deg,#29b6f6,#0277bd);}
-.hf.d{background:linear-gradient(90deg,#ef5350,#b71c1c);}
+.hf.d{background:linear-gradient(270deg,#ef5350,#b71c1c);}
+.hb.rtl{display:flex;justify-content:flex-end;}
 .cp{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 12px;}
 .vs{font-family:'Orbitron',monospace;font-size:12px;font-weight:900;
   color:#ff6d00;text-shadow:0 0 8px rgba(255,109,0,.6);letter-spacing:3px;}
@@ -180,7 +181,7 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
     <div class="hr"><div class="hl">HP</div><div class="hb"><div class="hf a" id="ah" style="width:100%"></div></div></div></div>
   <div class="cp"><div class="vs">VS</div><div class="tmr" id="tm">00:00</div><div class="tinfo">TURN <span id="tn">0</span></div></div>
   <div class="team r"><div class="tn d">DEF COALITION</div><div class="tfl" id="di">—</div>
-    <div class="hr"><div class="hb"><div class="hf d" id="dh" style="width:100%"></div></div><div class="hl">HP</div></div></div>
+    <div class="hr"><div class="hb rtl"><div class="hf d" id="dh" style="width:100%"></div></div><div class="hl">HP</div></div></div>
 </div>
 
 <div class="blog" id="blog"></div>
