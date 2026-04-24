@@ -304,6 +304,8 @@ app.use('/api/titles', hofRoutes);               // Hall of Fame & Titles
 app.use('/api/hof',    hofRoutes);               // Hall of Fame board
 app.use('/api/battles', battleExtrasRoutes); // Phase B: Rewards/Siege extras (before fleetBattles to capture /rewards/mine etc.)
 app.use('/api/battles', fleetBattleRoutes); // A-4: Fleet Battle Engine (must be before /api for prefix priority)
+try { app.use('/api', require('./routes/commanderActions')); } catch (e) { console.warn('[mount] commanderActions skipped:', e.message); } // M-151: Commander Actions
+try { app.use('/api/resource-craft', require('./routes/resourceCraft')); } catch (e) { console.warn('[mount] resourceCraft skipped:', e.message); } // M-091: Tier-3 crafting
 app.use('/api', battleRoutes);
 app.use('/api', lotteryRoutes);
 app.use('/api', stakingRoutes);

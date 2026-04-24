@@ -14,8 +14,10 @@
 //   - computeRewards()      : 보상 분배 계산
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const { pool, getSetting } = require('../db');
 const tacticsAI = require('./tacticsAI');
+let commanderActions;
+try { commanderActions = require('./commanderActions'); } catch (_) { commanderActions = null; }
 
 // ─── 상수 ───
 
@@ -42,8 +44,13 @@ async function simulateBattle(battleId) {
   // 1. 데이터 로드
   const battleData = await loadBattleData(battleId);
   if (!battleData) throw new Error('BATTLE_NOT_FOUND');
-  
+
   const state = initBattleState(battleData);
+
+  // Commander focus-fire 데미지 보너스 로드 (초기 state.focusFireDmgBonus=0)
+  try {
+    state.focusFireDmgBonus = parseFloat(await getSetting('focus_fire_dmg_bonus_pct', '15')) || 0;
+  } catch (_) { state.focusFireDmgBonus = 15; }
   
   // 2. 시뮬레이션 루프
   const timeline = {
@@ -160,7 +167,7 @@ async function loadBattleData(battleId) {
   `, [battleId]);
   
   if (fleetRows.length === 0) return null;
-  
+
   // 각 함대의 함선들 로드
   const fleets = [];
   for (const fr of fleetRows) {
@@ -175,20 +182,27 @@ async function loadBattleData(battleId) {
       WHERE s.fleet_id = $1 AND s.is_alive = true
       ORDER BY s.is_flagship DESC, st.sort_order DESC
     `, [fr.fleet_id]);
-    
+
     fleets.push({
       ...fr,
       ships: shipRows,
     });
   }
-  
-  return { battle, fleets };
+
+  // Commander Actions (M-151) — 선언된 pre-battle 전술 로드
+  let cmdActions = null;
+  if (commanderActions) {
+    try { cmdActions = await commanderActions.loadForBattle(battleId); }
+    catch (e) { console.warn('[battleEngine] commanderActions load failed:', e.message); }
+  }
+
+  return { battle, fleets, commanderActions: cmdActions };
 }
 
 // ─── 전투 상태 초기화 ───
 
 function initBattleState(battleData) {
-  const { battle, fleets } = battleData;
+  const { battle, fleets, commanderActions: cmdActions } = battleData;
   
   const atkPositions = [
     { cx: FIELD_W * 0.11, cy: FIELD_H * 0.15 },
@@ -228,25 +242,51 @@ function initBattleState(battleData) {
       
       formation: f.formation || 'sphere',
       movement: f.movement || 'advance',
-      
+
       hp: maxHp, maxHp,
       dead: false,
-      
+
       // AI 상태
       laserHits: 0,
       laserHitDecay: 0,
       recentReinforce: false,
       tacticCooldown: 0,
-      
+
+      // Commander Actions (M-151) 적용 여부
+      focusFireTargetId: null,
+      wedgeForced: false,
+
       ships: f.ships.map((s, idx) => initShip(s, pos, idx, f.ships.length, radius)),
     };
   });
-  
+
+  // Commander Actions 적용 — focus_fire, wedge (reinforce/emp 는 사이드 효과로 추후)
+  if (cmdActions) {
+    // focus_fire: owner_wallet 별 target 설정
+    for (const f of stateFleets) {
+      const tgt = cmdActions.focusFireByWallet?.[f.owner_wallet];
+      if (tgt) f.focusFireTargetId = tgt;
+    }
+    // wedge: 지정된 side 모든 함대 tactic='wedge' 강제
+    if (cmdActions.wedgeSides && cmdActions.wedgeSides.size > 0) {
+      for (const f of stateFleets) {
+        if (cmdActions.wedgeSides.has(f.side)) {
+          f.movement = 'wedge';
+          f.wedgeForced = true;
+        }
+      }
+    }
+  }
+
   return {
     battle_id: battle.id,
     battle_type: battle.battle_type,
     tick: 0,
     fleets: stateFleets,
+    // EMP 일정 (engine 이 tick 마다 체크)
+    empSchedule: cmdActions?.empSchedule || [],
+    empActive: null, // { untilTick, mult, targetSide }
+    focusFireDmgBonus: 0, // getSetting 으로 아래에서 채움
   };
 }
 
@@ -481,42 +521,81 @@ function updateShipPositions(fleet) {
 // ─── 전투 처리 (발사 + 데미지) ───
 
 function processCombat(state, events) {
+  // ── Commander Actions: EMP schedule 체크 ──
+  if (state.empSchedule && state.empSchedule.length > 0) {
+    for (let i = state.empSchedule.length - 1; i >= 0; i--) {
+      const emp = state.empSchedule[i];
+      if (state.tick >= emp.tick) {
+        state.empActive = {
+          untilTick: state.tick + (emp.durationTicks || 30),
+          mult: emp.fireIntervalMult || 5,
+          targetSide: emp.targetSide,
+        };
+        events.push({
+          tick: state.tick,
+          type: 'commander_emp_activated',
+          payload: { target_side: emp.targetSide, until_tick: state.empActive.untilTick }
+        });
+        state.empSchedule.splice(i, 1);
+      }
+    }
+  }
+  if (state.empActive && state.tick > state.empActive.untilTick) {
+    state.empActive = null;
+  }
+
   for (const fleet of state.fleets) {
     if (fleet.dead) continue;
-    
+
+    // EMP 영향: targetSide 의 함선은 발사주기 × mult (더 느려짐)
+    const empMult = (state.empActive && state.empActive.targetSide === fleet.side)
+      ? state.empActive.mult : 1;
+
     for (const ship of fleet.ships) {
       if (!ship.isAlive) continue;
-      
+
       ship.shootT += TICK_MS;
-      if (ship.shootT < ship.fireInterval) continue;
+      const effectiveFireInterval = ship.fireInterval * empMult;
+      if (ship.shootT < effectiveFireInterval) continue;
       ship.shootT = 0;
-      
+
       // Repair는 아군 체력 회복
       if (ship.fireType === 'repair') {
         processRepair(fleet, ship);
         continue;
       }
-      
+
       // 공격 대상 찾기 (가장 가까운 적 함대의 랜덤 함선)
       const enemies = state.fleets.filter(e => e.side !== fleet.side && !e.dead);
       if (!enemies.length) continue;
-      
-      // 타겟 함대
-      let targetFleet = enemies[0];
-      let minDist = distanceFleet(ship, enemies[0]);
-      for (const e of enemies) {
-        const d = distanceFleet(ship, e);
-        if (d < minDist) { minDist = d; targetFleet = e; }
+
+      // ── Commander Action: focus_fire 대상 강제 ──
+      let targetFleet = null;
+      if (fleet.focusFireTargetId) {
+        const forced = enemies.find(e => e.id === fleet.focusFireTargetId);
+        if (forced) targetFleet = forced;
       }
-      
+      if (!targetFleet) {
+        // 기본: 가장 가까운 적 함대
+        targetFleet = enemies[0];
+        let minDist = distanceFleet(ship, enemies[0]);
+        for (const e of enemies) {
+          const d = distanceFleet(ship, e);
+          if (d < minDist) { minDist = d; targetFleet = e; }
+        }
+      }
+
       // 타겟 함대에서 살아있는 함선 랜덤 선택
       const aliveTargets = targetFleet.ships.filter(s => s.isAlive);
       if (!aliveTargets.length) continue;
-      
+
       const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)];
-      
-      // 데미지 계산
-      const damage = computeDamage(ship, target);
+
+      // 데미지 계산 (focus_fire 보너스 포함)
+      let damage = computeDamage(ship, target);
+      if (fleet.focusFireTargetId && fleet.focusFireTargetId === targetFleet.id && state.focusFireDmgBonus > 0) {
+        damage = Math.floor(damage * (1 + state.focusFireDmgBonus / 100));
+      }
       applyDamage(target, targetFleet, damage, ship, fleet, state, events);
       
       // 레이저/폭격은 명중 확정 → laserHits 증가
