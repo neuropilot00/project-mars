@@ -2468,6 +2468,38 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <p style="font-size:10px;color:#888;margin-top:8px">Ship settings: GAME SETTINGS → category <b>ships</b></p>
   </div>
 
+  <!-- ═══ FLEET STARTER PACK GRANT ═══ -->
+  <div class="section cat-ships" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#4cd89a">🎁 스타터 팩 수동 지급</span>
+    </div>
+    <div style="background:rgba(76,216,154,.06);border:1px solid rgba(76,216,154,.15);border-radius:6px;padding:12px;margin-bottom:12px;font-size:10px;color:#bbb;line-height:1.7">
+      파벌은 선택했지만 스타터 함선·광물이 지급되지 않은 유저에게 수동으로 지급합니다.<br>
+      지급 내용: <b style="color:#4cd89a">T1 프리깃 1척 (해당 파벌) + iron_ore 20 + carbon_fiber 20 + silicon_chip 10</b><br>
+      ※ 이미 함선이 있는 유저는 광물만 지급됩니다.
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="starterPackWallet" type="text" placeholder="wallet address 또는 닉네임 조회 후 입력"
+        style="flex:1;min-width:240px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 10px;border-radius:4px;font-size:11px">
+      <button onclick="grantStarterPack()"
+        style="background:rgba(76,216,154,.2);border:1px solid rgba(76,216,154,.4);color:#4cd89a;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700">
+        🚀 스타터 팩 지급
+      </button>
+    </div>
+    <div id="starterPackResult" style="margin-top:10px;font-size:11px"></div>
+    <!-- 유저 검색 -->
+    <div class="sec-header" style="margin-top:14px"><span class="sec-title" style="color:#aaa">유저 검색 (닉네임으로 wallet 찾기)</span></div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+      <input id="starterSearchNick" type="text" placeholder="닉네임 입력..."
+        style="flex:1;max-width:280px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 10px;border-radius:4px;font-size:11px">
+      <button onclick="searchUserForStarter()"
+        style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#eee;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:11px">
+        검색
+      </button>
+    </div>
+    <div id="starterSearchResult" style="margin-top:8px;font-size:11px"></div>
+  </div>
+
   <!-- ═══ SHIP UPGRADES (inside ships section) ═══ -->
   <div class="section cat-ships" style="display:none">
     <div class="sec-header">
@@ -10558,6 +10590,54 @@ function loadShipsAdmin() {
         }).join('') + '</tbody></table>';
     })
     .catch(function(e) { statsEl.innerHTML = '<div style="color:red;font-size:10px">'+e.message+'</div>'; });
+}
+
+// ── 스타터 팩 수동 지급 ──
+function grantStarterPack() {
+  var wallet = (document.getElementById('starterPackWallet').value || '').trim();
+  var resultEl = document.getElementById('starterPackResult');
+  if (!wallet) { resultEl.innerHTML = '<span style="color:#f44">wallet 주소를 입력하세요</span>'; return; }
+  resultEl.innerHTML = '<span style="color:#aaa">지급 중...</span>';
+  fetch('/admin/api/fleet/grant-starter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify({ wallet: wallet })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.success) {
+      var shipInfo = typeof d.ship === 'object' ? (d.ship.name + ' (' + d.ship.code + ')') : (d.ship || '없음(이미 보유)');
+      var minInfo = d.minerals ? Object.entries(d.minerals).map(function(e){return e[0]+' x'+e[1];}).join(', ') : '없음';
+      resultEl.innerHTML = '<div style="background:rgba(76,216,154,.1);border:1px solid rgba(76,216,154,.3);border-radius:6px;padding:8px;line-height:1.8">'
+        +'<b style="color:#4cd89a">✓ 지급 완료!</b><br>'
+        +'파벌: '+d.faction+'<br>'
+        +'함선: '+shipInfo+'<br>'
+        +'광물: '+minInfo
+        +'</div>';
+    } else {
+      resultEl.innerHTML = '<span style="color:#f44">실패: ' + (d.error || JSON.stringify(d)) + '</span>';
+    }
+  }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">오류: '+e.message+'</span>'; });
+}
+
+function searchUserForStarter() {
+  var nick = (document.getElementById('starterSearchNick').value || '').trim();
+  var resultEl = document.getElementById('starterSearchResult');
+  if (!nick) return;
+  resultEl.innerHTML = '<span style="color:#aaa">검색 중...</span>';
+  fetch('/admin/api/users?search='+encodeURIComponent(nick)+'&limit=5', {
+    headers: { 'x-admin-secret': adminSecret }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    var users = d.users || d || [];
+    if (!users.length) { resultEl.innerHTML = '<span style="color:#888">검색 결과 없음</span>'; return; }
+    resultEl.innerHTML = users.map(function(u){
+      return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+        +'<span style="color:#eee;font-weight:700">'+(u.nickname||'?')+'</span>'
+        +'<span style="color:#888;font-size:10px;flex:1">'+u.wallet_address+'</span>'
+        +'<span style="color:'+(u.faction_code?'#4cd89a':'#f44')+';font-size:10px">'+(u.faction_code||'파벌없음')+'</span>'
+        +'<button onclick="document.getElementById(\'starterPackWallet\').value=\''+u.wallet_address+'\'" '
+        +'style="background:rgba(79,195,247,.15);border:1px solid rgba(79,195,247,.3);color:#4fc3f7;padding:2px 8px;border-radius:3px;cursor:pointer;font-size:9px">선택</button>'
+        +'</div>';
+    }).join('');
+  }).catch(function(){ resultEl.innerHTML = '<span style="color:#f44">검색 실패</span>'; });
 }
 
 // SHIP UPGRADES ADMIN
