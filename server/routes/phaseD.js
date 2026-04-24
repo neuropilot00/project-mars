@@ -47,6 +47,13 @@ const ALLIANCE_ERRORS = {
   'LEADER_MUST_TRANSFER': 409, 'INSUFFICIENT_GP': 402,
   'NOT_ENOUGH_PARTICIPANTS': 400, 'NEED_AT_LEAST_2_TEAMS': 400,
   'USER_NOT_FOUND': 404,
+  // guild-level alliance (M-157)
+  'NOT_AUTHORIZED': 403, 'GUILD_NOT_FOUND': 404, 'ALLIANCE_DISBANDED': 410,
+  'ALREADY_IN_THIS_ALLIANCE': 409, 'GUILD_ALREADY_IN_ANOTHER_ALLIANCE': 409,
+  'BETRAYAL_COOLDOWN': 429, 'TARGET_ALLIANCE_REQUIRED': 400,
+  'SAME_ALLIANCE': 400, 'NOT_GUILD_LEADER': 403, 'NOT_IN_SOURCE_ALLIANCE': 404,
+  'TARGET_ALLIANCE_NOT_FOUND': 404, 'TARGET_ALLIANCE_DISBANDED': 410,
+  'TARGET_ALLIANCE_FULL': 409,
 };
 
 const REPLAY_ERRORS = {
@@ -193,6 +200,80 @@ router.delete('/replays/:id', requireAuth, async (req, res) => {
     if (!result.deleted) return res.status(404).json({ error: 'REPLAY_NOT_FOUND' });
     res.json(result);
   } catch (err) { handleErr(res, err, REPLAY_ERRORS, 'delete'); }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// GUILD-LEVEL ALLIANCE (M-157 alliance_guilds)
+// ═══════════════════════════════════════════════════════════════
+
+// GET /api/alliances/:id/guilds — 동맹의 멤버 길드 목록
+router.get('/alliances/:id/guilds', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id) return res.status(400).json({ error: 'INVALID_ID' });
+    const guilds = await alliance.getAllianceGuilds(id);
+    res.json({ guilds });
+  } catch (err) { handleErr(res, err, ALLIANCE_ERRORS, 'alliance-guilds'); }
+});
+
+// GET /api/guilds/:guildId/alliance — 길드가 속한 동맹
+router.get('/guilds/:guildId/alliance', async (req, res) => {
+  try {
+    const guildId = parseInt(req.params.guildId);
+    if (!guildId) return res.status(400).json({ error: 'INVALID_GUILD_ID' });
+    const a = await alliance.getMyGuildAlliance(guildId);
+    res.json({ alliance: a });
+  } catch (err) { handleErr(res, err, ALLIANCE_ERRORS, 'guild-alliance'); }
+});
+
+// GET /api/guilds/:guildId/alliance/history
+router.get('/guilds/:guildId/alliance/history', async (req, res) => {
+  try {
+    const guildId = parseInt(req.params.guildId);
+    const limit = Math.min(50, parseInt(req.query.limit || '20'));
+    const history = await alliance.getGuildAllianceHistory(guildId, limit);
+    res.json({ history });
+  } catch (err) { handleErr(res, err, ALLIANCE_ERRORS, 'guild-alliance-history'); }
+});
+
+// POST /api/alliances/:id/guilds/add — 길드 가입 (initiator: 동맹 리더 OR 길드 리더)
+router.post('/alliances/:id/guilds/add', requireAuth, async (req, res) => {
+  try {
+    const allianceId = parseInt(req.params.id);
+    const { guildId } = req.body || {};
+    if (!allianceId || !guildId) return res.status(400).json({ error: 'allianceId and guildId required' });
+    const wallet = getWallet(req);
+    const result = await alliance.addGuildToAlliance(allianceId, parseInt(guildId), wallet);
+    res.json(result);
+  } catch (err) { handleErr(res, err, ALLIANCE_ERRORS, 'add-guild'); }
+});
+
+// POST /api/alliances/:id/guilds/remove — 길드 탈퇴 OR 추방
+router.post('/alliances/:id/guilds/remove', requireAuth, async (req, res) => {
+  try {
+    const allianceId = parseInt(req.params.id);
+    const { guildId } = req.body || {};
+    if (!allianceId || !guildId) return res.status(400).json({ error: 'allianceId and guildId required' });
+    const wallet = getWallet(req);
+    const result = await alliance.removeGuildFromAlliance(allianceId, parseInt(guildId), wallet);
+    res.json(result);
+  } catch (err) { handleErr(res, err, ALLIANCE_ERRORS, 'remove-guild'); }
+});
+
+// POST /api/alliances/betray — 배신 (한 동맹에서 다른 동맹으로 즉시 이적)
+// { guildId, fromAllianceId, toAllianceId }
+router.post('/alliances/betray', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    const { guildId, fromAllianceId, toAllianceId } = req.body || {};
+    if (!guildId || !fromAllianceId || !toAllianceId) {
+      return res.status(400).json({ error: 'guildId, fromAllianceId, toAllianceId required' });
+    }
+    const result = await alliance.betrayAlliance(
+      parseInt(guildId), parseInt(fromAllianceId), parseInt(toAllianceId), wallet
+    );
+    res.json(result);
+  } catch (err) { handleErr(res, err, ALLIANCE_ERRORS, 'betray'); }
 });
 
 module.exports = router;

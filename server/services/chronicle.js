@@ -36,6 +36,11 @@ const TITLE_TEMPLATES = {
   governor_milestone_90: { en: '{actor} — legendary 90-day governor of {sector}!', ko: '{actor}가 {sector} 90일 전설적 총독!' },
   enhancement_max:       { en: '{actor} reaches +10 on {item} — a first!', ko: '{actor}가 {item}을(를) +10 강화 달성 — 최초!' },
   guild_war_end:         { en: '{actor} guild wins the war!', ko: '{actor} 길드 전쟁 승리!' },
+  guild_war_declared:    { en: '{actor} declares war on {target}!', ko: '{actor} 길드가 {target} 길드에 선전포고!' },
+  duel_fought:           { en: '{actor} defeats {target} in a personal duel!', ko: '{actor}가 {target}를 1:1 결투에서 격파!' },
+  alliance_betrayal:     { en: '{actor} betrays the alliance, defecting with their guild!', ko: '{actor}의 길드가 동맹을 배신하고 이적!' },
+  alliance_formed:       { en: '{actor} forges a new alliance!', ko: '{actor}가 새로운 동맹을 결성!' },
+  alliance_disbanded:    { en: '{actor}\'s alliance crumbles into dust.', ko: '{actor}의 동맹이 무너졌다.' },
 };
 
 function _buildTitle(eventType, data) {

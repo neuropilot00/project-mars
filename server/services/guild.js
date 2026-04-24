@@ -1105,8 +1105,11 @@ async function getResearchBonuses(wallet) {
 //  GUILD WARS
 // ═══════════════════════════════════════
 
-async function declareWar(wallet, guildId, targetGuildId) {
+async function declareWar(wallet, guildId, targetGuildId, opts = {}) {
   if (guildId === targetGuildId) return { error: 'Cannot declare war on your own guild' };
+
+  const stakeGp = (opts.stakeGp != null) ? parseInt(opts.stakeGp) : null; // 새 룰셋: optional pot
+  const sectorId = opts.sectorId ? parseInt(opts.sectorId) : null;
 
   const client = await pool.connect();
   try {
@@ -1146,13 +1149,31 @@ async function declareWar(wallet, guildId, targetGuildId) {
       return { error: `Already in ${maxActive} active war(s)` };
     }
 
-    // Check cooldown between same guilds
+    // Check truce_until first (M-157 ruleset) — overrides cooldown_hours when set
+    const recentTruce = await client.query(
+      `SELECT id, truce_until FROM guild_wars
+       WHERE ((attacker_guild_id = $1 AND defender_guild_id = $2)
+           OR (attacker_guild_id = $2 AND defender_guild_id = $1))
+         AND truce_until IS NOT NULL AND truce_until > NOW()
+       ORDER BY truce_until DESC LIMIT 1`,
+      [guildId, targetGuildId]
+    );
+    if (recentTruce.rows.length) {
+      await client.query('ROLLBACK');
+      const remaining = Math.ceil(
+        (new Date(recentTruce.rows[0].truce_until).getTime() - Date.now()) / 3600000
+      );
+      return { error: `Truce active. Re-declare in ${remaining}h.` };
+    }
+
+    // Legacy cooldown fallback (when no truce_until set on past wars)
     const cooldown = parseInt(await getSetting('guild_war_cooldown_hours') || '48');
     const recentWar = await client.query(
       `SELECT id FROM guild_wars
        WHERE ((attacker_guild_id = $1 AND defender_guild_id = $2)
            OR (attacker_guild_id = $2 AND defender_guild_id = $1))
          AND created_at > NOW() - INTERVAL '1 hour' * $3
+         AND truce_until IS NULL
        LIMIT 1`,
       [guildId, targetGuildId, cooldown]
     );
@@ -1173,34 +1194,85 @@ async function declareWar(wallet, guildId, targetGuildId) {
       return { error: 'Target guild is already in an active war' };
     }
 
-    // Deduct GP from treasury
+    // Deduct GP from treasury (선전포고 비용)
     const cost = parseFloat(await getSetting('guild_war_declare_cost_gp') || '200');
-    const gRes = await client.query('SELECT gp_treasury FROM guilds WHERE id = $1 FOR UPDATE', [guildId]);
-    const treasury = parseFloat(gRes.rows[0]?.gp_treasury || 0);
-    if (treasury < cost) {
-      await client.query('ROLLBACK');
-      return { error: `Need ${cost} GP in treasury. Have ${treasury.toFixed(0)}.` };
+
+    // Stake (M-157): optional GP pot from attacker's treasury — 추가 베팅
+    let stake = 0;
+    if (stakeGp != null) {
+      const minStake = parseInt(await getSetting('guild_war_min_stake_gp') || '100');
+      const maxStake = parseInt(await getSetting('guild_war_max_stake_gp') || '50000');
+      if (stakeGp < minStake || stakeGp > maxStake) {
+        await client.query('ROLLBACK');
+        return { error: `Stake must be between ${minStake} and ${maxStake} GP` };
+      }
+      stake = stakeGp;
     }
 
-    await client.query('UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2', [cost, guildId]);
-    const newBal = treasury - cost;
+    const totalCost = cost + stake;
+    const gRes = await client.query('SELECT gp_treasury FROM guilds WHERE id = $1 FOR UPDATE', [guildId]);
+    const treasury = parseFloat(gRes.rows[0]?.gp_treasury || 0);
+    if (treasury < totalCost) {
+      await client.query('ROLLBACK');
+      return { error: `Need ${totalCost} GP in treasury. Have ${treasury.toFixed(0)}.` };
+    }
+
+    await client.query('UPDATE guilds SET gp_treasury = gp_treasury - $1 WHERE id = $2', [totalCost, guildId]);
+    const newBal = treasury - totalCost;
     await client.query(
       `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
        VALUES ($1, $2, 'war_declare', 0, $3, $4, $5)`,
-      [guildId, wallet, -cost, newBal, `War declared vs guild #${targetGuildId} (-${cost} GP)`]
+      [guildId, wallet, -totalCost, newBal,
+       stake > 0
+         ? `War declared vs guild #${targetGuildId} (-${cost} GP fee, -${stake} GP stake)`
+         : `War declared vs guild #${targetGuildId} (-${cost} GP)`]
     );
 
     // Create war — starts immediately
-    const durHours = parseInt(await getSetting('guild_war_duration_hours') || '24');
+    // 새 룰셋: 기본 72h (guild_war_duration_hours_default), 구버전 fallback 24h
+    const durHours = parseInt(
+      opts.durationHours
+      || await getSetting('guild_war_duration_hours_default')
+      || await getSetting('guild_war_duration_hours')
+      || '72'
+    );
     const war = await client.query(
-      `INSERT INTO guild_wars (attacker_guild_id, defender_guild_id, declared_by, status, war_start, war_end, duration_hours)
-       VALUES ($1, $2, $3, 'active', NOW(), NOW() + INTERVAL '1 hour' * $4, $4)
+      `INSERT INTO guild_wars (
+         attacker_guild_id, defender_guild_id, declared_by, status,
+         war_start, war_end, duration_hours,
+         ruleset_version, pot_attacker_gp, sector_id
+       )
+       VALUES ($1, $2, $3, 'active',
+               NOW(), NOW() + INTERVAL '1 hour' * $4, $4,
+               1, $5, $6)
        RETURNING *`,
-      [guildId, targetGuildId, wallet, durHours]
+      [guildId, targetGuildId, wallet, durHours, stake, sectorId]
     );
 
     await client.query('COMMIT');
-    console.log(`[GUILD WAR] #${guildId} declared war on #${targetGuildId} by ${wallet} (-${cost} GP)`);
+
+    // Chronicle: 선전포고 (fire-and-forget)
+    try {
+      const chronicle = require('./chronicle');
+      const aName = await pool.query(`SELECT name FROM guilds WHERE id = $1`, [guildId]);
+      const dName = await pool.query(`SELECT name FROM guilds WHERE id = $1`, [targetGuildId]);
+      chronicle.record('guild_war_declared', {
+        actor_wallet: wallet.toLowerCase(),
+        actor_nickname: aName.rows[0]?.name,
+        target_nickname: dName.rows[0]?.name,
+        guild_id: guildId,
+        value_gp: stake,
+        extra: {
+          war_id: war.rows[0].id,
+          attacker_guild_id: guildId,
+          defender_guild_id: targetGuildId,
+          duration_hours: durHours,
+          stake_gp: stake,
+        },
+      }).catch(() => {});
+    } catch (_) {}
+
+    console.log(`[GUILD WAR] #${guildId} declared war on #${targetGuildId} by ${wallet} (-${totalCost} GP, ${durHours}h, stake=${stake})`);
     return { success: true, war: war.rows[0] };
   } catch (e) {
     await client.query('ROLLBACK');
@@ -1287,32 +1359,128 @@ async function resolveExpiredWars() {
       `SELECT * FROM guild_wars WHERE status = 'active' AND war_end <= NOW()`
     );
     for (const w of expired.rows) {
+      let chronicleData = null;
       try {
         await client.query('BEGIN');
         let winnerId = null;
-        if (w.attacker_score > w.defender_score) winnerId = w.attacker_guild_id;
-        else if (w.defender_score > w.attacker_score) winnerId = w.defender_guild_id;
+        let loserId = null;
+        if (w.attacker_score > w.defender_score) {
+          winnerId = w.attacker_guild_id;
+          loserId  = w.defender_guild_id;
+        } else if (w.defender_score > w.attacker_score) {
+          winnerId = w.defender_guild_id;
+          loserId  = w.attacker_guild_id;
+        }
         // else draw — no winner
 
+        // 기본 보상 GP (구 룰셋)
         const rewardGP = parseFloat(await getSetting('guild_war_winner_gp') || '500');
 
+        // 새 룰셋 (M-157): pot 분배
+        const totalPot = parseFloat(w.pot_attacker_gp || 0) + parseFloat(w.pot_defender_gp || 0);
+        const winnerPotPct = parseFloat(await getSetting('guild_war_winner_pot_pct') || '70');
+        const truceMinHours = parseInt(await getSetting('guild_war_truce_min_hours') || '24');
+
+        let winnerPotShare = 0;
+        let loserPotShare  = 0;
+        let systemSink     = 0;
+        if (winnerId && totalPot > 0) {
+          winnerPotShare = Math.floor(totalPot * (winnerPotPct / 100));
+          loserPotShare  = 0; // 패자는 못 받음
+          systemSink     = totalPot - winnerPotShare; // 나머지는 sink/시즌 풀
+        } else if (!winnerId && totalPot > 0) {
+          // 무승부 시 양쪽 절반 환불
+          winnerPotShare = Math.floor(totalPot / 2);
+          loserPotShare  = totalPot - winnerPotShare;
+        }
+
+        const totalReward = (winnerId ? rewardGP : 0) + winnerPotShare;
+
         await client.query(
-          `UPDATE guild_wars SET status = 'resolved', winner_guild_id = $1, reward_pp = $2 WHERE id = $3`,
-          [winnerId, winnerId ? rewardGP : 0, w.id]
+          `UPDATE guild_wars
+              SET status = 'resolved',
+                  winner_guild_id = $1,
+                  reward_pp = $2,
+                  truce_until = NOW() + INTERVAL '1 hour' * $3
+            WHERE id = $4`,
+          [winnerId, totalReward, truceMinHours, w.id]
         );
 
-        // Award GP to winner's treasury
-        if (winnerId && rewardGP > 0) {
-          await client.query('UPDATE guilds SET gp_treasury = gp_treasury + $1 WHERE id = $2', [rewardGP, winnerId]);
+        // 승자 보상 (기본 GP + pot share)
+        if (winnerId && totalReward > 0) {
+          await client.query('UPDATE guilds SET gp_treasury = gp_treasury + $1 WHERE id = $2', [totalReward, winnerId]);
           await client.query(
             `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
              VALUES ($1, 'system', 'war_reward', 0, $2,
                      (SELECT gp_treasury FROM guilds WHERE id = $1), $3)`,
-            [winnerId, rewardGP, `War victory GP reward (War #${w.id})`]
+            [winnerId, totalReward,
+             totalPot > 0
+               ? `War victory: ${rewardGP} GP base + ${winnerPotShare} GP pot share (War #${w.id})`
+               : `War victory GP reward (War #${w.id})`]
           );
         }
+
+        // 무승부 시 양쪽 환불
+        if (!winnerId && totalPot > 0) {
+          if (parseFloat(w.pot_attacker_gp || 0) > 0) {
+            const refundA = Math.floor(parseFloat(w.pot_attacker_gp) * 0.5);
+            await client.query('UPDATE guilds SET gp_treasury = gp_treasury + $1 WHERE id = $2', [refundA, w.attacker_guild_id]);
+            await client.query(
+              `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+               VALUES ($1, 'system', 'war_refund', 0, $2,
+                       (SELECT gp_treasury FROM guilds WHERE id = $1), $3)`,
+              [w.attacker_guild_id, refundA, `War draw refund (War #${w.id})`]
+            );
+          }
+          if (parseFloat(w.pot_defender_gp || 0) > 0) {
+            const refundD = Math.floor(parseFloat(w.pot_defender_gp) * 0.5);
+            await client.query('UPDATE guilds SET gp_treasury = gp_treasury + $1 WHERE id = $2', [refundD, w.defender_guild_id]);
+            await client.query(
+              `INSERT INTO guild_treasury_ledger (guild_id, wallet, kind, delta_pp, delta_gp, balance_after, memo)
+               VALUES ($1, 'system', 'war_refund', 0, $2,
+                       (SELECT gp_treasury FROM guilds WHERE id = $1), $3)`,
+              [w.defender_guild_id, refundD, `War draw refund (War #${w.id})`]
+            );
+          }
+        }
+
+        // Chronicle용 데이터 수집
+        if (winnerId) {
+          const wName = await client.query(`SELECT name, leader_wallet FROM guilds WHERE id = $1`, [winnerId]);
+          const lName = await client.query(`SELECT name FROM guilds WHERE id = $1`, [loserId]);
+          chronicleData = {
+            war_id: w.id,
+            winner_guild_id: winnerId,
+            winner_name: wName.rows[0]?.name,
+            winner_leader: wName.rows[0]?.leader_wallet,
+            loser_guild_id: loserId,
+            loser_name: lName.rows[0]?.name,
+            attacker_score: w.attacker_score,
+            defender_score: w.defender_score,
+            total_reward: totalReward,
+            pot_total: totalPot,
+            system_sink: systemSink,
+          };
+        }
+
         await client.query('COMMIT');
-        console.log(`[GUILD WAR] #${w.id} resolved. Winner: ${winnerId || 'draw'}. Score: ${w.attacker_score}-${w.defender_score}`);
+        console.log(`[GUILD WAR] #${w.id} resolved. Winner: ${winnerId || 'draw'}. Score: ${w.attacker_score}-${w.defender_score}. Reward: ${totalReward} GP. Truce ${truceMinHours}h.`);
+
+        // Chronicle 기록 (after COMMIT)
+        if (chronicleData) {
+          try {
+            const chronicle = require('./chronicle');
+            chronicle.record('guild_war_end', {
+              actor_wallet: chronicleData.winner_leader?.toLowerCase(),
+              actor_nickname: chronicleData.winner_name,
+              target_nickname: chronicleData.loser_name,
+              guild_id: chronicleData.winner_guild_id,
+              value_gp: chronicleData.total_reward,
+              extra: chronicleData,
+              webhook: chronicleData.total_reward >= 1000,
+            }).catch(() => {});
+          } catch (_) {}
+        }
       } catch (warErr) {
         await client.query('ROLLBACK');
         console.error(`[GUILD WAR] Failed to resolve war #${w.id}:`, warErr.message);

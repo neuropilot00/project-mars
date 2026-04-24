@@ -1,432 +1,467 @@
+// ═══════════════════════════════════════════════════════════════
+// services/duel.js — 1:1 GP 도전장 (Phase D / M-157)
+//
+// 인프라:
+//   - 테이블: gp_duels (M-157)
+//   - 잔액 SSOT: users.gp_balance
+//   - 설정 SSOT: settings (key PK)
+//   - 결과 결정론: fight_seed 기반 LCG → 통계가 적은 신규 유저도
+//     공정한 5050 + 약간의 stat 가중치 (career_stats 없으면 0)
+//
+// API 함수:
+//   challenge(challenger, defender, wagerGp)
+//   acceptDuel(duelId, defender)
+//   declineDuel(duelId, defender)
+//   cancelDuel(duelId, challenger)
+//   expireDuels()                          ← 스케줄러용
+//   getMyDuels(wallet, limit)
+//   getPendingForMe(wallet)
+//   getRecentResolved(limit)
+//   getAdminStats()
+//
+// 모든 수치는 settings에서 (하드코딩 금지).
+// ═══════════════════════════════════════════════════════════════
+
 'use strict';
-const pool = require('../db');
+const crypto = require('crypto');
+const { pool, getSetting, logGPActivity } = require('../db');
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-async function getSetting(key, fallback) {
-  try {
-    const { rows } = await pool.query(
-      'SELECT value FROM game_settings WHERE key=$1', [key]);
-    if (rows.length) return rows[0].value;
-  } catch (_) {}
-  return String(fallback);
-}
-
-async function getSettings() {
-  const keys = [
-    'duel_enabled','duel_min_wager','duel_max_wager','duel_fee_pct',
-    'duel_expire_minutes','duel_max_pending','duel_cooldown_minutes'
-  ];
-  const { rows } = await pool.query(
-    `SELECT key, value FROM game_settings WHERE key = ANY($1)`, [keys]);
-  const map = {};
-  rows.forEach(r => { map[r.key] = r.value; });
+// ── helpers ─────────────────────────────────────────────────────
+async function getCfg() {
+  const [
+    enabled, minStake, maxStake, expiryHours, maxPair, maxPerUser, feePct, winnerCutPct
+  ] = await Promise.all([
+    getSetting('duel_enabled', 'true'),
+    getSetting('duel_min_stake_gp', '10'),
+    getSetting('duel_max_stake_gp', '5000'),
+    getSetting('duel_default_expiry_hours', '24'),
+    getSetting('duel_max_pending_per_pair', '1'),
+    getSetting('duel_max_active_per_user', '5'),
+    getSetting('duel_fee_pct', '5'),
+    getSetting('duel_winner_cut_pct', '95'),  // 승자가 가져가는 pot %
+  ]);
   return {
-    enabled:         (map.duel_enabled         || 'true')  === 'true',
-    minWager:        parseFloat(map.duel_min_wager         || '10'),
-    maxWager:        parseFloat(map.duel_max_wager         || '5000'),
-    feePct:          parseFloat(map.duel_fee_pct           || '5'),
-    expireMinutes:   parseInt(map.duel_expire_minutes      || '30', 10),
-    maxPending:      parseInt(map.duel_max_pending         || '3',  10),
-    cooldownMinutes: parseInt(map.duel_cooldown_minutes    || '5',  10)
+    enabled: String(enabled) !== 'false',
+    minStake: parseInt(minStake) || 10,
+    maxStake: parseInt(maxStake) || 5000,
+    expiryHours: parseInt(expiryHours) || 24,
+    maxPair: parseInt(maxPair) || 1,
+    maxPerUser: parseInt(maxPerUser) || 5,
+    feePct: parseFloat(feePct) || 5,
+    winnerCutPct: parseFloat(winnerCutPct) || 95,
   };
 }
 
-// ── Battle resolution ─────────────────────────────────────────────────────────
-// Lightweight stat-based RNG battle (no DB dependency on battle engine).
-// Each side rolls base_power + random(0, 50). Higher wins.
-async function resolveDuel(challenger, defender, seed) {
-  // Fetch career stats for base power
-  async function getStats(w) {
+// 결정론적 시뮬: 종족 stat 비대칭 없이 50/50 + 미세 가중치
+async function _resolveFight(client, challenger, defender, seed) {
+  // optional gentle bias from rank_level (적게 영향, fairness 우선)
+  async function _bias(w) {
     try {
-      const { rows } = await pool.query(
-        `SELECT wins, losses, total_pixels_won
-         FROM career_stats WHERE wallet = $1`, [w.toLowerCase()]);
-      if (rows.length) {
-        const s = rows[0];
-        return Math.min(50, Math.floor(Number(s.wins || 0) * 0.3 + Number(s.total_pixels_won || 0) * 0.01));
-      }
-    } catch (_) {}
-    return 0;
+      const r = await client.query(
+        'SELECT rank_level FROM users WHERE wallet_address = $1', [w]);
+      return Math.min(10, parseInt(r.rows[0]?.rank_level || 0));
+    } catch (_) { return 0; }
   }
+  const [cB, dB] = await Promise.all([_bias(challenger), _bias(defender)]);
 
-  const [cBase, dBase] = await Promise.all([getStats(challenger), getStats(defender)]);
-
-  // Seeded random (simple LCG)
-  let rng = seed >>> 0;
-  function nextInt(max) {
+  // LCG seeded random
+  let rng = (parseInt(seed.slice(0, 8), 16) >>> 0) || 1;
+  function next(max) {
     rng = (Math.imul(1664525, rng) + 1013904223) >>> 0;
     return rng % max;
   }
-
-  const cScore = cBase + nextInt(51);
-  const dScore = dBase + nextInt(51);
-
+  const cScore = cB + next(101);  // 0..100 + bias
+  const dScore = dB + next(101);
   let winner = null;
-  if (cScore > dScore) winner = challenger.toLowerCase();
-  else if (dScore > cScore) winner = defender.toLowerCase();
-  // exact tie → no winner (full refund minus fee split)
-
+  if (cScore > dScore) winner = challenger;
+  else if (dScore > cScore) winner = defender;
   return { cScore, dScore, winner };
 }
 
-// ── Challenge ─────────────────────────────────────────────────────────────────
+// ── Challenge ───────────────────────────────────────────────────
 async function challenge(challenger, defender, wagerGp) {
-  const cLower = challenger.toLowerCase();
-  const dLower = defender.toLowerCase();
-  if (cLower === dLower) throw new Error('Cannot duel yourself');
+  const cfg = await getCfg();
+  if (!cfg.enabled) throw new Error('DUEL_DISABLED');
 
-  const cfg = await getSettings();
-  if (!cfg.enabled) throw new Error('Duels are currently disabled');
-  if (wagerGp < cfg.minWager) throw new Error(`Minimum wager is ${cfg.minWager} GP`);
-  if (wagerGp > cfg.maxWager) throw new Error(`Maximum wager is ${cfg.maxWager} GP`);
+  const cLower = String(challenger || '').toLowerCase();
+  const dLower = String(defender || '').toLowerCase();
+  if (!cLower || !dLower) throw new Error('WALLET_REQUIRED');
+  if (cLower === dLower) throw new Error('CANNOT_DUEL_SELF');
+
+  const wager = parseInt(wagerGp);
+  if (!Number.isFinite(wager) || wager < cfg.minStake || wager > cfg.maxStake) {
+    const err = new Error('INVALID_STAKE');
+    err.meta = { min: cfg.minStake, max: cfg.maxStake };
+    throw err;
+  }
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    // 1. Challenger balance check + lock
-    const { rows: balRows } = await client.query(
-      'SELECT balance FROM gp_balances WHERE wallet=$1 FOR UPDATE', [cLower]);
-    const bal = balRows.length ? Number(balRows[0].balance) : 0;
-    if (bal < wagerGp) throw new Error(`Insufficient GP (need ${wagerGp}, have ${bal.toFixed(2)})`);
+    // 두 유저 존재 확인
+    const u = await client.query(
+      `SELECT wallet_address, gp_balance FROM users
+       WHERE wallet_address IN ($1, $2) FOR UPDATE`,
+      [cLower, dLower]
+    );
+    const cRow = u.rows.find(r => r.wallet_address === cLower);
+    const dRow = u.rows.find(r => r.wallet_address === dLower);
+    if (!cRow) throw new Error('CHALLENGER_NOT_FOUND');
+    if (!dRow) throw new Error('DEFENDER_NOT_FOUND');
+    if (parseFloat(cRow.gp_balance) < wager) throw new Error('INSUFFICIENT_GP');
 
-    // 2. Pending limit
-    const { rows: pendRows } = await client.query(
-      `SELECT COUNT(*) AS cnt FROM gp_duels
-       WHERE challenger=$1 AND status='pending'`, [cLower]);
-    if (parseInt(pendRows[0].cnt, 10) >= cfg.maxPending) {
-      throw new Error(`You already have ${cfg.maxPending} pending duels`);
+    // 페어 동시 pending 제한
+    const pairChk = await client.query(
+      `SELECT COUNT(*)::int AS c FROM gp_duels
+       WHERE status = 'pending'
+         AND ((challenger = $1 AND defender = $2) OR
+              (challenger = $2 AND defender = $1))`,
+      [cLower, dLower]
+    );
+    if ((pairChk.rows[0]?.c || 0) >= cfg.maxPair) {
+      throw new Error('PAIR_DUEL_LIMIT');
     }
 
-    // 3. Cooldown check
-    if (cfg.cooldownMinutes > 0) {
-      const { rows: coolRows } = await client.query(
-        `SELECT id FROM gp_duels
-         WHERE challenger=$1 AND defender=$2
-           AND created_at > NOW() - ($3 || ' minutes')::INTERVAL
-           AND status IN ('pending','accepted')
-         LIMIT 1`,
-        [cLower, dLower, cfg.cooldownMinutes]
-      );
-      if (coolRows.length) {
-        throw new Error(`Please wait ${cfg.cooldownMinutes} min before re-challenging the same player`);
-      }
+    // 유저별 pending 상한
+    const myPend = await client.query(
+      `SELECT COUNT(*)::int AS c FROM gp_duels
+       WHERE challenger = $1 AND status = 'pending'`,
+      [cLower]
+    );
+    if ((myPend.rows[0]?.c || 0) >= cfg.maxPerUser) {
+      throw new Error('USER_DUEL_LIMIT');
     }
 
-    // 4. Deduct challenger wager (escrow)
+    // GP 에스크로 (challenger만 선차감 — defender는 accept 시)
     await client.query(
-      'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2',
-      [wagerGp, cLower]
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      [wager, cLower]
     );
 
-    // 5. Insert duel
-    const expiresAt = new Date(Date.now() + cfg.expireMinutes * 60 * 1000);
-    const { rows: duelRows } = await client.query(
-      `INSERT INTO gp_duels (challenger, defender, wager_gp, status, expires_at)
-       VALUES ($1, $2, $3, 'pending', $4)
-       RETURNING *`,
-      [cLower, dLower, wagerGp, expiresAt]
+    const expires = new Date(Date.now() + cfg.expiryHours * 3600 * 1000);
+    const ins = await client.query(
+      `INSERT INTO gp_duels (challenger, defender, wager_gp, status, created_at, expires_at)
+       VALUES ($1, $2, $3, 'pending', NOW(), $4)
+       RETURNING id, created_at, expires_at`,
+      [cLower, dLower, wager, expires]
     );
 
     await client.query('COMMIT');
 
-    // Notify defender
-    try {
-      await pool.query(
-        `INSERT INTO player_notifications (wallet, type, message, meta)
-         VALUES ($1, 'duel_challenge', $2, $3)`,
-        [dLower,
-         `⚔️ You've been challenged to a duel! Wager: ${wagerGp} GP`,
-         JSON.stringify({ duel_id: duelRows[0].id, challenger: cLower, wager: wagerGp })]
-      );
-    } catch (_) {}
+    // fire-and-forget
+    try { logGPActivity(cLower, -wager, 'duel_challenge_escrow', `vs ${dLower}`).catch(() => {}); } catch(_){}
 
-    return duelRows[0];
+    return {
+      id: ins.rows[0].id,
+      challenger: cLower, defender: dLower,
+      wager_gp: wager,
+      status: 'pending',
+      created_at: ins.rows[0].created_at,
+      expires_at: ins.rows[0].expires_at,
+    };
   } catch (err) {
-    await client.query('ROLLBACK');
+    try { await client.query('ROLLBACK'); } catch(_){}
     throw err;
   } finally {
     client.release();
   }
 }
 
-// ── Accept ────────────────────────────────────────────────────────────────────
+// ── Accept (즉시 fight 처리) ─────────────────────────────────────
 async function acceptDuel(duelId, defender) {
-  const dLower = defender.toLowerCase();
+  const cfg = await getCfg();
+  const dLower = String(defender || '').toLowerCase();
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    // Load & lock duel
-    const { rows: duelRows } = await client.query(
-      `SELECT * FROM gp_duels WHERE id=$1 FOR UPDATE`, [duelId]);
-    if (!duelRows.length) throw new Error('Duel not found');
-    const duel = duelRows[0];
+    const r = await client.query(
+      `SELECT * FROM gp_duels WHERE id = $1 FOR UPDATE`, [duelId]);
+    if (!r.rows[0]) throw new Error('DUEL_NOT_FOUND');
+    const d = r.rows[0];
+    if (d.defender !== dLower) throw new Error('NOT_YOUR_DUEL');
+    if (d.status !== 'pending') throw new Error('DUEL_NOT_PENDING');
+    if (new Date(d.expires_at) < new Date()) throw new Error('DUEL_EXPIRED');
 
-    if (duel.defender !== dLower) throw new Error('Not the challenged player');
-    if (duel.status !== 'pending') throw new Error(`Duel is already ${duel.status}`);
-    if (new Date(duel.expires_at) < new Date()) throw new Error('Duel challenge expired');
-
-    // Defender balance check + lock
-    const { rows: balRows } = await client.query(
-      'SELECT balance FROM gp_balances WHERE wallet=$1 FOR UPDATE', [dLower]);
-    const bal = balRows.length ? Number(balRows[0].balance) : 0;
-    if (bal < Number(duel.wager_gp)) {
-      throw new Error(`Insufficient GP (need ${duel.wager_gp}, have ${bal.toFixed(2)})`);
-    }
-
-    // Deduct defender wager
+    // defender 잔액 확인 + 차감
+    const dr = await client.query(
+      `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`, [dLower]);
+    if (!dr.rows[0]) throw new Error('USER_NOT_FOUND');
+    if (parseFloat(dr.rows[0].gp_balance) < d.wager_gp) throw new Error('INSUFFICIENT_GP');
     await client.query(
-      'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2',
-      [duel.wager_gp, dLower]
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      [d.wager_gp, dLower]
     );
 
-    // Resolve immediately
-    const seed = Math.floor(Math.random() * 0xFFFFFFFF);
-    const { cScore, dScore, winner } = await resolveDuel(duel.challenger, dLower, seed);
+    // 시뮬레이션 (결정론적 — seed 고정)
+    const seed = crypto.randomBytes(16).toString('hex');
+    const result = await _resolveFight(client, d.challenger, dLower, seed);
 
-    const cfg = await getSettings();
-    const pot = Number(duel.wager_gp) * 2;
-    const fee = parseFloat((pot * cfg.feePct / 100).toFixed(6));
-    const payout = parseFloat((pot - fee).toFixed(6));
+    // 보상 정산
+    const totalPot = d.wager_gp * 2;
+    const fee = Math.floor(totalPot * (cfg.feePct / 100));
+    const winnerTake = Math.floor((totalPot - fee) * (cfg.winnerCutPct / 100));
+    const loserTake  = (totalPot - fee) - winnerTake;  // tie 보존용
 
-    // Pay winner (or split pot on draw)
-    if (winner) {
+    if (result.winner) {
       await client.query(
-        `INSERT INTO gp_balances (wallet, balance) VALUES ($1, $2)
-         ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
-        [winner, payout]
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+        [winnerTake, result.winner]
       );
+      const loser = result.winner === d.challenger ? dLower : d.challenger;
+      if (loserTake > 0) {
+        await client.query(
+          `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+          [loserTake, loser]
+        );
+      }
     } else {
-      // Draw: refund both minus fee/2 each
-      const halfFee  = parseFloat((fee / 2).toFixed(6));
-      const refundEach = parseFloat((Number(duel.wager_gp) - halfFee).toFixed(6));
+      // 무승부 — 양쪽에 (totalPot - fee) / 2
+      const half = Math.floor((totalPot - fee) / 2);
       await client.query(
-        `UPDATE gp_balances SET balance = balance + $1 WHERE wallet IN ($2, $3)`,
-        [refundEach, duel.challenger, dLower]
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address IN ($2, $3)`,
+        [half, d.challenger, dLower]
       );
     }
 
-    // Settle duel
     await client.query(
       `UPDATE gp_duels
-       SET status='resolved', challenger_score=$1, defender_score=$2,
-           winner=$3, fee_gp=$4, payout_gp=$5,
-           battle_seed=$6, resolved_at=NOW()
-       WHERE id=$7`,
-      [cScore, dScore, winner, fee, winner ? payout : 0, seed, duelId]
+       SET status = 'fought',
+           winner = $1,
+           fight_seed = $2,
+           fight_log = $3::jsonb,
+           resolved_at = NOW()
+       WHERE id = $4`,
+      [result.winner, seed,
+       JSON.stringify({ cScore: result.cScore, dScore: result.dScore, fee, winnerTake, loserTake }),
+       duelId]
     );
 
     await client.query('COMMIT');
 
-    // Notifications
-    const loser = winner === duel.challenger ? dLower : duel.challenger;
+    // Chronicle (fire-and-forget)
     try {
-      if (winner) {
-        await pool.query(
-          `INSERT INTO player_notifications (wallet, type, message, meta) VALUES ($1,'duel_result',$2,$3)`,
-          [winner, `⚔️ Duel WIN +${payout} GP (score ${winner===duel.challenger?cScore:dScore}–${winner===duel.challenger?dScore:cScore})`,
-           JSON.stringify({ duel_id: duelId, result: 'win', payout })]
-        );
-        await pool.query(
-          `INSERT INTO player_notifications (wallet, type, message, meta) VALUES ($1,'duel_result',$2,$3)`,
-          [loser, `⚔️ Duel LOSS −${duel.wager_gp} GP`,
-           JSON.stringify({ duel_id: duelId, result: 'loss' })]
-        );
-      } else {
-        for (const w of [duel.challenger, dLower]) {
-          await pool.query(
-            `INSERT INTO player_notifications (wallet, type, message, meta) VALUES ($1,'duel_result',$2,$3)`,
-            [w, '⚔️ Duel DRAW — partial refund', JSON.stringify({ duel_id: duelId, result: 'draw' })]
-          );
-        }
-      }
-    } catch (_) {}
+      const chronicle = require('./chronicle');
+      chronicle.record('duel_fought', {
+        actorWallet: d.challenger,
+        targetWallet: dLower,
+        valueGp: d.wager_gp,
+        extra: { duelId, winner: result.winner || 'tie', cScore: result.cScore, dScore: result.dScore },
+      }).catch(() => {});
+    } catch(_){}
 
-    return { ...duelRows[0], challenger_score: cScore, defender_score: dScore, winner, fee_gp: fee, payout_gp: payout, status: 'resolved' };
+    // 시즌 점수 (fire-and-forget)
+    try {
+      const seasonSvc = require('./season');
+      seasonSvc.addSeasonScore(d.challenger, 'duel', 1).catch(() => {});
+      seasonSvc.addSeasonScore(dLower, 'duel', 1).catch(() => {});
+      if (result.winner) seasonSvc.addSeasonScore(result.winner, 'duel_win', 1).catch(() => {});
+    } catch(_){}
+
+    return {
+      id: duelId,
+      status: 'fought',
+      winner: result.winner,
+      challenger_score: result.cScore,
+      defender_score: result.dScore,
+      total_pot: totalPot,
+      fee,
+      winner_take: winnerTake,
+      loser_take: loserTake,
+    };
   } catch (err) {
-    await client.query('ROLLBACK');
+    try { await client.query('ROLLBACK'); } catch(_){}
     throw err;
   } finally {
     client.release();
   }
 }
 
-// ── Decline ───────────────────────────────────────────────────────────────────
+// ── Decline (defender) ───────────────────────────────────────────
 async function declineDuel(duelId, defender) {
-  const dLower = defender.toLowerCase();
+  const dLower = String(defender || '').toLowerCase();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const { rows } = await client.query(
-      `SELECT * FROM gp_duels WHERE id=$1 FOR UPDATE`, [duelId]);
-    if (!rows.length) throw new Error('Duel not found');
-    const duel = rows[0];
-    if (duel.defender !== dLower) throw new Error('Not the challenged player');
-    if (duel.status !== 'pending') throw new Error(`Duel is already ${duel.status}`);
+    const r = await client.query(
+      `SELECT * FROM gp_duels WHERE id = $1 FOR UPDATE`, [duelId]);
+    if (!r.rows[0]) throw new Error('DUEL_NOT_FOUND');
+    const d = r.rows[0];
+    if (d.defender !== dLower) throw new Error('NOT_YOUR_DUEL');
+    if (d.status !== 'pending') throw new Error('DUEL_NOT_PENDING');
 
-    // Refund challenger
+    // challenger 환불
     await client.query(
-      'UPDATE gp_balances SET balance = balance + $1 WHERE wallet=$2',
-      [duel.wager_gp, duel.challenger]
+      `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+      [d.wager_gp, d.challenger]
     );
     await client.query(
-      `UPDATE gp_duels SET status='declined' WHERE id=$1`, [duelId]);
+      `UPDATE gp_duels SET status = 'declined', resolved_at = NOW() WHERE id = $1`,
+      [duelId]
+    );
     await client.query('COMMIT');
-
-    // Notify challenger
-    try {
-      await pool.query(
-        `INSERT INTO player_notifications (wallet, type, message, meta) VALUES ($1,'duel_declined',$2,$3)`,
-        [duel.challenger, '⚔️ Your duel challenge was declined. Wager refunded.',
-         JSON.stringify({ duel_id: duelId })]
-      );
-    } catch (_) {}
-
-    return { ok: true };
+    return { id: duelId, status: 'declined' };
   } catch (err) {
-    await client.query('ROLLBACK');
+    try { await client.query('ROLLBACK'); } catch(_){}
     throw err;
   } finally {
     client.release();
   }
 }
 
-// ── Cancel (challenger cancels pending duel) ──────────────────────────────────
+// ── Cancel (challenger) ─────────────────────────────────────────
 async function cancelDuel(duelId, challenger) {
-  const cLower = challenger.toLowerCase();
+  const cLower = String(challenger || '').toLowerCase();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const { rows } = await client.query(
-      `SELECT * FROM gp_duels WHERE id=$1 FOR UPDATE`, [duelId]);
-    if (!rows.length) throw new Error('Duel not found');
-    const duel = rows[0];
-    if (duel.challenger !== cLower) throw new Error('Not the challenger');
-    if (duel.status !== 'pending') throw new Error(`Duel is already ${duel.status}`);
+    const r = await client.query(
+      `SELECT * FROM gp_duels WHERE id = $1 FOR UPDATE`, [duelId]);
+    if (!r.rows[0]) throw new Error('DUEL_NOT_FOUND');
+    const d = r.rows[0];
+    if (d.challenger !== cLower) throw new Error('NOT_YOUR_DUEL');
+    if (d.status !== 'pending') throw new Error('DUEL_NOT_PENDING');
 
     await client.query(
-      'UPDATE gp_balances SET balance = balance + $1 WHERE wallet=$2',
-      [duel.wager_gp, cLower]
+      `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
+      [d.wager_gp, cLower]
     );
     await client.query(
-      `UPDATE gp_duels SET status='cancelled' WHERE id=$1`, [duelId]);
+      `UPDATE gp_duels SET status = 'cancelled', resolved_at = NOW() WHERE id = $1`,
+      [duelId]
+    );
     await client.query('COMMIT');
-    return { ok: true };
+    return { id: duelId, status: 'cancelled' };
   } catch (err) {
-    await client.query('ROLLBACK');
+    try { await client.query('ROLLBACK'); } catch(_){}
     throw err;
   } finally {
     client.release();
   }
 }
 
-// ── Expire stale pending duels ────────────────────────────────────────────────
+// ── Expire pending duels (scheduler) ────────────────────────────
 async function expireDuels() {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const { rows } = await client.query(
-      `UPDATE gp_duels SET status='expired'
-       WHERE status='pending' AND expires_at < NOW()
-       RETURNING *`
+    const r = await client.query(
+      `SELECT id, challenger, wager_gp FROM gp_duels
+       WHERE status = 'pending' AND expires_at <= NOW() FOR UPDATE`
     );
-    // Refund challengers
-    for (const d of rows) {
+    let n = 0;
+    for (const d of r.rows) {
       await client.query(
-        'UPDATE gp_balances SET balance = balance + $1 WHERE wallet=$2',
+        `UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address = $2`,
         [d.wager_gp, d.challenger]
       );
-      // Notify challenger
-      try {
-        await pool.query(
-          `INSERT INTO player_notifications (wallet, type, message, meta)
-           VALUES ($1,'duel_expired',$2,$3)`,
-          [d.challenger, '⚔️ Duel challenge expired — wager refunded',
-           JSON.stringify({ duel_id: d.id })]
-        );
-      } catch (_) {}
+      await client.query(
+        `UPDATE gp_duels SET status = 'expired', resolved_at = NOW() WHERE id = $1`,
+        [d.id]
+      );
+      n++;
     }
     await client.query('COMMIT');
-    if (rows.length) console.log(`[Duel] Expired ${rows.length} stale duels`);
+    return { expired: n };
   } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('[Duel] expireDuels error:', err.message);
+    try { await client.query('ROLLBACK'); } catch(_){}
+    throw err;
   } finally {
     client.release();
   }
 }
 
-// ── Queries ───────────────────────────────────────────────────────────────────
+// ── Read-side helpers ───────────────────────────────────────────
 async function getMyDuels(wallet, limit = 30) {
-  const w = wallet.toLowerCase();
-  const { rows } = await pool.query(
+  const w = String(wallet || '').toLowerCase();
+  const r = await pool.query(
     `SELECT d.*,
-       cn.nickname AS challenger_nick,
-       dn.nickname AS defender_nick
+      uc.nickname AS challenger_nick, ud.nickname AS defender_nick,
+      uw.nickname AS winner_nick
      FROM gp_duels d
-     LEFT JOIN user_profiles cn ON cn.wallet = d.challenger
-     LEFT JOIN user_profiles dn ON dn.wallet = d.defender
-     WHERE d.challenger=$1 OR d.defender=$1
+     LEFT JOIN users uc ON uc.wallet_address = d.challenger
+     LEFT JOIN users ud ON ud.wallet_address = d.defender
+     LEFT JOIN users uw ON uw.wallet_address = d.winner
+     WHERE d.challenger = $1 OR d.defender = $1
      ORDER BY d.created_at DESC LIMIT $2`,
     [w, limit]
   );
-  return rows;
+  return r.rows;
 }
 
 async function getPendingForMe(wallet) {
-  const w = wallet.toLowerCase();
-  const { rows } = await pool.query(
-    `SELECT d.*,
-       cn.nickname AS challenger_nick
+  const w = String(wallet || '').toLowerCase();
+  const r = await pool.query(
+    `SELECT d.*, uc.nickname AS challenger_nick
      FROM gp_duels d
-     LEFT JOIN user_profiles cn ON cn.wallet = d.challenger
-     WHERE d.defender=$1 AND d.status='pending' AND d.expires_at > NOW()
-     ORDER BY d.created_at DESC`,
+     LEFT JOIN users uc ON uc.wallet_address = d.challenger
+     WHERE d.defender = $1 AND d.status = 'pending'
+     ORDER BY d.expires_at ASC`,
     [w]
   );
-  return rows;
+  return r.rows;
 }
 
 async function getRecentResolved(limit = 20) {
-  const { rows } = await pool.query(
+  const r = await pool.query(
     `SELECT d.*,
-       cn.nickname AS challenger_nick,
-       dn.nickname AS defender_nick
+      uc.nickname AS challenger_nick, ud.nickname AS defender_nick,
+      uw.nickname AS winner_nick
      FROM gp_duels d
-     LEFT JOIN user_profiles cn ON cn.wallet = d.challenger
-     LEFT JOIN user_profiles dn ON dn.wallet = d.defender
-     WHERE d.status='resolved'
-     ORDER BY d.resolved_at DESC LIMIT $1`,
+     LEFT JOIN users uc ON uc.wallet_address = d.challenger
+     LEFT JOIN users ud ON ud.wallet_address = d.defender
+     LEFT JOIN users uw ON uw.wallet_address = d.winner
+     WHERE d.status IN ('fought','declined','cancelled','expired')
+     ORDER BY d.resolved_at DESC NULLS LAST LIMIT $1`,
     [limit]
   );
-  return rows;
+  return r.rows;
 }
 
 async function getAdminStats() {
-  const [totals, recent, settings] = await Promise.all([
-    pool.query(
-      `SELECT
-         COUNT(*) FILTER (WHERE status='resolved') AS total_resolved,
-         COUNT(*) FILTER (WHERE status='pending')  AS total_pending,
-         COUNT(*) FILTER (WHERE status='expired')  AS total_expired,
-         COUNT(*) FILTER (WHERE status='declined') AS total_declined,
-         COALESCE(SUM(fee_gp) FILTER (WHERE status='resolved'), 0) AS total_fees,
-         COALESCE(SUM(wager_gp*2) FILTER (WHERE status='resolved'), 0) AS total_pot
-       FROM gp_duels`
-    ),
-    pool.query(
-      `SELECT d.*, cn.nickname AS challenger_nick, dn.nickname AS defender_nick
-       FROM gp_duels d
-       LEFT JOIN user_profiles cn ON cn.wallet = d.challenger
-       LEFT JOIN user_profiles dn ON dn.wallet = d.defender
-       ORDER BY d.created_at DESC LIMIT 50`
-    ),
-    pool.query(
-      `SELECT key, value FROM game_settings WHERE category='duel' ORDER BY key`
-    )
+  const r = await pool.query(
+    `SELECT status, COUNT(*)::int AS n, COALESCE(SUM(wager_gp),0)::int AS total_gp
+     FROM gp_duels GROUP BY status`
+  );
+  const out = { total: 0, by_status: {}, total_gp: 0 };
+  for (const row of r.rows) {
+    out.total += row.n;
+    out.total_gp += row.total_gp;
+    out.by_status[row.status] = { count: row.n, gp: row.total_gp };
+  }
+  return out;
+}
+
+/**
+ * getSettings — 클라이언트가 도전장 UI 표시할 때 필요한 룰 값
+ */
+async function getSettings() {
+  const { getSetting } = require('../db');
+  const [
+    minStake, maxStake, expiryHours, maxPendingPair, maxActiveUser,
+    feePct, winnerCutPct,
+  ] = await Promise.all([
+    getSetting('duel_min_stake_gp', '10'),
+    getSetting('duel_max_stake_gp', '5000'),
+    getSetting('duel_default_expiry_hours', '24'),
+    getSetting('duel_max_pending_per_pair', '1'),
+    getSetting('duel_max_active_per_user', '5'),
+    getSetting('duel_fee_pct', '5'),
+    getSetting('duel_winner_cut_pct', '90'),
   ]);
-  return { totals: totals.rows[0], recent: recent.rows, settings: settings.rows };
+  const num = (v, d) => parseInt(String(v ?? d).replace(/[^0-9]/g, '')) || d;
+  const flt = (v, d) => parseFloat(String(v ?? d).replace(/[^0-9.]/g, '')) || d;
+  return {
+    min_stake_gp:        num(minStake, 10),
+    max_stake_gp:        num(maxStake, 5000),
+    expiry_hours:        num(expiryHours, 24),
+    max_pending_per_pair: num(maxPendingPair, 1),
+    max_active_per_user: num(maxActiveUser, 5),
+    fee_pct:             flt(feePct, 5),
+    winner_cut_pct:      flt(winnerCutPct, 90),
+  };
 }
 
 module.exports = {
@@ -439,5 +474,5 @@ module.exports = {
   getPendingForMe,
   getRecentResolved,
   getAdminStats,
-  getSettings
+  getSettings,
 };

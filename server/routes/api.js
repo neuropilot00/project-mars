@@ -5112,12 +5112,16 @@ router.get('/guild/:id/ledger', readLimiter, async (req, res) => {
 // ═══════════════════════════════════════
 
 router.post('/guild/war/declare', writeLimiter, async (req, res) => {
-  const { wallet, guildId, targetGuildId } = req.body || {};
+  const { wallet, guildId, targetGuildId, stakeGp, sectorId, durationHours } = req.body || {};
   const w = (wallet || '').toLowerCase();
   if (!w || !guildId || !targetGuildId) return res.status(400).json({ error: 'Missing fields' });
   if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
   try {
-    const r = await guildService.declareWar(w, parseInt(guildId), parseInt(targetGuildId));
+    const opts = {};
+    if (stakeGp != null && stakeGp !== '') opts.stakeGp = parseInt(stakeGp);
+    if (sectorId != null && sectorId !== '') opts.sectorId = parseInt(sectorId);
+    if (durationHours != null && durationHours !== '') opts.durationHours = parseInt(durationHours);
+    const r = await guildService.declareWar(w, parseInt(guildId), parseInt(targetGuildId), opts);
     if (r.error) return res.status(400).json(r);
     res.json(r);
   } catch (e) { res.status(500).json({ error: e.message }); }
