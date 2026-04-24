@@ -116,7 +116,8 @@ const onboardingRoutes = require('./routes/onboarding');
 const sectorRoutes = require('./routes/sectors');
 const siegeRoutes = require('./routes/siege');
 const publicRoutes = require('./routes/public');
-const bettingRoutes = require('./routes/betting');
+const bettingRoutes    = require('./routes/betting');
+const warBettingRoutes = require('./routes/warBettingRoutes'); // War Betting v2
 const auctionRoutes = require('./routes/auction');
 const shipRoutes    = require('./routes/ships');
 const battleRoutes  = require('./routes/battle');
@@ -283,6 +284,7 @@ app.use('/api', onboardingRoutes);
 app.use('/api', sectorRoutes);
 app.use('/api', siegeRoutes);
 app.use('/api', publicRoutes);
+app.use('/api/betting', warBettingRoutes); // War Betting v2 (must be before bettingRoutes)
 app.use('/api', bettingRoutes);
 app.use('/api', auctionRoutes);
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
@@ -848,6 +850,13 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[BETTING] Close-expired-events scheduler started (5min interval)');
     } catch(e) { console.warn('[BETTING] Could not init close-expired scheduler:', e.message); }
+
+    // ── War Betting v2: Close Expired Events (every 60 seconds) ──
+    try {
+      const warBettingSvc = require('./services/warBetting');
+      setInterval(() => warBettingSvc.closeExpiredEvents().catch(() => {}), 60000);
+      console.log('[warBetting] closeExpiredEvents scheduler started (60s interval)');
+    } catch(e) { console.warn('[warBetting] Could not init scheduler:', e.message); }
 
     // ── Auction: Settle Expired Auctions (every 5 minutes) ──
     try {

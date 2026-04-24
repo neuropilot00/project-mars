@@ -4199,6 +4199,173 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .ob-reward-chip.pp { color: #4fc3f7; border-color: rgba(79,195,247,.4); }
 .ob-reward-chip.title { color: #ff9800; border-color: rgba(255,152,0,.4); }
 </style>
+
+/* ── War Betting CSS ── */
+<style>
+/* ═════ War Betting Modal ═════ */
+.wb-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.87); backdrop-filter: blur(8px);
+  z-index: 9995;
+  display: none; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.wb-backdrop.active { display: flex; }
+
+.wb-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(255,152,0,.25);
+  border-radius: 10px;
+  width: 100%; max-width: 860px;
+  max-height: 90vh; display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.wb-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  background: rgba(255,152,0,.04);
+}
+.wb-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px; font-weight: 900; letter-spacing: 3px;
+  color: #ff9800;
+}
+
+.wb-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.wb-tab {
+  flex: 1; padding: 10px; background: transparent; border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  color: rgba(255,255,255,.4); cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.wb-tab.active { color: #ff9800; border-bottom-color: #ff9800; background: rgba(255,152,0,.04); }
+.wb-tab:hover { color: rgba(255,255,255,.7); }
+
+.wb-body {
+  flex: 1; overflow-y: auto;
+  padding: 14px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+/* 이벤트 카드 */
+.wb-event-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px; padding: 14px 16px;
+}
+.wb-event-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 10px;
+}
+.wb-event-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  color: rgba(255,255,255,.9);
+  flex: 1; margin-right: 10px;
+}
+.wb-event-type {
+  font-size: 9px; letter-spacing: 1px; padding: 2px 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.wb-event-type.siege     { background: rgba(239,83,80,.15); color: #ef5350; border: 1px solid rgba(239,83,80,.3); }
+.wb-event-type.guild_war { background: rgba(79,195,247,.15); color: #4fc3f7; border: 1px solid rgba(79,195,247,.3); }
+.wb-event-type.weekly_top{ background: rgba(255,215,0,.15); color: #ffd700; border: 1px solid rgba(255,215,0,.3); }
+
+.wb-closes-at {
+  font-size: 9px; color: rgba(255,255,255,.35); letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+.wb-closes-at.soon { color: #ef5350; }
+
+/* 옵션 버튼들 */
+.wb-options {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-bottom: 10px;
+}
+.wb-options.three-way { grid-template-columns: 1fr 1fr 1fr; }
+
+.wb-option-btn {
+  padding: 10px 8px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px; cursor: pointer;
+  text-align: center; transition: all .12s;
+}
+.wb-option-btn:hover { background: rgba(255,152,0,.08); border-color: rgba(255,152,0,.4); }
+.wb-option-btn.selected { background: rgba(255,152,0,.15); border-color: #ff9800; }
+.wb-option-btn.won  { background: rgba(129,199,132,.1); border-color: #81c784; }
+.wb-option-btn.lost { opacity: .5; }
+
+.wb-option-label { font-size: 10px; color: rgba(255,255,255,.8); margin-bottom: 4px; letter-spacing: .5px; }
+.wb-option-odds  { font-size: 14px; font-weight: 900; color: #ff9800; font-family: 'Orbitron', monospace; }
+.wb-option-total { font-size: 9px; color: rgba(255,255,255,.35); margin-top: 2px; }
+
+/* 베팅 입력 */
+.wb-bet-row {
+  display: flex; gap: 6px; align-items: center;
+}
+.wb-bet-input {
+  flex: 1; padding: 7px 12px;
+  background: rgba(0,0,0,.4);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 11px;
+  border-radius: 4px;
+}
+.wb-bet-quick {
+  display: flex; gap: 4px;
+}
+.wb-bet-quick-btn {
+  padding: 4px 8px; font-size: 9px; letter-spacing: 1px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.6); cursor: pointer; border-radius: 3px;
+}
+.wb-bet-quick-btn:hover { background: rgba(255,152,0,.1); color: #ff9800; }
+
+.wb-bet-btn {
+  padding: 7px 16px;
+  background: linear-gradient(135deg, #bf6000, #ff9800);
+  border: 1px solid #ff9800;
+  color: #fff; cursor: pointer;
+  font-family: 'Orbitron', monospace;
+  font-size: 10px; font-weight: 900; letter-spacing: 2px;
+  border-radius: 4px;
+}
+.wb-bet-btn:hover { box-shadow: 0 0 14px rgba(255,152,0,.4); }
+.wb-bet-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* 내 베팅 내역 */
+.wb-my-bet-row {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 6px; padding: 10px 14px;
+  display: grid; grid-template-columns: 1fr auto auto;
+  gap: 10px; align-items: center;
+  font-size: 10px;
+}
+.wb-my-bet-event { color: rgba(255,255,255,.7); }
+.wb-my-bet-option { color: #ff9800; font-weight: 700; }
+.wb-my-bet-amount { text-align: right; }
+.wb-my-bet-status {
+  font-size: 9px; padding: 2px 8px; border-radius: 3px; text-align: center;
+}
+.wb-my-bet-status.pending  { background: rgba(255,180,77,.1); color: #ffb74d; border: 1px solid rgba(255,180,77,.3); }
+.wb-my-bet-status.won      { background: rgba(129,199,132,.1); color: #81c784; border: 1px solid rgba(129,199,132,.3); }
+.wb-my-bet-status.lost     { background: rgba(255,255,255,.04); color: rgba(255,255,255,.3); }
+.wb-my-bet-status.refunded { background: rgba(79,195,247,.1); color: #4fc3f7; }
+
+.wb-empty {
+  text-align: center; padding: 40px 20px;
+  color: rgba(255,255,255,.3); font-size: 10px; letter-spacing: 2px;
+}
+</style>
 </style>
 </head>
 <body>
@@ -7569,6 +7736,26 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <div class="ob-step-label" id="obStepLabel"></div>
     <div class="ob-content" id="obContent"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+
+<!-- ── War Betting Modal ── -->
+<div class="wb-backdrop" id="warBettingModal">
+  <div class="wb-modal">
+    <div class="wb-header">
+      <div class="wb-title">🎯 WAR BETTING · 전쟁 베팅</div>
+      <button class="shipyard-close" onclick="closeWarBetting()">✕</button>
+    </div>
+    <div class="wb-tabs">
+      <button class="wb-tab active" data-tab="active" onclick="wbSwitchTab('active')">🔥 활성 이벤트</button>
+      <button class="wb-tab" data-tab="recent" onclick="wbSwitchTab('recent')">📜 최근 결과</button>
+      <button class="wb-tab" data-tab="mine" onclick="wbSwitchTab('mine')">🏆 내 베팅</button>
+    </div>
+    <div class="wb-body" id="wbBody"></div>
   </div>
 </div>
 
@@ -40455,6 +40642,221 @@ function closeOnboarding() {
 // ── Override old initOnboarding → use new checkOnboarding ──
 async function initOnboarding(wallet) {
   setTimeout(checkOnboarding, 1500);
+}
+
+
+// ══ War Betting v2 JS ══
+
+// ═════ War Betting State ═════
+
+const wb = {
+  currentTab: 'active',
+  events: [],
+  // 이벤트별 선택 상태
+  selectedOptions: {},   // { eventId: 'a'|'b'|'c' }
+  betAmounts: {},        // { eventId: number }
+};
+
+async function openWarBetting() {
+  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  document.getElementById('warBettingModal').classList.add('active');
+  await wbLoad();
+}
+
+function closeWarBetting() {
+  document.getElementById('warBettingModal').classList.remove('active');
+}
+
+function wbSwitchTab(tab) {
+  wb.currentTab = tab;
+  document.querySelectorAll('.wb-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  wbLoad();
+}
+
+async function wbLoad() {
+  const body = document.getElementById('wbBody');
+  body.innerHTML = '<div class="wb-empty">로딩 중...</div>';
+
+  try {
+    let url = '';
+    if (wb.currentTab === 'active')  url = '/api/betting/events';
+    else if (wb.currentTab === 'recent') url = '/api/betting/events/recent?limit=20';
+    else url = '/api/betting/mine';
+
+    const res = await fetch(url, { headers: getAuthHeaders() });
+    const data = await res.json();
+    const items = data.events || data.bets || [];
+
+    if (items.length === 0) {
+      body.innerHTML = `<div class="wb-empty">
+        ${wb.currentTab === 'active' ? '현재 진행 중인 베팅이 없습니다' :
+          wb.currentTab === 'recent' ? '최근 결과가 없습니다' :
+          '베팅 기록이 없습니다'}
+      </div>`;
+      return;
+    }
+
+    if (wb.currentTab === 'mine') {
+      body.innerHTML = items.map(renderMyBet).join('');
+    } else {
+      body.innerHTML = items.map(e => renderEventCard(e, wb.currentTab === 'recent')).join('');
+    }
+  } catch (err) {
+    console.error('[warBetting] load error:', err);
+    body.innerHTML = '<div class="wb-empty">로딩 실패</div>';
+  }
+}
+
+// ── 이벤트 카드 렌더 ──
+
+function renderEventCard(event, readonly = false) {
+  const typeMap = { siege: '공성전', guild_war: '길드전', weekly_top: '주간 TOP' };
+  const isThreeWay = !!event.option_c_label;
+  const selectedOpt = wb.selectedOptions[event.id];
+  const betAmount = wb.betAmounts[event.id] || '';
+
+  const closesAt = new Date(event.closes_at);
+  const minsLeft = Math.floor((closesAt - Date.now()) / 60000);
+  const isSoon = minsLeft < 60;
+  const closeText = minsLeft < 0
+    ? '베팅 마감'
+    : minsLeft < 60
+    ? `${minsLeft}분 후 마감`
+    : `${Math.floor(minsLeft/60)}시간 후 마감`;
+
+  const opts = [
+    { key: 'a', label: event.option_a_label, total: event.total_bet_a, odds: event.odds?.a },
+    { key: 'b', label: event.option_b_label, total: event.total_bet_b, odds: event.odds?.b },
+    ...(isThreeWay ? [{ key: 'c', label: event.option_c_label, total: event.total_bet_c, odds: event.odds?.c }] : []),
+  ];
+
+  const wonOpt = event.winner_option;
+
+  return `
+    <div class="wb-event-card">
+      <div class="wb-event-header">
+        <div class="wb-event-title">${escapeHtml(event.title_ko || event.title_en || '')}</div>
+        <div class="wb-event-type ${event.event_type}">${typeMap[event.event_type] || event.event_type}</div>
+      </div>
+      <div class="wb-closes-at ${isSoon && !readonly ? 'soon' : ''}">${closeText}</div>
+
+      <div class="wb-options ${isThreeWay ? 'three-way' : ''}">
+        ${opts.map(o => {
+          const isWon  = wonOpt === o.key;
+          const isLost = wonOpt && wonOpt !== o.key;
+          const isSel  = selectedOpt === o.key;
+          return `
+            <div class="wb-option-btn ${isSel ? 'selected' : ''} ${isWon ? 'won' : ''} ${isLost ? 'lost' : ''}"
+                 onclick="${readonly ? '' : `wbSelectOption(${event.id},'${o.key}')`}">
+              <div class="wb-option-label">${escapeHtml(o.label || '')}</div>
+              <div class="wb-option-odds">${o.odds ? o.odds.toFixed(2) + 'x' : '-'}</div>
+              <div class="wb-option-total">${formatNum(o.total || 0)} GP 베팅</div>
+              ${isWon ? '<div style="font-size:9px;color:#81c784;margin-top:2px">✅ 당첨</div>' : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      ${!readonly ? `
+        <div class="wb-bet-row">
+          <div class="wb-bet-quick">
+            <button class="wb-bet-quick-btn" onclick="wbSetAmount(${event.id},100)">100</button>
+            <button class="wb-bet-quick-btn" onclick="wbSetAmount(${event.id},500)">500</button>
+            <button class="wb-bet-quick-btn" onclick="wbSetAmount(${event.id},1000)">1K</button>
+          </div>
+          <input class="wb-bet-input" id="wbAmount${event.id}"
+                 type="number" placeholder="GP 입력..." min="10" max="2000"
+                 value="${betAmount}"
+                 oninput="wb.betAmounts[${event.id}]=parseInt(this.value)||0">
+          <button class="wb-bet-btn" onclick="wbPlaceBet(${event.id})"
+                  ${selectedOpt ? '' : 'disabled'}>
+            베팅
+          </button>
+        </div>
+        ${selectedOpt ? `<div style="font-size:9px;color:rgba(255,255,255,.4);text-align:right;margin-top:4px">
+          선택: <b style="color:#ff9800">${opts.find(o=>o.key===selectedOpt)?.label || ''}</b>
+        </div>` : ''}
+        <div style="font-size:9px;color:rgba(255,255,255,.25);text-align:right;margin-top:2px">
+          총 풀: ${formatNum(event.odds?.total_pool || 0)} GP · 하우스 엣지 5%
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderMyBet(bet) {
+  const statusMap = { pending:'대기중', won:'당첨', lost:'낙첨', refunded:'환불' };
+  return `
+    <div class="wb-my-bet-row">
+      <div>
+        <div class="wb-my-bet-event">${escapeHtml(bet.title_ko || '')}</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:2px">
+          선택: <span class="wb-my-bet-option">${escapeHtml(bet.option_label || bet.option)}</span>
+        </div>
+      </div>
+      <div class="wb-my-bet-amount">
+        <div style="color:#ffd700;font-weight:700">${formatNum(bet.amount_gp)} GP</div>
+        ${bet.payout_gp > 0
+          ? `<div style="color:#81c784;font-size:9px">+${formatNum(bet.payout_gp)} GP</div>`
+          : ''}
+      </div>
+      <div class="wb-my-bet-status ${bet.status}">${statusMap[bet.status] || bet.status}</div>
+    </div>
+  `;
+}
+
+// ── 인터랙션 ──
+
+function wbSelectOption(eventId, option) {
+  wb.selectedOptions[eventId] = option;
+  wbLoad();
+}
+
+function wbSetAmount(eventId, amount) {
+  wb.betAmounts[eventId] = amount;
+  const input = document.getElementById(`wbAmount${eventId}`);
+  if (input) input.value = amount;
+}
+
+async function wbPlaceBet(eventId) {
+  const option = wb.selectedOptions[eventId];
+  const amount = wb.betAmounts[eventId] || parseInt(
+    document.getElementById(`wbAmount${eventId}`)?.value
+  ) || 0;
+
+  if (!option) { showFactionToast('옵션을 선택하세요', 'error'); return; }
+  if (amount < 10) { showFactionToast('최소 10 GP 이상 베팅', 'error'); return; }
+
+  try {
+    const res = await fetch('/api/betting/bet', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ event_id: eventId, option, amount_gp: amount })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      const msgMap = {
+        'BETTING_CLOSED':   '베팅이 마감됐습니다',
+        'ALREADY_BET':      '이미 베팅했습니다',
+        'INSUFFICIENT_GP':  `GP 부족: ${data.meta?.required} GP 필요`,
+        'BET_TOO_SMALL':    `최소 ${data.meta?.min} GP`,
+        'BET_TOO_LARGE':    `최대 ${data.meta?.max} GP`,
+      };
+      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      return;
+    }
+
+    showFactionToast(`베팅 완료! 현재 배당: ${data.current_odds?.a || '-'}x`, 'success');
+    delete wb.selectedOptions[eventId];
+    delete wb.betAmounts[eventId];
+    await wbLoad();
+  } catch (err) {
+    console.error('[warBetting] placeBet error:', err);
+    showFactionToast('네트워크 오류', 'error');
+  }
 }
 
 </script>
