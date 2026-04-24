@@ -291,6 +291,7 @@ app.use('/api/weather', weatherRoutes);    // Weather Strategic v2
 app.use('/api/betting', warBettingRoutes); // War Betting v2 (must be before bettingRoutes)
 app.use('/api', bettingRoutes);
 app.use('/api/auctions', require('./routes/auctionRoutes')); // M-090: 옥션 (must be before /api auctionRoutes)
+app.use('/api/territory', require('./routes/territoryRoutes')); // M-091: 영토 매매 비주얼
 app.use('/api', auctionRoutes);
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
 app.use('/api', phaseCRoutes);               // Phase C: AI/Tournament/Hijack
@@ -1081,6 +1082,13 @@ async function start() {
       }, 60 * 1000);
       console.log('[AUCTION] Scheduler started (1min interval)');
     } catch(e) { console.warn('[AUCTION] Could not init scheduler:', e.message); }
+
+    // ── Territory: Update adjacency bonuses (every 10 minutes) — M-091 ──
+    try {
+      const tv = require('./services/territoryVisual');
+      setInterval(() => tv.updateAdjacencyBonuses().catch(console.error), 600000);
+      console.log('[TERRITORY] Adjacency bonus scheduler started (10min interval)');
+    } catch(e) { console.warn('[TERRITORY] Could not init scheduler:', e.message); }
 
     // ── VIP: Expire stale passes (every 15 minutes) ──
     try {
