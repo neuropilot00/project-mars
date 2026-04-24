@@ -185,10 +185,16 @@ async function drawExpiredRounds() {
   const now = new Date();
 
   // Find rounds that are open and expired
-  const expired = await pool.query(
-    `SELECT * FROM lottery_rounds WHERE status = 'open' AND ends_at <= $1 ORDER BY id ASC`,
-    [now]
-  );
+  let expired;
+  try {
+    expired = await pool.query(
+      `SELECT * FROM lottery_rounds WHERE status = 'open' AND ends_at <= $1 ORDER BY id ASC`,
+      [now]
+    );
+  } catch (e) {
+    if (e.code === '42P01' || e.code === '42703') return 0;
+    throw e;
+  }
   if (!expired.rows.length) return 0;
 
   const cfg = await getSettings();

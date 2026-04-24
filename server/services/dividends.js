@@ -46,12 +46,18 @@ async function getSettings() {
 
 async function ensureCurrentPool() {
   const weekStart = getWeekStart();
-  await pool.query(
-    `INSERT INTO gp_dividend_pool (week_start) VALUES ($1) ON CONFLICT (week_start) DO NOTHING`,
-    [weekStart]
-  );
-  const res = await pool.query(`SELECT * FROM gp_dividend_pool WHERE week_start = $1`, [weekStart]);
-  return res.rows[0];
+  try {
+    await pool.query(
+      `INSERT INTO gp_dividend_pool (week_start) VALUES ($1) ON CONFLICT (week_start) DO NOTHING`,
+      [weekStart]
+    );
+    const res = await pool.query(`SELECT * FROM gp_dividend_pool WHERE week_start = $1`, [weekStart]);
+    return res.rows[0];
+  } catch (e) {
+    // Table not provisioned on this deployment (archived migration 110). Skip silently.
+    if (e.code === '42P01' || e.code === '42703') return null;
+    throw e;
+  }
 }
 
 // ── Add to pool ───────────────────────────────────────────────────────────────

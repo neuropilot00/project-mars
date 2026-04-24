@@ -43,15 +43,27 @@ async function isEnabled() {
 
 async function ensureWeekInstances() {
   const { start, end } = getWeekBounds();
-  const defs = await pool.query(
-    `SELECT id FROM weekly_challenge_defs WHERE active = true`
-  );
-  for (const d of defs.rows) {
-    await pool.query(
-      `INSERT INTO weekly_challenge_instances (challenge_def_id, week_start, week_end)
-       VALUES ($1, $2, $3) ON CONFLICT (challenge_def_id, week_start) DO NOTHING`,
-      [d.id, start, end]
+  let defs;
+  try {
+    defs = await pool.query(
+      `SELECT id FROM weekly_challenge_defs WHERE active = true`
     );
+  } catch (e) {
+    // Tables not provisioned on this deployment (archived migration 109). Skip silently.
+    if (e.code === '42P01' || e.code === '42703') return;
+    throw e;
+  }
+  for (const d of defs.rows) {
+    try {
+      await pool.query(
+        `INSERT INTO weekly_challenge_instances (challenge_def_id, week_start, week_end)
+         VALUES ($1, $2, $3) ON CONFLICT (challenge_def_id, week_start) DO NOTHING`,
+        [d.id, start, end]
+      );
+    } catch (e) {
+      if (e.code === '42P01' || e.code === '42703') return;
+      throw e;
+    }
   }
 }
 
