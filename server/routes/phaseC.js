@@ -270,4 +270,35 @@ router.post('/hijack/:id/phase2', requireAuth, async (req, res) => {
   }
 });
 
+// ── GET /api/fleet-battles?wallet= ──
+// 프론트의 PVP 탭 dot 표시용 — 진행 중인 함대 전투 요약
+router.get('/fleet-battles', async (req, res) => {
+  try {
+    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    if (!wallet || wallet.length < 10) return res.json({ battles: [] });
+    let rows = [];
+    try {
+      const r = await pool.query(
+        `SELECT DISTINCT b.id, b.battle_type, b.status, b.phase,
+                b.battle_started_at, b.scheduled_start_at,
+                p.side
+         FROM fleet_battles b
+         JOIN fleet_battle_participants p ON p.battle_id = b.id
+         WHERE LOWER(p.wallet_address) = $1
+           AND b.status IN ('preparing','pending','active','running')
+         ORDER BY b.id DESC LIMIT 20`,
+        [wallet]
+      );
+      rows = r.rows;
+    } catch (e) {
+      // fleet_battles / participants 미배포 환경 fallback
+      if (e.code !== '42P01' && e.code !== '42703') throw e;
+    }
+    res.json({ battles: rows });
+  } catch (err) {
+    console.error('[phaseC] fleet-battles error:', err.message);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
 module.exports = router;
