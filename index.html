@@ -3310,6 +3310,56 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .ca-btn.skip:hover { background: rgba(239,83,80,.08); color: #fff; }
 
+/* Doctrine preset strip */
+.ca-doctrines {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: linear-gradient(90deg, rgba(79,195,247,.06), rgba(255,193,7,.06));
+  border: 1px solid rgba(79,195,247,.18);
+  border-radius: 6px;
+}
+.ca-doctrines-label {
+  flex: 0 0 100%;
+  font-size: 9px; letter-spacing: 2px;
+  color: rgba(255,255,255,.45);
+  margin-bottom: 4px;
+}
+.ca-doctrine-btn {
+  flex: 1 1 calc(33% - 4px);
+  min-width: 95px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 4px;
+  color: rgba(255,255,255,.7);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .5px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .15s;
+  line-height: 1.2;
+}
+.ca-doctrine-btn:hover {
+  background: rgba(79,195,247,.1);
+  border-color: rgba(79,195,247,.55);
+  color: #81d4fa;
+  transform: translateY(-1px);
+}
+.ca-doctrine-btn.active {
+  background: rgba(79,195,247,.18);
+  border-color: #4fc3f7;
+  color: #4fc3f7;
+  box-shadow: 0 0 10px rgba(79,195,247,.25);
+}
+.ca-doctrine-btn .dc-icon { font-size: 14px; display: block; margin-bottom: 2px; }
+.ca-doctrine-btn .dc-name { font-weight: 700; font-size: 9.5px; letter-spacing: 1.2px; }
+.ca-doctrine-btn .dc-actions { font-size: 8px; opacity: .55; margin-top: 2px; }
+@media (max-width: 600px){
+  .ca-doctrine-btn { flex: 1 1 calc(50% - 4px); }
+}
+
 /* Battle viewer commander-action banner (HUD badges) */
 .bv-cmd-banner {
   position: absolute;
@@ -38702,6 +38752,28 @@ function fcEsc(str) {
     </div>
     <div class="ca-subtitle">// 시뮬레이션 전 전술 지시 (최대 <span id="caMaxSel">2</span>개)</div>
 
+    <div class="ca-doctrines" id="caDoctrines">
+      <div class="ca-doctrines-label">📜 DOCTRINE PRESETS — 원클릭 전술 프리셋 (대표님 추천)</div>
+      <button class="ca-doctrine-btn" data-doc="alpha_strike"  onclick="caApplyPreset('alpha_strike')">
+        <span class="dc-icon">🎯</span><span class="dc-name">ALPHA STRIKE</span><span class="dc-actions">focus+wedge</span>
+      </button>
+      <button class="ca-doctrine-btn" data-doc="emp_ambush"    onclick="caApplyPreset('emp_ambush')">
+        <span class="dc-icon">⚡</span><span class="dc-name">EMP AMBUSH</span><span class="dc-actions">emp+focus</span>
+      </button>
+      <button class="ca-doctrine-btn" data-doc="drone_swarm"   onclick="caApplyPreset('drone_swarm')">
+        <span class="dc-icon">🐝</span><span class="dc-name">DRONE SWARM</span><span class="dc-actions">frigate×20</span>
+      </button>
+      <button class="ca-doctrine-btn" data-doc="shield_wall"   onclick="caApplyPreset('shield_wall')">
+        <span class="dc-icon">🛡</span><span class="dc-name">SHIELD WALL</span><span class="dc-actions">cruiser×10</span>
+      </button>
+      <button class="ca-doctrine-btn" data-doc="blitzkrieg"    onclick="caApplyPreset('blitzkrieg')">
+        <span class="dc-icon">🗡</span><span class="dc-name">BLITZKRIEG</span><span class="dc-actions">wedge+emp@600</span>
+      </button>
+      <button class="ca-doctrine-btn" data-doc="sniper"        onclick="caApplyPreset('sniper')">
+        <span class="dc-icon">💎</span><span class="dc-name">SNIPER</span><span class="dc-actions">focus_fire (1 GP 절약)</span>
+      </button>
+    </div>
+
     <div class="ca-grid" id="caGrid">
       <!-- focus_fire -->
       <div class="ca-card" data-action="focus_fire" onclick="caToggle('focus_fire')">
@@ -39593,6 +39665,7 @@ async function openCmdActionsModal(battleId, targetFleetId){
   // UI 초기화
   document.querySelectorAll('#cmdActionsModal .ca-card').forEach(c => c.classList.remove('selected'));
   document.querySelectorAll('#cmdActionsModal .ca-params').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#caDoctrines .ca-doctrine-btn').forEach(b => b.classList.remove('active'));
   caUpdateQuota();
 
   // focus_fire 대상 라벨
@@ -39638,6 +39711,8 @@ function caToggle(actionType){
     card.classList.add('selected');
     if (panel) panel.classList.add('active');
   }
+  // 수동 조작 시 doctrine 하이라이트 해제
+  document.querySelectorAll('#caDoctrines .ca-doctrine-btn.active').forEach(b => b.classList.remove('active'));
   caUpdateQuota();
 }
 
@@ -39646,6 +39721,92 @@ function caUpdateQuota(){
   document.getElementById('caSelectedN').textContent = n;
   document.getElementById('caTotalCost').textContent = (n * caState.cost);
 }
+
+// ─── Doctrines (원클릭 프리셋) ───
+const CA_DOCTRINES = {
+  alpha_strike: {
+    name: 'Alpha Strike',
+    actions: ['focus_fire', 'wedge'],
+    params: {},
+    desc: '집중 타격 + 돌격 전술',
+  },
+  emp_ambush: {
+    name: 'EMP Ambush',
+    actions: ['emp', 'focus_fire'],
+    params: { empTick: 800 },
+    desc: 'EMP 무력화 후 집중 공격',
+  },
+  drone_swarm: {
+    name: 'Drone Swarm',
+    actions: ['reinforce'],
+    params: { reinforceSize: 'frigate', reinforceCount: 20 },
+    desc: '소형함 20척 대량 투입',
+  },
+  shield_wall: {
+    name: 'Shield Wall',
+    actions: ['reinforce'],
+    params: { reinforceSize: 'cruiser', reinforceCount: 10 },
+    desc: '중형함 10척 방벽 구축',
+  },
+  blitzkrieg: {
+    name: 'Blitzkrieg',
+    actions: ['wedge', 'emp'],
+    params: { empTick: 600 },
+    desc: '초반 돌격 + 조기 EMP',
+  },
+  sniper: {
+    name: 'Sniper',
+    actions: ['focus_fire'],
+    params: {},
+    desc: '단일 표적 저격 (GP 절약)',
+  },
+};
+
+function caApplyPreset(docKey){
+  const doc = CA_DOCTRINES[docKey];
+  if (!doc) return;
+
+  // 이전 선택 완전 초기화
+  caState.selected.clear();
+  document.querySelectorAll('#cmdActionsModal .ca-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#cmdActionsModal .ca-params').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#caDoctrines .ca-doctrine-btn').forEach(b => b.classList.remove('active'));
+
+  // 이 프리셋 버튼 활성화
+  const btn = document.querySelector(`#caDoctrines .ca-doctrine-btn[data-doc="${docKey}"]`);
+  if (btn) btn.classList.add('active');
+
+  // 각 액션 토글
+  const actions = doc.actions.slice(0, caState.max);
+  for (const type of actions) {
+    caState.selected.add(type);
+    const card = document.querySelector(`#cmdActionsModal .ca-card[data-action="${type}"]`);
+    if (card) card.classList.add('selected');
+    const panel = document.getElementById('caParams_' + type);
+    if (panel) panel.classList.add('active');
+  }
+
+  // 파라미터 자동 설정
+  if (doc.params.empTick !== undefined) {
+    const el = document.getElementById('caEmpTick');
+    if (el) el.value = doc.params.empTick;
+  }
+  if (doc.params.reinforceSize) {
+    // blueprints 중 size_class 가 맞는 첫 번째 unlocked 함선 선택
+    const sel = document.getElementById('caReinforceShip');
+    if (sel && caState.shipTypes) {
+      const match = caState.shipTypes.find(s => !s.locked && s.size_class === doc.params.reinforceSize);
+      if (match) sel.value = match.code;
+      else if (caState.shipTypes[0] && !caState.shipTypes[0].locked) sel.value = caState.shipTypes[0].code;
+    }
+    const cntEl = document.getElementById('caReinforceCount');
+    if (cntEl && doc.params.reinforceCount) cntEl.value = doc.params.reinforceCount;
+  }
+
+  caUpdateQuota();
+  showFactionToast(`📜 ${doc.name} — ${doc.desc}`, 'success');
+}
+window.caApplyPreset = caApplyPreset;
 
 async function caSkipAndFight(){
   if (!caState.battleId) return;
