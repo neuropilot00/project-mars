@@ -5575,7 +5575,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <!-- Quick actions -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
             <button onclick="(typeof openShipyard==='function')&&openShipyard()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(79,195,247,.18),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_open_shipyard">🔨 SHIPYARD</button>
-            <button onclick="(typeof openFleetManager==='function')&&openFleetManager()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(167,139,250,.04));border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_my_fleets">⚔ MY FLEETS</button>
+            <button onclick="(typeof openFleetCmd==='function')&&openFleetCmd()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(167,139,250,.04));border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_my_fleets">⚔ MY FLEETS</button>
           </div>
           <!-- v11.1 Tactical Lab entry (full-width to highlight the new simulator) -->
           <div style="margin-bottom:10px">
@@ -39090,9 +39090,13 @@ function shipSilhouetteSvg(sizeClass, factionCode, opts) {
   var col = c.fill, colDark = c.glow, colBright = c.stroke;
   var w = 120, h = 56;
   var cx = 55, cy = 28;
-  // size_class별 render radius (r). 타이탄은 내부에서 sc 추가 배율.
-  var rMap = { frigate:11, destroyer:13, cruiser:14, battleship:14.5, titan:13.5 };
-  var r = (rMap[sizeClass] || 12) * scale;
+  // size_class별 render radius (r). DB render_radius 비율(1:1.7:2.2:3.9:6.0)을 viewBox 제약 내에서 준수.
+  // 타이탄은 내부적으로 sc=1.2(MCC/FSP) 또는 1.3(CV) 추가 배율 적용되어 전함 대비 1.47~1.60x 체감.
+  //   base r:     8   9.5   11   13   16
+  //   effective:  8   9.5   11   13   19.2~20.8 (with sc)
+  //   DB ratio OK + 120×56 viewBox에 여유있게 수납 (검증: CV titan top rect at y=-r*1.35=-21.6 → svg y=6.4)
+  var rMap = { frigate:8, destroyer:9.5, cruiser:11, battleship:13, titan:16 };
+  var r = (rMap[sizeClass] || 10) * scale;
 
   // SVG helper shorthands (좌표는 함선 중심 기준 → translate로 오프셋)
   function poly(pts, fill) {

@@ -15,8 +15,12 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
   font-weight:900;letter-spacing:4px;text-shadow:0 0 16px rgba(60,120,255,.35);}
 .hdr small{font-size:6px;letter-spacing:2px;color:rgba(255,255,255,.12);}
 
-#c{display:block;width:100%;background:#03040b;
-  border:1px solid rgba(60,100,255,.1);}
+/* Canvas buffer is 1080×460 — capping CSS max-width prevents browser
+   upscaling on wide desktops (1920px) which caused ~3× fragment work
+   per frame. Mobile (<1080px) downscales normally which is GPU-cheap. */
+#c{display:block;width:100%;max-width:1080px;max-height:460px;margin:0 auto;
+  background:#03040b;border:1px solid rgba(60,100,255,.1);
+  image-rendering:auto;}
 
 .bui{display:grid;grid-template-columns:1fr auto 1fr;
   background:#05060e;border:1px solid rgba(60,100,255,.08);
