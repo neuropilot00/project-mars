@@ -83,7 +83,14 @@ async function rollResourceDrop(wallet, sectorType) {
     }
 
     if (Math.random() < prob) {
-      const qty = Math.floor(Math.random() * (qMax - qMin + 1)) + qMin;
+      let qty = Math.floor(Math.random() * (qMax - qMin + 1)) + qMin;
+      // ✅ [Job] Miner 자원 드롭 수량 +20% (miner_resource_drop_quantity = 1.2)
+      try {
+        if (jobService) {
+          const dropQtyBuff = await jobService.getJobBuff(wallet, 'miner_resource_drop_quantity', 1.0);
+          if (dropQtyBuff !== 1.0) qty = Math.max(1, Math.round(qty * dropQtyBuff));
+        }
+      } catch (_e) {}
       drops.push({ code: row.resource_code, quantity: qty });
       checked.add(row.resource_code);
     }

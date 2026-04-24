@@ -130,6 +130,22 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
 
   const currentLevel = inst.enhancement_level;
 
+  // ✅ [Job] Crafter 일일 강화 횟수 한도 체크 (crafter_daily_enhancement_limit = 20)
+  try {
+    if (jobService) {
+      const dailyLimit = await jobService.getJobBuff(w, 'crafter_daily_enhancement_limit', 0);
+      if (dailyLimit > 0) {
+        const { rows: todayRows } = await client.query(
+          `SELECT COUNT(*) AS c FROM enhancement_log WHERE wallet = $1 AND created_at >= CURRENT_DATE`,
+          [w]
+        );
+        if (parseInt(todayRows[0].c) >= dailyLimit) {
+          throw new Error(`DAILY_ENHANCE_LIMIT: Crafter daily limit ${dailyLimit} reached`);
+        }
+      }
+    }
+  } catch (limErr) { if (limErr.message?.startsWith('DAILY_ENHANCE_LIMIT')) throw limErr; }
+
   // ── 자원 소모 보너스 계산 ──
   const materialBonus = await advEnhance.calculateMaterialBonus(w, recipeIds, currentLevel);
   if (materialBonus.error) {
@@ -175,7 +191,20 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
 
   // ── 자원 실제 차감 ──
   if (materialBonus.recipesToConsume.length > 0) {
-    await advEnhance.consumeMaterials(client, w, materialBonus.recipesToConsume);
+    // ✅ [Job] Crafter 재료 소모 절감 (crafter_enhancement_material_saving = 0.85 → 15% 절감)
+    let recipesToConsume = materialBonus.recipesToConsume;
+    try {
+      if (jobService) {
+        const matSave = await jobService.getJobBuff(w, 'crafter_enhancement_material_saving', 1.0);
+        if (matSave < 1.0) {
+          recipesToConsume = recipesToConsume.map(r => ({
+            ...r,
+            quantity_required: Math.max(1, Math.floor(r.quantity_required * matSave))
+          }));
+        }
+      }
+    } catch (_je) {}
+    await advEnhance.consumeMaterials(client, w, recipesToConsume);
   }
 
   // Determine success/failure
@@ -186,8 +215,14 @@ async function enhanceItem(client, wallet, instanceId, options = {}) {
     rates = [95, 90, 80, 70, 55, 40, 30, 20, 12, 7];
   }
   let successRate = rates[currentLevel] !== undefined ? rates[currentLevel] : 5;
-  // ✅ [Job System] Crafter enhancement success rate buff
-  try { if (jobService) successRate = Math.min(99, successRate * await jobService.getJobBuff(w, 'crafter_enhancement_success', 1.0)); } catch (_je) {}
+  // ✅ [Job System] Crafter +25%, warrior -10%, merchant -5%
+  try {
+    if (jobService) {
+      successRate = Math.min(99, successRate * await jobService.getJobBuff(w, 'crafter_enhancement_success', 1.0));
+      successRate = Math.min(99, successRate * await jobService.getJobBuff(w, 'warrior_enhancement_success', 1.0));
+      successRate = Math.min(99, successRate * await jobService.getJobBuff(w, 'merchant_enhancement_success', 1.0));
+    }
+  } catch (_je) {}
   // ── 자원 소모 보너스 적용 ──
   successRate = Math.min(99, successRate + materialBonus.successBonus * 100);
   const roll = Math.random() * 100;

@@ -37,8 +37,14 @@ async function createListing(client, seller, type, params) {
     const mult5 = parseFloat(await getSetting('marketplace_dynamic_fee_5') || '1.5');
     listingFee = Math.ceil(listingFee * mult5);
   }
-  // ✅ [Job System] Merchant fee discount buff
-  try { if (jobService) { const disc = await jobService.getJobBuff(w, 'merchant_fee_discount', 1.0); listingFee = Math.max(0, Math.floor(listingFee * disc)); } } catch (_je) {}
+  // ✅ [Job System] Merchant fee discount buff + Crafter -10%
+  try {
+    if (jobService) {
+      const disc = await jobService.getJobBuff(w, 'merchant_fee_discount', 1.0);
+      const craftDisc = await jobService.getJobBuff(w, 'crafter_market_fee', 1.0);
+      listingFee = Math.max(0, Math.floor(listingFee * disc * craftDisc));
+    }
+  } catch (_je) {}
   if (listingFee > 0) {
     const balRes = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
     if (!balRes.rows.length) throw new Error('User not found');
@@ -253,8 +259,13 @@ async function buyListing(client, listingId, buyer) {
 
   // Calculate fee
   let feePct = parseFloat(await getSetting('marketplace_fee_pct') || '5');
-  // ✅ [Job System] Merchant market fee discount (applied to seller)
-  try { if (jobService) feePct = Math.max(0, feePct * await jobService.getJobBuff(listing.seller, 'merchant_market_fee', 1.0)); } catch (_je) {}
+  // ✅ [Job System] Merchant -30% + Crafter -10% (applied to seller)
+  try {
+    if (jobService) {
+      feePct = Math.max(0, feePct * await jobService.getJobBuff(listing.seller, 'merchant_market_fee', 1.0));
+      feePct = Math.max(0, feePct * await jobService.getJobBuff(listing.seller, 'crafter_market_fee', 1.0));
+    }
+  } catch (_je) {}
   const fee = Math.floor(price * feePct / 100 * 1000000) / 1000000;
 
   // ── M-156 Phase A: 섹터 관세 (거버너 수수료) ──
@@ -265,6 +276,13 @@ async function buyListing(client, listingId, buyer) {
     const sectorService = require('./sector');
     const t = await sectorService.computeSectorTariff(listing.sector_id, b, price);
     tariffAmount  = parseFloat(t.tariffAmount) || 0;
+    // ✅ [Job] Merchant governor_market_cut_reduction: 거버너 마켓세 50% 면제
+    try {
+      if (jobService && tariffAmount > 0) {
+        const govCutReduction = await jobService.getJobBuff(b, 'merchant_governor_market_cut_reduction', 0);
+        if (govCutReduction > 0) tariffAmount = Math.max(0, tariffAmount * (1 - govCutReduction));
+      }
+    } catch (_je) {}
     tariffPct     = parseFloat(t.tariffPct) || 0;
     tariffGovernor = t.governorWallet || null;
     tariffExempted = !!t.exempted;

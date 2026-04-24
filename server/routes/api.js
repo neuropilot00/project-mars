@@ -978,6 +978,23 @@ router.post('/claim', writeLimiter, async (req, res) => {
       }
     } catch(le) { /* guild service unavailable */ }
 
+    // ✅ [Job] Warrior siege 기간 중 영토 구매 비용 -33% (warrior_siege_participation = 1.5 → discount 33%)
+    try {
+      if (jobService) {
+        const siegeBuff = await jobService.getJobBuff(walletLower, 'warrior_siege_participation', 1.0);
+        if (siegeBuff > 1.0) {
+          // siege 활성 여부 체크
+          const { rows: siegeRows } = await client.query(
+            `SELECT 1 FROM governor_sieges WHERE status = 'active' AND sector_code IN (SELECT DISTINCT sector_code FROM pixels WHERE owner = $1) LIMIT 1`,
+            [walletLower]
+          );
+          if (siegeRows.length > 0) {
+            baseCost = Math.round(baseCost * (1 - (siegeBuff - 1)) * 1000000) / 1000000;
+          }
+        }
+      }
+    } catch (_je) { /* siege check unavailable */ }
+
     // ── BATTLE: Roll ONCE per defender (all-or-nothing per owner overlap) ──
     let attackWon = 0, attackLost = 0, refundFromFailed = 0, platformFee = 0;
     const wonPixels = [];
@@ -1270,7 +1287,9 @@ router.post('/claim', writeLimiter, async (req, res) => {
         s.referral_tier3_percent || 5
       ];
       const chain = await getReferralChain(client, wallet.toLowerCase());
-      const hijackPremium = wonAttackCost - Object.values(affectedOwners).reduce((sum, a) => sum + a.refund, 0);
+      let hijackPremium = wonAttackCost - Object.values(affectedOwners).reduce((sum, a) => sum + a.refund, 0);
+      // ✅ [Job] Warrior hijack 탈취량 +15% (warrior_hijack_damage = 1.15)
+      try { if (jobService) { const dmgBuff = await jobService.getJobBuff(wallet.toLowerCase(), 'warrior_hijack_damage', 1.0); hijackPremium = Math.round(hijackPremium * dmgBuff * 1000000) / 1000000; } } catch (_je) {}
 
       for (const ref of chain) {
         const pct = tierPercents[ref.tier - 1] || 0;
@@ -2551,6 +2570,8 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     let bestTier = 'frontier';
     if (tierCounts.core > 0) { intervalHours = intervalCore; bestTier = 'core'; }
     else if (tierCounts.mid > 0) { intervalHours = intervalMid; bestTier = 'mid'; }
+    // ✅ [Job] Miner 수확 쿨다운 -30% (miner_harvest_cooldown = 0.7)
+    try { if (jobService) { const cd = await jobService.getJobBuff(w, 'miner_harvest_cooldown', 1.0); intervalHours = Math.max(1, intervalHours * cd); } } catch (_je) {}
 
     // Check cooldown
     const miningRes = await client.query(
@@ -2664,6 +2685,8 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
 
     // ✅ [Job System] Miner mining rate buff (Phase 1)
     try { if (jobService) harvestedPP = Math.round(harvestedPP * await jobService.getJobBuff(w, 'miner_mining_rate', 1.0) * 10000) / 10000; } catch (_je) { /* job service unavailable */ }
+    // ✅ [Job] 직업별 채굴 패널티: warrior -20%, crafter -20%, merchant -15%
+    try { if (jobService) { const wM = await jobService.getJobBuff(w,'warrior_mining_rate',1.0), cM = await jobService.getJobBuff(w,'crafter_mining_rate',1.0), mM = await jobService.getJobBuff(w,'merchant_mining_rate',1.0); harvestedPP = Math.round(harvestedPP * wM * cM * mM * 10000) / 10000; } } catch (_je) {}
 
     // ✅ [VIP] Mining boost bonus
     try {

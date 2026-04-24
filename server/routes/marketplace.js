@@ -198,6 +198,17 @@ router.get('/price-stats', readLimiter, async (req, res) => {
   if (!itemTypeId && !claimId)
     return res.status(400).json({ error: 'itemTypeId or claimId required' });
 
+  // ✅ [Job] Merchant 가격 히스토리 기간 확장 (merchant_price_history_days = 60일)
+  const wallet = (req.headers['x-wallet'] || req.query.wallet || '').toLowerCase().trim();
+  let historyDays = 30; // 기본 30일
+  try {
+    const jobSvc = require('../services/job');
+    if (wallet && jobSvc) {
+      const merchantDays = await jobSvc.getJobBuff(wallet, 'merchant_price_history_days', 0);
+      if (merchantDays > 0) historyDays = merchantDays;
+    }
+  } catch (_) {}
+
   try {
     let where, params;
     if (claimId) {
@@ -215,14 +226,16 @@ router.get('/price-stats', readLimiter, async (req, res) => {
                 MIN(sale_price) AS min_price,
                 MAX(sale_price) AS max_price,
                 AVG(sale_price) FILTER (WHERE sold_at >= NOW() - INTERVAL '7 days') AS avg_7d
-           FROM marketplace_price_history WHERE ${where}`,
-        params
+           FROM marketplace_price_history WHERE ${where}
+             AND sold_at >= NOW() - ($${params.length + 1} || ' days')::INTERVAL`,
+        [...params, historyDays]
       ),
       pool.query(
         `SELECT sale_price, currency, sold_at
            FROM marketplace_price_history WHERE ${where}
-          ORDER BY sold_at DESC LIMIT $${params.length + 1}`,
-        [...params, points]
+             AND sold_at >= NOW() - ($${params.length + 1} || ' days')::INTERVAL
+          ORDER BY sold_at DESC LIMIT $${params.length + 2}`,
+        [...params, historyDays, points]
       ),
     ]);
 

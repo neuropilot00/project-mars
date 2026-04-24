@@ -18,6 +18,8 @@ const { pool, getSetting } = require('../db');
 const tacticsAI = require('./tacticsAI');
 let commanderActions;
 try { commanderActions = require('./commanderActions'); } catch (_) { commanderActions = null; }
+let jobService;
+try { jobService = require('./job'); } catch (_) { jobService = null; }
 
 // ─── 상수 ───
 
@@ -184,9 +186,22 @@ async function loadBattleData(battleId) {
       ORDER BY s.is_flagship DESC, st.sort_order DESC
     `, [fr.fleet_id]);
 
+    // ✅ [Job] 직업별 전투력 배율 (warrior +30%, miner -30%, crafter -20%, merchant -20%)
+    let combatPowerMult = 1.0;
+    try {
+      if (jobService && fr.owner_wallet) {
+        const w = await jobService.getJobBuff(fr.owner_wallet, 'warrior_combat_power', 1.0);
+        const m = await jobService.getJobBuff(fr.owner_wallet, 'miner_combat_power', 1.0);
+        const c = await jobService.getJobBuff(fr.owner_wallet, 'crafter_combat_power', 1.0);
+        const mc = await jobService.getJobBuff(fr.owner_wallet, 'merchant_combat_power', 1.0);
+        combatPowerMult = w * m * c * mc;
+      }
+    } catch (_je) {}
+
     fleets.push({
       ...fr,
       ships: shipRows,
+      combatPowerMult,
     });
   }
 
@@ -302,7 +317,7 @@ function initBattleState(battleData) {
       focusFireTargetId: null,
       wedgeForced: false,
 
-      ships: f.ships.map((s, idx) => initShip(s, pos, idx, f.ships.length, radius)),
+      ships: f.ships.map((s, idx) => initShip(s, pos, idx, f.ships.length, radius, f.combatPowerMult || 1.0)),
     };
   });
 
@@ -336,7 +351,7 @@ function initBattleState(battleData) {
   };
 }
 
-function initShip(shipData, fleetPos, idx, total, fleetRadius) {
+function initShip(shipData, fleetPos, idx, total, fleetRadius, combatPowerMult = 1.0) {
   // 초기 배치: 랜덤 오비탈
   const orbitAngle = (idx / total) * Math.PI * 2 + Math.random() * 0.3;
   const orbitDist = 15 + Math.random() * (fleetRadius - 15);
@@ -348,8 +363,8 @@ function initShip(shipData, fleetPos, idx, total, fleetRadius) {
     size_class: shipData.size_class,
     role: shipData.role,
     
-    // 스탯
-    atk: parseInt(shipData.base_atk) + parseInt(shipData.bonus_atk || 0),
+    // 스탯 (전투력 배율 적용: warrior +30%, miner/crafter/merchant 패널티)
+    atk: Math.max(1, Math.round((parseInt(shipData.base_atk) + parseInt(shipData.bonus_atk || 0)) * combatPowerMult)),
     def: parseInt(shipData.base_def) + parseInt(shipData.bonus_def || 0),
     speed: parseFloat(shipData.base_speed),
     fireInterval: parseInt(shipData.fire_interval),
