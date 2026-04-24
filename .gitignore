@@ -1,5 +1,7 @@
 .DS_Store
 node_modules/
+.claude/
+_claude_review/
 .env
 .env.production
 *.log
