@@ -125,7 +125,8 @@ const fleetSearchRoutes = require('./routes/fleetSearch');   // Phase B: Fleet S
 const battleExtrasRoutes = require('./routes/battleExtras'); // Phase B: Battle Rewards/Siege
 const phaseCRoutes = require('./routes/phaseC');             // Phase C: AI/Tournament/Hijack
 const phaseDRoutes = require('./routes/phaseD');             // Phase D: Alliance/Replay/Mobile
-const jobsRoutes   = require('./routes/jobs');               // Job System (mine/select/buffs)
+const jobsRoutes         = require('./routes/jobs');               // Job System (mine/select/buffs)
+const onboardingV2Routes = require('./routes/onboardingRoutes');   // Onboarding Tutorial v2
 const lotteryRoutes  = require('./routes/lottery');
 const stakingRoutes  = require('./routes/staking');
 const gpBurnRoutes      = require('./routes/gpBurn');
@@ -288,6 +289,7 @@ app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must m
 app.use('/api', phaseCRoutes);               // Phase C: AI/Tournament/Hijack
 app.use('/api', phaseDRoutes);               // Phase D: Alliance/Replay/Mobile
 app.use('/api/jobs', jobsRoutes);            // Job System (mine/select/buffs)
+app.use('/api/onboarding', onboardingV2Routes); // Onboarding Tutorial v2
 app.use('/api/battles', battleExtrasRoutes); // Phase B: Rewards/Siege extras (before fleetBattles to capture /rewards/mine etc.)
 app.use('/api/battles', fleetBattleRoutes); // A-4: Fleet Battle Engine (must be before /api for prefix priority)
 app.use('/api', battleRoutes);

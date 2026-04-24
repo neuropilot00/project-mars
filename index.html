@@ -3970,6 +3970,235 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     opacity: 0.7;
   }
 
+
+/* ── Onboarding v2 CSS ── */
+<style>
+/* ═════ 온보딩 오버레이 ═════ */
+.ob-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.92);
+  backdrop-filter: blur(12px);
+  z-index: 99999;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 10px;
+}
+.ob-overlay.active { display: flex; }
+
+.ob-modal {
+  background: #080b17;
+  border: 1px solid rgba(100,150,255,.2);
+  border-radius: 12px;
+  width: 100%; max-width: 640px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 진행 바 */
+.ob-progress {
+  height: 3px;
+  background: rgba(255,255,255,.07);
+}
+.ob-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4fc3f7, #81c784);
+  transition: width .5s ease;
+}
+
+/* 스텝 헤더 */
+.ob-step-label {
+  padding: 12px 20px 0;
+  font-size: 9px; letter-spacing: 3px;
+  color: rgba(255,255,255,.3);
+}
+
+/* 공통 콘텐츠 */
+.ob-content {
+  padding: 20px 24px 24px;
+}
+
+.ob-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px; font-weight: 900; letter-spacing: 3px;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.ob-subtitle {
+  font-size: 12px; color: rgba(255,255,255,.5);
+  line-height: 1.6; margin-bottom: 20px;
+  letter-spacing: .5px;
+}
+
+/* 버튼 */
+.ob-btn-primary {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #1a3a6e, #4fc3f7);
+  border: 1px solid #4fc3f7;
+  color: #fff; cursor: pointer;
+  font-family: 'Orbitron', monospace;
+  font-size: 12px; font-weight: 900; letter-spacing: 3px;
+  border-radius: 6px;
+  transition: all .15s;
+  margin-top: 10px;
+}
+.ob-btn-primary:hover { box-shadow: 0 0 24px rgba(79,195,247,.4); }
+.ob-btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+
+.ob-btn-skip {
+  width: 100%; padding: 8px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.3); cursor: pointer;
+  font-size: 10px; letter-spacing: 2px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+.ob-btn-skip:hover { color: rgba(255,255,255,.6); }
+
+/* ─── STEP 0: 인트로 ─── */
+.ob-intro-text {
+  text-align: center;
+  padding: 30px 0;
+}
+.ob-intro-line {
+  font-size: 13px; letter-spacing: 1.5px;
+  color: rgba(255,255,255,.7);
+  line-height: 2.2;
+  animation: ob-fade-in .8s ease forwards;
+  opacity: 0;
+}
+.ob-intro-line:nth-child(2) { animation-delay: .8s; }
+.ob-intro-line:nth-child(3) { animation-delay: 1.6s; }
+@keyframes ob-fade-in { to { opacity: 1; } }
+
+/* ─── STEP 1: 직업 선택 ─── */
+.ob-job-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 12px;
+}
+.ob-job-card {
+  background: rgba(255,255,255,.02);
+  border: 2px solid rgba(255,255,255,.08);
+  border-radius: 8px; padding: 14px 12px;
+  cursor: pointer; transition: all .15s;
+  text-align: center;
+}
+.ob-job-card:hover { background: rgba(255,255,255,.05); transform: translateY(-2px); }
+.ob-job-card.selected { background: rgba(79,195,247,.08); border-color: #4fc3f7; }
+.ob-job-card.selected.warrior { border-color: #ef5350; background: rgba(239,83,80,.08); }
+.ob-job-card.selected.crafter { border-color: #9370db; background: rgba(147,112,219,.08); }
+.ob-job-card.selected.merchant { border-color: #20b2aa; background: rgba(32,178,170,.08); }
+
+.ob-job-icon { font-size: 28px; margin-bottom: 6px; }
+.ob-job-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px; font-weight: 900; letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.ob-job-name.miner    { color: #f4a460; }
+.ob-job-name.warrior  { color: #ef5350; }
+.ob-job-name.crafter  { color: #9370db; }
+.ob-job-name.merchant { color: #20b2aa; }
+
+.ob-job-desc { font-size: 9px; color: rgba(255,255,255,.4); margin-bottom: 6px; line-height: 1.5; }
+.ob-job-buff { font-size: 9px; color: #81c784; }
+.ob-job-weak { font-size: 9px; color: #ef9a9a; }
+
+/* ─── STEP 2: 영토 점령 ─── */
+.ob-sector-card {
+  background: rgba(79,195,247,.05);
+  border: 1px solid rgba(79,195,247,.3);
+  border-radius: 8px; padding: 14px 16px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 12px;
+}
+.ob-sector-icon { font-size: 28px; }
+.ob-sector-info { flex: 1; }
+.ob-sector-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px; font-weight: 700; letter-spacing: 2px;
+  color: #4fc3f7; margin-bottom: 2px;
+}
+.ob-sector-reason { font-size: 10px; color: rgba(255,255,255,.5); }
+
+.ob-free-badge {
+  display: inline-block;
+  background: rgba(129,199,132,.15);
+  border: 1px solid rgba(129,199,132,.4);
+  color: #81c784; font-size: 9px; padding: 2px 8px;
+  border-radius: 3px; letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+/* ─── STEP 3: 위협 경험 ─── */
+.ob-threat-anim {
+  text-align: center; padding: 16px 0;
+  position: relative;
+}
+.ob-threat-icon {
+  font-size: 40px;
+  animation: ob-threat-pulse 1s ease-in-out infinite;
+}
+@keyframes ob-threat-pulse {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: .7; }
+}
+.ob-threat-text {
+  font-size: 11px; color: #ef5350;
+  letter-spacing: 2px; margin-top: 8px;
+  animation: ob-threat-pulse 1s ease-in-out infinite;
+}
+
+.ob-reward-box {
+  background: rgba(129,199,132,.06);
+  border: 1px solid rgba(129,199,132,.3);
+  border-radius: 6px; padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 11px; color: #a5d6a7;
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* ─── STEP 4: 길드 추천 ─── */
+.ob-guild-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.ob-guild-item {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 6px; padding: 10px 14px;
+  cursor: pointer; display: flex; align-items: center; gap: 10px;
+  transition: all .12s;
+}
+.ob-guild-item:hover { background: rgba(79,195,247,.08); border-color: rgba(79,195,247,.3); }
+.ob-guild-item.selected { background: rgba(79,195,247,.12); border-color: #4fc3f7; }
+.ob-guild-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  flex: 1;
+}
+.ob-guild-meta { font-size: 9px; color: rgba(255,255,255,.4); }
+
+/* ─── STEP 5: 완료 ─── */
+.ob-complete-center { text-align: center; padding: 20px 0; }
+.ob-complete-emoji { font-size: 52px; margin-bottom: 12px; animation: ob-pop .5s ease; }
+@keyframes ob-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.ob-rewards-grid {
+  display: flex; justify-content: center; gap: 12px;
+  margin: 16px 0;
+}
+.ob-reward-chip {
+  padding: 8px 14px;
+  background: rgba(0,0,0,.3);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 20px;
+  font-size: 11px; letter-spacing: 1px;
+}
+.ob-reward-chip.gp { color: #ffd700; border-color: rgba(255,215,0,.4); }
+.ob-reward-chip.pp { color: #4fc3f7; border-color: rgba(79,195,247,.4); }
+.ob-reward-chip.title { color: #ff9800; border-color: rgba(255,152,0,.4); }
+</style>
 </style>
 </head>
 <body>
@@ -7332,21 +7561,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
 </div>
 
-<!-- ── Onboarding Tutorial Overlay ── -->
-<div id="obOverlay" class="ob-overlay" style="display:none">
+<!-- ── Onboarding Tutorial Overlay (v2) ── -->
+<div class="ob-overlay" id="obOverlay">
   <div class="ob-modal">
-    <!-- Step progress dots -->
-    <div class="ob-step-dots">
-      <div class="ob-dot" id="obDot1"></div>
-      <div class="ob-dot" id="obDot2"></div>
-      <div class="ob-dot" id="obDot3"></div>
-      <div class="ob-dot" id="obDot4"></div>
-      <div class="ob-dot" id="obDot5"></div>
+    <div class="ob-progress">
+      <div class="ob-progress-fill" id="obProgressFill" style="width:0%"></div>
     </div>
-    <!-- Dynamic content area -->
-    <div id="obContent"></div>
+    <div class="ob-step-label" id="obStepLabel"></div>
+    <div class="ob-content" id="obContent"></div>
   </div>
 </div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
 
 <div id="gameConfirm" class="game-confirm" onclick="if(event.target===this)gameConfirmResolve(false)">
   <div class="gc-card">
@@ -39892,6 +40119,343 @@ async function shareCurrentBattle() {
     console.log('[Phase D] Mobile detected');
   }
 })();
+
+
+// ══ Onboarding Tutorial v2 (zip install) ══
+
+// ═════ 온보딩 상태 ═════
+
+const ob = {
+  currentStep: 0,
+  selectedJob: null,
+  selectedGuildId: null,
+  status: null,
+};
+
+// 페이지 로드 시 온보딩 체크
+document.addEventListener('DOMContentLoaded', () => {
+  if (isLoggedIn()) {
+    setTimeout(checkOnboarding, 1500);
+  }
+});
+
+async function checkOnboarding() {
+  try {
+    const res = await fetch('/api/onboarding', { headers: getAuthHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    const status = data.onboarding;
+    ob.status = status;
+
+    if (!status.enabled) return;
+    if (status.completed || status.skipped) return;
+
+    // 온보딩 시작
+    ob.currentStep = status.current_step || 0;
+    ob.selectedJob = status.job_selected || null;
+    openOnboarding();
+  } catch (err) {
+    console.warn('[onboarding] check failed:', err);
+  }
+}
+
+function openOnboarding() {
+  document.getElementById('obOverlay').classList.add('active');
+  renderStep(ob.currentStep);
+}
+
+function updateProgress(step) {
+  const pct = Math.round((step / 5) * 100);
+  document.getElementById('obProgressFill').style.width = pct + '%';
+  document.getElementById('obStepLabel').textContent =
+    step === 0 ? '' : `STEP ${step} / 5`;
+}
+
+// ═════ 스텝 렌더 ═════
+
+function renderStep(step) {
+  ob.currentStep = step;
+  updateProgress(step);
+  const content = document.getElementById('obContent');
+
+  switch (step) {
+    case 0: renderStep0(content); break;
+    case 1: renderStep1(content); break;
+    case 2: renderStep2(content); break;
+    case 3: renderStep3(content); break;
+    case 4: renderStep4(content); break;
+    case 5: renderStep5(content); break;
+    default: closeOnboarding();
+  }
+}
+
+// STEP 0: 착륙 인트로
+function renderStep0(el) {
+  el.innerHTML = `
+    <div class="ob-intro-text">
+      <div style="font-size:48px;margin-bottom:16px">🚀</div>
+      <p class="ob-intro-line">"2067년. 지구의 자원이 고갈됐다."</p>
+      <p class="ob-intro-line">"화성이 마지막 희망이다."</p>
+      <p class="ob-intro-line">"당신은 오늘 첫 발을 내딛는 개척자다."</p>
+    </div>
+    <button class="ob-btn-primary" onclick="advanceStep(0)" style="margin-top:16px">
+      🚀 착륙하기
+    </button>
+    <button class="ob-btn-skip" onclick="skipOnboarding()">건너뛰기</button>
+  `;
+}
+
+// STEP 1: 직업 선택
+function renderStep1(el) {
+  const jobs = [
+    { code: 'miner',    icon: '⛏️', name: '광부',   desc: '채굴로 부를 쌓는다', buff: 'Mining +50%',    weak: '약함: 전투 -30%' },
+    { code: 'warrior',  icon: '⚔️', name: '전사',   desc: '영토를 빼앗고 지킨다', buff: 'Hijack +20%',  weak: '약함: 채굴 -20%' },
+    { code: 'crafter',  icon: '🔨', name: '제작자', desc: '아이템을 만든다',      buff: '강화 성공 +30%', weak: '약함: 전투 -20%' },
+    { code: 'merchant', icon: '💼', name: '상인',   desc: '거래로 이익을 본다',   buff: '수수료 -35%',   weak: '약함: 전투 -20%' },
+  ];
+
+  el.innerHTML = `
+    <div class="ob-title">운명을 선택하세요</div>
+    <div class="ob-subtitle">나는 어떤 방식으로 화성에서 살아남는가</div>
+    <div class="ob-job-grid">
+      ${jobs.map(j => `
+        <div class="ob-job-card ${j.code} ${ob.selectedJob === j.code ? 'selected' : ''}"
+             onclick="selectJob('${j.code}')">
+          <div class="ob-job-icon">${j.icon}</div>
+          <div class="ob-job-name ${j.code}">${j.name}</div>
+          <div class="ob-job-desc">${j.desc}</div>
+          <div class="ob-job-buff">${j.buff}</div>
+          <div class="ob-job-weak">${j.weak}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="font-size:9px;color:rgba(255,255,255,.3);text-align:center;margin-bottom:8px">
+      나중에 변경 가능 (주 1회 무료)
+    </div>
+    <button class="ob-btn-primary" id="obJobConfirmBtn"
+            onclick="advanceStep(1)"
+            ${ob.selectedJob ? '' : 'disabled'}>
+      ${ob.selectedJob ? `${getJobName(ob.selectedJob)} 선택` : '직업을 선택하세요'}
+    </button>
+  `;
+}
+
+function selectJob(code) {
+  ob.selectedJob = code;
+  renderStep(1);
+}
+
+function getJobName(code) {
+  const m = { miner:'광부', warrior:'전사', crafter:'제작자', merchant:'상인' };
+  return m[code] || code;
+}
+
+// STEP 2: 첫 영토 점령
+async function renderStep2(el) {
+  // 추천 섹터 조회
+  let sector = { name: 'Arcadia Ridge', reason_ko: '자원이 풍부합니다.' };
+  try {
+    const res = await fetch(`/api/onboarding/sector?job_code=${ob.selectedJob || 'miner'}`);
+    const data = await res.json();
+    if (data.sector) sector = data.sector;
+  } catch {}
+
+  el.innerHTML = `
+    <div class="ob-title">첫 영토를 점령하세요</div>
+    <div class="ob-subtitle">이 땅은 이제 당신의 것입니다</div>
+    <div class="ob-sector-card">
+      <div class="ob-sector-icon">🗺️</div>
+      <div class="ob-sector-info">
+        <div class="ob-sector-name">${sector.name || sector.code || 'Arcadia Ridge'}</div>
+        <div class="ob-sector-reason">${sector.reason_ko || '추천 섹터'}</div>
+      </div>
+    </div>
+    <div class="ob-free-badge">✨ 첫 번째 영토 무료 점령</div>
+    <div class="ob-subtitle" style="font-size:10px">
+      지도에서 추천 섹터로 이동하여 빈 영토를 클릭해 점령하세요.<br>
+      온보딩 중에는 첫 영토 구매 비용이 무료입니다.
+    </div>
+    <button class="ob-btn-primary" onclick="advanceStep(2)">
+      지도에서 점령하기 →
+    </button>
+    <button class="ob-btn-skip" onclick="advanceStep(2)">지금은 건너뛰기</button>
+  `;
+}
+
+// STEP 3: 위협 경험
+function renderStep3(el) {
+  el.innerHTML = `
+    <div class="ob-title" style="color:#ef5350">⚠️ 위험 감지!</div>
+    <div class="ob-subtitle">화성에서는 아무도 내 땅을 지켜주지 않습니다</div>
+    <div class="ob-threat-anim">
+      <div class="ob-threat-icon">💥</div>
+      <div class="ob-threat-text">공격 시도 감지 — 적이 접근 중</div>
+    </div>
+    <div class="ob-subtitle" style="margin-top:12px">
+      방어 아이템을 사용하거나 길드에 가입해 보호를 받으세요.
+    </div>
+    <div class="ob-reward-box">
+      🛡 Basic Shield 1개 지급 — 다음 24시간 보호
+    </div>
+    <button class="ob-btn-primary" onclick="advanceStep(3)">
+      🛡 방어 아이템 받기
+    </button>
+  `;
+}
+
+// STEP 4: 길드 가입 유도
+async function renderStep4(el) {
+  el.innerHTML = `
+    <div class="ob-title">혼자서는 한계가 있습니다</div>
+    <div class="ob-subtitle">길드에 가입하면 전사들의 보호를 받을 수 있습니다</div>
+    <div class="ob-guild-list" id="obGuildList">
+      <div style="text-align:center;padding:20px;color:rgba(255,255,255,.3);font-size:10px">길드 로딩 중...</div>
+    </div>
+    <button class="ob-btn-primary" id="obGuildJoinBtn" onclick="joinSelectedGuild()" disabled>
+      길드 가입 신청
+    </button>
+    <button class="ob-btn-skip" onclick="advanceStep(4)">나중에 가입하기</button>
+  `;
+
+  // 추천 길드 로드
+  try {
+    const res = await fetch('/api/onboarding/guilds', { headers: getAuthHeaders() });
+    const data = await res.json();
+    const guilds = data.guilds || [];
+    const listEl = document.getElementById('obGuildList');
+
+    if (guilds.length === 0) {
+      listEl.innerHTML = `<div style="text-align:center;padding:16px;color:rgba(255,255,255,.3);font-size:10px">
+        현재 추천 길드가 없습니다
+      </div>`;
+      return;
+    }
+
+    listEl.innerHTML = guilds.map(g => `
+      <div class="ob-guild-item ${ob.selectedGuildId === g.id ? 'selected' : ''}"
+           onclick="selectGuild(${g.id})">
+        <div style="font-size:20px">⚔️</div>
+        <div style="flex:1">
+          <div class="ob-guild-name">${escapeHtml(g.name || '')}</div>
+          <div class="ob-guild-meta">멤버 ${g.member_count || 0}명</div>
+        </div>
+      </div>
+    `).join('');
+  } catch {}
+}
+
+function selectGuild(id) {
+  ob.selectedGuildId = id;
+  document.querySelectorAll('.ob-guild-item').forEach(el => {
+    el.classList.toggle('selected', el.onclick?.toString().includes(id));
+  });
+  const joinBtn = document.getElementById('obGuildJoinBtn');
+  if (joinBtn) joinBtn.disabled = false;
+}
+
+async function joinSelectedGuild() {
+  if (!ob.selectedGuildId) return;
+  try {
+    await fetch(`/api/alliances/${ob.selectedGuildId}/join`, {
+      method: 'POST', headers: getAuthHeaders()
+    });
+    showFactionToast('길드 가입 완료!', 'success');
+  } catch {}
+  advanceStep(4);
+}
+
+// STEP 5: 완료
+async function renderStep5(el) {
+  let mission = { desc_ko: '오늘의 미션을 확인하세요', gp_reward: 50 };
+  try {
+    const res = await fetch(`/api/onboarding/mission?job_code=${ob.selectedJob || 'miner'}`);
+    const data = await res.json();
+    if (data.mission) mission = data.mission;
+  } catch {}
+
+  el.innerHTML = `
+    <div class="ob-complete-center">
+      <div class="ob-complete-emoji">🎉</div>
+      <div class="ob-title">튜토리얼 완료!</div>
+      <div class="ob-subtitle">화성에 오신 것을 환영합니다, 개척자여</div>
+      <div class="ob-rewards-grid">
+        <div class="ob-reward-chip gp">💰 +200 GP</div>
+        <div class="ob-reward-chip pp">🔵 +100 PP</div>
+        <div class="ob-reward-chip title">🏅 개척자 칭호</div>
+      </div>
+      <div style="background:rgba(79,195,247,.06);border:1px solid rgba(79,195,247,.2);
+                  border-radius:8px;padding:12px 16px;margin:12px 0;text-align:left">
+        <div style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.4);margin-bottom:4px">오늘의 첫 미션</div>
+        <div style="font-size:12px;color:#4fc3f7">${mission.desc_ko}</div>
+        <div style="font-size:10px;color:#ffd700;margin-top:4px">완료 시 +${mission.gp_reward} GP</div>
+      </div>
+    </div>
+    <button class="ob-btn-primary" onclick="finishOnboarding()">
+      🚀 화성 탐험 시작!
+    </button>
+  `;
+}
+
+// ═════ 스텝 진행 ═════
+
+async function advanceStep(currentStep) {
+  try {
+    const stepData = {};
+    if (currentStep === 1 && ob.selectedJob) {
+      stepData.job_code = ob.selectedJob;
+    }
+
+    const res = await fetch('/api/onboarding/step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ step: currentStep, data: stepData })
+    });
+    const data = await res.json();
+
+    // 보상 토스트
+    if (data.rewards?.length > 0) {
+      for (const r of data.rewards) {
+        if (r.type === 'gp')    showFactionToast(`+${r.amount} GP 획득!`, 'success');
+        if (r.type === 'pp')    showFactionToast(`+${r.amount} PP 획득!`, 'success');
+        if (r.type === 'item')  showFactionToast(`${r.code} 획득!`, 'success');
+        if (r.type === 'title') showFactionToast(`칭호 "${r.name_ko}" 획득!`, 'success');
+      }
+    }
+
+    if (data.completed) {
+      renderStep(5);
+    } else {
+      renderStep(currentStep + 1);
+    }
+  } catch (err) {
+    console.error('[onboarding] advanceStep error:', err);
+    // API 오류라도 다음 스텝 진행
+    renderStep(currentStep + 1);
+  }
+}
+
+async function skipOnboarding() {
+  try {
+    await fetch('/api/onboarding/skip', {
+      method: 'POST', headers: getAuthHeaders()
+    });
+  } catch {}
+  closeOnboarding();
+}
+
+function finishOnboarding() {
+  closeOnboarding();
+  showFactionToast('환영합니다! 화성을 정복하세요 🚀', 'success');
+}
+
+function closeOnboarding() {
+  document.getElementById('obOverlay').classList.remove('active');
+}
+
+// ── Override old initOnboarding → use new checkOnboarding ──
+async function initOnboarding(wallet) {
+  setTimeout(checkOnboarding, 1500);
+}
 
 </script>
 </body>
