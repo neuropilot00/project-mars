@@ -21032,6 +21032,21 @@ function _pollBaseTabDots(){
       if(cnt > (seen._shop_item_seen||0)) setBaseTabDot('shop', true);
     }catch(_e){}
   }).catch(function(){});
+
+  // 🔔 NOTIFICATION BADGE: poll unread count
+  try{ loadNotifCount(); }catch(_e){}
+
+  // QUESTS tab: also check daily missions (completable but unclaimed)
+  try{
+    if(_dailyState && _dailyState.missions && _dailyState.missions.length){
+      var dailyClaimable = _dailyState.missions.filter(function(m){
+        var cur = m.current != null ? m.current : 0;
+        var tgt = m.target != null ? m.target : 999;
+        return !m.claimed && cur >= tgt;
+      }).length;
+      if(dailyClaimable > 0) setBaseTabDot('quests', true);
+    }
+  }catch(_e){}
 }
 setTimeout(_pollBaseTabDots, 8000);
 setInterval(_pollBaseTabDots, 60000);
@@ -34986,24 +35001,53 @@ function saveMissionsLocal(){
   try{ localStorage.setItem(key, JSON.stringify(_dailyState.missions)); }catch(e){}
 }
 
+// ── action → server mission_type mapping ──
+var _actionToMissionType = {
+  'claim':           'claim_pixels',
+  'claim_pixel':     'claim_pixels',
+  'claim_pixels':    'claim_pixels',
+  'harvest':         'harvest',
+  'mine':            'harvest',
+  'hijack':          'hijack',
+  'explore_poi':     'explore_poi',
+  'view_sectors':    'explore_poi',
+  'play_cantina':    'play_cantina',
+  'cantina':         'play_cantina',
+  'equip_cosmetic':  'equip_cosmetic',
+  'view_weather':    'view_weather',
+  'enhance_item':    'enhance_item',
+  'marketplace_trade': 'marketplace_trade',
+  'buy':             'marketplace_trade',
+  'win_naval_battle': 'win_naval_battle',
+  'build_ship':      'build_ship'
+};
+
+// debounced mission refresh (avoid spamming /api/daily/missions on rapid actions)
+var _missionRefreshTimer = null;
+function _scheduleMissionRefresh(){
+  clearTimeout(_missionRefreshTimer);
+  _missionRefreshTimer = setTimeout(function(){
+    if(emailAuth && emailAuth.token) loadDailyMissions();
+  }, 3000);
+}
+
 // ── Update mission progress (called from game actions) ──
 function updateMissionProgress(actionType, amount){
   if(!_dailyState.missions.length) return;
+  var serverType = _actionToMissionType[actionType] || actionType;
   var changed = false;
   _dailyState.missions.forEach(function(m){
     if(m.claimed) return;
-    var match = false;
-    if(actionType==='claim' && m.type==='claim') match=true;
-    if(actionType==='view_sectors' && m.type==='explore') match=true;
-    if(m.type==='play') match=true; // any action counts
-    if(match){
-      m.current = Math.min(m.current + (amount||1), m.target);
+    if(m.type === serverType){
+      m.current = Math.min((m.current||0) + (amount||1), m.target);
       changed = true;
     }
   });
   if(changed){
     saveMissionsLocal();
     renderDailyMissions();
+    // Schedule a server refresh to sync authoritative state
+    _scheduleMissionRefresh();
   }
 }
 
@@ -35096,9 +35140,8 @@ if(typeof _origTrackQuestAction === 'function'){
   window.trackQuestAction = function(action, val){
     _origTrackQuestAction(action, val);
     try{
-      if(action==='claim_pixel' || action==='claim') updateMissionProgress('claim', val);
-      else if(action==='view_sectors') updateMissionProgress('view_sectors', val);
-      else updateMissionProgress('other', val);
+      // Pass action directly — updateMissionProgress now maps via _actionToMissionType
+      updateMissionProgress(action, val);
     }catch(e){}
   };
 }

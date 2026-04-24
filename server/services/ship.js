@@ -471,7 +471,17 @@ async function completeBuildJob(jobId) {
     `, [shipId, jobId]);
     
     await client.query('COMMIT');
-    
+
+    // 🔔 함선 건조 완료 알림
+    try {
+      const { notifyPlayer } = require('../db');
+      const shipName = st ? (st.name || job.ship_type_code) : job.ship_type_code;
+      notifyPlayer(job.wallet_address, 'ship_built',
+        `🚀 ${shipName} 건조 완료! 함대에 배치 가능합니다.`,
+        { shipId, shipTypeCode: job.ship_type_code, fleetId, isFlagship }
+      ).catch(() => {});
+    } catch (_ne) {}
+
     return {
       success: true,
       job_id: jobId,

@@ -402,9 +402,9 @@ async function buyListing(client, listingId, buyer) {
   try {
     const { notifyPlayer } = require('../db');
     const meta2 = listing.meta || {};
-    const itemLabel = meta2.itemName || (listing.listing_type === 'claim' ? 'Territory' : 'Item');
+    const itemLabel = meta2.itemName || (listing.listing_type === 'claim' ? '영토' : '아이템');
     notifyPlayer(listing.seller, 'listing_sold',
-      `📦 Your "${itemLabel}" sold for ${sellerReceives.toFixed(0)} ${currency}!`,
+      `💰 "${itemLabel}" 판매 완료! +${sellerReceives.toFixed(0)} ${currency} 지급됨`,
       { listingId, price, fee, sellerReceives, currency, buyer: b }
     ).catch(() => {});
   } catch (_ne) {}

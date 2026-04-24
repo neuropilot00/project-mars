@@ -1421,6 +1421,20 @@ router.post('/claim', writeLimiter, async (req, res) => {
       }
     }
 
+    // 🔔 Hijack 피해자 알림 (방어자에게 영토 탈취 알림)
+    if (attackWon > 0) {
+      const defenders = [...new Set(wonPixels.map(ep => ep.existing.owner).filter(Boolean))];
+      const attackerNickRow = await pool.query('SELECT nickname FROM users WHERE wallet_address = $1', [walletLower]);
+      const attackerNick = attackerNickRow.rows[0]?.nickname || walletLower.slice(0,8)+'...';
+      for (const defender of defenders) {
+        const lostCount = wonPixels.filter(ep => ep.existing.owner === defender).length;
+        notifyPlayer(defender, 'hijack_lost',
+          `⚔️ ${attackerNick}에게 영토 ${lostCount}px 탈취됨`,
+          { attacker: walletLower, pixels: lostCount, claimId }
+        ).catch(() => {});
+      }
+    }
+
     // Telegram notification for large hijacks (5+ pixels won)
     if (attackWon >= 5 && telegramService) {
       const attackerNick = (await pool.query('SELECT nickname FROM users WHERE wallet_address = $1', [walletLower])).rows[0]?.nickname || walletLower.slice(0,8) + '...';
@@ -3084,6 +3098,14 @@ router.post('/quests/:id/progress', writeLimiter, async (req, res) => {
     );
 
     await client.query('COMMIT');
+
+    // 🔔 퀘스트 완료 알림
+    if (isComplete) {
+      notifyPlayer(wallet.toLowerCase(), 'quest_complete',
+        `✅ 퀘스트 완료! 보상을 수령하세요.`,
+        { questId }
+      ).catch(() => {});
+    }
 
     res.json({
       questId,

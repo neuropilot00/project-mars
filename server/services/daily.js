@@ -1,4 +1,4 @@
-const { pool, getSetting } = require('../db');
+const { pool, getSetting, notifyPlayer } = require('../db');
 
 // Mission pool definitions
 // rewardGP is the default; admin can override via daily_mission_<type>_reward_gp setting
@@ -215,6 +215,15 @@ async function updateMissionProgress(wallet, missionType, increment) {
       [mission.id]
     );
     mission.completed = true;
+    // 🔔 Mission complete notification (fire-and-forget)
+    try {
+      const def = MISSION_POOL.find(m => m.type === mission.mission_type);
+      const label = def ? def.label : mission.mission_type;
+      notifyPlayer(w, 'mission_complete',
+        `✅ 데일리 미션 완료: ${label} — +${parseFloat(mission.reward_gp).toFixed(0)} GP 수령 가능!`,
+        { missionId: mission.id, type: mission.mission_type }
+      ).catch(() => {});
+    } catch (_ne) {}
   }
 
   return formatMission(mission);

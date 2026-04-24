@@ -581,6 +581,11 @@ async function awardXP(client, wallet, xpAmount) {
     if (totalRewardPp > 0) {
       await client.query('UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2', [totalRewardPp, wallet]);
     }
+    // 🔔 레벨업 알림
+    notifyPlayer(wallet, 'rank_up',
+      `🎖 레벨 ${newLevel} 달성! ${newRankName ? '「' + newRankName + '」' : ''}${totalRewardPp > 0 ? ' +' + totalRewardPp + ' PP 보상 지급' : ''}`,
+      { newLevel, name: newRankName, rewardPp: totalRewardPp }
+    ).catch(() => {});
     return { newLevel, name: newRankName, rewardPp: totalRewardPp, blockedAt };
   }
   return blockedAt ? { blockedAt } : null;

@@ -16,6 +16,9 @@ const express = require('express');
 const router = express.Router();
 const shipService = require('../services/ship');
 
+let dailyService;
+try { dailyService = require('../services/daily'); } catch (_e) {}
+
 // ── 인증 미들웨어 (inline JWT — auth.js는 requireAuth를 export하지 않음) ──
 const jwt = require('jsonwebtoken');
 const requireAuth = (req, res, next) => {
@@ -129,6 +132,10 @@ router.post('/build', requireAuth, async (req, res) => {
 
     const result = await shipService.startBuild(wallet, ship_type_code, fleet_id || null);
     res.json(result);
+    // Daily mission: build_ship (fire-and-forget)
+    if (dailyService) {
+      try { dailyService.updateMissionProgress(wallet, 'build_ship', 1).catch(() => {}); } catch (_de) {}
+    }
   } catch (err) {
     // 비즈니스 에러별 응답
     const errorMap = {
