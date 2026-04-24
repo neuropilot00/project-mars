@@ -5155,10 +5155,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <!-- 하이잭 경고 -->
     <div class="hw" id="hijackWarn" style="display:none">
-      <div class="hwt" data-i18n="hijack_warn_title">⚠ HIJACK TERRITORY</div>
+      <div class="hwt" data-i18n="hijack_warn_title">⚔ HIJACK TERRITORY — Fleet Battle</div>
       <div class="hwd"><span data-i18n="hijack_current_owner">Current owner:</span> <span id="hijackOwner" style="color:var(--gold)">--</span><br>
         <span data-i18n="hijack_refund">They receive: refund + 10% bonus</span><br>
         <span data-i18n="hijack_you_pay">You pay:</span> <span id="hijackCost" style="color:var(--red)">--</span></div>
+      <!-- 함대 선택 (하이젝 전용) -->
+      <div id="hijackFleetSelector" style="display:none;margin-top:8px;border-top:1px solid rgba(232,72,85,.25);padding-top:8px">
+        <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:5px;letter-spacing:.4px">⚔ SELECT YOUR FLEET</div>
+        <select id="hijackClaimFleetSelect" style="width:100%;padding:5px 8px;background:rgba(0,0,0,.4);border:1px solid rgba(232,72,85,.4);border-radius:5px;color:#fff;font-family:var(--fn);font-size:11px;cursor:pointer"></select>
+        <div id="hijackFleetInfo" style="font-size:9px;color:rgba(255,255,255,.45);margin-top:3px"></div>
+      </div>
+      <!-- 함대 없음 경고 -->
+      <div id="hijackNoFleetWarn" style="display:none;margin-top:8px;padding:5px 8px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);border-radius:5px;font-size:10px;color:#ff8a80;text-align:center">🚫 함대 없음 — 하이젝 불가<br><span style="font-size:9px;color:rgba(255,255,255,.4)">BASE → FLEET 탭에서 함대를 먼저 생성하세요</span></div>
+      <!-- 로딩 표시 -->
+      <div id="hijackFleetLoading" style="display:none;margin-top:8px;text-align:center;font-size:10px;color:rgba(255,255,255,.4)">⏳ 함대 정보 로딩 중...</div>
     </div>
     <!-- 정보 그리드 -->
     <div class="claim-info-grid">
@@ -12986,22 +12996,27 @@ function openClaimModal(){
   var costInfo=calcStampCost(selectedPlot.lat,selectedPlot.lng,cw,ch);
   lastStampCost=costInfo;
 
-  if(costInfo.overlapCount>0){
+  var _isHijackMode=costInfo.overlapCount>0;
+  if(_isHijackMode){
     hw.style.display='';
-    tl.textContent='HIJACK TERRITORY';tl.className='claim-title wrn';
-    // Build affected owners list
-    var ownerList=[];
-    for(var o in costInfo.affectedOwners){
-      var a=costInfo.affectedOwners[o];
-      ownerList.push(o+': refund '+a.refund.toFixed(2)+' PP + bonus '+a.bonus.toFixed(2)+' PP');
-    }
-    document.getElementById('hijackOwner').textContent=ownerList.join(', ');
+    tl.textContent='⚔ HIJACK — FLEET BATTLE';tl.className='claim-title wrn';
+    // Build affected owners list (short display)
+    var ownerKeys=Object.keys(costInfo.affectedOwners);
+    var ownerDisplay=ownerKeys.map(function(o){return shortAddr(o);}).join(', ')||'--';
+    document.getElementById('hijackOwner').textContent=ownerDisplay;
     document.getElementById('hijackCost').textContent=costInfo.hijackCost.toFixed(2)+' PP ('+costInfo.overlapCount+'px overlap)';
     document.getElementById('modalCostDisplay').textContent=costInfo.total.toFixed(2)+' PP (new '+costInfo.newCount+'px + hijack '+costInfo.overlapCount+'px)';
   }else{
     hw.style.display='none';
     tl.textContent='CLAIM TERRITORY';tl.className='claim-title';
     document.getElementById('modalCostDisplay').textContent=costInfo.total.toFixed(2)+' PP ('+cw+'×'+ch+' = '+costInfo.totalPixels.toLocaleString()+'px)';
+    // 하이젝 UI 숨기기
+    var _fsel=document.getElementById('hijackFleetSelector');
+    if(_fsel) _fsel.style.display='none';
+    var _fnofl=document.getElementById('hijackNoFleetWarn');
+    if(_fnofl) _fnofl.style.display='none';
+    var _fload=document.getElementById('hijackFleetLoading');
+    if(_fload) _fload.style.display='none';
   }
   // Show balance
   var bPP=document.getElementById('claimBalPP'), bU=document.getElementById('claimBalUSDT');
@@ -13037,10 +13052,71 @@ function openClaimModal(){
     if(_cfmBtn){_cfmBtn.disabled=true;_cfmBtn.style.opacity='0.4';_cfmBtn.style.cursor='not-allowed';}
   }else{
     if(_lvWarn) _lvWarn.style.display='none';
-    if(_cfmBtn){_cfmBtn.disabled=false;_cfmBtn.style.opacity='';_cfmBtn.style.cursor='';}
+    if(!_isHijackMode){
+      // 일반 claim 모드: 버튼 활성화
+      if(_cfmBtn){_cfmBtn.disabled=false;_cfmBtn.style.opacity='';_cfmBtn.style.cursor='';}
+    }
+    // 하이젝 모드: _loadHijackFleets가 버튼 상태 관리
+  }
+  // ── 하이젝 모드: 섹터 차단 없으면 함대 로더 실행 ──
+  if(_isHijackMode && !_blockedSec){
+    _loadHijackFleets();
   }
 }
-function closeClaimModal(){document.getElementById('claimModal').classList.remove('open')}
+
+// ── 하이젝 함대 선택기 로딩 ──
+var _hijackSelectedFleetId = null;
+async function _loadHijackFleets(){
+  var fsel=document.getElementById('hijackFleetSelector');
+  var fnofl=document.getElementById('hijackNoFleetWarn');
+  var fload=document.getElementById('hijackFleetLoading');
+  var _cfmBtn=document.getElementById('claimConfirmBtn');
+  if(!fsel||!fnofl||!fload) return;
+  fsel.style.display='none'; fnofl.style.display='none';
+  fload.style.display='';
+  _hijackSelectedFleetId=null;
+  // 일시적으로 버튼 비활성화
+  if(_cfmBtn){_cfmBtn.disabled=true;_cfmBtn.style.opacity='0.4';_cfmBtn.style.cursor='not-allowed';}
+  try{
+    var headers={'Content-Type':'application/json'};
+    if(emailAuth&&emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
+    var r=await fetch('/api/fleets',{headers:headers});
+    var d=await r.json();
+    var myFleets=(d.fleets||[]).filter(function(f){return f.ships_alive>0&&!f.is_in_battle;});
+    fload.style.display='none';
+    if(myFleets.length===0){
+      fnofl.style.display='';
+      // 버튼 비활성 유지
+    }else{
+      fsel.style.display='';
+      var sel=document.getElementById('hijackClaimFleetSelect');
+      if(sel){
+        sel.innerHTML=myFleets.map(function(f){
+          return '<option value="'+f.id+'">'+escapeHtml(f.name)+' ('+f.ships_alive+'척)</option>';
+        }).join('');
+        _hijackSelectedFleetId=myFleets[0].id;
+        // 함대 정보 표시
+        var finfo=document.getElementById('hijackFleetInfo');
+        if(finfo) finfo.textContent='총 '+myFleets.length+'개 함대 사용 가능';
+        sel.onchange=function(){_hijackSelectedFleetId=parseInt(this.value)||null;};
+        // 버튼 활성화
+        if(_cfmBtn){_cfmBtn.disabled=false;_cfmBtn.style.opacity='';_cfmBtn.style.cursor='';
+          _cfmBtn.textContent='⚔ DECLARE HIJACK';}
+      }
+    }
+  }catch(e){
+    fload.style.display='none';
+    fnofl.style.display='';
+    console.warn('[hijack] fleet load error:',e);
+  }
+}
+function closeClaimModal(){
+  document.getElementById('claimModal').classList.remove('open');
+  // 버튼 텍스트 초기화
+  var _cfmBtn=document.getElementById('claimConfirmBtn');
+  if(_cfmBtn){_cfmBtn.textContent=t('confirm_claim')||'CONFIRM CLAIM';_cfmBtn.disabled=false;_cfmBtn.style.opacity='';_cfmBtn.style.cursor='';}
+  _hijackSelectedFleetId=null;
+}
 
 /* ── Battle Animation Overlay ──────────────────────── */
 function _showBattleAnimation(result){
@@ -13307,6 +13383,69 @@ async function confirmClaim(){
         if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
         return;
       }
+    }
+
+    // ── 하이젝 (적 영토 겹침) → 함대전 경로 ──
+    if(hasOverlap){
+      // 함대 선택 확인
+      if(!_hijackSelectedFleetId){
+        showToast('⚠ 먼저 함대를 선택하세요');
+        if(btn){btn.disabled=false;btn.textContent='⚔ DECLARE HIJACK';}
+        return;
+      }
+      // 로딩 표시
+      if(btn) btn.textContent='⚔ 함대전 선언 중...';
+      var hjHeaders={'Content-Type':'application/json'};
+      if(emailAuth&&emailAuth.token) hjHeaders['Authorization']='Bearer '+emailAuth.token;
+      var hjResp=await fetch('/api/hijack/declare-with-pp',{
+        method:'POST',headers:hjHeaders,
+        body:JSON.stringify({
+          wallet:walletState.address,
+          lat:selectedPlot.lat, lng:selectedPlot.lng,
+          width:cw, height:ch,
+          atk_fleet_id:_hijackSelectedFleetId,
+          imageUrl:sendImageUrl,
+          originalImageUrl:originalGifUrl||'',
+          linkUrl:linkVal||'',
+          payMethod:selectedPayMethod||'pp'
+        })
+      });
+      var hjData=await hjResp.json();
+      if(btn){btn.disabled=false;btn.textContent='⚔ DECLARE HIJACK';}
+      closeClaimModal();
+      if(!hjResp.ok){
+        var hjErrMap={
+          'ATK_FLEET_NOT_FOUND':'공격 함대를 찾을 수 없습니다',
+          'ATK_FLEET_IN_BATTLE':'공격 함대가 이미 전투 중입니다',
+          'NO_PHASE1_SHIPS':'프리깃/구축함이 없습니다',
+          'TOO_MANY_PHASE1_SHIPS':'Phase 1 함선 수 초과',
+          'INSUFFICIENT_PP':'PP 잔액 부족 (필요: '+(hjData.required||0).toFixed(2)+')',
+          'Peace Treaty active — hijacking is temporarily disabled':'평화 협정 발동 중 — 하이젝 불가',
+        };
+        showToast(hjErrMap[hjData.error]||('하이젝 실패: '+hjData.error));
+        try{_sfx.error()}catch(e){}
+        return;
+      }
+      // 성공 처리
+      if(hjData.auto_win){
+        // 자동 승리 (수비자 함대 없음)
+        showNotification('hijack','⚔ AUTO-WIN','상대 함대 없음 — 즉시 영토 점령!');
+        try{_sfx.hijackWin()}catch(e){}
+        refreshGP();
+        // 맵 새로고침 (짧은 딜레이) — 픽셀/클레임 데이터 다시 로드
+        setTimeout(function(){
+          fetch('/api/pixels').then(function(r){return r.json();}).then(function(sp){
+            if(sp&&typeof sp==='object') initPixelGridFromServer(sp);
+            claimsSnapshot=null; compositeClaimsOnTexture();
+          }).catch(function(){});
+        },2000);
+      }else{
+        // 함대전 진행 중
+        showNotification('hijack','⚔ 함대전 진행 중','Phase 1 전투 시작! 결과는 Fleet Battle Hub에서 확인하세요.');
+        try{_sfx.click()}catch(e){}
+        refreshGP();
+      }
+      return;
     }
 
     // ── Optimistic update: show claim on map immediately ──

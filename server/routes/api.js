@@ -1501,6 +1501,185 @@ router.post('/claim', writeLimiter, async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+//  POST /api/hijack/declare-with-pp
+//  클레임 스탬프 → 적 영토 → 함대전 하이젝 (PP 즉시 차감)
+// ══════════════════════════════════════════════════
+router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
+  const { wallet, lat, lng, width, height, atk_fleet_id, imageUrl, originalImageUrl, linkUrl, payMethod } = req.body;
+  if (!wallet || lat == null || lng == null || !width || !height || !atk_fleet_id) {
+    return res.status(400).json({ error: 'MISSING_PARAMS' });
+  }
+
+  // 함대전 하이젝 활성화 체크
+  const fleetHijackEnabled = (await getSetting('fleet_hijack_enabled', 'true')).toString() === 'true';
+  if (!fleetHijackEnabled) {
+    return res.status(403).json({ error: 'FLEET_HIJACK_DISABLED' });
+  }
+
+  const parsedLat = parseFloat(lat);
+  const parsedLng = parseFloat(lng);
+  const parsedW = parseInt(width);
+  const parsedH = parseInt(height);
+  const walletLower = wallet.toLowerCase();
+  const atkFleetId = parseInt(atk_fleet_id);
+
+  if (isNaN(parsedLat) || parsedLat < -70 || parsedLat > 70) return res.status(400).json({ error: 'INVALID_LAT' });
+  if (isNaN(parsedLng) || parsedLng < -180 || parsedLng > 180) return res.status(400).json({ error: 'INVALID_LNG' });
+  if (!parsedW || parsedW <= 0 || parsedW > 500) return res.status(400).json({ error: 'INVALID_WIDTH' });
+  if (!parsedH || parsedH <= 0 || parsedH > 500) return res.status(400).json({ error: 'INVALID_HEIGHT' });
+  if (!atkFleetId) return res.status(400).json({ error: 'INVALID_FLEET_ID' });
+
+  const s = await cfg();
+  const PIXEL_PRICE = s.pixel_base_price || 0.1;
+  const HIJACK_MULT = s.hijack_multiplier || 1.2;
+  const OWNER_BONUS_PCT = (s.hijack_owner_bonus || 50) / 100;
+  await getSectorsForLookup();
+  _sectorPriceSettings = { core: s.price_pixel_core || 0.15, mid: s.price_pixel_mid || 0.05, frontier: s.price_pixel_frontier || 0.02 };
+
+  try {
+    // 평화 조약 체크
+    let _isPeaceTreaty = false;
+    try { _isPeaceTreaty = await hasActiveEvent('peace_treaty'); } catch (_) {}
+    if (_isPeaceTreaty) return res.status(400).json({ error: 'Peace Treaty active — hijacking is temporarily disabled' });
+
+    // 공격자 함대 존재 확인
+    const atkFleetRes = await pool.query(
+      `SELECT id, is_in_battle, owner_wallet FROM fleets WHERE id = $1 AND owner_wallet = $2`,
+      [atkFleetId, walletLower]
+    );
+    if (!atkFleetRes.rows[0]) return res.status(404).json({ error: 'ATK_FLEET_NOT_FOUND' });
+    if (atkFleetRes.rows[0].is_in_battle) return res.status(409).json({ error: 'ATK_FLEET_IN_BATTLE' });
+
+    // 픽셀 계산
+    const pixels = getClaimPixels(parsedLat, parsedLng, parsedW, parsedH);
+    if (!pixels.length) return res.status(400).json({ error: 'NO_PIXELS' });
+
+    const pxCoords = pixels.map((p, i) => `($${i*2+1}::numeric, $${i*2+2}::numeric)`).join(',');
+    const pxParams = pixels.flatMap(p => [p.lat, p.lng]);
+    const existingRes = await pool.query(
+      `SELECT lat, lng, owner, price, claim_id FROM pixels WHERE (lat, lng) IN (${pxCoords}) AND owner IS NOT NULL`,
+      pxParams
+    );
+    const existingMap = {};
+    for (const row of existingRes.rows) {
+      existingMap[parseFloat(row.lat) + ',' + parseFloat(row.lng)] = row;
+    }
+
+    let baseCost = 0, attackCost = 0;
+    const newPixels = [];
+    const enemyByOwner = {};
+    const affectedOwners = {};
+
+    for (const p of pixels) {
+      const existing = existingMap[p.lat + ',' + p.lng];
+      if (existing) {
+        if (existing.owner === walletLower) {
+          // own pixel — skip
+        } else {
+          // 방패 체크
+          if (shieldSvc && existing.claim_id) {
+            try {
+              const shield = await shieldSvc.isClaimShielded(existing.claim_id);
+              if (shield) return res.status(400).json({ error: 'Territory is shielded', shielded: true });
+            } catch (_) {}
+          }
+          const pxCost = parseFloat(existing.price) * HIJACK_MULT;
+          attackCost += pxCost;
+          if (!enemyByOwner[existing.owner]) enemyByOwner[existing.owner] = [];
+          enemyByOwner[existing.owner].push({ lat: p.lat, lng: p.lng, prevOwner: existing.owner, price: parseFloat(existing.price), pxCost });
+          if (!affectedOwners[existing.owner]) affectedOwners[existing.owner] = { refund: 0, bonus: 0 };
+          affectedOwners[existing.owner].refund += parseFloat(existing.price);
+          affectedOwners[existing.owner].bonus += (pxCost - parseFloat(existing.price)) * OWNER_BONUS_PCT;
+        }
+      } else {
+        const sectorPrice = getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE);
+        baseCost += sectorPrice;
+        newPixels.push({ lat: p.lat, lng: p.lng, sectorPrice });
+      }
+    }
+
+    // 겹치는 적 픽셀 없으면 일반 claim으로 보내기
+    if (Object.keys(enemyByOwner).length === 0) {
+      return res.status(400).json({ error: 'NO_ENEMY_PIXELS — use /api/claim for unclaimed territory' });
+    }
+
+    // 주 수비자 선정 (가장 많은 픽셀)
+    let primaryDefWallet = null;
+    let maxCount = 0;
+    for (const [owner, pxList] of Object.entries(enemyByOwner)) {
+      if (pxList.length > maxCount) { maxCount = pxList.length; primaryDefWallet = owner; }
+    }
+    const primaryEnemyPixels = enemyByOwner[primaryDefWallet];
+
+    // 주 수비자 외 나머지는 공격 비용에서 제외 (해당 픽셀 스킵)
+    const otherDefOwners = Object.keys(enemyByOwner).filter(o => o !== primaryDefWallet);
+    for (const oo of otherDefOwners) {
+      for (const ep of enemyByOwner[oo]) attackCost -= ep.pxCost;
+      delete affectedOwners[oo];
+    }
+
+    // 수비자 함대 찾기
+    let primaryDefFleetId = null;
+    const defFleetRes = await pool.query(
+      `SELECT id FROM fleets WHERE owner_wallet = $1 AND is_in_battle = false
+       ORDER BY (SELECT COUNT(*) FROM ships WHERE fleet_id = fleets.id AND is_alive = true) DESC
+       LIMIT 1`,
+      [primaryDefWallet]
+    );
+    if (defFleetRes.rows[0]) primaryDefFleetId = defFleetRes.rows[0].id;
+
+    const safeImageUrl = sanitizeUrl(imageUrl, true);
+    const safeOriginalImageUrl = sanitizeUrl(originalImageUrl, true) || null;
+    const safeLinkUrl = sanitizeUrl(linkUrl, false);
+
+    // hijack 서비스 (lazy require)
+    const hijackSvc = require('../services/hijack');
+    const result = await hijackSvc.declareHijackWithPP({
+      attacker_wallet: walletLower,
+      lat: parsedLat, lng: parsedLng, width: parsedW, height: parsedH,
+      atk_fleet_id: atkFleetId,
+      image_url: safeImageUrl || null,
+      original_image_url: safeOriginalImageUrl,
+      link_url: safeLinkUrl || null,
+      pay_method: payMethod || 'pp',
+      new_pixels: newPixels,
+      enemy_pixels: primaryEnemyPixels,
+      primary_defender_wallet: primaryDefWallet,
+      primary_def_fleet_id: primaryDefFleetId,
+      base_cost: baseCost,
+      attack_cost: attackCost,
+      affected_owners: affectedOwners,
+    });
+
+    // 시즌/통계 (fire-and-forget)
+    try {
+      if (seasonService) {
+        seasonService.addSeasonScore(walletLower, 'hijack', primaryEnemyPixels.length).catch(() => {});
+        seasonService.addSeasonScore(walletLower, 'gp_spend', Math.round(result.total_cost || 0)).catch(() => {});
+        if (newPixels.length > 0) seasonService.addSeasonScore(walletLower, 'claim_pixels', newPixels.length).catch(() => {});
+      }
+    } catch (_) {}
+
+    return res.json(result);
+  } catch (err) {
+    const errMap = {
+      'USER_NOT_FOUND': 404,
+      'INSUFFICIENT_PP': 400,
+      'ATK_FLEET_NOT_FOUND': 404,
+      'DEF_FLEET_NOT_FOUND': 404,
+      'ATK_FLEET_IN_BATTLE': 409,
+      'DEF_FLEET_IN_BATTLE': 409,
+      'NO_PHASE1_SHIPS': 409,
+      'TOO_MANY_PHASE1_SHIPS': 409,
+    };
+    const status = errMap[err.message];
+    if (status) return res.status(status).json({ error: err.message, meta: err.meta, required: err.required, balance: err.balance });
+    console.error('[API] hijack/declare-with-pp error:', err.message);
+    return res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+// ══════════════════════════════════════════════════
 //  PUT /api/claim/:id/image — Update/add image to existing claim
 // ══════════════════════════════════════════════════
 router.put('/claim/:id/image', writeLimiter, async (req, res) => {
