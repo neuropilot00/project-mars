@@ -3400,6 +3400,120 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .bv-result-stat-row { display: flex; justify-content: space-between; }
 .bv-result-stat-row b { color: rgba(255,255,255,.9); }
 
+/* ═════ Phase B — 검색 결과 카드 ═════ */
+.bd-search-card {
+  padding: 8px 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 3px;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 10px;
+}
+.bd-search-card:hover { background: rgba(239,83,80,.08); border-color: rgba(239,83,80,.4); }
+.bd-search-card.selected { background: rgba(239,83,80,.15); border-color: #ef5350; }
+.bd-search-card.in-battle { opacity: .5; cursor: not-allowed; }
+
+.bd-search-faction {
+  font-size: 14px; width: 28px; text-align: center;
+  font-family: 'Orbitron', monospace; font-weight: 900;
+}
+.bd-search-info { display: flex; flex-direction: column; gap: 2px; }
+.bd-search-nick {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700; letter-spacing: 1px;
+}
+.bd-search-meta {
+  color: rgba(255,255,255,.4);
+  font-size: 9px; letter-spacing: 0.5px;
+}
+.bd-search-ships {
+  color: rgba(255,255,255,.7);
+  font-weight: 700;
+}
+.bd-search-battle-tag {
+  font-size: 8px;
+  padding: 1px 5px;
+  background: rgba(239,83,80,.2);
+  color: #ff8a80;
+  border-radius: 2px;
+  letter-spacing: 1px;
+}
+.bd-search-hint {
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.3);
+  padding: 10px;
+}
+.bd-opponent-chips {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.bd-opponent-chip {
+  font-size: 9px;
+  padding: 3px 8px;
+  background: rgba(79,195,247,.08);
+  border: 1px solid rgba(79,195,247,.3);
+  color: #4fc3f7;
+  border-radius: 12px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.bd-opponent-chip:hover { background: rgba(79,195,247,.15); }
+
+/* Phase B — 보상 토스트 */
+.reward-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0a0d18;
+  border: 2px solid #ffd700;
+  border-radius: 8px;
+  padding: 16px 24px;
+  min-width: 300px;
+  z-index: 10001;
+  display: none;
+  box-shadow: 0 0 30px rgba(255,215,0,.4);
+}
+.reward-toast.show { display: block; animation: rewardIn .4s ease; }
+@keyframes rewardIn {
+  from { transform: translate(-50%, 20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+.reward-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px; font-weight: 900; letter-spacing: 3px;
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.reward-items { display: flex; flex-direction: column; gap: 4px; }
+.reward-item {
+  display: flex; justify-content: space-between;
+  font-size: 10px; letter-spacing: 1px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.reward-item:last-child { border-bottom: none; }
+.reward-item b { color: #fff; font-weight: 700; }
+.reward-item.gp b { color: #ffd700; }
+.reward-item.mineral b { color: #4fc3f7; }
+.reward-close {
+  margin-top: 8px;
+  width: 100%;
+  padding: 6px;
+  background: rgba(255,215,0,.1);
+  border: 1px solid rgba(255,215,0,.4);
+  color: #ffd700;
+  font-size: 9px; letter-spacing: 2px;
+  cursor: pointer; border-radius: 3px;
+}
+
 </style>
 </head>
 <body>
@@ -37393,30 +37507,44 @@ function fcEsc(str) {
 <div class="bd-modal-backdrop" id="declareBattleModal">
   <div class="bd-modal">
     <div class="bd-title">DECLARE WAR</div>
-    <div class="bd-subtitle">// 공격할 상대를 지정하세요</div>
-    
+    <div class="bd-subtitle">// 공격할 상대를 찾으세요</div>
+
     <div class="bd-section">
       <div class="bd-section-label">내 함대 (공격자)</div>
       <select class="bd-my-fleet-select" id="declareMyFleet"></select>
     </div>
-    
+
     <div class="bd-section">
-      <div class="bd-section-label">상대 찾기</div>
-      <input class="bd-target-input" id="declareTargetSearch" 
-             placeholder="상대 지갑 주소 또는 닉네임..." 
-             oninput="searchTargets()">
-      <div class="bd-target-fleets" id="declareTargetList"></div>
+      <div class="bd-section-label">추천 상대 (비슷한 실력)</div>
+      <div class="bd-opponent-chips" id="declareOpponentChips"></div>
     </div>
-    
+
+    <div class="bd-section">
+      <div class="bd-section-label">상대 검색</div>
+      <input class="bd-target-input" id="declareTargetSearch"
+             placeholder="닉네임 또는 함대명 (2자 이상)..."
+             oninput="searchTargets()">
+      <div class="bd-target-fleets" id="declareTargetList">
+        <div class="bd-search-hint">2자 이상 입력하면 검색됩니다</div>
+      </div>
+    </div>
+
     <div class="bd-actions">
       <button class="fd-btn" onclick="closeDeclareBattle()">취소</button>
-      <button class="bh-declare-btn" id="declareConfirmBtn" 
-              style="font-size:10px;padding:8px 16px" 
+      <button class="bh-declare-btn" id="declareConfirmBtn"
+              style="font-size:10px;padding:8px 16px"
               disabled onclick="confirmDeclareBattle()">
         ⚔ 공격 시작
       </button>
     </div>
   </div>
+</div>
+
+<!-- 보상 토스트 (Phase B) -->
+<div class="reward-toast" id="rewardToast">
+  <div class="reward-title" id="rewardToastTitle">🏆 전투 보상</div>
+  <div class="reward-items" id="rewardToastItems"></div>
+  <button class="reward-close" onclick="closeRewardToast()">확인</button>
 </div>
 
 <!-- Battle Viewer -->
@@ -37646,39 +37774,65 @@ let declareState = {
   selectedTargetFleetId: null,
 };
 
+// ─── Phase B: openDeclareBattle (추천 상대 + 실시간 검색) ───
+
 async function openDeclareBattle() {
   closeBattleHub();
-  
+
   // 내 함대 로드
   try {
     const res = await fetch('/api/fleets', { headers: getAuthHeaders() });
     const data = await res.json();
     declareState.myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
   } catch { declareState.myFleets = []; }
-  
+
   if (declareState.myFleets.length === 0) {
     showFactionToast('전투 가능한 함대가 없습니다', 'error');
     return;
   }
-  
-  // 렌더
+
   const sel = document.getElementById('declareMyFleet');
   sel.innerHTML = declareState.myFleets.map(f =>
     `<option value="${f.id}">${escapeHtml(f.name)} (${f.ships_alive}척)</option>`
   ).join('');
-  
+
   document.getElementById('declareTargetSearch').value = '';
-  document.getElementById('declareTargetList').innerHTML = 
-    '<div class="bh-empty" style="padding:16px">상대 검색: 지갑 주소나 닉네임 입력</div>';
+  document.getElementById('declareTargetList').innerHTML =
+    '<div class="bd-search-hint">2자 이상 입력하면 검색됩니다</div>';
   declareState.selectedTargetFleetId = null;
-  declareState.targetFleets = [];
   document.getElementById('declareConfirmBtn').disabled = true;
-  
+
   document.getElementById('declareBattleModal').classList.add('active');
+
+  // 추천 상대 로드 (Phase B)
+  loadRecommendedOpponents();
 }
 
 function closeDeclareBattle() {
   document.getElementById('declareBattleModal').classList.remove('active');
+}
+
+async function loadRecommendedOpponents() {
+  try {
+    const res = await fetch('/api/fleets/search/opponents', { headers: getAuthHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    const chips = document.getElementById('declareOpponentChips');
+    if (!chips) return;
+
+    if (!data.results || data.results.length === 0) {
+      chips.innerHTML = '<span style="color:rgba(255,255,255,.3);font-size:9px">추천 상대 없음</span>';
+      return;
+    }
+
+    chips.innerHTML = data.results.slice(0, 6).map(r => `
+      <div class="bd-opponent-chip" onclick="selectTargetFleet(${r.fleet_id}, '${escapeHtml(r.nickname || 'Unknown')}', ${r.ships_alive})">
+        ${escapeHtml(r.nickname || 'Unknown')} (${r.ships_alive}척)
+      </div>
+    `).join('');
+  } catch (err) {
+    console.warn('loadRecommendedOpponents:', err);
+  }
 }
 
 // 검색 (디바운스)
@@ -37691,65 +37845,82 @@ function searchTargets() {
 async function doSearchTargets() {
   const q = document.getElementById('declareTargetSearch').value.trim();
   const listEl = document.getElementById('declareTargetList');
-  
+
   if (q.length < 2) {
-    listEl.innerHTML = '<div class="bh-empty" style="padding:16px">2자 이상 입력</div>';
+    listEl.innerHTML = '<div class="bd-search-hint">2자 이상 입력</div>';
     return;
   }
-  
-  // 단순히 모든 함대 가져와서 클라에서 필터 (API에 검색 엔드포인트 있으면 그거 사용)
-  // 지금은 내 함대 + 상대 후보를 public endpoint로 찾는 간이 방식
+
+  listEl.innerHTML = '<div class="bd-search-hint">검색 중...</div>';
+
   try {
-    // 함대 검색 API가 없으므로 대안: 
-    // /api/fleets/public 같은 게 필요. 지금은 지갑 주소 직접 입력 가정.
-    // 또는 /api/battles 모듈에 /search-targets 엔드포인트 추가 필요.
-    // 일단 프롬프트로 함대 ID 직접 입력 받는 fallback:
-    
-    // 지갑 주소면 주소로 검색
-    listEl.innerHTML = '<div class="bh-empty" style="padding:16px">해당 검색 기능은 백엔드 API 추가 후 동작</div>';
-    
-    // 임시: 유저가 상대 함대 ID를 직접 아는 경우 사용
-    listEl.innerHTML += `
-      <div style="padding:8px;font-size:9px;color:rgba(255,255,255,.4);text-align:center">
-        또는 상대 함대 ID를 직접 입력:
-      </div>
-      <input class="bd-target-input" id="declareManualFleetId" 
-             type="number" placeholder="함대 ID (예: 42)" 
-             oninput="selectManualTarget()">
-    `;
+    const res = await fetch(`/api/fleets/search?q=${encodeURIComponent(q)}`, {
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      listEl.innerHTML = `<div class="bd-search-hint">검색 실패: ${data.error || ''}</div>`;
+      return;
+    }
+
+    if (!data.results || data.results.length === 0) {
+      listEl.innerHTML = '<div class="bd-search-hint">검색 결과 없음</div>';
+      return;
+    }
+
+    listEl.innerHTML = data.results.map(r => renderSearchResult(r)).join('');
   } catch (err) {
-    listEl.innerHTML = '<div class="bh-empty" style="padding:16px">검색 실패</div>';
+    console.error('doSearchTargets:', err);
+    listEl.innerHTML = '<div class="bd-search-hint">네트워크 오류</div>';
   }
 }
 
-function selectManualTarget() {
-  const input = document.getElementById('declareManualFleetId');
-  const val = parseInt(input.value);
-  if (!val) {
-    declareState.selectedTargetFleetId = null;
-    document.getElementById('declareConfirmBtn').disabled = true;
-    return;
-  }
-  declareState.selectedTargetFleetId = val;
+function renderSearchResult(r) {
+  const factionIcon = { mcc:'⬢', fsp:'◉', cv:'▲' }[r.faction_code] || '?';
+  const color = r.faction_color || '#fff';
+  const isSelected = declareState.selectedTargetFleetId === r.fleet_id;
+
+  return `
+    <div class="bd-search-card ${isSelected ? 'selected' : ''} ${!r.can_attack ? 'in-battle' : ''}"
+         ${r.can_attack ? `onclick="selectTargetFleet(${r.fleet_id}, '${escapeHtml(r.nickname || '')}', ${r.ships_alive})"` : ''}>
+      <div class="bd-search-faction" style="color:${color}">${factionIcon}</div>
+      <div class="bd-search-info">
+        <div class="bd-search-nick">${escapeHtml(r.nickname || 'Unknown')}</div>
+        <div class="bd-search-meta">
+          ${escapeHtml(r.fleet_name || '함대')} · 전적 ${r.battles_won || 0}W ${r.battles_lost || 0}L
+        </div>
+      </div>
+      <div>
+        <div class="bd-search-ships">${r.ships_alive}척</div>
+        ${r.is_in_battle ? '<div class="bd-search-battle-tag">전투중</div>' : ''}
+      </div>
+    </div>
+  `;
+}
+
+function selectTargetFleet(fleetId, nickname, shipsAlive) {
+  declareState.selectedTargetFleetId = fleetId;
   document.getElementById('declareConfirmBtn').disabled = false;
+  document.querySelectorAll('.bd-search-card').forEach(c => c.classList.remove('selected'));
+  showFactionToast(`${nickname} (${shipsAlive}척) 선택됨`, 'success');
 }
 
 async function confirmDeclareBattle() {
   const myFleetId = parseInt(document.getElementById('declareMyFleet').value);
   const targetFleetId = declareState.selectedTargetFleetId;
-  
+
   if (!myFleetId || !targetFleetId) {
     showFactionToast('함대 선택을 확인해주세요', 'error');
     return;
   }
-  
   if (myFleetId === targetFleetId) {
     showFactionToast('자기 자신은 공격할 수 없습니다', 'error');
     return;
   }
-  
-  if (!confirm(`⚔ 전투를 선언하시겠습니까?\n\n내 함대 ID: ${myFleetId}\n대상 함대 ID: ${targetFleetId}\n\n즉시 시뮬레이션됩니다.`)) return;
-  
+
+  if (!confirm('⚔ 전투를 선언하시겠습니까?\n\n즉시 시뮬레이션됩니다.')) return;
+
   try {
     const res = await fetch('/api/battles/declare-pvp', {
       method: 'POST',
@@ -37761,7 +37932,7 @@ async function confirmDeclareBattle() {
       })
     });
     const data = await res.json();
-    
+
     if (!res.ok) {
       const msgMap = {
         'MY_FLEET_NOT_FOUND': '내 함대를 찾을 수 없음',
@@ -37775,17 +37946,76 @@ async function confirmDeclareBattle() {
       showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
       return;
     }
-    
+
     showFactionToast('전투 선언 완료 · 시뮬레이션 중...', 'success');
     closeDeclareBattle();
-    
-    // 3초 후 자동으로 뷰어 열기
+
     const battleId = data.battle_id;
     setTimeout(() => openBattleViewer(battleId), 3000);
+
+    // Phase B: 8초 후 보상 확인
+    setTimeout(() => showRewardIfAny(battleId), 8000);
   } catch (err) {
     console.error('confirmDeclareBattle error:', err);
     showFactionToast('네트워크 오류', 'error');
   }
+}
+
+// ─── Phase B: 보상 토스트 ───
+
+async function showRewardIfAny(battleId) {
+  try {
+    const res = await fetch(`/api/battles/${battleId}/rewards`);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const myWallet = getMyWallet();
+    if (!myWallet) return;
+
+    const myReward = (data.rewards || []).find(r =>
+      r.wallet_address.toLowerCase() === myWallet.toLowerCase()
+    );
+    if (!myReward) return;
+    if (!myReward.gp_awarded && !Object.keys(myReward.minerals_awarded || {}).length) return;
+
+    showRewardToast(myReward);
+  } catch (err) {
+    console.warn('showRewardIfAny:', err);
+  }
+}
+
+function showRewardToast(reward) {
+  const title = document.getElementById('rewardToastTitle');
+  const items = document.getElementById('rewardToastItems');
+
+  title.textContent = reward.is_winner ? '🏆 승리 보상!' : '🎖 참가 보상';
+
+  let html = '';
+  if (reward.gp_awarded > 0) {
+    html += `<div class="reward-item gp"><span>💰 Galactic Points</span><b>+${reward.gp_awarded}</b></div>`;
+  }
+  for (const [code, qty] of Object.entries(reward.minerals_awarded || {})) {
+    const icon = (typeof MINERAL_ICONS !== 'undefined' && MINERAL_ICONS[code]) || '🟫';
+    const name = (typeof MINERAL_KO !== 'undefined' && MINERAL_KO[code]) || code;
+    html += `<div class="reward-item mineral"><span>${icon} ${name}</span><b>+${qty}</b></div>`;
+  }
+
+  items.innerHTML = html;
+  document.getElementById('rewardToast').classList.add('show');
+  setTimeout(closeRewardToast, 10000);
+}
+
+function closeRewardToast() {
+  document.getElementById('rewardToast').classList.remove('show');
+}
+
+function getMyWallet() {
+  try {
+    const token = localStorage.getItem('pw_token');
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.wallet_address || payload.wallet || payload.walletAddress;
+  } catch { return null; }
 }
 
 // ═════════════════════════════════════════════════════════════════

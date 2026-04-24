@@ -121,6 +121,8 @@ const auctionRoutes = require('./routes/auction');
 const shipRoutes    = require('./routes/ships');
 const battleRoutes  = require('./routes/battle');
 const fleetBattleRoutes = require('./routes/fleetBattles'); // A-4: Fleet Battle Engine
+const fleetSearchRoutes = require('./routes/fleetSearch');   // Phase B: Fleet Search
+const battleExtrasRoutes = require('./routes/battleExtras'); // Phase B: Battle Rewards/Siege
 const lotteryRoutes  = require('./routes/lottery');
 const stakingRoutes  = require('./routes/staking');
 const gpBurnRoutes      = require('./routes/gpBurn');
@@ -280,6 +282,7 @@ app.use('/api', publicRoutes);
 app.use('/api', bettingRoutes);
 app.use('/api', auctionRoutes);
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
+app.use('/api/battles', battleExtrasRoutes); // Phase B: Rewards/Siege extras (before fleetBattles to capture /rewards/mine etc.)
 app.use('/api/battles', fleetBattleRoutes); // A-4: Fleet Battle Engine (must be before /api for prefix priority)
 app.use('/api', battleRoutes);
 app.use('/api', lotteryRoutes);
@@ -333,6 +336,7 @@ app.use('/admin/api', adminRoutes);
 app.use('/api/arena', arenaRoutes);
 app.use('/api/factions', factionRoutes);      // A-1: 파벌 선택 시스템
 app.use('/api/resources', newResourcesRoutes); // A-2: 자원 인벤토리
+app.use('/api/fleets', fleetSearchRoutes);      // Phase B: Fleet Search (before fleetRoutes)
 app.use('/api/fleets', fleetRoutes);           // A-3: 함대 편성
 app.use('/api/governance', governanceRoutes);
 app.use('/api/marketplace', marketplaceRoutes);

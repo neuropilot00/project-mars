@@ -1,48 +1,36 @@
-// server/services/battleScheduler.js
+// server/services/battleScheduler.js (PATCH for Phase B)
 // ═══════════════════════════════════════════════════════════════
-// Battle Scheduler
+// 기존 battleScheduler.js의 runBattle 함수에 보상 분배를 추가합니다.
 //
-// 예약된 전투(siege 등)를 자동으로 시작.
-// scheduled_start_at <= NOW() 인 전투를 찾아 simulateBattle() 실행.
+// 변경사항:
+//   - const battleRewards = require('./battleRewards') 추가
+//   - applyBattleResults 다음에 distributeRewards 호출 추가
+//
+// 아래 전체 파일을 교체합니다.
 // ═══════════════════════════════════════════════════════════════
 
 const { pool } = require('../db');
 const battleEngine = require('./battleEngine');
 const battleTimeline = require('./battleTimeline');
+const battleRewards = require('./battleRewards');   // ★ Phase B 추가
 
 let intervalHandle = null;
-const CHECK_INTERVAL_MS = 30 * 1000;   // 30초마다
-const MAX_CONCURRENT = 2;               // 동시 시뮬레이션 수 제한
+const CHECK_INTERVAL_MS = 30 * 1000;
+const MAX_CONCURRENT = 2;
 let currentlyRunning = 0;
 
-/**
- * 스케줄러 시작
- */
 function start() {
-  if (intervalHandle) {
-    console.log('[battleScheduler] already running');
-    return;
-  }
+  if (intervalHandle) return;
   console.log(`[battleScheduler] starting (every ${CHECK_INTERVAL_MS/1000}s, max concurrent ${MAX_CONCURRENT})`);
   intervalHandle = setInterval(runOnce, CHECK_INTERVAL_MS);
 }
 
 function stop() {
-  if (intervalHandle) {
-    clearInterval(intervalHandle);
-    intervalHandle = null;
-    console.log('[battleScheduler] stopped');
-  }
+  if (intervalHandle) { clearInterval(intervalHandle); intervalHandle = null; }
 }
 
-/**
- * 준비 상태인 전투 스캔 & 시작
- */
 async function runOnce() {
-  // 동시 실행 제한
-  if (currentlyRunning >= MAX_CONCURRENT) {
-    return;
-  }
+  if (currentlyRunning >= MAX_CONCURRENT) return;
   
   try {
     const { rows } = await pool.query(`
@@ -64,28 +52,23 @@ async function runOnce() {
   }
 }
 
-/**
- * 단일 전투 실행 (시뮬레이션 → 타임라인 저장 → DB 반영)
- */
 async function runBattle(battleId) {
   currentlyRunning++;
   try {
     console.log(`[battleScheduler] running battle ${battleId}`);
     
-    // 1. 상태 업데이트: active
+    // 1. preparing → active
     await pool.query(`
       UPDATE fleet_battles 
       SET status = 'active', battle_started_at = NOW()
       WHERE id = $1 AND status = 'preparing'
     `, [battleId]);
     
-    // 참여 함대들 상태 업데이트
     await pool.query(`
       UPDATE fleets SET is_in_battle = true, current_battle_id = $1
       WHERE id IN (SELECT fleet_id FROM fleet_battle_participants WHERE battle_id = $1)
     `, [battleId]);
     
-    // 참여 함대 스냅샷 기록 (ships_at_start, hp_at_start)
     await pool.query(`
       UPDATE fleet_battle_participants p SET
         ships_at_start = sub.ship_count,
@@ -94,8 +77,7 @@ async function runBattle(battleId) {
         SELECT s.fleet_id, 
                COUNT(*) AS ship_count, 
                COALESCE(SUM(s.current_hp), 0) AS total_hp
-        FROM ships s
-        WHERE s.is_alive = true
+        FROM ships s WHERE s.is_alive = true
         GROUP BY s.fleet_id
       ) sub
       WHERE p.fleet_id = sub.fleet_id AND p.battle_id = $1
@@ -106,36 +88,37 @@ async function runBattle(battleId) {
     
     // 3. 타임라인 저장
     const timelineSaved = await battleTimeline.saveTimeline(battleId, result.timeline);
-    console.log(`[battleScheduler] battle ${battleId} timeline saved: ${timelineSaved.size_bytes} bytes (${timelineSaved.storage_type})`);
+    console.log(`[battleScheduler] battle ${battleId} timeline saved: ${timelineSaved.size_bytes} bytes`);
     
-    // 4. DB에 결과 반영
+    // 4. DB 반영
     await battleEngine.applyBattleResults(battleId, result);
     
-    // 5. Chronicle 이벤트 발행 (publish_fleet_battle_chronicle 함수 있으면)
+    // 5. 보상 분배 (★ Phase B 추가)
     try {
-      await pool.query(`SELECT publish_fleet_battle_chronicle($1, 'concluded')`, [battleId]);
-    } catch (e) {
-      // 함수 없어도 무시
+      const rewards = await battleRewards.distributeRewards(battleId);
+      console.log(`[battleScheduler] battle ${battleId} rewards distributed to ${rewards.length}`);
+    } catch (rewardErr) {
+      console.error(`[battleScheduler] reward distribution failed:`, rewardErr);
+      // 보상 실패해도 전투 자체는 유효
     }
     
-    console.log(`[battleScheduler] battle ${battleId} completed: ${result.winner_side} won after ${result.duration_seconds}s`);
+    // 6. Chronicle
+    try {
+      await pool.query(`SELECT publish_fleet_battle_chronicle($1, 'concluded')`, [battleId]);
+    } catch (e) {}
     
+    console.log(`[battleScheduler] battle ${battleId} completed: ${result.winner_side} won after ${result.duration_seconds}s`);
     return result;
   } catch (err) {
     console.error(`[battleScheduler] battle ${battleId} error:`, err);
-    // 실패 시 cancelled 처리
     await pool.query(`
-      UPDATE fleet_battles 
-      SET status = 'cancelled', ended_at = NOW(),
-          battle_summary = COALESCE(battle_summary, '{}'::jsonb) || jsonb_build_object('error', $1::text)
-      WHERE id = $2
-    `, [err.message, battleId]).catch(() => {});
-    
+      UPDATE fleet_battles SET status='cancelled', ended_at=NOW(),
+        battle_summary = COALESCE(battle_summary,'{}'::jsonb) || jsonb_build_object('error', $1::text)
+      WHERE id=$2
+    `, [err.message, battleId]).catch(()=>{});
     await pool.query(`
-      UPDATE fleets SET is_in_battle = false, current_battle_id = NULL
-      WHERE current_battle_id = $1
-    `, [battleId]).catch(() => {});
-    
+      UPDATE fleets SET is_in_battle=false, current_battle_id=NULL WHERE current_battle_id=$1
+    `, [battleId]).catch(()=>{});
     throw err;
   } finally {
     currentlyRunning--;
