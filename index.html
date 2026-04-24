@@ -13748,10 +13748,16 @@ async function confirmClaim(){
           }).catch(function(){});
         },2000);
       }else{
-        // 함대전 진행 중
-        showNotification('hijack','⚔ 함대전 진행 중','Phase 1 전투 시작! 결과는 Fleet Battle Hub에서 확인하세요.');
+        // 함대전 진행 중 — 배틀 뷰어 자동 오픈
+        showNotification('hijack','⚔ 함대전 진행 중','Phase 1 전투 시작!');
         try{_sfx.click()}catch(e){}
         if (typeof refreshGP === 'function') refreshGP();
+        // Phase 1 battle viewer 자동 오픈 (10초 prep 후 시작)
+        if (hjData.phase1_battle_id && typeof openBattleViewer === 'function') {
+          setTimeout(function(){
+            try { openBattleViewer(hjData.phase1_battle_id); } catch(e) { console.error('openBattleViewer:', e); }
+          }, 1500);
+        }
       }
       return;
     }
