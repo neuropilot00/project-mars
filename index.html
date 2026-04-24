@@ -6678,6 +6678,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
             <button onclick="openFactionModal()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.35);color:#ffd166;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_faction_btn">🛡 FACTION</button>
             <button onclick="openHijackModal()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.13),rgba(232,72,85,.04));border:1px solid rgba(232,72,85,.35);color:#ff6b6b;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_hijack_btn">⚔ HIJACK</button>
+            <button onclick="openShipRegistry()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(92,187,255,.13),rgba(92,187,255,.04));border:1px solid rgba(92,187,255,.35);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_registry_btn">🚀 REGISTRY</button>
+            <button onclick="openMineralsPanel()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(129,199,132,.13),rgba(129,199,132,.04));border:1px solid rgba(129,199,132,.35);color:#81c784;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_minerals_btn">💎 MINERALS</button>
           </div>
         </div>
 
@@ -14107,7 +14109,7 @@ var I18N = {
     gov_policy_open: 'Open (All Welcome)', gov_policy_ally: 'Allies Only', gov_policy_closed: 'Closed',
     gov_titles_title: '🎖 MY TITLES', gov_titles_hint: 'Connect wallet to view your titles.',
     gov_fleet_title: '⚓ MY FLEET', gov_fleet_hint: 'Connect wallet to view your fleet.',
-    gov_faction_btn: '🛡 FACTION', gov_hijack_btn: '⚔ HIJACK',
+    gov_faction_btn: '🛡 FACTION', gov_hijack_btn: '⚔ HIJACK', gov_registry_btn: '🚀 REGISTRY', gov_minerals_btn: '💎 MINERALS',
     gov_fleet_empty: 'No ships yet — open the shipyard below to start building.',
     gov_fleet_my: 'MY SHIPS', gov_fleet_max: '10 max', gov_shipyard: 'SHIPYARD',
     gov_ship_build: 'BUILD SHIP', gov_ship_built: 'built!', gov_ship_repair: 'REPAIR',
@@ -14727,7 +14729,7 @@ var I18N = {
     gov_policy_open: '개방 (모두 환영)', gov_policy_ally: '동맹만', gov_policy_closed: '폐쇄',
     gov_titles_title: '🎖 내 칭호', gov_titles_hint: '지갑을 연결하여 칭호를 확인하세요.',
     gov_fleet_title: '⚓ 내 함대', gov_fleet_hint: '지갑을 연결하여 함대를 확인하세요.',
-    gov_faction_btn: '🛡 파벌', gov_hijack_btn: '⚔ 하이잭',
+    gov_faction_btn: '🛡 파벌', gov_hijack_btn: '⚔ 하이잭', gov_registry_btn: '🚀 함선 도감', gov_minerals_btn: '💎 광물 도감',
     gov_fleet_my: '내 함선', gov_fleet_max: '최대 10', gov_shipyard: '조선소',
     gov_ship_build: '함선 건조', gov_ship_built: '건조 완료!', gov_ship_repair: '수리',
     gov_ship_repaired: '함선 수리 완료!', gov_ship_repair_confirm: '함선을 완전히 수리하시겠습니까?',
@@ -15337,7 +15339,7 @@ var I18N = {
     gov_policy_open: 'オープン（誰でも歓迎）', gov_policy_ally: '同盟のみ', gov_policy_closed: '閉鎖',
     gov_titles_title: '🎖 称号', gov_titles_hint: 'ウォレットを接続して称号を確認。',
     gov_fleet_title: '⚓ 艦隊', gov_fleet_hint: 'ウォレットを接続して艦隊を確認。',
-    gov_faction_btn: '🛡 派閥', gov_hijack_btn: '⚔ 奪取',
+    gov_faction_btn: '🛡 派閥', gov_hijack_btn: '⚔ 奪取', gov_registry_btn: '🚀 艦艇図鑑', gov_minerals_btn: '💎 鉱物図鑑',
     gov_fleet_my: '艦船一覧', gov_fleet_max: '最大10隻', gov_shipyard: '造船所',
     gov_ship_build: '建造', gov_ship_built: '建造完了！', gov_ship_repair: '修理',
     gov_ship_repaired: '修理完了！', gov_ship_repair_confirm: '艦船をフルHPに修理しますか？',
@@ -15940,7 +15942,7 @@ var I18N = {
     gov_policy_open: '开放（欢迎所有人）', gov_policy_ally: '仅同盟', gov_policy_closed: '封闭',
     gov_titles_title: '🎖 我的称号', gov_titles_hint: '连接钱包以查看您的称号。',
     gov_fleet_title: '⚓ 我的舰队', gov_fleet_hint: '连接钱包以查看您的舰队。',
-    gov_faction_btn: '🛡 派系', gov_hijack_btn: '⚔ 劫持',
+    gov_faction_btn: '🛡 派系', gov_hijack_btn: '⚔ 劫持', gov_registry_btn: '🚀 舰船图鉴', gov_minerals_btn: '💎 矿物图鉴',
     gov_fleet_my: '我的战舰', gov_fleet_max: '最多10艘', gov_shipyard: '造船厂',
     gov_ship_build: '建造舰船', gov_ship_built: '建造完成！', gov_ship_repair: '修理',
     gov_ship_repaired: '舰船修理完成！', gov_ship_repair_confirm: '将此舰船修理至满HP？',
@@ -38594,6 +38596,272 @@ function fcEsc(str) {
     </div>
   </div>
 </div>
+
+<!-- Ship Registry 모달 (22종 함선 도감) -->
+<style>
+.reg-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);display:none;z-index:9999;align-items:center;justify-content:center;padding:16px}
+.reg-modal-backdrop.active{display:flex}
+.reg-modal{background:#05060e;border:1px solid rgba(92,187,255,.25);border-radius:10px;max-width:900px;width:100%;max-height:85vh;display:flex;flex-direction:column;color:#d8e0f0;font-family:var(--fn)}
+.reg-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(92,187,255,.12)}
+.reg-title{font-weight:900;letter-spacing:3px;color:#5cbbff;font-size:13px}
+.reg-close{background:transparent;border:none;color:#a0aac0;font-size:20px;cursor:pointer;padding:2px 8px}
+.reg-close:hover{color:#fff}
+.reg-tabs{display:flex;gap:6px;padding:12px 18px 4px;flex-wrap:wrap;align-items:center}
+.reg-tab{padding:5px 12px;font-family:var(--fn);font-size:10px;letter-spacing:2px;cursor:pointer;border:1px solid;background:transparent;transition:all .15s;border-radius:3px}
+.reg-tab.mcc{border-color:rgba(79,195,247,.35);color:#4fc3f7}
+.reg-tab.mcc.on{background:rgba(79,195,247,.15)}
+.reg-tab.fsp{border-color:rgba(129,199,132,.35);color:#81c784}
+.reg-tab.fsp.on{background:rgba(129,199,132,.15)}
+.reg-tab.cv{border-color:rgba(239,83,80,.35);color:#ef5350}
+.reg-tab.cv.on{background:rgba(239,83,80,.15)}
+.reg-desc{font-size:9px;letter-spacing:1px;color:rgba(255,255,255,.35);margin-left:auto}
+.reg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;padding:10px 18px 18px;overflow-y:auto;flex:1}
+.reg-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);padding:10px;border-radius:6px;transition:all .15s}
+.reg-card:hover{background:rgba(255,255,255,.05)}
+.reg-card.mcc{border-left:2px solid rgba(79,195,247,.55)}
+.reg-card.fsp{border-left:2px solid rgba(129,199,132,.55)}
+.reg-card.cv{border-left:2px solid rgba(239,83,80,.55)}
+.reg-sname{font-weight:900;font-size:12px;letter-spacing:1.5px;margin-bottom:2px}
+.reg-scls{font-size:9px;letter-spacing:1px;color:rgba(255,255,255,.4);margin-bottom:5px}
+.reg-srole{display:inline-block;font-size:8px;letter-spacing:.5px;padding:1px 6px;border:1px solid rgba(255,255,255,.12);margin-bottom:6px;border-radius:2px}
+.reg-srole.dps{border-color:rgba(239,83,80,.35);color:#ef9a9a}
+.reg-srole.tank{border-color:rgba(79,195,247,.35);color:#4fc3f7}
+.reg-srole.ewar{border-color:rgba(206,147,216,.35);color:#ce93d8}
+.reg-srole.logi{border-color:rgba(129,199,132,.35);color:#a5d6a7}
+.reg-srole.tackle,.reg-srole.scout{border-color:rgba(255,180,77,.35);color:#ffb74d}
+.reg-srole.bomber{border-color:rgba(255,109,0,.35);color:#ff8a65}
+.reg-stats{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:9px}
+.reg-stat-row{display:flex;justify-content:space-between;color:rgba(255,255,255,.5)}
+.reg-stat-row span:last-child{color:rgba(255,255,255,.85)}
+.reg-recipe{margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.06);font-size:8px;color:rgba(255,255,255,.45);line-height:1.6}
+.reg-recipe b{color:#ffb74d;font-weight:700}
+.reg-lock{display:inline-block;margin-top:4px;font-size:8px;color:#ef5350;letter-spacing:1px}
+.reg-cap{display:inline-block;margin-left:4px;font-size:8px;color:#ffd700;letter-spacing:1px}
+.reg-loading{grid-column:1/-1;text-align:center;padding:24px;color:var(--tx3)}
+</style>
+<div class="reg-modal-backdrop" id="shipRegistryModal">
+  <div class="reg-modal">
+    <div class="reg-header">
+      <div class="reg-title">🚀 SHIP REGISTRY</div>
+      <button class="reg-close" onclick="closeShipRegistry()">✕</button>
+    </div>
+    <div class="reg-tabs">
+      <span style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3)">FACTION:</span>
+      <button class="reg-tab mcc on" onclick="regShowFaction('mcc',this)">⬢ MCC</button>
+      <button class="reg-tab fsp" onclick="regShowFaction('fsp',this)">◉ FSP</button>
+      <button class="reg-tab cv" onclick="regShowFaction('cv',this)">▲ CV</button>
+      <span class="reg-desc" id="regFactionDesc"></span>
+    </div>
+    <div class="reg-grid" id="regGrid"><div class="reg-loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- Minerals Panel 모달 (tier 0~3 광물 도감) -->
+<style>
+.min-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);display:none;z-index:9999;align-items:center;justify-content:center;padding:16px}
+.min-modal-backdrop.active{display:flex}
+.min-modal{background:#05060e;border:1px solid rgba(129,199,132,.25);border-radius:10px;max-width:820px;width:100%;max-height:85vh;display:flex;flex-direction:column;color:#d8e0f0;font-family:var(--fn)}
+.min-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(129,199,132,.12)}
+.min-title{font-weight:900;letter-spacing:3px;color:#81c784;font-size:13px}
+.min-body{padding:14px 18px;overflow-y:auto;flex:1}
+.min-section{margin-bottom:18px}
+.min-sect-title{font-weight:800;letter-spacing:3px;font-size:10px;color:rgba(255,255,255,.5);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.min-sect-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+.min-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.min-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08);padding:9px;display:flex;gap:10px;align-items:center;border-radius:4px}
+.min-card-icon{font-size:22px;min-width:24px;text-align:center}
+.min-card-info{flex:1;min-width:0}
+.min-card-name{font-weight:800;font-size:10px;letter-spacing:1.5px;margin-bottom:1px}
+.min-card-en{font-size:8px;letter-spacing:.5px;color:rgba(255,255,255,.35)}
+.min-card-src{font-size:8px;letter-spacing:.5px;color:rgba(255,180,77,.65);margin-top:2px}
+.min-card-recipe{font-size:8px;letter-spacing:.5px;color:rgba(92,187,255,.65);margin-top:2px}
+</style>
+<div class="min-modal-backdrop" id="mineralsModal">
+  <div class="min-modal">
+    <div class="min-header">
+      <div class="min-title">💎 MINERAL CATALOG</div>
+      <button class="reg-close" onclick="closeMineralsPanel()">✕</button>
+    </div>
+    <div class="min-body" id="minBody"><div class="reg-loading">Loading...</div></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   Ship Registry + Minerals UI
+   ═══════════════════════════════════════════════════════════ */
+(function(){
+  let regState = { ships: null, currentFaction: 'mcc', resources: null };
+
+  const FACTION_META = {
+    mcc: { full: 'Mars Corporate Consortium', desc: '기업 연합 · 장거리 레일건', color: '#4fc3f7' },
+    fsp: { full: 'Free Settlers Pact',        desc: '자유 정착자 · 드론/로지',   color: '#81c784' },
+    cv:  { full: 'Crimson Verdict',            desc: '해적 연합 · 근접 돌격',     color: '#ef5350' },
+  };
+
+  async function fetchRegistryShips() {
+    if (regState.ships) return regState.ships;
+    const token = localStorage.getItem('token');
+    if (!token) { showFactionToast && showFactionToast('지갑 연결 필요', 'error'); return null; }
+    try {
+      const res = await fetch('/api/ships/blueprints?includeLocked=1', {
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+      if (!res.ok) throw new Error('fetch failed');
+      const data = await res.json();
+      regState.ships = data.ships || [];
+      return regState.ships;
+    } catch (e) {
+      console.error('[registry]', e);
+      return null;
+    }
+  }
+
+  async function fetchResourceCatalog() {
+    if (regState.resources) return regState.resources;
+    try {
+      const res = await fetch('/api/resources/catalog');
+      if (!res.ok) throw new Error('fetch failed');
+      const data = await res.json();
+      regState.resources = data.resources || [];
+      return regState.resources;
+    } catch (e) {
+      console.error('[minerals]', e);
+      return null;
+    }
+  }
+
+  function renderRegistry() {
+    const grid = document.getElementById('regGrid');
+    if (!regState.ships) { grid.innerHTML = '<div class="reg-loading">Loading...</div>'; return; }
+    const faction = regState.currentFaction;
+    const meta = FACTION_META[faction];
+    document.getElementById('regFactionDesc').textContent = meta.full + ' · ' + meta.desc;
+    const list = regState.ships.filter(s => s.faction_code === faction);
+    if (!list.length) {
+      grid.innerHTML = '<div class="reg-loading">No ships for this faction.</div>';
+      return;
+    }
+    // resources lookup for recipe rendering
+    const resMap = {};
+    (regState.resources || []).forEach(r => { resMap[r.code] = r; });
+    grid.innerHTML = list.map(s => {
+      const recipe = s.recipe_minerals || {};
+      const recipeRows = Object.entries(recipe).map(([code, qty]) => {
+        const m = resMap[code];
+        const icon = m ? (m.icon_emoji || '●') : '●';
+        const name = m ? (m.name_ko || m.name_en || code) : code;
+        return icon + ' ' + name + '×' + qty;
+      }).join(' · ');
+      const buildHrs = s.build_time_seconds ? (s.build_time_seconds >= 3600 ? (s.build_time_seconds/3600).toFixed(1)+'h' : Math.ceil(s.build_time_seconds/60)+'min') : '-';
+      const isCap = !!s.is_capital;
+      const size = (s.size_class || '').toUpperCase();
+      const role = (s.role || 'dps').toLowerCase();
+      const lockBadge = s.can_build ? '' : '<div class="reg-lock">🔒 ' + (s.locks || []).join(' · ') + '</div>';
+      const capBadge = isCap ? '<span class="reg-cap">👑 CAPITAL</span>' : '';
+      const serverCount = s.max_per_server ? ' · ' + (s.server_alive_count||0) + '/' + s.max_per_server : '';
+      return `
+        <div class="reg-card ${faction}">
+          <div class="reg-sname" style="color:${meta.color}">${escapeHtml(s.name_en || s.code)}${capBadge}</div>
+          <div class="reg-scls">${escapeHtml(s.class_label || size)} · T${s.tier||1}${serverCount}</div>
+          <span class="reg-srole ${role}">${role.toUpperCase()}</span>
+          <div class="reg-stats">
+            <div class="reg-stat-row"><span>HP</span><span>${Number(s.base_hp||0).toLocaleString()}</span></div>
+            <div class="reg-stat-row"><span>ATK</span><span>${s.base_atk||0}</span></div>
+            <div class="reg-stat-row"><span>DEF</span><span>${s.base_def||0}</span></div>
+            <div class="reg-stat-row"><span>SPD</span><span>${s.base_speed||0}</span></div>
+          </div>
+          <div class="reg-recipe">
+            <b>BUILD ${buildHrs}</b> · GP ${Number(s.build_gp_cost||0).toLocaleString()}<br>
+            ${escapeHtml(recipeRows || 'No recipe')}
+          </div>
+          ${lockBadge}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderMinerals() {
+    const body = document.getElementById('minBody');
+    if (!regState.resources) { body.innerHTML = '<div class="reg-loading">Loading...</div>'; return; }
+    const byTier = { 0: [], 1: [], 2: [], 3: [] };
+    regState.resources.forEach(r => {
+      const t = (r.tier != null) ? r.tier : 0;
+      if (!byTier[t]) byTier[t] = [];
+      byTier[t].push(r);
+    });
+    const titles = {
+      0: 'TIER 0 — 기본 광물 (모든 섹터)',
+      1: 'TIER 1 — 희귀 광물 (Mid/Frontier)',
+      2: 'TIER 2 — 특수 소재 (Frontier·이벤트)',
+      3: 'TIER 3 — 중간 부품 (유저 제작)',
+    };
+    body.innerHTML = [0,1,2,3].map(t => {
+      const list = byTier[t] || [];
+      if (!list.length) return '';
+      const cards = list.map(m => {
+        let src = '';
+        if (m.is_craftable && m.craft_recipe) {
+          const parts = Object.entries(m.craft_recipe).map(([c,q]) => c + '×' + q);
+          src = '<div class="min-card-recipe">🔧 ' + escapeHtml(parts.join(' + ')) + '</div>';
+        } else if (m.description_ko) {
+          src = '<div class="min-card-src">' + escapeHtml(m.description_ko) + '</div>';
+        }
+        return `
+          <div class="min-card">
+            <div class="min-card-icon" style="color:${m.color_hex||'#fff'}">${m.icon_emoji || '●'}</div>
+            <div class="min-card-info">
+              <div class="min-card-name" style="color:${m.color_hex||'#fff'}">${escapeHtml(m.name_ko || m.code)}</div>
+              <div class="min-card-en">${escapeHtml(m.name_en || '')}</div>
+              ${src}
+            </div>
+          </div>
+        `;
+      }).join('');
+      return `
+        <div class="min-section">
+          <div class="min-sect-title">// ${titles[t]}</div>
+          <div class="min-grid">${cards}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Public handlers
+  window.openShipRegistry = async function() {
+    document.getElementById('shipRegistryModal').classList.add('active');
+    const grid = document.getElementById('regGrid');
+    grid.innerHTML = '<div class="reg-loading">Loading...</div>';
+    await Promise.all([fetchRegistryShips(), fetchResourceCatalog()]);
+    renderRegistry();
+  };
+  window.closeShipRegistry = function() {
+    document.getElementById('shipRegistryModal').classList.remove('active');
+  };
+  window.regShowFaction = function(faction, btn) {
+    regState.currentFaction = faction;
+    document.querySelectorAll('.reg-tab').forEach(t => t.classList.remove('on'));
+    btn.classList.add('on');
+    renderRegistry();
+  };
+
+  window.openMineralsPanel = async function() {
+    document.getElementById('mineralsModal').classList.add('active');
+    const body = document.getElementById('minBody');
+    body.innerHTML = '<div class="reg-loading">Loading...</div>';
+    await fetchResourceCatalog();
+    renderMinerals();
+  };
+  window.closeMineralsPanel = function() {
+    document.getElementById('mineralsModal').classList.remove('active');
+  };
+})();
+</script>
 
 <!-- Alliance 모달 -->
 <div class="al-modal-backdrop" id="allianceModal">
