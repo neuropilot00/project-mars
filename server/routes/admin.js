@@ -716,7 +716,10 @@ router.get('/sectors', async (req, res) => {
 router.put('/sectors/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { name, tier, base_price, governor_wallet } = req.body;
+    const {
+      name, tier, base_price, governor_wallet,
+      tax_rate, entry_min_level, entry_required_mid_owns, entry_check_active
+    } = req.body;
 
     const updates = [];
     const vals = [];
@@ -726,6 +729,24 @@ router.put('/sectors/:id', async (req, res) => {
     if (tier !== undefined) { updates.push(`tier = $${idx++}`); vals.push(tier); }
     if (base_price !== undefined) { updates.push(`base_price = $${idx++}`); vals.push(base_price); }
     if (governor_wallet !== undefined) { updates.push(`governor_wallet = $${idx++}`); vals.push(governor_wallet || null); }
+    if (tax_rate !== undefined) {
+      const t = parseFloat(tax_rate);
+      if (Number.isNaN(t) || t < 0 || t > 50) return res.status(400).json({ error: 'tax_rate out of range (0..50)' });
+      updates.push(`tax_rate = $${idx++}`); vals.push(t);
+    }
+    if (entry_min_level !== undefined) {
+      const lv = parseInt(entry_min_level);
+      if (Number.isNaN(lv) || lv < 0 || lv > 999) return res.status(400).json({ error: 'entry_min_level out of range' });
+      updates.push(`entry_min_level = $${idx++}`); vals.push(lv);
+    }
+    if (entry_required_mid_owns !== undefined) {
+      const n = parseInt(entry_required_mid_owns);
+      if (Number.isNaN(n) || n < 0 || n > 99) return res.status(400).json({ error: 'entry_required_mid_owns out of range' });
+      updates.push(`entry_required_mid_owns = $${idx++}`); vals.push(n);
+    }
+    if (entry_check_active !== undefined) {
+      updates.push(`entry_check_active = $${idx++}`); vals.push(!!entry_check_active);
+    }
 
     if (!updates.length) return res.status(400).json({ error: 'No fields to update' });
 
@@ -1295,6 +1316,7 @@ router.get('/governance', adminAuth, async (req, res) => {
     const sectorsRes = await pool.query(
       `SELECT s.id, s.name, s.tier, s.tax_rate, s.governor_wallet, s.vice_governor_wallet,
               s.announcement, s.sector_pool_gp, s.buff_fund_gp,
+              s.entry_min_level, s.entry_required_mid_owns, s.entry_check_active,
               u1.nickname AS governor_name, u2.nickname AS vice_name
        FROM sectors s
        LEFT JOIN users u1 ON u1.wallet_address = s.governor_wallet
@@ -4031,6 +4053,86 @@ router.get('/phase-d/betrayal-log', adminAuth, async (req, res) => {
     res.json({ betrayals: r.rows });
   } catch (e) {
     console.error('[Admin] phase-d/betrayal-log error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════
+//  PHASE A: Sector tariff + entry admin
+// ══════════════════════════════════════════════════════════════════
+
+const SECTOR_PHASE_A_KEYS = [
+  'sector_entry_check_enabled',
+  'sector_tariff_enabled',
+  'sector_tariff_pct',
+  'sector_tariff_uses_per_sector',
+  'sector_tariff_guild_exempt',
+  'sector_tariff_min_listing_pp'
+];
+
+// GET /admin/api/sector-access/settings — Phase A sector-level settings
+router.get('/sector-access/settings', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      'SELECT key, value, description, category FROM settings WHERE key = ANY($1::text[])',
+      [SECTOR_PHASE_A_KEYS]
+    );
+    const out = {};
+    for (const row of r.rows) {
+      out[row.key] = { value: row.value, description: row.description, category: row.category };
+    }
+    res.json({ settings: out, keys: SECTOR_PHASE_A_KEYS });
+  } catch (e) {
+    console.error('[Admin] sector-access/settings error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/sector-access/setting — update one
+router.post('/sector-access/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !SECTOR_PHASE_A_KEYS.includes(key)) {
+    return res.status(400).json({ error: 'Invalid key' });
+  }
+  try {
+    const r = await pool.query(
+      'UPDATE settings SET value=$1, updated_at=NOW() WHERE key=$2 RETURNING key',
+      [JSON.stringify(value), key]
+    );
+    if (!r.rowCount) return res.status(404).json({ error: 'Not found' });
+    await auditLog(req, 'sector_access_setting_update', key, { value });
+    res.json({ ok: true, key, value });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /admin/api/sector-access/tariff-log — recent tariff revenue events
+router.get('/sector-access/tariff-log', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT t.id, t.sector_id, s.name AS sector_name, t.governor_wallet, t.payer_wallet,
+              t.source, t.source_ref_id, t.gross_amount, t.tariff_pct, t.tariff_amount,
+              t.guild_exempted, t.created_at,
+              gu.nickname AS governor_nick, pu.nickname AS payer_nick
+         FROM sector_tariff_log t
+         LEFT JOIN sectors s ON s.id = t.sector_id
+         LEFT JOIN users gu ON gu.wallet_address = t.governor_wallet
+         LEFT JOIN users pu ON pu.wallet_address = t.payer_wallet
+        ORDER BY t.created_at DESC
+        LIMIT 50`
+    );
+    // Aggregate summary
+    const summary = await pool.query(
+      `SELECT COUNT(*)::int AS events,
+              COALESCE(SUM(tariff_amount),0)::numeric(20,8) AS total_collected,
+              COUNT(*) FILTER (WHERE guild_exempted)::int AS exempted_count
+         FROM sector_tariff_log
+        WHERE created_at > NOW() - INTERVAL '30 days'`
+    );
+    res.json({ log: r.rows, summary: summary.rows[0] || {} });
+  } catch (e) {
+    console.error('[Admin] tariff-log error:', e.message);
     res.status(500).json({ error: e.message });
   }
 });

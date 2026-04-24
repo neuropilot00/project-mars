@@ -2017,6 +2017,9 @@ router.get('/sectors', readLimiter, async (req, res) => {
         } : null,
         taxRate: parseFloat(r.tax_rate) || 2,
         announcement: r.announcement || null,
+        entryMinLevel: parseInt(r.entry_min_level) || 0,
+        entryRequiredMidOwns: parseInt(r.entry_required_mid_owns) || 0,
+        entryCheckActive: r.entry_check_active !== false,
         topHolder: top ? {
           wallet: top.wallet.slice(0, 6) + '...' + top.wallet.slice(-4),
           fullWallet: top.wallet,

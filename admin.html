@@ -713,6 +713,49 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <tbody id="govSectorsBody"><tr><td colspan="9" class="loading">Loading...</td></tr></tbody>
       </table>
     </div>
+
+    <!-- ═══ PHASE A: Sector Entry & Tariff Admin (M-156) ═══ -->
+    <div class="sec-header" style="margin-top:16px">
+      <span class="sec-title" style="color:#00FF88">🚪 SECTOR ENTRY & TARIFF (M-156)</span>
+      <div class="sec-tools"><button class="ev-btn" onclick="loadPhaseAAdmin()">REFRESH</button></div>
+    </div>
+    <div id="phaStatus" style="font-size:9px;color:var(--gold);min-height:12px;margin-bottom:8px"></div>
+
+    <!-- Global settings -->
+    <div style="padding:10px;border:1px solid rgba(0,255,136,.18);border-radius:6px;background:rgba(0,255,136,.03);margin-bottom:12px">
+      <div style="font-size:8px;color:#00FF88;letter-spacing:1px;margin-bottom:8px;font-weight:700">GLOBAL TOGGLES</div>
+      <div id="phaSettingsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px">
+        <div style="color:#888;font-size:9px">Click REFRESH...</div>
+      </div>
+    </div>
+
+    <!-- Per-sector entry/tariff editor -->
+    <div class="sec-header" style="margin-top:4px"><span class="sec-title" style="color:#00FF88" style="font-size:11px">PER-SECTOR EDITOR</span></div>
+    <div style="overflow-x:auto;margin-bottom:10px">
+      <table class="adm-table">
+        <thead><tr>
+          <th>SECTOR</th><th>TIER</th><th>TAX %</th>
+          <th>MIN LV</th><th>REQ MID</th><th>ENTRY ACTIVE</th><th>SAVE</th>
+        </tr></thead>
+        <tbody id="phaSectorsBody"><tr><td colspan="7" class="loading">Click REFRESH</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Tariff log -->
+    <div class="sec-header" style="margin-top:8px">
+      <span class="sec-title" style="color:var(--gold)">💰 TARIFF REVENUE LOG (30d)</span>
+      <div class="sec-tools"><button class="ev-btn" onclick="loadPhaseATariffLog()">REFRESH</button></div>
+    </div>
+    <div id="phaTariffSummary" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-bottom:6px"></div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr>
+          <th>WHEN</th><th>SECTOR</th><th>GOVERNOR</th><th>PAYER</th><th>SRC</th>
+          <th>GROSS</th><th>%</th><th>TARIFF</th><th>EXEMPT</th>
+        </tr></thead>
+        <tbody id="phaTariffBody"><tr><td colspan="9" class="loading">Click REFRESH</td></tr></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="section cat-governance" style="display:none">
@@ -2469,7 +2512,7 @@ function switchTab(tab) {
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
   if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); loadBannerAdmin(); loadJournalAdmin(); loadTprestigeAdmin(); loadAnnounceAdmin(); loadTombstoneAdmin(); loadMilestoneAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
-  if (tab === 'governance') { loadGovData(); }
+  if (tab === 'governance') { loadGovData(); loadPhaseAAdmin(); }
   if (tab === 'lore') { loadLoreData(); }
   if (tab === 'enhance') { loadEnhanceStats(); }
   if (tab === 'marketplace') { loadMarketplaceAdmin(); loadMktPriceAnalytics(); loadAuctionAdmin(); }
@@ -3918,6 +3961,168 @@ function loadGovTx() {
         + '</tr>';
     }).join('');
   }).catch(function(e){ console.error('[Gov] tx load error:', e); });
+}
+
+// ═══════════════════════════════════════
+//  PHASE A ADMIN (M-156): Sector Entry + Tariff
+// ═══════════════════════════════════════
+function loadPhaseAAdmin() {
+  loadPhaseASettings();
+  loadPhaseASectorsEditor();
+  loadPhaseATariffLog();
+}
+
+function _phaSetStatus(msg, isErr) {
+  var el = document.getElementById('phaStatus');
+  if (!el) return;
+  el.style.color = isErr ? 'var(--red)' : 'var(--gold)';
+  el.textContent = msg || '';
+  if (msg) setTimeout(function(){ if (el.textContent===msg) el.textContent=''; }, 2500);
+}
+
+function _phaUnwrap(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'string' && /^".*"$/.test(v)) return v.slice(1,-1);
+  return String(v);
+}
+
+function _phaRenderSetting(key, meta) {
+  var val = _phaUnwrap(meta.value);
+  var desc = meta.description || '';
+  var isBool = (val==='true' || val==='false');
+  var input;
+  if (isBool) {
+    input = '<select id="pha_set_'+key+'" onchange="savePhaseASetting(\''+key+'\', this.value===\'true\')" '
+      + 'style="width:100%;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(0,255,136,.3);color:#fff;border-radius:3px">'
+      + '<option value="true"'+(val==='true'?' selected':'')+'>true</option>'
+      + '<option value="false"'+(val==='false'?' selected':'')+'>false</option></select>';
+  } else {
+    input = '<input id="pha_set_'+key+'" value="'+escapeHtml(val)+'" onchange="savePhaseASettingInput(\''+key+'\')" '
+      + 'style="width:100%;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(0,255,136,.3);color:#fff;border-radius:3px">';
+  }
+  return '<div style="background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:5px;padding:6px">'
+    + '<div style="font-size:8px;color:#00FF88;font-weight:700;margin-bottom:2px">'+escapeHtml(key)+'</div>'
+    + '<div style="display:flex;gap:4px;align-items:center">'+input
+    + '<button onclick="savePhaseASettingInput(\''+key+'\')" style="flex-shrink:0;font-size:9px;padding:3px 8px;background:rgba(0,255,136,.18);border:1px solid rgba(0,255,136,.4);color:#00FF88;border-radius:3px;cursor:pointer">💾</button></div>'
+    + '<div style="font-size:7px;color:#777;margin-top:3px;line-height:1.3">'+escapeHtml(desc)+'</div>'
+    + '</div>';
+}
+
+function loadPhaseASettings() {
+  api('/admin/api/sector-access/settings').then(function(d) {
+    var s = d.settings || {};
+    var keys = d.keys || Object.keys(s);
+    var host = document.getElementById('phaSettingsGrid');
+    if (!host) return;
+    host.innerHTML = keys.map(function(k){
+      return s[k] ? _phaRenderSetting(k, s[k]) : '<div style="color:#666;font-size:9px;padding:6px">'+escapeHtml(k)+' not found</div>';
+    }).join('');
+  }).catch(function(e) { _phaSetStatus('settings load: '+e.message, true); });
+}
+
+function savePhaseASettingInput(key) {
+  var inp = document.getElementById('pha_set_'+key);
+  if (!inp) return;
+  var raw = inp.value, val;
+  if (raw==='true') val=true;
+  else if (raw==='false') val=false;
+  else if (!isNaN(raw) && raw.trim()!=='') val = parseFloat(raw);
+  else val = raw;
+  savePhaseASetting(key, val);
+}
+
+function savePhaseASetting(key, value) {
+  fetch('/admin/api/sector-access/setting', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body:JSON.stringify({key:key, value:value})
+  }).then(function(r){return r.json()}).then(function(d) {
+    if (d.ok) _phaSetStatus('✓ '+key+' = '+JSON.stringify(value));
+    else _phaSetStatus('✗ '+(d.error||'failed'), true);
+  }).catch(function(e){ _phaSetStatus('✗ '+e.message, true); });
+}
+
+function loadPhaseASectorsEditor() {
+  api('/admin/api/sectors').then(function(rows) {
+    var tbody = document.getElementById('phaSectorsBody');
+    if (!tbody) return;
+    if (!rows || !rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="loading">No sectors</td></tr>'; return; }
+    tbody.innerHTML = rows.map(function(s) {
+      return '<tr>'
+        + '<td style="color:var(--cyan);font-weight:700">'+escapeHtml(s.name||'#'+s.id)+' <span style="color:#666;font-size:7px">(#'+s.id+')</span></td>'
+        + '<td><span class="type-badge" style="background:rgba(91,184,232,.1);color:var(--cyan);font-size:8px">'+escapeHtml(s.tier||'-')+'</span></td>'
+        + '<td><input id="pha_sec_tax_'+s.id+'" type="number" step="0.1" min="0" max="50" value="'+parseFloat(s.tax_rate||0).toFixed(1)+'" style="width:60px;font-size:10px;padding:2px 4px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px"></td>'
+        + '<td><input id="pha_sec_lv_'+s.id+'" type="number" min="0" max="999" value="'+(s.entry_min_level||0)+'" style="width:50px;font-size:10px;padding:2px 4px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px"></td>'
+        + '<td><input id="pha_sec_mid_'+s.id+'" type="number" min="0" max="99" value="'+(s.entry_required_mid_owns||0)+'" style="width:50px;font-size:10px;padding:2px 4px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px"></td>'
+        + '<td><select id="pha_sec_act_'+s.id+'" style="font-size:10px;padding:2px 4px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
+          + '<option value="true"'+(s.entry_check_active!==false?' selected':'')+'>true</option>'
+          + '<option value="false"'+(s.entry_check_active===false?' selected':'')+'>false</option></select></td>'
+        + '<td><button class="ev-btn" onclick="savePhaseASector('+s.id+')" style="color:#00FF88">💾</button></td>'
+        + '</tr>';
+    }).join('');
+  }).catch(function(e){
+    var tbody = document.getElementById('phaSectorsBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="loading">Error: '+e.message+'</td></tr>';
+  });
+}
+
+function savePhaseASector(id) {
+  var tax = document.getElementById('pha_sec_tax_'+id);
+  var lv  = document.getElementById('pha_sec_lv_'+id);
+  var mid = document.getElementById('pha_sec_mid_'+id);
+  var act = document.getElementById('pha_sec_act_'+id);
+  var body = {
+    tax_rate: parseFloat(tax.value),
+    entry_min_level: parseInt(lv.value),
+    entry_required_mid_owns: parseInt(mid.value),
+    entry_check_active: (act.value === 'true')
+  };
+  fetch('/admin/api/sectors/'+id, {
+    method:'PUT',
+    headers:{'Content-Type':'application/json','x-admin-secret':adminSecret},
+    body: JSON.stringify(body)
+  }).then(function(r){return r.json()}).then(function(d) {
+    if (d.success) _phaSetStatus('✓ sector #'+id+' saved');
+    else _phaSetStatus('✗ sector #'+id+': '+(d.error||'failed'), true);
+  }).catch(function(e){ _phaSetStatus('✗ '+e.message, true); });
+}
+
+function loadPhaseATariffLog() {
+  api('/admin/api/sector-access/tariff-log').then(function(d) {
+    var sum = d.summary || {};
+    var sumEl = document.getElementById('phaTariffSummary');
+    if (sumEl) {
+      sumEl.innerHTML = [
+        ['EVENTS (30d)', sum.events||0, 'var(--cyan)'],
+        ['TOTAL COLLECTED', parseFloat(sum.total_collected||0).toFixed(4)+' PP', 'var(--gold)'],
+        ['EXEMPTED', sum.exempted_count||0, '#888']
+      ].map(function(x){
+        return '<div style="padding:6px 8px;border:1px solid rgba(255,209,102,.15);border-radius:5px;background:rgba(255,209,102,.03)">'
+          + '<div style="font-size:7px;color:'+x[2]+';letter-spacing:1px">'+x[0]+'</div>'
+          + '<div style="font-size:12px;color:'+x[2]+';font-weight:700">'+x[1]+'</div></div>';
+      }).join('');
+    }
+    var rows = d.log || [];
+    var tbody = document.getElementById('phaTariffBody');
+    if (!tbody) return;
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="9" class="loading">No tariff events</td></tr>'; return; }
+    tbody.innerHTML = rows.map(function(t) {
+      return '<tr>'
+        + '<td style="font-size:8px">'+new Date(t.created_at).toLocaleString()+'</td>'
+        + '<td>'+escapeHtml(t.sector_name||'#'+t.sector_id)+'</td>'
+        + '<td class="addr">'+escapeHtml(t.governor_nick||(t.governor_wallet||'').slice(0,8)+'...')+'</td>'
+        + '<td class="addr">'+escapeHtml(t.payer_nick||(t.payer_wallet||'').slice(0,8)+'...')+'</td>'
+        + '<td style="font-size:8px">'+escapeHtml(t.source||'-')+'</td>'
+        + '<td class="val-pp">'+parseFloat(t.gross_amount||0).toFixed(4)+'</td>'
+        + '<td>'+parseFloat(t.tariff_pct||0).toFixed(1)+'%</td>'
+        + '<td class="val-gn">'+parseFloat(t.tariff_amount||0).toFixed(4)+'</td>'
+        + '<td style="color:'+(t.guild_exempted?'var(--gn)':'#666')+'">'+(t.guild_exempted?'YES':'-')+'</td>'
+        + '</tr>';
+    }).join('');
+  }).catch(function(e) {
+    var tbody = document.getElementById('phaTariffBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="9" class="loading">Error: '+e.message+'</td></tr>';
+  });
 }
 
 // ═══════════════════════════════════════
