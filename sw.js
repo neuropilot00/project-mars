@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mars-v1';
+const CACHE_NAME = 'mars-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -27,13 +27,16 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
+  // Cache API only supports GET. Skip SW logic for non-GET (POST/PUT/DELETE etc.)
+  if (e.request.method !== 'GET') return;
+
   // Network-first for API calls
   if (url.pathname.startsWith('/api/')) {
     e.respondWith(
       fetch(e.request)
         .then((res) => {
           const clone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone)).catch(() => {});
           return res;
         })
         .catch(() => caches.match(e.request))
