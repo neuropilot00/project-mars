@@ -1,357 +1,314 @@
-'use strict';
-const pool = require('../db');
+// server/services/alliance.js
+// ═══════════════════════════════════════════════════════════════
+// Alliance System — 동맹 생성/관리/동맹전
+// ═══════════════════════════════════════════════════════════════
 
-async function getSetting(key, fallback) {
+const { pool } = require('../db');
+
+const ROLE_LEADER = 'leader';
+const ROLE_OFFICER = 'officer';
+const ROLE_MEMBER = 'member';
+
+// ─── 동맹 생성 ───
+
+async function createAlliance(walletAddress, params) {
+  const { name, tag, description, faction_code } = params;
+  
+  if (!name || name.trim().length === 0) throw new Error('NAME_REQUIRED');
+  if (name.length > 60) throw new Error('NAME_TOO_LONG');
+  if (tag && (tag.length < 2 || tag.length > 6)) throw new Error('INVALID_TAG');
+  
+  const client = await pool.connect();
   try {
-    const { rows } = await pool.query('SELECT value FROM game_settings WHERE key=$1', [key]);
-    if (rows.length) return rows[0].value;
-  } catch (_) {}
-  return String(fallback);
+    await client.query('BEGIN');
+    
+    // 이미 동맹 소속?
+    const { rows: existing } = await client.query(
+      `SELECT 1 FROM alliance_members WHERE wallet_address = $1 AND left_at IS NULL`,
+      [walletAddress]
+    );
+    if (existing[0]) throw new Error('ALREADY_IN_ALLIANCE');
+    
+    // 창설 비용
+    const { rows: settingRows } = await client.query(
+      `SELECT value FROM settings WHERE key = 'alliance_creation_fee_gp'`
+    );
+    const fee = parseInt(String(settingRows[0]?.value || '5000').replace(/"/g,'')) || 5000;
+    
+    const { rows: userRows } = await client.query(
+      `SELECT gp_balance, faction_code FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      [walletAddress]
+    );
+    if (!userRows[0]) throw new Error('USER_NOT_FOUND');
+    if (parseInt(userRows[0].gp_balance) < fee) {
+      const err = new Error('INSUFFICIENT_GP');
+      err.meta = { required: fee, balance: userRows[0].gp_balance };
+      throw err;
+    }
+    
+    // 파벌 확정 (유저 파벌 기본 사용)
+    const allianceFaction = faction_code || userRows[0].faction_code;
+    
+    // GP 차감
+    await client.query(
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      [fee, walletAddress]
+    );
+    
+    // 파벌 색상 로드
+    let colorPrimary = '#4fc3f7';
+    if (allianceFaction) {
+      const { rows: facRows } = await client.query(
+        `SELECT color_primary FROM factions WHERE code = $1`, [allianceFaction]
+      );
+      if (facRows[0]) colorPrimary = facRows[0].color_primary;
+    }
+    
+    // 동맹 생성
+    const { rows: aRows } = await client.query(`
+      INSERT INTO alliances (
+        name, tag, description, leader_wallet, faction_code, color_primary
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, name, tag
+    `, [name.trim(), tag ? tag.trim().toUpperCase() : null, description, 
+        walletAddress, allianceFaction, colorPrimary]);
+    
+    const allianceId = aRows[0].id;
+    
+    // 리더 등록
+    await client.query(`
+      INSERT INTO alliance_members (alliance_id, wallet_address, role)
+      VALUES ($1, $2, 'leader')
+    `, [allianceId, walletAddress]);
+    
+    await client.query('COMMIT');
+    return aRows[0];
+  } catch (err) {
+    await client.query('ROLLBACK');
+    if (err.code === '23505') {
+      // unique violation
+      if (err.constraint?.includes('name')) throw new Error('NAME_TAKEN');
+      if (err.constraint?.includes('tag')) throw new Error('TAG_TAKEN');
+    }
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
-async function getSettings() {
-  const keys = [
-    'alliance_enabled','alliance_create_cost_gp','alliance_weekly_dues_gp',
-    'alliance_max_members','alliance_defense_bonus','alliance_income_share',
-    'alliance_treasury_withdraw_min','alliance_treasury_fee_pct'
-  ];
-  const { rows } = await pool.query(
-    `SELECT key, value FROM game_settings WHERE key = ANY($1)`, [keys]);
-  const m = {};
-  rows.forEach(r => { m[r.key] = r.value; });
+// ─── 가입 ───
+
+async function joinAlliance(walletAddress, allianceId) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    const { rows: existing } = await client.query(
+      `SELECT 1 FROM alliance_members WHERE wallet_address = $1 AND left_at IS NULL`,
+      [walletAddress]
+    );
+    if (existing[0]) throw new Error('ALREADY_IN_ALLIANCE');
+    
+    const { rows: aRows } = await client.query(
+      `SELECT id, member_count, max_members FROM alliances 
+       WHERE id = $1 AND disbanded_at IS NULL FOR UPDATE`, [allianceId]
+    );
+    if (!aRows[0]) throw new Error('ALLIANCE_NOT_FOUND');
+    if (aRows[0].member_count >= aRows[0].max_members) throw new Error('ALLIANCE_FULL');
+    
+    await client.query(`
+      INSERT INTO alliance_members (alliance_id, wallet_address, role)
+      VALUES ($1, $2, 'member')
+      ON CONFLICT (alliance_id, wallet_address) 
+      DO UPDATE SET left_at = NULL, joined_at = NOW(), role = 'member'
+    `, [allianceId, walletAddress]);
+    
+    await client.query(
+      `UPDATE alliances SET member_count = member_count + 1 WHERE id = $1`,
+      [allianceId]
+    );
+    
+    await client.query('COMMIT');
+    return { success: true, alliance_id: allianceId };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// ─── 탈퇴 ───
+
+async function leaveAlliance(walletAddress) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    const { rows: memberRows } = await client.query(`
+      SELECT am.alliance_id, am.role, a.member_count
+      FROM alliance_members am
+      JOIN alliances a ON a.id = am.alliance_id
+      WHERE am.wallet_address = $1 AND am.left_at IS NULL
+      FOR UPDATE OF am, a
+    `, [walletAddress]);
+    
+    if (!memberRows[0]) throw new Error('NOT_IN_ALLIANCE');
+    const { alliance_id, role, member_count } = memberRows[0];
+    
+    // 리더이면 동맹 해체 or 이양 필요
+    if (role === 'leader') {
+      if (member_count > 1) {
+        throw new Error('LEADER_MUST_TRANSFER'); // 리더 이양 먼저
+      }
+      // 혼자면 해체
+      await client.query(
+        `UPDATE alliances SET disbanded_at = NOW() WHERE id = $1`,
+        [alliance_id]
+      );
+    }
+    
+    await client.query(
+      `UPDATE alliance_members SET left_at = NOW() 
+       WHERE alliance_id = $1 AND wallet_address = $2`,
+      [alliance_id, walletAddress]
+    );
+    
+    await client.query(
+      `UPDATE alliances SET member_count = member_count - 1 WHERE id = $1`,
+      [alliance_id]
+    );
+    
+    await client.query('COMMIT');
+    return { success: true };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// ─── 조회 ───
+
+async function getMyAlliance(walletAddress) {
+  const { rows } = await pool.query(`
+    SELECT 
+      a.*, am.role, am.joined_at, am.contribution,
+      fa.name_ko AS faction_name
+    FROM alliance_members am
+    JOIN alliances a ON a.id = am.alliance_id
+    LEFT JOIN factions fa ON fa.code = a.faction_code
+    WHERE am.wallet_address = $1 AND am.left_at IS NULL AND a.disbanded_at IS NULL
+  `, [walletAddress]);
+  
+  if (!rows[0]) return null;
+  
+  // 멤버 목록
+  const { rows: members } = await pool.query(`
+    SELECT am.wallet_address, am.role, am.joined_at, am.contribution,
+           u.nickname, 
+           (SELECT COUNT(*) FROM ships WHERE owner_wallet = am.wallet_address AND is_alive) AS ships_count
+    FROM alliance_members am
+    LEFT JOIN users u ON u.wallet_address = am.wallet_address
+    WHERE am.alliance_id = $1 AND am.left_at IS NULL
+    ORDER BY 
+      CASE am.role WHEN 'leader' THEN 1 WHEN 'officer' THEN 2 ELSE 3 END,
+      am.contribution DESC
+  `, [rows[0].id]);
+  
   return {
-    enabled:           (m.alliance_enabled || 'true') === 'true',
-    createCost:        parseFloat(m.alliance_create_cost_gp     || '200'),
-    weeklyDues:        parseFloat(m.alliance_weekly_dues_gp     || '20'),
-    maxMembers:        parseInt(m.alliance_max_members           || '5', 10),
-    defenseBonus:      parseInt(m.alliance_defense_bonus        || '5', 10),
-    incomeShare:       parseInt(m.alliance_income_share         || '5', 10),
-    withdrawMin:       parseFloat(m.alliance_treasury_withdraw_min || '10'),
-    withdrawFeePct:    parseFloat(m.alliance_treasury_fee_pct   || '5')
+    ...rows[0],
+    members,
   };
 }
 
-// ── Create Alliance ───────────────────────────────────────────────────────────
-async function createAlliance(leader, name, tag, description, emblem) {
-  const lLower = leader.toLowerCase();
-  const cfg = await getSettings();
-  if (!cfg.enabled) throw new Error('Alliance system is disabled');
-  if (!name || name.length < 2 || name.length > 50) throw new Error('Alliance name must be 2-50 characters');
-  if (!tag  || tag.length  < 2 || tag.length  > 6)  throw new Error('Alliance tag must be 2-6 characters');
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    // Already in an alliance?
-    const { rows: memRows } = await client.query(
-      `SELECT alliance_id FROM alliance_members WHERE wallet=$1`, [lLower]);
-    if (memRows.length) throw new Error('You are already in an alliance');
-
-    // GP cost
-    const { rows: balRows } = await client.query(
-      'SELECT balance FROM gp_balances WHERE wallet=$1 FOR UPDATE', [lLower]);
-    const bal = balRows.length ? Number(balRows[0].balance) : 0;
-    if (bal < cfg.createCost) throw new Error(`Insufficient GP (need ${cfg.createCost})`);
-    await client.query(
-      'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2',
-      [cfg.createCost, lLower]);
-
-    // Create alliance
-    const { rows: aRows } = await client.query(
-      `INSERT INTO alliances (name, tag, leader, description, emblem, defense_bonus, income_share)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)
-       RETURNING *`,
-      [name.trim(), tag.trim().toUpperCase(), lLower,
-       description || null, emblem || '⚔️',
-       cfg.defenseBonus, cfg.incomeShare]
-    );
-    const alliance = aRows[0];
-
-    // Add leader as member
-    await client.query(
-      `INSERT INTO alliance_members (alliance_id, wallet, role)
-       VALUES ($1,$2,'leader')`,
-      [alliance.id, lLower]);
-
-    // Log
-    await client.query(
-      `INSERT INTO alliance_log (alliance_id, wallet, event_type, amount_gp, note)
-       VALUES ($1,$2,'created',$3,'Alliance created')`,
-      [alliance.id, lLower, cfg.createCost]);
-
-    await client.query('COMMIT');
-    return alliance;
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-// ── Join Alliance ─────────────────────────────────────────────────────────────
-async function joinAlliance(wallet, allianceId) {
-  const wLower = wallet.toLowerCase();
-  const cfg = await getSettings();
-  if (!cfg.enabled) throw new Error('Alliance system is disabled');
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    // Already in an alliance?
-    const { rows: memRows } = await client.query(
-      `SELECT alliance_id FROM alliance_members WHERE wallet=$1`, [wLower]);
-    if (memRows.length) throw new Error('You are already in an alliance. Leave first.');
-
-    // Load alliance
-    const { rows: aRows } = await client.query(
-      `SELECT * FROM alliances WHERE id=$1 FOR UPDATE`, [allianceId]);
-    if (!aRows.length) throw new Error('Alliance not found');
-    const alliance = aRows[0];
-    if (!alliance.is_recruiting) throw new Error('Alliance is not recruiting');
-    if (alliance.member_count >= alliance.max_members) {
-      throw new Error(`Alliance is full (${alliance.max_members} max)`);
-    }
-    if (alliance.leader === wLower) throw new Error('You are already the leader');
-
-    await client.query(
-      `INSERT INTO alliance_members (alliance_id, wallet, role) VALUES ($1,$2,'member')`,
-      [allianceId, wLower]);
-    await client.query(
-      `UPDATE alliances SET member_count = member_count + 1 WHERE id=$1`, [allianceId]);
-    await client.query(
-      `INSERT INTO alliance_log (alliance_id, wallet, event_type, note)
-       VALUES ($1,$2,'joined','Member joined')`,
-      [allianceId, wLower]);
-
-    await client.query('COMMIT');
-
-    // Notify leader
-    try {
-      await pool.query(
-        `INSERT INTO player_notifications (wallet, type, message, meta) VALUES ($1,'alliance_joined',$2,$3)`,
-        [alliance.leader,
-         `🤝 ${wLower.slice(0,10)}… joined alliance [${alliance.tag}]`,
-         JSON.stringify({ alliance_id: allianceId })]
-      );
-    } catch (_) {}
-
-    return { ok: true, allianceName: alliance.name };
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-// ── Leave Alliance ────────────────────────────────────────────────────────────
-async function leaveAlliance(wallet) {
-  const wLower = wallet.toLowerCase();
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    const { rows: memRows } = await client.query(
-      `SELECT am.*, a.name, a.tag, a.leader, a.member_count
-       FROM alliance_members am
-       JOIN alliances a ON a.id = am.alliance_id
-       WHERE am.wallet=$1 FOR UPDATE`, [wLower]);
-    if (!memRows.length) throw new Error('You are not in an alliance');
-    const mem = memRows[0];
-    if (mem.leader === wLower && mem.member_count > 1) {
-      throw new Error('Transfer leadership before leaving (or kick all members first)');
-    }
-
-    await client.query(
-      `DELETE FROM alliance_members WHERE wallet=$1`, [wLower]);
-    await client.query(
-      `UPDATE alliances SET member_count = member_count - 1 WHERE id=$1`,
-      [mem.alliance_id]);
-    await client.query(
-      `INSERT INTO alliance_log (alliance_id, wallet, event_type, note)
-       VALUES ($1,$2,'left','Member left')`,
-      [mem.alliance_id, wLower]);
-
-    // If leader was last member, dissolve
-    if (mem.member_count <= 1) {
-      await client.query(
-        `DELETE FROM alliances WHERE id=$1`, [mem.alliance_id]);
-    }
-
-    await client.query('COMMIT');
-    return { ok: true };
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-// ── Deposit to treasury ───────────────────────────────────────────────────────
-async function depositTreasury(wallet, amount) {
-  const wLower = wallet.toLowerCase();
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    const { rows: memRows } = await client.query(
-      `SELECT am.alliance_id FROM alliance_members am WHERE am.wallet=$1`, [wLower]);
-    if (!memRows.length) throw new Error('You are not in an alliance');
-    const allianceId = memRows[0].alliance_id;
-
-    const { rows: balRows } = await client.query(
-      'SELECT balance FROM gp_balances WHERE wallet=$1 FOR UPDATE', [wLower]);
-    const bal = balRows.length ? Number(balRows[0].balance) : 0;
-    if (bal < amount) throw new Error(`Insufficient GP (have ${bal.toFixed(2)})`);
-
-    await client.query(
-      'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2', [amount, wLower]);
-    await client.query(
-      `UPDATE alliances SET treasury_gp = treasury_gp + $1, total_gp_burned = total_gp_burned + $1
-       WHERE id=$2`, [amount, allianceId]);
-    await client.query(
-      `INSERT INTO alliance_log (alliance_id, wallet, event_type, amount_gp, note)
-       VALUES ($1,$2,'treasury_deposit',$3,'Deposit')`,
-      [allianceId, wLower, amount]);
-
-    await client.query('COMMIT');
-    return { ok: true };
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-// ── Withdraw from treasury (leader only) ─────────────────────────────────────
-async function withdrawTreasury(wallet, amount, note) {
-  const wLower = wallet.toLowerCase();
-  const cfg = await getSettings();
-  if (amount < cfg.withdrawMin) throw new Error(`Minimum withdrawal is ${cfg.withdrawMin} GP`);
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    const { rows: memRows } = await client.query(
-      `SELECT am.role, am.alliance_id FROM alliance_members am WHERE am.wallet=$1`, [wLower]);
-    if (!memRows.length) throw new Error('You are not in an alliance');
-    if (memRows[0].role !== 'leader' && memRows[0].role !== 'officer') {
-      throw new Error('Only the leader or officers can withdraw');
-    }
-    const allianceId = memRows[0].alliance_id;
-
-    const { rows: aRows } = await client.query(
-      `SELECT * FROM alliances WHERE id=$1 FOR UPDATE`, [allianceId]);
-    if (!aRows.length) throw new Error('Alliance not found');
-    const alliance = aRows[0];
-    if (Number(alliance.treasury_gp) < amount) throw new Error('Insufficient treasury balance');
-
-    const fee    = parseFloat((amount * cfg.withdrawFeePct / 100).toFixed(6));
-    const payout = parseFloat((amount - fee).toFixed(6));
-
-    await client.query(
-      `UPDATE alliances SET treasury_gp = treasury_gp - $1 WHERE id=$2`, [amount, allianceId]);
-    await client.query(
-      `INSERT INTO gp_balances (wallet, balance) VALUES ($1, $2)
-       ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
-      [wLower, payout]);
-    await client.query(
-      `INSERT INTO alliance_log (alliance_id, wallet, event_type, amount_gp, note)
-       VALUES ($1,$2,'treasury_withdraw',$3,$4)`,
-      [allianceId, wLower, amount, note || 'Treasury withdrawal']);
-
-    await client.query('COMMIT');
-    return { ok: true, payout, fee };
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
-// ── Queries ───────────────────────────────────────────────────────────────────
-async function getMyAlliance(wallet) {
-  const wLower = wallet.toLowerCase();
-  const { rows } = await pool.query(
-    `SELECT a.*,
-       array_agg(json_build_object(
-         'wallet', am.wallet,
-         'role', am.role,
-         'joined_at', am.joined_at,
-         'nick', up.nickname
-       ) ORDER BY am.joined_at) AS members
-     FROM alliances a
-     JOIN alliance_members am ON am.alliance_id = a.id
-     LEFT JOIN user_profiles up ON up.wallet = am.wallet
-     WHERE a.id = (SELECT alliance_id FROM alliance_members WHERE wallet=$1)
-     GROUP BY a.id`,
-    [wLower]
-  );
-  return rows[0] || null;
-}
-
-async function getAlliances(search) {
-  let q = `SELECT a.*,
-     (SELECT nickname FROM user_profiles WHERE wallet = a.leader) AS leader_nick
-   FROM alliances a WHERE a.is_recruiting=true`;
-  const params = [];
-  if (search) { params.push('%'+search+'%'); q += ` AND (a.name ILIKE $1 OR a.tag ILIKE $1)`; }
-  q += ' ORDER BY a.member_count DESC, a.total_gp_burned DESC LIMIT 30';
-  const { rows } = await pool.query(q, params);
+async function listAlliances() {
+  const { rows } = await pool.query(`
+    SELECT * FROM v_alliance_summary 
+    ORDER BY battles_won DESC, member_count DESC 
+    LIMIT 50
+  `);
   return rows;
 }
 
-async function getAllianceLog(allianceId, limit = 30) {
+async function getAlliance(allianceId) {
   const { rows } = await pool.query(
-    `SELECT al.*, up.nickname FROM alliance_log al
-     LEFT JOIN user_profiles up ON up.wallet = al.wallet
-     WHERE al.alliance_id=$1 ORDER BY al.created_at DESC LIMIT $2`,
-    [allianceId, limit]
+    `SELECT * FROM v_alliance_summary WHERE id = $1`, [allianceId]
   );
-  return rows;
+  if (!rows[0]) return null;
+  
+  const { rows: members } = await pool.query(`
+    SELECT am.wallet_address, am.role, am.joined_at, u.nickname
+    FROM alliance_members am
+    LEFT JOIN users u ON u.wallet_address = am.wallet_address
+    WHERE am.alliance_id = $1 AND am.left_at IS NULL
+    ORDER BY CASE am.role WHEN 'leader' THEN 1 WHEN 'officer' THEN 2 ELSE 3 END
+  `, [allianceId]);
+  
+  return { ...rows[0], members };
 }
 
-// ── Check if wallet is in an alliance (for defense bonus, income share) ───────
-async function getMemberAlliance(wallet) {
-  const { rows } = await pool.query(
-    `SELECT a.*, am.role FROM alliances a
-     JOIN alliance_members am ON am.alliance_id = a.id
-     WHERE am.wallet=$1`, [wallet.toLowerCase()]
-  );
-  return rows[0] || null;
-}
+// ─── 팀전 생성 ───
 
-async function getAdminStats() {
-  const [totals, alliances, settings] = await Promise.all([
-    pool.query(
-      `SELECT
-         COUNT(*) AS total_alliances,
-         SUM(member_count) AS total_members,
-         SUM(treasury_gp) AS total_treasury_gp,
-         SUM(total_gp_burned) AS total_gp_burned
-       FROM alliances`
-    ),
-    pool.query(
-      `SELECT a.*, (SELECT nickname FROM user_profiles WHERE wallet = a.leader) AS leader_nick
-       FROM alliances a ORDER BY a.total_gp_burned DESC LIMIT 30`
-    ),
-    pool.query(
-      `SELECT key, value FROM game_settings WHERE category='alliance' ORDER BY key`
-    )
-  ]);
-  return { totals: totals.rows[0], alliances: alliances.rows, settings: settings.rows };
+/**
+ * 동맹전/팀전 전투 생성
+ * participants = [{ wallet, fleet_id, team_id, alliance_id? }]
+ */
+async function createTeamBattle(params) {
+  const { participants, battle_type = 'event' } = params;
+  
+  if (!Array.isArray(participants) || participants.length < 4) {
+    throw new Error('NOT_ENOUGH_PARTICIPANTS');
+  }
+  
+  const teams = new Set(participants.map(p => p.team_id));
+  if (teams.size < 2) throw new Error('NEED_AT_LEAST_2_TEAMS');
+  
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // 전투 생성
+    const { rows: bRows } = await client.query(`
+      INSERT INTO fleet_battles (
+        battle_type, status, phase, is_team_battle, team_count,
+        prepare_started_at, scheduled_start_at
+      ) VALUES ($1, 'preparing', 'main', true, $2, NOW(), NOW())
+      RETURNING id
+    `, [battle_type, teams.size]);
+    const battleId = bRows[0].id;
+    
+    // 참가자 등록
+    for (const p of participants) {
+      // side: team_id 1 = atk, 나머지 = def로 간단 매핑
+      // (engine이 side 기준으로 처리하므로 팀이 많아도 2팀으로 집계됨)
+      // 완전한 4팀 지원하려면 battleEngine 수정 필요, 여기서는 2팀 확장 먼저
+      const side = p.team_id === 1 ? 'atk' : 'def';
+      
+      await client.query(`
+        INSERT INTO fleet_battle_participants (
+          battle_id, fleet_id, wallet_address, side, team_id, alliance_id
+        ) VALUES ($1, $2, $3, $4, $5, $6)
+      `, [battleId, p.fleet_id, p.wallet, side, p.team_id, p.alliance_id || null]);
+    }
+    
+    await client.query('COMMIT');
+    return { battle_id: battleId };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 module.exports = {
-  createAlliance, joinAlliance, leaveAlliance,
-  depositTreasury, withdrawTreasury,
-  getMyAlliance, getAlliances, getAllianceLog, getMemberAlliance,
-  getAdminStats, getSettings
+  createAlliance,
+  joinAlliance,
+  leaveAlliance,
+  getMyAlliance,
+  listAlliances,
+  getAlliance,
+  createTeamBattle,
 };

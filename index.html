@@ -3682,6 +3682,294 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   line-height: 1.5;
 }
 
+/* ═════ 동맹 모달 ═════ */
+.al-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
+  z-index: 9992;
+  display: none; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.al-modal-backdrop.active { display: flex; }
+.al-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(79,195,247,.3);
+  border-radius: 10px;
+  width: 100%; max-width: 900px;
+  max-height: 90vh; display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.al-header-info {
+  padding: 14px 20px;
+  background: linear-gradient(90deg, rgba(79,195,247,.08) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.al-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px; font-weight: 900; letter-spacing: 3px;
+}
+.al-tag { color: rgba(255,255,255,.5); margin-left: 8px; }
+.al-meta {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  font-size: 10px; color: rgba(255,255,255,.5);
+  margin-top: 6px; letter-spacing: 1px;
+}
+.al-meta b { color: rgba(255,255,255,.85); }
+
+.al-members {
+  padding: 14px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+.al-members-title {
+  font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,.4);
+  margin-bottom: 8px;
+}
+.al-member {
+  padding: 8px 10px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  font-size: 10px;
+}
+.al-role-badge {
+  font-size: 8px; padding: 2px 6px; border-radius: 2px;
+  font-weight: 700; letter-spacing: 1px;
+}
+.al-role-leader { background: rgba(255,215,0,.15); color: #ffd700; }
+.al-role-officer { background: rgba(79,195,247,.15); color: #4fc3f7; }
+.al-role-member { background: rgba(255,255,255,.05); color: rgba(255,255,255,.6); }
+
+.al-list-card {
+  padding: 12px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 5px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.al-list-card:hover { background: rgba(79,195,247,.05); }
+
+/* ═════ 리플레이 모달 ═════ */
+.rp-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
+  z-index: 9991;
+  display: none; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.rp-modal-backdrop.active { display: flex; }
+.rp-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(255,215,0,.3);
+  border-radius: 10px;
+  width: 100%; max-width: 900px;
+  max-height: 90vh; display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.rp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  padding: 14px 20px;
+  overflow-y: auto;
+}
+
+.rp-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all .15s;
+}
+.rp-card:hover { border-color: rgba(255,215,0,.4); transform: translateY(-2px); }
+
+.rp-card-thumb {
+  height: 100px;
+  background: linear-gradient(135deg, #1a2030 0%, #0a0d18 100%);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+}
+.rp-card-thumb::after {
+  content: '▶';
+  position: absolute;
+  color: rgba(255,255,255,.3);
+  font-size: 40px;
+}
+
+.rp-card-body { padding: 10px; }
+.rp-card-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rp-card-meta {
+  display: flex; justify-content: space-between;
+  font-size: 9px; color: rgba(255,255,255,.4);
+  letter-spacing: 1px;
+}
+
+/* 공유 링크 다이얼로그 */
+.rp-share-link {
+  background: rgba(0,0,0,.4);
+  border: 1px solid rgba(255,215,0,.3);
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: #ffd700;
+  user-select: all;
+  word-break: break-all;
+  margin: 10px 0;
+}
+
+/* ═════ 모바일 반응형 ═════ */
+
+@media (max-width: 768px) {
+  /* 전체 모달 풀스크린화 */
+  .fleetcmd-modal,
+  .shipyard-modal,
+  .faction-modal,
+  .bh-modal,
+  .tn-modal,
+  .ai-modal,
+  .al-modal,
+  .rp-modal,
+  .bd-modal,
+  .hj-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  /* Fleet Command 좌우 스택화 */
+  .fleetcmd-body {
+    grid-template-columns: 1fr;
+  }
+  .fleet-list {
+    max-height: 30vh;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    padding-right: 0;
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+  }
+  
+  /* Battle Viewer HUD 단순화 */
+  .bv-hud-top {
+    padding: 8px 10px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bv-hud-side { min-width: 0; width: 100%; }
+  .bv-hud-fleets {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 4px;
+  }
+  .bv-hud-fleet {
+    min-width: 140px;
+    font-size: 8px;
+    padding: 4px 6px;
+  }
+  .bv-hud-fleet-name { font-size: 9px; }
+  .bv-hud-battle-title { font-size: 11px; letter-spacing: 2px; }
+  .bv-hud-time { font-size: 16px; }
+  
+  /* 하단 컨트롤 축소 */
+  .bv-hud-bottom { padding: 8px 10px; }
+  .bv-event-feed { max-height: 50px; font-size: 9px; }
+  .bv-controls { flex-wrap: wrap; gap: 6px; }
+  .bv-ctrl-btn { width: 28px; height: 28px; font-size: 12px; }
+  .bv-speed-btn { padding: 3px 6px; font-size: 9px; }
+  .bv-timeline-bar { width: 100%; flex: 1 1 100%; margin-top: 6px; }
+  
+  /* 결과 오버레이 */
+  .bv-result-card { padding: 20px 20px; min-width: 0; width: 90%; }
+  .bv-result-title { font-size: 18px; letter-spacing: 3px; }
+  .bv-result-stats { grid-template-columns: 1fr; gap: 8px; }
+  
+  /* 카드 그리드 */
+  .ai-grid, .rp-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+  
+  /* 브래킷 모바일 (가로 스크롤) */
+  .bracket-container { padding: 10px; }
+  .bracket { gap: 16px; }
+  .bracket-round { min-width: 140px; }
+  .bracket-match { font-size: 9px; padding: 6px 8px; }
+  
+  /* 이벤트 피드 축소 */
+  .bv-event { font-size: 9px; }
+  
+  /* 배틀 허브 카드 */
+  .battle-card {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .bc-status { min-width: 0; width: fit-content; }
+  .bc-actions { justify-content: flex-end; }
+  
+  /* 폼 입력창 */
+  .bd-my-fleet-select, .bd-target-input {
+    font-size: 14px;  /* iOS 자동 줌 방지 */
+  }
+  
+  /* 버튼 터치 영역 확대 */
+  .fd-btn, .bc-btn, .bh-declare-btn {
+    min-height: 36px;
+    padding: 8px 14px;
+  }
+  
+  /* 진형/기동 버튼 */
+  .tactic-btn { min-height: 32px; padding: 6px 10px; }
+}
+
+@media (max-width: 480px) {
+  /* 매우 작은 화면 */
+  .fleetcmd-title, .bh-title { font-size: 11px; letter-spacing: 2px; }
+  .bv-hud-battle-title { font-size: 9px; }
+  .bv-controls { gap: 4px; }
+}
+
+/* 터치 디바이스 대응 */
+@media (hover: none) {
+  .battle-card:hover,
+  .fleet-card:hover,
+  .tn-card:hover,
+  .ai-card:hover,
+  .rp-card:hover {
+    background: rgba(255,255,255,.02);
+    transform: none;
+  }
+  
+  /* Tap highlight 제거 */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* 버튼 active 효과 */
+  button:active,
+  .battle-card:active,
+  .fleet-card:active,
+  .ai-card:active {
+    opacity: 0.7;
+  }
+
 </style>
 </head>
 <body>
@@ -37794,6 +38082,32 @@ function fcEsc(str) {
   </div>
 </div>
 
+<!-- Alliance 모달 -->
+<div class="al-modal-backdrop" id="allianceModal">
+  <div class="al-modal">
+    <div class="bh-header">
+      <div class="bh-title">🤝 ALLIANCES</div>
+      <button class="shipyard-close" onclick="closeAlliance()">✕</button>
+    </div>
+    <div id="allianceContent" style="flex:1;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- Replay 모달 -->
+<div class="rp-modal-backdrop" id="replayModal">
+  <div class="rp-modal">
+    <div class="bh-header">
+      <div class="bh-title">📼 REPLAYS</div>
+      <button class="shipyard-close" onclick="closeReplays()">✕</button>
+    </div>
+    <div class="bh-tabs">
+      <button class="bh-tab active" data-tab="featured" onclick="rpSwitchTab('featured')">⭐ 추천</button>
+      <button class="bh-tab" data-tab="mine" onclick="rpSwitchTab('mine')">📁 내 공유</button>
+    </div>
+    <div class="rp-grid" id="replayGrid"></div>
+  </div>
+</div>
+
 <!-- Battle Viewer -->
 <div class="bv-backdrop" id="battleViewer">
   <div class="bv-stage">
@@ -37842,6 +38156,7 @@ function fcEsc(str) {
         <div class="bv-result-title" id="bvResultTitle"></div>
         <div class="bv-result-subtitle" id="bvResultSubtitle"></div>
         <div class="bv-result-stats" id="bvResultStats"></div>
+        <button class="bh-declare-btn" style="font-size:10px;padding:8px 16px;margin-left:6px" onclick="shareCurrentBattle()">📼 공유하기</button>
         <button class="bh-declare-btn" style="font-size:10px;padding:8px 16px" onclick="closeBattleViewer()">닫기</button>
       </div>
     </div>
@@ -39186,6 +39501,398 @@ function showBattleResult() {
 
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
+// ─── Phase D: Alliance / Replay / Mobile ───
+// ═════════════════════════════════════════════════════════════════
+// Alliance
+// ═════════════════════════════════════════════════════════════════
+
+async function openAlliance() {
+  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  document.getElementById('allianceModal').classList.add('active');
+  await loadAlliance();
+}
+
+function closeAlliance() {
+  document.getElementById('allianceModal').classList.remove('active');
+}
+
+async function loadAlliance() {
+  const container = document.getElementById('allianceContent');
+  container.innerHTML = '<div class="bh-empty" style="padding:40px">로딩 중...</div>';
+  
+  try {
+    // 내 동맹 조회
+    const myRes = await fetch('/api/alliances/mine', { headers: getAuthHeaders() });
+    const myData = await myRes.json();
+    
+    if (myData.alliance) {
+      renderMyAlliance(myData.alliance);
+    } else {
+      await renderAllianceList();
+    }
+  } catch (err) {
+    console.error('loadAlliance:', err);
+    container.innerHTML = '<div class="bh-empty" style="padding:40px">로딩 실패</div>';
+  }
+}
+
+function renderMyAlliance(al) {
+  const container = document.getElementById('allianceContent');
+  
+  container.innerHTML = `
+    <div class="al-header-info" style="border-left: 3px solid ${al.color_primary || '#4fc3f7'}">
+      <div class="al-name">
+        ${al.tag ? `<span class="al-tag">[${escapeHtml(al.tag)}]</span>` : ''}
+        ${escapeHtml(al.name)}
+      </div>
+      <div class="al-meta">
+        <span>멤버 <b>${al.member_count}/${al.max_members}</b></span>
+        <span>전적 <b>${al.battles_won}W ${al.battles_lost}L</b></span>
+        <span>금고 <b>${al.alliance_gp || 0}</b> GP</span>
+        ${al.faction_name ? `<span>소속 <b>${al.faction_name}</b></span>` : ''}
+      </div>
+      <div style="margin-top:10px;display:flex;gap:6px">
+        ${al.role === 'leader' 
+          ? `<span class="al-role-badge al-role-leader">👑 LEADER</span>` 
+          : al.role === 'officer'
+            ? `<span class="al-role-badge al-role-officer">★ OFFICER</span>`
+            : `<span class="al-role-badge al-role-member">MEMBER</span>`}
+        <button class="fd-btn" onclick="leaveMyAlliance()">탈퇴</button>
+      </div>
+    </div>
+    <div class="al-members">
+      <div class="al-members-title">멤버 (${al.members?.length || 0})</div>
+      ${(al.members || []).map(m => `
+        <div class="al-member">
+          <span class="al-role-badge al-role-${m.role}">${m.role === 'leader' ? '👑' : m.role === 'officer' ? '★' : '•'}</span>
+          <div>
+            <div style="font-weight:700">${escapeHtml(m.nickname || '')}</div>
+            <div style="color:rgba(255,255,255,.4);font-size:9px">⚔ ${m.ships_count || 0}척</div>
+          </div>
+          <span style="font-size:9px;color:rgba(255,255,255,.4)">기여 ${m.contribution || 0}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function renderAllianceList() {
+  const container = document.getElementById('allianceContent');
+  
+  try {
+    const res = await fetch('/api/alliances');
+    const data = await res.json();
+    const list = data.alliances || [];
+    
+    container.innerHTML = `
+      <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.05)">
+        <button class="bh-declare-btn" style="font-size:10px;padding:8px 16px;width:100%" 
+                onclick="openCreateAlliance()">
+          + 동맹 창설 (5000 GP)
+        </button>
+      </div>
+      <div style="padding:14px 20px;overflow-y:auto">
+        <div class="al-members-title">기존 동맹 (${list.length})</div>
+        ${list.length === 0 
+          ? '<div class="bh-empty">아직 동맹이 없습니다</div>'
+          : list.map(a => `
+            <div class="al-list-card" style="border-left:3px solid ${a.color_primary || '#4fc3f7'}">
+              <div>
+                <div style="font-weight:700">
+                  ${a.tag ? `<span style="color:rgba(255,255,255,.4)">[${escapeHtml(a.tag)}]</span> ` : ''}
+                  ${escapeHtml(a.name)}
+                </div>
+                <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:2px">
+                  멤버 ${a.member_count}/${a.max_members} · ${a.battles_won}W/${a.battles_lost}L · 함선 ${a.total_ships_alive || 0}척
+                </div>
+              </div>
+              <button class="bc-btn primary" onclick="joinAllianceConfirm(${a.id}, '${escapeHtml(a.name)}')">
+                가입
+              </button>
+            </div>
+          `).join('')}
+      </div>
+    `;
+  } catch (err) {
+    container.innerHTML = '<div class="bh-empty" style="padding:40px">로딩 실패</div>';
+  }
+}
+
+async function openCreateAlliance() {
+  const name = prompt('동맹 이름 (60자 이하):');
+  if (!name || !name.trim()) return;
+  
+  const tag = prompt('동맹 태그 (2~6자, 선택):', '');
+  
+  if (!confirm(`🤝 동맹 창설\n\n이름: ${name}\n태그: ${tag || '(없음)'}\n비용: 5000 GP\n\n진행하시겠습니까?`)) return;
+  
+  try {
+    const res = await fetch('/api/alliances', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ name: name.trim(), tag: tag?.trim() || null })
+    });
+    const data = await res.json();
+    
+    if (!res.ok) {
+      const msgMap = {
+        'NAME_TAKEN': '이미 사용 중인 이름',
+        'TAG_TAKEN': '이미 사용 중인 태그',
+        'INSUFFICIENT_GP': 'GP 부족 (5000 필요)',
+        'ALREADY_IN_ALLIANCE': '이미 다른 동맹 소속',
+      };
+      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      return;
+    }
+    
+    showFactionToast(`🤝 동맹 "${data.name}" 창설됨`, 'success');
+    await loadAlliance();
+  } catch (err) {
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+async function joinAllianceConfirm(allianceId, name) {
+  if (!confirm(`🤝 동맹 "${name}" 에 가입하시겠습니까?`)) return;
+  
+  try {
+    const res = await fetch(`/api/alliances/${allianceId}/join`, {
+      method: 'POST', headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    
+    if (!res.ok) {
+      const msgMap = {
+        'ALLIANCE_FULL': '정원 초과',
+        'ALREADY_IN_ALLIANCE': '이미 다른 동맹 소속',
+      };
+      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      return;
+    }
+    
+    showFactionToast('🤝 가입 완료', 'success');
+    await loadAlliance();
+  } catch (err) {
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+async function leaveMyAlliance() {
+  if (!confirm('⚠ 동맹에서 탈퇴하시겠습니까?')) return;
+  
+  try {
+    const res = await fetch('/api/alliances/leave', {
+      method: 'POST', headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    
+    if (!res.ok) {
+      if (data.error === 'LEADER_MUST_TRANSFER') {
+        showFactionToast('리더는 먼저 다른 멤버에게 이양해야 합니다', 'error');
+      } else {
+        showFactionToast(`오류: ${data.error}`, 'error');
+      }
+      return;
+    }
+    
+    showFactionToast('동맹에서 탈퇴했습니다', 'success');
+    await loadAlliance();
+  } catch (err) {
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════
+// Replay Share
+// ═════════════════════════════════════════════════════════════════
+
+let rpState = { currentTab: 'featured' };
+
+async function openReplays() {
+  document.getElementById('replayModal').classList.add('active');
+  await rpLoad();
+}
+
+function closeReplays() {
+  document.getElementById('replayModal').classList.remove('active');
+}
+
+function rpSwitchTab(tab) {
+  rpState.currentTab = tab;
+  document.querySelectorAll('#replayModal .bh-tab').forEach(t => 
+    t.classList.toggle('active', t.dataset.tab === tab)
+  );
+  rpLoad();
+}
+
+async function rpLoad() {
+  const grid = document.getElementById('replayGrid');
+  grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">로딩 중...</div>';
+  
+  try {
+    const url = rpState.currentTab === 'mine' ? '/api/replays/mine' : '/api/replays/featured';
+    const res = await fetch(url, { headers: getAuthHeaders() });
+    const data = await res.json();
+    const replays = data.replays || [];
+    
+    if (replays.length === 0) {
+      grid.innerHTML = `<div class="bh-empty" style="grid-column:1/-1">
+        ${rpState.currentTab === 'mine' ? '공유한 리플레이 없음' : '추천 리플레이 없음'}
+      </div>`;
+      return;
+    }
+    
+    grid.innerHTML = replays.map(r => renderReplayCard(r)).join('');
+  } catch (err) {
+    grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">로딩 실패</div>';
+  }
+}
+
+function renderReplayCard(r) {
+  const typeLabel = {
+    'pvp_duel': 'PvP',
+    'siege': '공성전',
+    'hijack': '하이잭',
+    'event': '이벤트',
+    'raid': '레이드',
+  }[r.battle_type] || r.battle_type;
+  
+  return `
+    <div class="rp-card" onclick="viewReplay('${r.share_token}', ${r.battle_id || 'null'})">
+      <div class="rp-card-thumb">${r.is_featured ? '⭐' : '🎬'}</div>
+      <div class="rp-card-body">
+        <div class="rp-card-title">${escapeHtml(r.title || `[${typeLabel}]`)}</div>
+        <div class="rp-card-meta">
+          <span>${r.shared_by_nickname || '?'}</span>
+          <span>👁 ${r.view_count || 0}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function viewReplay(shareToken, battleId) {
+  // 토큰으로 조회 → battle_id 얻어서 openBattleViewer 재사용
+  try {
+    const res = await fetch(`/api/replays/t/${shareToken}`);
+    const data = await res.json();
+    if (!res.ok) {
+      showFactionToast('리플레이를 찾을 수 없음', 'error');
+      return;
+    }
+    
+    closeReplays();
+    openBattleViewer(data.replay.battle_id);
+  } catch (err) {
+    showFactionToast('로딩 실패', 'error');
+  }
+}
+
+/**
+ * 배틀 뷰어에서 "공유하기" 버튼으로 호출
+ */
+async function shareCurrentBattle() {
+  if (!bv.battle) { showFactionToast('공유할 전투 없음', 'error'); return; }
+  
+  const battleId = bv.battle.id;
+  const title = prompt('리플레이 제목 (선택):', '');
+  
+  try {
+    const res = await fetch('/api/replays', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({
+        battle_id: battleId,
+        title: title || undefined,
+        is_public: true,
+      })
+    });
+    const data = await res.json();
+    
+    if (!res.ok) {
+      const msgMap = {
+        'NOT_PARTICIPANT': '참가자만 공유 가능',
+        'BATTLE_NOT_ENDED': '전투가 아직 끝나지 않음',
+        'REPLAY_LIMIT_REACHED': '공유 한도 초과 (최대 50개)',
+      };
+      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      return;
+    }
+    
+    const shareUrl = `${window.location.origin}/replay/${data.share_token}`;
+    
+    // 토스트 대신 prompt로 URL 보여주기 (복사 가능)
+    prompt(
+      `📼 리플레이 공유 링크 생성됨!\n\n${data.already_shared ? '(이미 공유된 전투입니다)' : '아래 URL을 복사해서 공유하세요:'}`,
+      shareUrl
+    );
+    
+    showFactionToast('📼 공유 링크 생성 완료', 'success');
+  } catch (err) {
+    console.error('shareCurrentBattle:', err);
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════
+// 모바일: 터치 제스처 & 뷰포트 조정
+// ═════════════════════════════════════════════════════════════════
+
+// 뷰포트 meta 자동 추가 (없으면)
+(function ensureViewport() {
+  let meta = document.querySelector('meta[name="viewport"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+    document.head.appendChild(meta);
+  }
+})();
+
+// Battle Viewer에 터치 스와이프 추가 (seek)
+(function addTouchControls() {
+  // openBattleViewer 이후에 attach되어야 함
+  document.addEventListener('touchstart', (e) => {
+    if (!document.getElementById('battleViewer')?.classList.contains('active')) return;
+    if (!bv || !bv.timeline) return;
+    
+    const bar = document.getElementById('bvTimelineBar');
+    if (e.target === bar || bar?.contains(e.target)) {
+      const rect = bar.getBoundingClientRect();
+      const pct = (e.touches[0].clientX - rect.left) / rect.width;
+      bv.currentTick = Math.max(0, Math.min(getLastTick(), pct * getLastTick()));
+      for (const ev of bv.events) {
+        if (ev.tick < bv.currentTick) bv.shownEvents.add(ev.id || `${ev.tick}-${ev.type}`);
+      }
+      redrawCurrentFrame();
+    }
+  }, { passive: true });
+  
+  // 더블탭 → 재생/일시정지
+  let lastTap = 0;
+  document.addEventListener('touchend', (e) => {
+    if (!document.getElementById('battleViewer')?.classList.contains('active')) return;
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      // Canvas 영역 더블탭
+      if (e.target === bv.canvas || e.target?.classList?.contains('bv-canvas')) {
+        togglePlayback();
+      }
+    }
+    lastTap = now;
+  });
+})();
+
+// 모바일 기기 감지 후 UI 조정
+(function detectMobile() {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    document.body.classList.add('is-mobile');
+    console.log('[Phase D] Mobile detected');
+  }
+})();
+
+</script>
 </body>
 </html>
