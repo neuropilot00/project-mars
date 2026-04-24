@@ -13,7 +13,7 @@
 //   - 패배 시 수비 성공
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const { pool, getSetting } = require('../db');
 
 const PHASE1_ALLOWED_SIZES = ['frigate', 'destroyer'];
 const PHASE1_MAX_SHIPS = 20;
@@ -178,13 +178,23 @@ async function handlePhase1Complete(phase1BattleId) {
     }
     // 기존 방식 (수동): UI에서 "Phase 2 진행" 버튼 눌러야 함
   } else {
-    // 하이잭 실패
+    // 하이잭 실패 — Phase 1 패배
     await pool.query(`
-      UPDATE hijack_battles 
+      UPDATE hijack_battles
       SET phase = 'failed', completed_at = NOW(), final_result = 'defender_won'
       WHERE id = $1
     `, [hijack.id]);
-    
+
+    // declare-with-pp 방식이면 90% 환불
+    if (hijack.pending_pixels && parseFloat(hijack.attack_cost || 0) > 0) {
+      const refund90 = Math.round(parseFloat(hijack.attack_cost) * 0.9 * 1000000) / 1000000;
+      await pool.query(
+        `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
+        [refund90, hijack.attacker_wallet]
+      );
+      console.log(`[hijack] ${hijack.id} Phase 1 lost → 90% refund ${refund90} PP → ${hijack.attacker_wallet}`);
+    }
+
     console.log(`[hijack] ${hijack.id} Phase 1 lost → hijack failed`);
   }
 }
@@ -285,77 +295,89 @@ async function handlePhase2Complete(phase2BattleId) {
       WHERE id = $3
     `, [winner, finalResult, hijack.id]);
 
-    // ── 공격 성공: 픽셀 이전 ──
-    if (winner === 'atk' && hijack.pending_pixels) {
+    // ── declare-with-pp 방식 판별 ──
+    const isDeclareWithPP = !!hijack.pending_pixels;
+
+    if (winner === 'atk' && isDeclareWithPP) {
+      // ── 공격 성공: 수비자 지급 + 픽셀 이전 ──
       const pixels = Array.isArray(hijack.pending_pixels) ? hijack.pending_pixels : [];
       if (pixels.length > 0) {
         const attackerWallet = hijack.attacker_wallet;
 
-        // 픽셀 소유권 이전 (배치 업데이트)
+        // 수비자 환불+보너스 지급 (이제 승리 시에만 지급)
+        const hijackMult = parseFloat(await getSetting('hijack_multiplier', '1.2')) || 1.2;
+        const ownerBonusPct = (parseFloat(await getSetting('hijack_owner_bonus', '50')) || 50) / 100;
+        const ownerCredits = {};
+        for (const px of pixels) {
+          if (!px.prev_owner) continue;
+          const pxCost = parseFloat(px.price) * hijackMult;
+          if (!ownerCredits[px.prev_owner]) ownerCredits[px.prev_owner] = 0;
+          ownerCredits[px.prev_owner] += parseFloat(px.price) + (pxCost - parseFloat(px.price)) * ownerBonusPct;
+        }
+        for (const [owner, credit] of Object.entries(ownerCredits)) {
+          if (credit > 0) {
+            await client.query(
+              `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
+              [Math.round(credit * 1000000) / 1000000, owner]
+            );
+          }
+        }
+
+        // 픽셀 소유권 이전
+        const newClaimId = hijack.new_claim_id;
         for (const px of pixels) {
           await client.query(
-            `UPDATE pixels SET owner = $1 WHERE lat = $2 AND lng = $3`,
-            [attackerWallet, px.lat, px.lng]
+            `UPDATE pixels SET owner = $1, claim_id = $2 WHERE lat = $3 AND lng = $4`,
+            [attackerWallet, newClaimId || null, px.lat, px.lng]
           );
         }
 
-        // 공격자 claim에 병합하거나 새 claim 생성
-        const newClaimId = hijack.new_claim_id;
-        if (newClaimId) {
-          // 기존 claim의 픽셀로 등록 (claimId 업데이트)
+        // 새 claim이 없으면 생성
+        if (!newClaimId && pixels.length > 0) {
+          const lats = pixels.map(p => p.lat);
+          const lngs = pixels.map(p => p.lng);
+          const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+          const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+          const w = Math.round((Math.max(...lngs) - Math.min(...lngs)) / 0.22) + 1;
+          const h = Math.round((Math.max(...lats) - Math.min(...lats)) / 0.22) + 1;
+          const { rows: cr } = await client.query(
+            `INSERT INTO claims (owner, center_lat, center_lng, width, height, total_paid)
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+            [attackerWallet, centerLat, centerLng, w, h, hijack.pp_paid || 0]
+          );
+          const createdId = cr[0].id;
           for (const px of pixels) {
             await client.query(
               `UPDATE pixels SET claim_id = $1 WHERE lat = $2 AND lng = $3 AND owner = $4`,
-              [newClaimId, px.lat, px.lng, attackerWallet]
+              [createdId, px.lat, px.lng, attackerWallet]
             );
-          }
-        } else {
-          // 새 claim 생성
-          if (pixels.length > 0) {
-            const lats = pixels.map(p => p.lat);
-            const lngs = pixels.map(p => p.lng);
-            const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-            const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
-            const w = Math.round((Math.max(...lngs) - Math.min(...lngs)) / 0.22) + 1;
-            const h = Math.round((Math.max(...lats) - Math.min(...lats)) / 0.22) + 1;
-
-            const { rows: cr } = await client.query(
-              `INSERT INTO claims (owner, center_lat, center_lng, width, height, total_paid)
-               VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-              [attackerWallet, centerLat, centerLng, w, h, hijack.pp_paid || 0]
-            );
-            const createdClaimId = cr[0].id;
-            for (const px of pixels) {
-              await client.query(
-                `UPDATE pixels SET claim_id = $1 WHERE lat = $2 AND lng = $3 AND owner = $4`,
-                [createdClaimId, px.lat, px.lng, attackerWallet]
-              );
-            }
           }
         }
 
-        // 이전된 픽셀의 원 소유자 claim 업데이트 (픽셀 수 감소)
+        // 원 소유자 빈 claim 정리
         const prevOwners = [...new Set(pixels.map(p => p.prev_owner).filter(Boolean))];
         for (const prevOwner of prevOwners) {
-          // 기존 claim에서 잃은 픽셀 수 계산 후 빈 claim 제거
-          const ownedPixels = await client.query(
-            `SELECT COUNT(*) AS cnt FROM pixels WHERE owner = $1 AND claim_id IN (
-              SELECT id FROM claims WHERE owner = $1
-            )`,
+          await client.query(
+            `DELETE FROM claims WHERE owner = $1 AND id NOT IN (
+               SELECT DISTINCT claim_id FROM pixels WHERE owner = $1 AND claim_id IS NOT NULL
+             )`,
             [prevOwner]
           );
-          if (parseInt(ownedPixels.rows[0]?.cnt || 0) === 0) {
-            // 소유 픽셀이 없는 claim 삭제
-            await client.query(
-              `DELETE FROM claims WHERE owner = $1 AND id NOT IN (
-                SELECT DISTINCT claim_id FROM pixels WHERE owner = $1 AND claim_id IS NOT NULL
-              )`,
-              [prevOwner]
-            );
-          }
         }
 
-        console.log(`[hijack] ${hijack.id} pixel transfer: ${pixels.length}px → ${attackerWallet}`);
+        console.log(`[hijack] ${hijack.id} ATK WIN: ${pixels.length}px → ${attackerWallet}`);
+      }
+
+    } else if (winner === 'def' && isDeclareWithPP) {
+      // ── 공격 실패: 90% 환불 ──
+      const attackCost = parseFloat(hijack.attack_cost || 0);
+      if (attackCost > 0) {
+        const refund90 = Math.round(attackCost * 0.9 * 1000000) / 1000000;
+        await client.query(
+          `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
+          [refund90, hijack.attacker_wallet]
+        );
+        console.log(`[hijack] ${hijack.id} DEF WIN: 90% refund ${refund90} PP → ${hijack.attacker_wallet}`);
       }
     }
 
@@ -430,17 +452,12 @@ async function getMyHijacks(walletAddress) {
 
 /**
  * 클레임 스탬프 → 적 영토 겹침 → 함대전 하이젝
- * 1. 겹치는 픽셀 비용 PP 차감
- * 2. 수비자 환불+보너스 즉시 지급
- * 3. 비어있는 새 픽셀 즉시 claim 생성
- * 4. 적 픽셀: hijack_battle 생성 → fleet battle → 결과에 따라 픽셀 이전
- *
- * @param {object} params
- *   attacker_wallet, lat, lng, width, height,
- *   atk_fleet_id, image_url, link_url, pay_method,
- *   pixels_data: [{ lat, lng, isNew, prevOwner, price, pxCost }]
- *   primary_defender_wallet, primary_def_fleet_id (or null for auto-win)
- *   base_cost, attack_cost, total_cost
+ * 1. 겹치는 픽셀 비용 PP 차감 (공격 비용 선불)
+ * 2. 새 픽셀 즉시 claim 생성
+ * 3. 적 픽셀: hijack_battle 생성 → fleet battle
+ *    - 승리: 수비자 환불+보너스 지급 + 픽셀 이전
+ *    - 패배: 공격 비용 90% 환불 (10% 소각)
+ * ※ 수비자 지급은 승리 시에만 (handlePhase2Complete에서 처리)
  */
 async function declareHijackWithPP(params) {
   const {
@@ -449,13 +466,13 @@ async function declareHijackWithPP(params) {
     atk_fleet_id,
     image_url, link_url,
     pay_method,
-    new_pixels,       // [{lat, lng, sectorPrice}]
-    enemy_pixels,     // [{lat, lng, prevOwner, price, pxCost}] — primary defender only
+    new_pixels,              // [{lat, lng, sectorPrice}]
+    enemy_pixels,            // [{lat, lng, prevOwner, price, pxCost}] — primary defender only
     primary_defender_wallet,
-    primary_def_fleet_id,  // null → auto-win
+    primary_def_fleet_id,    // null → auto-win
     base_cost,
     attack_cost,
-    affected_owners,  // {owner → {refund, bonus}}
+    affected_owners,         // 자동승리 시에만 사용 (즉시 지급)
   } = params;
 
   const client = await pool.connect();
@@ -480,17 +497,8 @@ async function declareHijackWithPP(params) {
       [totalCost, attacker_wallet]
     );
 
-    // ── 2. 수비자 환불+보너스 지급 ──
-    for (const [owner, amounts] of Object.entries(affected_owners || {})) {
-      const credit = (amounts.refund || 0) + (amounts.bonus || 0);
-      if (credit > 0) {
-        await client.query(
-          `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
-          [credit, owner]
-        );
-      }
-    }
-
+    // ── 2. 새 픽셀 즉시 claim 생성 ──
+    // (수비자 지급은 함대전 승리 후 handlePhase2Complete에서 처리)
     // ── 3. 새 픽셀 즉시 claim 생성 ──
     let newClaimId = null;
     if (new_pixels && new_pixels.length > 0) {
@@ -525,8 +533,19 @@ async function declareHijackWithPP(params) {
       }));
 
       if (!primary_def_fleet_id) {
-        // ── 자동 승리: 수비자 함대 없음 → 즉시 픽셀 이전 ──
+        // ── 자동 승리: 수비자 함대 없음 → 즉시 픽셀 이전 + 수비자 지급 ──
         autoWin = true;
+
+        // 자동승리는 확정이므로 수비자 즉시 지급
+        for (const [owner, amounts] of Object.entries(affected_owners || {})) {
+          const credit = (amounts.refund || 0) + (amounts.bonus || 0);
+          if (credit > 0) {
+            await client.query(
+              `UPDATE users SET pp_balance = pp_balance + $1 WHERE wallet_address = $2`,
+              [credit, owner]
+            );
+          }
+        }
 
         for (const px of enemy_pixels) {
           await client.query(
@@ -551,11 +570,11 @@ async function declareHijackWithPP(params) {
           INSERT INTO hijack_battles (
             attacker_wallet, target_claim_id,
             phase, final_result, completed_at,
-            pending_pixels, pp_paid, new_claim_id,
+            pending_pixels, pp_paid, attack_cost, new_claim_id,
             allowed_size_classes_phase1
-          ) VALUES ($1, $2, 'completed', 'attacker_won', NOW(), $3, $4, $5, $6)
+          ) VALUES ($1, $2, 'completed', 'attacker_won', NOW(), $3, $4, $5, $6, $7)
           RETURNING id`,
-          [attacker_wallet, -1, JSON.stringify(pendingPixels), totalCost, newClaimId, PHASE1_ALLOWED_SIZES]
+          [attacker_wallet, -1, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
         );
         hijackId = hjRows[0].id;
       } else {
@@ -590,15 +609,15 @@ async function declareHijackWithPP(params) {
         if (!defFleet[0]) throw new Error('DEF_FLEET_NOT_FOUND');
         if (defFleet[0].is_in_battle) throw new Error('DEF_FLEET_IN_BATTLE');
 
-        // hijack_battles 생성
+        // hijack_battles 생성 (attack_cost 저장 — 패배 시 환불 계산용)
         const { rows: hjRows } = await client.query(`
           INSERT INTO hijack_battles (
             attacker_wallet, target_claim_id,
-            phase, pending_pixels, pp_paid, new_claim_id,
+            phase, pending_pixels, pp_paid, attack_cost, new_claim_id,
             allowed_size_classes_phase1, started_at
-          ) VALUES ($1, $2, 'phase1', $3, $4, $5, $6, NOW())
+          ) VALUES ($1, $2, 'phase1', $3, $4, $5, $6, $7, NOW())
           RETURNING id`,
-          [attacker_wallet, -1, JSON.stringify(pendingPixels), totalCost, newClaimId, PHASE1_ALLOWED_SIZES]
+          [attacker_wallet, -1, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
         );
         hijackId = hjRows[0].id;
 
