@@ -147,8 +147,9 @@ async function getDailyMissions(wallet) {
     const target = randInt(m.targetMin, m.targetMax);
     // Admin-configurable reward override (falls back to pool default)
     const settingKey = 'daily_mission_' + m.type + '_reward_gp';
-    const settingVal = await getSetting(settingKey);
-    const rewardGP = settingVal !== null && settingVal !== '' ? parseFloat(settingVal) : m.rewardGP;
+    const settingVal = await getSetting(settingKey, null);  // explicit null fallback
+    const parsedVal = settingVal != null && settingVal !== '' ? parseFloat(settingVal) : NaN;
+    const rewardGP = !isNaN(parsedVal) ? parsedVal : m.rewardGP;  // use pool default if NaN
     const res = await pool.query(
       `INSERT INTO daily_missions (wallet, mission_date, slot, mission_type, target_value, reward_gp, reward_xp)
        VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6)
