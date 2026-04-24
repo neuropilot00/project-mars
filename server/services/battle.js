@@ -463,9 +463,17 @@ async function getBattle(battleId) {
 
 // ── settleExpiredBattles ── (scheduler)
 async function settleExpiredBattles() {
-  const expired = await pool.query(
-    "SELECT id FROM battles WHERE status IN ('pending','active') AND expires_at < NOW() LIMIT 20"
-  );
+  let expired;
+  try {
+    expired = await pool.query(
+      "SELECT id FROM battles WHERE status IN ('pending','active') AND expires_at < NOW() LIMIT 20"
+    );
+  } catch (e) {
+    // battles table on this deployment may use a different schema (no status/expires_at).
+    // Silently skip — Naval Battle Engine is orphaned legacy code.
+    if (e.code === '42P01' || e.code === '42703') return;
+    throw e;
+  }
   for (const row of expired.rows) {
     await resolveBattle(row.id).catch(e => console.error('[BATTLE] auto-resolve error:', row.id, e.message));
   }

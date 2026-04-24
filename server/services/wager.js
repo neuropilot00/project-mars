@@ -197,9 +197,15 @@ async function settlePool(poolId, winnerWallet) {
 async function autoLockExpired() {
   const cfg = await getCfg();
   if (!cfg.autoLock) return;
-  await pool.query(
-    `UPDATE wager_pools SET status='locked' WHERE status='open' AND closes_at <= NOW()`
-  );
+  try {
+    await pool.query(
+      `UPDATE wager_pools SET status='locked' WHERE status='open' AND closes_at <= NOW()`
+    );
+  } catch (e) {
+    // Table missing on this deployment — feature not provisioned. Skip silently.
+    if (e.code === '42P01' || e.code === '42703') return;
+    throw e;
+  }
 }
 
 async function adminCancelPool(poolId) {

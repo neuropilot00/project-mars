@@ -59,9 +59,9 @@ async function scheduleRocketEvent(triggeredBy) {
   // Find sector
   let sectorId = null;
   try {
-    const sectors = await pool.query('SELECT id, polygon FROM sectors');
+    const sectors = await pool.query('SELECT id, bounds_polygon FROM sectors');
     for (const s of sectors.rows) {
-      const polygon = typeof s.polygon === 'string' ? JSON.parse(s.polygon) : s.polygon;
+      const polygon = typeof s.bounds_polygon === 'string' ? JSON.parse(s.bounds_polygon) : s.bounds_polygon;
       if (polygon && pointInPolygon([lng, lat], polygon)) {
         sectorId = s.id;
         break;

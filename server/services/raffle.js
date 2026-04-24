@@ -223,9 +223,16 @@ async function drawWinner(raffleId) {
 async function autoDrawExpired() {
   const cfg = await getCfg();
   if (!cfg.autoDraw) return;
-  const expired = await pool.query(
-    `SELECT id FROM raffles WHERE status='open' AND ends_at <= NOW()`
-  );
+  let expired;
+  try {
+    expired = await pool.query(
+      `SELECT id FROM raffles WHERE status='open' AND ends_at <= NOW()`
+    );
+  } catch (e) {
+    // Table missing on this deployment — feature not provisioned. Skip silently.
+    if (e.code === '42P01' || e.code === '42703') return;
+    throw e;
+  }
   for (const row of expired.rows) {
     try { await drawWinner(row.id); } catch (_) {}
   }
