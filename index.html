@@ -22550,12 +22550,61 @@ var _jobData = null; // current user's job data
 var _allJobs = [];   // all available jobs
 var _selectedJobCode = null; // selection in modal
 
+// Server (getMyJob) returns a flat shape: { has_job, job_code, job_name_ko,
+// job_name_en, icon_emoji, color_hex, description_ko, buffs:[{buff_key,buff_value}],
+// weekly_changes, weekly_free_limit, can_change_free, on_cooldown,
+// cooldown_remaining_hours, changed_at, change_cost_gp }.
+// The UI (renderJobCard, job modal selection logic) expects a nested shape:
+// { job:{code,name,icon_emoji,color_hex}, buffs:{key:mult}, changeStatus:{...} }.
+// This adapter bridges the two so updates after job selection actually render.
+function _transformJobData(raw, lang){
+  if(!raw || raw.error) return { job:null, buffs:{}, changeStatus:{} };
+  lang = (lang||'en').toLowerCase();
+  var job = null;
+  if(raw.has_job && raw.job_code){
+    var nameLocalized = raw['job_name_'+lang] || raw.job_name_en || raw.job_name_ko || raw.job_code;
+    job = {
+      code: raw.job_code,
+      name: nameLocalized,
+      name_en: raw.job_name_en,
+      name_ko: raw.job_name_ko,
+      icon_emoji: raw.icon_emoji || '⚔️',
+      color_hex: raw.color_hex || '#f0c840',
+      description: raw['description_'+lang] || raw.description_ko || '',
+    };
+  }
+  // buffs: array of {buff_key, buff_value} → object {key: multiplier}
+  var buffs = {};
+  if(Array.isArray(raw.buffs)){
+    raw.buffs.forEach(function(b){
+      if(b && b.buff_key) buffs[b.buff_key] = parseFloat(b.buff_value);
+    });
+  } else if(raw.buffs && typeof raw.buffs === 'object'){
+    Object.keys(raw.buffs).forEach(function(k){ buffs[k] = parseFloat(raw.buffs[k]); });
+  }
+  // changeStatus: flat → nested
+  var cooldownEndsAt = null;
+  if(raw.on_cooldown && raw.changed_at){
+    var base = new Date(raw.changed_at).getTime();
+    cooldownEndsAt = new Date(base + (raw.cooldown_remaining_hours||0)*3600000).toISOString();
+  }
+  var freeLeft = Math.max(0, (raw.weekly_free_limit||0) - (raw.weekly_changes||0));
+  var changeStatus = {
+    canChangeFree: !!raw.can_change_free,
+    freeChangesLeft: freeLeft,
+    paidCostGp: raw.change_cost_gp || 0,
+    cooldownEndsAt: cooldownEndsAt,
+  };
+  return { job: job, buffs: buffs, changeStatus: changeStatus, raw: raw };
+}
+
 function loadUserJob(wallet, rank){
   if(!wallet) return;
   var lang = (window.LANG || window._lang || 'en');
   fetch('/api/user/job?wallet='+encodeURIComponent(wallet)+'&lang='+lang)
     .then(function(r){return r.json()})
-    .then(function(data){
+    .then(function(raw){
+      var data = _transformJobData(raw, lang);
       _jobData = data;
       renderJobCard(data, rank);
       // If level >= required and no job: show modal (only once per session)
@@ -22979,12 +23028,17 @@ function confirmJobSelect(){
       if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=t('job_modal_confirm');}
       return;
     }
+    // Cache selected code & localized name BEFORE closing modal (closeJobSelectModal nulls _selectedJobCode)
+    var chosenCode = _selectedJobCode;
+    var chosenJob = _allJobs && _allJobs.find(function(j){return j.code===chosenCode;});
+    var chosenName = chosenJob ? _normalizeJob(chosenJob).name : chosenCode;
     closeJobSelectModal();
-    showToast(t('job_selected_toast').replace('{n}', _selectedJobCode));
+    showToast(t('job_selected_toast').replace('{n}', chosenName));
     try{_sfx.success()}catch(e){}
-    // Reload job card
+    // Reload job card — parseInt's || fallback must wrap the entire parseInt arg, not just textContent
     if(walletState && walletState.address){
-      var rank = parseInt(document.getElementById('profileLevel')&&document.getElementById('profileLevel').textContent||'1');
+      var lvlEl = document.getElementById('profileLevel');
+      var rank = parseInt((lvlEl && lvlEl.textContent) || '1') || 1;
       loadUserJob(walletState.address, rank);
     }
   }).catch(function(e){ showAlert(e.message,'error'); if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=t('job_modal_confirm');} });
@@ -39016,13 +39070,21 @@ function shipFactionColors(factionCode) {
     cv:  { fill:'#00e676', stroke:'#b9f6ca', glow:'#00c853' }
   })[factionCode] || { fill:'#9e9e9e', stroke:'#e0e0e0', glow:'#616161' };
 }
-// 함선 크기/파벌별 SVG 실루엣 — v11.1 tactical-lab의 drawMCCShip/drawFSPShip/drawCVShip을 SVG로 포팅
+// 함선 크기/파벌/역할별 SVG 실루엣 — v11.1 tactical-lab의 drawMCCShip/drawFSPShip/drawCVShip을 SVG로 포팅
 // 각 파벌이 시각적으로 완전히 구별되도록 기하학 형태를 분기:
 //   MCC: 직선/각진 폴리곤 (군사 산업형)
 //   FSP: 2차 베지어 곡선/타원 (유기체형)
 //   CV:  불규칙 다각형 + 덧붙인 블록 (패치워크/스크랩형)
-function shipSilhouetteSvg(sizeClass, factionCode, scale) {
-  scale = scale || 1;
+// 같은 (파벌, size_class) 내 여러 함선은 role/code로 오버레이 액세서리 분기:
+//   tackle: 스피드 스트릭 / ewar: 센서 돔 / logi: 메딕 크로스
+//   tank:   장갑 밸트  / sniper: 긴 레일  / bomb(er): 폭탄 포드
+// 3번째 인자는 하위호환을 위해 scale(number) 또는 { scale, role, code } 모두 허용.
+function shipSilhouetteSvg(sizeClass, factionCode, opts) {
+  var scale, role, code;
+  if (typeof opts === 'number') { scale = opts || 1; role = 'dps'; code = ''; }
+  else if (opts && typeof opts === 'object') {
+    scale = opts.scale || 1; role = (opts.role || 'dps').toLowerCase(); code = (opts.code || '').toLowerCase();
+  } else { scale = 1; role = 'dps'; code = ''; }
   var c = shipFactionColors(factionCode);
   // v11.1 color naming: color(fill)/colorDark(hull panels)/colorBright(accent lines)
   var col = c.fill, colDark = c.glow, colBright = c.stroke;
@@ -39154,11 +39216,65 @@ function shipSilhouetteSvg(sizeClass, factionCode, scale) {
     return out;
   }
 
+  // ─── 역할/코드 오버레이 (같은 size_class 내 다른 함선 간 식별성 확보) ───
+  function buildRoleOverlay() {
+    var out = [];
+    // Variant detection: explicit role from DB + code-hint fallback (e.g. 'mcc_snp' → sniper, 'cv_bomb' → bomb)
+    var variant = role;
+    if (code.indexOf('bomb') !== -1) variant = 'bomb';
+    else if (code.indexOf('snp') !== -1 || code.indexOf('sniper') !== -1) variant = 'sniper';
+    switch (variant) {
+      case 'tackle':
+        // 프리즘/슬래셔: 전방 스피드 스트릭 (빠른 인터셉터 느낌)
+        out.push(rect(r*1.05, -r*.06, r*.6, r*.12, 'rgba(255,255,255,.6)'));
+        out.push(rect(r*.75, -r*.03, r*.25, r*.06, 'rgba(255,255,255,.85)'));
+        break;
+      case 'ewar':
+        // 재머: 상단 센서 돔 + 마스트
+        out.push(rect(-r*.04, -r*1.15, r*.08, r*.3, colBright)); // mast
+        out.push(circ(0, -r*1.2, r*.32, colBright));
+        out.push(circ(0, -r*1.2, r*.18, 'rgba(0,0,0,.45)'));
+        out.push(rect(-r*.28, -r*1.22, r*.56, r*.04, colBright)); // dish crossbar
+        break;
+      case 'logi':
+        // 버던트/노바: 녹색 메딕 크로스 (수리/지원 함선)
+        out.push(rect(-r*.09, -r*.34, r*.18, r*.68, '#7efc9d'));
+        out.push(rect(-r*.34, -r*.09, r*.68, r*.18, '#7efc9d'));
+        out.push(circ(0, 0, r*.08, '#ffffff'));
+        break;
+      case 'tank':
+        // 벌웍/세쿼이아/가이아: 다중 장갑 밸트 (방어력 과시)
+        out.push(rect(-r*.75, -r*.28, r*.09, r*.56, 'rgba(0,0,0,.55)'));
+        out.push(rect(-r*.35, -r*.32, r*.09, r*.64, 'rgba(0,0,0,.55)'));
+        out.push(rect(r*.1, -r*.28, r*.09, r*.56, 'rgba(0,0,0,.55)'));
+        out.push(rect(r*.5, -r*.22, r*.09, r*.44, 'rgba(0,0,0,.55)'));
+        break;
+      case 'sniper':
+        // 롱아이: 초장거리 레일건 (전방으로 쭉 뻗은 포신)
+        out.push(rect(r*.5, -r*.06, r*1.6, r*.12, colBright));
+        out.push(circ(r*2.1, 0, r*.14, colBright));
+        out.push(rect(r*.4, -r*.12, r*.2, r*.24, colDark)); // breech
+        break;
+      case 'bomb':
+        // 리퍼: 상/하 폭탄 포드 (CV 전용 폭격형)
+        out.push(rect(-r*.1, -r*.92, r*.32, r*.22, 'rgba(255,190,80,.9)'));
+        out.push(rect(-r*.1, r*.7, r*.32, r*.22, 'rgba(255,190,80,.9)'));
+        out.push(circ(r*.05, -r*.81, r*.07, '#ff4d2e'));
+        out.push(circ(r*.05, r*.81, r*.07, '#ff4d2e'));
+        break;
+      // 'dps' 및 기타: 오버레이 없음 (기본 실루엣 그대로)
+    }
+    return out;
+  }
+
   var shapes;
   if (factionCode === 'mcc') shapes = buildMCC();
   else if (factionCode === 'fsp') shapes = buildFSP();
   else if (factionCode === 'cv') shapes = buildCV();
   else shapes = buildMCC(); // fallback
+
+  // 역할 오버레이 적용
+  shapes = shapes.concat(buildRoleOverlay());
 
   // 함선 그룹: cx/cy에 함선 중심 배치
   var shipGroup = '<g transform="translate('+cx+','+cy+')">' + shapes.join('') + '</g>';
@@ -39222,7 +39338,7 @@ function renderBlueprintCard(s) {
     if (lock.startsWith('RANK_REQUIRED_')) { lockMsg = '레벨 ' + lock.replace('RANK_REQUIRED_','') + ' 필요'; break; }
     lockMsg = lockReasons[lock] || lock; break;
   }
-  var silhouette = shipSilhouetteSvg(s.size_class, s.faction_code);
+  var silhouette = shipSilhouetteSvg(s.size_class, s.faction_code, { role: s.role, code: s.code });
   var accent = shipFactionAccent(s.faction_code);
   return '<div class="bp-card ' + s.faction_code + ' ' + (!s.can_build ? 'locked' : '') + '">' +
     '<div class="bp-visual" style="background:' + accent + ';display:flex;align-items:center;justify-content:center;height:64px;border-radius:6px;margin-bottom:6px"><div class="bp-starfield"></div>' + silhouette + '</div>' +
@@ -39246,7 +39362,7 @@ function renderBlueprintCard(s) {
 async function buildShip(shipTypeCode) {
   var ship = shipyardState.blueprints.find(function(s){ return s.code === shipTypeCode; });
   if (!ship) return;
-  var silhouette = shipSilhouetteSvg(ship.size_class, ship.faction_code);
+  var silhouette = shipSilhouetteSvg(ship.size_class, ship.faction_code, { role: ship.role, code: ship.code });
   var accent = shipFactionAccent(ship.faction_code);
   var buildMin = Math.round((ship.build_time_seconds||0)/60);
   var buildTimeTxt = buildMin >= 60 ? (Math.floor(buildMin/60)+'h '+(buildMin%60)+'m') : (buildMin+' min');
