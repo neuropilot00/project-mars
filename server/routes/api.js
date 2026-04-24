@@ -2665,6 +2665,15 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     // ✅ [Job System] Miner mining rate buff (Phase 1)
     try { if (jobService) harvestedPP = Math.round(harvestedPP * await jobService.getJobBuff(w, 'miner_mining_rate', 1.0) * 10000) / 10000; } catch (_je) { /* job service unavailable */ }
 
+    // ✅ [VIP] Mining boost bonus
+    try {
+      const vipSvc = require('../services/vip');
+      const vipBoost = await vipSvc.getMiningBoost(w);
+      if (vipBoost > 1.0) {
+        harvestedPP = Math.round(harvestedPP * vipBoost * 10000) / 10000;
+      }
+    } catch (_vip) { /* VIP service unavailable */ }
+
     // Apply hard cap per harvest
     harvestedPP = Math.min(harvestedPP, harvestCap);
 

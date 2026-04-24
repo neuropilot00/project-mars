@@ -107,6 +107,7 @@ async function getMyShips(walletAddress, options = {}) {
     SELECT 
       s.id, s.fleet_id, s.ship_type_code,
       s.current_hp, s.max_hp, s.is_flagship, s.is_alive,
+      s.shield_hp, s.shield_max,
       s.upgrade_level, s.bonus_atk, s.bonus_def, s.bonus_hp,
       s.kills_dealt, s.damage_dealt,
       s.built_at,
@@ -663,6 +664,246 @@ async function getFleetSummary(walletAddress) {
   };
 }
 
+// ─── 함선 수리 ───
+
+/**
+ * 함선을 수리한다.
+ * @param {string} walletAddress
+ * @param {number} shipId
+ * @param {number} targetHpPct  - 수리 목표 HP% (기본 100 = 풀회복)
+ * @returns {{ success, healed, new_hp, gp_cost, iron_used }}
+ */
+async function repairShip(walletAddress, shipId, targetHpPct = 100) {
+  const { getSetting } = require('../db');
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1. 함선 조회 (소유권 + 생존 확인)
+    const { rows: shipRows } = await client.query(`
+      SELECT s.id, s.current_hp, s.max_hp, s.bonus_hp,
+             st.name_ko
+      FROM ships s
+      JOIN ship_types st ON st.code = s.ship_type_code
+      WHERE s.id = $1 AND s.owner_wallet = $2 AND s.is_alive = true
+      FOR UPDATE OF s
+    `, [shipId, walletAddress]);
+
+    if (!shipRows[0]) {
+      const err = new Error('SHIP_NOT_FOUND');
+      throw err;
+    }
+    const ship = shipRows[0];
+
+    // 2. 이미 풀체력이면 에러
+    const effectiveMax = parseInt(ship.max_hp) + parseInt(ship.bonus_hp || 0);
+    if (parseInt(ship.current_hp) >= effectiveMax) {
+      const err = new Error('ALREADY_FULL');
+      err.meta = { current_hp: ship.current_hp, max_hp: effectiveMax };
+      throw err;
+    }
+
+    // 3. 목표 HP 계산
+    const repairMaxPct = parseInt(await getSetting('ship_repair_max_pct', '100')) || 100;
+    const clampedPct = Math.min(targetHpPct, repairMaxPct);
+    const targetHp = Math.min(Math.floor(effectiveMax * clampedPct / 100), effectiveMax);
+    const healAmount = targetHp - parseInt(ship.current_hp);
+
+    if (healAmount <= 0) {
+      const err = new Error('ALREADY_FULL');
+      err.meta = { current_hp: ship.current_hp, target_hp: targetHp };
+      throw err;
+    }
+
+    // 4. 비용 계산
+    const gpPerHp     = parseInt(await getSetting('ship_repair_gp_per_hp', '2'))     || 2;
+    const ironPer10hp = parseInt(await getSetting('ship_repair_iron_per_10hp', '1')) || 1;
+
+    const gpCost   = healAmount * gpPerHp;
+    const ironNeed = Math.ceil(healAmount / 10) * ironPer10hp;
+
+    // 5. GP 확인
+    const { rows: userRows } = await client.query(
+      `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      [walletAddress]
+    );
+    if (!userRows[0]) throw new Error('USER_NOT_FOUND');
+    if (parseInt(userRows[0].gp_balance) < gpCost) {
+      const err = new Error('INSUFFICIENT_GP');
+      err.meta = { required: gpCost, balance: userRows[0].gp_balance };
+      throw err;
+    }
+
+    // 6. iron_ore 재고 확인 (resource_id FK 기반)
+    const { rows: invRows } = await client.query(`
+      SELECT r.id AS resource_id, COALESCE(uri.quantity, 0) AS quantity
+      FROM resources r
+      LEFT JOIN user_resource_inventory uri
+        ON uri.resource_id = r.id AND uri.wallet_address = $1
+      WHERE r.code = 'iron_ore'
+      FOR UPDATE OF uri
+    `, [walletAddress]);
+
+    if (!invRows[0]) {
+      const err = new Error('INSUFFICIENT_IRON');
+      err.meta = { required: ironNeed, have: 0 };
+      throw err;
+    }
+    const ironInv = invRows[0];
+    if (parseInt(ironInv.quantity) < ironNeed) {
+      const err = new Error('INSUFFICIENT_IRON');
+      err.meta = { required: ironNeed, have: ironInv.quantity };
+      throw err;
+    }
+
+    // 7. GP 차감
+    await client.query(
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      [gpCost, walletAddress]
+    );
+
+    // 8. iron_ore 차감
+    await client.query(`
+      UPDATE user_resource_inventory
+      SET quantity = quantity - $1, updated_at = NOW()
+      WHERE wallet_address = $2 AND resource_id = $3
+    `, [ironNeed, walletAddress, ironInv.resource_id]);
+
+    // 9. 함선 HP 업데이트
+    await client.query(
+      `UPDATE ships SET current_hp = $1 WHERE id = $2`,
+      [targetHp, shipId]
+    );
+
+    await client.query('COMMIT');
+
+    // 10. GP 활동 로그 (fire-and-forget)
+    try {
+      const { logGPActivity } = require('../db');
+      logGPActivity(walletAddress, -gpCost, 'ship_repair',
+        `함선 수리 (ID:${shipId}) +${healAmount}HP`).catch(() => {});
+    } catch (_) {}
+
+    return {
+      success:  true,
+      healed:   healAmount,
+      new_hp:   targetHp,
+      gp_cost:  gpCost,
+      iron_used: ironNeed,
+    };
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// ─── 함선 실드 충전 ───
+
+/**
+ * 함선 실드를 충전한다.
+ * @param {string} walletAddress
+ * @param {number} shipId
+ * @param {number} units  - 충전할 실드 HP 양
+ * @returns {{ success, shield_added, new_shield, gp_cost }}
+ */
+async function chargeShield(walletAddress, shipId, units) {
+  const { getSetting } = require('../db');
+
+  if (!units || units <= 0) {
+    const err = new Error('INVALID_UNITS');
+    err.meta = { units };
+    throw err;
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1. 함선 조회
+    const { rows: shipRows } = await client.query(`
+      SELECT s.id, s.max_hp, s.bonus_hp, s.shield_hp, s.shield_max
+      FROM ships s
+      WHERE s.id = $1 AND s.owner_wallet = $2 AND s.is_alive = true
+      FOR UPDATE OF s
+    `, [shipId, walletAddress]);
+
+    if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
+    const ship = shipRows[0];
+
+    // 2. 실드 최대치 계산
+    const shieldMaxRatio = parseInt(await getSetting('shield_max_ratio', '50')) || 50;
+    const effectiveMax = parseInt(ship.max_hp) + parseInt(ship.bonus_hp || 0);
+    const shieldMax    = Math.floor(effectiveMax * shieldMaxRatio / 100);
+
+    const currentShield = parseInt(ship.shield_hp) || 0;
+    const canAdd = shieldMax - currentShield;
+
+    if (canAdd <= 0) {
+      const err = new Error('SHIELD_FULL');
+      err.meta = { current_shield: currentShield, shield_max: shieldMax };
+      throw err;
+    }
+    if (units > canAdd) {
+      const err = new Error('SHIELD_FULL');
+      err.meta = { requested: units, can_add: canAdd, shield_max: shieldMax };
+      throw err;
+    }
+
+    // 3. GP 비용 계산
+    const gpPerUnit = parseInt(await getSetting('shield_gp_per_unit', '3')) || 3;
+    const gpCost    = units * gpPerUnit;
+
+    // 4. GP 확인
+    const { rows: userRows } = await client.query(
+      `SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE`,
+      [walletAddress]
+    );
+    if (!userRows[0]) throw new Error('USER_NOT_FOUND');
+    if (parseInt(userRows[0].gp_balance) < gpCost) {
+      const err = new Error('INSUFFICIENT_GP');
+      err.meta = { required: gpCost, balance: userRows[0].gp_balance };
+      throw err;
+    }
+
+    // 5. GP 차감
+    await client.query(
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2`,
+      [gpCost, walletAddress]
+    );
+
+    // 6. 실드 업데이트
+    const newShield = currentShield + units;
+    await client.query(
+      `UPDATE ships SET shield_hp = $1, shield_max = $2 WHERE id = $3`,
+      [newShield, shieldMax, shipId]
+    );
+
+    await client.query('COMMIT');
+
+    // GP 활동 로그 (fire-and-forget)
+    try {
+      const { logGPActivity } = require('../db');
+      logGPActivity(walletAddress, -gpCost, 'ship_shield',
+        `실드 충전 (ID:${shipId}) +${units}`).catch(() => {});
+    } catch (_) {}
+
+    return {
+      success:       true,
+      shield_added:  units,
+      new_shield:    newShield,
+      gp_cost:       gpCost,
+    };
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 // ─── 헬퍼 ───
 
 async function getSettingInt(client, key, fallback) {
@@ -692,4 +933,6 @@ module.exports = {
   processCompletedJobs,
   cancelBuildJob,
   getFleetSummary,
+  repairShip,
+  chargeShield,
 };

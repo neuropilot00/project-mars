@@ -174,6 +174,7 @@ async function loadBattleData(battleId) {
     const { rows: shipRows } = await pool.query(`
       SELECT s.id, s.ship_type_code, s.current_hp, s.max_hp, s.is_flagship,
              s.bonus_atk, s.bonus_def, s.bonus_hp,
+             s.shield_hp, s.shield_max,
              st.name_ko, st.size_class, st.role,
              st.base_atk, st.base_def, st.base_speed,
              st.fire_interval, st.fire_type, st.shots, st.render_radius
@@ -358,7 +359,9 @@ function initShip(shipData, fleetPos, idx, total, fleetRadius) {
     
     maxHp: parseInt(shipData.max_hp) + parseInt(shipData.bonus_hp || 0),
     hp: parseInt(shipData.current_hp),
-    
+    shield_hp: parseInt(shipData.shield_hp || 0),
+    shield_max: parseInt(shipData.shield_max || 0),
+
     isFlagship: shipData.is_flagship,
     isAlive: true,
     
@@ -687,9 +690,17 @@ function computeDamage(attacker, target) {
 }
 
 function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state, events) {
-  target.hp -= damage;
+  // 실드가 있으면 먼저 실드로 흡수
+  let remainingDamage = damage;
+  if (target.shield_hp > 0) {
+    const shieldAbsorb = Math.min(target.shield_hp, remainingDamage);
+    target.shield_hp -= shieldAbsorb;
+    remainingDamage  -= shieldAbsorb;
+  }
+
+  target.hp -= remainingDamage;
   attacker.damageDealt += damage;
-  targetFleet.hp = Math.max(0, targetFleet.hp - damage);
+  targetFleet.hp = Math.max(0, targetFleet.hp - remainingDamage);
   
   if (target.hp <= 0) {
     target.hp = 0;

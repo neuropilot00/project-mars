@@ -1,136 +1,116 @@
 'use strict';
-const pool = require('../db');
+// server/services/vip.js
+// VIP Pass System — 올바른 테이블 사용 버전
+// - settings (not game_settings)
+// - users.gp_balance (not gp_balances)
 
-async function getSetting(key, fallback) {
-  try {
-    const { rows } = await pool.query('SELECT value FROM game_settings WHERE key=$1', [key]);
-    if (rows.length) return rows[0].value;
-  } catch (_) {}
-  return String(fallback);
-}
+const { pool, getSetting, logGPActivity } = require('../db');
 
-// ── Get all active VIP tiers ──────────────────────────────────────────────────
+// ── VIP 티어 목록 ─────────────────────────────────────────────────────────────
 async function getTiers() {
   const { rows } = await pool.query(
-    'SELECT * FROM vip_tiers WHERE is_active=true ORDER BY sort_order, cost_gp');
+    'SELECT * FROM vip_tiers WHERE is_active = true ORDER BY sort_order, cost_gp'
+  );
   return rows;
 }
 
-// ── Get player's active VIP pass ──────────────────────────────────────────────
+// ── 플레이어 활성 VIP 패스 조회 ───────────────────────────────────────────────
 async function getMyPass(wallet) {
   const { rows } = await pool.query(
     `SELECT vp.*, vt.name AS tier_name, vt.badge, vt.badge_color,
             vt.mining_boost_pct, vt.fee_discount_pct, vt.gp_earn_bonus_pct, vt.max_lucky_per_day
      FROM vip_passes vp
      JOIN vip_tiers vt ON vt.id = vp.tier_id
-     WHERE vp.wallet=$1 AND vp.is_active=true AND vp.expires_at > NOW()`,
-    [wallet.toLowerCase()]);
+     WHERE vp.wallet = $1 AND vp.is_active = true AND vp.expires_at > NOW()`,
+    [wallet.toLowerCase()]
+  );
   return rows[0] || null;
 }
 
-// ── Get VIP info for a wallet (for defense/mining bonus checks) ───────────────
+// ── 방어/채굴 체크용 ──────────────────────────────────────────────────────────
 async function getVipInfo(wallet) {
   return getMyPass(wallet);
 }
 
-// ── Purchase or upgrade a VIP pass ───────────────────────────────────────────
+// ── VIP 채굴 보너스 배율 (1.0 = 없음) ────────────────────────────────────────
+async function getMiningBoost(wallet) {
+  const pass = await getMyPass(wallet);
+  if (!pass) return 1.0;
+  return 1 + pass.mining_boost_pct / 100;
+}
+
+// ── VIP GP 획득 보너스 배율 ───────────────────────────────────────────────────
+async function getGPEarnBonus(wallet) {
+  const pass = await getMyPass(wallet);
+  if (!pass) return 1.0;
+  return 1 + pass.gp_earn_bonus_pct / 100;
+}
+
+// ── VIP 패스 구매 / 갱신 ─────────────────────────────────────────────────────
 async function purchasePass(wallet, tierId) {
-  const wLower = wallet.toLowerCase();
+  const w = wallet.toLowerCase();
+
   const enabled = await getSetting('vip_enabled', 'true');
-  if (enabled !== 'true') throw new Error('VIP system is disabled');
+  if (String(enabled) === 'false') throw new Error('VIP system is disabled');
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    // Load tier
+    // 티어 확인
     const { rows: tierRows } = await client.query(
-      'SELECT * FROM vip_tiers WHERE id=$1 AND is_active=true', [tierId]);
+      'SELECT * FROM vip_tiers WHERE id = $1 AND is_active = true', [tierId]
+    );
     if (!tierRows.length) throw new Error('VIP tier not found');
     const tier = tierRows[0];
 
-    // Check GP balance
+    // GP 잔액 확인
     const { rows: balRows } = await client.query(
-      'SELECT balance FROM gp_balances WHERE wallet=$1 FOR UPDATE', [wLower]);
-    const bal = balRows.length ? Number(balRows[0].balance) : 0;
-    if (bal < Number(tier.cost_gp)) {
-      throw new Error(`Insufficient GP (need ${tier.cost_gp}, have ${bal.toFixed(2)})`);
-    }
+      'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]
+    );
+    if (!balRows.length) throw new Error('User not found');
+    const gpBal = parseFloat(balRows[0].gp_balance) || 0;
+    const cost = parseFloat(tier.cost_gp);
+    if (gpBal < cost) throw new Error(`GP 부족 (필요: ${cost}, 보유: ${gpBal.toFixed(0)})`);
 
-    // Check if already has a pass
-    const { rows: existing } = await client.query(
-      `SELECT vp.*, vt.tier_id AS current_tier_id, vt.cost_gp AS current_cost,
-              vt.sort_order AS current_sort
-       FROM vip_passes vp
-       JOIN vip_tiers vt ON vt.id = vp.tier_id
-       WHERE vp.wallet=$1 AND vp.is_active=true AND vp.expires_at > NOW()`,
-      [wLower]);
-
-    let refund = 0;
-    if (existing.length) {
-      const cur = existing[0];
-      if (Number(cur.tier_id) === tierId) {
-        // Renew — extend expiry by period_days from current expires_at
-        await client.query('BEGIN'); // nested save — just continue
-        const { rows: newExp } = await client.query(
-          `UPDATE vip_passes SET expires_at = expires_at + ($1 || ' days')::interval, auto_renewed=true
-           WHERE wallet=$2 AND is_active=true RETURNING expires_at`,
-          [tier.period_days, wLower]);
-        await client.query(
-          'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2',
-          [tier.cost_gp, wLower]);
-        await client.query(
-          `INSERT INTO vip_log (wallet, tier_id, event_type, gp_spent) VALUES ($1,$2,'renewed',$3)`,
-          [wLower, tierId, tier.cost_gp]);
-        await client.query('COMMIT');
-        return { action: 'renewed', tierId, tierName: tier.name, badge: tier.badge,
-                 expiresAt: newExp[0].expires_at, gpSpent: Number(tier.cost_gp) };
-      }
-
-      // Upgrade or downgrade — deactivate current pass, optional refund
-      const refundPct = parseFloat(await getSetting('vip_upgrade_refund_pct', '50')) / 100;
-      const now = new Date();
-      const expiresAt = new Date(cur.expires_at);
-      const totalMs = expiresAt - new Date(cur.activated_at);
-      const remainMs = expiresAt - now;
-      if (remainMs > 0 && totalMs > 0 && refundPct > 0) {
-        const remainFraction = remainMs / totalMs;
-        refund = parseFloat((Number(cur.gp_spent) * remainFraction * refundPct).toFixed(6));
-      }
-      await client.query(
-        `UPDATE vip_passes SET is_active=false WHERE wallet=$1 AND is_active=true`, [wLower]);
-      if (refund > 0) {
-        await client.query(
-          `INSERT INTO gp_balances (wallet, balance) VALUES ($1,$2)
-           ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
-          [wLower, refund]);
-      }
-    }
-
-    // Deduct cost
+    // GP 차감
     await client.query(
-      'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2',
-      [tier.cost_gp, wLower]);
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2', [cost, w]
+    );
 
-    // Insert new pass
-    const expiresAt = new Date(Date.now() + tier.period_days * 86400000);
-    await client.query(
+    // 기존 패스 만료
+    await client.query("UPDATE vip_passes SET is_active = false WHERE wallet = $1", [w]);
+
+    // 새 패스 발급
+    const { rows: passRows } = await client.query(
       `INSERT INTO vip_passes (wallet, tier_id, gp_spent, expires_at)
-       VALUES ($1,$2,$3,$4)
+       VALUES ($1, $2, $3, NOW() + ($4 || ' days')::interval)
        ON CONFLICT (wallet) DO UPDATE SET
-         tier_id=EXCLUDED.tier_id, gp_spent=EXCLUDED.gp_spent,
-         activated_at=NOW(), expires_at=EXCLUDED.expires_at, is_active=true, auto_renewed=false`,
-      [wLower, tierId, tier.cost_gp, expiresAt]);
+         tier_id = EXCLUDED.tier_id,
+         gp_spent = EXCLUDED.gp_spent,
+         activated_at = NOW(),
+         expires_at = NOW() + ($4 || ' days')::interval,
+         is_active = true
+       RETURNING *`,
+      [w, tierId, cost, tier.period_days]
+    );
 
     await client.query(
-      `INSERT INTO vip_log (wallet, tier_id, event_type, gp_spent) VALUES ($1,$2,'purchased',$3)`,
-      [wLower, tierId, tier.cost_gp]);
+      `INSERT INTO vip_log (wallet, tier_id, event_type, gp_spent) VALUES ($1, $2, 'purchased', $3)`,
+      [w, tierId, cost]
+    );
 
     await client.query('COMMIT');
+
+    try { logGPActivity(w, -cost, 'vip_pass', `VIP ${tier.name} ${tier.badge} 구매`).catch(() => {}); } catch (_) {}
+
     return {
-      action: existing.length ? 'upgraded' : 'purchased',
-      tierId, tierName: tier.name, badge: tier.badge,
-      expiresAt, gpSpent: Number(tier.cost_gp), refund
+      success: true,
+      action: 'purchased',
+      tierName: tier.name,
+      badge: tier.badge,
+      gpSpent: cost,
+      expiresAt: passRows[0].expires_at
     };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -140,59 +120,12 @@ async function purchasePass(wallet, tierId) {
   }
 }
 
-// ── Expire stale passes (scheduler) ─────────────────────────────────────────
+// ── 만료된 패스 정리 (스케줄러) ──────────────────────────────────────────────
 async function expireOldPasses() {
-  try {
-    const { rowCount } = await pool.query(
-      `UPDATE vip_passes SET is_active=false
-       WHERE is_active=true AND expires_at <= NOW()`);
-    if (rowCount > 0) {
-      console.log(`[VIP] Expired ${rowCount} pass(es)`);
-      // Log expirations
-      await pool.query(
-        `INSERT INTO vip_log (wallet, tier_id, event_type)
-         SELECT wallet, tier_id, 'expired' FROM vip_passes
-         WHERE is_active=false AND expires_at <= NOW() AND expires_at >= NOW() - INTERVAL '5 minutes'`
-      );
-    }
-  } catch (e) {
-    console.error('[VIP] Expire error:', e.message);
-  }
+  const { rowCount } = await pool.query(
+    "UPDATE vip_passes SET is_active = false WHERE is_active = true AND expires_at < NOW()"
+  );
+  if (rowCount > 0) console.log(`[VIP] ${rowCount} expired passes deactivated`);
 }
 
-// ── Admin stats ───────────────────────────────────────────────────────────────
-async function getAdminStats() {
-  const [totals, active, tiers, settings, recent] = await Promise.all([
-    pool.query(
-      `SELECT COUNT(*) AS total_purchases, SUM(gp_spent) AS total_gp_spent,
-              (SELECT COUNT(*) FROM vip_passes WHERE is_active=true AND expires_at > NOW()) AS active_passes
-       FROM vip_log WHERE event_type IN ('purchased','renewed')`),
-    pool.query(
-      `SELECT vp.wallet, up.nickname, vt.name AS tier_name, vt.badge,
-              vp.expires_at, vp.gp_spent
-       FROM vip_passes vp
-       JOIN vip_tiers vt ON vt.id = vp.tier_id
-       LEFT JOIN user_profiles up ON up.wallet = vp.wallet
-       WHERE vp.is_active=true AND vp.expires_at > NOW()
-       ORDER BY vt.sort_order DESC, vp.expires_at DESC LIMIT 50`),
-    pool.query('SELECT * FROM vip_tiers ORDER BY sort_order'),
-    pool.query(`SELECT key, value FROM game_settings WHERE category='vip' ORDER BY key`),
-    pool.query(
-      `SELECT vl.*, vt.name AS tier_name, vt.badge, up.nickname
-       FROM vip_log vl
-       JOIN vip_tiers vt ON vt.id = vl.tier_id
-       LEFT JOIN user_profiles up ON up.wallet = vl.wallet
-       ORDER BY vl.created_at DESC LIMIT 30`)
-  ]);
-  return {
-    totals: totals.rows[0],
-    active: active.rows,
-    tiers: tiers.rows,
-    settings: settings.rows,
-    recent: recent.rows
-  };
-}
-
-module.exports = {
-  getTiers, getMyPass, getVipInfo, purchasePass, expireOldPasses, getAdminStats
-};
+module.exports = { getTiers, getMyPass, getVipInfo, getMiningBoost, getGPEarnBonus, purchasePass, expireOldPasses };

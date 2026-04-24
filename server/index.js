@@ -693,6 +693,15 @@ async function start() {
       console.log('[MAINTENANCE] Scheduled tasks initialized (check: 24h, runs weekly)');
     } catch(e) { console.warn('[MAINTENANCE] Could not init scheduled tasks:', e.message); }
 
+    // ── VIP Pass Expiry Check (every hour) ──
+    try {
+      const vipSvc = require('./services/vip');
+      setInterval(async () => {
+        try { await vipSvc.expireOldPasses(); } catch(e) { console.warn('[VIP] expire check error:', e.message); }
+      }, 60 * 60 * 1000);
+      console.log('[VIP] Expiry check scheduled (every 1h)');
+    } catch(e) { console.warn('[VIP] Could not init expiry check:', e.message); }
+
     // ── Rocket Scheduled Tasks ──
     try {
       const { autoScheduleRocket, processRocketLanding, processRocketCompletion } = require('./services/rocket');
@@ -1322,6 +1331,26 @@ async function start() {
       }, 5 * 60 * 1000);
       console.log('[CHRONICLE] Weekly scheduler started (5min interval)');
     } catch(e) { console.warn('[CHRONICLE] Could not init weekly scheduler:', e.message); }
+
+    // ── Shield Decay: 시간당 3% 자연 감소 (매 30분마다 1.5% 차감) ──
+    try {
+      const { pool: dbPool, getSetting: dbGetSetting } = require('./db');
+      setInterval(async () => {
+        try {
+          const enabled = await dbGetSetting('shield_enabled', 'true');
+          if (String(enabled) === 'false') return;
+          const decayPctPerHour = parseFloat(await dbGetSetting('shield_decay_pct_per_hour', '3')) || 3;
+          const decayThisInterval = decayPctPerHour / 2; // 30분 = 절반 감소
+          const { rowCount } = await dbPool.query(`
+            UPDATE ships
+            SET shield_hp = GREATEST(0, FLOOR(shield_hp - shield_max * $1 / 100))
+            WHERE shield_hp > 0 AND is_alive = true
+          `, [decayThisInterval]);
+          if (rowCount > 0) console.log(`[SHIELD] Decay applied to ${rowCount} ships (-${decayThisInterval.toFixed(1)}%/tick)`);
+        } catch(e) { console.warn('[SHIELD] decay error:', e.message); }
+      }, 30 * 60 * 1000); // 30분마다
+      console.log('[SHIELD] Decay scheduler started (30min interval)');
+    } catch(e) { console.warn('[SHIELD] Could not init decay scheduler:', e.message); }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {

@@ -40223,15 +40223,87 @@ function renderShips() {
     return;
   }
   list.innerHTML = shipyardState.ships.map(function(s) {
-    var hpPct = (s.current_hp / s.max_hp) * 100;
+    var hpPct = Math.max(0, Math.min(100, (s.current_hp / s.max_hp) * 100));
     var hpClass = hpPct < 30 ? 'crit' : hpPct < 60 ? 'low' : '';
+    var isDamaged = s.current_hp < s.max_hp;
+    var shieldHp  = parseInt(s.shield_hp) || 0;
+    var shieldMax = parseInt(s.shield_max) || 0;
+    var shieldPct = shieldMax > 0 ? Math.min(100, (shieldHp / shieldMax) * 100) : 0;
+    var shieldBar = shieldMax > 0
+      ? '<div style="margin-top:3px"><div style="font-size:8px;color:#64b5f6;display:flex;justify-content:space-between"><span>🛡 SHIELD</span><span>' + syFmt(shieldHp) + ' / ' + syFmt(shieldMax) + '</span></div>'
+        + '<div style="height:3px;background:rgba(100,181,246,.15);border-radius:2px;overflow:hidden"><div style="height:100%;width:' + shieldPct + '%;background:linear-gradient(90deg,#1565c0,#64b5f6);transition:width .3s"></div></div></div>'
+      : '';
     return '<div class="ship-item ' + (s.is_flagship ? 'flagship' : '') + '">' +
       '<div class="ship-name" style="color:' + (s.faction_color || '#fff') + '">' + (s.is_flagship ? '⚔ ' : '') + s.name_ko + '</div>' +
       '<div class="ship-class">' + s.class_label + '</div>' +
       '<div class="ship-hp-bar"><div class="ship-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></div></div>' +
       '<div class="ship-hp-text">HP ' + syFmt(s.current_hp) + ' / ' + syFmt(s.max_hp) + '</div>' +
+      shieldBar +
+      '<div style="display:flex;gap:4px;margin-top:6px">' +
+        (isDamaged ? '<button onclick="syRepairShip(' + s.id + ',\'' + s.name_ko + '\',' + s.current_hp + ',' + s.max_hp + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>' : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">✅ 최대HP</button>') +
+        '<button onclick="syChargeShield(' + s.id + ',\'' + s.name_ko + '\',' + s.max_hp + ',' + shieldHp + ',' + shieldMax + ')" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드 충전</button>' +
+      '</div>' +
     '</div>';
   }).join('');
+}
+
+async function syRepairShip(shipId, name, currentHp, maxHp) {
+  var missing = maxHp - currentHp;
+  var gpCost  = Math.ceil(missing * 0.01);
+  var ironNeed = Math.ceil(missing / 10 * 0.2);
+  var ok = await gameConfirm({
+    title: '🔧 함선 수리', icon: '🔧',
+    body: '<div style="font-size:11px;color:#81c784;font-weight:700;margin-bottom:5px">' + name + '</div>'
+      + '<div style="font-size:10px;color:var(--tx3)">HP ' + syFmt(currentHp) + ' → ' + syFmt(maxHp) + ' (+' + syFmt(missing) + ')</div>',
+    info: [
+      { k: 'GP 비용',      v: gpCost + ' GP' },
+      { k: '🪨 iron_ore',  v: ironNeed + '개' }
+    ],
+    confirmText: '🔧 수리하기'
+  });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/ships/' + shipId + '/repair', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ target_hp_pct: 100 })
+    });
+    var d = await r.json();
+    if (d.error) { showFactionToast('수리 실패: ' + d.error, 'error'); return; }
+    showFactionToast('🔧 수리 완료! +' + syFmt(d.healed) + ' HP (-' + d.gp_cost + ' GP)', 'success');
+    refreshBalance();
+    await refreshShipyard();
+  } catch(e) { showFactionToast('수리 요청 실패', 'error'); }
+}
+
+async function syChargeShield(shipId, name, maxHp, currentShield, shieldMax) {
+  var maxRatio = 50;
+  var calcShieldMax = shieldMax > 0 ? shieldMax : Math.floor(maxHp * maxRatio / 100);
+  var canAdd = calcShieldMax - currentShield;
+  if (canAdd <= 0) { showFactionToast('🛡 실드가 이미 최대입니다', 'info'); return; }
+  var units = canAdd;
+  var gpCost = Math.ceil(units * 0.05);
+  var ok = await gameConfirm({
+    title: '🛡 실드 충전', icon: '🛡',
+    body: '<div style="font-size:11px;color:#64b5f6;font-weight:700;margin-bottom:5px">' + name + '</div>'
+      + '<div style="font-size:10px;color:var(--tx3)">실드 ' + syFmt(currentShield) + ' → ' + syFmt(currentShield + units) + '</div>'
+      + '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">실드는 전투 시 HP 대신 먼저 소모됩니다 · 시간당 3% 자연 감소</div>',
+    info: [{ k: 'GP 비용', v: gpCost + ' GP' }],
+    confirmText: '🛡 충전하기'
+  });
+  if (!ok) return;
+  try {
+    var r = await fetch('/api/ships/' + shipId + '/shield', {
+      method: 'POST',
+      headers: Object.assign({'Content-Type':'application/json'}, getAuthHeaders()),
+      body: JSON.stringify({ units: units })
+    });
+    var d = await r.json();
+    if (d.error) { showFactionToast('충전 실패: ' + d.error, 'error'); return; }
+    showFactionToast('🛡 실드 충전 완료! +' + syFmt(d.shield_added) + ' (-' + d.gp_cost + ' GP)', 'success');
+    refreshBalance();
+    await refreshShipyard();
+  } catch(e) { showFactionToast('실드 충전 요청 실패', 'error'); }
 }
 
 function updateFooter() {
@@ -40261,12 +40333,21 @@ function syFmtTime(seconds) {
 var MINERAL_ICONS = {
   iron_dust:'🟤', red_sand:'🔴', regolith_ore:'⚪', basalt_chip:'🟫',
   ice_crystal:'🔵', volcanic_shard:'🌋', plasma_dust:'🟣', ancient_metal:'⭐',
-  meteorite_fragment:'☄️', xenomatter:'💠', hull_plate:'▣', plasma_coil:'⚡', alloy_frame:'⬢'
+  meteorite_fragment:'☄️', xenomatter:'💠', hull_plate:'▣', plasma_coil:'⚡', alloy_frame:'⬢',
+  // tier 1 건조 재료 (Frontier)
+  iron_ore:'🪨', carbon_fiber:'🧵', silicon_chip:'💠',
+  // tier 2 건조 재료 (Mid)
+  titanium_alloy:'⚙️', plasma_crystal:'🔮', nano_polymer:'🧬',
+  // tier 3 건조 재료 (Core — 타이탄 전용)
+  dark_matter:'🌑', quantum_core:'⚡', exotic_alloy:'✨'
 };
 var MINERAL_KO = {
   iron_dust:'철먼지', red_sand:'붉모래', regolith_ore:'레골리스', basalt_chip:'현무암',
   ice_crystal:'얼음', volcanic_shard:'화산파편', plasma_dust:'플라즈마', ancient_metal:'고대금속',
-  meteorite_fragment:'운석', xenomatter:'외계물질', hull_plate:'장갑판', plasma_coil:'플라즈마코일', alloy_frame:'합금프레임'
+  meteorite_fragment:'운석', xenomatter:'외계물질', hull_plate:'장갑판', plasma_coil:'플라즈마코일', alloy_frame:'합금프레임',
+  iron_ore:'철광석', carbon_fiber:'탄소섬유', silicon_chip:'실리콘칩',
+  titanium_alloy:'티타늄합금', plasma_crystal:'플라즈마결정', nano_polymer:'나노폴리머',
+  dark_matter:'암흑물질', quantum_core:'퀀텀코어', exotic_alloy:'이그조틱합금'
 };
 </script>
 

@@ -229,4 +229,81 @@ router.post('/process-completed', requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * POST /api/ships/:id/repair
+ * 함선 수리
+ * Body: { target_hp_pct? }  — 생략 시 100 (풀회복)
+ */
+router.post('/:id/repair', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+
+    const shipId = parseInt(req.params.id);
+    if (!shipId) return res.status(400).json({ error: 'INVALID_SHIP_ID' });
+
+    const targetHpPct = req.body.target_hp_pct !== undefined
+      ? parseInt(req.body.target_hp_pct)
+      : 100;
+
+    if (isNaN(targetHpPct) || targetHpPct < 1 || targetHpPct > 100) {
+      return res.status(400).json({ error: 'INVALID_TARGET_HP_PCT', meta: { valid_range: '1-100' } });
+    }
+
+    const result = await shipService.repairShip(wallet, shipId, targetHpPct);
+    res.json(result);
+  } catch (err) {
+    const errorMap = {
+      'SHIP_NOT_FOUND':   404,
+      'ALREADY_FULL':     409,
+      'USER_NOT_FOUND':   404,
+      'INSUFFICIENT_GP':  402,
+      'INSUFFICIENT_IRON': 402,
+    };
+    const status = errorMap[err.message];
+    if (status) {
+      return res.status(status).json({ error: err.message, meta: err.meta || undefined });
+    }
+    console.error('[ships] repair error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
+/**
+ * POST /api/ships/:id/shield
+ * 함선 실드 충전
+ * Body: { units }  — 충전할 실드 HP 양
+ */
+router.post('/:id/shield', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+
+    const shipId = parseInt(req.params.id);
+    if (!shipId) return res.status(400).json({ error: 'INVALID_SHIP_ID' });
+
+    const units = parseInt(req.body.units);
+    if (!units || units <= 0) {
+      return res.status(400).json({ error: 'INVALID_UNITS', meta: { hint: 'units must be a positive integer' } });
+    }
+
+    const result = await shipService.chargeShield(wallet, shipId, units);
+    res.json(result);
+  } catch (err) {
+    const errorMap = {
+      'SHIP_NOT_FOUND':  404,
+      'SHIELD_FULL':     409,
+      'USER_NOT_FOUND':  404,
+      'INSUFFICIENT_GP': 402,
+      'INVALID_UNITS':   400,
+    };
+    const status = errorMap[err.message];
+    if (status) {
+      return res.status(status).json({ error: err.message, meta: err.meta || undefined });
+    }
+    console.error('[ships] shield error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
 module.exports = router;
