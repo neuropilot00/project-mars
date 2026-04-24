@@ -14108,6 +14108,7 @@ var I18N = {
     gov_titles_title: '🎖 MY TITLES', gov_titles_hint: 'Connect wallet to view your titles.',
     gov_fleet_title: '⚓ MY FLEET', gov_fleet_hint: 'Connect wallet to view your fleet.',
     gov_faction_btn: '🛡 FACTION', gov_hijack_btn: '⚔ HIJACK',
+    gov_fleet_empty: 'No ships yet — open the shipyard below to start building.',
     gov_fleet_my: 'MY SHIPS', gov_fleet_max: '10 max', gov_shipyard: 'SHIPYARD',
     gov_ship_build: 'BUILD SHIP', gov_ship_built: 'built!', gov_ship_repair: 'REPAIR',
     gov_ship_repaired: 'Ship repaired!', gov_ship_repair_confirm: 'Repair this ship to full HP?',
@@ -27164,24 +27165,12 @@ window.addEventListener('resize', function(){
         });
         html += '</div></div>';
       }
-      // Shipyard / Build
-      html += '<div style="border-top:1px solid rgba(92,187,255,.1);padding-top:8px;margin-top:8px">';
-      html += '<div style="font-size:9px;color:#5cbbff;font-weight:700;margin-bottom:6px">⚓ '+(t('gov_shipyard')||'SHIPYARD')+'</div>';
-      if (blueprints.length) {
-        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">';
-        blueprints.forEach(function(bp) {
-          html += '<div style="background:rgba(92,187,255,.03);border:1px solid rgba(92,187,255,.08);border-radius:6px;padding:8px">';
-          html += '<div style="font-size:10px;font-weight:700;color:#5cbbff">'+bp.icon+' '+bp.name+'</div>';
-          html += '<div style="font-size:7px;color:var(--tx3);margin:2px 0">⚔'+bp.attack+' 🛡'+bp.defense+' ⚡'+bp.speed+'</div>';
-          html += '<div style="font-size:9px;color:var(--gold);margin:2px 0">'+bp.gp_cost+' GP</div>';
-          html += '<button onclick="govBuildShip(\''+bp.type+'\')" style="width:100%;margin-top:4px;font-size:7px;padding:3px;border-radius:3px;border:1px solid rgba(92,187,255,.3);background:rgba(92,187,255,.08);color:#5cbbff;cursor:pointer;font-family:var(--fn)">🔨 '+(t('gov_ship_build')||'BUILD')+'</button>';
-          html += '</div>';
-        });
-        html += '</div>';
-      } else {
-        html += '<div style="font-size:9px;color:var(--tx3)">No blueprints available</div>';
+      // 조선소/건조는 별도 모달(openShipyard)로 이관됨 — 이 패널에서는 함선 상태만 보여줌
+      if (!active.length) {
+        html += '<div style="font-size:10px;color:var(--tx3);padding:8px 0;text-align:center">'
+             + (t('gov_fleet_empty')||'No ships yet — open the shipyard below to start building.')
+             + '</div>';
       }
-      html += '</div>';
       panel.innerHTML = html;
     });
   }
