@@ -2652,6 +2652,65 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .bp-card.fsp { border-left: 3px solid #81c784; }
 .bp-card.cv  { border-left: 3px solid #ef5350; }
 .bp-card.locked { opacity: 0.5; }
+/* Animated ship silhouette (battle-viz style) ------------------------- */
+.bp-visual { position: relative; overflow: hidden; }
+.bp-visual svg.bp-ship-svg {
+  width: 92%; height: 92%;
+  position: relative; z-index: 2;
+}
+.bp-ship-body {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bp-ship-float 4.2s ease-in-out infinite;
+  animation-delay: var(--bpd, 0s);
+}
+.bp-ship-body.flight {
+  animation: bp-ship-flight 6s linear infinite, bp-ship-tilt 3s ease-in-out infinite;
+  animation-delay: var(--bpd, 0s), calc(var(--bpd, 0s) + .4s);
+}
+@keyframes bp-ship-float {
+  0%   { transform: translate(-4px, 1px) rotate(-1.5deg); }
+  50%  { transform: translate(4px, -1px) rotate(1.5deg); }
+  100% { transform: translate(-4px, 1px) rotate(-1.5deg); }
+}
+@keyframes bp-ship-flight {
+  0%   { transform: translateX(-26%); }
+  50%  { transform: translateX(26%); }
+  100% { transform: translateX(-26%); }
+}
+@keyframes bp-ship-tilt {
+  0%,100% { filter: drop-shadow(0 0 3px currentColor); }
+  50%     { filter: drop-shadow(0 0 9px currentColor); }
+}
+.bp-star { animation: bp-star-tw 2.2s ease-in-out infinite; }
+.bp-star.s2 { animation-duration: 2.8s; animation-delay: .5s; }
+.bp-star.s3 { animation-duration: 1.7s; animation-delay: 1s; }
+@keyframes bp-star-tw {
+  0%,100% { opacity: .25; }
+  50%     { opacity: 1; }
+}
+.bp-engine {
+  transform-origin: center;
+  animation: bp-engine-pulse 0.55s ease-in-out infinite;
+}
+@keyframes bp-engine-pulse {
+  0%,100% { opacity: .45; transform: scaleX(0.85); }
+  50%     { opacity: 1;   transform: scaleX(1.15); }
+}
+.bp-starfield {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 12% 35%, rgba(255,255,255,.7), transparent 70%),
+    radial-gradient(1px 1px at 78% 18%, rgba(255,255,255,.55), transparent 70%),
+    radial-gradient(1px 1px at 45% 82%, rgba(255,255,255,.65), transparent 70%),
+    radial-gradient(1px 1px at 88% 68%, rgba(255,255,255,.5), transparent 70%),
+    radial-gradient(0.8px 0.8px at 28% 60%, rgba(255,255,255,.6), transparent 70%);
+  animation: bp-starfield-pan 14s linear infinite;
+}
+@keyframes bp-starfield-pan {
+  0%   { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: -30px 0, 30px 0, -22px 0, 26px 0, -18px 0; }
+}
 .bp-header {
   display: flex; align-items: flex-start; justify-content: space-between;
   margin-bottom: 4px;
@@ -38995,10 +39054,35 @@ function shipSilhouetteSvg(sizeClass, factionCode, scale) {
   var inner = paths.map(function(p){
     return '<path d="'+p.d+'" fill="'+p.fill+'" stroke="'+p.stroke+'" stroke-width="'+p.sw+'" stroke-linejoin="round"/>';
   }).join('');
-  return '<svg viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg" style="width:92%;height:92%;filter:drop-shadow(0 0 6px '+c.glow+');">'
-    + '<defs><radialGradient id="star_'+(factionCode||'x')+'_'+(sizeClass||'x')+'"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>'
-    + '<circle cx="15" cy="10" r="1" fill="#fff" opacity=".6"/><circle cx="105" cy="46" r="0.8" fill="#fff" opacity=".4"/><circle cx="95" cy="8" r="0.6" fill="#fff" opacity=".5"/>'
-    + inner
+  // size별 엔진 트레일 origin (ship's rear edge)
+  var engine = {
+    frigate:    { x:18, y:28, len:14, r:2.2 },
+    destroyer:  { x:18, y:28, len:18, r:2.6 },
+    cruiser:    { x:10, y:28, len:22, r:3.0 },
+    battleship: { x:8,  y:32, len:26, r:3.6 },
+    titan:      { x:4,  y:32, len:32, r:4.4 }
+  }[sizeClass] || { x:20, y:28, len:14, r:2 };
+  var gid = 'eg_'+(factionCode||'x')+'_'+(sizeClass||'x');
+  var deterministicDelay = (((sizeClass||'').length * 7 + (factionCode||'').length * 13) % 9) * 0.2;
+  return '<svg class="bp-ship-svg" viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="color:'+c.glow+';--bpd:'+deterministicDelay+'s;">'
+    + '<defs>'
+    +   '<linearGradient id="'+gid+'" x1="0" x2="1" y1="0" y2="0">'
+    +     '<stop offset="0" stop-color="'+c.glow+'" stop-opacity="0"/>'
+    +     '<stop offset="0.5" stop-color="'+c.glow+'" stop-opacity=".55"/>'
+    +     '<stop offset="1" stop-color="#fff" stop-opacity=".85"/>'
+    +   '</linearGradient>'
+    + '</defs>'
+    // 배경 트윙클 별들 (뷰포트 기준 — 함선과 분리됨)
+    + '<circle class="bp-star"    cx="15"  cy="10" r="1"   fill="#fff" opacity=".6"/>'
+    + '<circle class="bp-star s2" cx="105" cy="46" r="0.8" fill="#fff" opacity=".4"/>'
+    + '<circle class="bp-star s3" cx="95"  cy="8"  r="0.6" fill="#fff" opacity=".5"/>'
+    + '<circle class="bp-star s2" cx="40"  cy="50" r="0.5" fill="#fff" opacity=".45"/>'
+    + '<circle class="bp-star s3" cx="72"  cy="5"  r="0.5" fill="#fff" opacity=".4"/>'
+    // 함선 본체 + 엔진 트레일 (같이 움직임)
+    + '<g class="bp-ship-body flight">'
+    +   '<ellipse class="bp-engine" cx="'+(engine.x - engine.len/2)+'" cy="'+engine.y+'" rx="'+(engine.len/2)+'" ry="'+engine.r+'" fill="url(#'+gid+')"/>'
+    +   inner
+    + '</g>'
     + '</svg>';
 }
 
@@ -39026,7 +39110,7 @@ function renderBlueprintCard(s) {
   var silhouette = shipSilhouetteSvg(s.size_class, s.faction_code);
   var accent = shipFactionAccent(s.faction_code);
   return '<div class="bp-card ' + s.faction_code + ' ' + (!s.can_build ? 'locked' : '') + '">' +
-    '<div class="bp-visual" style="background:' + accent + ';display:flex;align-items:center;justify-content:center;height:64px;border-radius:6px;margin-bottom:6px;overflow:hidden">' + silhouette + '</div>' +
+    '<div class="bp-visual" style="background:' + accent + ';display:flex;align-items:center;justify-content:center;height:64px;border-radius:6px;margin-bottom:6px"><div class="bp-starfield"></div>' + silhouette + '</div>' +
     '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + s.name_ko + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
     '<div class="bp-class">' + (s.class_label || '') + '</div>' +
     '<div class="bp-stats">' +
@@ -39069,7 +39153,7 @@ async function buildShip(shipTypeCode) {
     ]);
   var bodyHtml =
     '<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:'+accent+';margin-bottom:8px">'
-    + '<div style="width:72px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+silhouette+'</div>'
+    + '<div class="bp-visual" style="width:84px;height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,0,0,.35)"><div class="bp-starfield"></div>'+silhouette+'</div>'
     + '<div style="flex:1;min-width:0">'
     +   '<div style="font-weight:700;font-size:14px;color:#fff;letter-spacing:.04em">'+ship.name_ko+'</div>'
     +   '<div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-top:2px">'+ship.faction_code+' · '+(ship.class_label||ship.size_class)+'</div>'
@@ -39082,7 +39166,7 @@ async function buildShip(shipTypeCode) {
     + '</div>';
   var ok = await gameConfirm({
     title: '⚒ ' + (t && t('gov_ship_build') || 'BUILD SHIP'),
-    icon: icon,
+    icon: shipSizeIcon(ship.size_class),
     body: bodyHtml,
     info: info,
     confirmText: '⚒ ' + (t && t('gov_ship_build') || 'START BUILD'),
