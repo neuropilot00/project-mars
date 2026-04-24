@@ -582,6 +582,19 @@ async function start() {
       // Don't crash — existing tables still work
     }
 
+    // ── 강제 Cantina 활성화 (매 부팅마다 idempotent) ──
+    try {
+      const { pool } = require('./db');
+      await pool.query(`
+        INSERT INTO settings (category, key, value, description)
+        VALUES ('cantina', 'cantina_enabled', 'true', 'Cantina (Arena) 활성화')
+        ON CONFLICT (key) DO UPDATE SET value = 'true'
+      `);
+      console.log('[boot] cantina_enabled = true 강제 세팅 완료');
+    } catch (cErr) {
+      console.warn('[boot] cantina enable failed:', cErr.message);
+    }
+
     // Initialize withdrawal signer
     initSigner();
 
