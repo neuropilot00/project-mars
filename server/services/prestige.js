@@ -139,4 +139,55 @@ async function getAdminStats() {
   return { stats, dist };
 }
 
-module.exports = { getCfg, getPrestige, buyPrestige, getLeaderboard, getAdminStats };
+// ── Migration 172: 랭크별 실보너스 조회 ──
+function _parseCsvPct(raw, fallback) {
+  if (!raw) return fallback;
+  try {
+    const cleaned = String(raw).replace(/^"+|"+$/g, '');
+    const arr = cleaned.split(',').map(x => parseFloat(x) || 0);
+    return arr.length ? arr : fallback;
+  } catch (_) { return fallback; }
+}
+
+async function _getRankBonusArr(key, fallbackArr) {
+  const raw = await getSetting(key, null);
+  return _parseCsvPct(raw, fallbackArr);
+}
+
+async function getRank(wallet) {
+  try {
+    const { rows } = await pool.query(
+      'SELECT prestige_rank FROM colony_prestige WHERE wallet = $1', [wallet]
+    );
+    return rows[0]?.prestige_rank || 0;
+  } catch (_) { return 0; }
+}
+
+async function getMiningBonus(wallet) {
+  if (!wallet) return 1.0;
+  const rank = await getRank(wallet);
+  if (rank <= 0) return 1.0;
+  const arr = await _getRankBonusArr('prestige_rank_mining_bonus_pct', [0,3,6,10,15,20]);
+  return 1 + (arr[rank] || 0) / 100;
+}
+
+async function getGPEarnBonus(wallet) {
+  if (!wallet) return 1.0;
+  const rank = await getRank(wallet);
+  if (rank <= 0) return 1.0;
+  const arr = await _getRankBonusArr('prestige_rank_gp_earn_bonus_pct', [0,2,4,7,10,15]);
+  return 1 + (arr[rank] || 0) / 100;
+}
+
+async function getHijackDefensePct(wallet) {
+  if (!wallet) return 0;
+  const rank = await getRank(wallet);
+  if (rank <= 0) return 0;
+  const arr = await _getRankBonusArr('prestige_rank_hijack_def_pct', [0,2,5,8,12,18]);
+  return arr[rank] || 0;
+}
+
+module.exports = {
+  getCfg, getPrestige, buyPrestige, getLeaderboard, getAdminStats,
+  getRank, getMiningBonus, getGPEarnBonus, getHijackDefensePct
+};

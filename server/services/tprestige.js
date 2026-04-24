@@ -153,8 +153,73 @@ async function adminResetPrestige(claimId) {
   return { success: true };
 }
 
+// ── Migration 172: 티어별 실보너스 조회 ──
+function _parseCsvPct(raw, fallback) {
+  if (!raw) return fallback;
+  try {
+    const cleaned = String(raw).replace(/^"+|"+$/g, '');
+    const arr = cleaned.split(',').map(x => parseFloat(x) || 0);
+    return arr.length ? arr : fallback;
+  } catch (_) { return fallback; }
+}
+
+async function _getTierArr(key, fallbackArr) {
+  const raw = await getSetting(key, null);
+  return _parseCsvPct(raw, fallbackArr);
+}
+
+async function getClaimTier(claimId) {
+  if (!claimId) return 0;
+  try {
+    const { rows } = await pool.query(
+      'SELECT tier FROM territory_prestige WHERE claim_id = $1', [claimId]
+    );
+    return rows[0]?.tier || 0;
+  } catch (_) { return 0; }
+}
+
+async function getClaimMiningBonus(claimId) {
+  const tier = await getClaimTier(claimId);
+  if (tier <= 0) return 1.0;
+  const arr = await _getTierArr('tprestige_tier_mining_bonus_pct', [0,5,10,18,28,40]);
+  return 1 + (arr[tier] || 0) / 100;
+}
+
+async function getClaimHijackDefensePct(claimId) {
+  const tier = await getClaimTier(claimId);
+  if (tier <= 0) return 0;
+  const arr = await _getTierArr('tprestige_tier_hijack_def_pct', [0,3,7,12,18,25]);
+  return arr[tier] || 0;
+}
+
+async function getClaimShieldBonusPct(claimId) {
+  const tier = await getClaimTier(claimId);
+  if (tier <= 0) return 0;
+  const arr = await _getTierArr('tprestige_tier_shield_bonus_pct', [0,5,10,15,22,30]);
+  return arr[tier] || 0;
+}
+
+// 유저가 소유한 모든 클레임 중 최고 티어 보너스 반환 (채굴 등에 적용)
+async function getBestClaimMiningBonus(wallet) {
+  if (!wallet) return 1.0;
+  try {
+    const { rows } = await pool.query(
+      `SELECT MAX(tp.tier) AS max_tier
+       FROM territory_prestige tp
+       JOIN claims c ON c.id = tp.claim_id AND c.deleted_at IS NULL
+       WHERE LOWER(c.owner) = LOWER($1)`, [wallet]
+    );
+    const maxTier = rows[0]?.max_tier || 0;
+    if (maxTier <= 0) return 1.0;
+    const arr = await _getTierArr('tprestige_tier_mining_bonus_pct', [0,5,10,18,28,40]);
+    return 1 + (arr[maxTier] || 0) / 100;
+  } catch (_) { return 1.0; }
+}
+
 module.exports = {
   getCfg, getPrestige, upgradePrestige,
   getAdminStats, adminResetPrestige,
-  TIER_NAMES, TIER_COLORS
+  TIER_NAMES, TIER_COLORS,
+  getClaimTier, getClaimMiningBonus, getClaimHijackDefensePct,
+  getClaimShieldBonusPct, getBestClaimMiningBonus
 };

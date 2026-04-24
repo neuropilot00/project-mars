@@ -2744,6 +2744,24 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       }
     } catch (_vip) { /* VIP service unavailable */ }
 
+    // ✅ [Colony Prestige] 플레이어 랭크별 채굴 보너스 (Migration 172)
+    try {
+      const prestigeSvc = require('../services/prestige');
+      const pBoost = await prestigeSvc.getMiningBonus(w);
+      if (pBoost > 1.0) {
+        harvestedPP = Math.round(harvestedPP * pBoost * 10000) / 10000;
+      }
+    } catch (_pr) { /* prestige service unavailable */ }
+
+    // ✅ [Territory Prestige] 소유 클레임 최고 티어 채굴 보너스 (Migration 172)
+    try {
+      const tprestigeSvc = require('../services/tprestige');
+      const tBoost = await tprestigeSvc.getBestClaimMiningBonus(w);
+      if (tBoost > 1.0) {
+        harvestedPP = Math.round(harvestedPP * tBoost * 10000) / 10000;
+      }
+    } catch (_tp) { /* tprestige service unavailable */ }
+
     // Apply hard cap per harvest
     harvestedPP = Math.min(harvestedPP, harvestCap);
 

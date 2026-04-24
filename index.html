@@ -19955,8 +19955,18 @@ function loadTransportTab() {
     fetch('/api/sectors').then(function(r){ return r.json(); }).catch(function(){ return null; })
   ]).then(function(res) {
     _tspSettings = res[0] || {};
-    var sectorsData = res[1] || {};
-    _tspSectors = (sectorsData.sectors || sectorsData || []);
+    var sectorsData = res[1];
+    _tspSectors = Array.isArray(sectorsData)
+      ? sectorsData
+      : (sectorsData && Array.isArray(sectorsData.sectors) ? sectorsData.sectors : []);
+    if (!_tspSectors.length) {
+      var origin = document.getElementById('tspOriginSector');
+      var dest = document.getElementById('tspDestSector');
+      var errHTML = '<option value="">섹터 로딩 실패 · 새로고침</option>';
+      if (origin) origin.innerHTML = errHTML;
+      if (dest) dest.innerHTML = errHTML;
+      return;
+    }
     populateTransportSectorSelects();
     updateTransportPreview();
     // attach listeners once
@@ -20017,13 +20027,13 @@ function updateTransportPreview() {
 
 function submitTransportLaunch() {
   var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
-  if (!w) { alert('Connect wallet first'); return; }
+  if (!w) { showFactionToast('지갑 연결이 필요합니다', 'error'); return; }
   var origin = parseInt((document.getElementById('tspOriginSector')||{}).value || '0');
   var dest = parseInt((document.getElementById('tspDestSector')||{}).value || '0');
   var cargo = parseInt((document.getElementById('tspCargoGp')||{}).value || '0');
-  if (!origin || !dest) { alert('Select origin & destination sectors'); return; }
-  if (origin === dest) { alert('Origin must differ from destination'); return; }
-  if (!cargo) { alert('Enter cargo GP'); return; }
+  if (!origin || !dest) { showFactionToast('출발/도착 섹터를 선택하세요', 'error'); return; }
+  if (origin === dest) { showFactionToast('출발지와 도착지는 달라야 합니다', 'error'); return; }
+  if (!cargo) { showFactionToast('화물 GP를 입력하세요', 'error'); return; }
   var doSubmit = function() {
     fetch('/api/transport/start', {
       method: 'POST',
@@ -20031,13 +20041,13 @@ function submitTransportLaunch() {
       body: JSON.stringify({ originSectorId: origin, destSectorId: dest, cargoGp: cargo })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
-        if (typeof showToast === 'function') showToast('🚚 Transport launched! ETA '+d.transport.durationMin+' min, reward +'+d.transport.rewardGp+' GP', 'success');
+        showFactionToast('🚚 수송 출발! ETA '+d.transport.durationMin+'분 · 보상 +'+d.transport.rewardGp+' GP', 'success');
         switchTransportSub('my');
         if (typeof refreshGP === 'function') refreshGP();
       } else {
-        alert('Launch failed: '+(d.error||'unknown'));
+        showFactionToast('출발 실패: '+(d.error||'unknown'), 'error');
       }
-    }).catch(function(e){ alert('Error: '+e.message); });
+    }).catch(function(e){ showFactionToast('네트워크 오류: '+e.message, 'error'); });
   };
   if (typeof gameConfirm === 'function') {
     gameConfirm('🚚 Launch shipment?', 'Lock '+cargo+' GP as cargo. Sector #'+origin+' → #'+dest+'.', doSubmit);
@@ -20097,13 +20107,13 @@ function cancelMyTransport(tid) {
       body: JSON.stringify({ transportId: tid })
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
-        if (typeof showToast === 'function') showToast('✓ Cancelled, '+d.refundedGp+' GP refunded', 'success');
+        showFactionToast('✓ 취소됨 — '+d.refundedGp+' GP 환불', 'success');
         loadMyTransports();
         if (typeof refreshGP === 'function') refreshGP();
-      } else alert('Cancel failed: '+(d.error||'unknown'));
+      } else showFactionToast('취소 실패: '+(d.error||'unknown'), 'error');
     });
   };
-  if (typeof gameConfirm === 'function') gameConfirm('Cancel transport #'+tid+'?','Cargo refunded, reward forfeited.', doIt);
+  if (typeof gameConfirm === 'function') gameConfirm('수송 #'+tid+' 취소?','화물은 환불되지만 보상은 잃습니다.', doIt);
   else if (confirm('Cancel transport #'+tid+'?')) doIt();
 }
 
@@ -20135,7 +20145,7 @@ function loadRaidTargets() {
 
 function submitRaidAttempt(tid, cargo) {
   var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
-  if (!w) { alert('Connect wallet first'); return; }
+  if (!w) { showFactionToast('지갑 연결이 필요합니다', 'error'); return; }
   var doIt = function() {
     fetch('/api/transport/raid', {
       method: 'POST',
@@ -20144,18 +20154,18 @@ function submitRaidAttempt(tid, cargo) {
     }).then(function(r){ return r.json(); }).then(function(d) {
       if (d.success) {
         if (d.result === 'success') {
-          if (typeof showToast === 'function') showToast('🏴 RAID SUCCESS! +'+d.lootGp+' GP (rolled '+d.roll+'/'+d.threshold+')', 'success');
+          showFactionToast('🏴 약탈 성공! +'+d.lootGp+' GP (roll '+d.roll+'/'+d.threshold+')', 'success');
           if (typeof refreshGP === 'function') refreshGP();
         } else {
-          if (typeof showToast === 'function') showToast('✗ Raid failed (rolled '+d.roll+'/'+d.threshold+', needed under '+d.threshold+'). Cooldown started.', 'error');
+          showFactionToast('✗ 약탈 실패 (roll '+d.roll+'/'+d.threshold+') — 쿨다운 시작', 'error');
         }
         loadRaidTargets();
       } else {
-        alert('Raid failed: '+(d.error||'unknown'));
+        showFactionToast('약탈 실패: '+(d.error||'unknown'), 'error');
       }
-    }).catch(function(e){ alert('Error: '+e.message); });
+    }).catch(function(e){ showFactionToast('네트워크 오류: '+e.message, 'error'); });
   };
-  if (typeof gameConfirm === 'function') gameConfirm('🏴 Raid transport #'+tid+'?', 'Cargo: '+cargo+' GP. One attempt per shipment. Cooldown applies.', doIt);
+  if (typeof gameConfirm === 'function') gameConfirm('🏴 수송 #'+tid+' 약탈?', '화물: '+cargo+' GP. 수송당 1회 시도. 쿨다운 적용.', doIt);
   else if (confirm('Attempt raid on transport #'+tid+'?')) doIt();
 }
 
