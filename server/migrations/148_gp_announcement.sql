@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS colony_announcements (
 CREATE INDEX IF NOT EXISTS idx_announcement_active ON colony_announcements(is_active, expires_at);
 CREATE INDEX IF NOT EXISTS idx_announcement_wallet ON colony_announcements(wallet);
 
--- Settings
-INSERT INTO settings (key, value, category, label) VALUES
+-- Settings (column `label` doesn't exist on production — use `description` to match settings schema)
+INSERT INTO settings (key, value, category, description) VALUES
   ('announce_enabled',       'true',  'announce', 'Enable Colony Announcements'),
   ('announce_cost_gp',       '80',    'announce', 'GP cost per 30-minute announcement'),
   ('announce_max_length',    '80',    'announce', 'Max message length'),
