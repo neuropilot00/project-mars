@@ -605,12 +605,12 @@ function fire(sh){
     lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
       color:FACTIONS[sh.type.faction].color,
       width:sh.type.size==='titan'?3:sh.type.size==='battleship'?2.2:2,
-      alpha:1,ttl:10,age:0,dmg:t.atk*.8*atkMult,target:ts,applied:false,side:sh.side});
+      alpha:1,ttl:10,age:0,dmg:t.atk*4*atkMult,target:ts,applied:false,side:sh.side});
   } else if(t.fireType==='mixed'){
     const ts=tf.ships.filter(s=>!s.dead)[0|Math.random()*4];
     if(ts)lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
       color:FACTIONS[sh.type.faction].color,width:1.2,alpha:.5,ttl:7,age:0,
-      dmg:t.atk*.4*atkMult,target:ts,applied:false,side:sh.side});
+      dmg:t.atk*2*atkMult,target:ts,applied:false,side:sh.side});
     spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,.6*atkMult);
   } else {
     for(let k=0;k<t.shots;k++){
@@ -624,7 +624,7 @@ function spawnB(mx,my,nvx,nvy,t,side,dmgMult){
   const spd=1.0+Math.random()*.5;
   bullets.push({x:mx,y:my,vx:nvx*spd,vy:nvy*spd,
     r:Math.min(t.r*.3+.3,1.6),col:FACTIONS[t.faction].color,
-    dmg:t.atk*dmgMult*.4,side,ttl:120,age:0});
+    dmg:t.atk*dmgMult*2,side,ttl:120,age:0});
 }
 
 function checkHit(b){
@@ -1046,7 +1046,7 @@ function loop(ts){
     if(sh.dead||sh.fleet.dead)return;
     sh.shootT+=dt;
     const fi=empMs>0?sh.type.fireInt*5:sh.type.fireInt;
-    if(sh.shootT>fi){sh.shootT=0;fire(sh);}
+    if(sh.shootT>fi*5){sh.shootT=0;fire(sh);}
   });
 
   drawBG();
