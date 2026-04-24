@@ -756,6 +756,52 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         <tbody id="phaTariffBody"><tr><td colspan="9" class="loading">Click REFRESH</td></tr></tbody>
       </table>
     </div>
+
+    <!-- ═══ PHASE C: Transport + Raid Admin (M-158) ═══ -->
+    <div class="sec-header" style="margin-top:20px">
+      <span class="sec-title" style="color:#FFB347">🚚 TRANSPORT & RAID (M-158)</span>
+      <div class="sec-tools"><button class="ev-btn" onclick="loadPhaseCAdmin()">REFRESH</button></div>
+    </div>
+    <div id="phcStatus" style="font-size:9px;color:var(--gold);min-height:12px;margin-bottom:8px"></div>
+
+    <!-- Settings grid -->
+    <div style="padding:10px;border:1px solid rgba(255,179,71,.18);border-radius:6px;background:rgba(255,179,71,.03);margin-bottom:12px">
+      <div style="font-size:8px;color:#FFB347;letter-spacing:1px;margin-bottom:8px;font-weight:700">SETTINGS (17 keys)</div>
+      <div id="phcSettingsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">
+        <div style="color:#888;font-size:9px">Click REFRESH...</div>
+      </div>
+    </div>
+
+    <!-- Stats summary -->
+    <div id="phcStatsBox" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;margin-bottom:10px"></div>
+
+    <!-- Recent transports -->
+    <div class="sec-header" style="margin-top:6px"><span class="sec-title" style="color:#FFB347">RECENT TRANSPORTS</span>
+      <div class="sec-tools"><button class="ev-btn" onclick="loadPhaseCTransports()">REFRESH</button></div>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:10px">
+      <table class="adm-table">
+        <thead><tr>
+          <th>ID</th><th>CARRIER</th><th>ROUTE</th><th>CARGO</th><th>REWARD</th>
+          <th>STATUS</th><th>MRC</th><th>STARTED</th><th>ARRIVES</th><th>ACTION</th>
+        </tr></thead>
+        <tbody id="phcTransportsBody"><tr><td colspan="10" class="loading">Click REFRESH</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Recent raids -->
+    <div class="sec-header" style="margin-top:6px"><span class="sec-title" style="color:#FF6B6B">RECENT RAIDS</span>
+      <div class="sec-tools"><button class="ev-btn" onclick="loadPhaseCRaids()">REFRESH</button></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead><tr>
+          <th>WHEN</th><th>TID</th><th>RAIDER</th><th>CARRIER</th><th>CARGO</th>
+          <th>RESULT</th><th>LOOT</th><th>ROLL</th><th>THRESHOLD</th>
+        </tr></thead>
+        <tbody id="phcRaidsBody"><tr><td colspan="9" class="loading">Click REFRESH</td></tr></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="section cat-governance" style="display:none">
@@ -2512,7 +2558,7 @@ function switchTab(tab) {
   if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
   if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); loadBannerAdmin(); loadJournalAdmin(); loadTprestigeAdmin(); loadAnnounceAdmin(); loadTombstoneAdmin(); loadMilestoneAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
-  if (tab === 'governance') { loadGovData(); loadPhaseAAdmin(); }
+  if (tab === 'governance') { loadGovData(); loadPhaseAAdmin(); loadPhaseCAdmin(); }
   if (tab === 'lore') { loadLoreData(); }
   if (tab === 'enhance') { loadEnhanceStats(); }
   if (tab === 'marketplace') { loadMarketplaceAdmin(); loadMktPriceAnalytics(); loadAuctionAdmin(); }
@@ -4121,6 +4167,180 @@ function loadPhaseATariffLog() {
     }).join('');
   }).catch(function(e) {
     var tbody = document.getElementById('phaTariffBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="9" class="loading">Error: '+e.message+'</td></tr>';
+  });
+}
+
+// ═══════════════════════════════════════
+//  PHASE C ADMIN (M-158): Transport + Raid
+// ═══════════════════════════════════════
+
+function _phcSetStatus(msg, isErr) {
+  var el = document.getElementById('phcStatus');
+  if (el) { el.textContent = msg; el.style.color = isErr ? '#FF6B6B' : 'var(--gold)'; }
+}
+function _phcUnwrap(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'object') return JSON.stringify(v);
+  return String(v);
+}
+
+function loadPhaseCAdmin() {
+  loadPhaseCSettings();
+  loadPhaseCStats();
+  loadPhaseCTransports();
+  loadPhaseCRaids();
+}
+
+function loadPhaseCSettings() {
+  api('/admin/api/phase-c/settings').then(function(d) {
+    var grid = document.getElementById('phcSettingsGrid');
+    if (!grid) return;
+    var keys = d.keys || [];
+    var settings = d.settings || {};
+    if (!keys.length) { grid.innerHTML = '<div style="color:#888;font-size:9px">No settings</div>'; return; }
+    grid.innerHTML = keys.map(function(k) {
+      var s = settings[k] || {};
+      var val = _phcUnwrap(s.value);
+      var desc = s.description || '';
+      var isBool = (val === 'true' || val === 'false');
+      var inputHtml;
+      if (isBool) {
+        inputHtml = '<select id="phc_'+k+'" style="width:100%;padding:4px;font-size:10px">'
+          + '<option value="true"'+(val==='true'?' selected':'')+'>true</option>'
+          + '<option value="false"'+(val==='false'?' selected':'')+'>false</option>'
+          + '</select>';
+      } else {
+        inputHtml = '<input id="phc_'+k+'" value="'+val.replace(/"/g,'&quot;')+'" style="width:100%;padding:4px;font-size:10px;background:#111;color:#eee;border:1px solid #333;border-radius:3px">';
+      }
+      return '<div style="padding:6px 8px;border:1px solid rgba(255,179,71,.15);border-radius:5px;background:rgba(255,179,71,.03)">'
+        + '<div style="font-size:7px;color:#FFB347;letter-spacing:1px;margin-bottom:3px;font-weight:700">'+k+'</div>'
+        + '<div style="font-size:8px;color:#888;margin-bottom:4px">'+desc+'</div>'
+        + inputHtml
+        + '<button class="ev-btn" style="margin-top:4px;width:100%;font-size:9px" onclick="savePhaseCSettingInput(\''+k+'\','+isBool+')">SAVE</button>'
+        + '</div>';
+    }).join('');
+  }).catch(function(e){ _phcSetStatus('✗ settings: '+e.message, true); });
+}
+
+function savePhaseCSettingInput(key, isBool) {
+  var el = document.getElementById('phc_'+key);
+  if (!el) return;
+  var raw = (el.value || '').trim();
+  var value;
+  if (isBool) {
+    value = (raw === 'true');
+  } else if (/^-?\d+$/.test(raw)) {
+    value = parseInt(raw);
+  } else if (/^-?\d*\.\d+$/.test(raw)) {
+    value = parseFloat(raw);
+  } else {
+    value = raw;
+  }
+  savePhaseCSetting(key, value);
+}
+
+function savePhaseCSetting(key, value) {
+  fetch('/admin/api/phase-c/setting', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json', 'x-admin-secret': adminSecret},
+    body: JSON.stringify({ key: key, value: value })
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.ok) _phcSetStatus('✓ '+key+' = '+JSON.stringify(value));
+    else _phcSetStatus('✗ '+key+': '+(d.error||'failed'), true);
+  }).catch(function(e){ _phcSetStatus('✗ '+e.message, true); });
+}
+
+function loadPhaseCStats() {
+  api('/admin/api/phase-c/stats').then(function(d) {
+    var box = document.getElementById('phcStatsBox');
+    if (!box) return;
+    var t = d.transports || {};
+    var r = d.raids || {};
+    var byS = t.by_status || {};
+    var items = [
+      ['TOTAL SHIPMENTS', t.total||0, '#FFB347'],
+      ['IN TRANSIT', (byS.in_transit&&byS.in_transit.count)||0, 'var(--cyan)'],
+      ['COMPLETED', (byS.completed&&byS.completed.count)||0, 'var(--gn)'],
+      ['RAIDED', (byS.raided&&byS.raided.count)||0, '#FF6B6B'],
+      ['CANCELLED', (byS.cancelled&&byS.cancelled.count)||0, '#888'],
+      ['TOTAL CARGO GP', t.total_cargo||0, 'var(--gold)'],
+      ['TOTAL REWARD GP', t.total_reward||0, 'var(--gold)'],
+      ['TOTAL LOOTED GP', t.total_looted||0, '#FF6B6B'],
+      ['RAID ATTEMPTS', r.n||0, 'var(--cyan)'],
+      ['RAID SUCCESSES', r.successful||0, 'var(--gn)']
+    ];
+    box.innerHTML = items.map(function(x) {
+      return '<div style="padding:6px 8px;border:1px solid rgba(255,179,71,.15);border-radius:5px;background:rgba(255,179,71,.03)">'
+        + '<div style="font-size:7px;color:'+x[2]+';letter-spacing:1px">'+x[0]+'</div>'
+        + '<div style="font-size:12px;color:'+x[2]+';font-weight:700">'+x[1]+'</div></div>';
+    }).join('');
+  }).catch(function(e){ _phcSetStatus('✗ stats: '+e.message, true); });
+}
+
+function loadPhaseCTransports() {
+  api('/admin/api/phase-c/recent-transports?limit=30').then(function(d) {
+    var rows = d.transports || [];
+    var tbody = document.getElementById('phcTransportsBody');
+    if (!tbody) return;
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="10" class="loading">No transports yet</td></tr>'; return; }
+    tbody.innerHTML = rows.map(function(t) {
+      var statusColor = (t.status==='in_transit'?'var(--cyan)':(t.status==='completed'?'var(--gn)':(t.status==='raided'?'#FF6B6B':'#888')));
+      var action = (t.status==='in_transit')
+        ? '<button class="ev-btn" style="font-size:8px" onclick="forceCompletePhaseCTransport('+t.id+')">FORCE</button>'
+        : '—';
+      return '<tr>'
+        + '<td>#'+t.id+'</td>'
+        + '<td class="addr">'+escapeHtml(t.carrier_nick||(t.carrier_wallet||'').slice(0,8)+'...')+'</td>'
+        + '<td style="font-size:8px">'+escapeHtml(t.origin_name||('#'+t.origin_sector_id))+' → '+escapeHtml(t.dest_name||('#'+t.dest_sector_id))+'</td>'
+        + '<td class="val-gp">'+(t.cargo_value||0)+'</td>'
+        + '<td class="val-gp">'+(t.reward_gp||0)+'</td>'
+        + '<td style="color:'+statusColor+';font-size:9px;font-weight:700">'+escapeHtml(t.status||'')+'</td>'
+        + '<td>'+(t.merchant_bonus?'<span style="color:#FFB347">★</span>':'—')+'</td>'
+        + '<td style="font-size:8px">'+new Date(t.started_at).toLocaleString()+'</td>'
+        + '<td style="font-size:8px">'+new Date(t.arrives_at).toLocaleString()+'</td>'
+        + '<td>'+action+'</td>'
+        + '</tr>';
+    }).join('');
+  }).catch(function(e) {
+    var tbody = document.getElementById('phcTransportsBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="10" class="loading">Error: '+e.message+'</td></tr>';
+  });
+}
+
+function forceCompletePhaseCTransport(id) {
+  if (!confirm('Force-complete transport #'+id+'? Payout will be credited to carrier.')) return;
+  fetch('/admin/api/phase-c/transport/'+id+'/force-complete', {
+    method: 'POST',
+    headers: {'x-admin-secret': adminSecret}
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    if (d.ok) { _phcSetStatus('✓ transport #'+id+' force-completed (payout '+d.payout+' GP)'); loadPhaseCTransports(); loadPhaseCStats(); }
+    else _phcSetStatus('✗ '+(d.error||'failed'), true);
+  }).catch(function(e){ _phcSetStatus('✗ '+e.message, true); });
+}
+
+function loadPhaseCRaids() {
+  api('/admin/api/phase-c/recent-raids?limit=30').then(function(d) {
+    var rows = d.raids || [];
+    var tbody = document.getElementById('phcRaidsBody');
+    if (!tbody) return;
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="9" class="loading">No raids yet</td></tr>'; return; }
+    tbody.innerHTML = rows.map(function(r) {
+      var rc = r.success ? 'var(--gn)' : '#888';
+      return '<tr>'
+        + '<td style="font-size:8px">'+new Date(r.created_at).toLocaleString()+'</td>'
+        + '<td>#'+r.transport_id+'</td>'
+        + '<td class="addr">'+escapeHtml(r.raider_nick||(r.raider_wallet||'').slice(0,8)+'...')+'</td>'
+        + '<td class="addr">'+escapeHtml(r.carrier_nick||(r.carrier_wallet||'').slice(0,8)+'...')+'</td>'
+        + '<td class="val-gp">'+(r.cargo_value||0)+'</td>'
+        + '<td style="color:'+rc+';font-size:9px;font-weight:700">'+(r.success?'SUCCESS':'FAILED')+'</td>'
+        + '<td class="val-gp">'+(r.loot_gp||0)+'</td>'
+        + '<td>'+(r.fight_roll||0)+'</td>'
+        + '<td>'+(r.success_threshold||0)+'</td>'
+        + '</tr>';
+    }).join('');
+  }).catch(function(e) {
+    var tbody = document.getElementById('phcRaidsBody');
     if (tbody) tbody.innerHTML = '<tr><td colspan="9" class="loading">Error: '+e.message+'</td></tr>';
   });
 }

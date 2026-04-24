@@ -5463,6 +5463,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')"><span data-i18n="base_tab_mining">MINING</span><span class="tab-dot" id="miningDot"></span></div>
       <div class="base-tab" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests')"><span data-i18n="base_tab_quests">QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
       <div class="base-tab" id="baseTabOps" onclick="switchBaseTab('ops',this);loadOpsTab();clearBaseTabDot('ops')" style="color:var(--cyan)"><span data-i18n="base_tab_ops">OPS</span><span class="tab-dot" id="opsDot"></span></div>
+      <div class="base-tab" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
       <div class="base-tab" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems()" data-i18n="base_tab_shop">SHOP</div>
       <div class="base-tab" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab()" style="color:#a064dc" data-i18n="base_tab_market">MARKET</div>
       <div class="base-tab" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
@@ -7191,6 +7192,67 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <!-- Active mission list -->
           <div class="base-section-title" style="color:var(--cyan)" data-i18n="ops_active">ACTIVE OPERATIONS</div>
           <div id="opsMissionList" style="font-size:10px;color:var(--tx3);padding:6px 0" data-i18n="ops_no_missions">No active missions. Launch one above.</div>
+        </div>
+      </div>
+
+      <!-- TAB: TRANSPORT (M-158 Phase C) -->
+      <div class="base-pane" id="basePane_transport">
+        <div style="padding:8px 2px 12px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="font-size:22px">🚚</div>
+            <div style="flex:1">
+              <div style="font-size:12px;color:#FFB347;font-family:var(--fn);font-weight:700;letter-spacing:1px" data-i18n="transport_title">INTER-SECTOR TRANSPORT</div>
+              <div style="font-size:9px;color:var(--tx3);font-family:var(--fn)" data-i18n="transport_desc">Ship GP cargo between sectors. Merchants earn bonuses. Raiders can steal mid-transit.</div>
+            </div>
+            <div style="text-align:right">
+              <button class="ev-btn-sm" onclick="loadTransportTab()" style="background:rgba(255,179,71,.08);border:1px solid rgba(255,179,71,.3);color:#FFB347;padding:4px 8px;font-size:9px;border-radius:5px;cursor:pointer" data-i18n="btn_refresh">REFRESH</button>
+            </div>
+          </div>
+
+          <!-- Sub-tabs -->
+          <div class="base-tabs" style="margin-bottom:10px">
+            <div class="base-tab active" id="tspSubLaunch" onclick="switchTransportSub('launch')" style="font-size:10px;padding:6px 10px" data-i18n="transport_sub_launch">LAUNCH</div>
+            <div class="base-tab" id="tspSubMy" onclick="switchTransportSub('my')" style="font-size:10px;padding:6px 10px" data-i18n="transport_sub_my">MY SHIPMENTS</div>
+            <div class="base-tab" id="tspSubRaid" onclick="switchTransportSub('raid')" style="font-size:10px;padding:6px 10px;color:#FF6B6B" data-i18n="transport_sub_raid">🏴 RAID TARGETS</div>
+          </div>
+
+          <!-- LAUNCH -->
+          <div id="tspPaneLaunch" class="tsp-pane">
+            <div style="padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(255,179,71,.06),rgba(255,179,71,.02));border:1px solid rgba(255,179,71,.25);margin-bottom:12px">
+              <div style="font-size:10px;color:#FFB347;font-family:var(--fn);font-weight:700;margin-bottom:8px;letter-spacing:1px" data-i18n="transport_launch_new">NEW SHIPMENT</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+                <div>
+                  <div style="font-size:8px;color:var(--tx3);margin-bottom:3px" data-i18n="transport_origin">ORIGIN SECTOR</div>
+                  <select id="tspOriginSector" style="width:100%;padding:7px;font-size:10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+                    <option value="">Loading…</option>
+                  </select>
+                </div>
+                <div>
+                  <div style="font-size:8px;color:var(--tx3);margin-bottom:3px" data-i18n="transport_dest">DEST SECTOR</div>
+                  <select id="tspDestSector" style="width:100%;padding:7px;font-size:10px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+                    <option value="">Loading…</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-bottom:6px">
+                <div style="font-size:8px;color:var(--tx3);margin-bottom:3px" data-i18n="transport_cargo">CARGO GP</div>
+                <input type="number" id="tspCargoGp" min="50" max="5000" step="10" value="200" style="width:100%;padding:7px;font-size:11px;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);border-radius:6px;font-family:var(--fn)">
+              </div>
+              <div id="tspLaunchPreview" style="font-size:9px;color:var(--tx3);margin-bottom:8px;min-height:14px;line-height:1.6"></div>
+              <button onclick="submitTransportLaunch()" style="width:100%;padding:10px;border-radius:8px;background:linear-gradient(135deg,#FFB347,#E89C2E);border:none;color:#0A0503;font-family:var(--fn);font-size:11px;cursor:pointer;font-weight:900;letter-spacing:1px" data-i18n="transport_launch_btn">🚚 LAUNCH SHIPMENT ▶</button>
+            </div>
+          </div>
+
+          <!-- MY SHIPMENTS -->
+          <div id="tspPaneMy" class="tsp-pane" style="display:none">
+            <div id="tspMyList" style="font-size:10px;color:var(--tx3);padding:6px 0" data-i18n="transport_my_empty">No shipments yet. Launch one!</div>
+          </div>
+
+          <!-- RAID TARGETS -->
+          <div id="tspPaneRaid" class="tsp-pane" style="display:none">
+            <div style="padding:8px 10px;border:1px solid rgba(255,107,107,.25);border-radius:6px;background:rgba(255,107,107,.03);margin-bottom:8px;font-size:9px;color:#FF6B6B;line-height:1.5" data-i18n="transport_raid_warning">⚠ Raid: pirate other players' cargo. Your own + guild members are exempt. Cooldown applies per attempt.</div>
+            <div id="tspRaidList" style="font-size:10px;color:var(--tx3);padding:6px 0" data-i18n="transport_raid_empty">No raidable shipments right now.</div>
+          </div>
         </div>
       </div>
 
@@ -13955,6 +14017,19 @@ var I18N = {
     base_tab_territory: 'MY TERRITORY', base_tab_sectors: 'SECTORS', base_tab_season: 'SEASON',
     base_tab_mining: 'MINING', base_tab_quests: 'QUESTS', base_tab_ops: 'OPS',
     base_tab_shop: 'SHOP', base_tab_market: 'MARKET', base_tab_guild: 'GUILD', base_tab_govern: 'GOVERN',
+    base_tab_transport: 'TRANSPORT',
+    // ── Transport (M-158 Phase C) ──
+    transport_title: 'INTER-SECTOR TRANSPORT',
+    transport_desc: 'Ship GP cargo between sectors. Merchants earn bonuses. Raiders can steal mid-transit.',
+    transport_sub_launch: 'LAUNCH', transport_sub_my: 'MY SHIPMENTS', transport_sub_raid: '🏴 RAID TARGETS',
+    transport_launch_new: 'NEW SHIPMENT',
+    transport_origin: 'ORIGIN SECTOR', transport_dest: 'DEST SECTOR', transport_cargo: 'CARGO GP',
+    transport_launch_btn: '🚚 LAUNCH SHIPMENT ▶',
+    transport_my_empty: 'No shipments yet. Launch one!',
+    transport_raid_empty: 'No raidable shipments right now.',
+    transport_raid_warning: '⚠ Raid: pirate other players\' cargo. Your own + guild members are exempt. Cooldown applies per attempt.',
+    transport_cancel_btn: '✗ CANCEL',
+    transport_raid_btn: '🏴 RAID',
     // ── Job System ──
     job_label: 'JOB', job_none: 'Choose Your Destiny', job_locked: 'Reach Lv.{n} to Unlock',
     job_choose_btn: 'CHOOSE ▶', job_change_btn: 'CHANGE JOB',
@@ -19105,6 +19180,239 @@ function switchMarketView(view,el){
 }
 
 function loadMarketTab(){ switchMarketView('browse',document.querySelectorAll('.mkt-view-btn')[0]); }
+
+// ═══════════════════════════════════════════════════════════════
+//  TRANSPORT TAB (M-158 Phase C)
+// ═══════════════════════════════════════════════════════════════
+
+var _tspSectors = null;
+var _tspSettings = null;
+var _tspCurrentSub = 'launch';
+
+function switchTransportSub(sub) {
+  _tspCurrentSub = sub;
+  ['launch','my','raid'].forEach(function(s){
+    var tab = document.getElementById('tspSub' + s.charAt(0).toUpperCase() + s.slice(1));
+    var pane = document.getElementById('tspPane' + s.charAt(0).toUpperCase() + s.slice(1));
+    if (tab) tab.classList.toggle('active', s === sub);
+    if (pane) pane.style.display = (s === sub) ? '' : 'none';
+  });
+  if (sub === 'my') loadMyTransports();
+  if (sub === 'raid') loadRaidTargets();
+}
+
+function loadTransportTab() {
+  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  if (!w) return;
+  // Fetch settings + sectors in parallel
+  Promise.all([
+    fetch('/api/transport/settings').then(function(r){ return r.json(); }).catch(function(){ return null; }),
+    fetch('/api/sectors').then(function(r){ return r.json(); }).catch(function(){ return null; })
+  ]).then(function(res) {
+    _tspSettings = res[0] || {};
+    var sectorsData = res[1] || {};
+    _tspSectors = (sectorsData.sectors || sectorsData || []);
+    populateTransportSectorSelects();
+    updateTransportPreview();
+    // attach listeners once
+    ['tspOriginSector','tspDestSector','tspCargoGp'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && !el._tspWired) { el._tspWired = true; el.addEventListener('change', updateTransportPreview); el.addEventListener('input', updateTransportPreview); }
+    });
+    if (_tspCurrentSub === 'my') loadMyTransports();
+    if (_tspCurrentSub === 'raid') loadRaidTargets();
+  });
+}
+
+function populateTransportSectorSelects() {
+  var origin = document.getElementById('tspOriginSector');
+  var dest = document.getElementById('tspDestSector');
+  if (!origin || !dest || !_tspSectors) return;
+  var opts = _tspSectors.map(function(s) {
+    var tier = s.tier ? (' T'+s.tier) : '';
+    var lv = (s.entryMinLevel||0) > 0 ? (' Lv'+s.entryMinLevel) : '';
+    return '<option value="'+(s.id||s.sector_id||'')+'">#'+(s.id||s.sector_id||'')+' '+escapeHtml(s.name||'')+tier+lv+'</option>';
+  }).join('');
+  origin.innerHTML = '<option value="">— Select origin —</option>' + opts;
+  dest.innerHTML = '<option value="">— Select destination —</option>' + opts;
+}
+
+function updateTransportPreview() {
+  var el = document.getElementById('tspLaunchPreview');
+  if (!el) return;
+  if (!_tspSettings || !_tspSectors) { el.textContent = ''; return; }
+  var origin = parseInt((document.getElementById('tspOriginSector')||{}).value || '0');
+  var dest = parseInt((document.getElementById('tspDestSector')||{}).value || '0');
+  var cargo = parseInt((document.getElementById('tspCargoGp')||{}).value || '0');
+  if (!origin || !dest) { el.innerHTML = '<span style="color:var(--tx3)">Select origin &amp; destination to preview duration/reward.</span>'; return; }
+  if (origin === dest) { el.innerHTML = '<span style="color:#FF6B6B">✗ Origin must differ from destination.</span>'; return; }
+  if (!cargo) { el.innerHTML = '<span style="color:var(--tx3)">Enter cargo GP to preview.</span>'; return; }
+  var minC = parseInt(_tspSettings.minCargo)||50;
+  var maxC = parseInt(_tspSettings.maxCargo)||5000;
+  if (cargo < minC) { el.innerHTML = '<span style="color:#FF6B6B">✗ Min cargo: '+minC+' GP</span>'; return; }
+  if (cargo > maxC) { el.innerHTML = '<span style="color:#FF6B6B">✗ Max cargo: '+maxC+' GP</span>'; return; }
+  var o = _tspSectors.find(function(x){ return (x.id||x.sector_id) == origin; });
+  var d = _tspSectors.find(function(x){ return (x.id||x.sector_id) == dest; });
+  if (!o || !d) { el.textContent = ''; return; }
+  var dLat = parseFloat(o.centerLat||o.center_lat||0) - parseFloat(d.centerLat||d.center_lat||0);
+  var dLng = parseFloat(o.centerLng||o.center_lng||0) - parseFloat(d.centerLng||d.center_lng||0);
+  var dist = Math.sqrt(dLat*dLat + dLng*dLng);
+  var baseDur = parseFloat(_tspSettings.baseDur)||15;
+  var distMul = parseFloat(_tspSettings.distMul)||0.25;
+  var duration = Math.max(1, Math.round(baseDur + dist * distMul));
+  var rewardPct = parseFloat(_tspSettings.rewardPct)||10;
+  var distBonusPct = parseFloat(_tspSettings.distBonusPct)||5;
+  var reward = Math.round(cargo * (rewardPct/100) * (1 + (distBonusPct * dist)/100));
+  el.innerHTML =
+    '<span style="color:var(--tx2)">Distance: <b style="color:#FFB347">'+dist.toFixed(1)+'°</b></span> · '
+    + '<span style="color:var(--tx2)">ETA: <b style="color:#FFB347">~'+duration+' min</b></span> · '
+    + '<span style="color:var(--tx2)">Reward: <b style="color:var(--gold)">+'+reward+' GP</b></span>'
+    + '<br><span style="color:var(--tx3);font-size:8px">Merchants get faster ETA + bigger rewards + raid resistance.</span>';
+}
+
+function submitTransportLaunch() {
+  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  if (!w) { alert('Connect wallet first'); return; }
+  var origin = parseInt((document.getElementById('tspOriginSector')||{}).value || '0');
+  var dest = parseInt((document.getElementById('tspDestSector')||{}).value || '0');
+  var cargo = parseInt((document.getElementById('tspCargoGp')||{}).value || '0');
+  if (!origin || !dest) { alert('Select origin & destination sectors'); return; }
+  if (origin === dest) { alert('Origin must differ from destination'); return; }
+  if (!cargo) { alert('Enter cargo GP'); return; }
+  var doSubmit = function() {
+    fetch('/api/transport/start', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'x-wallet': w},
+      body: JSON.stringify({ originSectorId: origin, destSectorId: dest, cargoGp: cargo })
+    }).then(function(r){ return r.json(); }).then(function(d) {
+      if (d.success) {
+        if (typeof showToast === 'function') showToast('🚚 Transport launched! ETA '+d.transport.durationMin+' min, reward +'+d.transport.rewardGp+' GP', 'success');
+        switchTransportSub('my');
+        if (typeof refreshGP === 'function') refreshGP();
+      } else {
+        alert('Launch failed: '+(d.error||'unknown'));
+      }
+    }).catch(function(e){ alert('Error: '+e.message); });
+  };
+  if (typeof gameConfirm === 'function') {
+    gameConfirm('🚚 Launch shipment?', 'Lock '+cargo+' GP as cargo. Sector #'+origin+' → #'+dest+'.', doSubmit);
+  } else {
+    if (confirm('Launch shipment? '+cargo+' GP cargo.')) doSubmit();
+  }
+}
+
+function loadMyTransports() {
+  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  if (!w) return;
+  fetch('/api/transport/my?limit=30', { headers: {'x-wallet': w} })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var list = document.getElementById('tspMyList');
+      if (!list) return;
+      var rows = d.transports || [];
+      if (!rows.length) { list.innerHTML = '<div style="color:var(--tx3);padding:10px;text-align:center" data-i18n="transport_my_empty">No shipments yet. Launch one!</div>'; return; }
+      list.innerHTML = rows.map(function(t) {
+        var statusColor = (t.status==='in_transit'?'var(--cyan)':(t.status==='completed'?'var(--gn)':(t.status==='raided'?'#FF6B6B':'#888')));
+        var prog = parseInt(t.progress_pct)||0;
+        var bar = '<div style="width:100%;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:4px">'
+          + '<div style="width:'+prog+'%;height:100%;background:linear-gradient(90deg,#FFB347,#E89C2E)"></div></div>';
+        var arrive = new Date(t.arrives_at);
+        var remainMin = Math.max(0, Math.round((arrive.getTime() - Date.now())/60000));
+        var timeLine = (t.status==='in_transit') ? ('ETA ~'+remainMin+'m') : new Date(t.started_at).toLocaleString();
+        var actions = '';
+        if (t.status==='in_transit' && prog < 20) {
+          actions = '<button onclick="cancelMyTransport('+t.id+')" style="padding:4px 8px;font-size:9px;border-radius:4px;background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.3);color:#FF6B6B;cursor:pointer;margin-top:6px" data-i18n="transport_cancel_btn">✗ CANCEL</button>';
+        }
+        var raidLine = '';
+        if (t.status==='raided') {
+          raidLine = '<div style="font-size:9px;color:#FF6B6B;margin-top:3px">🏴 Raided by '+escapeHtml(t.raider_nick||(t.raided_by||'').slice(0,8))+' · Lost '+(t.raid_loot_gp||0)+' GP</div>';
+        }
+        return '<div style="padding:10px;border-radius:7px;border:1px solid rgba(255,179,71,.18);background:rgba(255,179,71,.02);margin-bottom:8px">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">'
+          + '<div><div style="font-size:10px;color:var(--tx);font-weight:700">#'+t.id+' · '+escapeHtml(t.origin_name||('S'+t.origin_sector_id))+' → '+escapeHtml(t.dest_name||('S'+t.dest_sector_id))+'</div>'
+          + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">Cargo '+(t.cargo_value||0)+' GP · Reward +'+(t.reward_gp||0)+' GP'+(t.merchant_bonus?' · <span style="color:#FFB347">★MRC</span>':'')+'</div></div>'
+          + '<div style="text-align:right"><div style="font-size:10px;color:'+statusColor+';font-weight:700">'+escapeHtml(t.status||'')+'</div>'
+          + '<div style="font-size:8px;color:var(--tx3)">'+timeLine+'</div></div>'
+          + '</div>'
+          + bar
+          + raidLine
+          + actions
+          + '</div>';
+      }).join('');
+    }).catch(function(){});
+}
+
+function cancelMyTransport(tid) {
+  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  if (!w) return;
+  var doIt = function() {
+    fetch('/api/transport/cancel', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'x-wallet': w},
+      body: JSON.stringify({ transportId: tid })
+    }).then(function(r){ return r.json(); }).then(function(d) {
+      if (d.success) {
+        if (typeof showToast === 'function') showToast('✓ Cancelled, '+d.refundedGp+' GP refunded', 'success');
+        loadMyTransports();
+        if (typeof refreshGP === 'function') refreshGP();
+      } else alert('Cancel failed: '+(d.error||'unknown'));
+    });
+  };
+  if (typeof gameConfirm === 'function') gameConfirm('Cancel transport #'+tid+'?','Cargo refunded, reward forfeited.', doIt);
+  else if (confirm('Cancel transport #'+tid+'?')) doIt();
+}
+
+function loadRaidTargets() {
+  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  if (!w) return;
+  fetch('/api/transport/raids/targets?wallet=' + encodeURIComponent(w) + '&limit=30')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      var list = document.getElementById('tspRaidList');
+      if (!list) return;
+      var rows = d.targets || [];
+      if (!rows.length) { list.innerHTML = '<div style="color:var(--tx3);padding:10px;text-align:center" data-i18n="transport_raid_empty">No raidable shipments right now.</div>'; return; }
+      list.innerHTML = rows.map(function(t) {
+        var prog = parseInt(t.progress_pct)||0;
+        var bar = '<div style="width:100%;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:4px">'
+          + '<div style="width:'+prog+'%;height:100%;background:linear-gradient(90deg,#FF6B6B,#cc2020)"></div></div>';
+        return '<div style="padding:10px;border-radius:7px;border:1px solid rgba(255,107,107,.22);background:rgba(255,107,107,.03);margin-bottom:8px">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">'
+          + '<div><div style="font-size:10px;color:var(--tx);font-weight:700">#'+t.id+' · '+escapeHtml(t.origin_name||('S'+t.origin_sector_id))+' → '+escapeHtml(t.dest_name||('S'+t.dest_sector_id))+'</div>'
+          + '<div style="font-size:8px;color:var(--tx3);margin-top:2px">Carrier: '+escapeHtml(t.carrier_nick||(t.carrier_wallet||'').slice(0,8))+(t.merchant_bonus?' <span style="color:#FFB347">★MRC</span>':'')+'</div>'
+          + '<div style="font-size:8px;color:var(--gold);margin-top:2px">Cargo: '+(t.cargo_value||0)+' GP · Progress '+prog+'%</div></div>'
+          + '<button onclick="submitRaidAttempt('+t.id+','+((t.cargo_value||0))+')" style="padding:8px 12px;font-size:10px;border-radius:5px;background:linear-gradient(135deg,#FF6B6B,#cc2020);border:none;color:#fff;font-weight:700;cursor:pointer" data-i18n="transport_raid_btn">🏴 RAID</button>'
+          + '</div>' + bar
+          + '</div>';
+      }).join('');
+    }).catch(function(){});
+}
+
+function submitRaidAttempt(tid, cargo) {
+  var w = (typeof getWalletAddress === 'function') ? getWalletAddress() : (window._wallet||'');
+  if (!w) { alert('Connect wallet first'); return; }
+  var doIt = function() {
+    fetch('/api/transport/raid', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'x-wallet': w},
+      body: JSON.stringify({ transportId: tid })
+    }).then(function(r){ return r.json(); }).then(function(d) {
+      if (d.success) {
+        if (d.result === 'success') {
+          if (typeof showToast === 'function') showToast('🏴 RAID SUCCESS! +'+d.lootGp+' GP (rolled '+d.roll+'/'+d.threshold+')', 'success');
+          if (typeof refreshGP === 'function') refreshGP();
+        } else {
+          if (typeof showToast === 'function') showToast('✗ Raid failed (rolled '+d.roll+'/'+d.threshold+', needed under '+d.threshold+'). Cooldown started.', 'error');
+        }
+        loadRaidTargets();
+      } else {
+        alert('Raid failed: '+(d.error||'unknown'));
+      }
+    }).catch(function(e){ alert('Error: '+e.message); });
+  };
+  if (typeof gameConfirm === 'function') gameConfirm('🏴 Raid transport #'+tid+'?', 'Cargo: '+cargo+' GP. One attempt per shipment. Cooldown applies.', doIt);
+  else if (confirm('Attempt raid on transport #'+tid+'?')) doIt();
+}
 
 // ── FLEET COMMAND card loader (M-154 / MY TERRITORY 탭에 통합) ──
 // Shipyard 모달을 별도 탭으로 빼면 컨텐츠가 너무 적어 — MY TERRITORY 안의

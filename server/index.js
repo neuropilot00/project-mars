@@ -139,6 +139,7 @@ const bountyRoutes      = require('./routes/bounty');
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
 const duelRoutes        = require('./routes/duel');
+const transportRoutes   = require('./routes/transport');     // Phase C: sector transport + raid
 const rentalRoutes      = require('./routes/rental');
 const contestRoutes     = require('./routes/contest');
 const allianceRoutes    = require('./routes/alliance');
@@ -319,6 +320,7 @@ app.use('/api', bountyRoutes);
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);
+app.use('/api', transportRoutes);
 app.use('/api', rentalRoutes);
 app.use('/api', contestRoutes);
 app.use('/api', allianceRoutes);
@@ -658,6 +660,18 @@ async function start() {
       }, 60 * 1000); // check every minute
       console.log('[GUILD WAR] War resolution timer initialized (60s)');
     } catch(e) { console.warn('[GUILD WAR] Could not init:', e.message); }
+
+    // ── Transport (M-158) — settle arrived shipments every 60s ──
+    try {
+      const transportSvc = require('./services/transport');
+      setInterval(async () => {
+        try {
+          const r = await transportSvc.settleArrivedTransports();
+          if (r && r.settled > 0) console.log('[TRANSPORT] Settled ' + r.settled + ' shipment(s)');
+        } catch(e) { console.warn('[TRANSPORT] settle error:', e.message); }
+      }, 60 * 1000);
+      console.log('[TRANSPORT] Arrival-settlement timer initialized (60s)');
+    } catch(e) { console.warn('[TRANSPORT] Could not init:', e.message); }
 
     // ── Maintenance Fee Scheduled Tasks ──
     try {

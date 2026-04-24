@@ -4180,4 +4180,164 @@ router.post('/phase-d/duel/:id/cancel', adminAuth, async (req, res) => {
   } finally { client.release(); }
 });
 
+// ══════════════════════════════════════════════════════════════════
+//  PHASE C: Transport + Raid admin
+// ══════════════════════════════════════════════════════════════════
+
+const PHASE_C_SETTING_KEYS = [
+  // Transport (9)
+  'transport_enabled',
+  'transport_base_duration_minutes',
+  'transport_distance_multiplier',
+  'transport_reward_pct_of_cargo',
+  'transport_reward_distance_bonus_pct',
+  'transport_min_cargo_gp',
+  'transport_max_cargo_gp',
+  'transport_max_concurrent_per_user',
+  'transport_entry_level_check',
+  // Raid (8)
+  'transport_raid_enabled',
+  'transport_raid_success_base_pct',
+  'transport_raid_loot_pct',
+  'transport_raid_cooldown_minutes',
+  'transport_raid_min_progress_pct',
+  'transport_raid_max_progress_pct',
+  'transport_raid_self_exempt',
+  'transport_raid_guild_exempt'
+];
+
+// GET /admin/api/phase-c/settings — all 17 Phase C settings
+router.get('/phase-c/settings', adminAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      'SELECT key, value, description, category FROM settings WHERE key = ANY($1::text[])',
+      [PHASE_C_SETTING_KEYS]
+    );
+    const out = {};
+    for (const row of r.rows) {
+      out[row.key] = { value: row.value, description: row.description, category: row.category };
+    }
+    res.json({ settings: out, keys: PHASE_C_SETTING_KEYS });
+  } catch (e) {
+    console.error('[Admin] phase-c/settings error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/phase-c/setting — update one setting (whitelist-enforced)
+router.post('/phase-c/setting', adminAuth, async (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key || !PHASE_C_SETTING_KEYS.includes(key)) {
+    return res.status(400).json({ error: 'invalid_key' });
+  }
+  try {
+    const jsonVal = (typeof value === 'string') ? JSON.stringify(value) : JSON.stringify(value);
+    await pool.query(
+      `INSERT INTO settings (category, key, value, description)
+         VALUES ('transport', $1, $2::jsonb, '')
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+      [key, jsonVal]
+    );
+    await auditLog(req, 'phase_c_setting_update', key, { value });
+    res.json({ ok: true, key, value });
+  } catch (e) {
+    console.error('[Admin] phase-c/setting error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /admin/api/phase-c/stats — transport + raid aggregate stats
+router.get('/phase-c/stats', adminAuth, async (req, res) => {
+  try {
+    const transportSvc = require('../services/transport');
+    const s = await transportSvc.getAdminStats();
+    res.json(s);
+  } catch (e) {
+    console.error('[Admin] phase-c/stats error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /admin/api/phase-c/recent-transports?limit=20
+router.get('/phase-c/recent-transports', adminAuth, async (req, res) => {
+  const limit = Math.min(200, parseInt(req.query.limit) || 20);
+  try {
+    const r = await pool.query(
+      `SELECT t.id, t.carrier_wallet, u.nickname AS carrier_nick,
+              t.origin_sector_id, t.dest_sector_id,
+              so.name AS origin_name, sd.name AS dest_name,
+              t.cargo_value, t.reward_gp, t.status, t.merchant_bonus,
+              t.started_at, t.arrives_at, t.completed_at,
+              t.raided_by, t.raid_loot_gp
+         FROM transport_jobs t
+         LEFT JOIN users u ON LOWER(u.wallet_address) = LOWER(t.carrier_wallet)
+         LEFT JOIN sectors so ON so.id = t.origin_sector_id
+         LEFT JOIN sectors sd ON sd.id = t.dest_sector_id
+        ORDER BY t.started_at DESC
+        LIMIT $1`,
+      [limit]
+    );
+    res.json({ transports: r.rows });
+  } catch (e) {
+    console.error('[Admin] phase-c/recent-transports error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /admin/api/phase-c/recent-raids?limit=20
+router.get('/phase-c/recent-raids', adminAuth, async (req, res) => {
+  const limit = Math.min(200, parseInt(req.query.limit) || 20);
+  try {
+    const r = await pool.query(
+      `SELECT r.id, r.transport_id, r.raider_wallet, ru.nickname AS raider_nick,
+              r.success, r.loot_gp, r.fight_roll, r.success_threshold, r.created_at,
+              t.carrier_wallet, cu.nickname AS carrier_nick,
+              t.cargo_value, t.origin_sector_id, t.dest_sector_id
+         FROM transport_raids r
+         LEFT JOIN transport_jobs t ON t.id = r.transport_id
+         LEFT JOIN users ru ON LOWER(ru.wallet_address) = LOWER(r.raider_wallet)
+         LEFT JOIN users cu ON LOWER(cu.wallet_address) = LOWER(t.carrier_wallet)
+        ORDER BY r.created_at DESC
+        LIMIT $1`,
+      [limit]
+    );
+    res.json({ raids: r.rows });
+  } catch (e) {
+    console.error('[Admin] phase-c/recent-raids error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/phase-c/transport/:id/force-complete — manually settle a stuck transport
+router.post('/phase-c/transport/:id/force-complete', adminAuth, async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (!id) return res.status(400).json({ error: 'bad_id' });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const tr = await client.query(
+      'SELECT * FROM transport_jobs WHERE id=$1 FOR UPDATE', [id]
+    );
+    if (!tr.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'not_found' }); }
+    const t = tr.rows[0];
+    if (t.status !== 'in_transit') { await client.query('ROLLBACK'); return res.status(400).json({ error: 'not_in_transit' }); }
+    const payout = (parseInt(t.cargo_value) || 0) + (parseInt(t.reward_gp) || 0);
+    await client.query(
+      'UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
+      [payout, t.carrier_wallet]
+    );
+    await client.query(
+      `UPDATE transport_jobs SET status='completed', completed_at=NOW(), arrives_at=NOW() WHERE id=$1`,
+      [id]
+    );
+    await client.query('COMMIT');
+    await auditLog(req, 'phase_c_force_complete', 'transport:'+id, { payout });
+    res.json({ ok: true, id, payout });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[Admin] phase-c/force-complete error:', e.message);
+    res.status(500).json({ error: e.message });
+  } finally { client.release(); }
+});
+
 module.exports = router;
