@@ -123,6 +123,73 @@ async function chooseFaction(walletAddress, factionCode) {
       WHERE wallet_address = $1
     `, [walletAddress, factionCode]);
 
+    // ── 최초 파벌 선택 시 스타터 함선 + 광물 지급 ──
+    let starterShipGiven = null;
+    let starterMineralsGiven = null;
+    if (isFirstChoice) {
+      try {
+        const { rows: shipCheck } = await client.query(
+          `SELECT 1 FROM ships WHERE owner_wallet = $1 AND is_alive = true LIMIT 1`,
+          [walletAddress]
+        );
+        if (shipCheck.length === 0) {
+          // 함대 생성 or 조회
+          let fleetId;
+          const { rows: existingFleets } = await client.query(
+            `SELECT id FROM fleets WHERE owner_wallet = $1 AND is_npc = false LIMIT 1`,
+            [walletAddress]
+          );
+          if (existingFleets.length === 0) {
+            const { rows: nf } = await client.query(
+              `INSERT INTO fleets (owner_wallet, name, is_npc) VALUES ($1, '1함대', false) RETURNING id`,
+              [walletAddress]
+            );
+            fleetId = nf[0].id;
+          } else {
+            fleetId = existingFleets[0].id;
+          }
+          // 해당 파벌 T1 프리깃 (가장 저렴한) 지급
+          const { rows: stTypes } = await client.query(
+            `SELECT code, name_ko, base_hp FROM ship_types
+             WHERE faction_code = $1 AND is_active = true AND size_class = 'frigate'
+             ORDER BY build_gp_cost ASC LIMIT 1`,
+            [factionCode]
+          );
+          if (stTypes.length > 0) {
+            const st = stTypes[0];
+            await client.query(
+              `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, built_by_wallet)
+               VALUES ($1, $2, $3, $4, $4, true, $3)`,
+              [fleetId, st.code, walletAddress, st.base_hp]
+            );
+            starterShipGiven = { type_code: st.code, name_ko: st.name_ko };
+          }
+        }
+
+        // 스타터 광물 지급 (T1 프리깃 3척 분량: iron_ore 20, carbon_fiber 20, silicon_chip 10)
+        const starterMinerals = { iron_ore: 20, carbon_fiber: 20, silicon_chip: 10 };
+        for (const [code, qty] of Object.entries(starterMinerals)) {
+          try {
+            const { rows: rRows } = await client.query(
+              `SELECT id FROM resources WHERE code = $1 LIMIT 1`, [code]
+            );
+            if (!rRows[0]) continue;
+            const resourceId = rRows[0].id;
+            await client.query(`
+              INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+              VALUES ($1, $2, $3)
+              ON CONFLICT (wallet_address, resource_id)
+              DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity
+            `, [walletAddress, resourceId, qty]);
+          } catch (_me) {}
+        }
+        starterMineralsGiven = starterMinerals;
+        console.log(`[faction] starter pack granted to ${walletAddress}: ship=${starterShipGiven?.type_code}, minerals=${JSON.stringify(starterMinerals)}`);
+      } catch (starterErr) {
+        console.error('[faction] starter pack grant failed:', starterErr.message);
+      }
+    }
+
     await client.query('COMMIT');
 
     return {
@@ -131,6 +198,8 @@ async function chooseFaction(walletAddress, factionCode) {
       faction_name_ko: fRows[0].name_ko,
       gp_cost: gpCost,
       is_first_choice: isFirstChoice,
+      starter_ship: starterShipGiven,
+      starter_minerals: starterMineralsGiven,
     };
   } catch (err) {
     await client.query('ROLLBACK');

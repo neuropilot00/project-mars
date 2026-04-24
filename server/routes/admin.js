@@ -4350,4 +4350,85 @@ router.post('/phase-c/transport/:id/force-complete', adminAuth, async (req, res)
   } finally { client.release(); }
 });
 
+// ══════════════════════════════════════════════════
+// POST /admin/api/fleet/grant-starter — 파벌 스타터 팩 수동 지급 (함선 + 광물)
+// ══════════════════════════════════════════════════
+router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  const { wallet } = req.body;
+  if (!wallet) return res.status(400).json({ error: 'wallet required' });
+  const w = wallet.toLowerCase().trim();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // 유저 파벌 확인
+    const { rows: uRows } = await client.query(
+      `SELECT faction_code FROM users WHERE wallet_address = $1`, [w]
+    );
+    if (!uRows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'user_not_found' }); }
+    const factionCode = uRows[0].faction_code;
+    if (!factionCode) { await client.query('ROLLBACK'); return res.status(400).json({ error: 'no_faction_selected' }); }
+
+    // 함대 생성 or 조회
+    let fleetId;
+    const { rows: existingFleets } = await client.query(
+      `SELECT id FROM fleets WHERE owner_wallet = $1 AND is_npc = false LIMIT 1`, [w]
+    );
+    if (existingFleets.length === 0) {
+      const { rows: nf } = await client.query(
+        `INSERT INTO fleets (owner_wallet, name, is_npc) VALUES ($1, '1함대', false) RETURNING id`, [w]
+      );
+      fleetId = nf[0].id;
+    } else {
+      fleetId = existingFleets[0].id;
+    }
+
+    // 스타터 함선 지급
+    let shipGranted = null;
+    const { rows: shipCheck } = await client.query(
+      `SELECT 1 FROM ships WHERE owner_wallet = $1 AND is_alive = true LIMIT 1`, [w]
+    );
+    if (shipCheck.length === 0) {
+      const { rows: stTypes } = await client.query(
+        `SELECT code, name_ko, base_hp FROM ship_types
+         WHERE faction_code = $1 AND is_active = true AND size_class = 'frigate'
+         ORDER BY build_gp_cost ASC LIMIT 1`,
+        [factionCode]
+      );
+      if (stTypes.length > 0) {
+        const st = stTypes[0];
+        await client.query(
+          `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, built_by_wallet)
+           VALUES ($1, $2, $3, $4, $4, true, $3)`,
+          [fleetId, st.code, w, st.base_hp]
+        );
+        shipGranted = { code: st.code, name: st.name_ko };
+      }
+    } else {
+      shipGranted = 'already_has_ships';
+    }
+
+    // 스타터 광물 지급
+    const starterMinerals = { iron_ore: 20, carbon_fiber: 20, silicon_chip: 10 };
+    for (const [code, qty] of Object.entries(starterMinerals)) {
+      const { rows: rRows } = await client.query(`SELECT id FROM resources WHERE code = $1 LIMIT 1`, [code]);
+      if (!rRows[0]) continue;
+      await client.query(`
+        INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (wallet_address, resource_id)
+        DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity
+      `, [w, rRows[0].id, qty]);
+    }
+
+    await client.query('COMMIT');
+    await auditLog(req, 'grant_starter_pack', w, { shipGranted, starterMinerals, fleetId });
+    res.json({ success: true, wallet: w, faction: factionCode, fleet_id: fleetId, ship: shipGranted, minerals: starterMinerals });
+  } catch (e) {
+    await client.query('ROLLBACK');
+    console.error('[Admin] grant-starter error:', e.message);
+    res.status(500).json({ error: e.message });
+  } finally { client.release(); }
+});
+
 module.exports = router;
