@@ -21494,7 +21494,7 @@ var _selectedJobCode = null; // selection in modal
 
 function loadUserJob(wallet, rank){
   if(!wallet) return;
-  var lang = (window._lang||'en');
+  var lang = (window.LANG || window._lang || 'en');
   fetch('/api/user/job?wallet='+encodeURIComponent(wallet)+'&lang='+lang)
     .then(function(r){return r.json()})
     .then(function(data){
@@ -21797,7 +21797,7 @@ function openJobSelectModal(){
 
   modal.style.display = 'flex';
 
-  var lang = window._lang || 'en';
+  var lang = window.LANG || window._lang || 'en';
   fetch('/api/jobs?lang='+lang)
     .then(function(r){return r.json()})
     .then(function(d){
@@ -21806,11 +21806,27 @@ function openJobSelectModal(){
     }).catch(function(){});
 }
 
+// Normalize raw API job object (API returns name_ko/name_en/buff_key/buff_value) → UI shape
+function _normalizeJob(job){
+  if(!job) return null;
+  var lang = (window.LANG || window._lang || window._currentLang || 'en').toLowerCase();
+  var name = job['name_'+lang] || job.name_en || job.name_ko || job.code;
+  var desc = job['description_'+lang] || job.description_en || job.description_ko || '';
+  var rawBuffs = job.buffs || [];
+  var buffs = rawBuffs.map(function(b){
+    var key = b.buff_key || b.key;
+    var val = (b.buff_value !== undefined) ? parseFloat(b.buff_value) : b.value;
+    return { key:key, value:val, description:b.description||'' };
+  });
+  return Object.assign({}, job, { name:name, description:desc, buffs:buffs });
+}
+
 function renderJobChoiceGrid(){
   var grid = document.getElementById('jobChoiceGrid');
   if(!grid) return;
   var html = '';
-  _allJobs.forEach(function(job){
+  _allJobs.forEach(function(rawJob){
+    var job = _normalizeJob(rawJob);
     var isCurrent = _jobData && _jobData.job && _jobData.job.code === job.code;
     var posBuffs = (job.buffs||[]).filter(function(b){return b.value>1.0;});
     var negBuffs = (job.buffs||[]).filter(function(b){return b.value<1.0;});
@@ -21837,7 +21853,8 @@ function selectJobCard(jobCode, el){
   document.querySelectorAll('.job-choice-card').forEach(function(c){ c.classList.remove('selected'); });
   el.classList.add('selected');
 
-  var job = _allJobs.find(function(j){return j.code===jobCode;});
+  var rawJob = _allJobs.find(function(j){return j.code===jobCode;});
+  var job = _normalizeJob(rawJob);
   var confirmBtn = document.getElementById('jobModalConfirmBtn');
   if(confirmBtn){ confirmBtn.disabled=false; confirmBtn.style.opacity='1'; }
 
