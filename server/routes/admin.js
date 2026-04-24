@@ -4425,6 +4425,7 @@ router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
   }
 
   const client = await pool.connect();
+  let step = 'begin';
   try {
     await client.query('BEGIN');
     // 유저 파벌 확인
@@ -4441,24 +4442,33 @@ router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
 
     // 함대 생성 or 조회
     let fleetId;
+    step = 'fleet_select';
     const { rows: existingFleets } = await client.query(
-      `SELECT id FROM fleets WHERE owner_wallet = $1 AND is_npc = false LIMIT 1`, [w]
+      `SELECT id FROM fleets WHERE owner_wallet = $1 LIMIT 1`, [w]
     );
     if (existingFleets.length === 0) {
-      const { rows: nf } = await client.query(
-        `INSERT INTO fleets (owner_wallet, name, is_npc) VALUES ($1, '1함대', false) RETURNING id`, [w]
-      );
+      step = 'fleet_insert';
+      // is_npc 컬럼 없는 구 버전 DB 대응
+      const hasIsNpc = await client.query(`
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name='fleets' AND column_name='is_npc'`);
+      const fleetSql = hasIsNpc.rows.length
+        ? `INSERT INTO fleets (owner_wallet, name, is_npc) VALUES ($1, '1함대', false) RETURNING id`
+        : `INSERT INTO fleets (owner_wallet, name) VALUES ($1, '1함대') RETURNING id`;
+      const { rows: nf } = await client.query(fleetSql, [w]);
       fleetId = nf[0].id;
     } else {
       fleetId = existingFleets[0].id;
     }
 
     // 스타터 함선 지급
+    step = 'ship_check';
     let shipGranted = null;
     const { rows: shipCheck } = await client.query(
       `SELECT 1 FROM ships WHERE owner_wallet = $1 AND is_alive = true LIMIT 1`, [w]
     );
     if (shipCheck.length === 0) {
+      step = 'ship_type_select';
       const { rows: stTypes } = await client.query(
         `SELECT code, name_ko, base_hp FROM ship_types
          WHERE faction_code = $1 AND is_active = true AND size_class = 'frigate'
@@ -4467,11 +4477,15 @@ router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
       );
       if (stTypes.length > 0) {
         const st = stTypes[0];
-        await client.query(
-          `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, built_by_wallet)
-           VALUES ($1, $2, $3, $4, $4, true, $3)`,
-          [fleetId, st.code, w, st.base_hp]
-        );
+        step = 'ship_insert';
+        // built_by_wallet 컬럼 없는 구 버전 DB 대응
+        const hasBbw = await client.query(`
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name='ships' AND column_name='built_by_wallet'`);
+        const shipSql = hasBbw.rows.length
+          ? `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, built_by_wallet) VALUES ($1,$2,$3,$4,$4,true,$3)`
+          : `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship) VALUES ($1,$2,$3,$4,$4,true)`;
+        await client.query(shipSql, [fleetId, st.code, w, st.base_hp]);
         shipGranted = { code: st.code, name: st.name_ko };
       }
     } else {
@@ -4509,9 +4523,9 @@ router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
     try { await auditLog(req, 'grant_starter_pack', w, { shipGranted, minerals: mineralsGranted, fleetId: String(fleetId) }); } catch(_) {}
     res.json({ success: true, wallet: w, faction: factionCode, fleet_id: fleetId, ship: shipGranted, minerals: mineralsGranted });
   } catch (e) {
-    await client.query('ROLLBACK');
-    console.error('[Admin] grant-starter error:', e.message, e.stack?.split('\n')[1]);
-    res.status(500).json({ error: e.message });
+    try { await client.query('ROLLBACK'); } catch(_) {}
+    console.error('[Admin] grant-starter error at step=' + (typeof step !== 'undefined' ? step : '?') + ':', e.message);
+    res.status(500).json({ error: '[' + (typeof step !== 'undefined' ? step : '?') + '] ' + e.message });
   } finally { client.release(); }
 });
 
