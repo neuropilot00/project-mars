@@ -2423,7 +2423,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .job-card-mini:hover{border-color:rgba(255,255,255,.25)}
 .job-card-mini.no-job{border-color:rgba(240,200,64,.3);background:linear-gradient(135deg,rgba(240,200,64,.06),rgba(240,200,64,.01))}
 /* ── Onboarding Overlay ── */
-.ob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:4000;backdrop-filter:blur(8px)}
+.ob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:4000;backdrop-filter:blur(8px)}
+.ob-overlay.active{display:flex}
 .ob-modal{width:min(460px,96vw);background:linear-gradient(160deg,#0d1b2a 0%,#1a1a2e 100%);border-radius:20px;border:1px solid rgba(255,255,255,.12);padding:28px 24px;box-shadow:0 24px 80px rgba(0,0,0,.7);animation:ob-in .3s ease}
 @keyframes ob-in{from{transform:scale(.92) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
 .ob-step-dots{display:flex;justify-content:center;gap:6px;margin-bottom:20px}
