@@ -5537,6 +5537,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="base-tab" id="baseTabShop" onclick="switchBaseTab('shop',this);loadBaseShopItems()" data-i18n="base_tab_shop">SHOP</div>
       <div class="base-tab" id="baseTabMarket" onclick="switchBaseTab('market',this);loadMarketTab()" style="color:#a064dc" data-i18n="base_tab_market">MARKET</div>
       <div class="base-tab" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
+      <div class="base-tab" id="baseTabPvp" onclick="switchBaseTab('pvp',this)" style="color:#ff8a80"><span>⚔ PVP</span></div>
       <div class="base-tab" id="baseTabGovern" onclick="switchBaseTab('govern',this);clearBaseTabDot('govern')" style="color:var(--cyan)"><span data-i18n="base_tab_govern">GOVERN</span><span class="tab-dot" id="governDot"></span></div>
     </div>
     <div class="base-body">
@@ -6348,23 +6349,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- ⚔️ GP DUEL SECTION -->
-        <div id="duelSection" style="padding:8px 10px;border-top:1px solid var(--bdr)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
-            <span style="font-size:9px;color:#ff8c42;letter-spacing:2px;font-family:var(--fn);font-weight:700">⚔️ <span data-i18n="duel_title">GP DUELS</span></span>
-            <div style="display:flex;gap:4px">
-              <button onclick="loadDuelPanel()" style="font-size:9px;background:rgba(255,140,66,.1);border:1px solid rgba(255,140,66,.2);color:#ff8c42;padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
-              <button onclick="openDuelModal()" style="font-size:9px;background:rgba(255,140,66,.18);border:1px solid rgba(255,140,66,.45);color:#ff8c42;padding:3px 10px;border-radius:4px;cursor:pointer;font-weight:700" data-i18n="duel_challenge_btn">⚔️ CHALLENGE</button>
-            </div>
-          </div>
-          <div style="display:flex;gap:4px;margin-bottom:8px">
-            <button id="dtabPending" onclick="switchDuelTab('pending')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,140,66,.18);border:1px solid rgba(255,140,66,.45);color:#ff8c42;cursor:pointer;font-weight:700" data-i18n="duel_tab_pending">INCOMING</button>
-            <button id="dtabMy"      onclick="switchDuelTab('my')"      style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="duel_tab_my">MY DUELS</button>
-            <button id="dtabRecent"  onclick="switchDuelTab('recent')"  style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="duel_tab_recent">LEADERBOARD</button>
-          </div>
-          <div id="duelContainer">
-            <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">Connect wallet to view duels</div>
-          </div>
+        <!-- ⚔️ GP DUELS → PVP 탭으로 이전 -->
+        <div style="padding:8px 10px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:9px;color:#ff8c42;letter-spacing:2px;font-family:var(--fn);font-weight:700">⚔️ GP DUELS</span>
+          <button onclick="switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="font-size:9px;background:rgba(255,140,66,.18);border:1px solid rgba(255,140,66,.45);color:#ff8c42;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700">⚔ PVP 탭으로 →</button>
         </div>
 
         <!-- 🛡️ ALLIANCE SECTION -->
@@ -6905,6 +6893,67 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
       </div><!-- /quests pane -->
 
+      <!-- TAB: PVP -->
+      <div class="base-pane" id="basePane_pvp">
+        <div class="base-banner"><div class="base-banner-placeholder" style="background:linear-gradient(135deg,rgba(232,72,85,.12),rgba(255,140,66,.06));min-height:60px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px">
+          <span style="font-size:24px">⚔</span>
+          <span style="font-size:13px;font-weight:800;color:#ff8a80;letter-spacing:2px;font-family:var(--fn)">PVP BATTLE ARENA</span>
+        </div></div>
+
+        <!-- ⚔️ GP DUEL SECTION -->
+        <div id="duelSection" style="padding:8px 10px;border-top:1px solid var(--bdr)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
+            <span style="font-size:9px;color:#ff8c42;letter-spacing:2px;font-family:var(--fn);font-weight:700">⚔️ <span data-i18n="duel_title">GP DUELS</span></span>
+            <div style="display:flex;gap:4px">
+              <button onclick="loadDuelPanel()" style="font-size:9px;background:rgba(255,140,66,.1);border:1px solid rgba(255,140,66,.2);color:#ff8c42;padding:3px 8px;border-radius:4px;cursor:pointer">↻</button>
+              <button onclick="openDuelModal()" style="font-size:9px;background:rgba(255,140,66,.18);border:1px solid rgba(255,140,66,.45);color:#ff8c42;padding:3px 10px;border-radius:4px;cursor:pointer;font-weight:700" data-i18n="duel_challenge_btn">⚔️ CHALLENGE</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;margin-bottom:8px">
+            <button id="dtabPending" onclick="switchDuelTab('pending')" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,140,66,.18);border:1px solid rgba(255,140,66,.45);color:#ff8c42;cursor:pointer;font-weight:700" data-i18n="duel_tab_pending">INCOMING</button>
+            <button id="dtabMy"      onclick="switchDuelTab('my')"      style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="duel_tab_my">MY DUELS</button>
+            <button id="dtabRecent"  onclick="switchDuelTab('recent')"  style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="duel_tab_recent">LEADERBOARD</button>
+          </div>
+          <div id="duelContainer">
+            <div style="color:var(--tx3);font-size:10px;text-align:center;padding:16px">Connect wallet to view duels</div>
+          </div>
+        </div>
+
+        <!-- SECTOR SIEGE section (expanded by default in PVP tab) -->
+        <div class="base-section-title" style="color:var(--red);cursor:pointer;margin-top:4px" onclick="toggleSiegeSection()"><span data-i18n="gov_siege_title">⚔️ SECTOR SIEGE</span> <span id="siegeToggle" style="font-size:8px;color:var(--tx3)">▲</span></div>
+        <div id="govSiegeSection" style="margin-bottom:12px">
+          <div style="background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.15);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:9px;color:var(--tx3);line-height:1.6">
+            <b style="color:var(--red);font-size:10px">⚔️ 섹터 공성전이란?</b><br>
+            섹터 내 최대 점유자(거버너)의 자리를 빼앗는 전쟁입니다.<br>
+            <b style="color:var(--tx2)">① 섹터 선택</b> → <b style="color:var(--tx2)">② 공성전 선언 (GP 소모)</b> → <b style="color:var(--tx2)">③ 경고 기간 (거버너 방어 준비)</b> → <b style="color:var(--tx2)">④ 전투 기간 (픽셀 점령 경쟁)</b><br>
+            전투 종료 시 점유율이 높은 쪽이 섹터 거버너로 등극합니다.
+            <br><span style="color:var(--gold)">💡 진입 조건: 해당 섹터에 최소 영토 보유 필요</span>
+          </div>
+          <div style="margin-bottom:8px">
+            <button id="siegeSectorPickerBtn" type="button" onclick="openSiegeSectorPicker()" style="width:100%;background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:10px;padding:8px 10px;border-radius:6px;font-family:var(--fn);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center"><span id="siegeSectorLabel" data-i18n="gov_select_sector_siege">Select sector...</span><span style="color:var(--tx3)">▾</span></button>
+          </div>
+          <div id="siegeInfoPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_select_siege_hint">Select a sector to view siege status.</div>
+        </div>
+
+        <!-- FLEET BATTLES section (expanded by default in PVP tab) -->
+        <div class="base-section-title" style="color:#5cbbff;cursor:pointer;margin-top:4px" onclick="toggleBattleSection()"><span data-i18n="gov_battle_title">⚔️ NAVAL BATTLES</span> <span id="battleToggle" style="font-size:8px;color:var(--tx3)">▲</span></div>
+        <div id="govBattleSection" style="margin-bottom:12px">
+          <div style="background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.15);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:9px;color:var(--tx3);line-height:1.6">
+            <b style="color:var(--cyan);font-size:10px">⚓ 함대 전투란?</b><br>
+            내 함대를 이끌고 다른 플레이어에게 전투를 선언하는 PvP 전투입니다.<br>
+            <b style="color:var(--tx2)">① 조선소에서 함선 건조</b> → <b style="color:var(--tx2)">② 함대 편성</b> → <b style="color:var(--tx2)">③ 전투 허브에서 선포</b> → <b style="color:var(--tx2)">④ 결과 확인</b>
+          </div>
+          <button onclick="openBattleHub()" style="width:100%;padding:11px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.2),rgba(232,72,85,.07));border:1px solid rgba(232,72,85,.45);color:#ff8a80;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:8px">⚔️ FLEET BATTLE HUB 열기</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+            <button onclick="openFleetCmd()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(92,187,255,.13),rgba(92,187,255,.04));border:1px solid rgba(92,187,255,.35);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🎖 FLEET COMMAND</button>
+            <button onclick="openAiFight()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(129,199,132,.13),rgba(129,199,132,.04));border:1px solid rgba(129,199,132,.35);color:#81c784;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🤖 AI 연습전</button>
+            <button onclick="openTournaments()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.35);color:#ffd166;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">🏆 토너먼트</button>
+            <button onclick="openShipyard()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(79,195,247,.13),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.35);color:#4fc3f7;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px">⚓ 조선소</button>
+          </div>
+          <div id="battlePanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_battle_hint">Connect wallet to view battles.</div>
+        </div>
+      </div>
+
       <!-- TAB: GOVERN -->
       <div class="base-pane" id="basePane_govern">
         <div class="base-banner"><div class="base-banner-placeholder" style="background:linear-gradient(135deg,rgba(91,184,232,.08),rgba(255,209,102,.06))"><span data-i18n="governance_title">⚜ GOVERNANCE</span> <span class="help-tip" onclick="event.stopPropagation();showHelpTip('governance')">?</span></div></div>
@@ -6998,21 +7047,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div style="font-size:10px;color:var(--tx3);padding:8px 0" data-i18n="gov_no_bounties">No active bounties.</div>
         </div>
 
-        <!-- Sector Siege -->
-        <div class="base-section-title" style="color:var(--red);cursor:pointer" onclick="toggleSiegeSection()"><span data-i18n="gov_siege_title">⚔️ SECTOR SIEGE</span> <span id="siegeToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
-        <div id="govSiegeSection" style="display:none;margin-bottom:12px">
-          <!-- 설명 툴팁 -->
-          <div style="background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.15);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:9px;color:var(--tx3);line-height:1.6">
-            <b style="color:var(--red);font-size:10px">⚔️ 섹터 공성전이란?</b><br>
-            섹터 내 최대 점유자(거버너)의 자리를 빼앗는 전쟁입니다.<br>
-            <b style="color:var(--tx2)">① 섹터 선택</b> → <b style="color:var(--tx2)">② 공성전 선언 (GP 소모)</b> → <b style="color:var(--tx2)">③ 경고 기간 (거버너 방어 준비)</b> → <b style="color:var(--tx2)">④ 전투 기간 (픽셀 점령 경쟁)</b><br>
-            전투 종료 시 점유율이 높은 쪽이 섹터 거버너로 등극합니다.
-            <br><span style="color:var(--gold)">💡 진입 조건: 해당 섹터에 최소 영토 보유 필요</span>
-          </div>
-          <div style="margin-bottom:8px">
-            <button id="siegeSectorPickerBtn" type="button" onclick="openSiegeSectorPicker()" style="width:100%;background:rgba(232,72,85,.06);border:1px solid rgba(232,72,85,.2);color:var(--red);font-size:10px;padding:8px 10px;border-radius:6px;font-family:var(--fn);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center"><span id="siegeSectorLabel" data-i18n="gov_select_sector_siege">Select sector...</span><span style="color:var(--tx3)">▾</span></button>
-          </div>
-          <div id="siegeInfoPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_select_siege_hint">Select a sector to view siege status.</div>
+        <!-- Sector Siege → PVP 탭으로 이전 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="base-section-title" style="color:var(--red);margin-bottom:0">⚔️ SECTOR SIEGE</div>
+          <button onclick="switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="font-size:9px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.4);color:var(--red);padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700">⚔ PVP 탭에서 →</button>
         </div>
 
         <!-- My Titles -->
@@ -7034,19 +7072,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- Battles (Migration 093) -->
-        <div class="base-section-title" style="color:var(--red);cursor:pointer" onclick="toggleBattleSection()"><span data-i18n="gov_battle_title">⚔️ NAVAL BATTLES</span> <span id="battleToggle" style="font-size:8px;color:var(--tx3)">▼</span></div>
-        <div id="govBattleSection" style="display:none;margin-bottom:12px">
-          <!-- 설명 툴팁 -->
-          <div style="background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.15);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:9px;color:var(--tx3);line-height:1.6">
-            <b style="color:var(--cyan);font-size:10px">⚓ 함대 전투란?</b><br>
-            내 함대를 이끌고 다른 플레이어에게 전투를 선언하는 PvP 전투입니다.<br>
-            <b style="color:var(--tx2)">① 조선소에서 함선 건조</b> → <b style="color:var(--tx2)">② 함대 편성</b> → <b style="color:var(--tx2)">③ 전투 허브에서 선포</b> → <b style="color:var(--tx2)">④ 전술 지시 선택</b> → <b style="color:var(--tx2)">⑤ 결과 확인</b><br>
-            <span style="color:var(--gold)">💡 아래 BATTLE HUB 버튼으로 바로 이동하세요</span>
-          </div>
-          <!-- Fleet Battle Hub 바로가기 -->
-          <button onclick="openFleetCmd()" style="width:100%;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.2),rgba(232,72,85,.07));border:1px solid rgba(232,72,85,.45);color:#ff8a80;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:8px">⚔️ FLEET BATTLE HUB 열기</button>
-          <div id="battlePanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_battle_hint">Connect wallet to view battles.</div>
+        <!-- Naval Battles → PVP 탭으로 이전 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="base-section-title" style="color:#5cbbff;margin-bottom:0">⚔️ NAVAL BATTLES</div>
+          <button onclick="switchBaseTab('pvp',document.getElementById('baseTabPvp'))" style="font-size:9px;background:rgba(92,187,255,.12);border:1px solid rgba(92,187,255,.4);color:#5cbbff;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:700">⚔ PVP 탭에서 →</button>
         </div>
 
         <!-- Hall of Fame -->
@@ -8342,6 +8371,26 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <button onclick="submitDuelChallenge()"
       style="width:100%;padding:11px;border-radius:8px;background:linear-gradient(135deg,rgba(255,140,66,.18),rgba(255,140,66,.06));border:1px solid rgba(255,140,66,.5);color:#ff8c42;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:1px"
       data-i18n="duel_challenge_submit">⚔️ SEND CHALLENGE</button>
+  </div>
+</div>
+
+<!-- Game-themed input (replaces native prompt) -->
+<div id="gameInput" class="game-picker" onclick="if(event.target===this)closeGameInput()">
+  <div class="gp-card" style="min-width:300px">
+    <div class="gp-header">
+      <span class="gp-title" id="giTitle">INPUT</span>
+      <button class="gp-close" onclick="closeGameInput()">✕</button>
+    </div>
+    <div style="padding:14px 16px 6px">
+      <div style="font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.5px" id="giLabel"></div>
+      <input id="giInput" type="text" autocomplete="off" autocorrect="off" spellcheck="false"
+        style="width:100%;box-sizing:border-box;padding:10px 12px;background:rgba(0,0,0,.5);border:1px solid rgba(255,140,66,.3);color:#fff;border-radius:8px;font-family:var(--fn);font-size:12px;outline:none"
+        onkeydown="if(event.key==='Enter')_giSubmit();if(event.key==='Escape')closeGameInput()">
+    </div>
+    <div style="padding:10px 16px 16px;display:flex;gap:8px">
+      <button onclick="closeGameInput()" style="flex:1;padding:9px;border-radius:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:700;letter-spacing:.5px">CANCEL</button>
+      <button id="giConfirmBtn" onclick="_giSubmit()" style="flex:2;padding:9px;border-radius:7px;background:linear-gradient(135deg,rgba(255,140,66,.2),rgba(255,140,66,.08));border:1px solid rgba(255,140,66,.5);color:#ff8c42;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px">CONFIRM</button>
+    </div>
   </div>
 </div>
 
@@ -20531,6 +20580,7 @@ function switchBaseTab(tab,el){
   if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); try{loadAchievements();}catch(_){} try{loadWeeklyChallenges();}catch(_){} try{loadBountyBoard();}catch(_){} try{loadContestSection();}catch(_){} try{loadDuelPanel();}catch(_){} try{loadAlliancePanel();}catch(_){} try{refreshTournaments();}catch(_){} try{loadActiveBroadcasts();}catch(_){} try{refreshWagerPools();}catch(_){} try{refreshRaffles();}catch(_){} try{refreshPolls();}catch(_){} try{loadDonationWall();}catch(_){} try{loadCapsuleUpcoming();}catch(_){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
+  if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} }
   try{ clearBaseTabDot(tab); }catch(_e){}
 }
 
@@ -25689,6 +25739,37 @@ if(typeof escapeHTML!=='function'){
   window.escapeHTML=function(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});};
 }
 
+// ══════ Game-themed input (replaces native prompt) ══════
+var _giResolver=null;
+function gameInput(opts){
+  // opts: { title, label, placeholder, defaultValue, maxLength }
+  return new Promise(function(resolve){
+    _giResolver=resolve;
+    var dlg=document.getElementById('gameInput');
+    if(!dlg) return resolve(null);
+    document.getElementById('giTitle').textContent=opts.title||'INPUT';
+    document.getElementById('giLabel').textContent=opts.label||'';
+    var inp=document.getElementById('giInput');
+    inp.placeholder=opts.placeholder||'';
+    inp.maxLength=opts.maxLength||200;
+    inp.value=opts.defaultValue||'';
+    dlg.classList.add('open');
+    setTimeout(function(){ inp.focus(); inp.select(); }, 80);
+  });
+}
+function _giSubmit(){
+  var inp=document.getElementById('giInput');
+  var val=inp?inp.value:null;
+  closeGameInput(val);
+}
+function closeGameInput(val){
+  var dlg=document.getElementById('gameInput');
+  if(dlg) dlg.classList.remove('open');
+  var r=_giResolver; _giResolver=null;
+  // val===undefined means cancel (backdrop/button)
+  if(r) r(val===undefined ? null : val);
+}
+
 // ══════ Game-themed picker (replaces native <select>) ══════
 var _gpResolver=null;
 function gamePicker(opts){
@@ -28874,6 +28955,7 @@ window.addEventListener('resize', function(){
       panel.innerHTML = html;
     });
   }
+  window.loadBattlePanel = loadBattlePanel; // expose for PVP tab
 
   window.govDeclareAttack = function() {
     var w = walletState.address;
@@ -40164,7 +40246,7 @@ async function setFleetTactic(type, value) {
 }
 
 async function createNewFleet() {
-  var name = prompt('새 함대 이름을 입력하세요 (비워두면 자동):');
+  var name = await gameInput({ title:'새 함대', label:'함대 이름 (비워두면 자동)', placeholder:'예: 1함대', maxLength:60 });
   if (name === null) return;
   try {
     var res = await fetch('/api/fleets', {
@@ -40185,7 +40267,7 @@ async function createNewFleet() {
 
 async function renameFleet() {
   var f = fleetCmdState.selectedFleet; if (!f) return;
-  var newName = prompt('새 이름:', f.name);
+  var newName = await gameInput({ title:'함대 이름 변경', label:'새 이름', placeholder:f.name, defaultValue:f.name, maxLength:60 });
   if (newName === null || newName.trim() === f.name) return;
   if (!newName.trim()) { showFactionToast('이름이 비어있습니다', 'error'); return; }
   try {
@@ -40203,10 +40285,11 @@ async function renameFleet() {
 
 async function deleteFleetPrompt() {
   var f = fleetCmdState.selectedFleet; if (!f) return;
-  var msg = f.ships_alive > 0
-    ? '\'' + f.name + '\'을(를) 해체하시겠습니까?\n\n함선 ' + f.ships_alive + '척이 다른 함대로 이동됩니다.'
-    : '\'' + f.name + '\'을(를) 해체하시겠습니까?';
-  if (!confirm(msg)) return;
+  var body = f.ships_alive > 0
+    ? '<b>' + fcEsc(f.name) + '</b> 함대를 해체합니다.<br><span style="color:var(--gold)">' + f.ships_alive + '척</span>이 다른 함대로 이동됩니다.'
+    : '<b>' + fcEsc(f.name) + '</b> 함대를 해체합니다.';
+  var ok = await gameConfirm({ icon:'🗑', title:'함대 해체', body:body, confirmText:'해체' });
+  if (!ok) return;
   try {
     var res = await fetch('/api/fleets/' + f.id, { method: 'DELETE', headers: getAuthHeaders() });
     var data = await res.json();
@@ -40225,12 +40308,13 @@ async function showMoveShipsDialog() {
   if (!shipIds.length) return;
   var otherFleets = fleetCmdState.fleets.filter(function(f){ return f.id !== fleetCmdState.selectedFleetId && !f.is_in_battle; });
   if (!otherFleets.length) { showFactionToast('이동할 함대가 없습니다. 새 함대를 만드세요.', 'error'); return; }
-  var options = otherFleets.map(function(f, i){ return (i+1) + '. ' + f.name + ' (' + f.ships_alive + '척)'; }).join('\n');
-  var choice = prompt(shipIds.length + '척 이동 — 대상 함대 번호 입력:\n\n' + options, '1');
-  if (choice === null) return;
-  var idx = parseInt(choice) - 1;
-  if (isNaN(idx) || idx < 0 || idx >= otherFleets.length) { showFactionToast('잘못된 선택', 'error'); return; }
-  var target = otherFleets[idx];
+  var targetId = await gamePicker({
+    title: shipIds.length + '척 함선 이동',
+    items: otherFleets.map(function(f){ return { value: String(f.id), label: f.name + ' (' + f.ships_alive + '척)', icon: '🚢' }; })
+  });
+  if (!targetId) return;
+  var target = otherFleets.find(function(f){ return String(f.id) === targetId; });
+  if (!target) { showFactionToast('잘못된 선택', 'error'); return; }
   try {
     var res = await fetch('/api/fleets/' + target.id + '/move-ships', {
       method: 'POST',
@@ -41600,20 +41684,18 @@ async function challengeAi(aiFleetId, aiName) {
       return;
     }
 
-    const options = myFleets.map((f, i) => `${i+1}. ${f.name} (${f.ships_alive}척)`).join('\n');
-    const choice = prompt(`🤖 ${aiName} 에게 도전\n\n내 함대 선택:\n${options}`, '1');
-    if (!choice) return;
-
-    const idx = parseInt(choice) - 1;
-    if (isNaN(idx) || !myFleets[idx]) {
-      showFactionToast('잘못된 선택', 'error');
-      return;
-    }
+    const fleetId = await gamePicker({
+      title: `🤖 ${aiName} 에게 도전`,
+      items: myFleets.map(f => ({ value: String(f.id), label: f.name + ' (' + f.ships_alive + '척)', icon: '🚢' }))
+    });
+    if (!fleetId) return;
+    const chosenFleet = myFleets.find(f => String(f.id) === fleetId);
+    if (!chosenFleet) { showFactionToast('잘못된 선택', 'error'); return; }
 
     const res2 = await fetch('/api/ai/fight', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify({ my_fleet_id: myFleets[idx].id, ai_fleet_id: aiFleetId })
+      body: JSON.stringify({ my_fleet_id: chosenFleet.id, ai_fleet_id: aiFleetId })
     });
     const data2 = await res2.json();
 
@@ -41722,16 +41804,18 @@ async function registerTournament(tournamentId) {
       return;
     }
 
-    const options = myFleets.map((f, i) => `${i+1}. ${f.name} (${f.ships_alive}척)`).join('\n');
-    const choice = prompt(`🏆 토너먼트 참가 함대 선택:\n${options}`, '1');
-    if (!choice) return;
-    const idx = parseInt(choice) - 1;
-    if (!myFleets[idx]) return;
+    const fleetId = await gamePicker({
+      title: '🏆 토너먼트 참가',
+      items: myFleets.map(f => ({ value: String(f.id), label: f.name + ' (' + f.ships_alive + '척)', icon: '🚢' }))
+    });
+    if (!fleetId) return;
+    const chosenFleet = myFleets.find(f => String(f.id) === fleetId);
+    if (!chosenFleet) return;
 
     const res2 = await fetch(`/api/tournaments/${tournamentId}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify({ fleet_id: myFleets[idx].id })
+      body: JSON.stringify({ fleet_id: chosenFleet.id })
     });
     const data2 = await res2.json();
 
@@ -41754,17 +41838,18 @@ async function registerTournament(tournamentId) {
 }
 
 async function openCreateTournament() {
-  const name = prompt('토너먼트 이름:');
-  if (!name) return;
+  const name = await gameInput({ title:'토너먼트 개최', label:'토너먼트 이름', placeholder:'예: 3월 함대 챔피언십', maxLength:60 });
+  if (!name || !name.trim()) return;
 
-  const sizeStr = prompt('참가 인원 (4/8/16):', '8');
+  const sizeStr = await gamePicker({
+    title: '참가 인원',
+    items: [{value:'4',label:'4명',icon:'👥'},{value:'8',label:'8명',icon:'👥'},{value:'16',label:'16명',icon:'👥'}],
+    selected: '8'
+  });
   const size = parseInt(sizeStr);
-  if (![4, 8, 16].includes(size)) {
-    showFactionToast('4/8/16 중 하나', 'error');
-    return;
-  }
+  if (![4, 8, 16].includes(size)) { showFactionToast('취소됨', 'error'); return; }
 
-  const feeStr = prompt('참가비 GP (0=무료):', '100');
+  const feeStr = await gameInput({ title:'참가비', label:'참가비 GP (0=무료)', placeholder:'100', defaultValue:'100', maxLength:8 });
   const fee = parseInt(feeStr) || 0;
 
   try {
@@ -42852,20 +42937,21 @@ async function shareCurrentBattle() {
   if (!bv.battle) { showFactionToast('공유할 전투 없음', 'error'); return; }
   
   const battleId = bv.battle.id;
-  const title = prompt('리플레이 제목 (선택):', '');
-  
+  const title = await gameInput({ title:'📼 리플레이 공유', label:'제목 (선택)', placeholder:'나의 함대 대전', maxLength:60 });
+  if (title === null) return; // cancelled
+
   try {
     const res = await fetch('/api/replays', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({
         battle_id: battleId,
-        title: title || undefined,
+        title: title.trim() || undefined,
         is_public: true,
       })
     });
     const data = await res.json();
-    
+
     if (!res.ok) {
       const msgMap = {
         'NOT_PARTICIPANT': '참가자만 공유 가능',
@@ -42875,15 +42961,11 @@ async function shareCurrentBattle() {
       showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
       return;
     }
-    
+
     const shareUrl = `${window.location.origin}/replay/${data.share_token}`;
-    
-    // 토스트 대신 prompt로 URL 보여주기 (복사 가능)
-    prompt(
-      `📼 리플레이 공유 링크 생성됨!\n\n${data.already_shared ? '(이미 공유된 전투입니다)' : '아래 URL을 복사해서 공유하세요:'}`,
-      shareUrl
-    );
-    
+    // 링크 복사 가능한 gameInput으로 보여주기
+    await gameInput({ title:'📼 공유 링크', label: data.already_shared ? '이미 공유된 전투입니다' : '아래 URL을 복사해서 공유하세요', defaultValue: shareUrl });
+
     showFactionToast('📼 공유 링크 생성 완료', 'success');
   } catch (err) {
     console.error('shareCurrentBattle:', err);
