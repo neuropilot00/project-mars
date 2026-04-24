@@ -39016,93 +39016,187 @@ function shipFactionColors(factionCode) {
     cv:  { fill:'#00e676', stroke:'#b9f6ca', glow:'#00c853' }
   })[factionCode] || { fill:'#9e9e9e', stroke:'#e0e0e0', glow:'#616161' };
 }
-// 함선 크기/역할별 SVG 실루엣 (battle canvas의 drawShip 스타일을 차용)
+// 함선 크기/파벌별 SVG 실루엣 — v11.1 tactical-lab의 drawMCCShip/drawFSPShip/drawCVShip을 SVG로 포팅
+// 각 파벌이 시각적으로 완전히 구별되도록 기하학 형태를 분기:
+//   MCC: 직선/각진 폴리곤 (군사 산업형)
+//   FSP: 2차 베지어 곡선/타원 (유기체형)
+//   CV:  불규칙 다각형 + 덧붙인 블록 (패치워크/스크랩형)
 function shipSilhouetteSvg(sizeClass, factionCode, scale) {
   scale = scale || 1;
   var c = shipFactionColors(factionCode);
-  var w = 120, h = 56; // viewBox canvas
-  // size_class별 실루엣 path
-  var paths;
-  switch (sizeClass) {
-    case 'frigate':
-      // 작은 삼각 인터셉터 (날렵한 다트)
-      paths = [
-        { d:'M20,28 L70,18 L90,28 L70,38 Z', fill:c.fill, stroke:c.stroke, sw:1.2 },
-        { d:'M70,18 L90,28 L70,38', fill:'none', stroke:c.glow, sw:0.8 },
-        { d:'M35,24 L55,24 M35,32 L55,32', fill:'none', stroke:c.glow, sw:0.5 } // 엔진 라인
-      ]; break;
-    case 'destroyer':
-      // 중형 구축함 (화살촉 + 옆날개)
-      paths = [
-        { d:'M18,28 L90,16 L100,28 L90,40 Z', fill:c.fill, stroke:c.stroke, sw:1.4 },
-        { d:'M50,16 L52,8 L62,10 L60,18', fill:c.glow, stroke:c.stroke, sw:0.8 }, // 상단 윙
-        { d:'M50,40 L52,48 L62,46 L60,38', fill:c.glow, stroke:c.stroke, sw:0.8 }, // 하단 윙
-        { d:'M25,26 L70,26 M25,30 L70,30', fill:'none', stroke:c.glow, sw:0.6 }
-      ]; break;
-    case 'cruiser':
-      // 크루저 (길쭉한 함체 + 함포)
-      paths = [
-        { d:'M10,28 L100,20 L108,28 L100,36 Z', fill:c.fill, stroke:c.stroke, sw:1.4 },
-        { d:'M50,20 L50,10 L62,10 L62,20', fill:c.glow, stroke:c.stroke, sw:0.8 }, // 상부 함교
-        { d:'M30,14 L38,14 L38,20', fill:'none', stroke:c.glow, sw:0.8 }, // 주포 1
-        { d:'M70,14 L78,14 L78,20', fill:'none', stroke:c.glow, sw:0.8 }, // 주포 2
-        { d:'M15,26 L95,26 M15,30 L95,30', fill:'none', stroke:c.glow, sw:0.5 }
-      ]; break;
-    case 'battleship':
-      // 전함 (넓은 함체 + 다층 구조)
-      paths = [
-        { d:'M8,32 L108,22 L116,32 L108,42 Z', fill:c.fill, stroke:c.stroke, sw:1.6 },
-        { d:'M35,22 L35,14 L55,10 L75,14 L75,22 Z', fill:c.glow, stroke:c.stroke, sw:0.9 }, // 함교 상부
-        { d:'M50,10 L50,4 L58,4 L58,10', fill:c.fill, stroke:c.stroke, sw:0.6 }, // 마스트
-        { d:'M20,14 L28,14 L28,22 M92,14 L92,22 L100,22', fill:'none', stroke:c.glow, sw:0.9 }, // 포탑
-        { d:'M14,28 L104,28 M14,32 L104,32 M14,36 L104,36', fill:'none', stroke:c.glow, sw:0.4 }
-      ]; break;
-    case 'titan':
-      // 타이탄 (초대형 모함)
-      paths = [
-        { d:'M4,32 L28,20 L96,14 L112,22 L118,32 L112,42 L96,50 L28,44 Z', fill:c.fill, stroke:c.stroke, sw:1.8 },
-        { d:'M30,20 L30,8 L80,4 L90,8 L90,20', fill:c.glow, stroke:c.stroke, sw:1.0 }, // 상부
-        { d:'M50,8 L50,2 L58,2 L58,8 M70,8 L70,2 L78,2 L78,8', fill:c.fill, stroke:c.stroke, sw:0.6 }, // 마스트들
-        { d:'M20,22 L24,22 L24,30 M100,22 L100,30 L104,30', fill:'none', stroke:c.glow, sw:1.2 }, // 포탑
-        { d:'M10,28 L108,28 M10,32 L108,32 M10,36 L108,36 M10,40 L108,40', fill:'none', stroke:c.glow, sw:0.4 }
-      ]; break;
-    default:
-      // 기본: 작은 함선
-      paths = [
-        { d:'M20,28 L80,20 L95,28 L80,36 Z', fill:c.fill, stroke:c.stroke, sw:1.2 }
-      ];
+  // v11.1 color naming: color(fill)/colorDark(hull panels)/colorBright(accent lines)
+  var col = c.fill, colDark = c.glow, colBright = c.stroke;
+  var w = 120, h = 56;
+  var cx = 55, cy = 28;
+  // size_class별 render radius (r). 타이탄은 내부에서 sc 추가 배율.
+  var rMap = { frigate:11, destroyer:13, cruiser:14, battleship:14.5, titan:13.5 };
+  var r = (rMap[sizeClass] || 12) * scale;
+
+  // SVG helper shorthands (좌표는 함선 중심 기준 → translate로 오프셋)
+  function poly(pts, fill) {
+    return '<polygon points="' + pts.map(function(p){ return p[0].toFixed(2)+','+p[1].toFixed(2); }).join(' ') + '" fill="'+fill+'"/>';
   }
-  var inner = paths.map(function(p){
-    return '<path d="'+p.d+'" fill="'+p.fill+'" stroke="'+p.stroke+'" stroke-width="'+p.sw+'" stroke-linejoin="round"/>';
-  }).join('');
-  // size별 엔진 트레일 origin (ship's rear edge)
-  var engine = {
-    frigate:    { x:18, y:28, len:14, r:2.2 },
-    destroyer:  { x:18, y:28, len:18, r:2.6 },
-    cruiser:    { x:10, y:28, len:22, r:3.0 },
-    battleship: { x:8,  y:32, len:26, r:3.6 },
-    titan:      { x:4,  y:32, len:32, r:4.4 }
-  }[sizeClass] || { x:20, y:28, len:14, r:2 };
-  var gid = 'eg_'+(factionCode||'x')+'_'+(sizeClass||'x');
-  var deterministicDelay = (((sizeClass||'').length * 7 + (factionCode||'').length * 13) % 9) * 0.2;
-  return '<svg class="bp-ship-svg" viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="color:'+c.glow+';--bpd:'+deterministicDelay+'s;">'
+  function rect(x, y, wv, hv, fill) {
+    return '<rect x="'+x.toFixed(2)+'" y="'+y.toFixed(2)+'" width="'+wv.toFixed(2)+'" height="'+hv.toFixed(2)+'" fill="'+fill+'"/>';
+  }
+  function ellipse(ex, ey, rx, ry, fill) {
+    return '<ellipse cx="'+ex.toFixed(2)+'" cy="'+ey.toFixed(2)+'" rx="'+rx.toFixed(2)+'" ry="'+ry.toFixed(2)+'" fill="'+fill+'"/>';
+  }
+  function circ(ex, ey, rv, fill) {
+    return '<circle cx="'+ex.toFixed(2)+'" cy="'+ey.toFixed(2)+'" r="'+rv.toFixed(2)+'" fill="'+fill+'"/>';
+  }
+  function pathQ(d, fill) {
+    return '<path d="'+d+'" fill="'+fill+'"/>';
+  }
+
+  // ─── MCC (직선/각진 기하형) ───────────────────────────────
+  function buildMCC() {
+    var out = [];
+    if (sizeClass === 'frigate') {
+      out.push(poly([[r*1.8,0],[r*.4,-r*.5],[-r*.3,-r*.6],[-r*.7,-r*.3],[-r*.5,0],[-r*.7,r*.3],[-r*.3,r*.3],[r*.4,r*.4]], col));
+      out.push(rect(r*.3, -r*.08, r*1.3, r*.16, colDark));
+    } else if (sizeClass === 'destroyer') {
+      out.push(poly([[r*1.8,0],[r*.5,-r*.35],[-r*.7,-r*.35],[-r*.9,0],[-r*.7,r*.35],[r*.5,r*.35]], col));
+      out.push(rect(r*.2, -r*.8, r*.8, r*.45, colDark));
+      out.push(rect(r*.9, -r*.05, r*.9, r*.1, colBright));
+    } else if (sizeClass === 'cruiser') {
+      out.push(poly([[r*1.8,0],[r*.3,-r*.45],[-r*.6,-r*.45],[-r*.9,0],[-r*.6,r*.45],[r*.3,r*.45]], col));
+      out.push(poly([[r*.5,-r*.45],[-r*.3,-r*.45],[-r*.5,-r*1.0],[r*.3,-r*1.0]], colDark));
+      out.push(poly([[r*.5,r*.45],[-r*.3,r*.45],[-r*.5,r*1.0],[r*.3,r*1.0]], colDark));
+      out.push(rect(r*.4, -r*.12, r*1.3, r*.1, colBright));
+      out.push(rect(r*.4, r*.02, r*1.3, r*.1, colBright));
+    } else if (sizeClass === 'battleship' || sizeClass === 'titan') {
+      var sc = sizeClass === 'titan' ? 1.2 : 1.0;
+      out.push(poly([[r*2.0*sc,0],[r*.5*sc,-r*.5],[-r*.6*sc,-r*.5],[-r*.9*sc,0],[-r*.6*sc,r*.5],[r*.5*sc,r*.5]], col));
+      out.push(poly([[r*.7*sc,-r*.5],[-r*.5*sc,-r*.5],[-r*.65*sc,-r*1.1],[r*.5*sc,-r*1.1]], colDark));
+      out.push(poly([[r*.7*sc,r*.5],[-r*.5*sc,r*.5],[-r*.65*sc,r*1.1],[r*.5*sc,r*1.1]], colDark));
+      out.push(poly([[r*.3*sc,-r*1.1],[-r*.2*sc,-r*1.1],[-r*.4*sc,-r*1.5],[r*.25*sc,-r*1.5]], colDark));
+      out.push(rect(r*.2*sc, -r*.14, r*1.8*sc, r*.08, colBright));
+      out.push(rect(r*.2*sc, -r*.04, r*1.8*sc, r*.08, colBright));
+      out.push(rect(r*.2*sc, r*.06, r*1.8*sc, r*.08, colBright));
+      if (sizeClass === 'titan') out.push(circ(0, 0, r*.25, 'rgba(255,255,255,.8)'));
+    } else {
+      out.push(poly([[r*1.5,0],[0,-r*.5],[-r*.6,0],[0,r*.5]], col));
+    }
+    return out;
+  }
+
+  // ─── FSP (곡선/유기체형) ──────────────────────────────────
+  function buildFSP() {
+    var out = [];
+    if (sizeClass === 'frigate') {
+      out.push(pathQ('M '+(r*1.6)+',0 Q '+(r*.8)+','+(-r*.55)+' 0,'+(-r*.45)+' Q '+(-r*.7)+','+(-r*.3)+' '+(-r*.7)+',0 Q '+(-r*.7)+','+(r*.3)+' 0,'+(r*.45)+' Q '+(r*.8)+','+(r*.55)+' '+(r*1.6)+',0 Z', col));
+      out.push(ellipse(-r*.1, 0, r*.5, r*.2, colDark));
+    } else if (sizeClass === 'destroyer') {
+      out.push(pathQ('M '+(r*1.6)+',0 Q '+(r*1.0)+','+(-r*.6)+' '+(r*.2)+','+(-r*.55)+' Q '+(-r*.7)+','+(-r*.5)+' '+(-r*.9)+',0 Q '+(-r*.7)+','+(r*.5)+' '+(r*.2)+','+(r*.55)+' Q '+(r*1.0)+','+(r*.6)+' '+(r*1.6)+',0 Z', col));
+      out.push(ellipse(-r*.1, 0, r*.6, r*.3, colDark));
+    } else if (sizeClass === 'cruiser') {
+      out.push(pathQ('M '+(r*1.7)+',0 Q '+(r*1.0)+','+(-r*.7)+' '+(r*.3)+','+(-r*.7)+' Q '+(-r*.6)+','+(-r*.65)+' '+(-r*.9)+',0 Q '+(-r*.6)+','+(r*.65)+' '+(r*.3)+','+(r*.7)+' Q '+(r*1.0)+','+(r*.7)+' '+(r*1.7)+',0 Z', col));
+      out.push(ellipse(r*.2, -r*.85, r*.5, r*.25, colDark));
+      out.push(ellipse(r*.2, r*.85, r*.5, r*.25, colDark));
+      out.push(circ(0, 0, r*.25, colBright));
+    } else if (sizeClass === 'battleship' || sizeClass === 'titan') {
+      var sc = sizeClass === 'titan' ? 1.2 : 1.0;
+      out.push(pathQ('M '+(r*2.0*sc)+',0 Q '+(r*1.2*sc)+','+(-r*.85)+' '+(r*.3*sc)+','+(-r*.85)+' Q '+(-r*.7*sc)+','+(-r*.8)+' '+(-r*1.0*sc)+',0 Q '+(-r*.7*sc)+','+(r*.8)+' '+(r*.3*sc)+','+(r*.85)+' Q '+(r*1.2*sc)+','+(r*.85)+' '+(r*2.0*sc)+',0 Z', col));
+      out.push(ellipse(r*.3*sc, -r*1.1, r*.7*sc, r*.3, colDark));
+      out.push(ellipse(r*.3*sc, r*1.1, r*.7*sc, r*.3, colDark));
+      out.push(ellipse(-r*.5*sc, -r*1.3, r*.5*sc, r*.25, colDark));
+      out.push(ellipse(-r*.5*sc, r*1.3, r*.5*sc, r*.25, colDark));
+      out.push(circ(0, 0, r*.35, colBright));
+      out.push(circ(0, 0, r*.2, 'rgba(255,255,255,.4)'));
+    } else {
+      out.push(ellipse(0, 0, r*1.2, r*.6, col));
+    }
+    return out;
+  }
+
+  // ─── CV (패치워크/들쭉날쭉) ──────────────────────────────
+  function buildCV() {
+    var out = [];
+    if (sizeClass === 'frigate') {
+      out.push(poly([[r*1.5,0],[r*.6,-r*.3],[r*.2,-r*.6],[-r*.3,-r*.4],[-r*.8,-r*.5],[-r*.7,0],[-r*.8,r*.5],[-r*.3,r*.4],[r*.2,r*.6],[r*.6,r*.3]], col));
+      out.push(rect(r*.3, -r*.25, r*.3, r*.15, colDark));
+      out.push(rect(-r*.3, r*.1, r*.2, r*.2, colDark));
+    } else if (sizeClass === 'destroyer') {
+      out.push(poly([[r*1.6,0],[r*.5,-r*.4],[r*.1,-r*.7],[-r*.4,-r*.5],[-r*.8,-r*.4],[-r*1.0,0],[-r*.8,r*.4],[-r*.4,r*.5],[r*.1,r*.7],[r*.5,r*.4]], col));
+      out.push(rect(r*.2, -r*.85, r*.4, r*.25, colDark));
+      out.push(rect(-r*.2, r*.6, r*.3, r*.2, colDark));
+      out.push(rect(r*.6, -r*.05, r*1.0, r*.1, colBright));
+    } else if (sizeClass === 'cruiser') {
+      out.push(poly([[r*1.7,0],[r*.6,-r*.35],[r*.2,-r*.65],[-r*.4,-r*.55],[-r*.7,-r*.7],[-r*1.0,-r*.5],[-r*.8,0],[-r*1.0,r*.5],[-r*.7,r*.7],[-r*.4,r*.55],[r*.2,r*.65],[r*.6,r*.35]], col));
+      out.push(rect(-r*.2, -r*.95, r*.5, r*.3, colDark));
+      out.push(rect(r*.3, -r*.85, r*.3, r*.25, colDark));
+      out.push(rect(-r*.5, r*.7, r*.6, r*.3, colDark));
+      out.push(rect(r*.2, r*.75, r*.4, r*.25, colDark));
+      out.push(rect(r*.3, -r*.1, r*.1, r*.2, '#ffcc02'));
+      out.push(rect(r*.55, -r*.1, r*.1, r*.2, '#ffcc02'));
+    } else if (sizeClass === 'battleship' || sizeClass === 'titan') {
+      var sc = sizeClass === 'titan' ? 1.3 : 1.0;
+      out.push(poly([[r*2.0*sc,0],[r*.7*sc,-r*.45],[r*.3*sc,-r*.85],[-r*.3*sc,-r*.7],[-r*.7*sc,-r*.9],[-r*1.0*sc,-r*.6],[-r*.9*sc,0],[-r*1.0*sc,r*.6],[-r*.7*sc,r*.9],[-r*.3*sc,r*.7],[r*.3*sc,r*.85],[r*.7*sc,r*.45]], col));
+      out.push(rect(-r*.2, -r*1.2, r*.6, r*.35, colDark));
+      out.push(rect(r*.3, -r*1.05, r*.4, r*.3, colDark));
+      out.push(rect(-r*.6, -r*1.35, r*.4, r*.3, colDark));
+      out.push(rect(-r*.2, r*.85, r*.6, r*.35, colDark));
+      out.push(rect(r*.3, r*.75, r*.4, r*.3, colDark));
+      out.push(rect(-r*.6, r*1.05, r*.4, r*.3, colDark));
+      for (var i = 0; i < 3; i++) {
+        out.push(rect(r*.2 + i*r*.6, -r*.14, r*.5, r*.08, colBright));
+        out.push(rect(r*.2 + i*r*.6, r*.06, r*.5, r*.08, colBright));
+      }
+      out.push(rect(-r*.4, -r*.3, r*.3, r*.2, 'rgba(139,69,19,.55)'));
+      out.push(rect(r*.2, r*.1, r*.4, r*.3, 'rgba(139,69,19,.55)'));
+      if (sizeClass === 'titan') {
+        out.push(rect(r*.3, -r*.2, r*2.5, r*.15, '#ffd700'));
+      }
+    } else {
+      out.push(poly([[r*1.5,0],[0,-r*.5],[-r*.7,0],[0,r*.5]], col));
+    }
+    return out;
+  }
+
+  var shapes;
+  if (factionCode === 'mcc') shapes = buildMCC();
+  else if (factionCode === 'fsp') shapes = buildFSP();
+  else if (factionCode === 'cv') shapes = buildCV();
+  else shapes = buildMCC(); // fallback
+
+  // 함선 그룹: cx/cy에 함선 중심 배치
+  var shipGroup = '<g transform="translate('+cx+','+cy+')">' + shapes.join('') + '</g>';
+
+  // 엔진 트레일: 함선 후미(rear)에서 시작 — 크기별 + 파벌별 보정
+  var rearOffsetR = {
+    frigate:    { mcc:0.7, fsp:0.7, cv:0.8 },
+    destroyer:  { mcc:0.9, fsp:0.9, cv:1.0 },
+    cruiser:    { mcc:0.9, fsp:0.9, cv:1.0 },
+    battleship: { mcc:0.9, fsp:1.0, cv:1.0 },
+    titan:      { mcc:1.08, fsp:1.2, cv:1.3 } // titan 내부 sc 반영
+  }[sizeClass] || { mcc:0.8, fsp:0.8, cv:0.8 };
+  var rearR = rearOffsetR[factionCode] || 0.9;
+  var rearX = cx - rearR * r;
+  var engineLen = { frigate:14, destroyer:18, cruiser:22, battleship:26, titan:32 }[sizeClass] || 14;
+  var engineRy = { frigate:2.2, destroyer:2.6, cruiser:3.0, battleship:3.6, titan:4.4 }[sizeClass] || 2.2;
+
+  var gid = 'eg_' + (factionCode || 'x') + '_' + (sizeClass || 'x');
+  var deterministicDelay = (((sizeClass || '').length * 7 + (factionCode || '').length * 13) % 9) * 0.2;
+
+  return '<svg class="bp-ship-svg" viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="color:'+colDark+';--bpd:'+deterministicDelay+'s;">'
     + '<defs>'
     +   '<linearGradient id="'+gid+'" x1="0" x2="1" y1="0" y2="0">'
-    +     '<stop offset="0" stop-color="'+c.glow+'" stop-opacity="0"/>'
-    +     '<stop offset="0.5" stop-color="'+c.glow+'" stop-opacity=".55"/>'
+    +     '<stop offset="0" stop-color="'+colDark+'" stop-opacity="0"/>'
+    +     '<stop offset="0.5" stop-color="'+colDark+'" stop-opacity=".55"/>'
     +     '<stop offset="1" stop-color="#fff" stop-opacity=".85"/>'
     +   '</linearGradient>'
     + '</defs>'
-    // 배경 트윙클 별들 (뷰포트 기준 — 함선과 분리됨)
+    // 배경 트윙클 별들 (함선과 분리됨)
     + '<circle class="bp-star"    cx="15"  cy="10" r="1"   fill="#fff" opacity=".6"/>'
     + '<circle class="bp-star s2" cx="105" cy="46" r="0.8" fill="#fff" opacity=".4"/>'
     + '<circle class="bp-star s3" cx="95"  cy="8"  r="0.6" fill="#fff" opacity=".5"/>'
     + '<circle class="bp-star s2" cx="40"  cy="50" r="0.5" fill="#fff" opacity=".45"/>'
     + '<circle class="bp-star s3" cx="72"  cy="5"  r="0.5" fill="#fff" opacity=".4"/>'
-    // 함선 본체 + 엔진 트레일 (같이 움직임)
+    // 함선 본체 + 엔진 트레일 (함께 drifting)
     + '<g class="bp-ship-body flight">'
-    +   '<ellipse class="bp-engine" cx="'+(engine.x - engine.len/2)+'" cy="'+engine.y+'" rx="'+(engine.len/2)+'" ry="'+engine.r+'" fill="url(#'+gid+')"/>'
-    +   inner
+    +   '<ellipse class="bp-engine" cx="'+(rearX - engineLen/2).toFixed(2)+'" cy="'+cy+'" rx="'+(engineLen/2)+'" ry="'+engineRy+'" fill="url(#'+gid+')"/>'
+    +   shipGroup
     + '</g>'
     + '</svg>';
 }
