@@ -4575,6 +4575,46 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   font-size: 10px; letter-spacing: 2px; border-radius: 6px;
 }
 .lo-btn-browse:hover { color: rgba(255,255,255,.6); }
+
+/* ══════════════════════════════════════════════════════
+   MOBILE PERFORMANCE OPTIMIZATIONS
+   ══════════════════════════════════════════════════════ */
+@media (max-width:768px){
+  /* 1. 스캔라인 오버레이 제거 — repeating-linear-gradient는 모바일에서 매우 비쌈 */
+  .scan{display:none!important}
+
+  /* 2. backdrop-filter blur 최소화 — 모바일 GPU에서 가장 비싼 CSS 연산
+        full-screen 요소(mbg)만 blur 제거, 모달/배너는 2px로 낮춤 */
+  .mbg{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .mdl,.weather-banner,.rocket-banner,.tb-commander,.announce-bar,
+  .gov-panel,.base-modal-bg,.gc-overlay,.shipyard-overlay,
+  .fleet-overlay,.arena-overlay{
+    -webkit-backdrop-filter:blur(2px)!important;
+    backdrop-filter:blur(2px)!important}
+
+  /* 3. GPU 레이어 프로모션 — 주요 UI를 별도 합성 레이어로 분리 */
+  #topbar,#panelL,#panelR,.mdl{
+    -webkit-transform:translateZ(0);
+    transform:translateZ(0)}
+
+  /* 4. transition 간소화 — 모달/패널 열닫기만 남기고 나머지 비활성화 */
+  .mdl,.mbg,#panelL,#panelR{
+    transition:opacity .15s ease,transform .15s ease!important}
+  /* 호버 효과 비활성화 — 모바일에서 hover는 tap이라 어차피 의미없음 */
+  .tb-btn:hover,.act-btn:hover,.mdl-btn:hover,.gc-btn:hover,
+  .nav-btn:hover,.sel-btn:hover{
+    box-shadow:none!important;
+    transform:none!important;
+    filter:none!important}
+
+  /* 5. cmdPulse 애니메이션 단순화 — box-shadow는 합성 불가, opacity만 사용 */
+  .tb-commander{animation:cmdPulseMob 3s ease-in-out infinite!important}
+
+  /* 6. 비필수 CSS 효과 제거 */
+  .vig{opacity:.4}  /* 비네트 투명도 낮춤 — gradient 렌더 비용 절감 */
+}
+@keyframes cmdPulseMob{0%,100%{opacity:0.85}50%{opacity:1}}
+
 </style>
 
 /* ── War Betting CSS ── */
@@ -10724,11 +10764,11 @@ function _initStep3(){
       globe.pointOfView({altitude:newAlt},400);
     },true);
 
-    // Resize
-    window.addEventListener('resize',function(){
+    // Resize (debounced — avoids thrashing WebGL context on every pixel of resize/rotate)
+    window.addEventListener('resize',_debounce(function(){
       globe.width(window.innerWidth);
       globe.height(window.innerHeight);
-    });
+    },200));
 
     // Fallback dismiss
     var checkImg=new Image();
@@ -10987,6 +11027,10 @@ function loadNasa8k(){
 
 // Start async pipeline
 _initStep1();
+
+/* ── Performance Utilities ─────────────────────────── */
+function _debounce(fn,ms){var t;return function(){var a=arguments;clearTimeout(t);t=setTimeout(function(){fn.apply(null,a);},ms);};}
+function _raf(fn){var p=false;return function(){if(!p){p=true;requestAnimationFrame(function(){p=false;fn();});}};}
 
 /* ── Territory Data ──────────────────────────────── */
 var PIXEL_PRICE=0.1;       // $0.1 per pixel (fallback)
@@ -11413,12 +11457,13 @@ preCacheAndComposite();
   }).catch(function(e){console.warn('[Claims] Failed to load:',e)});
 })();
 
-// Delta claims polling (every 10s for claims, every 30s for full pixel refresh)
+// Delta claims polling (10s desktop / 20s mobile for claims, 30s/60s for full pixel refresh)
 var _claimsSince=Date.now();
 var _pixelPollCount=0;
+var _claimsPollMs=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?20000:10000;
 setInterval(function(){
   _pixelPollCount++;
-  var fetchPixels=(_pixelPollCount%3===0); // every 30s (3×10s)
+  var fetchPixels=(_pixelPollCount%3===0); // every 30s desktop / 60s mobile
   var fetches=[fetch('/api/claims?since='+_claimsSince).then(function(r){return r.json()})];
   if(fetchPixels) fetches.push(fetch('/api/pixels').then(function(r){return r.json()}));
   Promise.all(fetches).then(function(results){
@@ -11453,7 +11498,7 @@ setInterval(function(){
     });
     if(pending===0){claimsSnapshot=null;compositeClaimsOnTexture()}
   }).catch(function(){});
-},10000);
+},_claimsPollMs);
 
 // Load sectors on boot (for boundary overlay)
 (function loadSectorsOnBoot(){
@@ -11564,7 +11609,8 @@ function _buildMergedPlot(owner,lat,lng){
 
 // ── Stamp Mode State ──
 var stampMode=false, stampImgUrl=null, stampImgW=0, stampImgH=0;
-var stampW=20, stampH=20, stampScale=100; // w,h in pixel-cells, scale in %
+var _isMob=typeof isMobile!=='undefined'?isMobile:/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+var stampW=_isMob?10:20, stampH=_isMob?10:20, stampScale=100; // w,h in pixel-cells, scale in %
 var stampPreviewLat=null, stampPreviewLng=null;
 var isZoomedIn=false, lastClickTime=0;
 
@@ -11598,7 +11644,7 @@ function activateLandSelect(){
   }
   // Mobile: show size controls and default size
   if(isMobile){
-    _mobLandW=20; _mobLandH=20;
+    _mobLandW=10; _mobLandH=10;
     _showMobSizeControls(true);
     showToast('TAP to place center → drag to move → pinch zoom');
   }else{
@@ -11606,7 +11652,7 @@ function activateLandSelect(){
   }
 }
 // Mobile land size state
-var _mobLandW=20, _mobLandH=20;
+var _mobLandW=10, _mobLandH=10;
 function _showMobSizeControls(show){
   var el=document.getElementById('mobSizeControls');
   if(!el) return;
@@ -12107,7 +12153,7 @@ function cancelStamp(){
 
 // ── Mobile Stamp (bottom sheet) ──
 var isMobile=window.innerWidth<=768;
-window.addEventListener('resize',function(){isMobile=window.innerWidth<=768});
+window.addEventListener('resize',_debounce(function(){isMobile=window.innerWidth<=768},150));
 
 var mobileStampPlacing=false; // true when user is picking location on Mars
 
@@ -20548,9 +20594,12 @@ function loadAuctions(){
     _auctionTimers.forEach(function(id){clearInterval(id)});
     _auctionTimers=[];
     auctions.forEach(function(a){
+      // Cache span ref once — avoids querySelector on every tick
+      var span=el.querySelector('.auc-timer-'+a.id);
+      if(!span) return;
       var tid=setInterval(function(){
-        var span=el.querySelector('.auc-timer-'+a.id);
-        if(span) span.textContent='⏱ '+_auctionTimeLeft(a.ends_at);
+        if(span.isConnected) span.textContent='⏱ '+_auctionTimeLeft(a.ends_at);
+        else { clearInterval(tid); }
       },1000);
       _auctionTimers.push(tid);
     });
@@ -26425,8 +26474,8 @@ function updateCollapsedUI(){
   var wantR = (rSaved===null) ? isDesktop : (rSaved==='1');
   if(wantR) collapsePanel('right');
 })();
-// Re-apply zoom/announce positions on window resize
-window.addEventListener('resize', function(){ try{updateCollapsedUI()}catch(_e){} });
+// Re-apply zoom/announce positions on window resize (debounced)
+window.addEventListener('resize', _debounce(function(){ try{updateCollapsedUI()}catch(_e){} }, 200));
 function updateMobToggles(){
   var lOpen=document.getElementById('panelL').classList.contains('open');
   var rOpen=document.getElementById('panelR').classList.contains('open');
@@ -27804,13 +27853,13 @@ document.getElementById('arenaOverlay').addEventListener('click', function(e){
   if (e.target === this) closeArena();
 });
 
-// Resize handler
-window.addEventListener('resize', function(){
+// Resize handler (debounced — canvas reinit is expensive)
+window.addEventListener('resize', _debounce(function(){
   if (document.getElementById('arenaOverlay').classList.contains('active')) {
     initCrashCanvas();
     drawCrashChart();
   }
-});
+}, 250));
 
 })(); // end ARENA IIFE
 
@@ -28056,8 +28105,8 @@ window.addEventListener('resize', function(){
   setTimeout(loadWeatherData, 4000);
   setInterval(loadWeatherData, 60000);
   setInterval(updateWeatherBanner, 30000);
-  // Animate weather/POI/starlink overlay texture (throttled — mobile slower)
-  var _compositeInterval = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 15000 : 8000;
+  // Animate weather/POI/starlink overlay texture (throttled — mobile much slower)
+  var _compositeInterval = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 30000 : 8000;
   setInterval(function() {
     if (_weatherData.length > 0 || _poiData.length > 0 || _starlinkData.passes.length > 0) compositeClaimsOnTexture();
   }, _compositeInterval);
@@ -28095,7 +28144,8 @@ window.addEventListener('resize', function(){
   setTimeout(loadExplorationData, 5000);
   setInterval(loadExplorationData, 60000);
   setTimeout(loadStarlinkData, 6000);
-  setInterval(loadStarlinkData, 30000);
+  // Starlink position updates: 30s desktop, 60s mobile (3D mesh update is heavy)
+  setInterval(loadStarlinkData, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 60000 : 30000);
   // Init Starlink 3D orbit around globe
   function _tryInitStarlinkOrbit() {
     if (_slDots.length) return;
@@ -28172,7 +28222,8 @@ window.addEventListener('resize', function(){
   setInterval(loadRocketData, 30000);
   setInterval(updateRocketBanner, 15000);
   setTimeout(_initRocketMesh, 3500);
-  setInterval(_updateRocketMesh, 2000);
+  // Rocket 3D mesh: 2s desktop, 5s mobile (reduces WebGL draw calls)
+  setInterval(_updateRocketMesh, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 5000 : 2000);
 
   // Keep mission routes visible on the map even when OPS tab isn't open.
   function _refreshOpsMissionsGlobal(){
@@ -42390,7 +42441,7 @@ async function openBattleViewer(battleId) {
   bv.canvas = document.getElementById('battleCanvas');
   bv.ctx = bv.canvas.getContext('2d');
   resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('resize', _debounce(resizeCanvas, 200));
   
   // 타임라인 로드 (최대 10초 폴링)
   let loaded = false;
