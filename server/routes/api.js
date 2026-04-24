@@ -5130,6 +5130,80 @@ router.post('/guild/war/declare', writeLimiter, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// 진행 중인 길드전 기준으로 적 길드 멤버 목록 반환 (함대전 선포 대상용)
+router.get('/guild/war/enemies', readLimiter, async (req, res) => {
+  const guildId = parseInt(req.query.guildId);
+  const warId   = parseInt(req.query.warId);
+  if (!guildId || !warId) return res.status(400).json({ error: 'guildId and warId required' });
+  try {
+    const { rows: war } = await pool.query(
+      `SELECT attacker_guild_id, defender_guild_id FROM guild_wars WHERE id=$1 AND status='active'`, [warId]
+    );
+    if (!war.length) return res.status(404).json({ error: 'War not found or not active' });
+    const enemyGuildId = war[0].attacker_guild_id === guildId ? war[0].defender_guild_id : war[0].attacker_guild_id;
+    const { rows } = await pool.query(`
+      SELECT gm.wallet, u.nickname, u.rank_level,
+             (SELECT COUNT(*) FROM fleets f WHERE f.owner_wallet=gm.wallet AND f.is_in_battle=false AND f.ships_alive>0) AS ready_fleets
+      FROM guild_members gm
+      JOIN users u ON u.wallet_address = gm.wallet
+      WHERE gm.guild_id = $1
+    `, [enemyGuildId]);
+    res.json({ enemies: rows, enemy_guild_id: enemyGuildId });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// 적 함대가 없을 때 자동 승리 포인트 획득 (1회/24h/전쟁)
+router.post('/guild/war/auto-win', writeLimiter, async (req, res) => {
+  const wallet  = (req.body.wallet || '').toLowerCase().trim();
+  const warId   = parseInt(req.body.war_id);
+  const guildId = parseInt(req.body.guild_id);
+  if (!wallet || !warId || !guildId) return res.status(400).json({ error: 'wallet, war_id, guild_id required' });
+  try {
+    // 전쟁 유효성 검사
+    const { rows: war } = await pool.query(
+      `SELECT attacker_guild_id, defender_guild_id FROM guild_wars WHERE id=$1 AND status='active'`, [warId]
+    );
+    if (!war.length) return res.status(404).json({ error: 'War not found or not active' });
+    const w = war[0];
+    if (w.attacker_guild_id !== guildId && w.defender_guild_id !== guildId)
+      return res.status(403).json({ error: 'Not in this war' });
+
+    // 멤버 검증
+    const { rows: mem } = await pool.query(
+      `SELECT 1 FROM guild_members WHERE wallet=$1 AND guild_id=$2`, [wallet, guildId]
+    );
+    if (!mem.length) return res.status(403).json({ error: 'Not a member of this guild' });
+
+    // 적 길드에 준비된 함대가 없는지 재확인
+    const enemyGuildId = w.attacker_guild_id === guildId ? w.defender_guild_id : w.attacker_guild_id;
+    const { rows: ef } = await pool.query(`
+      SELECT COUNT(*) FROM fleets f
+      JOIN guild_members gm ON gm.wallet = f.owner_wallet
+      WHERE gm.guild_id=$1 AND f.is_in_battle=false AND f.ships_alive>0
+    `, [enemyGuildId]);
+    if (parseInt(ef[0].count) > 0)
+      return res.status(400).json({ error: 'ENEMY_HAS_FLEETS' });
+
+    // 24h 쿨다운 (같은 전쟁, 같은 wallet)
+    const { rows: recent } = await pool.query(`
+      SELECT 1 FROM guild_war_actions
+      WHERE war_id=$1 AND wallet=$2 AND action_type='fleet_battle_auto_win'
+        AND created_at > NOW() - INTERVAL '24 hours'
+    `, [warId, wallet]);
+    if (recent.length) return res.status(429).json({ error: 'AUTO_WIN_COOLDOWN' });
+
+    // 포인트 지급
+    const { getSetting } = require('../db');
+    const guildSvc = require('../services/guild');
+    const points = parseInt(await getSetting('guild_war_points_ship_battle', '10')) || 10;
+    const pts = await guildSvc.recordWarAction(wallet, 'fleet_battle_auto_win', points, { warId, auto: true });
+    res.json({ success: true, points: pts?.points || points });
+  } catch (e) {
+    console.error('[guild/war/auto-win]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 router.get('/guild/war/active', readLimiter, async (req, res) => {
   const guildId = parseInt(req.query.guildId);
   if (!guildId) return res.status(400).json({ error: 'Missing guildId' });

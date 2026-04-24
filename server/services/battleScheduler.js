@@ -103,6 +103,13 @@ async function runBattle(battleId) {
       console.error(`[battleScheduler] reward failed:`, rewardErr);
     }
     
+    // 5.5 길드전 포인트 적립 — 함대전 승리 시 진행 중인 길드전에 점수 추가
+    try {
+      await _guildWarHook(battleId, result);
+    } catch (gwErr) {
+      console.error(`[battleScheduler] guild war hook failed:`, gwErr);
+    }
+
     // 6. Hijack Phase 1/2 연동 (Phase C)
     if (battleType === 'hijack') {
       try {
@@ -143,6 +150,56 @@ async function runBattle(battleId) {
     throw err;
   } finally {
     currentlyRunning--;
+  }
+}
+
+// ─── 길드전 Hook ───────────────────────────────────────────────
+// 함대전 승리 시 진행 중인 길드전에 포인트 자동 적립 (fire-and-forget)
+async function _guildWarHook(battleId, result) {
+  const winnerSide = result.winner_side; // 'atk' | 'def'
+  if (!winnerSide) return; // draw or no result
+
+  // 참여자 wallet 조회
+  const { rows: parts } = await pool.query(
+    `SELECT wallet_address, side FROM fleet_battle_participants WHERE battle_id = $1`,
+    [battleId]
+  );
+  const atkPart = parts.find(p => p.side === 'atk');
+  const defPart = parts.find(p => p.side === 'def');
+  if (!atkPart || !defPart) return;
+
+  const atkWallet = atkPart.wallet_address;
+  const defWallet = defPart.wallet_address;
+
+  // 두 플레이어가 현재 전쟁 중인 길드에 속하는지 확인
+  const { rows: warRows } = await pool.query(`
+    SELECT gw.id, gm1.guild_id AS atk_guild, gm2.guild_id AS def_guild
+    FROM guild_wars gw
+    JOIN guild_members gm1 ON gm1.wallet = $1
+    JOIN guild_members gm2 ON gm2.wallet = $2
+    WHERE gw.status = 'active'
+      AND (
+        (gw.attacker_guild_id = gm1.guild_id AND gw.defender_guild_id = gm2.guild_id)
+        OR
+        (gw.attacker_guild_id = gm2.guild_id AND gw.defender_guild_id = gm1.guild_id)
+      )
+    LIMIT 1
+  `, [atkWallet, defWallet]);
+
+  if (!warRows.length) return; // 전쟁 중인 길드 아님
+
+  // 승자 wallet에 포인트 적립
+  const winnerWallet = winnerSide === 'atk' ? atkWallet : defWallet;
+  try {
+    const { getSetting } = require('../db');
+    const guildService = require('./guild');
+    const points = parseInt(await getSetting('guild_war_points_ship_battle', '10')) || 10;
+    const pts = await guildService.recordWarAction(winnerWallet, 'fleet_battle_win', points, { battleId });
+    if (pts && pts.warId) {
+      console.log(`[guildWarHook] battle ${battleId}: +${pts.points} pts → guild #${pts.guildId} (war #${pts.warId})`);
+    }
+  } catch (e) {
+    console.warn('[guildWarHook] recordWarAction failed:', e.message);
   }
 }
 

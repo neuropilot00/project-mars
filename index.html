@@ -5189,6 +5189,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       </div>
     </div>
     <!-- 컨펌 -->
+    <div id="claimLevelWarn" style="display:none;text-align:center;padding:6px 10px;background:rgba(232,72,85,.12);border:1px solid rgba(232,72,85,.3);border-radius:6px;font-size:10px;color:#ff8a80;font-family:var(--fn);margin-bottom:6px"></div>
     <button class="claim-confirm" id="claimConfirmBtn" onclick="confirmClaim()" data-i18n="confirm_claim">CONFIRM CLAIM</button>
     <div class="claim-note" data-i18n="claim_note">Owner receives 100% refund + 10% bonus · Fee: 10%</div>
     <!-- Hidden compat -->
@@ -10033,12 +10034,28 @@ function compositeClaimsOnTexture(previewOnly){
     var pr=getCellRect(stampPreviewLat,stampPreviewLng,spw,sph,w,h);
     var simg=imgCache[stampImgUrl];
     if(simg){
+      var _stampBlocked=!!_getBlockedSector(stampPreviewLat,stampPreviewLng);
       function _drawStampPreview(px,py,pw,ph){
-        ctx.globalAlpha=0.45;
-        ctx.drawImage(simg,px,py,pw,ph);
-        ctx.globalAlpha=1;
-        ctx.strokeStyle='rgba(255,107,53,0.7)';ctx.lineWidth=2;ctx.setLineDash([6,4]);
-        ctx.strokeRect(px,py,pw,ph);ctx.setLineDash([]);
+        if(_stampBlocked){
+          // 붉은 반투명 영역
+          ctx.globalAlpha=0.35;
+          ctx.fillStyle='rgba(180,0,0,1)';
+          ctx.fillRect(px,py,pw,ph);
+          ctx.globalAlpha=1;
+          // 빨간 점선 테두리
+          ctx.strokeStyle='rgba(255,60,60,0.9)';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+          ctx.strokeRect(px,py,pw,ph);ctx.setLineDash([]);
+          // X 표시
+          ctx.strokeStyle='rgba(255,60,60,0.9)';ctx.lineWidth=Math.max(2,Math.min(pw,ph)*0.05);ctx.setLineDash([]);
+          ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+pw,py+ph);ctx.stroke();
+          ctx.beginPath();ctx.moveTo(px+pw,py);ctx.lineTo(px,py+ph);ctx.stroke();
+        }else{
+          ctx.globalAlpha=0.45;
+          ctx.drawImage(simg,px,py,pw,ph);
+          ctx.globalAlpha=1;
+          ctx.strokeStyle='rgba(255,107,53,0.7)';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+          ctx.strokeRect(px,py,pw,ph);ctx.setLineDash([]);
+        }
       }
       _drawStampPreview(pr.x,pr.y,pr.w,pr.h);
       // Wrap around longitude boundary
@@ -10808,6 +10825,32 @@ function registerClaimPixels(claim,idx){
 
 // Calculate cost for placing stamp at position, with overlap detection
 // Find pixel price based on sector tier
+// 현재 유저 레벨로 진입 불가한 섹터를 반환 (없으면 null)
+function _getBlockedSector(lat,lng){
+  var myLevel=parseInt((document.getElementById('profileLevel')||{}).textContent||'1')||1;
+  for(var i=0;i<_sectorsData.length;i++){
+    var s=_sectorsData[i];
+    var b=s.bounds;
+    if(!b) continue;
+    if(lat<b.latMin||lat>b.latMax||lng<b.lngMin||lng>b.lngMax) continue;
+    var poly=s.polygon;
+    var inside=false;
+    if(poly&&poly.length>=3){
+      for(var pi=0,pj=poly.length-1;pi<poly.length;pj=pi++){
+        var xi=poly[pi][0],yi=poly[pi][1],xj=poly[pj][0],yj=poly[pj][1];
+        if((yi>lat)!==(yj>lat)&&lng<(xj-xi)*(lat-yi)/(yj-yi)+xi) inside=!inside;
+      }
+    }else{ inside=true; }
+    if(inside){
+      var entryActive=(s.entryCheckActive!==false);
+      var entryMin=s.entryMinLevel||0;
+      if(entryActive&&entryMin>0&&myLevel<entryMin) return s;
+      return null; // 해당 섹터 안에 있지만 차단 안됨
+    }
+  }
+  return null; // 어떤 섹터도 해당 없음
+}
+
 function _getSectorPixelPrice(lat,lng){
   for(var i=0;i<_sectorsData.length;i++){
     var s=_sectorsData[i];
@@ -11473,6 +11516,16 @@ function updateLandSelectUI(){
   var costInfo=calcStampCost(r.lat,r.lng,r.w,r.h);
   var costStr=costInfo.total.toFixed(2)+' PP';
   if(costInfo.overlapCount>0) costStr+=' ('+costInfo.overlapCount+' hijack)';
+  // 섹터 레벨 제한 체크
+  var _lsBlocked=_getBlockedSector(r.lat,r.lng);
+  if(_lsBlocked){
+    costStr='🔒 Lv '+_lsBlocked.entryMinLevel+' 이상 필요';
+    var costEl=document.getElementById('landCostLabel');
+    if(costEl) costEl.style.color='var(--red)';
+  }else{
+    var costEl2=document.getElementById('landCostLabel');
+    if(costEl2) costEl2.style.color='';
+  }
   document.getElementById('landCostLabel').textContent=costStr;
   document.getElementById('landSelectPreview').style.display='';
 }
@@ -12956,6 +13009,18 @@ function openClaimModal(){
     document.getElementById('claimChainName').textContent=cfg.name.toUpperCase();
   }
   selectedChain=ch2;
+  // ── 섹터 레벨 진입 제한 체크 ──
+  var _lvWarn=document.getElementById('claimLevelWarn');
+  var _cfmBtn=document.getElementById('claimConfirmBtn');
+  var _blockedSec=_getBlockedSector(selectedPlot.lat, selectedPlot.lng);
+  if(_blockedSec){
+    var _myLv2=parseInt((document.getElementById('profileLevel')||{}).textContent||'1')||1;
+    if(_lvWarn){_lvWarn.style.display='';_lvWarn.textContent='🔒 이 섹터는 Lv '+_blockedSec.entryMinLevel+' 이상만 구매 가능 (현재 Lv '+_myLv2+')';}
+    if(_cfmBtn){_cfmBtn.disabled=true;_cfmBtn.style.opacity='0.4';_cfmBtn.style.cursor='not-allowed';}
+  }else{
+    if(_lvWarn) _lvWarn.style.display='none';
+    if(_cfmBtn){_cfmBtn.disabled=false;_cfmBtn.style.opacity='';_cfmBtn.style.cursor='';}
+  }
 }
 function closeClaimModal(){document.getElementById('claimModal').classList.remove('open')}
 
@@ -20943,8 +21008,9 @@ function renderGuildWars(guildId){
           '</div>'+
           '<span style="font-size:12px;font-weight:700;color:var(--red)">'+theirScore+'</span>'+
         '</div>'+
-        '<div style="display:flex;gap:4px;margin-top:6px">'+
-          /* BIBLE Migration 080: Arcade hidden */ ''+
+        '<div style="font-size:8px;color:var(--tx3);margin:4px 0 5px;line-height:1.5">⚔️ 적 길드 멤버에게 <b style="color:#ff8a80">함대전</b>을 선포하여 길드전 포인트를 획득하세요! (승리 시 <b style="color:var(--gold)">+10 pts</b>)</div>'+
+        '<div style="display:flex;gap:4px;margin-top:2px">'+
+          '<button onclick="openGuildWarFight('+w.id+','+guildId+')" style="flex:2;padding:6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.28),rgba(200,40,40,.12));border:1px solid rgba(232,72,85,.5);color:#ff8a80;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.5px">⚔️ 함대전 선포</button>'+
           '<button onclick="viewWarScoreboard('+w.id+')" style="flex:1;padding:6px;border-radius:6px;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--gn);font-size:9px;cursor:pointer">📊 SCORES</button>'+
         '</div>'+
       '</div>';
@@ -21063,37 +21129,158 @@ async function viewWarScoreboard(warId){
   try{
     var resp = await fetch('/api/guild/war/'+warId+'/scores');
     var d = await resp.json();
-    if(d.error){ showAlert(d.error); return; }
-    var html='<div style="padding:12px;font-family:var(--fn)">';
-    html+='<div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">📊 WAR SCOREBOARD</div>';
-    // Guild scores
-    if(d.guildScores){
-      var gs = d.guildScores;
-      html+='<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:11px">';
-      html+='<span style="color:var(--cyan)">'+(gs.attacker?gs.attacker.name:'Attacker')+': '+(gs.attacker?gs.attacker.total:0)+'</span>';
-      html+='<span style="color:var(--red)">'+(gs.defender?gs.defender.name:'Defender')+': '+(gs.defender?gs.defender.total:0)+'</span>';
-      html+='</div>';
-    }
-    // Top players
+    if(d.error){ showToast(d.error,'error'); return; }
+    var gs = d.guildScores||{};
+    var atkName = gs.attacker?gs.attacker.name:'Attacker';
+    var defName = gs.defender?gs.defender.name:'Defender';
+    var atkPts  = gs.attacker?gs.attacker.total:0;
+    var defPts  = gs.defender?gs.defender.total:0;
+    var topHtml = '';
     if(d.topPlayers&&d.topPlayers.length){
-      html+='<div style="font-size:9px;color:var(--tx3);margin-bottom:4px">TOP PLAYERS</div>';
+      topHtml += '<div style="font-size:9px;color:var(--tx3);margin:8px 0 4px;letter-spacing:1px">TOP PLAYERS</div>';
       d.topPlayers.slice(0,10).forEach(function(p,i){
-        html+='<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:10px;border-bottom:1px solid var(--bdr)">';
-        html+='<span style="color:var(--tx)">'+(i+1)+'. '+(p.nickname||shortAddr(p.wallet))+'</span>';
-        html+='<span style="color:var(--gn)">'+p.total_points+' pts</span>';
-        html+='</div>';
+        topHtml += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:10px;border-bottom:1px solid rgba(255,255,255,.06)">'
+          +'<span style="color:var(--tx)">'+(i+1)+'. '+(p.nickname||shortAddr(p.wallet))+'</span>'
+          +'<span style="color:var(--gn)">'+p.total_points+' pts</span>'
+          +'</div>';
       });
     }
-    // Game breakdown
     if(d.gameBreakdown&&d.gameBreakdown.length){
-      html+='<div style="font-size:9px;color:var(--tx3);margin-top:8px;margin-bottom:4px">BY GAME</div>';
+      topHtml += '<div style="font-size:9px;color:var(--tx3);margin:8px 0 4px;letter-spacing:1px">BY GAME</div>';
       d.gameBreakdown.forEach(function(g){
-        html+='<div style="font-size:10px;color:var(--tx)">'+g.game_type+': '+g.total_points+' pts ('+g.play_count+' plays)</div>';
+        topHtml += '<div style="font-size:10px;color:var(--tx);padding:2px 0">'+g.game_type+': <b style="color:var(--gn)">'+g.total_points+' pts</b> ('+g.play_count+' plays)</div>';
       });
     }
-    html+='</div>';
-    showAlert(html);
-  }catch(e){ showAlert('Failed to load scoreboard'); }
+    gameConfirm({
+      title:'WAR SCOREBOARD', icon:'📊',
+      body:'<div style="font-family:var(--fn)">'
+        +'<div style="display:flex;justify-content:space-between;background:rgba(255,255,255,.04);border-radius:8px;padding:10px;margin-bottom:8px">'
+          +'<div style="text-align:center"><div style="font-size:10px;color:var(--cyan);font-weight:700">'+atkName+'</div><div style="font-size:22px;font-weight:900;color:var(--cyan)">'+atkPts+'</div></div>'
+          +'<div style="font-size:11px;color:var(--tx3);align-self:center">VS</div>'
+          +'<div style="text-align:center"><div style="font-size:10px;color:var(--red);font-weight:700">'+defName+'</div><div style="font-size:22px;font-weight:900;color:var(--red)">'+defPts+'</div></div>'
+        +'</div>'
+        +topHtml
+      +'</div>',
+      confirmText:'닫기'
+    });
+  }catch(e){ showToast('Failed to load scoreboard','error'); }
+}
+
+// ── 길드전 함대전 선포 ──────────────────────────────────────────
+async function openGuildWarFight(warId, guildId){
+  if(!walletState||!walletState.address){ showToast('로그인이 필요합니다','error'); return; }
+  showToast('적 길드 정보 불러오는 중...','info');
+  try{
+    var [myRes, enemyRes] = await Promise.all([
+      fetch('/api/fleets', {headers:getAuthHeaders()}),
+      fetch('/api/guild/war/enemies?guildId='+guildId+'&warId='+warId, {headers:getAuthHeaders()})
+    ]);
+    var myData = await myRes.json();
+    var enemyData = await enemyRes.json();
+    if(enemyData.error){ showToast(enemyData.error,'error'); return; }
+
+    var myFleets = (myData.fleets||[]).filter(function(f){ return f.ships_alive>0 && !f.is_in_battle; });
+    var enemies  = enemyData.enemies||[];
+    var enemiesWithFleet = enemies.filter(function(e){ return parseInt(e.ready_fleets||0)>0; });
+
+    // 둘 다 함대 없음
+    if(myFleets.length===0 && enemiesWithFleet.length===0){
+      showToast('양측 모두 전투 가능한 함대가 없습니다','error'); return;
+    }
+    // 내 함대 없음
+    if(myFleets.length===0){
+      showToast('전투 가능한 함대가 없습니다. 함선을 건조하세요!','error'); return;
+    }
+    // 적 함대 없음 → 자동 승리
+    if(enemiesWithFleet.length===0){
+      var ok = await gameConfirm({
+        title:'자동 승리',icon:'🏆',
+        body:'<div style="text-align:center;padding:8px 0">'
+          +'<div style="font-size:13px;color:var(--tx);margin-bottom:8px">적 길드에 전투 가능한 함대가 없습니다</div>'
+          +'<div style="font-size:11px;color:var(--gold)">자동 승리 처리 후 길드전 포인트를 획득합니다 (+10 pts)</div>'
+          +'<div style="font-size:10px;color:var(--tx3);margin-top:4px">24시간에 1회 가능</div>'
+          +'</div>',
+        confirmText:'🏆 자동 승리 획득'
+      });
+      if(!ok) return;
+      var r = await fetch('/api/guild/war/auto-win',{
+        method:'POST',
+        headers:{'Content-Type':'application/json',...getAuthHeaders()},
+        body:JSON.stringify({war_id:warId,guild_id:guildId,wallet:walletState.address})
+      });
+      var rd = await r.json();
+      if(!r.ok){
+        var errMap={'AUTO_WIN_COOLDOWN':'24시간 내 이미 자동 승리를 사용했습니다','ENEMY_HAS_FLEETS':'적에게 함대가 생겼습니다 — 직접 전투하세요'};
+        showToast(errMap[rd.error]||('오류: '+rd.error),'error'); return;
+      }
+      showToast('🏆 자동 승리! +'+rd.points+' pts 획득','success');
+      try{ renderGuildWars(guildId); }catch(_){}
+      return;
+    }
+
+    // 양측 함대 있음 → 적 선택 피커
+    window._gwfWarId  = warId;
+    window._gwfGuildId= guildId;
+    window._gwfTarget = null;
+
+    var rowsHtml = enemies.map(function(e){
+      var has = parseInt(e.ready_fleets||0)>0;
+      var wallet = e.wallet||'';
+      var nick   = escapeHtml(e.nickname || (wallet.slice(0,8)+'…'+wallet.slice(-4)));
+      var lv     = e.rank_level||1;
+      if(has){
+        return '<div class="gwf-row" onclick="window._gwfTarget=\''+wallet+'\';'
+          +'this.parentNode.querySelectorAll(\'.gwf-row.sel\').forEach(function(el){el.classList.remove(\'sel\')});'
+          +'this.classList.add(\'sel\');'
+          +'document.getElementById(\'gcConfirmBtn\').disabled=false;" '
+          +'style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;'
+          +'border-radius:6px;margin-bottom:4px;cursor:pointer;'
+          +'background:rgba(232,72,85,.08);border:1px solid rgba(232,72,85,.25)">'
+          +'<div><div style="font-size:11px;font-weight:700;color:var(--tx)">'+nick+'</div>'
+          +'<div style="font-size:9px;color:var(--tx3)">Lv '+lv+'</div></div>'
+          +'<div style="font-size:10px;color:var(--cyan)">⚔ '+e.ready_fleets+'함대</div>'
+          +'</div>';
+      }else{
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;'
+          +'border-radius:6px;margin-bottom:4px;opacity:.35;'
+          +'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">'
+          +'<div><div style="font-size:11px;color:var(--tx2)">'+nick+'</div>'
+          +'<div style="font-size:9px;color:var(--tx3)">Lv '+lv+'</div></div>'
+          +'<div style="font-size:10px;color:var(--tx3)">함대 없음</div>'
+          +'</div>';
+      }
+    }).join('');
+
+    var ok2 = await gameConfirm({
+      title:'함대전 선포',icon:'⚔️',
+      body:'<div style="font-family:var(--fn)">'
+        +'<div style="font-size:10px;color:var(--tx3);margin-bottom:8px">공격할 적 길드원을 선택하세요 — 이기면 <b style="color:var(--gold)">+10 pts</b></div>'
+        +rowsHtml
+        +'</div>',
+      confirmText:'선포하기',
+      disabled:true
+    });
+    if(!ok2||!window._gwfTarget) return;
+    // 선택한 적 월렛으로 declare 모달 열기
+    _openDeclareBattleVsWallet(window._gwfTarget);
+  }catch(e){
+    console.error('openGuildWarFight:',e);
+    showToast('네트워크 오류','error');
+  }
+}
+
+// declare battle 모달을 열고 대상 월렛으로 함대 검색 자동 수행
+async function _openDeclareBattleVsWallet(targetWallet){
+  // 1. 일반 declare 모달 열기
+  await openDeclareBattle();
+  // 2. 검색창에 대상 월렛 입력 후 자동 검색
+  setTimeout(async function(){
+    var inp = document.getElementById('declareTargetSearch');
+    if(inp){
+      inp.value = targetWallet;
+      await doSearchTargets();
+    }
+  }, 150);
 }
 
 // declareWar replaced by confirmDeclareWar (modal-based)
@@ -24221,18 +24408,51 @@ function _drawSectorOverlay(ctx,w,h){
     return[cx/pts.length,cy/pts.length];
   }
 
-  // 1) Fill polygons
+  // 1) Fill polygons (차단된 섹터는 붉고 어둡게)
+  var _myLvl=parseInt((document.getElementById('profileLevel')||{}).textContent||'1')||1;
   _sectorsData.forEach(function(s){
     var poly=s.polygon;
     if(!poly||poly.length<3) return;
-    ctx.globalAlpha=0.12;
-    ctx.fillStyle=_sectorColor(s.tier);
+    var _entryBlocked=(s.entryCheckActive!==false)&&(s.entryMinLevel||0)>0&&_myLvl<(s.entryMinLevel||0);
+    if(_entryBlocked){
+      // 어두운 붉은 반투명 오버레이
+      ctx.globalAlpha=0.38;
+      ctx.fillStyle='rgba(80,0,0,1)';
+    }else{
+      ctx.globalAlpha=0.12;
+      ctx.fillStyle=_sectorColor(s.tier);
+    }
     ctx.beginPath();
     var p0=toXY(poly[0]);
     ctx.moveTo(p0[0],p0[1]);
     for(var i=1;i<poly.length;i++){var p=toXY(poly[i]);ctx.lineTo(p[0],p[1])}
     ctx.closePath();
     ctx.fill();
+    // 차단된 섹터: 큰 X 표시
+    if(_entryBlocked){
+      var c=centroid(poly);
+      var xs=poly.map(function(v){return toXY(v)[0]});
+      var ys=poly.map(function(v){return toXY(v)[1]});
+      var polyW2=Math.max.apply(null,xs)-Math.min.apply(null,xs);
+      var polyH2=Math.max.apply(null,ys)-Math.min.apply(null,ys);
+      var half=Math.min(polyW2,polyH2)*0.3;
+      ctx.globalAlpha=0.55;
+      ctx.strokeStyle='rgba(255,60,60,1)';
+      ctx.lineWidth=Math.max(3,half*0.08);
+      ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(c[0]-half,c[1]-half);ctx.lineTo(c[0]+half,c[1]+half);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(c[0]+half,c[1]-half);ctx.lineTo(c[0]-half,c[1]+half);ctx.stroke();
+      ctx.globalAlpha=1;
+      // 레벨 요구사항 텍스트
+      var lvFont=Math.max(12,Math.min(28,polyW2*0.06));
+      ctx.font='bold '+lvFont+'px monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.shadowColor='rgba(0,0,0,0.9)';ctx.shadowBlur=6;
+      ctx.fillStyle='rgba(255,120,120,1)';
+      ctx.globalAlpha=0.9;
+      ctx.fillText('🔒 Lv '+s.entryMinLevel,c[0],c[1]+half*0.6);
+      ctx.shadowBlur=0;ctx.globalAlpha=1;
+    }
   });
 
   // 2) Unique edges — no double-drawing
