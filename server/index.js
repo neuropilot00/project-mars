@@ -176,6 +176,7 @@ const milestoneRoutes   = require('./routes/milestone');
 const factionRoutes     = require('./routes/factions');  // A-1: 파벌 선택 시스템
 const newResourcesRoutes = require('./routes/resources'); // A-2: 자원 인벤토리 (복수형, 함선 UI용)
 const fleetRoutes       = require('./routes/fleets');    // A-3: 함대 편성 시스템
+const weatherRoutes     = require('./routes/weatherRoutes'); // Weather Strategic v2
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Railway, Cloudflare, etc.)
@@ -284,6 +285,7 @@ app.use('/api', onboardingRoutes);
 app.use('/api', sectorRoutes);
 app.use('/api', siegeRoutes);
 app.use('/api', publicRoutes);
+app.use('/api/weather', weatherRoutes);    // Weather Strategic v2
 app.use('/api/betting', warBettingRoutes); // War Betting v2 (must be before bettingRoutes)
 app.use('/api', bettingRoutes);
 app.use('/api', auctionRoutes);
@@ -584,12 +586,12 @@ async function start() {
 
     // ── Weather Scheduled Tasks ──
     try {
-      const { spawnWeatherEvents, expireWeather } = require('./services/weather');
+      const { spawnWeatherEvents, expireWeather, activateForecasts } = require('./services/weather');
       // Expire weather every 5 minutes
       setInterval(async () => {
         try { await expireWeather(); } catch(e) { console.warn('[WEATHER] expire error:', e.message); }
       }, 5 * 60 * 1000);
-      // Spawn weather events every 6 hours
+      // Spawn weather events every 6 hours (no-op when weather_random_enabled=false)
       setInterval(async () => {
         try { await spawnWeatherEvents(); } catch(e) { console.warn('[WEATHER] spawn error:', e.message); }
       }, 6 * 60 * 60 * 1000);
@@ -597,7 +599,9 @@ async function start() {
       setTimeout(async () => {
         try { await spawnWeatherEvents(); } catch(e) { console.warn('[WEATHER] initial spawn error:', e.message); }
       }, 30 * 1000);
-      console.log('[WEATHER] Scheduled tasks initialized (expire: 5min, spawn: 6h)');
+      // Activate strategic forecasts every 1 minute
+      setInterval(() => activateForecasts().catch(console.error), 60 * 1000);
+      console.log('[WEATHER] Scheduled tasks initialized (expire: 5min, spawn: 6h, activateForecasts: 1min)');
     } catch(e) { console.warn('[WEATHER] Could not init scheduled tasks:', e.message); }
 
     // ── Exploration Scheduled Tasks ──
