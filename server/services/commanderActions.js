@@ -115,7 +115,12 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
       const code = String(params.shipTypeCode || '').trim();
       const count = parseInt(params.count);
       if (!code) throw new Error('SHIP_TYPE_REQUIRED');
-      if (!count || count < 1 || count > 20) throw new Error('INVALID_REINFORCE_COUNT');
+      const reinforceMax = parseInt(await getSetting('commander_action_reinforce_max_count', '20')) || 20;
+      if (!count || count < 1 || count > reinforceMax) {
+        const err = new Error('INVALID_REINFORCE_COUNT');
+        err.meta = { min: 1, max: reinforceMax };
+        throw err;
+      }
       // 함선 타입 존재 확인
       const { rows: stRows } = await client.query(
         `SELECT code, faction_code FROM ship_types WHERE code = $1 AND is_active = true`,

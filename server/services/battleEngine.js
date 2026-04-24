@@ -199,6 +199,8 @@ async function loadBattleData(battleId) {
   // reinforce 적용 — 선언자의 함대에 synthetic 함선 추가 (DB에는 저장 안 함)
   if (cmdActions?.reinforcements?.length) {
     let synthId = -1;
+    // 상한값은 settings에서 (하드코딩 금지)
+    const reinforceMax = parseInt(await getSetting('commander_action_reinforce_max_count', '20')) || 20;
     for (const r of cmdActions.reinforcements) {
       const targetFleet = fleets.find(f => f.owner_wallet === r.wallet && f.side === r.side);
       if (!targetFleet) continue;
@@ -213,7 +215,7 @@ async function loadBattleData(battleId) {
         );
         if (!stRows[0]) continue;
         const st = stRows[0];
-        const n = Math.max(1, Math.min(20, parseInt(r.count) || 0));
+        const n = Math.max(1, Math.min(reinforceMax, parseInt(r.count) || 0));
         for (let i = 0; i < n; i++) {
           targetFleet.ships.push({
             id: synthId--,                 // 음수 ID — DB 비지속, 이벤트 로그용

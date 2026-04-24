@@ -173,10 +173,10 @@ async function selectJob(walletAddress, jobCode) {
   try {
     await client.query('BEGIN');
 
-    // 유저 조회
+    // 유저 조회 (level 컬럼은 일부 환경에 없을 수 있어 제외 — rank_level 사용)
     const { rows: userRows } = await client.query(`
-      SELECT wallet_address, current_job_id, weekly_job_changes, 
-             weekly_reset_at, job_changed_at, gp_balance, level
+      SELECT wallet_address, current_job_id, weekly_job_changes,
+             weekly_reset_at, job_changed_at, gp_balance, rank_level
       FROM users WHERE wallet_address = $1 FOR UPDATE
     `, [walletAddress]);
 

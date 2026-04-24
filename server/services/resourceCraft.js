@@ -14,7 +14,7 @@
 //   processCompletedJobs()   : 스케줄러용 자동 수령
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const { pool, getSetting } = require('../db');
 
 // ─── 제작 가능 레시피 목록 ─────────────────────────────────────
 async function getRecipes() {
@@ -60,7 +60,13 @@ async function getMyJobs(walletAddress) {
  * @returns { job_id, resource_code, quantity, completes_at, materials_used }
  */
 async function startCraft(walletAddress, resourceCode, quantity = 1) {
-  if (quantity < 1 || quantity > 50) throw new Error('INVALID_QUANTITY');
+  // 수량 상한은 settings에서 (하드코딩 금지)
+  const maxQty = parseInt(await getSetting('resource_craft_max_quantity_per_job', '50')) || 50;
+  if (quantity < 1 || quantity > maxQty) {
+    const err = new Error('INVALID_QUANTITY');
+    err.meta = { min: 1, max: maxQty };
+    throw err;
+  }
 
   const client = await pool.connect();
   try {
@@ -84,7 +90,9 @@ async function startCraft(walletAddress, resourceCode, quantity = 1) {
     if (!res.is_craftable) throw new Error('NOT_CRAFTABLE');
 
     const recipe = res.craft_recipe || {};
-    const craftSeconds = parseInt(res.craft_time_seconds) || 600;
+    // 레시피에 craft_time_seconds 누락 시 fallback도 settings에서
+    const defaultCraftSec = parseInt(await getSetting('resource_craft_default_seconds', '600')) || 600;
+    const craftSeconds = parseInt(res.craft_time_seconds) || defaultCraftSec;
     const recipeEntries = Object.entries(recipe);
     if (recipeEntries.length === 0) throw new Error('RECIPE_EMPTY');
 
@@ -223,7 +231,8 @@ async function cancelJob(jobId, walletAddress) {
     const job = jobRows[0];
     if (job.status !== 'crafting') throw new Error('JOB_NOT_CANCELLABLE');
 
-    const refundPct = 50;
+    // 환불율은 settings에서 (하드코딩 금지)
+    const refundPct = parseInt(await getSetting('resource_craft_cancel_refund_pct', '50')) || 50;
     const materials = job.materials_used || {};
     const refunded = {};
     for (const [code, qty] of Object.entries(materials)) {
