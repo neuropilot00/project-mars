@@ -3535,6 +3535,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   height: 3px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden;
   margin-top: 3px;
 }
+.bv-hud-fleet-bar.rtl { display: flex; justify-content: flex-end; }
 .bv-hud-fleet-fill {
   height: 100%;
   background: linear-gradient(90deg, #66bb6a, #81c784);
@@ -3542,6 +3543,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 }
 .bv-hud-fleet-fill.low { background: linear-gradient(90deg, #ff9800, #ffb74d); }
 .bv-hud-fleet-fill.crit { background: linear-gradient(90deg, #ef5350, #f48fb1); }
+.bv-hud-fleet-fill.def { background: linear-gradient(270deg, #66bb6a, #81c784); }
+.bv-hud-fleet-fill.def.low { background: linear-gradient(270deg, #ff9800, #ffb74d); }
+.bv-hud-fleet-fill.def.crit { background: linear-gradient(270deg, #ef5350, #f48fb1); }
 
 .bv-hud-center {
   text-align: center;
@@ -43015,20 +43019,20 @@ function renderHudSides() {
   const defBox = document.getElementById('bvDefFleets');
   const atk = bv.timeline.fleets_meta.filter(f => f.side === 'atk');
   const def = bv.timeline.fleets_meta.filter(f => f.side === 'def');
-  
-  atkBox.innerHTML = atk.map(f => renderHudFleetCard(f)).join('');
-  defBox.innerHTML = def.map(f => renderHudFleetCard(f)).join('');
+
+  atkBox.innerHTML = atk.map(f => renderHudFleetCard(f, false)).join('');
+  defBox.innerHTML = def.map(f => renderHudFleetCard(f, true)).join('');
 }
 
-function renderHudFleetCard(f) {
+function renderHudFleetCard(f, isDef) {
   return `
     <div class="bv-hud-fleet" id="bvFleet${f.id}">
       <div class="bv-hud-fleet-name">${escapeHtml(f.name || '')}</div>
       <div style="color:rgba(255,255,255,.5);font-size:8px">
         ${f.ships_total}척 · <span id="bvFleetHp${f.id}">-</span>
       </div>
-      <div class="bv-hud-fleet-bar">
-        <div class="bv-hud-fleet-fill" id="bvFleetBar${f.id}" style="width:100%"></div>
+      <div class="bv-hud-fleet-bar${isDef ? ' rtl' : ''}">
+        <div class="bv-hud-fleet-fill${isDef ? ' def' : ''}" id="bvFleetBar${f.id}" style="width:100%"></div>
       </div>
     </div>
   `;
@@ -43077,7 +43081,9 @@ function updateHudFleets(f1, f2, t) {
     const hpText = document.getElementById(`bvFleetHp${fleetMeta.id}`);
     if (bar) {
       bar.style.width = pct + '%';
-      bar.className = 'bv-hud-fleet-fill' + (pct < 30 ? ' crit' : pct < 60 ? ' low' : '');
+      const isDef = fleetMeta.side === 'def';
+      const defCls = isDef ? ' def' : '';
+      bar.className = 'bv-hud-fleet-fill' + defCls + (pct < 30 ? ' crit' : pct < 60 ? ' low' : '');
     }
     if (hpText) hpText.textContent = Math.round(pct) + '%';
   }

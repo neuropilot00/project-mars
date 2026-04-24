@@ -4462,25 +4462,39 @@ router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
       shipGranted = 'already_has_ships';
     }
 
-    // 스타터 광물 지급
+    // 스타터 광물 지급 (resources/user_resource_inventory 없으면 스킵)
     const starterMinerals = { iron_ore: 20, carbon_fiber: 20, silicon_chip: 10 };
-    for (const [code, qty] of Object.entries(starterMinerals)) {
-      const { rows: rRows } = await client.query(`SELECT id FROM resources WHERE code = $1 LIMIT 1`, [code]);
-      if (!rRows[0]) continue;
-      await client.query(`
-        INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
-        VALUES ($1, $2, $3)
-        ON CONFLICT (wallet_address, resource_id)
-        DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity
-      `, [w, rRows[0].id, qty]);
+    let mineralsGranted = {};
+    try {
+      // 테이블 존재 여부 체크
+      const { rows: tCheck } = await client.query(`
+        SELECT 1 FROM information_schema.tables
+        WHERE table_name IN ('resources','user_resource_inventory')
+        AND table_schema = 'public'
+      `);
+      if (tCheck.length === 2) {
+        for (const [code, qty] of Object.entries(starterMinerals)) {
+          const { rows: rRows } = await client.query(`SELECT id FROM resources WHERE code = $1 LIMIT 1`, [code]);
+          if (!rRows[0]) continue;
+          await client.query(`
+            INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (wallet_address, resource_id)
+            DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity
+          `, [w, rRows[0].id, qty]);
+          mineralsGranted[code] = qty;
+        }
+      }
+    } catch (mineralErr) {
+      console.warn('[Admin] grant-starter mineral skip:', mineralErr.message);
     }
 
     await client.query('COMMIT');
-    await auditLog(req, 'grant_starter_pack', w, { shipGranted, starterMinerals, fleetId });
-    res.json({ success: true, wallet: w, faction: factionCode, fleet_id: fleetId, ship: shipGranted, minerals: starterMinerals });
+    try { await auditLog(req, 'grant_starter_pack', w, { shipGranted, minerals: mineralsGranted, fleetId: String(fleetId) }); } catch(_) {}
+    res.json({ success: true, wallet: w, faction: factionCode, fleet_id: fleetId, ship: shipGranted, minerals: mineralsGranted });
   } catch (e) {
     await client.query('ROLLBACK');
-    console.error('[Admin] grant-starter error:', e.message);
+    console.error('[Admin] grant-starter error:', e.message, e.stack?.split('\n')[1]);
     res.status(500).json({ error: e.message });
   } finally { client.release(); }
 });
