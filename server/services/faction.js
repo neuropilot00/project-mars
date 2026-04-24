@@ -139,20 +139,73 @@ async function chooseFaction(walletAddress, factionCode) {
     
     // 파벌 업데이트
     await client.query(
-      `UPDATE users 
-       SET faction_code = $1, faction_chosen_at = NOW() 
+      `UPDATE users
+       SET faction_code = $1, faction_chosen_at = NOW()
        WHERE wallet_address = $2`,
       [factionCode, walletAddress]
     );
-    
+
+    // ── 파벌 선택 시 스타터 함선 지급 (함선이 0척인 경우) ────────
+    let starterShipGiven = null;
+    try {
+      // 살아있는 함선이 있는지 확인
+      const { rows: shipCheck } = await client.query(
+        `SELECT 1 FROM ships WHERE owner_wallet = $1 AND is_alive = true LIMIT 1`,
+        [walletAddress]
+      );
+
+      if (shipCheck.length === 0) {
+        // 함대가 있는지 확인
+        const { rows: existingFleets } = await client.query(
+          `SELECT id FROM fleets WHERE owner_wallet = $1 AND is_npc = false LIMIT 1`,
+          [walletAddress]
+        );
+
+        let fleetId;
+        if (existingFleets.length === 0) {
+          const { rows: newFleet } = await client.query(
+            `INSERT INTO fleets (owner_wallet, name, is_npc) VALUES ($1, '1함대', false) RETURNING id`,
+            [walletAddress]
+          );
+          fleetId = newFleet[0].id;
+        } else {
+          fleetId = existingFleets[0].id;
+        }
+
+        // 해당 파벌의 가장 저렴한 프리깃 지급
+        const { rows: starterTypes } = await client.query(
+          `SELECT code, name_ko, base_hp
+           FROM ship_types
+           WHERE faction_code = $1 AND is_active = true AND size_class = 'frigate'
+           ORDER BY build_gp_cost ASC LIMIT 1`,
+          [factionCode]
+        );
+
+        if (starterTypes.length > 0) {
+          const st = starterTypes[0];
+          await client.query(
+            `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, built_by_wallet)
+             VALUES ($1, $2, $3, $4, $4, true, $3)`,
+            [fleetId, st.code, walletAddress, st.base_hp]
+          );
+          starterShipGiven = { type_code: st.code, name_ko: st.name_ko, fleet_id: fleetId };
+          console.log(`[faction] starter ship granted: ${st.code} → ${walletAddress}`);
+        }
+      }
+    } catch (shipErr) {
+      // 함선 지급 실패해도 파벌 선택은 성공으로 처리
+      console.error('[faction] starter ship grant failed:', shipErr.message);
+    }
+
     await client.query('COMMIT');
-    
+
     return {
       success: true,
       is_first_choice: isFirstChoice,
       previous_faction: user.faction_code,
       new_faction: factionCode,
-      fee_paid: feePaid
+      fee_paid: feePaid,
+      starter_ship: starterShipGiven
     };
   } catch (err) {
     await client.query('ROLLBACK');

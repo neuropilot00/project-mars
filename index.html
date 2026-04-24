@@ -2565,7 +2565,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   z-index: 9998;
   display: none;
   align-items: center; justify-content: center;
-  padding: 10px;
+  padding: max(env(safe-area-inset-top, 10px), 10px) 10px 10px 10px;
 }
 .shipyard-modal-backdrop.active { display: flex; }
 .shipyard-modal {
@@ -2587,13 +2587,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   font-size: 14px; font-weight: 900; letter-spacing: 3px;
 }
 .shipyard-close {
-  background: rgba(232,72,85,.12);
-  border: 1px solid rgba(232,72,85,.45);
-  color: #ff8a80;
-  padding: 6px 14px; font-size: 14px; font-weight: 700; cursor: pointer;
-  border-radius: 5px; line-height: 1;
+  background: rgba(232,72,85,.85);
+  border: 1px solid #ff8a80;
+  color: #fff;
+  padding: 8px 18px; font-size: 15px; font-weight: 900; cursor: pointer;
+  border-radius: 6px; line-height: 1; min-width: 44px; min-height: 36px;
+  flex-shrink: 0;
 }
-.shipyard-close:hover { background: rgba(232,72,85,.25); color: #fff; }
+.shipyard-close:hover { background: #e84855; color: #fff; }
 .shipyard-tabs {
   display: flex; background: rgba(0, 0, 0, 0.3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -7475,7 +7476,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <button class="base-shop-view" onclick="switchBaseShopView('crafting',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_craft_btn">⚗️ CRAFT</button>
             <button class="base-shop-view" onclick="switchBaseShopView('lucky',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_lucky_btn">📦 CRATES</button>
             <button class="base-shop-view" onclick="switchBaseShopView('vip',this)" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_vip_btn">💫 VIP</button>
-            <button class="base-shop-view" onclick="switchBaseShopView('profile',this);loadMyProfile()" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="base_profile_btn">👤 PROFILE</button>
             <button class="base-shop-view" onclick="switchBaseShopView('prestige',this);loadMyPrestige()" style="font-size:9px;padding:5px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--tx3);cursor:pointer;font-family:var(--fn);font-weight:700;letter-spacing:.5px" data-i18n="prestige_btn">⭐ PRESTIGE</button>
           </div>
           <div style="display:flex;gap:8px">
@@ -7524,6 +7524,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- VIP Pass panel (hidden by default) -->
         <div id="baseVipPanel" style="display:none">
+          <!-- VIP 설명 배너 -->
+          <div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(206,147,216,.12),rgba(206,147,216,.03));border:1px solid rgba(206,147,216,.25)">
+            <div style="font-size:11px;color:#ce93d8;font-weight:700;margin-bottom:4px">💫 VIP 패스란?</div>
+            <div style="font-size:10px;color:var(--tx2);line-height:1.6">
+              PP(플래닛 포인트)로 구매하는 <b style="color:#ce93d8">기간제 프리미엄 구독</b>입니다.<br>
+              • ⛏ <b>채굴 속도 +%</b> (등급별 상이)<br>
+              • 💰 <b>GP 획득량 보너스</b><br>
+              • 🎁 <b>월간 크레이트 지급</b><br>
+              • 🏆 <b>VIP 전용 칭호/아바타</b><br>
+              PP는 실제 구매하거나 시즌 보상으로 획득합니다.
+            </div>
+          </div>
           <!-- Current VIP status -->
           <div id="myVipStatus" style="display:none;margin-bottom:10px;padding:10px;border-radius:8px;background:linear-gradient(135deg,rgba(206,147,216,.1),rgba(206,147,216,.03));border:1px solid rgba(206,147,216,.25)">
             <div style="display:flex;align-items:center;gap:8px">
@@ -7546,6 +7558,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <!-- Lucky Box panel (hidden by default) -->
         <div id="baseLuckyBoxPanel" style="display:none">
+          <!-- 크레이트 설명 배너 -->
+          <div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(255,204,2,.1),rgba(255,204,2,.02));border:1px solid rgba(255,204,2,.25)">
+            <div style="font-size:11px;color:#ffcc02;font-weight:700;margin-bottom:4px">📦 크레이트란?</div>
+            <div style="font-size:10px;color:var(--tx2);line-height:1.6">
+              GP 또는 PP로 구매하는 <b style="color:#ffcc02">랜덤 아이템 상자</b>입니다.<br>
+              • 🎯 <b>방어 아이템</b> — 영토 강화·방어 장치<br>
+              • ⚔ <b>전투 아이템</b> — 함선 강화·공격 부스트<br>
+              • 💎 <b>코스메틱</b> — 칭호·아바타·영토 프레임<br>
+              • ✨ <b>희귀 아이템</b> — 낮은 확률로 엘리트 등급<br>
+              열린 아이템은 인벤토리에서 확인하고 마켓에 판매할 수 있습니다.
+            </div>
+          </div>
           <div id="luckyBoxList" style="display:flex;flex-direction:column;gap:8px">
             <div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">Loading crates…</div>
           </div>
@@ -7633,6 +7657,17 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         </div>
         <!-- Prestige panel -->
         <div id="basePrestigePanel" style="display:none">
+          <!-- 프레스티지 설명 배너 -->
+          <div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(255,213,79,.1),rgba(255,213,79,.02));border:1px solid rgba(255,213,79,.25)">
+            <div style="font-size:11px;color:#ffd54f;font-weight:700;margin-bottom:4px">⭐ 프레스티지란?</div>
+            <div style="font-size:10px;color:var(--tx2);line-height:1.6">
+              GP를 소모해 <b style="color:#ffd54f">영구 랭킹 점수</b>를 쌓는 시스템입니다.<br>
+              • 🪨 Colonist → 🥉 Pioneer → 🥈 Commander → 🥇 Vanguard → 💎 Sovereign<br>
+              • 높은 등급일수록 <b>리더보드 상위 노출</b> + 전용 칭호·프레임 획득<br>
+              • 프레스티지 포인트는 <b style="color:#ff8a80">영구적</b>이며 다운그레이드 없음<br>
+              • 영토 클레임에도 <b>프레스티지 프레임</b>을 적용할 수 있습니다
+            </div>
+          </div>
           <!-- Rank card -->
           <div id="myPrestigeCard" style="margin-bottom:12px;padding:14px;border-radius:8px;background:linear-gradient(135deg,rgba(255,213,79,.08),rgba(255,213,79,.02));border:1px solid rgba(255,213,79,.25)">
             <div style="display:flex;align-items:center;gap:12px">
@@ -8062,6 +8097,47 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
+        <!-- ═══ PROFILE CUSTOMIZE (collapsible) ═══ -->
+        <div class="prof-section" id="profSecCustomize">
+          <div class="prof-section-header" onclick="_togProfSec('profSecCustomize')">
+            <span class="chevron">▸</span><span>✏️ 프로필 꾸미기</span>
+          </div>
+          <div class="prof-section-body" style="display:none">
+            <!-- Motto -->
+            <div style="margin-bottom:8px">
+              <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">MOTTO</div>
+              <div style="display:flex;gap:6px">
+                <input id="authMottoInput" maxlength="80" placeholder="콜로니 모토…" style="flex:1;background:rgba(244,143,177,.06);border:1px solid rgba(244,143,177,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+                <button onclick="_authSaveMotto()" style="padding:6px 10px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
+              </div>
+            </div>
+            <!-- Status -->
+            <div style="margin-bottom:8px">
+              <div style="font-size:9px;color:#ffcc02;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">💬 STATUS</div>
+              <div style="display:flex;gap:6px">
+                <input id="authStatusInput" maxlength="60" placeholder="상태 메시지…" style="flex:1;background:rgba(255,204,2,.06);border:1px solid rgba(255,204,2,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+                <button onclick="_authSaveStatus()" style="padding:6px 10px;background:rgba(255,204,2,.15);border:1px solid rgba(255,204,2,.35);color:#ffcc02;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
+              </div>
+            </div>
+            <!-- Vanity Tag -->
+            <div style="margin-bottom:8px">
+              <div style="font-size:9px;color:#ce93d8;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">🏷️ VANITY TAG</div>
+              <div style="display:flex;gap:6px">
+                <input id="authVtagInput" maxlength="12" placeholder="태그…" style="flex:1;background:rgba(206,147,216,.06);border:1px solid rgba(206,147,216,.2);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:10px;font-family:var(--fn)">
+                <button onclick="_authSaveVtag()" style="padding:6px 10px;background:rgba(206,147,216,.15);border:1px solid rgba(206,147,216,.35);color:#ce93d8;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
+              </div>
+            </div>
+            <!-- Avatar Color -->
+            <div style="margin-bottom:8px">
+              <div style="font-size:9px;color:#f48fb1;font-family:var(--fn);font-weight:700;letter-spacing:1px;margin-bottom:3px">AVATAR COLOR</div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input id="authColorInput" type="color" value="#FF7840" style="width:44px;height:32px;background:transparent;border:1px solid rgba(244,143,177,.2);border-radius:6px;cursor:pointer;padding:2px">
+                <button onclick="_authSaveColor()" style="padding:6px 10px;background:rgba(244,143,177,.15);border:1px solid rgba(244,143,177,.35);color:#f48fb1;border-radius:6px;cursor:pointer;font-family:var(--fn);font-size:9px;font-weight:700">SET</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- ═══ SETTINGS (collapsible) ═══ -->
         <div class="prof-section" id="profSecSettings">
           <div class="prof-section-header" onclick="_togProfSec('profSecSettings')">
@@ -8316,7 +8392,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   <div class="wb-modal">
     <div class="wb-header">
       <div class="wb-title">🎯 WAR BETTING · 전쟁 베팅</div>
-      <button class="shipyard-close" onclick="closeWarBetting()">✕</button>
+      <button class="shipyard-close" onclick="closeWarBetting()">✕ 닫기</button>
     </div>
     <div class="wb-tabs">
       <button class="wb-tab active" data-tab="active" onclick="wbSwitchTab('active')">🔥 활성 이벤트</button>
@@ -32094,6 +32170,40 @@ function saveProfileColor() {
     }).catch(function(){});
 }
 
+// ── auth modal profile customize helpers ──────────────────────────
+function _authSaveMotto() {
+  var v = (document.getElementById('authMottoInput')||{}).value||'';
+  var target = document.getElementById('profileMottoInput');
+  if (target) { target.value = v; saveProfileMotto(); }
+  else {
+    var w = walletState && walletState.address;
+    if (!w || !v.trim()) return;
+    fetch('/api/profile/motto', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ wallet:w, motto:v.trim() }) })
+      .then(function(r){return r.json();}).then(function(d){ showToast(d.error?d.error:'Motto saved! 📝', d.error?'error':'success'); });
+  }
+}
+function _authSaveStatus() {
+  var v = (document.getElementById('authStatusInput')||{}).value||'';
+  var target = document.getElementById('statusInput');
+  if (target) { target.value = v; setMyStatus(); }
+  else {
+    var w = walletState && walletState.address;
+    if (!w || !v.trim()) return;
+    fetch('/api/profile/status', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ wallet:w, status:v.trim() }) })
+      .then(function(r){return r.json();}).then(function(d){ showToast(d.error?d.error:'Status updated!', d.error?'error':'success'); });
+  }
+}
+function _authSaveVtag() {
+  var v = (document.getElementById('authVtagInput')||{}).value||'';
+  var target = document.getElementById('vtagInput');
+  if (target) { target.value = v; setMyVtag(); }
+}
+function _authSaveColor() {
+  var v = (document.getElementById('authColorInput')||{}).value||'#FF7840';
+  var target = document.getElementById('profileColorInput');
+  if (target) { target.value = v; saveProfileColor(); }
+}
+
 function toggleProfileHistory() {
   var panel = document.getElementById('profileHistoryPanel');
   if (!panel) return;
@@ -39485,11 +39595,11 @@ document.addEventListener('DOMContentLoaded', function() { loadFactions(); });
 <div class="faction-toast" id="factionToast"></div>
 
 <!-- ═══ A-2: Shipyard Modal ═══ -->
-<div class="shipyard-modal-backdrop" id="shipyardModal">
+<div class="shipyard-modal-backdrop" id="shipyardModal" onclick="if(event.target===this)closeShipyard()">
   <div class="shipyard-modal">
     <div class="shipyard-header">
       <div class="shipyard-title">⚒ SHIPYARD · 조선소</div>
-      <button class="shipyard-close" onclick="closeShipyard()">✕</button>
+      <button class="shipyard-close" onclick="closeShipyard()">✕ 닫기</button>
     </div>
     <div class="shipyard-tabs">
       <button class="sy-tab active" data-tab="blueprints" onclick="switchSyTab('blueprints')">
@@ -40165,7 +40275,7 @@ var MINERAL_KO = {
   <div class="fleetcmd-modal">
     <div class="fleetcmd-header">
       <div class="fleetcmd-title">🎖 FLEET COMMAND · 함대 지휘</div>
-      <button class="shipyard-close" onclick="closeFleetCmd()">✕</button>
+      <button class="shipyard-close" onclick="closeFleetCmd()">✕ 닫기</button>
     </div>
     <div class="fleetcmd-body">
       <div class="fleet-list">
@@ -40632,7 +40742,7 @@ function fcEsc(str) {
   <div class="ai-modal">
     <div class="bh-header">
       <div class="bh-title">🤖 AI 연습전</div>
-      <button class="shipyard-close" onclick="closeAiFight()">✕</button>
+      <button class="shipyard-close" onclick="closeAiFight()">✕ 닫기</button>
     </div>
     <div style="padding:10px 20px;font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px">
       난이도별 AI 함대와 연습 전투. 보상은 일반 전투의 50%.
@@ -40646,7 +40756,7 @@ function fcEsc(str) {
   <div class="tn-modal">
     <div class="bh-header">
       <div class="bh-title">🏆 TOURNAMENTS</div>
-      <button class="shipyard-close" onclick="closeTournaments()">✕</button>
+      <button class="shipyard-close" onclick="closeTournaments()">✕ 닫기</button>
     </div>
     <div class="tn-tabs">
       <button class="tn-tab active" data-tab="open" onclick="tnSwitchTab('open')">📢 모집중</button>
@@ -40667,7 +40777,7 @@ function fcEsc(str) {
   <div class="tn-modal">
     <div class="bh-header">
       <div class="bh-title" id="bracketTitle">🏆 BRACKET</div>
-      <button class="shipyard-close" onclick="closeBracket()">✕</button>
+      <button class="shipyard-close" onclick="closeBracket()">✕ 닫기</button>
     </div>
     <div class="bracket-container" id="bracketContent"></div>
   </div>
@@ -40979,7 +41089,7 @@ function fcEsc(str) {
   <div class="al-modal">
     <div class="bh-header">
       <div class="bh-title">🤝 ALLIANCES</div>
-      <button class="shipyard-close" onclick="closeAlliance()">✕</button>
+      <button class="shipyard-close" onclick="closeAlliance()">✕ 닫기</button>
     </div>
     <div id="allianceContent" style="flex:1;overflow-y:auto"></div>
   </div>
@@ -40990,7 +41100,7 @@ function fcEsc(str) {
   <div class="rp-modal">
     <div class="bh-header">
       <div class="bh-title">📼 REPLAYS</div>
-      <button class="shipyard-close" onclick="closeReplays()">✕</button>
+      <button class="shipyard-close" onclick="closeReplays()">✕ 닫기</button>
     </div>
     <div class="bh-tabs">
       <button class="bh-tab active" data-tab="featured" onclick="rpSwitchTab('featured')">⭐ 추천</button>
@@ -43331,6 +43441,11 @@ async function obConfirmFaction() {
       return;
     }
     showFactionToast('🛡 파벌 선택 완료!', 'success');
+    if (data.starter_ship) {
+      setTimeout(function() {
+        showToast('🚀 스타터 함선 지급! ' + (data.starter_ship.name_ko || '프리깃') + ' × 1', 'success');
+      }, 800);
+    }
     try { await loadFactions(); } catch(_) {}
     advanceStep(2);
   } catch(e) {
