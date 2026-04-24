@@ -2478,20 +2478,10 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
       지급 내용: <b style="color:#4cd89a">T1 프리깃 1척 (해당 파벌) + iron_ore 20 + carbon_fiber 20 + silicon_chip 10</b><br>
       ※ 이미 함선이 있는 유저는 광물만 지급됩니다.
     </div>
-    <!-- 유저 검색 (먼저) -->
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-      <input id="starterSearchNick" type="text" placeholder="닉네임 또는 wallet 입력..."
-        style="flex:1;max-width:320px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 10px;border-radius:4px;font-size:11px"
-        onkeydown="if(event.key==='Enter')searchUserForStarter()">
-      <button onclick="searchUserForStarter()"
-        style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#eee;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:11px">
-        🔍 검색
-      </button>
-    </div>
-    <div id="starterSearchResult" style="margin-bottom:10px;font-size:11px"></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <input id="starterPackWallet" type="text" placeholder="wallet address (검색 후 선택 버튼 클릭)"
-        style="flex:1;min-width:240px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 10px;border-radius:4px;font-size:11px">
+      <input id="starterPackWallet" type="text" placeholder="닉네임 또는 wallet 주소"
+        style="flex:1;min-width:200px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 10px;border-radius:4px;font-size:11px"
+        onkeydown="if(event.key==='Enter')grantStarterPack()">
       <select id="starterPackFaction" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#eee;padding:6px 8px;border-radius:4px;font-size:11px">
         <option value="">파벌자동(유저설정)</option>
         <option value="mcc">MCC</option>
@@ -10601,7 +10591,7 @@ function grantStarterPack() {
   var wallet = (document.getElementById('starterPackWallet').value || '').trim();
   var faction = (document.getElementById('starterPackFaction').value || '').trim();
   var resultEl = document.getElementById('starterPackResult');
-  if (!wallet) { resultEl.innerHTML = '<span style="color:#f44">wallet 주소를 입력하세요 (위에서 검색 후 선택)</span>'; return; }
+  if (!wallet) { resultEl.innerHTML = '<span style="color:#f44">닉네임 또는 wallet 주소를 입력하세요</span>'; return; }
   resultEl.innerHTML = '<span style="color:#aaa">지급 중...</span>';
   fetch('/admin/api/fleet/grant-starter', {
     method: 'POST',
@@ -10623,27 +10613,6 @@ function grantStarterPack() {
   }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">오류: '+e.message+'</span>'; });
 }
 
-function searchUserForStarter() {
-  var nick = (document.getElementById('starterSearchNick').value || '').trim();
-  var resultEl = document.getElementById('starterSearchResult');
-  if (!nick) return;
-  resultEl.innerHTML = '<span style="color:#aaa">검색 중...</span>';
-  fetch('/admin/api/users?search='+encodeURIComponent(nick)+'&limit=5', {
-    headers: { 'x-admin-secret': adminSecret }
-  }).then(function(r){ return r.json(); }).then(function(d){
-    var users = d.users || d || [];
-    if (!users.length) { resultEl.innerHTML = '<span style="color:#888">검색 결과 없음</span>'; return; }
-    resultEl.innerHTML = users.map(function(u){
-      return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
-        +'<span style="color:#eee;font-weight:700">'+(u.nickname||'?')+'</span>'
-        +'<span style="color:#888;font-size:10px;flex:1">'+u.wallet_address+'</span>'
-        +'<span style="color:'+(u.faction_code?'#4cd89a':'#f44')+';font-size:10px">'+(u.faction_code||'파벌없음')+'</span>'
-        +'<button onclick="document.getElementById(\'starterPackWallet\').value=\''+u.wallet_address+'\'" '
-        +'style="background:rgba(79,195,247,.15);border:1px solid rgba(79,195,247,.3);color:#4fc3f7;padding:2px 8px;border-radius:3px;cursor:pointer;font-size:9px">선택</button>'
-        +'</div>';
-    }).join('');
-  }).catch(function(){ resultEl.innerHTML = '<span style="color:#f44">검색 실패</span>'; });
-}
 
 // SHIP UPGRADES ADMIN
 // ══════════════════════════════════════
