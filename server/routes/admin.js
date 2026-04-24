@@ -4353,12 +4353,65 @@ router.post('/phase-c/transport/:id/force-complete', adminAuth, async (req, res)
 });
 
 // ══════════════════════════════════════════════════
+// GET /admin/api/ships — 함선 현황 (Fleet Overview)
+// ══════════════════════════════════════════════════
+router.get('/ships', adminAuth, async (req, res) => {
+  try {
+    const limit = Math.min(200, parseInt(req.query.limit) || 100);
+    const { rows: ships } = await pool.query(`
+      SELECT s.id, s.owner_wallet, u.nickname,
+             s.ship_type_code AS ship_type,
+             s.current_hp AS hp, s.max_hp,
+             st.base_atk AS attack, st.base_def AS defense,
+             CASE WHEN s.is_alive THEN 'active' ELSE 'destroyed' END AS status,
+             s.built_at AS created_at
+      FROM ships s
+      JOIN users u ON u.wallet_address = s.owner_wallet
+      LEFT JOIN ship_types st ON st.code = s.ship_type_code
+      ORDER BY s.built_at DESC
+      LIMIT $1
+    `, [limit]);
+
+    const { rows: stats } = await pool.query(`
+      SELECT s.ship_type_code AS ship_type,
+             CASE WHEN s.is_alive THEN 'active' ELSE 'destroyed' END AS status,
+             COUNT(*) AS cnt
+      FROM ships s
+      GROUP BY s.ship_type_code, s.is_alive
+      ORDER BY s.ship_type_code
+    `);
+
+    const { rows: totals } = await pool.query(`
+      SELECT COUNT(*) FILTER (WHERE is_alive) AS alive,
+             COUNT(*) FILTER (WHERE NOT is_alive) AS destroyed,
+             COUNT(*) AS total
+      FROM ships
+    `);
+
+    res.json({ ships, stats, totals: totals[0] });
+  } catch (e) {
+    console.error('[Admin] ships error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ══════════════════════════════════════════════════
 // POST /admin/api/fleet/grant-starter — 파벌 스타터 팩 수동 지급 (함선 + 광물)
 // ══════════════════════════════════════════════════
 router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
   const { wallet } = req.body;
   if (!wallet) return res.status(400).json({ error: 'wallet required' });
-  const w = wallet.toLowerCase().trim();
+  let w = wallet.toLowerCase().trim();
+
+  // 닉네임으로 입력된 경우 wallet 조회
+  if (!w.startsWith('0x')) {
+    const { rows: byNick } = await pool.query(
+      `SELECT wallet_address FROM users WHERE LOWER(nickname) = $1 LIMIT 1`, [w]
+    );
+    if (!byNick[0]) return res.status(404).json({ error: 'user_not_found', hint: '닉네임으로 찾을 수 없음. 검색 기능으로 wallet을 먼저 찾아주세요.' });
+    w = byNick[0].wallet_address;
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

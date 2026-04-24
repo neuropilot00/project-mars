@@ -10548,21 +10548,19 @@ function loadShipsAdmin() {
   if (!statsEl) return;
   statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
 
-  fetch('/api/admin/ships', { headers: {'x-admin-secret':adminSecret} })
+  fetch('/admin/api/ships', { headers: {'x-admin-secret':adminSecret} })
     .then(function(r){ return r.json(); })
     .then(function(d) {
       var ships  = d.ships  || [];
       var stypes = d.stats  || [];
+      var totals = d.totals || {};
 
       // Summary stats
-      var active   = ships.filter(function(s){return s.status !== 'destroyed'}).length;
-      var docked   = ships.filter(function(s){return s.status === 'docked'}).length;
-      var deployed = ships.filter(function(s){return s.status === 'deployed'}).length;
-      var destroyed= ships.filter(function(s){return s.status === 'destroyed'}).length;
+      var active    = parseInt(totals.alive)     || 0;
+      var destroyed = parseInt(totals.destroyed) || 0;
       statsEl.innerHTML = [
-        statCard('Total Ships', ships.length, '#5cbbff'),
-        statCard('Active', active, '#4cd89a'),
-        statCard('Deployed', deployed, 'var(--gold)'),
+        statCard('Total Ships', (parseInt(totals.total)||0), '#5cbbff'),
+        statCard('Alive', active, '#4cd89a'),
         statCard('Destroyed', destroyed, '#f44')
       ].join('');
 
