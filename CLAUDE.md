@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-24 | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-25 | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 ---
 
@@ -43,7 +43,7 @@ NODE_ENV=development
 │   ├── index.js            ← Express 앱 + 스케줄러 (~1,151줄)
 │   ├── db.js               ← Pool + initDB + getSetting + logGPActivity + 공통 유틸
 │   ├── migrate.js          ← 파일 기반 마이그레이션 러너
-│   ├── migrations/         ← SQL 파일 001~095 (089~095는 오늘 적용)
+│   ├── migrations/         ← SQL 파일 001~168 (2026-04-25 기준)
 │   │   └── archived/       ← 사용 안 하는 구버전 마이그레이션 (51개, 건드리지 말 것)
 │   ├── routes/             ← 61개 라우트 파일 (/api/* 경로)
 │   └── services/           ← 73개 서비스 파일 (비즈니스 로직)
@@ -59,9 +59,9 @@ NODE_ENV=development
 ## 4. DB 현재 상태
 
 - **DB명**: `pixelwar` (PostgreSQL)
-- **적용된 마이그레이션**: 001 ~ **095** (2026-04-24 기준)
-- **총 테이블 수**: 109개
-- **마지막 마이그레이션**: `095_fleet_combat_finalize.sql`
+- **적용된 마이그레이션**: 001 ~ **168** (2026-04-25 기준)
+- **총 테이블 수**: 109개+
+- **마지막 마이그레이션**: `168_sector_npc_ships.sql`
 
 ### 핵심 테이블 목록
 
@@ -84,6 +84,15 @@ NODE_ENV=development
 | `hijack_battles` | hijack 2단계 전투 연결 |
 | `hijack_stats` | hijack 통계 누적 |
 | `fleet_gp_activity` | 함대 GP 소비 로그 |
+| **Resources** | |
+| `resources` | 채굴 재료 정의 (tier 0~3, 13종) |
+| `sector_resource_rates` | 구역별 채굴 재료 드롭률 (frontier/mid/core별 차별화) |
+| `user_resource_inventory` | 유저 보유 광물 재고 |
+| **VIP** | |
+| `vip_tiers` | VIP 등급 정의 |
+| `user_vip` | 유저 VIP 상태 |
+| **알림** | |
+| `player_notifications` | 플레이어 알림 (in-game) |
 
 ### DB 뷰
 - `v_player_fleet_summary` — 유저별 함대 요약
@@ -220,79 +229,23 @@ app.use('/admin/api', adminRoutes);  // 단일 파일 admin.js로 통합
 ## 8. 현재 개발 상태 & 다음 작업
 
 ### ✅ 완료된 것
-- Migration 001~095 전부 DB 적용 완료
+- Migration 001~168 전부 DB 적용 완료
 - Fleet Combat DB 스키마 (factions, ship_types, fleets, ships, fleet_battles 등)
+- Fleet Combat 백엔드 서비스 (`server/services/fleet.js`, `server/routes/fleets.js` 등)
 - 파벌 시드 데이터 (mcc/fsp/cv)
 - 함선 22종 정의 (frigate/destroyer/cruiser/battleship/titan × 3파벌)
 - 광물 tier 시스템 (tier 0~3, 13종)
+- 구역별 채굴 재료 차별화 (`sector_resource_rates` 테이블 + migration 163)
+- VIP 시스템 (migration 162 — `vip_tiers`, `user_vip` 테이블)
+- 함선 수리/실드 시스템 (migration 165 — DB 스키마만, UI 미완)
 - 기존 hijack 시스템과 DB 연동 테이블 준비
 - fleet_combat_enabled = **false** (아직 비활성 상태)
 
-### 🔴 다음 작업: Fleet Combat 백엔드 서비스 작성
+### 🔴 다음 작업
 
-다음 파일들을 **새로 작성**해야 함:
-
-#### `server/services/fleet.js` (NEW)
-```
-담당: 함대 CRUD
-- createFleet(wallet, name, factionCode)
-- getPlayerFleets(wallet)
-- getFleetById(fleetId)
-- disbandFleet(wallet, fleetId)
-- addShipToFleet(wallet, fleetId, shipId)
-- removeShipFromFleet(wallet, fleetId, shipId)
-```
-
-#### `server/services/fleetShip.js` (NEW)  
-```
-담당: 함선 건조/관리 (구버전 ship.js와 다름 — faction 기반)
-- buildShip(wallet, shipTypeCode)  → ship_build_jobs 큐에 추가
-- processBuildJobs()               → 스케줄러에서 호출
-- getPlayerShips(wallet)
-- scrапShip(wallet, shipId)        → GP 일부 환불
-```
-
-#### `server/services/fleetBattle.js` (NEW)
-```
-담당: 함대전 엔진
-- declareBattle(attackerWallet, defenderWallet, attackerFleetId, gpStake)
-- acceptBattle(defenderWallet, battleId, defenderFleetId)
-- resolveBattle(battleId)          → tick 기반 시뮬레이션
-- settleExpiredBattles()           → 스케줄러 (30초마다)
-- getActiveBattles(limit)
-- getBattleDetails(battleId)
-```
-
-#### `server/routes/fleets.js` (NEW)
-```
-GET  /api/fleets              — 내 함대 목록
-GET  /api/fleets/:id          — 함대 상세
-POST /api/fleets              — 함대 생성
-DELETE /api/fleets/:id        — 해산
-POST /api/fleets/:id/ships    — 함선 추가
-DELETE /api/fleets/:id/ships/:shipId — 함선 제거
-GET  /api/ships               — 내 함선 목록
-POST /api/ships/build         — 함선 건조 주문
-GET  /api/factions            — 파벌 목록 (공개)
-POST /api/faction/choose      — 파벌 선택 (최초 1회 or 500GP)
-GET  /api/fleet-battles       — 활성 전투 목록
-POST /api/fleet-battles/declare — 전투 선언
-POST /api/fleet-battles/:id/accept — 전투 수락
-GET  /api/fleet-battles/:id   — 전투 상세
-```
-
-#### `admin.html` 추가 필요 섹션
-- 파벌별 유저 분포
-- 함선 건조 현황 (건조 큐 + 완성 함선)
-- 활성 전투 목록 + 강제 해결 버튼
-- fleet_combat_enabled 토글
-- 함선 건조 비용 인라인 편집
-
-#### `index.html` 추가 필요 UI
-- BASE 모달에 FLEET 탭 추가
-- 파벌 선택 화면 (최초 로그인 후)
-- 함대 관리 (함선 목록, 건조, 함대 구성)
-- 전투 선언/수락 UI
+- 함선 건조에 `recipe_minerals` 실제 소모 적용 (현재 무시됨)
+- 타이탄/배틀십에 Core/Mid 전용 재료 요구사항 추가
+- 함선 수리 시스템 UI (route + `index.html`)
 
 ---
 
@@ -351,6 +304,9 @@ battle_max_concurrent      = 3
 battle_tick_rate_ms        = 200
 hijack_phase1_duration_seconds = 300
 hijack_phase1_ships_max    = 20
+ship_repair_enabled        = true
+shield_enabled             = true
+vip_enabled                = true
 ```
 
 ---
@@ -369,6 +325,8 @@ hijack_phase1_ships_max    = 20
 2. `server/migrations/archived/` — 89~139번 구버전 마이그레이션. 건드리지 말 것.
 3. `admin.html` — fleet/faction 관련 섹션 아직 없음. 새 fleet 서비스 작성 후 추가 필요.
 4. settings 테이블 value 컬럼이 JSONB — 버전 문자열(1.0.0) INSERT 시 `'"1.0.0"'`으로 감싸야 함.
+5. Railway 배포 시 `grant-starter`에서 "invalid input syntax for type json" 오류 발생 중 (디버깅 중).
+6. 로컬 테스트 DB에 추가된 테스트 유저: wallet `0xlainworld000000000000000000000000000000` (실제 유저 아님).
 
 ---
 
