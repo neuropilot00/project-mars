@@ -358,7 +358,20 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     }
     
     await client.query('COMMIT');
-    
+
+    // ── GP 활동 로그 + 시즌 점수 (fire-and-forget, COMMIT 후) ──
+    if (gpCost > 0) {
+      try {
+        const { logGPActivity } = require('../db');
+        logGPActivity(walletAddress, -gpCost, 'ship_build', `함선 건조: ${shipTypeCode}`).catch(()=>{});
+      } catch (_) {}
+    }
+    try {
+      const seasonSvc = require('./season');
+      if (gpCost > 0) seasonSvc.addSeasonScore(walletAddress, 'gp_spend', gpCost).catch(()=>{});
+      seasonSvc.addSeasonScore(walletAddress, 'fleet_action', 1).catch(()=>{});
+    } catch (_) {}
+
     return {
       job_id: job.id,
       ship_type_code: shipTypeCode,
@@ -574,7 +587,15 @@ async function cancelBuildJob(jobId, walletAddress) {
     }
     
     await client.query('COMMIT');
-    
+
+    // ── GP 활동 로그 (환불, fire-and-forget) ──
+    if (refundedGp > 0) {
+      try {
+        const { logGPActivity } = require('../db');
+        logGPActivity(walletAddress, refundedGp, 'ship_build_refund', `건조 취소 환불 (${refundPct}%)`).catch(()=>{});
+      } catch (_) {}
+    }
+
     return {
       success: true,
       refunded_gp: refundedGp,

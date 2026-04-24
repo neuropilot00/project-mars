@@ -6675,6 +6675,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
         <div id="govFleetSection" style="display:none;margin-bottom:12px">
           <div id="fleetPanel" style="font-size:10px;color:var(--tx3);padding:4px 0" data-i18n="gov_fleet_hint">Connect wallet to view your fleet.</div>
           <button onclick="openShipyard()" style="width:100%;margin-top:8px;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(79,195,247,.15),rgba(79,195,247,.05));border:1px solid rgba(79,195,247,.35);color:#5cbbff;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px">⚓ 조선소 열기 / OPEN SHIPYARD</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+            <button onclick="openFactionModal()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.35);color:#ffd166;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_faction_btn">🛡 FACTION</button>
+            <button onclick="openHijackModal()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.13),rgba(232,72,85,.04));border:1px solid rgba(232,72,85,.35);color:#ff6b6b;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_hijack_btn">⚔ HIJACK</button>
+          </div>
         </div>
 
         <!-- Battles (Migration 093) -->
@@ -14103,6 +14107,7 @@ var I18N = {
     gov_policy_open: 'Open (All Welcome)', gov_policy_ally: 'Allies Only', gov_policy_closed: 'Closed',
     gov_titles_title: '🎖 MY TITLES', gov_titles_hint: 'Connect wallet to view your titles.',
     gov_fleet_title: '⚓ MY FLEET', gov_fleet_hint: 'Connect wallet to view your fleet.',
+    gov_faction_btn: '🛡 FACTION', gov_hijack_btn: '⚔ HIJACK',
     gov_fleet_my: 'MY SHIPS', gov_fleet_max: '10 max', gov_shipyard: 'SHIPYARD',
     gov_ship_build: 'BUILD SHIP', gov_ship_built: 'built!', gov_ship_repair: 'REPAIR',
     gov_ship_repaired: 'Ship repaired!', gov_ship_repair_confirm: 'Repair this ship to full HP?',
@@ -14721,6 +14726,7 @@ var I18N = {
     gov_policy_open: '개방 (모두 환영)', gov_policy_ally: '동맹만', gov_policy_closed: '폐쇄',
     gov_titles_title: '🎖 내 칭호', gov_titles_hint: '지갑을 연결하여 칭호를 확인하세요.',
     gov_fleet_title: '⚓ 내 함대', gov_fleet_hint: '지갑을 연결하여 함대를 확인하세요.',
+    gov_faction_btn: '🛡 파벌', gov_hijack_btn: '⚔ 하이잭',
     gov_fleet_my: '내 함선', gov_fleet_max: '최대 10', gov_shipyard: '조선소',
     gov_ship_build: '함선 건조', gov_ship_built: '건조 완료!', gov_ship_repair: '수리',
     gov_ship_repaired: '함선 수리 완료!', gov_ship_repair_confirm: '함선을 완전히 수리하시겠습니까?',
@@ -15330,6 +15336,7 @@ var I18N = {
     gov_policy_open: 'オープン（誰でも歓迎）', gov_policy_ally: '同盟のみ', gov_policy_closed: '閉鎖',
     gov_titles_title: '🎖 称号', gov_titles_hint: 'ウォレットを接続して称号を確認。',
     gov_fleet_title: '⚓ 艦隊', gov_fleet_hint: 'ウォレットを接続して艦隊を確認。',
+    gov_faction_btn: '🛡 派閥', gov_hijack_btn: '⚔ 奪取',
     gov_fleet_my: '艦船一覧', gov_fleet_max: '最大10隻', gov_shipyard: '造船所',
     gov_ship_build: '建造', gov_ship_built: '建造完了！', gov_ship_repair: '修理',
     gov_ship_repaired: '修理完了！', gov_ship_repair_confirm: '艦船をフルHPに修理しますか？',
@@ -15932,6 +15939,7 @@ var I18N = {
     gov_policy_open: '开放（欢迎所有人）', gov_policy_ally: '仅同盟', gov_policy_closed: '封闭',
     gov_titles_title: '🎖 我的称号', gov_titles_hint: '连接钱包以查看您的称号。',
     gov_fleet_title: '⚓ 我的舰队', gov_fleet_hint: '连接钱包以查看您的舰队。',
+    gov_faction_btn: '🛡 派系', gov_hijack_btn: '⚔ 劫持',
     gov_fleet_my: '我的战舰', gov_fleet_max: '最多10艘', gov_shipyard: '造船厂',
     gov_ship_build: '建造舰船', gov_ship_built: '建造完成！', gov_ship_repair: '修理',
     gov_ship_repaired: '舰船修理完成！', gov_ship_repair_confirm: '将此舰船修理至满HP？',
@@ -39432,7 +39440,21 @@ async function confirmHijack() {
     return;
   }
 
-  if (!confirm('🔀 하이잭 Phase 1 시작\n\n프리깃/구축함만 투입됩니다.\n성공 시 Phase 2 진행 가능.\n\n진행하시겠습니까?')) return;
+  var ok = await gameConfirm({
+    title: '⚔ HIJACK PHASE 1',
+    icon: '🔀',
+    body: '<div style="padding:8px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.15),rgba(232,72,85,.04));border:1px solid rgba(232,72,85,.35);margin-bottom:6px">'
+        + '<div style="font-weight:700;font-size:12px;color:#ff6b6b;letter-spacing:.4px;margin-bottom:4px">선전포고 · 영토 탈취</div>'
+        + '<div style="font-size:10px;color:rgba(255,255,255,.75);line-height:1.5">Phase 1에서는 <b>프리깃/구축함</b>만 투입됩니다.<br>승리 시 Phase 2로 전 함선 투입 가능.</div>'
+        + '</div>',
+    info: [
+      { k:'Attacker Fleet', v:'#'+atkFleetId },
+      { k:'Target Claim',   v:'#'+claimId },
+      { k:'Defender',       v: (defWallet||'').slice(0,10)+'… · #'+defFleetId }
+    ],
+    confirmText: '⚔ DECLARE HIJACK'
+  });
+  if (!ok) return;
 
   try {
     const res = await fetch('/api/hijack/declare', {

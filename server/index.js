@@ -295,6 +295,16 @@ app.use('/api/territory', require('./routes/territoryRoutes')); // M-091: 영토
 app.use('/api/factions', require('./routes/factionRoutes')); // M-092: 파벌 시스템
 app.use('/api', auctionRoutes);
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
+// CB-100: 함선 커스터마이징 + 마켓 (같은 /api/ships 네임스페이스, 다른 경로로 충돌 없음)
+try { app.use('/api/ships', require('./routes/shipCustomizeRoutes')); } catch (e) { console.warn('[mount] shipCustomizeRoutes skipped:', e.message); }
+// CB-097: Guild War
+try { app.use('/api/guildwar', require('./routes/guildwarRoutes')); } catch (e) { console.warn('[mount] guildwarRoutes skipped:', e.message); }
+// CB-098: Sector Raid
+try { app.use('/api/sector-raids', require('./routes/sectorRaidRoutes')); } catch (e) { console.warn('[mount] sectorRaidRoutes skipped:', e.message); }
+// M-089: 마켓 업그레이드 (동적 수수료, 가격 히스토리)
+try { app.use('/api/market', require('./routes/marketUpgradeRoutes')); } catch (e) { console.warn('[mount] marketUpgradeRoutes skipped:', e.message); }
+// CB-099: 전투 공유 카드 (OG 이미지용, 공개 엔드포인트)
+try { app.use('/api/ship-battles', require('./routes/battleShareRoutes')); } catch (e) { console.warn('[mount] battleShareRoutes skipped:', e.message); }
 app.use('/api', phaseCRoutes);               // Phase C: AI/Tournament/Hijack
 app.use('/api', phaseDRoutes);               // Phase D: Alliance/Replay/Mobile
 app.use('/api/jobs', jobsRoutes);            // Job System (mine/select/buffs)
