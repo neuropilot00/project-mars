@@ -1,5 +1,5 @@
 'use strict';
-const pool = require('../db');
+const { pool } = require('../db');
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 async function getSetting(key, fallback) {

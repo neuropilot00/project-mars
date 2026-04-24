@@ -5916,7 +5916,7 @@ router.get('/for-sale-territories', readLimiter, async (req, res) => {
       const auc = await pool.query(
         `SELECT c.id AS claim_id, c.owner, c.center_lat AS lat, c.center_lng AS lng,
                 c.width, c.height,
-                COALESCE(a.current_bid, a.start_price) AS price,
+                COALESCE(a.current_price, a.start_price) AS price,
                 a.currency, 'auction' AS sale_type, a.ends_at,
                 a.id AS auction_id,
                 u.nickname AS seller_nick

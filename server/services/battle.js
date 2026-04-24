@@ -14,7 +14,7 @@
  * settleExpiredBattles()              ← scheduler target (every 30s)
  */
 
-const pool = require('../db');
+const { pool } = require('../db');
 
 async function getSetting(key, fallback = null) {
   try {
