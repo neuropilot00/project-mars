@@ -1740,8 +1740,16 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
     };
     const status = errMap[err.message];
     if (status) return res.status(status).json({ error: err.message, meta: err.meta, required: err.required, balance: err.balance });
-    console.error('[API] hijack/declare-with-pp error:', err.message);
-    return res.status(500).json({ error: 'SERVER_ERROR' });
+    console.error('[API] hijack/declare-with-pp error:', err.message, '\nstack:', err.stack);
+    // 디버그용 — 클라이언트에 PG 에러 코드/메시지 노출 (운영 안정화 후 제거 예정)
+    return res.status(500).json({
+      error: 'SERVER_ERROR',
+      detail: err.message,
+      code: err.code || null,
+      table: err.table || null,
+      column: err.column || null,
+      constraint: err.constraint || null
+    });
   }
 });
 
