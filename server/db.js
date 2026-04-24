@@ -349,8 +349,24 @@ async function getSettings() {
 
 // ── Helper: get single setting ──
 async function getSetting(key, fallback) {
-  const res = await pool.query('SELECT value FROM settings WHERE key = $1', [key]);
-  return res.rows.length ? res.rows[0].value : fallback;
+  // JSONB value를 안전하게 text로 추출 (#>> '{}' 연산자)
+  // - JSONB string "200"  → "200" (따옴표 제거)
+  // - JSONB number 200    → "200"
+  // - JSONB boolean true  → "true"
+  // - JSONB object/array  → JSON 문자열
+  // - NULL value          → null (→ fallback)
+  // parseFloat/parseInt/String 비교 모두 안전하게 동작
+  try {
+    const res = await pool.query(`SELECT value #>> '{}' AS v FROM settings WHERE key = $1`, [key]);
+    if (!res.rows.length || res.rows[0].v === null) return fallback;
+    return res.rows[0].v;
+  } catch (_) {
+    // value 컬럼이 text인 구버전 DB 대응
+    try {
+      const res2 = await pool.query('SELECT value FROM settings WHERE key = $1', [key]);
+      return res2.rows.length ? res2.rows[0].value : fallback;
+    } catch (__) { return fallback; }
+  }
 }
 
 // ── Helper: get active events ──
