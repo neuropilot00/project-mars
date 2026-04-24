@@ -40271,11 +40271,11 @@ function fcEsc(str) {
 
 <!-- ═══ A-5: Battle Hub/Declare/Viewer HTML ═══ -->
 <!-- Battle Hub -->
-<div class="bh-modal-backdrop" id="battleHubModal">
+<div class="bh-modal-backdrop" id="battleHubModal" onclick="if(event.target===this)closeBattleHub()">
   <div class="bh-modal">
     <div class="bh-header">
       <div class="bh-title">⚔ FLEET BATTLES · 함대전</div>
-      <button class="shipyard-close" onclick="closeBattleHub()">✕</button>
+      <button onclick="closeBattleHub()" style="background:rgba(232,72,85,.15);border:1px solid rgba(232,72,85,.4);color:#ff8a80;padding:5px 14px;font-size:13px;border-radius:5px;cursor:pointer;font-weight:700">✕</button>
     </div>
     <div class="bh-tabs">
       <button class="bh-tab active" data-tab="active" onclick="bhSwitchTab('active')">🔴 LIVE</button>
