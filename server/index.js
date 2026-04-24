@@ -292,6 +292,7 @@ app.use('/api/betting', warBettingRoutes); // War Betting v2 (must be before bet
 app.use('/api', bettingRoutes);
 app.use('/api/auctions', require('./routes/auctionRoutes')); // M-090: 옥션 (must be before /api auctionRoutes)
 app.use('/api/territory', require('./routes/territoryRoutes')); // M-091: 영토 매매 비주얼
+app.use('/api/factions', require('./routes/factionRoutes')); // M-092: 파벌 시스템
 app.use('/api', auctionRoutes);
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
 app.use('/api', phaseCRoutes);               // Phase C: AI/Tournament/Hijack
