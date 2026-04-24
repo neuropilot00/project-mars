@@ -5573,9 +5573,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
             <div style="font-size:8px;color:var(--tx3);text-align:right" id="fcmdSummary">—</div>
           </div>
           <!-- Quick actions -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
             <button onclick="(typeof openShipyard==='function')&&openShipyard()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(79,195,247,.18),rgba(79,195,247,.04));border:1px solid rgba(79,195,247,.4);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_open_shipyard">🔨 SHIPYARD</button>
             <button onclick="(typeof openFleetManager==='function')&&openFleetManager()" style="padding:10px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(167,139,250,.04));border:1px solid rgba(167,139,250,.4);color:#a78bfa;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.4px" data-i18n="fcmd_my_fleets">⚔ MY FLEETS</button>
+          </div>
+          <!-- v11.1 Tactical Lab entry (full-width to highlight the new simulator) -->
+          <div style="margin-bottom:10px">
+            <button onclick="(typeof openTacticalLab==='function')&&openTacticalLab()" style="width:100%;padding:9px 8px;border-radius:7px;background:linear-gradient(135deg,rgba(206,147,216,.22),rgba(206,147,216,.04));border:1px solid rgba(206,147,216,.45);color:#ce93d8;font-family:var(--fn);font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:8px" data-i18n="fcmd_tactical_lab">🧪 TACTICAL LAB — FORMATION v11.1</button>
           </div>
           <!-- World Events (Void Raider) — Phase B -->
           <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:8px">
@@ -14636,6 +14640,10 @@ var I18N = {
     fcmd_sub: 'Fleets · Shipyard · Void Raider',
     fcmd_open_shipyard: '🔨 SHIPYARD',
     fcmd_my_fleets: '⚔ MY FLEETS',
+    fcmd_tactical_lab: '🧪 TACTICAL LAB — FORMATION v11.1',
+    tlab_title: '🧪 TACTICAL LAB',
+    tlab_sub: 'FORMATION / MANEUVER v11.1 — LIVE SIMULATION',
+    tlab_close: '✕ CLOSE',
     we_active_title: '⚠ ACTIVE WORLD EVENTS',
     we_none_active: 'No active events',
     we_engage: '⚔ ENGAGE',
@@ -15284,6 +15292,10 @@ var I18N = {
     fcmd_sub: '함대 · 조선소 · Void Raider',
     fcmd_open_shipyard: '🔨 조선소',
     fcmd_my_fleets: '⚔ 내 함대',
+    fcmd_tactical_lab: '🧪 전술 실험실 — 진형 v11.1',
+    tlab_title: '🧪 전술 실험실',
+    tlab_sub: '진형 / 기동 v11.1 — 실시간 시뮬레이션',
+    tlab_close: '✕ 닫기',
     we_active_title: '⚠ 진행 중인 월드 이벤트',
     we_none_active: '활성 이벤트가 없습니다',
     we_engage: '⚔ 참전',
@@ -15916,6 +15928,10 @@ var I18N = {
     fcmd_sub: 'フリート · 造船所 · Void Raider',
     fcmd_open_shipyard: '🔨 造船所',
     fcmd_my_fleets: '⚔ マイフリート',
+    fcmd_tactical_lab: '🧪 戦術ラボ — 陣形 v11.1',
+    tlab_title: '🧪 戦術ラボ',
+    tlab_sub: '陣形 / 機動 v11.1 — ライブシミュレーション',
+    tlab_close: '✕ 閉じる',
     we_active_title: '⚠ 進行中のワールドイベント',
     we_none_active: 'アクティブなイベントがありません',
     we_engage: '⚔ 参戦',
@@ -16548,6 +16564,10 @@ var I18N = {
     fcmd_sub: '舰队 · 造船厂 · Void Raider',
     fcmd_open_shipyard: '🔨 造船厂',
     fcmd_my_fleets: '⚔ 我的舰队',
+    fcmd_tactical_lab: '🧪 战术实验室 — 阵型 v11.1',
+    tlab_title: '🧪 战术实验室',
+    tlab_sub: '阵型 / 机动 v11.1 — 实时模拟',
+    tlab_close: '✕ 关闭',
     we_active_title: '⚠ 进行中的世界事件',
     we_none_active: '暂无活跃事件',
     we_engage: '⚔ 参战',
@@ -42834,6 +42854,65 @@ async function wbPlaceBet(eventId) {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Tactical Lab (v11.1 Formation/Maneuver Simulator)
+   — 참조 구현을 iframe으로 격리 로드해 v10 UI를 그대로 보존
+   ═══════════════════════════════════════════════════════════ */
+function openTacticalLab(){
+  var bd = document.getElementById('tacticalLabBackdrop');
+  if (!bd) return;
+  var frame = document.getElementById('tacticalLabFrame');
+  if (frame && !frame.src) {
+    // 지연 로드: 첫 오픈 시에만 iframe 초기화 → 메모리/CPU 절약
+    frame.src = 'assets/tactical-lab-v11.html';
+  }
+  bd.classList.add('active');
+}
+function closeTacticalLab(){
+  var bd = document.getElementById('tacticalLabBackdrop');
+  if (!bd) return;
+  bd.classList.remove('active');
+}
+// ESC로 닫기
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') {
+    var bd = document.getElementById('tacticalLabBackdrop');
+    if (bd && bd.classList.contains('active')) closeTacticalLab();
+  }
+});
+window.openTacticalLab = openTacticalLab;
+window.closeTacticalLab = closeTacticalLab;
+
 </script>
+
+<!-- Tactical Lab Modal (v11.1 Formation/Maneuver) ================================ -->
+<style>
+.tlab-backdrop{position:fixed;inset:0;background:rgba(3,4,11,.94);z-index:10500;display:none;align-items:stretch;justify-content:stretch;}
+.tlab-backdrop.active{display:flex;}
+.tlab-modal{width:100%;height:100%;display:flex;flex-direction:column;background:#03040b;}
+.tlab-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:linear-gradient(135deg,rgba(206,147,216,.16),rgba(79,195,247,.06));border-bottom:1px solid rgba(206,147,216,.25);flex-shrink:0;}
+.tlab-title{font-family:'Orbitron',var(--fn);font-size:13px;font-weight:900;letter-spacing:2.5px;color:#ce93d8;}
+.tlab-sub{font-size:8px;letter-spacing:2px;color:rgba(255,255,255,.35);margin-left:10px;}
+.tlab-close{background:rgba(239,83,80,.12);border:1px solid rgba(239,83,80,.45);color:#ef5350;font-family:var(--fn);font-size:11px;font-weight:800;padding:6px 14px;border-radius:6px;cursor:pointer;letter-spacing:1px;}
+.tlab-close:hover{background:rgba(239,83,80,.22);}
+.tlab-frame-wrap{flex:1;overflow:hidden;background:#03040b;}
+.tlab-frame{width:100%;height:100%;border:0;display:block;}
+</style>
+
+<div class="tlab-backdrop" id="tacticalLabBackdrop">
+  <div class="tlab-modal">
+    <div class="tlab-header">
+      <div>
+        <span class="tlab-title" data-i18n="tlab_title">🧪 TACTICAL LAB</span>
+        <span class="tlab-sub" data-i18n="tlab_sub">FORMATION / MANEUVER v11.1 — LIVE SIMULATION</span>
+      </div>
+      <button class="tlab-close" onclick="closeTacticalLab()" data-i18n="tlab_close">✕ CLOSE</button>
+    </div>
+    <div class="tlab-frame-wrap">
+      <iframe class="tlab-frame" id="tacticalLabFrame" title="Tactical Lab v11.1" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

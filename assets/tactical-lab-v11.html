@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCCUPY MARS — Coalition War v11.1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
+  min-height:100vh;padding:8px;overflow-x:hidden;}
+.wrap{width:100%;max-width:1100px;margin:0 auto;}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;padding:0 4px;}
+.hdr h1{font-family:'Orbitron',monospace;font-size:clamp(11px,1.9vw,16px);
+  font-weight:900;letter-spacing:4px;text-shadow:0 0 16px rgba(60,120,255,.35);}
+.hdr small{font-size:6px;letter-spacing:2px;color:rgba(255,255,255,.12);}
+
+#c{display:block;width:100%;background:#03040b;
+  border:1px solid rgba(60,100,255,.1);}
+
+.bui{display:grid;grid-template-columns:1fr auto 1fr;
+  background:#05060e;border:1px solid rgba(60,100,255,.08);
+  border-top:none;padding:6px 12px;gap:4px;align-items:center;}
+.team{display:flex;flex-direction:column;gap:3px;}
+.team.r{align-items:flex-end;}
+.tn{font-family:'Orbitron',monospace;font-size:8px;font-weight:700;letter-spacing:2px;}
+.tn.a{color:#4fc3f7;}.tn.d{color:#ef5350;}
+.tfl{font-size:6px;color:rgba(255,255,255,.2);letter-spacing:1px;}
+.hr{display:flex;align-items:center;gap:4px;}
+.hl{font-size:6px;color:rgba(255,255,255,.14);}
+.hb{height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;width:160px;}
+.hf{height:100%;border-radius:3px;transition:width 1.5s;}
+.hf.a{background:linear-gradient(90deg,#29b6f6,#0277bd);}
+.hf.d{background:linear-gradient(90deg,#ef5350,#b71c1c);}
+.cp{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 12px;}
+.vs{font-family:'Orbitron',monospace;font-size:12px;font-weight:900;
+  color:#ff6d00;text-shadow:0 0 8px rgba(255,109,0,.6);letter-spacing:3px;}
+.tmr{font-family:'Orbitron',monospace;font-size:14px;color:#ff6d00;letter-spacing:2px;}
+.tinfo{font-size:5px;letter-spacing:2px;color:rgba(255,255,255,.1);}
+
+.blog{background:#03040a;border:1px solid rgba(60,100,255,.06);
+  border-top:none;height:56px;overflow:hidden;padding:4px 12px;}
+.bl{font-size:7px;letter-spacing:1px;line-height:1.95;color:rgba(255,255,255,.2);}
+.bl.ev{color:rgba(100,190,255,.65);}.bl.kl{color:rgba(239,83,80,.75);}
+.bl.wn{color:rgba(255,180,40,.8);}.bl.tc{color:rgba(100,255,150,.7);}
+.bl.fm{color:rgba(206,147,216,.75);}
+
+.ctrl{display:flex;align-items:center;gap:4px;flex-wrap:wrap;
+  background:#05060e;border:1px solid rgba(60,100,255,.08);border-top:none;padding:6px 12px;}
+.clbl{font-size:5px;letter-spacing:2px;color:rgba(255,255,255,.15);flex-shrink:0;}
+.cb{background:rgba(79,195,247,.06);border:1px solid rgba(79,195,247,.18);
+  color:#4fc3f7;font-family:'Share Tech Mono',monospace;
+  font-size:7px;letter-spacing:1px;padding:3px 8px;cursor:pointer;}
+.cb:hover{background:rgba(79,195,247,.15);}
+.cb.y{border-color:rgba(255,213,79,.28);color:#ffd54f;background:rgba(255,213,79,.04);}
+.cb.r{border-color:rgba(239,83,80,.28);color:#ef5350;background:rgba(239,83,80,.04);}
+.cb.g{border-color:rgba(102,187,106,.28);color:#66bb6a;background:rgba(102,187,106,.04);}
+.cb.p{border-color:rgba(206,147,216,.28);color:#ce93d8;background:rgba(206,147,216,.04);}
+.sep{width:1px;height:16px;background:rgba(255,255,255,.06);}
+
+/* 하단 정보 토글 패널 */
+.info-toggles{display:flex;gap:0;background:#05060e;
+  border:1px solid rgba(60,100,255,.08);border-top:none;}
+.itog{flex:1;background:transparent;border:none;border-right:1px solid rgba(60,100,255,.08);
+  color:rgba(255,255,255,.4);font-family:'Share Tech Mono',monospace;font-size:8px;
+  letter-spacing:2px;padding:10px 12px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;}
+.itog:last-child{border-right:none;}
+.itog:hover{background:rgba(79,195,247,.05);color:#4fc3f7;}
+.itog.on{background:rgba(79,195,247,.1);color:#4fc3f7;border-top:1px solid #4fc3f7;}
+.itog .arr{font-size:9px;transition:transform .2s;opacity:.5;}
+.itog.on .arr{transform:rotate(180deg);opacity:1;}
+
+.info-panel{background:#05060e;border:1px solid rgba(60,100,255,.08);
+  border-top:none;padding:14px;display:none;max-height:65vh;overflow-y:auto;}
+.info-panel.on{display:block;}
+
+/* Ship Registry */
+.faction-header{display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
+.faction-tab{padding:5px 12px;font-family:'Orbitron',monospace;font-size:8px;
+  letter-spacing:2px;cursor:pointer;border:1px solid;background:transparent;
+  color:inherit;transition:all .15s;}
+.faction-tab.mcc{border-color:rgba(79,195,247,.35);color:#4fc3f7;}
+.faction-tab.mcc.on{background:rgba(79,195,247,.15);}
+.faction-tab.fsp{border-color:rgba(129,199,132,.35);color:#81c784;}
+.faction-tab.fsp.on{background:rgba(129,199,132,.15);}
+.faction-tab.cv{border-color:rgba(239,83,80,.35);color:#ef5350;}
+.faction-tab.cv.on{background:rgba(239,83,80,.15);}
+.faction-desc{font-size:6px;letter-spacing:1.5px;color:rgba(255,255,255,.3);margin-left:auto;}
+
+.ship-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
+.ship-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);
+  padding:9px;transition:all .15s;}
+.ship-card:hover{background:rgba(255,255,255,.04);}
+.ship-card.mcc{border-left:2px solid rgba(79,195,247,.5);}
+.ship-card.fsp{border-left:2px solid rgba(129,199,132,.5);}
+.ship-card.cv{border-left:2px solid rgba(239,83,80,.5);}
+.ship-card canvas{display:block;margin:0 auto 6px;background:#02030a;}
+.ship-card .sname{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;
+  letter-spacing:2px;margin-bottom:2px;}
+.ship-card .scls{font-size:7px;letter-spacing:1.5px;color:rgba(255,255,255,.4);margin-bottom:5px;}
+.ship-card .srole{display:inline-block;font-size:6px;letter-spacing:1px;
+  padding:1px 5px;border:1px solid rgba(255,255,255,.1);margin-bottom:5px;}
+.ship-card .srole.dps{border-color:rgba(239,83,80,.3);color:#ef9a9a;}
+.ship-card .srole.tank{border-color:rgba(79,195,247,.3);color:#4fc3f7;}
+.ship-card .srole.ewar{border-color:rgba(206,147,216,.3);color:#ce93d8;}
+.ship-card .srole.logi{border-color:rgba(129,199,132,.3);color:#a5d6a7;}
+.ship-card .srole.tackle{border-color:rgba(255,180,77,.3);color:#ffb74d;}
+.ship-card .stats{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:7px;}
+.ship-card .stat-row{display:flex;justify-content:space-between;color:rgba(255,255,255,.5);}
+.ship-card .stat-row span:last-child{color:rgba(255,255,255,.8);}
+.ship-card .recipe{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.05);
+  font-size:6px;letter-spacing:.5px;color:rgba(255,255,255,.35);line-height:1.6;}
+.ship-card .recipe em{color:#ff8f00;font-style:normal;font-weight:700;}
+
+/* Minerals */
+.min-section{margin-bottom:16px;}
+.min-title{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:3px;
+  color:rgba(255,255,255,.5);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.min-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.05);}
+.min-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;}
+.min-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);
+  padding:8px;display:flex;gap:8px;align-items:center;}
+.min-icon{font-size:16px;}
+.min-info{flex:1;}
+.min-name{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:2px;}
+.min-desc{font-size:6px;letter-spacing:.5px;color:rgba(255,255,255,.35);}
+.min-src{font-size:6px;letter-spacing:1px;color:rgba(255,180,77,.6);margin-top:2px;}
+
+/* Analysis */
+.a-section{margin-bottom:14px;}
+.a-title{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:3px;
+  color:rgba(255,255,255,.5);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.a-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.05);}
+.doctrine-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px;}
+.doctrine{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);padding:9px;}
+.doctrine h4{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;
+  margin-bottom:5px;color:#ffb74d;}
+.doctrine p{font-size:7px;letter-spacing:.5px;color:rgba(255,255,255,.5);line-height:1.7;}
+.doctrine .comp{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px;}
+.comp-tag{font-size:6px;padding:1px 5px;border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.5);letter-spacing:.5px;}
+
+/* Fleet Status */
+.fs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;}
+.fs-fleet{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);padding:8px;}
+.fs-fleet.atk{border-left:2px solid rgba(79,195,247,.4);}
+.fs-fleet.def{border-left:2px solid rgba(239,83,80,.4);}
+.fs-fname{font-family:'Orbitron',monospace;font-size:8px;font-weight:700;letter-spacing:2px;margin-bottom:4px;}
+.fs-fname.a{color:#4fc3f7;}.fs-fname.d{color:#ef9a9a;}
+.fs-hp{height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;margin-bottom:4px;}
+.fs-hpf{height:100%;transition:width 1s;}
+.fs-hpf.a{background:linear-gradient(90deg,#4fc3f7,#0288d1);}
+.fs-hpf.d{background:linear-gradient(90deg,#ef5350,#b71c1c);}
+.fs-meta{font-size:6px;color:rgba(255,255,255,.3);margin-bottom:4px;letter-spacing:1px;}
+.fs-ships{display:flex;flex-wrap:wrap;gap:2px;}
+.fs-ship{font-size:5px;letter-spacing:.5px;padding:1px 4px;
+  border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35);}
+.fs-ship.cap{border-color:rgba(255,180,40,.3);color:rgba(255,180,40,.7);}
+.fs-ship.dead{opacity:.25;text-decoration:line-through;}
+.fs-dead{opacity:.35;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <h1>OCCUPY MARS — FLEET WAR v11.1</h1>
+  <small>// FORMATION + MANEUVER · REAL TACTICAL LAYOUTS //</small>
+</div>
+
+<canvas id="c" width="1080" height="460"></canvas>
+
+<div class="bui">
+  <div class="team"><div class="tn a">ATK COALITION</div><div class="tfl" id="ai">—</div>
+    <div class="hr"><div class="hl">HP</div><div class="hb"><div class="hf a" id="ah" style="width:100%"></div></div></div></div>
+  <div class="cp"><div class="vs">VS</div><div class="tmr" id="tm">00:00</div><div class="tinfo">TURN <span id="tn">0</span></div></div>
+  <div class="team r"><div class="tn d">DEF COALITION</div><div class="tfl" id="di">—</div>
+    <div class="hr"><div class="hb"><div class="hf d" id="dh" style="width:100%"></div></div><div class="hl">HP</div></div></div>
+</div>
+
+<div class="blog" id="blog"></div>
+
+<!-- 컨트롤 (v10 유지 + Formation/Maneuver 추가) -->
+<div class="ctrl">
+  <span class="clbl">REINFORCE</span>
+  <button class="cb" onclick="reinforce('mcc_int',10)">⚡ MCC ×10</button>
+  <button class="cb" onclick="reinforce('fsp_int',10)">⚡ FSP ×10</button>
+  <button class="cb" onclick="reinforce('mcc_crs',1)">+ Cruiser</button>
+  <div class="sep"></div>
+  <span class="clbl">CMD</span>
+  <button class="cb y" onclick="cmdFocus()">⚡ 집중공격</button>
+  <button class="cb y" onclick="cmdEMP()">💥 EMP</button>
+  <button class="cb r" onclick="initBattle()">↺ 재시작</button>
+</div>
+
+<!-- v11.1 신규: Formation/Maneuver 전용 라인 -->
+<div class="ctrl">
+  <span class="clbl">FORMATION</span>
+  <button class="cb p" onclick="cmdFormation('sphere')">⬢ Sphere</button>
+  <button class="cb p" onclick="cmdFormation('wedge')">▶ Wedge</button>
+  <button class="cb p" onclick="cmdFormation('screen')">▬ Screen</button>
+  <button class="cb p" onclick="cmdFormation('pincer')">◀▶ Pincer</button>
+  <div class="sep"></div>
+  <span class="clbl">MANEUVER</span>
+  <button class="cb g" onclick="cmdManeuver('advance')">→ Advance</button>
+  <button class="cb g" onclick="cmdManeuver('flank')">↗ Flank</button>
+</div>
+
+<!-- 하단 토글 패널 (v10 그대로) -->
+<div class="info-toggles">
+  <button class="itog" onclick="togglePanel('fleet',this)">📊 FLEET STATUS <span class="arr">▲</span></button>
+  <button class="itog" onclick="togglePanel('registry',this)">🚀 SHIP REGISTRY <span class="arr">▲</span></button>
+  <button class="itog" onclick="togglePanel('minerals',this)">💎 MINERALS <span class="arr">▲</span></button>
+  <button class="itog" onclick="togglePanel('analysis',this)">📈 DOCTRINES <span class="arr">▲</span></button>
+</div>
+
+<div class="info-panel" id="panel-fleet">
+  <div class="a-section">
+    <div class="a-title">// FLEET STATUS — 실시간 함대 현황</div>
+    <div class="fs-grid" id="fs-grid"></div>
+  </div>
+</div>
+
+<div class="info-panel" id="panel-registry">
+  <div class="faction-header">
+    <span style="font-size:6px;letter-spacing:2px;color:rgba(255,255,255,.3)">FACTION:</span>
+    <button class="faction-tab mcc on" onclick="showFaction('mcc',this)">⬢ MCC</button>
+    <button class="faction-tab fsp" onclick="showFaction('fsp',this)">◉ FSP</button>
+    <button class="faction-tab cv" onclick="showFaction('cv',this)">▲ CV</button>
+    <span class="faction-desc" id="faction-desc"></span>
+  </div>
+  <div class="ship-grid" id="ship-grid"></div>
+</div>
+
+<div class="info-panel" id="panel-minerals">
+  <div id="minerals-content"></div>
+</div>
+
+<div class="info-panel" id="panel-analysis">
+  <div class="a-section">
+    <div class="a-title">// FLEET DOCTRINES</div>
+    <div class="doctrine-grid" id="doctrines"></div>
+  </div>
+  <div class="a-section">
+    <div class="a-title">// FACTION COMPARISON</div>
+    <div id="faction-compare"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════
+   광물
+   ═══════════════════════════════════════════════════════════ */
+const MINERALS = {
+  iron_dust:{ko:'철 먼지',en:'Iron Dust',icon:'🟤',color:'#795548',tier:0,src:'모든 섹터 · 흔함'},
+  red_sand:{ko:'붉은 모래',en:'Red Sand',icon:'🔴',color:'#e57373',tier:0,src:'모든 섹터 · 흔함'},
+  silicate:{ko:'규산염',en:'Silicate',icon:'⚪',color:'#cfd8dc',tier:0,src:'모든 섹터 · 흔함'},
+  ice_crystal:{ko:'얼음 결정',en:'Ice Crystal',icon:'🔵',color:'#4fc3f7',tier:1,src:'극지 섹터 · Mid Freq'},
+  volcanic_shard:{ko:'화산 파편',en:'Volcanic Shard',icon:'🌋',color:'#ff6d00',tier:1,src:'화산 섹터 · Mid Freq'},
+  rare_metal:{ko:'희귀 금속',en:'Rare Metal',icon:'⚙️',color:'#9575cd',tier:1,src:'Mid Sector · Low'},
+  ancient_metal:{ko:'고대 금속',en:'Ancient Metal',icon:'⭐',color:'#ffd700',tier:2,src:'Frontier · Very Rare'},
+  meteorite_frag:{ko:'운석 파편',en:'Meteorite Frag.',icon:'☄️',color:'#b39ddb',tier:2,src:'유성우 이벤트'},
+  xenomatter:{ko:'외계 물질',en:'Xenomatter',icon:'💠',color:'#00e5ff',tier:2,src:'외계 함선 격파'},
+  hull_plate:{ko:'장갑판',en:'Hull Plate',icon:'▣',color:'#607d8b',tier:3,src:'제작: iron_dust×50 + silicate×20'},
+  plasma_coil:{ko:'플라즈마 코일',en:'Plasma Coil',icon:'⚡',color:'#ff6d00',tier:3,src:'제작: volcanic_shard×10 + rare_metal×3'},
+  alloy_frame:{ko:'합금 프레임',en:'Alloy Frame',icon:'⬢',color:'#29b6f6',tier:3,src:'제작: iron_dust×80 + ice_crystal×15 + rare_metal×2'},
+};
+
+/* ═══════════════════════════════════════════════════════════
+   파벌
+   ═══════════════════════════════════════════════════════════ */
+const FACTIONS = {
+  mcc:{name:'MCC',full:'Mars Corporate Consortium',desc:'기업 연합 · 기하학적 디자인 · 레일건 특화',
+    color:'#4fc3f7',colorDark:'#0277bd',colorBright:'#81d4fa',
+    specialty:'장거리 포격 · 정확도 높은 레일건',namingScheme:'금속성 명칭'},
+  fsp:{name:'FSP',full:'Free Settlers Pact',desc:'자유 정착자 · 유기적 곡선 · 드론/로지 특화',
+    color:'#81c784',colorDark:'#388e3c',colorBright:'#a5d6a7',
+    specialty:'드론 운영 · 방어막 · 로지스틱',namingScheme:'자연 명칭'},
+  cv:{name:'CV',full:'Crimson Verdict',desc:'해적 연합 · 조립식 녹슨 외형 · 돌격 특화',
+    color:'#ef5350',colorDark:'#b71c1c',colorBright:'#ff8a80',
+    specialty:'근접 전투 · 빠른 속도 · 탄막 화력',namingScheme:'폭력적 명칭'},
+};
+
+/* ═══════════════════════════════════════════════════════════
+   함선 20종 (v10 완전 동일)
+   ═══════════════════════════════════════════════════════════ */
+const SHIPS = {
+  mcc_int:{faction:'mcc',size:'frigate',role:'tackle',tier:1,name:'Prism',cls:'Interceptor · T1',r:1.8,hp:3000,atk:6,def:3,spd:2.4,fireInt:110,fireType:'bullet',shots:1,desc:'고속 정찰·태클',recipe:{iron_dust:30,silicate:10,plasma_coil:1},buildTime:'10분'},
+  mcc_frg:{faction:'mcc',size:'frigate',role:'dps',tier:1,name:'Shard',cls:'Frigate · T1',r:2.5,hp:6000,atk:14,def:7,spd:1.8,fireInt:130,fireType:'bullet',shots:2,desc:'범용 DPS',recipe:{iron_dust:50,red_sand:20,plasma_coil:2},buildTime:'25분'},
+  mcc_ewar:{faction:'mcc',size:'frigate',role:'ewar',tier:2,name:'Jammer',cls:'EW Frigate · T2',r:2.4,hp:4500,atk:5,def:6,spd:1.7,fireInt:180,fireType:'ew',shots:1,desc:'적 사격 방해',recipe:{iron_dust:80,ice_crystal:10,plasma_coil:3,alloy_frame:1},buildTime:'1시간'},
+  mcc_dst:{faction:'mcc',size:'destroyer',role:'dps',tier:1,name:'Vector',cls:'Destroyer · T1',r:3.6,hp:14000,atk:32,def:15,spd:1.2,fireInt:145,fireType:'bullet',shots:3,desc:'프리깃 사냥',recipe:{iron_dust:140,silicate:50,hull_plate:3,plasma_coil:4},buildTime:'2시간'},
+  mcc_crs:{faction:'mcc',size:'cruiser',role:'dps',tier:1,name:'Obelisk',cls:'Cruiser · T1',r:5.0,hp:28000,atk:65,def:38,spd:0.8,fireInt:180,fireType:'mixed',shots:2,desc:'중거리 레일건',recipe:{iron_dust:400,silicate:150,hull_plate:8,plasma_coil:12,alloy_frame:4},buildTime:'6시간'},
+  mcc_snp:{faction:'mcc',size:'cruiser',role:'dps',tier:2,name:'Longeye',cls:'Sniper · T2',r:4.8,hp:24000,atk:105,def:30,spd:0.7,fireInt:260,fireType:'laser',shots:1,desc:'장거리 저격',recipe:{iron_dust:600,rare_metal:20,hull_plate:10,plasma_coil:18,alloy_frame:8,volcanic_shard:15},buildTime:'18시간'},
+  mcc_bs:{faction:'mcc',size:'battleship',role:'dps',tier:1,name:'Tessellate',cls:'Battleship · T1',r:8.5,hp:170000,atk:290,def:200,spd:0.3,fireInt:300,fireType:'laser',shots:1,desc:'주력 포격 전함',recipe:{iron_dust:3000,silicate:1200,hull_plate:50,plasma_coil:80,alloy_frame:40,rare_metal:30,ancient_metal:5},buildTime:'48시간'},
+  mcc_titan:{faction:'mcc',size:'titan',role:'dps',tier:2,name:'Prometheus',cls:'Titan · ⚠ MAX 3',r:13.0,hp:1000000,atk:700,def:500,spd:0.15,fireInt:450,fireType:'laser',shots:1,desc:'MCC 사령함',recipe:{iron_dust:20000,rare_metal:500,hull_plate:350,plasma_coil:700,alloy_frame:250,ancient_metal:120,meteorite_frag:35,xenomatter:6},buildTime:'72시간'},
+  fsp_int:{faction:'fsp',size:'frigate',role:'dps',tier:1,name:'Sprite',cls:'Light Frigate · T1',r:2.0,hp:4000,atk:9,def:4,spd:2.2,fireInt:115,fireType:'bullet',shots:2,desc:'드론 발사대 경량',recipe:{iron_dust:40,silicate:15,plasma_coil:2},buildTime:'20분'},
+  fsp_logi:{faction:'fsp',size:'frigate',role:'logi',tier:2,name:'Verdant',cls:'Logi Frigate · T2',r:2.5,hp:5000,atk:2,def:10,spd:1.6,fireInt:160,fireType:'repair',shots:1,desc:'아군 HP 회복',recipe:{iron_dust:60,ice_crystal:15,plasma_coil:2,alloy_frame:2},buildTime:'1시간'},
+  fsp_dst:{faction:'fsp',size:'destroyer',role:'tank',tier:1,name:'Bulwark',cls:'Armored Dst · T1',r:3.8,hp:22000,atk:26,def:30,spd:1.0,fireInt:160,fireType:'bullet',shots:2,desc:'중장갑 구축함',recipe:{iron_dust:180,red_sand:80,hull_plate:5,plasma_coil:3},buildTime:'3시간'},
+  fsp_crs:{faction:'fsp',size:'cruiser',role:'dps',tier:1,name:'Grove',cls:'Drone Cruiser · T1',r:5.0,hp:26000,atk:55,def:45,spd:0.7,fireInt:200,fireType:'mixed',shots:1,desc:'드론 운용',recipe:{iron_dust:500,silicate:200,hull_plate:10,plasma_coil:8,alloy_frame:6},buildTime:'6시간'},
+  fsp_logi_crs:{faction:'fsp',size:'cruiser',role:'logi',tier:2,name:'Nova',cls:'Logi Cruiser · T2',r:4.8,hp:22000,atk:5,def:60,spd:0.7,fireInt:140,fireType:'repair',shots:1,desc:'범위 회복',recipe:{iron_dust:700,ice_crystal:40,hull_plate:14,plasma_coil:6,alloy_frame:10,rare_metal:25},buildTime:'20시간'},
+  fsp_bs:{faction:'fsp',size:'battleship',role:'tank',tier:1,name:'Sequoia',cls:'Battleship · T1',r:8.8,hp:210000,atk:230,def:280,spd:0.25,fireInt:340,fireType:'mixed',shots:2,desc:'초중장갑 전함',recipe:{iron_dust:3500,red_sand:1500,hull_plate:65,plasma_coil:60,alloy_frame:55,ice_crystal:80,ancient_metal:4},buildTime:'52시간'},
+  fsp_titan:{faction:'fsp',size:'titan',role:'tank',tier:2,name:'Gaia',cls:'Titan · ⚠ MAX 3',r:13.5,hp:1150000,atk:550,def:700,spd:0.14,fireInt:480,fireType:'laser',shots:1,desc:'FSP 요새 타이탄',recipe:{iron_dust:22000,ice_crystal:600,hull_plate:400,plasma_coil:600,alloy_frame:280,ancient_metal:130,meteorite_frag:30,xenomatter:7},buildTime:'78시간'},
+  cv_int:{faction:'cv',size:'frigate',role:'tackle',tier:1,name:'Slasher',cls:'Fast Attack · T1',r:1.7,hp:2500,atk:11,def:2,spd:2.8,fireInt:90,fireType:'bullet',shots:2,desc:'최속 탄막 프리깃',recipe:{iron_dust:25,red_sand:10,plasma_coil:1},buildTime:'12분'},
+  cv_frg:{faction:'cv',size:'frigate',role:'dps',tier:1,name:'Jagged',cls:'Frigate · T1',r:2.4,hp:5000,atk:18,def:5,spd:1.9,fireInt:110,fireType:'bullet',shots:3,desc:'근접전 특화',recipe:{iron_dust:45,red_sand:25,plasma_coil:2},buildTime:'22분'},
+  cv_bomb:{faction:'cv',size:'frigate',role:'dps',tier:2,name:'Reaper',cls:'Stealth Bomber · T2',r:2.1,hp:3500,atk:160,def:3,spd:1.7,fireInt:550,fireType:'bullet',shots:1,desc:'은신 폭격기',recipe:{iron_dust:100,volcanic_shard:20,plasma_coil:4,alloy_frame:2,rare_metal:8},buildTime:'2시간'},
+  cv_dst:{faction:'cv',size:'destroyer',role:'dps',tier:1,name:'Butcher',cls:'Assault Dst · T1',r:3.5,hp:11000,atk:45,def:12,spd:1.3,fireInt:125,fireType:'bullet',shots:4,desc:'고DPS 돌격',recipe:{iron_dust:160,volcanic_shard:25,hull_plate:4,plasma_coil:5},buildTime:'2.5시간'},
+  cv_crs:{faction:'cv',size:'cruiser',role:'dps',tier:1,name:'Mauler',cls:'Missile Crs · T1',r:4.7,hp:24000,atk:80,def:35,spd:0.8,fireInt:220,fireType:'bullet',shots:1,desc:'중거리 미사일',recipe:{iron_dust:450,volcanic_shard:60,hull_plate:8,plasma_coil:14,alloy_frame:5},buildTime:'5시간'},
+  cv_bs:{faction:'cv',size:'battleship',role:'dps',tier:1,name:'Ironclad',cls:'Battleship · T1',r:8.5,hp:155000,atk:350,def:180,spd:0.35,fireInt:280,fireType:'laser',shots:1,desc:'고화력 중거리',recipe:{iron_dust:2800,volcanic_shard:400,hull_plate:55,plasma_coil:95,alloy_frame:38,rare_metal:25,meteorite_frag:3},buildTime:'44시간'},
+  cv_titan:{faction:'cv',size:'titan',role:'dps',tier:2,name:'Carnage',cls:'Titan · ⚠ MAX 3',r:13.0,hp:1100000,atk:800,def:480,spd:0.16,fireInt:440,fireType:'laser',shots:1,desc:'서버 최강 타이탄',recipe:{iron_dust:25000,volcanic_shard:3000,hull_plate:400,plasma_coil:800,alloy_frame:300,ancient_metal:150,meteorite_frag:40,xenomatter:8},buildTime:'72시간'},
+};
+
+/* ═══════════════════════════════════════════════════════════
+   함대 편성 (v10 그대로)
+   ═══════════════════════════════════════════════════════════ */
+const ATK_FLEETS=[
+  {id:'KimWarrior',tag:'MCC',flagship:'mcc_titan',escort:{mcc_bs:2,mcc_snp:3,mcc_crs:5,mcc_dst:10,mcc_ewar:3,mcc_frg:18,mcc_int:35}},
+  {id:'RebelKing',tag:'MCC',flagship:'mcc_bs',escort:{mcc_crs:3,mcc_snp:2,mcc_dst:8,mcc_ewar:2,mcc_frg:14,mcc_int:28}},
+  {id:'NovaStrike',tag:'FSP',flagship:'fsp_bs',escort:{fsp_logi_crs:2,fsp_crs:4,fsp_dst:8,fsp_logi:5,fsp_int:20}},
+  {id:'DarkPilot',tag:'MCC',flagship:'mcc_crs',escort:{mcc_dst:3,mcc_frg:8,mcc_ewar:2,mcc_int:16}},
+  {id:'SpeedDemon',tag:'FSP',flagship:'fsp_dst',escort:{fsp_logi:2,fsp_int:12}},
+];
+const DEF_FLEETS=[
+  {id:'FSP_Guard',tag:'FSP',flagship:'fsp_titan',escort:{fsp_bs:2,fsp_logi_crs:3,fsp_crs:6,fsp_dst:12,fsp_logi:6,fsp_int:32}},
+  {id:'IronWall',tag:'CV',flagship:'cv_bs',escort:{cv_crs:4,cv_dst:8,cv_bomb:3,cv_frg:14,cv_int:28}},
+  {id:'VoidHunter',tag:'CV',flagship:'cv_titan',escort:{cv_bs:1,cv_crs:3,cv_dst:6,cv_bomb:4,cv_frg:12,cv_int:24}},
+  {id:'StealthOps',tag:'CV',flagship:'cv_dst',escort:{cv_bomb:2,cv_frg:6,cv_int:14}},
+  {id:'QuickStrike',tag:'FSP',flagship:'fsp_int',escort:{fsp_logi:1,fsp_int:10}},
+];
+
+/* ═══════════════════════════════════════════════════════════
+   Formation + Maneuver
+   ═══════════════════════════════════════════════════════════ */
+const FORMATIONS={
+  sphere:{name:'Sphere',icon:'⬢',color:'#ce93d8'},
+  wedge:{name:'Wedge',icon:'▶',color:'#ffb74d'},
+  screen:{name:'Screen',icon:'▬',color:'#4fc3f7'},
+  pincer:{name:'Pincer',icon:'◀▶',color:'#f06292'},
+};
+const MANEUVERS={
+  advance:{name:'Advance',icon:'→',spdMult:1.0,atkMult:1.0},
+  flank:{name:'Flank',icon:'↗',spdMult:1.3,atkMult:0.9},
+  retreat:{name:'Retreat',icon:'←',spdMult:1.5,atkMult:0.6},
+  scatter:{name:'Scatter',icon:'✦',spdMult:1.8,atkMult:0.5},
+  rally:{name:'Rally',icon:'◉',spdMult:0.6,atkMult:0.9},
+};
+
+function isSmall(sh){return sh.type.size==='frigate'||sh.type.size==='destroyer';}
+
+function assignFormationSlots(fleet){
+  const alive=fleet.ships.filter(s=>!s.dead&&!s.isFlagship);
+  const radius=fleet.radius;
+  const formation=fleet.formation;
+  alive.forEach((sh,i)=>{
+    const n=alive.length||1;
+    sh.slotAngle=(i/n)*Math.PI*2;
+    sh.slotDist=(0.3+((i*0.381)%1)*0.7)*(radius-15)+15;
+
+    if(formation==='sphere'){/* 기본 */}
+    else if(formation==='wedge'){
+      if(isSmall(sh)){
+        const t=((i*0.618)%1);
+        sh.slotAngle=(t-0.5)*Math.PI*2/3;
+        sh.slotDist=(0.7+(i%3)*0.1)*(radius-10);
+      } else {
+        const t=((i*0.618)%1);
+        sh.slotAngle=Math.PI+(t-0.5)*Math.PI*2/3;
+        sh.slotDist=(0.3+(i%3)*0.1)*(radius-10);
+      }
+    }
+    else if(formation==='screen'){
+      if(isSmall(sh)){
+        const smalls=alive.filter(isSmall);
+        const idx=smalls.indexOf(sh);
+        const sn=smalls.length;
+        const yOff=((idx+0.5)/sn-0.5)*(radius*1.6);
+        const xOff=(radius*0.85)+((idx%2)*6);
+        sh.slotAngle=Math.atan2(yOff,xOff);
+        sh.slotDist=Math.hypot(xOff,yOff);
+      } else {
+        const larges=alive.filter(s=>!isSmall(s));
+        const idx=larges.indexOf(sh);
+        const ln=larges.length||1;
+        const yOff=((idx+0.5)/ln-0.5)*(radius*1.2);
+        const xOff=-(radius*0.4);
+        sh.slotAngle=Math.atan2(yOff,xOff);
+        sh.slotDist=Math.hypot(xOff,yOff);
+      }
+    }
+    else if(formation==='pincer'){
+      const wing=i%2===0?-1:1;
+      sh.pincerWing=wing;
+      const t=((i*0.618)%1);
+      const wingCenter=wing*Math.PI*0.35;
+      sh.slotAngle=wingCenter+(t-0.5)*Math.PI*0.4;
+      sh.slotDist=(0.5+(i%4)*0.12)*(radius-10);
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   전투 엔진
+   ═══════════════════════════════════════════════════════════ */
+const CVs=document.getElementById('c'),CX=CVs.getContext('2d');
+const W=CVs.width,H=CVs.height;
+let fleets=[],ships=[],bullets=[],lasers=[],exps=[],shockwaves=[],repairBeams=[];
+let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
+let btMs=0,turn=0,empMs=0,focusFleet=null;
+
+function initBattle(){
+  fleets=[];ships=[];bullets=[];lasers=[];exps=[];shockwaves=[];repairBeams=[];
+  const atkPos=[{cx:W*.11,cy:H*.15},{cx:W*.09,cy:H*.38},{cx:W*.14,cy:H*.60},{cx:W*.20,cy:H*.82},{cx:W*.18,cy:H*.28}];
+  const defPos=[{cx:W*.89,cy:H*.15},{cx:W*.91,cy:H*.38},{cx:W*.86,cy:H*.60},{cx:W*.80,cy:H*.82},{cx:W*.82,cy:H*.28}];
+  ATK_FLEETS.forEach((u,i)=>fleets.push(mkFleet(u,'atk',atkPos[i].cx,atkPos[i].cy)));
+  DEF_FLEETS.forEach((u,i)=>fleets.push(mkFleet(u,'def',defPos[i].cx,defPos[i].cy)));
+  atkMaxHP=fleets.filter(f=>f.side==='atk').reduce((a,f)=>a+f.maxHp,0);
+  defMaxHP=fleets.filter(f=>f.side==='def').reduce((a,f)=>a+f.maxHp,0);
+  atkHP=atkMaxHP;defHP=defMaxHP;
+  btMs=0;turn=0;empMs=0;focusFleet=null;
+  fleets.forEach(f=>assignFormationSlots(f));
+  const ac=ships.filter(s=>s.side==='atk').length;
+  const dc=ships.filter(s=>s.side==='def').length;
+  addLog('ev',`▶ v11.1 COALITION WAR — ATK ${ac}척 vs DEF ${dc}척`);
+}
+
+function mkFleet(def,side,cx,cy){
+  const total=Object.values(def.escort).reduce((a,b)=>a+b,0);
+  const radius=Math.max(50,Math.sqrt(total)*4.8+25);
+  const f={userId:def.id,tag:def.tag,side,cx,cy,vcx:0,vcy:0,
+    flagship:null,ships:[],hp:0,maxHp:0,dead:false,radius,
+    facingAngle:side==='atk'?0:Math.PI,
+    formation:'sphere',maneuver:'advance',
+    laserHitCount:0,laserHitTimer:0,rallyCooldown:0};
+  const fs=mkShip(def.flagship,side,cx,cy,f,true);
+  f.flagship=fs;f.ships.push(fs);ships.push(fs);
+  Object.entries(def.escort).forEach(([tid,cnt])=>{
+    for(let i=0;i<cnt;i++){
+      const a=Math.random()*Math.PI*2;
+      const d=15+Math.random()*(radius-15);
+      const s=mkShip(tid,side,cx+Math.cos(a)*d,cy+Math.sin(a)*d,f,false);
+      f.ships.push(s);ships.push(s);
+    }
+  });
+  f.maxHp=f.ships.reduce((a,s)=>a+s.maxHp,0);
+  f.hp=f.maxHp;
+  return f;
+}
+
+function mkShip(tid,side,x,y,fleet,isFlagship){
+  const t=SHIPS[tid]||SHIPS.mcc_int;
+  return {tid,type:t,side,fleet,x,y,
+    slotAngle:Math.atan2(y-fleet.cy,x-fleet.cx),
+    slotDist:Math.hypot(x-fleet.cx,y-fleet.cy),
+    hp:t.hp,maxHp:t.hp,isFlagship,dead:false,flash:0,
+    shootT:Math.random()*t.fireInt,engF:Math.random()*100,
+    facing:side==='atk'?0:Math.PI,pincerWing:0};
+}
+
+function autoTactics(f,dt){
+  if(f.dead)return;
+  const hpR=f.hp/f.maxHp;
+  if(f.laserHitTimer>0)f.laserHitTimer-=dt;
+  else f.laserHitCount=Math.max(0,f.laserHitCount-dt*0.005);
+  if(f.rallyCooldown>0)f.rallyCooldown-=dt;
+
+  if(hpR<0.35&&f.maneuver!=='retreat'&&f.maneuver!=='scatter'){
+    f.maneuver='retreat';
+    addLog('tc',`← [${f.userId}] HP ${(hpR*100)|0}% — 자동 후퇴`);
+  }
+  else if(f.laserHitCount>4&&f.maneuver!=='scatter'){
+    f.maneuver='scatter';
+    f.laserHitCount=0;
+    addLog('tc',`✦ [${f.userId}] 레이저 집중 — 자동 산개`);
+  }
+  else if(hpR>0.55&&(f.maneuver==='retreat'||f.maneuver==='scatter')&&f.rallyCooldown<=0){
+    f.maneuver='rally';
+    f.rallyCooldown=3000;
+    addLog('tc',`◉ [${f.userId}] 재집결`);
+  }
+  else if(f.maneuver==='rally'&&f.rallyCooldown<=0){
+    f.maneuver='advance';
+    addLog('tc',`→ [${f.userId}] 재편성 완료 — 전진`);
+  }
+}
+
+function updateFleets(dt){
+  fleets.forEach(f=>{
+    if(f.dead)return;
+    autoTactics(f,dt);
+    const enemies=fleets.filter(e=>e.side!==f.side&&!e.dead);
+    if(!enemies.length)return;
+    const target=focusFleet&&focusFleet.side!==f.side&&!focusFleet.dead?focusFleet
+      :enemies.reduce((b,e)=>Math.hypot(e.cx-f.cx,e.cy-f.cy)<Math.hypot(b.cx-f.cx,b.cy-f.cy)?e:b,enemies[0]);
+    const dx=target.cx-f.cx,dy=target.cy-f.cy,dist=Math.hypot(dx,dy)||1;
+    const minDist=f.radius+target.radius+15;
+    const mv=MANEUVERS[f.maneuver];
+    const spdMult=mv.spdMult;
+
+    if(f.maneuver==='retreat'){
+      f.vcx-=dx/dist*.04*spdMult;f.vcy-=dy/dist*.04*spdMult;
+    } else if(f.maneuver==='scatter'){
+      f.vcx+=(Math.random()-.5)*.12;f.vcy+=(Math.random()-.5)*.12;
+    } else if(f.maneuver==='flank'){
+      const perpX=-dy/dist,perpY=dx/dist;
+      const flankDir=(f.userId.charCodeAt(0)%2===0)?1:-1;
+      f.vcx+=(perpX*flankDir*0.035+dx/dist*0.015)*spdMult;
+      f.vcy+=(perpY*flankDir*0.035+dy/dist*0.015)*spdMult;
+    } else if(f.maneuver==='rally'){
+      f.vcx*=0.85;f.vcy*=0.85;
+    } else if(dist>minDist){
+      f.vcx+=dx/dist*.025*spdMult;f.vcy+=dy/dist*.025*spdMult;
+    } else {
+      f.vcx*=.8;f.vcy*=.8;
+    }
+
+    if(f.formation==='pincer'){
+      const perpX=-dy/dist,perpY=dx/dist;
+      const wingDir=(f.userId.charCodeAt(1)%2===0)?1:-1;
+      f.vcx+=perpX*wingDir*0.012;
+      f.vcy+=perpY*wingDir*0.012;
+    }
+
+    f.vcx*=.90;f.vcy*=.90;
+    const spd=Math.hypot(f.vcx,f.vcy);
+    if(spd>.6){f.vcx=f.vcx/spd*.6;f.vcy=f.vcy/spd*.6;}
+    f.cx+=f.vcx;f.cy+=f.vcy;
+    f.cx=Math.max(f.radius+8,Math.min(W-f.radius-8,f.cx));
+    f.cy=Math.max(f.radius+8,Math.min(H-f.radius-8,f.cy));
+    f.facingAngle=Math.atan2(target.cy-f.cy,target.cx-f.cx);
+
+    f.ships.forEach(sh=>{
+      if(sh.dead)return;
+      sh.engF+=1;if(sh.flash>0)sh.flash-=dt;
+      if(sh.isFlagship){sh.x=f.cx;sh.y=f.cy;return;}
+
+      let targetX,targetY;
+      if(f.maneuver==='scatter'){
+        if(!sh._scatterDir){
+          sh._scatterDir=Math.random()*Math.PI*2;
+          sh._scatterDist=(0.9+Math.random()*0.6)*f.radius;
+        }
+        targetX=f.cx+Math.cos(sh._scatterDir)*sh._scatterDist;
+        targetY=f.cy+Math.sin(sh._scatterDir)*sh._scatterDist;
+      } else {
+        if(sh._scatterDir){delete sh._scatterDir;delete sh._scatterDist;}
+        const absAngle=f.facingAngle+sh.slotAngle;
+        targetX=f.cx+Math.cos(absAngle)*sh.slotDist;
+        targetY=f.cy+Math.sin(absAngle)*sh.slotDist;
+      }
+
+      const lerpSpd=f.maneuver==='rally'?0.05:0.035;
+      sh.x+=(targetX-sh.x)*lerpSpd;
+      sh.y+=(targetY-sh.y)*lerpSpd;
+
+      let tf=f.facingAngle;
+      const ef=fleets.filter(e=>e.side!==sh.side&&!e.dead);
+      if(ef.length){
+        const near=ef.reduce((b,e)=>Math.hypot(e.cx-sh.x,e.cy-sh.y)<Math.hypot(b.cx-sh.x,b.cy-sh.y)?e:b,ef[0]);
+        tf=Math.atan2(near.cy-sh.y,near.cx-sh.x);
+      }
+      let diff=tf-sh.facing;
+      while(diff>Math.PI)diff-=Math.PI*2;
+      while(diff<-Math.PI)diff+=Math.PI*2;
+      sh.facing+=diff*.06;
+    });
+  });
+}
+
+function fire(sh){
+  if(sh.dead||sh.fleet.dead)return;
+  if(empMs>0&&sh.side==='def')return;
+  const t=sh.type;
+  const atkMult=MANEUVERS[sh.fleet.maneuver].atkMult;
+
+  if(t.fireType==='repair'){
+    const allies=sh.fleet.ships.filter(s=>!s.dead&&s!==sh&&s.hp<s.maxHp);
+    if(allies.length){
+      const hurt=allies.sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];
+      hurt.hp=Math.min(hurt.maxHp,hurt.hp+t.atk*15);
+      sh.fleet.hp=Math.min(sh.fleet.maxHp,sh.fleet.hp+t.atk*15);
+      repairBeams.push({x1:sh.x,y1:sh.y,x2:hurt.x,y2:hurt.y,ttl:12,age:0});
+    }
+    return;
+  }
+  const ef=fleets.filter(f=>f.side!==sh.side&&!f.dead);
+  if(!ef.length)return;
+  const tf=focusFleet&&focusFleet.side!==sh.side&&!focusFleet.dead?focusFleet
+    :ef.reduce((b,e)=>Math.hypot(e.cx-sh.x,e.cy-sh.y)<Math.hypot(b.cx-sh.x,b.cy-sh.y)?e:b,ef[0]);
+  const tx=tf.cx+(Math.random()-.5)*tf.radius*.5;
+  const ty=tf.cy+(Math.random()-.5)*tf.radius*.5;
+  const dx=tx-sh.x,dy=ty-sh.y,len=Math.hypot(dx,dy)||1;
+
+  if(t.fireType==='laser'){
+    const ts=tf.flagship&&!tf.flagship.dead?tf.flagship:tf.ships.find(s=>!s.dead);
+    if(!ts)return;
+    lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
+      color:FACTIONS[sh.type.faction].color,
+      width:sh.type.size==='titan'?3:sh.type.size==='battleship'?2.2:2,
+      alpha:1,ttl:10,age:0,dmg:t.atk*.8*atkMult,target:ts,applied:false,side:sh.side});
+  } else if(t.fireType==='mixed'){
+    const ts=tf.ships.filter(s=>!s.dead)[0|Math.random()*4];
+    if(ts)lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
+      color:FACTIONS[sh.type.faction].color,width:1.2,alpha:.5,ttl:7,age:0,
+      dmg:t.atk*.4*atkMult,target:ts,applied:false,side:sh.side});
+    spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,.6*atkMult);
+  } else {
+    for(let k=0;k<t.shots;k++){
+      const sp=(Math.random()-.5)*.18;
+      spawnB(sh.x,sh.y,dx/len+sp,dy/len+sp,t,sh.side,atkMult/t.shots);
+    }
+  }
+}
+
+function spawnB(mx,my,nvx,nvy,t,side,dmgMult){
+  const spd=1.0+Math.random()*.5;
+  bullets.push({x:mx,y:my,vx:nvx*spd,vy:nvy*spd,
+    r:Math.min(t.r*.3+.3,1.6),col:FACTIONS[t.faction].color,
+    dmg:t.atk*dmgMult*.4,side,ttl:120,age:0});
+}
+
+function checkHit(b){
+  const ef=fleets.filter(f=>f.side!==b.side&&!f.dead);
+  for(const f of ef){
+    if(Math.hypot(b.x-f.cx,b.y-f.cy)>f.radius+5)continue;
+    for(const s of f.ships){
+      if(s.dead)continue;
+      if(Math.hypot(b.x-s.x,b.y-s.y)<s.type.r+1.5)return s;
+    }
+  }
+  return null;
+}
+
+function applyDmg(sh,dmg,isLaser){
+  sh.hp-=dmg;sh.flash=60;sh.fleet.hp-=dmg;
+  if(isLaser){
+    sh.fleet.laserHitCount+=1;
+    sh.fleet.laserHitTimer=3000;
+  }
+  if(sh.hp<=0){
+    sh.dead=true;
+    mkExp(sh.x,sh.y,sh.type.r*1.4);
+    if(sh.type.size==='cruiser'||sh.type.size==='battleship'||sh.type.size==='titan')
+      addLog('kl',`☠ ${sh.type.name} 격침 [${sh.fleet.userId}]`);
+    if(sh.isFlagship){
+      sh.fleet.dead=true;
+      mkShockwave(sh.fleet.cx,sh.fleet.cy,sh.fleet.radius*2);
+      addLog('kl',`💥 [${sh.fleet.userId}] 기함 격침 — 함대 괴멸!`);
+    }
+  }
+}
+
+function mkExp(x,y,sz){
+  const n=Math.min(3+sz*2.5,18);
+  const cs=['#ffd700','#ff6d00','#ef5350','#fff','#ff8f00'];
+  exps.push({x,y,ptcl:Array.from({length:n},()=>{
+    const a=Math.random()*Math.PI*2,sp=.4+Math.random()*sz*.5;
+    return{vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
+      c:cs[0|Math.random()*cs.length],sz:.8+Math.random()*sz*.5,al:1};
+  }),ttl:32,age:0});
+}
+function mkShockwave(x,y,maxR){shockwaves.push({x,y,r:2,maxR,ttl:45,age:0});}
+
+/* ═══════════════════════════════════════════════════════════
+   파벌별 함선 렌더링 (v10 그대로)
+   ═══════════════════════════════════════════════════════════ */
+function drawMCCShip(ctx,s){
+  const r=s.r,F=FACTIONS.mcc;
+  ctx.fillStyle=F.color;
+  if(s.size==='frigate'){
+    ctx.beginPath();
+    ctx.moveTo(r*1.8,0);ctx.lineTo(r*.4,-r*.5);ctx.lineTo(-r*.3,-r*.6);
+    ctx.lineTo(-r*.7,-r*.3);ctx.lineTo(-r*.5,0);ctx.lineTo(-r*.7,r*.3);
+    ctx.lineTo(-r*.3,r*.3);ctx.lineTo(r*.4,r*.4);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.fillRect(r*.3,-r*.08,r*1.3,r*.16);
+  } else if(s.size==='destroyer'){
+    ctx.beginPath();
+    ctx.moveTo(r*1.8,0);ctx.lineTo(r*.5,-r*.35);ctx.lineTo(-r*.7,-r*.35);
+    ctx.lineTo(-r*.9,0);ctx.lineTo(-r*.7,r*.35);ctx.lineTo(r*.5,r*.35);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.fillRect(r*.2,-r*.8,r*.8,r*.45);
+    ctx.fillStyle=F.colorBright;
+    ctx.fillRect(r*.9,-r*.05,r*.9,r*.1);
+  } else if(s.size==='cruiser'){
+    ctx.beginPath();
+    ctx.moveTo(r*1.8,0);ctx.lineTo(r*.3,-r*.45);ctx.lineTo(-r*.6,-r*.45);
+    ctx.lineTo(-r*.9,0);ctx.lineTo(-r*.6,r*.45);ctx.lineTo(r*.3,r*.45);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.beginPath();ctx.moveTo(r*.5,-r*.45);ctx.lineTo(-r*.3,-r*.45);
+    ctx.lineTo(-r*.5,-r*1.0);ctx.lineTo(r*.3,-r*1.0);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(r*.5,r*.45);ctx.lineTo(-r*.3,r*.45);
+    ctx.lineTo(-r*.5,r*1.0);ctx.lineTo(r*.3,r*1.0);ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorBright;
+    ctx.fillRect(r*.4,-r*.12,r*1.3,r*.1);
+    ctx.fillRect(r*.4,r*.02,r*1.3,r*.1);
+  } else if(s.size==='battleship'||s.size==='titan'){
+    const sc=s.size==='titan'?1.2:1.0;
+    ctx.beginPath();
+    ctx.moveTo(r*2.0*sc,0);ctx.lineTo(r*.5*sc,-r*.5);ctx.lineTo(-r*.6*sc,-r*.5);
+    ctx.lineTo(-r*.9*sc,0);ctx.lineTo(-r*.6*sc,r*.5);ctx.lineTo(r*.5*sc,r*.5);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.beginPath();ctx.moveTo(r*.7*sc,-r*.5);ctx.lineTo(-r*.5*sc,-r*.5);
+    ctx.lineTo(-r*.65*sc,-r*1.1);ctx.lineTo(r*.5*sc,-r*1.1);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(r*.7*sc,r*.5);ctx.lineTo(-r*.5*sc,r*.5);
+    ctx.lineTo(-r*.65*sc,r*1.1);ctx.lineTo(r*.5*sc,r*1.1);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(r*.3*sc,-r*1.1);ctx.lineTo(-r*.2*sc,-r*1.1);
+    ctx.lineTo(-r*.4*sc,-r*1.5);ctx.lineTo(r*.25*sc,-r*1.5);ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorBright;
+    ctx.fillRect(r*.2*sc,-r*.14,r*1.8*sc,r*.08);
+    ctx.fillRect(r*.2*sc,-r*.04,r*1.8*sc,r*.08);
+    ctx.fillRect(r*.2*sc,r*.06,r*1.8*sc,r*.08);
+    if(s.size==='titan'){
+      ctx.fillStyle='rgba(255,255,255,.8)';
+      ctx.beginPath();ctx.arc(0,0,r*.25,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+function drawFSPShip(ctx,s){
+  const r=s.r,F=FACTIONS.fsp;
+  ctx.fillStyle=F.color;
+  if(s.size==='frigate'){
+    ctx.beginPath();
+    ctx.moveTo(r*1.6,0);
+    ctx.quadraticCurveTo(r*.8,-r*.55,0,-r*.45);
+    ctx.quadraticCurveTo(-r*.7,-r*.3,-r*.7,0);
+    ctx.quadraticCurveTo(-r*.7,r*.3,0,r*.45);
+    ctx.quadraticCurveTo(r*.8,r*.55,r*1.6,0);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.beginPath();ctx.ellipse(-r*.1,0,r*.5,r*.2,0,0,Math.PI*2);ctx.fill();
+  } else if(s.size==='destroyer'){
+    ctx.beginPath();
+    ctx.moveTo(r*1.6,0);
+    ctx.quadraticCurveTo(r*1.0,-r*.6,r*.2,-r*.55);
+    ctx.quadraticCurveTo(-r*.7,-r*.5,-r*.9,0);
+    ctx.quadraticCurveTo(-r*.7,r*.5,r*.2,r*.55);
+    ctx.quadraticCurveTo(r*1.0,r*.6,r*1.6,0);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.beginPath();ctx.ellipse(-r*.1,0,r*.6,r*.3,0,0,Math.PI*2);ctx.fill();
+  } else if(s.size==='cruiser'){
+    ctx.beginPath();
+    ctx.moveTo(r*1.7,0);
+    ctx.quadraticCurveTo(r*1.0,-r*.7,r*.3,-r*.7);
+    ctx.quadraticCurveTo(-r*.6,-r*.65,-r*.9,0);
+    ctx.quadraticCurveTo(-r*.6,r*.65,r*.3,r*.7);
+    ctx.quadraticCurveTo(r*1.0,r*.7,r*1.7,0);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.beginPath();ctx.ellipse(r*.2,-r*.85,r*.5,r*.25,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(r*.2,r*.85,r*.5,r*.25,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=F.colorBright;
+    ctx.beginPath();ctx.arc(0,0,r*.25,0,Math.PI*2);ctx.fill();
+  } else if(s.size==='battleship'||s.size==='titan'){
+    const sc=s.size==='titan'?1.2:1.0;
+    ctx.beginPath();
+    ctx.moveTo(r*2.0*sc,0);
+    ctx.quadraticCurveTo(r*1.2*sc,-r*.85,r*.3*sc,-r*.85);
+    ctx.quadraticCurveTo(-r*.7*sc,-r*.8,-r*1.0*sc,0);
+    ctx.quadraticCurveTo(-r*.7*sc,r*.8,r*.3*sc,r*.85);
+    ctx.quadraticCurveTo(r*1.2*sc,r*.85,r*2.0*sc,0);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.beginPath();ctx.ellipse(r*.3*sc,-r*1.1,r*.7*sc,r*.3,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(r*.3*sc,r*1.1,r*.7*sc,r*.3,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(-r*.5*sc,-r*1.3,r*.5*sc,r*.25,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(-r*.5*sc,r*1.3,r*.5*sc,r*.25,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=F.colorBright;
+    ctx.beginPath();ctx.arc(0,0,r*.35,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.4)';
+    ctx.beginPath();ctx.arc(0,0,r*.2,0,Math.PI*2);ctx.fill();
+  }
+}
+
+function drawCVShip(ctx,s){
+  const r=s.r,F=FACTIONS.cv;
+  ctx.fillStyle=F.color;
+  if(s.size==='frigate'){
+    ctx.beginPath();
+    ctx.moveTo(r*1.5,0);ctx.lineTo(r*.6,-r*.3);ctx.lineTo(r*.2,-r*.6);
+    ctx.lineTo(-r*.3,-r*.4);ctx.lineTo(-r*.8,-r*.5);ctx.lineTo(-r*.7,0);
+    ctx.lineTo(-r*.8,r*.5);ctx.lineTo(-r*.3,r*.4);ctx.lineTo(r*.2,r*.6);
+    ctx.lineTo(r*.6,r*.3);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.fillRect(r*.3,-r*.25,r*.3,r*.15);
+    ctx.fillRect(-r*.3,r*.1,r*.2,r*.2);
+  } else if(s.size==='destroyer'){
+    ctx.beginPath();
+    ctx.moveTo(r*1.6,0);ctx.lineTo(r*.5,-r*.4);ctx.lineTo(r*.1,-r*.7);
+    ctx.lineTo(-r*.4,-r*.5);ctx.lineTo(-r*.8,-r*.4);ctx.lineTo(-r*1.0,0);
+    ctx.lineTo(-r*.8,r*.4);ctx.lineTo(-r*.4,r*.5);ctx.lineTo(r*.1,r*.7);
+    ctx.lineTo(r*.5,r*.4);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.fillRect(r*.2,-r*.85,r*.4,r*.25);
+    ctx.fillRect(-r*.2,r*.6,r*.3,r*.2);
+    ctx.fillStyle=F.colorBright;
+    ctx.fillRect(r*.6,-r*.05,r*1.0,r*.1);
+  } else if(s.size==='cruiser'){
+    ctx.beginPath();
+    ctx.moveTo(r*1.7,0);ctx.lineTo(r*.6,-r*.35);ctx.lineTo(r*.2,-r*.65);
+    ctx.lineTo(-r*.4,-r*.55);ctx.lineTo(-r*.7,-r*.7);ctx.lineTo(-r*1.0,-r*.5);
+    ctx.lineTo(-r*.8,0);ctx.lineTo(-r*1.0,r*.5);ctx.lineTo(-r*.7,r*.7);
+    ctx.lineTo(-r*.4,r*.55);ctx.lineTo(r*.2,r*.65);ctx.lineTo(r*.6,r*.35);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.fillRect(-r*.2,-r*.95,r*.5,r*.3);
+    ctx.fillRect(r*.3,-r*.85,r*.3,r*.25);
+    ctx.fillRect(-r*.5,r*.7,r*.6,r*.3);
+    ctx.fillRect(r*.2,r*.75,r*.4,r*.25);
+    ctx.fillStyle='#ffcc02';
+    ctx.fillRect(r*.3,-r*.1,r*.1,r*.2);
+    ctx.fillRect(r*.55,-r*.1,r*.1,r*.2);
+  } else if(s.size==='battleship'||s.size==='titan'){
+    const sc=s.size==='titan'?1.3:1.0;
+    ctx.beginPath();
+    ctx.moveTo(r*2.0*sc,0);ctx.lineTo(r*.7*sc,-r*.45);ctx.lineTo(r*.3*sc,-r*.85);
+    ctx.lineTo(-r*.3*sc,-r*.7);ctx.lineTo(-r*.7*sc,-r*.9);ctx.lineTo(-r*1.0*sc,-r*.6);
+    ctx.lineTo(-r*.9*sc,0);ctx.lineTo(-r*1.0*sc,r*.6);ctx.lineTo(-r*.7*sc,r*.9);
+    ctx.lineTo(-r*.3*sc,r*.7);ctx.lineTo(r*.3*sc,r*.85);ctx.lineTo(r*.7*sc,r*.45);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=F.colorDark;
+    ctx.fillRect(-r*.2,-r*1.2,r*.6,r*.35);
+    ctx.fillRect(r*.3,-r*1.05,r*.4,r*.3);
+    ctx.fillRect(-r*.6,-r*1.35,r*.4,r*.3);
+    ctx.fillRect(-r*.2,r*.85,r*.6,r*.35);
+    ctx.fillRect(r*.3,r*.75,r*.4,r*.3);
+    ctx.fillRect(-r*.6,r*1.05,r*.4,r*.3);
+    ctx.fillStyle=F.colorBright;
+    for(let i=0;i<3;i++){
+      ctx.fillRect(r*.2+i*r*.6,-r*.14,r*.5,r*.08);
+      ctx.fillRect(r*.2+i*r*.6,r*.06,r*.5,r*.08);
+    }
+    ctx.fillStyle='rgba(139,69,19,.4)';
+    ctx.fillRect(-r*.4,-r*.3,r*.3,r*.2);
+    ctx.fillRect(r*.2,r*.1,r*.4,r*.3);
+    if(s.size==='titan'){
+      ctx.fillStyle='#ffd700';
+      ctx.fillRect(r*.3,-r*.2,r*2.5,r*.15);
+      ctx.fillRect(r*.3,r*.05,r*2.5,r*.15);
+      ctx.fillStyle='rgba(255,255,255,.8)';
+      ctx.beginPath();ctx.arc(0,0,r*.3,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+function drawShipByFaction(ctx,s){
+  if(s.faction==='mcc')drawMCCShip(ctx,s);
+  else if(s.faction==='fsp')drawFSPShip(ctx,s);
+  else drawCVShip(ctx,s);
+}
+
+function drawBG(){
+  CX.fillStyle='#03040b';CX.fillRect(0,0,W,H);
+  const gp=CX.createRadialGradient(W*.85,H*.12,0,W*.85,H*.12,W*.28);
+  gp.addColorStop(0,'rgba(160,70,25,.22)');gp.addColorStop(1,'transparent');
+  CX.fillStyle=gp;CX.fillRect(0,0,W,H);
+  const gl=CX.createRadialGradient(W*.12,H*.5,0,W*.12,H*.5,W*.38);
+  gl.addColorStop(0,'rgba(10,30,90,.14)');gl.addColorStop(1,'transparent');
+  CX.fillStyle=gl;CX.fillRect(0,0,W,H);
+}
+
+function hexRGB(h){
+  const n=parseInt(h.replace('#',''),16);
+  return `${(n>>16)&255},${(n>>8)&255},${n&255}`;
+}
+
+function drawFleets(){
+  fleets.forEach(f=>{
+    if(f.dead)return;
+    const fc=f.flagship?FACTIONS[f.flagship.type.faction].color:'#4fc3f7';
+    const rgb=hexRGB(fc);
+    const ag=CX.createRadialGradient(f.cx,f.cy,0,f.cx,f.cy,f.radius);
+    const alpha=f.maneuver==='scatter'?.04:f.maneuver==='retreat'?.07:.15;
+    ag.addColorStop(0,`rgba(${rgb},${alpha})`);
+    ag.addColorStop(1,'transparent');
+    CX.fillStyle=ag;CX.beginPath();CX.arc(f.cx,f.cy,f.radius,0,Math.PI*2);CX.fill();
+
+    CX.strokeStyle=`rgba(${rgb},.22)`;
+    CX.lineWidth=.8;
+    if(f.maneuver==='scatter')CX.setLineDash([2,8]);
+    else if(f.maneuver==='retreat')CX.setLineDash([4,4]);
+    else CX.setLineDash([4,7]);
+    CX.beginPath();CX.arc(f.cx,f.cy,f.radius*.88,0,Math.PI*2);CX.stroke();
+    CX.setLineDash([]);CX.lineWidth=1;
+
+    const fm=FORMATIONS[f.formation],mv=MANEUVERS[f.maneuver];
+    CX.globalAlpha=.85;
+    CX.textAlign='center';
+    CX.font='bold 8px Orbitron,monospace';
+    CX.fillStyle=fc;
+    CX.fillText(`[${f.tag}] ${f.userId}`,f.cx,f.cy-f.radius-20);
+    CX.font='6px Share Tech Mono';
+    CX.fillStyle=fm.color;
+    CX.fillText(`${fm.icon} ${fm.name}`,f.cx-22,f.cy-f.radius-10);
+    CX.fillStyle=f.maneuver==='retreat'?'#ff8a65':f.maneuver==='scatter'?'#ff5252':f.maneuver==='flank'?'#66bb6a':'rgba(255,255,255,.4)';
+    CX.fillText(`${mv.icon} ${mv.name}`,f.cx+22,f.cy-f.radius-10);
+
+    const alive=f.ships.filter(s=>!s.dead).length;
+    const hpR=f.hp/f.maxHp;
+    const bw=58;
+    CX.fillStyle='rgba(0,0,0,.45)';CX.fillRect(f.cx-bw/2,f.cy-f.radius-2,bw,3);
+    CX.fillStyle=hpR>.5?'#4caf50':hpR>.25?'#ff9800':'#f44336';
+    CX.fillRect(f.cx-bw/2,f.cy-f.radius-2,bw*hpR,3);
+    CX.font='5px Share Tech Mono';
+    CX.fillStyle='rgba(255,255,255,.28)';
+    CX.fillText(`${alive}척`,f.cx,f.cy-f.radius-28);
+    CX.globalAlpha=1;CX.textAlign='left';
+  });
+}
+
+function drawShips2(){
+  const sorted=[...ships].sort((a,b)=>b.type.r-a.type.r);
+  sorted.forEach(sh=>{
+    if(sh.dead||sh.fleet.dead)return;
+    const t=sh.type;
+    const F=FACTIONS[t.faction];
+    CX.shadowColor=F.color;
+    CX.shadowBlur=sh.isFlagship?t.r*5:t.r*2.2;
+    CX.save();
+    CX.translate(sh.x,sh.y);
+    CX.rotate(sh.facing);
+    if(sh.flash>0)CX.fillStyle='#fff';
+    drawShipByFaction(CX,t);
+    CX.restore();
+    CX.shadowBlur=0;
+    if(t.r>=2){
+      const ef=.6+.4*Math.sin(sh.engF*.18);
+      CX.globalAlpha=ef*.88;
+      const ex=sh.x-Math.cos(sh.facing)*t.r*1.6;
+      const ey=sh.y-Math.sin(sh.facing)*t.r*1.6;
+      const eg=CX.createRadialGradient(ex,ey,0,ex,ey,t.r*1.1);
+      eg.addColorStop(0,'rgba(255,210,60,1)');
+      eg.addColorStop(.45,'rgba(255,110,20,.65)');
+      eg.addColorStop(1,'transparent');
+      CX.fillStyle=eg;
+      CX.beginPath();CX.arc(ex,ey,t.r*1.1,0,Math.PI*2);CX.fill();
+      CX.globalAlpha=1;
+    }
+    if(t.size==='cruiser'||t.size==='battleship'||t.size==='titan'){
+      const bw=t.r*2.2,hr=sh.hp/sh.maxHp;
+      CX.fillStyle='rgba(0,0,0,.4)';CX.fillRect(sh.x-bw/2,sh.y-t.r-4,bw,2);
+      CX.fillStyle=hr>.5?'#4caf50':hr>.25?'#ff9800':'#f44336';
+      CX.fillRect(sh.x-bw/2,sh.y-t.r-4,bw*hr,2);
+    }
+  });
+}
+
+function drawBullets(){
+  bullets=bullets.filter(b=>{
+    b.x+=b.vx;b.y+=b.vy;b.age++;
+    if(b.age>b.ttl||b.x<-5||b.x>W+5||b.y<-5||b.y>H+5)return false;
+    const al=Math.max(0,(1-b.age/b.ttl)*.42);
+    CX.globalAlpha=al;
+    const ang=Math.atan2(b.vy,b.vx),len=Math.max(2,Math.abs(b.vx)*2.5);
+    CX.save();CX.translate(b.x,b.y);CX.rotate(ang);
+    CX.fillStyle=b.col;CX.fillRect(-len*.1,-b.r/2,len,b.r);
+    CX.fillStyle='rgba(255,255,255,.7)';CX.fillRect(len*.5,-b.r/3,len*.22,b.r*.55);
+    CX.restore();CX.globalAlpha=1;
+    const hit=checkHit(b);
+    if(hit){applyDmg(hit,b.dmg,false);return false;}
+    return true;
+  });
+}
+
+function drawLasers(){
+  lasers=lasers.filter(l=>{
+    if(l.age===0&&!l.applied){
+      l.applied=true;
+      if(l.target&&!l.target.dead)applyDmg(l.target,l.dmg,true);
+    }
+    const prog=l.age/l.ttl;
+    CX.globalAlpha=(1-prog)*l.alpha*.55;
+    CX.shadowColor=l.color;CX.shadowBlur=3;
+    CX.strokeStyle=l.color;CX.lineWidth=l.width;
+    CX.beginPath();CX.moveTo(l.x1,l.y1);CX.lineTo(l.x2,l.y2);CX.stroke();
+    CX.strokeStyle='rgba(255,255,255,.7)';CX.lineWidth=l.width*.28;
+    CX.beginPath();CX.moveTo(l.x1,l.y1);CX.lineTo(l.x2,l.y2);CX.stroke();
+    CX.shadowBlur=0;CX.lineWidth=1;CX.globalAlpha=1;
+    l.age++;return l.age<l.ttl;
+  });
+}
+
+function drawExps(){
+  exps=exps.filter(ex=>{
+    const prog=ex.age/ex.ttl;
+    ex.ptcl.forEach(p=>{
+      CX.globalAlpha=p.al*(1-prog);CX.fillStyle=p.c;
+      CX.fillRect(ex.x+p.vx*ex.age-p.sz/2,ex.y+p.vy*ex.age-p.sz/2,p.sz,p.sz);
+    });
+    CX.globalAlpha=1;ex.age++;return ex.age<ex.ttl;
+  });
+}
+
+function drawShockwaves(){
+  shockwaves=shockwaves.filter(sw=>{
+    sw.r+=(sw.maxR)/sw.ttl;
+    CX.globalAlpha=(1-sw.age/sw.ttl)*.55;
+    CX.strokeStyle='#ff6d00';CX.lineWidth=1.5;
+    CX.beginPath();CX.arc(sw.x,sw.y,sw.r,0,Math.PI*2);CX.stroke();
+    CX.lineWidth=1;CX.globalAlpha=1;sw.age++;return sw.age<sw.ttl;
+  });
+}
+
+function drawRepairBeams(){
+  repairBeams=repairBeams.filter(b=>{
+    const prog=b.age/b.ttl;
+    CX.globalAlpha=(1-prog)*.7;
+    CX.strokeStyle='#a5d6a7';CX.lineWidth=1;
+    CX.setLineDash([3,4]);
+    CX.beginPath();CX.moveTo(b.x1,b.y1);CX.lineTo(b.x2,b.y2);CX.stroke();
+    CX.setLineDash([]);CX.lineWidth=1;CX.globalAlpha=1;
+    b.age++;return b.age<b.ttl;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   메인 루프
+   ═══════════════════════════════════════════════════════════ */
+let lt=0,turnT=0,panelT=0;
+function loop(ts){
+  const dt=ts-lt;lt=ts;
+  btMs+=dt;turnT+=dt;panelT+=dt;
+  if(empMs>0)empMs-=dt;
+  if(turnT>600){turnT=0;turn++;document.getElementById('tn').textContent=turn;}
+  const ss=0|(btMs/1000)%60,mm=0|(btMs/60000);
+  document.getElementById('tm').textContent=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+
+  updateFleets(dt);
+  ships.forEach(sh=>{
+    if(sh.dead||sh.fleet.dead)return;
+    sh.shootT+=dt;
+    const fi=empMs>0?sh.type.fireInt*5:sh.type.fireInt;
+    if(sh.shootT>fi*14){sh.shootT=0;fire(sh);}
+  });
+
+  drawBG();
+  drawShockwaves();
+  drawFleets();
+  drawExps();
+  drawLasers();
+  drawRepairBeams();
+  drawShips2();
+  drawBullets();
+
+  atkHP=fleets.filter(f=>f.side==='atk'&&!f.dead).reduce((a,f)=>a+f.hp,0);
+  defHP=fleets.filter(f=>f.side==='def'&&!f.dead).reduce((a,f)=>a+f.hp,0);
+  document.getElementById('ah').style.width=Math.max(0,atkHP/atkMaxHP*100)+'%';
+  document.getElementById('dh').style.width=Math.max(0,defHP/defMaxHP*100)+'%';
+  const ac=ships.filter(s=>s.side==='atk'&&!s.dead).length;
+  const dc=ships.filter(s=>s.side==='def'&&!s.dead).length;
+  const af=fleets.filter(f=>f.side==='atk'&&!f.dead).length;
+  const df=fleets.filter(f=>f.side==='def'&&!f.dead).length;
+  document.getElementById('ai').textContent=`${ac}척 · ${af}함대`;
+  document.getElementById('di').textContent=`${df}함대 · ${dc}척`;
+
+  if(panelT>1500){
+    panelT=0;
+    if(document.getElementById('panel-fleet').classList.contains('on'))renderFleetStatus();
+  }
+
+  if((af===0||df===0)&&btMs>3000){
+    addLog('wn',`🏆 ${af>0?'ATK':'DEF'} COALITION 승리 — ${mm}:${String(ss).padStart(2,'0')}`);
+    setTimeout(initBattle,4000);
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   커맨드 (v10 + v11.1)
+   ═══════════════════════════════════════════════════════════ */
+function reinforce(tid,n){
+  const f=fleets.find(f=>f.side==='atk'&&!f.dead);
+  if(!f)return;
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,d=15+Math.random()*f.radius*.7;
+    const s=mkShip(tid,'atk',f.cx+Math.cos(a)*d,f.cy+Math.sin(a)*d,f,false);
+    s.slotDist=d;f.ships.push(s);ships.push(s);
+    f.maxHp+=s.maxHp;f.hp+=s.maxHp;
+    atkMaxHP+=s.maxHp;atkHP+=s.maxHp;
+  }
+  assignFormationSlots(f);
+  addLog('ev',`▶ 증원 ${SHIPS[tid].name} ×${n}`);
+}
+function cmdFocus(){
+  const ef=fleets.filter(f=>f.side==='def'&&!f.dead);
+  if(!ef.length)return;
+  const tf=ef.sort((a,b)=>b.flagship?.type.r-a.flagship?.type.r)[0];
+  focusFleet=tf;
+  addLog('wn',`⚡ 집중공격 — [${tf.userId}]`);
+}
+function cmdEMP(){empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 6초');}
+function cmdFormation(form){
+  fleets.filter(f=>f.side==='atk'&&!f.dead).forEach(f=>{
+    f.formation=form;
+    assignFormationSlots(f);
+  });
+  addLog('fm',`${FORMATIONS[form].icon} 전 ATK 함대 진형: ${FORMATIONS[form].name}`);
+}
+function cmdManeuver(mv){
+  fleets.filter(f=>f.side==='atk'&&!f.dead).forEach(f=>{f.maneuver=mv;});
+  addLog('tc',`${MANEUVERS[mv].icon} 전 ATK 함대 기동: ${MANEUVERS[mv].name}`);
+}
+
+const LOGS=[];
+function addLog(cls,msg){
+  LOGS.unshift({cls,msg});if(LOGS.length>7)LOGS.pop();
+  document.getElementById('blog').innerHTML=LOGS.map(l=>`<div class="bl ${l.cls}">${l.msg}</div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   하단 패널 (v10 그대로)
+   ═══════════════════════════════════════════════════════════ */
+function togglePanel(name,btn){
+  const panel=document.getElementById('panel-'+name);
+  const isOn=panel.classList.contains('on');
+  document.querySelectorAll('.info-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.itog').forEach(t=>t.classList.remove('on'));
+  if(!isOn){
+    panel.classList.add('on');
+    btn.classList.add('on');
+    if(name==='registry')renderRegistry();
+    else if(name==='minerals')renderMinerals();
+    else if(name==='analysis')renderAnalysis();
+    else if(name==='fleet')renderFleetStatus();
+  }
+}
+
+function renderFleetStatus(){
+  const el=document.getElementById('fs-grid');
+  if(!el)return;
+  const sorted=[...fleets.filter(f=>f.side==='atk'),...fleets.filter(f=>f.side==='def')];
+  el.innerHTML=sorted.map(f=>{
+    const isAtk=f.side==='atk';
+    const hpR=Math.max(0,f.hp/f.maxHp);
+    const alive=f.ships.filter(s=>!s.dead).length;
+    const total=f.ships.length;
+    const byTier={};
+    f.ships.forEach(s=>{
+      if(!byTier[s.tid])byTier[s.tid]={name:s.type.name,alive:0,dead:0,size:s.type.size};
+      s.dead?byTier[s.tid].dead++:byTier[s.tid].alive++;
+    });
+    const fm=FORMATIONS[f.formation],mv=MANEUVERS[f.maneuver];
+    const shipTags=Object.entries(byTier).sort((a,b)=>{
+      const order={titan:6,battleship:5,cruiser:4,destroyer:3,frigate:2};
+      return (order[b[1].size]||0)-(order[a[1].size]||0);
+    }).map(([tid,info])=>{
+      const isCap=info.size==='battleship'||info.size==='titan';
+      const isDead=info.alive===0;
+      const lbl=info.alive>1?`${info.name}×${info.alive}`:info.name;
+      return `<span class="fs-ship${isCap?' cap':''}${isDead?' dead':''}">${lbl}</span>`;
+    }).join('');
+    return `
+      <div class="fs-fleet ${isAtk?'atk':'def'}${f.dead?' fs-dead':''}">
+        <div class="fs-fname ${isAtk?'a':'d'}">[${f.tag}] ${f.userId} ${fm.icon} ${mv.icon}</div>
+        <div class="fs-hp"><div class="fs-hpf ${isAtk?'a':'d'}" style="width:${hpR*100}%"></div></div>
+        <div class="fs-meta">${alive}/${total}척 · HP ${(hpR*100).toFixed(0)}% · ${fm.name}/${mv.name}${f.dead?' · 괴멸':''}</div>
+        <div class="fs-ships">${shipTags}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+let currentFaction='mcc';
+function showFaction(fid,btn){
+  currentFaction=fid;
+  document.querySelectorAll('.faction-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  renderRegistry();
+}
+function renderRegistry(){
+  const grid=document.getElementById('ship-grid');
+  const f=FACTIONS[currentFaction];
+  document.getElementById('faction-desc').textContent=f.full+' · '+f.specialty;
+  const list=Object.entries(SHIPS).filter(([id,s])=>s.faction===currentFaction);
+  grid.innerHTML=list.map(([id,s])=>`
+    <div class="ship-card ${s.faction}">
+      <canvas width="120" height="70" data-id="${id}"></canvas>
+      <div class="sname" style="color:${f.color}">${s.name}</div>
+      <div class="scls">${s.cls}</div>
+      <span class="srole ${s.role}">${s.role.toUpperCase()}</span>
+      <div class="stats">
+        <div class="stat-row"><span>HP</span><span>${s.hp.toLocaleString()}</span></div>
+        <div class="stat-row"><span>ATK</span><span>${s.atk}</span></div>
+        <div class="stat-row"><span>DEF</span><span>${s.def}</span></div>
+        <div class="stat-row"><span>SPD</span><span>${s.spd}</span></div>
+      </div>
+      <div class="recipe">
+        <em>BUILD: ${s.buildTime}</em><br>
+        ${Object.entries(s.recipe).map(([k,v])=>{const m=MINERALS[k];return `${m?.icon||''} ${m?.ko||k}×${v}`;}).join(' · ')}
+      </div>
+    </div>
+  `).join('');
+  list.forEach(([id,s])=>{
+    const canvas=grid.querySelector(`canvas[data-id="${id}"]`);
+    if(!canvas)return;
+    const cx=canvas.getContext('2d');
+    cx.fillStyle='#02030a';cx.fillRect(0,0,canvas.width,canvas.height);
+    cx.strokeStyle='rgba(255,255,255,.03)';cx.lineWidth=.5;
+    for(let x=0;x<canvas.width;x+=10){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,canvas.height);cx.stroke();}
+    for(let y=0;y<canvas.height;y+=10){cx.beginPath();cx.moveTo(0,y);cx.lineTo(canvas.width,y);cx.stroke();}
+    cx.save();
+    cx.translate(canvas.width/2,canvas.height/2);
+    const scale=Math.min(2.8,42/s.r);
+    cx.scale(scale,scale);
+    cx.shadowColor=FACTIONS[s.faction].color;cx.shadowBlur=10;
+    drawShipByFaction(cx,s);
+    cx.restore();
+  });
+}
+
+function renderMinerals(){
+  const el=document.getElementById('minerals-content');
+  const tiers=[
+    {t:0,title:'TIER 0 — 기본 광물 (모든 섹터)'},
+    {t:1,title:'TIER 1 — 희귀 광물 (Mid/Frontier)'},
+    {t:2,title:'TIER 2 — 특수 소재 (Frontier·이벤트)'},
+    {t:3,title:'TIER 3 — 중간 부품 (유저 제작)'},
+  ];
+  el.innerHTML=tiers.map(({t,title})=>{
+    const mins=Object.entries(MINERALS).filter(([id,m])=>m.tier===t);
+    return `
+      <div class="min-section">
+        <div class="min-title">// ${title}</div>
+        <div class="min-grid">
+          ${mins.map(([id,m])=>`
+            <div class="min-card">
+              <div class="min-icon" style="color:${m.color}">${m.icon}</div>
+              <div class="min-info">
+                <div class="min-name" style="color:${m.color}">${m.ko}</div>
+                <div class="min-desc">${m.en}</div>
+                <div class="min-src">${m.src}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAnalysis(){
+  const doctrines=[
+    {name:'⚡ Alpha Strike',desc:'MCC 장거리 저격. Sniper Cruiser로 적 대형함 원거리 집중 포화.',
+     comp:['MCC Longeye ×6','MCC Shard ×12','MCC Prism ×8','MCC Jammer ×3']},
+    {name:'🛡 Armor Brawler',desc:'FSP 중장갑 + CV 고화력. 근접전에서 뚫고 본진 타격.',
+     comp:['CV Ironclad ×2','FSP Bulwark ×8','CV Butcher ×10','CV Slasher ×20']},
+    {name:'🕊 Drone Swarm',desc:'FSP 드론 대량 발사. 로지스틱 지원으로 장기전.',
+     comp:['FSP Grove ×6','FSP Nova ×3','FSP Verdant ×5','FSP Sprite ×15']},
+    {name:'💀 Stealth Ambush',desc:'CV 스텔스 폭격기 기습. 은신 접근 후 한 번에 타격.',
+     comp:['CV Reaper ×8','CV Slasher ×10','MCC Jammer ×4','CV Butcher ×6']},
+    {name:'🏛 Shield of Mars',desc:'FSP 전함 중심 방어. 로지스틱 다수로 장기 수성전.',
+     comp:['FSP Sequoia ×3','FSP Nova ×5','FSP Verdant ×8','FSP Bulwark ×10']},
+    {name:'⚔ Blitzkrieg',desc:'CV Titan + 전프리깃 돌격. 빠른 승부.',
+     comp:['CV Carnage ×1','CV Slasher ×30','CV Jagged ×15','CV Butcher ×8']},
+  ];
+  document.getElementById('doctrines').innerHTML=doctrines.map(d=>`
+    <div class="doctrine">
+      <h4>${d.name}</h4>
+      <p>${d.desc}</p>
+      <div class="comp">${d.comp.map(c=>`<span class="comp-tag">${c}</span>`).join('')}</div>
+    </div>
+  `).join('');
+  document.getElementById('faction-compare').innerHTML=`
+    <div class="doctrine-grid">
+      ${Object.entries(FACTIONS).map(([id,f])=>`
+        <div class="doctrine" style="border-left:3px solid ${f.color}">
+          <h4 style="color:${f.color}">${f.full}</h4>
+          <p><strong>디자인:</strong> ${f.desc}</p>
+          <p><strong>특기:</strong> ${f.specialty}</p>
+          <p><strong>네이밍:</strong> ${f.namingScheme}</p>
+          <div class="comp">
+            ${Object.entries(SHIPS).filter(([i,s])=>s.faction===id).map(([i,s])=>
+              `<span class="comp-tag" style="color:${f.color}">${s.name}</span>`
+            ).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+initBattle();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
