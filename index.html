@@ -4876,6 +4876,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     </div>
     <!-- Sponsor button for others' territories -->
     <button class="uf" id="infoSponsorBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(244,143,177,.12),rgba(244,143,177,.06));border-color:rgba(244,143,177,.3);color:#f48fb1" onclick="openSponsorModal()" data-i18n="sponsor_btn">🎗️ SPONSOR</button>
+    <!-- Hijack button (others' territories only) — auto-fills modal from current claim -->
+    <button class="uf" id="infoHijackBtn" style="display:none;margin-top:4px;font-size:9px;background:linear-gradient(135deg,rgba(232,72,85,.13),rgba(232,72,85,.04));border-color:rgba(232,72,85,.35);color:#ff6b6b;font-weight:700" onclick="hijackFromTerritoryInfo()" data-i18n="hijack_btn_short">⚔ HIJACK 영토</button>
     <!-- Recent tributes display -->
     <div id="infoTributeRow" style="display:none;margin:6px 0;padding:6px 8px;background:rgba(255,204,128,.05);border:1px solid rgba(255,204,128,.12);border-radius:6px">
       <div style="font-size:8px;color:#ffcc80;font-family:var(--fn);font-weight:700;margin-bottom:4px">🪙 <span data-i18n="tribute_label">TRIBUTES</span></div>
@@ -11869,6 +11871,18 @@ function showTerritoryInfo(plot){
   // Show sponsor button only for others' territories
   var sponsorBtn=document.getElementById('infoSponsorBtn');
   if(sponsorBtn) sponsorBtn.style.display=(myW && plot.owner!==myW)?'':'none';
+  // Show hijack button only for others' territories with claimId — cache prefill on element
+  var hijackBtn=document.getElementById('infoHijackBtn');
+  if(hijackBtn){
+    var canHijack = !!(myW && plot.owner && plot.owner !== myW && plot.claimId);
+    hijackBtn.style.display = canHijack ? '' : 'none';
+    if (canHijack){
+      hijackBtn.dataset.claimId = String(plot.claimId);
+      hijackBtn.dataset.defWallet = String(plot.owner || '');
+      var ownerLabel = plot.nickname || plot.label || (plot.owner ? plot.owner.slice(0,8)+'…' : '');
+      hijackBtn.title = '⚔ HIJACK ' + ownerLabel + ' · #' + plot.claimId;
+    }
+  }
   // Load tributes
   var tributeRow=document.getElementById('infoTributeRow');
   if(tributeRow) tributeRow.style.display='none';
@@ -14069,6 +14083,7 @@ var I18N = {
     highlight_btn: '✨ HIGHLIGHT', highlight_modal_title: 'HIGHLIGHT TERRITORY', highlight_modal_desc: 'Make your territory glow on the map', highlight_color_label: 'GLOW COLOR', highlight_activate_btn: '✨ ACTIVATE', highlight_confirm: 'Highlight Territory?', highlight_activated: '✨ Territory highlighted!', highlight_active_label: 'HIGHLIGHTED',
     tdesc_title: 'TERRITORY DESCRIPTION', tdesc_desc: 'Add a custom description to your territory. Visible to all players.', tdesc_claim_label: 'CLAIM #', tdesc_use_claim: '📍 MINE', tdesc_current_label: 'CURRENT', tdesc_text_label: 'DESCRIPTION', tdesc_save_btn: '📝 SAVE DESCRIPTION', tdesc_my_label: 'MY DESCRIPTIONS', tdesc_none: 'No descriptions set yet.', tdesc_save_confirm: 'Save Territory Description?', tdesc_required: 'Enter a description', tdesc_claim_required: 'Enter a Claim #', tdesc_no_claim: 'Select a territory first', tdesc_free: 'Free', tdesc_saved: '✅ Description saved!', tdesc_free_hint: 'First description is free. Updates cost {cost} GP.',
     sponsor_label: 'SPONSORS', sponsor_btn: '🎗️ SPONSOR', sponsor_modal_title: 'SPONSOR TERRITORY', sponsor_modal_desc: 'Sponsor territory #', sponsor_msg_label: 'MESSAGE (optional)', sponsor_place_btn: '🎗️ SPONSOR', sponsor_confirm: 'Sponsor Territory?', sponsor_placed: '🎗️ Sponsored!',
+    hijack_btn_short: '⚔ HIJACK TERRITORY',
     capsule_title: 'TIME CAPSULE', capsule_desc: 'Bury a sealed message to be revealed to all players in the future.', capsule_msg_label: 'MESSAGE (max 280 chars)', capsule_days_label: 'REVEAL IN (days)', capsule_bury_btn: '⏳ BURY CAPSULE', capsule_revealed_label: 'RECENTLY REVEALED', capsule_none: 'No revealed capsules yet.', capsule_none_pending: 'No capsules buried yet. Be the first!', capsule_bury_confirm: 'Bury Time Capsule?', capsule_msg_required: 'Enter a message', capsule_days_required: 'Enter days > 0', capsule_buried: '⏳ Capsule buried!',
     milestone_title: 'COLONY MILESTONES', milestone_desc: 'Record a personal milestone in the colony\'s history.', milestone_cat_label: 'CATEGORY', milestone_title_label: 'TITLE (max 50 chars)', milestone_desc_label: 'DESCRIPTION (max 200 chars)', milestone_record_btn: '🏆 RECORD MILESTONE', milestone_write_btn: '✍ RECORD MILESTONE', milestone_refresh_btn: '↺ REFRESH', milestone_cost_hint: 'Cost: {gp} GP', milestone_empty: 'No milestones recorded yet. Be the first!', milestone_login_required: 'Login required', milestone_title_required: 'Enter a title', milestone_desc_required: 'Enter a description', milestone_confirm_title: 'Record Milestone?', milestone_confirm_body: 'Record {cat} milestone "{title}" for {gp} GP?', milestone_recorded: 'Milestone recorded in colony history!',
     tombstone_label: 'TOMBSTONES', tombstone_btn: '🪦 PLACE TOMBSTONE', tombstone_modal_title: 'PLACE TOMBSTONE', tombstone_modal_desc: 'Leave an epitaph on this territory you once owned.', tombstone_epitaph_label: 'EPITAPH (max 60 chars)', tombstone_place_btn: '🪦 PLACE', tombstone_cost_hint: 'Cost: {gp} GP', tombstone_confirm_title: 'Place Tombstone?', tombstone_confirm_body: 'Place a permanent tombstone for {gp} GP?', tombstone_placed: 'Tombstone placed.',
@@ -14690,6 +14705,7 @@ var I18N = {
     highlight_btn: '✨ 하이라이트', highlight_modal_title: '영토 하이라이트', highlight_modal_desc: '지도에서 영토를 빛나게 하세요', highlight_color_label: '글로우 색상', highlight_activate_btn: '✨ 활성화', highlight_confirm: '영토 하이라이트?', highlight_activated: '✨ 영토 하이라이트 완료!', highlight_active_label: '하이라이트 중',
     tdesc_title: '영토 설명', tdesc_desc: '내 영토에 설명을 추가하세요. 모든 플레이어에게 보입니다.', tdesc_claim_label: '클레임 #', tdesc_use_claim: '📍 내 것', tdesc_current_label: '현재 설명', tdesc_text_label: '설명', tdesc_save_btn: '📝 설명 저장', tdesc_my_label: '내 설명 목록', tdesc_none: '아직 설명 없음.', tdesc_save_confirm: '영토 설명 저장?', tdesc_required: '설명을 입력하세요', tdesc_claim_required: '클레임 번호를 입력하세요', tdesc_no_claim: '먼저 영토를 선택하세요', tdesc_free: '무료', tdesc_saved: '✅ 설명 저장 완료!', tdesc_free_hint: '첫 설명은 무료입니다. 수정 시 {cost} GP.',
     sponsor_label: '후원자', sponsor_btn: '🎗️ 후원하기', sponsor_modal_title: '영토 후원', sponsor_modal_desc: '영토 #', sponsor_msg_label: '메시지 (선택)', sponsor_place_btn: '🎗️ 후원', sponsor_confirm: '영토를 후원?', sponsor_placed: '🎗️ 후원 완료!',
+    hijack_btn_short: '⚔ 영토 HIJACK',
     capsule_title: '타임캡슐', capsule_desc: '봉인된 메시지를 묻어두면 미래에 모든 플레이어에게 공개됩니다.', capsule_msg_label: '메시지 (최대 280자)', capsule_days_label: '공개 예정 (일)', capsule_bury_btn: '⏳ 캡슐 묻기', capsule_revealed_label: '최근 공개됨', capsule_none: '아직 공개된 캡슐 없음.', capsule_none_pending: '아직 묻힌 캡슐 없음. 첫 번째가 되어보세요!', capsule_bury_confirm: '타임캡슐 묻기?', capsule_msg_required: '메시지를 입력하세요', capsule_days_required: '1일 이상 입력', capsule_buried: '⏳ 캡슐이 묻혔습니다!',
     milestone_title: '식민지 이정표', milestone_desc: '식민지 역사에 개인 이정표를 기록하세요.', milestone_cat_label: '카테고리', milestone_title_label: '제목 (최대 50자)', milestone_desc_label: '설명 (최대 200자)', milestone_record_btn: '🏆 이정표 기록', milestone_write_btn: '✍ 이정표 기록하기', milestone_refresh_btn: '↺ 새로고침', milestone_cost_hint: '비용: {gp} GP', milestone_empty: '아직 기록된 이정표 없음. 첫 번째가 되세요!', milestone_login_required: '로그인 필요', milestone_title_required: '제목을 입력하세요', milestone_desc_required: '설명을 입력하세요', milestone_confirm_title: '이정표 기록?', milestone_confirm_body: '{cat} 이정표 "{title}"을(를) {gp} GP로 기록?', milestone_recorded: '이정표가 식민지 역사에 기록되었습니다!',
     tombstone_label: '묘비', tombstone_btn: '🪦 묘비 놓기', tombstone_modal_title: '묘비 놓기', tombstone_modal_desc: '한때 소유했던 영토에 묘비명을 남기세요.', tombstone_epitaph_label: '묘비명 (최대 60자)', tombstone_place_btn: '🪦 놓기', tombstone_cost_hint: '비용: {gp} GP', tombstone_confirm_title: '묘비 놓기?', tombstone_confirm_body: '{gp} GP로 영구 묘비를 놓으시겠습니까?', tombstone_placed: '묘비가 놓였습니다.',
@@ -15494,6 +15510,7 @@ var I18N = {
     share_btn: '📤 共有', rename_btn: 'リネーム', edit_image: '画像編集', customize_btn: '✨ カスタマイズ',
     cosmetics_title: 'コスメティック', promo_link: 'プロモリンク', save_btn: '保存',
     hijack_warn_title: '⚠ 領土乗っ取り',
+    hijack_btn_short: '⚔ 領土をHIJACK',
     hijack_current_owner: '��在のオーナー：',
     hijack_refund: 'オーナーに返金 + 10%ボーナス',
     hijack_you_pay: '支払い額：',
@@ -16097,6 +16114,7 @@ var I18N = {
     share_btn: '📤 分享', rename_btn: '重命名', edit_image: '编辑图片', customize_btn: '✨ 自定义',
     cosmetics_title: '装饰品', promo_link: '推广链接', save_btn: '保存',
     hijack_warn_title: '⚠ 劫持领土',
+    hijack_btn_short: '⚔ 劫持领地',
     hijack_current_owner: '当前拥有者：',
     hijack_refund: '拥有者获得：退款 + 10%奖金',
     hijack_you_pay: '你支付：',
@@ -40256,7 +40274,7 @@ function closeBracket() {
 // Phase C: Hijack
 // ═════════════════════════════════════════════════════════════════
 
-async function openHijackModal() {
+async function openHijackModal(prefill) {
   if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
 
   try {
@@ -40274,11 +40292,55 @@ async function openHijackModal() {
       `<option value="${f.id}">${escapeHtml(f.name)} (${f.ships_alive}척)</option>`
     ).join('');
 
+    // Reset & autofill
+    const claimEl = document.getElementById('hijackClaimId');
+    const wEl = document.getElementById('hijackDefWallet');
+    const fEl = document.getElementById('hijackDefFleetId');
+    if (prefill && typeof prefill === 'object') {
+      if (prefill.claimId) claimEl.value = String(prefill.claimId);
+      if (prefill.defWallet) wEl.value = String(prefill.defWallet);
+      if (prefill.defFleetId) fEl.value = String(prefill.defFleetId);
+    }
+
     document.getElementById('hijackModal').classList.add('active');
+
+    // 자동으로 방어자 함대 검색해서 채워주기
+    if (prefill && prefill.defWallet && !fEl.value) {
+      try {
+        const sr = await fetch('/api/fleets/search?q=' + encodeURIComponent(prefill.defWallet), { headers: getAuthHeaders() });
+        if (sr.ok) {
+          const sd = await sr.json();
+          const candidate = (sd.results || [])
+            .filter(r => String(r.owner_wallet||'').toLowerCase() === String(prefill.defWallet).toLowerCase())
+            .filter(r => r.can_attack);
+          if (candidate[0]) {
+            fEl.value = String(candidate[0].fleet_id);
+            const nick = candidate[0].nickname || candidate[0].fleet_name || '';
+            showFactionToast(`🎯 ${nick} 함대 #${candidate[0].fleet_id} 자동 선택`, 'success');
+          } else if ((sd.results || []).length === 0) {
+            showFactionToast('방어자에게 활성 함대가 없습니다', 'error');
+          }
+        }
+      } catch(_) {}
+    }
   } catch (err) {
     showFactionToast('로드 실패', 'error');
   }
 }
+
+// 영토 정보 패널의 "⚔ HIJACK 영토" 버튼 핸들러 — autofill 로 모달 열기
+function hijackFromTerritoryInfo(){
+  const btn = document.getElementById('infoHijackBtn');
+  if (!btn) return;
+  const claimId = parseInt(btn.dataset.claimId);
+  const defWallet = btn.dataset.defWallet;
+  if (!claimId || !defWallet) {
+    showFactionToast('영토 정보가 부족합니다', 'error');
+    return;
+  }
+  openHijackModal({ claimId, defWallet });
+}
+window.hijackFromTerritoryInfo = hijackFromTerritoryInfo;
 
 function closeHijack() {
   document.getElementById('hijackModal').classList.remove('active');
