@@ -1,18 +1,17 @@
-// server/services/battleScheduler.js (PATCH for Phase B)
+// server/services/battleScheduler.js (Phase C 버전)
 // ═══════════════════════════════════════════════════════════════
-// 기존 battleScheduler.js의 runBattle 함수에 보상 분배를 추가합니다.
+// Phase B의 battleScheduler를 확장.
+// 추가: hijack Phase 1/2 완료 hook + AI respawn 예약
 //
-// 변경사항:
-//   - const battleRewards = require('./battleRewards') 추가
-//   - applyBattleResults 다음에 distributeRewards 호출 추가
-//
-// 아래 전체 파일을 교체합니다.
+// ⚠️ Phase B의 battleScheduler.js를 이 파일로 교체하세요.
 // ═══════════════════════════════════════════════════════════════
 
 const { pool } = require('../db');
 const battleEngine = require('./battleEngine');
 const battleTimeline = require('./battleTimeline');
-const battleRewards = require('./battleRewards');   // ★ Phase B 추가
+const battleRewards = require('./battleRewards');         // Phase B
+const hijackService = require('./hijack');                // Phase C
+const aiFleetManager = require('./aiFleetManager');       // Phase C
 
 let intervalHandle = null;
 const CHECK_INTERVAL_MS = 30 * 1000;
@@ -57,6 +56,13 @@ async function runBattle(battleId) {
   try {
     console.log(`[battleScheduler] running battle ${battleId}`);
     
+    // 전투 타입 미리 확인 (hijack 체크용)
+    const { rows: btype } = await pool.query(
+      `SELECT battle_type, phase FROM fleet_battles WHERE id = $1`, [battleId]
+    );
+    const battleType = btype[0]?.battle_type;
+    const battlePhase = btype[0]?.phase;
+    
     // 1. preparing → active
     await pool.query(`
       UPDATE fleet_battles 
@@ -71,14 +77,10 @@ async function runBattle(battleId) {
     
     await pool.query(`
       UPDATE fleet_battle_participants p SET
-        ships_at_start = sub.ship_count,
-        hp_at_start = sub.total_hp
+        ships_at_start = sub.ship_count, hp_at_start = sub.total_hp
       FROM (
-        SELECT s.fleet_id, 
-               COUNT(*) AS ship_count, 
-               COALESCE(SUM(s.current_hp), 0) AS total_hp
-        FROM ships s WHERE s.is_alive = true
-        GROUP BY s.fleet_id
+        SELECT s.fleet_id, COUNT(*) AS ship_count, COALESCE(SUM(s.current_hp), 0) AS total_hp
+        FROM ships s WHERE s.is_alive = true GROUP BY s.fleet_id
       ) sub
       WHERE p.fleet_id = sub.fleet_id AND p.battle_id = $1
     `, [battleId]);
@@ -93,16 +95,35 @@ async function runBattle(battleId) {
     // 4. DB 반영
     await battleEngine.applyBattleResults(battleId, result);
     
-    // 5. 보상 분배 (★ Phase B 추가)
+    // 5. 보상 분배 (Phase B)
     try {
       const rewards = await battleRewards.distributeRewards(battleId);
       console.log(`[battleScheduler] battle ${battleId} rewards distributed to ${rewards.length}`);
     } catch (rewardErr) {
-      console.error(`[battleScheduler] reward distribution failed:`, rewardErr);
-      // 보상 실패해도 전투 자체는 유효
+      console.error(`[battleScheduler] reward failed:`, rewardErr);
     }
     
-    // 6. Chronicle
+    // 6. Hijack Phase 1/2 연동 (Phase C)
+    if (battleType === 'hijack') {
+      try {
+        if (battlePhase === 'hijack_phase1') {
+          await hijackService.handlePhase1Complete(battleId);
+        } else if (battlePhase === 'hijack_phase2') {
+          await hijackService.handlePhase2Complete(battleId);
+        }
+      } catch (hjErr) {
+        console.error(`[battleScheduler] hijack hook failed:`, hjErr);
+      }
+    }
+    
+    // 7. AI respawn 예약 (Phase C)
+    try {
+      await aiFleetManager.scheduleRespawnIfNeeded(battleId);
+    } catch (aiErr) {
+      console.error(`[battleScheduler] AI respawn failed:`, aiErr);
+    }
+    
+    // 8. Chronicle
     try {
       await pool.query(`SELECT publish_fleet_battle_chronicle($1, 'concluded')`, [battleId]);
     } catch (e) {}

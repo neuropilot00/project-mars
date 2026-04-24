@@ -3514,6 +3514,174 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   cursor: pointer; border-radius: 3px;
 }
 
+/* ═════ Phase C — AI 연습전 모달 ═════ */
+.ai-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
+  z-index: 9995;
+  display: none; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.ai-modal-backdrop.active { display: flex; }
+.ai-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(79,195,247,.3);
+  border-radius: 10px;
+  width: 100%; max-width: 800px;
+  max-height: 90vh; display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.ai-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  padding: 14px 20px;
+  overflow-y: auto;
+}
+.ai-card {
+  padding: 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.ai-card:hover { background: rgba(79,195,247,.08); border-color: rgba(79,195,247,.4); }
+.ai-card.difficulty-easy   { border-left: 3px solid #81c784; }
+.ai-card.difficulty-normal { border-left: 3px solid #4fc3f7; }
+.ai-card.difficulty-hard   { border-left: 3px solid #ffb74d; }
+.ai-card.difficulty-elite  { border-left: 3px solid #ef5350; }
+.ai-card-nick {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700; letter-spacing: 1px; font-size: 11px;
+  margin-bottom: 2px;
+}
+.ai-card-meta { font-size: 9px; color: rgba(255,255,255,.5); letter-spacing: 1px; }
+.ai-card-ships { margin-top: 6px; font-size: 10px; color: #4fc3f7; font-weight: 700; }
+.difficulty-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 8px; font-weight: 700; letter-spacing: 1px;
+  border-radius: 2px; margin-top: 2px;
+}
+.difficulty-badge.easy   { background: rgba(129,199,132,.15); color: #81c784; }
+.difficulty-badge.normal { background: rgba(79,195,247,.15); color: #4fc3f7; }
+.difficulty-badge.hard   { background: rgba(255,183,77,.15); color: #ffb74d; }
+.difficulty-badge.elite  { background: rgba(239,83,80,.15); color: #ef5350; }
+
+/* ═════ Phase C — 토너먼트 모달 ═════ */
+.tn-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
+  z-index: 9994;
+  display: none; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.tn-modal-backdrop.active { display: flex; }
+.tn-modal {
+  background: #0a0d18;
+  border: 1px solid rgba(255,215,0,.3);
+  border-radius: 10px;
+  width: 100%; max-width: 1000px;
+  max-height: 90vh; display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.tn-tabs {
+  display: flex;
+  background: rgba(0,0,0,.3);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.tn-tab {
+  flex: 1; background: transparent; border: none;
+  padding: 12px; cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,.4);
+  border-bottom: 2px solid transparent;
+}
+.tn-tab.active { color: #ffd700; border-bottom-color: #ffd700; background: rgba(255,215,0,.05); }
+.tn-list { padding: 14px 20px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+.tn-card {
+  padding: 12px 14px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 5px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.tn-card.status-registering { border-left: 3px solid #4fc3f7; }
+.tn-card.status-running { border-left: 3px solid #ffd700; }
+.tn-card.status-completed { border-left: 3px solid #81c784; }
+.tn-card-title {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700; letter-spacing: 1px; margin-bottom: 2px;
+}
+.tn-card-meta {
+  font-size: 9px; color: rgba(255,255,255,.5);
+  letter-spacing: 1px;
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.bracket-container { padding: 20px; overflow-x: auto; overflow-y: auto; max-height: 500px; }
+.bracket { display: flex; gap: 30px; min-width: max-content; }
+.bracket-round {
+  display: flex; flex-direction: column; justify-content: space-around;
+  min-width: 200px; gap: 20px;
+}
+.bracket-match {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 10px;
+}
+.bracket-match.completed { border-color: rgba(255,215,0,.3); }
+.bracket-match.running { border-color: rgba(79,195,247,.5); background: rgba(79,195,247,.05); }
+.bracket-player {
+  padding: 3px 0;
+  display: flex; justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.bracket-player:last-child { border-bottom: none; }
+.bracket-player.winner { color: #ffd700; font-weight: 700; }
+.bracket-player.empty { color: rgba(255,255,255,.2); }
+
+/* ═════ Phase C — Hijack 모달 ═════ */
+.hj-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.9); backdrop-filter: blur(8px);
+  z-index: 9993;
+  display: none; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.hj-modal-backdrop.active { display: flex; }
+.hj-modal {
+  background: #0a0d18;
+  border: 2px solid rgba(186,104,200,.4);
+  border-radius: 10px;
+  width: 100%; max-width: 700px;
+  padding: 20px;
+  max-height: 90vh; overflow-y: auto;
+}
+.hj-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px; font-weight: 900; letter-spacing: 4px;
+  color: #ba68c8; text-align: center; margin-bottom: 4px;
+}
+.hj-subtitle {
+  font-size: 9px; letter-spacing: 2px;
+  color: rgba(255,255,255,.4);
+  text-align: center; margin-bottom: 16px;
+}
+.hj-warn {
+  background: rgba(255,180,77,.08);
+  border-left: 3px solid #ffb74d;
+  padding: 8px 12px;
+  font-size: 10px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
 </style>
 </head>
 <body>
@@ -37547,6 +37715,85 @@ function fcEsc(str) {
   <button class="reward-close" onclick="closeRewardToast()">확인</button>
 </div>
 
+<!-- Phase C: AI 연습전 -->
+<div class="ai-modal-backdrop" id="aiFightModal">
+  <div class="ai-modal">
+    <div class="bh-header">
+      <div class="bh-title">🤖 AI 연습전</div>
+      <button class="shipyard-close" onclick="closeAiFight()">✕</button>
+    </div>
+    <div style="padding:10px 20px;font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px">
+      난이도별 AI 함대와 연습 전투. 보상은 일반 전투의 50%.
+    </div>
+    <div class="ai-grid" id="aiFightGrid"></div>
+  </div>
+</div>
+
+<!-- Phase C: 토너먼트 허브 -->
+<div class="tn-modal-backdrop" id="tournamentModal">
+  <div class="tn-modal">
+    <div class="bh-header">
+      <div class="bh-title">🏆 TOURNAMENTS</div>
+      <button class="shipyard-close" onclick="closeTournaments()">✕</button>
+    </div>
+    <div class="tn-tabs">
+      <button class="tn-tab active" data-tab="open" onclick="tnSwitchTab('open')">📢 모집중</button>
+      <button class="tn-tab" data-tab="running" onclick="tnSwitchTab('running')">▶ 진행중</button>
+      <button class="tn-tab" data-tab="completed" onclick="tnSwitchTab('completed')">✓ 완료</button>
+    </div>
+    <div class="tn-list" id="tnListContent"></div>
+    <div class="bh-declare-area">
+      <button class="bh-declare-btn" style="font-size:10px" onclick="openCreateTournament()">
+        + 토너먼트 개최
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Phase C: 토너먼트 브래킷 뷰 -->
+<div class="tn-modal-backdrop" id="bracketModal">
+  <div class="tn-modal">
+    <div class="bh-header">
+      <div class="bh-title" id="bracketTitle">🏆 BRACKET</div>
+      <button class="shipyard-close" onclick="closeBracket()">✕</button>
+    </div>
+    <div class="bracket-container" id="bracketContent"></div>
+  </div>
+</div>
+
+<!-- Phase C: Hijack 선언 -->
+<div class="hj-modal-backdrop" id="hijackModal">
+  <div class="hj-modal">
+    <div class="hj-title">HIJACK DECLARATION</div>
+    <div class="hj-subtitle">// 2단계 침투 작전</div>
+    <div class="hj-warn">
+      ⚠ <b>Phase 1</b>: 프리깃/구축함 최대 20척 투입. 방어 돌파 시도.<br>
+      ⚠ <b>Phase 2</b>: Phase 1 성공 시 본대 투입 가능.<br>
+      ⚠ 각 Phase는 별도 전투로 진행됩니다.
+    </div>
+    <div class="bd-section">
+      <div class="bd-section-label">Phase 1 투입 함대 (소형함 전용)</div>
+      <select class="bd-my-fleet-select" id="hijackAtkFleet"></select>
+    </div>
+    <div class="bd-section">
+      <div class="bd-section-label">타겟 Claim ID</div>
+      <input class="bd-target-input" id="hijackClaimId" type="number" placeholder="Claim ID">
+    </div>
+    <div class="bd-section">
+      <div class="bd-section-label">방어자 지갑 + 함대 ID</div>
+      <input class="bd-target-input" id="hijackDefWallet" placeholder="0x..." style="margin-bottom:4px">
+      <input class="bd-target-input" id="hijackDefFleetId" type="number" placeholder="방어 함대 ID">
+    </div>
+    <div class="bd-actions">
+      <button class="fd-btn" onclick="closeHijack()">취소</button>
+      <button class="bh-declare-btn" style="font-size:10px;padding:8px 16px;background:linear-gradient(135deg,#7b1fa2,#ba68c8);border-color:#ba68c8"
+              onclick="confirmHijack()">
+        🔀 Phase 1 시작
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Battle Viewer -->
 <div class="bv-backdrop" id="battleViewer">
   <div class="bv-stage">
@@ -38016,6 +38263,377 @@ function getMyWallet() {
     const payload = JSON.parse(atob(token.split('.')[1]));
     return payload.wallet_address || payload.wallet || payload.walletAddress;
   } catch { return null; }
+}
+
+// ═════════════════════════════════════════════════════════════════
+// Phase C: AI 연습전
+// ═════════════════════════════════════════════════════════════════
+
+async function openAiFight() {
+  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  document.getElementById('aiFightModal').classList.add('active');
+  await loadAiFleets();
+}
+
+function closeAiFight() {
+  document.getElementById('aiFightModal').classList.remove('active');
+}
+
+async function loadAiFleets() {
+  const grid = document.getElementById('aiFightGrid');
+  grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">로딩 중...</div>';
+
+  try {
+    const res = await fetch('/api/ai/fleets', { headers: getAuthHeaders() });
+    const data = await res.json();
+    const fleets = data.fleets || [];
+
+    if (fleets.length === 0) {
+      grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">사용 가능한 AI 함대 없음<br>서버가 AI 함대 생성 중일 수 있습니다</div>';
+      return;
+    }
+
+    grid.innerHTML = fleets.map(f => `
+      <div class="ai-card difficulty-${f.ai_difficulty || 'normal'}"
+           onclick="challengeAi(${f.fleet_id}, '${escapeHtml(f.nickname || '')}')">
+        <div class="ai-card-nick">${escapeHtml(f.nickname || 'AI')}</div>
+        <div class="ai-card-meta">${escapeHtml(f.faction_name || '')}</div>
+        <span class="difficulty-badge ${f.ai_difficulty || 'normal'}">${(f.ai_difficulty || 'normal').toUpperCase()}</span>
+        <div class="ai-card-ships">⚔ ${f.ships_alive}척</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('loadAiFleets:', err);
+    grid.innerHTML = '<div class="bh-empty" style="grid-column:1/-1">로딩 실패</div>';
+  }
+}
+
+async function challengeAi(aiFleetId, aiName) {
+  try {
+    const res = await fetch('/api/fleets', { headers: getAuthHeaders() });
+    const data = await res.json();
+    const myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
+
+    if (myFleets.length === 0) {
+      showFactionToast('전투 가능한 함대가 없습니다', 'error');
+      return;
+    }
+
+    const options = myFleets.map((f, i) => `${i+1}. ${f.name} (${f.ships_alive}척)`).join('\n');
+    const choice = prompt(`🤖 ${aiName} 에게 도전\n\n내 함대 선택:\n${options}`, '1');
+    if (!choice) return;
+
+    const idx = parseInt(choice) - 1;
+    if (isNaN(idx) || !myFleets[idx]) {
+      showFactionToast('잘못된 선택', 'error');
+      return;
+    }
+
+    const res2 = await fetch('/api/ai/fight', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ my_fleet_id: myFleets[idx].id, ai_fleet_id: aiFleetId })
+    });
+    const data2 = await res2.json();
+
+    if (!res2.ok) {
+      showFactionToast(`오류: ${data2.error}`, 'error');
+      return;
+    }
+
+    showFactionToast(`🤖 ${aiName} 와의 전투 시작!`, 'success');
+    closeAiFight();
+    setTimeout(() => openBattleViewer(data2.battle_id), 3000);
+    setTimeout(() => showRewardIfAny(data2.battle_id), 8000);
+  } catch (err) {
+    console.error('challengeAi:', err);
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════
+// Phase C: Tournaments
+// ═════════════════════════════════════════════════════════════════
+
+var tnState = { currentTab: 'open' };
+
+async function openTournaments() {
+  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+  document.getElementById('tournamentModal').classList.add('active');
+  await tnLoad();
+}
+
+function closeTournaments() {
+  document.getElementById('tournamentModal').classList.remove('active');
+}
+
+function tnSwitchTab(tab) {
+  tnState.currentTab = tab;
+  document.querySelectorAll('.tn-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === tab)
+  );
+  tnLoad();
+}
+
+async function tnLoad() {
+  const tab = tnState.currentTab;
+  const container = document.getElementById('tnListContent');
+  container.innerHTML = '<div class="bh-empty">로딩 중...</div>';
+
+  try {
+    let statusParam = '';
+    if (tab === 'open') statusParam = '?status=registering';
+    else if (tab === 'running') statusParam = '?status=running';
+    else statusParam = '?status=completed';
+
+    const res = await fetch('/api/tournaments' + statusParam);
+    const data = await res.json();
+    const list = data.tournaments || [];
+
+    if (list.length === 0) {
+      container.innerHTML = `<div class="bh-empty">${tab === 'open' ? '모집 중인 토너먼트 없음' : tab === 'running' ? '진행 중인 토너먼트 없음' : '완료된 토너먼트 없음'}</div>`;
+      return;
+    }
+
+    container.innerHTML = list.map(t => renderTournamentCard(t)).join('');
+  } catch (err) {
+    console.error('tnLoad:', err);
+    container.innerHTML = '<div class="bh-empty">로딩 실패</div>';
+  }
+}
+
+function renderTournamentCard(t) {
+  const statusLabel = {
+    'registering': `모집 중 ${t.current_participants}/${t.max_participants}`,
+    'ready': '시작 대기',
+    'running': `진행 중 · R${t.current_round}/${t.total_rounds}`,
+    'completed': '완료', 'cancelled': '취소',
+  }[t.status] || t.status;
+
+  return `
+    <div class="tn-card status-${t.status}">
+      <div>
+        <div class="tn-card-title">🏆 ${escapeHtml(t.name)}</div>
+        <div class="tn-card-meta">
+          <span>${statusLabel}</span>
+          <span>참가비 <b>${t.entry_fee_gp || 0}</b> GP</span>
+          <span>상금 <b>${t.prize_pool_gp || 0}</b> GP</span>
+          <span>${t.max_participants}강</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px">
+        ${t.status === 'registering'
+          ? `<button class="bc-btn primary" onclick="registerTournament(${t.id})">참가</button>` : ''}
+        <button class="bc-btn" onclick="openBracket(${t.id})">브래킷</button>
+      </div>
+    </div>
+  `;
+}
+
+async function registerTournament(tournamentId) {
+  try {
+    const res = await fetch('/api/fleets', { headers: getAuthHeaders() });
+    const data = await res.json();
+    const myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
+
+    if (myFleets.length === 0) {
+      showFactionToast('전투 가능한 함대가 없습니다', 'error');
+      return;
+    }
+
+    const options = myFleets.map((f, i) => `${i+1}. ${f.name} (${f.ships_alive}척)`).join('\n');
+    const choice = prompt(`🏆 토너먼트 참가 함대 선택:\n${options}`, '1');
+    if (!choice) return;
+    const idx = parseInt(choice) - 1;
+    if (!myFleets[idx]) return;
+
+    const res2 = await fetch(`/api/tournaments/${tournamentId}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ fleet_id: myFleets[idx].id })
+    });
+    const data2 = await res2.json();
+
+    if (!res2.ok) {
+      const msgMap = {
+        'TOURNAMENT_FULL': '정원 초과', 'ALREADY_REGISTERED': '이미 참가 중',
+        'INSUFFICIENT_GP': `GP 부족 (필요: ${data2.meta?.required})`,
+        'FLEET_IN_BATTLE': '함대가 전투 중', 'DEADLINE_PASSED': '모집 마감됨',
+      };
+      showFactionToast(msgMap[data2.error] || `오류: ${data2.error}`, 'error');
+      return;
+    }
+
+    showFactionToast('🏆 참가 완료', 'success');
+    tnLoad();
+  } catch (err) {
+    console.error('registerTournament:', err);
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+async function openCreateTournament() {
+  const name = prompt('토너먼트 이름:');
+  if (!name) return;
+
+  const sizeStr = prompt('참가 인원 (4/8/16):', '8');
+  const size = parseInt(sizeStr);
+  if (![4, 8, 16].includes(size)) {
+    showFactionToast('4/8/16 중 하나', 'error');
+    return;
+  }
+
+  const feeStr = prompt('참가비 GP (0=무료):', '100');
+  const fee = parseInt(feeStr) || 0;
+
+  try {
+    const res = await fetch('/api/tournaments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({
+        name: name.trim(), max_participants: size,
+        entry_fee_gp: fee,
+        registration_deadline_hours: 24, start_delay_hours: 1,
+      })
+    });
+    const data = await res.json();
+
+    if (!res.ok) { showFactionToast(`오류: ${data.error}`, 'error'); return; }
+    showFactionToast('🏆 토너먼트 개최됨', 'success');
+    tnLoad();
+  } catch (err) {
+    showFactionToast('네트워크 오류', 'error');
+  }
+}
+
+async function openBracket(tournamentId) {
+  document.getElementById('bracketModal').classList.add('active');
+  document.getElementById('bracketContent').innerHTML = '<div class="bh-empty">로딩 중...</div>';
+
+  try {
+    const res = await fetch(`/api/tournaments/${tournamentId}`);
+    const data = await res.json();
+    const t = data.tournament;
+    if (!t) return;
+
+    document.getElementById('bracketTitle').innerHTML = `🏆 ${escapeHtml(t.name)}`;
+
+    const byRound = {};
+    for (const m of (t.matches || [])) {
+      if (!byRound[m.round]) byRound[m.round] = [];
+      byRound[m.round].push(m);
+    }
+
+    const roundKeys = Object.keys(byRound).sort((a,b) => parseInt(a) - parseInt(b));
+    if (roundKeys.length === 0) {
+      document.getElementById('bracketContent').innerHTML = '<div class="bh-empty">아직 브래킷이 생성되지 않았습니다</div>';
+      return;
+    }
+
+    const html = '<div class="bracket">' + roundKeys.map(r => `
+      <div class="bracket-round">
+        <div style="font-size:10px;color:rgba(255,255,255,.4);letter-spacing:2px;text-align:center;margin-bottom:6px">ROUND ${r}</div>
+        ${byRound[r].sort((a,b) => a.match_index - b.match_index).map(m => `
+          <div class="bracket-match ${m.status}">
+            <div class="bracket-player ${m.winner_wallet === m.p1_wallet ? 'winner' : ''} ${!m.p1_wallet ? 'empty' : ''}">
+              <span>${escapeHtml(m.p1_nickname || '-')}</span><span>${m.winner_wallet === m.p1_wallet ? '✓' : ''}</span>
+            </div>
+            <div class="bracket-player ${m.winner_wallet === m.p2_wallet ? 'winner' : ''} ${!m.p2_wallet ? 'empty' : ''}">
+              <span>${escapeHtml(m.p2_nickname || '-')}</span><span>${m.winner_wallet === m.p2_wallet ? '✓' : ''}</span>
+            </div>
+            ${m.battle_id ? `<button class="bc-btn primary" style="margin-top:4px;width:100%;font-size:9px" onclick="openBattleViewer(${m.battle_id})">관전</button>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `).join('') + '</div>';
+
+    document.getElementById('bracketContent').innerHTML = html;
+  } catch (err) {
+    console.error('openBracket:', err);
+    document.getElementById('bracketContent').innerHTML = '<div class="bh-empty">로딩 실패</div>';
+  }
+}
+
+function closeBracket() {
+  document.getElementById('bracketModal').classList.remove('active');
+}
+
+// ═════════════════════════════════════════════════════════════════
+// Phase C: Hijack
+// ═════════════════════════════════════════════════════════════════
+
+async function openHijackModal() {
+  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
+
+  try {
+    const res = await fetch('/api/fleets', { headers: getAuthHeaders() });
+    const data = await res.json();
+    const myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
+
+    if (myFleets.length === 0) {
+      showFactionToast('사용 가능한 함대가 없습니다', 'error');
+      return;
+    }
+
+    const sel = document.getElementById('hijackAtkFleet');
+    sel.innerHTML = myFleets.map(f =>
+      `<option value="${f.id}">${escapeHtml(f.name)} (${f.ships_alive}척)</option>`
+    ).join('');
+
+    document.getElementById('hijackModal').classList.add('active');
+  } catch (err) {
+    showFactionToast('로드 실패', 'error');
+  }
+}
+
+function closeHijack() {
+  document.getElementById('hijackModal').classList.remove('active');
+}
+
+async function confirmHijack() {
+  const atkFleetId = parseInt(document.getElementById('hijackAtkFleet').value);
+  const claimId = parseInt(document.getElementById('hijackClaimId').value);
+  const defWallet = document.getElementById('hijackDefWallet').value.trim();
+  const defFleetId = parseInt(document.getElementById('hijackDefFleetId').value);
+
+  if (!atkFleetId || !claimId || !defWallet || !defFleetId) {
+    showFactionToast('모든 필드를 입력해주세요', 'error');
+    return;
+  }
+
+  if (!confirm('🔀 하이잭 Phase 1 시작\n\n프리깃/구축함만 투입됩니다.\n성공 시 Phase 2 진행 가능.\n\n진행하시겠습니까?')) return;
+
+  try {
+    const res = await fetch('/api/hijack/declare', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({
+        target_claim_id: claimId,
+        atk_fleet_id: atkFleetId,
+        def_wallet: defWallet,
+        def_fleet_id: defFleetId,
+      })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      const msgMap = {
+        'NO_PHASE1_SHIPS': '프리깃/구축함이 없습니다',
+        'TOO_MANY_PHASE1_SHIPS': `Phase 1은 최대 ${data.meta?.max || 20}척`,
+        'ATK_FLEET_IN_BATTLE': '공격 함대가 전투 중',
+        'DEF_FLEET_IN_BATTLE': '방어 함대가 전투 중',
+      };
+      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
+      return;
+    }
+
+    showFactionToast('🔀 Phase 1 전투 시작', 'success');
+    closeHijack();
+    setTimeout(() => openBattleViewer(data.phase1_battle_id), 3000);
+  } catch (err) {
+    console.error('confirmHijack:', err);
+    showFactionToast('네트워크 오류', 'error');
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════

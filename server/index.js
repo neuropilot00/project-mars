@@ -123,6 +123,7 @@ const battleRoutes  = require('./routes/battle');
 const fleetBattleRoutes = require('./routes/fleetBattles'); // A-4: Fleet Battle Engine
 const fleetSearchRoutes = require('./routes/fleetSearch');   // Phase B: Fleet Search
 const battleExtrasRoutes = require('./routes/battleExtras'); // Phase B: Battle Rewards/Siege
+const phaseCRoutes = require('./routes/phaseC');             // Phase C: AI/Tournament/Hijack
 const lotteryRoutes  = require('./routes/lottery');
 const stakingRoutes  = require('./routes/staking');
 const gpBurnRoutes      = require('./routes/gpBurn');
@@ -282,6 +283,7 @@ app.use('/api', publicRoutes);
 app.use('/api', bettingRoutes);
 app.use('/api', auctionRoutes);
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
+app.use('/api', phaseCRoutes);               // Phase C: AI/Tournament/Hijack
 app.use('/api/battles', battleExtrasRoutes); // Phase B: Rewards/Siege extras (before fleetBattles to capture /rewards/mine etc.)
 app.use('/api/battles', fleetBattleRoutes); // A-4: Fleet Battle Engine (must be before /api for prefix priority)
 app.use('/api', battleRoutes);
@@ -1180,6 +1182,11 @@ async function start() {
     try {
       require('./services/battleScheduler').start();
     } catch(e) { console.warn('[battleScheduler] Could not start:', e.message); }
+
+    // ── Phase C Scheduler: AI fleets + Tournament + Hijack (every 60s) ──
+    try {
+      require('./services/phaseCScheduler').start();
+    } catch(e) { console.warn('[phaseCScheduler] Could not start:', e.message); }
 
     // ── Time Capsule: Reveal due capsules (every 5 minutes) ──
     try {
