@@ -34,7 +34,7 @@ async function getActiveAnnouncements() {
     SELECT a.id, a.wallet, u.nickname AS player_name,
            a.message, a.gp_paid, a.duration_m, a.expires_at, a.created_at
     FROM colony_announcements a
-    LEFT JOIN users u ON u.wallet = a.wallet
+    LEFT JOIN users u ON u.wallet_address = a.wallet
     WHERE a.is_active=true AND a.expires_at > NOW()
     ORDER BY a.gp_paid DESC, a.created_at DESC
     LIMIT 5
@@ -82,14 +82,14 @@ async function postAnnouncement(wallet, message, durationM) {
 
     // Deduct GP
     const bal = await client.query(
-      'SELECT gp_balance FROM users WHERE wallet=$1 FOR UPDATE', [wallet]
+      'SELECT gp_balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wallet]
     );
     if (!bal.rows.length) throw new Error('User not found');
     if (bal.rows[0].gp_balance < costGP)
       throw new Error(`Insufficient GP (need ${costGP} for ${durM}min broadcast)`);
 
     await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet=$2',
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2',
       [costGP, wallet]
     );
     await client.query(
@@ -143,7 +143,7 @@ async function getAdminStats() {
     SELECT a.id, a.wallet, u.nickname, a.message, a.gp_paid, a.duration_m,
            a.is_active, a.expires_at, a.created_at
     FROM colony_announcements a
-    LEFT JOIN users u ON u.wallet = a.wallet
+    LEFT JOIN users u ON u.wallet_address = a.wallet
     ORDER BY a.created_at DESC LIMIT 20
   `);
   return { stats: rows[0], recent: recent.rows };
