@@ -91,7 +91,7 @@ router.get('/catalog', async (_req, res) => {
  * Uses real ship codes that exist in ship_types so the simulator renders
  * authentic silhouettes.
  */
-router.get('/fleet-presets', async (_req, res) => {
+router.get('/fleet-presets', async (req, res) => {
   try {
     // Verify which ship codes actually exist so presets never reference dead codes
     const { rows } = await pool.query(
@@ -104,6 +104,70 @@ router.get('/fleet-presets', async (_req, res) => {
       for (const [k, v] of Object.entries(obj)) if (valid.has(k)) out[k] = v;
       return out;
     };
+
+    // ── battleId 쿼리 분기: 실제 hijack/fleet_battle 의 attacker/defender 함대 구성 반환 ──
+    // tactical-lab v11 가 ?bid=N 으로 호출하면 그 battle 의 진짜 함대를 시뮬에 사용.
+    const battleId = parseInt(req.query.bid || req.query.battleId);
+    if (battleId && battleId > 0) {
+      try {
+        const partRes = await pool.query(`
+          SELECT fbp.fleet_id, fbp.side, f.name AS fleet_name, f.owner_wallet,
+                 COALESCE(u.nickname, LEFT(f.owner_wallet,6)) AS nick,
+                 u.faction_code AS owner_faction
+          FROM fleet_battle_participants fbp
+          JOIN fleets f ON f.id = fbp.fleet_id
+          LEFT JOIN users u ON u.wallet_address = f.owner_wallet
+          WHERE fbp.battle_id = $1
+        `, [battleId]);
+
+        const partsBySide = { atk: [], def: [] };
+        for (const p of partRes.rows) {
+          const shipsRes = await pool.query(
+            `SELECT ship_type_code, COUNT(*)::int AS cnt,
+                    SUM(CASE WHEN is_flagship THEN 1 ELSE 0 END)::int AS flagship_cnt,
+                    (ARRAY_AGG(ship_type_code) FILTER (WHERE is_flagship))[1] AS flagship_code
+             FROM ships
+             WHERE fleet_id = $1 AND is_alive = true
+             GROUP BY ship_type_code`,
+            [p.fleet_id]
+          );
+          const escort = {};
+          let flagship = null;
+          for (const s of shipsRes.rows) {
+            if (!valid.has(s.ship_type_code)) continue;
+            if (s.flagship_code === s.ship_type_code && !flagship) {
+              flagship = s.ship_type_code;
+              const remaining = s.cnt - 1;
+              if (remaining > 0) escort[s.ship_type_code] = remaining;
+            } else {
+              escort[s.ship_type_code] = (escort[s.ship_type_code] || 0) + s.cnt;
+            }
+          }
+          if (!flagship) {
+            // 기함 없으면 첫 함선을 기함으로
+            const firstCode = Object.keys(escort)[0];
+            if (firstCode) {
+              flagship = firstCode;
+              if (escort[firstCode] > 1) escort[firstCode] -= 1;
+              else delete escort[firstCode];
+            }
+          }
+          if (flagship) {
+            partsBySide[p.side === 'atk' ? 'atk' : 'def'].push({
+              id: p.nick || ('Fleet#' + p.fleet_id),
+              tag: (p.owner_faction || flagship.split('_')[0] || 'mcc').toUpperCase(),
+              flagship,
+              escort,
+            });
+          }
+        }
+        if (partsBySide.atk.length || partsBySide.def.length) {
+          return res.json({ atk: partsBySide.atk, def: partsBySide.def, source: 'battle:' + battleId });
+        }
+      } catch (battleErr) {
+        console.warn('[tactical-lab] battleId fetch failed, falling back to demo:', battleErr.message);
+      }
+    }
 
     const atk = [
       { id: 'KimWarrior',  tag: 'MCC', flagship: 'mcc_titan', escort: filter({ mcc_bs:2, mcc_snp:3, mcc_crs:5, mcc_dst:10, mcc_ewar:3, mcc_frg:18, mcc_int:35 }) },

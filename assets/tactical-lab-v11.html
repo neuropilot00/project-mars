@@ -1304,9 +1304,12 @@ function renderAnalysis(){
    ═══════════════════════════════════════════════════════════ */
 async function loadCatalog(){
   try {
+    // ?bid={battleId} 쿼리스트링 전달 → 그 battle 의 실제 함대 구성으로 시뮬
+    const bid = new URLSearchParams(location.search).get('bid');
+    const fleetUrl = '/api/tactical-lab/fleet-presets' + (bid ? ('?bid=' + encodeURIComponent(bid)) : '');
     const [catRes, fltRes] = await Promise.all([
       fetch('/api/tactical-lab/catalog', { cache: 'no-cache' }),
-      fetch('/api/tactical-lab/fleet-presets', { cache: 'no-cache' }),
+      fetch(fleetUrl, { cache: 'no-cache' }),
     ]);
     if (catRes.ok) {
       const cat = await catRes.json();
