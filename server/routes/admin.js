@@ -4672,4 +4672,125 @@ router.post('/fleet/grant-starter', adminAuth, async (req, res) => {
   } finally { client.release(); }
 });
 
+// ══════════════════════════════════════════════════
+// POST /admin/api/fleet/grant-starter-all-npcs — 모든 NPC에 스타터 일괄 지급
+// ══════════════════════════════════════════════════
+router.post('/fleet/grant-starter-all-npcs', adminAuth, async (req, res) => {
+  // 트리거 자가치유 (위 grant-starter와 동일 — Railway migration 누락 대응)
+  try {
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION check_player_ship_limit() RETURNS TRIGGER AS $FN$
+      DECLARE
+        v_max_per_player INTEGER; v_current_count INTEGER;
+        v_total_count INTEGER; v_global_max INTEGER; v_raw_text TEXT;
+      BEGIN
+        SELECT max_per_player INTO v_max_per_player FROM ship_types WHERE code = NEW.ship_type_code;
+        IF v_max_per_player IS NOT NULL THEN
+          SELECT COUNT(*) INTO v_current_count FROM ships
+            WHERE owner_wallet = NEW.owner_wallet AND ship_type_code = NEW.ship_type_code AND is_alive = true;
+          IF v_current_count >= v_max_per_player THEN
+            RAISE EXCEPTION 'SHIP_PLAYER_TYPE_LIMIT: % (max % per player)', NEW.ship_type_code, v_max_per_player;
+          END IF;
+        END IF;
+        SELECT value #>> '{}' INTO v_raw_text FROM settings WHERE category = 'fleet' AND key = 'max_ships_per_player' LIMIT 1;
+        BEGIN v_global_max := COALESCE(NULLIF(TRIM(v_raw_text), ''), '200')::INTEGER;
+        EXCEPTION WHEN OTHERS THEN v_global_max := 200; END;
+        IF v_global_max IS NULL OR v_global_max <= 0 THEN v_global_max := 200; END IF;
+        SELECT COUNT(*) INTO v_total_count FROM ships WHERE owner_wallet = NEW.owner_wallet AND is_alive = true;
+        IF v_total_count >= v_global_max THEN
+          RAISE EXCEPTION 'SHIP_PLAYER_TOTAL_LIMIT: max % ships per player', v_global_max;
+        END IF;
+        RETURN NEW;
+      END;
+      $FN$ LANGUAGE plpgsql;
+    `);
+  } catch (_) {}
+
+  // NPC 목록 조회
+  let npcs;
+  try {
+    const r = await pool.query(
+      `SELECT wallet_address, faction_code FROM users WHERE wallet_address LIKE '0xnpc_%' ORDER BY wallet_address`
+    );
+    npcs = r.rows;
+  } catch (e) {
+    return res.status(500).json({ error: 'list_failed: ' + e.message });
+  }
+
+  if (npcs.length === 0) return res.json({ success: true, total: 0, granted: 0, skipped: 0, message: 'No NPCs found' });
+
+  // 컬럼/테이블 존재 여부 (한 번만 체크)
+  const hasIsNpc      = (await pool.query(`SELECT 1 FROM information_schema.columns WHERE table_name='fleets' AND column_name='is_npc'`)).rows.length > 0;
+  const hasBbw        = (await pool.query(`SELECT 1 FROM information_schema.columns WHERE table_name='ships' AND column_name='built_by_wallet'`)).rows.length > 0;
+  const hasResources  = (await pool.query(`SELECT 1 FROM information_schema.tables WHERE table_name IN ('resources','user_resource_inventory') AND table_schema='public'`)).rows.length === 2;
+
+  const starterMinerals = { iron_ore: 20, carbon_fiber: 20, silicon_chip: 10 };
+  const factionDefault = ['mcc', 'fsp', 'cv'];
+
+  const summary = { total: npcs.length, granted: 0, alreadyHad: 0, errors: [] };
+
+  for (let i = 0; i < npcs.length; i++) {
+    const npc = npcs[i];
+    const w = npc.wallet_address;
+    const faction = npc.faction_code || factionDefault[i % 3];
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      if (!npc.faction_code) {
+        await client.query(`UPDATE users SET faction_code=$1 WHERE wallet_address=$2`, [faction, w]);
+      }
+      // 함대 확보
+      let fleetId;
+      const { rows: ef } = await client.query(`SELECT id FROM fleets WHERE owner_wallet=$1 LIMIT 1`, [w]);
+      if (ef[0]) fleetId = ef[0].id;
+      else {
+        const fSql = hasIsNpc
+          ? `INSERT INTO fleets (owner_wallet, name, is_npc) VALUES ($1, '1함대', true) RETURNING id`
+          : `INSERT INTO fleets (owner_wallet, name) VALUES ($1, '1함대') RETURNING id`;
+        const { rows: nf } = await client.query(fSql, [w]);
+        fleetId = nf[0].id;
+      }
+      // 함선 체크 후 지급
+      const { rows: sc } = await client.query(`SELECT 1 FROM ships WHERE owner_wallet=$1 AND is_alive=true LIMIT 1`, [w]);
+      if (sc.length === 0) {
+        const { rows: stTypes } = await client.query(
+          `SELECT code, base_hp FROM ship_types WHERE faction_code=$1 AND is_active=true AND size_class='frigate' ORDER BY build_gp_cost ASC LIMIT 1`,
+          [faction]
+        );
+        if (stTypes[0]) {
+          const st = stTypes[0];
+          const sSql = hasBbw
+            ? `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, built_by_wallet) VALUES ($1,$2,$3,$4,$4,true,$3)`
+            : `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship) VALUES ($1,$2,$3,$4,$4,true)`;
+          await client.query(sSql, [fleetId, st.code, w, st.base_hp]);
+          summary.granted++;
+        }
+      } else {
+        summary.alreadyHad++;
+      }
+      // 광물
+      if (hasResources) {
+        for (const [code, qty] of Object.entries(starterMinerals)) {
+          const { rows: rr } = await client.query(`SELECT id FROM resources WHERE code=$1 LIMIT 1`, [code]);
+          if (!rr[0]) continue;
+          await client.query(
+            `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity) VALUES ($1,$2,$3)
+             ON CONFLICT (wallet_address, resource_id) DO UPDATE SET quantity=user_resource_inventory.quantity+EXCLUDED.quantity`,
+            [w, rr[0].id, qty]
+          );
+        }
+      }
+      await client.query('COMMIT');
+    } catch (e) {
+      try { await client.query('ROLLBACK'); } catch(_) {}
+      summary.errors.push({ wallet: w, error: e.message });
+    } finally {
+      client.release();
+    }
+  }
+
+  try { await auditLog(req, 'grant_starter_all_npcs', null, summary); } catch(_) {}
+  res.json({ success: true, ...summary });
+});
+
 module.exports = router;
