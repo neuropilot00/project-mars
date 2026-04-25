@@ -1,8 +1,4 @@
 'use strict';
-// ⚠ STATUS: 🔴 PHANTOM TABLES — 이 서비스가 의존하는 테이블이 DB에 없음.
-// 호출 시 silent 실패 (catch에서 'internal_error' 반환). 살리려면 마이그레이션
-// 추가 또는 services + route + 스케줄러 등록 일괄 삭제 결정 필요.
-// 자세한 내용: CLAUDE.md §13.A 참조.
 /**
  * Territory Spell Service — Migration 124
  * Players spend GP to cast temporary spells on territories.
@@ -89,12 +85,12 @@ async function castSpell(wallet, claimId, spellType) {
     const gpCost = cfg.costs[spellType];
 
     // Check balance
-    const bal = await client.query('SELECT balance FROM gp_balances WHERE wallet=$1', [wallet]);
+    const bal = await client.query('SELECT gp_balance AS balance FROM users WHERE wallet_address=$1', [wallet]);
     const balance = bal.rows.length ? parseInt(bal.rows[0].balance, 10) : 0;
     if (balance < gpCost) throw new Error(`Insufficient GP. Need ${gpCost}, have ${balance}`);
 
     // Deduct GP
-    await client.query('UPDATE gp_balances SET balance=balance-$1 WHERE wallet=$2', [gpCost, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [gpCost, wallet]);
     await client.query(
       "INSERT INTO gp_transactions(wallet,amount,type,note) VALUES($1,$2,'spell_cast',$3)",
       [wallet, -gpCost, `${SPELLS[spellType].icon} ${SPELLS[spellType].label} on claim #${claimId}`]

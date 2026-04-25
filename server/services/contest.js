@@ -75,11 +75,11 @@ async function submitEntry(wallet, contestId, title, description, imageUrl, clai
     const fee = Number(contest.entry_fee_gp);
     if (fee > 0) {
       const { rows: balRows } = await client.query(
-        'SELECT balance FROM gp_balances WHERE wallet=$1 FOR UPDATE', [wLower]);
+        'SELECT gp_balance AS balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wLower]);
       const bal = balRows.length ? Number(balRows[0].balance) : 0;
       if (bal < fee) throw new Error(`Insufficient GP (need ${fee}, have ${bal.toFixed(2)})`);
       await client.query(
-        'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2', [fee, wLower]);
+        'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [fee, wLower]);
       // Add to prize pool
       await client.query(
         'UPDATE art_contests SET prize_pool_gp = prize_pool_gp + $1 WHERE id=$2',
@@ -133,11 +133,11 @@ async function voteForEntry(voter, entryId) {
     const fee = Number(entry.vote_fee_gp);
     if (fee > 0) {
       const { rows: balRows } = await client.query(
-        'SELECT balance FROM gp_balances WHERE wallet=$1 FOR UPDATE', [vLower]);
+        'SELECT gp_balance AS balance FROM users WHERE wallet_address=$1 FOR UPDATE', [vLower]);
       const bal = balRows.length ? Number(balRows[0].balance) : 0;
       if (bal < fee) throw new Error(`Insufficient GP (need ${fee} to vote)`);
       await client.query(
-        'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2', [fee, vLower]);
+        'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [fee, vLower]);
       await client.query(
         'UPDATE art_contests SET prize_pool_gp = prize_pool_gp + $1 WHERE id=$2',
         [fee, entry.contest_id]);
@@ -189,8 +189,7 @@ async function finalizeContest(contestId) {
       const prize = parseFloat((pool_gp * pcts[i] / 100).toFixed(6));
       if (prize > 0) {
         await client.query(
-          `INSERT INTO gp_balances (wallet, balance) VALUES ($1,$2)
-           ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
+          `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
           [entry.wallet, prize]
         );
         await client.query(

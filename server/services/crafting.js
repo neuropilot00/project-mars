@@ -1,8 +1,4 @@
 'use strict';
-// ⚠ STATUS: 🔴 PHANTOM TABLES — 이 서비스가 의존하는 테이블이 DB에 없음.
-// 호출 시 silent 실패 (catch에서 'internal_error' 반환). 살리려면 마이그레이션
-// 추가 또는 services + route + 스케줄러 등록 일괄 삭제 결정 필요.
-// 자세한 내용: CLAUDE.md §13.A 참조.
 const { pool } = require('../db');
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -134,11 +130,11 @@ async function craftItem(client, wallet, recipeId) {
   const gpCost = Number(recipe.gp_cost);
   if (gpCost > 0) {
     const { rows: balRows } = await client.query(
-      'SELECT balance FROM gp_balances WHERE wallet=$1 FOR UPDATE', [walletLower]);
+      'SELECT gp_balance AS balance FROM users WHERE wallet_address=$1 FOR UPDATE', [walletLower]);
     const balance = balRows.length ? Number(balRows[0].balance) : 0;
     if (balance < gpCost) throw new Error(`Insufficient GP (need ${gpCost}, have ${balance.toFixed(2)})`);
     await client.query(
-      'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2',
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2',
       [gpCost, walletLower]
     );
   }
@@ -166,7 +162,7 @@ async function craftItem(client, wallet, recipeId) {
     if (refundPct > 0 && gpCost > 0) {
       gpRefunded = parseFloat((gpCost * refundPct / 100).toFixed(6));
       await client.query(
-        'UPDATE gp_balances SET balance = balance + $1 WHERE wallet=$2',
+        'UPDATE users SET gp_balance = gp_balance + $1 WHERE wallet_address=$2',
         [gpRefunded, walletLower]
       );
     }

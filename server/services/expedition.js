@@ -1,8 +1,4 @@
 'use strict';
-// ⚠ STATUS: 🔴 PHANTOM TABLES — 이 서비스가 의존하는 테이블이 DB에 없음.
-// 호출 시 silent 실패 (catch에서 'internal_error' 반환). 살리려면 마이그레이션
-// 추가 또는 services + route + 스케줄러 등록 일괄 삭제 결정 필요.
-// 자세한 내용: CLAUDE.md §13.A 참조.
 const { pool } = require('../db');
 
 async function getSetting(key, fallback) {
@@ -55,13 +51,13 @@ async function launchExpedition(wallet, claimId, expeditionType, durationH) {
 
     // Check GP balance
     const { rows: balRows } = await client.query(
-      'SELECT balance FROM gp_balances WHERE wallet=$1 FOR UPDATE', [wLower]);
+      'SELECT gp_balance AS balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wLower]);
     const bal = balRows.length ? Number(balRows[0].balance) : 0;
     if (bal < cost) throw new Error(`Insufficient GP (need ${cost.toFixed(2)}, have ${bal.toFixed(2)})`);
 
     // Deduct GP
     await client.query(
-      'UPDATE gp_balances SET balance = balance - $1 WHERE wallet=$2', [cost, wLower]);
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [cost, wLower]);
 
     // Create expedition
     const returnsAt = new Date(Date.now() + dur * 3600000);
@@ -148,8 +144,7 @@ async function resolveExpeditions() {
 
         // Pay reward
         await client.query(
-          `INSERT INTO gp_balances (wallet, balance) VALUES ($1,$2)
-           ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
+          `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
           [exp.wallet, rewardAmount]);
       }
 
@@ -200,8 +195,7 @@ async function cancelExpedition(wallet, expeditionId) {
   await pool.query(`UPDATE expeditions SET status='cancelled' WHERE id=$1`, [expeditionId]);
   if (refund > 0) {
     await pool.query(
-      `INSERT INTO gp_balances (wallet, balance) VALUES ($1,$2)
-       ON CONFLICT (wallet) DO UPDATE SET balance = gp_balances.balance + EXCLUDED.balance`,
+      `UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`,
       [wLower, refund]);
   }
   return { ok: true, refund };
