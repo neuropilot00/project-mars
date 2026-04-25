@@ -951,6 +951,19 @@ async function start() {
       console.log('[TITLE] Governor milestone scheduler started (6h interval)');
     } catch(e) { console.warn('[TITLE] Could not init governor milestone scheduler:', e.message); }
 
+    // ── Governance Auto-Expire (every 1 hour + boot 30s 후 1회) ──
+    // 비활성/탈퇴 governor 와 commander 자동 자리 비움. admin 이 매번 수동 클리어 안 해도 됨.
+    try {
+      const { expireStaleGovernance } = require('./services/governanceExpire');
+      setTimeout(async () => {
+        try { await expireStaleGovernance(); } catch(e) { console.warn('[GOV-EXPIRE] startup error:', e.message); }
+      }, 30 * 1000);
+      setInterval(async () => {
+        try { await expireStaleGovernance(); } catch(e) { console.warn('[GOV-EXPIRE] error:', e.message); }
+      }, 60 * 60 * 1000);
+      console.log('[GOV-EXPIRE] Auto-expire scheduler started (1h interval, boot+30s)');
+    } catch(e) { console.warn('[GOV-EXPIRE] Could not init scheduler:', e.message); }
+
     // ── Planet News: Clean old news (every 24 hours) ──
     try {
       const { cleanOldNews } = require('./services/news');

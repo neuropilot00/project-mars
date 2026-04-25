@@ -303,6 +303,8 @@ router.post('/login', authLimiter, async (req, res) => {
 
     // ── Successful login — reset failed attempts ──
     resetLoginAttempts(normalizedEmail);
+    // ── last_login_at 기록 → governance auto-expire 가 비활성 거버너 자동 클리어할 때 사용 ──
+    try { pool.query('UPDATE users SET last_login_at = NOW() WHERE wallet_address = $1', [user.wallet_address]).catch(()=>{}); } catch(_) {}
 
     const token = jwt.sign(
       { wallet: user.wallet_address, email: user.email, nickname: user.nickname },
@@ -349,6 +351,8 @@ router.get('/me', async (req, res) => {
     }
 
     const u = result.rows[0];
+    // /api/auth/me 호출 = 유저가 최근에 활성화된 증거. last_login_at 갱신 (fire-and-forget)
+    try { pool.query('UPDATE users SET last_login_at = NOW() WHERE wallet_address = $1', [u.wallet_address]).catch(()=>{}); } catch(_) {}
 
     // Sum governance GP from all positions
     const govGPRes = await pool.query(
