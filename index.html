@@ -2260,7 +2260,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .topbar{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
   .mob-bottom-nav{padding-bottom:env(safe-area-inset-bottom);
     padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
-  .toast{top:50%}
+  /* (FIX) top:50% 만 추가하면 base 의 bottom:130px 와 충돌해 박스가 세로로 늘어남.
+     bottom:auto 로 명시 + transform 에 -50%Y 추가하여 정확히 화면 중앙 배치. */
+  .toast{top:50%;bottom:auto;transform:translate(-50%,calc(-50% + 30px))}
+  .toast.show{transform:translate(-50%,-50%)}
   #notifStack{top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right))}
   .weather-banner{padding-left:max(14px,env(safe-area-inset-left));
     padding-right:max(14px,env(safe-area-inset-right))}
