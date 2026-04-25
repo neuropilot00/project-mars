@@ -1410,10 +1410,54 @@ async function loadCatalog(){
   }
 }
 
+// ─── WebSocket 실시간 frame 수신 (Phase 2-B) ───
+// ?bid={battleId} 있을 때만 연결.
+// 서버: /ws/battle/{id} → frame/end broadcast
+// 현재는 end 만 부모(viewer)에 전달해 결과 카드 즉시 표시. frame data 시각화 매핑은 다음 사이클.
+let _wsBattle = null;
+let _wsLastFrame = null;
+let _wsEndPayload = null;
+function connectBattleWs() {
+  try {
+    const bid = new URLSearchParams(location.search).get('bid');
+    if (!bid) return;
+    const token = (window.parent && window.parent.localStorage && window.parent.localStorage.getItem('pw_token')) || '';
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    const url = proto + '://' + location.host + '/ws/battle/' + encodeURIComponent(bid) + (token ? ('?token=' + encodeURIComponent(token)) : '');
+    _wsBattle = new WebSocket(url);
+    _wsBattle.onopen = () => addLog('ev', '🔌 실시간 연결됨');
+    _wsBattle.onmessage = (e) => {
+      let m = null;
+      try { m = JSON.parse(e.data); } catch (_) { return; }
+      if (!m || !m.type) return;
+      if (m.type === 'frame') {
+        _wsLastFrame = m;
+        // TODO Phase 2-C: m.ships/m.fleets → 자체 fleets 객체에 동기화
+      } else if (m.type === 'end') {
+        _wsEndPayload = m;
+        addLog('wn', '🏁 실시간 종료 수신: ' + (m.winner_side || '?'));
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ source: 'tactical-lab', battleId: parseInt(bid), cmd: 'ws_end', payload: m }, '*');
+          }
+        } catch (_) {}
+      } else if (m.type === 'cmd_ok') {
+        addLog('tc', '✅ ' + m.cmd + ' 명령 적용');
+      } else if (m.type === 'cmd_err') {
+        addLog('kl', '❌ ' + m.cmd + ' 실패: ' + (m.error || ''));
+      }
+    };
+    _wsBattle.onclose = () => { addLog('ev', '🔌 실시간 연결 끊김'); _wsBattle = null; };
+    _wsBattle.onerror = (err) => { console.warn('[ws] error:', err); };
+  } catch (e) { console.warn('[ws] connect failed:', e.message); }
+}
+
 async function boot(){
   await loadCatalog();
   initBattle();
   requestAnimationFrame(loop);
+  // ws 연결 — battle 페이지인 경우만 (iframe 안에서 호출됨)
+  connectBattleWs();
 }
 boot();
 </script>

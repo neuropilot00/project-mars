@@ -42846,6 +42846,30 @@ const bv = {
 window.addEventListener('message', function(ev) {
   var d = ev && ev.data;
   if (!d || d.source !== 'tactical-lab' || !d.battleId) return;
+
+  // ws_end: 서버가 실시간 broadcast 종료 알림 → 결과 카드 즉시 표시 (Phase 2-B)
+  if (d.cmd === 'ws_end') {
+    try {
+      // bv.battle 갱신 후 showBattleResult
+      if (typeof bv !== 'undefined') {
+        bv.battle = bv.battle || {};
+        if (d.payload) {
+          bv.battle.winner_side = d.payload.winner_side || bv.battle.winner_side;
+          bv.battle.duration_seconds = d.payload.duration_seconds;
+          if (d.payload.stats) {
+            bv.battle.atk_ships_total = d.payload.stats.atk?.ships_total || bv.battle.atk_ships_total;
+            bv.battle.atk_ships_lost  = d.payload.stats.atk?.ships_lost  || 0;
+            bv.battle.def_ships_total = d.payload.stats.def?.ships_total || bv.battle.def_ships_total;
+            bv.battle.def_ships_lost  = d.payload.stats.def?.ships_lost  || 0;
+            bv.battle.battle_summary = { atk: d.payload.stats.atk, def: d.payload.stats.def };
+          }
+        }
+      }
+      if (typeof showBattleResult === 'function') showBattleResult();
+    } catch (_) {}
+    return;
+  }
+
   // 명령 → API
   // commanderActions.js 의 POST /api/battles/:id/commander-action 사용
   // payload 형식: { actionType, params }
