@@ -321,68 +321,42 @@ vip_enabled                = true
 
 ---
 
-## 13. 알려진 이슈 (2026-04-25 일제 점검)
+## 13. 알려진 이슈 (2026-04-25 마지막 일제 점검)
 
-### ✅ 최근 수정됨 (migration 176~177, commits 62fb37f, 75d7438)
-- **로켓드롭 트리거 403** — `/api/rockets/trigger`가 `game_settings.commander_wallet` 조회 (없는 테이블/키). `commander.commander_wallet`로 수정.
-- **`game_settings` 테이블 부재** — 9개 서비스가 silent 실패. migration 176으로 settings → game_settings 호환 VIEW 추가.
-- **`users.wallet` 컬럼 오타** — 18개 GP 서비스가 `WHERE wallet=$1` 사용 (실제는 `wallet_address`). 모두 `wallet_address`로 일괄 수정.
-- **`gp_transactions`, `gp_activity_log`, `colony_prestige`, `prestige_log` 부재** — migration 177로 생성. 30+ 서비스의 GP 로깅 silent 실패 복구.
-- **NPC 스타터팩 일괄 지급 UI 없음** — admin.html에 버튼 추가 (엔드포인트는 이미 존재했음).
+### ✅ 최근 수정됨 (migration 176~179, commits 62fb37f ~ 164d2ff)
+- **로켓드롭 트리거 403** — `commander_wallet` 조회 위치 fix (`game_settings` → `commander` 테이블).
+- **`game_settings` 테이블 부재** — migration 176으로 `settings`→`game_settings` 호환 VIEW.
+- **`users.wallet` 컬럼 오타** — 18개 GP 서비스가 `WHERE wallet=$1` 사용. 모두 `wallet_address`로 일괄 수정.
+- **GP 감사 로그 부재** — migration 177로 `gp_transactions` + `gp_activity_log` + `colony_prestige` + `prestige_log` 생성. 30+ 서비스의 silent 실패 복구.
+- **NPC 스타터팩 일괄 지급 UI 없음** — admin.html에 버튼 추가.
+- **admin.js JSONB UPDATE 일괄 fix** — 25곳 `::jsonb` 캐스트 + 38곳 `JSON.stringify(value)`.
+- **dead 서비스 4개 정리** — weeklyChallenges, gpBurn, bounty, luckyBox (테이블 + UI 둘 다 없음). service + route + scheduler 일괄 삭제.
+- **phantom 인벤토리 참조 정정** — auction(`user_resources`→`user_resource_inventory`+`resources` JOIN), worldEvents(`user_minerals`→`user_resource_inventory`), tombstone(`hijack_log`→`hijack_battles`).
+- **Migration 178: phantom 테이블 30개 일괄 생성** — branding, tdesc, monuments, expedition, contest, tiers, staking, spells, polls, capsule, wager, tevt, status, sponsor, shield, raffle, donation, crafting, broadcasts, beacon (총 20 라이브 기능 복구).
+- **`gp_balances` → `users.gp_balance` 패치** — 6개 서비스 (branding, contest, expedition, spells, crafting, broadcasts).
+- **Migration 179: 잔여 phantom 테이블** — lottery_rounds/tickets, gp_dividend_pool/claims, planet_news (3 라이브 기능 복구).
+
+→ **2026-04-25 시점, 코드베이스에 알려진 phantom 테이블 참조는 모두 해소됨.**
 
 ### 🔴 남아있는 알려진 이슈
 
-#### A. 의심되는 phantom 테이블 (사용 중인데 DB에 없음)
-다음 테이블들은 코드에서 INSERT/SELECT 하지만 실제 DB엔 없음. 해당 기능은 silent 실패 중. 살리려면 마이그레이션 작성, 안 쓰면 서비스 파일 자체 삭제 필요. **새 작업 시 반드시 어느 쪽인지 결정해야 함.**
-
-| 누락 테이블 | 영향 받는 서비스 | 추정 상태 |
+#### A. 잔여 phantom 테이블 / 잘못된 참조 (살아있지만 손대지 않은 것들)
+| 테이블 / 참조 | 영향 받는 서비스 | 상태 |
 |---|---|---|
-| `achievements`, `user_achievements` | services/achievements.js | 미구현 — 살릴지 결정 필요 |
-| `art_contests`, `art_entries`, `art_votes` | services/contest.js (5분마다 스케줄러 동작) | 미구현 |
-| `crafting_log`, `crafting_recipes` | services/crafting.js | 미구현 |
-| `donation_wall` | services/donation.js | 미구현 |
-| `expeditions` | services/expedition.js | 미구현 |
-| `gp_balances` | admin.js의 grant 엔드포인트 (실제 잔액은 `users.gp_balance`) | 잘못된 참조 |
-| `gp_bounties` | services/bounty.js (1h 스케줄러) | 미구현 |
-| `gp_broadcasts` | services/broadcasts.js (5분 스케줄러) | 미구현 |
-| `gp_burn_active`, `gp_burn_log` | services/gpBurn.js (10분 스케줄러) | 미구현 |
-| `gp_dividend_pool`, `gp_dividend_claims` | services/dividends.js (월요일 스케줄러) | 미구현 |
-| `gp_polls`, `poll_votes` | services/polls.js | 미구현 |
-| `gp_stakes` | services/staking.js (5분 스케줄러) | 미구현 |
-| `lottery_rounds`, `lottery_tickets` | services/lottery.js (1분 스케줄러) | 미구현 |
-| `lucky_box_openings`, `lucky_box_types` | services/luckyBox.js | 미구현 |
-| `map_beacons` | services/beacon.js | 미구현 |
-| `planet_news` | services/news.js (24h 스케줄러) | 미구현 |
-| `player_status`, `status_log` | services/status.js | 미구현 |
-| `profile_change_log` | services/profile.js | 부분적 동작 (메인 프로필 저장은 됨) |
-| `raffles`, `raffle_entries` | services/raffle.js | 미구현 |
-| `territory_branding`, `territory_branding_log` | services/branding.js | 미구현 |
-| `territory_descriptions` | services/tdesc.js | 미구현 |
-| `territory_events` | services/tevt.js | 미구현 |
-| `territory_monuments` | services/monuments.js | 미구현 |
-| `territory_rentals`, `rental_log` | services/rental.js | 미구현 |
-| `territory_shields` | services/shield.js (5분 스케줄러) | 미구현 |
-| `territory_spells` | services/spells.js | 미구현 |
-| `territory_sponsors` | services/sponsor.js | 미구현 |
-| `territory_tier_log`, `territory_tiers` | services/tiers.js | 미구현 |
+| `achievements`, `user_achievements` | services/achievements.js | 미구현 — 살릴지 / 삭제할지 결정 필요 (1 fetch in index.html) |
+| `profile_change_log` | services/profile.js | 부분적 동작 (메인 프로필은 OK, 변경 감사 로그만 안 쌓임) |
+| `territory_rentals`, `rental_log` | services/rental.js | 미구현 — 임대 시스템 (Phase C 일부) |
 | `territory_upgrades` | services/claimUpgrades.js | 미구현 |
-| `time_capsules` | services/capsule.js | 미구현 |
-| `tournament_entries` | services/tournaments.js (실제 테이블은 `tournament_participants`) | 컬럼 mismatch |
-| `wager_pools`, `wager_bets` | services/wager.js (1분 스케줄러) | 미구현 |
-| `weekly_challenge_*` | services/weeklyChallenges.js (1h 스케줄러) | 미구현 |
-| `user_resources` (실제: `user_resource_inventory`) | services/auction.js | 잘못된 참조 |
-| `user_minerals` (실제: `user_resource_inventory`) | services/worldEvents.js | 잘못된 참조 |
+| `tournament_entries` | services/tournaments.js | 컬럼 mismatch — 실제 테이블 `tournament_participants` 사용 (서비스 코드 정정 필요) |
 | `user_ships` (실제: `ships`) | services/achievements.js, battle.js | 잘못된 참조 |
 | `battle_ships` | services/battle.js (구버전 픽셀 전투) | 잘못된 참조 |
-| `hijack_log` (실제 의도: `hijack_battles`) | services/tombstone.js (requirePrevOwner 분기) | 잘못된 참조 |
 
 #### B. 기타 이슈
-1. `server/routes/ships.js` — 구버전 단순 함선 시스템. 새 fleet 시스템과 충돌 가능. fleet 활성화 시 비활성화 or 분리 필요.
+1. `server/routes/ships.js` — 구버전 단순 함선 시스템. 새 fleet 시스템과 충돌 가능.
 2. `server/migrations/archived/` — 89~139번 구버전 마이그레이션. 건드리지 말 것.
 3. settings 테이블 `value` 컬럼이 JSONB — 버전 문자열(1.0.0) INSERT 시 `'"1.0.0"'`으로 감싸야 함.
-4. **admin.js의 ~20개 setting UPDATE 엔드포인트**가 `value=$1` (raw 문자열)로 JSONB 컬럼에 INSERT — 문자열 값 저장 시 `invalid input syntax for type json` 발생. `JSON.stringify(value)` 또는 `value=$1::jsonb`로 wrap 필요.
-5. 로컬 테스트 DB에 추가된 테스트 유저: wallet `0xlainworld000000000000000000000000000000` (실제 유저 아님).
-6. **스케줄러 silent 실패** — `server/index.js`의 setInterval 블록이 모두 `catch(e) { console.warn }` 패턴이라, 위 phantom 테이블에 의존하는 스케줄러는 매 tick 경고만 찍고 영원히 no-op. 운영 로그 신뢰 불가.
+4. 로컬 테스트 DB에 추가된 테스트 유저: wallet `0xlainworld000000000000000000000000000000` (실제 유저 아님).
+5. **스케줄러 silent 실패 패턴** — `server/index.js`의 setInterval 블록이 모두 `catch(e) { console.warn }`. 향후 phantom 테이블 추가 시 매 tick 경고만 찍히고 no-op이 됨. 운영 로그 모니터링 필요.
 
 ---
 
@@ -402,7 +376,7 @@ vip_enabled                = true
 | `daily.js` | `routes/api.js` | 일일 미션 — settings에 daily_mission_* 키 |
 | `marketplace.js` | `routes/marketplace.js` | 아이템 마켓 |
 | `enhancement.js` | `routes/api.js` | 아이템 강화 |
-| `auction.js` | `routes/auctionRoutes.js` | ⚠ user_resources 테이블 mismatch (auction.js:122) |
+| `auction.js` | `routes/auctionRoutes.js` | ✅ user_resources → user_resource_inventory + resources JOIN (commit 601757a) |
 | `rocket.js` | `routes/api.js` (`/api/rockets/*`) | 트리거 fix됨 (commit 62fb37f). 12h 자동 스케줄. |
 | `vip.js` | `routes/vip.js` | migration 162 |
 | `tprestige.js` | `routes/api.js` | territory_prestige 테이블 OK. wallet 컬럼 fix됨. |
@@ -410,16 +384,15 @@ vip_enabled                = true
 | `siegeFleetBridge.js` | (스케줄러) | siege와 fleet 연계 |
 | `aiFleetManager.js` | (NPC 함대 관리) | commit a84e7dc로 SAVEPOINT 추가됨 |
 
-### 🟡 부분 동작 (DB는 있는데 UI/로직 불완전)
+### 🟡 부분 동작 (정리 필요)
 | 서비스 | 상태 |
 |---|---|
-| `worldEvents.js` | user_minerals → user_resource_inventory 컬럼 mismatch |
-| `battle.js` | 구버전 픽셀 전투. 새 fleet battle과 별개. 정리 필요 |
-| `ship.js` | 구버전 단순 함선. 새 fleet ship과 충돌 |
-| `tournament.js` vs `tournaments.js` | 두 파일 공존. tournaments.js는 phantom 테이블, tournament.js만 실제 동작 |
-| `tdesc.js`, `capsule.js`, `sponsor.js` | wallet 컬럼 fix됨 / 자체 테이블은 없음. 마이그레이션 추가 필요 |
+| `worldEvents.js` | ✅ user_minerals → user_resource_inventory 정정 (commit 601757a) |
+| `battle.js` | 구버전 픽셀 전투. battle_ships phantom 참조 — fleet battle 활성화 후 정리 |
+| `ship.js` | 구버전 단순 함선. 새 fleet ship과 충돌 가능 |
+| `tournament.js` vs `tournaments.js` | 두 파일 공존. tournaments.js는 phantom (`tournament_entries`) — 정리 필요 |
 
-### 🔴 phantom 테이블 의존 서비스 (현재 silent 실패)
+### 🔴 잔여 phantom (소수, §13.A 참조)
 §13.A 표 참조. 모두 둘 중 하나로 처리 필요:
 - (a) 누락 테이블 마이그레이션 추가 → 기능 활성화
 - (b) 서비스 파일 + 라우트 마운트 + 스케줄러 등록 일괄 삭제 → 코드베이스 정리
