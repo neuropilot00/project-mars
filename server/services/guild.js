@@ -381,6 +381,13 @@ async function acceptInvite(wallet, inviteId) {
     await client.query('UPDATE users SET guild_id = $1 WHERE wallet_address = $2', [guildId, wallet]);
 
     await client.query('COMMIT');
+
+    // 🏆 Achievement: guild_member
+    try {
+      const ach = require('./achievements');
+      ach.checkAndUnlock(wallet, 'guild_member').catch(() => {});
+    } catch (_ae) {}
+
     return { success: true, guildId };
   } catch (e) {
     await client.query('ROLLBACK');

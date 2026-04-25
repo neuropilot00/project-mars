@@ -211,6 +211,19 @@ router.post('/register', authLimiter, async (req, res) => {
 
     await client.query('COMMIT');
 
+    // 🏆 Achievement: 추천인이 있으면 referrer의 referral_count 진행 체크
+    if (referredBy) {
+      try {
+        const ach = require('../services/achievements');
+        ach.checkAndUnlock(referredBy, 'referral_count').catch(() => {});
+      } catch (_) {}
+    }
+    // 🏆 Achievement: 신규 유저 자체 체크 (gp_balance 등은 시작 시점엔 0이지만 향후 진행 베이스)
+    try {
+      const ach = require('../services/achievements');
+      ach.checkAllForWallet(walletAddress).catch(() => {});
+    } catch (_) {}
+
     // Generate JWT
     const token = jwt.sign(
       { wallet: walletAddress, email: email.toLowerCase(), nickname: displayName },

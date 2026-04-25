@@ -360,6 +360,8 @@ async function buyListing(client, listingId, buyer) {
     [b, listingId]
   );
 
+  // Achievement triggers (fire-and-forget after COMMIT — handled below)
+
   // Log transactions
   await client.query(
     `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('marketplace_sale', $1, 0, 0, $2)`,
@@ -432,6 +434,13 @@ async function buyListing(client, listingId, buyer) {
       divSvc.addToPool(fee, 'marketplace').catch(() => {});
     } catch (_dv) {}
   }
+
+  // 🏆 Achievement triggers (buyer + seller)
+  try {
+    const ach = require('./achievements');
+    ach.checkAndUnlock(b, 'market_bought').catch(() => {});
+    ach.checkAndUnlock(listing.seller, 'market_sold').catch(() => {});
+  } catch (_ae) {}
 
   return { success: true, price, fee, sellerReceives, currency, listing };
 }

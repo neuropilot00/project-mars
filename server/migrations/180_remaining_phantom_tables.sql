@@ -25,9 +25,9 @@ CREATE TABLE IF NOT EXISTS achievements (
   rarity          VARCHAR(20) DEFAULT 'common',  -- common / rare / epic / legendary
   category        VARCHAR(32),                    -- 'territory' / 'combat' / 'economy' / 'social'
   icon            VARCHAR(32),
-  threshold       INTEGER NOT NULL DEFAULT 1,
+  condition_value INTEGER NOT NULL DEFAULT 1,
   condition_type  VARCHAR(32) NOT NULL,           -- 'claim_count', 'ship_count', 'battle_wins', 'gp_balance', etc.
-  gp_reward       NUMERIC(20,6) DEFAULT 0,
+  reward_gp       NUMERIC(20,6) DEFAULT 0,
   xp_reward       INTEGER DEFAULT 0,
   is_active       BOOLEAN DEFAULT true,
   created_at      TIMESTAMPTZ DEFAULT NOW()
@@ -132,7 +132,7 @@ CREATE INDEX IF NOT EXISTS idx_tournament_entries_wallet ON tournament_entries(w
 -- ═════════════════════════════════════════════════════════
 -- 6) achievements 시드 (admin이 추후 수정 가능, 기본 14개 제공)
 -- ═════════════════════════════════════════════════════════
-INSERT INTO achievements (key, name_en, name_ko, description_en, description_ko, rarity, category, icon, threshold, condition_type, gp_reward, xp_reward) VALUES
+INSERT INTO achievements (key, name_en, name_ko, description_en, description_ko, rarity, category, icon, condition_value, condition_type, reward_gp, xp_reward) VALUES
   ('first_claim',       'First Steps',      '첫 발자국',     'Claim your first territory',         '첫 영토를 점령하세요',                'common',    'territory', '🚩', 1,    'claim_count',  10,  50),
   ('claim_10',          'Settler',          '정착민',        'Claim 10 territories',               '영토 10개 점령',                      'rare',      'territory', '🏘️', 10,   'claim_count',  50,  200),
   ('claim_50',          'Colonizer',        '식민지 개척자', 'Claim 50 territories',               '영토 50개 점령',                      'epic',      'territory', '🏰', 50,   'claim_count',  200, 1000),

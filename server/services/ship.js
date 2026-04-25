@@ -482,6 +482,12 @@ async function completeBuildJob(jobId) {
       ).catch(() => {});
     } catch (_ne) {}
 
+    // 🏆 Achievement: ship_count
+    try {
+      const ach = require('./achievements');
+      ach.checkAndUnlock(job.wallet_address, 'ship_count').catch(() => {});
+    } catch (_ae) {}
+
     return {
       success: true,
       job_id: jobId,

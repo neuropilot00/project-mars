@@ -1535,6 +1535,14 @@ router.post('/claim', writeLimiter, async (req, res) => {
       } catch (_ge) { /* guild refresh non-critical */ }
     }
 
+    // Achievement auto-trigger (non-blocking)
+    try {
+      const ach = require('../services/achievements');
+      if (newCount > 0)    ach.checkAndUnlock(walletLower, 'claim_count').catch(() => {});
+      if (attackWon > 0)   ach.checkAndUnlock(walletLower, 'battle_wins').catch(() => {});
+      if (totalCost > 0)   ach.checkAndUnlock(walletLower, 'gp_balance').catch(() => {});
+    } catch (_) {}
+
     // Season score tracking (non-blocking)
     if (seasonService) {
       try {
