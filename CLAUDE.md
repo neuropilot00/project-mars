@@ -470,5 +470,41 @@ phaseC/phaseD       ← 길드전 페이즈
 
 ---
 
+## 17. Sub-agent 사용 원칙 (Advisor 패턴)
+
+> **컨셉**: 메인 모델(작업자)이 직접 실행하고, 막히는 순간에만 더 큰 모델(어드바이저)에게 판단을 escalation. 큰 모델은 방향만 잡고, 작업은 메인이 한다.
+
+### 메인이 직접 처리 (sub-agent 부르지 말 것)
+- 단일 파일 편집 (Edit/Write)
+- 명령 실행 (Bash 단발성: psql 쿼리, git status, npm run 등)
+- 알려진 경로 파일 읽기 (Read with known path)
+- 특정 심볼/문자열 grep
+- 한 두 개 파일에 국한된 버그 픽스
+
+### 반드시 sub-agent로 위임
+| 상황 | Agent 타입 | 모델 |
+|---|---|---|
+| 3개 이상 파일에 걸친 설계 변경 | `Plan` | opus |
+| 마이그레이션 순서·의존성 판단 | `Plan` | opus |
+| "어떻게 할지 모르겠는" 디버깅 — 30초 이상 막힘 | `Plan` 또는 `general-purpose` | opus |
+| 코드베이스 광범위 탐색 ("이 기능 어디 있어?") | `Explore` | (기본) |
+| 모르는 라우트/서비스 동작 추적 | `Explore` (thoroughness: medium) | (기본) |
+| 보안·아키텍처 second opinion 필요 | `general-purpose` | opus |
+| 독립적인 병렬 작업 (서로 영향 X) | 단일 메시지에 여러 Agent 동시 호출 | (작업별) |
+
+### 호출 규칙
+1. **Plan/Advisor agent는 "방향만" 받는다** — 실제 코드 수정은 메인이 한다.
+2. **Explore agent는 보고만 받는다** — 응답 길이 200~500단어로 제한 요청.
+3. **prompt는 self-contained** — 대화 맥락 없이도 이해 가능하게 파일 경로·이슈·목표 명시.
+4. **메인 모델은 Sonnet 유지** — Opus는 sub-agent로만 호출 (비용 효율).
+
+### 안티패턴
+- ❌ 단순 파일 1개 수정에 Plan agent 호출 (오버킬)
+- ❌ Plan agent에게 "분석한 후 수정까지 해줘" 위임 (이해를 위임하지 말 것)
+- ❌ Explore agent로 이미 경로 아는 파일 읽기 (Read 직접 쓰기)
+- ❌ Sub-agent 결과를 그대로 사용자에게 전달 (메인이 검증·요약)
+
+---
+
 *이 문서는 새 Claude Code 세션이 컨텍스트 없이도 즉시 작업을 이어갈 수 있도록 작성됐습니다.*
 *상세 히스토리가 필요하면 git log 또는 server/migrations/ 파일 순서를 참고하세요.*
