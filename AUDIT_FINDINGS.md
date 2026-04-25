@@ -1,4 +1,12 @@
-# OCCUPY MARS — Codebase Audit (v3.7 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v3.8 / 2026-04-26)
+
+## 🔴 v3.8 변경 요약 (2026-04-26)
+- **로켓드롭 보상 다양화** (사용자 신고 "GP만 존나 나옴"): mineral 카테고리 신규 추가. Migration 187, weight 30/25/25/12/6/2 (gp/item/mineral/xp/pp/cosmetic). 검증: 15개 슬롯에 mineral 7 / item 3 / xp 3 / gp 1 / cosmetic 1.
+- **새 로켓 SVG** (`assets/textures/rocket_drop.svg`): 화염 트레일 + 윈도우 + 핀 + 엔진 벨. PNG fallback 유지.
+- **viewer 롤백**: v3.7 의 자동승리 viewer 즉시 닫기 → frames<2 시에만 경고 토스트 (viewer 풀 표시 유지).
+- **잔여**: POI 보상도 동일 패턴으로 mineral 추가 필요 (다음 사이클).
+
+---
 
 ## 🔴 v3.7 변경 요약 (2026-04-26)
 - **모바일 OPS 탭 빈 화면** (사용자 신고): 1024 미디어쿼리 `.ops-launch-form ... display:none !important` 가 BASE 모달 내부 발사 폼까지 숨김. 룰에서 `.ops-launch-form` 제거.

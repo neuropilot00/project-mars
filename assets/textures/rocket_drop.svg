@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="hull" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e7eaf0"/>
+      <stop offset=".45" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#9aa3b2"/>
+    </linearGradient>
+    <linearGradient id="window" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fdcff"/>
+      <stop offset="1" stop-color="#1d6f9c"/>
+    </linearGradient>
+    <radialGradient id="flame" cx=".5" cy="0" r="1">
+      <stop offset="0" stop-color="#fff5b0"/>
+      <stop offset=".35" stop-color="#ffb347"/>
+      <stop offset=".75" stop-color="#ff5b2a"/>
+      <stop offset="1" stop-color="#7a1500" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="exhaustGlow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#fff" stop-opacity=".9"/>
+      <stop offset=".5" stop-color="#ffb347" stop-opacity=".4"/>
+      <stop offset="1" stop-color="#ff5b2a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- exhaust glow -->
+  <ellipse cx="32" cy="58" rx="18" ry="6" fill="url(#exhaustGlow)" opacity=".75"/>
+  <!-- flame trail -->
+  <path d="M24 42 Q26 56 32 62 Q38 56 40 42 Q36 48 32 48 Q28 48 24 42 Z"
+        fill="url(#flame)"/>
+  <path d="M27 44 Q28 52 32 56 Q36 52 37 44 Q34 47 32 47 Q30 47 27 44 Z"
+        fill="#fff7c4" opacity=".85"/>
+  <!-- body -->
+  <path d="M32 4
+           C36 4 40 10 40 18
+           L40 42
+           L24 42
+           L24 18
+           C24 10 28 4 32 4 Z"
+        fill="url(#hull)" stroke="#3b424c" stroke-width="1"/>
+  <!-- nose tip accent -->
+  <path d="M32 4 C34 4 36 6 36 9 L28 9 C28 6 30 4 32 4 Z" fill="#ff5b2a"/>
+  <!-- window -->
+  <circle cx="32" cy="20" r="4" fill="url(#window)" stroke="#0e2a3a" stroke-width="1"/>
+  <circle cx="30.5" cy="18.5" r="1.2" fill="#fff" opacity=".7"/>
+  <!-- side stripes -->
+  <rect x="25" y="28" width="14" height="2" fill="#ff5b2a"/>
+  <rect x="25" y="32" width="14" height="1" fill="#3b424c"/>
+  <!-- fins -->
+  <path d="M24 36 L18 44 L24 42 Z" fill="#c93f1c" stroke="#3b424c" stroke-width=".8"/>
+  <path d="M40 36 L46 44 L40 42 Z" fill="#c93f1c" stroke="#3b424c" stroke-width=".8"/>
+  <!-- engine bell -->
+  <rect x="27" y="40" width="10" height="4" rx="1" fill="#2a2f3a" stroke="#3b424c" stroke-width=".8"/>
+</svg>

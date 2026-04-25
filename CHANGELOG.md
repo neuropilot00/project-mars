@@ -1,5 +1,29 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Rocket Drop Mineral Loot + 새 Rocket SVG + viewer 롤백 (v3.8)
+
+### 🔴 사용자 신고: "자원드롭 15개인데 GP만 존나 나옴"
+- **원인**: `services/rocket.js` 보상 풀이 GP 50% / Item 25% / XP 17% / PP 6% / Cosmetic 2% — 광물(mineral) 카테고리 자체가 없음.
+- **Fix**: mineral 카테고리 추가
+  - **Migration 187**: `rocket_drop_mineral_weight=25`, `rocket_drop_mineral_pool` (6종 광물 admin 조정), `rocket_drop_mineral_min_qty/max_qty=1~5`. 기존 GP weight 50→30 으로 균형 조정.
+  - rocket.js: weighted pick 에 mineral 분기 추가 (resources 테이블에서 random pick + qty)
+  - claim 로직: `user_resource_inventory` 적립 (resource_id 기반 INSERT...ON CONFLICT)
+- **검증** (rocket 13, 15 loot): mineral 7 / item 3 / xp 3 / gp 1 / cosmetic 1 — 다양하게 섞임 ✅
+
+### 🟢 사용자 요청: "로켓드롭 이미지 어울리는 거로 만들어"
+- **신규**: `assets/textures/rocket_drop.svg` 인라인 SVG 로 새 로켓 디자인 (화염 트레일 + 윈도우 + 핀 + 엔진 벨)
+- 기존 starship.png 대체. PNG 로드 실패 시 자동 fallback (`onerror`).
+- 적용 위치: globe overlay 의 incoming 마커 + `.rocket-banner` 의 인라인 아이콘
+
+### 🟡 v3.7 viewer 롤백
+- **이전 v3.7 fix 가 너무 공격적**: atk=0 또는 def=0 시 viewer 즉시 닫음 → 사용자 요청 "1:1 이어도 풀 viewer 떠야" 와 충돌.
+- **Fix**: viewer 정상적으로 풀 시각화 띄우되, frames<2 (시뮬 이상 의심) 일 때만 경고 토스트 + viewer 유지. 사용자가 ✕ 로 닫게.
+
+### 🟢 사용자 신고 1: "영토 있는데 OPS 발사대 슬롯 0"
+- v3.7 의 모바일 OPS 탭 launch-form 살린 fix 로 자동 해결 (사용자 "어 슬롯 이제 나왔다" 확인).
+
+---
+
 ## 2026-04-26 — Mobile OPS Pane + Hijack 자동승리 Viewer Fix (v3.7)
 
 ### 🔴 사용자 신고 1: 모바일에서 OPS 탭 진입 후 내용 빈 화면

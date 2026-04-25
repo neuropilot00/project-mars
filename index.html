@@ -26150,7 +26150,8 @@ var _rocketMesh = null;
 var _rocketParticles = [];
 // Preload starship pixel art
 var _starshipImg = new Image();
-_starshipImg.src = '/assets/textures/starship.png';
+_starshipImg.src = '/assets/textures/rocket_drop.svg';
+_starshipImg.onerror = function(){ _starshipImg.src = '/assets/textures/starship.png'; };
 
 function _drawRocketOverlay(ctx, w, h) {
   if (!_rocketData.events.length) return;
@@ -28570,7 +28571,7 @@ window.addEventListener('resize', _debounce(function(){
     var now = Date.now();
     var icon, typeLabel, timeStr;
     if (ev.status === 'incoming') {
-      icon = '<img src="/assets/textures/starship.png" style="width:16px;height:16px;vertical-align:middle;transform:rotate(-30deg)">';
+      icon = '<img src="/assets/textures/rocket_drop.svg" onerror="this.src=&quot;/assets/textures/starship.png&quot;" style="width:16px;height:16px;vertical-align:middle;transform:rotate(-30deg)">';
       typeLabel = ev.eventType === 'rud_explosion' ? 'UNKNOWN OBJECT' : 'SUPPLY DROP';
       var remaining = Math.max(0, new Date(ev.landingAt).getTime() - now);
       var mins = Math.floor(remaining / 60000);
@@ -36505,6 +36506,9 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
+          { type:'p', text:'**v4.0 — 2026-04-26 로켓드롭 광물 보상 + 새 SVG 로켓 + viewer 롤백.** 사용자 신고 즉각 fix.' },
+          { type:'h2', text:'🚀 v4.0 로켓드롭 보상 다양화' },
+          { type:'p', text:'• 신고: "자원드롭 15개인데 GP만 존나 나옴"\n• Fix: mineral 카테고리 신규 추가. 가중치 GP30 / Item25 / **Mineral25** / XP12 / PP6 / Cosmetic2 (admin 조정 가능).\n• 광물 풀: iron_ore / carbon_fiber / silicon_chip / titanium_alloy / plasma_crystal / nano_polymer (Migration 187).\n• claim 시 user_resource_inventory 자동 적립.\n• **새 SVG 로켓** (assets/textures/rocket_drop.svg): 화염 트레일 + 윈도우 + 핀.' },
           { type:'p', text:'**v3.9 — 2026-04-26 모바일 OPS 빈 화면 + Hijack 자동승리 viewer fix.** 사용자 신고 즉각 fix.' },
           { type:'h2', text:'📱 v3.9 모바일 OPS 탭 + Hijack viewer fix' },
           { type:'p', text:'• **모바일 OPS 탭 진입 시 빈 화면** → 1024 미디어쿼리가 BASE 모달 내부 발사 폼까지 숨겼음. CSS 룰 좁혀서 fix.\n• **하이젝 함대전 viewer 빈 화면** → 자동승리 (한 쪽 함대 0척) 케이스에 시뮬레이션 frame 거의 없어 캔버스 빈 화면. viewer 안 띄우고 명확한 토스트 표시 ("⚔ 자동 승리 — 즉시 점령" 등).' },
@@ -42817,18 +42821,17 @@ async function openBattleViewer(battleId) {
     return;
   }
 
-  // 자동승리 케이스 (한 쪽 함대 0척) — 시뮬레이션 frame 이 거의 없어 viewer 가 빈 화면.
-  // viewer 모달 닫고 결과만 토스트로 안내. 결과는 hijack/declare 모달에서 이미 표시됨.
-  const atkN = parseInt(bv.battle?.atk_ships_total) || 0;
-  const defN = parseInt(bv.battle?.def_ships_total) || 0;
-  if (atkN === 0 || defN === 0) {
+  // 자동승리 케이스 — viewer 는 정상적으로 풀 시각화 띄우되, frames 가 비정상적으로 짧으면
+  // (시뮬레이션 누락 의심) 결과 오버레이 즉시 표시. 1:1 등 정상 전투는 아래 일반 흐름으로 진행.
+  const framesN = bv.timeline?.frames?.length || 0;
+  if (framesN < 2) {
     const winner = bv.battle?.winner_side;
-    const msg = winner === 'atk' ? '⚔ 자동 승리 — 상대 함대 없음 (즉시 점령)'
-              : winner === 'def' ? '🛡 자동 패배 — 본인 함대 없음'
-              : '⚡ 자동 종료 — 한 쪽 함대 없음';
-    showFactionToast(msg, 'info');
-    closeBattleViewer();
-    return;
+    const msg = winner === 'atk' ? '⚔ 자동 승리 — 즉시 점령 (시뮬 frames 없음)'
+              : winner === 'def' ? '🛡 자동 패배 (시뮬 frames 없음)'
+              : '⚡ 전투 즉시 종료 (시뮬 frames 없음)';
+    showFactionToast(msg, 'warn');
+    console.warn('[battle] only', framesN, 'frame(s) for battle', battleId, 'winner=', winner);
+    // viewer 는 닫지 않음 — 사용자가 결과 확인 후 ✕ 로 닫게 함
   }
   
   // HUD 업데이트

@@ -48,22 +48,38 @@ async function scheduleRocketEvent(triggeredBy) {
   const normalRadius = parseFloat(await getSetting('rocket_loot_radius') || '5');
   const rudRadius = parseFloat(await getSetting('rocket_rud_radius') || '10');
 
-  // Weighted drop distribution (admin configurable) — rewards mostly GP/items/XP,
-  // PP is rare because crypto real-value currency should be hard-earned.
-  const wGP       = parseInt(await getSetting('rocket_drop_gp_weight')       || '50');
+  // Weighted drop distribution (admin configurable) — rewards mix GP / Item / Mineral / XP / PP / Cosmetic.
+  // PP 는 crypto real-value 라 가장 드물게.
+  const wGP       = parseInt(await getSetting('rocket_drop_gp_weight')       || '30');
   const wItem     = parseInt(await getSetting('rocket_drop_item_weight')     || '25');
-  const wXP       = parseInt(await getSetting('rocket_drop_xp_weight')       || '17');
+  const wMineral  = parseInt(await getSetting('rocket_drop_mineral_weight')  || '25');
+  const wXP       = parseInt(await getSetting('rocket_drop_xp_weight')       || '12');
   const wPP       = parseInt(await getSetting('rocket_drop_pp_weight')       || '6');
   const wCosmetic = parseInt(await getSetting('rocket_drop_cosmetic_weight') || '2');
-  const totalWeight = wGP + wItem + wXP + wPP + wCosmetic || 1;
+  const totalWeight = wGP + wItem + wMineral + wXP + wPP + wCosmetic || 1;
 
   // Load battle item drop table (shared with POI system — admin-managed).
-  // If empty, item slot is redistributed to other reward types (no hardcoded pool).
   let dropTable = [];
   try {
     const dtRes = await pool.query('SELECT item_code, weight, min_qty, max_qty FROM poi_drop_table WHERE active = true');
     dropTable = dtRes.rows;
   } catch (_e) { /* table missing — handled below */ }
+
+  // Load mineral pool (resources.code 쉼표 구분 from settings) — 광물 풀이 비면 mineral slot 은 GP 로 fallback.
+  const mineralPoolRaw = String(await getSetting('rocket_drop_mineral_pool') || 'iron_ore,carbon_fiber,silicon_chip').replace(/^"|"$/g, '');
+  const mineralCodes = mineralPoolRaw.split(',').map(s => s.trim()).filter(Boolean);
+  const mineralMinQty = parseInt(await getSetting('rocket_drop_mineral_min_qty') || '1');
+  const mineralMaxQty = parseInt(await getSetting('rocket_drop_mineral_max_qty') || '5');
+  let mineralPool = [];
+  if (mineralCodes.length) {
+    try {
+      const mpRes = await pool.query(
+        `SELECT id, code, name_ko, icon_emoji FROM resources WHERE code = ANY($1::text[]) AND is_active = true`,
+        [mineralCodes]
+      );
+      mineralPool = mpRes.rows;
+    } catch (_e) { /* resources table missing — mineral slot will fall back */ }
+  }
 
   // Check for existing incoming/landed events
   const existing = await pool.query(
@@ -102,7 +118,7 @@ async function scheduleRocketEvent(triggeredBy) {
     const lootLat = lat + Math.cos(angle) * dist;
     const lootLng = lng + Math.sin(angle) * dist;
 
-    // Weighted pick: GP > Item > XP > PP > Cosmetic
+    // Weighted pick: GP > Item > Mineral > XP > PP > Cosmetic
     let roll = Math.random() * totalWeight;
     let type, amount, itemCode = null;
     if (roll < wGP) {
@@ -113,7 +129,12 @@ async function scheduleRocketEvent(triggeredBy) {
       const picked = weightedPickItem(dropTable);
       itemCode = picked.item_code;
       amount = randInt(picked.min_qty || 1, picked.max_qty || 1);
-    } else if ((roll -= wItem) < wXP) {
+    } else if ((roll -= wItem) < wMineral && mineralPool.length > 0) {
+      type = 'mineral';
+      const picked = mineralPool[Math.floor(Math.random() * mineralPool.length)];
+      itemCode = picked.code;
+      amount = randInt(mineralMinQty, mineralMaxQty);
+    } else if ((roll -= wMineral) < wXP) {
       type = 'xp';
       amount = randInt(minXP, maxXP);
     } else if ((roll -= wXP) < wPP) {
@@ -301,6 +322,35 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
         const { awardXP } = require('../db');
         await awardXP(client, wallet, loot.amount);
       } catch (_e) { /* non-critical */ }
+    } else if (loot.type === 'mineral' && loot.itemCode) {
+      // Mineral: user_resource_inventory 적립 (resource_id 기반)
+      const resRes = await client.query(
+        'SELECT id, name_ko, icon_emoji FROM resources WHERE code = $1 AND is_active = true',
+        [loot.itemCode]
+      );
+      if (resRes.rows.length) {
+        const r = resRes.rows[0];
+        rewardGiven.itemName = r.name_ko;
+        rewardGiven.itemIcon = r.icon_emoji;
+        await client.query(
+          `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (wallet_address, resource_id)
+           DO UPDATE SET quantity = user_resource_inventory.quantity + $3`,
+          [wallet, r.id, Math.max(1, loot.amount || 1)]
+        );
+      } else {
+        // Fallback: mineral code 가 resources 에 없으면 GP 로 환산
+        const { getSetting } = require('../db');
+        const fallbackGP = parseFloat(await getSetting('rocket_loot_min_gp') || '10');
+        rewardGiven.type = 'gp';
+        rewardGiven.amount = fallbackGP;
+        rewardGiven.itemCode = null;
+        await client.query(
+          'UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2',
+          [fallbackGP, wallet]
+        );
+      }
     } else if ((loot.type === 'item' || loot.type === 'cosmetic') && loot.itemCode) {
       // Look up item_type_id by code (user_items uses item_type_id, NOT item_code).
       const itemRes = await client.query(
