@@ -2575,7 +2575,7 @@ router.post('/crafting/setting', adminAuth, async (req, res) => {
   }
   try {
     await pool.query(
-      `UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]
+      `UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]
     );
     await auditLog(req, 'crafting_setting_update', key, { value });
     res.json({ ok: true });
@@ -2693,7 +2693,7 @@ router.post('/contests/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('contest_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'contest_setting_update', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -2715,7 +2715,7 @@ router.post('/rental/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('rental_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'rental_setting_update', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -2755,7 +2755,7 @@ router.post('/duels/setting', adminAuth, async (req, res) => {
   }
   try {
     await pool.query(
-      `UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]
+      `UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]
     );
     await auditLog(req, 'duel_setting_update', key, { value });
     res.json({ ok: true });
@@ -2814,7 +2814,7 @@ router.post('/alliances/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('alliance_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'alliance_setting_update', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -2930,7 +2930,7 @@ router.post('/lucky-boxes/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('lucky_box_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'lucky_box_setting_update', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3002,7 +3002,7 @@ router.post('/vip/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('vip_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'vip_setting_update', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3026,7 +3026,7 @@ router.post('/expeditions/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('expedition_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'expedition_setting_update', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3068,7 +3068,7 @@ router.post('/branding/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('branding_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query('UPDATE game_settings SET value=$1 WHERE key=$2', [String(value), key]);
+    await pool.query('UPDATE game_settings SET value=$1::jsonb WHERE key=$2', [JSON.stringify(value), key]);
     await auditLog(req, 'branding_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3103,7 +3103,7 @@ router.post('/spells/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('spell_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query('UPDATE game_settings SET value=$1 WHERE key=$2', [String(value), key]);
+    await pool.query('UPDATE game_settings SET value=$1::jsonb WHERE key=$2', [JSON.stringify(value), key]);
     await auditLog(req, 'spell_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3197,7 +3197,7 @@ router.post('/tournaments/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('tournament_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query('UPDATE game_settings SET value=$1 WHERE key=$2', [String(value), key]);
+    await pool.query('UPDATE game_settings SET value=$1::jsonb WHERE key=$2', [JSON.stringify(value), key]);
     await auditLog(req, 'tournament_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3232,7 +3232,7 @@ router.post('/broadcasts/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('broadcast_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query('UPDATE game_settings SET value=$1 WHERE key=$2', [String(value), key]);
+    await pool.query('UPDATE game_settings SET value=$1::jsonb WHERE key=$2', [JSON.stringify(value), key]);
     await auditLog(req, 'broadcast_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3262,7 +3262,7 @@ router.post('/profile/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('profile_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'profile_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3307,7 +3307,7 @@ router.post('/tiers/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('tier_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'tier_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3389,7 +3389,7 @@ router.post('/raffle/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('raffle_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'raffle_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3463,7 +3463,7 @@ router.post('/wager/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('wager_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'wager_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3500,7 +3500,7 @@ router.post('/tevt/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('tevt_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'tevt_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3524,7 +3524,7 @@ router.post('/prestige/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('prestige_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'prestige_setting', key, { value });
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -3553,7 +3553,7 @@ router.post('/beacons/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('beacon_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'beacon_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3573,7 +3573,7 @@ router.post('/donation/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('donation_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'donation_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3602,7 +3602,7 @@ router.post('/polls/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('poll_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'poll_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3631,7 +3631,7 @@ router.post('/status/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('status_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'status_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3660,7 +3660,7 @@ router.post('/tdesc/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('tdesc_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'tdesc_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3698,7 +3698,7 @@ router.post('/capsule/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('capsule_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'capsule_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3727,7 +3727,7 @@ router.post('/sponsor/setting', adminAuth, async (req, res) => {
   if (!key || !key.startsWith('sponsor_')) return res.status(400).json({ error: 'Invalid key' });
   try {
     const { pool } = require('../db');
-    await pool.query(`UPDATE game_settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'sponsor_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3753,7 +3753,7 @@ router.post('/milestone/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('milestone_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'milestone_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3779,7 +3779,7 @@ router.post('/tombstone/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('tombstone_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'tombstone_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3805,7 +3805,7 @@ router.post('/announce/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('announce_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'announce_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3831,7 +3831,7 @@ router.post('/tprestige/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('tprestige_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'tprestige_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3857,7 +3857,7 @@ router.post('/journal/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('journal_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'journal_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3883,7 +3883,7 @@ router.post('/banner/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('banner_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'banner_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3900,7 +3900,7 @@ router.post('/rating/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('rating_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'rating_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3926,7 +3926,7 @@ router.post('/highlight/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('highlight_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'highlight_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3952,7 +3952,7 @@ router.post('/graffiti/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('graffiti_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'graffiti_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -3977,7 +3977,7 @@ router.post('/tribute/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('tribute_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'tribute_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -4003,7 +4003,7 @@ router.post('/vtag/setting', adminAuth, async (req, res) => {
   const { key, value } = req.body || {};
   if (!key || !key.startsWith('vtag_')) return res.status(400).json({ error: 'Invalid key' });
   try {
-    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [String(value), key]);
+    await pool.query(`UPDATE settings SET value=$1 WHERE key=$2`, [JSON.stringify(value), key]);
     await auditLog(req, 'vtag_setting', key, { value });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
