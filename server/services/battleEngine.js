@@ -777,7 +777,7 @@ function captureFrame(state, tick) {
       hp: f.hp,
       dead: f.dead,
     })),
-    ships: state.fleets.flatMap(f => 
+    ships: state.fleets.flatMap(f =>
       f.ships.filter(s => s.isAlive).map(s => ({
         id: s.id,
         fid: f.id,
@@ -785,6 +785,7 @@ function captureFrame(state, tick) {
         y: Math.round(s.y * 10) / 10,
         hp: s.hp,
         ff: s.isFlagship ? 1 : 0,
+        code: s.ship_type_code,
       }))
     ),
   };

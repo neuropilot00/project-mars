@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — 함선 단위 정밀 폭발 이펙트 (v5.2)
+
+- **battleEngine.js**: ws frame ships 배열에 `code` 필드 추가 (ship_type_code)
+- **tactical-lab-v11.html**:
+  - 매 ws frame 수신 시 이전 프레임과 diff → 격침 함선마다 위치 기반 `mkExp()` 트리거
+  - size_class 별 폭발 반경 차별화 (frigate 1.2 → titan 6.0)
+  - battleship/titan 격침 시 추가 shockwave + 격침 로그
+  - fleet dead 전환 시 shockwave 즉시 트리거
+  - `initBattle()` 에서 `_wsPrevShips` 리셋
+
 ## 2026-04-26 — Phase 2 완료: WebSocket 실시간 함대전 (v4.8~v5.1)
 
 ### Phase 2 4가지 모두 ✅

@@ -1,4 +1,15 @@
-# OCCUPY MARS — Codebase Audit (v5.1 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v5.2 / 2026-04-26)
+
+## 🔴 v5.2 변경 요약 (2026-04-26)
+
+### 함선 단위 정밀 폭발 이펙트 (Phase 2-E)
+- battleEngine.js: ws frame ships 배열에 `code` (ship_type_code) 필드 추가
+- tactical-lab-v11.html:
+  - `_wsPrevShips` Map — 이전 프레임 생존 함선 id → {x, y, code} 추적
+  - 매 frame 수신 시 이전 맵과 diff → 사라진 함선마다 `mkExp()` 호출 (size_class 기반 반경)
+  - battleship/titan 격침 시 `mkShockwave()` + 격침 로그 추가
+  - fleet dead 전환 시 shockwave 즉시 트리거 (이전에는 shockwave 없이 일괄 dead 처리)
+  - `initBattle()`에서 `_wsPrevShips` 리셋
 
 ## 🔴 v4.8~v5.1 변경 요약 (2026-04-26)
 
@@ -15,7 +26,7 @@
 4. ✅ 실시간 함대전 (hijack manual + AI 자동 + ws frame stream)
 
 ### 잔여 (선택, 비필수)
-- ship 단위 dbShipId 매핑 — 정밀 폭발 effect (현재는 fleet dead 시 ships 일괄 처리)
+- ~~ship 단위 dbShipId 매핑~~ → ✅ v5.2에서 완료
 
 ---
 
