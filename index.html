@@ -3511,17 +3511,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   display: none;
 }
 .bv-backdrop.active { display: block; }
-/* Desktop: 풀스크린 대신 중앙 오버레이 (1100×680 max, dim 배경). 모바일은 풀스크린 유지. */
+/* Desktop: 풀스크린 대신 중앙 오버레이 (1500×820 max, dim 배경). 모바일은 풀스크린 유지. */
 @media (min-width: 769px) {
   .bv-backdrop { background: rgba(0,0,0,.82); }
   .bv-backdrop.active { display: flex; align-items: center; justify-content: center; }
   .bv-stage {
-    width: min(1100px, 92vw);
-    height: min(680px, 88vh);
+    width: min(1500px, 96vw);
+    height: min(820px, 92vh);
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 20px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.08);
   }
+  /* 사이드 패널: 데스크탑 전용 — 양쪽 빈 공간 활용해 실제 게임 데이터 표시 */
+  #bvSideLeft, #bvSideRight { display: block !important; }
 }
 
 .bv-stage {
@@ -41647,10 +41649,27 @@ function fcEsc(str) {
   </div>
 </div>
 
-<!-- Battle Viewer — tactical-lab v11 그대로 iframe 사용 (사용자 강한 요청: "택티컬랩 그대로 채용") -->
+<!-- Battle Viewer — tactical-lab v11 그대로 iframe 사용 + 데스크탑 사이드 패널 (사용자 요청 v4.5) -->
 <div class="bv-backdrop" id="battleViewer">
-  <div class="bv-stage" style="background:#03040b;overflow:hidden">
-    <iframe id="bvTacticalFrame" src="" style="width:100%;height:100%;border:0;display:block;background:#03040b" allow="autoplay" loading="lazy"></iframe>
+  <div class="bv-stage" style="background:#03040b;overflow:hidden;display:flex;flex-direction:row">
+    <!-- 좌측 사이드 패널 (데스크탑 전용) — 내 함대 / 자원 -->
+    <div id="bvSideLeft" class="bv-side bv-side-left" style="width:240px;flex-shrink:0;background:#05060e;border-right:1px solid rgba(60,100,255,.12);padding:14px 12px;overflow-y:auto;display:none">
+      <div class="bv-side-title" style="font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:3px;color:#4fc3f7;margin-bottom:10px">⚔ MY FLEET</div>
+      <div id="bvSideMyFleet" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7">로딩 중...</div>
+      <div class="bv-side-title" style="font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:3px;color:#81c784;margin:18px 0 10px">💎 RESOURCES</div>
+      <div id="bvSideResources" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7">로딩 중...</div>
+    </div>
+
+    <!-- 가운데: tactical-lab iframe -->
+    <iframe id="bvTacticalFrame" src="" style="flex:1;height:100%;border:0;display:block;background:#03040b;min-width:0" allow="autoplay" loading="lazy"></iframe>
+
+    <!-- 우측 사이드 패널 (데스크탑 전용) — 전투 통계 / 진행도 -->
+    <div id="bvSideRight" class="bv-side bv-side-right" style="width:240px;flex-shrink:0;background:#05060e;border-left:1px solid rgba(60,100,255,.12);padding:14px 12px;overflow-y:auto;display:none">
+      <div class="bv-side-title" style="font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:3px;color:#ff7043;margin-bottom:10px">🛡 ENEMY FLEET</div>
+      <div id="bvSideEnemyFleet" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7">로딩 중...</div>
+      <div class="bv-side-title" style="font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:3px;color:#ffd166;margin:18px 0 10px">📊 BATTLE STATS</div>
+      <div id="bvSideBattleStats" style="font-size:10px;color:rgba(255,255,255,.7);line-height:1.7">로딩 중...</div>
+    </div>
 
     <button class="bv-close" onclick="closeBattleViewer()" style="position:absolute;top:10px;right:10px;z-index:30;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.3);color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
 
@@ -42816,6 +42835,120 @@ const bv = {
   particles: [],
 };
 
+// tactical-lab iframe 의 컨트롤 클릭 → postMessage → 실제 commanderActions API 호출
+// hijack 한정 유저 컨트롤 (Phase 3-A)
+window.addEventListener('message', function(ev) {
+  var d = ev && ev.data;
+  if (!d || d.source !== 'tactical-lab' || !d.battleId) return;
+  // 명령 → API
+  // commanderActions.js 의 POST /api/battles/:id/commander-action 사용
+  // payload 형식: { actionType, targetType, targetId, payload }
+  var actionMap = {
+    formation: { actionType: 'formation_change', payload: d.payload },
+    maneuver:  { actionType: 'maneuver_change',  payload: d.payload },
+    focus:     { actionType: 'focus_fire',       payload: d.payload },
+    emp:       { actionType: 'emp_burst',        payload: d.payload }
+  };
+  var mapped = actionMap[d.cmd];
+  if (!mapped) return;
+  fetch('/api/battles/' + d.battleId + '/commander-action', {
+    method: 'POST',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
+    body: JSON.stringify({
+      actionType: mapped.actionType,
+      payload: mapped.payload || {}
+    })
+  }).then(function(r) {
+    var label = { formation: '🛡 진형', maneuver: '→ 기동', focus: '⚡ 집중공격', emp: '💥 EMP' }[d.cmd] || d.cmd;
+    if (r.ok) {
+      if (typeof showFactionToast === 'function') showFactionToast(label + ' 명령 적용', 'success');
+    } else if (r.status === 401 || r.status === 403) {
+      if (typeof showFactionToast === 'function') showFactionToast(label + ' — 로그인 또는 권한 필요', 'error');
+    } else {
+      if (typeof showFactionToast === 'function') showFactionToast(label + ' 명령 실패 (' + r.status + ')', 'error');
+      console.warn('[battle-cmd] API failed:', r.status, d);
+    }
+  }).catch(function(e) { console.warn('[battle-cmd] fetch error:', e.message); });
+});
+
+async function loadBvSidePanels(battleId) {
+  // 사이드 패널 4종 채우기 — 내 함대, 자원, 적 함대, 전투 통계
+  var preset = null, my = null, mineral = null, battleInfo = null;
+  try {
+    [preset, my, mineral, battleInfo] = await Promise.all([
+      fetch('/api/tactical-lab/fleet-presets?bid=' + battleId).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('/api/fleets/my', { headers: getAuthHeaders() }).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('/api/resources/my', { headers: getAuthHeaders() }).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('/api/battles/' + battleId).then(r => r.ok ? r.json() : null).catch(() => null)
+    ]);
+  } catch (_) {}
+
+  var w = (walletState && walletState.address || '').toLowerCase();
+
+  // 내 함대 (atk/def 중 본인)
+  var myFleetEl = document.getElementById('bvSideMyFleet');
+  if (myFleetEl) {
+    var myFleets = [];
+    var pickSide = function(arr) { (arr || []).forEach(function(f) {
+      // owner_wallet 매칭은 fleet-presets 응답에 없음 — id (nickname) 으로 대조 또는 fleets/my 사용
+      myFleets.push(f);
+    }); };
+    if (my && my.fleets) {
+      myFleetEl.innerHTML = my.fleets.slice(0, 5).map(function(f) {
+        var hp = parseFloat(f.total_hp || 0), maxHp = parseFloat(f.total_max_hp || 1);
+        var pct = Math.round((hp / Math.max(1, maxHp)) * 100);
+        return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+          + '<div style="color:#4fc3f7;font-weight:700">' + escapeHtmlSafe(f.name || ('Fleet#' + f.id)) + '</div>'
+          + '<div style="font-size:9px;color:rgba(255,255,255,.5)">' + (f.ship_count || 0) + ' 척 · HP ' + pct + '%</div>'
+          + '</div>';
+      }).join('') || '<div style="opacity:.4">함대 없음</div>';
+    } else {
+      myFleetEl.innerHTML = '<div style="opacity:.4">로그인 필요</div>';
+    }
+  }
+
+  // 자원 보유
+  var resEl = document.getElementById('bvSideResources');
+  if (resEl) {
+    if (mineral && mineral.resources && mineral.resources.length) {
+      resEl.innerHTML = mineral.resources.slice(0, 8).map(function(r) {
+        return '<div style="display:flex;justify-content:space-between;padding:3px 0">'
+          + '<span>' + (r.icon_emoji || '●') + ' ' + escapeHtmlSafe(r.name_ko || r.code) + '</span>'
+          + '<b style="color:#fff">' + (r.quantity || 0) + '</b></div>';
+      }).join('');
+    } else {
+      resEl.innerHTML = '<div style="opacity:.4">광물 없음</div>';
+    }
+  }
+
+  // 적 함대 (preset 기반)
+  var enemyEl = document.getElementById('bvSideEnemyFleet');
+  if (enemyEl && preset) {
+    var enemies = [];
+    (preset.atk || []).forEach(function(f) { if ((f.id || '').toLowerCase() !== w.slice(0, 6)) enemies.push({ side: 'atk', f: f }); });
+    (preset.def || []).forEach(function(f) { enemies.push({ side: 'def', f: f }); });
+    enemyEl.innerHTML = enemies.slice(0, 5).map(function(e) {
+      var totalShips = 1 + Object.values(e.f.escort || {}).reduce(function(s, v) { return s + v; }, 0);
+      return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+        + '<div style="color:#ff7043;font-weight:700">' + escapeHtmlSafe(e.f.id || 'Unknown') + ' <span style="font-size:9px;opacity:.6">[' + e.f.tag + ']</span></div>'
+        + '<div style="font-size:9px;color:rgba(255,255,255,.5)">기함: ' + (e.f.flagship || '?') + ' · ' + totalShips + '척</div>'
+        + '</div>';
+    }).join('') || '<div style="opacity:.4">적 함대 없음</div>';
+  }
+
+  // 전투 통계
+  var statsEl = document.getElementById('bvSideBattleStats');
+  if (statsEl && battleInfo && battleInfo.battle) {
+    var b = battleInfo.battle;
+    statsEl.innerHTML =
+      '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>전투 ID</span><b>#' + b.id + '</b></div>'
+      + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>타입</span><b>' + (b.battle_type || '?') + '</b></div>'
+      + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>상태</span><b>' + (b.status || '?') + '</b></div>'
+      + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>ATK 함선</span><b>' + (b.atk_ships_total || 0) + '</b></div>'
+      + '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>DEF 함선</span><b>' + (b.def_ships_total || 0) + '</b></div>';
+  }
+}
+
 async function openBattleViewer(battleId) {
   // 가드: battleId 가 falsy/invalid 면 즉시 안내 — `/api/battles/undefined` 폴링 방지
   battleId = parseInt(battleId);
@@ -42832,6 +42965,9 @@ async function openBattleViewer(battleId) {
   // tactical-lab v11 iframe 로드 (사용자 요청: "택티컬랩 그대로")
   var tf = document.getElementById('bvTacticalFrame');
   if (tf) tf.src = '/assets/tactical-lab-v11.html?bid=' + battleId + '&t=' + Date.now();
+
+  // 사이드 패널 데이터 (데스크탑 전용 — CSS 가 모바일에선 hide)
+  loadBvSidePanels(battleId);
 
   // legacy canvas 초기화 (HUD 코드가 참조해도 안 깨지게)
   bv.canvas = document.getElementById('battleCanvas');

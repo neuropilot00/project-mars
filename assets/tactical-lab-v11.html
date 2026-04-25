@@ -196,7 +196,8 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
   <span class="clbl">CMD</span>
   <button class="cb y" onclick="cmdFocus()">⚡ 집중공격</button>
   <button class="cb y" onclick="cmdEMP()">💥 EMP</button>
-  <button class="cb r" onclick="initBattle()">↺ 재시작</button>
+  <!-- 재시작 버튼 제거 (실제 게임에선 hijack 결과 영구) — 사용자 요청 v4.5 -->
+  <button class="cb r" onclick="initBattle()" style="display:none">↺ 재시작</button>
 </div>
 
 <!-- v11.1 신규: Formation/Maneuver 전용 라인 -->
@@ -1099,24 +1100,39 @@ function reinforce(tid,n){
   assignFormationSlots(f);
   addLog('ev',`▶ 증원 ${SHIPS[tid].name} ×${n}`);
 }
+// 부모 (battle viewer) 에게 명령 전달 — 실제 commanderActions API 호출 트리거
+function _bridgeToParent(cmd, payload) {
+  try {
+    const bid = new URLSearchParams(location.search).get('bid');
+    if (window.parent && window.parent !== window && bid) {
+      window.parent.postMessage({ source:'tactical-lab', battleId: parseInt(bid), cmd, payload }, '*');
+    }
+  } catch (_) {}
+}
 function cmdFocus(){
   const ef=fleets.filter(f=>f.side==='def'&&!f.dead);
   if(!ef.length)return;
   const tf=ef.sort((a,b)=>b.flagship?.type.r-a.flagship?.type.r)[0];
   focusFleet=tf;
   addLog('wn',`⚡ 집중공격 — [${tf.userId}]`);
+  _bridgeToParent('focus', { target: tf.userId });
 }
-function cmdEMP(){empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 6초');}
+function cmdEMP(){
+  empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 6초');
+  _bridgeToParent('emp', { duration_ms: 6000 });
+}
 function cmdFormation(form){
   fleets.filter(f=>f.side==='atk'&&!f.dead).forEach(f=>{
     f.formation=form;
     assignFormationSlots(f);
   });
   addLog('fm',`${FORMATIONS[form].icon} 전 ATK 함대 진형: ${FORMATIONS[form].name}`);
+  _bridgeToParent('formation', { formation: form });
 }
 function cmdManeuver(mv){
   fleets.filter(f=>f.side==='atk'&&!f.dead).forEach(f=>{f.maneuver=mv;});
   addLog('tc',`${MANEUVERS[mv].icon} 전 ATK 함대 기동: ${MANEUVERS[mv].name}`);
+  _bridgeToParent('maneuver', { maneuver: mv });
 }
 
 const LOGS=[];
