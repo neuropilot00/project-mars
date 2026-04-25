@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS achievements (
   category        VARCHAR(32),                    -- 'territory' / 'combat' / 'economy' / 'social'
   icon            VARCHAR(32),
   condition_value INTEGER NOT NULL DEFAULT 1,
-  condition_type  VARCHAR(32) NOT NULL,           -- 'claim_count', 'ship_count', 'battle_wins', 'gp_balance', etc.
+  condition_type  VARCHAR(32) NOT NULL,           -- 'claim_count', 'ship_count', 'battle_win_count', 'gp_balance', etc.
   reward_gp       NUMERIC(20,6) DEFAULT 0,
   xp_reward       INTEGER DEFAULT 0,
   is_active       BOOLEAN DEFAULT true,
@@ -139,14 +139,14 @@ INSERT INTO achievements (key, name_en, name_ko, description_en, description_ko,
   ('claim_100',         'Empire Builder',   '제국 건설자',   'Claim 100 territories',              '영토 100개 점령',                     'legendary', 'territory', '👑', 100,  'claim_count',  500, 3000),
   ('first_ship',        'Captain',          '선장',          'Build your first ship',              '첫 함선 건조',                        'common',    'combat',    '🚢', 1,    'ship_count',   20,  100),
   ('ship_fleet_10',     'Admiral',          '제독',          'Own 10 active ships',                '함선 10척 보유',                      'rare',      'combat',    '⚓', 10,   'ship_count',   100, 500),
-  ('battle_winner',     'Warrior',          '전사',          'Win your first battle',              '첫 전투 승리',                        'common',    'combat',    '⚔️', 1,    'battle_wins',  30,  150),
-  ('battle_10_wins',    'Champion',         '챔피언',        'Win 10 battles',                     '10회 전투 승리',                      'rare',      'combat',    '🏆', 10,   'battle_wins',  150, 750),
+  ('battle_winner',     'Warrior',          '전사',          'Win your first battle',              '첫 전투 승리',                        'common',    'combat',    '⚔️', 1,    'battle_win_count',  30,  150),
+  ('battle_10_wins',    'Champion',         '챔피언',        'Win 10 battles',                     '10회 전투 승리',                      'rare',      'combat',    '🏆', 10,   'battle_win_count',  150, 750),
   ('gp_1000',           'Investor',         '투자자',        'Hold 1,000 GP',                      'GP 1,000 보유',                       'common',    'economy',   '💰', 1000, 'gp_balance',   0,   100),
   ('gp_10000',          'Tycoon',           '타이쿤',        'Hold 10,000 GP',                     'GP 10,000 보유',                      'epic',      'economy',   '💎', 10000,'gp_balance',   0,   1000),
-  ('marketplace_buyer', 'Collector',        '컬렉터',        'Buy 5 items from marketplace',       '마켓에서 5개 구매',                   'common',    'economy',   '🛍️', 5,    'market_bought',50,  300),
-  ('marketplace_seller','Merchant',         '상인',          'Sell 5 items on marketplace',        '마켓에서 5개 판매',                   'rare',      'economy',   '🏪', 5,    'market_sold',  50,  300),
-  ('guild_member',      'Brotherhood',      '형제단',        'Join a guild',                       '길드 가입',                           'common',    'social',    '🤝', 1,    'guild_member', 25,  100),
-  ('referral_3',        'Recruiter',        '리크루터',      'Refer 3 players',                    '3명 추천',                            'rare',      'social',    '🎯', 3,    'referrals',    100, 500)
+  ('marketplace_buyer', 'Collector',        '컬렉터',        'Buy 5 items from marketplace',       '마켓에서 5개 구매',                   'common',    'economy',   '🛍️', 5,    'marketplace_buy_count',50,  300),
+  ('marketplace_seller','Merchant',         '상인',          'Sell 5 items on marketplace',        '마켓에서 5개 판매',                   'rare',      'economy',   '🏪', 5,    'marketplace_sell_count',  50,  300),
+  ('guild_membership',      'Brotherhood',      '형제단',        'Join a guild',                       '길드 가입',                           'common',    'social',    '🤝', 1,    'guild_membership', 25,  100),
+  ('referral_3',        'Recruiter',        '리크루터',      'Refer 3 players',                    '3명 추천',                            'rare',      'social',    '🎯', 3,    'referral_count',    100, 500)
 ON CONFLICT (key) DO NOTHING;
 
 -- ═════════════════════════════════════════════════════════

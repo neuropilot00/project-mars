@@ -1539,7 +1539,7 @@ router.post('/claim', writeLimiter, async (req, res) => {
     try {
       const ach = require('../services/achievements');
       if (newCount > 0)    ach.checkAndUnlock(walletLower, 'claim_count').catch(() => {});
-      if (attackWon > 0)   ach.checkAndUnlock(walletLower, 'battle_wins').catch(() => {});
+      if (attackWon > 0)   ach.checkAndUnlock(walletLower, 'battle_win_count').catch(() => {});
       if (totalCost > 0)   ach.checkAndUnlock(walletLower, 'gp_balance').catch(() => {});
     } catch (_) {}
 

@@ -385,7 +385,7 @@ async function acceptInvite(wallet, inviteId) {
     // 🏆 Achievement: guild_member
     try {
       const ach = require('./achievements');
-      ach.checkAndUnlock(wallet, 'guild_member').catch(() => {});
+      ach.checkAndUnlock(wallet, 'guild_membership').catch(() => {});
     } catch (_ae) {}
 
     return { success: true, guildId };

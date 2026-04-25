@@ -438,8 +438,8 @@ async function buyListing(client, listingId, buyer) {
   // 🏆 Achievement triggers (buyer + seller)
   try {
     const ach = require('./achievements');
-    ach.checkAndUnlock(b, 'market_bought').catch(() => {});
-    ach.checkAndUnlock(listing.seller, 'market_sold').catch(() => {});
+    ach.checkAndUnlock(b, 'marketplace_buy_count').catch(() => {});
+    ach.checkAndUnlock(listing.seller, 'marketplace_sell_count').catch(() => {});
   } catch (_ae) {}
 
   return { success: true, price, fee, sellerReceives, currency, listing };
