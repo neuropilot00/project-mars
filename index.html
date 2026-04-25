@@ -1352,8 +1352,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .col-fab-wrap, .col-fab-wrap.show { display:none !important }
   /* myLandBtn 도 데스크탑 전용 — 1024 이하에서 숨김 (768 이하는 이미 처리됨) */
   #myLandBtn { display:none !important }
-  /* ops-launch-form 같은 데스크탑 전용 ops 컨트롤도 숨김 (mob-bottom-nav 의 CLAIM 으로 대체) */
-  .ops-launch-form, .ops-quick { display:none !important }
+  /* 데스크탑 전용 floating quick launcher 만 숨김 (.ops-quick).
+     - .ops-quick-split 은 모바일 전용 침공/탐사 퀵 카드 — 살림 (not() 으로 분리)
+     - .ops-launch-form 은 BASE 모달 내부 OPS 탭 발사 폼이라 모바일에서도 보여야 함 — 숨기지 않음 */
+  .ops-quick:not(.ops-quick-split) { display:none !important }
   /* Tablet panel widths: bigger than mobile but still slide-in */
   .panel-l,.panel-r{width:min(360px, 70vw)}
 }
@@ -36503,6 +36505,9 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
+          { type:'p', text:'**v3.9 — 2026-04-26 모바일 OPS 빈 화면 + Hijack 자동승리 viewer fix.** 사용자 신고 즉각 fix.' },
+          { type:'h2', text:'📱 v3.9 모바일 OPS 탭 + Hijack viewer fix' },
+          { type:'p', text:'• **모바일 OPS 탭 진입 시 빈 화면** → 1024 미디어쿼리가 BASE 모달 내부 발사 폼까지 숨겼음. CSS 룰 좁혀서 fix.\n• **하이젝 함대전 viewer 빈 화면** → 자동승리 (한 쪽 함대 0척) 케이스에 시뮬레이션 frame 거의 없어 캔버스 빈 화면. viewer 안 띄우고 명확한 토스트 표시 ("⚔ 자동 승리 — 즉시 점령" 등).' },
           { type:'p', text:'**v3.8 — 2026-04-26 리더보드 픽셀 수 정정.** 사용자 신고 즉각 fix.' },
           { type:'h2', text:'📊 v3.8 리더보드 픽셀 수 fix' },
           { type:'p', text:'• 리더보드 1위 Woo = 9,260 px / BASE 패널 = 7,173 px → 안 맞음.\n• 원인: 리더보드가 claims.width × height (이론값) 사용. hijack 당한 픽셀까지 포함돼 부풀려짐.\n• Fix: pixels 테이블의 실제 owner 카운트로 변경. BASE 패널과 동일 SSOT.' },
@@ -42808,6 +42813,20 @@ async function openBattleViewer(battleId) {
   if (!loaded) {
     showFactionToast('전투 데이터 로딩 실패' + (lastErr ? ' (' + lastErr + ')' : ''), 'error');
     console.error('[battle] openBattleViewer load failed for id=' + battleId + ':', lastErr);
+    closeBattleViewer();
+    return;
+  }
+
+  // 자동승리 케이스 (한 쪽 함대 0척) — 시뮬레이션 frame 이 거의 없어 viewer 가 빈 화면.
+  // viewer 모달 닫고 결과만 토스트로 안내. 결과는 hijack/declare 모달에서 이미 표시됨.
+  const atkN = parseInt(bv.battle?.atk_ships_total) || 0;
+  const defN = parseInt(bv.battle?.def_ships_total) || 0;
+  if (atkN === 0 || defN === 0) {
+    const winner = bv.battle?.winner_side;
+    const msg = winner === 'atk' ? '⚔ 자동 승리 — 상대 함대 없음 (즉시 점령)'
+              : winner === 'def' ? '🛡 자동 패배 — 본인 함대 없음'
+              : '⚡ 자동 종료 — 한 쪽 함대 없음';
+    showFactionToast(msg, 'info');
     closeBattleViewer();
     return;
   }

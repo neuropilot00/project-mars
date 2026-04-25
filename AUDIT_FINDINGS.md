@@ -1,4 +1,15 @@
-# OCCUPY MARS — Codebase Audit (v3.5 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v3.7 / 2026-04-26)
+
+## 🔴 v3.7 변경 요약 (2026-04-26)
+- **모바일 OPS 탭 빈 화면** (사용자 신고): 1024 미디어쿼리 `.ops-launch-form ... display:none !important` 가 BASE 모달 내부 발사 폼까지 숨김. 룰에서 `.ops-launch-form` 제거.
+- **하이젝 함대전 viewer 빈 화면** (사용자 신고): 자동승리(atk=0 또는 def=0) 케이스에 시뮬레이션 frame 거의 없음 → 빈 캔버스 + "0:00/0:00". `openBattleViewer` 가 atkN/defN 체크 후 viewer 닫고 winner 기준 토스트 표시.
+
+---
+
+## 🔴 v3.6 변경 요약 (2026-04-26)
+- **모바일 침공/탐사 버튼 사라짐** (사용자 신고): 태블릿/모바일 미디어쿼리의 `.ops-quick { display:none !important }` 룰이 element class `"ops-quick ops-quick-split"` 둘 다 매치. `.ops-quick:not(.ops-quick-split)` 로 좁혀서 fix. 모바일 전용 split 카드 정상 복원.
+
+---
 
 ## 🔴 v3.5 변경 요약 (2026-04-26)
 - **리더보드 픽셀 수 부풀림** (사용자 신고): `/api/leaderboard` 가 `claims.width × height` (이론적 직사각형) 로 계산해 BASE 패널의 진짜 카운트(`pixels` 테이블)와 어긋남. 실제 owner 카운트로 변경.

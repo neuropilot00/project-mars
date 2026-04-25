@@ -1,5 +1,28 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Mobile OPS Pane + Hijack 자동승리 Viewer Fix (v3.7)
+
+### 🔴 사용자 신고 1: 모바일에서 OPS 탭 진입 후 내용 빈 화면
+- **원인**: 1024 미디어쿼리 룰 `.ops-launch-form, .ops-quick:not(...) { display:none !important }` 가 BASE 모달 내부 OPS 탭 발사 폼 (`.ops-launch-form`) 까지 숨김. OPS 탭 본문이 launch-form 이라 모바일에서 빈 페이지로 보임.
+- **Fix**: 룰에서 `.ops-launch-form` 제거. `.ops-quick:not(.ops-quick-split)` 만 남김 — 데스크탑 floating launcher 만 숨기고 BASE 모달 내부 발사 폼은 모바일에서도 표시.
+- 검증: ops-launch-form display:block h:316px ✅, basePane_ops h:433px ✅
+
+### 🔴 사용자 신고 2: 하이젝 함대전 viewer 빈 화면
+- **원인**: 자동승리 케이스 (atk_ships_total=0 또는 def_ships_total=0) 에 시뮬레이션 frame 이 사실상 1개라 캔버스에 그릴 게 없음 → 빈 화면 + "0:00 / 0:00"
+- **Fix**: `openBattleViewer` 가 timeline 로드 후 `atkN === 0 || defN === 0` 체크 → viewer 모달 닫고 winner 기준 명확한 토스트 표시 ("⚔ 자동 승리" / "🛡 자동 패배" / "⚡ 자동 종료").
+- 검증: battle 10 (atk 1, def 0) 호출 → 793ms 만에 토스트 + viewer 닫힘 ✅
+
+---
+
+## 2026-04-26 — Mobile 침공/탐사 퀵카드 복원 (v3.6)
+
+### 🔴 사용자 신고: "모바일 메인 화면에서 침공/탐사 버튼이 안 보임"
+- **원인**: 1024 이하(태블릿) 미디어쿼리의 `.ops-launch-form, .ops-quick { display:none !important }` 룰이 element class `"ops-quick ops-quick-split"` 둘 다 매치 → 모바일 전용 split 카드까지 숨김
+- **Fix**: `.ops-quick:not(.ops-quick-split)` 로 좁혀서 옛 desktop-only `.ops-quick` 만 숨기고 모바일 split 카드 살림
+- 검증 (preview, 375×812): 우측 가운데 침공/탐사 분할 카드 60×120 정상 표시 ✅
+
+---
+
 ## 2026-04-26 — Leaderboard Pixel Count Fix (v3.5)
 
 ### 🔴 사용자 신고: "리더보드 픽셀 수가 BASE 패널과 안 맞음"
