@@ -1368,8 +1368,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .mob-toggle{display:block}
   /* Show mob bottom nav on tablet portrait too (otherwise user has no nav with panels closed) */
   .mob-bottom-nav{display:block}
-  /* Hide desktop-only column FAB (col-fab) and panel close (X) since we have mob-toggle/close-btn */
-  .col-fab-wrap{display:none}
+  /* Hide desktop-only column FAB (col-fab). `.show` adds display:block so we need !important.
+     tablet에서 mob-bottom-nav 와 col-fab-wrap 이 동시 렌더링되어 바텀 네비가 2줄로 보이던 문제 fix. */
+  .col-fab-wrap, .col-fab-wrap.show { display:none !important }
+  /* myLandBtn 도 데스크탑 전용 — 1024 이하에서 숨김 (768 이하는 이미 처리됨) */
+  #myLandBtn { display:none !important }
+  /* ops-launch-form 같은 데스크탑 전용 ops 컨트롤도 숨김 (mob-bottom-nav 의 CLAIM 으로 대체) */
+  .ops-launch-form, .ops-quick { display:none !important }
   /* Tablet panel widths: bigger than mobile but still slide-in */
   .panel-l,.panel-r{width:min(360px, 70vw)}
 }
@@ -36404,15 +36409,17 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
-          { type:'p', text:'**v3.0 — 2026-04-25 안정화 패치.** 대규모 버그 수정, 콘텐츠 확장, 코드 정리 일괄 적용.' },
-          { type:'h2', text:'🐛 버그 수정' },
-          { type:'p', text:'• 일일 출석체크 "Daily login failed" 오류 → 수정 (settings array 파싱).\n• Admin JOBS 통계 0으로만 표시 → 수정 (응답 형식 정렬).\n• Admin EVENTS 탭 빈 화면 → 수정 (탭 카테고리 누락).\n• 프로필 API "avatar_color 없음" → 수정 (마이그레이션 184).\n• 리소스/브랜딩/주문 컬럼 불일치 → 모두 정정.\n• 15개 서비스의 `u.wallet` JOIN 오타 → `u.wallet_address`로 일괄 수정.' },
+          { type:'p', text:'**v3.1 — 2026-04-25 모바일/렌더링 안정화.** 실제 페이지 렌더링 감사로 발견한 캐시·레이아웃 이슈까지 완전 해소.' },
+          { type:'h2', text:'📱 모바일/태블릿 안정화 (v3.1)' },
+          { type:'p', text:'• **iPhone 사이드바 stale 상태** → Service Worker 캐시(`mars-v3` → `v4`) + HTML network-first + 자동 reload 로 fix. 다음 방문 시 새 UI 자동 적용.\n• **태블릿 (iPad portrait 820px) 바텀 네비 두 줄** → `.col-fab-wrap.show !important` 무력화. 단일 mob-bottom-nav 만 표시.\n• 사이드바 z-index 250 + safe-area 패딩 110px 로 바텀 네비 위에 깔끔하게 표시, 닫기 X 버튼(z 260) 항상 보임.' },
+          { type:'h2', text:'🐛 v3.0 버그 수정' },
+          { type:'p', text:'• 일일 출석체크 "Daily login failed" 오류 → 수정 (settings array 파싱).\n• Admin JOBS 통계 0으로만 표시 → 수정 (응답 형식 정렬).\n• Admin EVENTS 탭 빈 화면 → 수정 (탭 카테고리 누락).\n• 하이젝 지불금액 0.00 PP → max(existing, sectorBase) × HIJACK_MULT.\n• NPC 자동승리 → defender lookup `HAVING alive_ships > 0` + 함대 미리보기 모달.\n• 15개 서비스의 `u.wallet` JOIN 오타 → `u.wallet_address`로 일괄 수정.' },
           { type:'h2', text:'🎯 콘텐츠 확장' },
-          { type:'p', text:'• **업적 29개** + 자동 트리거 (클레임/전투/마켓/함선/길드/가입 6개 이벤트).\n• **907개 admin 조정 가능 설정** (하드코딩 0% 원칙 강화).\n• Fleet Combat 패널을 새 `/api/fleets` 시스템에 재배선.\n• PVP 통합: Fleet Battles + Hijack (legacy ship-battle 제거).' },
+          { type:'p', text:'• **업적 29개** + 자동 트리거 (클레임/전투/마켓/함선/길드/가입 6개 이벤트).\n• **907개 admin 조정 가능 설정** (하드코딩 0% 원칙 강화).\n• Fleet Combat 패널을 새 `/api/fleets` 시스템에 재배선.\n• PVP 통합: Fleet Battles + Hijack (legacy ship-battle 제거).\n• 신규 진단 API: `/api/hijack/defender-info`, `/admin/api/fleet/npc-status`.' },
           { type:'h2', text:'🧹 정리' },
           { type:'p', text:'• 죽은 서비스 제거: weeklyChallenges, gpBurn, bounty, luckyBox, legacy battle.\n• 죽은 라우트 제거: factionRoutes v2, onboarding v1, territoryRoutes, public, publicRoutes.\n• betting v1 → warBetting v2 통합.\n• phantom 테이블 39개 일괄 생성 (마이그레이션 176~184).' },
           { type:'callout', variant:'tip', title:'개발자 분들께',
-            text:'전체 기술 세부사항은 repo 루트의 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 참조.' }
+            text:'전체 기술 세부사항은 repo 루트의 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 참조. 실제 브라우저 렌더링 감사 결과는 §"실제 페이지 렌더링 감사" 참조.' }
         ]
       },
       { id: 'overview', icon: '🌍', title: '게임 개요',
@@ -43174,7 +43181,35 @@ function showBattleResult() {
 
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
+<script>
+// Service Worker registration with auto-reload on update.
+// 이전엔 옛 SW의 stale index.html이 iOS 사용자에 남아 있어 사이드바/토스트 fix가
+// 적용되지 않는 문제가 있었음. 새 SW가 활성화되면 자동으로 한 번 새로고침해서
+// 최신 UI를 즉시 적용한다.
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(function(reg){
+    if (!reg) return;
+    // 새 worker 발견 시 → 활성화 대기 → controllerchange로 reload 트리거
+    reg.addEventListener('updatefound', function(){
+      var nw = reg.installing;
+      if (!nw) return;
+      nw.addEventListener('statechange', function(){
+        if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+          // 기존 controller가 있다는 건 업그레이드 케이스 → skipWaiting + reload
+          try { nw.postMessage({ type: 'SKIP_WAITING' }); } catch(_) {}
+        }
+      });
+    });
+  }).catch(function(){});
+  var _swReloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    // 첫 등록 시점에도 fire되므로 가드 — sessionStorage로 한 번만 reload
+    if (_swReloaded) return; _swReloaded = true;
+    if (sessionStorage.getItem('_sw_reloaded') === '1') return;
+    sessionStorage.setItem('_sw_reloaded', '1');
+    location.reload();
+  });
+}
 // ─── Phase D: Alliance / Replay / Mobile ───
 // ═════════════════════════════════════════════════════════════════
 // Alliance

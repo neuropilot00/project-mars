@@ -35,6 +35,8 @@ cfa8c10  fix(bugs): 사용자 신고 3건 + 테스트 중 발견 2건
 | 7 | 하이젝 지불금액 0.00 PP 표시 | NPC 점령 영토 `pixels.price = 0` → `0 × 1.2 = 0` (무료 하이잭 가능) | `Math.max(existing.price, sectorBasePrice) × HIJACK_MULT` (client + server 4곳) | 3ca106e |
 | 8 | NPC 함선 줬는데 자동승리 처리 | defender fleet lookup이 ORDER BY만 하고 HAVING 없음 → 빈 함대도 선택돼 phase1 결함 | `HAVING alive_ships > 0` 명시, 디버그 로그, 신규 `/admin/api/fleet/npc-status` 진단 endpoint + admin 버튼 | 3ca106e |
 | 9 | 하이젝 시 상대 함대 정보 미표시 (사용자 추가 요청) | 디클레어 전에 자동승리/함대전 여부 알 방법 없음 | 신규 `/api/hijack/defender-info` + 모달에 "Fleet N개 · 함선 M척 → 함대전" 또는 "함대 없음 → 자동 승리" 라벨 표시 | 3ca106e |
+| 10 | iPhone 에 사이드바 stale 상태 (close 버튼 미표시) | Service Worker `mars-v3` 캐시가 옛 index.html 을 iOS 단말에 보존 → 새 CSS/JS fix 적용 안 됨 | sw.js: CACHE_NAME → `mars-v4`, `/index.html` pre-cache 제거, HTML 문서 network-first 분기 신규, index.html에 controllerchange auto-reload 핸들러 + SKIP_WAITING 메시지 처리 | (이번 커밋) |
+| 11 | 태블릿 (820px) 바텀 네비 두 줄 중복 렌더링 (실제 페이지 감사 중 발견) | `.col-fab-wrap.show` 가 `display:block` 강제 → `@media(max-width:1024px) .col-fab-wrap{display:none}` 무시됨 (same specificity). 데스크탑 col-fab + 모바일 mob-bottom-nav 동시 표시 | `.col-fab-wrap, .col-fab-wrap.show { display:none !important }` + `#myLandBtn`, `.ops-launch-form`, `.ops-quick` 도 1024 이하 숨김 | (이번 커밋) |
 
 ## ✅ 자가 진단 버그 (테스트 중 발견 — 모두 해결)
 | 영향 | 원인 | 처리 |
@@ -114,6 +116,20 @@ cfa8c10  fix(bugs): 사용자 신고 3건 + 테스트 중 발견 2건
 | `GET /api/claims/my?wallet=` | 내 영토 목록 (expedition 셀렉터 등) | public |
 | `GET /admin/api/fleet/npc-status` | NPC 전수 진단 (함대전 가능 vs 자동승리 위험 분류) | admin |
 | `POST /admin/api/fleet/grant-starter-all-npcs` | NPC 전수 함대+함선+광물 일괄 지급 | admin |
+
+## 🧪 실제 페이지 렌더링 감사 (Claude Preview 사용)
+
+이번 세션 마지막에 실제 브라우저 렌더링 테스트 수행:
+
+| viewport | 결과 |
+|---|---|
+| Desktop (1280x720) | ✅ 글로브, 패널 collapsed (default), 토글 버튼, 바텀 네비 정상. 콘솔 에러 0건. |
+| Mobile (375x812 iPhone X) | ✅ 패널 transform=-319/+319 (off-screen), mob-toggle 보임, mob-bottom-nav 보임, 사이드바 열기/닫기 X 버튼 정상. |
+| Tablet (820x1180 iPad portrait) | ⚠️ → ✅ 초기엔 col-fab-wrap + mob-bottom-nav 동시 렌더 (바텀 네비 2줄). `!important` 처리 후 단일 표시. |
+| Admin EVENTS 탭 | ✅ Bug #3 fix 검증. World Events (Void Raiders) 섹션 정상 표시. |
+| Admin JOBS 탭 | ✅ Bug #2 fix 검증. TOTAL/NO JOB/RECENT/PAID stat cards + JOB DISTRIBUTION 테이블 + RECENT CHANGE LOG 정상. |
+
+추가로 발견된 SW 캐시 이슈 → mars-v4 + HTML network-first + auto-reload 로 해소 (Bug #10).
 
 ## 🛡 검증 방법론
 
