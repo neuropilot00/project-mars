@@ -35236,6 +35236,19 @@ if(typeof _origTrackQuestAction === 'function'){
 var CODEX_CONTENT = {
   en: {
     sections: [
+      { id: 'whatsnew', icon: '🆕', title: "What's New",
+        blocks: [
+          { type:'p', text:'**v3.0 — 2026-04-25 Stability Pass.** A massive batch of bug fixes, content expansion, and code cleanup.' },
+          { type:'h2', text:'🐛 Bug Fixes' },
+          { type:'p', text:'• Daily check-in "Daily login failed" toast → fixed (settings array parse).\n• Admin Jobs panel showing zeros → fixed (response shape).\n• Admin Events tab blank → fixed (missing tab category).\n• Profile API "column avatar_color does not exist" → fixed (migration 184).\n• Resources / branding / spells column mismatches → all fixed.\n• 15+ services with `u.wallet` typo in JOIN → fixed to `u.wallet_address`.' },
+          { type:'h2', text:'🎯 Content Expansion' },
+          { type:'p', text:'• **29 achievements** with auto-trigger on claim/battle/marketplace/ship/guild/signup events.\n• **907 admin-tunable settings** (No Hardcoding policy enforced).\n• Fleet Combat panel rewired to new `/api/fleets` system.\n• PVP unified: Fleet Battles + Hijack (legacy ship-battle removed).' },
+          { type:'h2', text:'🧹 Cleanup' },
+          { type:'p', text:'• Dead services removed: weeklyChallenges, gpBurn, bounty, luckyBox, legacy battle.\n• Dead routes removed: factionRoutes v2, onboarding v1, territoryRoutes, public, publicRoutes.\n• betting v1 → warBetting v2 unified.\n• 39 phantom tables created (migrations 176~184).' },
+          { type:'callout', variant:'tip', title:'For developers',
+            text:'See `CHANGELOG.md` and `AUDIT_FINDINGS.md` in repo root for the full technical breakdown.' }
+        ]
+      },
       { id: 'overview', icon: '🌍', title: 'Overview',
         blocks: [
           { type:'p', text:'**Occupy Mars** is a **territorial conquest MMO** running on Base chain. Claim pixel territories on a 3D Mars globe, earn PP from mining, raid rivals, form guilds, and fight for the season leaderboard — in short, the **digital colonization of Mars**.' },
@@ -36246,6 +36259,19 @@ var CODEX_CONTENT = {
   },
   ko: {
     sections: [
+      { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
+        blocks: [
+          { type:'p', text:'**v3.0 — 2026-04-25 안정화 패치.** 대규모 버그 수정, 콘텐츠 확장, 코드 정리 일괄 적용.' },
+          { type:'h2', text:'🐛 버그 수정' },
+          { type:'p', text:'• 일일 출석체크 "Daily login failed" 오류 → 수정 (settings array 파싱).\n• Admin JOBS 통계 0으로만 표시 → 수정 (응답 형식 정렬).\n• Admin EVENTS 탭 빈 화면 → 수정 (탭 카테고리 누락).\n• 프로필 API "avatar_color 없음" → 수정 (마이그레이션 184).\n• 리소스/브랜딩/주문 컬럼 불일치 → 모두 정정.\n• 15개 서비스의 `u.wallet` JOIN 오타 → `u.wallet_address`로 일괄 수정.' },
+          { type:'h2', text:'🎯 콘텐츠 확장' },
+          { type:'p', text:'• **업적 29개** + 자동 트리거 (클레임/전투/마켓/함선/길드/가입 6개 이벤트).\n• **907개 admin 조정 가능 설정** (하드코딩 0% 원칙 강화).\n• Fleet Combat 패널을 새 `/api/fleets` 시스템에 재배선.\n• PVP 통합: Fleet Battles + Hijack (legacy ship-battle 제거).' },
+          { type:'h2', text:'🧹 정리' },
+          { type:'p', text:'• 죽은 서비스 제거: weeklyChallenges, gpBurn, bounty, luckyBox, legacy battle.\n• 죽은 라우트 제거: factionRoutes v2, onboarding v1, territoryRoutes, public, publicRoutes.\n• betting v1 → warBetting v2 통합.\n• phantom 테이블 39개 일괄 생성 (마이그레이션 176~184).' },
+          { type:'callout', variant:'tip', title:'개발자 분들께',
+            text:'전체 기술 세부사항은 repo 루트의 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 참조.' }
+        ]
+      },
       { id: 'overview', icon: '🌍', title: '게임 개요',
         blocks: [
           { type:'p', text:'**Occupy Mars**는 Base 체인에서 돌아가는 **영토 정복 MMO**야. 3D 화성 지구본 위에 픽셀 영토를 클레임하고, 채굴로 돈을 벌고, 적을 습격하고, 길드로 뭉치고, 시즌 순위를 겨루는 — 짧게 말해 **디지털 화성 식민지화 게임**이지.' },
@@ -37259,6 +37285,19 @@ var CODEX_CONTENT = {
 // ── Japanese / Chinese guidebook (translated from verified EN/KO content) ──
 CODEX_CONTENT.ja = {
   sections: [
+    { id: 'whatsnew', icon: '🆕', title: '最新アップデート',
+      blocks: [
+        { type:'p', text:'**v3.0 — 2026-04-25 安定化パッチ。** 大規模なバグ修正、コンテンツ拡張、コードクリーンアップ。' },
+        { type:'h2', text:'🐛 バグ修正' },
+        { type:'p', text:'• デイリーチェックイン "Daily login failed" → 修正 (settings array 解析).\n• Admin JOBS 統計が 0 のまま → 修正 (応答形式).\n• Admin EVENTS タブ空白 → 修正 (タブカテゴリ漏れ).\n• Profile API "avatar_color 列なし" → 修正 (migration 184).\n• Resources/branding/spells のカラム不一致 → 全て修正.\n• 15+ サービスの `u.wallet` JOIN 誤り → `u.wallet_address` に一括修正.' },
+        { type:'h2', text:'🎯 コンテンツ拡張' },
+        { type:'p', text:'• **アチーブメント 29 種** + 自動トリガー (claim/battle/marketplace/ship/guild/signup 6 イベント).\n• **907 個の admin 調整可能設定** (No Hardcoding 原則 100%).\n• Fleet Combat パネルを新 `/api/fleets` に再配線.\n• PVP 統合: Fleet Battles + Hijack (legacy ship-battle 削除).' },
+        { type:'h2', text:'🧹 整理' },
+        { type:'p', text:'• 死んでいたサービス削除: weeklyChallenges, gpBurn, bounty, luckyBox, legacy battle.\n• 死んでいたルート削除: factionRoutes v2, onboarding v1, territoryRoutes, public, publicRoutes.\n• betting v1 → warBetting v2 統合.\n• phantom テーブル 39 個一括作成 (migration 176~184).' },
+        { type:'callout', variant:'tip', title:'開発者向け',
+          text:'技術的詳細はリポジトリルートの `CHANGELOG.md` と `AUDIT_FINDINGS.md` を参照。' }
+      ]
+    },
     { id: 'overview', icon: '🌍', title: 'ゲーム概要',
       blocks: [
         { type:'p', text:'**Occupy Mars** は Base チェーン上で動く**領土征服 MMO** だ。3D 火星グローブ上にピクセル領土をクレームし、採掘で稼ぎ、敵を襲撃し、ギルドで結束し、シーズンリーダーボードで競い合う — 要するに **火星のデジタル植民地化ゲーム**だ。' },
@@ -38266,6 +38305,19 @@ CODEX_CONTENT.ja = {
 
 CODEX_CONTENT.zh = {
   sections: [
+    { id: 'whatsnew', icon: '🆕', title: '最新更新',
+      blocks: [
+        { type:'p', text:'**v3.0 — 2026-04-25 稳定性补丁。** 大规模 bug 修复、内容扩展、代码清理。' },
+        { type:'h2', text:'🐛 Bug 修复' },
+        { type:'p', text:'• 每日签到 "Daily login failed" → 已修复 (settings 数组解析).\n• Admin JOBS 统计显示为 0 → 已修复 (响应格式).\n• Admin EVENTS 标签空白 → 已修复 (标签类别遗漏).\n• Profile API "avatar_color 列不存在" → 已修复 (migration 184).\n• Resources/branding/spells 列不匹配 → 全部修复.\n• 15+ 服务的 `u.wallet` JOIN 错误 → 一并修正为 `u.wallet_address`.' },
+        { type:'h2', text:'🎯 内容扩展' },
+        { type:'p', text:'• **成就 29 个** + 自动触发 (claim/battle/marketplace/ship/guild/signup 6 个事件).\n• **907 个 admin 可调设置** (零硬编码原则).\n• Fleet Combat 面板重新连接到新 `/api/fleets` 系统.\n• PVP 统一: Fleet Battles + Hijack (移除遗留 ship-battle).' },
+        { type:'h2', text:'🧹 清理' },
+        { type:'p', text:'• 移除已死服务: weeklyChallenges, gpBurn, bounty, luckyBox, legacy battle.\n• 移除已死路由: factionRoutes v2, onboarding v1, territoryRoutes, public, publicRoutes.\n• betting v1 → warBetting v2 统一.\n• phantom 表格 39 个一并创建 (migration 176~184).' },
+        { type:'callout', variant:'tip', title:'面向开发者',
+          text:'完整技术细节请查看仓库根目录的 `CHANGELOG.md` 和 `AUDIT_FINDINGS.md`。' }
+      ]
+    },
     { id: 'overview', icon: '🌍', title: '游戏概述',
       blocks: [
         { type:'p', text:'**Occupy Mars** 是运行在 Base 链上的**领土征服 MMO**。在 3D 火星球体上占领像素领土,通过采矿赚钱,袭击对手,加入公会,争夺赛季排行榜 — 简而言之,就是**火星的数字殖民化**。' },

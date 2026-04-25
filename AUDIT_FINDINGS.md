@@ -1,122 +1,118 @@
-# 코드베이스 일제 감사 결과 (2026-04-25 — 심화 작업 완료)
+# OCCUPY MARS — Codebase Audit (v3.0 / 2026-04-25 — final)
 
 ## 📊 최종 통계
 - **DB 테이블**: 219개
 - **Settings 키**: 907개 (모든 라이브 기능 admin 조정 가능)
 - **업적**: 29개 (4 카테고리, 4 언어)
-- **마이그레이션**: 156개 적용 (~001 - 183)
-- **세션 누적 커밋**: 19+
+- **마이그레이션**: 156+ (~184)
+- **누적 커밋 (이번 작업)**: 22개
+- **Phantom 테이블**: 0개 (이전 35+)
+- **검증된 frontend endpoint**: 60+개
 
-## 🟢 라이브 핵심 시스템 (모두 정상)
+## ✅ 사용자 신고 버그 (이번 세션 — 모두 해결)
+| # | 신고 | 원인 | 처리 |
+|---|---|---|---|
+| 1 | 일일 출석체크 'Daily login failed' | getSetting() string 반환을 array로 사용 | JSON.parse + Array.isArray 가드 |
+| 2 | JOBS admin 통계 빈 값 | response shape 불일치 (distribution vs byJob) | byJob/noJob/recentChanges 추가 |
+| 3 | EVENTS 탭 빈 화면 | switchTab cats 배열에 worldevents 누락 | cats에 추가 |
 
-| 시스템 | 상태 | 비고 |
+## ✅ 자가 진단 버그 (테스트 중 발견 — 모두 해결)
+| 영향 | 원인 | 처리 |
 |---|---|---|
-| 유저 인증/지갑 | ✅ | JWT + email + wallet_address |
-| 클레임/픽셀 | ✅ | 핵심 게임 루프 |
-| GP 경제 | ✅ | gp_balance + gp_transactions + gp_activity_log |
-| 하이잭 | ✅ | 2-Phase 전투, 자동 배틀뷰어 |
-| Fleet Combat | 🟡 | `fleet_combat_enabled = false` (게이트됨) |
-| 공성전 | ✅ | 섹터 거버너 |
-| 거버넌스 | ✅ | 커맨더/거버너/세금 |
-| 시즌 점수 | ✅ | addSeasonScore |
-| 날씨 | ✅ | 전략 컬럼 추가됨 |
-| 길드 | ✅ | 레벨업/수송 동작 |
-| 수송/약탈 | ✅ | Phase C |
-| 일일 미션 | ✅ | settings 시드됨 |
-| 마켓플레이스 | ✅ | 아이템 거래 |
-| 아이템 강화 | ✅ | 코스메틱 +1~+10 |
-| 옥션 | ✅ | inventory 정정 완료 |
-| 로켓 보급 드롭 | ✅ | 트리거 fix |
-| POI 탐험 | ✅ | 4h 스폰 |
-| VIP | ✅ | |
-| Colony Prestige | ✅ | settings 시드됨 |
-| Territory Prestige | ✅ | |
-| **PVP 베팅** | ✅ | warBetting 단일 시스템 통합 |
-| **업적** | ✅ | 29개 + 자동 트리거 와이어링 |
+| /api/achievements 500 | ORDER BY a.sort_order (없음) | a.condition_value, a.key |
+| /api/profile 500 | users.avatar_color/motto 컬럼 없음 | migration 184 추가 |
+| /api/branding/my, spells admin 500 | claims.x1/y1/x2/y2 (실제: center_lat/lng/width/height) | 컬럼명 정정 |
+| /api/resources/my 500 | i.resource_code (실제: resource_id FK) | JOIN resources r ON r.id = i.resource_id |
+| /api/raffles/active 500 | /raffles/:id가 'active' parseInt → NaN | :id(\d+)로 숫자 제한 |
+| 15+ 서비스 u.wallet JOIN 에러 | 이전 fix 시 WHERE만 정정, JOIN 누락 | u.wallet_address로 일괄 정정 |
+| /api/claims/my 404 | endpoint 자체 없음 | routes/api.js에 추가 |
+| /api/burn/* 404 | gpBurn 삭제됐으나 frontend UI 잔존 | UI 숨김 + loadBurnPanel no-op |
 
-## 🟢 보조 기능 (모두 동작 + admin 조정 가능)
+## 🟢 검증된 라이브 시스템 (현재 모두 동작)
 
-| 기능 | DB | Settings | UI | 트리거 |
-|---|---|---|---|---|
-| 영토 브랜딩 | ✅ | ✅ | ✅ | — |
-| 영토 설명 (tdesc) | ✅ | ✅ | ✅ | — |
-| 기념물 (monuments) | ✅ | ✅ | ✅ | — |
-| 영토 티어 (tiers) | ✅ | ✅ | ✅ | — |
-| 영토 주문 (spells) | ✅ | ✅ | ✅ | — |
-| 영토 이벤트 (tevt) | ✅ | ✅ | ✅ | — |
-| 영토 스폰서 | ✅ | ✅ | ✅ | — |
-| 영토 실드 | ✅ | ✅ | ✅ | — |
-| 영토 임대 (rental) | ✅ | — | ✅ | — |
-| 영토 업그레이드 | ✅ | — | ✅ | — |
-| 무덤/그래피티/평가/명함/공물/일기/마일스톤/하이라이트/배너 | ✅ | ✅ | ✅ | — |
-| 상태 메시지 / 비콘 / 캡슐 | ✅ | ✅ | ✅ | — |
-| 스테이킹 | ✅ | ✅ | ✅ | — |
-| 투표 (polls) | ✅ | ✅ | ✅ | — |
-| 베팅 (wager) | ✅ | ✅ | ✅ | — |
-| 미술 콘테스트 | ✅ | ✅ | ✅ | — |
-| 기부 (donation) | ✅ | ✅ | ✅ | — |
-| 공지 (broadcast) | ✅ | ✅ | ✅ | — |
-| 원정 (expedition) | ✅ | ✅ | ✅ | — |
-| 복권 (lottery) | ✅ | — | ✅ | — |
-| 배당 (dividends) | ✅ | — | ✅ | — |
-| 행성 뉴스 | ✅ | ✅ | — | auto |
-| 래플 (raffle) | ✅ | ✅ | ✅ admin | — |
-| 크래프팅 | ✅ | ✅ | ✅ | — |
-| 토너먼트 (단순) | ✅ | — | ✅ | — |
-| 프로필 변경 로그 | ✅ | — | — | auto |
-| 업적 | ✅ | ✅ | ✅ | ✅ auto-trigger |
+### 핵심 게임 루프
+| 시스템 | endpoint | 검증 |
+|---|---|---|
+| 클레임/픽셀 | /api/claims, /api/pixels | ✅ 300+ records |
+| GP 경제 | gp_balance + gp_transactions + gp_activity_log | ✅ |
+| 하이잭 (PVP) | /api/hijack/declare-with-pp + phaseC.js | ✅ |
+| Fleet Combat | /api/fleets, /api/ships/* | ✅ 22 ship types, fleet detail OK |
+| 공성전 | /api/siege/* | ✅ |
+| 거버넌스 | /api/governance/leaderboard, /bounties | ✅ |
+| 시즌 점수 | /api/season/active, /season/leaderboard | ✅ 1 season active |
+| 마켓플레이스 | /api/marketplace/listings | ✅ |
+| 옥션 | /api/auction, /api/auctions | ✅ |
+| 일일 미션 | /api/daily/status, /missions, /login | ✅ Day 3, rewards 5/10/15... |
+| 업적 | /api/achievements + auto-trigger | ✅ 29 achievements |
+| PVP 베팅 | /api/betting/events, /bet, /mine | ✅ warBetting 단일 시스템 |
+| 로켓 드롭 | /api/rockets | ✅ event #12 incoming |
+| POI | /api/poi/* | ✅ |
+| 파벌 | /api/factions | ✅ 3 factions (mcc/fsp/cv) |
+| 길드 | /api/guild/leaderboard, /my | ✅ |
+| 직업 | /api/jobs (5 jobs) | ✅ |
+| 자원 | /api/resources/catalog, /my | ✅ 13 resources |
+| 거버넌스 (commander/governor) | /api/governance/* | ✅ commander Woo |
 
-## 🏗️ 의도된 레이어드 아키텍처 (병합 불필요)
+### 보조 기능 (검증 통과)
+- 영토: branding, monuments, tiers, spells, sponsors, shields, rentals, upgrades
+- 플레이어: status, beacons, capsules, banners, graffiti, vtag, journals, milestones, highlights, ratings, tombstones
+- 경제: stakes, polls, wagers, contests, donations, broadcasts, expeditions, raffles
+- 미니게임: lottery, dividends, news, crafting
 
-| 페어 | 역할 |
-|---|---|
-| chronicle + chronicleEnhanced | base 이벤트 + Discord/특수 이벤트 wrapper |
-| title + titleExtended | 기본 13종 + 확장 11종 |
-| enhancement + enhancementAdvanced | 인스턴싱 ops + 레시피 보너스 |
-| job + jobs (routes) | user-ops + admin / catalog + select |
-| resource + resources (routes) | admin + rate / user catalog |
-| auction + auctionRoutes | 거래 ops / 목록 |
-| tournament + tournaments | fleet 토너먼트 / 단순 GP entry-fee |
+## 🟢 의도된 레이어드 아키텍처 (병합 불필요)
+- chronicle + chronicleEnhanced (base + Discord wrapper)
+- title + titleExtended (basic 13 + advanced 11)
+- enhancement + enhancementAdvanced (instancing + recipe bonuses)
+- job + jobs routes (user-ops + catalog)
+- resource + resources routes (admin + user)
+- auction + auctionRoutes (ops + listing)
+- tournament + tournaments services (fleet + simple)
 
-## ❌ 정리 완료 (이번 심화 작업)
+## 🟡 의도적 보류 (별도 작업, 영향 미미)
+없음 — 이전 보류 4건 모두 처리됨.
+- ✅ Fleet Combat 활성화 (이미 enabled, UI 정합성 fix)
+- ✅ routes/ships.js 정리 (실제로는 신 fleet 시스템이었음, CLAUDE.md 메모 정정)
+- ✅ news.js retention (24h 스케줄러 + retention setting 동작 확인)
+- ✅ referral_count 최적화 (idx_users_referred_by 인덱스 존재)
 
-### Dead 코드 일괄 제거 (10 파일)
-- weeklyChallenges, gpBurn, bounty, luckyBox (서비스 + 라우트)
-- factionRoutes (v2), factionSystem (서비스)
-- onboarding (v1), territoryRoutes, public, publicRoutes, betting, battle (서비스+라우트)
+## 🔴 알려진 미해결 (영향도 낮음, 의도적)
+- battle.js / battle 라우트: 완전히 제거됨 (PVP는 fleet+hijack으로 통합)
+- routes/ships.js의 일부 endpoint는 JWT auth만 (frontend가 매번 토큰 송부)
+- /api/auth/me 404: frontend가 사용 안 함 (JWT decode local-side)
 
-### 통합 / 마이그레이션
-- betting v1 → warBetting v2 (호환 endpoint 추가, 5min/60s 스케줄러 통합)
-- battle.js 깨진 시스템 제거 → fleet_battles + Hijack로 PVP 통합
-- 39개 phantom 테이블 생성 (migration 176~180)
-- 88개 + 78개 settings 시드 (migration 181, 182)
-- 29개 업적 + 4 언어 (migration 183)
+## 📚 문서 (모두 최신)
+- **CHANGELOG.md** ← v3.0 패치 노트 (개발자용 상세)
+- **CLAUDE.md** ← 신규 세션 핸드오프 (§13~16 보강)
+- **AUDIT_FINDINGS.md** ← 이 문서 (기능별 매트릭스)
+- **index.html in-game guide** ← "What's New" 섹션 신규 추가 (4개 언어 모두)
 
-### 일괄 버그 수정
-- users.wallet → wallet_address (18 서비스)
-- gp_balances → users.gp_balance (8 서비스: branding, contest, expedition, spells, crafting, broadcasts, rental, tournaments)
-- admin.js JSONB UPDATE 일괄 fix (25곳 cast + 38곳 stringify)
-- 인벤토리 컬럼 mismatch (auction, worldEvents, tombstone)
-- achievements condition_type 정합성 (battle_wins → battle_win_count 등)
+## 🛡 검증 방법론
 
-### 추가 기능 와이어링
-- achievements auto-trigger: claim, battle, marketplace, ship build, guild join, signup
-- routes/auth.js: 추천인 referral_count 자동 체크
-- 모든 핵심 서비스 헤더에 STATUS/Flow/DB/Settings 주석 (hijack, rocket, prestige, tprestige, battle)
+이번 작업에서 사용한 audit 방법:
+1. 사용자 신고 스크린샷 직접 분석 → 정확한 원인 추적
+2. **로컬 서버 가동** (port 3000) + curl로 60+ frontend endpoint 직접 호출
+3. 5xx/404 응답마다 server.log 확인 → 코드 수정 → 재테스트
+4. PostgreSQL 직접 쿼리로 schema mismatch 추적
+5. node 스모크 테스트 (require 모든 services/routes)
+6. index.html `<script>` 13개 syntax 검증
 
-## ✅ 보류 4건 모두 처리 완료
+→ **다른 사람이 이 audit을 재현하려면**:
+```bash
+# 1. 서버 가동
+DATABASE_URL=postgresql://jongho@localhost:5432/pixelwar \
+JWT_SECRET=test-key ADMIN_SECRET=test-admin \
+node server/index.js > /tmp/server.log 2>&1 &
 
-| 항목 | 처리 결과 |
-|---|---|
-| Fleet Combat 활성화 | `fleet_combat_enabled = true` 이미 설정됨 (DB 확인). loadFleetPanel을 `/api/fleets`로 재배선, 깨진 govBuildShip/govRepairShip/govUpgradeShip은 openShipyard/openFleetCmd로 redirect. |
-| routes/ships.js | 실제로 **신 fleet 시스템** (헤더 "신규 함대전 시스템"). CLAUDE.md 메모만 잘못된 것이었음 — 메모 수정. |
-| news.js retention | 완전 작동 중: 24h 스케줄러 + `news_retention_days=30` 시드 + getNews `news_max_items` 적용. |
-| referral_count 최적화 | `idx_users_referred_by` 인덱스 이미 존재. 게임 규모에서 COUNT(*) 충분히 빠름. caching column 불필요. |
+# 2. endpoint 일괄 테스트
+WALLET=0x... ; for ep in /api/claims/my /api/fleets /api/achievements; do
+  curl -s -o /dev/null -w "%{http_code} $ep\n" "http://localhost:3000$ep?wallet=$WALLET"
+done
 
-## ✅ 최종 무결성 검증
-- DB 219 tables, 907 settings, 29 achievements, 156 migrations
-- 모든 services/routes require 스모크 테스트 통과
-- 서버 부팅 정상 (스케줄러 모두 깨끗하게 시작)
-- AUDIT_FINDINGS.md / CLAUDE.md 최신화
+# 3. 로그 확인
+tail -30 /tmp/server.log | grep -E "error|warn"
+```
 
-→ **새 Claude/사람이 와도 이 문서만 읽으면 즉시 작업 가능 상태.**
+---
+
+*이 audit은 OCCUPY MARS 메인 컨텐츠(영토 점령, 함대 전투, 채굴, 거버넌스, 마켓)와*
+*38개 보조 기능 모두 정상 동작을 검증한 결과입니다.*
