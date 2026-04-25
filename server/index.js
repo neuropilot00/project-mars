@@ -130,12 +130,11 @@ const jobsRoutes         = require('./routes/jobs');               // Job System
 const onboardingV2Routes = require('./routes/onboardingRoutes');   // Onboarding Tutorial v2
 const lotteryRoutes  = require('./routes/lottery');
 const stakingRoutes  = require('./routes/staking');
-const gpBurnRoutes      = require('./routes/gpBurn');
-const weeklyRoutes      = require('./routes/weeklyChallenges');
+// Removed: gpBurn / weeklyChallenges (phantom tables, 0 fetch refs in index.html)
 const dividendRoutes    = require('./routes/dividends');
 const monumentRoutes    = require('./routes/monuments');
 const upgradeRoutes     = require('./routes/claimUpgrades');
-const bountyRoutes      = require('./routes/bounty');
+// Removed: bounty (phantom tables, 0 fetch refs in index.html — separate from /api/governance/commander/bounty)
 const shieldRoutes      = require('./routes/shield');
 const craftingRoutes    = require('./routes/crafting');
 const duelRoutes        = require('./routes/duel');
@@ -143,7 +142,7 @@ const transportRoutes   = require('./routes/transport');     // Phase C: sector 
 const rentalRoutes      = require('./routes/rental');
 const contestRoutes     = require('./routes/contest');
 const allianceRoutes    = require('./routes/alliance');
-const luckyBoxRoutes    = require('./routes/luckyBox');
+// Removed: luckyBox (phantom tables, 0 fetch refs in index.html)
 const vipRoutes         = require('./routes/vip');
 const expeditionRoutes  = require('./routes/expedition');
 const brandingRoutes    = require('./routes/branding');
@@ -316,12 +315,11 @@ try { app.use('/api', require('./routes/worldEvents')); } catch (e) { console.wa
 app.use('/api', battleRoutes);
 app.use('/api', lotteryRoutes);
 app.use('/api', stakingRoutes);
-app.use('/api', gpBurnRoutes);
-app.use('/api', weeklyRoutes);
+// Removed: gpBurnRoutes, weeklyRoutes (phantom tables, 0 UI refs)
 app.use('/api', dividendRoutes);
 app.use('/api', monumentRoutes);
 app.use('/api', upgradeRoutes);
-app.use('/api', bountyRoutes);
+// Removed: bountyRoutes (phantom tables, 0 UI refs)
 app.use('/api', shieldRoutes);
 app.use('/api', craftingRoutes);
 app.use('/api', duelRoutes);
@@ -329,7 +327,7 @@ app.use('/api', transportRoutes);
 app.use('/api', rentalRoutes);
 app.use('/api', contestRoutes);
 app.use('/api', allianceRoutes);
-app.use('/api', luckyBoxRoutes);
+// Removed: luckyBoxRoutes (phantom tables, 0 UI refs)
 app.use('/api', vipRoutes);
 app.use('/api', expeditionRoutes);
 app.use('/api', brandingRoutes);
@@ -1016,17 +1014,7 @@ async function start() {
       console.log('[WE] World Events scheduler started (2min interval)');
     } catch(e) { console.warn('[WE] Could not init scheduler:', e.message); }
 
-    // ── GP Burn: Clean expired burn effects (every 10 minutes) ──
-    try {
-      const { cleanExpiredBurns } = require('./services/gpBurn');
-      setInterval(async () => {
-        try {
-          const n = await cleanExpiredBurns();
-          if (n > 0) console.log(`[BURN] Cleaned ${n} expired burn effect(s)`);
-        } catch(e) { console.warn('[BURN] cleanup error:', e.message); }
-      }, 10 * 60 * 1000);
-      console.log('[BURN] Expired-burn cleanup scheduler started (10min interval)');
-    } catch(e) { console.warn('[BURN] Could not init cleanup scheduler:', e.message); }
+    // Removed: GP Burn scheduler (phantom tables — gp_burn_active, gp_burn_log)
 
     // ── Staking: Mark matured stakes as ready (every 5 minutes) ──
     try {
@@ -1061,22 +1049,7 @@ async function start() {
       console.log('[DIV] Dividend scheduler started (6h check, distributes on Monday)');
     } catch(e) { console.warn('[DIV] Could not init dividend scheduler:', e.message); }
 
-    // ── Weekly Challenges: Ensure instances + settle competitive (every 1 hour) ──
-    try {
-      const { ensureWeekInstances, settleCompetitiveChallenges } = require('./services/weeklyChallenges');
-      // Ensure instances on startup
-      setTimeout(async () => {
-        try { await ensureWeekInstances(); } catch(e) { console.warn('[WEEKLY] startup ensure error:', e.message); }
-      }, 30 * 1000);
-      // Hourly: ensure instances for new week + settle last week's competitive
-      setInterval(async () => {
-        try {
-          await ensureWeekInstances();
-          await settleCompetitiveChallenges();
-        } catch(e) { console.warn('[WEEKLY] hourly task error:', e.message); }
-      }, 60 * 60 * 1000);
-      console.log('[WEEKLY] Challenge scheduler started (hourly)');
-    } catch(e) { console.warn('[WEEKLY] Could not init scheduler:', e.message); }
+    // Removed: Weekly Challenges scheduler (phantom tables — weekly_challenge_*)
 
     // ── Chronicle: Weekly Report (every Monday UTC 00:00) ──
     try {
@@ -1093,14 +1066,7 @@ async function start() {
       console.log('[CHRONICLE] Weekly report scheduler started (check: 1h)');
     } catch(e) { console.warn('[CHRONICLE] Could not init weekly report scheduler:', e.message); }
 
-    // ── Bounty: Expire stale bounties (every 1 hour) ──
-    try {
-      const { expireBounties } = require('./services/bounty');
-      setInterval(async () => {
-        try { await expireBounties(); } catch(e) { console.warn('[BOUNTY] expire error:', e.message); }
-      }, 60 * 60 * 1000);
-      console.log('[BOUNTY] Expiry scheduler started (1h interval)');
-    } catch(e) { console.warn('[BOUNTY] Could not init expiry scheduler:', e.message); }
+    // Removed: Bounty scheduler (phantom tables — gp_bounties)
 
     // ── Shield: Expire expired shields (every 5 minutes) ──
     try {
