@@ -2561,6 +2561,11 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         style="background:rgba(76,216,154,.2);border:1px solid rgba(76,216,154,.4);color:#4cd89a;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700">
         🚀 스타터 팩 지급
       </button>
+      <button onclick="grantStarterAllNpcs()"
+        style="background:rgba(255,153,68,.2);border:1px solid rgba(255,153,68,.5);color:#FF9944;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700"
+        title="0xnpc_% 지갑 전부에 함대+프리깃+광물 일괄 지급">
+        🤖 모든 NPC에 일괄 지급
+      </button>
     </div>
     <div id="starterPackResult" style="margin-top:10px;font-size:11px"></div>
   </div>
@@ -10675,6 +10680,36 @@ function grantStarterPack() {
         +'파벌: '+d.faction+'<br>'
         +'함선: '+shipInfo+'<br>'
         +'광물: '+minInfo
+        +'</div>';
+    } else {
+      resultEl.innerHTML = '<span style="color:#f44">실패: ' + (d.error || JSON.stringify(d)) + '</span>';
+    }
+  }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">오류: '+e.message+'</span>'; });
+}
+
+// ── 모든 NPC에 스타터 팩 일괄 지급 ──
+function grantStarterAllNpcs() {
+  var resultEl = document.getElementById('starterPackResult');
+  if (!confirm('0xnpc_% 지갑 전부에게 스타터 팩(함대+프리깃+광물)을 일괄 지급합니다. 계속하시겠습니까?')) return;
+  resultEl.innerHTML = '<span style="color:#aaa">일괄 지급 중... (NPC 수에 따라 시간이 걸릴 수 있음)</span>';
+  fetch('/admin/api/fleet/grant-starter-all-npcs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.success) {
+      var errHtml = '';
+      if (d.errors && d.errors.length) {
+        errHtml = '<div style="margin-top:6px;color:#f88;font-size:10px"><b>에러 ('+d.errors.length+'개):</b><br>'
+          + d.errors.slice(0,5).map(function(e){return '• '+e.wallet+': '+e.error;}).join('<br>')
+          + (d.errors.length > 5 ? '<br>...외 ' + (d.errors.length-5) + '건' : '') + '</div>';
+      }
+      resultEl.innerHTML = '<div style="background:rgba(255,153,68,.1);border:1px solid rgba(255,153,68,.3);border-radius:6px;padding:8px;line-height:1.8">'
+        +'<b style="color:#FF9944">✓ 일괄 지급 완료!</b><br>'
+        +'대상 NPC: '+d.total+'명<br>'
+        +'함선 신규 지급: '+d.granted+'명<br>'
+        +'이미 함선 보유: '+d.alreadyHad+'명<br>'
+        +'에러: '+(d.errors ? d.errors.length : 0)+'건'
+        + errHtml
         +'</div>';
     } else {
       resultEl.innerHTML = '<span style="color:#f44">실패: ' + (d.error || JSON.stringify(d)) + '</span>';

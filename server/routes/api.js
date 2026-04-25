@@ -4052,12 +4052,14 @@ router.post('/rockets/trigger', writeLimiter, async (req, res) => {
     if (!rocketService) return res.status(503).json({ error: 'Rocket system not available' });
     const { wallet } = req.body;
     if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
-    // Verify commander
-    const cmdRes = await pool.query(
-      "SELECT value FROM game_settings WHERE key = 'commander_wallet'"
-    );
-    const cmdWallet = cmdRes.rows[0]?.value;
-    if (!cmdWallet || wallet.toLowerCase() !== cmdWallet.toLowerCase()) {
+    // Verify commander — commander_wallet lives in the `commander` table (id=1),
+    // NOT in `game_settings`. Old code always 403'd.
+    let cmdWallet = null;
+    try {
+      const cmdRes = await pool.query("SELECT commander_wallet FROM commander WHERE id = 1");
+      cmdWallet = cmdRes.rows[0]?.commander_wallet || null;
+    } catch (_e) { /* table missing — fall through */ }
+    if (!cmdWallet || wallet.toLowerCase() !== String(cmdWallet).toLowerCase()) {
       return res.status(403).json({ error: 'Only the commander can trigger rocket drops' });
     }
     const result = await rocketService.scheduleRocketEvent(wallet.toLowerCase());
