@@ -27,7 +27,7 @@ async function getCurrentValue(wallet, conditionType) {
 
     case 'ship_count':
       return parseInt((await pool.query(
-        `SELECT COUNT(*) AS n FROM user_ships WHERE wallet = $1 AND status != 'destroyed'`, [w]
+        `SELECT COUNT(*) AS n FROM ships WHERE owner_wallet = $1 AND is_alive = true`, [w]
       )).rows[0]?.n) || 0;
 
     case 'battle_win_count':

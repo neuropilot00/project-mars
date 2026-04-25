@@ -87,12 +87,12 @@ async function joinTournament(wallet, tournamentId) {
     }
 
     const gpCost = t.entry_fee_gp;
-    const bal    = await client.query('SELECT balance FROM gp_balances WHERE wallet=$1', [wallet]);
+    const bal    = await client.query('SELECT gp_balance AS balance FROM users WHERE wallet_address=$1', [wallet]);
     const balance = bal.rows.length ? parseInt(bal.rows[0].balance, 10) : 0;
     if (balance < gpCost) throw new Error(`Insufficient GP. Need ${gpCost}, have ${balance}`);
 
     // Deduct GP
-    await client.query('UPDATE gp_balances SET balance=balance-$1 WHERE wallet=$2', [gpCost, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [gpCost, wallet]);
     await client.query(
       "INSERT INTO gp_transactions(wallet,amount,type,note) VALUES($1,$2,'tournament_entry',$3)",
       [wallet, -gpCost, `Entered ${t.name} (#${tournamentId})`]
@@ -164,7 +164,7 @@ async function adminPickWinner(tournamentId, winnerWallet) {
 
     // Award prize
     await client.query(
-      'INSERT INTO gp_balances(wallet,balance) VALUES($1,$2) ON CONFLICT(wallet) DO UPDATE SET balance=gp_balances.balance+$2',
+      'UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1',
       [winner, prize]
     );
     await client.query(
@@ -199,7 +199,7 @@ async function adminCancelTournament(tournamentId) {
     const entries = await client.query('SELECT wallet FROM tournament_entries WHERE tournament_id=$1', [t.id]);
     for (const e of entries.rows) {
       await client.query(
-        'INSERT INTO gp_balances(wallet,balance) VALUES($1,$2) ON CONFLICT(wallet) DO UPDATE SET balance=gp_balances.balance+$2',
+        'UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1',
         [e.wallet, t.entry_fee_gp]
       );
       await client.query(
