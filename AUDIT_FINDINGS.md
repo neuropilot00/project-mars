@@ -1,24 +1,40 @@
 # OCCUPY MARS — Codebase Audit (v3.0 / 2026-04-25 — final)
 
+> **이 문서는 코드베이스의 현재 상태를 외부 검토자(Codex 등)에게 넘기기 위한 정리본입니다.**
+> 신고된 모든 버그와 자가 진단으로 발견한 이슈, 그리고 검증된 라이브 시스템을 한눈에 볼 수 있도록 구성됨.
+
 ## 📊 최종 통계
 - **DB 테이블**: 219개
 - **Settings 키**: 907개 (모든 라이브 기능 admin 조정 가능)
 - **업적**: 29개 (4 카테고리, 4 언어)
-- **마이그레이션**: 156+ (~184)
-- **누적 커밋 (이번 작업)**: 22개
+- **마이그레이션**: 184개 적용
+- **누적 커밋 (이번 작업)**: **27개**
 - **Phantom 테이블**: 0개 (이전 35+)
 - **검증된 frontend endpoint**: 60+개
+- **마지막 커밋**: `3ca106e` — fix(hijack): 지불금액 + NPC 자동승리 + 함대 미리보기
+
+## 🔄 최신 커밋 흐름 (시간 역순)
+```
+3ca106e  fix(hijack): 지불금액 0.00 + NPC 자동승리 + 함대 미리보기 (사용자 신고 3건)
+290ce90  fix(mobile): iPad portrait/iPhone Pro Max landscape 사이드바 자동 열림 + 글로브 안 보임
+e764e75  fix(mobile): 사이드바 z-index + 토스트 시각 일관성
+2e76af9  docs(v3.0): CHANGELOG + 게임 가이드 'What's New' + AUDIT 최종화
+0a48f17  fix: 추가 endpoint 버그 일괄 (전체 endpoint 감사 결과)
+cfa8c10  fix(bugs): 사용자 신고 3건 + 테스트 중 발견 2건
+```
 
 ## ✅ 사용자 신고 버그 (이번 세션 — 모두 해결)
-| # | 신고 | 원인 | 처리 |
-|---|---|---|---|
-| 1 | 일일 출석체크 'Daily login failed' | getSetting() string 반환을 array로 사용 | JSON.parse + Array.isArray 가드 |
-| 2 | JOBS admin 통계 빈 값 | response shape 불일치 (distribution vs byJob) | byJob/noJob/recentChanges 추가 |
-| 3 | EVENTS 탭 빈 화면 | switchTab cats 배열에 worldevents 누락 | cats에 추가 |
-| 4 | 모바일 사이드바 잡아먹힘 | panel-r/l 모바일 z-index 120 < mob-bottom-nav 200 | z 250 + bottom padding (FAB+nav 고려), close btn z 260 |
-| 5 | 토스트 일관성 부족 | showToast/showFactionToast 시각 다름, 위치 다름, 'red'/'h' 등 typo type | 통합 .toast CSS (변형은 accent color만), showFactionToast→showToast 위임, 'red'→'error' 등 legacy alias 자동 normalize |
-| 6 | iPhone 양쪽 사이드바 열림+글로브 안 보임 | `@media(max-width:768px)`만 처리 → iPad portrait(820), Pro Max landscape(932), split-screen(800~) 데스크탑 레이아웃 적용 → panel 250+250=500px 가 글로브 가림 | 새 `@media(max-width:1024px)` 블록 — 태블릿도 슬라이드 패널, mob-toggle/mob-bottom-nav 표시, panel-tab 숨김. DOMContentLoaded에서 `innerWidth≤1024`면 .open 클래스 강제 제거 (캐시 방어) |
-| 7 | 하이젝 지불금액 0.00 + NPC 자동승리 | NPC 점령 영토 `existing.price = 0` → `0 × 1.2 = 0` 비용. defender fleet lookup이 ship 0인 fleet도 잡아서 phase1 진행 안 됨 | `Math.max(existing.price, sectorBasePrice) × HIJACK_MULT` (client + 3 server path), defender lookup에 `HAVING alive_ships > 0` + 디버그 로그, hijack 모달에 함대 미리보기 (`/api/hijack/defender-info`), admin에 "NPC 함대 진단" 버튼 |
+| # | 신고 | 원인 | 처리 | 커밋 |
+|---|---|---|---|---|
+| 1 | 일일 출석체크 'Daily login failed' | getSetting() string 반환을 array로 사용 → INSERT NaN | JSON.parse + Array.isArray 가드 (services/daily.js + routes/api.js daily/status) | cfa8c10 |
+| 2 | JOBS admin 통계 빈 값 | backend `{distribution}` vs frontend `{byJob, noJob, recentChanges}` shape mismatch | `routes/job.js` /admin/jobs에 byJob (per-job avg_gp/avg_pp 집계) + noJob + recentChanges | cfa8c10 |
+| 3 | EVENTS 탭 빈 화면 | `switchTab()` cats 배열에 `'worldevents'` 누락 → .cat-worldevents 영원히 display:none | cats 배열에 worldevents 추가 (admin.html line 2716) | cfa8c10 |
+| 4 | 모바일 사이드바 잡아먹힘 (하단 잘림) | `.panel-r/.panel-l` 모바일 open 시 z-index 120 < `.mob-bottom-nav` z 200 | z 250, padding-bottom safe-area + 110px, panel-close-fixed z 260 | e764e75 |
+| 5 | 토스트 시각 일관성 부족 | showToast/showFactionToast 시각·위치·alias 모두 제각각 | 통합 .toast CSS (accent color만 type별 변경), showFactionToast→showToast 위임, 'red'/'green'/'h' legacy alias 자동 normalize | e764e75 |
+| 6 | iPhone 양쪽 사이드바 열림 + 글로브 안 보임 | `@media(max-width:768px)`만 처리 → iPad portrait(820), Pro Max landscape(932), split-screen(800~)에서 데스크탑 layout 적용되어 panel 250+250=500px 가 글로브 가림 | 새 `@media(max-width:1024px)` 블록 — 태블릿도 슬라이드 패널, mob-toggle/mob-bottom-nav 표시, panel-tab 숨김. DOMContentLoaded에서 `innerWidth≤1024`면 .open 강제 제거 (캐시 방어) | 290ce90 |
+| 7 | 하이젝 지불금액 0.00 PP 표시 | NPC 점령 영토 `pixels.price = 0` → `0 × 1.2 = 0` (무료 하이잭 가능) | `Math.max(existing.price, sectorBasePrice) × HIJACK_MULT` (client + server 4곳) | 3ca106e |
+| 8 | NPC 함선 줬는데 자동승리 처리 | defender fleet lookup이 ORDER BY만 하고 HAVING 없음 → 빈 함대도 선택돼 phase1 결함 | `HAVING alive_ships > 0` 명시, 디버그 로그, 신규 `/admin/api/fleet/npc-status` 진단 endpoint + admin 버튼 | 3ca106e |
+| 9 | 하이젝 시 상대 함대 정보 미표시 (사용자 추가 요청) | 디클레어 전에 자동승리/함대전 여부 알 방법 없음 | 신규 `/api/hijack/defender-info` + 모달에 "Fleet N개 · 함선 M척 → 함대전" 또는 "함대 없음 → 자동 승리" 라벨 표시 | 3ca106e |
 
 ## ✅ 자가 진단 버그 (테스트 중 발견 — 모두 해결)
 | 영향 | 원인 | 처리 |
@@ -89,6 +105,15 @@
 - **CLAUDE.md** ← 신규 세션 핸드오프 (§13~16 보강)
 - **AUDIT_FINDINGS.md** ← 이 문서 (기능별 매트릭스)
 - **index.html in-game guide** ← "What's New" 섹션 신규 추가 (4개 언어 모두)
+
+## 🆕 신규 진단/검증 API (이번 세션 추가)
+
+| Endpoint | 목적 | 권한 |
+|---|---|---|
+| `GET /api/hijack/defender-info?wallet=` | 하이젝 모달에서 상대방 함대 미리보기 (auto-win vs fleet battle 사전 판단) | public |
+| `GET /api/claims/my?wallet=` | 내 영토 목록 (expedition 셀렉터 등) | public |
+| `GET /admin/api/fleet/npc-status` | NPC 전수 진단 (함대전 가능 vs 자동승리 위험 분류) | admin |
+| `POST /admin/api/fleet/grant-starter-all-npcs` | NPC 전수 함대+함선+광물 일괄 지급 | admin |
 
 ## 🛡 검증 방법론
 
