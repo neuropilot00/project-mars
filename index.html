@@ -29138,152 +29138,62 @@ window.addEventListener('resize', _debounce(function(){
       panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">'+(t('gov_fleet_hint')||'Connect wallet to view your fleet.')+'</div>';
       return;
     }
+    // 새 fleet 시스템 (/api/fleets) 사용 — 기존 /api/ships 직접 ship 목록 호출 제거.
+    // 함선 관리는 SHIPYARD 모달, 함대 관리는 FLEET COMMAND 모달에서 진행.
     panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
-    Promise.all([
-      fetch('/api/ships?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {ships:[]}}),
-      _blueprints ? Promise.resolve({blueprints:_blueprints}) : fetch('/api/ships/blueprints').then(function(r){return r.json()}).catch(function(){return {blueprints:[]}}),
-      _upgradeCosts ? Promise.resolve(_upgradeCosts) : fetch('/api/ships/upgrade-costs').then(function(r){return r.json()}).catch(function(){return null})
-    ]).then(function(res) {
-      var ships = res[0].ships || [];
-      if (!_blueprints && res[1].blueprints) _blueprints = res[1].blueprints;
-      if (!_upgradeCosts && res[2] && res[2].costs) _upgradeCosts = res[2];
-      var blueprints = _blueprints || [];
-      var upgInfo    = _upgradeCosts || {};
-      var active = ships.filter(function(s){return s.status !== 'destroyed'});
-      var html = '';
-      // Fleet header
-      if (active.length) {
-        html += '<div style="margin-bottom:8px">';
-        html += '<div style="font-size:9px;color:#5cbbff;font-weight:700;margin-bottom:6px">'+
-          (t('gov_fleet_my')||'MY SHIPS')+'  <span style="color:var(--tx3)">'+active.length+'/'+(t('gov_fleet_max')||'10')+'</span></div>';
-        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">';
-        active.forEach(function(s) {
-          var hpPct = Math.round((s.hp/s.max_hp)*100);
-          var hpColor = hpPct>60?'#4cd89a':hpPct>30?'var(--gold)':'var(--red)';
-          var statusBadge = s.status === 'deployed' ?
-            '<span style="color:var(--cyan);font-size:7px">⚡ DEPLOYED</span>' :
-            s.status === 'repairing' ?
-            '<span style="color:var(--gold);font-size:7px">🔧 REPAIR</span>' :
-            '<span style="color:#4cd89a;font-size:7px">⚓ DOCKED</span>';
-          var upgLevel = parseInt(s.upgrade_level) || 0;
-          var maxLevel = parseInt(upgInfo.maxLevel) || 5;
-          // Upgrade level badge with escalating glow colours
-          var upgBadgeColor = upgLevel === 0 ? 'var(--tx3)' :
-                              upgLevel <= 2  ? '#fff'        :
-                              upgLevel <= 4  ? 'var(--gold)' : '#c97bff';
-          var upgBadge = upgLevel > 0
-            ? '<span style="color:'+upgBadgeColor+';font-size:7px;font-weight:700"> +'+upgLevel+'</span>'
-            : '';
-          // Next upgrade cost
-          var costEntry = (upgInfo.costs || []).find(function(c){return c.level === upgLevel+1});
-          var nextCostStr = costEntry ? costEntry.gp_cost+' GP' : '';
-
-          html += '<div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.12);border-radius:6px;padding:8px">';
-          html += '<div style="font-size:10px;font-weight:700;color:#5cbbff">'+s.icon+' '+s.name+upgBadge+'</div>';
-          html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px">';
-          html += '<div style="font-size:8px;color:var(--tx3)">HP: <span style="color:'+hpColor+'">'+hpPct+'%</span></div>';
-          html += statusBadge+'</div>';
-          html += '<div style="font-size:7px;color:var(--tx3);margin-top:2px">⚔'+s.attack+' 🛡'+s.defense+' ⚡'+s.speed+'</div>';
-          if (s.hp < s.max_hp && s.status !== 'deployed') {
-            html += '<button onclick="govRepairShip('+s.id+')" style="width:100%;margin-top:4px;font-size:7px;padding:3px;border-radius:3px;border:1px solid rgba(255,209,102,.3);background:rgba(255,209,102,.08);color:var(--gold);cursor:pointer;font-family:var(--fn)">🔧 '+(t('gov_ship_repair')||'REPAIR')+'</button>';
-          }
-          if (s.status !== 'deployed' && upgLevel < maxLevel && costEntry) {
-            html += '<button onclick="govUpgradeShip('+s.id+','+upgLevel+',\''+s.name.replace(/'/g,"\\'")+'\','+costEntry.gp_cost+')" style="width:100%;margin-top:4px;font-size:7px;padding:3px;border-radius:3px;border:1px solid rgba(201,123,255,.3);background:rgba(201,123,255,.08);color:#c97bff;cursor:pointer;font-family:var(--fn)">⬆ '+(t('gov_ship_upgrade')||'UPGRADE')+' ('+costEntry.gp_cost+' GP)</button>';
-          } else if (upgLevel >= maxLevel) {
-            html += '<div style="font-size:7px;color:#c97bff;text-align:center;margin-top:4px">✨ MAX</div>';
+    fetch('/api/fleets', { headers: { 'x-wallet': w } })
+      .then(function(r){ return r.json() })
+      .catch(function(){ return { fleets: [] } })
+      .then(function(data) {
+        var fleets = data.fleets || data || [];
+        if (!Array.isArray(fleets)) fleets = [];
+        var totalShips = fleets.reduce(function(sum,f){ return sum + (parseInt(f.ship_count)||0); }, 0);
+        var html = '';
+        if (fleets.length) {
+          html += '<div style="margin-bottom:8px"><div style="font-size:9px;color:#5cbbff;font-weight:700;margin-bottom:6px">'
+            + (t('gov_fleet_my')||'MY FLEETS') + ' <span style="color:var(--tx3)">'+fleets.length+' fleets · '+totalShips+' ships</span></div>';
+          fleets.slice(0,3).forEach(function(f){
+            var nm = f.name || ('Fleet #'+f.id);
+            html += '<div style="background:rgba(92,187,255,.04);border:1px solid rgba(92,187,255,.12);border-radius:6px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">'
+              + '<span style="font-size:10px;font-weight:700;color:#5cbbff">⚓ '+nm+'</span>'
+              + '<span style="font-size:9px;color:var(--tx3)">'+(parseInt(f.ship_count)||0)+' ships</span>'
+              + '</div>';
+          });
+          if (fleets.length > 3) {
+            html += '<div style="font-size:8px;color:var(--tx3);text-align:center">+'+(fleets.length-3)+' more...</div>';
           }
           html += '</div>';
-        });
-        html += '</div></div>';
-      }
-      // 조선소/건조는 별도 모달(openShipyard)로 이관됨 — 이 패널에서는 함선 상태만 보여줌
-      if (!active.length) {
-        html += '<div style="font-size:10px;color:var(--tx3);padding:8px 0;text-align:center">'
-             + (t('gov_fleet_empty')||'No ships yet — open the shipyard below to start building.')
-             + '</div>';
-      }
-      panel.innerHTML = html;
-    });
+        } else {
+          html += '<div style="font-size:10px;color:var(--tx3);padding:6px 0;text-align:center">'
+            + (t('gov_fleet_empty')||'No fleets yet — open Shipyard to start building.') + '</div>';
+        }
+        // Action buttons (open the proper modals)
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px">'
+          + '<button onclick="(typeof openShipyard===\'function\')&&openShipyard()" style="font-size:9px;padding:6px;border-radius:5px;border:1px solid rgba(79,195,247,.4);background:rgba(79,195,247,.1);color:#4fc3f7;cursor:pointer;font-family:var(--fn);font-weight:700">⚓ '+(t('fcmd_open_shipyard')||'SHIPYARD')+'</button>'
+          + '<button onclick="(typeof openFleetCmd===\'function\')&&openFleetCmd()" style="font-size:9px;padding:6px;border-radius:5px;border:1px solid rgba(167,139,250,.4);background:rgba(167,139,250,.1);color:#a78bfa;cursor:pointer;font-family:var(--fn);font-weight:700">⚔ '+(t('fcmd_my_fleets')||'MY FLEETS')+'</button>'
+          + '</div>';
+        panel.innerHTML = html;
+      });
   }
-
-  window.govBuildShip = function(shipType) {
-    var w = walletState.address;
-    if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
-    var bp = (_blueprints||[]).find(function(b){return b.type===shipType});
-    if (!bp) return;
-    gameConfirm({
-      title: t('gov_ship_build')||'Build Ship', icon: bp.icon,
-      body: '<div style="font-size:11px;color:#5cbbff;font-weight:700;margin-bottom:8px">'+bp.icon+' '+bp.name+'</div>'
-        +'<div style="font-size:9px;color:var(--tx3);margin-bottom:4px">⚔ ATK: '+bp.attack+'  🛡 DEF: '+bp.defense+'  ⚡ SPD: '+bp.speed+'</div>',
-      info: [{k:'Cost', v: bp.gp_cost+' GP'}],
-      confirmText: '⚓ '+(t('gov_ship_build')||'BUILD SHIP')
-    }).then(function(ok) {
-      if (!ok) return;
-      fetch('/api/ships/build', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({wallet: w, shipType: shipType})
-      }).then(function(r){return r.json()}).then(function(d) {
-        if (d.error) { showToast(d.error, 'error'); return; }
-        showToast('⚓ '+(d.ship.name||shipType)+' '+(t('gov_ship_built')||'built!'));
-        refreshBalance();
-        loadFleetPanel();
-      }).catch(function(){showToast('Build failed','error')});
-    });
+  // Legacy /api/ships?wallet= UI는 제거됨. loadFleetPanel은 신 /api/fleets API 사용.
+  // govBuildShip/govRepairShip/govUpgradeShip은 openShipyard()/openFleetCmd() 모달로 redirect.
+  window.govBuildShip = function(_shipType) {
+    showToast('🔨 ' + (t('use_shipyard')||'Use Shipyard'), 'info');
+    if (typeof openShipyard === 'function') openShipyard();
+  };
+  window.govRepairShip = function(_shipId) {
+    showToast('🔧 ' + (t('use_fleet_cmd')||'Use Fleet Command'), 'info');
+    if (typeof openFleetCmd === 'function') openFleetCmd();
+  };
+  window.govUpgradeShip = function(_shipId) {
+    showToast('⬆ ' + (t('use_fleet_cmd')||'Use Fleet Command'), 'info');
+    if (typeof openFleetCmd === 'function') openFleetCmd();
   };
 
-  window.govRepairShip = function(shipId) {
-    var w = walletState.address;
-    if (!w) return;
-    gameConfirm({
-      title: t('gov_ship_repair')||'Repair Ship', icon: '🔧',
-      body: '<div style="font-size:10px;color:var(--tx3)">'+(t('gov_ship_repair_confirm')||'Repair this ship to full HP?')+'</div>',
-      info: [], confirmText: '🔧 '+(t('gov_ship_repair')||'REPAIR')
-    }).then(function(ok) {
-      if (!ok) return;
-      fetch('/api/ships/'+shipId+'/repair', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({wallet: w})
-      }).then(function(r){return r.json()}).then(function(d) {
-        if (d.error) { showToast(d.error, 'error'); return; }
-        showToast('🔧 '+(t('gov_ship_repaired')||'Ship repaired! -'+d.repairCost+' GP'));
-        refreshBalance();
-        loadFleetPanel();
-      }).catch(function(){showToast('Repair failed','error')});
-    });
-  };
-
-  window.govUpgradeShip = function(shipId, curLevel, shipName, gpCost) {
-    var w = walletState.address;
-    if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
-    var upgInfo = _upgradeCosts || {};
-    var atkGain = upgInfo.atkPerLvl || 5;
-    var defGain = upgInfo.defPerLvl || 5;
-    var hpGain  = upgInfo.hpPerLvl  || 30;
-    gameConfirm({
-      title: (t('gov_ship_upgrade')||'Upgrade Ship'), icon: '⬆',
-      body: '<div style="font-size:11px;color:#c97bff;font-weight:700;margin-bottom:6px">'+shipName+' +'+curLevel+' → +'+(curLevel+1)+'</div>'
-        +'<div style="font-size:9px;color:var(--tx3)">+'+atkGain+' ATK &nbsp; +'+defGain+' DEF &nbsp; +'+hpGain+' HP</div>',
-      info: [{k: (t('gov_ship_upgrade_cost')||'Upgrade Cost'), v: gpCost+' GP'}],
-      confirmText: '⬆ '+(t('gov_ship_upgrade')||'UPGRADE')
-    }).then(function(ok) {
-      if (!ok) return;
-      fetch('/api/ships/'+shipId+'/upgrade', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({wallet: w})
-      }).then(function(r){return r.json()}).then(function(d) {
-        if (d.error) { showToast(d.error, 'error'); return; }
-        showToast('⬆ '+shipName+' +'+(d.toLevel||'?')+' '+(t('gov_ship_upgraded')||'upgraded!'));
-        refreshBalance();
-        loadFleetPanel();
-      }).catch(function(){showToast('Upgrade failed','error')});
-    });
-  };
+  // (legacy govBuildShip/govRepairShip/govUpgradeShip 본문 제거됨 — stubs above redirect to openShipyard/openFleetCmd)
 
   // ──────────────────────────────────────────────────────
-  // NAVAL BATTLES (Migration 093)
+  // NAVAL BATTLES (legacy — 함대전은 fleet_battles + Hijack로 통합)
   // ──────────────────────────────────────────────────────
   window.toggleBattleSection = function() {
     var el = document.getElementById('govBattleSection');

@@ -104,14 +104,14 @@
 - routes/auth.js: 추천인 referral_count 자동 체크
 - 모든 핵심 서비스 헤더에 STATUS/Flow/DB/Settings 주석 (hijack, rocket, prestige, tprestige, battle)
 
-## 🟡 의도적 보류 (향후 작업)
+## ✅ 보류 4건 모두 처리 완료
 
-| 항목 | 사유 |
+| 항목 | 처리 결과 |
 |---|---|
-| Fleet Combat 활성화 | `fleet_combat_enabled = true`로 변경 + UI 점검 필요 |
-| routes/ships.js (구버전) | fleet 활성화 시 비활성화 검토 |
-| services/news.js news_max_items 폴리시 | retention 관리 작동 중 |
-| referral_count 진행 컬럼 캐싱 | 현재 매 호출 COUNT(*) — 대용량 시 최적화 필요 |
+| Fleet Combat 활성화 | `fleet_combat_enabled = true` 이미 설정됨 (DB 확인). loadFleetPanel을 `/api/fleets`로 재배선, 깨진 govBuildShip/govRepairShip/govUpgradeShip은 openShipyard/openFleetCmd로 redirect. |
+| routes/ships.js | 실제로 **신 fleet 시스템** (헤더 "신규 함대전 시스템"). CLAUDE.md 메모만 잘못된 것이었음 — 메모 수정. |
+| news.js retention | 완전 작동 중: 24h 스케줄러 + `news_retention_days=30` 시드 + getNews `news_max_items` 적용. |
+| referral_count 최적화 | `idx_users_referred_by` 인덱스 이미 존재. 게임 규모에서 COUNT(*) 충분히 빠름. caching column 불필요. |
 
 ## ✅ 최종 무결성 검증
 - DB 219 tables, 907 settings, 29 achievements, 156 migrations

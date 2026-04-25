@@ -367,12 +367,14 @@ vip_enabled                = true
 | `services/enhancement.js` + `enhancementAdvanced.js` | 인스턴싱 ops + 레시피 보너스 |
 
 #### C. 기타 메모
-1. `server/routes/ships.js` — 구버전 단순 함선 시스템. fleet 활성화 시 비활성화 필요.
+1. `server/routes/ships.js` — **신** fleet 시스템 (이전 메모 잘못된 정보). `/api/ships/blueprints`, `/api/ships/my`, `/api/ships/build` 등 정상 동작. 폐기 대상 아님.
 2. `server/migrations/archived/` — 89~139번 구버전. 건드리지 말 것.
 3. settings.value는 JSONB — 문자열은 `'"text"'`, 점 포함 버전은 `'"1.0.0"'`으로 감싸야 함.
 4. 로컬 테스트 유저: `0xlainworld000000000000000000000000000000`.
-5. 스케줄러 catch 패턴 — silent 실패 모니터링 필요.
-6. `fleet_combat_enabled = false` — fleet 시스템 게이트됨. 활성화 시 `routes/ships.js` 정리 필요.
+5. 스케줄러 catch 패턴 — silent 실패 모니터링 필요 (현재 phantom 없으므로 모두 정상 동작).
+6. `fleet_combat_enabled = true` — fleet 시스템 활성화됨 (DB 확인 완료).
+7. `idx_users_referred_by` 인덱스 존재 — referral COUNT(*) 쿼리 최적화됨.
+8. 새 fleet UI 진입점: `openShipyard()` (조선소), `openFleetCmd()` (함대 관리). PVP 탭의 loadFleetPanel은 `/api/fleets`로 fleet 요약만 표시 + 위 모달 진입 버튼.
 
 ---
 
