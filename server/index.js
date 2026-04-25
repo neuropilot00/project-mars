@@ -115,7 +115,7 @@ const resourceRoutes = require('./routes/resource');
 // Removed: routes/onboarding.js v1 (frontend uses v2 only — onboardingRoutes.js mounted at /api/onboarding)
 const sectorRoutes = require('./routes/sectors');
 const siegeRoutes = require('./routes/siege');
-const publicRoutes = require('./routes/public');
+// Removed: routes/public.js (0 frontend fetches — see also publicV2Routes deletion below)
 const bettingRoutes    = require('./routes/betting');
 const warBettingRoutes = require('./routes/warBettingRoutes'); // War Betting v2
 const auctionRoutes = require('./routes/auction');
@@ -177,7 +177,7 @@ const factionRoutes     = require('./routes/factions');  // A-1: 파벌 선택 �
 const newResourcesRoutes = require('./routes/resources'); // A-2: 자원 인벤토리 (복수형, 함선 UI용)
 const fleetRoutes       = require('./routes/fleets');    // A-3: 함대 편성 시스템
 const weatherRoutes     = require('./routes/weatherRoutes'); // Weather Strategic v2
-const publicV2Routes    = require('./routes/publicRoutes');   // Chronicle Enhanced Public API
+// Removed: routes/publicRoutes.js (0 frontend fetches — Chronicle Enhanced Public API was unused)
 const hofRoutes         = require('./routes/hallOfFameRoutes'); // Hall of Fame & Titles
 
 const app = express();
@@ -291,12 +291,12 @@ app.use('/api', resourceRoutes);
 // Removed: onboardingRoutes v1 mount
 app.use('/api', sectorRoutes);
 app.use('/api', siegeRoutes);
-app.use('/api', publicRoutes);
+// Removed: publicRoutes mount
 app.use('/api/weather', weatherRoutes);    // Weather Strategic v2
 app.use('/api/betting', warBettingRoutes); // War Betting v2 (must be before bettingRoutes)
 app.use('/api', bettingRoutes);
 app.use('/api/auctions', require('./routes/auctionRoutes')); // M-090: 옥션 (must be before /api auctionRoutes)
-app.use('/api/territory', require('./routes/territoryRoutes')); // M-091: 영토 매매 비주얼
+// Removed: territoryRoutes (0 frontend fetches — M-091 영토 매매 비주얼 미사용)
 // Removed: factionRoutes.js v2 (frontend uses v1 only — see services/factionSystem.js deletion)
 app.use('/api', auctionRoutes);
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
@@ -304,7 +304,7 @@ app.use('/api', phaseCRoutes);               // Phase C: AI/Tournament/Hijack
 app.use('/api', phaseDRoutes);               // Phase D: Alliance/Replay/Mobile
 app.use('/api/jobs', jobsRoutes);            // Job System (mine/select/buffs)
 app.use('/api/onboarding', onboardingV2Routes); // Onboarding Tutorial v2
-app.use('/api/public', publicV2Routes);          // Chronicle Enhanced Public API
+// Removed: publicV2Routes mount (was Chronicle Enhanced Public API)
 app.use('/api/titles', hofRoutes);               // Hall of Fame & Titles
 app.use('/api/hof',    hofRoutes);               // Hall of Fame board
 app.use('/api/battles', battleExtrasRoutes); // Phase B: Rewards/Siege extras (before fleetBattles to capture /rewards/mine etc.)
