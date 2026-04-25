@@ -2547,6 +2547,7 @@ router.get('/user/:wallet/base', async (req, res) => {
       },
       territory: {
         totalPixels,
+        tierCounts,
         bySector: pixelRes.rows.map(r => ({
           sectorId: r.sector_id,
           sectorName: r.sector_name,
@@ -2967,11 +2968,21 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
 
     await client.query('COMMIT');
 
-    // ✅ [Resource System] 자원 드롭 (독립 로직, 기존 PP 지급에 영향 없음, Phase 2)
+    // ✅ [Resource System] 자원 드롭 — 유저가 보유한 모든 tier 별로 roll (Phase 2)
+    // 이전: bestTier 만 roll → mid+frontier 보유 시 frontier 드롭이 누락됨.
+    // 변경: tierCounts 가 0 보다 큰 모든 tier 에 대해 독립적으로 roll, 결과 합산.
     let resourceDrops = [];
     try {
       if (resourceService) {
-        resourceDrops = await resourceService.rollResourceDrop(w, bestTier);
+        const tiersToRoll = ['core', 'mid', 'frontier'].filter(t => (tierCounts[t] || 0) > 0);
+        const merged = {};
+        for (const tier of tiersToRoll) {
+          const drops = await resourceService.rollResourceDrop(w, tier);
+          for (const d of drops) {
+            merged[d.code] = (merged[d.code] || 0) + d.quantity;
+          }
+        }
+        resourceDrops = Object.keys(merged).map(code => ({ code, quantity: merged[code] }));
         if (resourceDrops.length > 0) {
           await resourceService.addResourcesToInventory(null, w, resourceDrops);
         }
