@@ -1,5 +1,27 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Battle Viewer Guard + Faction Auto-Starter Verify (v3.3)
+
+### 🔴 함대전 데이터 로딩 실패 (사용자 신고 — "전투 데이터 로딩 실패" 토스트)
+- **원인 1**: `openBattleViewer(undefined)` 호출 시 `/api/battles/undefined/timeline` 을 1.5s × 10회 폴링 → 모두 실패 → 토스트.
+- **원인 2 가능성**: 응답에 `phase1_battle_id` / `battle_id` 누락 시에도 `setTimeout` 으로 호출됨 → 위와 동일.
+- **Fix**:
+  - `openBattleViewer()` 에 `parseInt(battleId)` 가드 추가. falsy/invalid 면 즉시 명확 토스트 + return.
+  - 폴링 실패 시 마지막 에러 메시지를 토스트와 console.error 에 포함 — 진단 가능.
+  - 호출처 2곳에 `if (id) setTimeout(...) else console.warn` 가드 추가 (hijack confirmHijack + challengeAi).
+- **검증** (preview): `openBattleViewer(undefined)` → 4ms 만에 토스트 + return, 모달 안 열림 ✅. battle 9/10 정상 응답 200 OK ✅.
+
+### 🟢 파벌 선택 시 스타터 함선 자동 지급 (사용자 확인 요청)
+- **이미 구현 라이브** ([faction.js:148-198](server/services/faction.js:148))
+  - 파벌 선택 시 활성 함선 0척이면 가장 싼 frigate 자동 지급 + 함대 자동 생성 + 기함 지정.
+  - 트랜잭션 내, 함선 지급 실패해도 파벌 선택 자체는 성공 (방어적).
+- **파벌별 자동 지급될 함선** (`build_gp_cost ASC LIMIT 1`):
+  - MCC → 프리즘 (mcc_int, 50 GP)
+  - FSP → 스프라이트 (fsp_int, 80 GP)
+  - CV  → 슬래셔 (cv_int, 45 GP)
+
+---
+
 ## 2026-04-26 — Toast 3-style Restore + Orphan Display Defense + Ship Image Slot + Hijack Defender Info Fix (v3.2)
 
 ### 🔴 Hijack 함대 정보 에러 (사용자 신고 — "상대 함대 정보 확인 실패")

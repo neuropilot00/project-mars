@@ -1,4 +1,16 @@
-# OCCUPY MARS — Codebase Audit (v3.2 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v3.3 / 2026-04-26)
+
+## 🔴 v3.3 변경 요약 (2026-04-26)
+
+### 사용자 신고 fix
+- **함대전 "전투 데이터 로딩 실패"** — `openBattleViewer(undefined)` 호출 시 invalid id 로 15초 폴링 후 토스트
+  - Fix: `openBattleViewer` 진입에 `parseInt(battleId)` 가드 + 폴링 실패 시 lastErr 메시지 포함
+  - 호출처 2곳 (`confirmHijack`, `challengeAi`) 에 `if (id) setTimeout` 가드 추가
+
+### 검증 완료
+- 파벌 선택 시 가장 싼 frigate 자동 지급 — `services/faction.js:148-198` 라이브 동작 확인. 트랜잭션 내 처리, 함대 없으면 자동 생성.
+
+---
 
 ## 🔴 v3.2 변경 요약 (2026-04-26)
 

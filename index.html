@@ -36503,6 +36503,11 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
+          { type:'p', text:'**v3.6 — 2026-04-26 함대전 데이터 로딩 가드 + 파벌 스타터 검증.** 사용자 신고 즉각 fix.' },
+          { type:'h2', text:'⚔ v3.6 함대전 "전투 데이터 로딩 실패" fix' },
+          { type:'p', text:'• `openBattleViewer(undefined)` 호출 시 15초 폴링 후 실패 토스트 → 가드 추가로 즉시 안내.\n• 폴링 실패 시 lastErr 메시지 토스트에 포함 → 진단 가능.\n• Hijack/AI 챌린지 응답에 battle_id 없으면 console.warn (silent abort).' },
+          { type:'h2', text:'🚀 v3.6 파벌 스타터 함선 자동 지급 (검증 완료)' },
+          { type:'p', text:'• 파벌 선택 시 활성 함선 0척이면 자동으로 가장 싼 frigate 지급 + 함대 자동 편성 + 기함 지정.\n• 파벌별: MCC 프리즘 50GP / FSP 스프라이트 80GP / CV 슬래셔 45GP.' },
           { type:'p', text:'**v3.5 — 2026-04-26 토스트 3종 복원 + 거버너 잔존 표시 방어 + 함선 이미지 슬롯 + Hijack 함대 정보 fix.** 사용자 신고 즉각 fix.' },
           { type:'h2', text:'⚔ v3.5 Hijack 함대 정보 에러 fix' },
           { type:'p', text:'• NPC 지갑(0xnpc_...) 으로 하이잭 시 "상대 함대 정보 확인 실패" 표시 → 라우트 충돌이었음.\n• `phaseC.js /hijack/:id` 가 `defender-info` 문자열까지 가로챔 → `parseInt(\'defender-info\')`=NaN → 400. \n• Fix: `:id(\\d+)` regex로 숫자만 매치하도록 강제. NPC/일반 유저 모두 함대 미리보기 정상.' },
@@ -42362,8 +42367,10 @@ async function challengeAi(aiFleetId, aiName) {
 
     showFactionToast(`🤖 ${aiName} 와의 전투 시작!`, 'success');
     closeAiFight();
-    setTimeout(() => openBattleViewer(data2.battle_id), 3000);
-    setTimeout(() => showRewardIfAny(data2.battle_id), 8000);
+    if (data2.battle_id) {
+      setTimeout(() => openBattleViewer(data2.battle_id), 3000);
+      setTimeout(() => showRewardIfAny(data2.battle_id), 8000);
+    } else console.warn('[ai] battle_id missing in response:', data2);
   } catch (err) {
     console.error('challengeAi:', err);
     showFactionToast('네트워크 오류', 'error');
@@ -42709,7 +42716,8 @@ async function confirmHijack() {
 
     showFactionToast('🔀 Phase 1 전투 시작', 'success');
     closeHijack();
-    setTimeout(() => openBattleViewer(data.phase1_battle_id), 3000);
+    if (data.phase1_battle_id) setTimeout(() => openBattleViewer(data.phase1_battle_id), 3000);
+    else console.warn('[hijack] phase1_battle_id missing in response:', data);
   } catch (err) {
     console.error('confirmHijack:', err);
     showFactionToast('네트워크 오류', 'error');
@@ -42743,27 +42751,36 @@ const bv = {
 };
 
 async function openBattleViewer(battleId) {
+  // 가드: battleId 가 falsy/invalid 면 즉시 안내 — `/api/battles/undefined` 폴링 방지
+  battleId = parseInt(battleId);
+  if (!battleId || battleId <= 0) {
+    showFactionToast('전투 ID 누락 — 잠시 후 다시 시도해주세요', 'error');
+    console.error('[battle] openBattleViewer called with invalid battleId:', battleId);
+    return;
+  }
+
   // 준비 중이면 잠시 대기
   document.getElementById('battleViewer').classList.add('active');
   document.getElementById('bvResultOverlay').classList.remove('active');
-  
+
   // Canvas 초기화
   bv.canvas = document.getElementById('battleCanvas');
   bv.ctx = bv.canvas.getContext('2d');
   resizeCanvas();
   window.addEventListener('resize', _debounce(resizeCanvas, 200));
-  
-  // 타임라인 로드 (최대 10초 폴링)
+
+  // 타임라인 로드 (최대 15초 폴링 = 1.5s × 10회)
   let loaded = false;
+  let lastErr = null;
   for (let i = 0; i < 10; i++) {
     try {
       // 전투 정보
       const infoRes = await fetch(`/api/battles/${battleId}`);
       const infoData = await infoRes.json();
-      if (!infoRes.ok) throw new Error(infoData.error);
+      if (!infoRes.ok) { lastErr = 'info: ' + (infoData.error || infoRes.status); throw new Error(lastErr); }
       bv.battle = infoData.battle;
       bv.events = infoData.events || [];
-      
+
       // 타임라인
       const tlRes = await fetch(`/api/battles/${battleId}/timeline`);
       if (tlRes.ok) {
@@ -42771,15 +42788,20 @@ async function openBattleViewer(battleId) {
         bv.timeline = tlData.timeline;
         loaded = true;
         break;
+      } else {
+        const tlBody = await tlRes.json().catch(() => ({}));
+        lastErr = 'timeline: ' + (tlBody.error || tlRes.status);
       }
     } catch (err) {
-      // 아직 시뮬레이션 중
+      // 시뮬레이션 진행 중 — 다음 폴링 시도
+      lastErr = lastErr || err.message;
     }
     await new Promise(r => setTimeout(r, 1500));
   }
-  
+
   if (!loaded) {
-    showFactionToast('전투 데이터 로딩 실패', 'error');
+    showFactionToast('전투 데이터 로딩 실패' + (lastErr ? ' (' + lastErr + ')' : ''), 'error');
+    console.error('[battle] openBattleViewer load failed for id=' + battleId + ':', lastErr);
     closeBattleViewer();
     return;
   }
