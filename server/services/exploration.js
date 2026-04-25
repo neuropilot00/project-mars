@@ -40,11 +40,12 @@ async function spawnPOIs() {
   const minGP = parseFloat(await getSetting('poi_reward_min_gp') || '10');
   const maxGP = parseFloat(await getSetting('poi_reward_max_gp') || '50');
 
-  // Reward distribution weights (admin configurable)
-  const gpWeight = parseInt(await getSetting('poi_drop_gp_weight') || '70');
-  const itemWeight = parseInt(await getSetting('poi_drop_item_weight') || '20');
-  const ppWeight = parseInt(await getSetting('poi_drop_pp_weight') || '10');
-  const totalWeight = gpWeight + itemWeight + ppWeight;
+  // Reward distribution weights (admin configurable) — gp / item / mineral / pp
+  const gpWeight      = parseInt(await getSetting('poi_drop_gp_weight') || '50');
+  const itemWeight    = parseInt(await getSetting('poi_drop_item_weight') || '20');
+  const mineralWeight = parseInt(await getSetting('poi_drop_mineral_weight') || '25');
+  const ppWeight      = parseInt(await getSetting('poi_drop_pp_weight') || '10');
+  const totalWeight   = gpWeight + itemWeight + mineralWeight + ppWeight;
 
   // Load item drop table
   let dropTable = [];
@@ -52,6 +53,22 @@ async function spawnPOIs() {
     const dtRes = await pool.query('SELECT * FROM poi_drop_table WHERE active = true ORDER BY weight DESC');
     dropTable = dtRes.rows;
   } catch (_e) { /* table may not exist yet */ }
+
+  // Load mineral pool (resources.code 쉼표 구분 from settings)
+  const mineralPoolRaw = String(await getSetting('poi_drop_mineral_pool') || 'iron_ore,carbon_fiber,silicon_chip').replace(/^"|"$/g, '');
+  const mineralCodes = mineralPoolRaw.split(',').map(s => s.trim()).filter(Boolean);
+  const mineralMinQty = parseInt(await getSetting('poi_drop_mineral_min_qty') || '1');
+  const mineralMaxQty = parseInt(await getSetting('poi_drop_mineral_max_qty') || '4');
+  let mineralPool = [];
+  if (mineralCodes.length) {
+    try {
+      const mpRes = await pool.query(
+        `SELECT id, code, name_ko, icon_emoji FROM resources WHERE code = ANY($1::text[]) AND is_active = true`,
+        [mineralCodes]
+      );
+      mineralPool = mpRes.rows;
+    } catch (_e) { /* resources missing — mineral fallback to GP */ }
+  }
 
   // Scale rewards based on active user count
   const userCountRes = await pool.query("SELECT COUNT(*)::int AS cnt FROM users WHERE created_at > NOW() - INTERVAL '30 days'");
@@ -87,22 +104,24 @@ async function spawnPOIs() {
 
     const poiType = types[Math.floor(Math.random() * types.length)];
 
-    // Weighted random: GP (70%) > Item (20%) > PP (10%)
-    const roll = Math.random() * totalWeight;
+    // Weighted random: GP > Item > Mineral > PP (admin tunable)
+    let roll = Math.random() * totalWeight;
     let rewardType, rewardAmount, rewardItemCode = null;
 
     if (roll < gpWeight) {
-      // GP reward (most common)
       rewardType = 'gp';
       rewardAmount = Math.round((minGP + Math.random() * (maxGP - minGP)) * scaleFactor);
-    } else if (roll < gpWeight + itemWeight && dropTable.length > 0) {
-      // Item reward — weighted random from drop table
+    } else if ((roll -= gpWeight) < itemWeight && dropTable.length > 0) {
       rewardType = 'item';
       const picked = weightedPickItem(dropTable);
       rewardItemCode = picked.item_code;
       rewardAmount = randInt(picked.min_qty, picked.max_qty);
+    } else if ((roll -= itemWeight) < mineralWeight && mineralPool.length > 0) {
+      rewardType = 'mineral';
+      const picked = mineralPool[Math.floor(Math.random() * mineralPool.length)];
+      rewardItemCode = picked.code;
+      rewardAmount = randInt(mineralMinQty, mineralMaxQty);
     } else {
-      // PP reward (rare)
       rewardType = 'pp';
       rewardAmount = Math.round((minPP + Math.random() * (maxPP - minPP)) * scaleFactor * 100) / 100;
     }
@@ -234,6 +253,30 @@ async function discoverPOI(wallet, poiId) {
 
     if (poi.reward_type === 'gp') {
       await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2', [rewardGiven.amount, wallet]);
+    } else if (poi.reward_type === 'mineral' && poi.reward_item_code) {
+      // Mineral reward — user_resource_inventory 적립 (resource_id 기반)
+      const resRes = await client.query(
+        'SELECT id, name_ko, icon_emoji FROM resources WHERE code = $1 AND is_active = true',
+        [poi.reward_item_code]
+      );
+      if (resRes.rows.length) {
+        const r = resRes.rows[0];
+        rewardGiven.itemName = r.name_ko;
+        rewardGiven.itemIcon = r.icon_emoji;
+        await client.query(
+          `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (wallet_address, resource_id)
+           DO UPDATE SET quantity = user_resource_inventory.quantity + $3`,
+          [wallet, r.id, Math.max(1, rewardGiven.amount)]
+        );
+      } else {
+        // Fallback: mineral code missing → GP 환산
+        rewardGiven.type = 'gp';
+        rewardGiven.amount = 15;
+        rewardGiven.itemCode = null;
+        await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE wallet_address = $2', [15, wallet]);
+      }
     } else if (poi.reward_type === 'item' && poi.reward_item_code) {
       // Item reward — add to user inventory
       const itemRes = await client.query('SELECT id, name, icon FROM item_types WHERE code = $1 AND active = true', [poi.reward_item_code]);

@@ -1,4 +1,10 @@
-# OCCUPY MARS — Codebase Audit (v3.8 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v3.9 / 2026-04-26)
+
+## 🔴 v3.9 변경 요약 (2026-04-26)
+- **POI 보상에 mineral 추가** (사용자 요청): Migration 188 + reward_type CHECK 갱신 + exploration.js spawn/claim 양쪽 mineral 분기. GP 50 / Item 20 / Mineral 25 / PP 10.
+- **NPC 함선 일괄 부여** (사용자 요청 — hijack 함대전 테스트 차단됨): grant-starter-all-npcs 호출. 21 NPC 모두 함대 보유.
+
+---
 
 ## 🔴 v3.8 변경 요약 (2026-04-26)
 - **로켓드롭 보상 다양화** (사용자 신고 "GP만 존나 나옴"): mineral 카테고리 신규 추가. Migration 187, weight 30/25/25/12/6/2 (gp/item/mineral/xp/pp/cosmetic). 검증: 15개 슬롯에 mineral 7 / item 3 / xp 3 / gp 1 / cosmetic 1.

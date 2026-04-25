@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — POI Mineral Loot + NPC 함선 일괄 부여 (v3.9)
+
+### 🟢 사용자 요청: "POI 에도 GP/아이템/광물 섞여서 나오는게 맞지?"
+- **Migration 188**: `poi_drop_mineral_weight=25` + 광물 풀 (rocket 과 동일 6종) + qty 1~4 settings
+- **`exploration_pois.reward_type` CHECK constraint** 갱신: `'mineral'` 추가
+- **`spawnPOIs`**: weighted pick 에 mineral 분기 추가 (resources random + qty)
+- **`claimPOI`**: mineral 처리 — `user_resource_inventory` ON CONFLICT 적립
+- 기존 GP weight 70 → 50 으로 균형 조정
+- POI 50 / Item 20 / Mineral 25 / PP 10 분포 (admin 조정 가능)
+
+### 🟢 사용자 요청: "NPC 들에게 함선 부여 — hijack 함대전 테스트 안 됨"
+- `/admin/api/fleet/grant-starter-all-npcs` 호출
+- 결과: total 21 NPC, granted 3 (새로 부여), alreadyHad 18 (이미 보유), errors 0
+- 모든 NPC 함대 보유 → hijack 시 함대전 정상 트리거 가능
+
+---
+
 ## 2026-04-26 — Rocket Drop Mineral Loot + 새 Rocket SVG + viewer 롤백 (v3.8)
 
 ### 🔴 사용자 신고: "자원드롭 15개인데 GP만 존나 나옴"
