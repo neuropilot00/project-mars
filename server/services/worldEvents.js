@@ -429,30 +429,23 @@ async function distributeRewards(eventId, resolution) {
         [p.wallet, gp, xp]
       );
 
-      // 광물 보상 (user_minerals 테이블 사용 — 없으면 silently skip)
+      // 광물 보상 — user_resource_inventory(wallet_address, resource_id, quantity) 사용
+      // resource_id는 resources.code → id 매핑
       try {
-        await client.query(
-          `INSERT INTO user_minerals (wallet, mineral_code, quantity)
-           VALUES ($1, 'iron_dust', $2)
-           ON CONFLICT (wallet, mineral_code) DO UPDATE SET quantity = user_minerals.quantity + EXCLUDED.quantity`,
-          [p.wallet, ironDust]
-        );
-        await client.query(
-          `INSERT INTO user_minerals (wallet, mineral_code, quantity)
-           VALUES ($1, 'ice_crystal', $2)
-           ON CONFLICT (wallet, mineral_code) DO UPDATE SET quantity = user_minerals.quantity + EXCLUDED.quantity`,
-          [p.wallet, iceCrystal]
-        );
-        if (isTop) {
+        const grantMineral = async (code, qty) => {
           await client.query(
-            `INSERT INTO user_minerals (wallet, mineral_code, quantity)
-             VALUES ($1, 'ancient_metal', $2)
-             ON CONFLICT (wallet, mineral_code) DO UPDATE SET quantity = user_minerals.quantity + EXCLUDED.quantity`,
-            [p.wallet, topMetal]
+            `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+             VALUES ($1, (SELECT id FROM resources WHERE code = $2), $3)
+             ON CONFLICT (wallet_address, resource_id)
+             DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity`,
+            [p.wallet, code, qty]
           );
-        }
+        };
+        await grantMineral('iron_dust',   ironDust);
+        await grantMineral('ice_crystal', iceCrystal);
+        if (isTop) await grantMineral('ancient_metal', topMetal);
       } catch (e) {
-        // user_minerals 테이블 없을 수 있음 — 로그만
+        // resources 테이블에 해당 code가 없을 수 있음 — 로그만
         console.warn('[worldEvents] minerals reward skipped:', e.message);
       }
 

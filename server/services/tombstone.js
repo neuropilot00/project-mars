@@ -55,9 +55,16 @@ async function placeTombstone(wallet, claimId, epitaph) {
       if (currentOwner === wallet)
         throw new Error('You still own this territory — tombstones are for lost territories');
 
-      // Check if wallet was ever associated with this claim (via hijack log or previous ownership)
+      // Check if wallet was ever associated with this claim via hijack history.
+      // hijack_log은 phantom 테이블이었음 — 실제는 hijack_battles에 attacker_wallet+target_claim_id가 있고,
+      // 'previous owner'를 가리키는 정확한 컬럼은 없음. 가장 근접한 것: 이 클레임을 이전에 침공해서
+      // 이긴 적이 있는 attacker (즉 이 wallet이 한때 점령자였을 가능성).
       const prevOwnerCheck = await client.query(
-        `SELECT 1 FROM hijack_log WHERE claim_id=$1 AND prev_owner=$2 LIMIT 1`,
+        `SELECT 1 FROM hijack_battles
+          WHERE target_claim_id = $1
+            AND attacker_wallet = $2
+            AND final_result = 'attacker_win'
+          LIMIT 1`,
         [claimId, wallet]
       );
       if (!prevOwnerCheck.rows.length)

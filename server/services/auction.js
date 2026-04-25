@@ -117,9 +117,11 @@ async function createAuction(sellerWallet, data) {
       if (!resourceCode || resourceQty <= 0) {
         await client.query('ROLLBACK'); return { success: false, error: 'invalid_resource' };
       }
-      // Verify resource balance
+      // Verify resource balance — user_resource_inventory uses wallet_address + resource_id (FK to resources)
       const rsRes = await client.query(
-        'SELECT quantity FROM user_resources WHERE wallet = $1 AND resource_code = $2 FOR UPDATE',
+        `SELECT uri.quantity FROM user_resource_inventory uri
+           JOIN resources r ON r.id = uri.resource_id
+          WHERE uri.wallet_address = $1 AND r.code = $2 FOR UPDATE`,
         [w, resourceCode]
       );
       if (!rsRes.rows.length || parseInt(rsRes.rows[0].quantity) < resourceQty) {
@@ -127,7 +129,8 @@ async function createAuction(sellerWallet, data) {
       }
       // Deduct for escrow
       await client.query(
-        'UPDATE user_resources SET quantity = quantity - $1 WHERE wallet = $2 AND resource_code = $3',
+        `UPDATE user_resource_inventory SET quantity = quantity - $1
+           WHERE wallet_address = $2 AND resource_id = (SELECT id FROM resources WHERE code = $3)`,
         [resourceQty, w, resourceCode]
       );
     }
@@ -586,10 +589,10 @@ async function _transferItem(client, auction, buyerWallet) {
     await client.query('UPDATE pixels SET owner = $1 WHERE claim_id = $2', [w, auction.claim_id]);
   } else if (auction.resource_code) {
     await client.query(
-      `INSERT INTO user_resources (wallet, resource_code, quantity)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (wallet, resource_code)
-       DO UPDATE SET quantity = user_resources.quantity + $3`,
+      `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+       VALUES ($1, (SELECT id FROM resources WHERE code = $2), $3)
+       ON CONFLICT (wallet_address, resource_id)
+       DO UPDATE SET quantity = user_resource_inventory.quantity + $3`,
       [w, auction.resource_code, auction.resource_quantity]
     );
   }
@@ -603,10 +606,10 @@ async function _returnEscrow(client, auction, ownerWallet) {
     await client.query('UPDATE claims SET auction_locked = FALSE WHERE id = $1', [auction.claim_id]);
   } else if (auction.resource_code) {
     await client.query(
-      `INSERT INTO user_resources (wallet, resource_code, quantity)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (wallet, resource_code)
-       DO UPDATE SET quantity = user_resources.quantity + $3`,
+      `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+       VALUES ($1, (SELECT id FROM resources WHERE code = $2), $3)
+       ON CONFLICT (wallet_address, resource_id)
+       DO UPDATE SET quantity = user_resource_inventory.quantity + $3`,
       [w, auction.resource_code, auction.resource_quantity]
     );
   }
