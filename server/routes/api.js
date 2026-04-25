@@ -2168,17 +2168,21 @@ router.get('/leaderboard', readLimiter, async (req, res) => {
       default:        orderBy = 'claim_count DESC'; break;
     }
 
+    // pixel_count 는 실제 소유 픽셀 (pixels 테이블) 기반 — claim.width*height 는 hijack/타인소유로
+    // 침식된 사각형까지 포함해서 BASE 패널의 "총 픽셀" 과 어긋남.
     const result = await pool.query(
       `SELECT
          u.wallet_address,
          u.nickname,
          COUNT(DISTINCT c.id) AS claim_count,
          COALESCE(SUM(c.total_paid), 0) AS total_volume,
-         COALESCE(SUM(c.width * c.height), 0) AS pixel_count
+         COALESCE(p.pxs, 0) AS pixel_count
        FROM users u
        LEFT JOIN claims c ON c.owner = u.wallet_address AND c.deleted_at IS NULL
-       GROUP BY u.wallet_address, u.nickname
-       HAVING COUNT(DISTINCT c.id) > 0
+       LEFT JOIN (SELECT owner, COUNT(*) AS pxs FROM pixels WHERE owner IS NOT NULL GROUP BY owner) p
+              ON p.owner = u.wallet_address
+       GROUP BY u.wallet_address, u.nickname, p.pxs
+       HAVING COUNT(DISTINCT c.id) > 0 OR COALESCE(p.pxs, 0) > 0
        ORDER BY ${orderBy}
        LIMIT $1`,
       [limit]

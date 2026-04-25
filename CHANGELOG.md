@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Leaderboard Pixel Count Fix (v3.5)
+
+### 🔴 사용자 신고: "리더보드 픽셀 수가 BASE 패널과 안 맞음"
+- 스크린샷 비교: 리더보드 1위 Woo = **9,260 px** vs BASE 패널 "총 픽셀" = **7,173 px**
+- **원인**: `/api/leaderboard` 의 `pixel_count` 가 `SUM(claims.width × height)` (이론적 직사각형) 로 계산. claim 안에서 hijack 당하거나 NPC 영역인 픽셀까지 포함해 부풀려짐.
+- **Fix**: `pixels` 테이블에서 실제 `owner = wallet` 카운트로 변경. BASE 패널과 동일한 SSOT.
+- 검증: Woo = 7,173 px ✅, NPC들도 정확.
+
+---
+
 ## 2026-04-26 — Rank Auto-Recalc System (v3.4)
 
 ### 🔴 사용자 신고: "레벨업 기준 다 통과한 상태인데 레벨업이 안 됨"

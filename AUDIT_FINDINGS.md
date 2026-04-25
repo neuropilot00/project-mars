@@ -1,4 +1,9 @@
-# OCCUPY MARS — Codebase Audit (v3.4 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v3.5 / 2026-04-26)
+
+## 🔴 v3.5 변경 요약 (2026-04-26)
+- **리더보드 픽셀 수 부풀림** (사용자 신고): `/api/leaderboard` 가 `claims.width × height` (이론적 직사각형) 로 계산해 BASE 패널의 진짜 카운트(`pixels` 테이블)와 어긋남. 실제 owner 카운트로 변경.
+
+---
 
 ## 🔴 v3.4 변경 요약 (2026-04-26)
 
