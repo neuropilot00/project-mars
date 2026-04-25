@@ -1,5 +1,44 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Phase 4: AI Strategy + Phase 5 검증 (v4.7)
+
+### Phase 4 — AI 전략 (PvP/Siege/Event 자동 진형/기동)
+- **`services/aiStrategy.js`** 신규
+  - 파벌별 doctrine:
+    - MCC: screen 50% / sphere 30% / wedge 20% + advance 50% / flank 30% / rally 20%
+    - FSP: sphere 50% / screen 30% / pincer 20% + advance 40% / rally 35% / retreat 25%
+    - CV : wedge 50% / pincer 30% / sphere 20% + flank 50% / advance 35% / scatter 15%
+  - `applyAIStrategy(battleId, battleType)` — hijack 외 battle 양쪽에 자동 commander_actions INSERT
+  - `pickFormation(faction)` / `pickManeuver(faction)` weighted random
+- **Migration 190**: `ai_strategy_enabled=true` settings (admin 토글 가능)
+- **`battleScheduler.js`**: simulate 직전 hook 추가 — hijack 외 battle 자동 적용
+- 검증: 테스트 battle #20 (PvP) → atk(MCC): screen+rally, def(FSP): sphere+retreat 정확히 INSERT
+
+### Phase 5 — tactical-lab 패널 실데이터 연결 (이미 동작 중)
+- tactical-lab v11 의 `loadCatalog()` 가 이미 `/api/tactical-lab/catalog` 에서 우리 DB 데이터 fetch:
+  - `MINERALS` (13종 광물) ← `resources` 테이블
+  - `FACTIONS` (3파벌) ← `factions` 테이블
+  - `SHIPS` (22종 함선) ← `ship_types` 테이블
+- FLEET STATUS 패널 → 시뮬 중인 fleets (?bid=N 으로 받은 진짜 함대)
+- SHIP REGISTRY 패널 → 우리 ship_types 22종 자동 표시
+- MINERALS 패널 → 우리 resources 13종 자동 표시
+- DOCTRINES 패널 → 별도 분석 화면 (시뮬 데이터 기반)
+- **추가 작업 불필요** — 검증 완료
+
+### 누적 v4.0~v4.7 (Battle Viewer = Tactical Lab 통합)
+- viewer 자체 canvas/HUD/컨트롤 폐기, tactical-lab v11 iframe 통째 통합
+- `?bid={battleId}` 로 실제 fleet 구성 주입
+- 데스크탑 1500×820, 양쪽 240px 사이드 패널 (MY FLEET / RESOURCES / ENEMY FLEET / BATTLE STATS)
+- 모바일 풀스크린 유지
+- 컨트롤 (진형 4종 / 기동 5종 / EMP / 집중공격) → postMessage → API → 시뮬 실제 적용
+- AI 전략으로 PvP/Siege 자동 명령
+- 결과 카드 디자인 + 재시작 버튼 제거 + 함선 HP DB 반영
+
+### 잔여 Phase
+- **Phase 2 (다음 사이클)**: WebSocket 실시간 frame broadcast — battleScheduler tick → ws emit, 클라 실시간 렌더링. 진정한 "실시간" 함대전.
+
+---
+
 ## 2026-04-26 — Phase 3-B: Commander Actions → Sim Apply (v4.6)
 
 ### 사용자 요청 4가지 (Phase 1~3 단계 완료):

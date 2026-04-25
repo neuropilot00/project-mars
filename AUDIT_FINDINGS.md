@@ -1,6 +1,17 @@
-# OCCUPY MARS — Codebase Audit (v4.6 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v4.7 / 2026-04-26)
 
-## 🔴 v4.0~v4.6 변경 요약 (2026-04-26)
+## 🔴 v4.0~v4.7 변경 요약 (2026-04-26)
+
+### Phase 4 (v4.7) — AI 전략 자동 적용
+- `services/aiStrategy.js` 신규 — 파벌별 doctrine 가중치 random
+- battleScheduler 가 hijack 외 battle 의 양쪽에 commander_actions formation/maneuver INSERT
+- Migration 190: `ai_strategy_enabled` settings 토글
+- 검증: PvP battle 양쪽 정확히 doctrine 따라 INSERT
+
+### Phase 5 — 사실상 이미 동작 중
+- tactical-lab v11 의 SHIPS/MINERALS/FACTIONS 글로벌은 `loadCatalog()` 가 이미 우리 DB catalog API 에서 자동 채움
+- FLEET STATUS / SHIP REGISTRY / MINERALS 패널 모두 우리 데이터로 표시
+- 추가 작업 불필요
 
 ### Battle Viewer 전면 리팩터 — Tactical Lab 통합
 - v4.0: 데스크탑 1500×820 오버레이, 모바일 풀스크린 유지

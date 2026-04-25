@@ -36580,6 +36580,9 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
+          { type:'p', text:'**v5.1 — 2026-04-26 AI 전략 자동 적용 + Phase 5 검증.** Phase 4 추가 + 모든 패널 실데이터 동작 확인.' },
+          { type:'h2', text:'🤖 v5.1 AI 전략 (PvP/Siege 자동)' },
+          { type:'p', text:'• services/aiStrategy.js 신규 — 파벌별 doctrine 적용:\n  - **MCC**: screen + advance (정밀/저격)\n  - **FSP**: sphere + rally (방어/회복)\n  - **CV**: wedge + flank (공격/측면)\n• hijack 외 battle 양쪽에 자동 commander_actions INSERT — battleEngine 이 시뮬에 반영\n• Migration 190: ai_strategy_enabled settings 토글 (admin 조정)\n• Phase 5: tactical-lab 의 FLEET STATUS / SHIP REGISTRY / MINERALS 패널이 이미 /api/tactical-lab/catalog 통해 우리 DB 데이터 (22 함선, 13 광물, 3 파벌) 사용 중 — 검증 완료' },
           { type:'p', text:'**v5.0 — 2026-04-26 함대전 = Tactical Lab 통합.** 사용자 강한 요청 (4번 반복) 단계적 구현.' },
           { type:'h2', text:'⚔ v5.0 함대전 viewer = Tactical Lab v11 그대로' },
           { type:'p', text:'• **4가지 요구사항 단계적 구현**:\n  1. ✅ tactical-lab 모든 항목 우리 게임에 그대로 이식 (iframe + 우리 ship_types/factions/minerals 자동 채움)\n  2. ✅ 모든 항목 실제 게임 데이터 연결 (?bid={battleId} → 진짜 attacker/defender 함대)\n  3. ✅ 함대전 유저 컨트롤 (진형 4종 / 기동 5종 / EMP / 집중공격 → postMessage → API)\n  4. 🟡 실시간 함대전 (WebSocket — 다음 사이클)\n• **데스크탑**: 1500×820 오버레이, 좌측 MY FLEET/RESOURCES + 우측 ENEMY FLEET/BATTLE STATS 사이드 패널\n• **모바일**: 풀스크린 유지\n• **결과 카드**: gradient + 별 점 + winner 글로우 + bvPulse 애니메이션\n• **함선 HP 차감 fix**: 살아남은 함선 부분 HP 손실 DB 반영 (이전엔 멀쩡함)\n• **재시작 버튼 제거** (실제 hijack 결과 영구)' },

@@ -85,6 +85,17 @@ async function runBattle(battleId) {
       WHERE p.fleet_id = sub.fleet_id AND p.battle_id = $1
     `, [battleId]);
     
+    // 1-bis. AI 전략 — hijack 외 battle 에 자동 진형/기동 명령 (Phase 4)
+    try {
+      const ai = require('./aiStrategy');
+      const aiResult = await ai.applyAIStrategy(battleId, battleType);
+      if (aiResult && aiResult.applied) {
+        console.log(`[battleScheduler] AI strategy applied to battle ${battleId}:`, aiResult.applied.length, 'sides');
+      }
+    } catch (aiErr) {
+      console.warn(`[battleScheduler] AI strategy failed for battle ${battleId}:`, aiErr.message);
+    }
+
     // 2. 시뮬레이션
     const result = await battleEngine.simulateBattle(battleId);
     
