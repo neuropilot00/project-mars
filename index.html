@@ -29299,156 +29299,19 @@ window.addEventListener('resize', _debounce(function(){
     }
   };
 
+  // Legacy battle panel — replaced by Fleet Combat system (see fleet_battles).
+  // Old /api/battle/* endpoints removed in cleanup commit (services/battle.js was
+  // schema-mismatched and 500'ing). PVP now goes through Fleet system + Hijack.
   function loadBattlePanel() {
     var panel = document.getElementById('battlePanel');
     if (!panel) return;
-    var w = walletState.address;
-    if (!w) {
-      panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">'+(t('gov_battle_hint')||'Connect wallet to view battles.')+'</div>';
-      return;
-    }
-    panel.innerHTML = '<div style="font-size:10px;color:var(--tx3)">Loading...</div>';
-    Promise.all([
-      fetch('/api/user/battles?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {battles:[]}}),
-      fetch('/api/battles?limit=5').then(function(r){return r.json()}).catch(function(){return {battles:[]}})
-    ]).then(function(res) {
-      var myBattles = res[0].battles || [];
-      var activeBattles = res[1].battles || [];
-      var myActive = myBattles.filter(function(b){return b.status==='pending'||b.status==='active'});
-      var html = '';
-      // Active battles involving me
-      if (myActive.length) {
-        html += '<div style="margin-bottom:8px">';
-        html += '<div style="font-size:9px;color:var(--red);font-weight:700;margin-bottom:5px">⚔️ '+(t('gov_battle_active')||'ACTIVE BATTLES')+'</div>';
-        myActive.forEach(function(b) {
-          var isAtk = b.attacker_wallet.toLowerCase() === w.toLowerCase();
-          var oppNick = isAtk ? (b.defender_nick || b.defender_wallet.slice(0,10)+'…') : (b.attacker_nick || b.attacker_wallet.slice(0,10)+'…');
-          var statusColor = b.status==='active'?'var(--red)':'var(--gold)';
-          html += '<div style="background:rgba(232,72,85,.05);border:1px solid rgba(232,72,85,.2);border-radius:6px;padding:8px;margin-bottom:6px">';
-          html += '<div style="font-size:10px;font-weight:700;color:var(--red)">';
-          html += (isAtk?'⚔️ ATTACKING: ':'🛡 DEFENDING vs ')+oppNick;
-          html += '</div>';
-          html += '<div style="font-size:8px;color:var(--tx3);margin:3px 0">Stake: <span style="color:var(--gold)">'+b.gp_stake+' GP</span> · <span style="color:'+statusColor+'">'+b.status.toUpperCase()+'</span></div>';
-          if (b.status === 'pending' && !isAtk) {
-            html += '<button onclick="govAcceptBattle('+b.id+')" style="margin-top:4px;font-size:8px;padding:4px 10px;border-radius:4px;border:1px solid rgba(76,216,154,.4);background:rgba(76,216,154,.1);color:#4cd89a;cursor:pointer;font-family:var(--fn);font-weight:700">⚔️ RESPOND</button> ';
-          }
-          if (b.status === 'pending' && isAtk) {
-            html += '<button onclick="govCancelBattle('+b.id+')" style="margin-top:4px;font-size:8px;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">✕ CANCEL</button>';
-          }
-          html += '</div>';
-        });
-        html += '</div>';
-      }
-      // Declare attack button
-      html += '<div style="border-top:1px solid rgba(232,72,85,.1);padding-top:8px">';
-      html += '<button onclick="govDeclareAttack()" style="width:100%;font-size:9px;font-weight:700;padding:7px;border-radius:5px;border:1px solid rgba(232,72,85,.4);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">⚔️ '+(t('gov_battle_declare')||'DECLARE ATTACK')+'</button>';
-      html += '</div>';
-      // Recent battles
-      var recent = myBattles.filter(function(b){return b.status==='completed'||b.status==='cancelled'}).slice(0,5);
-      if (recent.length) {
-        html += '<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px">';
-        html += '<div style="font-size:9px;color:var(--tx3);font-weight:700;margin-bottom:5px">'+(t('gov_battle_history')||'BATTLE HISTORY')+'</div>';
-        recent.forEach(function(b) {
-          var won = b.winner_wallet && b.winner_wallet.toLowerCase() === w.toLowerCase();
-          var oppNick = b.attacker_wallet.toLowerCase()===w.toLowerCase() ? (b.defender_nick||b.defender_wallet.slice(0,8)+'…') : (b.attacker_nick||b.attacker_wallet.slice(0,8)+'…');
-          html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:9px;border-radius:4px;margin-bottom:2px;background:rgba(255,255,255,.02)">';
-          html += '<span style="color:var(--tx2)">vs '+oppNick+'</span>';
-          html += '<span style="color:'+(won?'#4cd89a':'var(--red)')+';font-weight:700">'+(won?'✓ WIN':'✗ LOSS')+'</span>';
-          html += '</div>';
-        });
-        html += '</div>';
-      }
-      panel.innerHTML = html;
-    });
+    panel.innerHTML = '<div style="font-size:10px;color:var(--tx3);padding:6px 0;line-height:1.6">'
+      + '⚔️ ' + (t('gov_battle_use_fleet')||'PVP는 Fleet 시스템 + Hijack에서 진행됩니다.')
+      + '<br><span style="color:var(--tx4);font-size:9px">'
+      + (t('gov_battle_use_fleet_hint')||'함대 탭에서 함선을 건조하고, 영토 탈취는 HIJACK 버튼을 사용하세요.')
+      + '</span></div>';
   }
-  window.loadBattlePanel = loadBattlePanel; // expose for PVP tab
-
-  window.govDeclareAttack = function() {
-    var w = walletState.address;
-    if (!w) { showToast(t('connect_wallet')||'Connect wallet first','error'); return; }
-    // Get docked ships for selection
-    fetch('/api/ships?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d) {
-      var docked = (d.ships||[]).filter(function(s){return s.status==='docked'});
-      if (!docked.length) { showToast(t('gov_battle_no_ships')||'Build ships first! No docked ships available.','error'); return; }
-      var shipOptions = docked.map(function(s){
-        return '<label style="display:flex;align-items:center;gap:6px;font-size:9px;cursor:pointer;margin-bottom:4px"><input type="checkbox" class="btl-ship-chk" value="'+s.id+'" style="accent-color:var(--red)">'+s.icon+' '+s.name+' (⚔'+s.attack+' 🛡'+s.defense+')</label>';
-      }).join('');
-      gameConfirm({
-        title: t('gov_battle_declare')||'Declare Attack', icon:'⚔️',
-        body: '<div style="margin-bottom:6px;font-size:9px;color:var(--tx3)">'+(t('gov_battle_target_label')||'Target wallet')+':</div>'
-          +'<input id="btlTargetWallet" placeholder="0x..." style="width:100%;font-size:9px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(232,72,85,.3);color:#fff;border-radius:4px;font-family:var(--fn);margin-bottom:8px;box-sizing:border-box">'
-          +'<div style="margin-bottom:4px;font-size:9px;color:var(--tx3)">'+(t('gov_battle_select_ships')||'Select ships (max 5)')+':</div>'
-          +shipOptions
-          +'<div style="display:flex;gap:6px;align-items:center;margin-top:6px">'
-          +'<label style="font-size:9px;color:var(--tx3);white-space:nowrap">GP Stake:</label>'
-          +'<input id="btlGpStake" type="number" min="10" value="50" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(232,72,85,.3);color:#fff;border-radius:4px;font-family:var(--fn)">'
-          +'</div>',
-        info: [], confirmText: '⚔️ '+(t('gov_battle_declare_confirm')||'DECLARE BATTLE')
-      }).then(function(ok) {
-        if (!ok) return;
-        var defender = (document.getElementById('btlTargetWallet').value||'').trim().toLowerCase();
-        var gpStake  = parseInt(document.getElementById('btlGpStake').value||'50');
-        var checked  = document.querySelectorAll('.btl-ship-chk:checked');
-        var shipIds  = Array.from(checked).map(function(el){return parseInt(el.value)});
-        if (!defender || defender.length < 10) { showToast('Enter a valid target wallet','error'); return; }
-        if (!shipIds.length) { showToast('Select at least 1 ship','error'); return; }
-        fetch('/api/battle/declare', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({wallet:w, defenderWallet:defender, shipIds:shipIds, gpStake:gpStake})
-        }).then(function(r){return r.json()}).then(function(d) {
-          if (d.error) { showToast(d.error,'error'); return; }
-          showToast('⚔️ '+(t('gov_battle_declared')||'Battle declared! Awaiting defender response.'));
-          loadBattlePanel();
-          loadFleetPanel();
-        }).catch(function(){showToast('Failed','error')});
-      });
-    });
-  };
-
-  window.govAcceptBattle = function(battleId) {
-    var w = walletState.address;
-    if (!w) return;
-    fetch('/api/ships?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).then(function(d) {
-      var docked = (d.ships||[]).filter(function(s){return s.status==='docked'});
-      var shipOptions = docked.length
-        ? docked.map(function(s){
-            return '<label style="display:flex;align-items:center;gap:6px;font-size:9px;cursor:pointer;margin-bottom:4px"><input type="checkbox" class="btl-def-chk" value="'+s.id+'" style="accent-color:#4cd89a">'+s.icon+' '+s.name+' (⚔'+s.attack+' 🛡'+s.defense+')</label>';
-          }).join('')
-        : '<div style="font-size:9px;color:var(--tx3)">No ships available — you will auto-lose</div>';
-      gameConfirm({
-        title: t('gov_battle_respond')||'Respond to Battle', icon:'🛡',
-        body: '<div style="font-size:9px;color:var(--tx3);margin-bottom:6px">'+(t('gov_battle_select_defender')||'Select ships to defend with')+':</div>'+shipOptions,
-        info: [], confirmText: '🛡 '+(t('gov_battle_accept')||'ACCEPT & FIGHT')
-      }).then(function(ok) {
-        if (!ok) return;
-        var checked = document.querySelectorAll('.btl-def-chk:checked');
-        var shipIds = Array.from(checked).map(function(el){return parseInt(el.value)});
-        fetch('/api/battle/'+battleId+'/accept', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({wallet:w, shipIds:shipIds})
-        }).then(function(r){return r.json()}).then(function(d) {
-          if (d.error) { showToast(d.error,'error'); return; }
-          showToast('🛡 '+(t('gov_battle_fighting')||'Battle started! Results in ~60 seconds.'));
-          loadBattlePanel();
-          loadFleetPanel();
-        }).catch(function(){showToast('Failed','error')});
-      });
-    });
-  };
-
-  window.govCancelBattle = function(battleId) {
-    var w = walletState.address;
-    if (!w) return;
-    fetch('/api/battle/'+battleId+'/cancel', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({wallet:w})
-    }).then(function(r){return r.json()}).then(function(d) {
-      if (d.error) { showToast(d.error,'error'); return; }
-      showToast('✅ '+(t('gov_battle_cancelled_ok')||'Battle cancelled. GP refunded.'));
-      loadBattlePanel();
-      loadFleetPanel();
-    }).catch(function(){showToast('Failed','error')});
-  };
+  window.loadBattlePanel = loadBattlePanel;
 
   // Hall of Fame toggle + loader (uses game picker instead of native select)
   var _hofSelectedSectorId = null;

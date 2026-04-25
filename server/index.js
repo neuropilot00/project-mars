@@ -120,7 +120,7 @@ const bettingRoutes    = require('./routes/betting');
 const warBettingRoutes = require('./routes/warBettingRoutes'); // War Betting v2
 const auctionRoutes = require('./routes/auction');
 const shipRoutes    = require('./routes/ships');
-const battleRoutes  = require('./routes/battle');
+// Removed: routes/battle.js (legacy ship-battle, schema mismatch — replaced by fleet_battles)
 const fleetBattleRoutes = require('./routes/fleetBattles'); // A-4: Fleet Battle Engine
 const fleetSearchRoutes = require('./routes/fleetSearch');   // Phase B: Fleet Search
 const battleExtrasRoutes = require('./routes/battleExtras'); // Phase B: Battle Rewards/Siege
@@ -312,7 +312,7 @@ app.use('/api/battles', fleetBattleRoutes); // A-4: Fleet Battle Engine (must be
 try { app.use('/api', require('./routes/commanderActions')); } catch (e) { console.warn('[mount] commanderActions skipped:', e.message); } // M-151: Commander Actions
 try { app.use('/api/resource-craft', require('./routes/resourceCraft')); } catch (e) { console.warn('[mount] resourceCraft skipped:', e.message); } // M-091: Tier-3 crafting
 try { app.use('/api', require('./routes/worldEvents')); } catch (e) { console.warn('[mount] worldEvents skipped:', e.message); } // M-154: Void Raider
-app.use('/api', battleRoutes);
+// Removed: battleRoutes mount
 app.use('/api', lotteryRoutes);
 app.use('/api', stakingRoutes);
 // Removed: gpBurnRoutes, weeklyRoutes (phantom tables, 0 UI refs)
@@ -928,14 +928,8 @@ async function start() {
       console.log('[AUCTION] Auto-settle scheduler started (5min interval)');
     } catch(e) { console.warn('[AUCTION] Could not init auto-settle scheduler:', e.message); }
 
-    // ── Battle Engine: Settle Expired Battles (every 30 seconds) ──
-    try {
-      const { settleExpiredBattles } = require('./services/battle');
-      setInterval(async () => {
-        try { await settleExpiredBattles(); } catch(e) { console.warn('[BATTLE] settle error:', e.message); }
-      }, 30 * 1000);
-      console.log('[BATTLE] Auto-settle scheduler started (30s interval)');
-    } catch(e) { console.warn('[BATTLE] Could not init auto-settle scheduler:', e.message); }
+    // Removed: legacy Battle Engine scheduler (services/battle.js, schema mismatch)
+    //          PVP is now handled by fleet_battles (services/fleet.js + battleEngine.js).
 
     // ── Marketplace Listing Expiry ──
     try {
