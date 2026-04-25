@@ -1,7 +1,10 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-25 (migration 177 적용 후) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-25 (migration 181 + 라우트 통합 완료) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
-> **❗ 새 세션이 가장 먼저 읽을 곳**: §13 (알려진 이슈 + 깨진 기능 목록), §14 (서비스 카탈로그 + 상태)
+> **❗ 새 세션이 가장 먼저 읽을 곳**:
+> 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
+> 2. **CLAUDE.md §13** — 알려진 이슈 (해소/잔여)
+> 3. **CLAUDE.md §14** — 서비스 카탈로그
 
 ---
 
@@ -340,23 +343,31 @@ vip_enabled                = true
 
 ### 🔴 남아있는 알려진 이슈
 
-#### A. 잔여 phantom 테이블 / 잘못된 참조 (살아있지만 손대지 않은 것들)
-| 테이블 / 참조 | 영향 받는 서비스 | 상태 |
-|---|---|---|
-| `achievements`, `user_achievements` | services/achievements.js | 미구현 — 살릴지 / 삭제할지 결정 필요 (1 fetch in index.html) |
-| `profile_change_log` | services/profile.js | 부분적 동작 (메인 프로필은 OK, 변경 감사 로그만 안 쌓임) |
-| `territory_rentals`, `rental_log` | services/rental.js | 미구현 — 임대 시스템 (Phase C 일부) |
-| `territory_upgrades` | services/claimUpgrades.js | 미구현 |
-| `tournament_entries` | services/tournaments.js | 컬럼 mismatch — 실제 테이블 `tournament_participants` 사용 (서비스 코드 정정 필요) |
-| `user_ships` (실제: `ships`) | services/achievements.js, battle.js | 잘못된 참조 |
-| `battle_ships` | services/battle.js (구버전 픽셀 전투) | 잘못된 참조 |
+#### A. battle.js fragmentation (🔴 backend 500 — 결정 필요)
+- `services/battle.js`가 `battles` 테이블에 존재하지 않는 컬럼들(attacker_wallet, status, gp_stake, expires_at)로 INSERT — 모든 endpoint 500 실패.
+- index.html에 "DECLARE BATTLE" UI(`/api/battle/declare` 호출) 있음 → 클릭 시 에러.
+- `user_ships`, `battle_ships` 테이블도 phantom (battle.js만 의존).
+- 결정지: (A) UI+battle.js 삭제, (B) battles 테이블 ALTER + user_ships/battle_ships 마이그레이션 추가, (C) UI를 fleet_battles로 재배선.
+- 자세한 내용: `server/services/battle.js` 헤더 주석 참조.
 
-#### B. 기타 이슈
-1. `server/routes/ships.js` — 구버전 단순 함선 시스템. 새 fleet 시스템과 충돌 가능.
-2. `server/migrations/archived/` — 89~139번 구버전 마이그레이션. 건드리지 말 것.
-3. settings 테이블 `value` 컬럼이 JSONB — 버전 문자열(1.0.0) INSERT 시 `'"1.0.0"'`으로 감싸야 함.
-4. 로컬 테스트 DB에 추가된 테스트 유저: wallet `0xlainworld000000000000000000000000000000` (실제 유저 아님).
-5. **스케줄러 silent 실패 패턴** — `server/index.js`의 setInterval 블록이 모두 `catch(e) { console.warn }`. 향후 phantom 테이블 추가 시 매 tick 경고만 찍히고 no-op이 됨. 운영 로그 모니터링 필요.
+#### B. 라우트 명명 혼동 (양쪽 실사용 — 그대로 유지, 문서화)
+| 페어 | 책임 |
+|---|---|
+| `routes/job.js` vs `routes/jobs.js` | job=user 직업 ops + admin / jobs=catalog + select |
+| `routes/resource.js` vs `routes/resources.js` | resource=admin + rate / resources=user catalog |
+| `routes/auction.js` vs `routes/auctionRoutes.js` | auction=거래 ops (declare/bid) / auctionRoutes=목록 (`/api/auctions`) |
+| `services/tournament.js` vs `services/tournaments.js` | tournament=fleet 토너먼트 (phaseC) / tournaments=단순 GP entry-fee |
+
+#### C. 향후 통합 후보 (HIGH risk, 별도 작업)
+- `routes/betting.js` + `routes/warBettingRoutes.js` — 둘 다 `/api/betting`에 마운트, frontend 혼용. 통합 시 endpoint 매핑 필요.
+- `services/chronicle.js` vs `chronicleEnhanced.js`, `title.js` vs `titleExtended.js`, `enhancement.js` vs `enhancementAdvanced.js` — 양쪽 사용 중, 책임 검토 후 통합 가능성.
+
+#### D. 기타 메모
+1. `server/routes/ships.js` — 구버전 단순 함선 시스템. fleet 활성화 시 비활성화 필요.
+2. `server/migrations/archived/` — 89~139번 구버전. 건드리지 말 것.
+3. settings.value는 JSONB — 문자열은 `'"text"'`, 점 포함 버전은 `'"1.0.0"'`으로 감싸야 함.
+4. 로컬 테스트 유저: `0xlainworld000000000000000000000000000000`.
+5. 스케줄러 catch 패턴 — silent 실패 모니터링 필요.
 
 ---
 

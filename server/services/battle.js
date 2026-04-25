@@ -1,5 +1,26 @@
 'use strict';
 
+// ⚠ STATUS: 🔴 BROKEN — schema mismatch
+// 이 서비스는 `battles` 테이블에 attacker_wallet/defender_wallet/status/
+// attacker_power/gp_stake/declared_at/expires_at 컬럼이 있다고 가정하지만,
+// 실제 `battles` 테이블 스키마는 attacker/defender/claim_id 기반 단순 픽셀
+// 전투용 (Migration 026-ish). routes/api.js의 claim 흐름이 이 단순 스키마로
+// INSERT (현재 68 records).
+//
+// services/battle.js의 INSERT INTO battles (attacker_wallet, ...)는 42703으로
+// 실패 → /api/battle/{declare,accept,cancel} 500 에러.
+// user_ships, battle_ships 테이블도 phantom — 추가 silent 실패.
+//
+// index.html에 "DECLARE BATTLE" UI 있음 (line ~29380~29404). 클릭하면 500.
+//
+// 향후 결정 필요:
+//  (A) 이 시스템을 fleet_battles로 마이그레이션 (UI 재배선) — 권장
+//  (B) battles 테이블에 누락 컬럼 ALTER + user_ships/battle_ships 마이그레이션
+//      → 두 시스템 병존 (fragmentation 유지)
+//  (C) UI + battle.js + battleRoutes 삭제 — 가장 깨끗
+// 현재: (B) 부분 적용 안 됨, 미결정 상태로 코드는 그대로 둠 (CLAUDE.md §13.B 참조).
+// ═══════════════════════════════════════════════════════════════
+
 /**
  * services/battle.js
  * Naval Battle Engine (Migration 093)
