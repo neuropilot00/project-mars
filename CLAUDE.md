@@ -341,16 +341,16 @@ vip_enabled                = true
 
 → **2026-04-25 시점, 코드베이스에 알려진 phantom 테이블 참조는 모두 해소됨.**
 
+### ✅ 해소 완료 (심화 작업 완료)
+- **battle.js fragmentation 제거** — UI + 라우트 + 서비스 + 스케줄러 일괄 삭제. PVP는 fleet_battles + Hijack로 통합.
+- **betting v1 → warBetting v2 통합** — 단일 시스템 (호환 endpoint 추가됨).
+- **achievements auto-trigger 와이어링** — claim/battle/marketplace/ship/guild/signup 이벤트마다 자동 unlock.
+- **38개 카테고리 settings 시드** — admin이 모든 라이브 기능 조정 가능 (No Hardcoding 100%).
+- **레이어드 아키텍처 명확화** — chronicle/title/enhancement는 의도된 base+extension 구조.
+
 ### 🔴 남아있는 알려진 이슈
 
-#### A. battle.js fragmentation (🔴 backend 500 — 결정 필요)
-- `services/battle.js`가 `battles` 테이블에 존재하지 않는 컬럼들(attacker_wallet, status, gp_stake, expires_at)로 INSERT — 모든 endpoint 500 실패.
-- index.html에 "DECLARE BATTLE" UI(`/api/battle/declare` 호출) 있음 → 클릭 시 에러.
-- `user_ships`, `battle_ships` 테이블도 phantom (battle.js만 의존).
-- 결정지: (A) UI+battle.js 삭제, (B) battles 테이블 ALTER + user_ships/battle_ships 마이그레이션 추가, (C) UI를 fleet_battles로 재배선.
-- 자세한 내용: `server/services/battle.js` 헤더 주석 참조.
-
-#### B. 라우트 명명 혼동 (양쪽 실사용 — 그대로 유지, 문서화)
+#### A. 라우트 명명 혼동 (양쪽 실사용 — 그대로 유지, 문서화)
 | 페어 | 책임 |
 |---|---|
 | `routes/job.js` vs `routes/jobs.js` | job=user 직업 ops + admin / jobs=catalog + select |
@@ -358,16 +358,21 @@ vip_enabled                = true
 | `routes/auction.js` vs `routes/auctionRoutes.js` | auction=거래 ops (declare/bid) / auctionRoutes=목록 (`/api/auctions`) |
 | `services/tournament.js` vs `services/tournaments.js` | tournament=fleet 토너먼트 (phaseC) / tournaments=단순 GP entry-fee |
 
-#### C. 향후 통합 후보 (HIGH risk, 별도 작업)
-- `routes/betting.js` + `routes/warBettingRoutes.js` — 둘 다 `/api/betting`에 마운트, frontend 혼용. 통합 시 endpoint 매핑 필요.
-- `services/chronicle.js` vs `chronicleEnhanced.js`, `title.js` vs `titleExtended.js`, `enhancement.js` vs `enhancementAdvanced.js` — 양쪽 사용 중, 책임 검토 후 통합 가능성.
+#### B. 의도된 레이어드 아키텍처 (병합 불필요)
+모두 base + extension 패턴:
+| 페어 | 역할 |
+|---|---|
+| `services/chronicle.js` + `chronicleEnhanced.js` | base 이벤트 + Discord/특수 이벤트 wrapper |
+| `services/title.js` + `titleExtended.js` | 기본 13종 타이틀 + 확장 11종 |
+| `services/enhancement.js` + `enhancementAdvanced.js` | 인스턴싱 ops + 레시피 보너스 |
 
-#### D. 기타 메모
+#### C. 기타 메모
 1. `server/routes/ships.js` — 구버전 단순 함선 시스템. fleet 활성화 시 비활성화 필요.
 2. `server/migrations/archived/` — 89~139번 구버전. 건드리지 말 것.
 3. settings.value는 JSONB — 문자열은 `'"text"'`, 점 포함 버전은 `'"1.0.0"'`으로 감싸야 함.
 4. 로컬 테스트 유저: `0xlainworld000000000000000000000000000000`.
 5. 스케줄러 catch 패턴 — silent 실패 모니터링 필요.
+6. `fleet_combat_enabled = false` — fleet 시스템 게이트됨. 활성화 시 `routes/ships.js` 정리 필요.
 
 ---
 
