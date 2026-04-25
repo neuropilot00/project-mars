@@ -1045,12 +1045,16 @@ function loop(ts){
   document.getElementById('tm').textContent=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
 
   updateFleets(dt);
-  ships.forEach(sh=>{
-    if(sh.dead||sh.fleet.dead)return;
-    sh.shootT+=dt;
-    const fi=empMs>0?sh.type.fireInt*5:sh.type.fireInt;
-    if(sh.shootT>fi*5){sh.shootT=0;fire(sh);}
-  });
+  // ws 연결 활성 시 자체 시뮬 fire/damage 비활성화 — 진짜 시뮬 결과를 ws frame 으로 받음
+  // (시각 효과인 bullet/laser 트레일은 demo 효과로 유지하지 않음 — fleet HP 가 ws 로 직접 동기화됨)
+  if (!_wsBattle || _wsBattle.readyState !== 1) {
+    ships.forEach(sh=>{
+      if(sh.dead||sh.fleet.dead)return;
+      sh.shootT+=dt;
+      const fi=empMs>0?sh.type.fireInt*5:sh.type.fireInt;
+      if(sh.shootT>fi*5){sh.shootT=0;fire(sh);}
+    });
+  }
 
   drawBG();
   drawShockwaves();
@@ -1080,7 +1084,10 @@ function loop(ts){
   if(!battleOver&&(af===0||df===0)&&btMs>3000){
     battleOver=true;
     addLog('wn',`🏆 ${af>0?'ATK':'DEF'} COALITION 승리 — ${mm}:${String(ss).padStart(2,'0')}`);
-    setTimeout(()=>{initBattle();battleOver=false;},4000);
+    // ws 연결 시 자동 재시작 비활성화 — 실제 hijack 결과는 영구
+    if (!_wsBattle || _wsBattle.readyState !== 1) {
+      setTimeout(()=>{initBattle();battleOver=false;},4000);
+    }
   }
   requestAnimationFrame(loop);
 }
