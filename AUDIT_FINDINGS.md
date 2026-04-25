@@ -1,4 +1,23 @@
-# OCCUPY MARS — Codebase Audit (v4.7 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v5.1 / 2026-04-26)
+
+## 🔴 v4.8~v5.1 변경 요약 (2026-04-26)
+
+### Phase 2 — WebSocket 실시간 함대전 4단계 완료
+- v4.8 (Phase 2-A): wsServer.js 신규 — battle 채널 + frame/end broadcast + JWT 인증 cmd
+- v4.9 (Phase 2-B): tactical-lab v11 안에서 ws 연결 + ws_end 부모에 postMessage → 결과 카드 즉시
+- v5.0 (Phase 2-C): fleet-presets ?bid 응답에 dbFleetId/ownerWallet 추가 → ws frame fleet 매칭 (위치/HP/진형/기동)
+- v5.1 (Phase 2-D): ws 활성 시 자체 시뮬 fire/damage skip + 자동 재시작 skip
+
+### 사용자 요구 4가지 모두 완료
+1. ✅ tactical-lab v11 그대로 이식 (iframe)
+2. ✅ 실제 게임 데이터 연결 (catalog + fleet-presets ?bid + ws frame)
+3. ✅ 유저 컨트롤 (postMessage + ws cmd → commander_actions → battleEngine)
+4. ✅ 실시간 함대전 (hijack manual + AI 자동 + ws frame stream)
+
+### 잔여 (선택, 비필수)
+- ship 단위 dbShipId 매핑 — 정밀 폭발 effect (현재는 fleet dead 시 ships 일괄 처리)
+
+---
 
 ## 🔴 v4.0~v4.7 변경 요약 (2026-04-26)
 

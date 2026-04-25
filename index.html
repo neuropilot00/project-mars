@@ -36580,6 +36580,9 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
+          { type:'p', text:'**v6.0 — 2026-04-26 실시간 함대전 완성 (Phase 2 4단계).** WebSocket + 사용자 요구 4가지 모두 ✅' },
+          { type:'h2', text:'🔴 v6.0 실시간 함대전 (WebSocket)' },
+          { type:'p', text:'• **Phase 2-A**: ws 인프라 — `/ws/battle/{id}` 채널 + frame/end broadcast + JWT 인증 cmd\n• **Phase 2-B**: 클라이언트 ws 연결 + ws_end 즉시 결과 카드 (timeline 끝 대기 X)\n• **Phase 2-C**: fleet 단위 동기화 — DB fleet_id 매칭으로 위치/HP/진형/기동 실시간 반영\n• **Phase 2-D**: 자체 시뮬 fire/damage 비활성화 + 자동 재시작 비활성화 (실제 hijack 결과 영구)\n\n**동작**: hijack → viewer → "🔌 실시간 연결됨" → 함대 위치/HP 가 진짜 시뮬 따라 움직임 → 종료 즉시 결과 카드' },
           { type:'p', text:'**v5.1 — 2026-04-26 AI 전략 자동 적용 + Phase 5 검증.** Phase 4 추가 + 모든 패널 실데이터 동작 확인.' },
           { type:'h2', text:'🤖 v5.1 AI 전략 (PvP/Siege 자동)' },
           { type:'p', text:'• services/aiStrategy.js 신규 — 파벌별 doctrine 적용:\n  - **MCC**: screen + advance (정밀/저격)\n  - **FSP**: sphere + rally (방어/회복)\n  - **CV**: wedge + flank (공격/측면)\n• hijack 외 battle 양쪽에 자동 commander_actions INSERT — battleEngine 이 시뮬에 반영\n• Migration 190: ai_strategy_enabled settings 토글 (admin 조정)\n• Phase 5: tactical-lab 의 FLEET STATUS / SHIP REGISTRY / MINERALS 패널이 이미 /api/tactical-lab/catalog 통해 우리 DB 데이터 (22 함선, 13 광물, 3 파벌) 사용 중 — 검증 완료' },

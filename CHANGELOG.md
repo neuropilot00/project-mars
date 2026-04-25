@@ -1,5 +1,35 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Phase 2 완료: WebSocket 실시간 함대전 (v4.8~v5.1)
+
+### Phase 2 4가지 모두 ✅
+| Phase | 내용 | 커밋 |
+|---|---|---|
+| 2-A | WebSocket 인프라 (server/wsServer.js + index.js attach + battleScheduler frame stream) | v4.8 `ba34f9a` |
+| 2-B | 클라이언트 ws 연결 + ws_end → 결과 카드 즉시 표시 | v4.9 `7d9fcd3` |
+| 2-C | fleet 단위 동기화 (위치/HP/진형/기동) — dbFleetId 매핑 | v5.0 `ccbdfb0` |
+| 2-D | 자체 시뮬 fire/damage + 자동 재시작 비활성화 | v5.1 `49d0138` |
+
+### 동작 흐름 (사용자 hijack 후)
+1. viewer → tactical-lab iframe 로드 → ws 연결 (`ws://.../ws/battle/{id}?token=`)
+2. 명령 로그: "🔌 실시간 연결됨"
+3. 서버 battleScheduler 가 시뮬 결과 frames 를 4x speed 로 ws stream
+4. iframe 가 매 frame 받아 자체 fleets 의 cx/cy/hp/formation/maneuver 갱신
+5. 자체 시뮬 fire/damage 비활성 — 진짜 데이터로만 시각화
+6. 사용자 컨트롤 (진형 변경 등) → ws cmd → commanderActions → 다음 battle 적용
+7. 시뮬 종료 → ws_end → 부모 viewer 의 결과 카드 즉시 표시
+8. 자동 재시작 안 함 (실제 hijack 결과 영구)
+
+### 사용자 요구 4가지 최종 진행도
+| # | 요구 | 상태 |
+|---|---|---|
+| 1 | tactical-lab 모든 항목 그대로 이식 | ✅ iframe + 우리 catalog/fleet-presets |
+| 2 | 모든 항목 실제 게임과 연결 | ✅ ?bid → fleet 데이터 + ws frame 동기화 |
+| 3 | 유저 컨트롤 (진형/기동/EMP/집중) | ✅ postMessage + ws cmd → commander_actions → battleEngine |
+| 4 | 실시간 (hijack manual + AI 자동) | ✅ AI strategy + ws 실시간 frame + end 즉시 결과 |
+
+---
+
 ## 2026-04-26 — Phase 4: AI Strategy + Phase 5 검증 (v4.7)
 
 ### Phase 4 — AI 전략 (PvP/Siege/Event 자동 진형/기동)
