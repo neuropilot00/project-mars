@@ -97,11 +97,14 @@ async function recalculateGovernor(client, sectorId) {
         [newGov, sectorId]
       );
     }
-    // Update sector
+    // Update sector — governor 교체 시 announcement 도 NULL 로 자동 클리어
+    // (옛 governor 의 메시지가 새 임기에 잔존하는 것을 방지)
     await client.query(
-      'UPDATE sectors SET governor_wallet = $1, governor_since = NOW() WHERE id = $2',
+      'UPDATE sectors SET governor_wallet = $1, governor_since = NOW(), announcement = NULL WHERE id = $2',
       [newGov, sectorId]
     );
+    // sector cache 무효화 (admin 화면 + 클라이언트가 즉시 반영)
+    try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
   }
 
   // ── Vice governor change ──
@@ -148,6 +151,7 @@ async function recalculateGovernor(client, sectorId) {
       'UPDATE sectors SET vice_governor_wallet = $1, vice_governor_since = NOW() WHERE id = $2',
       [newVice, sectorId]
     );
+    try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
   }
 
   return { changed, governor: newGov, vice: newVice };

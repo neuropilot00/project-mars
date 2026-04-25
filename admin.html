@@ -752,6 +752,8 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
       <span class="sec-title" style="color:var(--cyan)">⚜ COMMANDER & GLOBAL</span>
       <div class="sec-tools">
         <button class="adm-btn primary" onclick="loadGovData()">REFRESH</button>
+        <button class="adm-btn" onclick="govClearCommander()" style="background:rgba(255,153,68,.2);border-color:rgba(255,153,68,.5);color:#FF9944" title="commander_wallet + announcement 모두 NULL">🧹 사령관 초기화</button>
+        <button class="adm-btn" onclick="govClearAll()" style="background:rgba(232,72,85,.2);border-color:rgba(232,72,85,.5);color:#ff8a80" title="모든 거버너 + 사령관 + 공지 일괄 클리어 (claims/pixels 유지)">🗑 전체 거버넌스 초기화</button>
       </div>
     </div>
     <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
@@ -4090,6 +4092,37 @@ function loadBattles() {
 // ═══════════════════════════════════════════════════
 //  Governance Admin Functions
 // ═══════════════════════════════════════════════════
+
+// 사령관만 초기화 — commander_wallet + announcement 모두 NULL
+function govClearCommander() {
+  if (!confirm('현재 사령관 + 사령관 공지를 모두 클리어합니다. 진행하시겠습니까?')) return;
+  fetch('/admin/api/governance/commander/clear', { method:'POST', headers:{'x-admin-secret':adminSecret} })
+    .then(function(r){return r.json()}).then(function(d){
+      if (d.success) { showToast('🧹 사령관 클리어 완료'); loadGovData(); }
+      else alert('실패: ' + (d.error || JSON.stringify(d)));
+    }).catch(function(e){ alert('오류: ' + e.message); });
+}
+
+// 모든 거버너 + 사령관 + 공지 일괄 클리어 (claims/pixels 유지)
+function govClearAll() {
+  if (!confirm('모든 거버너 + 사령관 + 모든 공지를 클리어합니다.\n(claims/pixels 는 유지)\n진행하시겠습니까?')) return;
+  fetch('/admin/api/governance/clear-all', { method:'POST', headers:{'x-admin-secret':adminSecret} })
+    .then(function(r){return r.json()}).then(function(d){
+      if (d.success) { showToast('🗑 전체 거버넌스 클리어 완료'); loadGovData(); }
+      else alert('실패: ' + (d.error || JSON.stringify(d)));
+    }).catch(function(e){ alert('오류: ' + e.message); });
+}
+
+// 특정 섹터 거버너만 초기화
+function govClearSector(sectorId) {
+  if (!confirm('섹터 #' + sectorId + ' 의 거버너 + 공지를 클리어합니다. 진행하시겠습니까?')) return;
+  fetch('/admin/api/governance/sector/' + sectorId + '/clear', { method:'POST', headers:{'x-admin-secret':adminSecret} })
+    .then(function(r){return r.json()}).then(function(d){
+      if (d.success) { showToast('🧹 섹터 #' + sectorId + ' 거버너 클리어'); loadGovData(); }
+      else alert('실패: ' + (d.error || JSON.stringify(d)));
+    }).catch(function(e){ alert('오류: ' + e.message); });
+}
+
 function loadGovData() {
   fetch('/admin/api/governance', {headers:{'x-admin-secret':adminSecret}})
   .then(function(r){return r.json()}).then(function(d) {

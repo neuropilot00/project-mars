@@ -36503,7 +36503,9 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
-          { type:'p', text:'**v3.3 — 2026-04-25 boot/캐시 동기화 완성.** 부트 시점에 user level 미리 로드 + commander 교체 시 메시지 자동 클리어.' },
+          { type:'p', text:'**v3.4 — 2026-04-25 거버넌스 클리어 도구 + boot 동기화 완성.** 임기 종료된 거버너/사령관을 admin 이 강제 클리어할 수 있는 도구 추가.' },
+          { type:'h2', text:'🛠 v3.4 거버넌스 cleanup 도구' },
+          { type:'p', text:'• **자동 expire 로직 부재** → admin GOVERNANCE 탭 에 두 버튼 추가:\n  - 🧹 **사령관 초기화** — commander_wallet + announcement 모두 NULL\n  - 🗑 **전체 거버넌스 초기화** — 모든 거버너 + 사령관 + 공지 일괄 클리어 (claims/pixels 유지)\n• governor/commander 교체 시 announcement 도 함께 NULL 처리 (잔존 메시지 방지)\n• 모든 거버넌스 변경 후 sector cache 무효화 → 클라이언트 즉시 반영' },
           { type:'h2', text:'🔄 v3.3 boot 동기화' },
           { type:'p', text:'• **처음 로딩 시 섹터가 모두 잠금 표시 (BASE 한번 누르면 정상)** → auto-login 시점에 user level 을 미리 fetch 해서 `profileLevel` DOM 채움 + 섹터 텍스처 재합성. 이제 페이지 로드 직후 정확한 잠금 상태.\n• **commander 교체 시 옛 메시지 잔존** ("커맨더 표시는 왜 남김?") → governance 서비스가 commander 교체 시 announcement 도 NULL 로 자동 초기화.' },
           { type:'h2', text:'🔄 v3.2 캐시/리프레시 fix' },

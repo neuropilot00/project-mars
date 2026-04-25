@@ -198,6 +198,7 @@ router.post('/sector/:id/announcement', writeLimiter, async (req, res) => {
     }
     const safe = (text || '').slice(0, 100);
     await pool.query('UPDATE sectors SET announcement = $1 WHERE id = $2', [safe, sectorId]);
+    try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
     res.json({ success: true, announcement: safe });
   } catch (e) {
     console.error('[GOV] announcement error:', e.message);

@@ -4835,4 +4835,58 @@ router.get('/fleet/npc-status', adminAuth, async (req, res) => {
   }
 });
 
+// ══════════════════════════════════════════════════
+// Governance cleanup — 거버너/커맨더/공지 강제 정리
+// "임기 종료된 거버너가 화면에 남는다" 신고 대응. 자동 expire 로직 없으므로
+// admin 이 강제로 클리어할 수 있는 path 제공.
+// ══════════════════════════════════════════════════
+
+// POST /admin/api/governance/commander/clear — commander 자리 비우기 + announcement 클리어
+router.post('/governance/commander/clear', adminAuth, async (req, res) => {
+  try {
+    await pool.query("UPDATE commander SET commander_wallet = NULL, commander_since = NULL, vice_commander_wallet = NULL, vice_commander_since = NULL, announcement = NULL WHERE id = 1");
+    try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
+    await auditLog(req, 'governance_commander_clear', null, {});
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[admin /governance/commander/clear]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/governance/sector/:id/clear — 특정 섹터 governor 자리 비우기 + sector announcement 클리어
+router.post('/governance/sector/:id/clear', adminAuth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id) return res.status(400).json({ error: 'invalid sector id' });
+    await pool.query("UPDATE sectors SET governor_wallet = NULL, governor_since = NULL, vice_governor_wallet = NULL, vice_governor_since = NULL, announcement = NULL WHERE id = $1", [id]);
+    await pool.query("DELETE FROM governance_positions WHERE sector_id = $1", [id]);
+    try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
+    await auditLog(req, 'governance_sector_clear', `sector:${id}`, {});
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[admin /governance/sector/clear]', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /admin/api/governance/clear-all — 모든 거버너 + 커맨더 + 공지 클리어 (claims/pixels 는 유지)
+router.post('/governance/clear-all', adminAuth, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query("UPDATE sectors SET governor_wallet = NULL, governor_since = NULL, vice_governor_wallet = NULL, vice_governor_since = NULL, announcement = NULL");
+    await client.query("DELETE FROM governance_positions");
+    await client.query("UPDATE commander SET commander_wallet = NULL, commander_since = NULL, vice_commander_wallet = NULL, vice_commander_since = NULL, announcement = NULL WHERE id = 1");
+    await client.query('COMMIT');
+    try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
+    await auditLog(req, 'governance_clear_all', null, {});
+    res.json({ success: true });
+  } catch (e) {
+    try { await client.query('ROLLBACK'); } catch(_) {}
+    console.error('[admin /governance/clear-all]', e.message);
+    res.status(500).json({ error: e.message });
+  } finally { client.release(); }
+});
+
 module.exports = router;
