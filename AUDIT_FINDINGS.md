@@ -17,6 +17,7 @@
 | 3 | EVENTS 탭 빈 화면 | switchTab cats 배열에 worldevents 누락 | cats에 추가 |
 | 4 | 모바일 사이드바 잡아먹힘 | panel-r/l 모바일 z-index 120 < mob-bottom-nav 200 | z 250 + bottom padding (FAB+nav 고려), close btn z 260 |
 | 5 | 토스트 일관성 부족 | showToast/showFactionToast 시각 다름, 위치 다름, 'red'/'h' 등 typo type | 통합 .toast CSS (변형은 accent color만), showFactionToast→showToast 위임, 'red'→'error' 등 legacy alias 자동 normalize |
+| 6 | iPhone 양쪽 사이드바 열림+글로브 안 보임 | `@media(max-width:768px)`만 처리 → iPad portrait(820), Pro Max landscape(932), split-screen(800~) 데스크탑 레이아웃 적용 → panel 250+250=500px 가 글로브 가림 | 새 `@media(max-width:1024px)` 블록 — 태블릿도 슬라이드 패널, mob-toggle/mob-bottom-nav 표시, panel-tab 숨김. DOMContentLoaded에서 `innerWidth≤1024`면 .open 클래스 강제 제거 (캐시 방어) |
 
 ## ✅ 자가 진단 버그 (테스트 중 발견 — 모두 해결)
 | 영향 | 원인 | 처리 |
