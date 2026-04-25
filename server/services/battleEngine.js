@@ -910,9 +910,7 @@ async function applyBattleResults(battleId, result) {
       `, [fleetStat.ships_lost, fleetStat.damage_dealt, battleId, fleetStat.fleet_id]);
     }
     
-    // 3. 죽은 함선 상태 업데이트
-    // timeline 마지막 프레임에서 isAlive=false인 애들 처리
-    // 간단히: events 중 ship_destroyed / flagship_destroyed 로 처리
+    // 3. 죽은 함선 상태 업데이트 (events 기반)
     for (const ev of result.events) {
       if (ev.type === 'ship_destroyed' || ev.type === 'flagship_destroyed') {
         if (ev.ship_id) {
@@ -929,6 +927,34 @@ async function applyBattleResults(battleId, result) {
           `, [ev.fleet_id]);
         }
       }
+    }
+
+    // 3-bis. 살아남은 함선의 부분 HP 손실 반영 (timeline 마지막 frame 기반)
+    // 사용자 신고: "함대전 했는데 내 함선 HP 멀쩡함" — 시뮬레이션 결과의 부분 데미지가 DB 에 반영 안 됨.
+    try {
+      const lastFrame = result.frames && result.frames.length > 0 ? result.frames[result.frames.length - 1] : null;
+      if (lastFrame && Array.isArray(lastFrame.ships)) {
+        for (const s of lastFrame.ships) {
+          const sid = parseInt(s.id);
+          const hp = Math.max(0, Math.round(parseFloat(s.hp) || 0));
+          if (!sid) continue;
+          if (hp <= 0) {
+            // destroyed 처리 — 위 events 단계에서 누락되었더라도 안전망
+            await client.query(`
+              UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
+              WHERE id = $1 AND is_alive = true
+            `, [sid]);
+          } else {
+            // 살아남은 함선 — 시뮬레이션 종료 시점 HP 로 갱신 (회복은 막음: LEAST)
+            await client.query(`
+              UPDATE ships SET current_hp = LEAST(current_hp, $1)
+              WHERE id = $2 AND is_alive = true
+            `, [hp, sid]);
+          }
+        }
+      }
+    } catch (hpErr) {
+      console.warn('[battle] partial HP apply failed for battle', battleId, ':', hpErr.message);
     }
     
     // 4. 전투 이벤트 로그
