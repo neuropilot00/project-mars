@@ -41647,49 +41647,23 @@ function fcEsc(str) {
   </div>
 </div>
 
-<!-- Battle Viewer -->
+<!-- Battle Viewer — tactical-lab v11 그대로 iframe 사용 (사용자 강한 요청: "택티컬랩 그대로 채용") -->
 <div class="bv-backdrop" id="battleViewer">
-  <div class="bv-stage">
-    <canvas class="bv-canvas" id="battleCanvas"></canvas>
-    <div class="bv-stars"></div>
+  <div class="bv-stage" style="background:#03040b;overflow:hidden">
+    <iframe id="bvTacticalFrame" src="" style="width:100%;height:100%;border:0;display:block;background:#03040b" allow="autoplay" loading="lazy"></iframe>
 
-    <button class="bv-close" onclick="closeBattleViewer()">✕</button>
+    <button class="bv-close" onclick="closeBattleViewer()" style="position:absolute;top:10px;right:10px;z-index:30;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.3);color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
 
-    <div class="bv-hud-top">
-      <div class="bv-hud-side">
-        <div class="bv-hud-side-label atk">⚔ ATTACKERS</div>
-        <div class="bv-hud-fleets" id="bvAtkFleets"></div>
-      </div>
-      <div class="bv-hud-center">
-        <div class="bv-hud-battle-title">FLEET BATTLE</div>
-        <div class="bv-hud-time" id="bvHudTime">0:00</div>
-        <div class="bv-hud-time-total" id="bvHudTotal">/ 0:00</div>
-      </div>
-      <div class="bv-hud-side">
-        <div class="bv-hud-side-label def">🛡 DEFENDERS</div>
-        <div class="bv-hud-fleets" id="bvDefFleets"></div>
-      </div>
-    </div>
-    <div class="bv-cmd-banner" id="bvCmdBanner"></div>
-
-    <div class="bv-hud-bottom">
-      <div class="bv-event-feed" id="bvEventFeed"></div>
-      <div class="bv-controls">
-        <button class="bv-ctrl-btn" id="bvPlayBtn" onclick="togglePlayback()">⏵</button>
-        <button class="bv-ctrl-btn" onclick="jumpBattle(-10)">⏪</button>
-        <button class="bv-ctrl-btn" onclick="jumpBattle(10)">⏩</button>
-        <div class="bv-speed-btns">
-          <button class="bv-speed-btn" data-speed="1" onclick="setSpeed(1)">1x</button>
-          <button class="bv-speed-btn active" data-speed="2" onclick="setSpeed(2)">2x</button>
-          <button class="bv-speed-btn" data-speed="4" onclick="setSpeed(4)">4x</button>
-          <button class="bv-speed-btn" data-speed="8" onclick="setSpeed(8)">8x</button>
-        </div>
-        <div class="bv-timeline-bar" id="bvTimelineBar" onclick="seekBattle(event)">
-          <div class="bv-timeline-fill" id="bvTimelineFill"></div>
-          <div class="bv-timeline-cursor" id="bvTimelineCursor"></div>
-        </div>
-      </div>
-    </div>
+    <!-- Hidden 보존 elements (legacy code refs 안 깨지게) -->
+    <canvas id="battleCanvas" style="display:none"></canvas>
+    <div id="bvHudTime" style="display:none">0:00</div>
+    <div id="bvHudTotal" style="display:none">/ 0:00</div>
+    <div id="bvAtkFleets" style="display:none"></div>
+    <div id="bvDefFleets" style="display:none"></div>
+    <div id="bvCmdBanner" style="display:none"></div>
+    <div id="bvEventFeed" style="display:none"></div>
+    <button id="bvPlayBtn" style="display:none">⏵</button>
+    <div id="bvTimelineBar" style="display:none"><div id="bvTimelineFill"></div><div id="bvTimelineCursor"></div></div>
 
     <div class="bv-result-overlay" id="bvResultOverlay">
       <div class="bv-result-card" id="bvResultCard">
@@ -42855,11 +42829,13 @@ async function openBattleViewer(battleId) {
   document.getElementById('battleViewer').classList.add('active');
   document.getElementById('bvResultOverlay').classList.remove('active');
 
-  // Canvas 초기화
+  // tactical-lab v11 iframe 로드 (사용자 요청: "택티컬랩 그대로")
+  var tf = document.getElementById('bvTacticalFrame');
+  if (tf) tf.src = '/assets/tactical-lab-v11.html?bid=' + battleId + '&t=' + Date.now();
+
+  // legacy canvas 초기화 (HUD 코드가 참조해도 안 깨지게)
   bv.canvas = document.getElementById('battleCanvas');
-  bv.ctx = bv.canvas.getContext('2d');
-  resizeCanvas();
-  window.addEventListener('resize', _debounce(resizeCanvas, 200));
+  if (bv.canvas && bv.canvas.getContext) bv.ctx = bv.canvas.getContext('2d');
 
   // 타임라인 로드 (최대 15초 폴링 = 1.5s × 10회)
   let loaded = false;
