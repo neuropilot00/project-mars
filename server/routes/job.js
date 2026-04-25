@@ -95,7 +95,7 @@ router.get('/user/job/change-status', async (req, res) => {
 // ─────────────────────────────────────────
 router.get('/admin/jobs', async (req, res) => {
   try {
-    const [distribution, buffs, recentLog] = await Promise.all([
+    const [distribution, buffs, recentLog, recentAgg, perJobBalance] = await Promise.all([
       pool.query(`SELECT * FROM admin_job_distribution`).catch(() => ({ rows: [] })),
       pool.query(`
         SELECT j.code, j.name_ko, j.icon_emoji,
@@ -116,8 +116,47 @@ router.get('/admin/jobs', async (req, res) => {
         ORDER BY jcl.changed_at DESC
         LIMIT 20
       `).catch(() => ({ rows: [] })),
+      pool.query(`
+        SELECT change_type, COUNT(*)::int AS cnt
+        FROM job_change_log
+        WHERE changed_at >= NOW() - INTERVAL '7 days'
+        GROUP BY change_type
+      `).catch(() => ({ rows: [] })),
+      pool.query(`
+        SELECT j.id, j.code, j.name_en AS name, j.icon_emoji,
+               COUNT(u.wallet_address)::int AS user_count,
+               COALESCE(AVG(u.gp_balance), 0)::numeric(20,2) AS avg_gp,
+               COALESCE(AVG(u.pp_balance), 0)::numeric(20,4) AS avg_pp
+        FROM jobs j
+        LEFT JOIN users u ON u.current_job_id = j.id
+        WHERE j.is_active = true
+        GROUP BY j.id, j.code, j.name_en, j.icon_emoji, j.sort_order
+        ORDER BY j.sort_order
+      `).catch(() => ({ rows: [] })),
     ]);
-    res.json({ distribution: distribution.rows, buffs: buffs.rows, recentLog: recentLog.rows });
+
+    // Frontend-friendly shape: byJob (with avg_gp/avg_pp), noJob, recentChanges, recentLog, buffs
+    const byJob = perJobBalance.rows.map(r => ({
+      ...r,
+      user_count: parseInt(r.user_count) || 0,
+      avg_gp:     parseFloat(r.avg_gp) || 0,
+      avg_pp:     parseFloat(r.avg_pp) || 0,
+    }));
+    const noneRow = (distribution.rows || []).find(r => r.job_code === 'none' || r.job_code === null);
+    const noJob = noneRow ? parseInt(noneRow.user_count) || 0 : 0;
+    const recentChanges = (recentAgg.rows || []).map(r => ({
+      change_type: r.change_type,
+      cnt: parseInt(r.cnt) || 0,
+    }));
+
+    res.json({
+      byJob,
+      noJob,
+      recentChanges,
+      distribution: distribution.rows,
+      buffs: buffs.rows,
+      recentLog: recentLog.rows,
+    });
   } catch (err) {
     console.error('[JOB] GET /admin/jobs error:', err.message);
     res.status(500).json({ error: err.message });

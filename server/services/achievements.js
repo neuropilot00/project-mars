@@ -216,7 +216,7 @@ async function getUserAchievements(wallet) {
        FROM achievements a
        LEFT JOIN user_achievements ua
               ON ua.achievement_key = a.key AND ua.wallet = $1
-      ORDER BY a.category, a.sort_order, a.id`,
+      ORDER BY a.category, a.condition_value ASC, a.key`,
     [w]
   );
   return res.rows;

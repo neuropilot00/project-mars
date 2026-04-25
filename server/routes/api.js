@@ -4240,10 +4240,16 @@ router.get('/daily/status', readLimiter, async (req, res) => {
     const existing = await pool.query(
       'SELECT streak_day, reward_gp FROM daily_logins WHERE wallet = $1 AND login_date = CURRENT_DATE', [w]
     );
-    // Get reward config from admin settings
+    // Get reward config from admin settings — getSetting returns string, JSON-parse arrays
     const { getSetting } = require('../db');
-    const gpRewards = await getSetting('daily_login_gp_rewards', [5,10,10,15,15,20,30,10,15,15,20,20,25,50]);
-    const maxDays = parseInt(await getSetting('daily_streak_cycle', 14));
+    const defaultGP = [5,10,10,15,15,20,30,10,15,15,20,20,25,50];
+    const gpRaw = await getSetting('daily_login_gp_rewards', defaultGP);
+    let gpRewards = defaultGP;
+    if (Array.isArray(gpRaw)) gpRewards = gpRaw;
+    else if (typeof gpRaw === 'string') {
+      try { const p = JSON.parse(gpRaw); if (Array.isArray(p)) gpRewards = p; } catch (_) {}
+    }
+    const maxDays = parseInt(await getSetting('daily_streak_cycle', 14)) || 14;
     const milestones = {
       3:  { bonus: parseFloat(await getSetting('streak_3_gp', 30)) },
       7:  { bonus: parseFloat(await getSetting('streak_7_gp', 100)) },

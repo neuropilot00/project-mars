@@ -2713,7 +2713,7 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore', 'enhance', 'marketplace', 'jobs', 'resources', 'onboarding', 'siege', 'ships'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore', 'enhance', 'marketplace', 'jobs', 'resources', 'onboarding', 'siege', 'ships', 'worldevents'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });

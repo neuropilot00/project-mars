@@ -53,16 +53,26 @@ async function recordDailyLogin(wallet) {
   let streakDay = 1;
   if (yesterday.rows.length) {
     streakDay = yesterday.rows[0].streak_day + 1;
-    const maxDays = parseInt(await getSetting('daily_streak_cycle', 14));
-    if (streakDay > maxDays) streakDay = 1; // cycle after 14
+    const maxDays = parseInt(await getSetting('daily_streak_cycle', 14)) || 14;
+    if (streakDay > maxDays) streakDay = 1; // cycle after maxDays
   }
 
-  // Get reward arrays from settings
-  const gpRewards = await getSetting('daily_login_gp_rewards', [5, 10, 10, 15, 15, 20, 30, 10, 15, 15, 20, 20, 25, 50]);
-  const ppRewards = await getSetting('daily_login_pp_rewards', [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  // Get reward arrays from settings — getSetting returns string, parse JSON
+  const parseArr = (raw, def) => {
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try { const p = JSON.parse(raw); return Array.isArray(p) ? p : def; }
+      catch (_) { return def; }
+    }
+    return def;
+  };
+  const defaultGP = [5, 10, 10, 15, 15, 20, 30, 10, 15, 15, 20, 20, 25, 50];
+  const defaultPP = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const gpRewards = parseArr(await getSetting('daily_login_gp_rewards', defaultGP), defaultGP);
+  const ppRewards = parseArr(await getSetting('daily_login_pp_rewards', defaultPP), defaultPP);
 
-  const rewardGP = gpRewards[streakDay - 1] || 0;
-  const rewardPP = ppRewards[streakDay - 1] || 0;
+  const rewardGP = parseFloat(gpRewards[streakDay - 1]) || 0;
+  const rewardPP = parseFloat(ppRewards[streakDay - 1]) || 0;
 
   // Insert login record
   await pool.query(
