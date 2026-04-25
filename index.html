@@ -3511,6 +3511,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   display: none;
 }
 .bv-backdrop.active { display: block; }
+/* Desktop: 풀스크린 대신 중앙 오버레이 (1100×680 max, dim 배경). 모바일은 풀스크린 유지. */
+@media (min-width: 769px) {
+  .bv-backdrop { background: rgba(0,0,0,.82); }
+  .bv-backdrop.active { display: flex; align-items: center; justify-content: center; }
+  .bv-stage {
+    width: min(1100px, 92vw);
+    height: min(680px, 88vh);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.08);
+  }
+}
 
 .bv-stage {
   position: relative;

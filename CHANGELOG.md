@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Battle Viewer 데스크탑 오버레이 (v4.0)
+
+### 🟢 사용자 요청: "데스크탑에서 전투화면 좀 오버레이로 작게 보여야 할 텐데 너무 풀화면이더라고"
+- **Fix**: `.bv-backdrop` 에 데스크탑 미디어쿼리 추가 — `min-width:769px` 일 때 중앙 오버레이 (max 1100×680, 92vw/88vh, border-radius 12px, dim 배경 rgba(0,0,0,.82))
+- 모바일 (≤768px) 은 풀스크린 유지 (기존 그대로)
+- 사용자 데스크탑에서 hijack/declare 후 viewer 가 적당한 사이즈로 떠 globe 화면을 일부 가림 → 게임 컨텍스트 유지
+
+---
+
 ## 2026-04-26 — POI Mineral Loot + NPC 함선 일괄 부여 (v3.9)
 
 ### 🟢 사용자 요청: "POI 에도 GP/아이템/광물 섞여서 나오는게 맞지?"
