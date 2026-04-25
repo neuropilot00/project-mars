@@ -1,5 +1,48 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Audit Punch List + Governance Auto-Expire + UX (v3.1)
+
+### 🔴 Governance 자동 만료 (사용자 신고 — admin 수동 클리어 부담 제거)
+- **Migration 185** (`185_governance_auto_expire.sql`): settings + idx_users_last_login_at
+- **`server/services/governanceExpire.js`** NEW: governor/commander 자동 자리비움 로직
+  - 조건: orphaned wallet | `COALESCE(last_login_at, governor_since)` 14일 이전 | term_expired
+  - 1시간 스케줄러 (`server/index.js`)
+  - `__invalidateSectorsCache()` 자동 호출
+- **`server/routes/auth.js`**: 로그인 + /me 시 `last_login_at = NOW()` 갱신
+- **고아 announcement 정리**: governor=NULL & announcement≠NULL sector 자동 cleanup
+- **즉시 결과**: 15 sectors + commander + 9 orphan announcements 모두 클리어
+
+### 🟡 Audit P0/P1 punch list (commit `135da81`)
+- **P0-1 Shield 일원화**: `services/shield.js isClaimShielded/Tx` 가 `territory_shields` 만 조회 → `pixel_shields`(상점) UNION 추가. 상점 shield 가 hijack 못 막던 버그 fix.
+- **P0-2 Cosmetic decrement**: `/api/cosmetic/equip` 가 `user_items.quantity` 차감 안 해 1개로 N장착 가능했음 → equip -1, unequip +1, 교체 시 이전 cosmetic 환수 트랜잭션화.
+- **P0-3 Tier 보너스 적용**: `services/tiers.js miningBonusPct` 가 dead code → `/api/harvest` 에 territory_tiers MAX(tier) → cfg.tiers[].miningBonusPct 곱셈 블록 추가.
+- **P1-1 Harvest cap 순서**: cap=1.0PP 가 모든 multiplier 후 적용돼 VIP/buff/governor 보너스가 cap 에 흡수됨 → cap 을 base 직후로 이동, multiplier 가 그 위에서 amplify.
+- **P1-2 season.trackGPSpend**: 미export 라 6개 라우트 silently skip → `addSeasonScore('gp_spend')` alias + export.
+- **P1-3 gpActivity require**: 10개 서비스가 `require('./gpActivity')` (없는 모듈) → `require('../db')` 일괄 fix.
+
+### 🟢 Mining 광물 드롭 (사용자 신고 — "PP 만 표시")
+- **Bug 1**: `/api/users/:wallet/base` 응답 territory 에 `tierCounts` 누락 → UI 가 항상 'no land' 표시
+- **Bug 2**: `/api/harvest` 가 `bestTier` 한 개만 roll → mid+frontier 보유 시 frontier 광물 누락
+- **수정**: tierCounts 응답 추가 + 보유한 모든 tier 별로 독립 roll, 결과 합산
+- **UX**: 채굴 버튼 라벨에 `+ 🪨` 추가 (`(0.03~1.50 PP + 🪨)`)
+
+### 🐛 UI/UX 버그
+- **거대 토스트 박스** (사용자 신고 "이게 뭐야?"): `.toast` 가 `top:50%` + `bottom:130px` 동시 적용으로 viewport 절반 만큼 세로로 stretch. `bottom:auto` + `transform:translate(-50%,-50%)` 로 fix.
+- **알림창 닫기**: ✕ 버튼 + outside-click 닫기 (`closeNotifPanel`, `_notifOutsideClick`)
+- **출석체크/데일리미션 빈 화면**: QUESTS 탭 진입 시 `checkDailyLogin/renderInlineCheckin/loadDailyMissions` 자동 호출
+- **Hijack 모달 undefined**: `data-i18n="hijack_def_label"` 키 노출 + parseInt 방어, `willAutoWin` auto-detection
+
+### 📝 Commits (시간순)
+```
+f424b6a  fix(toast): 거대 박스 (top+bottom 충돌) fix
+b7aa2bf  fix(governance-expire): NULL last_login_at fallback + orphan announcement cleanup
+135da81  fix(audit): P0/P1 punch list — shield, cosmetic, tier, harvest cap, season, gpActivity
+13efdc0  fix(mining): tierCounts 응답 + 모든 tier roll
+6046673  fix(ux): notif 닫기 + daily refresh + mining 라벨 + governance auto-expire
+```
+
+---
+
 ## 2026-04-25 — Major Stability & Polish Pass (v3.0)
 
 ### 🐛 사용자 신고 버그 수정

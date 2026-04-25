@@ -1,3 +1,35 @@
+# OCCUPY MARS — Codebase Audit (v3.1 / 2026-04-26)
+
+## 🔴 v3.1 변경 요약 (2026-04-26)
+
+### 신규 자동화
+- **거버너/사령관 자동 만료**: migration 185 + `services/governanceExpire.js` + 1h 스케줄러. 14일 비활성/탈퇴/임기만료 시 자동 자리비움 + 공지 클리어. admin 수동 부담 제거.
+
+### 해소된 P0/P1 (감사 에이전트 결과 반영, commit `135da81`)
+| ID | 영역 | Before | After |
+|---|---|---|---|
+| P0-1 | Shield | `pixel_shields`(상점) 가 hijack 못 막음 | `isClaimShielded/Tx` 가 두 테이블 UNION 조회 |
+| P0-2 | Cosmetic | quantity 차감 없음 → 1개로 N장착 | equip -1, unequip +1, 교체 시 이전 cosmetic 환수 |
+| P0-3 | Tier | tiers.js miningBonusPct dead code | `/api/harvest` 에 territory_tiers MAX(tier) 곱셈 블록 |
+| P1-1 | Harvest cap | multiplier 후 cap → VIP/governor 보너스 무용 | base 직후로 cap 이동, multiplier 가 그 위에서 amplify |
+| P1-2 | Season | trackGPSpend 미export → 6개 라우트 silently skip | alias + export |
+| P1-3 | logGPActivity | `./gpActivity`(없는 모듈) 잘못된 require | 10개 서비스 일괄 `../db` 로 fix |
+
+### 추가 fix (commit `13efdc0`, `b7aa2bf`, `f424b6a`, `6046673`)
+- **Mining tierCounts 응답 누락** → UI 항상 'no land' 표시
+- **Mining bestTier 만 roll** → 모든 보유 tier 독립 roll + 합산
+- **Governance expire NULL fallback** → 옛 데이터(last_login_at NULL) 도 governor_since 기준 판정
+- **고아 announcement 정리** → governor=NULL & announcement≠NULL sector 자동 cleanup
+- **거대 토스트 박스** → `.toast{top:50%}` + `bottom:130px` 충돌 fix (bottom:auto + transform)
+- **알림창 닫기** → ✕ 버튼 + outside-click
+- **출석체크 빈 화면** → QUESTS 탭 진입 시 자동 로드
+
+### 🟡 잔여 known issues
+- **P1-4**: hijack 비-primary 디펜더 픽셀 처리 — 의도된 디자인(주 수비자만 공격) 으로 동작 중. 개선 여지 있음
+- **CLICK START POINT 박스** — 토스트 stretch 버그였음, 위에서 fix됨
+
+---
+
 # OCCUPY MARS — Codebase Audit (v3.0 / 2026-04-25 — final)
 
 > **이 문서는 코드베이스의 현재 상태를 외부 검토자(Codex 등)에게 넘기기 위한 정리본입니다.**
