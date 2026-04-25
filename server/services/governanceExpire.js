@@ -48,10 +48,12 @@ async function expireStaleGovernance() {
     // ── 1) 섹터 거버너 자동 만료 ──
     // 조건: 다음 중 하나라도 충족되면 자리 비움
     //   a) governor_wallet 이 users 에 없음 (탈퇴)
-    //   b) last_login_at 이 govDays 일 이전 (govDays > 0)
+    //   b) COALESCE(last_login_at, governor_since) 이 govDays 일 이전 (govDays > 0)
+    //      ⇒ last_login_at NULL 인 옛 데이터는 governor_since 기준으로 판정
     //   c) governor_since + govTerm 일 < NOW (govTerm > 0)
+    const lastActiveExpr = `COALESCE(u.last_login_at, s.governor_since)`;
     const conditions = [`u.wallet_address IS NULL`]; // (a) orphaned
-    if (govDays > 0) conditions.push(`(u.last_login_at IS NOT NULL AND u.last_login_at < NOW() - INTERVAL '${govDays} days')`);
+    if (govDays > 0) conditions.push(`(${lastActiveExpr} < NOW() - INTERVAL '${govDays} days')`);
     if (govTerm > 0) conditions.push(`(s.governor_since IS NOT NULL AND s.governor_since < NOW() - INTERVAL '${govTerm} days')`);
 
     const stale = await client.query(`
@@ -60,7 +62,7 @@ async function expireStaleGovernance() {
              s.governor_since,
              CASE
                WHEN u.wallet_address IS NULL THEN 'orphaned'
-               WHEN u.last_login_at IS NOT NULL AND u.last_login_at < NOW() - INTERVAL '${govDays || 99999} days' THEN 'inactive'
+               WHEN ${lastActiveExpr} < NOW() - INTERVAL '${govDays || 99999} days' THEN 'inactive'
                WHEN s.governor_since IS NOT NULL AND s.governor_since < NOW() - INTERVAL '${govTerm || 99999} days' THEN 'term_expired'
                ELSE 'unknown'
              END AS reason
@@ -94,8 +96,9 @@ async function expireStaleGovernance() {
       if (!exists.rows.length) {
         cmdStale.push('orphaned');
       } else if (cmdDays > 0) {
-        // (b) last_login_at 이 cmdDays 일 이전
-        const ll = exists.rows[0].last_login_at;
+        // (b) COALESCE(last_login_at, commander_since) 이 cmdDays 일 이전
+        // last_login_at NULL 인 옛 데이터는 commander_since 기준으로 판정.
+        const ll = exists.rows[0].last_login_at || since;
         if (ll && new Date(ll).getTime() < Date.now() - cmdDays * 24 * 3600 * 1000) {
           cmdStale.push('inactive');
         }
@@ -117,10 +120,21 @@ async function expireStaleGovernance() {
       }
     }
 
+    // ── 3) 고아 announcement 정리 ──
+    // governor_wallet IS NULL 인데 announcement 가 남아 있는 케이스 (이전에 manual clear 등으로 발생)
+    const orphanAnnounce = await client.query(
+      `UPDATE sectors SET announcement = NULL
+        WHERE governor_wallet IS NULL AND announcement IS NOT NULL
+       RETURNING id`
+    );
+    if (orphanAnnounce.rows.length > 0) {
+      result.orphanAnnouncementsCleared = orphanAnnounce.rows.map(r => r.id);
+    }
+
     await client.query('COMMIT');
 
     // sector cache 무효화 → 클라이언트 즉시 반영
-    if (result.clearedSectors.length > 0 || result.clearedCommander) {
+    if (result.clearedSectors.length > 0 || result.clearedCommander || (result.orphanAnnouncementsCleared && result.orphanAnnouncementsCleared.length > 0)) {
       try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
       console.log(`[GOV-EXPIRE] cleared sectors: ${result.clearedSectors.length}, commander: ${result.clearedCommander}`,
         JSON.stringify(result.reasons));
