@@ -105,12 +105,12 @@ async function placeSponsor(wallet, claimId, message) {
 
     // Deduct GP
     const balRow = await client.query(
-      `SELECT gp_balance FROM users WHERE wallet=$1 FOR UPDATE`, [wallet]
+      `SELECT gp_balance FROM users WHERE wallet_address=$1 FOR UPDATE`, [wallet]
     );
     if (!balRow.rows.length) throw new Error('User not found');
     if (balRow.rows[0].gp_balance < cfg.costGP) throw new Error(`Need ${cfg.costGP} GP`);
     await client.query(
-      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet=$2`,
+      `UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2`,
       [cfg.costGP, wallet]
     );
     await client.query(

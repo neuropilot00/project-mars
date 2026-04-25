@@ -92,7 +92,7 @@ async function sendTribute(wallet, claimId, amountGP, message) {
 
     // Deduct GP (burned — not transferred)
     const bal = await client.query(
-      'SELECT gp_balance FROM users WHERE wallet = $1 FOR UPDATE',
+      'SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
       [wallet]
     );
     if (!bal.rows.length) throw new Error('User not found');
@@ -100,7 +100,7 @@ async function sendTribute(wallet, claimId, amountGP, message) {
       throw new Error(`Insufficient GP (need ${amountGP})`);
 
     await client.query(
-      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet = $2',
+      'UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address = $2',
       [amountGP, wallet]
     );
     await client.query(

@@ -59,7 +59,7 @@ async function placeBeacon(wallet, { x, y, message, icon }) {
     await client.query('BEGIN');
 
     // Balance check
-    const balRow = await client.query('SELECT gp_balance FROM users WHERE wallet=$1 FOR UPDATE', [wallet]);
+    const balRow = await client.query('SELECT gp_balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wallet]);
     if (!balRow.rows.length) throw new Error('User not found');
     if (balRow.rows[0].gp_balance < cfg.costGP) throw new Error(`Need ${cfg.costGP} GP`);
 
@@ -90,7 +90,7 @@ async function placeBeacon(wallet, { x, y, message, icon }) {
     }
 
     // Deduct GP
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet=$2', [cfg.costGP, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [cfg.costGP, wallet]);
 
     // Insert beacon
     const expiresAt = new Date(Date.now() + cfg.durH * 3600 * 1000);

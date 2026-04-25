@@ -62,12 +62,12 @@ async function buyPrestige(wallet) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const balRow = await client.query('SELECT gp_balance FROM users WHERE wallet=$1 FOR UPDATE', [wallet]);
+    const balRow = await client.query('SELECT gp_balance FROM users WHERE wallet_address=$1 FOR UPDATE', [wallet]);
     if (!balRow.rows.length) throw new Error('User not found');
     const bal = balRow.rows[0].gp_balance;
     if (bal < cfg.costGP) throw new Error(`Need ${cfg.costGP} GP`);
 
-    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet=$2', [cfg.costGP, wallet]);
+    await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE wallet_address=$2', [cfg.costGP, wallet]);
 
     // upsert prestige row
     const { rows } = await client.query(
