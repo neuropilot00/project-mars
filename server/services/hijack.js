@@ -1,6 +1,6 @@
 // server/services/hijack.js
 // ═══════════════════════════════════════════════════════════════
-// Hijack 2-Phase Battle System
+// Hijack 2-Phase Battle System  [STATUS: 🟢 LIVE — recently fixed]
 //
 // Phase 1 (침투): 프리깃/구축함만 투입, 20척 이하
 //   - 적의 방어 돌파 시도
@@ -11,6 +11,23 @@
 //   - 본대 전투
 //   - 승리 시 영토 또는 자산 탈취
 //   - 패배 시 수비 성공
+//
+// ─── Flow ─────────────────────────────────────────────────
+// 1. POST /api/hijack/declare-with-pp (routes/api.js:1573~)
+//    - 침입자 stamp 영역 vs 수비자 픽셀 overlap 계산
+//    - 수비 함대 0 → auto-win (Phase 1/2 스킵, 즉시 픽셀 이전)
+//    - 수비 함대 있음 → fleet_battle 생성 + phase1_battle_id 반환
+// 2. Phase1 종료 후 Phase2 자동 시작 (수비 본대 vs 침입자 본대)
+// 3. handlePhase2Complete() — 픽셀 소유권 이전, claim 레코드는 보존
+//
+// ─── Recent fixes ─────────────────────────────────────────
+// - 8d2148b: 프론트에서 phase1_battle_id 받아 자동으로 battle viewer 오픈
+// - c2d35c8: 부분 점령 시 빈 claim 레코드 자동 삭제 비활성화 (defender 기록 보존)
+// - 240ae43 / migration 175: hijack_battles.target_claim_id NULL 허용
+//
+// ─── 주의 ─────────────────────────────────────────────────
+// - 픽셀 grid: 0.22°/cell (GRID_SIZE). enemy_pixels = stamp ∩ defender pixels.
+// - tombstone.js의 hijack_log 참조는 phantom (실제 테이블은 hijack_battles).
 // ═══════════════════════════════════════════════════════════════
 
 const { pool, getSetting } = require('../db');

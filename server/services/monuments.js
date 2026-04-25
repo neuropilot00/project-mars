@@ -1,4 +1,8 @@
 'use strict';
+// ⚠ STATUS: 🔴 PHANTOM TABLES — 이 서비스가 의존하는 테이블이 DB에 없음.
+// 호출 시 silent 실패 (catch에서 'internal_error' 반환). 살리려면 마이그레이션
+// 추가 또는 services + route + 스케줄러 등록 일괄 삭제 결정 필요.
+// 자세한 내용: CLAUDE.md §13.A 참조.
 /**
  * Territory Monument Service — Migration 111
  * Players permanently burn GP to place named monuments on their territories.

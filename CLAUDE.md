@@ -1,5 +1,7 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-25 | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-25 (migration 177 적용 후) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+
+> **❗ 새 세션이 가장 먼저 읽을 곳**: §13 (알려진 이슈 + 깨진 기능 목록), §14 (서비스 카탈로그 + 상태)
 
 ---
 
@@ -319,14 +321,161 @@ vip_enabled                = true
 
 ---
 
-## 13. 알려진 이슈
+## 13. 알려진 이슈 (2026-04-25 일제 점검)
 
-1. `server/routes/ships.js` — 구버전 단순 함선 시스템. 새 fleet 시스템과 충돌할 수 있음. fleet 구현 시 비활성화 or 분리 필요.
+### ✅ 최근 수정됨 (migration 176~177, commits 62fb37f, 75d7438)
+- **로켓드롭 트리거 403** — `/api/rockets/trigger`가 `game_settings.commander_wallet` 조회 (없는 테이블/키). `commander.commander_wallet`로 수정.
+- **`game_settings` 테이블 부재** — 9개 서비스가 silent 실패. migration 176으로 settings → game_settings 호환 VIEW 추가.
+- **`users.wallet` 컬럼 오타** — 18개 GP 서비스가 `WHERE wallet=$1` 사용 (실제는 `wallet_address`). 모두 `wallet_address`로 일괄 수정.
+- **`gp_transactions`, `gp_activity_log`, `colony_prestige`, `prestige_log` 부재** — migration 177로 생성. 30+ 서비스의 GP 로깅 silent 실패 복구.
+- **NPC 스타터팩 일괄 지급 UI 없음** — admin.html에 버튼 추가 (엔드포인트는 이미 존재했음).
+
+### 🔴 남아있는 알려진 이슈
+
+#### A. 의심되는 phantom 테이블 (사용 중인데 DB에 없음)
+다음 테이블들은 코드에서 INSERT/SELECT 하지만 실제 DB엔 없음. 해당 기능은 silent 실패 중. 살리려면 마이그레이션 작성, 안 쓰면 서비스 파일 자체 삭제 필요. **새 작업 시 반드시 어느 쪽인지 결정해야 함.**
+
+| 누락 테이블 | 영향 받는 서비스 | 추정 상태 |
+|---|---|---|
+| `achievements`, `user_achievements` | services/achievements.js | 미구현 — 살릴지 결정 필요 |
+| `art_contests`, `art_entries`, `art_votes` | services/contest.js (5분마다 스케줄러 동작) | 미구현 |
+| `crafting_log`, `crafting_recipes` | services/crafting.js | 미구현 |
+| `donation_wall` | services/donation.js | 미구현 |
+| `expeditions` | services/expedition.js | 미구현 |
+| `gp_balances` | admin.js의 grant 엔드포인트 (실제 잔액은 `users.gp_balance`) | 잘못된 참조 |
+| `gp_bounties` | services/bounty.js (1h 스케줄러) | 미구현 |
+| `gp_broadcasts` | services/broadcasts.js (5분 스케줄러) | 미구현 |
+| `gp_burn_active`, `gp_burn_log` | services/gpBurn.js (10분 스케줄러) | 미구현 |
+| `gp_dividend_pool`, `gp_dividend_claims` | services/dividends.js (월요일 스케줄러) | 미구현 |
+| `gp_polls`, `poll_votes` | services/polls.js | 미구현 |
+| `gp_stakes` | services/staking.js (5분 스케줄러) | 미구현 |
+| `lottery_rounds`, `lottery_tickets` | services/lottery.js (1분 스케줄러) | 미구현 |
+| `lucky_box_openings`, `lucky_box_types` | services/luckyBox.js | 미구현 |
+| `map_beacons` | services/beacon.js | 미구현 |
+| `planet_news` | services/news.js (24h 스케줄러) | 미구현 |
+| `player_status`, `status_log` | services/status.js | 미구현 |
+| `profile_change_log` | services/profile.js | 부분적 동작 (메인 프로필 저장은 됨) |
+| `raffles`, `raffle_entries` | services/raffle.js | 미구현 |
+| `territory_branding`, `territory_branding_log` | services/branding.js | 미구현 |
+| `territory_descriptions` | services/tdesc.js | 미구현 |
+| `territory_events` | services/tevt.js | 미구현 |
+| `territory_monuments` | services/monuments.js | 미구현 |
+| `territory_rentals`, `rental_log` | services/rental.js | 미구현 |
+| `territory_shields` | services/shield.js (5분 스케줄러) | 미구현 |
+| `territory_spells` | services/spells.js | 미구현 |
+| `territory_sponsors` | services/sponsor.js | 미구현 |
+| `territory_tier_log`, `territory_tiers` | services/tiers.js | 미구현 |
+| `territory_upgrades` | services/claimUpgrades.js | 미구현 |
+| `time_capsules` | services/capsule.js | 미구현 |
+| `tournament_entries` | services/tournaments.js (실제 테이블은 `tournament_participants`) | 컬럼 mismatch |
+| `wager_pools`, `wager_bets` | services/wager.js (1분 스케줄러) | 미구현 |
+| `weekly_challenge_*` | services/weeklyChallenges.js (1h 스케줄러) | 미구현 |
+| `user_resources` (실제: `user_resource_inventory`) | services/auction.js | 잘못된 참조 |
+| `user_minerals` (실제: `user_resource_inventory`) | services/worldEvents.js | 잘못된 참조 |
+| `user_ships` (실제: `ships`) | services/achievements.js, battle.js | 잘못된 참조 |
+| `battle_ships` | services/battle.js (구버전 픽셀 전투) | 잘못된 참조 |
+| `hijack_log` (실제 의도: `hijack_battles`) | services/tombstone.js (requirePrevOwner 분기) | 잘못된 참조 |
+
+#### B. 기타 이슈
+1. `server/routes/ships.js` — 구버전 단순 함선 시스템. 새 fleet 시스템과 충돌 가능. fleet 활성화 시 비활성화 or 분리 필요.
 2. `server/migrations/archived/` — 89~139번 구버전 마이그레이션. 건드리지 말 것.
-3. `admin.html` — fleet/faction 관련 섹션 아직 없음. 새 fleet 서비스 작성 후 추가 필요.
-4. settings 테이블 value 컬럼이 JSONB — 버전 문자열(1.0.0) INSERT 시 `'"1.0.0"'`으로 감싸야 함.
-5. Railway 배포 시 `grant-starter`에서 "invalid input syntax for type json" 오류 발생 중 (디버깅 중).
-6. 로컬 테스트 DB에 추가된 테스트 유저: wallet `0xlainworld000000000000000000000000000000` (실제 유저 아님).
+3. settings 테이블 `value` 컬럼이 JSONB — 버전 문자열(1.0.0) INSERT 시 `'"1.0.0"'`으로 감싸야 함.
+4. **admin.js의 ~20개 setting UPDATE 엔드포인트**가 `value=$1` (raw 문자열)로 JSONB 컬럼에 INSERT — 문자열 값 저장 시 `invalid input syntax for type json` 발생. `JSON.stringify(value)` 또는 `value=$1::jsonb`로 wrap 필요.
+5. 로컬 테스트 DB에 추가된 테스트 유저: wallet `0xlainworld000000000000000000000000000000` (실제 유저 아님).
+6. **스케줄러 silent 실패** — `server/index.js`의 setInterval 블록이 모두 `catch(e) { console.warn }` 패턴이라, 위 phantom 테이블에 의존하는 스케줄러는 매 tick 경고만 찍고 영원히 no-op. 운영 로그 신뢰 불가.
+
+---
+
+## 14. 서비스 카탈로그 (현재 상태)
+
+### 🟢 동작 확인된 핵심 시스템 (수정 우선순위 ↑)
+| 서비스 | 라우트 | 비고 |
+|---|---|---|
+| `hijack.js` | `routes/api.js` (`/api/hijack/*`) | 최근 다수 fix (commits 8d2148b, c2d35c8, 240ae43). 정상. |
+| `fleet.js` | `routes/fleets.js` | fleet_combat_enabled 게이트. 함선 22종 정의됨. |
+| `siege.js` | `routes/siege.js` | 섹터 거버너 공성전 |
+| `governance.js` | `routes/governance.js` | 커맨더/거버너/세금 (`commander` 테이블 사용) |
+| `season.js` | (서비스 직접 호출) | 시즌 점수 — `addSeasonScore()` 모든 서비스에서 fire-and-forget |
+| `weather.js` | `routes/weatherRoutes.js` | migration 174로 strategic columns 추가됨 |
+| `guild.js` | `routes/api.js` | commit 6bbc166으로 레벨업 + 수송 동작 복구 |
+| `transport.js` | `routes/transport.js` | 수송 시스템 |
+| `daily.js` | `routes/api.js` | 일일 미션 — settings에 daily_mission_* 키 |
+| `marketplace.js` | `routes/marketplace.js` | 아이템 마켓 |
+| `enhancement.js` | `routes/api.js` | 아이템 강화 |
+| `auction.js` | `routes/auctionRoutes.js` | ⚠ user_resources 테이블 mismatch (auction.js:122) |
+| `rocket.js` | `routes/api.js` (`/api/rockets/*`) | 트리거 fix됨 (commit 62fb37f). 12h 자동 스케줄. |
+| `vip.js` | `routes/vip.js` | migration 162 |
+| `tprestige.js` | `routes/api.js` | territory_prestige 테이블 OK. wallet 컬럼 fix됨. |
+| `prestige.js` | `routes/api.js` | colony_prestige 테이블 추가됨 (migration 177). wallet 컬럼 fix됨. |
+| `siegeFleetBridge.js` | (스케줄러) | siege와 fleet 연계 |
+| `aiFleetManager.js` | (NPC 함대 관리) | commit a84e7dc로 SAVEPOINT 추가됨 |
+
+### 🟡 부분 동작 (DB는 있는데 UI/로직 불완전)
+| 서비스 | 상태 |
+|---|---|
+| `worldEvents.js` | user_minerals → user_resource_inventory 컬럼 mismatch |
+| `battle.js` | 구버전 픽셀 전투. 새 fleet battle과 별개. 정리 필요 |
+| `ship.js` | 구버전 단순 함선. 새 fleet ship과 충돌 |
+| `tournament.js` vs `tournaments.js` | 두 파일 공존. tournaments.js는 phantom 테이블, tournament.js만 실제 동작 |
+| `tdesc.js`, `capsule.js`, `sponsor.js` | wallet 컬럼 fix됨 / 자체 테이블은 없음. 마이그레이션 추가 필요 |
+
+### 🔴 phantom 테이블 의존 서비스 (현재 silent 실패)
+§13.A 표 참조. 모두 둘 중 하나로 처리 필요:
+- (a) 누락 테이블 마이그레이션 추가 → 기능 활성화
+- (b) 서비스 파일 + 라우트 마운트 + 스케줄러 등록 일괄 삭제 → 코드베이스 정리
+
+### 🔵 로깅/감사
+- `gp_activity_log` (db.js의 logGPActivity) — migration 177로 생성됨
+- `gp_transactions` (서비스 직접 INSERT) — migration 177로 생성됨, 컬럼명 양쪽 호환
+- 같은 GP 활동을 두 테이블에 중복 기록함. 정리 필요(향후).
+
+---
+
+## 15. 라우트 카탈로그 (61개)
+
+`server/index.js`에서 mount되는 prefix는 모두 `/api`(단일 파일 admin.js만 `/admin/api`).
+
+```
+api.js              ← 메인 통합 라우트 (가장 큰 파일, 다수 도메인)
+admin.js            ← 어드민 패널 (단일 파일, 5000줄+)
+adminEconomyRoutes  ← 경제 밸런스 어드민 (migration 173 추가)
+auth.js             ← JWT 로그인/회원가입
+fleets/fleetBattles/fleetSearch  ← Fleet Combat
+factions/factionRoutes ← 파벌
+governance/commanderActions  ← 거버너/커맨더
+sectors             ← 섹터 정보
+hallOfFameRoutes    ← 명예의 전당
+weatherRoutes       ← 날씨/재해
+warBettingRoutes    ← 전쟁 베팅
+publicRoutes/public ← 비-로그인 통계
+territoryRoutes     ← 영토 (claim과 별개)
+onboarding/onboardingRoutes ← 온보딩
+phaseC/phaseD       ← 길드전 페이즈
+... (총 61개)
+```
+
+⚠ **공존하는 동명/유사 라우트 정리 필요**: `auction.js` vs `auctionRoutes.js`, `factions.js` vs `factionRoutes.js`, `public.js` vs `publicRoutes.js`, `onboarding.js` vs `onboardingRoutes.js`, `territoryRoutes.js` vs api.js의 territory 핸들러.
+
+---
+
+## 16. 마이그레이션 누적 인덱스 (001~177)
+
+| 범위 | 주제 |
+|---|---|
+| 001~050 | 초기 스키마 (users, claims, pixels, settings, GP/PP) |
+| 051~080 | 게임 시스템 (battle, sector, governance, weather, hijack) |
+| 081~110 | 어드민/통계/시즌/cosmetic |
+| 111~140 | (대부분 archived) — 폐기된 미니게임/실험 |
+| 141~160 | Fleet Combat 기반 (factions, ship_types, fleets, ships) |
+| 161~170 | VIP / 광물 tier / NPC / 트리거 fix |
+| 171~177 | 최근 fix 패키지 (cantina, prestige, economy balance, weather strategic, hijack target_claim, game_settings view, phantom tables) |
+| `archived/` | 89~139번 구버전 — **건드리지 말 것** |
+
+새 마이그레이션 작성 규칙:
+1. 파일명: `NNN_short_name.sql` (NNN = 178부터 시작)
+2. `INSERT INTO schema_migrations (filename) VALUES (...) ON CONFLICT DO NOTHING;` 마지막에 추가
+3. settings INSERT는 `(key)`만 ON CONFLICT, `(category, key)` 복합 아님
+4. JSONB value: 문자열은 `'"text"'`, 숫자는 `'42'`, 불린은 `'true'`/`'false'`, 점이 있는 버전은 `'"1.0.0"'`
 
 ---
 

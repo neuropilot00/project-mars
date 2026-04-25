@@ -1,4 +1,27 @@
 'use strict';
+// server/services/prestige.js
+// ═══════════════════════════════════════════════════════════════
+// Colony Prestige (플레이어 단위 랭크)  [STATUS: 🟢 LIVE — fixed]
+//
+// 플레이어가 GP를 prestige에 spend할 때마다 prestige_points 누적.
+// 누적 포인트 임계값 도달 시 랭크 상승 (Colonist→Pioneer→Explorer→
+// Commander→Governor→Admiral, 6단계).
+// 랭크별로 채굴/GP/방어 보너스 (migration 172, settings 조정 가능).
+//
+// ⚠ 별개 시스템: territory_prestige (tprestige.js) — 클레임 단위.
+// 둘은 독립적으로 누적/조회됨.
+//
+// ─── DB ────────────────────────────────────────────────────
+// colony_prestige(wallet PK, prestige_points, prestige_rank, total_gp_spent)
+// prestige_log(id, wallet, gp_spent, points_gained, old_rank, new_rank)
+// 둘 다 migration 177에서 생성됨 (이전엔 phantom).
+//
+// ─── Settings ─────────────────────────────────────────────
+//   prestige_enabled, prestige_cost_gp, prestige_points_per_buy,
+//   prestige_rank_thresholds (콤마 구분), _names, _icons, _colors,
+//   prestige_rank_mining_bonus_pct, _gp_earn_bonus_pct, _hijack_def_pct
+// ═══════════════════════════════════════════════════════════════
+
 const { pool, getSetting } = require('../db');
 let seasonService; try { seasonService = require('./season'); } catch(_) {}
 

@@ -1,3 +1,28 @@
+// server/services/rocket.js
+// ═══════════════════════════════════════════════════════════════
+// Rocket Supply Drop System  [STATUS: 🟢 LIVE]
+//
+// 화성 표면에 보급/RUD 로켓이 떨어지면 일정 반경에 loot 마커가 생기고
+// 유저가 맵에서 클릭해 선착순으로 수령. GP / item / XP / PP / cosmetic 드롭.
+//
+// ─── Flow ─────────────────────────────────────────────────
+// 1. autoScheduleRocket() — 12시간마다 자동 (server/index.js:725~)
+//    또는 커맨더가 POST /api/rockets/trigger로 수동 발사
+// 2. status: 'incoming' (advance_notice_hours = 2h 카운트다운)
+// 3. processRocketLanding() — 1분 스케줄러: incoming → looting 전환
+// 4. 유저는 맵 마커 클릭 → POST /api/rockets/claim-loot
+// 5. processRocketCompletion() — looting_ends_at 도래 시 completed
+//
+// ─── Recent fix ───────────────────────────────────────────
+// - 62fb37f: /api/rockets/trigger의 commander 검증을 game_settings → commander
+//            테이블로 수정 (이전엔 항상 403 반환).
+//
+// ─── 관련 settings (admin 조정 가능) ──────────────────────
+//   rocket_enabled, rocket_advance_notice_hours, rocket_looting_hours,
+//   rocket_rud_chance, rocket_loot_count_normal/rud, rocket_loot_radius,
+//   rocket_drop_{gp|item|xp|pp|cosmetic}_weight
+// ═══════════════════════════════════════════════════════════════
+
 const { pool, getSetting } = require('../db');
 const { sendTelegramNotification } = require('./telegram');
 

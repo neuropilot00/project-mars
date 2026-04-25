@@ -1,4 +1,20 @@
 'use strict';
+// server/services/tprestige.js
+// ═══════════════════════════════════════════════════════════════
+// Territory Prestige (클레임 단위 티어)  [STATUS: 🟢 LIVE]
+//
+// 특정 claim에 GP를 spend해서 해당 클레임의 티어를 0→5까지 상승.
+// 0=None, 1=Bronze, 2=Silver, 3=Gold, 4=Platinum, 5=Diamond.
+// 티어별로 그 클레임의 채굴/방어/실드 보너스 부여 (migration 172).
+//
+// ⚠ 별개 시스템: colony_prestige (prestige.js) — 플레이어 단위.
+//
+// ─── DB ────────────────────────────────────────────────────
+// territory_prestige(claim_id PK, wallet, tier, gp_paid, updated_at)
+// territory_prestige_log(id, claim_id, wallet, from_tier, to_tier, gp_cost)
+// 둘 다 기존 마이그레이션에서 이미 생성됨.
+// ═══════════════════════════════════════════════════════════════
+
 const { pool, getSetting } = require('../db');
 
 const TIER_NAMES  = ['None', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
