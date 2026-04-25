@@ -99,6 +99,7 @@ router.post('/sector/:id/tax-rate', writeLimiter, async (req, res) => {
     }
 
     await pool.query('UPDATE sectors SET tax_rate = $1 WHERE id = $2', [r, sectorId]);
+    try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
     res.json({ success: true, taxRate: r });
   } catch (e) {
     console.error('[GOV] set tax error:', e.message);

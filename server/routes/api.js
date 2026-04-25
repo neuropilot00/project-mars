@@ -145,6 +145,16 @@ async function getSectorsForLookup() {
   _sectorsCacheAt = Date.now();
   return _sectorsCache;
 }
+// Allow other modules (admin sector update, governance) to invalidate immediately.
+// Without this, admin tier/price/entry-level changes only propagated after 60s TTL,
+// causing the "다른 창 한번 열었다 닫아야 반영됨" symptom.
+function invalidateSectorsCache() {
+  _sectorsCache = null;
+  _sectorsCacheAt = 0;
+  _sectorPriceSettings = null; // also force re-read of price settings on next claim
+}
+// Expose globally so any route can call it without circular import dance
+global.__invalidateSectorsCache = invalidateSectorsCache;
 
 // Find sector_id for a pixel coordinate
 async function findSectorForPixel(lat, lng) {

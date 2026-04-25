@@ -29,6 +29,22 @@
   - 수정 4: admin에 "🔍 NPC 함대 진단" 버튼 (`/admin/api/fleet/npc-status`)
     → 현재 NPC들 중 함대전 가능 vs 자동승리 위험 분류 표시. 하이잭 정상 동작 검증 도구.
 
+- **구매가능 섹터가 admin 변경 후 즉시 반영 안 됨** ("다른 창 열었다 닫아야 반영") — 사용자 신고
+  - 원인 (서버): `routes/api.js`의 `_sectorsCache` 60초 TTL. admin 이 sector tier/price/entry-level 을 변경해도 60초 동안 옛 값 반환.
+  - 원인 (클라이언트): `_sectorsData` boot 시 1회만 로드. BASE 모달 열 때(`loadBaseData`)에만 refresh → 사용자 입장에서 "다른 창 열었다 닫아야 반영"으로 보임.
+  - 수정 (서버):
+    * `invalidateSectorsCache()` 함수 + `global.__invalidateSectorsCache` 노출
+    * `PUT /admin/api/sectors/:id` 변경 후 즉시 캐시 무효화
+    * `POST /admin/api/setting/:key` 가 `price_pixel_*` 또는 `sector_*_min_level` 변경 시 무효화
+    * `POST /api/governance/sector/:id/tax` 변경 후 무효화
+  - 수정 (클라이언트):
+    * `window.refreshSectors()` 함수 신규 (boot/주기/이벤트 모두에서 재사용)
+    * 60초 polling refresh (서버 TTL 과 동일)
+    * `visibilitychange`/`focus` 이벤트 시 즉시 refresh (탭/창 복귀 시)
+    * `toggleSectorOverlay()` 활성화 시 즉시 refresh
+    * `openClaimModal()` 호출 시 즉시 refresh — admin 가격 변경이 다음 클레임에 즉시 반영
+  - 효과: admin 변경 → 최대 60초 (활동 사용자) / 즉시 (탭 복귀/모달 열기 시) 반영
+
 - **iPhone 사이드바 stale 상태 (close 버튼 안 보임 + 사이드바 강제 열림)** — Service Worker 캐시 이슈 수정
   - 원인: `sw.js`의 `CACHE_NAME = 'mars-v3'` 가 옛 `index.html` 을 보존. iOS Safari 가 SW 캐시를 적극 활용해서 사용자 단말에 사이드바 옛 코드가 그대로 남음.
   - 수정:

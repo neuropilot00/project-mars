@@ -10926,6 +10926,8 @@ function toggleSectorOverlay(){
   if(btn) btn.style.background=_showSectorBounds?'rgba(90,180,230,0.25)':'';
   marsCanvasTexture=null;claimsSnapshot=null;
   compositeClaimsOnTexture();
+  // Fresh sector data on toggle — admin 변경이 즉시 반영되도록
+  if (_showSectorBounds && typeof refreshSectors === 'function') refreshSectors();
 }
 
 var _myLandMode=false;
@@ -11606,16 +11608,31 @@ setInterval(function(){
   }).catch(function(){});
 },_claimsPollMs);
 
-// Load sectors on boot (for boundary overlay)
+// ── Sectors auto-refresh ──
+// admin 이 sector tier/price/entry-level 을 변경한 뒤 즉시 반영되도록
+// 1) boot 시 1회 로드  2) 60초마다 polling refresh  3) 페이지 가시화 시 즉시 refresh
+window.refreshSectors = function(){
+  var w = (typeof walletState !== 'undefined' && walletState && walletState.address) ? walletState.address : '';
+  var sUrl = w ? '/api/sectors?wallet=' + encodeURIComponent(w) : '/api/sectors';
+  return fetch(sUrl).then(function(r){return r.json()}).then(function(data){
+    _sectorsData = data;
+    if (typeof updateGovRoles === 'function') updateGovRoles();
+    if (typeof updateSectorAnnounces === 'function') updateSectorAnnounces();
+    if (typeof renderSectorList === 'function') { try { renderSectorList(data); } catch(_) {} }
+    return data;
+  }).catch(function(e){ console.warn('[Sectors] refresh failed:', e); return null; });
+};
 (function loadSectorsOnBoot(){
-  fetch('/api/sectors').then(function(r){return r.json()}).then(function(data){
-    _sectorsData=data;
-    // Redraw texture to include sector boundaries
+  refreshSectors().then(function(){
     setTimeout(function(){claimsSnapshot=null;compositeClaimsOnTexture()},1000);
-    if(typeof updateGovRoles==='function') updateGovRoles();
-    // Show sector announcements below commander announce
-    if(typeof updateSectorAnnounces==='function') updateSectorAnnounces();
-  }).catch(function(e){console.warn('[Sectors] Failed to load:',e)});
+  });
+  // Periodic refresh — admin 변경이 최대 60초 안에 자동 반영 (서버 캐시 TTL 과 동일)
+  setInterval(function(){ refreshSectors(); }, 60000);
+  // Tab focus / visibility — 사용자가 다른 탭/창에서 돌아올 때 즉시 fresh 데이터로
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible') refreshSectors();
+  });
+  window.addEventListener('focus', function(){ refreshSectors(); });
 })();
 
 /* ── Globe Click → Select Territory ──────────────── */
@@ -13368,6 +13385,8 @@ function updateCostDisplayUnit(){
 var lastStampCost=null; // cached cost breakdown for confirm
 function openClaimModal(){
   if(!selectedPlot) return;
+  // Fresh sector pricing/access data before computing cost — admin 변경이 즉시 반영
+  if (typeof refreshSectors === 'function') { try { refreshSectors(); } catch(_) {} }
   var m=document.getElementById('claimModal');
   m.classList.add('open');
   document.getElementById('modalCoords').textContent=selectedPlot.lat.toFixed(1)+'°, '+selectedPlot.lng.toFixed(1)+'°';

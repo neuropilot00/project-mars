@@ -420,12 +420,17 @@ router.put('/settings/:key', async (req, res) => {
 
     // ── Sync zone entry_min_level to sectors table ──
     const k = req.params.key;
+    let _touchedSectors = false;
     if (k === 'sector_core_min_level') {
       const lv = parseInt(value) || 0;
-      if (lv > 0) await pool.query(`UPDATE sectors SET entry_min_level = $1 WHERE tier = 'core'`, [lv]);
+      if (lv > 0) { await pool.query(`UPDATE sectors SET entry_min_level = $1 WHERE tier = 'core'`, [lv]); _touchedSectors = true; }
     } else if (k === 'sector_mid_min_level') {
       const lv = parseInt(value) || 0;
-      if (lv > 0) await pool.query(`UPDATE sectors SET entry_min_level = $1 WHERE tier = 'mid'`, [lv]);
+      if (lv > 0) { await pool.query(`UPDATE sectors SET entry_min_level = $1 WHERE tier = 'mid'`, [lv]); _touchedSectors = true; }
+    }
+    // settings 자체가 sector pricing 영향 (price_pixel_*) 또는 sector_*_min_level 이면 캐시 무효화
+    if (_touchedSectors || /^(price_pixel_|sector_)/.test(k)) {
+      try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
     }
 
     await auditLog(req, 'setting_update', req.params.key, { value });
@@ -764,6 +769,8 @@ router.put('/sectors/:id', async (req, res) => {
 
     vals.push(id);
     await pool.query(`UPDATE sectors SET ${updates.join(', ')} WHERE id = $${idx}`, vals);
+    // 변경 즉시 frontend/server 양쪽 캐시 무효화 — admin 변경이 즉시 반영되도록
+    try { if (typeof global.__invalidateSectorsCache === 'function') global.__invalidateSectorsCache(); } catch(_) {}
     await auditLog(req, 'sector_update', `sector:${id}`, req.body);
     res.json({ success: true });
   } catch (e) {
