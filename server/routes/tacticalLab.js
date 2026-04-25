@@ -158,6 +158,8 @@ router.get('/fleet-presets', async (req, res) => {
               tag: (p.owner_faction || flagship.split('_')[0] || 'mcc').toUpperCase(),
               flagship,
               escort,
+              dbFleetId: p.fleet_id,           // ws frame.fleets[].id 매칭용 (Phase 2-C)
+              ownerWallet: p.owner_wallet,
             });
           }
         }

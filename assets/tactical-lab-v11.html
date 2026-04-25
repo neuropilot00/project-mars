@@ -441,7 +441,8 @@ function mkFleet(def,side,cx,cy){
     flagship:null,ships:[],hp:0,maxHp:0,dead:false,radius,
     facingAngle:side==='atk'?0:Math.PI,
     formation:'sphere',maneuver:'advance',
-    laserHitCount:0,laserHitTimer:0,rallyCooldown:0};
+    laserHitCount:0,laserHitTimer:0,rallyCooldown:0,
+    dbFleetId:def.dbFleetId||null,ownerWallet:def.ownerWallet||null};
   const fs=mkShip(def.flagship,side,cx,cy,f,true);
   f.flagship=fs;f.ships.push(fs);ships.push(fs);
   Object.entries(def.escort).forEach(([tid,cnt])=>{
@@ -1432,7 +1433,25 @@ function connectBattleWs() {
       if (!m || !m.type) return;
       if (m.type === 'frame') {
         _wsLastFrame = m;
-        // TODO Phase 2-C: m.ships/m.fleets → 자체 fleets 객체에 동기화
+        // Phase 2-C: fleet 단위 위치/HP 동기화 — DB fleet_id 매칭
+        try {
+          if (m.fleets && Array.isArray(m.fleets) && fleets && fleets.length) {
+            for (const wsF of m.fleets) {
+              const f = fleets.find(x => x.dbFleetId && String(x.dbFleetId) === String(wsF.id));
+              if (!f) continue;
+              if (typeof wsF.cx === 'number') f.cx = wsF.cx;
+              if (typeof wsF.cy === 'number') f.cy = wsF.cy;
+              if (typeof wsF.hp === 'number') f.hp = Math.max(0, wsF.hp);
+              if (wsF.dead) {
+                f.dead = true;
+                f.ships.forEach(s => { s.dead = true; s.hp = 0; });
+              }
+              if (wsF.formation) f.formation = wsF.formation;
+              if (wsF.movement)  f.maneuver  = wsF.movement;
+              if (typeof wsF.facing === 'number') f.facingAngle = wsF.facing;
+            }
+          }
+        } catch (syncErr) { /* silent */ }
       } else if (m.type === 'end') {
         _wsEndPayload = m;
         addLog('wn', '🏁 실시간 종료 수신: ' + (m.winner_side || '?'));
