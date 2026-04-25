@@ -18073,6 +18073,24 @@ var emailAuth = {
         try{loadReferralInfo()}catch(e){}
         try{trackQuestAction('login',1)}catch(e){}
         try{initOnboarding(d.wallet)}catch(e){}
+        // ── 부트 시점에 user level 미리 로드 ──
+        // 이전엔 BASE 모달 열어야 profileLevel DOM 채워졌음 → 그 전엔 sector overlay 가 myLevel=1 로
+        // 모든 high-tier 섹터를 entry-blocked 로 그렸음 ("처음 로딩하고 섹터 누르면 반영 안됨" 신고).
+        // 미리 fetch 해서 profileLevel DOM 채우고 sector 텍스처 재합성 트리거.
+        try {
+          fetch('/api/user/' + encodeURIComponent(d.wallet) + '/base').then(function(r){return r.json()}).then(function(u){
+            if (!u || !u.user) return;
+            window._baseUserData = u;
+            var pl = document.getElementById('profileLevel');
+            var plb = document.getElementById('profileLevelBadge');
+            if (pl)  pl.textContent  = u.user.rank;
+            if (plb) plb.textContent = u.user.rank;
+            // 텍스처 캐시 무효화 + 재합성 → 정확한 entry-blocked 판정으로 다시 그림
+            if (typeof marsCanvasTexture !== 'undefined') marsCanvasTexture = null;
+            if (typeof claimsSnapshot !== 'undefined') claimsSnapshot = null;
+            if (typeof compositeClaimsOnTexture === 'function') compositeClaimsOnTexture();
+          }).catch(function(){});
+        } catch(_) {}
         console.log('[Auth] Auto-login OK:',d.nickname);
       })
       .catch(function(){
@@ -18649,6 +18667,20 @@ async function refreshEmailBalances(){
           loadReferralInfo();
           refreshEmailBalances();
           try{ checkDailyLogin(); }catch(e){}
+          // ── boot 시점 user level 미리 로드 → sector overlay entry-block 정확히 ──
+          try {
+            fetch('/api/user/' + encodeURIComponent(d.wallet) + '/base').then(function(r){return r.json()}).then(function(u){
+              if (!u || !u.user) return;
+              window._baseUserData = u;
+              var pl = document.getElementById('profileLevel');
+              var plb = document.getElementById('profileLevelBadge');
+              if (pl)  pl.textContent  = u.user.rank;
+              if (plb) plb.textContent = u.user.rank;
+              if (typeof marsCanvasTexture !== 'undefined') marsCanvasTexture = null;
+              if (typeof claimsSnapshot !== 'undefined') claimsSnapshot = null;
+              if (typeof compositeClaimsOnTexture === 'function') compositeClaimsOnTexture();
+            }).catch(function(){});
+          } catch(_) {}
         }
       })
       .catch(function(){
@@ -28301,9 +28333,17 @@ window.addEventListener('resize', _debounce(function(){
       updateGovRoles();
     }).catch(function(){});
   }
-  // Load on boot + poll every 60s
+  // Load on boot + poll every 60s + refresh on tab visibility/focus.
+  // 커맨더 임기 종료 / announcement 변경이 즉시 반영되도록 다층 트리거.
   setTimeout(loadCommanderBanner, 2000);
   setInterval(loadCommanderBanner, 60000);
+  // 탭 복귀 / 창 포커스 시 즉시 fresh 데이터 (사용자가 admin 에서 변경하고 게임 탭 돌아왔을 때)
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible') loadCommanderBanner();
+  });
+  window.addEventListener('focus', function(){ loadCommanderBanner(); });
+  // 외부에서 호출 가능 (예: admin 변경 직후)
+  window.refreshCommander = loadCommanderBanner;
 
   // ── GP Colony Announcements polling ──
   var _gpAnnounceIdx = 0;
@@ -36463,7 +36503,9 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
-          { type:'p', text:'**v3.2 — 2026-04-25 캐시/리프레시 안정화.** 거버너/사령관/섹터 데이터가 변경 즉시 반영되도록 다층 캐시 무효화 처리.' },
+          { type:'p', text:'**v3.3 — 2026-04-25 boot/캐시 동기화 완성.** 부트 시점에 user level 미리 로드 + commander 교체 시 메시지 자동 클리어.' },
+          { type:'h2', text:'🔄 v3.3 boot 동기화' },
+          { type:'p', text:'• **처음 로딩 시 섹터가 모두 잠금 표시 (BASE 한번 누르면 정상)** → auto-login 시점에 user level 을 미리 fetch 해서 `profileLevel` DOM 채움 + 섹터 텍스처 재합성. 이제 페이지 로드 직후 정확한 잠금 상태.\n• **commander 교체 시 옛 메시지 잔존** ("커맨더 표시는 왜 남김?") → governance 서비스가 commander 교체 시 announcement 도 NULL 로 자동 초기화.' },
           { type:'h2', text:'🔄 v3.2 캐시/리프레시 fix' },
           { type:'p', text:'• **거버너 변경 후 옛 라벨 globe 에 남음** → `marsCanvasTexture` 캐시 무효화 + 재합성. sector data 변경 감지 시 즉시 globe 라벨 재렌더링.\n• **사령관 임기 끝났는데 옛 공지 그대로** → commander 없거나 announcement 비면 박스 자동 숨김 + 텍스트 비우기.\n• **페이지 두 번 로딩** → SW auto-reload 제거. HTML network-first 로 자연 nav 시 새 콘텐츠 자동 적용.\n• **구매가능 섹터 admin 변경 후 즉시 반영 안 됨** → 서버 cache 무효화 + 클라 60s polling/visibility/focus/toggle/claim 모두에서 자동 refresh.' },
           { type:'h2', text:'📱 v3.1 모바일/태블릿 안정화' },

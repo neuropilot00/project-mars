@@ -214,7 +214,8 @@ async function recalculateCommander(client) {
       );
     }
     await client.query(
-      'UPDATE commander SET commander_wallet = $1, commander_since = NOW() WHERE id = 1',
+      // commander 가 변경되면 announcement 도 NULL 로 초기화 (옛 사령관 메시지 잔존 방지)
+      'UPDATE commander SET commander_wallet = $1, commander_since = NOW(), announcement = NULL WHERE id = 1',
       [newCmd]
     );
   }
