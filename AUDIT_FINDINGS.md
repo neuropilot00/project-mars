@@ -15,6 +15,8 @@
 | 1 | 일일 출석체크 'Daily login failed' | getSetting() string 반환을 array로 사용 | JSON.parse + Array.isArray 가드 |
 | 2 | JOBS admin 통계 빈 값 | response shape 불일치 (distribution vs byJob) | byJob/noJob/recentChanges 추가 |
 | 3 | EVENTS 탭 빈 화면 | switchTab cats 배열에 worldevents 누락 | cats에 추가 |
+| 4 | 모바일 사이드바 잡아먹힘 | panel-r/l 모바일 z-index 120 < mob-bottom-nav 200 | z 250 + bottom padding (FAB+nav 고려), close btn z 260 |
+| 5 | 토스트 일관성 부족 | showToast/showFactionToast 시각 다름, 위치 다름, 'red'/'h' 등 typo type | 통합 .toast CSS (변형은 accent color만), showFactionToast→showToast 위임, 'red'→'error' 등 legacy alias 자동 normalize |
 
 ## ✅ 자가 진단 버그 (테스트 중 발견 — 모두 해결)
 | 영향 | 원인 | 처리 |

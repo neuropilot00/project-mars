@@ -13,6 +13,16 @@
 - **EVENTS admin 탭 빈 화면** 수정
   - 원인: `switchTab()` cats 배열에 `'worldevents'` 누락
   - 수정: cats 배열에 worldevents 추가
+- **모바일 사이드바 잡아먹힘** 수정
+  - 원인: `.panel-r/.panel-l` 모바일 open 상태 z-index 120 < `.mob-bottom-nav` 200
+    → 사이드바 하단이 바텀 네비/FAB에 가려짐
+  - 수정: 사이드바 z-index 250 (200 위, 모달 510 아래), `padding-bottom: safe-area + 110px`로 마지막 항목 스크롤 가능,
+    `panel-close-fixed` z 260로 닫기 버튼 항상 위
+- **토스트 일관성 부족** 수정
+  - 원인: `showToast` (중앙 그린 알약), `showFactionToast` (하단 블루 알약), `showNotification` (우측상단 카드) — 시각/위치/스타일 모두 제각각
+  - 수정: 통합 `.toast` CSS (글래스 효과 + accent border, 색상만 type별 변경: success/error/warn/info),
+    바닥은 `safe-area-inset-bottom + 110px`로 mob-bottom-nav 위 자동 배치,
+    `showFactionToast` → `showToast` 위임, legacy type ('red'/'h'/'green' 등) 자동 정규화 호환
 
 ### 🐛 자가 진단 버그 수정 (테스트 중 발견)
 

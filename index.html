@@ -579,11 +579,32 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .hwd{font-size:var(--fs-xs);color:rgba(200,160,140,.55);line-height:1.7}
 
 /* Toast */
-.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% - 160px));padding:8px 20px;
-  background:rgba(18,18,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.25);
-  border-radius:20px;font-size:var(--fs-sm);color:var(--gn);opacity:0;transition:opacity .3s;
-  z-index:99999;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
-.toast.show{opacity:1}
+/* ── Unified Toast System (consistent across showToast / showFactionToast / etc.) ──
+   Default: bottom-center pill, glass effect. Type variants change color only. */
+.toast{position:fixed;left:50%;transform:translate(-50%, 30px);
+  bottom:calc(env(safe-area-inset-bottom, 0px) + 130px);
+  padding:10px 22px;
+  background:rgba(18,18,24,.94);backdrop-filter:blur(16px);
+  border:1px solid var(--toast-border, rgba(76,216,154,.35));
+  border-left:3px solid var(--toast-accent, var(--gn));
+  border-radius:10px;font-size:var(--fs-sm);font-family:var(--fn);
+  color:var(--toast-color, var(--gn));opacity:0;
+  transition:opacity .3s ease, transform .3s cubic-bezier(.22,1,.36,1);
+  z-index:99999;pointer-events:none;
+  max-width:min(440px, 90vw);text-align:center;
+  box-shadow:0 6px 28px rgba(0,0,0,.55), 0 0 16px rgba(0,0,0,.35);
+  letter-spacing:.5px;line-height:1.4;
+  white-space:normal;word-break:keep-all}
+.toast.show{opacity:1;transform:translate(-50%, 0)}
+/* Type variants — accent color only (consistent shape/position) */
+.toast.success{--toast-accent:var(--gn);--toast-color:#a5d6a7;--toast-border:rgba(76,216,154,.35)}
+.toast.error{--toast-accent:var(--red);--toast-color:#ff8a80;--toast-border:rgba(232,72,85,.4)}
+.toast.warn{--toast-accent:var(--gold);--toast-color:#ffd166;--toast-border:rgba(255,209,102,.4)}
+.toast.info{--toast-accent:var(--cyan);--toast-color:#bfe2f5;--toast-border:rgba(91,184,232,.4)}
+@media(max-width:768px){
+  /* Move toast above mob-bottom-nav even when no FAB */
+  .toast{bottom:calc(env(safe-area-inset-bottom, 0px) + 110px);font-size:11px;padding:9px 18px}
+}
 
 /* Notification stack */
 #notifStack{position:fixed;top:60px;right:12px;z-index:10000;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:340px}
@@ -824,8 +845,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .lang-menu-item:hover{background:rgba(91,184,232,.1);color:var(--cyan)}
 .lang-menu-item.active{color:var(--cyan);background:rgba(91,184,232,.08)}
 
-/* Panel close buttons — fixed, outside the panel, shown via JS */
-.panel-close-fixed{display:none;position:fixed;top:58px;z-index:130;
+/* Panel close buttons — fixed, outside the panel, shown via JS.
+   Must sit above the panel itself (mobile z 250) but below modals (z 510+). */
+.panel-close-fixed{display:none;position:fixed;top:58px;z-index:260;
   width:38px;height:38px;background:rgba(20,16,30,.9);border:1.5px solid rgba(232,72,85,.4);
   border-radius:50%;color:var(--red);font-size:18px;font-family:var(--fn);
   cursor:pointer;align-items:center;justify-content:center;
@@ -1322,10 +1344,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* Mobile */
 @media(max-width:768px){
   :root{--fs-xs:9px;--fs-sm:10px;--fs-md:11px;--fs-lg:13px;--fs-xl:15px}
-  .panel-l,.panel-r{width:85%;top:52px;max-width:320px}
+  /* Mobile sidebar layering rationale:
+   *   z 200  = mob-bottom-nav
+   *   z 510  = mob-territory-modal
+   *   z 520  = base-modal
+   *   z 99999+ = toast/notif
+   * → sidebar open state must be ABOVE bottom-nav so content isn't clipped,
+   *   and BELOW modals so opening BASE/territory modals stacks correctly.
+   *   z = 250 is the sweet spot (above 200, well below 510). */
+  .panel-l,.panel-r{width:85%;top:52px;max-width:320px;
+    /* Reserve bottom space so last items are scrollable past mob-bottom-nav (~70px) + FAB (~90px) + safe-area */
+    padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 110px)}
   .panel-l{transform:translateX(-110%)}
   .panel-r{transform:translateX(110%);right:0}
-  .panel-l.open,.panel-r.open{transform:translateX(0);z-index:120}
+  .panel-l.open,.panel-r.open{transform:translateX(0);z-index:250}
   .mob-toggle{display:block}
   .mob-toggle.hidden{opacity:0;pointer-events:none;transition:opacity .2s}
   /* Zoom column sits above the bottom nav on mobile (back/+/-/SECTORS) */
@@ -26078,7 +26110,25 @@ function zoomOut(){
   globe.pointOfView({altitude:newAlt},300);
   if(newAlt>2)isZoomedIn=false;
 }
-function showToast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3500)}
+// Unified toast — backwards compatible with all existing call sites.
+// Accepted types: 'success'|'error'|'warn'|'info' + legacy aliases ('red','green','r','g',...)
+function showToast(msg, type){
+  var el=document.getElementById('toast');
+  if(!el) return;
+  // Normalize legacy type values so old call sites keep working
+  var t = String(type||'').toLowerCase();
+  var norm = (t==='error'||t==='red'||t==='r'||t==='fail'||t==='danger') ? 'error'
+           : (t==='warn'||t==='warning'||t==='yellow') ? 'warn'
+           : (t==='info'||t==='blue'||t==='cyan') ? 'info'
+           : (t==='success'||t==='ok'||t==='green'||t==='g'||t==='') ? 'success'
+           : ''; // unknown → no variant (default style)
+  el.textContent=msg;
+  el.className='toast' + (norm ? ' '+norm : '');
+  void el.offsetWidth; // force reflow → reliable transition
+  el.classList.add('show');
+  clearTimeout(el._hideTimer);
+  el._hideTimer=setTimeout(function(){el.classList.remove('show')}, norm==='error'?4500:3500);
+}
 // Alias: legacy callers (OPS, guild upgrades) use showAlert(msg[,type]).
 // Route them through the toast so they don't ReferenceError.
 window.showAlert=function(m){return showToast(m);};
@@ -39621,10 +39671,14 @@ function _updateFactionBadge() {
   }
 }
 
+// Delegate to unified showToast for consistency (same visual style across the app)
 function showFactionToast(msg, type) {
+  if (typeof showToast === 'function') return showToast(msg, type || 'info');
+  // Fallback if showToast isn't loaded yet
   var toast = document.getElementById('factionToast');
+  if (!toast) return;
   toast.textContent = msg;
-  toast.className = 'faction-toast show ' + (type||'info');
+  toast.className = 'faction-toast show ' + (type || 'info');
   setTimeout(function(){ toast.classList.remove('show'); }, 3000);
 }
 
