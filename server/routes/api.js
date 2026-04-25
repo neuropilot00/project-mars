@@ -709,6 +709,42 @@ router.get('/claims', async (req, res) => {
 });
 
 // ──────────────────────────────────────────────────────────
+// GET /api/hijack/defender-info?wallet=  — hijack 모달에서 상대방 함대 미리보기
+// 반환: { hasFleet, aliveShips, fleetCount, willAutoWin }
+// ──────────────────────────────────────────────────────────
+router.get('/hijack/defender-info', readLimiter, async (req, res) => {
+  try {
+    const w = (req.query.wallet || '').toLowerCase().trim();
+    if (!w || w.length < 10) return res.status(400).json({ error: 'wallet_required' });
+    const r = await pool.query(
+      `SELECT COUNT(DISTINCT f.id)::int AS fleet_count,
+              COUNT(DISTINCT s.id) FILTER (WHERE s.is_alive = true)::int AS alive_ships,
+              COUNT(DISTINCT f.id) FILTER (WHERE COALESCE(f.is_in_battle, false) = false)::int AS available_fleets
+         FROM fleets f
+         LEFT JOIN ships s ON s.fleet_id = f.id
+        WHERE f.owner_wallet = $1`,
+      [w]
+    );
+    const row = r.rows[0] || {};
+    const fleetCount = parseInt(row.fleet_count) || 0;
+    const aliveShips = parseInt(row.alive_ships) || 0;
+    const availableFleets = parseInt(row.available_fleets) || 0;
+    // auto-win 조건: 사용 가능한 함대 0 또는 alive 함선 0
+    const willAutoWin = availableFleets === 0 || aliveShips === 0;
+    res.json({
+      hasFleet: fleetCount > 0,
+      fleetCount,
+      aliveShips,
+      availableFleets,
+      willAutoWin
+    });
+  } catch (e) {
+    console.error('[API] /hijack/defender-info error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ──────────────────────────────────────────────────────────
 // GET /api/claims/my?wallet=  — 내 영토 목록 (expedition 등에서 사용)
 // 반환: [{id, name, pixel_count, center_lat, center_lng, width, height}]
 // ──────────────────────────────────────────────────────────
@@ -956,7 +992,10 @@ router.post('/claim', writeLimiter, async (req, res) => {
           }
 
           // Enemy pixel — attack (war_time gives 20% discount)
-          let pxCost = parseFloat(existing.price) * HIJACK_MULT;
+          // Floor existing.price to sector base so NPC/free claims (price=0) don't allow free hijacks.
+          const _basePxPrice = getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE);
+          const _refPrice = Math.max(parseFloat(existing.price) || 0, _basePxPrice);
+          let pxCost = _refPrice * HIJACK_MULT;
           if (_isWarTime) pxCost = Math.round(pxCost * 0.8 * 1000000) / 1000000;
           attackCost += pxCost;
           overlapCount++;
@@ -1109,16 +1148,21 @@ router.post('/claim', writeLimiter, async (req, res) => {
       if (!decoyBlocked && roll < effectiveSuccessRate) {
         // Attack SUCCESS — take ALL pixels from this owner
         for (const ep of ownerPixels) {
-          const pxCost = parseFloat(ep.existing.price) * HIJACK_MULT;
+          // Floor to sector base so NPC/free claims still cost something
+          const _bp = getSectorPriceSync(ep.lat, ep.lng, PIXEL_PRICE);
+          const _ref = Math.max(parseFloat(ep.existing.price) || 0, _bp);
+          const pxCost = _ref * HIJACK_MULT;
           attackWon++;
           wonPixels.push(ep);
-          affectedOwners[prevOwner].refund += parseFloat(ep.existing.price);
-          affectedOwners[prevOwner].bonus += (pxCost - parseFloat(ep.existing.price)) * OWNER_BONUS_PCT;
+          affectedOwners[prevOwner].refund += parseFloat(ep.existing.price) || 0;
+          affectedOwners[prevOwner].bonus += (pxCost - (parseFloat(ep.existing.price) || 0)) * OWNER_BONUS_PCT;
         }
       } else {
         // Attack FAILED — don't touch ANY of this owner's pixels
         for (const ep of ownerPixels) {
-          const pxCost = parseFloat(ep.existing.price) * HIJACK_MULT;
+          const _bp = getSectorPriceSync(ep.lat, ep.lng, PIXEL_PRICE);
+          const _ref = Math.max(parseFloat(ep.existing.price) || 0, _bp);
+          const pxCost = _ref * HIJACK_MULT;
           attackLost++;
           const failRefund = pxCost * 0.9;
           const failFee = pxCost * 0.1;
@@ -1144,7 +1188,11 @@ router.post('/claim', writeLimiter, async (req, res) => {
     const totalDefeat = attackLost > 0 && attackWon === 0;
 
     // Actual cost = new pixels + won attacks + failed attack fees (lost 10%)
-    const wonAttackCost = wonPixels.reduce((sum, ep) => sum + parseFloat(ep.existing.price) * HIJACK_MULT, 0);
+    const wonAttackCost = wonPixels.reduce((sum, ep) => {
+      const _bp = getSectorPriceSync(ep.lat, ep.lng, PIXEL_PRICE);
+      const _ref = Math.max(parseFloat(ep.existing.price) || 0, _bp);
+      return sum + _ref * HIJACK_MULT;
+    }, 0);
     const failedAttackCost = attackLost > 0 ? (attackCost - wonAttackCost) : 0;
     const totalCost = Math.round((baseCost + wonAttackCost + failedAttackCost - refundFromFailed) * 1000000) / 1000000;
 
@@ -1261,7 +1309,10 @@ router.post('/claim', writeLimiter, async (req, res) => {
       let paramIdx = 1;
       for (const p of chunk) {
         const existing = existingMap[p.lat + ',' + p.lng];
-        const newPrice = existing ? parseFloat(existing.price) * HIJACK_MULT : (p.sectorPrice || getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE));
+        const _basePx = p.sectorPrice || getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE);
+        const newPrice = existing
+          ? Math.max(parseFloat(existing.price) || 0, _basePx) * HIJACK_MULT
+          : _basePx;
         const sectorId = findSectorForPixelSync(p.lat, p.lng);
         values.push(`($${paramIdx},$${paramIdx+1},$${paramIdx+2},$${paramIdx+3},$${paramIdx+4},$${paramIdx+5},NOW())`);
         params.push(p.lat, p.lng, walletLower, newPrice, claimId, sectorId);
@@ -1681,13 +1732,17 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
               if (shield) return res.status(400).json({ error: 'Territory is shielded', shielded: true });
             } catch (_) {}
           }
-          const pxCost = parseFloat(existing.price) * HIJACK_MULT;
+          // Floor existing.price to sector base so NPC/free claims don't allow free hijacks
+          const _basePxPrice = getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE);
+          const _existPrice = parseFloat(existing.price) || 0;
+          const _refPrice = Math.max(_existPrice, _basePxPrice);
+          const pxCost = _refPrice * HIJACK_MULT;
           attackCost += pxCost;
           if (!enemyByOwner[existing.owner]) enemyByOwner[existing.owner] = [];
-          enemyByOwner[existing.owner].push({ lat: p.lat, lng: p.lng, prevOwner: existing.owner, price: parseFloat(existing.price), pxCost });
+          enemyByOwner[existing.owner].push({ lat: p.lat, lng: p.lng, prevOwner: existing.owner, price: _refPrice, pxCost });
           if (!affectedOwners[existing.owner]) affectedOwners[existing.owner] = { refund: 0, bonus: 0 };
-          affectedOwners[existing.owner].refund += parseFloat(existing.price);
-          affectedOwners[existing.owner].bonus += (pxCost - parseFloat(existing.price)) * OWNER_BONUS_PCT;
+          affectedOwners[existing.owner].refund += _existPrice;
+          affectedOwners[existing.owner].bonus += (pxCost - _existPrice) * OWNER_BONUS_PCT;
         }
       } else {
         const sectorPrice = getSectorPriceSync(p.lat, p.lng, PIXEL_PRICE);
@@ -1716,15 +1771,29 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
       delete affectedOwners[oo];
     }
 
-    // 수비자 함대 찾기
+    // 수비자 함대 찾기 — alive ship이 있는 fleet만 선택 (빈 함대면 auto-win)
+    // 명시적으로 ship_count > 0 조건을 걸어야 한다. 안 그러면 빈 함대를 잡고 phase1에서
+    // 'no defenders' 상태로 진행되거나 fleet_battle 생성 시 함정 발생.
     let primaryDefFleetId = null;
+    let primaryDefShipCount = 0;
     const defFleetRes = await pool.query(
-      `SELECT id FROM fleets WHERE owner_wallet = $1 AND is_in_battle = false
-       ORDER BY (SELECT COUNT(*) FROM ships WHERE fleet_id = fleets.id AND is_alive = true) DESC
-       LIMIT 1`,
+      `SELECT f.id, COUNT(s.id) FILTER (WHERE s.is_alive = true) AS alive_ships
+         FROM fleets f
+         LEFT JOIN ships s ON s.fleet_id = f.id
+        WHERE f.owner_wallet = $1
+          AND COALESCE(f.is_in_battle, false) = false
+        GROUP BY f.id
+        HAVING COUNT(s.id) FILTER (WHERE s.is_alive = true) > 0
+        ORDER BY COUNT(s.id) FILTER (WHERE s.is_alive = true) DESC
+        LIMIT 1`,
       [primaryDefWallet]
     );
-    if (defFleetRes.rows[0]) primaryDefFleetId = defFleetRes.rows[0].id;
+    if (defFleetRes.rows[0]) {
+      primaryDefFleetId = defFleetRes.rows[0].id;
+      primaryDefShipCount = parseInt(defFleetRes.rows[0].alive_ships) || 0;
+    }
+    // 디버그 로그 (운영 시 확인용 — '왜 auto-win 됐는지' 추적)
+    console.log(`[hijack] defender=${primaryDefWallet} fleetId=${primaryDefFleetId} ships=${primaryDefShipCount} → ${primaryDefFleetId ? 'phase1_battle' : 'auto_win'}`);
 
     const safeImageUrl = sanitizeUrl(imageUrl, true);
     const safeOriginalImageUrl = sanitizeUrl(originalImageUrl, true) || null;

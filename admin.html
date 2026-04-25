@@ -2566,6 +2566,11 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
         title="0xnpc_% 지갑 전부에 함대+프리깃+광물 일괄 지급">
         🤖 모든 NPC에 일괄 지급
       </button>
+      <button onclick="diagnoseNpcStatus()"
+        style="background:rgba(91,184,232,.2);border:1px solid rgba(91,184,232,.5);color:#5bb8e8;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700"
+        title="NPC들이 hijack 시 함대전을 할지 자동승리할지 확인">
+        🔍 NPC 함대 진단
+      </button>
     </div>
     <div id="starterPackResult" style="margin-top:10px;font-size:11px"></div>
   </div>
@@ -10714,6 +10719,40 @@ function grantStarterAllNpcs() {
     } else {
       resultEl.innerHTML = '<span style="color:#f44">실패: ' + (d.error || JSON.stringify(d)) + '</span>';
     }
+  }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">오류: '+e.message+'</span>'; });
+}
+
+// ── NPC 함대 진단 (hijack 자동승리 원인 추적) ──
+function diagnoseNpcStatus() {
+  var resultEl = document.getElementById('starterPackResult');
+  resultEl.innerHTML = '<span style="color:#aaa">진단 중...</span>';
+  fetch('/admin/api/fleet/npc-status', {
+    headers: { 'x-admin-secret': adminSecret }
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (d.error) { resultEl.innerHTML = '<span style="color:#f44">오류: '+d.error+'</span>'; return; }
+    var s = d.summary || {};
+    var rows = (d.npcs || []).slice(0, 30).map(function(n){
+      var status = n.alive_ships > 0
+        ? '<span style="color:#4cd89a">⚔ '+n.alive_ships+'척</span>'
+        : (n.fleet_count > 0
+            ? '<span style="color:#FF9944">⚠ 함대만 있고 함선 없음</span>'
+            : '<span style="color:#f44">✕ 함대 없음 → 자동승리</span>');
+      return '<tr><td style="padding:2px 8px;font-size:10px">'+n.wallet_address+'</td>'
+        +'<td style="padding:2px 8px;font-size:10px">'+(n.nickname||'-')+'</td>'
+        +'<td style="padding:2px 8px;font-size:10px">'+(n.faction_code||'-')+'</td>'
+        +'<td style="padding:2px 8px;font-size:10px">'+status+'</td></tr>';
+    }).join('');
+    var hintColor = s.willAutoWin > 0 ? '#FF9944' : '#4cd89a';
+    resultEl.innerHTML =
+      '<div style="background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.3);border-radius:6px;padding:10px;margin-bottom:8px">'
+      +'<b style="color:#5bb8e8">NPC 함대 현황</b><br>'
+      +'전체: <b>'+s.total+'</b>명 · 함대 보유: <b>'+s.withFleet+'</b>명 · 함선 보유: <b style="color:#4cd89a">'+s.withShips+'</b>명 · '
+      +'<b style="color:'+hintColor+'">자동승리 위험: '+s.willAutoWin+'명</b>'
+      +'<div style="margin-top:6px;font-size:10px;color:'+hintColor+'">'+(d.hint||'')+'</div>'
+      +'</div>'
+      +'<div style="max-height:300px;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:6px"><table style="width:100%;border-collapse:collapse">'
+      +'<thead><tr style="background:rgba(255,255,255,.05)"><th style="padding:6px;text-align:left;font-size:10px;color:#aaa">Wallet</th><th style="padding:6px;text-align:left;font-size:10px;color:#aaa">Nick</th><th style="padding:6px;text-align:left;font-size:10px;color:#aaa">Faction</th><th style="padding:6px;text-align:left;font-size:10px;color:#aaa">Status</th></tr></thead>'
+      +'<tbody>'+rows+'</tbody></table></div>';
   }).catch(function(e){ resultEl.innerHTML = '<span style="color:#f44">오류: '+e.message+'</span>'; });
 }
 

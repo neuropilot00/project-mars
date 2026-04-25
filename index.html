@@ -5355,6 +5355,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <div class="hwd"><span data-i18n="hijack_current_owner">Current owner:</span> <span id="hijackOwner" style="color:var(--gold)">--</span><br>
         <span data-i18n="hijack_refund">They receive: refund + 10% bonus</span><br>
         <span data-i18n="hijack_you_pay">You pay:</span> <span id="hijackCost" style="color:var(--red)">--</span></div>
+      <!-- 상대방 함대 정보 — auto-win vs fleet battle 미리보기 -->
+      <div id="hijackDefenderInfo" style="margin-top:6px;padding:6px 8px;border-radius:5px;font-size:10px;display:none">
+        <span id="hijackDefenderInfoIcon">⚔</span>
+        <span data-i18n="hijack_def_label">Defender:</span>
+        <span id="hijackDefenderInfoText" style="font-weight:700">--</span>
+      </div>
       <!-- 함대 선택 (하이젝 전용) -->
       <div id="hijackFleetSelector" style="display:none;margin-top:8px;border-top:1px solid rgba(232,72,85,.25);padding-top:8px">
         <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:5px;letter-spacing:.4px">⚔ SELECT YOUR FLEET</div>
@@ -11278,13 +11284,17 @@ function calcStampCost(lat,lng,w,h){
         // Own pixel — skip (no cost, no battle)
         ownSkipCount++;
       }else{
-        // Enemy pixel: 1.2× current price
-        var pxCost=existing.price*HIJACK_MULT;
+        // Enemy pixel: 1.2× max(existing price, sector base price)
+        // NPC/free claims have existing.price=0 → would make hijack free, which is wrong.
+        // Floor to sector base price so hijack always costs at least the new-claim rate × HIJACK_MULT.
+        var basePxPrice = _getSectorPixelPrice(p.lat, p.lng);
+        var refPrice = Math.max(parseFloat(existing.price)||0, basePxPrice);
+        var pxCost = refPrice * HIJACK_MULT;
         hijackCost+=pxCost;
         overlapCount++;
         if(!affectedOwners[existing.owner]) affectedOwners[existing.owner]={refund:0,bonus:0};
-        affectedOwners[existing.owner].refund+=existing.price;
-        affectedOwners[existing.owner].bonus+=(pxCost-existing.price)*0.5;
+        affectedOwners[existing.owner].refund+=parseFloat(existing.price)||0;
+        affectedOwners[existing.owner].bonus+=(pxCost-(parseFloat(existing.price)||0))*0.5;
       }
     }else{
       baseCost+=_getSectorPixelPrice(p.lat,p.lng);
@@ -13372,6 +13382,54 @@ function openClaimModal(){
     document.getElementById('hijackOwner').textContent=ownerDisplay;
     document.getElementById('hijackCost').textContent=costInfo.hijackCost.toFixed(2)+' PP ('+costInfo.overlapCount+'px overlap)';
     document.getElementById('modalCostDisplay').textContent=costInfo.total.toFixed(2)+' PP (new '+costInfo.newCount+'px + hijack '+costInfo.overlapCount+'px)';
+
+    // ── 상대방 함대 미리보기 (auto-win vs fleet battle 사전 안내) ──
+    // 가장 많은 픽셀을 가진 owner를 primary defender로 선정 (서버 로직과 동일)
+    var _maxPx=0, _primaryDef=null;
+    for(var _ow in costInfo.affectedOwners){
+      var _ct=(costInfo.affectedOwners[_ow].refund>0)
+        ? Object.keys(costInfo.affectedOwners).reduce(function(s,k){return s+(k===_ow?1:0);},0)
+        : 0;
+      // simpler: count overlap pixels per owner from pixelGrid scan — but we can use refund>0 as proxy
+    }
+    // 정확한 primary defender = ownerKeys 중 첫번째 (보통 1명)
+    _primaryDef = ownerKeys[0] || null;
+    var _di = document.getElementById('hijackDefenderInfo');
+    var _dt = document.getElementById('hijackDefenderInfoText');
+    var _dic = document.getElementById('hijackDefenderInfoIcon');
+    if(_di && _primaryDef){
+      _di.style.display='block';
+      _dt.textContent='조회 중...';
+      _di.style.background='rgba(91,184,232,.08)';
+      _di.style.border='1px solid rgba(91,184,232,.25)';
+      _di.style.color='#bfe2f5';
+      if(_dic) _dic.textContent='⏳';
+      fetch('/api/hijack/defender-info?wallet='+encodeURIComponent(_primaryDef))
+        .then(function(r){return r.json()})
+        .then(function(d){
+          if(d.willAutoWin){
+            _di.style.background='rgba(255,153,68,.1)';
+            _di.style.border='1px solid rgba(255,153,68,.4)';
+            _di.style.color='#FFD0A0';
+            if(_dic) _dic.textContent='⚠';
+            _dt.textContent='상대방 함대 없음 — 자동 승리 (즉시 픽셀 이전)';
+          }else{
+            _di.style.background='rgba(232,72,85,.1)';
+            _di.style.border='1px solid rgba(232,72,85,.4)';
+            _di.style.color='#ffb4b4';
+            if(_dic) _dic.textContent='⚔';
+            _dt.textContent='Fleet '+d.availableFleets+'개 · 살아있는 함선 '+d.aliveShips+'척 → 함대전 발생';
+          }
+        })
+        .catch(function(){
+          _dt.textContent='상대 함대 정보 확인 실패';
+          _di.style.background='rgba(255,255,255,.04)';
+          _di.style.border='1px solid rgba(255,255,255,.15)';
+          _di.style.color='var(--tx3)';
+        });
+    } else if(_di){
+      _di.style.display='none';
+    }
   }else{
     hw.style.display='none';
     tl.textContent='CLAIM TERRITORY';tl.className='claim-title';
@@ -13383,6 +13441,8 @@ function openClaimModal(){
     if(_fnofl) _fnofl.style.display='none';
     var _fload=document.getElementById('hijackFleetLoading');
     if(_fload) _fload.style.display='none';
+    var _di=document.getElementById('hijackDefenderInfo');
+    if(_di) _di.style.display='none';
   }
   // Show balance
   var bPP=document.getElementById('claimBalPP'), bU=document.getElementById('claimBalUSDT');

@@ -4793,4 +4793,39 @@ router.post('/fleet/grant-starter-all-npcs', adminAuth, async (req, res) => {
   res.json({ success: true, ...summary });
 });
 
+// ══════════════════════════════════════════════════
+// GET /admin/api/fleet/npc-status — NPC 함대/함선 현황 진단
+// "왜 하이젝이 자동승리로 끝나는가" 추적용
+// ══════════════════════════════════════════════════
+router.get('/fleet/npc-status', adminAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT u.wallet_address, u.nickname, u.faction_code,
+             COUNT(DISTINCT f.id)::int   AS fleet_count,
+             COUNT(DISTINCT s.id) FILTER (WHERE s.is_alive = true)::int AS alive_ships,
+             COUNT(DISTINCT s.id)::int   AS total_ships
+        FROM users u
+        LEFT JOIN fleets f ON f.owner_wallet = u.wallet_address
+        LEFT JOIN ships s ON s.fleet_id = f.id
+       WHERE u.wallet_address LIKE '0xnpc%'
+       GROUP BY u.wallet_address, u.nickname, u.faction_code
+       ORDER BY u.wallet_address
+    `);
+    const total = rows.length;
+    const withFleet = rows.filter(r => r.fleet_count > 0).length;
+    const withShips = rows.filter(r => r.alive_ships > 0).length;
+    const willAutoWin = total - withShips;
+    res.json({
+      summary: { total, withFleet, withShips, willAutoWin },
+      hint: willAutoWin > 0
+        ? `${willAutoWin}명의 NPC가 함선이 없어 hijack 시 자동 승리 처리됩니다. 'NPC 일괄 지급' 버튼을 다시 눌러 확인하세요.`
+        : '모든 NPC가 함선을 보유 — hijack 시 정상 fleet battle 발생.',
+      npcs: rows
+    });
+  } catch (e) {
+    console.error('[admin /fleet/npc-status] error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;
