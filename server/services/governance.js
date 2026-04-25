@@ -489,13 +489,14 @@ async function getSectorGovernance(sectorId) {
     name: sector.name,
     tier: sector.tier,
     taxRate: parseFloat(sector.tax_rate),
-    governor: sector.governor_wallet,
+    governor: sector.governor_wallet || null,
     governorSince: sector.governor_since,
     governorGP: govRes.rows[0] ? parseFloat(govRes.rows[0].gp_balance) : 0,
-    vice: sector.vice_governor_wallet,
+    vice: sector.vice_governor_wallet || null,
     viceSince: sector.vice_governor_since,
     viceGP: viceRes.rows[0] ? parseFloat(viceRes.rows[0].gp_balance) : 0,
-    announcement: sector.announcement || '',
+    // governor 가 비어있으면 announcement 도 강제로 비움 (orphan 방어)
+    announcement: (sector.governor_wallet && sector.announcement) ? sector.announcement : '',
     sectorPoolGP: parseFloat(sector.sector_pool_gp),
     buffFundGP: parseFloat(sector.buff_fund_gp),
     activeBuffs: buffsRes
@@ -530,16 +531,18 @@ async function getCommanderInfo() {
     viceNickname = nickMap[cmd.vice_commander_wallet] || null;
   }
 
+  // commander 가 없으면 announcement 도 강제로 비움 (orphan 방어)
+  const commanderWallet = cmd.commander_wallet || null;
   return {
-    commander: cmd.commander_wallet,
+    commander: commanderWallet,
     commanderNickname,
     commanderSince: cmd.commander_since,
     commanderGP: cmdPosRes.rows[0] ? parseFloat(cmdPosRes.rows[0].gp_balance) : 0,
-    vice: cmd.vice_commander_wallet,
+    vice: cmd.vice_commander_wallet || null,
     viceNickname,
     viceSince: cmd.vice_commander_since,
     viceGP: vicePosRes.rows[0] ? parseFloat(vicePosRes.rows[0].gp_balance) : 0,
-    announcement: cmd.announcement || '',
+    announcement: (commanderWallet && cmd.announcement) ? cmd.announcement : '',
     poolGP: parseFloat(cmd.commander_pool_gp) || 0,
     activeEvents: eventsRes,
     activeBounties: bountiesRes.rows

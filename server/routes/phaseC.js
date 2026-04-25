@@ -14,9 +14,9 @@
 //
 // Hijack:
 //   GET  /api/hijack/mine            — 내 하이잭 이력
-//   GET  /api/hijack/:id             — 하이잭 상세
+//   GET  /api/hijack/:id(\\d+)             — 하이잭 상세
 //   POST /api/hijack/declare         — 하이잭 선언
-//   POST /api/hijack/:id/phase2      — Phase 2 시작
+//   POST /api/hijack/:id(\\d+)/phase2      — Phase 2 시작
 // ═══════════════════════════════════════════════════════════════
 
 const express = require('express');
@@ -208,7 +208,7 @@ router.get('/hijack/mine', requireAuth, async (req, res) => {
   }
 });
 
-router.get('/hijack/:id', async (req, res) => {
+router.get('/hijack/:id(\\d+)', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (!id) return res.status(400).json({ error: 'INVALID_ID' });
@@ -245,7 +245,7 @@ router.post('/hijack/declare', requireAuth, async (req, res) => {
   }
 });
 
-router.post('/hijack/:id/phase2', requireAuth, async (req, res) => {
+router.post('/hijack/:id(\\d+)/phase2', requireAuth, async (req, res) => {
   try {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });

@@ -590,33 +590,12 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 .hwt{font-size:var(--fs-sm);color:var(--red);letter-spacing:.5px;margin-bottom:5px}
 .hwd{font-size:var(--fs-xs);color:rgba(200,160,140,.55);line-height:1.7}
 
-/* Toast */
-/* ── Unified Toast System (consistent across showToast / showFactionToast / etc.) ──
-   Default: bottom-center pill, glass effect. Type variants change color only. */
-.toast{position:fixed;left:50%;transform:translate(-50%, 30px);
-  bottom:calc(env(safe-area-inset-bottom, 0px) + 130px);
-  padding:10px 22px;
-  background:rgba(18,18,24,.94);backdrop-filter:blur(16px);
-  border:1px solid var(--toast-border, rgba(76,216,154,.35));
-  border-left:3px solid var(--toast-accent, var(--gn));
-  border-radius:10px;font-size:var(--fs-sm);font-family:var(--fn);
-  color:var(--toast-color, var(--gn));opacity:0;
-  transition:opacity .3s ease, transform .3s cubic-bezier(.22,1,.36,1);
-  z-index:99999;pointer-events:none;
-  max-width:min(440px, 90vw);text-align:center;
-  box-shadow:0 6px 28px rgba(0,0,0,.55), 0 0 16px rgba(0,0,0,.35);
-  letter-spacing:.5px;line-height:1.4;
-  white-space:normal;word-break:keep-all}
-.toast.show{opacity:1;transform:translate(-50%, 0)}
-/* Type variants — accent color only (consistent shape/position) */
-.toast.success{--toast-accent:var(--gn);--toast-color:#a5d6a7;--toast-border:rgba(76,216,154,.35)}
-.toast.error{--toast-accent:var(--red);--toast-color:#ff8a80;--toast-border:rgba(232,72,85,.4)}
-.toast.warn{--toast-accent:var(--gold);--toast-color:#ffd166;--toast-border:rgba(255,209,102,.4)}
-.toast.info{--toast-accent:var(--cyan);--toast-color:#bfe2f5;--toast-border:rgba(91,184,232,.4)}
-@media(max-width:768px){
-  /* Move toast above mob-bottom-nav even when no FAB */
-  .toast{bottom:calc(env(safe-area-inset-bottom, 0px) + 110px);font-size:11px;padding:9px 18px}
-}
+/* Toast (legacy 3-style system: showToast=중앙 그린, showFactionToast=하단 블루, showNotification=우상단 카드) */
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,calc(-50% - 160px));padding:8px 20px;
+  background:rgba(18,18,24,.92);backdrop-filter:blur(16px);border:1px solid rgba(76,216,154,.25);
+  border-radius:20px;font-size:var(--fs-sm);color:var(--gn);opacity:0;transition:opacity .3s;
+  z-index:99999;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.toast.show{opacity:1}
 
 /* Notification stack */
 #notifStack{position:fixed;top:60px;right:12px;z-index:10000;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:340px}
@@ -2260,10 +2239,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .topbar{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
   .mob-bottom-nav{padding-bottom:env(safe-area-inset-bottom);
     padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
-  /* (FIX) top:50% 만 추가하면 base 의 bottom:130px 와 충돌해 박스가 세로로 늘어남.
-     bottom:auto 로 명시 + transform 에 -50%Y 추가하여 정확히 화면 중앙 배치. */
-  .toast{top:50%;bottom:auto;transform:translate(-50%,calc(-50% + 30px))}
-  .toast.show{transform:translate(-50%,-50%)}
   #notifStack{top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right))}
   .weather-banner{padding-left:max(14px,env(safe-area-inset-left));
     padding-right:max(14px,env(safe-area-inset-right))}
@@ -24185,8 +24160,8 @@ function renderSectorList(sectors){
       s.activeBuffs.forEach(function(b){ html+='<span style="font-size:9px;padding:2px 6px;background:rgba(91,184,232,.1);border:1px solid rgba(91,184,232,.2);border-radius:4px;color:var(--cyan);font-family:var(--fn)">'+(buffIcons[b.buff_type]||b.buff_type)+'</span>'; });
       html+='</div>';
     }
-    // Sector announcement from governor (visible to everyone in BASE tab)
-    if(s.announcement){
+    // Sector announcement from governor (visible to everyone in BASE tab) — governor 가 없으면 잔존 공지 무시
+    if(s.announcement && s.governor){
       html+='<div style="font-size:9px;color:var(--gold);margin-top:4px;font-style:italic;font-family:var(--fn)">📢 "'+s.announcement+'"</div>';
     }
     // My holdings
@@ -25388,8 +25363,8 @@ function _drawSectorOverlay(ctx,w,h){
       ctx.fillText(govText,cx,govY);
     }
 
-    // Sector announcement below governor name (only for sector members)
-    if(s.announcement && s.myPixels > 0){
+    // Sector announcement below governor name (only for sector members) — governor 없으면 잔존 공지 무시
+    if(s.announcement && s.governor && s.myPixels > 0){
       var annSize=Math.max(_isMobTex?8:11,tierSize*0.55);
       var annY=govName?(govY+annSize+4):(cy+fontSize*0.55+tierSize*0.2+tierSize*0.8+4);
       ctx.font='italic '+annSize+'px monospace';
@@ -26322,25 +26297,7 @@ function zoomOut(){
   globe.pointOfView({altitude:newAlt},300);
   if(newAlt>2)isZoomedIn=false;
 }
-// Unified toast — backwards compatible with all existing call sites.
-// Accepted types: 'success'|'error'|'warn'|'info' + legacy aliases ('red','green','r','g',...)
-function showToast(msg, type){
-  var el=document.getElementById('toast');
-  if(!el) return;
-  // Normalize legacy type values so old call sites keep working
-  var t = String(type||'').toLowerCase();
-  var norm = (t==='error'||t==='red'||t==='r'||t==='fail'||t==='danger') ? 'error'
-           : (t==='warn'||t==='warning'||t==='yellow') ? 'warn'
-           : (t==='info'||t==='blue'||t==='cyan') ? 'info'
-           : (t==='success'||t==='ok'||t==='green'||t==='g'||t==='') ? 'success'
-           : ''; // unknown → no variant (default style)
-  el.textContent=msg;
-  el.className='toast' + (norm ? ' '+norm : '');
-  void el.offsetWidth; // force reflow → reliable transition
-  el.classList.add('show');
-  clearTimeout(el._hideTimer);
-  el._hideTimer=setTimeout(function(){el.classList.remove('show')}, norm==='error'?4500:3500);
-}
+function showToast(msg){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3500)}
 // Alias: legacy callers (OPS, guild upgrades) use showAlert(msg[,type]).
 // Route them through the toast so they don't ReferenceError.
 window.showAlert=function(m){return showToast(m);};
@@ -28326,9 +28283,21 @@ window.addEventListener('resize', _debounce(function(){
     localStorage.setItem('pw_cmd_expanded', window._cmdExpanded?'1':'0');
     if(typeof loadCommanderBanner==='function') loadCommanderBanner();
   };
+  function _hideCommanderUI() {
+    var el = document.getElementById('tbCommander');
+    if (el) el.classList.remove('show');
+    var box = document.getElementById('baseCmdAnnounceBox');
+    if (box) box.style.display = 'none';
+    var txt = document.getElementById('baseCmdAnnounceText');
+    if (txt) txt.textContent = '';
+    var nameEl = document.getElementById('baseCmdAnnounceName');
+    if (nameEl) nameEl.textContent = '';
+  }
   function loadCommanderBanner() {
     fetch('/api/governance/commander').then(function(r){return r.json()}).then(function(info){
       _cmdInfo = info;
+      // commander 가 비어있으면 즉시 모든 UI 숨김 (orphan 방어)
+      if (!info || !info.commander) { _hideCommanderUI(); return; }
       var el = document.getElementById('tbCommander');
       var nameEl = document.getElementById('tbCmdName');
       if (!el || !nameEl) return;
@@ -28362,7 +28331,7 @@ window.addEventListener('resize', _debounce(function(){
         }
       }
       updateGovRoles();
-    }).catch(function(){});
+    }).catch(function(){ _hideCommanderUI(); });
   }
   // Load on boot + poll every 60s + refresh on tab visibility/focus.
   // 커맨더 임기 종료 / announcement 변경이 즉시 반영되도록 다층 트리거.
@@ -36534,7 +36503,17 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
-          { type:'p', text:'**v3.4 — 2026-04-25 거버넌스 클리어 도구 + boot 동기화 완성.** 임기 종료된 거버너/사령관을 admin 이 강제 클리어할 수 있는 도구 추가.' },
+          { type:'p', text:'**v3.5 — 2026-04-26 토스트 3종 복원 + 거버너 잔존 표시 방어 + 함선 이미지 슬롯 + Hijack 함대 정보 fix.** 사용자 신고 즉각 fix.' },
+          { type:'h2', text:'⚔ v3.5 Hijack 함대 정보 에러 fix' },
+          { type:'p', text:'• NPC 지갑(0xnpc_...) 으로 하이잭 시 "상대 함대 정보 확인 실패" 표시 → 라우트 충돌이었음.\n• `phaseC.js /hijack/:id` 가 `defender-info` 문자열까지 가로챔 → `parseInt(\'defender-info\')`=NaN → 400. \n• Fix: `:id(\\d+)` regex로 숫자만 매치하도록 강제. NPC/일반 유저 모두 함대 미리보기 정상.' },
+          { type:'h2', text:'🍞 v3.5 토스트 3종 복원' },
+          { type:'p', text:'• **거슬리던 화면 정중앙 토스트** 옛 시스템으로 원복.\n  - **showToast** = 화면 중앙 그린 알약\n  - **showFactionToast** = 하단 블루 박스\n  - **showNotification** = 우상단 카드 스택\n• 통합 시스템(e764e75) + stretch fix(f424b6a) 모두 무효화.' },
+          { type:'h2', text:'👻 v3.5 거버너/사령관 잔존 표시 방어' },
+          { type:'p', text:'• **사령관 없는데 메인 배너/베이스 공지가 남던 버그** → 백엔드 응답 정규화 + 클라이언트 즉시 hide 안전망.\n• governance 서비스가 commander/governor 비어있으면 응답에서 `null` + announcement 강제 `\'\'` 로 변환.\n• `_drawSectorOverlay`/sector 카드: announcement 표시 조건에 `&& s.governor` 추가.' },
+          { type:'h2', text:'🚀 v3.5 함선 이미지 슬롯' },
+          { type:'p', text:'• 조선소 함선 카드 + 건조 모달에 PNG 이미지 슬롯 추가. PNG 없으면 자동으로 SVG 실루엣 fallback.\n• `assets/ships/{code}.png` 또는 `assets/ships/{faction}_{size}.png` 파일만 넣으면 자동 적용.\n• 22종 함선 모두 지원. README 에 nano-banana/Gemini 프롬프트 가이드 첨부.' },
+          { type:'h2', text:'🛠 v3.4 거버넌스 cleanup 도구' },
+          { type:'p', text:'• **자동 expire 로직 부재** → admin GOVERNANCE 탭 에 두 버튼 추가:\n  - 🧹 **사령관 초기화** — commander_wallet + announcement 모두 NULL\n  - 🗑 **전체 거버넌스 초기화** — 모든 거버너 + 사령관 + 공지 일괄 클리어 (claims/pixels 유지)\n• governor/commander 교체 시 announcement 도 함께 NULL 처리 (잔존 메시지 방지)\n• 모든 거버넌스 변경 후 sector cache 무효화 → 클라이언트 즉시 반영' },
           { type:'h2', text:'🛠 v3.4 거버넌스 cleanup 도구' },
           { type:'p', text:'• **자동 expire 로직 부재** → admin GOVERNANCE 탭 에 두 버튼 추가:\n  - 🧹 **사령관 초기화** — commander_wallet + announcement 모두 NULL\n  - 🗑 **전체 거버넌스 초기화** — 모든 거버너 + 사령관 + 공지 일괄 클리어 (claims/pixels 유지)\n• governor/commander 교체 시 announcement 도 함께 NULL 처리 (잔존 메시지 방지)\n• 모든 거버넌스 변경 후 sector cache 무효화 → 클라이언트 즉시 반영' },
           { type:'h2', text:'🔄 v3.3 boot 동기화' },
@@ -39902,10 +39881,7 @@ function _updateFactionBadge() {
   }
 }
 
-// Delegate to unified showToast for consistency (same visual style across the app)
 function showFactionToast(msg, type) {
-  if (typeof showToast === 'function') return showToast(msg, type || 'info');
-  // Fallback if showToast isn't loaded yet
   var toast = document.getElementById('factionToast');
   if (!toast) return;
   toast.textContent = msg;
@@ -40384,6 +40360,18 @@ function shipSilhouetteSvg(sizeClass, factionCode, opts) {
     + '</svg>';
 }
 
+// PNG가 있으면 덮어쓰고, 실패 시 자동으로 SVG fallback. assets/ships/README.txt 파일명 규칙 참조.
+function shipVisual(sizeClass, factionCode, opts) {
+  opts = opts || {};
+  var svg = shipSilhouetteSvg(sizeClass, factionCode, opts);
+  var code = (opts.code || '').toLowerCase();
+  var slug = code || (factionCode + '_' + sizeClass);
+  return svg
+    + '<img src="assets/ships/' + slug + '.png" alt="" '
+    +   'style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none" '
+    +   'onerror="this.remove()">';
+}
+
 function renderBlueprintCard(s) {
   var recipe = s.recipe_minerals || {};
   var mineralCheck = Object.entries(recipe).map(function(e) {
@@ -40414,10 +40402,10 @@ function renderBlueprintCard(s) {
   var buildDisabled = !s.can_build || !canAfford;
   var buildLabel = !s.can_build ? (lockMsg || '불가') : (!canAfford ? '💸 재료 부족' : '⚒ 건조 시작');
 
-  var silhouette = shipSilhouetteSvg(s.size_class, s.faction_code, { role: s.role, code: s.code });
+  var silhouette = shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.code });
   var accent = shipFactionAccent(s.faction_code);
   return '<div class="bp-card ' + s.faction_code + ' ' + (buildDisabled ? 'locked' : '') + '">' +
-    '<div class="bp-visual" style="background:' + accent + ';display:flex;align-items:center;justify-content:center;height:64px;border-radius:6px;margin-bottom:6px"><div class="bp-starfield"></div>' + silhouette + '</div>' +
+    '<div class="bp-visual" style="position:relative;background:' + accent + ';display:flex;align-items:center;justify-content:center;height:64px;border-radius:6px;margin-bottom:6px;overflow:hidden"><div class="bp-starfield"></div>' + silhouette + '</div>' +
     '<div class="bp-header"><div class="bp-name ' + s.faction_code + '">' + s.name_ko + '</div><div class="bp-tier t' + s.tier + '">T' + s.tier + '</div></div>' +
     '<div class="bp-class">' + (s.class_label || '') + '</div>' +
     '<div class="bp-stats">' +
@@ -40438,7 +40426,7 @@ function renderBlueprintCard(s) {
 async function buildShip(shipTypeCode) {
   var ship = shipyardState.blueprints.find(function(s){ return s.code === shipTypeCode; });
   if (!ship) return;
-  var silhouette = shipSilhouetteSvg(ship.size_class, ship.faction_code, { role: ship.role, code: ship.code });
+  var silhouette = shipVisual(ship.size_class, ship.faction_code, { role: ship.role, code: ship.code });
   var accent = shipFactionAccent(ship.faction_code);
   var buildMin = Math.round((ship.build_time_seconds||0)/60);
   var buildTimeTxt = buildMin >= 60 ? (Math.floor(buildMin/60)+'h '+(buildMin%60)+'m') : (buildMin+' min');
@@ -40460,7 +40448,7 @@ async function buildShip(shipTypeCode) {
     ]);
   var bodyHtml =
     '<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:'+accent+';margin-bottom:8px">'
-    + '<div class="bp-visual" style="width:84px;height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,0,0,.35)"><div class="bp-starfield"></div>'+silhouette+'</div>'
+    + '<div class="bp-visual" style="position:relative;width:84px;height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,0,0,.35);overflow:hidden"><div class="bp-starfield"></div>'+silhouette+'</div>'
     + '<div style="flex:1;min-width:0">'
     +   '<div style="font-weight:700;font-size:14px;color:#fff;letter-spacing:.04em">'+ship.name_ko+'</div>'
     +   '<div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;margin-top:2px">'+ship.faction_code+' · '+(ship.class_label||ship.size_class)+'</div>'

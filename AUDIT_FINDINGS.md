@@ -1,4 +1,38 @@
-# OCCUPY MARS — Codebase Audit (v3.1 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v3.2 / 2026-04-26)
+
+## 🔴 v3.2 변경 요약 (2026-04-26)
+
+### 사용자 신고 fix (즉시 대응)
+- **Hijack 함대 정보 에러** ("상대 함대 정보 확인 실패")
+  - 원인: `phaseC.js` 의 `GET /hijack/:id` 가 `defender-info` 문자열까지 매치 → `parseInt('defender-info')`=NaN → INVALID_ID 400
+  - Fix: `:id(\\d+)` regex로 숫자만 매치, 문자열은 다음 라우터(api.js `/hijack/defender-info`)로 fallthrough
+  - 검증: NPC 지갑 `0xnpc_elysium_mons` 응답 정상 (`fleetCount:1, aliveShips:1`)
+
+- **거버너/사령관 잔존 표시**: commander 없어졌는데 메인 배너 + 베이스 공지 박스가 잔존
+  - 백엔드 `services/governance.js`: `getCommanderInfo`/`getSectorInfo` 응답에서 `commander/governor` 빈 문자열 → `null`, governor/commander 없으면 `announcement` 강제 `''`
+  - 클라이언트 `index.html`: `_hideCommanderUI()` 안전망 추가, fetch 실패 또는 commander 비면 즉시 모든 UI hide
+  - sector overlay 두 곳에 `&& s.governor` 가드 추가 (orphan 방어 2중화)
+- **토스트 위치 거슬림**: 통합 시스템(e764e75)이 정중앙 배치 → 사용자가 옛 3종 분리 시스템 선호
+  - **showToast** = 화면 중앙 그린 알약 (옛 위치 그대로)
+  - **showFactionToast** = 하단 블루 박스 (옛 자체 구현)
+  - **showNotification** = 우상단 카드 (변경 없음)
+  - `@supports(env(safe-area-inset-top))` 안의 `top:50%; bottom:auto` 룰 제거
+
+### 신규 슬롯
+- **함선 PNG 이미지 슬롯**: `assets/ships/` 디렉터리 + `shipVisual()` wrapping. PNG 없으면 SVG 실루엣 fallback (`<img onerror="this.remove()">`).
+  - 적용 위치: 조선소 블루프린트 카드, 건조 confirm 모달
+  - 파일명 우선순위: `{code}.png` > `{faction}_{size}.png`
+
+### 인식 정정 (CLAUDE.md §8 잘못된 메모)
+| 항목 | CLAUDE.md 메모 | 실제 |
+|---|---|---|
+| Hijack 실패 시 영토 처리 | "비-primary 디펜더 잔여 P1" | ✅ 정상 동작 — 영토 보존 + PP 90% 환불 (`hijack.js:197,379`) |
+| `recipe_minerals` 차감 | "현재 무시됨" | ✅ `ship.js:278` 에서 `resources` JOIN 후 `user_resource_inventory` UPDATE |
+| Titan/Battleship Core/Mid 재료 | "추가 필요" | ✅ Migration 163 시드됨 (titan = dark_matter+quantum_core+exotic_alloy) |
+| 함선 수리 UI | "라우트+UI 모두 필요" | ✅ `syRepairShip/syChargeShield/syScrapShip` 모두 라이브 (`index.html:40588~`) |
+| 광물 도감 UI | (언급 없음) | ✅ Minerals Panel 모달 + `openMineralsPanel()` 진입 (`index.html:41332`) |
+
+---
 
 ## 🔴 v3.1 변경 요약 (2026-04-26)
 
