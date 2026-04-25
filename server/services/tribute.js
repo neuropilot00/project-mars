@@ -23,7 +23,7 @@ async function getClaimTributes(claimId, limit = 10) {
     SELECT t.id, t.from_wallet, u.nickname AS from_nickname,
            t.amount_gp, t.message, t.created_at
     FROM territory_tributes t
-    LEFT JOIN users u ON u.wallet = t.from_wallet
+    LEFT JOIN users u ON u.wallet_address = t.from_wallet
     WHERE t.claim_id = $1
     ORDER BY t.created_at DESC
     LIMIT $2
@@ -38,7 +38,7 @@ async function getMyTributes(wallet) {
            t.amount_gp, t.message, t.created_at
     FROM territory_tributes t
     LEFT JOIN claims c ON c.id = t.claim_id
-    LEFT JOIN users u2 ON u2.wallet = t.to_wallet
+    LEFT JOIN users u2 ON u2.wallet_address = t.to_wallet
     WHERE t.from_wallet = $1
     ORDER BY t.created_at DESC
     LIMIT 30
@@ -149,8 +149,8 @@ async function getAdminStats() {
            ut.nickname AS to_nickname, t.to_wallet,
            t.amount_gp, t.message, t.created_at
     FROM territory_tributes t
-    LEFT JOIN users uf ON uf.wallet = t.from_wallet
-    LEFT JOIN users ut ON ut.wallet = t.to_wallet
+    LEFT JOIN users uf ON uf.wallet_address = t.from_wallet
+    LEFT JOIN users ut ON ut.wallet_address = t.to_wallet
     ORDER BY t.created_at DESC LIMIT 20
   `);
   return { stats: rows[0], recent: recent.rows };

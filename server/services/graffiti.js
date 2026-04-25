@@ -34,7 +34,7 @@ async function getActiveGraffiti(claimId) {
     SELECT g.id, g.from_wallet, u.nickname AS from_nickname,
            g.text, g.gp_paid, g.expires_at, g.created_at
     FROM territory_graffiti g
-    LEFT JOIN users u ON u.wallet = g.from_wallet
+    LEFT JOIN users u ON u.wallet_address = g.from_wallet
     WHERE g.claim_id = $1 AND g.is_active = true AND g.expires_at > NOW()
     ORDER BY g.gp_paid DESC, g.created_at DESC
     LIMIT 10
@@ -136,7 +136,7 @@ async function getAdminStats() {
     SELECT g.id, g.claim_id, g.from_wallet, u.nickname,
            g.text, g.gp_paid, g.is_active, g.expires_at, g.created_at
     FROM territory_graffiti g
-    LEFT JOIN users u ON u.wallet = g.from_wallet
+    LEFT JOIN users u ON u.wallet_address = g.from_wallet
     ORDER BY g.created_at DESC LIMIT 20
   `);
   return { stats: rows[0], recent: recent.rows };

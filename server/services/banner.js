@@ -35,7 +35,7 @@ async function getActiveBanners(claimId) {
     SELECT b.id, b.wallet, u.nickname AS player_name,
            b.emoji, b.message, b.gp_paid, b.expires_at, b.created_at
     FROM territory_banners b
-    LEFT JOIN users u ON u.wallet = b.wallet
+    LEFT JOIN users u ON u.wallet_address = b.wallet
     WHERE b.claim_id=$1 AND b.is_active=true AND b.expires_at>NOW()
     ORDER BY b.gp_paid DESC, b.created_at DESC
     LIMIT 5
@@ -129,7 +129,7 @@ async function getAdminStats() {
     SELECT b.id, b.claim_id, b.wallet, u.nickname,
            b.emoji, b.message, b.gp_paid, b.is_active, b.expires_at
     FROM territory_banners b
-    LEFT JOIN users u ON u.wallet = b.wallet
+    LEFT JOIN users u ON u.wallet_address = b.wallet
     ORDER BY b.created_at DESC LIMIT 20
   `);
   return { stats: rows[0], recent: recent.rows };

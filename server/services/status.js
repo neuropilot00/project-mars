@@ -39,7 +39,7 @@ async function getActiveStatuses() {
   const { rows } = await pool.query(
     `SELECT ps.wallet, COALESCE(u.nickname, ps.wallet) AS nickname, ps.status, ps.expires_at
      FROM player_status ps
-     LEFT JOIN users u ON u.wallet = ps.wallet
+     LEFT JOIN users u ON u.wallet_address = ps.wallet
      WHERE ps.expires_at > NOW()
      ORDER BY ps.updated_at DESC LIMIT 50`
   );
@@ -122,7 +122,7 @@ async function getAdminStats() {
   );
   const { rows: recent } = await pool.query(
     `SELECT sl.wallet, COALESCE(u.nickname,sl.wallet) AS nickname, sl.status, sl.gp_paid, sl.expires_at, sl.created_at
-     FROM status_log sl LEFT JOIN users u ON u.wallet=sl.wallet
+     FROM status_log sl LEFT JOIN users u ON u.wallet_address = sl.wallet
      ORDER BY sl.created_at DESC LIMIT 20`
   );
   return { stats: { ...stats, all_time_gp: log_stats[0].all_time_gp }, recent };

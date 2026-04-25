@@ -6388,16 +6388,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
         </div>
 
-        <!-- GP BURN Section (collapsible) -->
-        <div class="base-section-title" style="cursor:pointer;margin-top:10px;display:flex;justify-content:space-between;align-items:center"
-             onclick="toggleBurn()">
-          <span>🔥 <span data-i18n="burn_title">GP BURN</span></span>
-          <span id="burnToggle" style="font-size:8px;color:var(--tx3)">▼</span>
-        </div>
-        <div id="burnPanel" style="display:none;padding:0 0 8px">
-          <div id="burnContent" style="padding:8px 0">
-            <div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px" data-i18n="loading_dots">Loading...</div>
-          </div>
+        <!-- GP BURN Section — DEPRECATED (gpBurn service removed). Hidden to avoid /api/burn 404. -->
+        <div id="burnPanel" style="display:none">
+          <div id="burnContent"></div>
         </div>
       </div>
 
@@ -24721,23 +24714,8 @@ function toggleBurn() {
 }
 
 function loadBurnPanel() {
-  var el = document.getElementById('burnContent');
-  if (!el) return;
-  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
-  var wallet = walletState.address || '';
-
-  fetch('/api/burn/catalog?wallet=' + wallet)
-    .then(function(r){ return r.json(); })
-    .then(function(data) {
-      if (!data.enabled) {
-        el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">GP Burn is currently disabled</div>';
-        return;
-      }
-      renderBurnPanel(data.types || []);
-    })
-    .catch(function() {
-      el.innerHTML = '<div style="text-align:center;color:var(--mars);font-size:10px;padding:8px">Failed to load</div>';
-    });
+  // GP Burn is deprecated (service removed). No-op.
+  return;
 }
 
 function renderBurnPanel(types) {

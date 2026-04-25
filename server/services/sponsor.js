@@ -34,7 +34,7 @@ async function getActiveSponsors(claimId) {
     `SELECT ts.id, ts.claim_id, ts.sponsor_wallet, ts.message, ts.gp_paid, ts.expires_at,
             COALESCE(u.nickname, ts.sponsor_wallet) AS nickname
      FROM territory_sponsors ts
-     LEFT JOIN users u ON u.wallet = ts.sponsor_wallet
+     LEFT JOIN users u ON u.wallet_address = ts.sponsor_wallet
      WHERE ts.claim_id=$1 AND ts.is_active=true AND ts.expires_at > NOW()
      ORDER BY ts.gp_paid DESC, ts.created_at ASC`,
     [claimId]
@@ -153,7 +153,7 @@ async function getAdminStats() {
             ts.expires_at, ts.is_active,
             COALESCE(u.nickname, ts.sponsor_wallet) AS nickname
      FROM territory_sponsors ts
-     LEFT JOIN users u ON u.wallet = ts.sponsor_wallet
+     LEFT JOIN users u ON u.wallet_address = ts.sponsor_wallet
      ORDER BY ts.created_at DESC LIMIT 30`
   );
   return { stats, recent };

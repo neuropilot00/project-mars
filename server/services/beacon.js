@@ -30,7 +30,7 @@ async function getActiveBeacons() {
     `SELECT b.id, b.wallet, b.x, b.y, b.message, b.icon, b.gp_paid, b.expires_at,
             COALESCE(u.nickname, b.wallet) AS nickname
      FROM map_beacons b
-     LEFT JOIN users u ON u.wallet = b.wallet
+     LEFT JOIN users u ON u.wallet_address = b.wallet
      WHERE b.is_active = true AND b.expires_at > NOW()
      ORDER BY b.created_at DESC`
   );
@@ -132,7 +132,7 @@ async function getAdminStats() {
   const { rows: recent } = await pool.query(
     `SELECT b.id, b.wallet, COALESCE(u.nickname,b.wallet) AS nickname,
             b.x, b.y, b.icon, b.message, b.gp_paid, b.expires_at, b.is_active
-     FROM map_beacons b LEFT JOIN users u ON u.wallet=b.wallet
+     FROM map_beacons b LEFT JOIN users u ON u.wallet_address = b.wallet
      ORDER BY b.created_at DESC LIMIT 30`
   );
   return { stats, recent };

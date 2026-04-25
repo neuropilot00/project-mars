@@ -708,6 +708,30 @@ router.get('/claims', async (req, res) => {
   }
 });
 
+// ──────────────────────────────────────────────────────────
+// GET /api/claims/my?wallet=  — 내 영토 목록 (expedition 등에서 사용)
+// 반환: [{id, name, pixel_count, center_lat, center_lng, width, height}]
+// ──────────────────────────────────────────────────────────
+router.get('/claims/my', async (req, res) => {
+  try {
+    const wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    if (!wallet || wallet.length < 10) return res.status(400).json({ error: 'wallet_required' });
+    const result = await pool.query(
+      `SELECT c.id, c.center_lat, c.center_lng, c.width, c.height,
+              c.custom_name AS name, c.image_url, c.created_at,
+              (c.width * c.height) AS pixel_count
+         FROM claims c
+        WHERE c.owner = $1 AND c.deleted_at IS NULL
+        ORDER BY c.created_at DESC`,
+      [wallet]
+    );
+    res.json(result.rows);
+  } catch (e) {
+    console.error('[API] /claims/my error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 // ══════════════════════════════════════════════════
 //  POST /api/upload — save data:image to file, return URL
 // ══════════════════════════════════════════════════

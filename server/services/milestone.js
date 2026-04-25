@@ -34,7 +34,7 @@ async function getFeed(limit, category) {
     SELECT m.id, m.wallet, u.nickname AS player_name,
            m.category, m.title, m.description, m.gp_paid, m.created_at
     FROM colony_milestones m
-    LEFT JOIN users u ON u.wallet = m.wallet
+    LEFT JOIN users u ON u.wallet_address = m.wallet
   `;
   const params = [];
   if (category && CATEGORIES.includes(category.toUpperCase())) {
@@ -144,7 +144,7 @@ async function getAdminStats() {
     SELECT m.id, m.wallet, u.nickname, m.category, m.title,
            LEFT(m.description,80) AS preview, m.gp_paid, m.created_at
     FROM colony_milestones m
-    LEFT JOIN users u ON u.wallet = m.wallet
+    LEFT JOIN users u ON u.wallet_address = m.wallet
     ORDER BY m.created_at DESC LIMIT 20
   `);
   return { stats: rows[0], byCat: byCat.rows, recent: recent.rows };

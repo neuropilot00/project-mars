@@ -27,7 +27,7 @@ async function getWall() {
     `SELECT d.id, d.wallet, COALESCE(u.nickname, d.wallet) AS nickname,
             d.amount_gp, d.message, d.created_at
      FROM donation_wall d
-     LEFT JOIN users u ON u.wallet = d.wallet
+     LEFT JOIN users u ON u.wallet_address = d.wallet
      ORDER BY d.created_at DESC LIMIT $1`,
     [cfg.wallSize]
   );
@@ -35,7 +35,7 @@ async function getWall() {
     `SELECT d.wallet, COALESCE(u.nickname, d.wallet) AS nickname,
             SUM(d.amount_gp)::int AS total_gp
      FROM donation_wall d
-     LEFT JOIN users u ON u.wallet = d.wallet
+     LEFT JOIN users u ON u.wallet_address = d.wallet
      GROUP BY d.wallet, u.nickname
      ORDER BY total_gp DESC LIMIT $1`,
     [cfg.topDonors]
@@ -109,7 +109,7 @@ async function getAdminStats() {
   );
   const { rows: top } = await pool.query(
     `SELECT d.wallet, COALESCE(u.nickname,d.wallet) AS nickname, SUM(d.amount_gp)::int AS total_gp
-     FROM donation_wall d LEFT JOIN users u ON u.wallet=d.wallet
+     FROM donation_wall d LEFT JOIN users u ON u.wallet_address = d.wallet
      GROUP BY d.wallet, u.nickname ORDER BY total_gp DESC LIMIT 10`
   );
   return { stats, top };

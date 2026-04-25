@@ -158,7 +158,7 @@ async function getAdminStats() {
   const recent = await pool.query(`
     SELECT p.claim_id, p.wallet, u.nickname, p.tier, p.gp_paid, p.updated_at
     FROM territory_prestige p
-    LEFT JOIN users u ON u.wallet = p.wallet
+    LEFT JOIN users u ON u.wallet_address = p.wallet
     ORDER BY p.updated_at DESC LIMIT 20
   `);
   return { stats: rows[0], byTier: byTier.rows, recent: recent.rows };

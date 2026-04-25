@@ -9,8 +9,8 @@ router.get('/raffles', async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/raffles/:id
-router.get('/raffles/:id', async (req, res) => {
+// GET /api/raffles/:id  (id 숫자만 허용 — 'my' 같은 sub-path보다 후순위)
+router.get('/raffles/:id(\\d+)', async (req, res) => {
   try {
     const rf = await raffleSvc.getRaffle(parseInt(req.params.id));
     if (!rf) return res.status(404).json({ error: 'Not found' });
@@ -18,8 +18,8 @@ router.get('/raffles/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET /api/raffles/:id/entrants
-router.get('/raffles/:id/entrants', async (req, res) => {
+// GET /api/raffles/:id/entrants  (id 숫자만)
+router.get('/raffles/:id(\\d+)/entrants', async (req, res) => {
   try { res.json(await raffleSvc.getEntrants(parseInt(req.params.id))); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });

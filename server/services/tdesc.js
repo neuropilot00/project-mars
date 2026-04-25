@@ -23,7 +23,7 @@ async function getDescription(claimId) {
   const { rows } = await pool.query(
     `SELECT td.*, COALESCE(u.nickname, td.wallet) AS nickname
      FROM territory_descriptions td
-     LEFT JOIN users u ON u.wallet = td.wallet
+     LEFT JOIN users u ON u.wallet_address = td.wallet
      WHERE td.claim_id = $1`,
     [claimId]
   );
@@ -143,7 +143,7 @@ async function getAdminStats() {
     `SELECT td.claim_id, td.wallet, td.description, td.gp_paid, td.updated_at,
             COALESCE(u.nickname, td.wallet) AS nickname
      FROM territory_descriptions td
-     LEFT JOIN users u ON u.wallet = td.wallet
+     LEFT JOIN users u ON u.wallet_address = td.wallet
      ORDER BY td.updated_at DESC LIMIT 30`
   );
   return { stats, recent };

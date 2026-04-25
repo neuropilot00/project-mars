@@ -22,7 +22,7 @@ async function getTombstones(claimId) {
   const { rows } = await pool.query(`
     SELECT t.id, t.wallet, u.nickname AS player_name, t.epitaph, t.gp_paid, t.created_at
     FROM territory_tombstones t
-    LEFT JOIN users u ON u.wallet = t.wallet
+    LEFT JOIN users u ON u.wallet_address = t.wallet
     WHERE t.claim_id=$1
     ORDER BY t.created_at ASC
   `, [claimId]);
@@ -140,7 +140,7 @@ async function getAdminStats() {
   const recent = await pool.query(`
     SELECT t.id, t.claim_id, t.wallet, u.nickname, t.epitaph, t.gp_paid, t.created_at
     FROM territory_tombstones t
-    LEFT JOIN users u ON u.wallet = t.wallet
+    LEFT JOIN users u ON u.wallet_address = t.wallet
     ORDER BY t.created_at DESC LIMIT 20
   `);
   return { stats: rows[0], recent: recent.rows };

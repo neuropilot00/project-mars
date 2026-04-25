@@ -138,7 +138,7 @@ async function getLeaderboard() {
     `SELECT cp.wallet, cp.prestige_points, cp.prestige_rank, cp.total_gp_spent,
             COALESCE(u.nickname, cp.wallet) AS nickname
      FROM colony_prestige cp
-     LEFT JOIN users u ON u.wallet = cp.wallet
+     LEFT JOIN users u ON u.wallet_address = cp.wallet
      ORDER BY cp.prestige_points DESC LIMIT 50`
   );
   return rows.map(r => ({

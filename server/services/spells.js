@@ -165,7 +165,7 @@ async function getAdminStats() {
   const [totals, active, recent, settings] = await Promise.all([
     pool.query("SELECT COUNT(*) AS total, COALESCE(SUM(gp_cost),0) AS total_gp FROM territory_spells"),
     pool.query("SELECT spell_type, COUNT(*) AS cnt FROM territory_spells WHERE is_active=true AND expires_at>NOW() GROUP BY spell_type ORDER BY cnt DESC"),
-    pool.query("SELECT ts.*, c.x1, c.y1 FROM territory_spells ts LEFT JOIN claims c ON c.id=ts.target_claim_id ORDER BY ts.created_at DESC LIMIT 20"),
+    pool.query("SELECT ts.*, c.center_lat, c.center_lng FROM territory_spells ts LEFT JOIN claims c ON c.id=ts.target_claim_id ORDER BY ts.created_at DESC LIMIT 20"),
     pool.query("SELECT key, value FROM game_settings WHERE category='spells' ORDER BY key"),
   ]);
   return {

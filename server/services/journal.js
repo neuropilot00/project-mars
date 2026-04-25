@@ -27,7 +27,7 @@ async function getFeed(limit) {
     SELECT j.id, j.wallet, u.nickname AS player_name,
            j.title, j.content, j.gp_paid, j.created_at
     FROM colony_journal j
-    LEFT JOIN users u ON u.wallet = j.wallet
+    LEFT JOIN users u ON u.wallet_address = j.wallet
     ORDER BY j.created_at DESC
     LIMIT $1
   `, [n]);
@@ -131,7 +131,7 @@ async function getAdminStats() {
     SELECT j.id, j.wallet, u.nickname, j.title,
            LEFT(j.content, 80) AS preview, j.gp_paid, j.created_at
     FROM colony_journal j
-    LEFT JOIN users u ON u.wallet = j.wallet
+    LEFT JOIN users u ON u.wallet_address = j.wallet
     ORDER BY j.created_at DESC LIMIT 20
   `);
   return { stats: rows[0], recent: recent.rows };

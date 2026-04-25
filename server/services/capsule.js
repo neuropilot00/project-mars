@@ -41,7 +41,7 @@ async function getRevealed() {
     `SELECT tc.id, tc.wallet, tc.message, tc.reveal_at, tc.revealed_at, tc.gp_paid,
             COALESCE(tc.nickname_snapshot, u.nickname, tc.wallet) AS nickname
      FROM time_capsules tc
-     LEFT JOIN users u ON u.wallet = tc.wallet
+     LEFT JOIN users u ON u.wallet_address = tc.wallet
      WHERE tc.is_revealed=true
      ORDER BY tc.revealed_at DESC LIMIT $1`,
     [cfg.visibleCount]
@@ -145,7 +145,7 @@ async function getAdminStats() {
             tc.is_revealed, tc.revealed_at,
             COALESCE(tc.nickname_snapshot, u.nickname, tc.wallet) AS nickname
      FROM time_capsules tc
-     LEFT JOIN users u ON u.wallet = tc.wallet
+     LEFT JOIN users u ON u.wallet_address = tc.wallet
      ORDER BY tc.created_at DESC LIMIT 30`
   );
   return { stats, recent };

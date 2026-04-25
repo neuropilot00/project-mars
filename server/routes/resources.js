@@ -34,9 +34,10 @@ router.get('/my', requireAuth, async (req, res) => {
     const wallet = getWallet(req);
     if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
+    // user_resource_inventory uses resource_id (FK), not resource_code
     const { rows } = await pool.query(`
       SELECT
-        i.resource_code,
+        r.code        AS resource_code,
         i.quantity,
         r.name_ko,
         r.name_en,
@@ -45,7 +46,7 @@ router.get('/my', requireAuth, async (req, res) => {
         r.color_hex,
         r.is_craftable
       FROM user_resource_inventory i
-      LEFT JOIN resources r ON r.code = i.resource_code
+      JOIN resources r ON r.id = i.resource_id
       WHERE i.wallet_address = $1
       ORDER BY r.tier NULLS LAST, r.code
     `, [wallet]);

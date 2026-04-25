@@ -149,7 +149,7 @@ async function getAdminStats() {
     SELECT h.id, h.claim_id, h.wallet, u.nickname,
            h.color, h.gp_paid_total, h.is_active, h.expires_at
     FROM territory_highlights h
-    LEFT JOIN users u ON u.wallet = h.wallet
+    LEFT JOIN users u ON u.wallet_address = h.wallet
     ORDER BY h.updated_at DESC LIMIT 20
   `);
   return { stats: rows[0], recent: recent.rows };

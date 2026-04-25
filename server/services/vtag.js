@@ -175,7 +175,7 @@ async function getAdminStats() {
   const recent = await pool.query(`
     SELECT tl.wallet, u.nickname, tl.old_tag, tl.new_tag, tl.gp_cost, tl.created_at
     FROM vtag_log tl
-    LEFT JOIN users u ON u.wallet = tl.wallet
+    LEFT JOIN users u ON u.wallet_address = tl.wallet
     ORDER BY tl.created_at DESC
     LIMIT 20
   `);

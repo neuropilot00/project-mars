@@ -42,7 +42,7 @@ async function getBranding(claimId) {
 
 async function getMyBranding(wallet) {
   const r = await pool.query(
-    'SELECT tb.*, c.x1, c.y1, c.x2, c.y2 FROM territory_branding tb LEFT JOIN claims c ON c.id=tb.claim_id WHERE tb.wallet=$1 ORDER BY tb.updated_at DESC',
+    'SELECT tb.*, c.center_lat, c.center_lng, c.width, c.height FROM territory_branding tb LEFT JOIN claims c ON c.id=tb.claim_id WHERE tb.wallet=$1 ORDER BY tb.updated_at DESC',
     [wallet.toLowerCase()]
   );
   return r.rows;
@@ -153,7 +153,7 @@ async function adminClearBranding(claimId) {
 async function getAdminStats() {
   const [total, recent, settings] = await Promise.all([
     pool.query('SELECT COUNT(*) AS total, COUNT(territory_name) AS named, COUNT(tagline) AS tagged, COUNT(theme_color) AS colored FROM territory_branding'),
-    pool.query('SELECT tb.*, c.x1, c.y1, c.x2, c.y2 FROM territory_branding tb LEFT JOIN claims c ON c.id=tb.claim_id ORDER BY tb.updated_at DESC LIMIT 20'),
+    pool.query('SELECT tb.*, c.center_lat, c.center_lng, c.width, c.height FROM territory_branding tb LEFT JOIN claims c ON c.id=tb.claim_id ORDER BY tb.updated_at DESC LIMIT 20'),
     pool.query("SELECT key, value FROM game_settings WHERE category='branding' ORDER BY key"),
   ]);
   return {

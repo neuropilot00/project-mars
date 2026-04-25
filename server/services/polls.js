@@ -33,7 +33,7 @@ async function getActivePolls(walletOpt) {
             p.question, p.options, p.gp_cost, p.ends_at,
             p.vote_count, p.created_at
      FROM gp_polls p
-     LEFT JOIN users u ON u.wallet=p.wallet
+     LEFT JOIN users u ON u.wallet_address = p.wallet
      WHERE p.is_active=true AND p.ends_at > NOW()
      ORDER BY p.vote_count DESC, p.created_at DESC`
   );
@@ -145,7 +145,7 @@ async function getAdminStats() {
   const { rows: recent } = await pool.query(
     `SELECT p.id, p.wallet, COALESCE(u.nickname,p.wallet) AS nickname,
             p.question, p.gp_cost, p.vote_count, p.ends_at, p.is_active
-     FROM gp_polls p LEFT JOIN users u ON u.wallet=p.wallet
+     FROM gp_polls p LEFT JOIN users u ON u.wallet_address = p.wallet
      ORDER BY p.created_at DESC LIMIT 20`
   );
   return { stats, recent };
