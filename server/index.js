@@ -112,7 +112,7 @@ const governanceRoutes = require('./routes/governance');
 const marketplaceRoutes = require('./routes/marketplace');
 const jobRoutes = require('./routes/job');
 const resourceRoutes = require('./routes/resource');
-const onboardingRoutes = require('./routes/onboarding');
+// Removed: routes/onboarding.js v1 (frontend uses v2 only — onboardingRoutes.js mounted at /api/onboarding)
 const sectorRoutes = require('./routes/sectors');
 const siegeRoutes = require('./routes/siege');
 const publicRoutes = require('./routes/public');
@@ -288,7 +288,7 @@ app.use('/api/auth/register', authLimiter);
 // ⚠️ job/resource/onboarding/sector routes must come BEFORE apiRoutes to avoid /user/:wallet wildcard conflict
 app.use('/api', jobRoutes);
 app.use('/api', resourceRoutes);
-app.use('/api', onboardingRoutes);
+// Removed: onboardingRoutes v1 mount
 app.use('/api', sectorRoutes);
 app.use('/api', siegeRoutes);
 app.use('/api', publicRoutes);
@@ -297,7 +297,7 @@ app.use('/api/betting', warBettingRoutes); // War Betting v2 (must be before bet
 app.use('/api', bettingRoutes);
 app.use('/api/auctions', require('./routes/auctionRoutes')); // M-090: 옥션 (must be before /api auctionRoutes)
 app.use('/api/territory', require('./routes/territoryRoutes')); // M-091: 영토 매매 비주얼
-app.use('/api/factions', require('./routes/factionRoutes')); // M-092: 파벌 시스템
+// Removed: factionRoutes.js v2 (frontend uses v1 only — see services/factionSystem.js deletion)
 app.use('/api', auctionRoutes);
 app.use('/api/ships', shipRoutes); // A-2: 함선 건조 (relative paths, must mount at /api/ships)
 app.use('/api', phaseCRoutes);               // Phase C: AI/Tournament/Hijack
