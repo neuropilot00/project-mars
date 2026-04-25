@@ -2473,6 +2473,13 @@ router.get('/user/:wallet/base', async (req, res) => {
   try {
     const wallet = req.params.wallet.toLowerCase();
 
+    // Lazy rank recalculation — XP 누적 후 rank_level 자동 갱신.
+    // BASE 패널 진입은 가장 빈번한 hot path 이므로 사용자가 직접 화면 보면 즉시 반영.
+    try {
+      const { recalcUserRank } = require('../services/rank');
+      await recalcUserRank(wallet);
+    } catch (_) {} // 실패해도 base 응답은 정상 진행
+
     const [userRes, pixelRes, miningRes, rankRes] = await Promise.all([
       pool.query(
         'SELECT wallet_address, nickname, usdt_balance, pp_balance, xp, rank_level, referral_code, created_at FROM users WHERE wallet_address = $1',

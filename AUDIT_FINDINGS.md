@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v3.3 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v3.4 / 2026-04-26)
+
+## 🔴 v3.4 변경 요약 (2026-04-26)
+
+### 🚨 시스템 결함 fix
+- **레벨업 자동 갱신 부재** (사용자 신고): XP 는 누적되는데 `rank_level` 갱신은 admin 수동 호출만 동작. 평생 멈춤.
+  - **`services/rank.js` 신규** — single-user `recalcUserRank` (admin 로직 추출, breakthrough conditions 평가)
+  - **Lazy trigger** — `GET /user/:wallet/base` 진입 시 fire-and-forget
+  - **Periodic scheduler** (`server/index.js`) — 5분 간격, 최근 24h 활성 유저 batch
+  - **Migration 186**: settings 4종 (auto_recalc_enabled / interval_seconds / lookback_hours / batch_size). 모두 admin 조정 가능.
+  - 검증: lain test → 정상 호출. stuck user (xp 110k, lv 4) → pixels=0 으로 breakthrough 막힘 (정상).
+
+### 잔여 P1 (다음 작업 후보)
+- **Level 5+ breakthrough UI** — 현재 사용자가 "왜 안 올라가는지" 모름. 다음 레벨의 조건과 본인 진행도를 명시하는 UI 필요.
+
+---
 
 ## 🔴 v3.3 변경 요약 (2026-04-26)
 

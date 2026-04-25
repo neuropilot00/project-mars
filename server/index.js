@@ -964,6 +964,28 @@ async function start() {
       console.log('[GOV-EXPIRE] Auto-expire scheduler started (1h interval, boot+30s)');
     } catch(e) { console.warn('[GOV-EXPIRE] Could not init scheduler:', e.message); }
 
+    // ── Rank Auto-Recalc (active users, every 5 min default) ──
+    // XP 누적 후 rank_level 자동 재계산. lazy trigger 와 함께 active user 자동 처리.
+    // settings: rank_auto_recalc_enabled / rank_recalc_interval_seconds / rank_recalc_lookback_hours / rank_recalc_batch_size
+    try {
+      const { recalcRecentlyActive } = require('./services/rank');
+      const { getSetting } = require('./db');
+      const intervalSec = parseInt(await getSetting('rank_recalc_interval_seconds', '300')) || 300;
+      setTimeout(async () => {
+        try {
+          const r = await recalcRecentlyActive();
+          if (r && !r.skipped) console.log(`[RANK] startup batch: processed=${r.processed} leveledUp=${r.leveledUp}`);
+        } catch(e) { console.warn('[RANK] startup batch error:', e.message); }
+      }, 60 * 1000);
+      setInterval(async () => {
+        try {
+          const r = await recalcRecentlyActive();
+          if (r && !r.skipped && r.leveledUp > 0) console.log(`[RANK] batch: ${r.leveledUp} users leveled up (of ${r.processed})`);
+        } catch(e) { console.warn('[RANK] batch error:', e.message); }
+      }, intervalSec * 1000);
+      console.log(`[RANK] Auto-recalc scheduler started (${intervalSec}s interval, boot+60s)`);
+    } catch(e) { console.warn('[RANK] Could not init scheduler:', e.message); }
+
     // ── Planet News: Clean old news (every 24 hours) ──
     try {
       const { cleanOldNews } = require('./services/news');
