@@ -15,7 +15,10 @@
 
 const { pool, getSetting } = require('../db');
 
-const VALID_ACTIONS = new Set(['focus_fire','emp','wedge','reinforce']);
+// formation_change/maneuver_change: tactical-lab 의 진형/기동 컨트롤 → 실제 시뮬에 반영
+const VALID_ACTIONS = new Set(['focus_fire','emp','wedge','reinforce','formation_change','maneuver_change']);
+const VALID_FORMATIONS = new Set(['sphere','wedge','screen','pincer']);
+const VALID_MANEUVERS  = new Set(['advance','flank','retreat','scatter','rally']);
 
 async function listActions(battleId) {
   const { rows } = await pool.query(
@@ -37,7 +40,12 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
   const enabled = await getSetting('commander_actions_enabled', 'true');
   if (String(enabled) !== 'true') throw new Error('COMMANDER_ACTIONS_DISABLED');
 
-  const gpCost = parseInt(await getSetting('commander_action_gp_cost', '50')) || 0;
+  // formation/maneuver 는 잦은 컨트롤이라 별도 무료 settings (Migration 189)
+  const gpCostKey = actionType === 'formation_change' ? 'commander_action_formation_gp_cost'
+                  : actionType === 'maneuver_change'  ? 'commander_action_maneuver_gp_cost'
+                  : 'commander_action_gp_cost';
+  const gpCostDefault = (actionType === 'formation_change' || actionType === 'maneuver_change') ? '0' : '50';
+  const gpCost = parseInt(await getSetting(gpCostKey, gpCostDefault)) || 0;
   const maxPerPlayer = parseInt(await getSetting('commander_action_max_per_player', '2')) || 2;
 
   const client = await pool.connect();
@@ -69,25 +77,28 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
     if (!partRows[0]) throw new Error('NOT_A_PARTICIPANT');
     const side = partRows[0].side;
 
-    // 3) 쿼터 체크
+    // 3) 쿼터 체크 — formation_change / maneuver_change 는 mutable 이라 quota 에서 제외
     const { rows: cntRows } = await client.query(
       `SELECT COUNT(*)::int AS c FROM commander_actions
-       WHERE battle_id = $1 AND wallet_address = $2`,
+       WHERE battle_id = $1 AND wallet_address = $2
+         AND action_type NOT IN ('formation_change', 'maneuver_change')`,
       [battleId, walletAddress]
     );
-    if ((cntRows[0]?.c || 0) >= maxPerPlayer) {
+    const isMutableType = actionType === 'formation_change' || actionType === 'maneuver_change';
+    if (!isMutableType && (cntRows[0]?.c || 0) >= maxPerPlayer) {
       const err = new Error('ACTION_QUOTA_EXCEEDED');
       err.meta = { max: maxPerPlayer };
       throw err;
     }
 
-    // 4) 중복 action_type 방지 (UNIQUE INDEX 가 걸러주지만 명시적으로 체크)
+    // 4) 중복 action_type 처리 — formation/maneuver 는 변경 가능 (UPDATE)
+    const isMutable = actionType === 'formation_change' || actionType === 'maneuver_change';
     const { rows: dupRows } = await client.query(
-      `SELECT id FROM commander_actions
+      `SELECT id, gp_cost FROM commander_actions
        WHERE battle_id = $1 AND wallet_address = $2 AND action_type = $3`,
       [battleId, walletAddress, actionType]
     );
-    if (dupRows[0]) throw new Error('ACTION_ALREADY_DECLARED');
+    if (dupRows[0] && !isMutable) throw new Error('ACTION_ALREADY_DECLARED');
 
     // 5) 액션별 파라미터 검증
     const cleanParams = {};
@@ -111,6 +122,22 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
       if (appliedAtTick > 8000) appliedAtTick = 8000;
     } else if (actionType === 'wedge') {
       // no params
+    } else if (actionType === 'formation_change') {
+      const f = String(params.formation || '').toLowerCase();
+      if (!VALID_FORMATIONS.has(f)) {
+        const err = new Error('INVALID_ACTION_TYPE');
+        err.meta = { reason: 'invalid_formation', valid: [...VALID_FORMATIONS] };
+        throw err;
+      }
+      cleanParams.formation = f;
+    } else if (actionType === 'maneuver_change') {
+      const m = String(params.maneuver || '').toLowerCase();
+      if (!VALID_MANEUVERS.has(m)) {
+        const err = new Error('INVALID_ACTION_TYPE');
+        err.meta = { reason: 'invalid_maneuver', valid: [...VALID_MANEUVERS] };
+        throw err;
+      }
+      cleanParams.maneuver = m;
     } else if (actionType === 'reinforce') {
       const code = String(params.shipTypeCode || '').trim();
       const count = parseInt(params.count);
@@ -131,8 +158,9 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
       cleanParams.count = count;
     }
 
-    // 6) GP 차감
-    if (gpCost > 0) {
+    // 6) GP 차감 — mutable 액션을 두번째 이상 변경 시 GP 재차감 안 함
+    const skipGp = (dupRows[0] && isMutable);
+    if (gpCost > 0 && !skipGp) {
       const { rows: uRows } = await client.query(
         `UPDATE users SET gp_balance = gp_balance - $1
          WHERE wallet_address = $2 AND gp_balance >= $1
@@ -142,14 +170,27 @@ async function declareAction(battleId, walletAddress, actionType, params = {}) {
       if (!uRows[0]) throw new Error('INSUFFICIENT_GP');
     }
 
-    // 7) INSERT
-    const { rows: aRows } = await client.query(
-      `INSERT INTO commander_actions
-        (battle_id, wallet_address, side, action_type, params, applied_at_tick, gp_cost)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, created_at`,
-      [battleId, walletAddress, side, actionType, JSON.stringify(cleanParams), appliedAtTick, gpCost]
-    );
+    // 7) INSERT 또는 UPDATE (mutable 액션)
+    let aRows;
+    if (dupRows[0] && isMutable) {
+      const r = await client.query(
+        `UPDATE commander_actions
+         SET params = $1, applied_at_tick = $2, created_at = NOW()
+         WHERE id = $3
+         RETURNING id, created_at`,
+        [JSON.stringify(cleanParams), appliedAtTick, dupRows[0].id]
+      );
+      aRows = r.rows;
+    } else {
+      const r = await client.query(
+        `INSERT INTO commander_actions
+          (battle_id, wallet_address, side, action_type, params, applied_at_tick, gp_cost)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, created_at`,
+        [battleId, walletAddress, side, actionType, JSON.stringify(cleanParams), appliedAtTick, gpCost]
+      );
+      aRows = r.rows;
+    }
 
     await client.query('COMMIT');
 
@@ -193,6 +234,8 @@ async function loadForBattle(battleId) {
     empSchedule: [],         // [{ tick, durationTicks, fireIntervalMult, targetSide }]
     wedgeSides: new Set(),   // 'atk' or 'def'
     reinforcements: [],      // [{ wallet, shipTypeCode, count, side }]
+    formationsBySide: {},    // 'atk'|'def' -> 'sphere|wedge|screen|pincer'
+    maneuversBySide: {},     // 'atk'|'def' -> 'advance|flank|retreat|scatter|rally'
   };
 
   const empDuration = parseInt(await getSetting('emp_duration_ticks', '30')) || 30;
@@ -218,6 +261,10 @@ async function loadForBattle(battleId) {
         count: parseInt(p.count) || 0,
         side: a.side,
       });
+    } else if (a.action_type === 'formation_change' && p.formation) {
+      result.formationsBySide[a.side] = p.formation;
+    } else if (a.action_type === 'maneuver_change' && p.maneuver) {
+      result.maneuversBySide[a.side] = p.maneuver;
     }
   }
   return result;

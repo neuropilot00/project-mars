@@ -36580,6 +36580,9 @@ var CODEX_CONTENT = {
     sections: [
       { id: 'whatsnew', icon: '🆕', title: '최신 업데이트',
         blocks: [
+          { type:'p', text:'**v5.0 — 2026-04-26 함대전 = Tactical Lab 통합.** 사용자 강한 요청 (4번 반복) 단계적 구현.' },
+          { type:'h2', text:'⚔ v5.0 함대전 viewer = Tactical Lab v11 그대로' },
+          { type:'p', text:'• **4가지 요구사항 단계적 구현**:\n  1. ✅ tactical-lab 모든 항목 우리 게임에 그대로 이식 (iframe + 우리 ship_types/factions/minerals 자동 채움)\n  2. ✅ 모든 항목 실제 게임 데이터 연결 (?bid={battleId} → 진짜 attacker/defender 함대)\n  3. ✅ 함대전 유저 컨트롤 (진형 4종 / 기동 5종 / EMP / 집중공격 → postMessage → API)\n  4. 🟡 실시간 함대전 (WebSocket — 다음 사이클)\n• **데스크탑**: 1500×820 오버레이, 좌측 MY FLEET/RESOURCES + 우측 ENEMY FLEET/BATTLE STATS 사이드 패널\n• **모바일**: 풀스크린 유지\n• **결과 카드**: gradient + 별 점 + winner 글로우 + bvPulse 애니메이션\n• **함선 HP 차감 fix**: 살아남은 함선 부분 HP 손실 DB 반영 (이전엔 멀쩡함)\n• **재시작 버튼 제거** (실제 hijack 결과 영구)' },
           { type:'p', text:'**v4.1 — 2026-04-26 POI 광물 보상 + NPC 함선 일괄 부여.** 사용자 요청 즉각 처리.' },
           { type:'h2', text:'⛏ v4.1 POI 보상 다양화' },
           { type:'p', text:'• 신고: "POI 에도 GP/아이템/광물 섞여서 나오는게 맞지?"\n• Fix: 로켓드롭과 동일한 패턴으로 mineral 카테고리 추가.\n• 가중치: GP50 / Item20 / **Mineral25** / PP10 (admin 조정 가능, Migration 188).\n• claim 시 user_resource_inventory 자동 적립.\n• **NPC 함선 일괄 부여**: 21 NPC 모두 함대 보유 → hijack 함대전 정상 트리거.' },
@@ -42842,12 +42845,12 @@ window.addEventListener('message', function(ev) {
   if (!d || d.source !== 'tactical-lab' || !d.battleId) return;
   // 명령 → API
   // commanderActions.js 의 POST /api/battles/:id/commander-action 사용
-  // payload 형식: { actionType, targetType, targetId, payload }
+  // payload 형식: { actionType, params }
   var actionMap = {
-    formation: { actionType: 'formation_change', payload: d.payload },
-    maneuver:  { actionType: 'maneuver_change',  payload: d.payload },
-    focus:     { actionType: 'focus_fire',       payload: d.payload },
-    emp:       { actionType: 'emp_burst',        payload: d.payload }
+    formation: { actionType: 'formation_change', params: { formation: d.payload && d.payload.formation } },
+    maneuver:  { actionType: 'maneuver_change',  params: { maneuver:  d.payload && d.payload.maneuver  } },
+    focus:     { actionType: 'focus_fire',       params: { targetFleetId: d.payload && (d.payload.targetFleetId || d.payload.target) } },
+    emp:       { actionType: 'emp',              params: { startTick: d.payload && d.payload.startTick } }
   };
   var mapped = actionMap[d.cmd];
   if (!mapped) return;
@@ -42855,8 +42858,8 @@ window.addEventListener('message', function(ev) {
     method: 'POST',
     headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
     body: JSON.stringify({
-      actionType: mapped.actionType,
-      payload: mapped.payload || {}
+      action_type: mapped.actionType,
+      params: mapped.params || {}
     })
   }).then(function(r) {
     var label = { formation: '🛡 진형', maneuver: '→ 기동', focus: '⚡ 집중공격', emp: '💥 EMP' }[d.cmd] || d.cmd;

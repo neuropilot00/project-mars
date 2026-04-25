@@ -1,4 +1,26 @@
-# OCCUPY MARS — Codebase Audit (v3.9 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v4.6 / 2026-04-26)
+
+## 🔴 v4.0~v4.6 변경 요약 (2026-04-26)
+
+### Battle Viewer 전면 리팩터 — Tactical Lab 통합
+- v4.0: 데스크탑 1500×820 오버레이, 모바일 풀스크린 유지
+- v4.1: 살아남은 함선 부분 HP 손실 DB 반영 (battleEngine `applyBattleResults`)
+- v4.2: 결과 카드 디자인 + 조선소 SVG drawShip + HP 바
+- v4.3: tactical-lab v11 iframe 통째 통합 (자체 canvas/HUD/컨트롤 폐기)
+- v4.4: `?bid={battleId}` 로 실제 fleet 구성 주입 (`fleet_battle_participants` JOIN)
+- v4.5: 사이드 패널 (좌 MY FLEET/RESOURCES, 우 ENEMY FLEET/BATTLE STATS) + postMessage 컨트롤 bridge
+- v4.6: Phase 3-B — commanderActions `formation_change` + `maneuver_change` (Migration 189), mutable update, 시뮬 반영
+
+### Migration 189
+- `commander_actions.action_type` CHECK 갱신 — formation_change, maneuver_change 추가
+- settings: `commander_action_formation_gp_cost`, `commander_action_maneuver_gp_cost` (기본 0)
+
+### 잔여 P1 (다음 사이클)
+- **Phase 2**: WebSocket 실시간 frame broadcast (현재는 timeline replay 만)
+- **Phase 4**: AI 전략 (PvP/Siege battle 에 자동 진형/기동 명령)
+- **Phase 5**: tactical-lab 패널 (FLEET STATUS / SHIP REGISTRY / MINERALS / DOCTRINES) 실데이터 연결
+
+---
 
 ## 🔴 v3.9 변경 요약 (2026-04-26)
 - **POI 보상에 mineral 추가** (사용자 요청): Migration 188 + reward_type CHECK 갱신 + exploration.js spawn/claim 양쪽 mineral 분기. GP 50 / Item 20 / Mineral 25 / PP 10.

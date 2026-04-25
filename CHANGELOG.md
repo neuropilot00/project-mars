@@ -1,5 +1,44 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Phase 3-B: Commander Actions → Sim Apply (v4.6)
+
+### 사용자 요청 4가지 (Phase 1~3 단계 완료):
+1. ✅ tactical-lab 모든 항목 우리 게임에 그대로 이식
+2. ✅ 모든 항목 실제 게임과 연결 (fleet-presets ?bid)
+3. ✅ 함대전 유저 컨트롤 가능 (postMessage bridge)
+4. 🟡 실시간 함대전 (WebSocket) — Phase 2 다음 사이클
+
+### Migration 189 — commander_actions formation/maneuver 지원
+- CHECK constraint 에 `formation_change`, `maneuver_change` 추가
+- settings: `commander_action_formation_gp_cost=0`, `commander_action_maneuver_gp_cost=0` (잦은 변경 무료)
+
+### `services/commanderActions.js` 강화
+- `VALID_FORMATIONS` (sphere/wedge/screen/pincer) + `VALID_MANEUVERS` (advance/flank/retreat/scatter/rally) 검증
+- mutable 액션 (formation/maneuver):
+  - quota 카운트 제외
+  - 중복 시 UPDATE (params 변경 가능)
+  - GP 재차감 안 함
+- `loadForBattle` 결과에 `formationsBySide` + `maneuversBySide` 추가
+
+### `services/battleEngine.js` 적용
+- `initializeBattle` 가 양쪽 함대에 commanderActions 의 formation/maneuver 적용
+- focus_fire / wedge / EMP / reinforce 는 기존대로
+
+### 검증 (preview)
+- 테스트 battle #19 에 lain 등록 후:
+  - formation_change wedge → 200 OK
+  - maneuver_change flank → 200 OK
+  - formation_change sphere (mutable update) → 200 OK
+  - emp → 200 OK
+  - 최종 list 3건 (sphere, flank, emp)
+
+### 잔여 Phase
+- **Phase 2**: WebSocket 실시간 frame broadcast (battle scheduler tick → ws emit)
+- **Phase 4**: AI 전략 (services/aiStrategy.js) — hijack 외 battle 에 자동 진형/기동 INSERT
+- **Phase 5**: tactical-lab FLEET STATUS / SHIP REGISTRY / MINERALS / DOCTRINES 패널을 실제 게임 데이터에 연결
+
+---
+
 ## 2026-04-26 — Battle Viewer 데스크탑 오버레이 (v4.0)
 
 ### 🟢 사용자 요청: "데스크탑에서 전투화면 좀 오버레이로 작게 보여야 할 텐데 너무 풀화면이더라고"

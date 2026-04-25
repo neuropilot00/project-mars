@@ -337,6 +337,13 @@ function initBattleState(battleData) {
         }
       }
     }
+    // formation_change / maneuver_change — tactical-lab 컨트롤 → 시뮬 진형/기동 적용
+    const formBySide = cmdActions.formationsBySide || {};
+    const mvBySide = cmdActions.maneuversBySide || {};
+    for (const f of stateFleets) {
+      if (formBySide[f.side]) f.formation = formBySide[f.side];
+      if (mvBySide[f.side])  { f.maneuver = mvBySide[f.side]; f.movement = mvBySide[f.side]; }
+    }
   }
 
   return {
