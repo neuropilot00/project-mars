@@ -83,6 +83,20 @@ router.get('/events/recent', async (req, res) => {
 });
 
 /**
+ * GET /api/betting/events/:id/odds  (legacy compat)
+ * 베팅 오즈만 반환 — betting.js 통합으로 추가 (frontend 기존 호출 유지용)
+ */
+router.get('/events/:id/odds', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id) return res.status(400).json({ error: 'INVALID_ID' });
+    const event = await bettingService.getEventWithOdds(id);
+    if (!event) return res.status(404).json({ error: 'EVENT_NOT_FOUND' });
+    res.json(event);
+  } catch (err) { handleErr(res, err, 'odds'); }
+});
+
+/**
  * GET /api/betting/events/:id
  * 이벤트 상세 + 오즈
  */
@@ -124,12 +138,24 @@ router.post('/bet', requireAuth, async (req, res) => {
 
 /**
  * GET /api/betting/mine
- * 내 베팅 기록
+ * 내 베팅 기록 — JWT 또는 ?wallet= query 모두 허용 (legacy /api/user/bets 통합)
  */
-router.get('/mine', requireAuth, async (req, res) => {
+router.get('/mine', async (req, res) => {
   try {
-    const wallet = getWallet(req);
-    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+    // 1) Try JWT first
+    let wallet = null;
+    const token = (req.headers.authorization || '').replace('Bearer ', '');
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        wallet = decoded.wallet_address || decoded.wallet || decoded.walletAddress;
+      } catch (_) { /* fall through to query */ }
+    }
+    // 2) Fallback: ?wallet= query param (legacy compat — was /api/user/bets)
+    if (!wallet) {
+      wallet = (req.query.wallet || req.headers['x-wallet'] || '').toLowerCase().trim();
+    }
+    if (!wallet || wallet.length < 10) return res.status(401).json({ error: 'NO_WALLET' });
 
     const limit = Math.min(50, parseInt(req.query.limit) || 30);
     const bets = await bettingService.getMyBets(wallet, limit);
@@ -168,6 +194,80 @@ router.post('/resolve/:id', requireAuth, async (req, res) => {
     const result = await bettingService.resolveEvent(id, winner_option);
     res.json(result);
   } catch (err) { handleErr(res, err, 'resolve'); }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// Legacy admin endpoints (이전 betting.js 통합) — x-admin-secret 헤더 사용
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * GET /api/betting/admin/events — 전체 이벤트 목록 (admin)
+ */
+router.get('/admin/events', async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).json({ error: 'ADMIN_ONLY' });
+  try {
+    const { pool } = require('../db');
+    const status = req.query.status || null;
+    const q = status
+      ? 'SELECT * FROM war_bet_events WHERE status = $1 ORDER BY opens_at DESC LIMIT 100'
+      : 'SELECT * FROM war_bet_events ORDER BY opens_at DESC LIMIT 100';
+    const result = await pool.query(q, status ? [status] : []);
+    res.json({ events: result.rows });
+  } catch (err) { handleErr(res, err, 'admin-list'); }
+});
+
+/**
+ * POST /api/betting/admin/events/:id/settle — 강제 정산
+ * Body: { winnerOption: 'a' | 'b' | 'c' }
+ */
+router.post('/admin/events/:id/settle', async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).json({ error: 'ADMIN_ONLY' });
+  try {
+    const id = parseInt(req.params.id);
+    if (!id) return res.status(400).json({ error: 'INVALID_ID' });
+    const { winnerOption, winner_option } = req.body || {};
+    const winner = winner_option || winnerOption;
+    if (!winner) return res.status(400).json({ error: 'WINNER_OPTION_REQUIRED' });
+    const result = await bettingService.resolveEvent(id, winner);
+    res.json(result);
+  } catch (err) { handleErr(res, err, 'admin-settle'); }
+});
+
+/**
+ * POST /api/betting/admin/events/:id/cancel — 이벤트 취소 (베팅 환불)
+ */
+router.post('/admin/events/:id/cancel', async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).json({ error: 'ADMIN_ONLY' });
+  try {
+    const id = parseInt(req.params.id);
+    if (!id) return res.status(400).json({ error: 'INVALID_ID' });
+    const result = await bettingService.cancelEvent ? await bettingService.cancelEvent(id) : null;
+    if (!result) {
+      // Fallback: direct DB cancel + refund
+      const { pool } = require('../db');
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const evt = await client.query(`SELECT id, status FROM war_bet_events WHERE id=$1 FOR UPDATE`, [id]);
+        if (!evt.rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'EVENT_NOT_FOUND' }); }
+        if (['resolved','cancelled'].includes(evt.rows[0].status)) {
+          await client.query('ROLLBACK');
+          return res.status(409).json({ error: 'ALREADY_RESOLVED' });
+        }
+        const bets = await client.query(`SELECT bettor_wallet, amount_gp FROM war_bets WHERE event_id=$1`, [id]);
+        for (const b of bets.rows) {
+          await client.query(`UPDATE users SET gp_balance = gp_balance + $2 WHERE wallet_address = $1`, [b.bettor_wallet, b.amount_gp]);
+        }
+        await client.query(`UPDATE war_bet_events SET status='cancelled', resolved_at=NOW() WHERE id=$1`, [id]);
+        await client.query('COMMIT');
+        return res.json({ success: true, refunded: bets.rows.length });
+      } catch (e) {
+        try { await client.query('ROLLBACK'); } catch(_) {}
+        throw e;
+      } finally { client.release(); }
+    }
+    res.json(result);
+  } catch (err) { handleErr(res, err, 'admin-cancel'); }
 });
 
 module.exports = router;

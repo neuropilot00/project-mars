@@ -28806,7 +28806,7 @@ window.addEventListener('resize', _debounce(function(){
 
     Promise.all([
       fetch('/api/betting/events/'+betEventId+'/odds').then(function(r){return r.json()}).catch(function(){return null}),
-      w ? fetch('/api/user/bets?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {bets:[]}}) : Promise.resolve({bets:[]})
+      w ? fetch('/api/betting/mine?wallet='+encodeURIComponent(w)).then(function(r){return r.json()}).catch(function(){return {bets:[]}}) : Promise.resolve({bets:[]})
     ]).then(function(res) {
       var odds = res[0];
       var userBets = (res[1] && res[1].bets) || [];

@@ -10238,7 +10238,7 @@ function loadBettingAdmin() {
   tbl.innerHTML = '<tr><td colspan="10" style="color:#aaa;text-align:center;padding:16px">Loading...</td></tr>';
   var filterEl = document.getElementById('betAdmFilter');
   var status = filterEl ? filterEl.value : '';
-  var url = '/api/admin/betting/events' + (status ? '?status='+encodeURIComponent(status) : '');
+  var url = '/api/betting/admin/events' + (status ? '?status='+encodeURIComponent(status) : '');
   fetch(url).then(function(r){return r.json()}).then(function(data) {
     var events = data.events || [];
     if (!events.length) {
@@ -10279,7 +10279,7 @@ function loadBettingAdmin() {
 
 function adminSettleBet(eventId, winnerOption) {
   if (!confirm('Settle betting event #'+eventId+' with winner option "'+winnerOption+'"?\nThis will pay out all winning bets.')) return;
-  fetch('/api/admin/betting/events/'+eventId+'/settle', {
+  fetch('/api/betting/admin/events/'+eventId+'/settle', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
   }).then(function(r){return r.json()}).then(function(d){
@@ -10294,7 +10294,7 @@ function adminSettleBet(eventId, winnerOption) {
 
 function adminCancelBet(eventId) {
   if (!confirm('Cancel betting event #'+eventId+' and refund all bets?')) return;
-  fetch('/api/admin/betting/events/'+eventId+'/cancel', {
+  fetch('/api/betting/admin/events/'+eventId+'/cancel', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
   }).then(function(r){return r.json()}).then(function(d){

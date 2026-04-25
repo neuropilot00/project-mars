@@ -116,7 +116,7 @@ const resourceRoutes = require('./routes/resource');
 const sectorRoutes = require('./routes/sectors');
 const siegeRoutes = require('./routes/siege');
 // Removed: routes/public.js (0 frontend fetches — see also publicV2Routes deletion below)
-const bettingRoutes    = require('./routes/betting');
+// Removed: routes/betting.js v1 — 통합 to warBettingRoutes.js (legacy admin/odds endpoints 추가)
 const warBettingRoutes = require('./routes/warBettingRoutes'); // War Betting v2
 const auctionRoutes = require('./routes/auction');
 const shipRoutes    = require('./routes/ships');
@@ -293,8 +293,8 @@ app.use('/api', sectorRoutes);
 app.use('/api', siegeRoutes);
 // Removed: publicRoutes mount
 app.use('/api/weather', weatherRoutes);    // Weather Strategic v2
-app.use('/api/betting', warBettingRoutes); // War Betting v2 (must be before bettingRoutes)
-app.use('/api', bettingRoutes);
+app.use('/api/betting', warBettingRoutes); // War Betting (v1 + v2 통합)
+// Removed: bettingRoutes v1 mount
 app.use('/api/auctions', require('./routes/auctionRoutes')); // M-090: 옥션 (must be before /api auctionRoutes)
 // Removed: territoryRoutes (0 frontend fetches — M-091 영토 매매 비주얼 미사용)
 // Removed: factionRoutes.js v2 (frontend uses v1 only — see services/factionSystem.js deletion)
@@ -897,18 +897,7 @@ async function start() {
       console.log('[SIEGE] Auto-resolve scheduler started (5min interval)');
     } catch(e) { console.warn('[SIEGE] Could not init auto-resolve scheduler:', e.message); }
 
-    // ── War Betting: Close Expired Events (every 5 minutes) ──
-    try {
-      const { closeExpiredEvents } = require('./services/betting');
-      setInterval(async () => {
-        try {
-          const n = await closeExpiredEvents();
-          if (n > 0) console.log(`[BETTING] Auto-closed ${n} expired betting event(s)`);
-        } catch(e) { console.warn('[BETTING] closeExpired error:', e.message); }
-      }, 5 * 60 * 1000);
-      console.log('[BETTING] Close-expired-events scheduler started (5min interval)');
-    } catch(e) { console.warn('[BETTING] Could not init close-expired scheduler:', e.message); }
-
+    // Removed: betting.js v1 scheduler — warBetting v2가 동일 작업 60초마다 수행
     // ── War Betting v2: Close Expired Events (every 60 seconds) ──
     try {
       const warBettingSvc = require('./services/warBetting');
