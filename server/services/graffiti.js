@@ -107,7 +107,7 @@ async function placeGraffiti(wallet, claimId, text) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, 'spend', cfg.costGP, `graffiti claim#${claimId}`);
     } catch(_) {}
     try {

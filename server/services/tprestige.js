@@ -120,7 +120,7 @@ async function upgradePrestige(wallet, claimId) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, 'spend', costGP, `tprestige claim#${claimId} → ${TIER_NAMES[nextTier]}`);
     } catch(_) {}
     try {

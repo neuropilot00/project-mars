@@ -144,7 +144,7 @@ async function activateEvent(wallet, claimId, eventType) {
 
     await client.query('COMMIT');
 
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -evtInfo.gpCost, 'territory_event', `${evtInfo.label} claim ${claimId}`); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -evtInfo.gpCost, 'territory_event', `${evtInfo.label} claim ${claimId}`); } catch(_) {}
     try { const seasonService = require('./season'); await seasonService.trackGPSpend(wallet, evtInfo.gpCost); } catch(_) {}
 
     return { success: true, event: evtRes.rows[0], evtInfo, expiresAt };

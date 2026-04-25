@@ -120,7 +120,7 @@ async function setHighlight(wallet, claimId, color) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, 'spend', cfg.costGP, `highlight claim#${claimId}`);
     } catch(_) {}
     try {

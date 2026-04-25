@@ -119,7 +119,7 @@ async function sendTribute(wallet, claimId, amountGP, message) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, 'spend', amountGP, `tribute claim#${claimId}`);
     } catch(_) {}
     try {

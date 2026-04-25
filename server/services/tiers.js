@@ -132,7 +132,7 @@ async function upgradeTier(wallet, claimId) {
     await client.query('COMMIT');
 
     // Side effects
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -gpCost, 'territory_tier', `Tier upgrade claim ${claimId}`); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -gpCost, 'territory_tier', `Tier upgrade claim ${claimId}`); } catch(_) {}
     try { const seasonService = require('./season'); await seasonService.trackGPSpend(wallet, gpCost); } catch(_) {}
 
     return { success: true, fromTier: currentTier, toTier: nextTier, gpCost, tierName: tierInfo.name, tierIcon: tierInfo.icon, miningBonus: tierInfo.miningBonusPct, pixelBonus: tierInfo.pixelBonusPct };

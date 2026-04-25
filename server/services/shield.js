@@ -126,11 +126,17 @@ async function activateShield(client, wallet, claimId, durationH) {
 
 // ── Check if a claim is shielded (called in hijack validation) ────────────────
 
+// ✅ [P0-1 FIX] 두 shield 테이블을 동시에 조회.
+// territory_shields = GP shield 시스템, pixel_shields = 상점 아이템 shield.
+// 이전엔 territory_shields 만 조회해 상점 shield 가 hijack 을 못 막던 버그.
 async function isClaimShielded(claimId) {
   const res = await pool.query(
-    `SELECT id, expires_at FROM territory_shields
-      WHERE claim_id = $1 AND is_active = true AND expires_at > NOW()
-      LIMIT 1`,
+    `SELECT 'territory' AS src, id, expires_at FROM territory_shields
+       WHERE claim_id = $1 AND is_active = true AND expires_at > NOW()
+     UNION ALL
+     SELECT 'pixel' AS src, id, expires_at FROM pixel_shields
+       WHERE claim_id = $1 AND expires_at > NOW()
+     LIMIT 1`,
     [claimId]
   );
   return res.rows.length > 0 ? res.rows[0] : null;
@@ -141,9 +147,12 @@ async function isClaimShielded(claimId) {
  */
 async function isClaimShieldedTx(client, claimId) {
   const res = await client.query(
-    `SELECT id, expires_at FROM territory_shields
-      WHERE claim_id = $1 AND is_active = true AND expires_at > NOW()
-      LIMIT 1`,
+    `SELECT 'territory' AS src, id, expires_at FROM territory_shields
+       WHERE claim_id = $1 AND is_active = true AND expires_at > NOW()
+     UNION ALL
+     SELECT 'pixel' AS src, id, expires_at FROM pixel_shields
+       WHERE claim_id = $1 AND expires_at > NOW()
+     LIMIT 1`,
     [claimId]
   );
   return res.rows.length > 0 ? res.rows[0] : null;

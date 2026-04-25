@@ -107,7 +107,7 @@ async function placeBeacon(wallet, { x, y, message, icon }) {
     );
 
     await client.query('COMMIT');
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -cfg.costGP, 'beacon', `Beacon at (${x},${y})`); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -cfg.costGP, 'beacon', `Beacon at (${x},${y})`); } catch(_) {}
     seasonService?.trackGPSpend?.(wallet, cfg.costGP, 'beacon').catch(() => {});
 
     return { id: beacon.id, expiresAt: beacon.expires_at, costGP: cfg.costGP, durH: cfg.durH };

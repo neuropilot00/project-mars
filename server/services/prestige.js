@@ -122,7 +122,7 @@ async function buyPrestige(wallet) {
     );
 
     await client.query('COMMIT');
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -cfg.costGP, 'prestige_buy', 'Colony Prestige purchase'); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -cfg.costGP, 'prestige_buy', 'Colony Prestige purchase'); } catch(_) {}
     seasonService?.trackGPSpend?.(wallet, cfg.costGP, 'prestige').catch(()=>{});
 
     return { newPts, oldRank, newRank, rankedUp: newRank > oldRank,

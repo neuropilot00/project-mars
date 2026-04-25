@@ -100,7 +100,7 @@ async function plantBanner(wallet, claimId, emoji, message) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, 'spend', cfg.costGP, `banner claim#${claimId}`);
     } catch(_) {}
     try {

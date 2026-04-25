@@ -102,7 +102,7 @@ async function publishEntry(wallet, title, content) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, 'spend', cfg.costGP, `journal: ${safeTitle}`);
     } catch(_) {}
     try {

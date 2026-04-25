@@ -120,7 +120,7 @@ async function _changeField(wallet, field, value, cfg) {
     await client.query('COMMIT');
 
     // Side effects
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -gpCost, 'profile_change', `Changed ${field}`); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -gpCost, 'profile_change', `Changed ${field}`); } catch(_) {}
     try { const seasonService = require('./season'); await seasonService.trackGPSpend(wallet, gpCost); } catch(_) {}
 
     return { success: true, gpCost, field, newValue: value };

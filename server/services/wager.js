@@ -124,7 +124,7 @@ async function placeBet(wallet, poolId, targetWallet, gpAmount) {
 
     await client.query('COMMIT');
 
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -gpAmount, 'wager_bet', `Pool #${poolId}`); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -gpAmount, 'wager_bet', `Pool #${poolId}`); } catch(_) {}
     try { const seasonService = require('./season'); await seasonService.trackGPSpend(wallet, gpAmount); } catch(_) {}
 
     return { success: true, gpAmount, poolId, targetWallet };

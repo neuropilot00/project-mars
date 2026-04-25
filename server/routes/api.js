@@ -2762,6 +2762,11 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
     const baseRandom = rewardMin + Math.random() * (rewardMax - rewardMin);
     let harvestedPP = Math.round(baseRandom * pixelFactor * 10000) / 10000;
 
+    // ✅ [P1-1 FIX] Apply hard cap to BASE here (before multipliers).
+    // 이전엔 모든 multiplier 적용 후 cap 을 씌워 VIP/buff/governor 등 누적 보너스가
+    // cap 에 흡수되어 무용해졌음. 이제 base 만 cap 하고 그 위에 multiplier 들이 곱해진다.
+    if (harvestCap > 0) harvestedPP = Math.min(harvestedPP, harvestCap);
+
     // Governor bonus
     const govRes = await client.query(
       'SELECT COUNT(*) AS cnt FROM sectors WHERE governor_wallet = $1', [w]
@@ -2874,8 +2879,30 @@ router.post('/harvest', harvestLimiter, async (req, res) => {
       }
     } catch (_tp) { /* tprestige service unavailable */ }
 
-    // Apply hard cap per harvest
-    harvestedPP = Math.min(harvestedPP, harvestCap);
+    // ✅ [P0-3 FIX] Territory Tiers (services/tiers.js) miningBonusPct — 적용 누락 fix.
+    // territory_tiers 테이블의 highest tier (유저가 보유) miningBonusPct 가 채굴에 가산되도록 추가.
+    try {
+      const tiersSvc = require('../services/tiers');
+      const cfg = await tiersSvc.getCfg();
+      if (cfg && cfg.enabled) {
+        const tRes = await client.query(
+          `SELECT MAX(tt.tier) AS max_tier FROM territory_tiers tt
+             JOIN claims c ON c.id = tt.claim_id
+            WHERE LOWER(tt.wallet) = LOWER($1) AND c.deleted_at IS NULL`,
+          [w]
+        );
+        const maxTier = parseInt(tRes.rows[0]?.max_tier || 0);
+        if (maxTier > 0) {
+          const tierDef = (cfg.tiers || [])[maxTier - 1];
+          const bonusPct = parseFloat(tierDef?.miningBonusPct || 0);
+          if (bonusPct > 0) {
+            harvestedPP = Math.round(harvestedPP * (1 + bonusPct / 100) * 10000) / 10000;
+          }
+        }
+      }
+    } catch (_te) { /* tiers service unavailable */ }
+
+    // (P1-1) cap 은 위에서 base 에 이미 적용됨 — 여기선 multipliers 누적 후 추가 cap 적용 안 함.
 
     // Apply daily cap (0=unlimited)
     const todayDate = now.toISOString().slice(0, 10);
@@ -4239,15 +4266,44 @@ router.post('/cosmetic/equip', writeLimiter, async (req, res) => {
       return res.status(403).json({ error: 'Not your claim' });
     }
 
-    // Verify user owns the cosmetic item
+    // ✅ [P0-2 FIX] Verify ownership AND decrement user_items.quantity.
+    // 이전엔 quantity > 0 체크만 하고 차감 안 해 1개로 N개 클레임에 무한 장착 가능했음.
+    // 이전 동일 type cosmetic 은 ON CONFLICT 로 교체되며 인벤토리로 환수 (아래에서 처리).
     const invRes = await client.query(
-      `SELECT ui.quantity FROM user_items ui
+      `SELECT ui.id, ui.quantity, ui.item_type_id FROM user_items ui
        JOIN item_types it ON it.id = ui.item_type_id
-       WHERE ui.wallet = $1 AND it.code = $2 AND ui.quantity > 0`, [w, itemCode]
+       WHERE ui.wallet = $1 AND it.code = $2 AND ui.quantity > 0
+       FOR UPDATE`, [w, itemCode]
     );
     if (!invRes.rows[0]) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'You don\'t own this cosmetic' });
+    }
+    const newItemTypeId = invRes.rows[0].item_type_id;
+
+    // 이미 같은 claim/type 에 다른 cosmetic 이 장착돼 있으면 인벤토리로 환수.
+    const prevRes = await client.query(
+      `SELECT cosmetic_code FROM user_cosmetics
+        WHERE claim_id = $1 AND cosmetic_type = $2`,
+      [claimId, cosmeticType]
+    );
+    const prevCode = prevRes.rows[0]?.cosmetic_code || null;
+    if (prevCode && prevCode !== itemCode) {
+      // 이전 cosmetic 을 user_items 로 환수 (+1)
+      await client.query(
+        `INSERT INTO user_items (wallet, item_type_id, quantity)
+         SELECT $1, it.id, 1 FROM item_types it WHERE it.code = $2
+         ON CONFLICT (wallet, item_type_id)
+         DO UPDATE SET quantity = user_items.quantity + 1`,
+        [w, prevCode]
+      );
+    }
+    // 새 cosmetic quantity -1 (이전과 같은 코드면 차감/환수 없음 = 변동 없음)
+    if (prevCode !== itemCode) {
+      await client.query(
+        `UPDATE user_items SET quantity = quantity - 1 WHERE id = $1`,
+        [invRes.rows[0].id]
+      );
     }
 
     // PP fee for equipping cosmetics
@@ -4298,16 +4354,34 @@ router.post('/cosmetic/unequip', writeLimiter, async (req, res) => {
   const w = (wallet || '').toLowerCase();
   if (!w || !claimId || !cosmeticType) return res.status(400).json({ error: 'Missing params' });
 
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
-      'DELETE FROM user_cosmetics WHERE wallet = $1 AND claim_id = $2 AND cosmetic_type = $3 RETURNING id',
+    await client.query('BEGIN');
+    // ✅ [P0-2 FIX] DELETE 시 user_items 로 환수 (+1) — equip 에서 차감했으므로.
+    const result = await client.query(
+      'DELETE FROM user_cosmetics WHERE wallet = $1 AND claim_id = $2 AND cosmetic_type = $3 RETURNING cosmetic_code',
       [w, claimId, cosmeticType]
     );
-    if (!result.rows[0]) return res.status(404).json({ error: 'No cosmetic to remove' });
-    res.json({ success: true });
+    if (!result.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'No cosmetic to remove' });
+    }
+    const code = result.rows[0].cosmetic_code;
+    await client.query(
+      `INSERT INTO user_items (wallet, item_type_id, quantity)
+       SELECT $1, it.id, 1 FROM item_types it WHERE it.code = $2
+       ON CONFLICT (wallet, item_type_id)
+       DO UPDATE SET quantity = user_items.quantity + 1`,
+      [w, code]
+    );
+    await client.query('COMMIT');
+    res.json({ success: true, refundedItem: code });
   } catch (e) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
     console.error('[COSMETIC] unequip error:', e.message);
     res.status(500).json({ error: 'Unequip failed' });
+  } finally {
+    client.release();
   }
 });
 

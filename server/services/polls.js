@@ -102,7 +102,7 @@ async function createPoll(wallet, { question, options, durationH }) {
       [wallet, -cfg.costGP, poll.id]
     );
     await client.query('COMMIT');
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -cfg.costGP, 'poll', question.slice(0,30)); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -cfg.costGP, 'poll', question.slice(0,30)); } catch(_) {}
     seasonService?.trackGPSpend?.(wallet, cfg.costGP, 'poll').catch(() => {});
     return { id: poll.id, endsAt, costGP: cfg.costGP };
   } catch(e) { await client.query('ROLLBACK'); throw e; }

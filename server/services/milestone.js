@@ -112,7 +112,7 @@ async function recordMilestone(wallet, category, title, description) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, 'spend', cfg.costGP, `milestone [${safeCat}]: ${safeTitle}`);
     } catch(_) {}
     try {

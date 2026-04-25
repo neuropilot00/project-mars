@@ -139,7 +139,7 @@ async function buyTickets(wallet, raffleId, count) {
     await client.query('COMMIT');
 
     // Side effects
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -gpCost, 'raffle_ticket', `Raffle #${raffleId}`); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -gpCost, 'raffle_ticket', `Raffle #${raffleId}`); } catch(_) {}
     try { const seasonService = require('./season'); await seasonService.trackGPSpend(wallet, gpCost); } catch(_) {}
 
     return { success: true, gpCost, count, totalTickets: alreadyOwned + count, prizePool: rf.prize_pool_gp + toPrize };
@@ -209,7 +209,7 @@ async function drawWinner(raffleId) {
 
     await client.query('COMMIT');
 
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(winnerWallet, prizeGp, 'raffle_prize', `Raffle #${raffleId} winner`); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(winnerWallet, prizeGp, 'raffle_prize', `Raffle #${raffleId} winner`); } catch(_) {}
 
     return { drawn: true, winner: winnerWallet, prizeGp };
   } catch (e) {

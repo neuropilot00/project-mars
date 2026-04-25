@@ -105,7 +105,7 @@ async function setDescription(wallet, claimId, text) {
 
     if (gpCost > 0) {
       try {
-        const { logGPActivity } = require('./gpActivity');
+        const { logGPActivity } = require('../db');
         await logGPActivity(wallet, -gpCost, 'tdesc', `Territory description #${claimId}`);
       } catch(_) {}
       seasonService?.trackGPSpend?.(wallet, gpCost, 'tdesc').catch(() => {});

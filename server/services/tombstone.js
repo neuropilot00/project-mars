@@ -112,7 +112,7 @@ async function placeTombstone(wallet, claimId, epitaph) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, 'spend', cfg.costGP, `tombstone claim#${claimId}`);
     } catch(_) {}
     try {

@@ -104,7 +104,7 @@ async function rateTerritory(wallet, claimId, rating) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       if (gpCost > 0) await logGPActivity(wallet, 'spend', gpCost, `rating claim#${claimId}`);
     } catch(_) {}
     try {

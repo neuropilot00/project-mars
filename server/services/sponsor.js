@@ -131,7 +131,7 @@ async function placeSponsor(wallet, claimId, message) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, -cfg.costGP, 'sponsor', `Territory sponsor #${claimId}`);
     } catch(_) {}
     seasonService?.trackGPSpend?.(wallet, cfg.costGP, 'sponsor').catch(() => {});

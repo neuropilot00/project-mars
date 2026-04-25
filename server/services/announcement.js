@@ -108,7 +108,7 @@ async function postAnnouncement(wallet, message, durationM) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, 'spend', costGP, `announce: ${safeMsg}`);
     } catch(_) {}
     try {

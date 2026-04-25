@@ -812,9 +812,19 @@ async function autoRotateSeason() {
   }
 }
 
+// trackGPSpend(wallet, gpAmount) — routes (duel/rental/contest/crafting/vip/claimUpgrades) 가 호출하던 alias.
+// 이전엔 export 되지 않아 truthy 가드(`if (seasonService.trackGPSpend)`)에서 silently skip → gp_spend 시즌 점수 미집계.
+async function trackGPSpend(wallet, gpAmount) {
+  try {
+    const amt = Math.round(parseFloat(gpAmount) || 0);
+    if (amt <= 0 || !wallet) return null;
+    return await addSeasonScore(wallet, 'gp_spend', amt);
+  } catch (_) { return null; }
+}
+
 module.exports = {
   ALL_CATEGORIES,
-  getActiveSeason, addSeasonScore,
+  getActiveSeason, addSeasonScore, trackGPSpend,
   getSeasonLeaderboard, finalizeSeasonRewards,
   claimSeasonReward, getMyRewards,
   // Category leaderboards + career stats (migration 098)

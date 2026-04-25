@@ -79,7 +79,7 @@ async function donate(wallet, amountGP, message) {
     );
 
     await client.query('COMMIT');
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -amountGP, 'donation', message || 'Colony Fund'); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -amountGP, 'donation', message || 'Colony Fund'); } catch(_) {}
     seasonService?.trackGPSpend?.(wallet, amountGP, 'donation').catch(() => {});
 
     return { ok: true, id: entry.id, amountGP };

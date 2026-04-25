@@ -122,7 +122,7 @@ async function buryCapsule(wallet, message, revealInDays) {
     await client.query('COMMIT');
 
     try {
-      const { logGPActivity } = require('./gpActivity');
+      const { logGPActivity } = require('../db');
       await logGPActivity(wallet, -cfg.costGP, 'capsule', `Time Capsule — reveals in ${days}d`);
     } catch(_) {}
     seasonService?.trackGPSpend?.(wallet, cfg.costGP, 'capsule').catch(() => {});

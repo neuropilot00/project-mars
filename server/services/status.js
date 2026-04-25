@@ -90,7 +90,7 @@ async function setStatus(wallet, statusText, durationH) {
     );
 
     await client.query('COMMIT');
-    try { const { logGPActivity } = require('./gpActivity'); await logGPActivity(wallet, -costGP, 'status', statusText.slice(0,20)); } catch(_) {}
+    try { const { logGPActivity } = require('../db'); await logGPActivity(wallet, -costGP, 'status', statusText.slice(0,20)); } catch(_) {}
     seasonService?.trackGPSpend?.(wallet, costGP, 'status').catch(() => {});
 
     return { ok: true, expiresAt, costGP, isRenewal };
