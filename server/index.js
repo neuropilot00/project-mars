@@ -1358,6 +1358,15 @@ async function start() {
       console.log(`╚══════════════════════════════════════════╝\n`);
     });
 
+    // WebSocket — Phase 2 실시간 battle frame broadcast (/ws/battle/{id})
+    try {
+      const { attachWsServer } = require('./wsServer');
+      attachWsServer(server);
+      console.log('[WS] Battle WebSocket server attached at /ws/battle/{id}');
+    } catch (wsErr) {
+      console.warn('[WS] attach failed:', wsErr.message);
+    }
+
     // ── Graceful Shutdown ──
     function gracefulShutdown() {
       console.log('[Server] Shutting down gracefully...');

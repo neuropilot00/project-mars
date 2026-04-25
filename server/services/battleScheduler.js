@@ -98,7 +98,39 @@ async function runBattle(battleId) {
 
     // 2. 시뮬레이션
     const result = await battleEngine.simulateBattle(battleId);
-    
+
+    // 2-bis. WebSocket 실시간 broadcast — Phase 2
+    // 시뮬은 동기로 끝났지만, 클라가 ws 로 구독 중이면 frame 단위로 stream.
+    // 1 frame = tick_ms (200ms) 간격으로 emit. 클라가 이미 timeline replay 모드면 ws 무시 가능.
+    try {
+      const ws = require('../wsServer');
+      const stats = ws.channelStats();
+      if (stats[battleId]) {
+        const frames = result.timeline?.frames || [];
+        const tickMs = result.timeline?.tick_ms || 200;
+        // 별도 setTimeout 체인으로 frame stream — 시뮬 결과 저장은 즉시 진행
+        let i = 0;
+        const streamNext = () => {
+          if (i >= frames.length) {
+            ws.broadcastBattleEnd(battleId, {
+              winner_side: result.winner_side,
+              duration_seconds: result.duration_seconds,
+              stats: result.stats
+            });
+            return;
+          }
+          ws.broadcastBattleFrame(battleId, frames[i]);
+          i++;
+          // 4x speed 로 stream (속도 너무 느리면 클라가 지루)
+          setTimeout(streamNext, Math.max(20, tickMs / 4));
+        };
+        streamNext();
+        console.log(`[battleScheduler] WS streaming ${frames.length} frames to ${stats[battleId]} subscribers`);
+      }
+    } catch (wsErr) {
+      console.warn(`[battleScheduler] ws broadcast failed:`, wsErr.message);
+    }
+
     // 3. 타임라인 저장
     const timelineSaved = await battleTimeline.saveTimeline(battleId, result.timeline);
     console.log(`[battleScheduler] battle ${battleId} timeline saved: ${timelineSaved.size_bytes} bytes`);
