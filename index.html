@@ -9651,8 +9651,12 @@ function compositeClaimsOnTexture(previewOnly){
           ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+',1)';ctx.font='bold '+lfs+'px sans-serif';
           ctx.textAlign='center';ctx.textBaseline='middle';
           var lbl=ownerLabel||'CLAIMED';
-          while(ctx.measureText(lbl).width>rw-4&&lbl.length>3) lbl=lbl.slice(0,-1);
-          ctx.fillText(lbl,rx+rw/2,ry+rh/2);
+          var maxW=rw-4;
+          if(ctx.measureText(lbl).width>maxW){
+            while(lbl.length>1&&ctx.measureText(lbl+'…').width>maxW) lbl=lbl.slice(0,-1);
+            lbl=lbl+'…';
+          }
+          ctx.fillText(lbl,rx+rw/2,ry+rh/2,maxW);
           ctx.restore();
         }
       }else{
@@ -9694,8 +9698,12 @@ function compositeClaimsOnTexture(previewOnly){
     var myAddr=walletState.address||'';
     var _shieldPulse=Math.sin(Date.now()/600)*0.15+0.85;
 
-    // Sort claims oldest→newest so newer claims visually override older ones
-    var sortedClaims=claims.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0)});
+    // 내 영토는 항상 마지막에 그려 위에 올라오도록 (old→new, isMine last)
+    var sortedClaims=claims.slice().sort(function(a,b){
+      var aM=(myAddr&&a.owner===myAddr)?1:0,bM=(myAddr&&b.owner===myAddr)?1:0;
+      if(aM!==bM) return aM-bM;
+      return (a.ts||0)-(b.ts||0);
+    });
     // Pre-compute rects for clipping
     var claimRects=sortedClaims.map(function(c){
       var cw=c.w||c.size||20, ch=c.h||c.size||20;
