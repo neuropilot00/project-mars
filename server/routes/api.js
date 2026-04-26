@@ -1749,7 +1749,7 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
           const pxCost = _refPrice * HIJACK_MULT;
           attackCost += pxCost;
           if (!enemyByOwner[existing.owner]) enemyByOwner[existing.owner] = [];
-          enemyByOwner[existing.owner].push({ lat: p.lat, lng: p.lng, prevOwner: existing.owner, price: _refPrice, pxCost });
+          enemyByOwner[existing.owner].push({ lat: p.lat, lng: p.lng, prevOwner: existing.owner, price: _refPrice, pxCost, claim_id: existing.claim_id || null });
           if (!affectedOwners[existing.owner]) affectedOwners[existing.owner] = { refund: 0, bonus: 0 };
           affectedOwners[existing.owner].refund += _existPrice;
           affectedOwners[existing.owner].bonus += (pxCost - _existPrice) * OWNER_BONUS_PCT;
@@ -1773,6 +1773,14 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
       if (pxList.length > maxCount) { maxCount = pxList.length; primaryDefWallet = owner; }
     }
     const primaryEnemyPixels = enemyByOwner[primaryDefWallet];
+    // 수비자 대표 claim_id (가장 많이 등장하는 것)
+    const primaryDefClaimId = (() => {
+      const freq = {};
+      for (const ep of primaryEnemyPixels) {
+        if (ep.claim_id) freq[ep.claim_id] = (freq[ep.claim_id] || 0) + 1;
+      }
+      return Object.keys(freq).sort((a, b) => freq[b] - freq[a])[0] || null;
+    })();
 
     // 주 수비자 외 나머지는 공격 비용에서 제외 (해당 픽셀 스킵)
     const otherDefOwners = Object.keys(enemyByOwner).filter(o => o !== primaryDefWallet);
@@ -1823,6 +1831,7 @@ router.post('/hijack/declare-with-pp', writeLimiter, async (req, res) => {
       enemy_pixels: primaryEnemyPixels,
       primary_defender_wallet: primaryDefWallet,
       primary_def_fleet_id: primaryDefFleetId,
+      primary_def_claim_id: primaryDefClaimId,
       base_cost: baseCost,
       attack_cost: attackCost,
       affected_owners: affectedOwners,

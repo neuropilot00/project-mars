@@ -475,9 +475,10 @@ async function declareHijackWithPP(params) {
     image_url, link_url,
     pay_method,
     new_pixels,              // [{lat, lng, sectorPrice}]
-    enemy_pixels,            // [{lat, lng, prevOwner, price, pxCost}] — primary defender only
+    enemy_pixels,            // [{lat, lng, prevOwner, price, pxCost, claim_id}] — primary defender only
     primary_defender_wallet,
     primary_def_fleet_id,    // null → auto-win
+    primary_def_claim_id,    // 수비자 대표 claim_id (target_claim_id 용)
     base_cost,
     attack_cost,
     affected_owners,         // 자동승리 시에만 사용 (즉시 지급)
@@ -574,7 +575,7 @@ async function declareHijackWithPP(params) {
             allowed_size_classes_phase1
           ) VALUES ($1, $2, 'completed', 'attacker_won', NOW(), $3, $4, $5, $6, $7)
           RETURNING id`,
-          [attacker_wallet, newClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
+          [attacker_wallet, primary_def_claim_id || newClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
         );
         hijackId = hjRows[0].id;
       } else {
@@ -617,7 +618,7 @@ async function declareHijackWithPP(params) {
             allowed_size_classes_phase1, started_at
           ) VALUES ($1, $2, 'phase1', $3, $4, $5, $6, $7, NOW())
           RETURNING id`,
-          [attacker_wallet, newClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
+          [attacker_wallet, primary_def_claim_id || newClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
         );
         hijackId = hjRows[0].id;
 
