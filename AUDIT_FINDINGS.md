@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.2 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v5.3 / 2026-04-26)
+
+## 🔴 v5.3 변경 요약 (2026-04-26)
+
+### Tactical-lab 전투 뷰어 4종 버그 수정
+
+| # | 이슈 | 원인 | 수정 |
+|---|------|------|------|
+| 1 | 기동 버튼 누르면 크래시 | battleEngine.js wedgeSides 처리에서 `f.movement='wedge'` (잘못된 필드) → ws frame 수신 후 MANEUVERS['wedge'] undefined → drawFleets crash | `f.formation='wedge'` 로 수정. 클라 전체 MANEUVERS/FORMATIONS null-safe fallback 적용 |
+| 2 | 공격 모션 없음 | ws 활성 시 `fire()` 완전 비활성화 → bullet/laser 한 개도 안 생김 | ws mode에서도 `fire(sh, wsMode=true)` 호출. `visual:true` 플래그 bullet/laser는 `applyDmg` 스킵 (HP는 ws frame으로만 동기화) |
+| 3 | 1 vs 1 전투가 캔버스 상단에서 시작 | atkPos 하드코딩 `cy:H*0.15` → 함대 1개면 무조건 상단 | `centeredPos(n, side)` 함수: 1함대면 `H*0.5`, n함대면 H*0.15~H*0.85 균등 분배 |
+| 4 | 화면 너무 작음 / 거리 기반 줌 없음 | 카메라 시스템 부재 | 매 프레임 생존 함대 bounding box 계산 → `_camTargetScale` 산출 → lerp 0.025로 부드럽게 줌/팬. `CX.save/translate/scale/translate/restore` 로 월드 좌표 변환 |
+
+### 수정 파일
+- `server/services/battleEngine.js`: wedgeSides → `f.formation` (1줄)
+- `assets/tactical-lab-v11.html`: 4종 fix (61줄 추가)
 
 ## 🔴 v5.2 변경 요약 (2026-04-26)
 

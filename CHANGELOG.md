@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — Tactical-lab 전투 뷰어 4종 버그 수정 (v5.3)
+
+- **battleEngine.js**: wedgeSides 처리 `f.movement='wedge'` → `f.formation='wedge'` (크래시 root cause)
+- **tactical-lab-v11.html**:
+  - MANEUVERS/FORMATIONS null-safe fallback (`||MANEUVERS.advance`, `||FORMATIONS.sphere`) 전체 적용
+  - ws sync 시 MANEUVERS/FORMATIONS 유효성 검사 후 적용
+  - ws mode에서도 `fire(sh, wsMode)` 시각 전용 bullet/laser 활성화 (`visual:true` → applyDmg 스킵)
+  - `centeredPos(n, side)` 함수: 1 vs 1 → 캔버스 정중앙(H*0.5), n대 → 균등 분배
+  - 자동 줌/팬 카메라: 생존 함대 bounding box → `camScale/camCx/camCy` lerp, canvas transform 적용
+
 ## 2026-04-26 — 함선 단위 정밀 폭발 이펙트 (v5.2)
 
 - **battleEngine.js**: ws frame ships 배열에 `code` 필드 추가 (ship_type_code)
