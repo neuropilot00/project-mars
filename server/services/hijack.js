@@ -528,7 +528,29 @@ async function declareHijackWithPP(params) {
       }
     }
 
-    // ── 4. 적 픽셀 처리 ──
+    // ── 4. target_claim_id 결정 — 수비자 claim 조회 또는 stub 생성 ──
+    // NPC 픽셀은 claim_id가 없으므로 DB에서 직접 조회, 없으면 stub claim 생성
+    let resolvedTargetClaimId = primary_def_claim_id || newClaimId;
+    if (!resolvedTargetClaimId && primary_defender_wallet) {
+      const { rows: defClaims } = await client.query(
+        `SELECT id FROM claims WHERE owner = $1 ORDER BY id DESC LIMIT 1`,
+        [primary_defender_wallet]
+      );
+      if (defClaims[0]) {
+        resolvedTargetClaimId = defClaims[0].id;
+      } else {
+        // 수비자 claim이 아예 없으면 stub 생성 (NPC 케이스)
+        const ep = enemy_pixels[0];
+        const { rows: stub } = await client.query(
+          `INSERT INTO claims (owner, center_lat, center_lng, width, height, total_paid)
+           VALUES ($1, $2, $3, 1, 1, 0) RETURNING id`,
+          [primary_defender_wallet, ep ? ep.lat : 0, ep ? ep.lng : 0]
+        );
+        resolvedTargetClaimId = stub[0].id;
+      }
+    }
+
+    // ── 5. 적 픽셀 처리 ──
     let hijackId = null;
     let phase1BattleId = null;
     let autoWin = false;
@@ -575,7 +597,7 @@ async function declareHijackWithPP(params) {
             allowed_size_classes_phase1
           ) VALUES ($1, $2, 'completed', 'attacker_won', NOW(), $3, $4, $5, $6, $7)
           RETURNING id`,
-          [attacker_wallet, primary_def_claim_id || newClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
+          [attacker_wallet, resolvedTargetClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
         );
         hijackId = hjRows[0].id;
       } else {
@@ -618,7 +640,7 @@ async function declareHijackWithPP(params) {
             allowed_size_classes_phase1, started_at
           ) VALUES ($1, $2, 'phase1', $3, $4, $5, $6, $7, NOW())
           RETURNING id`,
-          [attacker_wallet, primary_def_claim_id || newClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
+          [attacker_wallet, resolvedTargetClaimId, JSON.stringify(pendingPixels), totalCost, attack_cost, newClaimId, PHASE1_ALLOWED_SIZES]
         );
         hijackId = hjRows[0].id;
 
