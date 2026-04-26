@@ -65,7 +65,7 @@ async function applyMigration(client, filename) {
   try {
     await client.query(sql);
     await client.query(
-      'INSERT INTO schema_migrations (filename) VALUES ($1)',
+      'INSERT INTO schema_migrations (filename) VALUES ($1) ON CONFLICT DO NOTHING',
       [filename]
     );
     await client.query('COMMIT');
