@@ -4826,8 +4826,8 @@ router.get('/fleet/npc-status', adminAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT
-        owner AS wallet_address,
-        COALESCE(u.nickname, replace(replace(owner,'0xnpc_',''),'_',' ')) AS nickname,
+        powners.owner AS wallet_address,
+        COALESCE(u.nickname, replace(replace(powners.owner,'0xnpc_',''),'_',' ')) AS nickname,
         u.faction_code,
         COUNT(DISTINCT px.lat)::int AS pixel_count,
         COUNT(DISTINCT f.id)::int   AS fleet_count,
