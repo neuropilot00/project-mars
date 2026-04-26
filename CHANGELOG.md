@@ -1,5 +1,12 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — 내 영토 표시 + 전투 버튼 정리 (v5.4)
+
+- **index.html** `compositeClaimsOnTexture`: `isMine` 에서 `_myLandMode &&` 조건 제거 → 내 영토 항상 밝게 렌더
+- **index.html** `showTerritoryInfo`: 내 영토 클릭 시 상단 오렌지 border + "✦ 내 영토 ✦" 배지
+- **tactical-lab-v11.html**: Reinforce 3개 버튼 제거 (ws 전투에서 서버 미반영)
+- **tactical-lab-v11.html**: Scatter, Rally 기동 버튼 추가 (기존 MANEUVERS 정의는 있었으나 버튼 누락)
+
 ## 2026-04-26 — Tactical-lab 전투 뷰어 4종 버그 수정 (v5.3)
 
 - **battleEngine.js**: wedgeSides 처리 `f.movement='wedge'` → `f.formation='wedge'` (크래시 root cause)
