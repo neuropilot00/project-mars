@@ -9726,7 +9726,7 @@ function compositeClaimsOnTexture(previewOnly){
       if(!strips||!strips.length) return;
 
       var isNPC=c.owner&&c.owner.indexOf('0xnpc_')===0;
-      var isMine=_myLandMode&&myAddr&&c.owner===myAddr;
+      var isMine=!!(myAddr&&c.owner===myAddr);
       var oc=_ownerColor(c.owner);
 
       // Pass 1: Fill + images per group
@@ -12535,6 +12535,19 @@ function showTerritoryInfo(plot){
   if(!plot||!plot.owner) return;
   var info=document.getElementById('territoryInfo');
   info.style.display='';
+  var myW2=walletState&&walletState.address||'';
+  var _isMyPlot=!!(myW2&&plot.owner===myW2);
+  // 내 영토 배지 — 상단 border + 배지 표시
+  info.style.borderTop=_isMyPlot?'3px solid var(--mars)':'3px solid transparent';
+  var _myBadgeEl=document.getElementById('_infoMyBadge');
+  if(!_myBadgeEl){
+    _myBadgeEl=document.createElement('div');
+    _myBadgeEl.id='_infoMyBadge';
+    _myBadgeEl.style.cssText='display:none;text-align:center;font-size:9px;font-weight:800;letter-spacing:2px;color:var(--mars);padding:4px 0 6px;font-family:var(--fn)';
+    info.insertBefore(_myBadgeEl,info.firstChild);
+  }
+  _myBadgeEl.textContent='✦ 내 영토 ✦';
+  _myBadgeEl.style.display=_isMyPlot?'':'none';
   document.getElementById('infoCoords').textContent=plot.lat.toFixed(1)+'°, '+plot.lng.toFixed(1)+'°';
   var _ownerName=plot.nickname||plot.label||shortAddr(plot.owner);
   var _ownerBadge=typeof govBadgeHTML==='function'?govBadgeHTML(plot.owner):'';

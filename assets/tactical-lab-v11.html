@@ -186,32 +186,25 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 
 <div class="blog" id="blog"></div>
 
-<!-- 컨트롤 (v10 유지 + Formation/Maneuver 추가) -->
+<!-- 컨트롤 — CMD + Formation/Maneuver (실제 전투에 반영) -->
 <div class="ctrl">
-  <span class="clbl">REINFORCE</span>
-  <button class="cb" onclick="reinforce('mcc_int',10)">⚡ MCC ×10</button>
-  <button class="cb" onclick="reinforce('fsp_int',10)">⚡ FSP ×10</button>
-  <button class="cb" onclick="reinforce('mcc_crs',1)">+ Cruiser</button>
-  <div class="sep"></div>
   <span class="clbl">CMD</span>
   <button class="cb y" onclick="cmdFocus()">⚡ 집중공격</button>
   <button class="cb y" onclick="cmdEMP()">💥 EMP</button>
-  <!-- 재시작 버튼 제거 (실제 게임에선 hijack 결과 영구) — 사용자 요청 v4.5 -->
-  <button class="cb r" onclick="initBattle()" style="display:none">↺ 재시작</button>
-</div>
-
-<!-- v11.1 신규: Formation/Maneuver 전용 라인 -->
-<div class="ctrl">
+  <div class="sep"></div>
   <span class="clbl">FORMATION</span>
   <button class="cb p" onclick="cmdFormation('sphere')">⬢ Sphere</button>
   <button class="cb p" onclick="cmdFormation('wedge')">▶ Wedge</button>
   <button class="cb p" onclick="cmdFormation('screen')">▬ Screen</button>
   <button class="cb p" onclick="cmdFormation('pincer')">◀▶ Pincer</button>
-  <div class="sep"></div>
+</div>
+<div class="ctrl">
   <span class="clbl">MANEUVER</span>
   <button class="cb g" onclick="cmdManeuver('advance')">→ Advance</button>
   <button class="cb g" onclick="cmdManeuver('flank')">↗ Flank</button>
   <button class="cb g" onclick="cmdManeuver('retreat')">← Retreat</button>
+  <button class="cb g" onclick="cmdManeuver('scatter')">✦ Scatter</button>
+  <button class="cb g" onclick="cmdManeuver('rally')">◉ Rally</button>
 </div>
 
 <!-- 하단 토글 패널 (v10 그대로) -->
