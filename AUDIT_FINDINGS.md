@@ -1,4 +1,21 @@
-# OCCUPY MARS — Codebase Audit (v5.3 / 2026-04-26)
+# OCCUPY MARS — Codebase Audit (v5.5 / 2026-04-26)
+
+## 🔴 v5.5 변경 요약 (2026-04-26)
+
+### 내 영토 글로브 골드 하이라이트
+
+| # | 이슈 | 원인 | 수정 |
+|---|------|------|------|
+| 1 | 내 영토가 다른 영토와 구분 안 됨 | `isMine` 영토에 동일한 지갑 해시 색상 사용 | `isMine=true`면 골드 `{r:255,g:209,b:102}` fill/border/shadow 적용 |
+| 2 | 대소문자 다른 지갑 주소에서 `isMine` 미감지 | `c.owner===myAddr` 엄격 비교 | 양쪽 모두 `.toLowerCase()` — myAddr, sort, isMine 체크, showTerritoryInfo |
+
+### 수정 파일
+- `index.html`: `compositeClaimsOnTexture` 골드 색상 + `.toLowerCase()` 비교 (4곳), `showTerritoryInfo` 지갑 비교 fix
+
+### 검증
+- 캔버스 픽셀 샘플: `[252,205,101,255]` ≈ gold `(255,209,102)` 확인
+- _ownerStrips에 내 지갑 존재, _ownerGroups에 Valles Marineris 그룹 존재 확인
+- 브라우저 글로브 near-zoom 스크린샷: 내 영토 금색으로 명확히 표시
 
 ## 🔴 v5.3 변경 요약 (2026-04-26)
 

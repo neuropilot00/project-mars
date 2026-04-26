@@ -9695,12 +9695,12 @@ function compositeClaimsOnTexture(previewOnly){
       ctx.globalAlpha=1;
       ctx.restore();
     }
-    var myAddr=walletState.address||'';
+    var myAddr=(walletState.address||'').toLowerCase();
     var _shieldPulse=Math.sin(Date.now()/600)*0.15+0.85;
 
     // 내 영토는 항상 마지막에 그려 위에 올라오도록 (old→new, isMine last)
     var sortedClaims=claims.slice().sort(function(a,b){
-      var aM=(myAddr&&a.owner===myAddr)?1:0,bM=(myAddr&&b.owner===myAddr)?1:0;
+      var aM=(myAddr&&(a.owner||'').toLowerCase()===myAddr)?1:0,bM=(myAddr&&(b.owner||'').toLowerCase()===myAddr)?1:0;
       if(aM!==bM) return aM-bM;
       return (a.ts||0)-(b.ts||0);
     });
@@ -9734,7 +9734,7 @@ function compositeClaimsOnTexture(previewOnly){
       if(!strips||!strips.length) return;
 
       var isNPC=c.owner&&c.owner.indexOf('0xnpc_')===0;
-      var isMine=!!(myAddr&&c.owner===myAddr);
+      var isMine=!!(myAddr&&(c.owner||'').toLowerCase()===myAddr);
       var oc=_ownerColor(c.owner);
 
       // Pass 1: Fill + images per group
@@ -9849,9 +9849,9 @@ function compositeClaimsOnTexture(previewOnly){
           });
           // Fill with strips (pixel-accurate, matches border exactly).
           // Pad by 0.75px so adjacent strips overlap — eliminates subpixel gap lines.
-          var tc=oc||{r:255,g:120,b:60};
-          // Lower base alpha for cleaner look; isMine stays brighter
-          var _tAlpha=isMine?0.30:(isNPC?0.18:0.22);
+          // isMine: 골드 오버레이, 나머지는 지갑 해시 색상
+          var tc=isMine?{r:255,g:209,b:102}:(oc||{r:255,g:120,b:60});
+          var _tAlpha=isMine?0.40:(isNPC?0.18:0.22);
           ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+','+_tAlpha+')';
           var fbx1=Infinity,fby1=Infinity,fbx2=-Infinity,fby2=-Infinity;
           for(var fi=0;fi<gStrips.length;fi++){
@@ -9877,12 +9877,12 @@ function compositeClaimsOnTexture(previewOnly){
             ctx.strokeStyle='rgba(8,4,2,0.85)';
             ctx.lineJoin='round';
             ctx.strokeText(lbl,fbx1+fbw/2,fby1+fbh/2);
-            // Fill on top
-            ctx.fillStyle='rgba(255,242,228,0.96)';
+            // Fill on top — isMine는 골드 텍스트
+            ctx.fillStyle=isMine?'rgba(255,232,128,1)':'rgba(255,242,228,0.96)';
             ctx.fillText(lbl,fbx1+fbw/2,fby1+fbh/2);
             ctx.restore();
           }
-          var bc3=oc||{r:255,g:120,b:60};
+          var bc3=isMine?{r:255,g:209,b:102}:(oc||{r:255,g:120,b:60});
           if(isNPC) ctx.setLineDash([5,3]); else ctx.setLineDash([]);
           ctx.lineCap='square';
           ctx.beginPath();
@@ -9902,13 +9902,15 @@ function compositeClaimsOnTexture(previewOnly){
             for(var ci2=0;ci2<covX2.length;ci2++){if(covX2[ci2][0]>pos2+0.5){ctx.moveTo(pos2,yb);ctx.lineTo(covX2[ci2][0],yb);}pos2=covX2[ci2][1];}
             if(pos2<sr.x+sr.w-0.5){ctx.moveTo(pos2,yb);ctx.lineTo(sr.x+sr.w,yb);}
           }
-          // Pass 1: Wide atmospheric halo (shared path)
-          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.18)';
-          ctx.lineWidth=isMine?5:(isNPC?3:3);
+          // Pass 1: Wide atmospheric halo
+          if(isMine){ctx.shadowColor='rgba(255,209,102,0.7)';ctx.shadowBlur=8;}
+          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'0.35':isNPC?'0.18':'0.18')+')';
+          ctx.lineWidth=isMine?6:(isNPC?3:3);
           ctx.stroke();
+          if(isMine) ctx.shadowBlur=0;
           // Pass 2: Crisp tactical inner line
           ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.85)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.85')+')';
-          ctx.lineWidth=isNPC?1.3:(isMine?1.8:1);
+          ctx.lineWidth=isNPC?1.3:(isMine?2.2:1);
           ctx.stroke();
           ctx.lineCap='butt';ctx.setLineDash([]);
         }
@@ -12543,8 +12545,8 @@ function showTerritoryInfo(plot){
   if(!plot||!plot.owner) return;
   var info=document.getElementById('territoryInfo');
   info.style.display='';
-  var myW2=walletState&&walletState.address||'';
-  var _isMyPlot=!!(myW2&&plot.owner===myW2);
+  var myW2=(walletState&&walletState.address||'').toLowerCase();
+  var _isMyPlot=!!(myW2&&(plot.owner||'').toLowerCase()===myW2);
   // 내 영토 배지 — 상단 border + 배지 표시
   info.style.borderTop=_isMyPlot?'3px solid var(--mars)':'3px solid transparent';
   var _myBadgeEl=document.getElementById('_infoMyBadge');

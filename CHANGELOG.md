@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — 내 영토 골드 하이라이트 (v5.5)
+
+- **index.html** `compositeClaimsOnTexture`: `isMine` 영토 골드 색상 `{r:255,g:209,b:102}` 적용 (fill alpha 0.40, border shadowBlur:8 글로우, lineWidth 2.2)
+- **index.html** 지갑 주소 대소문자 무관 비교 — `myAddr`, sortedClaims sort, isMine 체크, `showTerritoryInfo` 전부 `.toLowerCase()` 적용
+- 결과: 글로브에서 내 영토가 NPC/타인 영토와 명확히 구분되는 금색으로 표시됨 (캔버스 픽셀 샘플 `[252,205,101,255]` 확인)
+
 ## 2026-04-26 — 내 영토 표시 + 전투 버튼 정리 (v5.4)
 
 - **index.html** `compositeClaimsOnTexture`: `isMine` 에서 `_myLandMode &&` 조건 제거 → 내 영토 항상 밝게 렌더
