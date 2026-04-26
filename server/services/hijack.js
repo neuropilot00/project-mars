@@ -1,6 +1,6 @@
 // server/services/hijack.js
 // ═══════════════════════════════════════════════════════════════
-// Hijack 2-Phase Battle System  [STATUS: 🟢 LIVE — recently fixed]
+// Hijack 2-Phase Battle System  [STATUS: 🟢 LIVE]
 //
 // Phase 1 (침투): 프리깃/구축함만 투입, 20척 이하
 //   - 적의 방어 돌파 시도
