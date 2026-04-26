@@ -13997,13 +13997,26 @@ async function confirmClaim(){
         showNotification('hijack','⚔ AUTO-WIN','상대 함대 없음 — 즉시 영토 점령!');
         try{_sfx.hijackWin()}catch(e){}
         if (typeof refreshGP === 'function') refreshGP();
-        // 맵 새로고침 (짧은 딜레이) — 픽셀/클레임 데이터 다시 로드
-        setTimeout(function(){
+        // 맵 새로고침 — Railway DB 레이턴시 감안해 2s+5s 두 번 시도
+        function _refreshPixelsAfterHijack(){
           fetch('/api/pixels').then(function(r){return r.json();}).then(function(sp){
-            if(sp&&typeof sp==='object') initPixelGridFromServer(sp);
-            claimsSnapshot=null; compositeClaimsOnTexture();
-          }).catch(function(){});
-        },2000);
+            if(sp&&typeof sp==='object'&&Object.keys(sp).length>0){
+              initPixelGridFromServer(sp);
+              // claims도 재로드
+              return fetch('/api/claims').then(function(r2){return r2.json()}).then(function(sc){
+                if(sc&&sc.length){
+                  var existIds={};
+                  claims.forEach(function(c){if(c.id)existIds[c.id]=true;});
+                  sc.forEach(function(c){if(!existIds[c.id])claims.push(c);
+                    else{for(var i=0;i<claims.length;i++){if(claims[i].id===c.id){claims[i]=c;break;}}}
+                  });
+                }
+              }).catch(function(){});
+            }
+          }).then(function(){claimsSnapshot=null;compositeClaimsOnTexture();}).catch(function(){});
+        }
+        setTimeout(_refreshPixelsAfterHijack, 2000);
+        setTimeout(_refreshPixelsAfterHijack, 6000);
       }else{
         // 함대전 진행 중 — 배틀 뷰어 자동 오픈
         showNotification('hijack','⚔ 함대전 진행 중','Phase 1 전투 시작!');
@@ -43029,17 +43042,21 @@ async function openBattleViewer(battleId) {
   bv.canvas = document.getElementById('battleCanvas');
   if (bv.canvas && bv.canvas.getContext) bv.ctx = bv.canvas.getContext('2d');
 
-  // 타임라인 로드 (최대 15초 폴링 = 1.5s × 10회)
+  // 타임라인 로드 (최대 60초 폴링 = 2s × 30회)
+  // 전투가 preparing/in_progress 상태면 iframe(WS)이 처리 — 에러 없이 대기
   let loaded = false;
   let lastErr = null;
-  for (let i = 0; i < 10; i++) {
+  let battleDone = false;
+  for (let i = 0; i < 30; i++) {
     try {
       // 전투 정보
       const infoRes = await fetch(`/api/battles/${battleId}`);
       const infoData = await infoRes.json();
-      if (!infoRes.ok) { lastErr = 'info: ' + (infoData.error || infoRes.status); throw new Error(lastErr); }
+      if (!infoRes.ok) { lastErr = 'info: ' + (infoData.error || infoRes.status); break; }
       bv.battle = infoData.battle;
       bv.events = infoData.events || [];
+      const bStatus = infoData.battle && (infoData.battle.status || '');
+      battleDone = (bStatus === 'ended' || bStatus === 'done');
 
       // 타임라인
       const tlRes = await fetch(`/api/battles/${battleId}/timeline`);
@@ -43051,19 +43068,27 @@ async function openBattleViewer(battleId) {
       } else {
         const tlBody = await tlRes.json().catch(() => ({}));
         lastErr = 'timeline: ' + (tlBody.error || tlRes.status);
+        // 전투가 아직 진행 중이면 에러 아님 — 계속 대기
+        if (!battleDone) { await new Promise(r => setTimeout(r, 2000)); continue; }
+        // 전투 끝났는데 타임라인 없으면 진짜 에러
+        break;
       }
     } catch (err) {
-      // 시뮬레이션 진행 중 — 다음 폴링 시도
       lastErr = lastErr || err.message;
     }
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise(r => setTimeout(r, 2000));
   }
 
   if (!loaded) {
-    showFactionToast('전투 데이터 로딩 실패' + (lastErr ? ' (' + lastErr + ')' : ''), 'error');
-    console.error('[battle] openBattleViewer load failed for id=' + battleId + ':', lastErr);
-    closeBattleViewer();
-    return;
+    if (battleDone) {
+      // 전투 종료됐는데 타임라인 없음 — 에러 표시하되 viewer 유지
+      showFactionToast('전투 데이터 로딩 실패' + (lastErr ? ' (' + lastErr + ')' : ''), 'error');
+      console.error('[battle] openBattleViewer timeline missing for ended battle', battleId, ':', lastErr);
+    } else {
+      // 전투 진행 중 — iframe WS가 처리 중, 조용히 대기
+      console.log('[battle] openBattleViewer: battle', battleId, 'still in progress, iframe WS handling');
+    }
+    // viewer 닫지 않음 — iframe 이 WS로 라이브 뷰 처리 중
   }
 
   // 자동승리 케이스 — viewer 는 정상적으로 풀 시각화 띄우되, frames 가 비정상적으로 짧으면

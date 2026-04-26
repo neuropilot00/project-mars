@@ -1,3 +1,19 @@
+# OCCUPY MARS — Codebase Audit (v5.6 / 2026-04-26)
+
+## 🔴 v5.6 변경 요약 (2026-04-26)
+
+### 하이젝 전투 3종 수정
+
+| # | 이슈 | 원인 | 수정 |
+|---|------|------|------|
+| 1 | 하이젝 함대전 후 함선이 즉시 파괴됨 | `applyBattleResults`가 battle_type 구분 없이 모든 전투에서 함선 삭제 | hijack 전투: 시뮬 HP 반영 + 0 이면 max_hp×15% 보존, is_alive=true 유지 |
+| 2 | 전투 뷰어 튕기며 TIMELINE_NOT_FOUND | 폴링 15s 안에 타임라인 저장 완료 안 됨 (스케줄러 30s 간격) | 폴링 60s 연장, 전투 진행 중이면 에러 없이 대기 (iframe WS 처리) |
+| 3 | Railway에서 하이젝 후 영토 갱신 안 됨 | auto_win 후 2s 딜레이가 Railway DB 레이턴시 못 따라감 | 2s+6s 두 번 재시도, claims 배열도 동기화 |
+
+### 수정 파일
+- `server/services/battleEngine.js`: isHijackBattle 플래그 + 함선 생존 로직
+- `index.html`: openBattleViewer 폴링 + auto_win 픽셀 재시도
+
 # OCCUPY MARS — Codebase Audit (v5.5 / 2026-04-26)
 
 ## 🔴 v5.5 변경 요약 (2026-04-26)

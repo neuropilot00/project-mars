@@ -865,7 +865,13 @@ async function applyBattleResults(battleId, result) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
+
+    // 하이젝 전투 여부 확인 (함선 파괴 방지)
+    const { rows: btRows } = await client.query(
+      `SELECT battle_type FROM fleet_battles WHERE id = $1`, [battleId]
+    );
+    const isHijackBattle = btRows[0] && (btRows[0].battle_type || '').startsWith('hijack');
+
     // 1. fleet_battles 업데이트
     await client.query(`
       UPDATE fleet_battles SET
@@ -918,51 +924,73 @@ async function applyBattleResults(battleId, result) {
       `, [fleetStat.ships_lost, fleetStat.damage_dealt, battleId, fleetStat.fleet_id]);
     }
     
-    // 3. 죽은 함선 상태 업데이트 (events 기반)
-    for (const ev of result.events) {
-      if (ev.type === 'ship_destroyed' || ev.type === 'flagship_destroyed') {
-        if (ev.ship_id) {
-          await client.query(`
-            UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
-            WHERE id = $1
-          `, [ev.ship_id]);
-        }
-        if (ev.type === 'flagship_destroyed' && ev.fleet_id) {
-          // 함대의 모든 함선 사망 처리
-          await client.query(`
-            UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
-            WHERE fleet_id = $1 AND is_alive = true
-          `, [ev.fleet_id]);
-        }
-      }
-    }
-
-    // 3-bis. 살아남은 함선의 부분 HP 손실 반영 (timeline 마지막 frame 기반)
-    // 사용자 신고: "함대전 했는데 내 함선 HP 멀쩡함" — 시뮬레이션 결과의 부분 데미지가 DB 에 반영 안 됨.
-    try {
+    // 3. 함선 상태 업데이트
+    // 하이젝 전투: 함선 파괴하지 않고 HP만 감소 (min 15% of max_hp, 최소 1)
+    if (isHijackBattle) {
+      // 하이젝 전투 — 시뮬레이션 HP 결과 반영, 단 파괴 없음
       const lastFrame = result.frames && result.frames.length > 0 ? result.frames[result.frames.length - 1] : null;
       if (lastFrame && Array.isArray(lastFrame.ships)) {
         for (const s of lastFrame.ships) {
           const sid = parseInt(s.id);
-          const hp = Math.max(0, Math.round(parseFloat(s.hp) || 0));
           if (!sid) continue;
-          if (hp <= 0) {
-            // destroyed 처리 — 위 events 단계에서 누락되었더라도 안전망
+          // 시뮬 최종 HP로 업데이트, 단 0 이면 max_hp의 15%로 보존
+          const simHp = Math.round(parseFloat(s.hp) || 0);
+          if (simHp <= 0) {
             await client.query(`
-              UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
+              UPDATE ships SET current_hp = GREATEST(1, ROUND(max_hp * 0.15))
               WHERE id = $1 AND is_alive = true
             `, [sid]);
           } else {
-            // 살아남은 함선 — 시뮬레이션 종료 시점 HP 로 갱신 (회복은 막음: LEAST)
             await client.query(`
               UPDATE ships SET current_hp = LEAST(current_hp, $1)
               WHERE id = $2 AND is_alive = true
-            `, [hp, sid]);
+            `, [simHp, sid]);
           }
         }
       }
-    } catch (hpErr) {
-      console.warn('[battle] partial HP apply failed for battle', battleId, ':', hpErr.message);
+    } else {
+      // 일반 전투 — 함선 파괴 처리 (events 기반)
+      for (const ev of result.events) {
+        if (ev.type === 'ship_destroyed' || ev.type === 'flagship_destroyed') {
+          if (ev.ship_id) {
+            await client.query(`
+              UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
+              WHERE id = $1
+            `, [ev.ship_id]);
+          }
+          if (ev.type === 'flagship_destroyed' && ev.fleet_id) {
+            await client.query(`
+              UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
+              WHERE fleet_id = $1 AND is_alive = true
+            `, [ev.fleet_id]);
+          }
+        }
+      }
+
+      // 살아남은 함선 부분 HP 손실 반영
+      try {
+        const lastFrame = result.frames && result.frames.length > 0 ? result.frames[result.frames.length - 1] : null;
+        if (lastFrame && Array.isArray(lastFrame.ships)) {
+          for (const s of lastFrame.ships) {
+            const sid = parseInt(s.id);
+            const hp = Math.max(0, Math.round(parseFloat(s.hp) || 0));
+            if (!sid) continue;
+            if (hp <= 0) {
+              await client.query(`
+                UPDATE ships SET is_alive = false, destroyed_at = NOW(), current_hp = 0
+                WHERE id = $1 AND is_alive = true
+              `, [sid]);
+            } else {
+              await client.query(`
+                UPDATE ships SET current_hp = LEAST(current_hp, $1)
+                WHERE id = $2 AND is_alive = true
+              `, [hp, sid]);
+            }
+          }
+        }
+      } catch (hpErr) {
+        console.warn('[battle] partial HP apply failed for battle', battleId, ':', hpErr.message);
+      }
     }
     
     // 4. 전투 이벤트 로그

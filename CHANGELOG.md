@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — 하이젝 전투 3종 수정 (v5.6)
+
+- **battleEngine.js** `applyBattleResults`: 하이젝 전투(`battle_type LIKE 'hijack%'`) 시 함선 파괴 없음 — 시뮬 최종 HP 반영, 0 이면 max_hp×15% 보존 (is_alive=true 유지)
+- **index.html** `openBattleViewer`: TIMELINE_NOT_FOUND 시 전투 진행 중이면 에러 없이 대기(iframe WS 처리). 폴링 15s→60s 연장. 전투 종료 확인 후에만 에러 토스트.
+- **index.html** 하이젝 auto_win 후 픽셀 갱신: 2s+6s 두 번 재시도 + claims 배열도 동시 갱신 (Railway DB 레이턴시 대응)
+
 ## 2026-04-26 — 내 영토 골드 하이라이트 (v5.5)
 
 - **index.html** `compositeClaimsOnTexture`: `isMine` 영토 골드 색상 `{r:255,g:209,b:102}` 적용 (fill alpha 0.40, border shadowBlur:8 글로우, lineWidth 2.2)
