@@ -419,12 +419,20 @@ let atkMaxHP=1,defMaxHP=1,atkHP=0,defHP=0;
 let btMs=0,turn=0,empMs=0,focusFleet=null;
 // ws 함선 추적: 이전 프레임 생존 함선 맵 (id → {x,y,code})
 let _wsPrevShips = new Map();
+// 카메라 (자동 줌/팬)
+let camScale=1,camCx=W/2,camCy=H/2,_camTargetScale=1,_camTargetCx=W/2,_camTargetCy=H/2;
 
+function centeredPos(n, side) {
+  const cx = side === 'atk' ? W * 0.11 : W * 0.89;
+  if (n <= 1) return [{ cx, cy: H * 0.5 }];
+  return Array.from({ length: n }, (_, i) => ({ cx, cy: H * (0.15 + (i / (n - 1)) * 0.70) }));
+}
 function initBattle(){
   fleets=[];ships=[];bullets=[];lasers=[];exps=[];shockwaves=[];repairBeams=[];battleOver=false;
   _wsPrevShips = new Map();
-  const atkPos=[{cx:W*.11,cy:H*.15},{cx:W*.09,cy:H*.38},{cx:W*.14,cy:H*.60},{cx:W*.20,cy:H*.82},{cx:W*.18,cy:H*.28}];
-  const defPos=[{cx:W*.89,cy:H*.15},{cx:W*.91,cy:H*.38},{cx:W*.86,cy:H*.60},{cx:W*.80,cy:H*.82},{cx:W*.82,cy:H*.28}];
+  camScale=1;camCx=W/2;camCy=H/2;_camTargetScale=1;_camTargetCx=W/2;_camTargetCy=H/2;
+  const atkPos = centeredPos(ATK_FLEETS.length, 'atk');
+  const defPos = centeredPos(DEF_FLEETS.length, 'def');
   ATK_FLEETS.forEach((u,i)=>fleets.push(mkFleet(u,'atk',atkPos[i].cx,atkPos[i].cy)));
   DEF_FLEETS.forEach((u,i)=>fleets.push(mkFleet(u,'def',defPos[i].cx,defPos[i].cy)));
   atkMaxHP=fleets.filter(f=>f.side==='atk').reduce((a,f)=>a+f.maxHp,0);
@@ -508,7 +516,7 @@ function updateFleets(dt){
       :enemies.reduce((b,e)=>Math.hypot(e.cx-f.cx,e.cy-f.cy)<Math.hypot(b.cx-f.cx,b.cy-f.cy)?e:b,enemies[0]);
     const dx=target.cx-f.cx,dy=target.cy-f.cy,dist=Math.hypot(dx,dy)||1;
     const minDist=f.radius+target.radius+15;
-    const mv=MANEUVERS[f.maneuver];
+    const mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
     const spdMult=mv.spdMult;
 
     if(f.maneuver==='retreat'){
@@ -581,11 +589,11 @@ function updateFleets(dt){
   });
 }
 
-function fire(sh){
+function fire(sh,wsMode){
   if(sh.dead||sh.fleet.dead)return;
   if(empMs>0&&sh.side==='def')return;
   const t=sh.type;
-  const atkMult=MANEUVERS[sh.fleet.maneuver].atkMult;
+  const atkMult=(MANEUVERS[sh.fleet.maneuver]||MANEUVERS.advance).atkMult;
 
   if(t.fireType==='repair'){
     const allies=sh.fleet.ships.filter(s=>!s.dead&&s!==sh&&s.hp<s.maxHp);
@@ -611,26 +619,26 @@ function fire(sh){
     lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
       color:FACTIONS[sh.type.faction].color,
       width:sh.type.size==='titan'?3:sh.type.size==='battleship'?2.2:2,
-      alpha:1,ttl:10,age:0,dmg:t.atk*4*atkMult,target:ts,applied:false,side:sh.side});
+      alpha:1,ttl:10,age:0,dmg:t.atk*4*atkMult,target:ts,applied:false,side:sh.side,visual:wsMode});
   } else if(t.fireType==='mixed'){
     const ts=tf.ships.filter(s=>!s.dead)[0|Math.random()*4];
     if(ts)lasers.push({x1:sh.x,y1:sh.y,x2:ts.x,y2:ts.y,
       color:FACTIONS[sh.type.faction].color,width:1.2,alpha:.5,ttl:7,age:0,
-      dmg:t.atk*2*atkMult,target:ts,applied:false,side:sh.side});
-    spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,.6*atkMult);
+      dmg:t.atk*2*atkMult,target:ts,applied:false,side:sh.side,visual:wsMode});
+    spawnB(sh.x,sh.y,dx/len,dy/len,t,sh.side,.6*atkMult,wsMode);
   } else {
     for(let k=0;k<t.shots;k++){
       const sp=(Math.random()-.5)*.18;
-      spawnB(sh.x,sh.y,dx/len+sp,dy/len+sp,t,sh.side,atkMult/t.shots);
+      spawnB(sh.x,sh.y,dx/len+sp,dy/len+sp,t,sh.side,atkMult/t.shots,wsMode);
     }
   }
 }
 
-function spawnB(mx,my,nvx,nvy,t,side,dmgMult){
+function spawnB(mx,my,nvx,nvy,t,side,dmgMult,visual){
   const spd=1.0+Math.random()*.5;
   bullets.push({x:mx,y:my,vx:nvx*spd,vy:nvy*spd,
     r:Math.min(t.r*.3+.3,1.6),col:FACTIONS[t.faction].color,
-    dmg:t.atk*dmgMult*2,side,ttl:120,age:0});
+    dmg:t.atk*dmgMult*2,side,ttl:120,age:0,visual:!!visual});
 }
 
 function checkHit(b){
@@ -905,7 +913,7 @@ function drawFleets(){
     CX.beginPath();CX.arc(f.cx,f.cy,f.radius*.88,0,Math.PI*2);CX.stroke();
     CX.setLineDash([]);CX.lineWidth=1;
 
-    const fm=FORMATIONS[f.formation],mv=MANEUVERS[f.maneuver];
+    const fm=FORMATIONS[f.formation]||FORMATIONS.sphere,mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
     CX.globalAlpha=.85;
     CX.textAlign='center';
     CX.font='bold 8px Orbitron,monospace';
@@ -967,7 +975,7 @@ function drawShips2(){
   });
 }
 
-function drawBullets(){
+function drawBullets(_wsActive){
   bullets=bullets.filter(b=>{
     b.x+=b.vx;b.y+=b.vy;b.age++;
     if(b.age>b.ttl||b.x<-5||b.x>W+5||b.y<-5||b.y>H+5)return false;
@@ -978,17 +986,16 @@ function drawBullets(){
     CX.fillStyle=b.col;CX.fillRect(-len*.1,-b.r/2,len,b.r);
     CX.fillStyle='rgba(255,255,255,.7)';CX.fillRect(len*.5,-b.r/3,len*.22,b.r*.55);
     CX.restore();CX.globalAlpha=1;
-    const hit=checkHit(b);
-    if(hit){applyDmg(hit,b.dmg,false);return false;}
+    if(!b.visual&&!_wsActive){const hit=checkHit(b);if(hit){applyDmg(hit,b.dmg,false);return false;}}
     return true;
   });
 }
 
-function drawLasers(){
+function drawLasers(_wsActive){
   lasers=lasers.filter(l=>{
     if(l.age===0&&!l.applied){
       l.applied=true;
-      if(l.target&&!l.target.dead)applyDmg(l.target,l.dmg,true);
+      if(!l.visual&&!_wsActive&&l.target&&!l.target.dead)applyDmg(l.target,l.dmg,true);
     }
     const prog=l.age/l.ttl;
     CX.globalAlpha=(1-prog)*l.alpha*.55;
@@ -1048,25 +1055,46 @@ function loop(ts){
   document.getElementById('tm').textContent=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
 
   updateFleets(dt);
-  // ws 연결 활성 시 자체 시뮬 fire/damage 비활성화 — 진짜 시뮬 결과를 ws frame 으로 받음
-  // (시각 효과인 bullet/laser 트레일은 demo 효과로 유지하지 않음 — fleet HP 가 ws 로 직접 동기화됨)
-  if (!_wsBattle || _wsBattle.readyState !== 1) {
-    ships.forEach(sh=>{
-      if(sh.dead||sh.fleet.dead)return;
-      sh.shootT+=dt;
-      const fi=empMs>0?sh.type.fireInt*5:sh.type.fireInt;
-      if(sh.shootT>fi*5){sh.shootT=0;fire(sh);}
-    });
+  const _wsActive = _wsBattle && _wsBattle.readyState === 1;
+  ships.forEach(sh=>{
+    if(sh.dead||sh.fleet.dead)return;
+    sh.shootT+=dt;
+    const fi=empMs>0?sh.type.fireInt*5:sh.type.fireInt;
+    if(sh.shootT>fi*5){sh.shootT=0;fire(sh,_wsActive);}
+  });
+
+  // 자동 카메라: 생존 함대 bounding box 기반 줌/팬
+  const _aliveF=fleets.filter(f=>!f.dead);
+  if(_aliveF.length>=2){
+    const xs=_aliveF.flatMap(f=>[f.cx-f.radius,f.cx+f.radius]);
+    const ys=_aliveF.flatMap(f=>[f.cy-f.radius,f.cy+f.radius]);
+    const mnX=Math.min(...xs),mxX=Math.max(...xs),mnY=Math.min(...ys),mxY=Math.max(...ys);
+    _camTargetCx=(mnX+mxX)/2;_camTargetCy=(mnY+mxY)/2;
+    const spread=Math.max(mxX-mnX,mxY-mnY)*1.35;
+    _camTargetScale=Math.max(0.55,Math.min(3.2,Math.min(W,H)/spread));
+  } else if(_aliveF.length===1){
+    _camTargetCx=_aliveF[0].cx;_camTargetCy=_aliveF[0].cy;_camTargetScale=2.2;
+  } else {
+    _camTargetCx=W/2;_camTargetCy=H/2;_camTargetScale=1;
   }
+  const _lp=0.025;
+  camScale+=(_camTargetScale-camScale)*_lp;
+  camCx+=(_camTargetCx-camCx)*_lp;
+  camCy+=(_camTargetCy-camCy)*_lp;
 
   drawBG();
+  CX.save();
+  CX.translate(W/2,H/2);
+  CX.scale(camScale,camScale);
+  CX.translate(-camCx,-camCy);
   drawShockwaves();
   drawFleets();
   drawExps();
-  drawLasers();
+  drawLasers(_wsActive);
   drawRepairBeams();
   drawShips2();
-  drawBullets();
+  drawBullets(_wsActive);
+  CX.restore();
 
   atkHP=fleets.filter(f=>f.side==='atk'&&!f.dead).reduce((a,f)=>a+f.hp,0);
   defHP=fleets.filter(f=>f.side==='def'&&!f.dead).reduce((a,f)=>a+f.hp,0);
@@ -1184,7 +1212,7 @@ function renderFleetStatus(){
       if(!byTier[s.tid])byTier[s.tid]={name:s.type.name,alive:0,dead:0,size:s.type.size};
       s.dead?byTier[s.tid].dead++:byTier[s.tid].alive++;
     });
-    const fm=FORMATIONS[f.formation],mv=MANEUVERS[f.maneuver];
+    const fm=FORMATIONS[f.formation]||FORMATIONS.sphere,mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
     const shipTags=Object.entries(byTier).sort((a,b)=>{
       const order={titan:6,battleship:5,cruiser:4,destroyer:3,frigate:2};
       return (order[b[1].size]||0)-(order[a[1].size]||0);
@@ -1458,8 +1486,8 @@ function connectBattleWs() {
                 mkShockwave(f.cx, f.cy, f.radius * 2);
                 addLog('kl', `💥 [${f.userId}] 함대 괴멸!`);
               }
-              if (wsF.formation) f.formation = wsF.formation;
-              if (wsF.movement)  f.maneuver  = wsF.movement;
+              if (wsF.formation && FORMATIONS[wsF.formation]) f.formation = wsF.formation;
+              if (wsF.movement  && MANEUVERS[wsF.movement])  f.maneuver  = wsF.movement;
               if (typeof wsF.facing === 'number') f.facingAngle = wsF.facing;
             }
           }

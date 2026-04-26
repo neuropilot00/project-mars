@@ -328,11 +328,11 @@ function initBattleState(battleData) {
       const tgt = cmdActions.focusFireByWallet?.[f.owner_wallet];
       if (tgt) f.focusFireTargetId = tgt;
     }
-    // wedge: 지정된 side 모든 함대 tactic='wedge' 강제
+    // wedge: 지정된 side 모든 함대 formation='wedge' 강제 (movement 아님)
     if (cmdActions.wedgeSides && cmdActions.wedgeSides.size > 0) {
       for (const f of stateFleets) {
         if (cmdActions.wedgeSides.has(f.side)) {
-          f.movement = 'wedge';
+          f.formation = 'wedge';
           f.wedgeForced = true;
         }
       }
