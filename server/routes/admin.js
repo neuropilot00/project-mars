@@ -4713,7 +4713,25 @@ router.post('/fleet/grant-starter-all-npcs', adminAuth, async (req, res) => {
     `);
   } catch (_) {}
 
-  // NPC 목록 조회
+  // 픽셀 소유 NPC 먼저 users에 등록 (없는 경우만)
+  try {
+    await pool.query(`
+      INSERT INTO users (wallet_address, email, password_hash, nickname, is_ai, ai_difficulty, faction_code, faction_chosen_at, gp_balance, pp_balance, usdt_balance)
+      SELECT DISTINCT
+        p.owner,
+        p.owner || '@npc.mars',
+        '$npc$',
+        replace(replace(p.owner, '0xnpc_', ''), '_', ' '),
+        true, 'easy',
+        (ARRAY['mcc','fsp','cv'])[1 + floor(random()*3)::int],
+        NOW(), 50000, 0, 0
+      FROM pixels p
+      WHERE p.owner LIKE '0xnpc_%' AND p.owner IS NOT NULL
+      ON CONFLICT (wallet_address) DO NOTHING
+    `);
+  } catch (_) {}
+
+  // NPC 목록 조회 — 픽셀 소유 NPC 우선, 나머지도 포함
   let npcs;
   try {
     const r = await pool.query(
@@ -4807,26 +4825,29 @@ router.post('/fleet/grant-starter-all-npcs', adminAuth, async (req, res) => {
 router.get('/fleet/npc-status', adminAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(`
-      SELECT u.wallet_address, u.nickname, u.faction_code,
-             COUNT(DISTINCT f.id)::int   AS fleet_count,
-             COUNT(DISTINCT s.id) FILTER (WHERE s.is_alive = true)::int AS alive_ships,
-             COUNT(DISTINCT s.id)::int   AS total_ships
-        FROM users u
-        LEFT JOIN fleets f ON f.owner_wallet = u.wallet_address
-        LEFT JOIN ships s ON s.fleet_id = f.id
-       WHERE u.wallet_address LIKE '0xnpc%'
-       GROUP BY u.wallet_address, u.nickname, u.faction_code
-       ORDER BY u.wallet_address
+      SELECT
+        owner AS wallet_address,
+        COALESCE(u.nickname, replace(replace(owner,'0xnpc_',''),'_',' ')) AS nickname,
+        u.faction_code,
+        COUNT(DISTINCT px.lat)::int AS pixel_count,
+        COUNT(DISTINCT f.id)::int   AS fleet_count,
+        COUNT(DISTINCT s.id) FILTER (WHERE s.is_alive = true)::int AS alive_ships
+      FROM (SELECT DISTINCT owner FROM pixels WHERE owner LIKE '0xnpc_%' AND owner IS NOT NULL) powners
+      JOIN pixels px ON px.owner = powners.owner
+      LEFT JOIN users u ON u.wallet_address = powners.owner
+      LEFT JOIN fleets f ON f.owner_wallet = powners.owner
+      LEFT JOIN ships s ON s.fleet_id = f.id
+      GROUP BY powners.owner, u.nickname, u.faction_code
+      ORDER BY powners.owner
     `);
     const total = rows.length;
-    const withFleet = rows.filter(r => r.fleet_count > 0).length;
     const withShips = rows.filter(r => r.alive_ships > 0).length;
     const willAutoWin = total - withShips;
     res.json({
-      summary: { total, withFleet, withShips, willAutoWin },
+      summary: { total, withFleet: rows.filter(r => r.fleet_count > 0).length, withShips, willAutoWin },
       hint: willAutoWin > 0
-        ? `${willAutoWin}명의 NPC가 함선이 없어 hijack 시 자동 승리 처리됩니다. 'NPC 일괄 지급' 버튼을 다시 눌러 확인하세요.`
-        : '모든 NPC가 함선을 보유 — hijack 시 정상 fleet battle 발생.',
+        ? `${willAutoWin}명의 맵 NPC가 함선 없음 — hijack 시 자동 승리. 'NPC 일괄 지급' 버튼을 눌러 지급하세요.`
+        : '모든 맵 NPC가 함선 보유 — hijack 시 정상 fleet battle 발생.',
       npcs: rows
     });
   } catch (e) {
