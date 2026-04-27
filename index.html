@@ -42976,15 +42976,26 @@ async function loadBvSidePanels(battleId) {
 
   var w = (walletState && walletState.address || '').toLowerCase();
 
-  // 내 함대 (atk/def 중 본인)
+  // participants 기반으로 내 사이드 / 적 사이드 분리
+  var participants = (battleInfo && battleInfo.battle && battleInfo.battle.participants) || [];
+  var mySide = null;
+  var myParticipants = [], enemyParticipants = [];
+  participants.forEach(function(p) {
+    if ((p.wallet || '').toLowerCase() === w) { mySide = p.side; myParticipants.push(p); }
+    else { enemyParticipants.push(p); }
+  });
+
+  // 내 함대 패널
   var myFleetEl = document.getElementById('bvSideMyFleet');
   if (myFleetEl) {
-    var myFleets = [];
-    var pickSide = function(arr) { (arr || []).forEach(function(f) {
-      // owner_wallet 매칭은 fleet-presets 응답에 없음 — id (nickname) 으로 대조 또는 fleets/my 사용
-      myFleets.push(f);
-    }); };
-    if (my && my.fleets) {
+    if (myParticipants.length) {
+      myFleetEl.innerHTML = myParticipants.map(function(p) {
+        return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+          + '<div style="color:#4fc3f7;font-weight:700">' + escapeHtmlSafe(p.nickname || ('Fleet#' + p.fleet_id)) + ' <span style="font-size:9px;opacity:.6">[' + (mySide||'').toUpperCase() + ']</span></div>'
+          + '<div style="font-size:9px;color:rgba(255,255,255,.5)">시작: ' + (p.ships_at_start || 0) + '척 · 생존: ' + (p.ships_alive || 0) + '척</div>'
+          + '</div>';
+      }).join('');
+    } else if (my && my.fleets) {
       myFleetEl.innerHTML = my.fleets.slice(0, 5).map(function(f) {
         var hp = parseFloat(f.total_hp || 0), maxHp = parseFloat(f.total_max_hp || 1);
         var pct = Math.round((hp / Math.max(1, maxHp)) * 100);
@@ -43012,19 +43023,20 @@ async function loadBvSidePanels(battleId) {
     }
   }
 
-  // 적 함대 (preset 기반)
+  // 적 함대 — participants에서 내 지갑 제외한 나머지
   var enemyEl = document.getElementById('bvSideEnemyFleet');
-  if (enemyEl && preset) {
-    var enemies = [];
-    (preset.atk || []).forEach(function(f) { if ((f.id || '').toLowerCase() !== w.slice(0, 6)) enemies.push({ side: 'atk', f: f }); });
-    (preset.def || []).forEach(function(f) { enemies.push({ side: 'def', f: f }); });
-    enemyEl.innerHTML = enemies.slice(0, 5).map(function(e) {
-      var totalShips = 1 + Object.values(e.f.escort || {}).reduce(function(s, v) { return s + v; }, 0);
-      return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
-        + '<div style="color:#ff7043;font-weight:700">' + escapeHtmlSafe(e.f.id || 'Unknown') + ' <span style="font-size:9px;opacity:.6">[' + e.f.tag + ']</span></div>'
-        + '<div style="font-size:9px;color:rgba(255,255,255,.5)">기함: ' + (e.f.flagship || '?') + ' · ' + totalShips + '척</div>'
-        + '</div>';
-    }).join('') || '<div style="opacity:.4">적 함대 없음</div>';
+  if (enemyEl) {
+    if (enemyParticipants.length) {
+      enemyEl.innerHTML = enemyParticipants.map(function(p) {
+        var sideColor = p.side === 'atk' ? '#4fc3f7' : '#ff7043';
+        return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+          + '<div style="color:' + sideColor + ';font-weight:700">' + escapeHtmlSafe(p.nickname || ('Fleet#' + p.fleet_id)) + ' <span style="font-size:9px;opacity:.6">[' + (p.side||'').toUpperCase() + ']</span></div>'
+          + '<div style="font-size:9px;color:rgba(255,255,255,.5)">시작: ' + (p.ships_at_start || 0) + '척 · 생존: ' + (p.ships_alive || 0) + '척</div>'
+          + '</div>';
+      }).join('');
+    } else {
+      enemyEl.innerHTML = '<div style="opacity:.4">적 함대 없음</div>';
+    }
   }
 
   // 전투 통계
