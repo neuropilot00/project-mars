@@ -1460,6 +1460,7 @@ async function loadCatalog(){
 let _wsBattle = null;
 let _wsLastFrame = null;
 let _wsEndPayload = null;
+let _wsMaxHpCalibrated = false;
 function connectBattleWs() {
   try {
     const bid = new URLSearchParams(location.search).get('bid');
@@ -1478,12 +1479,26 @@ function connectBattleWs() {
         // Phase 2-C: fleet 단위 위치/HP 동기화 — DB fleet_id 매칭
         try {
           if (m.fleets && Array.isArray(m.fleets) && fleets && fleets.length) {
+            // 첫 프레임에서 maxHp 보정 — 서버 HP vs 로컬 카탈로그 HP 불일치 수정
+            if (!_wsMaxHpCalibrated) {
+              let wsAtkMax = 0, wsDefMax = 0;
+              for (const wsF of m.fleets) {
+                if (typeof wsF.maxHp === 'number') {
+                  if (wsF.side === 'atk') wsAtkMax += wsF.maxHp;
+                  else if (wsF.side === 'def') wsDefMax += wsF.maxHp;
+                }
+              }
+              if (wsAtkMax > 0) atkMaxHP = wsAtkMax;
+              if (wsDefMax > 0) defMaxHP = wsDefMax;
+              _wsMaxHpCalibrated = true;
+            }
             for (const wsF of m.fleets) {
               const f = fleets.find(x => x.dbFleetId && String(x.dbFleetId) === String(wsF.id));
               if (!f) continue;
               if (typeof wsF.cx === 'number') f.cx = wsF.cx;
               if (typeof wsF.cy === 'number') f.cy = wsF.cy;
               if (typeof wsF.hp === 'number') f.hp = Math.max(0, wsF.hp);
+              if (typeof wsF.maxHp === 'number') f.maxHp = wsF.maxHp;
               if (wsF.dead && !f.dead) {
                 f.dead = true;
                 f.ships.forEach(s => { s.dead = true; s.hp = 0; });

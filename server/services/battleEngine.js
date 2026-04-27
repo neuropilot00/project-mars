@@ -775,6 +775,8 @@ function captureFrame(state, tick) {
       formation: f.formation,
       movement: f.movement,
       hp: f.hp,
+      maxHp: f.maxHp,
+      side: f.side,
       dead: f.dead,
     })),
     ships: state.fleets.flatMap(f =>
