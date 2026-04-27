@@ -9903,14 +9903,14 @@ function compositeClaimsOnTexture(previewOnly){
             if(pos2<sr.x+sr.w-0.5){ctx.moveTo(pos2,yb);ctx.lineTo(sr.x+sr.w,yb);}
           }
           // Pass 1: Wide atmospheric halo
-          if(isMine){ctx.shadowColor='rgba(255,209,102,0.9)';ctx.shadowBlur=12;}
-          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'0.6':isNPC?'0.18':'0.18')+')';
-          ctx.lineWidth=isMine?10:(isNPC?3:3);
+          if(isMine){ctx.shadowColor='rgba(255,209,102,0.8)';ctx.shadowBlur=8;}
+          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'0.45':isNPC?'0.18':'0.18')+')';
+          ctx.lineWidth=isMine?5:(isNPC?3:3);
           ctx.stroke();
           if(isMine) ctx.shadowBlur=0;
           // Pass 2: Crisp tactical inner line
           ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.85)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.85')+')';
-          ctx.lineWidth=isNPC?1.3:(isMine?3:1);
+          ctx.lineWidth=isNPC?1.3:(isMine?1.8:1);
           ctx.stroke();
           ctx.lineCap='butt';ctx.setLineDash([]);
         }
