@@ -13997,7 +13997,29 @@ async function confirmClaim(){
         showNotification('hijack','⚔ AUTO-WIN','상대 함대 없음 — 즉시 영토 점령!');
         try{_sfx.hijackWin()}catch(e){}
         if (typeof refreshGP === 'function') refreshGP();
-        // 맵 새로고침 — Railway DB 레이턴시 감안해 2s+5s 두 번 시도
+        // ── 즉시 _serverPixels 반영 (Railway DB 레이턴시와 무관하게 즉시 금색 표시) ──
+        var _myW=(walletState.address||'').toLowerCase();
+        var _newCid=hjData.new_claim_id||null;
+        var _allHijacked=[].concat(hjData.hijacked_pixels||[]).concat(hjData.new_pixels_list||[]);
+        if(_allHijacked.length>0){
+          _allHijacked.forEach(function(px){
+            var key=px[0]+','+px[1];
+            var prev=_serverPixels[key]||{};
+            _serverPixels[key]={owner:_myW,price:prev.price||0,claimId:_newCid,claimIdx:prev.claimIdx};
+          });
+          // claims 배열에도 새 claim 추가
+          if(_newCid){
+            var _existClaim=false;
+            for(var _ci=0;_ci<claims.length;_ci++){if(claims[_ci].id===_newCid){_existClaim=true;break;}}
+            if(!_existClaim){
+              claims.push({id:_newCid,owner:_myW,center_lat:selectedPlot?selectedPlot.lat:0,center_lng:selectedPlot?selectedPlot.lng:0,width:cw||1,height:ch||1});
+            }
+          }
+          _rebuildOwnerData();
+          claimsSnapshot=null;
+          compositeClaimsOnTexture();
+        }
+        // 맵 새로고침 — Railway DB 레이턴시 감안해 2s+6s 두 번 시도 (백업)
         function _refreshPixelsAfterHijack(){
           fetch('/api/pixels').then(function(r){return r.json();}).then(function(sp){
             if(sp&&typeof sp==='object'&&Object.keys(sp).length>0){

@@ -678,6 +678,9 @@ async function declareHijackWithPP(params) {
       new_count: new_pixels ? new_pixels.length : 0,
       hijack_count: enemy_pixels ? enemy_pixels.length : 0,
       total_cost: totalCost,
+      // auto_win 시 클라이언트 즉시 반영용 — API 재요청 없이 _serverPixels 업데이트
+      hijacked_pixels: autoWin && enemy_pixels ? enemy_pixels.map(p => [p.lat, p.lng]) : [],
+      new_pixels_list: autoWin && new_pixels ? new_pixels.map(p => [p.lat, p.lng]) : [],
     };
   } catch (err) {
     await client.query('ROLLBACK');

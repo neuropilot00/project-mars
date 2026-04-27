@@ -1,3 +1,17 @@
+# OCCUPY MARS — Codebase Audit (v5.8 / 2026-04-27)
+
+## 🔴 v5.8 변경 요약 (2026-04-27)
+
+### 하이젝 후 영토 즉시 금색 반영
+
+| # | 이슈 | 원인 | 수정 |
+|---|------|------|------|
+| 1 | 하이젝 auto_win 후 Railway에서 영토가 NPC색으로 남음 | 서버 응답에 어떤 픽셀이 이전됐는지 없어 API 재요청에 의존 → Railway DB 레이턴시로 여전히 NPC owner 반환 | 서버 응답에 `hijacked_pixels`+`new_pixels_list` 추가 → 클라이언트가 `_serverPixels` 즉시 업데이트 후 `_rebuildOwnerData()`+`compositeClaimsOnTexture()` 호출 |
+
+### 수정 파일
+- `server/services/hijack.js`: `declareHijackWithPP` return에 `hijacked_pixels`, `new_pixels_list` 추가
+- `index.html`: auto_win 핸들러에 즉시 반영 로직 추가 (기존 2s+6s 재시도 백업으로 유지)
+
 # OCCUPY MARS — Codebase Audit (v5.7 / 2026-04-26)
 
 ## 🔴 v5.7 변경 요약 (2026-04-26)

@@ -1,5 +1,11 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-27 — 하이젝 후 영토 즉시 금색 반영 (v5.8)
+
+- **server/services/hijack.js** `declareHijackWithPP` 응답에 `hijacked_pixels`, `new_pixels_list` 추가 — auto_win 시 이전된 픽셀 좌표 반환
+- **index.html** auto_win 핸들러: 서버 응답으로 `_serverPixels` 즉시 업데이트 → `_rebuildOwnerData()` + `compositeClaimsOnTexture()` 즉시 호출 — Railway DB 레이턴시와 무관하게 하이젝 즉시 금색 표시
+- 기존 2s+6s API 재시도는 백업으로 유지
+
 ## 2026-04-26 — 모바일 영토 텍스트 색 + 골드 강도 향상 (v5.7)
 
 - **index.html** CSS `.mob-territory-card .mt-val`: `var(--tx1)` (미정의 → 검정) → `var(--tx)` (크림 `#E8E0D8`) — 모바일 좌표/크기 텍스트 가독성 복구
