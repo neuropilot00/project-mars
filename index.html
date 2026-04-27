@@ -18718,9 +18718,11 @@ function exportAccountData(){
   URL.revokeObjectURL(a.href);
   showToast('Account data exported');
 }
-function requestDeleteAccount(){
-  if(!confirm('Are you sure you want to delete your account? This action cannot be undone. All territories and PP will be lost.'))return;
-  if(!confirm('FINAL WARNING: This will permanently delete your account, wallet, and all game data.'))return;
+async function requestDeleteAccount(){
+  var ok1=await gameConfirm({icon:'⚠',title:'DELETE ACCOUNT',body:'계정을 삭제하면 모든 영토와 PP가 사라지며 되돌릴 수 없습니다.',confirmText:'계속'});
+  if(!ok1)return;
+  var ok2=await gameConfirm({icon:'💀',title:'FINAL WARNING',body:'<b style="color:var(--red)">영구 삭제</b> — 지갑, 영토, 모든 게임 데이터가 삭제됩니다.',confirmText:'영구 삭제'});
+  if(!ok2)return;
   fetch(API+'/auth/delete-account',{method:'POST',headers:{'Authorization':'Bearer '+emailAuth.token}})
     .then(function(r){return r.json()})
     .then(function(d){if(d.success){showToast('Account deleted');logoutEmail();}else{showToast(d.error||'Failed to delete');}})
@@ -20401,11 +20403,7 @@ function submitTransportLaunch() {
       }
     }).catch(function(e){ showFactionToast('네트워크 오류: '+e.message, 'error'); });
   };
-  if (typeof gameConfirm === 'function') {
-    gameConfirm('🚚 Launch shipment?', 'Lock '+cargo+' GP as cargo. Sector #'+origin+' → #'+dest+'.', doSubmit);
-  } else {
-    if (confirm('Launch shipment? '+cargo+' GP cargo.')) doSubmit();
-  }
+  gameConfirm({icon:'🚚',title:'수송 출발',body:'화물 <b>'+cargo+' GP</b> — 섹터 #'+origin+' → #'+dest,confirmText:'출발'}).then(function(ok){if(ok)doSubmit();});
 }
 
 function loadMyTransports() {
@@ -20465,8 +20463,7 @@ function cancelMyTransport(tid) {
       } else showFactionToast('취소 실패: '+(d.error||'unknown'), 'error');
     });
   };
-  if (typeof gameConfirm === 'function') gameConfirm('수송 #'+tid+' 취소?','화물은 환불되지만 보상은 잃습니다.', doIt);
-  else if (confirm('Cancel transport #'+tid+'?')) doIt();
+  gameConfirm({icon:'🚚',title:'수송 #'+tid+' 취소',body:'화물은 환불되지만 완료 보상은 잃습니다.',confirmText:'취소 확인'}).then(function(ok){if(ok)doIt();});
 }
 
 function loadRaidTargets() {
@@ -20517,8 +20514,7 @@ function submitRaidAttempt(tid, cargo) {
       }
     }).catch(function(e){ showFactionToast('네트워크 오류: '+e.message, 'error'); });
   };
-  if (typeof gameConfirm === 'function') gameConfirm('🏴 수송 #'+tid+' 약탈?', '화물: '+cargo+' GP. 수송당 1회 시도. 쿨다운 적용.', doIt);
-  else if (confirm('Attempt raid on transport #'+tid+'?')) doIt();
+  gameConfirm({icon:'🏴',title:'수송 #'+tid+' 약탈',body:'화물: <b>'+cargo+' GP</b>. 수송당 1회 시도. 쿨다운 적용.',confirmText:'약탈'}).then(function(ok){if(ok)doIt();});
 }
 
 // ── FLEET COMMAND card loader (M-154 / MY TERRITORY 탭에 통합) ──
@@ -21722,8 +21718,9 @@ function _doInviteGuildToAlliance(allianceId){
   });
 }
 
-function leaveAllianceAsGuild(allianceId, guildId){
-  if(!confirm('Leave alliance? Your guild can re-join after the cooldown period.')) return;
+async function leaveAllianceAsGuild(allianceId, guildId){
+  var ok=await gameConfirm({icon:'🤝',title:'동맹 탈퇴',body:'탈퇴 후 쿨다운 기간 동안 재가입이 제한됩니다.',confirmText:'탈퇴'});
+  if(!ok) return;
   fetch('/api/alliances/'+allianceId+'/guilds/remove',{
     method:'POST', headers:_phaseDAuthHeaders(),
     body: JSON.stringify({ guildId: guildId })
@@ -22875,10 +22872,11 @@ function rejectGuildRequest(inviteId){
 // Send a self-invite so a leader/officer can approve the join.  Uses the
 // existing guild_invites table; the server marks invited_by = requester so
 // leaders see the row as an incoming request instead of a normal invite.
-function requestJoinGuild(guildId, guildName){
+async function requestJoinGuild(guildId, guildName){
   var w=walletState.address;
   if(!w){showToast(t('guild_toast_sign_in_first'),'error');return;}
-  if(!confirm(t('guild_confirm_join_request').replace('{name}',guildName))) return;
+  var ok=await gameConfirm({icon:'🏰',title:'길드 가입 신청',body:'<b>'+escapeHTML(guildName)+'</b>에 가입 신청을 보냅니다.',confirmText:'신청'});
+  if(!ok) return;
   fetch('/api/guild/join-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,guildId:guildId})})
     .then(function(r){return r.json()})
     .then(function(data){
@@ -22888,8 +22886,9 @@ function requestJoinGuild(guildId, guildName){
     .catch(function(){showToast(t('guild_toast_join_request_failed'),'error')});
 }
 
-function guildLeave(){
-  if(!confirm(t('guild_confirm_leave'))) return;
+async function guildLeave(){
+  var ok=await gameConfirm({icon:'🏰',title:'길드 탈퇴',body:'길드에서 탈퇴합니다. 쿨다운 기간 동안 재가입이 제한됩니다.',confirmText:'탈퇴'});
+  if(!ok) return;
   var w=walletState.address;
   fetch('/api/guild/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w})})
   .then(function(r){return r.json()}).then(function(data){
@@ -22900,8 +22899,9 @@ function guildLeave(){
   }).catch(function(){showToast(t('guild_toast_generic_failed'),'error')});
 }
 
-function guildKick(targetWallet){
-  if(!confirm(t('guild_confirm_kick'))) return;
+async function guildKick(targetWallet){
+  var ok=await gameConfirm({icon:'⚔',title:'멤버 추방',body:'해당 멤버를 길드에서 추방합니다.',confirmText:'추방'});
+  if(!ok) return;
   var w=walletState.address;
   fetch('/api/guild/kick',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
@@ -22931,8 +22931,9 @@ function guildDemote(targetWallet){
   }).catch(function(){showToast(t('guild_toast_generic_failed'),'error')});
 }
 
-function guildTransfer(targetWallet){
-  if(!confirm(t('guild_confirm_transfer'))) return;
+async function guildTransfer(targetWallet){
+  var ok=await gameConfirm({icon:'👑',title:'길드장 양도',body:'길드장 권한을 해당 멤버에게 영구 양도합니다.',confirmText:'양도'});
+  if(!ok) return;
   var w=walletState.address;
   fetch('/api/guild/transfer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,targetWallet:targetWallet,guildId:_myGuildData.id})})
   .then(function(r){return r.json()}).then(function(data){
@@ -23082,13 +23083,13 @@ function saveGuildEdit(){
     .catch(function(){ btn.disabled=false; btn.textContent='SAVE CHANGES'; showToast('Failed to update','error'); });
 }
 
-function guildDisband(){
+async function guildDisband(){
   if(!_myGuildData || !_myGuildData.name){ showToast(t('guild_toast_no_guild_data'),'error'); return; }
   var name=_myGuildData.name;
-  // Two-step confirmation: user must type the guild name exactly
-  if(!confirm(t('guild_confirm_disband').replace('{name}',name))) return;
-  var typed=prompt(t('guild_prompt_disband_type').replace('{name}',name));
-  if(typed===null) return; // cancelled
+  var ok=await gameConfirm({icon:'💀',title:'길드 해산',body:'<b>'+escapeHTML(name)+'</b> 길드를 영구 해산합니다. 되돌릴 수 없습니다.',confirmText:'해산'});
+  if(!ok) return;
+  var typed=await gameInput({title:'길드 해산 확인',label:'길드 이름을 정확히 입력하세요',placeholder:name,maxLength:60});
+  if(typed===null||typed===undefined) return;
   if(typed.trim()!==name){
     showToast(t('guild_toast_disband_mismatch'),'error');
     return;
@@ -40703,7 +40704,8 @@ async function claimJob(jobId) {
 }
 
 async function cancelJob(jobId) {
-  if (!confirm('건조를 취소하시겠습니까?\n50%만 환불됩니다.')) return;
+  var ok=await gameConfirm({icon:'🔧',title:'건조 취소',body:'건조를 취소합니다. <b>50% GP만 환불</b>됩니다.',confirmText:'취소 확인'});
+  if(!ok) return;
   try {
     var res = await fetch('/api/ships/build-jobs/' + jobId + '/cancel', { method: 'POST', headers: getAuthHeaders() });
     var data = await res.json();
@@ -41902,7 +41904,8 @@ function renderBattleCard(b, tab) {
 }
 
 async function bhRunBattle(battleId) {
-  if (!confirm('이 전투를 즉시 시작하시겠습니까?')) return;
+  var ok=await gameConfirm({icon:'⚔',title:'전투 즉시 시작',body:'전투 #'+battleId+'을 지금 바로 시작합니다.',confirmText:'시작'});
+  if(!ok) return;
   try {
     const res = await fetch(`/api/battles/${battleId}/run`, {
       method: 'POST', headers: getAuthHeaders()
@@ -42083,7 +42086,8 @@ async function confirmDeclareBattle() {
     return;
   }
 
-  if (!confirm('⚔ 전투를 선언하시겠습니까?\n\n선언 후 전술 지시(Commander Actions)를 선택할 수 있습니다.')) return;
+  var ok=await gameConfirm({icon:'⚔',title:'전투 선언',body:'선언 후 전술 지시(Commander Actions)를 선택할 수 있습니다.',confirmText:'선언'});
+  if(!ok) return;
 
   try {
     const res = await fetch('/api/battles/declare-pvp', {
@@ -43918,7 +43922,8 @@ async function openCreateAlliance() {
   
   const tag = prompt('동맹 태그 (2~6자, 선택):', '');
   
-  if (!confirm(`🤝 동맹 창설\n\n이름: ${name}\n태그: ${tag || '(없음)'}\n비용: 5000 GP\n\n진행하시겠습니까?`)) return;
+  var ok=await gameConfirm({icon:'🤝',title:'동맹 창설',body:'이름: <b>'+escapeHTML(name)+'</b>'+(tag?(' · 태그: <b>'+escapeHTML(tag)+'</b>'):'')+'<br>비용: <b>5000 GP</b>',confirmText:'창설'});
+  if(!ok) return;
   
   try {
     const res = await fetch('/api/alliances', {
@@ -43947,7 +43952,8 @@ async function openCreateAlliance() {
 }
 
 async function joinAllianceConfirm(allianceId, name) {
-  if (!confirm(`🤝 동맹 "${name}" 에 가입하시겠습니까?`)) return;
+  var ok=await gameConfirm({icon:'🤝',title:'동맹 가입',body:'<b>'+escapeHTML(name)+'</b> 동맹에 가입합니다.',confirmText:'가입'});
+  if(!ok) return;
   
   try {
     const res = await fetch(`/api/alliances/${allianceId}/join`, {
@@ -43972,7 +43978,8 @@ async function joinAllianceConfirm(allianceId, name) {
 }
 
 async function leaveMyAlliance() {
-  if (!confirm('⚠ 동맹에서 탈퇴하시겠습니까?')) return;
+  var ok=await gameConfirm({icon:'🤝',title:'동맹 탈퇴',body:'동맹에서 탈퇴합니다. 쿨다운 기간 동안 재가입이 제한됩니다.',confirmText:'탈퇴'});
+  if(!ok) return;
   
   try {
     const res = await fetch('/api/alliances/leave', {
