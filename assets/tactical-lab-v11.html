@@ -170,6 +170,34 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 .fs-ship.cap{border-color:rgba(255,180,40,.3);color:rgba(255,180,40,.7);}
 .fs-ship.dead{opacity:.25;text-decoration:line-through;}
 .fs-dead{opacity:.35;}
+
+/* 후퇴 확인 오버레이 */
+#forfeit-overlay{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(3,4,11,.82);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;
+}
+#forfeit-overlay.on{display:flex;}
+.fo-box{
+  background:#05060e;border:1px solid rgba(239,83,80,.35);
+  border-radius:6px;padding:28px 32px;max-width:340px;width:90%;
+  box-shadow:0 0 40px rgba(239,83,80,.15);
+  font-family:'Share Tech Mono',monospace;text-align:center;
+}
+.fo-icon{font-size:28px;margin-bottom:10px;}
+.fo-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:900;
+  letter-spacing:3px;color:#ef5350;margin-bottom:8px;}
+.fo-desc{font-size:9px;letter-spacing:1px;color:rgba(255,255,255,.5);
+  line-height:1.8;margin-bottom:20px;}
+.fo-btns{display:flex;gap:10px;justify-content:center;}
+.fo-cancel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.4);font-family:'Share Tech Mono',monospace;
+  font-size:10px;letter-spacing:2px;padding:10px 22px;cursor:pointer;border-radius:4px;}
+.fo-cancel:hover{background:rgba(255,255,255,.08);}
+.fo-confirm{background:rgba(239,83,80,.14);border:1px solid rgba(239,83,80,.45);
+  color:#ef5350;font-family:'Share Tech Mono',monospace;font-weight:900;
+  font-size:10px;letter-spacing:2px;padding:10px 22px;cursor:pointer;border-radius:4px;}
+.fo-confirm:hover{background:rgba(239,83,80,.28);}
 </style>
 </head>
 <body>
@@ -181,6 +209,19 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
 </div>
 
 <canvas id="c" width="1080" height="460"></canvas>
+
+<!-- 후퇴 확인 오버레이 -->
+<div id="forfeit-overlay">
+  <div class="fo-box">
+    <div class="fo-icon">🏳</div>
+    <div class="fo-title">RETREAT</div>
+    <div class="fo-desc">전투를 포기하고 후퇴합니다.<br>함선은 현재 HP 그대로 살아남습니다.</div>
+    <div class="fo-btns">
+      <button class="fo-cancel" onclick="closeForfeitOverlay()">취소</button>
+      <button class="fo-confirm" onclick="confirmForfeit()">후퇴 확인</button>
+    </div>
+  </div>
+</div>
 
 <div class="bui">
   <div class="team"><div class="tn a">ATK COALITION</div><div class="tfl" id="ai">—</div>
@@ -1189,8 +1230,14 @@ function cmdEMP(){
   empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 6초');
   _bridgeToParent('emp', { duration_ms: 6000 });
 }
-async function cmdForfeit(){
-  if (!confirm('⚠ 전투를 포기하고 후퇴하시겠습니까?\n함선은 현재 HP 그대로 살아남습니다.')) return;
+function cmdForfeit(){
+  document.getElementById('forfeit-overlay').classList.add('on');
+}
+function closeForfeitOverlay(){
+  document.getElementById('forfeit-overlay').classList.remove('on');
+}
+async function confirmForfeit(){
+  closeForfeitOverlay();
   const bid = new URLSearchParams(location.search).get('bid');
   if (!bid) { addLog('kl','⚠ battleId 없음'); return; }
   try {
