@@ -1,5 +1,10 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-26 — 모바일 영토 텍스트 색 + 골드 강도 향상 (v5.7)
+
+- **index.html** CSS `.mob-territory-card .mt-val`: `var(--tx1)` (미정의 → 검정) → `var(--tx)` (크림 `#E8E0D8`) — 모바일 좌표/크기 텍스트 가독성 복구
+- **index.html** `compositeClaimsOnTexture` isMine 골드 시각 강화: fill alpha 0.40→0.65, shadowBlur 8→12, 외곽선 alpha 0.35→0.6, halo lineWidth 6→10, inner line 2.2→3
+
 ## 2026-04-26 — 하이젝 전투 3종 수정 (v5.6)
 
 - **battleEngine.js** `applyBattleResults`: 하이젝 전투(`battle_type LIKE 'hijack%'`) 시 함선 파괴 없음 — 시뮬 최종 HP 반영, 0 이면 max_hp×15% 보존 (is_alive=true 유지)

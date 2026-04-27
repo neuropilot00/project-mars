@@ -1,3 +1,17 @@
+# OCCUPY MARS — Codebase Audit (v5.7 / 2026-04-26)
+
+## 🔴 v5.7 변경 요약 (2026-04-26)
+
+### 모바일 텍스트 + 골드 시각 강화
+
+| # | 이슈 | 원인 | 수정 |
+|---|------|------|------|
+| 1 | 모바일 영토 모달 좌표/크기 텍스트 검정 (불가시) | `.mob-territory-card .mt-val`이 `var(--tx1)` 사용 (미정의 CSS 변수 → 브라우저 fallback 검정) | `var(--tx)` (크림 `#E8E0D8`)으로 변경 |
+| 2 | 내 영토 골드 색상이 화성 표면에서 잘 안 보임 | fill alpha 0.40, halo/border 강도 약함 | alpha 0.65, shadowBlur 12, halo lineWidth 10, inner 3으로 강화 |
+
+### 수정 파일
+- `index.html`: CSS `.mob-territory-card .mt-val` + `compositeClaimsOnTexture` isMine 파라미터
+
 # OCCUPY MARS — Codebase Audit (v5.6 / 2026-04-26)
 
 ## 🔴 v5.6 변경 요약 (2026-04-26)

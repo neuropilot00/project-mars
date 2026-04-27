@@ -1004,7 +1004,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .mob-territory-card .mt-row{display:flex;justify-content:space-between;
   padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:10px}
 .mob-territory-card .mt-label{color:var(--tx3);font-family:var(--fn);letter-spacing:1px}
-.mob-territory-card .mt-val{color:var(--tx1);font-family:var(--fn);text-align:right}
+.mob-territory-card .mt-val{color:var(--tx);font-family:var(--fn);text-align:right}
 .mob-territory-card .mt-img{margin:10px 0;text-align:center}
 .mob-territory-card .mt-img img{max-width:100%;max-height:200px;border-radius:8px;
   border:1px solid var(--bdr2);cursor:pointer}
@@ -9851,7 +9851,7 @@ function compositeClaimsOnTexture(previewOnly){
           // Pad by 0.75px so adjacent strips overlap — eliminates subpixel gap lines.
           // isMine: 골드 오버레이, 나머지는 지갑 해시 색상
           var tc=isMine?{r:255,g:209,b:102}:(oc||{r:255,g:120,b:60});
-          var _tAlpha=isMine?0.40:(isNPC?0.18:0.22);
+          var _tAlpha=isMine?0.65:(isNPC?0.18:0.22);
           ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+','+_tAlpha+')';
           var fbx1=Infinity,fby1=Infinity,fbx2=-Infinity,fby2=-Infinity;
           for(var fi=0;fi<gStrips.length;fi++){
@@ -9903,14 +9903,14 @@ function compositeClaimsOnTexture(previewOnly){
             if(pos2<sr.x+sr.w-0.5){ctx.moveTo(pos2,yb);ctx.lineTo(sr.x+sr.w,yb);}
           }
           // Pass 1: Wide atmospheric halo
-          if(isMine){ctx.shadowColor='rgba(255,209,102,0.7)';ctx.shadowBlur=8;}
-          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'0.35':isNPC?'0.18':'0.18')+')';
-          ctx.lineWidth=isMine?6:(isNPC?3:3);
+          if(isMine){ctx.shadowColor='rgba(255,209,102,0.9)';ctx.shadowBlur=12;}
+          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'0.6':isNPC?'0.18':'0.18')+')';
+          ctx.lineWidth=isMine?10:(isNPC?3:3);
           ctx.stroke();
           if(isMine) ctx.shadowBlur=0;
           // Pass 2: Crisp tactical inner line
           ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.85)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.85')+')';
-          ctx.lineWidth=isNPC?1.3:(isMine?2.2:1);
+          ctx.lineWidth=isNPC?1.3:(isMine?3:1);
           ctx.stroke();
           ctx.lineCap='butt';ctx.setLineDash([]);
         }
