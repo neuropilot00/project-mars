@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-26 (§17 sub-agent 원칙 추가) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-28 (§18 UI 모달 패턴 추가, §8/§13 업데이트) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -233,24 +233,28 @@ app.use('/admin/api', adminRoutes);  // 단일 파일 admin.js로 통합
 
 ## 8. 현재 개발 상태 & 다음 작업
 
-### ✅ 완료된 것
+### ✅ 완료된 것 (2026-04-28 기준)
 - Migration 001~168 전부 DB 적용 완료
-- Fleet Combat DB 스키마 (factions, ship_types, fleets, ships, fleet_battles 등)
-- Fleet Combat 백엔드 서비스 (`server/services/fleet.js`, `server/routes/fleets.js` 등)
-- 파벌 시드 데이터 (mcc/fsp/cv)
-- 함선 22종 정의 (frigate/destroyer/cruiser/battleship/titan × 3파벌)
-- 광물 tier 시스템 (tier 0~3, 13종)
-- 구역별 채굴 재료 차별화 (`sector_resource_rates` 테이블 + migration 163)
-- VIP 시스템 (migration 162 — `vip_tiers`, `user_vip` 테이블)
-- 함선 수리/실드 시스템 (migration 165 — DB 스키마만, UI 미완)
-- 기존 hijack 시스템과 DB 연동 테이블 준비
-- fleet_combat_enabled = **false** (아직 비활성 상태)
+- Fleet Combat 전체 스택 활성화 (`fleet_combat_enabled = true` — DB 확인 완료)
+- 파벌 시드 데이터 (mcc/fsp/cv), 함선 22종, 광물 tier 0~3 (13종)
+- VIP 시스템 (migration 162)
+- **함대전 HP 보존** — hijack 전투 후 함선 HP 그대로 유지 (is_alive=true), 조선소 수리 연계
+- **전투 무한전** — MAX_TICKS=54000 (실질 무제한), 타임아웃 결과=draw (HP비율 승자 제거)
+- **WS 스트리밍 8x** — battleScheduler.js `tickMs/8`
+- **후퇴 (forfeit)** — `POST /api/battles/:id/forfeit` 신규 endpoint
+- **전투 뷰어 fixes** — HP바 실시간 감소, 내 함대/적 함대 올바른 구분, "나" 배지
+- **속도 조절 버튼** — tactical-lab SPEED 패널 (×1/×2/×4/×8, WS 없는 로컬 시뮬 전용)
+- **브라우저 네이티브 다이얼로그 제거** — confirm() 전면 인게임 모달로 교체 (§18 참조)
+- 내 영토 금색 하이라이트 (compositeClaimsOnTexture)
+- 하이젝 auto_win 후 영토 즉시 금색 반영 (Railway 레이턴시 우회)
 
-### 🔴 다음 작업
+### 🔴 다음 작업 (우선순위 순)
 
-- 함선 건조에 `recipe_minerals` 실제 소모 적용 (현재 무시됨)
-- 타이탄/배틀십에 Core/Mid 전용 재료 요구사항 추가
-- 함선 수리 시스템 UI (route + `index.html`)
+1. **prompt() 교체** — `index.html` 10곳, `admin.html` 5곳 (§18 참조)
+2. **admin.html alert() 교체** — 274곳 → `showAdminToast()` 구현 필요
+3. **함선 건조에 recipe_minerals 실제 소모** — 현재 광물 차감 무시됨
+4. **함선 수리 시스템 UI** — DB 스키마(migration 165) 있음, 라우트+UI 미완
+5. 타이탄/배틀십에 Core/Mid 전용 재료 요구사항 추가
 
 ---
 
@@ -291,6 +295,9 @@ app.use('/admin/api', adminRoutes);  // 단일 파일 admin.js로 통합
 | 영토 정보 패널 | `showTerritoryInfo(` |
 | GP 관련 함수 | `loadGPBalance\|refreshGP` |
 | i18n 번역 | `const i18n = {` (EN/KO/JA/ZH) |
+| 인게임 확인 모달 | `id="gameConfirm"` (HTML) / `function gameConfirm(` (JS, ~line 26442) |
+| 인게임 입력 모달 | `id="gameInput"` (HTML) / `function gameInput(` (JS, ~line 26481) |
+| 쇼핑 확인 모달 | `id="shopConfirmModal"` — gameConfirm 이전 버전, 쇼핑 탭 한정 사용 |
 | WebSocket 없음 | polling 방식 — `setInterval` + `fetch('/api/...')` |
 
 ---
@@ -298,7 +305,7 @@ app.use('/admin/api', adminRoutes);  // 단일 파일 admin.js로 통합
 ## 11. 설정값 (fleet 카테고리) — settings 테이블
 
 ```
-fleet_combat_enabled       = false  ← 서비스 완성 후 true로 변경
+fleet_combat_enabled       = true   ← 2026-04-26 활성화 완료
 max_fleets_per_player      = 5
 max_ships_per_fleet        = 1000
 max_ships_per_player       = 200
@@ -324,7 +331,7 @@ vip_enabled                = true
 
 ---
 
-## 13. 알려진 이슈 (2026-04-25 마지막 일제 점검)
+## 13. 알려진 이슈 (2026-04-28 최신 업데이트)
 
 ### ✅ 최근 수정됨 (migration 176~179, commits 62fb37f ~ 164d2ff)
 - **로켓드롭 트리거 403** — `commander_wallet` 조회 위치 fix (`game_settings` → `commander` 테이블).
@@ -367,14 +374,21 @@ vip_enabled                = true
 | `services/enhancement.js` + `enhancementAdvanced.js` | 인스턴싱 ops + 레시피 보너스 |
 
 #### C. 기타 메모
-1. `server/routes/ships.js` — **신** fleet 시스템 (이전 메모 잘못된 정보). `/api/ships/blueprints`, `/api/ships/my`, `/api/ships/build` 등 정상 동작. 폐기 대상 아님.
+1. `server/routes/ships.js` — **신** fleet 시스템. `/api/ships/blueprints`, `/api/ships/my`, `/api/ships/build` 정상 동작. 폐기 대상 아님.
 2. `server/migrations/archived/` — 89~139번 구버전. 건드리지 말 것.
 3. settings.value는 JSONB — 문자열은 `'"text"'`, 점 포함 버전은 `'"1.0.0"'`으로 감싸야 함.
 4. 로컬 테스트 유저: `0xlainworld000000000000000000000000000000`.
-5. 스케줄러 catch 패턴 — silent 실패 모니터링 필요 (현재 phantom 없으므로 모두 정상 동작).
-6. `fleet_combat_enabled = true` — fleet 시스템 활성화됨 (DB 확인 완료).
-7. `idx_users_referred_by` 인덱스 존재 — referral COUNT(*) 쿼리 최적화됨.
-8. 새 fleet UI 진입점: `openShipyard()` (조선소), `openFleetCmd()` (함대 관리). PVP 탭의 loadFleetPanel은 `/api/fleets`로 fleet 요약만 표시 + 위 모달 진입 버튼.
+5. `idx_users_referred_by` 인덱스 존재 — referral COUNT(*) 쿼리 최적화됨.
+6. 새 fleet UI 진입점: `openShipyard()` (조선소), `openFleetCmd()` (함대 관리).
+7. **함대전 시스템 동작 흐름**: hijack 선언 → fleet_battles 생성 → battleScheduler.runBattle() → battleEngine 시뮬 → WS 8x 스트리밍 → applyBattleResults (HP 반영, hijack=함선보존) → battleRewards.
+8. **forfeit endpoint**: `POST /api/battles/:id/forfeit` — 공격자(atk)만 가능. preparing이면 즉시 취소(winner=def), 이미 ended면 OK 반환. HP는 applyBattleResults에서 이미 적용됨.
+9. **네이티브 다이얼로그 잔여**: `index.html` prompt() 10곳, `admin.html` prompt() 5곳, `admin.html` alert() 274곳. §18 참조.
+
+#### D. 2026-04-28 신규 추가 (resolve됨)
+- **브라우저 confirm() 전면 제거** — `index.html` 15곳 `gameConfirm()`, `admin.html` 70곳 `adminConfirm()`, tactical-lab `#forfeit-overlay`로 교체.
+- **HP바 실시간 감소 안 됨** — WS frame에 `maxHp`+`side` 추가, 첫 프레임에서 atkMaxHP/defMaxHP 재보정 (`_wsMaxHpCalibrated`).
+- **내 함대/적 함대 혼동** — `loadBvSidePanels` participants 배열 기반 wallet 비교로 수정.
+- **전투 타임아웃 HP 비율 승자** — MAX_TICKS=54000, 타임아웃=draw로 변경.
 
 ---
 
@@ -503,6 +517,86 @@ phaseC/phaseD       ← 길드전 페이즈
 - ❌ Plan agent에게 "분석한 후 수정까지 해줘" 위임 (이해를 위임하지 말 것)
 - ❌ Explore agent로 이미 경로 아는 파일 읽기 (Read 직접 쓰기)
 - ❌ Sub-agent 결과를 그대로 사용자에게 전달 (메인이 검증·요약)
+
+---
+
+## 18. UI 모달 패턴 — 네이티브 다이얼로그 대체 규칙
+
+> ⚠️ `confirm()` / `prompt()` / `alert()` 절대 사용 금지. 항상 아래 인게임 모달 사용.
+
+### index.html — 사용 가능한 모달 함수
+
+#### ① gameConfirm (확인/취소)
+```javascript
+// Promise 반환 — async 함수에서 await 필수
+const ok = await gameConfirm({
+  icon: '⚔',           // 이모지
+  title: '전투 선언',   // 제목 (대문자 권장)
+  body: '선언 후 전술 지시를 선택합니다.',  // HTML 가능
+  confirmText: '선언',  // 확인 버튼 텍스트 (기본: CONFIRM)
+  // info: [{k:'비용', v:'500 GP', insufficient: false}]  // 옵션: 비용 테이블
+  // disabled: true  // 옵션: 확인 버튼 비활성
+});
+if (!ok) return;
+```
+
+#### ② gameInput (텍스트 입력, prompt 대체)
+```javascript
+const name = await gameInput({
+  title: '함대 이름',
+  label: '이름을 입력하세요',
+  placeholder: '예: 1함대',
+  defaultValue: '',     // 선택
+  maxLength: 60,
+});
+if (name === null || name === undefined) return; // 취소
+```
+
+#### ③ shopConfirm (쇼핑 전용 — 신규 코드에서는 gameConfirm 사용)
+```javascript
+// 기존 쇼핑 탭에서만 사용. 신규 코드는 gameConfirm 사용할 것.
+const ok = await shopConfirm(icon, title, msgHTML, btnText);
+```
+
+### admin.html — 사용 가능한 모달 함수
+
+#### ① adminConfirm (확인/취소)
+```javascript
+// Promise 반환 — async 함수에서 await 필수
+async function doSomething(id) {
+  if (!await adminConfirm('Delete item #' + id + '?', 'DELETE')) return;
+  // ... 실제 작업
+}
+// 두 번째 인자 title 생략 시 'CONFIRM'
+```
+
+> ⚠️ `admin.html`에는 아직 `prompt()` 5곳, `alert()` 274곳 남아있음.
+> `adminInput()` 함수 구현 후 prompt 교체 필요 (미구현).
+> alert은 `showAdminToast()` 구현 후 교체 (미구현).
+
+### assets/tactical-lab-v11.html — 독립 iframe
+
+tactical-lab은 iframe으로 실행되므로 부모의 `gameConfirm`에 접근 불가. 인라인 오버레이 방식 사용:
+```javascript
+// 오버레이 표시 (CSS id="forfeit-overlay")
+function cmdForfeit() {
+  document.getElementById('forfeit-overlay').classList.add('on');
+}
+function closeForfeitOverlay() {
+  document.getElementById('forfeit-overlay').classList.remove('on');
+}
+async function confirmForfeit() {
+  closeForfeitOverlay();
+  // ... 실제 작업
+}
+// 새 확인 팝업 필요 시 동일 패턴으로 별도 오버레이 추가
+```
+
+부모(index.html)와 통신은 postMessage:
+```javascript
+window.parent.postMessage({ source:'tactical-lab', battleId, cmd:'forfeit', payload:d }, '*');
+// 부모에서: window.addEventListener('message', function(e) { if (e.data.cmd==='forfeit') ... })
+```
 
 ---
 

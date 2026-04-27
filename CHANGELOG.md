@@ -1,5 +1,27 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-28 — 네이티브 다이얼로그 전면 제거 (v5.10)
+
+### 브라우저 confirm() / prompt() / alert() → 인게임 모달
+
+| 위치 | 함수 | 용도 |
+|------|------|------|
+| `index.html` | `gameConfirm({icon,title,body,confirmText})` → Promise | 범용 확인 모달 (기존) |
+| `index.html` | `gameInput({title,label,placeholder,defaultValue,maxLength})` → Promise | 텍스트 입력 모달 (기존) |
+| `admin.html` | `adminConfirm(msg, title)` → Promise | 어드민 전용 확인 모달 (신규) |
+| `tactical-lab-v11.html` | 인라인 `#forfeit-overlay` CSS 오버레이 | RETREAT 전용 |
+
+**변경 내역:**
+- `index.html` `confirm()` 15곳 전부 `gameConfirm()` 교체 (수송·길드·동맹·함대·건조 취소·계정 삭제)
+- `admin.html` `confirm()` 70곳 전부 `adminConfirm()` 교체, 67개 함수에 `async` 자동 추가
+- `tactical-lab-v11.html` RETREAT `confirm()` → `#forfeit-overlay` 인라인 오버레이
+- `admin.html`에 `adminConfirm` CSS + HTML + JS 삽입 (어드민 스타일 오렌지 테마)
+
+**잔여 네이티브 다이얼로그 (다음 작업):**
+- `index.html` `prompt()` 10곳 — `gameInput()`으로 교체 필요 (동맹 입금/출금, 영토이름, 콘텐스트, 렌탈, 동맹 창설 등)
+- `admin.html` `prompt()` 5곳 — `adminInput()` 구현 후 교체 필요
+- `admin.html` `alert()` 274곳 — `showAdminToast()` 구현 후 교체 필요 (낮은 우선순위)
+
 ## 2026-04-27 — 함대전 HP 보존 + 속도 조절 + 무한 전투 (v5.9)
 
 - **battleEngine.js** 타임아웃(MAX_TICKS 54000) 시 HP 비교 승자 선정 → `draw`로 변경 — 전투는 함선 전멸로만 끝남

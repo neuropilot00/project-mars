@@ -1,3 +1,27 @@
+# OCCUPY MARS — Codebase Audit (v5.10 / 2026-04-28)
+
+## 🔴 v5.10 변경 요약 (2026-04-28)
+
+### 네이티브 다이얼로그 전면 제거
+
+| # | 내용 | 수정 |
+|---|------|------|
+| 1 | index.html confirm() 15곳 | gameConfirm({icon,title,body,confirmText}) Promise로 교체 |
+| 2 | admin.html confirm() 70곳 | adminConfirm(msg,title) Promise로 교체, 67개 함수 async 추가 |
+| 3 | tactical-lab RETREAT confirm() | #forfeit-overlay CSS 인라인 오버레이로 교체 |
+
+### 잔여 네이티브 다이얼로그 (미교체)
+| 위치 | 종류 | 개수 | 우선순위 |
+|------|------|------|----------|
+| index.html | prompt() | 10 | 🟡 중 |
+| admin.html | prompt() | 5 | 🟡 중 |
+| admin.html | alert() | 274 | 🟢 낮음 |
+
+### 수정 파일
+- `index.html`: gameConfirm 사용, 일부 함수 async화
+- `admin.html`: adminConfirm CSS+HTML+JS 추가, 70곳 교체, 67개 async화
+- `assets/tactical-lab-v11.html`: #forfeit-overlay, closeForfeitOverlay(), confirmForfeit()
+
 # OCCUPY MARS — Codebase Audit (v5.9 / 2026-04-27)
 
 ## 🔴 v5.9 변경 요약 (2026-04-27)
