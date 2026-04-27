@@ -42908,6 +42908,17 @@ window.addEventListener('message', function(ev) {
   var d = ev && ev.data;
   if (!d || d.source !== 'tactical-lab' || !d.battleId) return;
 
+  // forfeit: 후퇴 → 뷰어 닫고 조선소로 안내
+  if (d.cmd === 'forfeit') {
+    closeBattleViewer();
+    showFactionToast('🏳 후퇴 완료 — 조선소에서 함선을 수리하세요', 'info');
+    setTimeout(function(){
+      if(typeof openShipyard==='function') openShipyard();
+      setTimeout(function(){ if(typeof switchSyTab==='function') switchSyTab('fleet'); }, 200);
+    }, 800);
+    return;
+  }
+
   // ws_end: 서버가 실시간 broadcast 종료 알림 → 결과 카드 즉시 표시 (Phase 2-B)
   if (d.cmd === 'ws_end') {
     try {

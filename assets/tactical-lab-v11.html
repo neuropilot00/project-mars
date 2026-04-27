@@ -216,6 +216,8 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
   <button class="cb g" onclick="cmdManeuver('retreat')">← Retreat</button>
   <button class="cb g" onclick="cmdManeuver('scatter')">✦ Scatter</button>
   <button class="cb g" onclick="cmdManeuver('rally')">◉ Rally</button>
+  <div class="sep"></div>
+  <button class="cb" onclick="cmdForfeit()" style="background:rgba(239,83,80,.18);border-color:rgba(239,83,80,.5);color:#ef5350;font-weight:900">🏳 RETREAT</button>
 </div>
 
 <!-- 하단 토글 패널 (v10 그대로) -->
@@ -1163,6 +1165,26 @@ function cmdFocus(){
 function cmdEMP(){
   empMs=6000;bullets=bullets.filter(b=>b.side==='atk');addLog('wn','💥 EMP 6초');
   _bridgeToParent('emp', { duration_ms: 6000 });
+}
+async function cmdForfeit(){
+  if (!confirm('⚠ 전투를 포기하고 후퇴하시겠습니까?\n함선은 현재 HP 그대로 살아남습니다.')) return;
+  const bid = new URLSearchParams(location.search).get('bid');
+  if (!bid) { addLog('kl','⚠ battleId 없음'); return; }
+  try {
+    const token = (window.parent && window.parent.localStorage && window.parent.localStorage.getItem('pw_token')) || '';
+    const r = await fetch('/api/battles/' + bid + '/forfeit', {
+      method:'POST',
+      headers:{'Content-Type':'application/json', ...(token?{'Authorization':'Bearer '+token}:{})},
+      body: JSON.stringify({})
+    });
+    const d = await r.json();
+    addLog('kl','🏳 후퇴 — 함선 HP 보존됨. 조선소에서 수리하세요.');
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ source:'tactical-lab', battleId:parseInt(bid), cmd:'forfeit', payload:d }, '*');
+      }
+    } catch(_){}
+  } catch(e){ addLog('kl','⚠ 후퇴 요청 실패: '+e.message); }
 }
 function cmdFormation(form){
   fleets.filter(f=>f.side==='atk'&&!f.dead).forEach(f=>{

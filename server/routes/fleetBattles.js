@@ -302,4 +302,52 @@ router.post('/:id/run', requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * POST /api/battles/:id/forfeit
+ * 공격자 전투 포기 — preparing 중이면 취소, 이미 끝났으면 그냥 OK 반환.
+ * 어떤 경우든 함선 HP는 서버에서 이미 applyBattleResults로 처리됨.
+ */
+router.post('/:id/forfeit', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+
+    const battleId = parseInt(req.params.id);
+    if (!battleId) return res.status(400).json({ error: 'INVALID_ID' });
+
+    // 참가자 + 사이드 확인 (공격자만 포기 가능)
+    const { rows: pRows } = await pool.query(`
+      SELECT side FROM fleet_battle_participants
+      WHERE battle_id = $1 AND wallet_address = $2
+    `, [battleId, wallet]);
+    if (!pRows[0]) return res.status(403).json({ error: 'NOT_PARTICIPANT' });
+    if (pRows[0].side !== 'atk') return res.status(403).json({ error: 'DEFENDER_CANNOT_FORFEIT' });
+
+    const { rows: bRows } = await pool.query(
+      `SELECT status FROM fleet_battles WHERE id = $1`, [battleId]
+    );
+    if (!bRows[0]) return res.status(404).json({ error: 'BATTLE_NOT_FOUND' });
+
+    const status = bRows[0].status;
+
+    if (status === 'preparing') {
+      // 아직 시뮬 안 됨 — 즉시 취소 (DEF win, 함선 피해 없음)
+      await pool.query(`
+        UPDATE fleet_battles
+        SET status = 'ended', winner_side = 'def',
+            atk_ships_total = 0, def_ships_total = 0
+        WHERE id = $1
+      `, [battleId]);
+      console.log(`[battle] ${battleId} forfeited by atk ${wallet} (was preparing)`);
+      return res.json({ success: true, result: 'cancelled', winner_side: 'def' });
+    }
+
+    // 이미 ended/in_progress — 결과 그대로 (HP는 이미 적용됨)
+    res.json({ success: true, result: 'already_resolved', status });
+  } catch (err) {
+    console.error('[battle] forfeit error:', err);
+    res.status(500).json({ error: 'SERVER_ERROR' });
+  }
+});
+
 module.exports = router;
