@@ -1,3 +1,25 @@
+# OCCUPY MARS — Codebase Audit (v5.9 / 2026-04-27)
+
+## 🔴 v5.9 변경 요약 (2026-04-27)
+
+### 함대전 HP 보존 + 후퇴 + 속도 조절 + 무한 전투
+
+| # | 이슈 | 원인 | 수정 |
+|---|------|------|------|
+| 1 | 전투 시간제한 초과 시 HP 비율로 승자 결정 | battleEngine MAX_TICKS(9000) 초과 fallback으로 HP 비교 | MAX_TICKS=54000, 타임아웃 결과를 draw로 변경. 전투는 함선 전멸로만 끝남 |
+| 2 | HP바가 100%에서 안 움직임 | WS frame의 HP가 로컬 카탈로그 HP보다 훨씬 커서 항상 100% 이상 | captureFrame에 maxHp+side 추가, WS 첫 프레임에서 atkMaxHP/defMaxHP 재보정 |
+| 3 | 내 이름이 적 함대 패널에 표시 | loadBvSidePanels가 지갑 prefix vs nickname 비교 오류 | participants 배열 기반으로 wallet 직접 비교 |
+| 4 | 전투 포기 불가 | 없음 | /api/battles/:id/forfeit 신규 endpoint, RETREAT 버튼, forfeit postMessage 처리 |
+| 5 | WS 스트리밍 느림 | tickMs/4 (4x) | tickMs/8 (8x)으로 변경 |
+| 6 | 로컬 시뮬 속도 조절 없음 | 없음 | SPEED 패널 ×1/×2/×4/×8 버튼 추가 (WS 모드에서는 비활성) |
+
+### 수정 파일
+- `server/services/battleEngine.js`: captureFrame maxHp+side, MAX_TICKS 54000, timeout→draw
+- `server/services/battleScheduler.js`: tickMs/8
+- `server/routes/fleetBattles.js`: POST /api/battles/:id/forfeit
+- `assets/tactical-lab-v11.html`: WS maxHp 보정, RETREAT 버튼, SPEED 패널, cmdForfeit()
+- `index.html`: forfeit postMessage 핸들러, loadBvSidePanels 수정, showBattleResult "나" 배지
+
 # OCCUPY MARS — Codebase Audit (v5.8 / 2026-04-27)
 
 ## 🔴 v5.8 변경 요약 (2026-04-27)

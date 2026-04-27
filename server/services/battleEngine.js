@@ -24,7 +24,7 @@ try { jobService = require('./job'); } catch (_) { jobService = null; }
 // ─── 상수 ───
 
 const TICK_MS = 200;                    // 5 tick/sec
-const MAX_TICKS = 9000;                 // 30분 한도 (5tick × 60s × 30m)
+const MAX_TICKS = 54000;                // 3시간 한도 — 실질적으로 HP 소진 전에 끝남
 const FIELD_W = 1000;
 const FIELD_H = 440;
 
@@ -116,14 +116,12 @@ async function simulateBattle(battleId) {
     }
   }
   
-  // 시간 초과
+  // 시간 초과 — HP 비교 없이 무승부 (실제 전투는 함선 전멸로만 끝남)
   if (!winnerSide) {
-    const atkHp = state.fleets.filter(f => f.side === 'atk').reduce((a,f) => a + f.hp, 0);
-    const defHp = state.fleets.filter(f => f.side === 'def').reduce((a,f) => a + f.hp, 0);
-    winnerSide = atkHp > defHp ? 'atk' : defHp > atkHp ? 'def' : 'draw';
+    winnerSide = 'draw';
     events.push({
       tick: state.tick, type: 'battle_timeout',
-      payload: { winner_side: winnerSide }
+      payload: { winner_side: 'draw' }
     });
   }
   

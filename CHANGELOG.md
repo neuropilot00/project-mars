@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-27 — 함대전 HP 보존 + 속도 조절 + 무한 전투 (v5.9)
+
+- **battleEngine.js** 타임아웃(MAX_TICKS 54000) 시 HP 비교 승자 선정 → `draw`로 변경 — 전투는 함선 전멸로만 끝남
+- **battleScheduler.js** WS frame 스트리밍 `tickMs/4` → `tickMs/8` (기본 2배 빠른 전송)
+- **tactical-lab-v11.html** SPEED 버튼 패널 추가 (×1/×2/×4/×8) — WS 없는 로컬 시뮬 전용, WS 모드는 서버 8x 스트리밍 적용
+- **fleetBattles.js** `POST /api/battles/:id/forfeit` 신규 endpoint — 공격자가 전투 포기 시 preparing이면 즉시 취소, 이미 시뮬됐으면 현재 HP 보존
+- **tactical-lab-v11.html** 🏳 RETREAT 버튼 → `/api/battles/:id/forfeit` 호출 → 부모에 `forfeit` postMessage → 조선소 FLEET 탭 자동 열기
+- **index.html** forfeit postMessage 핸들러: 뷰어 닫기 → 토스트 → 조선소 FLEET 탭 이동
+- **battleEngine.js** `captureFrame` 에 `maxHp`, `side` 추가 — WS 첫 프레임에서 HP바 최대값 보정
+- **tactical-lab-v11.html** WS 첫 프레임 수신 시 `atkMaxHP`/`defMaxHP` 서버값으로 재보정 (`_wsMaxHpCalibrated`)
+- **index.html** `loadBvSidePanels`: participants 배열 기반으로 내 함대 vs 적 함대 구분 — 지갑 비교 기준 수정
+- **index.html** `showBattleResult`: "나" 배지 + 승리/패배 서브타이틀 표시
+
 ## 2026-04-27 — 하이젝 후 영토 즉시 금색 반영 (v5.8)
 
 - **server/services/hijack.js** `declareHijackWithPP` 응답에 `hijacked_pixels`, `new_pixels_list` 추가 — auto_win 시 이전된 픽셀 좌표 반환

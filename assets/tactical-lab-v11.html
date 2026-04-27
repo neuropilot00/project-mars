@@ -219,6 +219,13 @@ body{background:#03040b;color:#d8e0f0;font-family:'Share Tech Mono',monospace;
   <div class="sep"></div>
   <button class="cb" onclick="cmdForfeit()" style="background:rgba(239,83,80,.18);border-color:rgba(239,83,80,.5);color:#ef5350;font-weight:900">🏳 RETREAT</button>
 </div>
+<div class="ctrl">
+  <span class="clbl">SPEED</span>
+  <button class="cb" id="spd1" onclick="setSimSpeed(1)"  style="font-weight:900">×1</button>
+  <button class="cb" id="spd2" onclick="setSimSpeed(2)"  style="font-weight:900">×2</button>
+  <button class="cb" id="spd4" onclick="setSimSpeed(4)"  style="font-weight:900;background:rgba(255,193,7,.18);border-color:rgba(255,193,7,.5);color:#ffc107">×4</button>
+  <button class="cb" id="spd8" onclick="setSimSpeed(8)"  style="font-weight:900">×8</button>
+</div>
 
 <!-- 하단 토글 패널 (v10 그대로) -->
 <div class="info-toggles">
@@ -1052,9 +1059,25 @@ function drawRepairBeams(){
    메인 루프
    ═══════════════════════════════════════════════════════════ */
 let lt=0,turnT=0,panelT=0,battleOver=false;
+let simSpeed=1; // 기본 1x — WS 없는 로컬 시뮬 전용
+function setSimSpeed(s){
+  simSpeed=s;
+  [1,2,4,8].forEach(v=>{
+    const el=document.getElementById('spd'+v);
+    if(!el)return;
+    const on=v===s;
+    el.style.background=on?'rgba(255,193,7,.35)':'';
+    el.style.borderColor=on?'rgba(255,193,7,.8)':'';
+    el.style.color=on?'#ffc107':'';
+    el.style.fontWeight='900';
+  });
+}
 function loop(ts){
-  const dt=ts-lt;lt=ts;
-  btMs+=dt;turnT+=dt;panelT+=dt;
+  const rawDt=ts-lt;lt=ts;
+  // WS 모드엔 서버가 8x 속도로 frame을 쏘므로 로컬 speed 배수 미적용
+  const _wsOn = _wsBattle && _wsBattle.readyState === 1;
+  const dt=Math.min(rawDt,100)*(_wsOn?1:simSpeed);
+  btMs+=rawDt;turnT+=rawDt;panelT+=rawDt; // 실시간 시계는 원본 dt 사용
   if(empMs>0)empMs-=dt;
   if(turnT>600){turnT=0;turn++;document.getElementById('tn').textContent=turn;}
   const ss=0|(btMs/1000)%60,mm=0|(btMs/60000);
@@ -1578,6 +1601,7 @@ function connectBattleWs() {
 async function boot(){
   await loadCatalog();
   initBattle();
+  setSimSpeed(1); // 버튼 초기 하이라이트
   requestAnimationFrame(loop);
   // ws 연결 — battle 페이지인 경우만 (iframe 안에서 호출됨)
   connectBattleWs();

@@ -121,8 +121,8 @@ async function runBattle(battleId) {
           }
           ws.broadcastBattleFrame(battleId, frames[i]);
           i++;
-          // 4x speed 로 stream (속도 너무 느리면 클라가 지루)
-          setTimeout(streamNext, Math.max(20, tickMs / 4));
+          // 8x speed 로 stream (클라에서 속도 조절 가능, 기본 빠르게)
+          setTimeout(streamNext, Math.max(10, tickMs / 8));
         };
         streamNext();
         console.log(`[battleScheduler] WS streaming ${frames.length} frames to ${stats[battleId]} subscribers`);
