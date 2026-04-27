@@ -181,9 +181,41 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   background:rgba(91,184,232,.06);border:1px solid rgba(91,184,232,.2);color:var(--cyan);
   border-radius:3px;transition:all .15s}
 .user-edit-btn:hover{background:rgba(91,184,232,.15)}
+
+/* Admin Confirm Modal */
+#adminConfirmModal{display:none;position:fixed;inset:0;z-index:99999;
+  background:rgba(5,3,10,.82);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;}
+#adminConfirmModal.on{display:flex;}
+.acm-box{background:#0e0c18;border:1px solid var(--bdr2);border-radius:8px;
+  padding:28px 30px;max-width:400px;width:90%;
+  box-shadow:0 0 40px rgba(255,120,60,.1);font-family:var(--fn);}
+.acm-title{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--mars);
+  margin-bottom:12px;text-align:center;}
+.acm-body{font-size:10px;color:var(--tx2);line-height:1.7;margin-bottom:22px;
+  text-align:center;white-space:pre-wrap;word-break:break-word;}
+.acm-btns{display:flex;gap:10px;justify-content:center;}
+.acm-cancel{padding:9px 22px;font-family:var(--fn);font-size:9px;letter-spacing:1px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);
+  color:var(--tx2);cursor:pointer;border-radius:4px;}
+.acm-cancel:hover{background:rgba(255,255,255,.07);}
+.acm-ok{padding:9px 22px;font-family:var(--fn);font-size:9px;font-weight:700;
+  letter-spacing:1px;background:rgba(255,120,60,.14);border:1px solid var(--bdr2);
+  color:var(--mars);cursor:pointer;border-radius:4px;}
+.acm-ok:hover{background:rgba(255,120,60,.28);}
 </style>
 </head>
 <body>
+<div id="adminConfirmModal">
+  <div class="acm-box">
+    <div class="acm-title" id="acmTitle">CONFIRM</div>
+    <div class="acm-body" id="acmBody"></div>
+    <div class="acm-btns">
+      <button class="acm-cancel" id="acmCancel">CANCEL</button>
+      <button class="acm-ok" id="acmOk">CONFIRM</button>
+    </div>
+  </div>
+</div>
 
 <!-- Auth Overlay -->
 <div class="auth-overlay" id="authOverlay">
@@ -2699,6 +2731,19 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
 </div>
 
 <script>
+var _acmResolver = null;
+function adminConfirm(msg, title) {
+  return new Promise(function(resolve) {
+    _acmResolver = resolve;
+    document.getElementById('acmTitle').textContent = title || 'CONFIRM';
+    document.getElementById('acmBody').textContent = msg || '';
+    var modal = document.getElementById('adminConfirmModal');
+    modal.classList.add('on');
+    document.getElementById('acmOk').onclick = function() { modal.classList.remove('on'); if(_acmResolver){_acmResolver(true);_acmResolver=null;} };
+    document.getElementById('acmCancel').onclick = function() { modal.classList.remove('on'); if(_acmResolver){_acmResolver(false);_acmResolver=null;} };
+    modal.onclick = function(e) { if(e.target===modal){ modal.classList.remove('on'); if(_acmResolver){_acmResolver(false);_acmResolver=null;} } };
+  });
+}
 var adminSecret = '';
 // Set language selector to stored value on load
 (function() {
@@ -3141,10 +3186,10 @@ function fundQuestPool() {
     if (d.success) { loadQuestPool(); document.getElementById('qpFundAmount').value = ''; }
   });
 }
-function setQuestPool() {
+async function setQuestPool() {
   var amt = document.getElementById('qpFundAmount').value;
   if (amt === '' || parseFloat(amt) < 0) return alert('Enter a valid balance');
-  if (!confirm('Set pool balance to ' + amt + ' PP?')) return;
+  if (!await adminConfirm('Set pool balance to ' + amt + ' PP?')) return;
   api('/admin/api/quest-pool/set', 'POST', { balance: parseFloat(amt) }).then(function(d) {
     if (d.success) { loadQuestPool(); document.getElementById('qpFundAmount').value = ''; }
   });
@@ -3655,8 +3700,8 @@ function toggleEvent(id, active) {
   }).then(function() { loadEvents(); });
 }
 
-function deleteEvent(id) {
-  if (!confirm('Delete this event?')) return;
+async function deleteEvent(id) {
+  if (!await adminConfirm('Delete this event?')) return;
   fetch('/admin/api/events/' + id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': adminSecret }
@@ -3836,9 +3881,9 @@ function showErrStack(stack) {
   document.getElementById('errStack').textContent = stack;
 }
 
-function clearErrors() {
+async function clearErrors() {
   var dict = adminLangData[adminLang] || adminLangData.en;
-  if (!confirm(dict.btn_clear_errors + '?')) return;
+  if (!await adminConfirm(dict.btn_clear_errors + '?')) return;
   fetch('/admin/api/errors', {
     method: 'DELETE',
     headers: { 'x-admin-secret': adminSecret }
@@ -3851,9 +3896,9 @@ function clearErrors() {
 var _claimsLoaded = false;
 var claimPage = 1;
 
-function resetAllClaims() {
-  if (!confirm('⚠️ WARNING: This will DELETE all claims and pixels, then deploy 20 NPC territories.\n\nUser accounts and balances will be preserved.\n\nAre you sure?')) return;
-  if (!confirm('FINAL CONFIRMATION: Type OK to proceed with full claim reset.')) return;
+async function resetAllClaims() {
+  if (!await adminConfirm('⚠️ WARNING: This will DELETE all claims and pixels, then deploy 20 NPC territories.\n\nUser accounts and balances will be preserved.\n\nAre you sure?')) return;
+  if (!await adminConfirm('FINAL CONFIRMATION: Type OK to proceed with full claim reset.')) return;
   fetch('/admin/api/reset-claims', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
@@ -3917,8 +3962,8 @@ function loadClaims() {
     .catch(function(e) { console.error('loadClaims error:', e); });
 }
 
-function deleteClaim(id) {
-  if (!confirm('Delete claim #' + id + '? This will remove all pixels and refund is NOT automatic.')) return;
+async function deleteClaim(id) {
+  if (!await adminConfirm('Delete claim #' + id + '? This will remove all pixels and refund is NOT automatic.')) return;
   fetch('/admin/api/claims/' + id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': adminSecret }
@@ -4049,8 +4094,8 @@ function loadAdminShields() {
   });
 }
 
-function removeShield(id) {
-  if (!confirm('Remove shield #' + id + '?')) return;
+async function removeShield(id) {
+  if (!await adminConfirm('Remove shield #' + id + '?')) return;
   fetch('/admin/api/shields/' + id, {
     method: 'DELETE', headers: { 'x-admin-secret': adminSecret }
   }).then(function(r) { return r.json(); }).then(function(d) {
@@ -4094,8 +4139,8 @@ function loadBattles() {
 // ═══════════════════════════════════════════════════
 
 // 사령관만 초기화 — commander_wallet + announcement 모두 NULL
-function govClearCommander() {
-  if (!confirm('현재 사령관 + 사령관 공지를 모두 클리어합니다. 진행하시겠습니까?')) return;
+async function govClearCommander() {
+  if (!await adminConfirm('현재 사령관 + 사령관 공지를 모두 클리어합니다. 진행하시겠습니까?')) return;
   fetch('/admin/api/governance/commander/clear', { method:'POST', headers:{'x-admin-secret':adminSecret} })
     .then(function(r){return r.json()}).then(function(d){
       if (d.success) { showToast('🧹 사령관 클리어 완료'); loadGovData(); }
@@ -4104,8 +4149,8 @@ function govClearCommander() {
 }
 
 // 모든 거버너 + 사령관 + 공지 일괄 클리어 (claims/pixels 유지)
-function govClearAll() {
-  if (!confirm('모든 거버너 + 사령관 + 모든 공지를 클리어합니다.\n(claims/pixels 는 유지)\n진행하시겠습니까?')) return;
+async function govClearAll() {
+  if (!await adminConfirm('모든 거버너 + 사령관 + 모든 공지를 클리어합니다.\n(claims/pixels 는 유지)\n진행하시겠습니까?')) return;
   fetch('/admin/api/governance/clear-all', { method:'POST', headers:{'x-admin-secret':adminSecret} })
     .then(function(r){return r.json()}).then(function(d){
       if (d.success) { showToast('🗑 전체 거버넌스 클리어 완료'); loadGovData(); }
@@ -4114,8 +4159,8 @@ function govClearAll() {
 }
 
 // 특정 섹터 거버너만 초기화
-function govClearSector(sectorId) {
-  if (!confirm('섹터 #' + sectorId + ' 의 거버너 + 공지를 클리어합니다. 진행하시겠습니까?')) return;
+async function govClearSector(sectorId) {
+  if (!await adminConfirm('섹터 #' + sectorId + ' 의 거버너 + 공지를 클리어합니다. 진행하시겠습니까?')) return;
   fetch('/admin/api/governance/sector/' + sectorId + '/clear', { method:'POST', headers:{'x-admin-secret':adminSecret} })
     .then(function(r){return r.json()}).then(function(d){
       if (d.success) { showToast('🧹 섹터 #' + sectorId + ' 거버너 클리어'); loadGovData(); }
@@ -4517,8 +4562,8 @@ function loadPhaseCTransports() {
   });
 }
 
-function forceCompletePhaseCTransport(id) {
-  if (!confirm('Force-complete transport #'+id+'? Payout will be credited to carrier.')) return;
+async function forceCompletePhaseCTransport(id) {
+  if (!await adminConfirm('Force-complete transport #'+id+'? Payout will be credited to carrier.')) return;
   fetch('/admin/api/phase-c/transport/'+id+'/force-complete', {
     method: 'POST',
     headers: {'x-admin-secret': adminSecret}
@@ -4645,8 +4690,8 @@ function toggleLore(id, active) {
     .then(function(){ loadLoreData(); });
 }
 
-function deleteLore(id) {
-  if (!confirm('Delete lore entry #' + id + '?')) return;
+async function deleteLore(id) {
+  if (!await adminConfirm('Delete lore entry #' + id + '?')) return;
   fetch('/admin/api/lore/' + id, { method: 'DELETE', headers: {'x-admin-secret':adminSecret} })
     .then(function(){ loadLoreData(); });
 }
@@ -4713,8 +4758,8 @@ function loadAdminGuilds() {
   });
 }
 
-function disbandGuildAdmin(id, name) {
-  if (!confirm('Force disband guild "' + name + '"? This removes all members.')) return;
+async function disbandGuildAdmin(id, name) {
+  if (!await adminConfirm('Force disband guild "' + name + '"? This removes all members.')) return;
   fetch('/admin/api/guilds/' + id, { method: 'DELETE', headers: {'x-admin-secret': adminSecret} })
     .then(function(r) { return r.json(); })
     .then(function(d) { if (d.success) loadAdminGuilds(); else alert(d.error); });
@@ -4744,8 +4789,8 @@ function loadAdminGuildWars() {
   }).catch(function(e) { console.warn('Guild wars load error:', e); });
 }
 
-function forceResolveWar(warId) {
-  if(!confirm('Force resolve war #'+warId+'?')) return;
+async function forceResolveWar(warId) {
+  if(!await adminConfirm('Force resolve war #'+warId+'?')) return;
   fetch('/admin/api/guild-wars/'+warId+'/resolve', {method:'POST', headers:{'x-admin-secret':adminSecret}})
     .then(function(r){return r.json()})
     .then(function(d){ if(d.success) loadAdminGuildWars(); else alert(d.error||'Failed'); })
@@ -4889,8 +4934,8 @@ function loadPhaseDDuelStats() {
   });
 }
 
-function forceCancelDuel(id) {
-  if (!confirm('Force-cancel duel #'+id+' and refund wager?')) return;
+async function forceCancelDuel(id) {
+  if (!await adminConfirm('Force-cancel duel #'+id+' and refund wager?')) return;
   fetch('/admin/api/phase-d/duel/'+id+'/cancel', { method:'POST', headers:{'x-admin-secret':adminSecret} })
     .then(function(r){return r.json()})
     .then(function(d){ if (d.ok) { _phdSetStatus('✓ duel #'+id+' cancelled, refunded '+d.refundedGp+' GP'); loadPhaseDDuelStats(); } else _phdSetStatus('✗ '+(d.error||'failed'), true); })
@@ -5118,8 +5163,8 @@ function toggleSeason(id, active) {
     .then(function() { loadAdminSeasons(); });
 }
 
-function deleteSeason(id) {
-  if (!confirm('Delete season #' + id + '? This removes all scores and rewards.')) return;
+async function deleteSeason(id) {
+  if (!await adminConfirm('Delete season #' + id + '? This removes all scores and rewards.')) return;
   fetch('/admin/api/seasons/' + id, { method: 'DELETE', headers: {'x-admin-secret':adminSecret} })
     .then(function() { loadAdminSeasons(); });
 }
@@ -5228,11 +5273,11 @@ function grantGP() {
     });
 }
 
-function grantAllGP() {
+async function grantAllGP() {
   var amount = parseFloat(document.getElementById('gpGrantAllAmount').value);
   var reason = document.getElementById('gpGrantAllReason').value.trim();
   if (!amount) return;
-  if (!confirm('Grant ' + amount + ' GP to ALL users?')) return;
+  if (!await adminConfirm('Grant ' + amount + ' GP to ALL users?')) return;
   fetch('/admin/api/gp/grant-all', { method: 'POST', headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({amount:amount, reason:reason}) })
     .then(function(r) { return r.json(); })
@@ -5377,8 +5422,8 @@ function saveWeeklySetting(key) {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function settleWeeklyCompetitive() {
-  if (!confirm('Manually settle last week\'s competitive challenges now?')) return;
+async function settleWeeklyCompetitive() {
+  if (!await adminConfirm('Manually settle last week\'s competitive challenges now?')) return;
   fetch('/admin/api/weekly/settle', {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
@@ -5448,8 +5493,8 @@ function saveLotterySetting(key) {
   saveSetting(key, inp.value);
 }
 
-function forceLotteryDraw() {
-  if (!confirm('Force draw the current lottery round now?')) return;
+async function forceLotteryDraw() {
+  if (!await adminConfirm('Force draw the current lottery round now?')) return;
   fetch('/admin/api/lottery/force-draw', {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
@@ -5523,8 +5568,8 @@ function saveDividendSetting(key) {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function forceDistributeDividend() {
-  if (!confirm('Force distribute last week\'s GP dividend pool now?')) return;
+async function forceDistributeDividend() {
+  if (!await adminConfirm('Force distribute last week\'s GP dividend pool now?')) return;
   fetch('/admin/api/dividends/force-distribute', {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
@@ -5591,8 +5636,8 @@ function saveShieldSetting(key) {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function adminRevokeShield(claimId) {
-  if (!confirm('Revoke shield on claim #' + claimId + '?')) return;
+async function adminRevokeShield(claimId) {
+  if (!await adminConfirm('Revoke shield on claim #' + claimId + '?')) return;
   fetch('/admin/api/shields/revoke/' + claimId, {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
@@ -5664,8 +5709,8 @@ function saveBountySetting(key) {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function adminCancelBounty(id) {
-  if (!confirm('Force-cancel bounty #' + id + ' and refund the poster?')) return;
+async function adminCancelBounty(id) {
+  if (!await adminConfirm('Force-cancel bounty #' + id + ' and refund the poster?')) return;
   fetch('/admin/api/bounties/cancel/' + id, {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
@@ -5846,8 +5891,8 @@ function saveContestAdmin() {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function adminFinalizeContest(id) {
-  if (!confirm('Finalize contest #'+id+' and pay out prizes now?')) return;
+async function adminFinalizeContest(id) {
+  if (!await adminConfirm('Finalize contest #'+id+' and pay out prizes now?')) return;
   fetch('/admin/api/contests/'+id+'/finalize', {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -5931,8 +5976,8 @@ function saveRentalSetting(key) {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function adminCancelRental(id) {
-  if (!confirm('Cancel rental listing #'+id+'?')) return;
+async function adminCancelRental(id) {
+  if (!await adminConfirm('Cancel rental listing #'+id+'?')) return;
   fetch('/admin/api/rental/cancel/'+id, {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -6017,8 +6062,8 @@ function saveDuelSetting(key) {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function adminCancelDuel(id) {
-  if (!confirm('Cancel duel #'+id+' and refund challenger?')) return;
+async function adminCancelDuel(id) {
+  if (!await adminConfirm('Cancel duel #'+id+' and refund challenger?')) return;
   fetch('/admin/api/duels/cancel/'+id, {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -6099,8 +6144,8 @@ function saveExpeditionSetting(key) {
   }).catch(function(e) { alert('Error: '+e.message); });
 }
 
-function adminCancelExpedition(id) {
-  if (!confirm('Cancel expedition #'+id+' and refund GP?')) return;
+async function adminCancelExpedition(id) {
+  if (!await adminConfirm('Cancel expedition #'+id+' and refund GP?')) return;
   fetch('/admin/api/expeditions/'+id+'/cancel', {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -6201,8 +6246,8 @@ function saveBrandingSetting(key) {
   }).catch(function(e) { alert('Error: '+e.message); });
 }
 
-function adminClearBranding(claimId) {
-  if (!confirm('Clear all branding for territory #'+claimId+'?')) return;
+async function adminClearBranding(claimId) {
+  if (!await adminConfirm('Clear all branding for territory #'+claimId+'?')) return;
   fetch('/admin/api/branding/'+claimId, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -6304,8 +6349,8 @@ function saveSpellSetting(key) {
   }).catch(function(e) { alert('Error: '+e.message); });
 }
 
-function adminExpireSpell(id) {
-  if (!confirm('Force-expire spell #'+id+'?')) return;
+async function adminExpireSpell(id) {
+  if (!await adminConfirm('Force-expire spell #'+id+'?')) return;
   fetch('/admin/api/spells/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -6415,8 +6460,8 @@ function createTournament() {
     loadTournamentsAdmin();
   }).catch(function(e){ alert('Error: '+e.message); });
 }
-function tournSetStatus(id, status) {
-  if (!confirm('Set tournament #'+id+' to '+status+'?')) return;
+async function tournSetStatus(id, status) {
+  if (!await adminConfirm('Set tournament #'+id+' to '+status+'?')) return;
   fetch('/admin/api/tournaments/'+id+'/status', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
@@ -6440,8 +6485,8 @@ function tournPickWinner(id) {
     loadTournamentsAdmin();
   }).catch(function(e){ alert('Error: '+e.message); });
 }
-function tournCancel(id) {
-  if (!confirm('Cancel tournament #'+id+' and refund all entries?')) return;
+async function tournCancel(id) {
+  if (!await adminConfirm('Cancel tournament #'+id+' and refund all entries?')) return;
   fetch('/admin/api/tournaments/'+id+'/cancel', {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -6523,8 +6568,8 @@ function loadBroadcastsAdmin() {
     }).catch(function(e){ if (statsEl) statsEl.innerHTML = '<span style="color:#e8485580">'+e.message+'</span>'; });
 }
 
-function adminRemoveBroadcast(id) {
-  if (!confirm('Remove broadcast #'+id+'?')) return;
+async function adminRemoveBroadcast(id) {
+  if (!await adminConfirm('Remove broadcast #'+id+'?')) return;
   fetch('/admin/api/broadcasts/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -6647,8 +6692,8 @@ function saveProfileSetting(key) {
   }).catch(function(e){ alert('Error: '+e.message); });
 }
 
-function adminResetNickname(wallet) {
-  if (!confirm('Reset nickname for '+wallet+'?')) return;
+async function adminResetNickname(wallet) {
+  if (!await adminConfirm('Reset nickname for '+wallet+'?')) return;
   fetch('/admin/api/profile/nickname/'+encodeURIComponent(wallet), {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -6892,8 +6937,8 @@ function createRaffle() {
   }).catch(function(e){ alert('Error: '+e.message); });
 }
 
-function adminDrawRaffle(id) {
-  if (!confirm('Force draw raffle #'+id+' now?')) return;
+async function adminDrawRaffle(id) {
+  if (!await adminConfirm('Force draw raffle #'+id+' now?')) return;
   fetch('/admin/api/raffle/'+id+'/draw', {
     method: 'POST', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
@@ -6903,8 +6948,8 @@ function adminDrawRaffle(id) {
   }).catch(function(e){ alert('Error: '+e.message); });
 }
 
-function adminCancelRaffle(id) {
-  if (!confirm('Cancel raffle #'+id+' and refund all tickets?')) return;
+async function adminCancelRaffle(id) {
+  if (!await adminConfirm('Cancel raffle #'+id+' and refund all tickets?')) return;
   fetch('/admin/api/raffle/'+id+'/cancel', {
     method: 'POST', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
@@ -7047,10 +7092,10 @@ function createWagerPool() {
   }).catch(function(e){ alert('Error: '+e.message); });
 }
 
-function openWagerSettleModal(poolId) {
+async function openWagerSettleModal(poolId) {
   var winner = prompt('Enter winner wallet address for pool #'+poolId+':');
   if (!winner || !winner.trim()) return;
-  if (!confirm('Settle pool #'+poolId+' with winner: '+winner+'?')) return;
+  if (!await adminConfirm('Settle pool #'+poolId+' with winner: '+winner+'?')) return;
   fetch('/admin/api/wager/'+poolId+'/settle', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
@@ -7062,8 +7107,8 @@ function openWagerSettleModal(poolId) {
   }).catch(function(e){ alert('Error: '+e.message); });
 }
 
-function adminCancelWager(id) {
-  if (!confirm('Cancel wager pool #'+id+' and refund all bets?')) return;
+async function adminCancelWager(id) {
+  if (!await adminConfirm('Cancel wager pool #'+id+' and refund all bets?')) return;
   fetch('/admin/api/wager/'+id+'/cancel', {
     method: 'POST', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
@@ -7174,8 +7219,8 @@ function loadTevtAdmin() {
     }).catch(function(e){ if(statsEl) statsEl.innerHTML='<span style="color:#e84855">'+e.message+'</span>'; });
 }
 
-function adminExpireTevt(id) {
-  if (!confirm('Force expire event #'+id+'?')) return;
+async function adminExpireTevt(id) {
+  if (!await adminConfirm('Force expire event #'+id+'?')) return;
   fetch('/admin/api/tevt/'+id, {
     method: 'DELETE', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
@@ -7337,8 +7382,8 @@ function loadBeaconAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminExpireBeacon(id) {
-  if (!confirm('Force-expire beacon #'+id+'?')) return;
+async function adminExpireBeacon(id) {
+  if (!await adminConfirm('Force-expire beacon #'+id+'?')) return;
   fetch('/admin/api/beacons/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -7476,8 +7521,8 @@ function loadPollsAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminClosePoll(id) {
-  if (!confirm('Close poll #'+id+'?')) return;
+async function adminClosePoll(id) {
+  if (!await adminConfirm('Close poll #'+id+'?')) return;
   fetch('/admin/api/polls/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -7554,8 +7599,8 @@ function loadStatusAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminClearStatus(wallet) {
-  if (!confirm('Clear status for '+wallet+'?')) return;
+async function adminClearStatus(wallet) {
+  if (!await adminConfirm('Clear status for '+wallet+'?')) return;
   fetch('/admin/api/status/'+encodeURIComponent(wallet), {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -7639,8 +7684,8 @@ function loadCapsuleAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminDeleteCapsule(id) {
-  if (!confirm('Delete capsule #'+id+'?')) return;
+async function adminDeleteCapsule(id) {
+  if (!await adminConfirm('Delete capsule #'+id+'?')) return;
   fetch('/admin/api/capsule/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -7720,8 +7765,8 @@ function loadSponsorAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminExpireSponsor(id) {
-  if (!confirm('Force-expire sponsor #'+id+'?')) return;
+async function adminExpireSponsor(id) {
+  if (!await adminConfirm('Force-expire sponsor #'+id+'?')) return;
   fetch('/admin/api/sponsor/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -7810,8 +7855,8 @@ function loadBannerAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminRemoveBanner(id) {
-  if (!confirm('Remove banner #'+id+'?')) return;
+async function adminRemoveBanner(id) {
+  if (!await adminConfirm('Remove banner #'+id+'?')) return;
   fetch('/admin/api/banner/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -7915,8 +7960,8 @@ function loadMilestoneAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminDeleteMilestone(id) {
-  if (!confirm('Delete milestone #'+id+'?')) return;
+async function adminDeleteMilestone(id) {
+  if (!await adminConfirm('Delete milestone #'+id+'?')) return;
   fetch('/admin/api/milestone/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8006,8 +8051,8 @@ function loadTombstoneAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminRemoveTombstone(id) {
-  if (!confirm('Remove tombstone #'+id+'?')) return;
+async function adminRemoveTombstone(id) {
+  if (!await adminConfirm('Remove tombstone #'+id+'?')) return;
   fetch('/admin/api/tombstone/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8098,8 +8143,8 @@ function loadAnnounceAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminExpireAnnounce(id) {
-  if (!confirm('End announcement #'+id+' immediately?')) return;
+async function adminExpireAnnounce(id) {
+  if (!await adminConfirm('End announcement #'+id+' immediately?')) return;
   fetch('/admin/api/announce/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8202,8 +8247,8 @@ function loadTprestigeAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminResetPrestige(claimId) {
-  if (!confirm('Reset prestige for territory #'+claimId+'? (GP not refunded)')) return;
+async function adminResetPrestige(claimId) {
+  if (!await adminConfirm('Reset prestige for territory #'+claimId+'? (GP not refunded)')) return;
   fetch('/admin/api/tprestige/'+claimId, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8295,8 +8340,8 @@ function loadJournalAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminDeleteJournalEntry(id) {
-  if (!confirm('Permanently delete journal entry #'+id+'?')) return;
+async function adminDeleteJournalEntry(id) {
+  if (!await adminConfirm('Permanently delete journal entry #'+id+'?')) return;
   fetch('/admin/api/journal/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8454,8 +8499,8 @@ function loadHighlightAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminRemoveHighlight(id) {
-  if (!confirm('Remove highlight #'+id+'?')) return;
+async function adminRemoveHighlight(id) {
+  if (!await adminConfirm('Remove highlight #'+id+'?')) return;
   fetch('/admin/api/highlight/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8542,8 +8587,8 @@ function loadGraffitiAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminRemoveGraffiti(id) {
-  if (!confirm('Remove graffiti #'+id+'?')) return;
+async function adminRemoveGraffiti(id) {
+  if (!await adminConfirm('Remove graffiti #'+id+'?')) return;
   fetch('/admin/api/graffiti/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8629,8 +8674,8 @@ function loadTributeAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminDeleteTribute(id) {
-  if (!confirm('Delete tribute #'+id+'?')) return;
+async function adminDeleteTribute(id) {
+  if (!await adminConfirm('Delete tribute #'+id+'?')) return;
   fetch('/admin/api/tribute/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8716,8 +8761,8 @@ function loadVtagAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminDeleteVtag(wallet) {
-  if (!confirm('Delete vanity tag for '+wallet+'?')) return;
+async function adminDeleteVtag(wallet) {
+  if (!await adminConfirm('Delete vanity tag for '+wallet+'?')) return;
   fetch('/admin/api/vtag/'+encodeURIComponent(wallet), {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8794,8 +8839,8 @@ function loadTdescAdmin() {
     }).catch(function(e) { statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
-function adminDeleteTdesc(claimId) {
-  if (!confirm('Delete description for claim #'+claimId+'?')) return;
+async function adminDeleteTdesc(claimId) {
+  if (!await adminConfirm('Delete description for claim #'+claimId+'?')) return;
   fetch('/admin/api/tdesc/'+claimId, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -8979,8 +9024,8 @@ function saveVipTier() {
   }).catch(function(e) { alert('Error: '+e.message); });
 }
 
-function adminRevokeVip(wallet) {
-  if (!confirm('Revoke VIP pass for '+wallet+'?')) return;
+async function adminRevokeVip(wallet) {
+  if (!await adminConfirm('Revoke VIP pass for '+wallet+'?')) return;
   fetch('/admin/api/vip/revoke/'+encodeURIComponent(wallet), {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -9164,8 +9209,8 @@ function saveLuckyBoxType() {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function deleteLuckyBoxType(id) {
-  if (!confirm('Deactivate lucky box type #'+id+'?')) return;
+async function deleteLuckyBoxType(id) {
+  if (!await adminConfirm('Deactivate lucky box type #'+id+'?')) return;
   fetch('/admin/api/lucky-boxes/type/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -9248,8 +9293,8 @@ function saveAllianceSetting(key) {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function adminDissolveAlliance(id, name) {
-  if (!confirm('Dissolve alliance "'+name+'" (#'+id+')? Leader gets 50% of treasury refunded. This cannot be undone.')) return;
+async function adminDissolveAlliance(id, name) {
+  if (!await adminConfirm('Dissolve alliance "'+name+'" (#'+id+')? Leader gets 50% of treasury refunded. This cannot be undone.')) return;
   fetch('/admin/api/alliances/'+id+'/dissolve', {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -9499,8 +9544,8 @@ function saveCraftingRecipe() {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function deleteCraftingRecipe(id) {
-  if (!confirm('Deactivate recipe #'+id+'?')) return;
+async function deleteCraftingRecipe(id) {
+  if (!await adminConfirm('Deactivate recipe #'+id+'?')) return;
   fetch('/admin/api/crafting/recipe/'+id, {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
@@ -9868,13 +9913,13 @@ function updateDrop(id, data) {
   api('poi-drops/' + id, 'PUT', data).then(function() { loadPOIDrops(); });
 }
 
-function deleteDrop(id) {
-  if (!confirm('Delete this drop entry?')) return;
+async function deleteDrop(id) {
+  if (!await adminConfirm('Delete this drop entry?')) return;
   api('poi-drops/' + id, 'DELETE').then(function() { loadPOIDrops(); });
 }
 
-function resetExpiredPOIs() {
-  if (!confirm('Delete all EXPIRED POIs from the map?')) return;
+async function resetExpiredPOIs() {
+  if (!await adminConfirm('Delete all EXPIRED POIs from the map?')) return;
   fetch('/admin/api/poi-reset-expired', {
     method: 'POST',
     headers: { 'x-admin-secret': adminSecret }
@@ -9884,9 +9929,9 @@ function resetExpiredPOIs() {
   }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
-function resetAllPOIs() {
-  if (!confirm('⚠ DELETE ALL POIs from the map? This cannot be undone!')) return;
-  if (!confirm('Are you SURE? All active POIs will be removed.')) return;
+async function resetAllPOIs() {
+  if (!await adminConfirm('⚠ DELETE ALL POIs from the map? This cannot be undone!')) return;
+  if (!await adminConfirm('Are you SURE? All active POIs will be removed.')) return;
   fetch('/admin/api/poi-reset-all', {
     method: 'POST',
     headers: { 'x-admin-secret': adminSecret }
@@ -10256,8 +10301,8 @@ function loadSiegeAdmin() {
   });
 }
 
-function adminForceSiege(siegeId) {
-  if (!confirm('Force-resolve siege #'+siegeId+'? This cannot be undone.')) return;
+async function adminForceSiege(siegeId) {
+  if (!await adminConfirm('Force-resolve siege #'+siegeId+'? This cannot be undone.')) return;
   fetch('/api/admin/sieges/'+siegeId+'/resolve', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
@@ -10315,8 +10360,8 @@ function loadBettingAdmin() {
   });
 }
 
-function adminSettleBet(eventId, winnerOption) {
-  if (!confirm('Settle betting event #'+eventId+' with winner option "'+winnerOption+'"?\nThis will pay out all winning bets.')) return;
+async function adminSettleBet(eventId, winnerOption) {
+  if (!await adminConfirm('Settle betting event #'+eventId+' with winner option "'+winnerOption+'"?\nThis will pay out all winning bets.')) return;
   fetch('/api/betting/admin/events/'+eventId+'/settle', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
@@ -10330,8 +10375,8 @@ function adminSettleBet(eventId, winnerOption) {
   }).catch(function(){ alert('Request failed'); });
 }
 
-function adminCancelBet(eventId) {
-  if (!confirm('Cancel betting event #'+eventId+' and refund all bets?')) return;
+async function adminCancelBet(eventId) {
+  if (!await adminConfirm('Cancel betting event #'+eventId+' and refund all bets?')) return;
   fetch('/api/betting/admin/events/'+eventId+'/cancel', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
@@ -10514,8 +10559,8 @@ function loadMktAdmListings() {
     .catch(function(e) { el.innerHTML = '<div style="color:red;font-size:10px">' + e.message + '</div>'; });
 }
 
-function adminCancelListing(listingId) {
-  if (!confirm('Force cancel listing #' + listingId + '? Item will be returned to seller.')) return;
+async function adminCancelListing(listingId) {
+  if (!await adminConfirm('Force cancel listing #' + listingId + '? Item will be returned to seller.')) return;
   fetch('/admin/api/marketplace/cancel', {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
@@ -10635,8 +10680,8 @@ function loadAuctionAdmin() {
     .catch(function(e) { statsEl.innerHTML = '<div style="color:red;font-size:10px">' + e.message + '</div>'; });
 }
 
-function adminSettleAuction(auctionId) {
-  if (!confirm('Force settle auction #' + auctionId + '?')) return;
+async function adminSettleAuction(auctionId) {
+  if (!await adminConfirm('Force settle auction #' + auctionId + '?')) return;
   fetch('/api/admin/auction/' + auctionId + '/settle', {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}
@@ -10726,9 +10771,9 @@ function grantStarterPack() {
 }
 
 // ── 모든 NPC에 스타터 팩 일괄 지급 ──
-function grantStarterAllNpcs() {
+async function grantStarterAllNpcs() {
   var resultEl = document.getElementById('starterPackResult');
-  if (!confirm('0xnpc_% 지갑 전부에게 스타터 팩(함대+프리깃+광물)을 일괄 지급합니다. 계속하시겠습니까?')) return;
+  if (!await adminConfirm('0xnpc_% 지갑 전부에게 스타터 팩(함대+프리깃+광물)을 일괄 지급합니다. 계속하시겠습니까?')) return;
   resultEl.innerHTML = '<span style="color:#aaa">일괄 지급 중... (NPC 수에 따라 시간이 걸릴 수 있음)</span>';
   fetch('/admin/api/fleet/grant-starter-all-npcs', {
     method: 'POST',
@@ -10904,8 +10949,8 @@ function loadBattlesAdmin() {
     .catch(function(e) { statsEl.innerHTML = '<div style="color:red;font-size:10px">'+e.message+'</div>'; });
 }
 
-function adminResolveBattle(battleId) {
-  if (!confirm('Force resolve battle #'+battleId+'?')) return;
+async function adminResolveBattle(battleId) {
+  if (!await adminConfirm('Force resolve battle #'+battleId+'?')) return;
   fetch('/api/admin/battle/'+battleId+'/resolve', {
     method:'POST', headers:{'x-admin-secret':adminSecret}
   }).then(function(r){return r.json()}).then(function(d){
@@ -10963,7 +11008,7 @@ function loadWorldEventsAdmin() {
     .catch(function(e) { activeEl.innerHTML = '<div style="color:var(--red)">오류: '+e.message+'</div>'; });
 }
 
-function spawnWorldEvent() {
+async function spawnWorldEvent() {
   var sectorId   = document.getElementById('weSectorId').value;
   var shipType   = document.getElementById('weShipType').value.trim();
   var shipCount  = document.getElementById('weShipCount').value;
@@ -10975,7 +11020,7 @@ function spawnWorldEvent() {
   if (shipCount) body.ship_count       = parseInt(shipCount);
   if (duration)  body.duration_hours   = parseInt(duration);
 
-  if (!confirm('Void Raider 이벤트를 수동으로 스폰하시겠습니까?')) return;
+  if (!await adminConfirm('Void Raider 이벤트를 수동으로 스폰하시겠습니까?')) return;
 
   fetch('/api/admin/world-events/spawn', {
     method: 'POST',
@@ -10990,8 +11035,8 @@ function spawnWorldEvent() {
     .catch(function(e){ alert('Error: '+e.message); });
 }
 
-function forceEndWorldEvent(eventId) {
-  if (!confirm('#'+eventId+' 이벤트를 강제 종료하시겠습니까?')) return;
+async function forceEndWorldEvent(eventId) {
+  if (!await adminConfirm('#'+eventId+' 이벤트를 강제 종료하시겠습니까?')) return;
   fetch('/api/admin/world-events/'+eventId+'/force-end', {
     method: 'POST',
     headers: { 'x-admin-secret': adminSecret }
