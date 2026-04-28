@@ -267,6 +267,7 @@ async function getStatus(wallet) {
   rows.forEach(r => { progressByQuest[r.quest_id] = r; });
   const reputation = {};
   reputationRes.rows.forEach(r => { reputation[r.faction] = r.value; });
+  for (const faction of FACTIONS) if (reputation[faction] == null) reputation[faction] = 0;
   return {
     chapters: Object.values(CHAPTERS).map(ch => publicChapter(ch, progressByQuest[ch.questId])),
     completedChapters: rows.filter(r => r.status === 'completed' || r.status === 'claimed').map(r => r.quest_id),

@@ -7,6 +7,7 @@
 - **공통 API 추가**: `/api/campaign/abandon`, `/api/reputation/*`, `/api/tags/*`, `/api/lore/*`, `/api/branch/*` 추가. 보상/평판/태그/lore/branch 조작 endpoint는 admin secret 기반 internal-only로 제한.
 - **환경 시스템 MVP 추가**: 챕터 환경 phase 상태와 전투 modifier 계산 helper를 추가해 MVP 시뮬레이션과 추후 full engine 양쪽에서 재사용 가능하게 정리.
 - **캠페인 UI 보강**: QUESTS > CAMPAIGN 패널에 MCC/FSP/CV 평판 게이지를 추가.
+- **status payload 보정**: 캠페인을 아직 시작하지 않은 유저도 `reputation` 4축 기본값 `0`을 받도록 정리.
 
 검증:
 - `server/services/campaign.js` `node --check`

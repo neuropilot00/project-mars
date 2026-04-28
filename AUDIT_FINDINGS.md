@@ -13,6 +13,7 @@
 | branch modifiers | ✅ | modifier definition/player modifier 테이블 및 active 조회 API 추가. Ch1 실패 modifier도 공통 테이블에 기록 가능. |
 | environment system | ✅ | 5개 환경 정의 seed와 Ch1 dust storm intensity curve seed 추가. 서버 helper가 현재 phase/modifier를 계산. |
 | campaign UI | ✅ | QUESTS CAMPAIGN 패널에 3축 평판 게이지 추가. |
+| status payload | ✅ | 캠페인 미시작 유저도 reputation 4축 기본값 `0`을 받도록 보정. |
 | security audit | ✅ | 클라이언트가 보상/평판/태그/분기를 결정하지 않도록 조작성 endpoint는 `x-admin-secret`/`x-admin-key` 필요. |
 | P2/P3 잔여 | 🟡 | 복잡 조건 evaluator, chapter spec validator, admin rollback 도구, full engine 환경 hook은 후속 단계. |
 
