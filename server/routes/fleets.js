@@ -84,6 +84,18 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
+router.get('/my', requireAuth, async (req, res) => {
+  try {
+    const wallet = getWallet(req);
+    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
+
+    const fleets = await fleetService.listMyFleets(wallet);
+    res.json({ fleets });
+  } catch (err) {
+    handleError(res, err, 'my');
+  }
+});
+
 /**
  * GET /api/fleets/options
  * 진형/기동 옵션 목록 (UI 드롭다운용)

@@ -19757,8 +19757,23 @@ function switchBaseShopView(view,el){
 // ── LUCKY BOX VIEW (Migration 120) ────────────────────────────────────────
 
 function loadLuckyBoxView() {
-  loadLuckyBoxTypes();
-  loadLuckyBoxRecentFeed();
+  renderLuckyBoxUnavailable();
+}
+
+function renderLuckyBoxUnavailable() {
+  var list = document.getElementById('luckyBoxList');
+  var feed = document.getElementById('luckyBoxFeed');
+  var history = document.getElementById('luckyBoxHistoryPanel');
+  if (list) {
+    list.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px;line-height:1.6">Crates are currently unavailable.</div>';
+  }
+  if (feed) {
+    feed.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Crate feed is unavailable.</div>';
+  }
+  if (history) {
+    history.style.display = 'none';
+    history.innerHTML = '';
+  }
 }
 
 function loadLuckyBoxTypes() {
@@ -19815,6 +19830,8 @@ function loadLuckyBoxRecentFeed() {
 }
 
 function openLuckyBox(boxId, name, cost) {
+  showToast('Crates are currently unavailable', 'warn');
+  return;
   var w = walletState && walletState.address;
   if (!w) { showToast(t('err_connect_wallet')||'Connect wallet first','error'); return; }
   gameConfirm({ title: t('lucky_box_confirm_title')||'Open Crate?', body: 'Open <b>' + _escHtml(name) + '</b> for <b>' + cost + ' GP</b>?' }).then(function(ok){
@@ -19839,6 +19856,8 @@ function openLuckyBox(boxId, name, cost) {
 }
 
 function toggleLuckyBoxHistory() {
+  showToast('Crate history is currently unavailable', 'warn');
+  return;
   var panel = document.getElementById('luckyBoxHistoryPanel');
   if (!panel) return;
   var open = panel.style.display !== 'none';
@@ -20578,8 +20597,10 @@ window.loadShipyardTabPane = loadFleetCommandCard;
 window.openWorldEventDetail = window.openWorldEventDetail || function(eventId){
   if (typeof gameAlert === 'function') {
     gameAlert('교전 신청 UI는 다음 업데이트에서 추가됩니다 (event #' + eventId + ')');
+  } else if (typeof showToast === 'function') {
+    showToast('Engage UI coming soon (event #' + eventId + ')', 'warn');
   } else {
-    gameAlert('Engage UI coming soon (event #' + eventId + ')');
+    alert('Engage UI coming soon (event #' + eventId + ')');
   }
 };
 
@@ -30004,6 +30025,26 @@ window.addEventListener('resize', _debounce(function(){
     }).catch(function(){showToast('Failed to set announcement')});
   };
 
+  window.govSaveDeclaration = function(){
+    var w = walletState.address;
+    if(!w||!_govMySectorId){showToast('Not a governor');return}
+    var ta = document.getElementById('govDeclarationText');
+    var text = ta ? ta.value.trim() : '';
+    if(!text){showToast('Enter declaration text');return}
+    var sec = (_sectorsData||[]).find(function(s){return s.id===_govMySectorId});
+    var code = sec && (sec.code || sec.sector_code || sec.name);
+    if(!code){showToast('Sector code not found');return}
+    fetch('/api/governor/declaration',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wallet:w,sectorCode:code,text:text})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){showToast('Error: '+d.error);return}
+      showToast('Declaration saved! (-5 GP)');
+      if(typeof loadGovDashboard==='function') loadGovDashboard();
+    }).catch(function(){showToast('Failed')});
+  };
+
   // Tax slider live update
   (function(){
     var sl = document.getElementById('govTaxSlider');
@@ -30679,7 +30720,9 @@ var WEEKLY_DIFF_COLOR = { easy: '#4cd89a', normal: 'var(--cyan)', hard: 'var(--g
 function loadWeeklyChallenges() {
   var sec = document.getElementById('weeklyChallengesSection');
   if (!sec) return;
-  sec.style.display = '';
+  // Weekly challenges service was removed with the legacy phantom tables.
+  sec.style.display = 'none';
+  return;
   var container = document.getElementById('weeklyChallengesContainer');
   container.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
 
@@ -30759,6 +30802,8 @@ function renderWeeklyChallenges(challenges) {
 }
 
 function claimWeeklyReward(instanceId) {
+  showToast('Weekly challenges are currently unavailable', 'warn');
+  return;
   if (!walletState.address) return showToast('Connect wallet first', 'error');
   fetch('/api/weekly/claim', {
     method: 'POST',
