@@ -1,6 +1,27 @@
-# OCCUPY MARS — Codebase Audit (v5.22 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.23 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.23 FSP Campaign Ch1~3 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| FSP Ch1 Breakwater | ✅ | New Athens 차 두 잔 의식, H2O 호송 2척, 응급 환자 2명, CV 약탈단, cargo/patient 상태 MVP 시뮬레이션 추가. |
+| FSP Ch2 Ice Caravan | ✅ | 태양광 노출 얼음 손실, Phobos Eclipse 활용 횟수, Lena 생존/신뢰, Sal Cruz 매복 결과를 서버 지표로 계산. |
+| FSP Ch3 Blood Mine | ✅ | Verin-7 산소 조절기, 알람 여부, 412명 광부 구출률, 60명 잔류 존중, Samuel/Amara 신뢰 분기 추가. |
+| FSP persistence | ✅ | lore flag, branch modifier, tag, NPC, environment, item, settlement seed를 `197_fsp_campaign_ch1_to_ch3.sql`에 추가. |
+| 정착지 seed | ✅ | `settlement_data`를 idempotent하게 생성/확장하고 New Athens/Cold Brook/Ridge Town/Hellas Central 초기값 추가. |
+| full engine/UI 잔여 | 🟡 | Tea Ceremony, Patient Gauge, Ice Gauge, Solar Exposure, Oxygen Regulator UI와 실제 battle object 연동은 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `197_fsp_campaign_ch1_to_ch3.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.22 MCC Campaign Ch8~10 MVP — 구현 완료
 

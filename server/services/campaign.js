@@ -11,6 +11,9 @@ const CH7_ID = 'mcc_campaign_ch7';
 const CH8_ID = 'mcc_campaign_ch8';
 const CH9_ID = 'mcc_campaign_ch9';
 const CH10_ID = 'mcc_campaign_ch10';
+const FSP_CH1_ID = 'fsp_campaign_ch1';
+const FSP_CH2_ID = 'fsp_campaign_ch2';
+const FSP_CH3_ID = 'fsp_campaign_ch3';
 const FACTIONS = ['mcc', 'fsp', 'cv', 'pilgrim_arms'];
 const REP_MIN = -100;
 const REP_MAX = 100;
@@ -455,6 +458,139 @@ const CHAPTERS = {
       { id: 'ending_3_whistleblower', labelKo: 'Ending 3: The Whistleblower.', effects: { flag: 'chose_ending_3' } },
       { id: 'ending_4_traitor', labelKo: 'Ending 4: The Traitor.', effects: { flag: 'chose_ending_4' } },
       { id: 'bad_ending_dismissed', labelKo: 'Bad Ending: Forgotten Freelancer.', effects: { flag: 'chose_bad_ending' } },
+    ],
+  },
+  [FSP_CH1_ID]: {
+    questId: FSP_CH1_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 1,
+    faction: 'fsp',
+    title: { ko: '방파제', en: 'The Breakwater' },
+    requiredLevel: 1,
+    requiredReputation: { fsp: 0 },
+    blockingTags: ['war_criminal'],
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 900,
+    location: { id: 'new_athens_settlement', displayNameKo: 'New Athens 정착지', region: 'hellas_basin', altitudeKm: -7 },
+    environment: {
+      type: 'dust_storm_recovery',
+      secondary: 'night_freezing',
+      totalDurationSeconds: 900,
+      phases: [
+        { phase: 0, startSec: 0, opticalMod: -15, freezeDrain: 0 },
+        { phase: 1, startSec: 300, opticalMod: -15, freezeDrain: 0 },
+        { phase: 2, startSec: 600, opticalMod: -10, freezeDrain: 0.5 },
+        { phase: 3, startSec: 900, opticalMod: -5, freezeDrain: 1.0 },
+      ],
+      weaponsUnaffected: ['railgun'],
+    },
+    briefing: {
+      npcId: 'mikhail_anders',
+      npcName: 'Mikhail Anders / Lena Torres / Yuna Kim',
+      npcTitle: 'New Athens 격납고 · 차 두 잔',
+      lines: [
+        { id: 'fsp_ch1_mishka_01', ko: '왔구나. 추워? 미안. 풍력 두 개 박살나서 격납고 30%만 가동.' },
+        { id: 'fsp_ch1_mishka_02', ko: '차 들어. 이게 진짜 차야. 지구에서 가져온 씨앗으로 키운 거.' },
+        { id: 'fsp_ch1_mishka_04', ko: 'Amara가 당신 추천했어. 그녀 추천이면 우리도 받지. 근데 분명히 해. 우리 단가 35%.' },
+        { id: 'fsp_ch1_mishka_05', ko: 'CV 약탈단이 H2O 호송선을 매주 털어. 새벽 03시 출발.' },
+        { id: 'fsp_ch1_mishka_07', ko: '호송선 한 대에 응급 환자 둘. 늦으면 죽어.' },
+      ],
+      radio: [
+        { triggerSec: 300, ko: 'Lena: CV 1파고 진입! 좌현!' },
+        { triggerSec: 600, ko: 'Yuna: 환자 골든 타임 6분 남음.' },
+        { triggerSec: 750, ko: 'Mikhail: 외부 동결 시작. 함선 차폐 점검.' },
+      ],
+    },
+    choices: [
+      { id: 'fsp_ch1_accept_standard', labelKo: '받겠습니다. 단가 그대로.', effects: { reputationDelta: { fsp: 10 }, flag: 'tea_ceremony_completed' } },
+      { id: 'fsp_ch1_negotiate_price', labelKo: '단가 협상 가능합니까?', effects: { reputationDelta: { fsp: -2 }, flag: 'tried_to_negotiate' } },
+      { id: 'fsp_ch1_question_mcc', labelKo: '왜 MCC에 도움 요청 안 합니까?', effects: { reputationDelta: { fsp: 5 }, flag: 'heard_mikhail_backstory', flag2: 'mikhail_oxygen_mask_revealed' } },
+      { id: 'fsp_ch1_prioritize_patients', labelKo: '응급 환자가 우선 아닙니까? 환자만이라도 빠른 함선으로?', effects: { reputationDelta: { fsp: 15 }, flag: 'civilian_minded', simulationModifier: { missionSplit: true, timePressure: -0.2 } } },
+    ],
+  },
+  [FSP_CH2_ID]: {
+    questId: FSP_CH2_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 2,
+    faction: 'fsp',
+    title: { ko: '얼음 캐러밴', en: 'The Ice Caravan' },
+    requiredLevel: 2,
+    prerequisiteChapter: FSP_CH1_ID,
+    requiredReputation: { fsp: 15 },
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 1800,
+    location: { id: 'north_pole_to_new_athens', displayNameKo: '북극관 → New Athens 항로', region: 'north_pole_to_hellas' },
+    environment: {
+      type: 'solar_exposure_active',
+      secondary: 'phobos_eclipse_periodic',
+      totalDurationSeconds: 1800,
+      phases: [
+        { phase: 0, startSec: 0, iceLossPerHour: 0 },
+        { phase: 1, startSec: 720, iceLossPerHour: 1 },
+        { phase: 2, startSec: 900, iceLossPerHour: 3 },
+        { phase: 3, startSec: 1080, iceLossPerHour: 8 },
+      ],
+    },
+    briefing: {
+      npcId: 'mikhail_anders',
+      npcName: 'Mikhail Anders / Lena Torres / Sal Cruz',
+      npcTitle: '북극관 얼음 호송 브리핑',
+      lines: [
+        { id: 'fsp_ch2_brief_01', ko: '지난주 호송 잘 끝나서 다음 큰 임무야.' },
+        { id: 'fsp_ch2_brief_03', ko: '북극관에서 얼음 800 kT. 운반선 6대.' },
+        { id: 'fsp_ch2_brief_04', ko: '운반선 단열 약해. 18시간 이상 태양광 노출되면 30% 녹아.' },
+        { id: 'fsp_ch2_lena_01', ko: '오 외부인 보스 또 왔네! 이번엔 얼음?' },
+        { id: 'fsp_ch2_sal_01', ko: 'Sal Cruz: FSP 얼음? 우리 마을도 물 없어. 내려놓고 가.' },
+      ],
+      radio: [
+        { triggerSec: 720, ko: 'Lena: 적도. CV 함대 9시 방향 매복 진입!' },
+      ],
+    },
+    choices: [
+      { id: 'fsp_ch2_lena_command', labelKo: 'Lena, 함께. 정찰 부탁.', effects: { flag: 'lena_collaboration_full' } },
+      { id: 'fsp_ch2_split_convoy', labelKo: '운반선 6대를 두 그룹으로?', effects: { flag: 'convoy_split' } },
+      { id: 'fsp_ch2_request_mcc_ships', labelKo: 'MCC 단열선 빌릴 곳? 중고품?', effects: { reputationDelta: { fsp: -3 }, flag: 'tried_mcc_route' } },
+      { id: 'fsp_ch2_question_storm', labelKo: 'Lena, 폭풍 좋아해? 어머니가 폭풍에서...', effects: { reputationDelta: { fsp: 5 }, flag: 'heard_lena_mother_story', flag2: 'lena_mother_revealed' } },
+    ],
+  },
+  [FSP_CH3_ID]: {
+    questId: FSP_CH3_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 3,
+    faction: 'fsp',
+    title: { ko: '피의 광산', en: 'Blood Mine' },
+    requiredLevel: 3,
+    prerequisiteChapter: FSP_CH2_ID,
+    requiredReputation: { fsp: 25 },
+    blockingTags: ['war_criminal'],
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 1800,
+    location: { id: 'verin7_mining_complex', displayNameKo: 'Verin-7 광산', region: 'olympus_4th_ridge', altitudeKm: 8 },
+    environment: {
+      type: 'high_altitude_thin_air',
+      secondary: 'olympus_geothermal',
+      totalDurationSeconds: 1800,
+      phases: [{ phase: 0, startSec: 0, breathingLoad: 20, crewEfficiency: -5, railgunAccuracy: -10, missileEfficiency: 5 }],
+    },
+    briefing: {
+      npcId: 'samuel_torres',
+      npcName: 'Samuel Torres / Amara Okafor',
+      npcTitle: 'Verin-7 산소 조절기 해방 작전',
+      lines: [
+        { id: 'fsp_ch3_sam_01', ko: 'Verin-7 광산에서 노동자 412명 사실상 노예. 부채 노예.' },
+        { id: 'fsp_ch3_sam_04', ko: 'MCC가 산소 조절기로 사람들을 통제. 빚 못 갚는 광부 산소 배급 줄어.' },
+        { id: 'fsp_ch3_amara_01', ko: 'Samuel. 이건 우리 권한 밖이야. MCC 자산 침공은 전쟁이야.' },
+        { id: 'fsp_ch3_miners_60', ko: '광부 60명: 우리는 안 가. 여기 가족 묻혀 있어요.' },
+      ],
+      radio: [
+        { triggerSec: 900, ko: '산소 조절기 5개 동시 무력화 금지. 알람 뜬다.' },
+      ],
+    },
+    choices: [
+      { id: 'fsp_ch3_solo_op', labelKo: '제가 단독 작전. FSP 책임은 면합니다.', effects: { reputationDelta: { mcc: -25 }, flag: 'solo_op_chosen' } },
+      { id: 'fsp_ch3_official_op', labelKo: '공식 작전. 책임은 같이.', effects: { reputationDelta: { mcc: -40, fsp: 20 }, flag: 'official_op_chosen', flag2: 'amara_approves' } },
+      { id: 'fsp_ch3_question_intel', labelKo: '광부들이 정말 나오고 싶어할까요? 의사 확인.', effects: { reputationDelta: { fsp: 5 }, flag: 'requested_intel', flag2: 'samuel_cousin_inside' } },
+      { id: 'fsp_ch3_diplomatic_attempt', labelKo: 'MCC와 협상 안 됩니까? 광부 빚 대신 갚는 식?', effects: { reputationDelta: { fsp: 3 }, flag: 'tried_diplomacy', flag2: 'mcc_diplomacy_history_revealed' } },
     ],
   },
 };
@@ -973,6 +1109,118 @@ function simulateCh10(progress) {
   };
 }
 
+function simulateFspCh1(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch1_accept_standard');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:fsp1`);
+  const civilian = choiceId === 'fsp_ch1_prioritize_patients';
+  const elapsed = Math.round((civilian ? 650 : 760) * (0.88 + roll * 0.24));
+  const alphaHp = Math.round(clampNumber(96 - roll * 22, 0, 100));
+  const betaHp = Math.round(clampNumber(92 - roll * 28 + (civilian ? 8 : 0), 0, 100));
+  const raidersDestroyed = Math.min(10, Math.max(6, Math.round(10 - roll * 3 + (civilian ? 0 : 1))));
+  const patient1 = betaHp <= 0 || elapsed > 760 ? 'dead' : elapsed > 720 ? 'critical' : 'stable';
+  const patient2 = betaHp <= 0 || elapsed > 680 ? 'dead' : elapsed > 600 ? 'critical' : 'stable';
+  const secondary = [];
+  if (raidersDestroyed >= 10) secondary.push('obj_zero_cv_escapes');
+  if (alphaHp >= 95 && betaHp >= 95) secondary.push('obj_cargo_full_hp');
+  if (elapsed <= 900) secondary.push('obj_finish_under_15min');
+  if (patient1 !== 'dead' && patient2 !== 'dead') secondary.push('patients_both_alive');
+  let failure = null;
+  if (alphaHp <= 0 && betaHp <= 0) failure = 'fail_total_loss';
+  else if (alphaHp <= 0 || betaHp <= 0) failure = 'fail_cargo_lost';
+  else if (patient1 === 'dead' || patient2 === 'dead') failure = 'fail_patient_died';
+  return {
+    success: !failure,
+    failureReason: failure,
+    metrics: {
+      cargo_alpha_hp_percent: alphaHp,
+      cargo_beta_hp_percent: betaHp,
+      patient_1_status: patient1,
+      patient_2_status: patient2,
+      cv_raiders_destroyed: raidersDestroyed,
+      elapsed_sec: elapsed,
+      environmental_phase_reached: phaseForChapter(FSP_CH1_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateFspCh2(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch2_lena_command');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:fsp2`);
+  const lena = choiceId === 'fsp_ch2_lena_command' || choiceId === 'fsp_ch2_question_storm';
+  const split = choiceId === 'fsp_ch2_split_convoy';
+  const eclipsesUsed = Math.max(2, Math.min(5, Math.round(5 - roll * 2 + (lena ? 1 : 0))));
+  const timeLost = roll < (split ? 0.22 : 0.12) ? 200 : 0;
+  const elapsed = Math.round(1080 + timeLost - eclipsesUsed * 60 + (split ? 70 : 0));
+  const solarLoss = elapsed <= 720 ? 0 : elapsed <= 900 ? (elapsed - 720) * 0.08 : 14.4 + (elapsed - 900) * 0.16;
+  const iceRemaining = Math.round(clampNumber(800 - solarLoss, 0, 800));
+  const icePct = Math.round((iceRemaining / 800) * 100);
+  const lenaHp = Math.round(clampNumber(96 - roll * (split ? 45 : 28), 0, 100));
+  const cvDestroyed = Math.min(10, Math.max(5, Math.round(8 + (1 - roll) * 3 + (lena ? 1 : 0))));
+  const secondary = [];
+  if (icePct >= 90) secondary.push('obj_ice_90_percent');
+  if (cvDestroyed >= 10) secondary.push('obj_zero_cv_escapes');
+  if (eclipsesUsed >= 5) secondary.push('obj_no_eclipse_misses');
+  if (lenaHp >= 95) secondary.push('lena_survives_full_hp');
+  let failure = null;
+  if (lenaHp <= 0) failure = 'fail_lena_dead';
+  else if (icePct < 70) failure = 'fail_ice_below_70';
+  else if (elapsed > 1800) failure = 'fail_timeout';
+  return {
+    success: !failure,
+    failureReason: failure,
+    metrics: {
+      ice_remaining_kt: iceRemaining,
+      ice_loss_to_solar: Math.round(800 - iceRemaining),
+      ice_remaining_percent: icePct,
+      eclipses_used: eclipsesUsed,
+      cv_raiders_destroyed: cvDestroyed,
+      elapsed_sec: elapsed,
+      lena_hp_percent: lenaHp,
+      environmental_phase_reached: phaseForChapter(FSP_CH2_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateFspCh3(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch3_official_op');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:fsp3`);
+  const official = choiceId === 'fsp_ch3_official_op';
+  const solo = choiceId === 'fsp_ch3_solo_op';
+  const intel = choiceId === 'fsp_ch3_question_intel';
+  const diplomacy = choiceId === 'fsp_ch3_diplomatic_attempt';
+  const alarmChance = intel ? 0.15 : diplomacy ? 0.30 : 0.50;
+  const alarm = roll < alarmChance;
+  const disabled = alarm ? 5 : intel ? 4 : 4 + Math.round((1 - roll) * 1);
+  const rescuePct = Math.round(clampNumber(82 + (official ? 12 : 0) - (solo ? 10 : 0) + (intel ? 8 : 0) - (alarm ? 8 : 0) - roll * 8, 50, 100));
+  const minersRescued = Math.round(412 * rescuePct / 100);
+  const elapsed = Math.round(1460 + roll * 260 + (alarm ? 160 : 0) + (solo ? 80 : 0));
+  const secondary = [];
+  if (rescuePct >= 90) secondary.push('obj_rescue_90_percent');
+  if (!alarm) secondary.push('obj_no_alarm_triggered');
+  if (intel || diplomacy) secondary.push('obj_60_stayers_respected');
+  if (roll > 0.35) secondary.push('obj_no_player_ship_lost');
+  let failure = null;
+  if (rescuePct < 80) failure = 'fail_miners_below_80_percent';
+  else if (elapsed > 1800) failure = 'fail_timeout';
+  return {
+    success: !failure,
+    failureReason: failure,
+    metrics: {
+      miners_rescued: minersRescued,
+      miners_rescued_percent: rescuePct,
+      oxygen_regulators_disabled: disabled,
+      alarm_status: alarm ? 'triggered' : 'silent',
+      elapsed_sec: elapsed,
+      mcc_reinforcement_eta: alarm ? Math.max(0, 1800 - elapsed) : null,
+      respected_60_stayers: secondary.includes('obj_60_stayers_respected'),
+      environmental_phase_reached: phaseForChapter(FSP_CH3_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
 function simulateChapter(progress) {
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
   if (progress.quest_id === CH3_ID) return simulateCh3(progress);
@@ -983,6 +1231,9 @@ function simulateChapter(progress) {
   if (progress.quest_id === CH8_ID) return simulateCh8(progress);
   if (progress.quest_id === CH9_ID) return simulateCh9(progress);
   if (progress.quest_id === CH10_ID) return simulateCh10(progress);
+  if (progress.quest_id === FSP_CH1_ID) return simulateFspCh1(progress);
+  if (progress.quest_id === FSP_CH2_ID) return simulateFspCh2(progress);
+  if (progress.quest_id === FSP_CH3_ID) return simulateFspCh3(progress);
   return simulateCh1(progress);
 }
 
@@ -1308,6 +1559,91 @@ function calculateCh10Rewards(progress, sim) {
   return { GP: 50000, XP: 1000, reputationDelta: {}, items: [], tags: ['forgotten_freelancer'], loreFlags: ['mcc_route_completed', 'chose_bad_ending'], unlocks: [], branchModifiers: [] };
 }
 
+function calculateFspCh1Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch1_accept_standard');
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_total_loss') return { GP: 0, XP: 100, reputationDelta: { fsp: -15 }, tags: [], loreFlags: ['new_athens_water_crisis', 'cargo_alpha_lost', 'cargo_beta_lost'], unlocks: [FSP_CH2_ID], branchModifiers: [{ targetChapter: FSP_CH2_ID, key: 'ch2_settlement_water_critical', value: { ch2_time_pressure: 0.3 } }] };
+    if (sim.failureReason === 'fail_cargo_lost') {
+      const lost = sim.metrics.cargo_alpha_hp_percent <= 0 ? 'cargo_alpha_lost' : 'cargo_beta_lost';
+      return { GP: 0, XP: 100, reputationDelta: { fsp: -5 }, tags: [], loreFlags: [lost], unlocks: [FSP_CH2_ID], branchModifiers: [{ targetChapter: FSP_CH2_ID, key: 'ch2_settlement_water_critical', value: { ch2_time_pressure: 0.3 } }] };
+    }
+    return { GP: 0, XP: 100, reputationDelta: { fsp: -5 }, tags: ['failed_the_wounded'], loreFlags: ['ch1_patient_died'], unlocks: [FSP_CH2_ID], branchModifiers: [{ targetChapter: 'any_fsp', key: 'npc_yuna_distrust', value: { yuna_kim_cooperation: 'reduced' } }] };
+  }
+  let gp = 4000;
+  if (secondary.includes('obj_zero_cv_escapes')) gp += 5000;
+  if (secondary.includes('obj_cargo_full_hp')) gp += 2000;
+  const tags = [];
+  const loreFlags = [];
+  const items = [
+    { type: 'ship_blueprint', code: 'sprite_frigate_blueprint', label: 'Sprite Frigate Blueprint' },
+    { type: 'resource', code: 'grain_canisters', label: 'Grain Canisters', quantity: secondary.includes('obj_cargo_full_hp') ? 60 : 30 },
+    { type: 'resource', code: 'medical_kit', label: 'Medical Kit', quantity: 3 },
+  ];
+  if (secondary.includes('patients_both_alive')) tags.push('lifesaver');
+  if (choiceId === 'fsp_ch1_question_mcc') loreFlags.push('mikhail_oxygen_mask_revealed', 'mikhail_trust_deepened');
+  if (choiceId === 'fsp_ch1_prioritize_patients') loreFlags.push('civilian_minded');
+  if (choiceId === 'fsp_ch1_accept_standard') loreFlags.push('tea_ceremony_completed');
+  const masteries = secondary.includes('obj_finish_under_15min') ? ['dust_storm_recovery_combat'] : [];
+  return { GP: gp, XP: 400, reputationDelta: { fsp: 20, cv: -5 }, items, tags, loreFlags, masteries, unlocks: [FSP_CH2_ID], branchModifiers: [] };
+}
+
+function calculateFspCh2Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch2_lena_command');
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_lena_dead') return { GP: 0, XP: 100, reputationDelta: { fsp: -20 }, tags: [], loreFlags: ['lena_dead'], unlocks: [FSP_CH3_ID], branchModifiers: [{ targetChapter: FSP_CH3_ID, key: 'ch3_samuel_hostile', value: { samuel_initial_dialog: 'hostile' } }] };
+    if (sim.failureReason === 'fail_ice_below_70') return { GP: 0, XP: 100, reputationDelta: { fsp: -10 }, tags: [], loreFlags: ['ch2_water_shortage'], unlocks: [FSP_CH3_ID], branchModifiers: [{ targetChapter: 'any_fsp_post_ch2', key: 'cross_route_water_crisis', value: { settlement_morale: -10, fsp_resource_baseline: -15 } }] };
+    return { GP: 0, XP: 100, reputationDelta: { fsp: -5 }, tags: [], loreFlags: ['ch2_water_shortage'], unlocks: [FSP_CH3_ID], branchModifiers: [] };
+  }
+  let gp = 6000;
+  if (secondary.includes('obj_ice_90_percent')) gp += 5000;
+  if (secondary.includes('obj_zero_cv_escapes')) gp += 3000;
+  const loreFlags = [];
+  const branchModifiers = [];
+  const masteries = [];
+  if (choiceId === 'fsp_ch2_lena_command') loreFlags.push('lena_collaboration_full');
+  if (choiceId === 'fsp_ch2_split_convoy') loreFlags.push('convoy_split');
+  if (choiceId === 'fsp_ch2_request_mcc_ships') loreFlags.push('tried_mcc_route');
+  if (choiceId === 'fsp_ch2_question_storm') loreFlags.push('heard_lena_mother_story', 'lena_mother_revealed');
+  if (secondary.includes('lena_survives_full_hp') || choiceId === 'fsp_ch2_question_storm') {
+    loreFlags.push('lena_deep_trust');
+    branchModifiers.push({ targetChapter: FSP_CH3_ID, key: 'ch3_lena_companion', value: { lena_can_join_ch3: true, mission_difficulty: -0.1 } });
+  }
+  if (secondary.includes('obj_no_eclipse_misses')) masteries.push('phobos_eclipse_navigation');
+  return { GP: gp, XP: 600, reputationDelta: { fsp: 15, cv: -10 }, items: [{ type: 'resource', code: 'medical_kit', label: 'Medical Kit', quantity: 3 }, { type: 'ship_modification', code: 'sprite_speed_kit', label: 'Sprite Speed Kit' }], tags: [], loreFlags, masteries, unlocks: [FSP_CH3_ID], branchModifiers };
+}
+
+function calculateFspCh3Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch3_official_op');
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    return { GP: 0, XP: 200, reputationDelta: { fsp: -10 }, tags: [], loreFlags: ['ch3_partial_rescue'], branchModifiers: [] };
+  }
+  let gp = 10000;
+  let rep = { fsp: 30, mcc: -30 };
+  const tags = [];
+  const loreFlags = ['new_athens_population_350_added'];
+  const branchModifiers = [
+    { targetChapter: 'fsp_campaign_ch4', key: 'ch4_settlement_resource_strain', value: { settlement_food_pressure: 0.3, mikhail_dialog_burdened: true } },
+  ];
+  if (choiceId === 'fsp_ch3_solo_op') { loreFlags.push('solo_op_chosen'); rep = { mcc: -25, fsp: 0 }; }
+  if (choiceId === 'fsp_ch3_official_op') {
+    loreFlags.push('official_op_chosen', 'amara_approves');
+    branchModifiers.push({ targetChapter: 'any_route_ng_plus', key: 'cross_route_mcc_oxygen_slavery_known', value: { player_knows_mcc_oxygen_weapon: true } });
+  }
+  if (choiceId === 'fsp_ch3_question_intel') loreFlags.push('samuel_cousin_inside');
+  if (choiceId === 'fsp_ch3_diplomatic_attempt') loreFlags.push('mcc_diplomacy_history_revealed');
+  if (secondary.includes('obj_rescue_90_percent')) gp += 8000;
+  if (secondary.includes('obj_no_alarm_triggered')) gp += 5000;
+  if (secondary.includes('obj_60_stayers_respected')) { rep = mergeRep(rep, { fsp: 5 }); tags.push('true_liberator'); loreFlags.push('respected_miner_choice'); }
+  if (choiceId === 'fsp_ch3_official_op') {
+    loreFlags.push('samuel_trusts_player');
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch4', key: 'ch4_samuel_companion', value: { samuel_can_join: true, battle_strength: 0.15 } });
+  }
+  return { GP: gp, XP: 1000, reputationDelta: rep, items: [{ type: 'ship', code: 'vector_destroyer_captured', label: 'Captured Vector Destroyer' }, { type: 'settlement_population', code: 'new_athens_population', label: 'New Athens Population', quantity: 350 }], tags, loreFlags, unlocks: ['fsp_campaign_ch4'], branchModifiers };
+}
+
 function calculateRewards(progress, sim) {
   if (progress.quest_id === CH2_ID) return calculateCh2Rewards(progress, sim);
   if (progress.quest_id === CH3_ID) return calculateCh3Rewards(progress, sim);
@@ -1318,6 +1654,9 @@ function calculateRewards(progress, sim) {
   if (progress.quest_id === CH8_ID) return calculateCh8Rewards(progress, sim);
   if (progress.quest_id === CH9_ID) return calculateCh9Rewards(progress, sim);
   if (progress.quest_id === CH10_ID) return calculateCh10Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH1_ID) return calculateFspCh1Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH2_ID) return calculateFspCh2Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH3_ID) return calculateFspCh3Rewards(progress, sim);
   return calculateCh1Rewards(progress, sim);
 }
 

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-29 v5.22 (MCC Campaign Ch8~10 MVP: Prometheus, Broken Alliance, Shareholder Ending) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-29 v5.23 (FSP Campaign Ch1~3 MVP: Breakwater, Ice Caravan, Blood Mine) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -53,7 +53,7 @@ NODE_ENV=development
 │   ├── index.js            ← Express 앱 + 스케줄러 (~1,151줄)
 │   ├── db.js               ← Pool + initDB + getSetting + logGPActivity + 공통 유틸
 │   ├── migrate.js          ← 파일 기반 마이그레이션 러너
-│   ├── migrations/         ← SQL 파일 001~196 (2026-04-29 기준)
+│   ├── migrations/         ← SQL 파일 001~197 (2026-04-29 기준)
 │   │   └── archived/       ← 사용 안 하는 구버전 마이그레이션 (51개, 건드리지 말 것)
 │   ├── routes/             ← 61개 라우트 파일 (/api/* 경로)
 │   └── services/           ← 73개 서비스 파일 (비즈니스 로직)
@@ -69,9 +69,9 @@ NODE_ENV=development
 ## 4. DB 현재 상태
 
 - **DB명**: `pixelwar` (PostgreSQL)
-- **적용된 마이그레이션**: 001 ~ **196** (2026-04-29 기준)
+- **적용된 마이그레이션**: 001 ~ **197** (2026-04-29 기준)
 - **총 테이블 수**: 109개+
-- **마지막 마이그레이션**: `196_mcc_campaign_ch8_to_ch10.sql`
+- **마지막 마이그레이션**: `197_fsp_campaign_ch1_to_ch3.sql`
 
 ### 핵심 테이블 목록
 
@@ -128,10 +128,10 @@ NODE_ENV=development
 
 ## 5. Campaign System Architecture
 
-### 현재 구현 상태 (v5.22)
-- **MVP 방식**: MCC Campaign Ch1~10은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
+### 현재 구현 상태 (v5.23)
+- **MVP 방식**: MCC Campaign Ch1~10과 FSP Campaign Ch1~3은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
 - **API**: `server/routes/api.js`의 `/api/campaign/status/:wallet`, `/api/campaign/start`, `/api/campaign/choice`, `/api/campaign/progress`, `/api/campaign/complete`.
-- **DB**: `server/migrations/192_campaign_mcc_ch1.sql`, `193_campaign_common_systems.sql`, `194_mcc_campaign_ch2_to_ch4.sql`, `195_mcc_campaign_ch5_to_ch7.sql`, `196_mcc_campaign_ch8_to_ch10.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox, 환경/챕터 seed를 만든다.
+- **DB**: `server/migrations/192_campaign_mcc_ch1.sql`, `193_campaign_common_systems.sql`, `194_mcc_campaign_ch2_to_ch4.sql`, `195_mcc_campaign_ch5_to_ch7.sql`, `196_mcc_campaign_ch8_to_ch10.sql`, `197_fsp_campaign_ch1_to_ch3.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox, 환경/챕터 seed를 만든다.
 - **UI**: `index.html` QUESTS 탭의 CAMPAIGN 섹션에서 시작한다. 브리핑 → 선택지 → 압축 시뮬레이션 → 결과 모달 흐름.
 - **보상 정책**: GP/XP/평판/칭호/환경 숙련도/blueprint inbox 기록은 `complete()` 트랜잭션 안에서 처리한다. 클라이언트는 최종 보상값을 제출하지 않는다.
 
@@ -146,6 +146,11 @@ NODE_ENV=development
 - `mcc_campaign_ch8`: 프로메테우스 / 4-phase environmental sequence / Prometheus 방어·파괴·조기 엔딩.
 - `mcc_campaign_ch9`: 깨진 동맹 / 4전장 병렬 시뮬레이션 / Pilgrim Arms 공개와 NPC 운명.
 - `mcc_campaign_ch10`: 주주 엔딩 / cinematic-only / 4 엔딩 + fallback, NG+ cross-route modifier.
+
+### FSP Route Implemented Chapters
+- `fsp_campaign_ch1`: 방파제 / dust storm recovery + night freezing / H2O 호송, 응급 환자, 차 두 잔 의식.
+- `fsp_campaign_ch2`: 얼음 캐러밴 / solar exposure + Phobos eclipse / 6대 얼음 운반선, Lena 개인 서사, Sal Cruz 매복.
+- `fsp_campaign_ch3`: 피의 광산 / high altitude thin air / Verin-7 산소 노예제, 412명 광부 해방, 60명 잔류 결정.
 
 ### Adding New Chapter Workflow
 1. `campaign_chapters` seed 또는 `CHAPTERS` 정의에 새 `questId`를 추가한다.

@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — FSP Campaign Ch1~3 MVP 구현 (v5.23)
+
+- **FSP Ch1 "방파제" 추가**: New Athens 차 두 잔 의식, H2O 호송 2척, 응급 환자 2명, CV 약탈단 4파 MVP 시뮬레이션과 낮은 FSP 단가 보상 구조 추가.
+- **FSP Ch2 "얼음 캐러밴" 추가**: 북극관 → New Athens 얼음 운반, 태양광 노출 누적 손실, Phobos Eclipse 그늘 점프, Lena 개인 서사와 Sal Cruz 매복 분기 추가.
+- **FSP Ch3 "피의 광산" 추가**: Verin-7 고도 8km 산소 노예제, 산소 조절기 5개, 광부 412명 구출, 60명 잔류 결정과 Samuel/Amara 분기 추가.
+- **FSP 전용 seed migration 추가**: lore flags, branch modifiers, tags, NPC, 환경, item, settlement seed와 FSP Ch1~3 chapter config를 `197_fsp_campaign_ch1_to_ch3.sql`에 추가.
+- **정착지 기반 seed 추가**: `settlement_data`를 안전하게 생성/확장하고 New Athens/Cold Brook/Ridge Town/Hellas Central 초기 데이터를 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`의 현재 캠페인 구현 범위를 MCC Ch1~10 + FSP Ch1~3/v5.23 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+비고:
+- FSP Ch1~3도 MVP server simulation 단계이며, Tea Ceremony/Patient Gauge/Ice Gauge/Oxygen Regulator UI와 full battle engine 객체화는 후속 P1/P2.
+
 ## 2026-04-29 — MCC Campaign Ch8~10 MVP 구현 (v5.22)
 
 - **MCC Ch8 "프로메테우스" 추가**: Deimos 조선소 4-phase 환경 시퀀스, Branch A 파괴 작전, Branch B/C 방어 작전, Prometheus Titan/조기 Ending 3 분기를 서버 시뮬레이션으로 구현.
