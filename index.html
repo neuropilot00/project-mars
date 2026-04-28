@@ -9739,7 +9739,7 @@ function compositeClaimsOnTexture(previewOnly){
       var isMine=!!(myAddr&&(c.owner||'').toLowerCase()===myAddr);
       var oc=_ownerColor(c.owner);
       var territoryTone=isMine
-        ? {fill:{r:255,g:209,b:102}, line:{r:255,g:222,b:116}, text:'rgba(255,238,166,1)', alpha:0.46, halo:0.62, dash:null}
+        ? {fill:{r:255,g:209,b:102}, line:{r:255,g:222,b:116}, text:'rgba(255,238,166,1)', alpha:0.40, halo:0.42, dash:null}
         : (isNPC
           ? {fill:{r:126,g:106,b:170}, line:{r:126,g:106,b:170}, text:'rgba(238,232,255,0.78)', alpha:0.08, halo:0.22, dash:[7,5]}
           : {fill:{r:55,g:183,b:255}, line:{r:74,g:205,b:255}, text:'rgba(226,250,255,0.96)', alpha:0.14, halo:0.34, dash:null});
@@ -9837,12 +9837,12 @@ function compositeClaimsOnTexture(previewOnly){
           }
           // Pass 1: Wide halo (atmospheric bleed)
           ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+territoryTone.halo+')';
-          ctx.lineWidth=isMine?7:4;
+          ctx.lineWidth=isMine?4.5:4;
           ctx.stroke();
           // Pass 2: Crisp tactical line
           if(territoryTone.dash) ctx.setLineDash(territoryTone.dash); else ctx.setLineDash([]);
           ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+(isMine?'1':'0.9')+')';
-          ctx.lineWidth=isMine?2.2:1.4;
+          ctx.lineWidth=isMine?1.5:1.4;
           ctx.stroke();
           ctx.setLineDash([]);
           ctx.lineCap='butt';
@@ -9912,14 +9912,14 @@ function compositeClaimsOnTexture(previewOnly){
             if(pos2<sr.x+sr.w-0.5){ctx.moveTo(pos2,yb);ctx.lineTo(sr.x+sr.w,yb);}
           }
           // Pass 1: Wide atmospheric halo
-          if(isMine){ctx.shadowColor='rgba(255,209,102,0.65)';ctx.shadowBlur=6;}
+          if(isMine){ctx.shadowColor='rgba(255,209,102,0.45)';ctx.shadowBlur=4;}
           ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+territoryTone.halo+')';
-          ctx.lineWidth=isMine?7:4;
+          ctx.lineWidth=isMine?4.5:4;
           ctx.stroke();
           if(isMine) ctx.shadowBlur=0;
           // Pass 2: Crisp tactical inner line
           ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.9')+')';
-          ctx.lineWidth=isMine?2.2:1.4;
+          ctx.lineWidth=isMine?1.5:1.4;
           ctx.stroke();
           ctx.lineCap='butt';ctx.setLineDash([]);
         }
