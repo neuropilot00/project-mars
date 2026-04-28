@@ -1,6 +1,27 @@
-# OCCUPY MARS — Codebase Audit (v5.23 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.24 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.24 FSP Campaign Ch4 Diplomacy MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| FSP Ch4 Diplomacy | ✅ | Sandstone Junction 비밀 회담, Cinder Grace 첫 등장, Amara 보호, MCC 정찰 회피 MVP 시뮬레이션 추가. |
+| 협상 선택지 | ✅ | 피난소 제공/보급 공유/정보 교환/증거 공유/협상 중단 5개 선택지와 Cinder 동맹 강도, CV/FSP 평판 변화를 서버 보상으로 계산. |
+| 조건부 증거 공유 | ✅ | `fsp_ch4_evidence_share`는 FSP Ch3 공식 작전 lore 또는 MCC cross-route 산소 노예제 branch evidence가 있어야 선택 가능. |
+| persistence | ✅ | `198_fsp_campaign_ch4_diplomacy.sql`에 Sandstone Junction, Cinder Grace, 신규 환경, lore flag, branch modifier, tag, item, chapter config seed 추가. |
+| Ch5/Ch6 spec 상태 | 🟡 | 전달된 FSP Ch4~6 문서에서 Ch5/Ch6는 placeholder라 이번 범위에서 제외. 다음 spec 수령 후 이어서 구현 필요. |
+| full engine/UI 잔여 | 🟡 | 외교 전용 UI, Amara 보호 객체, MCC 정찰선 조건부 호위전, Phobos shadow escape 연출은 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `198_fsp_campaign_ch4_diplomacy.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.23 FSP Campaign Ch1~3 MVP — 구현 완료
 

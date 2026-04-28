@@ -1,5 +1,24 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — FSP Campaign Ch4 Diplomacy MVP 구현 (v5.24)
+
+- **FSP Ch4 "외교" 추가**: Sandstone Junction 비밀 회담, Cinder Grace 첫 등장, Amara 보호, MCC 정찰 회피/조건부 교전 MVP 시뮬레이션 추가.
+- **협상 선택지/분기 구현**: 피난소 제공, 보급 공유, MCC 정보 교환, 산소 노예제 증거 공유, 협상 중단 5개 선택지와 Cinder 동맹 강도/적대 branch modifier를 반영.
+- **조건부 증거 선택 검증**: `fsp_ch4_evidence_share`는 FSP Ch3 lore flag 또는 MCC cross-route branch modifier가 있을 때만 서버에서 허용하도록 보강.
+- **Ch4 seed migration 추가**: `198_fsp_campaign_ch4_diplomacy.sql`에 Sandstone Junction, Cinder Grace, 신규 환경, lore flags, branch modifiers, tags, item, chapter config를 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`와 audit 문서를 MCC Ch1~10 + FSP Ch1~4/v5.24 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+비고:
+- 전달된 FSP Ch4~6 spec에서 Ch5/Ch6는 “Sprint 2/3 작성 예정” placeholder라 이번 커밋에는 Ch4만 구현했다.
+
 ## 2026-04-29 — FSP Campaign Ch1~3 MVP 구현 (v5.23)
 
 - **FSP Ch1 "방파제" 추가**: New Athens 차 두 잔 의식, H2O 호송 2척, 응급 환자 2명, CV 약탈단 4파 MVP 시뮬레이션과 낮은 FSP 단가 보상 구조 추가.

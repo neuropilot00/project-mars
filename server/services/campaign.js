@@ -14,6 +14,7 @@ const CH10_ID = 'mcc_campaign_ch10';
 const FSP_CH1_ID = 'fsp_campaign_ch1';
 const FSP_CH2_ID = 'fsp_campaign_ch2';
 const FSP_CH3_ID = 'fsp_campaign_ch3';
+const FSP_CH4_ID = 'fsp_campaign_ch4';
 const FACTIONS = ['mcc', 'fsp', 'cv', 'pilgrim_arms'];
 const REP_MIN = -100;
 const REP_MAX = 100;
@@ -591,6 +592,56 @@ const CHAPTERS = {
       { id: 'fsp_ch3_official_op', labelKo: '공식 작전. 책임은 같이.', effects: { reputationDelta: { mcc: -40, fsp: 20 }, flag: 'official_op_chosen', flag2: 'amara_approves' } },
       { id: 'fsp_ch3_question_intel', labelKo: '광부들이 정말 나오고 싶어할까요? 의사 확인.', effects: { reputationDelta: { fsp: 5 }, flag: 'requested_intel', flag2: 'samuel_cousin_inside' } },
       { id: 'fsp_ch3_diplomatic_attempt', labelKo: 'MCC와 협상 안 됩니까? 광부 빚 대신 갚는 식?', effects: { reputationDelta: { fsp: 3 }, flag: 'tried_diplomacy', flag2: 'mcc_diplomacy_history_revealed' } },
+    ],
+  },
+  [FSP_CH4_ID]: {
+    questId: FSP_CH4_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 4,
+    faction: 'fsp',
+    title: { ko: '외교', en: 'Diplomacy' },
+    requiredLevel: 4,
+    prerequisiteChapter: FSP_CH3_ID,
+    requiredReputation: { fsp: 25 },
+    blockingTags: ['war_criminal'],
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 1500,
+    location: { id: 'sandstone_junction', displayNameKo: 'Sandstone Junction 지하 3레벨', region: 'equatorial_belt', altitudeKm: 1.2 },
+    environment: {
+      type: 'subterranean_dust',
+      secondary: 'equatorial_phobos_pattern',
+      totalDurationSeconds: 1500,
+      phases: [
+        { phase: 0, startSec: 0, opticalMod: -50, commRange: -80, detectionModifier: -40 },
+        { phase: 1, startSec: 600, opticalMod: -50, commRange: -80, detectionModifier: -40 },
+        { phase: 2, startSec: 1200, opticalMod: -50, commRange: -80, detectionModifier: -40 },
+      ],
+      weaponsUnaffected: ['point_defense'],
+      mccReconWindow: { baseArrivalSec: 1080, arrivalJitter: 180 },
+    },
+    briefing: {
+      npcId: 'amara_okafor',
+      npcName: 'Amara Okafor / Cinder Grace / Lena Torres',
+      npcTitle: 'Sandstone Junction 비밀 회담',
+      lines: [
+        { id: 'fsp_ch4_amara_01', ko: 'Cinder Grace. CV 4위 군벌. 광산 출신이야 — 우리랑 비슷한 출신.' },
+        { id: 'fsp_ch4_amara_03', ko: '장소: Sandstone Junction 지하 3레벨. MCC는 18분 안에 정찰 와.' },
+        { id: 'fsp_ch4_cinder_01', ko: 'FSP 외교관. 시간 됐어. 30분 줄게. 더는 안 줘.' },
+        { id: 'fsp_ch4_cinder_03', ko: 'The Butcher는 곧 미친 짓 할 거야. MCC가 그걸 빌미로 화성 전체 군사화해.' },
+        { id: 'fsp_ch4_amara_offer_01', ko: '우리가 줄 수 있는 건 세 가지야. 어느 걸 원해?' },
+      ],
+      radio: [
+        { triggerSec: 600, ko: 'Lena: 외부 모래 상태 변화. 누군가 지나간 흔적.' },
+        { triggerSec: 900, ko: 'Lena: MCC 위성 신호 잡혔어. 9분 남았어.' },
+        { triggerSec: 1080, ko: 'Lena: 정찰선 도착. 구축함 1, 프리깃 2.' },
+      ],
+    },
+    choices: [
+      { id: 'fsp_ch4_offer_settlement_refuge', labelKo: '정착지 임시 피난소 제공.', effects: { reputationDelta: { fsp: -3, cv: 15 }, flag: 'pact_settlement_refuge_offered', flag2: 'cinder_grace_alliance_strong', branchSet: { modifierId: 'fsp_cv_truce_active', targetChapter: 'fsp_campaign_ch5' } } },
+      { id: 'fsp_ch4_offer_supply_share', labelKo: '보급 공유 (월 식량 5%, 의약품 10%).', effects: { reputationDelta: { fsp: -1, cv: 10 }, flag: 'pact_supply_share_offered', flag2: 'cinder_grace_alliance_modest', branchSet: { modifierId: 'fsp_cv_truce_modest', targetChapter: 'fsp_campaign_ch5' } } },
+      { id: 'fsp_ch4_propose_intel_exchange', labelKo: 'MCC 정보 교환만.', effects: { reputationDelta: { cv: 5 }, flag: 'pact_intel_exchange_only', flag2: 'cinder_grace_alliance_weak', branchSet: { modifierId: 'bonus_mcc_intel', targetChapter: 'fsp_campaign_ch6' } } },
+      { id: 'fsp_ch4_evidence_share', labelKo: '[조건부] Helion 산소 노예제 증거 공유.', effects: { reputationDelta: { cv: 25 }, flag: 'pact_evidence_shared_with_cv', flag2: 'cinder_grace_alliance_blood_oath', branchSet: { modifierId: 'cv_active_alliance', targetChapter: 'fsp_campaign_ch5' } } },
+      { id: 'fsp_ch4_walk_away', labelKo: '협상 중단.', effects: { reputationDelta: { fsp: -5, cv: -15 }, flag: 'negotiation_walked_away', flag2: 'cinder_grace_alliance_failed', branchSet: { modifierId: 'cinder_warlord_hostile', targetChapter: 'fsp_campaign_ch5' } } },
     ],
   },
 };
@@ -1221,6 +1272,47 @@ function simulateFspCh3(progress) {
   };
 }
 
+function simulateFspCh4(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch4_propose_intel_exchange');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:fsp4`);
+  const evidence = choiceId === 'fsp_ch4_evidence_share';
+  const refuge = choiceId === 'fsp_ch4_offer_settlement_refuge';
+  const supply = choiceId === 'fsp_ch4_offer_supply_share';
+  const intel = choiceId === 'fsp_ch4_propose_intel_exchange';
+  const walkAway = choiceId === 'fsp_ch4_walk_away';
+  const trustBase = evidence ? 92 : refuge ? 72 : supply ? 62 : intel ? 50 : 18;
+  const cinderTrust = Math.round(clampNumber(trustBase + (1 - roll) * 12, 0, 100));
+  const elapsed = Math.round((evidence ? 820 : refuge ? 900 : supply ? 980 : intel ? 1040 : 1160) * (0.9 + roll * 0.2));
+  const detection = Math.round(clampNumber((elapsed - 760) / 4 + roll * 18 + (walkAway ? 35 : 0), 0, 100));
+  const combatEngaged = walkAway || (elapsed >= 1080 && detection >= 80 && roll < 0.55);
+  const eclipseEscape = elapsed >= 1080 && !combatEngaged;
+  const amaraHp = combatEngaged ? Math.round(clampNumber(92 - roll * 55, 0, 100)) : 100;
+  const secondary = [];
+  if (elapsed < 900) secondary.push('obj_finish_under_15min');
+  if (!combatEngaged && !walkAway) secondary.push('obj_no_combat_at_all');
+  if (eclipseEscape) secondary.push('obj_use_eclipse_escape');
+  let failure = null;
+  if (amaraHp <= 0) failure = 'fail_amara_killed';
+  else if (cinderTrust < 20 && !walkAway) failure = 'fail_negotiation_collapsed';
+  else if (detection >= 100 && combatEngaged) failure = 'fail_mcc_full_engagement';
+  return {
+    success: !failure && !walkAway,
+    failureReason: walkAway ? 'negotiation_walked_away' : failure,
+    branchChoice: choiceId.replace('fsp_ch4_', ''),
+    metrics: {
+      negotiation_phase: failure || walkAway ? 'collapsed' : 'resolution',
+      amara_hp_percent: amaraHp,
+      elapsed_sec: elapsed,
+      mcc_detection_progress: detection,
+      cinder_trust_score: cinderTrust,
+      combat_engaged: combatEngaged,
+      eclipse_escape_used: eclipseEscape,
+      environmental_phase_reached: phaseForChapter(FSP_CH4_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
 function simulateChapter(progress) {
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
   if (progress.quest_id === CH3_ID) return simulateCh3(progress);
@@ -1234,6 +1326,7 @@ function simulateChapter(progress) {
   if (progress.quest_id === FSP_CH1_ID) return simulateFspCh1(progress);
   if (progress.quest_id === FSP_CH2_ID) return simulateFspCh2(progress);
   if (progress.quest_id === FSP_CH3_ID) return simulateFspCh3(progress);
+  if (progress.quest_id === FSP_CH4_ID) return simulateFspCh4(progress);
   return simulateCh1(progress);
 }
 
@@ -1630,6 +1723,7 @@ function calculateFspCh3Rewards(progress, sim) {
   if (choiceId === 'fsp_ch3_solo_op') { loreFlags.push('solo_op_chosen'); rep = { mcc: -25, fsp: 0 }; }
   if (choiceId === 'fsp_ch3_official_op') {
     loreFlags.push('official_op_chosen', 'amara_approves');
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch4', key: 'mcc_oxygen_slavery_evidence_obtained', value: { leverage_mcc_evidence: true } });
     branchModifiers.push({ targetChapter: 'any_route_ng_plus', key: 'cross_route_mcc_oxygen_slavery_known', value: { player_knows_mcc_oxygen_weapon: true } });
   }
   if (choiceId === 'fsp_ch3_question_intel') loreFlags.push('samuel_cousin_inside');
@@ -1642,6 +1736,67 @@ function calculateFspCh3Rewards(progress, sim) {
     branchModifiers.push({ targetChapter: 'fsp_campaign_ch4', key: 'ch4_samuel_companion', value: { samuel_can_join: true, battle_strength: 0.15 } });
   }
   return { GP: gp, XP: 1000, reputationDelta: rep, items: [{ type: 'ship', code: 'vector_destroyer_captured', label: 'Captured Vector Destroyer' }, { type: 'settlement_population', code: 'new_athens_population', label: 'New Athens Population', quantity: 350 }], tags, loreFlags, unlocks: ['fsp_campaign_ch4'], branchModifiers };
+}
+
+function calculateFspCh4Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch4_propose_intel_exchange');
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_amara_killed') {
+      return {
+        GP: 0,
+        XP: 100,
+        reputationDelta: { fsp: -30 },
+        tags: ['diplomatic_disaster'],
+        loreFlags: ['amara_killed_at_sandstone'],
+        branchModifiers: [
+          { targetChapter: 'fsp_campaign_ch5', key: 'fsp_leadership_vacuum', value: { no_chair_available: true } },
+          { targetChapter: 'fsp_campaign_ch7', key: 'assembly_no_chair', value: { assembly_no_chair: true } },
+        ],
+      };
+    }
+    if (sim.failureReason === 'negotiation_walked_away') {
+      return { GP: 0, XP: 200, reputationDelta: { fsp: -5, cv: -15 }, tags: [], loreFlags: ['negotiation_walked_away', 'cinder_grace_alliance_failed'], unlocks: ['fsp_campaign_ch5'], branchModifiers: [{ targetChapter: 'fsp_campaign_ch5', key: 'cinder_warlord_hostile', value: { cv_attitude: 'hostile', ch5_modifier: 'cv_hostile_at_kepler' } }] };
+    }
+    return { GP: 0, XP: 200, reputationDelta: { fsp: -8, cv: -20 }, tags: [], loreFlags: ['cinder_grace_alliance_failed', 'ch4_mcc_engagement_occurred'], unlocks: ['fsp_campaign_ch5'], branchModifiers: [{ targetChapter: 'fsp_campaign_ch5', key: 'cinder_warlord_hostile', value: { cv_attitude: 'hostile' } }] };
+  }
+  let gp = 5500;
+  let rep = { fsp: 25 };
+  const items = [{ type: 'resource', code: 'medical_kit', label: 'Medical Kit', quantity: 10 }];
+  const tags = [];
+  const loreFlags = [];
+  const branchModifiers = [];
+  const masteries = [];
+  if (secondary.includes('obj_finish_under_15min')) {
+    gp += 3000;
+    masteries.push('covert_diplomacy');
+    items.push({ type: 'ship_blueprint', code: 'shadow_frigate_blueprint', label: 'Shadow Frigate Blueprint' });
+  }
+  if (secondary.includes('obj_no_combat_at_all')) { gp += 2000; tags.push('pacifist_envoy'); }
+  if (secondary.includes('obj_use_eclipse_escape')) { gp += 1500; loreFlags.push('phobos_navigator'); masteries.push('phobos_navigator_mastery'); }
+  if (choiceId === 'fsp_ch4_offer_settlement_refuge') {
+    gp += 2000; rep = mergeRep(rep, { fsp: -3, cv: 15 });
+    items.push({ type: 'intel', code: 'cv_intel_packet', label: 'CV Intel Packet' });
+    loreFlags.push('pact_settlement_refuge_offered', 'cinder_grace_alliance_strong');
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch5', key: 'fsp_cv_truce_active', value: { cv_attitude: 'allied', ch5_modifier: 'cv_neutral_at_kepler' } });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch7', key: 'cv_intel_assist_assembly', value: { cv_intel_assist: true } });
+  } else if (choiceId === 'fsp_ch4_offer_supply_share') {
+    gp += 1000; rep = mergeRep(rep, { fsp: -1, cv: 10 });
+    loreFlags.push('pact_supply_share_offered', 'cinder_grace_alliance_modest');
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch5', key: 'fsp_cv_truce_modest', value: { cv_attitude: 'passive', ch5_modifier: 'cv_passive_at_kepler' } });
+  } else if (choiceId === 'fsp_ch4_evidence_share') {
+    gp += 3000; rep = mergeRep(rep, { cv: 25 });
+    items.push({ type: 'npc_summon_token', code: 'cinder_grace_blood_oath_token', label: 'Cinder Grace Blood Oath Token' });
+    loreFlags.push('pact_evidence_shared_with_cv', 'cinder_grace_alliance_blood_oath');
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch5', key: 'cv_active_alliance', value: { cv_attitude: 'blood_oath', ch5_modifier: 'cv_active_alliance_at_kepler' } });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'mcc_targets_fsp_priority', value: { mcc_retaliation_priority: 'fsp' } });
+  } else {
+    gp += 500; rep = mergeRep(rep, { cv: 5 });
+    items.push({ type: 'intel', code: 'mcc_internal_memo_fragment', label: 'MCC Internal Memo Fragment', quantity: 2 });
+    loreFlags.push('pact_intel_exchange_only', 'cinder_grace_alliance_weak');
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch6', key: 'bonus_mcc_intel', value: { mole_investigation_bonus: true } });
+  }
+  return { GP: gp, XP: 800, reputationDelta: rep, items, tags, loreFlags, masteries, unlocks: ['fsp_campaign_ch5'], branchModifiers };
 }
 
 function calculateRewards(progress, sim) {
@@ -1657,6 +1812,7 @@ function calculateRewards(progress, sim) {
   if (progress.quest_id === FSP_CH1_ID) return calculateFspCh1Rewards(progress, sim);
   if (progress.quest_id === FSP_CH2_ID) return calculateFspCh2Rewards(progress, sim);
   if (progress.quest_id === FSP_CH3_ID) return calculateFspCh3Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH4_ID) return calculateFspCh4Rewards(progress, sim);
   return calculateCh1Rewards(progress, sim);
 }
 
@@ -1810,6 +1966,25 @@ async function calculateEligibleEndings(client, wallet) {
 }
 
 async function validateChapterChoice(client, wallet, progress, choiceId) {
+  if (progress.quest_id === FSP_CH4_ID && choiceId === 'fsp_ch4_evidence_share') {
+    const loreEvidence = await client.query(
+      `SELECT 1 FROM player_lore_flags
+       WHERE wallet = $1
+         AND flag_id = ANY($2)
+       LIMIT 1`,
+      [wallet, ['official_op_chosen', 'mcc_oxygen_slavery_evidence_obtained']]
+    );
+    const branchEvidence = await client.query(
+      `SELECT 1 FROM player_branch_modifiers
+       WHERE wallet = $1
+         AND modifier_id = ANY($2)
+         AND consumed_at IS NULL
+       LIMIT 1`,
+      [wallet, ['cross_route_mcc_oxygen_slavery_known', 'mcc_oxygen_slavery_evidence_obtained']]
+    );
+    if (!loreEvidence.rows.length && !branchEvidence.rows.length) return { error: 'CHOICE_REQUIRES_EVIDENCE', requiredAny: ['official_op_chosen', 'mcc_oxygen_slavery_evidence_obtained', 'cross_route_mcc_oxygen_slavery_known'] };
+    return null;
+  }
   if (![CH7_ID, CH8_ID, CH9_ID, CH10_ID].includes(progress.quest_id)) return null;
   const route = await getRouteBranch(client, wallet);
   if (progress.quest_id === CH10_ID) {
