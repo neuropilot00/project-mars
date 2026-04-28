@@ -1,6 +1,24 @@
-# OCCUPY MARS — Codebase Audit (v5.11 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.12 / 2026-04-28)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
+
+### v5.12 핵심 플레이 라인 검수 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 함선 건조/수리 | ✅ | `recipe_minerals`, `iron_ore` 차감이 실제 `user_resource_inventory(resource_id)` 스키마를 사용하도록 수정. 동시성 안전을 위해 `quantity >= required` 조건으로 원자적 차감. |
+| 자원 제작 | ✅ | `resourceCraft`의 제작 시작/완료/취소 환불을 전부 `resource_id` 기반으로 정정. |
+| 고급 강화 재료 | ✅ | `enhancementAdvanced`의 재료 조회/차감을 `resources.code -> resource_id` 조인으로 정정. |
+| 하이잭 Phase 1 | ✅ | 전투 엔진과 시작 통계 모두 프리깃/구축함만 반영하도록 수정. |
+| 하이잭 HP 보존 | ✅ | `applyBattleResults()`가 실제 `result.timeline.frames` 마지막 프레임을 읽어 HP를 반영하도록 수정. |
+| 영토 정보 HIJACK 버튼 | ✅ | 전투-only `/api/hijack/declare` 모달 대신 PP 정산/픽셀 이전이 포함된 클레임 하이잭 플로우(`/api/hijack/declare-with-pp`)로 연결. |
+
+검증:
+- 전체 서버 JS `node --check` 통과
+- `services/` + `routes/` 전체 require 스모크 통과
+- `index.html` 인라인 script 9개 `vm.Script` 파싱 통과
+
+---
 
 ### 브라우저 네이티브 다이얼로그 — 완전 제거 완료
 

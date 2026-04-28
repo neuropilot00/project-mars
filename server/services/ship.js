@@ -283,12 +283,15 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
     if (mineralEntries.length > 0) {
       const mineralCodes = mineralEntries.map(([code]) => code);
       const { rows: invRows } = await client.query(`
-        SELECT r.code AS resource_code, COALESCE(uri.quantity, 0) AS quantity, r.id AS resource_id
+        SELECT r.code AS resource_code,
+               r.id AS resource_id,
+               COALESCE((
+                 SELECT uri.quantity
+                 FROM user_resource_inventory uri
+                 WHERE uri.resource_id = r.id AND uri.wallet_address = $1
+               ), 0) AS quantity
         FROM resources r
-        LEFT JOIN user_resource_inventory uri
-          ON uri.resource_id = r.id AND uri.wallet_address = $1
         WHERE r.code = ANY($2::text[])
-        FOR UPDATE OF uri
       `, [walletAddress, mineralCodes]);
 
       const inv = {};
@@ -312,11 +315,17 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
       for (const [code, need] of mineralEntries) {
         const resourceId = inv[code]?.id;
         if (!resourceId) throw new Error(`UNKNOWN_MINERAL: ${code}`);
-        await client.query(`
+        const spent = await client.query(`
           UPDATE user_resource_inventory
           SET quantity = quantity - $1
-          WHERE wallet_address = $2 AND resource_id = $3
+          WHERE wallet_address = $2 AND resource_id = $3 AND quantity >= $1
+          RETURNING quantity
         `, [need, walletAddress, resourceId]);
+        if (spent.rowCount === 0) {
+          const err = new Error('INSUFFICIENT_MINERALS');
+          err.meta = { missing: [{ code, need, have: 0 }] };
+          throw err;
+        }
       }
     }
     
@@ -761,12 +770,14 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
 
     // 6. iron_ore 재고 확인 (resource_id FK 기반)
     const { rows: invRows } = await client.query(`
-      SELECT r.id AS resource_id, COALESCE(uri.quantity, 0) AS quantity
+      SELECT r.id AS resource_id,
+             COALESCE((
+               SELECT uri.quantity
+               FROM user_resource_inventory uri
+               WHERE uri.resource_id = r.id AND uri.wallet_address = $1
+             ), 0) AS quantity
       FROM resources r
-      LEFT JOIN user_resource_inventory uri
-        ON uri.resource_id = r.id AND uri.wallet_address = $1
       WHERE r.code = 'iron_ore'
-      FOR UPDATE OF uri
     `, [walletAddress]);
 
     if (!invRows[0]) {
@@ -788,11 +799,17 @@ async function repairShip(walletAddress, shipId, targetHpPct = 100) {
     );
 
     // 8. iron_ore 차감
-    await client.query(`
+    const spentIron = await client.query(`
       UPDATE user_resource_inventory
       SET quantity = quantity - $1, updated_at = NOW()
-      WHERE wallet_address = $2 AND resource_id = $3
+      WHERE wallet_address = $2 AND resource_id = $3 AND quantity >= $1
+      RETURNING quantity
     `, [ironNeed, walletAddress, ironInv.resource_id]);
+    if (spentIron.rowCount === 0) {
+      const err = new Error('INSUFFICIENT_IRON');
+      err.meta = { required: ironNeed, have: 0 };
+      throw err;
+    }
 
     // 9. 함선 HP 업데이트
     await client.query(

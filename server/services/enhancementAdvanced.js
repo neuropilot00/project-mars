@@ -164,12 +164,14 @@ function applyScrollProtection(result, scrollEffect) {
 // ─── 내부 헬퍼 ───
 
 async function getResourceBalance(walletAddress, resourceCode) {
-  // user_resource_inventory 또는 user_items 시도
+  // user_resource_inventory는 resource_id FK 기반이다.
   try {
     const { rows } = await pool.query(`
-      SELECT COALESCE(quantity, 0) AS qty
-      FROM user_resource_inventory
-      WHERE wallet_address = $1 AND resource_code = $2
+      SELECT COALESCE(uri.quantity, 0) AS qty
+      FROM resources r
+      LEFT JOIN user_resource_inventory uri
+        ON uri.resource_id = r.id AND uri.wallet_address = $1
+      WHERE r.code = $2
     `, [walletAddress, resourceCode]);
     return parseInt(rows[0]?.qty || 0);
   } catch {
@@ -185,12 +187,14 @@ async function getResourceBalance(walletAddress, resourceCode) {
 }
 
 async function deductResource(client, walletAddress, resourceCode, quantity) {
-  // user_resource_inventory 시도
+  // user_resource_inventory는 resource_id FK 기반이다.
   try {
     const { rowCount } = await client.query(`
       UPDATE user_resource_inventory
       SET quantity = quantity - $3
-      WHERE wallet_address = $1 AND resource_code = $2 AND quantity >= $3
+      WHERE wallet_address = $1
+        AND resource_id = (SELECT id FROM resources WHERE code = $2)
+        AND quantity >= $3
     `, [walletAddress, resourceCode, quantity]);
     if (rowCount > 0) return true;
   } catch { }

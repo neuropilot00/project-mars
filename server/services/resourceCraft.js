@@ -99,21 +99,29 @@ async function startCraft(walletAddress, resourceCode, quantity = 1) {
     // 재료 재고 체크 (quantity 배수로 차감)
     const mineralCodes = recipeEntries.map(([c]) => c);
     const { rows: invRows } = await client.query(`
-      SELECT resource_code, quantity
-      FROM user_resource_inventory
-      WHERE wallet_address = $1 AND resource_code = ANY($2::text[])
-      FOR UPDATE
+      SELECT r.code AS resource_code,
+             r.id AS resource_id,
+             COALESCE(uri.quantity, 0) AS quantity
+      FROM resources r
+      LEFT JOIN user_resource_inventory uri
+        ON uri.resource_id = r.id AND uri.wallet_address = $1
+      WHERE r.code = ANY($2::text[])
     `, [walletAddress, mineralCodes]);
 
     const inv = {};
-    for (const r of invRows) inv[r.resource_code] = parseInt(r.quantity);
+    for (const r of invRows) {
+      inv[r.resource_code] = {
+        id: r.resource_id,
+        qty: parseInt(r.quantity) || 0,
+      };
+    }
 
     const missing = [];
     const totalNeeded = {};
     for (const [code, need] of recipeEntries) {
       const totalNeed = need * quantity;
       totalNeeded[code] = totalNeed;
-      const have = inv[code] || 0;
+      const have = inv[code]?.qty || 0;
       if (have < totalNeed) missing.push({ code, need: totalNeed, have });
     }
     if (missing.length > 0) {
@@ -124,11 +132,23 @@ async function startCraft(walletAddress, resourceCode, quantity = 1) {
 
     // 재료 차감
     for (const [code, totalNeed] of Object.entries(totalNeeded)) {
-      await client.query(`
+      const resourceId = inv[code]?.id;
+      if (!resourceId) {
+        const err = new Error('INSUFFICIENT_MATERIALS');
+        err.meta = { missing: [{ code, need: totalNeed, have: 0 }] };
+        throw err;
+      }
+      const spent = await client.query(`
         UPDATE user_resource_inventory
         SET quantity = quantity - $1
-        WHERE wallet_address = $2 AND resource_code = $3
-      `, [totalNeed, walletAddress, code]);
+        WHERE wallet_address = $2 AND resource_id = $3 AND quantity >= $1
+        RETURNING quantity
+      `, [totalNeed, walletAddress, resourceId]);
+      if (spent.rowCount === 0) {
+        const err = new Error('INSUFFICIENT_MATERIALS');
+        err.meta = { missing: [{ code, need: totalNeed, have: 0 }] };
+        throw err;
+      }
     }
 
     // 작업 INSERT
@@ -188,11 +208,14 @@ async function claimJob(jobId, walletAddress) {
 
     // 결과물 지급
     await client.query(`
-      INSERT INTO user_resource_inventory (wallet_address, resource_code, quantity)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (wallet_address, resource_code)
-      DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity
-    `, [walletAddress, job.resource_code, job.quantity]);
+      INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+      SELECT $1, r.id, $2, NOW()
+      FROM resources r
+      WHERE r.code = $3
+      ON CONFLICT (wallet_address, resource_id)
+      DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity,
+                    updated_at = NOW()
+    `, [walletAddress, job.quantity, job.resource_code]);
 
     await client.query(`
       UPDATE resource_crafting_jobs
@@ -240,11 +263,14 @@ async function cancelJob(jobId, walletAddress) {
       if (refundQty > 0) {
         refunded[code] = refundQty;
         await client.query(`
-          INSERT INTO user_resource_inventory (wallet_address, resource_code, quantity)
-          VALUES ($1, $2, $3)
-          ON CONFLICT (wallet_address, resource_code)
-          DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity
-        `, [walletAddress, code, refundQty]);
+          INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+          SELECT $1, r.id, $2, NOW()
+          FROM resources r
+          WHERE r.code = $3
+          ON CONFLICT (wallet_address, resource_id)
+          DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity,
+                        updated_at = NOW()
+        `, [walletAddress, refundQty, code]);
       }
     }
 

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-28 v5.11 (네이티브 다이얼로그 0개 달성, §8/§13/§18 업데이트) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-28 v5.12 (핵심 플레이 라인 검수, 하이잭/함선/자원 제작 버그 수정) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -245,14 +245,15 @@ app.use('/admin/api', adminRoutes);  // 단일 파일 admin.js로 통합
 - **전투 뷰어 fixes** — HP바 실시간 감소, 내 함대/적 함대 올바른 구분, "나" 배지
 - **속도 조절 버튼** — tactical-lab SPEED 패널 (×1/×2/×4/×8, WS 없는 로컬 시뮬 전용)
 - **브라우저 네이티브 다이얼로그 제거** — confirm() 전면 인게임 모달로 교체 (§18 참조)
+- **핵심 플레이 라인 검수 v5.12** — 함선 건조/수리 재료 차감, 자원 제작, 고급 강화 재료, 하이잭 Phase 1/HP 보존/영토 HIJACK 버튼 연결 수정
 - 내 영토 금색 하이라이트 (compositeClaimsOnTexture)
 - 하이젝 auto_win 후 영토 즉시 금색 반영 (Railway 레이턴시 우회)
 
 ### 🔴 다음 작업 (우선순위 순)
 
-1. **함선 건조에 recipe_minerals 실제 소모** — 현재 광물 차감 무시됨
-2. **함선 수리 시스템 UI** — DB 스키마(migration 165) 있음, 라우트+UI 미완
-3. 타이탄/배틀십에 Core/Mid 전용 재료 요구사항 추가
+1. 타이탄/배틀십에 Core/Mid 전용 재료 요구사항 추가
+2. 실제 DB 연결 스모크: `/api/ships/build`, `/api/resource-craft/start`, `/api/hijack/declare-with-pp`
+3. Phase C 전투-only 하이잭 모달 명칭/역할 정리 (`/api/hijack/declare`는 영토 이전 없는 수동 전투 경로)
 
 ---
 
@@ -352,6 +353,7 @@ vip_enabled                = true
 - **achievements auto-trigger 와이어링** — claim/battle/marketplace/ship/guild/signup 이벤트마다 자동 unlock.
 - **38개 카테고리 settings 시드** — admin이 모든 라이브 기능 조정 가능 (No Hardcoding 100%).
 - **레이어드 아키텍처 명확화** — chronicle/title/enhancement는 의도된 base+extension 구조.
+- **v5.12 핵심 루프 단절 수정** — 영토 정보 HIJACK 버튼을 `/api/hijack/declare-with-pp` 플로우로 연결, hijack phase1 소형함 필터와 HP 반영 수정, resource_id 기반 인벤토리 일관화.
 
 ### 🔴 남아있는 알려진 이슈
 

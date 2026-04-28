@@ -27,6 +27,7 @@ const TICK_MS = 200;                    // 5 tick/sec
 const MAX_TICKS = 54000;                // 3시간 한도 — 실질적으로 HP 소진 전에 끝남
 const FIELD_W = 1000;
 const FIELD_H = 440;
+const HIJACK_PHASE1_SIZE_CLASSES = ['frigate', 'destroyer'];
 
 // 시뮬레이션 최적화: 함선을 클러스터로 묶기
 // 1000척 개별 처리는 무리. 같은 type의 함선 N척을 1개 단위로 처리.
@@ -181,8 +182,9 @@ async function loadBattleData(battleId) {
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
       WHERE s.fleet_id = $1 AND s.is_alive = true
+        AND ($2::text <> 'hijack_phase1' OR st.size_class = ANY($3::text[]))
       ORDER BY s.is_flagship DESC, st.sort_order DESC
-    `, [fr.fleet_id]);
+    `, [fr.fleet_id, battle.phase || '', HIJACK_PHASE1_SIZE_CLASSES]);
 
     // ✅ [Job] 직업별 전투력 배율 (warrior +30%, miner -30%, crafter -20%, merchant -20%)
     let combatPowerMult = 1.0;
@@ -928,7 +930,8 @@ async function applyBattleResults(battleId, result) {
     // 하이젝 전투: 함선 파괴하지 않고 HP만 감소 (min 15% of max_hp, 최소 1)
     if (isHijackBattle) {
       // 하이젝 전투 — 시뮬레이션 HP 결과 반영, 단 파괴 없음
-      const lastFrame = result.frames && result.frames.length > 0 ? result.frames[result.frames.length - 1] : null;
+      const frames = result.timeline?.frames || result.frames || [];
+      const lastFrame = frames.length > 0 ? frames[frames.length - 1] : null;
       if (lastFrame && Array.isArray(lastFrame.ships)) {
         for (const s of lastFrame.ships) {
           const sid = parseInt(s.id);

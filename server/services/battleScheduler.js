@@ -80,10 +80,14 @@ async function runBattle(battleId) {
         ships_at_start = sub.ship_count, hp_at_start = sub.total_hp
       FROM (
         SELECT s.fleet_id, COUNT(*) AS ship_count, COALESCE(SUM(s.current_hp), 0) AS total_hp
-        FROM ships s WHERE s.is_alive = true GROUP BY s.fleet_id
+        FROM ships s
+        JOIN ship_types st ON st.code = s.ship_type_code
+        WHERE s.is_alive = true
+          AND ($2::text <> 'hijack_phase1' OR st.size_class = ANY($3::text[]))
+        GROUP BY s.fleet_id
       ) sub
       WHERE p.fleet_id = sub.fleet_id AND p.battle_id = $1
-    `, [battleId]);
+    `, [battleId, battlePhase || '', ['frigate', 'destroyer']]);
     
     // 1-bis. AI 전략 — hijack 외 battle 에 자동 진형/기동 명령 (Phase 4)
     try {

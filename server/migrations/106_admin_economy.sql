@@ -104,7 +104,7 @@ SELECT
   COALESCE(SUM(i.quantity), 0) AS total_in_inventory,
   COUNT(DISTINCT i.wallet_address) AS holders
 FROM resources r
-LEFT JOIN user_resource_inventory i ON i.resource_code = r.code
+LEFT JOIN user_resource_inventory i ON i.resource_id = r.id
 WHERE r.is_active = true
 GROUP BY r.code, r.name_ko, r.icon_emoji, r.rarity
 ORDER BY total_in_inventory DESC;

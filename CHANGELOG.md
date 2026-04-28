@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-28 — 핵심 플레이 라인 검수 및 버그 수정 (v5.12)
+
+- **함선 건조/수리 재료 차감 수정**: `user_resource_inventory.resource_code`로 접근하던 경로를 실제 스키마인 `resource_id` 기반으로 정정.
+- **자원 제작 루프 수정**: tier 자원 제작 시작/완료/취소 환불이 `resources.code -> resource_id` 조인을 통해 일관되게 동작.
+- **고급 강화 재료 차감 수정**: `enhancementAdvanced` 재료 조회/차감이 실제 인벤토리 스키마와 일치.
+- **하이잭 Phase 1 전투 수정**: 프리깃/구축함만 투입된다는 UI/문서 규칙을 battleEngine과 battleScheduler 통계에 반영.
+- **하이잭 HP 보존 수정**: 전투 결과 HP 반영이 `result.timeline.frames`를 보도록 수정.
+- **영토 정보 HIJACK 버튼 수정**: 전투-only Phase C 모달 대신 PP 정산/픽셀 이전이 포함된 `/api/hijack/declare-with-pp` 플로우로 연결.
+- **admin resource circulation view 수정**: `user_resource_inventory` 조인을 `resource_id` 기준으로 정정.
+
+검증:
+- 서버 JS 전체 `node --check`
+- route/service require 스모크
+- `index.html` 인라인 script 파싱
+
 ## 2026-04-28 — 네이티브 다이얼로그 전면 제거 (v5.10)
 
 ### 브라우저 confirm() / prompt() / alert() → 인게임 모달

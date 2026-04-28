@@ -42806,11 +42806,21 @@ function hijackFromTerritoryInfo(){
   if (!btn) return;
   const claimId = parseInt(btn.dataset.claimId);
   const defWallet = btn.dataset.defWallet;
-  if (!claimId || !defWallet) {
+  const plot = selectedPlot;
+  if (!claimId || !defWallet || !plot) {
     showFactionToast('영토 정보가 부족합니다', 'error');
     return;
   }
-  openHijackModal({ claimId, defWallet });
+  // Territory hijack must use the claim modal path: it calculates PP cost,
+  // resolves defender fleet info, and calls /api/hijack/declare-with-pp.
+  selectedPlot = {
+    ...plot,
+    claimId,
+    owner: defWallet,
+    w: plot.w || plot.width || plot.size || stampW,
+    h: plot.h || plot.height || plot.size || stampH,
+  };
+  openClaimModal();
 }
 window.hijackFromTerritoryInfo = hijackFromTerritoryInfo;
 
