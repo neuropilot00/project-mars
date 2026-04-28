@@ -1,5 +1,26 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — MCC Campaign Ch8~10 MVP 구현 (v5.22)
+
+- **MCC Ch8 "프로메테우스" 추가**: Deimos 조선소 4-phase 환경 시퀀스, Branch A 파괴 작전, Branch B/C 방어 작전, Prometheus Titan/조기 Ending 3 분기를 서버 시뮬레이션으로 구현.
+- **MCC Ch9 "깨진 동맹" 추가**: Olympus/Hellas/Valles/Kepler 4전장 병렬 MVP, Pilgrim Arms 24척 침입, Amara/Butcher/Chen 관련 NPC 운명과 Ch10 branch modifier 반영.
+- **MCC Ch10 "주주 엔딩" 추가**: cinematic-only 엔딩 챕터와 Ending 1~4/fallback 보상, lore flag, title tag, NG+ cross-route modifier 지급 추가.
+- **엔딩 자격 서버 검증**: `calculateEligibleEndings()`를 추가해 Branch A/B/C, Roth 데이터, MCC 평판, blackmail data, Chen 사망 조건에 맞는 엔딩만 선택 가능하게 제한.
+- **루트 선택 검증 확장**: Ch7뿐 아니라 Ch8/Ch9도 활성 Ch6 루트와 맞지 않는 선택지를 `/api/campaign/choice`에서 거부.
+- **통합 seed migration 추가**: Ch8~10 lore flags, branch modifiers, tags, NPC, special asset, item definitions, achievements, environment/chapter config를 `196_mcc_campaign_ch8_to_ch10.sql`에 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`의 현재 캠페인 구현 범위를 MCC Ch1~10 완료/v5.22 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+비고:
+- Ch8~10도 MVP server simulation 단계이며, Ch8 full environmental sequence UI, Ch9 parallel battlefield UI, Ch10 cinematic playback/credits roll은 후속 P1/P2.
+
 ## 2026-04-29 — MCC Campaign Ch5~7 MVP 구현 (v5.21)
 
 - **MCC Ch5 "케플러 분쟁" 추가**: low gravity/oxygen pressure 환경, Roth 데이터 공개, FSP 차단/보급선 호위/단독 데이터 탈취/CV 자급 모선 격파 4분기와 보상/실패 분기 추가.

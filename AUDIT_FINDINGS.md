@@ -1,6 +1,28 @@
-# OCCUPY MARS — Codebase Audit (v5.21 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.22 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.22 MCC Campaign Ch8~10 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Ch8 Prometheus | ✅ | 4-phase environmental sequence와 Branch A 파괴/Branch B·C 방어 MVP 시뮬레이션, Prometheus Titan/조기 Ending 3 분기 반영. |
+| Ch9 Broken Alliance | ✅ | 4전장 선택, NPC 전장 자동 결과, Pilgrim Arms 24척 공개, Amara/Butcher/Chen 운명 branch modifier 반영. |
+| Ch10 Shareholder Ending | ✅ | Ending 1~4 + fallback cinematic-only 챕터, 엔딩별 GP/XP/평판/아이템/tag/lore/cross-route modifier 지급. |
+| 엔딩 자격 계산 | ✅ | Branch A/B/C, Chen 사망, Roth 데이터, MCC 평판, blackmail data 조건을 서버에서 계산하고 부적격 엔딩 선택을 거부. |
+| 루트 선택 검증 | ✅ | Ch7~9 선택지가 활성 Ch6 루트 prefix와 맞지 않으면 `/api/campaign/choice`에서 차단. |
+| seed migration | ✅ | `196_mcc_campaign_ch8_to_ch10.sql`에 lore flag, branch modifier, tag, NPC, special asset, item, achievement, environment/chapter seed 추가. |
+| full engine/UI 잔여 | 🟡 | Ch8 phase UI, Ch9 4전장 실시간 UI, Ch10 엔딩 시네마틱/크레딧/NG+ UI는 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `196_mcc_campaign_ch8_to_ch10.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.21 MCC Campaign Ch5~7 MVP — 구현 완료
 

@@ -8,6 +8,9 @@ const CH4_ID = 'mcc_campaign_ch4';
 const CH5_ID = 'mcc_campaign_ch5';
 const CH6_ID = 'mcc_campaign_ch6';
 const CH7_ID = 'mcc_campaign_ch7';
+const CH8_ID = 'mcc_campaign_ch8';
+const CH9_ID = 'mcc_campaign_ch9';
+const CH10_ID = 'mcc_campaign_ch10';
 const FACTIONS = ['mcc', 'fsp', 'cv', 'pilgrim_arms'];
 const REP_MIN = -100;
 const REP_MAX = 100;
@@ -321,6 +324,137 @@ const CHAPTERS = {
       { id: 'ch7c_deflect', labelKo: 'Branch C: 정상적인 운영 흐름 같습니다.', effects: { flag: 'chen_loyalty_test_passed' } },
       { id: 'ch7c_helpful', labelKo: 'Branch C: Marcus Reeve를 제가 보내볼까요?', effects: { flag: 'chen_loyalty_test_passed' } },
       { id: 'ch7c_redirect', labelKo: 'Branch C: 다른 부서일 수 있어요. 보안팀 확인을.', effects: { flag: 'chen_loyalty_test_failed', branchSet: { modifierId: 'ch8_chen_surveillance', targetChapter: 'mcc_campaign_ch8' } } },
+    ],
+  },
+  [CH8_ID]: {
+    questId: CH8_ID,
+    campaignId: 'mcc_route',
+    chapterNumber: 8,
+    faction: 'mcc',
+    title: { ko: '프로메테우스', en: 'Prometheus' },
+    requiredLevel: 8,
+    prerequisiteChapter: CH7_ID,
+    requiredBranchAny: ['mcc_route_a_active', 'mcc_route_b_active', 'mcc_route_c_active'],
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 2160,
+    location: { id: 'deimos_orbital_shipyard', displayNameKo: 'Deimos 궤도 조선소', region: 'deimos_orbit' },
+    environment: {
+      type: 'ch8_environmental_sequence',
+      totalDurationSeconds: 2160,
+      phases: [
+        { phase: 1, startSec: 0, endSec: 720, labelKo: '건조 초기', enemyWave: 1 },
+        { phase: 2, startSec: 720, endSec: 1080, labelKo: 'Phobos 일식', opticalTracking: 'disabled', missileAdvantage: 20, enemyWave: 2 },
+        { phase: 3, startSec: 1080, endSec: 1800, labelKo: '태양풍', nonArmoredHpDrainPerMin: -0.5, crewCasualtyBuildup: 5 },
+        { phase: 4, startSec: 1800, endSec: 2160, labelKo: '이온 폭풍', fleetCommandMode: 'disabled', radarAccuracy: -60, empEffectBonus: 50, enemyWave: 3 },
+      ],
+    },
+    briefing: {
+      npcId: 'route_variant',
+      npcName: 'Chen Weiss / Li Fang / Kara Vex',
+      npcTitle: 'Ch6 루트 기반 Prometheus 작전',
+      lines: [
+        { id: 'ch8_common_01', ko: 'Deimos 조선소. 36시간짜리 환경 시퀀스가 시작된다.' },
+        { id: 'ch8b_chen_01', ko: 'Branch B: Prometheus는 우리 결정타. 완공되면 3파벌 균형 깨져.' },
+        { id: 'ch8c_chen_extra', ko: 'Branch C: ...당신, 최근 데이터 흐름이 좀 이상해. 다 끝나면 우리 얘기 좀 하자.' },
+        { id: 'ch8a_li_01', ko: 'Branch A: Prometheus 파괴해야 해. 그게 건조되면 Chen은 신이 돼.' },
+        { id: 'ch8a_kv_01', ko: 'Kara: 외부인. 그 빚 갚을 시간.' },
+      ],
+      radio: [
+        { triggerSec: 720, ko: 'Phobos 일식 시작 — 광학 추적 일시 무효.' },
+        { triggerSec: 1080, ko: '태양풍 진입 — 비장갑 함선 피해 누적.' },
+        { triggerSec: 1800, ko: '이온 폭풍 — 함대 명령 차단.' },
+      ],
+    },
+    choices: [
+      { id: 'ch8b_standard', labelKo: 'Branch B: 정석 36시간 방어.', effects: {} },
+      { id: 'ch8b_accelerate', labelKo: 'Branch B: 건조 24시간 가속.', effects: { flag: 'ch8_accelerated_construction' } },
+      { id: 'ch8b_intel', labelKo: 'Branch B: 적 본대 위치 사전 정찰.', effects: { flag: 'ch8_wave3_intel' } },
+      { id: 'ch8c_standard', labelKo: 'Branch C: 정석 방어, 의심 감수.', effects: {} },
+      { id: 'ch8c_alibi', labelKo: 'Branch C: 데이터 흐름은 Marcus 부서 작업입니다.', effects: { flag: 'ch8_chen_alibi' } },
+      { id: 'ch8c_partial_truth', labelKo: 'Branch C: 개인 분석이었습니다. Roth 데이터가 흥미로워서.', effects: { flag: 'ch8_partial_truth' } },
+      { id: 'ch8a_kara_command', labelKo: 'Branch A: Kara, 당신 지휘 따르겠습니다.', effects: { flag: 'ch8_kara_command' } },
+      { id: 'ch8a_distributed', labelKo: 'Branch A: 분산 공격. 셋이 각자.', effects: { flag: 'ch8_distributed_attack' } },
+      { id: 'ch8a_chen_hunt', labelKo: 'Branch A: Kara, Chen이 Prometheus 안에 있을 가능성?', effects: { flag: 'ch8_chen_hunt' } },
+    ],
+  },
+  [CH9_ID]: {
+    questId: CH9_ID,
+    campaignId: 'mcc_route',
+    chapterNumber: 9,
+    faction: 'mcc',
+    title: { ko: '깨진 동맹', en: 'Broken Alliance' },
+    requiredLevel: 9,
+    prerequisiteChapter: CH8_ID,
+    requiredBranchAny: ['mcc_route_a_active', 'mcc_route_b_active', 'mcc_route_c_active'],
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 2400,
+    location: { id: 'mars_four_fronts', displayNameKo: '화성 4개 전장', region: 'olympus_hellas_valles_kepler' },
+    environment: {
+      type: 'parallel_4_environments',
+      totalDurationSeconds: 2400,
+      battlefields: {
+        olympus: { environment: 'olympus_geothermal', difficulty: 3 },
+        hellas: { environment: 'night_freezing', difficulty: 5 },
+        valles: { environment: 'ion_storm_active', difficulty: 4 },
+        kepler: { environment: 'low_gravity_pocket', difficulty: 5 },
+      },
+    },
+    briefing: {
+      npcId: 'route_variant',
+      npcName: 'Chen Weiss / Amara Okafor / Kara Vex',
+      npcTitle: '4전장 전쟁 회의',
+      lines: [
+        { id: 'ch9bc_chen_01', ko: 'Branch B/C: 이건 전쟁이야. 공식 전쟁. 당신이 직접 지휘할 곳을 골라.' },
+        { id: 'ch9a_am_01', ko: 'Branch A: Chen 방어선 중 가장 약한 지점이 Kepler. 거기 당신이 지휘.' },
+        { id: 'ch9a_kv_01', ko: 'Kara: Olympus에 내 동생이 있어. 따로 부탁이야.' },
+        { id: 'ch9_pa_alert', ko: '미식별 함선 24척 진입. 함체 마크: PA-3, PA-7, PA-12.' },
+      ],
+      radio: [
+        { triggerSec: 1200, ko: 'Pilgrim Arms 4번째 파벌 확인. 모든 전장 혼전.' },
+      ],
+    },
+    choices: [
+      { id: 'ch9_lead_olympus', labelKo: 'Branch B/C: Olympus 지휘 (홈).', effects: { flag: 'ch9_chose_olympus' } },
+      { id: 'ch9_lead_hellas_kill_amara', labelKo: 'Branch B/C: Hellas 지휘 — Amara 사살.', effects: { flag: 'ch9_chose_hellas', flag2: 'amara_dead' } },
+      { id: 'ch9_lead_hellas_capture_amara', labelKo: 'Branch B/C: Hellas 지휘 — Amara 생포.', effects: { flag: 'ch9_chose_hellas', flag2: 'amara_captured' } },
+      { id: 'ch9_lead_valles_kill_butcher', labelKo: 'Branch B/C: Valles 지휘 — Butcher 사살.', effects: { flag: 'ch9_chose_valles', flag2: 'butcher_dead' } },
+      { id: 'ch9_lead_valles_let_butcher_flee', labelKo: 'Branch B/C: Valles 지휘 — Butcher 도주 허용.', effects: { flag: 'ch9_chose_valles', flag2: 'butcher_escaped' } },
+      { id: 'ch9_lead_kepler', labelKo: 'Branch B/C: Kepler 지휘 — Roth 데이터 영구 확보.', effects: { flag: 'ch9_chose_kepler' } },
+      { id: 'ch9a_kepler_only', labelKo: 'Branch A: Kepler 지휘 (Amara 명령).', effects: { flag: 'ch9_chose_kepler', flag2: 'chen_weiss_at_kepler' } },
+      { id: 'ch9a_chen_face_to_face', labelKo: 'Branch A: Kepler에서 Chen 직접 조우.', effects: { flag: 'chen_weiss_at_kepler' } },
+    ],
+  },
+  [CH10_ID]: {
+    questId: CH10_ID,
+    campaignId: 'mcc_route',
+    chapterNumber: 10,
+    faction: 'mcc',
+    title: { ko: '주주 엔딩', en: 'Shareholder Ending' },
+    requiredLevel: 10,
+    prerequisiteChapter: CH9_ID,
+    battleResolution: 'cinematic_only',
+    estimatedPlayTimeSeconds: 900,
+    location: { id: 'olympus_shareholder7_lounge', displayNameKo: 'Shareholder-7 라운지', region: 'olympus_orbit' },
+    environment: { type: 'cinematic', noCombat: true, phases: [{ phase: 0, startSec: 0 }] },
+    briefing: {
+      npcId: 'chen_weiss',
+      npcName: 'Chen Weiss / Li Fang / Pilgrim Arms',
+      npcTitle: 'MCC 루트 최종 선택',
+      lines: [
+        { id: 'end_intro_01', ko: '화성에서 가장 따뜻한 방으로 돌아왔다. 이번에는 당신의 선택이 마지막 문을 연다.' },
+        { id: 'end1_chen_01', ko: '당신은 이 회사에서 가장 안전한 자리를 얻었어. 내 주머니 안.' },
+        { id: 'end2_player_02', ko: 'Roth 데이터 사본을 갖고 있습니다. 시장에 풀리면 어떻게 될까요?' },
+        { id: 'end3_lifang_final', ko: '그게 이긴 거야. 의심하는 자만이 다음 회사를 만들지 않아.' },
+        { id: 'end4_chen_final', ko: '당신은 나보다 더 나빠질 수 있어. 축하해.' },
+      ],
+      radio: [],
+    },
+    choices: [
+      { id: 'ending_1_loyal_hire', labelKo: 'Ending 1: The Loyal Hire.', effects: { flag: 'chose_ending_1' } },
+      { id: 'ending_2_executive', labelKo: 'Ending 2: The Executive.', effects: { flag: 'chose_ending_2' } },
+      { id: 'ending_3_whistleblower', labelKo: 'Ending 3: The Whistleblower.', effects: { flag: 'chose_ending_3' } },
+      { id: 'ending_4_traitor', labelKo: 'Ending 4: The Traitor.', effects: { flag: 'chose_ending_4' } },
+      { id: 'bad_ending_dismissed', labelKo: 'Bad Ending: Forgotten Freelancer.', effects: { flag: 'chose_bad_ending' } },
     ],
   },
 };
@@ -717,6 +851,128 @@ function simulateCh7(progress) {
   };
 }
 
+function simulateCh8(progress) {
+  const choiceId = selectedChoiceId(progress, 'ch8b_standard');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:ch8`);
+  const branch = choiceId.startsWith('ch8a_') ? 'branch_a' : choiceId.startsWith('ch8c_') ? 'branch_c' : 'branch_b';
+  const secondary = [];
+  if (branch === 'branch_a') {
+    const collabBonus = choiceId === 'ch8a_kara_command' ? 0.18 : choiceId === 'ch8a_distributed' ? -0.16 : 0;
+    const elapsed = Math.round((choiceId === 'ch8a_distributed' ? 1040 : 920) * (0.86 + roll * 0.26));
+    const criticalSystemsDestroyed = Math.max(0, Math.min(5, Math.floor(3 + (1 - roll + collabBonus) * 3)));
+    const chenHuntSuccess = choiceId === 'ch8a_chen_hunt' && roll > 0.58;
+    let failure = null;
+    if (elapsed > 1080) failure = 'fail_caught_outside_window';
+    if (criticalSystemsDestroyed < 3) failure = failure || 'fail_critical_systems_intact';
+    if (!failure && criticalSystemsDestroyed >= 5) secondary.push('obj_5_critical_systems_destroyed');
+    if (!failure && roll > 0.32) secondary.push('obj_zero_collab_npc_lost');
+    return {
+      success: !failure || chenHuntSuccess,
+      failureReason: chenHuntSuccess ? null : failure,
+      branchChoice: branch,
+      metrics: {
+        route_branch: branch,
+        elapsed_sec: elapsed,
+        critical_systems_destroyed: criticalSystemsDestroyed,
+        shipyard_hp_percent: failure ? 70 : 0,
+        prometheus_completion_percent: chenHuntSuccess ? 0 : failure ? 100 : 0,
+        chen_hunt_success: chenHuntSuccess,
+        environmental_phase_reached: phaseForChapter(CH8_ID, elapsed),
+        secondary_completed: secondary,
+      },
+    };
+  }
+
+  const intelBonus = choiceId === 'ch8b_intel' ? 8 : 0;
+  const acceleratePenalty = choiceId === 'ch8b_accelerate' ? 12 : 0;
+  const suspicionPenalty = choiceId === 'ch8c_standard' ? 6 : choiceId === 'ch8c_partial_truth' ? 10 : 0;
+  const hp = Math.round(clampNumber(82 + (1 - roll) * 18 + intelBonus - acceleratePenalty - suspicionPenalty, 0, 100));
+  const elapsed = choiceId === 'ch8b_accelerate' ? Math.round(1440 + roll * 150) : Math.round(2050 + roll * 110);
+  let failure = null;
+  if (hp < 50) failure = 'fail_shipyard_destroyed';
+  else if (hp < 60) failure = 'fail_prometheus_incomplete';
+  if (!failure && hp >= 90) secondary.push('obj_perfect_defense');
+  if (!failure && roll > 0.46) secondary.push('obj_zero_player_ship_lost');
+  if (!failure && (choiceId === 'ch8b_intel' || choiceId === 'ch8c_alibi')) secondary.push('obj_phase_4_prepared');
+  return {
+    success: !failure,
+    failureReason: failure,
+    branchChoice: branch,
+    metrics: {
+      route_branch: branch,
+      elapsed_sec: elapsed,
+      shipyard_hp_percent: hp,
+      waves_repelled: failure ? 2 : 3,
+      prometheus_completion_percent: failure ? Math.max(0, hp - 20) : 100,
+      current_phase: phaseForChapter(CH8_ID, elapsed),
+      environmental_phase_reached: phaseForChapter(CH8_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateCh9(progress) {
+  const choiceId = selectedChoiceId(progress, 'ch9_lead_kepler');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:ch9`);
+  const branch = choiceId.startsWith('ch9a_') ? 'branch_a' : 'branch_b_or_c';
+  const battlefield = choiceId.includes('olympus') ? 'olympus'
+    : choiceId.includes('hellas') ? 'hellas'
+      : choiceId.includes('valles') ? 'valles'
+        : 'kepler';
+  const difficulty = battlefield === 'olympus' ? 3 : battlefield === 'valles' ? 4 : 5;
+  const chosenProgress = Math.round(clampNumber(102 - difficulty * 8 + (1 - roll) * 30 + (branch === 'branch_a' ? 8 : 0), 0, 100));
+  const npcLosses = Math.max(0, Math.floor((roll * 4) - (branch === 'branch_a' ? 0.5 : 0)));
+  const pilgrimDestroyed = Math.min(24, Math.round(10 + (1 - roll) * 10 + (battlefield === 'kepler' ? 4 : 0)));
+  const secondary = [];
+  if (pilgrimDestroyed >= 24) secondary.push('obj_destroy_pilgrim_arms_squadron');
+  if (branch === 'branch_a' && npcLosses === 0) secondary.push('obj_zero_critical_npc_lost');
+  let failure = null;
+  if (chosenProgress < 55) failure = 'fail_chosen_battlefield_lost';
+  if (npcLosses >= 3) failure = failure || 'fail_majority_battlefields_lost';
+  return {
+    success: !failure,
+    failureReason: failure,
+    branchChoice: branch,
+    metrics: {
+      route_branch: branch,
+      chosen_battlefield: battlefield,
+      chosen_battlefield_progress: chosenProgress,
+      other_battlefields_npc_results: {
+        olympus: battlefield === 'olympus' ? 'player_led' : roll < 0.78 ? 'held' : 'lost',
+        hellas: battlefield === 'hellas' ? 'player_led' : roll < 0.64 ? 'contested' : 'lost',
+        valles: battlefield === 'valles' ? 'player_led' : roll < 0.70 ? 'won' : 'lost',
+        kepler: battlefield === 'kepler' ? 'player_led' : roll < 0.72 ? 'secured' : 'contested',
+      },
+      pilgrim_arms_destroyed: pilgrimDestroyed,
+      critical_npc_status: choiceId.includes('kill_amara') ? 'amara_dead'
+        : choiceId.includes('capture_amara') ? 'amara_captured'
+          : choiceId.includes('kill_butcher') ? 'butcher_dead'
+            : choiceId.includes('flee') ? 'butcher_escaped'
+              : choiceId.startsWith('ch9a_') ? 'chen_weiss_at_kepler'
+                : 'none',
+      elapsed_sec: Math.round(1900 + roll * 480),
+      environmental_phase_reached: 0,
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateCh10(progress) {
+  const ending = selectedChoiceId(progress, 'bad_ending_dismissed');
+  return {
+    success: true,
+    failureReason: null,
+    branchChoice: ending,
+    metrics: {
+      chosen_ending: ending,
+      elapsed_sec: 900,
+      cinematic_only: true,
+      environmental_phase_reached: 0,
+      secondary_completed: ['mcc_route_completed'],
+    },
+  };
+}
+
 function simulateChapter(progress) {
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
   if (progress.quest_id === CH3_ID) return simulateCh3(progress);
@@ -724,6 +980,9 @@ function simulateChapter(progress) {
   if (progress.quest_id === CH5_ID) return simulateCh5(progress);
   if (progress.quest_id === CH6_ID) return simulateCh6(progress);
   if (progress.quest_id === CH7_ID) return simulateCh7(progress);
+  if (progress.quest_id === CH8_ID) return simulateCh8(progress);
+  if (progress.quest_id === CH9_ID) return simulateCh9(progress);
+  if (progress.quest_id === CH10_ID) return simulateCh10(progress);
   return simulateCh1(progress);
 }
 
@@ -924,6 +1183,131 @@ function calculateCh7Rewards(progress, sim) {
   return { GP: gp, XP: 1800, reputationDelta: { mcc: branch === 'branch_c' ? 15 : 25 }, items: [{ type: 'asset', code: 'helion_subsidiary_acquired', label: 'Helion Subsidiary Acquired', quantity: 1 }, { type: 'resource_stream', code: 'helion_o2_monthly', label: 'Helion O2 Monthly Stream', quantity: 500 }, { type: 'gp_stream', code: 'helion_monthly_gp', label: 'Helion Monthly GP Income', quantity: 5000 }], tags: [], loreFlags: lore, unlocks: ['mcc_campaign_ch8'], branchModifiers };
 }
 
+function calculateCh8Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'ch8b_standard');
+  const secondary = sim.metrics.secondary_completed || [];
+  const branch = sim.branchChoice || 'branch_b';
+  if (sim.metrics.chen_hunt_success) {
+    return {
+      GP: 300000,
+      XP: 5500,
+      reputationDelta: { mcc: -100, fsp: 50, cv: 10 },
+      items: [{ type: 'title_position', code: 'federal_foreign_advisor', label: 'Federal Foreign Advisor' }],
+      tags: ['whistleblower'],
+      loreFlags: ['chen_killed_in_prometheus', 'prometheus_destroyed_by_player', 'chose_ending_3', 'mcc_route_completed'],
+      unlocks: [CH10_ID],
+      branchModifiers: [{ targetChapter: 'any_route', key: 'cross_route_chen_dead', value: { chen_npc_unavailable: true, mcc_post_chen_state: true } }],
+    };
+  }
+  if (!sim.success) {
+    if (branch === 'branch_a') {
+      const lore = ['prometheus_completed'];
+      if (choiceId === 'ch8a_distributed') lore.push('kara_vex_dead');
+      return { GP: 0, XP: 500, reputationDelta: { mcc: -20, fsp: -10, cv: -10 }, tags: [], loreFlags: lore, branchModifiers: [{ targetChapter: CH9_ID, key: 'ch9_prometheus_active', value: { mcc_fleet_strength: 30, ch9_difficulty: -0.2 } }] };
+    }
+    const lore = [sim.failureReason === 'fail_shipyard_destroyed' ? 'prometheus_destroyed' : 'prometheus_construction_failed'];
+    return { GP: 0, XP: 500, reputationDelta: { mcc: -25 }, tags: [], loreFlags: lore, unlocks: [CH9_ID], branchModifiers: [{ targetChapter: CH9_ID, key: 'ch9_prometheus_lost', value: { mcc_fleet_strength: -30, ch9_difficulty: 0.3 } }] };
+  }
+  if (branch === 'branch_a') {
+    let gp = 100000; let rep = { mcc: -50, fsp: 30, cv: 20 };
+    if (secondary.includes('obj_5_critical_systems_destroyed')) gp += 25000;
+    if (secondary.includes('obj_zero_collab_npc_lost')) rep = mergeRep(rep, { fsp: 10, cv: 10 });
+    return {
+      GP: gp,
+      XP: 3000,
+      reputationDelta: rep,
+      items: [{ type: 'ship_choice', code: 'sequoia_or_mauler_choice', label: 'Sequoia or Mauler Choice' }],
+      tags: ['titan_killer'],
+      loreFlags: ['prometheus_destroyed', 'prometheus_destroyed_by_player'],
+      unlocks: [CH9_ID],
+      branchModifiers: [{ targetChapter: CH9_ID, key: 'ch9_prometheus_lost', value: { mcc_fleet_strength: -30, ch9_difficulty: 0.3 } }],
+    };
+  }
+  let gp = 150000;
+  if (secondary.includes('obj_perfect_defense')) gp += 30000;
+  if (secondary.includes('obj_zero_player_ship_lost')) gp += 15000;
+  if (secondary.includes('obj_phase_4_prepared')) gp += 10000;
+  const branchModifiers = [{ targetChapter: CH9_ID, key: 'ch9_prometheus_active', value: { mcc_fleet_strength: 30, ch9_difficulty: -0.2 } }];
+  if (branch === 'branch_c') branchModifiers.push({ targetChapter: CH10_ID, key: 'ch10_chen_pre_warned', value: { ch10_blackmail_difficulty: 1, chen_dialog: 'cold_pre_warned' } });
+  return {
+    GP: gp,
+    XP: 3500,
+    reputationDelta: { mcc: branch === 'branch_c' ? 30 : 40 },
+    items: [{ type: 'ship', code: 'prometheus_titan', label: 'Prometheus Titan', quantity: 1 }, { type: 'permanent_buff', code: 'mcc_fleet_atk_modifier', label: 'MCC Fleet ATK +5%', quantity: 5 }],
+    tags: [],
+    loreFlags: ['prometheus_completed'],
+    unlocks: [CH9_ID],
+    branchModifiers,
+  };
+}
+
+function calculateCh9Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'ch9_lead_kepler');
+  const battlefield = sim.metrics.chosen_battlefield || 'kepler';
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    const rep = sim.failureReason === 'fail_majority_battlefields_lost' ? { mcc: -40 } : { mcc: -25 };
+    return { GP: 0, XP: 500, reputationDelta: rep, tags: [], loreFlags: [], unlocks: [CH10_ID], branchModifiers: [{ targetChapter: CH10_ID, key: 'ch10_weakened_position', value: { endings_limited: sim.failureReason === 'fail_majority_battlefields_lost' } }] };
+  }
+  let gp = 250000;
+  let xp = battlefield === 'kepler' ? 5000 : battlefield === 'olympus' ? 4000 : 4500;
+  let rep = battlefield === 'hellas' ? { mcc: 35, fsp: -30 }
+    : battlefield === 'valles' ? { mcc: 35, cv: -30 }
+      : battlefield === 'kepler' && sim.branchChoice === 'branch_a' ? { fsp: 40, cv: 40 }
+        : { mcc: 30 };
+  const items = [];
+  const tags = [];
+  const loreFlags = [];
+  const branchModifiers = [];
+  if (battlefield === 'olympus') items.push({ type: 'ship', code: 'tessellate_battleship', label: 'Tessellate Battleship' });
+  if (battlefield === 'hellas') items.push({ type: 'ship', code: 'captured_sequoia', label: 'Captured Sequoia' });
+  if (battlefield === 'valles') items.push({ type: 'ship', code: 'captured_ironclad', label: 'Captured Ironclad' });
+  if (battlefield === 'kepler') {
+    items.push({ type: 'ship_choice', code: 'tessellate_sequoia_mauler_choice', label: 'Capital Ship Choice' });
+    loreFlags.push('roth_data_permanent_secure');
+  }
+  if (choiceId.includes('kill_amara')) {
+    loreFlags.push('amara_dead');
+    branchModifiers.push({ targetChapter: CH10_ID, key: 'ch10_npc_amara_dead', value: { fsp_eternal_hostility: true, ending_3_modified: true } });
+  } else if (choiceId.includes('capture_amara')) {
+    loreFlags.push('amara_captured');
+    branchModifiers.push({ targetChapter: CH10_ID, key: 'ch10_npc_amara_captured', value: { ch10_npc: 'amara_in_chains' } });
+  } else if (choiceId.includes('kill_butcher')) {
+    loreFlags.push('butcher_dead');
+  } else if (choiceId.includes('flee')) {
+    loreFlags.push('butcher_escaped');
+    branchModifiers.push({ targetChapter: CH10_ID, key: 'ch10_npc_butcher_active', value: { ch10_butcher_intervention: 'possible' } });
+  }
+  if (choiceId.startsWith('ch9a_')) loreFlags.push('chen_weiss_at_kepler');
+  loreFlags.push(`ch9_chose_${battlefield}`, 'pilgrim_arms_revealed_to_player');
+  branchModifiers.push({ targetChapter: CH10_ID, key: 'ch10_pilgrim_revealed', value: { ending_4_pilgrim_context: 'enriched' } });
+  if (secondary.includes('obj_destroy_pilgrim_arms_squadron')) {
+    gp += 50000;
+    items.push({ type: 'ship', code: 'pilgrim_pa3', label: 'Captured Pilgrim PA-3' });
+    tags.push('fourth_faction_slayer');
+    loreFlags.push('all_pilgrim_arms_destroyed');
+  }
+  if (secondary.includes('obj_zero_critical_npc_lost')) rep = mergeRep(rep, { fsp: 20, cv: 20 });
+  return { GP: gp, XP: xp, reputationDelta: rep, items, tags, loreFlags, unlocks: [CH10_ID], branchModifiers };
+}
+
+function calculateCh10Rewards(progress, sim) {
+  const ending = sim.branchChoice || selectedChoiceId(progress, 'bad_ending_dismissed');
+  if (ending === 'ending_1_loyal_hire') {
+    return { GP: 500000, XP: 5000, reputationDelta: { mcc: 50 }, items: [{ type: 'ship_fleet', code: 'mcc_loyal_hire_fleet', label: 'MCC Fleet Package', quantity: 5 }, { type: 'residence', code: 'olympus_residence', label: 'Olympus 4th Ridge Residence' }, { type: 'permanent_buff', code: 'annual_income_100k', label: 'Annual Income 100000 GP' }], tags: ['shareholder'], loreFlags: ['mcc_route_completed', 'chose_ending_1'], unlocks: [], branchModifiers: [] };
+  }
+  if (ending === 'ending_2_executive') {
+    return { GP: 800000, XP: 6000, reputationDelta: { mcc: 70 }, items: [{ type: 'ship_fleet', code: 'mcc_executive_fleet', label: 'Executive Fleet', quantity: 7 }, { type: 'corporate_asset', code: 'mcc_equity_8pct', label: 'MCC Equity 8%' }, { type: 'permanent_buff', code: 'mcc_equity_dividend_25k', label: 'Monthly MCC Dividend 25000 GP' }], tags: ['future_chairman'], loreFlags: ['mcc_route_completed', 'chose_ending_2'], unlocks: [], branchModifiers: [] };
+  }
+  if (ending === 'ending_3_whistleblower') {
+    return { GP: 300000, XP: 5500, reputationDelta: { mcc: -100, fsp: 50, cv: 10 }, items: [{ type: 'title_position', code: 'federal_foreign_advisor', label: 'Federal Foreign Advisor' }, { type: 'permanent_buff', code: 'federal_safe_haven', label: 'Federal Safe Haven' }], tags: ['whistleblower'], loreFlags: ['mcc_route_completed', 'chose_ending_3'], unlocks: [], branchModifiers: [{ targetChapter: 'any_route', key: 'cross_route_chen_dead', value: { chen_npc_unavailable: true, mcc_post_chen_state: true } }, { targetChapter: 'any_route_ng_plus', key: 'cross_route_lifang_alive', value: { lifang_in_federal_government: true } }] };
+  }
+  if (ending === 'ending_4_traitor') {
+    return { GP: 1000000, XP: 7000, reputationDelta: { mcc: -25, fsp: -25, cv: -25, pilgrim_arms: -25 }, items: [{ type: 'ship_fleet', code: 'pilgrim_arms_starter_fleet', label: 'Pilgrim Arms Starter Fleet', quantity: 30 }, { type: 'territory', code: 'kepler_territory', label: 'Kepler Crater Territory' }, { type: 'corporation_ownership', code: 'pilgrim_arms', label: 'Pilgrim Arms Ownership' }], tags: ['the_fourth_faction', 'the_traitor'], loreFlags: ['mcc_route_completed', 'chose_ending_4'], unlocks: [], branchModifiers: [{ targetChapter: 'any_route_ng_plus', key: 'cross_route_pilgrim_arms_exists', value: { pilgrim_arms_npc_faction_active: true } }] };
+  }
+  return { GP: 50000, XP: 1000, reputationDelta: {}, items: [], tags: ['forgotten_freelancer'], loreFlags: ['mcc_route_completed', 'chose_bad_ending'], unlocks: [], branchModifiers: [] };
+}
+
 function calculateRewards(progress, sim) {
   if (progress.quest_id === CH2_ID) return calculateCh2Rewards(progress, sim);
   if (progress.quest_id === CH3_ID) return calculateCh3Rewards(progress, sim);
@@ -931,6 +1315,9 @@ function calculateRewards(progress, sim) {
   if (progress.quest_id === CH5_ID) return calculateCh5Rewards(progress, sim);
   if (progress.quest_id === CH6_ID) return calculateCh6Rewards(progress, sim);
   if (progress.quest_id === CH7_ID) return calculateCh7Rewards(progress, sim);
+  if (progress.quest_id === CH8_ID) return calculateCh8Rewards(progress, sim);
+  if (progress.quest_id === CH9_ID) return calculateCh9Rewards(progress, sim);
+  if (progress.quest_id === CH10_ID) return calculateCh10Rewards(progress, sim);
   return calculateCh1Rewards(progress, sim);
 }
 
@@ -1004,6 +1391,14 @@ async function validateStartConditions(client, wallet, chapter) {
       );
       branchOverride = branch.rows.length > 0;
     }
+    if (chapter.questId === CH10_ID) {
+      const early = await client.query(
+        `SELECT 1 FROM player_lore_flags
+         WHERE wallet = $1 AND flag_id = 'chen_killed_in_prometheus'`,
+        [wallet]
+      );
+      branchOverride = early.rows.length > 0;
+    }
     if (!prereq.rows.length && !branchOverride) return { error: 'PREREQUISITE_NOT_MET', prerequisiteChapter: chapter.prerequisiteChapter };
   }
 
@@ -1028,8 +1423,7 @@ async function validateStartConditions(client, wallet, chapter) {
   return null;
 }
 
-async function validateChapterChoice(client, wallet, progress, choiceId) {
-  if (progress.quest_id !== CH7_ID) return null;
+async function getRouteBranch(client, wallet) {
   const branch = await client.query(
     `SELECT modifier_id FROM player_branch_modifiers
      WHERE wallet = $1
@@ -1038,10 +1432,56 @@ async function validateChapterChoice(client, wallet, progress, choiceId) {
     [wallet, ['mcc_route_a_active', 'mcc_route_b_active', 'mcc_route_c_active']]
   );
   const active = new Set(branch.rows.map(r => r.modifier_id));
-  const allowedPrefix = active.has('mcc_route_a_active') ? 'ch7a_'
-    : active.has('mcc_route_c_active') ? 'ch7c_'
-      : active.has('mcc_route_b_active') ? 'ch7b_'
-        : null;
+  if (active.has('mcc_route_a_active')) return 'a';
+  if (active.has('mcc_route_c_active')) return 'c';
+  if (active.has('mcc_route_b_active')) return 'b';
+  return null;
+}
+
+async function calculateEligibleEndings(client, wallet) {
+  const route = await getRouteBranch(client, wallet);
+  const repRes = await client.query(`SELECT value FROM player_reputation WHERE wallet = $1 AND faction = 'mcc'`, [wallet]);
+  const flagRes = await client.query(
+    `SELECT flag_id FROM player_lore_flags
+     WHERE wallet = $1 AND flag_id = ANY($2)`,
+    [wallet, ['dr_roth_data_obtained', 'ch6_chose_copy_silent', 'amara_dead', 'chen_killed_in_prometheus']]
+  );
+  const rewardRes = await client.query(
+    `SELECT 1 FROM campaign_reward_inbox
+     WHERE wallet = $1 AND reward_code = 'lifang_blackmail_data'
+     LIMIT 1`,
+    [wallet]
+  );
+  const flags = new Set(flagRes.rows.map(r => r.flag_id));
+  const mcc = parseInt(repRes.rows[0]?.value || 0, 10);
+  const hasBlackmail = flags.has('ch6_chose_copy_silent') || rewardRes.rows.length > 0;
+  const eligible = [];
+  if (flags.has('chen_killed_in_prometheus') || route === 'a') eligible.push('ending_3_whistleblower');
+  if (route === 'b') {
+    eligible.push('ending_1_loyal_hire');
+    if (mcc >= 80 && flags.has('amara_dead')) eligible.push('ending_2_executive');
+  }
+  if (route === 'c') {
+    eligible.push('ending_1_loyal_hire');
+    if (flags.has('dr_roth_data_obtained') && mcc >= 80) eligible.push('ending_2_executive');
+    if (hasBlackmail) eligible.push('ending_4_traitor');
+  }
+  if (!eligible.length) eligible.push('bad_ending_dismissed');
+  return { route, eligible: Array.from(new Set(eligible)), mcc, flags: Array.from(flags), hasBlackmail };
+}
+
+async function validateChapterChoice(client, wallet, progress, choiceId) {
+  if (![CH7_ID, CH8_ID, CH9_ID, CH10_ID].includes(progress.quest_id)) return null;
+  const route = await getRouteBranch(client, wallet);
+  if (progress.quest_id === CH10_ID) {
+    const endings = await calculateEligibleEndings(client, wallet);
+    if (!endings.eligible.includes(choiceId)) return { error: 'ENDING_NOT_ELIGIBLE', eligibleEndings: endings.eligible };
+    return null;
+  }
+  let allowedPrefix = null;
+  if (progress.quest_id === CH7_ID) allowedPrefix = route === 'a' ? 'ch7a_' : route === 'c' ? 'ch7c_' : route === 'b' ? 'ch7b_' : null;
+  if (progress.quest_id === CH8_ID) allowedPrefix = route === 'a' ? 'ch8a_' : route === 'c' ? 'ch8c_' : route === 'b' ? 'ch8b_' : null;
+  if (progress.quest_id === CH9_ID) allowedPrefix = route === 'a' ? 'ch9a_' : route ? 'ch9_lead_' : null;
   if (!allowedPrefix) return { error: 'BRANCH_REQUIRED', requiredAny: ['mcc_route_a_active', 'mcc_route_b_active', 'mcc_route_c_active'] };
   if (!choiceId.startsWith(allowedPrefix)) {
     return { error: 'CHOICE_NOT_AVAILABLE_FOR_ROUTE', requiredPrefix: allowedPrefix };
@@ -1272,6 +1712,19 @@ async function complete(wallet, sessionId) {
     if (!progress) {
       await client.query('ROLLBACK');
       return { error: 'SESSION_NOT_FOUND' };
+    }
+    if (progress.quest_id === CH10_ID) {
+      const choices = Array.isArray(progress.choices_payload) ? progress.choices_payload : [];
+      const endingChoice = choices[0]?.choice_id;
+      if (!endingChoice) {
+        await client.query('ROLLBACK');
+        return { error: 'ENDING_CHOICE_REQUIRED' };
+      }
+      const endingError = await validateChapterChoice(client, w, progress, endingChoice);
+      if (endingError) {
+        await client.query('ROLLBACK');
+        return endingError;
+      }
     }
     const sim = simulateChapter(progress);
     const rewards = calculateRewards(progress, sim);
