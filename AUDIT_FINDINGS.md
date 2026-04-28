@@ -1,6 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.16 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.17 / 2026-04-28)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
+
+### v5.17 내 영토 테두리 두께 완화 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 내 영토 금색 테두리 | ✅ | halo `7px → 4.5px`, crisp line `2.2px → 1.5px`로 완화. |
+| 배경 텍스처 가독성 | ✅ | 내 영토 fill alpha와 shadow 강도를 낮춰 Mars 텍스처를 덜 가리도록 조정. |
+| 커밋/푸시 운영 규칙 | ✅ | `CLAUDE.md`에 audit/changelog 동반 업데이트 규칙 추가. |
+
+검증:
+- `index.html` 인라인 script 파싱 통과
+
+---
 
 ### v5.16 영토 시인성/텍스처 예산 — 수정 완료
 
