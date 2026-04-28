@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-28 — 영토 시인성/텍스처 예산 개선 (v5.16)
+
+- **영토 색 체계 단순화**: 내 영토는 금색, 다른 플레이어는 cyan, NPC는 회보라 점선으로 통일해 지도에서 즉시 구분되도록 정리.
+- **이미지 영토 외곽선 개선**: 업로드 이미지가 있는 claim도 같은 색 체계를 따르는 두께/halo 외곽선을 적용.
+- **텍스처 품질 예산화**: 기본 데스크톱은 안정적인 4K 유지, 고성능 데스크톱만 6K 자동 사용, `localStorage.marsHiResTexture='1'`일 때만 8K 합성 사용.
+
+검증:
+- `index.html` 인라인 script 파싱
+
 ## 2026-04-28 — POI 광물 발견 실패 수정 (v5.15)
 
 - **POI mineral 로그 제약 수정**: `exploration_pois`는 `mineral` 보상을 생성하지만 `poi_discoveries` 로그 제약이 `mineral`을 허용하지 않아 발견 트랜잭션이 롤백되던 문제 수정.
