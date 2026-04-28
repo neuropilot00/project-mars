@@ -1,6 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.13 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.14 / 2026-04-28)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
+
+### v5.14 하이잭 자동승리 영토 표시 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| NPC/무함대 자동승리 표시 | ✅ | 새 픽셀 없이 적 픽셀만 하이잭해도 공격자 claim을 생성하고 이전 픽셀 `claim_id`를 새 claim으로 연결. |
+| 클릭/렌더 불일치 | ✅ | `pixels.owner`는 내 지갑인데 `claims` 대표 레코드가 없어 NPC 라벨/색으로 보이던 케이스 차단. |
+| Phase 2 audit | ✅ | 전투 승리 후 사후 생성한 claim id를 `hijack_battles.new_claim_id`에 기록. |
+| 즉시 렌더 | ✅ | 자동승리 응답 직후 프론트 임시 claim이 `lat/lng/w/h` 필드명을 사용하도록 수정. |
+
+검증:
+- `server/services/hijack.js` `node --check` 통과
+
+---
 
 ### v5.13 전수 버튼/하이잭 플로우 감사 — 수정 완료
 

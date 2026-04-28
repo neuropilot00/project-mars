@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-28 — 하이잭 자동승리 영토 표시 수정 (v5.14)
+
+- **NPC/무함대 자동승리 claim 생성 보강**: 새 픽셀 없이 기존 적 픽셀만 하이잭한 경우에도 공격자 `claims` 레코드를 생성하고, 이전된 픽셀의 `claim_id`를 새 claim에 연결.
+- **Phase 2 승리 audit 보강**: 전투 승리 후 새 claim을 사후 생성한 경우 `hijack_battles.new_claim_id`에도 기록.
+- **자동승리 즉시 렌더 수정**: 클라이언트가 새 claim을 임시 추가할 때 `lat/lng/w/h` 필드명을 사용하도록 수정해 새로고침 전에도 내 영토 골드 표시가 안정적으로 보이게 함.
+
+검증:
+- `server/services/hijack.js` `node --check`
+
 ## 2026-04-28 — 전수 버튼/하이잭 플로우 감사 (v5.13)
 
 - **하이잭 전투-only 진입점 차단**: Governor 대시보드 `HIJACK` 버튼과 Phase C 하이잭 모달이 `/api/hijack/declare`를 통해 영토 이전 없는 전투만 만들 수 있던 경로를 제거.

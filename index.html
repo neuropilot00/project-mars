@@ -14007,7 +14007,17 @@ async function confirmClaim(){
             var _existClaim=false;
             for(var _ci=0;_ci<claims.length;_ci++){if(claims[_ci].id===_newCid){_existClaim=true;break;}}
             if(!_existClaim){
-              claims.push({id:_newCid,owner:_myW,center_lat:selectedPlot?selectedPlot.lat:0,center_lng:selectedPlot?selectedPlot.lng:0,width:cw||1,height:ch||1});
+              claims.push({
+                id:_newCid,
+                owner:_myW,
+                lat:selectedPlot?selectedPlot.lat:0,
+                lng:selectedPlot?selectedPlot.lng:0,
+                w:cw||1,
+                h:ch||1,
+                label:'YOU',
+                nickname:walletState.nickname||'YOU',
+                ts:Date.now()
+              });
             }
           }
           _rebuildOwnerData();
