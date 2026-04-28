@@ -1,26 +1,54 @@
-# OCCUPY MARS — Codebase Audit (v5.10 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.11 / 2026-04-28)
 
-## 🔴 v5.10 변경 요약 (2026-04-28)
+## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
 
-### 네이티브 다이얼로그 전면 제거
+### 브라우저 네이티브 다이얼로그 — 완전 제거 완료
 
+**`confirm()` / `prompt()` / `alert()` 잔여 개수: 0**
+
+| 파일 | 교체 전 | 교체 후 | 사용 함수 |
+|------|---------|---------|-----------|
+| `index.html` | confirm 15 + prompt 10 + alert 1 = 26 | 0 | `gameConfirm()`, `gameInput()`, `gameAlert()` |
+| `admin.html` | confirm 70 + prompt 5 + alert 275 = 350 | 0 | `adminConfirm()`, `adminInput()`, `showToast()` |
+| `tactical-lab-v11.html` | confirm 1 | 0 | `#forfeit-overlay` 인라인 오버레이 |
+
+### 인게임 모달 함수 목록 (§18 상세)
+
+| 함수 | 파일 | 용도 | 비고 |
+|------|------|------|------|
+| `gameConfirm({icon,title,body,confirmText})` | index.html | 확인/취소 — Promise | async/await 필수 |
+| `gameInput({title,label,placeholder,defaultValue,maxLength})` | index.html | 텍스트 입력 — Promise | null=취소 |
+| `gameAlert(msg)` | index.html | 단순 알림 | 확인 버튼만 |
+| `shopConfirm(icon,title,msg,btn)` | index.html | 쇼핑 전용 — Promise | 신규코드엔 gameConfirm 사용 |
+| `adminConfirm(msg, title)` | admin.html | 확인/취소 — Promise | async/await 필수 |
+| `adminInput(msg, defaultVal, title)` | admin.html | 텍스트 입력 — Promise | null=취소 |
+| `showToast(msg, type, duration)` | admin.html | 단순 알림 토스트 | type: 'success'/'error'/'' |
+| `#forfeit-overlay` + `cmdForfeit()` | tactical-lab | RETREAT 전용 오버레이 | iframe 격리 환경 |
+
+---
+
+## v5.10 변경 요약 (2026-04-28)
+
+### 1단계: confirm() 제거
 | # | 내용 | 수정 |
 |---|------|------|
-| 1 | index.html confirm() 15곳 | gameConfirm({icon,title,body,confirmText}) Promise로 교체 |
-| 2 | admin.html confirm() 70곳 | adminConfirm(msg,title) Promise로 교체, 67개 함수 async 추가 |
+| 1 | index.html confirm() 15곳 | gameConfirm() Promise로 교체, 일부 함수 async화 |
+| 2 | admin.html confirm() 70곳 | adminConfirm() Promise로 교체, 67개 함수 async 추가 |
 | 3 | tactical-lab RETREAT confirm() | #forfeit-overlay CSS 인라인 오버레이로 교체 |
 
-### 잔여 네이티브 다이얼로그 (미교체)
-| 위치 | 종류 | 개수 | 우선순위 |
-|------|------|------|----------|
-| index.html | prompt() | 10 | 🟡 중 |
-| admin.html | prompt() | 5 | 🟡 중 |
-| admin.html | alert() | 274 | 🟢 낮음 |
+### 2단계: prompt() + alert() 완전 제거
+| # | 내용 | 수정 |
+|---|------|------|
+| 4 | admin.html showToast() 미정의 | 신규 구현 — 기존 95곳 undefined 호출 정상화 |
+| 5 | admin.html adminInput() 미정의 | 신규 구현 — prompt() 5개 교체, 3개 함수 async화 |
+| 6 | admin.html alert() 275개 | showToast()로 일괄 교체 |
+| 7 | index.html prompt() 10개 | gameInput()으로 교체 (영토이름·콘텐스트·렌탈·동맹 입출금·창설) |
+| 8 | index.html alert() 1개 | gameAlert()으로 교체 |
 
 ### 수정 파일
-- `index.html`: gameConfirm 사용, 일부 함수 async화
-- `admin.html`: adminConfirm CSS+HTML+JS 추가, 70곳 교체, 67개 async화
-- `assets/tactical-lab-v11.html`: #forfeit-overlay, closeForfeitOverlay(), confirmForfeit()
+- `index.html`: 26개 네이티브 다이얼로그 → 인게임 모달
+- `admin.html`: 350개 네이티브 다이얼로그 → showToast/adminConfirm/adminInput
+- `assets/tactical-lab-v11.html`: RETREAT 오버레이, SPEED 패널, maxHp WS 보정
 
 # OCCUPY MARS — Codebase Audit (v5.9 / 2026-04-27)
 

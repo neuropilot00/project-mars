@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-28 (§18 UI 모달 패턴 추가, §8/§13 업데이트) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-28 v5.11 (네이티브 다이얼로그 0개 달성, §8/§13/§18 업데이트) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -568,9 +568,7 @@ async function doSomething(id) {
 // 두 번째 인자 title 생략 시 'CONFIRM'
 ```
 
-> ⚠️ `admin.html`에는 아직 `prompt()` 5곳, `alert()` 274곳 남아있음.
-> `adminInput()` 함수 구현 후 prompt 교체 필요 (미구현).
-> alert은 `showAdminToast()` 구현 후 교체 (미구현).
+> ✅ `admin.html` `prompt()` / `alert()` 전부 제거 완료 (2026-04-28). `adminInput()` + `showToast()` 구현됨.
 
 ### assets/tactical-lab-v11.html — 독립 iframe
 
