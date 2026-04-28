@@ -6,6 +6,7 @@
 - **MCC Ch6 "내부고발자" 추가**: Li Fang 지원, Chen 보고, 자료 사본 보관 3개 루트 확정 선택과 `mcc_route_a/b/c_active` branch modifier, ending modifier, 태그/서사 플래그 지급 추가.
 - **MCC Ch7 "시장 전쟁" 추가**: Ch6 루트 기반 A/B/C 변형 선택지와 Market War 결과, CV 불안정/Chen 감시/Helion 자회사 인수 분기 추가.
 - **루트 잠금 검증 보강**: Ch7 시작 조건은 Ch6 루트 branch modifier를 요구하고, 선택 API도 활성 루트에 맞지 않는 Ch7 선택지를 서버에서 거부.
+- **운영 status 호환 수정**: `player_branch_modifiers` 조회가 실제 스키마의 `set_at` 컬럼을 사용하도록 정정해 `/api/campaign/status/:wallet` 500을 방지.
 - **통합 seed migration 추가**: Ch5~7 lore flags, branch modifiers, tags, NPC, data artifact, 신규 환경, chapter/environment config를 `195_mcc_campaign_ch5_to_ch7.sql`에 추가.
 - **핸드오프 문서 업데이트**: `CLAUDE.md`의 현재 캠페인 구현 범위와 마지막 migration 정보를 Ch1~7/v5.21 기준으로 갱신.
 

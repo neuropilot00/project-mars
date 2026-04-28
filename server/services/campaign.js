@@ -940,7 +940,7 @@ async function getStatus(wallet) {
     pool.query(`SELECT * FROM player_campaign_progress WHERE wallet = $1 ORDER BY chapter_number ASC`, [w]),
     pool.query(`SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction ASC`, [w]),
     pool.query(`SELECT target_chapter, modifier_key, modifier_value, source_quest_id, created_at FROM chapter_branch_modifiers WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
-    pool.query(`SELECT modifier_id FROM player_branch_modifiers WHERE wallet = $1 AND consumed_at IS NULL ORDER BY created_at DESC`, [w]),
+    pool.query(`SELECT modifier_id FROM player_branch_modifiers WHERE wallet = $1 AND consumed_at IS NULL ORDER BY set_at DESC`, [w]),
     pool.query(`SELECT quest_id, reward_type, reward_code, quantity, payload, created_at FROM campaign_reward_inbox WHERE wallet = $1 AND claimed = FALSE ORDER BY created_at DESC LIMIT 20`, [w]),
     pool.query(`SELECT tag_id FROM player_tags WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
     pool.query(`SELECT * FROM campaign_sessions WHERE wallet = $1 AND status = 'active' ORDER BY started_at DESC LIMIT 1`, [w]),

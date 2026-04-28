@@ -11,6 +11,7 @@
 | Ch6 Whistleblower | ✅ | Li Fang 지원/Chen 보고/자료 사본 보관 3개 선택으로 A/B/C 루트를 확정하고 tag, lore, ending branch modifier를 지급. |
 | Ch7 Market War | ✅ | Ch6 루트별 A/B/C 변형 선택지와 CV 군벌 제거, Helion 자회사 인수, Chen 감시 branch modifier를 반영. |
 | 루트 선택 검증 | ✅ | Ch7 시작 조건이 `mcc_route_a/b/c_active` 중 하나를 요구하고, `/api/campaign/choice`가 활성 루트와 맞지 않는 Ch7 선택지를 거부. |
+| status endpoint 호환 | ✅ | `player_branch_modifiers`의 실제 정렬 컬럼 `set_at`을 사용해 Ch7 branch availability 합산 중 500이 나지 않도록 수정. |
 | seed migration | ✅ | `195_mcc_campaign_ch5_to_ch7.sql`에 lore flag, branch modifier, tag, NPC, data artifact, 신규 환경, chapter/environment seed 추가. |
 | full engine 잔여 | 🟡 | Ch5 산소 보급선/Kepler 서버/CV 모선, Ch6 방사선 폭풍 탈출, Ch7 시장전 함대/경제 객체는 후속 전투 엔진 통합 필요. |
 
