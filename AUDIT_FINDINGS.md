@@ -1,6 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.14 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.15 / 2026-04-28)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
+
+### v5.15 POI 광물 발견 실패 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Ancient Ruins 발견 실패 | ✅ | `mineral` 보상 POI가 `poi_discoveries` CHECK 제약에서 롤백되던 문제 수정. |
+| 운영 DB 즉시 복구 | ✅ | 운영 `poi_discoveries_reward_type_check`에 `mineral` 허용 반영. |
+| 보상 표시 | ✅ | `mineral` 보상을 아이콘/이름/수량으로 표시하도록 프론트 보강. |
+
+검증:
+- 운영 DB 제약조건 확인
+- `index.html` 인라인 script 파싱 통과
+
+---
 
 ### v5.14 하이잭 자동승리 영토 표시 — 수정 완료
 

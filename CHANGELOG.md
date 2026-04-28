@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-28 — POI 광물 발견 실패 수정 (v5.15)
+
+- **POI mineral 로그 제약 수정**: `exploration_pois`는 `mineral` 보상을 생성하지만 `poi_discoveries` 로그 제약이 `mineral`을 허용하지 않아 발견 트랜잭션이 롤백되던 문제 수정.
+- **광물 보상 표시 개선**: POI 발견 결과에서 `mineral` 보상을 아이템처럼 아이콘/이름/수량으로 표시.
+
+검증:
+- 운영 DB `poi_discoveries_reward_type_check`에 `mineral` 허용 확인
+- `index.html` 인라인 script 파싱
+
 ## 2026-04-28 — 하이잭 자동승리 영토 표시 수정 (v5.14)
 
 - **NPC/무함대 자동승리 claim 생성 보강**: 새 픽셀 없이 기존 적 픽셀만 하이잭한 경우에도 공격자 `claims` 레코드를 생성하고, 이전된 픽셀의 `claim_id`를 새 claim에 연결.

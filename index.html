@@ -26655,7 +26655,7 @@ function _discoverPOI(poiId) {
     }
     var rw = data.reward;
     var rwText = '';
-    if (rw.type === 'item' && rw.itemName) {
+    if ((rw.type === 'item' || rw.type === 'mineral') && rw.itemName) {
       rwText = (rw.itemIcon||'📦') + ' ' + rw.itemName + (rw.amount > 1 ? ' x' + rw.amount : '');
     } else if (rw.type === 'gp') {
       rwText = '+' + rw.amount + ' GP';
