@@ -2231,80 +2231,38 @@ router.post('/dividends/force-distribute', adminAuth, async (req, res) => {
 });
 
 // ── Weekly Challenges Admin (Migration 109) ───────────────────────────────────
+function removedLegacyService(res, service) {
+  return res.status(410).json({
+    error: 'LEGACY_SERVICE_REMOVED',
+    service,
+  });
+}
 
 // GET /admin/api/weekly — stats + this week's instances
 router.get('/weekly', adminAuth, async (req, res) => {
-  try {
-    let weeklySvc;
-    try { weeklySvc = require('../services/weeklyChallenges'); } catch (_) {}
-    if (!weeklySvc) return res.status(503).json({ error: 'Weekly service unavailable' });
-    const stats = await weeklySvc.getAdminStats();
-    res.json(stats);
-  } catch (e) {
-    console.error('[Admin] weekly error:', e.message);
-    res.status(500).json({ error: e.message });
-  }
+  return removedLegacyService(res, 'weeklyChallenges');
 });
 
 // POST /admin/api/weekly/setting
 router.post('/weekly/setting', adminAuth, async (req, res) => {
-  const { key, value } = req.body;
-  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
-  if (!key.startsWith('weekly_')) return res.status(400).json({ error: 'Invalid weekly key' });
-  try {
-    await pool.query(`UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`, [key, String(value)]);
-    await auditLog(req, 'update_weekly_setting', key, { value });
-    res.json({ success: true });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+  return removedLegacyService(res, 'weeklyChallenges');
 });
 
 // POST /admin/api/weekly/settle — manually settle competitive challenges
 router.post('/weekly/settle', adminAuth, async (req, res) => {
-  try {
-    let weeklySvc;
-    try { weeklySvc = require('../services/weeklyChallenges'); } catch (_) {}
-    if (!weeklySvc) return res.status(503).json({ error: 'Weekly service unavailable' });
-    await weeklySvc.settleCompetitiveChallenges();
-    await auditLog(req, 'settle_weekly_competitive', 'all', {});
-    res.json({ success: true });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+  return removedLegacyService(res, 'weeklyChallenges');
 });
 
 // ── GP Burn Admin (Migration 108) ────────────────────────────────────────────
 
 // GET /admin/api/burn — stats + settings
 router.get('/burn', adminAuth, async (req, res) => {
-  try {
-    let burnService;
-    try { burnService = require('../services/gpBurn'); } catch (_) {}
-    if (!burnService) return res.status(503).json({ error: 'Burn service unavailable' });
-    const stats = await burnService.getAdminStats();
-    res.json(stats);
-  } catch (e) {
-    console.error('[Admin] burn error:', e.message);
-    res.status(500).json({ error: e.message });
-  }
+  return removedLegacyService(res, 'gpBurn');
 });
 
 // POST /admin/api/burn/setting — update a burn setting
 router.post('/burn/setting', adminAuth, async (req, res) => {
-  const { key, value } = req.body;
-  if (!key || value === undefined) return res.status(400).json({ error: 'key and value required' });
-  if (!key.startsWith('burn_')) return res.status(400).json({ error: 'Invalid burn key' });
-  try {
-    await pool.query(
-      `UPDATE settings SET value = $2, updated_at = NOW() WHERE key = $1`,
-      [key, String(value)]
-    );
-    await auditLog(req, 'update_burn_setting', key, { value });
-    res.json({ success: true });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+  return removedLegacyService(res, 'gpBurn');
 });
 
 // ── GP Staking Admin (Migration 107) ─────────────────────────────────────────
@@ -2880,67 +2838,27 @@ router.post('/alliances/:id/kick/:wallet', adminAuth, async (req, res) => {
 
 // GET /admin/api/lucky-boxes — stats + box types + settings
 router.get('/lucky-boxes', adminAuth, async (req, res) => {
-  let svc;
-  try { svc = require('../services/luckyBox'); } catch (_) {}
-  if (!svc) return res.status(503).json({ error: 'Service unavailable' });
-  try { res.json(await svc.getAdminStats()); }
-  catch (e) { res.status(500).json({ error: e.message }); }
+  return removedLegacyService(res, 'luckyBox');
 });
 
 // POST /admin/api/lucky-boxes/type — create a new box type
 router.post('/lucky-boxes/type', adminAuth, async (req, res) => {
-  const { name, icon, description, cost_gp, loot_table, max_per_day, category, sort_order } = req.body || {};
-  if (!name || !cost_gp || !loot_table) return res.status(400).json({ error: 'name, cost_gp, loot_table required' });
-  try {
-    const { rows } = await pool.query(
-      `INSERT INTO lucky_box_types (name, icon, description, cost_gp, loot_table, max_per_day, category, sort_order)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`,
-      [name, icon||'📦', description||null, parseFloat(cost_gp),
-       typeof loot_table === 'string' ? loot_table : JSON.stringify(loot_table),
-       parseInt(max_per_day||10), category||'standard', parseInt(sort_order||0)]);
-    await auditLog(req, 'lucky_box_type_create', `box:${rows[0].id}`, { name });
-    res.json({ ok: true, id: rows[0].id });
-  } catch (e) { res.status(400).json({ error: e.message }); }
+  return removedLegacyService(res, 'luckyBox');
 });
 
 // PUT /admin/api/lucky-boxes/type/:id — update box type
 router.put('/lucky-boxes/type/:id', adminAuth, async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const { name, icon, description, cost_gp, loot_table, max_per_day, category, sort_order, is_active } = req.body || {};
-  try {
-    await pool.query(
-      `UPDATE lucky_box_types SET
-         name=$1, icon=$2, description=$3, cost_gp=$4, loot_table=$5,
-         max_per_day=$6, category=$7, sort_order=$8, is_active=$9
-       WHERE id=$10`,
-      [name, icon||'📦', description||null, parseFloat(cost_gp),
-       typeof loot_table === 'string' ? loot_table : JSON.stringify(loot_table),
-       parseInt(max_per_day||10), category||'standard', parseInt(sort_order||0),
-       is_active !== false && is_active !== 'false', id]);
-    await auditLog(req, 'lucky_box_type_update', `box:${id}`, { name });
-    res.json({ ok: true });
-  } catch (e) { res.status(400).json({ error: e.message }); }
+  return removedLegacyService(res, 'luckyBox');
 });
 
 // DELETE /admin/api/lucky-boxes/type/:id — soft-delete (deactivate) box type
 router.delete('/lucky-boxes/type/:id', adminAuth, async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  try {
-    await pool.query('UPDATE lucky_box_types SET is_active=false WHERE id=$1', [id]);
-    await auditLog(req, 'lucky_box_type_delete', `box:${id}`, {});
-    res.json({ ok: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  return removedLegacyService(res, 'luckyBox');
 });
 
 // POST /admin/api/lucky-boxes/setting — update lucky_box_* settings
 router.post('/lucky-boxes/setting', adminAuth, async (req, res) => {
-  const { key, value } = req.body || {};
-  if (!key || !key.startsWith('lucky_box_')) return res.status(400).json({ error: 'Invalid key' });
-  try {
-    await pool.query(`UPDATE game_settings SET value=$1::jsonb WHERE key=$2`, [JSON.stringify(value), key]);
-    await auditLog(req, 'lucky_box_setting_update', key, { value });
-    res.json({ ok: true });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  return removedLegacyService(res, 'luckyBox');
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

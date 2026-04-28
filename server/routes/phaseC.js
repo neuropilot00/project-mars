@@ -224,14 +224,10 @@ router.get('/hijack/:id(\\d+)', async (req, res) => {
 
 router.post('/hijack/declare', requireAuth, async (req, res) => {
   try {
-    const wallet = getWallet(req);
-    if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
-
-    const result = await hijack.declareHijack({
-      attacker_wallet: wallet,
-      ...req.body,
+    return res.status(410).json({
+      error: 'HIJACK_DECLARE_DEPRECATED',
+      message: 'Use /api/hijack/declare-with-pp so PP settlement and territory transfer are recorded.',
     });
-    res.json(result);
   } catch (err) {
     const errorMap = {
       'ATK_FLEET_NOT_FOUND': 404, 'DEF_FLEET_NOT_FOUND': 404,

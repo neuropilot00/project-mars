@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-28 — 전수 버튼/하이잭 플로우 감사 (v5.13)
+
+- **하이잭 전투-only 진입점 차단**: Governor 대시보드 `HIJACK` 버튼과 Phase C 하이잭 모달이 `/api/hijack/declare`를 통해 영토 이전 없는 전투만 만들 수 있던 경로를 제거.
+- **`/api/hijack/declare` 서버 안전장치**: legacy endpoint는 `410 HIJACK_DECLARE_DEPRECATED`를 반환하도록 변경. 실제 영토 하이잭은 `/api/hijack/declare-with-pp`만 사용.
+- **죽은 서비스 UI 정리**: 제거된 `weeklyChallenges`, `gpBurn`, `luckyBox` 관련 player/admin 버튼이 404/503 API를 호출하지 않도록 no-op/안내 상태로 정리.
+- **보조 버튼 플로우 보강**: `govSaveDeclaration()` 누락, `/api/fleets/my` alias, World Event detail fallback 문제 수정.
+
+검증:
+- `index.html` / `admin.html` 인라인 script 파싱
+- `index.html` / `admin.html` / tactical-lab inline handler 전수 검사
+- 서버 JS 전체 `node --check`
+- hijack/battle/routes require 스모크
+- 제거된 legacy endpoint 문자열 grep 확인
+
 ## 2026-04-28 — 핵심 플레이 라인 검수 및 버그 수정 (v5.12)
 
 - **함선 건조/수리 재료 차감 수정**: `user_resource_inventory.resource_code`로 접근하던 경로를 실제 스키마인 `resource_id` 기반으로 정정.

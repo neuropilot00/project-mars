@@ -2868,8 +2868,8 @@ function switchTab(tab) {
   if (tab === 'shop') { loadShopItems(); loadShopStats(); loadAdminShields(); }
   if (tab === 'battles') { loadBattles(); }
   if (tab === 'guild') { loadAdminGuilds(); loadAdminGuildWars(); loadPhaseDAdmin(); }
-  if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); loadWeeklyAdmin(); }
-  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadBurnAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadLuckyBoxAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); loadBannerAdmin(); loadJournalAdmin(); loadTprestigeAdmin(); loadAnnounceAdmin(); loadTombstoneAdmin(); loadMilestoneAdmin(); }
+  if (tab === 'season') { loadAdminSeasons(); loadAchievementsAdmin(); }
+  if (tab === 'gp') { loadGPStats(); loadGPTransfersAdmin(); loadLotteryAdmin(); loadStakingAdmin(); loadDividendAdmin(); loadMonumentAdmin(); loadUpgradeAdmin(); loadBountyAdmin(); loadShieldAdmin(); loadCraftingAdmin(); loadDuelAdmin(); loadRentalAdmin(); loadContestAdmin(); loadAllianceAdmin(); loadVipAdmin(); loadExpeditionAdmin(); loadBrandingAdmin(); loadSpellsAdmin(); loadTournamentsAdmin(); loadBroadcastsAdmin(); loadProfileAdmin(); loadTiersAdmin(); loadRaffleAdmin(); loadWagerAdmin(); loadTevtAdmin(); loadPrestigeAdmin(); loadBeaconAdmin(); loadDonationAdmin(); loadPollsAdmin(); loadStatusAdmin(); loadTdescAdmin(); loadCapsuleAdmin(); loadSponsorAdmin(); loadVtagAdmin(); loadTributeAdmin(); loadGraffitiAdmin(); loadHighlightAdmin(); loadRatingAdmin(); loadBannerAdmin(); loadJournalAdmin(); loadTprestigeAdmin(); loadAnnounceAdmin(); loadTombstoneAdmin(); loadMilestoneAdmin(); }
   if (tab === 'poi') { loadPOIDrops(); }
   if (tab === 'governance') { loadGovData(); loadPhaseAAdmin(); loadPhaseCAdmin(); }
   if (tab === 'lore') { loadLoreData(); }
@@ -5455,7 +5455,10 @@ function loadWeeklyAdmin() {
   var tableEl    = document.getElementById('weeklyAdmTable');
   var settingsEl = document.getElementById('weeklyAdmSettings');
   if (!statsEl) return;
-  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Weekly challenges service is unavailable.</div>';
+  if (tableEl) tableEl.innerHTML = '<div style="color:#666;font-size:10px">Legacy weekly challenge tables/services were removed.</div>';
+  if (settingsEl) settingsEl.innerHTML = '';
+  return;
 
   apiJson('/admin/api/weekly').catch(function(){ return null; }).then(function(data) {
     if (!data) { statsEl.innerHTML = '<div style="color:red;font-size:10px">Failed to load — run migration 109</div>'; return; }
@@ -5499,6 +5502,8 @@ function loadWeeklyAdmin() {
 }
 
 function saveWeeklySetting(key) {
+  showToast('Weekly challenges service is unavailable');
+  return;
   var inp = document.getElementById('wkly_set_' + key);
   if (!inp) return;
   fetch('/admin/api/weekly/setting', {
@@ -5513,6 +5518,8 @@ function saveWeeklySetting(key) {
 }
 
 async function settleWeeklyCompetitive() {
+  showToast('Weekly challenges service is unavailable');
+  return;
   if (!await adminConfirm('Manually settle last week\'s competitive challenges now?')) return;
   fetch('/admin/api/weekly/settle', {
     method: 'POST',
@@ -9135,9 +9142,11 @@ function loadLuckyBoxAdmin() {
   var recentEl   = document.getElementById('luckyBoxAdmRecent');
   var settingsEl = document.getElementById('luckyBoxAdmSettings');
   if (!statsEl) return;
-  [statsEl, typesEl, recentEl, settingsEl].forEach(function(el) {
-    if (el) el.innerHTML = '<span style="color:#555;font-size:11px">Loading…</span>';
-  });
+  statsEl.innerHTML = '<span style="color:#888;font-size:11px">Lucky boxes service is unavailable.</span>';
+  if (typesEl) typesEl.innerHTML = '<span style="color:#666;font-size:11px">Legacy lucky box tables/services were removed.</span>';
+  if (recentEl) recentEl.innerHTML = '';
+  if (settingsEl) settingsEl.innerHTML = '';
+  return;
   fetch('/admin/api/lucky-boxes', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
     .then(function(r) { return r.json(); })
     .then(function(d) {
@@ -9205,6 +9214,8 @@ function loadLuckyBoxAdmin() {
 }
 
 function saveLuckyBoxSetting(key) {
+  showToast('Lucky boxes service is unavailable');
+  return;
   var val = document.getElementById('lbs_'+key);
   if (!val) return;
   fetch('/admin/api/lucky-boxes/setting', {
@@ -9218,6 +9229,8 @@ function saveLuckyBoxSetting(key) {
 }
 
 function openLuckyBoxModal(id) {
+  showToast('Lucky boxes service is unavailable');
+  return;
   var m = document.getElementById('luckyBoxModal');
   var titleEl = document.getElementById('luckyBoxModalTitle');
   if (!m) return;
@@ -9267,6 +9280,8 @@ function closeLuckyBoxModal() {
 }
 
 function saveLuckyBoxType() {
+  showToast('Lucky boxes service is unavailable');
+  return;
   var id       = document.getElementById('lbEditId').value;
   var lootStr  = document.getElementById('lbLootTable').value;
   var lootData;
@@ -9300,6 +9315,8 @@ function saveLuckyBoxType() {
 }
 
 async function deleteLuckyBoxType(id) {
+  showToast('Lucky boxes service is unavailable');
+  return;
   if (!await adminConfirm('Deactivate lucky box type #'+id+'?')) return;
   fetch('/admin/api/lucky-boxes/type/'+id, {
     method: 'DELETE',
@@ -9860,7 +9877,10 @@ function loadBurnAdmin() {
   var recentEl  = document.getElementById('burnAdmRecentTable');
   var settingsEl = document.getElementById('burnAdmSettings');
   if (!statsEl) return;
-  statsEl.innerHTML = '<div style="color:#888;font-size:10px">Loading...</div>';
+  statsEl.innerHTML = '<div style="color:#888;font-size:10px">GP Burn service is unavailable.</div>';
+  if (recentEl) recentEl.innerHTML = '<div style="color:#666;font-size:10px">Legacy GP burn tables/services were removed.</div>';
+  if (settingsEl) settingsEl.innerHTML = '';
+  return;
 
   apiJson('/admin/api/burn').catch(function(){ return null; }).then(function(data) {
     if (!data) { statsEl.innerHTML = '<div style="color:red;font-size:10px">Failed to load — run migration 108</div>'; return; }
@@ -9910,6 +9930,8 @@ function loadBurnAdmin() {
 }
 
 function saveBurnSetting(key) {
+  showToast('GP Burn service is unavailable');
+  return;
   var inp = document.getElementById('burn_set_' + key);
   if (!inp) return;
   fetch('/admin/api/burn/setting', {

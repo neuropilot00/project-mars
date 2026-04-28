@@ -1,6 +1,24 @@
-# OCCUPY MARS — Codebase Audit (v5.12 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.13 / 2026-04-28)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
+
+### v5.13 전수 버튼/하이잭 플로우 감사 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 하이잭 진입점 | ✅ | 영토 이전 없는 legacy `/api/hijack/declare` UI 진입 제거. 실제 영토 하이잭은 `/api/hijack/declare-with-pp`만 사용. |
+| legacy 하이잭 API | ✅ | 서버에서 `/api/hijack/declare`는 `410 HIJACK_DECLARE_DEPRECATED`로 차단. |
+| 제거된 서비스 버튼 | ✅ | `weeklyChallenges`, `gpBurn`, `luckyBox` player/admin UI가 404/503 API를 호출하지 않도록 정리. |
+| 버튼 핸들러 | ✅ | `index.html`, `admin.html`, tactical-lab inline handler 전수 검사에서 누락 0건. |
+| 보조 API 연결 | ✅ | `/api/fleets/my` alias 추가, World Event fallback, Governor declaration 저장 버튼 수정. |
+
+검증:
+- `index.html` / `admin.html` 인라인 script 파싱 통과
+- 전체 서버 JS `node --check` 통과
+- hijack/battle/routes require 스모크 통과
+- 제거된 legacy endpoint 문자열 grep 확인
+
+---
 
 ### v5.12 핵심 플레이 라인 검수 — 수정 완료
 

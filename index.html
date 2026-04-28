@@ -7341,7 +7341,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <button onclick="openShipyard()" style="width:100%;margin-top:8px;padding:10px;border-radius:6px;background:linear-gradient(135deg,rgba(79,195,247,.15),rgba(79,195,247,.05));border:1px solid rgba(79,195,247,.35);color:#5cbbff;font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px">⚓ 조선소 열기 / OPEN SHIPYARD</button>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
             <button onclick="openFactionModal()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,209,102,.04));border:1px solid rgba(255,209,102,.35);color:#ffd166;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_faction_btn">🛡 FACTION</button>
-            <button onclick="openHijackModal()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.13),rgba(232,72,85,.04));border:1px solid rgba(232,72,85,.35);color:#ff6b6b;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_hijack_btn">⚔ HIJACK</button>
+            <button onclick="showHijackEntryHint()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.13),rgba(232,72,85,.04));border:1px solid rgba(232,72,85,.35);color:#ff6b6b;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_hijack_btn">⚔ HIJACK</button>
             <button onclick="openShipRegistry()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(92,187,255,.13),rgba(92,187,255,.04));border:1px solid rgba(92,187,255,.35);color:#5cbbff;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_registry_btn">🚀 REGISTRY</button>
             <button onclick="openMineralsPanel()" style="padding:9px 6px;border-radius:6px;background:linear-gradient(135deg,rgba(129,199,132,.13),rgba(129,199,132,.04));border:1px solid rgba(129,199,132,.35);color:#81c784;font-family:var(--fn);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.4px" data-i18n="gov_minerals_btn">💎 MINERALS</button>
           </div>
@@ -19777,116 +19777,23 @@ function renderLuckyBoxUnavailable() {
 }
 
 function loadLuckyBoxTypes() {
-  var el = document.getElementById('luckyBoxList');
-  if (!el) return;
-  el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">Loading crates…</div>';
-  fetch('/api/lucky-boxes').then(function(r){return r.json();}).then(function(boxes){
-    if (!Array.isArray(boxes) || !boxes.length) {
-      el.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:20px">No crates available</div>';
-      return;
-    }
-    el.innerHTML = boxes.map(function(box) {
-      var catColor = {standard:'var(--gold)',premium:'#ce93d8',seasonal:'#81d4fa',event:'#ff8c42'}[box.category]||'var(--gold)';
-      var lootEntries = box.loot_table || [];
-      var topPrize = '';
-      var maxAmt = 0;
-      (lootEntries).forEach(function(e) { if (Number(e.amount) > maxAmt) { maxAmt = Number(e.amount); topPrize = e.label || String(e.amount); } });
-      return '<div style="padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(255,204,2,.08),rgba(255,204,2,.02));border:1px solid rgba(255,204,2,.2);display:flex;gap:10px;align-items:flex-start">'
-        + '<span style="font-size:36px;line-height:1;flex-shrink:0">' + (box.icon||'📦') + '</span>'
-        + '<div style="flex:1;min-width:0">'
-          + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
-            + '<span style="font-size:12px;color:var(--tx);font-weight:700">' + _escHtml(box.name) + '</span>'
-            + '<span style="font-size:8px;color:'+catColor+';font-family:var(--fn);padding:2px 5px;border:1px solid '+catColor+';border-radius:3px;opacity:.7">' + (box.category||'').toUpperCase() + '</span>'
-          + '</div>'
-          + '<div style="font-size:9px;color:var(--tx3);margin-bottom:6px">' + _escHtml(box.description||'') + '</div>'
-          + '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
-            + '<div style="font-size:10px;color:#ffcc02;font-weight:700">' + parseFloat(box.cost_gp).toFixed(0) + ' GP</div>'
-            + (topPrize ? '<div style="font-size:9px;color:var(--tx3)">Top prize: <span style="color:#ffcc02">' + _escHtml(topPrize) + '</span></div>' : '')
-            + (box.max_per_day > 0 ? '<div style="font-size:9px;color:var(--tx3)">' + box.max_per_day + '/day</div>' : '')
-          + '</div>'
-        + '</div>'
-        + '<button onclick="openLuckyBox(' + box.id + ',\'' + _escHtml(box.name) + '\',' + parseFloat(box.cost_gp) + ')" style="flex-shrink:0;padding:8px 14px;border-radius:6px;background:linear-gradient(135deg,rgba(255,204,2,.3),rgba(255,204,2,.12));border:1px solid rgba(255,204,2,.5);color:#ffcc02;cursor:pointer;font-family:var(--fn);font-size:10px;font-weight:700;white-space:nowrap" data-i18n="lucky_box_open_btn">🎁 OPEN</button>'
-        + '</div>';
-    }).join('');
-  }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:10px;text-align:center;padding:12px">'+e.message+'</div>'; });
+  renderLuckyBoxUnavailable();
 }
 
 function loadLuckyBoxRecentFeed() {
-  var el = document.getElementById('luckyBoxFeed');
-  if (!el) return;
-  el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">Loading…</div>';
-  fetch('/api/lucky-boxes/recent?limit=15').then(function(r){return r.json();}).then(function(rows){
-    if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:9px;text-align:center;padding:6px">No opens yet</div>'; return; }
-    el.innerHTML = rows.map(function(r) {
-      var nick = r.nick || (r.wallet.slice(0,8) + '…');
-      var rewardColor = r.reward_type === 'gp' || r.reward_type === 'gp_percent' ? '#ffcc02' : '#a0e8a0';
-      return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
-        + '<span style="font-size:14px">' + (r.box_icon||'📦') + '</span>'
-        + '<span style="font-size:9px;color:var(--tx);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _escHtml(nick) + ' opened <b>' + _escHtml(r.box_name||'') + '</b></span>'
-        + '<span style="font-size:9px;color:'+rewardColor+';white-space:nowrap;font-weight:700">' + _escHtml(r.reward_label||'') + '</span>'
-        + '</div>';
-    }).join('');
-  }).catch(function(){});
+  renderLuckyBoxUnavailable();
 }
 
 function openLuckyBox(boxId, name, cost) {
   showToast('Crates are currently unavailable', 'warn');
-  return;
-  var w = walletState && walletState.address;
-  if (!w) { showToast(t('err_connect_wallet')||'Connect wallet first','error'); return; }
-  gameConfirm({ title: t('lucky_box_confirm_title')||'Open Crate?', body: 'Open <b>' + _escHtml(name) + '</b> for <b>' + cost + ' GP</b>?' }).then(function(ok){
-    if (!ok) return;
-    fetch('/api/lucky-boxes/open', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ wallet: w, boxTypeId: boxId })
-    }).then(function(r){return r.json();}).then(function(d){
-      if (d.error) { showToast(d.error,'error'); return; }
-      var reward = d.reward || {};
-      var rewardStr = reward.label || (reward.type === 'gp' ? reward.amount + ' GP' : reward.type);
-      // Show result in a fun way
-      var isGood = (reward.type === 'gp' || reward.type === 'gp_percent') && reward.amount >= cost;
-      var resultColor = isGood ? '#ffcc02' : (reward.amount > 0 ? '#a0e8a0' : 'var(--tx)');
-      showToast((isGood ? '🎉 ' : '📦 ') + d.boxIcon + ' ' + rewardStr + (reward.type.includes('gp') ? ' received!' : ' won!'), 'success');
-      // Refresh boxes for daily limit update
-      loadLuckyBoxTypes();
-      loadLuckyBoxRecentFeed();
-    }).catch(function(e){ showToast(e.message,'error'); });
-  });
 }
 
 function toggleLuckyBoxHistory() {
   showToast('Crate history is currently unavailable', 'warn');
-  return;
-  var panel = document.getElementById('luckyBoxHistoryPanel');
-  if (!panel) return;
-  var open = panel.style.display !== 'none';
-  panel.style.display = open ? 'none' : 'block';
-  if (!open) loadLuckyBoxHistory();
 }
 
 function loadLuckyBoxHistory() {
-  var el = document.getElementById('luckyBoxHistoryPanel');
-  if (!el) return;
-  var w = walletState && walletState.address;
-  if (!w) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px">Connect wallet first</div>'; return; }
-  el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">Loading…</div>';
-  fetch('/api/lucky-boxes/my?wallet=' + encodeURIComponent(w) + '&limit=20')
-    .then(function(r){return r.json();})
-    .then(function(rows){
-      if (!rows.length) { el.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:8px">No history yet</div>'; return; }
-      el.innerHTML = rows.map(function(r) {
-        var rewardColor = (r.reward_type === 'gp' || r.reward_type === 'gp_percent') ? '#ffcc02' : '#a0e8a0';
-        return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
-          + '<span style="font-size:12px">' + (r.box_icon||'📦') + '</span>'
-          + '<div style="flex:1;min-width:0">'
-            + '<div style="font-size:9px;color:var(--tx)">' + _escHtml(r.box_name||'') + '</div>'
-            + '<div style="font-size:8px;color:var(--tx3)">' + new Date(r.created_at).toLocaleDateString() + ' · spent: ' + r.gp_spent + ' GP</div>'
-          + '</div>'
-          + '<span style="font-size:9px;color:'+rewardColor+';font-weight:700">' + _escHtml(r.reward_label||'') + '</span>'
-          + '</div>';
-      }).join('');
-    }).catch(function(e){ el.innerHTML = '<div style="color:var(--red);font-size:10px">'+e.message+'</div>'; });
+  renderLuckyBoxUnavailable();
 }
 
 // ── VIP PASS VIEW (Migration 121) ─────────────────────────────────────────
@@ -25133,32 +25040,7 @@ function renderBurnPanel(types) {
 }
 
 function doBurnGP(burnType, cost) {
-  if (!walletState.address) return showToast('Connect wallet first', 'error');
-  gameConfirm({
-    icon: '🔥',
-    title: 'BURN GP',
-    body: 'Permanently burn <b style="color:var(--mars)">' + Math.round(cost) + ' GP</b> for this effect?<br><span style="font-size:10px;color:var(--tx3)">This GP is gone forever.</span>',
-    confirmLabel: '🔥 BURN',
-    confirmStyle: 'background:rgba(255,80,30,.3);border-color:rgba(255,80,30,.5);color:var(--mars)',
-    onConfirm: function() {
-      fetch('/api/burn/burn', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ wallet: walletState.address, burnType: burnType })
-      })
-        .then(function(r){ return r.json(); })
-        .then(function(d) {
-          if (d.error) return showToast(d.error, 'error');
-          var msg = d.extended
-            ? '🔥 ' + d.name + ' extended! (' + d.hours + 'h added)'
-            : '🔥 ' + d.name + ' activated! (' + d.hours + 'h)';
-          showToast(msg, 'success');
-          loadBurnPanel();
-          loadWalletData();
-        })
-        .catch(function() { showToast('Burn failed', 'error'); });
-    }
-  });
+  showToast('GP Burn is currently unavailable', 'warn');
 }
 
 async function harvestMining(){
@@ -30722,25 +30604,6 @@ function loadWeeklyChallenges() {
   if (!sec) return;
   // Weekly challenges service was removed with the legacy phantom tables.
   sec.style.display = 'none';
-  return;
-  var container = document.getElementById('weeklyChallengesContainer');
-  container.innerHTML = '<div style="text-align:center;color:var(--tx3);font-size:10px;padding:12px">Loading...</div>';
-
-  var wallet = walletState.address || '';
-  fetch('/api/weekly/challenges?wallet=' + wallet)
-    .then(function(r){ return r.json(); })
-    .then(function(data) {
-      if (!data.enabled) {
-        container.innerHTML = '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px">Weekly challenges are currently disabled</div>';
-        return;
-      }
-      var label = document.getElementById('weeklyWeekLabel');
-      if (label) label.textContent = 'Week: ' + data.week_start + ' — ' + data.week_end;
-      renderWeeklyChallenges(data.challenges || []);
-    })
-    .catch(function() {
-      container.innerHTML = '<div style="color:var(--mars);font-size:10px;text-align:center;padding:8px">Failed to load weekly challenges</div>';
-    });
 }
 
 function renderWeeklyChallenges(challenges) {
@@ -30803,21 +30666,6 @@ function renderWeeklyChallenges(challenges) {
 
 function claimWeeklyReward(instanceId) {
   showToast('Weekly challenges are currently unavailable', 'warn');
-  return;
-  if (!walletState.address) return showToast('Connect wallet first', 'error');
-  fetch('/api/weekly/claim', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ wallet: walletState.address, instanceId: instanceId })
-  })
-    .then(function(r){ return r.json(); })
-    .then(function(d) {
-      if (d.error) return showToast(d.error, 'error');
-      showToast('🎯 +' + d.reward_gp + ' GP claimed!', 'success');
-      loadWeeklyChallenges();
-      loadWalletData();
-    })
-    .catch(function() { showToast('Claim failed', 'error'); });
 }
 
 // ── Bounty Board ──────────────────────────────────────────────────────────────
@@ -42791,7 +42639,19 @@ function closeBracket() {
 // Phase C: Hijack
 // ═════════════════════════════════════════════════════════════════
 
+function showHijackEntryHint() {
+  var msg = '하이잭은 맵에서 대상 영토를 선택한 뒤 영토 정보 패널의 HIJACK 버튼으로 시작하세요.';
+  if (typeof showFactionToast === 'function') showFactionToast(msg, 'warn');
+  else if (typeof showToast === 'function') showToast(msg, 'warn');
+  else alert(msg);
+}
+window.showHijackEntryHint = showHijackEntryHint;
+
 async function openHijackModal(prefill) {
+  if (!prefill || !prefill.useLegacyDeclare) {
+    showHijackEntryHint();
+    return;
+  }
   if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
 
   try {
@@ -42874,64 +42734,7 @@ function closeHijack() {
 }
 
 async function confirmHijack() {
-  const atkFleetId = parseInt(document.getElementById('hijackAtkFleet').value);
-  const claimId = parseInt(document.getElementById('hijackClaimId').value);
-  const defWallet = document.getElementById('hijackDefWallet').value.trim();
-  const defFleetId = parseInt(document.getElementById('hijackDefFleetId').value);
-
-  if (!atkFleetId || !claimId || !defWallet || !defFleetId) {
-    showFactionToast('모든 필드를 입력해주세요', 'error');
-    return;
-  }
-
-  var ok = await gameConfirm({
-    title: '⚔ HIJACK PHASE 1',
-    icon: '🔀',
-    body: '<div style="padding:8px;border-radius:6px;background:linear-gradient(135deg,rgba(232,72,85,.15),rgba(232,72,85,.04));border:1px solid rgba(232,72,85,.35);margin-bottom:6px">'
-        + '<div style="font-weight:700;font-size:12px;color:#ff6b6b;letter-spacing:.4px;margin-bottom:4px">선전포고 · 영토 탈취</div>'
-        + '<div style="font-size:10px;color:rgba(255,255,255,.75);line-height:1.5">Phase 1에서는 <b>프리깃/구축함</b>만 투입됩니다.<br>승리 시 Phase 2로 전 함선 투입 가능.</div>'
-        + '</div>',
-    info: [
-      { k:'Attacker Fleet', v:'#'+atkFleetId },
-      { k:'Target Claim',   v:'#'+claimId },
-      { k:'Defender',       v: (defWallet||'').slice(0,10)+'… · #'+defFleetId }
-    ],
-    confirmText: '⚔ DECLARE HIJACK'
-  });
-  if (!ok) return;
-
-  try {
-    const res = await fetch('/api/hijack/declare', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-      body: JSON.stringify({
-        target_claim_id: claimId,
-        atk_fleet_id: atkFleetId,
-        def_wallet: defWallet,
-        def_fleet_id: defFleetId,
-      })
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-      const msgMap = {
-        'NO_PHASE1_SHIPS': '프리깃/구축함이 없습니다',
-        'TOO_MANY_PHASE1_SHIPS': `Phase 1은 최대 ${data.meta?.max || 20}척`,
-        'ATK_FLEET_IN_BATTLE': '공격 함대가 전투 중',
-        'DEF_FLEET_IN_BATTLE': '방어 함대가 전투 중',
-      };
-      showFactionToast(msgMap[data.error] || `오류: ${data.error}`, 'error');
-      return;
-    }
-
-    showFactionToast('🔀 Phase 1 전투 시작', 'success');
-    closeHijack();
-    if (data.phase1_battle_id) setTimeout(() => openBattleViewer(data.phase1_battle_id), 3000);
-    else console.warn('[hijack] phase1_battle_id missing in response:', data);
-  } catch (err) {
-    console.error('confirmHijack:', err);
-    showFactionToast('네트워크 오류', 'error');
-  }
+  showHijackEntryHint();
 }
 
 // ═════════════════════════════════════════════════════════════════
