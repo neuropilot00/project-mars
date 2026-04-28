@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-29 v5.20 (MCC Campaign Ch2~4 MVP: Frozen Highway, Boardroom, Pirate's Payroll) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-29 v5.21 (MCC Campaign Ch5~7 MVP: Kepler Commons, Whistleblower, Market War) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -53,7 +53,7 @@ NODE_ENV=development
 │   ├── index.js            ← Express 앱 + 스케줄러 (~1,151줄)
 │   ├── db.js               ← Pool + initDB + getSetting + logGPActivity + 공통 유틸
 │   ├── migrate.js          ← 파일 기반 마이그레이션 러너
-│   ├── migrations/         ← SQL 파일 001~194 (2026-04-29 기준)
+│   ├── migrations/         ← SQL 파일 001~195 (2026-04-29 기준)
 │   │   └── archived/       ← 사용 안 하는 구버전 마이그레이션 (51개, 건드리지 말 것)
 │   ├── routes/             ← 61개 라우트 파일 (/api/* 경로)
 │   └── services/           ← 73개 서비스 파일 (비즈니스 로직)
@@ -69,9 +69,9 @@ NODE_ENV=development
 ## 4. DB 현재 상태
 
 - **DB명**: `pixelwar` (PostgreSQL)
-- **적용된 마이그레이션**: 001 ~ **194** (2026-04-29 기준)
+- **적용된 마이그레이션**: 001 ~ **195** (2026-04-29 기준)
 - **총 테이블 수**: 109개+
-- **마지막 마이그레이션**: `194_mcc_campaign_ch2_to_ch4.sql`
+- **마지막 마이그레이션**: `195_mcc_campaign_ch5_to_ch7.sql`
 
 ### 핵심 테이블 목록
 
@@ -128,10 +128,10 @@ NODE_ENV=development
 
 ## 5. Campaign System Architecture
 
-### 현재 구현 상태 (v5.20)
-- **MVP 방식**: MCC Campaign Ch1~4는 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
+### 현재 구현 상태 (v5.21)
+- **MVP 방식**: MCC Campaign Ch1~7은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
 - **API**: `server/routes/api.js`의 `/api/campaign/status/:wallet`, `/api/campaign/start`, `/api/campaign/choice`, `/api/campaign/progress`, `/api/campaign/complete`.
-- **DB**: `server/migrations/192_campaign_mcc_ch1.sql`, `193_campaign_common_systems.sql`, `194_mcc_campaign_ch2_to_ch4.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox, 환경/챕터 seed를 만든다.
+- **DB**: `server/migrations/192_campaign_mcc_ch1.sql`, `193_campaign_common_systems.sql`, `194_mcc_campaign_ch2_to_ch4.sql`, `195_mcc_campaign_ch5_to_ch7.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox, 환경/챕터 seed를 만든다.
 - **UI**: `index.html` QUESTS 탭의 CAMPAIGN 섹션에서 시작한다. 브리핑 → 선택지 → 압축 시뮬레이션 → 결과 모달 흐름.
 - **보상 정책**: GP/XP/평판/칭호/환경 숙련도/blueprint inbox 기록은 `complete()` 트랜잭션 안에서 처리한다. 클라이언트는 최종 보상값을 제출하지 않는다.
 
@@ -140,6 +140,9 @@ NODE_ENV=development
 - `mcc_campaign_ch2`: 동결된 고속도로 / night_freezing / 시설 HP, 민간인 피해, FSP 증원.
 - `mcc_campaign_ch3`: 이사회 / phobos_eclipse_periodic / Helion·Verin·Chromium 3분기.
 - `mcc_campaign_ch4`: 해적 매수 / ion_storm_active / Kara Vex, 회담 호위, Helion 습격대.
+- `mcc_campaign_ch5`: 케플러 분쟁 / low gravity + oxygen pressure / Roth 데이터, Kepler 서버, CV 자급 모선.
+- `mcc_campaign_ch6`: 내부고발자 / solar radiation storm / Li Fang 선택, A·B·C 루트 확정.
+- `mcc_campaign_ch7`: 시장 전쟁 / dust storm season peak / Ch6 루트별 Market War 변형.
 
 ### Adding New Chapter Workflow
 1. `campaign_chapters` seed 또는 `CHAPTERS` 정의에 새 `questId`를 추가한다.
@@ -153,6 +156,7 @@ NODE_ENV=development
 - `player_tags`: 플레이어 성향/업적 태그.
 - `chapter_branch_modifiers`: 특정 향후 챕터에만 영향을 주는 modifier.
 - 실패 분기 예: `cold_death` → `cold_sister_frozen`, `mcc_ch6/chen_distrust_increased`.
+- Ch6 루트 분기: `mcc_route_a_active`(Li Fang 지원), `mcc_route_b_active`(Chen 보고), `mcc_route_c_active`(자료 복사). Ch7은 서버에서 해당 루트 선택지만 허용한다.
 
 ### Battle Resolution Modes
 - `server_simulation`: 현재 Ch1 MVP. 서버 seed로 결과를 계산하고 보상을 지급한다.

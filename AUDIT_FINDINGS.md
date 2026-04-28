@@ -1,6 +1,28 @@
-# OCCUPY MARS — Codebase Audit (v5.20 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.21 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.21 MCC Campaign Ch5~7 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Ch5 Kepler Commons | ✅ | low gravity/oxygen pressure 환경과 FSP 차단, 보급선 호위, 단독 데이터 탈취, CV 자급 모선 격파 4분기 MVP 시뮬레이션 추가. |
+| Dr. Roth 데이터 | ✅ | Ch5 성공 경로에서 Roth 외계 기원 데이터, 플레이어 공개, Roth 실종 lore flag와 XP 보너스/데이터 artifact 보상을 지급. |
+| Ch6 Whistleblower | ✅ | Li Fang 지원/Chen 보고/자료 사본 보관 3개 선택으로 A/B/C 루트를 확정하고 tag, lore, ending branch modifier를 지급. |
+| Ch7 Market War | ✅ | Ch6 루트별 A/B/C 변형 선택지와 CV 군벌 제거, Helion 자회사 인수, Chen 감시 branch modifier를 반영. |
+| 루트 선택 검증 | ✅ | Ch7 시작 조건이 `mcc_route_a/b/c_active` 중 하나를 요구하고, `/api/campaign/choice`가 활성 루트와 맞지 않는 Ch7 선택지를 거부. |
+| seed migration | ✅ | `195_mcc_campaign_ch5_to_ch7.sql`에 lore flag, branch modifier, tag, NPC, data artifact, 신규 환경, chapter/environment seed 추가. |
+| full engine 잔여 | 🟡 | Ch5 산소 보급선/Kepler 서버/CV 모선, Ch6 방사선 폭풍 탈출, Ch7 시장전 함대/경제 객체는 후속 전투 엔진 통합 필요. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `195_mcc_campaign_ch5_to_ch7.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.20 MCC Campaign Ch2~4 MVP — 구현 완료
 

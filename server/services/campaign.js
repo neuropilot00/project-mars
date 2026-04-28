@@ -5,6 +5,9 @@ const CH1_ID = 'mcc_campaign_ch1';
 const CH2_ID = 'mcc_campaign_ch2';
 const CH3_ID = 'mcc_campaign_ch3';
 const CH4_ID = 'mcc_campaign_ch4';
+const CH5_ID = 'mcc_campaign_ch5';
+const CH6_ID = 'mcc_campaign_ch6';
+const CH7_ID = 'mcc_campaign_ch7';
 const FACTIONS = ['mcc', 'fsp', 'cv', 'pilgrim_arms'];
 const REP_MIN = -100;
 const REP_MAX = 100;
@@ -189,6 +192,135 @@ const CHAPTERS = {
       { id: 'ch4_compliment_ship', labelKo: "Kara 함선 칭찬: 'Mauler 시리즈 개조했죠?'", effects: { reputationDelta: { cv: 5 }, flag: 'kara_likes_player', branchSet: { modifierId: 'ch10_kara_loyalty', targetChapter: 'mcc_campaign_ch10' } } },
       { id: 'ch4_question_li_fang', labelKo: "Li Fang에게: '5명 사망. 보험금은?'", effects: { reputationDelta: { mcc: -8 }, flag: 'kara_strongly_likes_player', flag2: 'lifang_distrust_player', negotiationOutcome: 'forced_5x' } },
       { id: 'ch4_question_helion_intel', labelKo: "'Helion이 이 회담 알면?'", effects: { flag: 'caused_negotiation_tension', simulationModifier: { combatDifficulty: 1.15 } } },
+    ],
+  },
+  [CH5_ID]: {
+    questId: CH5_ID,
+    campaignId: 'mcc_route',
+    chapterNumber: 5,
+    faction: 'mcc',
+    title: { ko: '케플러 분쟁', en: 'Kepler Commons' },
+    requiredLevel: 5,
+    prerequisiteChapter: CH4_ID,
+    requiredReputation: { mcc: 40 },
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 1200,
+    location: { id: 'kepler_crater', displayNameKo: 'Kepler 분화구', region: 'equator_south_12' },
+    environment: {
+      type: 'low_gravity_pocket',
+      secondary: 'oxygen_supply_pressure',
+      totalDurationSeconds: 1200,
+      phases: [
+        { phase: 0, startSec: 0, shipManeuverability: 20, longRangeAccuracy: -25, railgunEffectiveModifier: -15, missileEffectiveModifier: 20 },
+      ],
+    },
+    briefing: {
+      npcId: 'chen_weiss',
+      npcName: 'Chen Weiss / Dr. Roth',
+      npcTitle: 'MCC 이사회 · Roth 기록 방송',
+      lines: [
+        { id: 'ch5_brief_01', ko: '이건 단순 전투가 아니야. 화성 다음 100년이 결정돼.' },
+        { id: 'ch5_brief_02', ko: 'Kepler 데이터 서버 — Dr. Roth 원본 분석 자료. 누가 확보하느냐가 모든 걸 결정.' },
+        { id: 'ch5_brief_03', ko: '분화구야. 저중력 — 운동성 +20%, 장거리 -25%. 우리 레일건 약화. CV 미사일 우세.' },
+        { id: 'ch5_roth_01', ko: '이건... 모든 파벌이 들어야 해. 고대 금속은 외계 기원이야.' },
+        { id: 'ch5_roth_02', ko: '4억 년 전, 화성에 외계 종족이 있었어. 그들이 사라진 이유 — 자원 분쟁.' },
+      ],
+      radio: [
+        { triggerSec: 600, ko: 'Roth 메시지 수신. 모든 분기 기록해.' },
+        { triggerSec: 900, ko: '산소 잔량 확인. Kepler 저중력 영향 계속.' },
+      ],
+    },
+    choices: [
+      { id: 'ch5_block_fsp', labelKo: 'FSP 측면을 막습니다.', effects: { flag: 'ch5_chose_block_fsp' } },
+      { id: 'ch5_escort_supply', labelKo: '우리 산소 보급선 호위.', effects: { flag: 'ch5_chose_escort' } },
+      { id: 'ch5_solo_data', labelKo: '데이터 서버 직접 탈취.', effects: { flag: 'ch5_chose_solo_data', flag2: 'insubordination_attempt', branchSet: { modifierId: 'ending_2_executive_eligible', targetChapter: 'mcc_campaign_ch10' } } },
+      { id: 'ch5_strike_cv', labelKo: 'CV 자급 시스템 격파.', effects: { reputationDelta: { cv: -25 }, flag: 'ch5_chose_cv_strike', flag2: 'cv_plague_ship_destroyed' } },
+    ],
+  },
+  [CH6_ID]: {
+    questId: CH6_ID,
+    campaignId: 'mcc_route',
+    chapterNumber: 6,
+    faction: 'mcc',
+    title: { ko: '내부고발자', en: 'Whistleblower' },
+    requiredLevel: 6,
+    prerequisiteChapter: CH5_ID,
+    requiredReputation: { mcc: 50 },
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 1500,
+    location: { id: 'shareholder7_external_dock_8', displayNameKo: 'Shareholder-7 8번 도크', region: 'olympus_orbit' },
+    environment: {
+      type: 'solar_radiation_storm',
+      totalDurationSeconds: 1500,
+      phases: [
+        { phase: 0, startSec: 0, nonArmoredHpDrainPerMin: -1, satelliteTrackingAccuracy: -80, commInterference: 10 },
+      ],
+    },
+    briefing: {
+      npcId: 'lifang',
+      npcName: 'Li Fang',
+      npcTitle: '비공식 셔틀 · 카메라 OFF',
+      lines: [
+        { id: 'ch6_pre_01', ko: '지금 당장 와줘. 공식 통신 쓰지 마. 8번 도크. 혼자.' },
+        { id: 'ch6_pre_03', ko: '내가 알게 된 것. 2156년 Crimson Verdict 창설은 우연이 아니야.' },
+        { id: 'ch6_pre_04', ko: 'MCC가 직접 자금 지원했어. 비공식 무력부로 사용하려고.' },
+        { id: 'ch6_pre_06', ko: '증거. 자금 이체 47건, 군벌 채용 서류, Chen 친필 서명 8개. 다 가져왔어.' },
+        { id: 'ch6_pre_08', ko: 'Chen이 날 이미 의심해. Solar Flare 36시간 후 도착. 그 안에 결정해.' },
+      ],
+      radio: [
+        { triggerSec: 300, ko: '이 선택은 MCC 루트를 영구히 바꾼다.' },
+      ],
+    },
+    choices: [
+      { id: 'ch6_help_lifang', labelKo: '...같이 갑시다. FSP 언론 채널까지 호위하겠습니다.', effects: { reputationDelta: { mcc: -50, fsp: 30 }, flag: 'ch6_chose_help_lifang', tagsAdded: ['whistleblower'], branchSet: { modifierId: 'mcc_route_a_active', targetChapter: 'any_mcc_post_ch6' }, extraBranchSet: { modifierId: 'ending_3_locked_in', targetChapter: 'mcc_campaign_ch10' } } },
+      { id: 'ch6_report_chen', labelKo: '...Li Fang. 미안합니다. 회사 안보 문제예요.', effects: { reputationDelta: { mcc: 40, fsp: -10 }, flag: 'ch6_chose_report_chen', flag2: 'lifang_arrested', branchSet: { modifierId: 'mcc_route_b_active', targetChapter: 'any_mcc_post_ch6' }, extraBranchSet: { modifierId: 'ending_1_eligible', targetChapter: 'mcc_campaign_ch10' } } },
+      { id: 'ch6_copy_silent', labelKo: '사본만 복사하고 침묵.', effects: { flag: 'ch6_chose_copy_silent', tagsAdded: ['secret_keeper'], branchSet: { modifierId: 'mcc_route_c_active', targetChapter: 'any_mcc_post_ch6' }, extraBranchSet: { modifierId: 'ending_4_unlocked', targetChapter: 'mcc_campaign_ch10' } } },
+    ],
+  },
+  [CH7_ID]: {
+    questId: CH7_ID,
+    campaignId: 'mcc_route',
+    chapterNumber: 7,
+    faction: 'mcc',
+    title: { ko: '시장 전쟁', en: 'Market War' },
+    requiredLevel: 7,
+    prerequisiteChapter: CH6_ID,
+    requiredBranchAny: ['mcc_route_a_active', 'mcc_route_b_active', 'mcc_route_c_active'],
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 1500,
+    location: { id: 'dust_storm_market_war', displayNameKo: 'Dust Storm 시즌 작전 구역', region: 'equator' },
+    environment: {
+      type: 'dust_storm_season_peak',
+      totalDurationSeconds: 1500,
+      phases: [
+        { phase: 0, startSec: 0, accuracyMod: -40, rangeMod: -50, satelliteTracking: -80, cargoSpeed: -30 },
+      ],
+      weaponsUnaffected: ['railgun'],
+    },
+    briefing: {
+      npcId: 'route_variant',
+      npcName: 'Route Variant',
+      npcTitle: 'Ch6 분기 기반 작전',
+      lines: [
+        { id: 'ch7_common_01', ko: 'Dust Storm 시즌. 위성 -80%. 작전 기록은 남지 않는다.' },
+        { id: 'ch7a_li_01', ko: 'Branch A: Chen이 우리 둘 다 끝내려고 해. CV 군벌 둘을 동시에 처리해야 해.' },
+        { id: 'ch7b_chen_01', ko: 'Branch B: Helion 주가 박살내. 화물 운송선 3개 동시 습격.' },
+        { id: 'ch7c_chen_01', ko: 'Branch C: 같은 임무. 그리고 회사 내 이상한 데이터 흐름이 있어.' },
+      ],
+      radio: [
+        { triggerSec: 500, ko: 'Dust Storm peak. 레일건 영향 없음.' },
+        { triggerSec: 1100, ko: '위성 추적 차단 유지. 마무리.' },
+      ],
+    },
+    choices: [
+      { id: 'ch7a_dual_attack', labelKo: 'Branch A: Cruz와 Vain 동시 타격.', effects: {} },
+      { id: 'ch7a_sequential', labelKo: 'Branch A: Cruz 먼저, Vain 뒤로.', effects: {} },
+      { id: 'ch7a_diplomatic', labelKo: 'Branch A: Cruz 매수 시도.', effects: { reputationDelta: { cv: 5 } } },
+      { id: 'ch7b_standard', labelKo: 'Branch B: 정석 3척 동시 격파.', effects: {} },
+      { id: 'ch7b_helion_hq', labelKo: 'Branch B: Helion 본사 직접 타격.', effects: {} },
+      { id: 'ch7c_deflect', labelKo: 'Branch C: 정상적인 운영 흐름 같습니다.', effects: { flag: 'chen_loyalty_test_passed' } },
+      { id: 'ch7c_helpful', labelKo: 'Branch C: Marcus Reeve를 제가 보내볼까요?', effects: { flag: 'chen_loyalty_test_passed' } },
+      { id: 'ch7c_redirect', labelKo: 'Branch C: 다른 부서일 수 있어요. 보안팀 확인을.', effects: { flag: 'chen_loyalty_test_failed', branchSet: { modifierId: 'ch8_chen_surveillance', targetChapter: 'mcc_campaign_ch8' } } },
     ],
   },
 };
@@ -497,10 +629,101 @@ function simulateCh4(progress) {
   };
 }
 
+function simulateCh5(progress) {
+  const choiceId = selectedChoiceId(progress, 'ch5_block_fsp');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:ch5`);
+  const branch = choiceId.replace('ch5_', '');
+  let oxygen = Math.round(clampNumber(100 - roll * 30 - (choiceId === 'ch5_escort_supply' ? 5 : 15), 0, 100));
+  let elapsed = Math.round((choiceId === 'ch5_escort_supply' ? 2100 : choiceId === 'ch5_solo_data' ? 980 : 1180) * (0.86 + roll * 0.22));
+  let failure = null;
+  if (oxygen <= 0) failure = 'fail_oxygen_depleted';
+  if (choiceId === 'ch5_solo_data' && roll < 0.22) failure = 'fail_solo_data_caught';
+  if (choiceId === 'ch5_escort_supply' && roll < 0.12) failure = 'fail_supply_lost';
+  const secondary = ['obj_witness_roth_message'];
+  if (!failure && roll > 0.42) secondary.push('obj_no_player_ship_lost');
+  return {
+    success: !failure,
+    failureReason: failure,
+    branchChoice: branch,
+    metrics: {
+      tactical_choice: branch,
+      oxygen_remaining_percent: oxygen,
+      fleet_efficiency_percent: oxygen <= 0 ? 50 : 100,
+      elapsed_sec: elapsed,
+      data_server_status: choiceId === 'ch5_solo_data' && !failure ? 'mcc_solo_obtained' : !failure ? 'mcc_owned' : 'untouched',
+      roth_message_received: true,
+      environmental_phase_reached: phaseForChapter(CH5_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateCh6(progress) {
+  const choiceId = selectedChoiceId(progress, 'ch6_report_chen');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:ch6`);
+  const branch = choiceId === 'ch6_help_lifang' ? 'branch_a' : choiceId === 'ch6_copy_silent' ? 'branch_c' : 'branch_b';
+  let failure = null;
+  let elapsed = branch === 'branch_a' ? Math.round(1150 + roll * 320) : branch === 'branch_c' ? Math.round(250 + roll * 210) : Math.round(220 + roll * 80);
+  const lifangHp = branch === 'branch_a' ? Math.round(62 + (1 - roll) * 38) : branch === 'branch_b' ? 35 : 100;
+  if (branch === 'branch_a' && roll < 0.08) failure = 'fail_lifang_killed';
+  if (branch === 'branch_b' && roll < 0.05) failure = 'fail_lifang_escapes_during_subdue';
+  if (branch === 'branch_c' && roll < 0.16) failure = 'fail_caught_copying';
+  const secondary = [];
+  if (!failure && branch === 'branch_a' && roll > 0.55) secondary.push('obj_minimize_armor_damage');
+  if (!failure && branch === 'branch_a' && lifangHp >= 95) secondary.push('obj_lifang_shuttle_full_hp');
+  if (!failure && branch === 'branch_c' && roll > 0.5) secondary.push('obj_stealth_perfect');
+  return {
+    success: !failure,
+    failureReason: failure,
+    branchChoice: branch,
+    metrics: {
+      route_branch: branch,
+      elapsed_sec: elapsed,
+      lifang_shuttle_hp_percent: lifangHp,
+      chen_suspicion: branch === 'branch_c' && failure ? 'active' : 'none',
+      assassins_destroyed: branch === 'branch_a' && !failure ? 9 : 0,
+      environmental_phase_reached: phaseForChapter(CH6_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateCh7(progress) {
+  const choiceId = selectedChoiceId(progress, 'ch7b_standard');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:ch7`);
+  const branch = choiceId.startsWith('ch7a_') ? 'branch_a' : choiceId.startsWith('ch7c_') ? 'branch_c' : 'branch_b';
+  let failure = null;
+  let elapsed = Math.round(1120 + roll * 360);
+  if (branch === 'branch_a' && choiceId === 'ch7a_sequential' && roll < 0.28) failure = 'fail_one_warlord_escapes';
+  if (branch !== 'branch_a' && roll < 0.08) failure = 'fail_helion_intel_leak';
+  if (elapsed > 1500) failure = failure || 'fail_time_exceeded';
+  const secondary = [];
+  if (!failure && branch === 'branch_a' && choiceId === 'ch7a_dual_attack') secondary.push('obj_warlord_assassinated_personally');
+  if (!failure && branch !== 'branch_a') secondary.push('obj_zero_helion_escapes');
+  if (!failure && choiceId === 'ch7b_helion_hq') secondary.push('obj_helion_hq_struck');
+  return {
+    success: !failure,
+    failureReason: failure,
+    branchChoice: branch,
+    metrics: {
+      route_branch: branch,
+      elapsed_sec: elapsed,
+      warlords_killed: !failure && branch === 'branch_a' ? 2 : failure === 'fail_one_warlord_escapes' ? 1 : 0,
+      battlefields_cleared: !failure && branch !== 'branch_a' ? 3 : 0,
+      helion_stock_drop_pct: !failure && branch !== 'branch_a' ? 40 : 0,
+      environmental_phase_reached: phaseForChapter(CH7_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
 function simulateChapter(progress) {
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
   if (progress.quest_id === CH3_ID) return simulateCh3(progress);
   if (progress.quest_id === CH4_ID) return simulateCh4(progress);
+  if (progress.quest_id === CH5_ID) return simulateCh5(progress);
+  if (progress.quest_id === CH6_ID) return simulateCh6(progress);
+  if (progress.quest_id === CH7_ID) return simulateCh7(progress);
   return simulateCh1(progress);
 }
 
@@ -624,19 +847,100 @@ function calculateCh4Rewards(progress, sim) {
   return { GP: gp, XP: 1200, reputationDelta: rep, items: [], tags: [], loreFlags, unlocks: ['mcc_campaign_ch5'], branchModifiers };
 }
 
+function calculateCh5Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'ch5_block_fsp');
+  const commonLore = ['dr_roth_data_obtained', 'dr_roth_data_published_to_player', 'dr_roth_disappeared'];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_solo_data_caught') return { GP: 0, XP: 500, reputationDelta: { mcc: -25 }, tags: ['insubordinate'], loreFlags: commonLore.concat(['insubordination_attempt']), branchModifiers: [] };
+    if (sim.failureReason === 'fail_oxygen_depleted') return { GP: 0, XP: 500, reputationDelta: { mcc: -15 }, tags: [], loreFlags: commonLore, branchModifiers: [] };
+    return { GP: 0, XP: 500, reputationDelta: {}, tags: [], loreFlags: commonLore, branchModifiers: [] };
+  }
+  const secondary = sim.metrics.secondary_completed || [];
+  const branchModifiers = [];
+  let gp = 60000, xp = 1500, rep = { mcc: 30, fsp: -15 }, items = [{ type: 'ship', code: 'longeye_sniper', label: 'Longeye Sniper', quantity: 1 }], loreFlags = commonLore.slice();
+  if (choiceId === 'ch5_escort_supply') {
+    gp = 80000; xp = 1800; rep = { mcc: 35 };
+    items = [{ type: 'ship', code: 'lifeline_supply_ship', label: 'Lifeline Supply Ship', quantity: 1 }, { type: 'resource_stream', code: 'o2_supply_stream_kepler', label: 'O2 Supply Stream', quantity: 200 }];
+    loreFlags.push('ch5_chose_escort', 'kepler_data_server_secured');
+  } else if (choiceId === 'ch5_solo_data') {
+    gp = 120000; xp = 2500; rep = { mcc: 40 };
+    items = [{ type: 'data_artifact', code: 'roth_data_copy', label: 'Roth Data Copy', quantity: 1 }];
+    loreFlags.push('ch5_chose_solo_data', 'kepler_data_server_player_solo', 'insubordination_attempt');
+    branchModifiers.push({ targetChapter: 'mcc_campaign_ch10', key: 'ending_2_executive_eligible', value: { ch10_ending_options_add: ['ending_2_executive'] } });
+  } else if (choiceId === 'ch5_strike_cv') {
+    gp = 100000; xp = 2000; rep = { mcc: 40, cv: -25 };
+    items = [{ type: 'weapon_system', code: 'plague_burner', label: 'Plague Burner', quantity: 1 }];
+    loreFlags.push('ch5_chose_cv_strike', 'cv_plague_ship_destroyed');
+  } else {
+    loreFlags.push('ch5_chose_block_fsp', 'kepler_data_server_secured');
+  }
+  if (secondary.includes('obj_no_player_ship_lost')) gp += 8000;
+  return { GP: gp, XP: xp + 500, reputationDelta: rep, items, tags: [], loreFlags, unlocks: [CH6_ID], branchModifiers };
+}
+
+function calculateCh6Rewards(progress, sim) {
+  const branch = sim.branchChoice || 'branch_b';
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_lifang_killed') return { GP: 0, XP: 0, reputationDelta: { mcc: -100 }, tags: [], loreFlags: ['lifang_died_in_escape'], branchModifiers: [{ targetChapter: 'mcc_route', key: 'mcc_route_locked', value: { locked: true } }] };
+    if (sim.failureReason === 'fail_lifang_escapes_during_subdue') return { GP: 0, XP: 0, reputationDelta: { mcc: -30 }, tags: [], loreFlags: ['lifang_escaped'], branchModifiers: [] };
+    return { GP: 0, XP: 0, reputationDelta: {}, tags: [], loreFlags: ['chen_suspicion_active'], branchModifiers: [] };
+  }
+  if (branch === 'branch_a') {
+    let gp = 50000; let rep = { mcc: -50, fsp: 30 };
+    if (secondary.includes('obj_minimize_armor_damage')) gp += 10000;
+    if (secondary.includes('obj_lifang_shuttle_full_hp')) rep = mergeRep(rep, { fsp: 10 });
+    return { GP: gp, XP: 2500, reputationDelta: rep, items: [{ type: 'safe_house_access', code: 'new_athens', label: 'New Athens Safe House' }], tags: ['whistleblower'], loreFlags: ['ch6_chose_help_lifang'], unlocks: [CH7_ID], branchModifiers: [{ targetChapter: 'any_mcc_post_ch6', key: 'mcc_route_a_active', value: { ch7_route: 'branch_a', ch8_route: 'branch_a', ch9_route: 'branch_a', ch10_endings_available: ['ending_3_whistleblower'] } }, { targetChapter: 'mcc_campaign_ch10', key: 'ending_3_locked_in', value: { ending: 'ending_3_whistleblower' } }] };
+  }
+  if (branch === 'branch_c') {
+    const lore = ['ch6_chose_copy_silent'];
+    if (secondary.includes('obj_stealth_perfect')) lore.push('chen_no_suspicion');
+    return { GP: secondary.includes('obj_stealth_perfect') ? 15000 : 0, XP: 1500, reputationDelta: {}, items: [{ type: 'data_artifact', code: 'lifang_blackmail_data', label: 'Lifang Blackmail Data' }], tags: ['secret_keeper'], loreFlags: lore, unlocks: [CH7_ID], branchModifiers: [{ targetChapter: 'any_mcc_post_ch6', key: 'mcc_route_c_active', value: { ch7_route: 'branch_c', ch10_endings_available: ['ending_1_loyal_hire', 'ending_2_executive', 'ending_4_traitor'] } }, { targetChapter: 'mcc_campaign_ch10', key: 'ending_4_unlocked', value: { ending: 'ending_4_traitor' } }] };
+  }
+  return { GP: 100000, XP: 2000, reputationDelta: { mcc: 40, fsp: -10 }, items: [{ type: 'office_assets', code: 'lifang_office_assets', label: 'Li Fang Office Assets', quantity: 50000 }], tags: [], loreFlags: ['ch6_chose_report_chen', 'lifang_arrested'], unlocks: [CH7_ID], branchModifiers: [{ targetChapter: 'any_mcc_post_ch6', key: 'mcc_route_b_active', value: { ch7_route: 'branch_b', ch10_endings_available: ['ending_1_loyal_hire', 'ending_2_executive'] } }, { targetChapter: 'mcc_campaign_ch10', key: 'ending_1_eligible', value: { ending: 'ending_1_loyal_hire' } }] };
+}
+
+function calculateCh7Rewards(progress, sim) {
+  const branch = sim.branchChoice || 'branch_b';
+  const choiceId = selectedChoiceId(progress, 'ch7b_standard');
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_one_warlord_escapes') return { GP: 0, XP: 500, reputationDelta: {}, tags: [], loreFlags: [], branchModifiers: [{ targetChapter: 'mcc_campaign_ch9', key: 'ch9_warlord_escape_risk', value: { ch9_difficulty_modifier: 1.2 } }] };
+    return { GP: 0, XP: 500, reputationDelta: { mcc: sim.failureReason === 'fail_helion_intel_leak' ? -15 : -10 }, tags: [], loreFlags: ['ch7_market_war_exposed'], branchModifiers: [] };
+  }
+  if (branch === 'branch_a') {
+    const branchModifiers = secondary.includes('obj_warlord_assassinated_personally') ? [{ targetChapter: 'mcc_campaign_ch9', key: 'ch9_cv_destabilized', value: { cv_internal_chaos: true, cv_fleet_strength: -20 } }] : [];
+    return { GP: 50000, XP: 2200, reputationDelta: { mcc: -25, fsp: 30 }, items: [{ type: 'ship', code: 'fsp_sequoia_borrowed', label: 'FSP Sequoia Borrowed' }], tags: [], loreFlags: ['cv_warlords_killed', 'cv_warlord_cruz_dead', 'cv_warlord_vain_dead'], unlocks: ['mcc_campaign_ch8'], branchModifiers };
+  }
+  let gp = 80000;
+  if (secondary.includes('obj_zero_helion_escapes')) gp += 10000;
+  if (secondary.includes('obj_helion_hq_struck')) gp += 30000;
+  const lore = ['helion_stock_collapsed', 'helion_subsidiary_acquired'];
+  const branchModifiers = [];
+  if (branch === 'branch_c') {
+    lore.push(choiceId === 'ch7c_redirect' ? 'chen_loyalty_test_failed' : 'chen_loyalty_test_passed');
+    if (choiceId === 'ch7c_redirect') branchModifiers.push({ targetChapter: 'mcc_campaign_ch8', key: 'ch8_chen_surveillance', value: { surveillance_intensity: 'high', ch8_difficulty_modifier: 1.2 } });
+  }
+  return { GP: gp, XP: 1800, reputationDelta: { mcc: branch === 'branch_c' ? 15 : 25 }, items: [{ type: 'asset', code: 'helion_subsidiary_acquired', label: 'Helion Subsidiary Acquired', quantity: 1 }, { type: 'resource_stream', code: 'helion_o2_monthly', label: 'Helion O2 Monthly Stream', quantity: 500 }, { type: 'gp_stream', code: 'helion_monthly_gp', label: 'Helion Monthly GP Income', quantity: 5000 }], tags: [], loreFlags: lore, unlocks: ['mcc_campaign_ch8'], branchModifiers };
+}
+
 function calculateRewards(progress, sim) {
   if (progress.quest_id === CH2_ID) return calculateCh2Rewards(progress, sim);
   if (progress.quest_id === CH3_ID) return calculateCh3Rewards(progress, sim);
   if (progress.quest_id === CH4_ID) return calculateCh4Rewards(progress, sim);
+  if (progress.quest_id === CH5_ID) return calculateCh5Rewards(progress, sim);
+  if (progress.quest_id === CH6_ID) return calculateCh6Rewards(progress, sim);
+  if (progress.quest_id === CH7_ID) return calculateCh7Rewards(progress, sim);
   return calculateCh1Rewards(progress, sim);
 }
 
 async function getStatus(wallet) {
   const w = normalizeWallet(wallet);
-  const [progressRes, reputationRes, branchRes, inboxRes, tagRes, sessionRes] = await Promise.all([
+  const [progressRes, reputationRes, branchRes, playerBranchRes, inboxRes, tagRes, sessionRes] = await Promise.all([
     pool.query(`SELECT * FROM player_campaign_progress WHERE wallet = $1 ORDER BY chapter_number ASC`, [w]),
     pool.query(`SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction ASC`, [w]),
     pool.query(`SELECT target_chapter, modifier_key, modifier_value, source_quest_id, created_at FROM chapter_branch_modifiers WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
+    pool.query(`SELECT modifier_id FROM player_branch_modifiers WHERE wallet = $1 AND consumed_at IS NULL ORDER BY created_at DESC`, [w]),
     pool.query(`SELECT quest_id, reward_type, reward_code, quantity, payload, created_at FROM campaign_reward_inbox WHERE wallet = $1 AND claimed = FALSE ORDER BY created_at DESC LIMIT 20`, [w]),
     pool.query(`SELECT tag_id FROM player_tags WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
     pool.query(`SELECT * FROM campaign_sessions WHERE wallet = $1 AND status = 'active' ORDER BY started_at DESC LIMIT 1`, [w]),
@@ -650,7 +954,10 @@ async function getStatus(wallet) {
   const completedSet = new Set(rows.filter(r => r.status === 'completed' || r.status === 'claimed').map(r => r.quest_id));
   const activeSet = new Set(rows.filter(r => r.status === 'in_progress').map(r => r.quest_id));
   const tagSet = new Set(tagRes.rows.map(r => r.tag_id));
-  const branchSet = new Set(branchRes.rows.map(r => r.modifier_key));
+  const branchSet = new Set([
+    ...branchRes.rows.map(r => r.modifier_key),
+    ...playerBranchRes.rows.map(r => r.modifier_id),
+  ]);
   const availableChapters = [];
   const lockedChapters = [];
   for (const ch of Object.values(CHAPTERS)) {
@@ -658,7 +965,8 @@ async function getStatus(wallet) {
     const prereqOk = !ch.prerequisiteChapter || completedSet.has(ch.prerequisiteChapter) || (ch.questId === CH3_ID && branchSet.has('mcc_route_termination_offered'));
     const repOk = Object.entries(ch.requiredReputation || {}).every(([f, v]) => (reputation[f] || 0) >= v);
     const tagOk = !(ch.blockingTags || []).some(t => tagSet.has(t));
-    if (prereqOk && repOk && tagOk) availableChapters.push(ch.questId);
+    const branchOk = !(ch.requiredBranchAny || []).length || ch.requiredBranchAny.some(b => branchSet.has(b));
+    if (prereqOk && repOk && tagOk && branchOk) availableChapters.push(ch.questId);
     else lockedChapters.push(ch.questId);
   }
   return {
@@ -708,6 +1016,35 @@ async function validateStartConditions(client, wallet, chapter) {
   for (const tag of chapter.blockingTags || []) {
     const tagRows = await client.query('SELECT 1 FROM player_tags WHERE wallet = $1 AND tag_id = $2', [wallet, tag]);
     if (tagRows.rows.length) return { error: 'BLOCKED_BY_TAG', tag };
+  }
+  if ((chapter.requiredBranchAny || []).length) {
+    const branch = await client.query(
+      `SELECT modifier_id FROM player_branch_modifiers
+       WHERE wallet = $1 AND modifier_id = ANY($2) AND consumed_at IS NULL`,
+      [wallet, chapter.requiredBranchAny]
+    );
+    if (!branch.rows.length) return { error: 'BRANCH_REQUIRED', requiredAny: chapter.requiredBranchAny };
+  }
+  return null;
+}
+
+async function validateChapterChoice(client, wallet, progress, choiceId) {
+  if (progress.quest_id !== CH7_ID) return null;
+  const branch = await client.query(
+    `SELECT modifier_id FROM player_branch_modifiers
+     WHERE wallet = $1
+       AND modifier_id = ANY($2)
+       AND consumed_at IS NULL`,
+    [wallet, ['mcc_route_a_active', 'mcc_route_b_active', 'mcc_route_c_active']]
+  );
+  const active = new Set(branch.rows.map(r => r.modifier_id));
+  const allowedPrefix = active.has('mcc_route_a_active') ? 'ch7a_'
+    : active.has('mcc_route_c_active') ? 'ch7c_'
+      : active.has('mcc_route_b_active') ? 'ch7b_'
+        : null;
+  if (!allowedPrefix) return { error: 'BRANCH_REQUIRED', requiredAny: ['mcc_route_a_active', 'mcc_route_b_active', 'mcc_route_c_active'] };
+  if (!choiceId.startsWith(allowedPrefix)) {
+    return { error: 'CHOICE_NOT_AVAILABLE_FOR_ROUTE', requiredPrefix: allowedPrefix };
   }
   return null;
 }
@@ -805,6 +1142,11 @@ async function choose(wallet, sessionId, choiceId) {
       await client.query('ROLLBACK');
       return { error: 'INVALID_CHOICE' };
     }
+    const choiceError = await validateChapterChoice(client, w, progress, choiceId);
+    if (choiceError) {
+      await client.query('ROLLBACK');
+      return choiceError;
+    }
     const existingChoices = Array.isArray(progress.choices_payload) ? progress.choices_payload : [];
     if (existingChoices.length > 0) {
       await client.query('COMMIT');
@@ -836,6 +1178,25 @@ async function choose(wallet, sessionId, choiceId) {
         `INSERT INTO chapter_branch_modifiers (wallet, target_chapter, modifier_key, modifier_value, source_quest_id)
          VALUES ($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING`,
         [w, choice.effects.branchSet.targetChapter, choice.effects.branchSet.modifierId, JSON.stringify({ fromChoice: choice.id }), progress.quest_id]
+      );
+    }
+    if (choice.effects.extraBranchSet) {
+      await client.query(
+        `INSERT INTO player_branch_modifiers (wallet, modifier_id, target_chapter, source_chapter)
+         VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING`,
+        [w, choice.effects.extraBranchSet.modifierId, choice.effects.extraBranchSet.targetChapter, progress.quest_id]
+      );
+      await client.query(
+        `INSERT INTO chapter_branch_modifiers (wallet, target_chapter, modifier_key, modifier_value, source_quest_id)
+         VALUES ($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING`,
+        [w, choice.effects.extraBranchSet.targetChapter, choice.effects.extraBranchSet.modifierId, JSON.stringify({ fromChoice: choice.id }), progress.quest_id]
+      );
+    }
+    for (const tag of choice.effects.tagsAdded || []) {
+      await client.query(
+        `INSERT INTO player_tags (wallet, tag_id, source_quest_id, acquired_from)
+         VALUES ($1,$2,$3,$3) ON CONFLICT DO NOTHING`,
+        [w, tag, progress.quest_id]
       );
     }
     await client.query(
