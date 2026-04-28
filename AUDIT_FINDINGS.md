@@ -1,6 +1,29 @@
-# OCCUPY MARS — Codebase Audit (v5.19 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.20 / 2026-04-29)
 
-## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
+## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.20 MCC Campaign Ch2~4 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Ch2 Frozen Highway | ✅ | Hellas 채굴장 인수 MVP 시뮬레이션 추가. 시설 HP, 민간인 피해, 민병대 격파, FSP 증원 ETA, `war_criminal` 실패 분기 반영. |
+| Ch3 Boardroom | ✅ | Helion/Verin/Chromium 3분기 선택과 branch별 보상/난이도/Ch6·Ch7 modifier 반영. |
+| Ch4 Pirate's Payroll | ✅ | Kara Vex 첫 만남, Ion Storm, Helion 습격대 도주/생존/호감 분기와 Ch9·Ch10 modifier 반영. |
+| seed migration | ✅ | `194_mcc_campaign_ch2_to_ch4.sql`에 22개 lore flag, 6개 branch modifier, `clean_operator`, 신규 환경, NPC, chapter seed 추가. |
+| 시작 조건 | ✅ | 서버가 prerequisite, required level, required reputation, blocking tag를 검증. Ch2 거부 시 Ch3 마지막 기회 branch override 허용. |
+| 보상/분기 지급 | ✅ | GP/XP/평판/아이템 inbox/lore/tag/branch modifier를 기존 complete 트랜잭션 경로로 처리. |
+| UI 범용화 | ✅ | 캠페인 카드/결과 모달이 Ch1 산소 지표에 고정되지 않고 Ch2~4 주요 metric을 표시. Locked chapter 버튼 비활성화. |
+| full engine 잔여 | 🟡 | Ch2 구조물/민간인 객체, Ch3 신규 함선, Ch4 NPC protection/manual-only mode는 후속 전투 엔진 통합 필요. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `194_mcc_campaign_ch2_to_ch4.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.19 Campaign Common Systems — 구현 완료
 

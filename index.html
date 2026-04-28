@@ -24499,18 +24499,19 @@ function renderCampaignList(chapters){
   var html='';
   chapters.forEach(function(ch){
     var p=ch.progress||{};
+    var locked=((_campaignData&&_campaignData.lockedChapters)||[]).indexOf(ch.questId)>=0;
     var done=p.status==='completed'||p.status==='claimed';
     var active=p.status==='in_progress';
     var title=(ch.title&&ch.title.ko)||ch.questId;
-    var btn=done?'RESULTS':(active?'CONTINUE':'START');
+    var btn=locked?'LOCKED':(done?'RESULTS':(active?'CONTINUE':'START'));
     html+='<div class="campaign-card'+(done?' done':'')+'">';
     html+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">MCC ROUTE · CH '+ch.chapterNumber+' · '+(ch.battleResolution||'SIM')+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
-    html+='<div class="campaign-desc">Erebus 정제소 산소 호송을 차단하세요. MVP는 서버 시뮬레이션으로 전투 결과를 계산합니다.</div>';
+    html+='<div class="campaign-desc">'+escapeHtmlSafe((ch.location&&ch.location.displayNameKo)||'Mars operation')+' · MVP 서버 시뮬레이션</div>';
     if(done||active){
       var m=p.metrics||{};
-      html+='<div class="campaign-stats"><div class="campaign-stat"><b>'+(m.oxygen_recovery_pct!=null?m.oxygen_recovery_pct:'--')+'%</b><span>OXYGEN</span></div><div class="campaign-stat"><b>'+(m.ships_destroyed!=null?m.ships_destroyed:'--')+'/9</b><span>SHIPS</span></div><div class="campaign-stat"><b>'+(p.status||'NEW').toUpperCase()+'</b><span>STATUS</span></div></div>';
+      html+=campaignStatsHtml(m,p.status||'NEW');
     }
-    html+='<button class="campaign-btn" onclick="openCampaignChapter(\''+ch.questId+'\')">'+btn+'</button>';
+    html+='<button class="campaign-btn '+(locked?'secondary':'')+'" '+(locked?'disabled style="opacity:.55;cursor:not-allowed"':'onclick="openCampaignChapter(\''+ch.questId+'\')"')+'>'+btn+'</button>';
     html+='</div>';
   });
   el.innerHTML=html;
@@ -24521,11 +24522,22 @@ function _findCampaignChapter(questId){
   for(var i=0;i<arr.length;i++) if(arr[i].questId===questId) return arr[i];
   return null;
 }
+function campaignStatsHtml(m,status){
+  var a=m.oxygen_recovery_pct!=null?{v:m.oxygen_recovery_pct+'%',l:'OXYGEN'}:
+    m.facility_hp_percent!=null?{v:m.facility_hp_percent+'%',l:'FACILITY'}:
+    m.subsidiary_target?{v:String(m.subsidiary_target).toUpperCase(),l:'TARGET'}:
+    m.helion_destroyed!=null?{v:m.helion_destroyed+'/14',l:'RAID'}:{v:'--',l:'METRIC'};
+  var b=m.ships_destroyed!=null?{v:m.ships_destroyed+'/9',l:'SHIPS'}:
+    m.militia_destroyed!=null?{v:m.militia_destroyed+'/4',l:'MILITIA'}:
+    m.eclipse_kill_count!=null?{v:m.eclipse_kill_count,l:'ECLIPSE'}:
+    m.helion_escapes!=null?{v:m.helion_escapes,l:'ESCAPED'}:{v:'--',l:'RESULT'};
+  return '<div class="campaign-stats"><div class="campaign-stat"><b>'+escapeHtmlSafe(String(a.v))+'</b><span>'+a.l+'</span></div><div class="campaign-stat"><b>'+escapeHtmlSafe(String(b.v))+'</b><span>'+b.l+'</span></div><div class="campaign-stat"><b>'+escapeHtmlSafe(String(status).toUpperCase())+'</b><span>STATUS</span></div></div>';
+}
 function closeCampaignModal(){var m=document.getElementById('campaignModal');if(m)m.style.display='none';}
 function _setCampaignModal(ch, html){
   document.getElementById('campaignModalTitle').textContent=(ch.title&&ch.title.ko)||ch.questId;
   document.getElementById('campaignModalMeta').textContent='MCC ROUTE · CHAPTER '+ch.chapterNumber;
-  document.getElementById('campaignModalSub').textContent=(ch.location&&ch.location.displayNameKo||'Erebus')+' · Dust Storm incoming';
+  document.getElementById('campaignModalSub').textContent=(ch.location&&ch.location.displayNameKo||'Mars')+' · '+((ch.environment&&ch.environment.type)||'simulation');
   document.getElementById('campaignModalBody').innerHTML=html;
   document.getElementById('campaignModal').style.display='flex';
 }
@@ -24549,11 +24561,12 @@ async function openCampaignChapter(questId){
 }
 
 function showCampaignBriefing(ch,p){
-  var lines=((ch.briefing||{}).lines||[]).map(function(l){return '<div class="campaign-dialog"><b>Li Fang</b><br>'+escapeHtmlSafe(l.ko||'')+'</div>';}).join('');
+  var npc=(ch.briefing&&ch.briefing.npcName)||'Mission Control';
+  var lines=((ch.briefing||{}).lines||[]).map(function(l){return '<div class="campaign-dialog"><b>'+escapeHtmlSafe(npc)+'</b><br>'+escapeHtmlSafe(l.ko||'')+'</div>';}).join('');
   var choices=(ch.choices||[]).map(function(c){
     return '<button class="campaign-choice" onclick="chooseCampaignOption(\''+escapeHtmlSafe(c.id)+'\')">'+escapeHtmlSafe(c.labelKo||c.id)+'</button>';
   }).join('');
-  _setCampaignModal(ch, lines+'<div style="font-size:10px;color:var(--gold);margin:12px 0">⚠ Dust Storm 14:00 · 서버 시뮬레이션 MVP</div>'+choices);
+  _setCampaignModal(ch, lines+'<div style="font-size:10px;color:var(--gold);margin:12px 0">⚠ '+escapeHtmlSafe((ch.environment&&ch.environment.type)||'operation')+' · 서버 시뮬레이션 MVP</div>'+choices);
 }
 
 async function chooseCampaignOption(choiceId){
@@ -24569,9 +24582,10 @@ async function chooseCampaignOption(choiceId){
 }
 
 function showCampaignSim(ch,p){
+  var radio=((ch.briefing||{}).radio||[])[0];
   _setCampaignModal(ch,
     '<div style="font-size:13px;color:var(--tx);margin-bottom:10px">작전 진행 중...</div>'
-    +'<div class="campaign-dialog">Li Fang 무전: 광학 정확도 떨어지기 시작. 레일건 함선 우선.</div>'
+    +'<div class="campaign-dialog">'+escapeHtmlSafe((ch.briefing&&ch.briefing.npcName)||'Mission Control')+' 무전: '+escapeHtmlSafe((radio&&radio.ko)||'작전 진행 상황 업데이트.')+'</div>'
     +'<div class="qc-bar" style="height:10px;margin:16px 0"><div id="campaignSimFill" class="qc-fill activity" style="width:5%"></div></div>'
     +'<div style="font-size:9px;color:var(--tx3);text-align:center">실시간 5초 압축 시뮬레이션</div>');
   var fill=document.getElementById('campaignSimFill');
@@ -24601,8 +24615,8 @@ function showCampaignResult(ch,p,result){
   var rw=(result&&result.rewards)||p.rewards||{};
   var ok=(result&&result.success)!==false && p.status!=='failed';
   var html='<div style="font-size:18px;color:'+(ok?'var(--gn)':'var(--mars)')+';font-weight:900;margin-bottom:10px">'+(ok?'임무 완료':'임무 실패')+'</div>';
-  html+='<div class="campaign-result-grid"><div class="campaign-stat"><b>'+(m.oxygen_recovery_pct!=null?m.oxygen_recovery_pct:'--')+'%</b><span>산소 회수율</span></div><div class="campaign-stat"><b>'+(m.ships_destroyed||0)+'/9</b><span>격파 함선</span></div><div class="campaign-stat"><b>'+(m.elapsed_sec||'--')+'s</b><span>소요 시간</span></div></div>';
-  html+='<div class="campaign-dialog"><b>Li Fang</b><br>'+(ok?'회수선 막 출발. 첫 계약 깔끔해.':'작전 실패. 결과는 기록된다.')+'</div>';
+  html+=campaignStatsHtml(m,p.status||'RESULT').replace('campaign-stats','campaign-result-grid');
+  html+='<div class="campaign-dialog"><b>'+escapeHtmlSafe((ch.briefing&&ch.briefing.npcName)||'Mission Control')+'</b><br>'+(ok?'작전 목표 달성. 다음 단계로 넘어간다.':'작전 실패. 결과는 기록된다.')+'</div>';
   html+='<div style="font-size:11px;color:var(--gold);line-height:1.8">보상: +'+(rw.GP||0)+' GP · +'+(rw.XP||0)+' XP'+((rw.items&&rw.items.length)?' · Blueprint queued':'')+'</div>';
   html+='<button class="campaign-btn" style="margin-top:12px" onclick="closeCampaignModal()">확인</button>';
   _setCampaignModal(ch,html);

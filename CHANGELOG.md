@@ -1,5 +1,25 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — MCC Campaign Ch2~4 MVP 구현 (v5.20)
+
+- **MCC Ch2 "동결된 고속도로" 추가**: Hellas 채굴장 인수, `night_freezing` 환경, 시설 HP/민간인 피해/민병대 격파 서버 시뮬레이션과 보상/실패 분기 추가.
+- **MCC Ch3 "이사회" 추가**: Chen Weiss 첫 등장, Helion/Verin/Chromium 3분기 선택, Phobos Eclipse MVP 시뮬레이션, 분기별 보상과 Ch6/Ch7 branch modifier 추가.
+- **MCC Ch4 "해적 매수" 추가**: Kara Vex 첫 등장, Ion Storm 회담 호위, 함대 명령 차단 상태, Helion 습격대/생존/도주 분기 시뮬레이션 추가.
+- **통합 seed migration 추가**: Ch2~4 lore flags, branch modifiers, `clean_operator`, 신규 환경, NPC 정의, chapter/environment config를 `194_mcc_campaign_ch2_to_ch4.sql`에 추가.
+- **캠페인 UI 범용화**: QUESTS 캠페인 카드/모달/결과 화면이 Ch1 전용 문구와 지표에 묶이지 않도록 챕터별 위치/환경/주요 metric을 표시.
+- **시작 조건 적용**: prerequisite, required level, required reputation, blocking tags를 서버에서 검증하고 locked chapter는 UI에서 비활성화.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+비고:
+- Ch2 구조물/민간인 객체, Ch3 자회사 함선 6종, Ch4 NPC protection/manual-only mode의 full battle engine 통합은 후속 P2/P3.
+
 ## 2026-04-28 — Campaign Common Systems 기반 확장 (v5.19)
 
 - **공통 캠페인 DB 추가**: `campaigns`, `chapters`, `campaign_sessions`, `reputation_history`, tag/lore/branch/environment 정의 테이블과 Ch1 환경 config seed 추가.
