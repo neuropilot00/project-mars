@@ -1,6 +1,28 @@
-# OCCUPY MARS — Codebase Audit (v5.18 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.19 / 2026-04-28)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
+
+### v5.19 Campaign Common Systems — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| campaign progress/session | ✅ | 기존 Ch1 진행 테이블을 유지하면서 `campaign_sessions`, attempts, best/last metrics를 추가해 재접속/재시도 기반을 마련. |
+| reputation system | ✅ | MCC/FSP/CV/Pilgrim Arms 축 지원, -100~100 clamp, tier label, `reputation_history` 감사 로그 추가. |
+| tags/titles | ✅ | `tag_definitions`, `player_active_title`, player tag API 추가. grant/revoke는 admin secret 필요. |
+| lore flags | ✅ | `lore_flag_definitions`, player/global lore flag 기반 추가. set endpoint는 internal-only, check/get은 조회용. |
+| branch modifiers | ✅ | modifier definition/player modifier 테이블 및 active 조회 API 추가. Ch1 실패 modifier도 공통 테이블에 기록 가능. |
+| environment system | ✅ | 5개 환경 정의 seed와 Ch1 dust storm intensity curve seed 추가. 서버 helper가 현재 phase/modifier를 계산. |
+| campaign UI | ✅ | QUESTS CAMPAIGN 패널에 3축 평판 게이지 추가. |
+| security audit | ✅ | 클라이언트가 보상/평판/태그/분기를 결정하지 않도록 조작성 endpoint는 `x-admin-secret`/`x-admin-key` 필요. |
+| P2/P3 잔여 | 🟡 | 복잡 조건 evaluator, chapter spec validator, admin rollback 도구, full engine 환경 hook은 후속 단계. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+
+---
 
 ### v5.18 MCC Campaign Ch1 "산소 쟁탈" MVP — 구현 완료
 

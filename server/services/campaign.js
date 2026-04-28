@@ -2,6 +2,9 @@ const crypto = require('crypto');
 const { pool, ensureUser, awardXP, notifyPlayer } = require('../db');
 
 const CH1_ID = 'mcc_campaign_ch1';
+const FACTIONS = ['mcc', 'fsp', 'cv', 'pilgrim_arms'];
+const REP_MIN = -100;
+const REP_MAX = 100;
 
 const CHAPTERS = {
   [CH1_ID]: {
@@ -94,7 +97,7 @@ function formatProgress(row) {
 }
 
 async function ensureReputationRows(client, wallet) {
-  for (const faction of ['mcc', 'fsp', 'cv']) {
+  for (const faction of FACTIONS) {
     await client.query(
       `INSERT INTO player_reputation (wallet, faction, value)
        VALUES ($1, $2, 0) ON CONFLICT (wallet, faction) DO NOTHING`,
@@ -103,17 +106,43 @@ async function ensureReputationRows(client, wallet) {
   }
 }
 
-async function applyReputation(client, wallet, delta) {
+function clampReputation(value) {
+  return Math.max(REP_MIN, Math.min(REP_MAX, parseInt(value, 10) || 0));
+}
+
+function reputationTierLabel(value) {
+  const v = parseInt(value, 10) || 0;
+  if (v <= -75) return 'Hostile';
+  if (v <= -25) return 'Distrusted';
+  if (v <= 24) return 'Neutral';
+  if (v <= 49) return 'Friendly';
+  if (v <= 79) return 'Trusted';
+  return 'Allied';
+}
+
+async function applyReputation(client, wallet, delta, sourceType = 'campaign_chapter', sourceId = null) {
   const entries = Object.entries(delta || {});
   for (const [faction, value] of entries) {
+    if (!FACTIONS.includes(faction)) continue;
     const amount = parseInt(value, 10) || 0;
     if (!amount) continue;
+    const beforeRes = await client.query(
+      `SELECT value FROM player_reputation WHERE wallet = $1 AND faction = $2 FOR UPDATE`,
+      [wallet, faction]
+    );
+    const before = beforeRes.rows[0] ? parseInt(beforeRes.rows[0].value, 10) || 0 : 0;
+    const after = clampReputation(before + amount);
     await client.query(
       `INSERT INTO player_reputation (wallet, faction, value)
        VALUES ($1, $2, $3)
        ON CONFLICT (wallet, faction)
-       DO UPDATE SET value = player_reputation.value + $3, updated_at = NOW()`,
-      [wallet, faction, amount]
+       DO UPDATE SET value = $3, updated_at = NOW()`,
+      [wallet, faction, after]
+    );
+    await client.query(
+      `INSERT INTO reputation_history (wallet, faction, delta, before_value, after_value, source_type, source_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [wallet, faction, after - before, before, after, sourceType, sourceId]
     );
   }
 }
@@ -225,11 +254,13 @@ function calculateRewards(progress, sim) {
 
 async function getStatus(wallet) {
   const w = normalizeWallet(wallet);
-  const [progressRes, reputationRes, branchRes, inboxRes] = await Promise.all([
+  const [progressRes, reputationRes, branchRes, inboxRes, tagRes, sessionRes] = await Promise.all([
     pool.query(`SELECT * FROM player_campaign_progress WHERE wallet = $1 ORDER BY chapter_number ASC`, [w]),
     pool.query(`SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction ASC`, [w]),
     pool.query(`SELECT target_chapter, modifier_key, modifier_value, source_quest_id, created_at FROM chapter_branch_modifiers WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
     pool.query(`SELECT quest_id, reward_type, reward_code, quantity, payload, created_at FROM campaign_reward_inbox WHERE wallet = $1 AND claimed = FALSE ORDER BY created_at DESC LIMIT 20`, [w]),
+    pool.query(`SELECT tag_id FROM player_tags WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
+    pool.query(`SELECT * FROM campaign_sessions WHERE wallet = $1 AND status = 'active' ORDER BY started_at DESC LIMIT 1`, [w]),
   ]);
   const rows = progressRes.rows;
   const progressByQuest = {};
@@ -240,7 +271,12 @@ async function getStatus(wallet) {
     chapters: Object.values(CHAPTERS).map(ch => publicChapter(ch, progressByQuest[ch.questId])),
     completedChapters: rows.filter(r => r.status === 'completed' || r.status === 'claimed').map(r => r.quest_id),
     active: rows.find(r => r.status === 'in_progress') ? formatProgress(rows.find(r => r.status === 'in_progress')) : null,
+    activeSession: sessionRes.rows[0] || null,
+    availableChapters: Object.values(CHAPTERS).filter(ch => !progressByQuest[ch.questId]).map(ch => ch.questId),
+    lockedChapters: [],
     reputation,
+    tierLabels: Object.fromEntries(Object.entries(reputation).map(([f, v]) => [f, reputationTierLabel(v)])),
+    tags: tagRes.rows.map(r => r.tag_id),
     branchModifiers: branchRes.rows,
     rewardInbox: inboxRes.rows,
   };
@@ -272,6 +308,12 @@ async function startChapter(wallet, questId) {
     }
 
     const sessionId = crypto.randomBytes(16).toString('hex');
+    const randomSeed = crypto.randomBytes(8).readBigInt64BE().toString();
+    await client.query(
+      `UPDATE campaign_sessions SET status = 'abandoned', updated_at = NOW()
+       WHERE wallet = $1 AND chapter_id = $2 AND status = 'active'`,
+      [w, chapter.questId]
+    );
     const { rows } = await client.query(
       `INSERT INTO player_campaign_progress
         (wallet, quest_id, campaign_id, chapter_number, session_id, status, battle_resolution, started_at)
@@ -291,6 +333,18 @@ async function startChapter(wallet, questId) {
          updated_at = NOW()
        RETURNING *`,
       [w, chapter.questId, chapter.campaignId, chapter.chapterNumber, sessionId, chapter.battleResolution]
+    );
+    await client.query(
+      `INSERT INTO campaign_sessions (session_id, wallet, chapter_id, expires_at, random_seed, status)
+       VALUES ($1,$2,$3,NOW() + INTERVAL '1 hour',$4,'active')
+       ON CONFLICT (session_id) DO UPDATE SET
+         wallet = EXCLUDED.wallet,
+         chapter_id = EXCLUDED.chapter_id,
+         expires_at = EXCLUDED.expires_at,
+         random_seed = EXCLUDED.random_seed,
+         status = 'active',
+         updated_at = NOW()`,
+      [sessionId, w, chapter.questId, randomSeed]
     );
     await client.query('COMMIT');
     return { sessionId: rows[0].session_id, chapter: publicChapter(chapter, rows[0]), progress: formatProgress(rows[0]) };
@@ -328,7 +382,7 @@ async function choose(wallet, sessionId, choiceId) {
       return { effectsApplied: existingChoices[0].effects_applied || {}, progress: formatProgress(progress) };
     }
     const payload = [{ choice_id: choice.id, ts: new Date().toISOString(), effects_applied: choice.effects }];
-    await applyReputation(client, w, choice.effects.reputationDelta || {});
+    await applyReputation(client, w, choice.effects.reputationDelta || {}, 'choice', choice.id);
     if (choice.effects.flag) {
       await client.query(
         `INSERT INTO player_lore_flags (wallet, flag_id, source_quest_id)
@@ -364,7 +418,36 @@ async function getProgress(wallet, sessionId) {
   if (!rows[0]) return { error: 'SESSION_NOT_FOUND' };
   const p = rows[0];
   const elapsed = p.started_at ? Math.min(840, Math.floor((Date.now() - new Date(p.started_at).getTime()) / 1000 * 28)) : 0;
-  return { progress: formatProgress(p), environmentalPhase: phaseForElapsed(elapsed), preview: { elapsedSec: elapsed, oxygenRecoveryPct: Math.min(100, Math.round((elapsed / 840) * 100)) } };
+  const preview = { elapsedSec: elapsed, oxygenRecoveryPct: Math.min(100, Math.round((elapsed / 840) * 100)) };
+  await pool.query(
+    `UPDATE campaign_sessions SET current_metrics = $1, updated_at = NOW()
+     WHERE session_id = $2 AND wallet = $3 AND status = 'active'`,
+    [JSON.stringify(preview), sessionId, w]
+  );
+  return { progress: formatProgress(p), environmentalPhase: phaseForElapsed(elapsed), preview, environmentState: getEnvironmentState(CHAPTERS[p.quest_id]?.environment, elapsed) };
+}
+
+function getEnvironmentState(config, elapsedSec) {
+  if (!config) return null;
+  const phases = config.phases || [];
+  let current = phases[0] || { phase: 0, startSec: 0 };
+  let next = null;
+  for (const phase of phases) {
+    if ((phase.startSec || 0) <= elapsedSec) current = phase;
+    else { next = phase; break; }
+  }
+  return {
+    type: config.type,
+    currentPhase: current.phase || 0,
+    activeModifiers: {
+      optical_accuracy: current.accuracyMod || 0,
+      laser_range: current.rangeMod || 0,
+      railgun_accuracy: config.weaponsUnaffected?.includes('railgun') ? 0 : (current.accuracyMod || 0),
+      missile_accuracy: current.accuracyMod || 0,
+      ship_maneuverability: 0,
+    },
+    nextPhaseAtSec: next ? next.startSec : null,
+  };
 }
 
 async function complete(wallet, sessionId) {
@@ -385,7 +468,7 @@ async function complete(wallet, sessionId) {
     const rewards = calculateRewards(progress, sim);
     const status = sim.success ? 'completed' : 'failed';
 
-    await applyReputation(client, w, rewards.reputationDelta || {});
+    await applyReputation(client, w, rewards.reputationDelta || {}, 'campaign_chapter', progress.quest_id);
     if (sim.success) {
       if (rewards.GP > 0) {
         await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE wallet_address = $2', [rewards.GP, w]);
@@ -424,16 +507,29 @@ async function complete(wallet, sessionId) {
     }
 
     for (const tag of rewards.tags || []) {
-      await client.query('INSERT INTO player_tags (wallet, tag_id, source_quest_id) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING', [w, tag, progress.quest_id]);
+      await client.query(
+        `INSERT INTO player_tags (wallet, tag_id, source_quest_id, acquired_from)
+         VALUES ($1,$2,$3,$3) ON CONFLICT DO NOTHING`,
+        [w, tag, progress.quest_id]
+      );
     }
     for (const flag of rewards.loreFlags || []) {
-      await client.query('INSERT INTO player_lore_flags (wallet, flag_id, source_quest_id) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING', [w, flag, progress.quest_id]);
+      await client.query(
+        `INSERT INTO player_lore_flags (wallet, flag_id, source_quest_id, source_chapter)
+         VALUES ($1,$2,$3,$3) ON CONFLICT DO NOTHING`,
+        [w, flag, progress.quest_id]
+      );
     }
     for (const mod of rewards.branchModifiers || []) {
       await client.query(
         `INSERT INTO chapter_branch_modifiers (wallet, target_chapter, modifier_key, modifier_value, source_quest_id)
          VALUES ($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING`,
         [w, mod.targetChapter, mod.key, JSON.stringify(mod.value || {}), progress.quest_id]
+      );
+      await client.query(
+        `INSERT INTO player_branch_modifiers (wallet, modifier_id, target_chapter, source_chapter)
+         VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING`,
+        [w, mod.key, mod.targetChapter, progress.quest_id]
       );
     }
 
@@ -447,6 +543,12 @@ async function complete(wallet, sessionId) {
          metrics_payload = $4,
          outcome_payload = $5,
          rewards_payload = $6,
+         attempts = attempts + 1,
+         last_metrics = $4,
+         best_metrics = CASE
+           WHEN COALESCE((best_metrics->>'oxygen_recovery_pct')::numeric, -1) < $2 THEN $4
+           ELSE best_metrics
+         END,
          updated_at = NOW()
        WHERE id = $7 RETURNING *`,
       [
@@ -459,6 +561,11 @@ async function complete(wallet, sessionId) {
         progress.id,
       ]
     );
+    await client.query(
+      `UPDATE campaign_sessions SET status = $1, current_metrics = $2, updated_at = NOW()
+       WHERE session_id = $3`,
+      [sim.success ? 'completed' : 'expired', JSON.stringify(sim.metrics), sessionId]
+    );
     await client.query('COMMIT');
     notifyPlayer(w, 'campaign_result', sim.success ? '⚡ MCC Ch1 완료: 산소 쟁탈' : '⚠ MCC Ch1 실패: 산소 쟁탈', { questId: progress.quest_id }).catch(() => {});
     return { success: sim.success, progress: formatProgress(updated.rows[0]), metrics: sim.metrics, rewards, nextChapterUnlocked: sim.success ? 'mcc_ch2' : null };
@@ -470,4 +577,191 @@ async function complete(wallet, sessionId) {
   }
 }
 
-module.exports = { getStatus, startChapter, choose, getProgress, complete };
+async function abandon(wallet, sessionId) {
+  const w = normalizeWallet(wallet);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(
+      `UPDATE player_campaign_progress SET status = 'failed', failed_at = NOW(), updated_at = NOW()
+       WHERE wallet = $1 AND session_id = $2 AND status = 'in_progress'
+       RETURNING *`,
+      [w, sessionId]
+    );
+    if (!rows[0]) {
+      await client.query('ROLLBACK');
+      return { error: 'SESSION_NOT_FOUND' };
+    }
+    await client.query(
+      `UPDATE campaign_sessions SET status = 'abandoned', updated_at = NOW()
+       WHERE wallet = $1 AND session_id = $2 AND status = 'active'`,
+      [w, sessionId]
+    );
+    await client.query('COMMIT');
+    return { success: true, progress: formatProgress(rows[0]) };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function getReputation(wallet) {
+  const w = normalizeWallet(wallet);
+  const { rows } = await pool.query('SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction', [w]);
+  const reputation = {};
+  rows.forEach(r => { reputation[r.faction] = r.value; });
+  for (const faction of FACTIONS) if (reputation[faction] == null) reputation[faction] = 0;
+  return { reputation, tierLabels: Object.fromEntries(Object.entries(reputation).map(([f, v]) => [f, reputationTierLabel(v)])) };
+}
+
+async function applyReputationDelta(wallet, faction, delta, sourceType, sourceId) {
+  const w = normalizeWallet(wallet);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await ensureUser(client, w);
+    await ensureReputationRows(client, w);
+    await applyReputation(client, w, { [faction]: delta }, sourceType || 'admin', sourceId || 'manual');
+    await client.query('COMMIT');
+    return getReputation(w);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function getTags(wallet) {
+  const w = normalizeWallet(wallet);
+  const [tagRes, titleRes] = await Promise.all([
+    pool.query(
+      `SELECT pt.tag_id, pt.created_at, pt.source_quest_id, pt.acquired_from, td.category, td.display_name_key, td.is_negative, td.effects
+       FROM player_tags pt
+       LEFT JOIN tag_definitions td ON td.id = pt.tag_id
+       WHERE pt.wallet = $1
+       ORDER BY pt.created_at DESC`,
+      [w]
+    ),
+    pool.query('SELECT title_tag_id, set_at FROM player_active_title WHERE wallet = $1', [w]),
+  ]);
+  return { tags: tagRes.rows, activeTitle: titleRes.rows[0] || null };
+}
+
+async function grantTag(wallet, tagId, source, metadata = {}) {
+  const w = normalizeWallet(wallet);
+  await pool.query(
+    `INSERT INTO player_tags (wallet, tag_id, source_quest_id, acquired_from, metadata)
+     VALUES ($1,$2,$3,$3,$4)
+     ON CONFLICT (wallet, tag_id) DO NOTHING`,
+    [w, tagId, source || 'admin', JSON.stringify(metadata || {})]
+  );
+  return getTags(w);
+}
+
+async function revokeTag(wallet, tagId) {
+  const w = normalizeWallet(wallet);
+  const { rows } = await pool.query('SELECT removable FROM tag_definitions WHERE id = $1', [tagId]);
+  if (!rows[0]?.removable) return { error: 'TAG_NOT_REMOVABLE' };
+  await pool.query('DELETE FROM player_tags WHERE wallet = $1 AND tag_id = $2', [w, tagId]);
+  return getTags(w);
+}
+
+async function setActiveTitle(wallet, tagId) {
+  const w = normalizeWallet(wallet);
+  const { rows } = await pool.query(
+    `SELECT td.id FROM player_tags pt
+     JOIN tag_definitions td ON td.id = pt.tag_id
+     WHERE pt.wallet = $1 AND pt.tag_id = $2 AND td.category = 'title'`,
+    [w, tagId]
+  );
+  if (!rows[0]) return { error: 'TITLE_TAG_NOT_OWNED' };
+  await pool.query(
+    `INSERT INTO player_active_title (wallet, title_tag_id, set_at)
+     VALUES ($1,$2,NOW())
+     ON CONFLICT (wallet) DO UPDATE SET title_tag_id = EXCLUDED.title_tag_id, set_at = NOW()`,
+    [w, tagId]
+  );
+  return getTags(w);
+}
+
+async function getLoreFlags(wallet) {
+  const w = normalizeWallet(wallet);
+  const { rows } = await pool.query(
+    `SELECT plf.flag_id, plf.created_at, plf.source_quest_id, plf.source_chapter, plf.metadata, lfd.category, lfd.scope
+     FROM player_lore_flags plf
+     LEFT JOIN lore_flag_definitions lfd ON lfd.id = plf.flag_id
+     WHERE plf.wallet = $1
+     ORDER BY plf.created_at DESC`,
+    [w]
+  );
+  return { flags: rows };
+}
+
+async function setLoreFlag(wallet, flagId, sourceChapter, metadata = {}) {
+  const w = normalizeWallet(wallet);
+  await pool.query(
+    `INSERT INTO player_lore_flags (wallet, flag_id, source_quest_id, source_chapter, metadata)
+     VALUES ($1,$2,$3,$3,$4)
+     ON CONFLICT (wallet, flag_id) DO UPDATE SET metadata = EXCLUDED.metadata`,
+    [w, flagId, sourceChapter || 'admin', JSON.stringify(metadata || {})]
+  );
+  return getLoreFlags(w);
+}
+
+async function checkLoreFlags(wallet, flagIds) {
+  const w = normalizeWallet(wallet);
+  const ids = Array.isArray(flagIds) ? flagIds : [];
+  const { rows } = await pool.query('SELECT flag_id FROM player_lore_flags WHERE wallet = $1 AND flag_id = ANY($2)', [w, ids]);
+  const present = new Set(rows.map(r => r.flag_id));
+  return Object.fromEntries(ids.map(id => [id, present.has(id)]));
+}
+
+async function getActiveBranchModifiers(wallet, targetChapter) {
+  const w = normalizeWallet(wallet);
+  const { rows } = await pool.query(
+    `SELECT pbm.modifier_id, pbm.target_chapter, pbm.source_chapter, pbm.set_at, bmd.effects, bmd.activation_conditions
+     FROM player_branch_modifiers pbm
+     LEFT JOIN branch_modifier_definitions bmd ON bmd.id = pbm.modifier_id
+     WHERE pbm.wallet = $1 AND pbm.target_chapter = $2 AND pbm.consumed_at IS NULL
+     ORDER BY pbm.set_at DESC`,
+    [w, targetChapter]
+  );
+  const appliedEffects = {};
+  rows.forEach(r => Object.assign(appliedEffects, r.effects || {}));
+  return { activeModifiers: rows, appliedEffects };
+}
+
+async function setBranchModifier(wallet, modifierId, targetChapter, sourceChapter) {
+  const w = normalizeWallet(wallet);
+  await pool.query(
+    `INSERT INTO player_branch_modifiers (wallet, modifier_id, target_chapter, source_chapter)
+     VALUES ($1,$2,$3,$4)
+     ON CONFLICT DO NOTHING`,
+    [w, modifierId, targetChapter, sourceChapter || null]
+  );
+  return getActiveBranchModifiers(w, targetChapter);
+}
+
+module.exports = {
+  getStatus,
+  startChapter,
+  choose,
+  getProgress,
+  complete,
+  abandon,
+  getReputation,
+  applyReputationDelta,
+  getTags,
+  grantTag,
+  revokeTag,
+  setActiveTitle,
+  getLoreFlags,
+  setLoreFlag,
+  checkLoreFlags,
+  getActiveBranchModifiers,
+  setBranchModifier,
+  getEnvironmentState,
+};

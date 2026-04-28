@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-28 — Campaign Common Systems 기반 확장 (v5.19)
+
+- **공통 캠페인 DB 추가**: `campaigns`, `chapters`, `campaign_sessions`, `reputation_history`, tag/lore/branch/environment 정의 테이블과 Ch1 환경 config seed 추가.
+- **평판 시스템 확장**: MCC/FSP/CV/Pilgrim Arms 4축을 지원하고, -100~100 clamp와 `reputation_history` 감사 로그를 추가.
+- **공통 API 추가**: `/api/campaign/abandon`, `/api/reputation/*`, `/api/tags/*`, `/api/lore/*`, `/api/branch/*` 추가. 보상/평판/태그/lore/branch 조작 endpoint는 admin secret 기반 internal-only로 제한.
+- **환경 시스템 MVP 추가**: 챕터 환경 phase 상태와 전투 modifier 계산 helper를 추가해 MVP 시뮬레이션과 추후 full engine 양쪽에서 재사용 가능하게 정리.
+- **캠페인 UI 보강**: QUESTS > CAMPAIGN 패널에 MCC/FSP/CV 평판 게이지를 추가.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+
+비고:
+- 복잡한 branch modifier 조건 평가 엔진, 챕터 spec 자동 검증 스크립트, v11.1 full engine 환경 hook은 P2/P3로 분리.
+
 ## 2026-04-28 — MCC 캠페인 Ch1 MVP 구현 (v5.18)
 
 - **캠페인 기반 DB 추가**: `campaign_chapters`, `player_campaign_progress`, `player_reputation`, 선택지/태그/서사 플래그/분기 modifier/보상 inbox 테이블을 추가.

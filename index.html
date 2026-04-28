@@ -1167,6 +1167,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .campaign-choice{width:100%;text-align:left;margin:6px 0;padding:10px;border-radius:8px;background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);color:var(--tx);font-family:var(--fn);font-size:10px;cursor:pointer}
 .campaign-choice:hover{background:rgba(79,195,247,.16)}
 .campaign-result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.campaign-rep{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 10px}
+.campaign-rep-item{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px}
+.campaign-rep-top{display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:4px}
+.campaign-rep-track{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.campaign-rep-fill{height:100%;width:50%;background:#4fc3f7}
 
 /* Rank progress bar */
 .rank-progress{background:rgba(0,0,0,.3);border-radius:6px;height:14px;overflow:hidden;
@@ -6574,6 +6579,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
         <div id="campaignPanel" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
           <div class="base-section-title" style="color:#4fc3f7;margin-top:2px">⚡ CAMPAIGN</div>
+          <div id="campaignReputation"></div>
           <div id="campaignList">
             <div style="font-size:9px;color:var(--tx3);padding:8px 0">Loading campaign...</div>
           </div>
@@ -24463,11 +24469,27 @@ function loadCampaignStatus(){
     .then(function(r){return r.json()})
     .then(function(d){
       _campaignData=d;
+      renderCampaignReputation(d.reputation||{},d.tierLabels||{});
       renderCampaignList(d.chapters||[]);
     })
     .catch(function(){
       el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">Campaign unavailable.</div>';
     });
+}
+
+function renderCampaignReputation(rep,tiers){
+  var el=document.getElementById('campaignReputation');
+  if(!el) return;
+  var colors={mcc:'#4fc3f7',fsp:'#81c784',cv:'#ef5350'};
+  var labels={mcc:'MCC',fsp:'FSP',cv:'CV'};
+  var html='<div class="campaign-rep">';
+  ['mcc','fsp','cv'].forEach(function(f){
+    var v=parseInt(rep[f]||0,10);
+    var pct=Math.max(0,Math.min(100,v+100)/2);
+    html+='<div class="campaign-rep-item"><div class="campaign-rep-top"><span>'+labels[f]+'</span><span>'+v+' · '+escapeHtmlSafe(tiers[f]||'Neutral')+'</span></div><div class="campaign-rep-track"><div class="campaign-rep-fill" style="width:'+pct+'%;background:'+colors[f]+'"></div></div></div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
 }
 
 function renderCampaignList(chapters){

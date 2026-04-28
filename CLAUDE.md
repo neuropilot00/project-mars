@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-28 v5.18 (MCC Campaign Ch1 MVP, campaign DB/API/UI 기반 추가) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-28 v5.19 (Campaign Common Systems: progress/session, reputation, tags, lore, branch, environment 기반 확장) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -53,7 +53,7 @@ NODE_ENV=development
 │   ├── index.js            ← Express 앱 + 스케줄러 (~1,151줄)
 │   ├── db.js               ← Pool + initDB + getSetting + logGPActivity + 공통 유틸
 │   ├── migrate.js          ← 파일 기반 마이그레이션 러너
-│   ├── migrations/         ← SQL 파일 001~192 (2026-04-28 기준)
+│   ├── migrations/         ← SQL 파일 001~193 (2026-04-28 기준)
 │   │   └── archived/       ← 사용 안 하는 구버전 마이그레이션 (51개, 건드리지 말 것)
 │   ├── routes/             ← 61개 라우트 파일 (/api/* 경로)
 │   └── services/           ← 73개 서비스 파일 (비즈니스 로직)
@@ -69,9 +69,9 @@ NODE_ENV=development
 ## 4. DB 현재 상태
 
 - **DB명**: `pixelwar` (PostgreSQL)
-- **적용된 마이그레이션**: 001 ~ **192** (2026-04-28 기준)
+- **적용된 마이그레이션**: 001 ~ **193** (2026-04-28 기준)
 - **총 테이블 수**: 109개+
-- **마지막 마이그레이션**: `192_campaign_mcc_ch1.sql`
+- **마지막 마이그레이션**: `193_campaign_common_systems.sql`
 
 ### 핵심 테이블 목록
 
@@ -111,6 +111,13 @@ NODE_ENV=development
 | `player_lore_flags` | 서사 플래그 |
 | `chapter_branch_modifiers` | 향후 챕터 분기 영향 |
 | `campaign_reward_inbox` | blueprint 등 지연 수령 보상 |
+| `campaigns` / `chapters` | 30개 캠페인 챕터용 공통 정의 |
+| `campaign_sessions` | 진행 중 캠페인 세션/재접속 복구 |
+| `reputation_history` | 평판 변경 감사 로그 |
+| `tag_definitions` / `player_active_title` | 태그/칭호 정의 및 활성 칭호 |
+| `lore_flag_definitions` / `global_lore_flags` | player/global 서사 플래그 정의 |
+| `branch_modifier_definitions` / `player_branch_modifiers` | 챕터 간 분기 영향 정의/적용 |
+| `environment_definitions` / `chapter_environment_configs` | Dust Storm 등 환경 정의/phase curve |
 
 ### DB 뷰
 - `v_player_fleet_summary` — 유저별 함대 요약
@@ -144,6 +151,25 @@ NODE_ENV=development
 ### Battle Resolution Modes
 - `server_simulation`: 현재 Ch1 MVP. 서버 seed로 결과를 계산하고 보상을 지급한다.
 - `full_engine`: Phase 2 예정. v11.1 전투 엔진 환경 modifier, Helion 함선/화물선 보존 목표, 실시간 진행 UI를 연결한다.
+
+### Reputation / Tags / Lore Flags Distinction
+- `player_reputation`: MCC/FSP/CV/Pilgrim Arms 수치 평판. 변경 시 -100~100으로 clamp하고 `reputation_history`에 남긴다.
+- `player_tags`: 플레이어 속성/칭호/불명예 상태. 예: `cold_death`, `efficient_operator`, `war_criminal`.
+- `player_lore_flags`: 플레이어별 서사 사건 발생 기록. 예: `cold_sister_frozen`, `lifang_personal_arc_unlocked`.
+- `chapter_branch_modifiers`/`player_branch_modifiers`: 특정 향후 챕터에 적용되는 분기 효과. 현재는 단순 조회/적용, 복잡 조건 evaluator는 P2.
+
+### Campaign API Map
+- `/api/campaign/status/:wallet`: 챕터, active session, reputation, tags, branch, inbox 조회.
+- `/api/campaign/start|choice|progress|complete|abandon`: 챕터 플레이 lifecycle.
+- `/api/reputation/:wallet`: 평판 조회. `/api/reputation/delta`는 internal-only.
+- `/api/tags/:wallet`, `/api/tags/set-active-title`: 플레이어 조회/칭호 설정. `/api/tags/grant|revoke`는 internal-only.
+- `/api/lore/flags/:wallet`, `/api/lore/flag/check`: lore 조회. `/api/lore/flag/set`은 internal-only.
+- `/api/branch/active/:wallet/:targetChapter`: 활성 branch 조회. `/api/branch/set`은 internal-only.
+
+### Environment System Phases
+- 정적 정의는 `environment_definitions`, 챕터별 curve는 `chapter_environment_configs`에 seed한다.
+- 런타임 helper는 `server/services/campaign.js#getEnvironmentState()`에 있다.
+- Ch1은 `dust_storm_incoming` 4단계: 0s/280s/560s/750s. `railgun`은 accuracy penalty 면역.
 
 ---
 
