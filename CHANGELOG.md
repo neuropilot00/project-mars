@@ -1,5 +1,23 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-28 — MCC 캠페인 Ch1 MVP 구현 (v5.18)
+
+- **캠페인 기반 DB 추가**: `campaign_chapters`, `player_campaign_progress`, `player_reputation`, 선택지/태그/서사 플래그/분기 modifier/보상 inbox 테이블을 추가.
+- **MCC Route Ch1 "산소 쟁탈" 추가**: `server/services/campaign.js`에서 브리핑 선택지, 평판 변화, dust storm 단계, 산소 회수율, 성공/실패 결과를 서버 결정형 시뮬레이션으로 계산.
+- **캠페인 API 추가**: `/api/campaign/status/:wallet`, `/api/campaign/start`, `/api/campaign/choice`, `/api/campaign/progress`, `/api/campaign/complete` 추가.
+- **QUESTS 탭 CAMPAIGN UI 추가**: MCC Ch1 카드, Li Fang 브리핑 모달, 선택지, 압축 진행 화면, 결과/보상 모달을 추가.
+- **보상 지급 트랜잭션화**: GP/XP/평판/칭호/환경 숙련도/아이템 inbox 기록을 완료 처리 트랜잭션 안에서 처리.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
+비고:
+- v11.1 실시간 전투 엔진 완전 통합, Helion 전용 함선/화물선 보존 전투 로직, 프롤로그 route lock은 Phase 2로 분리.
+
 ## 2026-04-28 — 내 영토 테두리 두께 완화 (v5.17)
 
 - **내 영토 금색 테두리 완화**: halo 두께와 crisp line 두께를 낮춰 지도 위에서 과하게 떠 보이지 않도록 조정.

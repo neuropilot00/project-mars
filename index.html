@@ -1146,6 +1146,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   background:rgba(76,216,154,.03);border-radius:6px;margin-bottom:4px}
 .quest-claimed-item .qci-check{color:#4CD89A;font-size:10px}
 .quest-claimed-item .qci-reward{margin-left:auto;color:var(--pp);font-weight:bold}
+.campaign-card{background:linear-gradient(135deg,rgba(79,195,247,.14),rgba(0,0,0,.28));border:1px solid rgba(79,195,247,.28);border-radius:8px;padding:12px;margin-bottom:10px}
+.campaign-card.done{border-color:rgba(76,216,154,.35);background:rgba(76,216,154,.06)}
+.campaign-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.campaign-icon{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:rgba(79,195,247,.16);border:1px solid rgba(79,195,247,.25)}
+.campaign-title{font-size:12px;color:var(--tx);font-weight:900;letter-spacing:.8px}
+.campaign-meta{font-size:8px;color:var(--cyan);letter-spacing:1px}
+.campaign-desc{font-size:9px;color:var(--tx3);line-height:1.5;margin:6px 0 10px}
+.campaign-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.campaign-stat{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px;text-align:center}
+.campaign-stat b{display:block;font-size:11px;color:var(--gold)}
+.campaign-stat span{font-size:7px;color:var(--tx3);letter-spacing:.7px}
+.campaign-btn{width:100%;padding:9px;border:none;border-radius:8px;background:linear-gradient(135deg,#4fc3f7,#81d4fa);color:#001018;font-family:var(--fn);font-size:10px;font-weight:900;letter-spacing:1.5px;cursor:pointer}
+.campaign-btn.secondary{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--tx)}
+.campaign-modal{position:fixed;inset:0;z-index:2600;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:18px}
+.campaign-modal-card{width:min(760px,96vw);max-height:92vh;overflow:auto;background:linear-gradient(180deg,rgba(20,28,34,.98),rgba(6,8,12,.98));border:1px solid rgba(79,195,247,.35);border-radius:8px;box-shadow:0 20px 80px rgba(0,0,0,.55);font-family:var(--fn)}
+.campaign-hero{padding:22px 24px;background:linear-gradient(135deg,rgba(79,195,247,.18),rgba(255,112,40,.08));border-bottom:1px solid rgba(255,255,255,.08)}
+.campaign-body{padding:18px 24px}
+.campaign-dialog{font-size:12px;line-height:1.7;color:var(--tx);background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px;margin:10px 0}
+.campaign-choice{width:100%;text-align:left;margin:6px 0;padding:10px;border-radius:8px;background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);color:var(--tx);font-family:var(--fn);font-size:10px;cursor:pointer}
+.campaign-choice:hover{background:rgba(79,195,247,.16)}
+.campaign-result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
 
 /* Rank progress bar */
 .rank-progress{background:rgba(0,0,0,.3);border-radius:6px;height:14px;overflow:hidden;
@@ -6551,6 +6572,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           <div id="dailyBonusCard" style="display:none"></div>
         </div>
 
+        <div id="campaignPanel" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
+          <div class="base-section-title" style="color:#4fc3f7;margin-top:2px">⚡ CAMPAIGN</div>
+          <div id="campaignList">
+            <div style="font-size:9px;color:var(--tx3);padding:8px 0">Loading campaign...</div>
+          </div>
+        </div>
+
         <div id="questsContainer" style="padding:8px 10px">
           <div id="questsLoading" style="text-align:center;padding:24px;color:var(--tx3);font-size:var(--fs-xs)" data-i18n="quests_loading">Loading quests...</div>
           <div id="questsList"></div>
@@ -8611,6 +8639,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
       <button class="gc-btn gc-cancel" onclick="gameConfirmResolve(false)">CANCEL</button>
       <button class="gc-btn gc-confirm" id="gcConfirmBtn" onclick="gameConfirmResolve(true)">CONFIRM</button>
     </div>
+  </div>
+</div>
+
+<div id="campaignModal" class="campaign-modal" style="display:none" onclick="if(event.target===this)closeCampaignModal()">
+  <div class="campaign-modal-card">
+    <div class="campaign-hero">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div class="campaign-icon" style="width:42px;height:42px;font-size:22px">⚡</div>
+        <div style="flex:1">
+          <div class="campaign-meta" id="campaignModalMeta">MCC ROUTE · CHAPTER 1</div>
+          <div class="campaign-title" id="campaignModalTitle" style="font-size:20px;margin-top:4px">Oxygen Rush</div>
+          <div style="font-size:10px;color:var(--tx3);margin-top:6px" id="campaignModalSub">Erebus Crater Refinery Complex · Dust Storm incoming</div>
+        </div>
+        <button onclick="closeCampaignModal()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--tx);border-radius:8px;padding:6px 10px;cursor:pointer">✕</button>
+      </div>
+    </div>
+    <div class="campaign-body" id="campaignModalBody"></div>
   </div>
 </div>
 
@@ -24406,6 +24451,141 @@ function focusSector(sectorId){
   globe.pointOfView({lat:s.centerLat,lng:s.centerLng-180,altitude:1.2},1000);
 }
 
+// ═══ CAMPAIGN SYSTEM (MVP server simulation) ═══
+var _campaignData=null;
+var _campaignActive=null;
+function loadCampaignStatus(){
+  var el=document.getElementById('campaignList');
+  var w=walletState.address;
+  if(!el) return Promise.resolve();
+  if(!w){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">Login to view campaign chapters.</div>';return Promise.resolve();}
+  return fetch('/api/campaign/status/'+encodeURIComponent(w))
+    .then(function(r){return r.json()})
+    .then(function(d){
+      _campaignData=d;
+      renderCampaignList(d.chapters||[]);
+    })
+    .catch(function(){
+      el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">Campaign unavailable.</div>';
+    });
+}
+
+function renderCampaignList(chapters){
+  var el=document.getElementById('campaignList');
+  if(!el) return;
+  if(!chapters.length){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">No campaign chapters available.</div>';return;}
+  var html='';
+  chapters.forEach(function(ch){
+    var p=ch.progress||{};
+    var done=p.status==='completed'||p.status==='claimed';
+    var active=p.status==='in_progress';
+    var title=(ch.title&&ch.title.ko)||ch.questId;
+    var btn=done?'RESULTS':(active?'CONTINUE':'START');
+    html+='<div class="campaign-card'+(done?' done':'')+'">';
+    html+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">MCC ROUTE · CH '+ch.chapterNumber+' · '+(ch.battleResolution||'SIM')+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+    html+='<div class="campaign-desc">Erebus 정제소 산소 호송을 차단하세요. MVP는 서버 시뮬레이션으로 전투 결과를 계산합니다.</div>';
+    if(done||active){
+      var m=p.metrics||{};
+      html+='<div class="campaign-stats"><div class="campaign-stat"><b>'+(m.oxygen_recovery_pct!=null?m.oxygen_recovery_pct:'--')+'%</b><span>OXYGEN</span></div><div class="campaign-stat"><b>'+(m.ships_destroyed!=null?m.ships_destroyed:'--')+'/9</b><span>SHIPS</span></div><div class="campaign-stat"><b>'+(p.status||'NEW').toUpperCase()+'</b><span>STATUS</span></div></div>';
+    }
+    html+='<button class="campaign-btn" onclick="openCampaignChapter(\''+ch.questId+'\')">'+btn+'</button>';
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+function _findCampaignChapter(questId){
+  var arr=(_campaignData&&_campaignData.chapters)||[];
+  for(var i=0;i<arr.length;i++) if(arr[i].questId===questId) return arr[i];
+  return null;
+}
+function closeCampaignModal(){var m=document.getElementById('campaignModal');if(m)m.style.display='none';}
+function _setCampaignModal(ch, html){
+  document.getElementById('campaignModalTitle').textContent=(ch.title&&ch.title.ko)||ch.questId;
+  document.getElementById('campaignModalMeta').textContent='MCC ROUTE · CHAPTER '+ch.chapterNumber;
+  document.getElementById('campaignModalSub').textContent=(ch.location&&ch.location.displayNameKo||'Erebus')+' · Dust Storm incoming';
+  document.getElementById('campaignModalBody').innerHTML=html;
+  document.getElementById('campaignModal').style.display='flex';
+}
+
+async function openCampaignChapter(questId){
+  var w=walletState.address;
+  if(!w){showToast('LOGIN FIRST');return;}
+  var ch=_findCampaignChapter(questId);
+  if(!ch){await loadCampaignStatus();ch=_findCampaignChapter(questId);}
+  if(!ch){showToast('Campaign not loaded');return;}
+  var p=ch.progress||{};
+  if(p.status==='completed'||p.status==='claimed') return showCampaignResult(ch,p);
+  try{
+    var resp=await fetch('/api/campaign/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,quest_id:questId})});
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'Campaign start failed');return;}
+    ch=d.chapter||ch; p=d.progress||{};
+    _campaignActive={chapter:ch,progress:p,sessionId:d.sessionId||p.sessionId};
+    showCampaignBriefing(ch,p);
+  }catch(e){showToast('Campaign start failed');}
+}
+
+function showCampaignBriefing(ch,p){
+  var lines=((ch.briefing||{}).lines||[]).map(function(l){return '<div class="campaign-dialog"><b>Li Fang</b><br>'+escapeHtmlSafe(l.ko||'')+'</div>';}).join('');
+  var choices=(ch.choices||[]).map(function(c){
+    return '<button class="campaign-choice" onclick="chooseCampaignOption(\''+escapeHtmlSafe(c.id)+'\')">'+escapeHtmlSafe(c.labelKo||c.id)+'</button>';
+  }).join('');
+  _setCampaignModal(ch, lines+'<div style="font-size:10px;color:var(--gold);margin:12px 0">⚠ Dust Storm 14:00 · 서버 시뮬레이션 MVP</div>'+choices);
+}
+
+async function chooseCampaignOption(choiceId){
+  var w=walletState.address, a=_campaignActive;
+  if(!w||!a){showToast('Campaign session missing');return;}
+  try{
+    var r=await fetch('/api/campaign/choice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,session_id:a.sessionId,choice_id:choiceId})});
+    var d=await r.json();
+    if(!r.ok){showToast(d.error||'Choice failed');return;}
+    a.progress=d.progress||a.progress;
+    showCampaignSim(a.chapter,a.progress);
+  }catch(e){showToast('Choice failed');}
+}
+
+function showCampaignSim(ch,p){
+  _setCampaignModal(ch,
+    '<div style="font-size:13px;color:var(--tx);margin-bottom:10px">작전 진행 중...</div>'
+    +'<div class="campaign-dialog">Li Fang 무전: 광학 정확도 떨어지기 시작. 레일건 함선 우선.</div>'
+    +'<div class="qc-bar" style="height:10px;margin:16px 0"><div id="campaignSimFill" class="qc-fill activity" style="width:5%"></div></div>'
+    +'<div style="font-size:9px;color:var(--tx3);text-align:center">실시간 5초 압축 시뮬레이션</div>');
+  var fill=document.getElementById('campaignSimFill');
+  var pct=5;
+  var timer=setInterval(function(){
+    pct+=9;
+    if(fill) fill.style.width=Math.min(100,pct)+'%';
+    if(pct>=100){clearInterval(timer);completeCampaignMission();}
+  },450);
+}
+
+async function completeCampaignMission(){
+  var w=walletState.address, a=_campaignActive;
+  if(!w||!a) return;
+  try{
+    var r=await fetch('/api/campaign/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,session_id:a.sessionId})});
+    var d=await r.json();
+    if(!r.ok){showToast(d.error||'Campaign complete failed');return;}
+    showCampaignResult(a.chapter,d.progress,d);
+    loadCampaignStatus();
+    try{refreshEmailBalances()}catch(e){}
+  }catch(e){showToast('Campaign complete failed');}
+}
+
+function showCampaignResult(ch,p,result){
+  var m=(result&&result.metrics)||p.metrics||{};
+  var rw=(result&&result.rewards)||p.rewards||{};
+  var ok=(result&&result.success)!==false && p.status!=='failed';
+  var html='<div style="font-size:18px;color:'+(ok?'var(--gn)':'var(--mars)')+';font-weight:900;margin-bottom:10px">'+(ok?'임무 완료':'임무 실패')+'</div>';
+  html+='<div class="campaign-result-grid"><div class="campaign-stat"><b>'+(m.oxygen_recovery_pct!=null?m.oxygen_recovery_pct:'--')+'%</b><span>산소 회수율</span></div><div class="campaign-stat"><b>'+(m.ships_destroyed||0)+'/9</b><span>격파 함선</span></div><div class="campaign-stat"><b>'+(m.elapsed_sec||'--')+'s</b><span>소요 시간</span></div></div>';
+  html+='<div class="campaign-dialog"><b>Li Fang</b><br>'+(ok?'회수선 막 출발. 첫 계약 깔끔해.':'작전 실패. 결과는 기록된다.')+'</div>';
+  html+='<div style="font-size:11px;color:var(--gold);line-height:1.8">보상: +'+(rw.GP||0)+' GP · +'+(rw.XP||0)+' XP'+((rw.items&&rw.items.length)?' · Blueprint queued':'')+'</div>';
+  html+='<button class="campaign-btn" style="margin-top:12px" onclick="closeCampaignModal()">확인</button>';
+  _setCampaignModal(ch,html);
+}
+
 // ═══ QUEST SYSTEM ═══
 var _questPoolData={active:true,multiplier:1};
 function loadQuests(wallet){
@@ -24419,6 +24599,7 @@ function loadQuests(wallet){
     .then(function(data){
       loading.style.display='none';
       if(data.pool) _questPoolData=data.pool;
+      loadCampaignStatus();
       renderQuests(data.quests||[], container);
       renderClaimedQuests(data.recentlyClaimed||[], claimedDiv);
     })

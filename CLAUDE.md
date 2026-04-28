@@ -1,10 +1,10 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-28 v5.17 (영토 렌더 시인성/테두리 조정, 커밋 시 audit/changelog 동반 규칙 추가) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-28 v5.18 (MCC Campaign Ch1 MVP, campaign DB/API/UI 기반 추가) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
-> 2. **CLAUDE.md §13** — 알려진 이슈 (해소/잔여)
-> 3. **CLAUDE.md §14** — 서비스 카탈로그
+> 2. **CLAUDE.md의 알려진 이슈 섹션** — 해소/잔여 이슈
+> 3. **CLAUDE.md의 서비스 카탈로그 섹션** — 주요 API/서비스 위치
 
 ---
 
@@ -53,7 +53,7 @@ NODE_ENV=development
 │   ├── index.js            ← Express 앱 + 스케줄러 (~1,151줄)
 │   ├── db.js               ← Pool + initDB + getSetting + logGPActivity + 공통 유틸
 │   ├── migrate.js          ← 파일 기반 마이그레이션 러너
-│   ├── migrations/         ← SQL 파일 001~168 (2026-04-25 기준)
+│   ├── migrations/         ← SQL 파일 001~192 (2026-04-28 기준)
 │   │   └── archived/       ← 사용 안 하는 구버전 마이그레이션 (51개, 건드리지 말 것)
 │   ├── routes/             ← 61개 라우트 파일 (/api/* 경로)
 │   └── services/           ← 73개 서비스 파일 (비즈니스 로직)
@@ -69,9 +69,9 @@ NODE_ENV=development
 ## 4. DB 현재 상태
 
 - **DB명**: `pixelwar` (PostgreSQL)
-- **적용된 마이그레이션**: 001 ~ **168** (2026-04-25 기준)
+- **적용된 마이그레이션**: 001 ~ **192** (2026-04-28 기준)
 - **총 테이블 수**: 109개+
-- **마지막 마이그레이션**: `168_sector_npc_ships.sql`
+- **마지막 마이그레이션**: `192_campaign_mcc_ch1.sql`
 
 ### 핵심 테이블 목록
 
@@ -103,6 +103,14 @@ NODE_ENV=development
 | `user_vip` | 유저 VIP 상태 |
 | **알림** | |
 | `player_notifications` | 플레이어 알림 (in-game) |
+| **Campaign** | |
+| `campaign_chapters` | 캠페인 챕터 메타/콘텐츠 |
+| `player_campaign_progress` | 캠페인 세션/진행도/결과/보상 payload |
+| `player_reputation` | mcc/fsp/cv 평판 |
+| `player_chapter_choices` | 브리핑 선택지 영구 기록 |
+| `player_lore_flags` | 서사 플래그 |
+| `chapter_branch_modifiers` | 향후 챕터 분기 영향 |
+| `campaign_reward_inbox` | blueprint 등 지연 수령 보상 |
 
 ### DB 뷰
 - `v_player_fleet_summary` — 유저별 함대 요약
@@ -111,7 +119,35 @@ NODE_ENV=development
 
 ---
 
-## 5. 코딩 패턴 — 반드시 준수
+## 5. Campaign System Architecture
+
+### 현재 구현 상태 (v5.18)
+- **MVP 방식**: MCC Campaign Ch1은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
+- **API**: `server/routes/api.js`의 `/api/campaign/status/:wallet`, `/api/campaign/start`, `/api/campaign/choice`, `/api/campaign/progress`, `/api/campaign/complete`.
+- **DB**: `server/migrations/192_campaign_mcc_ch1.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox 테이블을 만든다.
+- **UI**: `index.html` QUESTS 탭의 CAMPAIGN 섹션에서 시작한다. 브리핑 → 선택지 → 압축 시뮬레이션 → 결과 모달 흐름.
+- **보상 정책**: GP/XP/평판/칭호/환경 숙련도/blueprint inbox 기록은 `complete()` 트랜잭션 안에서 처리한다. 클라이언트는 최종 보상값을 제출하지 않는다.
+
+### Adding New Chapter Workflow
+1. `campaign_chapters` seed 또는 `CHAPTERS` 정의에 새 `questId`를 추가한다.
+2. `simulate*()`와 `calculateRewards()`를 챕터별로 분기한다.
+3. 시작 조건, choice id, reward id는 서버에서만 검증한다.
+4. UI는 `status` 응답의 chapter list를 렌더하므로, 가능하면 API payload 호환성을 유지한다.
+5. 커밋/푸시 전 `CHANGELOG.md`와 `AUDIT_FINDINGS.md`를 함께 갱신한다.
+
+### Branch Modifier System
+- `player_lore_flags`: 한 번 켜지는 서사 플래그.
+- `player_tags`: 플레이어 성향/업적 태그.
+- `chapter_branch_modifiers`: 특정 향후 챕터에만 영향을 주는 modifier.
+- 실패 분기 예: `cold_death` → `cold_sister_frozen`, `mcc_ch6/chen_distrust_increased`.
+
+### Battle Resolution Modes
+- `server_simulation`: 현재 Ch1 MVP. 서버 seed로 결과를 계산하고 보상을 지급한다.
+- `full_engine`: Phase 2 예정. v11.1 전투 엔진 환경 modifier, Helion 함선/화물선 보존 목표, 실시간 진행 UI를 연결한다.
+
+---
+
+## 6. 코딩 패턴 — 반드시 준수
 
 ### ① 설정값 조회 (하드코딩 금지)
 ```javascript

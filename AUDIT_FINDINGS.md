@@ -1,6 +1,28 @@
-# OCCUPY MARS — Codebase Audit (v5.17 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.18 / 2026-04-28)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
+
+### v5.18 MCC Campaign Ch1 "산소 쟁탈" MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 기존 quest 시스템 호환성 | ✅ | daily/weekly quest 진행 테이블을 건드리지 않고 `player_campaign_progress`로 분리해 기존 QUESTS 로직과 충돌을 피함. |
+| 캠페인 DB 기반 | ✅ | chapter 메타, 진행도, 선택지, 평판, 태그, lore flag, branch modifier, reward inbox 테이블 추가. |
+| `/api/campaign/*` | ✅ | status/start/choice/progress/complete 5개 엔드포인트 추가. wallet/player_id alias와 session 검증 적용. |
+| 선택지 위변조 방어 | ✅ | 서버가 chapter 정의의 choice id만 허용하고, 이미 선택한 세션은 첫 선택지만 유지. 클라이언트 보상 payload는 받지 않음. |
+| 보상 지급 | ✅ | GP/XP/평판/칭호/환경 숙련도/blueprint inbox/진행도 갱신을 완료 트랜잭션 안에서 처리. |
+| 시뮬레이션 결정성 | ✅ | wallet + session_id + choice_id 기반 seed로 같은 세션 결과가 서버에서 결정됨. |
+| UI 진입 | ✅ | QUESTS 탭에 CAMPAIGN 카드, 브리핑 선택지, 진행 애니메이션, 결과 모달 추가. |
+| Phase 2 잔여 | 🟡 | v11.1 전투 엔진 통합, Helion 전용 함선/화물선 HP 보존 목표, 프롤로그 route lock/NG+는 다음 단계로 분리. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.17 내 영토 테두리 두께 완화 — 수정 완료
 

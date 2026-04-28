@@ -51,6 +51,8 @@ let titleService;
 try { titleService = require('../services/title'); } catch (_e) { /* title service not available */ }
 let titleExt;
 try { titleExt = require('../services/titleExtended'); } catch (_e) { /* titleExtended not available */ }
+let campaignService;
+try { campaignService = require('../services/campaign'); } catch (_e) { /* campaign service not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -3490,6 +3492,83 @@ router.post('/quests/track', writeLimiter, async (req, res) => {
     res.json({ tracked: updated.length, quests: updated });
   } catch (e) {
     console.error('[API] quest track error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════
+// CAMPAIGN SYSTEM — story chapters (MVP server simulation)
+// ══════════════════════════════════════
+
+router.get('/campaign/status/:wallet', readLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.params.wallet, 255).toLowerCase();
+    if (!wallet) return res.status(400).json({ error: 'wallet required' });
+    res.json(await campaignService.getStatus(wallet));
+  } catch (e) {
+    console.error('[CAMPAIGN] status error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/campaign/start', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const questId = sanitize(req.body.quest_id || 'mcc_campaign_ch1', 80);
+    if (!wallet) return res.status(400).json({ error: 'wallet required' });
+    const result = await campaignService.startChapter(wallet, questId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] start error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/campaign/choice', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
+    const choiceId = sanitize(req.body.choice_id || req.body.choiceId, 100);
+    if (!wallet || !sessionId || !choiceId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.choose(wallet, sessionId, choiceId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] choice error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/campaign/progress', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
+    if (!wallet || !sessionId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.getProgress(wallet, sessionId);
+    if (result.error) return res.status(404).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] progress error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/campaign/complete', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
+    if (!wallet || !sessionId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.complete(wallet, sessionId);
+    if (result.error) return res.status(404).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] complete error:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
 });
