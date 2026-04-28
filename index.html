@@ -20579,7 +20579,7 @@ window.openWorldEventDetail = window.openWorldEventDetail || function(eventId){
   if (typeof gameAlert === 'function') {
     gameAlert('교전 신청 UI는 다음 업데이트에서 추가됩니다 (event #' + eventId + ')');
   } else {
-    alert('Engage UI coming soon (event #' + eventId + ')');
+    gameAlert('Engage UI coming soon (event #' + eventId + ')');
   }
 };
 
@@ -25219,9 +25219,8 @@ async function renameTerritory(plot){
   var w=walletState.address;
   if(!w){showToast('LOGIN FIRST');return}
   var currentName=plot.customName||'';
-  // Prompt for new name
-  var name=prompt('Enter territory name (max 20 chars, costs 0.3 PP):',currentName);
-  if(name===null||name.trim()==='')return;
+  var name=await gameInput({title:'영토 이름 변경',label:'이름 (최대 20자, 비용 0.3 PP)',placeholder:currentName,defaultValue:currentName,maxLength:20});
+  if(name===null||name===undefined||name.trim()==='')return;
   name=name.trim().substring(0,20);
   try{
     var headers={'Content-Type':'application/json'};
@@ -31308,18 +31307,17 @@ function _loadContestEntries(contestId, wallet) {
   });
 }
 
-function openContestSubmitModal(contestId, entryFeeGp) {
+async function openContestSubmitModal(contestId, entryFeeGp) {
   var w = walletState && walletState.address;
   if (!w) { gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
-  var feeMsg = Number(entryFeeGp) > 0 ? '\nEntry fee: '+entryFeeGp+' GP' : '';
-  var title  = prompt((t('contest_title_prompt')||'Your artwork title:'));
+  var feeMsg = Number(entryFeeGp) > 0 ? ' · Entry fee: '+entryFeeGp+' GP' : '';
+  var title = await gameInput({title:'작품 제출',label:t('contest_title_prompt')||'작품 제목',placeholder:'My Artwork',maxLength:80});
   if (!title || !title.trim()) return;
-  var imageUrl = prompt((t('contest_image_prompt')||'Image URL for your artwork (optional):'));
-  var desc     = prompt((t('contest_desc_prompt') ||'Brief description (optional):'));
+  var imageUrl = await gameInput({title:'이미지 URL',label:t('contest_image_prompt')||'이미지 URL (선택)',placeholder:'https://',maxLength:300});
+  var desc = await gameInput({title:'설명',label:t('contest_desc_prompt')||'간단한 설명 (선택)',placeholder:'',maxLength:200});
 
-  gameConfirm('🎨', 'SUBMIT ARTWORK',
-    'Title: '+title.trim()+feeMsg)
-    .then(function(ok) {
+  var ok = await gameConfirm({icon:'🎨',title:'작품 제출',body:'제목: <b>'+escapeHTML(title.trim())+'</b>'+feeMsg,confirmText:'제출'});
+  Promise.resolve(ok).then(function(ok) {
       if (!ok) return;
       return fetch('/api/contests/submit', {
         method: 'POST',
@@ -31504,7 +31502,7 @@ function openListForRentModal() {
           items: [{label:'6 hours',value:6},{label:'12 hours',value:12},{label:'24 hours',value:24},{label:'48 hours',value:48},{label:'72 hours',value:72}]
         }).then(function(periodHours){
           if (!periodHours) return;
-          var gpStr = prompt((t('rental_gp_prompt')||'GP per '+periodHours+'h period (e.g. 50):'));
+          return gameInput({title:'렌탈 요금',label:t('rental_gp_prompt')||'GP / '+periodHours+'h 기간 (예: 50)',placeholder:'50',maxLength:10}).then(function(gpStr){
           if (!gpStr) return;
           return Promise.resolve().then(function(){
             var gp = parseFloat(gpStr);
@@ -31519,6 +31517,7 @@ function openListForRentModal() {
               loadRentalPanel();
             });
           });
+          }); // gameInput
         });
       });
     }).catch(function(){ gameAlert('Failed to load territories'); });
@@ -34576,10 +34575,10 @@ function createAllianceAction() {
   });
 }
 
-function openAllianceDepositModal() {
+async function openAllianceDepositModal() {
   var w = walletState && walletState.address;
   if (!w) return;
-  var amt = prompt(t('alliance_deposit_prompt')||'How much GP to deposit?', '50');
+  var amt = await gameInput({title:'금고 입금',label:t('alliance_deposit_prompt')||'입금할 GP 금액',placeholder:'50',defaultValue:'50',maxLength:10});
   if (!amt) return;
   amt = parseFloat(amt);
   if (isNaN(amt) || amt <= 0) { showToast('Invalid amount','error'); return; }
@@ -34594,16 +34593,16 @@ function openAllianceDepositModal() {
   }).catch(function(e){ showToast(e.message,'error'); });
 }
 
-function openAllianceWithdrawModal() {
+async function openAllianceWithdrawModal() {
   var w = walletState && walletState.address;
   if (!w) return;
   var min = (_allianceSettings && _allianceSettings.withdrawMin) || 10;
   var fee = (_allianceSettings && _allianceSettings.withdrawFeePct) || 5;
-  var amt = prompt((t('alliance_withdraw_prompt')||'Withdraw GP from treasury (min '+min+', '+fee+'% fee):'), String(min));
+  var amt = await gameInput({title:'금고 출금',label:t('alliance_withdraw_prompt')||'출금 GP (최소 '+min+', 수수료 '+fee+'%)',placeholder:String(min),defaultValue:String(min),maxLength:10});
   if (!amt) return;
   amt = parseFloat(amt);
-  if (isNaN(amt) || amt < min) { showToast('Minimum withdrawal is '+min+' GP','error'); return; }
-  var note = prompt((t('alliance_withdraw_note_prompt')||'Note (optional):'), '');
+  if (isNaN(amt) || amt < min) { showToast('최소 출금액: '+min+' GP','error'); return; }
+  var note = await gameInput({title:'출금 메모',label:t('alliance_withdraw_note_prompt')||'메모 (선택)',placeholder:'',maxLength:100});
   fetch('/api/alliances/withdraw', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
@@ -43917,10 +43916,10 @@ async function renderAllianceList() {
 }
 
 async function openCreateAlliance() {
-  const name = prompt('동맹 이름 (60자 이하):');
+  const name = await gameInput({title:'동맹 창설',label:'동맹 이름 (60자 이하)',placeholder:'예: 화성 연합',maxLength:60});
   if (!name || !name.trim()) return;
-  
-  const tag = prompt('동맹 태그 (2~6자, 선택):', '');
+
+  const tag = await gameInput({title:'동맹 태그',label:'태그 (2~6자, 선택)',placeholder:'예: MRS',maxLength:6});
   
   var ok=await gameConfirm({icon:'🤝',title:'동맹 창설',body:'이름: <b>'+escapeHTML(name)+'</b>'+(tag?(' · 태그: <b>'+escapeHTML(tag)+'</b>'):'')+'<br>비용: <b>5000 GP</b>',confirmText:'창설'});
   if(!ok) return;

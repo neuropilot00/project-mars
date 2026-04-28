@@ -203,9 +203,56 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   letter-spacing:1px;background:rgba(255,120,60,.14);border:1px solid var(--bdr2);
   color:var(--mars);cursor:pointer;border-radius:4px;}
 .acm-ok:hover{background:rgba(255,120,60,.28);}
+
+/* Admin Toast */
+#adminToast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  z-index:99998;background:#1a1628;border:1px solid var(--bdr2);border-radius:8px;
+  padding:11px 20px;font-size:10px;letter-spacing:1px;color:var(--tx);
+  white-space:nowrap;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;font-family:var(--fn);}
+#adminToast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+#adminToast.err{border-color:rgba(232,72,85,.5);color:#f87680;}
+#adminToast.ok{border-color:rgba(76,216,154,.4);color:#4cd89a;}
+
+/* Admin Input Modal */
+#adminInputModal{display:none;position:fixed;inset:0;z-index:99999;
+  background:rgba(5,3,10,.82);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;}
+#adminInputModal.on{display:flex;}
+.aim-box{background:#0e0c18;border:1px solid var(--bdr2);border-radius:8px;
+  padding:28px 30px;max-width:400px;width:90%;
+  box-shadow:0 0 40px rgba(255,120,60,.1);font-family:var(--fn);}
+.aim-title{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--mars);margin-bottom:14px;text-align:center;}
+.aim-label{font-size:8px;color:var(--tx2);letter-spacing:1px;margin-bottom:6px;}
+.aim-input{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--bdr2);border-radius:4px;
+  padding:9px 12px;color:var(--tx);font-family:var(--fn);font-size:10px;margin-bottom:16px;}
+.aim-input:focus{outline:none;border-color:var(--mars);}
+.aim-btns{display:flex;gap:10px;justify-content:center;}
+.aim-cancel{padding:9px 22px;font-family:var(--fn);font-size:9px;letter-spacing:1px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);
+  color:var(--tx2);cursor:pointer;border-radius:4px;}
+.aim-cancel:hover{background:rgba(255,255,255,.07);}
+.aim-ok{padding:9px 22px;font-family:var(--fn);font-size:9px;font-weight:700;
+  letter-spacing:1px;background:rgba(255,120,60,.14);border:1px solid var(--bdr2);
+  color:var(--mars);cursor:pointer;border-radius:4px;}
+.aim-ok:hover{background:rgba(255,120,60,.28);}
 </style>
 </head>
 <body>
+<div id="adminToast"></div>
+
+<div id="adminInputModal">
+  <div class="aim-box">
+    <div class="aim-title" id="aimTitle">INPUT</div>
+    <div class="aim-label" id="aimLabel"></div>
+    <input class="aim-input" id="aimInput" type="text" autocomplete="off">
+    <div class="aim-btns">
+      <button class="aim-cancel" id="aimCancel">CANCEL</button>
+      <button class="aim-ok" id="aimOk">OK</button>
+    </div>
+  </div>
+</div>
+
 <div id="adminConfirmModal">
   <div class="acm-box">
     <div class="acm-title" id="acmTitle">CONFIRM</div>
@@ -2731,6 +2778,49 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
 </div>
 
 <script>
+// ── showToast ──
+var _toastTimer = null;
+function showToast(msg, type, duration) {
+  var el = document.getElementById('adminToast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'on' + (type === 'error' ? ' err' : type === 'success' ? ' ok' : '');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function() { el.className = el.className.replace(' on','').replace('on',''); }, duration || 3000);
+}
+
+// ── adminInput ──
+var _aimResolver = null;
+function adminInput(msg, defaultVal, title) {
+  return new Promise(function(resolve) {
+    _aimResolver = resolve;
+    document.getElementById('aimTitle').textContent = title || 'INPUT';
+    document.getElementById('aimLabel').textContent = msg || '';
+    var inp = document.getElementById('aimInput');
+    inp.value = defaultVal || '';
+    inp.placeholder = defaultVal || '';
+    var modal = document.getElementById('adminInputModal');
+    modal.classList.add('on');
+    setTimeout(function(){ inp.focus(); inp.select(); }, 50);
+    function done(val) {
+      modal.classList.remove('on');
+      inp.onkeydown = null;
+      document.getElementById('aimOk').onclick = null;
+      document.getElementById('aimCancel').onclick = null;
+      modal.onclick = null;
+      if (_aimResolver) { _aimResolver(val); _aimResolver = null; }
+    }
+    document.getElementById('aimOk').onclick = function() { done(inp.value); };
+    document.getElementById('aimCancel').onclick = function() { done(null); };
+    modal.onclick = function(e) { if (e.target === modal) done(null); };
+    inp.onkeydown = function(e) {
+      if (e.key === 'Enter') done(inp.value);
+      if (e.key === 'Escape') done(null);
+    };
+  });
+}
+
+// ── adminConfirm ──
 var _acmResolver = null;
 function adminConfirm(msg, title) {
   return new Promise(function(resolve) {
@@ -3181,14 +3271,14 @@ function loadQuestPool() {
 }
 function fundQuestPool() {
   var amt = document.getElementById('qpFundAmount').value;
-  if (!amt || parseFloat(amt) <= 0) return alert('Enter a valid amount');
+  if (!amt || parseFloat(amt) <= 0) return showToast('Enter a valid amount');
   api('/admin/api/quest-pool/fund', 'POST', { amount: parseFloat(amt) }).then(function(d) {
     if (d.success) { loadQuestPool(); document.getElementById('qpFundAmount').value = ''; }
   });
 }
 async function setQuestPool() {
   var amt = document.getElementById('qpFundAmount').value;
-  if (amt === '' || parseFloat(amt) < 0) return alert('Enter a valid balance');
+  if (amt === '' || parseFloat(amt) < 0) return showToast('Enter a valid balance');
   if (!await adminConfirm('Set pool balance to ' + amt + ' PP?')) return;
   api('/admin/api/quest-pool/set', 'POST', { balance: parseFloat(amt) }).then(function(d) {
     if (d.success) { loadQuestPool(); document.getElementById('qpFundAmount').value = ''; }
@@ -3672,7 +3762,7 @@ function showNewEventForm() {
 function createEvent() {
   var configStr = document.getElementById('evConfig').value || '{}';
   var config;
-  try { config = JSON.parse(configStr); } catch(e) { alert('Invalid JSON in config'); return; }
+  try { config = JSON.parse(configStr); } catch(e) { showToast('Invalid JSON in config'); return; }
 
   fetch('/admin/api/events', {
     method: 'POST',
@@ -3904,11 +3994,11 @@ async function resetAllClaims() {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
     body: JSON.stringify({ keepUsers: true, deployNpcs: true })
   }).then(function(r) { return r.json(); }).then(function(d) {
-    if (d.error) { alert('Error: ' + d.error); return; }
-    alert('Reset complete!\n\nClaims deleted: ' + d.claimsDeleted + '\nPixels removed: ' + d.pixelsRemoved + '\nNPCs deployed: ' + d.npcsDeployed);
+    if (d.error) { showToast('Error: ' + d.error); return; }
+    showToast('Reset complete!\n\nClaims deleted: ' + d.claimsDeleted + '\nPixels removed: ' + d.pixelsRemoved + '\nNPCs deployed: ' + d.npcsDeployed);
     loadClaims();
     loadStats();
-  }).catch(function(e) { alert('Reset failed: ' + e.message); });
+  }).catch(function(e) { showToast('Reset failed: ' + e.message); });
 }
 
 function loadClaims() {
@@ -3969,12 +4059,12 @@ async function deleteClaim(id) {
     headers: { 'x-admin-secret': adminSecret }
   }).then(function(r) { return r.json(); }).then(function(d) {
     if (d.success) {
-      alert('Claim #' + id + ' deleted (' + (d.pixelsRemoved || 0) + ' pixels removed)');
+      showToast('Claim #' + id + ' deleted (' + (d.pixelsRemoved || 0) + ' pixels removed)');
       loadClaims();
     } else {
-      alert('Failed: ' + (d.error || 'unknown'));
+      showToast('Failed: ' + (d.error || 'unknown'));
     }
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ═══ ITEM SHOP MANAGEMENT ═══
@@ -4009,13 +4099,13 @@ function toggleShopItem(id, active) {
     method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
     body: JSON.stringify({ active: active })
   }).then(function(r) { return r.json(); }).then(function(d) {
-    if (d.success) loadShopItems(); else alert(d.error || 'Failed');
+    if (d.success) loadShopItems(); else showToast(d.error || 'Failed');
   });
 }
 
-function editShopItem(id) {
-  var newPP = prompt('New PP price (leave blank to skip):');
-  var newUSDT = prompt('New USDT price (leave blank to skip):');
+async function editShopItem(id) {
+  var newPP = await adminInput('New PP price (leave blank to skip):');
+  var newUSDT = await adminInput('New USDT price (leave blank to skip):');
   var body = {};
   if (newPP && newPP.trim()) body.price_pp = parseFloat(newPP);
   if (newUSDT && newUSDT.trim()) body.price_usdt = parseFloat(newUSDT);
@@ -4024,7 +4114,7 @@ function editShopItem(id) {
     method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
     body: JSON.stringify(body)
   }).then(function(r) { return r.json(); }).then(function(d) {
-    if (d.success) { loadShopItems(); alert('Updated!'); } else alert(d.error || 'Failed');
+    if (d.success) { loadShopItems(); showToast('Updated!'); } else showToast(d.error || 'Failed');
   });
 }
 
@@ -4034,7 +4124,7 @@ function createShopItem() {
   var code = document.getElementById('siCode').value.trim();
   var name = document.getElementById('siName').value.trim();
   var cat = document.getElementById('siCat').value;
-  if (!code || !name) { alert('Code and Name required'); return; }
+  if (!code || !name) { showToast('Code and Name required'); return; }
   fetch('/admin/api/shop-items', {
     method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
     body: JSON.stringify({
@@ -4051,7 +4141,7 @@ function createShopItem() {
     if (d.success) {
       document.getElementById('newShopItemForm').style.display = 'none';
       loadShopItems();
-    } else alert(d.error || 'Failed');
+    } else showToast(d.error || 'Failed');
   });
 }
 
@@ -4099,7 +4189,7 @@ async function removeShield(id) {
   fetch('/admin/api/shields/' + id, {
     method: 'DELETE', headers: { 'x-admin-secret': adminSecret }
   }).then(function(r) { return r.json(); }).then(function(d) {
-    if (d.success) loadAdminShields(); else alert('Failed');
+    if (d.success) loadAdminShields(); else showToast('Failed');
   });
 }
 
@@ -4144,8 +4234,8 @@ async function govClearCommander() {
   fetch('/admin/api/governance/commander/clear', { method:'POST', headers:{'x-admin-secret':adminSecret} })
     .then(function(r){return r.json()}).then(function(d){
       if (d.success) { showToast('🧹 사령관 클리어 완료'); loadGovData(); }
-      else alert('실패: ' + (d.error || JSON.stringify(d)));
-    }).catch(function(e){ alert('오류: ' + e.message); });
+      else showToast('실패: ' + (d.error || JSON.stringify(d)));
+    }).catch(function(e){ showToast('오류: ' + e.message); });
 }
 
 // 모든 거버너 + 사령관 + 공지 일괄 클리어 (claims/pixels 유지)
@@ -4154,8 +4244,8 @@ async function govClearAll() {
   fetch('/admin/api/governance/clear-all', { method:'POST', headers:{'x-admin-secret':adminSecret} })
     .then(function(r){return r.json()}).then(function(d){
       if (d.success) { showToast('🗑 전체 거버넌스 클리어 완료'); loadGovData(); }
-      else alert('실패: ' + (d.error || JSON.stringify(d)));
-    }).catch(function(e){ alert('오류: ' + e.message); });
+      else showToast('실패: ' + (d.error || JSON.stringify(d)));
+    }).catch(function(e){ showToast('오류: ' + e.message); });
 }
 
 // 특정 섹터 거버너만 초기화
@@ -4164,8 +4254,8 @@ async function govClearSector(sectorId) {
   fetch('/admin/api/governance/sector/' + sectorId + '/clear', { method:'POST', headers:{'x-admin-secret':adminSecret} })
     .then(function(r){return r.json()}).then(function(d){
       if (d.success) { showToast('🧹 섹터 #' + sectorId + ' 거버너 클리어'); loadGovData(); }
-      else alert('실패: ' + (d.error || JSON.stringify(d)));
-    }).catch(function(e){ alert('오류: ' + e.message); });
+      else showToast('실패: ' + (d.error || JSON.stringify(d)));
+    }).catch(function(e){ showToast('오류: ' + e.message); });
 }
 
 function loadGovData() {
@@ -4674,7 +4764,7 @@ function saveLoreEntry() {
     category: document.getElementById('loreCat').value,
     sort_order: parseInt(document.getElementById('loreOrder').value) || 0
   };
-  if (!body.text_en) return alert('English text is required');
+  if (!body.text_en) return showToast('English text is required');
   var url = id ? '/admin/api/lore/' + id : '/admin/api/lore';
   var method = id ? 'PUT' : 'POST';
   fetch(url, { method: method, headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}, body: JSON.stringify(body) })
@@ -4682,7 +4772,7 @@ function saveLoreEntry() {
     .then(function() {
       document.getElementById('loreForm').style.display = 'none';
       loadLoreData();
-    }).catch(function(e){ alert('Error: ' + e.message); });
+    }).catch(function(e){ showToast('Error: ' + e.message); });
 }
 
 function toggleLore(id, active) {
@@ -4726,8 +4816,8 @@ function saveCrawl(lang) {
   };
   fetch('/admin/api/lore-crawl/' + lang, { method: 'PUT', headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}, body: JSON.stringify(body) })
     .then(function(r){ return r.json(); })
-    .then(function(){ alert('Crawl story (' + lang + ') saved!'); })
-    .catch(function(e){ alert('Error: ' + e.message); });
+    .then(function(){ showToast('Crawl story (' + lang + ') saved!'); })
+    .catch(function(e){ showToast('Error: ' + e.message); });
 }
 
 // ═══ GUILD MANAGEMENT ═══
@@ -4762,7 +4852,7 @@ async function disbandGuildAdmin(id, name) {
   if (!await adminConfirm('Force disband guild "' + name + '"? This removes all members.')) return;
   fetch('/admin/api/guilds/' + id, { method: 'DELETE', headers: {'x-admin-secret': adminSecret} })
     .then(function(r) { return r.json(); })
-    .then(function(d) { if (d.success) loadAdminGuilds(); else alert(d.error); });
+    .then(function(d) { if (d.success) loadAdminGuilds(); else showToast(d.error); });
 }
 
 // ═══ GUILD WARS ADMIN ═══
@@ -4793,8 +4883,8 @@ async function forceResolveWar(warId) {
   if(!await adminConfirm('Force resolve war #'+warId+'?')) return;
   fetch('/admin/api/guild-wars/'+warId+'/resolve', {method:'POST', headers:{'x-admin-secret':adminSecret}})
     .then(function(r){return r.json()})
-    .then(function(d){ if(d.success) loadAdminGuildWars(); else alert(d.error||'Failed'); })
-    .catch(function(e){ alert(e.message); });
+    .then(function(d){ if(d.success) loadAdminGuildWars(); else showToast(d.error||'Failed'); })
+    .catch(function(e){ showToast(e.message); });
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -5077,16 +5167,16 @@ function saveAchSetting(key) {
 function grantAchievement() {
   var wallet = (document.getElementById('achGrantWallet').value || '').trim();
   var key    = (document.getElementById('achGrantKey').value || '').trim();
-  if (!wallet || !key) return alert('Wallet and achievement key required');
+  if (!wallet || !key) return showToast('Wallet and achievement key required');
   fetch('/admin/api/achievements/grant', {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ wallet: wallet, achievementKey: key })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
-    alert(d.alreadyHad ? 'Player already has this achievement' : 'Achievement granted!');
+    if (d.error) return showToast('Error: ' + d.error);
+    showToast(d.alreadyHad ? 'Player already has this achievement' : 'Achievement granted!');
     loadAchievementsAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 var _allSeasonCats = [
@@ -5128,8 +5218,8 @@ function createSeason() {
   var catChecks = document.querySelectorAll('.nsCatCheck:checked');
   var activeCats = [];
   catChecks.forEach(function(cb) { activeCats.push(cb.value); });
-  if (activeCats.length < 3) { alert('Select at least 3 categories'); return; }
-  if (activeCats.length > 8) { alert('Select max 8 categories'); return; }
+  if (activeCats.length < 3) { showToast('Select at least 3 categories'); return; }
+  if (activeCats.length > 8) { showToast('Select max 8 categories'); return; }
 
   var body = {
     name: document.getElementById('nsName').value,
@@ -5226,8 +5316,8 @@ function deleteNewsItem(id) {
     headers: {'x-admin-secret': adminSecret}
   }).then(function(r){ return r.json(); }).then(function(d) {
     if (d.success) loadNewsAdmin();
-    else alert('Error: ' + d.error);
-  }).catch(function(e){ alert('Error: ' + e.message); });
+    else showToast('Error: ' + d.error);
+  }).catch(function(e){ showToast('Error: ' + e.message); });
 }
 
 // ═══ GP ECONOMY ═══
@@ -5416,10 +5506,10 @@ function saveWeeklySetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: inp.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ ' + key + ' saved');
     loadWeeklyAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function settleWeeklyCompetitive() {
@@ -5429,10 +5519,10 @@ async function settleWeeklyCompetitive() {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({})
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
-    alert('Competitive challenges settled!');
+    if (d.error) return showToast('Error: ' + d.error);
+    showToast('Competitive challenges settled!');
     loadWeeklyAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -5500,10 +5590,10 @@ async function forceLotteryDraw() {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({})
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
-    alert('Draw triggered! Rounds drawn: ' + d.drew);
+    if (d.error) return showToast('Error: ' + d.error);
+    showToast('Draw triggered! Rounds drawn: ' + d.drew);
     loadLotteryAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -5562,10 +5652,10 @@ function saveDividendSetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: inp.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ ' + key + ' saved');
     loadDividendAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function forceDistributeDividend() {
@@ -5575,10 +5665,10 @@ async function forceDistributeDividend() {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({})
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
-    alert('Distribution done! Recipients: ' + d.recipients);
+    if (d.error) return showToast('Error: ' + d.error);
+    showToast('Distribution done! Recipients: ' + d.recipients);
     loadDividendAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -5630,10 +5720,10 @@ function saveShieldSetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: inp.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ ' + key + ' saved');
     loadShieldAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function adminRevokeShield(claimId) {
@@ -5643,10 +5733,10 @@ async function adminRevokeShield(claimId) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({})
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Shield revoked on claim #' + claimId);
     loadShieldAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -5703,10 +5793,10 @@ function saveBountySetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: inp.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ ' + key + ' saved');
     loadBountyAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function adminCancelBounty(id) {
@@ -5716,10 +5806,10 @@ async function adminCancelBounty(id) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({})
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Bounty #' + id + ' cancelled, refunded: ' + d.refunded + ' GP');
     loadBountyAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -5791,10 +5881,10 @@ function saveContestSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: val.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Setting saved');
     loadContestAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 var _contestAdminData = null;
@@ -5875,8 +5965,8 @@ function saveContestAdmin() {
     submission_end:   document.getElementById('ccSubEnd').value,
     voting_end:       document.getElementById('ccVoteEnd').value
   };
-  if (!body.title) return alert('Title is required');
-  if (!body.submission_start || !body.submission_end || !body.voting_end) return alert('All dates required');
+  if (!body.title) return showToast('Title is required');
+  if (!body.submission_start || !body.submission_end || !body.voting_end) return showToast('All dates required');
   var url    = editId ? '/admin/api/contests/'+editId : '/admin/api/contests/create';
   var method = editId ? 'PUT' : 'POST';
   fetch(url, {
@@ -5884,11 +5974,11 @@ function saveContestAdmin() {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify(body)
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Contest saved');
     closeContestCreateModal();
     loadContestAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function adminFinalizeContest(id) {
@@ -5897,10 +5987,10 @@ async function adminFinalizeContest(id) {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Contest finalized! Winners paid.');
     loadContestAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -5970,10 +6060,10 @@ function saveRentalSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: val.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ '+key+' saved');
     loadRentalAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function adminCancelRental(id) {
@@ -5982,10 +6072,10 @@ async function adminCancelRental(id) {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Rental #'+id+' cancelled');
     loadRentalAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -6056,10 +6146,10 @@ function saveDuelSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: val.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ '+key+' saved');
     loadDuelAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function adminCancelDuel(id) {
@@ -6068,10 +6158,10 @@ async function adminCancelDuel(id) {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Duel #'+id+' cancelled, refunded: '+d.refunded+' GP');
     loadDuelAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -6139,9 +6229,9 @@ function saveExpeditionSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: val.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e) { alert('Error: '+e.message); });
+  }).catch(function(e) { showToast('Error: '+e.message); });
 }
 
 async function adminCancelExpedition(id) {
@@ -6150,10 +6240,10 @@ async function adminCancelExpedition(id) {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ Expedition cancelled, refunded: '+d.refunded+' GP');
     loadExpeditionAdmin();
-  }).catch(function(e) { alert('Error: '+e.message); });
+  }).catch(function(e) { showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -6241,9 +6331,9 @@ function saveBrandingSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e) { alert('Error: '+e.message); });
+  }).catch(function(e) { showToast('Error: '+e.message); });
 }
 
 async function adminClearBranding(claimId) {
@@ -6252,10 +6342,10 @@ async function adminClearBranding(claimId) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('🏷️ Branding cleared');
     loadBrandingAdmin();
-  }).catch(function(e) { alert('Error: '+e.message); });
+  }).catch(function(e) { showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -6344,9 +6434,9 @@ function saveSpellSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e) { alert('Error: '+e.message); });
+  }).catch(function(e) { showToast('Error: '+e.message); });
 }
 
 async function adminExpireSpell(id) {
@@ -6355,10 +6445,10 @@ async function adminExpireSpell(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✨ Spell expired');
     loadSpellsAdmin();
-  }).catch(function(e) { alert('Error: '+e.message); });
+  }).catch(function(e) { showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -6448,17 +6538,17 @@ function createTournament() {
   var maxP    = document.getElementById('tnMax').value ? parseInt(document.getElementById('tnMax').value, 10) : null;
   var starts  = document.getElementById('tnStarts').value || null;
   var ends    = document.getElementById('tnEnds').value || null;
-  if (!name) return alert('Name required');
+  if (!name) return showToast('Name required');
   fetch('/admin/api/tournaments/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ name, description: desc, icon, entryFeeGp: fee, maxPlayers: maxP, startsAt: starts, endsAt: ends })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('🏆 Tournament created!');
     closeTournamentModal();
     loadTournamentsAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 async function tournSetStatus(id, status) {
   if (!await adminConfirm('Set tournament #'+id+' to '+status+'?')) return;
@@ -6467,23 +6557,23 @@ async function tournSetStatus(id, status) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ status })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ Status updated');
     loadTournamentsAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
-function tournPickWinner(id) {
-  var wallet = prompt('Enter winner wallet address:');
+async function tournPickWinner(id) {
+  var wallet = await adminInput('Enter winner wallet address:');
   if (!wallet) return;
   fetch('/admin/api/tournaments/'+id+'/winner', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ wallet })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('🏆 Winner set! +'+d.prize+' GP awarded');
     loadTournamentsAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 async function tournCancel(id) {
   if (!await adminConfirm('Cancel tournament #'+id+' and refund all entries?')) return;
@@ -6491,10 +6581,10 @@ async function tournCancel(id) {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('🔄 Cancelled. Refunded '+d.refunded+' entries');
     loadTournamentsAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 function saveTournamentSetting(key) {
   var el = document.getElementById('tourn_'+key);
@@ -6504,9 +6594,9 @@ function saveTournamentSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -6574,10 +6664,10 @@ async function adminRemoveBroadcast(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('📢 Broadcast removed');
     loadBroadcastsAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveBroadcastSetting(key) {
@@ -6588,9 +6678,9 @@ function saveBroadcastSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -6687,9 +6777,9 @@ function saveProfileSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 async function adminResetNickname(wallet) {
@@ -6698,10 +6788,10 @@ async function adminResetNickname(wallet) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('👤 Nickname reset');
     loadProfileAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -6808,9 +6898,9 @@ function saveTiersSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -6914,7 +7004,7 @@ function closeRaffleCreateModal() {
 function createRaffle() {
   var title = (document.getElementById('rfTitle')||{}).value || '';
   var endsAt = (document.getElementById('rfEndsAt')||{}).value || '';
-  if (!title || !endsAt) { alert('Title and end date are required'); return; }
+  if (!title || !endsAt) { showToast('Title and end date are required'); return; }
   var body = {
     title: title,
     description: (document.getElementById('rfDesc')||{}).value || '',
@@ -6930,11 +7020,11 @@ function createRaffle() {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify(body)
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('🎟️ Raffle created!');
     closeRaffleCreateModal();
     loadRaffleAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 async function adminDrawRaffle(id) {
@@ -6942,10 +7032,10 @@ async function adminDrawRaffle(id) {
   fetch('/admin/api/raffle/'+id+'/draw', {
     method: 'POST', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast(d.drawn ? '🎉 Winner: '+d.winner : 'No draw: '+d.reason);
     loadRaffleAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 async function adminCancelRaffle(id) {
@@ -6953,10 +7043,10 @@ async function adminCancelRaffle(id) {
   fetch('/admin/api/raffle/'+id+'/cancel', {
     method: 'POST', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('Raffle cancelled, '+d.refunded+' players refunded');
     loadRaffleAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveRaffleSetting(key) {
@@ -6967,9 +7057,9 @@ function saveRaffleSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7070,7 +7160,7 @@ function closeWagerCreateModal() {
 function createWagerPool() {
   var title = (document.getElementById('wpTitle')||{}).value || '';
   var closesAt = (document.getElementById('wpClosesAt')||{}).value || '';
-  if (!title || !closesAt) { alert('Title and close date are required'); return; }
+  if (!title || !closesAt) { showToast('Title and close date are required'); return; }
   var body = {
     title: title,
     description: (document.getElementById('wpDesc')||{}).value || '',
@@ -7085,15 +7175,15 @@ function createWagerPool() {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify(body)
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('🎯 Wager pool created!');
     closeWagerCreateModal();
     loadWagerAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 async function openWagerSettleModal(poolId) {
-  var winner = prompt('Enter winner wallet address for pool #'+poolId+':');
+  var winner = await adminInput('Enter winner wallet address for pool #'+poolId+':');
   if (!winner || !winner.trim()) return;
   if (!await adminConfirm('Settle pool #'+poolId+' with winner: '+winner+'?')) return;
   fetch('/admin/api/wager/'+poolId+'/settle', {
@@ -7101,10 +7191,10 @@ async function openWagerSettleModal(poolId) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ winnerWallet: winner.trim() })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('🎯 Pool settled! '+d.winners+' winner(s), '+d.payoutPot+' GP paid out');
     loadWagerAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 async function adminCancelWager(id) {
@@ -7112,10 +7202,10 @@ async function adminCancelWager(id) {
   fetch('/admin/api/wager/'+id+'/cancel', {
     method: 'POST', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('Wager cancelled, '+d.refunded+' bettors refunded');
     loadWagerAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveWagerSetting(key) {
@@ -7126,9 +7216,9 @@ function saveWagerSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7224,10 +7314,10 @@ async function adminExpireTevt(id) {
   fetch('/admin/api/tevt/'+id, {
     method: 'DELETE', headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('⚡ Event expired');
     loadTevtAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveTevtSetting(key) {
@@ -7238,9 +7328,9 @@ function saveTevtSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7317,9 +7407,9 @@ function savePrestigeSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7388,10 +7478,10 @@ async function adminExpireBeacon(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('📡 Beacon expired');
     loadBeaconAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveBeaconSetting(key) {
@@ -7402,9 +7492,9 @@ function saveBeaconSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7461,9 +7551,9 @@ function saveDonationSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7527,10 +7617,10 @@ async function adminClosePoll(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('📊 Poll closed');
     loadPollsAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function savePollSetting(key) {
@@ -7541,9 +7631,9 @@ function savePollSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7605,10 +7695,10 @@ async function adminClearStatus(wallet) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('💬 Status cleared');
     loadStatusAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveStatusSetting(key) {
@@ -7619,9 +7709,9 @@ function saveStatusSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7690,10 +7780,10 @@ async function adminDeleteCapsule(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('⏳ Capsule deleted');
     loadCapsuleAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveCapsuleSetting(key) {
@@ -7704,9 +7794,9 @@ function saveCapsuleSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7771,10 +7861,10 @@ async function adminExpireSponsor(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('🎗️ Sponsor expired');
     loadSponsorAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveSponsorSetting(key) {
@@ -7785,9 +7875,9 @@ function saveSponsorSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7861,10 +7951,10 @@ async function adminRemoveBanner(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('🚩 Banner removed');
     loadBannerAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveBannerSetting(key) {
@@ -7875,9 +7965,9 @@ function saveBannerSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -7966,10 +8056,10 @@ async function adminDeleteMilestone(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('🏆 Milestone deleted');
     loadMilestoneAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveMilestoneSetting(key) {
@@ -7980,9 +8070,9 @@ function saveMilestoneSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -8057,10 +8147,10 @@ async function adminRemoveTombstone(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('🪦 Tombstone removed');
     loadTombstoneAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveTombstoneSetting(key) {
@@ -8071,9 +8161,9 @@ function saveTombstoneSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -8149,10 +8239,10 @@ async function adminExpireAnnounce(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('📢 Announcement ended');
     loadAnnounceAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveAnnounceSetting(key) {
@@ -8163,9 +8253,9 @@ function saveAnnounceSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -8253,10 +8343,10 @@ async function adminResetPrestige(claimId) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('💎 Prestige reset');
     loadTprestigeAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveTprestigeSetting(key) {
@@ -8267,9 +8357,9 @@ function saveTprestigeSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -8346,10 +8436,10 @@ async function adminDeleteJournalEntry(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('📖 Journal entry deleted');
     loadJournalAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveJournalSetting(key) {
@@ -8360,9 +8450,9 @@ function saveJournalSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function loadRatingAdmin() {
@@ -8432,9 +8522,9 @@ function saveRatingSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function loadHighlightAdmin() {
@@ -8505,10 +8595,10 @@ async function adminRemoveHighlight(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('✨ Highlight removed');
     loadHighlightAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveHighlightSetting(key) {
@@ -8519,9 +8609,9 @@ function saveHighlightSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function loadGraffitiAdmin() {
@@ -8593,10 +8683,10 @@ async function adminRemoveGraffiti(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('✍️ Graffiti removed');
     loadGraffitiAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveGraffitiSetting(key) {
@@ -8607,9 +8697,9 @@ function saveGraffitiSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function loadTributeAdmin() {
@@ -8680,10 +8770,10 @@ async function adminDeleteTribute(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('🪙 Tribute deleted');
     loadTributeAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveTributeSetting(key) {
@@ -8694,9 +8784,9 @@ function saveTributeSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function loadVtagAdmin() {
@@ -8767,10 +8857,10 @@ async function adminDeleteVtag(wallet) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('🏷️ Tag deleted');
     loadVtagAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveVtagSetting(key) {
@@ -8781,9 +8871,9 @@ function saveVtagSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -8845,10 +8935,10 @@ async function adminDeleteTdesc(claimId) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) { alert('Error: '+d.error); return; }
+    if (d.error) { showToast('Error: '+d.error); return; }
     showToast('📝 Description deleted');
     loadTdescAdmin();
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 function saveTdescSetting(key) {
@@ -8859,9 +8949,9 @@ function saveTdescSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key, value: el.value })
   }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e){ alert('Error: '+e.message); });
+  }).catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -8947,9 +9037,9 @@ function saveVipSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: val.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e) { alert('Error: '+e.message); });
+  }).catch(function(e) { showToast('Error: '+e.message); });
 }
 
 function openVipTierModal(id) {
@@ -9017,11 +9107,11 @@ function saveVipTier() {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify(payload)
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ VIP tier saved');
     closeVipTierModal();
     loadVipAdmin();
-  }).catch(function(e) { alert('Error: '+e.message); });
+  }).catch(function(e) { showToast('Error: '+e.message); });
 }
 
 async function adminRevokeVip(wallet) {
@@ -9030,10 +9120,10 @@ async function adminRevokeVip(wallet) {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: '+d.error);
+    if (d.error) return showToast('Error: '+d.error);
     showToast('✅ VIP pass revoked');
     loadVipAdmin();
-  }).catch(function(e) { alert('Error: '+e.message); });
+  }).catch(function(e) { showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9122,9 +9212,9 @@ function saveLuckyBoxSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: val.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ '+key+' saved');
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 function openLuckyBoxModal(id) {
@@ -9181,7 +9271,7 @@ function saveLuckyBoxType() {
   var lootStr  = document.getElementById('lbLootTable').value;
   var lootData;
   try { lootData = JSON.parse(lootStr); }
-  catch(e) { alert('Invalid JSON in loot table: ' + e.message); return; }
+  catch(e) { showToast('Invalid JSON in loot table: ' + e.message); return; }
 
   var payload = {
     name:       document.getElementById('lbName').value,
@@ -9202,11 +9292,11 @@ function saveLuckyBoxType() {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify(payload)
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Box type saved');
     closeLuckyBoxModal();
     loadLuckyBoxAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function deleteLuckyBoxType(id) {
@@ -9215,10 +9305,10 @@ async function deleteLuckyBoxType(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Box type deactivated');
     loadLuckyBoxAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9287,10 +9377,10 @@ function saveAllianceSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: val.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ '+key+' saved');
     loadAllianceAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function adminDissolveAlliance(id, name) {
@@ -9299,17 +9389,17 @@ async function adminDissolveAlliance(id, name) {
     method: 'POST',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Alliance dissolved');
     loadAllianceAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 function viewAllianceLog(id, name) {
   fetch('/admin/api/alliances/'+id+'/log', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
     .then(function(r) { return r.json(); })
     .then(function(rows) {
-      if (!Array.isArray(rows)) { alert('Error loading log'); return; }
+      if (!Array.isArray(rows)) { showToast('Error loading log'); return; }
       var html = rows.map(function(r) {
         return '<tr><td>'+new Date(r.created_at).toLocaleString()+'</td>'
           +'<td>'+(r.nickname || (r.wallet||'').slice(0,10)+'…')+'</td>'
@@ -9335,7 +9425,7 @@ function viewAllianceLog(id, name) {
         +'</div>';
       modal.style.display = 'flex';
     })
-    .catch(function(e) { alert('Error: '+e.message); });
+    .catch(function(e) { showToast('Error: '+e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9435,10 +9525,10 @@ function saveCraftingSetting(key) {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify({ key: key, value: val.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ '+key+' saved');
     loadCraftingAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 function openCraftingRecipeModal(id) {
@@ -9527,8 +9617,8 @@ function saveCraftingRecipe() {
     is_active:          document.getElementById('crIsActive').checked,
     is_seasonal:        document.getElementById('crIsSeasonal').checked
   };
-  if (!body.name) return alert('Recipe name is required');
-  if (!body.output_item_type_id) return alert('Output item type ID is required');
+  if (!body.name) return showToast('Recipe name is required');
+  if (!body.output_item_type_id) return showToast('Output item type ID is required');
 
   var url = editId ? '/admin/api/crafting/recipe/'+editId : '/admin/api/crafting/recipe';
   var method = editId ? 'PUT' : 'POST';
@@ -9537,11 +9627,11 @@ function saveCraftingRecipe() {
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
     body: JSON.stringify(body)
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Recipe saved');
     closeCraftingRecipeModal();
     loadCraftingAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function deleteCraftingRecipe(id) {
@@ -9550,10 +9640,10 @@ async function deleteCraftingRecipe(id) {
     method: 'DELETE',
     headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Recipe #'+id+' deactivated');
     loadCraftingAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9618,10 +9708,10 @@ function saveUpgradeSetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: inp.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ ' + key + ' saved');
     loadUpgradeAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9678,23 +9768,23 @@ function saveMonumentSetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: inp.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ ' + key + ' saved');
     loadMonumentAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
-function moderateMonument(id, action) {
-  var note = action === 'hide' ? (prompt('Moderation note (optional):') || '') : '';
+async function moderateMonument(id, action) {
+  var note = action === 'hide' ? (await adminInput('Moderation note (optional):') || '') : '';
   fetch('/admin/api/monuments/moderate/' + id, {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ action: action, note: note })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ Monument ' + action + 'd');
     loadMonumentAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9756,10 +9846,10 @@ function saveStakingSetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: inp.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ ' + key + ' saved');
     loadStakingAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9827,10 +9917,10 @@ function saveBurnSetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: inp.value })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
+    if (d.error) return showToast('Error: ' + d.error);
     showToast('✅ ' + key + ' saved');
     loadBurnAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9888,14 +9978,14 @@ function showAddDrop() {
     };
   }).catch(function(e) {
     console.error('[Admin] Failed to load shop items for POI drops:', e);
-    alert('Failed to load item list. Make sure shop items exist in the SHOP tab first.');
+    showToast('Failed to load item list. Make sure shop items exist in the SHOP tab first.');
   });
 }
 
 function createDrop() {
   var sel = document.getElementById('dropItemCode');
   var opt = sel.options[sel.selectedIndex];
-  if (!sel.value) { alert('Select an item'); return; }
+  if (!sel.value) { showToast('Select an item'); return; }
   api('poi-drops', 'POST', {
     itemCode: sel.value,
     itemName: opt.textContent.split('(')[0].trim(),
@@ -9924,9 +10014,9 @@ async function resetExpiredPOIs() {
     method: 'POST',
     headers: { 'x-admin-secret': adminSecret }
   }).then(function(r) { return r.json(); }).then(function(r) {
-    alert('Deleted ' + (r.deleted || 0) + ' expired POIs');
+    showToast('Deleted ' + (r.deleted || 0) + ' expired POIs');
     loadPOIDrops();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function resetAllPOIs() {
@@ -9936,9 +10026,9 @@ async function resetAllPOIs() {
     method: 'POST',
     headers: { 'x-admin-secret': adminSecret }
   }).then(function(r) { return r.json(); }).then(function(r) {
-    alert('Deleted ' + (r.deleted || 0) + ' POIs');
+    showToast('Deleted ' + (r.deleted || 0) + ' POIs');
     loadPOIDrops();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -10050,9 +10140,9 @@ function saveEnhSetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: val })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
-    alert('Saved: ' + key + ' = ' + val);
-  }).catch(function(e) { alert('Error: ' + e.message); });
+    if (d.error) return showToast('Error: ' + d.error);
+    showToast('Saved: ' + key + ' = ' + val);
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -10114,8 +10204,8 @@ function saveJobBuff(jobId, buffKey, inputId){
   if(isNaN(val)) return;
   fetch('/api/admin/job-buff',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobId,buffKey,value:val})})
     .then(function(r){return r.json()})
-    .then(function(d){ if(d.success) showToast('Saved: '+buffKey+' = '+val); else alert(d.error); })
-    .catch(function(e){ alert(e.message); });
+    .then(function(d){ if(d.success) showToast('Saved: '+buffKey+' = '+val); else showToast(d.error); })
+    .catch(function(e){ showToast(e.message); });
 }
 
 // ══════════════════════════════════════
@@ -10193,11 +10283,11 @@ function loadResourcesAdmin(){
 function saveResourceRate(sectorType, resourceCode, baseInputId, bonusInputId){
   var baseVal=parseFloat(document.getElementById(baseInputId)?.value);
   var bonusVal=parseFloat(document.getElementById(bonusInputId)?.value)||0;
-  if(isNaN(baseVal)||baseVal<0||baseVal>1){alert('Base rate must be 0~1');return;}
+  if(isNaN(baseVal)||baseVal<0||baseVal>1){showToast('Base rate must be 0~1');return;}
   fetch('/api/admin/resource-rate',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({sectorType,resourceCode,baseRate:baseVal,minerBonus:bonusVal})})
     .then(function(r){return r.json()})
-    .then(function(d){ if(d.success) showToast(sectorType+'/'+resourceCode+' = '+baseVal+' (miner+'+bonusVal+')',3000); else alert(d.error||'Error'); })
-    .catch(function(e){ alert(e.message); });
+    .then(function(d){ if(d.success) showToast(sectorType+'/'+resourceCode+' = '+baseVal+' (miner+'+bonusVal+')',3000); else showToast(d.error||'Error'); })
+    .catch(function(e){ showToast(e.message); });
 }
 
 // ══════════════════════════════════════
@@ -10307,9 +10397,9 @@ async function adminForceSiege(siegeId) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
   }).then(function(r){return r.json()}).then(function(d){
-    alert(d.success ? 'Siege #'+siegeId+' resolved. Winner: '+(d.winner||'no-change') : 'Error: '+d.error);
+    showToast(d.success ? 'Siege #'+siegeId+' resolved. Winner: '+(d.winner||'no-change') : 'Error: '+d.error);
     loadSiegeAdmin();
-  }).catch(function(){ alert('Request failed'); });
+  }).catch(function(){ showToast('Request failed'); });
 }
 
 // ══════════════════════════════════════
@@ -10367,12 +10457,12 @@ async function adminSettleBet(eventId, winnerOption) {
     headers: { 'Content-Type': 'application/json' }
   }).then(function(r){return r.json()}).then(function(d){
     if (d.success) {
-      alert('Settled! Payout: '+d.total_payout+' GP to '+d.payout_count+' winners. House: '+d.house_amount+' GP');
+      showToast('Settled! Payout: '+d.total_payout+' GP to '+d.payout_count+' winners. House: '+d.house_amount+' GP');
     } else {
-      alert('Error: '+(d.error||'unknown'));
+      showToast('Error: '+(d.error||'unknown'));
     }
     loadBettingAdmin();
-  }).catch(function(){ alert('Request failed'); });
+  }).catch(function(){ showToast('Request failed'); });
 }
 
 async function adminCancelBet(eventId) {
@@ -10382,12 +10472,12 @@ async function adminCancelBet(eventId) {
     headers: { 'Content-Type': 'application/json' }
   }).then(function(r){return r.json()}).then(function(d){
     if (d.success) {
-      alert('Cancelled. Refunded '+d.refunded+' bet(s).');
+      showToast('Cancelled. Refunded '+d.refunded+' bet(s).');
     } else {
-      alert('Error: '+(d.error||'unknown'));
+      showToast('Error: '+(d.error||'unknown'));
     }
     loadBettingAdmin();
-  }).catch(function(){ alert('Request failed'); });
+  }).catch(function(){ showToast('Request failed'); });
 }
 
 // ══════════════════════════════════════
@@ -10566,10 +10656,10 @@ async function adminCancelListing(listingId) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ listingId: listingId })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
-    alert('Listing cancelled');
+    if (d.error) return showToast('Error: ' + d.error);
+    showToast('Listing cancelled');
     loadMktAdmListings();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 function loadMktAdmSettings() {
@@ -10599,9 +10689,9 @@ function saveMktSetting(key) {
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
     body: JSON.stringify({ key: key, value: val })
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
-    alert('Saved: ' + key + ' = ' + val);
-  }).catch(function(e) { alert('Error: ' + e.message); });
+    if (d.error) return showToast('Error: ' + d.error);
+    showToast('Saved: ' + key + ' = ' + val);
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // PRICE HISTORY ANALYTICS
@@ -10686,10 +10776,10 @@ async function adminSettleAuction(auctionId) {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-admin-secret':adminSecret}
   }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return alert('Error: ' + d.error);
-    alert('Auction #' + auctionId + ' settled. Status: ' + (d.status||'ok'));
+    if (d.error) return showToast('Error: ' + d.error);
+    showToast('Auction #' + auctionId + ' settled. Status: ' + (d.status||'ok'));
     loadAuctionAdmin();
-  }).catch(function(e) { alert('Error: ' + e.message); });
+  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // SHIPS ADMIN
@@ -10954,10 +11044,10 @@ async function adminResolveBattle(battleId) {
   fetch('/api/admin/battle/'+battleId+'/resolve', {
     method:'POST', headers:{'x-admin-secret':adminSecret}
   }).then(function(r){return r.json()}).then(function(d){
-    if (d.error) return alert('Error: '+d.error);
-    alert('Battle #'+battleId+' resolved. Winner: '+(d.winner||'?')+' · GP: '+d.gpAwarded);
+    if (d.error) return showToast('Error: '+d.error);
+    showToast('Battle #'+battleId+' resolved. Winner: '+(d.winner||'?')+' · GP: '+d.gpAwarded);
     loadBattlesAdmin();
-  }).catch(function(e){alert('Error: '+e.message)});
+  }).catch(function(e){showToast('Error: '+e.message)});
 }
 
 // ═══ WORLD EVENTS ADMIN ═══
@@ -11028,11 +11118,11 @@ async function spawnWorldEvent() {
     body: JSON.stringify(body)
   }).then(function(r){ return r.json(); })
     .then(function(d) {
-      if (d.error) { alert('오류: '+d.error); return; }
-      alert('👾 이벤트 생성됨! ID: '+d.event.id+' · 섹터: '+d.event.sector_id);
+      if (d.error) { showToast('오류: '+d.error); return; }
+      showToast('👾 이벤트 생성됨! ID: '+d.event.id+' · 섹터: '+d.event.sector_id);
       loadWorldEventsAdmin();
     })
-    .catch(function(e){ alert('Error: '+e.message); });
+    .catch(function(e){ showToast('Error: '+e.message); });
 }
 
 async function forceEndWorldEvent(eventId) {
@@ -11042,11 +11132,11 @@ async function forceEndWorldEvent(eventId) {
     headers: { 'x-admin-secret': adminSecret }
   }).then(function(r){ return r.json(); })
     .then(function(d) {
-      if (d.error) { alert('오류: '+d.error); return; }
-      alert('이벤트 #'+eventId+' 강제 종료됨');
+      if (d.error) { showToast('오류: '+d.error); return; }
+      showToast('이벤트 #'+eventId+' 강제 종료됨');
       loadWorldEventsAdmin();
     })
-    .catch(function(e){ alert('Error: '+e.message); });
+    .catch(function(e){ showToast('Error: '+e.message); });
 }
 
 // switchTab 확장 — worldevents 탭 로드 시 자동 refresh
