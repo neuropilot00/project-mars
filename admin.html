@@ -5458,78 +5458,14 @@ function loadWeeklyAdmin() {
   statsEl.innerHTML = '<div style="color:#888;font-size:10px">Weekly challenges service is unavailable.</div>';
   if (tableEl) tableEl.innerHTML = '<div style="color:#666;font-size:10px">Legacy weekly challenge tables/services were removed.</div>';
   if (settingsEl) settingsEl.innerHTML = '';
-  return;
-
-  apiJson('/admin/api/weekly').catch(function(){ return null; }).then(function(data) {
-    if (!data) { statsEl.innerHTML = '<div style="color:red;font-size:10px">Failed to load — run migration 109</div>'; return; }
-
-    var p = data.progress_stats || {};
-    statsEl.innerHTML = [
-      statCard('Participants',  parseInt(p.participants||0),  'var(--cyan)'),
-      statCard('Completions',   parseInt(p.completions||0),   '#4cd89a'),
-      statCard('Rewards Claimed', parseInt(p.claims||0),      'var(--gold)'),
-      statCard('Active Defs',   parseInt((data.defs||{}).active||0), 'var(--mars)'),
-    ].join('')
-    + '<div style="font-size:8px;color:var(--tx3);padding:4px 0">Week: '+data.week_start+' → '+data.week_end+'</div>';
-
-    var instances = data.instances || [];
-    tableEl.innerHTML = instances.length ? (
-      '<table class="adm-table" style="font-size:9px"><thead><tr>'
-      +'<th>NAME</th><th>TYPE</th><th>PROGRESS</th><th>TARGET</th><th>DONE?</th></tr></thead><tbody>'
-      + instances.map(function(i) {
-        var pct = Math.round((i.collective_progress / i.target_value) * 100);
-        return '<tr>'
-          +'<td>'+escapeHtml(i.name_en)+'</td>'
-          +'<td style="color:var(--cyan)">'+i.challenge_type+'</td>'
-          +'<td style="color:var(--gold)">'+i.collective_progress+'</td>'
-          +'<td>'+i.target_value+'</td>'
-          +'<td style="color:'+(i.collective_completed?'var(--gn)':'var(--tx3)')+'">'+( i.collective_completed?'✅':'—')+'</td>'
-          +'</tr>';
-      }).join('')
-      +'</tbody></table>'
-    ) : '<div style="font-size:10px;color:#888">No instances this week. Restart server to initialize.</div>';
-
-    var settings = data.settings || {};
-    settingsEl.innerHTML = Object.keys(settings).length ? Object.keys(settings).map(function(key) {
-      return '<div style="background:rgba(91,184,232,.04);border:1px solid rgba(91,184,232,.12);border-radius:6px;padding:8px">'
-        +'<div style="font-size:9px;color:var(--cyan);font-weight:700;margin-bottom:2px">'+escapeHtml(key)+'</div>'
-        +'<div style="display:flex;gap:4px;align-items:center">'
-        +'<input id="wkly_set_'+escapeHtml(key)+'" value="'+escapeHtml(String(settings[key]))+'" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
-        +'<button onclick="saveWeeklySetting(\''+escapeHtml(key)+'\')" style="font-size:9px;padding:3px 8px;background:rgba(91,184,232,.15);border:1px solid rgba(91,184,232,.3);color:var(--cyan);border-radius:3px;cursor:pointer">SAVE</button>'
-        +'</div></div>';
-    }).join('') : '<div style="font-size:10px;color:#888">No settings found. Run migration 109.</div>';
-  });
 }
 
 function saveWeeklySetting(key) {
   showToast('Weekly challenges service is unavailable');
-  return;
-  var inp = document.getElementById('wkly_set_' + key);
-  if (!inp) return;
-  fetch('/admin/api/weekly/setting', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
-    body: JSON.stringify({ key: key, value: inp.value })
-  }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return showToast('Error: ' + d.error);
-    showToast('✅ ' + key + ' saved');
-    loadWeeklyAdmin();
-  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function settleWeeklyCompetitive() {
   showToast('Weekly challenges service is unavailable');
-  return;
-  if (!await adminConfirm('Manually settle last week\'s competitive challenges now?')) return;
-  fetch('/admin/api/weekly/settle', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
-    body: JSON.stringify({})
-  }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return showToast('Error: ' + d.error);
-    showToast('Competitive challenges settled!');
-    loadWeeklyAdmin();
-  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9146,132 +9082,14 @@ function loadLuckyBoxAdmin() {
   if (typesEl) typesEl.innerHTML = '<span style="color:#666;font-size:11px">Legacy lucky box tables/services were removed.</span>';
   if (recentEl) recentEl.innerHTML = '';
   if (settingsEl) settingsEl.innerHTML = '';
-  return;
-  fetch('/admin/api/lucky-boxes', { headers: { 'x-admin-secret': window.ADMIN_SECRET || '' } })
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d.error) { statsEl.innerHTML = '<span style="color:var(--mars)">'+escapeHtml(d.error)+'</span>'; return; }
-      var t = d.totals || {};
-      statsEl.innerHTML = [
-        ['Total Opens',    t.total_opens     || 0],
-        ['GP Spent',       parseFloat(t.total_gp_spent    || 0).toFixed(0)+' GP'],
-        ['GP Paid Out',    parseFloat(t.total_gp_paid_out || 0).toFixed(0)+' GP'],
-        ['Unique Players', t.unique_players  || 0]
-      ].map(function(kv) {
-        return '<div style="background:rgba(255,204,2,.06);border:1px solid rgba(255,204,2,.15);border-radius:6px;padding:8px;text-align:center">'
-          +'<div style="color:#888;font-size:10px;margin-bottom:2px">'+kv[0]+'</div>'
-          +'<div style="color:#ffcc02;font-weight:700">'+kv[1]+'</div></div>';
-      }).join('');
-
-      // Box types table
-      var typeRows = (d.types || []).map(function(b) {
-        var lootStr = '';
-        try { lootStr = (b.loot_table||[]).length + ' entries'; } catch(_){}
-        return '<tr>'
-          +'<td>'+b.id+'</td>'
-          +'<td>'+b.icon+' '+escapeHtml(b.name)+'</td>'
-          +'<td>'+b.cost_gp+' GP</td>'
-          +'<td>'+escapeHtml(b.category)+'</td>'
-          +'<td>'+lootStr+'</td>'
-          +'<td>'+(b.max_per_day||'∞')+'/day</td>'
-          +'<td>'+(b.is_active?'<span style="color:#a0e8a0">✓</span>':'<span style="color:#555">✗</span>')+'</td>'
-          +'<td style="display:flex;gap:4px">'
-            +'<button onclick="openLuckyBoxModal('+b.id+')" style="font-size:9px;padding:2px 6px;background:rgba(255,204,2,.12);border:1px solid rgba(255,204,2,.3);color:#ffcc02;border-radius:3px;cursor:pointer">EDIT</button>'
-            +'<button onclick="deleteLuckyBoxType('+b.id+')" style="font-size:9px;padding:2px 6px;background:rgba(255,80,30,.12);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">DEL</button>'
-          +'</td>'
-          +'</tr>';
-      }).join('');
-      typesEl.innerHTML = typeRows.length
-        ? '<table class="adm-table"><thead><tr><th>#</th><th>Box</th><th>Cost</th><th>Category</th><th>Loot</th><th>Limit</th><th>Active</th><th>Actions</th></tr></thead><tbody>'+typeRows+'</tbody></table>'
-        : '<div style="color:#555;font-size:12px;padding:8px">No box types yet.</div>';
-
-      // Recent opens
-      var recentRows = (d.recent || []).map(function(r) {
-        return '<tr>'
-          +'<td>'+new Date(r.created_at).toLocaleString()+'</td>'
-          +'<td>'+(r.nick || r.wallet.slice(0,10)+'…')+'</td>'
-          +'<td>'+escapeHtml(r.box_name||'')+'</td>'
-          +'<td>'+r.gp_spent+' GP</td>'
-          +'<td style="color:#ffcc02">'+escapeHtml(r.reward_label||r.reward_type)+'</td>'
-          +'</tr>';
-      }).join('');
-      recentEl.innerHTML = recentRows.length
-        ? '<table class="adm-table"><thead><tr><th>Time</th><th>Player</th><th>Box</th><th>Spent</th><th>Reward</th></tr></thead><tbody>'+recentRows+'</tbody></table>'
-        : '<div style="color:#555;font-size:12px;padding:8px">No opens yet.</div>';
-
-      settingsEl.innerHTML = (d.settings || []).map(function(s) {
-        return '<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.03);border:1px solid #222;border-radius:6px;padding:6px 10px">'
-          +'<span style="color:#888;font-size:11px;flex:1">'+escapeHtml(s.key.replace('lucky_box_',''))+'</span>'
-          +'<input id="lbs_'+s.key+'" value="'+escapeHtml(s.value)+'" style="background:#0d0d1a;border:1px solid #333;color:#eee;padding:4px 8px;border-radius:4px;width:90px;font-size:11px">'
-          +'<button onclick="saveLuckyBoxSetting(\''+s.key+'\')" style="font-size:10px;background:rgba(255,204,2,.12);border:1px solid rgba(255,204,2,.3);color:#ffcc02;padding:3px 8px;border-radius:4px;cursor:pointer">SAVE</button>'
-          +'</div>';
-      }).join('');
-
-      // Store for edit modal
-      window._luckyBoxAdmTypes = d.types || [];
-    })
-    .catch(function(e) { if (statsEl) statsEl.innerHTML = '<span style="color:var(--mars)">'+e.message+'</span>'; });
 }
 
 function saveLuckyBoxSetting(key) {
   showToast('Lucky boxes service is unavailable');
-  return;
-  var val = document.getElementById('lbs_'+key);
-  if (!val) return;
-  fetch('/admin/api/lucky-boxes/setting', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
-    body: JSON.stringify({ key: key, value: val.value })
-  }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return showToast('Error: ' + d.error);
-    showToast('✅ '+key+' saved');
-  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 function openLuckyBoxModal(id) {
   showToast('Lucky boxes service is unavailable');
-  return;
-  var m = document.getElementById('luckyBoxModal');
-  var titleEl = document.getElementById('luckyBoxModalTitle');
-  if (!m) return;
-  // Reset
-  document.getElementById('lbEditId').value = '';
-  document.getElementById('lbIcon').value   = '📦';
-  document.getElementById('lbName').value   = '';
-  document.getElementById('lbCost').value   = '50';
-  document.getElementById('lbDesc').value   = '';
-  document.getElementById('lbCat').value    = 'standard';
-  document.getElementById('lbMaxDay').value = '10';
-  document.getElementById('lbSort').value   = '0';
-  document.getElementById('lbLootTable').value = JSON.stringify([
-    {"type":"gp","amount":50,"weight":30,"label":"50 GP"},
-    {"type":"gp","amount":100,"weight":15,"label":"100 GP"},
-    {"type":"gp","amount":200,"weight":8,"label":"200 GP"},
-    {"type":"gp","amount":20,"weight":47,"label":"20 GP (consolation)"}
-  ], null, 2);
-  document.getElementById('lbActive').checked = true;
-
-  if (id) {
-    var types = window._luckyBoxAdmTypes || [];
-    var box = null;
-    for (var i=0;i<types.length;i++) { if (types[i].id === id) { box = types[i]; break; } }
-    if (box) {
-      document.getElementById('lbEditId').value   = box.id;
-      document.getElementById('lbIcon').value     = box.icon || '📦';
-      document.getElementById('lbName').value     = box.name || '';
-      document.getElementById('lbCost').value     = box.cost_gp || '50';
-      document.getElementById('lbDesc').value     = box.description || '';
-      document.getElementById('lbCat').value      = box.category || 'standard';
-      document.getElementById('lbMaxDay').value   = box.max_per_day || '10';
-      document.getElementById('lbSort').value     = box.sort_order || '0';
-      document.getElementById('lbLootTable').value = JSON.stringify(box.loot_table || [], null, 2);
-      document.getElementById('lbActive').checked = box.is_active !== false;
-    }
-    if (titleEl) titleEl.textContent = '📦 EDIT BOX TYPE #'+id;
-  } else {
-    if (titleEl) titleEl.textContent = '📦 NEW BOX TYPE';
-  }
-  m.style.display = 'flex';
 }
 
 function closeLuckyBoxModal() {
@@ -9281,51 +9099,10 @@ function closeLuckyBoxModal() {
 
 function saveLuckyBoxType() {
   showToast('Lucky boxes service is unavailable');
-  return;
-  var id       = document.getElementById('lbEditId').value;
-  var lootStr  = document.getElementById('lbLootTable').value;
-  var lootData;
-  try { lootData = JSON.parse(lootStr); }
-  catch(e) { showToast('Invalid JSON in loot table: ' + e.message); return; }
-
-  var payload = {
-    name:       document.getElementById('lbName').value,
-    icon:       document.getElementById('lbIcon').value,
-    description:document.getElementById('lbDesc').value,
-    cost_gp:    parseFloat(document.getElementById('lbCost').value),
-    loot_table: lootData,
-    max_per_day:parseInt(document.getElementById('lbMaxDay').value),
-    category:   document.getElementById('lbCat').value,
-    sort_order: parseInt(document.getElementById('lbSort').value),
-    is_active:  document.getElementById('lbActive').checked
-  };
-
-  var method = id ? 'PUT' : 'POST';
-  var url = id ? '/admin/api/lucky-boxes/type/'+id : '/admin/api/lucky-boxes/type';
-  fetch(url, {
-    method: method,
-    headers: { 'Content-Type': 'application/json', 'x-admin-secret': window.ADMIN_SECRET || '' },
-    body: JSON.stringify(payload)
-  }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return showToast('Error: ' + d.error);
-    showToast('✅ Box type saved');
-    closeLuckyBoxModal();
-    loadLuckyBoxAdmin();
-  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 async function deleteLuckyBoxType(id) {
   showToast('Lucky boxes service is unavailable');
-  return;
-  if (!await adminConfirm('Deactivate lucky box type #'+id+'?')) return;
-  fetch('/admin/api/lucky-boxes/type/'+id, {
-    method: 'DELETE',
-    headers: { 'x-admin-secret': window.ADMIN_SECRET || '' }
-  }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return showToast('Error: ' + d.error);
-    showToast('✅ Box type deactivated');
-    loadLuckyBoxAdmin();
-  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
@@ -9880,69 +9657,10 @@ function loadBurnAdmin() {
   statsEl.innerHTML = '<div style="color:#888;font-size:10px">GP Burn service is unavailable.</div>';
   if (recentEl) recentEl.innerHTML = '<div style="color:#666;font-size:10px">Legacy GP burn tables/services were removed.</div>';
   if (settingsEl) settingsEl.innerHTML = '';
-  return;
-
-  apiJson('/admin/api/burn').catch(function(){ return null; }).then(function(data) {
-    if (!data) { statsEl.innerHTML = '<div style="color:red;font-size:10px">Failed to load — run migration 108</div>'; return; }
-
-    statsEl.innerHTML = [
-      statCard('Total Burns',     data.total_burns     || 0,                                          'var(--mars)'),
-      statCard('Total GP Burned', Math.round(data.total_gp_burned||0) + ' GP',                        '#FFD166'),
-      statCard('Unique Burners',  data.unique_burners  || 0,                                          'var(--cyan)'),
-    ].join('');
-
-    // By-type breakdown
-    var byType = data.by_type || [];
-    if (byType.length) {
-      var typeHtml = '<table class="adm-table" style="font-size:9px;margin-bottom:8px"><thead><tr><th>TYPE</th><th>BURNS</th><th>TOTAL BURNED</th></tr></thead><tbody>'
-        + byType.map(function(b) {
-          return '<tr><td>'+escapeHtml(b.burn_type)+'</td><td>'+b.cnt+'</td><td style="color:var(--mars)">'+Math.round(parseFloat(b.total_burned||0))+' GP</td></tr>';
-        }).join('') + '</tbody></table>';
-      statsEl.innerHTML += typeHtml;
-    }
-
-    var recent = data.recent_burns || [];
-    recentEl.innerHTML = recent.length ? (
-      '<table class="adm-table" style="font-size:9px"><thead><tr>'
-      +'<th>PLAYER</th><th>TYPE</th><th>BURNED</th><th>WHEN</th></tr></thead><tbody>'
-      + recent.map(function(r) {
-        var name = r.nickname || (r.wallet||'').slice(0,10)+'...';
-        return '<tr>'
-          +'<td>'+escapeHtml(name)+'</td>'
-          +'<td>'+escapeHtml(r.burn_type)+'</td>'
-          +'<td style="color:var(--mars)">'+Math.round(parseFloat(r.gp_burned||0))+' GP</td>'
-          +'<td style="font-size:8px">'+(r.created_at ? new Date(r.created_at).toLocaleDateString() : '—')+'</td>'
-          +'</tr>';
-      }).join('')
-      +'</tbody></table>'
-    ) : '<div style="font-size:10px;color:#888">No burns yet</div>';
-
-    var settings = data.settings || {};
-    settingsEl.innerHTML = Object.keys(settings).length ? Object.keys(settings).map(function(key) {
-      return '<div style="background:rgba(255,80,30,.04);border:1px solid rgba(255,80,30,.12);border-radius:6px;padding:8px">'
-        +'<div style="font-size:9px;color:var(--mars);font-weight:700;margin-bottom:2px">'+escapeHtml(key)+'</div>'
-        +'<div style="display:flex;gap:4px;align-items:center">'
-        +'<input id="burn_set_'+escapeHtml(key)+'" value="'+escapeHtml(String(settings[key]))+'" style="flex:1;font-size:10px;padding:3px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:3px">'
-        +'<button onclick="saveBurnSetting(\''+escapeHtml(key)+'\')" style="font-size:9px;padding:3px 8px;background:rgba(255,80,30,.15);border:1px solid rgba(255,80,30,.3);color:var(--mars);border-radius:3px;cursor:pointer">SAVE</button>'
-        +'</div></div>';
-    }).join('') : '<div style="font-size:10px;color:#888">No settings found. Run migration 108.</div>';
-  });
 }
 
 function saveBurnSetting(key) {
   showToast('GP Burn service is unavailable');
-  return;
-  var inp = document.getElementById('burn_set_' + key);
-  if (!inp) return;
-  fetch('/admin/api/burn/setting', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json','x-admin-secret':adminSecret},
-    body: JSON.stringify({ key: key, value: inp.value })
-  }).then(function(r){ return r.json(); }).then(function(d) {
-    if (d.error) return showToast('Error: ' + d.error);
-    showToast('✅ ' + key + ' saved');
-    loadBurnAdmin();
-  }).catch(function(e) { showToast('Error: ' + e.message); });
 }
 
 // ══════════════════════════════════════
