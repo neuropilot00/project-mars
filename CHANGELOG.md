@@ -17,10 +17,12 @@
 - `tactical-lab-v11.html` RETREAT `confirm()` → `#forfeit-overlay` 인라인 오버레이
 - `admin.html`에 `adminConfirm` CSS + HTML + JS 삽입 (어드민 스타일 오렌지 테마)
 
-**잔여 네이티브 다이얼로그 (다음 작업):**
-- `index.html` `prompt()` 10곳 — `gameInput()`으로 교체 필요 (동맹 입금/출금, 영토이름, 콘텐스트, 렌탈, 동맹 창설 등)
-- `admin.html` `prompt()` 5곳 — `adminInput()` 구현 후 교체 필요
-- `admin.html` `alert()` 274곳 — `showAdminToast()` 구현 후 교체 필요 (낮은 우선순위)
+**추가 완료 (같은 세션):**
+- `admin.html` `showToast()` 신규 구현 — 기존 95곳 undefined 호출 정상화, `alert()` 275개 교체
+- `admin.html` `adminInput()` 신규 구현 — `prompt()` 5개 교체
+- `index.html` `prompt()` 10곳 → `gameInput()` 전부 교체 (영토이름, 콘텐스트, 렌탈, 동맹 입출금/창설)
+- `index.html` 잔여 `alert()` 1곳 → `gameAlert()` 교체
+- **결과: 코드베이스 전체에 브라우저 네이티브 다이얼로그 0개**
 
 ## 2026-04-27 — 함대전 HP 보존 + 속도 조절 + 무한 전투 (v5.9)
 

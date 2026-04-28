@@ -250,11 +250,9 @@ app.use('/admin/api', adminRoutes);  // 단일 파일 admin.js로 통합
 
 ### 🔴 다음 작업 (우선순위 순)
 
-1. **prompt() 교체** — `index.html` 10곳, `admin.html` 5곳 (§18 참조)
-2. **admin.html alert() 교체** — 274곳 → `showAdminToast()` 구현 필요
-3. **함선 건조에 recipe_minerals 실제 소모** — 현재 광물 차감 무시됨
-4. **함선 수리 시스템 UI** — DB 스키마(migration 165) 있음, 라우트+UI 미완
-5. 타이탄/배틀십에 Core/Mid 전용 재료 요구사항 추가
+1. **함선 건조에 recipe_minerals 실제 소모** — 현재 광물 차감 무시됨
+2. **함선 수리 시스템 UI** — DB 스키마(migration 165) 있음, 라우트+UI 미완
+3. 타이탄/배틀십에 Core/Mid 전용 재료 요구사항 추가
 
 ---
 
@@ -382,7 +380,7 @@ vip_enabled                = true
 6. 새 fleet UI 진입점: `openShipyard()` (조선소), `openFleetCmd()` (함대 관리).
 7. **함대전 시스템 동작 흐름**: hijack 선언 → fleet_battles 생성 → battleScheduler.runBattle() → battleEngine 시뮬 → WS 8x 스트리밍 → applyBattleResults (HP 반영, hijack=함선보존) → battleRewards.
 8. **forfeit endpoint**: `POST /api/battles/:id/forfeit` — 공격자(atk)만 가능. preparing이면 즉시 취소(winner=def), 이미 ended면 OK 반환. HP는 applyBattleResults에서 이미 적용됨.
-9. **네이티브 다이얼로그 잔여**: `index.html` prompt() 10곳, `admin.html` prompt() 5곳, `admin.html` alert() 274곳. §18 참조.
+9. **네이티브 다이얼로그**: 전면 제거 완료 (2026-04-28). confirm/prompt/alert 0곳. §18 참조.
 
 #### D. 2026-04-28 신규 추가 (resolve됨)
 - **브라우저 confirm() 전면 제거** — `index.html` 15곳 `gameConfirm()`, `admin.html` 70곳 `adminConfirm()`, tactical-lab `#forfeit-overlay`로 교체.
