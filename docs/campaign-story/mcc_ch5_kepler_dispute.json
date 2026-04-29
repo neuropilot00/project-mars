@@ -1,0 +1,589 @@
+{
+  "questId": "mcc_campaign_ch5",
+  "campaignId": "mcc_route",
+  "chapterNumber": 5,
+  "title": {
+    "ko": "케플러 분쟁",
+    "en": "Kepler Dispute",
+    "ja": "ケプラー紛争",
+    "zh": "开普勒纷争"
+  },
+  "location": {
+    "id": "kepler_crater",
+    "displayName": {
+      "ko": "케플러 분화구 — 세 파벌 접경 지대",
+      "en": "Kepler Crater — Three-Faction Borderland"
+    }
+  },
+  "environment": "three_faction_standoff",
+  "estimatedPlayTimeMinutes": 18,
+  "characters": ["player", "lifang", "mikhail", "butcher", "lena"],
+
+  "scenes": [
+
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_tension_low",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "케플러 분화구.\n지름 38킬로미터. 깊이 2.4킬로미터.\n벽 안에 들어서면 하늘이 좁아진다 — 원형의 붉은 띠가 된다.",
+            "en": "Kepler Crater.\n38 kilometers wide. 2.4 kilometers deep.\nStep inside and the sky narrows — a ring of red."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 아래에 세 개의 깃발이 펄럭이고 있었다.\nMCC의 남쪽 거점. FSP의 중앙 정착지. CV 워로드의 동쪽 갱도.\n6년 전 이 분화구는 그냥 깊은 구덩이였다.",
+            "en": "Three flags flew down below.\nMCC's southern post. FSP's central settlement. CV Warlord's eastern tunnels.\nSix years ago this crater was just a deep hole."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "focused",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "티타늄 매장량 추정치 나왔어요. 분화구 바닥에 40년치 공급분이 묻혀 있어요.",
+            "en": "Titanium reserve estimates just came in. Forty years of supply buried under the crater floor."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "문제가 셋이에요. FSP는 채굴권을 주장해요 — 먼저 발견했다고. CV는 동쪽 갱도를 물리적으로 점거하고 있어요. 그리고 채굴청은 48시간 안에 등록 서류를 요구해요.",
+            "en": "Three problems. FSP claims mining rights — they found it first. CV physically occupies the eastern tunnels. And the Mining Bureau wants registration papers in 48 hours."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "서류가 없으면 권리도 없어요. 당신이 현장에 가서 정리해요.",
+            "en": "No papers, no rights. You go on-site and sort it out."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_market",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "분화구 중앙 시장. 임시 천막들이 분화구 벽의 그림자 아래 모여 있었다.\n아이들이 달렸다. 노인이 연료통을 끌고 지나갔다.",
+            "en": "The crater's central market. Temporary tents gathered beneath the shadow of the crater wall.\nChildren ran. An old man dragged a fuel drum past."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 개의 파벌 깃발이 같은 바람에 나부꼈다.\n전쟁은 아직 시작되지 않았다. 하지만 공기가 그 냄새를 맡고 있었다.",
+            "en": "Three faction flags moved in the same wind.\nThe war hadn't started yet. But the air was already tasting it."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "tired",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "MCC 직원이군요. 우리 아이들 때문에 왔어요?",
+            "en": "MCC employee. Did you come about our children?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "채굴권 협상 때문에 왔습니다.",
+            "en": "I came about mining rights."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "sad",
+          "text": {
+            "ko": "우리가 이 맥을 발견했어요. 6년 전. 내 조카가 처음 깊이 들어갔어요. 손으로 암반을 뚫었어요. MCC 장비도 없이.",
+            "en": "We found this vein. Six years ago. My nephew was the first one to go deep. He drilled through the rock by hand. No MCC equipment."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "grief",
+          "text": {
+            "ko": "두 달 전에 CV가 동쪽 갱도를 막았어요. 총을 들고 왔어요. 우리 사람 셋이 다쳤어요. 또 지면 여기 남은 사람들이 갈 곳이 없어요.",
+            "en": "Two months ago CV blocked the eastern tunnel. They came with guns. Three of our people were hurt. If we lose again the people still here have nowhere to go."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lena",
+          "emotion": "alert",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "어르신, 이 사람을 그냥 믿으면 안 돼요.",
+            "en": "Elder, we can't just trust this person."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "gentle",
+          "text": {
+            "ko": "레나. 판단은 내가 해.",
+            "en": "Lena. Let me judge."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "tired",
+          "text": {
+            "ko": "MCC 사람도 사람이야. 어떻게 하느냐에 달린 거지.",
+            "en": "MCC people are still people. It depends on what they do."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "동쪽 갱도 입구. CV 표식이 바위에 새겨져 있었다 — 칼 두 자루.\n정육점은 크레인 부품 위에 앉아 있었다. 두 사람이 무기를 들고 그 옆에 서 있었다.",
+            "en": "Eastern tunnel entrance. CV markings were cut into the rock — two crossed blades.\nButcher sat on crane parts. Two armed men stood beside him."
+          }
+        },
+        {
+          "text": {
+            "ko": "그는 당신이 오는 걸 처음부터 보고 있었다.",
+            "en": "He had been watching you approach from the beginning."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "stoic",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "MCC가 직접 왔군. 리팡이 보냈나.",
+            "en": "MCC came in person. Lifang sent you."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "협상을 원합니까.",
+            "en": "Do you want to negotiate."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "cold",
+          "text": {
+            "ko": "나는 거래를 해. 조건은 간단해. MCC가 이 갱도에서 나를 파트너로 인정하면 — 나는 FSP 문제를 정리해준다.",
+            "en": "I do deals. Condition is simple. MCC recognizes me as partner in this tunnel — I handle the FSP problem."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "text": {
+            "ko": "나는 표현을 예쁘게 하지 않아. 내보내거나 — 아니면 못 나오게 하거나. 그게 전부야.",
+            "en": "I don't dress it up. Push them out — or keep them from coming out. That's all."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_tension_low",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "저녁이 됐다. 분화구 벽이 붉게 물들었다.\n어디선가 아이 울음소리가 들렸다. 리팡이 통신으로 연결됐다.",
+            "en": "Evening came. The crater wall turned red.\nSomewhere a child was crying. Lifang's signal came through."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "focused",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "채권 서류 제출까지 18시간 남았어요. CV를 파트너로 쓰면 빠르게 끝나요. FSP는 — 보상금 주고 이주시키면 돼요.",
+            "en": "18 hours until the rights filing deadline. Use CV as partner and it ends fast. FSP — pay them out and relocate them."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "troubled",
+          "text": {
+            "ko": "그 사람들이 6년을 여기서 살았어요.",
+            "en": "Those people lived here for six years."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "40년치 티타늄이에요. 6년이라는 감정 때문에 포기할 수 없어요. 결정해요.",
+            "en": "Forty years of titanium. We can't give that up for six years of sentiment. Decide."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "케플러 분화구의 채굴권을 어떻게 확보할 것인가.",
+        "en": "How will you secure mining rights in Kepler Crater."
+      },
+      "choices": [
+        {
+          "id": "ch5_cv_alliance",
+          "text": {
+            "ko": "CV와 동맹. 정육점의 조건을 수락하고 FSP를 밀어낸다.",
+            "en": "Alliance with CV. Accept Butcher's terms and push out FSP."
+          },
+          "tone": "ruthless",
+          "preview_hint": {
+            "ko": "→ MCC 채굴권 확보 · FSP 호감도 -5 · CV 워로드 동맹 +3",
+            "en": "→ MCC mining rights secured · FSP favor -5 · CV Warlord alliance +3"
+          }
+        },
+        {
+          "id": "ch5_fsp_alliance",
+          "text": {
+            "ko": "FSP와 동맹. 미하일의 발견자 권리를 인정하고 MCC 하청 계약으로 흡수한다.",
+            "en": "Alliance with FSP. Recognize Mikhail's discoverer rights and absorb them as MCC subcontractors."
+          },
+          "tone": "pragmatic",
+          "preview_hint": {
+            "ko": "→ FSP 호감도 +4 · CV 보복 위험 · MCC 수익 분산",
+            "en": "→ FSP favor +4 · CV retaliation risk · MCC profit split"
+          }
+        },
+        {
+          "id": "ch5_three_way",
+          "text": {
+            "ko": "삼각 분할. 세 파벌에게 구역을 나눠주고 MCC가 유통권만 쥔다.",
+            "en": "Three-way split. Divide zones between factions, MCC takes distribution rights only."
+          },
+          "tone": "diplomatic",
+          "preview_hint": {
+            "ko": "→ 전파벌 호감도 +2 · MCC 이익 감소 · 장기 안정 획득",
+            "en": "→ All factions favor +2 · MCC profit reduced · Long-term stability"
+          }
+        },
+        {
+          "id": "ch5_mcc_force",
+          "text": {
+            "ko": "MCC 단독. 군사 인력을 요청해 양쪽 다 철수시킨다.",
+            "en": "MCC alone. Request military personnel and force both sides out."
+          },
+          "tone": "aggressive",
+          "preview_hint": {
+            "ko": "→ MCC 완전 권리 확보 · FSP/CV 호감도 -8 · 전면전 위험",
+            "en": "→ MCC full rights · FSP/CV favor -8 · Full-scale conflict risk"
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11_cv",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "satisfied",
+          "text": {
+            "ko": "MCC답군. 좋아. 내일 아침에 시작한다.",
+            "en": "Very MCC. Good. We start tomorrow morning."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "stoic",
+          "text": {
+            "ko": "계약은 지킬게. 이 분화구에서 일어나는 일은 — 그건 내 방식대로 한다.",
+            "en": "I keep contracts. What happens in this crater — that runs my way."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s12_cv",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "그날 밤 FSP 정착민들이 천막을 걷기 시작했다. 누군가 미리 알려준 모양이었다.\n레나가 미하일 어르신을 부축하며 걷고 있었다. 그는 뒤를 돌아보지 않았다.",
+            "en": "That night FSP settlers began taking down their tents. Someone had warned them.\nLena walked beside the old man, supporting him. He didn't look back."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11_fsp",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "complicated",
+          "text": {
+            "ko": "하청 계약. MCC의 손 아래서 일하는 거군요. 이게 — 이기는 건지 지는 건지 모르겠어요.",
+            "en": "Subcontract. Working under MCC's hand. I'm not sure if this is winning or losing."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "resigned",
+          "text": {
+            "ko": "그래도 사람들이 여기 남을 수 있으니까. 서명하죠.",
+            "en": "But our people can stay here. I'll sign."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11_three",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "ambient_neutral",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "surprised",
+          "text": {
+            "ko": "정육점도 동의했어요?",
+            "en": "Butcher agreed too?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "오래 걸렸습니다.",
+            "en": "It took a while."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s12_three",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_neutral",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "정육점은 한동안 아무 말이 없었다.\n그가 동의한 건 MCC가 설득했기 때문이 아니었다.\n피가 너무 많이 났던 거였다. 30년. 그 숫자가 그의 눈에 있었다.",
+            "en": "Butcher said nothing for a long time.\nHe didn't agree because MCC convinced him.\nThere had been too much blood. Thirty years. That number lived in his eyes."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11_force",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "battle_theme_mcc",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "MCC 보안 부대가 새벽에 도착했다.\n분화구가 조용해지는 데는 오래 걸리지 않았다.\n채굴권 서류에는 분쟁 없음이라고 적혔다.",
+            "en": "MCC security forces arrived at dawn.\nIt didn't take long for the crater to go quiet.\nThe mining rights papers were marked: no dispute."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13",
+      "type": "battle_transition",
+      "background": "kepler_crater",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "케플러 분화구 확보 작전",
+        "en": "Operation: Secure Kepler Crater"
+      },
+      "subtitle": {
+        "ko": "세 파벌의 충돌 — 채굴권 등록 마감 18시간",
+        "en": "Three-Faction Collision — 18 Hours to Rights Filing"
+      }
+    },
+
+    {
+      "id": "s14",
+      "type": "result",
+      "success_scene": "s15_success",
+      "failure_scene": "s15_fail"
+    },
+
+    {
+      "id": "s15_success",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "채굴권 등록 완료. 케플러 티타늄 맥은 이제 MCC 자산이에요.",
+            "en": "Mining rights registered. The Kepler titanium vein is now MCC property."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "어떤 방식으로 얻었든 — 결과가 중요해요. 화성에선 늘 그래요.",
+            "en": "However it was obtained — results are what matter. That's Mars."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s15_fail",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "angry",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "48시간이 지났어요. 서류가 제출되지 않았어요.",
+            "en": "48 hours passed. Papers weren't filed."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "채굴청이 분쟁 구역으로 표시하고 조사를 시작했어요.\n40년치 티타늄이 — 그냥 날아갔어요.",
+            "en": "The Bureau marked it a dispute zone and opened an investigation.\nForty years of titanium — just gone."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s16",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "분화구에서 나오는 길에 레나를 봤다.\n그는 당신을 보고 멈췄다. 뭔가 말하려다가 그냥 지나쳤다.",
+            "en": "You saw Lena on the way out of the crater.\nShe stopped when she saw you. Started to say something. Then walked on."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 얼굴이 오래 남았다.",
+            "en": "Her face stayed with you for a long time."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch6",
+        "teaser": {
+          "ko": "다음 이야기 — 내부고발자",
+          "en": "Next — The Whistleblower"
+        }
+      }
+    }
+
+  ]
+}

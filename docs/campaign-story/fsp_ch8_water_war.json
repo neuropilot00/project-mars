@@ -1,0 +1,156 @@
+{
+  "questId": "fsp_campaign_ch8",
+  "campaignId": "fsp_route",
+  "chapterNumber": 8,
+  "title": { "ko": "가이아", "en": "Gaia" },
+  "location": { "id": "new_athens_shipyard", "displayNameKo": "New Athens 조선소" },
+  "environment": "construction_under_fire",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "mikhail", "lena", "amara"],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mars_docking_bay",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "함선 이름은 '가이아'였다. 지구의 여신 이름. 화성에서 그 이름을 붙이는 건 아이러니였다. 하지만 사람들은 그것을 원했다. 기억 때문이 아니라, 앞으로 가야 할 곳 때문에.", "en": "The ship's name was Gaia. The goddess of Earth. On Mars that name was ironic. But the people wanted it. Not for memory, but for where they had to go." } }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "excited", "effect": "character_enter:lena:slide_right", "text": { "ko": "골격은 다 올라갔어요. 엔진 두 기, 방어 포드 네 개. 후원금은 12만 크레딧 모였고.", "en": "The frame is up. Two engines, four defense pods. Donations hit one hundred twenty thousand credits." } },
+        { "speaker": "mikhail", "emotion": "worried", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "목표가 20만이야.", "en": "Target's two hundred thousand." } },
+        { "speaker": "lena", "emotion": "determined", "text": { "ko": "사람들이 가져오고 있어요. 음식, 부품, 손. 크레딧만이 아니에요.", "en": "People are bringing things. Food. Parts. Hands. Not just credits." } }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "amara", "emotion": "concerned", "effect": "character_enter:amara:slide_right", "text": { "ko": "MCC가 조선소 정보를 얻었을 수 있어요. 보급로 중 하나가 감시받고 있어.", "en": "MCC may have gotten word of the shipyard. One of the supply lines is being watched." } },
+        { "speaker": "mikhail", "emotion": "tense", "text": { "ko": "공격 오면 미완성 함선이 표적이야.", "en": "If they attack, the unfinished ship is the target." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "mars_docking_bay",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "시민들이 모여들었다. 노인 하나가 용접기를 들고 왔다. 아이들이 배선을 연결했다. 아무도 시키지 않았다.", "en": "Citizens gathered. An old man came with a welding torch. Children connected wiring. Nobody asked them to." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "moved", "text": { "ko": "우리가 이걸 해낼 수 있을 줄 몰랐어.", "en": "I didn't think we could actually do this." } },
+        { "speaker": "lena", "emotion": "warm", "text": { "ko": "저도요. 그런데 되고 있잖아요.", "en": "Me neither. But it's happening." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mars_docking_bay",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "Gaia 건조를 위해 무엇을 하겠습니까?", "en": "What will you do for the Gaia's construction?" },
+      "choices": [
+        {
+          "id": "fsp_ch8_donate_personal_50k",
+          "text": { "ko": "자비 부담 (50,000 Cr 기부).", "en": "Personal contribution (donate 50,000 Cr)." },
+          "tone": "sacrificial",
+          "preview_hint": { "ko": "→ 가이아 완성 가속, 개인 자산 -50k", "en": "→ Gaia completion accelerated, personal assets -50k" }
+        },
+        {
+          "id": "fsp_ch8_pledge_combat",
+          "text": { "ko": "전투로 갚겠습니다.", "en": "I'll pay it back in combat." },
+          "tone": "warrior",
+          "preview_hint": { "ko": "→ 보급로 방어 임무 추가, 호감도 +", "en": "→ Supply line defense mission added, favor +" }
+        },
+        {
+          "id": "fsp_ch8_silent_no_help",
+          "text": { "ko": "침묵한다.", "en": "Stay silent." },
+          "tone": "detached",
+          "preview_hint": { "ko": "→ 미하일 실망, 레나 -10", "en": "→ Mikhail disappointed, Lena -10" }
+        },
+        {
+          "id": "fsp_ch8_steal_mcc_funds",
+          "text": { "ko": "MCC 자금을 훔쳐오겠습니다.", "en": "I'll steal MCC funds." },
+          "tone": "rogue",
+          "preview_hint": { "ko": "→ 고위험 작전, 성공 시 아이러니한 결과", "en": "→ High-risk operation, ironic outcome on success" }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "resolute", "text": { "ko": "MCC가 오면 가이아 앞에서 막아요. 배가 날기 전에는 여기서 안 움직여.", "en": "If MCC comes, we stop them in front of Gaia. We don't move from here until the ship can fly." } },
+        { "speaker": "mikhail", "emotion": "steady", "text": { "ko": "그래.", "en": "Right." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "가이아 조선소 방어전", "en": "Gaia Shipyard Defense" },
+      "subtitle": { "ko": "건조 중인 희망을 지켜라", "en": "Defend the Hope Under Construction" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "lena", "emotion": "elated", "effect": "character_enter:lena:slide_right", "text": { "ko": "가이아 손상 없어요. 엔진 점화 테스트 내일 해요.", "en": "Gaia undamaged. Engine ignition test tomorrow." } },
+        { "speaker": "mikhail", "emotion": "tearful", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "...", "en": "..." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "lena", "emotion": "devastated", "effect": "character_enter:lena:slide_right", "text": { "ko": "엔진 두 기 중 하나 손상됐어요. 수리에 한 달.", "en": "One of the two engines is damaged. A month for repairs." } },
+        { "speaker": "mikhail", "emotion": "tired", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "한 달 있어. 다시 시작하자.", "en": "We have a month. Let's start again." } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "그 배가 화성에서 날아오를 때, 그것을 만든 손들은 기억될 것인가. 아마 아닐 것이다. 그래도 그 손들은 움직였다. 그것으로 충분했다.", "en": "When that ship lifted from Mars, would the hands that built it be remembered. Probably not. But those hands moved. That was enough." } }
+      ],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch9", "teaser": { "ko": "다음 — 세 개의 깃발", "en": "Next — Three Flags" } }
+    }
+  ]
+}

@@ -1,0 +1,472 @@
+{
+  "questId": "mcc_campaign_ch4",
+  "campaignId": "mcc_route",
+  "chapterNumber": 4,
+  "title": {
+    "ko": "해적 매수",
+    "en": "Pirate's Payroll",
+    "ja": "海賊の賄賂",
+    "zh": "收买海盗"
+  },
+  "location": {
+    "id": "mars_outer_orbit",
+    "displayName": {
+      "ko": "화성 외곽 궤도 — Kara Vex 해적단 거점",
+      "en": "Mars Outer Orbit — Kara Vex Pirate Base"
+    }
+  },
+  "environment": "ion_storm_active",
+  "estimatedPlayTimeMinutes": 16,
+  "characters": ["player", "lifang", "kara_vex", "chen"],
+
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "space_battle_start",
+      "bgm": "ambient_deep_space",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "화성 외곽 궤도.\n여기엔 법이 없었다.\nMCC도, FSP도, CV도 관할이 닿지 않는 회색 공간.\n해적들이 사는 곳.",
+            "en": "Mars outer orbit.\nNo law existed here.\nBeyond the reach of MCC, FSP, and CV alike.\nWhere pirates lived."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "Kara Vex. 들어봤어?",
+            "en": "Kara Vex. Heard of them?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "외곽 궤도 해적단. Helion 화물선 5척 격침.",
+            "en": "Outer orbit pirates. Sank five Helion cargo ships."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "그리고 MCC 화물선도 3척. 우리가 먼저 거래를 제안해야 해.",
+            "en": "And three MCC cargo ships. We need to offer a deal first."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "hesitant",
+          "text": {
+            "ko": "해적과 거래를?",
+            "en": "A deal with pirates?"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "화성에선 해적도 자원이야. 적으로 두면 비싸고, 아군으로 두면 싸.",
+            "en": "On Mars, pirates are a resource too. Expensive as enemies, cheap as allies."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "조건은 두 가지야. Helion 잔당 함대를 해체시켜줘.\n그리고 MCC 화물선엔 손대지 마.",
+            "en": "Two conditions. Help dismantle the Helion remnant fleet.\nAnd keep your hands off MCC cargo ships."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "대가는 GP 150,000. 그리고 외곽 궤도 통행권.",
+            "en": "In exchange: 150,000 GP. And outer orbit transit rights."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "Kara Vex가 FSP나 CV 편으로 넘어갈 가능성은요?",
+            "en": "What's the risk of Kara Vex defecting to FSP or CV?"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "...FSP는 해적을 안 써. CV는 이미 접촉 시도했는데 거절당했대.\n우리가 세 번째야.",
+            "en": "...FSP doesn't use pirates. CV already tried, got rejected.\nWe're the third offer."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "왜 CV를 거절했죠?",
+            "en": "Why did they reject CV?"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "CV는 돈이 없거든. 우리는 있고.",
+            "en": "CV has no money. We do."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "space_battle_start",
+      "bgm": "ambient_deep_space",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "이온 폭풍이 외곽 궤도를 휩쓸고 있었다.\n모든 함선의 추진계가 30% 저하.\n그 속에서 Kara Vex의 거점이 있었다.",
+            "en": "An ion storm swept through the outer orbit.\nAll ship propulsion systems down 30%.\nKara Vex's base sat in the middle of it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "space_battle_start",
+      "bgm": "tension_high",
+      "lines": [
+        {
+          "speaker": "kara_vex",
+          "emotion": "amused",
+          "effect": "character_enter:kara_vex:slide_right",
+          "text": {
+            "ko": "MCC가 직접 찾아오네. 이건 처음이야.",
+            "en": "MCC comes calling personally. First time for everything."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "거래를 제안하러 왔습니다.",
+            "en": "We're here to offer a deal."
+          }
+        },
+        {
+          "speaker": "kara_vex",
+          "emotion": "calculating",
+          "text": {
+            "ko": "Helion 잔당 처리에 MCC 통행권. 알아. CV도 비슷한 제안 했었는데.",
+            "en": "Helion remnants plus MCC transit rights. I know. CV offered something similar."
+          }
+        },
+        {
+          "speaker": "kara_vex",
+          "emotion": "amused",
+          "text": {
+            "ko": "근데 CV는 현금이 없었잖아.",
+            "en": "But CV had no cash."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "determined",
+          "text": {
+            "ko": "우리에겐 있습니다.",
+            "en": "We do."
+          }
+        },
+        {
+          "speaker": "kara_vex",
+          "emotion": "calculating",
+          "text": {
+            "ko": "200,000. 통행권 3년. 그리고 한 가지 더.",
+            "en": "200,000. Transit rights for 3 years. And one more thing."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "space_battle_start",
+      "bgm": "tension_high",
+      "lines": [
+        {
+          "speaker": "kara_vex",
+          "emotion": "serious",
+          "text": {
+            "ko": "Helion 잔당 중에 내 전 부하가 있어. Sal Cruz.\n그 인간은 내가 직접 처리하고 싶어.",
+            "en": "One of the Helion remnants is my former crew. Sal Cruz.\nI want to handle him personally."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "......",
+            "en": "......"
+          }
+        },
+        {
+          "speaker": "kara_vex",
+          "emotion": "serious",
+          "text": {
+            "ko": "방해하지 않겠다는 약속이면 충분해.",
+            "en": "Just promise not to interfere. That's enough."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s07",
+      "type": "narration",
+      "background": "space_battle_start",
+      "bgm": "choice_tension",
+      "lines": [
+        {
+          "text": {
+            "ko": "이온 폭풍이 함선 외벽을 두드렸다.\nSal Cruz가 누구인지, 그가 왜 Kara Vex를 배신했는지는 알 수 없었다.\n그것을 알 필요도 없었다. 아마도.",
+            "en": "The ion storm hammered the ship's hull.\nWho Sal Cruz was, why he'd betrayed Kara Vex — unknowable.\nMaybe irrelevant. Maybe."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s08",
+      "type": "choice",
+      "background": "space_battle_start",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "Kara Vex의 추가 조건. 어떻게 응답할 것인가.",
+        "en": "Kara Vex's additional condition. How will you respond?"
+      },
+      "choices": [
+        {
+          "id": "ch4_accept_full",
+          "text": {
+            "ko": "조건 전부 수락. 200,000 GP, 3년 통행권, Sal Cruz 불간섭.",
+            "en": "Accept all terms. 200,000 GP, 3-year transit, no interference with Sal Cruz."
+          },
+          "tone": "pragmatic",
+          "preview_hint": {
+            "ko": "→ MCC 평판 +15 · 강력한 해적 동맹 · Sal Cruz 운명 미정",
+            "en": "→ MCC rep +15 · Strong pirate alliance · Sal Cruz fate unknown"
+          }
+        },
+        {
+          "id": "ch4_negotiate_price",
+          "text": {
+            "ko": "150,000에 2년 통행권. Sal Cruz는 불간섭.",
+            "en": "150,000, 2-year transit. No interference with Sal Cruz."
+          },
+          "tone": "hardball",
+          "preview_hint": {
+            "ko": "→ 비용 절감 · 동맹 강도 약함 · 전술가 태그",
+            "en": "→ Cost savings · Weaker alliance · Tactician tag"
+          }
+        },
+        {
+          "id": "ch4_refuse_sal",
+          "text": {
+            "ko": "Sal Cruz는 우리가 체포한다. 나머지 조건은 수락.",
+            "en": "Sal Cruz gets taken by us. Rest of terms accepted."
+          },
+          "tone": "principled",
+          "preview_hint": {
+            "ko": "→ MCC 평판 +5 · Kara Vex 분노 · Sal Cruz 체포 가능",
+            "en": "→ MCC rep +5 · Kara Vex angered · Sal Cruz possible capture"
+          }
+        },
+        {
+          "id": "ch4_walk_away",
+          "text": {
+            "ko": "거래 없음. 직접 Helion 잔당을 처리한다.",
+            "en": "No deal. We handle the Helion remnants ourselves."
+          },
+          "tone": "independent",
+          "preview_hint": {
+            "ko": "→ GP 비용 없음 · 전투 난이도 증가 · Kara Vex 중립",
+            "en": "→ No GP cost · Higher combat difficulty · Kara Vex stays neutral"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s09_accept",
+      "type": "dialogue",
+      "background": "space_battle_start",
+      "bgm": "tension_resolve",
+      "condition": { "choiceId": "ch4_accept_full" },
+      "lines": [
+        {
+          "speaker": "kara_vex",
+          "emotion": "satisfied",
+          "text": {
+            "ko": "MCC 사람답네. 빠르고 깔끔해.",
+            "en": "That's MCC. Fast and clean."
+          }
+        },
+        {
+          "speaker": "kara_vex",
+          "emotion": "serious",
+          "text": {
+            "ko": "Helion 잔당은 내가 처리할게. 당신은 본대만 신경 써.",
+            "en": "I'll handle the Helion remnants. You worry about the main force."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s09_refuse_sal",
+      "type": "dialogue",
+      "background": "space_battle_start",
+      "bgm": "tension_high",
+      "condition": { "choiceId": "ch4_refuse_sal" },
+      "lines": [
+        {
+          "speaker": "kara_vex",
+          "emotion": "angry",
+          "text": {
+            "ko": "...그 인간이 네 부하를 몇 명 죽였는지 알아?",
+            "en": "...Do you know how many of my crew he killed?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "모릅니다. 그래도 재판 없는 처형은 할 수 없습니다.",
+            "en": "I don't. But I can't allow execution without trial."
+          }
+        },
+        {
+          "speaker": "kara_vex",
+          "emotion": "calculating",
+          "text": {
+            "ko": "......좋아. 대신 그 인간 재판 결과는 나한테 알려줘.",
+            "en": "......Fine. But tell me the trial result."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "외곽 궤도 작전",
+        "en": "Outer Orbit Operation"
+      },
+      "subtitle": {
+        "ko": "이온 폭풍 활성 — 추진계 -30% · 회피 -20%",
+        "en": "Ion Storm Active — Propulsion -30% · Evasion -20%"
+      }
+    },
+    {
+      "id": "s11",
+      "type": "result",
+      "success_scene": "s12_success",
+      "failure_scene": "s12_fail"
+    },
+    {
+      "id": "s12_success",
+      "type": "dialogue",
+      "background": "space_battle_start",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "kara_vex",
+          "emotion": "satisfied",
+          "effect": "character_enter:kara_vex:slide_right",
+          "text": {
+            "ko": "Helion 잔당 해체 완료. 거래는 유효해.",
+            "en": "Helion remnants neutralized. The deal stands."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "[통신] 잘했어. MCC 화물선 안전 확보됐어.",
+            "en": "[COMM] Good work. MCC cargo routes secured."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s12_fail",
+      "type": "dialogue",
+      "background": "space_battle_start",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "kara_vex",
+          "emotion": "disappointed",
+          "text": {
+            "ko": "이온 폭풍이 너무 심했네. 다음엔 타이밍 잘 잡아.",
+            "en": "Ion storm was too intense. Better timing next time."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "angry",
+          "text": {
+            "ko": "[통신] Helion 잔당 도주했어. 추적 개시.",
+            "en": "[COMM] Helion remnants escaped. Pursuit initiated."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_deep_space",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "이온 폭풍이 잦아들고 있었다.\n화성이 창밖에서 천천히 돌았다.\n붉은 행성. 그 위에 살아가는 것들.",
+            "en": "The ion storm was fading.\nMars turned slowly outside the window.\nRed planet. The things that lived on it."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch5",
+        "teaser": {
+          "ko": "다음 이야기 — 케플러 분쟁",
+          "en": "Next — Kepler Commons"
+        }
+      }
+    }
+  ]
+}

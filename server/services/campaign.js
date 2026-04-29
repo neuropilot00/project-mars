@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { pool, ensureUser, awardXP, notifyPlayer } = require('../db');
 
 const CH1_ID = 'mcc_campaign_ch1';
@@ -24,10 +26,66 @@ const FSP_CH10_ID = 'fsp_campaign_ch10';
 const FACTIONS = ['mcc', 'fsp', 'cv', 'pilgrim_arms'];
 const REP_MIN = -100;
 const REP_MAX = 100;
+const PROJECT_ROOT = path.resolve(__dirname, '../..');
+
+function loadScenesFile(filePath) {
+  if (!filePath) return null;
+  try {
+    const resolvedPath = path.resolve(PROJECT_ROOT, filePath);
+    if (!fs.existsSync(resolvedPath)) return null;
+    return JSON.parse(fs.readFileSync(resolvedPath, 'utf8'));
+  } catch (err) {
+    console.warn('[campaign] failed to load scenes file:', filePath, err && err.message ? err.message : err);
+    return null;
+  }
+}
 
 const CHAPTERS = {
+  mcc_prologue: {
+    questId: 'mcc_prologue',
+    scenesFile: 'docs/campaign-story/prologue_mcc.json',
+    campaignId: 'mcc_route',
+    chapterNumber: 0,
+    faction: 'mcc',
+    title: { ko: '프롤로그: 붉은 행성', en: 'Prologue: The Red Planet' },
+    requiredLevel: 1,
+    battleResolution: 'none',
+    estimatedPlayTimeSeconds: 480,
+    location: { id: 'earth_to_mars_transit', displayNameKo: '지구-화성 화물 항로', region: 'space' },
+    briefing: { npcId: 'lifang', npcName: 'Li Fang', npcTitle: 'MCC 현장 책임자', lines: [{ id: 'mcc_p_01', ko: '화성은 지구랑 달라요. 여기서 실수는 죽음이에요.' }], radio: [] },
+    choices: [],
+  },
+  fsp_prologue: {
+    questId: 'fsp_prologue',
+    scenesFile: 'docs/campaign-story/prologue_fsp.json',
+    campaignId: 'fsp_route',
+    chapterNumber: 0,
+    faction: 'fsp',
+    title: { ko: '프롤로그: 정착민', en: 'Prologue: The Settler' },
+    requiredLevel: 1,
+    battleResolution: 'none',
+    estimatedPlayTimeSeconds: 480,
+    location: { id: 'new_athens_settlement', displayNameKo: 'New Athens 정착지', region: 'hellas' },
+    briefing: { npcId: 'mikhail', npcName: 'Mikhail', npcTitle: 'New Athens 원로', lines: [{ id: 'fsp_p_01', ko: '규칙은 하나야. 여기선 혼자 살 수 없어.' }], radio: [] },
+    choices: [],
+  },
+  cv_prologue: {
+    questId: 'cv_prologue',
+    scenesFile: 'docs/campaign-story/prologue_cv.json',
+    campaignId: 'cv_route',
+    chapterNumber: 0,
+    faction: 'cv',
+    title: { ko: '프롤로그: 생존자', en: 'Prologue: The Survivor' },
+    requiredLevel: 1,
+    battleResolution: 'none',
+    estimatedPlayTimeSeconds: 480,
+    location: { id: 'outer_colony_ruins', displayNameKo: '외곽 식민지 폐허', region: 'outer' },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher', npcTitle: 'CV 지도자', lines: [{ id: 'cv_p_01', ko: 'CV에는 규칙이 없어. 그게 규칙이야.' }], radio: [] },
+    choices: [],
+  },
   [CH1_ID]: {
     questId: CH1_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch1_oxygen_rush.json',
     campaignId: 'mcc_route',
     chapterNumber: 1,
     faction: 'mcc',
@@ -73,6 +131,7 @@ const CHAPTERS = {
   },
   [CH2_ID]: {
     questId: CH2_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch2_frozen_highway.json',
     campaignId: 'mcc_route',
     chapterNumber: 2,
     faction: 'mcc',
@@ -120,6 +179,7 @@ const CHAPTERS = {
   },
   [CH3_ID]: {
     questId: CH3_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch3_boardroom.json',
     campaignId: 'mcc_route',
     chapterNumber: 3,
     faction: 'mcc',
@@ -166,6 +226,7 @@ const CHAPTERS = {
   },
   [CH4_ID]: {
     questId: CH4_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch4_pirates_payroll.json',
     campaignId: 'mcc_route',
     chapterNumber: 4,
     faction: 'mcc',
@@ -209,6 +270,7 @@ const CHAPTERS = {
   },
   [CH5_ID]: {
     questId: CH5_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch5_kepler_dispute.json',
     campaignId: 'mcc_route',
     chapterNumber: 5,
     faction: 'mcc',
@@ -252,6 +314,7 @@ const CHAPTERS = {
   },
   [CH6_ID]: {
     questId: CH6_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch6_whistleblower.json',
     campaignId: 'mcc_route',
     chapterNumber: 6,
     faction: 'mcc',
@@ -292,6 +355,7 @@ const CHAPTERS = {
   },
   [CH7_ID]: {
     questId: CH7_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch7_chens_gambit.json',
     campaignId: 'mcc_route',
     chapterNumber: 7,
     faction: 'mcc',
@@ -338,6 +402,7 @@ const CHAPTERS = {
   },
   [CH8_ID]: {
     questId: CH8_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch8_red_parliament.json',
     campaignId: 'mcc_route',
     chapterNumber: 8,
     faction: 'mcc',
@@ -389,6 +454,7 @@ const CHAPTERS = {
   },
   [CH9_ID]: {
     questId: CH9_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch9_martian_night.json',
     campaignId: 'mcc_route',
     chapterNumber: 9,
     faction: 'mcc',
@@ -436,6 +502,7 @@ const CHAPTERS = {
   },
   [CH10_ID]: {
     questId: CH10_ID,
+    scenesFile: 'docs/campaign-story/mcc_ch10_the_choice.json',
     campaignId: 'mcc_route',
     chapterNumber: 10,
     faction: 'mcc',
@@ -469,6 +536,7 @@ const CHAPTERS = {
   },
   [FSP_CH1_ID]: {
     questId: FSP_CH1_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch1_breakwater.json',
     campaignId: 'fsp_route',
     chapterNumber: 1,
     faction: 'fsp',
@@ -517,6 +585,7 @@ const CHAPTERS = {
   },
   [FSP_CH2_ID]: {
     questId: FSP_CH2_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch2_ice_caravan.json',
     campaignId: 'fsp_route',
     chapterNumber: 2,
     faction: 'fsp',
@@ -562,6 +631,7 @@ const CHAPTERS = {
   },
   [FSP_CH3_ID]: {
     questId: FSP_CH3_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch3_blood_mine.json',
     campaignId: 'fsp_route',
     chapterNumber: 3,
     faction: 'fsp',
@@ -602,6 +672,7 @@ const CHAPTERS = {
   },
   [FSP_CH4_ID]: {
     questId: FSP_CH4_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch4_diplomacy.json',
     campaignId: 'fsp_route',
     chapterNumber: 4,
     faction: 'fsp',
@@ -652,6 +723,7 @@ const CHAPTERS = {
   },
   [FSP_CH5_ID]: {
     questId: FSP_CH5_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch5_kepler_commons.json',
     campaignId: 'fsp_route',
     chapterNumber: 5,
     faction: 'fsp',
@@ -702,6 +774,7 @@ const CHAPTERS = {
   },
   [FSP_CH6_ID]: {
     questId: FSP_CH6_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch6_the_mole.json',
     campaignId: 'fsp_route',
     chapterNumber: 6,
     faction: 'fsp',
@@ -751,6 +824,7 @@ const CHAPTERS = {
   },
   [FSP_CH7_ID]: {
     questId: FSP_CH7_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch7_assembly.json',
     campaignId: 'fsp_route',
     chapterNumber: 7,
     faction: 'fsp',
@@ -800,6 +874,7 @@ const CHAPTERS = {
   },
   [FSP_CH8_ID]: {
     questId: FSP_CH8_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch8_water_war.json',
     campaignId: 'fsp_route',
     chapterNumber: 8,
     faction: 'fsp',
@@ -846,6 +921,7 @@ const CHAPTERS = {
   },
   [FSP_CH9_ID]: {
     questId: FSP_CH9_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch9_last_harvest.json',
     campaignId: 'fsp_route',
     chapterNumber: 9,
     faction: 'fsp',
@@ -882,6 +958,7 @@ const CHAPTERS = {
   },
   [FSP_CH10_ID]: {
     questId: FSP_CH10_ID,
+    scenesFile: 'docs/campaign-story/fsp_ch10_freedoms_price.json',
     campaignId: 'fsp_route',
     chapterNumber: 10,
     faction: 'fsp',
@@ -913,7 +990,165 @@ const CHAPTERS = {
       { id: 'fsp_bad_ending_fallback', labelKo: 'Bad Ending: Failed Arc.', effects: { flag: 'chose_fsp_bad_ending' } },
     ],
   },
+
+  // ── CV 루트 (크림슨 워로드) ────────────────────────────────────────────────
+  cv_campaign_ch1: {
+    questId: 'cv_campaign_ch1', scenesFile: 'docs/campaign-story/cv_ch1_baptism.json',
+    campaignId: 'cv_route', chapterNumber: 1, faction: 'cv',
+    title: { ko: '세례', en: 'Baptism' }, requiredLevel: 1, requiredReputation: { cv: 0 },
+    battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 900,
+    location: { id: 'outer_colony_ruins', displayNameKo: '외곽 식민지 폐허', region: 'outer_belt' },
+    environment: { type: 'wasteland_night', totalDurationSeconds: 900, phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher / Cinder Grace', npcTitle: 'CV 입단 세례', lines: [{ id: 'cv_ch1_01', ko: '살아있네. 의외야. CV에는 규칙이 없어. 그게 규칙이야.' }], radio: [] },
+    choices: [
+      { id: 'cv_ch1_brutal', labelKo: '힘으로 증명한다.', effects: { reputationDelta: { cv: 15 }, flag: 'cv_brutal_entry' } },
+      { id: 'cv_ch1_smart', labelKo: '영리하게 통과한다.', effects: { reputationDelta: { cv: 10 }, flag: 'cv_smart_entry' } },
+      { id: 'cv_ch1_refuse', labelKo: '테스트를 거부한다.', effects: { reputationDelta: { cv: -10 }, flag: 'cv_refused_test' } },
+      { id: 'cv_ch1_question', labelKo: '왜 이런 테스트가 필요한가 묻는다.', effects: { reputationDelta: { cv: 5 }, flag: 'cv_questioned_test', flag2: 'cinder_noticed_player' } },
+    ],
+  },
+  cv_campaign_ch2: {
+    questId: 'cv_campaign_ch2', scenesFile: 'docs/campaign-story/cv_ch2_raid.json',
+    campaignId: 'cv_route', chapterNumber: 2, faction: 'cv',
+    title: { ko: '약탈', en: 'The Raid' }, requiredLevel: 2, prerequisiteChapter: 'cv_campaign_ch1',
+    battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 1200,
+    location: { id: 'north_pole_route', displayNameKo: '북극관 호송 항로', region: 'north_pole_to_hellas' },
+    environment: { type: 'convoy_ambush', totalDurationSeconds: 1200, phases: [{ phase: 0, startSec: 0 }, { phase: 1, startSec: 600 }] },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher / Cinder Grace', npcTitle: 'FSP 얼음 호송 습격', lines: [{ id: 'cv_ch2_01', ko: '얼음 호송선이 지나간다. 우리가 먹는다.' }], radio: [] },
+    choices: [
+      { id: 'cv_ch2_full_raid', labelKo: '전면 약탈. 모두 가져간다.', effects: { reputationDelta: { cv: 15, fsp: -20 }, flag: 'cv_full_raid' } },
+      { id: 'cv_ch2_selective', labelKo: '절반만. 의료 호송은 건드리지 않는다.', effects: { reputationDelta: { cv: 5, fsp: -5 }, flag: 'cv_selective_raid', flag2: 'cinder_approved' } },
+      { id: 'cv_ch2_abort', labelKo: '환자가 있다. 철수한다.', effects: { reputationDelta: { cv: -10, fsp: 5 }, flag: 'cv_aborted_raid' } },
+      { id: 'cv_ch2_negotiate', labelKo: '공격 대신 통행세를 요구한다.', effects: { reputationDelta: { cv: 8 }, flag: 'cv_toll_demanded' } },
+    ],
+  },
+  cv_campaign_ch3: {
+    questId: 'cv_campaign_ch3', scenesFile: 'docs/campaign-story/cv_ch3_mine_king.json',
+    campaignId: 'cv_route', chapterNumber: 3, faction: 'cv',
+    title: { ko: '광산왕', en: 'Mine King' }, requiredLevel: 3, prerequisiteChapter: 'cv_campaign_ch2',
+    battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 1500,
+    location: { id: 'cv_eastern_mines', displayNameKo: 'CV 동쪽 광산 구역', region: 'arabia_terra' },
+    environment: { type: 'internal_conflict', totalDurationSeconds: 1500, phases: [{ phase: 0, startSec: 0 }, { phase: 1, startSec: 750 }] },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher / Cinder Grace', npcTitle: 'CV 내부 파벌 충돌', lines: [{ id: 'cv_ch3_01', ko: '내부에서 도전자가 나왔어. 처리해.' }], radio: [] },
+    choices: [
+      { id: 'cv_ch3_crush', labelKo: '완전히 제압한다.', effects: { reputationDelta: { cv: 15 }, flag: 'cv_crushed_rival' } },
+      { id: 'cv_ch3_absorb', labelKo: '흡수한다. 싸우지 않고.', effects: { reputationDelta: { cv: 10 }, flag: 'cv_absorbed_rival' } },
+      { id: 'cv_ch3_cinder_way', labelKo: '신더의 방식대로. 협상.', effects: { reputationDelta: { cv: 5 }, flag: 'cv_cinder_method', flag2: 'cinder_trust_up' } },
+      { id: 'cv_ch3_question_butcher', labelKo: '왜 이 싸움이 필요한지 정육점에게 묻는다.', effects: { reputationDelta: { cv: -5 }, flag: 'cv_questioned_butcher' } },
+    ],
+  },
+  cv_campaign_ch4: {
+    questId: 'cv_campaign_ch4', scenesFile: 'docs/campaign-story/cv_ch4_cinder.json',
+    campaignId: 'cv_route', chapterNumber: 4, faction: 'cv',
+    title: { ko: '신더', en: 'Cinder' }, requiredLevel: 4, prerequisiteChapter: 'cv_campaign_ch3',
+    battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 1500,
+    location: { id: 'sandstone_junction_cv', displayNameKo: 'Sandstone Junction 지하', region: 'equatorial_belt' },
+    environment: { type: 'subterranean_secret', totalDurationSeconds: 1500, phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'cinder', npcName: 'Cinder Grace / FSP Diplomat', npcTitle: 'FSP 비밀 협상 — CV 시각', lines: [{ id: 'cv_ch4_01', ko: 'FSP가 협상을 원해. The Butcher는 알면 안 돼.' }], radio: [] },
+    choices: [
+      { id: 'cv_ch4_support_cinder', labelKo: '신더를 지지한다. 협상 진행.', effects: { reputationDelta: { cv: 5, fsp: 10 }, flag: 'cv_cinder_supported', flag2: 'fsp_cv_channel_open' } },
+      { id: 'cv_ch4_report_butcher', labelKo: '정육점에게 보고한다.', effects: { reputationDelta: { cv: 10, fsp: -20 }, flag: 'cv_reported_cinder', flag2: 'cinder_exposed' } },
+      { id: 'cv_ch4_watch', labelKo: '지켜본다. 아직 판단 안 한다.', effects: { flag: 'cv_watched_cinder' } },
+      { id: 'cv_ch4_demand_terms', labelKo: 'FSP에게 더 많은 조건을 요구한다.', effects: { reputationDelta: { cv: 3 }, flag: 'cv_demanded_more' } },
+    ],
+  },
+  cv_campaign_ch5: {
+    questId: 'cv_campaign_ch5', scenesFile: 'docs/campaign-story/cv_ch5_kepler_king.json',
+    campaignId: 'cv_route', chapterNumber: 5, faction: 'cv',
+    title: { ko: '케플러의 왕', en: 'King of Kepler' }, requiredLevel: 5, prerequisiteChapter: 'cv_campaign_ch4',
+    battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 1800,
+    location: { id: 'kepler_crater', displayNameKo: 'Kepler 분화구', region: 'arabia_terra' },
+    environment: { type: 'three_faction_battle', totalDurationSeconds: 1800, phases: [{ phase: 0, startSec: 0 }, { phase: 1, startSec: 900 }] },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher / Cinder Grace', npcTitle: 'Kepler 분화구 강점 작전', lines: [{ id: 'cv_ch5_01', ko: '티타늄이 거기 있어. 우리가 먼저 가져간다.' }], radio: [] },
+    choices: [
+      { id: 'cv_ch5_full_force', labelKo: 'MCC와 FSP 모두 제압. CV 단독 통치.', effects: { reputationDelta: { cv: 20, fsp: -20, mcc: -20 }, flag: 'cv_kepler_full_force' } },
+      { id: 'cv_ch5_fsp_deal', labelKo: 'FSP와 분할 협상. MCC만 제압.', effects: { reputationDelta: { cv: 10, fsp: 5, mcc: -15 }, flag: 'cv_kepler_fsp_deal' } },
+      { id: 'cv_ch5_three_way', labelKo: '삼각 분할 제안. 신더 방식.', effects: { reputationDelta: { cv: 5, fsp: 5, mcc: 5 }, flag: 'cv_kepler_three_way', flag2: 'cinder_method_validated' } },
+      { id: 'cv_ch5_withdraw', labelKo: '철수. 피가 너무 많다.', effects: { reputationDelta: { cv: -10 }, flag: 'cv_kepler_withdrew', flag2: 'butcher_disappointed' } },
+    ],
+  },
+  cv_campaign_ch6: {
+    questId: 'cv_campaign_ch6', scenesFile: 'docs/campaign-story/cv_ch6_thirty_years.json',
+    campaignId: 'cv_route', chapterNumber: 6, faction: 'cv',
+    title: { ko: '30년', en: 'Thirty Years' }, requiredLevel: 6, prerequisiteChapter: 'cv_campaign_ch5',
+    battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 1200,
+    location: { id: 'cv_inner_sanctum', displayNameKo: 'CV 본거지 내부', region: 'outer_belt' },
+    environment: { type: 'personal_memory', totalDurationSeconds: 1200, phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher', npcTitle: '30년 전 이야기', lines: [{ id: 'cv_ch6_01', ko: '오래된 이야기야. 들을 시간 있어?' }], radio: [] },
+    choices: [
+      { id: 'cv_ch6_listen_all', labelKo: '모든 이야기를 듣는다.', effects: { reputationDelta: { cv: 5 }, flag: 'cv_heard_butcher_story', flag2: 'butcher_trust_deepened' } },
+      { id: 'cv_ch6_ask_regret', labelKo: '후회하는지 묻는다.', effects: { reputationDelta: { cv: 3 }, flag: 'cv_asked_regret', flag2: 'butcher_rare_vulnerable' } },
+      { id: 'cv_ch6_challenge', labelKo: '그 선택이 옳았는지 따진다.', effects: { reputationDelta: { cv: -5 }, flag: 'cv_challenged_butcher' } },
+      { id: 'cv_ch6_cinder_perspective', labelKo: '신더에게도 물어본다.', effects: { reputationDelta: { cv: 2 }, flag: 'cv_cinder_history_revealed' } },
+    ],
+  },
+  cv_campaign_ch7: {
+    questId: 'cv_campaign_ch7', scenesFile: 'docs/campaign-story/cv_ch7_last_war.json',
+    campaignId: 'cv_route', chapterNumber: 7, faction: 'cv',
+    title: { ko: '최후의 전쟁', en: 'The Last War' }, requiredLevel: 7, prerequisiteChapter: 'cv_campaign_ch6',
+    battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 1800,
+    location: { id: 'cv_war_camp', displayNameKo: 'CV 전쟁 캠프', region: 'outer_belt' },
+    environment: { type: 'war_mobilization', totalDurationSeconds: 1800, phases: [{ phase: 0, startSec: 0 }, { phase: 1, startSec: 900 }, { phase: 2, startSec: 1500 }] },
+    briefing: { npcId: 'cinder', npcName: 'Cinder Grace / The Butcher', npcTitle: '전면전 개시 전날', lines: [{ id: 'cv_ch7_01', ko: '내일 전부 시작돼. 막을 수 있어.' }], radio: [] },
+    choices: [
+      { id: 'cv_ch7_follow_butcher', labelKo: '정육점을 따른다. 전쟁을 시작한다.', effects: { reputationDelta: { cv: 20, fsp: -30, mcc: -20 }, flag: 'cv_war_started' } },
+      { id: 'cv_ch7_stop_war', labelKo: '신더를 따른다. 전쟁을 막는다.', effects: { reputationDelta: { cv: -10, fsp: 15 }, flag: 'cv_war_stopped', flag2: 'cinder_leads_now' } },
+      { id: 'cv_ch7_negotiate', labelKo: '마지막 협상 시도. 의회 소집.', effects: { reputationDelta: { cv: 5 }, flag: 'cv_negotiated_last', flag2: 'three_flags_possible' } },
+      { id: 'cv_ch7_disappear', labelKo: '모든 것을 떠난다.', effects: { reputationDelta: { cv: -20 }, flag: 'cv_player_disappeared', flag2: 'butcher_betrayed' } },
+    ],
+  },
+  cv_campaign_ch8: {
+    questId: 'cv_campaign_ch8', scenesFile: 'docs/campaign-story/cv_ch8_red_parliament_cv.json',
+    campaignId: 'cv_route', chapterNumber: 8, faction: 'cv',
+    title: { ko: '붉은 의회 — CV', en: 'Red Parliament — CV' }, requiredLevel: 8, prerequisiteChapter: 'cv_campaign_ch7',
+    battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 1800,
+    location: { id: 'kepler_crater_parliament', displayNameKo: 'Kepler 분화구 긴급 회의', region: 'arabia_terra' },
+    environment: { type: 'emergency_summit_cv', totalDurationSeconds: 1800, phases: [{ phase: 0, startSec: 0 }, { phase: 1, startSec: 900 }] },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher / Cinder / Mikhail / Li Fang', npcTitle: '붉은 의회 — CV 시각', lines: [{ id: 'cv_ch8_01', ko: '우리는 여기서 아무것도 서명하지 않아.' }], radio: [] },
+    choices: [
+      { id: 'cv_ch8_bloc_vote', labelKo: 'CV 독자 블록으로 투표. 어느 쪽도 지지 안 함.', effects: { reputationDelta: { cv: 10 }, flag: 'cv_bloc_voted' } },
+      { id: 'cv_ch8_support_mcc', labelKo: 'MCC를 지지한다. 천의 계획이 CV에 유리하다.', effects: { reputationDelta: { cv: 5, mcc: 15 }, flag: 'cv_supported_mcc' } },
+      { id: 'cv_ch8_support_fsp', labelKo: 'FSP 헌법을 지지한다. CV도 그 아래.', effects: { reputationDelta: { cv: -5, fsp: 15 }, flag: 'cv_supported_fsp', flag2: 'butcher_shocked' } },
+      { id: 'cv_ch8_speak', labelKo: '정육점 대신 직접 발언한다.', effects: { reputationDelta: { cv: 5 }, flag: 'cv_player_spoke', flag2: 'butcher_surprised_player' } },
+    ],
+  },
+  cv_campaign_ch9: {
+    questId: 'cv_campaign_ch9', scenesFile: 'docs/campaign-story/cv_ch9_olympus.json',
+    campaignId: 'cv_route', chapterNumber: 9, faction: 'cv',
+    title: { ko: '올림푸스의 밤', en: 'Olympus Night' }, requiredLevel: 9, prerequisiteChapter: 'cv_campaign_ch8',
+    battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 1200,
+    location: { id: 'olympus_cv_camp', displayNameKo: 'Olympus Mons 산자락 CV 야영지', region: 'olympus_mons' },
+    environment: { type: 'night_before_summit', totalDurationSeconds: 1200, phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher / Cinder Grace', npcTitle: '정상회담 전날 밤 — CV', lines: [{ id: 'cv_ch9_01', ko: '내일이면 끝나.' }], radio: [] },
+    choices: [
+      { id: 'cv_ch9_stand_with_butcher', labelKo: '정육점 옆에 선다.', effects: { reputationDelta: { cv: 15 }, flag: 'cv_stood_with_butcher' } },
+      { id: 'cv_ch9_stand_with_cinder', labelKo: '신더와 함께한다.', effects: { reputationDelta: { cv: 5 }, flag: 'cv_stood_with_cinder', flag2: 'cinder_final_alliance' } },
+      { id: 'cv_ch9_ask_hale', labelKo: '헤일 신부에게 조언을 구한다.', effects: { flag: 'cv_consulted_hale' } },
+      { id: 'cv_ch9_alone', labelKo: '혼자 있는다.', effects: { flag: 'cv_spent_night_alone' } },
+    ],
+  },
+  cv_campaign_ch10: {
+    questId: 'cv_campaign_ch10', scenesFile: 'docs/campaign-story/cv_ch10_from_flames.json',
+    campaignId: 'cv_route', chapterNumber: 10, faction: 'cv',
+    title: { ko: '불꽃에서', en: 'From the Flames' }, requiredLevel: 10, prerequisiteChapter: 'cv_campaign_ch9',
+    requiredReputation: { cv: -100 },
+    battleResolution: 'ending_evaluation_and_cinematic', estimatedPlayTimeSeconds: 900,
+    location: { id: 'cv_route_finale', displayNameKo: 'CV 루트 최종', region: 'mars' },
+    environment: { type: 'cinematic', noCombat: true, phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher / Cinder Grace / Hale', npcTitle: 'CV 루트 엔딩', lines: [{ id: 'cv_ch10_01', ko: '불꽃이 꺼지고 나면 — 남은 것이 너야.' }], radio: [] },
+    choices: [
+      { id: 'cv_ending_1_warlord', labelKo: 'Ending A: 화성의 지배자.', effects: { flag: 'cv_ending_warlord' } },
+      { id: 'cv_ending_2_dismantler', labelKo: 'Ending B: CV 해체자.', effects: { flag: 'cv_ending_dismantler' } },
+      { id: 'cv_ending_3_cinder_path', labelKo: 'Ending C: 신더의 길.', effects: { flag: 'cv_ending_cinder_path' } },
+      { id: 'cv_bad_ending', labelKo: 'Bad Ending: 재 속에 묻힌다.', effects: { flag: 'cv_bad_ending' } },
+    ],
+  },
 };
+
+// 아직 VN 스크립트가 없는 챕터도 동일한 공개 스키마를 갖도록 null로 맞춘다.
+Object.values(CHAPTERS).forEach(ch => {
+  if (ch.scenesFile === undefined) ch.scenesFile = null;
+});
 
 function normalizeWallet(wallet) {
   return String(wallet || '').toLowerCase().trim();
@@ -931,6 +1166,7 @@ function publicChapter(chapter, progress) {
     estimatedPlayTimeSeconds: chapter.estimatedPlayTimeSeconds,
     location: chapter.location,
     environment: chapter.environment,
+    scenes: chapter.scenesFile ? loadScenesFile(chapter.scenesFile) : null,
     briefing: chapter.briefing,
     choices: chapter.choices.map(c => ({ id: c.id, labelKo: c.labelKo })),
     progress: progress ? formatProgress(progress) : null,

@@ -1,0 +1,166 @@
+{
+  "questId": "fsp_campaign_ch4",
+  "campaignId": "fsp_route",
+  "chapterNumber": 4,
+  "title": { "ko": "외교", "en": "Diplomacy" },
+  "location": { "id": "sandstone_junction_sub3", "displayNameKo": "Sandstone Junction 지하 3레벨" },
+  "environment": "sandstorm_underground",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "mikhail", "amara", "hale"],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "Sandstone Junction 지하 3레벨. 모래 폭풍이 지상을 두드리는 소리가 천장을 타고 내려왔다. 여기서 기다리는 사람은 누군가를 피하거나, 아니면 누군가를 만나려는 사람이다.", "en": "Sandstone Junction, sub-level three. The sound of the sandstorm pounding the surface came down through the ceiling. People who waited here were hiding from someone, or meeting someone." } },
+        { "text": { "ko": "18분. MCC 정찰대가 도착하기 전까지.", "en": "Eighteen minutes. Before MCC patrol arrived." } }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "serious", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "신더 그레이스. CV 4위. 실질 전투력은 2위야. 그녀가 직접 접촉을 요청했어.", "en": "Cinder Grace. Fourth in CV hierarchy. Real combat strength is second. She requested direct contact herself." } },
+        { "speaker": "amara", "emotion": "cautious", "effect": "character_enter:amara:slide_right", "text": { "ko": "왜 CV 4위가 FSP를 만나려 하죠?", "en": "Why would CV's fourth want to meet FSP?" } },
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "그걸 알려고 온 거잖아.", "en": "That's why we're here." } }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "그녀가 들어왔다. 혼자였다. 그것 자체가 메시지였다.", "en": "She came in alone. That itself was a message." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "composed", "effect": "character_enter:hale:slide_right", "text": { "ko": "시간 없으니까 바로 말할게요. The Butcher는 곧 미친 짓 할 거야.", "en": "I'll be direct. There's no time. The Butcher is about to do something insane." } },
+        { "speaker": "amara", "emotion": "sharp", "text": { "ko": "당신 소속 얘기를 당신이 하는 게 이상하지 않습니까?", "en": "Isn't it strange that you're talking about your own organization?" } },
+        { "speaker": "hale", "emotion": "cold", "text": { "ko": "이상하면 안 왔겠죠.", "en": "If it were strange, I wouldn't have come." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "tense", "text": { "ko": "정육점이 New Athens를 직접 치려고 해요. 정착민 전체를 인질로. 물 공급 끊고 MCC를 압박하는 거야. 내가 막을 수 없어.", "en": "Butcher is planning a direct strike on New Athens. All the settlers as hostages. Cut the water, pressure MCC. I can't stop him." } },
+        { "speaker": "mikhail", "emotion": "controlled", "text": { "ko": "당신이 원하는 게 뭐요?", "en": "What do you want?" } },
+        { "speaker": "hale", "emotion": "direct", "text": { "ko": "협상. 내가 CV 내부를 안정시키는 동안 FSP가 외부 압력을 줘야 해.", "en": "Negotiation. FSP applies external pressure while I stabilize CV from within." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "hellas_mining_outpost",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "신더 그레이스에게 무엇을 제안하겠습니까?", "en": "What do you offer Cinder Grace?" },
+      "choices": [
+        {
+          "id": "fsp_ch4_offer_settlement_refuge",
+          "text": { "ko": "정착지 임시 피난소 제공.", "en": "Temporary refuge in the settlement." },
+          "tone": "humanitarian",
+          "preview_hint": { "ko": "→ 신더 신뢰 +15, 정착지 위험 노출", "en": "→ Cinder trust +15, settlement exposed to risk" }
+        },
+        {
+          "id": "fsp_ch4_offer_supply_share",
+          "text": { "ko": "보급 공유.", "en": "Share supplies." },
+          "tone": "pragmatic",
+          "preview_hint": { "ko": "→ FSP 자원 -10%, 협력 채널 개통", "en": "→ FSP resources -10%, open cooperation channel" }
+        },
+        {
+          "id": "fsp_ch4_propose_intel_exchange",
+          "text": { "ko": "MCC 정보 교환만.", "en": "Intelligence exchange only." },
+          "tone": "minimal",
+          "preview_hint": { "ko": "→ 위험 낮음, 관계 제한적", "en": "→ Low risk, limited relationship" }
+        },
+        {
+          "id": "fsp_ch4_evidence_share",
+          "text": { "ko": "Helion 증거 공유.", "en": "Share the Helion evidence." },
+          "tone": "bold",
+          "preview_hint": { "ko": "→ 신더 충격, 새 동맹 가능성", "en": "→ Cinder shocked, new alliance possible" }
+        },
+        {
+          "id": "fsp_ch4_walk_away",
+          "text": { "ko": "협상 중단.", "en": "Walk away." },
+          "tone": "firm",
+          "preview_hint": { "ko": "→ 신더 루트 닫힘, New Athens 위기 가속", "en": "→ Cinder route closed, New Athens crisis accelerates" }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "calculating", "text": { "ko": "...생각보다 나쁘지 않네요. 시간은 얼마나?", "en": "...Not as bad as I expected. How much time?" } },
+        { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "10분 남았어요.", "en": "Ten minutes left." } },
+        { "speaker": "hale", "emotion": "cold", "text": { "ko": "충분해요.", "en": "That's enough." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "MCC 정찰대 격퇴", "en": "Repel MCC Patrol" },
+      "subtitle": { "ko": "Sandstone Junction 지하 3레벨 — 탈출", "en": "Sandstone Junction Sub-3 — Extraction" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "amara", "emotion": "relieved", "effect": "character_enter:amara:slide_right", "text": { "ko": "탈출 성공. 신더도 빠져나갔어요.", "en": "Extraction successful. Cinder got out too." } },
+        { "speaker": "mikhail", "emotion": "calm", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "이제 그녀가 한 말을 믿을 이유가 생겼어.", "en": "Now we have reason to believe what she said." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "amara", "emotion": "tense", "effect": "character_enter:amara:slide_right", "text": { "ko": "신더는 갔어요. MCC가 회담 내용 일부를 가져갔을 수도 있어요.", "en": "Cinder is gone. MCC may have gotten part of the meeting." } },
+        { "speaker": "mikhail", "emotion": "grim", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "얼마나?", "en": "How much?" } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "외교는 거짓말하지 않는 것이 아니다. 같은 방향을 바라보는 사람을 찾는 것이다. 신더 그레이스가 그런 사람인지, 아직 알 수 없었다.", "en": "Diplomacy isn't about not lying. It's about finding someone looking in the same direction. Whether Cinder Grace was that person, there was no way to know yet." } }
+      ],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch5", "teaser": { "ko": "다음 — Kepler 공유지", "en": "Next — The Kepler Commons" } }
+    }
+  ]
+}

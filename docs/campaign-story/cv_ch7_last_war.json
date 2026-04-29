@@ -1,0 +1,250 @@
+{
+  "questId": "cv_campaign_ch7",
+  "campaignId": "cv_route",
+  "chapterNumber": 7,
+  "title": {
+    "ko": "최후의 전쟁",
+    "en": "The Last War"
+  },
+  "location": {
+    "id": "kepler_war_front",
+    "displayNameKo": "Kepler 전선"
+  },
+  "estimatedPlayTimeMinutes": 18,
+  "characters": [
+    "player",
+    "butcher",
+    "cinder"
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "정육점이 결정을 내렸다.\n전쟁.\nMCC와 FSP 동시에.\n신더가 밤새 반대했다. 아무도 듣지 않았다.",
+            "en": "Butcher made the decision.\nWar.\nAgainst MCC and FSP simultaneously.\nCinder argued against it all night. Nobody listened."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "urgent",
+          "effect": "character_enter:cinder:slide_left",
+          "text": {
+            "ko": "들어봐. 둘 다 상대로는 우리가 3개월 못 버텨.\n보급도 없어. 증원도 없어.",
+            "en": "Listen. Against both, we won't last three months.\nNo supplies. No reinforcements."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "resolute",
+          "effect": "character_enter:butcher:slide_right",
+          "text": {
+            "ko": "그럼 3개월 안에 끝내면 돼.",
+            "en": "Then we finish it in three months."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "desperate",
+          "text": {
+            "ko": "그건 계획이 아니야.",
+            "en": "That's not a plan."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "둘 다 당신을 봤다.\n정육점의 눈이 물었다 — 네 선택은?\n신더의 눈이 물었다 — 나를 믿어?",
+            "en": "They both looked at you.\nButcher's eyes asked — what's your choice?\nCinder's eyes asked — do you trust me?"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "전쟁을 시작합니까, 막습니까?",
+        "en": "Do you start the war or stop it?"
+      },
+      "choices": [
+        {
+          "id": "cv_ch7_follow_butcher",
+          "text": {
+            "ko": "정육점을 따른다. 전쟁을 시작한다.",
+            "en": "Follow Butcher. Start the war."
+          },
+          "tone": "war",
+          "preview_hint": {
+            "ko": "→ CV +20, 전면전 시작",
+            "en": "→ CV +20, total war begins"
+          }
+        },
+        {
+          "id": "cv_ch7_stop_war",
+          "text": {
+            "ko": "신더를 따른다. 전쟁을 막는다.",
+            "en": "Follow Cinder. Stop the war."
+          },
+          "tone": "peace",
+          "preview_hint": {
+            "ko": "→ CV -10, FSP +15, 신더 리더십 시작",
+            "en": "→ CV -10, FSP +15, Cinder leadership begins"
+          }
+        },
+        {
+          "id": "cv_ch7_negotiate",
+          "text": {
+            "ko": "마지막 협상 시도. 의회 소집.",
+            "en": "One last negotiation attempt. Call a council."
+          },
+          "tone": "diplomatic",
+          "preview_hint": {
+            "ko": "→ CV +5, 삼각 회담 가능성",
+            "en": "→ CV +5, three-flags summit possible"
+          }
+        },
+        {
+          "id": "cv_ch7_disappear",
+          "text": {
+            "ko": "모든 것을 떠난다.",
+            "en": "Leave everything."
+          },
+          "tone": "solitary",
+          "preview_hint": {
+            "ko": "→ CV -20, 정육점 배신, 고독 루트",
+            "en": "→ CV -20, Butcher betrayed, solitary route"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "effect": "character_enter:butcher:slide_right",
+          "text": {
+            "ko": "결정됐어.",
+            "en": "It's decided."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "resolved",
+          "effect": "character_enter:cinder:slide_left",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "최후의 전쟁",
+        "en": "The Last War"
+      },
+      "subtitle": {
+        "ko": "CV 전면전 — 화성 전체가 전장",
+        "en": "CV Total War — All of Mars is a Battlefield"
+      }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "cold",
+          "effect": "character_enter:butcher:slide_right",
+          "text": {
+            "ko": "첫 전투는 이겼어. 전쟁은 계속돼.",
+            "en": "We won the first battle. The war goes on."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "tense",
+          "effect": "character_enter:cinder:slide_left",
+          "text": {
+            "ko": "후퇴야. 오늘은 아니야.",
+            "en": "We retreat. Not today."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "전쟁이 시작됐거나 막혔다.\n어느 쪽이든 — 화성은 달라졌다.\n그 변화의 중심에 당신이 있었다.",
+            "en": "War began, or was stopped.\nEither way — Mars had changed.\nYou were at the center of that change."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch8",
+        "teaser": {
+          "ko": "다음 — 붉은 의회",
+          "en": "Next — Red Parliament"
+        }
+      }
+    }
+  ]
+}

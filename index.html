@@ -1200,6 +1200,24 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .campaign-rep-top{display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:4px}
 .campaign-rep-track{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
 .campaign-rep-fill{height:100%;width:50%;background:#4fc3f7}
+/* 캠페인 스토리 모드: 일본 모바일 VN풍 풀스크린 오버레이 */
+.story-overlay{position:fixed;inset:0;z-index:5200;background:#000;overflow:hidden;font-family:var(--fn);color:#fff;cursor:pointer}
+.story-background{position:absolute;inset:0;background:linear-gradient(135deg,#1a0a2e,#2d1b4e);background-size:cover;background-position:center;transition:opacity .8s ease,filter .8s ease}
+.story-character-left,.story-character-right{position:absolute;bottom:0;max-height:70vh;max-width:42vw;object-fit:contain;opacity:1;transition:opacity .3s ease,filter .3s ease,transform .3s ease;filter:drop-shadow(0 18px 32px rgba(0,0,0,.55))}
+.story-character-left{left:6vw;transform:translateX(-2%)}
+.story-character-right{right:6vw;transform:translateX(2%)}
+.story-character-inactive{opacity:.45;filter:brightness(.6) drop-shadow(0 18px 32px rgba(0,0,0,.45))}
+.story-dialog-box{position:absolute;left:0;right:0;bottom:0;width:100%;box-sizing:border-box;background:rgba(0,0,0,.75);padding:20px 24px;backdrop-filter:blur(4px);border-top:1px solid rgba(255,255,255,.12)}
+.story-speaker-name{font-weight:900;color:#FFD700;font-size:1.1rem;margin-bottom:6px;text-shadow:0 2px 12px rgba(0,0,0,.7)}
+.story-text{color:#fff;font-size:1rem;line-height:1.6;min-height:3.2em;white-space:pre-line;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.story-tap-hint{position:absolute;right:24px;bottom:10px;font-size:.75rem;opacity:.6;animation:storyTapBlink 1.1s ease-in-out infinite}
+@keyframes storyTapBlink{0%,100%{opacity:.25}50%{opacity:.75}}
+.story-choices{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.story-choice-btn{width:100%;text-align:left;padding:12px 14px;border-radius:8px;border:1px solid rgba(255,215,0,.32);background:linear-gradient(135deg,rgba(79,195,247,.12),rgba(255,215,0,.08));color:#fff;font-family:var(--fn);font-size:10px;font-weight:800;letter-spacing:.8px;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.24)}
+.story-choice-btn:hover{background:linear-gradient(135deg,rgba(79,195,247,.22),rgba(255,215,0,.16));border-color:rgba(255,215,0,.56)}
+.story-title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.34);font-size:clamp(28px,5vw,56px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.85);padding:24px;letter-spacing:0}
+.story-title-card small{display:block;margin-top:12px;font-size:clamp(13px,1.8vw,20px);color:#FFD700;line-height:1.5}
+.story-narration-text{text-align:center;background:none;color:#fff;font-size:1rem;line-height:1.7;text-shadow:0 2px 16px rgba(0,0,0,.95)}
 
 /* Rank progress bar */
 .rank-progress{background:rgba(0,0,0,.3);border-radius:6px;height:14px;overflow:hidden;
@@ -24496,6 +24514,14 @@ function focusSector(sectorId){
 var _campaignData=null;
 var _campaignActive=null;
 var _campaignShowLocked=false;
+var _campaignScenes=null;
+var _campaignSceneIndex=0;
+var _campaignTypingTimer=null;
+var _campaignTypingDone=false;
+var _campaignSceneLineIndex=0;
+var _campaignTypingElement=null;
+var _campaignTypingFullText='';
+var _campaignBattleTimer=null;
 function loadCampaignStatus(){
   var el=document.getElementById('campaignList');
   var w=walletState.address;
@@ -24614,6 +24640,260 @@ function _setCampaignModal(ch, html){
   document.getElementById('campaignModal').style.display='flex';
 }
 
+function _campaignStoryText(value){
+  // 스토리 JSON 다국어 필드에서 현재 클라이언트 기본값인 한국어를 우선 사용한다.
+  if(value==null) return '';
+  if(typeof value==='string') return value;
+  return value.ko||value.en||value.ja||value.zh||'';
+}
+
+function _campaignStorySpeakerName(id){
+  // 캐릭터 ID를 에셋 파일명과 분리하지 않도록 표시명만 로컬에서 보정한다.
+  var names={player:'당신',lifang:'리팡',chen:'천 회장',mikhail:'미하일',butcher:'정육점',hale:'헤일 신부',lena:'레나',kara_vex:'Kara Vex',cinder:'신더',amara:'아마라',liang:'량 웨이',samuel:'사무엘',hagar:'하가르',mcc_operator:'MCC 오퍼레이터',helion_captain:'헬리온 선장',miner_elder:'광부 어르신'};
+  return names[id]||String(id||'Narrator').replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+}
+
+function _campaignStorySceneById(id){
+  // branch/options의 goto와 dialogue next가 문자열 ID를 쓰는 실제 씬 데이터를 지원한다.
+  if(!_campaignScenes||!id) return -1;
+  for(var i=0;i<_campaignScenes.length;i++) if(_campaignScenes[i]&&_campaignScenes[i].id===id) return i;
+  return -1;
+}
+
+function showCampaignStory(chapter){
+  // 서버가 full story document 또는 scenes 배열을 줄 수 있어 둘 다 허용한다.
+  closeCampaignStory();
+  var story=chapter&&chapter.scenes;
+  _campaignScenes=Array.isArray(story)?story:((story&&Array.isArray(story.scenes))?story.scenes:null);
+  _campaignSceneIndex=0;
+  _campaignSceneLineIndex=0;
+  if(!_campaignScenes||!_campaignScenes.length){showCampaignBriefing(chapter,chapter&&chapter.progress);return;}
+  var oldModal=document.getElementById('campaignModal');
+  if(oldModal) oldModal.style.display='none';
+  var overlay=document.createElement('div');
+  overlay.className='story-overlay';
+  overlay.innerHTML='<div class="story-background"></div><img class="story-character-left" alt=""><img class="story-character-right" alt=""><div class="story-dialog-box"></div><div class="story-tap-hint">▶ 탭하여 계속</div>';
+  overlay.addEventListener('click',function(ev){
+    // 선택지 버튼은 자체 핸들러로만 진행한다.
+    if(ev.target&&ev.target.closest&&ev.target.closest('.story-choice-btn')) return;
+    var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
+    if(!scene) return;
+    if(scene.type==='choice'||scene.type==='branch') return;
+    if(!_campaignTypingDone){
+      if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+      if(_campaignTypingElement) _campaignTypingElement.textContent=_campaignTypingFullText;
+      _campaignTypingDone=true;
+      return;
+    }
+    advanceCampaignScene();
+  });
+  document.body.appendChild(overlay);
+  renderCampaignScene();
+}
+
+function _campaignStorySetBackground(scene,overlay){
+  // 배경 에셋이 없거나 로드 실패하면 지정된 화성풍 그라디언트로 폴백한다.
+  var bg=overlay.querySelector('.story-background');
+  if(!bg) return;
+  var speed=scene.transition==='fade_slow'?'1.5s':(scene.transition==='fade_medium'?'0.8s':'0s');
+  bg.style.transitionDuration=speed;
+  if(!scene.background){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';return;}
+  var src='/assets/campaign/backgrounds/'+scene.background+'.jpg';
+  var img=new Image();
+  img.onload=function(){bg.style.backgroundImage='url("'+src+'")';};
+  img.onerror=function(){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';};
+  img.src=src;
+}
+
+function _campaignStoryRenderCharacters(scene,line,overlay){
+  // scene.characters가 있으면 우선 사용하고, 없으면 현재 씬 대사의 speaker에서 좌/우 초상화를 추론한다.
+  var left=overlay.querySelector('.story-character-left');
+  var right=overlay.querySelector('.story-character-right');
+  if(!left||!right) return;
+  left.style.display='none'; right.style.display='none';
+  if(scene.type!=='dialogue') return;
+  var chars=[];
+  if(Array.isArray(scene.characters)){
+    chars=scene.characters.map(function(c,i){return typeof c==='string'?{id:c,position:i===0?'left':'right'}:c;});
+  }else{
+    var speakers=(scene.lines||[]).map(function(l){return l.speaker;}).filter(Boolean);
+    speakers.forEach(function(s){if(chars.map(function(c){return c.id;}).indexOf(s)<0) chars.push({id:s,position:s==='player'?'right':'left'});});
+  }
+  chars.slice(0,2).forEach(function(c,i){
+    var pos=c.position||(i===0?'left':'right');
+    var el=pos==='right'?right:left;
+    var id=c.id||c.characterId||c.speaker;
+    if(!id) return;
+    el.className=pos==='right'?'story-character-right':'story-character-left';
+    if(line&&line.speaker&&line.speaker!==id) el.className+=' story-character-inactive';
+    el.onerror=function(){el.style.display='none';};
+    var _portraitMap={player:'player_silhouette'};
+    el.src='/assets/campaign/characters/'+(_portraitMap[id]||id)+'.png';
+    el.style.display='block';
+  });
+}
+
+function typeText(element,text,onComplete){
+  // 클릭 즉시완료를 위해 타이머와 전체 텍스트를 전역에 보관한다.
+  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  _campaignTypingElement=element;
+  _campaignTypingFullText=text||'';
+  _campaignTypingDone=false;
+  element.textContent='';
+  var i=0;
+  _campaignTypingTimer=setInterval(function(){
+    i++;
+    element.textContent=_campaignTypingFullText.slice(0,i);
+    if(i>=_campaignTypingFullText.length){
+      clearInterval(_campaignTypingTimer);
+      _campaignTypingTimer=null;
+      _campaignTypingDone=true;
+      if(onComplete) onComplete();
+    }
+  },30);
+}
+
+function renderCampaignScene(){
+  var overlay=document.querySelector('.story-overlay');
+  var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
+  if(!overlay||!scene){closeCampaignStory();return;}
+  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  if(_campaignBattleTimer) clearTimeout(_campaignBattleTimer);
+  _campaignTypingTimer=null; _campaignBattleTimer=null; _campaignTypingDone=true;
+  _campaignStorySetBackground(scene,overlay);
+  var box=overlay.querySelector('.story-dialog-box');
+  var hint=overlay.querySelector('.story-tap-hint');
+  var title=overlay.querySelector('.story-title-card');
+  if(title) title.remove();
+  if(box){
+    box.style.display='block';
+    box.style.background='rgba(0,0,0,.75)';
+    box.style.borderTop='1px solid rgba(255,255,255,.12)';
+    box.style.backdropFilter='blur(4px)';
+  }
+  if(hint) hint.style.display='block';
+
+  if(scene.type==='narration'||scene.type==='ending'){
+    var nLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
+    _campaignStoryRenderCharacters(scene,nLine,overlay);
+    // 나레이션은 배경 없는 하단 자막처럼 보이도록 대화 박스 장식을 제거한다.
+    box.style.background='transparent';
+    box.style.borderTop='none';
+    box.style.backdropFilter='none';
+    box.innerHTML='<div class="story-text story-narration-text"></div>';
+    typeText(box.querySelector('.story-text'),_campaignStoryText(nLine.text),null);
+    return;
+  }
+
+  if(scene.type==='dialogue'){
+    var dLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
+    _campaignStoryRenderCharacters(scene,dLine,overlay);
+    box.innerHTML='<div class="story-speaker-name">'+escapeHtmlSafe(_campaignStorySpeakerName(dLine.speaker||scene.speaker))+'</div><div class="story-text"></div>';
+    typeText(box.querySelector('.story-text'),_campaignStoryText(dLine.text),null);
+    return;
+  }
+
+  if(scene.type==='choice'){
+    _campaignStoryRenderCharacters(scene,null,overlay);
+    if(hint) hint.style.display='none';
+    var html='<div class="story-text">'+escapeHtmlSafe(_campaignStoryText(scene.prompt))+'</div><div class="story-choices">';
+    (scene.choices||[]).forEach(function(choice){
+      var label=_campaignStoryText(choice.text||choice.label);
+      var hintText=_campaignStoryText(choice.preview_hint);
+      html+='<button class="story-choice-btn" data-choice="'+escapeHtmlSafe(choice.value||choice.id||'')+'">'+escapeHtmlSafe(label+(hintText?'\n'+hintText:''))+'</button>';
+    });
+    html+='</div>';
+    box.innerHTML=html;
+    Array.prototype.forEach.call(box.querySelectorAll('.story-choice-btn'),function(btn){
+      btn.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        var value=btn.getAttribute('data-choice');
+        closeCampaignStory();
+        chooseCampaignOption(value);
+      });
+    });
+    return;
+  }
+
+  if(scene.type==='branch'){
+    _campaignStoryRenderCharacters(scene,null,overlay);
+    if(hint) hint.style.display='none';
+    var opts=scene.choices||scene.options||[];
+    var branchHtml='<div class="story-text">'+escapeHtmlSafe(_campaignStoryText(scene.prompt))+'</div><div class="story-choices">';
+    opts.forEach(function(choice,i){
+      branchHtml+='<button class="story-choice-btn" data-next="'+escapeHtmlSafe(choice.next_scene||choice.goto||i)+'">'+escapeHtmlSafe(_campaignStoryText(choice.text||choice.label))+'</button>';
+    });
+    branchHtml+='</div>';
+    box.innerHTML=branchHtml;
+    Array.prototype.forEach.call(box.querySelectorAll('.story-choice-btn'),function(btn){
+      btn.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        var target=btn.getAttribute('data-next');
+        var idx=/^\d+$/.test(target)?parseInt(target,10):_campaignStorySceneById(target);
+        if(idx>=0&&idx<_campaignScenes.length){_campaignSceneIndex=idx;_campaignSceneLineIndex=0;renderCampaignScene();}
+        else advanceCampaignScene();
+      });
+    });
+    return;
+  }
+
+  if(scene.type==='battle_transition'){
+    _campaignStoryRenderCharacters(scene,null,overlay);
+    if(box) box.style.display='none';
+    if(hint) hint.style.display='none';
+    var card=document.createElement('div');
+    card.className='story-title-card';
+    card.innerHTML=escapeHtmlSafe(_campaignStoryText(scene.title))+'<small>'+escapeHtmlSafe(_campaignStoryText(scene.subtitle))+'</small>';
+    overlay.appendChild(card);
+    _campaignTypingDone=true;
+    _campaignBattleTimer=setTimeout(function(){advanceCampaignScene();},3000);
+    return;
+  }
+
+  // 아직 전투 결과 서버 응답 연동 전인 result 씬은 기존 시뮬레이션 흐름으로 넘긴다.
+  if(scene.type==='result'){closeCampaignStory();if(_campaignActive)showCampaignSim(_campaignActive.chapter,_campaignActive.progress||{});return;}
+  advanceCampaignScene();
+}
+
+function advanceCampaignScene(){
+  var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
+  if(!scene){closeCampaignStory();return;}
+  var lines=scene.lines||[];
+  if((scene.type==='dialogue'||scene.type==='narration'||scene.type==='ending')&&_campaignSceneLineIndex<lines.length-1){
+    _campaignSceneLineIndex++;
+    renderCampaignScene();
+    return;
+  }
+  if(scene.type==='ending'){
+    closeCampaignStory();
+    return;
+  }
+  if(scene.next){
+    var idx=_campaignStorySceneById(scene.next);
+    if(idx>=0){_campaignSceneIndex=idx;_campaignSceneLineIndex=0;renderCampaignScene();return;}
+  }
+  _campaignSceneIndex++;
+  _campaignSceneLineIndex=0;
+  if(!_campaignScenes||_campaignSceneIndex>=_campaignScenes.length){closeCampaignStory();return;}
+  renderCampaignScene();
+}
+
+function closeCampaignStory(){
+  // 오버레이와 타이머를 정리해 기존 캠페인 모달/시뮬레이션 흐름으로 안전하게 복귀한다.
+  var overlay=document.querySelector('.story-overlay');
+  if(overlay) overlay.remove();
+  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  if(_campaignBattleTimer) clearTimeout(_campaignBattleTimer);
+  _campaignTypingTimer=null;
+  _campaignBattleTimer=null;
+  _campaignTypingDone=false;
+  _campaignTypingElement=null;
+  _campaignTypingFullText='';
+  _campaignScenes=null;
+  _campaignSceneIndex=0;
+  _campaignSceneLineIndex=0;
+}
+
 async function openCampaignChapter(questId){
   var w=walletState.address;
   if(!w){showToast('LOGIN FIRST');return;}
@@ -24625,6 +24905,7 @@ async function openCampaignChapter(questId){
   if(p.status==='in_progress'&&p.sessionId){
     _campaignActive={chapter:ch,progress:p,sessionId:p.sessionId};
     if(Array.isArray(p.choices)&&p.choices.length>0) showCampaignSim(ch,p);
+    else if(ch.scenes) showCampaignStory(ch);
     else showCampaignBriefing(ch,p);
     return;
   }
@@ -24634,7 +24915,8 @@ async function openCampaignChapter(questId){
     if(!resp.ok){showToast(d.error||'Campaign start failed');return;}
     ch=d.chapter||ch; p=d.progress||{};
     _campaignActive={chapter:ch,progress:p,sessionId:d.sessionId||p.sessionId};
-    showCampaignBriefing(ch,p);
+    if(ch.scenes) showCampaignStory(ch);
+    else showCampaignBriefing(ch,p);
   }catch(e){showToast('Campaign start failed');}
 }
 

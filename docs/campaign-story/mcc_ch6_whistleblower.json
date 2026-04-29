@@ -1,0 +1,641 @@
+{
+  "questId": "mcc_campaign_ch6",
+  "campaignId": "mcc_route",
+  "chapterNumber": 6,
+  "title": {
+    "ko": "내부고발자",
+    "en": "The Whistleblower",
+    "ja": "内部告発者",
+    "zh": "内部告密者"
+  },
+  "location": {
+    "id": "mcc_hq_and_crater_chapel",
+    "displayName": {
+      "ko": "MCC 본부 및 케플러 분화구 외곽 예배당",
+      "en": "MCC HQ and Kepler Crater Outskirts Chapel"
+    }
+  },
+  "environment": "security_alert_active",
+  "estimatedPlayTimeMinutes": 20,
+  "characters": ["player", "lifang", "chen", "hale"],
+
+  "scenes": [
+
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "보안팀의 경보는 새벽 3시에 울렸다.\nMCC 내부 데이터베이스에서 파일이 유출됐다.\n헬리온 인수 당시의 내부 감사 기록. 구조 안전 보고서. 그리고 — 사망자 명단.",
+            "en": "Security alarms went off at 3 a.m.\nFiles leaked from MCC's internal database.\nInternal audit records from the Helion acquisition. Structural safety reports. And — a list of the dead."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "tense",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "6년 전 자료예요. 헬리온 붕괴 사고 관련 파일들. 누군가 이걸 FSP 쪽으로 넘기려 했어요. 전송은 차단했지만 — 파일을 연 사람이 있어요.",
+            "en": "Documents from six years ago. Files about the Helion collapse. Someone tried to pass them to FSP. Transmission blocked — but someone opened those files."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "IP 추적을 했어요. 케플러 분화구 외곽의 작은 예배당에서 접속됐어요. 거기 누가 있는지 — 당신이 알 것 같아서요.",
+            "en": "We traced the IP. Access came from a small chapel on the outskirts of Kepler Crater. I thought you might know who's there."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "헤일 신부.",
+            "en": "Father Hale."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "focused",
+          "text": {
+            "ko": "가서 확인해요. 조용하게. 회장님은 아직 몰라요. 우리가 먼저 해결하면 — 보고할 필요가 없을 수도 있어요.",
+            "en": "Go confirm it. Quietly. The Chairman doesn't know yet. If we handle it first — there may be no need to report."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_chapel",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "예배당은 화산암으로 만들어져 있었다. 누군가 손으로 쌓은 것처럼 보였다.\n문 앞에 향 연기가 피어올랐다. 촛불이 흔들렸다.",
+            "en": "The chapel was built from volcanic rock. It looked like someone had stacked it by hand.\nIncense smoke drifted from the doorway. Candlelight moved."
+          }
+        },
+        {
+          "text": {
+            "ko": "헤일이 안에 앉아 있었다.\n당신이 올 걸 알고 있었다는 듯이.",
+            "en": "Hale was sitting inside.\nAs if he'd known you were coming."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_chapel",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "hale",
+          "emotion": "serene",
+          "effect": "character_enter:hale:slide_left",
+          "text": {
+            "ko": "앉아요. 차가 있어요. 화성 차예요. 맛은 없지만.",
+            "en": "Sit down. There's tea. Mars tea. It doesn't taste like much."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "헬리온 파일. 신부님이 가지고 있었어요.",
+            "en": "The Helion files. You had them."
+          }
+        },
+        {
+          "speaker": "hale",
+          "emotion": "grave",
+          "text": {
+            "ko": "나는 30년째 이 행성에서 살았어요. 헬리온 붕괴 때 거기 있었어요.",
+            "en": "I've lived on this planet for thirty years. I was there when Helion collapsed."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_chapel",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "hale",
+          "emotion": "sorrow",
+          "text": {
+            "ko": "4갱도 격벽이 무너지기 6주 전에 구조 엔지니어가 보고서를 제출했어요. 결함이 있다고. 긴급 수리가 필요하다고. MCC는 그 보고서를 받았어요. 그리고 아무것도 안 했어요.",
+            "en": "Six weeks before the Section 4 wall collapsed, a structural engineer filed a report. Defects. Emergency repairs needed. MCC received that report. And did nothing."
+          }
+        },
+        {
+          "speaker": "hale",
+          "emotion": "grief",
+          "text": {
+            "ko": "6주 후에 340명이 죽었어요. 그 뒤에 MCC는 헬리온을 인수했어요 — 파산한 회사를 헐값에.\n사고는 기록상 구조적 노후화로 분류됐어요.",
+            "en": "Six weeks later 340 people died. Then MCC acquired Helion — a bankrupt company, at a bargain price.\nThe accident was officially classified as structural deterioration."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_chapel",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "촛불이 흔들렸다. 밖에서 바람이 불었다.\n화성의 바람은 소리가 낮다. 낮고 길게 운다.",
+            "en": "The candle flickered. Wind blew outside.\nMartian wind has a low sound. Low and long."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_chapel",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "hale",
+          "emotion": "tired",
+          "text": {
+            "ko": "나는 그 사람들 장례를 치렀어요. 340번. 이름을 다 기억해요. 아직도.\n그 파일은 — 살아있는 증거예요. MCC가 알면서 뒀다는.",
+            "en": "I performed their funerals. 340 times. I remember every name. Still.\nThose files — they're living evidence. That MCC knew and let it happen."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "troubled",
+          "text": {
+            "ko": "이걸 FSP에 넘기면 어떻게 될지 알고 있어요?",
+            "en": "Do you know what happens if you pass this to FSP?"
+          }
+        },
+        {
+          "speaker": "hale",
+          "emotion": "resolute",
+          "text": {
+            "ko": "알아요. 하지만 그 사람들이 어떻게 죽었는지 아무도 모르면 안 된다고 생각해요.\n사람이 이름도 없이 지워지는 건 — 두 번 죽는 거니까.",
+            "en": "I know. But I believe the truth of how they died shouldn't stay buried.\nTo be erased without a name — that's dying twice."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "통신이 울렸다. 리팡이 아니었다. 번호는 없었다.\n25도. 조용한 목소리.",
+            "en": "A call came in. Not Lifang. No number shown.\n25 degrees. A quiet voice."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "당신이 거기 있군요.",
+            "en": "So you're there."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "헤일 신부는 30년 전부터 알고 있었어요. 우리도 그가 알고 있다는 걸 알았어요.\n그는 증인이에요. 화성에서 증인이 말을 하지 않는 이유는 하나예요 — 더 잃을 게 있기 때문이죠.",
+            "en": "Father Hale has known for thirty years. We knew he knew.\nHe's a witness. There's only one reason a witness on Mars stays silent — they still have something left to lose."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "헬리온 사고는 불행한 일이었어요. 하지만 헬리온이 살아있었다면 화성 산소 공급의 40%는 불안정한 민간 기업 손에 있었을 거예요.",
+            "en": "The Helion accident was unfortunate. But if Helion had survived, 40% of Mars's oxygen supply would be in the hands of an unstable private company."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "text": {
+            "ko": "340명과 1,200만 명. 나는 그 계산을 했어요.",
+            "en": "340 people against 12 million. I did that calculation."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "tense",
+          "text": {
+            "ko": "그게 — 실제로 그 계산을 한 건가요.",
+            "en": "You — actually made that calculation."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s12",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "text": {
+            "ko": "나는 항상 계산을 해요. 그게 내 일이에요.",
+            "en": "I always make calculations. That's my job."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "당신은 지금 그 계산 앞에 서 있어요.\n헤일 신부를 신고하면 — 당신은 MCC의 사람으로 남아요.\n신고하지 않으면 — 당신도 같은 계산 안에 들어오게 돼요.",
+            "en": "You're standing before that calculation right now.\nReport Father Hale — you remain MCC's person.\nDon't report him — you enter the same calculation."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_chapel",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "통신이 끊겼다.\n헤일은 당신이 돌아왔을 때 아직 앉아 있었다.\n그의 손에 작은 차 봉지가 있었다. 그는 그걸 테이블 위에 놓았다.",
+            "en": "The call ended.\nHale was still sitting when you returned.\nHe had a small tea packet in his hand. He set it on the table."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s14",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_chapel",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "hale",
+          "emotion": "calm",
+          "text": {
+            "ko": "나는 도망치지 않을 거예요. 결정해요.",
+            "en": "I won't run. Decide."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s15",
+      "type": "choice",
+      "background": "hellas_mining_outpost",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "헤일 신부와 헬리온의 진실. 어떻게 할 것인가.",
+        "en": "Father Hale and the truth of Helion. What will you do."
+      },
+      "choices": [
+        {
+          "id": "ch6_report",
+          "text": {
+            "ko": "리팡에게 신고한다. MCC의 사람으로 남는다.",
+            "en": "Report to Lifang. Remain MCC's person."
+          },
+          "tone": "corporate",
+          "preview_hint": {
+            "ko": "→ MCC 호감도 +5 · 헤일 체포 · 진실 봉인",
+            "en": "→ MCC favor +5 · Hale arrested · Truth sealed"
+          }
+        },
+        {
+          "id": "ch6_protect",
+          "text": {
+            "ko": "헤일을 보호한다. 파일을 숨기고 신고하지 않는다.",
+            "en": "Protect Hale. Hide the files and stay silent."
+          },
+          "tone": "empathetic",
+          "preview_hint": {
+            "ko": "→ MCC 의심 증가 · 헤일 생존 · 340명의 이름이 지워지지 않는다",
+            "en": "→ MCC suspicion grows · Hale survives · 340 names remain"
+          }
+        },
+        {
+          "id": "ch6_leak_now",
+          "text": {
+            "ko": "지금 당장 파일을 유출한다. FSP에 직접 넘긴다.",
+            "en": "Leak the files now. Pass them directly to FSP."
+          },
+          "tone": "defiant",
+          "preview_hint": {
+            "ko": "→ MCC와 결별 위기 · FSP 호감도 +8 · 진실 공개",
+            "en": "→ Break with MCC · FSP favor +8 · Truth exposed"
+          }
+        },
+        {
+          "id": "ch6_bargain",
+          "text": {
+            "ko": "천에게 협상을 제안한다. 파일과 침묵을 맞교환한다.",
+            "en": "Propose a deal to Chen. Exchange the files for silence."
+          },
+          "tone": "mercenary",
+          "preview_hint": {
+            "ko": "→ 천의 관심 획득 · 헤일 보호 · MCC 내부 부채 발생",
+            "en": "→ Gain Chen's attention · Hale protected · Internal debt to MCC"
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s16_report",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "victory_calm",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "relieved",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "잘했어요. 헤일 신부는 조용히 처리될 거예요. 당신은 몰라도 돼요.",
+            "en": "Good work. Father Hale will be handled quietly. You don't need to know the details."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s17_report",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "당신은 그 뒤에 헤일에 대한 이야기를 듣지 못했다.\n예배당도 없어졌다. 화산암 돌들은 흩어져 있었다.\n바람이 불어도 향 냄새는 나지 않았다.",
+            "en": "You heard nothing more about Hale after that.\nThe chapel was gone too. The volcanic rocks were scattered.\nEven when the wind blew, there was no scent of incense."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s16_protect",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_chapel",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "hale",
+          "emotion": "grateful",
+          "text": {
+            "ko": "당신 — 왜 그랬어요.",
+            "en": "You — why did you do that."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "quiet",
+          "text": {
+            "ko": "모르겠어요. 그냥 — 그 이름들이.",
+            "en": "I don't know. Just — those names."
+          }
+        },
+        {
+          "speaker": "hale",
+          "emotion": "serene",
+          "text": {
+            "ko": "그 대답이면 충분해요.",
+            "en": "That answer is enough."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s16_leak",
+      "type": "narration",
+      "background": "mars_docking_bay",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "파일이 전송됐다. 세 개의 외부 서버에 동시에.\nMCC 보안팀이 차단하기 전에 FSP 네트워크에 도달했다.\n리팡의 호출이 왔다 — 그리고 끊겼다. 그 뒤로 오지 않았다.",
+            "en": "Files transmitted. To three external servers simultaneously.\nThey reached the FSP network before MCC security could block it.\nLifang called — then cut off. She didn't call again."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s16_bargain",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "amused",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "당신이 그 선택을 할 줄은 몰랐어요. 흥미롭군요.",
+            "en": "I didn't expect that choice from you. Interesting."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "text": {
+            "ko": "좋아요. 헤일은 손대지 않아요. 그 대신 — 당신은 이제 내 계산 안에 있어요. 영구적으로.",
+            "en": "Fine. Hale goes untouched. In exchange — you're in my calculation now. Permanently."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s18",
+      "type": "battle_transition",
+      "background": "mcc_briefing_room",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "정보 통제 작전",
+        "en": "Operation: Information Control"
+      },
+      "subtitle": {
+        "ko": "진실의 무게 — 340명과 1,200만 명",
+        "en": "The Weight of Truth — 340 Against 12 Million"
+      }
+    },
+
+    {
+      "id": "s19",
+      "type": "result",
+      "success_scene": "s20_success",
+      "failure_scene": "s20_fail"
+    },
+
+    {
+      "id": "s20_success",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "상황이 봉합됐어요. MCC 내부적으로는.\n헬리온 파일은 여전히 어딘가에 있어요.",
+            "en": "The situation is sealed. Internally in MCC.\nThe Helion files are still out there somewhere."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "진실은 봉합되지 않아요 — 그냥 더 깊이 묻힐 뿐이에요.",
+            "en": "Truth doesn't seal. It just gets buried deeper."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s20_fail",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "angry",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "파일이 외부에 유출됐어요. MCC 주가가 흔들렸어요.",
+            "en": "Files leaked externally. MCC stock price is shaking."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "당신의 권한이 일시 정지됐어요. 회장님이 직접 조사에 들어갔어요.",
+            "en": "Your clearance is temporarily suspended. The Chairman has opened a personal investigation."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s21",
+      "type": "ending",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "헤일이 예배당 문을 닫으며 말했다 — 당신이 어떤 결정을 했든 간에.\n이 행성에는 당신 같은 사람이 필요해요. 이유는 모르겠지만 — 그냥 그렇게 느껴요.",
+            "en": "Hale said it while closing the chapel door — whatever decision you had made.\nThis planet needs people like you. I don't know why — I just feel it."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 말이 뭔지 오래 생각했다.",
+            "en": "You thought about what that meant for a long time."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch7",
+        "teaser": {
+          "ko": "다음 이야기 — 천의 도박",
+          "en": "Next — Chen's Gambit"
+        }
+      }
+    }
+
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "questId": "fsp_campaign_ch2",
+  "campaignId": "fsp_route",
+  "chapterNumber": 2,
+  "title": { "ko": "얼음 캐러밴", "en": "Ice Caravan" },
+  "location": { "id": "north_pole_route", "displayNameKo": "북극관 → New Athens 항로" },
+  "environment": "solar_exposure_high",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "mikhail", "lena"],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "북극관의 얼음은 화성에서 가장 순수한 물이다. 그것을 적도까지 나르는 일은 18시간짜리 도박이다. 태양은 기다려주지 않는다.", "en": "The polar cap's ice is the purest water on Mars. Hauling it to the equator is an eighteen-hour gamble. The sun doesn't wait." } },
+        { "text": { "ko": "800킬로톤. 절반이 녹으면 아무 의미 없다.", "en": "Eight hundred kilotons. If half melts, none of it matters." } }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "serious", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "18시간 이상 태양광 노출 시 30% 녹아요. 운반선은 6대. 단열 코팅은 세 달 됐어요.", "en": "Eighteen hours of solar exposure, thirty percent melt. Six haulers. Insulation coating's three months old." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "CV가 이 루트를 알고 있습니까?", "en": "Does CV know this route?" } },
+        { "speaker": "mikhail", "emotion": "tired", "text": { "ko": "화성에서 비밀 루트는 없어요.", "en": "There are no secret routes on Mars." } }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "energetic", "effect": "character_enter:lena:slide_right", "text": { "ko": "북쪽 협곡 구간에서 CV 발자국 세 쌍 확인했어요. 전날 밤 것.", "en": "Three sets of CV tracks in the northern canyon. Night before last." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "매복입니다.", "en": "Ambush." } },
+        { "speaker": "lena", "emotion": "calm", "text": { "ko": "그거나 정찰이거나. 결과는 같아요.", "en": "Or a scout. The result's the same." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "레나는 창문 쪽으로 걸어갔다. 밖엔 아무것도 보이지 않았지만 그녀는 한동안 그쪽을 바라보았다.", "en": "Lena walked to the window. There was nothing to see outside but she looked that way for a while." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "레나, 폭풍 오는 것 같아?", "en": "Lena. Storm coming?" } },
+        { "speaker": "lena", "emotion": "distant", "text": { "ko": "아뇨. 그냥... 어머니가 이런 날씨 좋아했어요.", "en": "No. Just... my mother liked weather like this." } },
+        { "speaker": "mikhail", "emotion": "gentle", "text": { "ko": "...", "en": "..." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "hellas_mining_outpost",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "출발 전 마지막 결정을 내려야 합니다.", "en": "A final decision before departure." },
+      "choices": [
+        {
+          "id": "fsp_ch2_lena_command",
+          "text": { "ko": "Lena, 함께. 정찰 부탁.", "en": "Lena, with me. Scout ahead." },
+          "tone": "direct",
+          "preview_hint": { "ko": "→ 레나 호감도 +10, 협곡 매복 사전 탐지", "en": "→ Lena favor +10, detect ambush early" }
+        },
+        {
+          "id": "fsp_ch2_split_convoy",
+          "text": { "ko": "운반선 6대를 두 그룹으로?", "en": "Split the six haulers into two groups?" },
+          "tone": "tactical",
+          "preview_hint": { "ko": "→ 손실 위험 분산, 시간 +2시간", "en": "→ Distributed risk, +2 hours travel" }
+        },
+        {
+          "id": "fsp_ch2_request_mcc_ships",
+          "text": { "ko": "MCC 단열선 빌릴 곳?", "en": "Any place to borrow MCC insulated ships?" },
+          "tone": "practical",
+          "preview_hint": { "ko": "→ 미하일 침묵, 단서 획득", "en": "→ Mikhail silent, gain intel" }
+        },
+        {
+          "id": "fsp_ch2_question_storm",
+          "text": { "ko": "Lena, 폭풍 좋아해? 어머니가 폭풍에서...", "en": "Lena, do you like storms? Your mother in the storm..." },
+          "tone": "personal",
+          "preview_hint": { "ko": "→ 레나 개인 서사 해금", "en": "→ Unlock Lena personal arc" }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "resolved", "text": { "ko": "출발합시다. 얼음이 기다려주지 않아요.", "en": "Let's move. The ice won't wait." } },
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "정착지 도착 예정 22:00. 지연 허용치 두 시간.", "en": "Scheduled arrival 2200. Two-hour tolerance." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "작전명: 얼음 캐러밴", "en": "Operation: Ice Caravan" },
+      "subtitle": { "ko": "북극관 → New Athens — 18시간", "en": "Polar Cap → New Athens — 18 Hours" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "lena", "emotion": "warm", "effect": "character_enter:lena:slide_right", "text": { "ko": "17시간 48분. 기록이에요.", "en": "Seventeen hours and forty-eight minutes. That's a record." } },
+        { "speaker": "mikhail", "emotion": "warm", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "얼음 손실 12%. 충분해요.", "en": "Twelve percent melt. That's enough." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "tired", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "800킬로톤에서 400. 정착지 두 달치 물이 사라졌어요.", "en": "Eight hundred kilotons to four hundred. Two months of settlement water, gone." } },
+        { "speaker": "lena", "emotion": "grim", "effect": "character_enter:lena:slide_right", "text": { "ko": "CV는 얼음도 사람도 가리지 않아요.", "en": "CV doesn't distinguish between ice and people." } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "화성의 물은 전부 다른 곳에서 왔다. 극관에서, 소행성에서, 아니면 누군가의 등뼈에서. 어느 쪽이든 값이 비싸다.", "en": "All the water on Mars came from somewhere else. The poles. Asteroids. Or someone's backbone. Either way it costs." } }
+      ],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch3", "teaser": { "ko": "다음 — 피의 광산", "en": "Next — Blood Mine" } }
+    }
+  ]
+}

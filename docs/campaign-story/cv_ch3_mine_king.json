@@ -1,0 +1,251 @@
+{
+  "questId": "cv_campaign_ch3",
+  "campaignId": "cv_route",
+  "chapterNumber": 3,
+  "title": {
+    "ko": "광산왕",
+    "en": "Mine King"
+  },
+  "location": {
+    "id": "kepler_mine_shaft",
+    "displayNameKo": "Kepler 광산 갱도"
+  },
+  "environment": "underground_conflict",
+  "estimatedPlayTimeMinutes": 14,
+  "characters": [
+    "player",
+    "butcher",
+    "cinder"
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "CV 내부에도 권력이 있었다.\n더 가진 자. 더 강한 자.\n도전자가 나왔다. 정육점의 오랜 부하였다.",
+            "en": "CV had its own power structures.\nThose with more. Those who were stronger.\nA challenger emerged. One of Butcher's old lieutenants."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "하가르. 10년 된 놈이야. 왜 지금 도전하는지 알아?\n광산 때문이야. Kepler 갱도.",
+            "en": "Hagar. Ten years with us. Know why he's challenging now?\nThe mine. The Kepler shaft."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "cautious",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "광산 하나로 CV가 쪼개지면 — 우리 모두 잃어요.",
+            "en": "If CV splits over one mine — we all lose."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "하가르는 키가 컸다.\n입을 거의 열지 않았다.\n그의 사람들이 그를 둘러쌌다.",
+            "en": "Hagar was tall.\nHardly ever opened his mouth.\nHis people surrounded him."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "어떻게 처리하겠습니까?",
+        "en": "How do you handle this?"
+      },
+      "choices": [
+        {
+          "id": "cv_ch3_crush",
+          "text": {
+            "ko": "완전히 제압한다.",
+            "en": "Crush him completely."
+          },
+          "tone": "aggressive",
+          "preview_hint": {
+            "ko": "→ CV +15, 하가르 루트 닫힘",
+            "en": "→ CV +15, Hagar route closed"
+          }
+        },
+        {
+          "id": "cv_ch3_absorb",
+          "text": {
+            "ko": "흡수한다. 싸우지 않고.",
+            "en": "Absorb him without fighting."
+          },
+          "tone": "political",
+          "preview_hint": {
+            "ko": "→ CV +10, 내부 균열 봉합",
+            "en": "→ CV +10, internal rift sealed"
+          }
+        },
+        {
+          "id": "cv_ch3_cinder_way",
+          "text": {
+            "ko": "신더의 방식대로. 협상.",
+            "en": "Cinder's way. Negotiation."
+          },
+          "tone": "diplomatic",
+          "preview_hint": {
+            "ko": "→ CV +5, 신더 신뢰 +",
+            "en": "→ CV +5, Cinder trust +"
+          }
+        },
+        {
+          "id": "cv_ch3_question_butcher",
+          "text": {
+            "ko": "왜 이 싸움이 필요한지 정육점에게 묻는다.",
+            "en": "Ask Butcher why this fight is necessary."
+          },
+          "tone": "reflective",
+          "preview_hint": {
+            "ko": "→ CV -5, 내부 이야기 해금",
+            "en": "→ CV -5, unlock Butcher's history"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "끝났어. 광산은 우리 거야.",
+            "en": "Done. The mine is ours."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "하가르는?",
+            "en": "And Hagar?"
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "cold",
+          "text": {
+            "ko": "그건 네가 결정한 거잖아.",
+            "en": "That was your decision."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "광산 패권 다툼",
+        "en": "Mine Supremacy Fight"
+      },
+      "subtitle": {
+        "ko": "Kepler 갱도 — CV 내부 충돌",
+        "en": "Kepler Shaft — CV Internal Conflict"
+      }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "Kepler 광산은 CV 거야. 하가르도 알게 됐어.",
+            "en": "The Kepler mine is CV's. Hagar knows that now."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "tense",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "하가르가 갱도를 잠갔어. 협상이 필요해.",
+            "en": "Hagar locked the shaft. We need to negotiate."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "CV 안에서도 법은 없었다.\n강한 자가 가졌다.\n하지만 신더가 했던 말이 머릿속에 남아 있었다.\n싸우지 않고 이기는 방법이 있다고.",
+            "en": "Even inside CV there was no law.\nThe strong took what they wanted.\nBut Cinder's words stayed.\nThere was a way to win without fighting."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch4",
+        "teaser": {
+          "ko": "다음 — 신더",
+          "en": "Next — Cinder"
+        }
+      }
+    }
+  ]
+}

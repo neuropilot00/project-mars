@@ -1,0 +1,242 @@
+{
+  "questId": "cv_campaign_ch8",
+  "campaignId": "cv_route",
+  "chapterNumber": 8,
+  "title": {
+    "ko": "붉은 의회 — CV",
+    "en": "Red Parliament — CV"
+  },
+  "location": {
+    "id": "olympus_neutral_summit",
+    "displayNameKo": "Olympus 중립 회담장"
+  },
+  "estimatedPlayTimeMinutes": 18,
+  "characters": [
+    "player",
+    "butcher",
+    "cinder"
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "붉은 의회. 세 파벌 지도자들이 한 자리에.\nMCC: 천 회장.\nFSP: 미하일.\nCV: 정육점.\n그리고 당신.",
+            "en": "The Red Parliament. All three faction leaders in one room.\nMCC: Chairman Chen.\nFSP: Mikhail.\nCV: The Butcher.\nAnd you."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "cold",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "우리는 여기서 아무것도 서명하지 않아.\n이해해?",
+            "en": "We sign nothing here.\nUnderstand?"
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "cautious",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "들어봐야 알죠.",
+            "en": "We need to hear it first."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "미하일이 화성 헌법 초안을 꺼냈다.\n천 회장이 아무 표정 없이 들었다.\n정육점의 손이 테이블 위에 놓였다. 움직이지 않았다.",
+            "en": "Mikhail produced a draft Mars Constitution.\nChairman Chen listened without expression.\nButcher's hands rested on the table. They didn't move."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mcc_briefing_room",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "CV로서 어떤 입장을 취합니까?",
+        "en": "What position do you take as CV?"
+      },
+      "choices": [
+        {
+          "id": "cv_ch8_bloc_vote",
+          "text": {
+            "ko": "CV 독자 블록으로 투표. 어느 쪽도 지지 안 함.",
+            "en": "Vote as CV bloc. Support neither side."
+          },
+          "tone": "independent",
+          "preview_hint": {
+            "ko": "→ CV +10, 독립 노선 확립",
+            "en": "→ CV +10, independent stance established"
+          }
+        },
+        {
+          "id": "cv_ch8_support_mcc",
+          "text": {
+            "ko": "MCC를 지지한다. 천의 계획이 CV에 유리하다.",
+            "en": "Support MCC. Chen's plan benefits CV."
+          },
+          "tone": "pragmatic",
+          "preview_hint": {
+            "ko": "→ CV +5, MCC +15, 신더 실망",
+            "en": "→ CV +5, MCC +15, Cinder disappointed"
+          }
+        },
+        {
+          "id": "cv_ch8_support_fsp",
+          "text": {
+            "ko": "FSP 헌법을 지지한다. CV도 그 아래.",
+            "en": "Support FSP constitution. CV included."
+          },
+          "tone": "civic",
+          "preview_hint": {
+            "ko": "→ CV -5, FSP +15, 정육점 충격",
+            "en": "→ CV -5, FSP +15, Butcher shocked"
+          }
+        },
+        {
+          "id": "cv_ch8_speak",
+          "text": {
+            "ko": "정육점 대신 직접 발언한다.",
+            "en": "Speak directly instead of letting Butcher."
+          },
+          "tone": "bold",
+          "preview_hint": {
+            "ko": "→ CV +5, 정육점 놀람, 플레이어 명성 상승",
+            "en": "→ CV +5, Butcher surprised, player rep rises"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "피가 너무 많이 났어.\n이걸로 끝낼 수 있으면 — 끝내야겠지.",
+            "en": "There's been too much blood.\nIf this can end it — then it should end."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "surprised",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "정육점...",
+            "en": "Butcher..."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "의회 방어",
+        "en": "Parliament Defense"
+      },
+      "subtitle": {
+        "ko": "회담장 외부 — CV 잔여 전력 격퇴",
+        "en": "Outside the Summit — Repel CV Remnants"
+      }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "moved",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "의회가 끝났어. 뭔가가 달라진 것 같아.",
+            "en": "The parliament is over. Something feels different."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "cold",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "의회는 실패야. 우리가 믿을 수 있는 건 우리뿐이야.",
+            "en": "The parliament failed. The only ones we can trust are ourselves."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "정육점이 피가 너무 많다고 했다.\n30년 만에 처음 그런 말을 한 것이었다.\n신더는 그 말을 오래 기억할 것이었다.",
+            "en": "Butcher said there had been too much blood.\nIt was the first time he'd said that in thirty years.\nCinder would remember those words for a long time."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch9",
+        "teaser": {
+          "ko": "다음 — 올림푸스의 밤",
+          "en": "Next — Olympus Night"
+        }
+      }
+    }
+  ]
+}

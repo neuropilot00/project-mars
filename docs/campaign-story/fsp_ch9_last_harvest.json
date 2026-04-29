@@ -1,0 +1,163 @@
+{
+  "questId": "fsp_campaign_ch9",
+  "campaignId": "fsp_route",
+  "chapterNumber": 9,
+  "title": { "ko": "세 개의 깃발", "en": "Three Flags" },
+  "location": { "id": "olympus_mons_neutral_hall", "displayNameKo": "Olympus Mons 중립 회담장" },
+  "environment": "summit_under_threat",
+  "estimatedPlayTimeMinutes": 20,
+  "characters": ["player", "mikhail", "amara", "hale"],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "Olympus Mons 정상. 화성에서 가장 높은 곳. 구름이 있다면 구름 위겠지만 화성엔 구름이 없다. 다만 먼지가 있을 뿐이다.", "en": "Olympus Mons summit. Highest point on Mars. If there were clouds, this would be above them. But Mars has no clouds. Only dust." } },
+        { "text": { "ko": "세 파벌, 한 방. 헤일 신부가 주재한다. Pilgrim Arms — 어느 쪽도 아닌 암살 집단 — 의 4명이 건물 안에 있다는 첩보가 들어왔다.", "en": "Three factions, one room. Father Hale presiding. Intelligence had come in that four Pilgrim Arms operatives — hired killers belonging to none of the factions — were inside the building." } }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "tense", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "Pilgrim Arms 4명 확인. 청소부, 복도 경비 두 명, 환기 담당. 전원 위장.", "en": "Four Pilgrim Arms confirmed. Janitor, two corridor guards, ventilation tech. All in disguise." } },
+        { "speaker": "amara", "emotion": "urgent", "effect": "character_enter:amara:slide_right", "text": { "ko": "표적이 누구인지 몰라요. 세 파벌 대표 다 잠재 표적이에요.", "en": "We don't know the target. All three faction leaders are potential targets." } },
+        { "speaker": "hale", "emotion": "composed", "effect": "character_enter:hale:slide_right", "text": { "ko": "주재자로서 나는 어느 쪽도 편들 수 없어요. 하지만 지금은 주재자 이전에 생존자예요.", "en": "As presider I cannot take sides. But right now I'm a survivor before I'm a presider." } }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "controlled", "text": { "ko": "아마라, Chen, 정육점. 셋 다 표적일 수 있어. 하나를 먼저 보호하면 나머지가 위험해져.", "en": "Amara. Chen. Butcher. Any one of them could be the target. Protect one first and the others become exposed." } },
+        { "speaker": "amara", "emotion": "sharp", "text": { "ko": "Pilgrim Arms에 고용한 쪽이 누구냐가 답이에요.", "en": "Who hired Pilgrim Arms is the answer." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "회담장 안에서 세 파벌 대표들이 서 있었다. 그들은 서로를 죽이지 않기 위해 이 자리에 왔다. 지금 그들 모두를 죽이려는 누군가가 같은 방에 있었다.", "en": "Inside the chamber the three faction leaders stood. They had come here to not kill each other. Someone in the same room was trying to kill all of them." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "urgent", "text": { "ko": "5분 안에 Pilgrim Arms가 움직여요. 건물 내 모든 이동 차단은 지금 해야 해.", "en": "Pilgrim Arms moves in five minutes. All movement inside the building must be blocked now." } },
+        { "speaker": "mikhail", "emotion": "decisive", "text": { "ko": "결정해야 해. 지금.", "en": "Decide now." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mcc_25deg_lounge",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "Pilgrim Arms 위협 앞에서 무엇을 선택합니까?", "en": "What do you choose against the Pilgrim Arms threat?" },
+      "choices": [
+        {
+          "id": "fsp_ch9_protect_amara",
+          "text": { "ko": "Amara를 보호한다.", "en": "Protect Amara." },
+          "tone": "loyal",
+          "preview_hint": { "ko": "→ FSP 외교 노선 보존, Chen 위험", "en": "→ FSP diplomatic line preserved, Chen at risk" }
+        },
+        {
+          "id": "fsp_ch9_protect_chen",
+          "text": { "ko": "Chen을 보호한다.", "en": "Protect Chen." },
+          "tone": "strategic",
+          "preview_hint": { "ko": "→ MCC 중립화 가능, FSP 내 혼란", "en": "→ MCC neutralization possible, FSP internal confusion" }
+        },
+        {
+          "id": "fsp_ch9_protect_butcher",
+          "text": { "ko": "Butcher를 보호한다.", "en": "Protect Butcher." },
+          "tone": "unexpected",
+          "preview_hint": { "ko": "→ 정육점 충격, 예상외 동맹 가능", "en": "→ Butcher shocked, unexpected alliance possible" }
+        },
+        {
+          "id": "fsp_ch9_full_retreat",
+          "text": { "ko": "모두 후퇴시킨다.", "en": "Retreat everyone." },
+          "tone": "cautious",
+          "preview_hint": { "ko": "→ 회담 결렬, 전원 생존", "en": "→ Summit collapses, everyone survives" }
+        },
+        {
+          "id": "fsp_ch9_signal_pilgrim_arms",
+          "text": { "ko": "Pilgrim Arms에 신호한다.", "en": "Signal to Pilgrim Arms." },
+          "tone": "betrayal",
+          "preview_hint": { "ko": "→ 배신 루트 해금, 모든 관계 -30", "en": "→ Betrayal route unlocked, all relations -30" }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "tense", "text": { "ko": "움직였어요. 북쪽 복도.", "en": "They moved. North corridor." } },
+        { "speaker": "mikhail", "emotion": "combat_ready", "text": { "ko": "간다.", "en": "Moving." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "Pilgrim Arms 제압", "en": "Neutralize Pilgrim Arms" },
+      "subtitle": { "ko": "Olympus Mons 회담장 — 4명", "en": "Olympus Mons Chamber — 4 Operatives" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "hale", "emotion": "relieved", "effect": "character_enter:hale:slide_right", "text": { "ko": "전원 제압. 회담은 계속됩니다.", "en": "All operatives neutralized. The summit continues." } },
+        { "speaker": "amara", "emotion": "shaken", "effect": "character_enter:amara:slide_right", "text": { "ko": "세 파벌이 한 방에 있었고, 한 사람이 그들을 다 지켰어요.", "en": "Three factions in one room, and one person protected all of them." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "hale", "emotion": "grim", "effect": "character_enter:hale:slide_right", "text": { "ko": "표적은 살아있어요. 하지만 회담은 끝났어.", "en": "The target is alive. But the summit is over." } },
+        { "speaker": "mikhail", "emotion": "hollow", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "누군가는 이 결과를 원했겠지.", "en": "Someone wanted this outcome." } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "깃발이 세 개 걸린 방에서, 가장 중요한 것은 깃발이 아니었다. 살아서 나가는 것. 그리고 내일 다시 모이는 것. 화성의 평화는 언제나 그런 방식으로 왔다.", "en": "In a room with three flags, the flags were the least important thing. Getting out alive. And gathering again tomorrow. Peace on Mars always came that way." } }
+      ],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch10", "teaser": { "ko": "다음 — 자유의 대가", "en": "Next — The Price of Freedom" } }
+    }
+  ]
+}

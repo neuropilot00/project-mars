@@ -1,0 +1,187 @@
+{
+  "questId": "cv_campaign_ch10",
+  "campaignId": "cv_route",
+  "chapterNumber": 10,
+  "title": {
+    "ko": "불꽃에서",
+    "en": "From the Flames"
+  },
+  "location": {
+    "id": "olympus_summit_arena",
+    "displayNameKo": "Olympus 정상회담장"
+  },
+  "estimatedPlayTimeMinutes": 18,
+  "characters": [
+    "player",
+    "butcher",
+    "cinder",
+    "hale"
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "10개의 챕터.\n10번의 선택.\n각각이 이 순간을 만들었다.",
+            "en": "Ten chapters.\nTen decisions.\nEach one made this moment."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "정상회담이 열렸다.\n천 회장. 미하일. 정육점.\n같은 방에서 숨을 쉬었다.\n마지막으로.",
+            "en": "The summit convened.\nChairman Chen. Mikhail. Butcher.\nBreathing in the same room.\nFor the last time."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "불꽃이 꺼지고 나면 — 남은 것이 너야.\n그게 CV야. 불꽃이 꺼진 자리.",
+            "en": "When the flames go out — what remains is you.\nThat's CV. The place where flames went out."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "moved",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "아니야. 불꽃에서 남은 것이 있어.\n재가 아니라 — 씨앗이.",
+            "en": "No. There's something left from flames.\nNot ash — seeds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "헤일 신부가 창밖을 봤다.\n화성의 핏빛 지평선.\n\"화성이 우리에게 물었습니다. 우리는 무엇입니까?\"",
+            "en": "Father Hale looked out the window.\nThe blood-red horizon of Mars.\n\"Mars asked us. What are we?\""
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mars_sunset",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "당신은 화성에서 무엇이 되겠습니까?",
+        "en": "What will you be on Mars?"
+      },
+      "choices": [
+        {
+          "id": "cv_ending_1_warlord",
+          "text": {
+            "ko": "Ending A: 화성의 지배자.",
+            "en": "Ending A: Warlord of Mars."
+          },
+          "tone": "dominant",
+          "preview_hint": {
+            "ko": "→ CV가 화성을 통치한다",
+            "en": "→ CV rules Mars"
+          }
+        },
+        {
+          "id": "cv_ending_2_dismantler",
+          "text": {
+            "ko": "Ending B: CV 해체자.",
+            "en": "Ending B: The Dismantler."
+          },
+          "tone": "sacrifice",
+          "preview_hint": {
+            "ko": "→ CV를 스스로 해체한다",
+            "en": "→ Dismantle CV from within"
+          }
+        },
+        {
+          "id": "cv_ending_3_cinder_path",
+          "text": {
+            "ko": "Ending C: 신더의 길.",
+            "en": "Ending C: Cinder's Path."
+          },
+          "tone": "reform",
+          "preview_hint": {
+            "ko": "→ CV를 개혁. 신더와 함께",
+            "en": "→ Reform CV. With Cinder."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_e_a",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "CV의 깃발이 Olympus Mons에 올랐다.\n정육점은 아무 말도 하지 않았다.\n그것으로 충분했다.\n화성은 항상 강한 자의 것이었다.",
+            "en": "CV's flag rose on Olympus Mons.\nButcher said nothing.\nThat was enough.\nMars had always belonged to the strong."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_e_b",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "CV는 사라졌다.\n스스로 해체됐다.\n그 사람들은 어디로 갔는가.\n흩어졌다. 각자의 길을 찾아.\n30년의 불꽃이 꺼진 자리에 씨앗이 남았다.",
+            "en": "CV was gone.\nDismantled from within.\nWhere did those people go.\nScattered. Each to their own path.\nIn the place where thirty years of fire went out, seeds remained."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_e_c",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "victory_calm",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "신더 그레이스가 앞에 섰다.\n당신이 옆에 섰다.\nCV는 달라졌다.\n법이 생겼다. 하나뿐이었지만.\n\"불꽃 앞에서는 모두가 평등하다.\"",
+            "en": "Cinder Grace stood forward.\nYou stood beside her.\nCV had changed.\nThere was now a law. Only one.\n\"Before the fire, all are equal.\""
+          }
+        }
+      ]
+    }
+  ]
+}

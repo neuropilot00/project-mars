@@ -1,0 +1,203 @@
+{
+  "questId": "cv_campaign_ch9",
+  "campaignId": "cv_route",
+  "chapterNumber": 9,
+  "title": {
+    "ko": "올림푸스의 밤",
+    "en": "Olympus Night"
+  },
+  "location": {
+    "id": "olympus_neutral_summit",
+    "displayNameKo": "Olympus Mons 산자락"
+  },
+  "estimatedPlayTimeMinutes": 12,
+  "characters": [
+    "player",
+    "butcher",
+    "cinder",
+    "hale"
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "정상회담 전날 밤.\nOlympus Mons의 산자락.\n화성에서 가장 높은 곳이었다.\n세 파벌 사람들이 모두 여기 있었다. 불꽃을 나눠 쓰면서.",
+            "en": "The night before the summit.\nAt the foot of Olympus Mons.\nThe highest place on Mars.\nPeople from all three factions were here. Sharing a fire."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "hale",
+          "emotion": "gentle",
+          "effect": "character_enter:hale:slide_right",
+          "text": {
+            "ko": "내일이면 어느 쪽이든 결론이 나요.\n오늘 밤은 — 그냥 오늘 밤이에요.",
+            "en": "Tomorrow there will be a conclusion either way.\nTonight — is just tonight."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "30년 만에 처음으로 — 다음이 있을 것 같아.",
+            "en": "For the first time in thirty years — there might be a tomorrow."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "신더는 아무 말도 하지 않았다.\n불꽃을 바라봤다.\n무언가를 결정하고 있는 것 같았다.",
+            "en": "Cinder said nothing.\nShe watched the fire.\nShe seemed to be deciding something."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "정상회담 전날 밤, 어떻게 보냅니까?",
+        "en": "How do you spend the night before the summit?"
+      },
+      "choices": [
+        {
+          "id": "cv_ch9_stand_with_butcher",
+          "text": {
+            "ko": "정육점 옆에 선다.",
+            "en": "Stand with Butcher."
+          },
+          "tone": "loyal",
+          "preview_hint": {
+            "ko": "→ CV +15, 정육점 엔딩 강화",
+            "en": "→ CV +15, Butcher ending strengthened"
+          }
+        },
+        {
+          "id": "cv_ch9_stand_with_cinder",
+          "text": {
+            "ko": "신더와 함께한다.",
+            "en": "Stay with Cinder."
+          },
+          "tone": "alliance",
+          "preview_hint": {
+            "ko": "→ CV +5, 신더 최종 동맹",
+            "en": "→ CV +5, Cinder final alliance"
+          }
+        },
+        {
+          "id": "cv_ch9_ask_hale",
+          "text": {
+            "ko": "헤일 신부에게 조언을 구한다.",
+            "en": "Seek Father Hale's counsel."
+          },
+          "tone": "reflective",
+          "preview_hint": {
+            "ko": "→ 중립, 헤일의 지혜 획득",
+            "en": "→ Neutral, gain Hale's wisdom"
+          }
+        },
+        {
+          "id": "cv_ch9_alone",
+          "text": {
+            "ko": "혼자 있는다.",
+            "en": "Stay alone."
+          },
+          "tone": "solitary",
+          "preview_hint": {
+            "ko": "→ 모든 엔딩 동등하게 가능",
+            "en": "→ All endings equally available"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "포보스가 지나갔다.\n불꽃이 흔들렸다.\n내일이 왔다.",
+            "en": "Phobos passed overhead.\nThe fire flickered.\nTomorrow came."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "resolved",
+          "effect": "character_enter:cinder:slide_left",
+          "text": {
+            "ko": "준비됐어?",
+            "en": "Are you ready?"
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "effect": "character_enter:butcher:slide_right",
+          "text": {
+            "ko": "내일이면 끝나.",
+            "en": "Tomorrow it ends."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "불꽃이 꺼지기 전에 당신은 생각했다.\n무엇을 위해 싸웠는가.\n무엇을 위해 여기까지 왔는가.\n내일이면 답을 알게 된다.",
+            "en": "Before the fire went out you thought.\nWhat had you fought for.\nWhat had brought you this far.\nTomorrow you'd know the answer."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch10",
+        "teaser": {
+          "ko": "다음 — 불꽃에서",
+          "en": "Next — From the Flames"
+        }
+      }
+    }
+  ]
+}

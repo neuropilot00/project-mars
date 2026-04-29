@@ -1,0 +1,210 @@
+{
+  "questId": "cv_campaign_ch6",
+  "campaignId": "cv_route",
+  "chapterNumber": 6,
+  "title": {
+    "ko": "30년",
+    "en": "Thirty Years"
+  },
+  "location": {
+    "id": "outer_colony_ruins",
+    "displayNameKo": "외곽 식민지 폐허"
+  },
+  "estimatedPlayTimeMinutes": 12,
+  "characters": [
+    "player",
+    "butcher",
+    "cinder"
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "정육점이 처음으로 말을 걸었다.\n이야기를 하고 싶다고.\nCV가 어떻게 시작됐는지.",
+            "en": "Butcher spoke first.\nSaid he wanted to tell a story.\nHow CV began."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "30년 전. 나는 광부였어.\nMCC 갱도. 계약직. 부채가 있었어.\n그게 어떻게 끝났는지 알아?",
+            "en": "Thirty years ago. I was a miner.\nMCC shaft. Contract labor. I had debts.\nYou know how that ended?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "text": {
+            "ko": "동료 22명이 죽었어. 갱도 붕괴.\nMCC는 보험도 안 줬어. 계약서에 없었거든.",
+            "en": "Twenty-two coworkers died. Shaft collapse.\nMCC didn't give insurance. It wasn't in the contract."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "정육점은 잠시 말이 없었다.\n불꽃을 바라봤다.\n오래된 상처가 있는 사람의 눈이었다.",
+            "en": "Butcher was quiet for a moment.\nHe looked at the fire.\nThe eyes of someone with old wounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "cold",
+          "text": {
+            "ko": "그래서 CV를 만들었어.\n처음에는 자기방어였어. 그다음엔 생존이었어.\n이제는 — 그냥 이거야.",
+            "en": "So I made CV.\nAt first it was self-defense. Then survival.\nNow — it's just this."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "watchful",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "정육점이 이 이야기를 하는 건 드문 일이에요.",
+            "en": "It's rare for Butcher to tell this story."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "어떻게 반응합니까?",
+        "en": "How do you respond?"
+      },
+      "choices": [
+        {
+          "id": "cv_ch6_listen_all",
+          "text": {
+            "ko": "모든 이야기를 듣는다.",
+            "en": "Listen to the whole story."
+          },
+          "tone": "patient",
+          "preview_hint": {
+            "ko": "→ CV +5, 정육점 신뢰 심화",
+            "en": "→ CV +5, Butcher trust deepens"
+          }
+        },
+        {
+          "id": "cv_ch6_ask_regret",
+          "text": {
+            "ko": "후회하는지 묻는다.",
+            "en": "Ask if he regrets it."
+          },
+          "tone": "reflective",
+          "preview_hint": {
+            "ko": "→ CV +3, 정육점의 취약한 면 해금",
+            "en": "→ CV +3, unlock Butcher's vulnerable side"
+          }
+        },
+        {
+          "id": "cv_ch6_challenge",
+          "text": {
+            "ko": "그 선택이 옳았는지 따진다.",
+            "en": "Challenge whether those choices were right."
+          },
+          "tone": "confrontational",
+          "preview_hint": {
+            "ko": "→ CV -5, 정직한 대화",
+            "en": "→ CV -5, honest conversation"
+          }
+        },
+        {
+          "id": "cv_ch6_cinder_perspective",
+          "text": {
+            "ko": "신더에게도 물어본다.",
+            "en": "Ask Cinder for her perspective."
+          },
+          "tone": "balanced",
+          "preview_hint": {
+            "ko": "→ CV +2, 신더의 역사 해금",
+            "en": "→ CV +2, unlock Cinder's history"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "text": {
+            "ko": "왜 이 이야기를 했는지 알아?\n네가 여기 있어야 할 이유가 뭔지 알게 해주려고.\n여기는 — 잃을 게 있는 사람들이 모이는 곳이 아니야.",
+            "en": "You know why I told you this?\nSo you'd understand why you're here.\nThis place — it's not for people who have things to lose."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "CV는 두려움에서 만들어졌다.\n그다음은 분노였다.\n그다음은 — 습관이었다.\n어느 시점에서 멈추는지 아무도 알 수 없었다.",
+            "en": "CV was born from fear.\nThen anger.\nThen — habit.\nNobody knew at what point it would stop."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch7",
+        "teaser": {
+          "ko": "다음 — 최후의 전쟁",
+          "en": "Next — The Last War"
+        }
+      }
+    }
+  ]
+}

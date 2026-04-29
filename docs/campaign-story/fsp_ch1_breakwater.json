@@ -1,0 +1,175 @@
+{
+  "questId": "fsp_campaign_ch1",
+  "campaignId": "fsp_route",
+  "chapterNumber": 1,
+  "title": { "ko": "방파제", "en": "The Breakwater" },
+  "location": { "id": "new_athens_settlement", "displayNameKo": "New Athens 정착지" },
+  "environment": "dust_storm_recovery",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "mikhail", "lena"],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "먼지 폭풍이 지나간 자리엔 늘 침묵이 남는다. New Athens 정착지 외벽엔 모래가 두 손가락 두께로 쌓였고, 누군가 발로 밟고 지나간 자국이 그것을 가르고 있었다.", "en": "Silence always follows a dust storm. Two fingers of rust-colored sand had packed against the outer wall of New Athens, and someone had walked through it, leaving a trail." } },
+        { "text": { "ko": "정착지 내부는 달랐다. 누군가 주전자를 올려두었고, 차 냄새가 흙먼지 냄새를 밀어내고 있었다.", "en": "Inside was different. Someone had put a kettle on, and the smell of tea was pushing back the smell of dust." } }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "gentle", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "앉아요. 폭풍 직후엔 뭔가 따뜻한 게 있어야지.", "en": "Sit down. After a storm you need something warm." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "고맙습니다.", "en": "Thank you." } },
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "미하일 보로노프요. FSP 헬라스 지구 물류 담당. 오래 기다렸습니까?", "en": "Mikhail Voronov. FSP logistics, Hellas district. Have you been waiting long?" } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "폭풍이 기다리게 했습니다.", "en": "The storm made me wait." } }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "H2O 호송선이 세 번 연속으로 털렸어요. 매주 화요일. 정확하게.", "en": "Three H2O convoys hit in a row. Every Tuesday. Like clockwork." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "CV입니까?", "en": "CV?" } },
+        { "speaker": "mikhail", "emotion": "tired", "text": { "ko": "표식은 없어요. 하지만 움직이는 방식이 그래요. 게릴라, 수직 공격, 철수 빠르게.", "en": "No markings. But the way they move. Guerrilla. Vertical strike. Fast withdrawal." } },
+        { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "다음 화요일 호송선엔 응급 환자가 둘 있어요. 투석 장비. 타이밍이 틀리면 그 사람들은 죽어요.", "en": "The next Tuesday convoy has two emergency patients. Dialysis equipment. Timing's off and those people die." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "문이 열렸다. 차가운 공기가 들어왔다. 그 뒤로 누군가 들어왔다.", "en": "The door opened. Cold air came in. Someone came in behind it." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "energetic", "effect": "character_enter:lena:slide_right", "text": { "ko": "미하일. 서쪽 게이트 모래 다 쳤어요. 경비 교대 두 시간 늦어질 것 같아요.", "en": "Mikhail. Sand cleared the west gate. Guard rotation's going to be two hours late." } },
+        { "speaker": "mikhail", "emotion": "gentle", "text": { "ko": "알겠어. 레나, 이분이 우리가 부른 사람이야.", "en": "Understood. Lena, this is the person we called." } },
+        { "speaker": "lena", "emotion": "curious", "effect": "character_enter:lena:slide_right", "text": { "ko": "아. 화요일 건 들으셨어요? 우리 셋이서 처리해야 하는 거예요?", "en": "Ah. You heard about Tuesday? Is it just the three of us?" } },
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "아직 그 얘기 전이야.", "en": "We're not there yet." } }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "호송선 방어 의뢰입니다. 화요일 새벽 두 시 출발. 북쪽 루트. 12시간 노출 구간 있어요.", "en": "Convoy protection contract. Departure Tuesday, 0200. Northern route. Twelve hours of exposed passage." } },
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "표준 단가로 계약서 써드릴게요.", "en": "I'll draft the contract at standard rate." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "hellas_mining_outpost",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "어떻게 답하겠습니까?", "en": "How do you respond?" },
+      "choices": [
+        {
+          "id": "fsp_ch1_accept_standard",
+          "text": { "ko": "받겠습니다. 단가 그대로.", "en": "I accept. Same rate." },
+          "tone": "professional",
+          "preview_hint": { "ko": "→ FSP 호감도 +10", "en": "→ FSP favor +10" }
+        },
+        {
+          "id": "fsp_ch1_negotiate_price",
+          "text": { "ko": "단가 협상 가능합니까?", "en": "Is the rate negotiable?" },
+          "tone": "pragmatic",
+          "preview_hint": { "ko": "→ 계약금 +15%, 미하일 약간 불편", "en": "→ +15% contract, Mikhail slightly uneasy" }
+        },
+        {
+          "id": "fsp_ch1_question_mcc",
+          "text": { "ko": "왜 MCC에 도움 요청 안 합니까?", "en": "Why not ask MCC for help?" },
+          "tone": "skeptical",
+          "preview_hint": { "ko": "→ 미하일의 입장 설명 획득", "en": "→ Unlock Mikhail's explanation" }
+        },
+        {
+          "id": "fsp_ch1_prioritize_patients",
+          "text": { "ko": "응급 환자가 우선 아닙니까?", "en": "Shouldn't the patients come first?" },
+          "tone": "urgent",
+          "preview_hint": { "ko": "→ 레나 호감도 +5, 미하일 신뢰도 +5", "en": "→ Lena favor +5, Mikhail trust +5" }
+        }
+      ]
+    },
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "warm", "text": { "ko": "잘됐어요. 출발 전날 밤 여기서 브리핑합니다.", "en": "Good. Briefing here the night before departure." } },
+        { "speaker": "lena", "emotion": "energetic", "text": { "ko": "저는 북쪽 루트 정찰 다녀올게요. 매복 포인트 세 군데 알아요.", "en": "I'll scout the northern route. I know three likely ambush points." } },
+        { "speaker": "mikhail", "emotion": "gentle", "text": { "ko": "혼자 가지 마.", "en": "Don't go alone." } },
+        { "speaker": "lena", "emotion": "stubborn", "text": { "ko": "언제 혼자 간 적 있어요.", "en": "When have I ever gone alone." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "작전명: 방파제", "en": "Operation: Breakwater" },
+      "subtitle": { "ko": "H2O 호송선 — 화요일 새벽 02:00", "en": "H2O Convoy — Tuesday 02:00" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "lena", "emotion": "relieved", "effect": "character_enter:lena:slide_right", "text": { "ko": "도착했어요. 환자들 다 살았고.", "en": "We made it. The patients are alive." } },
+        { "speaker": "mikhail", "emotion": "warm", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "수고했어요. 정말로.", "en": "Good work. Truly." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "tired", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "물이 떨어지면 사람들이 죽습니다. 화성에서 패배는 그런 겁니다.", "en": "When the water runs out, people die. On Mars, that's what losing means." } },
+        { "speaker": "lena", "emotion": "grim", "effect": "character_enter:lena:slide_right", "text": { "ko": "다음 번엔 다르게 해봅시다.", "en": "We do it differently next time." } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "먼지 폭풍은 또 온다. 화성에서 그것을 막는 방법은 없다. 다만 서 있는 것. 방파제처럼.", "en": "Another dust storm will come. There is no stopping it on Mars. Only standing. Like a breakwater." } }
+      ],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch2", "teaser": { "ko": "다음 — 얼음 캐러밴", "en": "Next — Ice Caravan" } }
+    }
+  ]
+}

@@ -1,0 +1,528 @@
+{
+  "questId": "mcc_campaign_ch8",
+  "campaignId": "mcc_route",
+  "chapterNumber": 8,
+  "title": {
+    "ko": "붉은 의회",
+    "en": "The Red Parliament",
+    "ja": "赤い議会",
+    "zh": "红色议会"
+  },
+  "location": {
+    "id": "mars_provisional_authority",
+    "displayName": {
+      "ko": "화성 임시 행정청 — 케플러 분화구 중앙 회의실",
+      "en": "Martian Provisional Authority — Kepler Crater Central Chamber"
+    }
+  },
+  "environment": "emergency_summit",
+  "estimatedPlayTimeMinutes": 22,
+  "characters": ["player", "lifang", "chen", "mikhail", "butcher"],
+
+  "scenes": [
+
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_tension_high",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "화성 임시 행정청 긴급 회의.\n세 파벌 대표자들이 한 방에 모이는 건 4년 만이었다.\n마지막으로 만난 건 헬리온 붕괴 직후였다.",
+            "en": "Emergency session of the Martian Provisional Authority.\nThe first time three faction representatives had gathered in one room in four years.\nThe last time had been just after the Helion collapse."
+          }
+        },
+        {
+          "text": {
+            "ko": "당신은 MCC 대표단 자리에 앉았다.\n천 회장은 당신 왼쪽에 있었다.\n차는 식어 있었다.",
+            "en": "You took your seat with the MCC delegation.\nChairman Chen sat to your left.\nHis tea had gone cold."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "ambient_tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "grave",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "우리가 이 자리에 요청한 이유는 하나예요. 헬리온 파일. MCC는 340명의 죽음에 대해 설명해야 해요.",
+            "en": "There is one reason we requested this session. The Helion files. MCC must account for the deaths of 340 people."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "tired",
+          "text": {
+            "ko": "그리고 케플러 분화구 채굴권 등록. 우리는 6년의 권리가 있어요. 서류 하나로 그게 지워질 수 없어요.",
+            "en": "And the Kepler mining rights registration. We have six years of rights. One document can't erase that."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "ambient_tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "stoic",
+          "effect": "character_enter:butcher:slide_right",
+          "text": {
+            "ko": "CV는 케플러 동쪽 갱도를 요구해. 협상 없어. 우리가 먼저 거기 있었어.",
+            "en": "CV demands the eastern Kepler tunnel. Non-negotiable. We were there first."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "cold",
+          "text": {
+            "ko": "그리고 MCC가 화성을 통치한다는 계획이 있다고 들었어. 그건 — 전쟁이야.",
+            "en": "And I've heard MCC has a plan to govern Mars. That — is war."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "화성에는 지금 세 가지가 없어요. 법. 질서. 미래.\n세 파벌이 20년을 싸웠어요. 그 결과가 지금이에요.",
+            "en": "Mars currently lacks three things. Law. Order. A future.\nThree factions have fought for twenty years. This is the result."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "MCC는 화성의 행정권을 요청해요. 단독 통치가 아니에요 — 단일 질서예요. 산소, 물, 에너지. 이 세 가지는 전쟁보다 중요해요.",
+            "en": "MCC requests governing authority over Mars. Not sole rule — a single order. Oxygen, water, energy. These three matter more than war."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "ambient_tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "angry",
+          "text": {
+            "ko": "질서. 당신이 말하는 질서는 — 헬리온 사람들한테 어떤 질서였어요?",
+            "en": "Order. The order you speak of — what order was that for the people of Helion?"
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그 일은 — 잘못됐어요. 그 사실을 부정하지 않아요.",
+            "en": "That — was wrong. I don't deny that."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "방이 조용해졌다.\n천이 그 말을 하리라고는 아무도 예상하지 못했다.\n리팡도. 미하일도. 정육점도.",
+            "en": "The room went quiet.\nNo one had expected Chen to say that.\nNot Lifang. Not Mikhail. Not Butcher."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "text": {
+            "ko": "하지만 헬리온이 살아있었다면 화성 산소 40%가 지금쯤 붕괴됐을 거예요. 340명이 아니라 수십만 명이 죽었겠죠.\n나는 그 계산을 했어요. 지금도 그 계산이 옳다고 생각해요.",
+            "en": "But if Helion had survived, 40% of Mars oxygen would have collapsed by now. Not 340 dead but hundreds of thousands.\nI made that calculation. I still believe it was correct."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "나를 용서할 필요는 없어요. 하지만 — 화성이 살아남아야 한다는 건 동의해야 해요.",
+            "en": "You don't need to forgive me. But — you must agree that Mars needs to survive."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "grief",
+          "text": {
+            "ko": "살아남는 게 목적이라면 — 사람이 그 안에 있어야 해요. 숫자가 아니라.",
+            "en": "If survival is the goal — people must be inside that survival. Not numbers."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "resolute",
+          "text": {
+            "ko": "FSP는 화성 헌법을 제안해요. MCC 단독 통치가 아니라 — 세 파벌이 서명한 기본 규약.",
+            "en": "FSP proposes a Mars Constitution. Not MCC sole governance — a basic charter signed by three factions."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "stoic",
+          "text": {
+            "ko": "CV는 헌법에 서명하지 않아. 우리는 법 밖에서 30년을 살았어. 지금 와서 규약에 묶이지 않아.",
+            "en": "CV doesn't sign constitutions. We've lived outside the law for thirty years. We won't be bound by a charter now."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "text": {
+            "ko": "하지만 — 전쟁도 원하지 않아. 피가 너무 많이 났어.",
+            "en": "But — I don't want war either. There's been enough blood."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_tension_high",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "세 사람이 모두 말했다.\n아무도 물러서지 않았다.\n모두가 당신을 봤다.",
+            "en": "All three had spoken.\nNo one had yielded.\nAll eyes turned to you."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "tense",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "당신이 말해요. 이 방에서 당신 말을 듣지 않을 사람은 없어요.",
+            "en": "You speak. There's no one in this room who won't listen to you."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s12",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "붉은 의회. 당신의 발언이 화성의 방향을 결정한다.",
+        "en": "The Red Parliament. Your words will determine Mars's direction."
+      },
+      "choices": [
+        {
+          "id": "ch8_support_mcc",
+          "text": {
+            "ko": "MCC를 지지한다. 천의 계획이 불완전하지만 질서 없이는 모두가 죽는다.",
+            "en": "Support MCC. Chen's plan is imperfect, but without order everyone dies."
+          },
+          "tone": "pragmatic",
+          "preview_hint": {
+            "ko": "→ MCC 신뢰 최고치 · FSP/CV 결별 · 천의 계획 진행",
+            "en": "→ MCC trust maximum · Break with FSP/CV · Chen's plan proceeds"
+          }
+        },
+        {
+          "id": "ch8_support_fsp",
+          "text": {
+            "ko": "FSP 헌법안을 지지한다. MCC도 그 헌법 아래에 있어야 한다.",
+            "en": "Support FSP's constitution. MCC must also fall under that charter."
+          },
+          "tone": "democratic",
+          "preview_hint": {
+            "ko": "→ FSP 동맹 · MCC 분열 · 천과 정면 충돌",
+            "en": "→ FSP alliance · MCC fractures · Direct confrontation with Chen"
+          }
+        },
+        {
+          "id": "ch8_broker",
+          "text": {
+            "ko": "중재한다. MCC 행정권 + FSP 헌법 조항 + CV 자치구역 — 세 가지를 하나로 묶는 안을 제안한다.",
+            "en": "Mediate. Propose combining MCC governance authority, FSP charter clauses, and CV autonomous zones into one framework."
+          },
+          "tone": "diplomatic",
+          "preview_hint": {
+            "ko": "→ 전파벌 불만족 하지만 동의 · 화성 연합 탄생 가능 · 가장 어려운 길",
+            "en": "→ All factions dissatisfied but willing · Mars Coalition possible · Hardest path"
+          }
+        },
+        {
+          "id": "ch8_silence",
+          "text": {
+            "ko": "아무 말도 하지 않는다. 이 싸움은 당신 것이 아니다.",
+            "en": "Say nothing. This fight isn't yours."
+          },
+          "tone": "withdrawn",
+          "preview_hint": {
+            "ko": "→ 회의 결렬 · 모든 파벌 신뢰 하락 · 전면전 임박",
+            "en": "→ Session collapses · All faction trust drops · Full-scale war imminent"
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13_mcc",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "satisfied",
+          "text": {
+            "ko": "감사해요.",
+            "en": "Thank you."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "resigned",
+          "text": {
+            "ko": "...알겠어요. 하지만 헬리온 유가족 보상은 반드시 이행돼야 해요.",
+            "en": "...Understood. But compensation for Helion families must be guaranteed."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13_fsp",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "grateful",
+          "text": {
+            "ko": "당신이 — 그 말을 해줄 거라고 생각했어요.",
+            "en": "I thought — you'd be the one to say that."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "conflicted",
+          "text": {
+            "ko": "회장님이 — 이 결과를 수용할지 모르겠어요.",
+            "en": "I don't know if the Chairman will — accept this outcome."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13_broker",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "ambient_neutral",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "surprised",
+          "text": {
+            "ko": "...그게 가능하다고 생각해?",
+            "en": "...You think that's possible?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "steady",
+          "text": {
+            "ko": "모르겠습니다. 하지만 가능한지 모르면서 시도하지 않으면 — 우리는 이미 알고 있는 결말로 가는 거예요.",
+            "en": "I don't know. But if we don't try without knowing if it's possible — we already know where we end up."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13_silence",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "방은 30초가 지나도 조용했다.\n그 침묵이 대답이었다.\n미하일이 자리에서 일어났다. 정육점이 따라 일어났다. 회의는 결렬됐다.",
+            "en": "The room stayed silent for thirty seconds.\nThat silence was the answer.\nMikhail rose. Butcher followed. The session collapsed."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s14",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "붉은 의회 결의",
+        "en": "Red Parliament Resolution"
+      },
+      "subtitle": {
+        "ko": "화성의 미래가 표결에 붙여졌다",
+        "en": "The Future of Mars Put to a Vote"
+      }
+    },
+
+    {
+      "id": "s15",
+      "type": "result",
+      "success_scene": "s16_success",
+      "failure_scene": "s16_fail"
+    },
+
+    {
+      "id": "s16_success",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "relieved",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "표결이 통과됐어요. 세 파벌이 — 잠정적으로 동의했어요.\n화성 역사에서 이런 일은 처음이에요.",
+            "en": "The resolution passed. Three factions — provisionally agreed.\nThis is the first time in Martian history."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "잠정적이에요. 아직 끝난 게 아니에요.",
+            "en": "Provisional. It's not over yet."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s16_fail",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "grave",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "표결이 결렬됐어요. 각 파벌이 자기 진영으로 돌아갔어요.\n전쟁까지 시간이 얼마 없어요.",
+            "en": "The resolution failed. Each faction returned to their own camp.\nThere isn't much time before war."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s17",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "회의가 끝났다. 사람들이 흩어졌다.\n미하일이 나가면서 뒤돌아봤다 — 당신을.\n정육점은 한 번도 뒤돌아보지 않았다. 천 회장은 차를 들고 있었다. 여전히 마시지 않았다.",
+            "en": "The meeting ended. People dispersed.\nMikhail looked back as he left — at you.\nButcher never looked back at all. Chairman Chen held his tea. Still didn't drink it."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch9",
+        "teaser": {
+          "ko": "다음 이야기 — 화성의 밤",
+          "en": "Next — Martian Night"
+        }
+      }
+    }
+
+  ]
+}

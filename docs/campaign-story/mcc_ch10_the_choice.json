@@ -1,0 +1,475 @@
+{
+  "questId": "mcc_campaign_ch10",
+  "campaignId": "mcc_route",
+  "chapterNumber": 10,
+  "title": {
+    "ko": "선택",
+    "en": "The Choice",
+    "ja": "選択",
+    "zh": "选择"
+  },
+  "location": {
+    "id": "mars_final",
+    "displayName": {
+      "ko": "화성 — 모든 곳",
+      "en": "Mars — Everywhere"
+    }
+  },
+  "environment": "final_confrontation",
+  "estimatedPlayTimeMinutes": 25,
+  "characters": ["player", "lifang", "chen", "mikhail", "hale"],
+
+  "scenes": [
+
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "ambient_tension_high",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "새벽 5시 47분.\n화성 임시 행정청 시스템에 새 문서가 등록됐다.\n발신: MCC 법무부. 수신: 화성 행정권 이전위원회.\n처리 완료까지 — 4시간.",
+            "en": "5:47 a.m.\nA new document was registered in the Martian Provisional Authority system.\nSender: MCC Legal Division. Recipient: Mars Governance Transfer Committee.\nTime until processing complete — four hours."
+          }
+        },
+        {
+          "text": {
+            "ko": "천 회장은 밤새 기다리지 않았다.\n그는 이미 시작했다.",
+            "en": "Chairman Chen hadn't waited through the night.\nHe had already begun."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "grave",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "문서가 접수됐어요. 막으려면 4시간 안에 법원에 가처분 신청을 해야 해요. 화성 행정청 재판부는 FSP 판사가 의장이에요.",
+            "en": "The document was received. To stop it, we need to file an injunction with the court within four hours. The Martian authority court has an FSP judge as presiding officer."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "conflicted",
+          "text": {
+            "ko": "당신이 결정해야 해요. 나는 — 이번엔 회장님 편이 아니에요.",
+            "en": "You have to decide. I'm — not on the Chairman's side this time."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "리팡이 처음으로 선을 그었다.\n10년.\n그녀가 MCC에 있던 시간이었다.",
+            "en": "For the first time, Lifang drew a line.\nTen years.\nThe time she had been with MCC."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "문서 이야기를 들었겠죠. 4시간 후에 화성 행정권이 MCC로 이전돼요.\n법적으로 완전해요. 누구도 막을 수 없어요.",
+            "en": "You've heard about the document. In four hours, Mars governing authority transfers to MCC.\nLegally complete. No one can stop it."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "막으려면 — 법원. 시간이 없어요. 막지 않으려면 — 그냥 기다려요.",
+            "en": "To stop it — the court. There's no time. To not stop it — just wait."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "rare_warmth",
+          "text": {
+            "ko": "당신이 어떤 선택을 해도 — 나는 당신을 틀렸다고 생각하지 않을 거예요.\n처음으로 그런 사람을 만났어요.",
+            "en": "Whatever you choose — I won't think you were wrong.\nFor the first time, I've met someone like that."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "천이 차를 들고 있었다.\n그리고 — 마셨다.\n처음으로.",
+            "en": "Chen held his tea.\nAnd — drank it.\nFor the first time."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 한 모금이 뭘 의미하는지 당신도 알았다.",
+            "en": "You knew what that one sip meant."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "urgent",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "문서 봤어요. 4시간밖에 없어요. 당신이 움직여야 해요. 우리는 법원에 신청서를 낼 수 있어요.",
+            "en": "I saw the document. Only four hours. You need to move. We can file the petition to the court."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "pleading",
+          "text": {
+            "ko": "당신이 서명하면 돼요. MCC 내부 관계자의 증언이 있어야 해요.\n당신이 유일해요.",
+            "en": "You just need to sign. We need testimony from an MCC insider.\nYou're the only one."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "ambient_chapel",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "hale",
+          "emotion": "calm",
+          "text": {
+            "ko": "당신이 어떤 선택을 하든 — 이 행성에 남을 거예요.\n당신의 이름이 어딘가에 새겨질 거예요.\n그게 잘 새겨지길 바라요.",
+            "en": "Whatever you choose — it will remain on this planet.\nYour name will be carved somewhere.\nI hope it's carved well."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "troubled",
+          "text": {
+            "ko": "신부님은 어떻게 할 거예요.",
+            "en": "What will you do, Father."
+          }
+        },
+        {
+          "speaker": "hale",
+          "emotion": "serene",
+          "text": {
+            "ko": "나는 — 여기 있을 거예요. 어떤 결과가 나와도.\n340명의 이름을 기억하는 사람이 있어야 하니까.",
+            "en": "I — will be here. Whatever the outcome.\nSomeone has to remember 340 names."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "choice_tension",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "3시간 42분.\n당신 손에 있었다.\n화성 1,200만 명의 미래가.",
+            "en": "3 hours 42 minutes.\nIt was in your hands.\nThe future of 12 million people on Mars."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "choice",
+      "background": "mars_sunset",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "당신의 선택. 화성의 방향.",
+        "en": "Your choice. Mars's direction."
+      },
+      "choices": [
+        {
+          "id": "ch10_mcc_wins",
+          "text": {
+            "ko": "MCC 이전을 허용한다. 천의 질서가 화성의 미래다.",
+            "en": "Allow MCC transfer. Chen's order is Mars's future."
+          },
+          "tone": "order",
+          "preview_hint": {
+            "ko": "→ MCC 통치 확립 · 질서와 안정 · 자유의 비용",
+            "en": "→ MCC governance established · Order and stability · The cost of freedom"
+          }
+        },
+        {
+          "id": "ch10_stop_mcc",
+          "text": {
+            "ko": "법원에 가처분을 신청한다. MCC 이전을 막고 FSP 헌법안을 지지한다.",
+            "en": "File for injunction. Block MCC transfer and support FSP constitutional proposal."
+          },
+          "tone": "democratic",
+          "preview_hint": {
+            "ko": "→ 화성 헌법 탄생 · 불확실한 민주주의 · 천과의 결별",
+            "en": "→ Mars Constitution born · Uncertain democracy · Break with Chen"
+          }
+        },
+        {
+          "id": "ch10_bargain_final",
+          "text": {
+            "ko": "천에게 마지막 거래를 제안한다. 이전을 3년 보류 — 그 기간에 헌법 초안을 만든다.",
+            "en": "Propose a final deal to Chen. Defer transfer 3 years — use that time to draft a constitution."
+          },
+          "tone": "synthesis",
+          "preview_hint": {
+            "ko": "→ 화성 연합 가능성 · 3년의 시간 · 가장 불확실하지만 가장 인간적인 길",
+            "en": "→ Mars Coalition possible · Three years · Most uncertain but most human path"
+          }
+        },
+        {
+          "id": "ch10_leave",
+          "text": {
+            "ko": "화성을 떠난다. 이 싸움은 당신 것이 아니었다.",
+            "en": "Leave Mars. This fight was never yours."
+          },
+          "tone": "withdrawal",
+          "preview_hint": {
+            "ko": "→ 개인 생존 · 화성은 스스로 결말을 낸다 · 가장 솔직한 선택",
+            "en": "→ Personal survival · Mars finds its own ending · Most honest choice"
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10_mcc",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "victory_calm",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "4시간 후.\nMCC 화성 행정권 이전이 공식 완료됐다.\n화성 임시 행정청은 해산됐다.\n질서가 왔다.",
+            "en": "Four hours later.\nMCC Mars governance transfer officially completed.\nThe Martian Provisional Authority was dissolved.\nOrder came."
+          }
+        },
+        {
+          "text": {
+            "ko": "1년 후 — 전쟁이 없었다. 산소 공급이 안정됐다. 미하일은 FSP 재건을 준비하고 있었다.\n정육점은 — 사라졌다. 어디로 갔는지 아무도 몰랐다.",
+            "en": "One year later — no war. Oxygen supply stable. Mikhail was preparing to rebuild FSP.\nButcher — was gone. No one knew where."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10_fsp",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "법원이 가처분을 수용했다. MCC 이전은 중단됐다.\n천 회장은 항소하지 않았다.\n차가 식는 걸 보면서 — 그냥 있었다.",
+            "en": "The court accepted the injunction. MCC transfer halted.\nChairman Chen did not appeal.\nHe watched his tea go cold — and sat still."
+          }
+        },
+        {
+          "text": {
+            "ko": "6개월 후 — 화성 기본법이 서명됐다.\n세 파벌 대표가 서명했다. 리팡도. 그녀의 이름이 역사에 남았다.\n불완전한 헌법이었다. 하지만 — 화성 것이었다.",
+            "en": "Six months later — the Mars Basic Law was signed.\nThree faction representatives signed. Lifang too. Her name entered history.\nAn imperfect constitution. But — it was Mars's own."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10_synthesis",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "ambient_neutral",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "천 회장은 3년 보류 조건을 수락했다.\n아무도 그가 동의할 거라고 생각하지 않았다.\n그는 차를 마셨다. 그리고 서명했다.",
+            "en": "Chairman Chen accepted the three-year deferral condition.\nNo one thought he would agree.\nHe drank his tea. Then signed."
+          }
+        },
+        {
+          "text": {
+            "ko": "3년은 짧다. 화성 역사에서는.\n하지만 3년이면 아이 하나가 걸음마를 뗄 수 있다.\n그것으로 충분했다.",
+            "en": "Three years is short. In Mars's history.\nBut in three years a child can learn to walk.\nThat was enough."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10_leave",
+      "type": "narration",
+      "background": "cargo_ship_interior",
+      "bgm": "ambient_engine_hum",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "화물선이 화성 중력권을 벗어났을 때 객실 조명이 두 번 깜빡였다.\n당신은 창밖을 봤다.\n화성이 멀어지고 있었다. 핏빛 행성.",
+            "en": "When the cargo ship broke free of Mars's gravity, the cabin lights flickered twice.\nYou looked out the window.\nMars was receding. Blood-red planet."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성은 결국 스스로 결말을 냈다.\n어떤 결말인지는 — 알 수 없었다.\n하지만 당신은 살았다.",
+            "en": "Mars found its own ending after all.\nWhat ending — couldn't be known.\nBut you were alive."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "화성의 미래",
+        "en": "The Future of Mars"
+      },
+      "subtitle": {
+        "ko": "당신의 선택이 이 행성에 남는다",
+        "en": "Your Choice Remains on This Planet"
+      }
+    },
+
+    {
+      "id": "s12",
+      "type": "result",
+      "success_scene": "s13_success",
+      "failure_scene": "s13_fail"
+    },
+
+    {
+      "id": "s13_success",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "thoughtful",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "끝났어요. 아직 결말이 모든 면에서 좋은 건 아니에요. 하지만 — 계속되고 있어요.",
+            "en": "It's over. The ending isn't good in every way. But — it continues."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "quiet",
+          "text": {
+            "ko": "화성이 계속된다는 게 — 지금은 그게 전부예요.",
+            "en": "Mars continues — that's all it is right now."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13_fail",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "grave",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "예상보다 더 나빠졌어요. 하지만 — 끝은 아니에요.\n화성은 질긴 행성이에요.",
+            "en": "It got worse than expected. But — it's not the end.\nMars is a stubborn planet."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s14",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "헤일이 예배당에서 촛불을 켰다.\n340개.\n창밖으로 화성의 노을이 보였다.",
+            "en": "Hale lit candles in the chapel.\n340 of them.\nThrough the window, Mars's sunset."
+          }
+        },
+        {
+          "text": {
+            "ko": "이 행성은 늘 이랬다.\n핏빛이었다. 아름다웠다. 외로웠다.\n그래도 — 사람들이 살았다.",
+            "en": "This planet had always been this way.\nBlood-red. Beautiful. Lonely.\nBut still — people lived here."
+          }
+        },
+        {
+          "text": {
+            "ko": "당신도 그 중 하나였다.",
+            "en": "You were one of them."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "fsp_campaign_ch1",
+        "teaser": {
+          "ko": "MCC 루트 완료 — FSP 루트: 자유 정착민의 시각에서 화성을 본다",
+          "en": "MCC Route Complete — FSP Route: See Mars from the eyes of the Free Settlers"
+        }
+      }
+    }
+
+  ]
+}

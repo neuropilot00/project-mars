@@ -1,0 +1,511 @@
+{
+  "questId": "mcc_campaign_ch7",
+  "campaignId": "mcc_route",
+  "chapterNumber": 7,
+  "title": {
+    "ko": "천의 도박",
+    "en": "Chen's Gambit",
+    "ja": "チェンの賭け",
+    "zh": "陈的豪赌"
+  },
+  "location": {
+    "id": "mcc_hq_25deg",
+    "displayName": {
+      "ko": "MCC 화성 본부 — 25도 집무실",
+      "en": "MCC Mars HQ — 25° Executive Office"
+    }
+  },
+  "environment": "political_crisis_imminent",
+  "estimatedPlayTimeMinutes": 20,
+  "characters": ["player", "lifang", "chen"],
+
+  "scenes": [
+
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "소환장은 없었다.\n메시지 한 줄이었다.\n25도. 지금.",
+            "en": "There was no summons.\nOne line of text.\n25 degrees. Now."
+          }
+        },
+        {
+          "text": {
+            "ko": "MCC 본부 최상층. 창밖으로 화성 지평선이 보였다.\n혈색 황야가 유리 너머에서 조용히 타고 있었다.\n천 회장은 차를 들고 있었다. 마시지 않았다. 그는 늘 그랬다.",
+            "en": "MCC HQ top floor. Through the window, the Martian horizon.\nThe blood-red wasteland burning quietly beyond the glass.\nChairman Chen was holding his tea. Not drinking. He never did."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "앉아요. 서 있을 필요 없어요.",
+            "en": "Sit down. No need to stand."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "당신이 여기 온 지 얼마 됐죠. 산소 쟁탈, 동결된 파이프라인, 이사회, 해적, 케플러, 내부고발자. 여섯 번의 계약.",
+            "en": "How long have you been here. Oxygen rush, frozen pipeline, boardroom, pirates, Kepler, whistleblower. Six contracts."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "text": {
+            "ko": "그 여섯 번이 — 우연이 아니었어요.",
+            "en": "Those six — they weren't accidents."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "player",
+          "emotion": "tense",
+          "text": {
+            "ko": "무슨 뜻입니까.",
+            "en": "What do you mean."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "화성에는 법이 없어요. 화성 임시 행정청은 이름뿐이에요. 세 파벌이 서로 소모하는 동안 — 이 행성에서 안정적인 산소를 공급할 수 있는 조직은 MCC뿐이에요.",
+            "en": "Mars has no law. The Martian Provisional Authority is a name only. While three factions drain each other — MCC is the only organization that can deliver stable oxygen to this planet."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "text": {
+            "ko": "누군가는 질서를 만들어야 해요. 화성 1,200만 명을 위해서. 나는 10년 전부터 그 준비를 했어요.",
+            "en": "Someone has to create order. For 12 million people on Mars. I've been preparing for that for ten years."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "케플러 티타늄은 재원이에요. Kara Vex는 군사력이에요. 헬리온 파일은 — FSP와 CV가 화성 행정청에서 입을 다물게 하는 열쇠예요.",
+            "en": "Kepler titanium is the funding. Kara Vex is the military force. The Helion files — the key that keeps FSP and CV quiet in the Martian authority."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "MCC가 화성의 단일 행정 기관이 되면 — 전쟁이 끝나요. 산소 부족이 끝나요. 파벌 충돌이 끝나요.",
+            "en": "Once MCC becomes Mars' sole governing body — the wars end. Oxygen shortages end. Faction conflicts end."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "player",
+          "emotion": "troubled",
+          "text": {
+            "ko": "그러면 저는 — 그 계획의 부품이었던 거군요.",
+            "en": "Then I was — a component of that plan."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "text": {
+            "ko": "당신은 도구가 아니었어요. 당신은 — 검증이었어요.\n내가 계획한 길에 서 있어도 여전히 인간적인 판단을 할 수 있는 사람이 있는지.",
+            "en": "You weren't a tool. You were — a test.\nWhether someone standing on the path I planned could still make human judgments."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "rare_warmth",
+          "text": {
+            "ko": "당신은 통과했어요.",
+            "en": "You passed."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "리팡이 문 옆에 서 있었다. 당신이 그녀를 봤을 때 그녀는 시선을 피했다.\n그녀는 알고 있었다. 처음부터.",
+            "en": "Lifang stood near the door. When you looked at her, she looked away.\nShe had known. From the beginning."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "guilty",
+          "text": {
+            "ko": "미안해요. 말할 수 없었어요.",
+            "en": "I'm sorry. I couldn't say."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "conflicted",
+          "text": {
+            "ko": "하지만 — 틀린 말은 아니에요. 화성에 질서가 없으면 사람이 죽어요. 우리가 본 것들이 — 그냥 두면 더 나빠져요.",
+            "en": "But — it's not wrong. Without order on Mars, people die. What we've seen — left alone, it gets worse."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "player",
+          "emotion": "troubled",
+          "text": {
+            "ko": "질서가 목적이면 — 방법이 정당화되나요.",
+            "en": "If order is the goal — does the method get justified."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "quiet",
+          "text": {
+            "ko": "저도 — 몰라요. 오래 생각했는데.",
+            "en": "I — don't know either. I've thought about it a long time."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "3일 후에 화성 행정청 긴급 회의가 있어요. FSP와 CV가 요청했어요. 케플러 분쟁과 헬리온 파일 유출 건으로.",
+            "en": "In three days there's an emergency Martian authority meeting. FSP and CV requested it. Over the Kepler dispute and the Helion file leak."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "cold",
+          "text": {
+            "ko": "그 회의에서 MCC의 행정권 이전이 공식 안건으로 올라와요. 나는 그 자리에서 화성의 미래를 결정할 거예요. 당신은 — 내 옆에 있어요.",
+            "en": "At that meeting, the transfer of governing authority to MCC will be formally on the agenda. I will determine the future of Mars in that room. You — will be standing beside me."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10",
+      "type": "choice",
+      "background": "mcc_25deg_lounge",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "천의 10년 계획. 그 자리에 서 있을 것인가.",
+        "en": "Chen's ten-year plan. Will you stand in that place."
+      },
+      "choices": [
+        {
+          "id": "ch7_commit",
+          "text": {
+            "ko": "함께한다. 화성의 질서를 만드는 데 MCC가 옳다면.",
+            "en": "Stand with him. If MCC is right about bringing order to Mars."
+          },
+          "tone": "loyal",
+          "preview_hint": {
+            "ko": "→ MCC 완전 신뢰 획득 · 천의 계획에 핵심 역할 · 다른 파벌과 결별",
+            "en": "→ Full MCC trust · Key role in Chen's plan · Break with other factions"
+          }
+        },
+        {
+          "id": "ch7_conditional",
+          "text": {
+            "ko": "조건이 있다. 헬리온 유가족 보상과 FSP 정착권 보장이 없으면 안 된다.",
+            "en": "With conditions. No deal without Helion family compensation and FSP settlement rights."
+          },
+          "tone": "pragmatic",
+          "preview_hint": {
+            "ko": "→ 천이 협상 수락 · 계획 수정 가능 · 내부 견제자로 포지셔닝",
+            "en": "→ Chen accepts negotiation · Plan may be modified · Position as internal check"
+          }
+        },
+        {
+          "id": "ch7_warn",
+          "text": {
+            "ko": "거부. 미하일과 다른 파벌에게 천의 계획을 경고한다.",
+            "en": "Refuse. Warn Mikhail and other factions about Chen's plan."
+          },
+          "tone": "defiant",
+          "preview_hint": {
+            "ko": "→ MCC 완전 결별 · FSP/CV 호감도 대폭 상승 · 전면전 가능성",
+            "en": "→ Full break with MCC · FSP/CV favor surge · Full-scale conflict possible"
+          }
+        },
+        {
+          "id": "ch7_delay",
+          "text": {
+            "ko": "시간을 달라. 3일 안에 결정한다.",
+            "en": "Ask for time. Decide in three days."
+          },
+          "tone": "cautious",
+          "preview_hint": {
+            "ko": "→ 모든 선택지 유지 · 천의 의심 증가 · 중립 포지션",
+            "en": "→ All options preserved · Chen's suspicion grows · Neutral position"
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11_commit",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "satisfied",
+          "text": {
+            "ko": "좋아요. 3일 후에 — 역사가 바뀌어요.",
+            "en": "Good. In three days — history changes."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11_conditional",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "amused",
+          "text": {
+            "ko": "조건. 흥미롭군요. 생각해볼게요.",
+            "en": "Conditions. Interesting. I'll think about it."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "relieved",
+          "text": {
+            "ko": "그 말이 있을 줄 알았어요.",
+            "en": "I thought you'd say something like that."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11_warn",
+      "type": "narration",
+      "background": "mars_docking_bay",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "당신은 그날 밤 미하일에게 연락했다.\n암호화된 채널. 짧은 메시지. 핵심만.\n그 메시지가 전달됐는지 확인하기 전에 MCC 보안이 당신을 찾아왔다.",
+            "en": "That night you contacted Mikhail.\nEncrypted channel. Short message. Just the essentials.\nBefore you confirmed delivery, MCC security came for you."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11_delay",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "천은 아무 말도 하지 않았다.\n그 침묵이 답이었다. 당신에게 3일이 있었다.\n그 3일이 무엇을 의미하는지는 당신도 알았다.",
+            "en": "Chen said nothing.\nThat silence was his answer. You had three days.\nYou knew what those three days meant."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s12",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "화성 행정권 쟁탈전",
+        "en": "Battle for Mars Governance"
+      },
+      "subtitle": {
+        "ko": "3일 후 — 화성의 미래가 결정된다",
+        "en": "In Three Days — The Future of Mars Is Decided"
+      }
+    },
+
+    {
+      "id": "s13",
+      "type": "result",
+      "success_scene": "s14_success",
+      "failure_scene": "s14_fail"
+    },
+
+    {
+      "id": "s14_success",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "작전이 진행됐어요. 예상보다 저항이 적었어요.",
+            "en": "The operation proceeded. Less resistance than expected."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "회의는 3일 후예요. 그때 결판이 나요.",
+            "en": "The meeting is in three days. That's when it concludes."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s14_fail",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "정보가 새어나갔어요. FSP가 움직이기 시작했어요.",
+            "en": "Information leaked. FSP has started moving."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "tense",
+          "text": {
+            "ko": "회의 전에 판세가 뒤집힐 수도 있어요. 준비해요.",
+            "en": "The balance could shift before the meeting. Get ready."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s15",
+      "type": "ending",
+      "background": "mcc_25deg_lounge",
+      "bgm": "chen_theme",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "천은 창가에 서서 화성 지평선을 바라봤다.\n그의 차는 식어 있었다. 그는 여전히 마시지 않았다.",
+            "en": "Chen stood at the window looking at the Martian horizon.\nHis tea had gone cold. He still didn't drink it."
+          }
+        },
+        {
+          "text": {
+            "ko": "당신은 그 옆에서 같은 창을 봤다.\n같은 풍경인데 — 다르게 보였다.",
+            "en": "You stood beside him looking at the same window.\nThe same view — but it looked different."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch8",
+        "teaser": {
+          "ko": "다음 이야기 — 붉은 의회",
+          "en": "Next — The Red Parliament"
+        }
+      }
+    }
+
+  ]
+}

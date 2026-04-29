@@ -1,0 +1,818 @@
+{
+  "questId": "mcc_campaign_ch1",
+  "campaignId": "mcc_route",
+  "chapterNumber": 1,
+  "title": {
+    "ko": "산소 쟁탈",
+    "en": "Oxygen Rush",
+    "ja": "酸素争奪",
+    "zh": "氧气争夺"
+  },
+  "location": {
+    "id": "erebus_crater",
+    "displayName": {
+      "ko": "에레부스 분화구 정제소 단지",
+      "en": "Erebus Crater Refinery Complex"
+    }
+  },
+  "environment": "dust_storm_incoming",
+  "estimatedPlayTimeMinutes": 12,
+  "characters": ["player", "lifang", "helion_captain", "mcc_operator", "miner_elder"],
+
+  "scenes": [
+
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "cargo_ship_interior",
+      "bgm": "ambient_engine_hum",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "화물선 뱃머리가 화성 중력권에 진입했을 때\n객실 조명이 두 번 깜빡였다.",
+            "en": "When the cargo ship's bow entered Mars' gravity well,\nthe cabin lights flickered twice."
+          }
+        },
+        {
+          "text": {
+            "ko": "창밖으로 화성이 보였다.\n핏빛 황혼 같은 행성.\n그러나 황혼이 아니었다. 화성은 늘 그랬다.",
+            "en": "Mars was visible through the window.\nA planet like a blood-red twilight.\nBut it wasn't twilight. Mars was always like that."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "mars_docking_bay",
+      "bgm": "ambient_docking",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "에레부스 분화구 도킹 항만.\n화물선이 접안하자 기압 조절 알람이 울렸다.\n사람들이 줄을 서서 내렸다. 광부 가족, 기술자, 용병.",
+            "en": "Erebus Crater docking bay.\nThe pressure alarm sounded as the cargo ship docked.\nPeople filed out. Miner families, technicians, mercenaries."
+          }
+        },
+        {
+          "text": {
+            "ko": "당신은 마지막으로 내렸다.\n가방 하나. 그 안에 무엇이 있는지는 당신만 알았다.",
+            "en": "You were the last to disembark.\nOne bag. Only you knew what was inside."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "ambient_docking",
+      "lines": [
+        {
+          "speaker": "mcc_operator",
+          "emotion": "neutral",
+          "text": {
+            "ko": "신원 확인. 도킹 허가 번호?",
+            "en": "ID check. Docking permit number?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "......",
+            "en": "......"
+          }
+        },
+        {
+          "speaker": "mcc_operator",
+          "emotion": "neutral",
+          "text": {
+            "ko": "MCC 계약자? ...아, Li Fang 이사 소속이구나. 3번 게이트로.",
+            "en": "MCC contractor? ...Ah, Director Li Fang's unit. Gate 3."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "MCC 에레부스 지부. 브리핑 룸.\n형광등이 한쪽만 켜져 있었다.\n테이블 위에 지도 하나.\n화성 북반구 정제소 배치도.",
+            "en": "MCC Erebus Branch. Briefing room.\nOnly one fluorescent light was on.\nA single map on the table.\nNorthern hemisphere refinery layout."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "도착이 늦었네.",
+            "en": "You're late."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "화물선이 3일 표류했습니다.",
+            "en": "The cargo ship drifted for 3 days."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "화성에선 늘 그래. 도착은 늘 늦고 출발은 늘 빨라.",
+            "en": "That's Mars for you. Arrivals are always late, departures always early."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "프로필 봤어. 화성 경력 없지?",
+            "en": "Read your profile. No Mars experience?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "......",
+            "en": "......"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "좋아. 말 없는 사람이 일을 잘하더라고.\n시간 짧아 — 본론 들어갈게.",
+            "en": "Good. Quiet people get things done.\nTime's short — let's get to it."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "effect": "show_map_overlay:erebus_refinery",
+          "text": {
+            "ko": "Helion Dynamics. 들어봤어?",
+            "en": "Helion Dynamics. Heard of them?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "에너지 기업. 산소 정제 독점.",
+            "en": "Energy corp. Oxygen refinery monopoly."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "맞아. 에레부스 정제소 7기를 운영 중이야.\n화성 북반구 산소의 41%가 여기서 나와.",
+            "en": "Right. They operate 7 refineries in Erebus.\n41% of northern hemisphere oxygen comes from here."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "angry",
+          "text": {
+            "ko": "근데 내일. Helion이 정제소 7기 전부 매각해.",
+            "en": "But tomorrow. Helion sells all 7 refineries."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "매각이요? 왜?",
+            "en": "Selling? Why?"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "angry",
+          "text": {
+            "ko": "문제는 매각이 아니야.\n매각 직전에 산소 850 킬로톤을 본사로 빼돌리고 있어.",
+            "en": "The sale isn't the problem.\nRight before the sale, they're siphoning 850 kilotons of oxygen to HQ."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": null,
+      "lines": [
+        {
+          "text": {
+            "ko": "850 킬로톤.\n1,200만 명이 일주일 동안 숨 쉴 수 있는 양.\n화성 북반구 전체가 일주일간 산소 부족에 빠진다는 뜻이다.",
+            "en": "850 kilotons.\nEnough for 12 million people to breathe for a week.\nThe entire northern hemisphere would face oxygen shortage for a week."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "호송 편대가 이미 출발했어.\n화물선 3척, 호위 프리깃 6척.",
+            "en": "The convoy has already departed.\n3 cargo ships, 6 escort frigates."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "화물선을 격파하고 산소를 회수해.\n단, 화물 손상 없이. 탱크가 파손되면 산소가 증발해.",
+            "en": "Destroy the cargo ships and recover the oxygen.\nBut no cargo damage. If the tanks rupture, the oxygen evaporates."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "determined",
+          "text": {
+            "ko": "호위 프리깃 6척이면 쉽지 않겠는데요.",
+            "en": "Six escort frigates won't be easy."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "쉬우면 내가 직접 했지.",
+            "en": "If it were easy, I'd do it myself."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_high",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "한 가지 더.",
+            "en": "One more thing."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "effect": "screen_shake_subtle",
+          "text": {
+            "ko": "Dust Storm이 5시간 58분 후에 도래해.\n폭풍이 오면 시계 0.4 이하. 어떤 함선도 기동 불가.",
+            "en": "A Dust Storm arrives in 5 hours 58 minutes.\nVisibility drops to 0.4. No ship can maneuver."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "angry",
+          "text": {
+            "ko": "회수 못 하면 산소가 폭풍 안에서 사라져.\n1,200만 명 일주일치 산소가.",
+            "en": "If you can't recover it, the oxygen disappears in the storm.\nA week's worth for 12 million people."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_high",
+      "transition": null,
+      "lines": [
+        {
+          "text": {
+            "ko": "Li Fang이 지도를 밀어 당신 앞에 놓았다.\n당신의 손이 지도 위에 놓였다.\n손이 떨리지 않았다.",
+            "en": "Li Fang pushed the map in front of you.\nYour hand rested on the map.\nIt didn't tremble."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11",
+      "type": "branch",
+      "background": "mcc_briefing_room",
+      "prompt": {
+        "ko": "(무엇을 더 알아볼까?)",
+        "en": "(What should I look into?)"
+      },
+      "options": [
+        {
+          "label": { "ko": "Helion 호송 편대 전력", "en": "Helion convoy strength" },
+          "goto": "s11a"
+        },
+        {
+          "label": { "ko": "Dust Storm 상세 정보", "en": "Dust Storm details" },
+          "goto": "s11b"
+        },
+        {
+          "label": { "ko": "바로 출격 준비", "en": "Prepare for immediate launch" },
+          "goto": "s12"
+        }
+      ]
+    },
+
+    {
+      "id": "s11a",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_high",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "프리깃 6척. Helion 자체 보안 부대야. 정규군 수준은 아니지만 숫자가 문제지.",
+            "en": "6 frigates. Helion's own security fleet. Not military grade, but numbers are the issue."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "화물선 3척은 느려. 프리깃만 처리하면 화물은 도망 못 가.",
+            "en": "The 3 cargo ships are slow. Take out the frigates, and the cargo can't escape."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "참고로 레일건 장착 함선이 있으면 좋아.\nDust Storm에서도 레일건은 정확도 페널티가 없거든.",
+            "en": "FYI, railgun-equipped ships would help.\nRailguns have no accuracy penalty in Dust Storms."
+          }
+        }
+      ],
+      "next": "s12"
+    },
+
+    {
+      "id": "s11b",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_high",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "Dust Storm은 4단계로 진행돼.\n처음엔 괜찮아. 광학 무기 정확도가 좀 떨어지는 정도.",
+            "en": "The Dust Storm progresses in 4 phases.\nIt starts mild. Just some optical weapon accuracy loss."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "문제는 3단계부터야. 정확도 -25%, 사거리 -20%.\n4단계면 사실상 전투 불가. 정확도 -40%, 사거리 반토막.",
+            "en": "Phase 3 is where it gets bad. Accuracy -25%, range -20%.\nPhase 4 is basically impossible. Accuracy -40%, range halved."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "레일건만 예외야. 폭풍 안에서도 정확도 유지돼.",
+            "en": "Railguns are the exception. They maintain accuracy in the storm."
+          }
+        }
+      ],
+      "next": "s12"
+    },
+
+    {
+      "id": "s12",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_high",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "마지막으로.",
+            "en": "One last thing."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "이 일이 성공하면 MCC가 정제소를 인수해.\n산소 공급은 MCC가 관리하게 돼.",
+            "en": "If this succeeds, MCC acquires the refineries.\nOxygen supply falls under MCC management."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "...FSP 쪽 정착민들은 좋아하지 않겠지.\n그건 당신이 신경 쓸 일은 아니야.",
+            "en": "...FSP settlers won't like it.\nThat's not your concern."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_high",
+      "transition": null,
+      "lines": [
+        {
+          "text": {
+            "ko": "Li Fang이 당신을 바라봤다.\n브리핑 룸의 형광등이 다시 깜빡였다.\n결정의 시간이다.",
+            "en": "Li Fang looked at you.\nThe briefing room fluorescent light flickered again.\nTime to decide."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s14",
+      "type": "choice",
+      "background": "mcc_briefing_room",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "첫 계약. 어떻게 응답할 것인가.",
+        "en": "Your first contract. How will you respond?"
+      },
+      "choices": [
+        {
+          "id": "ch1_accept",
+          "text": {
+            "ko": "이해했습니다. 시간 안에 끝내죠.",
+            "en": "Understood. I'll finish within the time limit."
+          },
+          "tone": "professional",
+          "preview_hint": {
+            "ko": "→ MCC 평판 유지 · 표준 작전 진행",
+            "en": "→ MCC reputation maintained · Standard operation"
+          }
+        },
+        {
+          "id": "ch1_moral_concern",
+          "text": {
+            "ko": "산소 탱크 손상 시 정착지 동결 문제는?",
+            "en": "What about settlement freezing if oxygen tanks are damaged?"
+          },
+          "tone": "empathetic",
+          "preview_hint": {
+            "ko": "→ FSP 호감도 +2 · 민간인 안전 우선",
+            "en": "→ FSP favor +2 · Civilian safety priority"
+          }
+        },
+        {
+          "id": "ch1_tactical",
+          "text": {
+            "ko": "Helion이 Dust Storm 알면 가속할 텐데요.",
+            "en": "Helion will accelerate if they know about the Dust Storm."
+          },
+          "tone": "analytical",
+          "preview_hint": {
+            "ko": "→ MCC 호감도 +3 · 전술가 태그 획득",
+            "en": "→ MCC favor +3 · Tactician tag earned"
+          }
+        },
+        {
+          "id": "ch1_negotiate",
+          "text": {
+            "ko": "보수 협상부터.",
+            "en": "Let's negotiate the pay first."
+          },
+          "tone": "mercenary",
+          "preview_hint": {
+            "ko": "→ MCC 호감도 -2 · 보수 보너스 +8,000 GP",
+            "en": "→ MCC favor -2 · Pay bonus +8,000 GP"
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s15_accept",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_resolve",
+      "condition": { "choiceId": "ch1_accept" },
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "깔끔해. 마음에 드네.",
+            "en": "Clean. I like that."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "함대 편성해. 도크 B-7에 MCC 지원 함선 2척 대기 중이야.",
+            "en": "Assemble your fleet. 2 MCC support ships are waiting at Dock B-7."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s15_moral",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_resolve",
+      "condition": { "choiceId": "ch1_moral_concern" },
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "surprised",
+          "text": {
+            "ko": "...정착지 동결?",
+            "en": "...Settlement freezing?"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "탱크 손상 시 최대 3개 정착지가 48시간 산소 부족에 빠져.\n민간인 피해 발생할 수 있어.",
+            "en": "If tanks are damaged, up to 3 settlements face 48-hour oxygen shortage.\nCivilian casualties are possible."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "...첫 계약에서 그런 걸 묻는 사람은 처음이야.\n기억해두지.",
+            "en": "...You're the first to ask that on a first contract.\nI'll remember that."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s15_tactical",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_resolve",
+      "condition": { "choiceId": "ch1_tactical" },
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "surprised",
+          "text": {
+            "ko": "...뭐?",
+            "en": "...What?"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "맞아. Helion이 Dust Storm 예보를 입수하면 호송 속도를 올리겠지.\n출발 타이밍이 핵심이야.",
+            "en": "Right. If Helion gets the storm forecast, they'll speed up the convoy.\nLaunch timing is critical."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "전술적 사고가 되는 사람이네. 좋아.\n이 정보는 Helion 쪽에 유출 안 됐어. 아직은.",
+            "en": "You think tactically. Good.\nThis intel hasn't leaked to Helion. Not yet."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s15_negotiate",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_resolve",
+      "condition": { "choiceId": "ch1_negotiate" },
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "......",
+            "en": "......"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "화성에 도착하자마자 보수 얘기라.\n나쁘지 않아. 솔직한 사람이 좋아.",
+            "en": "Talking pay the moment you arrive on Mars.\nNot bad. I prefer honest people."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "기본 계약에 8,000 GP 추가해줄게.\n대신 결과로 증명해.",
+            "en": "I'll add 8,000 GP to the base contract.\nBut prove it with results."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s16",
+      "type": "narration",
+      "background": "mars_docking_bay",
+      "bgm": "ambient_preparation",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "도크 B-7.\n당신의 함대가 대기하고 있었다.\n화성의 핏빛 하늘 아래, 함선 엔진이 예열되고 있었다.",
+            "en": "Dock B-7.\nYour fleet was waiting.\nUnder Mars' blood-red sky, ship engines were warming up."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s17",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "ambient_preparation",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "effect": "radio_static",
+          "text": {
+            "ko": "[통신] 광학 정확도가 떨어지기 시작하면 레일건 함선을 우선 배치해.\n폭풍이 오기 전에 끝내.",
+            "en": "[COMM] When optical accuracy drops, prioritize railgun ships.\nFinish before the storm hits."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "[통신] 마지막 회수선은 폭풍 90초 전에 출발해.\n그때까지 회수 못 하면 끝이야.",
+            "en": "[COMM] The last recovery ship leaves 90 seconds before the storm.\nIf you can't recover by then, it's over."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s18",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "작전 개시",
+        "en": "Operation Start"
+      },
+      "subtitle": {
+        "ko": "산소 회수 작전 — Dust Storm 도래까지 5시간 58분",
+        "en": "Oxygen Recovery Op — 5h 58m until Dust Storm"
+      }
+    },
+
+    {
+      "id": "s19",
+      "type": "result",
+      "success_scene": "s20_success",
+      "failure_scene": "s20_fail"
+    },
+
+    {
+      "id": "s20_success",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "산소 850 킬로톤 전량 회수 확인됐어.",
+            "en": "850 kilotons of oxygen fully recovered."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "첫 계약 치고 나쁘지 않았어.",
+            "en": "Not bad for a first contract."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "...다음엔 더 어려워질 거야.\n화성에선 늘 그래.",
+            "en": "...Next time will be harder.\nThat's Mars for you."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s20_fail",
+      "type": "dialogue",
+      "background": "mars_surface_dust_storm",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "angry",
+          "text": {
+            "ko": "회수 실패. 산소가 폭풍 속에서 사라졌어.",
+            "en": "Recovery failed. The oxygen vanished in the storm."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "1,200만 명이 일주일간 산소 부족에 시달릴 거야.\n...첫 계약부터 이러면 곤란한데.",
+            "en": "12 million people will suffer oxygen shortage for a week.\n...This isn't a good start."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s21",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "화성의 하늘이 어두워지고 있었다.\n먼지 폭풍이 지나간 자리에 적막만 남았다.\n\n당신은 에레부스 분화구를 바라보았다.\n이곳에서의 첫 날이 끝나고 있었다.",
+            "en": "The Martian sky was darkening.\nOnly silence remained where the dust storm had passed.\n\nYou looked at Erebus Crater.\nYour first day here was ending."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch2",
+        "teaser": {
+          "ko": "다음 이야기 — 동결된 고속도로",
+          "en": "Next — Frozen Highway"
+        }
+      }
+    }
+
+  ]
+}

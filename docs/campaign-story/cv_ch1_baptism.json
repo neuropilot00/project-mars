@@ -1,0 +1,157 @@
+{
+  "questId": "cv_campaign_ch1",
+  "campaignId": "cv_route",
+  "chapterNumber": 1,
+  "title": { "ko": "세례", "en": "Baptism" },
+  "location": { "id": "cv_base_camp", "displayNameKo": "CV 전진 기지" },
+  "environment": "dust_storm_night",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "butcher", "hale"],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "CV엔 면접이 없다. 시험이 있을 뿐이다. 그것을 통과하면 살고, 통과하지 못하면 화성에 남는다. 먼지 아래에.", "en": "CV doesn't have interviews. It has tests. Pass and you live. Fail and you stay on Mars. Under the dust." } }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher", "emotion": "cold", "effect": "character_enter:butcher:slide_left", "text": { "ko": "살고 싶으면 CV에 들어와. 들어오면 나가지 못해. 그걸 알고 여기 왔지?", "en": "You want to live, you join CV. Once you join, you don't leave. You knew that when you came here." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "알고 있습니다.", "en": "I knew." } },
+        { "speaker": "butcher", "emotion": "flat", "text": { "ko": "그거면 충분해.", "en": "That's enough." } }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "watchful", "effect": "character_enter:hale:slide_right", "text": { "ko": "테스트가 있어. 통과하면 CV야. 못 하면...", "en": "There's a test. Pass it and you're CV. Fail..." } },
+        { "speaker": "butcher", "emotion": "calm", "text": { "ko": "신더가 설명해.", "en": "Cinder explains." } },
+        { "speaker": "hale", "emotion": "measured", "text": { "ko": "선택지가 있어. 잔인하게 처리하거나, 영리하게 처리하거나. 어느 쪽이든 목표는 같아.", "en": "You have options. Brutal or clever. Either way the objective is the same." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "정육점은 다시 한번 쳐다보았다. 무언가를 보려는 게 아니라 무언가를 확인하려는 눈이었다.", "en": "Butcher looked again. Not to see something but to confirm something." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "direct", "text": { "ko": "살아남은 건 네가 선택한 거야. 기억해. 그 뒤에 오는 것들도 전부.", "en": "Surviving was your choice. Remember that. Everything that comes after it, too." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "...", "en": "..." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "CV 입단 테스트 — 어떤 방식을 선택합니까?", "en": "CV initiation test — which method do you choose?" },
+      "choices": [
+        {
+          "id": "cv_ch1_brutal",
+          "text": { "ko": "잔인하게 처리한다.", "en": "Handle it brutally." },
+          "tone": "ruthless",
+          "preview_hint": { "ko": "→ 정육점 인정 +15, 신더 -10", "en": "→ Butcher approval +15, Cinder -10" }
+        },
+        {
+          "id": "cv_ch1_clever",
+          "text": { "ko": "영리하게 처리한다.", "en": "Handle it cleverly." },
+          "tone": "strategic",
+          "preview_hint": { "ko": "→ 신더 호감 +10, 정육점 유보적", "en": "→ Cinder favor +10, Butcher reserved" }
+        },
+        {
+          "id": "cv_ch1_refuse",
+          "text": { "ko": "거부한다.", "en": "Refuse." },
+          "tone": "defiant",
+          "preview_hint": { "ko": "→ 즉각 위협, 다른 선택지 강제", "en": "→ Immediate threat, forced to another choice" }
+        },
+        {
+          "id": "cv_ch1_question",
+          "text": { "ko": "테스트의 목적을 묻는다.", "en": "Ask the purpose of the test." },
+          "tone": "curious",
+          "preview_hint": { "ko": "→ 신더 관심 획득, 정육점 냉소적 답변", "en": "→ Cinder interested, Butcher cynical response" }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher", "emotion": "neutral", "text": { "ko": "됐어. 너는 CV야.", "en": "Done. You're CV." } },
+        { "speaker": "hale", "emotion": "quiet", "text": { "ko": "축하해. 그게 어떤 의미인지는 직접 알게 될 거야.", "en": "Congratulations. You'll find out what that means yourself." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "첫 번째 임무", "en": "First Mission" },
+      "subtitle": { "ko": "CV 세례 — 살아남아라", "en": "CV Baptism — Survive" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "hale", "emotion": "measured", "effect": "character_enter:hale:slide_right", "text": { "ko": "살아있네. 그거야.", "en": "You're alive. That's it." } },
+        { "speaker": "butcher", "emotion": "flat", "effect": "character_enter:butcher:slide_left", "text": { "ko": "내일부터 임무 나가.", "en": "Missions start tomorrow." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "hale", "emotion": "cold", "effect": "character_enter:hale:slide_right", "text": { "ko": "아직 살아있어. 다행이야. 하지만 두 번은 없어.", "en": "Still alive. Lucky. But there's no second chance." } },
+        { "speaker": "butcher", "emotion": "indifferent", "effect": "character_enter:butcher:slide_left", "text": { "ko": "다음엔 끝까지 해.", "en": "Next time, finish it." } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "CV에 들어오는 사람들은 대부분 선택지가 없어서 온다. 화성에서 선택지가 없는 사람들이 모이면 그게 군대가 된다. 그 군대의 이름이 CV였다.", "en": "Most people who join CV come because they have no options. When people with no options gather on Mars, that becomes an army. The army's name was CV." } }
+      ],
+      "next_chapter_preview": { "questId": "cv_campaign_ch2", "teaser": { "ko": "다음 — 약탈", "en": "Next — The Raid" } }
+    }
+  ]
+}

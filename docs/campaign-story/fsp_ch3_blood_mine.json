@@ -1,0 +1,157 @@
+{
+  "questId": "fsp_campaign_ch3",
+  "campaignId": "fsp_route",
+  "chapterNumber": 3,
+  "title": { "ko": "피의 광산", "en": "Blood Mine" },
+  "location": { "id": "verin7_mine", "displayNameKo": "Verin-7 광산 (올림푸스 고지대)" },
+  "environment": "low_oxygen_highland",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "mikhail", "amara"],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "올림푸스 고지대의 산소 농도는 14%. 마스크를 벗으면 3분이다. 광부들은 그걸 알면서도 매일 내려간다. 채무 때문에. MCC가 그것을 무기로 쓴다.", "en": "Oxygen level on the Olympus highlands is fourteen percent. Three minutes without a mask. The miners knew this and went down every day anyway. Debt. MCC had made it a weapon." } }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "amara", "emotion": "cautious", "effect": "character_enter:amara:slide_right", "text": { "ko": "412명. MCC 부채 노예예요. 산소 조절기가 갱도 입구에 있고, 쿼터 미달이면 조절기 비밀번호가 바뀌어요.", "en": "Four hundred and twelve people. MCC debt labor. The oxygen regulators are at the shaft entrance. Miss your quota, the regulator code changes." } },
+        { "speaker": "mikhail", "emotion": "serious", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "빼낼 수 있어?", "en": "Can we get them out?" } },
+        { "speaker": "amara", "emotion": "conflicted", "text": { "ko": "이건 우리 권한 밖이야. FSP는 용병이 아니에요. 외교 채널로 가야 해요.", "en": "This is outside our authority. FSP isn't a mercenary force. This goes through diplomatic channels." } }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "tired", "text": { "ko": "외교 채널은 세 달 전에도 썼어, 아마라. 그때 MCC가 뭐라고 했는지 기억해?", "en": "Diplomatic channels. We used those three months ago, Amara. Remember what MCC said?" } },
+        { "speaker": "amara", "emotion": "tense", "text": { "ko": "규정이 있어요. 그 규정이 없으면 우리도 MCC랑 다를 게 없잖아요.", "en": "There are rules. Without those rules, we're no different from MCC." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "...", "en": "..." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "두 사람 다 틀리지 않았다. 그게 문제였다.", "en": "Neither of them was wrong. That was the problem." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "광부들이 직접 요청을 보내왔어요. 신호등 코드로. 거기서 두 명이 죽었다고.", "en": "The miners sent a request themselves. Traffic light code. Two dead already." } },
+        { "speaker": "amara", "emotion": "conflicted", "text": { "ko": "그게 진짜 요청인지 MCC 함정인지 우리가 어떻게 알아요?", "en": "How do we know it's a genuine request and not an MCC trap?" } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mcc_briefing_room",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "어떻게 접근하겠습니까?", "en": "How do you approach this?" },
+      "choices": [
+        {
+          "id": "fsp_ch3_solo_op",
+          "text": { "ko": "제가 단독 작전.", "en": "I'll run a solo operation." },
+          "tone": "aggressive",
+          "preview_hint": { "ko": "→ FSP 공식 책임 없음, 위험 증가", "en": "→ No FSP liability, higher personal risk" }
+        },
+        {
+          "id": "fsp_ch3_official_op",
+          "text": { "ko": "공식 작전. 책임은 같이.", "en": "Official operation. We share the responsibility." },
+          "tone": "collective",
+          "preview_hint": { "ko": "→ 아마라 신뢰도 -5, FSP 결속 +10", "en": "→ Amara trust -5, FSP cohesion +10" }
+        },
+        {
+          "id": "fsp_ch3_question_intel",
+          "text": { "ko": "광부들이 정말 나오고 싶어할까요?", "en": "Do the miners actually want to leave?" },
+          "tone": "cautious",
+          "preview_hint": { "ko": "→ 추가 정보 획득, 신중도 +", "en": "→ Gain additional intel, careful path" }
+        },
+        {
+          "id": "fsp_ch3_diplomatic_attempt",
+          "text": { "ko": "MCC와 협상 안 됩니까?", "en": "Can't we negotiate with MCC?" },
+          "tone": "diplomatic",
+          "preview_hint": { "ko": "→ 아마라 호감도 +10, 시간 손실", "en": "→ Amara favor +10, time penalty" }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "amara", "emotion": "resigned", "text": { "ko": "...알겠어요. 하지만 기록해둬요. 이 결정이 누구 결정인지.", "en": "...All right. But let the record show whose decision this was." } },
+        { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "산소 조절기 코드 빼내는 게 먼저야. 나머지는 그 다음이고.", "en": "Getting the regulator codes first. Everything else comes after." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "작전명: 산소 해방", "en": "Operation: Oxygen Liberation" },
+      "subtitle": { "ko": "Verin-7 광산 침투 — 412명", "en": "Verin-7 Mine Infiltration — 412 Lives" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "amara", "emotion": "moved", "effect": "character_enter:amara:slide_right", "text": { "ko": "412명. 전원 출구까지 안내 완료.", "en": "Four hundred and twelve. All guided to the exit." } },
+        { "speaker": "mikhail", "emotion": "warm", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "MCC는 이제 이걸 알 거야. 가만히 있지 않겠지.", "en": "MCC will know this now. They won't sit still." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "amara", "emotion": "devastated", "effect": "character_enter:amara:slide_right", "text": { "ko": "MCC가 갱도를 잠갔어요. 전원.", "en": "MCC locked the shafts. All of them." } },
+        { "speaker": "mikhail", "emotion": "grim", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "...", "en": "..." } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "자유는 선언으로 오지 않는다. 산소 조절기 비밀번호를 아는 것, 그게 전부다. 화성에서 자유는 언제나 그렇게 작은 것에서 시작한다.", "en": "Freedom doesn't come from declarations. It comes from knowing the oxygen regulator code. On Mars, freedom always starts with something that small." } }
+      ],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch4", "teaser": { "ko": "다음 — 외교", "en": "Next — Diplomacy" } }
+    }
+  ]
+}

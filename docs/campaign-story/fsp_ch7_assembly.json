@@ -1,0 +1,163 @@
+{
+  "questId": "fsp_campaign_ch7",
+  "campaignId": "fsp_route",
+  "chapterNumber": 7,
+  "title": { "ko": "의회", "en": "The Parliament" },
+  "location": { "id": "hellas_central_parliament", "displayNameKo": "Hellas Central 의회당" },
+  "environment": "civic_crisis",
+  "estimatedPlayTimeMinutes": 20,
+  "characters": ["player", "mikhail", "amara"],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "FSP 최초 의회. 화성 자유 정착민들이 처음으로 한 방에 앉았다. 누가 의장이 되느냐에 따라 FSP의 방향이 결정된다. 그리고 밖에선 포 소리가 났다.", "en": "The first FSP Parliament. Mars free settlers sat in one room for the first time. The direction of FSP would be decided by who became chair. Outside, there was the sound of cannon fire." } }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "composed", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "의장 후보는 네 명이에요. 나, 아마라, 량 웨이, 디에고 콜. 결선은 오늘 안에.", "en": "Four candidates for chair. Me, Amara, Liang Wei, Diego Cole. Final vote by end of day." } },
+        { "speaker": "amara", "emotion": "determined", "effect": "character_enter:amara:slide_right", "text": { "ko": "외부 위기가 진행 중이에요. 빨리 결정해야 해.", "en": "There's an external crisis ongoing. We need to decide fast." } }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "measured", "text": { "ko": "내 입장은 실용주의야. 생존이 이념보다 먼저야. 지금 당장 물이 있어야 하고, 경비가 있어야 해.", "en": "My position is pragmatism. Survival comes before ideology. Right now we need water, we need security." } },
+        { "speaker": "amara", "emotion": "passionate", "text": { "ko": "외교야. 총이 아니라 말로 해결하는 게 우리 방식이어야 해요. 그렇지 않으면 우리가 MCC랑 뭐가 달라요?", "en": "Diplomacy. Solving things with words, not guns. That should be our way. Otherwise what makes us different from MCC?" } },
+        { "speaker": "player", "emotion": "thoughtful", "text": { "ko": "량 웨이는?", "en": "What about Liang Wei?" } },
+        { "speaker": "mikhail", "emotion": "wry", "text": { "ko": "이상주의자야. 하지만 틀린 말은 한 번도 안 했어.", "en": "An idealist. But never once said anything wrong." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "밖에서 폭발음. 회의장이 흔들렸다. 먼지가 천장에서 내려왔다. 아무도 자리를 뜨지 않았다.", "en": "Explosion outside. The chamber shook. Dust fell from the ceiling. Nobody left their seat." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "amara", "emotion": "urgent", "text": { "ko": "지금 투표하고 대응해야 해요. 의장 없이 긴급 대응 명령 못 내려.", "en": "Vote now and respond. Can't issue emergency commands without a chair." } },
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "동의해. 투표 시작하자.", "en": "Agreed. Let's vote." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mcc_briefing_room",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "누구를 FSP 첫 의장으로 지지하겠습니까?", "en": "Who do you support as FSP's first chair?" },
+      "choices": [
+        {
+          "id": "fsp_ch7_support_mikhail",
+          "text": { "ko": "Mikhail 지지.", "en": "Support Mikhail." },
+          "tone": "pragmatic",
+          "preview_hint": { "ko": "→ 실용 노선 확정, 아마라 -10", "en": "→ Pragmatic path confirmed, Amara -10" }
+        },
+        {
+          "id": "fsp_ch7_support_liang",
+          "text": { "ko": "Liang Wei 지지.", "en": "Support Liang Wei." },
+          "tone": "idealistic",
+          "preview_hint": { "ko": "→ Commons 확장, 전쟁 대응 느림", "en": "→ Commons expanded, slower war response" }
+        },
+        {
+          "id": "fsp_ch7_support_amara",
+          "text": { "ko": "Amara 지지.", "en": "Support Amara." },
+          "tone": "diplomatic",
+          "preview_hint": { "ko": "→ 외교 우선 노선, 미하일 -10", "en": "→ Diplomacy-first path, Mikhail -10" }
+        },
+        {
+          "id": "fsp_ch7_support_diego",
+          "text": { "ko": "Diego Cole 지지.", "en": "Support Diego Cole." },
+          "tone": "wildcard",
+          "preview_hint": { "ko": "→ 아웃사이더 루트 해금", "en": "→ Outsider route unlocked" }
+        },
+        {
+          "id": "fsp_ch7_run_for_chair",
+          "text": { "ko": "직접 의장 출마.", "en": "Run for chair yourself." },
+          "tone": "personal",
+          "preview_hint": { "ko": "→ 플레이어 리더십 루트, 모두 -5 / +5 혼재", "en": "→ Player leadership route, mixed reactions" }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "resolved", "text": { "ko": "결정됐어. 지금 나가서 싸우자.", "en": "It's decided. Now let's go out and fight." } },
+        { "speaker": "amara", "emotion": "resolved", "text": { "ko": "의회는 계속 열려 있어야 해요. 전쟁 중에도.", "en": "The parliament stays open. Even during the war." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "헬라스 의회 방어전", "en": "Hellas Parliament Defense" },
+      "subtitle": { "ko": "민주주의 첫날 — 전장에서", "en": "First Day of Democracy — In the Field" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "moved", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "의회당 방어 성공. 첫 번째 회기는 폐회되지 않았어.", "en": "Parliament hall defended. The first session didn't adjourn." } },
+        { "speaker": "amara", "emotion": "warm", "effect": "character_enter:amara:slide_right", "text": { "ko": "화성 역사에 오늘이 기록될 거예요.", "en": "Today will be written in Martian history." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "devastated", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "의회당 손실. 의원 다섯 명 부상.", "en": "Parliament hall lost. Five delegates wounded." } },
+        { "speaker": "amara", "emotion": "grim", "effect": "character_enter:amara:slide_right", "text": { "ko": "하지만 의회는 계속돼요. 건물이 아니니까.", "en": "But parliament continues. It isn't a building." } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "민주주의는 건물이 아니다. 화성에서 그것은 더욱 그랬다. 한 사람 한 사람이 동의하지 않으면서도 같은 방향을 향해 서 있을 때, 그것이 의회였다.", "en": "Democracy isn't a building. On Mars that was especially true. When people stood facing the same direction while disagreeing with each other — that was parliament." } }
+      ],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch8", "teaser": { "ko": "다음 — 가이아", "en": "Next — Gaia" } }
+    }
+  ]
+}

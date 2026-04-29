@@ -1,0 +1,242 @@
+{
+  "questId": "cv_campaign_ch5",
+  "campaignId": "cv_route",
+  "chapterNumber": 5,
+  "title": {
+    "ko": "케플러의 왕",
+    "en": "King of Kepler"
+  },
+  "location": {
+    "id": "kepler_crater_summit",
+    "displayNameKo": "Kepler 분화구 정상"
+  },
+  "environment": "three_way_standoff",
+  "estimatedPlayTimeMinutes": 18,
+  "characters": [
+    "player",
+    "butcher",
+    "cinder"
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "Kepler 분화구에 티타늄이 있었다.\n엄청난 양이었다.\nMCC도 알았다. FSP도 알았다. CV도 알았다.\n세 파벌이 동시에 움직였다.",
+            "en": "There was titanium in the Kepler crater.\nAn enormous amount.\nMCC knew. FSP knew. CV knew.\nAll three factions moved at once."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "decisive",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "우리가 먼저 도착했어. 우리 것이야.\n다른 두 파벌은 제압한다.",
+            "en": "We arrived first. It's ours.\nWe suppress the other two factions."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "concerned",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "MCC + FSP 연합이면 우리가 이길 수 없어.",
+            "en": "Against an MCC + FSP alliance, we can't win."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "cold",
+          "text": {
+            "ko": "연합하면 그때 생각해.",
+            "en": "When they ally, we think then."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "분화구 테두리에 세 파벌의 깃발이 보였다.\n바람이 없었다.\n깃발들도 움직이지 않았다.",
+            "en": "The flags of three factions were visible on the crater rim.\nThere was no wind.\nThe flags didn't move either."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "Kepler에서 어떤 전략을 취하겠습니까?",
+        "en": "What strategy do you take at Kepler?"
+      },
+      "choices": [
+        {
+          "id": "cv_ch5_full_force",
+          "text": {
+            "ko": "MCC와 FSP 모두 제압. CV 단독 통치.",
+            "en": "Suppress MCC and FSP both. CV rules alone."
+          },
+          "tone": "dominant",
+          "preview_hint": {
+            "ko": "→ CV +20, 양측 -20 각각, 전면전",
+            "en": "→ CV +20, both sides -20, total war"
+          }
+        },
+        {
+          "id": "cv_ch5_fsp_deal",
+          "text": {
+            "ko": "FSP와 분할 협상. MCC만 제압.",
+            "en": "Split deal with FSP. Suppress MCC only."
+          },
+          "tone": "alliance",
+          "preview_hint": {
+            "ko": "→ CV +10, FSP +5, MCC -15",
+            "en": "→ CV +10, FSP +5, MCC -15"
+          }
+        },
+        {
+          "id": "cv_ch5_three_way",
+          "text": {
+            "ko": "삼각 분할 제안. 신더 방식.",
+            "en": "Propose three-way split. Cinder's way."
+          },
+          "tone": "diplomatic",
+          "preview_hint": {
+            "ko": "→ CV +5, 모두 +5, 신더 입지 강화",
+            "en": "→ CV +5, all factions +5, Cinder's standing grows"
+          }
+        },
+        {
+          "id": "cv_ch5_withdraw",
+          "text": {
+            "ko": "철수. 피가 너무 많다.",
+            "en": "Withdraw. Too much blood."
+          },
+          "tone": "retreat",
+          "preview_hint": {
+            "ko": "→ CV -10, 정육점 실망, 신더 루트 심화",
+            "en": "→ CV -10, Butcher disappointed, Cinder path deepens"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "Kepler가 우리 거냐 아니냐.\n그게 오늘의 결과야.",
+            "en": "Whether Kepler is ours or not.\nThat's today's result."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": {
+        "ko": "Kepler 분화구 쟁탈전",
+        "en": "Battle for Kepler Crater"
+      },
+      "subtitle": {
+        "ko": "세 파벌 동시 충돌",
+        "en": "Three-Faction Simultaneous Clash"
+      }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "Kepler는 CV야. 티타늄도.",
+            "en": "Kepler is CV's. The titanium too."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "tense",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "물러서야 해. 오늘은 아니야.",
+            "en": "We need to pull back. Not today."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "티타늄은 자원이었다.\n권력이었다. 식량이었다. 생존이었다.\n하지만 신더가 말했던 것도 기억났다.\n이기는 방법이 하나가 아닐 수 있다고.",
+            "en": "Titanium was a resource.\nPower. Food. Survival.\nBut Cinder's words stayed.\nThere might be more than one way to win."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch6",
+        "teaser": {
+          "ko": "다음 — 30년",
+          "en": "Next — Thirty Years"
+        }
+      }
+    }
+  ]
+}

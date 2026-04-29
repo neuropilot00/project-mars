@@ -1,0 +1,459 @@
+{
+  "questId": "mcc_campaign_ch9",
+  "campaignId": "mcc_route",
+  "chapterNumber": 9,
+  "title": {
+    "ko": "화성의 밤",
+    "en": "Martian Night",
+    "ja": "火星の夜",
+    "zh": "火星之夜"
+  },
+  "location": {
+    "id": "mars_surface_night",
+    "displayName": {
+      "ko": "케플러 분화구 외곽 — 야간",
+      "en": "Kepler Crater Outskirts — Night"
+    }
+  },
+  "environment": "night_before_final",
+  "estimatedPlayTimeMinutes": 18,
+  "characters": ["player", "lifang", "hale", "mikhail"],
+
+  "scenes": [
+
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "화성의 밤은 지구와 다르다.\n하늘이 더 어둡고. 별이 더 많고. 외롭다.",
+            "en": "Night on Mars is different from Earth.\nDarker sky. More stars. Lonelier."
+          }
+        },
+        {
+          "text": {
+            "ko": "내일이면 모든 것이 결정된다.\nMCC의 행정권. FSP의 헌법. CV의 침묵.\n당신이 무슨 선택을 했든 — 내일 그 결과가 나온다.",
+            "en": "Tomorrow everything gets decided.\nMCC's authority. FSP's constitution. CV's silence.\nWhatever you chose — tomorrow the results come."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "당신은 분화구 외곽 유지 플랫폼에 있었다.\n아무도 없는 곳. 화성 지평선이 보이는 곳.\n포보스가 뜨고 있었다 — 화성의 첫 번째 달.\n빠르게. 너무 빠르게.",
+            "en": "You stood on an external maintenance platform at the crater's edge.\nNo one around. A place where you could see the Martian horizon.\nPhobos was rising — Mars's first moon.\nFast. Too fast."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "quiet",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "여기 있을 줄 알았어요.",
+            "en": "I thought you'd be here."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "항상 찾아내네요.",
+            "en": "You always find me."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "그게 제 일이었으니까요. 처음에는.",
+            "en": "That was my job. At first."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "conflicted",
+          "text": {
+            "ko": "당신한테 처음부터 말했어야 했어요. 천 회장의 계획을.\n말하지 못한 건 — 두려웠기 때문이에요.",
+            "en": "I should have told you from the beginning. The Chairman's plan.\nThe reason I didn't — was fear."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "quiet",
+          "text": {
+            "ko": "무서운 게 뭐였어요.",
+            "en": "What were you afraid of."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "vulnerable",
+          "text": {
+            "ko": "당신이 — 그래도 같은 선택을 할까봐요.\n알고 나서도 여기 있는 것이 더 무서워요. 모르고 있는 것보다.",
+            "en": "That you'd — make the same choice anyway.\nKnowing everything and still being here is scarier. Than not knowing."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "포보스가 높이 올랐다.\n화성의 달은 지구 달과 달리 서쪽에서 뜬다.\n그리고 빠르게 움직인다. 밤 하늘을 가로질러.\n마치 도망치듯이.",
+            "en": "Phobos rose high.\nUnlike Earth's moon, Mars's moon rises in the west.\nAnd moves fast. Crossing the night sky.\nAs if running."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "mars_sunset",
+      "bgm": "ambient_chapel",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "hale",
+          "emotion": "serene",
+          "effect": "character_enter:hale:slide_right",
+          "text": {
+            "ko": "두 분이 여기 있을 줄 알았어요.",
+            "en": "I thought you two would be here."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "surprised",
+          "text": {
+            "ko": "신부님은 — 어떻게 여기에.",
+            "en": "Father — how did you get here."
+          }
+        },
+        {
+          "speaker": "hale",
+          "emotion": "gentle",
+          "text": {
+            "ko": "30년 동안 사람들이 어디로 가는지 보다 보면 — 어디 있는지 알게 돼요.",
+            "en": "Thirty years of watching where people go — you learn where they are."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "mars_sunset",
+      "bgm": "ambient_chapel",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "hale",
+          "emotion": "grave",
+          "text": {
+            "ko": "내일 일어날 일이 무엇이든 — 당신이 한 선택들은 당신 것이에요.\n천 회장의 계획도, 미하일의 헌법도 — 그게 아니라 당신이 한 결정들.",
+            "en": "Whatever happens tomorrow — the choices you made are yours.\nNot the Chairman's plan, not Mikhail's constitution — your decisions."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "troubled",
+          "text": {
+            "ko": "옳은 결정인지 모르겠어요.",
+            "en": "I don't know if they were right."
+          }
+        },
+        {
+          "speaker": "hale",
+          "emotion": "wise",
+          "text": {
+            "ko": "화성에서 옳은 결정은 없어요. 덜 나쁜 결정이 있을 뿐이에요.\n그걸 아는 사람이 결정해야 하는 거예요.",
+            "en": "There are no right decisions on Mars. Only less wrong ones.\nThe person who knows that is the one who should be deciding."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "포보스 식이 시작됐다.\n달이 화성의 그림자로 천천히 들어갔다.\n잠깐 — 완전한 어둠이 됐다.",
+            "en": "Phobos eclipse began.\nThe moon slowly entered Mars's shadow.\nFor a moment — complete darkness."
+          }
+        },
+        {
+          "text": {
+            "ko": "그리고 다시 나타났다. 더 작아 보였지만.\n달은 사라지지 않았다.",
+            "en": "Then it appeared again. It looked smaller.\nBut it hadn't disappeared."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "dialogue",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "tired",
+          "effect": "character_enter:mikhail:slide_right",
+          "text": {
+            "ko": "포보스 식이군요. 여기서 보기 좋은 자리예요.",
+            "en": "Phobos eclipse. A good spot to see it from."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "어르신도 잠을 못 자셨어요.",
+            "en": "You couldn't sleep either, Elder."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "wry",
+          "text": {
+            "ko": "20년째 못 자는 것 같아요. 화성 오고 나서부터.",
+            "en": "I think I've been unable to sleep for twenty years. Since I came to Mars."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10",
+      "type": "dialogue",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "gentle",
+          "text": {
+            "ko": "당신이 붉은 의회에서 한 말 — 기억해요. 어떤 말이든.\n그 말은 — 이 행성에 남을 거예요. 오래.",
+            "en": "What you said at the Red Parliament — I remember. Whatever it was.\nThose words — will stay on this planet. For a long time."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "sad",
+          "text": {
+            "ko": "화성은 기억이 짧은 것 같지만 — 실제로는 길어요.\n바위가 다 기억하고 있어요.",
+            "en": "Mars seems to have a short memory — but actually it's long.\nThe rocks remember everything."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "네 명이 플랫폼에 서 있었다.\n아무도 말하지 않았다.\n포보스가 지평선 너머로 사라지기 직전.\n당신은 그 달을 오래 봤다.",
+            "en": "Four people stood on the platform.\nNo one spoke.\nJust before Phobos disappeared beyond the horizon.\nYou watched that moon for a long time."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s12",
+      "type": "choice",
+      "background": "mars_sunset",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "내일 결전을 앞두고. 마지막 밤에 무엇을 준비하는가.",
+        "en": "The night before the final confrontation. What do you prepare for in this last night."
+      },
+      "choices": [
+        {
+          "id": "ch9_military",
+          "text": {
+            "ko": "작전 준비. 내일 어떤 결과가 나와도 대응할 수 있게.",
+            "en": "Prepare operationally. Be ready for whatever outcome comes tomorrow."
+          },
+          "tone": "tactical",
+          "preview_hint": {
+            "ko": "→ 전투 준비도 상승 · 전략 태그 획득",
+            "en": "→ Combat readiness boost · Tactician tag"
+          }
+        },
+        {
+          "id": "ch9_alliance",
+          "text": {
+            "ko": "마지막 접촉. 미하일이나 정육점에게 조용히 연락한다.",
+            "en": "Final contact. Quietly reach out to Mikhail or Butcher."
+          },
+          "tone": "diplomatic",
+          "preview_hint": {
+            "ko": "→ 해당 파벌 호감도 +3 · 비공식 채널 유지",
+            "en": "→ Faction favor +3 · Unofficial channel maintained"
+          }
+        },
+        {
+          "id": "ch9_rest",
+          "text": {
+            "ko": "쉰다. 내일을 위해 머리를 비운다.",
+            "en": "Rest. Clear your head for tomorrow."
+          },
+          "tone": "calm",
+          "preview_hint": {
+            "ko": "→ 컨디션 회복 · 냉정함 태그 획득",
+            "en": "→ Condition restored · Composure tag"
+          }
+        },
+        {
+          "id": "ch9_write",
+          "text": {
+            "ko": "기록을 남긴다. 내일 무슨 일이 생겨도 당신이 본 것들이 사라지지 않도록.",
+            "en": "Leave a record. So what you've seen doesn't disappear, whatever happens tomorrow."
+          },
+          "tone": "reflective",
+          "preview_hint": {
+            "ko": "→ 헤일의 신뢰 최고 · 증언자 태그 획득",
+            "en": "→ Hale's trust maximized · Witness tag earned"
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13",
+      "type": "battle_transition",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "fade_slow",
+      "title": {
+        "ko": "화성의 밤 — 결전 준비",
+        "en": "Martian Night — Final Preparations"
+      },
+      "subtitle": {
+        "ko": "내일 — 모든 것이 결정된다",
+        "en": "Tomorrow — Everything Is Decided"
+      }
+    },
+
+    {
+      "id": "s14",
+      "type": "result",
+      "success_scene": "s15_success",
+      "failure_scene": "s15_fail"
+    },
+
+    {
+      "id": "s15_success",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "lines": [
+        {
+          "text": {
+            "ko": "밤이 지나갔다.\n화성의 새벽은 붉다 — 아침도 저녁처럼 보인다.\n당신은 준비가 됐다.",
+            "en": "The night passed.\nMars's dawn is red — morning looks like evening.\nYou were ready."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s15_fail",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "text": {
+            "ko": "밤이 짧았다. 너무 짧았다.\n새벽이 오기 전에 — MCC 보안 경보가 울렸다.\n무언가 예상보다 빨리 시작됐다.",
+            "en": "The night was short. Too short.\nBefore dawn — MCC security alarms went off.\nSomething had started sooner than expected."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s16",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_night_mars",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "리팡이 마지막으로 말했다.\n별들을 보면서. 당신을 보지 않고.\n당신이 어떤 결정을 하든 — 내가 틀렸다고 생각하지 않을게요.",
+            "en": "Lifang said one last thing.\nLooking at the stars. Not at you.\nWhatever decision you make — I won't think you were wrong."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 말이 뭔지 생각하다가 — 새벽이 왔다.",
+            "en": "While you thought about what that meant — dawn came."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch10",
+        "teaser": {
+          "ko": "다음 이야기 — 선택",
+          "en": "Next — The Choice"
+        }
+      }
+    }
+
+  ]
+}

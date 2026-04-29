@@ -1,0 +1,165 @@
+{
+  "questId": "fsp_campaign_ch5",
+  "campaignId": "fsp_route",
+  "chapterNumber": 5,
+  "title": { "ko": "Kepler 공유지", "en": "The Kepler Commons" },
+  "location": { "id": "kepler_crater_summit", "displayNameKo": "Kepler 분화구 정상부" },
+  "environment": "low_oxygen_crisis",
+  "estimatedPlayTimeMinutes": 20,
+  "characters": ["player", "mikhail", "amara", "hale"],
+  "scenes": [
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "Kepler 분화구. 세 파벌이 동시에 원하는 땅. 그래서 지금 세 파벌이 한 방에 있다. 산소 농도 18%. 모두가 그것을 알고 있었다.", "en": "Kepler Crater. Land that three factions wanted simultaneously. Which was why all three factions were in the same room. Oxygen at eighteen percent. Everyone knew." } }
+      ]
+    },
+    {
+      "id": "s02",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "serious", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "량 웨이가 Commons 제안을 들고 왔어요. 세 파벌 공동 관리. 배타적 소유 금지.", "en": "Liang Wei came with the Commons proposal. Joint management by all three factions. No exclusive ownership." } },
+        { "speaker": "amara", "emotion": "thoughtful", "effect": "character_enter:amara:slide_right", "text": { "ko": "이상적이에요. MCC가 받을 리 없어요.", "en": "It's idealistic. MCC will never accept it." } },
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "그래서 우리가 여기 있는 거야.", "en": "Which is why we're here." } }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "cold", "effect": "character_enter:hale:slide_right", "text": { "ko": "산소 농도 18%. 회담이 두 시간 넘으면 산소가 먼저 끝나요. 누가 더 버티나 보는 거야?", "en": "Oxygen's at eighteen. If the meeting goes over two hours, the oxygen runs out first. Is this who blinks last?" } },
+        { "speaker": "amara", "emotion": "sharp", "text": { "ko": "그래서 당신이 먼저 나갈 수 있어요.", "en": "So you can leave first." } },
+        { "speaker": "hale", "emotion": "sardonic", "text": { "ko": "재밌는 제안이네요.", "en": "Interesting proposal." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "미하일이 물을 마셨다. 느리게. 아무도 먼저 말하려 하지 않았다.", "en": "Mikhail drank his water. Slowly. Nobody wanted to speak first." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "measured", "text": { "ko": "Roth 데이터가 있어요. Helion 광물이 화성 자생이 아닐 수 있다는 증거. MCC가 그걸 알고 있어요.", "en": "We have the Roth data. Evidence that Helion mineral may not be Martian in origin. MCC knows." } },
+        { "speaker": "hale", "emotion": "surprised", "text": { "ko": "...", "en": "..." } },
+        { "speaker": "amara", "emotion": "cautious", "text": { "ko": "그걸 지금 여기서 꺼내면 회담이 무너질 수 있어요.", "en": "Bringing that up here now could collapse the meeting." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "Kepler 회담에서 어떤 입장을 취하겠습니까?", "en": "What position do you take at the Kepler summit?" },
+      "choices": [
+        {
+          "id": "fsp_ch5_propose_commons",
+          "text": { "ko": "Liang의 Commons 제안 지지.", "en": "Support Liang's Commons proposal." },
+          "tone": "idealistic",
+          "preview_hint": { "ko": "→ 장기 공유지 루트 해금", "en": "→ Unlock long-term commons route" }
+        },
+        {
+          "id": "fsp_ch5_propose_fsp_arbitration",
+          "text": { "ko": "FSP 중립 중재자 제안.", "en": "Propose FSP as neutral arbitrator." },
+          "tone": "pragmatic",
+          "preview_hint": { "ko": "→ FSP 영향력 +, MCC 반발", "en": "→ FSP influence +, MCC pushback" }
+        },
+        {
+          "id": "fsp_ch5_propose_evidence_lever",
+          "text": { "ko": "Roth 데이터로 MCC 압박.", "en": "Use Roth data to pressure MCC." },
+          "tone": "aggressive",
+          "preview_hint": { "ko": "→ MCC 양보, 신더 충격, 위험한 전례", "en": "→ MCC concedes, Cinder shocked, dangerous precedent" }
+        },
+        {
+          "id": "fsp_ch5_force_combat",
+          "text": { "ko": "회담 결렬 + 전투.", "en": "Let the meeting collapse and fight." },
+          "tone": "militant",
+          "preview_hint": { "ko": "→ 최악의 결과 가능성, 아마라 -20", "en": "→ Worst outcome possible, Amara -20" }
+        },
+        {
+          "id": "fsp_ch5_propose_global_disclosure",
+          "text": { "ko": "외계 기원 즉시 공개.", "en": "Disclose the alien origin immediately." },
+          "tone": "radical",
+          "preview_hint": { "ko": "→ 모든 파벌 충격, 게임 체인저", "en": "→ All factions shocked, game changer" }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "calculating", "text": { "ko": "...예상보다 복잡하네요. 정육점이 이걸 알면 움직여요.", "en": "...More complicated than I expected. If Butcher hears this, he moves." } },
+        { "speaker": "amara", "emotion": "firm", "text": { "ko": "우리한테 시간이 얼마나 있죠?", "en": "How much time do we have?" } },
+        { "speaker": "hale", "emotion": "flat", "text": { "ko": "일주일. 아마도.", "en": "A week. Maybe." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "Kepler 분화구 방어전", "en": "Kepler Crater Defense" },
+      "subtitle": { "ko": "산소 18% — 타임리밋", "en": "Oxygen 18% — Time Limit" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "tired_but_satisfied", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "회담은 결론 없이 끝났어요. 하지만 아무도 안 죽었어.", "en": "The meeting ended without conclusion. But nobody died." } },
+        { "speaker": "amara", "emotion": "thoughtful", "effect": "character_enter:amara:slide_right", "text": { "ko": "화성에서 그게 성공이에요.", "en": "On Mars, that counts as success." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "grim", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "Kepler는 전장이 됐어요.", "en": "Kepler is a battlefield now." } },
+        { "speaker": "amara", "emotion": "devastated", "effect": "character_enter:amara:slide_right", "text": { "ko": "이건 막을 수 있었어요.", "en": "This could have been prevented." } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "공유지란 아무도 소유하지 않는 땅이다. 화성에서 그런 땅이 존재할 수 있는가. 그것을 믿는 사람들이 여기 있었다. 그것으로 충분할 수 있었다.", "en": "A commons is land nobody owns. Whether such land could exist on Mars. There were people here who believed it could. That might be enough." } }
+      ],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch6", "teaser": { "ko": "다음 — 두더지", "en": "Next — The Mole" } }
+    }
+  ]
+}
