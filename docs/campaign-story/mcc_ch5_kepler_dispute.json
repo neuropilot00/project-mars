@@ -2,49 +2,261 @@
   "questId": "mcc_campaign_ch5",
   "campaignId": "mcc_route",
   "chapterNumber": 5,
-  "title": { "ko": "내부 고발자", "en": "Whistleblower" },
-  "location": { "id": "hellas_archive_sublevel", "displayNameKo": "헬라스 센트럴 아카이브 지하" },
+  "title": {
+    "ko": "내부 고발자",
+    "en": "Whistleblower"
+  },
+  "location": {
+    "id": "hellas_archive_sublevel",
+    "displayNameKo": "헬라스 센트럴 아카이브 지하"
+  },
   "environment": "corporate_underground",
   "estimatedPlayTimeMinutes": 15,
-  "characters": ["player", "miner_anon", "lifang"],
+  "characters": [
+    "player",
+    "miner_anon",
+    "lifang"
+  ],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "mcc_archive_sublevel", "bgm": "mcc_ambient_low", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "MCC의 아카이브는 지하 4층이었다. 엘리베이터가 없었다. 계단이었다. MCC는 엘리베이터가 없는 공간을 좋아했다. 계단은 사람을 느리게 만들었다. 느린 사람은 생각할 시간이 있었다. 생각하는 사람은 두려워졌다. 두려운 사람은 입을 다물었다. 그것이 계단의 목적이었다.", "en": "MCC's archive was on the fourth sublevel. No elevator. Stairs. MCC favored spaces without elevators. Stairs made people slow. Slow people had time to think. People who thought became afraid. Afraid people kept quiet. That was the purpose of stairs." }}] },
-    { "id": "s02", "type": "narration", "background": "mcc_archive_sublevel", "bgm": "mcc_ambient_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "메모가 왔다. 발신인이 없었다. 내용은 짧았다. 지하 4층. 오후 3시. 혼자. 기억하는 것만 가져오라. 메모는 그것이 전부였다. 메모를 지웠다. 그러나 기억은 지우지 않았다. 기억은 지울 수 없었다.", "en": "A message arrived. No sender. The content was short. Sublevel 4. Three in the afternoon. Alone. Bring only what you remember. That was all the message said. The message was deleted. But the memory wasn't deleted. Memory couldn't be deleted." }}] },
-    { "id": "s03", "type": "narration", "background": "mcc_archive_sublevel", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "그가 거기 있었다. 사십 대였다. 손이 검었다. 광석 분진. 씻어도 지워지지 않는 것이었다. 눈 주위가 움푹했다. 잠을 못 잔 사람의 얼굴이 아니었다. 잠을 자본 적이 없는 사람의 얼굴이었다.", "en": "He was there. Forties. Hands black. Ore dust. The kind that wouldn't wash out. Hollow around the eyes. Not the face of someone who hadn't slept. The face of someone who had never known sleep." }}] },
-    { "id": "s04", "type": "dialogue", "background": "mcc_archive_sublevel", "bgm": "tension_low", "transition": "cut",
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "mcc_ambient_low",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "miner_anon", "emotion": "fearful", "effect": "character_enter:miner_anon:slide_right", "text": { "ko": "시간이 없어요. 듣기만 해요.", "en": "No time. Just listen." }},
-        { "speaker": "miner_anon", "emotion": "tense", "text": { "ko": "7구역 세 명은 시작이에요. 제가 확인한 것만 17건이에요. 2009년부터요. MCC 안전 감사 결과가 전부 조작됐어요. 사망을 사고로. 사고를 정상으로. 정상을 우수로.", "en": "The three in Sector 7 were just the start. What I've confirmed alone is seventeen cases. Since 2009. Every MCC safety audit has been falsified. Deaths become accidents. Accidents become normal. Normal becomes excellent." }},
-        { "speaker": "miner_anon", "emotion": "desperate", "text": { "ko": "칩이 있어요. 원본 데이터예요. 사본이 없어요. 만들 시간이 없었어요. 이게 전부예요. 이것을 받으면 당신도 위험해져요. 그것을 알고 왔을 거예요.", "en": "There's a chip. Original data. No copies. No time to make them. This is everything. If you take this you'll be in danger too. You knew that when you came." }}
+        {
+          "text": {
+            "ko": "MCC의 아카이브는 지하 4층이었다. 엘리베이터가 없었다. 계단이었다. MCC는 엘리베이터가 없는 공간을 좋아했다. 계단은 사람을 느리게 만들었다. 느린 사람은 생각할 시간이 있었다. 생각하는 사람은 두려워졌다. 두려운 사람은 입을 다물었다. 그것이 계단의 목적이었다.",
+            "en": "MCC's archive was on the fourth sublevel. No elevator. Stairs. MCC favored spaces without elevators. Stairs made people slow. Slow people had time to think. People who thought became afraid. Afraid people kept quiet. That was the purpose of stairs."
+          }
+        }
       ]
     },
-    { "id": "s05", "type": "narration", "background": "mcc_archive_sublevel", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "칩이 손 위에 놓였다. 작았다. 손가락 한 마디만 했다. 17건. 2009년부터 화성의 죽음들이 그 안에 있었다. 그는 떨고 있었다. 칩을 내민 손이. 그러나 눈은 떨리지 않았다. 오래 결심한 사람의 눈이었다. 그것이 가장 무거운 종류의 눈이었다.", "en": "The chip lay in the palm. Small. A fingertip's length. Seventeen cases. The deaths of Mars since 2009 were inside it. He was trembling. The hand that held out the chip. But the eyes didn't tremble. The eyes of someone who had decided long ago. Those were the heaviest kind of eyes." }}] },
-    { "id": "s06", "type": "narration", "background": "mcc_archive_sublevel", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": { "ko": "계단 위에서 소리가 났다. 발소리였다. MCC의 건물은 소리가 잘 울렸다. 계단은 특히 그랬다. 두 명이었다. 느리게 내려오고 있었다. 계단을 천천히 내려오는 사람들은 급하지 않은 사람들이었다. 급하지 않은 사람들이 더 위험했다.", "en": "A sound came from the stairs above. Footsteps. MCC's building carried sound well. The stairs especially. Two people. Descending slowly. People who descended slowly were not in a hurry. People not in a hurry were more dangerous." }}] },
-    { "id": "s_choice", "type": "choice", "background": "mcc_archive_sublevel", "bgm": "choice_tension",
-      "prompt": { "ko": "칩이 손 안에 있다. 발소리가 가까워진다.", "en": "The chip is in your hand. The footsteps are getting closer." },
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "mcc_archive_sublevel",
+      "bgm": "mcc_ambient_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "메모가 왔다. 발신인이 없었다. 내용은 짧았다. 지하 4층. 오후 3시. 혼자. 기억하는 것만 가져오라. 메모는 그것이 전부였다. 메모를 지웠다. 그러나 기억은 지우지 않았다. 기억은 지울 수 없었다.",
+            "en": "A message arrived. No sender. The content was short. Sublevel 4. Three in the afternoon. Alone. Bring only what you remember. That was all the message said. The message was deleted. But the memory wasn't deleted. Memory couldn't be deleted."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "mcc_archive_sublevel",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "그가 거기 있었다. 사십 대였다. 손이 검었다. 광석 분진. 씻어도 지워지지 않는 것이었다. 눈 주위가 움푹했다. 잠을 못 잔 사람의 얼굴이 아니었다. 잠을 자본 적이 없는 사람의 얼굴이었다.",
+            "en": "He was there. Forties. Hands black. Ore dust. The kind that wouldn't wash out. Hollow around the eyes. Not the face of someone who hadn't slept. The face of someone who had never known sleep."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "mcc_archive_sublevel",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "miner_anon",
+          "emotion": "fearful",
+          "effect": "character_enter:miner_anon:slide_right",
+          "text": {
+            "ko": "시간이 없어요. 듣기만 해요.",
+            "en": "No time. Just listen."
+          }
+        },
+        {
+          "speaker": "miner_anon",
+          "emotion": "tense",
+          "text": {
+            "ko": "7구역 세 명은 시작이에요. 제가 확인한 것만 17건이에요. 2009년부터요. MCC 안전 감사 결과가 전부 조작됐어요. 사망을 사고로. 사고를 정상으로. 정상을 우수로.",
+            "en": "The three in Sector 7 were just the start. What I've confirmed alone is seventeen cases. Since 2009. Every MCC safety audit has been falsified. Deaths become accidents. Accidents become normal. Normal becomes excellent."
+          }
+        },
+        {
+          "speaker": "miner_anon",
+          "emotion": "desperate",
+          "text": {
+            "ko": "칩이 있어요. 원본 데이터예요. 사본이 없어요. 만들 시간이 없었어요. 이게 전부예요. 이것을 받으면 당신도 위험해져요. 그것을 알고 왔을 거예요.",
+            "en": "There's a chip. Original data. No copies. No time to make them. This is everything. If you take this you'll be in danger too. You knew that when you came."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "kepler_crater_dawn",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "칩이 손 위에 놓였다. 작았다. 손가락 한 마디만 했다. 17건. 2009년부터 화성의 죽음들이 그 안에 있었다. 그는 떨고 있었다. 칩을 내민 손이. 그러나 눈은 떨리지 않았다. 오래 결심한 사람의 눈이었다. 그것이 가장 무거운 종류의 눈이었다.",
+            "en": "The chip lay in the palm. Small. A fingertip's length. Seventeen cases. The deaths of Mars since 2009 were inside it. He was trembling. The hand that held out the chip. But the eyes didn't tremble. The eyes of someone who had decided long ago. Those were the heaviest kind of eyes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "mcc_archive_sublevel",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "계단 위에서 소리가 났다. 발소리였다. MCC의 건물은 소리가 잘 울렸다. 계단은 특히 그랬다. 두 명이었다. 느리게 내려오고 있었다. 계단을 천천히 내려오는 사람들은 급하지 않은 사람들이었다. 급하지 않은 사람들이 더 위험했다.",
+            "en": "A sound came from the stairs above. Footsteps. MCC's building carried sound well. The stairs especially. Two people. Descending slowly. People who descended slowly were not in a hurry. People not in a hurry were more dangerous."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mcc_archive_sublevel",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "칩이 손 안에 있다. 발소리가 가까워진다.",
+        "en": "The chip is in your hand. The footsteps are getting closer."
+      },
       "choices": [
-        { "id": "mcc_ch5_secure", "text": { "ko": "칩을 확보하고 그를 데리고 나간다.", "en": "Secure the chip and get him out." }, "tone": "protective", "preview_hint": { "ko": "→ 광부 보호, 증거 확보, MCC 충돌", "en": "→ Miner protected, evidence secured, MCC conflict" }},
-        { "id": "mcc_ch5_destroy", "text": { "ko": "칩을 파괴한다.", "en": "Destroy the chip." }, "tone": "corporate", "preview_hint": { "ko": "→ MCC 신뢰 유지, 17명의 죽음은 계속 묻힌다", "en": "→ MCC trust maintained, 17 deaths stay buried" }},
-        { "id": "mcc_ch5_chen", "text": { "ko": "Chen Weiss에게 직접 가져간다.", "en": "Bring it directly to Chen Weiss." }, "tone": "calculating", "preview_hint": { "ko": "→ Chen이 당신을 다시 평가한다", "en": "→ Chen reassesses you" }},
-        { "id": "mcc_ch5_leak", "text": { "ko": "FSP 채널로 유출한다.", "en": "Leak it through FSP channels." }, "tone": "subversive", "preview_hint": { "ko": "→ FSP 루트 씨앗, MCC 관계 위기", "en": "→ FSP route seed planted, MCC relationship crisis" }}
+        {
+          "id": "mcc_ch5_secure",
+          "text": {
+            "ko": "칩을 확보하고 그를 데리고 나간다.",
+            "en": "Secure the chip and get him out."
+          },
+          "tone": "protective",
+          "preview_hint": {
+            "ko": "→ 광부 보호, 증거 확보, MCC 충돌",
+            "en": "→ Miner protected, evidence secured, MCC conflict"
+          }
+        },
+        {
+          "id": "mcc_ch5_destroy",
+          "text": {
+            "ko": "칩을 파괴한다.",
+            "en": "Destroy the chip."
+          },
+          "tone": "corporate",
+          "preview_hint": {
+            "ko": "→ MCC 신뢰 유지, 17명의 죽음은 계속 묻힌다",
+            "en": "→ MCC trust maintained, 17 deaths stay buried"
+          }
+        },
+        {
+          "id": "mcc_ch5_chen",
+          "text": {
+            "ko": "Chen Weiss에게 직접 가져간다.",
+            "en": "Bring it directly to Chen Weiss."
+          },
+          "tone": "calculating",
+          "preview_hint": {
+            "ko": "→ Chen이 당신을 다시 평가한다",
+            "en": "→ Chen reassesses you"
+          }
+        },
+        {
+          "id": "mcc_ch5_leak",
+          "text": {
+            "ko": "FSP 채널로 유출한다.",
+            "en": "Leak it through FSP channels."
+          },
+          "tone": "subversive",
+          "preview_hint": {
+            "ko": "→ FSP 루트 씨앗, MCC 관계 위기",
+            "en": "→ FSP route seed planted, MCC relationship crisis"
+          }
+        }
       ]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "mcc_archive_sublevel", "bgm": "battle_theme_mcc", "transition": "fade_slow",
-      "title": { "ko": "아카이브 탈출", "en": "Archive Escape" }, "subtitle": { "ko": "헬라스 센트럴 지하 — 증거 보호", "en": "Hellas Central Sublevel — Evidence Protection" }
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "mcc_archive_sublevel",
+      "bgm": "battle_theme_mcc",
+      "transition": "fade_slow",
+      "title": {
+        "ko": "아카이브 탈출",
+        "en": "Archive Escape"
+      },
+      "subtitle": {
+        "ko": "헬라스 센트럴 지하 — 증거 보호",
+        "en": "Hellas Central Sublevel — Evidence Protection"
+      }
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "narration", "background": "hellas_central_exterior", "bgm": "victory_calm",
-      "lines": [{ "text": { "ko": "밖이었다. 화성의 공기가 마스크 안으로 들어왔다. 광부는 다른 방향으로 걸어갔다. 이름을 묻지 않았다. 그것이 옳았다. 이름은 보호가 되지 않았다. 칩이 있었다. 작았다. 화성의 역사가 손 안에 있었다. 공식적으로는 없는 역사가.", "en": "Outside. Martian air came through the mask. The miner walked a different direction. His name wasn't asked. That was right. Names weren't protection. The chip was there. Small. The history of Mars was in the hand. The history that officially didn't exist." }}] },
-    { "id": "s_fail", "type": "narration", "background": "mcc_archive_sublevel", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "칩이 없었다. 광부도 없었다. MCC 경비가 계단을 채웠다. 지하 4층. 발소리가 잘 울리는 곳. 2009년부터의 죽음들은 계속 지하에 있었다.", "en": "No chip. No miner. MCC security filled the stairs. Sublevel 4. A place where footsteps carried well. The deaths since 2009 remained underground." }}] },
-    { "id": "s_ending", "type": "ending", "background": "hellas_central_exterior", "bgm": "mcc_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "Li Fang이 보고서를 기다렸다. 그것이 그의 방식이었다. 그에게 무엇을 말할 것인지는 이미 정해져 있었다. 아직 결정된 것은 무엇을 말하지 않을 것인지였다. 그 두 가지의 차이는 컸다. 화성에서는 항상 컸다.", "en": "Li Fang was waiting for the report. That was his way. What to tell him had already been decided. What remained undecided was what not to say. The difference between the two was large. On Mars it always was." }}],
-      "next_chapter_preview": { "questId": "mcc_campaign_ch6", "teaser": { "ko": "다음 — 복수", "en": "Next — Vendetta" }}
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "narration",
+      "background": "kepler_crater_edge_dusk",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "text": {
+            "ko": "밖이었다. 화성의 공기가 마스크 안으로 들어왔다. 광부는 다른 방향으로 걸어갔다. 이름을 묻지 않았다. 그것이 옳았다. 이름은 보호가 되지 않았다. 칩이 있었다. 작았다. 화성의 역사가 손 안에 있었다. 공식적으로는 없는 역사가.",
+            "en": "Outside. Martian air came through the mask. The miner walked a different direction. His name wasn't asked. That was right. Names weren't protection. The chip was there. Small. The history of Mars was in the hand. The history that officially didn't exist."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "narration",
+      "background": "mcc_archive_sublevel",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "text": {
+            "ko": "칩이 없었다. 광부도 없었다. MCC 경비가 계단을 채웠다. 지하 4층. 발소리가 잘 울리는 곳. 2009년부터의 죽음들은 계속 지하에 있었다.",
+            "en": "No chip. No miner. MCC security filled the stairs. Sublevel 4. A place where footsteps carried well. The deaths since 2009 remained underground."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "kepler_crater_edge",
+      "bgm": "mcc_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "Li Fang이 보고서를 기다렸다. 그것이 그의 방식이었다. 그에게 무엇을 말할 것인지는 이미 정해져 있었다. 아직 결정된 것은 무엇을 말하지 않을 것인지였다. 그 두 가지의 차이는 컸다. 화성에서는 항상 컸다.",
+            "en": "Li Fang was waiting for the report. That was his way. What to tell him had already been decided. What remained undecided was what not to say. The difference between the two was large. On Mars it always was."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch6",
+        "teaser": {
+          "ko": "다음 — 복수",
+          "en": "Next — Vendetta"
+        }
+      }
     }
   ]
 }

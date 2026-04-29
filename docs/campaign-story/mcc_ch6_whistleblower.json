@@ -2,49 +2,261 @@
   "questId": "mcc_campaign_ch6",
   "campaignId": "mcc_route",
   "chapterNumber": 6,
-  "title": { "ko": "복수", "en": "Vendetta" },
-  "location": { "id": "hellas_labor_district", "displayNameKo": "헬라스 노동자 지구" },
+  "title": {
+    "ko": "복수",
+    "en": "Vendetta"
+  },
+  "location": {
+    "id": "hellas_labor_district",
+    "displayNameKo": "헬라스 노동자 지구"
+  },
   "environment": "urban_dust_night",
   "estimatedPlayTimeMinutes": 15,
-  "characters": ["player", "chen", "lifang"],
+  "characters": [
+    "player",
+    "chen",
+    "lifang"
+  ],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "mcc_executive_floor", "bgm": "mcc_ambient_warm", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "Chen Weiss가 보고서를 읽었다. 차를 들고. 마시지 않고. 창밖에 헬라스 노동자 지구가 보였다. MCC가 지은 구역이었다. MCC를 위해 사는 사람들의 구역이었다. 창은 두꺼웠다. 소리가 들어오지 않았다. 그것이 의도된 것이었다.", "en": "Chen Weiss read the report. Holding her tea. Not drinking it. Outside the window was the Hellas labor district. A sector MCC built. A sector of people who lived for MCC. The window was thick. No sound came through. That was intentional." }}] },
-    { "id": "s02", "type": "narration", "background": "mcc_executive_floor", "bgm": "mcc_ambient_warm", "transition": "cut",
-      "lines": [{ "text": { "ko": "정보가 새어나갔다. MCC는 그것을 알았다. 어디서 나왔는지도 알았다. 누가 도왔는지도. MCC는 오래 기억했다. 화성에서 오래 기억하는 조직은 하나뿐이었다. 그것이 MCC의 실질적인 권력이었다.", "en": "Information had leaked. MCC knew it. They knew where it came from. And who helped. MCC had a long memory. On Mars there was only one organization with a long memory. That was MCC's real power." }}] },
-    { "id": "s03", "type": "dialogue", "background": "mcc_executive_floor", "bgm": "tension_low", "transition": "cut",
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "chen", "emotion": "calm", "effect": "character_enter:chen:slide_left", "text": { "ko": "노동자 지구 C-7 블록이에요. FSP 연락망이 그곳에 있어요.", "en": "Labor district block C-7. The FSP contact network operates from there." }},
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "MCC는 그것을 알고 있었어요. 오래전부터. 오늘 밤 그 블록의 운영 허가가 정지돼요.", "en": "MCC has known that. For a long time. Tonight that block's operating permit is suspended." }},
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "당신에게 할 일이 있어요. 구역 내 광부 데이터베이스를 확보하세요. 그 전에 FSP가 빼내지 못하게.", "en": "There's work for you. Secure the miner database in that sector. Before FSP extracts it." }}
+        {
+          "text": {
+            "ko": "Chen Weiss가 보고서를 읽었다. 차를 들고. 마시지 않고. 창밖에 헬라스 노동자 지구가 보였다. MCC가 지은 구역이었다. MCC를 위해 사는 사람들의 구역이었다. 창은 두꺼웠다. 소리가 들어오지 않았다. 그것이 의도된 것이었다.",
+            "en": "Chen Weiss read the report. Holding her tea. Not drinking it. Outside the window was the Hellas labor district. A sector MCC built. A sector of people who lived for MCC. The window was thick. No sound came through. That was intentional."
+          }
+        }
       ]
     },
-    { "id": "s04", "type": "narration", "background": "hellas_labor_district_night", "bgm": "tension_medium", "transition": "fade_medium",
-      "lines": [{ "text": { "ko": "C-7 블록이었다. 밤이었다. 화성의 밤은 길었다. 골목에 사람들이 있었다. 아이들이었다. 광부의 아이들이었다. 마스크를 쓰고 있었다. 골목에서 마스크를 쓰는 아이들. 그것이 화성의 아이들이었다.", "en": "Block C-7. Night. The Martian night was long. People were in the alleys. Children. Miners' children. Wearing masks. Children wearing masks in alleys. That was what children on Mars were." }}] },
-    { "id": "s05", "type": "narration", "background": "hellas_labor_district_night", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": { "ko": "벽에 이름이 적혀 있었다. 분필이었다. Kim Yong-jin. 그 아래 다른 이름들. 여러 개였다. FSP 노동자 지구에서 죽은 사람들의 이름이 아니었다. MCC 광산에서 죽은 사람들의 이름이었다. 골목 아이들이 적은 것이었다.", "en": "Names were written on the wall. Chalk. Kim Yong-jin. More names below. Several. Not the names of people who died in FSP labor districts. The names of people who died in MCC mines. Written by the alley children." }}] },
-    { "id": "s06", "type": "narration", "background": "hellas_labor_district_night", "bgm": "tension_high", "transition": "cut",
-      "lines": [{ "text": { "ko": "낡은 MCC 서류에서 이름을 봤다. Cinder Grace. 전직 MCC 기계 기술자. 3년 전 계약 해지. 사유: 직무 위반. 현 소속: 불명. 사진이 있었다. 눈이 지금도 기억될 것 같은 사람이었다. 화성에서 그런 눈을 가진 사람은 어딘가 다른 곳으로 갔다.", "en": "A name appeared in an old MCC document. Cinder Grace. Former MCC mechanical engineer. Contract terminated three years ago. Reason: conduct violation. Current affiliation: unknown. There was a photo. The kind of person whose eyes you'd still remember. People on Mars with eyes like that had gone somewhere else." }}] },
-    { "id": "s_choice", "type": "choice", "background": "hellas_labor_district_night", "bgm": "choice_tension",
-      "prompt": { "ko": "데이터베이스 서버가 앞에 있다. C-7 블록의 아이들이 골목에서 보고 있다.", "en": "The database server is in front of you. The children of block C-7 are watching from the alley." },
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "정보가 새어나갔다. MCC는 그것을 알았다. 어디서 나왔는지도 알았다. 누가 도왔는지도. MCC는 오래 기억했다. 화성에서 오래 기억하는 조직은 하나뿐이었다. 그것이 MCC의 실질적인 권력이었다.",
+            "en": "Information had leaked. MCC knew it. They knew where it came from. And who helped. MCC had a long memory. On Mars there was only one organization with a long memory. That was MCC's real power."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "mcc_archive_sublevel",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "노동자 지구 C-7 블록이에요. FSP 연락망이 그곳에 있어요.",
+            "en": "Labor district block C-7. The FSP contact network operates from there."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "MCC는 그것을 알고 있었어요. 오래전부터. 오늘 밤 그 블록의 운영 허가가 정지돼요.",
+            "en": "MCC has known that. For a long time. Tonight that block's operating permit is suspended."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "당신에게 할 일이 있어요. 구역 내 광부 데이터베이스를 확보하세요. 그 전에 FSP가 빼내지 못하게.",
+            "en": "There's work for you. Secure the miner database in that sector. Before FSP extracts it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "tension_medium",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "C-7 블록이었다. 밤이었다. 화성의 밤은 길었다. 골목에 사람들이 있었다. 아이들이었다. 광부의 아이들이었다. 마스크를 쓰고 있었다. 골목에서 마스크를 쓰는 아이들. 그것이 화성의 아이들이었다.",
+            "en": "Block C-7. Night. The Martian night was long. People were in the alleys. Children. Miners' children. Wearing masks. Children wearing masks in alleys. That was what children on Mars were."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "벽에 이름이 적혀 있었다. 분필이었다. Kim Yong-jin. 그 아래 다른 이름들. 여러 개였다. FSP 노동자 지구에서 죽은 사람들의 이름이 아니었다. MCC 광산에서 죽은 사람들의 이름이었다. 골목 아이들이 적은 것이었다.",
+            "en": "Names were written on the wall. Chalk. Kim Yong-jin. More names below. Several. Not the names of people who died in FSP labor districts. The names of people who died in MCC mines. Written by the alley children."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "낡은 MCC 서류에서 이름을 봤다. Cinder Grace. 전직 MCC 기계 기술자. 3년 전 계약 해지. 사유: 직무 위반. 현 소속: 불명. 사진이 있었다. 눈이 지금도 기억될 것 같은 사람이었다. 화성에서 그런 눈을 가진 사람은 어딘가 다른 곳으로 갔다.",
+            "en": "A name appeared in an old MCC document. Cinder Grace. Former MCC mechanical engineer. Contract terminated three years ago. Reason: conduct violation. Current affiliation: unknown. There was a photo. The kind of person whose eyes you'd still remember. People on Mars with eyes like that had gone somewhere else."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "hellas_labor_district_night",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "데이터베이스 서버가 앞에 있다. C-7 블록의 아이들이 골목에서 보고 있다.",
+        "en": "The database server is in front of you. The children of block C-7 are watching from the alley."
+      },
       "choices": [
-        { "id": "mcc_ch6_execute", "text": { "ko": "서버를 확보한다. 임무 완수.", "en": "Secure the server. Mission complete." }, "tone": "compliant", "preview_hint": { "ko": "→ Chen 신뢰 +, 블록 주민 피해", "en": "→ Chen trust +, block residents suffer" }},
-        { "id": "mcc_ch6_delay", "text": { "ko": "데이터를 지운다. 양쪽 모두 갖지 못하게.", "en": "Wipe the data. Nobody gets it." }, "tone": "neutral", "preview_hint": { "ko": "→ MCC 불만, FSP도 없음, 광부 보호", "en": "→ MCC dissatisfied, FSP blocked, miners protected" }},
-        { "id": "mcc_ch6_warn", "text": { "ko": "FSP 쪽에 먼저 경고한다.", "en": "Warn the FSP side first." }, "tone": "subversive", "preview_hint": { "ko": "→ FSP 신뢰 +, MCC에게 위험", "en": "→ FSP trust +, dangerous to MCC standing" }},
-        { "id": "mcc_ch6_report_chen", "text": { "ko": "Cinder Grace 파일을 Chen에게 보고한다.", "en": "Report the Cinder Grace file to Chen." }, "tone": "calculating", "preview_hint": { "ko": "→ Chen이 즉시 반응한다", "en": "→ Chen responds immediately" }}
+        {
+          "id": "mcc_ch6_execute",
+          "text": {
+            "ko": "서버를 확보한다. 임무 완수.",
+            "en": "Secure the server. Mission complete."
+          },
+          "tone": "compliant",
+          "preview_hint": {
+            "ko": "→ Chen 신뢰 +, 블록 주민 피해",
+            "en": "→ Chen trust +, block residents suffer"
+          }
+        },
+        {
+          "id": "mcc_ch6_delay",
+          "text": {
+            "ko": "데이터를 지운다. 양쪽 모두 갖지 못하게.",
+            "en": "Wipe the data. Nobody gets it."
+          },
+          "tone": "neutral",
+          "preview_hint": {
+            "ko": "→ MCC 불만, FSP도 없음, 광부 보호",
+            "en": "→ MCC dissatisfied, FSP blocked, miners protected"
+          }
+        },
+        {
+          "id": "mcc_ch6_warn",
+          "text": {
+            "ko": "FSP 쪽에 먼저 경고한다.",
+            "en": "Warn the FSP side first."
+          },
+          "tone": "subversive",
+          "preview_hint": {
+            "ko": "→ FSP 신뢰 +, MCC에게 위험",
+            "en": "→ FSP trust +, dangerous to MCC standing"
+          }
+        },
+        {
+          "id": "mcc_ch6_report_chen",
+          "text": {
+            "ko": "Cinder Grace 파일을 Chen에게 보고한다.",
+            "en": "Report the Cinder Grace file to Chen."
+          },
+          "tone": "calculating",
+          "preview_hint": {
+            "ko": "→ Chen이 즉시 반응한다",
+            "en": "→ Chen responds immediately"
+          }
+        }
       ]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "hellas_labor_district_night", "bgm": "battle_theme_mcc", "transition": "cut",
-      "title": { "ko": "C-7 블록", "en": "Block C-7" }, "subtitle": { "ko": "헬라스 노동자 지구 — 데이터 통제", "en": "Hellas Labor District — Data Control" }
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "hellas_labor_district_night",
+      "bgm": "battle_theme_mcc",
+      "transition": "cut",
+      "title": {
+        "ko": "C-7 블록",
+        "en": "Block C-7"
+      },
+      "subtitle": {
+        "ko": "헬라스 노동자 지구 — 데이터 통제",
+        "en": "Hellas Labor District — Data Control"
+      }
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "narration", "background": "mcc_executive_floor", "bgm": "victory_calm",
-      "lines": [{ "text": { "ko": "Chen이 보고서를 받았다. 차를 들고 있었다. 마시지 않았다. 창밖 C-7 블록의 불이 꺼진 것을 보았다. MCC의 밤이었다. 25도 라운지에서 보면 모든 것이 작았다. 작은 것들이 꺼지는 것은 더 작아 보였다.", "en": "Chen received the report. She was holding her tea. Not drinking. Through the window the lights of block C-7 had gone dark. It was MCC's night. From the 25-Degree Lounge everything looked small. Small things going dark looked even smaller." }}] },
-    { "id": "s_fail", "type": "narration", "background": "hellas_labor_district_night", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "서버가 없었다. FSP가 먼저였다. 골목에서 아이들이 봤다. 그들은 어느 쪽이 졌는지 알았다. 화성의 아이들은 그런 것을 빨리 배웠다.", "en": "No server. FSP was first. The children watched from the alley. They knew which side had lost. Children on Mars learned such things quickly." }}] },
-    { "id": "s_ending", "type": "ending", "background": "hellas_labor_district_night", "bgm": "ambient_melancholy", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "C-7 블록의 분필 이름들은 아침 바람에도 지워지지 않을 것이었다. 분필은 약했다. 그러나 화성의 바람이 아무리 강해도 이미 기억된 이름은 지울 수 없었다. Kim Yong-jin. 그 아래 이름들. 그 아래 아직 쓰이지 않은 이름들.", "en": "The chalk names of block C-7 would not be erased by the morning wind. Chalk was weak. But no matter how strong the Martian wind, it could not erase names that had already been remembered. Kim Yong-jin. The names below. The names below that, not yet written." }}],
-      "next_chapter_preview": { "questId": "mcc_campaign_ch7", "teaser": { "ko": "다음 — 이사회", "en": "Next — The Board" }}
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "narration",
+      "background": "hellas_various_night",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen이 보고서를 받았다. 차를 들고 있었다. 마시지 않았다. 창밖 C-7 블록의 불이 꺼진 것을 보았다. MCC의 밤이었다. 25도 라운지에서 보면 모든 것이 작았다. 작은 것들이 꺼지는 것은 더 작아 보였다.",
+            "en": "Chen received the report. She was holding her tea. Not drinking. Through the window the lights of block C-7 had gone dark. It was MCC's night. From the 25-Degree Lounge everything looked small. Small things going dark looked even smaller."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "text": {
+            "ko": "서버가 없었다. FSP가 먼저였다. 골목에서 아이들이 봤다. 그들은 어느 쪽이 졌는지 알았다. 화성의 아이들은 그런 것을 빨리 배웠다.",
+            "en": "No server. FSP was first. The children watched from the alley. They knew which side had lost. Children on Mars learned such things quickly."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "hellas_labor_district_night",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "C-7 블록의 분필 이름들은 아침 바람에도 지워지지 않을 것이었다. 분필은 약했다. 그러나 화성의 바람이 아무리 강해도 이미 기억된 이름은 지울 수 없었다. Kim Yong-jin. 그 아래 이름들. 그 아래 아직 쓰이지 않은 이름들.",
+            "en": "The chalk names of block C-7 would not be erased by the morning wind. Chalk was weak. But no matter how strong the Martian wind, it could not erase names that had already been remembered. Kim Yong-jin. The names below. The names below that, not yet written."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch7",
+        "teaser": {
+          "ko": "다음 — 이사회",
+          "en": "Next — The Board"
+        }
+      }
     }
   ]
 }

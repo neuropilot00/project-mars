@@ -2,58 +2,290 @@
   "questId": "cv_campaign_ch2",
   "campaignId": "cv_route",
   "chapterNumber": 2,
-  "title": { "ko": "첫 피", "en": "First Blood" },
-  "location": { "id": "argyre_canyon", "displayNameKo": "아르기레 협곡" },
+  "title": {
+    "ko": "첫 피",
+    "en": "First Blood"
+  },
+  "location": {
+    "id": "argyre_canyon",
+    "displayNameKo": "아르기레 협곡"
+  },
   "environment": "canyon_night",
   "estimatedPlayTimeMinutes": 15,
-  "characters": ["player", "crow", "butcher"],
+  "characters": [
+    "player",
+    "crow",
+    "butcher"
+  ],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "argyre_canyon_night", "bgm": "cv_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "아르기레 협곡. 화성 남반구. 깊이 5킬로미터. 어둠이 두꺼웠다. 화성의 어둠은 지구와 달랐다. 공기가 얇아서 빛이 덜 산란됐다. 그래서 더 어두웠다. 협곡 바닥은 가장 어두웠다. CV가 거기서 작전을 폈다. 이유가 있었다.", "en": "Argyre Canyon. Southern hemisphere. Five kilometers deep. Darkness was thick. Darkness on Mars was different from Earth. The thin air scattered less light. So it was darker. The canyon floor was darkest. CV ran operations from there. There was a reason." }}] },
-    { "id": "s02", "type": "narration", "background": "argyre_canyon_night", "bgm": "cv_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "Vasco Reyes. 콜 사인 Crow. CV 4년차. 화성 출신. 어릴 때부터 협곡에서 자란 사람이었다. 어두운 데서 자란 사람은 눈이 달랐다. 어두운 것이 자연스러운 사람이었다. 그것이 그를 여기서 오래 살게 했다.", "en": "Vasco Reyes. Call sign Crow. Four years in CV. Mars-born. Raised in the canyon since childhood. People raised in the dark had different eyes. He was someone for whom darkness was natural. That was what had kept him alive here so long." }}] },
-    { "id": "s03", "type": "dialogue", "background": "argyre_canyon_night", "bgm": "cv_ambient", "transition": "cut",
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "argyre_plains_night",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "crow", "emotion": "sardonic", "effect": "character_enter:crow:slide_right", "text": { "ko": "첫 작전이죠. 겁나요?", "en": "First operation. You scared?" }},
-        { "speaker": "crow", "emotion": "flat", "text": { "ko": "겁나면 정상이에요. 겁 안 나면 바보거나 이미 죽은 것 중 하나예요.", "en": "Scared is normal. Not scared means you're either an idiot or already dead." }},
-        { "speaker": "crow", "emotion": "serious", "text": { "ko": "목표는 MCC 보급 창고예요. C-14 구역. 광석 처리 장비. 우리 거예요. MCC가 가져간 거예요. 돌려받는 거예요.", "en": "Target is MCC supply depot. Zone C-14. Ore processing equipment. Ours. MCC took it. We're taking it back." }}
+        {
+          "text": {
+            "ko": "아르기레 협곡. 화성 남반구. 깊이 5킬로미터. 어둠이 두꺼웠다. 화성의 어둠은 지구와 달랐다. 공기가 얇아서 빛이 덜 산란됐다. 그래서 더 어두웠다. 협곡 바닥은 가장 어두웠다. CV가 거기서 작전을 폈다. 이유가 있었다.",
+            "en": "Argyre Canyon. Southern hemisphere. Five kilometers deep. Darkness was thick. Darkness on Mars was different from Earth. The thin air scattered less light. So it was darker. The canyon floor was darkest. CV ran operations from there. There was a reason."
+          }
+        }
       ]
     },
-    { "id": "s04", "type": "narration", "background": "argyre_canyon_night", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "창고가 보였다. 불이 켜져 있었다. 경비가 있었다. 그러나 다른 것도 있었다. 작업자들이었다. 야간 교대였다. MCC 광산 작업자들. 무기가 없었다. 보급 임무였다. CV 기준으로 비전투원이었다.", "en": "The depot was visible. Lights were on. Guards were there. But something else too. Workers. Night shift. MCC mine workers. No weapons. Supply duty. By CV standards non-combatants." }}] },
-    { "id": "s05", "type": "dialogue", "background": "argyre_canyon_night", "bgm": "tension_medium", "transition": "cut",
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "argyre_plains",
+      "bgm": "cv_ambient",
+      "transition": "cut",
       "lines": [
-        { "speaker": "crow", "emotion": "tense", "text": { "ko": "작업자가 있어요. 야간 교대예요. Butcher한테 보고 안 했어요. 내가 모른 거예요.", "en": "Workers are there. Night shift. Didn't report this to Butcher. I didn't know." }},
-        { "speaker": "crow", "emotion": "flat", "text": { "ko": "CV 코드는 명확해요. 비전투원은 건드리지 않아요. 하지만 장비 회수 임무는 유효해요.", "en": "CV code is clear. Don't touch non-combatants. But the equipment recovery mission is still valid." }},
-        { "speaker": "crow", "emotion": "sardonic", "text": { "ko": "첫 작전에서 이런 일 생기는 거 봤어요. 화성에서 깔끔한 작전은 없어요.", "en": "First operation and this happens. There's no clean operation on Mars." }}
+        {
+          "text": {
+            "ko": "Vasco Reyes. 콜 사인 Crow. CV 4년차. 화성 출신. 어릴 때부터 협곡에서 자란 사람이었다. 어두운 데서 자란 사람은 눈이 달랐다. 어두운 것이 자연스러운 사람이었다. 그것이 그를 여기서 오래 살게 했다.",
+            "en": "Vasco Reyes. Call sign Crow. Four years in CV. Mars-born. Raised in the canyon since childhood. People raised in the dark had different eyes. He was someone for whom darkness was natural. That was what had kept him alive here so long."
+          }
+        }
       ]
     },
-    { "id": "s06", "type": "narration", "background": "argyre_canyon_depot", "bgm": "tension_high", "transition": "cut",
-      "lines": [{ "text": { "ko": "작업자 중 한 명이 봤다. 그 사람은 멈췄다. 뛰지 않았다. 소리치지 않았다. 그냥 봤다. 그 눈이 무엇을 보는지 알 수 없었다. CV 용병을 보는 것인지. 아니면 자기와 같은 것을 보는 것인지.", "en": "One of the workers saw. That person stopped. Didn't run. Didn't shout. Just looked. What those eyes were seeing was unknowable. Whether they saw a CV mercenary. Or whether they saw something like themselves." }}] },
-    { "id": "s_choice", "type": "choice", "background": "argyre_canyon_depot", "bgm": "choice_tension",
-      "prompt": { "ko": "작업자가 보고 있다. 장비가 창고 안에 있다. Crow가 기다린다.", "en": "The worker is watching. Equipment is in the depot. Crow is waiting." },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "argyre_canyon_night",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "crow",
+          "emotion": "sardonic",
+          "effect": "character_enter:crow:slide_right",
+          "text": {
+            "ko": "첫 작전이죠. 겁나요?",
+            "en": "First operation. You scared?"
+          }
+        },
+        {
+          "speaker": "crow",
+          "emotion": "flat",
+          "text": {
+            "ko": "겁나면 정상이에요. 겁 안 나면 바보거나 이미 죽은 것 중 하나예요.",
+            "en": "Scared is normal. Not scared means you're either an idiot or already dead."
+          }
+        },
+        {
+          "speaker": "crow",
+          "emotion": "serious",
+          "text": {
+            "ko": "목표는 MCC 보급 창고예요. C-14 구역. 광석 처리 장비. 우리 거예요. MCC가 가져간 거예요. 돌려받는 거예요.",
+            "en": "Target is MCC supply depot. Zone C-14. Ore processing equipment. Ours. MCC took it. We're taking it back."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "argyre_canyon_night",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "창고가 보였다. 불이 켜져 있었다. 경비가 있었다. 그러나 다른 것도 있었다. 작업자들이었다. 야간 교대였다. MCC 광산 작업자들. 무기가 없었다. 보급 임무였다. CV 기준으로 비전투원이었다.",
+            "en": "The depot was visible. Lights were on. Guards were there. But something else too. Workers. Night shift. MCC mine workers. No weapons. Supply duty. By CV standards non-combatants."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "argyre_canyon_night",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "crow",
+          "emotion": "tense",
+          "text": {
+            "ko": "작업자가 있어요. 야간 교대예요. Butcher한테 보고 안 했어요. 내가 모른 거예요.",
+            "en": "Workers are there. Night shift. Didn't report this to Butcher. I didn't know."
+          }
+        },
+        {
+          "speaker": "crow",
+          "emotion": "flat",
+          "text": {
+            "ko": "CV 코드는 명확해요. 비전투원은 건드리지 않아요. 하지만 장비 회수 임무는 유효해요.",
+            "en": "CV code is clear. Don't touch non-combatants. But the equipment recovery mission is still valid."
+          }
+        },
+        {
+          "speaker": "crow",
+          "emotion": "sardonic",
+          "text": {
+            "ko": "첫 작전에서 이런 일 생기는 거 봤어요. 화성에서 깔끔한 작전은 없어요.",
+            "en": "First operation and this happens. There's no clean operation on Mars."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "argyre_canyon_depot",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "작업자 중 한 명이 봤다. 그 사람은 멈췄다. 뛰지 않았다. 소리치지 않았다. 그냥 봤다. 그 눈이 무엇을 보는지 알 수 없었다. CV 용병을 보는 것인지. 아니면 자기와 같은 것을 보는 것인지.",
+            "en": "One of the workers saw. That person stopped. Didn't run. Didn't shout. Just looked. What those eyes were seeing was unknowable. Whether they saw a CV mercenary. Or whether they saw something like themselves."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "argyre_canyon_depot",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "작업자가 보고 있다. 장비가 창고 안에 있다. Crow가 기다린다.",
+        "en": "The worker is watching. Equipment is in the depot. Crow is waiting."
+      },
       "choices": [
-        { "id": "cv_ch2_proceed", "text": { "ko": "임무 속행. 작업자는 건드리지 않는다.", "en": "Proceed. Don't touch the workers." }, "tone": "decisive", "preview_hint": { "ko": "→ 장비 회수, 작업자와 목격자 문제", "en": "→ Equipment recovered, worker witness issue" }},
-        { "id": "cv_ch2_abort", "text": { "ko": "임무 중단. Butcher에게 보고한다.", "en": "Abort mission. Report to Butcher." }, "tone": "cautious", "preview_hint": { "ko": "→ Butcher의 반응이 중요하다", "en": "→ Butcher's reaction matters" }},
-        { "id": "cv_ch2_negotiate", "text": { "ko": "작업자와 말한다. 조용히 가라.", "en": "Talk to the worker. Ask them to leave quietly." }, "tone": "human", "preview_hint": { "ko": "→ Crow가 놀란다. 작업자가 MCC 데이터를 준다", "en": "→ Crow is surprised. Worker gives MCC data." }},
-        { "id": "cv_ch2_bluff", "text": { "ko": "MCC 경비인 척한다. 작업자를 대피시킨다.", "en": "Pretend to be MCC security. Evacuate the workers." }, "tone": "cunning", "preview_hint": { "ko": "→ Crow가 감탄한다. 추후 위험 요소", "en": "→ Crow is impressed. Future risk." }}
+        {
+          "id": "cv_ch2_proceed",
+          "text": {
+            "ko": "임무 속행. 작업자는 건드리지 않는다.",
+            "en": "Proceed. Don't touch the workers."
+          },
+          "tone": "decisive",
+          "preview_hint": {
+            "ko": "→ 장비 회수, 작업자와 목격자 문제",
+            "en": "→ Equipment recovered, worker witness issue"
+          }
+        },
+        {
+          "id": "cv_ch2_abort",
+          "text": {
+            "ko": "임무 중단. Butcher에게 보고한다.",
+            "en": "Abort mission. Report to Butcher."
+          },
+          "tone": "cautious",
+          "preview_hint": {
+            "ko": "→ Butcher의 반응이 중요하다",
+            "en": "→ Butcher's reaction matters"
+          }
+        },
+        {
+          "id": "cv_ch2_negotiate",
+          "text": {
+            "ko": "작업자와 말한다. 조용히 가라.",
+            "en": "Talk to the worker. Ask them to leave quietly."
+          },
+          "tone": "human",
+          "preview_hint": {
+            "ko": "→ Crow가 놀란다. 작업자가 MCC 데이터를 준다",
+            "en": "→ Crow is surprised. Worker gives MCC data."
+          }
+        },
+        {
+          "id": "cv_ch2_bluff",
+          "text": {
+            "ko": "MCC 경비인 척한다. 작업자를 대피시킨다.",
+            "en": "Pretend to be MCC security. Evacuate the workers."
+          },
+          "tone": "cunning",
+          "preview_hint": {
+            "ko": "→ Crow가 감탄한다. 추후 위험 요소",
+            "en": "→ Crow is impressed. Future risk."
+          }
+        }
       ]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "argyre_canyon_depot", "bgm": "battle_theme_cv", "transition": "cut",
-      "title": { "ko": "협곡 강탈", "en": "Canyon Raid" }, "subtitle": { "ko": "아르기레 협곡 — 첫 피의 값", "en": "Argyre Canyon — The Price of First Blood" }
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "argyre_canyon_depot",
+      "bgm": "battle_theme_cv",
+      "transition": "cut",
+      "title": {
+        "ko": "협곡 강탈",
+        "en": "Canyon Raid"
+      },
+      "subtitle": {
+        "ko": "아르기레 협곡 — 첫 피의 값",
+        "en": "Argyre Canyon — The Price of First Blood"
+      }
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "dialogue", "background": "argyre_canyon_night", "bgm": "victory_calm",
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "argyre_plains",
+      "bgm": "victory_calm",
       "lines": [
-        { "speaker": "crow", "emotion": "sardonic", "effect": "character_enter:crow:slide_right", "text": { "ko": "됐어요. 장비 확보.", "en": "Done. Equipment secured." }},
-        { "speaker": "crow", "emotion": "flat", "text": { "ko": "첫 작전이에요. 피가 없었어요. 기록해둬요. 화성에서 드문 일이에요.", "en": "First operation. No blood. Write that down. Rare thing on Mars." }}
+        {
+          "speaker": "crow",
+          "emotion": "sardonic",
+          "effect": "character_enter:crow:slide_right",
+          "text": {
+            "ko": "됐어요. 장비 확보.",
+            "en": "Done. Equipment secured."
+          }
+        },
+        {
+          "speaker": "crow",
+          "emotion": "flat",
+          "text": {
+            "ko": "첫 작전이에요. 피가 없었어요. 기록해둬요. 화성에서 드문 일이에요.",
+            "en": "First operation. No blood. Write that down. Rare thing on Mars."
+          }
+        }
       ]
     },
-    { "id": "s_fail", "type": "narration", "background": "argyre_canyon_night", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "장비가 없었다. MCC가 먼저 옮겼거나 경비가 강했다. Crow가 말하지 않았다. 협곡 바닥으로 돌아오는 길. 어둠이 두꺼웠다. 화성의 어둠은 지구와 달랐다. 그것을 다시 느꼈다.", "en": "No equipment. MCC had moved it first or the guards were strong. Crow said nothing. On the way back to the canyon floor. Darkness was thick. Darkness on Mars was different from Earth. That was felt again." }}] },
-    { "id": "s_ending", "type": "ending", "background": "argyre_canyon_night", "bgm": "cv_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "협곡 바닥. Butcher가 기다리고 있었다. 의수. 왼팔. 광산용 구식 의수. 그가 직접 만든 것. 17살 때. 그가 임무 보고를 들었다. 말이 없었다. 그러나 의수가 움직였다. 그것이 말 없이 말하는 방식이었다.", "en": "Canyon floor. Butcher was waiting. Prosthetic. Left arm. Old mining prosthetic. One he had made himself. At seventeen. He heard the mission report. No words. But the prosthetic moved. That was how he spoke without speaking." }}],
-      "next_chapter_preview": { "questId": "cv_campaign_ch3", "teaser": { "ko": "다음 — 용병 코드", "en": "Next — The Mercenary Code" }}
+    {
+      "id": "s_fail",
+      "type": "narration",
+      "background": "argyre_canyon_night",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "text": {
+            "ko": "장비가 없었다. MCC가 먼저 옮겼거나 경비가 강했다. Crow가 말하지 않았다. 협곡 바닥으로 돌아오는 길. 어둠이 두꺼웠다. 화성의 어둠은 지구와 달랐다. 그것을 다시 느꼈다.",
+            "en": "No equipment. MCC had moved it first or the guards were strong. Crow said nothing. On the way back to the canyon floor. Darkness was thick. Darkness on Mars was different from Earth. That was felt again."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "argyre_plains_night",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "협곡 바닥. Butcher가 기다리고 있었다. 의수. 왼팔. 광산용 구식 의수. 그가 직접 만든 것. 17살 때. 그가 임무 보고를 들었다. 말이 없었다. 그러나 의수가 움직였다. 그것이 말 없이 말하는 방식이었다.",
+            "en": "Canyon floor. Butcher was waiting. Prosthetic. Left arm. Old mining prosthetic. One he had made himself. At seventeen. He heard the mission report. No words. But the prosthetic moved. That was how he spoke without speaking."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch3",
+        "teaser": {
+          "ko": "다음 — 용병 코드",
+          "en": "Next — The Mercenary Code"
+        }
+      }
     }
   ]
 }

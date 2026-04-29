@@ -2,17 +2,26 @@
   "questId": "fsp_campaign_ch1",
   "campaignId": "fsp_route",
   "chapterNumber": 1,
-  "title": { "ko": "차의 무게", "en": "The Weight of Tea" },
-  "location": { "id": "hellas_fsp_hq", "displayNameKo": "헬라스 분지 FSP 본부" },
+  "title": {
+    "ko": "차의 무게",
+    "en": "The Weight of Tea"
+  },
+  "location": {
+    "id": "hellas_fsp_hq",
+    "displayNameKo": "헬라스 분지 FSP 본부"
+  },
   "environment": "morning_cold",
   "estimatedPlayTimeMinutes": 15,
-  "characters": ["player", "mikhail", "lena"],
+  "characters": [
+    "player",
+    "mikhail",
+    "lena"
+  ],
   "scenes": [
-
     {
       "id": "s01",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "hellas_mining_village",
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -24,11 +33,10 @@
         }
       ]
     },
-
     {
       "id": "s02",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "hellas_outer_plains",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -40,7 +48,6 @@
         }
       ]
     },
-
     {
       "id": "s03",
       "type": "narration",
@@ -56,11 +63,10 @@
         }
       ]
     },
-
     {
       "id": "s04",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "hellas_mine_exterior",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -72,7 +78,6 @@
         }
       ]
     },
-
     {
       "id": "s05",
       "type": "dialogue",
@@ -91,7 +96,6 @@
         }
       ]
     },
-
     {
       "id": "s06",
       "type": "narration",
@@ -107,7 +111,6 @@
         }
       ]
     },
-
     {
       "id": "s07",
       "type": "narration",
@@ -123,11 +126,10 @@
         }
       ]
     },
-
     {
       "id": "s08",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "hellas_mine_exterior",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -139,7 +141,6 @@
         }
       ]
     },
-
     {
       "id": "s09",
       "type": "dialogue",
@@ -182,7 +183,6 @@
         }
       ]
     },
-
     {
       "id": "s10",
       "type": "narration",
@@ -198,7 +198,6 @@
         }
       ]
     },
-
     {
       "id": "s_choice",
       "type": "choice",
@@ -211,52 +210,79 @@
       "choices": [
         {
           "id": "fsp_ch1_accept_standard",
-          "text": { "ko": "정면 진입. 협상 없이.", "en": "Direct entry. No negotiation." },
+          "text": {
+            "ko": "정면 진입. 협상 없이.",
+            "en": "Direct entry. No negotiation."
+          },
           "tone": "decisive",
-          "preview_hint": { "ko": "→ 신속하나 충돌 위험", "en": "→ Fast but risk of conflict" }
+          "preview_hint": {
+            "ko": "→ 신속하나 충돌 위험",
+            "en": "→ Fast but risk of conflict"
+          }
         },
         {
           "id": "fsp_ch1_negotiate_price",
-          "text": { "ko": "MCC와 먼저 협상한다.", "en": "Negotiate with MCC first." },
+          "text": {
+            "ko": "MCC와 먼저 협상한다.",
+            "en": "Negotiate with MCC first."
+          },
           "tone": "diplomatic",
-          "preview_hint": { "ko": "→ 시간이 걸리지만 비전투", "en": "→ Takes time but non-violent" }
+          "preview_hint": {
+            "ko": "→ 시간이 걸리지만 비전투",
+            "en": "→ Takes time but non-violent"
+          }
         },
         {
           "id": "fsp_ch1_question_mcc",
-          "text": { "ko": "봉쇄 이유를 파악한다.", "en": "Find out why MCC sealed it." },
+          "text": {
+            "ko": "봉쇄 이유를 파악한다.",
+            "en": "Find out why MCC sealed it."
+          },
           "tone": "investigative",
-          "preview_hint": { "ko": "→ Mikhail의 과거 MCC 경험 언급", "en": "→ Reveals Mikhail's MCC history" }
+          "preview_hint": {
+            "ko": "→ Mikhail의 과거 MCC 경험 언급",
+            "en": "→ Reveals Mikhail's MCC history"
+          }
         },
         {
           "id": "fsp_ch1_prioritize_patients",
-          "text": { "ko": "부상자부터. 다른 것은 그 다음.", "en": "Injured first. Everything else after." },
+          "text": {
+            "ko": "부상자부터. 다른 것은 그 다음.",
+            "en": "Injured first. Everything else after."
+          },
           "tone": "humanitarian",
-          "preview_hint": { "ko": "→ Lena 신뢰도 +, 레나가 앞장선다", "en": "→ Lena trust +, she leads the way" }
+          "preview_hint": {
+            "ko": "→ Lena 신뢰도 +, 레나가 앞장선다",
+            "en": "→ Lena trust +, she leads the way"
+          }
         }
       ]
     },
-
     {
       "id": "s_battle",
       "type": "battle_transition",
       "background": "hellas_mine_exterior",
       "bgm": "battle_theme_fsp",
       "transition": "fade_slow",
-      "title": { "ko": "봉쇄된 광산", "en": "The Sealed Mine" },
-      "subtitle": { "ko": "헬라스 북부 — 광부 55명", "en": "Northern Hellas — 55 Miners" }
+      "title": {
+        "ko": "봉쇄된 광산",
+        "en": "The Sealed Mine"
+      },
+      "subtitle": {
+        "ko": "헬라스 북부 — 광부 55명",
+        "en": "Northern Hellas — 55 Miners"
+      }
     },
-
     {
       "id": "s_result",
       "type": "result",
       "success_scene": "s_success",
       "failure_scene": "s_fail"
     },
-
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "hellas_mine_exterior",
+      "background": "hellas_mining_village_dawn",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -279,7 +305,6 @@
         }
       ]
     },
-
     {
       "id": "s_fail",
       "type": "dialogue",
@@ -306,11 +331,10 @@
         }
       ]
     },
-
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "hellas_mining_outpost",
+      "background": "hellas_mining_village",
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -323,9 +347,11 @@
       ],
       "next_chapter_preview": {
         "questId": "fsp_campaign_ch2",
-        "teaser": { "ko": "다음 — 첫 광부의 죽음", "en": "Next — The First Miner's Death" }
+        "teaser": {
+          "ko": "다음 — 첫 광부의 죽음",
+          "en": "Next — The First Miner's Death"
+        }
       }
     }
-
   ]
 }

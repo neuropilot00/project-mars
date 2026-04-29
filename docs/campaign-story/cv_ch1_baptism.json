@@ -2,17 +2,26 @@
   "questId": "cv_campaign_ch1",
   "campaignId": "cv_route",
   "chapterNumber": 1,
-  "title": { "ko": "입문", "en": "Initiation" },
-  "location": { "id": "erebus_crater_base", "displayNameKo": "에레부스 분화구 CV 거점" },
+  "title": {
+    "ko": "입문",
+    "en": "Initiation"
+  },
+  "location": {
+    "id": "erebus_crater_base",
+    "displayNameKo": "에레부스 분화구 CV 거점"
+  },
   "environment": "crater_night_fire",
   "estimatedPlayTimeMinutes": 15,
-  "characters": ["player", "butcher", "cinder"],
+  "characters": [
+    "player",
+    "butcher",
+    "cinder"
+  ],
   "scenes": [
-
     {
       "id": "s01",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "erebus_crater_exterior",
       "bgm": "cv_ambient_dark",
       "transition": "fade_slow",
       "lines": [
@@ -24,11 +33,10 @@
         }
       ]
     },
-
     {
       "id": "s02",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "erebus_crater_exterior",
       "bgm": "cv_ambient_dark",
       "transition": "cut",
       "lines": [
@@ -40,11 +48,10 @@
         }
       ]
     },
-
     {
       "id": "s03",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "erebus_crater_exterior",
       "bgm": "cv_ambient_dark",
       "transition": "cut",
       "lines": [
@@ -56,11 +63,10 @@
         }
       ]
     },
-
     {
       "id": "s04",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "erebus_base_interior",
       "bgm": "cv_ambient_dark",
       "transition": "cut",
       "lines": [
@@ -72,11 +78,10 @@
         }
       ]
     },
-
     {
       "id": "s05",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "erebus_throne_hall",
       "bgm": "cv_ambient_dark",
       "transition": "cut",
       "lines": [
@@ -88,11 +93,10 @@
         }
       ]
     },
-
     {
       "id": "s06",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "erebus_throne_hall",
       "bgm": "cv_ambient_dark",
       "transition": "cut",
       "lines": [
@@ -104,11 +108,10 @@
         }
       ]
     },
-
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "kepler_crater",
+      "background": "erebus_throne_hall",
       "bgm": "cv_ambient_dark",
       "transition": "cut",
       "lines": [
@@ -148,11 +151,10 @@
         }
       ]
     },
-
     {
       "id": "s08",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "erebus_throne_hall",
       "bgm": "cv_ambient_dark",
       "transition": "cut",
       "lines": [
@@ -164,11 +166,10 @@
         }
       ]
     },
-
     {
       "id": "s09",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "erebus_throne_hall",
       "bgm": "cv_ambient_dark",
       "transition": "cut",
       "lines": [
@@ -180,11 +181,10 @@
         }
       ]
     },
-
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "kepler_crater",
+      "background": "erebus_throne_hall",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "세 가지 시험 중 무엇으로 증명하겠습니까?",
@@ -193,52 +193,79 @@
       "choices": [
         {
           "id": "cv_ch1_brutal",
-          "text": { "ko": "무력으로. 지정된 표적을 제거한다.", "en": "Strength. Eliminate the target." },
+          "text": {
+            "ko": "무력으로. 지정된 표적을 제거한다.",
+            "en": "Strength. Eliminate the target."
+          },
           "tone": "ruthless",
-          "preview_hint": { "ko": "→ Butcher 인정 +, Cinder 유보", "en": "→ Butcher approval +, Cinder reserved" }
+          "preview_hint": {
+            "ko": "→ Butcher 인정 +, Cinder 유보",
+            "en": "→ Butcher approval +, Cinder reserved"
+          }
         },
         {
           "id": "cv_ch1_clever",
-          "text": { "ko": "의리로. CV의 비밀을 지킨다.", "en": "Loyalty. Keep CV's secret." },
+          "text": {
+            "ko": "의리로. CV의 비밀을 지킨다.",
+            "en": "Loyalty. Keep CV's secret."
+          },
           "tone": "principled",
-          "preview_hint": { "ko": "→ Cinder 호감 +, Butcher 관찰", "en": "→ Cinder favor +, Butcher watches" }
+          "preview_hint": {
+            "ko": "→ Cinder 호감 +, Butcher 관찰",
+            "en": "→ Cinder favor +, Butcher watches"
+          }
         },
         {
           "id": "cv_ch1_refuse",
-          "text": { "ko": "생존으로. 혼자서 7시간을 버틴다.", "en": "Survival. Seven hours alone." },
+          "text": {
+            "ko": "생존으로. 혼자서 7시간을 버틴다.",
+            "en": "Survival. Seven hours alone."
+          },
           "tone": "independent",
-          "preview_hint": { "ko": "→ Butcher 흥미 +, 고독 조건", "en": "→ Butcher interest +, solitary conditions" }
+          "preview_hint": {
+            "ko": "→ Butcher 흥미 +, 고독 조건",
+            "en": "→ Butcher interest +, solitary conditions"
+          }
         },
         {
           "id": "cv_ch1_question",
-          "text": { "ko": "Reza는 누구입니까.", "en": "Who is Reza." },
+          "text": {
+            "ko": "Reza는 누구입니까.",
+            "en": "Who is Reza."
+          },
           "tone": "questioning",
-          "preview_hint": { "ko": "→ Cinder가 설명, Butcher 침묵", "en": "→ Cinder explains, Butcher goes silent" }
+          "preview_hint": {
+            "ko": "→ Cinder가 설명, Butcher 침묵",
+            "en": "→ Cinder explains, Butcher goes silent"
+          }
         }
       ]
     },
-
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "kepler_crater",
+      "background": "erebus_crater_exterior",
       "bgm": "cv_battle_theme",
       "transition": "flash_white",
-      "title": { "ko": "입문 시험", "en": "The Initiation" },
-      "subtitle": { "ko": "에레부스 — 증명하라", "en": "Erebus — Prove It" }
+      "title": {
+        "ko": "입문 시험",
+        "en": "The Initiation"
+      },
+      "subtitle": {
+        "ko": "에레부스 — 증명하라",
+        "en": "Erebus — Prove It"
+      }
     },
-
     {
       "id": "s_result",
       "type": "result",
       "success_scene": "s_success",
       "failure_scene": "s_fail"
     },
-
     {
       "id": "s_success",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "erebus_base_exterior",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -249,11 +276,10 @@
         }
       ]
     },
-
     {
       "id": "s_fail",
       "type": "dialogue",
-      "background": "kepler_crater",
+      "background": "erebus_crater_exterior",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -276,11 +302,10 @@
         }
       ]
     },
-
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "kepler_crater",
+      "background": "erebus_base_exterior",
       "bgm": "cv_ambient_dark",
       "transition": "fade_slow",
       "lines": [
@@ -293,9 +318,11 @@
       ],
       "next_chapter_preview": {
         "questId": "cv_campaign_ch2",
-        "teaser": { "ko": "다음 — 첫 피", "en": "Next — First Blood" }
+        "teaser": {
+          "ko": "다음 — 첫 피",
+          "en": "Next — First Blood"
+        }
       }
     }
-
   ]
 }
