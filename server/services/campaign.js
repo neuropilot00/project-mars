@@ -96,6 +96,7 @@ const CHAPTERS = {
     faction: 'mcc',
     title: { ko: '산소 쟁탈', en: 'Oxygen Rush', ja: '酸素争奪', zh: '氧气争夺' },
     requiredLevel: 1,
+    prerequisiteChapter: 'mcc_prologue',
     battleResolution: 'server_simulation',
     estimatedPlayTimeSeconds: 840,
     location: { id: 'erebus_crater', displayNameKo: '에레부스 분화구 정제소 단지', region: 'equator' },
@@ -547,6 +548,7 @@ const CHAPTERS = {
     faction: 'fsp',
     title: { ko: '차의 무게', en: 'The Weight of Tea' },
     requiredLevel: 1,
+    prerequisiteChapter: 'fsp_prologue',
     requiredReputation: { fsp: 0 },
     blockingTags: ['war_criminal'],
     battleResolution: 'server_simulation',
@@ -1000,7 +1002,7 @@ const CHAPTERS = {
   cv_campaign_ch1: {
     questId: 'cv_campaign_ch1', scenesFile: 'docs/campaign-story/cv_ch1_baptism.json',
     campaignId: 'cv_route', chapterNumber: 1, faction: 'cv',
-    title: { ko: '세례', en: 'Baptism' }, requiredLevel: 1, requiredReputation: { cv: 0 },
+    title: { ko: '세례', en: 'Baptism' }, requiredLevel: 1, prerequisiteChapter: 'cv_prologue', requiredReputation: { cv: 0 },
     battleResolution: 'server_simulation', estimatedPlayTimeSeconds: 900,
     location: { id: 'outer_colony_ruins', displayNameKo: '외곽 식민지 폐허', region: 'outer_belt' },
     environment: { type: 'wasteland_night', totalDurationSeconds: 900, phases: [{ phase: 0, startSec: 0 }] },
@@ -2130,7 +2132,25 @@ function simulateFspCh10(progress) {
   };
 }
 
+// 프롤로그(0번 챕터)는 시나리오 전용이라 전투 시뮬이 없다. complete 시 항상 성공으로 처리한다.
+function simulatePrologue(progress) {
+  return {
+    success: true,
+    failureReason: null,
+    metrics: {
+      elapsed_sec: 0,
+      environmental_phase_reached: 0,
+      secondary_completed: [],
+    },
+  };
+}
+
+function isPrologueQuest(questId) {
+  return questId === 'mcc_prologue' || questId === 'fsp_prologue' || questId === 'cv_prologue';
+}
+
 function simulateChapter(progress) {
+  if (isPrologueQuest(progress.quest_id)) return simulatePrologue(progress);
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
   if (progress.quest_id === CH3_ID) return simulateCh3(progress);
   if (progress.quest_id === CH4_ID) return simulateCh4(progress);
@@ -2860,7 +2880,27 @@ function calculateFspCh10Rewards(progress, sim) {
   };
 }
 
+// 프롤로그는 GP 보상 없이 소량의 XP 만 지급한다. 다음 챕터(Ch1)의 prerequisite 만 만족하면 된다.
+function calculatePrologueRewards(progress, sim) {
+  const faction = progress.quest_id.startsWith('mcc') ? 'mcc' :
+                  progress.quest_id.startsWith('fsp') ? 'fsp' : 'cv';
+  const nextChapter = `${faction}_campaign_ch1`;
+  return {
+    GP: 0,
+    XP: 50,
+    reputationDelta: { [faction]: 5 },
+    items: [],
+    tags: [],
+    loreFlags: [`${faction}_prologue_completed`],
+    masteries: [],
+    titles: [],
+    branchModifiers: [],
+    unlocks: [nextChapter],
+  };
+}
+
 function calculateRewards(progress, sim) {
+  if (isPrologueQuest(progress.quest_id)) return calculatePrologueRewards(progress, sim);
   if (progress.quest_id === CH2_ID) return calculateCh2Rewards(progress, sim);
   if (progress.quest_id === CH3_ID) return calculateCh3Rewards(progress, sim);
   if (progress.quest_id === CH4_ID) return calculateCh4Rewards(progress, sim);
@@ -3175,6 +3215,9 @@ async function choose(wallet, sessionId, choiceId) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // 평판 INSERT 가 첫 시도에 깨지지 않도록 행을 보장한다.
+    await ensureUser(client, w);
+    await ensureReputationRows(client, w);
     const { rows } = await client.query(
       `SELECT * FROM player_campaign_progress WHERE wallet = $1 AND session_id = $2 AND status = 'in_progress' FOR UPDATE`,
       [w, sessionId]
@@ -3324,6 +3367,8 @@ async function complete(wallet, sessionId) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // ensureUser 는 트랜잭션 시작 직후 한 번 실행한다 — 보상 INSERT 의 FK 위반을 미연에 방지한다.
+    await ensureUser(client, w);
     const { rows } = await client.query(
       `SELECT * FROM player_campaign_progress WHERE wallet = $1 AND session_id = $2 AND status = 'in_progress' FOR UPDATE`,
       [w, sessionId]
@@ -3350,16 +3395,25 @@ async function complete(wallet, sessionId) {
     const rewards = calculateRewards(progress, sim);
     const status = sim.success ? 'completed' : 'failed';
 
+    // 평판 갱신은 거의 모든 챕터에서 발생하므로 메인 트랜잭션에 둔다.
+    // ensureReputationRows 를 호출해 첫 시도라도 player_reputation 행이 있도록 보장한다.
+    await ensureReputationRows(client, w);
     await applyReputation(client, w, rewards.reputationDelta || {}, 'campaign_chapter', progress.quest_id);
     if (sim.success) {
+      // GP/XP/로그 INSERT 는 어느 한쪽 컬럼 변경이나 일시적인 제약 위반으로 챕터 완료 자체가
+      // 실패하지 않도록 SAVEPOINT 로 감싼다 — 보상 일부가 실패해도 진행은 완료시킨다.
       if (rewards.GP > 0) {
-        await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE wallet_address = $2', [rewards.GP, w]);
-        await client.query(
+        await applyOptionalCampaignReward(client, 'gp_balance', () => client.query(
+          'UPDATE users SET gp_balance = COALESCE(gp_balance,0) + $1 WHERE wallet_address = $2', [rewards.GP, w]
+        ));
+        await applyOptionalCampaignReward(client, 'gp_activity_log', () => client.query(
           'INSERT INTO gp_activity_log (wallet, delta, source, note) VALUES ($1,$2,$3,$4)',
           [w, rewards.GP, 'campaign_reward', progress.quest_id]
-        );
+        ));
       }
-      if (rewards.XP > 0) await awardXP(client, w, rewards.XP);
+      if (rewards.XP > 0) {
+        await applyOptionalCampaignReward(client, 'awardXP', () => awardXP(client, w, rewards.XP));
+      }
       for (const item of rewards.items || []) {
         await applyOptionalCampaignReward(client, `item:${item.code}`, () => client.query(
             `INSERT INTO campaign_reward_inbox (wallet, quest_id, reward_type, reward_code, quantity, payload)

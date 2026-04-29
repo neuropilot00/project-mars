@@ -1284,6 +1284,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .story-title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.34);font-size:clamp(28px,5vw,56px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.85);padding:24px;letter-spacing:0}
 .story-title-card small{display:block;margin-top:12px;font-size:clamp(13px,1.8vw,20px);color:#FFD700;line-height:1.5}
 .story-narration-text{text-align:center;background:none;color:#fff;font-size:1rem;line-height:1.7;text-shadow:0 2px 16px rgba(0,0,0,.95)}
+/* 스토리 컨트롤 (스킵 / 나가기) — 우상단 */
+.story-controls{position:absolute;top:12px;right:12px;display:flex;gap:8px;z-index:5;cursor:default}
+.story-ctrl-btn{padding:8px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.55);color:#fff;font-family:var(--fn);font-size:10px;letter-spacing:1px;font-weight:800;cursor:pointer;backdrop-filter:blur(6px);transition:all .15s}
+.story-ctrl-btn:hover{background:rgba(0,0,0,.78);border-color:rgba(255,215,0,.45);color:#FFD700}
+.story-ctrl-btn.danger{border-color:rgba(239,83,80,.45);color:#ef9a9a}
+.story-ctrl-btn.danger:hover{background:rgba(239,83,80,.18);color:#ef5350}
 
 /* Rank progress bar */
 .rank-progress{background:rgba(0,0,0,.3);border-radius:6px;height:14px;overflow:hidden;
@@ -24827,16 +24833,22 @@ function loadCampaignStatus(){
   var w=walletState.address;
   if(!el) return Promise.resolve();
   if(!w){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">Login to view campaign chapters.</div>';return Promise.resolve();}
-  return fetch('/api/campaign/status/'+encodeURIComponent(w))
-    .then(function(r){return r.json()})
-    .then(function(d){
-      _campaignData=d;
-      renderCampaignReputation(d.reputation||{},d.tierLabels||{});
-      renderCampaignList(d.chapters||[]);
-    })
-    .catch(function(){
-      el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">Campaign unavailable.</div>';
-    });
+  // 파벌 정보가 아직 로드되지 않았으면 먼저 로드한다 — 파벌별 필터링이 정확하게 동작해야 한다.
+  var factionPromise=(typeof factionState!=='undefined'&&factionState&&factionState.current!==null)
+    ? Promise.resolve()
+    : (typeof loadFactions==='function' ? Promise.resolve(loadFactions()).catch(function(){}) : Promise.resolve());
+  return factionPromise.then(function(){
+    return fetch('/api/campaign/status/'+encodeURIComponent(w))
+      .then(function(r){return r.json()})
+      .then(function(d){
+        _campaignData=d;
+        renderCampaignReputation(d.reputation||{},d.tierLabels||{});
+        renderCampaignList(d.chapters||[]);
+      })
+      .catch(function(){
+        el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">Campaign unavailable.</div>';
+      });
+  });
 }
 
 function renderCampaignReputation(rep,tiers){
@@ -24857,11 +24869,23 @@ function renderCampaignReputation(rep,tiers){
 function renderCampaignList(chapters){
   var el=document.getElementById('campaignList');
   if(!el) return;
-  if(!chapters.length){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">No campaign chapters available.</div>';return;}
+  // 파벌 필터 — 유저가 속한 파벌의 시나리오만 노출한다.
+  // 파벌 미선택 상태에서는 안내 카드만 보여 다른 루트가 노출되지 않도록 한다.
+  var myFaction=(typeof factionState!=='undefined'&&factionState&&factionState.current&&factionState.current.code)?factionState.current.code:null;
+  if(!myFaction){
+    el.innerHTML='<div style="font-size:10px;color:var(--gold);padding:14px;border:1px dashed rgba(255,209,102,.35);border-radius:8px;line-height:1.7">파벌을 먼저 선택하면 캠페인이 열립니다.<br>좌측 파벌 배지를 눌러 MCC / FSP / CV 중 하나를 선택하세요.</div>';
+    return;
+  }
+  var visible=chapters.filter(function(c){
+    if(!c||!c.faction) return false;
+    if(c.faction==='hidden') return false; // 히든 루트는 별도 조건으로만 공개
+    return c.faction===myFaction;
+  });
+  if(!visible.length){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">No campaign chapters available.</div>';return;}
   var html='';
   var lockedHtml='';
   var lockedCount=0;
-  chapters.forEach(function(ch){
+  visible.forEach(function(ch){
     var p=ch.progress||{};
     var locked=((_campaignData&&_campaignData.lockedChapters)||[]).indexOf(ch.questId)>=0;
     var done=p.status==='completed'||p.status==='claimed';
@@ -24934,7 +24958,9 @@ function campaignStatsHtml(m,status){
 function closeCampaignModal(){var m=document.getElementById('campaignModal');if(m)m.style.display='none';}
 function _setCampaignModal(ch, html){
   document.getElementById('campaignModalTitle').textContent=(ch.title&&ch.title.ko)||ch.questId;
-  document.getElementById('campaignModalMeta').textContent='MCC ROUTE · CHAPTER '+ch.chapterNumber;
+  // 라우트 표시는 챕터의 실제 파벌(MCC/FSP/CV) 기반으로 동적으로 만든다 — 프롤로그/CV 챕터에서도 정확한 라우트가 보이도록 한다.
+  var route=((ch.campaignId||'').replace('_route','')||ch.faction||'mcc').toUpperCase();
+  document.getElementById('campaignModalMeta').textContent=route+' ROUTE · CHAPTER '+ch.chapterNumber;
   document.getElementById('campaignModalSub').textContent=(ch.location&&ch.location.displayNameKo||'Mars')+' · '+((ch.environment&&ch.environment.type)||'simulation');
   document.getElementById('campaignModalBody').innerHTML=html;
   document.getElementById('campaignModal').style.display='flex';
@@ -24972,10 +24998,21 @@ function showCampaignStory(chapter){
   if(oldModal) oldModal.style.display='none';
   var overlay=document.createElement('div');
   overlay.className='story-overlay';
-  overlay.innerHTML='<div class="story-background"></div><img class="story-character-left" alt=""><img class="story-character-right" alt=""><div class="story-dialog-box"></div><div class="story-tap-hint">▶ 탭하여 계속</div>';
+  overlay.innerHTML='<div class="story-background"></div>'
+    +'<img class="story-character-left" alt="">'
+    +'<img class="story-character-right" alt="">'
+    +'<div class="story-controls">'
+      +'<button type="button" class="story-ctrl-btn" id="storySkipBtn" title="다음 장면으로">▶ SKIP</button>'
+      +'<button type="button" class="story-ctrl-btn danger" id="storyAbandonBtn" title="시나리오를 종료하고 챕터 진행을 포기합니다">✕ 나가기</button>'
+    +'</div>'
+    +'<div class="story-dialog-box"></div>'
+    +'<div class="story-tap-hint">▶ 탭하여 계속</div>';
   overlay.addEventListener('click',function(ev){
-    // 선택지 버튼은 자체 핸들러로만 진행한다.
-    if(ev.target&&ev.target.closest&&ev.target.closest('.story-choice-btn')) return;
+    // 컨트롤(스킵/나가기) 버튼과 선택지 버튼은 자체 핸들러로만 진행한다.
+    if(ev.target&&ev.target.closest){
+      if(ev.target.closest('.story-controls')) return;
+      if(ev.target.closest('.story-choice-btn')) return;
+    }
     var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
     if(!scene) return;
     if(scene.type==='choice'||scene.type==='branch') return;
@@ -24988,7 +25025,47 @@ function showCampaignStory(chapter){
     advanceCampaignScene();
   });
   document.body.appendChild(overlay);
+  // 스킵: 타이핑 중이면 즉시 완료, 끝났으면 다음 장면으로 이동
+  document.getElementById('storySkipBtn').addEventListener('click',function(ev){
+    ev.stopPropagation();
+    if(!_campaignTypingDone){
+      if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+      if(_campaignTypingElement) _campaignTypingElement.textContent=_campaignTypingFullText;
+      _campaignTypingDone=true;
+      return;
+    }
+    advanceCampaignScene();
+  });
+  // 나가기: 챕터 진행 포기 후 오버레이 닫기
+  document.getElementById('storyAbandonBtn').addEventListener('click',function(ev){
+    ev.stopPropagation();
+    abandonCampaignFromStory();
+  });
   renderCampaignScene();
+}
+
+// 스토리 화면에서 "나가기" 클릭 시 호출. 진행 중인 세션을 서버에 abandon 요청한 뒤 화면을 닫는다.
+async function abandonCampaignFromStory(){
+  var ok=await gameConfirm({
+    icon:'⚠',
+    title:'시나리오 종료',
+    body:'진행 중인 챕터를 포기하고 시나리오를 종료합니다. 이미 만든 선택은 유지됩니다.',
+    confirmText:'나가기'
+  });
+  if(!ok) return;
+  var w=walletState.address, a=_campaignActive;
+  closeCampaignStory();
+  closeCampaignModal();
+  if(w&&a&&a.sessionId){
+    try{
+      await fetch('/api/campaign/abandon',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({wallet:w,session_id:a.sessionId})
+      });
+    }catch(e){/* 네트워크 실패는 무시한다 — 다음 진입에서 새 세션 생성 가능 */}
+  }
+  _campaignActive=null;
+  try{ loadCampaignStatus(); }catch(_){}
 }
 
 function _campaignStorySetBackground(scene,overlay){
@@ -25157,7 +25234,7 @@ function renderCampaignScene(){
 
 function advanceCampaignScene(){
   var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
-  if(!scene){closeCampaignStory();return;}
+  if(!scene){_finishCampaignNoChoiceFlow();return;}
   var lines=scene.lines||[];
   if((scene.type==='dialogue'||scene.type==='narration'||scene.type==='ending')&&_campaignSceneLineIndex<lines.length-1){
     _campaignSceneLineIndex++;
@@ -25165,7 +25242,7 @@ function advanceCampaignScene(){
     return;
   }
   if(scene.type==='ending'){
-    closeCampaignStory();
+    _finishCampaignNoChoiceFlow();
     return;
   }
   if(scene.next){
@@ -25174,8 +25251,22 @@ function advanceCampaignScene(){
   }
   _campaignSceneIndex++;
   _campaignSceneLineIndex=0;
-  if(!_campaignScenes||_campaignSceneIndex>=_campaignScenes.length){closeCampaignStory();return;}
+  if(!_campaignScenes||_campaignSceneIndex>=_campaignScenes.length){_finishCampaignNoChoiceFlow();return;}
   renderCampaignScene();
+}
+
+// 시나리오만 있는 챕터(프롤로그처럼 choices 가 비어있는 챕터)는 마지막 씬을 통과한
+// 시점에 자동으로 complete 를 호출해 챕터 진행을 닫아준다. choices 가 있는 챕터는
+// 별도의 choice 흐름이 시뮬레이션을 처리하므로 여기서는 닫기만 한다.
+function _finishCampaignNoChoiceFlow(){
+  var a=_campaignActive;
+  var hasChoices=a&&a.chapter&&Array.isArray(a.chapter.choices)&&a.chapter.choices.length>0;
+  if(a&&a.sessionId&&!hasChoices){
+    closeCampaignStory();
+    completeCampaignMission();
+    return;
+  }
+  closeCampaignStory();
 }
 
 function closeCampaignStory(){
@@ -45572,9 +45663,14 @@ window.closeTacticalLab = closeTacticalLab;
      Claude가 bug-reports/ 폴더를 읽어 버그를 수정하고 커밋합니다.
 ════════════════════════════════════════════════════════════════ -->
 <style>
-/* ── Bug Reporter 플로팅 버튼 ── */
+/* ── Bug Reporter 플로팅 버튼 ──
+   z-index 100 → 일반 게임플레이 화면 위에는 보이고, 모달/패널/스토리 오버레이가
+   열리면 가려진다 (panel-r:110, base-modal:520, campaign-modal:2600,
+   story-overlay:5200, game-confirm:10001 모두 100보다 위). 모달 내부에서
+   버그 리포트 자체를 열고 싶다면 #bugReportModal(z-index 99100)는 별도로
+   최상단에 표시되므로 영향 없다. */
 #bugReportBtn{
-  position:fixed;bottom:20px;right:20px;z-index:99000;
+  position:fixed;bottom:20px;right:20px;z-index:100;
   width:44px;height:44px;border-radius:50%;
   background:rgba(20,26,34,.9);border:1px solid rgba(239,83,80,.45);
   color:#ef5350;font-size:18px;cursor:pointer;
