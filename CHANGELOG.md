@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-30 — Capital ship Core/Mid material gate + Phase C hijack modal cleanup (v5.32)
+
+- **Migration 203 추가**: `203_capital_ship_core_mid_materials.sql`. `fsp_titan` 에 `nano_polymer:40` 추가(다른 두 Titan 처럼 Mid mat 2종 보유), 모든 Battleship의 `exotic_alloy` 최소치를 3 으로 통일. 어드민 추적용 5개 settings 키 시드 (`capital_ship_core_mat_required`, `capital_ship_mid_mat_required`, `capital_ship_recipe_contract`, `core_exclusive_minerals`, `mid_exclusive_minerals`). 마이그레이션 안에 invariant assertion 포함 — 모든 BS/Titan 이 Core+Mid 광물을 둘 다 포함하지 않으면 적용 실패.
+- **CLAUDE.md §8 task #1 클로즈**: Migration 163이 이미 시드한 Core/Mid 전용 재료 정책(Frontier=iron_ore/carbon_fiber/silicon_chip, Mid=titanium_alloy/plasma_crystal/nano_polymer, Core=exotic_alloy/dark_matter/quantum_core)을 강화·문서화 완료. AUDIT_FINDINGS.md 라인 643이 이미 ✅ 표시했지만 CLAUDE.md TODO에서 누락 — 이번에 정합 처리.
+- **Phase C 하이잭 모달 정리 (CLAUDE.md §8 task #3)**: `index.html`의 죽은 `hijackModal` HTML(31줄)과 `openHijackModal/closeHijack/confirmHijack` 함수 일괄 제거. `useLegacyDeclare` 게이트 뒤에 숨어 있어 사용자에게 도달 불가능했던 dead code. 진입 헬퍼 `showHijackEntryHint`와 영토 정보 패널의 `hijackFromTerritoryInfo`(claim 모달 → `/api/hijack/declare-with-pp` 경로)는 유지.
+- **`/api/hijack/declare` 410 응답 개선**: 메시지를 사용자가 알 수 있는 대안 경로(영토 하이잭=`/api/hijack/declare-with-pp`, AI 결투=`/api/ai/fight`, PvP 토너먼트=`/api/tournaments/:id/register`)와 함께 반환하도록 수정. `phaseC.js` + `services/hijack.js` 라우트 정리 주석 동기화.
+- **Smoke 테스트 도구 추가**: `server/tools/smoke_capital_recipes.js`. `node ./server/tools/smoke_capital_recipes.js` 로 `ship.startBuild` (battleship+titan recipe 검증), `resourceCraft.startCraft` (hull_plate, plasma_coil), `hijack` 서비스 export·hijack_battles 스키마, Migration 203 invariant 까지 11항목 직접 검증. CLAUDE.md §8 task #2 검수 통과.
+
+검증:
+- `psql ... -f server/migrations/203_capital_ship_core_mid_materials.sql` 적용 (assertion 통과, schema_migrations 등록)
+- `psql -c "SELECT recipe_minerals ? 'exotic_alloy' OR recipe_minerals ? 'dark_matter' OR recipe_minerals ? 'quantum_core' AS has_core, recipe_minerals ? 'titanium_alloy' OR recipe_minerals ? 'plasma_crystal' OR recipe_minerals ? 'nano_polymer' AS has_mid FROM ship_types WHERE size_class IN ('battleship','titan')"` → 6/6 모두 t,t
+- `node server/tools/smoke_capital_recipes.js` → 11 passed / 0 failed (ship build, resource craft, hijack 서비스, schema, recipe invariant)
+- `node --check server/routes/phaseC.js`, `node --check server/services/hijack.js`, `node --check server/tools/smoke_capital_recipes.js`
+- `grep -c openHijackModal hijackModal closeHijack confirmHijack index.html admin.html` → 0/0 (ghost ref 없음)
+
 ## 2026-04-29 — Bug report 버튼 중복 제거 + SECTORS 좌측 배치 (v5.31)
 
 - **버그리포트 버튼 중복 제거**: `index.html`에 동시에 살아 있던 두 개의 버그리포트 시스템(신규 `#bugReportFab` 🐞 + `class="bug-modal"` / 레거시 `#bugReportBtn` 🐛 + `class="br-*"`)이 같은 `id="bugReportModal"`을 공유해 DOM 충돌을 일으키던 문제를 정리. 신규 시스템(버튼 + 모달 + CSS + JS)을 전부 삭제하고 레거시 단일 시스템만 유지.

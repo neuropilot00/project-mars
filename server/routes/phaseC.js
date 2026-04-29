@@ -15,7 +15,9 @@
 // Hijack:
 //   GET  /api/hijack/mine            — 내 하이잭 이력
 //   GET  /api/hijack/:id(\\d+)             — 하이잭 상세
-//   POST /api/hijack/declare         — 하이잭 선언
+//   POST /api/hijack/declare         — [DEPRECATED 410] 영토 이전 없는 레거시 전투-only 경로
+//                                       실제 영토 하이잭: POST /api/hijack/declare-with-pp (routes/api.js)
+//                                       PvP 함대전 (영토 X): POST /api/ai/fight (AI) / 토너먼트 브라켓
 //   POST /api/hijack/:id(\\d+)/phase2      — Phase 2 시작
 // ═══════════════════════════════════════════════════════════════
 
@@ -222,23 +224,22 @@ router.get('/hijack/:id(\\d+)', async (req, res) => {
   }
 });
 
-router.post('/hijack/declare', requireAuth, async (req, res) => {
-  try {
-    return res.status(410).json({
-      error: 'HIJACK_DECLARE_DEPRECATED',
-      message: 'Use /api/hijack/declare-with-pp so PP settlement and territory transfer are recorded.',
-    });
-  } catch (err) {
-    const errorMap = {
-      'ATK_FLEET_NOT_FOUND': 404, 'DEF_FLEET_NOT_FOUND': 404,
-      'ATK_FLEET_IN_BATTLE': 409, 'DEF_FLEET_IN_BATTLE': 409,
-      'NO_PHASE1_SHIPS': 409, 'TOO_MANY_PHASE1_SHIPS': 409,
-    };
-    const status = errorMap[err.message];
-    if (status) return res.status(status).json({ error: err.message, meta: err.meta });
-    console.error('[phaseC] hijack declare error:', err);
-    res.status(500).json({ error: 'SERVER_ERROR' });
-  }
+// ── /api/hijack/declare — [DEPRECATED 410] ──────────────────────
+// 과거: 영토 이전 없이 두 함대를 Phase 1/2 로만 충돌시키는 "전투 전용" 경로.
+// 현재: 영토 이전이 포함된 정식 하이잭만 지원. 함대 결투는 별도 경로 사용.
+//   • 영토 하이잭 (PP 정산 + 픽셀 이전): POST /api/hijack/declare-with-pp
+//   • 전투 전용 PvP (AI 상대):           POST /api/ai/fight
+//   • 전투 전용 PvP (사람 상대):         토너먼트 브라켓 (POST /api/tournaments/:id/register)
+router.post('/hijack/declare', requireAuth, (req, res) => {
+  return res.status(410).json({
+    error: 'HIJACK_DECLARE_DEPRECATED',
+    message: 'Legacy battle-only hijack route. Use /api/hijack/declare-with-pp for territory hijack, or /api/ai/fight / tournament bracket for fleet duels without territory transfer.',
+    alternatives: {
+      territory_hijack: 'POST /api/hijack/declare-with-pp',
+      ai_duel: 'POST /api/ai/fight',
+      pvp_tournament: 'POST /api/tournaments/:id/register',
+    },
+  });
 });
 
 router.post('/hijack/:id(\\d+)/phase2', requireAuth, async (req, res) => {

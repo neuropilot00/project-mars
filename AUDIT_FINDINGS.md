@@ -1,6 +1,24 @@
-# OCCUPY MARS — Codebase Audit (v5.31 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.32 / 2026-04-30)
 
-## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+## ✅ 현재 코드베이스 상태 요약 (2026-04-30 기준)
+
+### v5.32 Capital ship Core/Mid material gate + Phase C hijack modal cleanup — 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Battleship/Titan Core+Mid mat 보장 | ✅ | Migration 203 적용. 모든 BS/Titan(6종)이 Core 전용(`exotic_alloy`/`dark_matter`/`quantum_core`)과 Mid 전용(`titanium_alloy`/`plasma_crystal`/`nano_polymer`) 광물을 둘 다 포함. fsp_titan에 nano_polymer:40 추가, 모든 BS의 exotic_alloy 최소치를 3 으로 통일. 마이그레이션이 invariant assertion으로 자체 검증. |
+| 어드민 추적용 settings | ✅ | `capital_ship_core_mat_required`, `capital_ship_mid_mat_required`, `capital_ship_recipe_contract`, `core_exclusive_minerals`, `mid_exclusive_minerals` 키 시드. admin이 광물 코드 set을 한 곳에서 관리/감사 가능. |
+| Phase C 죽은 하이잭 모달 제거 | ✅ | `index.html`의 `hijackModal` HTML(31줄) + `openHijackModal/closeHijack/confirmHijack` 함수 삭제. `useLegacyDeclare` 게이트 뒤에 숨어 있어 도달 불가능했던 dead code. 영토 정보 패널의 정식 진입점(`hijackFromTerritoryInfo` → claim 모달 → `/api/hijack/declare-with-pp`)은 유지. |
+| `/api/hijack/declare` 410 응답 보강 | ✅ | 메시지에 alternatives 객체(territory_hijack/ai_duel/pvp_tournament 경로)를 명시. `phaseC.js` + `services/hijack.js` 라우트 정리 주석 동기화. 외부에서 잘못 호출했을 때 어디로 가야 하는지 즉시 안내. |
+| ships/build·resource-craft/start·hijack/declare-with-pp 스모크 | ✅ | `server/tools/smoke_capital_recipes.js` 작성·통과. 11/11 통과 — `ship.startBuild` (mcc_bs/mcc_titan), `resourceCraft.startCraft` (hull_plate/plasma_coil), `hijack` 서비스 export 4종, `hijack_battles` 스키마(target_claim_id NULL 허용 + pending_pixels 컬럼), Migration 203 invariant. Core+Mid 광물이 실제로 차감되는지(`exotic_alloy`/`titanium_alloy`/`nano_polymer`)도 직접 검증. |
+
+검증:
+- `psql -f server/migrations/203_capital_ship_core_mid_materials.sql` 적용 (assertion 통과)
+- `node server/tools/smoke_capital_recipes.js` → 11 passed / 0 failed
+- `node --check` 모든 수정 JS 파일 통과
+- `grep -c openHijackModal hijackModal closeHijack confirmHijack index.html admin.html` → 0/0
+
+---
 
 ### v5.31 Bug report 버튼 중복 제거 — 수정 완료
 
@@ -654,7 +672,7 @@
 |---|---|---|
 | Hijack 실패 시 영토 처리 | "비-primary 디펜더 잔여 P1" | ✅ 정상 동작 — 영토 보존 + PP 90% 환불 (`hijack.js:197,379`) |
 | `recipe_minerals` 차감 | "현재 무시됨" | ✅ `ship.js:278` 에서 `resources` JOIN 후 `user_resource_inventory` UPDATE |
-| Titan/Battleship Core/Mid 재료 | "추가 필요" | ✅ Migration 163 시드됨 (titan = dark_matter+quantum_core+exotic_alloy) |
+| Titan/Battleship Core/Mid 재료 | "추가 필요" | ✅ Migration 163 시드 + Migration 203 (v5.31)로 BS/Titan 6/6 모두 Core+Mid 광물 보장 + invariant assertion + admin settings |
 | 함선 수리 UI | "라우트+UI 모두 필요" | ✅ `syRepairShip/syChargeShield/syScrapShip` 모두 라이브 (`index.html:40588~`) |
 | 광물 도감 UI | (언급 없음) | ✅ Minerals Panel 모달 + `openMineralsPanel()` 진입 (`index.html:41332`) |
 
