@@ -12,9 +12,18 @@
 //   - 승리 시 영토 또는 자산 탈취
 //   - 패배 시 수비 성공
 //
-// ─── Flow ─────────────────────────────────────────────────
-// 1. POST /api/hijack/declare-with-pp (routes/api.js:1573~)
-//    - 침입자 stamp 영역 vs 수비자 픽셀 overlap 계산
+// ─── 진입점 / 라우트 정리 ──────────────────────────────────
+// • POST /api/hijack/declare-with-pp  (routes/api.js)
+//     → 정식 영토 하이잭. PP 정산 + 픽셀 이전 포함. UI 진입은 영토 정보 패널의
+//       "⚔ HIJACK 영토" 버튼 → claim 모달 → 이 경로.
+// • POST /api/hijack/declare          (routes/phaseC.js)
+//     → 410 Deprecated. 과거 영토 이전 없는 전투-only 경로.
+//       함대 결투 대용은 /api/ai/fight 또는 토너먼트 브라켓.
+//   declareHijack() 함수 자체는 declareHijackWithPP() 가 내부에서 사용하므로
+//   서비스 export 는 유지하지만, 외부 라우트는 deprecate.
+//
+// ─── Flow (declare-with-pp) ────────────────────────────────
+// 1. 침입자 stamp 영역 vs 수비자 픽셀 overlap 계산
 //    - 수비 함대 0 → auto-win (Phase 1/2 스킵, 즉시 픽셀 이전)
 //    - 수비 함대 있음 → fleet_battle 생성 + phase1_battle_id 반환
 // 2. Phase1 종료 후 Phase2 자동 시작 (수비 본대 vs 침입자 본대)

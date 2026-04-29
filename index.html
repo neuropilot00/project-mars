@@ -42287,39 +42287,6 @@ function fcEsc(str) {
   </div>
 </div>
 
-<!-- Phase C: Hijack 선언 -->
-<div class="hj-modal-backdrop" id="hijackModal">
-  <div class="hj-modal">
-    <div class="hj-title">HIJACK DECLARATION</div>
-    <div class="hj-subtitle">// 2단계 침투 작전</div>
-    <div class="hj-warn">
-      ⚠ <b>Phase 1</b>: 프리깃/구축함 최대 20척 투입. 방어 돌파 시도.<br>
-      ⚠ <b>Phase 2</b>: Phase 1 성공 시 본대 투입 가능.<br>
-      ⚠ 각 Phase는 별도 전투로 진행됩니다.
-    </div>
-    <div class="bd-section">
-      <div class="bd-section-label">Phase 1 투입 함대 (소형함 전용)</div>
-      <select class="bd-my-fleet-select" id="hijackAtkFleet"></select>
-    </div>
-    <div class="bd-section">
-      <div class="bd-section-label">타겟 Claim ID</div>
-      <input class="bd-target-input" id="hijackClaimId" type="number" placeholder="Claim ID">
-    </div>
-    <div class="bd-section">
-      <div class="bd-section-label">방어자 지갑 + 함대 ID</div>
-      <input class="bd-target-input" id="hijackDefWallet" placeholder="0x..." style="margin-bottom:4px">
-      <input class="bd-target-input" id="hijackDefFleetId" type="number" placeholder="방어 함대 ID">
-    </div>
-    <div class="bd-actions">
-      <button class="fd-btn" onclick="closeHijack()">취소</button>
-      <button class="bh-declare-btn" style="font-size:10px;padding:8px 16px;background:linear-gradient(135deg,#7b1fa2,#ba68c8);border-color:#ba68c8"
-              onclick="confirmHijack()">
-        🔀 Phase 1 시작
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- Ship Registry 모달 (22종 함선 도감) -->
 <style>
 .reg-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);display:none;z-index:9999;align-items:center;justify-content:center;padding:16px}
@@ -43640,7 +43607,10 @@ function closeBracket() {
 }
 
 // ═════════════════════════════════════════════════════════════════
-// Phase C: Hijack
+// Hijack 진입점 (PP 정산 + 영토 이전 포함 — /api/hijack/declare-with-pp)
+//
+// 레거시 /api/hijack/declare 는 410 Deprecated. 영토 이전 없이 함대만
+// 충돌시키는 "전투 전용" PvP는 /api/ai/fight (AI 상대) 또는 토너먼트 브라켓을 사용.
 // ═════════════════════════════════════════════════════════════════
 
 function showHijackEntryHint() {
@@ -43651,65 +43621,7 @@ function showHijackEntryHint() {
 }
 window.showHijackEntryHint = showHijackEntryHint;
 
-async function openHijackModal(prefill) {
-  if (!prefill || !prefill.useLegacyDeclare) {
-    showHijackEntryHint();
-    return;
-  }
-  if (!isLoggedIn()) { showFactionToast('로그인이 필요합니다', 'error'); return; }
-
-  try {
-    const res = await fetch('/api/fleets', { headers: getAuthHeaders() });
-    const data = await res.json();
-    const myFleets = (data.fleets || []).filter(f => f.ships_alive > 0 && !f.is_in_battle);
-
-    if (myFleets.length === 0) {
-      showFactionToast('사용 가능한 함대가 없습니다', 'error');
-      return;
-    }
-
-    const sel = document.getElementById('hijackAtkFleet');
-    sel.innerHTML = myFleets.map(f =>
-      `<option value="${f.id}">${escapeHtml(f.name)} (${f.ships_alive}척)</option>`
-    ).join('');
-
-    // Reset & autofill
-    const claimEl = document.getElementById('hijackClaimId');
-    const wEl = document.getElementById('hijackDefWallet');
-    const fEl = document.getElementById('hijackDefFleetId');
-    if (prefill && typeof prefill === 'object') {
-      if (prefill.claimId) claimEl.value = String(prefill.claimId);
-      if (prefill.defWallet) wEl.value = String(prefill.defWallet);
-      if (prefill.defFleetId) fEl.value = String(prefill.defFleetId);
-    }
-
-    document.getElementById('hijackModal').classList.add('active');
-
-    // 자동으로 방어자 함대 검색해서 채워주기
-    if (prefill && prefill.defWallet && !fEl.value) {
-      try {
-        const sr = await fetch('/api/fleets/search?q=' + encodeURIComponent(prefill.defWallet), { headers: getAuthHeaders() });
-        if (sr.ok) {
-          const sd = await sr.json();
-          const candidate = (sd.results || [])
-            .filter(r => String(r.owner_wallet||'').toLowerCase() === String(prefill.defWallet).toLowerCase())
-            .filter(r => r.can_attack);
-          if (candidate[0]) {
-            fEl.value = String(candidate[0].fleet_id);
-            const nick = candidate[0].nickname || candidate[0].fleet_name || '';
-            showFactionToast(`🎯 ${nick} 함대 #${candidate[0].fleet_id} 자동 선택`, 'success');
-          } else if ((sd.results || []).length === 0) {
-            showFactionToast('방어자에게 활성 함대가 없습니다', 'error');
-          }
-        }
-      } catch(_) {}
-    }
-  } catch (err) {
-    showFactionToast('로드 실패', 'error');
-  }
-}
-
-// 영토 정보 패널의 "⚔ HIJACK 영토" 버튼 핸들러 — autofill 로 모달 열기
+// 영토 정보 패널의 "⚔ HIJACK 영토" 버튼 핸들러 — claim 모달 (PP 경로) 로 진입
 function hijackFromTerritoryInfo(){
   const btn = document.getElementById('infoHijackBtn');
   if (!btn) return;
@@ -43732,14 +43644,6 @@ function hijackFromTerritoryInfo(){
   openClaimModal();
 }
 window.hijackFromTerritoryInfo = hijackFromTerritoryInfo;
-
-function closeHijack() {
-  document.getElementById('hijackModal').classList.remove('active');
-}
-
-async function confirmHijack() {
-  showHijackEntryHint();
-}
 
 // ═════════════════════════════════════════════════════════════════
 // Battle Viewer (Canvas Renderer)

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-29 v5.30 (Mobile first-load side panel lock) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-29 v5.31 (Capital ship Core/Mid material gate + Phase C hijack modal cleanup) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -69,9 +69,9 @@ NODE_ENV=development
 ## 4. DB 현재 상태
 
 - **DB명**: `pixelwar` (PostgreSQL)
-- **적용된 마이그레이션**: 001 ~ **200** (2026-04-29 기준)
+- **적용된 마이그레이션**: 001 ~ **203** (2026-04-29 기준)
 - **총 테이블 수**: 109개+
-- **마지막 마이그레이션**: `200_fsp_campaign_ch7_to_ch10.sql`
+- **마지막 마이그레이션**: `203_capital_ship_core_mid_materials.sql`
 
 ### 핵심 테이블 목록
 
@@ -344,11 +344,15 @@ app.use('/admin/api', adminRoutes);  // 단일 파일 admin.js로 통합
 - 내 영토 금색 하이라이트 (compositeClaimsOnTexture)
 - 하이젝 auto_win 후 영토 즉시 금색 반영 (Railway 레이턴시 우회)
 
-### 🔴 다음 작업 (우선순위 순)
+### ✅ v5.31 (2026-04-29) 완료
 
-1. 타이탄/배틀십에 Core/Mid 전용 재료 요구사항 추가
-2. 실제 DB 연결 스모크: `/api/ships/build`, `/api/resource-craft/start`, `/api/hijack/declare-with-pp`
-3. Phase C 전투-only 하이잭 모달 명칭/역할 정리 (`/api/hijack/declare`는 영토 이전 없는 수동 전투 경로)
+1. ✅ **타이탄/배틀십 Core/Mid 전용 재료**: Migration 163 시드 + Migration 203 강화. BS/Titan 6/6 모두 Core 전용(`exotic_alloy`/`dark_matter`/`quantum_core`)과 Mid 전용(`titanium_alloy`/`plasma_crystal`/`nano_polymer`) 광물을 둘 다 포함하도록 invariant assertion으로 보장. fsp_titan에 nano_polymer 추가, 모든 BS의 exotic_alloy 최소치 3 통일. admin settings 5종 시드.
+2. ✅ **DB 스모크 테스트**: `server/tools/smoke_capital_recipes.js` (11/11 pass). `ship.startBuild` (mcc_bs/mcc_titan recipe 차감 검증), `resourceCraft.startCraft` (hull_plate/plasma_coil), `hijack` 서비스 export·`hijack_battles` 스키마, Migration 203 invariant 직접 검증.
+3. ✅ **Phase C 죽은 하이잭 모달 정리**: `index.html`의 `hijackModal` HTML(31줄) + `openHijackModal/closeHijack/confirmHijack` 함수 삭제 (도달 불가능 dead code). `/api/hijack/declare` 410 응답 메시지에 alternatives(territory/AI duel/tournament) 명시. `phaseC.js`+`services/hijack.js` 라우트 정리 주석 동기화.
+
+### 🔴 다음 작업
+
+(현재 비어 있음 — 다음 우선순위 작업이 정해지면 여기에 추가)
 
 ---
 
@@ -558,7 +562,7 @@ phaseC/phaseD       ← 길드전 페이즈
 
 ---
 
-## 16. 마이그레이션 누적 인덱스 (001~177)
+## 16. 마이그레이션 누적 인덱스 (001~203)
 
 | 범위 | 주제 |
 |---|---|
@@ -569,10 +573,13 @@ phaseC/phaseD       ← 길드전 페이즈
 | 141~160 | Fleet Combat 기반 (factions, ship_types, fleets, ships) |
 | 161~170 | VIP / 광물 tier / NPC / 트리거 fix |
 | 171~177 | 최근 fix 패키지 (cantina, prestige, economy balance, weather strategic, hijack target_claim, game_settings view, phantom tables) |
+| 178~191 | phantom 테이블 정리, settings 시드, achievements/profile/governance/rank/rocket/poi/AI strategy/hijack target nullable |
+| 192~202 | Campaign chapters (MCC Ch1~10, FSP Ch1~10, Prologue+CV seed), 인게임 버그 리포트 |
+| 203 | Capital ship Core/Mid material gate (BS/Titan invariant + admin settings) |
 | `archived/` | 89~139번 구버전 — **건드리지 말 것** |
 
 새 마이그레이션 작성 규칙:
-1. 파일명: `NNN_short_name.sql` (NNN = 178부터 시작)
+1. 파일명: `NNN_short_name.sql` (NNN = 204부터 시작)
 2. `INSERT INTO schema_migrations (filename) VALUES (...) ON CONFLICT DO NOTHING;` 마지막에 추가
 3. settings INSERT는 `(key)`만 ON CONFLICT, `(category, key)` 복합 아님
 4. JSONB value: 문자열은 `'"text"'`, 숫자는 `'42'`, 불린은 `'true'`/`'false'`, 점이 있는 버전은 `'"1.0.0"'`
