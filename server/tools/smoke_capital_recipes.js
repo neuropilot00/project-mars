@@ -20,9 +20,17 @@ async function main() {
   };
 
   // ── 1. /api/ships/build path: startBuild on a battleship recipe ──
-  // Cancel any leftover jobs first
+  // Reset inventory + GP + cancel leftover jobs so the test is repeatable
   await pool.query(
     `UPDATE ship_build_jobs SET status='cancelled' WHERE wallet_address=$1 AND status IN ('queued','building')`,
+    [TEST_WALLET]
+  );
+  await pool.query(
+    `UPDATE user_resource_inventory SET quantity = 99999 WHERE wallet_address = $1`,
+    [TEST_WALLET]
+  );
+  await pool.query(
+    `UPDATE users SET gp_balance = 1000000 WHERE wallet_address = $1`,
     [TEST_WALLET]
   );
 
@@ -63,9 +71,13 @@ async function main() {
   }
 
   // ── 2. /api/resource-craft/start path ──
-  // Cancel leftover crafts
+  // Reset crafting jobs + inventory (mcc_titan build above also drains mats)
   await pool.query(
     `UPDATE resource_crafting_jobs SET status='cancelled' WHERE wallet_address=$1 AND status='crafting'`,
+    [TEST_WALLET]
+  );
+  await pool.query(
+    `UPDATE user_resource_inventory SET quantity = 99999 WHERE wallet_address = $1`,
     [TEST_WALLET]
   );
 

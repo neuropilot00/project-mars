@@ -1,6 +1,6 @@
 # OCCUPY MARS — Changelog
 
-## 2026-04-29 — Capital ship Core/Mid material gate + Phase C hijack modal cleanup (v5.31)
+## 2026-04-30 — Capital ship Core/Mid material gate + Phase C hijack modal cleanup (v5.32)
 
 - **Migration 203 추가**: `203_capital_ship_core_mid_materials.sql`. `fsp_titan` 에 `nano_polymer:40` 추가(다른 두 Titan 처럼 Mid mat 2종 보유), 모든 Battleship의 `exotic_alloy` 최소치를 3 으로 통일. 어드민 추적용 5개 settings 키 시드 (`capital_ship_core_mat_required`, `capital_ship_mid_mat_required`, `capital_ship_recipe_contract`, `core_exclusive_minerals`, `mid_exclusive_minerals`). 마이그레이션 안에 invariant assertion 포함 — 모든 BS/Titan 이 Core+Mid 광물을 둘 다 포함하지 않으면 적용 실패.
 - **CLAUDE.md §8 task #1 클로즈**: Migration 163이 이미 시드한 Core/Mid 전용 재료 정책(Frontier=iron_ore/carbon_fiber/silicon_chip, Mid=titanium_alloy/plasma_crystal/nano_polymer, Core=exotic_alloy/dark_matter/quantum_core)을 강화·문서화 완료. AUDIT_FINDINGS.md 라인 643이 이미 ✅ 표시했지만 CLAUDE.md TODO에서 누락 — 이번에 정합 처리.
@@ -14,6 +14,17 @@
 - `node server/tools/smoke_capital_recipes.js` → 11 passed / 0 failed (ship build, resource craft, hijack 서비스, schema, recipe invariant)
 - `node --check server/routes/phaseC.js`, `node --check server/services/hijack.js`, `node --check server/tools/smoke_capital_recipes.js`
 - `grep -c openHijackModal hijackModal closeHijack confirmHijack index.html admin.html` → 0/0 (ghost ref 없음)
+
+## 2026-04-29 — Bug report 버튼 중복 제거 + SECTORS 좌측 배치 (v5.31)
+
+- **버그리포트 버튼 중복 제거**: `index.html`에 동시에 살아 있던 두 개의 버그리포트 시스템(신규 `#bugReportFab` 🐞 + `class="bug-modal"` / 레거시 `#bugReportBtn` 🐛 + `class="br-*"`)이 같은 `id="bugReportModal"`을 공유해 DOM 충돌을 일으키던 문제를 정리. 신규 시스템(버튼 + 모달 + CSS + JS)을 전부 삭제하고 레거시 단일 시스템만 유지.
+- **SECTORS 좌측 정렬**: 살아남은 `#bugReportBtn` 🐛 버튼을 화면 우하단 고정 위치 대신 SECTORS 버튼 바로 왼쪽(8px 간격, 세로 가운데 정렬)에 정렬되도록 `alignBugFab()` rAF-throttled 루틴으로 재배치. 패널 접힘/반응형 변화에도 추적되도록 resize/load/주기 타이머에 묶음.
+- **삭제 범위**: `.bug-fab`/`.bug-modal` CSS 블록(약 65줄), 신규 버튼 + 모달 HTML(약 45줄), 신규 시스템 JS(`alignBugFab` 구버전, `selectBugCat`, `openBugReport`, `closeBugReport`, 신규 `submitBugReport`; 약 120줄). 신규 시스템 전용 i18n 키(`bug_report_*`, `bug_cat_*`)는 4개 언어 사전에 남아 있으나 참조하는 UI가 없어 무해한 dead 데이터로 둠.
+
+검증:
+- `index.html` 정적 파싱 — `bugReportBtn` 1개, `bugReportFab` 0개, `bugReportModal` 1개(레거시 onclick→`closeBugReporter`).
+- 신규 시스템 함수/클래스 잔존 0건 grep 확인.
+- `alignBugFab` 리스너(load/resize/DOMContentLoaded/setInterval) 1세트 유지.
 
 ## 2026-04-29 — Mobile first-load side panel lock (v5.30)
 
