@@ -1,6 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.26 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.27 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.27 Campaign Quick Button 기준 위치 재조정 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 데스크탑 CAMPAIGN 버튼 | ✅ | 오른쪽 줌 컬럼의 되돌리기 버튼 위에 배치. |
+| 모바일 CAMPAIGN 버튼 | ✅ | 왼쪽 하단의 "화성을 클릭하여 영토 선택" 모드 배지 바로 위에 배치. |
+
+검증:
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.26 Campaign Quick Button 위치 보정 — 수정 완료
 

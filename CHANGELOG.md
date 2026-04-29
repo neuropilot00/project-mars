@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — Campaign Quick Button 기준 위치 재조정 (v5.27)
+
+- **데스크탑 위치 재조정**: CAMPAIGN 퀵 버튼을 오른쪽 줌 컬럼의 되돌리기 버튼 위로 이동.
+- **모바일 위치 재조정**: CAMPAIGN 퀵 버튼을 왼쪽 하단의 "화성을 클릭하여 영토 선택" 모드 배지 바로 위로 이동.
+
+검증:
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
 ## 2026-04-29 — Campaign Quick Button 위치 보정 (v5.26)
 
 - **데스크탑 위치 보정**: CAMPAIGN 퀵 버튼을 하단 중앙 액션 영역에서 빼고, 좌측 패널 오른쪽 상단 보조 액션 위치로 이동.
