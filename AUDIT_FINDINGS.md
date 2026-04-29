@@ -1,6 +1,25 @@
-# OCCUPY MARS — Codebase Audit (v5.32 / 2026-04-30)
+# OCCUPY MARS — Codebase Audit (v5.33 / 2026-04-30)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-30 기준)
+
+### v5.33 Campaign Visual Novel Engine + 이미지 에셋 + Internal Error 수정 — 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 비주얼 노벨 씬 엔진 | ✅ | `showCampaignStory()` 구현. narration/dialogue/choice/branch/battle_transition/result/ending 씬 타입 지원. 타이핑 애니메이션, 캐릭터 초상화(현재 화자 밝게/비화자 dim), 배경 전환 효과. |
+| 배경 이미지 78개 | ✅ | `assets/campaign/backgrounds/*.png`. 기존 8 + Imagen 3 신규 70개. 씬 JSON의 background ID와 1:1 대응. `.gitignore` 예외 추가. |
+| 캐릭터 초상화 21개 | ✅ | `assets/campaign/characters/*.png`. Imagen 3 신규 10개(liang_wei/yuna/crow/aisha/hagar/kenji/verk/observer/miner_anon/miner_elder) + 기존 11개. |
+| `complete()` Internal Error | ✅ | `applyReputation()` 호출을 `applyOptionalCampaignReward` SAVEPOINT로 감쌈. reputation_history 테이블 이슈 시 평판만 건너뛰고 챕터 완료 유지. 기존에는 전체 롤백 → 500. |
+| Migration 204 방어 재보장 | ✅ | `attempts`/`best_metrics`/`last_metrics`/`source_chapter` ADD COLUMN IF NOT EXISTS. `reputation_history`/`campaign_sessions`/`player_branch_modifiers` CREATE TABLE IF NOT EXISTS. `hidden_campaign_ch1~5` FK 시드. |
+| `.jpg` 확장자 버그 | ✅ | 배경 로딩 코드에서 `.jpg` → `.png` 수정. 기존에는 모든 배경이 gradient fallback이었음. |
+
+검증:
+- `ls assets/campaign/backgrounds/ | wc -l` → 78
+- `ls assets/campaign/characters/ | wc -l` → 21
+- `git log --oneline` → migration 204, applyReputation SAVEPOINT, _bgMap 업데이트 커밋 확인
+- `node --check server/services/campaign.js` 통과
+
+---
 
 ### v5.32 Capital ship Core/Mid material gate + Phase C hijack modal cleanup — 완료
 

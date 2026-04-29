@@ -1,5 +1,44 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-30 — Campaign Visual Novel Engine + 배경·캐릭터 에셋 완성 + Internal Error 수정 (v5.33)
+
+### 비주얼 노벨 씬 엔진 (Codex 구현)
+- **`showCampaignStory()` 씬 엔진**: 기존 `showCampaignBriefing()` 를 교체하는 새 비주얼 노벨 엔진. 씬 타입별 렌더링(`narration`, `dialogue`, `choice`, `branch`, `battle_transition`, `result`, `ending`)을 지원한다.
+- **타이핑 애니메이션**: 한 글자씩 30ms 간격, 탭하면 즉시 전체 표시. `typeText()` + `advanceCampaignScene()`.
+- **캐릭터 초상화**: 현재 화자 밝게, 비화자 opacity 0.5. `/assets/campaign/characters/{id}.png`. `_portraitMap`으로 scene speaker ID → 파일명 매핑.
+- **배경 이미지**: `/assets/campaign/backgrounds/{id}.png`. `_bgMap`으로 씬 background ID → 파일명 폴백 매핑. 미존재 시 gradient fallback.
+- **폴백 라우팅**: `ch.scenes` 없는 챕터는 기존 `showCampaignBriefing()` 유지.
+
+### 이미지 에셋 — Gemini Imagen 3 (GCP Vertex AI)
+- **배경 78개**: `assets/campaign/backgrounds/*.png`
+  - 기존 8개 (mcc_briefing_room, cargo_ship_interior, mars_sunset 등)
+  - Imagen 3 신규 20개: hellas_zone4_deep_tunnel, mcc_board_chamber, erebus_throne_hall, fsp_assembly_hall, olympus_exterior 등
+  - Imagen 3 신규 50개 (씬별 전용): kariope_cargo_bay, cargo_ship_corridor, deep_space_window, new_athens_shipyard_dawn/interior/night, hellas_central_exterior 시리즈, mine_shaft/exterior/interior, erebus_crater_panorama/exterior, argyre_canyon_depot, mars_surface_dust_storm 등
+- **캐릭터 초상화 21개**: `assets/campaign/characters/*.png`
+  - liang_wei, yuna, crow, aisha, hagar, kenji, verk, observer, miner_anon, miner_elder (Imagen 3)
+  - 기존 11개 유지
+- **스타일**: 32-bit pixel art, semi-realistic concept art, Mars sci-fi, 16:9(배경)/3:4(캐릭터).
+- **생성 스크립트**: `scripts/gen_ai_assets.py`, `scripts/gen_missing_backgrounds.py` (GCP ADC 인증).
+
+### 씬 파일 전면 확충
+- 36개 챕터 JSON (`docs/campaign-story/`): MCC Ch1~10, FSP Ch1~10, CV Ch1~10, Prologue 3종.
+- 각 파일 배경 ID가 `_bgMap` + 실제 파일 78개와 1:1 대응되도록 정렬.
+
+### 버그 수정
+- **`complete()` Internal Error**: `applyReputation()` 호출을 `applyOptionalCampaignReward` SAVEPOINT 로 감쌈. `reputation_history` 테이블 이슈 또는 스키마 미적용 시 평판 변경만 건너뛰고 챕터 완료는 유지. 기존에는 이 경우 전체 트랜잭션이 ROLLBACK → 500 "Internal error" 였다.
+- **Migration 204**: 방어적 재보장
+  - `player_campaign_progress`: `attempts`/`best_metrics`/`last_metrics` ADD COLUMN IF NOT EXISTS
+  - `player_lore_flags`: `source_chapter`/`metadata` ADD COLUMN IF NOT EXISTS
+  - `reputation_history`, `campaign_sessions`, `player_branch_modifiers` CREATE TABLE IF NOT EXISTS
+  - `hidden_campaign_ch1~5` `campaign_chapters` 시드 — hidden 챕터 start 시 FK 위반 방지.
+- **`.jpg` → `.png` 확장자 버그**: 배경 로딩 코드가 `.jpg`를 참조해 모든 배경이 gradient fallback으로 표시되던 문제 수정.
+- **에러 메시지 개선**: `complete` 라우트에서 DB 스키마 관련 에러 시 힌트 포함 — Railway 로그 없이도 디버깅 가능.
+
+검증:
+- `git log --oneline` 확인: 이미지 커밋 78개, 씬 엔진 코드, migration 204 적용 확인
+- `ls assets/campaign/backgrounds/ | wc -l` → 78
+- `ls assets/campaign/characters/ | wc -l` → 21
+
 ## 2026-04-30 — Capital ship Core/Mid material gate + Phase C hijack modal cleanup (v5.32)
 
 - **Migration 203 추가**: `203_capital_ship_core_mid_materials.sql`. `fsp_titan` 에 `nano_polymer:40` 추가(다른 두 Titan 처럼 Mid mat 2종 보유), 모든 Battleship의 `exotic_alloy` 최소치를 3 으로 통일. 어드민 추적용 5개 settings 키 시드 (`capital_ship_core_mat_required`, `capital_ship_mid_mat_required`, `capital_ship_recipe_contract`, `core_exclusive_minerals`, `mid_exclusive_minerals`). 마이그레이션 안에 invariant assertion 포함 — 모든 BS/Titan 이 Core+Mid 광물을 둘 다 포함하지 않으면 적용 실패.

@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-30 v5.32 (Capital ship Core/Mid material gate + Phase C hijack modal cleanup) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-30 v5.33 (Campaign Visual Novel Engine + 배경·캐릭터 이미지 78+21개 + Internal Error 수정) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -128,14 +128,16 @@ NODE_ENV=development
 
 ## 5. Campaign System Architecture
 
-### 현재 구현 상태 (v5.29)
-- **MVP 방식**: MCC Campaign Ch1~10과 FSP Campaign Ch1~10은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
+### 현재 구현 상태 (v5.33)
+- **비주얼 노벨 씬 엔진**: `showCampaignStory()` 가 `showCampaignBriefing()` 를 대체. 씬 타입(`narration`, `dialogue`, `choice`, `branch`, `battle_transition`, `result`, `ending`)별로 배경·캐릭터 초상화·타이핑 애니메이션을 렌더한다. `ch.scenes` 없는 챕터는 기존 briefing 폴백.
+- **이미지 에셋**: `assets/campaign/backgrounds/` 78개 PNG + `assets/campaign/characters/` 21개 PNG. 모두 GCP Vertex AI Imagen 3 (32-bit pixel art, semi-realistic, Mars sci-fi). `.gitignore` 예외 추가로 git 추적.
+- **배경 매핑**: `_bgMap` (index.html)이 씬 background ID → 파일명을 매핑. 실제 파일이 있는 ID는 직접 참조, 없는 ID만 폴백.
+- **씬 파일**: `docs/campaign-story/` 36개 JSON (MCC/FSP/CV Ch1~10 + Prologue 3종). `campaign.js`의 `CHAPTERS[id].scenesFile` 필드로 참조.
+- **MVP 방식**: MCC Campaign Ch1~10과 FSP Campaign Ch1~10은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다.
 - **API**: `server/routes/api.js`의 `/api/campaign/status/:wallet`, `/api/campaign/start`, `/api/campaign/choice`, `/api/campaign/progress`, `/api/campaign/complete`.
-- **DB**: `server/migrations/192_campaign_mcc_ch1.sql`, `193_campaign_common_systems.sql`, `194_mcc_campaign_ch2_to_ch4.sql`, `195_mcc_campaign_ch5_to_ch7.sql`, `196_mcc_campaign_ch8_to_ch10.sql`, `197_fsp_campaign_ch1_to_ch3.sql`, `198_fsp_campaign_ch4_diplomacy.sql`, `199_fsp_campaign_ch5_ch6.sql`, `200_fsp_campaign_ch7_to_ch10.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox, 환경/챕터 seed를 만든다.
-- **UI**: `index.html` 메인 지도 CAMPAIGN 퀵 버튼 또는 QUESTS 탭의 CAMPAIGN 섹션에서 시작한다. CAMPAIGN 퀵 버튼은 데스크탑에서는 오른쪽 줌 컬럼의 되돌리기 버튼 위, 모바일에서는 왼쪽 하단 "화성을 클릭하여 영토 선택" 모드 배지 바로 위에 둔다. 잠긴 챕터는 기본 접힘 compact list로 렌더하고, 브리핑 → 선택지 → 압축 시뮬레이션 → 결과 모달 흐름은 유지한다.
-- **Mobile HUD**: 1024px 이하에서는 좌/우 사이드 패널이 `.open` 없이는 `!important` transform으로 off-screen 고정된다. iOS bfcache/첫 로드/pageshow/회전 시 `forceCloseMobilePanels()`가 패널 open 상태를 제거해 첫 화면이 지도로 시작하게 한다.
-- **보상 정책**: GP/XP/평판은 `complete()` 트랜잭션 안에서 핵심 보상으로 처리한다. 칭호/환경 숙련도/blueprint inbox/태그/서사 플래그/branch modifier 같은 부가 기록은 `SAVEPOINT`로 격리해 스키마/seed 누락이 있어도 챕터 완료 자체가 500으로 죽지 않게 한다. 클라이언트는 최종 보상값을 제출하지 않는다.
-- **세션 복구**: QUESTS 탭의 `CONTINUE`는 기존 `sessionId`를 이어서 브리핑/시뮬레이션으로 복구한다. 진행 중인 챕터를 다시 `/api/campaign/start`로 초기화하지 않는다.
+- **DB**: 192~204번 마이그레이션. 204는 방어적 `IF NOT EXISTS` 재보장 + `hidden_campaign_ch1~5` FK 시드.
+- **보상 정책**: `complete()` 에서 평판 포함 모든 선택적 보상이 SAVEPOINT 안에서 실행된다. 스키마 누락이 있어도 챕터 완료 자체가 500으로 죽지 않는다.
+- **세션 복구**: QUESTS 탭의 `CONTINUE`는 기존 `sessionId`를 이어서 씬 엔진 또는 시뮬레이션으로 복구한다.
 
 ### MCC Route Implemented Chapters
 - `mcc_campaign_ch1`: 산소 쟁탈 / Dust Storm / 산소 회수율.
