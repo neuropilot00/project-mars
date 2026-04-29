@@ -5,55 +5,122 @@
   "title": { "ko": "용병 코드", "en": "The Mercenary Code" },
   "location": { "id": "erebus_crater_base", "displayNameKo": "에레보스 분화구 기지" },
   "environment": "cv_base_interior",
-  "estimatedPlayTimeMinutes": 15,
+  "estimatedPlayTimeMinutes": 16,
   "characters": ["player", "butcher", "crow", "aisha", "cinder"],
   "scenes": [
+
     { "id": "s01", "type": "narration", "background": "erebus_base_interior", "bgm": "cv_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "에레보스 기지. 분화구 안. 화성 남반구 가장 차가운 곳에서 두 번째로 차가운 곳. 영하 100도 아래였다. 기지 안은 달랐다. 불이 있었다. 배럴 불이었다. 여러 개. CV는 불을 좋아했다. 불은 규칙이 없었다. 그것이 CV와 닮은 것이었다.", "en": "Erebus base. Inside the crater. Second coldest place in the southern hemisphere of Mars. Below minus 100. Inside the base was different. Fires. Barrel fires. Several. CV liked fire. Fire had no rules. That was what fire had in common with CV." }}] },
+      "lines": [{ "text": {
+        "ko": "에레보스 기지. 분화구 안. 화성 남반구 가장 차가운 곳에서 두 번째로 차가운 곳. 영하 100도 아래였다. 기지 안은 달랐다. 불이 있었다. 배럴 불이었다. 여러 개. CV는 불을 좋아했다. 불은 규칙이 없었다. 그것이 CV와 닮은 것이었다.",
+        "en": "Erebus base. Inside the crater. Second coldest place in the southern hemisphere of Mars. Below minus 100. Inside the base was different. Fires. Barrel fires. Several. CV liked fire. Fire had no rules. That was what fire had in common with CV."
+      }}]
+    },
+
     { "id": "s02", "type": "narration", "background": "erebus_base_interior", "bgm": "cv_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "코드가 있었다. CV는 문서가 없었다. 계약서가 없었다. 법이 없었다. 그러나 코드는 있었다. 말해지지 않는 코드. 그것을 아는 사람만 CV에 있을 수 있었다. 모르는 사람은 알기 전에 사라졌다.", "en": "There was a code. CV had no documents. No contracts. No law. But there was a code. An unspoken code. Only those who knew it could be in CV. Those who didn't know disappeared before learning it." }}] },
+      "lines": [{ "text": {
+        "ko": "코드가 있었다. CV는 문서가 없었다. 계약서가 없었다. 법이 없었다. 그러나 코드는 있었다. 말해지지 않는 코드. 그것을 아는 사람만 CV에 있을 수 있었다. 모르는 사람은 알기 전에 사라졌다.",
+        "en": "There was a code. CV had no documents. No contracts. No law. But there was a code. An unspoken code. Only those who knew it could be in CV. Those who didn't know disappeared before learning it."
+      }}]
+    },
+
     { "id": "s03", "type": "dialogue", "background": "erebus_base_interior", "bgm": "cv_ambient", "transition": "cut",
       "lines": [
-        { "speaker": "butcher", "emotion": "gruff", "effect": "character_enter:butcher:slide_left", "text": { "ko": "코드가 뭔지 알아?", "en": "You know what the code is?" }},
-        { "speaker": "butcher", "emotion": "serious", "text": { "ko": "다섯 개야. 하나. 돈은 전에. 둘. 비전투원은 건드리지 않아. 셋. 계약을 한 번 수락하면 끝내. 넷. 동료는 버리지 않아. 다섯.", "en": "Five things. One. Money first. Two. Don't touch non-combatants. Three. If you accept a contract finish it. Four. Don't abandon a comrade. Five." }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "다섯 번째는 없어. 각자가 만드는 거야.", "en": "The fifth doesn't exist. Each person makes it themselves." }}
+        { "speaker": "butcher", "emotion": "gruff", "effect": "character_enter:butcher:slide_left", "text": {
+          "ko": "코드가 뭔지 알아?",
+          "en": "You know what the code is?"
+        }},
+        { "speaker": "butcher", "emotion": "serious", "text": {
+          "ko": "다섯 개야. 하나. 돈은 전에. 둘. 비전투원은 건드리지 않아. 셋. 계약을 한 번 수락하면 끝내. 넷. 동료는 버리지 않아. 다섯.",
+          "en": "Five things. One. Money first. Two. Don't touch non-combatants. Three. If you accept a contract finish it. Four. Don't abandon a comrade. Five."
+        }},
+        { "speaker": "butcher", "emotion": "heavy", "text": {
+          "ko": "다섯 번째는 없어. 각자가 만드는 거야.",
+          "en": "The fifth doesn't exist. Each person makes it themselves."
+        }}
       ]
     },
+
     { "id": "s04", "type": "narration", "background": "erebus_base_interior", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "Aisha Rahman이 불 앞에 앉아 있었다. CV 3년차. 조용한 사람이었다. 그러나 일이 시작되면 달랐다. 이 사람의 다섯 번째 코드는 충성이었다. 누구에게 충성하는지가 중요했다. 그녀는 사람에게 충성했다. 조직이 아니라.", "en": "Aisha Rahman sat by the fire. Three years in CV. A quiet person. But when work started she was different. This person's fifth code was loyalty. Who you were loyal to mattered. She was loyal to people. Not the organization." }}] },
+      "lines": [{ "text": {
+        "ko": "Aisha Rahman이 불 앞에 앉아 있었다. CV 3년차. 조용한 사람이었다. 그러나 일이 시작되면 달랐다. 이 사람의 다섯 번째 코드는 충성이었다. 누구에게 충성하는지가 중요했다. 그녀는 사람에게 충성했다. 조직이 아니라.",
+        "en": "Aisha Rahman sat by the fire. Three years in CV. A quiet person. But when work started she was different. This person's fifth code was loyalty. Who you were loyal to mattered. She was loyal to people. Not the organization."
+      }}]
+    },
+
     { "id": "s05", "type": "dialogue", "background": "erebus_base_interior", "bgm": "tension_low", "transition": "cut",
       "lines": [
-        { "speaker": "aisha", "emotion": "calm", "effect": "character_enter:aisha:slide_right", "text": { "ko": "다섯 번째가 뭔지 물어볼게요.", "en": "I'll ask what the fifth is." }},
-        { "speaker": "aisha", "emotion": "serious", "text": { "ko": "어제 작전에서 작업자와 대화했다고 들었어요. CV에서 그런 사람은 드물어요.", "en": "I heard you talked to the worker yesterday. People like that are rare in CV." }},
-        { "speaker": "aisha", "emotion": "quiet", "text": { "ko": "그것이 당신의 다섯 번째라면. Butcher도 오래 기억할 거예요.", "en": "If that's your fifth. Butcher will remember it for a long time too." }}
+        { "speaker": "aisha", "emotion": "calm", "effect": "character_enter:aisha:slide_right", "text": {
+          "ko": "다섯 번째가 뭔지 물어볼게요.",
+          "en": "I'll ask what the fifth is."
+        }},
+        { "speaker": "aisha", "emotion": "serious", "text": {
+          "ko": "어제 작전에서 작업자와 대화했다고 들었어요. CV에서 그런 사람은 드물어요.",
+          "en": "I heard you talked to the worker yesterday. People like that are rare in CV."
+        }},
+        { "speaker": "aisha", "emotion": "quiet", "text": {
+          "ko": "그것이 자네의 다섯 번째라면. Butcher도 오래 기억할 거예요.",
+          "en": "If that's your fifth. Butcher will remember it for a long time too."
+        }}
       ]
     },
+
     { "id": "s06", "type": "narration", "background": "erebus_base_interior", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": { "ko": "Cinder Grace가 기지 뒤편에서 작업 중이었다. 공구 소리. 금속 소리. 무언가를 고치는 소리. CV 기지에서 Cinder는 항상 고치는 사람이었다. 부수는 것보다 고치는 사람이 기지에 있다는 것이 이상했다. 그러나 그것이 Cinder였다. 고치는 사람. 망가진 것들을 위한.", "en": "Cinder Grace was working in the back of the base. Tool sounds. Metal sounds. Something being repaired. In the CV base Cinder was always the one who repaired. It was strange to have someone who repaired rather than destroyed in the base. But that was Cinder. The repairer. For broken things." }}] },
+      "lines": [{ "text": {
+        "ko": "Cinder Grace가 기지 뒤편에서 작업 중이었다. 공구 소리. 금속 소리. 무언가를 고치는 소리. CV 기지에서 Cinder는 항상 고치는 사람이었다. 부수는 것보다 고치는 사람이 기지에 있다는 것이 이상했다. 그러나 그것이 Cinder였다. 고치는 사람. 망가진 것들을 위한.",
+        "en": "Cinder Grace was working in the back of the base. Tool sounds. Metal sounds. Something being repaired. In the CV base Cinder was always the one who repaired. It was strange to have someone who repaired rather than destroyed in the base. But that was Cinder. The repairer. For broken things."
+      }}]
+    },
+
+    { "id": "s07", "type": "narration", "background": "erebus_base_interior", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "Butcher가 외투 안주머니에 손을 넣었다. 꺼내지 않았다. 거기에 사진이 있었다. 30년 된 것. 광부 학살 사건의 사진. 그날 살아남은 사람들의 사진. 다 죽었다. 그 사람만 남았다. 그 손이 안주머니에 닿을 때 그는 그 사진을 보지 않았다. 보지 않아도 거기 있었다.",
+        "en": "Butcher slid his hand into the inner pocket of his coat. Didn't take anything out. A photograph was there. Thirty years old. From the day of the miners' massacre. Of those who survived that day. All dead now. Only he remained. When that hand touched the pocket he did not look at the photograph. Even unlooked-at it was there."
+      }}]
+    },
+
     { "id": "s_choice", "type": "choice", "background": "erebus_base_interior", "bgm": "choice_tension",
       "prompt": { "ko": "다섯 번째 코드. Butcher가 기다린다.", "en": "The fifth code. Butcher is waiting." },
       "choices": [
         { "id": "cv_ch3_code_survival", "text": { "ko": "살아남는 것. 그것이 전부다.", "en": "Survival. That's everything." }, "tone": "pragmatic", "preview_hint": { "ko": "→ Crow가 고개를 끄덕인다", "en": "→ Crow nods" }},
         { "id": "cv_ch3_code_truth", "text": { "ko": "진실을 말하는 것.", "en": "Telling the truth." }, "tone": "honest", "preview_hint": { "ko": "→ Butcher가 멈춘다. Cinder가 공구를 내려놓는다", "en": "→ Butcher stops. Cinder sets down her tools." }},
-        { "id": "cv_ch3_code_name", "text": { "ko": "이름을 기억하는 것.", "en": "Remembering names." }, "tone": "human", "preview_hint": { "ko": "→ Aisha가 당신을 다시 본다. 오래", "en": "→ Aisha looks at you again. For a long time." }},
+        { "id": "cv_ch3_code_name", "text": { "ko": "이름을 기억하는 것.", "en": "Remembering names." }, "tone": "human", "preview_hint": { "ko": "→ Aisha가 자네를 다시 본다. 오래", "en": "→ Aisha looks at you again. For a long time." }},
         { "id": "cv_ch3_code_nothing", "text": { "ko": "아직 없다. 만들고 있다.", "en": "Not yet. Still making it." }, "tone": "honest", "preview_hint": { "ko": "→ Butcher가 웃는다. 처음으로", "en": "→ Butcher laughs. For the first time." }}
       ]
     },
+
     { "id": "s_battle", "type": "battle_transition", "background": "erebus_crater_exterior", "bgm": "battle_theme_cv", "transition": "fade_slow",
       "title": { "ko": "코드의 시험", "en": "Test of the Code" }, "subtitle": { "ko": "에레보스 분화구 — 용병의 진실", "en": "Erebus Crater — The Truth of Mercenaries" }
     },
+
     { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+
     { "id": "s_success", "type": "dialogue", "background": "erebus_base_interior", "bgm": "victory_calm",
       "lines": [
-        { "speaker": "butcher", "emotion": "quiet", "effect": "character_enter:butcher:slide_left", "text": { "ko": "코드를 지켰어.", "en": "You kept the code." }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "CV에 있는 사람 중에 코드를 만드는 사람이 드물어. 대부분 코드가 뭔지도 몰라. 그래서 오래 못 있어.", "en": "Few people in CV make their own code. Most don't even know what the code is. That's why they don't last." }}
+        { "speaker": "butcher", "emotion": "quiet", "effect": "character_enter:butcher:slide_left", "text": {
+          "ko": "코드를 지켰어.",
+          "en": "You kept the code."
+        }},
+        { "speaker": "butcher", "emotion": "heavy", "text": {
+          "ko": "CV에 있는 사람 중에 코드를 만드는 사람이 드물어. 대부분 코드가 뭔지도 몰라. 그래서 오래 못 있어.",
+          "en": "Few people in CV make their own code. Most don't even know what the code is. That's why they don't last."
+        }}
       ]
     },
+
     { "id": "s_fail", "type": "narration", "background": "erebus_base_interior", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "코드가 시험됐다. 어느 코드인지는 몰랐다. 화성에서 코드는 상황이 시험했다. 상황이 가르쳤다. 불이 배럴에서 탔다. Cinder의 공구 소리가 들렸다. 기지는 살아있었다.", "en": "The code was tested. Which code was unclear. On Mars the code was tested by situation. Situations taught it. Fire burned in the barrels. The sound of Cinder's tools was heard. The base was alive." }}] },
+      "lines": [{ "text": {
+        "ko": "코드가 시험됐다. 어느 코드인지는 몰랐다. 화성에서 코드는 상황이 시험했다. 상황이 가르쳤다. 불이 배럴에서 탔다. Cinder의 공구 소리가 들렸다. 기지는 살아있었다.",
+        "en": "The code was tested. Which code was unclear. On Mars the code was tested by situation. Situations taught it. Fire burned in the barrels. The sound of Cinder's tools was heard. The base was alive."
+      }}]
+    },
+
     { "id": "s_ending", "type": "ending", "background": "erebus_base_interior_night", "bgm": "cv_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "불이 탔다. 밤이 깊었다. Cinder가 작업을 끝냈다. 무언가가 고쳐졌다. 무엇인지는 말하지 않았다. Butcher가 불 앞에 앉았다. 의수를 내려다봤다. 17살에 만든 것. 30년 된 것. 여전히 작동했다. 좋은 것은 그런 것이었다. 오래됐어도 작동하는 것.", "en": "The fire burned. Night deepened. Cinder finished work. Something had been repaired. What it was she didn't say. Butcher sat by the fire. Looked down at the prosthetic. Made at seventeen. Thirty years old. Still working. Good things were like that. Old but still working." }}],
+      "lines": [{ "text": {
+        "ko": "불이 탔다. 밤이 깊었다. Cinder가 작업을 끝냈다. 무언가가 고쳐졌다. 무엇인지는 말하지 않았다. Butcher가 불 앞에 앉았다. 의수를 내려다봤다. 17살에 만든 것. 30년 된 것. 여전히 작동했다. 좋은 것은 그런 것이었다. 오래됐어도 작동하는 것.",
+        "en": "The fire burned. Night deepened. Cinder finished work. Something had been repaired. What it was she didn't say. Butcher sat by the fire. Looked down at the prosthetic. Made at seventeen. Thirty years old. Still working. Good things were like that. Old but still working."
+      }}],
       "next_chapter_preview": { "questId": "cv_campaign_ch4", "teaser": { "ko": "다음 — Cinder의 그림자", "en": "Next — Cinder's Shadow" }}
     }
+
   ]
 }
