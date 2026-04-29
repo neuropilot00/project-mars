@@ -3395,10 +3395,12 @@ async function complete(wallet, sessionId) {
     const rewards = calculateRewards(progress, sim);
     const status = sim.success ? 'completed' : 'failed';
 
-    // 평판 갱신은 거의 모든 챕터에서 발생하므로 메인 트랜잭션에 둔다.
-    // ensureReputationRows 를 호출해 첫 시도라도 player_reputation 행이 있도록 보장한다.
+    // 평판 갱신: player_reputation 갱신은 중요하므로 SAVEPOINT 안에서 시도한다.
+    // reputation_history 테이블 미존재 등 예외 발생 시 평판 변경만 건너뛰고 챕터 완료는 유지.
     await ensureReputationRows(client, w);
-    await applyReputation(client, w, rewards.reputationDelta || {}, 'campaign_chapter', progress.quest_id);
+    await applyOptionalCampaignReward(client, 'reputation', () =>
+      applyReputation(client, w, rewards.reputationDelta || {}, 'campaign_chapter', progress.quest_id)
+    );
     if (sim.success) {
       // GP/XP/로그 INSERT 는 어느 한쪽 컬럼 변경이나 일시적인 제약 위반으로 챕터 완료 자체가
       // 실패하지 않도록 SAVEPOINT 로 감싼다 — 보상 일부가 실패해도 진행은 완료시킨다.

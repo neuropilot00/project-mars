@@ -3573,8 +3573,11 @@ router.post('/campaign/complete', writeLimiter, async (req, res) => {
     if (result.error) return res.status(404).json(result);
     res.json(result);
   } catch (e) {
-    console.error('[CAMPAIGN] complete error:', e && e.stack || e && e.message || e);
-    res.status(500).json({ error: 'Internal error' });
+    const msg = (e && e.message) || String(e);
+    console.error('[CAMPAIGN] complete error:', e && e.stack || msg);
+    // NODE_ENV !== production 이거나 메시지가 DB 스키마 관련일 경우 클라이언트에 힌트 제공
+    const hint = msg.includes('does not exist') || msg.includes('column') ? ` (schema: ${msg.slice(0, 120)})` : '';
+    res.status(500).json({ error: `Internal error${hint}` });
   }
 });
 
