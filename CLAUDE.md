@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-29 v5.28 (Campaign Ch1 continue/complete 안정화) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-29 v5.29 (FSP Campaign Ch7~10 MVP) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -69,9 +69,9 @@ NODE_ENV=development
 ## 4. DB 현재 상태
 
 - **DB명**: `pixelwar` (PostgreSQL)
-- **적용된 마이그레이션**: 001 ~ **199** (2026-04-29 기준)
+- **적용된 마이그레이션**: 001 ~ **200** (2026-04-29 기준)
 - **총 테이블 수**: 109개+
-- **마지막 마이그레이션**: `199_fsp_campaign_ch5_ch6.sql`
+- **마지막 마이그레이션**: `200_fsp_campaign_ch7_to_ch10.sql`
 
 ### 핵심 테이블 목록
 
@@ -128,10 +128,10 @@ NODE_ENV=development
 
 ## 5. Campaign System Architecture
 
-### 현재 구현 상태 (v5.28)
-- **MVP 방식**: MCC Campaign Ch1~10과 FSP Campaign Ch1~6은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
+### 현재 구현 상태 (v5.29)
+- **MVP 방식**: MCC Campaign Ch1~10과 FSP Campaign Ch1~10은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
 - **API**: `server/routes/api.js`의 `/api/campaign/status/:wallet`, `/api/campaign/start`, `/api/campaign/choice`, `/api/campaign/progress`, `/api/campaign/complete`.
-- **DB**: `server/migrations/192_campaign_mcc_ch1.sql`, `193_campaign_common_systems.sql`, `194_mcc_campaign_ch2_to_ch4.sql`, `195_mcc_campaign_ch5_to_ch7.sql`, `196_mcc_campaign_ch8_to_ch10.sql`, `197_fsp_campaign_ch1_to_ch3.sql`, `198_fsp_campaign_ch4_diplomacy.sql`, `199_fsp_campaign_ch5_ch6.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox, 환경/챕터 seed를 만든다.
+- **DB**: `server/migrations/192_campaign_mcc_ch1.sql`, `193_campaign_common_systems.sql`, `194_mcc_campaign_ch2_to_ch4.sql`, `195_mcc_campaign_ch5_to_ch7.sql`, `196_mcc_campaign_ch8_to_ch10.sql`, `197_fsp_campaign_ch1_to_ch3.sql`, `198_fsp_campaign_ch4_diplomacy.sql`, `199_fsp_campaign_ch5_ch6.sql`, `200_fsp_campaign_ch7_to_ch10.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox, 환경/챕터 seed를 만든다.
 - **UI**: `index.html` 메인 지도 CAMPAIGN 퀵 버튼 또는 QUESTS 탭의 CAMPAIGN 섹션에서 시작한다. CAMPAIGN 퀵 버튼은 데스크탑에서는 오른쪽 줌 컬럼의 되돌리기 버튼 위, 모바일에서는 왼쪽 하단 "화성을 클릭하여 영토 선택" 모드 배지 바로 위에 둔다. 잠긴 챕터는 기본 접힘 compact list로 렌더하고, 브리핑 → 선택지 → 압축 시뮬레이션 → 결과 모달 흐름은 유지한다.
 - **보상 정책**: GP/XP/평판은 `complete()` 트랜잭션 안에서 핵심 보상으로 처리한다. 칭호/환경 숙련도/blueprint inbox/태그/서사 플래그/branch modifier 같은 부가 기록은 `SAVEPOINT`로 격리해 스키마/seed 누락이 있어도 챕터 완료 자체가 500으로 죽지 않게 한다. 클라이언트는 최종 보상값을 제출하지 않는다.
 - **세션 복구**: QUESTS 탭의 `CONTINUE`는 기존 `sessionId`를 이어서 브리핑/시뮬레이션으로 복구한다. 진행 중인 챕터를 다시 `/api/campaign/start`로 초기화하지 않는다.
@@ -155,6 +155,10 @@ NODE_ENV=development
 - `fsp_campaign_ch4`: 외교 / subterranean dust + equatorial Phobos pattern / Cinder Grace 비밀 회담, Amara 보호, MCC 정찰 회피, CV 동맹 강도 분기.
 - `fsp_campaign_ch5`: Kepler 공유지 / low gravity crater + oxygen supply critical / Liang Wei, Roth dead drop, 3파벌 회담, Commons·중재·압박·전투·공개 5분기.
 - `fsp_campaign_ch6`: 두더지 / settlement interior + time pressure attack / Kenji Tanaka 색출, Sarah/Diego red herring, 처형·이중첩자·추방 영구 분기.
+- `fsp_campaign_ch7`: 의회 / assembly_session + dynamic_crisis / 영구 의장 선출, 외부인 의장 출마, 외곽 위기 병행, Ch10 엔딩 alignment seed.
+- `fsp_campaign_ch8`: 가이아 / civilian_donation_drive + shipyard_wave_defense / 시민 기부, Gaia 건조, MCC/CV/Pilgrim Arms wave 방어, Gaia 함장·Pilgrim Arms seed.
+- `fsp_campaign_ch9`: 세 개의 깃발 / neutral_summit + pilgrim_arms_assault / MCC·FSP·CV 정상회담, 보호 대상 선택, Pilgrim Arms 공개 등장, 엔딩 강제 분기.
+- `fsp_campaign_ch10`: 자유의 대가 / ending_evaluation_and_cinematic / Citizen, Peacemaker, Gaia Captain, Disillusioned, New Chair, Bad Ending 최종 보상.
 
 ### Adding New Chapter Workflow
 1. `campaign_chapters` seed 또는 `CHAPTERS` 정의에 새 `questId`를 추가한다.

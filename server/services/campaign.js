@@ -17,6 +17,10 @@ const FSP_CH3_ID = 'fsp_campaign_ch3';
 const FSP_CH4_ID = 'fsp_campaign_ch4';
 const FSP_CH5_ID = 'fsp_campaign_ch5';
 const FSP_CH6_ID = 'fsp_campaign_ch6';
+const FSP_CH7_ID = 'fsp_campaign_ch7';
+const FSP_CH8_ID = 'fsp_campaign_ch8';
+const FSP_CH9_ID = 'fsp_campaign_ch9';
+const FSP_CH10_ID = 'fsp_campaign_ch10';
 const FACTIONS = ['mcc', 'fsp', 'cv', 'pilgrim_arms'];
 const REP_MIN = -100;
 const REP_MAX = 100;
@@ -743,6 +747,170 @@ const CHAPTERS = {
       { id: 'fsp_ch6_use_as_handler', labelKo: '이중첩자 활용.', effects: { reputationDelta: { fsp: 5, mcc: -25 }, flag: 'ch6_kenji_handler', flag2: 'spy_double_agent_active', tagsAdded: ['the_handler'], branchSet: { modifierId: 'kenji_intelligence_pipeline', targetChapter: 'fsp_campaign_ch7' }, extraBranchSet: { modifierId: 'kenji_family_rescue_attempt', targetChapter: 'fsp_campaign_ch9' } } },
       { id: 'fsp_ch6_exile_kenji', labelKo: '추방.', effects: { reputationDelta: { mcc: -10 }, flag: 'ch6_kenji_exiled', flag2: 'spy_exiled_mercifully', tagsAdded: ['the_merciful'], branchSet: { modifierId: 'assembly_humanitarian_signal', targetChapter: 'fsp_campaign_ch7' }, extraBranchSet: { modifierId: 'no_intel_advantage', targetChapter: 'fsp_campaign_ch9' } } },
       { id: 'fsp_ch6_accuse_wrong', labelKo: '[조건부] 다른 인물 지목.', effects: { reputationDelta: { fsp: -25 }, flag: 'ch6_wrong_culprit_accused', flag2: 'innocent_punished', tagsAdded: ['paranoid_judge'], branchSet: { modifierId: 'assembly_loss_of_trust', targetChapter: 'fsp_campaign_ch7' }, extraBranchSet: { modifierId: 'real_spy_continues_leaks', targetChapter: 'fsp_campaign_ch9' } } },
+    ],
+  },
+  [FSP_CH7_ID]: {
+    questId: FSP_CH7_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 7,
+    faction: 'fsp',
+    title: { ko: '의회', en: 'Assembly' },
+    requiredLevel: 7,
+    prerequisiteChapter: FSP_CH6_ID,
+    requiredReputation: { fsp: 50 },
+    blockingTags: ['war_criminal'],
+    battleResolution: 'political_dual_track',
+    estimatedPlayTimeSeconds: 1800,
+    location: { id: 'hellas_central_settlement', displayNameKo: 'Hellas Central 정착지 (의회 회기)', region: 'hellas_basin', altitudeKm: -7 },
+    environment: {
+      type: 'assembly_session',
+      secondary: 'dynamic_crisis',
+      totalDurationSeconds: 1800,
+      phases: [
+        { phase: 0, startSec: 0, sessionPhase: 'opening' },
+        { phase: 1, startSec: 600, sessionPhase: 'floor_debate' },
+        { phase: 2, startSec: 1200, sessionPhase: 'coalition' },
+        { phase: 3, startSec: 1500, sessionPhase: 'vote_call' },
+        { phase: 4, startSec: 1800, sessionPhase: 'deadline' },
+      ],
+      noCombatZone: true,
+    },
+    briefing: {
+      npcId: 'amara_okafor',
+      npcName: 'Amara Okafor / Liang Wei / Mikhail Anders',
+      npcTitle: 'Hellas Central 의회당',
+      lines: [
+        { id: 'fsp_ch7_open_01', ko: '회기를 개시합니다. 영구 의장 선출. Kepler 회담 결과를 받아들이는 첫 의회입니다.' },
+        { id: 'fsp_ch7_open_02', ko: '후보 발언, 토론, 연합 구성, 그리고 투표. 동시에 외곽 위기도 처리해야 합니다.' },
+        { id: 'fsp_ch7_open_03', ko: '의장직은 누구의 것도 아닙니다. 시민 모두의 것입니다.' },
+      ],
+      radio: [
+        { triggerSec: 600, ko: 'Lena: 외곽 방어와 발전소 복구 요청이 동시에 들어왔어.' },
+        { triggerSec: 1200, ko: '의회: 연합 구성 시간입니다. 표를 모아야 합니다.' },
+        { triggerSec: 1500, ko: '의회: 투표 호출. 마지막 발언입니다.' },
+      ],
+    },
+    choices: [
+      { id: 'fsp_ch7_support_mikhail', labelKo: 'Mikhail Anders를 실용 의장으로 지지.', effects: { reputationDelta: { fsp: 5 }, flag: 'ch7_supported_mikhail' } },
+      { id: 'fsp_ch7_support_liang', labelKo: 'Liang Wei의 Commons 비전을 지지.', effects: { reputationDelta: { fsp: 8 }, flag: 'ch7_supported_liang' } },
+      { id: 'fsp_ch7_support_amara', labelKo: 'Amara Okafor의 외교 노선을 지지.', effects: { reputationDelta: { fsp: 6, cv: 5 }, flag: 'ch7_supported_amara' } },
+      { id: 'fsp_ch7_support_diego', labelKo: 'Diego Cole의 행정 안정 노선을 지지.', effects: { reputationDelta: { fsp: 3 }, flag: 'ch7_supported_diego' } },
+      { id: 'fsp_ch7_run_for_chair', labelKo: '[조건부] 직접 의장 출마.', effects: { reputationDelta: { fsp: -5, mcc: 5 }, flag: 'outsider_chair_aspirant', tagsAdded: ['outsider_chair_aspirant'] } },
+    ],
+  },
+  [FSP_CH8_ID]: {
+    questId: FSP_CH8_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 8,
+    faction: 'fsp',
+    title: { ko: '가이아', en: 'Gaia' },
+    requiredLevel: 8,
+    prerequisiteChapter: FSP_CH7_ID,
+    requiredReputation: { fsp: 50 },
+    blockingTags: ['war_criminal'],
+    battleResolution: 'triphase_construction_defense',
+    estimatedPlayTimeSeconds: 1800,
+    location: { id: 'new_athens_shipyard', displayNameKo: 'New Athens 조선소 (Gaia 건조 부지)', region: 'hellas_basin' },
+    environment: {
+      type: 'civilian_donation_drive',
+      secondary: 'shipyard_wave_defense',
+      totalDurationSeconds: 1800,
+      phases: [
+        { phase: 0, startSec: 0, construction: 0 },
+        { phase: 1, startSec: 600, construction: 30 },
+        { phase: 2, startSec: 1200, construction: 60 },
+        { phase: 3, startSec: 1500, construction: 90 },
+      ],
+    },
+    briefing: {
+      npcId: 'mikhail_anders',
+      npcName: 'Mikhail Anders / Hagar Watanabe / Lena Torres',
+      npcTitle: 'Gaia 시민 기부 호소',
+      lines: [
+        { id: 'fsp_ch8_appeal_01', ko: '오늘 부탁할 게 있어. 우리는 Gaia를 만들어. 36시간 후 출항. 우리에게 12만 크레딧이 부족해.' },
+        { id: 'fsp_ch8_appeal_02', ko: '시민은 결혼식을 미루고, 식량을 줄이고, 보석 상자까지 내놓고 있어. 부끄럽지만 자랑스러운 방식이야.' },
+        { id: 'fsp_ch8_hagar_01', ko: '30년 차 조선공이 처음으로 외부인에게 함선 이름을 부탁하게 될지도 몰라.' },
+      ],
+      radio: [
+        { triggerSec: 600, ko: 'Lena: 첫 wave. MCC 정찰 3척.' },
+        { triggerSec: 1200, ko: 'Lena: 두 번째 wave. 좌우 포대 선택해야 해.' },
+        { triggerSec: 1500, ko: 'Hagar: Gaia 90%. 5분만 더 버텨.' },
+      ],
+    },
+    choices: [
+      { id: 'fsp_ch8_donate_personal_50k', labelKo: '자비 부담 (50,000 Cr 기부).', effects: { reputationDelta: { fsp: 50 }, flag: 'ch8_player_donated_personal', tagsAdded: ['fsp_brotherhood', 'the_humble_giver'] } },
+      { id: 'fsp_ch8_pledge_combat', labelKo: '전투로 갚겠습니다.', effects: { reputationDelta: { fsp: 25 }, flag: 'ch8_player_pledged_combat', tagsAdded: ['the_combat_pledger'] } },
+      { id: 'fsp_ch8_silent_no_help', labelKo: '침묵한다.', effects: { reputationDelta: { fsp: -10 }, flag: 'ch8_player_silent', flag2: 'civilian_silent_disappointment', tagsAdded: ['the_silent_one', 'the_disengaged'] } },
+      { id: 'fsp_ch8_steal_mcc_funds', labelKo: 'MCC 자금을 훔쳐오겠습니다.', effects: { reputationDelta: { fsp: 15, mcc: -30 }, flag: 'ch8_player_chose_theft', tagsAdded: ['the_thief_with_purpose'] } },
+    ],
+  },
+  [FSP_CH9_ID]: {
+    questId: FSP_CH9_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 9,
+    faction: 'fsp',
+    title: { ko: '세 개의 깃발', en: 'Three Flags' },
+    requiredLevel: 9,
+    prerequisiteChapter: FSP_CH8_ID,
+    requiredReputation: { fsp: 50 },
+    blockingTags: ['war_criminal'],
+    battleResolution: 'summit_assault_choice',
+    estimatedPlayTimeSeconds: 1800,
+    location: { id: 'olympus_neutral_summit', displayNameKo: 'Olympus Mons 산자락 중립 회담장', region: 'olympus_mons' },
+    environment: { type: 'neutral_summit', secondary: 'pilgrim_arms_assault', totalDurationSeconds: 1800, phases: [{ phase: 0, startSec: 0 }, { phase: 1, startSec: 900 }, { phase: 2, startSec: 1500 }] },
+    briefing: {
+      npcId: 'father_hale',
+      npcName: 'Father Hale / Amara / Chen / Butcher',
+      npcTitle: 'Three Flags 정상회담',
+      lines: [
+        { id: 'fsp_ch9_hale_01', ko: '30년 만에 너희 셋이 한 방에 있어. 오늘 의제는 Commons, 휴전, Roth 데이터 공동 연구.' },
+        { id: 'fsp_ch9_chen_01', ko: 'Kepler 자원은 MCC 우선권. 협상이 아니라 사실입니다.' },
+        { id: 'fsp_ch9_warning_01', ko: '외곽에서 Pilgrim Arms 표식 무장 4명 침입. 5분 안에 회담장.' },
+      ],
+      radio: [
+        { triggerSec: 900, ko: 'Hale: 보호 대상을 선택해야 합니다.' },
+        { triggerSec: 1500, ko: 'Lena: 암살자들이 빠져나가려 해.' },
+      ],
+    },
+    choices: [
+      { id: 'fsp_ch9_protect_amara', labelKo: 'Amara를 보호한다.', effects: { reputationDelta: { fsp: 50, mcc: -20 }, flag: 'ch9_amara_protected', tagsAdded: ['the_loyal_protector'] } },
+      { id: 'fsp_ch9_protect_chen', labelKo: 'Chen을 보호한다.', effects: { reputationDelta: { mcc: 100, fsp: -100, cv: -50 }, flag: 'ch9_chen_protected', flag2: 'fsp_route_terminated_by_betrayal', tagsAdded: ['the_corporate_servant', 'fsp_route_betrayer'] } },
+      { id: 'fsp_ch9_protect_butcher', labelKo: 'Butcher를 보호한다.', effects: { reputationDelta: { cv: 60, mcc: -40, fsp: 10 }, flag: 'ch9_butcher_protected', tagsAdded: ['the_unexpected_ally'] } },
+      { id: 'fsp_ch9_full_retreat', labelKo: '모두 후퇴시킨다.', effects: { flag: 'ch9_full_retreat', flag2: 'summit_postponed_one_year', tagsAdded: ['the_indecisive_arbiter'] } },
+      { id: 'fsp_ch9_signal_pilgrim_arms', labelKo: '[조건부] Pilgrim Arms에 신호한다.', effects: { reputationDelta: { mcc: -100, fsp: -50, cv: -20 }, flag: 'ch9_chen_killed_by_player_signal', flag2: 'pilgrim_arms_full_alignment', tagsAdded: ['the_fourth_faction_emergent', 'fourth_faction_slayer'] } },
+    ],
+  },
+  [FSP_CH10_ID]: {
+    questId: FSP_CH10_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 10,
+    faction: 'fsp',
+    title: { ko: '자유의 대가', en: "Freedom's Price" },
+    requiredLevel: 10,
+    prerequisiteChapter: FSP_CH9_ID,
+    requiredReputation: { fsp: -100 },
+    blockingTags: ['war_criminal'],
+    battleResolution: 'ending_evaluation_and_cinematic',
+    estimatedPlayTimeSeconds: 900,
+    location: { id: 'fsp_route_finale', displayNameKo: 'FSP 루트 최종 장면', region: 'mars' },
+    environment: { type: 'cinematic', noCombat: true, phases: [{ phase: 0, startSec: 0 }] },
+    briefing: {
+      npcId: 'father_hale',
+      npcName: 'Father Hale / FSP Route Cast',
+      npcTitle: 'FSP 루트 엔딩 평가',
+      lines: [
+        { id: 'fsp_ch10_review_01', ko: '10 챕터. 의장 결정, Gaia, 회담. 오늘은 그 모든 결과를 받는 날입니다.' },
+        { id: 'fsp_ch10_review_02', ko: '시민, 평화중재자, Gaia 함장, 표류자, 혹은 네 번째 깃발. 당신의 길입니다.' },
+      ],
+      radio: [],
+    },
+    choices: [
+      { id: 'fsp_ending_1_citizen', labelKo: 'Ending 1: Citizen.', effects: { flag: 'chose_fsp_ending_1' } },
+      { id: 'fsp_ending_2_peacemaker', labelKo: 'Ending 2: Peacemaker.', effects: { flag: 'chose_fsp_ending_2' } },
+      { id: 'fsp_ending_2_alt_gaia_captain', labelKo: 'Ending 2 Alt: Gaia Captain.', effects: { flag: 'chose_fsp_ending_2_alt' } },
+      { id: 'fsp_ending_3_disillusioned', labelKo: 'Ending 3: Disillusioned.', effects: { flag: 'chose_fsp_ending_3' } },
+      { id: 'fsp_ending_4_new_chair', labelKo: 'Ending 4: New Chair.', effects: { flag: 'chose_fsp_ending_4' } },
+      { id: 'fsp_bad_ending_fallback', labelKo: 'Bad Ending: Failed Arc.', effects: { flag: 'chose_fsp_bad_ending' } },
     ],
   },
 };
@@ -1499,6 +1667,150 @@ function simulateFspCh6(progress) {
   };
 }
 
+function simulateFspCh7(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch7_support_mikhail');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:fsp7`);
+  const supportMap = {
+    fsp_ch7_support_mikhail: 'mikhail_anders',
+    fsp_ch7_support_liang: 'liang_wei',
+    fsp_ch7_support_amara: 'amara_okafor',
+    fsp_ch7_support_diego: 'diego_cole',
+    fsp_ch7_run_for_chair: 'player_self_run',
+  };
+  const winner = supportMap[choiceId] || 'mikhail_anders';
+  const playerRun = winner === 'player_self_run';
+  const baseSupport = playerRun ? 0.58 : winner === 'liang_wei' ? 0.63 : winner === 'amara_okafor' ? 0.61 : winner === 'diego_cole' ? 0.56 : 0.66;
+  const support = clampNumber(baseSupport + (1 - roll) * 0.18, 0, 0.95);
+  const crisis = clampNumber(0.62 + (1 - roll) * 0.35 - (playerRun ? 0.1 : 0), 0, 1);
+  const morale = Math.round(clampNumber(48 + support * 35 + crisis * 12 - (playerRun ? 18 : 0), 0, 100));
+  const elapsed = Math.round((playerRun ? 1760 : support >= 0.8 ? 1120 : 1450) * (0.94 + roll * 0.12));
+  const secondary = [];
+  if (support >= 0.8) secondary.push('obj_unanimity_chair');
+  if (crisis >= 1) secondary.push('obj_environmental_crisis_resolved');
+  if (morale >= 30) secondary.push('obj_civilian_morale_above_30');
+  if (elapsed <= 1200) secondary.push('obj_quick_consensus');
+  if (support >= (playerRun ? 0.73 : 0.5) && crisis >= 1 && morale >= 30) secondary.push('obj_dual_track_perfect');
+  let failure = null;
+  if (support < (playerRun ? 0.73 : 0.5)) failure = 'fail_deadlock_no_chair';
+  else if (morale <= 0) failure = 'fail_assembly_riot';
+  else if (crisis < 0.3 && elapsed >= 1500) failure = 'fail_environmental_crisis_critical_escalation';
+  return {
+    success: !failure,
+    failureReason: failure,
+    branchChoice: choiceId.replace('fsp_ch7_', ''),
+    metrics: {
+      chair_elected: !failure ? winner : null,
+      winning_support_percent: Math.round(support * 100),
+      vote_distribution: {
+        mikhail_anders: winner === 'mikhail_anders' ? Math.round(support * 11) : 2,
+        liang_wei: winner === 'liang_wei' ? Math.round(support * 11) : 3,
+        amara_okafor: winner === 'amara_okafor' ? Math.round(support * 11) : 2,
+        diego_cole: winner === 'diego_cole' ? Math.round(support * 11) : 1,
+        player_self_run: winner === 'player_self_run' ? Math.round(support * 11) : 0,
+      },
+      environmental_crisis_progress: Number(crisis.toFixed(2)),
+      civilian_morale: morale,
+      session_phase: elapsed >= 1500 ? 'vote_call' : elapsed >= 1200 ? 'coalition' : 'floor_debate',
+      speech_time_remaining: Math.max(0, 1800 - elapsed),
+      elapsed_sec: elapsed,
+      environmental_phase_reached: phaseForChapter(FSP_CH7_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateFspCh8(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch8_pledge_combat');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:fsp8`);
+  const donate = choiceId === 'fsp_ch8_donate_personal_50k';
+  const combat = choiceId === 'fsp_ch8_pledge_combat';
+  const silent = choiceId === 'fsp_ch8_silent_no_help';
+  const theft = choiceId === 'fsp_ch8_steal_mcc_funds';
+  const theftSuccess = theft && roll >= 0.18;
+  const donationPool = Math.round(120000 + (donate ? 50000 : 0) + (theftSuccess ? 250000 : 0) + (silent ? -25000 : combat ? 25000 : 0) + (1 - roll) * 65000);
+  const constructionPct = Math.round(clampNumber(donationPool / 2200 + (combat ? 8 : 0), 0, 100));
+  const gaiaHp = Math.round(clampNumber(72 + (combat ? 18 : 0) + (donate ? 8 : 0) - roll * 18, 0, 100));
+  const civilianCasualties = combat ? 0 : silent ? Math.round(4 + roll * 12) : roll < 0.25 ? 2 : 0;
+  const elapsed = Math.round((theft ? 1680 : donate ? 1320 : combat ? 1480 : 1760) * (0.92 + roll * 0.14));
+  const secondary = [];
+  if (donate) secondary.push('obj_personal_donation_50k');
+  if (combat && civilianCasualties === 0) secondary.push('obj_combat_pledger_no_civilian_loss');
+  if (theftSuccess) secondary.push('obj_mcc_theft_success');
+  if (donationPool >= 250000) secondary.push('obj_enhanced_gaia_completion');
+  if (gaiaHp >= 90) secondary.push('obj_zero_wave_breach');
+  if (elapsed <= 1500) secondary.push('obj_under_25min');
+  let failure = null;
+  if (theft && !theftSuccess) failure = 'fail_mcc_theft_detected';
+  else if (constructionPct < 80) failure = 'fail_gaia_construction_failed';
+  else if (gaiaHp <= 0) failure = 'fail_gaia_destroyed_in_combat';
+  else if (civilianCasualties >= 10) failure = 'fail_civilian_casualties_severe';
+  return {
+    success: !failure,
+    failureReason: failure,
+    branchChoice: choiceId.replace('fsp_ch8_', ''),
+    metrics: {
+      donation_pool_cr: donationPool,
+      construction_progress_percent: constructionPct,
+      gaia_hp_percentage: gaiaHp,
+      civilian_casualties: civilianCasualties,
+      mcc_theft_success: theftSuccess,
+      elapsed_sec: elapsed,
+      environmental_phase_reached: phaseForChapter(FSP_CH8_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateFspCh9(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch9_protect_amara');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:fsp9`);
+  const signal = choiceId === 'fsp_ch9_signal_pilgrim_arms';
+  const protectChen = choiceId === 'fsp_ch9_protect_chen';
+  const fullRetreat = choiceId === 'fsp_ch9_full_retreat';
+  const assassinsKilled = Math.round(clampNumber((signal ? 4 : 2) + (1 - roll) * 3, 0, 4));
+  const casualties = protectChen ? 2 : fullRetreat ? 0 : roll < 0.22 ? 1 : 0;
+  const elapsed = Math.round((fullRetreat ? 1120 : signal ? 1500 : 1360) * (0.92 + roll * 0.12));
+  const secondary = [];
+  if (assassinsKilled >= 4) secondary.push('obj_full_squad_killed');
+  if (casualties === 0) secondary.push('obj_zero_casualty_summit');
+  if (elapsed <= 1500) secondary.push('obj_under_25min');
+  if (choiceId === 'fsp_ch9_protect_butcher') secondary.push('obj_cv_bridge_kept');
+  if (signal) secondary.push('obj_pilgrim_arms_signal');
+  let failure = null;
+  if (protectChen) failure = 'fail_protect_chen_betrayal';
+  else if (casualties >= 2) failure = 'fail_two_or_more_delegates_killed';
+  else if (assassinsKilled === 0) failure = 'fail_assassin_squad_escapes_intact';
+  return {
+    success: !failure || protectChen,
+    failureReason: failure,
+    branchChoice: choiceId.replace('fsp_ch9_', ''),
+    metrics: {
+      protect_choice_made: choiceId,
+      assassins_killed: assassinsKilled,
+      summit_casualties: casualties,
+      summit_agreement_score: signal ? 10 : protectChen ? 0 : fullRetreat ? 55 : 72,
+      elapsed_sec: elapsed,
+      environmental_phase_reached: phaseForChapter(FSP_CH9_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateFspCh10(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_bad_ending_fallback');
+  return {
+    success: choiceId !== 'fsp_bad_ending_fallback',
+    failureReason: choiceId === 'fsp_bad_ending_fallback' ? 'fail_bad_ending_fallback' : null,
+    branchChoice: choiceId,
+    metrics: {
+      ending_assigned: choiceId.replace('fsp_', '').replace('_ending_', 'ending_'),
+      elapsed_sec: 900,
+      environmental_phase_reached: 0,
+      secondary_completed: choiceId.includes('ending_2') ? ['obj_ideal_ending_achieved'] : choiceId.includes('ending_4') ? ['obj_dark_path_achieved'] : [],
+    },
+  };
+}
+
 function simulateChapter(progress) {
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
   if (progress.quest_id === CH3_ID) return simulateCh3(progress);
@@ -1515,6 +1827,10 @@ function simulateChapter(progress) {
   if (progress.quest_id === FSP_CH4_ID) return simulateFspCh4(progress);
   if (progress.quest_id === FSP_CH5_ID) return simulateFspCh5(progress);
   if (progress.quest_id === FSP_CH6_ID) return simulateFspCh6(progress);
+  if (progress.quest_id === FSP_CH7_ID) return simulateFspCh7(progress);
+  if (progress.quest_id === FSP_CH8_ID) return simulateFspCh8(progress);
+  if (progress.quest_id === FSP_CH9_ID) return simulateFspCh9(progress);
+  if (progress.quest_id === FSP_CH10_ID) return simulateFspCh10(progress);
   return simulateCh1(progress);
 }
 
@@ -2083,6 +2399,148 @@ function calculateFspCh6Rewards(progress, sim) {
   return { GP: gp, XP: 1100, reputationDelta: rep, items, tags, loreFlags, masteries, unlocks: [], branchModifiers };
 }
 
+function calculateFspCh7Rewards(progress, sim) {
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_assembly_riot') {
+      return { GP: 0, XP: 200, reputationDelta: { fsp: -35 }, tags: ['riot_president'], loreFlags: ['ch7_assembly_riot'], unlocks: [FSP_CH8_ID], branchModifiers: [{ targetChapter: FSP_CH10_ID, key: 'ending_3_pathway_unlocked', value: { disillusioned_path: true } }] };
+    }
+    if (sim.failureReason === 'fail_environmental_crisis_critical_escalation') {
+      return { GP: 0, XP: 250, reputationDelta: { fsp: -15 }, tags: ['distracted_leader'], loreFlags: ['ch7_crisis_critical_escalation', 'civilian_casualties_severe'], unlocks: [FSP_CH8_ID], branchModifiers: [{ targetChapter: FSP_CH8_ID, key: 'settlement_severely_weakened', value: { starting_morale: -25 } }] };
+    }
+    return { GP: 0, XP: 250, reputationDelta: { fsp: -20 }, tags: ['indecisive_settlement'], loreFlags: ['ch7_assembly_deadlock', 'fsp_political_paralysis'], unlocks: [FSP_CH8_ID], branchModifiers: [{ targetChapter: FSP_CH8_ID, key: 'gaia_funding_severely_compromised', value: { funding_buffer: -0.3 } }, { targetChapter: FSP_CH10_ID, key: 'ending_3_pathway_unlocked', value: { disillusioned_path: true } }] };
+  }
+  const winner = sim.metrics.chair_elected;
+  let gp = 7000;
+  let rep = { fsp: 30 };
+  const items = [{ type: 'chair_seal', code: 'chair_seal', label: 'FSP Chair Seal' }, { type: 'resource', code: 'medical_kit', label: 'Medical Kit', quantity: 4 }];
+  const tags = [];
+  const loreFlags = [];
+  const masteries = [];
+  const branchModifiers = [];
+  if (winner === 'mikhail_anders') {
+    gp += 3000; tags.push('the_practical_leader'); loreFlags.push('ch7_mikhail_chair');
+    branchModifiers.push({ targetChapter: FSP_CH8_ID, key: 'gaia_funding_pragmatic_drive', value: { funding_buffer: 0.1 } }, { targetChapter: FSP_CH10_ID, key: 'ending_1_pathway_aligned', value: { citizen_path: true } });
+  } else if (winner === 'liang_wei') {
+    gp += 3500; tags.push('the_visionary_chair'); loreFlags.push('ch7_liang_chair');
+    items.push({ type: 'access_token', code: 'liang_wei_chair_office_access', label: 'Liang Wei Chair Office Access' });
+    branchModifiers.push({ targetChapter: FSP_CH8_ID, key: 'gaia_visionary_design_approved', value: { tech_innovation_buffer: 0.15 } }, { targetChapter: FSP_CH9_ID, key: 'liang_diplomatic_summit_attendance', value: { liang_voice_at_summit: true } }, { targetChapter: FSP_CH10_ID, key: 'ending_2_pathway_aligned', value: { peacemaker_path: true } });
+  } else if (winner === 'amara_okafor') {
+    gp += 3000; tags.push('the_diplomatic_chair'); loreFlags.push('ch7_amara_chair');
+    branchModifiers.push({ targetChapter: FSP_CH9_ID, key: 'three_flags_proactive_route', value: { summit_starts_advantageous: true } }, { targetChapter: FSP_CH10_ID, key: 'ending_2_pathway_aligned', value: { peacemaker_path: true } });
+  } else if (winner === 'diego_cole') {
+    gp += 2500; tags.push('the_caretaker_chair'); loreFlags.push('ch7_diego_chair');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_1_pathway_aligned', value: { citizen_path: true } });
+  } else if (winner === 'player_self_run') {
+    gp += 5000; rep = mergeRep(rep, { fsp: -10, mcc: 5 }); tags.push('the_outsider_chair', 'crown_seeker'); loreFlags.push('ch7_player_chair', 'assembly_charter_amended_outsider_eligible');
+    items.push({ type: 'ending_seed', code: 'pilgrim_arms_charter_seed', label: 'Pilgrim Arms Charter Seed' });
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_4_pathway_unlocked', value: { pilgrim_arms_seed_active: true } });
+  }
+  if (secondary.includes('obj_environmental_crisis_resolved')) loreFlags.push('ch7_crisis_resolved');
+  else loreFlags.push('ch7_crisis_unresolved');
+  if (secondary.includes('obj_unanimity_chair')) { gp += 5000; loreFlags.push('assembly_unanimity'); masteries.push('political_mastery'); }
+  if (secondary.includes('obj_dual_track_perfect')) { gp += 5000; tags.push('master_legislator'); masteries.push('dual_track_perfect'); }
+  if (secondary.includes('obj_quick_consensus')) { gp += 3000; masteries.push('rapid_consensus'); }
+  return { GP: gp, XP: 1300, reputationDelta: rep, items, tags, loreFlags, masteries, unlocks: [FSP_CH8_ID], branchModifiers };
+}
+
+function calculateFspCh8Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch8_pledge_combat');
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_mcc_theft_detected') return { GP: 0, XP: 250, reputationDelta: { mcc: -60, fsp: -15 }, tags: ['the_failed_thief'], loreFlags: ['ch8_mcc_theft_detected'], unlocks: [FSP_CH9_ID], branchModifiers: [{ targetChapter: FSP_CH9_ID, key: 'mcc_revenge_doubled', value: { revenge: 2 } }] };
+    if (sim.failureReason === 'fail_gaia_destroyed_in_combat') return { GP: 0, XP: 250, reputationDelta: { fsp: -40 }, tags: [], loreFlags: ['ch8_gaia_destroyed', 'gaia_destroyed'], unlocks: [FSP_CH9_ID], branchModifiers: [{ targetChapter: FSP_CH9_ID, key: 'no_gaia_at_summit', value: { gaia: 'destroyed' } }, { targetChapter: FSP_CH10_ID, key: 'ending_3_pathway_unavoidable', value: { disillusioned: true } }] };
+    return { GP: 0, XP: 250, reputationDelta: { fsp: -30 }, tags: ['failed_funder'], loreFlags: ['ch8_gaia_construction_failed', 'gaia_failed'], unlocks: [FSP_CH9_ID], branchModifiers: [{ targetChapter: FSP_CH9_ID, key: 'no_gaia_at_summit', value: { gaia: 'failed' } }, { targetChapter: FSP_CH10_ID, key: 'ending_3_pathway_strengthened', value: { disillusioned: true } }] };
+  }
+  let gp = 8500;
+  let rep = { fsp: 35 };
+  const items = [{ type: 'ship_blueprint', code: 'gaia_explorer_corvette', label: 'Gaia Explorer Corvette Blueprint' }];
+  const tags = [];
+  const loreFlags = ['ch8_gaia_completed', 'gaia_full_specs'];
+  const masteries = [];
+  const branchModifiers = [{ targetChapter: FSP_CH9_ID, key: 'gaia_at_summit', value: { gaia_present: true } }];
+  if (choiceId === 'fsp_ch8_donate_personal_50k') {
+    gp += 5000; rep = mergeRep(rep, { fsp: 50 }); tags.push('fsp_brotherhood', 'the_humble_giver'); loreFlags.push('ch8_player_donated_personal');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_1_pathway_strengthened', value: { citizen_path: true } }, { targetChapter: FSP_CH10_ID, key: 'gaia_captain_offer_unlocked', value: { gaia_captain: true } });
+  } else if (choiceId === 'fsp_ch8_pledge_combat') {
+    gp += secondary.includes('obj_combat_pledger_no_civilian_loss') ? 4000 : 1500; rep = mergeRep(rep, { fsp: 25 }); tags.push('the_combat_pledger'); loreFlags.push('ch8_player_pledged_combat');
+    if (secondary.includes('obj_combat_pledger_no_civilian_loss')) tags.push('master_protector');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_2_pathway_strengthened', value: { peacemaker_path: true } });
+  } else if (choiceId === 'fsp_ch8_steal_mcc_funds') {
+    gp += 6000; rep = mergeRep(rep, { fsp: 15, mcc: -30 }); tags.push('the_thief_with_purpose', 'the_funder'); loreFlags.push('ch8_player_chose_theft', 'ch8_mcc_theft_success', 'pilgrim_arms_seed_funded');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_4_pathway_strengthened', value: { pilgrim_arms_seed_funded: true } });
+  } else {
+    rep = mergeRep(rep, { fsp: -10 }); tags.push('the_silent_one', 'the_disengaged'); loreFlags.push('ch8_player_silent', 'civilian_silent_disappointment');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_3_pathway_strengthened', value: { disillusioned: true } });
+  }
+  if (secondary.includes('obj_enhanced_gaia_completion')) { gp += 4000; loreFlags.push('gaia_enhanced_specs'); items.push({ type: 'ship_module', code: 'gaia_combat_module', label: 'Gaia Combat Module' }); branchModifiers.push({ targetChapter: FSP_CH9_ID, key: 'gaia_combat_module_visible', value: { visible: true } }); }
+  if (secondary.includes('obj_zero_wave_breach')) { gp += 3000; masteries.push('shipyard_master'); }
+  if (secondary.includes('obj_under_25min')) { gp += 3000; masteries.push('rapid_construction_defense'); }
+  if (sim.metrics.gaia_hp_percentage < 90) { loreFlags.push('ch8_gaia_completed_partial', 'gaia_partial_specs'); branchModifiers.push({ targetChapter: FSP_CH9_ID, key: 'gaia_at_summit_weakened', value: { gaia_hp: sim.metrics.gaia_hp_percentage } }); }
+  return { GP: gp, XP: 1500, reputationDelta: rep, items, tags, loreFlags, masteries, unlocks: [FSP_CH9_ID], branchModifiers };
+}
+
+function calculateFspCh9Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch9_protect_amara');
+  const secondary = sim.metrics.secondary_completed || [];
+  let gp = 9000;
+  let rep = { fsp: 40 };
+  const items = [{ type: 'summit_token', code: 'hale_blessing_token', label: 'Hale Blessing Token' }];
+  const tags = [];
+  const loreFlags = ['pilgrim_arms_publicly_known', 'cross_route_pilgrim_arms_first_appearance'];
+  const masteries = [];
+  const branchModifiers = [];
+  if (choiceId === 'fsp_ch9_protect_amara') {
+    gp += 4000; rep = mergeRep(rep, { fsp: 50, mcc: -20 }); tags.push('the_loyal_protector'); loreFlags.push('ch9_amara_protected');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_1_pathway_strengthened', value: { citizen_path: true } }, { targetChapter: FSP_CH10_ID, key: 'ending_2_pathway_aligned', value: { peacemaker_path: true } });
+  } else if (choiceId === 'fsp_ch9_protect_butcher') {
+    gp += 4000; rep = mergeRep(rep, { cv: 60, mcc: -40, fsp: 10 }); tags.push('the_unexpected_ally'); loreFlags.push('ch9_butcher_protected', 'cv_potential_alliance_path');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_2_alt_path_cv_alliance', value: { cv_big_tent: true } });
+  } else if (choiceId === 'fsp_ch9_full_retreat') {
+    gp += 5000; tags.push('the_indecisive_arbiter'); loreFlags.push('ch9_full_retreat', 'summit_postponed_one_year');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_2_pathway_aligned', value: { peacemaker_path: true } }, { targetChapter: FSP_CH10_ID, key: 'ending_3_pathway_strengthened', value: { disillusioned: true } });
+  } else if (choiceId === 'fsp_ch9_protect_chen') {
+    gp += 1000; rep = mergeRep(rep, { mcc: 100, fsp: -100, cv: -50 }); tags.push('the_corporate_servant', 'fsp_route_betrayer'); loreFlags.push('ch9_chen_protected', 'fsp_route_terminated_by_betrayal');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_3_pathway_unavoidable', value: { betrayal_variant: true } });
+  } else {
+    gp += 6000; rep = mergeRep(rep, { mcc: -100, fsp: -50, cv: -20 }); tags.push('the_fourth_faction_emergent', 'fourth_faction_slayer'); loreFlags.push('ch9_chen_killed_by_player_signal', 'pilgrim_arms_full_alignment', 'chen_weiss_dead');
+    branchModifiers.push({ targetChapter: FSP_CH10_ID, key: 'ending_4_pathway_unavoidable', value: { new_chair: true } });
+  }
+  if (secondary.includes('obj_full_squad_killed')) { gp += 3000; tags.push('fourth_faction_slayer'); masteries.push('assassin_hunter'); }
+  if (secondary.includes('obj_zero_casualty_summit')) loreFlags.push('zero_casualty_summit');
+  if (secondary.includes('obj_under_25min')) { gp += 3000; masteries.push('rapid_summit'); }
+  return { GP: gp, XP: 1700, reputationDelta: rep, items, tags, loreFlags, masteries, unlocks: [FSP_CH10_ID], branchModifiers };
+}
+
+function calculateFspCh10Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'fsp_bad_ending_fallback');
+  const endingMap = {
+    fsp_ending_1_citizen: { gp: 200000, rep: { fsp: 150 }, tags: ['fsp_citizen_eternal', 'the_humble_giver_legacy'], flag: 'fsp_ending_1_citizen' },
+    fsp_ending_2_peacemaker: { gp: 300000, rep: { fsp: 50, mcc: 50, cv: 50 }, tags: ['the_peacemaker_eternal', 'master_diplomat'], flag: 'fsp_ending_2_peacemaker' },
+    fsp_ending_2_alt_gaia_captain: { gp: 250000, rep: { fsp: 120 }, tags: ['gaia_first_captain_legendary', 'fsp_brotherhood_eternal'], flag: 'fsp_ending_2_alt_gaia_captain' },
+    fsp_ending_3_disillusioned: { gp: 150000, rep: { fsp: -10 }, tags: ['the_drifter', 'the_disillusioned'], flag: 'fsp_ending_3_disillusioned' },
+    fsp_ending_4_new_chair: { gp: 1000000, rep: { mcc: -150, fsp: -100, cv: -50 }, tags: ['the_fourth_faction_founder', 'ascendant_chair_eternal'], flag: 'fsp_ending_4_new_chair' },
+  };
+  const ending = endingMap[choiceId] || { gp: 5000, rep: {}, tags: ['failed_arc'], flag: 'ch10_bad_ending_assigned' };
+  const loreFlags = ['fsp_route_ch10_completed', ending.flag, `ch10_ending_locked:${choiceId}`];
+  const masteries = [];
+  let gp = 10000 + ending.gp;
+  if (['fsp_ending_1_citizen', 'fsp_ending_2_peacemaker', 'fsp_ending_2_alt_gaia_captain'].includes(choiceId)) { gp += 5000; masteries.push('ideal_path_walker'); }
+  if (choiceId === 'fsp_ending_4_new_chair') gp += 6000;
+  if (choiceId === 'fsp_ending_2_alt_gaia_captain') { gp += 4000; masteries.push('explorer'); }
+  return {
+    GP: gp,
+    XP: 2000,
+    reputationDelta: ending.rep,
+    items: [{ type: 'route_completion_token', code: 'fsp_route_completion_token', label: 'FSP Route Completion Token' }],
+    tags: ending.tags,
+    loreFlags,
+    masteries,
+    unlocks: [],
+    branchModifiers: [{ targetChapter: 'ng_plus', key: 'fsp_route_completed', value: { ending: choiceId } }],
+  };
+}
+
 function calculateRewards(progress, sim) {
   if (progress.quest_id === CH2_ID) return calculateCh2Rewards(progress, sim);
   if (progress.quest_id === CH3_ID) return calculateCh3Rewards(progress, sim);
@@ -2099,6 +2557,10 @@ function calculateRewards(progress, sim) {
   if (progress.quest_id === FSP_CH4_ID) return calculateFspCh4Rewards(progress, sim);
   if (progress.quest_id === FSP_CH5_ID) return calculateFspCh5Rewards(progress, sim);
   if (progress.quest_id === FSP_CH6_ID) return calculateFspCh6Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH7_ID) return calculateFspCh7Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH8_ID) return calculateFspCh8Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH9_ID) return calculateFspCh9Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH10_ID) return calculateFspCh10Rewards(progress, sim);
   return calculateCh1Rewards(progress, sim);
 }
 

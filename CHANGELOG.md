@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — FSP Campaign Ch7~10 MVP 구현 (v5.29)
+
+- **FSP Ch7 "의회" 추가**: Hellas Central 의회 회기, 5개 의장 후보(Mikhail/Liang/Amara/Diego/Player), 환경 위기 병행 지표, 의장별 Ch8~Ch10 분기 modifier를 서버 시뮬레이션으로 구현.
+- **FSP Ch8 "가이아" 추가**: 시민 기부 호소, Gaia 건조율/HP, MCC 절도 성공/실패, 전투 pledge/침묵/개인 기부 선택과 Gaia·Pilgrim Arms seed 보상을 추가.
+- **FSP Ch9 "세 개의 깃발" 추가**: MCC/FSP/CV 정상회담, Pilgrim Arms 암살단, 보호 대상 선택(Amara/Chen/Butcher/전원후퇴/신호)과 배신·4파벌·Peacemaker 분기를 추가.
+- **FSP Ch10 "자유의 대가" 추가**: Citizen, Peacemaker, Gaia Captain, Disillusioned, New Chair, Bad Ending 보상과 FSP route completion token을 추가.
+- **Ch7~10 seed migration 추가**: 신규 환경, 위치, NPC, 의장 후보/지원 modifier/유권자 pool, lore flags, branch modifiers, tags, items, chapter config를 `200_fsp_campaign_ch7_to_ch10.sql`에 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`와 audit 문서를 FSP Ch1~10 완료/v5.29 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- 운영 DB 기준 migration BEGIN/ROLLBACK 드라이런
+
 ## 2026-04-29 — Campaign Ch1 continue/complete 안정화 (v5.28)
 
 - **산소 쟁탈 CONTINUE 복구**: 진행 중인 캠페인 카드의 `CONTINUE`가 기존 `sessionId`를 이어가도록 수정해, 이미 선택지를 고른 Ch1을 다시 시작/초기화하지 않게 했다.

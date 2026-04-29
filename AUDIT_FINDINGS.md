@@ -1,6 +1,25 @@
-# OCCUPY MARS — Codebase Audit (v5.28 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.29 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.29 FSP Campaign Ch7~10 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| FSP Ch7 Assembly | ✅ | Hellas Central 의회, Mikhail/Liang/Amara/Diego/Player 의장 분기, 환경 위기 병행 지표, Ch8~Ch10 branch modifier 보상 추가. |
+| FSP Ch8 Gaia | ✅ | 시민 기부/전투 pledge/침묵/MCC 절도 4선택, Gaia 건조율·HP·민간 피해·절도 성공 지표, Gaia/Pilgrim Arms seed 보상 추가. |
+| FSP Ch9 Three Flags | ✅ | Olympus 정상회담, Amara/Chen/Butcher/전원후퇴/Pilgrim Arms 신호 보호 선택, 배신/4파벌/Peacemaker 분기 추가. |
+| FSP Ch10 Freedom's Price | ✅ | Citizen, Peacemaker, Gaia Captain, Disillusioned, New Chair, Bad Ending 최종 보상과 route completion token 추가. |
+| persistence | ✅ | `200_fsp_campaign_ch7_to_ch10.sql`에 환경, 위치, NPC, 의장 후보/유권자 테이블, lore, branch, tag, item, chapter seed 추가. |
+| full engine/UI 잔여 | 🟡 | Assembly 전용 11석 UI, Gaia 조선소 방어 UI, Three Flags 회담장 protect UI, ending eligibility 자동 추천/락 UI는 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- 운영 DB 기준 `200_fsp_campaign_ch7_to_ch10.sql` BEGIN/ROLLBACK 드라이런 통과
+
+---
 
 ### v5.28 Campaign Ch1 continue/complete 안정화 — 수정 완료
 
