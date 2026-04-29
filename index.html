@@ -291,6 +291,72 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 /* Zoom Controls */
 .zc{position:fixed;bottom:24px;right:266px;z-index:60;display:flex;flex-direction:column;gap:4px}
 
+/* Bug Report floating button — positioned to the LEFT of the SECTORS button.
+   Position is computed at runtime by alignBugFab() (see bottom of file)
+   so it tracks the SECTORS button across panel-collapse / responsive layout
+   changes. CSS only sets size + appearance. */
+.bug-fab{position:fixed;z-index:61;
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(232,72,85,.18),rgba(255,120,60,.10));
+  border:1px solid rgba(232,72,85,.45);color:var(--red);
+  font-family:var(--fn);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 12px rgba(232,72,85,.20),0 4px 14px rgba(0,0,0,.4);
+  transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
+  padding:0;line-height:1;
+  /* Default fallback position (overridden by JS) — bottom-right area, away from bottom nav */
+  bottom:84px;right:60px}
+.bug-fab:hover{background:rgba(232,72,85,.28);transform:translateY(-1px) scale(1.05);
+  box-shadow:0 0 18px rgba(232,72,85,.40),0 6px 18px rgba(0,0,0,.5)}
+.bug-fab:active{transform:translateY(0) scale(.95)}
+.bug-fab .bug-fab-label{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
+  font-size:8px;color:var(--red);letter-spacing:.5px;font-weight:700;pointer-events:none;
+  opacity:.85;text-shadow:0 1px 2px rgba(0,0,0,.6);white-space:nowrap}
+@media (max-width:768px){
+  .bug-fab{width:36px;height:36px;font-size:13px}
+  .bug-fab .bug-fab-label{font-size:7px;bottom:-12px}
+}
+
+/* Bug Report Modal */
+.bug-modal{display:none;position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:20px}
+.bug-modal.on{display:flex}
+.bug-modal-card{width:min(520px,100%);max-height:90vh;overflow-y:auto;
+  background:linear-gradient(180deg,#1a1326 0%,#0e0c16 100%);
+  border:1px solid rgba(232,72,85,.35);border-radius:14px;padding:22px 22px 18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 30px rgba(232,72,85,.15)}
+.bug-modal-title{font-family:var(--fn);font-size:15px;font-weight:700;letter-spacing:1.5px;
+  color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.bug-modal-sub{font-size:11px;color:var(--tx3);margin-bottom:14px;line-height:1.5}
+.bug-modal label{display:block;font-size:10px;color:var(--tx3);font-family:var(--fn);
+  letter-spacing:1px;margin:10px 0 5px;font-weight:700;text-transform:uppercase}
+.bug-modal textarea,.bug-modal input[type=text]{width:100%;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);border-radius:8px;color:var(--tx);
+  font-family:inherit;font-size:13px;padding:10px 12px;outline:none;
+  transition:border-color .15s,background .15s;box-sizing:border-box}
+.bug-modal textarea:focus,.bug-modal input[type=text]:focus{
+  border-color:rgba(232,72,85,.45);background:rgba(232,72,85,.05)}
+.bug-modal textarea{min-height:120px;resize:vertical;line-height:1.5}
+.bug-modal .bug-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bug-modal .bug-cat-btn{padding:6px 12px;font-size:10px;font-family:var(--fn);
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);
+  color:var(--tx2);border-radius:6px;cursor:pointer;font-weight:700;letter-spacing:.5px;
+  transition:all .15s}
+.bug-modal .bug-cat-btn.sel{background:rgba(232,72,85,.18);border-color:rgba(232,72,85,.5);color:var(--red)}
+.bug-modal .bug-meta{font-size:9px;color:var(--tx3);margin:6px 0 12px;line-height:1.5;
+  background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);padding:8px 10px;border-radius:6px}
+.bug-modal-actions{display:flex;gap:10px;margin-top:16px}
+.bug-modal-actions button{flex:1;padding:12px;border-radius:8px;font-family:var(--fn);
+  font-size:11px;letter-spacing:1px;font-weight:700;cursor:pointer;border:none;transition:all .15s}
+.bug-modal .bug-cancel{background:rgba(255,255,255,.05);color:var(--tx3);
+  border:1px solid rgba(255,255,255,.10)}
+.bug-modal .bug-cancel:hover{background:rgba(255,255,255,.08);color:var(--tx2)}
+.bug-modal .bug-submit{background:linear-gradient(135deg,var(--red),var(--mars));color:#fff;
+  box-shadow:0 4px 14px rgba(232,72,85,.3)}
+.bug-modal .bug-submit:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.bug-modal .bug-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
 /* ── OPS quick-launch image cards (INVADE / EXPLORE) ──────
    Vertical stack of two illustrated buttons; the artwork is the
    button face with a tinted gradient overlay and a corner label. */
@@ -5469,6 +5535,52 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 
 <div class="mode-badge" id="modeBadge" data-i18n="mode_claim">🔴 CLICK MARS TO SELECT TERRITORY</div>
 
+<!-- Bug Report floating button — sits to the LEFT of the SECTORS button -->
+<button type="button" class="bug-fab" id="bugReportFab" onclick="openBugReport()"
+        title="Report a bug" aria-label="Report a bug">
+  🐞<span class="bug-fab-label" data-i18n="bug_report_label">BUG</span>
+</button>
+
+<!-- Bug Report Modal -->
+<div class="bug-modal" id="bugReportModal" onclick="if(event.target===this)closeBugReport()">
+  <div class="bug-modal-card" role="dialog" aria-modal="true" aria-labelledby="bugReportTitle">
+    <div class="bug-modal-title" id="bugReportTitle">
+      <span>🐞</span><span data-i18n="bug_report_title">REPORT A BUG</span>
+    </div>
+    <div class="bug-modal-sub" data-i18n="bug_report_sub">
+      Tell us what went wrong. Reports go straight to the dev team for review and fixing.
+    </div>
+
+    <label data-i18n="bug_report_category">Category</label>
+    <div class="bug-row" id="bugReportCats">
+      <button type="button" class="bug-cat-btn sel" data-cat="ui"        onclick="selectBugCat(this)" data-i18n="bug_cat_ui">UI</button>
+      <button type="button" class="bug-cat-btn"     data-cat="gameplay"  onclick="selectBugCat(this)" data-i18n="bug_cat_gameplay">GAMEPLAY</button>
+      <button type="button" class="bug-cat-btn"     data-cat="payment"   onclick="selectBugCat(this)" data-i18n="bug_cat_payment">PAYMENT</button>
+      <button type="button" class="bug-cat-btn"     data-cat="performance" onclick="selectBugCat(this)" data-i18n="bug_cat_performance">PERFORMANCE</button>
+      <button type="button" class="bug-cat-btn"     data-cat="other"     onclick="selectBugCat(this)" data-i18n="bug_cat_other">OTHER</button>
+    </div>
+
+    <label data-i18n="bug_report_summary">Short summary</label>
+    <input type="text" id="bugReportTitleInput" maxlength="120"
+           data-i18n-placeholder="bug_report_summary_ph"
+           placeholder="e.g. Hijack button does nothing on enemy claim">
+
+    <label data-i18n="bug_report_detail">What happened?</label>
+    <textarea id="bugReportBody" maxlength="2000"
+              data-i18n-placeholder="bug_report_detail_ph"
+              placeholder="Steps to reproduce, what you expected, what actually happened..."></textarea>
+
+    <div class="bug-meta" id="bugReportMeta">
+      <span data-i18n="bug_report_auto_meta">We auto-attach: page URL, browser, recent console errors, your wallet (if connected).</span>
+    </div>
+
+    <div class="bug-modal-actions">
+      <button class="bug-cancel" onclick="closeBugReport()" data-i18n="cancel_btn">CANCEL</button>
+      <button class="bug-submit" id="bugReportSubmitBtn" onclick="submitBugReport()" data-i18n="bug_report_submit">SEND REPORT</button>
+    </div>
+  </div>
+</div>
+
 <!-- Claim Modal -->
 <div class="mbg" id="claimModal">
   <div class="claim-card">
@@ -9267,7 +9379,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     } catch(e) { return false; }
   }
 
+  // Ring buffer of recent errors so the bug-report modal can attach context.
+  // Bounded at 20 entries to keep memory tiny.
+  window.__recentErrors = window.__recentErrors || [];
+  function _pushRecentError(data) {
+    try {
+      window.__recentErrors.push({
+        ts: Date.now(),
+        message: String(data.message || '').slice(0, 500),
+        source: data.source ? String(data.source).slice(0, 300) : null,
+        line: data.line || null
+      });
+      if (window.__recentErrors.length > 20) window.__recentErrors.shift();
+    } catch(_) {}
+  }
+
   function _reportError(data) {
+    _pushRecentError(data);
     if (!data.message || !_canSend() || _isDuplicate(data.message)) return;
     try {
       var xhr = new XMLHttpRequest();
@@ -9303,6 +9431,126 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     });
   };
 })();
+
+/* ═══════ BUG REPORT MODAL ═══════
+   - Opens via the floating bug-fab button (left of SECTORS).
+   - Sends to POST /api/bug-report along with auto-attached context
+     (URL, user-agent, recent JS errors, wallet) so devs can reproduce.
+   - Reports also land in /server/bug-reports/inbox/ as JSON files
+     for Claude Code to pick up via the watcher pipeline. */
+// Keep the BUG fab horizontally adjacent to the actual SECTORS button.
+// .zc gets dynamic inline styles depending on panel/responsive state, so we
+// can't trust static right/bottom. Recompute on load + resize + every few
+// seconds (cheap rAF-throttled).
+function alignBugFab(){
+  try {
+    var fab = document.getElementById('bugReportFab');
+    var sb  = document.getElementById('sectorToggleBtn');
+    if (!fab || !sb) return;
+    var sr = sb.getBoundingClientRect();
+    if (sr.width === 0 || sr.height === 0) return;
+    var fw = fab.offsetWidth || 38;
+    var fh = fab.offsetHeight || 38;
+    // Place fab so its right edge sits 8px to the left of SECTORS button,
+    // vertically centered with SECTORS.
+    var gap = 8;
+    var leftPx = Math.max(8, sr.left - gap - fw);
+    var topPx  = Math.max(8, sr.top + (sr.height - fh) / 2);
+    fab.style.left   = leftPx + 'px';
+    fab.style.top    = topPx + 'px';
+    fab.style.right  = 'auto';
+    fab.style.bottom = 'auto';
+  } catch(_) {}
+}
+var _bugFabAlignTimer = null;
+function _scheduleBugFabAlign(){
+  if (_bugFabAlignTimer) return;
+  _bugFabAlignTimer = requestAnimationFrame(function(){
+    _bugFabAlignTimer = null;
+    alignBugFab();
+  });
+}
+window.addEventListener('resize', _scheduleBugFabAlign, { passive: true });
+window.addEventListener('load',   _scheduleBugFabAlign);
+document.addEventListener('DOMContentLoaded', _scheduleBugFabAlign);
+// Re-check periodically — panels collapse/expand without firing resize.
+setInterval(_scheduleBugFabAlign, 1500);
+
+var _bugSelectedCat = 'ui';
+function selectBugCat(btn){
+  try {
+    var cats = document.querySelectorAll('#bugReportCats .bug-cat-btn');
+    for (var i=0;i<cats.length;i++) cats[i].classList.remove('sel');
+    btn.classList.add('sel');
+    _bugSelectedCat = btn.getAttribute('data-cat') || 'other';
+  } catch(_) {}
+}
+function openBugReport(){
+  var m = document.getElementById('bugReportModal'); if (!m) return;
+  m.classList.add('on');
+  // Reset to UI category by default
+  _bugSelectedCat = 'ui';
+  try {
+    var cats = document.querySelectorAll('#bugReportCats .bug-cat-btn');
+    for (var i=0;i<cats.length;i++) {
+      cats[i].classList.toggle('sel', cats[i].getAttribute('data-cat') === 'ui');
+    }
+  } catch(_) {}
+  setTimeout(function(){
+    var t = document.getElementById('bugReportTitleInput');
+    if (t) t.focus();
+  }, 60);
+}
+function closeBugReport(){
+  var m = document.getElementById('bugReportModal'); if (!m) return;
+  m.classList.remove('on');
+}
+async function submitBugReport(){
+  var titleEl = document.getElementById('bugReportTitleInput');
+  var bodyEl  = document.getElementById('bugReportBody');
+  var btn     = document.getElementById('bugReportSubmitBtn');
+  var title = (titleEl && titleEl.value || '').trim();
+  var body  = (bodyEl  && bodyEl.value  || '').trim();
+  if (!title && !body) {
+    try { showToast(t('bug_report_empty') || 'Please describe the bug'); } catch(_) { alert('Please describe the bug'); }
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = (typeof t==='function'?t('bug_report_sending'):null) || 'SENDING...'; }
+  var wallet = '';
+  try { wallet = (window.userWallet || window.currentWallet || localStorage.getItem('wallet') || '').toLowerCase(); } catch(_) {}
+  var payload = {
+    category: _bugSelectedCat || 'other',
+    title: title.slice(0, 120),
+    body:  body.slice(0, 2000),
+    wallet: wallet || null,
+    url: location.href.slice(0, 1000),
+    userAgent: navigator.userAgent.slice(0, 500),
+    viewport: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 },
+    lang: (typeof currentLang !== 'undefined' && currentLang) || (navigator.language || 'en'),
+    recentErrors: (window.__recentErrors || []).slice(-10)
+  };
+  try {
+    var res = await fetch('/api/bug-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    var d = {};
+    try { d = await res.json(); } catch(_) {}
+    if (res.ok && d && d.ok) {
+      try { showToast((typeof t==='function'?t('bug_report_thanks'):null) || '🐞 Report sent. Thank you!'); } catch(_) {}
+      if (titleEl) titleEl.value = '';
+      if (bodyEl)  bodyEl.value  = '';
+      closeBugReport();
+    } else {
+      try { showToast((d && d.error) || 'Failed to send report'); } catch(_) {}
+    }
+  } catch (e) {
+    try { showToast('Network error: ' + (e.message || 'unknown')); } catch(_) {}
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = (typeof t==='function'?t('bug_report_submit'):null) || 'SEND REPORT'; }
+  }
+}
 
 /* ═══════ SOUND EFFECTS ENGINE (Web Audio API) ═══════ */
 var _audioCtx=null;
@@ -14978,6 +15226,19 @@ var I18N = {
     approve_deposit: 'APPROVE & DEPOSIT', request_withdrawal: 'REQUEST WITHDRAWAL',
     confirm_swap: 'CONFIRM SWAP', cancel: 'CANCEL', copy: 'COPY', apply: 'APPLY',
     click_mars: 'CLICK MARS TO SELECT TERRITORY', click_stamp: 'CLICK MARS TO STAMP!',
+    bug_report_label: 'BUG', bug_report_title: 'REPORT A BUG',
+    bug_report_sub: 'Tell us what went wrong. Reports go straight to the dev team for review and fixing.',
+    bug_report_category: 'Category',
+    bug_cat_ui: 'UI', bug_cat_gameplay: 'GAMEPLAY', bug_cat_payment: 'PAYMENT',
+    bug_cat_performance: 'PERFORMANCE', bug_cat_other: 'OTHER',
+    bug_report_summary: 'Short summary',
+    bug_report_summary_ph: 'e.g. Hijack button does nothing on enemy claim',
+    bug_report_detail: 'What happened?',
+    bug_report_detail_ph: 'Steps to reproduce, what you expected, what actually happened...',
+    bug_report_auto_meta: 'We auto-attach: page URL, browser, recent console errors, your wallet (if connected).',
+    bug_report_submit: 'SEND REPORT', bug_report_sending: 'SENDING...',
+    bug_report_thanks: '🐞 Report sent. Thank you!',
+    bug_report_empty: 'Please describe the bug',
     registered: 'REGISTERED!', login_success: 'LOGGED IN!', wallet_connected: 'WALLET CONNECTED',
     wallet_disconnected: 'WALLET DISCONNECTED', copied: 'REFERRAL LINK COPIED!',
     stats_label: 'STATS', live_label: 'LIVE',
@@ -15642,6 +15903,19 @@ var I18N = {
     approve_deposit: '승인 & 입금', request_withdrawal: '출금 요청',
     confirm_swap: '교환 확인', cancel: '취소', copy: '복사', apply: '적용',
     click_mars: '화성을 클릭하여 영토를 선택하세요', click_stamp: '화성을 클릭하여 배치!',
+    bug_report_label: '버그', bug_report_title: '버그 리포트',
+    bug_report_sub: '무슨 일이 있었나요? 제출하시면 개발팀이 바로 확인 후 수정합니다.',
+    bug_report_category: '카테고리',
+    bug_cat_ui: 'UI', bug_cat_gameplay: '게임플레이', bug_cat_payment: '결제',
+    bug_cat_performance: '성능', bug_cat_other: '기타',
+    bug_report_summary: '한 줄 요약',
+    bug_report_summary_ph: '예: 하이잭 버튼이 적 영토에서 반응 없음',
+    bug_report_detail: '무슨 일이 있었나요?',
+    bug_report_detail_ph: '재현 절차, 기대한 동작, 실제 동작을 적어주세요...',
+    bug_report_auto_meta: '자동 첨부: 페이지 URL, 브라우저, 최근 콘솔 에러, 연결된 지갑.',
+    bug_report_submit: '리포트 전송', bug_report_sending: '전송 중...',
+    bug_report_thanks: '🐞 리포트 전송 완료! 감사합니다.',
+    bug_report_empty: '버그 내용을 입력해주세요',
     registered: '가입 완료!', login_success: '로그인 성공!', wallet_connected: '지갑 연결됨',
     wallet_disconnected: '지갑 연결 해제됨', copied: '추천 링크 복사됨!',
     stats_label: '통계', live_label: '실시간',
@@ -16303,6 +16577,19 @@ var I18N = {
     approve_deposit: '承認 & 入金', request_withdrawal: '出金リクエスト',
     confirm_swap: '交換確認', cancel: 'キャンセル', copy: 'コピー', apply: '適用',
     click_mars: '火星をクリックして領土を選択', click_stamp: '火星をクリックして配置！',
+    bug_report_label: 'バグ', bug_report_title: 'バグ報告',
+    bug_report_sub: '何が起きたか教えてください。開発チームが確認して修正します。',
+    bug_report_category: 'カテゴリ',
+    bug_cat_ui: 'UI', bug_cat_gameplay: 'ゲームプレイ', bug_cat_payment: '決済',
+    bug_cat_performance: 'パフォーマンス', bug_cat_other: 'その他',
+    bug_report_summary: '簡単な要約',
+    bug_report_summary_ph: '例: ハイジャックボタンが反応しない',
+    bug_report_detail: '何が起きましたか？',
+    bug_report_detail_ph: '再現手順、期待した動作、実際の動作を記入してください...',
+    bug_report_auto_meta: '自動添付: ページURL、ブラウザ、最近のコンソールエラー、接続中のウォレット。',
+    bug_report_submit: 'レポート送信', bug_report_sending: '送信中...',
+    bug_report_thanks: '🐞 送信完了！ありがとうございます。',
+    bug_report_empty: 'バグの内容を入力してください',
     registered: '登録完了！', login_success: 'ログイン成功！', wallet_connected: 'ウォレット接続済み',
     wallet_disconnected: 'ウォレット切断済み', copied: '紹介リンクをコピーしました！',
     stats_label: '統計', live_label: 'ライブ',
@@ -16948,6 +17235,19 @@ var I18N = {
     approve_deposit: '授权并充值', request_withdrawal: '申请提现',
     confirm_swap: '确认兑换', cancel: '取消', copy: '复制', apply: '应用',
     click_mars: '点击火星选择领土', click_stamp: '点击火星放置！',
+    bug_report_label: 'BUG', bug_report_title: '错误反馈',
+    bug_report_sub: '请告诉我们出了什么问题。我们会立即查看并修复。',
+    bug_report_category: '类别',
+    bug_cat_ui: 'UI', bug_cat_gameplay: '玩法', bug_cat_payment: '支付',
+    bug_cat_performance: '性能', bug_cat_other: '其他',
+    bug_report_summary: '简短摘要',
+    bug_report_summary_ph: '例: 劫持按钮在敌方领土上无响应',
+    bug_report_detail: '发生了什么？',
+    bug_report_detail_ph: '复现步骤、期望行为、实际行为...',
+    bug_report_auto_meta: '自动附加: 页面URL、浏览器、最近的控制台错误、已连接钱包。',
+    bug_report_submit: '提交反馈', bug_report_sending: '发送中...',
+    bug_report_thanks: '🐞 反馈已发送，谢谢！',
+    bug_report_empty: '请输入错误描述',
     registered: '注册成功！', login_success: '登录成功！', wallet_connected: '钱包已连接',
     wallet_disconnected: '钱包已断开', copied: '推荐链接已复制！',
     stats_label: '统计', live_label: '实时',
