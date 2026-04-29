@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — Campaign Ch1 continue/complete 안정화 (v5.28)
+
+- **산소 쟁탈 CONTINUE 복구**: 진행 중인 캠페인 카드의 `CONTINUE`가 기존 `sessionId`를 이어가도록 수정해, 이미 선택지를 고른 Ch1을 다시 시작/초기화하지 않게 했다.
+- **완료 트랜잭션 안정화**: blueprint inbox, 칭호, 환경 숙련도, 태그, lore flag, branch modifier 지급을 `SAVEPOINT`로 격리해 부가 보상 하나가 실패해도 GP/XP/평판/진행 완료가 500으로 죽지 않도록 보강.
+- **Ch1 구식 id 정리**: Ch1 보상의 다음 챕터 unlock과 cold death failure branch에 남아 있던 `mcc_ch2`/`mcc_ch6` 구식 id를 캠페인 상수 기반 id로 교체.
+
+검증:
+- 운영 DB 읽기 전용 schema/status 점검
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
 ## 2026-04-29 — Campaign Quick Button 기준 위치 재조정 (v5.27)
 
 - **데스크탑 위치 재조정**: CAMPAIGN 퀵 버튼을 오른쪽 줌 컬럼의 되돌리기 버튼 위로 이동.

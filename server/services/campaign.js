@@ -1520,7 +1520,7 @@ function simulateChapter(progress) {
 
 function calculateCh1Rewards(progress, sim) {
   if (!sim.success) {
-    if (sim.failureReason === 'fail_cold_death') return { GP: 0, XP: 0, reputationDelta: { mcc: -10, fsp: -25 }, tags: ['cold_death'], loreFlags: ['cold_sister_frozen'], branchModifiers: [{ targetChapter: 'mcc_ch6', key: 'chen_distrust_increased', value: { active: true } }] };
+    if (sim.failureReason === 'fail_cold_death') return { GP: 0, XP: 0, reputationDelta: { mcc: -10, fsp: -25 }, tags: ['cold_death'], loreFlags: ['cold_sister_frozen'], branchModifiers: [{ targetChapter: CH6_ID, key: 'chen_distrust_increased', value: { active: true } }] };
     if (sim.failureReason === 'fail_time_exceeded') return { GP: 0, XP: 0, reputationDelta: { mcc: -15 }, tags: [], loreFlags: ['oxygen_lost_to_storm'], branchModifiers: [] };
     return { GP: 0, XP: 0, reputationDelta: {}, tags: [], loreFlags: [], branchModifiers: [] };
   }
@@ -1547,7 +1547,7 @@ function calculateCh1Rewards(progress, sim) {
     masteries: secondary.includes('obj_finish_before_storm') ? ['dust_storm_combat'] : [],
     tags: secondary.length === 2 ? ['efficient_operator'] : [],
     loreFlags: ['lifang_personal_arc_unlocked'],
-    unlocks: ['mcc_ch2'],
+    unlocks: [CH2_ID],
     branchModifiers: [],
   };
 }
@@ -2526,6 +2526,18 @@ function getEnvironmentState(config, elapsedSec) {
   };
 }
 
+async function applyOptionalCampaignReward(client, label, fn) {
+  await client.query('SAVEPOINT campaign_optional_reward');
+  try {
+    await fn();
+    await client.query('RELEASE SAVEPOINT campaign_optional_reward');
+  } catch (err) {
+    await client.query('ROLLBACK TO SAVEPOINT campaign_optional_reward');
+    await client.query('RELEASE SAVEPOINT campaign_optional_reward');
+    console.warn(`[CAMPAIGN] optional reward skipped (${label}):`, err.message);
+  }
+}
+
 async function complete(wallet, sessionId) {
   const w = normalizeWallet(wallet);
   const client = await pool.connect();
@@ -2568,58 +2580,65 @@ async function complete(wallet, sessionId) {
       }
       if (rewards.XP > 0) await awardXP(client, w, rewards.XP);
       for (const item of rewards.items || []) {
-        await client.query(
-          `INSERT INTO campaign_reward_inbox (wallet, quest_id, reward_type, reward_code, quantity, payload)
-           VALUES ($1,$2,$3,$4,$5,$6)`,
-          [w, progress.quest_id, item.type, item.code, item.quantity || 1, JSON.stringify(item)]
+        await applyOptionalCampaignReward(client, `item:${item.code}`, () => client.query(
+            `INSERT INTO campaign_reward_inbox (wallet, quest_id, reward_type, reward_code, quantity, payload)
+             VALUES ($1,$2,$3,$4,$5,$6)`,
+            [w, progress.quest_id, item.type, item.code, item.quantity || 1, JSON.stringify(item)]
+          )
         );
       }
       for (const title of rewards.titles || []) {
-        await client.query(
-          `INSERT INTO user_titles (user_wallet, title_code, title_en, title_ko)
-           VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING`,
-          [w, title, 'Efficient Operator', '효율적인 해결사']
+        await applyOptionalCampaignReward(client, `title:${title}`, () => client.query(
+            `INSERT INTO user_titles (user_wallet, title_code, title_en, title_ko)
+             VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING`,
+            [w, title, 'Efficient Operator', '효율적인 해결사']
+          )
         );
       }
       for (const mastery of rewards.masteries || []) {
-        await client.query(
-          `INSERT INTO player_environment_mastery (wallet, environment_type, encounter_count, success_count, mastery_level)
-           VALUES ($1,$2,1,1,1)
-           ON CONFLICT (wallet, environment_type)
-           DO UPDATE SET encounter_count = player_environment_mastery.encounter_count + 1,
-                         success_count = player_environment_mastery.success_count + 1,
-                         mastery_level = GREATEST(player_environment_mastery.mastery_level, 1),
-                         updated_at = NOW()`,
-          [w, mastery]
+        await applyOptionalCampaignReward(client, `mastery:${mastery}`, () => client.query(
+            `INSERT INTO player_environment_mastery (wallet, environment_type, encounter_count, success_count, mastery_level)
+             VALUES ($1,$2,1,1,1)
+             ON CONFLICT (wallet, environment_type)
+             DO UPDATE SET encounter_count = player_environment_mastery.encounter_count + 1,
+                           success_count = player_environment_mastery.success_count + 1,
+                           mastery_level = GREATEST(player_environment_mastery.mastery_level, 1),
+                           updated_at = NOW()`,
+            [w, mastery]
+          )
         );
       }
     }
 
     for (const tag of rewards.tags || []) {
-      await client.query(
-        `INSERT INTO player_tags (wallet, tag_id, source_quest_id, acquired_from)
-         VALUES ($1,$2,$3,$3) ON CONFLICT DO NOTHING`,
-        [w, tag, progress.quest_id]
+      await applyOptionalCampaignReward(client, `tag:${tag}`, () => client.query(
+          `INSERT INTO player_tags (wallet, tag_id, source_quest_id, acquired_from)
+           VALUES ($1,$2,$3,$3) ON CONFLICT DO NOTHING`,
+          [w, tag, progress.quest_id]
+        )
       );
     }
     for (const flag of rewards.loreFlags || []) {
-      await client.query(
-        `INSERT INTO player_lore_flags (wallet, flag_id, source_quest_id, source_chapter)
-         VALUES ($1,$2,$3,$3) ON CONFLICT DO NOTHING`,
-        [w, flag, progress.quest_id]
+      await applyOptionalCampaignReward(client, `lore:${flag}`, () => client.query(
+          `INSERT INTO player_lore_flags (wallet, flag_id, source_quest_id, source_chapter)
+           VALUES ($1,$2,$3,$3) ON CONFLICT DO NOTHING`,
+          [w, flag, progress.quest_id]
+        )
       );
     }
     for (const mod of rewards.branchModifiers || []) {
-      await client.query(
-        `INSERT INTO chapter_branch_modifiers (wallet, target_chapter, modifier_key, modifier_value, source_quest_id)
-         VALUES ($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING`,
-        [w, mod.targetChapter, mod.key, JSON.stringify(mod.value || {}), progress.quest_id]
-      );
-      await client.query(
-        `INSERT INTO player_branch_modifiers (wallet, modifier_id, target_chapter, source_chapter)
-         VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING`,
-        [w, mod.key, mod.targetChapter, progress.quest_id]
-      );
+      await applyOptionalCampaignReward(client, `branch:${mod.key}`, async () => {
+        await client.query(
+          `INSERT INTO chapter_branch_modifiers (wallet, target_chapter, modifier_key, modifier_value, source_quest_id)
+           VALUES ($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING`,
+          [w, mod.targetChapter, mod.key, JSON.stringify(mod.value || {}), progress.quest_id]
+        );
+        await client.query(
+          `INSERT INTO player_branch_modifiers (wallet, modifier_id, target_chapter, source_chapter)
+           VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING`,
+          [w, mod.key, mod.targetChapter, progress.quest_id]
+        );
+      });
     }
 
     const updated = await client.query(

@@ -24622,6 +24622,12 @@ async function openCampaignChapter(questId){
   if(!ch){showToast('Campaign not loaded');return;}
   var p=ch.progress||{};
   if(p.status==='completed'||p.status==='claimed') return showCampaignResult(ch,p);
+  if(p.status==='in_progress'&&p.sessionId){
+    _campaignActive={chapter:ch,progress:p,sessionId:p.sessionId};
+    if(Array.isArray(p.choices)&&p.choices.length>0) showCampaignSim(ch,p);
+    else showCampaignBriefing(ch,p);
+    return;
+  }
   try{
     var resp=await fetch('/api/campaign/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,quest_id:questId})});
     var d=await resp.json();

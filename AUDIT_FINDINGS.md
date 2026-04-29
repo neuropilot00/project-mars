@@ -1,6 +1,24 @@
-# OCCUPY MARS — Codebase Audit (v5.27 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.28 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.28 Campaign Ch1 continue/complete 안정화 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 산소 쟁탈 CONTINUE | ✅ | 진행 중인 `sessionId`가 있으면 `/api/campaign/start`로 새 세션을 만들지 않고 기존 브리핑/시뮬레이션을 이어가도록 수정. |
+| Ch1 완료 보상 | ✅ | blueprint/title/mastery/tag/lore/branch 같은 부가 보상을 `SAVEPOINT`로 격리해 한 항목 실패가 전체 완료 500으로 번지지 않게 보강. |
+| Ch1 구식 id | ✅ | Ch1 unlock/failure branch의 `mcc_ch2`, `mcc_ch6` 구식 id를 `mcc_campaign_ch2`, `mcc_campaign_ch6` 상수 경로로 정정. |
+
+검증:
+- 운영 DB 읽기 전용 schema/status 점검
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.27 Campaign Quick Button 기준 위치 재조정 — 수정 완료
 
