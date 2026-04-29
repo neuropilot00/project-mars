@@ -1200,41 +1200,48 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .campaign-rep-top{display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:4px}
 .campaign-rep-track{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
 .campaign-rep-fill{height:100%;width:50%;background:#4fc3f7}
-/* 캠페인 스토리 모드: 모바일 기준 세로형 포트레이트 — 데스크탑은 중앙 모달 */
-/* story-overlay = 풀스크린 어두운 배경 */
-.story-overlay{position:fixed;inset:0;z-index:5200;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;font-family:var(--fn);color:#fff;overflow:hidden}
-/* story-stage = 세로형 폰 크기 컨테이너 — 모바일/데스크탑 동일 이미지 사용 */
-.story-stage{position:relative;width:430px;height:88vh;max-height:880px;overflow:hidden;border-radius:14px;box-shadow:0 0 100px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.07);background:#000;cursor:pointer;flex-shrink:0}
-/* 모바일: 풀스크린 (기존과 동일하게) */
+/* 캠페인 스토리 모드: 모바일 우선 세로형 — 데스크탑은 중앙 포트레이트 모달 */
+/* story-overlay = 풀스크린 어두운 배경 (데스크탑) */
+.story-overlay{position:fixed;inset:0;z-index:5200;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;font-family:var(--fn);color:#fff;overflow:hidden}
+/* story-stage = 세로형 컨테이너 — 모바일/데스크탑 동일 비율·이미지 */
+.story-stage{position:relative;width:min(430px,100vw);height:min(88vh,880px);overflow:hidden;border-radius:14px;box-shadow:0 0 120px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.08);background:#0a0a0f;cursor:pointer;flex-shrink:0}
+/* 모바일(≤520px): 전체화면 */
 @media(max-width:520px){
   .story-overlay{background:#000}
   .story-stage{width:100vw;height:100dvh;max-height:none;border-radius:0;box-shadow:none}
 }
-/* 배경 이미지 — stage 기준 */
-.story-background{position:absolute;inset:0;background:linear-gradient(135deg,#1a0a2e,#2d1b4e);background-size:cover;background-position:center top;transition:opacity .8s ease,filter .8s ease}
-/* 캐릭터 — stage 너비 기준 %, 모바일/데스크탑 동일 비율 */
-.story-character-left,.story-character-right{position:absolute;bottom:0;max-height:68%;max-width:44%;object-fit:contain;opacity:1;transition:opacity .3s ease,filter .3s ease,transform .3s ease;filter:drop-shadow(0 14px 24px rgba(0,0,0,.6))}
-.story-character-left{left:2%;transform:translateX(-2%)}
-.story-character-right{right:2%;transform:translateX(2%)}
-.story-character-inactive{opacity:.42;filter:brightness(.55) drop-shadow(0 14px 24px rgba(0,0,0,.5))}
-/* 대화창 */
-.story-dialog-box{position:absolute;left:0;right:0;bottom:0;width:100%;box-sizing:border-box;background:rgba(0,0,0,.78);padding:18px 20px 24px;backdrop-filter:blur(6px);border-top:1px solid rgba(255,255,255,.12)}
-.story-speaker-name{font-weight:900;color:#FFD700;font-size:1rem;margin-bottom:5px;text-shadow:0 2px 10px rgba(0,0,0,.7)}
-.story-text{color:#fff;font-size:.95rem;line-height:1.65;min-height:3em;white-space:pre-line;text-shadow:0 2px 10px rgba(0,0,0,.8)}
-.story-tap-hint{position:absolute;right:18px;bottom:8px;font-size:.7rem;opacity:.55;animation:storyTapBlink 1.1s ease-in-out infinite}
-@keyframes storyTapBlink{0%,100%{opacity:.2}50%{opacity:.7}}
-.story-choices{display:flex;flex-direction:column;gap:9px;margin-top:10px}
-.story-choice-btn{width:100%;text-align:left;padding:11px 13px;border-radius:8px;border:1px solid rgba(255,215,0,.32);background:linear-gradient(135deg,rgba(79,195,247,.12),rgba(255,215,0,.08));color:#fff;font-family:var(--fn);font-size:10px;font-weight:800;letter-spacing:.8px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.24)}
-.story-choice-btn:hover{background:linear-gradient(135deg,rgba(79,195,247,.22),rgba(255,215,0,.16));border-color:rgba(255,215,0,.56)}
-.story-title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.34);font-size:clamp(22px,6%,42px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.85);padding:24px;letter-spacing:0}
-.story-title-card small{display:block;margin-top:10px;font-size:clamp(12px,3%,18px);color:#FFD700;line-height:1.5}
-.story-narration-text{text-align:center;background:none;color:#fff;font-size:.95rem;line-height:1.75;text-shadow:0 2px 16px rgba(0,0,0,.95)}
-/* 스토리 컨트롤 (스킵/나가기) — stage 우상단 */
-.story-controls{position:absolute;top:10px;right:10px;display:flex;gap:7px;z-index:5;cursor:default}
-.story-ctrl-btn{padding:7px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.6);color:#fff;font-family:var(--fn);font-size:9px;letter-spacing:1px;font-weight:800;cursor:pointer;backdrop-filter:blur(6px);transition:all .15s}
-.story-ctrl-btn:hover{background:rgba(0,0,0,.82);border-color:rgba(255,215,0,.45);color:#FFD700}
-.story-ctrl-btn.danger{border-color:rgba(239,83,80,.45);color:#ef9a9a}
-.story-ctrl-btn.danger:hover{background:rgba(239,83,80,.18);color:#ef5350}
+/* 배경 이미지 — 가로형 PNG를 세로 무대에 맞게: 상단 중심 크롭
+   cover + 50% 25% = 이미지 중앙 상단 25% 지점을 기준으로 채움
+   (건물·지평선은 위쪽에 있어 잘리지 않고, 하단 빈 공간은 대화창이 가림) */
+.story-background{position:absolute;inset:0;background:#0a0a0f linear-gradient(180deg,#1a0a2e,#0a0510);background-size:cover;background-position:50% 25%;transition:opacity .7s ease,filter .7s ease}
+/* 가로형 이미지 배경 보정: 상단 그라데이션으로 캐릭터 영역 분리 */
+.story-background::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.12) 0%,rgba(0,0,0,.0) 40%,rgba(0,0,0,.55) 75%,rgba(0,0,0,.82) 100%);pointer-events:none}
+/* 캐릭터 — stage % 기준, 모바일·데스크탑 동일 비율 */
+.story-character-left,.story-character-right{position:absolute;bottom:0;max-height:65%;max-width:46%;object-fit:contain;opacity:1;transition:opacity .3s ease,filter .3s ease,transform .3s ease;filter:drop-shadow(0 12px 28px rgba(0,0,0,.7))}
+.story-character-left{left:1%;transform:translateX(0)}
+.story-character-right{right:1%;transform:translateX(0)}
+.story-character-inactive{opacity:.38;filter:brightness(.5) drop-shadow(0 12px 28px rgba(0,0,0,.6))}
+/* 대화창 — 모바일 터치 고려: 패딩 넉넉하게, 글자 충분히 크게 */
+.story-dialog-box{position:absolute;left:0;right:0;bottom:0;width:100%;box-sizing:border-box;background:rgba(4,4,12,.82);padding:16px 18px 36px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.1)}
+.story-speaker-name{font-weight:900;color:#FFD700;font-size:1.05rem;margin-bottom:6px;letter-spacing:.3px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+.story-text{color:#f0f0f0;font-size:1rem;line-height:1.7;min-height:3.4em;white-space:pre-line;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+/* 탭 힌트 — safe area 고려 (아이폰 홈 바) */
+.story-tap-hint{position:absolute;right:16px;bottom:env(safe-area-inset-bottom,10px);margin-bottom:6px;font-size:.72rem;opacity:.5;animation:storyTapBlink 1.2s ease-in-out infinite;pointer-events:none}
+@keyframes storyTapBlink{0%,100%{opacity:.18}50%{opacity:.65}}
+/* 선택지 — 모바일 터치 타겟 최소 44px */
+.story-choices{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.story-choice-btn{width:100%;text-align:left;padding:13px 15px;min-height:44px;border-radius:10px;border:1px solid rgba(255,215,0,.3);background:linear-gradient(135deg,rgba(79,195,247,.1),rgba(255,215,0,.07));color:#f0f0f0;font-family:var(--fn);font-size:11px;font-weight:800;letter-spacing:.6px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.3);-webkit-tap-highlight-color:transparent}
+.story-choice-btn:active,.story-choice-btn:hover{background:linear-gradient(135deg,rgba(79,195,247,.2),rgba(255,215,0,.14));border-color:rgba(255,215,0,.55)}
+/* 타이틀 카드 — stage 크기 기준 clamp */
+.story-title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.4);font-size:clamp(24px,8vw,44px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.9);padding:28px;letter-spacing:0}
+.story-title-card small{display:block;margin-top:12px;font-size:clamp(13px,3.5vw,18px);color:#FFD700;line-height:1.5}
+.story-narration-text{text-align:center;background:none;color:#f0f0f0;font-size:1rem;line-height:1.8;text-shadow:0 2px 14px rgba(0,0,0,.95)}
+/* 스토리 컨트롤 (스킵/나가기) — safe area 고려 */
+.story-controls{position:absolute;top:max(10px,env(safe-area-inset-top,10px));right:12px;display:flex;gap:8px;z-index:5;cursor:default}
+.story-ctrl-btn{padding:8px 13px;min-height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.65);color:#ddd;font-family:var(--fn);font-size:9px;letter-spacing:1px;font-weight:800;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .15s;-webkit-tap-highlight-color:transparent}
+.story-ctrl-btn:active,.story-ctrl-btn:hover{background:rgba(0,0,0,.85);border-color:rgba(255,215,0,.45);color:#FFD700}
+.story-ctrl-btn.danger{border-color:rgba(239,83,80,.4);color:#ef9a9a}
+.story-ctrl-btn.danger:active,.story-ctrl-btn.danger:hover{background:rgba(239,83,80,.15);color:#ef5350}
 
 /* Rank progress bar */
 .rank-progress{background:rgba(0,0,0,.3);border-radius:6px;height:14px;overflow:hidden;
