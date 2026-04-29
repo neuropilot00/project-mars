@@ -24880,45 +24880,21 @@ function _campaignStorySetBackground(scene,overlay){
   var speed=scene.transition==='fade_slow'?'1.5s':(scene.transition==='fade_medium'?'0.8s':'0s');
   bg.style.transitionDuration=speed;
   if(!scene.background){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';return;}
-  // 에셋이 없는 배경 ID는 시각적으로 가장 가까운 기존 에셋으로 매핑한다
+  // 배경 ID → 파일명 매핑. 전용 에셋이 생긴 ID는 직접 참조,
+  // 아직 파일이 없거나 별칭이 필요한 ID만 폴백을 유지한다.
   var _bgMap={
-    // 우주선 / 선내
-    'kariope_cargo_bay':'cargo_ship_interior','kariope_observation_deck':'cargo_ship_interior',
-    'cargo_ship_corridor':'cargo_ship_interior','cargo_ship_window_mars':'cargo_ship_interior',
-    'deep_space_window':'cargo_ship_interior','deep_space_mars_approach':'cargo_ship_interior',
-    // 도킹 / 조선소
-    'mars_landing_approach':'mars_docking_bay',
-    'new_athens_shipyard_dawn':'new_athens_shipyard','new_athens_shipyard_interior':'new_athens_shipyard',
-    'new_athens_shipyard_night':'new_athens_shipyard',
-    // MCC 실내 (전용 에셋 없는 것만)
-    'mcc_sector12_ruins':'mcc_briefing_room','hellas_central_underground':'mcc_briefing_room',
-    'mine_interior':'mcc_briefing_room','mine_shaft':'mcc_briefing_room',
-    'hellas_outer_relay_interior':'mcc_archive_sublevel','erebus_base_medical':'mcc_briefing_room',
-    // FSP 의회 (새 에셋에서 변형)
-    'fsp_assembly_hall_evening':'fsp_assembly_hall','fsp_assembly_hall_official':'fsp_assembly_hall',
-    // 헬라스 외부 / 마을 (전용 에셋 없는 변형)
-    'hellas_mining_village_dawn':'hellas_mining_village','hellas_mining_village_empty':'hellas_mining_village',
-    'hellas_mining_village_panorama':'hellas_mining_village',
-    'hellas_outer_plains':'hellas_mining_outpost','hellas_outer_plains_sunset':'hellas_mining_outpost',
-    'hellas_central_exterior':'hellas_mining_outpost','hellas_central_exterior_night':'hellas_labor_district_night',
-    'hellas_central_exterior_panorama':'hellas_mining_outpost',
-    'hellas_various_night':'hellas_labor_district_night','hellas_mine_exterior':'hellas_mining_outpost',
-    'mine_exterior':'hellas_mining_outpost','hellas_zone4_ruins_exit':'hellas_zone4_ruins',
-    'sandstone_junction_dusk':'sandstone_junction',
-    'fsp_base_exterior':'fsp_base','fsp_base_night':'fsp_base',
-    'erebus_base_exterior':'hellas_mining_outpost','erebus_crater_exterior':'hellas_mining_outpost',
-    // 화성 표면 / 석양 (전용 에셋 없는 변형)
-    'olympus_exterior_dawn':'olympus_exterior','olympus_exterior_sunset':'olympus_exterior',
-    'olympus_exterior_vast':'olympus_exterior','olympus_summit_exterior_view':'olympus_summit_station',
-    'mars_surface_dust_storm':'mars_sunset','erebus_canyon_sunset':'mars_sunset',
-    'erebus_crater_panorama':'mars_sunset','hellas_zone4_outside_dawn':'kepler_crater_dawn',
-    // 케플러 변형
-    'kepler_crater_dusk':'kepler_crater','kepler_crater_edge':'kepler_crater',
-    'kepler_crater_edge_dusk':'kepler_crater',
-    // 아르기레 / CV 변형
-    'argyre_canyon_depot':'argyre_canyon_night','argyre_plains_dusk':'argyre_plains',
-    'argyre_plains_night':'argyre_canyon_night',
-    'erebus_base_interior_night':'erebus_base_interior'
+    // 기존 ID → 신규 전용 파일로 업그레이드
+    'hellas_mining_outpost':'hellas_central_exterior',
+    // 전용 파일이 생겼으나 scene JSON에 구버전 ID 남아있을 수 있는 경우 동일 파일로 연결
+    'cargo_ship_interior':'kariope_cargo_bay',
+    // 아직 전용 에셋 없는 것만 폴백 유지
+    'hellas_central_underground':'mcc_briefing_room',
+    'mine_interior':'mine_shaft',
+    'hellas_outer_relay_interior':'hellas_outer_relay',
+    'erebus_base_medical':'erebus_base_interior',
+    'hellas_various_night':'hellas_labor_district_night',
+    'kepler_crater':'kepler_crater_dawn',
+    'kepler_crater_dusk':'kepler_crater_edge_dusk'
   };
   var bgId=_bgMap[scene.background]||scene.background;
   var src='/assets/campaign/backgrounds/'+bgId+'.png';
