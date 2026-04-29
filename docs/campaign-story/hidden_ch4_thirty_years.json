@@ -5,23 +5,54 @@
   "title": { "ko": "30년", "en": "Thirty Years" },
   "location": { "id": "hellas_zone4_ruins", "displayNameKo": "헬라스 4구역 폐광 (30년 전)" },
   "environment": "flashback_mine",
-  "estimatedPlayTimeMinutes": 20,
+  "estimatedPlayTimeMinutes": 22,
   "characters": ["observer", "young_butcher", "ancient_presence"],
   "scenes": [
+
     { "id": "s01", "type": "narration", "background": "hellas_zone4_ruins", "bgm": "hidden_ambient_heavy", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "30년 전이었다. 기억이 아니었다. 흔적이었다. 관찰자가 폐광에서 찾은 것이었다. 헬라스 4구역. 파업이 있었던 곳. MCC가 끝낸 곳. Butcher가 혼자 살아남은 곳. 그 흔적들이 폐광의 벽에 있었다. 분필보다 오래된 것들이었다.", "en": "It was thirty years ago. Not memory. Traces. What the observer found in the abandoned mine. Hellas Zone 4. Where the strike had been. Where MCC ended it. Where Butcher was the only survivor. Those traces were on the walls of the abandoned mine. Things older than chalk." }}] },
+      "lines": [{ "text": {
+        "ko": "30년 전이었다. 기억이 아니었다. 흔적이었다. 관찰자가 폐광에서 찾은 것이었다. 헬라스 4구역. 파업이 있었던 곳. MCC가 끝낸 곳. Butcher가 혼자 살아남은 곳. 그 흔적들이 폐광의 벽에 있었다. 분필보다 오래된 것들이었다.",
+        "en": "It was thirty years ago. Not memory. Traces. What the observer found in the abandoned mine. Hellas Zone 4. Where the strike had been. Where MCC ended it. Where Butcher was the only survivor. Those traces were on the walls of the abandoned mine. Things older than chalk."
+      }}]
+    },
+
     { "id": "s02", "type": "narration", "background": "hellas_zone4_ruins", "bgm": "hidden_ambient_heavy", "transition": "cut",
-      "lines": [{ "text": { "ko": "광부들이 파업을 한 이유가 있었다. 안전 문제만이 아니었다. 다른 것이 있었다. 4구역 갱도 깊은 곳에서 발견된 것. 광석이 아닌 것. 색이 달랐다. 외계 기원 가능성. 그것을 MCC가 알았다. 광부들도 알았다. 광부들은 그것이 모두의 것이어야 한다고 했다. MCC는 달랐다.", "en": "The miners had a reason to strike. Not only safety issues. There was something else. What was found deep in the Zone 4 tunnel. Not ore. Different color. Extraterrestrial origin possibility. MCC knew it. The miners knew too. The miners said it should belong to everyone. MCC disagreed." }}] },
+      "lines": [{ "text": {
+        "ko": "광부들이 파업을 한 이유가 있었다. 안전 문제만이 아니었다. 다른 것이 있었다. 4구역 갱도 깊은 곳에서 발견된 것. 광석이 아닌 것. 색이 달랐다. 외계 기원 가능성. 그것을 MCC가 알았다. 광부들도 알았다. 광부들은 그것이 모두의 것이어야 한다고 했다. MCC는 달랐다.",
+        "en": "The miners had a reason to strike. Not only safety issues. There was something else. What was found deep in the Zone 4 tunnel. Not ore. Different color. Extraterrestrial origin possibility. MCC knew it. The miners knew too. The miners said it should belong to everyone. MCC disagreed."
+      }}]
+    },
+
     { "id": "s03", "type": "narration", "background": "hellas_zone4_ruins", "bgm": "hidden_ambient_heavy", "transition": "cut",
-      "lines": [{ "text": { "ko": "Ancient Metal이었다. 30년 전에 처음 발견됐다. 헬라스 4구역. 케플러가 아니었다. 이곳이었다. Liang Wei가 케플러에서 찾은 것은 두 번째였다. 첫 번째가 여기 있었다. 그것 때문에 파업이 있었다. 그것 때문에 사람들이 죽었다.", "en": "Ancient Metal. First discovered thirty years ago. Hellas Zone 4. Not Kepler. Here. What Liang Wei found at Kepler was the second time. The first was here. The strike had been because of it. People had died because of it." }}] },
+      "lines": [{ "text": {
+        "ko": "Ancient Metal이었다. 30년 전에 처음 발견됐다. 헬라스 4구역. 케플러가 아니었다. 이곳이었다. Liang Wei가 케플러에서 찾은 것은 두 번째였다. 첫 번째가 여기 있었다. 그것 때문에 파업이 있었다. 그것 때문에 사람들이 죽었다.",
+        "en": "Ancient Metal. First discovered thirty years ago. Hellas Zone 4. Not Kepler. Here. What Liang Wei found at Kepler was the second time. The first was here. The strike had been because of it. People had died because of it."
+      }}]
+    },
+
     { "id": "s04", "type": "narration", "background": "hellas_zone4_deep_tunnel", "bgm": "tension_high", "transition": "cut",
-      "lines": [{ "text": { "ko": "갱도 깊은 곳. 관찰자가 내려갔다. 30년 된 흔적들이 있었다. 그리고 다른 것이 있었다. 광석이 아닌 것. 지층이 달랐다. 그것이 아직 거기 있었다. 30년 동안. MCC가 봉쇄했지만. 파업을 끝냈지만. 그것은 그대로 있었다. 광물은 기다렸다. 항상.", "en": "Deep in the tunnel. The observer descended. Thirty-year-old traces. And something else. Not ore. Different strata. It was still there. For thirty years. Even though MCC had sealed it. Even though the strike had been ended. It remained as it was. Minerals waited. Always." }}] },
+      "lines": [{ "text": {
+        "ko": "갱도 깊은 곳. 관찰자가 내려갔다. 30년 된 흔적들이 있었다. 그리고 다른 것이 있었다. 광석이 아닌 것. 지층이 달랐다. 그것이 아직 거기 있었다. 30년 동안. MCC가 봉쇄했지만. 파업을 끝냈지만. 그것은 그대로 있었다. 광물은 기다렸다. 항상.",
+        "en": "Deep in the tunnel. The observer descended. Thirty-year-old traces. And something else. Not ore. Different strata. It was still there. For thirty years. Even though MCC had sealed it. Even though the strike had been ended. It remained as it was. Minerals waited. Always."
+      }}]
+    },
+
     { "id": "s05", "type": "narration", "background": "hellas_zone4_deep_tunnel", "bgm": "hidden_theme_deep", "transition": "cut",
-      "lines": [{ "text": { "ko": "그것이 무엇인지는 알 수 없었다. 분석이 필요했다. Liang Wei가 30년을 기다린 이유가 있었다. 케플러에서 찾은 것이 여기와 연결됐다. 하나의 광맥이었다. 화성 지하를 관통하는. 그것이 Ancient Metal이었다. MCC가 처음 봉쇄한 것. 사람들이 죽은 것. 30년 된 것.", "en": "What it was couldn't be known. Analysis was needed. There was a reason Liang Wei had waited thirty years. What was found at Kepler was connected to here. One vein. Running through the Martian underground. That was Ancient Metal. What MCC first sealed. What people had died for. The thirty-year-old thing." }}] },
+      "lines": [{ "text": {
+        "ko": "그것이 무엇인지는 알 수 없었다. 분석이 필요했다. Liang Wei가 30년을 기다린 이유가 있었다. 케플러에서 찾은 것이 여기와 연결됐다. 하나의 광맥이었다. 화성 지하를 관통하는. 그것이 Ancient Metal이었다. MCC가 처음 봉쇄한 것. 사람들이 죽은 것. 30년 된 것.",
+        "en": "What it was couldn't be known. Analysis was needed. There was a reason Liang Wei had waited thirty years. What was found at Kepler was connected to here. One vein. Running through the Martian underground. That was Ancient Metal. What MCC first sealed. What people had died for. The thirty-year-old thing."
+      }}]
+    },
+
     { "id": "s06", "type": "narration", "background": "hellas_zone4_ruins", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": { "ko": "벽에 이름들이 있었다. 30년 전 것들이었다. 분필이 아니었다. 긁힌 것이었다. 광부들의 손으로. 손톱으로. 파업이 끝나기 전에. MCC가 오기 전에. 이름들을 남긴 것이었다. 없어지지 말라고. 그것들이 30년 동안 있었다. 없어지지 않았다.", "en": "There were names on the wall. Thirty years old. Not chalk. Scratched. By miners' hands. By fingernails. Before the strike ended. Before MCC came. They had left names. So as not to disappear. Those had been there thirty years. Had not disappeared." }}] },
+      "lines": [{ "text": {
+        "ko": "벽에 이름들이 있었다. 30년 전 것들이었다. 분필이 아니었다. 긁힌 것이었다. 광부들의 손으로. 손톱으로. 파업이 끝나기 전에. MCC가 오기 전에. 이름들을 남긴 것이었다. 없어지지 말라고. 그것들이 30년 동안 있었다. 없어지지 않았다.",
+        "en": "There were names on the wall. Thirty years old. Not chalk. Scratched. By miners' hands. By fingernails. Before the strike ended. Before MCC came. They had left names. So as not to disappear. Those had been there thirty years. Had not disappeared."
+      }}]
+    },
+
     { "id": "s_choice", "type": "choice", "background": "hellas_zone4_ruins", "bgm": "choice_tension",
-      "prompt": { "ko": "30년 전. Ancient Metal. 이름들. 관찰자는 무엇을 합니까.", "en": "Thirty years ago. Ancient Metal. Names. What does the observer do." },
+      "prompt": { "ko": "30년 전. Ancient Metal. 이름들. 관찰자는 무엇을 하겠는가.", "en": "Thirty years ago. Ancient Metal. Names. What does the observer do." },
       "choices": [
         { "id": "hidden_ch4_document", "text": { "ko": "모든 것을 기록한다. 30년 전 것까지.", "en": "Document everything. Including what's thirty years old." }, "tone": "historian", "preview_hint": { "ko": "→ 화성의 진짜 역사가 처음으로 기록된다", "en": "→ The true history of Mars is recorded for the first time." }},
         { "id": "hidden_ch4_tell_butcher", "text": { "ko": "Butcher에게 말한다. 4구역에서 찾은 것을.", "en": "Tell Butcher. What was found in Zone 4." }, "tone": "revelation", "preview_hint": { "ko": "→ Butcher가 30년 만에 처음으로 여기 온다", "en": "→ Butcher comes here for the first time in thirty years." }},
@@ -29,17 +60,34 @@
         { "id": "hidden_ch4_ancient_metal", "text": { "ko": "Ancient Metal 샘플을 가져간다.", "en": "Take the Ancient Metal sample." }, "tone": "action", "preview_hint": { "ko": "→ 모든 것이 시작된 곳에서 모든 것이 끝나기 시작한다", "en": "→ Where everything started, everything begins to end." }}
       ]
     },
+
     { "id": "s_battle", "type": "battle_transition", "background": "hellas_zone4_ruins", "bgm": "hidden_theme_deep", "transition": "fade_slow",
       "title": { "ko": "30년 전의 진실", "en": "Truth of Thirty Years Ago" }, "subtitle": { "ko": "헬라스 4구역 — 시작의 장소", "en": "Hellas Zone 4 — Where It Began" }
     },
+
     { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+
     { "id": "s_success", "type": "narration", "background": "hellas_zone4_ruins", "bgm": "victory_calm",
-      "lines": [{ "text": { "ko": "30년 전의 것이 밝혀졌다. Ancient Metal. 헬라스 4구역. 파업. 죽음. 그것들이 연결됐다. 케플러와. 샌드스톤과. Kim Yong-jin과. Zone 12와. 하나의 선이었다. 30년을 관통하는. 그것을 이제 알았다.", "en": "What was thirty years ago was revealed. Ancient Metal. Hellas Zone 4. The strike. The deaths. They were connected. With Kepler. With Sandstone. With Kim Yong-jin. With Zone 12. One line. Running through thirty years. Now it was known." }}] },
+      "lines": [{ "text": {
+        "ko": "30년 전의 것이 밝혀졌다. Ancient Metal. 헬라스 4구역. 파업. 죽음. 그것들이 연결됐다. 케플러와. 샌드스톤과. Kim Yong-jin과. Zone 12와. 하나의 선이었다. 30년을 관통하는. 그것을 이제 알았다.",
+        "en": "What was thirty years ago was revealed. Ancient Metal. Hellas Zone 4. The strike. The deaths. They were connected. With Kepler. With Sandstone. With Kim Yong-jin. With Zone 12. One line. Running through thirty years. Now it was known."
+      }}]
+    },
+
     { "id": "s_fail", "type": "narration", "background": "hellas_zone4_ruins", "bgm": "hidden_ambient",
-      "lines": [{ "text": { "ko": "30년 전의 것이 밝혀지지 않았다. 폐광이 너무 깊었다. 또는 MCC 경비가 왔다. 그러나 이름들은 있었다. 벽에. 30년 동안. 그것들이 기다렸다. 관찰자가 온 것처럼 누군가 올 것이었다.", "en": "What was thirty years ago wasn't revealed. The abandoned mine was too deep. Or MCC security came. But the names were there. On the wall. For thirty years. They had waited. As the observer had come, someone would come." }}] },
+      "lines": [{ "text": {
+        "ko": "30년 전의 것이 밝혀지지 않았다. 폐광이 너무 깊었다. 또는 MCC 경비가 왔다. 그러나 이름들은 있었다. 벽에. 30년 동안. 그것들이 기다렸다. 관찰자가 온 것처럼 누군가 올 것이었다.",
+        "en": "What was thirty years ago wasn't revealed. The abandoned mine was too deep. Or MCC security came. But the names were there. On the wall. For thirty years. They had waited. As the observer had come, someone would come."
+      }}]
+    },
+
     { "id": "s_ending", "type": "ending", "background": "hellas_zone4_ruins_exit", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "폐광에서 나왔다. 빛이 있었다. 화성의 빛. 붉은 것. 30년 전 이름들이 안에 있었다. 밖에 지금의 이름들이 있었다. Kim Yong-jin. Zone 12. 두 개의 시간이 같은 벽에 있었다. 아니면 같은 이야기였다. 30년 동안 반복되는 이야기. 그것이 마지막에 바뀌어야 했다.", "en": "Out of the abandoned mine. There was light. Martian light. Red. Inside were the thirty-year-old names. Outside were today's names. Kim Yong-jin. Zone 12. Two times on the same wall. Or the same story. A story repeated for thirty years. That had to change at the end." }}],
+      "lines": [{ "text": {
+        "ko": "폐광에서 나왔다. 빛이 있었다. 화성의 빛. 붉은 것. 30년 전 이름들이 안에 있었다. 밖에 지금의 이름들이 있었다. Kim Yong-jin. Zone 12. 두 개의 시간이 같은 벽에 있었다. 아니면 같은 이야기였다. 30년 동안 반복되는 이야기. 그것이 마지막에 바뀌어야 했다.",
+        "en": "Out of the abandoned mine. There was light. Martian light. Red. Inside were the thirty-year-old names. Outside were today's names. Kim Yong-jin. Zone 12. Two times on the same wall. Or the same story. A story repeated for thirty years. That had to change at the end."
+      }}],
       "next_chapter_preview": { "questId": "hidden_campaign_ch5", "teaser": { "ko": "다음 — 마지막 관찰", "en": "Next — Last Observation" }}
     }
+
   ]
 }
