@@ -2,124 +2,228 @@
   "questId": "mcc_campaign_ch7",
   "campaignId": "mcc_route",
   "chapterNumber": 7,
-  "title": { "ko": "이사회", "en": "The Board" },
-  "location": { "id": "mcc_board_chamber", "displayNameKo": "MCC 이사회 의사당" },
+  "title": {
+    "ko": "이사회",
+    "en": "The Board"
+  },
+  "location": {
+    "id": "mcc_board_chamber",
+    "displayNameKo": "MCC 이사회 의사당"
+  },
   "environment": "corporate_sealed",
-  "estimatedPlayTimeMinutes": 20,
-  "characters": ["player", "chen", "lifang"],
+  "estimatedPlayTimeMinutes": 25,
+  "characters": ["player", "chen"],
   "scenes": [
     {
       "id": "s01",
       "type": "narration",
       "background": "mcc_board_chamber",
-      "bgm": "mcc_ambient_formal",
+      "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "이사회 의사당은 완전히 밀폐된 공간이었다. 외부 공기가 들어오지 않았다. 독자적인 산소 순환 시스템이었다. MCC 본사에서 이사회 의사당만 독자적인 공기를 가졌다. 화성에서 자신만의 공기를 갖는다는 것의 의미를 이사들은 알았다.", "en": "The board chamber was completely sealed. No outside air entered. Its own oxygen circulation system. In all of MCC headquarters only the board chamber had its own air. The directors understood what it meant to have your own air on Mars." } }
+        {
+          "text": {
+            "ko": "이사회 의사당은 완전히 밀폐된 공간이었다. 외부 공기가 들어오지 않았다. 독자적인 산소 순환 시스템이었다. MCC 본사에서 이사회 의사당만 독자적인 공기를 가졌다. 화성에서 자신만의 공기를 갖는다는 것의 의미를 이사들은 알았다.",
+            "en": "The board chamber was completely sealed. No outside air entered. Its own oxygen circulation system. In all of MCC headquarters only the board chamber had its own air. The directors understood what it meant to have your own air on Mars."
+          }
+        }
       ]
     },
     {
       "id": "s02",
       "type": "narration",
       "background": "mcc_board_chamber",
-      "bgm": "mcc_ambient_formal",
+      "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "호출이 왔다. 다시 한번 짧은 메시지였다. 이사회 의사당. 오전 9시. 이번에는 발신인이 있었다. MCC 이사회 사무국. 리팡이 메시지를 봤다. 아무 말도 하지 않았다. 그 침묵이 말이었다.", "en": "A summons arrived. Brief again. Board chamber. 9 AM. This time there was a sender. MCC Board Secretariat. Lifang saw the message. Said nothing. That silence was a statement." } }
+        {
+          "text": {
+            "ko": "호출이 왔다. 짧은 메시지였다. 이사회 의사당. 오전 9시. 발신인이 있었다. MCC 이사회 사무국. 그 호출이 무엇을 의미하는지는 아직 몰랐다. 그러나 받는 것이었다. MCC에서 이사회 사무국의 호출을 거절하는 사람은 없었다.",
+            "en": "A summons arrived. Brief. Board chamber. 9 AM. There was a sender. MCC Board Secretariat. What the summons meant was still unknown. But it was to be accepted. Nobody in MCC refused a call from the Board Secretariat."
+          }
+        }
       ]
     },
     {
       "id": "s03",
       "type": "narration",
-      "background": "mcc_board_chamber",
-      "bgm": "mcc_ambient_formal",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사가 일곱이었다. 테이블이 원형이었다. 상석이 없었다. 그러나 Chen Weiss가 앉은 자리가 어디인지는 누구나 알았다. 그것은 상석의 다른 형태였다. 표시 없는 권력의 형태.", "en": "Seven directors. The table was circular. No head seat. But everyone knew where Chen Weiss sat. That was another form of head seat. The form power takes without marking itself." } }
+        {
+          "text": {
+            "ko": "Chen Weiss가 복도에서 기다리고 있었다. 차를 들고 있었다. 마시지 않았다. 그녀가 먼저 도착했다는 것. 그것이 메시지였다. 이 사람은 항상 먼저 도착했다. 그것이 이 조직에서 그녀가 있는 방식이었다.",
+            "en": "Chen Weiss was waiting in the corridor. Holding her tea. Not drinking it. She had arrived first. That was a message. This person always arrived first. That was how she existed in this organization."
+          }
+        }
       ]
     },
     {
       "id": "s04",
-      "type": "narration",
-      "background": "mcc_board_chamber",
-      "bgm": "mcc_ambient_formal",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "의사당 입구에서 잠깐 멈췄다. 문 안쪽에서 목소리들이 들렸다. 낮았다. 구분이 안 됐다. 일곱 명의 이사. 화성에서 가장 중요한 사람들. 그들의 결정이 산소 값을 정했다. 물 값을 정했다. 광부들의 계약 조건을 정했다. 문 하나 안쪽이었다.", "en": "Stopped briefly at the entrance. Voices from inside the door. Low. Indistinct. Seven directors. The most important people on Mars. Their decisions set oxygen prices. Set water prices. Set miners' contract conditions. One door away." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "왔어요.",
+            "en": "You came."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "이사회에 처음 들어가는 거예요. 몇 가지 알아야 해요.",
+            "en": "You're entering the board for the first time. There are things to know."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "이사들은 질문에 직접 대답하지 않아요. 질문이 대답이에요. 그것을 기억해요.",
+            "en": "Directors don't answer questions directly. The question is the answer. Remember that."
+          }
+        }
       ]
     },
     {
       "id": "s05",
       "type": "narration",
       "background": "mcc_board_chamber",
-      "bgm": "mcc_ambient_formal",
+      "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "당신이 들어왔다. 이사들이 보았다. Chen이 일어서지 않았다. 차를 들고 있었다. 마시지 않았다. 그것이 소개였다. 그것으로 충분했다. MCC 이사회에서 Chen의 침묵은 발언이었다.", "en": "You entered. The directors looked. Chen didn't stand. She held her tea. Didn't drink it. That was the introduction. That was enough. In the MCC boardroom Chen's silence was a statement." } }
+        {
+          "text": {
+            "ko": "이사가 일곱이었다. 테이블이 원형이었다. 상석이 없었다. 그러나 Chen Weiss가 앉은 자리가 어디인지는 누구나 알았다. 그것은 상석의 다른 형태였다. 표시 없는 권력의 형태.",
+            "en": "Seven directors. The table was circular. No head seat. But everyone knew where Chen Weiss sat. That was another form of head seat. The form power takes without marking itself."
+          }
+        }
       ]
     },
     {
       "id": "s06",
-      "type": "dialogue",
+      "type": "narration",
       "background": "mcc_board_chamber",
-      "bgm": "tension_low",
+      "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "neutral", "effect": "character_enter:chen:slide_left", "text": { "ko": "Ancient Metal 보고를 시작해요.", "en": "Begin the Ancient Metal report." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "케플러 분화구 샘플. 외계 기원 가능성. MCC 독점 확보 가능성. 이 세 가지를 이사회에 설명해요.", "en": "Kepler Crater sample. Extraterrestrial origin possibility. MCC exclusive access possibility. Explain these three things to the board." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "사실만. 가설은 당신 것이에요. 그러나 이사회는 사실에만 응답해요.", "en": "Facts only. Hypotheses are yours. But the board responds only to facts." } }
+        {
+          "text": {
+            "ko": "의사당 입구에서 잠깐 멈췄다. 문 안쪽에서 목소리들이 들렸다. 낮았다. 구분이 안 됐다. 일곱 명의 이사. 화성에서 가장 중요한 사람들. 그들의 결정이 산소 값을 정했다. 물 값을 정했다. 광부들의 계약 조건을 정했다. 문 하나 안쪽이었다.",
+            "en": "Stopped briefly at the entrance. Voices from inside the door. Low. Indistinct. Seven directors. The most important people on Mars. Their decisions set oxygen prices. Set water prices. Set miners' contract conditions. One door away."
+          }
+        }
       ]
     },
     {
       "id": "s07",
       "type": "narration",
       "background": "mcc_board_chamber",
-      "bgm": "tension_low",
+      "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사들이 들었다. 표정이 없었다. 그것이 이사회의 방식이었다. 표정을 읽으려 하면 안 됐다. 읽을 것이 없었다. 이사들이 무언가를 보여줄 때는 이미 결정이 끝난 후였다. 이 방에서 보여지는 것들은 결과였다. 과정이 아니었다.", "en": "The directors listened. No expressions. That was the board's way. Trying to read expressions was pointless. There was nothing to read. When directors showed something it was because a decision had already been made. What was shown in this room was result. Not process." } }
+        {
+          "text": {
+            "ko": "당신이 들어왔다. 이사들이 보았다. Chen이 일어서지 않았다. 차를 들고 있었다. 마시지 않았다. 그것이 소개였다. 그것으로 충분했다. MCC 이사회에서 Chen의 침묵은 발언이었다.",
+            "en": "You entered. The directors looked. Chen didn't stand. She held her tea. Didn't drink it. That was the introduction. That was enough. In the MCC boardroom Chen's silence was a statement."
+          }
+        }
       ]
     },
     {
       "id": "s08",
+      "type": "dialogue",
+      "background": "mcc_board_chamber",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "이사회가 시작해요. 당신이 7구역 보고서를 작성했어요. 그리고 케플러 샘플을 확보했어요.",
+            "en": "The board begins. You wrote the Sector 7 report. And secured the Kepler sample."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "이사들이 그 두 가지 때문에 당신을 여기 불렀어요.",
+            "en": "The directors called you here because of those two things."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "평가예요. 당신이 이사회에 들어올 수 있는 사람인지.",
+            "en": "It's an evaluation. Whether you're someone who can enter the board."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s09",
       "type": "narration",
       "background": "mcc_board_chamber",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "보고를 시작했다. 케플러 분화구. 깊이 3킬로미터. 어두운 은색 광물. Liang Wei의 30년 연구. Ancient Metal 가설. 외계 기원. 지층 형성. 파란 일몰. 그것이 사실이었다. 그것을 말했다. 이사들이 들었다. 표정이 없었다.", "en": "The report began. Kepler Crater. Three kilometers deep. Dark silver mineral. Liang Wei's thirty years of research. Ancient Metal hypothesis. Extraterrestrial origin. Stratum formation. Blue sunset. Those were facts. Said them. Directors listened. No expressions." } }
-      ]
-    },
-    {
-      "id": "s09",
-      "type": "dialogue",
-      "background": "mcc_board_chamber",
-      "bgm": "tension_medium",
-      "transition": "cut",
-      "lines": [
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "이사회가 질문을 허가했어요.", "en": "The board has permitted questions." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "Director Osei — Liang Wei를 어떻게 처리할 것인가. Director Marchetti — FSP가 이미 샘플을 알고 있다면. Director Ryu — 이 발견을 MCC가 공표할 것인지 묻고 있어요.", "en": "Director Osei asks how to handle Liang Wei. Director Marchetti asks what if FSP already knows about the sample. Director Ryu is asking whether MCC will make this discovery public." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "당신의 답변이에요.", "en": "These are yours to answer." } }
+        {
+          "text": {
+            "ko": "이사들이 들었다. 표정이 없었다. 그것이 이사회의 방식이었다. 표정을 읽으려 하면 안 됐다. 읽을 것이 없었다. 이사들이 무언가를 보여줄 때는 이미 결정이 끝난 후였다. 이 방에서 보여지는 것들은 결과였다. 과정이 아니었다.",
+            "en": "The directors listened. No expressions. That was the board's way. Trying to read expressions was pointless. There was nothing to read. When directors showed something it was because a decision had already been made. What was shown in this room was result. Not process."
+          }
+        }
       ]
     },
     {
       "id": "s10",
-      "type": "narration",
+      "type": "dialogue",
       "background": "mcc_board_chamber",
-      "bgm": "tension_medium",
+      "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "세 가지 질문이었다. 각각 달랐다. Liang Wei의 처리. FSP의 인지 여부. 공표 여부. 그것들이 서로 연결됐다. 하나를 답하면 나머지 두 개에 영향이 갔다. 이사회는 그것을 알았다. 그것이 세 가지를 동시에 묻는 이유였다.", "en": "Three questions. Each different. Handling of Liang Wei. FSP's awareness. Whether to announce. They were connected. Answer one and it affected the other two. The board knew that. That was why they asked all three at once." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "Director Osei가 묻고 있어요. 7구역 보고서. 사망 3건. 진실을 어떻게 알았는지.",
+            "en": "Director Osei is asking. Sector 7 report. Three deaths. How you knew the truth."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "이사회는 이미 알아요. 그러나 당신 입으로 듣기를 원해요.",
+            "en": "The board already knows. But wants to hear it from you."
+          }
+        }
       ]
     },
     {
       "id": "s11",
       "type": "narration",
       "background": "mcc_board_chamber",
-      "bgm": "tension_medium",
+      "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사들이 기다렸다. 원형 테이블. 표정 없는 일곱 명. Chen은 차를 들고 있었다. 마시지 않았다. 이 방의 공기가 독자적이었다. 밖과 달랐다. 밀폐된 공기. 이 방에서 결정된 것들이 밖으로 나가면 헬라스가 달라졌다. 화성이 달라졌다. 그러나 이 방 안에서는 조용했다.", "en": "Directors waited. Circular table. Seven expressionless people. Chen held her tea. Didn't drink. The air in this room was its own. Different from outside. Sealed air. When decisions made in this room went outside Hellas changed. Mars changed. But inside this room it was quiet." } }
+        {
+          "text": {
+            "ko": "이사회는 알고 있었다. 그것을 말했다. 그러면서 당신 입으로 듣기를 원했다. 그것이 이 방의 시험이었다. 알고 있는 것을 당신이 어떻게 말하는가. 또는 말하지 않는가. 또는 다르게 말하는가. 세 가지가 달랐다.",
+            "en": "The board knew. It said so. And still wanted to hear it from you. That was this room's test. How you say what is already known. Or don't say it. Or say it differently. Three things were different."
+          }
+        }
       ]
     },
     {
@@ -129,9 +233,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "Director Osei가 재차 묻고 있어요. Liang Wei. MCC 소속으로 전환할 것인가. 또는 독립 연구자 자격을 유지할 것인가. 또는 연구를 종료시킬 것인가.", "en": "Director Osei is asking again. Liang Wei. Convert to MCC affiliation. Or maintain independent researcher status. Or terminate the research." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "세 번째 선택지는 명확하게 말하지 않아요. 그러나 이사회에서 세 번째는 항상 있어요.", "en": "The third option isn't said clearly. But in the board the third is always there." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "당신이 답해요.", "en": "You answer." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "이사회가 질문을 허가했어요.",
+            "en": "The board has permitted questions."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "Director Marchetti — 케플러 샘플. Ancient Metal 가능성. FSP가 이미 정보를 갖고 있다면.",
+            "en": "Director Marchetti — Kepler sample. Ancient Metal possibility. What if FSP already has the information."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "당신의 답변이에요.",
+            "en": "These are yours to answer."
+          }
+        }
       ]
     },
     {
@@ -141,19 +266,45 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "세 번째 선택지. 명확하게 말하지 않는 것. MCC에서 그것은 삭제였다. 연구 종료. 연구자 종료. 화성에서 삭제는 다양한 형태를 취했다. 계약 해지. 기록 삭제. 허가 취소. 결과는 같았다. 없는 것이 됐다.", "en": "The third option. What wasn't said clearly. In MCC that was deletion. Research terminated. Researcher terminated. On Mars deletion took various forms. Contract terminated. Records deleted. Permits revoked. The result was the same. They ceased to exist." } }
+        {
+          "text": {
+            "ko": "케플러 분화구. 깊이 3킬로미터. 어두운 은색 광물. 외계 기원 가능성. 그것을 이 방에서 말하는 것이었다. 이사들 앞에서. 일곱 명. 표정 없는. 그러나 듣고 있는 사람들. 이 방의 공기가 독자적이었다. 밖과 달랐다.",
+            "en": "Kepler Crater. Three kilometers deep. Dark silver mineral. Extraterrestrial origin possibility. This was being said in this room. Before the directors. Seven of them. No expressions. But listening. The air in this room was its own. Different from outside."
+          }
+        }
       ]
     },
     {
       "id": "s14",
       "type": "dialogue",
       "background": "mcc_board_chamber",
-      "bgm": "tension_high",
+      "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "Director Marchetti가 다시 말해요. FSP가 케플러 정보를 유출받은 것이 확인됐어요.", "en": "Director Marchetti speaks again. It's been confirmed FSP received leaked Kepler information." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "MCC 지질팀 내부 유출이에요. 해당 팀원은 이미 처리됐어요.", "en": "It was an internal MCC geology team leak. That team member has already been handled." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "FSP가 케플러로 팀을 보낸다는 정보가 있어요. 먼저 대응해야 해요.", "en": "There's information that FSP is sending a team to Kepler. Need to respond first." } }
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Director Ryu가 묻고 있어요. Liang Wei를 어떻게 처리할 것인가.",
+            "en": "Director Ryu is asking. How to handle Liang Wei."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "MCC 소속으로 전환. 독립 연구자 유지. 또는 세 번째.",
+            "en": "Convert to MCC affiliation. Maintain as independent researcher. Or the third."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "세 번째는 명확하게 말하지 않아요. 그러나 이사회에서 세 번째는 항상 있어요.",
+            "en": "The third isn't said clearly. But in the board the third is always there."
+          }
+        }
       ]
     },
     {
@@ -163,7 +314,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "처리됐어요. 그 말이 이 방에서 부드럽게 들렸다. 이사회의 말들은 부드러웠다. 그러나 그 의미는 날카로웠다. 처리됐어요. 그것이 무엇인지는 묻지 않는 것이었다. 이 방에서는. 묻지 않는 것들이 이 방을 이 방으로 만들었다.", "en": "Already been handled. That phrase sounded soft in this room. Board words were soft. But their meaning was sharp. Already been handled. What that meant was something you didn't ask about. In this room. The things not asked made this room what it was." } }
+        {
+          "text": {
+            "ko": "세 번째 선택지. 명확하게 말하지 않는 것. MCC에서 그것은 삭제였다. 연구 종료. 연구자 종료. 화성에서 삭제는 다양한 형태를 취했다. 계약 해지. 기록 삭제. 허가 취소. 결과는 같았다. 없는 것이 됐다.",
+            "en": "The third option. What wasn't said clearly. In MCC that was deletion. Research terminated. Researcher terminated. On Mars deletion took various forms. Contract terminated. Records deleted. Permits revoked. The result was the same. They ceased to exist."
+          }
+        }
       ]
     },
     {
@@ -173,9 +329,22 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "Director Ryu가 최종 입장을 요청해요. MCC는 Ancient Metal을 어떻게 다룰 것인가.", "en": "Director Ryu requests the final position. How will MCC handle Ancient Metal." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "이사회가 4가지 옵션을 제안했어요. 독점 확보. 분석 후 결정. 전면 공개. 또는 프리즈.", "en": "The board has proposed four options. Exclusive control. Decide after analysis. Full announcement. Or freeze." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "프리즈는 아무것도 하지 않는 것이에요. 화성에서 프리즈는 옵션이 아니에요. 그러나 이사회는 항상 그것을 포함해요.", "en": "Freeze means do nothing. On Mars freeze isn't an option. But the board always includes it." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "이사들이 반응하고 있어요. 미세하게. 펜을 내려놓는 것. 시선이 이동하는 것.",
+            "en": "The directors are reacting. Subtly. Setting down pens. Shifting gazes."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "그것들을 읽으세요. 이 방에서 하는 일이 그거예요.",
+            "en": "Read those. That's the work done in this room."
+          }
+        }
       ]
     },
     {
@@ -185,74 +354,133 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사들이 기다렸다. Chen이 차를 들고 있었다. 마시지 않았다. 이 방에서 Chen은 항상 차를 들고 있었다. 22년간. 이 방에서 그녀가 차를 마신 것을 본 사람이 없었다. 그것이 이 방에서 그녀의 의식이었다. 차를 들고. 마시지 않고. 기다리는 것.", "en": "Directors waited. Chen held her tea. Didn't drink. In this room Chen always held her tea. For twenty-two years. No one had seen her drink it in this room. That was her ritual in this room. Hold the tea. Don't drink. Wait." } }
+        {
+          "text": {
+            "ko": "이사들이 기다렸다. 원형 테이블. 표정 없는 일곱 명. Chen은 차를 들고 있었다. 마시지 않았다. 이 방에서 Chen은 항상 차를 들고 있었다. 22년간. 이 방에서 그녀가 차를 마신 것을 본 사람이 없었다. 그것이 이 방에서 그녀의 의식이었다. 차를 들고. 마시지 않고. 기다리는 것.",
+            "en": "Directors waited. Circular table. Seven expressionless people. Chen held her tea. Didn't drink. In this room Chen always held her tea. For twenty-two years. No one had seen her drink it in this room. That was her ritual in this room. Hold the tea. Don't drink. Wait."
+          }
+        }
       ]
     },
     {
       "id": "s18",
-      "type": "narration",
-      "background": "hellas_central_exterior_panorama",
-      "bgm": "tension_low",
-      "transition": "fade_medium",
-      "lines": [
-        { "text": { "ko": "이사회 회의 중에 잠깐 정지가 있었다. 기술적 이유였다. 창이 있었다. 헬라스 센트럴 전체가 보였다. 파노라마였다. 광산 구역이 보였다. 작았다. C-7 블록이 보였다. 더 작았다. 분필 이름들은 보이지 않았다. 너무 작았다. 그러나 있었다.", "en": "During the board meeting there was a brief halt. Technical reason. There was a window. All of Hellas Central visible. A panorama. The mine district visible. Small. Block C-7 visible. Smaller. Chalk names not visible. Too small. But they were there." } }
-      ]
-    },
-    {
-      "id": "s19",
       "type": "dialogue",
       "background": "mcc_board_chamber",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "이사회가 추가 질문을 했어요. 당신이 C-7 블록에서 무엇을 했는지.", "en": "The board has an additional question. What you did at block C-7." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "보고서에 명확하지 않은 부분이 있어요. Director Osei가 묻고 있어요.", "en": "There's an unclear part in the report. Director Osei is asking." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "이사회는 모든 것을 알아요. 그러나 당신 입으로 듣기를 원해요. 그것이 이사회의 방식이에요.", "en": "The board knows everything. But wants to hear it from you. That's the board's way." } }
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "Director Osei가 재차 묻고 있어요. C-7 블록. 서버. 당신이 무엇을 했는지.",
+            "en": "Director Osei is asking again. Block C-7. Server. What you did there."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "이사회는 모든 것을 알아요. 그러나 당신 입으로 듣기를 원해요.",
+            "en": "The board knows everything. But wants to hear it from you."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "이 방에서 침묵은 거짓말과 같아요.",
+            "en": "In this room silence is the same as a lie."
+          }
+        }
       ]
     },
     {
-      "id": "s20",
+      "id": "s19",
       "type": "narration",
       "background": "mcc_board_chamber",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사회는 모든 것을 알았다. C-7 블록. 서버. 결정. 그것들을 알면서 묻고 있었다. 당신 입으로 듣기를 원했다. 그것이 시험이었다. 이사회의 시험. 화성에서 가장 오래된 종류의 시험. 이미 알고 있는 것을 확인하는 것.", "en": "The board knew everything. Block C-7. Server. Decision. They knew and were asking. They wanted to hear it from you. That was a test. The board's test. The oldest kind of test on Mars. Confirming what is already known." } }
+        {
+          "text": {
+            "ko": "이사회는 알고 있었다. C-7 블록. 서버. 결정. 그것들을 알면서 묻고 있었다. 당신 입으로 듣기를 원했다. 그것이 시험이었다. 이사회의 시험. 화성에서 가장 오래된 종류의 시험. 이미 알고 있는 것을 확인하는 것.",
+            "en": "The board knew everything. Block C-7. Server. Decision. They knew and were asking. They wanted to hear it from you. That was a test. The board's test. The oldest kind of test on Mars. Confirming what is already known."
+          }
+        }
       ]
     },
     {
-      "id": "s21",
+      "id": "s20",
       "type": "dialogue",
       "background": "mcc_board_chamber",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "말해요. 이사회 앞에서.", "en": "Say it. Before the board." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "이 방에서 침묵은 거짓말과 같아요. 둘 다 이사회가 받아들이지 않아요.", "en": "In this room silence is the same as a lie. The board accepts neither." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "그리고 진실을 말하면 — 이사회가 그것을 어떻게 처리할지는 이사회의 결정이에요.", "en": "And if you tell the truth — what the board does with that is the board's decision." } }
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "말해요. 이사회 앞에서.",
+            "en": "Say it. Before the board."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그리고 진실을 말하면 — 이사회가 그것을 어떻게 처리할지는 이사회의 결정이에요.",
+            "en": "And if you tell the truth — what the board does with that is the board's decision."
+          }
+        }
       ]
     },
     {
-      "id": "s22",
+      "id": "s21",
       "type": "narration",
       "background": "mcc_board_chamber",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사들이 기다렸다. 일곱 명. 원형 테이블. Chen이 차를 들고 있었다. 마시지 않았다. 이 방의 공기가 독자적이었다. 밀폐됐다. 이 방에서 하는 말이 어디로 가는지 알았다. MCC의 기억이었다. 영원히 기억됐다. 지워지지 않았다.", "en": "Directors waited. Seven. Circular table. Chen held her tea. Didn't drink. The air in this room was its own. Sealed. Knew where words spoken in this room went. MCC's memory. Remembered forever. Never erased." } }
+        {
+          "text": {
+            "ko": "이사들이 기다렸다. 일곱 명. 원형 테이블. Chen이 차를 들고 있었다. 마시지 않았다. 이 방의 공기가 독자적이었다. 밀폐됐다. 이 방에서 하는 말이 어디로 가는지 알았다. MCC의 기억이었다. 영원히 기억됐다. 지워지지 않았다.",
+            "en": "Directors waited. Seven. Circular table. Chen held her tea. Didn't drink. The air in this room was its own. Sealed. Knew where words spoken in this room went. MCC's memory. Remembered forever. Never erased."
+          }
+        }
       ]
     },
     {
-      "id": "s_choice",
-      "type": "choice",
+      "id": "s22",
+      "type": "dialogue",
       "background": "mcc_board_chamber",
-      "bgm": "choice_tension",
-      "prompt": { "ko": "이사회가 기다린다. 일곱 명의 눈이 당신 위에 있다.", "en": "The board waits. Seven pairs of eyes are on you." },
-      "choices": [
-        { "id": "mcc_ch7_full_control", "text": { "ko": "MCC 독점. Liang Wei 계약. 비공개.", "en": "MCC exclusive. Contract Liang Wei. Non-disclosure." }, "tone": "empire", "preview_hint": { "ko": "→ MCC 권력 확장, Liang Wei 포획", "en": "→ MCC power expands, Liang Wei captured" } },
-        { "id": "mcc_ch7_science_first", "text": { "ko": "분석 완료 전까지 모든 결정을 보류한다.", "en": "Hold all decisions until analysis is complete." }, "tone": "methodical", "preview_hint": { "ko": "→ 이사회 일부 불만, Chen 관심", "en": "→ Some board dissatisfied, Chen interested" } },
-        { "id": "mcc_ch7_public", "text": { "ko": "화성 전체를 위한 발표. MCC가 주도한다.", "en": "Announce it for all Mars. MCC leads." }, "tone": "strategic", "preview_hint": { "ko": "→ 이사회 충격, 여론 MCC에 유리", "en": "→ Board shocked, public opinion shifts to MCC" } },
-        { "id": "mcc_ch7_silence", "text": { "ko": "답하지 않는다. 차를 든다.", "en": "No answer. Pick up the tea." }, "tone": "watchful", "preview_hint": { "ko": "→ Chen이 미소 짓는다. 이사회가 얼어붙는다", "en": "→ Chen smiles. The board freezes." } }
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "Director Marchetti가 다시 말해요. FSP가 케플러 정보를 유출받은 것이 확인됐어요.",
+            "en": "Director Marchetti speaks again. It's been confirmed FSP received leaked Kepler information."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "MCC 지질팀 내부 유출이에요. 해당 팀원은 이미 처리됐어요.",
+            "en": "It was an internal MCC geology team leak. That team member has already been handled."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "FSP가 케플러로 팀을 보낸다는 정보가 있어요. 먼저 대응해야 해요.",
+            "en": "There's information that FSP is sending a team to Kepler. Need to respond first."
+          }
+        }
       ]
     },
     {
@@ -262,61 +490,353 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사들이 반응했다. 미세했다. 그것이 이사회의 반응이었다. 미세한 것들이었다. 펜을 내려놓는 것. 시선이 이동하는 것. 자세가 조금 바뀌는 것. 그것들을 읽는 것이 이 방에서 하는 일이었다. 오래 하면 읽을 수 있었다.", "en": "The directors reacted. Subtly. That was the board's reaction. Subtle things. Setting down a pen. Shifting gaze. A slight change in posture. Reading those was the work done in this room. Do it long enough and you could read them." } }
+        {
+          "text": {
+            "ko": "처리됐어요. 그 말이 이 방에서 부드럽게 들렸다. 이사회의 말들은 부드러웠다. 그러나 그 의미는 날카로웠다. 처리됐어요. 그것이 무엇인지는 묻지 않는 것이었다. 이 방에서는. 묻지 않는 것들이 이 방을 이 방으로 만들었다.",
+            "en": "Already been handled. That phrase sounded soft in this room. Board words were soft. But their meaning was sharp. Already been handled. What that meant was something you didn't ask about. In this room. The things not asked made this room what it was."
+          }
+        }
       ]
     },
     {
       "id": "s24",
       "type": "dialogue",
-      "background": "mcc_board_chamber",
-      "bgm": "tension_medium",
-      "transition": "cut",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "tension_low",
+      "transition": "fade_medium",
       "lines": [
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "이사회가 두 번째 세션으로 넘어가요.", "en": "The board moves to the second session." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "케플러 현장 방어 작전이에요. FSP 팀이 접근하고 있어요. 현장 지휘가 필요해요.", "en": "Kepler site defense operation. FSP team approaching. Need field command." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "당신이 가요. 이사회 승인이 났어요.", "en": "You go. The board has approved it." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "잠깐 정지가 있었어요. 기술적 이유예요. 창이 있어요.",
+            "en": "There's a brief halt. Technical reason. There's a window."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "헬라스 센트럴 전체가 보여요. 파노라마예요. C-7 블록도 보여요. 작아요.",
+            "en": "All of Hellas Central visible. A panorama. Block C-7 visible. Small."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "분필 이름들은 안 보여요. 너무 작아요. 그러나 있어요.",
+            "en": "Chalk names not visible. Too small. But they're there."
+          }
+        }
       ]
     },
     {
       "id": "s25",
       "type": "narration",
-      "background": "mcc_board_chamber",
+      "background": "hellas_central_exterior_panorama",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사회 승인. 그 말의 무게를 알았다. 이 방에서 승인이 나면 화성이 달라졌다. 그 달라짐이 광산 구역으로 내려갔다. C-7 블록으로 내려갔다. 분필 이름들이 있는 곳으로. 이사회 승인은 여기서 나왔지만 결과는 저 아래에 있었다.", "en": "Board approval. The weight of those words was known. When approval came from this room Mars changed. That change went down to the mine district. Down to block C-7. To where chalk names were. Board approval came from here but results were down there." } }
+        {
+          "text": {
+            "ko": "창밖으로 헬라스가 보였다. MCC의 도시. 광산 구역이 보였다. 작았다. C-7 블록이 보였다. 더 작았다. 분필 이름들은 보이지 않았다. 너무 작았다. 그러나 있었다. 없어지지 않았다. 이 방에서 결정되는 것들이 저 아래로 내려갔다. 그것이 이 창이 말하는 것이었다.",
+            "en": "Outside the window Hellas was visible. MCC's city. The mine district visible. Small. Block C-7 visible. Smaller. Chalk names not visible. Too small. But they were there. Not gone. What was decided in this room went down there. That was what this window said."
+          }
+        }
       ]
     },
     {
       "id": "s26",
       "type": "dialogue",
-      "background": "mcc_executive_floor",
-      "bgm": "mcc_ambient_warm",
-      "transition": "fade_medium",
+      "background": "mcc_board_chamber",
+      "bgm": "tension_medium",
+      "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "잠깐이요.", "en": "A moment." } },
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "내가 MCC에 온 지 22년 됐어요. 이 방에서 처음으로 차를 마셨어요. 오늘.", "en": "I've been in MCC for twenty-two years. Today was the first time I drank the tea in this room." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "이유는 말하지 않을게요. 그냥 그랬어요.", "en": "I won't say why. It just was." } }
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "Director Ryu가 최종 입장을 요청해요. MCC는 Ancient Metal을 어떻게 다룰 것인가.",
+            "en": "Director Ryu requests the final position. How will MCC handle Ancient Metal."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "이사회가 4가지 옵션을 제안했어요. 독점 확보. 분석 후 결정. 전면 공개. 또는 프리즈.",
+            "en": "The board has proposed four options. Exclusive control. Decide after analysis. Full announcement. Or freeze."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "프리즈는 화성에서 옵션이 아니에요. 그러나 이사회는 항상 그것을 포함해요.",
+            "en": "Freeze isn't an option on Mars. But the board always includes it."
+          }
+        }
       ]
     },
     {
       "id": "s27",
       "type": "narration",
-      "background": "mcc_executive_floor",
-      "bgm": "mcc_ambient_warm",
+      "background": "mcc_board_chamber",
+      "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Chen이 차를 마셨다. 22년 만이었다. 이 방에서. 이사회 의사당에서. 그것이 무엇을 의미하는지는 알 수 없었다. 그러나 중요한 것이라는 것은 알았다. 22년간 하지 않은 것을 오늘 처음 한다는 것. 그것이 무엇이든.", "en": "Chen drank the tea. For the first time in twenty-two years. In this room. The board chamber. What that meant was unclear. But it was known to be important. Doing for the first time in twenty-two years something never done before. Whatever that was." } }
+        {
+          "text": {
+            "ko": "이사들이 기다렸다. Chen이 차를 들고 있었다. 마시지 않았다. 이 방에서 22년. 한 번도 마시지 않은 것. 그 이유를 아는 사람이 없었다. 22년간. 그러나 오늘 아직 마시지 않았다. 아직은 아니었다.",
+            "en": "Directors waited. Chen held her tea. Didn't drink. Twenty-two years in this room. Never drinking it. Nobody knew the reason. For twenty-two years. But today she hadn't yet. Not yet."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s28",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "mcc_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "잠깐이요.",
+            "en": "A moment."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이사회가 당신을 어떻게 보는지 알아요? 위협이에요. 아직은 작은 위협. 그러나 위협.",
+            "en": "You know how the board sees you. A threat. A small threat still. But a threat."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "나는 당신을 지지해요. 그게 이사회에는 위험해요. 나도 알아요.",
+            "en": "I support you. That's dangerous for the board. I know that too."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s29",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "25도 라운지였다. 이사회 의사당 옆에 있는 곳. Chen이 여기 있었다. 차를 들고. 마시지 않고. 이 방도 이사회 의사당과 온도가 같았다. 항상 25도였다. 그래서 라운지 이름이 25도였다. 그것이 Chen이 있는 곳이었다.",
+            "en": "The 25-Degree Lounge. Adjacent to the board chamber. Chen was here. Holding tea. Not drinking. This room too was the same temperature as the board chamber. Always twenty-five degrees. That was why the lounge was called 25-Degree. That was where Chen was."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s30",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "이사회가 당신을 시험하는 이유가 있어요. 당신이 어느 쪽인지 모르기 때문이에요.",
+            "en": "The reason the board is testing you. Because they don't know which side you're on."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "MCC 쪽인지. 아니면 다른 쪽인지. 이사회는 항상 그것을 먼저 알아야 해요.",
+            "en": "Whether it's MCC's side. Or another side. The board always needs to know that first."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "나도 같은 질문을 하고 있어요. 당신에 대해서.",
+            "en": "I'm asking the same question. About you."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s31",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen이 같은 질문을 하고 있었다. 이사회와 같은 질문을. 그러나 다른 방식으로. 이사회는 시험으로 물었다. Chen은 직접 말했다. 그 차이가 무엇을 의미하는지는 아직 알 수 없었다.",
+            "en": "Chen was asking the same question. The same as the board. But in a different way. The board asked through tests. Chen said it directly. What that difference meant was still unknown."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s32",
+      "type": "dialogue",
+      "background": "mcc_board_chamber",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "이사회가 두 번째 세션으로 넘어가요.",
+            "en": "The board moves to the second session."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "케플러 현장 방어 작전이에요. FSP 팀이 접근하고 있어요.",
+            "en": "Kepler site defense operation. FSP team approaching."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "당신이 가요. 이사회 승인이 났어요.",
+            "en": "You go. The board has approved it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s33",
+      "type": "narration",
+      "background": "mcc_board_chamber",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "이사회 승인. 그 말의 무게를 알았다. 이 방에서 승인이 나면 화성이 달라졌다. 그 달라짐이 광산 구역으로 내려갔다. C-7 블록으로 내려갔다. 분필 이름들이 있는 곳으로. 이사회 승인은 여기서 나왔지만 결과는 저 아래에 있었다.",
+            "en": "Board approval. The weight of those words was known. When approval came from this room Mars changed. That change went down to the mine district. Down to block C-7. To where chalk names were. Board approval came from here but results were down there."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s34",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "mcc_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "내가 MCC에 온 지 22년 됐어요. 이 방에서 처음으로 차를 마셨어요. 오늘.",
+            "en": "I've been in MCC for twenty-two years. Today was the first time I drank the tea in this room."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이유는 말하지 않을게요. 그냥 그랬어요.",
+            "en": "I won't say why. It just was."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mcc_board_chamber",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "이사회가 기다린다. 일곱 명의 눈이 당신 위에 있다. Chen도 기다린다.",
+        "en": "The board waits. Seven pairs of eyes are on you. Chen waits too."
+      },
+      "choices": [
+        {
+          "id": "mcc_ch7_full_control",
+          "text": {
+            "ko": "MCC 독점. Liang Wei 계약. 비공개.",
+            "en": "MCC exclusive. Contract Liang Wei. Non-disclosure."
+          },
+          "tone": "empire",
+          "preview_hint": {
+            "ko": "→ MCC 권력 확장. 이사회 일부 만족",
+            "en": "→ MCC power expands. Some board satisfied."
+          }
+        },
+        {
+          "id": "mcc_ch7_science_first",
+          "text": {
+            "ko": "분석 완료 전까지 모든 결정을 보류한다.",
+            "en": "Hold all decisions until analysis is complete."
+          },
+          "tone": "methodical",
+          "preview_hint": {
+            "ko": "→ 이사회 일부 불만. Chen 관심",
+            "en": "→ Some board dissatisfied. Chen interested."
+          }
+        },
+        {
+          "id": "mcc_ch7_public",
+          "text": {
+            "ko": "화성 전체를 위한 발표. MCC가 주도한다.",
+            "en": "Announce it for all Mars. MCC leads."
+          },
+          "tone": "strategic",
+          "preview_hint": {
+            "ko": "→ 이사회 충격. 여론 MCC에 유리",
+            "en": "→ Board shocked. Public opinion shifts to MCC."
+          }
+        },
+        {
+          "id": "mcc_ch7_silence",
+          "text": {
+            "ko": "답하지 않는다. 차를 든다.",
+            "en": "No answer. Pick up the tea."
+          },
+          "tone": "watchful",
+          "preview_hint": {
+            "ko": "→ Chen이 미소 짓는다. 이사회가 얼어붙는다",
+            "en": "→ Chen smiles. The board freezes."
+          }
+        }
       ]
     },
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "kepler_crater",
+      "background": "kepler_crater_dawn",
       "bgm": "battle_theme_mcc",
       "transition": "flash_white",
-      "title": { "ko": "케플러 사수", "en": "Kepler Defense" },
-      "subtitle": { "ko": "이사회 명령 집행 — 케플러 분화구", "en": "Board Order Execution — Kepler Crater" }
+      "title": {
+        "ko": "케플러 사수",
+        "en": "Kepler Defense"
+      },
+      "subtitle": {
+        "ko": "이사회 명령 집행 — 케플러 분화구",
+        "en": "Board Order Execution — Kepler Crater"
+      }
     },
     {
       "id": "s_result",
@@ -330,9 +850,31 @@
       "background": "mcc_board_chamber",
       "bgm": "victory_calm",
       "lines": [
-        { "speaker": "chen", "emotion": "reflective", "effect": "character_enter:chen:slide_left", "text": { "ko": "이사회가 승인했어요.", "en": "The board approved." } },
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "이 방에서 차를 마신 것. 그것이 이유가 있었는지 나도 모르겠어요.", "en": "Drinking the tea in this room. Whether that had a reason even I don't know." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "그러나 오늘은 그랬어요. 그것으로 충분해요.", "en": "But today it was like that. That's enough." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "이사회가 승인했어요.",
+            "en": "The board approved."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이 방에서 차를 마신 것. 그것이 이유가 있었는지 나도 모르겠어요.",
+            "en": "Drinking the tea in this room. Whether that had a reason even I don't know."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그러나 오늘은 그랬어요. 그것으로 충분해요.",
+            "en": "But today it was like that. That's enough."
+          }
+        }
       ]
     },
     {
@@ -341,19 +883,35 @@
       "background": "mcc_board_chamber",
       "bgm": "defeat_ambient",
       "lines": [
-        { "text": { "ko": "이사회가 결정을 보류했다. 그것은 거절이었다. 이사회의 보류는 항상 거절이었다. 차가 식어 있었다. 이 방에서 차는 식지 않는다고 했다. 그것도 사실이 아닌 것 중 하나였다.", "en": "The board deferred the decision. That was a rejection. Board deferrals were always rejections. The tea had cooled. They said tea never cooled in this room. That was one more thing that wasn't true." } }
+        {
+          "text": {
+            "ko": "이사회가 결정을 보류했다. 그것은 거절이었다. 이사회의 보류는 항상 거절이었다. 차가 식어 있었다. 이 방에서 차는 식지 않는다고 했다. 그것도 사실이 아닌 것 중 하나였다.",
+            "en": "The board deferred the decision. That was a rejection. Board deferrals were always rejections. The tea had cooled. They said tea never cooled in this room. That was one more thing that wasn't true."
+          }
+        }
       ]
     },
     {
       "id": "s_ending",
       "type": "ending",
       "background": "mcc_executive_floor",
-      "bgm": "mcc_ambient_warm",
+      "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "Chen은 의사당을 나왔다. 차를 여전히 들고 있었다. 그러나 잔이 비어 있었다. 그것을 본 사람이 한 명 있었다. 22년 동안 비어 있는 Chen Weiss의 잔을 본 사람은 없었다. 화성에서 처음 보는 것은 드물었다. 그러나 가끔 있었다.", "en": "Chen left the chamber. Still holding her tea. But the cup was empty. One person saw it. In twenty-two years nobody had seen Chen Weiss's cup empty. First sightings were rare on Mars. But they happened." } }
+        {
+          "text": {
+            "ko": "Chen은 의사당을 나왔다. 차를 여전히 들고 있었다. 그러나 잔이 비어 있었다. 그것을 본 사람이 한 명 있었다. 22년 동안 비어 있는 Chen Weiss의 잔을 본 사람은 없었다. 화성에서 처음 보는 것은 드물었다. 그러나 가끔 있었다.",
+            "en": "Chen left the chamber. Still holding her tea. But the cup was empty. One person saw it. In twenty-two years nobody had seen Chen Weiss's cup empty. First sightings were rare on Mars. But they happened."
+          }
+        }
       ],
-      "next_chapter_preview": { "questId": "mcc_campaign_ch8", "teaser": { "ko": "다음 — 첫 번째 만남", "en": "Next — First Contact" } }
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch8",
+        "teaser": {
+          "ko": "다음 — 첫 번째 만남",
+          "en": "Next — First Contact"
+        }
+      }
     }
   ]
 }

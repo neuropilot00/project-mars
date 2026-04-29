@@ -3,57 +3,573 @@
   "campaignId": "cv_route",
   "chapterNumber": 3,
   "title": { "ko": "용병 코드", "en": "The Mercenary Code" },
-  "location": { "id": "erebus_crater_base", "displayNameKo": "에레보스 분화구 기지" },
+  "location": { "id": "erebus_crater_base", "displayNameKo": "에레부스 분화구 기지" },
   "environment": "cv_base_interior",
-  "estimatedPlayTimeMinutes": 15,
-  "characters": ["player", "butcher", "crow", "aisha", "cinder"],
+  "estimatedPlayTimeMinutes": 22,
+  "characters": ["player", "butcher_vasquez", "crow_reyes", "cinder_grace", "reza"],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "erebus_base_interior", "bgm": "cv_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "에레보스 기지. 분화구 안. 화성 남반구 가장 차가운 곳에서 두 번째로 차가운 곳. 영하 100도 아래였다. 기지 안은 달랐다. 불이 있었다. 배럴 불이었다. 여러 개. CV는 불을 좋아했다. 불은 규칙이 없었다. 그것이 CV와 닮은 것이었다.", "en": "Erebus base. Inside the crater. Second coldest place in the southern hemisphere of Mars. Below minus 100. Inside the base was different. Fires. Barrel fires. Several. CV liked fire. Fire had no rules. That was what fire had in common with CV." }}] },
-    { "id": "s02", "type": "narration", "background": "erebus_base_interior", "bgm": "cv_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "코드가 있었다. CV는 문서가 없었다. 계약서가 없었다. 법이 없었다. 그러나 코드는 있었다. 말해지지 않는 코드. 그것을 아는 사람만 CV에 있을 수 있었다. 모르는 사람은 알기 전에 사라졌다.", "en": "There was a code. CV had no documents. No contracts. No law. But there was a code. An unspoken code. Only those who knew it could be in CV. Those who didn't know disappeared before learning it." }}] },
-    { "id": "s03", "type": "dialogue", "background": "erebus_base_interior", "bgm": "cv_ambient", "transition": "cut",
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "butcher", "emotion": "gruff", "effect": "character_enter:butcher:slide_left", "text": { "ko": "코드가 뭔지 알아?", "en": "You know what the code is?" }},
-        { "speaker": "butcher", "emotion": "serious", "text": { "ko": "다섯 개야. 하나. 돈은 전에. 둘. 비전투원은 건드리지 않아. 셋. 계약을 한 번 수락하면 끝내. 넷. 동료는 버리지 않아. 다섯.", "en": "Five things. One. Money first. Two. Don't touch non-combatants. Three. If you accept a contract finish it. Four. Don't abandon a comrade. Five." }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "다섯 번째는 없어. 각자가 만드는 거야.", "en": "The fifth doesn't exist. Each person makes it themselves." }}
+        { "text": { "ko": "에레부스 기지. 분화구 안. 화성 남반구에서 가장 차가운 곳들 중 하나. 기지 안은 달랐다. 불이 있었다. 배럴 불이었다. 여러 개. CV는 불을 좋아했다. 불은 규칙이 없었다. 그것이 CV와 닮은 것이었다.", "en": "Erebus base. Inside the crater. One of the coldest places in the southern hemisphere. Inside the base was different. Fires. Barrel fires. Several. CV liked fire. Fire had no rules. That was what fire had in common with CV." } }
       ]
     },
-    { "id": "s04", "type": "narration", "background": "erebus_base_interior", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "Aisha Rahman이 불 앞에 앉아 있었다. CV 3년차. 조용한 사람이었다. 그러나 일이 시작되면 달랐다. 이 사람의 다섯 번째 코드는 충성이었다. 누구에게 충성하는지가 중요했다. 그녀는 사람에게 충성했다. 조직이 아니라.", "en": "Aisha Rahman sat by the fire. Three years in CV. A quiet person. But when work started she was different. This person's fifth code was loyalty. Who you were loyal to mattered. She was loyal to people. Not the organization." }}] },
-    { "id": "s05", "type": "dialogue", "background": "erebus_base_interior", "bgm": "tension_low", "transition": "cut",
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
       "lines": [
-        { "speaker": "aisha", "emotion": "calm", "effect": "character_enter:aisha:slide_right", "text": { "ko": "다섯 번째가 뭔지 물어볼게요.", "en": "I'll ask what the fifth is." }},
-        { "speaker": "aisha", "emotion": "serious", "text": { "ko": "어제 작전에서 작업자와 대화했다고 들었어요. CV에서 그런 사람은 드물어요.", "en": "I heard you talked to the worker yesterday. People like that are rare in CV." }},
-        { "speaker": "aisha", "emotion": "quiet", "text": { "ko": "그것이 당신의 다섯 번째라면. Butcher도 오래 기억할 거예요.", "en": "If that's your fifth. Butcher will remember it for a long time too." }}
+        { "text": { "ko": "작전 다음 날. Butcher가 모든 사람을 불렀다. 그런 일이 드물었다. Butcher가 모든 사람을 부르는 것. 그것이 중요한 일이 생겼다는 신호였다.", "en": "Day after the operation. Butcher called everyone. That was rare. Butcher calling everyone. That was a signal something important had happened." } }
       ]
     },
-    { "id": "s06", "type": "narration", "background": "erebus_base_interior", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": { "ko": "Cinder Grace가 기지 뒤편에서 작업 중이었다. 공구 소리. 금속 소리. 무언가를 고치는 소리. CV 기지에서 Cinder는 항상 고치는 사람이었다. 부수는 것보다 고치는 사람이 기지에 있다는 것이 이상했다. 그러나 그것이 Cinder였다. 고치는 사람. 망가진 것들을 위한.", "en": "Cinder Grace was working in the back of the base. Tool sounds. Metal sounds. Something being repaired. In the CV base Cinder was always the one who repaired. It was strange to have someone who repaired rather than destroyed in the base. But that was Cinder. The repairer. For broken things." }}] },
-    { "id": "s_choice", "type": "choice", "background": "erebus_base_interior", "bgm": "choice_tension",
-      "prompt": { "ko": "다섯 번째 코드. Butcher가 기다린다.", "en": "The fifth code. Butcher is waiting." },
+    {
+      "id": "s03",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "fade_slow",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "effect": "character_enter:butcher_vasquez:slide_left", "text": { "ko": "충성 시험이야.", "en": "Loyalty test." } },
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "CV는 코드로 살아. 코드를 지키는 사람만 여기 있을 수 있어. 그것을 확인할 때가 됐어.", "en": "CV lives by the code. Only those who keep the code can be here. It's time to confirm that." } },
+        { "speaker": "crow_reyes", "emotion": "flat", "effect": "character_enter:crow_reyes:slide_right", "text": { "ko": "시험이에요. 네 개 중 하나예요. 결과가 CV에서의 위치를 결정해요.", "en": "A test. One of four. The result determines your position in CV." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "네 개의 분기가 있었다. Butcher가 말했다. 각자가 다른 길을 간다. 그것이 충성 시험이었다. 선택이 충성을 보여주는 방식이었다. 어떤 것을 선택하는지가 어떤 사람인지를 보여주는 것이었다.", "en": "Four paths. Butcher said. Each takes a different road. That was the loyalty test. Choice was how loyalty showed. What you chose showed who you were." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "choice",
+      "background": "erebus_throne_hall",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "Butcher가 선택을 기다린다. 어느 시험을 선택하겠습니까.", "en": "Butcher is waiting. Which test do you choose." },
       "choices": [
-        { "id": "cv_ch3_code_survival", "text": { "ko": "살아남는 것. 그것이 전부다.", "en": "Survival. That's everything." }, "tone": "pragmatic", "preview_hint": { "ko": "→ Crow가 고개를 끄덕인다", "en": "→ Crow nods" }},
-        { "id": "cv_ch3_code_truth", "text": { "ko": "진실을 말하는 것.", "en": "Telling the truth." }, "tone": "honest", "preview_hint": { "ko": "→ Butcher가 멈춘다. Cinder가 공구를 내려놓는다", "en": "→ Butcher stops. Cinder sets down her tools." }},
-        { "id": "cv_ch3_code_name", "text": { "ko": "이름을 기억하는 것.", "en": "Remembering names." }, "tone": "human", "preview_hint": { "ko": "→ Aisha가 당신을 다시 본다. 오래", "en": "→ Aisha looks at you again. For a long time." }},
-        { "id": "cv_ch3_code_nothing", "text": { "ko": "아직 없다. 만들고 있다.", "en": "Not yet. Still making it." }, "tone": "honest", "preview_hint": { "ko": "→ Butcher가 웃는다. 처음으로", "en": "→ Butcher laughs. For the first time." }}
+        {
+          "id": "cv_ch3_reza_revenge",
+          "text": { "ko": "Reza — 복수냐 용서냐.", "en": "Reza — revenge or forgiveness." },
+          "tone": "personal",
+          "preview_hint": { "ko": "→ s06 분기로", "en": "→ branch s06" }
+        },
+        {
+          "id": "cv_ch3_reza_intel",
+          "text": { "ko": "Reza — 정보를 얻는다.", "en": "Reza — extract intelligence." },
+          "tone": "strategic",
+          "preview_hint": { "ko": "→ s16 분기로", "en": "→ branch s16" }
+        },
+        {
+          "id": "cv_ch3_marko_alliance",
+          "text": { "ko": "Marko 분기 — 외부 세력과 협상.", "en": "Marko branch — negotiate with outside faction." },
+          "tone": "diplomatic",
+          "preview_hint": { "ko": "→ s26 분기로", "en": "→ branch s26" }
+        },
+        {
+          "id": "cv_ch3_standard",
+          "text": { "ko": "표준 임무 — 광산 지역 점령.", "en": "Standard mission — occupy the mine district." },
+          "tone": "straightforward",
+          "preview_hint": { "ko": "→ s36 분기로", "en": "→ branch s36" }
+        }
       ]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "erebus_crater_exterior", "bgm": "battle_theme_cv", "transition": "fade_slow",
-      "title": { "ko": "코드의 시험", "en": "Test of the Code" }, "subtitle": { "ko": "에레보스 분화구 — 용병의 진실", "en": "Erebus Crater — The Truth of Mercenaries" }
-    },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "dialogue", "background": "erebus_base_interior", "bgm": "victory_calm",
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "butcher", "emotion": "quiet", "effect": "character_enter:butcher:slide_left", "text": { "ko": "코드를 지켰어.", "en": "You kept the code." }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "CV에 있는 사람 중에 코드를 만드는 사람이 드물어. 대부분 코드가 뭔지도 몰라. 그래서 오래 못 있어.", "en": "Few people in CV make their own code. Most don't even know what the code is. That's why they don't last." }}
+        { "text": { "ko": "Reza 분기 A. 복수냐 용서냐. Reza는 아직 기지에 있었다. 포로 신분이 아니었다. Butcher의 결정 이후 애매한 상태였다. 기지 안에 있지만 CV 대원이 아닌 상태.", "en": "Reza branch A. Revenge or forgiveness. Reza was still at the base. No longer prisoner status. Ambiguous after Butcher's decision. In the base but not a CV member." } }
       ]
     },
-    { "id": "s_fail", "type": "narration", "background": "erebus_base_interior", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "코드가 시험됐다. 어느 코드인지는 몰랐다. 화성에서 코드는 상황이 시험했다. 상황이 가르쳤다. 불이 배럴에서 탔다. Cinder의 공구 소리가 들렸다. 기지는 살아있었다.", "en": "The code was tested. Which code was unclear. On Mars the code was tested by situation. Situations taught it. Fire burned in the barrels. The sound of Cinder's tools was heard. The base was alive." }}] },
-    { "id": "s_ending", "type": "ending", "background": "erebus_base_interior_night", "bgm": "cv_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "불이 탔다. 밤이 깊었다. Cinder가 작업을 끝냈다. 무언가가 고쳐졌다. 무엇인지는 말하지 않았다. Butcher가 불 앞에 앉았다. 의수를 내려다봤다. 17살에 만든 것. 30년 된 것. 여전히 작동했다. 좋은 것은 그런 것이었다. 오래됐어도 작동하는 것.", "en": "The fire burned. Night deepened. Cinder finished work. Something had been repaired. What it was she didn't say. Butcher sat by the fire. Looked down at the prosthetic. Made at seventeen. Thirty years old. Still working. Good things were like that. Old but still working." }}],
-      "next_chapter_preview": { "questId": "cv_campaign_ch4", "teaser": { "ko": "다음 — Cinder의 그림자", "en": "Next — Cinder's Shadow" }}
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "Reza는 CV에 피해를 줬어. 작지 않은 피해야. 코드는 배신을 용서하지 않아.", "en": "Reza caused harm to CV. Not small harm. The code doesn't forgive betrayal." } },
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "그러나 — 당신이 그 이름을 말했어. Aisha. 그래서 여기 있어. 당신의 선택이 있었어.", "en": "But — you said that name. Aisha. That's why Reza is here. Your choice existed." } },
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "이제 당신이 처리해. 어떻게 할지.", "en": "Now you handle it. What to do." } }
+      ]
+    },
+    {
+      "id": "s08",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Reza가 있었다. 구석에. 손이 묶이지 않은 상태. 그러나 갈 수 없는 상태. CV 기지에서 나갈 수 없는 상태. 당신을 봤다. 그 눈이 기억났다. Aisha. 이름.", "en": "Reza was there. In the corner. Hands unbound. But unable to leave. Unable to exit the CV base. Looked at you. Those eyes remembered. Aisha. Name." } }
+      ]
+    },
+    {
+      "id": "s09",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "reza", "emotion": "exhausted", "text": { "ko": "당신이 내 이름을 말했어. Butcher에게.", "en": "You said her name. To Butcher." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "Aisha.", "en": "Aisha." } },
+        { "speaker": "reza", "emotion": "quiet", "text": { "ko": "그래서 여기 있어. 죽지 않고.", "en": "That's why I'm here. Not dead." } },
+        { "speaker": "reza", "emotion": "hollow", "text": { "ko": "나는 첩자가 아니야. 진짜로. 그러나 증명할 방법이 없어.", "en": "I'm not an informant. Really. But I have no way to prove it." } }
+      ]
+    },
+    {
+      "id": "s10",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Reza의 말이 사실인지 아닌지 알 수 없었다. 증거가 있었다. CV에 있는 증거. 그러나 증거를 만드는 것도 가능했다. MCC가 만들었을 수도 있었다. 알 수 없었다.", "en": "Couldn't tell if Reza's words were true. Evidence existed. Evidence in CV. But evidence could be manufactured. MCC might have made it. Unknown." } }
+      ]
+    },
+    {
+      "id": "s11",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "cold", "text": { "ko": "Butcher가 당신에게 맡겼어요. 코드대로 하면 돼요.", "en": "Butcher left it to you. Just follow the code." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "코드가 뭐야. 이 상황에서.", "en": "What's the code. In this situation." } },
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "배신은 용서 안 해요. 그게 코드예요. 그러나 당신의 다섯 번째 코드는 달라요. 당신이 만든 거니까.", "en": "Betrayal isn't forgiven. That's the code. But your fifth code is different. Because you made it." } }
+      ]
+    },
+    {
+      "id": "s12",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "다섯 번째 코드. 각자가 만드는 것. Butcher가 말했던 것. 처음 들었을 때는 몰랐다. 이제 알았다. 그것이 이 순간을 위한 것이었다. 이 선택을 위한 것이었다.", "en": "The fifth code. Each person makes their own. What Butcher had said. Didn't understand when first heard. Now understood. It was for this moment. For this choice." } }
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "Reza. 한 가지 물어볼게.", "en": "Reza. One question." } },
+        { "speaker": "reza", "emotion": "exhausted", "text": { "ko": "뭐야.", "en": "What." } },
+        { "speaker": "player", "emotion": "flat", "text": { "ko": "Aisha는 어디 있어.", "en": "Where is Aisha." } },
+        { "speaker": "reza", "emotion": "alert", "text": { "ko": "왜.", "en": "Why." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "이름이 있는 사람은 그 이름을 알아야 할 사람이 있어야 해.", "en": "A person with a name needs someone who knows that name." } }
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Reza가 대답했다. 위치를 말했다. 헬라스 센트럴. 작은 구역. 이름. 연락 방법. 그것이 Reza가 줄 수 있는 전부였다. 그것을 받았다. 그것으로 충분했다.", "en": "Reza answered. Gave a location. Hellas Central. Small district. Name. Contact method. That was all Reza could give. Received it. That was enough." } }
+      ]
+    },
+    {
+      "id": "s15",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher에게 보고했다. Reza 분기의 결과. Butcher가 들었다. 말이 없었다. 의수가 움직였다. 그것이 전부였다. 그것이 인정이었다.", "en": "Reported to Butcher. Result of the Reza branch. Butcher listened. No words. The prosthetic moved. That was all. That was acknowledgment." } }
+      ]
+    },
+    {
+      "id": "s16",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "Reza 분기 B. 정보를 얻는다. Reza가 MCC에 대해 아는 것이 있었다. CV가 필요한 정보였다. Crow가 그것을 알았다. 그러나 Reza는 말하지 않았다. 이유가 있었다.", "en": "Reza branch B. Extract intelligence. Reza knew things about MCC. Information CV needed. Crow knew that. But Reza hadn't spoken. There was a reason." } }
+      ]
+    },
+    {
+      "id": "s17",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "Reza가 MCC C-구역 이동 루트를 알아요. 우리가 필요한 거예요.", "en": "Reza knows MCC C-zone movement routes. What we need." } },
+        { "speaker": "crow_reyes", "emotion": "cold", "text": { "ko": "말을 안 해요. 당신이 해봐요.", "en": "Won't talk. You try." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "왜 나야.", "en": "Why me." } },
+        { "speaker": "crow_reyes", "emotion": "sardonic", "text": { "ko": "당신이 Aisha 이름을 말했잖아요. 그것이 신뢰가 됐어요. 아마.", "en": "You said Aisha's name. That became trust. Maybe." } }
+      ]
+    },
+    {
+      "id": "s18",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Reza에게 갔다. 구석에. Crow가 보고 있었다. 그러나 말하지 않았다. Crow가 말하지 않을 때는 신뢰하는 것이었다. 또는 기다리는 것이었다. 구분이 어려웠다.", "en": "Went to Reza. Corner. Crow watching. But no words. When Crow was wordless it meant trust. Or waiting. Hard to distinguish." } }
+      ]
+    },
+    {
+      "id": "s19",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "Reza. MCC C-구역 루트. 알아.", "en": "Reza. MCC C-zone routes. You know them." } },
+        { "speaker": "reza", "emotion": "hollow", "text": { "ko": "알아.", "en": "Yes." } },
+        { "speaker": "player", "emotion": "flat", "text": { "ko": "말해주면 여기서 나갈 수 있어. Butcher에게 말할게.", "en": "Tell me and you can leave here. I'll tell Butcher." } },
+        { "speaker": "reza", "emotion": "exhausted", "text": { "ko": "거짓말이야?", "en": "Is that a lie?" } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "아니야.", "en": "No." } }
+      ]
+    },
+    {
+      "id": "s20",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Reza가 생각했다. 오래. 눈을 감았다. 손이 묶이지 않았다. 그 손이 무릎 위에 있었다. 떨리지 않았다. 그것이 이 사람이 강한 방식이었다. 결정하는 방식.", "en": "Reza thought. For a long time. Eyes closed. Hands unbound. Those hands on the knees. Not trembling. That was how this person was strong. The way of deciding." } }
+      ]
+    },
+    {
+      "id": "s21",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "reza", "emotion": "quiet", "text": { "ko": "C-구역 서쪽 루트가 있어. MCC가 공식적으로 쓰지 않아. 그러나 경비가 없어. 빈 통로야. 오래된 광산 배수로야.", "en": "There's a west route in C-zone. MCC doesn't officially use it. But no guards. Empty passage. Old mine drainage." } },
+        { "speaker": "reza", "emotion": "flat", "text": { "ko": "교대 간격. 삼십 분. 공식 경비는 동쪽에 있어. 서쪽은 없어.", "en": "Rotation interval. Thirty minutes. Official guards are east. None west." } },
+        { "speaker": "reza", "emotion": "hollow", "text": { "ko": "이게 전부야. 이제 나갈 수 있어?", "en": "That's all. Can I leave now?" } }
+      ]
+    },
+    {
+      "id": "s22",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher에게 갔다. 정보를 전달했다. Butcher가 들었다. Crow가 확인했다. 말이 없었다. 그러나 눈빛이 달라졌다. 정보가 맞는 것이었다. 그것을 알 수 있었다.", "en": "Went to Butcher. Passed the information. Butcher listened. Crow confirmed. No words. But the look in their eyes changed. The information was correct. Could tell that." } }
+      ]
+    },
+    {
+      "id": "s23",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "Reza를 놓아줘.", "en": "Release Reza." } },
+        { "speaker": "crow_reyes", "emotion": "sharp", "text": { "ko": "Butcher.", "en": "Butcher." } },
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "코드야. 약속을 했어. 지켜.", "en": "It's the code. A promise was made. Keep it." } }
+      ]
+    },
+    {
+      "id": "s24",
+      "type": "narration",
+      "background": "erebus_base_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Reza가 기지를 떠났다. 뒤를 보지 않았다. 걸음이 빠르지 않았다. 그것이 이상했다. 빠르게 걸을 것이라고 생각했다. 그러나 느리게 걸었다. 무언가 생각하는 걸음이었다.", "en": "Reza left the base. Didn't look back. Walk wasn't fast. That was strange. Expected fast. But walked slowly. Steps of someone thinking." } }
+      ]
+    },
+    {
+      "id": "s25",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher가 봤다. Reza가 사라질 때까지. 그것이 전부였다. 그것이 Butcher의 방식이었다. 보는 것. 오래 보는 것. 그리고 말하지 않는 것.", "en": "Butcher watched. Until Reza disappeared. That was all. That was Butcher's way. Watching. Watching for a long time. And saying nothing." } }
+      ]
+    },
+    {
+      "id": "s26",
+      "type": "narration",
+      "background": "sandstone_junction",
+      "bgm": "tension_medium",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "Marko 분기. 외부 세력과 협상. 샌드스톤 교차로. 화성 중간 지점. MCC도 CV도 아닌 곳. 중립 지대. 거기서 만남이 있었다. Marko Diel. 독립 용병 그룹 대표.", "en": "Marko branch. Negotiate with outside faction. Sandstone Junction. Middle of Mars. Neither MCC nor CV. Neutral ground. A meeting there. Marko Diel. Independent mercenary group leader." } }
+      ]
+    },
+    {
+      "id": "s27",
+      "type": "dialogue",
+      "background": "sandstone_junction",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "Marko는 MCC와 CV 사이에서 살아왔어요. 그것이 장점이에요. 정보가 있어요.", "en": "Marko has lived between MCC and CV. That's the advantage. Has information." } },
+        { "speaker": "crow_reyes", "emotion": "sharp", "text": { "ko": "당신이 협상해요. 나는 지켜봐요.", "en": "You negotiate. I watch." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "조건이 뭐야.", "en": "What are the conditions." } },
+        { "speaker": "crow_reyes", "emotion": "cold", "text": { "ko": "그게 협상이에요. 당신이 만드는 거예요.", "en": "That's the negotiation. You make them." } }
+      ]
+    },
+    {
+      "id": "s28",
+      "type": "narration",
+      "background": "sandstone_junction",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Marko가 왔다. 혼자가 아니었다. 두 명이 뒤에 있었다. 무장했다. 그것이 중립 지대에서의 방식이었다. 무장하고 만나는 것. 신뢰가 없는 상태에서의 신뢰.", "en": "Marko arrived. Not alone. Two behind. Armed. That was the way in neutral ground. Meet armed. Trust without trust." } }
+      ]
+    },
+    {
+      "id": "s29",
+      "type": "dialogue",
+      "background": "sandstone_junction",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "marko", "emotion": "cautious", "text": { "ko": "CV가 협상을 원한다고 들었어. 처음이야.", "en": "Heard CV wants to negotiate. First time." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "처음이 아니야.", "en": "Not the first time." } },
+        { "speaker": "marko", "emotion": "neutral", "text": { "ko": "Butcher가 직접 안 온 건 처음이야.", "en": "Butcher not coming in person is a first." } },
+        { "speaker": "player", "emotion": "flat", "text": { "ko": "내가 왔어. 그것으로 충분해.", "en": "I came. That's enough." } }
+      ]
+    },
+    {
+      "id": "s30",
+      "type": "narration",
+      "background": "sandstone_junction",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Marko가 당신을 봤다. 오래 봤다. CV 대원이지만 새로운 얼굴이었다. 새로운 얼굴이 협상을 한다는 것이 이상했다. 그러나 그것이 Butcher의 방식이었다. 새로운 사람을 시험하는 방식.", "en": "Marko looked at you. For a long time. CV but a new face. A new face negotiating was strange. But that was Butcher's way. The way of testing new people." } }
+      ]
+    },
+    {
+      "id": "s31",
+      "type": "dialogue",
+      "background": "sandstone_junction",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "marko", "emotion": "calculating", "text": { "ko": "조건이 뭐야.", "en": "What are the conditions." } },
+        { "speaker": "player", "emotion": "flat", "text": { "ko": "MCC D-구역 정보. CV는 샌드스톤 교차로에서 손을 뗀다. 일 년 동안.", "en": "MCC D-zone intelligence. CV withdraws from Sandstone Junction. For one year." } },
+        { "speaker": "marko", "emotion": "neutral", "text": { "ko": "일 년이 길어.", "en": "One year is long." } },
+        { "speaker": "player", "emotion": "flat", "text": { "ko": "짧은 것보다 나아.", "en": "Better than short." } }
+      ]
+    },
+    {
+      "id": "s32",
+      "type": "narration",
+      "background": "sandstone_junction",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Marko가 생각했다. Crow가 뒤에서 봤다. 조용했다. 말하지 않았다. 협상에서 말이 없는 것이 Crow의 방식이었다. 협상은 말을 줄이는 것이었다. 말이 적은 사람이 이기는 것이었다.", "en": "Marko thought. Crow watched from behind. Quiet. No words. Crow's way in negotiations was silence. Negotiation was reducing words. The person with fewer words won." } }
+      ]
+    },
+    {
+      "id": "s33",
+      "type": "dialogue",
+      "background": "sandstone_junction",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "marko", "emotion": "neutral", "text": { "ko": "D-구역 정보는 있어. 그러나 일 년은 안 돼. 여섯 달.", "en": "Have D-zone intel. But not one year. Six months." } },
+        { "speaker": "player", "emotion": "flat", "text": { "ko": "여덟 달.", "en": "Eight months." } },
+        { "speaker": "marko", "emotion": "accepting", "text": { "ko": "됐어.", "en": "Done." } }
+      ]
+    },
+    {
+      "id": "s34",
+      "type": "narration",
+      "background": "sandstone_junction",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "협상이 끝났다. Marko가 갔다. Crow가 다가왔다. 표정이 없었다. 그러나 말했다. 처음으로 말했다. 그것이 이상했다. Crow가 협상 후에 말하는 것이.", "en": "Negotiation ended. Marko left. Crow approached. No expression. But spoke. Spoke for the first time. That was strange. Crow speaking after a negotiation." } }
+      ]
+    },
+    {
+      "id": "s35",
+      "type": "dialogue",
+      "background": "sandstone_junction",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "여덟 달이에요. 나쁘지 않아요.", "en": "Eight months. Not bad." } },
+        { "speaker": "crow_reyes", "emotion": "sardonic", "text": { "ko": "Butcher가 기뻐할 거예요. 기뻐하는 걸 안 보여주겠지만.", "en": "Butcher will be pleased. Won't show it, though." } }
+      ]
+    },
+    {
+      "id": "s36",
+      "type": "narration",
+      "background": "mine_shaft",
+      "bgm": "tension_medium",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "표준 임무. 광산 지역 점령. 헬라스 외곽 광산. MCC가 버린 곳. 그러나 쓸 수 있는 것이 있었다. 장비. 통로. CV가 필요한 것들.", "en": "Standard mission. Occupy mine district. Hellas outer mine. Abandoned by MCC. But things that could be used. Equipment. Passages. Things CV needed." } }
+      ]
+    },
+    {
+      "id": "s37",
+      "type": "dialogue",
+      "background": "mine_shaft",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "버려진 광산이에요. 그러나 MCC가 간헐적으로 와요. 이유가 있어요.", "en": "Abandoned mine. But MCC comes intermittently. There's a reason." } },
+        { "speaker": "crow_reyes", "emotion": "sharp", "text": { "ko": "뭘 숨겨놨어요. 거기. 우리가 가져오는 거예요.", "en": "Something hidden there. We bring it back." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "뭘 숨겼어.", "en": "What's hidden." } },
+        { "speaker": "crow_reyes", "emotion": "cold", "text": { "ko": "가면 알아요.", "en": "You'll know when we get there." } }
+      ]
+    },
+    {
+      "id": "s38",
+      "type": "narration",
+      "background": "mine_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "광산 안으로 들어갔다. 어두웠다. 헬등을 켰다. 통로가 있었다. 오래된 것이었다. 30년 된 것. CV가 세워지기 전부터 있던 것. 광부들이 판 것. 이제 아무도 없었다.", "en": "Into the mine. Dark. Light on. Passages. Old ones. Thirty years old. Before CV existed. Dug by miners. Now empty." } }
+      ]
+    },
+    {
+      "id": "s39",
+      "type": "narration",
+      "background": "mine_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "안쪽에 것이 있었다. 상자들이었다. MCC 마크가 있었다. 그러나 공식 기록에 없는 물건이었다. Crow가 봤다. 표정이 없었다. 그러나 눈빛이 달라졌다. 예상한 것이었다.", "en": "Something deeper in. Crates. MCC markings. But goods not in official records. Crow saw them. No expression. But the look changed. It was as expected." } }
+      ]
+    },
+    {
+      "id": "s40",
+      "type": "dialogue",
+      "background": "mine_interior",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "sharp", "text": { "ko": "이거야. 무기 부품이에요. MCC가 비공식으로 비축하고 있었어요.", "en": "This is it. Weapon components. MCC was stockpiling them unofficially." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "왜 이걸 여기 숨겨놨어.", "en": "Why hide this here." } },
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "공식 기록에 없는 무기는 공식 책임도 없어요. 그것이 MCC 방식이에요.", "en": "Weapons not in official records have no official accountability. That's MCC's way." } }
+      ]
+    },
+    {
+      "id": "s41",
+      "type": "narration",
+      "background": "mine_interior",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "상자들을 확인했다. 무기 부품이었다. 많은 양이었다. CV가 쓸 수 있는 것들이었다. 가져가야 했다. 그러나 무거웠다. 빠르게 가져가기 어려웠다.", "en": "Checked the crates. Weapon components. Large quantity. Things CV could use. Had to take them. But heavy. Hard to move fast." } }
+      ]
+    },
+    {
+      "id": "s42",
+      "type": "dialogue",
+      "background": "mine_exterior",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "sharp", "text": { "ko": "MCC가 오고 있어요. 정기 점검이에요. 이십 분이에요.", "en": "MCC is coming. Regular check. Twenty minutes." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "얼마나 가져갈 수 있어.", "en": "How much can we take." } },
+        { "speaker": "crow_reyes", "emotion": "cold", "text": { "ko": "두 상자. 그게 전부예요. 이십 분 안에.", "en": "Two crates. That's all. In twenty minutes." } }
+      ]
+    },
+    {
+      "id": "s43",
+      "type": "battle_transition",
+      "background": "mine_shaft",
+      "bgm": "battle_theme_cv",
+      "transition": "flash_white",
+      "title": { "ko": "충성 시험", "en": "Loyalty Test" },
+      "subtitle": { "ko": "에레부스 — 코드를 증명하라", "en": "Erebus — Prove the Code" }
+    },
+    {
+      "id": "s44",
+      "type": "result",
+      "success_scene": "s45",
+      "failure_scene": "s47"
+    },
+    {
+      "id": "s45",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "victory_calm",
+      "transition": "fade_slow",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "quiet", "effect": "character_enter:butcher_vasquez:slide_left", "text": { "ko": "코드를 지켰어.", "en": "You kept the code." } },
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "CV에 있는 사람 중에 코드를 만드는 사람이 드물어. 대부분 코드가 뭔지도 몰라. 그래서 오래 못 있어.", "en": "Few people in CV make their own code. Most don't even know what the code is. That's why they don't last." } }
+      ]
+    },
+    {
+      "id": "s46",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "victory_calm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher가 인정했다. 말이 짧았다. 그것이 그의 방식이었다. 말이 짧을수록 의미가 컸다. 코드를 지켰다는 것. 그것이 이 기지에서 있을 수 있다는 것이었다.", "en": "Butcher acknowledged. Words brief. That was his way. Fewer words meant more meaning. You kept the code. That meant you could be here, in this base." } }
+      ]
+    },
+    {
+      "id": "s47",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "defeat_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "코드가 시험됐다. 어느 코드인지는 몰랐다. 화성에서 코드는 상황이 시험했다. 상황이 가르쳤다. 불이 배럴에서 탔다. 기지는 살아있었다.", "en": "The code was tested. Which code wasn't clear. On Mars the code was tested by situation. Situations taught it. Fire burned in barrels. The base was alive." } }
+      ]
+    },
+    {
+      "id": "s48",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher가 말했다. 당신을 추방하거나 인정하거나. 그 사이의 것이 없었다. CV는 그런 곳이었다. 중간이 없는 곳. 그러나 중간이 없다는 것이 오히려 명확했다. 그것이 이 기지의 방식이었다.", "en": "Butcher spoke. Expel you or acknowledge you. Nothing in between. CV was that kind of place. No middle ground. But having no middle was actually clear. That was this base's way." } }
+      ]
+    },
+    {
+      "id": "s49",
+      "type": "narration",
+      "background": "erebus_base_interior_night",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "불이 탔다. 밤이 깊었다. Cinder가 작업을 끝냈다. 무언가가 고쳐졌다. 무엇인지는 말하지 않았다. Butcher가 불 앞에 앉았다. 의수를 내려다봤다. 17살에 만든 것. 30년 된 것. 여전히 작동했다.", "en": "Fire burned. Night deepened. Cinder finished work. Something had been repaired. What it was she didn't say. Butcher sat by the fire. Looked down at the prosthetic. Made at seventeen. Thirty years old. Still working." } }
+      ]
+    },
+    {
+      "id": "s50",
+      "type": "ending",
+      "background": "erebus_base_interior_night",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "좋은 것은 그런 것이었다. 오래됐어도 작동하는 것. 코드가 그런 것이었다. 30년 된 것. 그러나 아직 작동하는 것. 그것이 CV였다. 불이 따뜻하지 않았다. 그러나 탔다.", "en": "Good things were like that. Old but still working. The code was like that. Thirty years old. But still working. That was CV. The fire wasn't warm. But it burned." } }
+      ],
+      "next_chapter_preview": { "questId": "cv_campaign_ch4", "teaser": { "ko": "다음 — Cinder의 그림자", "en": "Next — Cinder's Shadow" } }
     }
   ]
 }

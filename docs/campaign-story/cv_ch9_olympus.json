@@ -2,54 +2,1051 @@
   "questId": "cv_campaign_ch9",
   "campaignId": "cv_route",
   "chapterNumber": 9,
-  "title": { "ko": "세 개의 깃발 — CV", "en": "Three Flags — CV" },
-  "location": { "id": "olympus_summit_station", "displayNameKo": "올림포스 산 정상 기지" },
+  "title": {
+    "ko": "세 개의 깃발 — CV",
+    "en": "Three Flags — CV"
+  },
+  "location": {
+    "id": "olympus_summit_station",
+    "displayNameKo": "올림포스 산 정상 기지"
+  },
   "environment": "olympus_exterior_thin_air",
   "pov": "cinder",
   "crossChapterNote": "MCC Ch9 (Chen Weiss POV) 및 FSP Ch9 (Rev. Hale POV)와 동일 사건.",
   "characters": ["cinder", "player", "chen", "rev_hale"],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "olympus_exterior", "bgm": "ambient_vast", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "올림포스 몬스. Cinder Grace가 올라왔다. 공구 벨트를 차고. 이 산에 공구 벨트를 차고 온 사람은 없었을 것이었다. 그러나 그것이 Cinder의 방식이었다. 공구는 항상 있어야 했다. 올림포스에도. 무언가 고칠 것이 있을 수 있었다. 또는 없어도 있어야 했다.", "en": "Olympus Mons. Cinder Grace had ascended. With her tool belt on. Nobody had likely ever climbed this mountain with a tool belt. But that was Cinder's way. Tools had to always be present. Even on Olympus. Something might need repairing. Or even if not they had to be there." }}] },
-    { "id": "s02", "type": "narration", "background": "olympus_summit_station", "bgm": "ambient_vast", "transition": "cut",
-      "lines": [{ "text": { "ko": "그녀는 MCC 사람이었다. 6년. 그다음 CV. 3년. 그 사이에 Zone 12가 있었다. 11명. 이름들. MCC 테이블에도 FSP 테이블에도 없는 이름들. 그것을 갖고 이 산에 왔다. 공구 벨트와 함께.", "en": "She had been MCC. Six years. Then CV. Three years. Between them was Zone 12. Eleven people. Names. Names not on MCC's table or FSP's table. She came to this mountain carrying those. With the tool belt." }}] },
-    { "id": "s03", "type": "narration", "background": "olympus_summit_station", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "Chen Weiss가 차를 들고 있었다. 마시지 않았다. Rev. Hale이 기도를 준비하는 것 같았다. 준비하는 것처럼 보였다. Cinder는 공구를 만졌다. 세 사람. 세 방식. 세 개의 화성.", "en": "Chen Weiss held her tea. Didn't drink it. Rev. Hale seemed to be preparing to pray. Looked like preparation. Cinder touched her tools. Three people. Three ways. Three Mars." }}] },
-    { "id": "s04", "type": "dialogue", "background": "olympus_summit_station", "bgm": "tension_low", "transition": "cut",
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "olympus_exterior",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "cinder", "emotion": "calm", "effect": "character_enter:cinder:slide_right", "text": { "ko": "Cinder Grace예요. CV.", "en": "Cinder Grace. CV." }},
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "여기 오기 전에 Butcher한테 물었어요. 뭘 말할 건지. 모르겠다고 했어요. 그냥 공구를 만지라고 했어요.", "en": "Before coming here I asked Butcher what to say. He said he didn't know. Just touch your tools, he said." }},
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "CV는 협상하러 온 게 아니에요. 있으려고 왔어요. 이 테이블에. 없어지지 않으려고.", "en": "CV didn't come to negotiate. Came to be here. At this table. So as not to disappear." }}
+        {
+          "text": {
+            "ko": "올림포스 몬스. Cinder Grace가 올라왔다. 공구 벨트를 차고. 이 산에 공구 벨트를 차고 온 사람은 없었을 것이었다. 그러나 그것이 Cinder의 방식이었다. 공구는 항상 있어야 했다. 올림포스에도. 무언가 고칠 것이 있을 수 있었다. 또는 없어도 있어야 했다.",
+            "en": "Olympus Mons. Cinder Grace had ascended. With her tool belt on. Nobody had likely ever climbed this mountain with a tool belt. But that was Cinder's way. Tools had to always be present. Even on Olympus. Something might need repairing. Or even if not they had to be there."
+          }
+        }
       ]
     },
-    { "id": "s05", "type": "narration", "background": "olympus_summit_station", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": { "ko": "Chen이 차를 내려놓았다. 테이블에. 마시지 않은 것. Rev. Hale이 무언가를 말했다. 이름들이었다. Kim Yong-jin. Mariam. Zone 12. 11명. Cinder가 들었다. Zone 12 이름들을 밖에서 듣는 것은 처음이었다. 이 사람이 어떻게 알았는지. 기도가 때로는 이름을 불렀다.", "en": "Chen set down her tea. On the table. The undrunk thing. Rev. Hale said something. Names. Kim Yong-jin. Mariam. Zone 12. Eleven people. Cinder heard. Hearing the Zone 12 names from outside was the first time. How this person knew. Prayer sometimes called names." }}] },
-    { "id": "s06", "type": "dialogue", "background": "olympus_summit_station", "bgm": "tension_high", "transition": "cut",
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "olympus_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "Zone 12에서 11명이 죽었어요. 내가 거기 있었어요. MCC 사람으로. 보고서를 썼어요. 지지대 결함. MCC가 수정하라 했어요. 안 했어요. 일주일 후에 갱도가 무너졌어요.", "en": "Eleven died in Zone 12. I was there. As MCC. I wrote the report. Support beam defects. MCC told me to revise. I didn't. A week later the tunnel collapsed." }},
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "이 이름들이 이 테이블에 있어야 해요. MCC에도 FSP에도 CV에도 없었던 이름들.", "en": "These names need to be at this table. Names that were in none of MCC, FSP, or CV." }}
+        {
+          "text": {
+            "ko": "올림포스 몬스. 태양계에서 가장 높은 산. 정상 기압은 지구 기압의 0.07퍼센트. 마스크 없이는 10초. 그래서 회담 장소가 됐다. 오래 있을 수 없는 곳. 그것이 공정한 조건이었다. 모두에게.",
+            "en": "Olympus Mons. The highest mountain in the solar system. Summit pressure 0.07 percent of Earth's. Without a mask ten seconds. That made it a meeting place. A place no one could stay long. That was the fair condition. For everyone."
+          }
+        }
       ]
     },
-    { "id": "s_choice", "type": "choice", "background": "olympus_summit_station", "bgm": "choice_tension",
-      "prompt": { "ko": "Cinder의 고백. Zone 12. 올림포스. 무엇을 합니까.", "en": "Cinder's confession. Zone 12. Olympus. What do you do." },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "그녀는 MCC 사람이었다. 6년. 그다음 CV. 3년. 그 사이에 Zone 12가 있었다. 11명. 이름들. MCC 테이블에도 FSP 테이블에도 없는 이름들. 그것을 갖고 이 산에 왔다. 공구 벨트와 함께.",
+            "en": "She had been MCC. Six years. Then CV. Three years. Between them was Zone 12. Eleven people. Names. Names not on MCC's table or FSP's table. She came to this mountain carrying those. With the tool belt."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "Cinder Grace예요. CV.",
+            "en": "Cinder Grace. CV."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "여기 오기 전에 Butcher한테 물었어요. 뭘 말할 건지. 모르겠다고 했어요. 그냥 공구를 만지라고 했어요.",
+            "en": "Before coming here I asked Butcher what to say. He said he didn't know. Just touch your tools, he said."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "CV는 협상하러 온 게 아니에요. 있으려고 왔어요. 이 테이블에. 없어지지 않으려고.",
+            "en": "CV didn't come to negotiate. Came to be here. At this table. So as not to disappear."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen Weiss가 차를 들고 있었다. 마시지 않았다. Rev. Hale이 기도를 준비하는 것 같았다. 준비하는 것처럼 보였다. Cinder는 공구를 만졌다. 세 사람. 세 방식. 세 개의 화성.",
+            "en": "Chen Weiss held her tea. Didn't drink it. Rev. Hale seemed to be preparing to pray. Looked like preparation. Cinder touched her tools. Three people. Three ways. Three Mars."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "CV가 왔군요.",
+            "en": "CV came."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "의제에 없었어요. 그러나 왔으니 앉아요.",
+            "en": "You weren't on the agenda. But you came so sit."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "의자가 셋이에요. 하나가 비어 있었어요. 이제 아니에요.",
+            "en": "Three chairs. One was empty. Now it isn't."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s07",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "의자가 비어 있었다. 처음부터. Chen이 비워둔 것이었다. 알고 있었다는 뜻이었다. CV가 올 것을. 또는 누군가가 올 것을. 이 방의 모든 것이 Chen이 준비한 것이었다. 차도 포함해서.",
+            "en": "A chair had been empty. From the start. Chen had left it empty. That meant she knew. That CV would come. Or that someone would. Everything in this room was what Chen had prepared. Including the tea."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s08",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "CV 대표단이에요. Cinder Grace. 그리고 이쪽이 동행한 사람이에요.",
+            "en": "CV delegation. Cinder Grace. And this is the person who came with me."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "Butcher는 에레보스에 있어요. 폐 문제예요. 그러나 그의 말을 갖고 왔어요. 사진 뒤에.",
+            "en": "Butcher is at Erebus. Lung problem. But I brought his words. On the back of the photo."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s09",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Cinder가 사진을 꺼냈다. 흑백. 30년 된 것. 뒤집었다. 이름들이 있었다. 이름들을 테이블에 올려놓았다. 문서 옆에. 합의 초안 옆에. MCC가 준비한 것들 옆에. 그것들과 사진이 같은 테이블에 있었다.",
+            "en": "Cinder took out the photo. Black and white. Thirty years old. Flipped it. Names were there. She placed the names on the table. Next to documents. Next to the draft agreement. Next to what MCC had prepared. Those things and the photo were on the same table."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "Zone 12에서 11명이 죽었어요. 내가 거기 있었어요. MCC 사람으로. 보고서를 썼어요. 지지대 결함. MCC가 수정하라 했어요. 안 했어요. 일주일 후에 갱도가 무너졌어요.",
+            "en": "Eleven died in Zone 12. I was there. As MCC. I wrote the report. Support beam defects. MCC told me to revise. I didn't. A week later the tunnel collapsed."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이 이름들이 이 테이블에 있어야 해요. MCC에도 FSP에도 CV에도 없었던 이름들.",
+            "en": "These names need to be at this table. Names that were in none of MCC, FSP, or CV."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s11",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen이 차를 내려놓았다. 테이블에. 마시지 않은 것. Rev. Hale이 무언가를 말했다. 이름들이었다. Kim Yong-jin. Mariam. Zone 12. 11명. Cinder가 들었다. Zone 12 이름들을 밖에서 듣는 것은 처음이었다. 이 사람이 어떻게 알았는지. 기도가 때로는 이름을 불렀다.",
+            "en": "Chen set down her tea. On the table. The undrunk thing. Rev. Hale said something. Names. Kim Yong-jin. Mariam. Zone 12. Eleven people. Cinder heard. Hearing the Zone 12 names from outside was the first time. How this person knew. Prayer sometimes called names."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s12",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "MCC 기록에 Zone 12 사망자는 11명이에요. 맞아요.",
+            "en": "MCC records show eleven Zone 12 deaths. Correct."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "보고서도 있어요. 수정을 요청한 기록도 있어요. 수정이 안 됐다는 기록도 있어요. MCC는 기록해요. 전부.",
+            "en": "The report exists. The revision request exists. The record that revision didn't happen exists. MCC records everything."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "그 기록이 이 테이블에 있어야 하는지를 묻는 거예요.",
+            "en": "You're asking whether that record should be at this table."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen이 알고 있었다. 전부. MCC는 기록했다. 그 기록이 이 방에 도달했다. 그것이 Chen이었다. 모든 기록이 그녀에게 갔다. Zone 12도. 그녀가 알고 있었다. 그리고 오늘 이 자리를 비워두었다. CV를 위해.",
+            "en": "Chen knew. Everything. MCC recorded. The records reached this room. That was Chen. All records went to her. Zone 12 too. She knew. And today she left this seat empty. For CV."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "알고 있었어요. 당신이.",
+            "en": "You knew. You did."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "22년 동안 알고 있었어요.",
+            "en": "For twenty-two years I've known."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "hollow",
+          "text": {
+            "ko": "그러면 왜.",
+            "en": "Then why."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s15",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "내 부모가 광산에서 죽었어요. Zone 12가 아니에요. 다른 갱도예요. 같은 방식이에요.",
+            "en": "My parents died in the mines. Not Zone 12. A different tunnel. Same method."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "22년 동안 MCC 안에 있었어요. 바꾸려고. 아직도 있어요.",
+            "en": "I've been inside MCC for twenty-two years. Trying to change things. Still there."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "당신과 나는 같은 데서 왔어요. 다른 문을 선택했어요.",
+            "en": "You and I came from the same place. Chose different doors."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s16",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Cinder가 공구를 만졌다. 소리가 났다. 이 방에서. 올림포스 정상에서. 공구 소리가 났다. Chen이 차를 들었다. 마시지 않았다. Rev. Hale이 눈을 감았다. 기도였다. 또는 생각이었다. 구분이 쉽지 않았다.",
+            "en": "Cinder touched her tools. Sound came. In this room. At the summit of Olympus. Tool sounds. Chen picked up her tea. Didn't drink it. Rev. Hale closed his eyes. Prayer. Or thought. Hard to distinguish."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s17",
+      "type": "dialogue",
+      "background": "olympus_summit_exterior_view",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "Pilgrim Arms를 아세요?",
+            "en": "Do you know Pilgrim Arms."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "알아요. 4명이 이 산에 있어요. 오늘 아침부터.",
+            "en": "I know them. Four of them are on this mountain. Since this morning."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "tense",
+          "text": {
+            "ko": "암살자예요?",
+            "en": "Assassins."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s18",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Pilgrim Arms. 화성의 독립 용병 조직. 어느 파벌에도 속하지 않았다. 그러나 누군가가 고용하면 움직였다. 4명이 올림포스에 있었다. 오늘 아침부터. Chen이 알고 있었다. MCC가 알고 있었다는 뜻이었다.",
+            "en": "Pilgrim Arms. Mars's independent mercenary organization. Belonged to no faction. But moved when someone hired them. Four were on Olympus. Since this morning. Chen knew. That meant MCC knew."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s19",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "표적이 누군지 몰라요. 나인지. Rev. Hale인지. 또는 당신들 중 하나.",
+            "en": "Don't know who the target is. Me. Rev. Hale. Or one of you."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "가능성이 있어요. 이 회담이 실패하길 원하는 사람이 고용했을 거예요.",
+            "en": "It's possible. Someone who wants this meeting to fail hired them."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "또는 MCC 이사회 내부에서. 그 가능성도 있어요.",
+            "en": "Or from inside the MCC board. That possibility exists too."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s20",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen이 MCC 이사회 내부 가능성을 말했다. 이 방에서. 자신이 속한 조직 내부를 말한 것이었다. 그것이 위험한 발언이었다. 또는 계산된 발언이었다. Chen의 발언이 계산되지 않은 적이 있었는지는 알 수 없었다.",
+            "en": "Chen had mentioned the MCC board interior possibility. In this room. She had spoken of the inside of her own organization. That was a dangerous statement. Or a calculated one. Whether Chen's statements had ever been uncalculated was unknown."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s21",
+      "type": "dialogue",
+      "background": "olympus_summit_exterior_view",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "4명. 위치가 어디예요?",
+            "en": "Four people. Where are they."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "동쪽 2명. 서쪽 2명. 우리가 여기 있는 것을 알아요.",
+            "en": "Two east. Two west. They know we're here."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "공구 있어요. 동쪽 통신을 끊을 수 있어요. 그러면 2명이 고립돼요.",
+            "en": "I have tools. Can cut east communications. That isolates two of them."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s22",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Cinder가 공구를 들었다. 올림포스 정상에서. 태양계에서 가장 높은 곳에서. 공구를 들고 움직이는 것이었다. 그것이 이 사람이었다. 항상 그랬다. 이름들을 위해서. Zone 12를 위해서. 그리고 오늘 여기 있는 사람들을 위해서.",
+            "en": "Cinder picked up her tools. At the summit of Olympus. At the highest point in the solar system. Moving with tools. That was this person. Always. For the names. For Zone 12. And for the people here today."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s23",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "Cinder Grace. 한 가지만 말할게요.",
+            "en": "Cinder Grace. One thing."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "Zone 12 기록. MCC 아카이브에 있어요. 제가 잠금을 해제해 놨어요. 오늘부로.",
+            "en": "Zone 12 records. In MCC archives. I've unlocked them. As of today."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "회담이 끝나면 가져가도 돼요.",
+            "en": "When the talks are over you can take them."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s24",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen이 Zone 12 기록 잠금을 해제했다. 오늘부로. 그것이 무엇을 의미하는지. 22년 동안 알고 있던 것. 22년 동안 잠가 두었던 것. 그것을 오늘 열었다. 이 자리에서. Cinder 앞에서. 이유는 말하지 않았다. 그러나 열었다.",
+            "en": "Chen unlocked the Zone 12 records. As of today. What that meant. Something she had known for twenty-two years. Something locked away for twenty-two years. She opened it today. In this place. Before Cinder. She didn't say why. But she opened it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s25",
+      "type": "dialogue",
+      "background": "olympus_summit_exterior_view",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "hollow",
+          "text": {
+            "ko": "22년 동안.",
+            "en": "Twenty-two years."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "오래 걸렸어요.",
+            "en": "It took a long time."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "가져갈게요. 그리고 이름들을 이 테이블에 올릴 거예요. 오늘.",
+            "en": "I'll take them. And I'll put the names on this table. Today."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s26",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Pilgrim Arms 4명이 움직였다. 동쪽 2명이 기지 외벽을 따라 접근하고 있었다. Cinder가 나갔다. 공구를 들고. 서쪽 2명은 Rev. Hale의 경호팀이 막았다. 방 안에 Chen과 player만 남았다.",
+            "en": "Pilgrim Arms four moved. The eastern two were approaching along the base's outer wall. Cinder went out. With tools. The western two were blocked by Rev. Hale's security. Chen and player remained in the room."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s27",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "당신이 결정해야 해요.",
+            "en": "You have to decide."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "누구를 보호할 것인가. 또는 암살을 막는가 아닌가. 이것이 CV의 선택이에요.",
+            "en": "Whom to protect. Or whether to stop the assassination or not. This is CV's choice."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "회담은 계속돼야 해요. 이름들이 이 테이블에 있어야 해요.",
+            "en": "The talks must continue. The names must be at this table."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s28",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "이름들이 테이블에 있었다. 사진 뒤에. 흑백. 30년 된 것. Zone 12. 그것이 이 회담의 이유였다. 합의 초안보다 앞에 있었다. MCC 문서보다 앞에 있었다. 이름들이 먼저였다.",
+            "en": "The names were on the table. On the back of the photo. Black and white. Thirty years old. Zone 12. That was the reason for this meeting. Ahead of the draft agreement. Ahead of MCC documents. The names came first."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s29",
+      "type": "dialogue",
+      "background": "olympus_summit_exterior_view",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "tense",
+          "text": {
+            "ko": "동쪽 통신 끊었어요. 2명 고립됐어요. 그러나 나머지 2명이 움직여요.",
+            "en": "Eastern comms cut. Two isolated. But the other two are moving."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "표적이 누군지 알았어요. Chen이에요.",
+            "en": "Found out who the target is. It's Chen."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s30",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen이 표적이었다. Pilgrim Arms가 Chen을 노리고 있었다. 고용한 쪽은 알 수 없었다. MCC 이사회 내부. 또는 다른 곳. Chen은 알고 있었는지도 몰랐다. 그러나 놀라지 않았다. 차를 들고 있었다. 마시지 않았다.",
+            "en": "Chen was the target. Pilgrim Arms was after Chen. Who hired them was unknown. MCC board interior. Or elsewhere. Chen may have known. But she wasn't surprised. She held her tea. Didn't drink it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s31",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "CV가 나를 보호해야 할 이유가 없어요.",
+            "en": "CV has no reason to protect me."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "Zone 12 기록 열어줬잖아요.",
+            "en": "You unlocked the Zone 12 records."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그게 충분한 이유예요?",
+            "en": "Is that reason enough."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s32",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Cinder가 공구를 만졌다. 소리가 났다. 이 방에서. 올림포스에서. 답이었다. 말이 아니라 소리로. 공구 소리로. 그것이 Cinder의 방식이었다. 그것이 이 상황의 답이었다.",
+            "en": "Cinder touched her tools. Sound came. In this room. At Olympus. An answer. Not in words but in sound. Tool sound. That was Cinder's way. That was the answer to this situation."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s33",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Cinder가 나갔다. 공구를 들고. 동쪽 통신 차단을 위해.", "en": "Cinder went out. With tools. To cut east communications." }},
+        { "text": { "ko": "방에 Chen과 플레이어만 남았다.", "en": "Only Chen and the player remained in the room." }},
+        { "text": { "ko": "바깥에서 소리가 났다. 발소리.", "en": "Sound from outside. Footsteps." }},
+        { "text": { "ko": "빠른 것이었다. Pilgrim Arms였다.", "en": "Fast ones. Pilgrim Arms." }}
+      ]
+    },
+    {
+      "id": "s34",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "차를 마실게요. 이 방에서는 처음이에요.", "en": "I'll drink the tea. First time in this room." }},
+        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "마스크 안에서 마시는 건 방법이 있어요. 관료들이 아는 방법.", "en": "There's a way to drink inside a mask. A method bureaucrats know." }},
+        { "speaker": "player", "emotion": "alert", "text": { "ko": "지금 그게 중요해요?", "en": "Is that important right now." }},
+        { "speaker": "chen", "emotion": "measured", "text": { "ko": "밖에 Cinder가 있어요. 안에 당신이 있어요. 그리고 나는 차를 마셔요.", "en": "Cinder is outside. You are inside. And I drink tea." }},
+        { "speaker": "chen", "emotion": "still", "text": { "ko": "각자 자기 일을 하는 거예요.", "en": "Each of us doing our own work." }}
+      ]
+    },
+    {
+      "id": "s35",
+      "type": "narration",
+      "background": "olympus_summit_exterior_view",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "밖에서 공구 소리가 들렸다.", "en": "Tool sounds from outside." }},
+        { "text": { "ko": "올림포스에서. 태양계에서 가장 높은 곳에서.", "en": "On Olympus. At the highest point in the solar system." }},
+        { "text": { "ko": "공구 소리가 났다.", "en": "Tool sounds." }},
+        { "text": { "ko": "그다음에 빠른 소리. 두 번.", "en": "Then fast sounds. Twice." }},
+        { "text": { "ko": "그다음에 조용해졌다.", "en": "Then quiet." }}
+      ]
+    },
+    {
+      "id": "s36",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "returning", "text": { "ko": "동쪽 둘 막았어요. 서쪽 둘은 Rev. Hale 팀이 막았어요.", "en": "East two stopped. West two blocked by Rev. Hale's team." }},
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "Ramos라고 했어요. 잡은 사람.", "en": "He said Ramos. The captured one." }},
+        { "speaker": "cinder", "emotion": "sharp", "text": { "ko": "의뢰인 알아요?", "en": "Do you know the client." }},
+        { "speaker": "chen", "emotion": "measured", "text": { "ko": "Talon Group이에요. 화성 분쟁 자문사. 지구 자본.", "en": "Talon Group. Mars conflict consultants. Earth capital." }},
+        { "speaker": "cinder", "emotion": "grim", "text": { "ko": "평화를 팔면서 평화를 막는 자들.", "en": "Those who sell peace while blocking it." }},
+        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "그것이 가장 수익성 있는 사업이에요.", "en": "That is the most profitable business." }}
+      ]
+    },
+    {
+      "id": "s37",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "방에 다시 사람들이 모였다.", "en": "People gathered in the room again." }},
+        { "text": { "ko": "Rev. Hale. Chen Weiss. Cinder Grace. 플레이어.", "en": "Rev. Hale. Chen Weiss. Cinder Grace. The player." }},
+        { "text": { "ko": "사진이 테이블 위에 있었다. Zone 12 이름들이 있는 것.", "en": "The photo was on the table. The one with Zone 12 names." }},
+        { "text": { "ko": "합의 초안 종이가 있었다.", "en": "The draft agreement paper was there." }},
+        { "text": { "ko": "Cinder의 공구가 테이블 가장자리에 있었다.", "en": "Cinder's tools were at the table's edge." }},
+        { "text": { "ko": "이 테이블이 올림포스의 테이블이었다.", "en": "This table was the Olympus table." }}
+      ]
+    },
+    {
+      "id": "s38",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "Zone 12. 이름들을 여기서 불러도 될까요.", "en": "Zone 12. May I call the names here." }},
+        { "speaker": "cinder", "emotion": "still", "text": { "ko": "...", "en": "..." }},
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "불러요.", "en": "Call them." }},
+        { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "Zone 12. 열한 명.", "en": "Zone 12. Eleven people." }},
+        { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "이름들이 기록됩니다. 오늘부터.", "en": "The names are being recorded. Starting today." }},
+        { "speaker": "cinder", "emotion": "moved", "text": { "ko": "...", "en": "..." }}
+      ]
+    },
+    {
+      "id": "s39",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Cinder가 공구를 만졌다.", "en": "Cinder touched her tools." }},
+        { "text": { "ko": "소리가 났다. 올림포스에서.", "en": "Sound came. On Olympus." }},
+        { "text": { "ko": "Rev. Hale이 그 소리를 들었다.", "en": "Rev. Hale heard that sound." }},
+        { "text": { "ko": "Chen이 차를 마셨다. 이 방에서 처음으로.", "en": "Chen drank the tea. First time in this room." }},
+        { "text": { "ko": "그것이 무언가를 뜻했다.", "en": "That meant something." }}
+      ]
+    },
+    {
+      "id": "s40",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "합의문에 Zone 12를 포함해요. 명시적으로.", "en": "Include Zone 12 in the agreement. Explicitly." }},
+        { "speaker": "rev_hale", "emotion": "steady", "text": { "ko": "이름들도요. 열한 명의 이름들.", "en": "And the names. The eleven names." }},
+        { "speaker": "cinder", "emotion": "direct", "text": { "ko": "Butcher가 원한 게 그거예요. 이름들이 문서에 있는 것.", "en": "That's what Butcher wanted. The names in the document." }},
+        { "speaker": "chen", "emotion": "nodding", "text": { "ko": "그리고 Talon Group 조사.", "en": "And investigation of Talon Group." }},
+        { "speaker": "cinder", "emotion": "sharp", "text": { "ko": "그 조사를 MCC가 하면 안 돼요.", "en": "MCC can't conduct that investigation." }},
+        { "speaker": "chen", "emotion": "wry", "text": { "ko": "동의해요. 독립 기관이 해야 해요.", "en": "Agreed. An independent body must do it." }}
+      ]
+    },
+    {
+      "id": "s41",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "합의문이 작성됐다.", "en": "The agreement was written." }},
+        { "text": { "ko": "세 파벌의 조항들이 들어갔다.", "en": "Clauses from three factions were included." }},
+        { "text": { "ko": "Zone 12 이름들이 들어갔다. 처음으로. 공식 문서에.", "en": "Zone 12 names were included. For the first time. In an official document." }},
+        { "text": { "ko": "Talon Group 조사 조항이 들어갔다.", "en": "A Talon Group investigation clause was included." }},
+        { "text": { "ko": "서명란이 네 개였다.", "en": "There were four signature lines." }},
+        { "text": { "ko": "세 파벌 대표. 그리고 하나 더.", "en": "Three faction representatives. And one more." }}
+      ]
+    },
+    {
+      "id": "s42",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "네 번째 서명란은 증인이에요.", "en": "The fourth signature line is for a witness." }},
+        { "speaker": "cinder", "emotion": "curious", "text": { "ko": "누구요.", "en": "Who." }},
+        { "speaker": "rev_hale", "emotion": "gentle", "text": { "ko": "당신이요. CV의 Cinder Grace. 오늘 공구로 이 자리를 지켰어요.", "en": "You. CV's Cinder Grace. Today with tools you protected this place." }},
+        { "speaker": "cinder", "emotion": "surprised", "text": { "ko": "나는 CV 대표예요. 서명은 이미 했어요.", "en": "I'm the CV representative. I already signed." }},
+        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "CV 대표로가 아니에요. Zone 12 생존자로요.", "en": "Not as CV representative. As a Zone 12 survivor." }},
+        { "speaker": "cinder", "emotion": "still", "text": { "ko": "...", "en": "..." }}
+      ]
+    },
+    {
+      "id": "s43",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Cinder가 펜을 들었다.", "en": "Cinder picked up the pen." }},
+        { "text": { "ko": "공구 벨트의 것이 아니었다. 펜이었다.", "en": "Not something from the tool belt. A pen." }},
+        { "text": { "ko": "서명했다. Zone 12 생존자로.", "en": "She signed. As a Zone 12 survivor." }},
+        { "text": { "ko": "공구 소리가 났다. 펜을 내려놓으면서.", "en": "Tool sound came. As she put down the pen." }},
+        { "text": { "ko": "그것이 그녀의 방식이었다.", "en": "That was her way." }}
+      ]
+    },
+    {
+      "id": "s44",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "Zone 12 기록. 가져가요. 지금.", "en": "The Zone 12 records. Take them. Now." }},
+        { "speaker": "cinder", "emotion": "alert", "text": { "ko": "아카이브가 여기 있어요?", "en": "The archive is here." }},
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "복사본이에요. 이 산에 올라오면서 가져왔어요.", "en": "A copy. I brought it when I came up this mountain." }},
+        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "22년 동안 기다렸어요. 오늘 줄 수 있는 날을.", "en": "Twenty-two years I waited. For the day I could give this." }},
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "...", "en": "..." }},
+        { "speaker": "cinder", "emotion": "low", "text": { "ko": "Butcher가 볼 거예요.", "en": "Butcher will see it." }}
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "olympus_summit_station",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "Pilgrim Arms. Chen이 표적. Cinder가 기다린다. 무엇을 합니까.",
+        "en": "Pilgrim Arms. Chen is the target. Cinder waits. What do you do."
+      },
       "choices": [
-        { "id": "cv_ch9_witness", "text": { "ko": "증인이 된다. 이름들이 기록되게 한다.", "en": "Become a witness. Have the names recorded." }, "tone": "witness", "preview_hint": { "ko": "→ Rev. Hale이 기록한다. Chen이 서명한다", "en": "→ Rev. Hale records it. Chen signs." }},
-        { "id": "cv_ch9_demand_mcc", "text": { "ko": "Chen에게 MCC의 책임을 공식 인정하라 한다.", "en": "Demand Chen formally acknowledge MCC's responsibility." }, "tone": "justice", "preview_hint": { "ko": "→ Chen이 차를 다시 든다. 오래 생각한다", "en": "→ Chen picks up her tea again. Thinks for a long time." }},
-        { "id": "cv_ch9_cinder_leads", "text": { "ko": "Cinder가 이 테이블의 네 번째 목소리가 된다.", "en": "Cinder becomes the fourth voice at this table." }, "tone": "historic", "preview_hint": { "ko": "→ 화성 역사가 바뀐다", "en": "→ Mars history changes." }},
-        { "id": "cv_ch9_tools_down", "text": { "ko": "공구 벨트를 테이블에 올려놓는다.", "en": "Place the tool belt on the table." }, "tone": "symbolic", "preview_hint": { "ko": "→ 세 파벌 모두 침묵한다", "en": "→ All three factions go silent." }}
+        {
+          "id": "cv_ch9_witness",
+          "text": {
+            "ko": "Chen을 보호한다. 이름들이 이 테이블을 지켜야 한다.",
+            "en": "Protect Chen. The names must protect this table."
+          },
+          "tone": "witness",
+          "preview_hint": {
+            "ko": "→ Chen이 처음으로 차를 마신다. 이 방에서",
+            "en": "→ Chen drinks the tea for the first time. In this room."
+          }
+        },
+        {
+          "id": "cv_ch9_demand_mcc",
+          "text": {
+            "ko": "Pilgrim Arms를 막는다. 그러나 Chen에게 공개적 책임 인정을 요구한다.",
+            "en": "Stop Pilgrim Arms. But demand Chen publicly acknowledge responsibility."
+          },
+          "tone": "justice",
+          "preview_hint": {
+            "ko": "→ Chen이 오래 생각한다. 그리고 말한다",
+            "en": "→ Chen thinks for a long time. Then speaks."
+          }
+        },
+        {
+          "id": "cv_ch9_cinder_leads",
+          "text": {
+            "ko": "Cinder가 혼자 막는다. 당신은 이름들을 지킨다.",
+            "en": "Cinder handles it alone. You protect the names."
+          },
+          "tone": "historic",
+          "preview_hint": {
+            "ko": "→ 공구 소리가 올림포스에 울린다",
+            "en": "→ Tool sounds echo through Olympus."
+          }
+        },
+        {
+          "id": "cv_ch9_tools_down",
+          "text": {
+            "ko": "공구 벨트를 테이블에 올려놓는다. Pilgrim Arms에게 보인다.",
+            "en": "Place the tool belt on the table. Let Pilgrim Arms see it."
+          },
+          "tone": "symbolic",
+          "preview_hint": {
+            "ko": "→ 세 파벌 모두 침묵한다",
+            "en": "→ All three factions go silent."
+          }
+        }
       ]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "olympus_exterior", "bgm": "battle_theme_cv", "transition": "fade_slow",
-      "title": { "ko": "올림포스 — 네 번째 자리", "en": "Olympus — The Fourth Seat" }, "subtitle": { "ko": "올림포스 정상 — Zone 12를 위하여", "en": "Olympus Summit — For Zone 12" }
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "olympus_exterior",
+      "bgm": "battle_theme_cv",
+      "transition": "fade_slow",
+      "title": {
+        "ko": "올림포스 — 네 번째 자리",
+        "en": "Olympus — The Fourth Seat"
+      },
+      "subtitle": {
+        "ko": "올림포스 정상 — Zone 12를 위하여",
+        "en": "Olympus Summit — For Zone 12"
+      }
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "narration", "background": "olympus_summit_station", "bgm": "victory_calm",
-      "lines": [{ "text": { "ko": "테이블에 이름들이 생겼다. Zone 12. 11명. 처음으로 이 이름들이 문서에 있었다. 세 파벌 모두의 서명과 함께. Cinder가 공구를 만졌다. 소리가 났다. 올림포스에서. 태양계에서 가장 높은 곳에서. 공구 소리가 났다. 그것이 이 합의의 서명이었다.", "en": "Names appeared on the table. Zone 12. Eleven people. For the first time these names were in a document. With the signatures of all three factions. Cinder touched her tools. Sound came. On Olympus. At the highest point in the solar system. Tool sounds. That was the signature of this agreement." }}] },
-    { "id": "s_fail", "type": "narration", "background": "olympus_exterior", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "테이블이 없었다. 세 파벌이 각자 갔다. Cinder가 내려왔다. 공구 소리가 없었다. 올림포스 내려오는 길. 이름들이 기억 속에 있었다. 문서가 없어도. 기억이 있었다. 그것은 없어지지 않았다.", "en": "No table. Three factions went their ways. Cinder descended. No tool sounds. The way down Olympus. The names were in memory. Even without a document. There was memory. That didn't disappear." }}] },
-    { "id": "s_ending", "type": "ending", "background": "olympus_exterior_sunset", "bgm": "ambient_vast", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "올림포스에서 내려오면서 Cinder는 공구를 하나씩 확인했다. 습관이었다. 모두 있었다. 하나도 없어지지 않았다. Zone 12의 이름들이 없어지지 않는 것처럼. 기억은 공구보다 오래 가는 것이었다. 그것은 알고 있었다. 그러나 공구도 오래 가는 것이 좋았다.", "en": "Descending from Olympus Cinder checked her tools one by one. A habit. All there. Nothing missing. Like the names of Zone 12 not missing. Memory lasted longer than tools. That was known. But it was good for tools to last long too." }}],
-      "next_chapter_preview": { "questId": "cv_campaign_ch10", "teaser": { "ko": "다음 — 가시 면류관", "en": "Next — The Thorn Crown" }}
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "text": {
+            "ko": "테이블에 이름들이 생겼다. Zone 12. 11명. 처음으로 이 이름들이 문서에 있었다. 세 파벌 모두의 서명과 함께. Cinder가 공구를 만졌다. 소리가 났다. 올림포스에서. 태양계에서 가장 높은 곳에서. 공구 소리가 났다. 그것이 이 합의의 서명이었다.",
+            "en": "Names appeared on the table. Zone 12. Eleven people. For the first time these names were in a document. With the signatures of all three factions. Cinder touched her tools. Sound came. On Olympus. At the highest point in the solar system. Tool sounds. That was the signature of this agreement."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "narration",
+      "background": "olympus_exterior",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "text": {
+            "ko": "테이블이 없었다. 세 파벌이 각자 갔다. Cinder가 내려왔다. 공구 소리가 없었다. 올림포스 내려오는 길. 이름들이 기억 속에 있었다. 문서가 없어도. 기억이 있었다. 그것은 없어지지 않았다.",
+            "en": "No table. Three factions went their ways. Cinder descended. No tool sounds. The way down Olympus. The names were in memory. Even without a document. There was memory. That didn't disappear."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "olympus_exterior_sunset",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "올림포스에서 내려오면서 Cinder는 공구를 하나씩 확인했다. 습관이었다. 모두 있었다. 하나도 없어지지 않았다. Zone 12의 이름들이 없어지지 않는 것처럼. 기억은 공구보다 오래 가는 것이었다. 그것은 알고 있었다. 그러나 공구도 오래 가는 것이 좋았다.",
+            "en": "Descending from Olympus Cinder checked her tools one by one. A habit. All there. Nothing missing. Like the names of Zone 12 not missing. Memory lasted longer than tools. That was known. But it was good for tools to last long too."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch10",
+        "teaser": {
+          "ko": "다음 — 가시 면류관",
+          "en": "Next — The Thorn Crown"
+        }
+      }
     }
   ]
 }

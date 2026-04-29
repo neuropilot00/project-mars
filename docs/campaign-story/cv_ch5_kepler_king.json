@@ -5,56 +5,559 @@
   "title": { "ko": "야생의 조약", "en": "Wild Lands Treaty" },
   "location": { "id": "kepler_crater_edge", "displayNameKo": "케플러 분화구 외곽" },
   "environment": "crater_edge_dust",
-  "estimatedPlayTimeMinutes": 15,
+  "estimatedPlayTimeMinutes": 18,
   "crossChapterNote": "FSP Ch5 케플러 공유지 선언과 동시간대. FSP Ch4 Sandstone 약속의 결과.",
-  "characters": ["player", "butcher", "cinder", "lena"],
+  "characters": ["player", "butcher_vasquez", "cinder_grace", "crow_reyes", "lena"],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "kepler_crater_edge", "bgm": "cv_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "케플러 분화구 외곽. FSP가 안에 있었다. Liang Wei가 선언하는 날이었다. CV는 밖에서 봤다. 이것이 CV의 위치였다. 안이 아닌 곳. 그것이 항상 CV의 위치였다.", "en": "The outer edge of Kepler Crater. FSP was inside. The day Liang Wei declared. CV watched from outside. That was CV's position. Not inside. That had always been CV's position." }}] },
-    { "id": "s02", "type": "narration", "background": "kepler_crater_edge", "bgm": "cv_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "Butcher가 왔다. 드문 일이었다. Butcher가 기지 밖으로 나오는 것. 왼팔 의수. 광산용 구식. 외투가 있었다. 주머니에 손을 넣고 있었다. 그 주머니 안에 무엇이 있는지는 알고 있었다. 사진. 30년 된 것.", "en": "Butcher came. That was rare. Butcher leaving the base. Left arm prosthetic. Old mining type. He had a coat. His hand was in the pocket. What was in that pocket was known. A photo. Thirty years old." }}] },
-    { "id": "s03", "type": "dialogue", "background": "kepler_crater_edge", "bgm": "cv_ambient", "transition": "cut",
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "butcher", "emotion": "gruff", "effect": "character_enter:butcher:slide_left", "text": { "ko": "케플러가 누구 것도 아니라고?", "en": "Kepler belongs to nobody?" }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "30년 전에도 그 말이 있었어. 광산이 누구 것도 아니라고. 광부들 것이라고. 그다음에 어떻게 됐는지는 알아.", "en": "Thirty years ago there were those words too. That the mines didn't belong to anyone. That they belonged to the miners. You know what happened after that." }},
-        { "speaker": "butcher", "emotion": "serious", "text": { "ko": "그래도 봐. Cinder가 말했어. 이번엔 다를 수 있다고.", "en": "Watch anyway. Cinder said this time might be different." }}
+        { "text": { "ko": "케플러 분화구 외곽.", "en": "The outer edge of Kepler Crater." }},
+        { "text": { "ko": "FSP가 안에 있었다.", "en": "FSP was inside." }},
+        { "text": { "ko": "Liang Wei가 선언하는 날이었다.", "en": "The day Liang Wei declared." }},
+        { "text": { "ko": "CV는 밖에서 봤다. 이것이 CV의 위치였다.", "en": "CV watched from outside. That was CV's position." }},
+        { "text": { "ko": "안이 아닌 곳. 그것이 항상 CV의 위치였다.", "en": "Not inside. That had always been CV's position." }}
       ]
     },
-    { "id": "s04", "type": "narration", "background": "kepler_crater_edge", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "분화구 안에서 소리가 들렸다. Liang Wei의 목소리. 선언. 30년 동안 혼자 기다린 사람의 목소리. Butcher가 들었다. 외투 주머니의 손이 움직이지 않았다. 그것이 Butcher가 주목하는 방식이었다. 사진을 꺼내지 않았다. 들었다.", "en": "A sound came from inside the crater. Liang Wei's voice. The declaration. The voice of someone who had waited alone for thirty years. Butcher listened. The hand in the coat pocket didn't move. That was how Butcher paid attention. Didn't take out the photo. Listened." }}] },
-    { "id": "s05", "type": "dialogue", "background": "kepler_crater_edge", "bgm": "tension_low", "transition": "cut",
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "cv_ambient",
+      "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "calm", "effect": "character_enter:cinder:slide_right", "text": { "ko": "FSP 쪽 Lena가 보여요.", "en": "Lena from FSP side is visible." }},
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "Sandstone에서 봤던 사람이에요. 빠른 사람. 팔에 이름들이 있는.", "en": "The person I saw at Sandstone. The fast one. With names on her arm." }},
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "케플러를 같이 지킬 수 있어요. Sandstone 약속이 여기서 의미가 생겨요.", "en": "We can protect Kepler together. The Sandstone Promise gets its meaning here." }}
+        { "text": { "ko": "케플러 분화구. 화성 서부.", "en": "Kepler Crater. Western Mars." }},
+        { "text": { "ko": "지름 60킬로미터. 깊이 3킬로미터.", "en": "Sixty kilometers across. Three kilometers deep." }},
+        { "text": { "ko": "바닥에 고대 금속 광맥이 있었다.", "en": "Ancient metal veins at the bottom." }},
+        { "text": { "ko": "MCC가 소유권을 주장했다. 서류로. 법으로.", "en": "MCC claimed ownership. With documents. With law." }},
+        { "text": { "ko": "광부들이 소유권을 주장했다. 몸으로. 30년으로.", "en": "Miners claimed ownership. With their bodies. With thirty years." }},
+        { "text": { "ko": "CV는 아무것도 주장하지 않았다. 그냥 지켰다.", "en": "CV claimed nothing. Just watched." }}
       ]
     },
-    { "id": "s06", "type": "narration", "background": "kepler_crater_edge", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": { "ko": "MCC 드론이 상공에 있었다. 하나. 두 개가 됐다. 세 개. 분화구 안에서 선언이 진행되는 동안 드론이 늘었다. MCC는 기다리는 것이었다. 언제 개입할지. Butcher가 하늘을 봤다. 외투 주머니에서 손을 꺼냈다. 사진을 꺼내지 않았다. 손만 꺼냈다.", "en": "MCC drones were in the sky above. One. Then two. Three. While the declaration proceeded inside the crater the drones multiplied. MCC was waiting. For when to intervene. Butcher looked at the sky. He took his hand from the coat pocket. Didn't take out the photo. Just the hand." }}] },
-    { "id": "s_choice", "type": "choice", "background": "kepler_crater_edge", "bgm": "choice_tension",
-      "prompt": { "ko": "MCC 드론. Liang Wei의 선언. Butcher가 당신 옆에 있다.", "en": "MCC drones. Liang Wei's declaration. Butcher is beside you." },
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher가 왔다. 드문 일이었다.", "en": "Butcher came. That was rare." }},
+        { "text": { "ko": "Butcher가 기지 밖으로 나오는 것.", "en": "Butcher leaving the base." }},
+        { "text": { "ko": "왼팔 의수. 광산용 구식. 외투가 있었다.", "en": "Left arm prosthetic. Old mining type. He had a coat." }},
+        { "text": { "ko": "주머니에 손을 넣고 있었다.", "en": "His hand was in the pocket." }},
+        { "text": { "ko": "그 주머니 안에 무엇이 있는지는 알고 있었다.", "en": "What was in that pocket was known." }},
+        { "text": { "ko": "사진. 30년 된 것.", "en": "A photo. Thirty years old." }}
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "gruff", "effect": "character_enter:butcher_vasquez:slide_left", "text": { "ko": "케플러가 누구 것도 아니라고?", "en": "Kepler belongs to nobody?" }},
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "30년 전에도 그 말이 있었어. 광산이 누구 것도 아니라고.", "en": "Thirty years ago there were those words too. That the mines didn't belong to anyone." }},
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "광부들 것이라고. 그다음에 어떻게 됐는지는 알아.", "en": "That they belonged to the miners. You know what happened after that." }},
+        { "speaker": "butcher_vasquez", "emotion": "serious", "text": { "ko": "그래도 봐. Cinder가 말했어. 이번엔 다를 수 있다고.", "en": "Watch anyway. Cinder said this time might be different." }}
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "30년 전의 일.", "en": "The thing thirty years ago." }},
+        { "text": { "ko": "Butcher가 17살이었다. 광산 사고.", "en": "Butcher had been seventeen. A mining accident." }},
+        { "text": { "ko": "MCC가 보상을 거부했다. 그가 직접 팔을 만들었다.", "en": "MCC refused compensation. He built his own arm." }},
+        { "text": { "ko": "그때도 광부들이 모였다. 선언했다.", "en": "Even then miners had gathered. Declared." }},
+        { "text": { "ko": "MCC가 봉쇄했다. 사람들이 사라졌다.", "en": "MCC sealed it. People disappeared." }},
+        { "text": { "ko": "Butcher는 사진을 가지고 있었다. 그 사람들의.", "en": "Butcher kept a photo. Of those people." }}
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder_grace", "emotion": "calm", "effect": "character_enter:cinder_grace:slide_right", "text": { "ko": "FSP 쪽 Lena가 보여요.", "en": "Lena from FSP side is visible." }},
+        { "speaker": "cinder_grace", "emotion": "neutral", "text": { "ko": "Sandstone에서 봤던 사람이에요. 빠른 사람. 팔에 이름들이 있는.", "en": "The person I saw at Sandstone. The fast one. With names on her arm." }},
+        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "Zone 12 이름도 있었어요. 우리 것. Lena가 왜 그 이름을 가지고 있는지 물어봐야 해요.", "en": "Zone 12 name was there too. Ours. Need to ask why Lena has that name." }},
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "나중에. 지금은 봐.", "en": "Later. Watch now." }}
+      ]
+    },
+    {
+      "id": "s07",
+      "type": "narration",
+      "background": "kepler_crater_interior",
+      "bgm": "tension_low",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "분화구 안에서 소리가 들렸다.", "en": "A sound came from inside the crater." }},
+        { "text": { "ko": "Liang Wei의 목소리.", "en": "Liang Wei's voice." }},
+        { "text": { "ko": "선언. 30년 동안 혼자 기다린 사람의 목소리.", "en": "The declaration. The voice of someone who had waited alone for thirty years." }},
+        { "text": { "ko": "그 목소리가 분화구 벽에 반향했다.", "en": "The voice echoed off the crater walls." }},
+        { "text": { "ko": "Butcher가 들었다.", "en": "Butcher listened." }},
+        { "text": { "ko": "외투 주머니의 손이 움직이지 않았다.", "en": "The hand in the coat pocket didn't move." }}
+      ]
+    },
+    {
+      "id": "s08",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "flat", "effect": "character_enter:crow_reyes:fade_in", "text": { "ko": "Liang Wei. 노인이에요. 80대. 30년 동안 케플러에 살았어요.", "en": "Liang Wei. An old man. Eighties. Lived at Kepler for thirty years." }},
+        { "speaker": "crow_reyes", "emotion": "sardonic", "text": { "ko": "혼자서요. 거기 있었어요. 아무도 주목 안 했어요.", "en": "Alone. He was just there. Nobody noticed." }},
+        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "우리가 주목했어요. CV가.", "en": "We noticed. CV did." }},
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "주목은 했죠. 건드리지 않았어요.", "en": "We noticed. Didn't touch him." }},
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "케플러 분화구는 누구 것도 아니었어. 30년 전부터.", "en": "Kepler Crater wasn't anyone's. Since thirty years ago." }},
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "그래서 Liang Wei가 거기 있을 수 있었어.", "en": "That's why Liang Wei could be there." }}
+      ]
+    },
+    {
+      "id": "s09",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Liang Wei의 선언이 들렸다.", "en": "Liang Wei's declaration was audible." }},
+        { "text": { "ko": "'케플러는 공유지입니다. 화성에 사는 모든 사람의 것.'", "en": "'Kepler is common land. It belongs to everyone living on Mars.'" }},
+        { "text": { "ko": "말이 단순했다. 그것이 30년을 기다린 사람의 말이었다.", "en": "Simple words. That was what a person who had waited thirty years said." }},
+        { "text": { "ko": "단순한 것이 오래된 것이었다.", "en": "What was simple was what was old." }}
+      ]
+    },
+    {
+      "id": "s10",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "MCC 드론이 올라왔어요. 하나.", "en": "MCC drone went up. One." }},
+        { "speaker": "crow_reyes", "emotion": "sharp", "text": { "ko": "두 개.", "en": "Two." }},
+        { "speaker": "cinder_grace", "emotion": "tense", "text": { "ko": "세 개. 증가해요.", "en": "Three. Escalating." }},
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "알아. 보고 있어.", "en": "I know. Watching." }},
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "개입할 준비하는 거예요. 선언이 끝나면.", "en": "Preparing to intervene. When the declaration ends." }},
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "30년 전에도 드론이 있었어. 달랐지만.", "en": "Thirty years ago there were also drones. Different ones." }}
+      ]
+    },
+    {
+      "id": "s11",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher가 하늘을 봤다.", "en": "Butcher looked at the sky." }},
+        { "text": { "ko": "외투 주머니에서 손을 꺼냈다. 사진을 꺼내지 않았다. 손만.", "en": "He took his hand from the coat pocket. Not the photo. Just the hand." }},
+        { "text": { "ko": "그 손. 오른손. 의수가 아닌 손.", "en": "That hand. Right hand. The hand that wasn't prosthetic." }},
+        { "text": { "ko": "드론 세 개가 분화구 상공에 있었다.", "en": "Three drones were above the crater." }},
+        { "text": { "ko": "Liang Wei가 선언을 계속했다.", "en": "Liang Wei continued the declaration." }},
+        { "text": { "ko": "FSP 사람들이 듣고 있었다. 그 안에서.", "en": "FSP people were listening. Inside." }}
+      ]
+    },
+    {
+      "id": "s12",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder_grace", "emotion": "thoughtful", "text": { "ko": "Lena가 분화구 안쪽 테두리에 있어요.", "en": "Lena is at the inner rim of the crater." }},
+        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "Zone 12 이름을 가지고 있는 사람이에요. 팔에.", "en": "The person who has the Zone 12 name. On her arm." }},
+        { "speaker": "player", "emotion": "curious", "text": { "ko": "Zone 12가 뭔데요.", "en": "What is Zone 12." }},
+        { "speaker": "cinder_grace", "emotion": "still", "text": { "ko": "내가 거기서 태어났어요. CV가 되기 전.", "en": "I was born there. Before I became CV." }},
+        { "speaker": "cinder_grace", "emotion": "low", "text": { "ko": "MCC가 봉쇄했어요. 사람들이 사라졌어요. 나는 나왔어요.", "en": "MCC sealed it. People disappeared. I got out." }},
+        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "Lena의 팔에 그 이름이 있는 이유를 모르겠어요.", "en": "I don't know why Lena has that name on her arm." }}
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Zone 12. 이름이 있었다.", "en": "Zone 12. A name existed." }},
+        { "text": { "ko": "MCC 봉쇄 구역. 비공식 거주지.", "en": "MCC sealed zone. Unofficial residential area." }},
+        { "text": { "ko": "Cinder Grace가 거기서 태어났다.", "en": "Cinder Grace had been born there." }},
+        { "text": { "ko": "Lena의 팔에 그 이름이 있었다.", "en": "Lena had that name on her arm." }},
+        { "text": { "ko": "두 사람이 같은 이름으로 연결되어 있었다.", "en": "Two people connected by the same name." }},
+        { "text": { "ko": "이름들이 있었다.", "en": "There were names." }}
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "드론이 낮아지고 있어.", "en": "Drones are descending." }},
+        { "speaker": "crow_reyes", "emotion": "sharp", "text": { "ko": "개입 준비예요. 예상대로.", "en": "Intervention ready. As expected." }},
+        { "speaker": "cinder_grace", "emotion": "tense", "text": { "ko": "Liang Wei가 아직 선언 중이에요.", "en": "Liang Wei is still declaring." }},
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "선언이 끝나면 MCC가 들어가.", "en": "When the declaration ends MCC goes in." }},
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "30년 전에도 그랬어.", "en": "Same as thirty years ago." }},
+        { "speaker": "cinder_grace", "emotion": "firm", "text": { "ko": "이번엔 달라야 해요.", "en": "This time has to be different." }}
+      ]
+    },
+    {
+      "id": "s15",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "분화구 안에서 선언이 이어졌다.", "en": "The declaration continued inside the crater." }},
+        { "text": { "ko": "'이 땅은 우리가 가꾼 것입니다. 30년 동안. 이름으로. 손으로. 살아서.'", "en": "'This land is what we have tended. For thirty years. By name. By hand. By living.'" }},
+        { "text": { "ko": "Liang Wei의 목소리가 떨렸다. 80대의 목소리였다.", "en": "Liang Wei's voice trembled. An eighty-year-old voice." }},
+        { "text": { "ko": "그러나 선언이었다.", "en": "But it was a declaration." }},
+        { "text": { "ko": "Butcher가 외투 주머니에 손을 다시 넣었다.", "en": "Butcher put his hand back in the coat pocket." }},
+        { "text": { "ko": "사진에 손이 닿았다.", "en": "His hand touched the photo." }}
+      ]
+    },
+    {
+      "id": "s16",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "urgent", "text": { "ko": "드론 넷이에요. 추가 됐어요.", "en": "Four drones now. Added one." }},
+        { "speaker": "cinder_grace", "emotion": "alert", "text": { "ko": "분화구 서쪽에 MCC 지상군도 있어요.", "en": "MCC ground forces also at west of crater." }},
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "알아.", "en": "I know." }},
+        { "speaker": "crow_reyes", "emotion": "questioning", "text": { "ko": "결정이 필요해요. Butcher.", "en": "Decision needed. Butcher." }},
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "선언이 끝날 때까지 기다려.", "en": "Wait until the declaration ends." }},
+        { "speaker": "crow_reyes", "emotion": "tense", "text": { "ko": "그러면 MCC가 들어가요.", "en": "Then MCC goes in." }}
+      ]
+    },
+    {
+      "id": "s17",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "30년 전에 내가 그 선언을 지키지 못했어.", "en": "Thirty years ago I failed to protect that declaration." }},
+        { "speaker": "butcher_vasquez", "emotion": "serious", "text": { "ko": "그 사람들이 사진 안에 있는 이유야.", "en": "That's why those people are in the photo." }},
+        { "speaker": "butcher_vasquez", "emotion": "resolute", "text": { "ko": "이번엔 선언이 끝나는 걸 들어야 해. 그다음에 결정해.", "en": "This time I need to hear the declaration finish. Then decide." }},
+        { "speaker": "cinder_grace", "emotion": "understanding", "text": { "ko": "알겠어요.", "en": "Understood." }},
+        { "speaker": "crow_reyes", "emotion": "tense", "text": { "ko": "... 알겠어요.", "en": "... Understood." }}
+      ]
+    },
+    {
+      "id": "s18",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "선언이 계속됐다.", "en": "The declaration continued." }},
+        { "text": { "ko": "Liang Wei가 이름들을 불렀다.", "en": "Liang Wei called names." }},
+        { "text": { "ko": "30년 동안 케플러에서 죽은 사람들의 이름.", "en": "The names of people who had died at Kepler over thirty years." }},
+        { "text": { "ko": "하나하나 불렀다.", "en": "Called them one by one." }},
+        { "text": { "ko": "분화구 벽이 그 이름들에 반향했다.", "en": "The crater walls echoed those names." }},
+        { "text": { "ko": "Butcher가 들었다.", "en": "Butcher listened." }}
+      ]
+    },
+    {
+      "id": "s19",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "still", "text": { "ko": "이름들이 있어.", "en": "There are names." }},
+        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "Zone 12 이름도 들렸어요.", "en": "I heard Zone 12 names too." }},
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "그래.", "en": "Yes." }},
+        { "speaker": "cinder_grace", "emotion": "low", "text": { "ko": "Liang Wei가 어떻게 알고 있어요. 그 이름들을.", "en": "How does Liang Wei know those names." }},
+        { "speaker": "butcher_vasquez", "emotion": "quiet", "text": { "ko": "30년 동안 기다리면서 이름을 모았어. 그게 그 사람이 한 일이야.", "en": "He collected names while waiting thirty years. That was what he did." }},
+        { "speaker": "cinder_grace", "emotion": "moved", "text": { "ko": "...", "en": "..." }}
+      ]
+    },
+    {
+      "id": "s20",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "MCC 드론이 더 낮아졌다.", "en": "MCC drones descended lower." }},
+        { "text": { "ko": "지상군이 분화구 서쪽에서 이동했다.", "en": "Ground forces moved from the crater's west." }},
+        { "text": { "ko": "선언이 곧 끝날 것이었다.", "en": "The declaration would end soon." }},
+        { "text": { "ko": "그러면 MCC가 들어갈 것이었다.", "en": "Then MCC would go in." }},
+        { "text": { "ko": "Liang Wei와 FSP 사람들이 그 안에 있었다.", "en": "Liang Wei and FSP people were inside." }},
+        { "text": { "ko": "Lena가 안쪽 테두리에 있었다.", "en": "Lena was at the inner rim." }}
+      ]
+    },
+    {
+      "id": "s21",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher가 외투 주머니에서 손을 꺼냈다.", "en": "Butcher took his hand from the coat pocket." }},
+        { "text": { "ko": "사진을 꺼냈다. 처음이었다.", "en": "Took out the photo. First time." }},
+        { "text": { "ko": "30년 된 것. 종이. 손때가 탔다.", "en": "Thirty years old. Paper. Worn with handling." }},
+        { "text": { "ko": "Cinder가 봤다. Crow가 봤다.", "en": "Cinder saw. Crow saw." }},
+        { "text": { "ko": "그 사진을 보는 것이 처음이었다.", "en": "First time seeing that photo." }},
+        { "text": { "ko": "사람들이 있었다. 사진 안에. 젊은 사람들이었다.", "en": "People were in the photo. Young people." }}
+      ]
+    },
+    {
+      "id": "s22",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "누구예요.", "en": "Who are they." }},
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "30년 전 케플러에서 선언한 사람들이야.", "en": "The people who declared at Kepler thirty years ago." }},
+        { "speaker": "butcher_vasquez", "emotion": "still", "text": { "ko": "MCC가 봉쇄했을 때 사라진 사람들이야.", "en": "The people who disappeared when MCC sealed it." }},
+        { "speaker": "cinder_grace", "emotion": "tense", "text": { "ko": "...", "en": "..." }},
+        { "speaker": "butcher_vasquez", "emotion": "resolute", "text": { "ko": "이번엔 달라야 해.", "en": "This time has to be different." }},
+        { "speaker": "butcher_vasquez", "emotion": "serious", "text": { "ko": "그래서 봐야 했어. 선언이 끝나는 걸.", "en": "That's why I had to watch. The declaration ending." }}
+      ]
+    },
+    {
+      "id": "s23",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "분화구 안에서 선언이 끝났다.", "en": "The declaration inside the crater ended." }},
+        { "text": { "ko": "'케플러는 공유지입니다. 이것이 우리의 선언입니다.'", "en": "'Kepler is common land. This is our declaration.'" }},
+        { "text": { "ko": "Liang Wei의 목소리가 반향했다. 마지막으로.", "en": "Liang Wei's voice echoed. For the last time." }},
+        { "text": { "ko": "사람들이 박수를 쳤다. 안에서.", "en": "People applauded. Inside." }},
+        { "text": { "ko": "MCC 드론이 분화구 입구로 이동했다.", "en": "MCC drones moved toward the crater entrance." }}
+      ]
+    },
+    {
+      "id": "s24",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "resolute", "text": { "ko": "됐어. 들었어.", "en": "Done. I heard it." }},
+        { "speaker": "butcher_vasquez", "emotion": "serious", "text": { "ko": "이번엔 지킬 거야.", "en": "This time I'll protect it." }},
+        { "speaker": "crow_reyes", "emotion": "alert", "text": { "ko": "MCC 드론 넷. 지상군 이십.", "en": "MCC drones four. Ground forces twenty." }},
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "알아.", "en": "I know." }},
+        { "speaker": "cinder_grace", "emotion": "ready", "text": { "ko": "Sandstone 약속이에요. Lena와. 지금 실행해요.", "en": "It's the Sandstone Promise. With Lena. Execute now." }}
+      ]
+    },
+    {
+      "id": "s25",
+      "type": "choice",
+      "background": "kepler_crater_edge",
+      "bgm": "choice_tension",
+      "prompt": { "ko": "MCC가 들어가려 한다. Butcher가 결정했다. 어떻게 실행합니까.", "en": "MCC is about to enter. Butcher has decided. How do you execute." },
       "choices": [
-        { "id": "cv_ch5_defend", "text": { "ko": "드론을 제거한다. 케플러를 지킨다.", "en": "Take out the drones. Protect Kepler." }, "tone": "decisive", "preview_hint": { "ko": "→ MCC와 개전, Sandstone 약속 실행", "en": "→ War with MCC, Sandstone Promise executed" }},
-        { "id": "cv_ch5_fsp_contact", "text": { "ko": "Lena에게 접촉한다. 공동 방어.", "en": "Make contact with Lena. Joint defense." }, "tone": "alliance", "preview_hint": { "ko": "→ Lena가 즉시 반응한다", "en": "→ Lena responds immediately" }},
-        { "id": "cv_ch5_butcher_asks", "text": { "ko": "Butcher에게 결정을 미룬다.", "en": "Defer the decision to Butcher." }, "tone": "deferential", "preview_hint": { "ko": "→ Butcher가 사진을 꺼낸다. 처음으로", "en": "→ Butcher takes out the photo. For the first time." }},
-        { "id": "cv_ch5_watch", "text": { "ko": "기다린다. 선언이 끝날 때까지.", "en": "Wait. Until the declaration ends." }, "tone": "patient", "preview_hint": { "ko": "→ Cinder가 당신 옆에 선다. 함께 기다린다", "en": "→ Cinder stands beside you. Waits together." }}
+        {
+          "id": "cv_ch5_defend",
+          "text": { "ko": "드론을 제거한다. CV 전력 전부.", "en": "Take out the drones. All CV forces." },
+          "tone": "decisive",
+          "preview_hint": { "ko": "→ MCC와 개전. Butcher가 앞에 선다", "en": "→ War with MCC. Butcher leads from the front." }
+        },
+        {
+          "id": "cv_ch5_fsp_contact",
+          "text": { "ko": "Lena에게 먼저 접촉한다. 공동 방어.", "en": "Contact Lena first. Joint defense." },
+          "tone": "alliance",
+          "preview_hint": { "ko": "→ Lena가 즉시 반응한다. Sandstone 약속 실행", "en": "→ Lena responds immediately. Sandstone Promise executed." }
+        },
+        {
+          "id": "cv_ch5_butcher_leads",
+          "text": { "ko": "Butcher가 직접 앞에 선다고 한다.", "en": "Let Butcher stand at the front himself." },
+          "tone": "deference",
+          "preview_hint": { "ko": "→ Butcher가 사진을 주머니에 넣는다. 30년의 무게", "en": "→ Butcher puts the photo away. The weight of thirty years." }
+        },
+        {
+          "id": "cv_ch5_watch",
+          "text": { "ko": "기다린다. MCC 반응을 보고 결정한다.", "en": "Wait. Decide after seeing MCC's reaction." },
+          "tone": "patient",
+          "preview_hint": { "ko": "→ Cinder가 당신 옆에 선다. 함께 기다린다", "en": "→ Cinder stands beside you. Waits together." }
+        }
       ]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "kepler_crater", "bgm": "battle_theme_cv", "transition": "flash_white",
-      "title": { "ko": "야생 구역 전투", "en": "Wild Lands Battle" }, "subtitle": { "ko": "케플러 외곽 — Sandstone 약속의 값", "en": "Kepler Edge — The Value of the Sandstone Promise" }
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "kepler_crater",
+      "bgm": "battle_theme_cv",
+      "transition": "flash_white",
+      "title": { "ko": "야생 구역 전투", "en": "Wild Lands Battle" },
+      "subtitle": { "ko": "케플러 외곽 — Sandstone 약속의 값", "en": "Kepler Edge — The Value of the Sandstone Promise" }
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "dialogue", "background": "kepler_crater_edge", "bgm": "victory_calm",
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s26",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s26",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "victory_calm",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "butcher", "emotion": "quiet", "effect": "character_enter:butcher:slide_left", "text": { "ko": "30년 전에 못 한 걸 오늘 했어.", "en": "Today we did what couldn't be done thirty years ago." }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "그때도 누군가 선언했어. 그때는 아무도 지키지 않았어.", "en": "Someone made a declaration back then too. Back then nobody protected it." }}
+        { "speaker": "butcher_vasquez", "emotion": "quiet", "effect": "character_enter:butcher_vasquez:slide_left", "text": { "ko": "30년 전에 못 한 걸 오늘 했어.", "en": "Today we did what couldn't be done thirty years ago." }},
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "그때도 누군가 선언했어. 그때는 아무도 지키지 않았어.", "en": "Someone made a declaration back then too. Back then nobody protected it." }},
+        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "이번엔 지켰어요.", "en": "This time we protected it." }},
+        { "speaker": "butcher_vasquez", "emotion": "still", "text": { "ko": "그래.", "en": "Yes." }}
       ]
     },
-    { "id": "s_fail", "type": "narration", "background": "kepler_crater_edge", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "MCC가 분화구를 봉쇄했다. Butcher가 봤다. 외투 주머니에 손이 다시 들어갔다. 사진 위에 손이 놓였다. 30년 전과 같은 것이었다. 달랐던 것은 Cinder가 옆에 있었다는 것이었다.", "en": "MCC sealed the crater. Butcher watched. His hand went back in the coat pocket. Rested on the photo. Same as thirty years ago. The difference was that Cinder was beside him." }}] },
-    { "id": "s_ending", "type": "ending", "background": "kepler_crater_edge_dusk", "bgm": "cv_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "케플러가 붉게 물들었다. Butcher가 외투 주머니에서 손을 꺼냈다. 사진을 꺼내지 않았다. 손만. 그 손을 Cinder가 봤다. 의수와 맞닿지 않는 손. 오른손. 30년 전 사진 안 사람들이 아직 거기 있을 것이었다. 사진 안에서만. 그러나 오늘 케플러 외곽에도 있었다. 선언 때문이었다.", "en": "Kepler turned red. Butcher took his hand from the coat pocket. Not the photo. Just the hand. Cinder watched that hand. The hand that didn't meet the prosthetic. The right hand. The people in the thirty-year-old photo would still be there. Only in the photo. But today they were also here at the edge of Kepler. Because of the declaration." }}],
-      "next_chapter_preview": { "questId": "cv_campaign_ch6", "teaser": { "ko": "다음 — Butcher의 시험", "en": "Next — Butcher's Test" }}
+    {
+      "id": "s27",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "victory_calm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "MCC 드론이 물러났다.", "en": "MCC drones withdrew." }},
+        { "text": { "ko": "지상군도 물러났다.", "en": "Ground forces also withdrew." }},
+        { "text": { "ko": "케플러 분화구가 조용해졌다.", "en": "Kepler Crater went quiet." }},
+        { "text": { "ko": "Liang Wei가 분화구 입구에 나타났다.", "en": "Liang Wei appeared at the crater entrance." }},
+        { "text": { "ko": "80대 노인. 작은 사람. 그러나 선 것이었다.", "en": "An old man in his eighties. Small person. But standing." }},
+        { "text": { "ko": "Butcher를 봤다. Liang Wei가. 말이 없었다.", "en": "Liang Wei looked at Butcher. No words." }}
+      ]
+    },
+    {
+      "id": "s28",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "liang_wei", "emotion": "old", "effect": "character_enter:liang_wei:fade_in", "text": { "ko": "당신이 CV야.", "en": "You're CV." }},
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "그래.", "en": "Yes." }},
+        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "30년 전에 여기서 선언한 사람들 알아?", "en": "Do you know the people who declared here thirty years ago?" }},
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "알아. 사진이 있어.", "en": "I know them. I have a photo." }},
+        { "speaker": "liang_wei", "emotion": "sad", "text": { "ko": "나는 이름들이 있어. 그 사람들. 30년 동안 모았어.", "en": "I have names. Those people. I collected them for thirty years." }},
+        { "speaker": "butcher_vasquez", "emotion": "still", "text": { "ko": "...", "en": "..." }}
+      ]
+    },
+    {
+      "id": "s29",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Liang Wei가 종이를 꺼냈다.", "en": "Liang Wei took out paper." }},
+        { "text": { "ko": "접힌 것. 낡은 것. 손때가 탔다.", "en": "Folded. Old. Worn with handling." }},
+        { "text": { "ko": "Butcher에게 건넸다.", "en": "He handed it to Butcher." }},
+        { "text": { "ko": "Butcher가 받았다.", "en": "Butcher took it." }},
+        { "text": { "ko": "펼치지 않았다. 그냥 들고 있었다.", "en": "Didn't unfold it. Just held it." }},
+        { "text": { "ko": "그것으로 충분했다.", "en": "That was enough." }}
+      ]
+    },
+    {
+      "id": "s30",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "ambient_quiet",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "Lena를 봐요.", "en": "Look at Lena." }},
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "어디 있어요.", "en": "Where is she." }},
+        { "speaker": "cinder_grace", "emotion": "pointing", "text": { "ko": "분화구 입구. 저쪽.", "en": "Crater entrance. Over there." }},
+        { "speaker": "lena", "emotion": "surprised", "effect": "character_enter:lena:slide_right", "text": { "ko": "CV가 지켰어요.", "en": "CV protected it." }},
+        { "speaker": "cinder_grace", "emotion": "direct", "text": { "ko": "Sandstone 약속이에요. 기억해요?", "en": "It's the Sandstone Promise. Remember?" }},
+        { "speaker": "lena", "emotion": "thoughtful", "text": { "ko": "... 기억해요. Zone 12 이름.", "en": "... I remember. The Zone 12 name." }}
+      ]
+    },
+    {
+      "id": "s31",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Cinder와 Lena가 서로를 봤다.", "en": "Cinder and Lena looked at each other." }},
+        { "text": { "ko": "Zone 12 이름이 있었다. 두 사람 사이에.", "en": "The Zone 12 name was there. Between two people." }},
+        { "text": { "ko": "Cinder가 거기서 태어났다.", "en": "Cinder had been born there." }},
+        { "text": { "ko": "Lena가 팔에 그 이름을 가지고 있었다.", "en": "Lena had the name on her arm." }},
+        { "text": { "ko": "이유를 물어야 했다.", "en": "The reason needed to be asked." }},
+        { "text": { "ko": "그러나 오늘은 아니었다. 오늘은 다른 날이었다.", "en": "But not today. Today was a different day." }}
+      ]
+    },
+    {
+      "id": "s32",
+      "type": "dialogue",
+      "background": "kepler_crater_edge",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "serious", "text": { "ko": "케플러를 어떻게 할 거예요.", "en": "What will you do with Kepler." }},
+        { "speaker": "cinder_grace", "emotion": "direct", "text": { "ko": "CV는 요구가 없어요. 공유지면 공유지예요.", "en": "CV has no demands. Common land is common land." }},
+        { "speaker": "lena", "emotion": "surprised", "text": { "ko": "그것뿐이에요?", "en": "That's all." }},
+        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "Zone 12 이름 얘기는 나중에요.", "en": "The Zone 12 name is for later." }},
+        { "speaker": "lena", "emotion": "nod", "text": { "ko": "... 알겠어요.", "en": "... Understood." }}
+      ]
+    },
+    {
+      "id": "s33",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "victory_calm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher가 종이를 주머니에 넣었다.", "en": "Butcher put the paper in his pocket." }},
+        { "text": { "ko": "사진과 함께.", "en": "Together with the photo." }},
+        { "text": { "ko": "두 개의 종이가 같은 주머니에 있었다.", "en": "Two pieces of paper in the same pocket." }},
+        { "text": { "ko": "30년 된 사진. 오늘 받은 이름들.", "en": "A thirty-year-old photo. Names received today." }},
+        { "text": { "ko": "Butcher가 분화구를 봤다.", "en": "Butcher looked at the crater." }},
+        { "text": { "ko": "오래 봤다.", "en": "For a long time." }}
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "narration",
+      "background": "kepler_crater_edge",
+      "bgm": "defeat_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "MCC가 분화구를 봉쇄했다.", "en": "MCC sealed the crater." }},
+        { "text": { "ko": "Butcher가 봤다.", "en": "Butcher watched." }},
+        { "text": { "ko": "외투 주머니에 손이 다시 들어갔다.", "en": "His hand went back in the coat pocket." }},
+        { "text": { "ko": "사진 위에 손이 놓였다. 30년 전과 같은 것이었다.", "en": "Rested on the photo. Same as thirty years ago." }},
+        { "text": { "ko": "달랐던 것은 Cinder가 옆에 있었다는 것이었다.", "en": "The difference was that Cinder was beside him." }},
+        { "text": { "ko": "그리고 Liang Wei의 이름들이 있었다.", "en": "And Liang Wei's names existed." }}
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "kepler_crater_edge_dusk",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "케플러가 붉게 물들었다.", "en": "Kepler turned red." }},
+        { "text": { "ko": "Butcher가 외투 주머니에서 손을 꺼냈다.", "en": "Butcher took his hand from the coat pocket." }},
+        { "text": { "ko": "사진을 꺼내지 않았다. 손만.", "en": "Not the photo. Just the hand." }},
+        { "text": { "ko": "그 손. 오른손. 의수가 아닌 손.", "en": "That hand. Right hand. The hand that wasn't prosthetic." }},
+        { "text": { "ko": "30년 전 사진 안 사람들이 아직 거기 있을 것이었다.", "en": "The people in the thirty-year-old photo would still be there." }},
+        { "text": { "ko": "사진 안에서만. 그러나 오늘 케플러 외곽에도 있었다.", "en": "Only in the photo. But today they were also here at the edge of Kepler." }},
+        { "text": { "ko": "선언 때문이었다.", "en": "Because of the declaration." }}
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch6",
+        "teaser": { "ko": "다음 — Butcher의 시험", "en": "Next — Butcher's Test" }
+      }
     }
   ]
 }
