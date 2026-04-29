@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-29 v5.25 (FSP Campaign Ch5~6 MVP + compact campaign entry UI) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-29 v5.26 (Campaign quick button desktop/mobile 위치 보정) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -132,7 +132,7 @@ NODE_ENV=development
 - **MVP 방식**: MCC Campaign Ch1~10과 FSP Campaign Ch1~6은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
 - **API**: `server/routes/api.js`의 `/api/campaign/status/:wallet`, `/api/campaign/start`, `/api/campaign/choice`, `/api/campaign/progress`, `/api/campaign/complete`.
 - **DB**: `server/migrations/192_campaign_mcc_ch1.sql`, `193_campaign_common_systems.sql`, `194_mcc_campaign_ch2_to_ch4.sql`, `195_mcc_campaign_ch5_to_ch7.sql`, `196_mcc_campaign_ch8_to_ch10.sql`, `197_fsp_campaign_ch1_to_ch3.sql`, `198_fsp_campaign_ch4_diplomacy.sql`, `199_fsp_campaign_ch5_ch6.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox, 환경/챕터 seed를 만든다.
-- **UI**: `index.html` 메인 지도 CAMPAIGN 퀵 버튼 또는 QUESTS 탭의 CAMPAIGN 섹션에서 시작한다. 잠긴 챕터는 기본 접힘 compact list로 렌더하고, 브리핑 → 선택지 → 압축 시뮬레이션 → 결과 모달 흐름은 유지한다.
+- **UI**: `index.html` 메인 지도 CAMPAIGN 퀵 버튼 또는 QUESTS 탭의 CAMPAIGN 섹션에서 시작한다. CAMPAIGN 퀵 버튼은 데스크탑에서는 좌측 패널 오른쪽 상단, 태블릿/모바일에서는 상단 왼쪽 작은 pill에 둔다. 잠긴 챕터는 기본 접힘 compact list로 렌더하고, 브리핑 → 선택지 → 압축 시뮬레이션 → 결과 모달 흐름은 유지한다.
 - **보상 정책**: GP/XP/평판/칭호/환경 숙련도/blueprint inbox 기록은 `complete()` 트랜잭션 안에서 처리한다. 클라이언트는 최종 보상값을 제출하지 않는다.
 
 ### MCC Route Implemented Chapters

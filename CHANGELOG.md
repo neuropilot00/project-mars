@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — Campaign Quick Button 위치 보정 (v5.26)
+
+- **데스크탑 위치 보정**: CAMPAIGN 퀵 버튼을 하단 중앙 액션 영역에서 빼고, 좌측 패널 오른쪽 상단 보조 액션 위치로 이동.
+- **태블릿/모바일 위치 보정**: 하단 네비/오른쪽 OPS·줌 조작과 겹치지 않도록 상단 왼쪽 작은 pill 위치로 이동.
+
+검증:
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
 ## 2026-04-29 — FSP Campaign Ch5~6 MVP + Campaign UI 압축 (v5.25)
 
 - **FSP Ch5 "Kepler 공유지" 추가**: Liang Wei, Roth dead drop, Kepler 3파벌 회담, 산소 보급 시한, Commons/중재/압박/전투/외계 기원 공개 5분기 서버 시뮬레이션 추가.

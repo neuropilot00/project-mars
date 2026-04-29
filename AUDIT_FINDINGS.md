@@ -1,6 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.25 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.26 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.26 Campaign Quick Button 위치 보정 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 데스크탑 CAMPAIGN 버튼 | ✅ | 하단 중앙 액션 영역에서 제거하고 좌측 패널 오른쪽 상단 보조 액션 위치로 이동. |
+| 태블릿/모바일 CAMPAIGN 버튼 | ✅ | 하단 네비, OPS split card, 줌 컬럼과 충돌하지 않도록 상단 왼쪽 작은 pill로 이동. |
+
+검증:
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.25 FSP Campaign Ch5~6 MVP + Campaign UI 압축 — 구현 완료
 
