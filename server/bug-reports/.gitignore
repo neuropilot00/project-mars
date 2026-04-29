@@ -1,0 +1,5 @@
+# Bug-report JSON dumps are user data, not source. Keep dirs (.gitkeep) but
+# ignore the report files themselves.
+inbox/*.json
+processed/*.json
+wontfix/*.json
