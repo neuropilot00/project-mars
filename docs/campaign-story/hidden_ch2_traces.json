@@ -3,43 +3,316 @@
   "campaignId": "hidden_route",
   "chapterNumber": 2,
   "title": { "ko": "흔적들", "en": "Traces" },
-  "location": { "id": "hellas_various", "displayNameKo": "헬라스 — 여러 장소" },
+  "location": { "id": "hellas_various", "displayNameKo": "헬라스 북부 광야" },
   "environment": "multiple_locations",
-  "estimatedPlayTimeMinutes": 15,
+  "estimatedPlayTimeMinutes": 22,
   "characters": ["observer"],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "hellas_mining_village", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "흔적이 있었다. 분필이었다. 벽에. 이름들. Kim Yong-jin. 그 아래 이름들. 관찰자가 봤다. 누가 썼는지. 왜 썼는지. 언제 썼는지. 그것들이 벽에 있었다. 분필이 약하다는 것을 아는 사람들이 쓴 것이었다. 그래서 더 많이 썼다.", "en": "There were traces. Chalk. On the wall. Names. Kim Yong-jin. Names below. The observer watched. Who wrote them. Why they wrote. When they wrote. Those things were on the wall. Written by people who knew chalk was weak. So they wrote more." }}] },
-    { "id": "s02", "type": "narration", "background": "sandstone_junction", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "샌드스톤 교차로에 발자국이 있었다. 세 방향. 한 사람이 온 것이 아니었다. 두 사람이. 아니면 세 사람이. 그 발자국들이 무언가를 결정한 흔적이었다. 발자국은 모래 위에 있었다. 모래는 지워지는 것이었다. 그러나 결정은 모래가 아니었다.", "en": "There were footprints at Sandstone Junction. Three directions. Not one person's arrival. Two people's. Or three. Those footprints were traces of something decided. The footprints were on sand. Sand was erasable. But decisions were not sand." }}] },
-    { "id": "s03", "type": "narration", "background": "hellas_outer_relay_interior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "폐쇄된 중계소. 오일 자국이 있었다. 누군가 공구를 들고 있었다. 엔지니어의 흔적. Cinder Grace가 여기 있었다는 것을 알 수 있었다. 그녀가 고친 것이 무엇인지는 보이지 않았다. 그러나 고쳐진 것이 있었다. 흔적이 말했다.", "en": "The closed relay station. Oil marks. Someone had been here with tools. An engineer's traces. Cinder Grace had been here, it could be known. What she repaired was not visible. But something had been repaired. The traces said so." }}] },
-    { "id": "s04", "type": "narration", "background": "mcc_archive_sublevel", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "지하 4층. 계단에 발자국이 있었다. 빠른 발자국. 두 사람이었다. 그중 하나는 검은 손이었다. 광석 분진. 그것이 남긴 것이었다. 칩이 여기 있었다. 지금은 없었다. 누군가 가져간 것이었다. 그것이 어디로 갔는지는 흔적이 말하지 않았다.", "en": "Sublevel 4. There were footprints on the stairs. Fast footprints. Two people. One of them had black hands. Ore dust. That was what remained. A chip had been here. Not now. Someone had taken it. Where it went the traces didn't say." }}] },
-    { "id": "s05", "type": "narration", "background": "erebus_base_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "에레보스 분화구 외부. 배럴 불의 재가 있었다. 오래된 것. 새것. 30년 동안의 것이 섞여 있었다. 이 기지에서 사람들이 살았다. 불을 피웠다. 불이 꺼진 후에 재가 남았다. 재도 흔적이었다. 불이 있었다는 흔적.", "en": "Outside the Erebus crater. Ash from barrel fires. Old. New. Thirty years' worth were mixed. People had lived in this base. They burned fires. After fires went out ash remained. Ash was a trace too. Trace that fire had been there." }}] },
-    { "id": "s06", "type": "narration", "background": "kepler_crater", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "케플러 분화구. 발자국. 장비 흔적. 분석 도구. 30년 동안의 흔적이 여기 있었다. Liang Wei. 혼자 온 사람. 혼자 30년을 있었던 사람. 그 흔적들이 층처럼 쌓였다. 30년의 층. 그것이 발굴되면 무언가 나오는 것이었다.", "en": "Kepler Crater. Footprints. Equipment marks. Analysis tools. Thirty years of traces were here. Liang Wei. The person who came alone. Who was alone for thirty years. Those traces were layered. Thirty-year layers. Excavating them would yield something." }}] },
-    { "id": "s_choice", "type": "choice", "background": "kepler_crater", "bgm": "choice_tension",
-      "prompt": { "ko": "흔적들. 관찰자는 무엇을 연결합니까.", "en": "Traces. What does the observer connect." },
-      "choices": [
-        { "id": "hidden_ch2_names", "text": { "ko": "이름들을 연결한다. Kim Yong-jin부터 Zone 12까지.", "en": "Connect the names. From Kim Yong-jin to Zone 12." }, "tone": "pattern", "preview_hint": { "ko": "→ 패턴이 보인다. 30년.", "en": "→ A pattern emerges. Thirty years." }},
-        { "id": "hidden_ch2_people", "text": { "ko": "사람들을 연결한다. Cinder와 Liang Wei와 Mikhail.", "en": "Connect the people. Cinder and Liang Wei and Mikhail." }, "tone": "network", "preview_hint": { "ko": "→ 이 세 사람이 화성을 바꿀 수 있다", "en": "→ These three people can change Mars." }},
-        { "id": "hidden_ch2_ancient", "text": { "ko": "Ancient Metal을 연결한다. 모든 것이 거기서 시작됐다.", "en": "Connect the Ancient Metal. Everything started there." }, "tone": "origin", "preview_hint": { "ko": "→ 30년 전이 보인다", "en": "→ Thirty years ago becomes visible." }},
-        { "id": "hidden_ch2_nothing", "text": { "ko": "연결하지 않는다. 흔적은 흔적이다.", "en": "Connect nothing. Traces are traces." }, "tone": "pure", "preview_hint": { "ko": "→ 더 많은 것이 보인다", "en": "→ More becomes visible." }}
-      ]
+    {
+      "id": "s01", "type": "narration",
+      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "헬라스 북부였다. 광야. 사람이 적은 곳. 관찰자가 걸었다. 표면이 고르지 않았다. 화성의 표면은 언제나 고르지 않았다. 그러나 이쪽은 달랐다. 사람이 팠다. 기계가 팠다. 그 흔적이 표면에 있었다.",
+        "en": "The northern Hellas. The wilderness. Where few people were. The observer walked. The surface was uneven. The surface of Mars was always uneven. But this area was different. People had dug. Machines had dug. Those traces were on the surface."
+      }}]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "kepler_crater", "bgm": "hidden_theme", "transition": "fade_slow",
-      "title": { "ko": "흔적 추적", "en": "Trace Following" }, "subtitle": { "ko": "화성 전역 — 패턴", "en": "Across Mars — Pattern" }
+    {
+      "id": "s02", "type": "narration",
+      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광부 마을이었다. 분필이 있었다. 벽에. 이름들. Kim Yong-jin. 그 아래 이름들. 관찰자가 봤다. 누가 썼는지. 왜 썼는지. 언제 썼는지. 그것들이 벽에 있었다. 분필이 약하다는 것을 아는 사람들이 쓴 것이었다. 그래서 더 많이 썼다.",
+        "en": "A mining village. There was chalk. On the wall. Names. Kim Yong-jin. Names below. The observer looked. Who wrote them. Why they wrote. When they wrote. Those things were on the wall. Written by people who knew chalk was weak. So they wrote more."
+      }}]
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "narration", "background": "kepler_crater_dusk", "bgm": "hidden_ambient",
-      "lines": [{ "text": { "ko": "흔적들이 연결됐다. 선이 보였다. Kim Yong-jin. Zone 12. 샌드스톤. 케플러. Ancient Metal. 선이 한 방향을 가리켰다. 30년 전으로. 그것이 어디서 시작됐는지를 알아야 했다.", "en": "The traces connected. A line became visible. Kim Yong-jin. Zone 12. Sandstone. Kepler. Ancient Metal. The line pointed in one direction. Thirty years back. What had started it needed to be known." }}] },
-    { "id": "s_fail", "type": "narration", "background": "kepler_crater", "bgm": "hidden_ambient",
-      "lines": [{ "text": { "ko": "흔적들이 연결되지 않았다. 각자 따로 있었다. 그것도 화성이었다. 연결되지 않는 것들이 화성에 많았다. 그러나 관찰자는 계속 봤다. 보는 것이 연결보다 먼저였다.", "en": "The traces didn't connect. Each stood alone. That too was Mars. There were many unconnected things on Mars. But the observer kept watching. Watching came before connecting." }}] },
-    { "id": "s_ending", "type": "ending", "background": "hellas_various_night", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "화성의 밤. 흔적들이 있었다. 분필. 발자국. 오일. 재. 이름들. 이것들이 화성의 역사였다. 공식 기록에 없는 역사. 흔적으로만 있는 역사. 관찰자는 그것들을 봤다. 그것으로 충분했다. 아직은.", "en": "Mars night. There were traces. Chalk. Footprints. Oil. Ash. Names. These were the history of Mars. History not in official records. History that existed only as traces. The observer watched them. That was enough. For now." }}],
-      "next_chapter_preview": { "questId": "hidden_campaign_ch3", "teaser": { "ko": "다음 — 네 번째 시점", "en": "Next — The Fourth Perspective" }}
+    {
+      "id": "s03", "type": "narration",
+      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "Kim Yong-jin이라는 이름 아래 날짜가 있었다. 오래된 날짜. 그 아래 다른 이름들. 날짜들. 어떤 이름은 날짜가 없었다. 날짜를 쓸 시간이 없었던 것인지. 날짜가 중요하지 않았던 것인지. 이름만 있는 것들이 있었다. 이름만으로 충분했다.",
+        "en": "Below the name Kim Yong-jin there was a date. An old date. Below that other names. Dates. Some names had no date. Whether there had been no time to write dates. Or dates hadn't mattered. There were ones with only names. Only names were enough."
+      }}]
+    },
+    {
+      "id": "s04", "type": "narration",
+      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "이름들의 크기가 달랐다. 큰 이름. 작은 이름. 떨리는 손으로 쓴 이름. 빠르게 쓴 이름. 이름들이 각자의 상황을 말했다. 공간이 있는 사람이 크게 썼다. 시간이 없는 사람이 작게 썼다. 두려운 사람이 떨리는 손으로 썼다. 그것들이 모두 같은 벽에 있었다.",
+        "en": "The names were different sizes. Large names. Small names. Names written by trembling hands. Names written quickly. The names each spoke of their circumstances. Those with space wrote large. Those without time wrote small. Those who were afraid wrote with trembling hands. All of those were on the same wall."
+      }}]
+    },
+    {
+      "id": "s05", "type": "narration",
+      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "벽 아래쪽에 이름이 하나 있었다. 낮은 곳에. 어린이가 쓴 것 같았다. 또는 앉아서 쓴 것 같았다. 이름은 읽을 수 없었다. 글씨가 거칠었다. 그러나 그것이 이름이라는 것은 알았다. 여기 있었다는 것을 말하려 한 것이었다. 이름이 그것을 말했다.",
+        "en": "Near the bottom of the wall there was one name. Low down. It looked like a child had written it. Or like it had been written while sitting. The name couldn't be read. The handwriting was rough. But it was known to be a name. It had tried to say it had been here. The name said that."
+      }}]
+    },
+    {
+      "id": "s06", "type": "narration",
+      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자는 이름들을 읽었다. 전부 읽지는 못했다. 지워진 것들이 있었다. 시간이 지워지거나. 누군가 지웠거나. 벽의 일부가 부서졌거나. 그러나 읽히는 이름들이 있었다. 관찰자가 그것들을 읽었다. 소리 내지 않고. 입으로 하지 않고. 눈으로만.",
+        "en": "The observer read the names. Couldn't read all of them. Some had been erased. Erased by time. Or someone had erased them. Or part of the wall had broken. But there were names that could be read. The observer read those. Without sound. Not with the mouth. Only with eyes."
+      }}]
+    },
+    {
+      "id": "s07", "type": "narration",
+      "background": "sandstone_junction_dusk", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "샌드스톤 교차로. 세 방향으로 갈라지는 곳. 모래가 많았다. 화성의 모래는 붉었다. 이 모래도 붉었다. 그러나 이곳에 발자국이 있었다. 여러 개. 여러 방향. 많은 사람들이 이 교차로를 지났다.",
+        "en": "Sandstone Junction. Where three directions split. There was much sand. Martian sand was red. This sand was also red. But there were footprints here. Many. In many directions. Many people had passed through this junction."
+      }}]
+    },
+    {
+      "id": "s08", "type": "narration",
+      "background": "sandstone_junction_dusk", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "발자국들이 각자 달랐다. 크기가 달랐다. 깊이가 달랐다. 무거운 사람의 발자국. 빠른 사람의 발자국. 뛰어간 사람의 발자국. 걸어간 사람의 발자국. 그것들이 모래에 있었다. 모래는 지워지는 것이었다. 그러나 아직 있었다.",
+        "en": "The footprints were each different. Different sizes. Different depths. Footprints of heavy people. Footprints of fast people. Footprints of those who had run. Footprints of those who had walked. Those were in the sand. Sand was erasable. But they were still there."
+      }}]
+    },
+    {
+      "id": "s09", "type": "narration",
+      "background": "sandstone_junction_dusk", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "세 방향에 각각 깃발 흔적이 있었다. 꽂혔다 뽑힌 자국. 작은 구멍들. MCC 방향. FSP 방향. CV 방향. 세 깃발이 여기 있었다. 지금은 없었다. 꽂혔다가 뽑혔다. 그 순서는 알 수 없었다. 그러나 세 개 모두 여기 있었다는 것은 알았다.",
+        "en": "In each of the three directions there were traces of flags. Marks of flags planted and pulled. Small holes. The MCC direction. The FSP direction. The CV direction. Three flags had been here. Not now. They had been planted and pulled. The order was unknown. But it was known all three had been here."
+      }}]
+    },
+    {
+      "id": "s10", "type": "narration",
+      "background": "sandstone_junction_dusk", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "세 구멍. 같은 크기였다. 같은 깊이였다. 같은 굵기의 깃발대. 세 파벌이 같은 깃발대를 썼다. 또는 같은 크기의 의지가 있었다. 관찰자가 구멍을 봤다. 구멍은 비어 있었다. 비어 있는 구멍이 꽉 찬 것보다 많은 것을 말했다.",
+        "en": "Three holes. The same size. The same depth. The same diameter flag poles. Three factions had used the same flag poles. Or had the same size will. The observer looked at the holes. The holes were empty. Empty holes said more than full ones."
+      }}]
+    },
+    {
+      "id": "s11", "type": "narration",
+      "background": "sandstone_junction_dusk", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 교차로 중앙에 섰다. 세 방향이 보였다. MCC 방향에 먼지가 있었다. FSP 방향에 발자국이 있었다. CV 방향에 아무것도 없었다. 세 방향이 각자 다른 것을 가지고 있었다. 관찰자가 가운데서 봤다. 가운데가 가장 많이 보이는 곳이었다.",
+        "en": "The observer stood in the center of the junction. Three directions were visible. In the MCC direction there was dust. In the FSP direction there were footprints. In the CV direction there was nothing. Three directions each had different things. The observer watched from the middle. The middle was the place that saw the most."
+      }}]
+    },
+    {
+      "id": "s12", "type": "narration",
+      "background": "mine_shaft", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "광산 갱도 입구. 관찰자가 들어갔다. 빛이 줄었다. 장갑. 안전모. 장비. 이것들이 있었어야 했다. 관찰자는 가지고 있지 않았다. 그러나 들어갔다. 관찰은 장비 없이도 할 수 있었다. 또는 관찰자는 그렇게 믿었다.",
+        "en": "The mine shaft entrance. The observer entered. Light decreased. Gloves. Hard hat. Equipment. These should have been there. The observer didn't have them. But entered. Observation could be done without equipment. Or the observer believed so."
+      }}]
+    },
+    {
+      "id": "s13", "type": "narration",
+      "background": "mine_shaft", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "갱도 안에 공구들이 있었다. 버려진 것들. 드릴. 측량 도구. 금속 컨테이너. 그것들이 갱도 벽에 기대거나 바닥에 놓여 있었다. 쓰다 버린 것들. 또는 두고 간 것들. 차이가 있었다. 버린 것은 가치가 없어진 것이고 두고 간 것은 돌아오려는 것이었다.",
+        "en": "Inside the shaft there were tools. Abandoned things. A drill. Surveying equipment. Metal containers. Those leaned against the shaft walls or lay on the floor. Things used and discarded. Or things left behind. There was a difference. Discarded meant value was gone and left behind meant intending to return."
+      }}]
+    },
+    {
+      "id": "s14", "type": "narration",
+      "background": "mine_shaft", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "한 컨테이너 위에 이름이 새겨져 있었다. 소유자. 관찰자가 읽었다. 모르는 이름. 그러나 이름이 있었다. 이 컨테이너가 이 사람의 것이었다. 지금은 어디 있는지 모르는 사람. 컨테이너만 여기 있었다. 컨테이너가 그 사람을 대신했다.",
+        "en": "On one container a name was carved. An owner. The observer read it. An unknown name. But a name was there. This container had been this person's. The person whose whereabouts were now unknown. Only the container was here. The container stood in for that person."
+      }}]
+    },
+    {
+      "id": "s15", "type": "narration",
+      "background": "mine_shaft", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "갱도 벽에 긁힌 자국들이 있었다. 광석을 찾는 흔적. 그러나 다른 것들도 있었다. 별. 날짜. 간단한 그림. 누군가 여기서 기다렸다. 광물을 기다리면서. 갱도에서 기다리면서. 무언가를 그렸다. 그것들이 벽에 있었다.",
+        "en": "On the shaft walls there were scratch marks. Traces of searching for ore. But there were other things too. Stars. Dates. Simple drawings. Someone had waited here. While waiting for ore. While waiting in the shaft. Drew something. Those were on the walls."
+      }}]
+    },
+    {
+      "id": "s16", "type": "narration",
+      "background": "mine_shaft", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그림 중에 사람이 있었다. 막대 사람. 단순한 것. 옆에 더 작은 막대 사람이 있었다. 두 사람이었다. 어른과 아이였다. 화성의 광산 갱도에 어른과 아이 그림이 있었다. 그린 사람이 무슨 생각을 했는지 몰랐다. 그러나 그렸다. 거기서.",
+        "en": "Among the drawings there was a person. A stick figure. A simple one. Next to it was a smaller stick figure. Two people. An adult and a child. In a Martian mine shaft there was a drawing of an adult and a child. What the person who drew it had been thinking was unknown. But they had drawn it. There."
+      }}]
+    },
+    {
+      "id": "s17", "type": "narration",
+      "background": "mcc_archive_sublevel", "bgm": "tension_low", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "MCC 아카이브 지하. 관찰자가 들어갔다. 허가 없이 들어간 것이었다. 그것이 관찰자의 방식이 아니었다. 그러나 들어갔다. 보는 것이 개입 없이도 경계를 넘는 경우가 있었다. 그것이 관찰자가 처음으로 경계를 넘은 것이었다.",
+        "en": "MCC archive sublevel. The observer entered. Entered without permission. That was not the observer's way. But entered. There were cases where watching crossed a boundary without intervention. This was the first time the observer had crossed a boundary."
+      }}]
+    },
+    {
+      "id": "s18", "type": "narration",
+      "background": "mcc_archive_sublevel", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "서류들이 있었다. 오래된 것들. 화성 초기. MCC 설립 당시. 관찰자가 보지 않았다. 그것들의 내용을 알고 싶지 않았다. 그러나 다른 것이 있었다. 빠른 발자국이 있었다. 최근의 것. 두 사람. 그중 하나는 검은 손이었다. 광석 분진. 광부의 발자국이 아카이브에 있었다.",
+        "en": "There were documents. Old ones. Early Mars. When MCC was founded. The observer didn't look at them. Didn't want to know their content. But there was something else. Fast footprints. Recent. Two people. One of them had black hands. Ore dust. A miner's footprints in the archive."
+      }}]
+    },
+    {
+      "id": "s19", "type": "narration",
+      "background": "mcc_archive_sublevel", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "서랍이 열려 있었다. 비어 있었다. 무언가 있었다가 없어진 것이었다. 가져간 것이었다. 서랍 안에 먼지가 있었다. 직사각형 먼지 없는 자국. 칩이 있었던 자리. 얼마나 오래 있었는지는 모르지만 칩이 있었다. 지금은 없었다.",
+        "en": "A drawer was open. Empty. Something had been there and was gone. Someone had taken it. Inside the drawer there was dust. A rectangular mark without dust. Where a chip had been. How long it had been there was unknown but a chip had been there. Not now."
+      }}]
+    },
+    {
+      "id": "s20", "type": "narration",
+      "background": "mcc_archive_sublevel", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 빈 서랍을 봤다. 오래 봤다. 칩이 어디로 갔는지는 몰랐다. 누가 가져갔는지도 몰랐다. 광부의 발자국이 있었다. 두 사람. 칩이 없어졌다. 그것들이 연결되는지 안 되는지는 몰랐다. 관찰자는 연결하지 않았다. 흔적을 봤다. 그것으로 충분했다.",
+        "en": "The observer looked at the empty drawer. For a long time. Didn't know where the chip had gone. Didn't know who had taken it. There were miners' footprints. Two people. The chip was gone. Whether those were connected was unknown. The observer didn't connect them. Looked at traces. That was enough."
+      }}]
+    },
+    {
+      "id": "s21", "type": "narration",
+      "background": "mcc_sector12_ruins", "bgm": "tension_low", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "MCC 12구역 폐허. 여기도 폐쇄됐다. 다른 이유로. 폭발이 아니었다. 사용하지 않게 된 것이었다. MCC가 쓰지 않기로 한 것이었다. 사용하지 않기로 한 것과 버려진 것은 달랐다. 그러나 결과는 같았다. 아무도 없었다.",
+        "en": "MCC Sector 12 ruins. This too was closed. For a different reason. Not an explosion. It had become unused. MCC had decided not to use it. Deciding not to use something and something being abandoned were different. But the result was the same. No one was there."
+      }}]
+    },
+    {
+      "id": "s22", "type": "narration",
+      "background": "mcc_sector12_ruins", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "건물 안에 장비가 있었다. MCC 로고가 있는 장비들. 제대로 치워지지 않은 것들. 쓸 수 있는 것들. 그러나 여기 있었다. 쓸 수 있는 장비가 쓰이지 않고 여기 있었다. 그것이 무엇을 말하는지는 몰랐다. 예산. 계획. 사람. 그 중 하나거나 전부였다.",
+        "en": "Inside the building there was equipment. Equipment with MCC logos. Things not properly cleaned out. Things that could be used. But they were here. Usable equipment was here unused. What that said was unknown. Budget. Plans. People. One of those or all of them."
+      }}]
+    },
+    {
+      "id": "s23", "type": "narration",
+      "background": "mcc_sector12_ruins", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "한 방에 사진이 있었다. 벽에 붙어 있는 것. MCC가 붙인 것이 아니었다. 누군가 나중에 붙인 것이었다. 사진에 사람들이 있었다. 단체 사진. 헬맷을 쓴 사람들. 광부들이었다. 또는 엔지니어들이었다. 관찰자가 봤다. 이들이 누구인지 몰랐다. 사진이 여기 있었다.",
+        "en": "In one room there was a photo. Posted on the wall. Not posted by MCC. Posted by someone later. In the photo there were people. A group photo. People wearing helmets. Miners. Or engineers. The observer looked. Didn't know who they were. The photo was here."
+      }}]
+    },
+    {
+      "id": "s24", "type": "narration",
+      "background": "mcc_sector12_ruins", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "사진 아래 쪽지가 있었다. 작은 것. 관찰자가 읽었다. 날짜. 이름들. 그리고 짧은 문장. Zone 12. 우리는 여기 있었다. 그것이 쪽지가 말하는 전부였다. 여기 있었다는 것을 말하려 한 것이었다. 그 이상도 이하도 아니었다.",
+        "en": "Below the photo there was a note. A small one. The observer read it. A date. Names. And a short sentence. Zone 12. We were here. That was everything the note said. It was trying to say that they had been here. Nothing more or less."
+      }}]
+    },
+    {
+      "id": "s25", "type": "narration",
+      "background": "erebus_crater_exterior", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "에레보스 분화구 외부. 관찰자가 왔다. 멀리서 왔다. 이곳에 오는 것이 쉽지 않았다. 그러나 왔다. 흔적이 있다는 것을 알았기 때문이었다. 에레보스에 흔적이 있었다. 오래된 것들.",
+        "en": "Outside Erebus crater. The observer had come. Come from far away. Coming here was not easy. But came. Because it was known there were traces here. Erebus had traces. Old ones."
+      }}]
+    },
+    {
+      "id": "s26", "type": "narration",
+      "background": "erebus_crater_exterior", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "배럴 불의 재가 있었다. 오래된 것. 새것. 30년 동안의 것이 섞여 있었다. 이 기지에서 사람들이 살았다. 불을 피웠다. 불이 꺼진 후에 재가 남았다. 재도 흔적이었다. 불이 있었다는 흔적.",
+        "en": "Ash from barrel fires. Old. New. Thirty years' worth were mixed. People had lived in this base. They burned fires. After fires went out ash remained. Ash was a trace too. Trace that fire had been there."
+      }}]
+    },
+    {
+      "id": "s27", "type": "narration",
+      "background": "erebus_crater_exterior", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "재들이 층처럼 쌓였다. 오래된 것이 아래. 새것이 위. 그것이 시간이었다. 재의 층이 시간을 말했다. 누군가 오랫동안 여기서 불을 피웠다. 같은 사람인지 다른 사람들인지는 몰랐다. 불을 피우는 이유도 몰랐다. 불이 있었다. 오랫동안.",
+        "en": "The ashes were layered. Old ones below. New on top. That was time. The layers of ash spoke of time. Someone had burned fires here for a long time. Whether the same person or different people was unknown. The reason for burning fires was also unknown. There was fire. For a long time."
+      }}]
+    },
+    {
+      "id": "s28", "type": "narration",
+      "background": "erebus_base_interior", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "에레보스 기지 내부. 작은 기지였다. MCC 기지가 아니었다. 누군가 만든 것이었다. 혼자 만든 것이었다. 관찰자가 봤다. 혼자 만든 기지의 특성이 있었다. 필요한 것만. 쓸데없는 것은 없었다. 필요한 것이 뭔지 아는 사람이 만든 것이었다.",
+        "en": "Inside Erebus base. A small base. Not an MCC base. Something someone had built. Built by one person. The observer looked. There were characteristics of a base built by one person. Only necessities. Nothing unnecessary. Built by someone who knew what was necessary."
+      }}]
+    },
+    {
+      "id": "s29", "type": "narration",
+      "background": "erebus_base_interior", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "테이블에 사진이 있었다. 하나. 오래된 것. 여러 사람. 광부들. 그 사진이 테이블 위에 있었다. 먼지가 없었다. 자주 보는 것이었다. 또는 최근에 닦았다. 사진이 여기서 오래 있었다. 사진과 함께 있는 사람이 오래 이것을 봤다.",
+        "en": "On the table there was a photo. One. Old. Multiple people. Miners. That photo was on the table. No dust on it. Someone looked at it often. Or it had been wiped recently. The photo had been here a long time. The person who was here with the photo had looked at it for a long time."
+      }}]
+    },
+    {
+      "id": "s30", "type": "narration",
+      "background": "kepler_crater", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "케플러 분화구. 발자국. 장비 흔적. 분석 도구. 30년 동안의 흔적이 여기 있었다. Liang Wei. 혼자 온 사람. 혼자 30년을 있었던 사람. 그 흔적들이 층처럼 쌓였다. 30년의 층.",
+        "en": "Kepler Crater. Footprints. Equipment marks. Analysis tools. Thirty years of traces were here. Liang Wei. The person who came alone. Who was alone for thirty years. Those traces were layered. Thirty-year layers."
+      }}]
+    },
+    {
+      "id": "s31", "type": "narration",
+      "background": "kepler_crater", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "발자국이 하나였다. 한 사람의 발자국. 30년 동안 여러 방향으로 걸어다녔다. 그 발자국들이 모두 이 분화구에 있었다. 혼자 왔다. 혼자 걸었다. 혼자 분석했다. 그것들이 발자국으로 보였다. 혼자였다는 것이 발자국이 말했다.",
+        "en": "There was one set of footprints. One person's footprints. For thirty years walked in many directions. All those footprints were in this crater. Came alone. Walked alone. Analyzed alone. Those showed as footprints. That it had been alone the footprints said."
+      }}]
+    },
+    {
+      "id": "s32", "type": "narration",
+      "background": "kepler_crater_dusk", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "분화구 중심에 채취 지점이 있었다. 표시가 있었다. 숫자들. 날짜들. 층층이. 관찰자가 봤다. 30년의 날짜들. 같은 사람이 매년. 매달. 어떤 것들은 매일. 기록했다. 이것이 무엇인지 알기 위해 30년을 기록했다. 아직 알아냈는지는 몰랐다.",
+        "en": "In the center of the crater there was a collection point. There were markings. Numbers. Dates. Layered. The observer looked. Dates spanning thirty years. The same person every year. Every month. Some things every day. Had recorded. Recorded for thirty years to find out what this was. Whether it had been figured out yet was unknown."
+      }}]
+    },
+    {
+      "id": "s33", "type": "narration",
+      "background": "kepler_crater_dusk", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "분화구 가장자리에 관찰자가 섰다. 해가 지고 있었다. 케플러 분화구의 저녁. 붉은 하늘. 더 붉은 분화구. 30년의 흔적이 저녁 빛을 받았다. 흔적이 더 잘 보였다. 또는 더 아름다워 보였다. 관찰자는 아름다움을 기록하지 않았다. 흔적만 기록했다.",
+        "en": "The observer stood at the edge of the crater. The sun was setting. Evening at Kepler Crater. Red sky. Redder crater. Thirty years of traces caught the evening light. Traces were more visible. Or looked more beautiful. The observer didn't record beauty. Only recorded traces."
+      }}]
+    },
+    {
+      "id": "s34", "type": "narration",
+      "background": "kepler_crater_edge_dusk", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "버려진 물건이 있었다. 분화구 가장자리에. 낡은 컵이었다. MCC 로고가 없는 것. 개인 물건. 어느 광부의 것이었을 것이다. 또는 엔지니어의 것. 컵이 거기 있었다. 아무도 갖지 않았다. 주인이 여기 없었다. 컵만 여기 있었다.",
+        "en": "There was an abandoned object. At the edge of the crater. An old cup. Without an MCC logo. A personal item. Must have been some miner's. Or an engineer's. The cup was there. No one had taken it. Its owner was not here. Only the cup was here."
+      }}]
+    },
+    {
+      "id": "s35", "type": "narration",
+      "background": "kepler_crater_edge_dusk", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 컵 앞에 멈췄다. 집지 않았다. 흔적만 본다. 그것이 관찰자의 방식이었다. 물건을 집으면 그 물건은 움직인다. 흔적이 달라진다. 관찰자가 흔적을 바꾸어서는 안 됐다. 그래서 집지 않았다. 봤다. 그것으로 충분했다.",
+        "en": "The observer stopped in front of the cup. Didn't pick it up. Only see traces. That was the observer's way. If an object is picked up that object moves. The trace changes. The observer must not change traces. So didn't pick it up. Looked. That was enough."
+      }}]
+    },
+    {
+      "id": "s36", "type": "narration",
+      "background": "kepler_crater_edge_dusk", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그러나 컵을 보면서 생각했다. 이 컵의 주인이 누구인지. 이 컵이 어떻게 여기 왔는지. 케플러 분화구에 왜 컵이 있는지. 질문들이 있었다. 관찰자는 질문을 하지 않았다. 그러나 질문들이 있었다. 그것이 관찰자가 처음으로 인정한 것이었다. 질문이 있다는 것을.",
+        "en": "But while looking at the cup, thoughts arose. Who owned this cup. How this cup had come here. Why there was a cup at Kepler Crater. There were questions. The observer didn't ask questions. But there were questions. That was the first thing the observer had admitted. That there were questions."
+      }}]
+    },
+    {
+      "id": "s37", "type": "narration",
+      "background": "hellas_zone4_ruins", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "4구역으로 다시 왔다. 폐쇄된 곳. 비석. 이름을 읽을 수 없는 비석. 관찰자가 다시 봤다. 달라진 것이 없었다. 이름들은 여전히 읽을 수 없었다. 꽃이 있었다. 죽어 있는 꽃. 그러나 전과 다른 것이 있었다. 새 꽃이 있었다. 누군가 왔다. 새 꽃을 가져왔다.",
+        "en": "Came back to Zone 4. The closed place. The marker. The marker with unreadable names. The observer looked again. Nothing had changed. The names were still unreadable. There were flowers. Dead flowers. But there was something different from before. There was a new flower. Someone had come. Had brought a new flower."
+      }}]
+    },
+    {
+      "id": "s38", "type": "ending",
+      "background": "hellas_zone4_ruins", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "흔적들이 있었다. 이름들. 발자국들. 컵. 사진들. 재. 비석. 새 꽃. 이것들이 화성의 역사였다. 공식 기록에 없는 역사. 흔적으로만 있는 역사. 관찰자는 그것들을 봤다. 물건을 집지 않았다. 연결하지 않았다. 봤다. 그것으로 충분했다. 아직은."
+        ,
+        "en": "There were traces. Names. Footprints. A cup. Photos. Ash. A marker. A new flower. These were the history of Mars. History not in official records. History that existed only as traces. The observer watched them. Didn't pick up objects. Didn't connect. Watched. That was enough. For now."
+      } }],
+      "next_chapter_preview": { "questId": "hidden_campaign_ch3", "teaser": { "ko": "다음 — 네 번째 깃발", "en": "Next — The Fourth Flag" }}
     }
   ]
 }

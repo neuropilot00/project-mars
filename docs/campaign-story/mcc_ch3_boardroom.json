@@ -2,20 +2,11 @@
   "questId": "mcc_campaign_ch3",
   "campaignId": "mcc_route",
   "chapterNumber": 3,
-  "title": {
-    "ko": "25도 라운지",
-    "en": "The 25-Degree Lounge"
-  },
-  "location": {
-    "id": "chen_office_25",
-    "displayNameKo": "Chen Weiss 사무실"
-  },
+  "title": { "ko": "25도 라운지", "en": "The 25-Degree Lounge" },
+  "location": { "id": "chen_office_25", "displayNameKo": "Chen Weiss 사무실" },
   "environment": "corporate_warm",
-  "estimatedPlayTimeMinutes": 15,
-  "characters": [
-    "player",
-    "chen"
-  ],
+  "estimatedPlayTimeMinutes": 20,
+  "characters": ["player", "chen"],
   "scenes": [
     {
       "id": "s01",
@@ -24,12 +15,7 @@
       "bgm": "mcc_ambient_warm",
       "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "화성에서 25도는 유지하는 것이 돈이 들었다. 많은 돈. Chen Weiss의 사무실은 항상 25도였다. 그것이 이 방의 이름이었다. 25도 라운지. 이름이 붙은 것은 이유가 있었다.",
-            "en": "On Mars maintaining twenty-five degrees cost money. A great deal. Chen Weiss's office was always twenty-five degrees. That was the room's name. The 25-Degree Lounge. There was a reason it had a name."
-          }
-        }
+        { "text": { "ko": "호출이 왔다. 발신인: Chen Weiss. 내용: 오전 10시. 25도 라운지. 짧았다. MCC에서 짧은 호출은 두 가지였다. 중요하지 않거나 매우 중요하거나. 이것은 두 번째였다.", "en": "A summons arrived. Sender: Chen Weiss. Content: 10 AM. 25-Degree Lounge. Brief. In MCC brief summons meant one of two things. Unimportant or very important. This was the second." } }
       ]
     },
     {
@@ -39,61 +25,27 @@
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "Chen Weiss는 차를 들고 있었다. 잔이 가득 찼다. 그러나 마시지 않았다. 이것은 그녀의 방식이었다. 25도의 방 안에서 차는 식지 않았다. 영원히 그 상태로 있을 수 있었다.",
-            "en": "Chen Weiss was holding a cup of tea. The cup was full. But she wasn't drinking it. This was her way. In the twenty-five degree room the tea wouldn't cool. It could stay like that forever."
-          }
-        }
+        { "text": { "ko": "화성에서 25도는 유지하는 것이 돈이 들었다. 많은 돈. Chen Weiss의 사무실은 항상 25도였다. 그것이 이 방의 이름이었다. 25도 라운지. 이름이 붙은 것은 이유가 있었다.", "en": "On Mars maintaining twenty-five degrees cost money. A great deal. Chen Weiss's office was always twenty-five degrees. That was the room's name. The 25-Degree Lounge. There was a reason it had a name." } }
       ]
     },
     {
       "id": "s03",
       "type": "narration",
-      "background": "mcc_board_chamber",
-      "bgm": "mcc_ambient_warm",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "그녀의 부모는 광부였다. 화성 태생. 화성에서 태어난 두 번째 세대. 광산에서 일했고 광산에서 죽었다. Chen은 그것을 자주 말하지 않았다. 그러나 차를 들 때마다 어디선가 그것이 있었다.",
-            "en": "Her parents had been miners. Born on Mars. Second generation. They worked the mines and they died in them. Chen didn't talk about it often. But whenever she held the tea it was there somewhere."
-          }
-        }
-      ]
-    },
-    {
-      "id": "s04",
-      "type": "dialogue",
       "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
-        {
-          "speaker": "chen",
-          "emotion": "neutral",
-          "effect": "character_enter:chen:slide_left",
-          "text": {
-            "ko": "앉아요.",
-            "en": "Sit down."
-          }
-        },
-        {
-          "speaker": "chen",
-          "emotion": "calm",
-          "text": {
-            "ko": "보고서 읽었어요. 감사 결과. 당신이 쓴 거예요.",
-            "en": "I read the report. The audit results. You wrote it."
-          }
-        },
-        {
-          "speaker": "chen",
-          "emotion": "neutral",
-          "text": {
-            "ko": "차 들어요.",
-            "en": "Take some tea."
-          }
-        }
+        { "text": { "ko": "MCC 임원층. 6층이었다. 엘리베이터가 있었다. 그러나 엘리베이터 열쇠가 따로 있었다. 6층 버튼은 잠겨 있었다. 계단이 있었다. 계단도 코드가 필요했다. 코드는 바뀌었다. 매주. 그것이 6층이 6층인 이유였다.", "en": "MCC executive floor. Sixth floor. There was an elevator. But the elevator required a separate key. The 6th floor button was locked. Stairs existed. The stairs also needed a code. The code changed. Weekly. That was why the sixth floor was the sixth floor." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Chen Weiss는 차를 들고 있었다. 잔이 가득 찼다. 그러나 마시지 않았다. 이것은 그녀의 방식이었다. 25도의 방 안에서 차는 식지 않았다. 영원히 그 상태로 있을 수 있었다.", "en": "Chen Weiss was holding a cup of tea. The cup was full. But she wasn't drinking it. This was her way. In the twenty-five degree room the tea wouldn't cool. It could stay like that forever." } }
       ]
     },
     {
@@ -103,60 +55,282 @@
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "차가 왔다. 잔을 받았다. Chen은 자신의 잔을 보았다. 마시지 않았다. 그냥 들고 있었다. 25도의 공기 속에서 차는 식지 않았다. 그것이 이 방의 권력이었다.",
-            "en": "Tea came. The cup was taken. Chen looked at her own cup. Didn't drink. Just held it. In the twenty-five degree air the tea wouldn't cool. That was this room's power."
-          }
-        }
+        { "text": { "ko": "그녀의 부모는 광부였다. 화성 태생. 화성에서 태어난 두 번째 세대. 광산에서 일했고 광산에서 죽었다. Chen은 그것을 자주 말하지 않았다. 그러나 차를 들 때마다 어디선가 그것이 있었다.", "en": "Her parents had been miners. Born on Mars. Second generation. They worked the mines and they died in them. Chen didn't talk about it often. But whenever she held the tea it was there somewhere." } }
       ]
     },
     {
       "id": "s06",
+      "type": "narration",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "창이 전면이었다. 헬라스 센트럴 전체가 보였다. 파노라마였다. 도시의 층들이 보였다. 위층. 중층. 아래층. 아래로 내려갈수록 먼지가 많았다. 창에서 보면 전부 작았다. 그녀의 부모가 있던 층이 가장 작았다.", "en": "The window was full-wall. All of Hellas Central visible. A panorama. The city's layers visible. Upper. Middle. Lower. More dust the lower you went. From the window everything was small. The layer where her parents had been was smallest." } }
+      ]
+    },
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "neutral", "effect": "character_enter:chen:slide_left", "text": { "ko": "앉아요.", "en": "Sit down." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "보고서 읽었어요. 감사 결과. 당신이 쓴 거예요.", "en": "I read the report. The audit results. You wrote it." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "차 들어요.", "en": "Take some tea." } }
+      ]
+    },
+    {
+      "id": "s08",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "차가 왔다. 잔을 받았다. Chen은 자신의 잔을 보았다. 마시지 않았다. 그냥 들고 있었다. 25도의 공기 속에서 차는 식지 않았다. 그것이 이 방의 권력이었다.", "en": "Tea came. The cup was taken. Chen looked at her own cup. Didn't drink. Just held it. In the twenty-five degree air the tea wouldn't cool. That was this room's power." } }
+      ]
+    },
+    {
+      "id": "s09",
       "type": "dialogue",
       "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        {
-          "speaker": "chen",
-          "emotion": "serious",
-          "text": {
-            "ko": "7구역 사망 3건. 당신이 보고서에 적었어요. 용기 있는 일이에요. 또는 어리석은 일이에요. 둘 중 하나예요.",
-            "en": "Three deaths in Sector 7. You put it in the report. That was either courageous or foolish. One of the two."
-          }
-        },
-        {
-          "speaker": "chen",
-          "emotion": "neutral",
-          "text": {
-            "ko": "나는 둘 다 싫어하지 않아요. 같은 뿌리에서 나와요.",
-            "en": "I don't dislike either. They come from the same root."
-          }
-        },
-        {
-          "speaker": "chen",
-          "emotion": "calm",
-          "text": {
-            "ko": "새 임무가 있어요. Kepler 분화구. 광물 조사. 그쪽에 뭔가 있어요.",
-            "en": "There's a new mission. Kepler Crater. Mineral survey. There's something out there."
-          }
-        }
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "7구역 사망 3건. 당신이 보고서에 적었어요. 용기 있는 일이에요. 또는 어리석은 일이에요. 둘 중 하나예요.", "en": "Three deaths in Sector 7. You put it in the report. That was either courageous or foolish. One of the two." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "나는 둘 다 싫어하지 않아요. 같은 뿌리에서 나와요.", "en": "I don't dislike either. They come from the same root." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "MCC에서 20년 됐어요. 보고서에 그것을 쓴 신입은 거의 없어요.", "en": "Twenty years in MCC. New arrivals who write that in reports are rare." } }
       ]
     },
     {
-      "id": "s07",
+      "id": "s10",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "Chen은 차를 들고 있었다. 여전히 마시지 않았다. 창문 너머로 헬라스 센트럴이 보였다. MCC가 지은 도시. 이 방에서 보면 전부 작았다. 그녀가 의도한 것이었다.",
-            "en": "Chen was still holding the tea. Still not drinking it. Through the window Hellas Central was visible. The city MCC built. From this room everything looked small. She had intended that."
-          }
-        }
+        { "text": { "ko": "Chen이 창 쪽을 봤다. 잠깐이었다. 다시 돌아왔다. 차를 들었다. 마시지 않았다. 이것이 반복됐다. 이 방에서 반복되는 것들이 있었다. 그것들이 이 방을 이 방으로 만들었다.", "en": "Chen looked toward the window. Briefly. Came back. Held the tea. Didn't drink. This repeated. There were things that repeated in this room. Those things made this room what it was." } }
+      ]
+    },
+    {
+      "id": "s11",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "내 부모 얘기를 할게요. 광산에서 일했어요. 두 분 다요. 나는 12살에 혼자 남았어요.", "en": "I'll tell you about my parents. They worked in the mines. Both. I was left alone at twelve." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "사고 보고서가 있었어요. 원인란이 비어 있었어요.", "en": "There was an accident report. The cause section was blank." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그래서 MCC에 들어왔어요. 그것을 채우려고.", "en": "That's why I entered MCC. To fill it in." } }
+      ]
+    },
+    {
+      "id": "s12",
+      "type": "narration",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "그녀가 창을 봤다. 파노라마 창. 헬라스 전체. 광산 구역이 보였다. 작았다. 그녀는 차를 들고 있었다. 마시지 않았다. 그 이야기를 하는 동안에도. 그것이 더 많은 것을 말했다. 말보다.", "en": "She looked at the window. The panoramic window. All of Hellas. The mine district was visible. Small. She held her tea. Didn't drink. Even while telling that story. That said more. More than words." } }
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "22년이 됐어요. 채워졌어요? 잘 모르겠어요.", "en": "Twenty-two years. Was it filled? I'm not sure." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "MCC 안에서 원인란을 채울 수 있어요. 어느 정도는. 규정을 바꿀 수 있어요. 체크리스트를 바꿀 수 있어요.", "en": "Inside MCC you can fill in cause sections. To a degree. Rules can be changed. Checklists can be changed." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그러나 MCC 밖에서는 아무것도 바꿀 수 없어요. 화성에서는. 그것을 배웠어요. 오래 걸렸어요.", "en": "But outside MCC nothing can be changed. On Mars. That's what I learned. It took a long time." } }
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "차가 식지 않았다. 25도의 공기였다. Chen은 차를 들고 있었다. 마시지 않았다. 대화가 이어졌다. 그러나 차를 마시지 않는 것이 더 많은 것을 말했다. 이 방에서 하지 않는 것들이 하는 것들보다 무거웠다.", "en": "The tea didn't cool. Twenty-five degree air. Chen held the tea. Didn't drink. The conversation continued. But not drinking the tea said more. In this room what was not done was heavier than what was done." } }
+      ]
+    },
+    {
+      "id": "s15",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "새 임무가 있어요. Kepler 분화구. 광물 조사. 그쪽에 뭔가 있어요.", "en": "There's a new mission. Kepler Crater. Mineral survey. There's something out there." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "지질팀이 갔다 왔어요. 보고서가 불완전해요. 다시 가야 해요.", "en": "A geology team went. The report was incomplete. It needs to be done again." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "당신이 가요. 이유가 있어요. 나중에 알게 될 거예요.", "en": "You're going. There's a reason. You'll understand later." } }
+      ]
+    },
+    {
+      "id": "s16",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "나중에. 그 말이 이 방에서 나오면 무게가 달랐다. 나중이 확실한 말이었다. MCC에서 나중이 확실한 사람은 많지 않았다. Chen Weiss는 그중 하나였다. 그것이 이 방의 또 다른 이름이었다. 나중이 확실한 곳.", "en": "Later. When that word was said in this room it had different weight. A later that was certain. Not many people in MCC had a certain later. Chen Weiss was one. That was another name for this room. A place where later was certain." } }
+      ]
+    },
+    {
+      "id": "s17",
+      "type": "dialogue",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "Liang Wei를 만날 거예요. 지질학자. MCC 외부 인물이에요. 독립 연구자예요.", "en": "You'll meet Liang Wei. A geologist. External to MCC. Independent researcher." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "30년간 케플러를 연구했어요. 화성에서 30년을 한 곳에 쓴 사람이에요. 그 사람이 뭔가 봤어요.", "en": "Thirty years studying Kepler. A person who spent thirty years in one place on Mars. That person saw something." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그게 무엇인지 확인해요. 그 다음 나에게 보고해요. 지질팀 보고서 말고. 당신 생각을.", "en": "Confirm what it is. Then report to me. Not the geology team report. Your thoughts." } }
+      ]
+    },
+    {
+      "id": "s18",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "당신 생각을. 그 말이 이상했다. MCC에서 당신 생각을 묻는 사람은 드물었다. 당신 보고서를 원하는 조직이었다. 보고서는 사실이었다. 사실은 관리될 수 있었다. 생각은 달랐다. Chen Weiss가 생각을 원하는 것은 이유가 있었다.", "en": "Your thoughts. That was strange. In MCC people rarely asked for your thoughts. It was an organization that wanted your reports. Reports were facts. Facts could be managed. Thoughts were different. Chen Weiss wanting thoughts had a reason." } }
+      ]
+    },
+    {
+      "id": "s19",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "이 방이 왜 25도인지 물어볼 수 있어요.", "en": "You can ask why this room is twenty-five degrees." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "화성의 표준 실내 온도는 18도예요. 7도 더 비싸요. 에너지 비용이에요. 매달 납부해요.", "en": "Standard indoor temperature on Mars is 18 degrees. Seven degrees more expensive. Energy cost. Paid monthly." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그 돈이 어디서 나오는지 알아요? 광부들의 작업 수당에서요. 계약 조항 32호. 기반시설 유지 부담금. 모두가 내요.", "en": "Do you know where that money comes from? Miners' work allowances. Contract clause 32. Infrastructure maintenance surcharge. Everyone pays it." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "나는 그것을 알면서 25도를 유지해요. 그것이 이 방의 의미예요. 잊지 않기 위해.", "en": "I maintain twenty-five degrees knowing that. That's the meaning of this room. To not forget." } }
+      ]
+    },
+    {
+      "id": "s20",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "차가 손 안에 있었다. 따뜻했다. 25도. 그 따뜻함의 비용을 광부들이 냈다. Chen은 그것을 잊지 않기 위해 이 방을 25도로 유지했다. 그것이 이해됐다. 그러나 완전히 이해됐는지는 알 수 없었다. 화성에서 완전히 이해되는 것은 없었다.", "en": "Tea was in the hand. Warm. Twenty-five degrees. Miners paid for that warmth. Chen kept this room at twenty-five to not forget. That was understood. But whether fully understood was uncertain. On Mars nothing was fully understood." } }
+      ]
+    },
+    {
+      "id": "s21",
+      "type": "dialogue",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "MCC는 화성을 운영해요. 광산. 산소. 물. 정제소. 그것 없이는 사람이 살 수 없어요.", "en": "MCC runs Mars. Mines. Oxygen. Water. Refineries. Without those people can't live." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그 권력이 어떻게 쓰이느냐가 문제예요. 누가 쥐고 있느냐가 문제예요.", "en": "The issue is how that power is used. Who holds it." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "나는 22년 동안 그것을 보면서 왔어요. 어떤 방향으로 가야 하는지는 알아요. 그 방향으로 갈 사람이 필요해요.", "en": "I've watched that for twenty-two years. I know which direction it should go. I need someone to go that direction." } }
+      ]
+    },
+    {
+      "id": "s22",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "조용했다. 파노라마 창 너머 헬라스가 있었다. MCC가 지은 도시. 이 방에서 보면 전부 작았다. 그것이 의도된 것이었다. 작게 보여야 할 것과 작게 보이면 안 될 것을 구분하는 것. 그것이 22년이 가르친 것이었다.", "en": "Quiet. Beyond the panoramic window was Hellas. The city MCC built. From this room everything was small. That was intentional. Distinguishing what should look small from what should not. That was what twenty-two years had taught." } }
+      ]
+    },
+    {
+      "id": "s23",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "케플러 임무 전에 한 가지 더 알아요.", "en": "One more thing before the Kepler mission." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "MCC 이사회는 7구역 보고서를 봤어요. 당신 이름을 알아요. 관심을 받는 것이 항상 좋은 것만은 아니에요.", "en": "The MCC board saw the Sector 7 report. They know your name. Attention isn't always a good thing." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "그러나 내가 여기 불렀어요. 그 말이 의미하는 것을 생각해요.", "en": "But I called you here. Think about what that means." } }
+      ]
+    },
+    {
+      "id": "s24",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Chen이 창을 봤다. 오래. 차를 들고 있었다. 마시지 않았다. 헬라스가 그 창 안에 있었다. 작았다. 그러나 그것이 전부가 아니라는 것을 이 방에서 알 수 있었다. 작아 보이는 것이 실제로 작은 것이 아니었다. 화성에서 배우는 것이 그것이었다.", "en": "Chen looked at the window. Long. Held the tea. Didn't drink. Hellas was in that window. Small. But from this room it was known that wasn't everything. What looked small wasn't actually small. That was what Mars taught." } }
+      ]
+    },
+    {
+      "id": "s25",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "FSP가 케플러를 알아요. CV도 알아요. 먼저 움직이는 쪽이 가져가요.", "en": "FSP knows about Kepler. CV does too. Whoever moves first takes it." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "MCC가 먼저 움직여야 해요. 당신이 거기 있어야 해요.", "en": "MCC needs to move first. You need to be there." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "Liang Wei와 협력해요. 그러나 Liang Wei의 연구가 어디로 가는지 기억해요. 케플러의 데이터는 MCC 것이에요. 계약이에요.", "en": "Cooperate with Liang Wei. But remember where Liang Wei's research goes. The Kepler data belongs to MCC. It's in the contract." } }
+      ]
+    },
+    {
+      "id": "s26",
+      "type": "narration",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "계약. 화성의 모든 것은 계약이었다. 산소도 계약. 물도 계약. 광산도 계약. 그러나 계약 안에서 사람이 죽으면 원인란이 비었다. 그 공백이 계약에 있었다. 그 공백을 채우는 것. 그것이 Chen이 말하지 않고 말한 것이었다.", "en": "Contract. Everything on Mars was contract. Oxygen was contract. Water was contract. Mines were contract. But when people died within contracts the cause section was blank. That blank was in the contract. Filling that blank. That was what Chen said without saying." } }
+      ]
+    },
+    {
+      "id": "s27",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "차는 다 마셨어요?", "en": "Finished your tea?" } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "25도에서 차는 식지 않아요. 언제 마셔도 같은 온도예요.", "en": "Tea doesn't cool at twenty-five degrees. It's the same temperature whenever you drink it." } },
+        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "그것이 이 방이 가르치는 것이에요. 시간이 지나도 변하지 않는 것들이 있어요. 그것이 권력이 될 수도 있고 짐이 될 수도 있어요.", "en": "That's what this room teaches. Some things don't change with time. That can be power or it can be a burden." } }
+      ]
+    },
+    {
+      "id": "s28",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "차를 들었다. 마셨다. 따뜻했다. Chen은 자신의 잔을 들었다. 마시지 않았다. 두 잔이 있었다. 하나는 비어가고 있었다. 하나는 가득 찬 채로 있었다. 그 차이가 이 방의 진짜 이름이었다.", "en": "Held the tea. Drank. Warm. Chen held her cup. Didn't drink. Two cups. One emptying. One staying full. That difference was this room's real name." } }
+      ]
+    },
+    {
+      "id": "s29",
+      "type": "dialogue",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "마지막으로 물어볼게요. MCC에 온 이유가 뭐예요.", "en": "Last question. Why did you come to MCC." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "답 안 해도 돼요. 기억해두면 돼요.", "en": "No need to answer. Just remember it." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "화성은 사람을 바꿔요. 이유를 잊게 만들어요. 그 이유를 잊지 않은 사람이 이 행성에서 오래가요.", "en": "Mars changes people. It makes you forget the reason. People who don't forget that reason last on this planet." } }
+      ]
+    },
+    {
+      "id": "s30",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Chen Weiss는 차를 들고 있었다. 여전히 마시지 않았다. 창문 너머로 헬라스 센트럴이 보였다. MCC가 지은 도시. 이 방에서 보면 전부 작았다. 그녀가 의도한 것이었다.", "en": "Chen Weiss was holding the tea. Still not drinking it. Through the window Hellas Central was visible. The city MCC built. From this room everything looked small. She had intended that." } }
       ]
     },
     {
@@ -164,59 +338,54 @@
       "type": "choice",
       "background": "mcc_executive_floor",
       "bgm": "choice_tension",
-      "prompt": {
-        "ko": "Chen Weiss. 어떻게 반응하겠습니까.",
-        "en": "Chen Weiss. How will you respond."
-      },
+      "prompt": { "ko": "Chen Weiss. 어떻게 반응하겠습니까.", "en": "Chen Weiss. How will you respond." },
       "choices": [
-        {
-          "id": "mcc_ch3_accept",
-          "text": {
-            "ko": "Kepler에 가겠습니다.",
-            "en": "I'll go to Kepler."
-          },
-          "tone": "compliant",
-          "preview_hint": {
-            "ko": "→ 임무 진행",
-            "en": "→ Mission proceeds"
-          }
-        },
-        {
-          "id": "mcc_ch3_ask_why",
-          "text": {
-            "ko": "무엇을 찾는 건지 말해주십시오.",
-            "en": "Tell me what we're looking for."
-          },
-          "tone": "direct",
-          "preview_hint": {
-            "ko": "→ Chen이 일부를 설명",
-            "en": "→ Chen explains some"
-          }
-        },
-        {
-          "id": "mcc_ch3_audit_first",
-          "text": {
-            "ko": "7구역 건이 먼저 처리되어야 합니다.",
-            "en": "The Sector 7 matter needs to be resolved first."
-          },
-          "tone": "principled",
-          "preview_hint": {
-            "ko": "→ Chen이 당신을 다르게 본다",
-            "en": "→ Chen sees you differently"
-          }
-        },
-        {
-          "id": "mcc_ch3_hold_cup",
-          "text": {
-            "ko": "침묵. 차를 들고만 있는다.",
-            "en": "Silence. Just hold the cup."
-          },
-          "tone": "watchful",
-          "preview_hint": {
-            "ko": "→ Chen이 말을 잇는다",
-            "en": "→ Chen continues. She sees something."
-          }
-        }
+        { "id": "mcc_ch3_accept", "text": { "ko": "Kepler에 가겠습니다.", "en": "I'll go to Kepler." }, "tone": "compliant", "preview_hint": { "ko": "→ 임무 진행", "en": "→ Mission proceeds" } },
+        { "id": "mcc_ch3_ask_why", "text": { "ko": "무엇을 찾는 건지 말해주십시오.", "en": "Tell me what we're looking for." }, "tone": "direct", "preview_hint": { "ko": "→ Chen이 일부를 설명", "en": "→ Chen explains some" } },
+        { "id": "mcc_ch3_audit_first", "text": { "ko": "7구역 건이 먼저 처리되어야 합니다.", "en": "The Sector 7 matter needs to be resolved first." }, "tone": "principled", "preview_hint": { "ko": "→ Chen이 당신을 다르게 본다", "en": "→ Chen sees you differently" } },
+        { "id": "mcc_ch3_hold_cup", "text": { "ko": "침묵. 차를 들고만 있는다.", "en": "Silence. Just hold the cup." }, "tone": "watchful", "preview_hint": { "ko": "→ Chen이 말을 잇는다", "en": "→ Chen continues. She sees something." } }
+      ]
+    },
+    {
+      "id": "s31",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Chen이 반응했다. 미세했다. 잔을 조금 내렸다. 아주 조금. 22년 동안 잔을 든 사람의 손이 잔을 내리는 것. 그것이 이 방에서 가장 큰 움직임이었다.", "en": "Chen reacted. Subtly. Lowered the cup slightly. Just slightly. The hand of someone who had held a cup for twenty-two years lowering it. That was the largest movement in this room." } }
+      ]
+    },
+    {
+      "id": "s32",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "좋아요.", "en": "Good." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "케플러 가요. 이번 주. 장비는 기술부에서 받아요. Liang Wei 연락처는 리팡이 가지고 있어요.", "en": "Go to Kepler. This week. Get equipment from the technical division. Lifang has Liang Wei's contact." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "돌아오면 여기 와요. 이 방으로. 차 한 잔 더 마셔요.", "en": "When you return come here. This room. Have another cup of tea." } }
+      ]
+    },
+    {
+      "id": "s33",
+      "type": "narration",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "떠나기 전에 창을 봤다. 헬라스 전체가 보였다. 위층. 중층. 아래층. 먼지. 광산. C-7 블록. 분필 이름들이 있는 곳. 이 방에서는 보이지 않았다. 너무 작았다. 그러나 있었다. 항상 거기 있었다.", "en": "Before leaving looked at the window. All of Hellas visible. Upper. Middle. Lower. Dust. Mine. Block C-7. Where chalk names were. From this room not visible. Too small. But they were there. Always there." } }
+      ]
+    },
+    {
+      "id": "s34",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "문을 향해 걸었다. Chen은 창을 보고 있었다. 차를 들고. 마시지 않고. 뒤에서 보면 그녀의 어깨가 보였다. MCC 22년. 광산 부모. 12살의 혼자. 그것들이 그 어깨에 있었다. 보이지 않았지만 있었다. 화성의 것들은 그랬다.", "en": "Walked toward the door. Chen was looking at the window. Holding her tea. Not drinking. From behind her shoulders were visible. 22 years of MCC. Miner parents. Twelve and alone. Those things were in those shoulders. Invisible but there. Things on Mars were like that." } }
       ]
     },
     {
@@ -225,14 +394,8 @@
       "background": "kepler_crater",
       "bgm": "battle_theme_mcc",
       "transition": "fade_slow",
-      "title": {
-        "ko": "Kepler 정찰",
-        "en": "Kepler Recon"
-      },
-      "subtitle": {
-        "ko": "케플러 분화구",
-        "en": "Kepler Crater"
-      }
+      "title": { "ko": "Kepler 정찰", "en": "Kepler Recon" },
+      "subtitle": { "ko": "케플러 분화구", "en": "Kepler Crater" }
     },
     {
       "id": "s_result",
@@ -242,16 +405,13 @@
     },
     {
       "id": "s_success",
-      "type": "narration",
+      "type": "dialogue",
       "background": "mcc_board_chamber",
       "bgm": "victory_calm",
       "lines": [
-        {
-          "text": {
-            "ko": "임무가 완료됐다. 데이터를 가지고 돌아왔다. 25도 라운지로 보고가 갈 것이었다. Chen은 보고서를 읽을 것이었다. 차를 들고. 마시지 않고.",
-            "en": "Mission complete. Data in hand. The report would go to the 25-Degree Lounge. Chen would read it. Holding her tea. Not drinking."
-          }
-        }
+        { "speaker": "chen", "emotion": "calm", "effect": "character_enter:chen:slide_left", "text": { "ko": "돌아왔군요.", "en": "You're back." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "임무가 완료됐다. 데이터가 왔다. 25도 라운지로 보고가 갈 것이었다.", "en": "Mission complete. Data arrived. The report would go to the 25-Degree Lounge." } },
+        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "차 들어요. 오늘은 이 방에서 마셔요. 둘 다.", "en": "Take some tea. Today we drink in this room. Both of us." } }
       ]
     },
     {
@@ -260,12 +420,7 @@
       "background": "kepler_crater",
       "bgm": "defeat_ambient",
       "lines": [
-        {
-          "text": {
-            "ko": "돌아왔다. 데이터가 불완전했다. Chen은 그것을 알고 있을 것이었다. 이미.",
-            "en": "You returned. The data was incomplete. Chen would already know. She always did."
-          }
-        }
+        { "text": { "ko": "돌아왔다. 데이터가 불완전했다. Chen은 그것을 알고 있을 것이었다. 이미. 그녀는 차를 들고 있을 것이었다. 마시지 않고. 25도에서 차는 식지 않았다. 기다릴 수 있었다. 그것도 권력의 한 형태였다.", "en": "You returned. The data was incomplete. Chen would already know. She always did. She would be holding her tea. Not drinking. Tea didn't cool at twenty-five degrees. She could wait. That too was a form of power." } }
       ]
     },
     {
@@ -275,20 +430,9 @@
       "bgm": "mcc_ambient_warm",
       "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "25도. 그것은 온도였다. 그러나 그것만이 아니었다. 화성에서 따뜻함을 유지하는 것은 권력이었다. Chen Weiss는 그것을 알았다. 차를 들고 있었다. 마시지 않았다. 식지 않는 차.",
-            "en": "Twenty-five degrees. It was a temperature. But it was not only that. On Mars maintaining warmth was power. Chen Weiss knew this. She held the tea. Didn't drink it. Tea that wouldn't cool."
-          }
-        }
+        { "text": { "ko": "25도. 그것은 온도였다. 그러나 그것만이 아니었다. 화성에서 따뜻함을 유지하는 것은 권력이었다. Chen Weiss는 그것을 알았다. 차를 들고 있었다. 마시지 않았다. 식지 않는 차. 그러나 그 차는 광부들의 수당으로 만들어진 것이었다. 그것도 알았다. 잊지 않기 위해 25도를 유지했다. 그것이 이 방의 진짜 이름이었다.", "en": "Twenty-five degrees. It was a temperature. But it was not only that. On Mars maintaining warmth was power. Chen Weiss knew this. She held the tea. Didn't drink it. Tea that wouldn't cool. But that tea was made from miners' allowances. She knew that too. She maintained twenty-five degrees to not forget. That was this room's real name." } }
       ],
-      "next_chapter_preview": {
-        "questId": "mcc_campaign_ch4",
-        "teaser": {
-          "ko": "다음 — Kepler Survey",
-          "en": "Next — Kepler Survey"
-        }
-      }
+      "next_chapter_preview": { "questId": "mcc_campaign_ch4", "teaser": { "ko": "다음 — Kepler Survey", "en": "Next — Kepler Survey" } }
     }
   ]
 }

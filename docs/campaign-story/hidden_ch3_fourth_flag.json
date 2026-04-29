@@ -2,44 +2,333 @@
   "questId": "hidden_campaign_ch3",
   "campaignId": "hidden_route",
   "chapterNumber": 3,
-  "title": { "ko": "세 개의 깃발, 네 번째 시점", "en": "Three Flags, Fourth Perspective" },
-  "location": { "id": "olympus_summit_exterior", "displayNameKo": "올림포스 산 정상 외부" },
+  "title": { "ko": "네 번째 깃발", "en": "The Fourth Flag" },
+  "location": { "id": "olympus_exterior_vast", "displayNameKo": "올림포스 산자락" },
   "environment": "olympus_exterior_thin_air",
-  "estimatedPlayTimeMinutes": 20,
-  "crossChapterNote": "MCC Ch9, FSP Ch9, CV Ch9와 같은 사건. 네 번째 시점 — 내부가 아닌 외부의 눈.",
-  "characters": ["observer", "chen", "rev_hale", "cinder"],
+  "estimatedPlayTimeMinutes": 24,
+  "crossChapterNote": "Three Flags 회담 이후. 관찰자가 그 장소를 나중에 봄.",
+  "characters": ["observer"],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "olympus_exterior", "bgm": "ambient_vast", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "올림포스 몬스. 관찰자가 올라왔다. 기지 안이 아니었다. 밖이었다. 올림포스 외벽. 거기서 봤다. 안에 세 명이 있었다. 세 파벌. 세 개의 깃발. 관찰자는 안에 없었다. 네 번째 깃발이 없었으니까. 그러나 봤다. 유리 너머로.", "en": "Olympus Mons. The observer had ascended. Not inside the station. Outside. The outer wall of Olympus. Watching from there. Inside were three people. Three factions. Three flags. The observer was not inside. Because there was no fourth flag. But watching. Through the glass." }}] },
-    { "id": "s02", "type": "narration", "background": "olympus_summit_exterior_view", "bgm": "ambient_vast", "transition": "cut",
-      "lines": [{ "text": { "ko": "Chen Weiss가 차를 들고 있었다. 관찰자는 그것을 봤다. 유리 너머로. 처음이 아니었다. Chen의 차를 본 것이. 그러나 이 높이에서 보는 것은 달랐다. 태양계에서 가장 높은 곳. 여기서 보는 차가 따뜻한지는 알 수 없었다.", "en": "Chen Weiss was holding tea. The observer saw it. Through the glass. Not the first time. Seeing Chen's tea. But seeing it at this height was different. The highest point in the solar system. Whether tea seen from here was warm was unknowable." }}] },
-    { "id": "s03", "type": "narration", "background": "olympus_summit_exterior_view", "bgm": "ambient_vast", "transition": "cut",
-      "lines": [{ "text": { "ko": "Rev. Hale이 이름들을 말했다. Kim Yong-jin. Mariam. Zone 12. 관찰자가 들었다. 유리 너머로 소리가 들렸다. 마스크 안으로. 이름들이. 관찰자도 그 이름들을 알았다. 흔적에서 봤다. 분필에서. 재에서. 발자국에서.", "en": "Rev. Hale spoke names. Kim Yong-jin. Mariam. Zone 12. The observer heard. Sound came through the glass. Into the mask. The names. The observer also knew those names. Had seen them in traces. In chalk. In ash. In footprints." }}] },
-    { "id": "s04", "type": "narration", "background": "olympus_summit_exterior_view", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "Cinder Grace가 공구를 내려놓았다. 테이블에. 관찰자가 봤다. 그것이 무엇인지 알았다. 고치는 것을 멈추는 것이 아니었다. 고칠 수 없는 것이 있다는 것을 인정하는 것이었다. 또는 고치는 방법이 다르다는 것을. 공구 없이.", "en": "Cinder Grace set down her tools. On the table. The observer saw it. Knew what it meant. Not stopping repairing. Acknowledging there were things that couldn't be repaired. Or that the way of repairing was different. Without tools." }}] },
-    { "id": "s05", "type": "narration", "background": "olympus_summit_exterior_view", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": { "ko": "세 사람이 합의하고 있었다. 또는 합의하지 못하고 있었다. 관찰자는 결과를 알 수 없었다. 유리가 두꺼웠다. 그러나 보이는 것들이 있었다. 세 사람이 같은 것을 원하지 않는다는 것. 그러나 같은 것을 두려워한다는 것. 두려움이 합의를 만드는 것이었다. 그것이 화성의 방식이었다.", "en": "The three were reaching agreement. Or failing to reach it. The observer couldn't know the result. The glass was thick. But some things were visible. That the three didn't want the same thing. But that they feared the same thing. Fear made agreement. That was Mars's way." }}] },
-    { "id": "s06", "type": "narration", "background": "olympus_exterior_vast", "bgm": "ambient_vast", "transition": "cut",
-      "lines": [{ "text": { "ko": "관찰자가 뒤로 돌았다. 화성이 보였다. 전체가. 이 높이에서. MCC 도시들. FSP 마을들. CV 기지들. 그리고 그것들 사이. 이름 없는 곳들. 흔적들이 있는 곳들. 분필. 재. 발자국. 그것들이 화성이었다. 도시와 기지보다 더.", "en": "The observer turned around. Mars was visible. All of it. From this height. MCC cities. FSP villages. CV bases. And between them. The unnamed places. Places with traces. Chalk. Ash. Footprints. Those were Mars. More than cities and bases." }}] },
-    { "id": "s_choice", "type": "choice", "background": "olympus_exterior_vast", "bgm": "choice_tension",
-      "prompt": { "ko": "네 번째 시점. 관찰자. 화성 전체가 보인다. 무엇을 합니까.", "en": "Fourth perspective. Observer. All Mars visible. What do you do." },
-      "choices": [
-        { "id": "hidden_ch3_enter", "text": { "ko": "안으로 들어간다. 네 번째 목소리가 된다.", "en": "Go inside. Become the fourth voice." }, "tone": "intervention", "preview_hint": { "ko": "→ 세 파벌이 멈춘다. 관찰자를 본다", "en": "→ The three factions stop. Look at the observer." }},
-        { "id": "hidden_ch3_wait", "text": { "ko": "기다린다. 그들이 결정하게 한다.", "en": "Wait. Let them decide." }, "tone": "restraint", "preview_hint": { "ko": "→ 결정이 난다. 다른 방향으로", "en": "→ Decision is made. In a different direction." }},
-        { "id": "hidden_ch3_record", "text": { "ko": "기록한다. 이 순간을.", "en": "Record this moment." }, "tone": "historian", "preview_hint": { "ko": "→ 화성에서 처음으로 네 번째 기록이 생긴다", "en": "→ For the first time on Mars a fourth record is made." }},
-        { "id": "hidden_ch3_ancient", "text": { "ko": "Ancient Metal. 그것을 꺼낸다.", "en": "Ancient Metal. Bring it forward." }, "tone": "revelation", "preview_hint": { "ko": "→ 세 파벌이 모두 돌아본다. 모든 것이 달라진다", "en": "→ All three factions turn. Everything changes." }}
-      ]
+    {
+      "id": "s01", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "올림포스 산자락이었다. 관찰자가 왔다. Three Flags 회담이 있었던 후였다. 얼마나 후인지는 몰랐다. 그것이 중요하지 않았다. 중요한 것은 회담이 있었다는 것이었다. 그리고 지금 관찰자가 그 자리에 있다는 것이었다.",
+        "en": "The foothills of Olympus Mons. The observer had come. After the Three Flags conference. How long after was unknown. That didn't matter. What mattered was that a conference had been. And that the observer was now at that place."
+      }}]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "olympus_exterior", "bgm": "hidden_theme", "transition": "fade_slow",
-      "title": { "ko": "올림포스의 네 번째", "en": "The Fourth at Olympus" }, "subtitle": { "ko": "올림포스 — 관찰자의 선택", "en": "Olympus — The Observer's Choice" }
+    {
+      "id": "s02", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "올림포스는 컸다. 화성에서 가장 큰 것. 태양계에서 가장 큰 화산. 관찰자가 올려봤다. 정상이 보이지 않았다. 구름이 있었다. 또는 거리가 있었다. 그 아래 산자락에 회담 자리의 흔적이 있었다.",
+        "en": "Olympus was vast. The largest thing on Mars. The largest volcano in the solar system. The observer looked up. The summit wasn't visible. There were clouds. Or there was distance. Below on the foothills were traces of the conference site."
+      }}]
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "narration", "background": "olympus_summit_station", "bgm": "victory_calm",
-      "lines": [{ "text": { "ko": "네 번째가 있었다. 세 파벌은 몰랐다. 그러나 지금은 알았다. 관찰자가 안에 있었다. 또는 기록이 있었다. 또는 Ancient Metal이 테이블에 있었다. 어느 쪽이든 화성이 달라졌다. 관찰이 관찰을 넘어선 것이었다.", "en": "There was a fourth. The three factions hadn't known. But now they did. The observer was inside. Or a record existed. Or Ancient Metal was on the table. Either way Mars had changed. Observation had gone beyond observation." }}] },
-    { "id": "s_fail", "type": "narration", "background": "olympus_exterior", "bgm": "hidden_ambient",
-      "lines": [{ "text": { "ko": "합의가 없었다. 네 번째 시점도 없었다. 관찰자는 유리 너머에 있었다. 세 파벌은 각자 갔다. 그러나 관찰자는 봤다. 그것이 기록이었다. 기록은 합의가 없어도 있었다.", "en": "No agreement. No fourth perspective either. The observer was beyond the glass. Three factions went their ways. But the observer had seen. That was the record. Records existed even without agreement." }}] },
-    { "id": "s_ending", "type": "ending", "background": "olympus_exterior_vast", "bgm": "ambient_vast", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "올림포스에서 내려왔다. 화성이 아래에 있었다. 세 개의 깃발이 있었다. 그 사이에 이름 없는 것들이 있었다. 관찰자는 그것들을 알았다. 이름들. 흔적들. 30년. Ancient Metal. 그것들이 연결된 것을 알았다. 그러나 어떻게 연결됐는지는 아직 몰랐다. 30년 전이 있었다. 그것이 마지막이었다.", "en": "Descended from Olympus. Mars was below. Three flags existed. Between them were nameless things. The observer knew them. Names. Traces. Thirty years. Ancient Metal. Knew they were connected. But how they connected was still unknown. There was thirty years ago. That was last." }}],
+    {
+      "id": "s03", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "회담 자리가 있었다. 임시 구조물의 흔적. 기둥이 있었던 자리. 천막이 있었던 자리. 바닥에 무언가 놓였던 자국들. 사람들이 서 있었던 자국들. 세 그룹이 왔다는 것을 알 수 있었다. 각 그룹이 서로 다른 방향에서 왔다. 발자국이 그것을 말했다.",
+        "en": "There was a conference site. Traces of temporary structures. Where pillars had been. Where tents had been. Marks on the ground of things placed. Marks of people who had stood. It could be known that three groups had come. Each group had come from different directions. Footprints said that."
+      }}]
+    },
+    {
+      "id": "s04", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "깃발이 있었던 자리. 세 개. 구멍들. 샌드스톤에서 본 것과 같은 종류의 구멍들. 그러나 더 컸다. 여기 더 큰 깃발이 있었다. 더 큰 의미가 있었다. 세 개의 구멍이 삼각형을 이뤘다. 삼각형의 중심이 비어 있었다.",
+        "en": "Where flags had been. Three. Holes. The same kind of holes as seen at Sandstone. But larger. Larger flags had been here. More significant. Three holes formed a triangle. The center of the triangle was empty."
+      }}]
+    },
+    {
+      "id": "s05", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "삼각형의 중심. 관찰자가 거기 섰다. 세 구멍이 주위에 있었다. MCC. FSP. CV. 세 방향. 관찰자가 가운데 있었다. 네 번째 자리. 깃발이 없는 자리. 그러나 누군가 거기 설 수 있었다. 관찰자가 지금 거기 서 있었다. 아무 깃발도 없이.",
+        "en": "The center of the triangle. The observer stood there. Three holes were around. MCC. FSP. CV. Three directions. The observer was in the middle. The fourth position. The place without a flag. But someone could stand there. The observer was standing there now. Without any flag."
+      }}]
+    },
+    {
+      "id": "s06", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그 자리에 무언가 있었다. 관찰자가 발 아래를 봤다. 핏빛이었다. 핏자국. 오래된 것이었다. 화성의 붉은 표면이 피를 숨겼다. 그러나 색이 달랐다. 조금 더 짙었다. 피가 있었다. 누군가 여기서 죽었다.",
+        "en": "There was something there. The observer looked down at their feet. It was blood-colored. A bloodstain. Old. The red surface of Mars hid blood. But the color was different. A little darker. There was blood. Someone had died here."
+      }}]
+    },
+    {
+      "id": "s07", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 쪼그렸다. 핏자국을 봤다. 양이 적지 않았다. 즉사는 아니었을 것이었다. 또는 즉사였을 것이었다. 양으로 알 수 없었다. 알 수 있는 것은 누군가 여기서 피를 흘렸다는 것이었다. 회담 자리에서. 삼각형 중심에서.",
+        "en": "The observer crouched. Looked at the bloodstain. Not a small amount. May not have been instant death. Or it may have been. The amount didn't tell. What could be known was that someone had bled here. At the conference site. At the center of the triangle."
+      }}]
+    },
+    {
+      "id": "s08", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "주위에 다른 것들이 있었다. 유리 파편. 금속 파편. 무언가 부서진 것들. 회담이 평화롭지 않았다는 것. 아니면 회담이 끝난 후에 다른 일이 있었다는 것. 세 파벌이 이 자리를 떠났다. 그 전에 무언가가 있었다.",
+        "en": "There were other things around. Glass fragments. Metal fragments. Things that had broken. The conference had not been peaceful. Or something had happened after the conference ended. Three factions had left this place. Before that something had occurred."
+      }}]
+    },
+    {
+      "id": "s09", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "발자국들이 달라졌다. 회담 전과 후가 달랐다. 들어온 발자국들은 천천히 왔다. 나간 발자국들은 빨랐다. 어떤 것들은 흐트러졌다. 뛰었거나 싸웠거나. 방향이 달랐다. 모두 같은 방향으로 나가지 않았다. 흩어졌다.",
+        "en": "The footprints had changed. Before and after the conference were different. The incoming footprints had come slowly. The outgoing footprints were fast. Some were disordered. Had run or fought. Directions were different. Not all had gone the same way. They had scattered."
+      }}]
+    },
+    {
+      "id": "s10", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 회담 자리에서 뒤로 물러섰다. 전체를 보려고. 더 넓게. 회담 자리 가장자리에 무언가가 있었다. 작은 것. 관찰자가 다가갔다. 깃발 조각이었다. 색이 있는 천 조각. 세 파벌 중 어느 것인지 알 수 없었다. 조각이 너무 작았다.",
+        "en": "The observer stepped back from the conference site. To see the whole. Wider. At the edge of the conference site there was something. Small. The observer approached. It was a fragment of a flag. A piece of colored cloth. Which of the three factions it belonged to couldn't be determined. The piece was too small."
+      }}]
+    },
+    {
+      "id": "s11", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "조각 옆에 다른 조각이 있었다. 다른 색. 또 다른 조각. 또 다른 색. 세 개의 조각들. 세 파벌의 깃발 조각들. 그것들이 같은 자리에 있었다. 찢겼다. 분노가 있었다. 또는 사고가 있었다. 또는 의도가 있었다. 알 수 없었다.",
+        "en": "Next to the piece there was another piece. A different color. Another piece. Another color. Three pieces. Flag pieces of the three factions. Those were in the same place. Torn. There had been anger. Or an accident. Or intent. Unknown."
+      }}]
+    },
+    {
+      "id": "s12", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그러나 네 번째 조각이 있었다. 관찰자가 찾았다. 세 개가 있는 곳에서 조금 떨어진 자리에. 색이 달랐다. 세 파벌의 색이 아니었다. 어떤 색인지 명확하지 않았다. 오래돼서. 화성 먼지를 맞아서. 그러나 달랐다. 네 번째 색이었다.",
+        "en": "But there was a fourth piece. The observer found it. A little away from where the three were. A different color. Not the color of the three factions. What color exactly wasn't clear. Old. Hit by Martian dust. But it was different. A fourth color."
+      }}]
+    },
+    {
+      "id": "s13", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 네 번째 조각을 봤다. 집지 않았다. 봤다. 누가 이것을 가져왔는가. 세 파벌이 아닌 누군가가 여기 왔다. 네 번째 깃발을 가져온 사람이 있었다. 또는 가져오려고 했던 사람이. 그 사람이 삼각형 중심에서 피를 흘렸다. 또는 아니었다. 알 수 없었다.",
+        "en": "The observer looked at the fourth piece. Didn't pick it up. Looked. Who had brought this. Someone who was not among the three factions had come here. There had been a person who brought a fourth flag. Or someone who had tried to bring one. That person had bled at the center of the triangle. Or not. Unknown."
+      }}]
+    },
+    {
+      "id": "s14", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 일어섰다. 올림포스를 올려봤다. 정상이 여전히 보이지 않았다. 이 산이 회담을 봤다. 그 아래. 산은 오래됐다. 화성보다 오래됐다. 지질학적으로는. 회담이 있었다. 피가 있었다. 네 번째 조각이 있었다. 산은 그것들을 봤다. 말하지 않았다.",
+        "en": "The observer stood. Looked up at Olympus. The summit was still not visible. This mountain had watched the conference. Below it. The mountain was old. Older than Mars. Geologically. There had been a conference. There had been blood. There had been a fourth piece. The mountain had seen them. Didn't speak."
+      }}]
+    },
+    {
+      "id": "s15", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "해가 지고 있었다. 올림포스 산자락의 저녁. 그림자가 길어졌다. 회담 자리의 그림자도 길어졌다. 핏자국. 깃발 자국. 네 번째 조각. 그것들의 그림자가 길어졌다. 해가 지면 흔적의 그림자가 길어졌다. 그것이 화성의 저녁이었다.",
+        "en": "The sun was setting. Evening at the foothills of Olympus. Shadows grew long. The shadow of the conference site also grew long. Bloodstain. Flag marks. The fourth piece. The shadows of those grew long. As the sun set the shadows of traces grew long. That was Mars evening."
+      }}]
+    },
+    {
+      "id": "s16", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 앉았다. 오래 앉았다. 회담 자리를 봤다. 세 개의 구멍. 중심의 핏자국. 흩어진 발자국들. 찢긴 깃발 조각들. 네 번째 조각. 이것들이 무엇을 말하는지 알 수 없었다. 아직. 그러나 이것들이 있었다. 그것을 알았다.",
+        "en": "The observer sat. Sat for a long time. Looked at the conference site. Three holes. Bloodstain at the center. Scattered footprints. Torn flag pieces. The fourth piece. What these were saying couldn't be known. Yet. But these things existed. That was known."
+      }}]
+    },
+    {
+      "id": "s17", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "저녁 빛 속에 회담 자리가 달라 보였다. 낮과 달랐다. 그림자들이 흔적들을 더 명확하게 만들었다. 또는 더 모호하게 만들었다. 같은 것이 빛에 따라 달라 보였다. 관찰자가 그것을 알았다. 흔적은 보는 시간에 따라 달랐다. 그것이 흔적의 특성이었다.",
+        "en": "In the evening light the conference site looked different. Different from daytime. Shadows made the traces clearer. Or made them more ambiguous. The same thing looked different depending on the light. The observer knew that. Traces were different depending on when they were seen. That was the nature of traces."
+      }}]
+    },
+    {
+      "id": "s18", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "회담에 대해 관찰자가 아는 것이 있었다. 세 파벌이 왔다. 합의를 시도했다. 합의가 됐는지 안 됐는지. 알 수 없었다. 그러나 흔적들은 합의 이후에 다른 것이 있었다고 말했다. 핏자국이 그것을 말했다. 합의는 평화가 아니었다. 화성에서 합의는 결코 평화가 아니었다.",
+        "en": "There were things the observer knew about the conference. Three factions had come. Had tried to reach agreement. Whether agreement was reached or not. Unknown. But traces said something had happened after the agreement. The bloodstain said that. Agreement was not peace. On Mars agreement was never peace."
+      }}]
+    },
+    {
+      "id": "s19", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 다시 걸었다. 회담 자리 주변을 걸었다. 천천히. 큰 원을 그리며. 더 멀리 있는 것들이 보이는지 보려고. 회담 자리에서 벗어난 곳에 흔적이 있는지. 관찰자가 찾았다. 있었다.",
+        "en": "The observer walked again. Walked around the conference site. Slowly. Drawing a large circle. To see if things further away were visible. Whether there were traces away from the conference site. The observer searched. There were."
+      }}]
+    },
+    {
+      "id": "s20", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "10미터 밖에 혼자 온 발자국이 있었다. 세 그룹의 발자국들과 달리 혼자 온 것이었다. 크기가 있었다. 성인. 빠르지도 느리지도 않았다. 이 발자국의 사람이 회담에 합류했는지 아닌지 알 수 없었다. 발자국이 회담 자리 방향으로 향했다. 그러나 도착했는지는 몰랐다.",
+        "en": "Ten meters away were lone footprints. Unlike the three groups' footprints they had come alone. Had a size. Adult. Neither fast nor slow. Whether the person of these footprints had joined the conference was unknown. The footprints headed toward the conference site. But whether they had arrived was unknown."
+      }}]
+    },
+    {
+      "id": "s21", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "발자국이 멈췄다. 중간에. 회담 자리로 가는 도중에. 멈춘 자리에 무릎 자국이 있었다. 쓰러진 것이었다. 또는 앉은 것이었다. 그리고 다른 방향으로 갔다. 발자국이 달라졌다. 무거워졌다. 끌렸다. 다쳤거나. 피로했거나. 도착하지 않기로 했거나.",
+        "en": "The footprints stopped. In the middle. On the way to the conference site. Where they stopped there were knee marks. Had fallen. Or had sat. And then went in a different direction. The footprints changed. Became heavier. Were dragged. Had been injured. Or tired. Or decided not to arrive."
+      }}]
+    },
+    {
+      "id": "s22", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 그 발자국을 따라가려 했다. 멈췄다. 관찰자의 방식이 아니었다. 흔적을 보는 것. 흔적을 따라가는 것. 두 가지는 달랐다. 따라가면 그 끝을 찾게 됐다. 끝을 찾으면 개입하게 됐다. 관찰자는 개입하지 않았다. 그것이 이 사람의 조건이었다.",
+        "en": "The observer tried to follow those footprints. Stopped. Not the observer's way. Seeing traces. Following traces. Those two were different. Following would lead to finding the end. Finding the end would lead to intervention. The observer didn't intervene. That was this person's condition."
+      }}]
+    },
+    {
+      "id": "s23", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그러나 그 발자국의 사람이 네 번째 깃발을 가져온 사람인지 관찰자는 생각했다. 생각하지 않으려 했다. 그러나 생각이 왔다. 이 사람이 네 번째 깃발을 가지고 왔다. 중간에 멈췄다. 다른 방향으로 갔다. 네 번째 깃발은 가져가지 못했다. 그 조각이 여기 남아 있었다.",
+        "en": "But the observer thought about whether the person of those footprints was the one who had brought the fourth flag. Tried not to think. But thought came. This person had come with the fourth flag. Stopped in the middle. Went another direction. Couldn't take the fourth flag. That piece remained here."
+      }}]
+    },
+    {
+      "id": "s24", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 다시 삼각형 중심으로 왔다. 핏자국. 네 번째 조각. 두 개가 같은 사람의 것인지 다른 사람의 것인지 몰랐다. 알 수 없었다. 알려면 따라가야 했다. 따라가는 것은 관찰자의 방식이 아니었다. 그래서 몰랐다. 그것이 관찰자의 방식의 대가였다.",
+        "en": "The observer came back to the center of the triangle. Bloodstain. The fourth piece. Whether two things were the same person's or different people's was unknown. Couldn't be known. To know would require following. Following was not the observer's way. So it was unknown. That was the price of the observer's way."
+      }}]
+    },
+    {
+      "id": "s25", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "네 번째 깃발이 왜 필요했는가. 관찰자가 생각했다. 세 개의 깃발이 있었다. 그것으로 화성을 나눌 수 있었다. 세 파벌이 화성을 나눌 수 있었다. 그러나 누군가 네 번째를 가져오려 했다. 세 파벌이 아닌 다른 것. 무엇이었는가.",
+        "en": "Why had a fourth flag been needed. The observer thought. There were three flags. Mars could be divided with those. Three factions could divide Mars. But someone had tried to bring a fourth. Something other than the three factions. What was it."
+      }}]
+    },
+    {
+      "id": "s26", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "답을 몰랐다. 그것이 관찰자의 방식이었다. 답을 모르는 것. 흔적을 보는 것. 흔적이 답을 줄 때까지 기다리는 것. 또는 답이 없어도 흔적을 보는 것. 그것이 관찰자가 할 수 있는 것이었다. 그것만이 할 수 있는 것이었다.",
+        "en": "The answer was unknown. That was the observer's way. Not knowing the answer. Seeing traces. Waiting until traces give an answer. Or seeing traces even without an answer. That was what the observer could do. That was all that could be done."
+      }}]
+    },
+    {
+      "id": "s27", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "밤이 지났다. 관찰자가 밤을 여기서 보냈다. 회담 자리 근처에서. 그것이 처음이었다. 흔적 근처에서 밤을 보낸 것이. 흔적이 밤에 달라 보이는지 보고 싶었다. 달랐다. 밤에 흔적은 조용했다. 낮에 흔적은 말이 많았다. 밤에 흔적은 있기만 했다.",
+        "en": "Night passed. The observer had spent the night here. Near the conference site. That was a first. Spending the night near traces. Wanted to see if traces looked different at night. They did. At night traces were quiet. In the day traces talked a lot. At night traces only existed."
+      }}]
+    },
+    {
+      "id": "s28", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "새벽 빛이 왔다. 올림포스 산자락의 새벽. 붉은 빛이 먼저 왔다. 그리고 다른 빛들이 왔다. 회담 자리가 다시 보였다. 새벽 빛 속에. 달라 보였다. 저녁과도 낮과도 달랐다. 같은 흔적이 세 번 달랐다. 그것이 흔적의 본성이었다.",
+        "en": "Dawn light came. Dawn at the foothills of Olympus. Red light came first. Then other lights came. The conference site became visible again. In the dawn light. Looked different. Different from evening and from day. The same traces were different three times. That was the nature of traces."
+      }}]
+    },
+    {
+      "id": "s29", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "새벽 빛 속에 네 번째 조각이 달리 보였다. 색이 달리 보였다. 어제 알 수 없었던 색. 새벽 빛이 그것을 말해줬다. 흰 색이었다. 그것이 흰 깃발이었다. 네 번째 깃발이 흰 것이었다. 흰 깃발이 무엇을 의미하는지는 몰랐다. 그러나 흰 것이었다.",
+        "en": "In the dawn light the fourth piece looked different. The color looked different. The color that couldn't be determined yesterday. The dawn light told it. It was white. It had been a white flag. The fourth flag was white. What a white flag meant was unknown. But it was white."
+      }}]
+    },
+    {
+      "id": "s30", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "흰 깃발. 항복인가. 평화인가. 무언가 다른 것인가. 관찰자가 몰랐다. 화성에서 흰 것은 드물었다. 눈이 없었다. 꽃이 없었다. 흰 것은 가져온 것이었다. 누군가 여기 흰 깃발을 가져왔다. 그것이 무엇을 말하는지 알기 위해 더 많이 봐야 했다.",
+        "en": "A white flag. Surrender? Peace? Something else? The observer didn't know. White things were rare on Mars. No snow. No flowers. White things were brought. Someone had brought a white flag here. To know what that said more needed to be seen."
+      }}]
+    },
+    {
+      "id": "s31", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 일어섰다. 회담 자리를 떠날 준비를 했다. 마지막으로 봤다. 세 구멍. 중심의 핏자국. 흰 깃발 조각. 발자국들. 그것들이 여기 있었다. 관찰자가 떠나도 여기 있을 것이었다. 화성에서 흔적은 오래갔다. 비가 없으니까. 바람이 약하니까.",
+        "en": "The observer stood. Prepared to leave the conference site. Looked one last time. Three holes. Bloodstain at center. White flag piece. Footprints. Those were here. Would be here even after the observer left. On Mars traces lasted long. No rain. Wind was weak."
+      }}]
+    },
+    {
+      "id": "s32", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 마지막으로 하나 더 봤다. 세 구멍 옆에 작은 돌이 있었다. 표시가 없는 돌. 자연의 것인지 누가 놓은 것인지 알 수 없었다. 그러나 세 구멍 삼각형 안에 있었다. 중심 근처에. 이것이 무엇인지. 누가 놓은 것인지. 알 수 없었다. 그것이 전부였다.",
+        "en": "The observer saw one more thing last. Next to the three holes there was a small stone. A stone without a mark. Whether natural or placed by someone was unknown. But it was inside the triangle of three holes. Near the center. What this was. Who had placed it. Unknown. That was everything."
+      }}]
+    },
+    {
+      "id": "s33", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 돌을 보고 오래 있었다. 그 돌이 무언가를 말하는 것 같았다. 그러나 말을 들을 수 없었다. 돌은 말하지 않았다. 흔적이 말하는 것이 있었다. 흔적이 말하지 않는 것이 있었다. 이 돌은 말하지 않는 것 중 하나였다. 그러나 거기 있었다.",
+        "en": "The observer stayed looking at the stone for a long time. The stone seemed to be saying something. But the words couldn't be heard. The stone didn't speak. Traces had things they said. Traces had things they didn't say. This stone was one of the things that didn't speak. But it was there."
+      }}]
+    },
+    {
+      "id": "s34", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "결국 관찰자가 돌을 들었다. 처음이었다. 흔적을 집은 것이. 그것이 관찰자의 방식에 반했다. 그러나 들었다. 돌 아래에 무언가 있었다. 작은 것. 금속 조각. 이름이 새겨져 있었다. 읽었다. 이름이었다. 관찰자가 모르는 이름이었다. 그러나 이름이 있었다.",
+        "en": "Eventually the observer picked up the stone. The first time. The first time a trace had been picked up. That went against the observer's way. But picked it up. Under the stone there was something. A small thing. A metal piece. A name was carved in it. Read it. It was a name. A name the observer didn't know. But a name was there."
+      }}]
+    },
+    {
+      "id": "s35", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 금속 조각을 다시 돌 아래 놓았다. 돌을 원래대로 덮었다. 흔적을 원래대로 돌려놓았다. 그러나 이름을 알았다. 그것이 달라진 것이었다. 관찰자가 이름을 알았다. 그 이름이 무엇을 의미하는지는 몰랐다. 그러나 이름이 있었다. 그 이름이 여기 있었다.",
+        "en": "The observer placed the metal piece back under the stone. Covered it with the stone as before. Returned the trace to its original state. But the name was known. That was what had changed. The observer knew a name. What that name meant was unknown. But a name was there. That name was here."
+      }}]
+    },
+    {
+      "id": "s36", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 올림포스 산자락을 내려가기 시작했다. 천천히. 뒤를 돌아보면서. 회담 자리가 멀어졌다. 흔적들이 작아졌다. 그러나 없어지지 않았다. 화성에서 흔적은 없어지지 않았다. 멀어졌다. 작아졌다. 그러나 있었다.",
+        "en": "The observer began descending the foothills of Olympus. Slowly. Looking back. The conference site grew distant. Traces became smaller. But didn't disappear. On Mars traces didn't disappear. Grew distant. Became smaller. But were there."
+      }}]
+    },
+    {
+      "id": "s37", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "내려가면서 관찰자는 생각했다. 네 번째 깃발을 가져온 사람. 흰 깃발. 이름이 새겨진 금속 조각. 핏자국. 이것들이 연결되는지. 같은 사람의 것인지. 다른 것들인지. 몰랐다. 그러나 생각이 있었다. 관찰자에게 처음으로 생각이 있었다. 연결에 대한 생각이.",
+        "en": "Descending the observer thought. The person who brought the fourth flag. A white flag. A metal piece with a name carved. A bloodstain. Whether these were connected. Whether from the same person. Or different things. Unknown. But there were thoughts. For the first time the observer had thoughts. Thoughts about connection."
+      }}]
+    },
+    {
+      "id": "s38", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그것이 위험했다. 관찰자는 알았다. 연결하기 시작하면 개입하게 됐다. 개입하면 관찰자가 아니었다. 그러나 생각이 있었다. 막을 수 없었다. 올림포스가 뒤에서 관찰자를 봤다. 산이 봤다. 회담도 봤다. 핏자국도 봤다. 흰 깃발도 봤다. 그리고 생각하는 관찰자를 봤다.",
+        "en": "That was dangerous. The observer knew. When beginning to connect, intervention would follow. With intervention, not an observer. But there were thoughts. Couldn't stop them. Olympus watched the observer from behind. The mountain watched. Had watched the conference. Had watched the bloodstain. Had watched the white flag. And watched the observer thinking."
+      }}]
+    },
+    {
+      "id": "s39", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 멈췄다. 생각을 멈추려 했다. 할 수 없었다. 흔적을 보면 이야기가 됐다. 이야기가 되면 생각이 됐다. 생각이 되면 연결이 됐다. 그것이 관찰의 위험이었다. 관찰자가 처음으로 그 위험을 알았다. 화성에서.",
+        "en": "The observer stopped. Tried to stop thinking. Couldn't. When traces were seen they became a story. When they became a story they became thoughts. When they became thoughts they became connections. That was the danger of observation. For the first time the observer understood that danger. On Mars."
+      }}]
+    },
+    {
+      "id": "s40", "type": "ending",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "올림포스 산자락을 내려갔다. 회담 자리가 보이지 않게 됐다. 그러나 거기 있었다. 세 구멍. 핏자국. 흰 깃발 조각. 이름이 있는 금속. 네 번째 깃발이 있었는가. 관찰자는 답을 몰랐다. 그것이 관찰자의 방식이었다. 답을 모르는 것. 그러나 이번에는 달랐다. 답을 알고 싶었다. 처음으로."
+        ,
+        "en": "Descended the foothills of Olympus. The conference site became invisible. But it was there. Three holes. A bloodstain. A white flag piece. Metal with a name. Had there been a fourth flag. The observer didn't know the answer. That was the observer's way. Not knowing the answer. But this time was different. Wanted to know the answer. For the first time."
+      } }],
       "next_chapter_preview": { "questId": "hidden_campaign_ch4", "teaser": { "ko": "다음 — 30년", "en": "Next — Thirty Years" }}
     }
   ]

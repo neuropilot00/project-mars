@@ -5,13 +5,13 @@
   "title": { "ko": "프롤로그: 정착민", "en": "Prologue: The Settler" },
   "location": { "id": "new_athens_settlement", "displayNameKo": "New Athens 정착지" },
   "environment": "arrival_night",
-  "estimatedPlayTimeMinutes": 8,
-  "characters": ["player", "mikhail", "lena"],
+  "estimatedPlayTimeMinutes": 12,
+  "characters": ["player", "mikhail", "lena", "yuna", "amara"],
   "scenes": [
     {
       "id": "p01",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "hellas_central_exterior_night",
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -21,7 +21,17 @@
     {
       "id": "p02",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "hellas_central_exterior_night",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "지구 출발 9개월. 화성 대기권 진입 3일.\n헬라스 분지 상공에서 처음으로 지표가 보였다.\n붉었다. 생각보다 더 붉었다. 사진에서 보던 것과 달랐다.", "en": "Nine months from Earth departure. Three days after Mars atmospheric entry.\nFrom above Hellas Basin the surface was visible for the first time.\nRed. Redder than expected. Not like the photos." } }
+      ]
+    },
+    {
+      "id": "p03",
+      "type": "narration",
+      "background": "hellas_outer_plains",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -29,49 +39,339 @@
       ]
     },
     {
-      "id": "p03",
+      "id": "p04",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "착륙장에 사람들이 있었다. 대부분 광부들이었다. 손이 거칠었다. 눈빛이 달랐다. 지구에서는 보지 못한 눈빛이었다. 무언가를 오래 견뎌온 눈빛. 그러나 빛이 있었다. 꺼지지 않은 빛.", "en": "People were at the landing pad. Most were miners. Rough hands. Eyes were different. Eyes not seen on Earth. The eyes of someone who had endured a long time. But there was light. Light not yet extinguished." } }
+      ]
+    },
+    {
+      "id": "p05",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "헬라스 노동자 구역. 마을이라고 부르기에는 좁았다. 기지라고 부르기에는 사람 냄새가 났다. 화성 1세대가 만든 것. 그다음 세대가 덧붙인 것. 또 그다음이 덧붙인 것. 17년의 층위가 있었다.", "en": "Hellas labor district. Too narrow to call a village. Too human-smelling to call a base. Made by the first Mars generation. Added to by the next. And the one after. Seventeen years of layers." } }
+      ]
+    },
+    {
+      "id": "p06",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "벽에 이름들이 있었다. 분필로 쓴 것. 광부들의 이름. 날짜. 어떤 것은 오래됐다. 어떤 것은 새것이었다. 분필은 약했다. 그러나 거기 있었다.", "en": "Names were on the walls. Written in chalk. Miners' names. Dates. Some were old. Some were new. Chalk was weak. But they were there." } }
+      ]
+    },
+    {
+      "id": "p07",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "grinning", "effect": "character_enter:lena:slide_right", "text": { "ko": "새 얼굴이네. 지구 냄새 나요.", "en": "Fresh face. You smell like Earth." } },
+        { "speaker": "lena", "emotion": "direct", "text": { "ko": "놀라지 마요. 나쁜 뜻 아니에요. 다들 처음엔 그래요. 6개월 지나면 화성 냄새 나요.", "en": "Don't be surprised. Not a bad thing. Everyone's like that at first. After six months you smell like Mars." } },
+        { "speaker": "lena", "emotion": "curious", "text": { "ko": "이름이 뭐예요? 아, 물을 필요 없어요. Amara한테 들었어요. FSP 추천이라고.", "en": "What's your name? Ah, don't need to ask. Heard from Amara. Said you're an FSP referral." } }
+      ]
+    },
+    {
+      "id": "p08",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Lena Torres였다. 왼쪽 팔에 문신이 있었다. 이름들이었다. 팔목부터 어깨까지. 그것이 무엇인지는 아직 몰랐다. 그러나 중요한 것이라는 것은 알았다. 사람은 중요한 것을 몸에 새기니까.", "en": "Lena Torres. A tattoo on the left arm. Names. Wrist to shoulder. What it was wasn't yet known. But that it was important was known. People engrave important things on their bodies." } }
+      ]
+    },
+    {
+      "id": "p09",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "통로가 있었다. 좁은 것. 안으로 이어지는 것. Lena가 앞서 걸었다. 빠른 사람이었다. 걸음이 빠르고 말이 빠르고 판단이 빠를 것이었다. 그런 사람들이 이 마을에 많았다. 화성에서 느린 것은 비싼 것이었다.", "en": "There was a corridor. Narrow. Leading inward. Lena walked ahead. A fast person. Fast walk, fast talk, fast judgment. Many such people in this village. On Mars being slow was expensive." } }
+      ]
+    },
+    {
+      "id": "p10",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "방이 있었다. 작은 방이었다. 창문이 하나 있었다. 창문 너머로 화성이 보였다. 붉은 평원. 그 너머 뭔가가 있었다. 광산이었다. 아직 불이 켜져 있었다. 야간 교대.", "en": "A room. Small. One window. Through the window Mars was visible. Red plains. Beyond that something was there. A mine. Lights still on. Night shift." } }
+      ]
+    },
+    {
+      "id": "p11",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "차 끓이는 소리가 났다. 방 안쪽에서. 그리고 그 사람이 있었다. 뒤를 보이고 서있는 사람. 어깨가 넓지 않았다. 키도 크지 않았다. 그러나 그 뒷모습이 이 방에서 가장 큰 것이었다.", "en": "The sound of tea being made. From inside the room. And there was that person. Someone standing with their back turned. Shoulders not wide. Not tall. But that back was the largest thing in the room." } }
+      ]
+    },
+    {
+      "id": "p12",
       "type": "dialogue",
       "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
         { "speaker": "mikhail", "emotion": "gentle", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "왔구나. 추워? 미안해. 풍력 발전기 두 개가 박살났어. 격납고 30%만 가동돼.", "en": "You made it. Cold? Sorry. Two wind turbines broke down. The hangar is running at 30% capacity." } },
-        { "speaker": "mikhail", "emotion": "warm", "text": { "ko": "차 마셔. 이건 진짜 차야. 지구에서 가져온 씨앗으로 키운 거.", "en": "Have some tea. This is real tea. Grown from seeds brought from Earth." } }
+        { "speaker": "mikhail", "emotion": "warm", "text": { "ko": "차 마셔. 이건 진짜 차야. 지구에서 가져온 씨앗으로 키운 거. 화성에서 자란 유일한 차.", "en": "Have some tea. This is real tea. Grown from seeds brought from Earth. The only tea grown on Mars." } }
       ]
     },
     {
-      "id": "p04",
+      "id": "p13",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Mikhail Anders였다. FSP를 만든 사람. 28년 전에. 광부였던 사람. 그것이 두 손에 있었다. 오른손이 왼손을 받쳤다. 찻잔을 따르는 방식이었다. 그것이 이 사람의 방식이었다.", "en": "Mikhail Anders. The man who made FSP. Twenty-eight years ago. A man who had been a miner. That was in both hands. The right hand cradled the left. The way he poured tea. That was this man's way." } }
+      ]
+    },
+    {
+      "id": "p14",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "차가 따라졌다. 두 잔. 하나가 앞으로 왔다. 두 손으로. 그것을 받았다. 아직 뜨거웠다. 화성에서 뜨거운 것은 오래가지 않았다. 받는 것이 맞았다. 지금 받는 것이.", "en": "Tea was poured. Two cups. One came forward. With both hands. It was received. Still hot. Hot things on Mars didn't last. It was right to receive. To receive now." } }
+      ]
+    },
+    {
+      "id": "p15",
       "type": "dialogue",
       "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "grinning", "effect": "character_enter:lena:slide_right", "text": { "ko": "새 얼굴이네! 미하일 어르신, 저 사람 괜찮아 보여요.", "en": "Fresh face! Elder Mikhail, this one looks decent." } },
+        { "speaker": "lena", "emotion": "grinning", "effect": "character_enter:lena:slide_right", "text": { "ko": "미하일 어르신, 저 사람 괜찮아 보여요.", "en": "Elder Mikhail, this one looks decent." } },
         { "speaker": "mikhail", "emotion": "amused", "text": { "ko": "레나, 첫날부터 겁주지 마.", "en": "Lena, don't scare them on their first day." } },
         { "speaker": "lena", "emotion": "grin", "text": { "ko": "겁 안 줬어요! 그냥 솔직한 거지.", "en": "I'm not scaring them! Just being honest." } }
       ]
     },
     {
-      "id": "p05",
+      "id": "p16",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Lena가 자기 찻잔을 들었다. 한 손으로. 빠르게 마셨다. 그것이 이 사람의 방식이었다. Mikhail이 두 손으로 잔을 들었다. 오래 보았다. 그것이 이 사람의 방식이었다. 두 방식이 같은 방 안에 있었다.", "en": "Lena picked up her cup. One hand. Drank quickly. That was her way. Mikhail held his cup with both hands. Looked at it long. That was his way. Two ways in the same room." } }
+      ]
+    },
+    {
+      "id": "p17",
       "type": "dialogue",
       "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
         { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "규칙은 하나야. 여기선 혼자 살 수 없어. 서로 돕거나 — 아니면 나가거나.", "en": "One rule. Nobody survives alone here. We help each other — or you leave." } },
-        { "speaker": "mikhail", "emotion": "warm", "text": { "ko": "Amara가 당신을 추천했어. 그녀 추천이면 우리도 믿어.", "en": "Amara recommended you. Her recommendation is enough for us." } }
+        { "speaker": "mikhail", "emotion": "warm", "text": { "ko": "Amara가 당신을 추천했어. 그녀 추천이면 우리도 믿어.", "en": "Amara recommended you. Her recommendation is enough for us." } },
+        { "speaker": "mikhail", "emotion": "gentle", "text": { "ko": "오늘은 쉬어. 내일부터가 진짜야.", "en": "Rest today. Tomorrow is when it's real." } }
       ]
     },
     {
-      "id": "p06",
-      "type": "ending",
+      "id": "p18",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "마을을 걸었다. 밤이었다. 화성의 밤. 별이 많았다. 대기가 얇아서였다. 지구보다 선명했다. 그 아래 마을이 있었다. 불빛이 있었다. 창문에서 나오는 것들. 사람들이 살고 있었다.", "en": "The village was walked. Night. The Martian night. Many stars. Because the atmosphere was thin. Clearer than Earth. Below that the village. Lights. Coming from windows. People were living." } }
+      ]
+    },
+    {
+      "id": "p19",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "소리가 났다. 아이 목소리였다. 웃음. 화성에서 아이가 웃는 것. 그것은 이상하게 놀라운 것이었다. 화성이 아이들이 자라는 곳이 됐다. 17년 동안 그렇게 됐다.", "en": "A sound. A child's voice. Laughter. A child laughing on Mars. That was strangely surprising. Mars had become a place where children grew up. Seventeen years had made it so." } }
+      ]
+    },
+    {
+      "id": "p20",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "벽의 이름들을 다시 봤다. 분필. 날짜들. 어떤 이름 옆에 별 표시가 있었다. 그것이 무엇인지는 몰랐다. 죽은 사람들의 이름인지. 떠난 사람들인지. 아니면 다른 무언가인지.", "en": "The names on the wall were looked at again. Chalk. Dates. Some names had a star mark beside them. What that was wasn't known. Whether they were names of the dead. Of those who had left. Or something else." } }
+      ]
+    },
+    {
+      "id": "p21",
+      "type": "narration",
+      "background": "hellas_mining_village",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "광산이 보였다. 불이 아직 켜져 있었다. 야간 교대. 화성에서 광산은 멈추지 않았다. 사람들이 교대로 그 안에 있었다. 그것이 이 마을이 존재하는 이유였다.", "en": "The mine was visible. Lights still on. Night shift. On Mars mines didn't stop. People took turns inside them. That was why this village existed." } }
+      ]
+    },
+    {
+      "id": "p22",
+      "type": "dialogue",
+      "background": "hellas_mining_village",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "yuna", "emotion": "quiet", "effect": "character_enter:yuna:slide_right", "text": { "ko": "새로 오신 분이에요?", "en": "You're new?" } },
+        { "speaker": "yuna", "emotion": "calm", "text": { "ko": "저는 Yuna예요. 여기서 태어났어요. 아버지가 광부였어요.", "en": "I'm Yuna. Born here. My father was a miner." } },
+        { "speaker": "yuna", "emotion": "gentle", "text": { "ko": "벽에 이름들 보고 계셨죠? 별 표시는 여기서 태어난 사람들이에요.", "en": "You were looking at the names on the wall, right? The star marks are people born here." } }
+      ]
+    },
+    {
+      "id": "p23",
+      "type": "narration",
+      "background": "hellas_mining_village",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Yuna Kim. 스물한 살. 화성 출생. 화성 1.5세대. 1세대가 만들고 그 다음이 받은 것. 그 아이들이 자란 것. 이 마을의 가장 새롭고 오래된 것들이었다.", "en": "Yuna Kim. Twenty-one years old. Born on Mars. Mars 1.5 generation. What the first generation made and the next received. Children who had grown up. The newest and oldest things in this village." } }
+      ]
+    },
+    {
+      "id": "p24",
+      "type": "dialogue",
+      "background": "hellas_mining_village",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "yuna", "emotion": "sincere", "text": { "ko": "FSP로 왔어요?", "en": "You came for FSP?" } },
+        { "speaker": "yuna", "emotion": "warm", "text": { "ko": "잘 오셨어요. 미하일 어르신이 좋은 분이에요. 진짜로요. 화성에서 좋은 사람을 만나기 어려운데.", "en": "Welcome. Elder Mikhail is a good person. Truly. It's hard to meet good people on Mars." } }
+      ]
+    },
+    {
+      "id": "p25",
+      "type": "narration",
+      "background": "hellas_mining_village_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "새벽이 왔다. 화성의 새벽. 해가 느리게 떴다. 지구보다 느렸다. 하늘이 붉고 노란 것이 섞였다. 처음 보는 것이었다. 그러나 이상하지 않았다. 낯선 것이 자연스럽게 느껴지는 순간이 있었다. 그것이었다.", "en": "Dawn came. The Martian dawn. The sun rose slowly. Slower than Earth. The sky mixed red and yellow. First time seeing it. But not strange. There were moments when unfamiliar things felt natural. This was one." } }
+      ]
+    },
+    {
+      "id": "p26",
+      "type": "narration",
+      "background": "hellas_mining_village_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Mikhail이 새벽에 나와 있었다. 혼자. 차를 들고. 두 손으로. 창문 너머로 봤다. 광산이 보이는 방향을 보고 있었다. 아무 말이 없었다. 그것이 이 사람의 새벽이었다.", "en": "Mikhail was outside at dawn. Alone. Holding tea. With both hands. Seen through a window. He was looking toward the mines. No words. That was this man's dawn." } }
+      ]
+    },
+    {
+      "id": "p27",
+      "type": "narration",
       "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "나중에 알게 됐다. Mikhail의 오른쪽 다리. 광산 사고. 오래된 것. 그것이 날씨가 나쁘면 더 아팠다. 화성의 날씨가 나쁜 날이 많았다. 그러나 그것을 입에 올리는 것은 본 적이 없었다. 차를 끓이는 것을 멈추는 것도.", "en": "Learned later. Mikhail's right leg. Mining accident. Old thing. It hurt more when the weather was bad. Bad weather days on Mars were many. But it was never seen mentioned. Nor stopping the tea making." } }
+      ]
+    },
+    {
+      "id": "p28",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "warm", "text": { "ko": "잤어요?", "en": "Did you sleep?" } },
+        { "speaker": "mikhail", "emotion": "gentle", "text": { "ko": "처음 며칠은 중력 때문에 힘들어요. 화성이 지구보다 가벼워도 몸이 기억하는 게 달라. 일주일이면 익숙해져요.", "en": "The first few days are hard because of gravity. Even though Mars is lighter than Earth the body's memory is different. A week and you'll be used to it." } },
+        { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "오늘은 마을을 봐요. 사람들을 봐요. 그것이 FSP를 이해하는 가장 빠른 길이에요.", "en": "Today look at the village. Look at the people. That's the fastest way to understand FSP." } }
+      ]
+    },
+    {
+      "id": "p29",
+      "type": "narration",
+      "background": "hellas_mining_village_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "마을이 깨어났다. 사람들이 나왔다. 각자의 일이 있었다. 광산으로 가는 사람들. 아이들을 데리고 나온 사람들. 음식을 만드는 사람들. 수리하는 사람들. 모두 손이 거칠었다. 모두 익숙하게 움직였다.", "en": "The village woke. People came out. Each had work. Those going to the mines. Those bringing out children. Those making food. Those repairing things. Everyone had rough hands. Everyone moved with familiarity." } }
+      ]
+    },
+    {
+      "id": "p30",
+      "type": "narration",
+      "background": "hellas_mining_village_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Amara Okafor가 왔다. 연락이 닿지 않던 사람. 화성으로 오게 된 이유의 절반이었다. 그녀는 기다리고 있었다. 오래 기다린 것처럼 아무렇지 않게 서 있었다.", "en": "Amara Okafor came. The person who had been unreachable. The reason for coming to Mars, half of it. She was waiting. Standing as if she had been waiting a long time and it was nothing." } }
+      ]
+    },
+    {
+      "id": "p31",
+      "type": "dialogue",
+      "background": "hellas_mining_village_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "amara", "emotion": "warm", "effect": "character_enter:amara:slide_right", "text": { "ko": "왔구나. 오래 걸렸어.", "en": "You came. Took a long time." } },
+        { "speaker": "amara", "emotion": "serious", "text": { "ko": "화성이 어때? 첫 인상.", "en": "How's Mars? First impression." } },
+        { "speaker": "amara", "emotion": "calm", "text": { "ko": "말 안 해도 돼. 아직 모르는 게 맞아. 며칠은 더 봐야 해.", "en": "You don't have to say. It's right not to know yet. Need a few more days to see." } }
+      ]
+    },
+    {
+      "id": "p32",
+      "type": "narration",
+      "background": "hellas_mining_village_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Amara Okafor. FSP 의원. 남부 헬라스 출신. 정치적인 사람이었다. 그러나 이상주의자이기도 했다. 그 두 가지가 한 사람 안에 있었다. 그것이 화성에서는 가능한 것인지도 몰랐다. 여기서는 알게 될 것이었다.", "en": "Amara Okafor. FSP representative. From southern Hellas. A political person. But also an idealist. Both in one person. Whether that was possible on Mars wasn't known. Here it would be learned." } }
+      ]
+    },
+    {
+      "id": "p33",
+      "type": "narration",
+      "background": "hellas_mining_village_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "광산이 보였다. 새벽 교대가 시작됐다. 사람들이 안으로 들어갔다. 손을 흔드는 사람. 고개를 끄덕이는 사람. 뒤돌아보지 않는 사람. 각자의 방식이었다. 안으로 들어가는 방식.", "en": "The mine was visible. The dawn shift started. People went inside. Someone waving. Someone nodding. Someone not looking back. Each their own way. The way of going inside." } }
+      ]
+    },
+    {
+      "id": "p34",
+      "type": "narration",
+      "background": "hellas_mining_village_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Mikhail이 차를 마셨다. 두 손으로 잔을 들고. 광산을 보면서. 다 마셨다. 잔을 내려놓았다. 오른손으로. 잠시 그것을 봤다. 빈 잔을. 그리고 다음 잔을 준비하기 시작했다.", "en": "Mikhail drank tea. Holding the cup with both hands. Looking at the mine. Finished it. Set the cup down. With the right hand. Looked at it a moment. The empty cup. Then began preparing the next cup." } }
+      ]
+    },
+    {
+      "id": "p35",
+      "type": "ending",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "차가 따뜻했다. 처음으로.\n이 마을이 집이 될 것 같았다.\n이 행성에서 집을 가질 수 있다면.", "en": "The tea was warm. For the first time.\nThis village felt like it could be home.\nIf home is possible on this planet." } }
+        { "text": { "ko": "차가 따뜻했다. 처음으로.\n이 마을이 집이 될 것 같았다.\n이 행성에서 집을 가질 수 있다면.\n\n광산에 불이 켜져 있었다. 벽에 이름들이 있었다. 아이들이 웃고 있었다. Mikhail이 두 손으로 차를 따르고 있었다.\n\n그것이 FSP였다.", "en": "The tea was warm. For the first time.\nThis village felt like it could be home.\nIf home is possible on this planet.\n\nThe mine had lights. Names were on the wall. Children were laughing. Mikhail was pouring tea with both hands.\n\nThat was FSP." } }
       ],
-      "next_chapter_preview": { "questId": "fsp_campaign_ch1", "teaser": { "ko": "다음 — 방파제", "en": "Next — The Breakwater" } }
+      "next_chapter_preview": { "questId": "fsp_campaign_ch1", "teaser": { "ko": "다음 — 차의 무게", "en": "Next — The Weight of Tea" } }
     }
   ]
 }

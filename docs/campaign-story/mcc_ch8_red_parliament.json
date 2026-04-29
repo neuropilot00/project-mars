@@ -5,55 +5,374 @@
   "title": { "ko": "첫 번째 만남", "en": "First Contact" },
   "location": { "id": "hellas_outer_relay", "displayNameKo": "헬라스 외곽 중계소" },
   "environment": "outer_plains_dust",
-  "estimatedPlayTimeMinutes": 15,
+  "estimatedPlayTimeMinutes": 20,
   "characters": ["player", "cinder"],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "hellas_outer_plains", "bgm": "ambient_wind", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "화성 외곽이었다. 헬라스 분지 가장자리. 중계소 하나가 있었다. 이미 폐쇄된 것이었다. 통신이 끊기고 3년 됐다. MCC가 폐쇄했다. 이유는 기록에 없었다. 기록에 없는 것들이 이 행성에 많았다.", "en": "The outer plains. Edge of the Hellas Basin. A single relay station. Already closed. Three years since communications were cut. MCC closed it. No reason in the records. There were many things on this planet with no reason in the records." }}] },
-    { "id": "s02", "type": "narration", "background": "hellas_outer_relay", "bgm": "ambient_wind", "transition": "cut",
-      "lines": [{ "text": { "ko": "정보는 짧았다. 이 중계소에서 CV가 무언가를 운반한다. 무엇인지는 불명. 언제인지는 오늘. 왜 MCC가 이것을 알고 있는지는 설명되지 않았다. MCC는 많은 것을 설명하지 않았다.", "en": "The intelligence was brief. CV was moving something through this relay station. What — unknown. When — today. Why MCC knew this — unexplained. MCC left many things unexplained." }}] },
-    { "id": "s03", "type": "narration", "background": "hellas_outer_relay_interior", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "중계소 안이었다. 누군가 있었다. 혼자였다. 여자였다. 공구가 벨트에 걸려 있었다. 여러 개. 엔지니어의 것이었다. 손에 오일이 있었다. 작업 중이었다. 그러나 무기가 없었다. 화성 외곽에서 무기가 없는 사람은 드물었다.", "en": "Inside the relay station. Someone was there. Alone. A woman. Tools hung on her belt. Several. An engineer's tools. Oil on her hands. Working. But no weapon. On the outer plains people without weapons were rare." }}] },
-    { "id": "s04", "type": "dialogue", "background": "hellas_outer_relay_interior", "bgm": "tension_low", "transition": "cut",
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "ambient_wind",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "cinder", "emotion": "calm", "effect": "character_enter:cinder:slide_right", "text": { "ko": "MCC에서 왔죠.", "en": "You came from MCC." }},
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "여기 오는 MCC 사람은 이유가 하나예요. 내가 뭘 옮기는지 알고 싶은 거예요. 알려줄게요. 사람이에요. 광산 사고에서 살아남은 광부. MCC 기록에는 사망으로 처리된 사람.", "en": "There's only one reason an MCC person comes here. You want to know what I'm moving. I'll tell you. A person. A miner who survived a mine accident. Listed as dead in MCC records." }},
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "3년 전에 나도 MCC 사람이었어요. 그래서 어떻게 처리하는지 알아요.", "en": "Three years ago I was MCC too. That's how I know how they handle things." }}
+        { "text": { "ko": "화성 외곽이었다. 헬라스 분지 가장자리. 중계소 하나가 있었다. 이미 폐쇄된 것이었다. 통신이 끊기고 3년 됐다. MCC가 폐쇄했다. 이유는 기록에 없었다. 기록에 없는 것들이 이 행성에 많았다.", "en": "The outer plains. Edge of the Hellas Basin. A single relay station. Already closed. Three years since communications were cut. MCC closed it. No reason in the records. There were many things on this planet with no reason in the records." } }
       ]
     },
-    { "id": "s05", "type": "narration", "background": "hellas_outer_relay_interior", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "Cinder Grace였다. 이름을 말하지 않았다. 그러나 알았다. 파일에서 봤던 눈이었다. 사진 속에서도 그 눈이 기억될 것 같다고 했다. 직접 보니 더 그랬다. 이 사람은 무언가를 지나온 사람이었다. 그것이 눈에 있었다.", "en": "Cinder Grace. She hadn't said her name. But it was known. Those were the eyes from the file. Even in the photo it had seemed like eyes you'd remember. In person more so. This was someone who had been through something. It was in the eyes." }}] },
-    { "id": "s06", "type": "dialogue", "background": "hellas_outer_relay_interior", "bgm": "tension_medium", "transition": "cut",
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "ambient_wind",
+      "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "한 가지 물을게요. 7구역 사망 3건 보고서. MCC에서 그걸 쓴 사람이 당신이에요?", "en": "I have one question. The Sector 7 death report. The three cases. Are you the one who wrote that in MCC?" }},
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "그 보고서 때문에 저 사람이 살아있어요. 그게 밖으로 나갔을 때 우리가 움직일 수 있었어요.", "en": "That report is why this person is still alive. When it got out we were able to move." }},
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "그러면 오늘 여기서 무엇을 할 건지 당신이 결정해요.", "en": "Then what you do here today is your decision." }}
+        { "text": { "ko": "이사회 명령 집행 후였다. 케플러. FSP 방어. 그 다음 임무가 왔다. 헬라스 외곽. CV 관련 첩보. 무엇을 운반하는지. 언제. 어디서. 세 가지 불명. MCC는 종종 불명 임무를 줬다. 그것이 현장 판단을 시험했다. 또는 책임 소재를 분산시켰다.", "en": "After executing the board's orders. Kepler. FSP defense. Next mission arrived. Outer Hellas. CV-related intelligence. What they're transporting. When. Where. Three unknowns. MCC often gave missions with unknowns. That tested field judgment. Or distributed responsibility." } }
       ]
     },
-    { "id": "s_choice", "type": "choice", "background": "hellas_outer_relay_interior", "bgm": "choice_tension",
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "ambient_wind",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "정보는 짧았다. 이 중계소에서 CV가 무언가를 운반한다. 무엇인지는 불명. 언제인지는 오늘. 왜 MCC가 이것을 알고 있는지는 설명되지 않았다. MCC는 많은 것을 설명하지 않았다.", "en": "The intelligence was brief. CV was moving something through this relay station. What — unknown. When — today. Why MCC knew this — unexplained. MCC left many things unexplained." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "ambient_wind",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "헬라스 외곽은 달랐다. 도심과 달랐다. 헬라스 센트럴은 돔이 있었다. 공기가 관리됐다. 여기는 달랐다. 마스크 없이 10분. 화성 표면이었다. 바람이 쉬지 않았다. 먼지가 있었다. 모든 것이 붉었다. 더 붉었다. 도심에서 멀수록 화성이었다.", "en": "The outer Hellas was different. Different from the city. Hellas Central had a dome. Air was managed. Here was different. Ten minutes without a mask. Martian surface. Wind never stopped. Dust. Everything red. Redder. The farther from the city the more it was Mars." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "hellas_outer_relay",
+      "bgm": "ambient_wind",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "중계소가 보였다. 작은 구조물이었다. 외벽이 부식됐다. 3년 방치된 것이었다. 창이 없었다. 창을 막은 것이었다. 봉인됐다. 그러나 봉인이 뜯겨 있었다. 누군가 안에 있었다. 오늘.", "en": "The relay station was visible. A small structure. Exterior walls corroded. Three years of neglect. No windows. Windows sealed off. Sealed. But the seal had been torn. Someone was inside. Today." } }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "중계소 안이었다. 누군가 있었다. 혼자였다. 여자였다. 공구가 벨트에 걸려 있었다. 여러 개. 엔지니어의 것이었다. 손에 오일이 있었다. 작업 중이었다. 그러나 무기가 없었다. 화성 외곽에서 무기가 없는 사람은 드물었다.", "en": "Inside the relay station. Someone was there. Alone. A woman. Tools hung on her belt. Several. An engineer's tools. Oil on her hands. Working. But no weapon. On the outer plains people without weapons were rare." } }
+      ]
+    },
+    {
+      "id": "s07",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "파일에서 봤던 눈이었다. Cinder Grace. MCC 서류에서 봤다. C-7 블록 근처 낡은 기록에서. 직무 위반. 이유 없는 해고. 안전 보고서 유출. 그것이 전부였다. 사진이 있었다. 눈이 기억될 것 같다고 했다. 직접 보니 더 그랬다.", "en": "Those were the eyes from the file. Cinder Grace. Seen in MCC documents. In old records near block C-7. Conduct violation. Termination without reason. Leaked safety reports. That was everything. There was a photo. The eyes seemed memorable. In person more so." } }
+      ]
+    },
+    {
+      "id": "s08",
+      "type": "dialogue",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "calm", "effect": "character_enter:cinder:slide_right", "text": { "ko": "MCC에서 왔죠.", "en": "You came from MCC." } },
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "여기 오는 MCC 사람은 이유가 하나예요. 내가 뭘 옮기는지 알고 싶은 거예요. 알려줄게요. 사람이에요. 광산 사고에서 살아남은 광부. MCC 기록에는 사망으로 처리된 사람.", "en": "There's only one reason an MCC person comes here. You want to know what I'm moving. I'll tell you. A person. A miner who survived a mine accident. Listed as dead in MCC records." } },
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "3년 전에 나도 MCC 사람이었어요. 그래서 어떻게 처리하는지 알아요.", "en": "Three years ago I was MCC too. That's how I know how they handle things." } }
+      ]
+    },
+    {
+      "id": "s09",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Cinder Grace였다. 이름을 말하지 않았다. 그러나 알았다. 파일에서 봤던 눈이었다. 사진 속에서도 그 눈이 기억될 것 같다고 했다. 직접 보니 더 그랬다. 이 사람은 무언가를 지나온 사람이었다. 그것이 눈에 있었다.", "en": "Cinder Grace. She hadn't said her name. But it was known. Those were the eyes from the file. Even in the photo it had seemed like eyes you'd remember. In person more so. This was someone who had been through something. It was in the eyes." } }
+      ]
+    },
+    {
+      "id": "s10",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "공구 벨트가 보였다. 여러 개의 공구. 기계 기술자의 공구들이었다. MCC에서 일했을 때의 것이었다. 오래된 것이었다. 그러나 닦여 있었다. 관리됐다. 오래된 것을 관리하는 사람. 그것이 이 사람이었다.", "en": "The tool belt was visible. Several tools. A mechanical engineer's tools. From when she worked at MCC. Old. But polished. Maintained. A person who maintained old things. That was this person." } }
+      ]
+    },
+    {
+      "id": "s11",
+      "type": "dialogue",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "한 가지 물을게요. 7구역 사망 3건 보고서. MCC에서 그걸 쓴 사람이 당신이에요?", "en": "I have one question. The Sector 7 death report. The three cases. Are you the one who wrote that in MCC?" } },
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "그 보고서 때문에 저 사람이 살아있어요. 그게 밖으로 나갔을 때 우리가 움직일 수 있었어요.", "en": "That report is why this person is still alive. When it got out we were able to move." } },
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "그러면 오늘 여기서 무엇을 할 건지 당신이 결정해요.", "en": "Then what you do here today is your decision." } }
+      ]
+    },
+    {
+      "id": "s12",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "당신이 결정해요. 그 말을 Cinder Grace가 했다. MCC 사람에게. 3년 전에 MCC를 떠난 사람이. 그 사람이 결정을 줬다. 그것이 이상했다. MCC 사람들은 결정을 주지 않았다. 명령을 줬다. 결정은 달랐다.", "en": "You decide. Cinder Grace said that. To an MCC person. Someone who left MCC three years ago. Gave the decision. That was strange. MCC people didn't give decisions. They gave orders. Decisions were different." } }
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "dialogue",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "이름은 Cinder예요. 물어볼 것 같아서.", "en": "The name is Cinder. Figured you'd ask." } },
+        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "CV예요. 3년 됐어요. MCC 떠난 후에.", "en": "I'm CV. Three years now. After leaving MCC." } },
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "광부를 이송하는 것뿐이에요. 오늘 임무는 그게 전부예요.", "en": "Just transporting a miner. Today's mission is just that." } }
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "중계소 안쪽에 사람이 있었다. 광부였다. 나이가 있었다. 오십 대. 앉아 있었다. 마스크를 쓰고 있었다. 눈이 뜨여 있었다. 그러나 먼 곳을 봤다. 그런 눈이 있었다. 거기 있지만 거기 없는 것 같은 눈. 오래 위험한 곳에 있었던 사람의 눈이었다.", "en": "There was a person deeper in the relay station. A miner. Older. Fifties. Sitting. Wearing a mask. Eyes open. But looking somewhere distant. There were eyes like that. Eyes that were there but seemed not to be there. The eyes of someone who had been in danger a long time." } }
+      ]
+    },
+    {
+      "id": "s15",
+      "type": "dialogue",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "저분이에요. 7구역 사고. 살아남았어요. MCC는 사망 처리했어요.", "en": "That's the person. Sector 7 accident. Survived. MCC processed as deceased." } },
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "기억 손상이 있어요. 사고 후유증이에요. 자기 이름을 말하지 못해요. 가족이 있어요. 아직 모르고 있어요.", "en": "There's memory damage. Accident aftermath. Can't say their own name. Has family. They don't know yet." } },
+        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "안전한 곳으로 데려가는 거예요. FSP 구역. 의료 시설이 있어요.", "en": "Taking to a safe place. FSP zone. There's a medical facility." } }
+      ]
+    },
+    {
+      "id": "s16",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "광부를 봤다. 먼 곳을 보는 눈. 이름을 말하지 못하는 사람. MCC 기록에는 사망으로 처리된 사람. 그러나 여기 있었다. 앉아 있었다. 숨쉬었다. MCC의 기록이 거짓말을 했다. 이것이 그것의 얼굴이었다.", "en": "Looked at the miner. Eyes looking somewhere distant. Someone who couldn't say their own name. Listed as deceased in MCC records. But here. Sitting. Breathing. MCC's records had lied. This was the face of that." } }
+      ]
+    },
+    {
+      "id": "s17",
+      "type": "dialogue",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "MCC가 알면 이분을 다시 처리할 거예요. 살아있다는 것을 모르게 해야 해요.", "en": "If MCC finds out they'll process this person again. Need to keep them from knowing this person is alive." } },
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "당신이 여기 온 것을 보고한다면 — MCC가 알게 돼요. 그 다음은 예측 가능해요.", "en": "If you report coming here — MCC will know. What comes next is predictable." } },
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "그것이 당신의 결정이에요. 나는 강요할 수 없어요.", "en": "That's your decision. I can't compel you." } }
+      ]
+    },
+    {
+      "id": "s18",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Cinder Grace는 MCC를 알았다. 3년 전까지 그 안에 있었다. 어떻게 처리하는지를 안다고 했다. 그 말이 단순하지 않았다. 처리됩니다. 이사회의 말이었다. Cinder Grace의 말이었다. 같은 말이 다른 입에서 나왔다. 다른 의미를 가졌다.", "en": "Cinder Grace knew MCC. Had been inside until three years ago. Said she knew how they handled things. That wasn't a simple statement. Already handled. The board's words. Cinder Grace's words. The same words from different mouths. Different meanings." } }
+      ]
+    },
+    {
+      "id": "s19",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "이 중계소 안에서 무언가를 생각했다. 7구역. 17건. 아카이브 지하. 분필 이름들. Chen Weiss의 차. 이사회의 독자적인 공기. 그것들이 한꺼번에 왔다. 그리고 이 사람. 앉아서 먼 곳을 보는 사람. MCC 기록에 없는 사람.", "en": "In this relay station something was thought about. Sector 7. Seventeen cases. Archive sublevel. Chalk names. Chen Weiss's tea. The board's private air. They all came at once. And this person. Sitting and looking somewhere distant. A person not in MCC records." } }
+      ]
+    },
+    {
+      "id": "s20",
+      "type": "dialogue",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "MCC에서 3년 일했어요. 기계 기술자였어요.", "en": "Worked at MCC for three years. Was a mechanical engineer." } },
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "광산 환기 시스템 담당이었어요. 시스템 점검을 했어요. 문제를 찾았어요. 수리 요청을 했어요. MCC가 승인을 안 했어요.", "en": "Was in charge of mine ventilation systems. Conducted system inspections. Found problems. Made repair requests. MCC didn't approve them." } },
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "그 다음에 사람이 죽었어요. 그래서 FSP에 알렸어요. 그것이 직무 위반이었어요.", "en": "Then people died. So I told FSP. That was the conduct violation." } }
+      ]
+    },
+    {
+      "id": "s21",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "리팡이 말했던 것이었다. 광부 한 명이 살았다. Cinder Grace 때문에. 그러나 그것이 직무 위반이었다. 이 사람이 그것이었다. 그 광부가 살았던 것. 그 살아남은 결과가 지금 이 의자에 앉아 있었다. 먼 곳을 보면서.", "en": "That was what Lifang had said. One miner survived. Because of Cinder Grace. But that was the conduct violation. This person was that. The miner who survived. That surviving result was sitting in that chair now. Looking somewhere distant." } }
+      ]
+    },
+    {
+      "id": "s22",
+      "type": "dialogue",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "아직도 그것이 옳은 일이었다고 생각해요.", "en": "Still think it was the right thing." } },
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "MCC에서 잘려도. 기록에서 삭제돼도. 화성 외곽에서 살아도.", "en": "Even cut from MCC. Even deleted from records. Even living in the outer Hellas." } },
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "이분이 여기 있어요. 살아 있어요. 그것이 전부예요.", "en": "This person is here. Alive. That's everything." } }
+      ]
+    },
+    {
+      "id": "s23",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "ambient_wind",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "중계소 밖이었다. 바람이 있었다. 화성의 바람. 소리가 낮았다. 붉은 먼지가 이동했다. 헬라스 분지 외곽이었다. 여기서는 도시가 보이지 않았다. 화성만 보였다. 돔 없는 화성. 관리되지 않는 화성. 그것이 진짜 화성이었다. 또는 더 진짜에 가까운 것이었다.", "en": "Outside the relay station. Wind. Martian wind. Low sound. Red dust moving. Outer Hellas Basin. The city wasn't visible from here. Only Mars. Mars without a dome. Unmanaged Mars. That was the real Mars. Or something closer to real." } }
+      ]
+    },
+    {
+      "id": "s24",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "ambient_wind",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "MCC 명령이 있었다. CV 요원 확인. 운반 물자 파악. 그것이 전부였다. 그러나 이제 알았다. CV 요원 — Cinder Grace. 운반 물자 — 사람. MCC 기록에 없는 사람. MCC가 원하는 것이 무엇인지는 알 수 있었다. 그 다음이 문제였다.", "en": "MCC orders existed. Confirm CV operative. Identify transported goods. That was everything. But now it was known. CV operative — Cinder Grace. Transported goods — a person. A person not in MCC records. What MCC wanted was knowable. What came next was the problem." } }
+      ]
+    },
+    {
+      "id": "s25",
+      "type": "dialogue",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "MCC가 보낸 사람이 왔어요. 그것을 알았어요. 처음부터.", "en": "A person MCC sent came. I knew it. From the beginning." } },
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "MCC 사람이 보통 오는 방식이 달라요. 당신은 달랐어요. 그것이 7구역 보고서를 쓴 사람이기 때문인지는 모르겠어요.", "en": "The way MCC people usually come is different. You were different. Whether that's because you're the one who wrote the Sector 7 report I don't know." } },
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "그래서 이야기를 했어요.", "en": "That's why I talked." } }
+      ]
+    },
+    {
+      "id": "s26",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "화성에서 신뢰는 드물었다. MCC 밖에서는 더 드물었다. Cinder Grace가 이야기를 했다. MCC 사람에게. 그것이 신뢰였다. 또는 도박이었다. 화성에서 그 두 가지는 자주 같은 것이었다.", "en": "Trust was rare on Mars. More rare outside MCC. Cinder Grace talked. To an MCC person. That was trust. Or a gamble. On Mars the two were often the same thing." } }
+      ]
+    },
+    {
+      "id": "s27",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "ambient_wind",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "argyre 협곡 방향으로 바람이 불었다. 그쪽이 CV 영역이었다. Cinder Grace가 말한 FSP 구역은 다른 방향이었다. 이 외곽 중계소에서 두 방향이 보였다. 두 방향 모두 헬라스 센트럴이 아니었다. 화성의 다른 부분이었다. MCC 밖의 화성이었다.", "en": "Wind blew toward the Argyre canyon direction. That was CV territory. The FSP zone Cinder Grace mentioned was a different direction. From this outer relay station two directions were visible. Neither direction was Hellas Central. Different parts of Mars. Mars outside MCC." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "choice_tension",
       "prompt": { "ko": "Cinder Grace. 그녀가 기다린다. MCC가 원하는 것과 지금 눈앞의 것 사이에서.", "en": "Cinder Grace. She waits. Between what MCC wants and what is before you now." },
       "choices": [
-        { "id": "mcc_ch8_arrest", "text": { "ko": "임무를 완수한다. CV 요원 제압.", "en": "Complete the mission. Neutralize the CV operative." }, "tone": "loyal", "preview_hint": { "ko": "→ MCC 충성 완수, Cinder와 적대", "en": "→ MCC loyalty fulfilled, Cinder becomes enemy" }},
-        { "id": "mcc_ch8_let_go", "text": { "ko": "보내준다. 본 것은 없다.", "en": "Let her go. You saw nothing." }, "tone": "human", "preview_hint": { "ko": "→ CV 중립 유지, MCC에 보고 없음", "en": "→ CV neutrality maintained, no MCC report" }},
-        { "id": "mcc_ch8_negotiate", "text": { "ko": "거래를 제안한다.", "en": "Propose a deal." }, "tone": "strategic", "preview_hint": { "ko": "→ Cinder 정보 교환, 복잡한 연대", "en": "→ Information exchange, complex alliance" }},
-        { "id": "mcc_ch8_join", "text": { "ko": "광부를 함께 이송한다.", "en": "Help transport the miner together." }, "tone": "defiant", "preview_hint": { "ko": "→ MCC와 결별 시작, Cinder 신뢰 +", "en": "→ Break with MCC begins, Cinder trust +" }}
+        { "id": "mcc_ch8_arrest", "text": { "ko": "임무를 완수한다. CV 요원 제압.", "en": "Complete the mission. Neutralize the CV operative." }, "tone": "loyal", "preview_hint": { "ko": "→ MCC 충성 완수, Cinder와 적대", "en": "→ MCC loyalty fulfilled, Cinder becomes enemy" } },
+        { "id": "mcc_ch8_let_go", "text": { "ko": "보내준다. 본 것은 없다.", "en": "Let her go. You saw nothing." }, "tone": "human", "preview_hint": { "ko": "→ CV 중립 유지, MCC에 보고 없음", "en": "→ CV neutrality maintained, no MCC report" } },
+        { "id": "mcc_ch8_negotiate", "text": { "ko": "거래를 제안한다.", "en": "Propose a deal." }, "tone": "strategic", "preview_hint": { "ko": "→ Cinder 정보 교환, 복잡한 연대", "en": "→ Information exchange, complex alliance" } },
+        { "id": "mcc_ch8_join", "text": { "ko": "광부를 함께 이송한다.", "en": "Help transport the miner together." }, "tone": "defiant", "preview_hint": { "ko": "→ MCC와 결별 시작, Cinder 신뢰 +", "en": "→ Break with MCC begins, Cinder trust +" } }
       ]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "hellas_outer_plains", "bgm": "battle_theme_mixed", "transition": "fade_slow",
-      "title": { "ko": "외곽 중계소", "en": "Outer Relay" }, "subtitle": { "ko": "헬라스 외곽 — 선택의 전장", "en": "Outer Hellas — The Battlefield of Choice" }
-    },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "dialogue", "background": "hellas_outer_plains", "bgm": "victory_calm",
+    {
+      "id": "s28",
+      "type": "narration",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "quiet", "effect": "character_enter:cinder:slide_right", "text": { "ko": "당신이 어느 쪽인지 아직 모르겠어요.", "en": "I still don't know which side you're on." }},
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "그게 그나마 나은 것 같기도 해요.", "en": "Maybe that's the better thing." }}
+        { "text": { "ko": "결정이 됐다. Cinder Grace가 봤다. 그 눈이 읽었다. 무엇을 읽었는지는 그녀만 알았다. 그러나 반응이 있었다. 미세했다. 공구 벨트가 조금 내려갔다. 긴장이 내려간 것이었다. 아주 조금. 그것이 그녀의 방식이었다.", "en": "A decision was made. Cinder Grace looked. Those eyes read it. Only she knew what was read. But there was a reaction. Subtle. The tool belt lowered slightly. Tension going down. Just slightly. That was her way." } }
       ]
     },
-    { "id": "s_fail", "type": "narration", "background": "hellas_outer_plains", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "Cinder Grace는 갔다. 광부도 갔다. MCC는 그것을 알게 될 것이었다. MCC는 항상 알게 됐다. 중계소는 폐쇄된 채 남았다. 기록에는 여전히 아무것도 없었다.", "en": "Cinder Grace was gone. The miner was gone. MCC would find out. MCC always found out. The relay station remained closed. There was still nothing in the records." }}] },
-    { "id": "s_ending", "type": "ending", "background": "hellas_outer_plains_sunset", "bgm": "ambient_wind_calm", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "해가 헬라스 외곽으로 기울었다. 화성의 해는 작았다. 지구보다 멀었다. 그래서 빛이 달랐다. 붉은 하늘에 더 붉은 빛. Cinder Grace가 걸어가는 방향에 그 빛이 있었다. 어디서 왔는지를 알 것 같은 사람이었다. 어디로 가는지는 아직 몰랐다.", "en": "The sun tilted toward the outer Hellas. The Martian sun was small. Farther than from Earth. So the light was different. Redder light in a red sky. In the direction Cinder Grace walked was that light. She was someone you felt you could understand where she'd come from. Where she was going was still unknown." }}],
-      "next_chapter_preview": { "questId": "mcc_campaign_ch9", "teaser": { "ko": "다음 — 세 개의 깃발", "en": "Next — Three Flags" }}
+    {
+      "id": "s29",
+      "type": "dialogue",
+      "background": "hellas_outer_relay_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "당신이 어느 쪽인지 아직 모르겠어요.", "en": "I still don't know which side you're on." } },
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "그게 그나마 나은 것 같기도 해요.", "en": "Maybe that's the better thing." } },
+        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "언젠가 다시 만날 거예요. 화성은 좁아요. 외곽도 좁아요.", "en": "We'll meet again someday. Mars is small. Even the outer plains are small." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "hellas_outer_plains",
+      "bgm": "battle_theme_mixed",
+      "transition": "fade_slow",
+      "title": { "ko": "외곽 중계소", "en": "Outer Relay" },
+      "subtitle": { "ko": "헬라스 외곽 — 선택의 전장", "en": "Outer Hellas — The Battlefield of Choice" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "hellas_outer_plains",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "cinder", "emotion": "quiet", "effect": "character_enter:cinder:slide_right", "text": { "ko": "당신이 어느 쪽인지 아직 모르겠어요.", "en": "I still don't know which side you're on." } },
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "그게 그나마 나은 것 같기도 해요.", "en": "Maybe that's the better thing." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "text": { "ko": "Cinder Grace는 갔다. 광부도 갔다. MCC는 그것을 알게 될 것이었다. MCC는 항상 알게 됐다. 중계소는 폐쇄된 채 남았다. 기록에는 여전히 아무것도 없었다.", "en": "Cinder Grace was gone. The miner was gone. MCC would find out. MCC always found out. The relay station remained closed. There was still nothing in the records." } }
+      ]
+    },
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "ambient_wind_calm",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "해가 헬라스 외곽으로 기울었다. 화성의 해는 작았다. 지구보다 멀었다. 그래서 빛이 달랐다. 붉은 하늘에 더 붉은 빛. Cinder Grace가 걸어가는 방향에 그 빛이 있었다. 어디서 왔는지를 알 것 같은 사람이었다. 어디로 가는지는 아직 몰랐다.", "en": "The sun tilted toward the outer Hellas. The Martian sun was small. Farther than from Earth. So the light was different. Redder light in a red sky. In the direction Cinder Grace walked was that light. She was someone you felt you could understand where she'd come from. Where she was going was still unknown." } }
+      ],
+      "next_chapter_preview": { "questId": "mcc_campaign_ch9", "teaser": { "ko": "다음 — 세 개의 깃발", "en": "Next — Three Flags" } }
     }
   ]
 }

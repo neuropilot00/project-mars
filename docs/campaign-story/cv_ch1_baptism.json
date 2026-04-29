@@ -2,327 +2,564 @@
   "questId": "cv_campaign_ch1",
   "campaignId": "cv_route",
   "chapterNumber": 1,
-  "title": {
-    "ko": "입문",
-    "en": "Initiation"
-  },
-  "location": {
-    "id": "erebus_crater_base",
-    "displayNameKo": "에레부스 분화구 CV 거점"
-  },
-  "environment": "crater_night_fire",
-  "estimatedPlayTimeMinutes": 15,
-  "characters": [
-    "player",
-    "butcher",
-    "cinder"
-  ],
+  "title": { "ko": "세례", "en": "Baptism" },
+  "location": { "id": "erebus_crater", "displayNameKo": "에레부스 분화구" },
+  "environment": "outdoor_hostile",
+  "estimatedPlayTimeMinutes": 20,
+  "characters": ["player", "butcher_vasquez", "crow_reyes", "reza"],
   "scenes": [
     {
       "id": "s01",
       "type": "narration",
       "background": "erebus_crater_exterior",
-      "bgm": "cv_ambient_dark",
+      "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "에레부스 분화구. 지표 아래 5킬로미터. 거기서는 하늘이 보이지 않았다. 분화구 벽이 하늘이었다. 분화구 바닥에 불이 있었다. 영하 백 도에서 불이 탔다. 150명이 공유하는 불이었다. 30년 동안 꺼진 날이 없었다.",
-            "en": "Erebus Crater. Five kilometers below the surface. No sky was visible from there. The crater walls were the sky. At the bottom a fire burned. It burned at minus one hundred degrees. One hundred and fifty people shared it. It had not gone out in thirty years."
-          }
-        }
+        { "text": { "ko": "에레부스 분화구. 지표 아래 5킬로미터. 거기서는 하늘이 보이지 않았다. 분화구 벽이 하늘이었다. 분화구 바닥에 불이 있었다. 영하 백 도에서 불이 탔다. 150명이 공유하는 불이었다. 30년 동안 꺼진 날이 없었다.", "en": "Erebus Crater. Five kilometers below the surface. No sky visible from there. The crater walls were the sky. Fire at the crater floor. Burning at minus one hundred. One hundred and fifty people shared it. Not gone out in thirty years." } }
       ]
     },
     {
       "id": "s02",
       "type": "narration",
       "background": "erebus_crater_exterior",
-      "bgm": "cv_ambient_dark",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "Butcher Vasquez는 불 앞에 앉았다. 왼쪽 팔이 불빛을 받았다. 의수였다. 광산용 구식 의수. MCC가 사고 배상을 거부했을 때 그가 직접 만들었다. 17살 때였다. 그 후로 같은 팔이었다.",
-            "en": "Butcher Vasquez sat before the fire. Firelight fell on his left arm. A prosthetic. Old mining-grade. He had built it himself when MCC refused to cover the accident. He was seventeen then. The same arm, ever since."
-          }
-        }
+        { "text": { "ko": "불이 타는데 따뜻하지 않았다. 이것이 CV의 메타포였다. 불이 있었다. 그러나 화성은 차가웠다. 불이 그 차가움을 이기지 못했다. 그러나 30년 동안 불은 꺼지지 않았다. 그것이 의미하는 것이 있었다.", "en": "Fire burning but not warm. This was CV's metaphor. Fire existed. But Mars was cold. The fire couldn't overcome the cold. But thirty years and the fire never went out. There was meaning in that." } }
       ]
     },
     {
       "id": "s03",
       "type": "narration",
-      "background": "erebus_crater_exterior",
-      "bgm": "cv_ambient_dark",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "곁에 곡괭이가 있었다. 세워두었다. 그것은 무기가 아니었다. 그러나 무기가 아닌 것도 아니었다. Butcher에게 그것은 그런 것이었다. 도구이고 신호이고 30년이었다.",
-            "en": "A pickaxe leaned beside him. It wasn't a weapon. But it wasn't not a weapon either. For Butcher it was both. A tool, a signal, and thirty years."
-          }
-        }
+        { "text": { "ko": "Butcher Vasquez는 불 앞에 앉았다. 왼쪽 팔이 불빛을 받았다. 의수였다. 광산용 구식 의수. MCC가 사고 배상을 거부했을 때 그가 직접 만들었다. 17살 때였다. 그 후로 같은 팔이었다.", "en": "Butcher Vasquez sat before the fire. Firelight on the left arm. A prosthetic. Old mining-grade. He had built it himself when MCC refused to cover the accident. Seventeen years old. The same arm ever since." } }
       ]
     },
     {
       "id": "s04",
       "type": "narration",
       "background": "erebus_base_interior",
-      "bgm": "cv_ambient_dark",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "외투 안주머니에 손을 넣었다. 꺼내지는 않았다. 안에 사진이 있었다. 30년 된 것. 광부 학살이 있던 날의 것. 그날 살아남은 사람들 중 찍힌 것. 모두 죽었다. 사진 안에서만 살아있었다.",
-            "en": "He put his hand in his inside pocket. Didn't take anything out. Inside was a photograph. Thirty years old. From the day of the miners' massacre. Taken of those who survived that day. All of them were dead now. They lived only in the photograph."
-          }
-        }
+        { "text": { "ko": "곁에 곡괭이가 있었다. 세워두었다. 무기가 아니었다. 그러나 무기가 아닌 것도 아니었다. Butcher에게 그것은 그런 것이었다. 도구이고 신호이고 30년이었다.", "en": "A pickaxe leaned beside him. Not a weapon. But not not a weapon. For Butcher it was both. A tool, a signal, and thirty years." } }
       ]
     },
     {
       "id": "s05",
       "type": "narration",
       "background": "erebus_throne_hall",
-      "bgm": "cv_ambient_dark",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "분화구 아래로 사람이 내려오는 것이 보였다. 가방을 들고 있었다. 작은 가방이었다. 손이 가방 위에 있었다. 거기까지 오는 것만으로도 시험이었다. 대부분은 중간에 돌아갔다. 이 사람은 돌아가지 않았다.",
-            "en": "Someone was descending into the crater. Carrying a small bag. Hand resting on it. Just making it this far was a test. Most turned back halfway. This one hadn't."
-          }
-        }
+        { "text": { "ko": "분화구 아래로 사람이 내려오는 것이 보였다. 당신이었다. 가방을 들고 있었다. 작은 가방이었다. 손이 가방 위에 있었다. 거기까지 오는 것만으로도 시험이었다. 대부분은 중간에 돌아갔다.", "en": "Someone descending into the crater. You. Carrying a small bag. Hand resting on it. Just making it this far was a test. Most turned back halfway." } }
       ]
     },
     {
       "id": "s06",
-      "type": "narration",
+      "type": "dialogue",
       "background": "erebus_throne_hall",
-      "bgm": "cv_ambient_dark",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "살아있네.\n\nButcher가 말했다. 불에서 눈을 떼지 않고.\n\n그 사람이 불 앞에 섰다. 잃을 게 없어 보여. 그가 말했다.\n\n침묵이 있었다. 불이 탔다. 영하 백 도 안에서.",
-            "en": "Still alive.\n\nButcher said this without looking away from the fire.\n\nThe person stood before the fire. Looks like you've got nothing to lose. He said.\n\nThere was silence. The fire burned. In minus one hundred degrees."
-          }
-        }
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "effect": "character_enter:butcher_vasquez:slide_left", "text": { "ko": "살아있네.", "en": "Still alive." } },
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "잃을 게 없어 보여.", "en": "Looks like you've got nothing to lose." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "...", "en": "..." } },
+        { "speaker": "butcher_vasquez", "emotion": "hollow", "text": { "ko": "말 안 해도 돼. 다들 그래.", "en": "Don't need to talk. They all do." } }
       ]
     },
     {
       "id": "s07",
-      "type": "dialogue",
+      "type": "narration",
       "background": "erebus_throne_hall",
-      "bgm": "cv_ambient_dark",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "speaker": "cinder",
-          "emotion": "neutral",
-          "effect": "character_enter:cinder:slide_right",
-          "text": {
-            "ko": "CV에는 규칙이 없어. 그게 규칙이야. 들어오면 코드가 있어.",
-            "en": "CV has no rules. That's the rule. Once you're in, there's a code."
-          }
-        },
-        {
-          "speaker": "cinder",
-          "emotion": "direct",
-          "text": {
-            "ko": "비전투원 보호. 약속. 항복자 자비. 명령 복종. 그리고—",
-            "en": "Protect noncombatants. Keep your word. Mercy to those who surrender. Follow orders. And—"
-          }
-        },
-        {
-          "speaker": "butcher",
-          "emotion": "stoic",
-          "effect": "character_enter:butcher:slide_left",
-          "text": {
-            "ko": "잘 죽이지 않는 법.",
-            "en": "Learn not to kill well."
-          }
-        },
-        {
-          "speaker": "cinder",
-          "emotion": "quiet",
-          "text": {
-            "ko": "마지막 게 제일 어려워.",
-            "en": "That last one is the hardest."
-          }
-        }
+        { "text": { "ko": "Butcher가 처음으로 당신을 봤다. 불빛이 얼굴에 닿았다. 왼쪽 얼굴에 흉터가 있었다. 얼마나 된 것인지는 알 수 없었다. Butcher는 그 흉터를 오래 보았다. 무언가 생각하는 것이었다. 말하지 않았다.", "en": "Butcher looked at you for the first time. Firelight reached your face. A scar on the left side. Couldn't tell how old. Butcher looked at that scar for a long time. Thinking something. Didn't say it." } }
       ]
     },
     {
       "id": "s08",
-      "type": "narration",
+      "type": "dialogue",
       "background": "erebus_throne_hall",
-      "bgm": "cv_ambient_dark",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "세 가지야. Butcher가 말했다. 무력. 의리. 생존. 셋 중 하나로 증명해. 어느 것인지는 자네가 정해.\n\n처음으로 그 사람을 보았다. 왼쪽 얼굴에 흉터가 있었다. 불빛에서 보였다. 얼마나 된 것인지는 알 수 없었다. Butcher는 그 흉터를 오래 보았다.",
-            "en": "Three things. Butcher said. Strength. Loyalty. Survival. Prove one. You choose which.\n\nFor the first time he looked at the person directly. There was a scar on the left side of their face. Visible in the firelight. He couldn't tell how old it was. Butcher looked at that scar for a long time."
-          }
-        }
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "화성에서 살아남는 방법은 세 가지야.", "en": "There are three ways to survive on Mars." } },
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "강해지거나.", "en": "Be strong." } },
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "쓸모 있거나.", "en": "Be useful." } },
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "사라지거나.", "en": "Disappear." } }
       ]
     },
     {
       "id": "s09",
       "type": "narration",
       "background": "erebus_throne_hall",
-      "bgm": "cv_ambient_dark",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "가방 안에 무엇이 있어.\n\nButcher가 말했다. 그 사람을 보지 않고.\n\n묻는 것이 아니었다. 그냥 말한 것이었다.\n\n그 사람은 답하지 않았다.\n\n그래. Butcher가 말했다. 모르는 게 좋아.",
-            "en": "What's in the bag.\n\nButcher said this, not looking at the person.\n\nHe wasn't asking. He was just saying.\n\nThe person didn't answer.\n\nGood. Butcher said. Better not to know."
-          }
-        }
+        { "text": { "ko": "침묵이 있었다. 불이 탔다. Butcher는 의수를 내려다봤다. 그것이 대화 중에 그가 하는 것이었다. 의수를 보는 것. 17살의 것을 보는 것. 30년 전의 것을 보는 것.", "en": "Silence. Fire burned. Butcher looked down at the prosthetic. That was what he did during conversations. Looking at the prosthetic. Looking at the seventeen-year-old thing. Looking at the thirty-year-old thing." } }
       ]
     },
     {
-      "id": "s_choice",
+      "id": "s10",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "sharp", "effect": "character_enter:crow_reyes:slide_right", "text": { "ko": "CV는 시험이 있어요. 세 개.", "en": "CV has tests. Three of them." } },
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "무력. 의리. 생존. 어느 것인지는 직접 선택해요.", "en": "Strength. Loyalty. Survival. You choose which." } },
+        { "speaker": "crow_reyes", "emotion": "sardonic", "text": { "ko": "선택하는 것도 시험이에요. 이건 말 안 해도 됐는데.", "en": "Choosing is also the test. Didn't need to say that." } }
+      ]
+    },
+    {
+      "id": "s11",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Crow Reyes였다. CV 전술대장. 말이 빠른 사람이었다. 잔혹했다. 그러나 전문적이었다. 그 두 가지가 CV에서 오래 살게 하는 것이었다.", "en": "Crow Reyes. CV tactical commander. Someone who spoke fast. Ruthless. But professional. Those two things were what kept you alive in CV for a long time." } }
+      ]
+    },
+    {
+      "id": "s12",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "기지 안으로 들어갔다. 사람들이 있었다. 각자의 일을 하는 사람들. 당신을 보았다. 눈을 떼었다. 그것이 이 기지에서 낯선 사람을 대하는 방식이었다. 보지만 오래 보지 않는 것.", "en": "Into the base. People there. Each doing their work. They looked at you. Looked away. That was how this base dealt with a stranger. See but not stare." } }
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "구석에 묶인 남자가 있었다. 손이 뒤로 묶여 있었다. 앉아 있었다. 눈이 감겨 있었다. 죽지 않았다. 숨을 쉬었다. 그러나 조용했다. 포로였다.", "en": "A man was bound in the corner. Hands behind his back. Seated. Eyes closed. Not dead. Breathing. But quiet. A prisoner." } }
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "Reza예요. MCC 첩자. 3일 됐어요.", "en": "Reza. MCC informant. Three days." } },
+        { "speaker": "crow_reyes", "emotion": "cold", "text": { "ko": "Butcher가 결정을 안 내렸어요. 그 사람이 결정하면 끝나요.", "en": "Butcher hasn't decided. When he decides, it's done." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "어떤 결정.", "en": "What kind of decision." } },
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "두 가지밖에 없어요. CV에서는.", "en": "Only two kinds. In CV." } }
+      ]
+    },
+    {
+      "id": "s15",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Reza가 눈을 떴다. 발소리를 들은 것이었다. 당신을 봤다. 새로운 얼굴이었다. 무언가 기대하는 눈이 아니었다. 그냥 보는 눈이었다. 살아있는 사람의 눈이었다.", "en": "Reza opened his eyes. Heard footsteps. Looked at you. A new face. Not eyes expecting anything. Just looking eyes. The eyes of someone alive." } }
+      ]
+    },
+    {
+      "id": "s16",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "reza", "emotion": "exhausted", "text": { "ko": "새로 온 거야?", "en": "New here?" } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "그래.", "en": "Yes." } },
+        { "speaker": "reza", "emotion": "quiet", "text": { "ko": "여기 오래 있지 마. 여기는 사람이 사라지는 곳이야.", "en": "Don't stay long. This is a place where people disappear." } },
+        { "speaker": "reza", "emotion": "hollow", "text": { "ko": "나처럼.", "en": "Like me." } }
+      ]
+    },
+    {
+      "id": "s17",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Crow가 당신을 끌어당겼다. 멀리서 말했다. 포로와 말하는 것이 시험이냐고 묻지 않았다. 그것이 시험인지 아닌지 몰랐다. 화성에서는 모든 것이 시험이었다. 또는 아무것도 시험이 아니었다.", "en": "Crow pulled you away. Spoke from a distance. Didn't ask if talking to the prisoner was a test. Didn't know if it was a test or not. On Mars everything was a test. Or nothing was." } }
+      ]
+    },
+    {
+      "id": "s18",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "시험 하나. 무력. Butcher가 사람을 골랐다. 덩치가 큰 사람이었다. 이름은 몰랐다. 규칙이 없었다. 쓰러뜨리거나 쓰러지거나였다. 분화구 바닥에서. 불 옆에서. 150명이 보는 데서.", "en": "Test one. Strength. Butcher chose a person. Large build. Name unknown. No rules. Knock down or be knocked down. On the crater floor. Beside the fire. In front of a hundred and fifty people." } }
+      ]
+    },
+    {
+      "id": "s19",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "이기면 통과야. 지면 내일 다시 해.", "en": "Win and you pass. Lose and try again tomorrow." } },
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "죽이지 마. 쓰러뜨려.", "en": "Don't kill. Just put them down." } },
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "죽이면 실격이에요. CV 코드.", "en": "Kill and you're out. CV code." } }
+      ]
+    },
+    {
+      "id": "s20",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "싸웠다. 짧았다. 길지 않았다. 화성에서 싸움은 짧았다. 공기가 얇아서 빨리 지쳤다. 오래 싸우는 것이 바보였다. 빨리 끝내는 것이 기술이었다. 그 기술이 있는지 없는지가 시험이었다.", "en": "Fought. Short. Not long. On Mars fights were short. Thin air made you tire fast. Fighting long was foolish. Ending it fast was skill. Whether you had that skill was the test." } }
+      ]
+    },
+    {
+      "id": "s21",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher는 지켜봤다. 아무 표정이 없었다. Crow는 메모를 했다. 작은 메모였다. 무엇을 적는지 알 수 없었다. 사람들이 봤다. 그것이 첫 번째 시험이었다.", "en": "Butcher watched. No expression. Crow took notes. Small notes. Couldn't tell what was written. People watched. That was the first test." } }
+      ]
+    },
+    {
+      "id": "s22",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "시험 둘. 의리. Crow가 당신에게 봉투를 건넸다. 사진이 있었다. 한 사람의 얼굴. CV 대원이었다. 이름이 있었다. 거기까지 보고 멈췄다.", "en": "Test two. Loyalty. Crow handed you an envelope. A photograph inside. One face. A CV member. A name. You read that far and stopped." } }
+      ]
+    },
+    {
+      "id": "s23",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "이 사람이 MCC 정보를 팔았어요. 증거가 있어요.", "en": "This person sold intelligence to MCC. There's evidence." } },
+        { "speaker": "crow_reyes", "emotion": "cold", "text": { "ko": "이름을 확인하고. 위치를 확인하고. 보고하면 돼요. 간단해요.", "en": "Confirm the name. Confirm the location. Report back. Simple." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "보고하면 어떻게 돼.", "en": "What happens after I report." } },
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "CV에서 결정해요. 당신이 아니에요.", "en": "CV decides. Not you." } }
+      ]
+    },
+    {
+      "id": "s24",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "사진 안의 사람을 봤다. 기지 안에 있는 사람이었다. 어제 밥을 먹는 것을 봤다. 살아있는 사람이었다. 당신이 보고하면 살아있지 않을 수 있는 사람이었다.", "en": "Looked at the face in the photograph. Someone in the base. You had seen them eating yesterday. A living person. A person who might not be living if you reported." } }
+      ]
+    },
+    {
+      "id": "s25",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "sharp", "text": { "ko": "시간이 있어요. 생각할 시간이요.", "en": "You have time. Time to think." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "이게 시험이야?", "en": "Is this a test?" } },
+        { "speaker": "crow_reyes", "emotion": "sardonic", "text": { "ko": "여기서는 모든 게 시험이에요. 아니면 아무것도 시험이 아니에요.", "en": "Everything here is a test. Or nothing is." } }
+      ]
+    },
+    {
+      "id": "s26",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "봉투를 돌려줬다. 아무 말도 하지 않았다. Crow가 봉투를 받았다. 표정이 없었다. 봉투를 다시 열지 않았다. 그것으로 끝이었다. 통과였는지 실패였는지 알 수 없었다.", "en": "Returned the envelope. Said nothing. Crow took it. No expression. Didn't reopen it. That was it. Didn't know if it was a pass or a fail." } }
+      ]
+    },
+    {
+      "id": "s27",
+      "type": "narration",
+      "background": "erebus_base_exterior",
+      "bgm": "tension_high",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "시험 셋. 생존. Butcher가 말했다. 밖에서 하룻밤. 분화구 외벽. 온도가 가장 낮은 곳. 장비는 담요 하나. 시간은 해 뜰 때까지. 그것이 전부였다.", "en": "Test three. Survival. Butcher said. Outside overnight. Crater outer wall. Where temperature was lowest. One blanket as equipment. Until sunrise. That was all." } }
+      ]
+    },
+    {
+      "id": "s28",
+      "type": "dialogue",
+      "background": "erebus_base_exterior",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "영하 백 도야. 아는 거지?", "en": "Minus one hundred. You know that." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "알아.", "en": "I know." } },
+        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "아는 것과 겪는 것은 달라.", "en": "Knowing and experiencing are different." } }
+      ]
+    },
+    {
+      "id": "s29",
+      "type": "narration",
+      "background": "erebus_base_exterior",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "밖으로 나갔다. 분화구 외벽이었다. 바람이 있었다. 분화구 안과 달랐다. 벽이 없었다. 바람이 그대로 닿았다. 담요 하나로 그것을 막았다. 막히지 않았다.", "en": "Outside. Crater outer wall. There was wind. Different from inside the crater. No walls. Wind hit directly. One blanket against it. It wasn't enough." } }
+      ]
+    },
+    {
+      "id": "s30",
+      "type": "narration",
+      "background": "erebus_crater_panorama",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "별이 있었다. 화성의 별. 맑았다. 공기가 얇아서 별이 잘 보였다. 그러나 별이 따뜻하지는 않았다. 별은 빛이었다. 빛은 따뜻하지 않았다. 이 온도에서는.", "en": "Stars. Martian stars. Clear. Thin air made stars visible. But stars weren't warm. Stars were light. Light wasn't warm. Not at this temperature." } }
+      ]
+    },
+    {
+      "id": "s31",
+      "type": "narration",
+      "background": "erebus_crater_panorama",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "몸이 떨렸다. 멈출 수 없었다. 그것이 몸의 방식이었다. 따뜻해지려는 것이었다. 그러나 효과가 없었다. 화성의 밤에는 몸이 이길 수 없었다. 그러나 죽지 않았다. 그것이 중요했다.", "en": "Body shaking. Couldn't stop. That was the body's way. Trying to get warm. But ineffective. The body couldn't win against a Martian night. But didn't die. That was what mattered." } }
+      ]
+    },
+    {
+      "id": "s32",
+      "type": "narration",
+      "background": "erebus_crater_panorama",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "해가 떴다. 화성의 해. 작은 것. 먼 것. 그러나 빛이었다. 빛이 왔을 때 알 수 있었다. 살아있다는 것. 그것이 시험의 답이었다.", "en": "The sun rose. Martian sun. Small thing. Distant thing. But light. When the light came you knew. Alive. That was the answer to the test." } }
+      ]
+    },
+    {
+      "id": "s33",
+      "type": "dialogue",
+      "background": "erebus_base_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "들어와.", "en": "Come in." } },
+        { "speaker": "butcher_vasquez", "emotion": "hollow", "text": { "ko": "밤새 죽은 사람도 있었어. 거기서. 그러나 넌 아니야.", "en": "People have died there through the night. But not you." } }
+      ]
+    },
+    {
+      "id": "s34",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "Reza가 있었다. 구석에. 손이 묶인 채. 눈이 떠 있었다. 당신을 봤다. 오래 봤다. 그 눈이 무엇을 말하는지 알 수 없었다. 그러나 살아있는 눈이었다. 그것이 Reza였다.", "en": "Reza was there. In the corner. Hands still bound. Eyes open. Looked at you. For a long time. Couldn't tell what those eyes were saying. But alive eyes. That was Reza." } }
+      ]
+    },
+    {
+      "id": "s35",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "reza", "emotion": "quiet", "text": { "ko": "살아있어. 밤을 버텼어.", "en": "Alive. Survived the night." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "그래.", "en": "Yes." } },
+        { "speaker": "reza", "emotion": "hollow", "text": { "ko": "나는 버티는 방법을 알아. 그래서 아직 여기 있어. 그러나 오래는 안 돼.", "en": "I know how to endure. That's why I'm still here. But not much longer." } }
+      ]
+    },
+    {
+      "id": "s36",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "reza", "emotion": "flat", "text": { "ko": "Butcher가 오늘 결정할 거야.", "en": "Butcher will decide today." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "알아.", "en": "I know." } },
+        { "speaker": "reza", "emotion": "quiet", "text": { "ko": "내 여동생 이름이 Aisha야. 그것만 알아줘. 이름이 있다는 것.", "en": "My sister's name is Aisha. Just know that. That there's a name." } }
+      ]
+    },
+    {
+      "id": "s37",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_high",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "Butcher가 왕좌 홀에 있었다. Crow가 옆에 있었다. 불이 탔다. 사람들이 있었다. 모두 있었다. Reza가 끌려왔다. 손이 묶인 채. 불 앞에 세워졌다.", "en": "Butcher was in the throne hall. Crow beside him. Fire burned. Everyone was there. All of them. Reza was dragged in. Hands still bound. Stood before the fire." } }
+      ]
+    },
+    {
+      "id": "s38",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "heavy", "text": { "ko": "Reza. MCC 첩자. 3일 동안 조사했어. 결론이 나왔어.", "en": "Reza. MCC informant. Three days of investigation. A conclusion." } },
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "CV는 배신을 용서하지 않아. 규칙이 없는 곳에서 하나 있는 것이 그거야.", "en": "CV doesn't forgive betrayal. In a place with no rules that's the one thing that exists." } },
+        { "speaker": "reza", "emotion": "exhausted", "text": { "ko": "나는 첩자가 아니야. 들어봐.", "en": "I'm not an informant. Listen." } },
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "증거가 있어.", "en": "There's evidence." } }
+      ]
+    },
+    {
+      "id": "s39",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher가 당신을 봤다. 처음으로 무언가 묻는 눈이었다. 말이 없었다. 그러나 질문이 있었다. 어떻게 할 것인지. 새로 온 사람. 시험을 통과한 사람. 이 상황에서 어떻게 할 것인지.", "en": "Butcher looked at you. For the first time his eyes held a question. No words. But a question. What will you do. New arrival. Someone who passed the tests. What will you do in this situation." } }
+      ]
+    },
+    {
+      "id": "s40",
       "type": "choice",
       "background": "erebus_throne_hall",
       "bgm": "choice_tension",
-      "prompt": {
-        "ko": "세 가지 시험 중 무엇으로 증명하겠습니까?",
-        "en": "Which of the three will you prove?"
-      },
+      "transition": "cut",
+      "prompt": { "ko": "Butcher가 기다린다. Reza가 불 앞에 있다. 무엇을 하겠습니까.", "en": "Butcher is waiting. Reza stands before the fire. What do you do." },
       "choices": [
         {
-          "id": "cv_ch1_brutal",
-          "text": {
-            "ko": "무력으로. 지정된 표적을 제거한다.",
-            "en": "Strength. Eliminate the target."
-          },
-          "tone": "ruthless",
-          "preview_hint": {
-            "ko": "→ Butcher 인정 +, Cinder 유보",
-            "en": "→ Butcher approval +, Cinder reserved"
-          }
-        },
-        {
-          "id": "cv_ch1_clever",
-          "text": {
-            "ko": "의리로. CV의 비밀을 지킨다.",
-            "en": "Loyalty. Keep CV's secret."
-          },
+          "id": "cv_ch1_defend",
+          "text": { "ko": "Reza를 변호한다. 증거를 다시 보자.", "en": "Defend Reza. Look at the evidence again." },
           "tone": "principled",
-          "preview_hint": {
-            "ko": "→ Cinder 호감 +, Butcher 관찰",
-            "en": "→ Cinder favor +, Butcher watches"
-          }
+          "preview_hint": { "ko": "→ Butcher가 멈춘다. Crow가 경고한다.", "en": "→ Butcher pauses. Crow warns." }
         },
         {
-          "id": "cv_ch1_refuse",
-          "text": {
-            "ko": "생존으로. 혼자서 7시간을 버틴다.",
-            "en": "Survival. Seven hours alone."
-          },
-          "tone": "independent",
-          "preview_hint": {
-            "ko": "→ Butcher 흥미 +, 고독 조건",
-            "en": "→ Butcher interest +, solitary conditions"
-          }
+          "id": "cv_ch1_silent",
+          "text": { "ko": "말하지 않는다. Butcher의 결정을 따른다.", "en": "Say nothing. Follow Butcher's decision." },
+          "tone": "pragmatic",
+          "preview_hint": { "ko": "→ CV 신뢰 +. Reza와의 관계 소멸.", "en": "→ CV trust +. Reza relationship ends." }
         },
         {
-          "id": "cv_ch1_question",
-          "text": {
-            "ko": "Reza는 누구입니까.",
-            "en": "Who is Reza."
-          },
-          "tone": "questioning",
-          "preview_hint": {
-            "ko": "→ Cinder가 설명, Butcher 침묵",
-            "en": "→ Cinder explains, Butcher goes silent"
-          }
+          "id": "cv_ch1_trade",
+          "text": { "ko": "Reza의 정보를 먼저 얻자고 제안한다.", "en": "Propose getting Reza's intel first." },
+          "tone": "strategic",
+          "preview_hint": { "ko": "→ Crow가 동의한다. Butcher가 생각한다.", "en": "→ Crow agrees. Butcher considers." }
+        },
+        {
+          "id": "cv_ch1_aisha",
+          "text": { "ko": "Reza의 여동생 이름을 말한다. Aisha.", "en": "Say Reza's sister's name. Aisha." },
+          "tone": "human",
+          "preview_hint": { "ko": "→ Butcher가 의수를 본다. 오래.", "en": "→ Butcher looks at the prosthetic. Long." }
         }
       ]
     },
     {
-      "id": "s_battle",
+      "id": "s41",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher가 결정했다. 말했다. 말이 짧았다. 그것이 결정이었다. 불이 탔다. 따뜻하지 않았다. 사람들이 봤다. 아무도 말하지 않았다.", "en": "Butcher decided. Spoke. Words brief. That was the decision. Fire burned. Not warm. People watched. No one spoke." } }
+      ]
+    },
+    {
+      "id": "s42",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Reza를 봤다. 그의 눈이 무언가를 말했다. Aisha. 그것이었다. 이름 하나였다. 거기서 살아있는 것이었다. 여동생 이름. Aisha.", "en": "Looked at Reza. His eyes said something. Aisha. That was it. One name. What was alive there. Sister's name. Aisha." } }
+      ]
+    },
+    {
+      "id": "s43",
       "type": "battle_transition",
       "background": "erebus_crater_exterior",
-      "bgm": "cv_battle_theme",
+      "bgm": "battle_theme_cv",
       "transition": "flash_white",
-      "title": {
-        "ko": "입문 시험",
-        "en": "The Initiation"
-      },
-      "subtitle": {
-        "ko": "에레부스 — 증명하라",
-        "en": "Erebus — Prove It"
-      }
+      "title": { "ko": "세례", "en": "Baptism" },
+      "subtitle": { "ko": "에레부스 분화구 — 첫 번째 선택", "en": "Erebus Crater — The First Choice" }
     },
     {
-      "id": "s_result",
+      "id": "s44",
       "type": "result",
-      "success_scene": "s_success",
-      "failure_scene": "s_fail"
+      "success_scene": "s45",
+      "failure_scene": "s47"
     },
     {
-      "id": "s_success",
+      "id": "s45",
       "type": "narration",
       "background": "erebus_base_exterior",
       "bgm": "victory_calm",
+      "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "됐어.\n\nButcher가 말했다. 불을 보면서. 그 사람을 보지 않고.\n\nCinder는 고개를 끄덕였다. 말이 없었다. 그것으로 충분했다.",
-            "en": "That'll do.\n\nButcher said, looking at the fire. Not at the person.\n\nCinder nodded. Nothing was said. That was enough."
-          }
-        }
+        { "text": { "ko": "됐어. Butcher가 말했다. 불을 보면서. 당신을 보지 않고. 그것이 그의 방식이었다. 인정하는 방식. 말이 짧은 방식.", "en": "That'll do. Butcher said. Looking at the fire. Not at you. That was his way. The way of acknowledging. The way of few words." } }
       ]
     },
     {
-      "id": "s_fail",
+      "id": "s46",
+      "type": "dialogue",
+      "background": "erebus_base_exterior",
+      "bgm": "victory_calm",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "crow_reyes", "emotion": "flat", "text": { "ko": "세례 완료예요.", "en": "Baptism complete." } },
+        { "speaker": "crow_reyes", "emotion": "sardonic", "text": { "ko": "앞으로 더 어려워요. 이건 쉬운 부분이에요.", "en": "It gets harder from here. This was the easy part." } }
+      ]
+    },
+    {
+      "id": "s47",
       "type": "dialogue",
       "background": "erebus_crater_exterior",
       "bgm": "defeat_ambient",
+      "transition": "cut",
       "lines": [
-        {
-          "speaker": "cinder",
-          "emotion": "cold",
-          "effect": "character_enter:cinder:slide_right",
-          "text": {
-            "ko": "아직 살아있어. 두 번은 없어. 다시.",
-            "en": "Still alive. No second chances. Try again."
-          }
-        },
-        {
-          "speaker": "butcher",
-          "emotion": "flat",
-          "effect": "character_enter:butcher:slide_left",
-          "text": {
-            "ko": "살아있으면 아직 기회야.",
-            "en": "Alive means there's still a chance."
-          }
-        }
+        { "speaker": "crow_reyes", "emotion": "cold", "text": { "ko": "아직 살아있어. 두 번은 없어. 다시.", "en": "Still alive. No second chances. Again." } },
+        { "speaker": "butcher_vasquez", "emotion": "flat", "text": { "ko": "살아있으면 아직 기회야.", "en": "Alive means there's still a chance." } }
       ]
     },
     {
-      "id": "s_ending",
-      "type": "ending",
-      "background": "erebus_base_exterior",
-      "bgm": "cv_ambient_dark",
+      "id": "s48",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "불은 타고 있었다. Butcher는 일어서지 않았다. 그 사람이 분화구 안으로 걸어 들어갔다. 가방을 들고. 손을 가방 위에 얹고.\n\n다른 사람들이 보았다. 아무도 말하지 않았다.\n\n영하 백 도였다. 불만 타고 있었다. 30년 동안 그랬다.",
-            "en": "The fire burned. Butcher didn't stand. The person walked into the crater. Carrying the bag. Hand resting on it.\n\nThe others watched. No one said anything.\n\nMinus one hundred degrees. Only the fire burned. It had burned for thirty years."
-          }
-        }
+        { "text": { "ko": "불은 탔다. Butcher는 일어서지 않았다. 분화구 안으로 걸어 들어갔다. 가방을 들고. 손을 가방 위에 얹고. 다른 사람들이 보았다. 아무도 말하지 않았다.", "en": "Fire burned. Butcher didn't stand. Walked into the crater. Carrying the bag. Hand resting on it. The others watched. No one said anything." } }
+      ]
+    },
+    {
+      "id": "s49",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Reza의 눈이 기억났다. Aisha. 이름이 있는 사람이었다. 화성에서 이름이 있는 사람은 계속 거기 있는 것이었다. 기억 안에서. 그것이 여기서의 방식이었다.", "en": "Remembered Reza's eyes. Aisha. A person with a name. On Mars a person with a name remained. In memory. That was the way here." } }
+      ]
+    },
+    {
+      "id": "s50",
+      "type": "ending",
+      "background": "erebus_base_interior",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "영하 백 도였다. 불만 탔다. 30년 동안 그랬다. 당신이 그 불 앞에 앉았다. 따뜻하지 않았다. 그러나 앉았다. 이것이 세례였다.", "en": "Minus one hundred degrees. Only the fire burned. Thirty years of that. You sat before that fire. Not warm. But sitting. This was the baptism." } }
       ],
-      "next_chapter_preview": {
-        "questId": "cv_campaign_ch2",
-        "teaser": {
-          "ko": "다음 — 첫 피",
-          "en": "Next — First Blood"
-        }
-      }
+      "next_chapter_preview": { "questId": "cv_campaign_ch2", "teaser": { "ko": "다음 — 첫 피", "en": "Next — First Blood" } }
     }
   ]
 }

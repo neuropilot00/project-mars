@@ -5,56 +5,344 @@
   "title": { "ko": "선택", "en": "The Choice" },
   "location": { "id": "hellas_central_mcc", "displayNameKo": "헬라스 센트럴 MCC 본부" },
   "environment": "corporate_final",
-  "estimatedPlayTimeMinutes": 20,
+  "estimatedPlayTimeMinutes": 25,
   "characters": ["player", "chen", "lifang"],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "mcc_executive_floor", "bgm": "mcc_ambient_warm", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "MCC 본부의 형광등이 모두 켜졌다. 밤이었다. 화성의 밤은 길었다. 그러나 MCC는 밤을 쉬지 않았다. 건물 전체가 불을 켰다. 모든 층. 모든 방. 25도 라운지도 켜져 있었다. Chen Weiss가 거기 있었다.", "en": "All the lights of MCC headquarters were on. It was night. The Martian night was long. But MCC didn't rest at night. The entire building was lit. Every floor. Every room. The 25-Degree Lounge was lit too. Chen Weiss was there." }}] },
-    { "id": "s02", "type": "dialogue", "background": "mcc_executive_floor", "bgm": "mcc_ambient_warm", "transition": "cut",
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "effect": "character_enter:chen:slide_left", "text": { "ko": "앉아요. 차 드세요. 오늘은 마셔요.", "en": "Sit. Take some tea. Today drink it." }},
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "나는 22년 동안 MCC를 위해 일했어요. 내 부모가 광산에서 죽었어요. 화성에서 태어난 두 번째 세대. 나는 그것을 바꾸려고 MCC에 들어왔어요.", "en": "I worked for MCC for twenty-two years. My parents died in the mines. Second generation born on Mars. I entered MCC to change that." }},
-        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "바뀌었어요. 내가 바뀌었어요. 어떤 쪽인지는 모르겠어요.", "en": "Things changed. I changed. Which way I'm not certain." }}
+        { "text": { "ko": "MCC 본부의 형광등이 모두 켜졌다. 밤이었다. 화성의 밤은 길었다. 그러나 MCC는 밤을 쉬지 않았다. 건물 전체가 불을 켰다. 모든 층. 모든 방. 25도 라운지도 켜져 있었다. Chen Weiss가 거기 있었다.", "en": "All the lights of MCC headquarters were on. It was night. The Martian night was long. But MCC didn't rest at night. The entire building was lit. Every floor. Every room. The 25-Degree Lounge was lit too. Chen Weiss was there." } }
       ]
     },
-    { "id": "s03", "type": "narration", "background": "mcc_executive_floor", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "차가 왔다. 마셨다. 따뜻했다. 25도 라운지에서 차는 식지 않았다. Chen도 마셨다. 오늘은 마셨다. 두 잔이 비었다. 그것이 이상하게 느껴졌다. 오래 이상한 것을 보지 못한 사람처럼. 그러나 차는 따뜻했다.", "en": "Tea came. It was drunk. Warm. In the 25-Degree Lounge tea didn't cool. Chen drank too. Today she drank. Two cups emptied. That felt strange. Like someone who hadn't seen something strange for a long time. But the tea was warm." }}] },
-    { "id": "s04", "type": "dialogue", "background": "mcc_executive_floor", "bgm": "tension_low", "transition": "cut",
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "MCC는 후계가 필요해요. 이사회는 그것을 알아요. 나도 알아요. 당신도 알 거예요.", "en": "MCC needs a successor. The board knows it. I know it. You probably know it." }},
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "당신이 여기 온 것부터 오늘까지. 7구역 보고서. 아카이브 지하. C-7 블록. 올림포스. 모두 봤어요. 모두 기억해요.", "en": "From your arrival here to today. The Sector 7 report. The archive sublevel. Block C-7. Olympus. I watched it all. I remember it all." }},
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "이제 당신이 결정해야 해요.", "en": "Now you must decide." }}
+        { "text": { "ko": "올림포스에서 돌아왔다. 시간이 지났다. 합의가 됐든 결렬이 됐든 — 화성은 계속됐다. 광부들은 갱도로 내려갔다. 아이들은 골목에서 놀았다. 분필 이름들이 벽에 있었다. 그것들이 계속됐다. 화성에서 계속되는 것들이 있었다. 어떤 결정이 나와도.", "en": "Returned from Olympus. Time had passed. Whether agreement or breakdown — Mars continued. Miners descended into tunnels. Children played in alleys. Chalk names were on walls. Those continued. There were things that continued on Mars. Whatever decision came." } }
       ]
     },
-    { "id": "s_choice", "type": "choice", "background": "mcc_executive_floor", "bgm": "choice_finale",
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "25도 라운지였다. 마지막으로 여기 온 것이 얼마나 됐는지. 처음 호출됐을 때가 기억됐다. 차를 들어요. Chen이 말했다. 그때 이후로 많은 것이 있었다. 7구역. 케플러. 아카이브 지하. C-7 블록. 올림포스. 그것들이 전부 이 방으로 이어졌다.", "en": "The 25-Degree Lounge. How long since last here. Remembered the first time called here. Take some tea. Chen had said. Many things since then. Sector 7. Kepler. Archive sublevel. Block C-7. Olympus. All of those led to this room." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "serious", "effect": "character_enter:chen:slide_left", "text": { "ko": "앉아요. 차 드세요. 오늘은 마셔요.", "en": "Sit. Take some tea. Today drink it." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "나는 22년 동안 MCC를 위해 일했어요. 내 부모가 광산에서 죽었어요. 화성에서 태어난 두 번째 세대. 나는 그것을 바꾸려고 MCC에 들어왔어요.", "en": "I worked for MCC for twenty-two years. My parents died in the mines. Second generation born on Mars. I entered MCC to change that." } },
+        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "바뀌었어요. 내가 바뀌었어요. 어떤 쪽인지는 모르겠어요.", "en": "Things changed. I changed. Which way I'm not certain." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "차가 왔다. 마셨다. 따뜻했다. 25도 라운지에서 차는 식지 않았다. Chen도 마셨다. 오늘은 마셨다. 두 잔이 비었다. 그것이 이상하게 느껴졌다. 오래 이상한 것을 보지 못한 사람처럼. 그러나 차는 따뜻했다.", "en": "Tea came. It was drunk. Warm. In the 25-Degree Lounge tea didn't cool. Chen drank too. Today she drank. Two cups emptied. That felt strange. Like someone who hadn't seen something strange for a long time. But the tea was warm." } }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "창밖에 헬라스 센트럴이 보였다. 밤이었다. 불빛들이 있었다. 위층. 중층. 아래층. 광산 구역. C-7 블록. 분필 이름들이 있는 곳. 이 방에서 아래를 보면 전부 작았다. 그러나 이제 작은 것이 작지 않다는 것을 알았다.", "en": "Outside the window was Hellas Central. Night. Lights everywhere. Upper floors. Middle. Lower. Mine district. Block C-7. Where chalk names were. From this room everything below looked small. But now it was known small things weren't small." } }
+      ]
+    },
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "MCC는 후계가 필요해요. 이사회는 그것을 알아요. 나도 알아요. 당신도 알 거예요.", "en": "MCC needs a successor. The board knows it. I know it. You probably know it." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "당신이 여기 온 것부터 오늘까지. 7구역 보고서. 아카이브 지하. C-7 블록. 올림포스. 모두 봤어요. 모두 기억해요.", "en": "From your arrival here to today. The Sector 7 report. The archive sublevel. Block C-7. Olympus. I watched it all. I remember it all." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "이제 당신이 결정해야 해요.", "en": "Now you must decide." } }
+      ]
+    },
+    {
+      "id": "s08",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "모두 봤어요. 그 말이 무거웠다. Chen Weiss가 보고 있었다. 처음부터. 7구역 보고서. 그것이 이 방으로 이어졌다. 아카이브. 칩. 광부의 이름 없는 눈. C-7 블록의 아이들. 분필. 올림포스. 차 한 잔. 그것들이 전부 여기 있었다. 이 25도 라운지에.", "en": "I watched it all. Those words were heavy. Chen Weiss had been watching. From the beginning. Sector 7 report. That led to this room. Archive. Chip. Miner's nameless eyes. Block C-7 children. Chalk. Olympus. A cup of tea. All of those were here. In this 25-Degree Lounge." } }
+      ]
+    },
+    {
+      "id": "s09",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "리팡이 오래 나와 일했어요. 12년이에요.", "en": "Lifang has worked with me for a long time. Twelve years." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "그가 당신을 내 팀에 넣은 것은 우연이 아니에요. 리팡은 우연으로 일하지 않아요.", "en": "Putting you on my team wasn't coincidence. Lifang doesn't work by coincidence." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그것이 무엇을 의미하는지 생각했어요?", "en": "Have you thought about what that means?" } }
+      ]
+    },
+    {
+      "id": "s10",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "리팡이 우연으로 일하지 않는다. 그것을 몰랐다. 또는 몰랐다고 생각했다. 그러나 생각해보면. 리팡의 행동들. C-7 블록에서 결정을 준 것. 에레부스에서 멈춘 것. 그것들이 우연이 아니었다. 12년. Chen Weiss. 리팡.", "en": "Lifang doesn't work by coincidence. That wasn't known. Or thought not known. But thinking about it. Lifang's actions. Giving the decision at block C-7. Stopping at Erebus. Those weren't coincidences. Twelve years. Chen Weiss. Lifang." } }
+      ]
+    },
+    {
+      "id": "s11",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "MCC를 운영하는 것은 권력이에요. 그러나 권력은 방향이 있어요.", "en": "Running MCC is power. But power has a direction." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "내 부모가 광산에서 죽었어요. 그 방향이 내 방향이에요. 22년 동안 그것을 유지했어요.", "en": "My parents died in the mines. That direction is my direction. I've maintained it for twenty-two years." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그 방향을 이을 사람이 필요해요. MCC 안에서.", "en": "Need someone to continue that direction. Inside MCC." } }
+      ]
+    },
+    {
+      "id": "s12",
+      "type": "narration",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "창밖에 헬라스가 있었다. 밤. 불빛들. 광산 엘리베이터가 여전히 움직이고 있었다. 내려가고 올라오고. 화성은 멈추지 않았다. 25도 라운지에서 Chen이 그것을 보고 있었다. 차를 들고. 이번에는 마시면서. 그것이 달랐다.", "en": "Outside the window was Hellas. Night. Lights. Mine elevator still moving. Going down and coming up. Mars didn't stop. In the 25-Degree Lounge Chen was watching it. Holding her tea. This time drinking. That was different." } }
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "이사회가 결정을 기다리고 있어요.", "en": "The board is waiting for a decision." } },
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "당신이 어떤 결정을 하든 — 나는 그것을 지지해요. 그것이 내가 여기까지 온 이유예요.", "en": "Whatever decision you make — I will support it. That's why I've brought you this far." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "단 하나. MCC 안에서 결정해야 해요. MCC 밖은 내가 도울 수 없어요.", "en": "One condition. Must decide within MCC. Outside MCC I can't help." } }
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "MCC 안에서. 그것이 조건이었다. 이 조직 안에서 결정해야 했다. 이 조직은 Chen의 부모를 죽였다. 원인 없는 사망으로. 그러나 Chen은 22년간 이 안에서 일했다. 그것을 바꾸려고. 그 선택을 이해했다. 완전히는 아니었다. 그러나 이해했다.", "en": "Within MCC. That was the condition. Had to decide within this organization. This organization killed Chen's parents. As deaths without cause. But Chen had worked inside it for twenty-two years. To change it. That choice was understood. Not completely. But understood." } }
+      ]
+    },
+    {
+      "id": "s15",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "리팡이 방 입구에 있었다. 안으로 들어오지 않았다. 거기서 기다렸다. 그것이 리팡이었다. 문 앞에서 기다리는 사람. MCC 명령이 없는 곳에서 멈추는 사람. 그러나 항상 거기 있는 사람.", "en": "Lifang was at the room's entrance. Didn't come in. Waited there. That was Lifang. A person who waited at the door. A person who stopped where there was no MCC order. But always there." } }
+      ]
+    },
+    {
+      "id": "s16",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "Chen이 어떤 결정을 해도 내가 실행해요. 12년이에요.", "en": "Whatever decision Chen makes I'll execute it. Twelve years." } },
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "당신의 결정도 마찬가지예요. 내가 있어요.", "en": "Same for your decision. I'm here." } },
+        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "화성에서 혼자 하는 결정은 없어요. 실행하는 사람이 있어야 해요.", "en": "On Mars there are no decisions made alone. There must be someone to execute." } }
+      ]
+    },
+    {
+      "id": "s17",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "리팡. 12년. Chen Weiss. 22년. 그 두 사람이 이 방에 있었다. 그들이 가진 것이 있었다. 22년의 기억. 12년의 실행. 그것을 이어받는 것. 그것이 지금 여기서 결정할 것이었다.", "en": "Lifang. Twelve years. Chen Weiss. Twenty-two years. Those two people were in this room. They had things. Twenty-two years of memory. Twelve years of execution. Inheriting that. That was what to decide here now." } }
+      ]
+    },
+    {
+      "id": "s18",
+      "type": "dialogue",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "calm", "text": { "ko": "창밖을 봐요. 헬라스 전체가 보여요.", "en": "Look out the window. All of Hellas is visible." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "위층. 행정. 중층. 기술자들. 아래층. 노동자들. 광산. 그것들이 전부 MCC예요.", "en": "Upper floors. Administration. Middle. Engineers. Lower. Workers. Mines. All of that is MCC." } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "이것을 어떻게 할 것인지가 선택이에요. 그것을 이어받는 것도. 부수는 것도. 나가는 것도. 넘어서는 것도.", "en": "What to do with this is the choice. Inheriting it. Breaking it. Leaving. Transcending. All of those." } }
+      ]
+    },
+    {
+      "id": "s19",
+      "type": "narration",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "헬라스가 보였다. 창 안에 도시 전체가 있었다. 그 안에 사람들이 있었다. 광부들. 기술자들. 행정가들. 아이들. 분필 이름들. 광산 엘리베이터. 산소 공급. 물 배분. 그것들이 전부 결정에 있었다. 지금 해야 할 결정에.", "en": "Hellas was visible. In the window the entire city. People inside it. Miners. Engineers. Administrators. Children. Chalk names. Mine elevators. Oxygen supply. Water distribution. All of those were in the decision. In the decision to be made now." } }
+      ]
+    },
+    {
+      "id": "s20",
+      "type": "dialogue",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "내 부모가 광산에서 죽었을 때 원인란이 비어 있었어요.", "en": "When my parents died in the mines the cause section was blank." } },
+        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "22년이 지났어요. 얼마나 채워졌는지는 모르겠어요.", "en": "Twenty-two years have passed. I don't know how much has been filled." } },
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "그러나 오늘 이 차는 마셨어요. 그것만 알아요.", "en": "But today I drank this tea. That's all I know." } }
+      ]
+    },
+    {
+      "id": "s21",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "mcc_ambient_warm",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Chen Weiss가 차를 마셨다. 두 번째 잔도 마셨다. 이 방에서. 25도 라운지에서. 22년 동안 마시지 않던 사람이 오늘 마셨다. 그것이 무엇을 의미하는지는 그녀만 알았다. 그러나 이 방이 달라졌다는 것은 알았다. 무언가가 달라졌다.", "en": "Chen Weiss drank her tea. Drank the second cup too. In this room. The 25-Degree Lounge. Someone who hadn't drunk for twenty-two years drank today. Only she knew what that meant. But it was known this room had changed. Something had changed." } }
+      ]
+    },
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mcc_executive_floor",
+      "bgm": "choice_finale",
       "prompt": { "ko": "Chen Weiss. 그녀가 기다린다. 화성이 기다린다.", "en": "Chen Weiss. She waits. Mars waits." },
       "choices": [
-        { "id": "mcc_ch10_heir", "text": { "ko": "MCC의 후계자가 된다. 당신의 방식으로.", "en": "Become MCC's successor. In your own way." }, "tone": "heir", "preview_hint": { "ko": "→ 엔딩: 후계자 — MCC를 바꾸려는 자", "en": "→ Ending: Heir — one who would change MCC" }},
-        { "id": "mcc_ch10_empire", "text": { "ko": "MCC를 제국으로 완성한다.", "en": "Complete MCC as an empire." }, "tone": "empire", "preview_hint": { "ko": "→ 엔딩: 제국 — 화성을 하나로 통제하는 자", "en": "→ Ending: Empire — one who controls Mars as one" }},
-        { "id": "mcc_ch10_leave", "text": { "ko": "MCC를 떠난다.", "en": "Leave MCC." }, "tone": "departure", "preview_hint": { "ko": "→ 엔딩: 희생자 — 시스템이 당신을 기억한다", "en": "→ Ending: Casualty — the system remembers you" }},
-        { "id": "mcc_ch10_crown", "text": { "ko": "MCC도 FSP도 CV도 아닌 것을 만든다.", "en": "Build something that is neither MCC nor FSP nor CV." }, "tone": "transcendent", "preview_hint": { "ko": "→ 엔딩: 왕관 — 세 파벌을 넘어서는 자", "en": "→ Ending: Crown — one who transcends all three factions" }}
+        { "id": "mcc_ch10_heir", "text": { "ko": "MCC의 후계자가 된다. 당신의 방식으로.", "en": "Become MCC's successor. In your own way." }, "tone": "heir", "preview_hint": { "ko": "→ 엔딩: 후계자 — MCC를 바꾸려는 자", "en": "→ Ending: Heir — one who would change MCC" } },
+        { "id": "mcc_ch10_empire", "text": { "ko": "MCC를 제국으로 완성한다.", "en": "Complete MCC as an empire." }, "tone": "empire", "preview_hint": { "ko": "→ 엔딩: 제국 — 화성을 하나로 통제하는 자", "en": "→ Ending: Empire — one who controls Mars as one" } },
+        { "id": "mcc_ch10_leave", "text": { "ko": "MCC를 떠난다.", "en": "Leave MCC." }, "tone": "departure", "preview_hint": { "ko": "→ 엔딩: 희생자 — 시스템이 당신을 기억한다", "en": "→ Ending: Casualty — the system remembers you" } },
+        { "id": "mcc_ch10_crown", "text": { "ko": "MCC도 FSP도 CV도 아닌 것을 만든다.", "en": "Build something that is neither MCC nor FSP nor CV." }, "tone": "transcendent", "preview_hint": { "ko": "→ 엔딩: 왕관 — 세 파벌을 넘어서는 자", "en": "→ Ending: Crown — one who transcends all three factions" } }
       ]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "hellas_central_exterior", "bgm": "battle_theme_finale", "transition": "fade_slow",
-      "title": { "ko": "화성의 미래", "en": "The Future of Mars" }, "subtitle": { "ko": "헬라스 센트럴 — 최후의 결전", "en": "Hellas Central — The Final Battle" }
+    {
+      "id": "s22",
+      "type": "narration",
+      "background": "mcc_executive_floor",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "결정이 됐다. Chen이 들었다. 리팡이 문 앞에서 들었다. 25도 라운지가 조용했다. 차가 식지 않았다. 결정 후에도 이 방은 25도였다. 그것이 변하지 않았다. 그러나 결정은 됐다. 그것이 달라졌다.", "en": "A decision was made. Chen heard it. Lifang heard it at the door. The 25-Degree Lounge was quiet. Tea didn't cool. Even after the decision this room was twenty-five degrees. That hadn't changed. But the decision was made. That had changed." } }
+      ]
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "narration", "background": "hellas_central_exterior", "bgm": "ending_theme_mcc",
-      "lines": [{ "text": { "ko": "헬라스 센트럴의 불빛이 있었다. 아래에는 C-7 블록이 있었다. 분필 이름들. Kim Yong-jin. 그 아래 이름들. 광산 엘리베이터가 여전히 내려가고 있었다. 올라오고 있었다. 화성은 멈추지 않았다. 그 안에 당신이 있었다. 무언가가 달라져 있었다. 무엇이 달라졌는지는 한참 후에야 알 것이었다.", "en": "There were lights in Hellas Central. Below was block C-7. Chalk names. Kim Yong-jin. The names below. The mine elevator was still descending. Still ascending. Mars didn't stop. You were inside it. Something had changed. What had changed would only be known much later." }}] },
-    { "id": "s_fail", "type": "narration", "background": "hellas_central_exterior", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "끝나지 않았다. 화성에서 끝나는 것은 드물었다. 다시 시작하는 것이 화성의 방식이었다. 광부들은 매일 아침 갱도로 내려갔다. 그것이 화성이었다.", "en": "It wasn't over. Things rarely ended on Mars. Starting again was Mars's way. Miners descended into tunnels every morning. That was Mars." }}] },
-    { "id": "s_ending_heir", "type": "ending", "background": "mcc_executive_floor", "bgm": "ending_theme_mcc", "transition": "fade_slow",
+    {
+      "id": "s23",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "mcc_ambient_warm",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "Chen Weiss가 창을 봤다. 헬라스 전체. 밤. 불빛들. 그녀의 뒷모습이 있었다. 22년. 광산 부모. 12살의 혼자. 그것들이 그 어깨에 있었다. 그리고 이제 결정이 있었다. 그 어깨에 하나가 더 올라갔다. 또는 하나가 내려갔다.", "en": "Chen Weiss looked at the window. All of Hellas. Night. Lights. Her back was visible. Twenty-two years. Miner parents. Twelve and alone. Those things were in those shoulders. And now a decision was there. One more thing went up on those shoulders. Or one came down." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "hellas_central_exterior",
+      "bgm": "battle_theme_finale",
+      "transition": "fade_slow",
+      "title": { "ko": "화성의 미래", "en": "The Future of Mars" },
+      "subtitle": { "ko": "헬라스 센트럴 — 최후의 결전", "en": "Hellas Central — The Final Battle" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "ending_theme_mcc",
+      "lines": [
+        { "text": { "ko": "헬라스 센트럴의 불빛이 있었다. 아래에는 C-7 블록이 있었다. 분필 이름들. Kim Yong-jin. 그 아래 이름들. 광산 엘리베이터가 여전히 내려가고 있었다. 올라오고 있었다. 화성은 멈추지 않았다. 그 안에 당신이 있었다. 무언가가 달라져 있었다. 무엇이 달라졌는지는 한참 후에야 알 것이었다.", "en": "There were lights in Hellas Central. Below was block C-7. Chalk names. Kim Yong-jin. The names below. The mine elevator was still descending. Still ascending. Mars didn't stop. You were inside it. Something had changed. What had changed would only be known much later." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "text": { "ko": "끝나지 않았다. 화성에서 끝나는 것은 드물었다. 다시 시작하는 것이 화성의 방식이었다. 광부들은 매일 아침 갱도로 내려갔다. 그것이 화성이었다.", "en": "It wasn't over. Things rarely ended on Mars. Starting again was Mars's way. Miners descended into tunnels every morning. That was Mars." } }
+      ]
+    },
+    {
+      "id": "s_ending_heir",
+      "type": "ending",
+      "background": "mcc_executive_floor",
+      "bgm": "ending_theme_mcc",
+      "transition": "fade_slow",
       "endingId": "heir",
-      "lines": [{ "text": { "ko": "25도 라운지. 당신이 앉았다. 차를 들었다. 마시지 않았다. 창밖에 헬라스가 있었다. MCC가 지은 도시. 이제 당신이 이어받는 도시. Chen이 뒷모습을 보였다. 나가지 않았다. 그냥 창을 봤다. 25도였다.", "en": "The 25-Degree Lounge. You sat. Held the tea. Didn't drink it. Outside the window was Hellas. The city MCC built. Now the city you would inherit. Chen turned her back. Didn't leave. Just looked out the window. Twenty-five degrees." }}] },
-    { "id": "s_ending_empire", "type": "ending", "background": "hellas_central_exterior_panorama", "bgm": "ending_theme_empire", "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "25도 라운지. 당신이 앉았다. 차를 들었다. 마시지 않았다. 창밖에 헬라스가 있었다. MCC가 지은 도시. 이제 당신이 이어받는 도시. Chen이 뒷모습을 보였다. 나가지 않았다. 그냥 창을 봤다. 두 사람이 창을 봤다. 25도였다. 차가 식지 않았다. 기억해야 할 것들이 식지 않았다.", "en": "The 25-Degree Lounge. You sat. Held the tea. Didn't drink it. Outside the window was Hellas. The city MCC built. Now the city you would inherit. Chen turned her back. Didn't leave. Just looked out the window. Two people looking at the window. Twenty-five degrees. Tea didn't cool. Things to be remembered didn't cool." } }
+      ]
+    },
+    {
+      "id": "s_ending_empire",
+      "type": "ending",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "ending_theme_empire",
+      "transition": "fade_slow",
       "endingId": "empire",
-      "lines": [{ "text": { "ko": "화성에서 가장 큰 건물. 60년 전 지어진 것. 그 후 계속 커진 것. 이제 당신 것이었다. 그것만이 아니었다. 화성의 광산들. 정제소들. 산소 공급망. 물 배분 시스템. 전부 당신 것이었다. 제국이 있었다. 화성에. 그것이 당신 것이었다.", "en": "The largest building on Mars. Built sixty years ago. Kept growing since. Now it was yours. Not only that. The mines of Mars. The refineries. Oxygen supply network. Water distribution system. All yours. There was an empire. On Mars. It was yours." }}] },
-    { "id": "s_ending_casualty", "type": "ending", "background": "hellas_outer_plains", "bgm": "ending_theme_casualty", "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "화성에서 가장 큰 건물. 60년 전 지어진 것. 그 후 계속 커진 것. 이제 당신 것이었다. 그것만이 아니었다. 화성의 광산들. 정제소들. 산소 공급망. 물 배분 시스템. 전부 당신 것이었다. 제국이 있었다. 화성에. 그것이 당신 것이었다. 창밖에 헬라스가 보였다. 작았다. 제국에서 보면 전부 작았다.", "en": "The largest building on Mars. Built sixty years ago. Kept growing since. Now it was yours. Not only that. The mines of Mars. The refineries. Oxygen supply network. Water distribution system. All yours. There was an empire. On Mars. It was yours. Outside the window Hellas was visible. Small. From an empire everything was small." } }
+      ]
+    },
+    {
+      "id": "s_ending_casualty",
+      "type": "ending",
+      "background": "hellas_outer_plains",
+      "bgm": "ending_theme_casualty",
+      "transition": "fade_slow",
       "endingId": "casualty",
-      "lines": [{ "text": { "ko": "헬라스 외곽이었다. 중계소가 있었다. 폐쇄된 것이었다. 이름이 기록에서 삭제됐다. MCC는 오래 기억했다. 그러나 삭제도 잘 했다. 광부 노인의 말이 기억됐다. 기록에 남길 사람이 필요하다고. 기록에 남기지 못한 이름이 하나 더 생겼다.", "en": "The outer Hellas. A relay station. Closed. The name had been deleted from the records. MCC had a long memory. But it also deleted well. The old miner's words came back. Someone to put it in the record, he had said. One more name that didn't make it into the record." }}] },
-    { "id": "s_ending_crown", "type": "ending", "background": "olympus_exterior_dawn", "bgm": "ending_theme_crown", "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "헬라스 외곽이었다. 중계소가 있었다. 폐쇄된 것이었다. 이름이 기록에서 삭제됐다. MCC는 오래 기억했다. 그러나 삭제도 잘 했다. 광부 노인의 말이 기억됐다. 기록에 남길 사람이 필요하다고. 기록에 남기지 못한 이름이 하나 더 생겼다. 그러나 분필이 있었다. 골목 아이들이 적을 것이었다.", "en": "The outer Hellas. A relay station. Closed. The name had been deleted from the records. MCC had a long memory. But it also deleted well. The old miner's words came back. Someone to put it in the record, he had said. One more name that didn't make it into the record. But there was chalk. The alley children would write it." } }
+      ]
+    },
+    {
+      "id": "s_ending_crown",
+      "type": "ending",
+      "background": "olympus_exterior_dawn",
+      "bgm": "ending_theme_crown",
+      "transition": "fade_slow",
       "endingId": "crown",
-      "lines": [{ "text": { "ko": "올림포스에서 동이 텄다. 태양계에서 가장 높은 곳. 화성에서 가장 먼저 빛이 오는 곳. MCC도 없었다. FSP도 없었다. CV도 없었다. 세 개의 깃발이 없는 것이 처음이었다. 그러나 화성은 있었다. 사람들이 있었다. 광산에서 일하는 사람들. 아이들. 분필 이름들. 그것이 남았다. 깃발보다 오래 남는 것들이었다.", "en": "Dawn broke on Olympus. The highest point in the solar system. Where light came first on Mars. No MCC. No FSP. No CV. For the first time there were no three flags. But Mars was there. People were there. People working in mines. Children. Chalk names. Those remained. Things that outlasted flags." }}]
+      "lines": [
+        { "text": { "ko": "올림포스에서 동이 텄다. 태양계에서 가장 높은 곳. 화성에서 가장 먼저 빛이 오는 곳. MCC도 없었다. FSP도 없었다. CV도 없었다. 세 개의 깃발이 없는 것이 처음이었다. 그러나 화성은 있었다. 사람들이 있었다. 광산에서 일하는 사람들. 아이들. 분필 이름들. 그것이 남았다. 깃발보다 오래 남는 것들이었다. 차 한 잔보다 오래. 25도보다 오래. 그것들이 화성이었다.", "en": "Dawn broke on Olympus. The highest point in the solar system. Where light came first on Mars. No MCC. No FSP. No CV. For the first time there were no three flags. But Mars was there. People were there. People working in mines. Children. Chalk names. Those remained. Things that outlasted flags. Outlasting a cup of tea. Outlasting twenty-five degrees. Those things were Mars." } }
+      ]
     }
   ]
 }

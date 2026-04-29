@@ -3,62 +3,371 @@
   "campaignId": "hidden_route",
   "chapterNumber": 5,
   "title": { "ko": "마지막 관찰", "en": "Last Observation" },
-  "location": { "id": "hellas_zone4_deep_tunnel", "displayNameKo": "헬라스 4구역 갱도 최심부" },
-  "environment": "ancient_deep_final",
-  "estimatedPlayTimeMinutes": 25,
-  "characters": ["observer", "butcher", "cinder", "liang_wei", "chen", "mikhail"],
+  "location": { "id": "olympus_exterior_vast", "displayNameKo": "올림포스 몬스 정상 근처" },
+  "environment": "olympus_summit_thin_air",
+  "estimatedPlayTimeMinutes": 30,
+  "characters": ["observer"],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "hellas_zone4_deep_tunnel", "bgm": "hidden_theme_deep", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "가장 깊은 곳이었다. 4구역 갱도 최심부. 아무도 30년 동안 오지 않은 곳. 관찰자가 왔다. 빛이 없었다. 관찰자의 빛이 있었다. 그 빛이 벽에 닿았다. 벽이 빛을 반사했다. 그것이 일반 광석이 아니었다. 색이 달랐다. Ancient Metal. 처음 발견됐던 자리.", "en": "The deepest place. The deepest point in Zone 4's tunnel. Where no one had come for thirty years. The observer came. No light. There was the observer's light. That light touched the wall. The wall reflected it. That was not ordinary ore. Different color. Ancient Metal. Where it had first been found." }}] },
-    { "id": "s02", "type": "narration", "background": "hellas_zone4_deep_tunnel", "bgm": "hidden_theme_deep", "transition": "cut",
-      "lines": [{ "text": { "ko": "그것이 화성에 있었다. 30년 전에도. 지금도. 변하지 않았다. 광물은 기다렸다. 항상 그랬다. 사람들이 죽어도. 파업이 끝나도. 30년이 지나도. 광물은 기다렸다. 관찰자가 이제 거기 있었다. 30년을 기다린 것이 처음으로 제대로 관찰됐다.", "en": "It was on Mars. Thirty years ago too. Now too. Unchanged. Minerals waited. Always. Even when people died. Even when strikes ended. Even as thirty years passed. Minerals waited. The observer was now there. What had waited thirty years was properly observed for the first time." }}] },
-    { "id": "s03", "type": "narration", "background": "hellas_zone4_deep_tunnel", "bgm": "hidden_theme_deep", "transition": "cut",
-      "lines": [{ "text": { "ko": "소리가 들렸다. 뒤에서. 공구 소리였다. Cinder Grace였다. 그 뒤에 Liang Wei. 데이터를 들고. 30년치. 그 뒤에 Butcher. 의수. 외투. 주머니에 손. 이 세 사람이 온 것이었다. 각자 다른 이유로. 같은 곳으로.", "en": "A sound from behind. Tool sounds. It was Cinder Grace. Behind her Liang Wei. Carrying data. Thirty years' worth. Behind her Butcher. Prosthetic. Coat. Hand in pocket. These three had come. Each for different reasons. To the same place." }}] },
-    { "id": "s04", "type": "dialogue", "background": "hellas_zone4_deep_tunnel", "bgm": "hidden_theme_deep", "transition": "cut",
-      "lines": [
-        { "speaker": "liang_wei", "emotion": "awestruck", "effect": "character_enter:liang_wei:slide_right", "text": { "ko": "여기예요. 30년 전에 처음 있었던 곳이에요.", "en": "This is it. Where it was first found thirty years ago." }},
-        { "speaker": "butcher", "emotion": "hollow", "effect": "character_enter:butcher:slide_left", "text": { "ko": "여기서 파업이 있었어. 이것 때문에.", "en": "The strike was here. Because of this." }},
-        { "speaker": "cinder", "emotion": "quiet", "effect": "character_enter:cinder:slide_right", "text": { "ko": "Zone 12 사람들도 이것 때문이에요. MCC가 숨기려 한 것이요.", "en": "The Zone 12 people too. Because of what MCC tried to hide." }}
-      ]
+    {
+      "id": "s01", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "올라가는 중이었다. 올림포스 몬스. 태양계에서 가장 높은 곳. 관찰자가 오르고 있었다. 이유가 있었다. 전체를 보기 위해. 화성 전체를. 이것이 관찰자가 마지막으로 할 것이었다. 올라가는 것.",
+        "en": "Was ascending. Olympus Mons. The highest place in the solar system. The observer was climbing. There was a reason. To see the whole. All of Mars. This would be the last thing the observer did. Ascending."
+      }}]
     },
-    { "id": "s05", "type": "narration", "background": "hellas_zone4_deep_tunnel", "bgm": "hidden_theme_revelation", "transition": "cut",
-      "lines": [{ "text": { "ko": "그것이 빛 속에 있었다. Ancient Metal. 세 사람이 봤다. 관찰자도 봤다. 네 사람. 네 가지 역사. 같은 것을 보는. MCC도 FSP도 CV도 아닌 것. 화성의 것. 화성에 있는 것. 화성보다 오래된 것. 외계에서 온 것. 그것이 거기 있었다.", "en": "It was in the light. Ancient Metal. Three people saw it. The observer saw it too. Four people. Four histories. Seeing the same thing. Not MCC's. Not FSP's. Not CV's. Mars's thing. What was on Mars. Older than Mars. What came from beyond. It was there." }}] },
-    { "id": "s06", "type": "dialogue", "background": "hellas_zone4_deep_tunnel", "bgm": "hidden_theme_revelation", "transition": "cut",
-      "lines": [
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "이것이 사진 안 사람들이 죽은 이유야.", "en": "This is why the people in the photo died." }},
-        { "speaker": "liang_wei", "emotion": "determined", "text": { "ko": "이것이 화성 모두의 것이에요. 30년 전에도 그랬어요. 지금도.", "en": "This belongs to all of Mars. It did thirty years ago. It does now." }},
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "이걸 세상에 알리면 화성이 달라져요. 또는 다시 사람들이 죽어요. 둘 중 하나예요.", "en": "If this is revealed to the world Mars changes. Or people die again. One of the two." }}
-      ]
+    {
+      "id": "s02", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "오르는 길이 길었다. 화성에서 가장 긴 길. 올림포스는 경사가 완만했다. 태양계에서 가장 높지만 경사가 완만했다. 그것이 화성의 역설이었다. 가장 높은 것이 가장 완만했다. 오르는 데 오래 걸렸다. 관찰자가 걸었다.",
+        "en": "The ascent was long. The longest path on Mars. Olympus had a gentle slope. The highest in the solar system but with a gentle slope. That was Mars's paradox. The highest thing had the gentlest slope. It took a long time to ascend. The observer walked."
+      }}]
     },
-    { "id": "s_choice", "type": "choice", "background": "hellas_zone4_deep_tunnel", "bgm": "choice_finale",
-      "prompt": { "ko": "Ancient Metal. 30년. 세 사람. 관찰자. 마지막 선택.", "en": "Ancient Metal. Thirty years. Three people. The observer. The last choice." },
-      "choices": [
-        { "id": "hidden_ch5_reveal_all", "text": { "ko": "모든 것을 공개한다. 화성 전체에.", "en": "Reveal everything. To all of Mars." }, "tone": "truth", "preview_hint": { "ko": "→ 엔딩: 계시 — 화성의 역사가 다시 쓰인다", "en": "→ Ending: Revelation — the history of Mars is rewritten" }},
-        { "id": "hidden_ch5_three_keepers", "text": { "ko": "세 사람이 함께 관리한다. MCC도 FSP도 CV도 아닌 방식으로.", "en": "Three people manage it together. Not MCC, not FSP, not CV's way." }, "tone": "new_order", "preview_hint": { "ko": "→ 엔딩: 네 번째 길 — 깃발 없는 화성", "en": "→ Ending: Fourth Path — Mars without flags" }},
-        { "id": "hidden_ch5_bury_again", "text": { "ko": "다시 묻는다. 아직 화성이 준비되지 않았다.", "en": "Bury it again. Mars is not yet ready." }, "tone": "protection", "preview_hint": { "ko": "→ 엔딩: 관찰자 — 30년을 더 기다린다", "en": "→ Ending: Observer — wait thirty more years" }},
-        { "id": "hidden_ch5_give_liang", "text": { "ko": "Liang Wei에게 준다. 그녀가 결정하게.", "en": "Give it to Liang Wei. Let her decide." }, "tone": "trust", "preview_hint": { "ko": "→ 엔딩: 과학자의 것 — 30년의 기다림이 보상된다", "en": "→ Ending: The Scientist's — thirty years of waiting rewarded" }}
-      ]
+    {
+      "id": "s03", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "오르면서 화성이 달라 보였다. 낮을 때와 높을 때가 달랐다. 낮을 때는 개별 것들이 보였다. 높을 때는 전체가 보였다. 관찰자가 오르고 싶었던 이유가 거기 있었다. 전체를 보는 것. 낮에서 보지 못한 것들을.",
+        "en": "While ascending Mars looked different. Low and high were different. At low altitude individual things were seen. At high altitude the whole was visible. The reason the observer had wanted to ascend was there. Seeing the whole. Things not seen from low altitude."
+      }}]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "hellas_zone4_deep_tunnel", "bgm": "hidden_theme_finale", "transition": "flash_white",
-      "title": { "ko": "30년의 끝", "en": "End of Thirty Years" }, "subtitle": { "ko": "헬라스 4구역 최심부 — 화성의 비밀", "en": "Hellas Zone 4 Deepest Point — The Secret of Mars" }
+    {
+      "id": "s04", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "오르는 중에 새벽이 왔다. 올림포스의 새벽. 빛이 아래서 왔다. 빛이 위에서 오지 않았다. 아래서 왔다. 그것이 높은 곳의 특성이었다. 아래서 올라오는 빛. 관찰자가 그 빛을 받았다. 오르면서.",
+        "en": "While ascending dawn came. Dawn at Olympus. Light came from below. Light did not come from above. Came from below. That was the nature of high places. Light rising from below. The observer received that light. While ascending."
+      }}]
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "narration", "background": "hellas_zone4_deep_tunnel", "bgm": "ending_theme_hidden",
-      "lines": [{ "text": { "ko": "Ancient Metal이 빛 속에 있었다. 네 사람이 봤다. 관찰자. Butcher. Cinder. Liang Wei. 30년 동안 몰랐던 것을 이제 알았다. 파업이 왜 있었는지. 사람들이 왜 죽었는지. 그것이 같은 이유였다. 같은 것을 두고. 30년 전의 것과 지금의 것이 같았다. 그것이 중요한 것이었다.", "en": "Ancient Metal was in the light. Four people saw it. The observer. Butcher. Cinder. Liang Wei. What was unknown for thirty years was now known. Why there was a strike. Why people died. It was the same reason. Over the same thing. What was thirty years ago and what was now were the same. That was what mattered." }}] },
-    { "id": "s_fail", "type": "narration", "background": "hellas_zone4_deep_tunnel", "bgm": "hidden_ambient",
-      "lines": [{ "text": { "ko": "갱도가 무너졌다. 30년 된 지지대. MCC가 수리하지 않은 것. 그것이 무너졌다. 그러나 네 사람은 살았다. 광물은 거기 있었다. 무너진 것들 사이에. 광물은 기다렸다. 항상 그랬다. 무너져도.", "en": "The tunnel collapsed. Thirty-year-old supports. What MCC hadn't repaired. They had collapsed. But four people survived. The minerals were there. Between the collapsed things. Minerals waited. Always. Even after collapse." }}] },
-    { "id": "s_ending_revelation", "type": "ending", "background": "hellas_zone4_outside_dawn", "bgm": "ending_theme_hidden", "transition": "fade_slow",
-      "endingId": "revelation",
-      "lines": [{ "text": { "ko": "동이 텄다. 헬라스 4구역 밖. 갱도에서 나온 사람들. 관찰자. Butcher. Cinder. Liang Wei. 그리고 Ancient Metal의 진실. 화성이 그것을 알게 됐다. 30년 만에. MCC가 처음 봉쇄했을 때부터. Kim Yong-jin. Zone 12. 샌드스톤. 케플러. 모두 연결됐다. 이름들이 기억됐다. 그것이 계시였다.", "en": "Dawn broke. Outside Hellas Zone 4. People out of the tunnel. The observer. Butcher. Cinder. Liang Wei. And the truth of Ancient Metal. Mars came to know it. After thirty years. Since MCC first sealed it. Kim Yong-jin. Zone 12. Sandstone. Kepler. All connected. Names remembered. That was revelation." }}] },
-    { "id": "s_ending_fourth_path", "type": "ending", "background": "olympus_exterior_dawn", "bgm": "ending_theme_crown", "transition": "fade_slow",
-      "endingId": "fourth_path",
-      "lines": [{ "text": { "ko": "세 개의 깃발이 없는 올림포스. 네 번째 길. 이름들의 길. Kim Yong-jin. Zone 12. 파업. Ancient Metal. 그것들이 화성의 새 헌법이 됐다. 관찰자는 이름이 생겼다. 처음으로. 기록자. 화성의 기록자. 그것이 네 번째 깃발이었다. 깃발 없는 깃발.", "en": "Olympus without three flags. A fourth path. The path of names. Kim Yong-jin. Zone 12. The strike. Ancient Metal. These became the new constitution of Mars. The observer received a name. For the first time. The Recorder. Mars's Recorder. That was the fourth flag. A flag without a flag." }}] },
-    { "id": "s_ending_observer", "type": "ending", "background": "deep_space_window", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "endingId": "observer",
-      "lines": [{ "text": { "ko": "다시 배가 있었다. 화성에서 떠나는 배. 관찰자가 거기 있었다. 창문으로 화성을 봤다. 붉었다. 관찰자가 본 것들이 있었다. 이름들. 흔적들. Ancient Metal. 30년. 그것들이 아직 거기 있었다. 화성에. 화성에 있는 것들은 화성에서 기다렸다. 관찰자가 다시 올 때까지. 또는 다른 관찰자가 올 때까지.", "en": "There was a ship again. A ship leaving Mars. The observer was on it. Looking at Mars through the window. Red. There were things the observer had seen. Names. Traces. Ancient Metal. Thirty years. Those were still there. On Mars. Things on Mars waited on Mars. Until the observer returned. Or until another observer came." }}] },
-    { "id": "s_ending_scientist", "type": "ending", "background": "kepler_crater_dawn", "bgm": "ending_theme_fsp", "transition": "fade_slow",
-      "endingId": "scientist",
-      "lines": [{ "text": { "ko": "Liang Wei가 데이터를 들고 있었다. 30년치. 그리고 오늘치. 합쳐서. 케플러와 4구역이 같은 광맥이었다는 것. 외계 기원 물질이 화성 지하를 관통한다는 것. 그것이 이제 증명됐다. 30년의 가설이 사실이 됐다. Liang Wei가 연구소를 세웠다. 이름이 있었다. 4구역. 파업이 있었던 곳의 이름을.", "en": "Liang Wei held the data. Thirty years' worth. And today's. Combined. That Kepler and Zone 4 were the same vein. That extraterrestrial matter ran through the Martian underground. That was now proven. Thirty years of hypothesis became fact. Liang Wei built a research institute. It had a name. Zone 4. The name of where the strike had been." }}]
+    {
+      "id": "s05", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "아래가 보이기 시작했다. 화성. 붉은 것. 관찰자가 왔던 곳들이 보였다. 헬라스 센트럴. 광산들. 4구역. 에레보스. 샌드스톤. 케플러. 그것들이 아래에 있었다. 관찰자가 위에서 봤다. 처음으로. 전체를.",
+        "en": "Below began to be visible. Mars. Red. The places the observer had come from were visible. Hellas Central. Mines. Zone 4. Erebus. Sandstone. Kepler. Those were below. The observer watched from above. For the first time. The whole."
+      }}]
+    },
+    {
+      "id": "s06", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "MCC 루트의 결과가 보였다. 저 아래. 도시들이 있었다. 큰 도시들. MCC가 세운 것들. 그러나 관찰자가 본 것들이 거기 있었다. 줄을 선 사람들. 비어가는 마을들. 광산 외부의 먼지 쌓인 장비들. MCC가 이긴 루트에서도 그것들이 있었다.",
+        "en": "The result of the MCC route was visible. Down there. There were cities. Large cities. Things MCC had built. But what the observer had seen was there. People in lines. Villages emptying. Dust-accumulated equipment outside mines. Even in the route where MCC won those things were there."
+      }}]
+    },
+    {
+      "id": "s07", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "FSP 루트의 결과가 보였다. 다른 방향에. 마을들이 있었다. 작은 것들. FSP가 세운 것들. 그러나 거기도 있었다. 광부들이 여전히 일했다. 여전히 위험했다. 여전히 이름들이 분필로 쓰였다. FSP가 이긴 루트에서도 그것들이 있었다.",
+        "en": "The result of the FSP route was visible. In another direction. There were villages. Small ones. Things FSP had built. But there too. Miners still worked. Still dangerous. Still names were written in chalk. Even in the route where FSP won those things were there."
+      }}]
+    },
+    {
+      "id": "s08", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "CV 루트의 결과가 보였다. 또 다른 방향에. 기지들이 있었다. CV의 기지들. 그러나 거기도 있었다. 아직 해결되지 않은 것들. 30년 전의 이야기가 여전히 이야기였다. 끝나지 않았다. CV가 이긴 루트에서도.",
+        "en": "The result of the CV route was visible. In yet another direction. There were bases. CV's bases. But there too. Things not yet resolved. The story from thirty years ago was still a story. Not ended. Even in the route where CV won."
+      }}]
+    },
+    {
+      "id": "s09", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "세 루트. 세 가지 결과. 그 어느 것도 완전한 승리가 아니었다. 관찰자가 위에서 봤다. 아래에서는 보이지 않던 것들이 위에서 보였다. 세 루트가 다 비슷했다. 다른 깃발. 다른 이름. 그러나 비슷한 것들이 남았다. 이름들. 흔적들. 해결되지 않은 것들.",
+        "en": "Three routes. Three results. None of them a complete victory. The observer watched from above. Things not visible from below were visible from above. All three routes were similar. Different flags. Different names. But similar things remained. Names. Traces. Unresolved things."
+      }}]
+    },
+    {
+      "id": "s10", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "화성이 있었다. 세 루트 아래에. 화성은 세 루트보다 오래됐다. 모든 파벌보다 오래됐다. 모든 사람들보다 오래됐다. 화성이 거기 있었다. 핏빛 하늘 아래. 세 루트가 그 위에 있었다. 화성은 그것들을 봤다. 말하지 않았다.",
+        "en": "Mars was there. Below the three routes. Mars was older than the three routes. Older than all factions. Older than all people. Mars was there. Under the blood-red sky. The three routes were on top of it. Mars had seen them. Didn't speak."
+      }}]
+    },
+    {
+      "id": "s11", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "정상 근처에 도달했다. 관찰자가. 더 올라갈 수 있었다. 그러나 멈췄다. 여기서 보이는 것이 충분했다. 전체가 보였다. 화성 전체가. 세 루트 전체가. 그것들 아래의 것들이. 이름들이. 흔적들이. 사람들이.",
+        "en": "Reached near the summit. The observer. Could have gone higher. But stopped. What was visible from here was enough. The whole was visible. All of Mars. All three routes. Things beneath those. Names. Traces. People."
+      }}]
+    },
+    {
+      "id": "s12", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "해가 지고 있었다. 화성의 해. 지구와 달랐다. 더 작았다. 더 차가워 보였다. 그러나 해였다. 같은 해. 지구와 화성이 같은 해를 받았다. 다른 거리에서. 그것이 같은 것이었다. 서로 모르는 것들이 같은 것을 받았다.",
+        "en": "The sun was setting. Mars's sun. Different from Earth. Smaller. Looked colder. But it was the sun. The same sun. Earth and Mars received the same sun. From different distances. That was the same thing. Things that didn't know each other received the same thing."
+      }}]
+    },
+    {
+      "id": "s13", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "핏빛 하늘이었다. 화성의 하늘. 관찰자가 봤다. 자주 봤다. 처음 도착했을 때부터. 그러나 여기서 보는 것이 달랐다. 가장 높은 곳에서 보는 핏빛 하늘. 하늘이 아래에서 보이는 것보다 더 가까웠다. 또는 더 넓었다. 또는 둘 다였다.",
+        "en": "A blood-red sky. The Martian sky. The observer had watched. Watched often. From when first arriving. But seeing it from here was different. The blood-red sky seen from the highest place. The sky was closer than seen from below. Or wider. Or both."
+      }}]
+    },
+    {
+      "id": "s14", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "화성이 여전히 거기 있었다. 핏빛 하늘 아래. 세 루트의 결과가 있었다. MCC. FSP. CV. 그 어느 것도 완전하지 않았다. 그러나 화성은 있었다. 여전히. 붉었다. 언제나 붉었다. 그것이 변하지 않았다. 화성의 색이.",
+        "en": "Mars was still there. Under the blood-red sky. The results of three routes were there. MCC. FSP. CV. None of them complete. But Mars was there. Still. Red. Always red. That hadn't changed. The color of Mars."
+      }}]
+    },
+    {
+      "id": "s15", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 앉았다. 정상 근처. 화성을 봤다. 오래 봤다. 처음 도착했을 때부터 본 것들이 있었다. 손자국. 이름들. 재. 발자국들. 비석. 컵. 사진들. 핏자국. 흰 깃발 조각. 광물. Butcher의 손. 그것들이 모두 있었다. 아래에.",
+        "en": "The observer sat. Near the summit. Watched Mars. Watched for a long time. There were things seen from when first arriving. Handprints. Names. Ash. Footprints. A marker. A cup. Photos. Bloodstain. A white flag piece. A mineral. Butcher's hand. All of those were there. Below."
+      }}]
+    },
+    {
+      "id": "s16", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그것들이 연결됐는가. 관찰자가 생각했다. 처음에는 연결하지 않았다. 그것이 관찰자의 방식이었다. 흔적만 본다. 연결하지 않는다. 그러나 지금은 달랐다. 연결이 보였다. 선이 보였다. 흔적들 사이에. 그것들이 하나의 이야기를 말했다.",
+        "en": "Were those connected. The observer thought. At first didn't connect. That was the observer's way. Only see traces. Don't connect. But now was different. Connections were visible. Lines were visible. Between traces. Those spoke of one story."
+      }}]
+    },
+    {
+      "id": "s17", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "이야기가 있었다. 30년 전에 시작된 것. 광물이 발견됐다. 사람들이 죽었다. 이름들이 남았다. 30년이 지났다. 이름들이 다시 쓰였다. 사람들이 다시 죽었다. 파벌들이 싸웠다. 회담이 있었다. 피가 있었다. 흰 깃발이 있었다. 그것이 이야기였다. 하나의.",
+        "en": "There was a story. Something that started thirty years ago. A mineral was discovered. People died. Names remained. Thirty years passed. Names were written again. People died again. Factions fought. A conference happened. There was blood. There was a white flag. That was the story. One story."
+      }}]
+    },
+    {
+      "id": "s18", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그 이야기가 끝났는가. 몰랐다. 세 루트를 봤다. 세 루트 어느 것에서도 끝나지 않았다. 그 이야기가. 다른 방식으로 계속됐다. MCC 루트에서. FSP 루트에서. CV 루트에서. 이야기는 계속됐다. 깃발이 달라도. 이야기는 같았다.",
+        "en": "Had that story ended. Didn't know. Had seen three routes. In none of the three routes had it ended. That story. Continued in different ways. In the MCC route. In the FSP route. In the CV route. The story continued. Even if flags were different. The story was the same."
+      }}]
+    },
+    {
+      "id": "s19", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 처음으로 슬펐다. 아니었다. 슬픔이 아니었다. 그것이 무엇인지 몰랐다. 그러나 무언가 있었다. 아래의 것들을 보면서. 세 루트의 것들을. 이름들을. 흔적들을. 무언가 있었다. 관찰자가 이름을 몰랐다. 그 감각의.",
+        "en": "For the first time the observer was sad. No. Not sadness. Didn't know what it was. But there was something. While watching the things below. The things of three routes. Names. Traces. There was something. The observer didn't know the name. Of that sensation."
+      }}]
+    },
+    {
+      "id": "s20", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "화성의 해가 더 내려갔다. 하늘이 더 붉어졌다. 핏빛이 더 짙어졌다. 관찰자가 봤다. 하늘을. 화성을. 아래를. 세 루트를. 이름들을. 흔적들을. 모든 것을 봤다. 그것이 관찰자가 온 이유였다. 보는 것. 보는 것이 전부였다.",
+        "en": "The Martian sun descended further. The sky grew redder. The blood color deepened. The observer watched. The sky. Mars. Below. Three routes. Names. Traces. Watched everything. That was why the observer had come. Watching. Watching was everything."
+      }}]
+    },
+    {
+      "id": "s21", "type": "narration",
+      "background": "mars_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "해가 졌다. 완전히. 화성의 첫 번째 밤이 생각났다. 헬라스 센트럴에서 본 첫 번째 밤. 불빛들. MCC. 노동자 지구. 광산. 그 불빛들이 지금도 있었다. 세 루트에서도. 불빛들은 있었다. 그것이 사람들이 거기 있다는 것이었다.",
+        "en": "The sun set. Completely. Remembered the first night. The first night seen from Hellas Central. Lights. MCC. Labor district. Mine. Those lights were still there now. In three routes too. There were lights. That meant people were there."
+      }}]
+    },
+    {
+      "id": "s22", "type": "narration",
+      "background": "mars_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "사람들이 있었다. 화성에. 세 루트 모두에서. MCC 루트에서도. FSP 루트에서도. CV 루트에서도. 이름들이 있는 사람들. 흔적들을 남기는 사람들. 불을 피우는 사람들. 분필로 쓰는 사람들. 그들이 있었다. 화성에.",
+        "en": "There were people. On Mars. In all three routes. In the MCC route too. In the FSP route too. In the CV route too. People with names. People who left traces. People who burned fires. People who wrote in chalk. They were there. On Mars."
+      }}]
+    },
+    {
+      "id": "s23", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 기록했다. 처음으로. 기록하는 것. 관찰자가 가지고 있던 것에. 종이가 아니었다. 전자 기기였다. 관찰자가 처음으로 기록했다. 이름들을. 흔적들을. 본 것들을. 그것이 처음이었다. 기록이.",
+        "en": "The observer recorded. For the first time. Recording. On what the observer had. Not paper. An electronic device. The observer recorded for the first time. Names. Traces. Things seen. That was the first. The recording."
+      }}]
+    },
+    {
+      "id": "s24", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "Kim Yong-jin. 이름을 적었다. Zone 12. 적었다. 샌드스톤 교차로. 적었다. 에레보스 분화구. 적었다. Butcher의 손. 흰 깃발. 4구역 광물. 이름들. 흔적들. 모두 적었다. 그것이 기록이었다. 관찰자의 기록.",
+        "en": "Kim Yong-jin. Wrote the name. Zone 12. Wrote. Sandstone Junction. Wrote. Erebus Crater. Wrote. Butcher's hand. White flag. Zone 4 mineral. Names. Traces. Wrote all of it. That was a record. The observer's record."
+      }}]
+    },
+    {
+      "id": "s25", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "기록하는 것이 관찰자의 방식에 맞는지 생각했다. 관찰은 기록을 포함하는가. 몰랐다. 그러나 기록했다. 흔적을 집지 않았다. 흔적을 옮기지 않았다. 그러나 기록했다. 그것이 맞는지 그렇지 않은지. 알 수 없었다.",
+        "en": "Thought about whether recording fit the observer's way. Did observation include recording. Unknown. But recorded. Didn't pick up traces. Didn't move traces. But recorded. Whether that was right or not. Unknown."
+      }}]
+    },
+    {
+      "id": "s26", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "밤이 지났다. 정상 근처에서. 관찰자가 밤을 보냈다. 세 번째. 첫 번째가 올림포스 산자락. 두 번째가 4구역. 세 번째가 정상 근처. 올라가면서 밤을 보냈다. 그것이 패턴이었다. 올라갈수록 더 보였다.",
+        "en": "Night passed. Near the summit. The observer had spent the night. The third time. First time was the Olympus foothills. Second was Zone 4. Third was near the summit. Spent night while ascending. That was a pattern. The higher, the more was visible."
+      }}]
+    },
+    {
+      "id": "s27", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "새벽이 왔다. 올림포스 정상 근처의 새벽. 빛이 아래서 왔다. 화성에서 올라오는 빛. 관찰자가 그 빛을 받았다. 기록한 것들이 있었다. 전자 기기에. 그것들이 기록으로 있었다. 관찰자의 기록. 네 번째 기록.",
+        "en": "Dawn came. Dawn near the Olympus summit. Light came from below. Light rising from Mars. The observer received that light. There were recorded things. On the electronic device. Those existed as records. The observer's record. The fourth record."
+      }}]
+    },
+    {
+      "id": "s28", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "세 루트에 공식 기록이 있었다. MCC 기록. FSP 기록. CV 기록. 그것들이 공식이었다. 관찰자의 기록은 공식이 아니었다. 비공식. 그러나 있었다. 네 번째 기록이 있었다. 세 파벌의 기록이 아닌 것. 이름들의 기록.",
+        "en": "In three routes there were official records. MCC records. FSP records. CV records. Those were official. The observer's record was not official. Unofficial. But it existed. There was a fourth record. Not the record of three factions. The record of names."
+      }}]
+    },
+    {
+      "id": "s29", "type": "narration",
+      "background": "olympus_exterior_dawn", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 기록을 봤다. 적은 것들을. 이름들. 장소들. 날짜들. 흔적들. 그것들이 있었다. 그 기록이 무엇을 해야 하는지 몰랐다. 누구에게 줘야 하는지. 어디에 두어야 하는지. 몰랐다. 그러나 있었다. 기록이.",
+        "en": "The observer looked at the record. Things written. Names. Places. Dates. Traces. Those were there. Didn't know what to do with that record. Who to give it to. Where to put it. Unknown. But it existed. The record."
+      }}]
+    },
+    {
+      "id": "s30", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "화성이 아래에 있었다. 관찰자가 위에 있었다. 그 차이가 있었다. 위아래. 높이. 그러나 화성은 화성이었다. 위에서 봐도 아래에서 봐도. 붉었다. 언제나 붉었다. 그것이 변하지 않았다.",
+        "en": "Mars was below. The observer was above. That difference was there. Above and below. Height. But Mars was Mars. Seen from above or below. Red. Always red. That hadn't changed."
+      }}]
+    },
+    {
+      "id": "s31", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "MCC가 이겼다. 어느 루트에서. 그러나 완전한 승리가 아니었다. 이름들이 남았다. FSP가 이겼다. 어느 루트에서. 그러나 완전한 승리가 아니었다. 이름들이 남았다. CV가 이겼다. 어느 루트에서. 그러나 완전한 승리가 아니었다. 이름들이 남았다.",
+        "en": "MCC won. In one route. But it was not a complete victory. Names remained. FSP won. In one route. But it was not a complete victory. Names remained. CV won. In one route. But it was not a complete victory. Names remained."
+      }}]
+    },
+    {
+      "id": "s32", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "이름들이 남았다. 그것이 공통이었다. 세 루트 모두에서. 누가 이겨도 이름들이 남았다. Kim Yong-jin. Zone 12 사람들. 파업한 사람들. 30년 전 사람들. 그들의 이름이 남았다. 벽에. 분필로. 긁힌 것으로. 비석으로.",
+        "en": "Names remained. That was common. In all three routes. Whoever won names remained. Kim Yong-jin. The Zone 12 people. Those who struck. The people from thirty years ago. Their names remained. On walls. In chalk. In scratches. As markers."
+      }}]
+    },
+    {
+      "id": "s33", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그것이 화성이었다. 관찰자가 알았다. 깃발이 아니었다. 파벌이 아니었다. 이름들이었다. 남는 것이 이름들이었다. 화성에서. 이름들이 화성이었다. 분필 이름. 긁힌 이름. 비석의 이름. 이름들이 화성이었다.",
+        "en": "That was Mars. The observer understood. Not flags. Not factions. Names. What remained were names. On Mars. Names were Mars. Chalk names. Scratched names. Names on markers. Names were Mars."
+      }}]
+    },
+    {
+      "id": "s34", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "두 번째 해가 지고 있었다. 정상 근처에서 보는 두 번째 해. 관찰자가 봤다. 화성이 아래에 있었다. 붉었다. 핏빛 하늘이 더 붉어졌다. 하늘과 화성이 같은 색이었다. 그것이 화성의 저녁이었다. 경계가 없는 저녁. 하늘과 땅이 같은 색인 저녁.",
+        "en": "A second sun was setting. The second sun seen near the summit. The observer watched. Mars was below. Red. The blood-red sky grew redder. Sky and Mars were the same color. That was Mars evening. An evening without boundaries. An evening where sky and ground were the same color."
+      }}]
+    },
+    {
+      "id": "s35", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 기록에 마지막 것을 적었다. 날짜. 장소. 올림포스 몬스 정상 근처. 그리고 본 것. 화성 전체. 세 루트. 이름들. 핏빛 하늘. 그것이 마지막 기록이었다. 관찰자의 마지막 기록. 화성에서.",
+        "en": "The observer wrote the last thing in the record. Date. Location. Near the summit of Olympus Mons. And what was seen. All of Mars. Three routes. Names. Blood-red sky. That was the last record. The observer's last record. On Mars."
+      }}]
+    },
+    {
+      "id": "s36", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "기록을 닫았다. 관찰자가. 그것이 있었다. 기록이. 이름들이. 흔적들이. 30년이. 세 루트가. 그것들이 기록에 있었다. 관찰자 안에 있었다. 화성이 관찰자 안에 있었다. 처음으로. 그것이 달라진 것이었다. 화성이 관찰자 안에 들어온 것이.",
+        "en": "Closed the record. The observer. It existed. The record. Names. Traces. Thirty years. Three routes. Those were in the record. Were inside the observer. Mars was inside the observer. For the first time. That was what had changed. Mars had entered inside the observer."
+      }}]
+    },
+    {
+      "id": "s37", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "내려갈 것인가. 관찰자가 생각했다. 내려가면 어디로 갈 것인가. 헬라스 센트럴로. 또는 4구역으로. 또는 에레보스로. 또는 올림포스를 계속 오를 것인가. 답이 없었다. 그것이 이 사람의 조건이었다. 방향이 없는 것. 모든 곳을 볼 수 있는 것. 아무 곳도 목적지가 아닌 것.",
+        "en": "Would descend. The observer thought. If descending where would go. To Hellas Central. Or Zone 4. Or Erebus. Or would continue ascending Olympus. No answer. That was this person's condition. Having no direction. Being able to see everywhere. No place being a destination."
+      }}]
+    },
+    {
+      "id": "s38", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "화성이 아래에 있었다. 핏빛 하늘 아래. 세 루트의 결과가 있었다. 어느 것도 완전하지 않았다. 이름들이 있었다. 흔적들이 있었다. 30년이 있었다. 그것들이 화성이었다. 파벌이 아니라. 깃발이 아니라. 이름들. 흔적들. 기억들.",
+        "en": "Mars was below. Under the blood-red sky. The results of three routes were there. None complete. There were names. There were traces. There were thirty years. Those were Mars. Not factions. Not flags. Names. Traces. Memories."
+      }}]
+    },
+    {
+      "id": "s39", "type": "narration",
+      "background": "olympus_exterior_sunset", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자가 일어섰다. 기록을 가지고. 이름들을 가지고. 흔적들을 가지고. 그것들이 관찰자 안에 있었다. 화성이 관찰자 안에 있었다. 관찰자가 그것들을 가지고 어디로 갈 것인지. 몰랐다. 그러나 가지고 있었다. 그것이 처음이었다. 무언가를 가지고 있는 것이.",
+        "en": "The observer stood. With the record. With names. With traces. Those were inside the observer. Mars was inside the observer. Where the observer would go with those. Unknown. But had them. That was a first. Having something."
+      }}]
+    },
+    {
+      "id": "s40", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "화성을 마지막으로 봤다. 관찰자가. 올림포스 정상 근처에서. 전체를. 화성 전체를. 핏빛 하늘 아래. 세 루트의 흔적들 위에. 이름들 위에. 30년 위에. 화성이 있었다. 여전히. 붉었다. 언제나 붉었다.",
+        "en": "Looked at Mars one last time. The observer. From near the Olympus summit. The whole. All of Mars. Under the blood-red sky. On top of three routes' traces. On top of names. On top of thirty years. Mars was there. Still. Red. Always red."
+      }}]
+    },
+    {
+      "id": "s41", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그것이 전부였다. 관찰자가 알았다. 화성이 전부였다. 이름들이 전부였다. 흔적들이 전부였다. 세 루트가 전부였다. 아무것도 전부가 아니었다. 모든 것이 전부였다. 그것이 화성이었다. 그것이 관찰자가 마지막으로 안 것이었다.",
+        "en": "That was everything. The observer understood. Mars was everything. Names were everything. Traces were everything. Three routes were everything. Nothing was everything. Everything was everything. That was Mars. That was the last thing the observer had understood."
+      }}]
+    },
+    {
+      "id": "s42", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관찰자는 내려가지 않았다.",
+        "en": "The observer did not descend."
+      }}]
+    },
+    {
+      "id": "s43", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "내려가지 않았다는 것이 무엇을 의미하는지. 관찰자는 몰랐다. 몰라도 됐다. 화성이 아래에 있었다. 이름들이 아래에 있었다. 관찰자가 위에 있었다. 그것으로 충분했다. 관찰자가 이름들을 봤다. 이름들이 관찰자를 기다리지 않았다. 그러나 있었다. 그것이 화성이었다.",
+        "en": "What it meant that the observer did not descend. The observer didn't know. Didn't need to know. Mars was below. Names were below. The observer was above. That was enough. The observer had seen the names. The names hadn't waited for the observer. But were there. That was Mars."
+      }}]
+    },
+    {
+      "id": "s44", "type": "narration",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "화성이 거기 있었다. 핏빛 하늘 아래. 관찰자가 위에 있었다. 그것이 마지막 관찰이었다. 위에서 보는 화성. 핏빛 하늘. 이름들. 흔적들. 세 루트. 30년. 그것들이 함께 있었다. 그것이 전부였다.",
+        "en": "Mars was there. Under the blood-red sky. The observer was above. That was the last observation. Mars seen from above. Blood-red sky. Names. Traces. Three routes. Thirty years. Those were together. That was everything."
+      }}]
+    },
+    {
+      "id": "s45", "type": "ending",
+      "background": "olympus_exterior_vast", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "관찰자는 내려가지 않았다. 화성이 아래에 있었다. 핏빛 하늘이 위에 있었다. 관찰자가 그 사이에 있었다. 이름들이 아래에 있었다. 기록이 관찰자 안에 있었다. 그것으로 충분했다. 화성이 거기 있었다. 언제나 거기 있었다. 관찰자가 오기 전에도. 관찰자가 떠난 후에도. 화성은 거기 있었다. 붉었다. 언제나 붉었다. 그것이 전부였다."
+        ,
+        "en": "The observer did not descend. Mars was below. The blood-red sky was above. The observer was between them. Names were below. The record was inside the observer. That was enough. Mars was there. Had always been there. Before the observer came. After the observer left. Mars was there. Red. Always red. That was everything."
+      } }]
     }
   ]
 }

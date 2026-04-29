@@ -5,7 +5,7 @@
   "title": { "ko": "프롤로그: 붉은 행성", "en": "Prologue: The Red Planet" },
   "location": { "id": "earth_to_mars_transit", "displayNameKo": "지구-화성 화물 항로" },
   "environment": "transit_approach",
-  "estimatedPlayTimeMinutes": 8,
+  "estimatedPlayTimeMinutes": 20,
   "characters": ["player", "lifang"],
   "scenes": [
     {
@@ -25,7 +25,7 @@
       "bgm": "ambient_engine_hum",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "2087년. 화성 인구 1,200만.\n세 개의 파벌이 이 행성을 나누고 있었다.\nMCC — 화성 기업 연합. 자원을 쥔 자들.\nFSP — 자유 정착민 동맹. 땅을 일군 자들.\nCV — 크림슨 워로드. 법 없이 사는 자들.", "en": "2087. Mars population: 12 million.\nThree factions divided this planet.\nMCC — Mars Corporate Consortium. Those who hold the resources.\nFSP — Free Settlers' Pact. Those who worked the land.\nCV — Crimson Warlords. Those who live without law." } }
+        { "text": { "ko": "화물선 이름은 카리오페였다. 짐짝들이 가득했다. 산소 탱크. 식량 팩. 기계 부품. 그리고 사람들. 사람들도 짐처럼 실려 있었다. 자리가 부족했다. 불평하는 사람이 없었다. 이 배에 타는 사람들은 이미 선택을 마친 사람들이었다.", "en": "The ship was called Kariope. Full of cargo. Oxygen tanks. Food packs. Machine parts. And people. People loaded like cargo too. Not enough seats. Nobody complained. People who boarded this ship had already made their choice." } }
       ]
     },
     {
@@ -35,19 +35,17 @@
       "bgm": "ambient_engine_hum",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "당신은 MCC의 호출을 받았다.\n이유는 간단했다 — 당신 같은 사람이 필요했다.\n어떤 사람인지는 — 화성에 도착하면 알게 될 거였다.", "en": "You received a summons from MCC.\nThe reason was simple — they needed someone like you.\nWhat kind of person that was — you'd find out when you arrived on Mars." } }
+        { "text": { "ko": "2087년. 화성 인구 1,200만.\n세 개의 파벌이 이 행성을 나누고 있었다.\nMCC — 화성 기업 연합. 자원을 쥔 자들.\nFSP — 자유 정착민 동맹. 땅을 일군 자들.\nCV — 크림슨 워로드. 법 없이 사는 자들.", "en": "2087. Mars population: 12 million.\nThree factions divided this planet.\nMCC — Mars Corporate Consortium. Those who hold the resources.\nFSP — Free Settlers' Pact. Those who worked the land.\nCV — Crimson Warlords. Those who live without law." } }
       ]
     },
     {
       "id": "p04",
-      "type": "dialogue",
+      "type": "narration",
       "background": "cargo_ship_interior",
-      "bgm": "tension_low",
-      "transition": "fade_medium",
+      "bgm": "ambient_engine_hum",
+      "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "neutral", "effect": "character_enter:lifang:slide_left", "text": { "ko": "깨어 있었군요. 좋아요.", "en": "You're awake. Good." } },
-        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "리팡이에요. MCC 현장 책임자. 화성에 도착하면 당신은 내 팀이에요.\n간단한 규칙이 있어요. 내 말을 들어요. 질문은 나중에.", "en": "I'm Lifang. MCC field director. Once you reach Mars, you're on my team.\nSimple rules. Listen to me. Questions later." } },
-        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "화성은 지구랑 달라요. 여기서 실수는 죽음이에요.", "en": "Mars isn't Earth. Mistakes here mean death." } }
+        { "text": { "ko": "화성은 처음에 공동의 꿈이었다. 60년이 지났다. 공동의 꿈은 지분으로 나뉘었다. 지분은 협상으로 나뉘었다. 협상은 무력으로 끝났다. 이제는 그냥 그런 곳이었다. 세상 모든 곳이 결국 그렇게 되는 것처럼.", "en": "Mars was once a shared dream. Sixty years had passed. The shared dream divided into stakes. Stakes divided by negotiation. Negotiation ended with force. Now it was just like that. Like every place in the world eventually becomes." } }
       ]
     },
     {
@@ -55,19 +53,394 @@
       "type": "narration",
       "background": "cargo_ship_interior",
       "bgm": "ambient_engine_hum",
-      "transition": "fade_slow",
+      "transition": "cut",
       "lines": [
-        { "text": { "ko": "창밖으로 붉은 점이 보이기 시작했다.\n처음에는 별처럼 보였다. 가까워지면서 — 행성이 됐다.\n핏빛이었다. 아름다웠다. 두려웠다.", "en": "A red dot appeared beyond the window.\nAt first it looked like a star. As it grew closer — it became a planet.\nBlood-red. Beautiful. Frightening." } }
+        { "text": { "ko": "당신은 MCC의 호출을 받았다.\n이유는 간단했다 — 당신 같은 사람이 필요했다.\n어떤 사람인지는 — 화성에 도착하면 알게 될 거였다.", "en": "You received a summons from MCC.\nThe reason was simple — they needed someone like you.\nWhat kind of person that was — you'd find out when you arrived on Mars." } }
       ]
     },
     {
       "id": "p06",
-      "type": "ending",
-      "background": "cargo_ship_interior",
+      "type": "narration",
+      "background": "kariope_cargo_bay",
       "bgm": "ambient_engine_hum",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "화물칸에 다른 사람들이 있었다. 광부들이었다. 얼굴이 지쳐 있었다. 지쳐서 화성으로 가는 사람들. 또는 지치기 위해 화성으로 가는 사람들. 구분이 어려웠다. 화성에서는 결국 같은 말이었다.", "en": "Others were in the cargo bay. Miners. Tired faces. People too tired going to Mars. Or people going to Mars to become tired. Hard to tell the difference. On Mars it amounted to the same thing." } }
+      ]
+    },
+    {
+      "id": "p07",
+      "type": "dialogue",
+      "background": "cargo_ship_interior",
+      "bgm": "tension_low",
+      "transition": "fade_medium",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "effect": "character_enter:lifang:slide_left", "text": { "ko": "깨어 있었군요. 좋아요.", "en": "You're awake. Good." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "리팡이에요. MCC 현장 책임자. 화성에 도착하면 당신은 내 팀이에요.", "en": "I'm Lifang. MCC field director. Once you reach Mars, you're on my team." } },
+        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "간단한 규칙이 있어요. 내 말을 들어요. 질문은 나중에.", "en": "Simple rules. Listen to me. Questions later." } },
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "화성은 지구랑 달라요. 여기서 실수는 죽음이에요. 사람들이 그 말을 너무 가볍게 해요. 나는 가볍게 하는 게 아니에요.", "en": "Mars isn't Earth. Mistakes here mean death. People say that too lightly. I'm not saying it lightly." } }
+      ]
+    },
+    {
+      "id": "p08",
+      "type": "narration",
+      "background": "cargo_ship_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "리팡은 말을 마치고 창밖을 봤다. 우주가 있었다. 그는 더 말하지 않았다. 그것이 그의 방식이었다. 필요한 것만 말하는 사람. 화성에서 오래 산 사람들은 그렇게 됐다. 말이 산소를 쓴다는 걸 아는 사람들.", "en": "Lifang looked out the window after speaking. Space was there. He said nothing more. That was his way. A person who said only what was necessary. People who had lived long on Mars became that way. People who knew words used oxygen." } }
+      ]
+    },
+    {
+      "id": "p09",
+      "type": "dialogue",
+      "background": "cargo_ship_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "MCC 기본 브리핑이에요. 듣던 말일 수도 있어요. 그래도 들어요.", "en": "MCC basic briefing. You may have heard this before. Listen anyway." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "헬라스 센트럴이 거점이에요. MCC 본부. 광물 정제. 행정 허브. 거기서 배정받아요.", "en": "Hellas Central is base. MCC headquarters. Mineral refining. Administrative hub. Assignments come from there." } },
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "화성에서 MCC 없이 살 수 있어요. 오래 살 수는 없어요. 그 차이를 아는 사람이 오래 살아요.", "en": "You can live on Mars without MCC. You can't live long. People who know that difference live longest." } }
+      ]
+    },
+    {
+      "id": "p10",
+      "type": "narration",
+      "background": "karioke_observation_deck",
+      "bgm": "ambient_engine_hum",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "관측 덱이 있었다. 작은 창이었다. 사람들이 거기 서 있었다. 창밖을 봤다. 아무것도 없었다. 그냥 우주였다. 그래도 봤다. 화성을 보려는 사람들이었다. 아직 보이지 않았다. 그래도 봤다. 그것이 희망의 모양이었다. 아직 보이지 않는 것을 보려는 것.", "en": "There was an observation deck. A small window. People stood there. Looking out. Nothing. Just space. Still they looked. People trying to see Mars. It wasn't visible yet. Still they looked. That was the shape of hope. Looking for something not yet visible." } }
+      ]
+    },
+    {
+      "id": "p11",
+      "type": "narration",
+      "background": "deep_space_window",
+      "bgm": "ambient_engine_hum",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "12시간이 지났다. 잠이 왔다. 잠들기 전에 창밖을 봤다. 붉은 점이 있었다. 처음에는 별처럼 보였다. 가까워지면서 — 행성이 됐다. 핏빛이었다. 아름다웠다. 두려웠다.", "en": "Twelve hours passed. Sleep came. Before sleeping looked out the window. A red dot was there. At first it looked like a star. As it grew closer — it became a planet. Blood-red. Beautiful. Frightening." } }
+      ]
+    },
+    {
+      "id": "p12",
+      "type": "narration",
+      "background": "mars_landing_approach",
+      "bgm": "landing_approach_tension",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "착륙 2시간 전. 안내방송이 나왔다. 마스크 착용. 안전벨트. 화성 대기권 진입. 목소리가 평온했다. 매일 하는 안내방송이었다. 그 평온함이 이상하게 느껴졌다. 대기권 진입이 매일 있어도 평온해지는 것은 이상한 일이었다.", "en": "Two hours to landing. Announcement came. Masks on. Seatbelts. Entering Martian atmosphere. The voice was calm. A daily announcement. That calm felt strange. Strange that atmospheric entry could be daily and calm." } }
+      ]
+    },
+    {
+      "id": "p13",
+      "type": "narration",
+      "background": "mars_landing_approach",
+      "bgm": "landing_approach_tension",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "화성이 창을 채웠다. 붉었다. 지구에서 사진으로 봤던 것과 달랐다. 사진은 납작했다. 실제로 보면 입체였다. 살아있는 것처럼 보였다. 화성은 살아있지 않았다. 그러나 그렇게 보였다. 그것이 화성의 첫 번째 거짓말이었다.", "en": "Mars filled the window. Red. Different from photos seen on Earth. Photos were flat. In reality it had depth. It looked alive. Mars wasn't alive. But it looked that way. That was Mars's first lie." } }
+      ]
+    },
+    {
+      "id": "p14",
+      "type": "narration",
+      "background": "mars_docking_bay",
+      "bgm": "arrival_theme",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "화성이 당신을 기다리고 있었다.\n이 행성에서 당신은 무엇이 될 것인가.", "en": "Mars was waiting for you.\nWhat would you become on this planet." } }
+        { "text": { "ko": "도킹 베이였다. 사람들이 내렸다. 광부들이었다. 기술자들이었다. 관료들이었다. 전부 마스크를 쓰고 있었다. 마스크를 쓴 사람들의 얼굴은 알 수 없었다. 표정이 없었다. 화성의 첫 번째 얼굴이었다. 마스크.", "en": "The docking bay. People disembarked. Miners. Engineers. Bureaucrats. Everyone wore masks. Masked faces were unreadable. No expressions. The first face of Mars. A mask." } }
+      ]
+    },
+    {
+      "id": "p15",
+      "type": "dialogue",
+      "background": "mars_docking_bay",
+      "bgm": "arrival_theme",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "effect": "character_enter:lifang:slide_left", "text": { "ko": "도착했어요. 헬라스 센트럴 도킹 스테이션.", "en": "We've arrived. Hellas Central docking station." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "마스크 항상 착용이에요. 이 구역은 부분 여압이에요. 실내는 괜찮지만 복도와 이동 구간은 마스크 없이 안 돼요.", "en": "Masks always on. This zone is partial pressure. Indoors is fine but corridors and transit areas require masks." } },
+        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "처음이니까 말해요. 화성에서 규칙을 어기는 이유는 두 가지예요. 멍청하거나 오래 살았거나. 두 번째는 존중해요. 첫 번째는 내 팀에 없어요.", "en": "First time so I'll say it. On Mars rules are broken for two reasons. Stupidity or long experience. I respect the second. The first has no place on my team." } }
+      ]
+    },
+    {
+      "id": "p16",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "헬라스 센트럴. 화성에서 가장 큰 도시. 인구 80만. 대기 돔이 있었다. 돔 안은 지구와 비슷했다. 비슷한 기압. 비슷한 산소. 그러나 창밖의 화성은 달랐다. 붉은 먼지가 있었다. 사람이 살 수 없는 곳. 돔이 그 경계를 유지했다.", "en": "Hellas Central. The largest city on Mars. Population 800,000. An atmospheric dome. Inside was like Earth. Similar pressure. Similar oxygen. But Mars outside the windows was different. Red dust. A place humans couldn't survive. The dome maintained that boundary." } }
+      ]
+    },
+    {
+      "id": "p17",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "도시가 층으로 나뉘었다. 위층은 MCC 행정구. 중층은 기술자 거주구. 아래층은 노동자 지구. 화성에서 계층은 수직이었다. 아래로 내려갈수록 먼지가 많았다. 위로 올라갈수록 조용했다. 모든 계층 구조가 결국 같은 모양이었다.", "en": "The city was divided into layers. Upper floors MCC administration. Middle floors engineer residences. Lower floors labor district. On Mars hierarchy was vertical. More dust the lower you went. Quieter the higher you went. Every hierarchy eventually took the same shape." } }
+      ]
+    },
+    {
+      "id": "p18",
+      "type": "dialogue",
+      "background": "hellas_central_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "오리엔테이션 먼저예요. MCC 신입 표준 절차.", "en": "Orientation first. MCC standard new-arrival procedure." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "헬라스 센트럴 레이아웃. 비상 탈출 경로. 산소 공급 포인트. 그리고 누가 누군지.", "en": "Hellas Central layout. Emergency exit routes. Oxygen supply points. And who is who." } },
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "마지막이 가장 중요해요.", "en": "The last is most important." } }
+      ]
+    },
+    {
+      "id": "p19",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "브리핑 룸이었다. 다른 신입들이 있었다. 여섯 명이었다. 각자 다른 곳에서 왔다. 다른 배를 탔다. 그러나 같은 방에 있었다. MCC가 부른 사람들. 이유는 각자 달랐다. 목적지는 같았다. 그것이 MCC의 방식이었다.", "en": "A briefing room. Other new arrivals. Six of them. From different places. Different ships. But in the same room. People MCC had called. Different reasons each. Same destination. That was MCC's way." } }
+      ]
+    },
+    {
+      "id": "p20",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "MCC 규정집이에요. 읽어요. 이번 주 안에.", "en": "MCC regulations. Read them. Within this week." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "산소 배급. 수질 배급. 거주 구역 배정. 전부 이 규정집에 있어요. 모르면 죽어요. 부과금을 못 내도 죽어요. 같은 말이에요.", "en": "Oxygen allocation. Water allocation. Residential zone assignment. It's all in this book. Don't know it and you die. Can't pay the levy and you die. Same thing." } },
+        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "질문 있어요?", "en": "Questions?" } },
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "없으면 좋아요. 나중에 생기면 그때 해요.", "en": "Good if not. Ask when they come up later." } }
+      ]
+    },
+    {
+      "id": "p21",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "규정집이 두꺼웠다. 247페이지였다. 누군가 밑줄을 그어 놓은 것이었다. 이전 사람의 것이었다. 밑줄이 굵었다. 중요한 부분이었다. 산소 부족 시 처리 절차. 의료 비상사태 보고 경로. 그것들이 굵게 밑줄 쳐져 있었다. 이전 사람이 무엇을 겪었는지 알 것 같았다.", "en": "The regulations were thick. 247 pages. Someone had underlined them. A previous person's copy. The lines were thick. Important sections. Procedure for oxygen shortage. Emergency medical report channels. Those were heavily underlined. You could guess what the previous person had been through." } }
+      ]
+    },
+    {
+      "id": "p22",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "첫 번째 날이 끝났다. 거주 구역이 배정됐다. 중층이었다. 창이 있었다. 창밖으로 헬라스 외곽이 보였다. 돔 너머. 붉은 먼지가 이동하고 있었다. 바람이었다. 화성의 바람은 소리가 없었다. 돔이 소리를 막았다. 보이지만 들리지 않는 바람. 화성의 것들은 대부분 그랬다.", "en": "The first day ended. A residential zone was assigned. Middle level. There was a window. Through it the outer Hellas was visible. Beyond the dome. Red dust moving. Wind. The Martian wind made no sound. The dome blocked it. Wind visible but inaudible. Most things on Mars were like that." } }
+      ]
+    },
+    {
+      "id": "p23",
+      "type": "narration",
+      "background": "hellas_various_night",
+      "bgm": "ambient_night",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "밤이 됐다. 화성의 밤은 길었다. 지구보다 37분 길었다. 하루가 24시간 37분이었다. 처음 며칠은 그 37분이 이상하게 느껴졌다. 이상한 것을 이상하다고 느끼는 것이 화성 적응의 첫 단계였다. 그 다음은 이상한 것이 당연해지는 것이었다.", "en": "Night came. The Martian night was long. 37 minutes longer than Earth. A day was 24 hours 37 minutes. For the first few days those 37 minutes felt strange. Feeling that strange things were strange was the first stage of adapting to Mars. The next was those strange things becoming normal." } }
+      ]
+    },
+    {
+      "id": "p24",
+      "type": "dialogue",
+      "background": "hellas_central_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "이틀째예요. 현장 투어예요. 따라와요.", "en": "Day two. Field tour. Follow me." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "MCC 헬라스 센트럴 시설이에요. 정제소. 행정 동. 기술부. 의료 시설. 광산 운영 센터.", "en": "MCC Hellas Central facilities. Refinery. Administration building. Technical division. Medical facility. Mine operations center." } },
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "어디서 문제가 생기면 의료 시설 먼저예요. 그 다음 나에게 연락해요. 순서를 바꾸지 마요.", "en": "If a problem comes up anywhere, medical facility first. Then contact me. Don't reverse that order." } }
+      ]
+    },
+    {
+      "id": "p25",
+      "type": "narration",
+      "background": "hellas_mine_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "광산 외부였다. 갱도 입구가 있었다. 엘리베이터가 있었다. 아래로 내려갔다. 3킬로미터. 광부들이 매일 내려가는 곳이었다. 올라오는 광부들이 있었다. 교대였다. 얼굴이 먼지투성이였다. 마스크가 더 검었다. 그들은 올라오면서 아무 말도 하지 않았다. 피곤한 사람들의 침묵이었다.", "en": "Outside the mine. A tunnel entrance. An elevator. Going down. 3 kilometers. Where miners went every day. Miners were coming up. A shift change. Faces caked in dust. Masks darker. They said nothing coming up. The silence of exhausted people." } }
+      ]
+    },
+    {
+      "id": "p26",
+      "type": "narration",
+      "background": "hellas_mine_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "광부 중에 어린 사람이 있었다. 스무 살 정도였다. 마스크를 올렸다. 잠깐이었다. 얼굴이 보였다. 피곤한 얼굴이었다. 그 나이의 피곤함이었다. 그 나이는 피곤해야 할 나이가 아니었다. 그러나 화성에서는 나이와 상관이 없었다. 갱도는 공평했다.", "en": "One of the miners was young. About twenty. He lifted his mask. Just briefly. His face was visible. A tired face. Tiredness of that age. That age shouldn't be tired. But on Mars it didn't matter. The mine shaft was equal." } }
+      ]
+    },
+    {
+      "id": "p27",
+      "type": "dialogue",
+      "background": "hellas_mine_exterior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "보고 있었군요.", "en": "You were watching." } },
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "MCC 신입들이 광산 처음 보면 두 가지 반응이에요. 불편해하거나 아무것도 안 느끼거나. 당신은 세 번째예요.", "en": "MCC new arrivals see the mine for the first time and react two ways. Uneasy, or feel nothing. You're a third thing." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "그것이 뭔지 지금 당장 알 필요는 없어요. 화성이 알려줄 거예요. 시간이 걸려요.", "en": "No need to know what that is right now. Mars will tell you. It takes time." } }
+      ]
+    },
+    {
+      "id": "p28",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "사흘째였다. 리팡이 서류를 줬다. 첫 번째 업무였다. 7구역 안전 감사였다. 표준 절차였다. 현장 점검. 보고서 작성. 이틀 기한이었다. 간단했다. 그렇게 시작됐다.", "en": "Day three. Lifang gave documents. The first assignment. Sector 7 safety audit. Standard procedure. Field inspection. Write a report. Two-day deadline. Simple. That was how it started." } }
+      ]
+    },
+    {
+      "id": "p29",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "tension_low",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "7구역이었다. 헬라스 외곽의 소규모 광산 기지였다. 인원 30명. 주 광물은 철광석이었다. 보고서 양식이 있었다. 체크리스트였다. 안전 장비. 비상 탈출구. 산소 백업. 하나씩 확인했다.", "en": "Sector 7. A small mining outpost on the outer Hellas. Staff 30. Primary mineral iron ore. A report form existed. A checklist. Safety equipment. Emergency exits. Oxygen backup. Checked one by one." } }
+      ]
+    },
+    {
+      "id": "p30",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "문제가 있었다. 체크리스트에 없는 것이었다. 환기 시스템이 오래됐다. 부품이 없었다. 임시방편으로 수리된 흔적이 있었다. 여러 번. 표준 이하였다. 그러나 형식적으로는 통과했다. 체크리스트가 그것을 허용하는 형태로 만들어져 있었다.", "en": "There was a problem. Not on the checklist. The ventilation system was old. No parts. Signs of improvised repair. Multiple times. Below standard. But formally it had passed. The checklist was designed to allow that." } }
+      ]
+    },
+    {
+      "id": "p31",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "더 있었다. 사고 기록이었다. 지난 2년. 세 건이었다. 사고 원인란이 비어 있었다. 세 건 모두. 이름만 있었다. 사망. 사망. 사망. 원인 없는 사망. 그것이 가능했다. 화성에서는. 원인을 쓰지 않으면 원인이 없는 것이었다.", "en": "More was there. Accident records. Past two years. Three cases. The cause section was blank. All three. Only names. Death. Death. Death. Deaths without cause. That was possible on Mars. If you didn't write the cause there was no cause." } }
+      ]
+    },
+    {
+      "id": "p32",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "보고서 어떻게 됐어요.", "en": "How's the report." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "다 됐어요?", "en": "Done?" } },
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "뭔가 있군요. 얼굴을 보면 알아요. 화성에서 3일 살면 얼굴로 보여요.", "en": "Something's there. I can tell from your face. Three days on Mars and it shows on your face." } }
+      ]
+    },
+    {
+      "id": "p33",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "리팡에게 말했다. 환기 시스템. 사고 기록. 원인 없는 사망 세 건. 그는 들었다. 표정이 없었다. 다 말한 후에도 표정이 없었다. 오래 표정을 숨긴 사람의 얼굴이었다. 그것도 화성이 만든 것이었다.", "en": "Told Lifang. The ventilation system. Accident records. Three deaths without cause. He listened. No expression. Still no expression after everything was said. The face of someone who had hidden expressions for a long time. That too was what Mars made." } }
+      ]
+    },
+    {
+      "id": "p34",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "알고 있었어요.", "en": "I knew." } },
+        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "MCC 안에서 모르는 게 없어요. 아는 것 중에 말하는 것과 말하지 않는 것이 있어요. 그 둘의 차이를 아는 것이 이 조직에서 사는 방법이에요.", "en": "Nothing within MCC is unknown. Among what is known there are things said and things not said. Knowing the difference between those two is how you survive in this organization." } },
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "보고서에 뭐라고 쓸 거예요.", "en": "What will you write in the report." } }
+      ]
+    },
+    {
+      "id": "p35",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "보고서를 썼다. 본 것을 썼다. 환기 시스템. 부품 노후. 임시 수리. 사망 원인 공란. 세 건. 이름들. 썼다. 지우지 않았다. 첫 번째 결정이었다. 화성에서의 첫 번째 결정. 화성이 그것을 기억할 것이었다.", "en": "Wrote the report. Wrote what was seen. Ventilation system. Aged parts. Improvised repairs. Blank cause of death. Three cases. The names. Wrote them. Didn't erase them. The first decision. The first decision on Mars. Mars would remember it." } }
+      ]
+    },
+    {
+      "id": "p36",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "보고서 제출하기 전에 한 번 더 읽어요.", "en": "Read it once more before submitting." } },
+        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "쓰고 나면 취소가 없어요. 화성에서 쓴 말은 바위에 새기는 거예요. MCC는 모든 것을 기록해요. 기억해요. 지우지 않아요.", "en": "Once written there's no taking it back. Words written on Mars are carved in rock. MCC records everything. Remembers. Never erases." } },
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "당신이 결정해요.", "en": "Your decision." } }
+      ]
+    },
+    {
+      "id": "p37",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "제출했다. 보고서를 제출했다. 본 것을 그대로. 리팡이 받았다. 읽었다. 천천히. 다 읽고 나서 잠시 있었다. 그 침묵이 길었다. 그러나 길게 느껴지지 않았다. 기다릴 만한 침묵이었다.", "en": "Submitted. The report was submitted. Exactly as seen. Lifang took it. Read it. Slowly. When done he was still for a moment. That silence was long. But it didn't feel long. It was a silence worth waiting through." } }
+      ]
+    },
+    {
+      "id": "p38",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "접수했어요.", "en": "Received." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "이 보고서가 어디로 가는지 알아요?", "en": "Do you know where this report goes?" } },
+        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "Chen Weiss의 책상이에요. 이 등급의 보고서는 전부 그쪽으로 가요. 당신 이름이 거기 올라가요.", "en": "Chen Weiss's desk. Reports at this level all go there. Your name goes up there." } },
+        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "그 사람 이름을 기억해요. 화성에서 가장 중요한 이름이에요.", "en": "Remember that name. The most important name on Mars." } }
+      ]
+    },
+    {
+      "id": "p39",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        { "text": { "ko": "네 번째 날이었다. 헬라스 센트럴이 익숙해지기 시작했다. 길을 외웠다. 얼굴들을 외웠다. 마스크 때문에 얼굴을 외우기 어려웠다. 그래서 사람들은 다른 것을 외웠다. 걸음걸이. 목소리. 움직이는 방식. 화성에서 사람을 아는 것은 그런 것이었다.", "en": "Day four. Hellas Central was becoming familiar. Memorized routes. Memorized faces. Masks made faces hard to memorize. So people memorized other things. Gait. Voice. The way they moved. Knowing people on Mars was like that." } }
+      ]
+    },
+    {
+      "id": "p40",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hellas_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "창밖으로 붉은 점이 보이기 시작했다.\n처음에는 별처럼 보였다. 가까워지면서 — 행성이 됐다.\n핏빛이었다. 아름다웠다. 두려웠다. 이제 그 행성 안에 있었다. 안에서 보면 달랐다. 그것이 화성의 두 번째 얼굴이었다.", "en": "A red dot appeared beyond the window.\nAt first it looked like a star. As it grew closer — it became a planet.\nBlood-red. Beautiful. Frightening. Now inside that planet. Seen from inside it was different. That was Mars's second face." } }
+      ]
+    },
+    {
+      "id": "p_ending",
+      "type": "ending",
+      "background": "hellas_central_exterior",
+      "bgm": "mcc_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "화성이 당신을 기다리고 있었다.\n이 행성에서 당신은 무엇이 될 것인가.\nChen Weiss가 보고서를 읽고 있을 것이었다. 차를 들고. 마시지 않고.", "en": "Mars was waiting for you.\nWhat would you become on this planet.\nChen Weiss would be reading the report. Holding her tea. Not drinking." } }
       ],
       "next_chapter_preview": { "questId": "mcc_campaign_ch1", "teaser": { "ko": "다음 — 산소 쟁탈", "en": "Next — Oxygen Rush" } }
     }

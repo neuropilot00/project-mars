@@ -2,73 +2,378 @@
   "questId": "cv_prologue",
   "campaignId": "cv_route",
   "chapterNumber": 0,
-  "title": { "ko": "프롤로그: 생존자", "en": "Prologue: The Survivor" },
-  "location": { "id": "outer_colony_ruins", "displayNameKo": "외곽 식민지 폐허" },
-  "environment": "wasteland_night",
-  "estimatedPlayTimeMinutes": 8,
-  "characters": ["player", "butcher", "cinder"],
+  "title": { "ko": "프롤로그: 소문", "en": "Prologue: The Rumor" },
+  "location": { "id": "hellas_outer_plains", "displayNameKo": "헬라스 외곽 평원" },
+  "environment": "wasteland_day",
+  "estimatedPlayTimeMinutes": 12,
+  "characters": ["player"],
   "scenes": [
     {
-      "id": "p01",
+      "id": "s01",
       "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
+      "background": "hellas_mining_village",
+      "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "외곽 식민지에는 법이 없었다.\nMCC도 FSP도 닿지 않는 곳.\n거기서 살아남은 사람들은 — 규칙을 스스로 만들었다.", "en": "The outer colonies had no law.\nBeyond the reach of MCC and FSP both.\nThose who survived there — made their own rules." } }
+        { "text": { "ko": "헬라스 센트럴. 화성 남반구 최대 거점. 인구 사천 명. 그중 절반은 광부였다. 나머지 절반은 그 광부들에게 기대어 사는 사람들이었다. 법이 있었다. MCC가 만든 것이었다. 그것이 법이었다.", "en": "Hellas Central. Largest settlement in the southern hemisphere. Population four thousand. Half were miners. The rest lived off those miners. There was law. MCC had made it. That was the law." } }
       ]
     },
     {
-      "id": "p02",
+      "id": "s02",
       "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
+      "background": "hellas_mining_village",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "크림슨 워로드 — CV.\n30년 전 폐광 노동자들이 세운 세력.\n처음에는 자기방어였다. 그다음엔 생존이었다.\n이제는 — 공포였다.", "en": "Crimson Warlords — CV.\nA force built thirty years ago by abandoned mine workers.\nAt first it was self-defense. Then survival.\nNow — it was fear." } }
+        { "text": { "ko": "소문이 있었다. 남쪽에 뭔가 있다는 것. 이름이 있었다. CV. 크림슨 워로드. 말하는 사람마다 달랐다. 어떤 사람은 약탈자라고 했다. 어떤 사람은 살아남은 사람들이라고 했다. 어떤 사람은 아무 말도 하지 않았다.", "en": "There was a rumor. Something south. It had a name. CV. Crimson Warlords. Everyone who mentioned it said something different. Some called them raiders. Some called them survivors. Some said nothing at all." } }
       ]
     },
     {
-      "id": "p03",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "fade_medium",
+      "id": "s03",
+      "type": "narration",
+      "background": "hellas_mining_village",
+      "bgm": "cv_ambient",
+      "transition": "cut",
       "lines": [
-        { "speaker": "butcher", "emotion": "stoic", "effect": "character_enter:butcher:slide_left", "text": { "ko": "살아있네. 의외야.", "en": "You're alive. Surprising." } },
+        { "text": { "ko": "당신은 이틀째 이 술집에 있었다. 돈이 떨어질 때까지 여기 있을 생각이었다. 돈이 없으면 다음을 생각하면 됐다. 그것이 지금까지 살아온 방식이었다.", "en": "You had been in this bar for two days. You planned to stay until the money ran out. When the money was gone you'd think about what came next. That was how you had lived until now." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "hellas_mining_village",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "bartender", "emotion": "flat", "text": { "ko": "남쪽으로 간다는 사람들이 있었어. 이번 달에만 셋.", "en": "People have been going south. Three this month alone." } },
+        { "speaker": "bartender", "emotion": "flat", "text": { "ko": "돌아온 사람은 없어.", "en": "None came back." } },
+        { "speaker": "bartender", "emotion": "neutral", "text": { "ko": "죽은 건지 거기 있는 건지 몰라. 차이가 있긴 한 건지도 모르겠어.", "en": "Don't know if they're dead or if they stayed. Don't know if there's a difference." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "hellas_mining_village",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "그 말이 걸렸다. 죽은 건지 거기 있는 건지. 차이가 없을 수도 있다는 것. 그러나 차이가 있다면 — 거기 있는 것이 더 나쁜 것인지 아니면 더 나은 것인지 알 수 없었다.", "en": "That stuck. Dead or staying. Maybe no difference. But if there was a difference — couldn't tell if staying was worse or better." } }
+      ]
+    },
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "hellas_mining_village",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "술집 구석에 남자가 있었다. 손에 상처가 있었다. 광부의 손이 아니었다. 다른 상처였다. 그 남자가 먼저 눈이 마주쳤다. 외면하지 않았다. 그것이 이상했다. 이 술집에서 눈을 피하지 않는 사람은 없었다.", "en": "There was a man in the corner. Scars on his hands. Not a miner's hands. Different scars. His eyes met yours first. He didn't look away. That was strange. No one in this bar held your gaze." } }
+      ]
+    },
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "hellas_mining_village",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "stranger", "emotion": "neutral", "text": { "ko": "남쪽 얘기 들었지.", "en": "You heard about the south." } },
         { "speaker": "player", "emotion": "neutral", "text": { "ko": "...", "en": "..." } },
-        { "speaker": "butcher", "emotion": "hollow", "text": { "ko": "말 안 해도 돼. 여기 오는 사람들은 다 비슷해. 잃을 게 없는 사람들.", "en": "You don't need to talk. People who come here are all alike. People with nothing left to lose." } }
+        { "speaker": "stranger", "emotion": "flat", "text": { "ko": "찾아가는 게 아니야. 발견되는 거야. 알아두는 게 좋을 거야.", "en": "You don't go find it. It finds you. Good to know that." } }
       ]
     },
     {
-      "id": "p04",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "cut",
-      "lines": [
-        { "speaker": "cinder", "emotion": "neutral", "effect": "character_enter:cinder:slide_right", "text": { "ko": "쓸 만해 보이는데. 손이 거칠어.", "en": "Looks useful. Rough hands." } },
-        { "speaker": "butcher", "emotion": "cold", "text": { "ko": "CV에는 규칙이 없어. 그게 규칙이야. 살아남으면 네 것이고 — 못 살아남으면 네 것이 없어.", "en": "CV has no rules. That's the rule. If you survive, it's yours — if you don't, nothing is." } }
-      ]
-    },
-    {
-      "id": "p05",
+      "id": "s08",
       "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
+      "background": "hellas_mining_village",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "분화구 벽에 불꽃이 피어 있었다.\n사람들이 그 주변에 모여 있었다.\n각자의 상처를 가진 사람들.\n그들은 당신을 봤다. 아무 말도 하지 않았다.", "en": "Flames burned against the crater wall.\nPeople gathered around them.\nPeople with their own wounds.\nThey looked at you. Said nothing." } }
+        { "text": { "ko": "그 남자는 더 말하지 않았다. 술을 마셨다. 잔이 비었을 때 자리에서 일어났다. 나가면서 뒤를 보지 않았다. 발걸음이 조용했다. 이 도시의 사람이 아닌 걸음이었다.", "en": "The man said nothing more. Drank his drink. When the glass was empty he stood. Left without looking back. His steps were quiet. Not the walk of someone from this city." } }
       ]
     },
     {
-      "id": "p06",
-      "type": "ending",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
+      "id": "s09",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "불꽃이 따뜻했다.\n이것이 당신의 선택이었다.\n법도 규칙도 없는 곳에서 — 살아남는 것.", "en": "The flames were warm.\nThis was your choice.\nTo survive — in a place with no law and no rules." } }
+        { "text": { "ko": "다음 날 아침. 당신은 남쪽으로 걷고 있었다. 이유를 몰랐다. 이유가 있는 것처럼 걸을 뿐이었다. 화성의 남쪽은 더 차가웠다. 지면이 더 붉었다. 공기가 더 얇았다.", "en": "Next morning. You were walking south. Didn't know why. Just walking as if there was a reason. The south of Mars was colder. The ground was redder. The air thinner." } }
+      ]
+    },
+    {
+      "id": "s10",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "지도가 없었다. 방향만 있었다. 남쪽. 소문만 있었다. 에레부스. 이름만 있었다. 분화구. 그것이 전부였다. 이것이 여기까지 오는 방법이었다.", "en": "No map. Only direction. South. Only rumor. Erebus. Only a name. Crater. That was all. That was how you got here." } }
+      ]
+    },
+    {
+      "id": "s11",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "헬라스 센트럴이 시야에서 사라졌다. 평원만 남았다. 광활한 것이었다. 사람이 없는 것이었다. 화성에서 사람이 없는 곳은 위험했다. 도움이 없었다. 그러나 해가 될 것도 없었다. 그것이 위험과 자유의 차이였다.", "en": "Hellas Central disappeared from view. Only plains remained. Vast. Empty of people. On Mars empty places were dangerous. No help. But nothing to harm you either. That was the difference between danger and freedom." } }
+      ]
+    },
+    {
+      "id": "s12",
+      "type": "narration",
+      "background": "hellas_outer_plains",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "세 시간을 걸었다. 배가 고프지 않았다. 추웠다. 화성의 낮은 영하 삼십 도였다. 밤이 되면 영하 백 도에 가까워졌다. 그것을 알고 있었다. 그러나 멈추지 않았다.", "en": "Three hours walking. Not hungry. Cold. Day on Mars was minus thirty degrees. Night approached minus one hundred. You knew that. Didn't stop." } }
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "narration",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "해가 기울었다. 화성의 노을은 달랐다. 파랬다. 지구의 노을은 붉었다. 화성의 노을은 파랬다. 그것을 아는 사람은 그것을 처음 봤을 때 이상하다고 했다. 이제 당신은 그것이 자연스러웠다. 그것이 변한 것인지 화성에 적응한 것인지 알 수 없었다.", "en": "The sun tilted. The Martian sunset was different. Blue. Earth sunsets were red. Martian sunsets were blue. Those who knew that said it felt strange the first time they saw it. Now it felt natural to you. Couldn't tell if you had changed or adapted to Mars." } }
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "narration",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "뒤에서 소리가 났다. 발소리였다. 하나가 아니었다. 멈췄다. 돌아보지 않았다. 도망칠 곳이 없었다. 싸울 이유도 없었다. 그냥 기다렸다. 그것이 이 상황에서 할 수 있는 것의 전부였다.", "en": "Sound from behind. Footsteps. More than one. Stopped. Didn't turn around. Nowhere to run. No reason to fight. Just waited. That was all there was to do in this situation." } }
+      ]
+    },
+    {
+      "id": "s15",
+      "type": "dialogue",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cv_scout_1", "emotion": "flat", "text": { "ko": "혼자야?", "en": "Alone?" } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "그래.", "en": "Yes." } },
+        { "speaker": "cv_scout_1", "emotion": "flat", "text": { "ko": "어디서 왔어.", "en": "Where from." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "헬라스 센트럴.", "en": "Hellas Central." } },
+        { "speaker": "cv_scout_2", "emotion": "neutral", "text": { "ko": "무기 있어?", "en": "Armed?" } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "칼 하나.", "en": "A knife." } }
+      ]
+    },
+    {
+      "id": "s16",
+      "type": "narration",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "두 사람이었다. 무장했다. 얼굴을 가리고 있었다. 눈만 보였다. 그 눈으로 당신을 오래 봤다. 위에서 아래로. 아래에서 위로. 무엇을 보는 것인지 알 수 없었다. 위험한지. 쓸모 있는지. 사라져야 하는지.", "en": "Two of them. Armed. Faces covered. Only eyes visible. Those eyes studied you for a long time. Top to bottom. Bottom to top. Couldn't tell what they were looking for. Whether you were dangerous. Useful. Or should disappear." } }
+      ]
+    },
+    {
+      "id": "s17",
+      "type": "dialogue",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cv_scout_1", "emotion": "flat", "text": { "ko": "왜 남쪽으로 와.", "en": "Why south." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "소문이 있었어.", "en": "There was a rumor." } },
+        { "speaker": "cv_scout_1", "emotion": "flat", "text": { "ko": "어떤 소문.", "en": "What rumor." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "찾아가는 게 아니라 발견된다는 소문.", "en": "That you don't go find it. It finds you." } }
+      ]
+    },
+    {
+      "id": "s18",
+      "type": "narration",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "두 사람이 서로를 봤다. 아무 말도 하지 않았다. 그러나 무언가 결정됐다. 그것이 눈으로 보였다. 눈만 보이는 얼굴에서. 눈이 말하는 것이었다.", "en": "The two looked at each other. Said nothing. But something was decided. You could see it. In faces where only eyes were visible. Eyes that spoke." } }
+      ]
+    },
+    {
+      "id": "s19",
+      "type": "dialogue",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cv_scout_1", "emotion": "flat", "text": { "ko": "눈가리개 해.", "en": "Blindfold." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "왜.", "en": "Why." } },
+        { "speaker": "cv_scout_1", "emotion": "flat", "text": { "ko": "거기 가려면 그래야 해. 싫으면 가지 마.", "en": "That's how you get there. Don't like it, don't come." } }
+      ]
+    },
+    {
+      "id": "s20",
+      "type": "narration",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "눈가리개를 했다. 빛이 사라졌다. 소리만 남았다. 바람. 발소리. 두 사람의 걸음과 자신의 걸음. 방향을 알 수 없었다. 어디로 가는지 알 수 없었다. 그러나 걸었다. 그것이 지금 할 수 있는 것이었다.", "en": "The blindfold went on. Light disappeared. Only sounds remained. Wind. Footsteps. The two and your own. No way to tell direction. No way to know where. But you walked. That was what could be done now." } }
+      ]
+    },
+    {
+      "id": "s21",
+      "type": "narration",
+      "background": "hellas_outer_plains_sunset",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "얼마나 걸었는지 몰랐다. 지형이 바뀌는 것이 발에서 느껴졌다. 평원에서 경사로. 내리막. 깊어지는 느낌이었다. 분화구로 내려가는 것이었다. 그것을 알 수 있었다.", "en": "Didn't know how long. Felt the terrain change through the feet. From flat to slope. Downward. A sense of deepening. Descending into a crater. You could tell." } }
+      ]
+    },
+    {
+      "id": "s22",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "공기가 달라졌다. 더 차가웠다. 그러나 바람이 없었다. 분화구 안이었다. 벽이 바람을 막았다. 소리가 달라졌다. 반향이 있었다. 깊은 곳이었다. 불빛이 눈가리개를 통해서도 느껴졌다.", "en": "The air changed. Colder. But no wind. Inside the crater. Walls blocked the wind. Sound changed. Echo. Deep place. Firelight felt through the blindfold." } }
+      ]
+    },
+    {
+      "id": "s23",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "멈췄다. 발소리가 멈췄다. 눈가리개가 벗겨졌다. 눈이 적응하는 데 시간이 걸렸다. 불빛이었다. 큰 불이었다. 분화구 바닥에 피워진 것. 사람들이 있었다. 여럿이었다. 모두 보고 있었다.", "en": "Stopped. Footsteps stopped. Blindfold removed. Eyes took time to adjust. Firelight. A large fire. Burning at the crater floor. People. Many of them. All watching." } }
+      ]
+    },
+    {
+      "id": "s24",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "아무 말도 하지 않았다. 그것이 이상했다. 사람이 들어왔을 때 아무 말도 없는 곳. 그러나 위험하지 않았다. 아직. 그것을 알 수 있었다.", "en": "No one spoke. That was strange. A place where someone arriving brought no words. But not dangerous. Not yet. You could tell." } }
+      ]
+    },
+    {
+      "id": "s25",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "불 앞에 남자가 앉아 있었다. 크고 무거운 몸이었다. 의수가 있었다. 왼팔이었다. 광산용 구식 의수. 그가 불에서 눈을 들었다. 당신을 봤다. 오래 봤다.", "en": "A man sat before the fire. Large and heavy. A prosthetic. Left arm. Old mining-grade. He lifted his eyes from the fire. Looked at you. For a long time." } }
+      ]
+    },
+    {
+      "id": "s26",
+      "type": "dialogue",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "살아있네.", "en": "Still alive." } },
+        { "speaker": "butcher_vasquez", "emotion": "stoic", "text": { "ko": "소문을 들었어. 이 정도면 충분해.", "en": "You heard the rumor. That's enough." } }
+      ]
+    },
+    {
+      "id": "s27",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "그것이 전부였다. 환영도 없었다. 경고도 없었다. 그냥 불이 탔다. 사람들이 자기 일을 했다. 당신은 불 앞에 섰다. 따뜻하지 않았다. 불이 있는데 따뜻하지 않았다. 영하 백 도였다.", "en": "That was all. No welcome. No warning. The fire just burned. People went about their work. You stood before the fire. Not warm. Fire burning but not warm. Minus one hundred degrees." } }
+      ]
+    },
+    {
+      "id": "s28",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "이것이 CV였다. 불이 있었다. 타고 있었다. 그러나 따뜻하지 않았다. 그것이 이곳이었다. 그것을 이해하는 데 시간이 걸리지 않았다. 이미 알고 있었다. 어쩌면 그래서 여기까지 온 것이었다.", "en": "This was CV. Fire was here. Burning. But not warm. That was this place. Didn't take long to understand. Already knew it. Maybe that was why you'd come this far." } }
+      ]
+    },
+    {
+      "id": "s29",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Butcher Vasquez가 다시 불을 봤다. 대화가 끝난 것이었다. 혹은 시작도 되지 않은 것이었다. 다른 사람이 나타났다. 여자였다. 팔에 공구 벨트가 있었다. 눈이 날카로웠다.", "en": "Butcher Vasquez looked back at the fire. The conversation was over. Or it had never begun. Someone else appeared. A woman. Tool belt on her arm. Sharp eyes." } }
+      ]
+    },
+    {
+      "id": "s30",
+      "type": "dialogue",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder_grace", "emotion": "neutral", "text": { "ko": "손이 거칠어.", "en": "Rough hands." } },
+        { "speaker": "cinder_grace", "emotion": "neutral", "text": { "ko": "뭘 해온 사람이야.", "en": "What have you been doing." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "살아온 사람.", "en": "Surviving." } },
+        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "여기서도 그럴 수 있으면 돼.", "en": "Do that here and you'll be fine." } }
+      ]
+    },
+    {
+      "id": "s31",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Cinder Grace는 돌아갔다. 공구를 만졌다. 벨트의 것을. 습관이었다. 당신은 불 앞에 남았다. 불이 탔다. 따뜻하지 않았다. 그러나 탔다.", "en": "Cinder Grace turned away. Touched her tools. The ones on the belt. A habit. You stayed before the fire. It burned. Not warm. But burning." } }
+      ]
+    },
+    {
+      "id": "s32",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "주위를 봤다. 사람들. 각자의 상처를 가진 사람들. 이름을 모르는 사람들. 그러나 같은 곳에 있는 사람들. 불 주변에 있는 사람들. 따뜻하지 않은 불 주변에.", "en": "Looked around. People. Each with their own wounds. People whose names you didn't know. But people in the same place. People around a fire. Around a fire that wasn't warm." } }
+      ]
+    },
+    {
+      "id": "s33",
+      "type": "narration",
+      "background": "mars_sunset",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "밤이 오고 있었다. 분화구 위 하늘이 어두워졌다. 별이 나왔다. 화성의 별. 지구에서 보는 것과 같은 별이지만 다른 별이었다. 이곳에서 보는 별이었다. 그것이 달랐다.", "en": "Night was coming. The sky above the crater darkened. Stars came out. Martian stars. Same stars as seen from Earth but different stars. Stars seen from here. That made them different." } }
+      ]
+    },
+    {
+      "id": "s34",
+      "type": "narration",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "누군가 담요를 건넸다. 말이 없었다. 이름도 몰랐다. 그냥 건넸다. 받았다. 그것이 여기서의 첫 번째 교환이었다. 말 없이 이루어지는 것. 그것이 CV였다.", "en": "Someone handed over a blanket. No words. Didn't know their name. Just handed it over. You took it. That was the first exchange here. Something done without words. That was CV." } }
+      ]
+    },
+    {
+      "id": "s35",
+      "type": "ending",
+      "background": "erebus_crater_exterior",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "불이 탔다. 따뜻하지 않았다. 그러나 30년 동안 꺼지지 않은 불이었다. 당신이 있었다. 첫 번째 밤이었다. 이것이 선택이었는지 발견이었는지 알 수 없었다. 아마 그 둘의 차이가 없는 곳이 여기였다.", "en": "Fire burned. Not warm. But a fire that had not gone out in thirty years. You were here. The first night. Couldn't tell if this was a choice or a discovery. Maybe this was a place where those two things were the same." } }
       ],
       "next_chapter_preview": { "questId": "cv_campaign_ch1", "teaser": { "ko": "다음 — 세례", "en": "Next — Baptism" } }
     }

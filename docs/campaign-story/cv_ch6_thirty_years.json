@@ -11,7 +11,7 @@
     "displayNameKo": "에레보스 옥좌의 방"
   },
   "environment": "cv_throne_hall",
-  "estimatedPlayTimeMinutes": 15,
+  "estimatedPlayTimeMinutes": 25,
   "characters": [
     "player",
     "butcher",
@@ -22,7 +22,7 @@
       "id": "s01",
       "type": "narration",
       "background": "erebus_crater_exterior",
-      "bgm": "cv_ambient_deep",
+      "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
         {
@@ -37,7 +37,7 @@
       "id": "s02",
       "type": "narration",
       "background": "erebus_throne_hall",
-      "bgm": "cv_ambient_deep",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
         {
@@ -52,7 +52,7 @@
       "id": "s03",
       "type": "dialogue",
       "background": "erebus_throne_hall",
-      "bgm": "cv_ambient_deep",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
         {
@@ -86,7 +86,7 @@
       "id": "s04",
       "type": "narration",
       "background": "erebus_base_interior",
-      "bgm": "cv_ambient_deep",
+      "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
         {
@@ -108,24 +108,24 @@
           "speaker": "butcher",
           "emotion": "hollow",
           "text": {
-            "ko": "CV를 만든 건 복수 때문이야. 처음엔 그랬어. 이제는 모르겠어. 복수가 뭔지. 30년 동안 MCC를 때렸어. 그래도 사진 안 사람들이 돌아오지 않았어.",
-            "en": "I made CV for revenge. That's how it started. Now I don't know. What revenge is. Thirty years beating against MCC. The people in the photo still didn't come back."
-          }
-        },
-        {
-          "speaker": "butcher",
-          "emotion": "serious",
-          "text": {
-            "ko": "당신한테 물어볼 게 있어. 이게 시험이야. 틀린 답은 없어. 대답 안 해도 돼.",
-            "en": "I have something to ask you. This is a test. There's no wrong answer. You don't have to answer."
+            "ko": "Zone 12. 내가 거기 있었어. 사고 전날 밤. 누군가 나를 불렀어. 기지 밖으로. 이유를 말하지 않았어. 나는 갔어.",
+            "en": "Zone 12. I was there. The night before the accident. Someone called me. Outside the base. Didn't say why. I went."
           }
         },
         {
           "speaker": "butcher",
           "emotion": "heavy",
           "text": {
-            "ko": "30년이 지났어. CV가 여전히 필요해?",
-            "en": "Thirty years have passed. Is CV still necessary?"
+            "ko": "다음 날 아침 돌아왔을 때 갱도가 없었어. 사람들도 없었어. 흙만 있었어.",
+            "en": "When I came back the next morning there was no tunnel. No people. Just dirt."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "30년 동안 한 가지를 생각했어. 왜 나를 불렀는가.",
+            "en": "For thirty years I've thought about one thing. Why was I called."
           }
         }
       ]
@@ -133,7 +133,110 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "erebus_crater_panorama",
+      "background": "mine_shaft",
+      "bgm": "tension_low",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "회상. 갱도. 30년 전. 어두웠다. 화성 지하 200미터. 광석 먼지. 좁은 통로. 여러 명이 일하고 있었다. 소리가 들렸다. 금속 소리. 지반 소리. 그것이 갱도가 살아있다는 소리였다. 광부들은 그 소리를 알았다.",
+            "en": "Flashback. The tunnel. Thirty years ago. Dark. Two hundred meters underground on Mars. Ore dust. Narrow passage. Several people working. Sounds were heard. Metal sounds. Ground sounds. That was the sound of a living tunnel. Miners knew that sound."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s07",
+      "type": "narration",
+      "background": "mine_shaft",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "파업 3일째였다. MCC가 물을 끊었다. 산소 배급을 줄였다. 광부들은 버텼다. 17살 Butcher는 버텼다. 이름들이 있었다. 각자의 이름이 있었다. 갱도 벽에 분필로 썼다. 누가 여기 있었는지 기록하는 것이었다.",
+            "en": "Third day of the strike. MCC cut the water. Reduced oxygen rations. The miners held. Seventeen-year-old Butcher held. There were names. Each person's name. Written in chalk on the tunnel wall. Recording who had been there."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s08",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "text": {
+            "ko": "이름들. 사진 뒤에 이름들이 있어. 본 적 있어?",
+            "en": "The names. On the back of the photo there are names. Have you seen them."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "처음에는 여든세 명이었어. 파업 끝에는 덜했어. 갱도가 무너진 다음에는 나 혼자였어.",
+            "en": "At first there were eighty-three. By the end of the strike fewer. After the tunnel collapsed there was just me."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "이름들이 사진 뒤에 있어. 그게 전부야. 이름들이 뭘 만들었는지. CV가 그거야.",
+            "en": "The names are on the back of the photo. That's all. What names built. That's CV."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s09",
+      "type": "narration",
+      "background": "mine_interior",
+      "bgm": "tension_medium",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "회상. 사고 다음 날 아침. 갱도 입구. MCC 관리자들이 있었다. 서류가 있었다. 사망 처리. 빠른 서류였다. 공식 도장이 있었다. 관리자가 17살에게 도장을 보여줬다. 당신은 살아있으니 여기 서명하라고 했다. 17살은 서명하지 않았다.",
+            "en": "Flashback. The morning after the accident. Tunnel entrance. MCC managers were there. Documents. Death processing. Quick paperwork. Official stamp. A manager showed the stamp to the seventeen-year-old. You're alive so sign here, he said. The seventeen-year-old didn't sign."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "quiet",
+          "text": {
+            "ko": "서명 안 했어. 대신 팔을 잃었어. 기계가 잡았어. 사고였다고 했어. 의수는 내가 만들었어. 재료는 갱도 잔해에서 가져왔어.",
+            "en": "Didn't sign. Instead I lost the arm. A machine grabbed it. Called it an accident. Made the prosthetic myself. Materials taken from tunnel wreckage."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "17살에. 그 이후로 이 팔이 있었어. 30년.",
+            "en": "At seventeen. This arm has been with me since. Thirty years."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s11",
+      "type": "narration",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -146,44 +249,517 @@
       ]
     },
     {
+      "id": "s12",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "저는 6년 동안 MCC 사람이었어요. 엔지니어. Zone 12 보고서 썼어요. 지지대 결함. MCC가 수정하라 했어요.",
+            "en": "I was MCC for six years. Engineer. I wrote the Zone 12 report. Support beam defects. MCC told me to revise it."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "수정 안 했어요. 해고됐어요. 일주일 후에 갱도가 무너졌어요. 11명이었어요.",
+            "en": "Didn't revise it. Got fired. A week later the tunnel collapsed. Eleven people."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "hollow",
+          "text": {
+            "ko": "그래서 CV에 왔어요.",
+            "en": "That's why I came to CV."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s13",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "두 사람이었다. 두 개의 같은 이야기. 다른 시간에. 다른 갱도에. 같은 회사. 같은 방식. 30년의 거리가 있었다. 그러나 이야기는 같았다. 그것이 화성의 어떤 것이었다. 반복되는 것들이 있었다.",
+            "en": "Two people. Two identical stories. Different times. Different tunnels. Same company. Same method. Thirty years between them. But the stories were the same. That was something about Mars. There were things that repeated."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "30년이 지났어. CV가 여전히 필요해?",
+            "en": "Thirty years have passed. Is CV still necessary."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "사진 뒤에 이름들이 있어. 30년 전 이름들이야. 새 이름들이 계속 생겨. Zone 12. 거기도 이름들이 있어.",
+            "en": "The names are on the back of the photo. Names from thirty years ago. New names keep appearing. Zone 12. There are names there too."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "text": {
+            "ko": "이름들이 없어지는 날. 그날 CV도 없어지면 돼. 아직은 아니야.",
+            "en": "The day names stop appearing. That day CV can disappear too. Not yet."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s15",
+      "type": "narration",
+      "background": "erebus_crater_panorama",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "에레보스 분화구. 밤이었다. 기지 불빛이 분화구 벽에 반사됐다. 저 아래 화성이 있었다. MCC의 화성. FSP의 화성. 그리고 이름들의 화성. 세 번째가 가장 넓었다. 지도에는 없었다. 그러나 가장 넓었다.",
+            "en": "Erebus crater. Night. The base lights reflected off the crater walls. Down there was Mars. MCC's Mars. FSP's Mars. And the Mars of names. The third was widest. Not on any map. But widest."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s16",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "살아남은 자에게 의무가 있어. 그 의무가 뭔지 알아.",
+            "en": "The one who survives has an obligation. You know what that obligation is."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "이름들을 기억하는 것. 그것밖에 없어. MCC가 삭제해도. FSP가 무시해도. 기억하는 것. 그것이 의무야.",
+            "en": "Remembering the names. That's all there is. Even if MCC deletes them. Even if FSP ignores them. Remembering. That's the obligation."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s17",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Cinder가 공구를 만졌다. 소리가 났다. 작은 것이었다. 그러나 들렸다. 이 방에서는 작은 소리도 들렸다. 방이 그렇게 만들어져 있었다. Butcher가 만든 방이었다. 광산 의자가 있는 방. 모든 소리가 들리는 방.",
+            "en": "Cinder touched her tools. Sound came. Small. But heard. In this room even small sounds were heard. The room was built that way. A room Butcher had built. A room with a mining chair. A room where every sound was heard."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s18",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "당신한테 물어볼 게 있어. 이게 시험이야. 틀린 답은 없어. 대답 안 해도 돼.",
+            "en": "I have something to ask you. This is a test. There's no wrong answer. You don't have to answer."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "text": {
+            "ko": "당신이 여기 온 이유. 처음 이유. 그게 뭐야.",
+            "en": "The reason you came here. The first reason. What is it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s19",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "질문이었다. 첫 번째 질문. 처음 이유. 그것을 기억하는 것. 그것이 시험이었다. Butcher의 시험. 기억. 이름들을 기억하는 것. 처음 이유를 기억하는 것. 그것들이 같은 것이었다.",
+            "en": "A question. The first question. The first reason. Remembering it. That was the test. Butcher's test. Memory. Remembering names. Remembering the first reason. Those were the same thing."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s20",
+      "type": "dialogue",
+      "background": "mine_shaft",
+      "bgm": "cv_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "quiet",
+          "text": {
+            "ko": "17살에 나는 이름들을 갱도 벽에 썼어. 분필로. 그 이름들이 없어졌어. 갱도가 무너지면서. 그래서 다시 썼어. 사진 뒤에. 종이에.",
+            "en": "At seventeen I wrote names on the tunnel wall. In chalk. Those names disappeared. When the tunnel collapsed. So I wrote them again. On the back of the photo. On paper."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "기억은 그렇게 하는 거야. 없어지면 다시 쓰는 거야. 그것이 내가 여기 온 이유야.",
+            "en": "That's how you remember. When they disappear you write them again. That's the reason I am here."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s21",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "Butcher가 사진을 뒤집었다. 이름들이 있었다. 작은 글씨. 많은 이름들. 30년 된 것들. 이름들 사이에 빈 곳이 있었다. 아직 쓸 공간이 있었다. 그것이 의도적인 것인지 아닌지는 알 수 없었다. 그러나 빈 곳이 있었다.",
+            "en": "Butcher flipped the photo. Names were there. Small writing. Many names. Thirty years old. Between the names there were gaps. Still space to write. Whether that was intentional was unknown. But there were gaps."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s22",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Zone 12 이름들이 여기 있어요.",
+            "en": "The Zone 12 names are here."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "Butcher가 써줬어요. 내가 CV에 왔을 때. 이름들을 말했어요. 들었어요. 그리고 사진 뒤에 썼어요.",
+            "en": "Butcher wrote them. When I came to CV. I said the names. He listened. Then wrote them on the back of the photo."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "hollow",
+          "text": {
+            "ko": "그것이 CV에 들어오는 방식이에요. 이름 하나를 가져오는 거예요.",
+            "en": "That's how you join CV. You bring a name."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s23",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "그것이었다. CV의 방식이었다. 이름을 가져오는 것. 기억하는 것. 분실된 것들을 다시 쓰는 것. 화성에서 기억은 힘이었다. 기억하는 사람이 있는 한 이름은 없어지지 않았다.",
+            "en": "That was it. CV's way. Bringing a name. Remembering. Rewriting lost things. On Mars memory was power. As long as there were people who remembered names didn't disappear."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s24",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "오늘 밤 당신을 부른 이유가 있어. 이름 하나를 물을 거야.",
+            "en": "There's a reason I called you tonight. I'm going to ask for a name."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "당신이 잃은 이름. 당신이 기억하는 이름. 그게 없으면 CV 안이 어디인지 모르는 거야.",
+            "en": "A name you've lost. A name you remember. Without that I don't know where you are inside CV."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s25",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "이름. 그것을 물었다. 처음 이유. 기억하는 것. 화성에서 이름이 없어지는 것은 쉬웠다. MCC가 삭제하면 없어졌다. 기록에서 없어졌다. 기억에서 없어지는 것은 더 천천히였다. 기억하는 사람이 있는 한.",
+            "en": "A name. That was the question. The first reason. Remembering. On Mars names disappeared easily. MCC deleted and they were gone. Gone from the records. Disappearing from memory was slower. As long as there were people who remembered."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s26",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "text": {
+            "ko": "나는 30년 동안 이름들을 기억했어. 매일 밤. 자기 전에. 이름들을 말했어. 소리 내서. 아무도 없는 곳에서.",
+            "en": "I remembered names for thirty years. Every night. Before sleeping. I said the names. Out loud. Where no one was."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "그게 내가 아직 여기 있는 이유야. 이름들이 있는 한 나도 있어야 해. 단순한 거야.",
+            "en": "That's why I'm still here. As long as there are names I must be here too. It's simple."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s27",
+      "type": "narration",
+      "background": "erebus_crater_panorama",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "분화구가 조용했다. 에레보스. 화산이었다. 오래전에 죽은 화산. 그러나 안에 기지가 있었다. 불이 탔다. 사람이 있었다. 죽은 화산이 살아있는 것들을 품고 있었다. 그것이 Butcher가 여기를 선택한 이유일 수 있었다.",
+            "en": "The crater was quiet. Erebus. A volcano. A long-dead volcano. But inside was a base. Fires burned. People were there. A dead volcano holding living things. That may be why Butcher chose this place."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s28",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "MCC가 Zone 12 기록을 다시 건드리려 해. 이번에는 완전히 없애려고. 디지털 기록. 종이 기록. 전부.",
+            "en": "MCC is going to touch the Zone 12 records again. This time to erase them completely. Digital records. Paper records. All of them."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "Cinder가 알아냈어. 시간이 없어. 오늘 밤이야.",
+            "en": "Cinder found out. No time. Tonight."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "text": {
+            "ko": "당신이 가야 해. 기록을 가져와야 해. 이름들이 거기 있어.",
+            "en": "You have to go. You have to get the records. The names are there."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s29",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "임무였다. 이름들을 지키는 임무. MCC 기록 보관소. Zone 12 기록. Cinder가 경로를 알았다. 이전에 거기서 일했었다. 그 기억이 있었다. 기억이 경로가 됐다. 그것도 기억의 방식이었다.",
+            "en": "A mission. A mission to protect names. MCC archives. Zone 12 records. Cinder knew the route. She had worked there before. That memory remained. Memory became the path. That was also memory's way."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s30",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "내가 안내할게요. 경로 알아요. 아카이브 지하 2층이에요. MCC 보안은 세 개 구역이에요.",
+            "en": "I'll guide you. I know the route. Archive sublevel two. MCC security is three zones."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "6년 전에 자주 갔던 곳이에요. 기억해요. 기억은 꽤 오래 가요.",
+            "en": "A place I went often six years ago. I remember. Memory lasts quite a while."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s31",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Butcher가 사진을 주머니에 넣었다. 천천히. 오른손으로. 의수가 아닌 손으로. 그것이 특별한 것이었다. 이 사람은 항상 의수로 사진을 집었다. 오늘은 달랐다. 이유는 알 수 없었다. 그러나 달랐다.",
+            "en": "Butcher put the photo in his pocket. Slowly. With the right hand. Not the prosthetic. That was unusual. This person always picked up the photo with the prosthetic. Today was different. The reason was unknown. But it was different."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s32",
+      "type": "dialogue",
+      "background": "erebus_throne_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "당신한테 물어볼 게 하나 더 있어. 이게 진짜 시험이야.",
+            "en": "One more thing to ask you. This is the real test."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "살아남은 자에게 의무가 있어. 그 의무가 뭔지 알아. 당신은 어떻게 생각해.",
+            "en": "The one who survives has an obligation. You know what that obligation is. What do you think."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s33",
+      "type": "narration",
+      "background": "erebus_throne_hall",
+      "bgm": "choice_tension",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "이것이 시험이었다. Butcher의 30년이 여기 있었다. 이름들이 사진 뒤에 있었다. Cinder가 들었다. 이 방의 공기가 낡았다. 광산 의자 냄새가 났다. 흙 냄새. 오래된 것. 그것들이 이 질문과 함께 있었다.",
+            "en": "This was the test. Butcher's thirty years were here. The names were on the back of the photo. Cinder was listening. The air in this room was old. The smell of a mining chair. The smell of earth. Old things. They were all here with this question."
+          }
+        }
+      ]
+    },
+    {
       "id": "s_choice",
       "type": "choice",
       "background": "erebus_throne_hall",
       "bgm": "choice_tension",
       "prompt": {
-        "ko": "Butcher의 시험. 30년. 사진. 의수. CV. 대답합니까.",
-        "en": "Butcher's test. Thirty years. The photo. The prosthetic. CV. Do you answer."
+        "ko": "Butcher의 시험. 살아남은 자의 의무. 무엇이라고 답합니까.",
+        "en": "Butcher's test. The obligation of the one who survives. What do you answer."
       },
       "choices": [
         {
           "id": "cv_ch6_still_needed",
           "text": {
-            "ko": "필요하다. 화성이 달라질 때까지.",
-            "en": "Still necessary. Until Mars changes."
+            "ko": "기억하는 것. 이름들이 없어지지 않게.",
+            "en": "To remember. So names don't disappear."
           },
           "tone": "conviction",
           "preview_hint": {
-            "ko": "→ Butcher가 사진을 주머니에 넣는다. 결심",
-            "en": "→ Butcher puts the photo back. Resolution."
+            "ko": "→ Butcher가 사진을 다시 꺼낸다. 이름들을 본다",
+            "en": "→ Butcher takes out the photo again. Looks at the names."
           }
         },
         {
           "id": "cv_ch6_transform",
           "text": {
-            "ko": "CV는 달라져야 한다. 복수가 아닌 것으로.",
-            "en": "CV must change. Into something other than revenge."
+            "ko": "살아있는 것으로 대답하는 것. 계속 싸우는 것.",
+            "en": "To answer with being alive. To keep fighting."
           },
-          "tone": "evolution",
+          "tone": "action",
           "preview_hint": {
-            "ko": "→ Butcher가 처음으로 의수를 본다. 오래",
-            "en": "→ Butcher looks at the prosthetic for the first time. Long."
+            "ko": "→ Butcher가 처음으로 의수를 만진다. 오래",
+            "en": "→ Butcher touches the prosthetic for the first time. Long."
           }
         },
         {
           "id": "cv_ch6_question_back",
           "text": {
-            "ko": "반문한다. 당신은 어떻게 생각합니까.",
-            "en": "Ask back. What do you think."
+            "ko": "반문한다. 당신은 30년 동안 어떻게 답했습니까.",
+            "en": "Ask back. How did you answer for thirty years."
           },
           "tone": "respectful",
           "preview_hint": {
@@ -206,14 +782,54 @@
       ]
     },
     {
+      "id": "s34",
+      "type": "narration",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Cinder가 공구를 들었다. 그것이 출발 신호였다. 이 사람이 공구를 들면 일이 시작됐다. 30년 전에 이 사람이 없었다. 그러나 오늘 밤 있었다. 그것이 차이였다. 오늘 밤은 혼자가 아니었다.",
+            "en": "Cinder picked up her tools. That was the signal to move. When this person picked up tools work began. Thirty years ago this person wasn't here. But tonight she was. That was the difference. Tonight was not alone."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s35",
+      "type": "dialogue",
+      "background": "erebus_base_interior",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "가져와. 이름들을.",
+            "en": "Bring them back. The names."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "quiet",
+          "text": {
+            "ko": "30년 전에 나는 혼자였어. 오늘은 아니야.",
+            "en": "Thirty years ago I was alone. Today is not."
+          }
+        }
+      ]
+    },
+    {
       "id": "s_battle",
       "type": "battle_transition",
       "background": "erebus_crater_exterior",
       "bgm": "battle_theme_cv",
       "transition": "fade_slow",
       "title": {
-        "ko": "에레보스의 전투",
-        "en": "Battle of Erebus"
+        "ko": "이름들을 위한 전투",
+        "en": "Battle for the Names"
       },
       "subtitle": {
         "ko": "에레보스 분화구 — 30년의 무게",
@@ -243,10 +859,18 @@
         },
         {
           "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "이름들도 살아남았어. 그것이 중요한 거야. 우리가 살아남은 것보다.",
+            "en": "The names survived too. That's what matters. More than us surviving."
+          }
+        },
+        {
+          "speaker": "butcher",
           "emotion": "heavy",
           "text": {
-            "ko": "사진 안 사람들한테 오늘을 말할 수 있겠어. 에레보스를 지켰다고. 30년 전에 못 지킨 걸.",
-            "en": "I can tell the people in the photo about today. That we protected Erebus. What couldn't be protected thirty years ago."
+            "ko": "사진 뒤에 빈 공간 있어. 거기 당신 이름 쓸 자리야. 시험 통과했어.",
+            "en": "There's empty space on the back of the photo. That's where your name goes. Test passed."
           }
         }
       ]
@@ -259,8 +883,8 @@
       "lines": [
         {
           "text": {
-            "ko": "전투가 끝났다. 에레보스가 흔들렸다. Butcher가 의자에 앉아 있었다. 광산 의자. 낡은 것. 사진을 들고 있었다. 사진 안 사람들에게 오늘을 말하기 어려울 것이었다. 30년 전과 달라진 것이 없는 것처럼.",
-            "en": "The battle ended. Erebus shook. Butcher sat in the chair. Mining chair. Old thing. He was holding the photo. It would be hard to tell the people in the photo about today. As if nothing had changed from thirty years ago."
+            "ko": "전투가 끝났다. 기록을 가져오지 못했다. Butcher가 의자에 앉아 있었다. 광산 의자. 낡은 것. 사진을 들고 있었다. 뒤집지 않았다. 이름들은 안 보이는 쪽에 있었다. 그러나 있었다. 없어지지 않았다. 기억이 아직 있었다.",
+            "en": "The battle ended. Couldn't get the records. Butcher sat in the chair. Mining chair. Old thing. He was holding the photo. Not flipped. The names were on the side you couldn't see. But they were there. Not gone. Memory was still there."
           }
         }
       ]
@@ -269,7 +893,7 @@
       "id": "s_ending",
       "type": "ending",
       "background": "erebus_crater_exterior",
-      "bgm": "cv_ambient_deep",
+      "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
         {
