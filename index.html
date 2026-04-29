@@ -45266,5 +45266,361 @@ window.closeTacticalLab = closeTacticalLab;
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     인게임 버그 리포터 — Bug Report Button + Modal
+     사용법: 화면 우하단 🐛 버튼 클릭 → 설명 작성 + 스크린샷 → 제출
+     Claude가 bug-reports/ 폴더를 읽어 버그를 수정하고 커밋합니다.
+════════════════════════════════════════════════════════════════ -->
+<style>
+/* ── Bug Reporter 플로팅 버튼 ── */
+#bugReportBtn{
+  position:fixed;bottom:20px;right:20px;z-index:99000;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(20,26,34,.9);border:1px solid rgba(239,83,80,.45);
+  color:#ef5350;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px rgba(0,0,0,.5);
+  transition:all .2s;user-select:none;
+}
+#bugReportBtn:hover{background:rgba(239,83,80,.18);transform:scale(1.08);}
+#bugReportBtn:active{transform:scale(.96);}
+/* ── Bug Reporter 모달 ── */
+#bugReportModal{
+  position:fixed;inset:0;z-index:99100;
+  background:rgba(0,0,0,.78);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+#bugReportModal.open{display:flex;}
+#bugReportCard{
+  width:min(540px,96vw);max-height:92vh;overflow:auto;
+  background:linear-gradient(180deg,rgba(20,28,34,.99),rgba(6,8,12,.99));
+  border:1px solid rgba(239,83,80,.35);border-radius:10px;
+  box-shadow:0 24px 80px rgba(0,0,0,.7);
+  font-family:var(--fn,'monospace');
+  display:flex;flex-direction:column;gap:0;
+}
+#bugReportCard h3{
+  margin:0;padding:16px 20px 12px;
+  font-size:13px;letter-spacing:2px;font-weight:900;
+  color:#ef5350;border-bottom:1px solid rgba(239,83,80,.2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+#bugReportCard h3 span{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1.5px;font-weight:400;}
+.br-close{
+  background:none;border:none;color:rgba(255,255,255,.4);
+  font-size:18px;cursor:pointer;padding:0 2px;line-height:1;
+}
+.br-close:hover{color:#ef5350;}
+.br-body{padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+.br-label{font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,.5);margin-bottom:4px;}
+#bugDescArea{
+  width:100%;min-height:90px;resize:vertical;
+  background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;color:#e0e0e0;font-family:var(--fn,'monospace');
+  font-size:12px;padding:10px;box-sizing:border-box;
+  outline:none;transition:border-color .15s;
+}
+#bugDescArea:focus{border-color:rgba(239,83,80,.5);}
+/* 스크린샷 영역 */
+#bugScreenshotZone{
+  border:1.5px dashed rgba(255,255,255,.18);border-radius:6px;
+  min-height:80px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;background:rgba(0,0,0,.25);
+  transition:border-color .15s;padding:10px;
+}
+#bugScreenshotZone:hover{border-color:rgba(239,83,80,.4);}
+#bugScreenshotZone.has-img{padding:0;overflow:hidden;}
+#bugScreenshotZone p{
+  margin:0;font-size:10px;color:rgba(255,255,255,.35);
+  letter-spacing:1px;text-align:center;pointer-events:none;
+}
+#bugScreenshotZone em{font-size:9px;color:rgba(255,255,255,.22);font-style:normal;}
+#bugSsPreview{
+  width:100%;max-height:220px;object-fit:contain;
+  border-radius:6px;display:none;
+}
+#bugSsInput{display:none;}
+#bugCapturingMsg{font-size:10px;color:#ffa726;letter-spacing:1px;display:none;}
+/* 버튼 행 */
+.br-actions{
+  padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);
+  display:flex;gap:10px;align-items:center;
+}
+#bugSubmitBtn{
+  flex:1;padding:10px 0;
+  background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.5);
+  color:#ef5350;border-radius:6px;cursor:pointer;
+  font-family:var(--fn,'monospace');font-size:11px;font-weight:800;
+  letter-spacing:1.5px;transition:all .2s;
+}
+#bugSubmitBtn:hover:not(:disabled){background:rgba(239,83,80,.28);}
+#bugSubmitBtn:disabled{opacity:.45;cursor:default;}
+#bugClearSsBtn{
+  padding:10px 14px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.45);border-radius:6px;cursor:pointer;
+  font-size:11px;transition:all .15s;display:none;
+}
+#bugClearSsBtn:hover{background:rgba(255,255,255,.1);}
+#bugStatusMsg{font-size:10px;letter-spacing:1px;color:#66bb6a;display:none;margin-left:4px;}
+</style>
+
+<!-- 플로팅 버튼 -->
+<button id="bugReportBtn" title="버그 신고 (Bug Report)" onclick="openBugReporter()">🐛</button>
+
+<!-- 버그 리포터 모달 -->
+<div id="bugReportModal" onclick="if(event.target===this)closeBugReporter()">
+  <div id="bugReportCard">
+    <h3>
+      🐛 BUG REPORT
+      <span id="bugReportIdHint">Claude가 읽고 수정합니다</span>
+      <button class="br-close" onclick="closeBugReporter()">✕</button>
+    </h3>
+    <div class="br-body">
+      <div>
+        <div class="br-label">버그 설명 *</div>
+        <textarea id="bugDescArea" placeholder="어떤 버그인지 설명해주세요.&#10;예) 전투 후 GP가 지급되지 않음, 화면이 흰색으로 됨 등"></textarea>
+      </div>
+      <div>
+        <div class="br-label">스크린샷 (선택)</div>
+        <div id="bugScreenshotZone" onclick="bugSsZoneClick()" ondragover="event.preventDefault()" ondrop="bugSsDrop(event)">
+          <img id="bugSsPreview" alt="screenshot preview"/>
+          <p id="bugSsPlaceholder">📸 클릭하거나 스크린샷을 붙여넣기 (Cmd+V / Ctrl+V)</p>
+          <em id="bugSsPlaceholder2">또는 파일을 여기에 드래그하세요</em>
+          <span id="bugCapturingMsg">화면 캡처 중...</span>
+        </div>
+        <input id="bugSsInput" type="file" accept="image/*" onchange="bugSsFileChosen(event)"/>
+      </div>
+    </div>
+    <div class="br-actions">
+      <button id="bugSubmitBtn" onclick="submitBugReport()">제출하기</button>
+      <button id="bugClearSsBtn" onclick="bugClearSs()">스크린샷 지우기</button>
+      <span id="bugStatusMsg">✓ 전송 완료</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   인게임 버그 리포터
+   - openBugReporter()   : 모달 열기 + 자동 캡처 시도
+   - closeBugReporter()  : 모달 닫기
+   - submitBugReport()   : POST /api/bug-report
+   ══════════════════════════════════════════════════════════════ */
+(function() {
+
+  var _ssDataUrl = null; // 현재 스크린샷 base64
+
+  // ── 열기/닫기 ─────────────────────────────────────────────
+  window.openBugReporter = function() {
+    document.getElementById('bugReportModal').classList.add('open');
+    document.getElementById('bugDescArea').focus();
+    // 자동 캡처 시도 (html2canvas가 있을 때만)
+    _autoCapture();
+  };
+
+  window.closeBugReporter = function() {
+    document.getElementById('bugReportModal').classList.remove('open');
+    _reset();
+  };
+
+  // ── 자동 캡처 (html2canvas CDN 로드 시도) ────────────────
+  function _autoCapture() {
+    if (typeof html2canvas !== 'undefined') {
+      _doCapture();
+      return;
+    }
+    // CDN 로드 (1회)
+    if (document.getElementById('_h2cScript')) return;
+    var s = document.createElement('script');
+    s.id  = 'h2cScript';
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = _doCapture;
+    document.head.appendChild(s);
+  }
+
+  function _doCapture() {
+    var capMsg = document.getElementById('bugCapturingMsg');
+    var ph1    = document.getElementById('bugSsPlaceholder');
+    var ph2    = document.getElementById('bugSsPlaceholder2');
+    if (capMsg) capMsg.style.display = 'block';
+    if (ph1)   ph1.style.display = 'none';
+    if (ph2)   ph2.style.display = 'none';
+
+    // 모달 자신을 숨기고 캡처
+    var modal = document.getElementById('bugReportModal');
+    modal.classList.remove('open');
+
+    setTimeout(function() {
+      html2canvas(document.body, {
+        scale:          1,
+        useCORS:        true,
+        allowTaint:     true,
+        logging:        false,
+        backgroundColor: '#000',
+      }).then(function(canvas) {
+        _ssDataUrl = canvas.toDataURL('image/png');
+        _showSsPreview(_ssDataUrl);
+        modal.classList.add('open');
+        if (capMsg) capMsg.style.display = 'none';
+      }).catch(function() {
+        modal.classList.add('open');
+        if (capMsg) capMsg.style.display = 'none';
+        if (ph1)   ph1.style.display = '';
+        if (ph2)   ph2.style.display = '';
+      });
+    }, 80); // 모달 fade-out 대기
+  }
+
+  // ── 스크린샷 영역 클릭 → 파일 선택 ─────────────────────
+  window.bugSsZoneClick = function() {
+    document.getElementById('bugSsInput').click();
+  };
+
+  window.bugSsFileChosen = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) { _showSsPreview(ev.target.result); };
+    reader.readAsDataURL(file);
+  };
+
+  window.bugSsDrop = function(e) {
+    e.preventDefault();
+    var file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) { _showSsPreview(ev.target.result); };
+    reader.readAsDataURL(file);
+  };
+
+  window.bugClearSs = function() {
+    _ssDataUrl = null;
+    var prev = document.getElementById('bugSsPreview');
+    var zone = document.getElementById('bugScreenshotZone');
+    var ph1  = document.getElementById('bugSsPlaceholder');
+    var ph2  = document.getElementById('bugSsPlaceholder2');
+    var btn  = document.getElementById('bugClearSsBtn');
+    prev.style.display = 'none';
+    prev.src = '';
+    zone.classList.remove('has-img');
+    if (ph1) ph1.style.display = '';
+    if (ph2) ph2.style.display = '';
+    btn.style.display = 'none';
+  };
+
+  function _showSsPreview(dataUrl) {
+    _ssDataUrl = dataUrl;
+    var prev = document.getElementById('bugSsPreview');
+    var zone = document.getElementById('bugScreenshotZone');
+    var ph1  = document.getElementById('bugSsPlaceholder');
+    var ph2  = document.getElementById('bugSsPlaceholder2');
+    var btn  = document.getElementById('bugClearSsBtn');
+    prev.src = dataUrl;
+    prev.style.display = 'block';
+    zone.classList.add('has-img');
+    if (ph1) ph1.style.display = 'none';
+    if (ph2) ph2.style.display = 'none';
+    btn.style.display = '';
+  }
+
+  // ── 클립보드 붙여넣기 지원 ────────────────────────────────
+  document.addEventListener('paste', function(e) {
+    if (!document.getElementById('bugReportModal').classList.contains('open')) return;
+    var items = (e.clipboardData || window.clipboardData).items;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        var blob   = items[i].getAsFile();
+        var reader = new FileReader();
+        reader.onload = function(ev) { _showSsPreview(ev.target.result); };
+        reader.readAsDataURL(blob);
+        break;
+      }
+    }
+  });
+
+  // ── 제출 ─────────────────────────────────────────────────
+  window.submitBugReport = function() {
+    var desc = (document.getElementById('bugDescArea').value || '').trim();
+    if (!desc) {
+      document.getElementById('bugDescArea').focus();
+      document.getElementById('bugDescArea').style.borderColor = 'rgba(239,83,80,.8)';
+      setTimeout(function() {
+        document.getElementById('bugDescArea').style.borderColor = '';
+      }, 1200);
+      return;
+    }
+
+    var btn    = document.getElementById('bugSubmitBtn');
+    var status = document.getElementById('bugStatusMsg');
+    btn.disabled  = true;
+    btn.textContent = '전송 중...';
+    status.style.display = 'none';
+
+    // 게임 컨텍스트 수집
+    var ctx = {
+      url:         location.href,
+      hash:        location.hash,
+      timestamp:   new Date().toISOString(),
+      openModals:  Array.from(document.querySelectorAll('[id$="Modal"],[id$="modal"],[id*="Modal"]'))
+                     .filter(function(el) {
+                       var s = getComputedStyle(el);
+                       return s.display !== 'none' && el.id !== 'bugReportModal';
+                     })
+                     .map(function(el) { return el.id; }),
+    };
+
+    var payload = {
+      description: desc,
+      screenshot:  _ssDataUrl || null,
+      context:     ctx,
+      userAgent:   navigator.userAgent,
+    };
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/bug-report', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) return;
+      btn.disabled   = false;
+      btn.textContent = '제출하기';
+      if (xhr.status === 200) {
+        try {
+          var r = JSON.parse(xhr.responseText);
+          document.getElementById('bugReportIdHint').textContent = '저장됨: ' + r.id;
+        } catch(e) {}
+        status.style.display = '';
+        status.style.color   = '#66bb6a';
+        status.textContent   = '✓ 전송 완료';
+        // 2초 후 자동 닫기
+        setTimeout(function() {
+          closeBugReporter();
+          status.style.display = 'none';
+        }, 1800);
+      } else {
+        status.style.display = '';
+        status.style.color   = '#ef5350';
+        status.textContent   = '✗ 전송 실패 (콘솔 확인)';
+        console.error('[BugReport] 서버 응답:', xhr.status, xhr.responseText);
+      }
+    };
+    xhr.send(JSON.stringify(payload));
+  };
+
+  // ── 리셋 ─────────────────────────────────────────────────
+  function _reset() {
+    document.getElementById('bugDescArea').value   = '';
+    document.getElementById('bugReportIdHint').textContent = 'Claude가 읽고 수정합니다';
+    document.getElementById('bugStatusMsg').style.display  = 'none';
+    bugClearSs();
+    var btn = document.getElementById('bugSubmitBtn');
+    btn.disabled    = false;
+    btn.textContent = '제출하기';
+  }
+
+})();
+</script>
+
 </body>
 </html>

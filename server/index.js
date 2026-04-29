@@ -358,6 +358,7 @@ app.use('/api', tprestigeRoutes);
 app.use('/api', announceRoutes);
 app.use('/api', tombstoneRoutes);
 app.use('/api', milestoneRoutes);
+app.use('/api', require('./routes/bugReport')); // 인게임 버그 리포터
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/admin/api', adminRoutes);
