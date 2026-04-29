@@ -319,6 +319,17 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
   box-shadow:0 6px 20px rgba(76,216,154,.20),0 0 0 1px rgba(0,0,0,.4)}
 .ops-explore:hover{box-shadow:0 10px 26px rgba(76,216,154,.36),0 0 0 1px rgba(140,240,200,.45)}
 .ops-explore .ops-card-label{color:#c8f4dc;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 8px rgba(40,200,140,.7)}
+.campaign-quick{position:fixed;left:50%;bottom:184px;transform:translateX(-50%);z-index:61;
+  display:flex;align-items:center;gap:8px;height:38px;padding:0 18px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(79,195,247,.2),rgba(255,209,102,.12)),rgba(8,10,14,.82);
+  border:1px solid rgba(79,195,247,.38);color:#eaf8ff;font-family:var(--fn);font-size:11px;
+  font-weight:900;letter-spacing:1.2px;cursor:pointer;backdrop-filter:blur(10px);
+  box-shadow:0 8px 22px rgba(0,0,0,.48),0 0 18px rgba(79,195,247,.18);
+  transition:transform .14s ease,filter .14s ease,border-color .14s ease}
+.campaign-quick:hover{transform:translateX(-50%) translateY(-1px);filter:brightness(1.12);border-color:rgba(255,209,102,.45)}
+.campaign-quick:active{transform:translateX(-50%) translateY(0);filter:brightness(.9)}
+.campaign-quick-icon{font-size:14px;color:var(--gold);text-shadow:0 0 10px rgba(255,209,102,.55)}
+.campaign-quick-sub{font-size:8px;color:rgba(234,248,255,.58);letter-spacing:.8px;font-weight:700}
 /* ── OPS quick-launch SPLIT card ──
    Single container with two diagonally-clipped halves: left = INVADE,
    right = EXPLORE. The diagonal slash goes from (60% top) to (40% bottom),
@@ -363,6 +374,11 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 /* Mobile: vertical (portrait) split card on the right, just above the zoom column.
    Top half = INVADE, bottom half = EXPLORE, slash from upper-right to lower-left. */
 @media (max-width:768px){
+  .campaign-quick{right:8px;left:auto;bottom:calc(env(safe-area-inset-bottom) + 250px);transform:none;
+    width:116px;height:42px;justify-content:center;padding:0 8px;font-size:10px}
+  .campaign-quick:hover{transform:translateY(-1px)}
+  .campaign-quick:active{transform:none}
+  .campaign-quick-sub{display:none}
   .ops-quick-split{right:8px;left:auto;top:auto;transform:none;
     bottom:calc(env(safe-area-inset-bottom) + 300px);
     width:60px;height:120px}
@@ -1148,6 +1164,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .quest-claimed-item .qci-reward{margin-left:auto;color:var(--pp);font-weight:bold}
 .campaign-card{background:linear-gradient(135deg,rgba(79,195,247,.14),rgba(0,0,0,.28));border:1px solid rgba(79,195,247,.28);border-radius:8px;padding:12px;margin-bottom:10px}
 .campaign-card.done{border-color:rgba(76,216,154,.35);background:rgba(76,216,154,.06)}
+.campaign-card.compact{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:9px;padding:8px 10px;margin-bottom:5px;background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.08)}
+.campaign-card.compact .campaign-top{margin:0;min-width:0}
+.campaign-card.compact .campaign-icon{width:24px;height:24px;border-radius:6px;opacity:.72}
+.campaign-card.compact .campaign-title{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.campaign-card.compact .campaign-meta{font-size:7px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.campaign-card.compact .campaign-desc,.campaign-card.compact .campaign-stats{display:none}
+.campaign-card.compact .campaign-btn{width:92px;padding:7px 8px;font-size:8px}
+.campaign-locked-toggle{width:100%;margin:2px 0 7px;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx2);font-family:var(--fn);font-size:9px;font-weight:800;letter-spacing:1px;cursor:pointer}
+.campaign-locked-toggle:hover{background:rgba(255,255,255,.07)}
 .campaign-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .campaign-icon{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:rgba(79,195,247,.16);border:1px solid rgba(79,195,247,.25)}
 .campaign-title{font-size:12px;color:var(--tx);font-weight:900;letter-spacing:.8px}
@@ -5413,6 +5438,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     <span class="ops-card-label" data-i18n="ops_explore_label">EXPLORE</span>
   </button>
 </div>
+
+<button class="campaign-quick" id="campaignQuickBtn" onclick="openCampaignHub()" title="Open campaign">
+  <span class="campaign-quick-icon">⚡</span>
+  <span>CAMPAIGN</span>
+  <span class="campaign-quick-sub">STORY</span>
+</button>
 
 <div class="mode-badge" id="modeBadge" data-i18n="mode_claim">🔴 CLICK MARS TO SELECT TERRITORY</div>
 
@@ -24460,6 +24491,7 @@ function focusSector(sectorId){
 // ═══ CAMPAIGN SYSTEM (MVP server simulation) ═══
 var _campaignData=null;
 var _campaignActive=null;
+var _campaignShowLocked=false;
 function loadCampaignStatus(){
   var el=document.getElementById('campaignList');
   var w=walletState.address;
@@ -24497,6 +24529,8 @@ function renderCampaignList(chapters){
   if(!el) return;
   if(!chapters.length){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">No campaign chapters available.</div>';return;}
   var html='';
+  var lockedHtml='';
+  var lockedCount=0;
   chapters.forEach(function(ch){
     var p=ch.progress||{};
     var locked=((_campaignData&&_campaignData.lockedChapters)||[]).indexOf(ch.questId)>=0;
@@ -24504,17 +24538,51 @@ function renderCampaignList(chapters){
     var active=p.status==='in_progress';
     var title=(ch.title&&ch.title.ko)||ch.questId;
     var btn=locked?'LOCKED':(done?'RESULTS':(active?'CONTINUE':'START'));
-    html+='<div class="campaign-card'+(done?' done':'')+'">';
-    html+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">MCC ROUTE · CH '+ch.chapterNumber+' · '+(ch.battleResolution||'SIM')+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
-    html+='<div class="campaign-desc">'+escapeHtmlSafe((ch.location&&ch.location.displayNameKo)||'Mars operation')+' · MVP 서버 시뮬레이션</div>';
+    var route=((ch.campaignId||'').replace('_route','')||ch.faction||'').toUpperCase();
+    var card='';
+    if(locked){
+      lockedCount++;
+      card+='<div class="campaign-card compact">';
+      card+='<div class="campaign-icon">⚡</div><div class="campaign-top"><div style="flex:1;min-width:0"><div class="campaign-meta">'+route+' · CH '+ch.chapterNumber+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+      card+='<button class="campaign-btn secondary" disabled style="opacity:.55;cursor:not-allowed">'+btn+'</button>';
+      card+='</div>';
+      lockedHtml+=card;
+      return;
+    }
+    card+='<div class="campaign-card'+(done?' done':'')+'">';
+    card+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">'+route+' ROUTE · CH '+ch.chapterNumber+' · '+(ch.battleResolution||'SIM')+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+    card+='<div class="campaign-desc">'+escapeHtmlSafe((ch.location&&ch.location.displayNameKo)||'Mars operation')+' · MVP 서버 시뮬레이션</div>';
     if(done||active){
       var m=p.metrics||{};
-      html+=campaignStatsHtml(m,p.status||'NEW');
+      card+=campaignStatsHtml(m,p.status||'NEW');
     }
-    html+='<button class="campaign-btn '+(locked?'secondary':'')+'" '+(locked?'disabled style="opacity:.55;cursor:not-allowed"':'onclick="openCampaignChapter(\''+ch.questId+'\')"')+'>'+btn+'</button>';
-    html+='</div>';
+    card+='<button class="campaign-btn" onclick="openCampaignChapter(\''+ch.questId+'\')">'+btn+'</button>';
+    card+='</div>';
+    html+=card;
   });
+  if(lockedCount){
+    html+='<button class="campaign-locked-toggle" onclick="toggleCampaignLockedList()">'+(_campaignShowLocked?'HIDE LOCKED':'SHOW LOCKED')+' · '+lockedCount+'</button>';
+    if(_campaignShowLocked) html+=lockedHtml;
+  }
   el.innerHTML=html;
+}
+
+function toggleCampaignLockedList(){
+  _campaignShowLocked=!_campaignShowLocked;
+  renderCampaignList((_campaignData&&_campaignData.chapters)||[]);
+}
+
+function openCampaignHub(){
+  openBaseModal();
+  setTimeout(function(){
+    var tab=document.getElementById('baseTabQuests');
+    switchBaseTab('quests',tab);
+    try{clearBaseTabDot('quests')}catch(_){}
+    loadCampaignStatus().then(function(){
+      var panel=document.getElementById('campaignPanel');
+      if(panel) panel.scrollIntoView({block:'start',behavior:'smooth'});
+    });
+  },0);
 }
 
 function _findCampaignChapter(questId){

@@ -1,6 +1,27 @@
-# OCCUPY MARS — Codebase Audit (v5.24 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.25 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.25 FSP Campaign Ch5~6 MVP + Campaign UI 압축 — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| FSP Ch5 Kepler Commons | ✅ | Liang Wei, Roth dead drop, Kepler 회담, 산소 보급 시한, Commons/중재/압박/전투/전면 공개 분기를 서버 시뮬레이션으로 추가. |
+| FSP Ch6 The Mole | ✅ | Kenji Tanaka 진범, Sarah/Diego red herring, 단서 수집/심문 지표, 처형/이중첩자/추방/오판 분기 추가. |
+| 조건부 선택 검증 | ✅ | Ch5 Roth 데이터 압박/전면 공개 선택은 증거 flag가 있을 때만 허용. Ch5/Ch6 hard block도 서버 시작 조건에 반영. |
+| Campaign UI | ✅ | 메인 지도 CAMPAIGN 퀵 버튼 추가. QUESTS 안 캠페인 목록은 진행 가능/진행 중 카드만 크게 보이고 locked chapter는 접힘 compact list로 축소. |
+| persistence | ✅ | `199_fsp_campaign_ch5_ch6.sql`에 신규 환경, 위치, NPC, dead drop, internal zones, clue/suspect pool, lore, branch, tag, item, chapter seed 추가. |
+| full engine/UI 잔여 | 🟡 | Ch5 3파벌 회담 전용 테이블 UI, Ch6 수동 단서 수집/심문 루프, NPC 표정/zone map/real-time combat는 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `199_fsp_campaign_ch5_ch6.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.24 FSP Campaign Ch4 Diplomacy MVP — 구현 완료
 

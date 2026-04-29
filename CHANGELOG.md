@@ -1,5 +1,22 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — FSP Campaign Ch5~6 MVP + Campaign UI 압축 (v5.25)
+
+- **FSP Ch5 "Kepler 공유지" 추가**: Liang Wei, Roth dead drop, Kepler 3파벌 회담, 산소 보급 시한, Commons/중재/압박/전투/외계 기원 공개 5분기 서버 시뮬레이션 추가.
+- **FSP Ch6 "두더지" 추가**: Kenji Tanaka 내부 스파이 색출, Sarah/Diego red herring, 단서 수집 지표, 처형/이중첩자/추방/오판 분기와 Ch7~Ch9 branch modifier 추가.
+- **조건부 선택 검증 보강**: Ch5 Roth 데이터 압박/전면 공개 선택은 Roth/Lenag Wei 관련 증거 flag가 있을 때만 서버에서 허용.
+- **캠페인 UI 압축**: QUESTS 탭의 잠긴 챕터 카드를 기본 접힘 compact list로 바꾸고, 메인 지도에 CAMPAIGN 퀵 진입 버튼을 추가.
+- **Ch5~6 seed migration 추가**: 신규 환경, 위치, NPC, dead drop, internal zones, clue pool, suspect pool, lore flags, branch modifiers, tags, item, chapter config를 `199_fsp_campaign_ch5_ch6.sql`에 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`와 audit 문서를 MCC Ch1~10 + FSP Ch1~6/v5.25 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
 ## 2026-04-29 — FSP Campaign Ch4 Diplomacy MVP 구현 (v5.24)
 
 - **FSP Ch4 "외교" 추가**: Sandstone Junction 비밀 회담, Cinder Grace 첫 등장, Amara 보호, MCC 정찰 회피/조건부 교전 MVP 시뮬레이션 추가.

@@ -15,6 +15,8 @@ const FSP_CH1_ID = 'fsp_campaign_ch1';
 const FSP_CH2_ID = 'fsp_campaign_ch2';
 const FSP_CH3_ID = 'fsp_campaign_ch3';
 const FSP_CH4_ID = 'fsp_campaign_ch4';
+const FSP_CH5_ID = 'fsp_campaign_ch5';
+const FSP_CH6_ID = 'fsp_campaign_ch6';
 const FACTIONS = ['mcc', 'fsp', 'cv', 'pilgrim_arms'];
 const REP_MIN = -100;
 const REP_MAX = 100;
@@ -642,6 +644,105 @@ const CHAPTERS = {
       { id: 'fsp_ch4_propose_intel_exchange', labelKo: 'MCC 정보 교환만.', effects: { reputationDelta: { cv: 5 }, flag: 'pact_intel_exchange_only', flag2: 'cinder_grace_alliance_weak', branchSet: { modifierId: 'bonus_mcc_intel', targetChapter: 'fsp_campaign_ch6' } } },
       { id: 'fsp_ch4_evidence_share', labelKo: '[조건부] Helion 산소 노예제 증거 공유.', effects: { reputationDelta: { cv: 25 }, flag: 'pact_evidence_shared_with_cv', flag2: 'cinder_grace_alliance_blood_oath', branchSet: { modifierId: 'cv_active_alliance', targetChapter: 'fsp_campaign_ch5' } } },
       { id: 'fsp_ch4_walk_away', labelKo: '협상 중단.', effects: { reputationDelta: { fsp: -5, cv: -15 }, flag: 'negotiation_walked_away', flag2: 'cinder_grace_alliance_failed', branchSet: { modifierId: 'cinder_warlord_hostile', targetChapter: 'fsp_campaign_ch5' } } },
+    ],
+  },
+  [FSP_CH5_ID]: {
+    questId: FSP_CH5_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 5,
+    faction: 'fsp',
+    title: { ko: 'Kepler 공유지', en: 'Kepler Commons' },
+    requiredLevel: 5,
+    prerequisiteChapter: FSP_CH4_ID,
+    requiredReputation: { fsp: 35 },
+    blockingTags: ['war_criminal'],
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 1800,
+    location: { id: 'kepler_crater', displayNameKo: 'Kepler 분화구 회담장', region: 'arabia_terra', altitudeKm: -3 },
+    environment: {
+      type: 'low_gravity_crater',
+      secondary: 'oxygen_supply_critical',
+      totalDurationSeconds: 1800,
+      phases: [
+        { phase: 0, startSec: 0, gravityMod: -0.3, oxygenReserveHours: 24 },
+        { phase: 1, startSec: 600, gravityMod: -0.3, oxygenReserveHours: 22 },
+        { phase: 2, startSec: 1200, gravityMod: -0.3, oxygenReserveHours: 18 },
+        { phase: 3, startSec: 1800, gravityMod: -0.3, oxygenReserveHours: 15 },
+      ],
+      weaponsUnaffected: ['missile', 'point_defense'],
+      weaponsAffected: { laser: -10, railgun: 15 },
+    },
+    briefing: {
+      npcId: 'liang_wei',
+      npcName: 'Amara Okafor / Liang Wei / Li Fang',
+      npcTitle: 'Kepler Commons 3파벌 회담',
+      lines: [
+        { id: 'fsp_ch5_amara_01', ko: 'MCC는 Li Fang이 와. CV는 Ch4에서 네가 만든 관계에 따라 달라져.' },
+        { id: 'fsp_ch5_amara_02', ko: '산소 보급선이 30분 후 도착해야 해. 회담은 그 안에 끝나야.' },
+        { id: 'fsp_ch5_liang_03', ko: '광산은 누구의 것도 아닙니다. 그 안에 있는 것이 문제일 뿐.' },
+        { id: 'fsp_ch5_liang_04', ko: 'Roth 박사에게서 사후 메시지가 왔습니다. 마지막으로 본 사람은 Li Fang.' },
+      ],
+      radio: [
+        { triggerSec: 600, ko: 'Lena: 보급선 12분 후 도착 예정.' },
+        { triggerSec: 1200, ko: 'Yuna: 회담장 산소 농도 18%. 인지 능력 저하 시작.' },
+        { triggerSec: 1500, ko: 'Amara: 5분 남았어. 결단할 시간이야.' },
+      ],
+    },
+    choices: [
+      { id: 'fsp_ch5_propose_commons', labelKo: 'Liang의 Commons 제안 지지.', effects: { reputationDelta: { fsp: 15, mcc: -5, cv: 5 }, flag: 'ch5_commons_proposed', flag2: 'liang_wei_legitimized', branchSet: { modifierId: 'commons_legitimacy_diplomatic', targetChapter: 'fsp_campaign_ch9' } } },
+      { id: 'fsp_ch5_propose_fsp_arbitration', labelKo: 'FSP 중립 중재자 제안.', effects: { reputationDelta: { fsp: 5, mcc: 10, cv: 10 }, flag: 'ch5_arbitration_proposed', flag2: 'fsp_neutral_arbiter_recognized', branchSet: { modifierId: 'fsp_neutral_arbiter', targetChapter: 'fsp_campaign_ch9' } } },
+      { id: 'fsp_ch5_propose_evidence_lever', labelKo: '[조건부] Roth 데이터로 MCC 압박.', effects: { reputationDelta: { mcc: -30, cv: 15 }, flag: 'ch5_evidence_lever_used', flag2: 'ancient_metal_origin_disclosed', branchSet: { modifierId: 'mcc_revenge_priority', targetChapter: 'fsp_campaign_ch9' } } },
+      { id: 'fsp_ch5_force_combat', labelKo: '회담 결렬 + 전투 우위 확보.', effects: { reputationDelta: { fsp: -10, mcc: -20 }, flag: 'ch5_combat_forced_by_fsp', flag2: 'kepler_militarily_held', branchSet: { modifierId: 'mcc_full_offensive', targetChapter: 'fsp_campaign_ch9' } } },
+      { id: 'fsp_ch5_propose_global_disclosure', labelKo: '[조건부] 외계 기원 즉시 공개.', effects: { reputationDelta: { fsp: 5, mcc: -50, cv: -20 }, flag: 'ch5_global_disclosure', flag2: 'alien_metal_publicly_known', branchSet: { modifierId: 'martian_world_state_changed', targetChapter: 'fsp_campaign_ch9' } } },
+    ],
+  },
+  [FSP_CH6_ID]: {
+    questId: FSP_CH6_ID,
+    campaignId: 'fsp_route',
+    chapterNumber: 6,
+    faction: 'fsp',
+    title: { ko: '두더지', en: 'The Mole' },
+    requiredLevel: 6,
+    prerequisiteChapter: FSP_CH5_ID,
+    requiredReputation: { fsp: 45 },
+    blockingTags: ['war_criminal'],
+    battleResolution: 'server_simulation',
+    estimatedPlayTimeSeconds: 1800,
+    location: { id: 'hellas_central_settlement', displayNameKo: 'Hellas Central 정착지', region: 'hellas_basin', altitudeKm: -7 },
+    environment: {
+      type: 'settlement_interior',
+      secondary: 'time_pressure_attack',
+      totalDurationSeconds: 1800,
+      phases: [
+        { phase: 0, startSec: 0, civilianPanic: 0 },
+        { phase: 1, startSec: 600, civilianPanic: 20 },
+        { phase: 2, startSec: 1200, civilianPanic: 40 },
+        { phase: 3, startSec: 1800, civilianPanic: 60 },
+      ],
+      noCombatZone: true,
+      attackWindow: { baseArrivalSec: 1800, arrivalJitter: 600 },
+    },
+    briefing: {
+      npcId: 'amara_okafor',
+      npcName: 'Amara Okafor / Liang Wei / Kenji Tanaka',
+      npcTitle: 'Hellas Central 내부 누출 조사',
+      lines: [
+        { id: 'fsp_ch6_amara_01', ko: 'Kepler 이후 MCC가 우리 다음 작전을 알아냈어. 누군가 내부에서 흘렸어.' },
+        { id: 'fsp_ch6_amara_03', ko: '용의자는 셋. Kenji Tanaka, Sarah Mendel, Diego Cole.' },
+        { id: 'fsp_ch6_kenji_04', ko: 'Kenji의 가족은 MCC 영토에 인질로 잡혀 있다.' },
+        { id: 'fsp_ch6_decision_02', ko: '처형, 이중첩자, 추방. 셋 중 하나. 영구입니다.' },
+      ],
+      radio: [
+        { triggerSec: 600, ko: 'Lena: 발전소 정전 로그 확인. 5분 정확히 비었어.' },
+        { triggerSec: 1200, ko: 'Liang: 통신 패턴이 Kenji 쪽으로 모입니다.' },
+        { triggerSec: 1500, ko: 'Amara: 결정할 시간이야. MCC 공격까지 얼마 안 남았어.' },
+      ],
+    },
+    choices: [
+      { id: 'fsp_ch6_execute_kenji', labelKo: '처형.', effects: { reputationDelta: { fsp: -8, mcc: -15 }, flag: 'ch6_kenji_executed', flag2: 'spy_executed_publicly', tagsAdded: ['coercive_executor'], branchSet: { modifierId: 'assembly_fearful_atmosphere', targetChapter: 'fsp_campaign_ch7' }, extraBranchSet: { modifierId: 'kenji_family_killed_in_retaliation', targetChapter: 'fsp_campaign_ch9' } } },
+      { id: 'fsp_ch6_use_as_handler', labelKo: '이중첩자 활용.', effects: { reputationDelta: { fsp: 5, mcc: -25 }, flag: 'ch6_kenji_handler', flag2: 'spy_double_agent_active', tagsAdded: ['the_handler'], branchSet: { modifierId: 'kenji_intelligence_pipeline', targetChapter: 'fsp_campaign_ch7' }, extraBranchSet: { modifierId: 'kenji_family_rescue_attempt', targetChapter: 'fsp_campaign_ch9' } } },
+      { id: 'fsp_ch6_exile_kenji', labelKo: '추방.', effects: { reputationDelta: { mcc: -10 }, flag: 'ch6_kenji_exiled', flag2: 'spy_exiled_mercifully', tagsAdded: ['the_merciful'], branchSet: { modifierId: 'assembly_humanitarian_signal', targetChapter: 'fsp_campaign_ch7' }, extraBranchSet: { modifierId: 'no_intel_advantage', targetChapter: 'fsp_campaign_ch9' } } },
+      { id: 'fsp_ch6_accuse_wrong', labelKo: '[조건부] 다른 인물 지목.', effects: { reputationDelta: { fsp: -25 }, flag: 'ch6_wrong_culprit_accused', flag2: 'innocent_punished', tagsAdded: ['paranoid_judge'], branchSet: { modifierId: 'assembly_loss_of_trust', targetChapter: 'fsp_campaign_ch7' }, extraBranchSet: { modifierId: 'real_spy_continues_leaks', targetChapter: 'fsp_campaign_ch9' } } },
     ],
   },
 };
@@ -1313,6 +1414,91 @@ function simulateFspCh4(progress) {
   };
 }
 
+function simulateFspCh5(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch5_propose_commons');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:fsp5`);
+  const commons = choiceId === 'fsp_ch5_propose_commons';
+  const arbitration = choiceId === 'fsp_ch5_propose_fsp_arbitration';
+  const evidence = choiceId === 'fsp_ch5_propose_evidence_lever';
+  const combat = choiceId === 'fsp_ch5_force_combat';
+  const disclosure = choiceId === 'fsp_ch5_propose_global_disclosure';
+  const elapsed = Math.round((commons ? 1420 : arbitration ? 1280 : evidence ? 1380 : combat ? 1660 : 1180) * (0.92 + roll * 0.16));
+  const mccAcceptance = Math.round(clampNumber((commons ? 52 : arbitration ? 68 : evidence ? 34 : combat ? 5 : 12) + (1 - roll) * 28, 0, 100));
+  const cvAttitude = evidence || disclosure ? 'volatile' : combat ? 'hostile' : arbitration ? 'cooperative' : 'neutral';
+  const combatEngaged = combat || (commons && mccAcceptance < 50) || (elapsed >= 1700 && roll < 0.35);
+  const amaraHp = combatEngaged ? Math.round(clampNumber(95 - roll * 36, 0, 100)) : 100;
+  const liangHp = combatEngaged ? Math.round(clampNumber(92 - roll * 42, 0, 100)) : 100;
+  const oxygenReserve = Math.round(clampNumber(100 - elapsed / 18, 0, 100));
+  const secondary = [];
+  if (elapsed < 1500) secondary.push('obj_summit_under_25min');
+  if (amaraHp >= 100 && liangHp >= 100) secondary.push('obj_zero_civilian_casualty');
+  if (commons || arbitration || disclosure) secondary.push('obj_legitimize_liang');
+  let failure = null;
+  if (amaraHp <= 0) failure = 'fail_amara_killed';
+  else if (liangHp <= 0) failure = 'fail_liang_killed';
+  else if (elapsed >= 1800) failure = 'fail_oxygen_evacuation';
+  else if (!combat && mccAcceptance <= 8) failure = 'fail_summit_collapsed';
+  return {
+    success: !failure,
+    failureReason: failure,
+    branchChoice: choiceId.replace('fsp_ch5_', ''),
+    metrics: {
+      summit_phase: failure ? 'collapsed' : 'resolution',
+      amara_hp_percent: amaraHp,
+      liang_wei_hp_percent: liangHp,
+      elapsed_sec: elapsed,
+      oxygen_reserve_percent: oxygenReserve,
+      mcc_acceptance_score: mccAcceptance,
+      cv_attitude_dynamic: cvAttitude,
+      combat_engaged: combatEngaged,
+      environmental_phase_reached: phaseForChapter(FSP_CH5_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
+function simulateFspCh6(progress) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch6_use_as_handler');
+  const roll = seededFloat(`${progress.wallet}:${progress.session_id}:${choiceId}:fsp6`);
+  const wrong = choiceId === 'fsp_ch6_accuse_wrong';
+  const handler = choiceId === 'fsp_ch6_use_as_handler';
+  const execute = choiceId === 'fsp_ch6_execute_kenji';
+  const clues = wrong ? Math.round(3 + roll * 3) : handler ? Math.round(6 + (1 - roll) * 3) : Math.round(5 + (1 - roll) * 4);
+  const required = 5;
+  const motiveRevealed = handler || clues >= 7 || roll > 0.45;
+  const elapsed = Math.round((handler ? 1460 : execute ? 1320 : wrong ? 1680 : 1500) * (0.92 + roll * 0.16));
+  const panic = Math.round(clampNumber(elapsed / 30, 0, 60));
+  const secondary = [];
+  if (clues >= 9) secondary.push('obj_collect_all_9_clues');
+  if (clues >= 7 && !wrong) secondary.push('obj_exonerate_innocents');
+  if (elapsed < 1500) secondary.push('obj_under_25min');
+  if (motiveRevealed) secondary.push('obj_truth_revealed');
+  let failure = null;
+  if (wrong) failure = 'fail_wrong_accusation';
+  else if (elapsed >= 1800) failure = 'fail_time_expired';
+  else if (clues < required) failure = 'fail_clues_insufficient';
+  return {
+    success: !failure,
+    failureReason: failure,
+    branchChoice: choiceId.replace('fsp_ch6_', ''),
+    metrics: {
+      clues_collected: clues,
+      clues_required: required,
+      kenji_score: wrong ? 42 : 92,
+      sarah_score: wrong ? 70 : 18,
+      diego_score: wrong ? 62 : 15,
+      interrogation_progress: failure ? 55 : 100,
+      civilian_panic_level: panic,
+      elapsed_sec: elapsed,
+      decision_phase: failure ? 'failed' : 'resolved',
+      kenji_motive_revealed: motiveRevealed,
+      mcc_attack_advance_warning: handler ? 'partial_misdirected' : execute ? 'full' : wrong ? 'none' : 'minimal',
+      environmental_phase_reached: phaseForChapter(FSP_CH6_ID, elapsed),
+      secondary_completed: secondary,
+    },
+  };
+}
+
 function simulateChapter(progress) {
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
   if (progress.quest_id === CH3_ID) return simulateCh3(progress);
@@ -1327,6 +1513,8 @@ function simulateChapter(progress) {
   if (progress.quest_id === FSP_CH2_ID) return simulateFspCh2(progress);
   if (progress.quest_id === FSP_CH3_ID) return simulateFspCh3(progress);
   if (progress.quest_id === FSP_CH4_ID) return simulateFspCh4(progress);
+  if (progress.quest_id === FSP_CH5_ID) return simulateFspCh5(progress);
+  if (progress.quest_id === FSP_CH6_ID) return simulateFspCh6(progress);
   return simulateCh1(progress);
 }
 
@@ -1799,6 +1987,102 @@ function calculateFspCh4Rewards(progress, sim) {
   return { GP: gp, XP: 800, reputationDelta: rep, items, tags, loreFlags, masteries, unlocks: ['fsp_campaign_ch5'], branchModifiers };
 }
 
+function calculateFspCh5Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch5_propose_commons');
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_amara_killed') return { GP: 0, XP: 200, reputationDelta: { fsp: -40 }, tags: ['diplomatic_disaster'], loreFlags: ['amara_killed_at_kepler'], unlocks: [FSP_CH6_ID], branchModifiers: [{ targetChapter: 'fsp_campaign_ch7', key: 'assembly_no_chair', value: { assembly_no_chair: true } }, { targetChapter: 'fsp_campaign_ch10', key: 'alt_ending_required', value: { no_chair_available: true } }] };
+    if (sim.failureReason === 'fail_liang_killed') return { GP: 0, XP: 200, reputationDelta: { fsp: -15 }, tags: ['failed_protector'], loreFlags: ['liang_wei_killed'], unlocks: [FSP_CH6_ID], branchModifiers: [{ targetChapter: 'fsp_campaign_ch7', key: 'policy_line_weakened', value: { liang_policy_line: 'weakened' } }] };
+    return { GP: 0, XP: 200, reputationDelta: { fsp: -10 }, tags: [], loreFlags: ['kepler_evacuated_unresolved', 'summit_total_collapse'], unlocks: [FSP_CH6_ID], branchModifiers: [{ targetChapter: 'fsp_campaign_ch9', key: 'kepler_disputed_renewed_combat', value: { kepler_status: 'disputed' } }] };
+  }
+  let gp = 7500;
+  let rep = { fsp: 30 };
+  const items = [{ type: 'resource', code: 'medical_kit', label: 'Medical Kit', quantity: 8 }];
+  const tags = [];
+  const loreFlags = [];
+  const branchModifiers = [];
+  const masteries = [];
+  if (secondary.includes('obj_summit_under_25min')) { gp += 4000; masteries.push('efficient_diplomacy'); }
+  if (secondary.includes('obj_zero_civilian_casualty')) { gp += 2500; tags.push('civilian_protector'); }
+  if (secondary.includes('obj_legitimize_liang')) loreFlags.push('liang_wei_political_career_started');
+  if (choiceId === 'fsp_ch5_propose_commons') {
+    gp += 5000; rep = mergeRep(rep, { mcc: -5, cv: 5 });
+    tags.push('commons_architect');
+    loreFlags.push('ch5_commons_proposed', 'liang_wei_legitimized', 'kepler_commons_treaty');
+    items.push({ type: 'ship_blueprint', code: 'scholar_corvette_blueprint', label: 'Scholar Corvette Blueprint' }, { type: 'rare_resource', code: 'ancient_metal', label: 'Ancient Metal', quantity: 200 });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'commons_legitimacy_diplomatic', value: { reputation_buffer: 15 } });
+  } else if (choiceId === 'fsp_ch5_propose_fsp_arbitration') {
+    gp += 3000; rep = mergeRep(rep, { fsp: 5, mcc: 10, cv: 10 });
+    loreFlags.push('ch5_arbitration_proposed', 'fsp_neutral_arbiter_recognized');
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'fsp_neutral_arbiter', value: { tripartite_meeting_easier: true } });
+  } else if (choiceId === 'fsp_ch5_propose_evidence_lever') {
+    gp += 8000; rep = mergeRep(rep, { mcc: -30, cv: 15 });
+    tags.push('the_lever');
+    loreFlags.push('ch5_evidence_lever_used', 'ancient_metal_origin_disclosed', 'mcc_publicly_humiliated', 'roth_legacy_keeper');
+    items.push({ type: 'rare_resource', code: 'ancient_metal', label: 'Ancient Metal', quantity: 350 });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'mcc_revenge_priority', value: { intensity: 1.5 } });
+  } else if (choiceId === 'fsp_ch5_propose_global_disclosure') {
+    gp += 2000; rep = mergeRep(rep, { fsp: 5, mcc: -50, cv: -20 });
+    tags.push('the_disclosurist');
+    loreFlags.push('ch5_global_disclosure', 'alien_metal_publicly_known');
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'martian_world_state_changed', value: { un_intervention_threat: true } });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch10', key: 'alt_ending_disclosure_path', value: { disclosure_path: true } });
+  } else {
+    gp += 4000; rep = mergeRep(rep, { fsp: -10, mcc: -20 });
+    tags.push('crater_baron');
+    loreFlags.push('ch5_combat_forced_by_fsp', 'kepler_militarily_held');
+    masteries.push('crater_combat');
+    items.push({ type: 'rare_resource', code: 'ancient_metal', label: 'Ancient Metal', quantity: 280 });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch7', key: 'assembly_militarized_critique', value: { critique: true } });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'mcc_full_offensive', value: { mcc_full_offensive: true } });
+  }
+  return { GP: gp, XP: 1200, reputationDelta: rep, items, tags, loreFlags, masteries, unlocks: [FSP_CH6_ID], branchModifiers };
+}
+
+function calculateFspCh6Rewards(progress, sim) {
+  const choiceId = selectedChoiceId(progress, 'fsp_ch6_use_as_handler');
+  const secondary = sim.metrics.secondary_completed || [];
+  if (!sim.success) {
+    if (sim.failureReason === 'fail_wrong_accusation') return { GP: 0, XP: 150, reputationDelta: { fsp: -25 }, tags: ['paranoid_judge'], loreFlags: ['ch6_wrong_culprit_accused', 'innocent_punished', 'real_spy_at_large'], branchModifiers: [{ targetChapter: 'fsp_campaign_ch7', key: 'assembly_loss_of_trust', value: { reputation_buffer: -25 } }, { targetChapter: 'fsp_campaign_ch9', key: 'real_spy_continues_leaks', value: { real_spy_at_large: true } }] };
+    return { GP: 0, XP: 150, reputationDelta: { fsp: -10 }, tags: ['too_slow'], loreFlags: ['ch6_time_expired', 'settlement_attacked_no_warning'], branchModifiers: [{ targetChapter: 'fsp_campaign_ch7', key: 'settlement_damaged_no_warning', value: { starting_morale: -20 } }] };
+  }
+  let gp = 6500;
+  let rep = { fsp: 25 };
+  const items = [{ type: 'ship_blueprint', code: 'investigator_corvette_blueprint', label: 'Investigator Corvette Blueprint' }, { type: 'resource', code: 'medical_kit', label: 'Medical Kit', quantity: 6 }];
+  const tags = [];
+  const loreFlags = [];
+  const branchModifiers = [];
+  const masteries = [];
+  if (secondary.includes('obj_collect_all_9_clues')) { gp += 5000; loreFlags.push('master_investigator'); }
+  if (secondary.includes('obj_exonerate_innocents')) { gp += 2500; tags.push('thorough_judge'); }
+  if (secondary.includes('obj_under_25min')) { gp += 3000; masteries.push('rapid_investigation'); }
+  if (secondary.includes('obj_truth_revealed')) loreFlags.push('kenji_family_location_known');
+  if (choiceId === 'fsp_ch6_execute_kenji') {
+    gp += 3000; rep = mergeRep(rep, { fsp: -8, mcc: -15 });
+    tags.push('coercive_executor');
+    loreFlags.push('ch6_kenji_executed', 'spy_executed_publicly');
+    items.push({ type: 'consumable_intel', code: 'mcc_attack_intel_full', label: 'MCC Attack Intel Full' });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch7', key: 'assembly_fearful_atmosphere', value: { civilian_morale_buffer: -15 } });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'kenji_family_killed_in_retaliation', value: { family_killed: true } });
+  } else if (choiceId === 'fsp_ch6_use_as_handler') {
+    gp += 4500; rep = mergeRep(rep, { fsp: 5, mcc: -25 });
+    tags.push('the_handler');
+    loreFlags.push('ch6_kenji_handler', 'spy_double_agent_active');
+    items.push({ type: 'recurring_intel', code: 'kenji_handler_token', label: 'Kenji Handler Token' });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch7', key: 'kenji_intelligence_pipeline', value: { disinfo_active_chapters: 2 } });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'handler_discovery_risk', value: { risk_factor: 'high' } });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'kenji_family_rescue_attempt', value: { unlocks_side_op: 'ch9_kenji_family_rescue_op' } });
+  } else {
+    gp += 2500; rep = mergeRep(rep, { mcc: -10 });
+    tags.push('the_merciful');
+    loreFlags.push('ch6_kenji_exiled', 'spy_exiled_mercifully');
+    items.push({ type: 'consumable_intel', code: 'mcc_attack_intel_minimal', label: 'MCC Attack Intel Minimal' });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch7', key: 'assembly_humanitarian_signal', value: { diplomatic_legitimacy_buffer: true } });
+    branchModifiers.push({ targetChapter: 'fsp_campaign_ch9', key: 'no_intel_advantage', value: { no_intel_advantage: true } });
+  }
+  return { GP: gp, XP: 1100, reputationDelta: rep, items, tags, loreFlags, masteries, unlocks: [], branchModifiers };
+}
+
 function calculateRewards(progress, sim) {
   if (progress.quest_id === CH2_ID) return calculateCh2Rewards(progress, sim);
   if (progress.quest_id === CH3_ID) return calculateCh3Rewards(progress, sim);
@@ -1813,6 +2097,8 @@ function calculateRewards(progress, sim) {
   if (progress.quest_id === FSP_CH2_ID) return calculateFspCh2Rewards(progress, sim);
   if (progress.quest_id === FSP_CH3_ID) return calculateFspCh3Rewards(progress, sim);
   if (progress.quest_id === FSP_CH4_ID) return calculateFspCh4Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH5_ID) return calculateFspCh5Rewards(progress, sim);
+  if (progress.quest_id === FSP_CH6_ID) return calculateFspCh6Rewards(progress, sim);
   return calculateCh1Rewards(progress, sim);
 }
 
@@ -1907,6 +2193,22 @@ async function validateStartConditions(client, wallet, chapter) {
     const tagRows = await client.query('SELECT 1 FROM player_tags WHERE wallet = $1 AND tag_id = $2', [wallet, tag]);
     if (tagRows.rows.length) return { error: 'BLOCKED_BY_TAG', tag };
   }
+  if (chapter.questId === FSP_CH5_ID) {
+    const amaraDead = await client.query(
+      `SELECT 1 FROM player_lore_flags WHERE wallet = $1 AND flag_id = 'amara_killed_at_sandstone' LIMIT 1`,
+      [wallet]
+    );
+    if (amaraDead.rows.length) return { error: 'FSP_DELEGATION_ABSENT', alternativeChapter: 'fsp_campaign_ch5_no_chair_variant' };
+  }
+  if (chapter.questId === FSP_CH6_ID) {
+    const collapse = await client.query(
+      `SELECT flag_id FROM player_lore_flags
+       WHERE wallet = $1 AND flag_id = ANY($2)`,
+      [wallet, ['amara_killed_at_kepler', 'liang_wei_killed']]
+    );
+    const flags = new Set(collapse.rows.map(r => r.flag_id));
+    if (flags.has('amara_killed_at_kepler') && flags.has('liang_wei_killed')) return { error: 'FSP_POLITICAL_COLLAPSE', alternativeChapter: 'fsp_campaign_ch6_collapse_variant' };
+  }
   if ((chapter.requiredBranchAny || []).length) {
     const branch = await client.query(
       `SELECT modifier_id FROM player_branch_modifiers
@@ -1966,6 +2268,17 @@ async function calculateEligibleEndings(client, wallet) {
 }
 
 async function validateChapterChoice(client, wallet, progress, choiceId) {
+  if (progress.quest_id === FSP_CH5_ID && (choiceId === 'fsp_ch5_propose_evidence_lever' || choiceId === 'fsp_ch5_propose_global_disclosure')) {
+    const evidence = await client.query(
+      `SELECT 1 FROM player_lore_flags
+       WHERE wallet = $1
+         AND flag_id = ANY($2)
+       LIMIT 1`,
+      [wallet, ['liang_wei_full_picture', 'roth_legacy_keeper', 'dr_roth_data_obtained']]
+    );
+    if (!evidence.rows.length) return { error: 'CHOICE_REQUIRES_ROTH_DATA', requiredAny: ['liang_wei_full_picture', 'roth_legacy_keeper', 'dr_roth_data_obtained'] };
+    return null;
+  }
   if (progress.quest_id === FSP_CH4_ID && choiceId === 'fsp_ch4_evidence_share') {
     const loreEvidence = await client.query(
       `SELECT 1 FROM player_lore_flags
