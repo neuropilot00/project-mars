@@ -5,24 +5,50 @@
   "title": { "ko": "가시 면류관", "en": "The Thorn Crown" },
   "location": { "id": "erebus_crater_base", "displayNameKo": "에레보스 분화구 기지" },
   "environment": "cv_base_final",
-  "estimatedPlayTimeMinutes": 20,
+  "estimatedPlayTimeMinutes": 22,
   "characters": ["player", "butcher", "cinder", "crow"],
   "scenes": [
+
     { "id": "s01", "type": "narration", "background": "erebus_base_interior", "bgm": "cv_ambient_deep", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "에레보스 기지. 불이 탔다. 배럴 불. 여러 개. Butcher가 옥좌의 방에 있었다. 혼자였다. 사진을 꺼내 놓고 있었다. 테이블 위에. 처음이었다. 주머니 밖으로. 테이블 위에. 11시간이 됐다고 했다. 폐가 말했다. 그러나 사진 앞에 앉아 있었다.", "en": "Erebus base. Fires burning. Barrel fires. Several. Butcher was in the throne hall. Alone. He had taken out the photo. On the table. First time. Outside the pocket. On the table. The lungs had said eleven hours. But he sat before the photo." }}] },
+      "lines": [{ "text": {
+        "ko": "에레보스 기지. 불이 탔다. 배럴 불. 여러 개. Butcher가 옥좌의 방에 있었다. 혼자였다. 사진을 꺼내 놓고 있었다. 테이블 위에. 처음이었다. 주머니 밖으로. 테이블 위에. 11시간이 됐다고 했다. 폐가 말했다. 그러나 사진 앞에 앉아 있었다.",
+        "en": "Erebus base. Fires burning. Barrel fires. Several. Butcher was in the throne hall. Alone. He had taken out the photo. On the table. First time. Outside the pocket. On the table. The lungs had said eleven hours. But he sat before the photo."
+      }}]
+    },
+
     { "id": "s02", "type": "dialogue", "background": "erebus_throne_hall", "bgm": "cv_ambient_deep", "transition": "cut",
       "lines": [
-        { "speaker": "butcher", "emotion": "hollow", "effect": "character_enter:butcher:slide_left", "text": { "ko": "왔어.", "en": "You came." }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "사진 보이지. 이름들 알아. 30년 됐어. 이름들이 더 젊어 보여. 나는 더 늙어 보이고.", "en": "You see the photo. You know the names. Thirty years. The names look younger. I look older." }},
-        { "speaker": "butcher", "emotion": "quiet", "text": { "ko": "CV 다음이 당신이에요. 내 결정이에요. 마지막 결정이에요.", "en": "The next CV is you. My decision. My last decision." }}
+        { "speaker": "butcher", "emotion": "hollow", "effect": "character_enter:butcher:slide_left", "text": {
+          "ko": "왔어.",
+          "en": "You came."
+        }},
+        { "speaker": "butcher", "emotion": "heavy", "text": {
+          "ko": "사진 보이지. 이름들 알아. 30년 됐어. 이름들이 더 젊어 보여. 나는 더 늙어 보이고.",
+          "en": "You see the photo. You know the names. Thirty years. The names look younger. I look older."
+        }},
+        { "speaker": "butcher", "emotion": "quiet", "text": {
+          "ko": "CV 다음이 자네예요. 내 결정이에요. 마지막 결정이에요.",
+          "en": "The next CV is you. My decision. My last decision."
+        }}
       ]
     },
+
     { "id": "s03", "type": "narration", "background": "erebus_throne_hall", "bgm": "cv_ambient_deep", "transition": "cut",
-      "lines": [{ "text": { "ko": "Cinder가 들어왔다. 공구 소리. 그녀가 들었다. 공구를 만지지 않았다. 그것이 무거운 것이었다. Crow가 뒤에 있었다. 협곡에서 자란 사람. 어두운 데서 자란 사람. 그러나 지금 이 방이 더 어두웠다.", "en": "Cinder came in. Tool sounds. She heard it. Didn't touch her tools. That was something heavy. Crow was behind. Raised in the canyon. Raised in darkness. But this room now was darker." }}] },
+      "lines": [{ "text": {
+        "ko": "Cinder가 들어왔다. 공구 소리. 그녀가 들었다. 공구를 만지지 않았다. 그것이 무거운 것이었다. Crow가 뒤에 있었다. 협곡에서 자란 사람. 어두운 데서 자란 사람. 그러나 지금 이 방이 더 어두웠다.",
+        "en": "Cinder came in. Tool sounds. She heard it. Didn't touch her tools. That was something heavy. Crow was behind. Raised in the canyon. Raised in darkness. But this room now was darker."
+      }}]
+    },
+
     { "id": "s04", "type": "narration", "background": "erebus_throne_hall", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "사진이 테이블 위에 있었다. 흑백. 17살의 Butcher. 그 옆 사람들. 이름들. 광부들. 파업. MCC. 30년. 그것이 이 방에 있었다. CV가 왜 있는지. 그것이 사진 위에 있었다.", "en": "The photo was on the table. Black and white. Butcher at seventeen. The people beside him. Names. Miners. The strike. MCC. Thirty years. All of that was in this room. Why CV existed. It was on the photo." }}] },
+      "lines": [{ "text": {
+        "ko": "사진이 테이블 위에 있었다. 흑백. 17살의 Butcher. 그 옆 사람들. 이름들. 광부들. 파업. MCC. 30년. 그것이 이 방에 있었다. CV가 왜 있는지. 그것이 사진 위에 있었다.",
+        "en": "The photo was on the table. Black and white. Butcher at seventeen. The people beside him. Names. Miners. The strike. MCC. Thirty years. All of that was in this room. Why CV existed. It was on the photo."
+      }}]
+    },
+
     { "id": "s_choice", "type": "choice", "background": "erebus_throne_hall", "bgm": "choice_finale",
-      "prompt": { "ko": "Butcher의 마지막 결정. 사진. CV. 당신의 선택.", "en": "Butcher's last decision. The photo. CV. Your choice." },
+      "prompt": { "ko": "Butcher의 마지막 결정. 사진. CV. 자네의 선택.", "en": "Butcher's last decision. The photo. CV. Your choice." },
       "choices": [
         { "id": "cv_ch10_warlord", "text": { "ko": "군벌이 된다. CV의 힘으로 화성을 지배한다.", "en": "Become a warlord. Rule Mars with CV's strength." }, "tone": "warlord", "preview_hint": { "ko": "→ 엔딩: 군벌 — 화성이 두려워하는 자", "en": "→ Ending: Warlord — the one Mars fears" }},
         { "id": "cv_ch10_renegade", "text": { "ko": "반역자가 된다. CV도 아니고 화성도 아닌.", "en": "Become a renegade. Neither CV nor Mars." }, "tone": "renegade", "preview_hint": { "ko": "→ 엔딩: 반역자 — 아무것에도 속하지 않는 자", "en": "→ Ending: Renegade — belonging to nothing" }},
@@ -30,26 +56,58 @@
         { "id": "cv_ch10_crown", "text": { "ko": "사진을 들고 올림포스로 간다. 이름들을 위해.", "en": "Take the photo to Olympus. For the names." }, "tone": "transcendent", "preview_hint": { "ko": "→ 엔딩: 왕관 — Zone 12가 화성의 법이 된다", "en": "→ Ending: Crown — Zone 12 becomes the law of Mars" }}
       ]
     },
+
     { "id": "s_battle", "type": "battle_transition", "background": "erebus_crater_exterior", "bgm": "battle_theme_finale", "transition": "fade_slow",
       "title": { "ko": "에레보스 최후의 전투", "en": "The Last Battle of Erebus" }, "subtitle": { "ko": "에레보스 분화구 — 30년의 대가", "en": "Erebus Crater — The Price of Thirty Years" }
     },
+
     { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+
     { "id": "s_success", "type": "narration", "background": "erebus_throne_hall", "bgm": "ending_theme_cv",
-      "lines": [{ "text": { "ko": "전투가 끝났다. 에레보스가 살아있었다. Butcher가 사진을 주머니에 넣었다. 천천히. 양손으로. 의수와 오른손으로. 그것이 마지막이었다. 그러나 CV는 있었다. 불이 탔다. Cinder의 공구 소리가 들렸다. Crow가 외부를 감시했다. CV가 있었다.", "en": "The battle ended. Erebus was alive. Butcher put the photo in his pocket. Slowly. With both hands. The prosthetic and the right hand. That was the last time. But CV was there. Fires burned. Cinder's tool sounds were heard. Crow watched the exterior. CV existed." }}] },
+      "lines": [{ "text": {
+        "ko": "전투가 끝났다. 에레보스가 살아있었다. Butcher가 사진을 주머니에 넣었다. 천천히. 양손으로. 의수와 오른손으로. 그것이 마지막이었다. 그러나 CV는 있었다. 불이 탔다. Cinder의 공구 소리가 들렸다. Crow가 외부를 감시했다. CV가 있었다.",
+        "en": "The battle ended. Erebus was alive. Butcher put the photo in his pocket. Slowly. With both hands. The prosthetic and the right hand. That was the last time. But CV was there. Fires burned. Cinder's tool sounds were heard. Crow watched the exterior. CV existed."
+      }}]
+    },
+
     { "id": "s_fail", "type": "narration", "background": "erebus_crater_exterior", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "에레보스가 흔들렸다. 그러나 무너지지 않았다. CV는 그런 것이었다. 무너지지 않는 것. 17살에 의수를 만든 사람이 만든 조직. 무너지지 않는 것을 만드는 것이 그 사람의 방식이었다. 에레보스는 무너지지 않았다.", "en": "Erebus shook. But didn't collapse. CV was like that. The thing that didn't collapse. An organization made by a man who made a prosthetic at seventeen. Making things that don't collapse was that man's way. Erebus didn't collapse." }}] },
+      "lines": [{ "text": {
+        "ko": "에레보스가 흔들렸다. 그러나 무너지지 않았다. CV는 그런 것이었다. 무너지지 않는 것. 17살에 의수를 만든 사람이 만든 조직. 무너지지 않는 것을 만드는 것이 그 사람의 방식이었다. 에레보스는 무너지지 않았다.",
+        "en": "Erebus shook. But didn't collapse. CV was like that. The thing that didn't collapse. An organization made by a man who made a prosthetic at seventeen. Making things that don't collapse was that man's way. Erebus didn't collapse."
+      }}]
+    },
+
     { "id": "s_ending_warlord", "type": "ending", "background": "erebus_crater_panorama", "bgm": "ending_theme_cv", "transition": "fade_slow",
       "endingId": "warlord",
-      "lines": [{ "text": { "ko": "에레보스에서 화성이 보였다. CV의 것이었다. 그것이 무엇을 뜻하는지는 시간이 말할 것이었다. Butcher가 사진을 마지막으로 봤다고 했다. 주머니에서 꺼내지 않아도 볼 수 있었다. 30년 동안 그렇게 됐다. 이름들은 눈을 감아도 있는 것이었다.", "en": "From Erebus Mars was visible. CV's. What that meant time would tell. Butcher had said he saw the photo for the last time. He could see it without taking it from the pocket. Thirty years had made it that way. The names existed even with eyes closed." }}] },
+      "lines": [{ "text": {
+        "ko": "에레보스에서 화성이 보였다. CV의 것이었다. 그것이 무엇을 뜻하는지는 시간이 말할 것이었다. Butcher가 사진을 마지막으로 봤다고 했다. 주머니에서 꺼내지 않아도 볼 수 있었다. 30년 동안 그렇게 됐다. 이름들은 눈을 감아도 있는 것이었다.",
+        "en": "From Erebus Mars was visible. CV's. What that meant time would tell. Butcher had said he saw the photo for the last time. He could see it without taking it from the pocket. Thirty years had made it that way. The names existed even with eyes closed."
+      }}]
+    },
+
     { "id": "s_ending_renegade", "type": "ending", "background": "argyre_plains_night", "bgm": "ending_theme_casualty", "transition": "fade_slow",
       "endingId": "renegade",
-      "lines": [{ "text": { "ko": "혼자였다. 아르기레 평원. 에레보스도 아니고 올림포스도 아니고. 어느 깃발도 없는 곳. 화성에 그런 곳이 있었다. 공식적으로는 없었다. 그러나 있었다. 그런 곳에 그런 사람이 있었다.", "en": "Alone. Argyre Plains. Not Erebus. Not Olympus. A place without any flag. Such places existed on Mars. Officially they didn't. But they did. In such places there were such people." }}] },
+      "lines": [{ "text": {
+        "ko": "혼자였다. 아르기레 평원. 에레보스도 아니고 올림포스도 아니고. 어느 깃발도 없는 곳. 화성에 그런 곳이 있었다. 공식적으로는 없었다. 그러나 있었다. 그런 곳에 그런 사람이 있었다.",
+        "en": "Alone. Argyre Plains. Not Erebus. Not Olympus. A place without any flag. Such places existed on Mars. Officially they didn't. But they did. In such places there were such people."
+      }}]
+    },
+
     { "id": "s_ending_mercenary", "type": "ending", "background": "erebus_base_interior", "bgm": "cv_ambient", "transition": "fade_slow",
       "endingId": "mercenary",
-      "lines": [{ "text": { "ko": "코드가 있었다. 다섯 개. 다섯 번째는 각자의 것이었다. 당신의 다섯 번째가 있었다. 그것이 법이었다. 화성의 어떤 법보다 오래 가는 것이었다. Butcher가 만든 것이었다. 17살에 의수를 만든 사람이 만든 법. 그 법으로 살았다.", "en": "There was a code. Five things. The fifth was each person's own. You had a fifth. That was law. More lasting than any law on Mars. What Butcher made. Law made by a man who made a prosthetic at seventeen. You lived by that law." }}] },
+      "lines": [{ "text": {
+        "ko": "코드가 있었다. 다섯 개. 다섯 번째는 각자의 것이었다. 자네의 다섯 번째가 있었다. 그것이 법이었다. 화성의 어떤 법보다 오래 가는 것이었다. Butcher가 만든 것이었다. 17살에 의수를 만든 사람이 만든 법. 그 법으로 살았다.",
+        "en": "There was a code. Five things. The fifth was each person's own. You had a fifth. That was law. More lasting than any law on Mars. What Butcher made. Law made by a man who made a prosthetic at seventeen. You lived by that law."
+      }}]
+    },
+
     { "id": "s_ending_crown", "type": "ending", "background": "olympus_exterior_dawn", "bgm": "ending_theme_crown", "transition": "fade_slow",
       "endingId": "crown",
-      "lines": [{ "text": { "ko": "올림포스에 사진이 왔다. 흑백. 30년 된 것. 이름들이 있었다. Zone 12. 11명. 그 사진이 화성의 법이 됐다. 이름들이 법이 된 행성. Butcher의 마지막 소원이었다. 그것이 이루어졌다. 가시 면류관. 찌르는 것이었지만 면류관이었다.", "en": "The photo came to Olympus. Black and white. Thirty years old. Names in it. Zone 12. Eleven people. That photo became the law of Mars. A planet where names became law. Butcher's last wish. It was fulfilled. The thorn crown. It was thorns but it was a crown." }}]
+      "lines": [{ "text": {
+        "ko": "올림포스에 사진이 왔다. 흑백. 30년 된 것. 이름들이 있었다. Zone 12. 11명. 그 사진이 화성의 법이 됐다. 이름들이 법이 된 행성. Butcher의 마지막 소원이었다. 그것이 이루어졌다. 가시 면류관. 찌르는 것이었지만 면류관이었다.",
+        "en": "The photo came to Olympus. Black and white. Thirty years old. Names in it. Zone 12. Eleven people. That photo became the law of Mars. A planet where names became law. Butcher's last wish. It was fulfilled. The thorn crown. Thorns but a crown."
+      }}]
     }
+
   ]
 }
