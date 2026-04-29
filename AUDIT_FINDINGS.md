@@ -1,6 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.30 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.31 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.31 Bug report 버튼 중복 제거 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 신규 `#bugReportFab` 🐞 + `class="bug-modal"` 시스템 | ✅ 삭제 | CSS(.bug-fab/.bug-modal 약 65줄), HTML(버튼+모달 약 45줄), JS(`selectBugCat`/`openBugReport`/`closeBugReport`/`submitBugReport` 신규본 약 120줄) 일괄 제거. 레거시 시스템과 `id="bugReportModal"` 중복으로 클릭 시 잘못된 모달이 열리던 충돌 해소. |
+| 레거시 `#bugReportBtn` 🐛 위치 | ✅ 이동 | 우하단 고정에서 `.zc` 줌 컬럼의 SECTORS 버튼 바로 왼쪽(8px gap, 세로 가운데)으로 이동. `alignBugFab()` rAF-throttled 함수가 load/resize/DOMContentLoaded/주기 타이머에서 재계산. |
+| `i18n` 사전 잔여(`bug_report_*`, `bug_cat_*` × 4 lang) | 🟢 무해 | 더 이상 참조하는 UI 없음. 후속 정리 가능하나 동작 영향 없음. |
+
+검증:
+- `index.html` 정적 파싱 — `bugReportBtn` 1, `bugReportFab` 0, `bugReportModal` 1 (레거시 한정).
+- 신규 시스템 함수/CSS 클래스 잔존 0건 grep 확인.
+
+---
 
 ### v5.30 Mobile first-load side panel lock — 수정 완료
 
