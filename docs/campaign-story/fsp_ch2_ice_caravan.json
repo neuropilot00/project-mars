@@ -5,26 +5,75 @@
   "title": { "ko": "첫 광부의 죽음", "en": "The First Miner's Death" },
   "location": { "id": "hellas_outer_mine", "displayNameKo": "헬라스 외곽 광산" },
   "environment": "mine_exterior_dust",
-  "estimatedPlayTimeMinutes": 15,
+  "estimatedPlayTimeMinutes": 16,
   "characters": ["player", "lena", "mikhail"],
   "scenes": [
+
     { "id": "s01", "type": "narration", "background": "hellas_mining_outpost", "bgm": "fsp_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "Lena Torres는 빠른 사람이었다. 걸음이 빠르고 말이 빠르고 판단이 빨랐다. 왼쪽 팔에 문신이 있었다. 이름들이었다. 가족의 이름. 팔목부터 어깨까지. 빠르게 움직이면 그 이름들이 흔들렸다.", "en": "Lena Torres was a fast person. Fast walk, fast talk, fast judgment. A tattoo on her left arm. Names. Family names. Wrist to shoulder. When she moved fast those names moved with her." }}] },
-    { "id": "s02", "type": "narration", "background": "mine_exterior", "bgm": "fsp_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "광부가 죽었다. 헬라스 외곽 7번 광산. 갱도 붕괴. MCC 구역이었다. MCC는 사고를 봉쇄했다. 가족에게 연락이 없었다. 연락이 오지 않는 것이 연락이었다. 화성에서 그런 연락은 자주 있었다.", "en": "A miner had died. Mine 7 on the outer Hellas belt. Tunnel collapse. MCC territory. MCC sealed the accident. No notice to the family. No notice was the notice. On Mars that kind of notice came often." }}] },
-    { "id": "s03", "type": "dialogue", "background": "mine_exterior", "bgm": "fsp_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "Lena Torres는 빠른 사람이었다. 걸음이 빠르고 말이 빠르고 판단이 빨랐다. 왼쪽 팔에 문신이 있었다. 이름들이었다. 가족의 이름. 팔목부터 어깨까지. 빠르게 움직이면 그 이름들이 흔들렸다.",
+        "en": "Lena Torres was a fast person. Fast walk, fast talk, fast judgment. A tattoo on her left arm. Names. Family names. Wrist to shoulder. When she moved fast those names moved with her."
+      }}]
+    },
+
+    { "id": "s02", "type": "narration", "background": "hellas_mining_outpost", "bgm": "fsp_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그녀는 농담을 자주 했다. 농담은 그녀의 방식이었다. 죽음 앞에서도 농담했다. 농담을 못 하는 순간이 있었다. 그것이 가장 무거운 순간이었다. 오늘은 그런 날이었다. 농담이 없었다.",
+        "en": "She joked often. Jokes were her way. She joked even before death. There were moments she could not joke. Those were the heaviest moments. Today was such a day. There were no jokes."
+      }}]
+    },
+
+    { "id": "s03", "type": "narration", "background": "mine_exterior", "bgm": "fsp_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광부가 죽었다. 헬라스 외곽 7번 광산. 갱도 붕괴. MCC 구역이었다. MCC는 사고를 봉쇄했다. 가족에게 연락이 없었다. 연락이 오지 않는 것이 연락이었다. 화성에서 그런 연락은 자주 있었다.",
+        "en": "A miner had died. Mine 7 on the outer Hellas belt. Tunnel collapse. MCC territory. MCC sealed the accident. No notice to the family. No notice was the notice. On Mars that kind of notice came often."
+      }}]
+    },
+
+    { "id": "s04", "type": "dialogue", "background": "mine_exterior", "bgm": "fsp_ambient", "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "tense", "effect": "character_enter:lena:slide_right", "text": { "ko": "보스. 왔어요.", "en": "Boss. You're here." }},
-        { "speaker": "lena", "emotion": "grim", "text": { "ko": "MCC가 지역을 막았어요. 시신도 못 꺼냈어요. 가족이 밖에서 기다리고 있어요. 사흘째.", "en": "MCC blocked the area. Couldn't recover the body. Family's been waiting outside. Three days now." }},
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "이름이 Kim Yong-jin이에요. 34살. 딸이 둘이에요.", "en": "His name was Kim Yong-jin. Thirty-four. Two daughters." }}
+        { "speaker": "lena", "emotion": "tense", "effect": "character_enter:lena:slide_right", "text": {
+          "ko": "보스. 왔어요.",
+          "en": "Boss. You're here."
+        }},
+        { "speaker": "lena", "emotion": "grim", "text": {
+          "ko": "MCC가 지역을 막았어요. 시신도 못 꺼냈어요. 가족이 밖에서 기다리고 있어요. 사흘째.",
+          "en": "MCC blocked the area. Couldn't recover the body. Family's been waiting outside. Three days now."
+        }},
+        { "speaker": "lena", "emotion": "tense", "text": {
+          "ko": "이름이 Kim Yong-jin이에요. 34살. 딸이 둘이에요.",
+          "en": "His name was Kim Yong-jin. Thirty-four. Two daughters."
+        }},
+        { "speaker": "lena", "emotion": "quiet", "text": {
+          "ko": "큰애가 일곱 살이에요. 그래서 알아요. 보스 손녀와 같은 나이예요.",
+          "en": "The older one is seven. So I know. Same age as your granddaughter, boss."
+        }}
       ]
     },
-    { "id": "s04", "type": "narration", "background": "mine_exterior", "bgm": "fsp_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "레나의 왼팔이 보였다. 문신. 이름들. 그 이름 중 몇이 이런 식으로 생겼는지는 물을 수 없었다. 그녀가 말하지 않았으니까. 빠른 사람들은 자주 말하지 않는 것들이 있었다.", "en": "Lena's left arm was visible. The tattoo. The names. How many of those names had come this way was not something to ask. She hadn't said. Fast people often had things they didn't say." }}] },
-    { "id": "s05", "type": "narration", "background": "mine_exterior", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "MCC 봉쇄선이 있었다. 표지판. 경비가 둘이었다. 갱도 안에는 시신이 있었다. 가족이 기다렸다. 모래가 바람을 탔다. 화성은 기다리는 사람들을 좋아하지 않았다.", "en": "There was an MCC perimeter line. Signs. Two guards. Inside the tunnel was a body. The family waited. Sand rode the wind. Mars was not kind to those who waited." }}] },
+
+    { "id": "s05", "type": "narration", "background": "mine_exterior", "bgm": "fsp_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "레나의 왼팔이 보였다. 문신. 이름들. 그 이름 중 몇이 이런 식으로 생겼는지는 물을 수 없었다. 그녀가 말하지 않았으니까. 빠른 사람들은 자주 말하지 않는 것들이 있었다.",
+        "en": "Lena's left arm was visible. The tattoo. The names. How many of those names had come this way was not something to ask. She hadn't said. Fast people often had things they didn't say."
+      }}]
+    },
+
+    { "id": "s06", "type": "narration", "background": "mine_exterior", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "MCC 봉쇄선이 있었다. 표지판. 경비가 둘이었다. 갱도 안에는 시신이 있었다. 가족이 기다렸다. 모래가 바람을 탔다. 화성은 기다리는 사람들을 좋아하지 않았다.",
+        "en": "There was an MCC perimeter line. Signs. Two guards. Inside the tunnel was a body. The family waited. Sand rode the wind. Mars was not kind to those who waited."
+      }}]
+    },
+
+    { "id": "s07", "type": "narration", "background": "mine_exterior", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "가족이 셋 있었다. 부인. 두 딸. 큰애가 일곱 살. 작은애가 다섯 살. 둘 다 마스크를 쓰고 있었다. 마스크가 너무 컸다. 어른 마스크였다. 화성에서 어린이용 마스크를 만드는 곳이 줄었다고 했다. 그 이유는 굳이 말하지 않았다.",
+        "en": "There were three of the family. The wife. Two daughters. Older seven. Younger five. Both wore masks. The masks were too big. Adult masks. They said fewer places on Mars made child masks now. The reason was not said."
+      }}]
+    },
+
     { "id": "s_choice", "type": "choice", "background": "mine_exterior", "bgm": "choice_tension",
-      "prompt": { "ko": "MCC 봉쇄선. 어떻게 하겠습니까.", "en": "MCC perimeter. What will you do." },
+      "prompt": { "ko": "MCC 봉쇄선. 어떻게 하겠는가.", "en": "MCC perimeter. What will you do." },
       "choices": [
         { "id": "fsp_ch2_force_entry", "text": { "ko": "봉쇄선을 통과한다.", "en": "Cross the perimeter." }, "tone": "decisive", "preview_hint": { "ko": "→ 충돌 불가피, 시신 회수", "en": "→ Conflict, body recovered" }},
         { "id": "fsp_ch2_negotiate", "text": { "ko": "MCC 경비와 협상한다.", "en": "Negotiate with MCC guards." }, "tone": "diplomatic", "preview_hint": { "ko": "→ 시간 소모, 가능성 있음", "en": "→ Time-consuming, possible" }},
@@ -32,25 +81,50 @@
         { "id": "fsp_ch2_document_first", "text": { "ko": "현장 기록 먼저. 증거.", "en": "Document the scene first. Evidence." }, "tone": "methodical", "preview_hint": { "ko": "→ 레나가 함께 한다", "en": "→ Lena joins you" }}
       ]
     },
+
     { "id": "s_battle", "type": "battle_transition", "background": "mine_exterior", "bgm": "battle_theme_fsp", "transition": "fade_slow",
       "title": { "ko": "Kim Yong-jin의 귀환", "en": "Return of Kim Yong-jin" }, "subtitle": { "ko": "헬라스 외곽 — 시신 회수", "en": "Outer Hellas — Body Recovery" }
     },
+
     { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+
     { "id": "s_success", "type": "dialogue", "background": "mine_exterior", "bgm": "victory_calm",
       "lines": [
-        { "speaker": "lena", "emotion": "quiet", "effect": "character_enter:lena:slide_right", "text": { "ko": "됐어요. 가족들이 데려갔어요.", "en": "Done. The family took him." }},
-        { "speaker": "lena", "emotion": "reflective", "text": { "ko": "보스. 오늘 잘했어요. 진짜로.", "en": "Boss. You did well today. Really." }}
+        { "speaker": "lena", "emotion": "quiet", "effect": "character_enter:lena:slide_right", "text": {
+          "ko": "됐어요. 가족들이 데려갔어요.",
+          "en": "Done. The family took him."
+        }},
+        { "speaker": "lena", "emotion": "reflective", "text": {
+          "ko": "보스. 오늘 잘했어요. 진짜로.",
+          "en": "Boss. You did well today. Really."
+        }},
+        { "speaker": "lena", "emotion": "quiet", "text": {
+          "ko": "오늘 밤 팔에 이름 하나 더 새길 거예요. Kim Yong-jin. 그 정도는 해야 해요.",
+          "en": "Tonight I'm putting one more name on the arm. Kim Yong-jin. That much I'll do."
+        }}
       ]
     },
+
     { "id": "s_fail", "type": "dialogue", "background": "mine_exterior", "bgm": "defeat_ambient",
       "lines": [
-        { "speaker": "lena", "emotion": "grim", "effect": "character_enter:lena:slide_right", "text": { "ko": "못 꺼냈어요. 가족은 여전히 밖에 있어요.", "en": "Couldn't get him out. The family is still outside." }},
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "다음에 다시 해요. Kim Yong-jin은 기억해요.", "en": "We try again. We remember Kim Yong-jin." }}
+        { "speaker": "lena", "emotion": "grim", "effect": "character_enter:lena:slide_right", "text": {
+          "ko": "못 꺼냈어요. 가족은 여전히 밖에 있어요.",
+          "en": "Couldn't get him out. The family is still outside."
+        }},
+        { "speaker": "lena", "emotion": "quiet", "text": {
+          "ko": "다음에 다시 해요. Kim Yong-jin은 기억해요.",
+          "en": "We try again. We remember Kim Yong-jin."
+        }}
       ]
     },
+
     { "id": "s_ending", "type": "ending", "background": "hellas_mining_outpost", "bgm": "ambient_melancholy", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "Mikhail은 차를 끓였다. 두 잔. 두 손으로 따랐다. 레나가 들어왔다. 차를 마셨다. 이번엔 그 사람도 마셨다. 광부 하나가 죽었다. 그것은 바뀌지 않았다. 그러나 차는 따뜻했다.", "en": "Mikhail made tea. Two cups. Poured with both hands. Lena came in. She drank hers. This time the other person drank too. One miner was dead. That didn't change. But the tea was warm." }}],
+      "lines": [{ "text": {
+        "ko": "Mikhail은 차를 끓였다. 두 잔. 두 손으로 따랐다. 레나가 들어왔다. 차를 마셨다. 이번엔 그 사람도 마셨다. 광부 하나가 죽었다. 그것은 바뀌지 않았다. 그러나 차는 따뜻했다. 두 손으로 따른 차. 레나가 잔을 다 비우고 왼팔을 한 번 만졌다. 새 자리가 거기 있었다.",
+        "en": "Mikhail made tea. Two cups. Poured with both hands. Lena came in. She drank hers. This time the other person drank too. One miner was dead. That didn't change. But the tea was warm. Tea poured with both hands. Lena emptied her cup and touched her left arm once. There was a new place there."
+      }}],
       "next_chapter_preview": { "questId": "fsp_campaign_ch3", "teaser": { "ko": "다음 — 60 Stayers", "en": "Next — 60 Stayers" }}
     }
+
   ]
 }
