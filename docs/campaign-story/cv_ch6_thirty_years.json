@@ -1,0 +1,59 @@
+{
+  "questId": "cv_campaign_ch6",
+  "campaignId": "cv_route",
+  "chapterNumber": 6,
+  "title": { "ko": "Butcher의 시험", "en": "Butcher's Test" },
+  "location": { "id": "erebus_throne_hall", "displayNameKo": "에레보스 옥좌의 방" },
+  "environment": "cv_throne_hall",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "butcher", "cinder"],
+  "scenes": [
+    { "id": "s01", "type": "narration", "background": "erebus_throne_hall", "bgm": "cv_ambient_deep", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "에레보스 기지 가장 깊은 곳. 옥좌의 방이라고 불렸다. Butcher가 그것을 좋아했다. 옥좌가 없었다. 의자 하나가 있었다. 낡은 것이었다. 광산 의자. MCC 광산에서 가져온 것이었다. 30년 전에. 그것이 옥좌였다.", "en": "The deepest part of the Erebus base. Called the throne hall. Butcher liked that name. There was no throne. There was one chair. An old one. A mining chair. Taken from an MCC mine. Thirty years ago. That was the throne." }}] },
+    { "id": "s02", "type": "narration", "background": "erebus_throne_hall", "bgm": "cv_ambient_deep", "transition": "cut",
+      "lines": [{ "text": { "ko": "Butcher가 거기 앉아 있었다. 사진을 들고 있었다. 처음 본 것이었다. 주머니 밖에서. 흑백이었다. 오래됐다. 30년. 사람들이 있었다. 여러 명. 광부들이었다. 그 중 한 명이 Butcher와 닮은 것 같았다. 젊은 것이었다. 17살쯤 되는 것 같았다.", "en": "Butcher was sitting there. Holding the photo. First time seeing it. Outside the pocket. Black and white. Old. Thirty years. There were people. Several. Miners. One of them looked like Butcher. Young. Seemed about seventeen." }}] },
+    { "id": "s03", "type": "dialogue", "background": "erebus_throne_hall", "bgm": "cv_ambient_deep", "transition": "cut",
+      "lines": [
+        { "speaker": "butcher", "emotion": "heavy", "effect": "character_enter:butcher:slide_left", "text": { "ko": "앉아.", "en": "Sit." }},
+        { "speaker": "butcher", "emotion": "serious", "text": { "ko": "30년 전. 이 사진에 있는 사람들. MCC 광산. 헬라스 4구역이었어. 파업이 있었어.", "en": "Thirty years ago. The people in this photo. MCC mine. It was Hellas Zone 4. There was a strike." }},
+        { "speaker": "butcher", "emotion": "hollow", "text": { "ko": "MCC가 끝냈어. 파업을. 방법은 말 안 해도 알겠지. 나는 살았어. 이 사진 안에서 살아남은 건 나 하나야.", "en": "MCC ended it. The strike. How, you already know without me saying. I survived. Among the people in this photo I'm the only one who lived." }}
+      ]
+    },
+    { "id": "s04", "type": "narration", "background": "erebus_throne_hall", "bgm": "cv_ambient_deep", "transition": "cut",
+      "lines": [{ "text": { "ko": "왼팔이었다. 의수. 광산용 구식. MCC가 사고 배상을 거부했을 때 그가 직접 만들었다. 17살 때였다. 그 이후로 30년. 의수를 만든 손과 같은 손이 지금 사진을 들고 있었다. 오른손. 떨리지 않았다. 이 사람의 손이 떨리는 것은 본 적이 없었다.", "en": "The left arm. Prosthetic. Old mining type. Made by himself when MCC refused injury compensation. At seventeen. Thirty years since then. The same hand that made the prosthetic was now holding the photo. The right hand. Not trembling. No one had ever seen this man's hand tremble." }}] },
+    { "id": "s05", "type": "dialogue", "background": "erebus_throne_hall", "bgm": "tension_low", "transition": "cut",
+      "lines": [
+        { "speaker": "butcher", "emotion": "hollow", "text": { "ko": "CV를 만든 건 복수 때문이야. 처음엔 그랬어. 이제는 모르겠어. 복수가 뭔지. 30년 동안 MCC를 때렸어. 그래도 사진 안 사람들이 돌아오지 않았어.", "en": "I made CV for revenge. That's how it started. Now I don't know. What revenge is. Thirty years beating against MCC. The people in the photo still didn't come back." }},
+        { "speaker": "butcher", "emotion": "serious", "text": { "ko": "당신한테 물어볼 게 있어. 이게 시험이야. 틀린 답은 없어. 대답 안 해도 돼.", "en": "I have something to ask you. This is a test. There's no wrong answer. You don't have to answer." }},
+        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "30년이 지났어. CV가 여전히 필요해?", "en": "Thirty years have passed. Is CV still necessary?" }}
+      ]
+    },
+    { "id": "s06", "type": "narration", "background": "erebus_throne_hall", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": { "ko": "Cinder가 뒤에 있었다. 공구 벨트. 소리가 없었다. 이 사람이 공구를 만지지 않을 때. 공구 소리가 없을 때. 그것은 무언가를 기다리는 것이었다. 이 방에서 두 사람이 기다리고 있었다. 대답을.", "en": "Cinder was behind. Tool belt. No sounds. When this person didn't touch her tools. When there was no tool sound. She was waiting for something. In this room two people were waiting. For an answer." }}] },
+    { "id": "s_choice", "type": "choice", "background": "erebus_throne_hall", "bgm": "choice_tension",
+      "prompt": { "ko": "Butcher의 시험. 30년. 사진. 의수. CV. 대답합니까.", "en": "Butcher's test. Thirty years. The photo. The prosthetic. CV. Do you answer." },
+      "choices": [
+        { "id": "cv_ch6_still_needed", "text": { "ko": "필요하다. 화성이 달라질 때까지.", "en": "Still necessary. Until Mars changes." }, "tone": "conviction", "preview_hint": { "ko": "→ Butcher가 사진을 주머니에 넣는다. 결심", "en": "→ Butcher puts the photo back. Resolution." }},
+        { "id": "cv_ch6_transform", "text": { "ko": "CV는 달라져야 한다. 복수가 아닌 것으로.", "en": "CV must change. Into something other than revenge." }, "tone": "evolution", "preview_hint": { "ko": "→ Butcher가 처음으로 의수를 본다. 오래", "en": "→ Butcher looks at the prosthetic for the first time. Long." }},
+        { "id": "cv_ch6_question_back", "text": { "ko": "반문한다. 당신은 어떻게 생각합니까.", "en": "Ask back. What do you think." }, "tone": "respectful", "preview_hint": { "ko": "→ Butcher가 30년 만에 처음으로 웃는다", "en": "→ Butcher laughs for the first time in thirty years." }},
+        { "id": "cv_ch6_no_answer", "text": { "ko": "대답하지 않는다.", "en": "No answer." }, "tone": "silence", "preview_hint": { "ko": "→ Butcher가 당신을 가장 오래 바라본다", "en": "→ Butcher looks at you longest of all." }}
+      ]
+    },
+    { "id": "s_battle", "type": "battle_transition", "background": "erebus_crater_exterior", "bgm": "battle_theme_cv", "transition": "fade_slow",
+      "title": { "ko": "에레보스의 전투", "en": "Battle of Erebus" }, "subtitle": { "ko": "에레보스 분화구 — 30년의 무게", "en": "Erebus Crater — The Weight of Thirty Years" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "dialogue", "background": "erebus_throne_hall", "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "butcher", "emotion": "quiet", "effect": "character_enter:butcher:slide_left", "text": { "ko": "살아남았어.", "en": "Survived." }},
+        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "사진 안 사람들한테 오늘을 말할 수 있겠어. 에레보스를 지켰다고. 30년 전에 못 지킨 걸.", "en": "I can tell the people in the photo about today. That we protected Erebus. What couldn't be protected thirty years ago." }}
+      ]
+    },
+    { "id": "s_fail", "type": "narration", "background": "erebus_throne_hall", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "전투가 끝났다. 에레보스가 흔들렸다. Butcher가 의자에 앉아 있었다. 광산 의자. 낡은 것. 사진을 들고 있었다. 사진 안 사람들에게 오늘을 말하기 어려울 것이었다. 30년 전과 달라진 것이 없는 것처럼.", "en": "The battle ended. Erebus shook. Butcher sat in the chair. Mining chair. Old thing. He was holding the photo. It would be hard to tell the people in the photo about today. As if nothing had changed from thirty years ago." }}] },
+    { "id": "s_ending", "type": "ending", "background": "erebus_throne_hall", "bgm": "cv_ambient_deep", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "방이 조용했다. Cinder의 공구 소리가 들렸다. 어디선가. 기지 어딘가에서. 그것이 기지가 살아있다는 증거였다. Butcher가 사진을 봤다. 오른손으로. 30년 된 것을. 이름들이 거기 있었다. 이름들이 있는 사진은 쉽게 없어지지 않았다. 그것을 알았다. 17살 때부터 알았다.", "en": "The room was quiet. Cinder's tool sounds were heard. From somewhere. Somewhere in the base. That was proof the base was alive. Butcher looked at the photo. With his right hand. The thirty-year-old thing. Names were there. Photos with names didn't disappear easily. He knew that. Had known since he was seventeen." }}],
+      "next_chapter_preview": { "questId": "cv_campaign_ch7", "teaser": { "ko": "다음 — 권력 공백", "en": "Next — Power Vacuum" }}
+    }
+  ]
+}

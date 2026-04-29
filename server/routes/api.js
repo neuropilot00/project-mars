@@ -51,6 +51,8 @@ let titleService;
 try { titleService = require('../services/title'); } catch (_e) { /* title service not available */ }
 let titleExt;
 try { titleExt = require('../services/titleExtended'); } catch (_e) { /* titleExtended not available */ }
+let campaignService;
+try { campaignService = require('../services/campaign'); } catch (_e) { /* campaign service not available */ }
 
 const router = express.Router();
 const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
@@ -81,6 +83,11 @@ const harvestLimiter = rateLimit({
 function sanitize(str, maxLen) {
   if (typeof str !== 'string') return '';
   return str.trim().slice(0, maxLen).replace(/<[^>]*>/g, '');
+}
+
+function isInternalRequest(req) {
+  const secret = req.headers['x-admin-secret'] || req.headers['x-admin-key'];
+  return !!(process.env.ADMIN_SECRET && secret === process.env.ADMIN_SECRET);
 }
 
 const GRID_SIZE = 0.22;
@@ -3490,6 +3497,254 @@ router.post('/quests/track', writeLimiter, async (req, res) => {
     res.json({ tracked: updated.length, quests: updated });
   } catch (e) {
     console.error('[API] quest track error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+// ══════════════════════════════════════
+// CAMPAIGN SYSTEM — story chapters (MVP server simulation)
+// ══════════════════════════════════════
+
+router.get('/campaign/status/:wallet', readLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.params.wallet, 255).toLowerCase();
+    if (!wallet) return res.status(400).json({ error: 'wallet required' });
+    res.json(await campaignService.getStatus(wallet));
+  } catch (e) {
+    console.error('[CAMPAIGN] status error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/campaign/start', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const questId = sanitize(req.body.quest_id || 'mcc_campaign_ch1', 80);
+    if (!wallet) return res.status(400).json({ error: 'wallet required' });
+    const result = await campaignService.startChapter(wallet, questId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] start error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/campaign/choice', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
+    const choiceId = sanitize(req.body.choice_id || req.body.choiceId, 100);
+    if (!wallet || !sessionId || !choiceId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.choose(wallet, sessionId, choiceId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] choice error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/campaign/progress', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
+    if (!wallet || !sessionId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.getProgress(wallet, sessionId);
+    if (result.error) return res.status(404).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] progress error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/campaign/complete', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
+    if (!wallet || !sessionId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.complete(wallet, sessionId);
+    if (result.error) return res.status(404).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] complete error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/campaign/abandon', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const sessionId = sanitize(req.body.session_id || req.body.sessionId, 100);
+    if (!wallet || !sessionId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.abandon(wallet, sessionId);
+    if (result.error) return res.status(404).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] abandon error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.get('/reputation/:wallet', readLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.params.wallet, 255).toLowerCase();
+    if (!wallet) return res.status(400).json({ error: 'wallet required' });
+    res.json(await campaignService.getReputation(wallet));
+  } catch (e) {
+    console.error('[CAMPAIGN] reputation error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/reputation/delta', writeLimiter, async (req, res) => {
+  try {
+    if (!isInternalRequest(req)) return res.status(403).json({ error: 'forbidden' });
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const faction = sanitize(req.body.faction, 40);
+    const delta = parseInt(req.body.delta, 10) || 0;
+    const sourceType = sanitize(req.body.source_type || 'admin', 40);
+    const sourceId = sanitize(req.body.source_id || 'manual', 80);
+    if (!wallet || !faction || !delta) return res.status(400).json({ error: 'missing fields' });
+    res.json(await campaignService.applyReputationDelta(wallet, faction, delta, sourceType, sourceId));
+  } catch (e) {
+    console.error('[CAMPAIGN] reputation delta error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.get('/tags/:wallet', readLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.params.wallet, 255).toLowerCase();
+    if (!wallet) return res.status(400).json({ error: 'wallet required' });
+    res.json(await campaignService.getTags(wallet));
+  } catch (e) {
+    console.error('[CAMPAIGN] tags error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/tags/grant', writeLimiter, async (req, res) => {
+  try {
+    if (!isInternalRequest(req)) return res.status(403).json({ error: 'forbidden' });
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const tagId = sanitize(req.body.tag_id || req.body.tagId, 100);
+    const source = sanitize(req.body.source || 'admin', 100);
+    if (!wallet || !tagId) return res.status(400).json({ error: 'missing fields' });
+    res.json(await campaignService.grantTag(wallet, tagId, source, req.body.metadata || {}));
+  } catch (e) {
+    console.error('[CAMPAIGN] tag grant error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/tags/revoke', writeLimiter, async (req, res) => {
+  try {
+    if (!isInternalRequest(req)) return res.status(403).json({ error: 'forbidden' });
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const tagId = sanitize(req.body.tag_id || req.body.tagId, 100);
+    if (!wallet || !tagId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.revokeTag(wallet, tagId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] tag revoke error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/tags/set-active-title', writeLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const tagId = sanitize(req.body.tag_id || req.body.tagId, 100);
+    if (!wallet || !tagId) return res.status(400).json({ error: 'missing fields' });
+    const result = await campaignService.setActiveTitle(wallet, tagId);
+    if (result.error) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error('[CAMPAIGN] active title error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.get('/lore/flags/:wallet', readLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.params.wallet, 255).toLowerCase();
+    if (!wallet) return res.status(400).json({ error: 'wallet required' });
+    res.json(await campaignService.getLoreFlags(wallet));
+  } catch (e) {
+    console.error('[CAMPAIGN] lore flags error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/lore/flag/set', writeLimiter, async (req, res) => {
+  try {
+    if (!isInternalRequest(req)) return res.status(403).json({ error: 'forbidden' });
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const flagId = sanitize(req.body.flag_id || req.body.flagId, 100);
+    const sourceChapter = sanitize(req.body.source_chapter || req.body.sourceChapter || 'admin', 100);
+    if (!wallet || !flagId) return res.status(400).json({ error: 'missing fields' });
+    res.json(await campaignService.setLoreFlag(wallet, flagId, sourceChapter, req.body.metadata || {}));
+  } catch (e) {
+    console.error('[CAMPAIGN] lore set error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/lore/flag/check', readLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const flagIds = Array.isArray(req.body.flag_ids || req.body.flagIds) ? (req.body.flag_ids || req.body.flagIds).map(x => sanitize(String(x), 100)) : [];
+    if (!wallet) return res.status(400).json({ error: 'wallet required' });
+    res.json(await campaignService.checkLoreFlags(wallet, flagIds));
+  } catch (e) {
+    console.error('[CAMPAIGN] lore check error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.get('/branch/active/:wallet/:targetChapter', readLimiter, async (req, res) => {
+  try {
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.params.wallet, 255).toLowerCase();
+    const targetChapter = sanitize(req.params.targetChapter, 100);
+    if (!wallet || !targetChapter) return res.status(400).json({ error: 'missing fields' });
+    res.json(await campaignService.getActiveBranchModifiers(wallet, targetChapter));
+  } catch (e) {
+    console.error('[CAMPAIGN] branch active error:', e.message);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
+router.post('/branch/set', writeLimiter, async (req, res) => {
+  try {
+    if (!isInternalRequest(req)) return res.status(403).json({ error: 'forbidden' });
+    if (!campaignService) return res.status(503).json({ error: 'Campaign service unavailable' });
+    const wallet = sanitize(req.body.wallet || req.body.player_id, 255).toLowerCase();
+    const modifierId = sanitize(req.body.modifier_id || req.body.modifierId, 100);
+    const targetChapter = sanitize(req.body.target_chapter || req.body.targetChapter, 100);
+    const sourceChapter = sanitize(req.body.source_chapter || req.body.sourceChapter || '', 100);
+    if (!wallet || !modifierId || !targetChapter) return res.status(400).json({ error: 'missing fields' });
+    res.json(await campaignService.setBranchModifier(wallet, modifierId, targetChapter, sourceChapter));
+  } catch (e) {
+    console.error('[CAMPAIGN] branch set error:', e.message);
     res.status(500).json({ error: 'Internal error' });
   }
 });

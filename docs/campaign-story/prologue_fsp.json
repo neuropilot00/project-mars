@@ -1,0 +1,77 @@
+{
+  "questId": "fsp_prologue",
+  "campaignId": "fsp_route",
+  "chapterNumber": 0,
+  "title": { "ko": "프롤로그: 정착민", "en": "Prologue: The Settler" },
+  "location": { "id": "new_athens_settlement", "displayNameKo": "New Athens 정착지" },
+  "environment": "arrival_night",
+  "estimatedPlayTimeMinutes": 8,
+  "characters": ["player", "mikhail", "lena"],
+  "scenes": [
+    {
+      "id": "p01",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "2087년. 화성 정착 17년차.\nNew Athens — 헬라스 분지 자유 정착지. 인구 4,200명.\n기업이 아닌 사람들이 손으로 만든 마을.", "en": "2087. Year 17 of Mars settlement.\nNew Athens — free settlement in Hellas Basin. Population 4,200.\nA town built by hand, not by a corporation." } }
+      ]
+    },
+    {
+      "id": "p02",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "당신은 새로 도착했다.\n초록색 FSP 마크가 찍힌 서류 한 장.\n그것만이 당신이 여기 있어도 된다는 증거였다.", "en": "You had just arrived.\nOne sheet of paper with a green FSP stamp.\nThat was all that proved you belonged here." } }
+      ]
+    },
+    {
+      "id": "p03",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "gentle", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "왔구나. 추워? 미안해. 풍력 발전기 두 개가 박살났어. 격납고 30%만 가동돼.", "en": "You made it. Cold? Sorry. Two wind turbines broke down. The hangar is running at 30% capacity." } },
+        { "speaker": "mikhail", "emotion": "warm", "text": { "ko": "차 마셔. 이건 진짜 차야. 지구에서 가져온 씨앗으로 키운 거.", "en": "Have some tea. This is real tea. Grown from seeds brought from Earth." } }
+      ]
+    },
+    {
+      "id": "p04",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "grinning", "effect": "character_enter:lena:slide_right", "text": { "ko": "새 얼굴이네! 미하일 어르신, 저 사람 괜찮아 보여요.", "en": "Fresh face! Elder Mikhail, this one looks decent." } },
+        { "speaker": "mikhail", "emotion": "amused", "text": { "ko": "레나, 첫날부터 겁주지 마.", "en": "Lena, don't scare them on their first day." } },
+        { "speaker": "lena", "emotion": "grin", "text": { "ko": "겁 안 줬어요! 그냥 솔직한 거지.", "en": "I'm not scaring them! Just being honest." } }
+      ]
+    },
+    {
+      "id": "p05",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "규칙은 하나야. 여기선 혼자 살 수 없어. 서로 돕거나 — 아니면 나가거나.", "en": "One rule. Nobody survives alone here. We help each other — or you leave." } },
+        { "speaker": "mikhail", "emotion": "warm", "text": { "ko": "Amara가 당신을 추천했어. 그녀 추천이면 우리도 믿어.", "en": "Amara recommended you. Her recommendation is enough for us." } }
+      ]
+    },
+    {
+      "id": "p06",
+      "type": "ending",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "차가 따뜻했다. 처음으로.\n이 마을이 집이 될 것 같았다.\n이 행성에서 집을 가질 수 있다면.", "en": "The tea was warm. For the first time.\nThis village felt like it could be home.\nIf home is possible on this planet." } }
+      ],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch1", "teaser": { "ko": "다음 — 방파제", "en": "Next — The Breakwater" } }
+    }
+  ]
+}

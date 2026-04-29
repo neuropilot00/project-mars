@@ -1,0 +1,76 @@
+{
+  "questId": "cv_prologue",
+  "campaignId": "cv_route",
+  "chapterNumber": 0,
+  "title": { "ko": "프롤로그: 생존자", "en": "Prologue: The Survivor" },
+  "location": { "id": "outer_colony_ruins", "displayNameKo": "외곽 식민지 폐허" },
+  "environment": "wasteland_night",
+  "estimatedPlayTimeMinutes": 8,
+  "characters": ["player", "butcher", "cinder"],
+  "scenes": [
+    {
+      "id": "p01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "외곽 식민지에는 법이 없었다.\nMCC도 FSP도 닿지 않는 곳.\n거기서 살아남은 사람들은 — 규칙을 스스로 만들었다.", "en": "The outer colonies had no law.\nBeyond the reach of MCC and FSP both.\nThose who survived there — made their own rules." } }
+      ]
+    },
+    {
+      "id": "p02",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "크림슨 워로드 — CV.\n30년 전 폐광 노동자들이 세운 세력.\n처음에는 자기방어였다. 그다음엔 생존이었다.\n이제는 — 공포였다.", "en": "Crimson Warlords — CV.\nA force built thirty years ago by abandoned mine workers.\nAt first it was self-defense. Then survival.\nNow — it was fear." } }
+      ]
+    },
+    {
+      "id": "p03",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_medium",
+      "lines": [
+        { "speaker": "butcher", "emotion": "stoic", "effect": "character_enter:butcher:slide_left", "text": { "ko": "살아있네. 의외야.", "en": "You're alive. Surprising." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "...", "en": "..." } },
+        { "speaker": "butcher", "emotion": "hollow", "text": { "ko": "말 안 해도 돼. 여기 오는 사람들은 다 비슷해. 잃을 게 없는 사람들.", "en": "You don't need to talk. People who come here are all alike. People with nothing left to lose." } }
+      ]
+    },
+    {
+      "id": "p04",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "neutral", "effect": "character_enter:cinder:slide_right", "text": { "ko": "쓸 만해 보이는데. 손이 거칠어.", "en": "Looks useful. Rough hands." } },
+        { "speaker": "butcher", "emotion": "cold", "text": { "ko": "CV에는 규칙이 없어. 그게 규칙이야. 살아남으면 네 것이고 — 못 살아남으면 네 것이 없어.", "en": "CV has no rules. That's the rule. If you survive, it's yours — if you don't, nothing is." } }
+      ]
+    },
+    {
+      "id": "p05",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "분화구 벽에 불꽃이 피어 있었다.\n사람들이 그 주변에 모여 있었다.\n각자의 상처를 가진 사람들.\n그들은 당신을 봤다. 아무 말도 하지 않았다.", "en": "Flames burned against the crater wall.\nPeople gathered around them.\nPeople with their own wounds.\nThey looked at you. Said nothing." } }
+      ]
+    },
+    {
+      "id": "p06",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "불꽃이 따뜻했다.\n이것이 당신의 선택이었다.\n법도 규칙도 없는 곳에서 — 살아남는 것.", "en": "The flames were warm.\nThis was your choice.\nTo survive — in a place with no law and no rules." } }
+      ],
+      "next_chapter_preview": { "questId": "cv_campaign_ch1", "teaser": { "ko": "다음 — 세례", "en": "Next — Baptism" } }
+    }
+  ]
+}

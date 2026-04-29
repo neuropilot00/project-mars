@@ -1,0 +1,60 @@
+{
+  "questId": "cv_campaign_ch7",
+  "campaignId": "cv_route",
+  "chapterNumber": 7,
+  "title": { "ko": "권력 공백", "en": "Power Vacuum" },
+  "location": { "id": "erebus_crater_base", "displayNameKo": "에레보스 분화구 기지" },
+  "environment": "cv_base_tension",
+  "estimatedPlayTimeMinutes": 15,
+  "pov_note": "Cinder Grace 60% POV",
+  "characters": ["player", "cinder", "butcher", "crow"],
+  "scenes": [
+    { "id": "s01", "type": "narration", "background": "erebus_base_interior", "bgm": "cv_ambient_heavy", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "Butcher가 쓰러졌다. 기지에서. 혼자였다. Cinder가 발견했다. 의수가 떨어져 있었다. 그것이 처음 보는 것이었다. Butcher가 의수 없이 있는 것. 17살 때부터 차고 있던 것. 그것이 떨어져 있었다.", "en": "Butcher collapsed. In the base. Alone. Cinder found him. The prosthetic had fallen off. That was something never seen before. Butcher without the prosthetic. Worn since he was seventeen. It had fallen away." }}] },
+    { "id": "s02", "type": "narration", "background": "erebus_base_interior", "bgm": "cv_ambient_heavy", "transition": "cut",
+      "lines": [{ "text": { "ko": "의료진이 왔다. 폐 문제였다. 화성의 폐 문제. 광석 분진. 30년. 광산에서 시작한 것이 30년 후에 나타나는 것이었다. Butcher는 30년 동안 광산 밖에 있었다. 그러나 폐는 기억했다.", "en": "Medical came. Lung problem. Mars lung problems. Ore dust. Thirty years. What began in the mines appeared thirty years later. Butcher had been outside the mines for thirty years. But the lungs remembered." }}] },
+    { "id": "s03", "type": "dialogue", "background": "erebus_base_medical", "bgm": "cv_ambient_heavy", "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "tense", "effect": "character_enter:cinder:slide_right", "text": { "ko": "의사가 6개월 말했어요.", "en": "The doctor said six months." }},
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "Butcher는 들었어요. 아무 말 안 했어요. 의수를 다시 붙이고 일어났어요. CV 회의가 있다고 했어요.", "en": "Butcher heard it. Said nothing. Put the prosthetic back on and stood. Said there was a CV meeting." }},
+        { "speaker": "cinder", "emotion": "hollow", "text": { "ko": "그게 30년 전부터 이 사람이 살아온 방식이에요. 아무것도 없는 것처럼.", "en": "That's how this person has lived since thirty years ago. As if nothing is wrong." }}
+      ]
+    },
+    { "id": "s04", "type": "narration", "background": "erebus_base_interior", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": { "ko": "CV 안에서 이야기가 돌았다. Butcher의 건강. 누가 다음인가. CV에는 공식 승계가 없었다. 계약서가 없었다. 코드만 있었다. 다섯 번째 코드는 각자가 만들었다. 그래서 각자가 달랐다. 다음 지도자도 달라야 했다.", "en": "Talk circulated in CV. Butcher's health. Who was next. CV had no official succession. No contracts. Only the code. The fifth code was made by each person. So each person was different. The next leader had to be different too." }}] },
+    { "id": "s05", "type": "dialogue", "background": "erebus_base_interior", "bgm": "tension_medium", "transition": "cut",
+      "lines": [
+        { "speaker": "crow", "emotion": "sardonic", "effect": "character_enter:crow:slide_right", "text": { "ko": "두 명이에요. 나랑 Reza요. 그게 실질적인 선택지예요.", "en": "Two people. Me and Reza. That's the real choice." }},
+        { "speaker": "crow", "emotion": "flat", "text": { "ko": "나는 Cinder가 맞다고 생각해요. 그러나 Cinder는 원하지 않아요. 원하지 않는 사람이 지도자가 되면 어떻게 돼요?", "en": "I think Cinder is the right one. But Cinder doesn't want it. What happens when someone who doesn't want it becomes a leader?" }},
+        { "speaker": "crow", "emotion": "serious", "text": { "ko": "화성에서 원하지 않는 것이 주어지는 것. 그게 화성의 방식이에요. 우리가 선택 안 하면 상황이 선택해요.", "en": "On Mars being given what you don't want. That's Mars's way. If we don't choose the situation chooses." }}
+      ]
+    },
+    { "id": "s06", "type": "narration", "background": "erebus_base_interior", "bgm": "tension_high", "transition": "cut",
+      "lines": [{ "text": { "ko": "Cinder가 공구를 만졌다. 멈췄다. 만지지 않았다. 그것이 이상했다. 이 사람이 공구를 만지다가 멈추는 것. 일이 있을 때는 항상 만졌다. 지금은 일이 있었다. 그러나 공구를 만지지 않았다. 그 의미는 알기 어려웠다.", "en": "Cinder reached for her tools. Stopped. Didn't touch them. That was strange. This person reaching for tools and stopping. When there was work she always touched them. There was work now. But she didn't touch them. The meaning was hard to know." }}] },
+    { "id": "s_choice", "type": "choice", "background": "erebus_base_interior", "bgm": "choice_tension",
+      "prompt": { "ko": "Butcher는 6개월. CV는 공백. Cinder는 원하지 않는다. 무엇을 합니까.", "en": "Butcher has six months. CV has a vacuum. Cinder doesn't want it. What do you do." },
+      "choices": [
+        { "id": "cv_ch7_cinder", "text": { "ko": "Cinder를 설득한다.", "en": "Convince Cinder." }, "tone": "conviction", "preview_hint": { "ko": "→ Cinder가 한참 후에 고개를 끄덕인다", "en": "→ Cinder nods after a long time." }},
+        { "id": "cv_ch7_crow", "text": { "ko": "Crow를 지지한다.", "en": "Support Crow." }, "tone": "pragmatic", "preview_hint": { "ko": "→ Crow가 놀란다. 감사해한다. 달라진다", "en": "→ Crow is surprised. Grateful. Changes." }},
+        { "id": "cv_ch7_self", "text": { "ko": "당신이 이끈다.", "en": "You lead." }, "tone": "bold", "preview_hint": { "ko": "→ Butcher가 일어선다. 오래 당신을 본다", "en": "→ Butcher stands. Looks at you for a long time." }},
+        { "id": "cv_ch7_butcher", "text": { "ko": "Butcher에게 직접 묻는다.", "en": "Ask Butcher directly." }, "tone": "respectful", "preview_hint": { "ko": "→ Butcher가 사진을 꺼낸다", "en": "→ Butcher takes out the photo." }}
+      ]
+    },
+    { "id": "s_battle", "type": "battle_transition", "background": "erebus_crater_exterior", "bgm": "battle_theme_cv", "transition": "fade_slow",
+      "title": { "ko": "에레보스 내전", "en": "Erebus Civil War" }, "subtitle": { "ko": "에레보스 기지 — 공백의 대가", "en": "Erebus Base — The Cost of Vacuum" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "dialogue", "background": "erebus_base_interior", "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "cinder", "emotion": "quiet", "effect": "character_enter:cinder:slide_right", "text": { "ko": "CV가 살아남았어요.", "en": "CV survived." }},
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "공구를 다시 만질 수 있어요. 고칠 것들이 있어요.", "en": "I can touch my tools again. There are things to repair." }}
+      ]
+    },
+    { "id": "s_fail", "type": "narration", "background": "erebus_base_interior", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "CV가 둘로 갈라졌다. Crow 쪽. Reza 쪽. Cinder는 어느 쪽도 아니었다. 공구 소리만 들렸다. 어딘가에서. Butcher가 의수를 내려다봤다. 30년 전에는 분열이 없었다. 아무도 남지 않았으니까.", "en": "CV split in two. Crow's side. Reza's side. Cinder was neither. Only tool sounds were heard. From somewhere. Butcher looked down at the prosthetic. There had been no division thirty years ago. Because no one survived." }}] },
+    { "id": "s_ending", "type": "ending", "background": "erebus_base_interior_night", "bgm": "cv_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "밤이 깊었다. 에레보스 기지. 불이 탔다. 배럴 불. Butcher가 불 앞에 앉아 있었다. 사진이 주머니에 있었다. 꺼내지 않았다. Cinder가 공구를 소리 없이 만졌다. 그것이 이 기지가 오늘 밤 있는 방식이었다. 불. 사람. 공구. 충분한 것들.", "en": "Night deepened. Erebus base. Fires burned. Barrel fires. Butcher sat by the fire. The photo was in his pocket. Not taken out. Cinder touched her tools without sound. That was how this base existed tonight. Fire. People. Tools. Things that were enough." }}],
+      "next_chapter_preview": { "questId": "cv_campaign_ch8", "teaser": { "ko": "다음 — 군벌의 도박", "en": "Next — The Warlord's Gamble" }}
+    }
+  ]
+}

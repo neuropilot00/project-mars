@@ -1,0 +1,51 @@
+{
+  "questId": "hidden_campaign_ch1",
+  "campaignId": "hidden_route",
+  "chapterNumber": 1,
+  "title": { "ko": "관찰자", "en": "The Observer" },
+  "location": { "id": "kariope_cargo_ship", "displayNameKo": "화물선 카리오페호" },
+  "environment": "cargo_ship_deep_space",
+  "estimatedPlayTimeMinutes": 15,
+  "unlockCondition": "모든 루트 Ch1 클리어 또는 숨겨진 조건",
+  "characters": ["observer", "verk"],
+  "scenes": [
+    { "id": "s01", "type": "narration", "background": "deep_space_window", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "화물선 카리오페호. 화성 항로. 27일째. 관찰자는 거기 있었다. 이름이 없었다. 아니면 이름이 너무 많았다. 화성에 가는 이유가 없었다. 아니면 이유가 너무 많았다. 그것이 이 사람이 카리오페호에 있는 이유였다.", "en": "Cargo ship Kariope. Mars route. Day twenty-seven. The observer was there. No name. Or too many names. No reason to go to Mars. Or too many reasons. That was why this person was on the Kariope." }}] },
+    { "id": "s02", "type": "narration", "background": "kariope_cargo_bay", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "같은 배에 다른 사람이 있었다. 그것은 나중에 알게 됐다. 세 파벌로 갈 사람들. MCC. FSP. CV. 같은 배. 같은 창문. 화성이 가까워지는 것을 각자 봤다. 같은 것을 다르게 보는 것. 그것이 화성이 시작하기 전부터 있었다.", "en": "There was another person on the same ship. That was learned later. People going to three factions. MCC. FSP. CV. Same ship. Same window. Each watched Mars getting closer. Seeing the same thing differently. That had already begun before Mars started." }}] },
+    { "id": "s03", "type": "narration", "background": "kariope_observation_deck", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "운항사 베르크가 관찰자를 봤다. 베르크는 사람을 보는 것이 직업이었다. 27일 동안 이 사람을 봤다. 이 사람은 다른 사람들을 봤다. 다른 사람들이 화성을 보는 것을 봤다. 관찰자를 관찰하는 자가 있고 관찰하는 자가 관찰하는 것이 있었다.", "en": "Navigator Verk saw the observer. Verk's job was seeing people. For twenty-seven days he had watched this person. This person watched others. Watched others watching Mars. There was one who observed the observer and there was what the observer observed." }}] },
+    { "id": "s04", "type": "dialogue", "background": "kariope_observation_deck", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [
+        { "speaker": "verk", "emotion": "curious", "effect": "character_enter:verk:slide_left", "text": { "ko": "화성에 뭐 하러 가요.", "en": "What are you going to Mars for." }},
+        { "speaker": "observer", "emotion": "neutral", "text": { "ko": "보려고.", "en": "To watch." }},
+        { "speaker": "verk", "emotion": "thoughtful", "text": { "ko": "보는 것만 하는 사람도 있어요. 화성에서 그런 사람들이 오래 사는지는 모르겠어요.", "en": "There are people who only watch. Whether people like that live long on Mars I don't know." }}
+      ]
+    },
+    { "id": "s05", "type": "narration", "background": "deep_space_mars_approach", "bgm": "hidden_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "화성이 보였다. 붉었다. 창문으로. 관찰자가 봤다. 같은 창문으로 다른 사람들도 봤다. MCC로 갈 사람. FSP로 갈 사람. CV로 갈 사람. 같은 붉은 것을 보면서 각자 다른 것을 봤다. 관찰자만 그 전체를 봤다. 아니면 관찰자도 하나를 보고 있었다. 그것은 나중에 알 것이었다.", "en": "Mars was visible. Red. Through the window. The observer watched. Others watched through the same window. Those going to MCC. Those going to FSP. Those going to CV. Seeing the same red thing each saw something different. Only the observer saw all of it. Or perhaps the observer also saw one thing. That would be known later." }}] },
+    { "id": "s06", "type": "narration", "background": "mars_landing_approach", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "착륙. 카리오페호. 화성. 대기가 마스크 밖에 있었다. 첫발. 표면. 관찰자가 섰다. 각 파벌 사람들이 각자의 방향으로 갔다. 관찰자는 방향이 없었다. 그것이 이 사람의 조건이었다. 방향이 없는 사람은 모든 곳을 볼 수 있었다. 아무 곳도 갈 수 없는 대신에.", "en": "Landing. Kariope. Mars. Atmosphere was outside the mask. First step. Surface. The observer stood. Each faction's people went their separate directions. The observer had no direction. That was this person's condition. Someone with no direction could see everywhere. In exchange for being able to go nowhere." }}] },
+    { "id": "s_choice", "type": "choice", "background": "hellas_central_exterior", "bgm": "choice_tension",
+      "prompt": { "ko": "화성에 도착했다. 관찰자로서. 어느 방향을 먼저 봅니까.", "en": "Arrived on Mars. As the observer. Which direction do you look first." },
+      "choices": [
+        { "id": "hidden_ch1_watch_mcc", "text": { "ko": "MCC 본부 방향.", "en": "Toward MCC headquarters." }, "tone": "observant", "preview_hint": { "ko": "→ Chen Weiss가 차를 들고 있는 것을 본다", "en": "→ See Chen Weiss holding her tea" }},
+        { "id": "hidden_ch1_watch_fsp", "text": { "ko": "헬라스 외곽 광부 마을 방향.", "en": "Toward the outer Hellas mining village." }, "tone": "observant", "preview_hint": { "ko": "→ 분필 이름들이 있는 벽을 본다", "en": "→ See the wall with chalk names" }},
+        { "id": "hidden_ch1_watch_cv", "text": { "ko": "아르기레 협곡 방향.", "en": "Toward Argyre Canyon." }, "tone": "observant", "preview_hint": { "ko": "→ 어둠 속의 불을 본다", "en": "→ See fire in the darkness" }},
+        { "id": "hidden_ch1_watch_all", "text": { "ko": "멈춘다. 전체를 본다.", "en": "Stop. See all of it." }, "tone": "whole", "preview_hint": { "ko": "→ 세 방향 모두가 보인다. 동시에", "en": "→ All three directions visible. Simultaneously." }}
+      ]
+    },
+    { "id": "s_battle", "type": "battle_transition", "background": "hellas_central_exterior", "bgm": "hidden_theme", "transition": "fade_slow",
+      "title": { "ko": "관찰자의 첫날", "en": "Observer's First Day" }, "subtitle": { "ko": "헬라스 — 시작", "en": "Hellas — Beginning" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "narration", "background": "hellas_central_exterior", "bgm": "hidden_ambient",
+      "lines": [{ "text": { "ko": "첫날이 끝났다. 화성의 첫날. 관찰자가 봤다. 세 파벌. 세 방향. 세 개의 화성. 하나의 행성. 그것들이 어떻게 연결되어 있는지는 아직 몰랐다. 그것을 보러 온 것이었다.", "en": "The first day ended. First day on Mars. The observer had seen. Three factions. Three directions. Three versions of Mars. One planet. How they were connected was still unknown. That was what had been come to see." }}] },
+    { "id": "s_fail", "type": "narration", "background": "hellas_central_exterior", "bgm": "hidden_ambient",
+      "lines": [{ "text": { "ko": "첫날이 어려웠다. 화성에서 쉬운 첫날은 없었다. 그러나 관찰자는 거기 있었다. 그것이 시작이었다. 관찰은 실패하지 않았다. 존재하면 관찰했다.", "en": "The first day was difficult. No easy first days on Mars. But the observer was there. That was the start. Observation didn't fail. If existing, observing." }}] },
+    { "id": "s_ending", "type": "ending", "background": "hellas_central_exterior_night", "bgm": "hidden_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "화성의 첫 밤. 불빛들이 있었다. MCC 본부. 헬라스 노동자 지구. 어딘가 협곡 아래. 세 개의 빛. 관찰자가 봤다. 그것이 이 사람이 화성에서 하는 일이었다. 보는 것. 그것이 전부였다. 그러나 전부가 아닐 수도 있었다.", "en": "First night on Mars. There were lights. MCC headquarters. Hellas labor district. Somewhere below in the canyons. Three lights. The observer watched. That was what this person did on Mars. Watching. That was everything. But perhaps not everything." }}],
+      "next_chapter_preview": { "questId": "hidden_campaign_ch2", "teaser": { "ko": "다음 — 흔적들", "en": "Next — Traces" }}
+    }
+  ]
+}

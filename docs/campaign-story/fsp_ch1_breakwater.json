@@ -1,0 +1,331 @@
+{
+  "questId": "fsp_campaign_ch1",
+  "campaignId": "fsp_route",
+  "chapterNumber": 1,
+  "title": { "ko": "차의 무게", "en": "The Weight of Tea" },
+  "location": { "id": "hellas_fsp_hq", "displayNameKo": "헬라스 분지 FSP 본부" },
+  "environment": "morning_cold",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "mikhail", "lena"],
+  "scenes": [
+
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "헬라스 분지. 자유 정착지 FSP 본부 아침. Mikhail Anders는 창문을 보지 않았다. 창문 너머에 화성이 있다는 것을 알았다. 알면 충분했다. 그는 차를 끓였다. 두 잔. 손님이 오면 두 잔이고 혼자라도 두 잔이었다. 30년 동안 그랬다.",
+            "en": "Hellas Basin. FSP headquarters. Morning. Mikhail Anders didn't look at the window. He knew Mars was on the other side. Knowing was enough. He boiled water for tea. Two cups. Two cups if a guest came and two cups if he was alone. It had been that way for thirty years."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "찻물이 끓었다. 기다렸다. 서두르지 않았다. 차에 대해서만 그런 것은 아니었다. 그는 광부였을 때도 그랬다. 오른쪽 다리가 뻐근했다. 앉아있으면 늘 그랬다. 광산 사고. 다리는 그것을 기억했다. 다른 것들은 잊어도 다리는 기억했다.",
+            "en": "The water boiled. He waited. There was no hurry. This wasn't only true of tea. It had been true when he was a miner too. His right leg ached. It always did when he sat. The mine accident. The leg remembered it. He could forget other things. The leg didn't."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "문이 열렸다. 바람이 들어왔다. 그 뒤로 사람이 들어왔다. 가방을 들고 있었다. 작은 가방이었다. 손이 거칠었다. 광부의 손이었지만 광부는 아니었다. Amara가 추천한 사람이었다.",
+            "en": "The door opened. Cold air came in. A person came in behind it. Carrying a small bag. Rough hands. Miner's hands, but not a miner. This was the one Amara had recommended."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Mikhail은 차를 따랐다. 두 손으로. 오른손이 왼손을 받쳤다. 그것은 30년 된 방식이었다. 어떤 광부가 가르쳐주었는지는 기억하지 못했다. 그러나 두 손으로 따르는 것은 기억했다. 잔이 채워졌다.",
+            "en": "Mikhail poured the tea. With both hands. His right hand cradled his left. It was a thirty-year habit. He couldn't remember which miner had taught him. But he remembered the two hands. The cup filled."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "gentle",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "앉아요. 차야. 지구에서 가져온 씨앗으로 키웠어. 화성에서 자란 유일한 차.",
+            "en": "Sit down. Tea. Grown from seeds brought from Earth. The only tea grown on Mars."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "그 사람은 차를 받았다. 잔을 두 손으로 감쌌다. 마시지는 않았다. 들고만 있었다. Mikhail은 그것을 보았다. 아무 말도 하지 않았다. 차를 가져가고 마시지 않는 사람들이 있었다. 그것은 그들의 방식이었다.",
+            "en": "The person took the tea. Held the cup in both hands. Didn't drink. Just held it. Mikhail saw this. Said nothing. There were people who took tea and didn't drink it. That was their way."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Amara가 어제 연락했어. Mikhail이 말했다. 헬라스 북쪽 광부 55명. 사고가 있었어. MCC가 현장을 봉쇄했어. 광부들이 안에 있는지 밖에 있는지 아무도 모르는 상태야.\n\n현장 진입. 생존자 확인. 그것뿐이야.",
+            "en": "Amara contacted me yesterday. Mikhail said. Fifty-five miners north of Hellas. There was an accident. MCC sealed the site. Nobody knows if the miners are inside or out.\n\nGet inside. Confirm survivors. That's all."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "그 사람은 차를 마시지 않았다. 잔을 들고 있었다. Mikhail은 그 잔을 잠시 보았다. 차가 식어가고 있었다. 차가 식는 것은 언제나 빨랐다. 화성에서는 모든 것이 빨리 식었다.",
+            "en": "The person still hadn't drunk the tea. Still holding the cup. Mikhail looked at it for a moment. The tea was cooling. Tea always cooled fast. On Mars everything cooled fast."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lena",
+          "emotion": "energetic",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "보스. 왔어요?",
+            "en": "Boss. You're here?"
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "curious",
+          "text": {
+            "ko": "Mikhail 씨, 이 분 차 안 마시네요.",
+            "en": "Mikhail-ssi, they're not drinking the tea."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "gentle",
+          "text": {
+            "ko": "괜찮아.",
+            "en": "That's fine."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "grinning",
+          "text": {
+            "ko": "저는 마셔요. 그냥 생각한 거예요, 보스.",
+            "en": "I drink mine. Just saying, boss."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10",
+      "type": "narration",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "레나의 왼쪽 팔에 문신이 있었다. 이름들이었다. 가족의 이름. 그것이 팔에 있었다. Mikhail은 그 문신을 볼 때마다 같은 생각을 했다. 그 이름 중에 살아있는 사람이 몇인지. 그 생각을 입에 올린 적은 없었다.",
+            "en": "Lena had a tattoo on her left arm. Names. Family names. Mikhail saw those names every time. He always had the same thought when he did. How many of them were still alive. He had never said the thought aloud."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "hellas_mining_outpost",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "MCC가 봉쇄한 광산. 55명의 광부. 어떻게 접근하겠습니까?",
+        "en": "A mine sealed by MCC. Fifty-five miners. How will you approach?"
+      },
+      "choices": [
+        {
+          "id": "fsp_ch1_accept_standard",
+          "text": { "ko": "정면 진입. 협상 없이.", "en": "Direct entry. No negotiation." },
+          "tone": "decisive",
+          "preview_hint": { "ko": "→ 신속하나 충돌 위험", "en": "→ Fast but risk of conflict" }
+        },
+        {
+          "id": "fsp_ch1_negotiate_price",
+          "text": { "ko": "MCC와 먼저 협상한다.", "en": "Negotiate with MCC first." },
+          "tone": "diplomatic",
+          "preview_hint": { "ko": "→ 시간이 걸리지만 비전투", "en": "→ Takes time but non-violent" }
+        },
+        {
+          "id": "fsp_ch1_question_mcc",
+          "text": { "ko": "봉쇄 이유를 파악한다.", "en": "Find out why MCC sealed it." },
+          "tone": "investigative",
+          "preview_hint": { "ko": "→ Mikhail의 과거 MCC 경험 언급", "en": "→ Reveals Mikhail's MCC history" }
+        },
+        {
+          "id": "fsp_ch1_prioritize_patients",
+          "text": { "ko": "부상자부터. 다른 것은 그 다음.", "en": "Injured first. Everything else after." },
+          "tone": "humanitarian",
+          "preview_hint": { "ko": "→ Lena 신뢰도 +, 레나가 앞장선다", "en": "→ Lena trust +, she leads the way" }
+        }
+      ]
+    },
+
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "hellas_mine_exterior",
+      "bgm": "battle_theme_fsp",
+      "transition": "fade_slow",
+      "title": { "ko": "봉쇄된 광산", "en": "The Sealed Mine" },
+      "subtitle": { "ko": "헬라스 북부 — 광부 55명", "en": "Northern Hellas — 55 Miners" }
+    },
+
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "hellas_mine_exterior",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "speaker": "lena",
+          "emotion": "relieved",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "살아있어요. 49명. 부상 여섯. 중상 둘. 구조 완료.",
+            "en": "Alive. Forty-nine. Six injured. Two critical. Extraction complete."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "warm",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "수고했어요. 정말로.",
+            "en": "Good work. Truly."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "hellas_mine_exterior",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "mikhail",
+          "emotion": "tired",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "광부들이 아직 안에 있어요. MCC가 봉쇄를 더 강화했어. 다시 생각해야 해요.",
+            "en": "The miners are still inside. MCC tightened the seal. We need to rethink."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "grim",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "보스, 다음엔 다르게 해요.",
+            "en": "Boss, next time we do it differently."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "차는 식어있었다. Mikhail은 두 잔을 내려다보았다. 한 잔은 다 마셨다. 다른 잔은 그대로였다. 그 사람은 차를 마시지 않았다. 들고만 있었다가 내려두었다.\n\nMikhail은 그것을 이상하게 생각하지 않았다. 화성에 오는 사람들은 각자의 방식으로 왔다. 중요한 것은 잔을 받았다는 것이었다. 두 손으로.",
+            "en": "The tea had gone cold. Mikhail looked at the two cups. One was empty. The other was untouched. The person hadn't drunk it. Had held it and set it down.\n\nMikhail didn't find this strange. People who came to Mars came in their own ways. What mattered was that the cup had been accepted. With both hands."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "fsp_campaign_ch2",
+        "teaser": { "ko": "다음 — 첫 광부의 죽음", "en": "Next — The First Miner's Death" }
+      }
+    }
+
+  ]
+}

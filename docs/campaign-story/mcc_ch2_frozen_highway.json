@@ -1,0 +1,50 @@
+{
+  "questId": "mcc_campaign_ch2",
+  "campaignId": "mcc_route",
+  "chapterNumber": 2,
+  "title": { "ko": "First Audit", "en": "First Audit" },
+  "location": { "id": "hellas_north_mine", "displayNameKo": "헬라스 북부 광산" },
+  "environment": "mine_interior",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "lifang", "miner_elder"],
+  "scenes": [
+    { "id": "s01", "type": "narration", "background": "mine_exterior", "bgm": "mcc_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "광산 엘리베이터는 지표에서 2킬로미터를 내려갔다. 내려가면서 기온이 올랐다. 화성 지표는 영하였지만 지하는 달랐다. 광부들은 그 차이를 알았다. 아는 것이 좋은 일인지는 몰랐다.", "en": "The mine elevator descended two kilometers below the surface. As it went down the temperature rose. The surface was below zero but underground was different. Miners knew this difference. Whether knowing it was a good thing was unclear." }}] },
+    { "id": "s02", "type": "narration", "background": "mine_interior", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "MCC 감사팀. 둘이었다. 클립보드의 사람은 체크 표시를 했다. 모든 것이 양호였다. 아직 세 구역을 보지 않았는데도 양호였다.", "en": "MCC audit team. Two of them. The one with the clipboard made check marks. Everything was satisfactory. Even before seeing three sectors, everything was satisfactory." }}] },
+    { "id": "s03", "type": "narration", "background": "mine_interior", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "광부들이 작업 중이었다. 안전 장비가 없는 사람이 있었다. 마스크가 없었다. 손이 검었다. 광석 분진. 얼마나 들이마셨는지는 보이지 않았다. 보이지 않는다고 없는 것이 아니었다.", "en": "Miners were working. Some had no safety equipment. No masks. Hands black with ore dust. How much they'd inhaled wasn't visible. Not visible didn't mean not there." }}] },
+    { "id": "s04", "type": "narration", "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "7구역. 지주가 무너진 자리였다. 지주는 수리되어 있었다. 그러나 무너진 날짜가 기록에 없었다. 기록이 없으면 사고가 없는 것이었다. MCC의 기록 방식이었다.", "en": "Sector 7. Where a support had collapsed. The support had been repaired. But the date of collapse wasn't in the records. No record meant no accident. That was MCC's record-keeping." }}] },
+    { "id": "s05", "type": "dialogue", "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [
+        { "speaker": "miner_elder", "emotion": "tired", "effect": "character_enter:miner_elder:slide_right", "text": { "ko": "감사관. 석 달 전에 사람이 셋 죽었어요.", "en": "Inspector. Three people died three months ago." }},
+        { "speaker": "miner_elder", "emotion": "hollow", "text": { "ko": "기록엔 없겠죠. 본부에 올라가면 없어지는 게 있어요. 여기선 다 알아요.", "en": "Won't be in the records. Some things disappear before they reach headquarters. Down here everyone knows." }},
+        { "speaker": "miner_elder", "emotion": "tired", "text": { "ko": "기록에 남길 사람이 필요해서요.", "en": "I need someone who will put it in the record." }}
+      ]
+    },
+    { "id": "s06", "type": "narration", "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "광부 노인은 돌아갔다. 뒷모습이 작았다. 거기서 오래 일한 사람의 모습이었다. 클립보드의 사람이 무언가를 적었다. 적는 것을 보지 않았다.", "en": "The old miner turned away. His back was small. It was the look of someone who had worked there a long time. The clipboard person wrote something. You didn't look at what they wrote." }}] },
+    { "id": "s_choice", "type": "choice", "background": "mine_shaft", "bgm": "choice_tension",
+      "prompt": { "ko": "감사 보고서. 무엇을 적겠습니까.", "en": "The audit report. What will you write." },
+      "choices": [
+        { "id": "mcc_ch2_report_truth", "text": { "ko": "사망 3건. 장비 미비. 사실대로.", "en": "Three deaths. Equipment failure. The truth." }, "tone": "honest", "preview_hint": { "ko": "→ MCC -10, 광부 신뢰 +", "en": "→ MCC -10, miner trust +" }},
+        { "id": "mcc_ch2_bury", "text": { "ko": "모든 것 양호. 기록 유지.", "en": "Everything satisfactory. Maintain the record." }, "tone": "corporate", "preview_hint": { "ko": "→ MCC +8, 이후 리스크", "en": "→ MCC +8, risk later" }},
+        { "id": "mcc_ch2_investigate", "text": { "ko": "더 조사한다.", "en": "Investigate further." }, "tone": "thorough", "preview_hint": { "ko": "→ 더 많은 것을 발견", "en": "→ Find more" }},
+        { "id": "mcc_ch2_ask_lifang", "text": { "ko": "Li Fang에게 묻는다.", "en": "Ask Li Fang." }, "tone": "deferential", "preview_hint": { "ko": "→ Li Fang의 현실 설명", "en": "→ Li Fang explains" }}
+      ]
+    },
+    { "id": "s_battle", "type": "battle_transition", "background": "mine_interior", "bgm": "battle_theme_mcc", "transition": "fade_slow",
+      "title": { "ko": "갱도 확인", "en": "Mine Clearance" }, "subtitle": { "ko": "헬라스 북부 — 구역 7", "en": "Northern Hellas — Sector 7" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "narration", "background": "mine_interior", "bgm": "victory_calm",
+      "lines": [{ "text": { "ko": "구역이 확인됐다. 광부 노인이 당신을 보았다. 말이 없었다. 그것이 감사의 표현이었다. 화성에서 말 없는 감사는 말 있는 것보다 무거웠다.", "en": "The sector was cleared. The old miner looked at you. Said nothing. That was gratitude. On Mars wordless thanks were heavier than words." }}] },
+    { "id": "s_fail", "type": "narration", "background": "mine_interior", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "구역은 여전히 불안전했다. 광부들은 다시 들어가야 했다. 다른 선택이 없었다.", "en": "The sector was still unsafe. The miners had to go back in. They had no other choice." }}] },
+    { "id": "s_ending", "type": "ending", "background": "mine_exterior", "bgm": "mcc_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "엘리베이터가 올라갔다. 지표의 빛이 돌아왔다. 핏빛이었다. 광산은 아래에 남았다. 광부들도 아래에 남았다. 보고서는 당신의 손에 있었다. 손이 떨리지 않았다.", "en": "The elevator ascended. Surface light returned. Blood-red. The mine stayed below. The miners stayed below. The report was in your hands. The hands didn't tremble." }}],
+      "next_chapter_preview": { "questId": "mcc_campaign_ch3", "teaser": { "ko": "다음 — 25도 라운지", "en": "Next — The 25-Degree Lounge" }}
+    }
+  ]
+}

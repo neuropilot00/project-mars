@@ -1,0 +1,52 @@
+{
+  "questId": "mcc_campaign_ch4",
+  "campaignId": "mcc_route",
+  "chapterNumber": 4,
+  "title": { "ko": "Kepler Survey", "en": "Kepler Survey" },
+  "location": { "id": "kepler_crater", "displayNameKo": "케플러 분화구" },
+  "environment": "crater_excavation",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "lifang", "liang_wei"],
+  "scenes": [
+    { "id": "s01", "type": "narration", "background": "kepler_crater", "bgm": "mcc_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "케플러 분화구. 깊이 3킬로미터. 분지 안에 분지가 있었다. MCC와 FSP가 광물 자원을 두고 다투는 곳이었다. 광물이 있는지 없는지는 아무도 정확히 몰랐다. 그것이 분쟁의 이유이기도 했다.", "en": "Kepler Crater. Three kilometers deep. A basin within a basin. Where MCC and FSP disputed mineral rights. Whether there were minerals or not nobody knew exactly. That was also why they disputed it." }}] },
+    { "id": "s02", "type": "narration", "background": "kepler_crater", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "Liang Wei는 지질학자였다. 외부인이었다. MCC 소속도 FSP 소속도 아니었다. 그러나 케플러에 대해서는 누구보다 알았다. 30년간 케플러를 조사한 사람이었다. 30년치 데이터가 그녀의 머릿속에 있었다.", "en": "Liang Wei was a geologist. An outsider. Neither MCC nor FSP. But she knew Kepler better than anyone. She had surveyed it for thirty years. Thirty years of data was in her head." }}] },
+    { "id": "s03", "type": "dialogue", "background": "kepler_crater", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [
+        { "speaker": "liang_wei", "emotion": "focused", "effect": "character_enter:liang_wei:slide_right", "text": { "ko": "저기를 보세요. 지층이 달라요. 일반 광석이 아니에요.", "en": "Look there. The stratum is different. Not ordinary ore." }},
+        { "speaker": "liang_wei", "emotion": "excited", "text": { "ko": "Ancient Metal 가설이 있어요. 외계 기원 물질. 학계에서는 인정하지 않지만 나는 30년 동안 이것을 봤어요.", "en": "There's an Ancient Metal hypothesis. Material of extraterrestrial origin. Academia doesn't accept it but I've been watching this for thirty years." }},
+        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "MCC가 알면 독점하려 할 거예요. 그 전에 무엇인지 확인해야 해요.", "en": "If MCC finds out they'll try to monopolize it. We need to confirm what it is first." }}
+      ]
+    },
+    { "id": "s04", "type": "narration", "background": "kepler_crater", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "광물 샘플이 있었다. 색이 달랐다. 화성의 일반 광물과 달랐다. 그것이 무엇인지는 분석이 필요했다. 분석하기 전에 MCC에 보고하면 MCC의 것이 될 것이었다. 그것이 계약의 내용이었다.", "en": "There was a mineral sample. The color was different. Not like ordinary Martian minerals. Analysis was needed to know what it was. Report to MCC before analysis and it would become MCC's. That was what the contract said." }}] },
+    { "id": "s05", "type": "narration", "background": "kepler_crater", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "Liang Wei는 샘플을 보고 있었다. 30년간 이것을 기다렸을 것이었다. 그 얼굴에 무엇이 있는지는 보기 어려웠다. 그러나 손이 떨렸다. 조금. 30년간 기다린 사람의 손이었다.", "en": "Liang Wei was looking at the sample. She had waited thirty years for this. What was in that face was hard to read. But her hands trembled. Slightly. The hands of someone who had waited thirty years." }}] },
+    { "id": "s_choice", "type": "choice", "background": "kepler_crater", "bgm": "choice_tension",
+      "prompt": { "ko": "Ancient Metal 샘플. 어떻게 처리하겠습니까.", "en": "The Ancient Metal sample. What will you do with it." },
+      "choices": [
+        { "id": "mcc_ch4_report_mcc", "text": { "ko": "즉시 MCC에 보고한다.", "en": "Report to MCC immediately." }, "tone": "loyal", "preview_hint": { "ko": "→ MCC 독점 시작, Liang Wei 실망", "en": "→ MCC monopoly begins, Liang Wei disappointed" }},
+        { "id": "mcc_ch4_analyze_first", "text": { "ko": "분석 먼저. 보고는 그 다음.", "en": "Analyze first. Report after." }, "tone": "methodical", "preview_hint": { "ko": "→ 더 많은 정보 획득", "en": "→ More information gained" }},
+        { "id": "mcc_ch4_share_info", "text": { "ko": "Liang Wei에게 공유 제안.", "en": "Propose sharing with Liang Wei." }, "tone": "collaborative", "preview_hint": { "ko": "→ Liang Wei 신뢰 +, MCC 경로 복잡화", "en": "→ Liang Wei trust +, MCC route complicates" }},
+        { "id": "mcc_ch4_secure_site", "text": { "ko": "현장을 먼저 확보한다.", "en": "Secure the site first." }, "tone": "tactical", "preview_hint": { "ko": "→ FSP/CV 접근 방지", "en": "→ Prevent FSP/CV access" }}
+      ]
+    },
+    { "id": "s_battle", "type": "battle_transition", "background": "kepler_crater", "bgm": "battle_theme_mcc", "transition": "flash_white",
+      "title": { "ko": "케플러 확보", "en": "Kepler Secured" }, "subtitle": { "ko": "분쟁 지역 — 광물 현장 통제", "en": "Contested Zone — Mineral Site Control" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "dialogue", "background": "kepler_crater", "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "liang_wei", "emotion": "conflicted", "effect": "character_enter:liang_wei:slide_right", "text": { "ko": "현장 확보됐어요. 샘플도 있어요. 이제 무엇을 할 건지는 당신의 결정이에요.", "en": "Site secured. Sample intact. What happens now is your decision." }},
+        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "30년 동안 이것이 누구 것이 될지 생각 안 했어요. 있는지 없는지만 생각했어요.", "en": "For thirty years I didn't think about who this would belong to. Only whether it existed." }}
+      ]
+    },
+    { "id": "s_fail", "type": "narration", "background": "kepler_crater", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "현장을 놓쳤다. FSP가 먼저 들어왔다. 또는 CV가. 어느 쪽이든 샘플은 없었다. Liang Wei는 아무 말도 하지 않았다. 그것이 더 무거웠다.", "en": "The site was lost. FSP got there first. Or CV. Either way the sample was gone. Liang Wei said nothing. That was heavier." }}] },
+    { "id": "s_ending", "type": "ending", "background": "kepler_crater", "bgm": "mcc_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "케플러 분화구는 여전히 있었다. 깊고 검었다. 분지 안에 분지가 있었다. 무엇이 있는지는 이제 알았다. 그것이 누구 것인지는 아직 결정되지 않았다.", "en": "Kepler Crater was still there. Deep and dark. A basin within a basin. Now it was known what was inside. Whose it was had not yet been decided." }}],
+      "next_chapter_preview": { "questId": "mcc_campaign_ch5", "teaser": { "ko": "다음 — Whistleblower", "en": "Next — Whistleblower" }}
+    }
+  ]
+}

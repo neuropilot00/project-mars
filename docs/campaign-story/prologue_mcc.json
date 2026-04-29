@@ -1,0 +1,75 @@
+{
+  "questId": "mcc_prologue",
+  "campaignId": "mcc_route",
+  "chapterNumber": 0,
+  "title": { "ko": "프롤로그: 붉은 행성", "en": "Prologue: The Red Planet" },
+  "location": { "id": "earth_to_mars_transit", "displayNameKo": "지구-화성 화물 항로" },
+  "environment": "transit_approach",
+  "estimatedPlayTimeMinutes": 8,
+  "characters": ["player", "lifang"],
+  "scenes": [
+    {
+      "id": "p01",
+      "type": "narration",
+      "background": "cargo_ship_interior",
+      "bgm": "ambient_engine_hum",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "화성까지 남은 시간 — 14시간.\n화물선 창밖으로 검은 우주가 보였다.\n당신은 이 여정이 끝나면 돌아오지 않을 거라는 걸 알고 있었다.", "en": "Time to Mars — 14 hours.\nBlack space beyond the cargo ship window.\nYou knew you wouldn't be coming back when this journey ended." } }
+      ]
+    },
+    {
+      "id": "p02",
+      "type": "narration",
+      "background": "cargo_ship_interior",
+      "bgm": "ambient_engine_hum",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "2087년. 화성 인구 1,200만.\n세 개의 파벌이 이 행성을 나누고 있었다.\nMCC — 화성 기업 연합. 자원을 쥔 자들.\nFSP — 자유 정착민 동맹. 땅을 일군 자들.\nCV — 크림슨 워로드. 법 없이 사는 자들.", "en": "2087. Mars population: 12 million.\nThree factions divided this planet.\nMCC — Mars Corporate Consortium. Those who hold the resources.\nFSP — Free Settlers' Pact. Those who worked the land.\nCV — Crimson Warlords. Those who live without law." } }
+      ]
+    },
+    {
+      "id": "p03",
+      "type": "narration",
+      "background": "cargo_ship_interior",
+      "bgm": "ambient_engine_hum",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "당신은 MCC의 호출을 받았다.\n이유는 간단했다 — 당신 같은 사람이 필요했다.\n어떤 사람인지는 — 화성에 도착하면 알게 될 거였다.", "en": "You received a summons from MCC.\nThe reason was simple — they needed someone like you.\nWhat kind of person that was — you'd find out when you arrived on Mars." } }
+      ]
+    },
+    {
+      "id": "p04",
+      "type": "dialogue",
+      "background": "cargo_ship_interior",
+      "bgm": "tension_low",
+      "transition": "fade_medium",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "effect": "character_enter:lifang:slide_left", "text": { "ko": "깨어 있었군요. 좋아요.", "en": "You're awake. Good." } },
+        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "리팡이에요. MCC 현장 책임자. 화성에 도착하면 당신은 내 팀이에요.\n간단한 규칙이 있어요. 내 말을 들어요. 질문은 나중에.", "en": "I'm Lifang. MCC field director. Once you reach Mars, you're on my team.\nSimple rules. Listen to me. Questions later." } },
+        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "화성은 지구랑 달라요. 여기서 실수는 죽음이에요.", "en": "Mars isn't Earth. Mistakes here mean death." } }
+      ]
+    },
+    {
+      "id": "p05",
+      "type": "narration",
+      "background": "cargo_ship_interior",
+      "bgm": "ambient_engine_hum",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "창밖으로 붉은 점이 보이기 시작했다.\n처음에는 별처럼 보였다. 가까워지면서 — 행성이 됐다.\n핏빛이었다. 아름다웠다. 두려웠다.", "en": "A red dot appeared beyond the window.\nAt first it looked like a star. As it grew closer — it became a planet.\nBlood-red. Beautiful. Frightening." } }
+      ]
+    },
+    {
+      "id": "p06",
+      "type": "ending",
+      "background": "cargo_ship_interior",
+      "bgm": "ambient_engine_hum",
+      "transition": "fade_slow",
+      "lines": [
+        { "text": { "ko": "화성이 당신을 기다리고 있었다.\n이 행성에서 당신은 무엇이 될 것인가.", "en": "Mars was waiting for you.\nWhat would you become on this planet." } }
+      ],
+      "next_chapter_preview": { "questId": "mcc_campaign_ch1", "teaser": { "ko": "다음 — 산소 쟁탈", "en": "Next — Oxygen Rush" } }
+    }
+  ]
+}

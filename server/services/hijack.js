@@ -341,7 +341,7 @@ async function handlePhase2Complete(phase2BattleId) {
         }
 
         // 픽셀 소유권 이전
-        const newClaimId = hijack.new_claim_id;
+        let newClaimId = hijack.new_claim_id;
         for (const px of pixels) {
           await client.query(
             `UPDATE pixels SET owner = $1, claim_id = $2 WHERE lat = $3 AND lng = $4`,
@@ -363,12 +363,17 @@ async function handlePhase2Complete(phase2BattleId) {
             [attackerWallet, centerLat, centerLng, w, h, hijack.pp_paid || 0]
           );
           const createdId = cr[0].id;
+          newClaimId = createdId;
           for (const px of pixels) {
             await client.query(
               `UPDATE pixels SET claim_id = $1 WHERE lat = $2 AND lng = $3 AND owner = $4`,
               [createdId, px.lat, px.lng, attackerWallet]
             );
           }
+          await client.query(
+            `UPDATE hijack_battles SET new_claim_id = $1 WHERE id = $2`,
+            [createdId, hijack.id]
+          );
         }
 
         // 원 소유자 claim은 보존 (Phase 2 승리 시에도 동일)
@@ -576,6 +581,21 @@ async function declareHijackWithPP(params) {
               [credit, owner]
             );
           }
+        }
+
+        if (!newClaimId && enemy_pixels.length > 0) {
+          const lats = enemy_pixels.map(p => p.lat);
+          const lngs = enemy_pixels.map(p => p.lng);
+          const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+          const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+          const claimW = Math.round((Math.max(...lngs) - Math.min(...lngs)) / 0.22) + 1;
+          const claimH = Math.round((Math.max(...lats) - Math.min(...lats)) / 0.22) + 1;
+          const { rows: cr } = await client.query(
+            `INSERT INTO claims (owner, center_lat, center_lng, width, height, image_url, link_url, total_paid)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+            [attacker_wallet, centerLat, centerLng, claimW, claimH, image_url || null, link_url || null, attack_cost || totalCost]
+          );
+          newClaimId = cr[0].id;
         }
 
         for (const px of enemy_pixels) {

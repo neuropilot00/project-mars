@@ -1,0 +1,301 @@
+{
+  "questId": "cv_campaign_ch1",
+  "campaignId": "cv_route",
+  "chapterNumber": 1,
+  "title": { "ko": "입문", "en": "Initiation" },
+  "location": { "id": "erebus_crater_base", "displayNameKo": "에레부스 분화구 CV 거점" },
+  "environment": "crater_night_fire",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "butcher", "cinder"],
+  "scenes": [
+
+    {
+      "id": "s01",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "에레부스 분화구. 지표 아래 5킬로미터. 거기서는 하늘이 보이지 않았다. 분화구 벽이 하늘이었다. 분화구 바닥에 불이 있었다. 영하 백 도에서 불이 탔다. 150명이 공유하는 불이었다. 30년 동안 꺼진 날이 없었다.",
+            "en": "Erebus Crater. Five kilometers below the surface. No sky was visible from there. The crater walls were the sky. At the bottom a fire burned. It burned at minus one hundred degrees. One hundred and fifty people shared it. It had not gone out in thirty years."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s02",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Butcher Vasquez는 불 앞에 앉았다. 왼쪽 팔이 불빛을 받았다. 의수였다. 광산용 구식 의수. MCC가 사고 배상을 거부했을 때 그가 직접 만들었다. 17살 때였다. 그 후로 같은 팔이었다.",
+            "en": "Butcher Vasquez sat before the fire. Firelight fell on his left arm. A prosthetic. Old mining-grade. He had built it himself when MCC refused to cover the accident. He was seventeen then. The same arm, ever since."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s03",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "곁에 곡괭이가 있었다. 세워두었다. 그것은 무기가 아니었다. 그러나 무기가 아닌 것도 아니었다. Butcher에게 그것은 그런 것이었다. 도구이고 신호이고 30년이었다.",
+            "en": "A pickaxe leaned beside him. It wasn't a weapon. But it wasn't not a weapon either. For Butcher it was both. A tool, a signal, and thirty years."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s04",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "외투 안주머니에 손을 넣었다. 꺼내지는 않았다. 안에 사진이 있었다. 30년 된 것. 광부 학살이 있던 날의 것. 그날 살아남은 사람들 중 찍힌 것. 모두 죽었다. 사진 안에서만 살아있었다.",
+            "en": "He put his hand in his inside pocket. Didn't take anything out. Inside was a photograph. Thirty years old. From the day of the miners' massacre. Taken of those who survived that day. All of them were dead now. They lived only in the photograph."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "분화구 아래로 사람이 내려오는 것이 보였다. 가방을 들고 있었다. 작은 가방이었다. 손이 가방 위에 있었다. 거기까지 오는 것만으로도 시험이었다. 대부분은 중간에 돌아갔다. 이 사람은 돌아가지 않았다.",
+            "en": "Someone was descending into the crater. Carrying a small bag. Hand resting on it. Just making it this far was a test. Most turned back halfway. This one hadn't."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "살아있네.\n\nButcher가 말했다. 불에서 눈을 떼지 않고.\n\n그 사람이 불 앞에 섰다. 잃을 게 없어 보여. 그가 말했다.\n\n침묵이 있었다. 불이 탔다. 영하 백 도 안에서.",
+            "en": "Still alive.\n\nButcher said this without looking away from the fire.\n\nThe person stood before the fire. Looks like you've got nothing to lose. He said.\n\nThere was silence. The fire burned. In minus one hundred degrees."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "CV에는 규칙이 없어. 그게 규칙이야. 들어오면 코드가 있어.",
+            "en": "CV has no rules. That's the rule. Once you're in, there's a code."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "direct",
+          "text": {
+            "ko": "비전투원 보호. 약속. 항복자 자비. 명령 복종. 그리고—",
+            "en": "Protect noncombatants. Keep your word. Mercy to those who surrender. Follow orders. And—"
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "stoic",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "잘 죽이지 않는 법.",
+            "en": "Learn not to kill well."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "마지막 게 제일 어려워.",
+            "en": "That last one is the hardest."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "세 가지야. Butcher가 말했다. 무력. 의리. 생존. 셋 중 하나로 증명해. 어느 것인지는 자네가 정해.\n\n처음으로 그 사람을 보았다. 왼쪽 얼굴에 흉터가 있었다. 불빛에서 보였다. 얼마나 된 것인지는 알 수 없었다. Butcher는 그 흉터를 오래 보았다.",
+            "en": "Three things. Butcher said. Strength. Loyalty. Survival. Prove one. You choose which.\n\nFor the first time he looked at the person directly. There was a scar on the left side of their face. Visible in the firelight. He couldn't tell how old it was. Butcher looked at that scar for a long time."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "가방 안에 무엇이 있어.\n\nButcher가 말했다. 그 사람을 보지 않고.\n\n묻는 것이 아니었다. 그냥 말한 것이었다.\n\n그 사람은 답하지 않았다.\n\n그래. Butcher가 말했다. 모르는 게 좋아.",
+            "en": "What's in the bag.\n\nButcher said this, not looking at the person.\n\nHe wasn't asking. He was just saying.\n\nThe person didn't answer.\n\nGood. Butcher said. Better not to know."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "kepler_crater",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "세 가지 시험 중 무엇으로 증명하겠습니까?",
+        "en": "Which of the three will you prove?"
+      },
+      "choices": [
+        {
+          "id": "cv_ch1_brutal",
+          "text": { "ko": "무력으로. 지정된 표적을 제거한다.", "en": "Strength. Eliminate the target." },
+          "tone": "ruthless",
+          "preview_hint": { "ko": "→ Butcher 인정 +, Cinder 유보", "en": "→ Butcher approval +, Cinder reserved" }
+        },
+        {
+          "id": "cv_ch1_clever",
+          "text": { "ko": "의리로. CV의 비밀을 지킨다.", "en": "Loyalty. Keep CV's secret." },
+          "tone": "principled",
+          "preview_hint": { "ko": "→ Cinder 호감 +, Butcher 관찰", "en": "→ Cinder favor +, Butcher watches" }
+        },
+        {
+          "id": "cv_ch1_refuse",
+          "text": { "ko": "생존으로. 혼자서 7시간을 버틴다.", "en": "Survival. Seven hours alone." },
+          "tone": "independent",
+          "preview_hint": { "ko": "→ Butcher 흥미 +, 고독 조건", "en": "→ Butcher interest +, solitary conditions" }
+        },
+        {
+          "id": "cv_ch1_question",
+          "text": { "ko": "Reza는 누구입니까.", "en": "Who is Reza." },
+          "tone": "questioning",
+          "preview_hint": { "ko": "→ Cinder가 설명, Butcher 침묵", "en": "→ Cinder explains, Butcher goes silent" }
+        }
+      ]
+    },
+
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "kepler_crater",
+      "bgm": "cv_battle_theme",
+      "transition": "flash_white",
+      "title": { "ko": "입문 시험", "en": "The Initiation" },
+      "subtitle": { "ko": "에레부스 — 증명하라", "en": "Erebus — Prove It" }
+    },
+
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+
+    {
+      "id": "s_success",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "victory_calm",
+      "lines": [
+        {
+          "text": {
+            "ko": "됐어.\n\nButcher가 말했다. 불을 보면서. 그 사람을 보지 않고.\n\nCinder는 고개를 끄덕였다. 말이 없었다. 그것으로 충분했다.",
+            "en": "That'll do.\n\nButcher said, looking at the fire. Not at the person.\n\nCinder nodded. Nothing was said. That was enough."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "defeat_ambient",
+      "lines": [
+        {
+          "speaker": "cinder",
+          "emotion": "cold",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "아직 살아있어. 두 번은 없어. 다시.",
+            "en": "Still alive. No second chances. Try again."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "flat",
+          "effect": "character_enter:butcher:slide_left",
+          "text": {
+            "ko": "살아있으면 아직 기회야.",
+            "en": "Alive means there's still a chance."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "kepler_crater",
+      "bgm": "cv_ambient_dark",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "불은 타고 있었다. Butcher는 일어서지 않았다. 그 사람이 분화구 안으로 걸어 들어갔다. 가방을 들고. 손을 가방 위에 얹고.\n\n다른 사람들이 보았다. 아무도 말하지 않았다.\n\n영하 백 도였다. 불만 타고 있었다. 30년 동안 그랬다.",
+            "en": "The fire burned. Butcher didn't stand. The person walked into the crater. Carrying the bag. Hand resting on it.\n\nThe others watched. No one said anything.\n\nMinus one hundred degrees. Only the fire burned. It had burned for thirty years."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch2",
+        "teaser": { "ko": "다음 — 첫 피", "en": "Next — First Blood" }
+      }
+    }
+
+  ]
+}
