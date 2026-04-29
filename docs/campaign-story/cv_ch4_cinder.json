@@ -2,240 +2,54 @@
   "questId": "cv_campaign_ch4",
   "campaignId": "cv_route",
   "chapterNumber": 4,
-  "title": {
-    "ko": "신더",
-    "en": "Cinder"
-  },
-  "location": {
-    "id": "sandstone_junction_sub3",
-    "displayNameKo": "Sandstone Junction 지하"
-  },
-  "environment": "underground_negotiation",
-  "estimatedPlayTimeMinutes": 14,
-  "characters": [
-    "player",
-    "butcher",
-    "cinder"
-  ],
+  "title": { "ko": "Cinder의 그림자", "en": "Cinder's Shadow" },
+  "location": { "id": "mcc_sector_12_ruins", "displayNameKo": "MCC 12구역 폐광" },
+  "environment": "abandoned_mine",
+  "estimatedPlayTimeMinutes": 15,
+  "pov": "cinder",
+  "characters": ["cinder", "player"],
   "scenes": [
-    {
-      "id": "s01",
-      "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "fade_slow",
+    { "id": "s01", "type": "narration", "background": "mcc_sector12_ruins", "bgm": "cv_ambient_heavy", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "Cinder Grace는 여기를 알았다. 3년 전에 일한 곳이었다. MCC 12구역. 지금은 폐광이었다. 사고 이후. 그 사고를 아는 사람은 많지 않았다. MCC가 기록에서 지웠으니까. 그러나 Cinder는 알았다. 그 자리에 있었으니까.", "en": "Cinder Grace knew this place. She had worked here three years ago. MCC Zone 12. Now an abandoned mine. After the accident. Not many people knew about that accident. MCC had erased it from the records. But Cinder knew. She had been there." }}] },
+    { "id": "s02", "type": "narration", "background": "mcc_sector12_ruins", "bgm": "cv_ambient_heavy", "transition": "cut",
+      "lines": [{ "text": { "ko": "그녀는 기계 기술자였다. MCC. 갱도 지지 시스템 담당이었다. 6년 일했다. 그리고 12구역 보고서를 썼다. 지지대 결함. 즉각 수리 요망. MCC 감독관이 서류를 돌려보냈다. 수정하라고. Cinder는 수정하지 않았다.", "en": "She had been a mechanical engineer. MCC. In charge of tunnel support systems. Worked six years. Then she wrote the Zone 12 report. Support beam defects. Immediate repair required. The MCC supervisor returned the document. Told her to revise. Cinder didn't revise." }}] },
+    { "id": "s03", "type": "narration", "background": "mcc_sector12_ruins", "bgm": "cv_ambient_heavy", "transition": "cut",
+      "lines": [{ "text": { "ko": "일주일 후에 갱도가 무너졌다. 11명이 죽었다. Cinder는 보고서를 갖고 있었다. 원본을. MCC는 그것을 알았다. 계약이 해지됐다. 사유: 직무 위반. 그것이 공식 기록이었다. Cinder가 아는 기록은 달랐다.", "en": "One week later the tunnel collapsed. Eleven people died. Cinder had the report. The original. MCC knew it. The contract was terminated. Reason: conduct violation. That was the official record. The record Cinder knew was different." }}] },
+    { "id": "s04", "type": "dialogue", "background": "mcc_sector12_ruins", "bgm": "tension_low", "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "신더 그레이스는 CV 서열 4위였다.\n하지만 실전 전투력은 달랐다.\n그리고 정육점도 아는 것이 있었다 — 신더가 혼자 움직이고 있었다.",
-            "en": "Cinder Grace was fourth in CV hierarchy.\nBut real combat strength was different.\nAnd Butcher knew something — Cinder was moving alone."
-          }
-        }
+        { "speaker": "cinder", "emotion": "quiet", "effect": "character_enter:cinder:slide_right", "text": { "ko": "여기 온 이유가 있어요.", "en": "There's a reason I came here." }},
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "11명이요. 이름들이 있어요. MCC 기록에는 없어요. 그러나 나한테 있어요. 이 보고서에. 3년 전에 썼어요.", "en": "Eleven people. There are names. Not in MCC records. But I have them. In this report. Written three years ago." }},
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "당신한테 왜 이걸 말하는지 모르겠어요. 그냥 말하고 싶어졌어요. 처음으로.", "en": "I don't know why I'm telling you this. Just wanted to say it. For the first time." }}
       ]
     },
-    {
-      "id": "s02",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "cut",
+    { "id": "s05", "type": "narration", "background": "mcc_sector12_ruins", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "그녀가 공구를 만졌다. 벨트의 것을. 무기가 아닌 것을. 그것이 그녀의 방식이었다. 공구를 만지면 생각이 정리됐다. 3년 동안 그래왔다. 공구를 고치는 것이 아니라 공구를 만지는 것. 그것이 Cinder Grace의 기도였다.", "en": "She touched her tools. The ones on the belt. The ones that weren't weapons. That was her way. Touching tools helped her thoughts settle. It had been that way for three years. Not repairing tools but touching them. That was Cinder Grace's prayer." }}] },
+    { "id": "s06", "type": "dialogue", "background": "mcc_sector12_ruins", "bgm": "tension_medium", "transition": "cut",
       "lines": [
-        {
-          "speaker": "cinder",
-          "emotion": "direct",
-          "effect": "character_enter:cinder:slide_left",
-          "text": {
-            "ko": "FSP가 비밀 접촉을 원해.\n정육점은 알면 안 돼. 이해해?",
-            "en": "FSP wants secret contact.\nButcher can't know. Understand?"
-          }
-        },
-        {
-          "speaker": "player",
-          "emotion": "neutral",
-          "text": {
-            "ko": "...",
-            "en": "..."
-          }
-        },
-        {
-          "speaker": "cinder",
-          "emotion": "flat",
-          "text": {
-            "ko": "CV가 영원히 이렇게 살 수는 없어. 나는 다른 길을 보고 있어.",
-            "en": "CV can't live this way forever. I see another path."
-          }
-        }
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "CV에 온 건 돈 때문이 아니에요. 갈 곳이 없어서예요.", "en": "I didn't come to CV for the money. I came because there was nowhere else to go." }},
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "Butcher가 11구역 얘기를 들었어요. 찾아왔어요. 아무 말 안 하고. 그냥 불 앞에 앉았어요. 같이. 그게 전부였어요. 그게 충분했어요.", "en": "Butcher heard about Zone 11. He came to find me. Without a word. Just sat by the fire. Together. That was all. That was enough." }}
       ]
     },
-    {
-      "id": "s03",
-      "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "신더는 오래 기다렸다.\n답을 재촉하지 않았다.\n그 여유가 오히려 무서웠다.",
-            "en": "Cinder waited a long time.\nDidn't push for an answer.\nThat patience was more frightening than anything."
-          }
-        }
-      ]
-    },
-    {
-      "id": "s_choice",
-      "type": "choice",
-      "background": "kepler_crater",
-      "bgm": "choice_tension",
-      "prompt": {
-        "ko": "신더에게 어떻게 반응합니까?",
-        "en": "How do you respond to Cinder?"
-      },
+    { "id": "s_choice", "type": "choice", "background": "mcc_sector12_ruins", "bgm": "choice_tension",
+      "prompt": { "ko": "Cinder Grace. 11명의 이름들. 이 폐광. 어떻게 반응합니까.", "en": "Cinder Grace. Eleven names. This abandoned mine. How do you respond." },
       "choices": [
-        {
-          "id": "cv_ch4_support_cinder",
-          "text": {
-            "ko": "신더를 지지한다. 협상 진행.",
-            "en": "Support Cinder. Let the negotiation proceed."
-          },
-          "tone": "alliance",
-          "preview_hint": {
-            "ko": "→ CV +5, FSP +10, 신더 루트 강화",
-            "en": "→ CV +5, FSP +10, Cinder route strengthened"
-          }
-        },
-        {
-          "id": "cv_ch4_report_butcher",
-          "text": {
-            "ko": "정육점에게 보고한다.",
-            "en": "Report to Butcher."
-          },
-          "tone": "loyal",
-          "preview_hint": {
-            "ko": "→ CV +10, FSP -20, 신더 위기",
-            "en": "→ CV +10, FSP -20, Cinder in danger"
-          }
-        },
-        {
-          "id": "cv_ch4_watch",
-          "text": {
-            "ko": "지켜본다. 아직 판단 안 한다.",
-            "en": "Watch. No judgment yet."
-          },
-          "tone": "cautious",
-          "preview_hint": {
-            "ko": "→ 중립, 이후 선택지 확장",
-            "en": "→ Neutral, expands later choices"
-          }
-        },
-        {
-          "id": "cv_ch4_demand_terms",
-          "text": {
-            "ko": "FSP에게 더 많은 조건을 요구한다.",
-            "en": "Demand better terms from FSP."
-          },
-          "tone": "pragmatic",
-          "preview_hint": {
-            "ko": "→ CV +3, 협상가 루트",
-            "en": "→ CV +3, negotiator path"
-          }
-        }
+        { "id": "cv_ch4_witness", "text": { "ko": "듣는다. 이름들을 기억한다.", "en": "Listen. Remember the names." }, "tone": "witness", "preview_hint": { "ko": "→ Cinder가 처음으로 눈물 흘린다", "en": "→ Cinder sheds tears for the first time" }},
+        { "id": "cv_ch4_mcc_file", "text": { "ko": "MCC 파일을 이용하자고 제안한다.", "en": "Propose using the MCC file." }, "tone": "strategic", "preview_hint": { "ko": "→ Cinder가 고개를 젓는다. 그게 목적이 아니라고", "en": "→ Cinder shakes her head. That's not the point." }},
+        { "id": "cv_ch4_share", "text": { "ko": "자신의 이야기를 말한다. 비슷한 것을.", "en": "Share your own story. Something similar." }, "tone": "human", "preview_hint": { "ko": "→ Cinder가 처음으로 먼저 말을 건다", "en": "→ Cinder speaks first for the first time" }},
+        { "id": "cv_ch4_silent", "text": { "ko": "아무 말도 하지 않는다.", "en": "Say nothing." }, "tone": "presence", "preview_hint": { "ko": "→ Cinder가 고맙다고 한다. 말이 없는 것에 대해", "en": "→ Cinder thanks you. For the silence." }}
       ]
     },
-    {
-      "id": "s04",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "cut",
-      "lines": [
-        {
-          "speaker": "cinder",
-          "emotion": "flat",
-          "effect": "character_enter:cinder:slide_left",
-          "text": {
-            "ko": "어쨌든 알게 됐어.\n넌 어느 쪽 사람인지.",
-            "en": "Either way, now I know.\nWhich side you're on."
-          }
-        }
-      ]
+    { "id": "s_battle", "type": "battle_transition", "background": "mcc_sector12_ruins", "bgm": "battle_theme_cv", "transition": "fade_slow",
+      "title": { "ko": "12구역의 진실", "en": "The Truth of Zone 12" }, "subtitle": { "ko": "MCC 폐광 — 11명을 위하여", "en": "MCC Abandoned Mine — For Eleven" }
     },
-    {
-      "id": "s_battle",
-      "type": "battle_transition",
-      "background": "space_battle_start",
-      "bgm": "battle_theme_mcc",
-      "transition": "flash_white",
-      "title": {
-        "ko": "지하 탈출",
-        "en": "Underground Extraction"
-      },
-      "subtitle": {
-        "ko": "Sandstone Junction — MCC 정찰대",
-        "en": "Sandstone Junction — MCC Patrol"
-      }
-    },
-    {
-      "id": "s_result",
-      "type": "result",
-      "success_scene": "s_success",
-      "failure_scene": "s_fail"
-    },
-    {
-      "id": "s_success",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "victory_calm",
-      "lines": [
-        {
-          "speaker": "cinder",
-          "emotion": "neutral",
-          "effect": "character_enter:cinder:slide_left",
-          "text": {
-            "ko": "빠져나왔어. 이제 각자 갈 길로.",
-            "en": "We're out. Each to our own path now."
-          }
-        }
-      ]
-    },
-    {
-      "id": "s_fail",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "defeat_ambient",
-      "lines": [
-        {
-          "speaker": "cinder",
-          "emotion": "cold",
-          "effect": "character_enter:cinder:slide_left",
-          "text": {
-            "ko": "MCC가 정보를 가져갔을 수 있어. 조심해.",
-            "en": "MCC may have gotten information. Be careful."
-          }
-        }
-      ]
-    },
-    {
-      "id": "s_ending",
-      "type": "ending",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "fade_slow",
-      "lines": [
-        {
-          "text": {
-            "ko": "신더 그레이스.\nCV의 칼이라고들 했다.\n하지만 칼에도 사용자가 있었다.\n그녀는 자기 손으로 쥐고 싶었다.",
-            "en": "Cinder Grace.\nThey called her CV's blade.\nBut every blade had a wielder.\nShe wanted to hold it herself."
-          }
-        }
-      ],
-      "next_chapter_preview": {
-        "questId": "cv_campaign_ch5",
-        "teaser": {
-          "ko": "다음 — 케플러의 왕",
-          "en": "Next — King of Kepler"
-        }
-      }
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "narration", "background": "mcc_sector12_ruins", "bgm": "victory_calm",
+      "lines": [{ "text": { "ko": "폐광에서 나왔다. Cinder가 보고서를 갖고 나왔다. 3년 동안 가지고 있던 것. 이름들이 거기 있었다. 11명. 화성에서 이름이 있는 사람은 계속 거기 있는 것이었다. 기록에 없어도. 폐광이 되어도.", "en": "Out of the abandoned mine. Cinder came out with the report. The thing she'd carried for three years. The names were there. Eleven. On Mars a person with a name remained there. Even without a record. Even when it became abandoned." }}] },
+    { "id": "s_fail", "type": "narration", "background": "mcc_sector12_ruins", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "MCC 경비가 왔다. 폐광이었지만 경비가 있었다. MCC는 폐광도 지켰다. 거기서 지울 것들이 있었다. 보고서가 없었다. 그러나 Cinder의 기억 안에 있었다. 기억은 경비가 없었다.", "en": "MCC security came. It was abandoned but there were guards. MCC guarded even abandoned mines. There were things to erase there. No report. But it was in Cinder's memory. Memory had no security." }}] },
+    { "id": "s_ending", "type": "ending", "background": "erebus_canyon_sunset", "bgm": "cv_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "해가 에레보스 쪽으로 기울었다. 화성의 해. 작은 것. 먼 것. Cinder가 공구 벨트를 다시 확인했다. 습관이었다. 모든 것이 있었다. 없어진 것이 없었다. 그것을 확인하는 것이었다. 11명은 없어졌지만. 공구들은 있었다. 보고서도 있었다. 기억도 있었다.", "en": "The sun tilted toward Erebus. The Martian sun. Small thing. Distant thing. Cinder checked her tool belt again. A habit. Everything was there. Nothing missing. That was what she was checking. The eleven were gone. But the tools were there. The report was there. The memory was there." }}],
+      "next_chapter_preview": { "questId": "cv_campaign_ch5", "teaser": { "ko": "다음 — 야생의 조약", "en": "Next — Wild Lands Treaty" }}
     }
   ]
 }

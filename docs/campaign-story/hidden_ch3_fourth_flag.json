@@ -1,0 +1,46 @@
+{
+  "questId": "hidden_campaign_ch3",
+  "campaignId": "hidden_route",
+  "chapterNumber": 3,
+  "title": { "ko": "세 개의 깃발, 네 번째 시점", "en": "Three Flags, Fourth Perspective" },
+  "location": { "id": "olympus_summit_exterior", "displayNameKo": "올림포스 산 정상 외부" },
+  "environment": "olympus_exterior_thin_air",
+  "estimatedPlayTimeMinutes": 20,
+  "crossChapterNote": "MCC Ch9, FSP Ch9, CV Ch9와 같은 사건. 네 번째 시점 — 내부가 아닌 외부의 눈.",
+  "characters": ["observer", "chen", "rev_hale", "cinder"],
+  "scenes": [
+    { "id": "s01", "type": "narration", "background": "olympus_exterior", "bgm": "ambient_vast", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "올림포스 몬스. 관찰자가 올라왔다. 기지 안이 아니었다. 밖이었다. 올림포스 외벽. 거기서 봤다. 안에 세 명이 있었다. 세 파벌. 세 개의 깃발. 관찰자는 안에 없었다. 네 번째 깃발이 없었으니까. 그러나 봤다. 유리 너머로.", "en": "Olympus Mons. The observer had ascended. Not inside the station. Outside. The outer wall of Olympus. Watching from there. Inside were three people. Three factions. Three flags. The observer was not inside. Because there was no fourth flag. But watching. Through the glass." }}] },
+    { "id": "s02", "type": "narration", "background": "olympus_summit_exterior_view", "bgm": "ambient_vast", "transition": "cut",
+      "lines": [{ "text": { "ko": "Chen Weiss가 차를 들고 있었다. 관찰자는 그것을 봤다. 유리 너머로. 처음이 아니었다. Chen의 차를 본 것이. 그러나 이 높이에서 보는 것은 달랐다. 태양계에서 가장 높은 곳. 여기서 보는 차가 따뜻한지는 알 수 없었다.", "en": "Chen Weiss was holding tea. The observer saw it. Through the glass. Not the first time. Seeing Chen's tea. But seeing it at this height was different. The highest point in the solar system. Whether tea seen from here was warm was unknowable." }}] },
+    { "id": "s03", "type": "narration", "background": "olympus_summit_exterior_view", "bgm": "ambient_vast", "transition": "cut",
+      "lines": [{ "text": { "ko": "Rev. Hale이 이름들을 말했다. Kim Yong-jin. Mariam. Zone 12. 관찰자가 들었다. 유리 너머로 소리가 들렸다. 마스크 안으로. 이름들이. 관찰자도 그 이름들을 알았다. 흔적에서 봤다. 분필에서. 재에서. 발자국에서.", "en": "Rev. Hale spoke names. Kim Yong-jin. Mariam. Zone 12. The observer heard. Sound came through the glass. Into the mask. The names. The observer also knew those names. Had seen them in traces. In chalk. In ash. In footprints." }}] },
+    { "id": "s04", "type": "narration", "background": "olympus_summit_exterior_view", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "Cinder Grace가 공구를 내려놓았다. 테이블에. 관찰자가 봤다. 그것이 무엇인지 알았다. 고치는 것을 멈추는 것이 아니었다. 고칠 수 없는 것이 있다는 것을 인정하는 것이었다. 또는 고치는 방법이 다르다는 것을. 공구 없이.", "en": "Cinder Grace set down her tools. On the table. The observer saw it. Knew what it meant. Not stopping repairing. Acknowledging there were things that couldn't be repaired. Or that the way of repairing was different. Without tools." }}] },
+    { "id": "s05", "type": "narration", "background": "olympus_summit_exterior_view", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": { "ko": "세 사람이 합의하고 있었다. 또는 합의하지 못하고 있었다. 관찰자는 결과를 알 수 없었다. 유리가 두꺼웠다. 그러나 보이는 것들이 있었다. 세 사람이 같은 것을 원하지 않는다는 것. 그러나 같은 것을 두려워한다는 것. 두려움이 합의를 만드는 것이었다. 그것이 화성의 방식이었다.", "en": "The three were reaching agreement. Or failing to reach it. The observer couldn't know the result. The glass was thick. But some things were visible. That the three didn't want the same thing. But that they feared the same thing. Fear made agreement. That was Mars's way." }}] },
+    { "id": "s06", "type": "narration", "background": "olympus_exterior_vast", "bgm": "ambient_vast", "transition": "cut",
+      "lines": [{ "text": { "ko": "관찰자가 뒤로 돌았다. 화성이 보였다. 전체가. 이 높이에서. MCC 도시들. FSP 마을들. CV 기지들. 그리고 그것들 사이. 이름 없는 곳들. 흔적들이 있는 곳들. 분필. 재. 발자국. 그것들이 화성이었다. 도시와 기지보다 더.", "en": "The observer turned around. Mars was visible. All of it. From this height. MCC cities. FSP villages. CV bases. And between them. The unnamed places. Places with traces. Chalk. Ash. Footprints. Those were Mars. More than cities and bases." }}] },
+    { "id": "s_choice", "type": "choice", "background": "olympus_exterior_vast", "bgm": "choice_tension",
+      "prompt": { "ko": "네 번째 시점. 관찰자. 화성 전체가 보인다. 무엇을 합니까.", "en": "Fourth perspective. Observer. All Mars visible. What do you do." },
+      "choices": [
+        { "id": "hidden_ch3_enter", "text": { "ko": "안으로 들어간다. 네 번째 목소리가 된다.", "en": "Go inside. Become the fourth voice." }, "tone": "intervention", "preview_hint": { "ko": "→ 세 파벌이 멈춘다. 관찰자를 본다", "en": "→ The three factions stop. Look at the observer." }},
+        { "id": "hidden_ch3_wait", "text": { "ko": "기다린다. 그들이 결정하게 한다.", "en": "Wait. Let them decide." }, "tone": "restraint", "preview_hint": { "ko": "→ 결정이 난다. 다른 방향으로", "en": "→ Decision is made. In a different direction." }},
+        { "id": "hidden_ch3_record", "text": { "ko": "기록한다. 이 순간을.", "en": "Record this moment." }, "tone": "historian", "preview_hint": { "ko": "→ 화성에서 처음으로 네 번째 기록이 생긴다", "en": "→ For the first time on Mars a fourth record is made." }},
+        { "id": "hidden_ch3_ancient", "text": { "ko": "Ancient Metal. 그것을 꺼낸다.", "en": "Ancient Metal. Bring it forward." }, "tone": "revelation", "preview_hint": { "ko": "→ 세 파벌이 모두 돌아본다. 모든 것이 달라진다", "en": "→ All three factions turn. Everything changes." }}
+      ]
+    },
+    { "id": "s_battle", "type": "battle_transition", "background": "olympus_exterior", "bgm": "hidden_theme", "transition": "fade_slow",
+      "title": { "ko": "올림포스의 네 번째", "en": "The Fourth at Olympus" }, "subtitle": { "ko": "올림포스 — 관찰자의 선택", "en": "Olympus — The Observer's Choice" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "narration", "background": "olympus_summit_station", "bgm": "victory_calm",
+      "lines": [{ "text": { "ko": "네 번째가 있었다. 세 파벌은 몰랐다. 그러나 지금은 알았다. 관찰자가 안에 있었다. 또는 기록이 있었다. 또는 Ancient Metal이 테이블에 있었다. 어느 쪽이든 화성이 달라졌다. 관찰이 관찰을 넘어선 것이었다.", "en": "There was a fourth. The three factions hadn't known. But now they did. The observer was inside. Or a record existed. Or Ancient Metal was on the table. Either way Mars had changed. Observation had gone beyond observation." }}] },
+    { "id": "s_fail", "type": "narration", "background": "olympus_exterior", "bgm": "hidden_ambient",
+      "lines": [{ "text": { "ko": "합의가 없었다. 네 번째 시점도 없었다. 관찰자는 유리 너머에 있었다. 세 파벌은 각자 갔다. 그러나 관찰자는 봤다. 그것이 기록이었다. 기록은 합의가 없어도 있었다.", "en": "No agreement. No fourth perspective either. The observer was beyond the glass. Three factions went their ways. But the observer had seen. That was the record. Records existed even without agreement." }}] },
+    { "id": "s_ending", "type": "ending", "background": "olympus_exterior_vast", "bgm": "ambient_vast", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "올림포스에서 내려왔다. 화성이 아래에 있었다. 세 개의 깃발이 있었다. 그 사이에 이름 없는 것들이 있었다. 관찰자는 그것들을 알았다. 이름들. 흔적들. 30년. Ancient Metal. 그것들이 연결된 것을 알았다. 그러나 어떻게 연결됐는지는 아직 몰랐다. 30년 전이 있었다. 그것이 마지막이었다.", "en": "Descended from Olympus. Mars was below. Three flags existed. Between them were nameless things. The observer knew them. Names. Traces. Thirty years. Ancient Metal. Knew they were connected. But how they connected was still unknown. There was thirty years ago. That was last." }}],
+      "next_chapter_preview": { "questId": "hidden_campaign_ch4", "teaser": { "ko": "다음 — 30년", "en": "Next — Thirty Years" }}
+    }
+  ]
+}

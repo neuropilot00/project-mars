@@ -3,156 +3,56 @@
   "campaignId": "fsp_route",
   "chapterNumber": 6,
   "title": { "ko": "두더지", "en": "The Mole" },
-  "location": { "id": "hellas_central", "displayNameKo": "Hellas Central 정착지" },
-  "environment": "internal_crisis",
+  "location": { "id": "hellas_central_underground", "displayNameKo": "헬라스 센트럴 지하 통로" },
+  "environment": "underground_passage",
   "estimatedPlayTimeMinutes": 15,
-  "characters": ["player", "mikhail", "amara"],
+  "characters": ["player", "kenji", "lena"],
   "scenes": [
-    {
-      "id": "s01",
-      "type": "narration",
-      "background": "hellas_mining_outpost",
-      "bgm": "fsp_ambient",
-      "transition": "fade_slow",
+    { "id": "s01", "type": "narration", "background": "hellas_central_underground", "bgm": "tension_low", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "지하 통로가 있었다. MCC 본부 아래. 60년 전 지어질 때 만들어진 것이었다. MCC가 만들었지만 MCC가 전부 아는 것은 아니었다. 큰 건물은 모두 아는 사람이 없었다. 그것이 큰 건물의 특징이었다.", "en": "There was an underground passage. Below MCC headquarters. Built when it was constructed sixty years ago. MCC built it but MCC didn't know all of it. No one knew everything about a large building. That was the nature of large buildings." }}] },
+    { "id": "s02", "type": "narration", "background": "hellas_central_underground", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "Kenji Nakamura. MCC 기술부 3급 엔지니어. 5년째 그 자리. 진급 없이 5년. 화성에서 진급 없이 5년은 두 가지를 뜻했다. 무능하거나. 다른 것을 하고 있거나. Kenji는 무능하지 않았다.", "en": "Kenji Nakamura. Grade 3 MCC technical engineer. Five years in the same position. Five years without promotion. On Mars five years without promotion meant one of two things. Incompetence. Or doing something else. Kenji was not incompetent." }}] },
+    { "id": "s03", "type": "dialogue", "background": "hellas_central_underground", "bgm": "tension_low", "transition": "cut",
       "lines": [
-        { "text": { "ko": "누군가 내부에서 FSP 이동 경로를 MCC에 팔고 있었다. 세 번의 작전이 타이밍이 너무 정확했다. 우연이 세 번 겹치는 경우는 없다.", "en": "Someone inside was selling FSP movement routes to MCC. Three operations, the timing too precise. Coincidence doesn't happen three times in a row." } }
+        { "speaker": "kenji", "emotion": "nervous", "effect": "character_enter:kenji:slide_right", "text": { "ko": "늦지 않았어요. 5분 있어요.", "en": "Not late. Five minutes." }},
+        { "speaker": "kenji", "emotion": "urgent", "text": { "ko": "MCC가 Liang Wei 데이터를 차단했어요. 그 전에 제가 백업했어요. 이게 있어요.", "en": "MCC blocked Liang Wei's data. I backed it up before that. I have it." }},
+        { "speaker": "kenji", "emotion": "tense", "text": { "ko": "그리고 하나 더요. MCC가 FSP 내부에 있어요. 누군지는 몰라요. 통신 패턴으로 봤을 때 고위직이에요.", "en": "One more thing. MCC has someone inside FSP. Don't know who. Based on communication patterns it's someone senior." }}
       ]
     },
-    {
-      "id": "s02",
-      "type": "dialogue",
-      "background": "hellas_mining_outpost",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
+    { "id": "s04", "type": "narration", "background": "hellas_central_underground", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": { "ko": "Lena가 들었다. 빠른 사람이 멈췄다. 그것은 드문 일이었다. Lena가 멈추면 무언가 무거운 것이 있었다. 왼팔 문신의 이름들. 그 중 누군가가 FSP 내부자 때문에 죽었을 수 있었다. 그것을 아직 알 수 없었다.", "en": "Lena heard it. The fast person stopped. That was rare. When Lena stopped something heavy was there. The names in the tattoo on her left arm. One of them might have died because of the FSP mole. That was not yet knowable." }}] },
+    { "id": "s05", "type": "dialogue", "background": "hellas_central_underground", "bgm": "tension_medium", "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "tense", "effect": "character_enter:amara:slide_right", "text": { "ko": "케nji 타나카. 물류팀. 그의 가족이 MCC 영토 안에 있어요. 뉴 서울 정착지.", "en": "Kenji Tanaka. Logistics team. His family is inside MCC territory. New Seoul settlement." } },
-        { "speaker": "mikhail", "emotion": "controlled", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "증거?", "en": "Evidence?" } },
-        { "speaker": "amara", "emotion": "certain", "text": { "ko": "통신 패턴 세 건. 암호화된 단파. 발신지 그의 구역.", "en": "Three communication patterns. Encrypted shortwave. Origin point, his sector." } }
+        { "speaker": "kenji", "emotion": "afraid", "text": { "ko": "나를 보호해줘야 해요. MCC가 알면 나는 없어져요. 기록에서. 사람들 기억에서. 완전히.", "en": "You need to protect me. If MCC finds out I'll disappear. From the records. From people's memories. Completely." }},
+        { "speaker": "kenji", "emotion": "quiet", "text": { "ko": "5년 동안 이것을 모아왔어요. FSP를 위해서요. 당신들이 옳다고 생각해서요.", "en": "I've been collecting this for five years. For FSP. Because I think you're right." }}
       ]
     },
-    {
-      "id": "s03",
-      "type": "dialogue",
-      "background": "hellas_mining_outpost",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
-      "lines": [
-        { "speaker": "mikhail", "emotion": "tired", "text": { "ko": "가족이 인질이면 다른 선택이 없었겠지.", "en": "If his family's a hostage, he didn't have another choice." } },
-        { "speaker": "amara", "emotion": "firm", "text": { "ko": "그래도 우리 사람들이 그 정보 때문에 죽었어요.", "en": "Our people still died because of that information." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "...", "en": "..." } }
-      ]
-    },
-    {
-      "id": "s04",
-      "type": "narration",
-      "background": "hellas_mining_outpost",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
-      "lines": [
-        { "text": { "ko": "케nji가 방 안으로 들어왔을 때 그는 이미 알고 있었다. 눈이 그것을 말했다. 도망치지도 않았다.", "en": "When Kenji came into the room, he already knew. His eyes said it. He didn't run." } }
-      ]
-    },
-    {
-      "id": "s05",
-      "type": "dialogue",
-      "background": "hellas_mining_outpost",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
-      "lines": [
-        { "speaker": "amara", "emotion": "cold", "text": { "ko": "설명할 기회 드리죠.", "en": "I'll give you a chance to explain." } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "케nji. 가족 이야기부터 해요.", "en": "Kenji. Tell us about your family first." } },
-        { "speaker": "mikhail", "emotion": "gentle", "text": { "ko": "뉴 서울에 누가 있어요?", "en": "Who's in New Seoul?" } }
-      ]
-    },
-    {
-      "id": "s_choice",
-      "type": "choice",
-      "background": "hellas_mining_outpost",
-      "bgm": "choice_tension",
-      "prompt": { "ko": "케nji 타나카를 어떻게 처리하겠습니까?", "en": "How do you handle Kenji Tanaka?" },
+    { "id": "s06", "type": "narration", "background": "hellas_central_underground", "bgm": "tension_high", "transition": "cut",
+      "lines": [{ "text": { "ko": "통로 끝에서 소리가 났다. 발소리가 아니었다. 환기 팬이었다. 60년 된 것이었다. 그러나 그것과 섞여 다른 소리가 있었다. 작은 소리였다. 그러나 MCC 건물은 소리가 잘 울렸다. 계단도. 통로도.", "en": "A sound from the end of the passage. Not footsteps. The ventilation fan. Sixty years old. But mixed with it was another sound. Small. But MCC buildings carried sound well. Stairs. Passages too." }}] },
+    { "id": "s_choice", "type": "choice", "background": "hellas_central_underground", "bgm": "choice_tension",
+      "prompt": { "ko": "Kenji. 데이터. FSP 내부자. 통로 끝의 소리.", "en": "Kenji. The data. The FSP mole. Sound from the end of the passage." },
       "choices": [
-        {
-          "id": "fsp_ch6_execute_kenji",
-          "text": { "ko": "처형.", "en": "Execute him." },
-          "tone": "ruthless",
-          "preview_hint": { "ko": "→ 내부 기강 +, 미하일 -15, 아마라 -10", "en": "→ Internal discipline +, Mikhail -15, Amara -10" }
-        },
-        {
-          "id": "fsp_ch6_use_as_handler",
-          "text": { "ko": "이중첩자 활용.", "en": "Use him as a double agent." },
-          "tone": "strategic",
-          "preview_hint": { "ko": "→ MCC 역정보 가능, 위험 내재", "en": "→ MCC disinformation possible, inherent risk" }
-        },
-        {
-          "id": "fsp_ch6_exile_kenji",
-          "text": { "ko": "추방.", "en": "Exile him." },
-          "tone": "merciful",
-          "preview_hint": { "ko": "→ 케nji 생존, 가족 협상 가능성", "en": "→ Kenji survives, family negotiation possible" }
-        },
-        {
-          "id": "fsp_ch6_accuse_wrong",
-          "text": { "ko": "다른 인물 지목.", "en": "Accuse a different person." },
-          "tone": "manipulative",
-          "preview_hint": { "ko": "→ 내부 불신 폭발, 케nji 감사", "en": "→ Internal distrust explodes, Kenji grateful" }
-        }
+        { "id": "fsp_ch6_extract", "text": { "ko": "Kenji를 데이고 나간다. 데이터와 함께.", "en": "Extract Kenji. With the data." }, "tone": "decisive", "preview_hint": { "ko": "→ Kenji 보호, MCC 추적 시작", "en": "→ Kenji protected, MCC pursuit begins" }},
+        { "id": "fsp_ch6_data_only", "text": { "ko": "데이터만 가져간다. Kenji는 자리를 지킨다.", "en": "Take the data only. Kenji stays in place." }, "tone": "strategic", "preview_hint": { "ko": "→ Kenji 위험, 지속 정보 가능", "en": "→ Kenji in danger, ongoing intelligence possible" }},
+        { "id": "fsp_ch6_find_mole", "text": { "ko": "FSP 내부자를 먼저 찾는다.", "en": "Find the FSP mole first." }, "tone": "investigative", "preview_hint": { "ko": "→ 복잡한 조사 시작, 신뢰 위기", "en": "→ Complex investigation begins, trust crisis" }},
+        { "id": "fsp_ch6_mikhail", "text": { "ko": "Mikhail에게 즉시 보고한다.", "en": "Report to Mikhail immediately." }, "tone": "transparent", "preview_hint": { "ko": "→ Mikhail이 조용히 반응한다. 이미 알고 있었다", "en": "→ Mikhail responds quietly. He already knew." }}
       ]
     },
-    {
-      "id": "s06",
-      "type": "dialogue",
-      "background": "hellas_mining_outpost",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
+    { "id": "s_battle", "type": "battle_transition", "background": "hellas_central_underground", "bgm": "battle_theme_fsp", "transition": "cut",
+      "title": { "ko": "지하 탈출", "en": "Underground Escape" }, "subtitle": { "ko": "헬라스 센트럴 지하 — 첩보 전쟁", "en": "Hellas Central Underground — Intelligence War" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "dialogue", "background": "fsp_base", "bgm": "victory_calm",
       "lines": [
-        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "가족을 지키려 한 거야. 방법이 잘못됐을 뿐이지.", "en": "He was trying to protect his family. The method was wrong." } },
-        { "speaker": "amara", "emotion": "conflicted", "text": { "ko": "...그걸 알면서도 결정해야 해요.", "en": "...Knowing that doesn't change what we have to decide." } }
+        { "speaker": "kenji", "emotion": "relieved", "effect": "character_enter:kenji:slide_right", "text": { "ko": "나왔어요. 살았어요.", "en": "We're out. Alive." }},
+        { "speaker": "lena", "emotion": "grim", "text": { "ko": "보스. FSP 내부자 이야기. 계속 파야 해요.", "en": "Boss. The FSP mole story. We have to keep digging." }}
       ]
     },
-    {
-      "id": "s_battle",
-      "type": "battle_transition",
-      "background": "space_battle_start",
-      "bgm": "battle_theme_mcc",
-      "transition": "flash_white",
-      "title": { "ko": "MCC 역습 차단", "en": "Block MCC Counterattack" },
-      "subtitle": { "ko": "정보 유출 이후 — 헬라스 정착지 방어", "en": "After the Leak — Hellas Settlement Defense" }
-    },
-    {
-      "id": "s_result",
-      "type": "result",
-      "success_scene": "s_success",
-      "failure_scene": "s_fail"
-    },
-    {
-      "id": "s_success",
-      "type": "dialogue",
-      "background": "hellas_mining_outpost",
-      "bgm": "victory_calm",
-      "lines": [
-        { "speaker": "amara", "emotion": "relieved", "effect": "character_enter:amara:slide_right", "text": { "ko": "헬라스 방어선 유지. MCC 철수했어요.", "en": "Hellas line held. MCC withdrew." } },
-        { "speaker": "mikhail", "emotion": "weary", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "내부 문제가 외부 공격보다 오래 남아.", "en": "Internal wounds last longer than external attacks." } }
-      ]
-    },
-    {
-      "id": "s_fail",
-      "type": "dialogue",
-      "background": "hellas_mining_outpost",
-      "bgm": "defeat_ambient",
-      "lines": [
-        { "speaker": "amara", "emotion": "devastated", "effect": "character_enter:amara:slide_right", "text": { "ko": "헬라스 외곽 구역 세 곳 점령 당했어요.", "en": "Three outer sectors of Hellas taken." } },
-        { "speaker": "mikhail", "emotion": "grim", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "신뢰는 한 번 잃으면 되찾기 어려워.", "en": "Trust, once lost, is hard to rebuild." } }
-      ]
-    },
-    {
-      "id": "s_ending",
-      "type": "ending",
-      "background": "mars_sunset",
-      "bgm": "ambient_melancholy",
-      "transition": "fade_slow",
-      "lines": [
-        { "text": { "ko": "가장 오래된 전쟁은 내부에서 온다. 배신은 적의 얼굴을 하지 않는다. 알고 있는 사람의 얼굴을 한다. 그래서 더 오래, 더 깊이 남는다.", "en": "The oldest wars come from within. Betrayal doesn't wear an enemy's face. It wears the face of someone you know. That's why it stays longer. Deeper." } }
-      ],
-      "next_chapter_preview": { "questId": "fsp_campaign_ch7", "teaser": { "ko": "다음 — 의회", "en": "Next — The Parliament" } }
+    { "id": "s_fail", "type": "narration", "background": "hellas_central_underground", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "통로에 경비가 있었다. Kenji가 없었다. 데이터도 없었다. MCC는 이미 알고 있었다. 두더지는 양쪽에 있었다. 항상 그런 것이었다.", "en": "Guards in the passage. Kenji was gone. Data was gone. MCC had already known. Moles were on both sides. It was always that way." }}] },
+    { "id": "s_ending", "type": "ending", "background": "fsp_base_night", "bgm": "ambient_melancholy", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "Mikhail이 보고를 들었다. 차를 끓였다. 오른손이 왼손을 받쳤다. 마셨다. FSP 내부에 MCC 사람이 있었다. 그것은 새로운 사실이 아닐 수 있었다. 화성에서 내부가 없는 조직은 없었다. 그것을 아는 것과 모르는 것은 달랐다. 알면 선택할 수 있었다.", "en": "Mikhail heard the report. Made tea. The right hand supported the left. He drank it. There was an MCC person inside FSP. That might not be a new fact. On Mars no organization had no moles. Knowing it and not knowing it were different. Knowing meant you could choose." }}],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch7", "teaser": { "ko": "다음 — 의원회", "en": "Next — The Assembly" }}
     }
   ]
 }

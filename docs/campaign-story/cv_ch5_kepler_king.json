@@ -2,241 +2,59 @@
   "questId": "cv_campaign_ch5",
   "campaignId": "cv_route",
   "chapterNumber": 5,
-  "title": {
-    "ko": "케플러의 왕",
-    "en": "King of Kepler"
-  },
-  "location": {
-    "id": "kepler_crater_summit",
-    "displayNameKo": "Kepler 분화구 정상"
-  },
-  "environment": "three_way_standoff",
-  "estimatedPlayTimeMinutes": 18,
-  "characters": [
-    "player",
-    "butcher",
-    "cinder"
-  ],
+  "title": { "ko": "야생의 조약", "en": "Wild Lands Treaty" },
+  "location": { "id": "kepler_crater_edge", "displayNameKo": "케플러 분화구 외곽" },
+  "environment": "crater_edge_dust",
+  "estimatedPlayTimeMinutes": 15,
+  "crossChapterNote": "FSP Ch5 케플러 공유지 선언과 동시간대. FSP Ch4 Sandstone 약속의 결과.",
+  "characters": ["player", "butcher", "cinder", "lena"],
   "scenes": [
-    {
-      "id": "s01",
-      "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "fade_slow",
+    { "id": "s01", "type": "narration", "background": "kepler_crater_edge", "bgm": "cv_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "케플러 분화구 외곽. FSP가 안에 있었다. Liang Wei가 선언하는 날이었다. CV는 밖에서 봤다. 이것이 CV의 위치였다. 안이 아닌 곳. 그것이 항상 CV의 위치였다.", "en": "The outer edge of Kepler Crater. FSP was inside. The day Liang Wei declared. CV watched from outside. That was CV's position. Not inside. That had always been CV's position." }}] },
+    { "id": "s02", "type": "narration", "background": "kepler_crater_edge", "bgm": "cv_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "Butcher가 왔다. 드문 일이었다. Butcher가 기지 밖으로 나오는 것. 왼팔 의수. 광산용 구식. 외투가 있었다. 주머니에 손을 넣고 있었다. 그 주머니 안에 무엇이 있는지는 알고 있었다. 사진. 30년 된 것.", "en": "Butcher came. That was rare. Butcher leaving the base. Left arm prosthetic. Old mining type. He had a coat. His hand was in the pocket. What was in that pocket was known. A photo. Thirty years old." }}] },
+    { "id": "s03", "type": "dialogue", "background": "kepler_crater_edge", "bgm": "cv_ambient", "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "Kepler 분화구에 티타늄이 있었다.\n엄청난 양이었다.\nMCC도 알았다. FSP도 알았다. CV도 알았다.\n세 파벌이 동시에 움직였다.",
-            "en": "There was titanium in the Kepler crater.\nAn enormous amount.\nMCC knew. FSP knew. CV knew.\nAll three factions moved at once."
-          }
-        }
+        { "speaker": "butcher", "emotion": "gruff", "effect": "character_enter:butcher:slide_left", "text": { "ko": "케플러가 누구 것도 아니라고?", "en": "Kepler belongs to nobody?" }},
+        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "30년 전에도 그 말이 있었어. 광산이 누구 것도 아니라고. 광부들 것이라고. 그다음에 어떻게 됐는지는 알아.", "en": "Thirty years ago there were those words too. That the mines didn't belong to anyone. That they belonged to the miners. You know what happened after that." }},
+        { "speaker": "butcher", "emotion": "serious", "text": { "ko": "그래도 봐. Cinder가 말했어. 이번엔 다를 수 있다고.", "en": "Watch anyway. Cinder said this time might be different." }}
       ]
     },
-    {
-      "id": "s02",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "cut",
+    { "id": "s04", "type": "narration", "background": "kepler_crater_edge", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "분화구 안에서 소리가 들렸다. Liang Wei의 목소리. 선언. 30년 동안 혼자 기다린 사람의 목소리. Butcher가 들었다. 외투 주머니의 손이 움직이지 않았다. 그것이 Butcher가 주목하는 방식이었다. 사진을 꺼내지 않았다. 들었다.", "en": "A sound came from inside the crater. Liang Wei's voice. The declaration. The voice of someone who had waited alone for thirty years. Butcher listened. The hand in the coat pocket didn't move. That was how Butcher paid attention. Didn't take out the photo. Listened." }}] },
+    { "id": "s05", "type": "dialogue", "background": "kepler_crater_edge", "bgm": "tension_low", "transition": "cut",
       "lines": [
-        {
-          "speaker": "butcher",
-          "emotion": "decisive",
-          "effect": "character_enter:butcher:slide_left",
-          "text": {
-            "ko": "우리가 먼저 도착했어. 우리 것이야.\n다른 두 파벌은 제압한다.",
-            "en": "We arrived first. It's ours.\nWe suppress the other two factions."
-          }
-        },
-        {
-          "speaker": "cinder",
-          "emotion": "concerned",
-          "effect": "character_enter:cinder:slide_right",
-          "text": {
-            "ko": "MCC + FSP 연합이면 우리가 이길 수 없어.",
-            "en": "Against an MCC + FSP alliance, we can't win."
-          }
-        },
-        {
-          "speaker": "butcher",
-          "emotion": "cold",
-          "text": {
-            "ko": "연합하면 그때 생각해.",
-            "en": "When they ally, we think then."
-          }
-        }
+        { "speaker": "cinder", "emotion": "calm", "effect": "character_enter:cinder:slide_right", "text": { "ko": "FSP 쪽 Lena가 보여요.", "en": "Lena from FSP side is visible." }},
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "Sandstone에서 봤던 사람이에요. 빠른 사람. 팔에 이름들이 있는.", "en": "The person I saw at Sandstone. The fast one. With names on her arm." }},
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "케플러를 같이 지킬 수 있어요. Sandstone 약속이 여기서 의미가 생겨요.", "en": "We can protect Kepler together. The Sandstone Promise gets its meaning here." }}
       ]
     },
-    {
-      "id": "s03",
-      "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "분화구 테두리에 세 파벌의 깃발이 보였다.\n바람이 없었다.\n깃발들도 움직이지 않았다.",
-            "en": "The flags of three factions were visible on the crater rim.\nThere was no wind.\nThe flags didn't move either."
-          }
-        }
-      ]
-    },
-    {
-      "id": "s_choice",
-      "type": "choice",
-      "background": "kepler_crater",
-      "bgm": "choice_tension",
-      "prompt": {
-        "ko": "Kepler에서 어떤 전략을 취하겠습니까?",
-        "en": "What strategy do you take at Kepler?"
-      },
+    { "id": "s06", "type": "narration", "background": "kepler_crater_edge", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": { "ko": "MCC 드론이 상공에 있었다. 하나. 두 개가 됐다. 세 개. 분화구 안에서 선언이 진행되는 동안 드론이 늘었다. MCC는 기다리는 것이었다. 언제 개입할지. Butcher가 하늘을 봤다. 외투 주머니에서 손을 꺼냈다. 사진을 꺼내지 않았다. 손만 꺼냈다.", "en": "MCC drones were in the sky above. One. Then two. Three. While the declaration proceeded inside the crater the drones multiplied. MCC was waiting. For when to intervene. Butcher looked at the sky. He took his hand from the coat pocket. Didn't take out the photo. Just the hand." }}] },
+    { "id": "s_choice", "type": "choice", "background": "kepler_crater_edge", "bgm": "choice_tension",
+      "prompt": { "ko": "MCC 드론. Liang Wei의 선언. Butcher가 당신 옆에 있다.", "en": "MCC drones. Liang Wei's declaration. Butcher is beside you." },
       "choices": [
-        {
-          "id": "cv_ch5_full_force",
-          "text": {
-            "ko": "MCC와 FSP 모두 제압. CV 단독 통치.",
-            "en": "Suppress MCC and FSP both. CV rules alone."
-          },
-          "tone": "dominant",
-          "preview_hint": {
-            "ko": "→ CV +20, 양측 -20 각각, 전면전",
-            "en": "→ CV +20, both sides -20, total war"
-          }
-        },
-        {
-          "id": "cv_ch5_fsp_deal",
-          "text": {
-            "ko": "FSP와 분할 협상. MCC만 제압.",
-            "en": "Split deal with FSP. Suppress MCC only."
-          },
-          "tone": "alliance",
-          "preview_hint": {
-            "ko": "→ CV +10, FSP +5, MCC -15",
-            "en": "→ CV +10, FSP +5, MCC -15"
-          }
-        },
-        {
-          "id": "cv_ch5_three_way",
-          "text": {
-            "ko": "삼각 분할 제안. 신더 방식.",
-            "en": "Propose three-way split. Cinder's way."
-          },
-          "tone": "diplomatic",
-          "preview_hint": {
-            "ko": "→ CV +5, 모두 +5, 신더 입지 강화",
-            "en": "→ CV +5, all factions +5, Cinder's standing grows"
-          }
-        },
-        {
-          "id": "cv_ch5_withdraw",
-          "text": {
-            "ko": "철수. 피가 너무 많다.",
-            "en": "Withdraw. Too much blood."
-          },
-          "tone": "retreat",
-          "preview_hint": {
-            "ko": "→ CV -10, 정육점 실망, 신더 루트 심화",
-            "en": "→ CV -10, Butcher disappointed, Cinder path deepens"
-          }
-        }
+        { "id": "cv_ch5_defend", "text": { "ko": "드론을 제거한다. 케플러를 지킨다.", "en": "Take out the drones. Protect Kepler." }, "tone": "decisive", "preview_hint": { "ko": "→ MCC와 개전, Sandstone 약속 실행", "en": "→ War with MCC, Sandstone Promise executed" }},
+        { "id": "cv_ch5_fsp_contact", "text": { "ko": "Lena에게 접촉한다. 공동 방어.", "en": "Make contact with Lena. Joint defense." }, "tone": "alliance", "preview_hint": { "ko": "→ Lena가 즉시 반응한다", "en": "→ Lena responds immediately" }},
+        { "id": "cv_ch5_butcher_asks", "text": { "ko": "Butcher에게 결정을 미룬다.", "en": "Defer the decision to Butcher." }, "tone": "deferential", "preview_hint": { "ko": "→ Butcher가 사진을 꺼낸다. 처음으로", "en": "→ Butcher takes out the photo. For the first time." }},
+        { "id": "cv_ch5_watch", "text": { "ko": "기다린다. 선언이 끝날 때까지.", "en": "Wait. Until the declaration ends." }, "tone": "patient", "preview_hint": { "ko": "→ Cinder가 당신 옆에 선다. 함께 기다린다", "en": "→ Cinder stands beside you. Waits together." }}
       ]
     },
-    {
-      "id": "s04",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "cut",
+    { "id": "s_battle", "type": "battle_transition", "background": "kepler_crater", "bgm": "battle_theme_cv", "transition": "flash_white",
+      "title": { "ko": "야생 구역 전투", "en": "Wild Lands Battle" }, "subtitle": { "ko": "케플러 외곽 — Sandstone 약속의 값", "en": "Kepler Edge — The Value of the Sandstone Promise" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "dialogue", "background": "kepler_crater_edge", "bgm": "victory_calm",
       "lines": [
-        {
-          "speaker": "butcher",
-          "emotion": "flat",
-          "effect": "character_enter:butcher:slide_left",
-          "text": {
-            "ko": "Kepler가 우리 거냐 아니냐.\n그게 오늘의 결과야.",
-            "en": "Whether Kepler is ours or not.\nThat's today's result."
-          }
-        }
+        { "speaker": "butcher", "emotion": "quiet", "effect": "character_enter:butcher:slide_left", "text": { "ko": "30년 전에 못 한 걸 오늘 했어.", "en": "Today we did what couldn't be done thirty years ago." }},
+        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "그때도 누군가 선언했어. 그때는 아무도 지키지 않았어.", "en": "Someone made a declaration back then too. Back then nobody protected it." }}
       ]
     },
-    {
-      "id": "s_battle",
-      "type": "battle_transition",
-      "background": "space_battle_start",
-      "bgm": "battle_theme_mcc",
-      "transition": "flash_white",
-      "title": {
-        "ko": "Kepler 분화구 쟁탈전",
-        "en": "Battle for Kepler Crater"
-      },
-      "subtitle": {
-        "ko": "세 파벌 동시 충돌",
-        "en": "Three-Faction Simultaneous Clash"
-      }
-    },
-    {
-      "id": "s_result",
-      "type": "result",
-      "success_scene": "s_success",
-      "failure_scene": "s_fail"
-    },
-    {
-      "id": "s_success",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "victory_calm",
-      "lines": [
-        {
-          "speaker": "butcher",
-          "emotion": "flat",
-          "effect": "character_enter:butcher:slide_left",
-          "text": {
-            "ko": "Kepler는 CV야. 티타늄도.",
-            "en": "Kepler is CV's. The titanium too."
-          }
-        }
-      ]
-    },
-    {
-      "id": "s_fail",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "defeat_ambient",
-      "lines": [
-        {
-          "speaker": "cinder",
-          "emotion": "tense",
-          "effect": "character_enter:cinder:slide_right",
-          "text": {
-            "ko": "물러서야 해. 오늘은 아니야.",
-            "en": "We need to pull back. Not today."
-          }
-        }
-      ]
-    },
-    {
-      "id": "s_ending",
-      "type": "ending",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
-      "transition": "fade_slow",
-      "lines": [
-        {
-          "text": {
-            "ko": "티타늄은 자원이었다.\n권력이었다. 식량이었다. 생존이었다.\n하지만 신더가 말했던 것도 기억났다.\n이기는 방법이 하나가 아닐 수 있다고.",
-            "en": "Titanium was a resource.\nPower. Food. Survival.\nBut Cinder's words stayed.\nThere might be more than one way to win."
-          }
-        }
-      ],
-      "next_chapter_preview": {
-        "questId": "cv_campaign_ch6",
-        "teaser": {
-          "ko": "다음 — 30년",
-          "en": "Next — Thirty Years"
-        }
-      }
+    { "id": "s_fail", "type": "narration", "background": "kepler_crater_edge", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "MCC가 분화구를 봉쇄했다. Butcher가 봤다. 외투 주머니에 손이 다시 들어갔다. 사진 위에 손이 놓였다. 30년 전과 같은 것이었다. 달랐던 것은 Cinder가 옆에 있었다는 것이었다.", "en": "MCC sealed the crater. Butcher watched. His hand went back in the coat pocket. Rested on the photo. Same as thirty years ago. The difference was that Cinder was beside him." }}] },
+    { "id": "s_ending", "type": "ending", "background": "kepler_crater_edge_dusk", "bgm": "cv_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "케플러가 붉게 물들었다. Butcher가 외투 주머니에서 손을 꺼냈다. 사진을 꺼내지 않았다. 손만. 그 손을 Cinder가 봤다. 의수와 맞닿지 않는 손. 오른손. 30년 전 사진 안 사람들이 아직 거기 있을 것이었다. 사진 안에서만. 그러나 오늘 케플러 외곽에도 있었다. 선언 때문이었다.", "en": "Kepler turned red. Butcher took his hand from the coat pocket. Not the photo. Just the hand. Cinder watched that hand. The hand that didn't meet the prosthetic. The right hand. The people in the thirty-year-old photo would still be there. Only in the photo. But today they were also here at the edge of Kepler. Because of the declaration." }}],
+      "next_chapter_preview": { "questId": "cv_campaign_ch6", "teaser": { "ko": "다음 — Butcher의 시험", "en": "Next — Butcher's Test" }}
     }
   ]
 }

@@ -2,458 +2,51 @@
   "questId": "mcc_campaign_ch9",
   "campaignId": "mcc_route",
   "chapterNumber": 9,
-  "title": {
-    "ko": "화성의 밤",
-    "en": "Martian Night",
-    "ja": "火星の夜",
-    "zh": "火星之夜"
-  },
-  "location": {
-    "id": "mars_surface_night",
-    "displayName": {
-      "ko": "케플러 분화구 외곽 — 야간",
-      "en": "Kepler Crater Outskirts — Night"
-    }
-  },
-  "environment": "night_before_final",
-  "estimatedPlayTimeMinutes": 18,
-  "characters": ["player", "lifang", "hale", "mikhail"],
-
+  "title": { "ko": "세 개의 깃발 — MCC", "en": "Three Flags — MCC" },
+  "location": { "id": "olympus_summit_station", "displayNameKo": "올림포스 산 정상 기지" },
+  "environment": "olympus_exterior_thin_air",
+  "estimatedPlayTimeMinutes": 20,
+  "pov": "chen_weiss",
+  "crossChapterNote": "FSP Ch9 (Rev. Hale POV) 및 CV Ch9 (Cinder Grace POV)와 동일 사건. 세 챕터는 같은 테이블, 같은 하루.",
+  "characters": ["chen", "player", "rev_hale", "cinder"],
   "scenes": [
-
-    {
-      "id": "s01",
-      "type": "narration",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "fade_slow",
+    { "id": "s01", "type": "narration", "background": "olympus_exterior", "bgm": "ambient_thin_air", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "올림포스 몬스. 태양계에서 가장 높은 산. 정상 기압은 지구 기압의 0.07퍼센트였다. 마스크 없이는 10초. 그것이 이 장소를 회의 장소로 선택한 이유였다. 누구도 이곳에서 오래 있을 수 없었다. 그것이 공정한 조건이었다.", "en": "Olympus Mons. The highest mountain in the solar system. Summit pressure was 0.07 percent of Earth's. Without a mask ten seconds. That was why this place was chosen for the meeting. No one could stay here long. That was the fair condition." }}] },
+    { "id": "s02", "type": "narration", "background": "olympus_summit_station", "bgm": "ambient_thin_air", "transition": "cut",
+      "lines": [{ "text": { "ko": "Chen Weiss는 먼저 도착했다. 그것이 그녀의 방식이었다. 먼저 도착하는 사람이 공간을 정의했다. 차를 들고 있었다. 마시지 않았다. 올림포스에서도 25도 라운지와 같았다. 그 일관성이 그녀의 것이었다.", "en": "Chen Weiss arrived first. That was her way. The person who arrived first defined the space. She held her tea. Didn't drink it. Even on Olympus it was the same as the 25-Degree Lounge. That consistency was hers." }}] },
+    { "id": "s03", "type": "narration", "background": "olympus_summit_station", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "세 파벌이었다. 세 깃발이었다. MCC. FSP. CV. 같은 행성. 다른 미래. 테이블이 하나였다. 의자가 셋이었다. 테이블보다 의자가 적은 것은 세상 어디에서도 문제였다. 화성에서는 더 그랬다.", "en": "Three factions. Three flags. MCC. FSP. CV. Same planet. Different futures. One table. Three chairs. Fewer chairs than people was a problem anywhere in the world. On Mars more so." }}] },
+    { "id": "s04", "type": "dialogue", "background": "olympus_summit_station", "bgm": "tension_low", "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "화성의 밤은 지구와 다르다.\n하늘이 더 어둡고. 별이 더 많고. 외롭다.",
-            "en": "Night on Mars is different from Earth.\nDarker sky. More stars. Lonelier."
-          }
-        },
-        {
-          "text": {
-            "ko": "내일이면 모든 것이 결정된다.\nMCC의 행정권. FSP의 헌법. CV의 침묵.\n당신이 무슨 선택을 했든 — 내일 그 결과가 나온다.",
-            "en": "Tomorrow everything gets decided.\nMCC's authority. FSP's constitution. CV's silence.\nWhatever you chose — tomorrow the results come."
-          }
-        }
+        { "speaker": "chen", "emotion": "calm", "effect": "character_enter:chen:slide_left", "text": { "ko": "Rev. Hale. Cinder Grace. 왔군요.", "en": "Rev. Hale. Cinder Grace. You came." }},
+        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "오늘 여기서 화성의 자원 분배 원칙을 합의해요. 아니면 세 파벌이 각자의 방식으로 화성을 나눠요. 그 두 가지만 존재해요.", "en": "Today here we agree on the principles of Mars resource distribution. Or three factions divide Mars each in their own way. Only these two things exist." }},
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "MCC의 입장은 명확해요. 기반시설은 MCC가 구축했어요. 운영도 MCC가 해요. 그 비용은 누가 지불하든 지불해야 해요.", "en": "MCC's position is clear. MCC built the infrastructure. MCC operates it. Whatever the cost, whoever pays it must pay it." }}
       ]
     },
-
-    {
-      "id": "s02",
-      "type": "narration",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "당신은 분화구 외곽 유지 플랫폼에 있었다.\n아무도 없는 곳. 화성 지평선이 보이는 곳.\n포보스가 뜨고 있었다 — 화성의 첫 번째 달.\n빠르게. 너무 빠르게.",
-            "en": "You stood on an external maintenance platform at the crater's edge.\nNo one around. A place where you could see the Martian horizon.\nPhobos was rising — Mars's first moon.\nFast. Too fast."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s03",
-      "type": "dialogue",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "cut",
-      "lines": [
-        {
-          "speaker": "lifang",
-          "emotion": "quiet",
-          "effect": "character_enter:lifang:slide_left",
-          "text": {
-            "ko": "여기 있을 줄 알았어요.",
-            "en": "I thought you'd be here."
-          }
-        },
-        {
-          "speaker": "player",
-          "emotion": "neutral",
-          "text": {
-            "ko": "항상 찾아내네요.",
-            "en": "You always find me."
-          }
-        },
-        {
-          "speaker": "lifang",
-          "emotion": "thoughtful",
-          "text": {
-            "ko": "그게 제 일이었으니까요. 처음에는.",
-            "en": "That was my job. At first."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s04",
-      "type": "dialogue",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "cut",
-      "lines": [
-        {
-          "speaker": "lifang",
-          "emotion": "conflicted",
-          "text": {
-            "ko": "당신한테 처음부터 말했어야 했어요. 천 회장의 계획을.\n말하지 못한 건 — 두려웠기 때문이에요.",
-            "en": "I should have told you from the beginning. The Chairman's plan.\nThe reason I didn't — was fear."
-          }
-        },
-        {
-          "speaker": "player",
-          "emotion": "quiet",
-          "text": {
-            "ko": "무서운 게 뭐였어요.",
-            "en": "What were you afraid of."
-          }
-        },
-        {
-          "speaker": "lifang",
-          "emotion": "vulnerable",
-          "text": {
-            "ko": "당신이 — 그래도 같은 선택을 할까봐요.\n알고 나서도 여기 있는 것이 더 무서워요. 모르고 있는 것보다.",
-            "en": "That you'd — make the same choice anyway.\nKnowing everything and still being here is scarier. Than not knowing."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s05",
-      "type": "narration",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "포보스가 높이 올랐다.\n화성의 달은 지구 달과 달리 서쪽에서 뜬다.\n그리고 빠르게 움직인다. 밤 하늘을 가로질러.\n마치 도망치듯이.",
-            "en": "Phobos rose high.\nUnlike Earth's moon, Mars's moon rises in the west.\nAnd moves fast. Crossing the night sky.\nAs if running."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s06",
-      "type": "dialogue",
-      "background": "mars_sunset",
-      "bgm": "ambient_chapel",
-      "transition": "cut",
-      "lines": [
-        {
-          "speaker": "hale",
-          "emotion": "serene",
-          "effect": "character_enter:hale:slide_right",
-          "text": {
-            "ko": "두 분이 여기 있을 줄 알았어요.",
-            "en": "I thought you two would be here."
-          }
-        },
-        {
-          "speaker": "lifang",
-          "emotion": "surprised",
-          "text": {
-            "ko": "신부님은 — 어떻게 여기에.",
-            "en": "Father — how did you get here."
-          }
-        },
-        {
-          "speaker": "hale",
-          "emotion": "gentle",
-          "text": {
-            "ko": "30년 동안 사람들이 어디로 가는지 보다 보면 — 어디 있는지 알게 돼요.",
-            "en": "Thirty years of watching where people go — you learn where they are."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s07",
-      "type": "dialogue",
-      "background": "mars_sunset",
-      "bgm": "ambient_chapel",
-      "transition": "cut",
-      "lines": [
-        {
-          "speaker": "hale",
-          "emotion": "grave",
-          "text": {
-            "ko": "내일 일어날 일이 무엇이든 — 당신이 한 선택들은 당신 것이에요.\n천 회장의 계획도, 미하일의 헌법도 — 그게 아니라 당신이 한 결정들.",
-            "en": "Whatever happens tomorrow — the choices you made are yours.\nNot the Chairman's plan, not Mikhail's constitution — your decisions."
-          }
-        },
-        {
-          "speaker": "player",
-          "emotion": "troubled",
-          "text": {
-            "ko": "옳은 결정인지 모르겠어요.",
-            "en": "I don't know if they were right."
-          }
-        },
-        {
-          "speaker": "hale",
-          "emotion": "wise",
-          "text": {
-            "ko": "화성에서 옳은 결정은 없어요. 덜 나쁜 결정이 있을 뿐이에요.\n그걸 아는 사람이 결정해야 하는 거예요.",
-            "en": "There are no right decisions on Mars. Only less wrong ones.\nThe person who knows that is the one who should be deciding."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s08",
-      "type": "narration",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "fade_slow",
-      "lines": [
-        {
-          "text": {
-            "ko": "포보스 식이 시작됐다.\n달이 화성의 그림자로 천천히 들어갔다.\n잠깐 — 완전한 어둠이 됐다.",
-            "en": "Phobos eclipse began.\nThe moon slowly entered Mars's shadow.\nFor a moment — complete darkness."
-          }
-        },
-        {
-          "text": {
-            "ko": "그리고 다시 나타났다. 더 작아 보였지만.\n달은 사라지지 않았다.",
-            "en": "Then it appeared again. It looked smaller.\nBut it hadn't disappeared."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s09",
-      "type": "dialogue",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "cut",
-      "lines": [
-        {
-          "speaker": "mikhail",
-          "emotion": "tired",
-          "effect": "character_enter:mikhail:slide_right",
-          "text": {
-            "ko": "포보스 식이군요. 여기서 보기 좋은 자리예요.",
-            "en": "Phobos eclipse. A good spot to see it from."
-          }
-        },
-        {
-          "speaker": "player",
-          "emotion": "neutral",
-          "text": {
-            "ko": "어르신도 잠을 못 자셨어요.",
-            "en": "You couldn't sleep either, Elder."
-          }
-        },
-        {
-          "speaker": "mikhail",
-          "emotion": "wry",
-          "text": {
-            "ko": "20년째 못 자는 것 같아요. 화성 오고 나서부터.",
-            "en": "I think I've been unable to sleep for twenty years. Since I came to Mars."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s10",
-      "type": "dialogue",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "cut",
-      "lines": [
-        {
-          "speaker": "mikhail",
-          "emotion": "gentle",
-          "text": {
-            "ko": "당신이 붉은 의회에서 한 말 — 기억해요. 어떤 말이든.\n그 말은 — 이 행성에 남을 거예요. 오래.",
-            "en": "What you said at the Red Parliament — I remember. Whatever it was.\nThose words — will stay on this planet. For a long time."
-          }
-        },
-        {
-          "speaker": "mikhail",
-          "emotion": "sad",
-          "text": {
-            "ko": "화성은 기억이 짧은 것 같지만 — 실제로는 길어요.\n바위가 다 기억하고 있어요.",
-            "en": "Mars seems to have a short memory — but actually it's long.\nThe rocks remember everything."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s11",
-      "type": "narration",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "fade_slow",
-      "lines": [
-        {
-          "text": {
-            "ko": "네 명이 플랫폼에 서 있었다.\n아무도 말하지 않았다.\n포보스가 지평선 너머로 사라지기 직전.\n당신은 그 달을 오래 봤다.",
-            "en": "Four people stood on the platform.\nNo one spoke.\nJust before Phobos disappeared beyond the horizon.\nYou watched that moon for a long time."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s12",
-      "type": "choice",
-      "background": "mars_sunset",
-      "bgm": "choice_tension",
-      "prompt": {
-        "ko": "내일 결전을 앞두고. 마지막 밤에 무엇을 준비하는가.",
-        "en": "The night before the final confrontation. What do you prepare for in this last night."
-      },
+    { "id": "s05", "type": "narration", "background": "olympus_summit_station", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": { "ko": "Rev. Hale이 앉았다. 기도를 하지 않았다. 이 자리에서는 하지 않는 것이었다. Cinder Grace는 서 있었다. 공구 벨트가 그대로였다. 이 정상에서 올 때도 그것을 차고 온 것이었다. 두 사람을 보면서 Chen은 차를 들었다. 마시지 않았다.", "en": "Rev. Hale sat. Didn't pray. This was not the place for that. Cinder Grace stood. Tool belt unchanged. She had worn it climbing to this summit too. Watching the two of them Chen held her tea. Didn't drink it." }}] },
+    { "id": "s06", "type": "narration", "background": "olympus_summit_station", "bgm": "tension_high", "transition": "cut",
+      "lines": [{ "text": { "ko": "그들이 말했다. Chen은 들었다. 그것이 협상이었다. FSP는 노동자의 권리를 말했다. CV는 영토를 말했다. Chen은 숫자를 말했다. 숫자는 감정이 없었다. 그것이 숫자의 강점이었다. 이 방에서 감정이 없는 것이 가장 강했다.", "en": "They spoke. Chen listened. That was negotiation. FSP spoke of workers' rights. CV spoke of territory. Chen spoke in numbers. Numbers had no emotion. That was their strength. In this room the thing without emotion was strongest." }}] },
+    { "id": "s_choice", "type": "choice", "background": "olympus_summit_station", "bgm": "choice_tension",
+      "prompt": { "ko": "합의의 마지막 조건. Chen이 당신에게 묻는다. 어떻게 제안하겠습니까.", "en": "The final condition of agreement. Chen asks you. What will you propose." },
       "choices": [
-        {
-          "id": "ch9_military",
-          "text": {
-            "ko": "작전 준비. 내일 어떤 결과가 나와도 대응할 수 있게.",
-            "en": "Prepare operationally. Be ready for whatever outcome comes tomorrow."
-          },
-          "tone": "tactical",
-          "preview_hint": {
-            "ko": "→ 전투 준비도 상승 · 전략 태그 획득",
-            "en": "→ Combat readiness boost · Tactician tag"
-          }
-        },
-        {
-          "id": "ch9_alliance",
-          "text": {
-            "ko": "마지막 접촉. 미하일이나 정육점에게 조용히 연락한다.",
-            "en": "Final contact. Quietly reach out to Mikhail or Butcher."
-          },
-          "tone": "diplomatic",
-          "preview_hint": {
-            "ko": "→ 해당 파벌 호감도 +3 · 비공식 채널 유지",
-            "en": "→ Faction favor +3 · Unofficial channel maintained"
-          }
-        },
-        {
-          "id": "ch9_rest",
-          "text": {
-            "ko": "쉰다. 내일을 위해 머리를 비운다.",
-            "en": "Rest. Clear your head for tomorrow."
-          },
-          "tone": "calm",
-          "preview_hint": {
-            "ko": "→ 컨디션 회복 · 냉정함 태그 획득",
-            "en": "→ Condition restored · Composure tag"
-          }
-        },
-        {
-          "id": "ch9_write",
-          "text": {
-            "ko": "기록을 남긴다. 내일 무슨 일이 생겨도 당신이 본 것들이 사라지지 않도록.",
-            "en": "Leave a record. So what you've seen doesn't disappear, whatever happens tomorrow."
-          },
-          "tone": "reflective",
-          "preview_hint": {
-            "ko": "→ 헤일의 신뢰 최고 · 증언자 태그 획득",
-            "en": "→ Hale's trust maximized · Witness tag earned"
-          }
-        }
+        { "id": "mcc_ch9_mcc_dominance", "text": { "ko": "MCC가 화성 기반시설 전체를 15년 독점 운영한다.", "en": "MCC operates all Mars infrastructure exclusively for 15 years." }, "tone": "empire", "preview_hint": { "ko": "→ FSP/CV 거부, 회의 결렬 가능성", "en": "→ FSP/CV reject, talks may collapse" }},
+        { "id": "mcc_ch9_shared_council", "text": { "ko": "삼자 운영 위원회. 결정은 다수결.", "en": "Tripartite operations council. Majority rule." }, "tone": "diplomatic", "preview_hint": { "ko": "→ 합의 가능, MCC 지분 희석", "en": "→ Agreement possible, MCC stake diluted" }},
+        { "id": "mcc_ch9_ancient_metal", "text": { "ko": "Ancient Metal을 공동 연구 카드로 꺼낸다.", "en": "Put Ancient Metal on the table as joint research card." }, "tone": "strategic", "preview_hint": { "ko": "→ 회의 분위기 전환, 세 파벌 모두 반응", "en": "→ Atmosphere shifts, all three factions react" }},
+        { "id": "mcc_ch9_chen_breaks", "text": { "ko": "Chen에게 진실을 말한다. 이 합의는 가능하지 않다.", "en": "Tell Chen the truth. This agreement is not possible." }, "tone": "honest", "preview_hint": { "ko": "→ Chen이 멈춘다. 처음으로 차를 내려놓는다", "en": "→ Chen stops. For the first time she sets down the tea." }}
       ]
     },
-
-    {
-      "id": "s13",
-      "type": "battle_transition",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "fade_slow",
-      "title": {
-        "ko": "화성의 밤 — 결전 준비",
-        "en": "Martian Night — Final Preparations"
-      },
-      "subtitle": {
-        "ko": "내일 — 모든 것이 결정된다",
-        "en": "Tomorrow — Everything Is Decided"
-      }
+    { "id": "s_battle", "type": "battle_transition", "background": "olympus_exterior", "bgm": "battle_theme_mcc", "transition": "flash_white",
+      "title": { "ko": "올림포스 최후의 협상", "en": "Final Negotiation on Olympus" }, "subtitle": { "ko": "올림포스 정상 — 화성의 미래", "en": "Olympus Summit — The Future of Mars" }
     },
-
-    {
-      "id": "s14",
-      "type": "result",
-      "success_scene": "s15_success",
-      "failure_scene": "s15_fail"
-    },
-
-    {
-      "id": "s15_success",
-      "type": "narration",
-      "background": "mars_sunset",
-      "bgm": "ambient_melancholy",
-      "lines": [
-        {
-          "text": {
-            "ko": "밤이 지나갔다.\n화성의 새벽은 붉다 — 아침도 저녁처럼 보인다.\n당신은 준비가 됐다.",
-            "en": "The night passed.\nMars's dawn is red — morning looks like evening.\nYou were ready."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s15_fail",
-      "type": "narration",
-      "background": "mars_sunset",
-      "bgm": "defeat_ambient",
-      "lines": [
-        {
-          "text": {
-            "ko": "밤이 짧았다. 너무 짧았다.\n새벽이 오기 전에 — MCC 보안 경보가 울렸다.\n무언가 예상보다 빨리 시작됐다.",
-            "en": "The night was short. Too short.\nBefore dawn — MCC security alarms went off.\nSomething had started sooner than expected."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s16",
-      "type": "ending",
-      "background": "mars_sunset",
-      "bgm": "ambient_night_mars",
-      "transition": "fade_slow",
-      "lines": [
-        {
-          "text": {
-            "ko": "리팡이 마지막으로 말했다.\n별들을 보면서. 당신을 보지 않고.\n당신이 어떤 결정을 하든 — 내가 틀렸다고 생각하지 않을게요.",
-            "en": "Lifang said one last thing.\nLooking at the stars. Not at you.\nWhatever decision you make — I won't think you were wrong."
-          }
-        },
-        {
-          "text": {
-            "ko": "그 말이 뭔지 생각하다가 — 새벽이 왔다.",
-            "en": "While you thought about what that meant — dawn came."
-          }
-        }
-      ],
-      "next_chapter_preview": {
-        "questId": "mcc_campaign_ch10",
-        "teaser": {
-          "ko": "다음 이야기 — 선택",
-          "en": "Next — The Choice"
-        }
-      }
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "narration", "background": "olympus_summit_station", "bgm": "victory_calm",
+      "lines": [{ "text": { "ko": "합의서가 서명됐다. 세 파벌. 세 서명. Chen의 서명은 마지막이었다. 그녀는 펜을 잡기 전에 차를 내려놓았다. 두 손으로 서명했다. 오른손이 왼손을 받쳤다. 그것은 그녀의 방식이 아니었다. 그러나 오늘은 그랬다. 이 서명은 그만한 것이었다.", "en": "The agreement was signed. Three factions. Three signatures. Chen's was last. Before taking the pen she set down her tea. She signed with both hands. The right supporting the left. That was not her way. But today it was. This signature was worth that." }}] },
+    { "id": "s_fail", "type": "narration", "background": "olympus_exterior", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "회의가 끝나지 않았다. 끝나지 않은 회의는 결렬이었다. 세 파벌이 각자의 방향으로 갔다. 올림포스는 그대로 있었다. 산은 언제나 그대로 있었다. 사람들이 가도. 합의가 없어도.", "en": "The meeting didn't end. A meeting that didn't end was a collapse. Three factions went their separate ways. Olympus remained. Mountains always remained. Even when people left. Even without agreement." }}] },
+    { "id": "s_ending", "type": "ending", "background": "olympus_exterior_sunset", "bgm": "ambient_vast", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "올림포스에서 내려오는 길. 화성 전체가 보였다. 붉었다. 아래에 헬라스가 있었다. MCC의 도시가 있었다. 더 작게 보면 C-7 블록이 있었다. 분필 이름들이 있었다. 내려가면 그것들이 다시 컸다. 그것이 이 산에서 배우는 것이었다. 작은 것들은 내려가면 다시 컸다.", "en": "Descending from Olympus. All of Mars was visible. Red. Below was Hellas. MCC's city. Smaller still was block C-7. The chalk names. Coming down they would be large again. That was what this mountain taught. Small things became large again on the way down." }}],
+      "next_chapter_preview": { "questId": "mcc_campaign_ch10", "teaser": { "ko": "다음 — 선택", "en": "Next — The Choice" }}
     }
-
   ]
 }

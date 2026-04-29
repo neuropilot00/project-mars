@@ -2,164 +2,58 @@
   "questId": "fsp_campaign_ch5",
   "campaignId": "fsp_route",
   "chapterNumber": 5,
-  "title": { "ko": "Kepler 공유지", "en": "The Kepler Commons" },
-  "location": { "id": "kepler_crater_summit", "displayNameKo": "Kepler 분화구 정상부" },
-  "environment": "low_oxygen_crisis",
-  "estimatedPlayTimeMinutes": 20,
-  "characters": ["player", "mikhail", "amara", "hale"],
+  "title": { "ko": "케플러 공유지", "en": "Kepler Commons" },
+  "location": { "id": "kepler_crater", "displayNameKo": "케플러 분화구" },
+  "environment": "crater_excavation",
+  "estimatedPlayTimeMinutes": 15,
+  "crossChapterNote": "MCC Ch4와 같은 장소. Liang Wei MCC Ch4에서 등장. CV Ch5 Wild Lands Treaty와 동시간대.",
+  "characters": ["player", "lena", "liang_wei"],
   "scenes": [
-    {
-      "id": "s01",
-      "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "fsp_ambient",
-      "transition": "fade_slow",
+    { "id": "s01", "type": "narration", "background": "kepler_crater", "bgm": "fsp_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "케플러 분화구. 깊이 3킬로미터. Liang Wei가 30년간 혼자 조사한 곳이었다. 아무도 그녀를 지원하지 않았다. MCC도 아니고 FSP도 아니었다. 혼자 온 사람이었다. 혼자 30년을 있었다. 그것이 이 분화구에서 가장 오래된 것이었다.", "en": "Kepler Crater. Three kilometers deep. Where Liang Wei had surveyed alone for thirty years. Nobody had supported her. Not MCC. Not FSP. She came alone. Stayed alone for thirty years. She was the oldest thing in this crater." }}] },
+    { "id": "s02", "type": "narration", "background": "kepler_crater", "bgm": "fsp_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "Ancient Metal. 외계 기원 가설. MCC가 알고 있었다. MCC가 독점하려 했다. 그 전에 Liang Wei가 FSP에 연락했다. 이유는 설명하지 않았다. 그러나 이유는 보이는 것이었다. 30년 동안 혼자 있었던 사람은 무언가를 나누고 싶어진다. 특히 중요한 것을.", "en": "Ancient Metal. The extraterrestrial origin hypothesis. MCC knew. MCC intended to monopolize it. Before that Liang Wei had contacted FSP. She didn't explain why. But the reason was visible. Someone who had been alone for thirty years wanted to share something. Especially something important." }}] },
+    { "id": "s03", "type": "dialogue", "background": "kepler_crater", "bgm": "fsp_ambient", "transition": "cut",
       "lines": [
-        { "text": { "ko": "Kepler 분화구. 세 파벌이 동시에 원하는 땅. 그래서 지금 세 파벌이 한 방에 있다. 산소 농도 18%. 모두가 그것을 알고 있었다.", "en": "Kepler Crater. Land that three factions wanted simultaneously. Which was why all three factions were in the same room. Oxygen at eighteen percent. Everyone knew." } }
+        { "speaker": "liang_wei", "emotion": "focused", "effect": "character_enter:liang_wei:slide_right", "text": { "ko": "왔군요. FSP.", "en": "You came. FSP." }},
+        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "30년 전에 처음 이것을 봤어요. 누구한테도 말 못 했어요. 말하면 없어질 것 같았어요. 그런 발견이 있어요. 말하는 순간 빼앗기는 것들.", "en": "I first saw this thirty years ago. Couldn't tell anyone. Felt like it would disappear if I did. There are discoveries like that. Things that get taken away the moment you speak them." }},
+        { "speaker": "liang_wei", "emotion": "determined", "text": { "ko": "이제 말할 거예요. 케플러 분화구 아래 Ancient Metal이 있어요. 그것은 화성의 것이에요. MCC의 것도 FSP의 것도 CV의 것도 아니에요.", "en": "Now I'll say it. Below Kepler Crater there is Ancient Metal. It belongs to Mars. Not to MCC. Not to FSP. Not to CV." }}
       ]
     },
-    {
-      "id": "s02",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
+    { "id": "s04", "type": "narration", "background": "kepler_crater", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "Lena의 왼팔이 보였다. 문신. 이름들. 그 이름 중 누군가가 이 분화구와 관련이 있었는지는 알 수 없었다. 그러나 Lena가 이 선언을 듣는 방식이 달랐다. 빠른 사람이 느려지는 순간이었다.", "en": "Lena's left arm was visible. Tattoo. Names. Whether any of those names were connected to this crater was unknown. But the way Lena listened to this declaration was different. It was a moment when a fast person became slow." }}] },
+    { "id": "s05", "type": "narration", "background": "kepler_crater", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": { "ko": "MCC 드론이 분화구 상공에 보였다. 하나였다. 관측용이었다. MCC는 항상 관측하고 있었다. 그것이 이 행성에서의 MCC 방식이었다. 보이지 않을 때도 있었다. 그러나 없는 것이 아니었다.", "en": "An MCC drone was visible above the crater. One. For observation. MCC was always observing. That was MCC's way on this planet. Sometimes it couldn't be seen. But that didn't mean it wasn't there." }}] },
+    { "id": "s06", "type": "dialogue", "background": "kepler_crater", "bgm": "tension_medium", "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "serious", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "량 웨이가 Commons 제안을 들고 왔어요. 세 파벌 공동 관리. 배타적 소유 금지.", "en": "Liang Wei came with the Commons proposal. Joint management by all three factions. No exclusive ownership." } },
-        { "speaker": "amara", "emotion": "thoughtful", "effect": "character_enter:amara:slide_right", "text": { "ko": "이상적이에요. MCC가 받을 리 없어요.", "en": "It's idealistic. MCC will never accept it." } },
-        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "그래서 우리가 여기 있는 거야.", "en": "Which is why we're here." } }
+        { "speaker": "liang_wei", "emotion": "calm", "text": { "ko": "드론이 보여요. MCC예요.", "en": "I see the drone. MCC." }},
+        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "30년 기다렸어요. 오늘 빼앗기든 아니든, 선언은 했어요. 선언한 것은 지울 수 없어요.", "en": "Thirty years I waited. Whether they take it today or not, the declaration was made. What's been declared can't be erased." }}
       ]
     },
-    {
-      "id": "s03",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
-      "lines": [
-        { "speaker": "hale", "emotion": "cold", "effect": "character_enter:hale:slide_right", "text": { "ko": "산소 농도 18%. 회담이 두 시간 넘으면 산소가 먼저 끝나요. 누가 더 버티나 보는 거야?", "en": "Oxygen's at eighteen. If the meeting goes over two hours, the oxygen runs out first. Is this who blinks last?" } },
-        { "speaker": "amara", "emotion": "sharp", "text": { "ko": "그래서 당신이 먼저 나갈 수 있어요.", "en": "So you can leave first." } },
-        { "speaker": "hale", "emotion": "sardonic", "text": { "ko": "재밌는 제안이네요.", "en": "Interesting proposal." } }
-      ]
-    },
-    {
-      "id": "s04",
-      "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
-      "lines": [
-        { "text": { "ko": "미하일이 물을 마셨다. 느리게. 아무도 먼저 말하려 하지 않았다.", "en": "Mikhail drank his water. Slowly. Nobody wanted to speak first." } }
-      ]
-    },
-    {
-      "id": "s05",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
-      "lines": [
-        { "speaker": "mikhail", "emotion": "measured", "text": { "ko": "Roth 데이터가 있어요. Helion 광물이 화성 자생이 아닐 수 있다는 증거. MCC가 그걸 알고 있어요.", "en": "We have the Roth data. Evidence that Helion mineral may not be Martian in origin. MCC knows." } },
-        { "speaker": "hale", "emotion": "surprised", "text": { "ko": "...", "en": "..." } },
-        { "speaker": "amara", "emotion": "cautious", "text": { "ko": "그걸 지금 여기서 꺼내면 회담이 무너질 수 있어요.", "en": "Bringing that up here now could collapse the meeting." } }
-      ]
-    },
-    {
-      "id": "s_choice",
-      "type": "choice",
-      "background": "kepler_crater",
-      "bgm": "choice_tension",
-      "prompt": { "ko": "Kepler 회담에서 어떤 입장을 취하겠습니까?", "en": "What position do you take at the Kepler summit?" },
+    { "id": "s_choice", "type": "choice", "background": "kepler_crater", "bgm": "choice_tension",
+      "prompt": { "ko": "MCC 드론. Liang Wei의 선언. 케플러 분화구. 지금 무엇을 합니까.", "en": "MCC drone. Liang Wei's declaration. Kepler Crater. What do you do now." },
       "choices": [
-        {
-          "id": "fsp_ch5_propose_commons",
-          "text": { "ko": "Liang의 Commons 제안 지지.", "en": "Support Liang's Commons proposal." },
-          "tone": "idealistic",
-          "preview_hint": { "ko": "→ 장기 공유지 루트 해금", "en": "→ Unlock long-term commons route" }
-        },
-        {
-          "id": "fsp_ch5_propose_fsp_arbitration",
-          "text": { "ko": "FSP 중립 중재자 제안.", "en": "Propose FSP as neutral arbitrator." },
-          "tone": "pragmatic",
-          "preview_hint": { "ko": "→ FSP 영향력 +, MCC 반발", "en": "→ FSP influence +, MCC pushback" }
-        },
-        {
-          "id": "fsp_ch5_propose_evidence_lever",
-          "text": { "ko": "Roth 데이터로 MCC 압박.", "en": "Use Roth data to pressure MCC." },
-          "tone": "aggressive",
-          "preview_hint": { "ko": "→ MCC 양보, 신더 충격, 위험한 전례", "en": "→ MCC concedes, Cinder shocked, dangerous precedent" }
-        },
-        {
-          "id": "fsp_ch5_force_combat",
-          "text": { "ko": "회담 결렬 + 전투.", "en": "Let the meeting collapse and fight." },
-          "tone": "militant",
-          "preview_hint": { "ko": "→ 최악의 결과 가능성, 아마라 -20", "en": "→ Worst outcome possible, Amara -20" }
-        },
-        {
-          "id": "fsp_ch5_propose_global_disclosure",
-          "text": { "ko": "외계 기원 즉시 공개.", "en": "Disclose the alien origin immediately." },
-          "tone": "radical",
-          "preview_hint": { "ko": "→ 모든 파벌 충격, 게임 체인저", "en": "→ All factions shocked, game changer" }
-        }
+        { "id": "fsp_ch5_protect", "text": { "ko": "Liang Wei를 보호한다. 케플러를 사수한다.", "en": "Protect Liang Wei. Hold Kepler." }, "tone": "decisive", "preview_hint": { "ko": "→ MCC와 직접 충돌, 케플러 FSP 공유 선포", "en": "→ Direct MCC clash, Kepler declared FSP commons" }},
+        { "id": "fsp_ch5_document", "text": { "ko": "선언을 기록한다. 전 화성에 방송한다.", "en": "Record the declaration. Broadcast across Mars." }, "tone": "strategic", "preview_hint": { "ko": "→ 여론전 시작, MCC 강경 대응", "en": "→ Propaganda war begins, MCC responds forcefully" }},
+        { "id": "fsp_ch5_cv_contact", "text": { "ko": "CV에 연락한다. Sandstone 약속을 실행한다.", "en": "Contact CV. Invoke the Sandstone Promise." }, "tone": "alliance", "preview_hint": { "ko": "→ Cinder Grace 등장, 삼각 긴장", "en": "→ Cinder Grace appears, triangular tension" }},
+        { "id": "fsp_ch5_negotiate_liang", "text": { "ko": "Liang Wei와 먼저 계약한다. 데이터 보호.", "en": "First contract with Liang Wei. Data protection." }, "tone": "methodical", "preview_hint": { "ko": "→ 데이터 확보, MCC 독점 차단", "en": "→ Data secured, MCC monopoly blocked" }}
       ]
     },
-    {
-      "id": "s06",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "fsp_ambient",
-      "transition": "cut",
+    { "id": "s_battle", "type": "battle_transition", "background": "kepler_crater", "bgm": "battle_theme_fsp", "transition": "flash_white",
+      "title": { "ko": "케플러 공유지 선포", "en": "Kepler Commons Declaration" }, "subtitle": { "ko": "케플러 분화구 — 화성의 것", "en": "Kepler Crater — Belongs to Mars" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "dialogue", "background": "kepler_crater", "bgm": "victory_calm",
       "lines": [
-        { "speaker": "hale", "emotion": "calculating", "text": { "ko": "...예상보다 복잡하네요. 정육점이 이걸 알면 움직여요.", "en": "...More complicated than I expected. If Butcher hears this, he moves." } },
-        { "speaker": "amara", "emotion": "firm", "text": { "ko": "우리한테 시간이 얼마나 있죠?", "en": "How much time do we have?" } },
-        { "speaker": "hale", "emotion": "flat", "text": { "ko": "일주일. 아마도.", "en": "A week. Maybe." } }
+        { "speaker": "liang_wei", "emotion": "moved", "effect": "character_enter:liang_wei:slide_right", "text": { "ko": "케플러가 살아남았어요.", "en": "Kepler survived." }},
+        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "30년 동안 이것만 봤어요. 이름도 안 붙이고. 오늘 이름이 붙었어요. 케플러 공유지.", "en": "For thirty years I looked only at this. Didn't name it. Today it got a name. Kepler Commons." }}
       ]
     },
-    {
-      "id": "s_battle",
-      "type": "battle_transition",
-      "background": "space_battle_start",
-      "bgm": "battle_theme_mcc",
-      "transition": "flash_white",
-      "title": { "ko": "Kepler 분화구 방어전", "en": "Kepler Crater Defense" },
-      "subtitle": { "ko": "산소 18% — 타임리밋", "en": "Oxygen 18% — Time Limit" }
-    },
-    {
-      "id": "s_result",
-      "type": "result",
-      "success_scene": "s_success",
-      "failure_scene": "s_fail"
-    },
-    {
-      "id": "s_success",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "victory_calm",
-      "lines": [
-        { "speaker": "mikhail", "emotion": "tired_but_satisfied", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "회담은 결론 없이 끝났어요. 하지만 아무도 안 죽었어.", "en": "The meeting ended without conclusion. But nobody died." } },
-        { "speaker": "amara", "emotion": "thoughtful", "effect": "character_enter:amara:slide_right", "text": { "ko": "화성에서 그게 성공이에요.", "en": "On Mars, that counts as success." } }
-      ]
-    },
-    {
-      "id": "s_fail",
-      "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "defeat_ambient",
-      "lines": [
-        { "speaker": "mikhail", "emotion": "grim", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "Kepler는 전장이 됐어요.", "en": "Kepler is a battlefield now." } },
-        { "speaker": "amara", "emotion": "devastated", "effect": "character_enter:amara:slide_right", "text": { "ko": "이건 막을 수 있었어요.", "en": "This could have been prevented." } }
-      ]
-    },
-    {
-      "id": "s_ending",
-      "type": "ending",
-      "background": "mars_sunset",
-      "bgm": "ambient_melancholy",
-      "transition": "fade_slow",
-      "lines": [
-        { "text": { "ko": "공유지란 아무도 소유하지 않는 땅이다. 화성에서 그런 땅이 존재할 수 있는가. 그것을 믿는 사람들이 여기 있었다. 그것으로 충분할 수 있었다.", "en": "A commons is land nobody owns. Whether such land could exist on Mars. There were people here who believed it could. That might be enough." } }
-      ],
-      "next_chapter_preview": { "questId": "fsp_campaign_ch6", "teaser": { "ko": "다음 — 두더지", "en": "Next — The Mole" } }
+    { "id": "s_fail", "type": "narration", "background": "kepler_crater", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "MCC가 분화구를 봉쇄했다. Liang Wei는 없었다. 어디로 갔는지 알 수 없었다. 30년의 데이터도 없었다. 케플러 분화구는 여전히 거기 있었다. 깊고. 검고. 이제 이름이 있었다. 다른 사람들이 붙인 이름.", "en": "MCC sealed the crater. Liang Wei was gone. Where she went was unknown. The thirty years of data was gone too. Kepler Crater was still there. Deep. Dark. It had a name now. A name given by others." }}] },
+    { "id": "s_ending", "type": "ending", "background": "kepler_crater_dusk", "bgm": "ambient_melancholy", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "케플러 분화구가 붉게 물들었다. 화성의 해가 기울었다. Liang Wei가 한 번 더 봤다. 분화구를. 30년간 본 것을. 오늘 처음으로 다른 사람들과 함께 본 것을. 혼자 있던 것이 함께가 되는 순간이 있었다. 그것이 선언이었다. 화성에서 선언은 그런 것이었다.", "en": "Kepler Crater turned red. The Martian sun tilted. Liang Wei looked once more. At the crater. At what she had seen for thirty years. At what she had seen today for the first time with others. There were moments when what was alone became shared. That was a declaration. On Mars that was what a declaration was." }}],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch6", "teaser": { "ko": "다음 — 두더지", "en": "Next — The Mole" }}
     }
   ]
 }

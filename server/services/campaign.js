@@ -23,6 +23,11 @@ const FSP_CH7_ID = 'fsp_campaign_ch7';
 const FSP_CH8_ID = 'fsp_campaign_ch8';
 const FSP_CH9_ID = 'fsp_campaign_ch9';
 const FSP_CH10_ID = 'fsp_campaign_ch10';
+const HIDDEN_CH1_ID = 'hidden_campaign_ch1';
+const HIDDEN_CH2_ID = 'hidden_campaign_ch2';
+const HIDDEN_CH3_ID = 'hidden_campaign_ch3';
+const HIDDEN_CH4_ID = 'hidden_campaign_ch4';
+const HIDDEN_CH5_ID = 'hidden_campaign_ch5';
 const FACTIONS = ['mcc', 'fsp', 'cv', 'pilgrim_arms'];
 const REP_MIN = -100;
 const REP_MAX = 100;
@@ -1130,17 +1135,95 @@ const CHAPTERS = {
   cv_campaign_ch10: {
     questId: 'cv_campaign_ch10', scenesFile: 'docs/campaign-story/cv_ch10_from_flames.json',
     campaignId: 'cv_route', chapterNumber: 10, faction: 'cv',
-    title: { ko: '불꽃에서', en: 'From the Flames' }, requiredLevel: 10, prerequisiteChapter: 'cv_campaign_ch9',
+    title: { ko: '가시 면류관', en: 'The Thorn Crown' }, requiredLevel: 10, prerequisiteChapter: 'cv_campaign_ch9',
     requiredReputation: { cv: -100 },
     battleResolution: 'ending_evaluation_and_cinematic', estimatedPlayTimeSeconds: 900,
-    location: { id: 'cv_route_finale', displayNameKo: 'CV 루트 최종', region: 'mars' },
-    environment: { type: 'cinematic', noCombat: true, phases: [{ phase: 0, startSec: 0 }] },
-    briefing: { npcId: 'butcher', npcName: 'The Butcher / Cinder Grace / Hale', npcTitle: 'CV 루트 엔딩', lines: [{ id: 'cv_ch10_01', ko: '불꽃이 꺼지고 나면 — 남은 것이 너야.' }], radio: [] },
+    location: { id: 'erebus_crater_base', displayNameKo: '에레보스 분화구 기지', region: 'mars' },
+    environment: { type: 'cv_base_final', phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'butcher', npcName: 'The Butcher', npcTitle: 'CV 루트 엔딩', lines: [{ id: 'cv_ch10_01', ko: '30년이 지났어. CV가 여전히 필요해?' }], radio: [] },
     choices: [
-      { id: 'cv_ending_1_warlord', labelKo: 'Ending A: 화성의 지배자.', effects: { flag: 'cv_ending_warlord' } },
-      { id: 'cv_ending_2_dismantler', labelKo: 'Ending B: CV 해체자.', effects: { flag: 'cv_ending_dismantler' } },
-      { id: 'cv_ending_3_cinder_path', labelKo: 'Ending C: 신더의 길.', effects: { flag: 'cv_ending_cinder_path' } },
-      { id: 'cv_bad_ending', labelKo: 'Bad Ending: 재 속에 묻힌다.', effects: { flag: 'cv_bad_ending' } },
+      { id: 'cv_ch10_warlord', labelKo: 'Ending A: 군벌 — 화성이 두려워하는 자.', effects: { flag: 'cv_ending_warlord' } },
+      { id: 'cv_ch10_renegade', labelKo: 'Ending B: 반역자 — 아무것에도 속하지 않는 자.', effects: { flag: 'cv_ending_renegade' } },
+      { id: 'cv_ch10_mercenary', labelKo: 'Ending C: 용병 — 코드가 법인 자.', effects: { flag: 'cv_ending_mercenary' } },
+      { id: 'cv_ch10_crown', labelKo: 'Ending D: 왕관 — Zone 12가 화성의 법이 된다.', effects: { flag: 'cv_ending_crown' } },
+    ],
+  },
+
+  // ─── Hidden Observer Route (Ch1-5) ───────────────────────────────────────
+  hidden_campaign_ch1: {
+    questId: 'hidden_campaign_ch1', scenesFile: 'docs/campaign-story/hidden_ch1_observer.json',
+    campaignId: 'hidden_route', chapterNumber: 1, faction: 'hidden',
+    title: { ko: '관찰자', en: 'The Observer' }, requiredLevel: 1, prerequisiteChapter: null,
+    unlockCondition: 'all_routes_ch1_complete',
+    battleResolution: 'standard', estimatedPlayTimeSeconds: 900,
+    location: { id: 'kariope_cargo_ship', displayNameKo: '화물선 카리오페호', region: 'deep_space' },
+    environment: { type: 'cargo_ship_deep_space', phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'verk', npcName: '운항사 베르크', npcTitle: '카리오페호', lines: [{ id: 'hidden_ch1_01', ko: '화성에 뭐 하러 가요.' }], radio: [] },
+    choices: [
+      { id: 'hidden_ch1_watch_mcc', labelKo: 'MCC 본부 방향.', effects: { flag: 'hidden_watched_mcc_first' } },
+      { id: 'hidden_ch1_watch_fsp', labelKo: '헬라스 외곽 광부 마을 방향.', effects: { flag: 'hidden_watched_fsp_first' } },
+      { id: 'hidden_ch1_watch_cv', labelKo: '아르기레 협곡 방향.', effects: { flag: 'hidden_watched_cv_first' } },
+      { id: 'hidden_ch1_watch_all', labelKo: '멈춘다. 전체를 본다.', effects: { flag: 'hidden_watched_all', tagsAdded: ['true_observer'] } },
+    ],
+  },
+  hidden_campaign_ch2: {
+    questId: 'hidden_campaign_ch2', scenesFile: 'docs/campaign-story/hidden_ch2_traces.json',
+    campaignId: 'hidden_route', chapterNumber: 2, faction: 'hidden',
+    title: { ko: '흔적들', en: 'Traces' }, requiredLevel: 1, prerequisiteChapter: 'hidden_campaign_ch1',
+    battleResolution: 'standard', estimatedPlayTimeSeconds: 900,
+    location: { id: 'hellas_various', displayNameKo: '헬라스 — 여러 장소', region: 'mars' },
+    environment: { type: 'multiple_locations', phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'observer', npcName: '관찰자', npcTitle: '숨겨진 루트', lines: [{ id: 'hidden_ch2_01', ko: '흔적이 있었다. 분필이었다.' }], radio: [] },
+    choices: [
+      { id: 'hidden_ch2_names', labelKo: '이름들을 연결한다.', effects: { flag: 'hidden_connected_names' } },
+      { id: 'hidden_ch2_people', labelKo: '사람들을 연결한다.', effects: { flag: 'hidden_connected_people' } },
+      { id: 'hidden_ch2_ancient', labelKo: 'Ancient Metal을 연결한다.', effects: { flag: 'hidden_connected_ancient', tagsAdded: ['ancient_metal_seeker'] } },
+      { id: 'hidden_ch2_nothing', labelKo: '연결하지 않는다.', effects: { flag: 'hidden_pure_observer' } },
+    ],
+  },
+  hidden_campaign_ch3: {
+    questId: 'hidden_campaign_ch3', scenesFile: 'docs/campaign-story/hidden_ch3_fourth_flag.json',
+    campaignId: 'hidden_route', chapterNumber: 3, faction: 'hidden',
+    title: { ko: '세 개의 깃발, 네 번째 시점', en: 'Three Flags, Fourth Perspective' }, requiredLevel: 1, prerequisiteChapter: 'hidden_campaign_ch2',
+    battleResolution: 'standard', estimatedPlayTimeSeconds: 1200,
+    location: { id: 'olympus_summit_exterior', displayNameKo: '올림포스 산 정상 외부', region: 'olympus' },
+    environment: { type: 'olympus_exterior_thin_air', phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'observer', npcName: '관찰자', npcTitle: '숨겨진 루트', lines: [{ id: 'hidden_ch3_01', ko: '세 파벌. 세 깃발. 관찰자는 안에 없었다.' }], radio: [] },
+    choices: [
+      { id: 'hidden_ch3_enter', labelKo: '안으로 들어간다.', effects: { flag: 'hidden_entered_summit', reputationDelta: { mcc: 5, fsp: 5, cv: 5 } } },
+      { id: 'hidden_ch3_wait', labelKo: '기다린다.', effects: { flag: 'hidden_waited_outside' } },
+      { id: 'hidden_ch3_record', labelKo: '기록한다.', effects: { flag: 'hidden_recorded_summit', tagsAdded: ['historian_of_mars'] } },
+      { id: 'hidden_ch3_ancient', labelKo: 'Ancient Metal을 꺼낸다.', effects: { flag: 'hidden_revealed_ancient_at_summit' } },
+    ],
+  },
+  hidden_campaign_ch4: {
+    questId: 'hidden_campaign_ch4', scenesFile: 'docs/campaign-story/hidden_ch4_thirty_years.json',
+    campaignId: 'hidden_route', chapterNumber: 4, faction: 'hidden',
+    title: { ko: '30년', en: 'Thirty Years' }, requiredLevel: 1, prerequisiteChapter: 'hidden_campaign_ch3',
+    battleResolution: 'standard', estimatedPlayTimeSeconds: 1200,
+    location: { id: 'hellas_zone4_ruins', displayNameKo: '헬라스 4구역 폐광', region: 'mars' },
+    environment: { type: 'flashback_mine', phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'observer', npcName: '관찰자', npcTitle: '숨겨진 루트', lines: [{ id: 'hidden_ch4_01', ko: '30년 전이었다. 기억이 아니었다. 흔적이었다.' }], radio: [] },
+    choices: [
+      { id: 'hidden_ch4_document', labelKo: '모든 것을 기록한다.', effects: { flag: 'hidden_documented_zone4' } },
+      { id: 'hidden_ch4_tell_butcher', labelKo: 'Butcher에게 말한다.', effects: { flag: 'hidden_told_butcher', reputationDelta: { cv: 10 } } },
+      { id: 'hidden_ch4_tell_liang', labelKo: 'Liang Wei에게 말한다.', effects: { flag: 'hidden_told_liang', tagsAdded: ['ancient_metal_bridge'] } },
+      { id: 'hidden_ch4_ancient_metal', labelKo: 'Ancient Metal 샘플을 가져간다.', effects: { flag: 'hidden_holds_ancient_sample' } },
+    ],
+  },
+  hidden_campaign_ch5: {
+    questId: 'hidden_campaign_ch5', scenesFile: 'docs/campaign-story/hidden_ch5_last_observation.json',
+    campaignId: 'hidden_route', chapterNumber: 5, faction: 'hidden',
+    title: { ko: '마지막 관찰', en: 'Last Observation' }, requiredLevel: 1, prerequisiteChapter: 'hidden_campaign_ch4',
+    battleResolution: 'ending_evaluation_and_cinematic', estimatedPlayTimeSeconds: 1500,
+    location: { id: 'hellas_zone4_deep_tunnel', displayNameKo: '헬라스 4구역 갱도 최심부', region: 'mars' },
+    environment: { type: 'ancient_deep_final', phases: [{ phase: 0, startSec: 0 }] },
+    briefing: { npcId: 'observer', npcName: '관찰자', npcTitle: '숨겨진 루트 — 엔딩', lines: [{ id: 'hidden_ch5_01', ko: '가장 깊은 곳이었다. 아무도 30년 동안 오지 않은 곳.' }], radio: [] },
+    choices: [
+      { id: 'hidden_ch5_reveal_all', labelKo: 'Ending A: 계시 — 화성의 역사가 다시 쓰인다.', effects: { flag: 'hidden_ending_revelation' } },
+      { id: 'hidden_ch5_three_keepers', labelKo: 'Ending B: 네 번째 길 — 깃발 없는 화성.', effects: { flag: 'hidden_ending_fourth_path' } },
+      { id: 'hidden_ch5_bury_again', labelKo: 'Ending C: 관찰자 — 30년을 더 기다린다.', effects: { flag: 'hidden_ending_observer' } },
+      { id: 'hidden_ch5_give_liang', labelKo: 'Ending D: 과학자의 것 — 30년의 기다림이 보상된다.', effects: { flag: 'hidden_ending_scientist' } },
     ],
   },
 };
