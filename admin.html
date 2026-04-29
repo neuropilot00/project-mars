@@ -313,6 +313,7 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
   <button class="adm-tab" onclick="switchTab('siege')" data-tab="siege" style="color:#FF5252">SIEGE</button>
   <button class="adm-tab" onclick="switchTab('ships')" data-tab="ships" style="color:#5cbbff">⚓ SHIPS</button>
   <button class="adm-tab" onclick="switchTab('worldevents')" data-tab="worldevents" style="color:#b088e0">👾 EVENTS</button>
+  <button class="adm-tab" onclick="switchTab('bugs')" data-tab="bugs" style="color:#ff8866">🐞 BUGS</button>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
@@ -2775,6 +2776,125 @@ html,body{width:100%;min-height:100vh;background:var(--bg);font-family:var(--fn)
     <p style="font-size:10px;color:#888;margin-bottom:8px">Edit in GAME SETTINGS → keys: <b>onboarding_*</b></p>
   </div>
 
+  <!-- ═══ BUG REPORTS TAB ═══ -->
+  <div class="section cat-bugs" style="display:none">
+    <div class="sec-header">
+      <span class="sec-title" style="color:#ff8866">🐞 BUG REPORTS</span>
+      <div class="sec-tools">
+        <select class="adm-select" id="brStatusFilter" onchange="loadBugReports(0)" style="font-size:9px">
+          <option value="">All statuses</option>
+          <option value="new">new</option>
+          <option value="triaged">triaged</option>
+          <option value="in_progress">in_progress</option>
+          <option value="fixed">fixed</option>
+          <option value="wontfix">wontfix</option>
+          <option value="duplicate">duplicate</option>
+        </select>
+        <select class="adm-select" id="brCategoryFilter" onchange="loadBugReports(0)" style="font-size:9px">
+          <option value="">All categories</option>
+          <option value="ui">ui</option>
+          <option value="gameplay">gameplay</option>
+          <option value="payment">payment</option>
+          <option value="performance">performance</option>
+          <option value="other">other</option>
+        </select>
+        <button class="adm-btn primary" onclick="loadBugReports(0)" style="color:#ff8866;border-color:rgba(255,136,102,.3)">REFRESH</button>
+        <span style="font-size:6px;color:var(--tx3)" id="brCount">--</span>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,136,102,.06);border:1px solid rgba(255,136,102,.15);border-radius:6px;padding:10px;margin-bottom:12px;font-size:10px;color:#bbb;line-height:1.7">
+      <b style="color:#ff8866">버그 리포트 트리아지</b><br>
+      유저 인게임 🐞 BUG 버튼으로 접수된 리포트입니다. 행을 클릭하면 본문/최근 JS 에러/Claude 노트가 펼쳐지며, 상태와 노트를 갱신할 수 있습니다.<br>
+      <b style="color:#ddd">상태:</b> new → triaged → in_progress → fixed (또는 wontfix / duplicate)<br>
+      <b style="color:#ddd">파이프라인:</b> 새 리포트는 <code style="color:#ff8866">server/bug-reports/inbox/</code> 에도 JSON 미러됨 (Claude Code watcher 픽업용)
+    </div>
+
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>STATUS</th>
+            <th>CATEGORY</th>
+            <th>TITLE</th>
+            <th>WALLET</th>
+            <th>URL</th>
+            <th>ATTEMPTS</th>
+            <th>CREATED</th>
+            <th>UPDATED</th>
+          </tr>
+        </thead>
+        <tbody id="brBody"><tr><td colspan="9" class="loading">Click BUGS tab to load...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="brPagination"></div>
+
+    <!-- Detail panel (clicking a row reveals it) -->
+    <div id="brDetail" style="display:none;padding:16px;border-top:1px solid var(--bdr);background:rgba(0,0,0,.2);margin-top:12px;border-radius:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:9px;color:#ff8866;letter-spacing:1px">REPORT DETAIL <span id="brDetailId" style="color:var(--tx2)">#--</span></span>
+        <button class="ev-btn del" onclick="document.getElementById('brDetail').style.display='none'">CLOSE ✕</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;font-size:10px">
+        <div>
+          <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">TITLE</div>
+          <div id="brdTitle" style="color:#fff;word-break:break-word">--</div>
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">WALLET</div>
+          <div id="brdWallet" style="color:var(--cyan);font-family:monospace;font-size:9px;word-break:break-all">--</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">BODY</div>
+        <pre id="brdBody" style="font-size:10px;color:var(--tx2);background:rgba(0,0,0,.3);padding:10px;border-radius:4px;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow-y:auto;border:1px solid var(--bdr);margin:0">--</pre>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;font-size:9px">
+        <div>
+          <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">URL</div>
+          <div id="brdUrl" style="color:var(--tx2);word-break:break-all">--</div>
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">USER AGENT</div>
+          <div id="brdUa" style="color:var(--tx3);font-size:8px;word-break:break-word">--</div>
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">VIEWPORT / LANG / IP</div>
+          <div id="brdMeta" style="color:var(--tx2)">--</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">RECENT JS ERRORS (last 10)</div>
+        <pre id="brdErrors" style="font-size:8px;color:var(--red);background:rgba(0,0,0,.3);padding:10px;border-radius:4px;white-space:pre-wrap;word-break:break-word;max-height:160px;overflow-y:auto;border:1px solid var(--bdr);margin:0">--</pre>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:8px;color:var(--tx3);margin-bottom:3px">CLAUDE NOTES</div>
+        <textarea id="brdNotes" placeholder="Claude Code 또는 어드민이 남기는 트리아지 노트..." style="width:100%;min-height:80px;font-size:10px;padding:8px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:4px;color:#fff;font-family:inherit;resize:vertical"></textarea>
+        <div style="font-size:8px;color:var(--tx3);margin-top:4px">
+          attempts: <span id="brdAttempts" style="color:var(--cyan)">0</span> · resolved_commit: <span id="brdCommit" style="color:var(--cyan);font-family:monospace">-</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:8px;color:var(--tx3);margin-right:4px">SET STATUS →</span>
+        <button class="adm-btn" onclick="updateBugStatus('triaged')" style="font-size:9px;color:#ffc857;border-color:rgba(255,200,87,.3)">TRIAGED</button>
+        <button class="adm-btn" onclick="updateBugStatus('in_progress')" style="font-size:9px;color:#5cbbff;border-color:rgba(92,187,255,.3)">IN PROGRESS</button>
+        <button class="adm-btn" onclick="updateBugStatus('fixed')" style="font-size:9px;color:var(--gn);border-color:rgba(0,255,136,.3)">FIXED</button>
+        <button class="adm-btn" onclick="updateBugStatus('wontfix')" style="font-size:9px;color:var(--tx3);border-color:rgba(255,255,255,.15)">WONTFIX</button>
+        <button class="adm-btn" onclick="updateBugStatus('duplicate')" style="font-size:9px;color:#a064dc;border-color:rgba(160,100,220,.3)">DUPLICATE</button>
+        <button class="adm-btn" onclick="updateBugStatus('new')" style="font-size:9px;color:#ff8866;border-color:rgba(255,136,102,.3)">REOPEN (NEW)</button>
+        <span style="flex:1"></span>
+        <button class="adm-btn primary" onclick="saveBugNotes()" style="font-size:9px;color:#ff8866;border-color:rgba(255,136,102,.5)">💾 SAVE NOTES ONLY</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -2855,7 +2975,7 @@ function switchTab(tab) {
     t.classList.toggle('active', t.getAttribute('data-tab') === tab);
   });
   // Show/hide sections by category
-  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore', 'enhance', 'marketplace', 'jobs', 'resources', 'onboarding', 'siege', 'ships', 'worldevents'];
+  var cats = ['dashboard', 'users', 'game', 'finance', 'claims', 'shop', 'battles', 'guild', 'season', 'gp', 'poi', 'governance', 'lore', 'enhance', 'marketplace', 'jobs', 'resources', 'onboarding', 'siege', 'ships', 'worldevents', 'bugs'];
   cats.forEach(function(c) {
     var els = document.querySelectorAll('.cat-' + c);
     els.forEach(function(el) { el.style.display = (tab === c) ? '' : 'none'; });
@@ -10879,12 +10999,208 @@ async function forceEndWorldEvent(eventId) {
     .catch(function(e){ showToast('Error: '+e.message); });
 }
 
-// switchTab 확장 — worldevents 탭 로드 시 자동 refresh
+// switchTab 확장 — worldevents/bugs 탭 로드 시 자동 refresh
 var _origSwitchTab = switchTab;
 switchTab = function(tab) {
   _origSwitchTab(tab);
   if (tab === 'worldevents') setTimeout(loadWorldEventsAdmin, 100);
+  if (tab === 'bugs')        setTimeout(function(){ loadBugReports(0); }, 100);
 };
+
+// ─── BUG REPORTS ─────────────────────────────────────────────
+var brLimit = 50;
+var brOffset = 0;
+var brCurrentId = null;
+
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function brStatusColor(status) {
+  switch (status) {
+    case 'new':         return '#ff8866';
+    case 'triaged':     return '#ffc857';
+    case 'in_progress': return '#5cbbff';
+    case 'fixed':       return '#00ff88';
+    case 'wontfix':     return '#888';
+    case 'duplicate':   return '#a064dc';
+    default:            return '#bbb';
+  }
+}
+
+function brCategoryColor(cat) {
+  switch (cat) {
+    case 'ui':          return '#5cbbff';
+    case 'gameplay':    return '#ff8866';
+    case 'payment':     return '#ffc857';
+    case 'performance': return '#a064dc';
+    default:            return '#888';
+  }
+}
+
+function loadBugReports(offset) {
+  if (typeof offset === 'number') brOffset = offset;
+  var status   = document.getElementById('brStatusFilter').value;
+  var category = document.getElementById('brCategoryFilter').value;
+  var qs = '?limit=' + brLimit + '&offset=' + brOffset;
+  if (status)   qs += '&status='   + encodeURIComponent(status);
+  if (category) qs += '&category=' + encodeURIComponent(category);
+
+  var tbody = document.getElementById('brBody');
+  tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading...</td></tr>';
+
+  api('/admin/api/bug-reports' + qs).then(function(d) {
+    var rows = (d && d.reports) || [];
+    document.getElementById('brCount').textContent = rows.length + ' shown';
+
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="loading">No bug reports match.</td></tr>';
+      document.getElementById('brPagination').innerHTML = '';
+      return;
+    }
+
+    tbody.innerHTML = '';
+    window._brCache = {};
+    rows.forEach(function(r) {
+      window._brCache[r.id] = r;
+      var tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.onclick = (function(id){ return function(){ showBugDetail(id); }; })(r.id);
+
+      var titleShort = (r.title || '').length > 60 ? (r.title.slice(0, 60) + '...') : (r.title || '(no title)');
+      var bodyPreview = (r.body || '').slice(0, 80);
+      var titleHtml = '<div style="color:#fff">' + escapeHtml(titleShort) + '</div>'
+                    + (bodyPreview ? '<div style="color:var(--tx3);font-size:8px;margin-top:2px">' + escapeHtml(bodyPreview) + '</div>' : '');
+
+      var walletShort = r.wallet ? (r.wallet.slice(0, 6) + '...' + r.wallet.slice(-4)) : '-';
+      var urlShort = r.url ? r.url.replace(/https?:\/\/[^\/]+/, '') : '-';
+      if (urlShort.length > 40) urlShort = urlShort.slice(0, 40) + '...';
+
+      tr.innerHTML =
+        '<td style="color:var(--tx3)">#' + r.id + '</td>' +
+        '<td><span style="color:' + brStatusColor(r.status) + ';font-size:8px;font-weight:700;letter-spacing:.5px">' + escapeHtml(r.status || 'new') + '</span></td>' +
+        '<td><span style="color:' + brCategoryColor(r.category) + ';font-size:8px">' + escapeHtml(r.category || 'other') + '</span></td>' +
+        '<td style="max-width:280px">' + titleHtml + '</td>' +
+        '<td style="font-family:monospace;font-size:8px;color:var(--cyan)" title="' + escapeHtml(r.wallet || '') + '">' + escapeHtml(walletShort) + '</td>' +
+        '<td style="font-size:8px;color:var(--tx3);max-width:160px;overflow:hidden;text-overflow:ellipsis" title="' + escapeHtml(r.url || '') + '">' + escapeHtml(urlShort) + '</td>' +
+        '<td style="text-align:center">' + (r.claude_attempts || 0) + '</td>' +
+        '<td style="font-size:7px">' + new Date(r.created_at).toLocaleString() + '</td>' +
+        '<td style="font-size:7px;color:var(--tx3)">' + (r.updated_at ? new Date(r.updated_at).toLocaleString() : '-') + '</td>';
+      tbody.appendChild(tr);
+    });
+
+    // Simple "next/prev" pagination — listReports doesn't return total, so use page-based.
+    var hasMore = rows.length === brLimit;
+    var page = Math.floor(brOffset / brLimit) + 1;
+    var pag = document.getElementById('brPagination');
+    pag.innerHTML = '';
+    var prev = document.createElement('button');
+    prev.className = 'page-btn';
+    prev.textContent = '◀ PREV';
+    prev.disabled = brOffset === 0;
+    prev.onclick = function() { loadBugReports(Math.max(0, brOffset - brLimit)); };
+    var info = document.createElement('span');
+    info.style.cssText = 'margin:0 12px;font-size:9px;color:var(--tx3)';
+    info.textContent = 'Page ' + page;
+    var next = document.createElement('button');
+    next.className = 'page-btn';
+    next.textContent = 'NEXT ▶';
+    next.disabled = !hasMore;
+    next.onclick = function() { loadBugReports(brOffset + brLimit); };
+    pag.appendChild(prev); pag.appendChild(info); pag.appendChild(next);
+  }).catch(function(e) {
+    tbody.innerHTML = '<tr><td colspan="9" class="loading" style="color:var(--red)">Failed to load bug reports: ' + escapeHtml(e.message || '') + '</td></tr>';
+  });
+}
+
+function showBugDetail(id) {
+  var r = (window._brCache || {})[id];
+  if (!r) return;
+  brCurrentId = id;
+
+  document.getElementById('brDetailId').textContent = '#' + id + ' · ' + (r.status || 'new');
+  document.getElementById('brdTitle').textContent   = r.title || '(no title)';
+  document.getElementById('brdWallet').textContent  = r.wallet || '-';
+  document.getElementById('brdBody').textContent    = r.body || '(empty)';
+  document.getElementById('brdUrl').textContent     = r.url || '-';
+  document.getElementById('brdUa').textContent      = r.user_agent || '-';
+
+  var vp = r.viewport || {};
+  var meta = [
+    vp.w && vp.h ? (vp.w + '×' + vp.h + (vp.dpr ? ' @' + vp.dpr + 'x' : '')) : '-',
+    r.lang || '-',
+    'IP: ' + (r.ip_address || '-')
+  ].join(' · ');
+  document.getElementById('brdMeta').textContent = meta;
+
+  var errs = r.recent_errors;
+  var errEl = document.getElementById('brdErrors');
+  if (Array.isArray(errs) && errs.length) {
+    errEl.textContent = errs.map(function(e) {
+      var ts = e.ts ? new Date(e.ts).toISOString() : '-';
+      return '[' + ts + '] ' + (e.message || '') + (e.source ? '\n    @ ' + e.source + (e.line ? ':' + e.line : '') : '');
+    }).join('\n\n');
+  } else {
+    errEl.textContent = '(none)';
+  }
+
+  document.getElementById('brdNotes').value     = r.claude_notes || '';
+  document.getElementById('brdAttempts').textContent = r.claude_attempts || 0;
+  document.getElementById('brdCommit').textContent   = r.resolved_commit || '-';
+
+  var detail = document.getElementById('brDetail');
+  detail.style.display = '';
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function _postBugUpdate(body) {
+  return fetch('/admin/api/bug-reports/' + brCurrentId + '/status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json().then(function(j){ return { ok: r.ok, json: j }; }); });
+}
+
+async function updateBugStatus(newStatus) {
+  if (!brCurrentId) return;
+  var notes = document.getElementById('brdNotes').value;
+  if (!await adminConfirm('Set #' + brCurrentId + ' → ' + newStatus + '?', 'CHANGE STATUS')) return;
+  var payload = { status: newStatus, claudeNotes: notes };
+  // bump attempts when admin marks something as in_progress
+  if (newStatus === 'in_progress') payload.incrementAttempts = true;
+  _postBugUpdate(payload).then(function(res) {
+    if (!res.ok || !res.json || res.json.ok === false) {
+      showToast('Update failed: ' + ((res.json && res.json.error) || 'unknown'), 'error');
+      return;
+    }
+    showToast('#' + brCurrentId + ' → ' + newStatus, 'success');
+    // Update cache + table inline so the user sees it immediately
+    var cached = (window._brCache || {})[brCurrentId];
+    if (cached) { cached.status = newStatus; cached.claude_notes = notes; if (newStatus === 'in_progress') cached.claude_attempts = (cached.claude_attempts || 0) + 1; }
+    loadBugReports(brOffset);
+  }).catch(function(e) {
+    showToast('Update error: ' + e.message, 'error');
+  });
+}
+
+function saveBugNotes() {
+  if (!brCurrentId) return;
+  var notes = document.getElementById('brdNotes').value;
+  _postBugUpdate({ claudeNotes: notes }).then(function(res) {
+    if (!res.ok || !res.json || res.json.ok === false) {
+      showToast('Save failed: ' + ((res.json && res.json.error) || 'unknown'), 'error');
+      return;
+    }
+    showToast('Notes saved for #' + brCurrentId, 'success');
+    var cached = (window._brCache || {})[brCurrentId];
+    if (cached) cached.claude_notes = notes;
+  }).catch(function(e) {
+    showToast('Save error: ' + e.message, 'error');
+  });
+}
 
 // Auto-focus auth input
 document.getElementById('authInput').focus();
