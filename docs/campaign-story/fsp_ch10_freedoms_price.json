@@ -86,16 +86,22 @@
           "preview_hint": { "ko": "→ [조건부] Gaia가 건재한 경우", "en": "→ [Conditional] Requires Gaia intact" }
         },
         {
-          "id": "fsp_ending_3_drifter",
-          "text": { "ko": "Ending 3: 표류자.", "en": "Ending 3: The Drifter." },
-          "tone": "solitary",
-          "preview_hint": { "ko": "→ 아무것도 없는 화성으로 걸어들어간다", "en": "→ Walk into Mars with nothing" }
+          "id": "fsp_ending_3_disillusioned",
+          "text": { "ko": "Ending 3: 환멸.", "en": "Ending 3: The Disillusioned." },
+          "tone": "tragic",
+          "preview_hint": { "ko": "→ FSP도 결국 권력이 됐다는 걸 본다", "en": "→ Watch FSP become the power it fought against" }
         },
         {
-          "id": "fsp_ending_4_fourth_flag",
-          "text": { "ko": "Ending 4: 네 번째 깃발.", "en": "Ending 4: The Fourth Flag." },
-          "tone": "radical",
-          "preview_hint": { "ko": "→ [조건부] 새 세력의 씨앗을 심는다", "en": "→ [Conditional] Plant the seed of a new faction" }
+          "id": "fsp_ending_4_new_chair",
+          "text": { "ko": "Ending 4: 새 의장.", "en": "Ending 4: The New Chair." },
+          "tone": "leadership",
+          "preview_hint": { "ko": "→ [조건부] FSP 의회 의장으로 화성을 이끈다", "en": "→ [Conditional] Lead Mars as FSP Parliament chair" }
+        },
+        {
+          "id": "fsp_bad_ending_fallback",
+          "text": { "ko": "Bad Ending: 실패한 호.", "en": "Bad Ending: The Failed Call." },
+          "tone": "failure",
+          "preview_hint": { "ko": "→ FSP 붕괴, 화성은 MCC에 넘어간다", "en": "→ FSP collapses, Mars falls to MCC" }
         }
       ]
     },
