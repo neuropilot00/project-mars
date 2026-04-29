@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-28 v5.12 (핵심 플레이 라인 검수, 하이잭/함선/자원 제작 버그 수정) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-29 v5.13 (§19 버그 리포트 자동 픽업 파이프라인 추가) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -595,6 +595,74 @@ async function confirmForfeit() {
 window.parent.postMessage({ source:'tactical-lab', battleId, cmd:'forfeit', payload:d }, '*');
 // 부모에서: window.addEventListener('message', function(e) { if (e.data.cmd==='forfeit') ... })
 ```
+
+---
+
+## 19. 버그 리포트 자동 픽업 파이프라인 (2026-04-29 추가)
+
+> 인게임 🐞 BUG 버튼으로 들어온 리포트를 Claude Code 가 주기적으로 자동 픽업·수정하는 루프.
+
+### 구성 요소
+
+| 위치 | 역할 |
+|---|---|
+| `index.html` 🐞 BUG fab | 사용자 → `POST /api/bug-report` |
+| `server/services/bugReport.js` | DB INSERT + `server/bug-reports/inbox/<id>_<cat>.json` 미러 |
+| `server/bug-reports/{inbox,processed,wontfix}/` | 디스크 큐 (DB와 이중 진실) |
+| `scripts/bug-report-watch.js` | 디스크/DB 큐 CLI (list/next/claim/resolve/skip) |
+| `.claude/commands/fix-next-bug.md` | `/fix-next-bug` 슬래시 커맨드 — 1건 픽업·수정·커밋·resolve |
+| `scripts/bug-fix-loop.sh` | 헤드리스 데몬 — `claude -p "/fix-next-bug"` 를 INTERVAL 마다 호출 |
+
+### 실행 모드 3가지
+
+#### A. 인터랙티브 (가장 안전 — 작업 중 옆에서 띄워두기)
+이미 열린 Claude Code 세션에서:
+```
+/loop 10m /fix-next-bug
+```
+- 10분마다 `/fix-next-bug` 슬래시 커맨드 실행 (큐 비어있으면 즉시 종료, 있으면 1건 처리).
+- 사용자는 같은 세션에서 다른 작업 가능 — 루프는 백그라운드 tick 으로만 돈다.
+- 중지: `/loop` 다시 입력 (토글).
+
+#### B. 헤드리스 데몬 (오랫동안 자리 비울 때)
+```bash
+# 포그라운드
+./scripts/bug-fix-loop.sh
+
+# 백그라운드 (로그는 /tmp/bug-fix-loop.log)
+nohup ./scripts/bug-fix-loop.sh > /tmp/bug-fix-loop.log 2>&1 &
+
+# tmux 안에서
+tmux new -d -s bugloop './scripts/bug-fix-loop.sh'
+
+# 중지
+pkill -f bug-fix-loop.sh
+```
+- 기본 `INTERVAL=600` (10분). `INTERVAL=300 ./scripts/bug-fix-loop.sh` 로 오버라이드.
+- 매 tick 마다 `claude -p "/fix-next-bug" --permission-mode acceptEdits` 헤드리스 호출.
+- `--permission-mode acceptEdits` 만 사용 — `--dangerously-skip-permissions` 절대 금지.
+
+#### C. cron / launchd (1회만 — 헤드리스 토큰 절약)
+```bash
+# 매 30분 한 번만 시도하고 끝 (큐 비어있으면 0초만에 종료)
+*/30 * * * * cd /path/to/repo && ./scripts/bug-fix-loop.sh --once
+```
+
+### `/fix-next-bug` 가 한 이터레이션에서 하는 일
+1. `node scripts/bug-report-watch.js next-and-fix` — 큐 비어있으면 exit 1 → 종료.
+2. `claim <id>` — `processed/` 로 이동, `claude_attempts++`, status=in_progress.
+3. category·title·body·recent_errors 로 코드 위치 추정 → Read/Edit 로 수정 (CLAUDE.md §5/§13/§18 규칙 준수).
+4. `git add` → commit (`fix: ... (bug #<id>)`) → push → `resolve <id> --commit <sha> --note "..."`.
+5. 못 고치는 조건 (재현 부족 / 3+ 파일 설계 변경 / 마이그레이션 필요 / 시크릿 필요 / 이미 1번 skip 됨): `skip <id> --reason "..."`.
+
+상세는 [.claude/commands/fix-next-bug.md](.claude/commands/fix-next-bug.md) 참조.
+
+### 운영 팁
+- **권한 prompts 줄이기**: `.claude/settings.local.json` 에 `node scripts/bug-report-watch.js *`, `git add scripts/* server/*` 등 자주 쓰는 명령 allow-list 추가. (`/fewer-permission-prompts` 스킬로 자동.)
+- **이중 처리 방지**: `claim` 단계가 atomic move 라서 두 워커가 동시에 같은 ID 가져갈 수 없음. 인터랙티브 + 헤드리스 동시 실행 안전.
+- **DB 동기화**: `DATABASE_URL` 이 env 에 있으면 자동으로 `bug_reports` 테이블 status/claude_notes/resolved_commit 도 같이 업데이트. 없으면 디스크-only 모드.
+- **실패 격리**: hook 실패 / push 실패 시 commit 은 살리고 skip 처리 — 다음 이터레이션은 깨끗한 상태로 시작.
+- **모니터링**: `tail -f /tmp/bug-fix-loop.log` 또는 admin 패널의 bug_reports 테이블 (status='fixed' 와 `resolved_commit` 컬럼).
 
 ---
 
