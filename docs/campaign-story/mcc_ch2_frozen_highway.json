@@ -5,46 +5,373 @@
   "title": { "ko": "First Audit", "en": "First Audit" },
   "location": { "id": "hellas_north_mine", "displayNameKo": "헬라스 북부 광산" },
   "environment": "mine_interior",
-  "estimatedPlayTimeMinutes": 15,
+  "estimatedPlayTimeMinutes": 20,
   "characters": ["player", "lifang", "miner_elder"],
   "scenes": [
-    { "id": "s01", "type": "narration", "background": "mine_exterior", "bgm": "mcc_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "광산 엘리베이터는 지표에서 2킬로미터를 내려갔다. 내려가면서 기온이 올랐다. 화성 지표는 영하였지만 지하는 달랐다. 광부들은 그 차이를 알았다. 아는 것이 좋은 일인지는 몰랐다.", "en": "The mine elevator descended two kilometers below the surface. As it went down the temperature rose. The surface was below zero but underground was different. Miners knew this difference. Whether knowing it was a good thing was unclear." }}] },
-    { "id": "s02", "type": "narration", "background": "mine_interior", "bgm": "mcc_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "MCC 감사팀. 둘이었다. 클립보드의 사람은 체크 표시를 했다. 모든 것이 양호였다. 아직 세 구역을 보지 않았는데도 양호였다.", "en": "MCC audit team. Two of them. The one with the clipboard made check marks. Everything was satisfactory. Even before seeing three sectors, everything was satisfactory." }}] },
-    { "id": "s03", "type": "narration", "background": "mine_interior", "bgm": "mcc_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "광부들이 작업 중이었다. 안전 장비가 없는 사람이 있었다. 마스크가 없었다. 손이 검었다. 광석 분진. 얼마나 들이마셨는지는 보이지 않았다. 보이지 않는다고 없는 것이 아니었다.", "en": "Miners were working. Some had no safety equipment. No masks. Hands black with ore dust. How much they'd inhaled wasn't visible. Not visible didn't mean not there." }}] },
-    { "id": "s04", "type": "narration", "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "7구역. 지주가 무너진 자리였다. 지주는 수리되어 있었다. 그러나 무너진 날짜가 기록에 없었다. 기록이 없으면 사고가 없는 것이었다. MCC의 기록 방식이었다.", "en": "Sector 7. Where a support had collapsed. The support had been repaired. But the date of collapse wasn't in the records. No record meant no accident. That was MCC's record-keeping." }}] },
-    { "id": "s05", "type": "dialogue", "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+
+    {
+      "id": "s01", "type": "narration",
+      "background": "mcc_briefing_room", "bgm": "mcc_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "다음 임무는 감사였다. Li Fang이 파일을 밀었다. 두꺼운 파일이었다. 안에 무엇이 있는지 물어볼 필요가 없었다. 광산 감사 보고서였다. 화성의 모든 MCC 광산은 분기마다 감사를 받았다. 형식이었다.",
+        "en": "The next mission was an audit. Li Fang pushed a file across. A thick file. No need to ask what was inside. Mine audit report. All MCC mines on Mars were audited quarterly. It was a formality."
+      }}]
+    },
+
+    {
+      "id": "s02", "type": "dialogue",
+      "background": "mcc_briefing_room", "bgm": "mcc_ambient", "transition": "cut",
       "lines": [
-        { "speaker": "miner_elder", "emotion": "tired", "effect": "character_enter:miner_elder:slide_right", "text": { "ko": "감사관. 석 달 전에 사람이 셋 죽었어요.", "en": "Inspector. Three people died three months ago." }},
-        { "speaker": "miner_elder", "emotion": "hollow", "text": { "ko": "기록엔 없겠죠. 본부에 올라가면 없어지는 게 있어요. 여기선 다 알아요.", "en": "Won't be in the records. Some things disappear before they reach headquarters. Down here everyone knows." }},
-        { "speaker": "miner_elder", "emotion": "tired", "text": { "ko": "기록에 남길 사람이 필요해서요.", "en": "I need someone who will put it in the record." }}
+        { "speaker": "lifang", "emotion": "neutral", "effect": "character_enter:lifang:slide_left",
+          "text": { "ko": "헬라스 북부 7구역. 3개월 전에 지주 붕괴 사고가 있었어.", "en": "Northern Hellas Sector 7. There was a support collapse three months ago." }},
+        { "speaker": "lifang", "emotion": "neutral",
+          "text": { "ko": "기록에 없어. 기록에 없는 건 우리가 모르는 거야. 우리가 모르면 우리 책임이 아니야.", "en": "Not in the records. What's not in records we don't know. What we don't know isn't our responsibility." }},
+        { "speaker": "lifang", "emotion": "cold",
+          "text": { "ko": "가서 확인해. 기록에 없는 것이 진짜 없는지.", "en": "Go check. Whether what's not in records truly doesn't exist." }}
       ]
     },
-    { "id": "s06", "type": "narration", "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "광부 노인은 돌아갔다. 뒷모습이 작았다. 거기서 오래 일한 사람의 모습이었다. 클립보드의 사람이 무언가를 적었다. 적는 것을 보지 않았다.", "en": "The old miner turned away. His back was small. It was the look of someone who had worked there a long time. The clipboard person wrote something. You didn't look at what they wrote." }}] },
-    { "id": "s_choice", "type": "choice", "background": "mine_shaft", "bgm": "choice_tension",
+
+    {
+      "id": "s03", "type": "narration",
+      "background": "mcc_briefing_room", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "Li Fang이 일어났다. 파일을 다시 가져갔다. 감사 항목 체크리스트 한 장을 남겼다. 항목 37개. 안전 장비 현황. 지주 상태. 통풍 시스템. 비상구 위치. 사고 기록. 항목 37번이 마지막이었다. 사고 기록.",
+        "en": "Li Fang stood up. He took the file back. Left one sheet. Audit checklist. Thirty-seven items. Safety equipment status. Support conditions. Ventilation system. Emergency exit locations. Accident records. Item thirty-seven was last. Accident records."
+      }}]
+    },
+
+    {
+      "id": "s04", "type": "narration",
+      "background": "hellas_outer_plains", "bgm": "mcc_ambient", "transition": "fade_medium",
+      "lines": [{ "text": {
+        "ko": "헬라스 북부 수송로. 광산 시설까지 3시간. 차창 밖으로 광야가 펼쳐졌다. 아무것도 없었다. 화성 북부에는 아무것도 없었다. 그것이 거기서 광산을 파는 이유였다. 아무것도 없는 곳에 있는 것이 있었다.",
+        "en": "Northern Hellas transport corridor. Three hours to the mine facility. Wilderness outside the window. Nothing. The northern Hellas had nothing. That was why they mined there. In a place with nothing, there was something."
+      }}]
+    },
+
+    {
+      "id": "s05", "type": "narration",
+      "background": "hellas_outer_plains_sunset", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광야에 간간이 보이는 구조물들. 배기 파이프. 낡은 신호탑. 전력선 지지대. 다 MCC의 것이었다. MCC의 것이 아닌 것이 없었다. 화성 북반구에서는. 소유권에 대해 아무도 묻지 않았다. 물었던 사람들이 없어졌다.",
+        "en": "Occasional structures in the wilderness. Exhaust pipes. Old signal towers. Power line supports. All MCC's. There was nothing that wasn't MCC's. In the northern hemisphere of Mars. Nobody asked about ownership. Those who had asked were gone."
+      }}]
+    },
+
+    {
+      "id": "s06", "type": "narration",
+      "background": "hellas_mine_exterior", "bgm": "mcc_ambient", "transition": "fade_medium",
+      "lines": [{ "text": {
+        "ko": "광산 입구. 철문이 있었다. 경비원이 있었다. 경비원이 ID를 확인했다. MCC 감사팀이라고 했다. 경비원이 무선으로 무언가를 전달했다. 잠시 기다렸다. 문이 열렸다.",
+        "en": "Mine entrance. Iron gate. A guard. The guard checked the ID. MCC audit team, it was said. The guard relayed something on the radio. A short wait. The gate opened."
+      }}]
+    },
+
+    {
+      "id": "s07", "type": "narration",
+      "background": "hellas_mine_exterior", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광산 시설 관리인이 나왔다. 빠른 걸음이었다. 준비된 표정이었다. 감사팀이 온다는 것을 알고 있었다. 알면 준비한다. 준비하면 숨긴다. 그것이 감사의 전제였다.",
+        "en": "The mine facility manager came out. Quick steps. A prepared expression. He knew the audit team was coming. Knowing means preparing. Preparing means hiding. That was the premise of an audit."
+      }}]
+    },
+
+    {
+      "id": "s08", "type": "dialogue",
+      "background": "hellas_mine_exterior", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [
+        { "speaker": "miner_elder", "emotion": "neutral", "effect": "character_enter:miner_elder:slide_right",
+          "text": { "ko": "감사관님. 환영합니다. 모든 것이 준비되어 있습니다.", "en": "Inspector. Welcome. Everything is prepared." }},
+        { "speaker": "miner_elder", "emotion": "neutral",
+          "text": { "ko": "A구역부터 안내해 드릴까요. 최근 업그레이드한 구역입니다. 안전 기준이 새로 적용됐습니다.", "en": "Shall I show you Sector A first. The recently upgraded sector. New safety standards have been applied." }},
+        { "speaker": "miner_elder", "emotion": "neutral",
+          "text": { "ko": "7구역은 현재 작업 중이라 접근이 어렵습니다. 내일 오시면.", "en": "Sector 7 is currently under work so access is difficult. If you come tomorrow." }}
+      ]
+    },
+
+    {
+      "id": "s09", "type": "narration",
+      "background": "hellas_mine_exterior", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "7구역. 체크리스트에 별표를 했다. 관리인이 그것을 봤다. 관리인의 표정이 바뀌지 않았다. 준비된 사람이었다. 준비된 표정이 가장 무서운 표정이었다.",
+        "en": "Sector 7. An asterisk was made on the checklist. The manager saw it. His expression didn't change. A prepared person. A prepared expression was the most frightening expression."
+      }}]
+    },
+
+    {
+      "id": "s10", "type": "narration",
+      "background": "mine_exterior", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "A구역부터 시작했다. 체크리스트. 안전 장비 현황. 있었다. 통풍 시스템. 작동했다. 비상구. 표시되어 있었다. 모든 것이 양호했다. 준비된 것들이었다.",
+        "en": "Started with Sector A. Checklist. Safety equipment status. Present. Ventilation system. Operating. Emergency exits. Marked. Everything satisfactory. Prepared things."
+      }}]
+    },
+
+    {
+      "id": "s11", "type": "narration",
+      "background": "mine_interior", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광산 엘리베이터는 지표에서 2킬로미터를 내려갔다. 내려가면서 기온이 올랐다. 화성 지표는 영하였지만 지하는 달랐다. 광부들은 그 차이를 알았다. 아는 것이 좋은 일인지는 몰랐다.",
+        "en": "The mine elevator descended two kilometers below the surface. As it went down the temperature rose. The surface was below zero but underground was different. Miners knew this difference. Whether knowing it was a good thing was unclear."
+      }}]
+    },
+
+    {
+      "id": "s12", "type": "narration",
+      "background": "mine_interior", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "B구역. C구역. D구역. 체크. 체크. 체크. 관리인이 앞에서 걸었다. 설명을 했다. 숫자들을 말했다. 생산량. 효율. 출퇴근 시스템. 숫자들이 좋았다. 숫자들은 항상 좋았다.",
+        "en": "Sector B. Sector C. Sector D. Check. Check. Check. The manager walked ahead. Gave explanations. Stated numbers. Production output. Efficiency. Shift system. The numbers were good. Numbers were always good."
+      }}]
+    },
+
+    {
+      "id": "s13", "type": "narration",
+      "background": "mine_interior", "bgm": "mcc_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광부들이 작업 중이었다. 안전 장비가 없는 사람이 있었다. 마스크가 없었다. 손이 검었다. 광석 분진. 얼마나 들이마셨는지는 보이지 않았다. 보이지 않는다고 없는 것이 아니었다.",
+        "en": "Miners were working. Some had no safety equipment. No masks. Hands black with ore dust. How much they'd inhaled wasn't visible. Not visible didn't mean not there."
+      }}]
+    },
+
+    {
+      "id": "s14", "type": "narration",
+      "background": "mine_interior", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "체크리스트에 적었다. 안전 장비 미착용 인원 다수. 관리인이 봤다. 표정이 바뀌지 않았다. 그가 말했다. 오늘만 그렇다고. 보통은 다 착용한다고. 오늘 점검 중에 몇 명이 잊어버렸다고. 기억하는 것이 가능한 설명이었다.",
+        "en": "Written on the checklist. Multiple workers not wearing safety equipment. The manager saw it. His expression didn't change. He said it. Only today. Usually everyone wears them. A few forgot during today's inspection. A plausible explanation."
+      }}]
+    },
+
+    {
+      "id": "s15", "type": "narration",
+      "background": "mine_interior", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "E구역. 지나쳤다. F구역. 지나쳤다. 7구역. 관리인이 멈췄다. 다음이라고 했다. 8구역으로 가자고 했다. 7구역은 현재 작업 중이라 들어갈 수 없다고 다시 말했다. 체크리스트의 별표를 다시 봤다.",
+        "en": "Sector E. Passed. Sector F. Passed. Sector 7. The manager stopped. He said next. Said to go to Sector 8. Said again that Sector 7 was under work and couldn't be entered. The asterisk on the checklist was looked at again."
+      }}]
+    },
+
+    {
+      "id": "s16", "type": "dialogue",
+      "background": "mine_interior", "bgm": "tension_low", "transition": "cut",
+      "lines": [
+        { "speaker": "miner_elder", "emotion": "neutral",
+          "text": { "ko": "7구역은 현재 새 지주 교체 작업 중입니다. 안전을 위해 입장을 제한하고 있습니다.", "en": "Sector 7 is currently undergoing new support installation. Entry is restricted for safety." }},
+        { "speaker": "miner_elder", "emotion": "neutral",
+          "text": { "ko": "내일 오시면 완전히 업그레이드된 구역을 보실 수 있습니다.", "en": "If you come tomorrow you can see the fully upgraded sector." }},
+        { "speaker": "miner_elder", "emotion": "careful",
+          "text": { "ko": "오늘은 8구역과 9구역이 준비되어 있습니다. 거기도 볼 것이 많습니다.", "en": "Today Sectors 8 and 9 are prepared. There is much to see there too." }}
+      ]
+    },
+
+    {
+      "id": "s17", "type": "narration",
+      "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "7구역으로 갔다. 관리인이 따라왔다. 막을 수 없었다. 막으면 더 의심스러웠다. 7구역 입구. 차단 테이프가 있었다. 작업 중이라는 표지판이 있었다. 소리가 없었다. 작업 중이면 소리가 나야 했다.",
+        "en": "Went to Sector 7. The manager followed. He couldn't stop you. Stopping would be more suspicious. Sector 7 entrance. Yellow tape. A sign saying under work. No sound. Under work should have sound."
+      }}]
+    },
+
+    {
+      "id": "s18", "type": "narration",
+      "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "7구역. 지주가 무너진 자리였다. 지주는 수리되어 있었다. 그러나 무너진 날짜가 기록에 없었다. 기록이 없으면 사고가 없는 것이었다. MCC의 기록 방식이었다.",
+        "en": "Sector 7. Where a support had collapsed. The support had been repaired. But the date of collapse wasn't in the records. No record meant no accident. That was MCC's record-keeping."
+      }}]
+    },
+
+    {
+      "id": "s19", "type": "narration",
+      "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "새 지주와 헌 지주가 섞여 있었다. 새 지주가 세워진 자리에 흔적이 있었다. 새 시멘트. 그 주변에 묵은 시멘트. 시멘트의 색이 달랐다. 날짜가 달랐다.",
+        "en": "New supports and old supports were mixed. Where the new support had been installed there was evidence. Fresh cement. Around it older cement. The cement colors were different. Different dates."
+      }}]
+    },
+
+    {
+      "id": "s20", "type": "narration",
+      "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "지반에 자국이 있었다. 긁힌 자국. 뭔가 무거운 것이 끌린 자국. 의료용 들것의 자국이었다. 들것이 화성의 광산에서 끌리는 이유는 하나였다.",
+        "en": "Marks on the ground. Scrape marks. Marks from something heavy being dragged. The marks of a stretcher. There was one reason a stretcher would be dragged in a Martian mine."
+      }}]
+    },
+
+    {
+      "id": "s21", "type": "dialogue",
+      "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [
+        { "speaker": "miner_elder", "emotion": "tired", "effect": "character_enter:miner_elder:slide_right",
+          "text": { "ko": "감사관. 석 달 전에 사람이 셋 죽었어요.", "en": "Inspector. Three people died three months ago." }},
+        { "speaker": "miner_elder", "emotion": "hollow",
+          "text": { "ko": "지주가 무너졌어요. 오전 7시 반. 교대 시작 30분 후. 새 교대 팀이 아직 자리 잡기 전에.", "en": "The support collapsed. Seven thirty in the morning. Thirty minutes after shift start. Before the new shift team had settled in." }},
+        { "speaker": "miner_elder", "emotion": "tired",
+          "text": { "ko": "세 명이요. 30대였어요. 한 명은 이달에 결혼할 예정이었어요.", "en": "Three people. In their thirties. One was supposed to get married this month." }}
+      ]
+    },
+
+    {
+      "id": "s22", "type": "dialogue",
+      "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [
+        { "speaker": "miner_elder", "emotion": "hollow",
+          "text": { "ko": "기록엔 없겠죠. 본부에 올라가면 없어지는 게 있어요. 여기선 다 알아요.", "en": "Won't be in the records. Some things disappear before they reach headquarters. Down here everyone knows." }},
+        { "speaker": "miner_elder", "emotion": "tired",
+          "text": { "ko": "다들 알면서 아무도 말 못해요. 광산이 없어지면 일자리가 없어지니까요.", "en": "Everyone knows but nobody can say anything. Because if the mine closes there's no work." }},
+        { "speaker": "miner_elder", "emotion": "quiet",
+          "text": { "ko": "기록에 남길 사람이 필요해서요. 관리인한테 말했더니 침묵하더라고요. 침묵이 답이었겠죠.", "en": "I need someone who will put it in the record. I told the manager and he went silent. Silence was the answer I suppose." }}
+      ]
+    },
+
+    {
+      "id": "s23", "type": "narration",
+      "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광부 노인은 돌아갔다. 뒷모습이 작았다. 거기서 오래 일한 사람의 모습이었다. 클립보드의 사람이 무언가를 적었다. 적는 것을 보지 않았다.",
+        "en": "The old miner turned away. His back was small. It was the look of someone who had worked there a long time. The clipboard person wrote something. You didn't look at what they wrote."
+      }}]
+    },
+
+    {
+      "id": "s24", "type": "narration",
+      "background": "mine_shaft", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "관리인이 가까이 왔다. 표정이 여전히 없었다. 그가 말했다. 노인이 예전부터 불만이 많았다고. 정확한 기록을 유지하는 것이 MCC 방침이라고. 사고가 있었다면 기록됐을 것이라고. 그의 말은 맞는 말 같기도 하고 아닌 것 같기도 했다.",
+        "en": "The manager came close. His expression still unchanged. He said the old man had always had complaints. Maintaining accurate records was MCC policy. If there had been an accident it would have been recorded. His words sounded right and not right at the same time."
+      }}]
+    },
+
+    {
+      "id": "s25", "type": "narration",
+      "background": "mine_shaft", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "무전기를 켰다. Li Fang에게 연락했다. 7구역 상황을 전했다. 들것 자국. 새 시멘트. 노인의 증언. Li Fang이 잠시 침묵했다. 침묵의 길이가 있었다. 짧은 침묵과 긴 침묵은 달랐다.",
+        "en": "The radio was turned on. Li Fang was contacted. The situation in Sector 7 was relayed. Stretcher marks. Fresh cement. The old man's testimony. Li Fang was silent for a moment. There was a length to the silence. Short silence and long silence were different."
+      }}]
+    },
+
+    {
+      "id": "s26", "type": "dialogue",
+      "background": "mine_shaft", "bgm": "tension_medium", "transition": "cut",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "effect": "character_enter:lifang:slide_left",
+          "text": { "ko": "증거가 있어. 없어.", "en": "Is there evidence. Or not." }},
+        { "speaker": "lifang", "emotion": "neutral",
+          "text": { "ko": "증언은 증거가 아니야. 노인이 말하는 게 증거가 아니야. 기록에 없으면 기록이 없는 거야.", "en": "Testimony isn't evidence. The old man's words aren't evidence. If it's not in the records there are no records." }},
+        { "speaker": "lifang", "emotion": "serious",
+          "text": { "ko": "네가 결정해야 해. 감사 보고서는 네 이름으로 올라가. 내 이름으로 올라가는 게 아니야.", "en": "You have to decide. The audit report goes up under your name. Not mine." }}
+      ]
+    },
+
+    {
+      "id": "s27", "type": "narration",
+      "background": "mine_shaft", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "Li Fang이 무전을 끊었다. 무전기가 조용해졌다. 광산은 조용하지 않았다. 기계 소리. 먼 곳의 작업 소리. 그 소리들 사이에서 노인이 일하고 있었다. 보이지 않았다. 소리도 들리지 않았다. 그래도 거기 있었다.",
+        "en": "Li Fang cut the radio. The radio went quiet. The mine wasn't quiet. Machine sounds. Distant work sounds. Among those sounds the old man was working. Couldn't be seen. His sound couldn't be heard. But he was there."
+      }}]
+    },
+
+    {
+      "id": "s28", "type": "narration",
+      "background": "mine_shaft", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "체크리스트가 손 안에 있었다. 항목 37개. 36개가 체크됐다. 마지막 항목. 사고 기록. 체크되지 않았다. 체크할 것이 없었다. 아니면 체크할 것이 너무 많았다.",
+        "en": "The checklist was in hand. Thirty-seven items. Thirty-six checked. Last item. Accident records. Not checked. There was nothing to check. Or there was too much to check."
+      }}]
+    },
+
+    {
+      "id": "s_choice", "type": "choice",
+      "background": "mine_shaft", "bgm": "choice_tension",
       "prompt": { "ko": "감사 보고서. 무엇을 적겠습니까.", "en": "The audit report. What will you write." },
       "choices": [
         { "id": "mcc_ch2_report_truth", "text": { "ko": "사망 3건. 장비 미비. 사실대로.", "en": "Three deaths. Equipment failure. The truth." }, "tone": "honest", "preview_hint": { "ko": "→ MCC -10, 광부 신뢰 +", "en": "→ MCC -10, miner trust +" }},
         { "id": "mcc_ch2_bury", "text": { "ko": "모든 것 양호. 기록 유지.", "en": "Everything satisfactory. Maintain the record." }, "tone": "corporate", "preview_hint": { "ko": "→ MCC +8, 이후 리스크", "en": "→ MCC +8, risk later" }},
-        { "id": "mcc_ch2_investigate", "text": { "ko": "더 조사한다.", "en": "Investigate further." }, "tone": "thorough", "preview_hint": { "ko": "→ 더 많은 것을 발견", "en": "→ Find more" }},
-        { "id": "mcc_ch2_ask_lifang", "text": { "ko": "Li Fang에게 묻는다.", "en": "Ask Li Fang." }, "tone": "deferential", "preview_hint": { "ko": "→ Li Fang의 현실 설명", "en": "→ Li Fang explains" }}
+        { "id": "mcc_ch2_investigate", "text": { "ko": "더 조사한다. 다른 구역도.", "en": "Investigate further. Other sectors too." }, "tone": "thorough", "preview_hint": { "ko": "→ 더 많은 것을 발견", "en": "→ Find more" }},
+        { "id": "mcc_ch2_ask_lifang", "text": { "ko": "Li Fang에게 다시 묻는다.", "en": "Ask Li Fang again." }, "tone": "deferential", "preview_hint": { "ko": "→ Li Fang의 현실 설명", "en": "→ Li Fang explains reality" }}
       ]
     },
-    { "id": "s_battle", "type": "battle_transition", "background": "mine_interior", "bgm": "battle_theme_mcc", "transition": "fade_slow",
-      "title": { "ko": "갱도 확인", "en": "Mine Clearance" }, "subtitle": { "ko": "헬라스 북부 — 구역 7", "en": "Northern Hellas — Sector 7" }
+
+    {
+      "id": "s_battle", "type": "battle_transition",
+      "background": "mine_interior", "bgm": "battle_theme_mcc", "transition": "fade_slow",
+      "title": { "ko": "갱도 확인", "en": "Mine Clearance" },
+      "subtitle": { "ko": "헬라스 북부 — 구역 7", "en": "Northern Hellas — Sector 7" }
     },
+
     { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
-    { "id": "s_success", "type": "narration", "background": "mine_interior", "bgm": "victory_calm",
-      "lines": [{ "text": { "ko": "구역이 확인됐다. 광부 노인이 당신을 보았다. 말이 없었다. 그것이 감사의 표현이었다. 화성에서 말 없는 감사는 말 있는 것보다 무거웠다.", "en": "The sector was cleared. The old miner looked at you. Said nothing. That was gratitude. On Mars wordless thanks were heavier than words." }}] },
-    { "id": "s_fail", "type": "narration", "background": "mine_interior", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "구역은 여전히 불안전했다. 광부들은 다시 들어가야 했다. 다른 선택이 없었다.", "en": "The sector was still unsafe. The miners had to go back in. They had no other choice." }}] },
-    { "id": "s_ending", "type": "ending", "background": "mine_exterior", "bgm": "mcc_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "엘리베이터가 올라갔다. 지표의 빛이 돌아왔다. 핏빛이었다. 광산은 아래에 남았다. 광부들도 아래에 남았다. 보고서는 당신의 손에 있었다. 손이 떨리지 않았다.", "en": "The elevator ascended. Surface light returned. Blood-red. The mine stayed below. The miners stayed below. The report was in your hands. The hands didn't tremble." }}],
+
+    {
+      "id": "s_success", "type": "dialogue",
+      "background": "mine_interior", "bgm": "victory_calm", "transition": "fade_medium",
+      "lines": [
+        { "speaker": "miner_elder", "emotion": "tired", "effect": "character_enter:miner_elder:slide_right",
+          "text": { "ko": "보고서에 넣었습니까.", "en": "Did you put it in the report." }},
+        { "speaker": "miner_elder", "emotion": "hollow",
+          "text": { "ko": "넣었군요.", "en": "You did." }},
+        { "speaker": "miner_elder", "emotion": "quiet",
+          "text": { "ko": "죽은 사람들 이름이 있어요. 세 명. 셋 다 가족이 있었어요.", "en": "The dead have names. Three of them. All three had families." }},
+        { "speaker": "miner_elder", "emotion": "tired",
+          "text": { "ko": "기록에 남아서 다행이에요. 이름이 어딘가에 있다는 거니까요.", "en": "Good that it's in the record. At least their names are somewhere." }}
+      ]
+    },
+
+    {
+      "id": "s_success2", "type": "narration",
+      "background": "mine_interior", "bgm": "victory_calm", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광부 노인이 돌아갔다. 뒷모습이 여전히 작았다. 그러나 전보다 조금 달랐다. 무엇이 달라졌는지 정확히 알 수 없었다. 아주 조금 달랐다. 화성에서 아주 조금 달라지는 것들이 있었다.",
+        "en": "The old miner went back. His back still small. But slightly different from before. Exactly what was different was unclear. Just a little different. On Mars some things changed just a little."
+      }}]
+    },
+
+    {
+      "id": "s_fail", "type": "narration",
+      "background": "mine_interior", "bgm": "defeat_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "구역은 여전히 불안전했다. 광부들은 다시 들어가야 했다. 다른 선택이 없었다. 노인이 무전기를 봤다. 아무 말도 하지 않았다. 그것도 화성의 말 방식이었다.",
+        "en": "The sector was still unsafe. The miners had to go back in. They had no other choice. The old man looked at the radio. Said nothing. That too was how Mars spoke."
+      }}]
+    },
+
+    {
+      "id": "s29", "type": "narration",
+      "background": "hellas_central_exterior", "bgm": "mcc_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "엘리베이터가 올라갔다. 지표의 빛이 돌아왔다. 핏빛이었다. 광산은 아래에 남았다. 광부들도 아래에 남았다. 노인도 아래에 남았다. 보고서는 손에 있었다. 손이 떨리지 않았다.",
+        "en": "The elevator ascended. Surface light returned. Blood-red. The mine stayed below. The miners stayed below. The old man stayed below. The report was in hand. The hands didn't tremble."
+      }}]
+    },
+
+    {
+      "id": "s30", "type": "dialogue",
+      "background": "mcc_briefing_room", "bgm": "mcc_ambient", "transition": "fade_medium",
+      "lines": [
+        { "speaker": "lifang", "emotion": "neutral", "effect": "character_enter:lifang:slide_left",
+          "text": { "ko": "보고서 받았어.", "en": "Got the report." }},
+        { "speaker": "lifang", "emotion": "neutral",
+          "text": { "ko": "7구역 사망 3건. 기록됨. 그렇게 적었군.", "en": "Sector 7 three deaths. Recorded. That's how you wrote it." }},
+        { "speaker": "lifang", "emotion": "thoughtful",
+          "text": { "ko": "MCC 법무팀이 연락 올 거야. 절차가 있어. 어떻게 될지는 나도 몰라.", "en": "MCC legal will be in touch. There are procedures. I don't know how it will go either." }},
+        { "speaker": "lifang", "emotion": "serious",
+          "text": { "ko": "화성에서 기록한다는 것이 무엇을 의미하는지 알았으면 해.", "en": "I want you to know what it means to record things on Mars." }}
+      ]
+    },
+
+    {
+      "id": "s_ending", "type": "ending",
+      "background": "hellas_central_exterior_night", "bgm": "mcc_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "밤이었다. 광산은 멈추지 않았다. 밤에도 광산은 돌아갔다. 교대 시스템이었다. 광부들은 교대했다. 광산은 교대하지 않았다. 기계도 교대하지 않았다. 멈추지 않는 것들이 있었다.\n\n보고서가 서버에 올라갔다. 돌이킬 수 없는 것이 됐다.",
+        "en": "It was night. The mine didn't stop. The mine ran at night too. Shift system. Miners shifted. The mine didn't shift. The machines didn't shift. Some things didn't stop.\n\nThe report was uploaded to the server. It became something that couldn't be undone."
+      }}],
       "next_chapter_preview": { "questId": "mcc_campaign_ch3", "teaser": { "ko": "다음 — 25도 라운지", "en": "Next — The 25-Degree Lounge" }}
     }
+
   ]
 }

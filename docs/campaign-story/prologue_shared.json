@@ -5,248 +5,505 @@
   "title": { "ko": "프롤로그: 카리오페호", "en": "Prologue: The Kariyope" },
   "location": { "id": "cargo_ship_kariyope", "displayNameKo": "화물선 카리오페호" },
   "environment": "transit_space",
-  "estimatedPlayTimeMinutes": 10,
+  "estimatedPlayTimeMinutes": 25,
   "characters": ["player", "berk"],
   "scenes": [
 
     {
-      "id": "s01",
-      "type": "narration",
-      "background": "cargo_ship_corridor",
-      "bgm": "prologue_ambient",
-      "transition": "fade_slow",
+      "id": "s01", "type": "narration",
+      "background": "deep_space_window", "bgm": "prologue_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "별은 움직이지 않았다. 우주에서 별은 늘 그 자리에 있었다. 배가 움직일 뿐이었다. 화물선 카리오페호. 적재량 8만 톤. 승객 47명. 운항 23년차 베르크 선장 아래 항로를 따라 화성으로 향하고 있었다. 별은 그것을 알지 못했다.",
+        "en": "The stars didn't move. In space stars were always where they were. Only the ship moved. Cargo freighter Kariyope. Eighty thousand tons of freight. Forty-seven passengers. Under Captain Berk, twenty-three years in service, following the course toward Mars. The stars didn't know that."
+      }}]
+    },
+
+    {
+      "id": "s02", "type": "narration",
+      "background": "deep_space_window", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "카리오페호는 화성 정지궤도에 닿기 전 사흘을 더 표류했다. 운항사 베르크는 그것을 표류라고 부르지 않았다. 그러나 그가 표류라고 부르지 않는다고 해서 표류가 아닌 것은 아니었다. 엔진은 효율적이었고 항로는 정확했다. 그런데도 도착이 늦었다.",
+        "en": "The Kariyope drifted three more days before reaching Mars orbit. Navigator Berk didn't call it drifting. But his not calling it drifting didn't make it otherwise. The engines were efficient. The course was accurate. Still the arrival was late."
+      }}]
+    },
+
+    {
+      "id": "s03", "type": "narration",
+      "background": "deep_space_window", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "도착은 늘 늦는다. 그것은 베르크가 이십삼 년의 운항으로 배운 한 가지 사실이었다. 다른 사실들도 있었지만 그것들은 적어두지 않았다. 적어두지 않은 것들이 더 많았다.",
+        "en": "Arrivals are always late. That was one thing Berk had learned in twenty-three years. There were other things too but he hadn't written them down. There were more unwritten things than written ones."
+      }}]
+    },
+
+    {
+      "id": "s04", "type": "narration",
+      "background": "kariope_cargo_bay", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "카리오페호의 화물칸은 항상 화성에서 돌아오는 것들로 채워졌다. 고철. 처리된 광석. 빈 산소 탱크들. 다음 항차는 다시 그것들로 채워질 것이었다. 화성은 받고 돌려보냈다. 사람은 돌려보내지 않았다.",
+        "en": "The Kariyope's cargo hold was always filled with things returning from Mars. Scrap metal. Processed ore. Empty oxygen tanks. The next voyage would fill it again with the same things. Mars received and sent back. It didn't send people back."
+      }}]
+    },
+
+    {
+      "id": "s05", "type": "narration",
+      "background": "kariope_cargo_bay", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "이번 화물 목록. 항목 2,847개. 베르크는 절반만 읽었다. 나머지 절반은 늘 같았다. 마지막 항목은 47명의 승객이었다. 항목이 아닌 것을 항목처럼 적는 것이 운항사의 일이었다.",
+        "en": "This voyage's manifest. Two thousand eight hundred forty-seven items. Berk read half of it. The other half was always the same. The last entry was forty-seven passengers. Writing non-items as items was a navigator's job."
+      }}]
+    },
+
+    {
+      "id": "s06", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "자판기는 복도 끝에 있었다. 세 가지 음료가 있었다. 갈색 액체. 다른 갈색 액체. 노란 갈색 액체. 베르크는 항상 첫 번째를 마셨다. 커피라고 불렸다. 커피가 아니었다. 하지만 그것을 마실 때 베르크는 잠시 멈출 수 있었다. 그것으로 충분했다.",
+        "en": "The vending machine was at the end of the corridor. Three drinks. Brown liquid. Different brown liquid. Yellowish brown liquid. Berk always chose the first. Called coffee. It wasn't coffee. But when he drank it Berk could pause for a moment. That was enough."
+      }}]
+    },
+
+    {
+      "id": "s07", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "카리오페호는 화성 정지궤도 진입 중이었다. 39시간짜리 마지막 감속 구간. 할 수 있는 건 없었다. 아무것도 할 수 없다는 게 더 정확했다. 베르크는 자판기에서 갈색 액체를 한 잔 꺼냈다. 마셨다. 마실 수 있었다. 그것으로 충분했다.",
+        "en": "The Kariyope was entering Mars orbit. Final deceleration. Thirty-nine hours of it. There was nothing to do. Nothing that could be done was more accurate. Berk took a cup from the vending machine. He drank it. He could drink it. That was enough."
+      }}]
+    },
+
+    {
+      "id": "s08", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "감시 모니터 열두 개. 베르크는 한 번에 열두 개를 볼 수 있었다. 오래된 습관이었다. 구역 1 구역 2 구역 3. 화물칸. 엔진실. 복도. 식당 칸. 승객 칸. 승객 칸 구석. 거기 누군가 있었다.",
+        "en": "Twelve surveillance monitors. Berk could see all twelve at once. Old habit. Sector 1 sector 2 sector 3. The cargo hold. Engine room. Corridor. Dining cabin. Passenger cabin. Passenger cabin corner. Someone was there."
+      }}]
+    },
+
+    {
+      "id": "s09", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "무릎 위에 작은 가방. 손을 그 위에 올려두었다. 손이 움직이지 않았다. 이틀이었다. 이틀 동안 그 손이 움직이는 것을 베르크는 보지 못했다. 잠을 자는지도 알 수 없었다. 모니터 화질이 좋지 않았다.",
+        "en": "A small bag on the lap. A hand resting on top. The hand didn't move. Two days now. For two days Berk hadn't seen that hand move. Whether they were sleeping was unclear. The monitor resolution wasn't good."
+      }}]
+    },
+
+    {
+      "id": "s10", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "이틀째라고 베르크는 혼자 말했다. 잠을 안 잔다고. 자판기 앞에서. 화성은 얼마나 멀었지. 39시간. 그 정도면 잠을 안 자도 괜찮다. 그렇겠지. 그는 다시 모니터를 보았다.",
+        "en": "Two days, Berk said to himself. No sleep. Standing at the vending machine. How far is Mars. Thirty-nine hours. That's survivable without sleep. Probably. He looked at the monitor again."
+      }}]
+    },
+
+    {
+      "id": "s11", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "이름은 명단에 적혀 있었다. 베르크는 명단을 보지 않았다. 화성으로 가는 사람들은 자주 자기 이름을 두고 갔다. 가끔은 새 이름을 가지고 갔다. 어느 쪽이든 베르크에게는 같았다.",
+        "en": "The name was on the manifest. Berk didn't look at it. People going to Mars often left their names behind. Sometimes they brought new ones. Either way it was the same to Berk."
+      }}]
+    },
+
+    {
+      "id": "s12", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "승무원 중 한 명이 베르크에게 물었다. 저 사람 괜찮냐고. 베르크는 잠시 생각했다. 괜찮다고 했다. 괜찮다는 것이 무엇인지 정확히 알지 못했지만 그렇게 말했다. 화성으로 가는 사람들은 보통 괜찮지 않았다. 그래서 화성으로 갔다.",
+        "en": "One of the crew asked Berk. Is that person alright. Berk thought for a moment. Said yes. He didn't know precisely what alright meant but he said it anyway. People going to Mars were usually not alright. That's why they were going to Mars."
+      }}]
+    },
+
+    {
+      "id": "s13", "type": "narration",
+      "background": "cargo_ship_interior", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "식당 칸. 저녁 배급. 4열 중 3열이 찼다. 광부 가족 두 팀. 기술자로 보이는 남자들. 여자 한 명이 혼자 앉아 있었다. 표정이 없었다. 음식을 먹었다. 음식 맛이 어떤지 생각하지 않았다. 그것도 화성으로 가는 방식이었다.",
+        "en": "Dining cabin. Evening ration. Three of four rows full. Two mining families. Men who looked like engineers. A woman sitting alone. No expression. She ate. She didn't think about what the food tasted like. That too was a way of going to Mars."
+      }}]
+    },
+
+    {
+      "id": "s14", "type": "narration",
+      "background": "cargo_ship_interior", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광부 가족의 아이가 식판을 떨어뜨렸다. 소리가 났다. 다들 쳐다봤다. 아이는 울지 않았다. 어른이 아이를 봤다. 아이가 어른을 봤다. 말이 없었다. 광부의 아이들은 일찍 배웠다. 무엇을 배우는지 알기 전에 배웠다.",
+        "en": "A mining family's child dropped their tray. A sound. Everyone looked. The child didn't cry. The adult looked at the child. The child looked at the adult. No words. Mining children learned early. They learned before knowing what they were learning."
+      }}]
+    },
+
+    {
+      "id": "s15", "type": "narration",
+      "background": "cargo_ship_interior", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "식당에 나타나지 않은 사람이 있었다. 승무원이 배급 트레이를 가져갔다. 받지 않았다. 다음 날도 가져갔다. 받지 않았다. 세 번째 날에는 가져가지 않았다.",
+        "en": "One person hadn't appeared at the dining cabin. A crewmember brought a ration tray. It wasn't accepted. The next day another tray. Also refused. On the third day no one brought one."
+      }}]
+    },
+
+    {
+      "id": "s16", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "창문이 없는 좌석이었다. 원했던 자리였다. 화성이 거기 있다는 것을 알고 싶지 않았다. 아직은. 화성에 가면 화성이 보일 것이었다.",
+        "en": "It was a seat without a window. The chosen seat. There was no desire to know Mars was out there. Not yet. When you get to Mars you'll see Mars."
+      }}]
+    },
+
+    {
+      "id": "s17", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "가방이 무거웠다. 항상 그랬다. 지구를 떠날 때부터 무거웠다. 뭐가 들었는지 알면서도 무거웠다. 무게는 내용물의 문제가 아니었다.",
+        "en": "The bag was heavy. It had always been heavy. Heavy since leaving Earth. Heavy even knowing what was inside. The weight wasn't about the contents."
+      }}]
+    },
+
+    {
+      "id": "s18", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "가방 안에는 많은 것이 없었다. 있는 것이 무엇인지 본인도 전부 알지 못했다. 오래된 것 하나. 그것이 무엇인지는 가방을 열지 않아도 알았다. 열지 않았다.",
+        "en": "There wasn't much in the bag. Even the owner didn't know everything that was in it. One old thing. What it was, there was no need to open the bag to know. The bag wasn't opened."
+      }}]
+    },
+
+    {
+      "id": "s19", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "화성에 가면 무엇이 있을까. 그 질문은 오래전에 끝났다. 이제 그 질문을 하지 않았다. 화성에 가면 화성이 있을 것이었다. 그것이 전부였다. 그것으로 충분한지는 화성에 가봐야 알 수 있었다.",
+        "en": "What would be on Mars. That question had ended long ago. There was no asking it now. On Mars there would be Mars. That was all. Whether that was enough could only be known by going there."
+      }}]
+    },
+
+    {
+      "id": "s20", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "갈 곳이 있는지 없는지 그것도 몰랐다. 화성에 사람들이 있다는 건 알았다. 어느 방향으로 걸어야 하는지는 아직 결정하지 않았다. 결정은 흙에 발을 디딘 다음이었다.",
+        "en": "Whether there was somewhere to go or not, that was unknown too. There were people on Mars. That was known. Which direction to walk hadn't been decided. Decisions came after feet touched soil."
+      }}]
+    },
+
+    {
+      "id": "s21", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "카리오페호가 흔들렸다. 감속 구간의 진동이었다. 객실 전등이 깜빡였다. 손은 여전히 움직이지 않았다. 베르크는 한참 그 손을 보았다. 다시 모니터에서 눈을 떼고 커피를 마셨다.",
+        "en": "The Kariyope shuddered. Vibration from the deceleration. The cabin lights flickered. The hand still didn't move. Berk watched that hand for a long time. Then he looked away from the monitor and drank his coffee."
+      }}]
+    },
+
+    {
+      "id": "s22", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광부 가족의 작은 아이가 잠에서 깼다. 어른의 팔에서 빠져나와 칸 안을 한 바퀴 돌았다. 어른은 깨지 않았다. 아이는 다시 돌아갔다. 어른의 손이 잠결에 아이를 감쌌다. 아이는 다시 잠들었다. 두꺼운 벽 안에 사람들은 따로따로 있었다.",
+        "en": "A small child from the mining family stirred awake. Slipped free from an adult's arm and wandered the cabin once. The adult didn't wake. The child returned. A hand in sleep closed around the child. The child slept again. The walls were thick. People were alone inside them."
+      }}]
+    },
+
+    {
+      "id": "s23", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "누군가 코를 골았다. 누군가 신음했다. 누군가 속삭였다. 배에서 자는 것은 지구에서 자는 것과 달랐다. 배에서는 배가 계속 움직였다. 멈추지 않았다. 그것이 나쁜 것은 아니었다. 화성으로 가고 있었다. 화성으로 가는 것이 좋은 것인지도 몰랐다.",
+        "en": "Someone snored. Someone moaned. Someone whispered. Sleeping on a ship was different from sleeping on Earth. On the ship the ship kept moving. It didn't stop. That wasn't a bad thing. They were going to Mars. Whether going to Mars was a good thing was also unclear."
+      }}]
+    },
+
+    {
+      "id": "s24", "type": "narration",
+      "background": "kariope_observation_deck", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "베르크는 관측 갑판에 올라갔다. 오전 4시였다. 갑판에는 아무도 없었다. 유리 너머 별들이 있었다. 별들이 움직이지 않았다. 배가 움직이고 있었다. 그 차이를 베르크는 이십삼 년 동안 느꼈다. 차이가 점점 작아지고 있었다.",
+        "en": "Berk went up to the observation deck. Four in the morning. No one on the deck. Stars through the glass. The stars didn't move. The ship was moving. Berk had felt this difference for twenty-three years. The difference was getting smaller."
+      }}]
+    },
+
+    {
+      "id": "s25", "type": "narration",
+      "background": "karioke_observation_deck", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "그가 거기서도 있었다. 관측 갑판 구석. 가방이 바닥에 있었다. 손이 가방 끈 위에 있었다. 창문 밖을 보지 않았다. 눈이 반쯤 감겨 있었다. 잠을 자는 것인지 알 수 없었다. 베르크는 들어가지 않았다.",
+        "en": "The person was there too. Corner of the observation deck. The bag was on the floor. A hand rested on the strap. Not looking out the window. Eyes half-closed. It wasn't clear if they were sleeping. Berk didn't go in."
+      }}]
+    },
+
+    {
+      "id": "s26", "type": "narration",
+      "background": "karioke_observation_deck", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "베르크는 복도로 돌아갔다. 갈색 액체 한 잔. 천장을 보았다. 천장이 어두웠다. 이십삼 년이었다. 이제 화성은 오른쪽 창문 밖 22도에 있었다. 크기가 보이기 시작했다.",
+        "en": "Berk went back to the corridor. One cup of brown liquid. He looked up at the ceiling. The ceiling was dark. Twenty-three years. Now Mars was twenty-two degrees off the right viewport. It was starting to look large."
+      }}]
+    },
+
+    {
+      "id": "s27", "type": "narration",
+      "background": "deep_space_mars_approach", "bgm": "prologue_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "방송이 나왔다. 오전 6시. 베르크의 목소리였다. 화성 접근 중. 헬라스 관제소 교신 개시. 도착까지 18시간. 승객 여러분은 자리로 돌아가 안전벨트를 착용하십시오.",
+        "en": "An announcement. Six in the morning. Berk's voice. Approaching Mars. Beginning contact with Hellas control. Eighteen hours to arrival. Passengers please return to your seats and fasten your seatbelts."
+      }}]
+    },
+
+    {
+      "id": "s28", "type": "narration",
+      "background": "deep_space_mars_approach", "bgm": "prologue_ambient", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "사람들이 움직였다. 복도에 발소리. 아이가 무언가를 물었다. 화성이 보이냐고. 어른이 대답했다. 곧 보인다고. 아이가 달려갔다. 창문 쪽으로. 아이의 손바닥이 창문에 붙었다.",
+        "en": "People moved. Footsteps in the corridor. A child asked something. Is Mars visible. The adult answered. You'll see it soon. The child ran. Toward the window. The child's palms pressed against the glass."
+      }}]
+    },
+
+    {
+      "id": "s29", "type": "narration",
+      "background": "deep_space_mars_approach", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "자리에서 일어나지 않았다. 창문 쪽으로 가지 않았다. 화성이 보이고 싶지 않았다. 아직은. 하지만 화성이 거기 있다는 것은 알았다. 느껴졌다. 배가 달라졌다. 소리가 달라졌다. 진동이 달라졌다. 화성이 가까웠다.",
+        "en": "No getting up from the seat. No going to the window. No desire to see Mars. Not yet. But knowing Mars was there. It was felt. The ship had changed. The sounds changed. The vibration changed. Mars was close."
+      }}]
+    },
+
+    {
+      "id": "s30", "type": "narration",
+      "background": "cargo_ship_window_mars", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "화면의 화성은 조금 더 컸다. 핏빛이었다. 황혼 같았다. 그러나 황혼이 아니었다. 화성은 늘 그랬다. 그것이 화성이었다. 누군가 아름답다고 말했다. 아름다움에 대해 생각하지 않았다.",
+        "en": "Mars on the screen was a little larger. Blood-red. Like a sunset. But it wasn't a sunset. Mars was always like this. That was what Mars was. Someone said it was beautiful. There was no thought about beauty."
+      }}]
+    },
+
+    {
+      "id": "s31", "type": "narration",
+      "background": "cargo_ship_window_mars", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "베르크가 관제소와 교신했다. 카리오페호. 헬라스 관제. 화물 승인 코드를 요청했다. 헬라스 관제가 응답했다. 코드를 받았다. 프로토콜이었다. 이십삼 년 동안 한 번도 달라지지 않은 프로토콜이었다.",
+        "en": "Berk exchanged communications with ground control. Kariyope. Hellas control. Requesting cargo clearance code. Hellas control responded. Code received. Protocol. Protocol that hadn't changed in twenty-three years."
+      }}]
+    },
+
+    {
+      "id": "s32", "type": "dialogue",
+      "background": "cargo_ship_corridor", "bgm": "prologue_tension", "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "화물선 카리오페호는 화성 정지궤도에 닿기 전 사흘을 더 표류했다. 운항사 베르크는 그것을 표류라고 부르지 않았다. 그러나 그가 표류라고 부르지 않는다고 해서 표류가 아닌 것은 아니었다. 엔진은 효율적이었고 항로는 정확했다. 그런데도 도착이 늦었다.",
-            "en": "The cargo ship Kariyope drifted three more days before reaching Mars orbit. Navigator Berk didn't call it drifting. But his not calling it drifting didn't make it otherwise. The engines were efficient. The course was accurate. Still the arrival was late."
-          }
-        }
+        { "speaker": "berk", "emotion": "calm", "effect": "character_enter:berk:slide_left",
+          "text": { "ko": "승객 중에 화성이 처음인 분 계십니까.", "en": "Is there a first-time Mars passenger among you." }},
+        { "speaker": "berk", "emotion": "calm",
+          "text": { "ko": "처음이라도 두 번째처럼 행동하세요. 화성은 그 차이를 모릅니다. 모른다는 게 위험한 겁니다.", "en": "If it's your first time act like it's your second. Mars doesn't know the difference. Not knowing is the danger." }},
+        { "speaker": "berk", "emotion": "neutral",
+          "text": { "ko": "헬라스 센트럴 도착까지 10시간 남았습니다. 모두 자리에 계십시오.", "en": "Ten hours to Hellas Central. Everyone stay in your seats." }}
       ]
     },
 
     {
-      "id": "s02",
-      "type": "narration",
-      "background": "cargo_ship_corridor",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
+      "id": "s33", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "10시간. 그 말이 남았다. 10시간. 긴 것인지 짧은 것인지 알 수 없었다. 지구에서 화성까지 오는 데 6개월이 걸렸다. 그런데 10시간이 멀게 느껴졌다.",
+        "en": "Ten hours. Those words remained. Ten hours. Whether it was long or short was unclear. It had taken six months to come from Earth to Mars. And ten hours felt far."
+      }}]
+    },
+
+    {
+      "id": "s34", "type": "narration",
+      "background": "cargo_ship_corridor", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "배가 기울었다. 진입각 조정. 화성 대기가 시작되는 지점. 창문 밖으로 붉은 빛이 들어왔다. 화성의 대기가 배를 감쌌다. 감속. 열. 소리. 화성이 배를 맞이하는 방식이었다.",
+        "en": "The ship tilted. Entry angle adjustment. Where the Martian atmosphere began. Red light came through the windows. The Martian atmosphere wrapped around the ship. Deceleration. Heat. Sound. That was how Mars received the ship."
+      }}]
+    },
+
+    {
+      "id": "s35", "type": "narration",
+      "background": "cargo_ship_window_mars", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "진동이 심해졌다. 아이가 울었다. 어른이 안았다. 기술자들이 서로를 봤다. 다들 경험이 있었다. 그래도 진동이 심했다. 카리오페호는 늘 이랬다. 베르크가 알고 있었다. 감속 구간에서 이 배는 소리를 냈다.",
+        "en": "The vibration intensified. The child cried. The adult held them. The engineers looked at each other. They all had experience. Still the vibration was heavy. The Kariyope was always like this. Berk knew. On the deceleration this ship made noise."
+      }}]
+    },
+
+    {
+      "id": "s36", "type": "narration",
+      "background": "cargo_ship_window_mars", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "손이 가방 위에 있었다. 손은 움직이지 않았다. 우주선이 흔들렸다. 흔들림을 느끼지 않았다. 느끼지 않은 것이 아니었다. 느꼈지만 반응하지 않았다. 이제 곧 도착할 것이었다.",
+        "en": "A hand rested on the bag. The hand didn't move. The ship shuddered. The shuddering wasn't unfelt. It wasn't that it wasn't felt. It was felt but not reacted to. The arrival was coming soon."
+      }}]
+    },
+
+    {
+      "id": "s37", "type": "narration",
+      "background": "mars_landing_approach", "bgm": "prologue_tension", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "붉은 지평선이 나타났다. 헬라스 분지. 화성에서 가장 낮은 곳. 가장 깊은 분지. 거기에 사람들이 살았다. 창문에 달라붙은 아이의 손바닥이 붉게 물들었다. 화성의 빛이었다.",
+        "en": "A red horizon appeared. The Hellas Basin. The lowest point on Mars. The deepest basin. People lived there. The child's palms pressed to the window turned red. It was Mars's light."
+      }}]
+    },
+
+    {
+      "id": "s38", "type": "narration",
+      "background": "mars_landing_approach", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "헬라스 센트럴이 보였다. 아래에서. 크기를 가늠하기 어려웠다. 작아 보였다. 가까워질수록 커졌다. 도착하면 거대할 것이었다. 화성의 건물은 다 그랬다. 밖에서 보면 작고 안에 들어가면 거대했다. 그 반대가 되어야 맞는데 그렇지 않았다.",
+        "en": "Hellas Central was visible below. Its size was hard to judge. It looked small. It grew larger as they got closer. Upon arrival it would be enormous. All buildings on Mars were like that. Small from outside, enormous inside. It should have been the other way around but wasn't."
+      }}]
+    },
+
+    {
+      "id": "s39", "type": "narration",
+      "background": "mars_landing_approach", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "베르크가 방송을 했다. 착륙 준비. 안전벨트. 모든 전자기기 끄기. 짐은 좌석 아래에. 프로토콜이었다. 이십삼 년 동안 같은 말을 했다. 목소리는 달라지지 않았다. 내용이 달라지지 않았다. 화성이 달라지지 않았다.",
+        "en": "Berk made an announcement. Prepare for landing. Seatbelts. All electronics off. Luggage under seats. Protocol. Twenty-three years of the same words. The voice hadn't changed. The content hadn't changed. Mars hadn't changed."
+      }}]
+    },
+
+    {
+      "id": "s40", "type": "narration",
+      "background": "mars_landing_approach", "bgm": "prologue_tension", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "착륙 활주로가 보였다. 긴 콘크리트였다. 핏빛 먼지가 활주로 위를 달렸다. 바람이 있었다. 헬라스에는 항상 바람이 있었다. 작은 바람이었다. 대형 폭풍이 오기 전에는 항상 작은 바람이 먼저 왔다.",
+        "en": "The landing runway was visible. Long concrete. Blood-red dust running across it. There was wind. Hellas always had wind. Small winds. Before a major storm the small winds always came first."
+      }}]
+    },
+
+    {
+      "id": "s41", "type": "narration",
+      "background": "mars_docking_bay", "bgm": "prologue_landing", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "카리오페호가 착륙했다. 모래가 창문을 때렸다. 그것은 화성의 일이었다. 충격. 배가 멈췄다. 소리가 사라졌다. 조용했다. 화성의 조용함이었다. 우주의 조용함과 달랐다. 화성의 조용함에는 무언가 있었다.",
+        "en": "The Kariyope landed. Sand struck the windows. That was Mars's business. Impact. The ship stopped. The sound stopped. Quiet. The quiet of Mars. Different from the quiet of space. The quiet of Mars had something in it."
+      }}]
+    },
+
+    {
+      "id": "s42", "type": "narration",
+      "background": "mars_docking_bay", "bgm": "prologue_landing", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "아무도 움직이지 않았다. 잠깐이었다. 착륙 후의 잠깐. 다들 자기가 화성에 있다는 것을 확인하는 것 같았다. 확인이 끝나면 움직일 것이었다. 아이가 먼저 움직였다. 아이들은 확인이 빠르다.",
+        "en": "No one moved. Just a moment. The moment after landing. Everyone seemed to be confirming they were on Mars. When confirmed they would move. The child moved first. Children confirm quickly."
+      }}]
+    },
+
+    {
+      "id": "s43", "type": "narration",
+      "background": "mars_docking_bay", "bgm": "prologue_landing", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "에어록이 열렸다. 공기가 들어왔다. 재활용 공기였다. 화성 대기를 정제한 것이었다. 산소 농도가 낮았다. 처음엔 어지러울 것이었다. 이것도 프로토콜이었다. 적응하는 데 사흘이 걸렸다.",
+        "en": "The airlock opened. Air came in. Recycled air. Purified Martian atmosphere. Low oxygen content. It would be dizzying at first. That too was protocol. Three days to adapt."
+      }}]
+    },
+
+    {
+      "id": "s44", "type": "narration",
+      "background": "mars_docking_bay", "bgm": "prologue_landing", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "광부 가족이 먼저 내렸다. 아이가 어른의 손을 잡고 내렸다. 기술자들이 내렸다. 여자 혼자 내렸다. 표정이 없었다. 항로 내내 표정이 없었다. 화성에서도 표정이 없었다. 그것이 맞는 방식인지 알 수 없었다.",
+        "en": "The mining family disembarked first. A child holding an adult's hand. The engineers came down. The woman alone. No expression. No expression for the entire voyage. No expression on Mars. Whether that was the right way was unknown."
+      }}]
+    },
+
+    {
+      "id": "s45", "type": "narration",
+      "background": "mars_docking_bay", "bgm": "prologue_landing", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "다들 내렸다. 마지막이었다. 가방을 들었다. 무거웠다. 통로를 걸었다. 에어록을 지나갔다. 계단이 있었다. 계단 아래에 화성이 있었다.",
+        "en": "Everyone disembarked. Last one remaining. The bag was lifted. Heavy. Walking down the aisle. Through the airlock. There were stairs. At the bottom of the stairs was Mars."
+      }}]
+    },
+
+    {
+      "id": "s46", "type": "narration",
+      "background": "hellas_central_exterior", "bgm": "prologue_arrival", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "화성의 흙이 첫발 아래 있었다. 핏빛 하늘 아래. 헬라스 센트럴이 정면에 있었다. 거대했다. 밖에서 봐도 거대했다. 안에 들어가면 더 거대할 것이었다. 바람이 왔다. 가방을 더 꽉 쥐었다.",
+        "en": "The soil of Mars was there beneath the first step. Under a blood-red sky. Hellas Central stood ahead. Enormous. Enormous even from outside. Inside it would be more enormous. Wind came. The bag was gripped tighter."
+      }}]
+    },
+
+    {
+      "id": "s47", "type": "narration",
+      "background": "hellas_central_exterior", "bgm": "prologue_arrival", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "베르크가 갱웨이에서 내려다보고 있었다. 내려가는 사람들을 봤다. 다 봤다. 23년 동안 보던 것이었다. 마지막으로 내린 사람이 가방을 들고 멈췄다. 헬라스 센트럴을 보았다. 베르크도 그것을 보았다.",
+        "en": "Berk was watching from the gangway above. Looking down at the people disembarking. Saw them all. He'd been seeing this for twenty-three years. The last person off stood with the bag and stopped. Looking at Hellas Central. Berk saw that too."
+      }}]
+    },
+
+    {
+      "id": "s48", "type": "dialogue",
+      "background": "hellas_central_exterior", "bgm": "prologue_arrival", "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "도착은 늘 늦는다. 그것은 베르크가 이십삼 년의 운항으로 배운 한 가지 사실이었다. 다른 사실들도 있었지만 그것들은 적어두지 않았다.",
-            "en": "Arrivals are always late. That was one thing Berk had learned in twenty-three years. There were other things, but he hadn't written them down."
-          }
-        }
+        { "speaker": "berk", "emotion": "calm", "effect": "character_enter:berk:slide_left",
+          "text": { "ko": "처음 왔으면 그렇게 보이죠.", "en": "Looks like that your first time." }},
+        { "speaker": "berk", "emotion": "neutral",
+          "text": { "ko": "두 번째 와도 그렇게 보여요. 세 번째도. 안 익숙해집니다. 화성은 그래요.", "en": "Looks like that your second time too. Third. You don't get used to it. That's Mars." }},
+        { "speaker": "berk", "emotion": "tired",
+          "text": { "ko": "어디 갑니까.", "en": "Where are you going." }}
       ]
     },
 
     {
-      "id": "s03",
-      "type": "narration",
-      "background": "cargo_ship_corridor",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "카리오페호는 화성 정지궤도 진입 중이었다. 39시간짜리 마지막 감속 구간. 할 수 있는 건 없었다. 아무것도 할 수 없다는 게 더 정확했다. 베르크는 자판기에서 갈색 액체를 한 잔 꺼냈다. 커피가 아니었다. 커피라고 불렸지만 아니었다. 마셨다. 마실 수 있었다. 그것으로 충분했다.",
-            "en": "The Kariyope was entering Mars orbit. Final deceleration. Thirty-nine hours of it. There was nothing to do. Nothing that could be done was more accurate. Berk took a cup of brown liquid from the vending machine. It wasn't coffee. It was called coffee but it wasn't. He drank it. He could drink it. That was enough."
-          }
-        }
+      "id": "s49", "type": "narration",
+      "background": "hellas_central_exterior", "bgm": "prologue_arrival", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "어디 가는지 몰랐다. 그 질문에 대답할 수 없었다. 대답하지 않았다. 베르크가 다시 물을 것이라고 생각했다. 묻지 않았다. 그것이 베르크의 방식이었다. 화성에서는 대답하지 않는 것이 대답이었다.",
+        "en": "Where to go was unknown. There was no answer to that question. No answer was given. Berk was expected to ask again. He didn't. That was Berk's way. On Mars not answering was an answer."
+      }}]
+    },
+
+    {
+      "id": "s50", "type": "narration",
+      "background": "hellas_central_exterior", "bgm": "prologue_arrival", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "헬라스 센트럴. 그 앞에 서 있었다. 건물 안에서 무언가 돌아가고 있었다. 멈추지 않는 것들이. 오른쪽으로 가면 MCC였다. 왼쪽으로 가면 노동자 구역이었다. 직진하면 본관이었다. 뒤로 가면 카리오페호가 있었다. 카리오페호는 6시간 후 돌아갈 것이었다.",
+        "en": "Hellas Central. Standing before it. Inside the building something was running. Things that didn't stop. To the right was MCC. To the left was the labor district. Straight ahead the main hall. Behind was the Kariyope. The Kariyope would leave in six hours."
+      }}]
+    },
+
+    {
+      "id": "s51", "type": "narration",
+      "background": "hellas_central_exterior", "bgm": "prologue_arrival", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "6시간. 돌아갈 수 있었다. 화성을 보고 돌아가는 사람들이 있었다. 베르크도 알고 있었다. 그런 사람들이 있었다. 그들도 화성에 발을 디뎠다. 그것으로 충분했다. 충분하지 않은 사람들이 남았다.",
+        "en": "Six hours. A return was possible. Some people came to Mars and turned back. Berk knew about them. People like that existed. They too set foot on Mars. That was enough for them. Those for whom it wasn't enough stayed."
+      }}]
+    },
+
+    {
+      "id": "s52", "type": "narration",
+      "background": "hellas_central_exterior", "bgm": "prologue_arrival", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "가방을 내려놓지 않았다. 내려놓으면 결정이 됐다. 들고 있는 동안은 아직이었다. 사람들이 지나쳤다. 광부들이었다. 기술자들이었다. 다들 어딘가로 갔다. 어딘가가 있었다.",
+        "en": "The bag wasn't set down. Setting it down made it a decision. Holding it still meant not yet. People walked past. Miners. Engineers. Everyone going somewhere. They all had somewhere to go."
+      }}]
+    },
+
+    {
+      "id": "s_choice", "type": "choice",
+      "background": "hellas_central_exterior", "bgm": "prologue_choice",
+      "prompt": { "ko": "헬라스 센트럴. 어느 방향으로 가겠습니까.", "en": "Hellas Central. Which direction will you go." },
+      "choices": [
+        { "id": "route_mcc", "text": { "ko": "MCC 본부. 오른쪽 문.", "en": "MCC headquarters. The right door." }, "tone": "corporate", "preview_hint": { "ko": "→ MCC 루트", "en": "→ MCC Route" }},
+        { "id": "route_fsp", "text": { "ko": "노동자 구역. 왼쪽 골목.", "en": "Labor district. The left alley." }, "tone": "solidarity", "preview_hint": { "ko": "→ FSP 루트", "en": "→ FSP Route" }},
+        { "id": "route_cv", "text": { "ko": "소문으로 들은 이름. 에레부스. 남쪽으로.", "en": "A name heard in rumor. Erebus. Southward.", "tone": "unknown", "preview_hint": { "ko": "→ CV 루트", "en": "→ CV Route" }}},
+        { "id": "route_hidden", "text": { "ko": "아무것도 결정하지 않는다. 그냥 걷는다.", "en": "Decide nothing. Just walk." }, "tone": "observer", "preview_hint": { "ko": "→ Hidden 루트 (NG+)", "en": "→ Hidden Route (NG+)" }}
       ]
     },
 
     {
-      "id": "s04",
-      "type": "narration",
-      "background": "cargo_ship_corridor",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "감시 모니터 열두 개 중 열두 번째. 승객 칸 구석 좌석. 이틀째 잠을 안 자는 사람이 있었다. 무릎 위에 작은 가방을 두었다. 손을 그 위에 올려두었다. 손이 움직이지 않았다.",
-            "en": "Twelfth of twelve surveillance monitors. Corner seat in the passenger cabin. Someone who hadn't slept in two days. A small bag on their lap. A hand resting on top of it. The hand didn't move."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s05",
-      "type": "narration",
-      "background": "cargo_ship_corridor",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "카리오페호가 흔들렸다. 감속 구간의 진동이었다. 객실 전등이 깜빡였다. 손은 여전히 움직이지 않았다. 베르크는 한참 그 손을 보았다.",
-            "en": "The Kariyope shuddered. Vibration from the deceleration. The cabin lights flickered. The hand still didn't move. Berk watched that hand for a long time."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s06",
-      "type": "narration",
-      "background": "cargo_ship_corridor",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "이틀째라고 베르크는 혼자 말했다. 잠을 안 잔다고. 자판기 앞에서. 화성은 얼마나 멀었지. 39시간. 그 정도면 잠을 안 자도 괜찮다. 그렇겠지. 그는 다시 모니터를 보았다. 가방 안에 무엇이 있는지는 알 수 없었다. 운항사들은 그런 것을 묻지 않았다.",
-            "en": "Two days, Berk said to himself. No sleep. Standing at the vending machine. How far is Mars. Thirty-nine hours. That's survivable without sleep. Probably. He looked at the monitor again. He didn't know what was in the bag. Navigators didn't ask those things."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s07",
-      "type": "narration",
-      "background": "cargo_ship_corridor",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "이름은 명단에 적혀 있었다. 베르크는 명단을 보지 않았다. 화성으로 가는 사람들은 자주 자기 이름을 두고 갔다. 가끔은 새 이름을 가지고 갔다. 어느 쪽이든 베르크에게는 같았다.",
-            "en": "The name was on the manifest. Berk didn't look at it. People going to Mars often left their names behind. Sometimes they brought new ones. Either way it was the same to Berk."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s08",
-      "type": "narration",
-      "background": "cargo_ship_corridor",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "광부 가족의 작은 아이가 잠에서 깼다. 어른의 팔에서 빠져나와 칸 안을 한 바퀴 돌았다. 어른은 깨지 않았다. 아이는 다시 돌아갔다. 어른의 손이 잠결에 아이를 감쌌다. 아이는 다시 잠들었다. 두꺼운 벽 안에 사람들은 따로따로 있었다.",
-            "en": "A small child from the mining family stirred awake. Slipped free from an adult's arm and wandered the cabin once. The adult didn't wake. The child returned. A hand in sleep closed around the child. The child slept again. The walls were thick. People were alone inside them."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s09",
-      "type": "narration",
-      "background": "cargo_ship_window_mars",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "화면의 화성은 조금 더 컸다. 핏빛이었다. 황혼 같았다. 그러나 황혼이 아니었다. 화성은 늘 그랬다. 그것이 화성이었다. 다른 칸의 사람은 자지 않았다. 손이 움직이지 않았다.",
-            "en": "Mars on the screen was a little larger. Blood-red. Like a sunset. But it wasn't a sunset. Mars was always like this. That was what Mars was. The person in the other cabin wasn't sleeping. The hand hadn't moved."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s10",
-      "type": "narration",
-      "background": "cargo_ship_window_mars",
-      "bgm": "prologue_ambient",
-      "transition": "fade_slow",
-      "lines": [
-        {
-          "text": {
-            "ko": "손이 가방 위에 있었다. 손은 움직이지 않았다. 우주선이 흔들렸다. 흔들림을 느끼지 않았다.",
-            "en": "A hand rested on the bag. The hand didn't move. The ship shuddered. The shuddering wasn't felt."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s11",
-      "type": "narration",
-      "background": "cargo_ship_window_mars",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "창문이 없는 좌석이었다. 원했던 자리였다. 화성이 거기 있다는 것을 알고 싶지 않았다. 아직은. 화성에 가면 화성이 보일 것이었다.",
-            "en": "It was a seat without a window. The chosen seat. There was no desire to know Mars was out there. Not yet. When you get to Mars you'll see Mars."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s12",
-      "type": "narration",
-      "background": "cargo_ship_window_mars",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "누군가 창문 쪽에서 말했다. 아름답다고. 핏빛 하늘 얘기였다. 눈을 들지 않았다. 아름다움에 대해 생각하지 않았다.",
-            "en": "Someone near the window said something. Beautiful, they said. About the blood-red sky. Eyes didn't lift. There was no thought about beauty."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s13",
-      "type": "narration",
-      "background": "cargo_ship_window_mars",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "가방 안에는 많은 것이 없었다. 있는 것이 무엇인지 본인도 전부 알지 못했다. 오래된 것 하나. 그것이 무엇인지는 가방을 열지 않아도 알았다. 열지 않았다.",
-            "en": "There wasn't much in the bag. Even the owner didn't know everything that was in it. One old thing. What it was, there was no need to open the bag to know. The bag wasn't opened."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s14",
-      "type": "narration",
-      "background": "cargo_ship_window_mars",
-      "bgm": "prologue_ambient",
-      "transition": "cut",
-      "lines": [
-        {
-          "text": {
-            "ko": "갈 곳이 있는지 없는지 그것도 몰랐다. 화성에 사람들이 있다는 건 알았다. 어느 방향으로 걸어야 하는지는 아직 결정하지 않았다. 결정은 흙에 발을 디딘 다음이었다.",
-            "en": "Whether there was somewhere to go or not, that was unknown too. There were people on Mars. That was known. Which direction to walk hadn't been decided. Decisions came after feet touched soil."
-          }
-        }
-      ]
-    },
-
-    {
-      "id": "s_ending",
-      "type": "ending",
-      "background": "mars_docking_bay",
-      "bgm": "prologue_landing",
-      "transition": "fade_slow",
-      "lines": [
-        {
-          "text": {
-            "ko": "카리오페호가 착륙했다. 모래가 창문을 때렸다. 그것은 화성의 일이었다. 사람들이 내렸다. 광부 가족이 먼저 내렸다. 아이가 어른의 손을 잡고 내렸다. 마지막으로 내린 것은 손이 가방 위에 있던 사람이었다.\n\n화성의 흙이 첫발 아래 있었다.\n핏빛 하늘 아래.",
-            "en": "The Kariyope landed. Sand struck the windows. That was Mars's business. People disembarked. The mining family went first. A child holding an adult's hand. Last off was the one whose hand had rested on the bag.\n\nThe soil of Mars was there beneath the first step.\nUnder a blood-red sky."
-          }
-        }
-      ]
+      "id": "s_ending", "type": "ending",
+      "background": "hellas_central_exterior", "bgm": "prologue_ambient", "transition": "fade_slow",
+      "lines": [{ "text": {
+        "ko": "카리오페호가 6시간 후 돌아갔다. 베르크는 명단을 확인했다. 마지막으로 내린 이름이 있었다. 베르크는 그 이름을 보지 않았다. 화성에서의 이름은 여기서 시작되는 것이었다. 카리오페호 명단과는 달랐다.\n\n화성의 흙이 발 아래 있었다.\n핏빛 하늘이 위에 있었다.\n어딘가로 걸어갔다.",
+        "en": "The Kariyope left six hours later. Berk checked the manifest. The last name to disembark was there. Berk didn't read that name. A name on Mars began here. Different from the Kariyope's manifest.\n\nThe soil of Mars was beneath the feet.\nThe blood-red sky was above.\nSomewhere was walked toward."
+      }}]
     }
 
   ]
