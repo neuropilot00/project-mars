@@ -3527,7 +3527,7 @@ router.post('/campaign/start', writeLimiter, async (req, res) => {
     if (result.error) return res.status(400).json(result);
     res.json(result);
   } catch (e) {
-    console.error('[CAMPAIGN] start error:', e.message);
+    console.error('[CAMPAIGN] start error:', e && e.stack || e && e.message || e);
     res.status(500).json({ error: 'Internal error' });
   }
 });
@@ -3543,7 +3543,7 @@ router.post('/campaign/choice', writeLimiter, async (req, res) => {
     if (result.error) return res.status(400).json(result);
     res.json(result);
   } catch (e) {
-    console.error('[CAMPAIGN] choice error:', e.message);
+    console.error('[CAMPAIGN] choice error:', e && e.stack || e && e.message || e);
     res.status(500).json({ error: 'Internal error' });
   }
 });
@@ -3573,7 +3573,7 @@ router.post('/campaign/complete', writeLimiter, async (req, res) => {
     if (result.error) return res.status(404).json(result);
     res.json(result);
   } catch (e) {
-    console.error('[CAMPAIGN] complete error:', e.message);
+    console.error('[CAMPAIGN] complete error:', e && e.stack || e && e.message || e);
     res.status(500).json({ error: 'Internal error' });
   }
 });
