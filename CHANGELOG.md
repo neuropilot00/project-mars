@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — Mobile first-load side panel lock (v5.30)
+
+- **iPhone 첫 화면 패널 잠금**: 1024px 이하에서 좌/우 사이드 패널이 `.open` 상태가 아닐 때 `!important` off-screen transform을 적용해, 첫 진입 시 지도 대신 사이드 화면이 열려 보이는 문제를 차단.
+- **iOS 상태 복귀 보강**: `pageshow`, `load`, `orientationchange`에서 `forceCloseMobilePanels()`를 호출해 Safari/Chrome iOS bfcache나 회전 후 이전 open 상태가 남지 않도록 수정.
+
+검증:
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
 ## 2026-04-29 — FSP Campaign Ch7~10 MVP 구현 (v5.29)
 
 - **FSP Ch7 "의회" 추가**: Hellas Central 의회 회기, 5개 의장 후보(Mikhail/Liang/Amara/Diego/Player), 환경 위기 병행 지표, 의장별 Ch8~Ch10 분기 modifier를 서버 시뮬레이션으로 구현.

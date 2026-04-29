@@ -1,6 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.29 / 2026-04-29)
+# OCCUPY MARS — Codebase Audit (v5.30 / 2026-04-29)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.30 Mobile first-load side panel lock — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| iPhone XS Max 첫 화면 | ✅ | 1024px 이하에서 좌/우 사이드 패널은 `.open` 없이는 `!important` off-screen transform을 적용해 지도 화면을 가리지 않게 수정. |
+| iOS 상태 복귀 | ✅ | `pageshow`, `load`, `orientationchange`에서 `forceCloseMobilePanels()`를 호출해 bfcache/회전/이전 open 상태가 첫 화면에 남지 않도록 보강. |
+
+검증:
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
 
 ### v5.29 FSP Campaign Ch7~10 MVP — 구현 완료
 

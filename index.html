@@ -1392,9 +1392,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
  * Force panels off-screen by default for any viewport ≤ 1024px so the globe
  * always has room. Same .open class triggers them in (mob-toggle buttons). */
 @media(max-width:1024px){
-  .panel-l{transform:translateX(-110%); will-change:transform}
-  .panel-r{transform:translateX(110%); right:0; will-change:transform}
-  .panel-l.open,.panel-r.open{transform:translateX(0)}
+  .panel-l:not(.open){transform:translateX(-110%)!important; will-change:transform}
+  .panel-r:not(.open){transform:translateX(110%)!important; right:0; will-change:transform}
+  .panel-l.open,.panel-r.open{transform:translateX(0)!important}
   /* Hide desktop-only collapse tabs (mobile uses .mob-toggle instead) */
   .panel-tab{display:none}
   /* Show mob-toggle buttons so user can open panels on tablet too */
@@ -1428,9 +1428,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .panel-l,.panel-r{width:85%;top:52px;max-width:320px;
     /* Reserve bottom space so last items are scrollable past mob-bottom-nav (~70px) + FAB (~90px) + safe-area */
     padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 110px)}
-  .panel-l{transform:translateX(-110%)}
-  .panel-r{transform:translateX(110%);right:0}
-  .panel-l.open,.panel-r.open{transform:translateX(0);z-index:250}
+  .panel-l:not(.open){transform:translateX(-110%)!important}
+  .panel-r:not(.open){transform:translateX(110%)!important;right:0}
+  .panel-l.open,.panel-r.open{transform:translateX(0)!important;z-index:250}
   .mob-toggle{display:block}
   .mob-toggle.hidden{opacity:0;pointer-events:none;transition:opacity .2s}
   /* Zoom column sits above the bottom nav on mobile (back/+/-/SECTORS) */
@@ -27057,6 +27057,17 @@ function toggleRight(){
 }
 function closeLeft(){document.getElementById('panelL').classList.remove('open');updateMobToggles()}
 function closeRight(){document.getElementById('panelR').classList.remove('open');updateMobToggles()}
+function forceCloseMobilePanels(){
+  if(window.innerWidth > 1024) return;
+  var pL=document.getElementById('panelL');
+  var pR=document.getElementById('panelR');
+  if(pL) pL.classList.remove('open');
+  if(pR) pR.classList.remove('open');
+  try{updateMobToggles()}catch(_){}
+}
+window.addEventListener('pageshow', forceCloseMobilePanels);
+window.addEventListener('load', forceCloseMobilePanels);
+window.addEventListener('orientationchange', function(){setTimeout(forceCloseMobilePanels, 80)});
 // Mobile: tapping outside an open status/live panel auto-closes it
 // (no need to hunt for the close button — respect mobile thumb ergonomics)
 document.addEventListener('click', function(e){
