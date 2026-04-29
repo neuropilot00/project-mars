@@ -2,202 +2,157 @@
   "questId": "cv_campaign_ch9",
   "campaignId": "cv_route",
   "chapterNumber": 9,
-  "title": {
-    "ko": "올림푸스의 밤",
-    "en": "Olympus Night"
-  },
-  "location": {
-    "id": "olympus_neutral_summit",
-    "displayNameKo": "Olympus Mons 산자락"
-  },
-  "estimatedPlayTimeMinutes": 12,
-  "characters": [
-    "player",
-    "butcher",
-    "cinder",
-    "hale"
-  ],
+  "title": { "ko": "올림푸스", "en": "Olympus" },
+  "location": { "id": "olympus_mons_summit_cv", "displayNameKo": "Olympus Mons 정상 — CV 시각" },
+  "environment": "summit_final_hour",
+  "estimatedPlayTimeMinutes": 20,
+  "characters": ["player", "butcher", "hale"],
   "scenes": [
     {
       "id": "s01",
       "type": "narration",
       "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
+      "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "정상회담 전날 밤.\nOlympus Mons의 산자락.\n화성에서 가장 높은 곳이었다.\n세 파벌 사람들이 모두 여기 있었다. 불꽃을 나눠 쓰면서.",
-            "en": "The night before the summit.\nAt the foot of Olympus Mons.\nThe highest place on Mars.\nPeople from all three factions were here. Sharing a fire."
-          }
-        }
+        { "text": { "ko": "Olympus Mons 정상 회담. CV 입장에서 이것은 함정이었다. 아니면 마지막 기회였다. 정육점은 그것을 알면서 왔다.", "en": "The Olympus Mons summit. From CV's perspective this was a trap. Or a last chance. Butcher came knowing that." } }
       ]
     },
     {
       "id": "s02",
       "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
+      "background": "mcc_25deg_lounge",
+      "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "speaker": "hale",
-          "emotion": "gentle",
-          "effect": "character_enter:hale:slide_right",
-          "text": {
-            "ko": "내일이면 어느 쪽이든 결론이 나요.\n오늘 밤은 — 그냥 오늘 밤이에요.",
-            "en": "Tomorrow there will be a conclusion either way.\nTonight — is just tonight."
-          }
-        },
-        {
-          "speaker": "butcher",
-          "emotion": "hollow",
-          "effect": "character_enter:butcher:slide_left",
-          "text": {
-            "ko": "30년 만에 처음으로 — 다음이 있을 것 같아.",
-            "en": "For the first time in thirty years — there might be a tomorrow."
-          }
-        }
+        { "speaker": "butcher", "emotion": "alert", "effect": "character_enter:butcher:slide_left", "text": { "ko": "Pilgrim Arms가 건물 안에 있어. 4명. 우리를 노리는 게 아니야.", "en": "Pilgrim Arms is in the building. Four of them. They're not targeting us." } },
+        { "speaker": "hale", "emotion": "tense", "effect": "character_enter:hale:slide_right", "text": { "ko": "FSP? MCC? 아니면 우리를?", "en": "FSP? MCC? Or us?" } },
+        { "speaker": "butcher", "emotion": "calculating", "text": { "ko": "아직 몰라. 지켜봐.", "en": "Don't know yet. Watch." } }
       ]
     },
     {
       "id": "s03",
-      "type": "narration",
-      "background": "kepler_crater",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "hale", "emotion": "urgent_private", "text": { "ko": "정육점이랑 마지막으로 제대로 얘기할 기회야.", "en": "This is your last real chance to talk with Butcher." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "무슨 얘기를요?", "en": "About what?" } },
+        { "speaker": "hale", "emotion": "quiet", "text": { "ko": "그가 진짜 원하는 게 뭔지. 전쟁이 끝나면 어떻게 할 건지.", "en": "What he actually wants. What happens when the war ends." } }
+      ]
+    },
+    {
+      "id": "s04",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "신더는 아무 말도 하지 않았다.\n불꽃을 바라봤다.\n무언가를 결정하고 있는 것 같았다.",
-            "en": "Cinder said nothing.\nShe watched the fire.\nShe seemed to be deciding something."
-          }
-        }
+        { "speaker": "butcher", "emotion": "old_tired", "text": { "ko": "전쟁이 끝나면 나도 끝이야. 그게 맞아.", "en": "When the war ends, I end too. That's how it should be." } },
+        { "speaker": "player", "emotion": "surprised", "text": { "ko": "...", "en": "..." } },
+        { "speaker": "butcher", "emotion": "flat", "text": { "ko": "신더는 알고 있어. 그래서 다른 길 찾는 거고.", "en": "Cinder knows that. That's why she's looking for another way." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "narration",
+      "background": "mcc_25deg_lounge",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Pilgrim Arms가 움직이기 시작했다. 그들의 표적이 누구인지, 그 대답이 지금 결정해야 할 것을 바꾸었다.", "en": "Pilgrim Arms began to move. Knowing who their target was changed what had to be decided now." } }
       ]
     },
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "kepler_crater",
+      "background": "mcc_25deg_lounge",
       "bgm": "choice_tension",
-      "prompt": {
-        "ko": "정상회담 전날 밤, 어떻게 보냅니까?",
-        "en": "How do you spend the night before the summit?"
-      },
+      "prompt": { "ko": "Olympus 정상에서 무엇을 지키겠습니까?", "en": "What do you protect on Olympus?" },
       "choices": [
         {
-          "id": "cv_ch9_stand_with_butcher",
-          "text": {
-            "ko": "정육점 옆에 선다.",
-            "en": "Stand with Butcher."
-          },
+          "id": "cv_ch9_protect_butcher",
+          "text": { "ko": "정육점을 보호한다.", "en": "Protect Butcher." },
           "tone": "loyal",
-          "preview_hint": {
-            "ko": "→ CV +15, 정육점 엔딩 강화",
-            "en": "→ CV +15, Butcher ending strengthened"
-          }
+          "preview_hint": { "ko": "→ 정육점 루트 생존, 전쟁 계속", "en": "→ Butcher route survives, war continues" }
         },
         {
-          "id": "cv_ch9_stand_with_cinder",
-          "text": {
-            "ko": "신더와 함께한다.",
-            "en": "Stay with Cinder."
-          },
-          "tone": "alliance",
-          "preview_hint": {
-            "ko": "→ CV +5, 신더 최종 동맹",
-            "en": "→ CV +5, Cinder final alliance"
-          }
+          "id": "cv_ch9_protect_cinder",
+          "text": { "ko": "신더를 보호한다.", "en": "Protect Cinder." },
+          "tone": "future",
+          "preview_hint": { "ko": "→ 신더 루트 강화, 정육점 위험", "en": "→ Cinder route strengthened, Butcher at risk" }
         },
         {
-          "id": "cv_ch9_ask_hale",
-          "text": {
-            "ko": "헤일 신부에게 조언을 구한다.",
-            "en": "Seek Father Hale's counsel."
-          },
-          "tone": "reflective",
-          "preview_hint": {
-            "ko": "→ 중립, 헤일의 지혜 획득",
-            "en": "→ Neutral, gain Hale's wisdom"
-          }
+          "id": "cv_ch9_protect_summit",
+          "text": { "ko": "회담 자체를 보호한다. 전원 탈출.", "en": "Protect the summit itself. Everyone evacuates." },
+          "tone": "pragmatic",
+          "preview_hint": { "ko": "→ 평화 루트 가능성, 모두 살아남음", "en": "→ Peace route possible, everyone survives" }
         },
         {
-          "id": "cv_ch9_alone",
-          "text": {
-            "ko": "혼자 있는다.",
-            "en": "Stay alone."
-          },
-          "tone": "solitary",
-          "preview_hint": {
-            "ko": "→ 모든 엔딩 동등하게 가능",
-            "en": "→ All endings equally available"
-          }
+          "id": "cv_ch9_target_pilgrim",
+          "text": { "ko": "Pilgrim Arms의 고용주를 추적한다.", "en": "Trace who hired Pilgrim Arms." },
+          "tone": "investigative",
+          "preview_hint": { "ko": "→ 배후 해금, 모든 루트에 영향", "en": "→ Unlock who's behind it, affects all routes" }
         }
       ]
     },
     {
-      "id": "s04",
-      "type": "narration",
-      "background": "kepler_crater",
-      "bgm": "ambient_melancholy",
-      "transition": "fade_slow",
-      "lines": [
-        {
-          "text": {
-            "ko": "포보스가 지나갔다.\n불꽃이 흔들렸다.\n내일이 왔다.",
-            "en": "Phobos passed overhead.\nThe fire flickered.\nTomorrow came."
-          }
-        }
-      ]
-    },
-    {
-      "id": "s05",
+      "id": "s06",
       "type": "dialogue",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
+      "background": "mcc_25deg_lounge",
+      "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        {
-          "speaker": "cinder",
-          "emotion": "resolved",
-          "effect": "character_enter:cinder:slide_left",
-          "text": {
-            "ko": "준비됐어?",
-            "en": "Are you ready?"
-          }
-        },
-        {
-          "speaker": "butcher",
-          "emotion": "flat",
-          "effect": "character_enter:butcher:slide_right",
-          "text": {
-            "ko": "내일이면 끝나.",
-            "en": "Tomorrow it ends."
-          }
-        }
+        { "speaker": "butcher", "emotion": "final", "text": { "ko": "끝내자.", "en": "Let's end it." } },
+        { "speaker": "hale", "emotion": "resolved", "text": { "ko": "어떤 방식으로든.", "en": "In whatever way." } }
+      ]
+    },
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
+      "title": { "ko": "Pilgrim Arms 격퇴 — CV 시각", "en": "Repel Pilgrim Arms — CV Perspective" },
+      "subtitle": { "ko": "Olympus Mons — 최후의 선택", "en": "Olympus Mons — Final Choice" }
+    },
+    {
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+    {
+      "id": "s_success",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "butcher", "emotion": "alive", "effect": "character_enter:butcher:slide_left", "text": { "ko": "살아있어. 당신도.", "en": "Alive. You too." } },
+        { "speaker": "hale", "emotion": "soft", "effect": "character_enter:hale:slide_right", "text": { "ko": "이제 마지막이야.", "en": "Now it's the end." } }
+      ]
+    },
+    {
+      "id": "s_fail",
+      "type": "dialogue",
+      "background": "mcc_25deg_lounge",
+      "bgm": "defeat_ambient",
+      "lines": [
+        { "speaker": "hale", "emotion": "devastated", "effect": "character_enter:hale:slide_right", "text": { "ko": "Pilgrim Arms가 성공했어. 누군가 죽었어.", "en": "Pilgrim Arms succeeded. Someone died." } },
+        { "speaker": "player", "emotion": "grim", "text": { "ko": "누구입니까?", "en": "Who?" } }
       ]
     },
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "불꽃이 꺼지기 전에 당신은 생각했다.\n무엇을 위해 싸웠는가.\n무엇을 위해 여기까지 왔는가.\n내일이면 답을 알게 된다.",
-            "en": "Before the fire went out you thought.\nWhat had you fought for.\nWhat had brought you this far.\nTomorrow you'd know the answer."
-          }
-        }
+        { "text": { "ko": "산의 정상에서 모든 것이 작아 보인다. 정육점은 그것을 알았다. 그래서 Olympus Mons에 왔다. 마지막으로 한 번 더 작아지기 위해서.", "en": "From the top of a mountain everything looks small. Butcher knew that. That's why he came to Olympus Mons. To be made small one last time." } }
       ],
-      "next_chapter_preview": {
-        "questId": "cv_campaign_ch10",
-        "teaser": {
-          "ko": "다음 — 불꽃에서",
-          "en": "Next — From the Flames"
-        }
-      }
+      "next_chapter_preview": { "questId": "cv_campaign_ch10", "teaser": { "ko": "다음 — 불꽃에서", "en": "Next — From the Fire" } }
     }
   ]
 }

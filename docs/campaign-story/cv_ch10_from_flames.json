@@ -2,77 +2,43 @@
   "questId": "cv_campaign_ch10",
   "campaignId": "cv_route",
   "chapterNumber": 10,
-  "title": {
-    "ko": "불꽃에서",
-    "en": "From the Flames"
-  },
-  "location": {
-    "id": "olympus_summit_arena",
-    "displayNameKo": "Olympus 정상회담장"
-  },
-  "estimatedPlayTimeMinutes": 18,
-  "characters": [
-    "player",
-    "butcher",
-    "cinder",
-    "hale"
-  ],
+  "title": { "ko": "불꽃에서", "en": "From the Fire" },
+  "location": { "id": "mars_final_horizon_cv", "displayNameKo": "화성 — CV 루트 결말" },
+  "environment": "final_dusk",
+  "estimatedPlayTimeMinutes": 25,
+  "characters": ["player", "butcher", "hale"],
   "scenes": [
     {
       "id": "s01",
       "type": "narration",
       "background": "mars_sunset",
-      "bgm": "cv_ambient_dark",
+      "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "10개의 챕터.\n10번의 선택.\n각각이 이 순간을 만들었다.",
-            "en": "Ten chapters.\nTen decisions.\nEach one made this moment."
-          }
-        }
+        { "text": { "ko": "불은 다 태우고 나면 재만 남는다. 화성은 원래 재였다. 그 위에 살기 시작한 사람들이 있었다. 그리고 그들이 불을 피웠다.", "en": "Fire leaves only ash when it's done. Mars was ash to begin with. Then people began to live on it. And they started fires." } }
       ]
     },
     {
       "id": "s02",
-      "type": "narration",
+      "type": "dialogue",
       "background": "mars_sunset",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "정상회담이 열렸다.\n천 회장. 미하일. 정육점.\n같은 방에서 숨을 쉬었다.\n마지막으로.",
-            "en": "The summit convened.\nChairman Chen. Mikhail. Butcher.\nBreathing in the same room.\nFor the last time."
-          }
-        }
+        { "speaker": "butcher", "emotion": "final_exhausted", "effect": "character_enter:butcher:slide_left", "text": { "ko": "다 끝났어. CV는 내가 생각한 것보다 오래 버텼어.", "en": "It's over. CV lasted longer than I thought it would." } },
+        { "speaker": "hale", "emotion": "quiet", "effect": "character_enter:hale:slide_right", "text": { "ko": "당신 때문이야.", "en": "Because of you." } },
+        { "speaker": "butcher", "emotion": "wry", "text": { "ko": "나 때문에 시작됐고. 나 때문에 끝나는 거야.", "en": "It started because of me. And it ends because of me." } }
       ]
     },
     {
       "id": "s03",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
-      "bgm": "cv_ambient_dark",
-      "transition": "fade_slow",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
       "lines": [
-        {
-          "speaker": "butcher",
-          "emotion": "hollow",
-          "effect": "character_enter:butcher:slide_left",
-          "text": {
-            "ko": "불꽃이 꺼지고 나면 — 남은 것이 너야.\n그게 CV야. 불꽃이 꺼진 자리.",
-            "en": "When the flames go out — what remains is you.\nThat's CV. The place where flames went out."
-          }
-        },
-        {
-          "speaker": "cinder",
-          "emotion": "moved",
-          "effect": "character_enter:cinder:slide_right",
-          "text": {
-            "ko": "아니야. 불꽃에서 남은 것이 있어.\n재가 아니라 — 씨앗이.",
-            "en": "No. There's something left from flames.\nNot ash — seeds."
-          }
-        }
+        { "speaker": "hale", "emotion": "to_player", "text": { "ko": "이제 당신이 선택해. 어디로 갈 건지.", "en": "Now you choose. Where to go." } },
+        { "speaker": "player", "emotion": "neutral", "text": { "ko": "...", "en": "..." } }
       ]
     },
     {
@@ -80,14 +46,20 @@
       "type": "narration",
       "background": "mars_sunset",
       "bgm": "ambient_melancholy",
-      "transition": "fade_slow",
+      "transition": "cut",
       "lines": [
-        {
-          "text": {
-            "ko": "헤일 신부가 창밖을 봤다.\n화성의 핏빛 지평선.\n\"화성이 우리에게 물었습니다. 우리는 무엇입니까?\"",
-            "en": "Father Hale looked out the window.\nThe blood-red horizon of Mars.\n\"Mars asked us. What are we?\""
-          }
-        }
+        { "text": { "ko": "세 가지 길이 있었다. 어느 쪽도 쉽지 않았다. 화성에서 쉬운 길은 없었다.", "en": "Three paths. None of them easy. On Mars there were no easy paths." } }
+      ]
+    },
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "butcher", "emotion": "rare_gentle", "text": { "ko": "한 가지만 물어볼게. 여기 오길 잘했어?", "en": "One question. Was it worth coming here?" } },
+        { "speaker": "player", "emotion": "thoughtful", "text": { "ko": "...", "en": "..." } }
       ]
     },
     {
@@ -95,93 +67,71 @@
       "type": "choice",
       "background": "mars_sunset",
       "bgm": "choice_tension",
-      "prompt": {
-        "ko": "당신은 화성에서 무엇이 되겠습니까?",
-        "en": "What will you be on Mars?"
-      },
+      "prompt": { "ko": "CV 루트 최종 엔딩 — 당신의 선택은?", "en": "CV route final ending — what is your choice?" },
       "choices": [
         {
-          "id": "cv_ending_1_warlord",
-          "text": {
-            "ko": "Ending A: 화성의 지배자.",
-            "en": "Ending A: Warlord of Mars."
-          },
-          "tone": "dominant",
-          "preview_hint": {
-            "ko": "→ CV가 화성을 통치한다",
-            "en": "→ CV rules Mars"
-          }
+          "id": "cv_ending_a_rule_with_butcher",
+          "text": { "ko": "Ending A: 정육점과 함께 화성을 통치.", "en": "Ending A: Rule Mars with Butcher." },
+          "tone": "power",
+          "preview_hint": { "ko": "→ 강권 통치 루트, 30년의 분노가 현실이 됨", "en": "→ Iron rule route, thirty years of anger becomes reality" }
         },
         {
-          "id": "cv_ending_2_dismantler",
-          "text": {
-            "ko": "Ending B: CV 해체자.",
-            "en": "Ending B: The Dismantler."
-          },
-          "tone": "sacrifice",
-          "preview_hint": {
-            "ko": "→ CV를 스스로 해체한다",
-            "en": "→ Dismantle CV from within"
-          }
+          "id": "cv_ending_b_disband_cv",
+          "text": { "ko": "Ending B: CV를 해체하고 새 시작.", "en": "Ending B: Disband CV and start fresh." },
+          "tone": "redemption",
+          "preview_hint": { "ko": "→ 화해 루트, 정육점은 은퇴", "en": "→ Reconciliation route, Butcher retires" }
         },
         {
-          "id": "cv_ending_3_cinder_path",
-          "text": {
-            "ko": "Ending C: 신더의 길.",
-            "en": "Ending C: Cinder's Path."
-          },
-          "tone": "reform",
-          "preview_hint": {
-            "ko": "→ CV를 개혁. 신더와 함께",
-            "en": "→ Reform CV. With Cinder."
-          }
+          "id": "cv_ending_c_cinder_third_way",
+          "text": { "ko": "Ending C: 신더와 함께 제3의 길.", "en": "Ending C: The third way with Cinder." },
+          "tone": "new_path",
+          "preview_hint": { "ko": "→ 신더 리더십 루트, 새로운 CV", "en": "→ Cinder leadership route, new CV" }
         }
       ]
     },
     {
-      "id": "s_e_a",
-      "type": "ending",
-      "background": "kepler_crater",
-      "bgm": "cv_ambient_dark",
+      "id": "s_ending_a_rule",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "CV의 깃발이 Olympus Mons에 올랐다.\n정육점은 아무 말도 하지 않았다.\n그것으로 충분했다.\n화성은 항상 강한 자의 것이었다.",
-            "en": "CV's flag rose on Olympus Mons.\nButcher said nothing.\nThat was enough.\nMars had always belonged to the strong."
-          }
-        }
+        { "speaker": "butcher", "emotion": "final_king", "effect": "character_enter:butcher:slide_left", "text": { "ko": "화성은 우리 거야. 30년 걸렸어.", "en": "Mars is ours. Thirty years it took." } },
+        { "text": { "ko": "통치는 전쟁의 다른 이름이다. 그것을 아는 자와 모르는 자가 있다. 정육점은 알았다. 그것이 비극이었다.", "en": "Governance is another name for war. Some know that and some don't. Butcher knew. That was the tragedy." } }
       ]
     },
     {
-      "id": "s_e_b",
+      "id": "s_ending_b_disband",
+      "type": "dialogue",
+      "background": "mars_sunset",
+      "bgm": "ambient_melancholy",
+      "transition": "fade_slow",
+      "lines": [
+        { "speaker": "butcher", "emotion": "letting_go", "effect": "character_enter:butcher:slide_left", "text": { "ko": "CV는 끝이야. 나도 끝이야. 그게 맞아.", "en": "CV is finished. So am I. That's right." } },
+        { "text": { "ko": "불이 꺼지면 재가 남는다. 재는 무언가를 키울 수 있다. 그것이 끝이면서 시작인 이유다.", "en": "When fire goes out, ash remains. Ash can grow things. That's why an ending is also a beginning." } }
+      ]
+    },
+    {
+      "id": "s_ending_c_cinder",
+      "type": "dialogue",
+      "background": "hellas_mining_outpost",
+      "bgm": "fsp_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        { "speaker": "hale", "emotion": "calm_new", "effect": "character_enter:hale:slide_right", "text": { "ko": "CV가 아니야. 하지만 우리도 아니에요. 뭔가 다른 거야.", "en": "Not CV. But not nothing either. Something different." } },
+        { "text": { "ko": "세 번째 길은 이름이 없다. 그래서 자유롭다. 신더 그레이스는 그것을 알았다. 그래서 10년을 기다렸다.", "en": "The third path has no name. That's why it's free. Cinder Grace knew that. She'd waited ten years for it." } }
+      ]
+    },
+    {
+      "id": "s_ending",
       "type": "ending",
       "background": "mars_sunset",
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        {
-          "text": {
-            "ko": "CV는 사라졌다.\n스스로 해체됐다.\n그 사람들은 어디로 갔는가.\n흩어졌다. 각자의 길을 찾아.\n30년의 불꽃이 꺼진 자리에 씨앗이 남았다.",
-            "en": "CV was gone.\nDismantled from within.\nWhere did those people go.\nScattered. Each to their own path.\nIn the place where thirty years of fire went out, seeds remained."
-          }
-        }
-      ]
-    },
-    {
-      "id": "s_e_c",
-      "type": "ending",
-      "background": "kepler_crater",
-      "bgm": "victory_calm",
-      "transition": "fade_slow",
-      "lines": [
-        {
-          "text": {
-            "ko": "신더 그레이스가 앞에 섰다.\n당신이 옆에 섰다.\nCV는 달라졌다.\n법이 생겼다. 하나뿐이었지만.\n\"불꽃 앞에서는 모두가 평등하다.\"",
-            "en": "Cinder Grace stood forward.\nYou stood beside her.\nCV had changed.\nThere was now a law. Only one.\n\"Before the fire, all are equal.\""
-          }
-        }
-      ]
+        { "text": { "ko": "화성의 석양은 파랗다. 불꽃도 파랄 수 있는지는 아무도 몰랐다. 하지만 그 재 위에 서 있는 사람들은 시도해보기로 했다.", "en": "The sunset on Mars is blue. Whether flames could be blue too, nobody knew. But the people standing on that ash decided to try." } }
+      ],
+      "next_chapter_preview": null
     }
   ]
 }
