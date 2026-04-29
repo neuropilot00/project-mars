@@ -11,7 +11,16 @@ assets/*
 !assets/avatars/
 !assets/nav/
 !assets/tactical-lab-v11.html
+!assets/campaign/
+assets/campaign/*
+!assets/campaign/backgrounds/
+!assets/campaign/characters/
+assets/campaign/backgrounds/*
+assets/campaign/characters/*
+!assets/campaign/backgrounds/*.png
+!assets/campaign/characters/*.png
 server/node_modules/
 uploads/
 logs/
 server/backups/
+bug-reports/
