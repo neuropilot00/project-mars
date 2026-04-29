@@ -5,119 +5,797 @@
   "title": { "ko": "도착", "en": "Arrival" },
   "location": { "id": "hellas_central_mcc", "displayNameKo": "헬라스 센트럴 MCC 본부" },
   "environment": "corporate_interior",
-  "estimatedPlayTimeMinutes": 15,
+  "estimatedPlayTimeMinutes": 18,
   "characters": ["player", "lifang"],
   "scenes": [
+
     {
-      "id": "s01", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "mcc_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "헬라스 센트럴. MCC 본부. 건물은 거대했다. 화성에서 이만한 건물은 여기밖에 없었다. 60년 전 지어진 것이었다. 그 후로 계속 커졌다. 건물은 멈추지 않았다.",
-        "en": "Hellas Central. MCC headquarters. The building was enormous. Nothing on Mars was this large. It had been built sixty years ago. It had kept growing since. It never stopped."
-      }}]
-    },
-    {
-      "id": "s02", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "mcc_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "검문소에 줄이 있었다. 광부들이었다. 기술자들이었다. 용병들이었다. 그들은 번호표를 받았다. 번호가 불리면 들어갔다. 불리지 않으면 기다렸다. 화성에서 줄을 서지 않아도 되는 사람은 많지 않았다.",
-        "en": "There was a line at the checkpoint. Miners. Technicians. Mercenaries. They were given numbers. When a number was called they entered. If not called they waited. Not many people on Mars didn't have to wait in line."
-      }}]
-    },
-    {
-      "id": "s03", "type": "narration",
-      "background": "mcc_briefing_room", "bgm": "mcc_ambient", "transition": "fade_medium",
-      "lines": [{ "text": {
-        "ko": "3번 게이트. 브리핑 룸. 형광등 하나가 깜빡였다. 테이블 위에 지도가 있었다. 지도 위에 아무도 없었다. 잠시 후 누군가 들어왔다.",
-        "en": "Gate 3. Briefing room. One fluorescent light flickered. A map on the table. Nobody by the map. A moment later someone came in."
-      }}]
-    },
-    {
-      "id": "s04", "type": "dialogue",
-      "background": "mcc_briefing_room", "bgm": "mcc_ambient", "transition": "cut",
+      "id": "s01",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "mcc_ambient",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "lifang", "emotion": "neutral", "effect": "character_enter:lifang:slide_left",
-          "text": { "ko": "도착이 늦었네.", "en": "You're late." }},
-        { "speaker": "lifang", "emotion": "smirk",
-          "text": { "ko": "화성에선 늘 그래. 도착은 늘 늦고 출발은 늘 빨라.", "en": "That's Mars. Arrivals are always late. Departures always early." }},
-        { "speaker": "lifang", "emotion": "serious",
-          "text": { "ko": "프로필 봤어. 화성 경력 없지. 좋아. 말 없는 사람이 일을 잘해.", "en": "Read your file. No Mars experience. Good. Quiet people get things done." }}
+        {
+          "text": {
+            "ko": "헬라스 센트럴. 화성에 그만한 건물은 없었다. 60년 전 지어진 건물이었다. 그 후로 매년 한 층씩 늘었다. 늘리지 않은 해가 두 번 있었다. 그 해의 일은 적혀 있지 않았다. MCC는 적지 않는 것을 잘했다.",
+            "en": "Hellas Central. There was no building like it on Mars. It had been built sixty years ago. It had grown a story a year since. Two years it hadn't grown. What happened those years wasn't written down. MCC was good at not writing things down."
+          }
+        }
       ]
     },
+
     {
-      "id": "s05", "type": "narration",
-      "background": "mcc_briefing_room", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "Li Fang은 지도를 밀었다. 헬라스 북부. 산소 정제소 7기 배치도. 그가 손가락으로 한 구역을 짚었다. 손가락이 멈췄다. 그것이 문제의 위치였다.",
-        "en": "Li Fang pushed the map forward. Northern Hellas. Seven oxygen refineries. His finger stopped on one sector. That was where the problem was."
-      }}]
-    },
-    {
-      "id": "s06", "type": "dialogue",
-      "background": "mcc_briefing_room", "bgm": "tension_medium", "transition": "cut",
+      "id": "s02",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "serious",
-          "text": { "ko": "Helion Dynamics. 정제소 7기 전부 매각해. 내일. 그 전에 산소 850킬로톤을 본사로 빼돌리고 있어.", "en": "Helion Dynamics. Selling all seven refineries. Tomorrow. Before the sale they're siphoning 850 kilotons to headquarters." }},
-        { "speaker": "lifang", "emotion": "angry",
-          "text": { "ko": "화성 북반구 1200만 명이 일주일치 산소야. 호송 편대가 이미 출발했어.", "en": "A week's oxygen for twelve million in the northern hemisphere. The convoy has already departed." }},
-        { "speaker": "lifang", "emotion": "serious",
-          "text": { "ko": "Dust Storm이 6시간 후에 와. 그 전에 회수해. 탱크 손상 없이.", "en": "Dust Storm in six hours. Recover it before then. No tank damage." }}
+        {
+          "text": {
+            "ko": "건물 외벽은 회색이었다. 화성의 빛이 닿으면 핏빛으로 바뀌었다. 황혼이었다. 화성의 황혼은 길었다. 길어서 사람들은 그것을 풍경이라고 부르지 않았다. 풍경이라기에는 너무 오래 머물렀다.",
+            "en": "The walls were grey. When the Martian light fell on them they turned blood-red. Dusk. Dusk on Mars was long. So long that people didn't call it scenery. It stayed too long for that."
+          }
+        }
       ]
     },
+
     {
-      "id": "s07", "type": "narration",
-      "background": "mcc_briefing_room", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "850킬로톤. 그것을 회수하면 MCC가 정제소를 인수한다. 그것을 회수하지 못하면 폭풍 속에서 사라진다. Li Fang이 당신을 바라봤다. 브리핑 룸의 형광등이 다시 깜빡였다.",
-        "en": "850 kilotons. Recover it and MCC acquires the refineries. Fail and it vanishes in the storm. Li Fang looked at you. The briefing room light flickered again."
-      }}]
+      "id": "s03",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "정문 검문소에 줄이 있었다. 광부들이었다. 기술자들이었다. 용병들이었다. 외부인이었다. 줄은 길었다. 줄에 서지 않아도 되는 사람은 화성에 많지 않았다. 그 사람도 줄에 섰다. 가방을 들고 있었다. 손이 가방 위에 있었다. 움직이지 않았다.",
+            "en": "There was a line at the gate. Miners. Technicians. Mercenaries. Outsiders. The line was long. There weren't many on Mars who didn't have to stand in line. He stood in it too. Carrying a bag. Hand on the bag. The hand didn't move."
+          }
+        }
+      ]
     },
+
     {
-      "id": "s_choice", "type": "choice",
-      "background": "mcc_briefing_room", "bgm": "choice_tension",
-      "prompt": { "ko": "첫 임무. 어떻게 응답하겠습니까.", "en": "First mission. How will you respond." },
+      "id": "s04",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "검문관은 화면에 무언가를 입력했다. 입력을 마쳤다. 다시 입력했다. 그것이 두 번째 입력이라는 것을 그는 표 내지 않았다. 화성에서 사람들은 표를 안 내는 것을 잘했다.",
+            "en": "The guard typed something into the screen. Finished. Typed again. He didn't show that it was the second time. People on Mars were good at not showing things."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s05",
+      "type": "dialogue",
+      "background": "hellas_central_exterior",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "emotion": "neutral",
+          "text": {
+            "ko": "[검문관] 3번 게이트. 직진. 형광등 깜빡이는 방.",
+            "en": "[Guard] Gate 3. Straight ahead. Room with the flickering light."
+          }
+        },
+        {
+          "speaker": "narrator",
+          "emotion": "neutral",
+          "text": {
+            "ko": "[검문관] 거기서 기다려.",
+            "en": "[Guard] Wait there."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s06",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "3번 게이트는 길었다. 복도가 회색이었다. 벽에 액자가 걸려 있었다. 액자 안은 다 같은 그림이었다. 화성 지도. MCC 로고. 그 아래 작은 글씨. 그 아래 더 작은 글씨. 가장 작은 글씨는 읽지 않아도 알 수 있었다. 읽지 말라는 글씨였다.",
+            "en": "Gate 3 was a long way. The corridor was grey. Frames hung on the wall. The same image in each. A map of Mars. The MCC logo. Smaller text beneath. Smaller still beneath that. The smallest you didn't have to read. It was the kind that asked not to be read."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s07",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "브리핑 룸. 형광등 하나가 깜빡였다. 다른 두 개는 멀쩡했다. 그러나 그 하나가 다 채웠다. 깜빡이는 등은 그렇게 한다. 멀쩡한 다른 등들을 가린다.",
+            "en": "Briefing room. One fluorescent flickered. The other two were fine. But the one filled the room. Flickering lights do that. They cover the steady ones."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s08",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "테이블 위에 지도가 한 장 펼쳐져 있었다. 지도 위에 사람은 없었다. 의자 다섯 개가 비어 있었다. 그 사람은 자리에 앉지 않았다. 가방을 옆 의자에 두었다. 손은 가방 위에 두지 않았다. 무릎 위에 두었다. 그것이 어디서 배운 자세인지는 본인도 가끔 잊었다.",
+            "en": "A map lay open on the table. No one stood by it. Five empty chairs. He didn't sit. He put the bag on the chair beside him. He did not put his hand on it. He set his hand on his knee. Where he had learned that he sometimes forgot."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s09",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "기다렸다. 사람은 기다리는 것을 잘 못 한다. 그 사람은 잘했다. 어디서 배운 것인지 알 수 없었다. 그러나 그것이 가끔 도움이 됐다. 화성에 도움이 되는 것은 많지 않았다.",
+            "en": "He waited. People weren't good at waiting. He was good at it. Where he had learned that wasn't clear. But sometimes it helped. Not many things on Mars helped."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s10",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "도착이 늦었네.",
+            "en": "You're late."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "화성에선 늘 그래. 도착은 늘 늦고 출발은 늘 빨라.",
+            "en": "That's Mars. Arrivals always late. Departures always early."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s11",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Li Fang은 키가 컸다. 슈트가 회색이었다. 슈트는 화성에서 잘 보지 못하는 옷이었다. 보지 못하는 것은 의미가 있었다. Li Fang은 그것을 알고 입었다.",
+            "en": "Li Fang was tall. Her suit was grey. Suits weren't a thing you saw much on Mars. What you didn't see meant something. Li Fang knew that and wore it anyway."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s12",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "프로필 봤어. 화성 경력 없지.",
+            "en": "I read your file. No Mars experience."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "좋아. 말 없는 사람이 일을 잘해.",
+            "en": "Good. Quiet people get things done."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "......",
+            "en": "......"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "거 봐.",
+            "en": "See."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s13",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Li Fang은 의자를 끌었다. 끌리는 소리가 있었다. 그 소리는 한 박자 길었다. 의도된 것이었다. 그녀가 앉을 때까지 그 사람은 서 있었다. 그것도 의도된 것이었다.",
+            "en": "Li Fang pulled out a chair. The chair made a sound. The sound lasted a beat too long. It was on purpose. He stayed standing until she sat. That was on purpose too."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s14",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "지도였다. 헬라스 북부. 산소 정제소 일곱 기. 한 기는 검은색으로 표시되어 있었다. 검은색은 가동 중단을 뜻했다. 가동 중단은 그날 아침 오전 4시 17분에 시작되었다. 그것은 지도에 적혀 있지 않았다. 적혀 있지 않은 것이 더 많은 것을 말했다.",
+            "en": "A map. Northern Hellas. Seven oxygen refineries. One marked in black. Black meant shut down. The shutdown had begun that morning at four-seventeen. That wasn't on the map. The thing not on the map said more than the rest."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s15",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "Helion Dynamics. 들어봤지.",
+            "en": "Helion Dynamics. You've heard of them."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "정제소 일곱 기. 전부 매각해. 내일.",
+            "en": "Seven refineries. Selling them all. Tomorrow."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "그 전에 산소 850킬로톤을 본사로 빼돌리고 있어.",
+            "en": "Before the sale they're siphoning eight hundred and fifty kilotons to headquarters."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s16",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "850킬로톤. 그 사람은 그 숫자를 입에 올리지 않았다. 입에 올리지 않아도 무게가 있었다. 화성 북반구 1200만 명의 일주일치 산소. 그 정도 무게.",
+            "en": "Eight hundred and fifty kilotons. He didn't say the number aloud. It had weight without being said. A week of oxygen for twelve million people in the northern hemisphere. That weight."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s17",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "angry",
+          "text": {
+            "ko": "호송 편대가 이미 출발했어. 두 시간 전에. 정제소를 나갔어.",
+            "en": "The convoy left two hours ago. They're already out of the refineries."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "Dust Storm이 6시간 후에 와. 그 전에 회수해. 탱크 손상 없이.",
+            "en": "Dust Storm in six hours. Recover it before then. No tank damage."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "탱크가 깨지면 호송편대도 잃고 산소도 잃어. 그러면 우리만 손해야.",
+            "en": "If the tanks break we lose the convoy and the oxygen. Then only we lose."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s18",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "그 사람은 지도를 보았다. Li Fang은 그 사람을 보았다. 깜빡이는 형광등 아래 두 사람의 그림자가 한 박자씩 사라졌다 돌아왔다. 사라지는 동안 사람도 사라졌다. 돌아오면 사람도 돌아왔다. 그것이 화성에서의 첫 인사 같은 것이었다.",
+            "en": "He looked at the map. Li Fang looked at him. Under the flickering light their shadows vanished and returned in beats. While the shadows were gone the people were gone too. When the shadows came back the people came back. That was something like a Martian greeting."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s19",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Li Fang의 손가락이 지도 한 지점에 닿았다. 손가락은 가늘었다. 손톱이 깨끗했다. 화성에서 깨끗한 손톱은 회사 인간의 표시였다. 광부의 손톱은 깨끗하지 않았다. 광부의 손톱은 무엇을 했는지 알 수 있었다. 회사 인간의 손톱은 알 수 없었다.",
+            "en": "Li Fang's finger touched a point on the map. The finger was thin. The nails were clean. Clean nails on Mars meant a company person. Miners' nails weren't clean. You could tell what a miner had done by looking at his nails. With a company person you couldn't tell."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s20",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "여기 정착지가 있어. 작은 거. 삼천 명. 호송로가 그 위로 지나가.",
+            "en": "There's a settlement here. Small. Three thousand. The convoy route passes over it."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "탱크가 그 위에서 깨지면 정착지가 동결돼. 일곱 시간 안에.",
+            "en": "If a tank breaks above it, the settlement freezes. Within seven hours."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "그건 작전 변수야. 알아둬.",
+            "en": "Operational variable. Know it."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s21",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "변수. 그 사람은 그 단어를 들었다. 변수는 사람을 죽일 수 있는 단어였다. 변수라고 부르면 사람이 사람이 아니게 됐다. MCC는 그것을 잘했다. 잘한다는 것은 자주 한다는 뜻이기도 했다.",
+            "en": "Variable. He heard the word. A variable could kill people. Once you called something a variable, people stopped being people. MCC was good at this. Good meant they did it often."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s22",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "함대 셋 줘. 함선 36척. Frigate 24, Destroyer 8, Cruiser 4.",
+            "en": "Three fleets. Thirty-six ships. Twenty-four frigates, eight destroyers, four cruisers."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "조작은 자네가 해. 결정도 자네가 해.",
+            "en": "You'll command. You'll decide."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "결과만 가져와.",
+            "en": "Just bring the result back."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s23",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Li Fang은 의자에서 일어섰다. 일어서면서 그 사람을 한 번 더 보았다. 길게 보지는 않았다. 길게 볼 필요가 없었다. 첫날에 길게 보면 둘째 날에 어색해진다. 그녀는 어색한 것을 싫어했다.",
+            "en": "Li Fang stood. As she stood she looked at him once more. Not for long. There was no need. Long looks on the first day meant awkwardness on the second. She didn't like awkward."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_choice",
+      "type": "choice",
+      "background": "mcc_briefing_room",
+      "bgm": "choice_tension",
+      "prompt": {
+        "ko": "첫 임무. 어떻게 응답하겠는가.",
+        "en": "First mission. How will you respond."
+      },
       "choices": [
-        { "id": "ch1_accept", "text": { "ko": "시간 안에 끝내겠습니다.", "en": "I'll finish within the time." }, "tone": "professional", "preview_hint": { "ko": "→ MCC 신뢰 유지", "en": "→ MCC trust maintained" }},
-        { "id": "ch1_moral_concern", "text": { "ko": "탱크 손상 시 정착지 피해는.", "en": "What about settlements if tanks are damaged." }, "tone": "careful", "preview_hint": { "ko": "→ Li Fang이 기억한다", "en": "→ Li Fang remembers" }},
-        { "id": "ch1_tactical", "text": { "ko": "Helion이 폭풍 예보를 알면 가속합니다.", "en": "Helion will accelerate if they know about the storm." }, "tone": "analytical", "preview_hint": { "ko": "→ MCC 전술가 태그", "en": "→ MCC tactician tag" }},
-        { "id": "ch1_negotiate", "text": { "ko": "보수부터 정합시다.", "en": "Let's settle pay first." }, "tone": "mercenary", "preview_hint": { "ko": "→ 보수 +8000 GP, MCC -2", "en": "→ +8000 GP, MCC -2" }}
+        {
+          "id": "ch1_accept",
+          "text": { "ko": "시간 안에 끝내겠습니다.", "en": "I'll finish within the time." },
+          "tone": "professional",
+          "preview_hint": { "ko": "→ MCC 신뢰 유지", "en": "→ MCC trust maintained" }
+        },
+        {
+          "id": "ch1_moral_concern",
+          "text": { "ko": "탱크 손상 시 정착지 피해는.", "en": "What about settlements if tanks are damaged." },
+          "tone": "careful",
+          "preview_hint": { "ko": "→ Li Fang이 기억한다", "en": "→ Li Fang remembers" }
+        },
+        {
+          "id": "ch1_tactical",
+          "text": { "ko": "Helion이 폭풍 예보를 알면 가속합니다.", "en": "Helion will accelerate if they know about the storm." },
+          "tone": "analytical",
+          "preview_hint": { "ko": "→ MCC 전술가 태그", "en": "→ MCC tactician tag" }
+        },
+        {
+          "id": "ch1_negotiate",
+          "text": { "ko": "보수부터 정합시다.", "en": "Let's settle pay first." },
+          "tone": "mercenary",
+          "preview_hint": { "ko": "→ 보수 +8000 GP, MCC -2", "en": "→ +8000 GP, MCC -2" }
+        }
       ]
     },
+
     {
-      "id": "s_battle", "type": "battle_transition",
-      "background": "space_battle_start", "bgm": "battle_theme_mcc", "transition": "flash_white",
+      "id": "s24",
+      "type": "narration",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Li Fang은 답을 들었다. 답은 짧았다. 짧은 답이 좋다. 그녀가 한 박자 늦춰 고개를 끄덕였다. 그 한 박자가 길었다. 화성에서 한 박자는 늘 길었다.",
+            "en": "Li Fang heard the answer. The answer was short. Short answers were good. She nodded a beat late. The beat was long. On Mars beats were always long."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s25",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "함선 격납고는 동쪽이야. 코드는 7-3-3-9. 두 번 누르지 마.",
+            "en": "Hangar's east. Code seven three three nine. Don't punch it twice."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "두 번 누르면 시스템이 두 번 기억해.",
+            "en": "Twice means the system remembers twice."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s26",
+      "type": "narration",
+      "background": "mcc_corridor_east",
+      "bgm": "mcc_ambient",
+      "transition": "fade_medium",
+      "lines": [
+        {
+          "text": {
+            "ko": "동쪽 복도는 길었다. 끝에 격납고가 있었다. 격납고는 어둡지 않았다. 늘 켜져 있었다. 화성에서 늘 켜져 있는 것은 많지 않았다. MCC는 그것을 자랑으로 여겼다. 자랑할 수 있는 것이 그것뿐이라는 것을 그들은 굳이 말하지 않았다.",
+            "en": "The east corridor was long. The hangar was at the end. The hangar wasn't dark. It was always on. Few things on Mars were always on. MCC was proud of it. They didn't say it was the only thing they could be proud of."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s27",
+      "type": "narration",
+      "background": "mcc_hangar",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "함선이 있었다. 36척. 회색이었다. 화성의 함선은 다 회색이었다. 회색은 폭풍 속에서 잘 보이지 않았다. 보이지 않으면 살 수 있었다. 그것이 함선의 색이 회색인 이유였다.",
+            "en": "Ships. Thirty-six. Grey. All Martian ships were grey. Grey didn't show in the storm. Not showing meant living. That was why the ships were grey."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s28",
+      "type": "dialogue",
+      "background": "mcc_hangar",
+      "bgm": "mcc_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "기함은 자네 거. 이름은 자네가 정해.",
+            "en": "Flagship's yours. Name it yourself."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "단, 회사 정책상 불경어는 안 돼. 그 외엔 다 괜찮아.",
+            "en": "Company policy. No profanity. Anything else is fine."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s29",
+      "type": "narration",
+      "background": "mcc_hangar",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "그 사람은 함선의 측면을 한 번 만졌다. 차가웠다. 화성에서 차갑지 않은 것은 별로 없었다. 차가움은 익숙해지는 것이었다. 익숙해지지 않는 사람도 있었다. 그런 사람은 화성에 오래 있지 못했다.",
+            "en": "He laid a hand once on the flank of the ship. Cold. Not many things on Mars weren't cold. Cold was something you got used to. Some never did. Those didn't last long on Mars."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_battle",
+      "type": "battle_transition",
+      "background": "space_battle_start",
+      "bgm": "battle_theme_mcc",
+      "transition": "flash_white",
       "title": { "ko": "산소 회수 작전", "en": "Oxygen Recovery" },
       "subtitle": { "ko": "헬라스 북부 — Dust Storm까지 6시간", "en": "Northern Hellas — 6h to Storm" }
     },
-    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+
     {
-      "id": "s_success", "type": "dialogue",
-      "background": "mcc_briefing_room", "bgm": "victory_calm",
+      "id": "s_result",
+      "type": "result",
+      "success_scene": "s_success",
+      "failure_scene": "s_fail"
+    },
+
+    {
+      "id": "s_success",
+      "type": "narration",
+      "background": "mars_surface_dust_storm",
+      "bgm": "victory_calm",
+      "transition": "fade_slow",
       "lines": [
-        { "speaker": "lifang", "emotion": "smirk", "effect": "character_enter:lifang:slide_left",
-          "text": { "ko": "산소 전량 회수. 나쁘지 않았어.", "en": "Full recovery. Not bad." }},
-        { "speaker": "lifang", "emotion": "thoughtful",
-          "text": { "ko": "다음엔 더 어려워질 거야. 화성에선 늘 그래.", "en": "Next time will be harder. That's Mars." }}
+        {
+          "text": {
+            "ko": "탱크 26기. 전량 회수. Helion 호송선 11척. 11척 모두 무력화. 자체 손실 함선 두 척. 사상자는 적혀 있지 않았다. 보고서는 적혀 있지 않은 것을 더 잘 보여주었다.",
+            "en": "Twenty-six tanks. All recovered. Eleven Helion convoy ships. All eleven disabled. Two of his own lost. Casualties were not written down. The report showed best what was not written."
+          }
+        }
       ]
     },
+
     {
-      "id": "s_fail", "type": "dialogue",
-      "background": "mars_surface_dust_storm", "bgm": "defeat_ambient",
+      "id": "s_success_2",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "victory_calm",
+      "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "angry", "effect": "character_enter:lifang:slide_left",
-          "text": { "ko": "산소가 폭풍 속에서 사라졌어. 1200만 명이 일주일간 부족해.", "en": "The oxygen vanished in the storm. Twelve million short for a week." }},
-        { "speaker": "lifang", "emotion": "cold",
-          "text": { "ko": "다시 기회가 있어. 화성은 실수를 기억해. 그것도 알아둬.", "en": "There'll be another chance. Mars remembers mistakes. Know that too." }}
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "전량 회수. 정착지 피해 없음. 나쁘지 않았어.",
+            "en": "Full recovery. No settlement damage. Not bad."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "다음엔 더 어려워질 거야. 화성에선 늘 그래.",
+            "en": "Next time will be harder. That's Mars."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Chen 회장이 자네를 봤어. 보고가 그분 책상에 올라가.",
+            "en": "Chairman Chen saw your name. The report goes on his desk."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "smirk",
+          "text": {
+            "ko": "그건 좋은 일이야. 좋은 일은 무거워.",
+            "en": "That's a good thing. Good things are heavy."
+          }
+        }
       ]
     },
+
     {
-      "id": "s_ending", "type": "ending",
-      "background": "hellas_central_exterior", "bgm": "mcc_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "헬라스 센트럴의 불빛이 켜졌다. 밤이었다. 화성의 밤은 길었다. 건물 안에서 MCC는 계속 돌아갔다. 멈추는 법이 없었다. 당신도 그 안에 있었다.",
-        "en": "The lights of Hellas Central came on. It was night. The Martian night was long. Inside the building MCC kept running. It never stopped. You were inside it now."
-      }}],
-      "next_chapter_preview": { "questId": "mcc_campaign_ch2", "teaser": { "ko": "다음 — First Audit", "en": "Next — First Audit" }}
+      "id": "s_fail",
+      "type": "narration",
+      "background": "mars_surface_dust_storm",
+      "bgm": "defeat_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "Dust Storm이 왔다. 예보보다 빨랐다. 탱크 11기가 폭풍 안으로 사라졌다. 그 위에 정착지가 있었다. 삼천 명. 일주일치 산소. 그 산소는 더 이상 없었다.",
+            "en": "The Dust Storm came. Earlier than forecast. Eleven tanks vanished into it. A settlement lay below. Three thousand. A week of oxygen. That oxygen was no longer there."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_fail_2",
+      "type": "dialogue",
+      "background": "mcc_briefing_room",
+      "bgm": "defeat_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "lifang",
+          "emotion": "angry",
+          "effect": "character_enter:lifang:slide_left",
+          "text": {
+            "ko": "산소가 폭풍 속에서 사라졌어. 1200만 명이 일주일간 부족해.",
+            "en": "The oxygen vanished in the storm. Twelve million short for a week."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "정착지 일은 적지 않아. 그것도 알아둬.",
+            "en": "The settlement won't be in writing. Know that too."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "다시 기회가 있어. 화성은 실수를 기억해. 그것도 알아둬.",
+            "en": "There'll be another chance. Mars remembers mistakes. Know that too."
+          }
+        }
+      ]
+    },
+
+    {
+      "id": "s_ending",
+      "type": "ending",
+      "background": "hellas_central_exterior",
+      "bgm": "mcc_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "헬라스 센트럴의 불빛이 켜졌다. 밤이었다. 화성의 밤은 길었다. 건물 안에서 MCC는 계속 돌아갔다. 멈추는 법이 없었다. 그 사람도 그 안에 있었다. 가방은 여전히 있었다. 손은 다시 가방 위에 올려져 있었다. 손은 움직이지 않았다.",
+            "en": "The lights of Hellas Central came on. It was night. The Martian night was long. Inside the building MCC kept running. It never stopped. He was inside it now. The bag was still there. His hand was on it again. The hand did not move."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch2",
+        "teaser": { "ko": "다음 — First Audit", "en": "Next — First Audit" }
+      }
     }
+
   ]
 }
