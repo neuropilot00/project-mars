@@ -1,5 +1,251 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-29 — Mobile first-load side panel lock (v5.30)
+
+- **iPhone 첫 화면 패널 잠금**: 1024px 이하에서 좌/우 사이드 패널이 `.open` 상태가 아닐 때 `!important` off-screen transform을 적용해, 첫 진입 시 지도 대신 사이드 화면이 열려 보이는 문제를 차단.
+- **iOS 상태 복귀 보강**: `pageshow`, `load`, `orientationchange`에서 `forceCloseMobilePanels()`를 호출해 Safari/Chrome iOS bfcache나 회전 후 이전 open 상태가 남지 않도록 수정.
+
+검증:
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
+## 2026-04-29 — FSP Campaign Ch7~10 MVP 구현 (v5.29)
+
+- **FSP Ch7 "의회" 추가**: Hellas Central 의회 회기, 5개 의장 후보(Mikhail/Liang/Amara/Diego/Player), 환경 위기 병행 지표, 의장별 Ch8~Ch10 분기 modifier를 서버 시뮬레이션으로 구현.
+- **FSP Ch8 "가이아" 추가**: 시민 기부 호소, Gaia 건조율/HP, MCC 절도 성공/실패, 전투 pledge/침묵/개인 기부 선택과 Gaia·Pilgrim Arms seed 보상을 추가.
+- **FSP Ch9 "세 개의 깃발" 추가**: MCC/FSP/CV 정상회담, Pilgrim Arms 암살단, 보호 대상 선택(Amara/Chen/Butcher/전원후퇴/신호)과 배신·4파벌·Peacemaker 분기를 추가.
+- **FSP Ch10 "자유의 대가" 추가**: Citizen, Peacemaker, Gaia Captain, Disillusioned, New Chair, Bad Ending 보상과 FSP route completion token을 추가.
+- **Ch7~10 seed migration 추가**: 신규 환경, 위치, NPC, 의장 후보/지원 modifier/유권자 pool, lore flags, branch modifiers, tags, items, chapter config를 `200_fsp_campaign_ch7_to_ch10.sql`에 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`와 audit 문서를 FSP Ch1~10 완료/v5.29 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- 운영 DB 기준 migration BEGIN/ROLLBACK 드라이런
+
+## 2026-04-29 — Campaign Ch1 continue/complete 안정화 (v5.28)
+
+- **산소 쟁탈 CONTINUE 복구**: 진행 중인 캠페인 카드의 `CONTINUE`가 기존 `sessionId`를 이어가도록 수정해, 이미 선택지를 고른 Ch1을 다시 시작/초기화하지 않게 했다.
+- **완료 트랜잭션 안정화**: blueprint inbox, 칭호, 환경 숙련도, 태그, lore flag, branch modifier 지급을 `SAVEPOINT`로 격리해 부가 보상 하나가 실패해도 GP/XP/평판/진행 완료가 500으로 죽지 않도록 보강.
+- **Ch1 구식 id 정리**: Ch1 보상의 다음 챕터 unlock과 cold death failure branch에 남아 있던 `mcc_ch2`/`mcc_ch6` 구식 id를 캠페인 상수 기반 id로 교체.
+
+검증:
+- 운영 DB 읽기 전용 schema/status 점검
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
+## 2026-04-29 — Campaign Quick Button 기준 위치 재조정 (v5.27)
+
+- **데스크탑 위치 재조정**: CAMPAIGN 퀵 버튼을 오른쪽 줌 컬럼의 되돌리기 버튼 위로 이동.
+- **모바일 위치 재조정**: CAMPAIGN 퀵 버튼을 왼쪽 하단의 "화성을 클릭하여 영토 선택" 모드 배지 바로 위로 이동.
+
+검증:
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
+## 2026-04-29 — Campaign Quick Button 위치 보정 (v5.26)
+
+- **데스크탑 위치 보정**: CAMPAIGN 퀵 버튼을 하단 중앙 액션 영역에서 빼고, 좌측 패널 오른쪽 상단 보조 액션 위치로 이동.
+- **태블릿/모바일 위치 보정**: 하단 네비/오른쪽 OPS·줌 조작과 겹치지 않도록 상단 왼쪽 작은 pill 위치로 이동.
+
+검증:
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
+## 2026-04-29 — FSP Campaign Ch5~6 MVP + Campaign UI 압축 (v5.25)
+
+- **FSP Ch5 "Kepler 공유지" 추가**: Liang Wei, Roth dead drop, Kepler 3파벌 회담, 산소 보급 시한, Commons/중재/압박/전투/외계 기원 공개 5분기 서버 시뮬레이션 추가.
+- **FSP Ch6 "두더지" 추가**: Kenji Tanaka 내부 스파이 색출, Sarah/Diego red herring, 단서 수집 지표, 처형/이중첩자/추방/오판 분기와 Ch7~Ch9 branch modifier 추가.
+- **조건부 선택 검증 보강**: Ch5 Roth 데이터 압박/전면 공개 선택은 Roth/Lenag Wei 관련 증거 flag가 있을 때만 서버에서 허용.
+- **캠페인 UI 압축**: QUESTS 탭의 잠긴 챕터 카드를 기본 접힘 compact list로 바꾸고, 메인 지도에 CAMPAIGN 퀵 진입 버튼을 추가.
+- **Ch5~6 seed migration 추가**: 신규 환경, 위치, NPC, dead drop, internal zones, clue pool, suspect pool, lore flags, branch modifiers, tags, item, chapter config를 `199_fsp_campaign_ch5_ch6.sql`에 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`와 audit 문서를 MCC Ch1~10 + FSP Ch1~6/v5.25 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+## 2026-04-29 — FSP Campaign Ch4 Diplomacy MVP 구현 (v5.24)
+
+- **FSP Ch4 "외교" 추가**: Sandstone Junction 비밀 회담, Cinder Grace 첫 등장, Amara 보호, MCC 정찰 회피/조건부 교전 MVP 시뮬레이션 추가.
+- **협상 선택지/분기 구현**: 피난소 제공, 보급 공유, MCC 정보 교환, 산소 노예제 증거 공유, 협상 중단 5개 선택지와 Cinder 동맹 강도/적대 branch modifier를 반영.
+- **조건부 증거 선택 검증**: `fsp_ch4_evidence_share`는 FSP Ch3 lore flag 또는 MCC cross-route branch modifier가 있을 때만 서버에서 허용하도록 보강.
+- **Ch4 seed migration 추가**: `198_fsp_campaign_ch4_diplomacy.sql`에 Sandstone Junction, Cinder Grace, 신규 환경, lore flags, branch modifiers, tags, item, chapter config를 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`와 audit 문서를 MCC Ch1~10 + FSP Ch1~4/v5.24 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+비고:
+- 전달된 FSP Ch4~6 spec에서 Ch5/Ch6는 “Sprint 2/3 작성 예정” placeholder라 이번 커밋에는 Ch4만 구현했다.
+
+## 2026-04-29 — FSP Campaign Ch1~3 MVP 구현 (v5.23)
+
+- **FSP Ch1 "방파제" 추가**: New Athens 차 두 잔 의식, H2O 호송 2척, 응급 환자 2명, CV 약탈단 4파 MVP 시뮬레이션과 낮은 FSP 단가 보상 구조 추가.
+- **FSP Ch2 "얼음 캐러밴" 추가**: 북극관 → New Athens 얼음 운반, 태양광 노출 누적 손실, Phobos Eclipse 그늘 점프, Lena 개인 서사와 Sal Cruz 매복 분기 추가.
+- **FSP Ch3 "피의 광산" 추가**: Verin-7 고도 8km 산소 노예제, 산소 조절기 5개, 광부 412명 구출, 60명 잔류 결정과 Samuel/Amara 분기 추가.
+- **FSP 전용 seed migration 추가**: lore flags, branch modifiers, tags, NPC, 환경, item, settlement seed와 FSP Ch1~3 chapter config를 `197_fsp_campaign_ch1_to_ch3.sql`에 추가.
+- **정착지 기반 seed 추가**: `settlement_data`를 안전하게 생성/확장하고 New Athens/Cold Brook/Ridge Town/Hellas Central 초기 데이터를 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`의 현재 캠페인 구현 범위를 MCC Ch1~10 + FSP Ch1~3/v5.23 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+비고:
+- FSP Ch1~3도 MVP server simulation 단계이며, Tea Ceremony/Patient Gauge/Ice Gauge/Oxygen Regulator UI와 full battle engine 객체화는 후속 P1/P2.
+
+## 2026-04-29 — MCC Campaign Ch8~10 MVP 구현 (v5.22)
+
+- **MCC Ch8 "프로메테우스" 추가**: Deimos 조선소 4-phase 환경 시퀀스, Branch A 파괴 작전, Branch B/C 방어 작전, Prometheus Titan/조기 Ending 3 분기를 서버 시뮬레이션으로 구현.
+- **MCC Ch9 "깨진 동맹" 추가**: Olympus/Hellas/Valles/Kepler 4전장 병렬 MVP, Pilgrim Arms 24척 침입, Amara/Butcher/Chen 관련 NPC 운명과 Ch10 branch modifier 반영.
+- **MCC Ch10 "주주 엔딩" 추가**: cinematic-only 엔딩 챕터와 Ending 1~4/fallback 보상, lore flag, title tag, NG+ cross-route modifier 지급 추가.
+- **엔딩 자격 서버 검증**: `calculateEligibleEndings()`를 추가해 Branch A/B/C, Roth 데이터, MCC 평판, blackmail data, Chen 사망 조건에 맞는 엔딩만 선택 가능하게 제한.
+- **루트 선택 검증 확장**: Ch7뿐 아니라 Ch8/Ch9도 활성 Ch6 루트와 맞지 않는 선택지를 `/api/campaign/choice`에서 거부.
+- **통합 seed migration 추가**: Ch8~10 lore flags, branch modifiers, tags, NPC, special asset, item definitions, achievements, environment/chapter config를 `196_mcc_campaign_ch8_to_ch10.sql`에 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`의 현재 캠페인 구현 범위를 MCC Ch1~10 완료/v5.22 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+비고:
+- Ch8~10도 MVP server simulation 단계이며, Ch8 full environmental sequence UI, Ch9 parallel battlefield UI, Ch10 cinematic playback/credits roll은 후속 P1/P2.
+
+## 2026-04-29 — MCC Campaign Ch5~7 MVP 구현 (v5.21)
+
+- **MCC Ch5 "케플러 분쟁" 추가**: low gravity/oxygen pressure 환경, Roth 데이터 공개, FSP 차단/보급선 호위/단독 데이터 탈취/CV 자급 모선 격파 4분기와 보상/실패 분기 추가.
+- **MCC Ch6 "내부고발자" 추가**: Li Fang 지원, Chen 보고, 자료 사본 보관 3개 루트 확정 선택과 `mcc_route_a/b/c_active` branch modifier, ending modifier, 태그/서사 플래그 지급 추가.
+- **MCC Ch7 "시장 전쟁" 추가**: Ch6 루트 기반 A/B/C 변형 선택지와 Market War 결과, CV 불안정/Chen 감시/Helion 자회사 인수 분기 추가.
+- **루트 잠금 검증 보강**: Ch7 시작 조건은 Ch6 루트 branch modifier를 요구하고, 선택 API도 활성 루트에 맞지 않는 Ch7 선택지를 서버에서 거부.
+- **운영 status 호환 수정**: `player_branch_modifiers` 조회가 실제 스키마의 `set_at` 컬럼을 사용하도록 정정해 `/api/campaign/status/:wallet` 500을 방지.
+- **통합 seed migration 추가**: Ch5~7 lore flags, branch modifiers, tags, NPC, data artifact, 신규 환경, chapter/environment config를 `195_mcc_campaign_ch5_to_ch7.sql`에 추가.
+- **핸드오프 문서 업데이트**: `CLAUDE.md`의 현재 캠페인 구현 범위와 마지막 migration 정보를 Ch1~7/v5.21 기준으로 갱신.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+비고:
+- Ch5~7도 MVP server simulation 단계이며, 실제 함선/건물/NPC 전투 객체를 v11.1 full battle engine에 연결하는 작업은 후속 P2/P3.
+
+## 2026-04-29 — MCC Campaign Ch2~4 MVP 구현 (v5.20)
+
+- **MCC Ch2 "동결된 고속도로" 추가**: Hellas 채굴장 인수, `night_freezing` 환경, 시설 HP/민간인 피해/민병대 격파 서버 시뮬레이션과 보상/실패 분기 추가.
+- **MCC Ch3 "이사회" 추가**: Chen Weiss 첫 등장, Helion/Verin/Chromium 3분기 선택, Phobos Eclipse MVP 시뮬레이션, 분기별 보상과 Ch6/Ch7 branch modifier 추가.
+- **MCC Ch4 "해적 매수" 추가**: Kara Vex 첫 등장, Ion Storm 회담 호위, 함대 명령 차단 상태, Helion 습격대/생존/도주 분기 시뮬레이션 추가.
+- **통합 seed migration 추가**: Ch2~4 lore flags, branch modifiers, `clean_operator`, 신규 환경, NPC 정의, chapter/environment config를 `194_mcc_campaign_ch2_to_ch4.sql`에 추가.
+- **캠페인 UI 범용화**: QUESTS 캠페인 카드/모달/결과 화면이 Ch1 전용 문구와 지표에 묶이지 않도록 챕터별 위치/환경/주요 metric을 표시.
+- **시작 조건 적용**: prerequisite, required level, required reputation, blocking tags를 서버에서 검증하고 locked chapter는 UI에서 비활성화.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- 운영 DB 기준 migration ROLLBACK 드라이런
+- `git diff --check`
+
+비고:
+- Ch2 구조물/민간인 객체, Ch3 자회사 함선 6종, Ch4 NPC protection/manual-only mode의 full battle engine 통합은 후속 P2/P3.
+
+## 2026-04-28 — Campaign Common Systems 기반 확장 (v5.19)
+
+- **공통 캠페인 DB 추가**: `campaigns`, `chapters`, `campaign_sessions`, `reputation_history`, tag/lore/branch/environment 정의 테이블과 Ch1 환경 config seed 추가.
+- **평판 시스템 확장**: MCC/FSP/CV/Pilgrim Arms 4축을 지원하고, -100~100 clamp와 `reputation_history` 감사 로그를 추가.
+- **공통 API 추가**: `/api/campaign/abandon`, `/api/reputation/*`, `/api/tags/*`, `/api/lore/*`, `/api/branch/*` 추가. 보상/평판/태그/lore/branch 조작 endpoint는 admin secret 기반 internal-only로 제한.
+- **환경 시스템 MVP 추가**: 챕터 환경 phase 상태와 전투 modifier 계산 helper를 추가해 MVP 시뮬레이션과 추후 full engine 양쪽에서 재사용 가능하게 정리.
+- **캠페인 UI 보강**: QUESTS > CAMPAIGN 패널에 MCC/FSP/CV 평판 게이지를 추가.
+- **status payload 보정**: 캠페인을 아직 시작하지 않은 유저도 `reputation` 4축 기본값 `0`을 받도록 정리.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+
+비고:
+- 복잡한 branch modifier 조건 평가 엔진, 챕터 spec 자동 검증 스크립트, v11.1 full engine 환경 hook은 P2/P3로 분리.
+
+## 2026-04-28 — MCC 캠페인 Ch1 MVP 구현 (v5.18)
+
+- **캠페인 기반 DB 추가**: `campaign_chapters`, `player_campaign_progress`, `player_reputation`, 선택지/태그/서사 플래그/분기 modifier/보상 inbox 테이블을 추가.
+- **MCC Route Ch1 "산소 쟁탈" 추가**: `server/services/campaign.js`에서 브리핑 선택지, 평판 변화, dust storm 단계, 산소 회수율, 성공/실패 결과를 서버 결정형 시뮬레이션으로 계산.
+- **캠페인 API 추가**: `/api/campaign/status/:wallet`, `/api/campaign/start`, `/api/campaign/choice`, `/api/campaign/progress`, `/api/campaign/complete` 추가.
+- **QUESTS 탭 CAMPAIGN UI 추가**: MCC Ch1 카드, Li Fang 브리핑 모달, 선택지, 압축 진행 화면, 결과/보상 모달을 추가.
+- **보상 지급 트랜잭션화**: GP/XP/평판/칭호/환경 숙련도/아이템 inbox 기록을 완료 처리 트랜잭션 안에서 처리.
+
+검증:
+- `server/services/campaign.js` `node --check`
+- `server/routes/api.js` `node --check`
+- `server/routes/api.js` require 스모크
+- `index.html` 인라인 script 파싱
+- `git diff --check`
+
+비고:
+- v11.1 실시간 전투 엔진 완전 통합, Helion 전용 함선/화물선 보존 전투 로직, 프롤로그 route lock은 Phase 2로 분리.
+
+## 2026-04-28 — 내 영토 테두리 두께 완화 (v5.17)
+
+- **내 영토 금색 테두리 완화**: halo 두께와 crisp line 두께를 낮춰 지도 위에서 과하게 떠 보이지 않도록 조정.
+- **내 영토 fill/광도 조정**: 금색 fill alpha와 shadow 강도를 낮춰 배경 텍스처 가독성을 회복.
+- **작업 규칙 명문화**: `CLAUDE.md`에 커밋/푸시 시 `CHANGELOG.md`와 `AUDIT_FINDINGS.md`를 함께 갱신하는 규칙 추가.
+
+검증:
+- `index.html` 인라인 script 파싱
+
+## 2026-04-28 — 영토 시인성/텍스처 예산 개선 (v5.16)
+
+- **영토 색 체계 단순화**: 내 영토는 금색, 다른 플레이어는 cyan, NPC는 회보라 점선으로 통일해 지도에서 즉시 구분되도록 정리.
+- **이미지 영토 외곽선 개선**: 업로드 이미지가 있는 claim도 같은 색 체계를 따르는 두께/halo 외곽선을 적용.
+- **텍스처 품질 예산화**: 기본 데스크톱은 안정적인 4K 유지, 고성능 데스크톱만 6K 자동 사용, `localStorage.marsHiResTexture='1'`일 때만 8K 합성 사용.
+
+검증:
+- `index.html` 인라인 script 파싱
+
+## 2026-04-28 — POI 광물 발견 실패 수정 (v5.15)
+
+- **POI mineral 로그 제약 수정**: `exploration_pois`는 `mineral` 보상을 생성하지만 `poi_discoveries` 로그 제약이 `mineral`을 허용하지 않아 발견 트랜잭션이 롤백되던 문제 수정.
+- **광물 보상 표시 개선**: POI 발견 결과에서 `mineral` 보상을 아이템처럼 아이콘/이름/수량으로 표시.
+
+검증:
+- 운영 DB `poi_discoveries_reward_type_check`에 `mineral` 허용 확인
+- `index.html` 인라인 script 파싱
+
+## 2026-04-28 — 하이잭 자동승리 영토 표시 수정 (v5.14)
+
+- **NPC/무함대 자동승리 claim 생성 보강**: 새 픽셀 없이 기존 적 픽셀만 하이잭한 경우에도 공격자 `claims` 레코드를 생성하고, 이전된 픽셀의 `claim_id`를 새 claim에 연결.
+- **Phase 2 승리 audit 보강**: 전투 승리 후 새 claim을 사후 생성한 경우 `hijack_battles.new_claim_id`에도 기록.
+- **자동승리 즉시 렌더 수정**: 클라이언트가 새 claim을 임시 추가할 때 `lat/lng/w/h` 필드명을 사용하도록 수정해 새로고침 전에도 내 영토 골드 표시가 안정적으로 보이게 함.
+
+검증:
+- `server/services/hijack.js` `node --check`
+
 ## 2026-04-28 — 전수 버튼/하이잭 플로우 감사 (v5.13)
 
 - **하이잭 전투-only 진입점 차단**: Governor 대시보드 `HIJACK` 버튼과 Phase C 하이잭 모달이 `/api/hijack/declare`를 통해 영토 이전 없는 전투만 만들 수 있던 경로를 제거.

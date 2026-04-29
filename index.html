@@ -291,6 +291,72 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 /* Zoom Controls */
 .zc{position:fixed;bottom:24px;right:266px;z-index:60;display:flex;flex-direction:column;gap:4px}
 
+/* Bug Report floating button — positioned to the LEFT of the SECTORS button.
+   Position is computed at runtime by alignBugFab() (see bottom of file)
+   so it tracks the SECTORS button across panel-collapse / responsive layout
+   changes. CSS only sets size + appearance. */
+.bug-fab{position:fixed;z-index:61;
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(232,72,85,.18),rgba(255,120,60,.10));
+  border:1px solid rgba(232,72,85,.45);color:var(--red);
+  font-family:var(--fn);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 12px rgba(232,72,85,.20),0 4px 14px rgba(0,0,0,.4);
+  transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
+  padding:0;line-height:1;
+  /* Default fallback position (overridden by JS) — bottom-right area, away from bottom nav */
+  bottom:84px;right:60px}
+.bug-fab:hover{background:rgba(232,72,85,.28);transform:translateY(-1px) scale(1.05);
+  box-shadow:0 0 18px rgba(232,72,85,.40),0 6px 18px rgba(0,0,0,.5)}
+.bug-fab:active{transform:translateY(0) scale(.95)}
+.bug-fab .bug-fab-label{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
+  font-size:8px;color:var(--red);letter-spacing:.5px;font-weight:700;pointer-events:none;
+  opacity:.85;text-shadow:0 1px 2px rgba(0,0,0,.6);white-space:nowrap}
+@media (max-width:768px){
+  .bug-fab{width:36px;height:36px;font-size:13px}
+  .bug-fab .bug-fab-label{font-size:7px;bottom:-12px}
+}
+
+/* Bug Report Modal */
+.bug-modal{display:none;position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:20px}
+.bug-modal.on{display:flex}
+.bug-modal-card{width:min(520px,100%);max-height:90vh;overflow-y:auto;
+  background:linear-gradient(180deg,#1a1326 0%,#0e0c16 100%);
+  border:1px solid rgba(232,72,85,.35);border-radius:14px;padding:22px 22px 18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 30px rgba(232,72,85,.15)}
+.bug-modal-title{font-family:var(--fn);font-size:15px;font-weight:700;letter-spacing:1.5px;
+  color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.bug-modal-sub{font-size:11px;color:var(--tx3);margin-bottom:14px;line-height:1.5}
+.bug-modal label{display:block;font-size:10px;color:var(--tx3);font-family:var(--fn);
+  letter-spacing:1px;margin:10px 0 5px;font-weight:700;text-transform:uppercase}
+.bug-modal textarea,.bug-modal input[type=text]{width:100%;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);border-radius:8px;color:var(--tx);
+  font-family:inherit;font-size:13px;padding:10px 12px;outline:none;
+  transition:border-color .15s,background .15s;box-sizing:border-box}
+.bug-modal textarea:focus,.bug-modal input[type=text]:focus{
+  border-color:rgba(232,72,85,.45);background:rgba(232,72,85,.05)}
+.bug-modal textarea{min-height:120px;resize:vertical;line-height:1.5}
+.bug-modal .bug-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bug-modal .bug-cat-btn{padding:6px 12px;font-size:10px;font-family:var(--fn);
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);
+  color:var(--tx2);border-radius:6px;cursor:pointer;font-weight:700;letter-spacing:.5px;
+  transition:all .15s}
+.bug-modal .bug-cat-btn.sel{background:rgba(232,72,85,.18);border-color:rgba(232,72,85,.5);color:var(--red)}
+.bug-modal .bug-meta{font-size:9px;color:var(--tx3);margin:6px 0 12px;line-height:1.5;
+  background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);padding:8px 10px;border-radius:6px}
+.bug-modal-actions{display:flex;gap:10px;margin-top:16px}
+.bug-modal-actions button{flex:1;padding:12px;border-radius:8px;font-family:var(--fn);
+  font-size:11px;letter-spacing:1px;font-weight:700;cursor:pointer;border:none;transition:all .15s}
+.bug-modal .bug-cancel{background:rgba(255,255,255,.05);color:var(--tx3);
+  border:1px solid rgba(255,255,255,.10)}
+.bug-modal .bug-cancel:hover{background:rgba(255,255,255,.08);color:var(--tx2)}
+.bug-modal .bug-submit{background:linear-gradient(135deg,var(--red),var(--mars));color:#fff;
+  box-shadow:0 4px 14px rgba(232,72,85,.3)}
+.bug-modal .bug-submit:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.bug-modal .bug-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
 /* ── OPS quick-launch image cards (INVADE / EXPLORE) ──────
    Vertical stack of two illustrated buttons; the artwork is the
    button face with a tinted gradient overlay and a corner label. */
@@ -319,6 +385,20 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
   box-shadow:0 6px 20px rgba(76,216,154,.20),0 0 0 1px rgba(0,0,0,.4)}
 .ops-explore:hover{box-shadow:0 10px 26px rgba(76,216,154,.36),0 0 0 1px rgba(140,240,200,.45)}
 .ops-explore .ops-card-label{color:#c8f4dc;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 8px rgba(40,200,140,.7)}
+.campaign-quick{position:fixed;right:266px;bottom:276px;z-index:61;
+  display:flex;align-items:center;gap:8px;height:38px;padding:0 18px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(79,195,247,.2),rgba(255,209,102,.12)),rgba(8,10,14,.82);
+  border:1px solid rgba(79,195,247,.38);color:#eaf8ff;font-family:var(--fn);font-size:11px;
+  font-weight:900;letter-spacing:1.2px;cursor:pointer;backdrop-filter:blur(10px);
+  box-shadow:0 8px 22px rgba(0,0,0,.48),0 0 18px rgba(79,195,247,.18);
+  transition:transform .14s ease,filter .14s ease,border-color .14s ease}
+.campaign-quick:hover{transform:translateY(-1px);filter:brightness(1.12);border-color:rgba(255,209,102,.45)}
+.campaign-quick:active{transform:translateY(0);filter:brightness(.9)}
+.campaign-quick-icon{font-size:14px;color:var(--gold);text-shadow:0 0 10px rgba(255,209,102,.55)}
+.campaign-quick-sub{font-size:8px;color:rgba(234,248,255,.58);letter-spacing:.8px;font-weight:700}
+@media (min-width:769px) and (max-width:1024px){
+  .campaign-quick{right:auto;left:12px;top:64px;bottom:auto}
+}
 /* ── OPS quick-launch SPLIT card ──
    Single container with two diagonally-clipped halves: left = INVADE,
    right = EXPLORE. The diagonal slash goes from (60% top) to (40% bottom),
@@ -363,6 +443,11 @@ body,button,input,select,textarea,div,span,p,a,li,td,th,label,h1,h2,h3,h4,h5,h6{
 /* Mobile: vertical (portrait) split card on the right, just above the zoom column.
    Top half = INVADE, bottom half = EXPLORE, slash from upper-right to lower-left. */
 @media (max-width:768px){
+  .campaign-quick{left:12px!important;top:auto!important;right:auto!important;bottom:118px!important;transform:none;
+    width:auto;height:34px;justify-content:center;padding:0 10px;font-size:9px}
+  .campaign-quick:hover{transform:translateY(-1px)}
+  .campaign-quick:active{transform:none}
+  .campaign-quick-sub{display:none}
   .ops-quick-split{right:8px;left:auto;top:auto;transform:none;
     bottom:calc(env(safe-area-inset-bottom) + 300px);
     width:60px;height:120px}
@@ -1146,6 +1231,59 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   background:rgba(76,216,154,.03);border-radius:6px;margin-bottom:4px}
 .quest-claimed-item .qci-check{color:#4CD89A;font-size:10px}
 .quest-claimed-item .qci-reward{margin-left:auto;color:var(--pp);font-weight:bold}
+.campaign-card{background:linear-gradient(135deg,rgba(79,195,247,.14),rgba(0,0,0,.28));border:1px solid rgba(79,195,247,.28);border-radius:8px;padding:12px;margin-bottom:10px}
+.campaign-card.done{border-color:rgba(76,216,154,.35);background:rgba(76,216,154,.06)}
+.campaign-card.compact{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:9px;padding:8px 10px;margin-bottom:5px;background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.08)}
+.campaign-card.compact .campaign-top{margin:0;min-width:0}
+.campaign-card.compact .campaign-icon{width:24px;height:24px;border-radius:6px;opacity:.72}
+.campaign-card.compact .campaign-title{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.campaign-card.compact .campaign-meta{font-size:7px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.campaign-card.compact .campaign-desc,.campaign-card.compact .campaign-stats{display:none}
+.campaign-card.compact .campaign-btn{width:92px;padding:7px 8px;font-size:8px}
+.campaign-locked-toggle{width:100%;margin:2px 0 7px;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--tx2);font-family:var(--fn);font-size:9px;font-weight:800;letter-spacing:1px;cursor:pointer}
+.campaign-locked-toggle:hover{background:rgba(255,255,255,.07)}
+.campaign-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.campaign-icon{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:rgba(79,195,247,.16);border:1px solid rgba(79,195,247,.25)}
+.campaign-title{font-size:12px;color:var(--tx);font-weight:900;letter-spacing:.8px}
+.campaign-meta{font-size:8px;color:var(--cyan);letter-spacing:1px}
+.campaign-desc{font-size:9px;color:var(--tx3);line-height:1.5;margin:6px 0 10px}
+.campaign-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.campaign-stat{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px;text-align:center}
+.campaign-stat b{display:block;font-size:11px;color:var(--gold)}
+.campaign-stat span{font-size:7px;color:var(--tx3);letter-spacing:.7px}
+.campaign-btn{width:100%;padding:9px;border:none;border-radius:8px;background:linear-gradient(135deg,#4fc3f7,#81d4fa);color:#001018;font-family:var(--fn);font-size:10px;font-weight:900;letter-spacing:1.5px;cursor:pointer}
+.campaign-btn.secondary{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--tx)}
+.campaign-modal{position:fixed;inset:0;z-index:2600;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:18px}
+.campaign-modal-card{width:min(760px,96vw);max-height:92vh;overflow:auto;background:linear-gradient(180deg,rgba(20,28,34,.98),rgba(6,8,12,.98));border:1px solid rgba(79,195,247,.35);border-radius:8px;box-shadow:0 20px 80px rgba(0,0,0,.55);font-family:var(--fn)}
+.campaign-hero{padding:22px 24px;background:linear-gradient(135deg,rgba(79,195,247,.18),rgba(255,112,40,.08));border-bottom:1px solid rgba(255,255,255,.08)}
+.campaign-body{padding:18px 24px}
+.campaign-dialog{font-size:12px;line-height:1.7;color:var(--tx);background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px;margin:10px 0}
+.campaign-choice{width:100%;text-align:left;margin:6px 0;padding:10px;border-radius:8px;background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);color:var(--tx);font-family:var(--fn);font-size:10px;cursor:pointer}
+.campaign-choice:hover{background:rgba(79,195,247,.16)}
+.campaign-result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.campaign-rep{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 10px}
+.campaign-rep-item{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px}
+.campaign-rep-top{display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);margin-bottom:4px}
+.campaign-rep-track{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.campaign-rep-fill{height:100%;width:50%;background:#4fc3f7}
+/* 캠페인 스토리 모드: 일본 모바일 VN풍 풀스크린 오버레이 */
+.story-overlay{position:fixed;inset:0;z-index:5200;background:#000;overflow:hidden;font-family:var(--fn);color:#fff;cursor:pointer}
+.story-background{position:absolute;inset:0;background:linear-gradient(135deg,#1a0a2e,#2d1b4e);background-size:cover;background-position:center;transition:opacity .8s ease,filter .8s ease}
+.story-character-left,.story-character-right{position:absolute;bottom:0;max-height:70vh;max-width:42vw;object-fit:contain;opacity:1;transition:opacity .3s ease,filter .3s ease,transform .3s ease;filter:drop-shadow(0 18px 32px rgba(0,0,0,.55))}
+.story-character-left{left:6vw;transform:translateX(-2%)}
+.story-character-right{right:6vw;transform:translateX(2%)}
+.story-character-inactive{opacity:.45;filter:brightness(.6) drop-shadow(0 18px 32px rgba(0,0,0,.45))}
+.story-dialog-box{position:absolute;left:0;right:0;bottom:0;width:100%;box-sizing:border-box;background:rgba(0,0,0,.75);padding:20px 24px;backdrop-filter:blur(4px);border-top:1px solid rgba(255,255,255,.12)}
+.story-speaker-name{font-weight:900;color:#FFD700;font-size:1.1rem;margin-bottom:6px;text-shadow:0 2px 12px rgba(0,0,0,.7)}
+.story-text{color:#fff;font-size:1rem;line-height:1.6;min-height:3.2em;white-space:pre-line;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.story-tap-hint{position:absolute;right:24px;bottom:10px;font-size:.75rem;opacity:.6;animation:storyTapBlink 1.1s ease-in-out infinite}
+@keyframes storyTapBlink{0%,100%{opacity:.25}50%{opacity:.75}}
+.story-choices{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.story-choice-btn{width:100%;text-align:left;padding:12px 14px;border-radius:8px;border:1px solid rgba(255,215,0,.32);background:linear-gradient(135deg,rgba(79,195,247,.12),rgba(255,215,0,.08));color:#fff;font-family:var(--fn);font-size:10px;font-weight:800;letter-spacing:.8px;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.24)}
+.story-choice-btn:hover{background:linear-gradient(135deg,rgba(79,195,247,.22),rgba(255,215,0,.16));border-color:rgba(255,215,0,.56)}
+.story-title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.34);font-size:clamp(28px,5vw,56px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.85);padding:24px;letter-spacing:0}
+.story-title-card small{display:block;margin-top:12px;font-size:clamp(13px,1.8vw,20px);color:#FFD700;line-height:1.5}
+.story-narration-text{text-align:center;background:none;color:#fff;font-size:1rem;line-height:1.7;text-shadow:0 2px 16px rgba(0,0,0,.95)}
 
 /* Rank progress bar */
 .rank-progress{background:rgba(0,0,0,.3);border-radius:6px;height:14px;overflow:hidden;
@@ -1338,9 +1476,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
  * Force panels off-screen by default for any viewport ≤ 1024px so the globe
  * always has room. Same .open class triggers them in (mob-toggle buttons). */
 @media(max-width:1024px){
-  .panel-l{transform:translateX(-110%); will-change:transform}
-  .panel-r{transform:translateX(110%); right:0; will-change:transform}
-  .panel-l.open,.panel-r.open{transform:translateX(0)}
+  .panel-l:not(.open){transform:translateX(-110%)!important; will-change:transform}
+  .panel-r:not(.open){transform:translateX(110%)!important; right:0; will-change:transform}
+  .panel-l.open,.panel-r.open{transform:translateX(0)!important}
   /* Hide desktop-only collapse tabs (mobile uses .mob-toggle instead) */
   .panel-tab{display:none}
   /* Show mob-toggle buttons so user can open panels on tablet too */
@@ -1374,9 +1512,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .panel-l,.panel-r{width:85%;top:52px;max-width:320px;
     /* Reserve bottom space so last items are scrollable past mob-bottom-nav (~70px) + FAB (~90px) + safe-area */
     padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 110px)}
-  .panel-l{transform:translateX(-110%)}
-  .panel-r{transform:translateX(110%);right:0}
-  .panel-l.open,.panel-r.open{transform:translateX(0);z-index:250}
+  .panel-l:not(.open){transform:translateX(-110%)!important}
+  .panel-r:not(.open){transform:translateX(110%)!important;right:0}
+  .panel-l.open,.panel-r.open{transform:translateX(0)!important;z-index:250}
   .mob-toggle{display:block}
   .mob-toggle.hidden{opacity:0;pointer-events:none;transition:opacity .2s}
   /* Zoom column sits above the bottom nav on mobile (back/+/-/SECTORS) */
@@ -2446,6 +2584,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   .weather-banner{bottom:115px;font-size:7px}
   .zc{bottom:52px}
   .mode-badge{bottom:48px;font-size:8px;padding:4px 8px}
+  .campaign-quick{bottom:82px!important}
   #mobSizeControls{bottom:44px}
   .mob-fab-wrap{bottom:60px}
   .stamp-modal{bottom:50px;max-height:60vh}
@@ -5388,7 +5527,59 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </button>
 </div>
 
+<button class="campaign-quick" id="campaignQuickBtn" onclick="openCampaignHub()" title="Open campaign">
+  <span class="campaign-quick-icon">⚡</span>
+  <span>CAMPAIGN</span>
+  <span class="campaign-quick-sub">STORY</span>
+</button>
+
 <div class="mode-badge" id="modeBadge" data-i18n="mode_claim">🔴 CLICK MARS TO SELECT TERRITORY</div>
+
+<!-- Bug Report floating button — sits to the LEFT of the SECTORS button -->
+<button type="button" class="bug-fab" id="bugReportFab" onclick="openBugReport()"
+        title="Report a bug" aria-label="Report a bug">
+  🐞<span class="bug-fab-label" data-i18n="bug_report_label">BUG</span>
+</button>
+
+<!-- Bug Report Modal -->
+<div class="bug-modal" id="bugReportModal" onclick="if(event.target===this)closeBugReport()">
+  <div class="bug-modal-card" role="dialog" aria-modal="true" aria-labelledby="bugReportTitle">
+    <div class="bug-modal-title" id="bugReportTitle">
+      <span>🐞</span><span data-i18n="bug_report_title">REPORT A BUG</span>
+    </div>
+    <div class="bug-modal-sub" data-i18n="bug_report_sub">
+      Tell us what went wrong. Reports go straight to the dev team for review and fixing.
+    </div>
+
+    <label data-i18n="bug_report_category">Category</label>
+    <div class="bug-row" id="bugReportCats">
+      <button type="button" class="bug-cat-btn sel" data-cat="ui"        onclick="selectBugCat(this)" data-i18n="bug_cat_ui">UI</button>
+      <button type="button" class="bug-cat-btn"     data-cat="gameplay"  onclick="selectBugCat(this)" data-i18n="bug_cat_gameplay">GAMEPLAY</button>
+      <button type="button" class="bug-cat-btn"     data-cat="payment"   onclick="selectBugCat(this)" data-i18n="bug_cat_payment">PAYMENT</button>
+      <button type="button" class="bug-cat-btn"     data-cat="performance" onclick="selectBugCat(this)" data-i18n="bug_cat_performance">PERFORMANCE</button>
+      <button type="button" class="bug-cat-btn"     data-cat="other"     onclick="selectBugCat(this)" data-i18n="bug_cat_other">OTHER</button>
+    </div>
+
+    <label data-i18n="bug_report_summary">Short summary</label>
+    <input type="text" id="bugReportTitleInput" maxlength="120"
+           data-i18n-placeholder="bug_report_summary_ph"
+           placeholder="e.g. Hijack button does nothing on enemy claim">
+
+    <label data-i18n="bug_report_detail">What happened?</label>
+    <textarea id="bugReportBody" maxlength="2000"
+              data-i18n-placeholder="bug_report_detail_ph"
+              placeholder="Steps to reproduce, what you expected, what actually happened..."></textarea>
+
+    <div class="bug-meta" id="bugReportMeta">
+      <span data-i18n="bug_report_auto_meta">We auto-attach: page URL, browser, recent console errors, your wallet (if connected).</span>
+    </div>
+
+    <div class="bug-modal-actions">
+      <button class="bug-cancel" onclick="closeBugReport()" data-i18n="cancel_btn">CANCEL</button>
+      <button class="bug-submit" id="bugReportSubmitBtn" onclick="submitBugReport()" data-i18n="bug_report_submit">SEND REPORT</button>
+    </div>
+  </div>
+</div>
 
 <!-- Claim Modal -->
 <div class="mbg" id="claimModal">
@@ -6549,6 +6740,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
           </div>
           <div id="dailyMissionCards"></div>
           <div id="dailyBonusCard" style="display:none"></div>
+        </div>
+
+        <div id="campaignPanel" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
+          <div class="base-section-title" style="color:#4fc3f7;margin-top:2px">⚡ CAMPAIGN</div>
+          <div id="campaignReputation"></div>
+          <div id="campaignList">
+            <div style="font-size:9px;color:var(--tx3);padding:8px 0">Loading campaign...</div>
+          </div>
         </div>
 
         <div id="questsContainer" style="padding:8px 10px">
@@ -8614,6 +8813,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   </div>
 </div>
 
+<div id="campaignModal" class="campaign-modal" style="display:none" onclick="if(event.target===this)closeCampaignModal()">
+  <div class="campaign-modal-card">
+    <div class="campaign-hero">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div class="campaign-icon" style="width:42px;height:42px;font-size:22px">⚡</div>
+        <div style="flex:1">
+          <div class="campaign-meta" id="campaignModalMeta">MCC ROUTE · CHAPTER 1</div>
+          <div class="campaign-title" id="campaignModalTitle" style="font-size:20px;margin-top:4px">Oxygen Rush</div>
+          <div style="font-size:10px;color:var(--tx3);margin-top:6px" id="campaignModalSub">Erebus Crater Refinery Complex · Dust Storm incoming</div>
+        </div>
+        <button onclick="closeCampaignModal()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--tx);border-radius:8px;padding:6px 10px;cursor:pointer">✕</button>
+      </div>
+    </div>
+    <div class="campaign-body" id="campaignModalBody"></div>
+  </div>
+</div>
+
 <!-- Monument Placement Modal -->
 <div id="monumentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2200;display:none;align-items:center;justify-content:center" onclick="if(event.target===this)closeMonumentModal()">
   <div style="width:360px;max-width:94vw;background:var(--panel2);border:1px solid rgba(255,160,50,.3);border-radius:14px;padding:20px;font-family:var(--fn);max-height:90vh;overflow-y:auto">
@@ -9163,7 +9379,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     } catch(e) { return false; }
   }
 
+  // Ring buffer of recent errors so the bug-report modal can attach context.
+  // Bounded at 20 entries to keep memory tiny.
+  window.__recentErrors = window.__recentErrors || [];
+  function _pushRecentError(data) {
+    try {
+      window.__recentErrors.push({
+        ts: Date.now(),
+        message: String(data.message || '').slice(0, 500),
+        source: data.source ? String(data.source).slice(0, 300) : null,
+        line: data.line || null
+      });
+      if (window.__recentErrors.length > 20) window.__recentErrors.shift();
+    } catch(_) {}
+  }
+
   function _reportError(data) {
+    _pushRecentError(data);
     if (!data.message || !_canSend() || _isDuplicate(data.message)) return;
     try {
       var xhr = new XMLHttpRequest();
@@ -9199,6 +9431,126 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
     });
   };
 })();
+
+/* ═══════ BUG REPORT MODAL ═══════
+   - Opens via the floating bug-fab button (left of SECTORS).
+   - Sends to POST /api/bug-report along with auto-attached context
+     (URL, user-agent, recent JS errors, wallet) so devs can reproduce.
+   - Reports also land in /server/bug-reports/inbox/ as JSON files
+     for Claude Code to pick up via the watcher pipeline. */
+// Keep the BUG fab horizontally adjacent to the actual SECTORS button.
+// .zc gets dynamic inline styles depending on panel/responsive state, so we
+// can't trust static right/bottom. Recompute on load + resize + every few
+// seconds (cheap rAF-throttled).
+function alignBugFab(){
+  try {
+    var fab = document.getElementById('bugReportFab');
+    var sb  = document.getElementById('sectorToggleBtn');
+    if (!fab || !sb) return;
+    var sr = sb.getBoundingClientRect();
+    if (sr.width === 0 || sr.height === 0) return;
+    var fw = fab.offsetWidth || 38;
+    var fh = fab.offsetHeight || 38;
+    // Place fab so its right edge sits 8px to the left of SECTORS button,
+    // vertically centered with SECTORS.
+    var gap = 8;
+    var leftPx = Math.max(8, sr.left - gap - fw);
+    var topPx  = Math.max(8, sr.top + (sr.height - fh) / 2);
+    fab.style.left   = leftPx + 'px';
+    fab.style.top    = topPx + 'px';
+    fab.style.right  = 'auto';
+    fab.style.bottom = 'auto';
+  } catch(_) {}
+}
+var _bugFabAlignTimer = null;
+function _scheduleBugFabAlign(){
+  if (_bugFabAlignTimer) return;
+  _bugFabAlignTimer = requestAnimationFrame(function(){
+    _bugFabAlignTimer = null;
+    alignBugFab();
+  });
+}
+window.addEventListener('resize', _scheduleBugFabAlign, { passive: true });
+window.addEventListener('load',   _scheduleBugFabAlign);
+document.addEventListener('DOMContentLoaded', _scheduleBugFabAlign);
+// Re-check periodically — panels collapse/expand without firing resize.
+setInterval(_scheduleBugFabAlign, 1500);
+
+var _bugSelectedCat = 'ui';
+function selectBugCat(btn){
+  try {
+    var cats = document.querySelectorAll('#bugReportCats .bug-cat-btn');
+    for (var i=0;i<cats.length;i++) cats[i].classList.remove('sel');
+    btn.classList.add('sel');
+    _bugSelectedCat = btn.getAttribute('data-cat') || 'other';
+  } catch(_) {}
+}
+function openBugReport(){
+  var m = document.getElementById('bugReportModal'); if (!m) return;
+  m.classList.add('on');
+  // Reset to UI category by default
+  _bugSelectedCat = 'ui';
+  try {
+    var cats = document.querySelectorAll('#bugReportCats .bug-cat-btn');
+    for (var i=0;i<cats.length;i++) {
+      cats[i].classList.toggle('sel', cats[i].getAttribute('data-cat') === 'ui');
+    }
+  } catch(_) {}
+  setTimeout(function(){
+    var t = document.getElementById('bugReportTitleInput');
+    if (t) t.focus();
+  }, 60);
+}
+function closeBugReport(){
+  var m = document.getElementById('bugReportModal'); if (!m) return;
+  m.classList.remove('on');
+}
+async function submitBugReport(){
+  var titleEl = document.getElementById('bugReportTitleInput');
+  var bodyEl  = document.getElementById('bugReportBody');
+  var btn     = document.getElementById('bugReportSubmitBtn');
+  var title = (titleEl && titleEl.value || '').trim();
+  var body  = (bodyEl  && bodyEl.value  || '').trim();
+  if (!title && !body) {
+    try { showToast(t('bug_report_empty') || 'Please describe the bug'); } catch(_) { alert('Please describe the bug'); }
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = (typeof t==='function'?t('bug_report_sending'):null) || 'SENDING...'; }
+  var wallet = '';
+  try { wallet = (window.userWallet || window.currentWallet || localStorage.getItem('wallet') || '').toLowerCase(); } catch(_) {}
+  var payload = {
+    category: _bugSelectedCat || 'other',
+    title: title.slice(0, 120),
+    body:  body.slice(0, 2000),
+    wallet: wallet || null,
+    url: location.href.slice(0, 1000),
+    userAgent: navigator.userAgent.slice(0, 500),
+    viewport: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 },
+    lang: (typeof currentLang !== 'undefined' && currentLang) || (navigator.language || 'en'),
+    recentErrors: (window.__recentErrors || []).slice(-10)
+  };
+  try {
+    var res = await fetch('/api/bug-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    var d = {};
+    try { d = await res.json(); } catch(_) {}
+    if (res.ok && d && d.ok) {
+      try { showToast((typeof t==='function'?t('bug_report_thanks'):null) || '🐞 Report sent. Thank you!'); } catch(_) {}
+      if (titleEl) titleEl.value = '';
+      if (bodyEl)  bodyEl.value  = '';
+      closeBugReport();
+    } else {
+      try { showToast((d && d.error) || 'Failed to send report'); } catch(_) {}
+    }
+  } catch (e) {
+    try { showToast('Network error: ' + (e.message || 'unknown')); } catch(_) {}
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = (typeof t==='function'?t('bug_report_submit'):null) || 'SEND REPORT'; }
+  }
+}
 
 /* ═══════ SOUND EFFECTS ENGINE (Web Audio API) ═══════ */
 var _audioCtx=null;
@@ -9473,13 +9825,20 @@ function craterAt(u,v){
 }
 
 /* ── Generate Procedural Mars Texture (HD) ───────── */
-// Desktop: 4096x2048 (matches NASA 4K). Mobile: 3072x1536 — bumped from 2048 so
-// claim images and sector labels stay readable on mobile globe. Memory: ~18MB.
+// Texture compositing budget:
+// - Default desktop stays 4K for stable gameplay.
+// - Strong desktop can auto-use 6K, and localStorage.marsHiResTexture='1' opts into 8K.
+// - Mobile stays 3K to avoid JPEG upload stalls and black-texture GPU failures.
 var marsCanvas=document.createElement('canvas');
 (function(){
   var _isMobCanvas=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-  marsCanvas.width  = _isMobCanvas ? 3072 : 4096;
-  marsCanvas.height = _isMobCanvas ? 1536 : 2048;
+  var _mem=(navigator.deviceMemory||4);
+  var _cores=(navigator.hardwareConcurrency||4);
+  var _force8k=false;
+  try{ _force8k=localStorage.getItem('marsHiResTexture')==='1'; }catch(_e){}
+  var _auto6k=(!_isMobCanvas && _mem>=8 && _cores>=8 && (window.devicePixelRatio||1)<=2);
+  marsCanvas.width  = _isMobCanvas ? 3072 : (_force8k ? 8192 : (_auto6k ? 6144 : 4096));
+  marsCanvas.height = _isMobCanvas ? 1536 : (_force8k ? 4096 : (_auto6k ? 3072 : 2048));
 })();
 var marsBaseData=null;
 
@@ -9731,6 +10090,11 @@ function compositeClaimsOnTexture(previewOnly){
       var isNPC=c.owner&&c.owner.indexOf('0xnpc_')===0;
       var isMine=!!(myAddr&&(c.owner||'').toLowerCase()===myAddr);
       var oc=_ownerColor(c.owner);
+      var territoryTone=isMine
+        ? {fill:{r:255,g:209,b:102}, line:{r:255,g:222,b:116}, text:'rgba(255,238,166,1)', alpha:0.40, halo:0.42, dash:null}
+        : (isNPC
+          ? {fill:{r:126,g:106,b:170}, line:{r:126,g:106,b:170}, text:'rgba(238,232,255,0.78)', alpha:0.08, halo:0.22, dash:[7,5]}
+          : {fill:{r:55,g:183,b:255}, line:{r:74,g:205,b:255}, text:'rgba(226,250,255,0.96)', alpha:0.14, halo:0.34, dash:null});
 
       // Pass 1: Fill + images per group
       ctx.save();
@@ -9803,7 +10167,7 @@ function compositeClaimsOnTexture(previewOnly){
             return s.lat>=gb2.minLat-_gs*0.5&&s.lat<=gb2.maxLat+_gs*0.5&&
                    s.lng1>=gb2.minLng-_gs*0.5&&s.lng2<=gb2.maxLng+_gs*0.5;
           });
-          var bc2=oc||{r:255,g:120,b:60};
+          var bc2=territoryTone.line;
           ctx.setLineDash([]);
           ctx.lineCap='square';
           ctx.beginPath();
@@ -9824,13 +10188,15 @@ function compositeClaimsOnTexture(previewOnly){
             if(pos4<sr2.x+sr2.w-0.5){ctx.moveTo(pos4,yb2);ctx.lineTo(sr2.x+sr2.w,yb2);}
           }
           // Pass 1: Wide halo (atmospheric bleed)
-          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+',0.18)';
-          ctx.lineWidth=isMine?5:3;
+          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+territoryTone.halo+')';
+          ctx.lineWidth=isMine?4.5:4;
           ctx.stroke();
           // Pass 2: Crisp tactical line
-          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+(isMine?'1':'0.82')+')';
-          ctx.lineWidth=isMine?1.8:1;
+          if(territoryTone.dash) ctx.setLineDash(territoryTone.dash); else ctx.setLineDash([]);
+          ctx.strokeStyle='rgba('+bc2.r+','+bc2.g+','+bc2.b+','+(isMine?'1':'0.9')+')';
+          ctx.lineWidth=isMine?1.5:1.4;
           ctx.stroke();
+          ctx.setLineDash([]);
           ctx.lineCap='butt';
         }else{
           // No image: pixel-accurate fill using strips + label
@@ -9845,8 +10211,8 @@ function compositeClaimsOnTexture(previewOnly){
           // Fill with strips (pixel-accurate, matches border exactly).
           // Pad by 0.75px so adjacent strips overlap — eliminates subpixel gap lines.
           // isMine: 골드 오버레이, 나머지는 지갑 해시 색상
-          var tc=isMine?{r:255,g:209,b:102}:(oc||{r:255,g:120,b:60});
-          var _tAlpha=isMine?0.65:(isNPC?0.18:0.22);
+          var tc=territoryTone.fill;
+          var _tAlpha=territoryTone.alpha;
           ctx.fillStyle='rgba('+tc.r+','+tc.g+','+tc.b+','+_tAlpha+')';
           var fbx1=Infinity,fby1=Infinity,fbx2=-Infinity,fby2=-Infinity;
           for(var fi=0;fi<gStrips.length;fi++){
@@ -9873,12 +10239,12 @@ function compositeClaimsOnTexture(previewOnly){
             ctx.lineJoin='round';
             ctx.strokeText(lbl,fbx1+fbw/2,fby1+fbh/2);
             // Fill on top — isMine는 골드 텍스트
-            ctx.fillStyle=isMine?'rgba(255,232,128,1)':'rgba(255,242,228,0.96)';
+            ctx.fillStyle=territoryTone.text;
             ctx.fillText(lbl,fbx1+fbw/2,fby1+fbh/2);
             ctx.restore();
           }
-          var bc3=isMine?{r:255,g:209,b:102}:(oc||{r:255,g:120,b:60});
-          if(isNPC) ctx.setLineDash([5,3]); else ctx.setLineDash([]);
+          var bc3=territoryTone.line;
+          if(territoryTone.dash) ctx.setLineDash(territoryTone.dash); else ctx.setLineDash([]);
           ctx.lineCap='square';
           ctx.beginPath();
           for(var si=0;si<gStrips.length;si++){
@@ -9898,14 +10264,14 @@ function compositeClaimsOnTexture(previewOnly){
             if(pos2<sr.x+sr.w-0.5){ctx.moveTo(pos2,yb);ctx.lineTo(sr.x+sr.w,yb);}
           }
           // Pass 1: Wide atmospheric halo
-          if(isMine){ctx.shadowColor='rgba(255,209,102,0.8)';ctx.shadowBlur=8;}
-          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'0.45':isNPC?'0.18':'0.18')+')';
-          ctx.lineWidth=isMine?5:(isNPC?3:3);
+          if(isMine){ctx.shadowColor='rgba(255,209,102,0.45)';ctx.shadowBlur=4;}
+          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+territoryTone.halo+')';
+          ctx.lineWidth=isMine?4.5:4;
           ctx.stroke();
           if(isMine) ctx.shadowBlur=0;
           // Pass 2: Crisp tactical inner line
-          ctx.strokeStyle=isNPC?'rgba('+bc3.r+','+bc3.g+','+bc3.b+',0.85)':'rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.85')+')';
-          ctx.lineWidth=isNPC?1.3:(isMine?1.8:1);
+          ctx.strokeStyle='rgba('+bc3.r+','+bc3.g+','+bc3.b+','+(isMine?'1':'0.9')+')';
+          ctx.lineWidth=isMine?1.5:1.4;
           ctx.stroke();
           ctx.lineCap='butt';ctx.setLineDash([]);
         }
@@ -14007,7 +14373,17 @@ async function confirmClaim(){
             var _existClaim=false;
             for(var _ci=0;_ci<claims.length;_ci++){if(claims[_ci].id===_newCid){_existClaim=true;break;}}
             if(!_existClaim){
-              claims.push({id:_newCid,owner:_myW,center_lat:selectedPlot?selectedPlot.lat:0,center_lng:selectedPlot?selectedPlot.lng:0,width:cw||1,height:ch||1});
+              claims.push({
+                id:_newCid,
+                owner:_myW,
+                lat:selectedPlot?selectedPlot.lat:0,
+                lng:selectedPlot?selectedPlot.lng:0,
+                w:cw||1,
+                h:ch||1,
+                label:'YOU',
+                nickname:walletState.nickname||'YOU',
+                ts:Date.now()
+              });
             }
           }
           _rebuildOwnerData();
@@ -14850,6 +15226,19 @@ var I18N = {
     approve_deposit: 'APPROVE & DEPOSIT', request_withdrawal: 'REQUEST WITHDRAWAL',
     confirm_swap: 'CONFIRM SWAP', cancel: 'CANCEL', copy: 'COPY', apply: 'APPLY',
     click_mars: 'CLICK MARS TO SELECT TERRITORY', click_stamp: 'CLICK MARS TO STAMP!',
+    bug_report_label: 'BUG', bug_report_title: 'REPORT A BUG',
+    bug_report_sub: 'Tell us what went wrong. Reports go straight to the dev team for review and fixing.',
+    bug_report_category: 'Category',
+    bug_cat_ui: 'UI', bug_cat_gameplay: 'GAMEPLAY', bug_cat_payment: 'PAYMENT',
+    bug_cat_performance: 'PERFORMANCE', bug_cat_other: 'OTHER',
+    bug_report_summary: 'Short summary',
+    bug_report_summary_ph: 'e.g. Hijack button does nothing on enemy claim',
+    bug_report_detail: 'What happened?',
+    bug_report_detail_ph: 'Steps to reproduce, what you expected, what actually happened...',
+    bug_report_auto_meta: 'We auto-attach: page URL, browser, recent console errors, your wallet (if connected).',
+    bug_report_submit: 'SEND REPORT', bug_report_sending: 'SENDING...',
+    bug_report_thanks: '🐞 Report sent. Thank you!',
+    bug_report_empty: 'Please describe the bug',
     registered: 'REGISTERED!', login_success: 'LOGGED IN!', wallet_connected: 'WALLET CONNECTED',
     wallet_disconnected: 'WALLET DISCONNECTED', copied: 'REFERRAL LINK COPIED!',
     stats_label: 'STATS', live_label: 'LIVE',
@@ -15514,6 +15903,19 @@ var I18N = {
     approve_deposit: '승인 & 입금', request_withdrawal: '출금 요청',
     confirm_swap: '교환 확인', cancel: '취소', copy: '복사', apply: '적용',
     click_mars: '화성을 클릭하여 영토를 선택하세요', click_stamp: '화성을 클릭하여 배치!',
+    bug_report_label: '버그', bug_report_title: '버그 리포트',
+    bug_report_sub: '무슨 일이 있었나요? 제출하시면 개발팀이 바로 확인 후 수정합니다.',
+    bug_report_category: '카테고리',
+    bug_cat_ui: 'UI', bug_cat_gameplay: '게임플레이', bug_cat_payment: '결제',
+    bug_cat_performance: '성능', bug_cat_other: '기타',
+    bug_report_summary: '한 줄 요약',
+    bug_report_summary_ph: '예: 하이잭 버튼이 적 영토에서 반응 없음',
+    bug_report_detail: '무슨 일이 있었나요?',
+    bug_report_detail_ph: '재현 절차, 기대한 동작, 실제 동작을 적어주세요...',
+    bug_report_auto_meta: '자동 첨부: 페이지 URL, 브라우저, 최근 콘솔 에러, 연결된 지갑.',
+    bug_report_submit: '리포트 전송', bug_report_sending: '전송 중...',
+    bug_report_thanks: '🐞 리포트 전송 완료! 감사합니다.',
+    bug_report_empty: '버그 내용을 입력해주세요',
     registered: '가입 완료!', login_success: '로그인 성공!', wallet_connected: '지갑 연결됨',
     wallet_disconnected: '지갑 연결 해제됨', copied: '추천 링크 복사됨!',
     stats_label: '통계', live_label: '실시간',
@@ -16175,6 +16577,19 @@ var I18N = {
     approve_deposit: '承認 & 入金', request_withdrawal: '出金リクエスト',
     confirm_swap: '交換確認', cancel: 'キャンセル', copy: 'コピー', apply: '適用',
     click_mars: '火星をクリックして領土を選択', click_stamp: '火星をクリックして配置！',
+    bug_report_label: 'バグ', bug_report_title: 'バグ報告',
+    bug_report_sub: '何が起きたか教えてください。開発チームが確認して修正します。',
+    bug_report_category: 'カテゴリ',
+    bug_cat_ui: 'UI', bug_cat_gameplay: 'ゲームプレイ', bug_cat_payment: '決済',
+    bug_cat_performance: 'パフォーマンス', bug_cat_other: 'その他',
+    bug_report_summary: '簡単な要約',
+    bug_report_summary_ph: '例: ハイジャックボタンが反応しない',
+    bug_report_detail: '何が起きましたか？',
+    bug_report_detail_ph: '再現手順、期待した動作、実際の動作を記入してください...',
+    bug_report_auto_meta: '自動添付: ページURL、ブラウザ、最近のコンソールエラー、接続中のウォレット。',
+    bug_report_submit: 'レポート送信', bug_report_sending: '送信中...',
+    bug_report_thanks: '🐞 送信完了！ありがとうございます。',
+    bug_report_empty: 'バグの内容を入力してください',
     registered: '登録完了！', login_success: 'ログイン成功！', wallet_connected: 'ウォレット接続済み',
     wallet_disconnected: 'ウォレット切断済み', copied: '紹介リンクをコピーしました！',
     stats_label: '統計', live_label: 'ライブ',
@@ -16820,6 +17235,19 @@ var I18N = {
     approve_deposit: '授权并充值', request_withdrawal: '申请提现',
     confirm_swap: '确认兑换', cancel: '取消', copy: '复制', apply: '应用',
     click_mars: '点击火星选择领土', click_stamp: '点击火星放置！',
+    bug_report_label: 'BUG', bug_report_title: '错误反馈',
+    bug_report_sub: '请告诉我们出了什么问题。我们会立即查看并修复。',
+    bug_report_category: '类别',
+    bug_cat_ui: 'UI', bug_cat_gameplay: '玩法', bug_cat_payment: '支付',
+    bug_cat_performance: '性能', bug_cat_other: '其他',
+    bug_report_summary: '简短摘要',
+    bug_report_summary_ph: '例: 劫持按钮在敌方领土上无响应',
+    bug_report_detail: '发生了什么？',
+    bug_report_detail_ph: '复现步骤、期望行为、实际行为...',
+    bug_report_auto_meta: '自动附加: 页面URL、浏览器、最近的控制台错误、已连接钱包。',
+    bug_report_submit: '提交反馈', bug_report_sending: '发送中...',
+    bug_report_thanks: '🐞 反馈已发送，谢谢！',
+    bug_report_empty: '请输入错误描述',
     registered: '注册成功！', login_success: '登录成功！', wallet_connected: '钱包已连接',
     wallet_disconnected: '钱包已断开', copied: '推荐链接已复制！',
     stats_label: '统计', live_label: '实时',
@@ -24382,6 +24810,478 @@ function focusSector(sectorId){
   globe.pointOfView({lat:s.centerLat,lng:s.centerLng-180,altitude:1.2},1000);
 }
 
+// ═══ CAMPAIGN SYSTEM (MVP server simulation) ═══
+var _campaignData=null;
+var _campaignActive=null;
+var _campaignShowLocked=false;
+var _campaignScenes=null;
+var _campaignSceneIndex=0;
+var _campaignTypingTimer=null;
+var _campaignTypingDone=false;
+var _campaignSceneLineIndex=0;
+var _campaignTypingElement=null;
+var _campaignTypingFullText='';
+var _campaignBattleTimer=null;
+function loadCampaignStatus(){
+  var el=document.getElementById('campaignList');
+  var w=walletState.address;
+  if(!el) return Promise.resolve();
+  if(!w){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">Login to view campaign chapters.</div>';return Promise.resolve();}
+  return fetch('/api/campaign/status/'+encodeURIComponent(w))
+    .then(function(r){return r.json()})
+    .then(function(d){
+      _campaignData=d;
+      renderCampaignReputation(d.reputation||{},d.tierLabels||{});
+      renderCampaignList(d.chapters||[]);
+    })
+    .catch(function(){
+      el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">Campaign unavailable.</div>';
+    });
+}
+
+function renderCampaignReputation(rep,tiers){
+  var el=document.getElementById('campaignReputation');
+  if(!el) return;
+  var colors={mcc:'#4fc3f7',fsp:'#81c784',cv:'#ef5350'};
+  var labels={mcc:'MCC',fsp:'FSP',cv:'CV'};
+  var html='<div class="campaign-rep">';
+  ['mcc','fsp','cv'].forEach(function(f){
+    var v=parseInt(rep[f]||0,10);
+    var pct=Math.max(0,Math.min(100,v+100)/2);
+    html+='<div class="campaign-rep-item"><div class="campaign-rep-top"><span>'+labels[f]+'</span><span>'+v+' · '+escapeHtmlSafe(tiers[f]||'Neutral')+'</span></div><div class="campaign-rep-track"><div class="campaign-rep-fill" style="width:'+pct+'%;background:'+colors[f]+'"></div></div></div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function renderCampaignList(chapters){
+  var el=document.getElementById('campaignList');
+  if(!el) return;
+  if(!chapters.length){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">No campaign chapters available.</div>';return;}
+  var html='';
+  var lockedHtml='';
+  var lockedCount=0;
+  chapters.forEach(function(ch){
+    var p=ch.progress||{};
+    var locked=((_campaignData&&_campaignData.lockedChapters)||[]).indexOf(ch.questId)>=0;
+    var done=p.status==='completed'||p.status==='claimed';
+    var active=p.status==='in_progress';
+    var title=(ch.title&&ch.title.ko)||ch.questId;
+    var btn=locked?'LOCKED':(done?'RESULTS':(active?'CONTINUE':'START'));
+    var route=((ch.campaignId||'').replace('_route','')||ch.faction||'').toUpperCase();
+    var card='';
+    if(locked){
+      lockedCount++;
+      card+='<div class="campaign-card compact">';
+      card+='<div class="campaign-icon">⚡</div><div class="campaign-top"><div style="flex:1;min-width:0"><div class="campaign-meta">'+route+' · CH '+ch.chapterNumber+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+      card+='<button class="campaign-btn secondary" disabled style="opacity:.55;cursor:not-allowed">'+btn+'</button>';
+      card+='</div>';
+      lockedHtml+=card;
+      return;
+    }
+    card+='<div class="campaign-card'+(done?' done':'')+'">';
+    card+='<div class="campaign-top"><div class="campaign-icon">⚡</div><div style="flex:1"><div class="campaign-meta">'+route+' ROUTE · CH '+ch.chapterNumber+' · '+(ch.battleResolution||'SIM')+'</div><div class="campaign-title">'+escapeHtmlSafe(title)+'</div></div></div>';
+    card+='<div class="campaign-desc">'+escapeHtmlSafe((ch.location&&ch.location.displayNameKo)||'Mars operation')+' · MVP 서버 시뮬레이션</div>';
+    if(done||active){
+      var m=p.metrics||{};
+      card+=campaignStatsHtml(m,p.status||'NEW');
+    }
+    card+='<button class="campaign-btn" onclick="openCampaignChapter(\''+ch.questId+'\')">'+btn+'</button>';
+    card+='</div>';
+    html+=card;
+  });
+  if(lockedCount){
+    html+='<button class="campaign-locked-toggle" onclick="toggleCampaignLockedList()">'+(_campaignShowLocked?'HIDE LOCKED':'SHOW LOCKED')+' · '+lockedCount+'</button>';
+    if(_campaignShowLocked) html+=lockedHtml;
+  }
+  el.innerHTML=html;
+}
+
+function toggleCampaignLockedList(){
+  _campaignShowLocked=!_campaignShowLocked;
+  renderCampaignList((_campaignData&&_campaignData.chapters)||[]);
+}
+
+function openCampaignHub(){
+  openBaseModal();
+  setTimeout(function(){
+    var tab=document.getElementById('baseTabQuests');
+    switchBaseTab('quests',tab);
+    try{clearBaseTabDot('quests')}catch(_){}
+    loadCampaignStatus().then(function(){
+      var panel=document.getElementById('campaignPanel');
+      if(panel) panel.scrollIntoView({block:'start',behavior:'smooth'});
+    });
+  },0);
+}
+
+function _findCampaignChapter(questId){
+  var arr=(_campaignData&&_campaignData.chapters)||[];
+  for(var i=0;i<arr.length;i++) if(arr[i].questId===questId) return arr[i];
+  return null;
+}
+function campaignStatsHtml(m,status){
+  var a=m.oxygen_recovery_pct!=null?{v:m.oxygen_recovery_pct+'%',l:'OXYGEN'}:
+    m.facility_hp_percent!=null?{v:m.facility_hp_percent+'%',l:'FACILITY'}:
+    m.subsidiary_target?{v:String(m.subsidiary_target).toUpperCase(),l:'TARGET'}:
+    m.helion_destroyed!=null?{v:m.helion_destroyed+'/14',l:'RAID'}:{v:'--',l:'METRIC'};
+  var b=m.ships_destroyed!=null?{v:m.ships_destroyed+'/9',l:'SHIPS'}:
+    m.militia_destroyed!=null?{v:m.militia_destroyed+'/4',l:'MILITIA'}:
+    m.eclipse_kill_count!=null?{v:m.eclipse_kill_count,l:'ECLIPSE'}:
+    m.helion_escapes!=null?{v:m.helion_escapes,l:'ESCAPED'}:{v:'--',l:'RESULT'};
+  return '<div class="campaign-stats"><div class="campaign-stat"><b>'+escapeHtmlSafe(String(a.v))+'</b><span>'+a.l+'</span></div><div class="campaign-stat"><b>'+escapeHtmlSafe(String(b.v))+'</b><span>'+b.l+'</span></div><div class="campaign-stat"><b>'+escapeHtmlSafe(String(status).toUpperCase())+'</b><span>STATUS</span></div></div>';
+}
+function closeCampaignModal(){var m=document.getElementById('campaignModal');if(m)m.style.display='none';}
+function _setCampaignModal(ch, html){
+  document.getElementById('campaignModalTitle').textContent=(ch.title&&ch.title.ko)||ch.questId;
+  document.getElementById('campaignModalMeta').textContent='MCC ROUTE · CHAPTER '+ch.chapterNumber;
+  document.getElementById('campaignModalSub').textContent=(ch.location&&ch.location.displayNameKo||'Mars')+' · '+((ch.environment&&ch.environment.type)||'simulation');
+  document.getElementById('campaignModalBody').innerHTML=html;
+  document.getElementById('campaignModal').style.display='flex';
+}
+
+function _campaignStoryText(value){
+  // 스토리 JSON 다국어 필드에서 현재 클라이언트 기본값인 한국어를 우선 사용한다.
+  if(value==null) return '';
+  if(typeof value==='string') return value;
+  return value.ko||value.en||value.ja||value.zh||'';
+}
+
+function _campaignStorySpeakerName(id){
+  // 캐릭터 ID를 에셋 파일명과 분리하지 않도록 표시명만 로컬에서 보정한다.
+  var names={player:'당신',lifang:'리팡',chen:'천 회장',mikhail:'미하일',butcher:'정육점',hale:'헤일 신부',lena:'레나',kara_vex:'Kara Vex',cinder:'신더',amara:'아마라',liang:'량 웨이',samuel:'사무엘',hagar:'하가르',mcc_operator:'MCC 오퍼레이터',helion_captain:'헬리온 선장',miner_elder:'광부 어르신'};
+  return names[id]||String(id||'Narrator').replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+}
+
+function _campaignStorySceneById(id){
+  // branch/options의 goto와 dialogue next가 문자열 ID를 쓰는 실제 씬 데이터를 지원한다.
+  if(!_campaignScenes||!id) return -1;
+  for(var i=0;i<_campaignScenes.length;i++) if(_campaignScenes[i]&&_campaignScenes[i].id===id) return i;
+  return -1;
+}
+
+function showCampaignStory(chapter){
+  // 서버가 full story document 또는 scenes 배열을 줄 수 있어 둘 다 허용한다.
+  closeCampaignStory();
+  var story=chapter&&chapter.scenes;
+  _campaignScenes=Array.isArray(story)?story:((story&&Array.isArray(story.scenes))?story.scenes:null);
+  _campaignSceneIndex=0;
+  _campaignSceneLineIndex=0;
+  if(!_campaignScenes||!_campaignScenes.length){showCampaignBriefing(chapter,chapter&&chapter.progress);return;}
+  var oldModal=document.getElementById('campaignModal');
+  if(oldModal) oldModal.style.display='none';
+  var overlay=document.createElement('div');
+  overlay.className='story-overlay';
+  overlay.innerHTML='<div class="story-background"></div><img class="story-character-left" alt=""><img class="story-character-right" alt=""><div class="story-dialog-box"></div><div class="story-tap-hint">▶ 탭하여 계속</div>';
+  overlay.addEventListener('click',function(ev){
+    // 선택지 버튼은 자체 핸들러로만 진행한다.
+    if(ev.target&&ev.target.closest&&ev.target.closest('.story-choice-btn')) return;
+    var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
+    if(!scene) return;
+    if(scene.type==='choice'||scene.type==='branch') return;
+    if(!_campaignTypingDone){
+      if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+      if(_campaignTypingElement) _campaignTypingElement.textContent=_campaignTypingFullText;
+      _campaignTypingDone=true;
+      return;
+    }
+    advanceCampaignScene();
+  });
+  document.body.appendChild(overlay);
+  renderCampaignScene();
+}
+
+function _campaignStorySetBackground(scene,overlay){
+  // 배경 에셋이 없거나 로드 실패하면 지정된 화성풍 그라디언트로 폴백한다.
+  var bg=overlay.querySelector('.story-background');
+  if(!bg) return;
+  var speed=scene.transition==='fade_slow'?'1.5s':(scene.transition==='fade_medium'?'0.8s':'0s');
+  bg.style.transitionDuration=speed;
+  if(!scene.background){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';return;}
+  var src='/assets/campaign/backgrounds/'+scene.background+'.jpg';
+  var img=new Image();
+  img.onload=function(){bg.style.backgroundImage='url("'+src+'")';};
+  img.onerror=function(){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';};
+  img.src=src;
+}
+
+function _campaignStoryRenderCharacters(scene,line,overlay){
+  // scene.characters가 있으면 우선 사용하고, 없으면 현재 씬 대사의 speaker에서 좌/우 초상화를 추론한다.
+  var left=overlay.querySelector('.story-character-left');
+  var right=overlay.querySelector('.story-character-right');
+  if(!left||!right) return;
+  left.style.display='none'; right.style.display='none';
+  if(scene.type!=='dialogue') return;
+  var chars=[];
+  if(Array.isArray(scene.characters)){
+    chars=scene.characters.map(function(c,i){return typeof c==='string'?{id:c,position:i===0?'left':'right'}:c;});
+  }else{
+    var speakers=(scene.lines||[]).map(function(l){return l.speaker;}).filter(Boolean);
+    speakers.forEach(function(s){if(chars.map(function(c){return c.id;}).indexOf(s)<0) chars.push({id:s,position:s==='player'?'right':'left'});});
+  }
+  chars.slice(0,2).forEach(function(c,i){
+    var pos=c.position||(i===0?'left':'right');
+    var el=pos==='right'?right:left;
+    var id=c.id||c.characterId||c.speaker;
+    if(!id) return;
+    el.className=pos==='right'?'story-character-right':'story-character-left';
+    if(line&&line.speaker&&line.speaker!==id) el.className+=' story-character-inactive';
+    el.onerror=function(){el.style.display='none';};
+    var _portraitMap={player:'player_silhouette'};
+    el.src='/assets/campaign/characters/'+(_portraitMap[id]||id)+'.png';
+    el.style.display='block';
+  });
+}
+
+function typeText(element,text,onComplete){
+  // 클릭 즉시완료를 위해 타이머와 전체 텍스트를 전역에 보관한다.
+  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  _campaignTypingElement=element;
+  _campaignTypingFullText=text||'';
+  _campaignTypingDone=false;
+  element.textContent='';
+  var i=0;
+  _campaignTypingTimer=setInterval(function(){
+    i++;
+    element.textContent=_campaignTypingFullText.slice(0,i);
+    if(i>=_campaignTypingFullText.length){
+      clearInterval(_campaignTypingTimer);
+      _campaignTypingTimer=null;
+      _campaignTypingDone=true;
+      if(onComplete) onComplete();
+    }
+  },30);
+}
+
+function renderCampaignScene(){
+  var overlay=document.querySelector('.story-overlay');
+  var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
+  if(!overlay||!scene){closeCampaignStory();return;}
+  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  if(_campaignBattleTimer) clearTimeout(_campaignBattleTimer);
+  _campaignTypingTimer=null; _campaignBattleTimer=null; _campaignTypingDone=true;
+  _campaignStorySetBackground(scene,overlay);
+  var box=overlay.querySelector('.story-dialog-box');
+  var hint=overlay.querySelector('.story-tap-hint');
+  var title=overlay.querySelector('.story-title-card');
+  if(title) title.remove();
+  if(box){
+    box.style.display='block';
+    box.style.background='rgba(0,0,0,.75)';
+    box.style.borderTop='1px solid rgba(255,255,255,.12)';
+    box.style.backdropFilter='blur(4px)';
+  }
+  if(hint) hint.style.display='block';
+
+  if(scene.type==='narration'||scene.type==='ending'){
+    var nLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
+    _campaignStoryRenderCharacters(scene,nLine,overlay);
+    // 나레이션은 배경 없는 하단 자막처럼 보이도록 대화 박스 장식을 제거한다.
+    box.style.background='transparent';
+    box.style.borderTop='none';
+    box.style.backdropFilter='none';
+    box.innerHTML='<div class="story-text story-narration-text"></div>';
+    typeText(box.querySelector('.story-text'),_campaignStoryText(nLine.text),null);
+    return;
+  }
+
+  if(scene.type==='dialogue'){
+    var dLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
+    _campaignStoryRenderCharacters(scene,dLine,overlay);
+    box.innerHTML='<div class="story-speaker-name">'+escapeHtmlSafe(_campaignStorySpeakerName(dLine.speaker||scene.speaker))+'</div><div class="story-text"></div>';
+    typeText(box.querySelector('.story-text'),_campaignStoryText(dLine.text),null);
+    return;
+  }
+
+  if(scene.type==='choice'){
+    _campaignStoryRenderCharacters(scene,null,overlay);
+    if(hint) hint.style.display='none';
+    var html='<div class="story-text">'+escapeHtmlSafe(_campaignStoryText(scene.prompt))+'</div><div class="story-choices">';
+    (scene.choices||[]).forEach(function(choice){
+      var label=_campaignStoryText(choice.text||choice.label);
+      var hintText=_campaignStoryText(choice.preview_hint);
+      html+='<button class="story-choice-btn" data-choice="'+escapeHtmlSafe(choice.value||choice.id||'')+'">'+escapeHtmlSafe(label+(hintText?'\n'+hintText:''))+'</button>';
+    });
+    html+='</div>';
+    box.innerHTML=html;
+    Array.prototype.forEach.call(box.querySelectorAll('.story-choice-btn'),function(btn){
+      btn.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        var value=btn.getAttribute('data-choice');
+        closeCampaignStory();
+        chooseCampaignOption(value);
+      });
+    });
+    return;
+  }
+
+  if(scene.type==='branch'){
+    _campaignStoryRenderCharacters(scene,null,overlay);
+    if(hint) hint.style.display='none';
+    var opts=scene.choices||scene.options||[];
+    var branchHtml='<div class="story-text">'+escapeHtmlSafe(_campaignStoryText(scene.prompt))+'</div><div class="story-choices">';
+    opts.forEach(function(choice,i){
+      branchHtml+='<button class="story-choice-btn" data-next="'+escapeHtmlSafe(choice.next_scene||choice.goto||i)+'">'+escapeHtmlSafe(_campaignStoryText(choice.text||choice.label))+'</button>';
+    });
+    branchHtml+='</div>';
+    box.innerHTML=branchHtml;
+    Array.prototype.forEach.call(box.querySelectorAll('.story-choice-btn'),function(btn){
+      btn.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        var target=btn.getAttribute('data-next');
+        var idx=/^\d+$/.test(target)?parseInt(target,10):_campaignStorySceneById(target);
+        if(idx>=0&&idx<_campaignScenes.length){_campaignSceneIndex=idx;_campaignSceneLineIndex=0;renderCampaignScene();}
+        else advanceCampaignScene();
+      });
+    });
+    return;
+  }
+
+  if(scene.type==='battle_transition'){
+    _campaignStoryRenderCharacters(scene,null,overlay);
+    if(box) box.style.display='none';
+    if(hint) hint.style.display='none';
+    var card=document.createElement('div');
+    card.className='story-title-card';
+    card.innerHTML=escapeHtmlSafe(_campaignStoryText(scene.title))+'<small>'+escapeHtmlSafe(_campaignStoryText(scene.subtitle))+'</small>';
+    overlay.appendChild(card);
+    _campaignTypingDone=true;
+    _campaignBattleTimer=setTimeout(function(){advanceCampaignScene();},3000);
+    return;
+  }
+
+  // 아직 전투 결과 서버 응답 연동 전인 result 씬은 기존 시뮬레이션 흐름으로 넘긴다.
+  if(scene.type==='result'){closeCampaignStory();if(_campaignActive)showCampaignSim(_campaignActive.chapter,_campaignActive.progress||{});return;}
+  advanceCampaignScene();
+}
+
+function advanceCampaignScene(){
+  var scene=_campaignScenes&&_campaignScenes[_campaignSceneIndex];
+  if(!scene){closeCampaignStory();return;}
+  var lines=scene.lines||[];
+  if((scene.type==='dialogue'||scene.type==='narration'||scene.type==='ending')&&_campaignSceneLineIndex<lines.length-1){
+    _campaignSceneLineIndex++;
+    renderCampaignScene();
+    return;
+  }
+  if(scene.type==='ending'){
+    closeCampaignStory();
+    return;
+  }
+  if(scene.next){
+    var idx=_campaignStorySceneById(scene.next);
+    if(idx>=0){_campaignSceneIndex=idx;_campaignSceneLineIndex=0;renderCampaignScene();return;}
+  }
+  _campaignSceneIndex++;
+  _campaignSceneLineIndex=0;
+  if(!_campaignScenes||_campaignSceneIndex>=_campaignScenes.length){closeCampaignStory();return;}
+  renderCampaignScene();
+}
+
+function closeCampaignStory(){
+  // 오버레이와 타이머를 정리해 기존 캠페인 모달/시뮬레이션 흐름으로 안전하게 복귀한다.
+  var overlay=document.querySelector('.story-overlay');
+  if(overlay) overlay.remove();
+  if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
+  if(_campaignBattleTimer) clearTimeout(_campaignBattleTimer);
+  _campaignTypingTimer=null;
+  _campaignBattleTimer=null;
+  _campaignTypingDone=false;
+  _campaignTypingElement=null;
+  _campaignTypingFullText='';
+  _campaignScenes=null;
+  _campaignSceneIndex=0;
+  _campaignSceneLineIndex=0;
+}
+
+async function openCampaignChapter(questId){
+  var w=walletState.address;
+  if(!w){showToast('LOGIN FIRST');return;}
+  var ch=_findCampaignChapter(questId);
+  if(!ch){await loadCampaignStatus();ch=_findCampaignChapter(questId);}
+  if(!ch){showToast('Campaign not loaded');return;}
+  var p=ch.progress||{};
+  if(p.status==='completed'||p.status==='claimed') return showCampaignResult(ch,p);
+  if(p.status==='in_progress'&&p.sessionId){
+    _campaignActive={chapter:ch,progress:p,sessionId:p.sessionId};
+    if(Array.isArray(p.choices)&&p.choices.length>0) showCampaignSim(ch,p);
+    else if(ch.scenes) showCampaignStory(ch);
+    else showCampaignBriefing(ch,p);
+    return;
+  }
+  try{
+    var resp=await fetch('/api/campaign/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,quest_id:questId})});
+    var d=await resp.json();
+    if(!resp.ok){showToast(d.error||'Campaign start failed');return;}
+    ch=d.chapter||ch; p=d.progress||{};
+    _campaignActive={chapter:ch,progress:p,sessionId:d.sessionId||p.sessionId};
+    if(ch.scenes) showCampaignStory(ch);
+    else showCampaignBriefing(ch,p);
+  }catch(e){showToast('Campaign start failed');}
+}
+
+function showCampaignBriefing(ch,p){
+  var npc=(ch.briefing&&ch.briefing.npcName)||'Mission Control';
+  var lines=((ch.briefing||{}).lines||[]).map(function(l){return '<div class="campaign-dialog"><b>'+escapeHtmlSafe(npc)+'</b><br>'+escapeHtmlSafe(l.ko||'')+'</div>';}).join('');
+  var choices=(ch.choices||[]).map(function(c){
+    return '<button class="campaign-choice" onclick="chooseCampaignOption(\''+escapeHtmlSafe(c.id)+'\')">'+escapeHtmlSafe(c.labelKo||c.id)+'</button>';
+  }).join('');
+  _setCampaignModal(ch, lines+'<div style="font-size:10px;color:var(--gold);margin:12px 0">⚠ '+escapeHtmlSafe((ch.environment&&ch.environment.type)||'operation')+' · 서버 시뮬레이션 MVP</div>'+choices);
+}
+
+async function chooseCampaignOption(choiceId){
+  var w=walletState.address, a=_campaignActive;
+  if(!w||!a){showToast('Campaign session missing');return;}
+  try{
+    var r=await fetch('/api/campaign/choice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,session_id:a.sessionId,choice_id:choiceId})});
+    var d=await r.json();
+    if(!r.ok){showToast(d.error||'Choice failed');return;}
+    a.progress=d.progress||a.progress;
+    showCampaignSim(a.chapter,a.progress);
+  }catch(e){showToast('Choice failed');}
+}
+
+function showCampaignSim(ch,p){
+  var radio=((ch.briefing||{}).radio||[])[0];
+  _setCampaignModal(ch,
+    '<div style="font-size:13px;color:var(--tx);margin-bottom:10px">작전 진행 중...</div>'
+    +'<div class="campaign-dialog">'+escapeHtmlSafe((ch.briefing&&ch.briefing.npcName)||'Mission Control')+' 무전: '+escapeHtmlSafe((radio&&radio.ko)||'작전 진행 상황 업데이트.')+'</div>'
+    +'<div class="qc-bar" style="height:10px;margin:16px 0"><div id="campaignSimFill" class="qc-fill activity" style="width:5%"></div></div>'
+    +'<div style="font-size:9px;color:var(--tx3);text-align:center">실시간 5초 압축 시뮬레이션</div>');
+  var fill=document.getElementById('campaignSimFill');
+  var pct=5;
+  var timer=setInterval(function(){
+    pct+=9;
+    if(fill) fill.style.width=Math.min(100,pct)+'%';
+    if(pct>=100){clearInterval(timer);completeCampaignMission();}
+  },450);
+}
+
+async function completeCampaignMission(){
+  var w=walletState.address, a=_campaignActive;
+  if(!w||!a) return;
+  try{
+    var r=await fetch('/api/campaign/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,session_id:a.sessionId})});
+    var d=await r.json();
+    if(!r.ok){showToast(d.error||'Campaign complete failed');return;}
+    showCampaignResult(a.chapter,d.progress,d);
+    loadCampaignStatus();
+    try{refreshEmailBalances()}catch(e){}
+  }catch(e){showToast('Campaign complete failed');}
+}
+
+function showCampaignResult(ch,p,result){
+  var m=(result&&result.metrics)||p.metrics||{};
+  var rw=(result&&result.rewards)||p.rewards||{};
+  var ok=(result&&result.success)!==false && p.status!=='failed';
+  var html='<div style="font-size:18px;color:'+(ok?'var(--gn)':'var(--mars)')+';font-weight:900;margin-bottom:10px">'+(ok?'임무 완료':'임무 실패')+'</div>';
+  html+=campaignStatsHtml(m,p.status||'RESULT').replace('campaign-stats','campaign-result-grid');
+  html+='<div class="campaign-dialog"><b>'+escapeHtmlSafe((ch.briefing&&ch.briefing.npcName)||'Mission Control')+'</b><br>'+(ok?'작전 목표 달성. 다음 단계로 넘어간다.':'작전 실패. 결과는 기록된다.')+'</div>';
+  html+='<div style="font-size:11px;color:var(--gold);line-height:1.8">보상: +'+(rw.GP||0)+' GP · +'+(rw.XP||0)+' XP'+((rw.items&&rw.items.length)?' · Blueprint queued':'')+'</div>';
+  html+='<button class="campaign-btn" style="margin-top:12px" onclick="closeCampaignModal()">확인</button>';
+  _setCampaignModal(ch,html);
+}
+
 // ═══ QUEST SYSTEM ═══
 var _questPoolData={active:true,multiplier:1};
 function loadQuests(wallet){
@@ -24395,6 +25295,7 @@ function loadQuests(wallet){
     .then(function(data){
       loading.style.display='none';
       if(data.pool) _questPoolData=data.pool;
+      loadCampaignStatus();
       renderQuests(data.quests||[], container);
       renderClaimedQuests(data.recentlyClaimed||[], claimedDiv);
     })
@@ -26645,7 +27546,7 @@ function _discoverPOI(poiId) {
     }
     var rw = data.reward;
     var rwText = '';
-    if (rw.type === 'item' && rw.itemName) {
+    if ((rw.type === 'item' || rw.type === 'mineral') && rw.itemName) {
       rwText = (rw.itemIcon||'📦') + ' ' + rw.itemName + (rw.amount > 1 ? ' x' + rw.amount : '');
     } else if (rw.type === 'gp') {
       rwText = '+' + rw.amount + ' GP';
@@ -26738,6 +27639,17 @@ function toggleRight(){
 }
 function closeLeft(){document.getElementById('panelL').classList.remove('open');updateMobToggles()}
 function closeRight(){document.getElementById('panelR').classList.remove('open');updateMobToggles()}
+function forceCloseMobilePanels(){
+  if(window.innerWidth > 1024) return;
+  var pL=document.getElementById('panelL');
+  var pR=document.getElementById('panelR');
+  if(pL) pL.classList.remove('open');
+  if(pR) pR.classList.remove('open');
+  try{updateMobToggles()}catch(_){}
+}
+window.addEventListener('pageshow', forceCloseMobilePanels);
+window.addEventListener('load', forceCloseMobilePanels);
+window.addEventListener('orientationchange', function(){setTimeout(forceCloseMobilePanels, 80)});
 // Mobile: tapping outside an open status/live panel auto-closes it
 // (no need to hunt for the close button — respect mobile thumb ergonomics)
 document.addEventListener('click', function(e){
@@ -26797,7 +27709,7 @@ function updateCollapsedUI(){
   // On mobile, clear any desktop-only inline overrides so the mobile @media
   // rules for weather/buffs/rocketBanner take effect cleanly.
   if(isMobile){
-    ['weatherBanner','tbActiveBuffs','rocketBanner','modeBadge'].forEach(function(id){
+    ['weatherBanner','tbActiveBuffs','rocketBanner','modeBadge','campaignQuickBtn'].forEach(function(id){
       var e = document.getElementById(id);
       if(!e) return;
       e.style.left = '';
@@ -26817,6 +27729,12 @@ function updateCollapsedUI(){
   if(zc){
     zc.style.right = rCol ? '12px' : '';
     zc.style.bottom = navShown ? '66px' : '';
+  }
+  // Campaign quick button tracks the zoom column and sits just above Back.
+  var cq = document.getElementById('campaignQuickBtn');
+  if(cq){
+    cq.style.right = rCol ? '12px' : '';
+    cq.style.bottom = navShown ? '318px' : '';
   }
   // Mode badge: left panel collapsed → hug left edge, lifted above nav
   var badge = document.getElementById('modeBadge');
@@ -44647,6 +45565,362 @@ window.closeTacticalLab = closeTacticalLab;
     </div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     인게임 버그 리포터 — Bug Report Button + Modal
+     사용법: 화면 우하단 🐛 버튼 클릭 → 설명 작성 + 스크린샷 → 제출
+     Claude가 bug-reports/ 폴더를 읽어 버그를 수정하고 커밋합니다.
+════════════════════════════════════════════════════════════════ -->
+<style>
+/* ── Bug Reporter 플로팅 버튼 ── */
+#bugReportBtn{
+  position:fixed;bottom:20px;right:20px;z-index:99000;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(20,26,34,.9);border:1px solid rgba(239,83,80,.45);
+  color:#ef5350;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px rgba(0,0,0,.5);
+  transition:all .2s;user-select:none;
+}
+#bugReportBtn:hover{background:rgba(239,83,80,.18);transform:scale(1.08);}
+#bugReportBtn:active{transform:scale(.96);}
+/* ── Bug Reporter 모달 ── */
+#bugReportModal{
+  position:fixed;inset:0;z-index:99100;
+  background:rgba(0,0,0,.78);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+#bugReportModal.open{display:flex;}
+#bugReportCard{
+  width:min(540px,96vw);max-height:92vh;overflow:auto;
+  background:linear-gradient(180deg,rgba(20,28,34,.99),rgba(6,8,12,.99));
+  border:1px solid rgba(239,83,80,.35);border-radius:10px;
+  box-shadow:0 24px 80px rgba(0,0,0,.7);
+  font-family:var(--fn,'monospace');
+  display:flex;flex-direction:column;gap:0;
+}
+#bugReportCard h3{
+  margin:0;padding:16px 20px 12px;
+  font-size:13px;letter-spacing:2px;font-weight:900;
+  color:#ef5350;border-bottom:1px solid rgba(239,83,80,.2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+#bugReportCard h3 span{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1.5px;font-weight:400;}
+.br-close{
+  background:none;border:none;color:rgba(255,255,255,.4);
+  font-size:18px;cursor:pointer;padding:0 2px;line-height:1;
+}
+.br-close:hover{color:#ef5350;}
+.br-body{padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+.br-label{font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,.5);margin-bottom:4px;}
+#bugDescArea{
+  width:100%;min-height:90px;resize:vertical;
+  background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;color:#e0e0e0;font-family:var(--fn,'monospace');
+  font-size:12px;padding:10px;box-sizing:border-box;
+  outline:none;transition:border-color .15s;
+}
+#bugDescArea:focus{border-color:rgba(239,83,80,.5);}
+/* 스크린샷 영역 */
+#bugScreenshotZone{
+  border:1.5px dashed rgba(255,255,255,.18);border-radius:6px;
+  min-height:80px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;background:rgba(0,0,0,.25);
+  transition:border-color .15s;padding:10px;
+}
+#bugScreenshotZone:hover{border-color:rgba(239,83,80,.4);}
+#bugScreenshotZone.has-img{padding:0;overflow:hidden;}
+#bugScreenshotZone p{
+  margin:0;font-size:10px;color:rgba(255,255,255,.35);
+  letter-spacing:1px;text-align:center;pointer-events:none;
+}
+#bugScreenshotZone em{font-size:9px;color:rgba(255,255,255,.22);font-style:normal;}
+#bugSsPreview{
+  width:100%;max-height:220px;object-fit:contain;
+  border-radius:6px;display:none;
+}
+#bugSsInput{display:none;}
+#bugCapturingMsg{font-size:10px;color:#ffa726;letter-spacing:1px;display:none;}
+/* 버튼 행 */
+.br-actions{
+  padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);
+  display:flex;gap:10px;align-items:center;
+}
+#bugSubmitBtn{
+  flex:1;padding:10px 0;
+  background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.5);
+  color:#ef5350;border-radius:6px;cursor:pointer;
+  font-family:var(--fn,'monospace');font-size:11px;font-weight:800;
+  letter-spacing:1.5px;transition:all .2s;
+}
+#bugSubmitBtn:hover:not(:disabled){background:rgba(239,83,80,.28);}
+#bugSubmitBtn:disabled{opacity:.45;cursor:default;}
+#bugClearSsBtn{
+  padding:10px 14px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.45);border-radius:6px;cursor:pointer;
+  font-size:11px;transition:all .15s;display:none;
+}
+#bugClearSsBtn:hover{background:rgba(255,255,255,.1);}
+#bugStatusMsg{font-size:10px;letter-spacing:1px;color:#66bb6a;display:none;margin-left:4px;}
+</style>
+
+<!-- 플로팅 버튼 -->
+<button id="bugReportBtn" title="버그 신고 (Bug Report)" onclick="openBugReporter()">🐛</button>
+
+<!-- 버그 리포터 모달 -->
+<div id="bugReportModal" onclick="if(event.target===this)closeBugReporter()">
+  <div id="bugReportCard">
+    <h3>
+      🐛 BUG REPORT
+      <span id="bugReportIdHint">Claude가 읽고 수정합니다</span>
+      <button class="br-close" onclick="closeBugReporter()">✕</button>
+    </h3>
+    <div class="br-body">
+      <div>
+        <div class="br-label">버그 설명 *</div>
+        <textarea id="bugDescArea" placeholder="어떤 버그인지 설명해주세요.&#10;예) 전투 후 GP가 지급되지 않음, 화면이 흰색으로 됨 등"></textarea>
+      </div>
+      <div>
+        <div class="br-label">스크린샷 (선택)</div>
+        <div id="bugScreenshotZone" onclick="bugSsZoneClick()" ondragover="event.preventDefault()" ondrop="bugSsDrop(event)">
+          <img id="bugSsPreview" alt="screenshot preview"/>
+          <p id="bugSsPlaceholder">📸 클릭하거나 스크린샷을 붙여넣기 (Cmd+V / Ctrl+V)</p>
+          <em id="bugSsPlaceholder2">또는 파일을 여기에 드래그하세요</em>
+          <span id="bugCapturingMsg">화면 캡처 중...</span>
+        </div>
+        <input id="bugSsInput" type="file" accept="image/*" onchange="bugSsFileChosen(event)"/>
+      </div>
+    </div>
+    <div class="br-actions">
+      <button id="bugSubmitBtn" onclick="submitBugReport()">제출하기</button>
+      <button id="bugClearSsBtn" onclick="bugClearSs()">스크린샷 지우기</button>
+      <span id="bugStatusMsg">✓ 전송 완료</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   인게임 버그 리포터
+   - openBugReporter()   : 모달 열기 + 자동 캡처 시도
+   - closeBugReporter()  : 모달 닫기
+   - submitBugReport()   : POST /api/bug-report
+   ══════════════════════════════════════════════════════════════ */
+(function() {
+
+  var _ssDataUrl = null; // 현재 스크린샷 base64
+
+  // ── 열기/닫기 ─────────────────────────────────────────────
+  window.openBugReporter = function() {
+    document.getElementById('bugReportModal').classList.add('open');
+    document.getElementById('bugDescArea').focus();
+    // 자동 캡처 시도 (html2canvas가 있을 때만)
+    _autoCapture();
+  };
+
+  window.closeBugReporter = function() {
+    document.getElementById('bugReportModal').classList.remove('open');
+    _reset();
+  };
+
+  // ── 자동 캡처 (html2canvas CDN 로드 시도) ────────────────
+  function _autoCapture() {
+    if (typeof html2canvas !== 'undefined') {
+      _doCapture();
+      return;
+    }
+    // CDN 로드 (1회)
+    if (document.getElementById('_h2cScript')) return;
+    var s = document.createElement('script');
+    s.id  = 'h2cScript';
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = _doCapture;
+    document.head.appendChild(s);
+  }
+
+  function _doCapture() {
+    var capMsg = document.getElementById('bugCapturingMsg');
+    var ph1    = document.getElementById('bugSsPlaceholder');
+    var ph2    = document.getElementById('bugSsPlaceholder2');
+    if (capMsg) capMsg.style.display = 'block';
+    if (ph1)   ph1.style.display = 'none';
+    if (ph2)   ph2.style.display = 'none';
+
+    // 모달 자신을 숨기고 캡처
+    var modal = document.getElementById('bugReportModal');
+    modal.classList.remove('open');
+
+    setTimeout(function() {
+      html2canvas(document.body, {
+        scale:          1,
+        useCORS:        true,
+        allowTaint:     true,
+        logging:        false,
+        backgroundColor: '#000',
+      }).then(function(canvas) {
+        _ssDataUrl = canvas.toDataURL('image/png');
+        _showSsPreview(_ssDataUrl);
+        modal.classList.add('open');
+        if (capMsg) capMsg.style.display = 'none';
+      }).catch(function() {
+        modal.classList.add('open');
+        if (capMsg) capMsg.style.display = 'none';
+        if (ph1)   ph1.style.display = '';
+        if (ph2)   ph2.style.display = '';
+      });
+    }, 80); // 모달 fade-out 대기
+  }
+
+  // ── 스크린샷 영역 클릭 → 파일 선택 ─────────────────────
+  window.bugSsZoneClick = function() {
+    document.getElementById('bugSsInput').click();
+  };
+
+  window.bugSsFileChosen = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) { _showSsPreview(ev.target.result); };
+    reader.readAsDataURL(file);
+  };
+
+  window.bugSsDrop = function(e) {
+    e.preventDefault();
+    var file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) { _showSsPreview(ev.target.result); };
+    reader.readAsDataURL(file);
+  };
+
+  window.bugClearSs = function() {
+    _ssDataUrl = null;
+    var prev = document.getElementById('bugSsPreview');
+    var zone = document.getElementById('bugScreenshotZone');
+    var ph1  = document.getElementById('bugSsPlaceholder');
+    var ph2  = document.getElementById('bugSsPlaceholder2');
+    var btn  = document.getElementById('bugClearSsBtn');
+    prev.style.display = 'none';
+    prev.src = '';
+    zone.classList.remove('has-img');
+    if (ph1) ph1.style.display = '';
+    if (ph2) ph2.style.display = '';
+    btn.style.display = 'none';
+  };
+
+  function _showSsPreview(dataUrl) {
+    _ssDataUrl = dataUrl;
+    var prev = document.getElementById('bugSsPreview');
+    var zone = document.getElementById('bugScreenshotZone');
+    var ph1  = document.getElementById('bugSsPlaceholder');
+    var ph2  = document.getElementById('bugSsPlaceholder2');
+    var btn  = document.getElementById('bugClearSsBtn');
+    prev.src = dataUrl;
+    prev.style.display = 'block';
+    zone.classList.add('has-img');
+    if (ph1) ph1.style.display = 'none';
+    if (ph2) ph2.style.display = 'none';
+    btn.style.display = '';
+  }
+
+  // ── 클립보드 붙여넣기 지원 ────────────────────────────────
+  document.addEventListener('paste', function(e) {
+    if (!document.getElementById('bugReportModal').classList.contains('open')) return;
+    var items = (e.clipboardData || window.clipboardData).items;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        var blob   = items[i].getAsFile();
+        var reader = new FileReader();
+        reader.onload = function(ev) { _showSsPreview(ev.target.result); };
+        reader.readAsDataURL(blob);
+        break;
+      }
+    }
+  });
+
+  // ── 제출 ─────────────────────────────────────────────────
+  window.submitBugReport = function() {
+    var desc = (document.getElementById('bugDescArea').value || '').trim();
+    if (!desc) {
+      document.getElementById('bugDescArea').focus();
+      document.getElementById('bugDescArea').style.borderColor = 'rgba(239,83,80,.8)';
+      setTimeout(function() {
+        document.getElementById('bugDescArea').style.borderColor = '';
+      }, 1200);
+      return;
+    }
+
+    var btn    = document.getElementById('bugSubmitBtn');
+    var status = document.getElementById('bugStatusMsg');
+    btn.disabled  = true;
+    btn.textContent = '전송 중...';
+    status.style.display = 'none';
+
+    // 게임 컨텍스트 수집
+    var ctx = {
+      url:         location.href,
+      hash:        location.hash,
+      timestamp:   new Date().toISOString(),
+      openModals:  Array.from(document.querySelectorAll('[id$="Modal"],[id$="modal"],[id*="Modal"]'))
+                     .filter(function(el) {
+                       var s = getComputedStyle(el);
+                       return s.display !== 'none' && el.id !== 'bugReportModal';
+                     })
+                     .map(function(el) { return el.id; }),
+    };
+
+    var payload = {
+      description: desc,
+      screenshot:  _ssDataUrl || null,
+      context:     ctx,
+      userAgent:   navigator.userAgent,
+    };
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/bug-report', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) return;
+      btn.disabled   = false;
+      btn.textContent = '제출하기';
+      if (xhr.status === 200) {
+        try {
+          var r = JSON.parse(xhr.responseText);
+          document.getElementById('bugReportIdHint').textContent = '저장됨: ' + r.id;
+        } catch(e) {}
+        status.style.display = '';
+        status.style.color   = '#66bb6a';
+        status.textContent   = '✓ 전송 완료';
+        // 2초 후 자동 닫기
+        setTimeout(function() {
+          closeBugReporter();
+          status.style.display = 'none';
+        }, 1800);
+      } else {
+        status.style.display = '';
+        status.style.color   = '#ef5350';
+        status.textContent   = '✗ 전송 실패 (콘솔 확인)';
+        console.error('[BugReport] 서버 응답:', xhr.status, xhr.responseText);
+      }
+    };
+    xhr.send(JSON.stringify(payload));
+  };
+
+  // ── 리셋 ─────────────────────────────────────────────────
+  function _reset() {
+    document.getElementById('bugDescArea').value   = '';
+    document.getElementById('bugReportIdHint').textContent = 'Claude가 읽고 수정합니다';
+    document.getElementById('bugStatusMsg').style.display  = 'none';
+    bugClearSs();
+    var btn = document.getElementById('bugSubmitBtn');
+    btn.disabled    = false;
+    btn.textContent = '제출하기';
+  }
+
+})();
+</script>
 
 </body>
 </html>

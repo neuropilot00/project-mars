@@ -1,0 +1,59 @@
+{
+  "questId": "cv_campaign_ch8",
+  "campaignId": "cv_route",
+  "chapterNumber": 8,
+  "title": { "ko": "군벌의 도박", "en": "The Warlord's Gamble" },
+  "location": { "id": "argyre_plains", "displayNameKo": "아르기레 평원" },
+  "environment": "open_plains_battle",
+  "estimatedPlayTimeMinutes": 15,
+  "characters": ["player", "butcher", "cinder", "crow"],
+  "scenes": [
+    { "id": "s01", "type": "narration", "background": "argyre_plains", "bgm": "cv_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "아르기레 평원. 화성에서 가장 큰 분지. 거기서 CV가 집결했다. 흩어진 것들이 모였다. Crow의 쪽. Reza의 쪽. Cinder와 함께한 것들. 그리고 Butcher. 6개월이라고 했는데 아직 있었다. 화성에서 6개월은 짧은 것이었지만 길게 쓸 수 있었다.", "en": "Argyre Plains. The largest basin on Mars. There CV gathered. Scattered things came together. Crow's group. Reza's group. Those with Cinder. And Butcher. They said six months but he was still there. On Mars six months was short but could be made long." }}] },
+    { "id": "s02", "type": "narration", "background": "argyre_plains", "bgm": "cv_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "MCC와 FSP가 올림포스 회의로 갔다. 세 파벌 중 두 파벌이 테이블에 있었다. CV가 없는 테이블이었다. CV는 항상 테이블 밖이었다. 그것이 이번에는 달라야 했다. 그렇지 않으면 테이블 위에서 결정된 것이 CV에게 내려왔다. 그것이 30년 전에 일어난 일이었다.", "en": "MCC and FSP went to the Olympus meeting. Two of three factions were at the table. A table without CV. CV was always outside the table. This time had to be different. Otherwise what was decided at the table came down to CV. That was what had happened thirty years ago." }}] },
+    { "id": "s03", "type": "dialogue", "background": "argyre_plains", "bgm": "cv_ambient", "transition": "cut",
+      "lines": [
+        { "speaker": "butcher", "emotion": "serious", "effect": "character_enter:butcher:slide_left", "text": { "ko": "오늘이에요.", "en": "Today is the day." }},
+        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "CV가 도박을 해야 해요. 올림포스 테이블에 자리를 만들어야 해요. 아니면 테이블을 뒤엎어야 해요. 둘 중 하나예요.", "en": "CV has to gamble. We need to make a place at the Olympus table. Or overturn the table. One of the two." }},
+        { "speaker": "butcher", "emotion": "hollow", "text": { "ko": "결정은 당신이 해요. 나는 오늘 이후를 보장 못 해요. 폐가 알아요.", "en": "You make the decision. I can't guarantee after today. The lungs know." }}
+      ]
+    },
+    { "id": "s04", "type": "narration", "background": "argyre_plains", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": { "ko": "Butcher가 외투를 입고 있었다. 주머니에 손이 있었다. 사진 위에. 그것이 전투 전에 하는 일이었다. 30년 동안. 이름들을 만지는 것이었다. 말하지 않고. 손으로. 그것이 이 사람의 준비였다.", "en": "Butcher was wearing the coat. Hand in the pocket. On the photo. That was what he did before battle. For thirty years. Touching the names. Without speaking. With the hand. That was this man's preparation." }}] },
+    { "id": "s05", "type": "dialogue", "background": "argyre_plains", "bgm": "tension_high", "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "serious", "effect": "character_enter:cinder:slide_right", "text": { "ko": "MCC와 FSP가 올림포스에 있는 동안 우리가 여기서 결정하는 거예요.", "en": "While MCC and FSP are on Olympus we decide here." }},
+        { "speaker": "cinder", "emotion": "calm", "text": { "ko": "CV가 무엇인지. 무엇이 될 건지. 오늘 여기서요.", "en": "What CV is. What it will become. Here today." }},
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "나는 공구를 들어요. 그게 내 대답이에요.", "en": "I'll pick up my tools. That's my answer." }}
+      ]
+    },
+    { "id": "s06", "type": "narration", "background": "argyre_plains", "bgm": "tension_high", "transition": "cut",
+      "lines": [{ "text": { "ko": "Crow가 아르기레 평원을 봤다. 넓었다. 화성에서 가장 넓은 곳 중 하나. 협곡에서 자란 사람에게 평원은 달랐다. 넓은 곳에서 전투는 다른 것이었다. 숨을 곳이 없었다. 그것이 CV가 오늘 선택하는 것이었다. 숨지 않는 것.", "en": "Crow looked at the Argyre Plains. Wide. One of the widest places on Mars. For someone raised in canyons plains were different. Battle in open ground was different. Nowhere to hide. That was what CV was choosing today. Not hiding." }}] },
+    { "id": "s_choice", "type": "choice", "background": "argyre_plains", "bgm": "choice_finale",
+      "prompt": { "ko": "아르기레 평원. CV. 오늘의 도박. 무엇을 걸겠습니까.", "en": "Argyre Plains. CV. Today's gamble. What will you bet." },
+      "choices": [
+        { "id": "cv_ch8_table", "text": { "ko": "테이블에 자리를 만든다. 올림포스로.", "en": "Make a place at the table. To Olympus." }, "tone": "diplomatic", "preview_hint": { "ko": "→ 세 개의 깃발 완성. Butcher가 살아서 본다", "en": "→ Three Flags complete. Butcher sees it alive." }},
+        { "id": "cv_ch8_overturn", "text": { "ko": "테이블을 뒤엎는다. 새 질서.", "en": "Overturn the table. New order." }, "tone": "revolutionary", "preview_hint": { "ko": "→ 화성이 흔들린다. CV가 중심이 된다", "en": "→ Mars shakes. CV becomes the center." }},
+        { "id": "cv_ch8_withdraw", "text": { "ko": "CV는 CV의 땅으로 돌아간다.", "en": "CV returns to CV's own land." }, "tone": "independent", "preview_hint": { "ko": "→ 분리주의. 화성 남부가 CV 것이 된다", "en": "→ Separatism. The southern Mars becomes CV's." }},
+        { "id": "cv_ch8_crown", "text": { "ko": "세 파벌 너머의 화성을 만든다.", "en": "Make a Mars beyond three factions." }, "tone": "transcendent", "preview_hint": { "ko": "→ Butcher가 사진을 꺼낸다. 마지막으로", "en": "→ Butcher takes out the photo. For the last time." }}
+      ]
+    },
+    { "id": "s_battle", "type": "battle_transition", "background": "argyre_plains", "bgm": "battle_theme_finale", "transition": "flash_white",
+      "title": { "ko": "아르기레의 결전", "en": "Battle of Argyre" }, "subtitle": { "ko": "화성 최대 분지 — CV의 최후 선택", "en": "Mars's Greatest Basin — CV's Final Choice" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "dialogue", "background": "argyre_plains_dusk", "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "butcher", "emotion": "quiet", "effect": "character_enter:butcher:slide_left", "text": { "ko": "살았어.", "en": "We lived." }},
+        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "오늘 하루더 살았어. 그것으로 충분해.", "en": "Lived one more day. That's enough." }}
+      ]
+    },
+    { "id": "s_fail", "type": "narration", "background": "argyre_plains_night", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "도박이 실패했다. 아르기레 평원에 CV가 흩어졌다. 숨을 곳 없는 평원에서. 그러나 Butcher가 아직 있었다. 외투. 주머니. 사진. 그것이 있는 한 CV는 다시 시작할 수 있었다. 30년 전에도 그랬다.", "en": "The gamble failed. CV scattered on the Argyre Plains. In the plains with nowhere to hide. But Butcher was still there. Coat. Pocket. Photo. As long as those were there CV could start again. As it had thirty years ago." }}] },
+    { "id": "s_ending", "type": "ending", "background": "argyre_plains_night", "bgm": "cv_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "밤이었다. 평원이 어두웠다. 협곡보다 어둡지는 않았다. Crow가 말했다. 협곡이 더 어두웠어요. Cinder가 공구를 만졌다. 소리가 났다. 그것이 이 밤의 음악이었다. Butcher가 불 앞에 앉았다. 사진을 꺼내지 않았다. 주머니에 손을 넣었다. 그것으로 충분했다.", "en": "Night. The plains were dark. Not darker than the canyon. Crow said it. The canyon was darker. Cinder touched her tools. Sound came. That was the music of this night. Butcher sat by the fire. Didn't take out the photo. Put his hand in the pocket. That was enough." }}],
+      "next_chapter_preview": { "questId": "cv_campaign_ch9", "teaser": { "ko": "다음 — 세 개의 깃발", "en": "Next — Three Flags" }}
+    }
+  ]
+}

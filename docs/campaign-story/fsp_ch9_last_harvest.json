@@ -1,0 +1,55 @@
+{
+  "questId": "fsp_campaign_ch9",
+  "campaignId": "fsp_route",
+  "chapterNumber": 9,
+  "title": { "ko": "세 개의 깃발 — FSP", "en": "Three Flags — FSP" },
+  "location": { "id": "olympus_summit_station", "displayNameKo": "올림포스 산 정상 기지" },
+  "environment": "olympus_exterior_thin_air",
+  "pov": "rev_hale",
+  "crossChapterNote": "MCC Ch9 (Chen Weiss POV) 및 CV Ch9 (Cinder Grace POV)와 동일 사건.",
+  "characters": ["rev_hale", "player", "chen", "cinder"],
+  "scenes": [
+    { "id": "s01", "type": "narration", "background": "olympus_exterior", "bgm": "ambient_vast", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "Rev. Elias Hale은 올라오면서 기도했다. 그것이 그의 방식이었다. 기도는 말이 아니었다. 숨이었다. 올림포스를 오르는 숨. 마스크 안에서. 각 호흡이 기도였다. 화성에서 하는 기도는 그런 것이었다. 숨을 쉬는 것 자체가 선택이어야 했다.", "en": "Rev. Elias Hale prayed while ascending. That was his way. Prayer was not words. It was breath. The breath of climbing Olympus. Inside the mask. Each breath a prayer. Prayer on Mars was like that. The act of breathing had to be a choice." }}] },
+    { "id": "s02", "type": "narration", "background": "olympus_summit_station", "bgm": "ambient_vast", "transition": "cut",
+      "lines": [{ "text": { "ko": "그는 목사였다. 남반구 출신. 광부 가족. 그의 회중은 광부들이었다. 일요일마다 갱도 입구에서 예배를 드렸다. 신이 화성에 있는지 없는지는 알 수 없었다. 그러나 광부들이 거기 있었다. 그것으로 충분했다.", "en": "He was a minister. From the southern hemisphere. Miner family. His congregation was miners. Every Sunday he held service at the tunnel entrance. Whether God was on Mars or not was unknowable. But the miners were there. That was enough." }}] },
+    { "id": "s03", "type": "narration", "background": "olympus_summit_station", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "테이블이 있었다. Chen Weiss가 있었다. Cinder Grace가 있었다. Rev. Hale은 그들을 보았다. 두 사람. 두 가지 화성. MCC는 질서를 원했다. CV는 자유를 원했다. FSP는 존엄을 원했다. 그것이 다른 것이었다. 질서와 자유 사이에서 존엄은 자리가 없을 수 있었다.", "en": "There was a table. Chen Weiss was there. Cinder Grace was there. Rev. Hale looked at them. Two people. Two versions of Mars. MCC wanted order. CV wanted freedom. FSP wanted dignity. Those were different things. Between order and freedom dignity might have no place." }}] },
+    { "id": "s04", "type": "dialogue", "background": "olympus_summit_station", "bgm": "tension_low", "transition": "cut",
+      "lines": [
+        { "speaker": "rev_hale", "emotion": "measured", "effect": "character_enter:rev_hale:slide_left", "text": { "ko": "협상이 아닙니다. 고백입니다.", "en": "This is not negotiation. It is confession." }},
+        { "speaker": "rev_hale", "emotion": "serious", "text": { "ko": "우리는 화성에 뭔가를 했어요. MCC도. FSP도. CV도. 그것을 먼저 말해야 해요. 그다음에 앞으로의 이야기를 해요.", "en": "We have done things to Mars. MCC. FSP. CV too. We must say that first. Then we speak of what's ahead." }},
+        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "Kim Yong-jin. Mariam. Sector 7의 셋. 이름들. 여기 있는 세 명이 다 아는 이름들이에요. 그 이름들부터 시작해요.", "en": "Kim Yong-jin. Mariam. The three of Sector 7. Names. Names that all three here know. We start with those names." }}
+      ]
+    },
+    { "id": "s05", "type": "narration", "background": "olympus_summit_station", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": { "ko": "Chen Weiss가 차를 내려놓았다. 처음이었다. 테이블 위에. 마시지 않았지만. 내려놓은 것. Cinder Grace가 공구 벨트에 손을 얹었다. 잡지 않았다. 얹었다. Rev. Hale은 그것들을 봤다. 두 사람이 말하지 않고 말하는 것을 들었다.", "en": "Chen Weiss set down her tea. First time. On the table. She hadn't drunk it. But she had set it down. Cinder Grace placed her hand on the tool belt. Didn't grip it. Just placed it. Rev. Hale watched these things. He heard two people speaking without speaking." }}] },
+    { "id": "s06", "type": "dialogue", "background": "olympus_summit_station", "bgm": "tension_high", "transition": "cut",
+      "lines": [
+        { "speaker": "rev_hale", "emotion": "resolute", "text": { "ko": "FSP의 요구는 하나예요. 광부의 이름이 기록되는 것. 사고가 공개되는 것. 그것뿐이에요.", "en": "FSP's demand is one. That miners' names be recorded. That accidents be made public. That's all." }},
+        { "speaker": "rev_hale", "emotion": "serious", "text": { "ko": "제국이 필요 없어요. 영토가 필요 없어요. 이름이 필요해요. 이름이 있는 사람은 죽어도 존재해요.", "en": "No empire needed. No territory needed. Names are needed. A person with a name exists even after death." }}
+      ]
+    },
+    { "id": "s_choice", "type": "choice", "background": "olympus_summit_station", "bgm": "choice_tension",
+      "prompt": { "ko": "Rev. Hale의 요구. Chen과 Cinder가 듣고 있다. 어떻게 지지합니까.", "en": "Rev. Hale's demand. Chen and Cinder are listening. How do you support it." },
+      "choices": [
+        { "id": "fsp_ch9_all_names", "text": { "ko": "세 파벌 모두 사망자 명단을 공개한다.", "en": "All three factions make their death lists public." }, "tone": "radical", "preview_hint": { "ko": "→ 충격적 합의. 화성이 바뀐다", "en": "→ Shocking agreement. Mars changes." }},
+        { "id": "fsp_ch9_registry", "text": { "ko": "화성 노동자 사망 공식 등록부 설립을 제안한다.", "en": "Propose establishing an official Mars worker death registry." }, "tone": "institutional", "preview_hint": { "ko": "→ 화성 역사 최초의 공동 기관", "en": "→ First joint institution in Mars history" }},
+        { "id": "fsp_ch9_hale_leads", "text": { "ko": "Rev. Hale이 이 합의의 증인이 된다.", "en": "Rev. Hale becomes the witness of this agreement." }, "tone": "sacred", "preview_hint": { "ko": "→ 목사가 화성의 공증인이 된다", "en": "→ A minister becomes Mars's notary" }},
+        { "id": "fsp_ch9_silence", "text": { "ko": "침묵. 이름들을 혼자 기억한다.", "en": "Silence. Remember the names alone." }, "tone": "grief", "preview_hint": { "ko": "→ Rev. Hale이 당신을 본다. 오래", "en": "→ Rev. Hale looks at you. For a long time." }}
+      ]
+    },
+    { "id": "s_battle", "type": "battle_transition", "background": "olympus_exterior", "bgm": "battle_theme_fsp", "transition": "fade_slow",
+      "title": { "ko": "올림포스 — 이름들의 산", "en": "Olympus — Mountain of Names" }, "subtitle": { "ko": "올림포스 정상 — 존엄을 위하여", "en": "Olympus Summit — For Dignity" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "narration", "background": "olympus_summit_station", "bgm": "victory_calm",
+      "lines": [{ "text": { "ko": "합의가 됐다. Rev. Hale이 기도했다. 마스크를 벗지 않았다. 마스크 안에서 기도했다. 숨으로. 올림포스에서. 태양계에서 가장 높은 곳에서. Kim Yong-jin. Mariam. Sector 7의 셋. 이름들. 이제 기록될 것이었다.", "en": "Agreement reached. Rev. Hale prayed. Didn't remove the mask. Prayed inside the mask. With breath. On Olympus. At the highest point in the solar system. Kim Yong-jin. Mariam. The three of Sector 7. Names. Now they would be recorded." }}] },
+    { "id": "s_fail", "type": "narration", "background": "olympus_exterior", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "합의가 없었다. Rev. Hale이 내려왔다. 기도하면서. 올라갈 때와 같이. 이름들은 여전히 기록되지 않았다. 그것은 변하지 않았다. 그러나 기도는 계속됐다. 기도가 멈추면 그것이 진짜 끝이었다.", "en": "No agreement. Rev. Hale descended. Praying. As when he had climbed. The names still unrecorded. That had not changed. But the prayer continued. If prayer stopped that would be the real end." }}] },
+    { "id": "s_ending", "type": "ending", "background": "olympus_exterior_sunset", "bgm": "ambient_vast", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "올림포스에서 내려오면서 Rev. Hale은 이름들을 불렀다. 혼자. 마스크 안에서. Kim Yong-jin. Mariam. Sector 7의 셋. 그 아래 이름들. 아직 쓰이지 않은 이름들. 화성의 하늘이 붉었다. 항상 그랬다. 그러나 이름을 부르면서 내려올 때 붉은 하늘이 다르게 보였다. 그것은 기도의 효과였다.", "en": "Descending from Olympus Rev. Hale called the names. Alone. Inside the mask. Kim Yong-jin. Mariam. The three of Sector 7. The names below. The names not yet written. The Martian sky was red. It always was. But descending while calling names the red sky looked different. That was the effect of prayer." }}],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch10", "teaser": { "ko": "다음 — 자유의 대가", "en": "Next — The Price of Freedom" }}
+    }
+  ]
+}

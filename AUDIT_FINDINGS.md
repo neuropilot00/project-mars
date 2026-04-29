@@ -1,6 +1,312 @@
-# OCCUPY MARS — Codebase Audit (v5.13 / 2026-04-28)
+# OCCUPY MARS — Codebase Audit (v5.30 / 2026-04-29)
 
-## ✅ 현재 코드베이스 상태 요약 (2026-04-28 기준)
+## ✅ 현재 코드베이스 상태 요약 (2026-04-29 기준)
+
+### v5.30 Mobile first-load side panel lock — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| iPhone XS Max 첫 화면 | ✅ | 1024px 이하에서 좌/우 사이드 패널은 `.open` 없이는 `!important` off-screen transform을 적용해 지도 화면을 가리지 않게 수정. |
+| iOS 상태 복귀 | ✅ | `pageshow`, `load`, `orientationchange`에서 `forceCloseMobilePanels()`를 호출해 bfcache/회전/이전 open 상태가 첫 화면에 남지 않도록 보강. |
+
+검증:
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
+
+### v5.29 FSP Campaign Ch7~10 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| FSP Ch7 Assembly | ✅ | Hellas Central 의회, Mikhail/Liang/Amara/Diego/Player 의장 분기, 환경 위기 병행 지표, Ch8~Ch10 branch modifier 보상 추가. |
+| FSP Ch8 Gaia | ✅ | 시민 기부/전투 pledge/침묵/MCC 절도 4선택, Gaia 건조율·HP·민간 피해·절도 성공 지표, Gaia/Pilgrim Arms seed 보상 추가. |
+| FSP Ch9 Three Flags | ✅ | Olympus 정상회담, Amara/Chen/Butcher/전원후퇴/Pilgrim Arms 신호 보호 선택, 배신/4파벌/Peacemaker 분기 추가. |
+| FSP Ch10 Freedom's Price | ✅ | Citizen, Peacemaker, Gaia Captain, Disillusioned, New Chair, Bad Ending 최종 보상과 route completion token 추가. |
+| persistence | ✅ | `200_fsp_campaign_ch7_to_ch10.sql`에 환경, 위치, NPC, 의장 후보/유권자 테이블, lore, branch, tag, item, chapter seed 추가. |
+| full engine/UI 잔여 | 🟡 | Assembly 전용 11석 UI, Gaia 조선소 방어 UI, Three Flags 회담장 protect UI, ending eligibility 자동 추천/락 UI는 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- 운영 DB 기준 `200_fsp_campaign_ch7_to_ch10.sql` BEGIN/ROLLBACK 드라이런 통과
+
+---
+
+### v5.28 Campaign Ch1 continue/complete 안정화 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 산소 쟁탈 CONTINUE | ✅ | 진행 중인 `sessionId`가 있으면 `/api/campaign/start`로 새 세션을 만들지 않고 기존 브리핑/시뮬레이션을 이어가도록 수정. |
+| Ch1 완료 보상 | ✅ | blueprint/title/mastery/tag/lore/branch 같은 부가 보상을 `SAVEPOINT`로 격리해 한 항목 실패가 전체 완료 500으로 번지지 않게 보강. |
+| Ch1 구식 id | ✅ | Ch1 unlock/failure branch의 `mcc_ch2`, `mcc_ch6` 구식 id를 `mcc_campaign_ch2`, `mcc_campaign_ch6` 상수 경로로 정정. |
+
+검증:
+- 운영 DB 읽기 전용 schema/status 점검
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
+
+### v5.27 Campaign Quick Button 기준 위치 재조정 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 데스크탑 CAMPAIGN 버튼 | ✅ | 오른쪽 줌 컬럼의 되돌리기 버튼 위에 배치. |
+| 모바일 CAMPAIGN 버튼 | ✅ | 왼쪽 하단의 "화성을 클릭하여 영토 선택" 모드 배지 바로 위에 배치. |
+
+검증:
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
+
+### v5.26 Campaign Quick Button 위치 보정 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 데스크탑 CAMPAIGN 버튼 | ✅ | 하단 중앙 액션 영역에서 제거하고 좌측 패널 오른쪽 상단 보조 액션 위치로 이동. |
+| 태블릿/모바일 CAMPAIGN 버튼 | ✅ | 하단 네비, OPS split card, 줌 컬럼과 충돌하지 않도록 상단 왼쪽 작은 pill로 이동. |
+
+검증:
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
+
+### v5.25 FSP Campaign Ch5~6 MVP + Campaign UI 압축 — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| FSP Ch5 Kepler Commons | ✅ | Liang Wei, Roth dead drop, Kepler 회담, 산소 보급 시한, Commons/중재/압박/전투/전면 공개 분기를 서버 시뮬레이션으로 추가. |
+| FSP Ch6 The Mole | ✅ | Kenji Tanaka 진범, Sarah/Diego red herring, 단서 수집/심문 지표, 처형/이중첩자/추방/오판 분기 추가. |
+| 조건부 선택 검증 | ✅ | Ch5 Roth 데이터 압박/전면 공개 선택은 증거 flag가 있을 때만 허용. Ch5/Ch6 hard block도 서버 시작 조건에 반영. |
+| Campaign UI | ✅ | 메인 지도 CAMPAIGN 퀵 버튼 추가. QUESTS 안 캠페인 목록은 진행 가능/진행 중 카드만 크게 보이고 locked chapter는 접힘 compact list로 축소. |
+| persistence | ✅ | `199_fsp_campaign_ch5_ch6.sql`에 신규 환경, 위치, NPC, dead drop, internal zones, clue/suspect pool, lore, branch, tag, item, chapter seed 추가. |
+| full engine/UI 잔여 | 🟡 | Ch5 3파벌 회담 전용 테이블 UI, Ch6 수동 단서 수집/심문 루프, NPC 표정/zone map/real-time combat는 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `199_fsp_campaign_ch5_ch6.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
+
+### v5.24 FSP Campaign Ch4 Diplomacy MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| FSP Ch4 Diplomacy | ✅ | Sandstone Junction 비밀 회담, Cinder Grace 첫 등장, Amara 보호, MCC 정찰 회피 MVP 시뮬레이션 추가. |
+| 협상 선택지 | ✅ | 피난소 제공/보급 공유/정보 교환/증거 공유/협상 중단 5개 선택지와 Cinder 동맹 강도, CV/FSP 평판 변화를 서버 보상으로 계산. |
+| 조건부 증거 공유 | ✅ | `fsp_ch4_evidence_share`는 FSP Ch3 공식 작전 lore 또는 MCC cross-route 산소 노예제 branch evidence가 있어야 선택 가능. |
+| persistence | ✅ | `198_fsp_campaign_ch4_diplomacy.sql`에 Sandstone Junction, Cinder Grace, 신규 환경, lore flag, branch modifier, tag, item, chapter config seed 추가. |
+| Ch5/Ch6 spec 상태 | 🟡 | 전달된 FSP Ch4~6 문서에서 Ch5/Ch6는 placeholder라 이번 범위에서 제외. 다음 spec 수령 후 이어서 구현 필요. |
+| full engine/UI 잔여 | 🟡 | 외교 전용 UI, Amara 보호 객체, MCC 정찰선 조건부 호위전, Phobos shadow escape 연출은 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `198_fsp_campaign_ch4_diplomacy.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
+
+### v5.23 FSP Campaign Ch1~3 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| FSP Ch1 Breakwater | ✅ | New Athens 차 두 잔 의식, H2O 호송 2척, 응급 환자 2명, CV 약탈단, cargo/patient 상태 MVP 시뮬레이션 추가. |
+| FSP Ch2 Ice Caravan | ✅ | 태양광 노출 얼음 손실, Phobos Eclipse 활용 횟수, Lena 생존/신뢰, Sal Cruz 매복 결과를 서버 지표로 계산. |
+| FSP Ch3 Blood Mine | ✅ | Verin-7 산소 조절기, 알람 여부, 412명 광부 구출률, 60명 잔류 존중, Samuel/Amara 신뢰 분기 추가. |
+| FSP persistence | ✅ | lore flag, branch modifier, tag, NPC, environment, item, settlement seed를 `197_fsp_campaign_ch1_to_ch3.sql`에 추가. |
+| 정착지 seed | ✅ | `settlement_data`를 idempotent하게 생성/확장하고 New Athens/Cold Brook/Ridge Town/Hellas Central 초기값 추가. |
+| full engine/UI 잔여 | 🟡 | Tea Ceremony, Patient Gauge, Ice Gauge, Solar Exposure, Oxygen Regulator UI와 실제 battle object 연동은 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `197_fsp_campaign_ch1_to_ch3.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
+
+### v5.22 MCC Campaign Ch8~10 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Ch8 Prometheus | ✅ | 4-phase environmental sequence와 Branch A 파괴/Branch B·C 방어 MVP 시뮬레이션, Prometheus Titan/조기 Ending 3 분기 반영. |
+| Ch9 Broken Alliance | ✅ | 4전장 선택, NPC 전장 자동 결과, Pilgrim Arms 24척 공개, Amara/Butcher/Chen 운명 branch modifier 반영. |
+| Ch10 Shareholder Ending | ✅ | Ending 1~4 + fallback cinematic-only 챕터, 엔딩별 GP/XP/평판/아이템/tag/lore/cross-route modifier 지급. |
+| 엔딩 자격 계산 | ✅ | Branch A/B/C, Chen 사망, Roth 데이터, MCC 평판, blackmail data 조건을 서버에서 계산하고 부적격 엔딩 선택을 거부. |
+| 루트 선택 검증 | ✅ | Ch7~9 선택지가 활성 Ch6 루트 prefix와 맞지 않으면 `/api/campaign/choice`에서 차단. |
+| seed migration | ✅ | `196_mcc_campaign_ch8_to_ch10.sql`에 lore flag, branch modifier, tag, NPC, special asset, item, achievement, environment/chapter seed 추가. |
+| full engine/UI 잔여 | 🟡 | Ch8 phase UI, Ch9 4전장 실시간 UI, Ch10 엔딩 시네마틱/크레딧/NG+ UI는 후속 P1/P2. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `196_mcc_campaign_ch8_to_ch10.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
+
+### v5.21 MCC Campaign Ch5~7 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Ch5 Kepler Commons | ✅ | low gravity/oxygen pressure 환경과 FSP 차단, 보급선 호위, 단독 데이터 탈취, CV 자급 모선 격파 4분기 MVP 시뮬레이션 추가. |
+| Dr. Roth 데이터 | ✅ | Ch5 성공 경로에서 Roth 외계 기원 데이터, 플레이어 공개, Roth 실종 lore flag와 XP 보너스/데이터 artifact 보상을 지급. |
+| Ch6 Whistleblower | ✅ | Li Fang 지원/Chen 보고/자료 사본 보관 3개 선택으로 A/B/C 루트를 확정하고 tag, lore, ending branch modifier를 지급. |
+| Ch7 Market War | ✅ | Ch6 루트별 A/B/C 변형 선택지와 CV 군벌 제거, Helion 자회사 인수, Chen 감시 branch modifier를 반영. |
+| 루트 선택 검증 | ✅ | Ch7 시작 조건이 `mcc_route_a/b/c_active` 중 하나를 요구하고, `/api/campaign/choice`가 활성 루트와 맞지 않는 Ch7 선택지를 거부. |
+| status endpoint 호환 | ✅ | `player_branch_modifiers`의 실제 정렬 컬럼 `set_at`을 사용해 Ch7 branch availability 합산 중 500이 나지 않도록 수정. |
+| seed migration | ✅ | `195_mcc_campaign_ch5_to_ch7.sql`에 lore flag, branch modifier, tag, NPC, data artifact, 신규 환경, chapter/environment seed 추가. |
+| full engine 잔여 | 🟡 | Ch5 산소 보급선/Kepler 서버/CV 모선, Ch6 방사선 폭풍 탈출, Ch7 시장전 함대/경제 객체는 후속 전투 엔진 통합 필요. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/services/campaign.js` + `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `195_mcc_campaign_ch5_to_ch7.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
+
+### v5.20 MCC Campaign Ch2~4 MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Ch2 Frozen Highway | ✅ | Hellas 채굴장 인수 MVP 시뮬레이션 추가. 시설 HP, 민간인 피해, 민병대 격파, FSP 증원 ETA, `war_criminal` 실패 분기 반영. |
+| Ch3 Boardroom | ✅ | Helion/Verin/Chromium 3분기 선택과 branch별 보상/난이도/Ch6·Ch7 modifier 반영. |
+| Ch4 Pirate's Payroll | ✅ | Kara Vex 첫 만남, Ion Storm, Helion 습격대 도주/생존/호감 분기와 Ch9·Ch10 modifier 반영. |
+| seed migration | ✅ | `194_mcc_campaign_ch2_to_ch4.sql`에 22개 lore flag, 6개 branch modifier, `clean_operator`, 신규 환경, NPC, chapter seed 추가. |
+| 시작 조건 | ✅ | 서버가 prerequisite, required level, required reputation, blocking tag를 검증. Ch2 거부 시 Ch3 마지막 기회 branch override 허용. |
+| 보상/분기 지급 | ✅ | GP/XP/평판/아이템 inbox/lore/tag/branch modifier를 기존 complete 트랜잭션 경로로 처리. |
+| UI 범용화 | ✅ | 캠페인 카드/결과 모달이 Ch1 산소 지표에 고정되지 않고 Ch2~4 주요 metric을 표시. Locked chapter 버튼 비활성화. |
+| full engine 잔여 | 🟡 | Ch2 구조물/민간인 객체, Ch3 신규 함선, Ch4 NPC protection/manual-only mode는 후속 전투 엔진 통합 필요. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- 운영 DB 기준 `194_mcc_campaign_ch2_to_ch4.sql` ROLLBACK 드라이런 통과
+- `git diff --check` 통과
+
+---
+
+### v5.19 Campaign Common Systems — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| campaign progress/session | ✅ | 기존 Ch1 진행 테이블을 유지하면서 `campaign_sessions`, attempts, best/last metrics를 추가해 재접속/재시도 기반을 마련. |
+| reputation system | ✅ | MCC/FSP/CV/Pilgrim Arms 축 지원, -100~100 clamp, tier label, `reputation_history` 감사 로그 추가. |
+| tags/titles | ✅ | `tag_definitions`, `player_active_title`, player tag API 추가. grant/revoke는 admin secret 필요. |
+| lore flags | ✅ | `lore_flag_definitions`, player/global lore flag 기반 추가. set endpoint는 internal-only, check/get은 조회용. |
+| branch modifiers | ✅ | modifier definition/player modifier 테이블 및 active 조회 API 추가. Ch1 실패 modifier도 공통 테이블에 기록 가능. |
+| environment system | ✅ | 5개 환경 정의 seed와 Ch1 dust storm intensity curve seed 추가. 서버 helper가 현재 phase/modifier를 계산. |
+| campaign UI | ✅ | QUESTS CAMPAIGN 패널에 3축 평판 게이지 추가. |
+| status payload | ✅ | 캠페인 미시작 유저도 reputation 4축 기본값 `0`을 받도록 보정. |
+| security audit | ✅ | 클라이언트가 보상/평판/태그/분기를 결정하지 않도록 조작성 endpoint는 `x-admin-secret`/`x-admin-key` 필요. |
+| P2/P3 잔여 | 🟡 | 복잡 조건 evaluator, chapter spec validator, admin rollback 도구, full engine 환경 hook은 후속 단계. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+
+---
+
+### v5.18 MCC Campaign Ch1 "산소 쟁탈" MVP — 구현 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 기존 quest 시스템 호환성 | ✅ | daily/weekly quest 진행 테이블을 건드리지 않고 `player_campaign_progress`로 분리해 기존 QUESTS 로직과 충돌을 피함. |
+| 캠페인 DB 기반 | ✅ | chapter 메타, 진행도, 선택지, 평판, 태그, lore flag, branch modifier, reward inbox 테이블 추가. |
+| `/api/campaign/*` | ✅ | status/start/choice/progress/complete 5개 엔드포인트 추가. wallet/player_id alias와 session 검증 적용. |
+| 선택지 위변조 방어 | ✅ | 서버가 chapter 정의의 choice id만 허용하고, 이미 선택한 세션은 첫 선택지만 유지. 클라이언트 보상 payload는 받지 않음. |
+| 보상 지급 | ✅ | GP/XP/평판/칭호/환경 숙련도/blueprint inbox/진행도 갱신을 완료 트랜잭션 안에서 처리. |
+| 시뮬레이션 결정성 | ✅ | wallet + session_id + choice_id 기반 seed로 같은 세션 결과가 서버에서 결정됨. |
+| UI 진입 | ✅ | QUESTS 탭에 CAMPAIGN 카드, 브리핑 선택지, 진행 애니메이션, 결과 모달 추가. |
+| Phase 2 잔여 | 🟡 | v11.1 전투 엔진 통합, Helion 전용 함선/화물선 HP 보존 목표, 프롤로그 route lock/NG+는 다음 단계로 분리. |
+
+검증:
+- `server/services/campaign.js` `node --check` 통과
+- `server/routes/api.js` `node --check` 통과
+- `server/routes/api.js` require 스모크 통과
+- `index.html` 인라인 script 파싱 통과
+- `git diff --check` 통과
+
+---
+
+### v5.17 내 영토 테두리 두께 완화 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 내 영토 금색 테두리 | ✅ | halo `7px → 4.5px`, crisp line `2.2px → 1.5px`로 완화. |
+| 배경 텍스처 가독성 | ✅ | 내 영토 fill alpha와 shadow 강도를 낮춰 Mars 텍스처를 덜 가리도록 조정. |
+| 커밋/푸시 운영 규칙 | ✅ | `CLAUDE.md`에 audit/changelog 동반 업데이트 규칙 추가. |
+
+검증:
+- `index.html` 인라인 script 파싱 통과
+
+---
+
+### v5.16 영토 시인성/텍스처 예산 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 내/남/NPC 영토 구분 | ✅ | 내 영토 금색, 다른 플레이어 cyan, NPC 회보라 점선으로 단순화. |
+| 업로드 이미지 claim | ✅ | 이미지가 있는 영토도 동일한 외곽선/halo 체계를 적용. |
+| 텍스처 품질/렉 균형 | ✅ | 기본 4K 유지, 고성능 데스크톱만 6K, 수동 opt-in일 때만 8K 합성. |
+
+검증:
+- `index.html` 인라인 script 파싱 통과
+
+---
+
+### v5.15 POI 광물 발견 실패 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Ancient Ruins 발견 실패 | ✅ | `mineral` 보상 POI가 `poi_discoveries` CHECK 제약에서 롤백되던 문제 수정. |
+| 운영 DB 즉시 복구 | ✅ | 운영 `poi_discoveries_reward_type_check`에 `mineral` 허용 반영. |
+| 보상 표시 | ✅ | `mineral` 보상을 아이콘/이름/수량으로 표시하도록 프론트 보강. |
+
+검증:
+- 운영 DB 제약조건 확인
+- `index.html` 인라인 script 파싱 통과
+
+---
+
+### v5.14 하이잭 자동승리 영토 표시 — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| NPC/무함대 자동승리 표시 | ✅ | 새 픽셀 없이 적 픽셀만 하이잭해도 공격자 claim을 생성하고 이전 픽셀 `claim_id`를 새 claim으로 연결. |
+| 클릭/렌더 불일치 | ✅ | `pixels.owner`는 내 지갑인데 `claims` 대표 레코드가 없어 NPC 라벨/색으로 보이던 케이스 차단. |
+| Phase 2 audit | ✅ | 전투 승리 후 사후 생성한 claim id를 `hijack_battles.new_claim_id`에 기록. |
+| 즉시 렌더 | ✅ | 자동승리 응답 직후 프론트 임시 claim이 `lat/lng/w/h` 필드명을 사용하도록 수정. |
+
+검증:
+- `server/services/hijack.js` `node --check` 통과
+
+---
 
 ### v5.13 전수 버튼/하이잭 플로우 감사 — 수정 완료
 

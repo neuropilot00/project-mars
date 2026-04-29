@@ -360,6 +360,7 @@ app.use('/api', tombstoneRoutes);
 app.use('/api', milestoneRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
+try { app.use('/', require('./routes/bugReport')); } catch (e) { console.warn('[mount] bugReport skipped:', e.message); } // M-192: bug report submit + admin
 app.use('/admin/api', adminRoutes);
 app.use('/api/admin', require('./routes/adminEconomyRoutes'));
 app.use('/api/arena', arenaRoutes);

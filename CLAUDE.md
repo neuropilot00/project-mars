@@ -1,12 +1,17 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-04-28 v5.12 (핵심 플레이 라인 검수, 하이잭/함선/자원 제작 버그 수정) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-04-29 v5.30 (Mobile first-load side panel lock) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
-> 2. **CLAUDE.md §13** — 알려진 이슈 (해소/잔여)
-> 3. **CLAUDE.md §14** — 서비스 카탈로그
+> 2. **CLAUDE.md의 알려진 이슈 섹션** — 해소/잔여 이슈
+> 3. **CLAUDE.md의 서비스 카탈로그 섹션** — 주요 API/서비스 위치
 
 ---
+
+## 0. 작업 규칙
+
+- 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
+- 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
 
 ## 1. 프로젝트 한 줄 요약
 
@@ -48,7 +53,7 @@ NODE_ENV=development
 │   ├── index.js            ← Express 앱 + 스케줄러 (~1,151줄)
 │   ├── db.js               ← Pool + initDB + getSetting + logGPActivity + 공통 유틸
 │   ├── migrate.js          ← 파일 기반 마이그레이션 러너
-│   ├── migrations/         ← SQL 파일 001~168 (2026-04-25 기준)
+│   ├── migrations/         ← SQL 파일 001~199 (2026-04-29 기준)
 │   │   └── archived/       ← 사용 안 하는 구버전 마이그레이션 (51개, 건드리지 말 것)
 │   ├── routes/             ← 61개 라우트 파일 (/api/* 경로)
 │   └── services/           ← 73개 서비스 파일 (비즈니스 로직)
@@ -64,9 +69,9 @@ NODE_ENV=development
 ## 4. DB 현재 상태
 
 - **DB명**: `pixelwar` (PostgreSQL)
-- **적용된 마이그레이션**: 001 ~ **168** (2026-04-25 기준)
+- **적용된 마이그레이션**: 001 ~ **200** (2026-04-29 기준)
 - **총 테이블 수**: 109개+
-- **마지막 마이그레이션**: `168_sector_npc_ships.sql`
+- **마지막 마이그레이션**: `200_fsp_campaign_ch7_to_ch10.sql`
 
 ### 핵심 테이블 목록
 
@@ -98,6 +103,21 @@ NODE_ENV=development
 | `user_vip` | 유저 VIP 상태 |
 | **알림** | |
 | `player_notifications` | 플레이어 알림 (in-game) |
+| **Campaign** | |
+| `campaign_chapters` | 캠페인 챕터 메타/콘텐츠 |
+| `player_campaign_progress` | 캠페인 세션/진행도/결과/보상 payload |
+| `player_reputation` | mcc/fsp/cv 평판 |
+| `player_chapter_choices` | 브리핑 선택지 영구 기록 |
+| `player_lore_flags` | 서사 플래그 |
+| `chapter_branch_modifiers` | 향후 챕터 분기 영향 |
+| `campaign_reward_inbox` | blueprint 등 지연 수령 보상 |
+| `campaigns` / `chapters` | 30개 캠페인 챕터용 공통 정의 |
+| `campaign_sessions` | 진행 중 캠페인 세션/재접속 복구 |
+| `reputation_history` | 평판 변경 감사 로그 |
+| `tag_definitions` / `player_active_title` | 태그/칭호 정의 및 활성 칭호 |
+| `lore_flag_definitions` / `global_lore_flags` | player/global 서사 플래그 정의 |
+| `branch_modifier_definitions` / `player_branch_modifiers` | 챕터 간 분기 영향 정의/적용 |
+| `environment_definitions` / `chapter_environment_configs` | Dust Storm 등 환경 정의/phase curve |
 
 ### DB 뷰
 - `v_player_fleet_summary` — 유저별 함대 요약
@@ -106,7 +126,82 @@ NODE_ENV=development
 
 ---
 
-## 5. 코딩 패턴 — 반드시 준수
+## 5. Campaign System Architecture
+
+### 현재 구현 상태 (v5.29)
+- **MVP 방식**: MCC Campaign Ch1~10과 FSP Campaign Ch1~10은 `server/services/campaign.js`의 서버 결정형 시뮬레이션으로 처리한다. 아직 tactical-lab/v11.1 실시간 전투 엔진에는 연결하지 않았다.
+- **API**: `server/routes/api.js`의 `/api/campaign/status/:wallet`, `/api/campaign/start`, `/api/campaign/choice`, `/api/campaign/progress`, `/api/campaign/complete`.
+- **DB**: `server/migrations/192_campaign_mcc_ch1.sql`, `193_campaign_common_systems.sql`, `194_mcc_campaign_ch2_to_ch4.sql`, `195_mcc_campaign_ch5_to_ch7.sql`, `196_mcc_campaign_ch8_to_ch10.sql`, `197_fsp_campaign_ch1_to_ch3.sql`, `198_fsp_campaign_ch4_diplomacy.sql`, `199_fsp_campaign_ch5_ch6.sql`, `200_fsp_campaign_ch7_to_ch10.sql`이 campaign chapter, progress, choice, reputation, lore flag, branch modifier, reward inbox, 환경/챕터 seed를 만든다.
+- **UI**: `index.html` 메인 지도 CAMPAIGN 퀵 버튼 또는 QUESTS 탭의 CAMPAIGN 섹션에서 시작한다. CAMPAIGN 퀵 버튼은 데스크탑에서는 오른쪽 줌 컬럼의 되돌리기 버튼 위, 모바일에서는 왼쪽 하단 "화성을 클릭하여 영토 선택" 모드 배지 바로 위에 둔다. 잠긴 챕터는 기본 접힘 compact list로 렌더하고, 브리핑 → 선택지 → 압축 시뮬레이션 → 결과 모달 흐름은 유지한다.
+- **Mobile HUD**: 1024px 이하에서는 좌/우 사이드 패널이 `.open` 없이는 `!important` transform으로 off-screen 고정된다. iOS bfcache/첫 로드/pageshow/회전 시 `forceCloseMobilePanels()`가 패널 open 상태를 제거해 첫 화면이 지도로 시작하게 한다.
+- **보상 정책**: GP/XP/평판은 `complete()` 트랜잭션 안에서 핵심 보상으로 처리한다. 칭호/환경 숙련도/blueprint inbox/태그/서사 플래그/branch modifier 같은 부가 기록은 `SAVEPOINT`로 격리해 스키마/seed 누락이 있어도 챕터 완료 자체가 500으로 죽지 않게 한다. 클라이언트는 최종 보상값을 제출하지 않는다.
+- **세션 복구**: QUESTS 탭의 `CONTINUE`는 기존 `sessionId`를 이어서 브리핑/시뮬레이션으로 복구한다. 진행 중인 챕터를 다시 `/api/campaign/start`로 초기화하지 않는다.
+
+### MCC Route Implemented Chapters
+- `mcc_campaign_ch1`: 산소 쟁탈 / Dust Storm / 산소 회수율.
+- `mcc_campaign_ch2`: 동결된 고속도로 / night_freezing / 시설 HP, 민간인 피해, FSP 증원.
+- `mcc_campaign_ch3`: 이사회 / phobos_eclipse_periodic / Helion·Verin·Chromium 3분기.
+- `mcc_campaign_ch4`: 해적 매수 / ion_storm_active / Kara Vex, 회담 호위, Helion 습격대.
+- `mcc_campaign_ch5`: 케플러 분쟁 / low gravity + oxygen pressure / Roth 데이터, Kepler 서버, CV 자급 모선.
+- `mcc_campaign_ch6`: 내부고발자 / solar radiation storm / Li Fang 선택, A·B·C 루트 확정.
+- `mcc_campaign_ch7`: 시장 전쟁 / dust storm season peak / Ch6 루트별 Market War 변형.
+- `mcc_campaign_ch8`: 프로메테우스 / 4-phase environmental sequence / Prometheus 방어·파괴·조기 엔딩.
+- `mcc_campaign_ch9`: 깨진 동맹 / 4전장 병렬 시뮬레이션 / Pilgrim Arms 공개와 NPC 운명.
+- `mcc_campaign_ch10`: 주주 엔딩 / cinematic-only / 4 엔딩 + fallback, NG+ cross-route modifier.
+
+### FSP Route Implemented Chapters
+- `fsp_campaign_ch1`: 방파제 / dust storm recovery + night freezing / H2O 호송, 응급 환자, 차 두 잔 의식.
+- `fsp_campaign_ch2`: 얼음 캐러밴 / solar exposure + Phobos eclipse / 6대 얼음 운반선, Lena 개인 서사, Sal Cruz 매복.
+- `fsp_campaign_ch3`: 피의 광산 / high altitude thin air / Verin-7 산소 노예제, 412명 광부 해방, 60명 잔류 결정.
+- `fsp_campaign_ch4`: 외교 / subterranean dust + equatorial Phobos pattern / Cinder Grace 비밀 회담, Amara 보호, MCC 정찰 회피, CV 동맹 강도 분기.
+- `fsp_campaign_ch5`: Kepler 공유지 / low gravity crater + oxygen supply critical / Liang Wei, Roth dead drop, 3파벌 회담, Commons·중재·압박·전투·공개 5분기.
+- `fsp_campaign_ch6`: 두더지 / settlement interior + time pressure attack / Kenji Tanaka 색출, Sarah/Diego red herring, 처형·이중첩자·추방 영구 분기.
+- `fsp_campaign_ch7`: 의회 / assembly_session + dynamic_crisis / 영구 의장 선출, 외부인 의장 출마, 외곽 위기 병행, Ch10 엔딩 alignment seed.
+- `fsp_campaign_ch8`: 가이아 / civilian_donation_drive + shipyard_wave_defense / 시민 기부, Gaia 건조, MCC/CV/Pilgrim Arms wave 방어, Gaia 함장·Pilgrim Arms seed.
+- `fsp_campaign_ch9`: 세 개의 깃발 / neutral_summit + pilgrim_arms_assault / MCC·FSP·CV 정상회담, 보호 대상 선택, Pilgrim Arms 공개 등장, 엔딩 강제 분기.
+- `fsp_campaign_ch10`: 자유의 대가 / ending_evaluation_and_cinematic / Citizen, Peacemaker, Gaia Captain, Disillusioned, New Chair, Bad Ending 최종 보상.
+
+### Adding New Chapter Workflow
+1. `campaign_chapters` seed 또는 `CHAPTERS` 정의에 새 `questId`를 추가한다.
+2. `simulate*()`와 `calculateRewards()`를 챕터별로 분기한다.
+3. 시작 조건, choice id, reward id는 서버에서만 검증한다.
+4. UI는 `status` 응답의 chapter list를 렌더하므로, 가능하면 API payload 호환성을 유지한다.
+5. 커밋/푸시 전 `CHANGELOG.md`와 `AUDIT_FINDINGS.md`를 함께 갱신한다.
+
+### Branch Modifier System
+- `player_lore_flags`: 한 번 켜지는 서사 플래그.
+- `player_tags`: 플레이어 성향/업적 태그.
+- `chapter_branch_modifiers`: 특정 향후 챕터에만 영향을 주는 modifier.
+- 실패 분기 예: `cold_death` → `cold_sister_frozen`, `mcc_ch6/chen_distrust_increased`.
+- Ch6 루트 분기: `mcc_route_a_active`(Li Fang 지원), `mcc_route_b_active`(Chen 보고), `mcc_route_c_active`(자료 복사). Ch7~9는 서버에서 해당 루트 선택지만 허용한다.
+- Ch10 엔딩 자격은 `calculateEligibleEndings()`가 서버에서 계산한다. Branch A/Chen 사망은 Ending 3, Branch B는 Ending 1(+조건부 Ending 2), Branch C는 Ending 1/2/4 조건부.
+
+### Battle Resolution Modes
+- `server_simulation`: 현재 Ch1 MVP. 서버 seed로 결과를 계산하고 보상을 지급한다.
+- `full_engine`: Phase 2 예정. v11.1 전투 엔진 환경 modifier, Helion 함선/화물선 보존 목표, 실시간 진행 UI를 연결한다.
+
+### Reputation / Tags / Lore Flags Distinction
+- `player_reputation`: MCC/FSP/CV/Pilgrim Arms 수치 평판. 변경 시 -100~100으로 clamp하고 `reputation_history`에 남긴다.
+- `player_tags`: 플레이어 속성/칭호/불명예 상태. 예: `cold_death`, `efficient_operator`, `war_criminal`.
+- `player_lore_flags`: 플레이어별 서사 사건 발생 기록. 예: `cold_sister_frozen`, `lifang_personal_arc_unlocked`.
+- `chapter_branch_modifiers`/`player_branch_modifiers`: 특정 향후 챕터에 적용되는 분기 효과. 현재는 단순 조회/적용, 복잡 조건 evaluator는 P2.
+
+### Campaign API Map
+- `/api/campaign/status/:wallet`: 챕터, active session, reputation, tags, branch, inbox 조회.
+- `/api/campaign/start|choice|progress|complete|abandon`: 챕터 플레이 lifecycle.
+- `/api/reputation/:wallet`: 평판 조회. `/api/reputation/delta`는 internal-only.
+- `/api/tags/:wallet`, `/api/tags/set-active-title`: 플레이어 조회/칭호 설정. `/api/tags/grant|revoke`는 internal-only.
+- `/api/lore/flags/:wallet`, `/api/lore/flag/check`: lore 조회. `/api/lore/flag/set`은 internal-only.
+- `/api/branch/active/:wallet/:targetChapter`: 활성 branch 조회. `/api/branch/set`은 internal-only.
+
+### Environment System Phases
+- 정적 정의는 `environment_definitions`, 챕터별 curve는 `chapter_environment_configs`에 seed한다.
+- 런타임 helper는 `server/services/campaign.js#getEnvironmentState()`에 있다.
+- Ch1은 `dust_storm_incoming` 4단계: 0s/280s/560s/750s. `railgun`은 accuracy penalty 면역.
+
+---
+
+## 6. 코딩 패턴 — 반드시 준수
 
 ### ① 설정값 조회 (하드코딩 금지)
 ```javascript

@@ -1,0 +1,64 @@
+{
+  "questId": "fsp_campaign_ch4",
+  "campaignId": "fsp_route",
+  "chapterNumber": 4,
+  "title": { "ko": "Sandstone 약속", "en": "The Sandstone Promise" },
+  "location": { "id": "sandstone_junction", "displayNameKo": "샌드스톤 교차로" },
+  "environment": "crossroads_dust",
+  "estimatedPlayTimeMinutes": 15,
+  "pov_note": "Cinder Grace 60% POV — 같은 장면 CV Ch5에서 Cinder/Butcher 시각으로 재등장",
+  "characters": ["player", "lena", "cinder"],
+  "scenes": [
+    { "id": "s01", "type": "narration", "background": "sandstone_junction", "bgm": "fsp_ambient", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "샌드스톤 교차로. 화성 중부. 어느 파벌의 영토도 아닌 곳이었다. 그래서 세 파벌이 모두 거쳐가는 곳이었다. 모래가 붉었다. 모래 위에 오래된 발자국들이 있었다. 모두 다른 방향에서 왔다. 모두 다른 방향으로 갔다.", "en": "Sandstone Junction. Central Mars. Not in any faction's territory. Which was why all three factions passed through it. The sand was red. Old footprints on the sand. All came from different directions. All left in different directions." }}] },
+    { "id": "s02", "type": "narration", "background": "sandstone_junction", "bgm": "fsp_ambient", "transition": "cut",
+      "lines": [{ "text": { "ko": "Cinder Grace가 먼저 와 있었다. CV였다. 공구 벨트가 있었다. 손에 오일이 있었다. 이 사람은 어디서든 일하는 사람이었다. 일이 없을 때도 일하는 것처럼 보이는 사람이었다. 그것이 그녀의 방식이었다.", "en": "Cinder Grace had arrived first. CV. Tool belt. Oil on her hands. This was someone who worked everywhere. Even when there was no work she looked like she was working. That was her way." }}] },
+    { "id": "s03", "type": "dialogue", "background": "sandstone_junction", "bgm": "fsp_ambient", "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "calm", "effect": "character_enter:cinder:slide_right", "text": { "ko": "FSP가 왔군요.", "en": "FSP came." }},
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "Butcher가 이 회의를 원하지 않았어요. 내가 설득했어요. 오래 걸렸어요.", "en": "Butcher didn't want this meeting. I convinced him. It took a long time." }},
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "한 번만 해요. 오늘 여기서 약속하면 그것은 약속이에요. CV는 약속을 기억해요. 광산에서 배운 거예요.", "en": "Once only. If a promise is made here today it is a promise. CV remembers promises. Learned that in the mines." }}
+      ]
+    },
+    { "id": "s04", "type": "dialogue", "background": "sandstone_junction", "bgm": "tension_low", "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "tense", "effect": "character_enter:lena:slide_left", "text": { "ko": "보스. 제가 말해도 돼요?", "en": "Boss. Can I speak?" }},
+        { "speaker": "lena", "emotion": "direct", "text": { "ko": "Cinder. FSP는 CV를 믿어요. 그게 뭔 말인지 알겠어요? 우리가 믿는 건 많지 않아요.", "en": "Cinder. FSP trusts CV. Do you know what that means? There aren't many things we trust." }},
+        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "내 팔에 이름들이 있어요. 이름들 중에 CV 사람도 있어요.", "en": "There are names on my arm. Among them are CV people too." }}
+      ]
+    },
+    { "id": "s05", "type": "narration", "background": "sandstone_junction", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": { "ko": "Cinder가 Lena의 팔을 봤다. 오래 봤다. 공구를 만지지 않았다. 그것이 이 사람의 주의였다. 공구를 만지지 않을 때 이 사람은 무언가를 생각하는 것이었다. 이름들을 읽는 것이었을지도 몰랐다.", "en": "Cinder looked at Lena's arm. Looked for a long time. Didn't touch her tools. That was this person's attention. When she didn't touch her tools she was thinking something. Perhaps she was reading the names." }}] },
+    { "id": "s06", "type": "dialogue", "background": "sandstone_junction", "bgm": "tension_medium", "transition": "cut",
+      "lines": [
+        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "약속의 내용을 말할게요. FSP는 CV 영토를 인정해요. CV는 FSP 노동자를 건드리지 않아요. MCC가 공격하면 같이 막아요.", "en": "I'll state the terms of the promise. FSP recognizes CV territory. CV doesn't touch FSP workers. If MCC attacks we hold together." }},
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "그것뿐이에요. 간단해요. 간단한 것이 오래 가요.", "en": "That's all. Simple. Simple things last." }}
+      ]
+    },
+    { "id": "s_choice", "type": "choice", "background": "sandstone_junction", "bgm": "choice_tension",
+      "prompt": { "ko": "Sandstone 약속. 서명 전. 마지막 순간.", "en": "The Sandstone Promise. Before the signature. The last moment." },
+      "choices": [
+        { "id": "fsp_ch4_sign", "text": { "ko": "서명한다.", "en": "Sign it." }, "tone": "decisive", "preview_hint": { "ko": "→ FSP-CV 동맹 성립, MCC 대응 격화", "en": "→ FSP-CV alliance formed, MCC escalates" }},
+        { "id": "fsp_ch4_amend", "text": { "ko": "한 조항을 추가한다. Ancient Metal은 공유한다.", "en": "Add one clause. Ancient Metal is shared." }, "tone": "strategic", "preview_hint": { "ko": "→ Cinder가 생각한다. 오래", "en": "→ Cinder thinks. For a long time." }},
+        { "id": "fsp_ch4_delay", "text": { "ko": "Mikhail에게 먼저 보고한다.", "en": "Report to Mikhail first." }, "tone": "procedural", "preview_hint": { "ko": "→ Mikhail이 말한다. 그것이 중요해", "en": "→ Mikhail speaks. That matters." }},
+        { "id": "fsp_ch4_refuse", "text": { "ko": "서명하지 않는다. 이유를 말한다.", "en": "Don't sign. State the reason." }, "tone": "principled", "preview_hint": { "ko": "→ Cinder가 공구를 잡는다. 그러나 멈춘다", "en": "→ Cinder reaches for her tools. Then stops." }}
+      ]
+    },
+    { "id": "s_battle", "type": "battle_transition", "background": "sandstone_junction", "bgm": "battle_theme_fsp", "transition": "fade_slow",
+      "title": { "ko": "교차로 방어", "en": "Junction Defense" }, "subtitle": { "ko": "샌드스톤 — 약속의 가격", "en": "Sandstone — The Price of a Promise" }
+    },
+    { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+    { "id": "s_success", "type": "dialogue", "background": "sandstone_junction_dusk", "bgm": "victory_calm",
+      "lines": [
+        { "speaker": "cinder", "emotion": "quiet", "effect": "character_enter:cinder:slide_right", "text": { "ko": "약속이에요.", "en": "It's a promise." }},
+        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "CV는 약속을 기억해요. 광산에서 배운 거라고 했죠. 광산에서는 약속 하나가 사람을 살리거든요.", "en": "CV remembers promises. Said we learned it in the mines. In the mines one promise saves a life." }}
+      ]
+    },
+    { "id": "s_fail", "type": "narration", "background": "sandstone_junction", "bgm": "defeat_ambient",
+      "lines": [{ "text": { "ko": "약속이 없었다. 교차로에 발자국만 남았다. 각자의 방향으로. Cinder가 어느 방향으로 갔는지는 보지 못했다. 샌드스톤은 그대로였다. 이름이 붙은 이유가 있는 곳이었다. 모래와 돌. 약속하기에 좋은 곳. 지키기에도 좋은 곳. 그러나 오늘은 아니었다.", "en": "No promise. Only footprints remained at the junction. Each in their own direction. Which direction Cinder went was not seen. Sandstone remained as it was. A place with a name for a reason. Sand and stone. Good for promises. Good for keeping them too. But not today." }}] },
+    { "id": "s_ending", "type": "ending", "background": "sandstone_junction_dusk", "bgm": "ambient_melancholy", "transition": "fade_slow",
+      "lines": [{ "text": { "ko": "교차로에 혼자였다. 해가 기울었다. 모래가 빨갛게 됐다. 발자국들이 세 방향으로 흩어졌다. 화성에서 만남이 있었다. 약속이 있었다. 그 약속이 화성의 미래를 바꿀 것이었다. 아니면 샌드스톤의 모래처럼 바람에 지워질 것이었다. 어느 쪽인지는 아직 몰랐다.", "en": "Alone at the junction. The sun tilted. The sand turned red. Footprints scattered in three directions. There had been a meeting on Mars. There had been a promise. That promise would change the future of Mars. Or it would be erased by wind like the sand of Sandstone. Which it would be was not yet known." }}],
+      "next_chapter_preview": { "questId": "fsp_campaign_ch5", "teaser": { "ko": "다음 — Kepler 공유지", "en": "Next — Kepler Commons" }}
+    }
+  ]
+}
