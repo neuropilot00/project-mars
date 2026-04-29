@@ -5,33 +5,81 @@
   "title": { "ko": "의원회", "en": "The Assembly" },
   "location": { "id": "fsp_assembly_hall", "displayNameKo": "FSP 의원회 의사당" },
   "environment": "assembly_hall",
-  "estimatedPlayTimeMinutes": 15,
+  "estimatedPlayTimeMinutes": 17,
   "characters": ["player", "mikhail", "lena", "amara"],
   "scenes": [
+
     { "id": "s01", "type": "narration", "background": "fsp_assembly_hall", "bgm": "fsp_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "FSP 의원회 의사당. MCC 이사회와 달랐다. 밀폐되지 않았다. 창문이 있었다. 밖이 보였다. 광산이 보였다. 그것이 의도된 것이었다. FSP는 바깥을 잊지 않으려 했다. 창문이 그것이었다.", "en": "The FSP Assembly Hall. Different from the MCC boardroom. Not sealed. There were windows. The outside was visible. The mines were visible. That was intentional. FSP tried not to forget the outside. That was what the windows were." }}] },
+      "lines": [{ "text": {
+        "ko": "FSP 의원회 의사당. MCC 이사회와 달랐다. 밀폐되지 않았다. 창문이 있었다. 밖이 보였다. 광산이 보였다. 그것이 의도된 것이었다. FSP는 바깥을 잊지 않으려 했다. 창문이 그것이었다.",
+        "en": "The FSP Assembly Hall. Different from the MCC boardroom. Not sealed. There were windows. The outside was visible. The mines were visible. That was intentional. FSP tried not to forget the outside. That was what the windows were."
+      }}]
+    },
+
     { "id": "s02", "type": "narration", "background": "fsp_assembly_hall", "bgm": "fsp_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "Mikhail이 거기 있었다. 오른쪽 다리가 안 좋았다. 그것은 예전부터였다. 광산 사고. 다리는 그것을 기억했다. 오늘은 더 안 좋아 보였다. 그는 앉아 있었다. 의원회에서 Mikhail이 앉으면 안 좋은 날이었다.", "en": "Mikhail was there. His right leg was troubled. That was old. Mine accident. The leg remembered it. Today it looked worse. He was sitting. When Mikhail sat in the assembly it was a bad day." }}] },
+      "lines": [{ "text": {
+        "ko": "Mikhail이 거기 있었다. 오른쪽 다리가 안 좋았다. 그것은 예전부터였다. 광산 사고. 다리는 그것을 기억했다. 오늘은 더 안 좋아 보였다. 그는 앉아 있었다. 의원회에서 Mikhail이 앉으면 안 좋은 날이었다.",
+        "en": "Mikhail was there. His right leg was troubled. That was old. Mine accident. The leg remembered it. Today it looked worse. He was sitting. When Mikhail sat in the assembly it was a bad day."
+      }}]
+    },
+
     { "id": "s03", "type": "dialogue", "background": "fsp_assembly_hall", "bgm": "fsp_ambient", "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "heavy", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "오늘 의원회에 안건이 있어요.", "en": "The assembly has business today." }},
-        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "내가 오래됐어요. FSP를 만든 지 28년. 화성에서 28년은 긴 것이에요. 내 다리도 알아요.", "en": "I've been here a long time. Twenty-eight years since I made FSP. On Mars twenty-eight years is long. My leg knows." }},
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "다음 의장 후보가 다섯이에요. 당신도 봐야 해요.", "en": "There are five candidates for the next chair. You should watch too." }}
+        { "speaker": "mikhail", "emotion": "heavy", "effect": "character_enter:mikhail:slide_left", "text": {
+          "ko": "오늘 의원회에 안건이 있어요.",
+          "en": "The assembly has business today."
+        }},
+        { "speaker": "mikhail", "emotion": "thoughtful", "text": {
+          "ko": "내가 오래됐어요. FSP를 만든 지 28년. 화성에서 28년은 긴 것이에요. 내 다리도 알아요.",
+          "en": "I've been here a long time. Twenty-eight years since I made FSP. On Mars twenty-eight years is long. My leg knows."
+        }},
+        { "speaker": "mikhail", "emotion": "quiet", "text": {
+          "ko": "다음 의장 후보가 다섯이에요. 자네도 봐야 해요.",
+          "en": "There are five candidates for the next chair. You should watch too."
+        }}
       ]
     },
+
     { "id": "s04", "type": "narration", "background": "fsp_assembly_hall", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "다섯 명이었다. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. 다섯 명이 테이블 앞에 앉았다. 창문 너머로 광산이 보였다. 다섯 명 모두 그 광산과 관련이 있었다. 그것이 FSP였다.", "en": "Five people. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. Five sat before the table. Through the window the mines were visible. All five had connections to those mines. That was FSP." }}] },
+      "lines": [{ "text": {
+        "ko": "다섯 명이었다. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. 다섯 명이 테이블 앞에 앉았다. 창문 너머로 광산이 보였다. 다섯 명 모두 그 광산과 관련이 있었다. 그것이 FSP였다.",
+        "en": "Five people. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. Five sat before the table. Through the window the mines were visible. All five had connections to those mines. That was FSP."
+      }}]
+    },
+
     { "id": "s05", "type": "dialogue", "background": "fsp_assembly_hall", "bgm": "tension_low", "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "composed", "effect": "character_enter:amara:slide_right", "text": { "ko": "Amara Okafor입니다. 남부 헬라스 출신. 의원 11년.", "en": "Amara Okafor. From southern Hellas. Eleven years as a representative." }},
-        { "speaker": "amara", "emotion": "serious", "text": { "ko": "FSP의 다음은 협상이에요. MCC와도. CV와도. 싸우면서 협상해요. 그것이 화성에서 살아남는 방법이에요.", "en": "FSP's next step is negotiation. With MCC too. With CV too. Negotiate while fighting. That is how to survive on Mars." }},
-        { "speaker": "amara", "emotion": "calm", "text": { "ko": "Mikhail이 만든 것을 내가 이어받아요. 그러나 다른 방식으로.", "en": "What Mikhail built I will carry forward. But in a different way." }}
+        { "speaker": "amara", "emotion": "composed", "effect": "character_enter:amara:slide_right", "text": {
+          "ko": "Amara Okafor입니다. 남부 헬라스 출신. 의원 11년.",
+          "en": "Amara Okafor. From southern Hellas. Eleven years as a representative."
+        }},
+        { "speaker": "amara", "emotion": "serious", "text": {
+          "ko": "FSP의 다음은 협상이에요. MCC와도. CV와도. 싸우면서 협상해요. 그것이 화성에서 살아남는 방법이에요.",
+          "en": "FSP's next step is negotiation. With MCC too. With CV too. Negotiate while fighting. That is how to survive on Mars."
+        }},
+        { "speaker": "amara", "emotion": "calm", "text": {
+          "ko": "Mikhail이 만든 것을 내가 이어받아요. 그러나 다른 방식으로.",
+          "en": "What Mikhail built I will carry forward. But in a different way."
+        }}
       ]
     },
+
     { "id": "s06", "type": "narration", "background": "fsp_assembly_hall", "bgm": "tension_medium", "transition": "cut",
-      "lines": [{ "text": { "ko": "Mikhail이 들었다. 차를 들지 않았다. 오늘은 차가 없었다. 그것이 달랐다. 이 사람이 차 없이 있는 날은 많지 않았다. 그의 손이 테이블 위에 있었다. 두 손. 가만히 있었다. 두 손이 가만히 있을 때 이 사람은 결정하는 것이었다.", "en": "Mikhail listened. He wasn't holding tea. Today there was no tea. That was different. There weren't many days this man was without tea. His hands were on the table. Both hands. Still. When both hands were still this man was deciding something." }}] },
+      "lines": [{ "text": {
+        "ko": "Mikhail이 들었다. 차를 들지 않았다. 오늘은 차가 없었다. 그것이 달랐다. 이 사람이 차 없이 있는 날은 많지 않았다. 그의 손이 테이블 위에 있었다. 두 손. 가만히 있었다. 두 손이 가만히 있을 때 이 사람은 결정하는 것이었다.",
+        "en": "Mikhail listened. He wasn't holding tea. Today there was no tea. That was different. There weren't many days this man was without tea. His hands were on the table. Both hands. Still. When both hands were still this man was deciding something."
+      }}]
+    },
+
+    { "id": "s07", "type": "narration", "background": "fsp_assembly_hall", "bgm": "tension_medium", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "창문 너머에서 광부 한 사람이 갱도로 들어가고 있었다. 작은 사람이었다. 헬멧을 썼다. 손에 도구가 있었다. 그 사람이 누군지는 알 수 없었다. 그러나 의원회 안에서 그 사람의 손은 이 다섯 후보 중 누군가의 손과 같은 손일 것이었다. 그것이 FSP가 잊지 말아야 한다고 말한 것이었다.",
+        "en": "Through the window a miner was entering a tunnel. A small figure. Helmet. Tools in hand. Who he was could not be known. But inside the assembly his hand would be the same hand as one of the five candidates. That was the thing FSP said not to forget."
+      }}]
+    },
+
     { "id": "s_choice", "type": "choice", "background": "fsp_assembly_hall", "bgm": "choice_tension",
-      "prompt": { "ko": "다섯 후보. Mikhail이 당신 의견을 묻는다.", "en": "Five candidates. Mikhail asks your opinion." },
+      "prompt": { "ko": "다섯 후보. Mikhail이 자네 의견을 묻는다.", "en": "Five candidates. Mikhail asks your opinion." },
       "choices": [
         { "id": "fsp_ch7_amara", "text": { "ko": "Amara Okafor. 협상과 지속.", "en": "Amara Okafor. Negotiation and continuity." }, "tone": "diplomatic", "preview_hint": { "ko": "→ FSP 안정적 전환, 타협 노선", "en": "→ FSP stable transition, compromise path" }},
         { "id": "fsp_ch7_yuna", "text": { "ko": "Yuna Kim. 60명 마을의 아이.", "en": "Yuna Kim. The child of the sixty-person village." }, "tone": "idealistic", "preview_hint": { "ko": "→ FSP 급진화, MCC 강경 대응", "en": "→ FSP radicalizes, MCC responds forcefully" }},
@@ -39,21 +87,40 @@
         { "id": "fsp_ch7_abstain", "text": { "ko": "의견을 말하지 않는다. FSP의 결정이다.", "en": "Give no opinion. This is FSP's decision." }, "tone": "respectful", "preview_hint": { "ko": "→ Mikhail이 고맙다고 한다. 진심으로", "en": "→ Mikhail thanks you. Sincerely." }}
       ]
     },
+
     { "id": "s_battle", "type": "battle_transition", "background": "fsp_base_exterior", "bgm": "battle_theme_fsp", "transition": "fade_slow",
       "title": { "ko": "의원회 수호", "en": "Assembly Guard" }, "subtitle": { "ko": "FSP 의사당 — 민주주의의 무게", "en": "FSP Assembly — The Weight of Democracy" }
     },
+
     { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+
     { "id": "s_success", "type": "dialogue", "background": "fsp_assembly_hall", "bgm": "victory_calm",
       "lines": [
-        { "speaker": "mikhail", "emotion": "moved", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "의원회가 끝났어요.", "en": "The assembly has concluded." }},
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "28년 전에 여기서 시작했어요. 창문이 없었어요 그때는. 내가 만들었어요. 이유는 간단해요. 바깥을 잊으면 안 되니까.", "en": "Twenty-eight years ago it started here. There were no windows then. I made them. The reason is simple. We must not forget the outside." }}
+        { "speaker": "mikhail", "emotion": "moved", "effect": "character_enter:mikhail:slide_left", "text": {
+          "ko": "의원회가 끝났어요.",
+          "en": "The assembly has concluded."
+        }},
+        { "speaker": "mikhail", "emotion": "quiet", "text": {
+          "ko": "28년 전에 여기서 시작했어요. 창문이 없었어요 그때는. 내가 만들었어요. 이유는 간단해요. 바깥을 잊으면 안 되니까.",
+          "en": "Twenty-eight years ago it started here. There were no windows then. I made them. The reason is simple. We must not forget the outside."
+        }}
       ]
     },
+
     { "id": "s_fail", "type": "narration", "background": "fsp_assembly_hall", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "의원회가 결론에 이르지 못했다. 다섯 명. 다섯 개의 방향. 화성에서 방향이 많으면 아무 곳으로도 가지 못했다. Mikhail이 일어섰다. 다리가 좋지 않았다. 그러나 일어섰다. 그것이 이 사람의 방식이었다.", "en": "The assembly reached no conclusion. Five people. Five directions. On Mars too many directions meant going nowhere. Mikhail stood. His leg was troubled. But he stood. That was this man's way." }}] },
+      "lines": [{ "text": {
+        "ko": "의원회가 결론에 이르지 못했다. 다섯 명. 다섯 개의 방향. 화성에서 방향이 많으면 아무 곳으로도 가지 못했다. Mikhail이 일어섰다. 다리가 좋지 않았다. 그러나 일어섰다. 그것이 이 사람의 방식이었다.",
+        "en": "The assembly reached no conclusion. Five people. Five directions. On Mars too many directions meant going nowhere. Mikhail stood. His leg was troubled. But he stood. That was this man's way."
+      }}]
+    },
+
     { "id": "s_ending", "type": "ending", "background": "fsp_assembly_hall_evening", "bgm": "ambient_melancholy", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "의원회가 끝났다. Mikhail이 혼자 남았다. 창문 앞에 섰다. 광산이 보였다. 저 광산에서 일하는 사람들. 그 사람들의 이름이 이 조직을 만들었다. 이름들이 조직보다 오래 살아남는 것이었다. 그것을 알았다. 창문을 만든 이유가 그것이었다.", "en": "The assembly ended. Mikhail remained alone. He stood before the window. The mines were visible. The people working in those mines. Their names had made this organization. Names outlasted organizations. He knew that. That was why he had made the windows." }}],
+      "lines": [{ "text": {
+        "ko": "의원회가 끝났다. Mikhail이 혼자 남았다. 창문 앞에 섰다. 광산이 보였다. 저 광산에서 일하는 사람들. 그 사람들의 이름이 이 조직을 만들었다. 이름들이 조직보다 오래 살아남는 것이었다. 그것을 알았다. 창문을 만든 이유가 그것이었다.",
+        "en": "The assembly ended. Mikhail remained alone. He stood before the window. The mines were visible. The people working in those mines. Their names had made this organization. Names outlasted organizations. He knew that. That was why he had made the windows."
+      }}],
       "next_chapter_preview": { "questId": "fsp_campaign_ch8", "teaser": { "ko": "다음 — 가이아", "en": "Next — Gaia" }}
     }
+
   ]
 }

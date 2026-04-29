@@ -5,24 +5,57 @@
   "title": { "ko": "자유의 대가", "en": "The Price of Freedom" },
   "location": { "id": "hellas_mining_village", "displayNameKo": "헬라스 광부 마을" },
   "environment": "mining_village_final",
-  "estimatedPlayTimeMinutes": 20,
+  "estimatedPlayTimeMinutes": 22,
   "characters": ["player", "mikhail", "lena", "yuna", "rev_hale"],
   "scenes": [
+
     { "id": "s01", "type": "narration", "background": "hellas_mining_village_dawn", "bgm": "fsp_ambient", "transition": "fade_slow",
-      "lines": [{ "text": { "ko": "동이 텄다. 광부 마을. 60명이 남아 있는 곳. Yuna의 아버지 묘가 있는 곳. 분필 이름들이 벽에 있는 곳. 이 마을은 지도에 없었다. MCC 지도에도. 화성 공식 지도에도. 그러나 여기 있었다. 없는 것처럼 있는 것들이 화성에 많았다.", "en": "Dawn broke. The mining village. Where sixty remained. Where Yuna's father's grave was. Where chalk names were on the wall. This village wasn't on any map. Not on MCC's. Not on the official Mars map. But it was here. There were many things on Mars that were here despite not being there." }}] },
+      "lines": [{ "text": {
+        "ko": "동이 텄다. 광부 마을. 60명이 남아 있는 곳. Yuna의 아버지 묘가 있는 곳. 분필 이름들이 벽에 있는 곳. 이 마을은 지도에 없었다. MCC 지도에도. 화성 공식 지도에도. 그러나 여기 있었다. 없는 것처럼 있는 것들이 화성에 많았다.",
+        "en": "Dawn broke. The mining village. Where sixty remained. Where Yuna's father's grave was. Where chalk names were on the wall. This village wasn't on any map. Not on MCC's. Not on the official Mars map. But it was here. There were many things on Mars that were here despite not being there."
+      }}]
+    },
+
     { "id": "s02", "type": "narration", "background": "hellas_mining_village_dawn", "bgm": "fsp_ambient", "transition": "cut",
-      "lines": [{ "text": { "ko": "Mikhail이 거기 있었다. 차를 끓이고 있었다. 오른손이 왼손을 받쳤다. 다리가 더 나빠진 것 같았다. 그러나 차는 끓이고 있었다. 이 사람이 차를 끓이는 것을 멈추면 FSP가 무언가를 잃는 것이었다. 오늘은 차를 끓였다.", "en": "Mikhail was there. Making tea. The right hand supported the left. His leg seemed worse. But he was making tea. The day this man stopped making tea FSP would lose something. Today he made tea." }}] },
+      "lines": [{ "text": {
+        "ko": "Mikhail이 거기 있었다. 차를 끓이고 있었다. 오른손이 왼손을 받쳤다. 다리가 더 나빠진 것 같았다. 그러나 차는 끓이고 있었다. 이 사람이 차를 끓이는 것을 멈추면 FSP가 무언가를 잃는 것이었다. 오늘은 차를 끓였다.",
+        "en": "Mikhail was there. Making tea. The right hand supported the left. His leg seemed worse. But he was making tea. The day this man stopped making tea FSP would lose something. Today he made tea."
+      }}]
+    },
+
     { "id": "s03", "type": "dialogue", "background": "hellas_mining_village_dawn", "bgm": "fsp_ambient", "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "heavy", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "오늘이에요.", "en": "Today is the day." }},
-        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "FSP가 28년 동안 원한 것. 광부들이 자신의 이름으로 화성에서 사는 것. 그것이 오늘 결정돼요.", "en": "What FSP wanted for twenty-eight years. For miners to live on Mars in their own names. That is decided today." }},
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "당신이 마지막 결정을 내려요. 나는 차를 마실 거예요. 이미 결정했어요.", "en": "You make the final decision. I'll drink my tea. I've already decided." }}
+        { "speaker": "mikhail", "emotion": "heavy", "effect": "character_enter:mikhail:slide_left", "text": {
+          "ko": "오늘이에요.",
+          "en": "Today is the day."
+        }},
+        { "speaker": "mikhail", "emotion": "thoughtful", "text": {
+          "ko": "FSP가 28년 동안 원한 것. 광부들이 자신의 이름으로 화성에서 사는 것. 그것이 오늘 결정돼요.",
+          "en": "What FSP wanted for twenty-eight years. For miners to live on Mars in their own names. That is decided today."
+        }},
+        { "speaker": "mikhail", "emotion": "quiet", "text": {
+          "ko": "자네가 마지막 결정을 내려요. 나는 차를 마실 거예요. 이미 결정했어요.",
+          "en": "You make the final decision. I'll drink my tea. I've already decided."
+        }}
       ]
     },
+
     { "id": "s04", "type": "narration", "background": "hellas_mining_village_dawn", "bgm": "tension_low", "transition": "cut",
-      "lines": [{ "text": { "ko": "마을이 있었다. 차가 있었다. Yuna가 Mikhail 옆에 앉아 있었다. 두 손으로 잔을 들고. 그것을 배운 것이었다. Lena의 왼팔 문신이 빛 속에 보였다. Rev. Hale이 조용히 기도했다. 여기에 있는 모든 것이 28년의 결과였다.", "en": "The village was there. Tea was there. Yuna sat beside Mikhail. Holding her cup with both hands. She had learned that. Lena's left arm tattoo was visible in the light. Rev. Hale prayed quietly. Everything here was the result of twenty-eight years." }}] },
+      "lines": [{ "text": {
+        "ko": "마을이 있었다. 차가 있었다. Yuna가 Mikhail 옆에 앉아 있었다. 두 손으로 잔을 들고. 그것을 배운 것이었다. Lena의 왼팔 문신이 빛 속에 보였다. Rev. Hale이 조용히 기도했다. 여기에 있는 모든 것이 28년의 결과였다.",
+        "en": "The village was there. Tea was there. Yuna sat beside Mikhail. Holding her cup with both hands. She had learned that. Lena's left arm tattoo was visible in the light. Rev. Hale prayed quietly. Everything here was the result of twenty-eight years."
+      }}]
+    },
+
+    { "id": "s05", "type": "narration", "background": "hellas_mining_village_dawn", "bgm": "tension_low", "transition": "cut",
+      "lines": [{ "text": {
+        "ko": "벽에 분필 이름들이 있었다. 어제까지의 이름들. 그 위에 새 이름들이 추가되어 있었다. Kim Yong-jin은 거기 있었다. Mariam도 있었다. Sector 7의 셋도 있었다. 화성 어디서 죽은 사람들의 이름들. 한 마을 벽에 모인 것이었다. FSP의 마지막 일이 그 벽이었다.",
+        "en": "Chalk names on the wall. The names of yesterday. New names had been added above them. Kim Yong-jin was there. Mariam was there. The three of Sector 7 were there. The names of those who had died across Mars. Gathered on a single village wall. FSP's last work was that wall."
+      }}]
+    },
+
     { "id": "s_choice", "type": "choice", "background": "hellas_mining_village_dawn", "bgm": "choice_finale",
-      "prompt": { "ko": "FSP. 이 마을. 이 사람들. 어떤 결말을 선택합니까.", "en": "FSP. This village. These people. Which ending do you choose." },
+      "prompt": { "ko": "FSP. 이 마을. 이 사람들. 어떤 결말을 선택하겠는가.", "en": "FSP. This village. These people. Which ending do you choose." },
       "choices": [
         { "id": "fsp_ch10_union", "text": { "ko": "FSP가 화성 전체의 목소리가 된다.", "en": "FSP becomes the voice of all Mars." }, "tone": "union", "preview_hint": { "ko": "→ 엔딩: 연대 — 모든 마을, 모든 이름", "en": "→ Ending: Union — every village, every name" }},
         { "id": "fsp_ch10_martyr", "text": { "ko": "FSP는 무너진다. 그러나 기억된다.", "en": "FSP falls. But is remembered." }, "tone": "sacrifice", "preview_hint": { "ko": "→ 엔딩: 순교 — 역사가 된다", "en": "→ Ending: Martyr — become history" }},
@@ -30,26 +63,58 @@
         { "id": "fsp_ch10_crown", "text": { "ko": "세 파벌 너머의 것을 만든다.", "en": "Build something beyond three factions." }, "tone": "transcendent", "preview_hint": { "ko": "→ 엔딩: 왕관 — 화성의 새 원칙", "en": "→ Ending: Crown — a new principle for Mars" }}
       ]
     },
+
     { "id": "s_battle", "type": "battle_transition", "background": "hellas_mining_village", "bgm": "battle_theme_finale", "transition": "fade_slow",
       "title": { "ko": "광부 마을의 최후", "en": "The Mining Village's Hour" }, "subtitle": { "ko": "헬라스 광부 마을 — 28년의 무게", "en": "Hellas Mining Village — The Weight of 28 Years" }
     },
+
     { "id": "s_result", "type": "result", "success_scene": "s_success", "failure_scene": "s_fail" },
+
     { "id": "s_success", "type": "narration", "background": "hellas_mining_village_dawn", "bgm": "ending_theme_fsp",
-      "lines": [{ "text": { "ko": "마을이 살아있었다. 차가 따뜻했다. Mikhail이 잔을 내려놓았다. 비어 있었다. 그것은 좋은 것이었다. 다 마신 잔. 28년 동안 끓여온 차. 오늘 다 마신 것이었다. Yuna가 새 잔을 들었다. 두 손으로.", "en": "The village was alive. The tea was warm. Mikhail set down his cup. It was empty. That was a good thing. A cup completely drunk. Tea made for twenty-eight years. Today it was all drunk. Yuna picked up a new cup. With both hands." }}] },
+      "lines": [{ "text": {
+        "ko": "마을이 살아있었다. 차가 따뜻했다. Mikhail이 잔을 내려놓았다. 비어 있었다. 그것은 좋은 것이었다. 다 마신 잔. 28년 동안 끓여온 차. 오늘 다 마신 것이었다. Yuna가 새 잔을 들었다. 두 손으로.",
+        "en": "The village was alive. The tea was warm. Mikhail set down his cup. It was empty. That was a good thing. A cup completely drunk. Tea made for twenty-eight years. Today it was all drunk. Yuna picked up a new cup. With both hands."
+      }}]
+    },
+
     { "id": "s_fail", "type": "narration", "background": "hellas_mining_village", "bgm": "defeat_ambient",
-      "lines": [{ "text": { "ko": "마을이 조용했다. 차가 식었다. Mikhail의 잔이 여전히 가득 찼다. 마시지 못한 것이었다. 화성에서 마시지 못한 차가 있었다. 식지 않는 차보다 슬픈 것이었다. 식어버린 차.", "en": "The village was quiet. The tea had cooled. Mikhail's cup was still full. Not drunk. There was tea on Mars that couldn't be drunk. Sadder than tea that wouldn't cool. Tea that had gone cold." }}] },
+      "lines": [{ "text": {
+        "ko": "마을이 조용했다. 차가 식었다. Mikhail의 잔이 여전히 가득 찼다. 마시지 못한 것이었다. 화성에서 마시지 못한 차가 있었다. 식지 않는 차보다 슬픈 것이었다. 식어버린 차.",
+        "en": "The village was quiet. The tea had cooled. Mikhail's cup was still full. Not drunk. There was tea on Mars that couldn't be drunk. Sadder than tea that wouldn't cool. Tea that had gone cold."
+      }}]
+    },
+
     { "id": "s_ending_union", "type": "ending", "background": "hellas_mining_village_panorama", "bgm": "ending_theme_fsp", "transition": "fade_slow",
       "endingId": "union",
-      "lines": [{ "text": { "ko": "마을마다 차가 끓었다. 화성의 마을들. 이름 없는 마을들. 이름이 붙은 마을들. 분필 이름들이 있는 벽들. 그 모든 곳에서 FSP의 이름이 들렸다. 이름이 이름을 불렀다. 그것이 연대였다. 화성에서 연대는 그런 것이었다.", "en": "Tea was made in every village. The villages of Mars. Villages without names. Villages with names. Walls with chalk names. In all those places the name of FSP was heard. Names calling names. That was solidarity. On Mars solidarity was like that." }}] },
+      "lines": [{ "text": {
+        "ko": "마을마다 차가 끓었다. 화성의 마을들. 이름 없는 마을들. 이름이 붙은 마을들. 분필 이름들이 있는 벽들. 그 모든 곳에서 FSP의 이름이 들렸다. 이름이 이름을 불렀다. 그것이 연대였다. 화성에서 연대는 그런 것이었다.",
+        "en": "Tea was made in every village. The villages of Mars. Villages without names. Villages with names. Walls with chalk names. In all those places the name of FSP was heard. Names calling names. That was solidarity. On Mars solidarity was like that."
+      }}]
+    },
+
     { "id": "s_ending_martyr", "type": "ending", "background": "hellas_mining_village_empty", "bgm": "ending_theme_casualty", "transition": "fade_slow",
       "endingId": "martyr",
-      "lines": [{ "text": { "ko": "FSP가 없어졌다. 그러나 이름들이 남았다. 벽의 이름들. 기억 속의 이름들. 분필은 약했다. 그러나 기억은 강했다. 화성에서 무너진 것들이 기억으로 살아남은 것들이 있었다. FSP가 그중 하나가 될 것이었다.", "en": "FSP was gone. But the names remained. Names on walls. Names in memory. Chalk was weak. But memory was strong. On Mars some things that had fallen survived as memory. FSP would be one of them." }}] },
+      "lines": [{ "text": {
+        "ko": "FSP가 없어졌다. 그러나 이름들이 남았다. 벽의 이름들. 기억 속의 이름들. 분필은 약했다. 그러나 기억은 강했다. 화성에서 무너진 것들이 기억으로 살아남은 것들이 있었다. FSP가 그중 하나가 될 것이었다.",
+        "en": "FSP was gone. But the names remained. Names on walls. Names in memory. Chalk was weak. But memory was strong. On Mars some things that had fallen survived as memory. FSP would be one of them."
+      }}]
+    },
+
     { "id": "s_ending_government", "type": "ending", "background": "fsp_assembly_hall_official", "bgm": "ending_theme_mcc", "transition": "fade_slow",
       "endingId": "government",
-      "lines": [{ "text": { "ko": "의원회 의사당에 깃발이 생겼다. FSP 깃발이 아니었다. 화성 깃발이었다. 그것이 운동이 정부가 될 때 치러야 하는 대가였다. Mikhail이 창문을 봤다. 광산이 여전히 보였다. 아직 창문이 있었다. 그것으로 충분했다.", "en": "A flag appeared in the assembly hall. Not the FSP flag. The Mars flag. That was the price paid when a movement became a government. Mikhail looked at the window. The mines were still visible. The windows were still there. That was enough." }}] },
+      "lines": [{ "text": {
+        "ko": "의원회 의사당에 깃발이 생겼다. FSP 깃발이 아니었다. 화성 깃발이었다. 그것이 운동이 정부가 될 때 치러야 하는 대가였다. Mikhail이 창문을 봤다. 광산이 여전히 보였다. 아직 창문이 있었다. 그것으로 충분했다.",
+        "en": "A flag appeared in the assembly hall. Not the FSP flag. The Mars flag. That was the price paid when a movement became a government. Mikhail looked at the window. The mines were still visible. The windows were still there. That was enough."
+      }}]
+    },
+
     { "id": "s_ending_crown", "type": "ending", "background": "olympus_exterior_dawn", "bgm": "ending_theme_crown", "transition": "fade_slow",
       "endingId": "crown",
-      "lines": [{ "text": { "ko": "세 개의 깃발이 없는 올림포스. 분필 이름들만 있는 화성. Kim Yong-jin. Mariam. Sector 7의 셋. 그들의 이름이 화성의 법이 됐다. 이름이 법이 된 행성. 그것이 새로운 화성이었다.", "en": "Olympus without three flags. Mars with only chalk names. Kim Yong-jin. Mariam. The three of Sector 7. Their names became the law of Mars. A planet where names became law. That was the new Mars." }}]
+      "lines": [{ "text": {
+        "ko": "세 개의 깃발이 없는 올림포스. 분필 이름들만 있는 화성. Kim Yong-jin. Mariam. Sector 7의 셋. 그들의 이름이 화성의 법이 됐다. 이름이 법이 된 행성. 그것이 새로운 화성이었다.",
+        "en": "Olympus without three flags. Mars with only chalk names. Kim Yong-jin. Mariam. The three of Sector 7. Their names became the law of Mars. A planet where names became law. That was the new Mars."
+      }}]
     }
+
   ]
 }
