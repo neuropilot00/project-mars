@@ -190,8 +190,8 @@
       "lines": [
         {
           "text": {
-            "ko": "Chen Weiss. 22년 전. MCC 내부. Zone 12 전날 밤. 17살 Butcher를 불렀다. 그것이 이 방에 도달했다. 30년 후에. 올림포스를 통해서. 공구 소리를 통해서. 이름들을 통해서. 화성은 좁았다. 30년이어도 좁았다.",
-            "en": "Chen Weiss. Twenty-two years ago. Inside MCC. The night before Zone 12. She called seventeen-year-old Butcher. That reached this room. Thirty years later. Through Olympus. Through tool sounds. Through names. Mars was small. Even thirty years couldn't make it wider."
+            "ko": "Chen Weiss. 22년 전. MCC 내부. Zone 12. 부모가 거기서 죽었다. 그것이 이유였다. Chen의 어머니. 30년 전에 17살 Butcher를 갱도 밖으로 불렀던 사람. 그것이 이 방에 도달했다. 올림포스를 통해서. 공구 소리를 통해서. 이름들을 통해서. 화성은 좁았다. 30년이어도 좁았다.",
+            "en": "Chen Weiss. Twenty-two years ago. Inside MCC. Zone 12. Her parents died there. That was the reason. Chen's mother. The person who called seventeen-year-old Butcher out of the tunnel thirty years ago. That reached this room. Through Olympus. Through tool sounds. Through names. Mars was small. Even thirty years couldn't make it wider."
           }
         }
       ]
@@ -207,8 +207,8 @@
           "speaker": "butcher",
           "emotion": "hollow",
           "text": {
-            "ko": "Chen이 30년 전에 나를 살렸어. 그래서 CV가 있어. 30년 동안 MCC 안에서 버텼어. 같은 이유로.",
-            "en": "Chen saved me thirty years ago. So CV exists. She stayed inside MCC for thirty years. For the same reason."
+            "ko": "Chen 어머니가 30년 전에 나를 살렸어. Chen이 22년 동안 MCC 안에서 버텼어. 같은 이유로. 그래서 CV가 있어.",
+            "en": "Chen's mother saved me thirty years ago. Chen stayed inside MCC for twenty-two years. For the same reason. That's why CV exists."
           }
         },
         {

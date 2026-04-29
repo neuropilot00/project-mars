@@ -5,7 +5,7 @@
   "title": { "ko": "의원회", "en": "The Assembly" },
   "location": { "id": "fsp_assembly_hall", "displayNameKo": "FSP 의원회 의사당" },
   "environment": "assembly_hall",
-  "estimatedPlayTimeMinutes": 22,
+  "estimatedPlayTimeMinutes": 32,
   "characters": ["player", "mikhail", "lena", "amara", "yuna"],
   "scenes": [
     {
@@ -105,6 +105,51 @@
       ]
     },
     {
+      "id": "s09b_pak",
+      "type": "dialogue",
+      "background": "fsp_assembly_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "player", "emotion": "neutral", "effect": "character_narration", "text": { "ko": "세 번째 후보 Pak Seung-ho가 섰다.", "en": "Third candidate Pak Seung-ho stood." } },
+        { "speaker": "pak_seung_ho", "emotion": "composed", "effect": "character_narration", "text": { "ko": "Pak Seung-ho입니다. FSP 경제 위원 15년. 실용주의자예요.", "en": "Pak Seung-ho. FSP economics committee fifteen years. I am a pragmatist." } },
+        { "speaker": "pak_seung_ho", "emotion": "serious", "effect": "character_narration", "text": { "ko": "이상보다 실행이에요. 광부들이 오늘 먹어야 해요. 내일 꿈보다 오늘 밥이에요.", "en": "Execution over ideals. Miners need to eat today. Today's meal over tomorrow's dream." } }
+      ]
+    },
+    {
+      "id": "s09c_renata",
+      "type": "dialogue",
+      "background": "fsp_assembly_hall",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "renata_vieira", "emotion": "calm", "effect": "character_narration", "text": { "ko": "Dr. Renata Vieira입니다. FSP 의료 지원 팀장 8년.", "en": "Dr. Renata Vieira. FSP medical support team leader eight years." } },
+        { "speaker": "renata_vieira", "emotion": "serious", "effect": "character_narration", "text": { "ko": "화성에서 가장 중요한 것은 사람이 살아남는 것이에요. 광산 안전. 의료 접근. 그것이 먼저예요.", "en": "The most important thing on Mars is people surviving. Mine safety. Medical access. Those come first." } }
+      ]
+    },
+    {
+      "id": "s09d_alder",
+      "type": "dialogue",
+      "background": "fsp_assembly_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "thomas_alder", "emotion": "neutral", "effect": "character_narration", "text": { "ko": "Thomas Alder입니다. MCC 출신이에요. FSP 의원이 된 지 3년.", "en": "Thomas Alder. Former MCC. Three years as FSP representative." } },
+        { "speaker": "thomas_alder", "emotion": "calm", "effect": "character_narration", "text": { "ko": "MCC 안에서 FSP가 옳다는 것을 알았어요. 그래서 왔어요. 내부를 아는 사람이 협상에 필요해요.", "en": "Inside MCC I understood FSP was right. So I came. Someone who knows the inside is needed for negotiation." } },
+        { "speaker": "lena", "emotion": "tense", "effect": "character_enter:lena:slide_right", "text": { "ko": "보스. Alder예요. MCC 출신이에요.", "en": "Boss. Alder. From MCC." } }
+      ]
+    },
+    {
+      "id": "s09e_alder_tension",
+      "type": "narration",
+      "background": "fsp_assembly_hall",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Thomas Alder. Kenji가 말한 것이 있었다. FSP 내부자. 통신 패턴. 의원회 전후. 패턴이 의원을 가리켰다. Alder가 의원이었다. 3년. MCC 출신. 그것이 지금 이 방에 있었다.", "en": "Thomas Alder. There was what Kenji had said. The FSP mole. Communication patterns. Before and after assembly meetings. The pattern pointed to an assembly member. Alder was an assembly member. Three years. From MCC. That was in this room now." } }
+      ]
+    },
+    {
       "id": "s10",
       "type": "narration",
       "background": "fsp_assembly_hall",
@@ -112,6 +157,29 @@
       "transition": "cut",
       "lines": [
         { "text": { "ko": "세 후보가 더 있었다. Pak Seung-ho는 실용주의자였다. Dr. Renata Vieira는 의료 전문가였다. Thomas Alder는 MCC 출신이었다. 그것이 논란이었다. MCC 출신이 FSP 의장이 될 수 있는가. 그것이 오늘 의원회의 다른 안건이었다.", "en": "Three more candidates. Pak Seung-ho was a pragmatist. Dr. Renata Vieira was a medical specialist. Thomas Alder had come from MCC. That was controversial. Could an MCC person become FSP chair. That was another item on today's assembly." } }
+      ]
+    },
+    {
+      "id": "s10b_amara_vs_mikhail",
+      "type": "dialogue",
+      "background": "fsp_assembly_hall_official",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "amara", "emotion": "serious", "text": { "ko": "Mikhail. FSP가 MCC와 협상 테이블에 앉을 수 있어요. 내가 의장이 되면.", "en": "Mikhail. FSP can sit at the negotiating table with MCC. If I become chair." } },
+        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "협상 테이블에서 뭘 원해요.", "en": "What do you want from the negotiating table." } },
+        { "speaker": "amara", "emotion": "calm", "text": { "ko": "광부들의 안전이요. 법적 보호요. 그것이 없으면 아무것도 없어요.", "en": "The safety of miners. Legal protection. Without those there's nothing." } },
+        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "그것을 위해 MCC와 앉는 거예요. 아니면 MCC가 그것을 줄 거라서 앉는 거예요.", "en": "Are you sitting with MCC to get those. Or because MCC will give those." } }
+      ]
+    },
+    {
+      "id": "s10c_contrast",
+      "type": "narration",
+      "background": "fsp_assembly_hall_official",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Mikhail과 Amara의 차이였다. Mikhail은 의심했다. Amara는 가능성을 봤다. 그것이 28년과 11년의 차이였다. 더 오래 본 사람은 더 많이 의심했다. 그것이 좋은 것인지 나쁜 것인지는 알 수 없었다.", "en": "The difference between Mikhail and Amara. Mikhail doubted. Amara saw possibility. That was the difference between twenty-eight years and eleven years. Those who had seen longer doubted more. Whether that was good or bad was unknowable." } }
       ]
     },
     {
@@ -137,6 +205,18 @@
       ]
     },
     {
+      "id": "s12b_delay_debate",
+      "type": "dialogue",
+      "background": "fsp_assembly_hall_official",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "amara", "emotion": "serious", "text": { "ko": "선거를 미뤄야 해요. 위기가 먼저예요.", "en": "Must postpone the election. Crisis comes first." } },
+        { "speaker": "yuna", "emotion": "passionate", "text": { "ko": "미룰 수 없어요. 이게 MCC가 원하는 거예요. 우리를 분열시키는 거예요.", "en": "Can't postpone. This is what MCC wants. To divide us." } },
+        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "둘 다 맞아요.", "en": "Both are right." } }
+      ]
+    },
+    {
       "id": "s13",
       "type": "narration",
       "background": "fsp_assembly_hall_official",
@@ -154,6 +234,28 @@
       "transition": "cut",
       "lines": [
         { "text": { "ko": "FSP 내부자. Kenji가 말한 것. 고위직. 통신 패턴. 그것이 지금 이 방에 있었다. 다섯 후보 중 한 명이 그것일 수 있었다. 아니면 의원 중 한 명. 아니면 Mikhail 주변 사람. 알 수 없었다.", "en": "The FSP mole. What Kenji had said. Someone senior. Communication patterns. That was in this room now. One of the five candidates might be it. Or one of the representatives. Or someone around Mikhail. Unknowable." } }
+      ]
+    },
+    {
+      "id": "s14b_storm_inside",
+      "type": "narration",
+      "background": "fsp_assembly_hall_official",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "창문에 먼지가 치기 시작했다. 규모 4 폭풍. 의사당 안의 불빛이 흔들렸다. 비상 전원으로 바뀌는 것이었다. 그러나 창문은 거기 있었다. 먼지가 쳐도 거기 있었다.", "en": "Dust began hitting the windows. Scale 4 storm. The lights in the assembly hall flickered. Switching to emergency power. But the windows were there. They were there even as the dust hit." } }
+      ]
+    },
+    {
+      "id": "s14c_mikhail_stand",
+      "type": "dialogue",
+      "background": "fsp_assembly_hall_official",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "창문을 봐요.", "en": "Look at the windows." } },
+        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "저 바깥에 사람들이 있어요. 먼지 속에서도. 광산 마을들. 대피 중일 거예요.", "en": "There are people outside there. Even in the dust. The mining villages. They'll be evacuating." } },
+        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "선거를 합니다. 그리고 동시에 대피 지원을 보냅니다. 두 가지 다.", "en": "We hold the election. And simultaneously send evacuation support. Both." } }
       ]
     },
     {
@@ -177,6 +279,38 @@
       "transition": "cut",
       "lines": [
         { "text": { "ko": "투표가 있었다. 의원들이 일어섰다. 이름을 불렀다. 화성에서 의결은 이름으로 했다. 기계가 아니라 목소리로. 그것이 FSP의 방식이었다. 이름이 있는 존재가 이름으로 결정하는 것.", "en": "There was a vote. Representatives stood. Called names. On Mars decisions were made with names. Not machines but voices. That was FSP's way. Beings with names deciding with names." } }
+      ]
+    },
+    {
+      "id": "s15b_vote_scene",
+      "type": "narration",
+      "background": "fsp_assembly_hall_official",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "먼지 폭풍이 창문을 쳤다. 불빛이 흔들렸다. 그러나 목소리들이 있었다. 이름을 부르는 것들. 그것이 멈추지 않았다. 화성에서 목소리들은 멈추지 않았다. 먼지가 와도.", "en": "The dust storm hit the windows. The lights flickered. But the voices were there. Those calling names. They didn't stop. On Mars voices didn't stop. Even when the dust came." } }
+      ]
+    },
+    {
+      "id": "s15c_alder_vote",
+      "type": "dialogue",
+      "background": "fsp_assembly_hall_official",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "tense", "text": { "ko": "보스. Alder 투표 패턴 봐요. 이상해요.", "en": "Boss. Look at Alder's voting pattern. Strange." } },
+        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "Kenji 데이터의 패턴이랑 같아요.", "en": "It matches the pattern in Kenji's data." } },
+        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "알고 있어요.", "en": "I know." } }
+      ]
+    },
+    {
+      "id": "s15d_mikhail_knew",
+      "type": "narration",
+      "background": "fsp_assembly_hall_official",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "Mikhail이 알고 있었다. 그것이 이 사람의 것이었다. 모든 것을 알면서 말하지 않는 것. 차를 끓이면서 기다리는 것. 28년의 방식이었다.", "en": "Mikhail knew. That was this person's thing. Knowing everything while not speaking. Making tea and waiting. The way of twenty-eight years." } }
       ]
     },
     {
@@ -262,6 +396,40 @@
       "transition": "cut",
       "lines": [
         { "text": { "ko": "의원회 의사당이 조용했다. 창문에 먼지가 날렸다. 폭풍이 오고 있었다. Mikhail이 창문 앞에 섰다. 광산이 보였다. 먼지 속에서도 보였다. 그것이 창문을 만든 이유였다.", "en": "The assembly hall was quiet. Dust hit the windows. The storm was coming. Mikhail stood before the window. The mines were visible. Visible even through the dust. That was why the windows had been made." } }
+      ]
+    },
+    {
+      "id": "s20b_mikhail_alone",
+      "type": "dialogue",
+      "background": "fsp_assembly_hall_evening",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "보스. 잠깐 있어요.", "en": "Boss. Stay a moment." } },
+        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "Alder 얘기. 나도 알고 있었어요.", "en": "About Alder. I knew too." } },
+        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "그러나 증거가 필요해요. 의심만으로는 안 돼요. FSP가 그래서 FSP인 거예요.", "en": "But evidence is needed. Suspicion alone isn't enough. That's why FSP is FSP." } }
+      ]
+    },
+    {
+      "id": "s20c_mikhail2",
+      "type": "narration",
+      "background": "fsp_assembly_hall_evening",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "그것이 Mikhail의 방식이었다. 의심해도 증거를 기다렸다. 28년 동안 그렇게 했다. 그것이 FSP를 지금까지 오게 한 것이었다. 빠른 것보다 맞는 것.", "en": "That was Mikhail's way. Even with suspicion, he waited for evidence. That's how it had been for twenty-eight years. That was what had brought FSP to now. Being right over being fast." } }
+      ]
+    },
+    {
+      "id": "s20d_new_chair",
+      "type": "dialogue",
+      "background": "fsp_assembly_hall_evening",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "새 의장이 선출됐어요. 이제 내 손을 떠났어요.", "en": "A new chair has been elected. Now it leaves my hands." } },
+        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "FSP는 사람이 만드는 게 아니에요. 이름들이 만드는 거예요.", "en": "FSP isn't made by a person. It's made by names." } },
+        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "Lena 팔 위의 이름들. 그것이 FSP예요.", "en": "The names on Lena's arm. Those are FSP." } }
       ]
     },
     {

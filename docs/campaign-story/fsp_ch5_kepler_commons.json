@@ -5,7 +5,7 @@
   "title": { "ko": "케플러 공유지", "en": "Kepler Commons" },
   "location": { "id": "kepler_crater", "displayNameKo": "케플러 분화구" },
   "environment": "crater_excavation",
-  "estimatedPlayTimeMinutes": 20,
+  "estimatedPlayTimeMinutes": 30,
   "crossChapterNote": "CV Ch5 Wild Lands Treaty와 동시간대. Liang Wei 첫 등장.",
   "characters": ["player", "lena", "liang_wei"],
   "scenes": [
@@ -136,6 +136,38 @@
       ]
     },
     {
+      "id": "s12b_assembly",
+      "type": "narration",
+      "background": "kepler_crater_dawn",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "광부 회의가 시작됐다. Liang Wei가 진행했다. 분화구 바닥에서. 100명 가까운 사람들이 둘러섰다. FSP 광부들. 헬라스 마을 사람들. 이름 없는 사람들. 오래 기다린 사람들.", "en": "The miners' assembly began. Liang Wei led it. At the crater floor. Nearly a hundred people circled. FSP miners. Hellas village people. Nameless people. People who had waited a long time." } }
+      ]
+    },
+    {
+      "id": "s12c_assembly2",
+      "type": "dialogue",
+      "background": "kepler_crater_dawn",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "liang_wei", "emotion": "determined", "text": { "ko": "30년치 데이터를 공개해요. 오늘부터.", "en": "I'm making thirty years of data public. Starting today." } },
+        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "여기 있는 사람들 모두 이 데이터를 가져갈 수 있어요. 복사해요. 퍼뜨려요. MCC가 막을 수 없도록.", "en": "Everyone here can take this data. Copy it. Spread it. So MCC can't stop it." } },
+        { "speaker": "liang_wei", "emotion": "calm", "text": { "ko": "지식은 누군가의 것이 될 수 없어요. 특히 이 행성에 관한 지식은.", "en": "Knowledge cannot belong to anyone. Especially knowledge about this planet." } }
+      ]
+    },
+    {
+      "id": "s12d_miners",
+      "type": "narration",
+      "background": "kepler_crater_dawn",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "사람들이 움직이기 시작했다. 데이터 스틱들. 복사. 손에서 손으로. 그것이 퍼져나가는 방식이었다. 디지털이 아닌 방식으로. 사람이 사람에게 건네는 것으로. 화성에서 가장 오래된 방식이었다.", "en": "People began to move. Data sticks. Copying. Hand to hand. That was how it spread. Not digitally. Person handing to person. The oldest way on Mars." } }
+      ]
+    },
+    {
       "id": "s13",
       "type": "narration",
       "background": "kepler_crater",
@@ -143,6 +175,59 @@
       "transition": "cut",
       "lines": [
         { "text": { "ko": "드론 하나가 낮아졌다. 관측 고도에서 접근 고도로. 그것이 다른 것이었다. 관측은 거리가 있었다. 접근은 거리가 없었다. 차이가 있었다.", "en": "One drone lowered. From observation altitude to approach altitude. That was different. Observation had distance. Approach had no distance. There was a difference." } }
+      ]
+    },
+    {
+      "id": "s13b_mcc_agent",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "그때 사람이 왔다. 분화구 입구 쪽에서. 혼자가 아니었다. 셋이었다. 슈트가 달랐다. MCC 슈트였다. 그들이 군중 속으로 들어오려 했다.", "en": "Then a person came. From the crater entrance side. Not alone. Three of them. Their suits were different. MCC suits. They tried to enter into the crowd." } }
+      ]
+    },
+    {
+      "id": "s13c_blocked",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "tense", "text": { "ko": "보스. MCC 대리인들이에요. 회의 방해하러 온 거예요.", "en": "Boss. MCC representatives. Here to disrupt the assembly." } },
+        { "speaker": "lena", "emotion": "direct", "text": { "ko": "저는 막을 수 있어요.", "en": "I can stop them." } },
+        { "speaker": "liang_wei", "emotion": "calm", "text": { "ko": "기다려요. 광부들이 할 거예요.", "en": "Wait. The miners will handle it." } }
+      ]
+    },
+    {
+      "id": "s13d_miners_block",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "광부들이 움직였다. 말 없이. 몸으로. MCC 대리인들 앞에 섰다. 막은 것이었다. 폭력이 없었다. 그냥 섰다. 100명이 셋 앞에 섰다. MCC 대리인들이 멈췄다.", "en": "The miners moved. Without words. With their bodies. They stood before the MCC representatives. Blocking. No violence. Just standing. A hundred standing before three. The MCC representatives stopped." } }
+      ]
+    },
+    {
+      "id": "s13e_liang_wei_final",
+      "type": "dialogue",
+      "background": "kepler_crater",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "liang_wei", "emotion": "determined", "text": { "ko": "이 금속은 모두의 것이다. 화성 헌법 초안 1조.", "en": "This metal belongs to everyone. Article 1 of the Mars Constitution draft." } },
+        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "아직 헌법이 없어요. 그러나 오늘 이 말이 씨앗이에요.", "en": "There is no constitution yet. But today these words are the seed." } }
+      ]
+    },
+    {
+      "id": "s13f_seed",
+      "type": "narration",
+      "background": "kepler_crater",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "씨앗이라는 말이 있었다. 아직 없는 것. 그러나 말해진 것. 화성에서 없는 것들은 두 종류였다. 아직 없는 것. 그리고 영원히 없는 것. 오늘 Liang Wei가 말한 것은 아직 없는 쪽이었다.", "en": "The word seed was said. Something not yet existing. But spoken. On Mars things that didn't exist were of two kinds. Things not yet existing. And things that would never exist. What Liang Wei spoke today was on the not-yet side." } }
       ]
     },
     {
@@ -242,6 +327,73 @@
       "transition": "cut",
       "lines": [
         { "text": { "ko": "케플러 분화구 외곽에서 CV가 봤다. 알려진 것이었다. Sandstone 약속이 있었다면 이 순간이 그것의 시험이었다. CV가 거기 있었다. 분화구 외곽에서. 들어오지는 않았다. 그러나 있었다.", "en": "From the edge of Kepler Crater CV was watching. That was known. If there was the Sandstone Promise this moment was its test. CV was there. At the crater edge. Hadn't come inside. But was there." } }
+      ]
+    },
+    {
+      "id": "s19_constitution",
+      "type": "dialogue",
+      "background": "kepler_crater_edge_dusk",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "liang_wei", "emotion": "thoughtful", "text": { "ko": "화성 헌법 초안 1조라고 했어요.", "en": "I said Article 1 of the Mars Constitution draft." } },
+        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "헌법이 없어요. 아직. 그러나 오늘 말한 것이에요. 씨앗은 그렇게 뿌려지는 거예요.", "en": "There is no constitution. Yet. But I said it today. That's how seeds are planted." } },
+        { "speaker": "lena", "emotion": "moved", "text": { "ko": "아직 없는 것에 1조를 붙였어요.", "en": "You gave an article number to something that doesn't yet exist." } },
+        { "speaker": "liang_wei", "emotion": "calm", "text": { "ko": "없는 것에 번호를 붙이면 생기기 시작해요.", "en": "When you number something that doesn't exist, it begins to exist." } }
+      ]
+    },
+    {
+      "id": "s20_data_spread",
+      "type": "narration",
+      "background": "kepler_crater_edge_dusk",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "데이터가 퍼졌다. 손에서 손으로. 분화구를 벗어나서. 헬라스 마을들로. 스틱들이 움직였다. MCC가 통신을 차단했다. 그러나 사람이 걷는 것은 막지 못했다. 화성에서 사람이 걷는 것은 막을 수 없었다.", "en": "The data spread. Hand to hand. Out of the crater. To the Hellas villages. The sticks moved. MCC blocked communications. But couldn't stop people walking. On Mars people walking couldn't be stopped." } }
+      ]
+    },
+    {
+      "id": "s21_liang_wei_rest",
+      "type": "dialogue",
+      "background": "kepler_crater_edge_dusk",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "lena", "emotion": "serious", "text": { "ko": "Liang Wei. 이제 MCC가 당신을 타깃으로 해요.", "en": "Liang Wei. Now MCC targets you." } },
+        { "speaker": "liang_wei", "emotion": "calm", "text": { "ko": "알아요. 2년 전부터 알고 있었어요.", "en": "I know. I've known for two years." } },
+        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "30년을 기다렸어요. 이제 두려울 것이 없어요.", "en": "I waited thirty years. There's nothing to fear now." } }
+      ]
+    },
+    {
+      "id": "s22_weight",
+      "type": "narration",
+      "background": "kepler_crater_edge_dusk",
+      "bgm": "ambient_melancholy",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "70대. 화성 1세대. 30년. 혼자. 그것이 두려움이 없는 이유였다. 30년 동안 혼자 있으면 두려움이 달라진다. 없어지는 것이 아니다. 달라진다. 대상이 달라진다.", "en": "Seventies. First generation on Mars. Thirty years. Alone. That was the reason for no fear. Being alone for thirty years changes fear. Doesn't eliminate it. Changes it. The object changes." } }
+      ]
+    },
+    {
+      "id": "s23_connection",
+      "type": "dialogue",
+      "background": "kepler_crater_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "speaker": "liang_wei", "emotion": "moved", "text": { "ko": "오늘 처음이에요.", "en": "First time today." } },
+        { "speaker": "lena", "emotion": "neutral", "text": { "ko": "뭐가요?", "en": "What is?" } },
+        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "같이 보는 것. 같이 봤어요. 오늘. 케플러를.", "en": "Seeing together. We saw it together. Today. Kepler." } }
+      ]
+    },
+    {
+      "id": "s24_cv_outside",
+      "type": "narration",
+      "background": "kepler_crater_dawn",
+      "bgm": "fsp_ambient",
+      "transition": "cut",
+      "lines": [
+        { "text": { "ko": "CV가 외곽에 있었다. Cinder가 있었다. 들어오지 않았다. 그것이 Sandstone 약속의 한계이기도 했다. 약속은 있었다. 그러나 안까지 들어오는 것은 아니었다. 외곽에서 지키는 것이었다. 그것도 지키는 것이었다.", "en": "CV was at the edge. Cinder was there. Hadn't come inside. That was also the limit of the Sandstone Promise. The promise existed. But it wasn't coming all the way inside. Guarding from the edge. That too was guarding." } }
       ]
     },
     {

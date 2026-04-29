@@ -2,10 +2,16 @@
   "questId": "mcc_campaign_ch9",
   "campaignId": "mcc_route",
   "chapterNumber": 9,
-  "title": { "ko": "세 개의 깃발 — MCC", "en": "Three Flags — MCC" },
-  "location": { "id": "olympus_summit_station", "displayNameKo": "올림포스 산 정상 기지" },
+  "title": {
+    "ko": "세 개의 깃발 — MCC",
+    "en": "Three Flags — MCC"
+  },
+  "location": {
+    "id": "olympus_summit_station",
+    "displayNameKo": "올림포스 산 정상 기지"
+  },
   "environment": "olympus_exterior_thin_air",
-  "estimatedPlayTimeMinutes": 25,
+  "estimatedPlayTimeMinutes": 30,
   "pov": "chen_weiss",
   "crossChapterNote": "FSP Ch9 (Rev. Hale POV) 및 CV Ch9 (Cinder Grace POV)와 동일 사건. 세 챕터는 같은 테이블, 같은 하루.",
   "characters": ["chen", "player", "rev_hale", "cinder"],
@@ -14,50 +20,112 @@
       "id": "s01",
       "type": "narration",
       "background": "olympus_exterior",
-      "bgm": "ambient_thin_air",
+      "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "올림포스 몬스. 태양계에서 가장 높은 산. 정상 기압은 지구 기압의 0.07퍼센트였다. 마스크 없이는 10초. 그것이 이 장소를 회의 장소로 선택한 이유였다. 누구도 이곳에서 오래 있을 수 없었다. 그것이 공정한 조건이었다.", "en": "Olympus Mons. The highest mountain in the solar system. Summit pressure was 0.07 percent of Earth's. Without a mask ten seconds. That was why this place was chosen for the meeting. No one could stay here long. That was the fair condition." } }
+        {
+          "text": {
+            "ko": "올림포스 몬스. 태양계에서 가장 높은 산. 정상 기압은 지구 기압의 0.07퍼센트였다. 마스크 없이는 10초. 그것이 이 장소를 회의 장소로 선택한 이유였다. 누구도 이곳에서 오래 있을 수 없었다. 그것이 공정한 조건이었다.",
+            "en": "Olympus Mons. The highest mountain in the solar system. Summit pressure was 0.07 percent of Earth's. Without a mask ten seconds. That was why this place was chosen for the meeting. No one could stay here long. That was the fair condition."
+          }
+        }
       ]
     },
     {
       "id": "s02",
       "type": "narration",
-      "background": "olympus_exterior_vast",
-      "bgm": "ambient_thin_air",
+      "background": "olympus_summit_station",
+      "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "올림포스에서 보면 화성이 전체가 보였다. 헬라스. 케플러. 에레부스. 아르기레 협곡. 광산들. 도시들. 돔들. 전부 작았다. 이 높이에서는 전부 작았다. 그것이 이곳을 회의 장소로 선택한 또 다른 이유였다. 아래가 작아 보일 때 결정이 달라졌다.", "en": "From Olympus all of Mars was visible. Hellas. Kepler. Erebus. Argyre canyon. Mines. Cities. Domes. All small. At this height everything was small. That was another reason this place was chosen for the meeting. When below looked small decisions were different." } }
+        {
+          "text": {
+            "ko": "Chen Weiss는 먼저 도착했다. 그것이 그녀의 방식이었다. 먼저 도착하는 사람이 공간을 정의했다. 차를 들고 있었다. 마시지 않았다. 올림포스에서도 25도 라운지와 같았다. 그 일관성이 그녀의 것이었다.",
+            "en": "Chen Weiss arrived first. That was her way. The person who arrived first defined the space. She held her tea. Didn't drink it. Even on Olympus it was the same as the 25-Degree Lounge. That consistency was hers."
+          }
+        }
       ]
     },
     {
       "id": "s03",
-      "type": "narration",
+      "type": "dialogue",
       "background": "olympus_summit_station",
-      "bgm": "ambient_thin_air",
+      "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Chen Weiss는 먼저 도착했다. 그것이 그녀의 방식이었다. 먼저 도착하는 사람이 공간을 정의했다. 차를 들고 있었다. 마시지 않았다. 올림포스에서도 25도 라운지와 같았다. 그 일관성이 그녀의 것이었다.", "en": "Chen Weiss arrived first. That was her way. The person who arrived first defined the space. She held her tea. Didn't drink it. Even on Olympus it was the same as the 25-Degree Lounge. That consistency was hers." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "이 방을 봤어요. 들어오기 전에.",
+            "en": "I saw this room. Before entering."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "의자가 셋이에요. 테이블 하나. 창이 없어요. 올림포스에서 창 없는 방. 그것이 이 회담이에요.",
+            "en": "Three chairs. One table. No windows. A room without windows on Olympus. That's this meeting."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "창이 없는 방에서 하는 이야기가 진짜예요. 창으로 보이는 경치 때문에 하는 이야기가 아니에요.",
+            "en": "What is said in a room without windows is real. Not said because of the view through windows."
+          }
+        }
       ]
     },
     {
       "id": "s04",
       "type": "narration",
       "background": "olympus_summit_station",
-      "bgm": "ambient_thin_air",
+      "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "정상 기지는 작았다. 세 파벌이 공동으로 유지했다. 중립 구역이었다. 어느 파벌 깃발도 없었다. 그것이 이 기지의 이름이었다. 세 깃발 없는 곳. 화성에서 깃발 없는 곳은 드물었다. 올림포스 정상만 그랬다.", "en": "The summit station was small. Maintained jointly by three factions. Neutral zone. No faction's flag. That was the name of this station. The place without three flags. On Mars places without flags were rare. Only Olympus summit was like that." } }
+        {
+          "text": {
+            "ko": "세 파벌이었다. 세 깃발이었다. MCC. FSP. CV. 같은 행성. 다른 미래. 테이블이 하나였다. 의자가 셋이었다. 테이블보다 의자가 적은 것은 세상 어디에서도 문제였다. 화성에서는 더 그랬다.",
+            "en": "Three factions. Three flags. MCC. FSP. CV. Same planet. Different futures. One table. Three chairs. Fewer chairs than people was a problem anywhere in the world. On Mars more so."
+          }
+        }
       ]
     },
     {
       "id": "s05",
-      "type": "narration",
+      "type": "dialogue",
       "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "세 파벌이었다. 세 깃발이었다. MCC. FSP. CV. 같은 행성. 다른 미래. 테이블이 하나였다. 의자가 셋이었다. 테이블보다 의자가 적은 것은 세상 어디에서도 문제였다. 화성에서는 더 그랬다.", "en": "Three factions. Three flags. MCC. FSP. CV. Same planet. Different futures. One table. Three chairs. Fewer chairs than people was a problem anywhere in the world. On Mars more so." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "Rev. Hale. Cinder Grace. 왔군요.",
+            "en": "Rev. Hale. Cinder Grace. You came."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "오늘 여기서 화성의 자원 분배 원칙을 합의해요. 아니면 세 파벌이 각자의 방식으로 화성을 나눠요. 그 두 가지만 존재해요.",
+            "en": "Today here we agree on the principles of Mars resource distribution. Or three factions divide Mars each in their own way. Only these two things exist."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "MCC의 입장은 명확해요. 기반시설은 MCC가 구축했어요. 운영도 MCC가 해요. 그 비용은 누가 지불하든 지불해야 해요.",
+            "en": "MCC's position is clear. MCC built the infrastructure. MCC operates it. Whatever the cost, whoever pays it must pay it."
+          }
+        }
       ]
     },
     {
@@ -67,7 +135,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "올라오는 길이 있었다. 사전 협의된 경로였다. 암살자가 있을 수 있었다. Pilgrim Arms. 용병 조직이었다. 화성에서 가장 오래된 용병 조직. 어느 파벌도 공식 연결을 인정하지 않았다. 그러나 Pilgrim Arms는 항상 어딘가에 있었다.", "en": "There was an ascent route. Pre-agreed path. There could be assassins. Pilgrim Arms. A mercenary organization. The oldest on Mars. No faction officially acknowledged a connection. But Pilgrim Arms was always somewhere." } }
+        {
+          "text": {
+            "ko": "Rev. Hale이 앉았다. 기도를 하지 않았다. 이 자리에서는 하지 않는 것이었다. Cinder Grace는 서 있었다. 공구 벨트가 그대로였다. 이 정상에서 올 때도 그것을 차고 온 것이었다. 두 사람을 보면서 Chen은 차를 들었다. 마시지 않았다.",
+            "en": "Rev. Hale sat. Didn't pray. This was not the place for that. Cinder Grace stood. Tool belt unchanged. She had worn it climbing to this summit too. Watching the two of them Chen held her tea. Didn't drink it."
+          }
+        }
       ]
     },
     {
@@ -77,9 +150,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "calm", "effect": "character_enter:chen:slide_left", "text": { "ko": "Rev. Hale. Cinder Grace. 왔군요.", "en": "Rev. Hale. Cinder Grace. You came." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "오늘 여기서 화성의 자원 분배 원칙을 합의해요. 아니면 세 파벌이 각자의 방식으로 화성을 나눠요. 그 두 가지만 존재해요.", "en": "Today here we agree on the principles of Mars resource distribution. Or three factions divide Mars each in their own way. Only these two things exist." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "MCC의 입장은 명확해요. 기반시설은 MCC가 구축했어요. 운영도 MCC가 해요. 그 비용은 누가 지불하든 지불해야 해요.", "en": "MCC's position is clear. MCC built the infrastructure. MCC operates it. Whatever the cost, whoever pays it must pay it." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "당신에게 말해요. 이 회담은 협상이 아니에요.",
+            "en": "Telling you. This meeting is not a negotiation."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "정보 수집이에요. Rev. Hale이 무엇을 원하는지. Cinder Grace가 실제로 무엇을 갖고 왔는지.",
+            "en": "It's intelligence gathering. What Rev. Hale wants. What Cinder Grace actually brought."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그것을 알면 MCC가 어디로 가는지 결정할 수 있어요.",
+            "en": "Knowing that MCC can decide where to go."
+          }
+        }
       ]
     },
     {
@@ -89,27 +183,60 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Rev. Hale이 들어왔다. FSP 대표. 나이가 있었다. 육십 대. 목사였다. 그러나 화성에서 목사는 신의 사람만이 아니었다. 사람의 사람이기도 했다. FSP가 그것을 알았다. 그래서 그를 보냈다. 목소리가 낮았다. 기도하는 목소리였다. 그러나 협상하는 목소리이기도 했다.", "en": "Rev. Hale entered. FSP representative. Older. Sixties. A pastor. But on Mars a pastor wasn't only God's person. Also a person's person. FSP knew that. That's why they sent him. His voice was low. A praying voice. But also a negotiating voice." } }
+        {
+          "text": {
+            "ko": "협상이 아니었다. 정보 수집이었다. Chen이 그것을 말했다. 이 방에서. 당신에게. 그것이 MCC의 방식이었다. 모든 것이 목적이었다. 차도. 이 방도. 회담도. 그것들이 정보를 위한 것이었다.",
+            "en": "Not a negotiation. Intelligence gathering. Chen said that. In this room. To you. That was MCC's way. Everything was purpose. The tea too. This room too. The meeting too. All of it was for information."
+          }
+        }
       ]
     },
     {
       "id": "s09",
-      "type": "narration",
+      "type": "dialogue",
       "background": "olympus_summit_station",
-      "bgm": "tension_low",
+      "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder Grace가 들어왔다. CV 대표. 공구 벨트가 그대로였다. 이 정상에서 올 때도 그것을 차고 온 것이었다. 그것이 그녀였다. 어떤 자리에서도 공구를 차는 사람. 협상 테이블에서도. 올림포스 정상에서도. 일관됐다. Chen Weiss와 같은 종류의 일관성이었다.", "en": "Cinder Grace entered. CV representative. Tool belt unchanged. She had worn it climbing to this summit too. That was her. Someone who wore tools in any setting. At negotiating tables too. On Olympus summit too. Consistent. The same kind of consistency as Chen Weiss." } }
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "그러나 오늘은 달라요.",
+            "en": "But today is different."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Cinder Grace가 사진을 갖고 왔어요. 테이블에 올려놓았어요. 이름들이었어요. Zone 12.",
+            "en": "Cinder Grace brought a photo. Put it on the table. Names. Zone 12."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "hollow",
+          "text": {
+            "ko": "22년 동안 내가 잠가두었던 것이에요. 그것이 테이블 위에 있어요.",
+            "en": "Something I had locked away for twenty-two years. It's on the table."
+          }
+        }
       ]
     },
     {
       "id": "s10",
       "type": "narration",
       "background": "olympus_summit_station",
-      "bgm": "tension_low",
+      "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Rev. Hale이 앉았다. 기도를 하지 않았다. 이 자리에서는 하지 않는 것이었다. Cinder Grace는 서 있었다. 공구 벨트가 그대로였다. 이 정상에서 올 때도 그것을 차고 온 것이었다. 두 사람을 보면서 Chen은 차를 들었다. 마시지 않았다.", "en": "Rev. Hale sat. Didn't pray. This was not the place for that. Cinder Grace stood. Tool belt unchanged. She had worn it climbing to this summit too. Watching the two of them Chen held her tea. Didn't drink it." } }
+        {
+          "text": {
+            "ko": "Zone 12. 11명. 사진. 이름들. Chen이 알고 있었다. 22년 동안 알고 있었다. 그것이 이 테이블 위에 왔다. Cinder가 가져왔다. 공구 벨트와 함께. 올림포스까지. 그것이 오늘이 다른 날인 이유였다.",
+            "en": "Zone 12. Eleven people. Photo. Names. Chen had known. For twenty-two years. It came to this table. Cinder brought it. With the tool belt. To Olympus. That was why today was a different day."
+          }
+        }
       ]
     },
     {
@@ -119,109 +246,221 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "calm", "effect": "character_enter:rev_hale:slide_right", "text": { "ko": "FSP의 입장은 단순해요. 땅을 일군 사람들이 땅의 결정에 참여해야 해요.", "en": "FSP's position is simple. People who worked the land should participate in decisions about it." } },
-        { "speaker": "rev_hale", "emotion": "serious", "text": { "ko": "광부들이 화성에 왔어요. MCC의 계약으로. 그러나 계약은 일부예요. 삶이 전부예요. 삶에 대한 결정은 계약만으로 할 수 없어요.", "en": "Miners came to Mars. By MCC contract. But contract is part. Life is everything. Decisions about life can't be made by contract alone." } },
-        { "speaker": "rev_hale", "emotion": "neutral", "text": { "ko": "FSP는 의회를 원해요. 화성 사람들의 의회.", "en": "FSP wants a parliament. A parliament of Martian people." } }
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "MCC 기록에 Zone 12 사망자는 11명이에요. 맞아요.",
+            "en": "MCC records show eleven Zone 12 deaths. Correct."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "보고서도 있어요. 수정 요청 기록도 있어요. 그 기록을 오늘 해제해요.",
+            "en": "The report exists. The revision request records exist. Today I unlock those records."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "Cinder Grace가 테이블에 사진을 올려놓았을 때 결정했어요.",
+            "en": "When Cinder Grace placed the photo on the table I decided."
+          }
+        }
       ]
     },
     {
       "id": "s12",
-      "type": "dialogue",
-      "background": "olympus_summit_station",
-      "bgm": "tension_medium",
-      "transition": "cut",
-      "lines": [
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "CV는 의회를 원하지 않아요. 깃발을 원하지 않아요.", "en": "CV doesn't want a parliament. Doesn't want flags." } },
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "화성의 일부 구역은 어느 파벌도 통제하지 않아요. 그 구역의 사람들이 있어요. 그들의 권리가 있어요.", "en": "Some zones of Mars are controlled by no faction. People are in those zones. They have rights." } },
-        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "우리가 원하는 것은 구역 자치예요. 파벌 없는 자치. 그것뿐이에요.", "en": "What we want is zone autonomy. Autonomy without factions. That's all." } }
-      ]
-    },
-    {
-      "id": "s13",
       "type": "narration",
       "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그들이 말했다. Chen은 들었다. 그것이 협상이었다. FSP는 노동자의 권리를 말했다. CV는 영토를 말했다. Chen은 숫자를 말했다. 숫자는 감정이 없었다. 그것이 숫자의 강점이었다. 이 방에서 감정이 없는 것이 가장 강했다.", "en": "They spoke. Chen listened. That was negotiation. FSP spoke of workers' rights. CV spoke of territory. Chen spoke in numbers. Numbers had no emotion. That was their strength. In this room the thing without emotion was strongest." } }
+        {
+          "text": {
+            "ko": "Chen이 결정했다. 이 테이블에서. Zone 12 기록을 해제하기로. 22년 만에. Cinder의 사진이 그 결정을 만들었다. 그것이 오늘이 특별한 이유였다. 정보 수집이 아니었다. 결정이었다.",
+            "en": "Chen decided. At this table. To unlock the Zone 12 records. For the first time in twenty-two years. Cinder's photo made that decision. That was why today was special. Not information gathering. A decision."
+          }
+        }
       ]
     },
     {
-      "id": "s14",
+      "id": "s13",
       "type": "dialogue",
       "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "MCC의 기반시설 투자 비용이에요. 60년치. 산소 생산 시스템. 물 배분 네트워크. 광산 운영 인프라.", "en": "MCC's infrastructure investment cost. Sixty years. Oxygen production system. Water distribution network. Mine operation infrastructure." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "이것 없이는 화성에서 사람이 살 수 없어요. FSP도 CV도 없어요. 그것이 협상의 시작점이에요.", "en": "Without this people can't live on Mars. Not FSP. Not CV. That's the starting point of the negotiation." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "우리는 그 비용을 회수해야 해요. 그것은 권리가 아니에요. 사실이에요.", "en": "We must recover that cost. It's not a right. It's a fact." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "내 부모가 광산에서 죽었어요. 화성에서. 22년 전. 기록에는 사고였어요.",
+            "en": "My parents died in the mines. On Mars. Twenty-two years ago. The records said accident."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "사고가 아니었어요. MCC가 알고 있었어요. 나도 들어가서 알았어요. MCC에.",
+            "en": "It wasn't an accident. MCC knew. I found out too. After entering MCC."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "22년 동안 안에서 버텼어요. Zone 12 기록이 잠겨 있었어요. 내 손으로.",
+            "en": "Held on inside for twenty-two years. The Zone 12 records were locked. By my hands."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s14",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_low",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen의 이야기였다. 이 방에서. Cinder와 Rev. Hale 앞에서. 처음 하는 이야기였다. 22년 동안 하지 않은 것. 오늘 처음. 이 방에서. 창 없는 방에서. 그것이 이 회담이 다른 이유였다.",
+            "en": "Chen's story. In this room. Before Cinder and Rev. Hale. First time telling it. Twenty-two years without telling it. Today first. In this room. In a room without windows. That was why this meeting was different."
+          }
+        }
       ]
     },
     {
       "id": "s15",
       "type": "dialogue",
       "background": "olympus_summit_station",
-      "bgm": "tension_medium",
+      "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "serious", "text": { "ko": "그 사실 안에 사람이 있어요. 17명이에요. 2009년부터.", "en": "In those facts there are people. Seventeen. Since 2009." } },
-        { "speaker": "rev_hale", "emotion": "calm", "text": { "ko": "원인 없는 사망들. 그것도 사실이에요. 숫자로 말하면.", "en": "Deaths without cause. That's also a fact. If we speak in numbers." } },
-        { "speaker": "rev_hale", "emotion": "neutral", "text": { "ko": "화성에서 태어난 두 번째 세대가 만들었어요. 이 인프라를. 그들의 뼈가 기반이에요. 그것도 숫자에 넣어요.", "en": "The second generation born on Mars built it. This infrastructure. Their bones are the foundation. Include that in the numbers too." } }
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Cinder Grace. 당신과 나는 같은 데서 왔어요. 다른 문을 선택했어요.",
+            "en": "Cinder Grace. You and I came from the same place. Chose different doors."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "30년 전에 17살 Butcher를 갱도 밖으로 부른 사람이 있었어요. 내 어머니예요. Zone 12 광부였어요. 그 방법을 알고 있었어요. 그 이후로 나는 MCC 안에서 그 일을 이어왔어요.",
+            "en": "Thirty years ago there was someone who called seventeen-year-old Butcher out of the tunnel. My mother. She was a Zone 12 miner. She knew the way. Since then I have been carrying that work from inside MCC."
+          }
+        }
       ]
     },
     {
       "id": "s16",
       "type": "narration",
       "background": "olympus_summit_station",
-      "bgm": "tension_high",
+      "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Chen이 잠깐 멈췄다. 차를 들었다. 마시지 않았다. 그러나 잔이 내려갔다. 아주 조금. Rev. Hale이 말한 것이 들어갔다. 두 번째 세대. 그것이 Chen 자신이었다. 그것을 Rev. Hale이 알고 말한 것이었다. 협상 테이블에서 그것을 꺼내는 것. 그것이 FSP의 방식이었다.", "en": "Chen paused briefly. Held her tea. Didn't drink. But the cup lowered. Just slightly. What Rev. Hale said went in. Second generation. That was Chen herself. Rev. Hale knew that and said it. Bringing that up at the negotiating table. That was FSP's way." } }
+        {
+          "text": {
+            "ko": "Chen이 말했다. 어머니가 Butcher를 불렀다고. 30년 전에. 그것이 이 방에서 처음 말해지는 것이었다. 어머니가 죽었다. 8년 후에. Zone 12에서. MCC 안에서 22년. 그리고 오늘. 올림포스에서. 창 없는 방에서. 그것이 이 방에서 하는 말이었다.",
+            "en": "Chen said it. That her mother had called Butcher. Thirty years ago. This was the first time it was said in any room. Her mother died. Eight years later. At Zone 12. Twenty-two years inside MCC. And today. On Olympus. In a room without windows. That was what was said in this room."
+          }
+        }
       ]
     },
     {
       "id": "s17",
       "type": "dialogue",
       "background": "olympus_summit_station",
-      "bgm": "tension_high",
+      "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "Pilgrim Arms 요원이 올라오고 있어요. 서쪽 경로. 이 회의를 막으려는 쪽이 있어요.", "en": "Pilgrim Arms operatives are ascending. West route. Someone wants to stop this meeting." } },
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "누가 보낸 것인지는 모르겠어요. 세 파벌 모두 아닐 수도 있어요. 화성에는 네 번째 파벌이 있어요. 자본이에요.", "en": "Don't know who sent them. Could be none of the three factions. On Mars there's a fourth faction. Capital." } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "어느 쪽도 합의를 원하지 않는 자본이요.", "en": "Capital that wants no agreement on either side." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "그것 때문에 CV가 있어요. 그것 때문에 MCC가 22년 동안 에레보스를 없애지 못했어요. 어머니의 30년까지 합치면 더 오래됐어요.",
+            "en": "That's why CV exists. That's why MCC couldn't eliminate Erebus for twenty-two years. Add my mother's thirty years and it goes back even further."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "내가 막았어요. MCC 안에서. 이사회가 에레보스 작전을 승인하려 할 때마다.",
+            "en": "I blocked it. Inside MCC. Every time the board tried to approve an Erebus operation."
+          }
+        }
       ]
     },
     {
       "id": "s18",
       "type": "narration",
       "background": "olympus_summit_station",
-      "bgm": "tension_high",
+      "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Pilgrim Arms. 화성에서 가장 오래된 용병 조직. 어느 파벌도 공식 연결을 인정하지 않았다. 그러나 그들은 항상 중요한 순간에 나타났다. 합의가 가까워질 때. 협상이 진전될 때. 그들이 나타났다. 그것이 그들의 고객이 누구인지를 말했다.", "en": "Pilgrim Arms. The oldest mercenary organization on Mars. No faction officially acknowledged a connection. But they always appeared at important moments. When agreement was near. When negotiation progressed. They appeared. That said who their clients were." } }
+        {
+          "text": {
+            "ko": "Chen이 CV를 살렸다. 22년 동안. MCC 안에서. 그 전 8년은 어머니였다. Butcher는 몰랐다. Cinder도 몰랐다. 이제 알았다. 이 방에서. 올림포스에서. 화성에서 가장 높은 곳에서. 그것이 오늘 처음 말해졌다.",
+            "en": "Chen had been keeping CV alive. For twenty-two years. Inside MCC. The eight years before that were her mother. Butcher didn't know. Cinder didn't know. Now they knew. In this room. On Olympus. At the highest point on Mars. That was said for the first time today."
+          }
+        }
       ]
     },
     {
       "id": "s19",
       "type": "dialogue",
-      "background": "olympus_exterior",
-      "bgm": "tension_high",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "우리에게 시간이 없어요. Pilgrim Arms가 오기 전에 결론을 내야 해요.", "en": "We're out of time. Need to reach a conclusion before Pilgrim Arms arrives." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "합의든 결렬이든 — 오늘 결정해요.", "en": "Whether agreement or breakdown — decide today." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "Pilgrim Arms가 막으려는 것이 합의라면 — 합의하는 것이 맞아요.", "en": "If what Pilgrim Arms is trying to stop is the agreement — then agreeing is right." } }
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Pilgrim Arms를 알아요. 4명이 이 산에 있어요. 오늘 아침부터.",
+            "en": "Pilgrim Arms. Four of them are on this mountain. Since this morning."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "고용한 쪽은 이사회 내부예요. 내가 오늘 Zone 12 기록을 해제할 것을 알고 있었어요.",
+            "en": "Those who hired them are inside the board. They knew I was going to unlock the Zone 12 records today."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "나를 막으려는 거예요. 이 방에서.",
+            "en": "They're trying to stop me. In this room."
+          }
+        }
       ]
     },
     {
       "id": "s20",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "olympus_exterior_sunset",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Chen Weiss가 그 말을 했다. Pilgrim Arms가 막으려는 것이 합의라면 합의하는 것이 맞다. 그것이 협상 논리가 아니었다. 역설이었다. 화성에서 오래 산 사람의 역설. 반대가 옳다는 것을 알면 반대가 맞다는 것.", "en": "Chen Weiss said that. If what Pilgrim Arms is trying to stop is the agreement then agreeing is right. That wasn't negotiation logic. It was paradox. The paradox of someone who had lived long on Mars. If you know the opposite is right then the opposite is right." } }
+        {
+          "text": {
+            "ko": "Pilgrim Arms. 이사회 내부에서 고용했다. Chen을 막으려고. Zone 12 기록 해제를 막으려고. 22년 동안 MCC 안에서 버텨온 것을 막으려고. 그것이 오늘 올림포스에서 일어나고 있었다.",
+            "en": "Pilgrim Arms. Hired from inside the board. To stop Chen. To stop the Zone 12 record unlock. To stop what had been held for twenty-two years inside MCC. That was what was happening on Olympus today."
+          }
+        }
       ]
     },
     {
@@ -231,9 +470,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "calm", "text": { "ko": "목사로서 말해요. 위험이 있을 때 가장 먼저 해야 할 것이 있어요.", "en": "As a pastor I say this. When danger is present there's something that must be done first." } },
-        { "speaker": "rev_hale", "emotion": "serious", "text": { "ko": "손을 내미는 것이에요. 악수요. 그 다음에 다른 것을 해요.", "en": "Extend a hand. A handshake. Then everything else." } },
-        { "speaker": "rev_hale", "emotion": "neutral", "text": { "ko": "MCC. FSP. CV. 세 개의 손이에요. 지금 내밀어요.", "en": "MCC. FSP. CV. Three hands. Extend them now." } }
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "당신에게 선택을 줄게요.",
+            "en": "I'll give you a choice."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "이사회 지시를 따르면 Pilgrim Arms를 막지 않아요. 그것이 표준 절차예요. MCC를 위한.",
+            "en": "If you follow the board's instructions you don't stop Pilgrim Arms. That's standard procedure. For MCC."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "독자적으로 행동하면 나를 보호해요. 그러나 이사회와의 관계가 끝나요.",
+            "en": "If you act independently you protect me. But your relationship with the board ends."
+          }
+        }
       ]
     },
     {
@@ -243,49 +503,228 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder Grace가 공구 벨트를 만졌다. 손이 그쪽으로 갔다. 그러나 공구를 꺼내지 않았다. 대신 테이블 위에 손을 올렸다. 빈 손이었다. 공구 없는 손. 오일 자국이 있는 손. 그것이 그녀의 악수 방식이었다.", "en": "Cinder Grace touched her tool belt. Her hand went there. But didn't take out a tool. Instead put her hand on the table. An empty hand. Hand without tools. Hand with oil marks. That was her way of a handshake." } }
+        {
+          "text": {
+            "ko": "선택이었다. Chen의 지시를 따르는 것. 또는 독자적으로 행동하는 것. 이사회의 지시를 따르는 것. 또는 Chen을 보호하는 것. 그것들이 다른 방향이었다. 올림포스에서. 화성에서 가장 높은 곳에서.",
+            "en": "A choice. Follow Chen's instructions. Or act independently. Follow the board's instructions. Or protect Chen. Those were different directions. On Olympus. At the highest point on Mars."
+          }
+        }
       ]
     },
     {
       "id": "s23",
-      "type": "narration",
+      "type": "dialogue",
       "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Chen이 차를 내려놨다. 처음으로. 올림포스에서. 이 협상 테이블에서. 22년 동안 차를 내려놓은 것을 본 사람이 없었다. 그녀가 차를 내려놨다. 그 다음 손을 내밀었다. 테이블 위에.", "en": "Chen set down her tea. For the first time. On Olympus. At this negotiating table. In twenty-two years no one had seen her set down her tea. She set it down. Then extended her hand. On the table." } }
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "22년이에요. 여기까지 오는 데.",
+            "en": "Twenty-two years. To get here."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "Zone 12 기록이 해제되면 이사회가 달라져요. MCC가 달라져요. 화성이 달라져요.",
+            "en": "When the Zone 12 records are unlocked the board changes. MCC changes. Mars changes."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그것이 22년의 이유예요.",
+            "en": "That's the reason for twenty-two years."
+          }
+        }
       ]
     },
     {
       "id": "s24",
       "type": "narration",
-      "background": "olympus_summit_station",
-      "bgm": "tension_medium",
+      "background": "olympus_exterior_vast",
+      "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "세 개의 손이 테이블 위에 있었다. MCC. FSP. CV. 각자의 손이었다. 오일 자국이 있는 손. 나이 든 손. 차 한 잔을 22년 들고 있었던 손. 그 세 개가 테이블 위에 있었다. Pilgrim Arms가 오고 있었다. 시간이 없었다.", "en": "Three hands were on the table. MCC. FSP. CV. Each their own hands. Hands with oil marks. Old hands. Hands that had held a cup of tea for twenty-two years. Those three were on the table. Pilgrim Arms was coming. No time." } }
+        {
+          "text": {
+            "ko": "올림포스 외부. Pilgrim Arms 4명이 움직이고 있었다. 2명이 동쪽. 2명이 서쪽. 기지 외벽을 따라. Chen을 노리고 있었다. Zone 12 기록 해제를 막으려고. 이사회가 고용한 것들이. MCC 안에서.",
+            "en": "Outside Olympus. Pilgrim Arms four were moving. Two east. Two west. Along the base's outer wall. After Chen. To stop the Zone 12 record unlock. Hired by the board. Inside MCC."
+          }
+        }
       ]
     },
     {
       "id": "s25",
       "type": "dialogue",
-      "background": "olympus_exterior",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "focused", "text": { "ko": "서쪽에서 접근 중이에요. 세 명. 빠르게 오고 있어요.", "en": "Approaching from the west. Three. Moving fast." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "당신이 막아요. 합의 서명까지 시간이 필요해요.", "en": "You hold them. Need time until the agreement is signed." } },
-        { "speaker": "rev_hale", "emotion": "calm", "text": { "ko": "다시 만날 거예요. 서명이 끝나면.", "en": "We'll meet again. When signing is done." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "Cinder Grace가 동쪽을 막으러 나갔어요. 공구를 들고.",
+            "en": "Cinder Grace went to stop the eastern side. With tools."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "서쪽이 남아요. 당신이 결정해요.",
+            "en": "The west remains. You decide."
+          }
+        }
       ]
     },
     {
       "id": "s26",
       "type": "narration",
-      "background": "olympus_exterior",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "올림포스 정상. 기압이 낮았다. 마스크가 없으면 10초. 마스크를 쓰고 있었다. 서쪽에서 세 명이 오고 있었다. Pilgrim Arms. 화성에서 가장 오래된 용병들. 그들이 막으려는 것이 합의라면 합의하는 것이 맞았다. 그들을 막아야 했다. 합의가 서명될 때까지.", "en": "Olympus summit. Low pressure. Ten seconds without a mask. Wearing a mask. Three people coming from the west. Pilgrim Arms. The oldest mercenaries on Mars. If what they were trying to stop was the agreement then agreement was right. Had to stop them. Until the agreement was signed." } }
+        {
+          "text": {
+            "ko": "Cinder가 나갔다. 공구를 들고. 올림포스에서. 태양계에서 가장 높은 곳에서. 공구 소리가 났다. 그것이 이 상황의 답이었다. Cinder의 방식. 공구로 고치는 것. 그것이 이 방에서 바깥으로 나간 것이었다.",
+            "en": "Cinder went out. With tools. On Olympus. At the highest point in the solar system. Tool sounds. That was the answer to this situation. Cinder's way. Fixing with tools. That went from this room to the outside."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s27",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "이사회가 나를 막으려고 해요. 22년 만이에요. 처음으로.",
+            "en": "The board is trying to stop me. For the first time in twenty-two years."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그것이 내가 올바른 방향으로 가고 있다는 증거예요.",
+            "en": "That's proof I'm going in the right direction."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s28",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen이 차를 들었다. 마시지 않았다. 이 방에서. 22년 동안 마시지 않은 것. 그러나 오늘. 조금. 마셨다. 테이블 위에 Zone 12 사진이 있었다. Cinder가 가져온 것. 그것이 이 방에 있었다. 그것이 오늘이 다른 이유였다.",
+            "en": "Chen held her tea. Didn't drink it. In this room. Twenty-two years without drinking. But today. A little. She drank. Zone 12 photo was on the table. What Cinder brought. It was in this room. That was why today was different."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s29",
+      "type": "dialogue",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "합의가 필요해요. 오늘. 세 파벌이. Zone 12 이름들이 이 합의에 있어야 해요.",
+            "en": "An agreement is needed. Today. Three factions. The Zone 12 names must be in this agreement."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "그것이 이사회가 막으려는 것이에요. 이름들이 공식 문서에 오르는 것.",
+            "en": "That's what the board is trying to stop. Names appearing in official documents."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "당신의 결정이에요.",
+            "en": "It's your decision."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s30",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_medium",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "이름들이 공식 문서에 오르는 것. 그것이 이사회가 막으려는 것이었다. 22년 동안 잠가두었던 것. 그것이 오늘 이 방에서 열리려 하고 있었다. 그리고 Pilgrim Arms가 그것을 막으려고 왔다. 이사회의 명으로.",
+            "en": "Names appearing in official documents. That was what the board was trying to stop. What had been locked away for twenty-two years. That was trying to open in this room today. And Pilgrim Arms had come to stop it. On the board's order."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s31",
+      "type": "dialogue",
+      "background": "olympus_exterior_vast",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "서쪽 2명이 접근해요. 1분 내로 이 방에 도달해요.",
+            "en": "The western two are approaching. Reaching this room within one minute."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "나는 합의서에 서명해요. 당신이 막는 동안.",
+            "en": "I'll sign the agreement. While you stop them."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s32",
+      "type": "narration",
+      "background": "olympus_summit_station",
+      "bgm": "tension_high",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "Chen이 펜을 들었다. 합의서 앞에. 이름들이 있는 합의서. Zone 12. 세 파벌의 서명이 필요한 것. 그 중 하나. 그것이 지금 일어나려 하고 있었다. 서쪽에서 소리가 들렸다. 가까웠다.",
+            "en": "Chen picked up the pen. Before the agreement. The agreement with names. Zone 12. Needing the signatures of three factions. One of them. That was about to happen. Sounds from the west. Close."
+          }
+        }
       ]
     },
     {
@@ -293,32 +732,59 @@
       "type": "choice",
       "background": "olympus_summit_station",
       "bgm": "choice_tension",
-      "prompt": { "ko": "합의의 마지막 조건. Chen이 당신에게 묻는다. 어떻게 제안하겠습니까.", "en": "The final condition of agreement. Chen asks you. What will you propose." },
+      "prompt": {
+        "ko": "Chen이 서명하려 한다. Pilgrim Arms가 접근한다. 이사회의 지시와 눈앞의 것 사이에서.",
+        "en": "Chen is about to sign. Pilgrim Arms approaches. Between the board's instructions and what is before you."
+      },
       "choices": [
-        { "id": "mcc_ch9_mcc_dominance", "text": { "ko": "MCC가 화성 기반시설 전체를 15년 독점 운영한다.", "en": "MCC operates all Mars infrastructure exclusively for 15 years." }, "tone": "empire", "preview_hint": { "ko": "→ FSP/CV 거부, 회의 결렬 가능성", "en": "→ FSP/CV reject, talks may collapse" } },
-        { "id": "mcc_ch9_shared_council", "text": { "ko": "삼자 운영 위원회. 결정은 다수결.", "en": "Tripartite operations council. Majority rule." }, "tone": "diplomatic", "preview_hint": { "ko": "→ 합의 가능, MCC 지분 희석", "en": "→ Agreement possible, MCC stake diluted" } },
-        { "id": "mcc_ch9_ancient_metal", "text": { "ko": "Ancient Metal을 공동 연구 카드로 꺼낸다.", "en": "Put Ancient Metal on the table as joint research card." }, "tone": "strategic", "preview_hint": { "ko": "→ 회의 분위기 전환, 세 파벌 모두 반응", "en": "→ Atmosphere shifts, all three factions react" } },
-        { "id": "mcc_ch9_chen_breaks", "text": { "ko": "Chen에게 진실을 말한다. 이 합의는 가능하지 않다.", "en": "Tell Chen the truth. This agreement is not possible." }, "tone": "honest", "preview_hint": { "ko": "→ Chen이 멈춘다. 처음으로 차를 내려놓는다", "en": "→ Chen stops. For the first time she sets down the tea." } }
-      ]
-    },
-    {
-      "id": "s27",
-      "type": "narration",
-      "background": "olympus_exterior",
-      "bgm": "tension_high",
-      "transition": "cut",
-      "lines": [
-        { "text": { "ko": "Pilgrim Arms가 가까워졌다. 서쪽 경사면. 마스크를 쓰고 있었다. 3명. 무기가 보였다. 올림포스 정상에서의 전투는 달랐다. 기압이 낮았다. 움직임이 달랐다. 숨이 달랐다. 이 높이에서 모든 것이 달랐다.", "en": "Pilgrim Arms grew closer. West slope. Wearing masks. Three. Weapons visible. Combat on Olympus summit was different. Low pressure. Movement was different. Breath was different. At this height everything was different." } }
-      ]
-    },
-    {
-      "id": "s28",
-      "type": "narration",
-      "background": "olympus_summit_station",
-      "bgm": "tension_high",
-      "transition": "cut",
-      "lines": [
-        { "text": { "ko": "안에서 세 파벌이 협상하고 있었다. 밖에서 Pilgrim Arms가 접근했다. 그 경계에 있었다. 안과 밖. 합의와 결렬. 화성의 미래와 현재. 그 경계를 지키는 것이 지금 해야 할 일이었다.", "en": "Inside three factions were negotiating. Outside Pilgrim Arms was approaching. On that boundary. Inside and outside. Agreement and breakdown. Mars's future and present. Holding that boundary was what needed to be done now." } }
+        {
+          "id": "mcc_ch9_mcc_dominance",
+          "text": {
+            "ko": "이사회 지시를 따른다. Pilgrim Arms를 막지 않는다.",
+            "en": "Follow board instructions. Do not stop Pilgrim Arms."
+          },
+          "tone": "empire",
+          "preview_hint": {
+            "ko": "→ 이사회 충성. Zone 12 기록 잠금 유지",
+            "en": "→ Board loyalty. Zone 12 records remain locked."
+          }
+        },
+        {
+          "id": "mcc_ch9_shared_council",
+          "text": {
+            "ko": "독자적으로 행동한다. Chen을 보호한다.",
+            "en": "Act independently. Protect Chen."
+          },
+          "tone": "diplomatic",
+          "preview_hint": {
+            "ko": "→ 이사회와 결별. Zone 12 기록 해제",
+            "en": "→ Break with board. Zone 12 records unlocked."
+          }
+        },
+        {
+          "id": "mcc_ch9_ancient_metal",
+          "text": {
+            "ko": "Pilgrim Arms와 거래를 제안한다. 서명을 연기한다.",
+            "en": "Propose a deal with Pilgrim Arms. Delay the signing."
+          },
+          "tone": "strategic",
+          "preview_hint": {
+            "ko": "→ 시간 벌기. 불안정한 균형",
+            "en": "→ Buy time. Unstable balance."
+          }
+        },
+        {
+          "id": "mcc_ch9_chen_breaks",
+          "text": {
+            "ko": "Chen에게 말한다. 혼자서 끝내라고.",
+            "en": "Tell Chen. Finish it herself."
+          },
+          "tone": "honest",
+          "preview_hint": {
+            "ko": "→ Chen이 차를 내려놓는다. 처음으로",
+            "en": "→ Chen sets down the tea. For the first time."
+          }
+        }
       ]
     },
     {
@@ -327,8 +793,14 @@
       "background": "olympus_exterior",
       "bgm": "battle_theme_mcc",
       "transition": "flash_white",
-      "title": { "ko": "올림포스 최후의 협상", "en": "Final Negotiation on Olympus" },
-      "subtitle": { "ko": "올림포스 정상 — 화성의 미래", "en": "Olympus Summit — The Future of Mars" }
+      "title": {
+        "ko": "올림포스 최후의 협상",
+        "en": "Final Negotiation on Olympus"
+      },
+      "subtitle": {
+        "ko": "올림포스 정상 — 22년의 결산",
+        "en": "Olympus Summit — The Reckoning of Twenty-Two Years"
+      }
     },
     {
       "id": "s_result",
@@ -342,7 +814,12 @@
       "background": "olympus_summit_station",
       "bgm": "victory_calm",
       "lines": [
-        { "text": { "ko": "합의서가 서명됐다. 세 파벌. 세 서명. Chen의 서명은 마지막이었다. 그녀는 펜을 잡기 전에 차를 내려놓았다. 두 손으로 서명했다. 오른손이 왼손을 받쳤다. 그것은 그녀의 방식이 아니었다. 그러나 오늘은 그랬다. 이 서명은 그만한 것이었다.", "en": "The agreement was signed. Three factions. Three signatures. Chen's was last. Before taking the pen she set down her tea. She signed with both hands. The right supporting the left. That was not her way. But today it was. This signature was worth that." } }
+        {
+          "text": {
+            "ko": "합의서가 서명됐다. 세 파벌. 세 서명. Chen의 서명은 마지막이었다. 그녀는 펜을 잡기 전에 차를 내려놓았다. 두 손으로 서명했다. 오른손이 왼손을 받쳤다. 그것은 그녀의 방식이 아니었다. 그러나 오늘은 그랬다. 이 서명은 그만한 것이었다.",
+            "en": "The agreement was signed. Three factions. Three signatures. Chen's was last. Before taking the pen she set down her tea. She signed with both hands. The right supporting the left. That was not her way. But today it was. This signature was worth that."
+          }
+        }
       ]
     },
     {
@@ -351,39 +828,35 @@
       "background": "olympus_exterior",
       "bgm": "defeat_ambient",
       "lines": [
-        { "text": { "ko": "회의가 끝나지 않았다. 끝나지 않은 회의는 결렬이었다. 세 파벌이 각자의 방향으로 갔다. 올림포스는 그대로 있었다. 산은 언제나 그대로 있었다. 사람들이 가도. 합의가 없어도.", "en": "The meeting didn't end. A meeting that didn't end was a collapse. Three factions went their separate ways. Olympus remained. Mountains always remained. Even when people left. Even without agreement." } }
-      ]
-    },
-    {
-      "id": "s29",
-      "type": "narration",
-      "background": "olympus_summit_exterior_view",
-      "bgm": "ambient_vast",
-      "transition": "fade_slow",
-      "lines": [
-        { "text": { "ko": "올림포스 정상에서 화성이 보였다. 전체가. 붉었다. 아래에 헬라스가 있었다. MCC의 도시. 광산. 돔들. 더 작게 보면 C-7 블록이 있었다. 분필 이름들이 있는 곳. 이 높이에서는 보이지 않았다. 그러나 있었다. 항상 거기 있었다.", "en": "From Olympus summit Mars was visible. All of it. Red. Below was Hellas. MCC's city. Mines. Domes. Smaller still was block C-7. Where chalk names were. From this height not visible. But it was there. Always there." } }
-      ]
-    },
-    {
-      "id": "s30",
-      "type": "narration",
-      "background": "olympus_summit_exterior_view",
-      "bgm": "ambient_vast",
-      "transition": "cut",
-      "lines": [
-        { "text": { "ko": "Chen Weiss가 내려오는 길에 차를 들었다. 그러나 이번에는 달랐다. 차를 마셨다. 정상에서 내려오면서. 이 높이에서. 올림포스에서. 22년간 마시지 않던 사람이 내려오면서 마셨다. 차가 식어 있었다. 25도가 아니었다. 그러나 마셨다.", "en": "Chen Weiss held her tea descending. But this time it was different. She drank it. While coming down from the summit. At this height. On Olympus. Someone who hadn't drunk in twenty-two years drank while descending. The tea was cold. Not twenty-five degrees. But she drank it." } }
+        {
+          "text": {
+            "ko": "회의가 끝나지 않았다. 끝나지 않은 회의는 결렬이었다. 세 파벌이 각자의 방향으로 갔다. 올림포스는 그대로 있었다. 산은 언제나 그대로 있었다. 사람들이 가도. 합의가 없어도. Zone 12 이름들은 여전히 잠겨 있었다. 그러나 Cinder가 공구를 들었다. 그것이 달랐다.",
+            "en": "The meeting didn't end. A meeting that didn't end was a collapse. Three factions went their separate ways. Olympus remained. Mountains always remained. Even when people left. Even without agreement. Zone 12 names remained locked. But Cinder had picked up her tools. That was different."
+          }
+        }
       ]
     },
     {
       "id": "s_ending",
       "type": "ending",
       "background": "olympus_exterior_sunset",
-      "bgm": "ambient_vast",
+      "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "올림포스에서 내려오는 길. 화성 전체가 보였다. 붉었다. 아래에 헬라스가 있었다. MCC의 도시가 있었다. 더 작게 보면 C-7 블록이 있었다. 분필 이름들이 있었다. 내려가면 그것들이 다시 컸다. 그것이 이 산에서 배우는 것이었다. 작은 것들은 내려가면 다시 컸다.", "en": "Descending from Olympus. All of Mars was visible. Red. Below was Hellas. MCC's city. Smaller still was block C-7. The chalk names. Coming down they would be large again. That was what this mountain taught. Small things became large again on the way down." } }
+        {
+          "text": {
+            "ko": "올림포스에서 내려오는 길. 화성 전체가 보였다. 붉었다. 아래에 헬라스가 있었다. MCC의 도시가 있었다. 더 작게 보면 C-7 블록이 있었다. 분필 이름들이 있었다. 내려가면 그것들이 다시 컸다. 그것이 이 산에서 배우는 것이었다. 작은 것들은 내려가면 다시 컸다.",
+            "en": "Descending from Olympus. All of Mars was visible. Red. Below was Hellas. MCC's city. Smaller still was block C-7. The chalk names. Coming down they would be large again. That was what this mountain taught. Small things became large again on the way down."
+          }
+        }
       ],
-      "next_chapter_preview": { "questId": "mcc_campaign_ch10", "teaser": { "ko": "다음 — 선택", "en": "Next — The Choice" } }
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch10",
+        "teaser": {
+          "ko": "다음 — 선택",
+          "en": "Next — The Choice"
+        }
+      }
     }
   ]
 }
