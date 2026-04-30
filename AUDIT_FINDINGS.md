@@ -1,6 +1,24 @@
-# OCCUPY MARS — Codebase Audit (v5.34 / 2026-04-30)
+# OCCUPY MARS — Codebase Audit (v5.35 / 2026-05-01)
 
-## ✅ 현재 코드베이스 상태 요약 (2026-04-30 기준)
+## ✅ 현재 코드베이스 상태 요약 (2026-05-01 기준)
+
+### v5.35 Imagen 4 Ultra 115장 일괄 재생성 완료 — 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 모델 업그레이드 | ✅ | `imagen-3.0-generate-001` → `imagen-4.0-ultra-generate-001`. Codex agent 가 작성한 스크립트 실행. |
+| 115장 일괄 재생성 | ✅ | 114/115 1차 성공, 1장 safety filter retry 후 완료. 평균 1481.7KB. |
+| 골드 스탠다드 도달 | ✅ | 167/190 (88%) ≥1.4MB. ≥2MB 19개, 1.5-2MB 116개. |
+| 검수 픽스 (배치 중 3장) | ✅ | cv_ch10_l14 헤드램프 / cv_ch1_l41 캐릭터 박힘 / mcc_ch5_l29 safety filter — 모두 타겟 재생성 |
+| 9:16 portrait | ✅ | 모바일 풀스크린 적합 |
+| 대사·캐릭터 매칭 | ✅ | hand-crafted 영문 프롬프트 (KO 대사 → 시각 요소) 그대로 적용 |
+
+검증:
+- `find assets/campaign/backgrounds -name "*.png" -newermt "2026-05-01" | wc -l` → 115
+- 평균 사이즈 1481KB, 분포 ≥2MB 19개 / 1.5-2MB 116개 / 1.4-1.5MB 32개 / <1.4MB 23개
+- 기존 70개 scene-level high-quality 배경 보존 (수정 없음)
+
+---
 
 ### v5.34 Imagen 4 Ultra 모델 업그레이드 + 골드 스탠다드 적용 — 진행 중
 

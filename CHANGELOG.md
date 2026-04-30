@@ -1,5 +1,28 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-01 — Imagen 4 Ultra 115장 일괄 재생성 완료 (5/N)
+
+Imagen 3 → Imagen 4 Ultra 전환 후 115장 모두 재생성 완료. Codex agent 가 작성한
+`/tmp/codex_generate_campaign_bgs.py` 를 `IMAGEN_MODEL=imagen-4.0-ultra-generate-001`
+환경변수로 실행, 115장 중 114장 1차 성공 + 1장 (mcc_ch5_kepler_dispute_l29 candle_flame)
+safety filter retry 후 완료.
+
+성과:
+- 평균 사이즈: 1481.7KB (직전 Imagen 3 평균 700-1000KB 대비 약 1.5배)
+- 골드 스탠다드 (≥1.4MB) 도달: 167/190 (88%)
+- 사이즈 분포: ≥2MB 19개, 1.5-2MB 116개, 1.4-1.5MB 32개, 1.0-1.4MB 20개, <1.0MB 3개
+- 9:16 portrait 모바일 우선, 캐릭터·사물·대사 매칭 hand-crafted 영문 프롬프트 그대로 적용
+
+검수 픽스 (배치 중 3장):
+- `cv_ch10_from_flames_l14_00_hand_still`: 사용자가 이마 미닝 헤드램프 어색하다 지적 → "no headgear" 명시 재생성
+- `cv_ch1_baptism_l41_00_candle_flame`: Aisha 하반신이 바닥에 박힘 → 풀바디 + 명확 구도 재생성
+- `mcc_ch5_kepler_dispute_l29_00_candle_flame`: 1차 safety filter 차단 → 표현 다듬어 retry 성공
+
+검증:
+- `find assets/campaign/backgrounds -name "*.png" -newermt "2026-05-01" | wc -l` → 115
+- `ls -la assets/campaign/backgrounds/*.png` 사이즈 분포 위 통계 확인
+- 기존 70개 scene-level high-quality 배경은 보존 (수정 없음)
+
 ## 2026-04-30 — Imagen 4 Ultra 모델 업그레이드 (4/N)
 
 사용자 피드백 "이미지 퀄리티 기준은 엄격하게 지킬것" 반영.
