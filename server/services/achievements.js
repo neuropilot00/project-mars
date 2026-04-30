@@ -6,12 +6,7 @@
  * All public check functions are safe to call fire-and-forget.
  */
 
-const { pool, getSetting } = require('../db');
-let logGPActivity;
-try { logGPActivity = require('../db').logGPActivity; } catch (_) {}
-
-let notifyPlayer;
-try { notifyPlayer = require('./notifications').notifyPlayer; } catch (_) {}
+const { pool, getSetting, notifyPlayer, logGPActivity } = require('../db');
 let newsService;
 try { newsService = require('./news'); } catch (_) {}
 

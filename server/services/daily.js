@@ -50,26 +50,38 @@ async function recordDailyLogin(wallet) {
     [w]
   );
 
+  // 7일 고정 주기 — 8일차 이후 그래픽 없으므로 반드시 리셋
+  const CYCLE = 7;
   let streakDay = 1;
+  let cycleReset = false;
   if (yesterday.rows.length) {
     streakDay = yesterday.rows[0].streak_day + 1;
-    const maxDays = parseInt(await getSetting('daily_streak_cycle', 14)) || 14;
-    if (streakDay > maxDays) streakDay = 1; // cycle after maxDays
+    if (streakDay > CYCLE) { streakDay = 1; cycleReset = true; }
   }
 
-  // Get reward arrays from settings — getSetting returns string, parse JSON
-  const parseArr = (raw, def) => {
-    if (Array.isArray(raw)) return raw;
-    if (typeof raw === 'string') {
-      try { const p = JSON.parse(raw); return Array.isArray(p) ? p : def; }
-      catch (_) { return def; }
-    }
-    return def;
-  };
-  const defaultGP = [5, 10, 10, 15, 15, 20, 30, 10, 15, 15, 20, 20, 25, 50];
-  const defaultPP = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  const gpRewards = parseArr(await getSetting('daily_login_gp_rewards', defaultGP), defaultGP);
-  const ppRewards = parseArr(await getSetting('daily_login_pp_rewards', defaultPP), defaultPP);
+  // 7일 주기 보상표 — Day7 완주 후 리셋 시 랜덤 재생성
+  // 기본값: [Day1..Day7] GP 고정. 리셋 시 각 일차 보상을 랜덤하게 섞음
+  const BASE_GP  = [5, 10, 15, 20, 25, 30, 50];
+  const BASE_PP  = [0,  0,  0,  0,  0,  0,  0];
+  let gpRewards, ppRewards;
+  if (cycleReset) {
+    // 리셋 사이클: GP 보상을 랜덤 변형 (±50%), Day7는 항상 보너스
+    gpRewards = BASE_GP.map((v, i) => {
+      if (i === 6) return randInt(60, 100); // Day7 보너스
+      return randInt(Math.floor(v * 0.6), Math.floor(v * 1.5));
+    });
+    ppRewards = BASE_PP.map(() => randInt(0, 2));
+  } else {
+    const parseArr = (raw, def) => {
+      if (Array.isArray(raw)) return raw;
+      if (typeof raw === 'string') { try { const p = JSON.parse(raw); return Array.isArray(p) ? p : def; } catch (_) { return def; } }
+      return def;
+    };
+    gpRewards = parseArr(await getSetting('daily_login_gp_rewards', BASE_GP), BASE_GP).slice(0, CYCLE);
+    while (gpRewards.length < CYCLE) gpRewards.push(BASE_GP[gpRewards.length] || 10);
+    ppRewards = parseArr(await getSetting('daily_login_pp_rewards', BASE_PP), BASE_PP).slice(0, CYCLE);
+    while (ppRewards.length < CYCLE) ppRewards.push(0);
+  }
 
   const rewardGP = parseFloat(gpRewards[streakDay - 1]) || 0;
   const rewardPP = parseFloat(ppRewards[streakDay - 1]) || 0;
@@ -102,19 +114,14 @@ async function recordDailyLogin(wallet) {
   let milestoneGP = 0;
   let milestonePP = 0;
 
-  // Streak milestones (based on current streak day, not total days)
+  // Streak milestones — 7일 주기 기준 (3일, 7일 완주만)
   if (streakDay === 3) {
     milestoneGP = parseFloat(await getSetting('streak_3_gp', 30));
     milestone = { days: 3, gp: milestoneGP, pp: 0 };
   } else if (streakDay === 7) {
+    // 7일 완주 — cycleReset 플래그로 다음 로그인이 새 주기임을 알림
     milestoneGP = parseFloat(await getSetting('streak_7_gp', 100));
-    milestone = { days: 7, gp: milestoneGP, pp: 0 };
-  } else if (streakDay === 10) {
-    milestoneGP = parseFloat(await getSetting('streak_10_gp', 150));
-    milestone = { days: 10, gp: milestoneGP, pp: 0 };
-  } else if (streakDay === 14) {
-    milestoneGP = parseFloat(await getSetting('streak_14_gp', 300));
-    milestone = { days: 14, gp: milestoneGP, pp: 0 };
+    milestone = { days: 7, gp: milestoneGP, pp: 0, cycleComplete: true };
   }
 
   if (milestoneGP > 0 || milestonePP > 0) {

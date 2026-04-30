@@ -154,6 +154,47 @@ OVERLAYS = {
         "Earth not visible, "
         "you can't go back, " + STYLE
     ),
+    # 추가 (2차)
+    'death_still': (
+        "close-up of a single empty pressure suit helmet lying on Martian ground, "
+        "visor cracked, dust settling inside, owner gone, "
+        "the object that outlived its wearer, " + STYLE
+    ),
+    'fire_small': (
+        "close-up of a small fire burning in a metal barrel inside a Mars colony, "
+        "orange flame reflecting off worn metal walls, "
+        "warmth in cold industrial darkness, " + STYLE
+    ),
+    'dust_storm': (
+        "close-up view through a scratched porthole of a Mars dust storm approaching, "
+        "red-orange wall of dust filling the frame, "
+        "the planet asserting dominance, " + STYLE
+    ),
+    'silence_room': (
+        "close-up of an empty table with two chairs, one pushed back like someone just left, "
+        "cold coffee cup still there, "
+        "the silence after a conversation that ended badly, " + STYLE
+    ),
+    'contract_sign': (
+        "close-up of a contract document with a signature line, "
+        "pen resting at the line, not yet signed or just signed, "
+        "MCC corporate letterhead, the weight of commitment, " + STYLE
+    ),
+    'alone_window': (
+        "close-up of a single figure's silhouette at a habitat window, "
+        "just shoulders and head visible against Martian red sky, "
+        "alone with the planet, " + STYLE
+    ),
+    'darkness_corridor': (
+        "close-up of a corridor light flickering out, "
+        "one light remaining in receding darkness, "
+        "power failure or deliberate, last light in a tunnel, " + STYLE
+    ),
+    'collapse_debris': (
+        "close-up of collapsed mine tunnel debris, "
+        "support beam broken, rocks fallen, "
+        "someone was under this, the weight of what happened, " + STYLE
+    ),
 }
 
 

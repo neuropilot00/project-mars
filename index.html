@@ -18115,7 +18115,12 @@ var _questI18n = {
                              desc_ko:'이번 주 아이템 {n}개를 사용하세요.',    desc_ja:'今週アイテムを{n}個使用。',        desc_zh:'本周使用{n}个物品。' }
 };
 function _questTitle(q){ var m=_questI18n[q.title]; if(!m||LANG==='en') return q.title; return m[LANG]||q.title; }
-function _questDesc(q){ var m=_questI18n[q.title]; if(!m||LANG==='en') return q.description; var k='desc_'+LANG; return m[k]||q.description; }
+function _questDesc(q){
+  var m=_questI18n[q.title];
+  var raw=(m&&LANG!=='en')?(m['desc_'+LANG]||q.description):q.description;
+  var n=q.requirement_value||q.target||'';
+  return String(raw||'').replace(/\{n\}/g,n);
+}
 
 function setLang(lang){
   LANG=lang;
@@ -25001,7 +25006,20 @@ var _OVERLAY_KW={
   '빈 의자':'empty_chair','아무도 없':'empty_chair','비어 있':'empty_chair','공석':'empty_chair',
   // 우주 / 화성
   '지평선':'mars_horizon','화성의':'mars_horizon','저 너머':'mars_horizon',
-  '별이':'stars_through_glass','별을':'stars_through_glass','지구가':'stars_through_glass','돌아갈':'stars_through_glass'
+  '별이':'stars_through_glass','별을':'stars_through_glass','지구가':'stars_through_glass','돌아갈':'stars_through_glass',
+  // 죽음 / 붕괴
+  '죽었':'death_still','죽은':'death_still','사망':'death_still','목숨':'death_still','잃었':'death_still',
+  '무너':'collapse_debris','붕괴':'collapse_debris','쓰러':'collapse_debris','쏟아졌':'collapse_debris',
+  // 불 / 폭풍
+  '불이':'fire_small','화재':'fire_small','불꽃이':'fire_small','타고':'fire_small',
+  '폭풍':'dust_storm','먼지':'dust_storm','모래':'dust_storm','황사':'dust_storm',
+  // 침묵 / 고독
+  '침묵':'silence_room','말이 없':'silence_room','아무 말':'silence_room','말하지 않':'silence_room',
+  '혼자':'alone_window','홀로':'alone_window','남겨졌':'alone_window','남겨진':'alone_window',
+  // 계약 / 서명
+  '계약':'contract_sign','서명':'contract_sign','도장':'contract_sign','사인':'contract_sign',
+  // 어둠
+  '어둠':'darkness_corridor','꺼졌':'darkness_corridor','불이 꺼':'darkness_corridor','암흑':'darkness_corridor'
 };
 function _showStoryDetailOverlay(text){
   var el=document.querySelector('.story-detail-overlay');
@@ -25250,6 +25268,7 @@ async function chooseCampaignOption(choiceId){
     var d=await r.json();
     if(!r.ok){showToast(d.error||'Choice failed');return;}
     a.progress=d.progress||a.progress;
+    try{loadCampaignStatus();}catch(_){}
     showCampaignSim(a.chapter,a.progress);
   }catch(e){showToast('Choice failed');}
 }

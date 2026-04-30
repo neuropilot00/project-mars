@@ -1321,11 +1321,13 @@ async function applyReputation(client, wallet, delta, sourceType = 'campaign_cha
        DO UPDATE SET value = $3, updated_at = NOW()`,
       [wallet, faction, after]
     );
-    await client.query(
-      `INSERT INTO reputation_history (wallet, faction, delta, before_value, after_value, source_type, source_id)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [wallet, faction, after - before, before, after, sourceType, sourceId]
-    );
+    try {
+      await client.query(
+        `INSERT INTO reputation_history (wallet, faction, delta, before_value, after_value, source_type, source_id)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        [wallet, faction, after - before, before, after, sourceType, sourceId]
+      );
+    } catch (_rh) { /* reputation_history 테이블 없어도 평판 업데이트는 유지 */ }
   }
 }
 
