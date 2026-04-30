@@ -24818,6 +24818,29 @@ function _campaignStorySceneById(id){
   return -1;
 }
 
+function _campaignHasServerChoice(choiceId){
+  var choices=_campaignActive&&_campaignActive.chapter&&_campaignActive.chapter.choices;
+  if(!choiceId||!Array.isArray(choices)) return false;
+  return choices.some(function(c){return c&&c.id===choiceId;});
+}
+
+function _advanceCampaignSceneChoice(choiceId,target){
+  // Scene-local narrative choices are part of the VN script, not the server
+  // campaign choice whitelist. They should keep the story moving locally.
+  var idx=-1;
+  if(target!==undefined&&target!==null&&String(target)!==''){
+    var next=String(target);
+    idx=/^\d+$/.test(next)?parseInt(next,10):_campaignStorySceneById(next);
+  }
+  if(idx>=0&&_campaignScenes&&idx<_campaignScenes.length){
+    _campaignSceneIndex=idx;
+    _campaignSceneLineIndex=0;
+    renderCampaignScene();
+    return;
+  }
+  advanceCampaignScene();
+}
+
 function showCampaignStory(chapter){
   // 서버가 full story document 또는 scenes 배열을 줄 수 있어 둘 다 허용한다.
   closeCampaignStory();
@@ -25060,7 +25083,7 @@ function renderCampaignScene(){
     (scene.choices||[]).forEach(function(choice){
       var label=_campaignStoryText(choice.text||choice.label);
       var hintText=_campaignStoryText(choice.preview_hint);
-      html+='<button class="story-choice-btn" data-choice="'+escapeHtmlSafe(choice.value||choice.id||'')+'">'+escapeHtmlSafe(label+(hintText?'\n'+hintText:''))+'</button>';
+      html+='<button class="story-choice-btn" data-choice="'+escapeHtmlSafe(choice.value||choice.id||'')+'" data-next="'+escapeHtmlSafe(choice.next_scene||choice.goto||'')+'">'+escapeHtmlSafe(label+(hintText?'\n'+hintText:''))+'</button>';
     });
     html+='</div>';
     box.innerHTML=html;
@@ -25068,8 +25091,13 @@ function renderCampaignScene(){
       btn.addEventListener('click',function(ev){
         ev.stopPropagation();
         var value=btn.getAttribute('data-choice');
-        closeCampaignStory();
-        chooseCampaignOption(value);
+        var target=btn.getAttribute('data-next');
+        if(_campaignHasServerChoice(value)){
+          closeCampaignStory();
+          chooseCampaignOption(value);
+          return;
+        }
+        _advanceCampaignSceneChoice(value,target);
       });
     });
     return;

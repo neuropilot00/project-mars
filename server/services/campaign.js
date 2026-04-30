@@ -45,6 +45,26 @@ function loadScenesFile(filePath) {
   }
 }
 
+function findSceneChoice(chapter, choiceId) {
+  if (!chapter || !choiceId) return null;
+  const story = chapter.scenesFile ? loadScenesFile(chapter.scenesFile) : null;
+  const scenes = Array.isArray(story) ? story : (story && Array.isArray(story.scenes) ? story.scenes : []);
+  for (const scene of scenes) {
+    if (!scene || !['choice', 'branch'].includes(scene.type)) continue;
+    const options = scene.choices || scene.options || [];
+    const option = options.find(o => o && (o.id === choiceId || o.value === choiceId));
+    if (option) {
+      return {
+        id: choiceId,
+        labelKo: typeof option.text === 'object' ? option.text.ko : (option.labelKo || option.label || option.text || choiceId),
+        effects: option.effects || {},
+        sceneLocal: true,
+      };
+    }
+  }
+  return null;
+}
+
 const CHAPTERS = {
   mcc_prologue: {
     questId: 'mcc_prologue',
@@ -3269,7 +3289,14 @@ async function choose(wallet, sessionId, choiceId) {
       return { error: 'SESSION_NOT_FOUND' };
     }
     const chapter = CHAPTERS[progress.quest_id];
-    const choice = chapter.choices.find(c => c.id === choiceId);
+    if (!chapter) {
+      await client.query('ROLLBACK');
+      return { error: 'QUEST_NOT_FOUND' };
+    }
+    let choice = chapter.choices.find(c => c.id === choiceId);
+    if (!choice && chapter.choices.length === 0) {
+      choice = findSceneChoice(chapter, choiceId);
+    }
     if (!choice) {
       await client.query('ROLLBACK');
       return { error: 'INVALID_CHOICE' };

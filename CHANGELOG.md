@@ -1,5 +1,13 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-30 — Campaign scene choice INVALID_CHOICE hotfix
+
+- **Resolved**: visual novel `type:"choice"` scene options that are not present in server `chapter.choices` now advance locally instead of posting to `/api/campaign/choice`, fixing the prologue `INVALID_CHOICE` modal after CONTINUE.
+- **Server guard**: no-choice story chapters such as `mcc_prologue`, `fsp_prologue`, and `cv_prologue` now recognize scene-local choice IDs defensively if a stale client posts them.
+- **Scan**: checked all `docs/campaign-story/*.json` files with `type:"choice"` / `type:"branch"` scenes. 31 parseable files contain 32 scene choice/branch scenes and 128 options; the same class of UI bug is covered across MCC/FSP/CV chapters.
+- **Note**: `docs/campaign-story/hidden_ch5_last_observation.json` currently has a JSON parse error at line 370, so it could not be included in the structured choice scan.
+- **검증**: `node --check server/services/campaign.js`, `node --check server/routes/api.js` 통과.
+
 ## 2026-04-30 — Campaign C1/C2 critical hotfix
 
 - **Resolved C1/C2**: `server/services/campaign.js` now gates FSP Ch10 endings with `calculateEligibleFspEndings()` and blocks the FSP Ch9 Pilgrim Arms signal unless the stored Ch7/Ch8 ending-4 seed modifiers are active.

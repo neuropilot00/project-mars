@@ -10,6 +10,7 @@
 | 배경 이미지 78개 | ✅ | `assets/campaign/backgrounds/*.png`. 기존 8 + Imagen 3 신규 70개. 씬 JSON의 background ID와 1:1 대응. `.gitignore` 예외 추가. |
 | 캐릭터 초상화 21개 | ✅ | `assets/campaign/characters/*.png`. Imagen 3 신규 10개(liang_wei/yuna/crow/aisha/hagar/kenji/verk/observer/miner_anon/miner_elder) + 기존 11개. |
 | `complete()` Internal Error | ✅ | `applyReputation()` 호출을 `applyOptionalCampaignReward` SAVEPOINT로 감쌈. reputation_history 테이블 이슈 시 평판만 건너뛰고 챕터 완료 유지. 기존에는 전체 롤백 → 500. |
+| 프롤로그 scene choice `INVALID_CHOICE` | ✅ | `index.html`이 서버 `chapter.choices`에 없는 VN scene-local 선택지는 로컬로 진행하고, no-choice 프롤로그 챕터는 서버에서도 scene choice ID를 방어적으로 인식. |
 | Migration 204 방어 재보장 | ✅ | `attempts`/`best_metrics`/`last_metrics`/`source_chapter` ADD COLUMN IF NOT EXISTS. `reputation_history`/`campaign_sessions`/`player_branch_modifiers` CREATE TABLE IF NOT EXISTS. `hidden_campaign_ch1~5` FK 시드. |
 | `.jpg` 확장자 버그 | ✅ | 배경 로딩 코드에서 `.jpg` → `.png` 수정. 기존에는 모든 배경이 gradient fallback이었음. |
 
@@ -18,6 +19,8 @@
 - `ls assets/campaign/characters/ | wc -l` → 21
 - `git log --oneline` → migration 204, applyReputation SAVEPOINT, _bgMap 업데이트 커밋 확인
 - `node --check server/services/campaign.js` 통과
+- `node --check server/routes/api.js` 통과
+- `docs/campaign-story/*.json` scene choice scan: 31개 parseable 파일, 32개 choice/branch scene, 128개 scene option 확인. `hidden_ch5_last_observation.json`은 기존 JSON parse error(line 370)로 structured scan 제외.
 
 ---
 
@@ -63,6 +66,7 @@
 |---|------|------|------|
 | ✅ C1 | `server/services/campaign.js:3122` | **Resolved (2026-04-30)**: `calculateEligibleFspEndings()` 추가 및 FSP_CH10_ID ending eligibility 검증 적용 | 자격 미달 FSP Ch10 엔딩 직접 제출 차단 |
 | ✅ C2 | `server/services/campaign.js:3122` | **Resolved (2026-04-30)**: FSP Ch9 조건부 Pilgrim Arms 선택지 prerequisite branch modifier 검증 적용 | 전제 조건 없는 `fsp_ch9_signal_pilgrim_arms` 직접 제출 차단 |
+| ✅ C3 | `index.html:25095`, `server/services/campaign.js:3298` | **Resolved (2026-04-30)**: scene-local VN choices no longer post to `/api/campaign/choice`; no-choice prologue chapters defensively accept scene choice IDs | 프롤로그 CONTINUE 후 선택지 클릭 시 `INVALID_CHOICE` modal 발생 차단 |
 
 #### 🟡 Major (조기 핫픽스 필요)
 
