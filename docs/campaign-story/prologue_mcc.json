@@ -106,7 +106,7 @@
     {
       "id": "p10",
       "type": "narration",
-      "background": "karioke_observation_deck",
+      "background": "kariope_observation_deck",
       "bgm": "ambient_engine_hum",
       "transition": "fade_medium",
       "lines": [

@@ -222,8 +222,8 @@
       "transition": "cut",
       "lines": [
         { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "Olu. 안전한 데 있어.", "en": "Olu. Stay somewhere safe." } },
-        { "speaker": "olu", "emotion": "calm", "effect": "character_narration", "text": { "ko": "이 배 설계자예요. 어디가 안전한지 알아요.", "en": "I'm this ship's designer. I know where is safe." } },
-        { "speaker": "olu", "emotion": "quiet", "effect": "character_narration", "text": { "ko": "Mariam이 한 말이에요. 결혼 두 번 할 수 있다고. 우주선은 한 번 만드는 거라고. 이 배는 한 번이에요.", "en": "Something Mariam said. Marriage can happen twice. A spacecraft gets made once. This ship is once." } }
+        { "speaker": "olu_adeyemi", "emotion": "calm", "effect": "character_narration", "text": { "ko": "이 배 설계자예요. 어디가 안전한지 알아요.", "en": "I'm this ship's designer. I know where is safe." } },
+        { "speaker": "olu_adeyemi", "emotion": "quiet", "effect": "character_narration", "text": { "ko": "Mariam이 한 말이에요. 결혼 두 번 할 수 있다고. 우주선은 한 번 만드는 거라고. 이 배는 한 번이에요.", "en": "Something Mariam said. Marriage can happen twice. A spacecraft gets made once. This ship is once." } }
       ]
     },
     {

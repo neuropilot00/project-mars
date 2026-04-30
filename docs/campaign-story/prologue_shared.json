@@ -227,7 +227,7 @@
 
     {
       "id": "s25", "type": "narration",
-      "background": "karioke_observation_deck", "bgm": "prologue_ambient", "transition": "cut",
+      "background": "kariope_observation_deck", "bgm": "prologue_ambient", "transition": "cut",
       "lines": [{ "text": {
         "ko": "그가 거기서도 있었다. 관측 갑판 구석. 가방이 바닥에 있었다. 손이 가방 끈 위에 있었다. 창문 밖을 보지 않았다. 눈이 반쯤 감겨 있었다. 잠을 자는 것인지 알 수 없었다. 베르크는 들어가지 않았다.",
         "en": "The person was there too. Corner of the observation deck. The bag was on the floor. A hand rested on the strap. Not looking out the window. Eyes half-closed. It wasn't clear if they were sleeping. Berk didn't go in."
@@ -236,7 +236,7 @@
 
     {
       "id": "s26", "type": "narration",
-      "background": "karioke_observation_deck", "bgm": "prologue_ambient", "transition": "cut",
+      "background": "kariope_observation_deck", "bgm": "prologue_ambient", "transition": "cut",
       "lines": [{ "text": {
         "ko": "베르크는 복도로 돌아갔다. 갈색 액체 한 잔. 천장을 보았다. 천장이 어두웠다. 이십삼 년이었다. 이제 화성은 오른쪽 창문 밖 22도에 있었다. 크기가 보이기 시작했다.",
         "en": "Berk went back to the corridor. One cup of brown liquid. He looked up at the ceiling. The ceiling was dark. Twenty-three years. Now Mars was twenty-two degrees off the right viewport. It was starting to look large."
