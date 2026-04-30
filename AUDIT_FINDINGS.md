@@ -61,8 +61,8 @@
 
 | # | 위치 | 결함 | 재현 |
 |---|------|------|------|
-| C1 | `server/services/campaign.js:3122` | `validateChapterChoice()`가 FSP_CH10_ID를 화이트리스트에서 누락 — MCC Ch10만 ending eligibility 체크함 | FSP Ch10에서 `fsp_ending_4_new_chair` 등 자격 미달 엔딩 선택지 직접 제출 → `calculateFspCh10Rewards()` (~line 2855)의 100만 GP급 보상 farming 가능 |
-| C2 | `server/services/campaign.js:3122` | FSP Ch9 조건부 선택지도 동일하게 미게이팅 | 전제 조건 없이 `fsp_ch9_signal_pilgrim_arms` 선택 → `ending_4_pathway_unavoidable` 분기 강제 해금 |
+| ✅ C1 | `server/services/campaign.js:3122` | **Resolved (2026-04-30)**: `calculateEligibleFspEndings()` 추가 및 FSP_CH10_ID ending eligibility 검증 적용 | 자격 미달 FSP Ch10 엔딩 직접 제출 차단 |
+| ✅ C2 | `server/services/campaign.js:3122` | **Resolved (2026-04-30)**: FSP Ch9 조건부 Pilgrim Arms 선택지 prerequisite branch modifier 검증 적용 | 전제 조건 없는 `fsp_ch9_signal_pilgrim_arms` 직접 제출 차단 |
 
 #### 🟡 Major (조기 핫픽스 필요)
 
@@ -96,7 +96,7 @@
 
 #### 권장 수정 순서
 
-1. **C1, C2** 먼저 (`validateChapterChoice` 확장: `FSP_CH7~10_ID` 추가, FSP ending eligibility 함수 추가)
+1. ✅ **C1, C2 resolved** (`validateChapterChoice` 확장: `FSP_CH7~10_ID` 추가, FSP ending eligibility 함수 추가)
 2. **M1** (`simulatePrologue`에 최소 진행 시간/씬 도달 플래그 검증)
 3. **M2** (`campaign_sessions(wallet, chapter_id) WHERE status='active'` 부분 UNIQUE 인덱스 추가)
 4. **M3, M4** (지원 안 되는 routeId는 명시적으로 `error: 'NOT_IMPLEMENTED'` 반환)

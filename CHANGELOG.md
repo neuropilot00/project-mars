@@ -1,5 +1,10 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-30 — Campaign C1/C2 critical hotfix
+
+- **Resolved C1/C2**: `server/services/campaign.js` now gates FSP Ch10 endings with `calculateEligibleFspEndings()` and blocks the FSP Ch9 Pilgrim Arms signal unless the stored Ch7/Ch8 ending-4 seed modifiers are active.
+- **검증**: `node --check server/services/campaign.js` 통과. `git diff server/services/campaign.js` 확인 결과 targeted eligibility/choice validation 함수만 변경.
+
 ## 2026-04-30 — Campaign system 정밀 감사 (Claude + Codex 협업)
 
 - **감사 범위**: v5.33 출시 직후 캠페인 30+ 챕터(MCC/FSP/CV 프롤로그 + 1~10 + hidden 1~5) 정밀 감사. Codex가 `server/services/campaign.js` 비즈니스 로직, Claude가 마이그레이션 192-205 + API 라우트 + index.html UI를 분담.
