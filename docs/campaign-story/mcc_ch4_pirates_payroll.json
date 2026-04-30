@@ -2,11 +2,21 @@
   "questId": "mcc_campaign_ch4",
   "campaignId": "mcc_route",
   "chapterNumber": 4,
-  "title": { "ko": "Kepler Survey", "en": "Kepler Survey" },
-  "location": { "id": "kepler_crater", "displayNameKo": "케플러 분화구" },
+  "title": {
+    "ko": "Kepler Survey",
+    "en": "Kepler Survey"
+  },
+  "location": {
+    "id": "kepler_crater",
+    "displayNameKo": "케플러 분화구"
+  },
   "environment": "crater_excavation",
   "estimatedPlayTimeMinutes": 20,
-  "characters": ["player", "lifang", "liang_wei"],
+  "characters": [
+    "player",
+    "lifang",
+    "liang_wei"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -15,7 +25,12 @@
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "케플러 분화구. 깊이 3킬로미터. 분지 안에 분지가 있었다. MCC와 FSP가 광물 자원을 두고 다투는 곳이었다. 광물이 있는지 없는지는 아무도 정확히 몰랐다. 그것이 분쟁의 이유이기도 했다.", "en": "Kepler Crater. Three kilometers deep. A basin within a basin. Where MCC and FSP disputed mineral rights. Whether there were minerals or not nobody knew exactly. That was also why they disputed it." } }
+        {
+          "text": {
+            "ko": "케플러 분화구. 깊이 3킬로미터. 분지 안에 분지가 있었다. MCC와 FSP가 광물 자원을 두고 다투는 곳이었다. 광물이 있는지 없는지는 아무도 정확히 몰랐다. 그것이 분쟁의 이유이기도 했다.",
+            "en": "Kepler Crater. Three kilometers deep. A basin within a basin. Where MCC and FSP disputed mineral rights. Whether there were minerals or not nobody knew exactly. That was also why they disputed it."
+          }
+        }
       ]
     },
     {
@@ -25,7 +40,12 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "헬라스 센트럴에서 동쪽으로 400킬로미터였다. 이동 차량으로 6시간. 도로가 없었다. 화성 표면이었다. 붉은 암반. 먼지. 가끔 바람이 창을 두드렸다. 소리가 낮았다. 화성의 바람은 항상 낮은 소리를 냈다. 지구 바람과 달랐다. 지구 바람은 더 높았다.", "en": "400 kilometers east of Hellas Central. Six hours by transport vehicle. No road. Martian surface. Red bedrock. Dust. Occasionally wind struck the window. Low sound. Martian wind always made low sounds. Different from Earth wind. Earth wind was higher." } }
+        {
+          "text": {
+            "ko": "헬라스 센트럴에서 동쪽으로 400킬로미터였다. 이동 차량으로 6시간. 도로가 없었다. 화성 표면이었다. 붉은 암반. 먼지. 가끔 바람이 창을 두드렸다. 소리가 낮았다. 화성의 바람은 항상 낮은 소리를 냈다. 지구 바람과 달랐다. 지구 바람은 더 높았다.",
+            "en": "400 kilometers east of Hellas Central. Six hours by transport vehicle. No road. Martian surface. Red bedrock. Dust. Occasionally wind struck the window. Low sound. Martian wind always made low sounds. Different from Earth wind. Earth wind was higher."
+          }
+        }
       ]
     },
     {
@@ -35,9 +55,30 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "케플러야. 이전 지질팀 보고서 읽었어요?", "en": "Kepler. Did you read the previous geology team report?" } },
-        { "speaker": "lifang", "emotion": "focused", "text": { "ko": "불완전하다고 했어요. 이유가 있어요. 지질팀이 끝까지 내려가지 않았어요. 못한 게 아니에요. 안 한 거예요.", "en": "They said it was incomplete. There's a reason. The geology team didn't descend to the bottom. Not couldn't. Didn't." } },
-        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "왜인지는 직접 보면 알 거예요.", "en": "You'll understand why when you see it." } }
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "케플러야. 이전 지질팀 보고서 읽었어요?",
+            "en": "Kepler. Did you read the previous geology team report?"
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "focused",
+          "text": {
+            "ko": "불완전하다고 했어요. 이유가 있어요. 지질팀이 끝까지 내려가지 않았어요. 못한 게 아니에요. 안 한 거예요.",
+            "en": "They said it was incomplete. There's a reason. The geology team didn't descend to the bottom. Not couldn't. Didn't."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "왜인지는 직접 보면 알 거예요.",
+            "en": "You'll understand why when you see it."
+          }
+        }
       ]
     },
     {
@@ -47,7 +88,12 @@
       "bgm": "mcc_ambient",
       "transition": "fade_medium",
       "lines": [
-        { "text": { "ko": "새벽이었다. 화성의 새벽은 지구와 달랐다. 하늘이 붉었다. 새벽이 되어도 붉었다. 해가 뜨면 더 붉었다. 어둠에서 빛으로 가는 것이 아니었다. 붉음에서 더 붉음으로 가는 것이었다. 케플러에서 첫 새벽이었다.", "en": "Dawn. The Martian dawn was different from Earth. The sky was red. Still red at dawn. Redder when the sun rose. Not going from dark to light. Going from red to redder. The first dawn at Kepler." } }
+        {
+          "text": {
+            "ko": "새벽이었다. 화성의 새벽은 지구와 달랐다. 하늘이 붉었다. 새벽이 되어도 붉었다. 해가 뜨면 더 붉었다. 어둠에서 빛으로 가는 것이 아니었다. 붉음에서 더 붉음으로 가는 것이었다. 케플러에서 첫 새벽이었다.",
+            "en": "Dawn. The Martian dawn was different from Earth. The sky was red. Still red at dawn. Redder when the sun rose. Not going from dark to light. Going from red to redder. The first dawn at Kepler."
+          }
+        }
       ]
     },
     {
@@ -57,7 +103,12 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Liang Wei는 지질학자였다. 외부인이었다. MCC 소속도 FSP 소속도 아니었다. 그러나 케플러에 대해서는 누구보다 알았다. 30년간 케플러를 조사한 사람이었다. 30년치 데이터가 그녀의 머릿속에 있었다.", "en": "Liang Wei was a geologist. An outsider. Neither MCC nor FSP. But she knew Kepler better than anyone. She had surveyed it for thirty years. Thirty years of data was in her head." } }
+        {
+          "text": {
+            "ko": "Liang Wei는 지질학자였다. 외부인이었다. MCC 소속도 FSP 소속도 아니었다. 그러나 케플러에 대해서는 누구보다 알았다. 30년간 케플러를 조사한 사람이었다. 30년치 데이터가 그녀의 머릿속에 있었다.",
+            "en": "Liang Wei was a geologist. An outsider. Neither MCC nor FSP. But she knew Kepler better than anyone. She had surveyed it for thirty years. Thirty years of data was in her head."
+          }
+        }
       ]
     },
     {
@@ -67,7 +118,12 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그녀의 연구 기지는 분화구 가장자리에 있었다. 작은 것이었다. 컨테이너 두 개. 태양광 패널. 외부 안테나. 필요한 것만 있었다. 30년을 혼자 이곳에서 연구한 사람의 공간이었다. 불필요한 것은 30년이 지나면 없어졌다.", "en": "Her research base was at the crater's edge. Small. Two containers. Solar panels. External antenna. Only what was necessary. The space of someone who had researched here alone for thirty years. Unnecessary things disappeared after thirty years." } }
+        {
+          "text": {
+            "ko": "그녀의 연구 기지는 분화구 가장자리에 있었다. 작은 것이었다. 컨테이너 두 개. 태양광 패널. 외부 안테나. 필요한 것만 있었다. 30년을 혼자 이곳에서 연구한 사람의 공간이었다. 불필요한 것은 30년이 지나면 없어졌다.",
+            "en": "Her research base was at the crater's edge. Small. Two containers. Solar panels. External antenna. Only what was necessary. The space of someone who had researched here alone for thirty years. Unnecessary things disappeared after thirty years."
+          }
+        }
       ]
     },
     {
@@ -77,9 +133,31 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "focused", "effect": "character_enter:liang_wei:slide_right", "text": { "ko": "저기를 보세요. 지층이 달라요. 일반 광석이 아니에요.", "en": "Look there. The stratum is different. Not ordinary ore." } },
-        { "speaker": "liang_wei", "emotion": "excited", "text": { "ko": "Ancient Metal 가설이 있어요. 외계 기원 물질. 학계에서는 인정하지 않지만 나는 30년 동안 이것을 봤어요.", "en": "There's an Ancient Metal hypothesis. Material of extraterrestrial origin. Academia doesn't accept it but I've been watching this for thirty years." } },
-        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "MCC가 알면 독점하려 할 거예요. 그 전에 무엇인지 확인해야 해요.", "en": "If MCC finds out they'll try to monopolize it. We need to confirm what it is first." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "focused",
+          "effect": "character_enter:liang_wei:slide_right",
+          "text": {
+            "ko": "저기를 보세요. 지층이 달라요. 일반 광석이 아니에요.",
+            "en": "Look there. The stratum is different. Not ordinary ore."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "excited",
+          "text": {
+            "ko": "Ancient Metal 가설이 있어요. 외계 기원 물질. 학계에서는 인정하지 않지만 나는 30년 동안 이것을 봤어요.",
+            "en": "There's an Ancient Metal hypothesis. Material of extraterrestrial origin. Academia doesn't accept it but I've been watching this for thirty years."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "serious",
+          "text": {
+            "ko": "MCC가 알면 독점하려 할 거예요. 그 전에 무엇인지 확인해야 해요.",
+            "en": "If MCC finds out they'll try to monopolize it. We need to confirm what it is first."
+          }
+        }
       ]
     },
     {
@@ -89,7 +167,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Liang Wei는 MCC 사람에게 말하고 있었다. 그것을 알면서도. 30년을 혼자 연구한 사람이 처음으로 누군가에게 말하는 것이었다. 그것이 느껴졌다. 조심스러웠다. 그러나 말을 멈추지 않았다. 30년을 기다린 것이 말을 멈추지 않게 했다.", "en": "Liang Wei was talking to an MCC person. Knowing that. Someone who had researched alone for thirty years speaking to someone for the first time. That was felt. Careful. But she didn't stop. Thirty years of waiting kept her from stopping." } }
+        {
+          "text": {
+            "ko": "Liang Wei는 MCC 사람에게 말하고 있었다. 그것을 알면서도. 30년을 혼자 연구한 사람이 처음으로 누군가에게 말하는 것이었다. 그것이 느껴졌다. 조심스러웠다. 그러나 말을 멈추지 않았다. 30년을 기다린 것이 말을 멈추지 않게 했다.",
+            "en": "Liang Wei was talking to an MCC person. Knowing that. Someone who had researched alone for thirty years speaking to someone for the first time. That was felt. Careful. But she didn't stop. Thirty years of waiting kept her from stopping."
+          }
+        }
       ]
     },
     {
@@ -99,9 +182,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "focused", "text": { "ko": "1994년에 처음 봤어요. 그때는 장비가 부족했어요. 샘플을 못 뗐어요.", "en": "First noticed it in 1994. Equipment was lacking then. Couldn't get a sample." } },
-        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "2015년에 다시 왔어요. 지층이 더 노출됐어요. 그때 논문을 썼어요. 학계가 거부했어요. 데이터가 부족하다고. 그래서 계속 왔어요.", "en": "Came back in 2015. The stratum was more exposed. Wrote a paper then. Academia rejected it. Said insufficient data. So I kept coming." } },
-        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "30년이 됐어요. 데이터가 충분해요. 그러나 이제 학계가 아니라 MCC가 문제예요.", "en": "Thirty years. The data is sufficient now. But now the problem isn't academia. It's MCC." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "focused",
+          "text": {
+            "ko": "1994년에 처음 봤어요. 그때는 장비가 부족했어요. 샘플을 못 뗐어요.",
+            "en": "First noticed it in 1994. Equipment was lacking then. Couldn't get a sample."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "serious",
+          "text": {
+            "ko": "2015년에 다시 왔어요. 지층이 더 노출됐어요. 그때 논문을 썼어요. 학계가 거부했어요. 데이터가 부족하다고. 그래서 계속 왔어요.",
+            "en": "Came back in 2015. The stratum was more exposed. Wrote a paper then. Academia rejected it. Said insufficient data. So I kept coming."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "quiet",
+          "text": {
+            "ko": "30년이 됐어요. 데이터가 충분해요. 그러나 이제 학계가 아니라 MCC가 문제예요.",
+            "en": "Thirty years. The data is sufficient now. But now the problem isn't academia. It's MCC."
+          }
+        }
       ]
     },
     {
@@ -111,7 +215,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "분화구로 내려갔다. 리팡이 함께였다. 리팡은 내려가면서 말이 없었다. 분화구 안은 조용했다. 화성 표면보다 더 조용했다. 바람이 위에서 돌았다. 분화구 안까지 내려오지 않았다. 깊은 곳은 조용했다. 화성에서 가장 조용한 것들은 가장 깊은 곳에 있었다.", "en": "Descended into the crater. Lifang came along. Lifang was silent descending. Inside the crater was quiet. Quieter than the Martian surface. Wind circled above. Didn't come down into the crater. Deep places were quiet. The quietest things on Mars were in the deepest places." } }
+        {
+          "text": {
+            "ko": "분화구로 내려갔다. 리팡이 함께였다. 리팡은 내려가면서 말이 없었다. 분화구 안은 조용했다. 화성 표면보다 더 조용했다. 바람이 위에서 돌았다. 분화구 안까지 내려오지 않았다. 깊은 곳은 조용했다. 화성에서 가장 조용한 것들은 가장 깊은 곳에 있었다.",
+            "en": "Descended into the crater. Lifang came along. Lifang was silent descending. Inside the crater was quiet. Quieter than the Martian surface. Wind circled above. Didn't come down into the crater. Deep places were quiet. The quietest things on Mars were in the deepest places."
+          }
+        }
       ]
     },
     {
@@ -121,7 +230,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "1킬로미터. 2킬로미터. 3킬로미터. 아래로 내려갔다. 지질팀이 멈춘 곳이 보였다. 표시가 있었다. 경고 표시였다. 지반 불안정. MCC 표준 표시였다. 그 아래로는 표시가 없었다. 그 아래로는 계속 내려갈 수 있었다. 내려가야 할 이유가 있었다.", "en": "One kilometer. Two kilometers. Three kilometers. Descended. The place where the geology team had stopped was visible. A marker. A warning marker. Ground instability. MCC standard marking. Below it no marker. Below it you could keep descending. There was a reason to." } }
+        {
+          "text": {
+            "ko": "1킬로미터. 2킬로미터. 3킬로미터. 아래로 내려갔다. 지질팀이 멈춘 곳이 보였다. 표시가 있었다. 경고 표시였다. 지반 불안정. MCC 표준 표시였다. 그 아래로는 표시가 없었다. 그 아래로는 계속 내려갈 수 있었다. 내려가야 할 이유가 있었다.",
+            "en": "One kilometer. Two kilometers. Three kilometers. Descended. The place where the geology team had stopped was visible. A marker. A warning marker. Ground instability. MCC standard marking. Below it no marker. Below it you could keep descending. There was a reason to."
+          }
+        }
       ]
     },
     {
@@ -131,9 +245,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "경고 표시예요. 지질팀이 여기서 멈췄어요.", "en": "Warning marker. This is where the geology team stopped." } },
-        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "아래로 내려가면 MCC 프로토콜 위반이에요. 공식적으로는.", "en": "Going below is an MCC protocol violation. Officially." } },
-        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "Liang Wei가 아래를 알아요. 비공식 경로가 있어요. 나는 모른 척할 수 있어요.", "en": "Liang Wei knows below. There's an unofficial route. I can look the other way." } }
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "경고 표시예요. 지질팀이 여기서 멈췄어요.",
+            "en": "Warning marker. This is where the geology team stopped."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "아래로 내려가면 MCC 프로토콜 위반이에요. 공식적으로는.",
+            "en": "Going below is an MCC protocol violation. Officially."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "Liang Wei가 아래를 알아요. 비공식 경로가 있어요. 나는 모른 척할 수 있어요.",
+            "en": "Liang Wei knows below. There's an unofficial route. I can look the other way."
+          }
+        }
       ]
     },
     {
@@ -143,7 +278,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Liang Wei가 앞섰다. 경고 표시 아래. 그녀는 주저하지 않았다. 30년을 이 분화구에서 보낸 사람이었다. 이 경고 표시는 그녀에게 경고가 아니었다. 안내 표시였다. 더 내려갈 것을 알리는.", "en": "Liang Wei went first. Below the warning marker. She didn't hesitate. Someone who had spent thirty years in this crater. This warning marker wasn't a warning to her. It was a guide. Indicating to go further down." } }
+        {
+          "text": {
+            "ko": "Liang Wei가 앞섰다. 경고 표시 아래. 그녀는 주저하지 않았다. 30년을 이 분화구에서 보낸 사람이었다. 이 경고 표시는 그녀에게 경고가 아니었다. 안내 표시였다. 더 내려갈 것을 알리는.",
+            "en": "Liang Wei went first. Below the warning marker. She didn't hesitate. Someone who had spent thirty years in this crater. This warning marker wasn't a warning to her. It was a guide. Indicating to go further down."
+          }
+        }
       ]
     },
     {
@@ -153,9 +293,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "focused", "text": { "ko": "여기 보세요. 지층 색이 달라요.", "en": "Look here. The stratum color is different." } },
-        { "speaker": "liang_wei", "emotion": "excited", "text": { "ko": "이 색은 화성 광물에 없어요. 어두운 은색이에요. 분석하면 알겠지만 구성이 달라요.", "en": "This color doesn't exist in Martian minerals. Dark silver. Analysis would confirm but the composition is different." } },
-        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "30년 전에 봤던 것이에요. 이제 더 많이 노출됐어요. 지각이 움직이고 있어요. 천천히.", "en": "This is what I saw thirty years ago. More exposed now. The crust is moving. Slowly." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "focused",
+          "text": {
+            "ko": "여기 보세요. 지층 색이 달라요.",
+            "en": "Look here. The stratum color is different."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "excited",
+          "text": {
+            "ko": "이 색은 화성 광물에 없어요. 어두운 은색이에요. 분석하면 알겠지만 구성이 달라요.",
+            "en": "This color doesn't exist in Martian minerals. Dark silver. Analysis would confirm but the composition is different."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "serious",
+          "text": {
+            "ko": "30년 전에 봤던 것이에요. 이제 더 많이 노출됐어요. 지각이 움직이고 있어요. 천천히.",
+            "en": "This is what I saw thirty years ago. More exposed now. The crust is moving. Slowly."
+          }
+        }
       ]
     },
     {
@@ -165,7 +326,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "지층을 봤다. Liang Wei가 말한 것이 보였다. 어두운 은색. 화성 광물과 달랐다. 화성은 붉고 황갈색이었다. 이것은 달랐다. 손으로 만지려 했다. Liang Wei가 막았다.", "en": "Looked at the stratum. What Liang Wei said was visible. Dark silver. Different from Martian minerals. Mars was red and ochre. This was different. Reached to touch it. Liang Wei stopped the hand." } }
+        {
+          "text": {
+            "ko": "지층을 봤다. Liang Wei가 말한 것이 보였다. 어두운 은색. 화성 광물과 달랐다. 화성은 붉고 황갈색이었다. 이것은 달랐다. 손으로 만지려 했다. Liang Wei가 막았다.",
+            "en": "Looked at the stratum. What Liang Wei said was visible. Dark silver. Different from Martian minerals. Mars was red and ochre. This was different. Reached to touch it. Liang Wei stopped the hand."
+          }
+        }
       ]
     },
     {
@@ -175,9 +341,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "맨손으로 안 돼요. 장갑이에요. 오염이 분석을 방해해요.", "en": "Not bare-handed. Gloves. Contamination interferes with analysis." } },
-        { "speaker": "liang_wei", "emotion": "focused", "text": { "ko": "샘플을 채취해야 해요. 도구가 있어요. 여기 자주 왔으니까.", "en": "Need to collect a sample. I have tools. I come here often." } },
-        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "처음 왔을 때 손으로 만졌어요. 1994년. 그 때는 몰랐어요. 지금은 알아요.", "en": "The first time I came I touched it bare-handed. 1994. Didn't know then. Know now." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "serious",
+          "text": {
+            "ko": "맨손으로 안 돼요. 장갑이에요. 오염이 분석을 방해해요.",
+            "en": "Not bare-handed. Gloves. Contamination interferes with analysis."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "focused",
+          "text": {
+            "ko": "샘플을 채취해야 해요. 도구가 있어요. 여기 자주 왔으니까.",
+            "en": "Need to collect a sample. I have tools. I come here often."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "quiet",
+          "text": {
+            "ko": "처음 왔을 때 손으로 만졌어요. 1994년. 그 때는 몰랐어요. 지금은 알아요.",
+            "en": "The first time I came I touched it bare-handed. 1994. Didn't know then. Know now."
+          }
+        }
       ]
     },
     {
@@ -187,7 +374,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "광물 샘플이 있었다. 색이 달랐다. 화성의 일반 광물과 달랐다. 그것이 무엇인지는 분석이 필요했다. 분석하기 전에 MCC에 보고하면 MCC의 것이 될 것이었다. 그것이 계약의 내용이었다.", "en": "There was a mineral sample. The color was different. Not like ordinary Martian minerals. Analysis was needed to know what it was. Report to MCC before analysis and it would become MCC's. That was what the contract said." } }
+        {
+          "text": {
+            "ko": "광물 샘플이 있었다. 색이 달랐다. 화성의 일반 광물과 달랐다. 그것이 무엇인지는 분석이 필요했다. 분석하기 전에 MCC에 보고하면 MCC의 것이 될 것이었다. 그것이 계약의 내용이었다.",
+            "en": "There was a mineral sample. The color was different. Not like ordinary Martian minerals. Analysis was needed to know what it was. Report to MCC before analysis and it would become MCC's. That was what the contract said."
+          }
+        }
       ]
     },
     {
@@ -197,7 +389,13 @@
       "bgm": "tension_low",
       "transition": "fade_medium",
       "lines": [
-        { "text": { "ko": "Liang Wei는 샘플을 보고 있었다. 30년간 이것을 기다렸을 것이었다. 그 얼굴에 무엇이 있는지는 보기 어려웠다. 그러나 손이 떨렸다. 조금. 30년간 기다린 사람의 손이었다.", "en": "Liang Wei was looking at the sample. She had waited thirty years for this. What was in that face was hard to read. But her hands trembled. Slightly. The hands of someone who had waited thirty years." }, "overlay": "ore_sample" }
+        {
+          "text": {
+            "ko": "Liang Wei는 샘플을 보고 있었다. 30년간 이것을 기다렸을 것이었다. 그 얼굴에 무엇이 있는지는 보기 어려웠다. 그러나 손이 떨렸다. 조금. 30년간 기다린 사람의 손이었다.",
+            "en": "Liang Wei was looking at the sample. She had waited thirty years for this. What was in that face was hard to read. But her hands trembled. Slightly. The hands of someone who had waited thirty years."
+          },
+          "background": "mcc_ch4_pirates_payroll_l17_00_ore_sample"
+        }
       ]
     },
     {
@@ -207,9 +405,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "외계 기원이에요. 확신해요. 분석이 증명해줄 거예요.", "en": "Extraterrestrial origin. I'm certain. Analysis will prove it." } },
-        { "speaker": "liang_wei", "emotion": "focused", "text": { "ko": "이것이 있으면 화성 지각 형성 이론이 바뀌어요. 화성이 어떻게 생겼는지를 다시 써야 해요.", "en": "If this is confirmed the theory of Martian crust formation changes. How Mars came to be needs to be rewritten." } },
-        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "그러나 MCC가 독점하면 연구는 없어요. 광물 추출만 있어요.", "en": "But if MCC monopolizes it there's no research. Only mineral extraction." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "quiet",
+          "text": {
+            "ko": "외계 기원이에요. 확신해요. 분석이 증명해줄 거예요.",
+            "en": "Extraterrestrial origin. I'm certain. Analysis will prove it."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "focused",
+          "text": {
+            "ko": "이것이 있으면 화성 지각 형성 이론이 바뀌어요. 화성이 어떻게 생겼는지를 다시 써야 해요.",
+            "en": "If this is confirmed the theory of Martian crust formation changes. How Mars came to be needs to be rewritten."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "serious",
+          "text": {
+            "ko": "그러나 MCC가 독점하면 연구는 없어요. 광물 추출만 있어요.",
+            "en": "But if MCC monopolizes it there's no research. Only mineral extraction."
+          }
+        }
       ]
     },
     {
@@ -219,7 +438,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "리팡이 옆에 있었다. 아무 말도 하지 않았다. 그것이 리팡의 방식이었다. 필요한 것만 말하는 사람. 그러나 지금 그의 침묵은 달랐다. 무엇인가를 기다리는 침묵이었다. 결정을 기다리는 침묵이었다.", "en": "Lifang was beside. Said nothing. That was Lifang's way. A person who said only what was necessary. But his silence now was different. A silence waiting for something. A silence waiting for a decision." } }
+        {
+          "text": {
+            "ko": "리팡이 옆에 있었다. 아무 말도 하지 않았다. 그것이 리팡의 방식이었다. 필요한 것만 말하는 사람. 그러나 지금 그의 침묵은 달랐다. 무엇인가를 기다리는 침묵이었다. 결정을 기다리는 침묵이었다.",
+            "en": "Lifang was beside. Said nothing. That was Lifang's way. A person who said only what was necessary. But his silence now was different. A silence waiting for something. A silence waiting for a decision."
+          }
+        }
       ]
     },
     {
@@ -229,9 +453,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "MCC 계약 조항 7호예요. 현장 발견물은 즉시 보고.", "en": "MCC contract clause 7. Field discoveries must be reported immediately." } },
-        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "나는 그것을 알아요. 당신도 알아요. Liang Wei도 알아요.", "en": "I know that. You know that. Liang Wei knows that." } },
-        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "그래서 어떻게 할 건지는 당신이 결정해요.", "en": "So what you do is your decision." } }
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "MCC 계약 조항 7호예요. 현장 발견물은 즉시 보고.",
+            "en": "MCC contract clause 7. Field discoveries must be reported immediately."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "나는 그것을 알아요. 당신도 알아요. Liang Wei도 알아요.",
+            "en": "I know that. You know that. Liang Wei knows that."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "그래서 어떻게 할 건지는 당신이 결정해요.",
+            "en": "So what you do is your decision."
+          }
+        }
       ]
     },
     {
@@ -241,7 +486,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "분화구 위로 화성의 하늘이 보였다. 붉었다. 태양이 기울었다. 어두운 은색 샘플이 손 안에 있었다. 작았다. 그러나 무거웠다. 30년의 무게가 있었다. MCC 계약의 무게도 있었다. 두 가지 무게가 같은 손 안에 있었다.", "en": "Above the crater the Martian sky was visible. Red. The sun tilted. The dark silver sample was in the hand. Small. But heavy. The weight of thirty years. The weight of the MCC contract too. Two weights in the same hand." } }
+        {
+          "text": {
+            "ko": "분화구 위로 화성의 하늘이 보였다. 붉었다. 태양이 기울었다. 어두운 은색 샘플이 손 안에 있었다. 작았다. 그러나 무거웠다. 30년의 무게가 있었다. MCC 계약의 무게도 있었다. 두 가지 무게가 같은 손 안에 있었다.",
+            "en": "Above the crater the Martian sky was visible. Red. The sun tilted. The dark silver sample was in the hand. Small. But heavy. The weight of thirty years. The weight of the MCC contract too. Two weights in the same hand."
+          }
+        }
       ]
     },
     {
@@ -251,9 +501,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "알고 있어요. MCC 사람이에요. 계약이 있어요.", "en": "I know. You're MCC. There's a contract." } },
-        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "30년을 기다렸어요. 누구 것이 될지 생각하지 않았어요. 있는지 없는지만 생각했어요.", "en": "I waited thirty years. I didn't think about who it would belong to. Only whether it existed." } },
-        { "speaker": "liang_wei", "emotion": "focused", "text": { "ko": "그러나 이제 있어요. 그리고 당신이 여기 있어요. 이제 그 질문이 생겼어요.", "en": "But now it exists. And you're here. Now that question exists." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "serious",
+          "text": {
+            "ko": "알고 있어요. MCC 사람이에요. 계약이 있어요.",
+            "en": "I know. You're MCC. There's a contract."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "quiet",
+          "text": {
+            "ko": "30년을 기다렸어요. 누구 것이 될지 생각하지 않았어요. 있는지 없는지만 생각했어요.",
+            "en": "I waited thirty years. I didn't think about who it would belong to. Only whether it existed."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "focused",
+          "text": {
+            "ko": "그러나 이제 있어요. 그리고 당신이 여기 있어요. 이제 그 질문이 생겼어요.",
+            "en": "But now it exists. And you're here. Now that question exists."
+          }
+        }
       ]
     },
     {
@@ -263,7 +534,13 @@
       "bgm": "tension_medium",
       "transition": "fade_medium",
       "lines": [
-        { "text": { "ko": "석양이었다. 케플러 분화구 가장자리. 태양이 지평선 아래로 내려가고 있었다. 화성의 일몰은 지구와 달랐다. 파랗게 변했다. 붉은 하늘이 해질 무렵 파랗게 됐다. 그 순간이 짧았다. 그러나 있었다. 케플러에서 처음 보는 것이었다.", "en": "Sunset. Edge of Kepler crater. The sun was going below the horizon. Martian sunsets were different from Earth. They turned blue. The red sky turned blue at dusk. That moment was brief. But it was there. The first time seeing it at Kepler." }, "overlay": "mars_horizon" }
+        {
+          "text": {
+            "ko": "석양이었다. 케플러 분화구 가장자리. 태양이 지평선 아래로 내려가고 있었다. 화성의 일몰은 지구와 달랐다. 파랗게 변했다. 붉은 하늘이 해질 무렵 파랗게 됐다. 그 순간이 짧았다. 그러나 있었다. 케플러에서 처음 보는 것이었다.",
+            "en": "Sunset. Edge of Kepler crater. The sun was going below the horizon. Martian sunsets were different from Earth. They turned blue. The red sky turned blue at dusk. That moment was brief. But it was there. The first time seeing it at Kepler."
+          },
+          "background": "mcc_ch4_pirates_payroll_l23_00_mars_horizon"
+        }
       ]
     },
     {
@@ -273,9 +550,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "파란 일몰이에요. 화성에서만 볼 수 있어요.", "en": "Blue sunset. Only visible on Mars." } },
-        { "speaker": "liang_wei", "emotion": "focused", "text": { "ko": "30년 동안 여기서 봤어요. 매년. 이 분화구에서만 이렇게 파래요. 다른 곳은 달라요.", "en": "Watched it for thirty years here. Every year. This blue only happens in this crater. Other places are different." } },
-        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "Ancient Metal이 영향을 주는 것 같아요. 광물이 빛을 굴절시켜요. 그것도 증거예요.", "en": "I think the Ancient Metal has an effect. The mineral refracts light. That's also evidence." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "quiet",
+          "text": {
+            "ko": "파란 일몰이에요. 화성에서만 볼 수 있어요.",
+            "en": "Blue sunset. Only visible on Mars."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "focused",
+          "text": {
+            "ko": "30년 동안 여기서 봤어요. 매년. 이 분화구에서만 이렇게 파래요. 다른 곳은 달라요.",
+            "en": "Watched it for thirty years here. Every year. This blue only happens in this crater. Other places are different."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "serious",
+          "text": {
+            "ko": "Ancient Metal이 영향을 주는 것 같아요. 광물이 빛을 굴절시켜요. 그것도 증거예요.",
+            "en": "I think the Ancient Metal has an effect. The mineral refracts light. That's also evidence."
+          }
+        }
       ]
     },
     {
@@ -285,7 +583,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "파란 일몰 안에 케플러 분화구가 있었다. 3킬로미터 깊이의 분지. 그 안에 어두운 은색이 있었다. 30년의 연구. MCC 계약. 학계의 거부. 그것들이 전부 이 석양 안에 있었다. 파란 빛 안에 있었다. 이 행성에서만 볼 수 있는 빛.", "en": "In the blue sunset was Kepler Crater. A basin 3 kilometers deep. Dark silver inside. Thirty years of research. MCC contract. Academic rejection. All of that was in this sunset. In the blue light. Light only visible on this planet." } }
+        {
+          "text": {
+            "ko": "파란 일몰 안에 케플러 분화구가 있었다. 3킬로미터 깊이의 분지. 그 안에 어두운 은색이 있었다. 30년의 연구. MCC 계약. 학계의 거부. 그것들이 전부 이 석양 안에 있었다. 파란 빛 안에 있었다. 이 행성에서만 볼 수 있는 빛.",
+            "en": "In the blue sunset was Kepler Crater. A basin 3 kilometers deep. Dark silver inside. Thirty years of research. MCC contract. Academic rejection. All of that was in this sunset. In the blue light. Light only visible on this planet."
+          }
+        }
       ]
     },
     {
@@ -295,9 +598,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "리포트 마감이 내일 오후예요.", "en": "Report deadline is tomorrow afternoon." } },
-        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "Chen Weiss가 기다리고 있어요.", "en": "Chen Weiss is waiting." } },
-        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "오늘 밤 결정해요.", "en": "Decide tonight." } }
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "리포트 마감이 내일 오후예요.",
+            "en": "Report deadline is tomorrow afternoon."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "Chen Weiss가 기다리고 있어요.",
+            "en": "Chen Weiss is waiting."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "오늘 밤 결정해요.",
+            "en": "Decide tonight."
+          }
+        }
       ]
     },
     {
@@ -307,7 +631,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "밤이 됐다. 케플러의 밤이었다. 분화구 아래에서 바람이 없었다. 가장자리 위에서는 있었다. 분화구 안과 밖이 달랐다. 이 경계에 서 있었다. 안과 밖. 결정 전과 결정 후. 그 경계에.", "en": "Night came. Kepler's night. No wind below in the crater. Wind above on the rim. Inside the crater and outside were different. Standing on this boundary. Inside and outside. Before decision and after decision. On that boundary." } }
+        {
+          "text": {
+            "ko": "밤이 됐다. 케플러의 밤이었다. 분화구 아래에서 바람이 없었다. 가장자리 위에서는 있었다. 분화구 안과 밖이 달랐다. 이 경계에 서 있었다. 안과 밖. 결정 전과 결정 후. 그 경계에.",
+            "en": "Night came. Kepler's night. No wind below in the crater. Wind above on the rim. Inside the crater and outside were different. Standing on this boundary. Inside and outside. Before decision and after decision. On that boundary."
+          }
+        }
       ]
     },
     {
@@ -317,9 +646,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "잠을 못 자겠죠.", "en": "You won't be able to sleep." } },
-        { "speaker": "liang_wei", "emotion": "neutral", "text": { "ko": "나도 처음에 그랬어요. 30년 전. 처음 이것을 봤을 때. 잠을 못 잤어요.", "en": "Same for me at first. Thirty years ago. When I first saw this. Couldn't sleep." } },
-        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "지금도 못 자요. 그것이 달라진 게 없어요.", "en": "Still can't now. That hasn't changed." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "quiet",
+          "text": {
+            "ko": "잠을 못 자겠죠.",
+            "en": "You won't be able to sleep."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "neutral",
+          "text": {
+            "ko": "나도 처음에 그랬어요. 30년 전. 처음 이것을 봤을 때. 잠을 못 잤어요.",
+            "en": "Same for me at first. Thirty years ago. When I first saw this. Couldn't sleep."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "serious",
+          "text": {
+            "ko": "지금도 못 자요. 그것이 달라진 게 없어요.",
+            "en": "Still can't now. That hasn't changed."
+          }
+        }
       ]
     },
     {
@@ -329,7 +679,12 @@
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "다음 날 새벽이었다. 케플러에서 두 번째 새벽. 다시 붉었다. 붉음에서 더 붉음으로. 샘플이 주머니 안에 있었다. 밤새 거기 있었다. 결정은 아직 안 됐다. 그러나 새벽이 왔다. 결정의 시간이 왔다.", "en": "Next day's dawn. Second dawn at Kepler. Red again. From red to redder. The sample was in a pocket. Had been there all night. Decision not yet made. But dawn came. Time for decision came." } }
+        {
+          "text": {
+            "ko": "다음 날 새벽이었다. 케플러에서 두 번째 새벽. 다시 붉었다. 붉음에서 더 붉음으로. 샘플이 주머니 안에 있었다. 밤새 거기 있었다. 결정은 아직 안 됐다. 그러나 새벽이 왔다. 결정의 시간이 왔다.",
+            "en": "Next day's dawn. Second dawn at Kepler. Red again. From red to redder. The sample was in a pocket. Had been there all night. Decision not yet made. But dawn came. Time for decision came."
+          }
+        }
       ]
     },
     {
@@ -337,12 +692,59 @@
       "type": "choice",
       "background": "kepler_crater_edge_dusk",
       "bgm": "choice_tension",
-      "prompt": { "ko": "Ancient Metal 샘플. 어떻게 처리하겠습니까.", "en": "The Ancient Metal sample. What will you do with it." },
+      "prompt": {
+        "ko": "Ancient Metal 샘플. 어떻게 처리하겠습니까.",
+        "en": "The Ancient Metal sample. What will you do with it."
+      },
       "choices": [
-        { "id": "mcc_ch4_report_mcc", "text": { "ko": "즉시 MCC에 보고한다.", "en": "Report to MCC immediately." }, "tone": "loyal", "preview_hint": { "ko": "→ MCC 독점 시작, Liang Wei 실망", "en": "→ MCC monopoly begins, Liang Wei disappointed" } },
-        { "id": "mcc_ch4_analyze_first", "text": { "ko": "분석 먼저. 보고는 그 다음.", "en": "Analyze first. Report after." }, "tone": "methodical", "preview_hint": { "ko": "→ 더 많은 정보 획득", "en": "→ More information gained" } },
-        { "id": "mcc_ch4_share_info", "text": { "ko": "Liang Wei에게 공유 제안.", "en": "Propose sharing with Liang Wei." }, "tone": "collaborative", "preview_hint": { "ko": "→ Liang Wei 신뢰 +, MCC 경로 복잡화", "en": "→ Liang Wei trust +, MCC route complicates" } },
-        { "id": "mcc_ch4_secure_site", "text": { "ko": "현장을 먼저 확보한다.", "en": "Secure the site first." }, "tone": "tactical", "preview_hint": { "ko": "→ FSP/CV 접근 방지", "en": "→ Prevent FSP/CV access" } }
+        {
+          "id": "mcc_ch4_report_mcc",
+          "text": {
+            "ko": "즉시 MCC에 보고한다.",
+            "en": "Report to MCC immediately."
+          },
+          "tone": "loyal",
+          "preview_hint": {
+            "ko": "→ MCC 독점 시작, Liang Wei 실망",
+            "en": "→ MCC monopoly begins, Liang Wei disappointed"
+          }
+        },
+        {
+          "id": "mcc_ch4_analyze_first",
+          "text": {
+            "ko": "분석 먼저. 보고는 그 다음.",
+            "en": "Analyze first. Report after."
+          },
+          "tone": "methodical",
+          "preview_hint": {
+            "ko": "→ 더 많은 정보 획득",
+            "en": "→ More information gained"
+          }
+        },
+        {
+          "id": "mcc_ch4_share_info",
+          "text": {
+            "ko": "Liang Wei에게 공유 제안.",
+            "en": "Propose sharing with Liang Wei."
+          },
+          "tone": "collaborative",
+          "preview_hint": {
+            "ko": "→ Liang Wei 신뢰 +, MCC 경로 복잡화",
+            "en": "→ Liang Wei trust +, MCC route complicates"
+          }
+        },
+        {
+          "id": "mcc_ch4_secure_site",
+          "text": {
+            "ko": "현장을 먼저 확보한다.",
+            "en": "Secure the site first."
+          },
+          "tone": "tactical",
+          "preview_hint": {
+            "ko": "→ FSP/CV 접근 방지",
+            "en": "→ Prevent FSP/CV access"
+          }
+        }
       ]
     },
     {
@@ -352,7 +754,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "결정이 됐다. 그 결정이 무엇이든 — 케플러 분화구는 그대로 있었다. 3킬로미터 깊이. 분지 안에 분지. 어두운 은색이 안에 있었다. 결정이 그것을 바꾸지는 않았다. 그러나 그 결정 이후의 것들을 바꾸었다.", "en": "A decision was made. Whatever that decision — Kepler Crater was unchanged. Three kilometers deep. Basin within basin. Dark silver inside. The decision didn't change that. But it changed what came after." } }
+        {
+          "text": {
+            "ko": "결정이 됐다. 그 결정이 무엇이든 — 케플러 분화구는 그대로 있었다. 3킬로미터 깊이. 분지 안에 분지. 어두운 은색이 안에 있었다. 결정이 그것을 바꾸지는 않았다. 그러나 그 결정 이후의 것들을 바꾸었다.",
+            "en": "A decision was made. Whatever that decision — Kepler Crater was unchanged. Three kilometers deep. Basin within basin. Dark silver inside. The decision didn't change that. But it changed what came after."
+          }
+        }
       ]
     },
     {
@@ -362,9 +769,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "FSP가 접근하고 있어요. 어제 저녁부터 신호가 있었어요.", "en": "FSP is approaching. There's been a signal since yesterday evening." } },
-        { "speaker": "liang_wei", "emotion": "focused", "text": { "ko": "그들도 알아요. 정보가 새는 곳이 있어요.", "en": "They know too. There's a leak somewhere." } },
-        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "MCC 지질팀 보고서가 불완전했던 이유예요. 그들이 팔았어요.", "en": "That's why the MCC geology team report was incomplete. They sold it." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "serious",
+          "text": {
+            "ko": "FSP가 접근하고 있어요. 어제 저녁부터 신호가 있었어요.",
+            "en": "FSP is approaching. There's been a signal since yesterday evening."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "focused",
+          "text": {
+            "ko": "그들도 알아요. 정보가 새는 곳이 있어요.",
+            "en": "They know too. There's a leak somewhere."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "MCC 지질팀 보고서가 불완전했던 이유예요. 그들이 팔았어요.",
+            "en": "That's why the MCC geology team report was incomplete. They sold it."
+          }
+        }
       ]
     },
     {
@@ -374,7 +802,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "먼지 폭풍이었다. 갑자기 왔다. 화성의 먼지 폭풍은 갑자기 왔다. 시야가 줄었다. 50미터. 20미터. 10미터. FSP 차량 신호가 가까워지고 있었다. 먼지 안에서. 보이지 않지만 있었다. 화성의 것들은 그랬다.", "en": "A dust storm. Came suddenly. Martian dust storms came suddenly. Visibility decreased. 50 meters. 20 meters. 10 meters. FSP vehicle signal was approaching. In the dust. Not visible but there. Things on Mars were like that." } }
+        {
+          "text": {
+            "ko": "먼지 폭풍이었다. 갑자기 왔다. 화성의 먼지 폭풍은 갑자기 왔다. 시야가 줄었다. 50미터. 20미터. 10미터. FSP 차량 신호가 가까워지고 있었다. 먼지 안에서. 보이지 않지만 있었다. 화성의 것들은 그랬다.",
+            "en": "A dust storm. Came suddenly. Martian dust storms came suddenly. Visibility decreased. 50 meters. 20 meters. 10 meters. FSP vehicle signal was approaching. In the dust. Not visible but there. Things on Mars were like that."
+          }
+        }
       ]
     },
     {
@@ -384,9 +817,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "FSP가 세 팀이에요. 북쪽. 동쪽. 남쪽. 우리를 에워싸고 있어요.", "en": "FSP is three teams. North. East. South. Surrounding us." } },
-        { "speaker": "liang_wei", "emotion": "fearful", "text": { "ko": "샘플 때문이에요. 그들도 Ancient Metal을 알아요.", "en": "It's because of the sample. They know about Ancient Metal too." } },
-        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "지금 결정이 필요해요. 현장 통제가 없으면 샘플도 없어요.", "en": "Need a decision now. Without site control there's no sample." } }
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "FSP가 세 팀이에요. 북쪽. 동쪽. 남쪽. 우리를 에워싸고 있어요.",
+            "en": "FSP is three teams. North. East. South. Surrounding us."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "fearful",
+          "text": {
+            "ko": "샘플 때문이에요. 그들도 Ancient Metal을 알아요.",
+            "en": "It's because of the sample. They know about Ancient Metal too."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "지금 결정이 필요해요. 현장 통제가 없으면 샘플도 없어요.",
+            "en": "Need a decision now. Without site control there's no sample."
+          }
+        }
       ]
     },
     {
@@ -395,8 +849,14 @@
       "background": "mars_surface_dust_storm",
       "bgm": "battle_theme_mcc",
       "transition": "flash_white",
-      "title": { "ko": "케플러 확보", "en": "Kepler Secured" },
-      "subtitle": { "ko": "분쟁 지역 — 광물 현장 통제", "en": "Contested Zone — Mineral Site Control" }
+      "title": {
+        "ko": "케플러 확보",
+        "en": "Kepler Secured"
+      },
+      "subtitle": {
+        "ko": "분쟁 지역 — 광물 현장 통제",
+        "en": "Contested Zone — Mineral Site Control"
+      }
     },
     {
       "id": "s_result",
@@ -410,9 +870,31 @@
       "background": "kepler_crater_dawn",
       "bgm": "victory_calm",
       "lines": [
-        { "speaker": "liang_wei", "emotion": "conflicted", "effect": "character_enter:liang_wei:slide_right", "text": { "ko": "현장 확보됐어요. 샘플도 있어요. 이제 무엇을 할 건지는 당신의 결정이에요.", "en": "Site secured. Sample intact. What happens now is your decision." } },
-        { "speaker": "liang_wei", "emotion": "quiet", "text": { "ko": "30년 동안 이것이 누구 것이 될지 생각 안 했어요. 있는지 없는지만 생각했어요.", "en": "For thirty years I didn't think about who this would belong to. Only whether it existed." } },
-        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "이제 있어요. 누구 것이 될지는 헬라스로 돌아가면 결정돼요.", "en": "Now it exists. Whose it becomes gets decided when we return to Hellas." } }
+        {
+          "speaker": "liang_wei",
+          "emotion": "conflicted",
+          "effect": "character_enter:liang_wei:slide_right",
+          "text": {
+            "ko": "현장 확보됐어요. 샘플도 있어요. 이제 무엇을 할 건지는 당신의 결정이에요.",
+            "en": "Site secured. Sample intact. What happens now is your decision."
+          }
+        },
+        {
+          "speaker": "liang_wei",
+          "emotion": "quiet",
+          "text": {
+            "ko": "30년 동안 이것이 누구 것이 될지 생각 안 했어요. 있는지 없는지만 생각했어요.",
+            "en": "For thirty years I didn't think about who this would belong to. Only whether it existed."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "이제 있어요. 누구 것이 될지는 헬라스로 돌아가면 결정돼요.",
+            "en": "Now it exists. Whose it becomes gets decided when we return to Hellas."
+          }
+        }
       ]
     },
     {
@@ -421,7 +903,12 @@
       "background": "kepler_crater_edge",
       "bgm": "defeat_ambient",
       "lines": [
-        { "text": { "ko": "현장을 놓쳤다. FSP가 먼저 들어왔다. 또는 CV가. 어느 쪽이든 샘플은 없었다. Liang Wei는 아무 말도 하지 않았다. 그것이 더 무거웠다. 30년을 기다린 사람의 침묵이었다.", "en": "The site was lost. FSP got there first. Or CV. Either way the sample was gone. Liang Wei said nothing. That was heavier. The silence of someone who had waited thirty years." } }
+        {
+          "text": {
+            "ko": "현장을 놓쳤다. FSP가 먼저 들어왔다. 또는 CV가. 어느 쪽이든 샘플은 없었다. Liang Wei는 아무 말도 하지 않았다. 그것이 더 무거웠다. 30년을 기다린 사람의 침묵이었다.",
+            "en": "The site was lost. FSP got there first. Or CV. Either way the sample was gone. Liang Wei said nothing. That was heavier. The silence of someone who had waited thirty years."
+          }
+        }
       ]
     },
     {
@@ -431,9 +918,21 @@
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "케플러 분화구는 여전히 있었다. 깊고 검었다. 분지 안에 분지가 있었다. 무엇이 있는지는 이제 알았다. 어두운 은색. 30년의 기다림. 파란 일몰. 그것들이 거기 있었다. 그것이 누구 것인지는 아직 결정되지 않았다.", "en": "Kepler Crater was still there. Deep and dark. A basin within a basin. Now it was known what was inside. Dark silver. Thirty years of waiting. Blue sunset. Those things were there. Whose it was had not yet been decided." }, "overlay": "ore_sample" }
+        {
+          "text": {
+            "ko": "케플러 분화구는 여전히 있었다. 깊고 검었다. 분지 안에 분지가 있었다. 무엇이 있는지는 이제 알았다. 어두운 은색. 30년의 기다림. 파란 일몰. 그것들이 거기 있었다. 그것이 누구 것인지는 아직 결정되지 않았다.",
+            "en": "Kepler Crater was still there. Deep and dark. A basin within a basin. Now it was known what was inside. Dark silver. Thirty years of waiting. Blue sunset. Those things were there. Whose it was had not yet been decided."
+          },
+          "background": "mcc_ch4_pirates_payroll_l39_00_ore_sample"
+        }
       ],
-      "next_chapter_preview": { "questId": "mcc_campaign_ch5", "teaser": { "ko": "다음 — Whistleblower", "en": "Next — Whistleblower" } }
+      "next_chapter_preview": {
+        "questId": "mcc_campaign_ch5",
+        "teaser": {
+          "ko": "다음 — Whistleblower",
+          "en": "Next — Whistleblower"
+        }
+      }
     }
   ]
 }

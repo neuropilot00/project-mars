@@ -12,7 +12,12 @@
   },
   "environment": "cv_base_final",
   "estimatedPlayTimeMinutes": 30,
-  "characters": ["player", "butcher", "cinder", "crow"],
+  "characters": [
+    "player",
+    "butcher",
+    "cinder",
+    "crow"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -26,7 +31,7 @@
             "ko": "에레보스 기지. 불이 탔다. 배럴 불. 여러 개. Butcher가 옥좌의 방에 있었다. 혼자였다. 사진을 꺼내 놓고 있었다. 테이블 위에. 처음이었다. 주머니 밖으로. 테이블 위에. 11시간이 됐다고 했다. 폐가 말했다. 그러나 사진 앞에 앉아 있었다.",
             "en": "Erebus base. Fires burning. Barrel fires. Several. Butcher was in the throne hall. Alone. He had taken out the photo. On the table. First time. Outside the pocket. On the table. The lungs had said eleven hours. But he sat before the photo."
           },
-          "overlay": "fire_small"
+          "background": "cv_ch10_from_flames_l00_00_fire_small"
         }
       ]
     },
@@ -330,7 +335,7 @@
             "ko": "의수였다. 17살에 만든 것. 30년 된 것. Cinder가 수리해서 아직 작동했다. 그것을 준다는 것이었다. 왼팔에 차는 것. Butcher가 30년 동안 찬 것. 그것이 후계의 방식이었다. CV의 방식. 문서도 없었다. 도장도 없었다. 의수 하나.",
             "en": "The prosthetic. Made at seventeen. Thirty years old. Cinder had repaired it and it still worked. He was giving it. Something worn on the left arm. What Butcher had worn for thirty years. That was the way of succession. CV's way. No document. No stamp. One prosthetic."
           },
-          "overlay": "hand_still"
+          "background": "cv_ch10_from_flames_l14_00_hand_still"
         }
       ]
     },
@@ -459,7 +464,7 @@
             "ko": "Butcher가 사진을 내밀었다. 오른손으로. 의수가 아닌 손으로. 30년 동안 주머니에 있던 것. 테이블에 올려놓은 것. 그것을 내미는 것이었다. 다른 사람에게. 처음으로. 30년 만에 처음으로.",
             "en": "Butcher held out the photo. With the right hand. Not the prosthetic. Something in his pocket for thirty years. Something placed on the table. Being offered to another person. First time. First time in thirty years."
           },
-          "overlay": "death_still"
+          "background": "cv_ch10_from_flames_l20_00_death_still"
         }
       ]
     },
@@ -631,10 +636,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "사진이 있었다. 의수가 있었다.", "en": "The photo was there. The prosthetic was there." }},
-        { "text": { "ko": "이름들이 있었다. 에레보스 외부에 차량들이 있었다.", "en": "The names were there. Vehicles were outside Erebus." }},
-        { "text": { "ko": "Butcher가 기다렸다. Cinder가 기다렸다.", "en": "Butcher waited. Cinder waited." }},
-        { "text": { "ko": "Crow가 기다렸다. 화성이 기다렸다.", "en": "Crow waited. Mars waited." }}
+        {
+          "text": {
+            "ko": "사진이 있었다. 의수가 있었다.",
+            "en": "The photo was there. The prosthetic was there."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름들이 있었다. 에레보스 외부에 차량들이 있었다.",
+            "en": "The names were there. Vehicles were outside Erebus."
+          }
+        },
+        {
+          "text": {
+            "ko": "Butcher가 기다렸다. Cinder가 기다렸다.",
+            "en": "Butcher waited. Cinder waited."
+          }
+        },
+        {
+          "text": {
+            "ko": "Crow가 기다렸다. 화성이 기다렸다.",
+            "en": "Crow waited. Mars waited."
+          }
+        }
       ]
     },
     {
@@ -644,12 +669,54 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "crow", "emotion": "serious", "text": { "ko": "그들이 기다리는 이유가 있어요.", "en": "There's a reason they're waiting." }},
-        { "speaker": "crow", "emotion": "flat", "text": { "ko": "올림포스 합의에 CV 관련 조항이 있어요. 우리가 서명 안 했지만.", "en": "The Olympus agreement has a clause about CV. Even though we didn't sign." }},
-        { "speaker": "crow", "emotion": "sardonic", "text": { "ko": "우리가 합의를 인정하면 그 조항도 인정해야 해요.", "en": "If we recognize the agreement we must also recognize that clause." }},
-        { "speaker": "butcher", "emotion": "stoic", "text": { "ko": "비무장 지대 조항.", "en": "The demilitarized zone clause." }},
-        { "speaker": "crow", "emotion": "nod", "text": { "ko": "에레보스 외곽 5킬로미터.", "en": "Five kilometers outside Erebus." }},
-        { "speaker": "cinder", "emotion": "thinking", "text": { "ko": "5킬로미터는 우리 훈련 구역이에요.", "en": "Five kilometers is our training area." }}
+        {
+          "speaker": "crow",
+          "emotion": "serious",
+          "text": {
+            "ko": "그들이 기다리는 이유가 있어요.",
+            "en": "There's a reason they're waiting."
+          }
+        },
+        {
+          "speaker": "crow",
+          "emotion": "flat",
+          "text": {
+            "ko": "올림포스 합의에 CV 관련 조항이 있어요. 우리가 서명 안 했지만.",
+            "en": "The Olympus agreement has a clause about CV. Even though we didn't sign."
+          }
+        },
+        {
+          "speaker": "crow",
+          "emotion": "sardonic",
+          "text": {
+            "ko": "우리가 합의를 인정하면 그 조항도 인정해야 해요.",
+            "en": "If we recognize the agreement we must also recognize that clause."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "stoic",
+          "text": {
+            "ko": "비무장 지대 조항.",
+            "en": "The demilitarized zone clause."
+          }
+        },
+        {
+          "speaker": "crow",
+          "emotion": "nod",
+          "text": {
+            "ko": "에레보스 외곽 5킬로미터.",
+            "en": "Five kilometers outside Erebus."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "thinking",
+          "text": {
+            "ko": "5킬로미터는 우리 훈련 구역이에요.",
+            "en": "Five kilometers is our training area."
+          }
+        }
       ]
     },
     {
@@ -659,11 +726,36 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "비무장 지대 조항. CV가 서명하지 않은 조항.", "en": "The demilitarized zone clause. A clause CV didn't sign." }},
-        { "text": { "ko": "그러나 합의에 있었다. MCC와 FSP가 집어넣었다.", "en": "But it was in the agreement. MCC and FSP put it there." }},
-        { "text": { "ko": "CV가 합의를 인정하면 그것도 인정해야 했다.", "en": "If CV recognized the agreement it had to recognize that too." }},
-        { "text": { "ko": "인정하지 않으면 합의 밖에 있는 것이었다.", "en": "If not it would be outside the agreement." }},
-        { "text": { "ko": "그것이 선택이었다.", "en": "That was the choice." }}
+        {
+          "text": {
+            "ko": "비무장 지대 조항. CV가 서명하지 않은 조항.",
+            "en": "The demilitarized zone clause. A clause CV didn't sign."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 합의에 있었다. MCC와 FSP가 집어넣었다.",
+            "en": "But it was in the agreement. MCC and FSP put it there."
+          }
+        },
+        {
+          "text": {
+            "ko": "CV가 합의를 인정하면 그것도 인정해야 했다.",
+            "en": "If CV recognized the agreement it had to recognize that too."
+          }
+        },
+        {
+          "text": {
+            "ko": "인정하지 않으면 합의 밖에 있는 것이었다.",
+            "en": "If not it would be outside the agreement."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것이 선택이었다.",
+            "en": "That was the choice."
+          }
+        }
       ]
     },
     {
@@ -673,11 +765,46 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "butcher", "emotion": "slow", "text": { "ko": "나한테 물어봐. 직접.", "en": "Ask me directly." }},
-        { "speaker": "player", "emotion": "direct", "text": { "ko": "CV가 합의를 인정해야 합니까.", "en": "Should CV recognize the agreement." }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "Zone 12 이름들이 합의에 있어. Cinder가 Zone 12 생존자로 서명했어.", "en": "Zone 12 names are in the agreement. Cinder signed as Zone 12 survivor." }},
-        { "speaker": "butcher", "emotion": "serious", "text": { "ko": "그것이 30년 동안 원한 거야. 이름들이 공식 문서에 있는 것.", "en": "That's what thirty years wanted. The names in an official document." }},
-        { "speaker": "butcher", "emotion": "hollow", "text": { "ko": "비무장 지대 5킬로미터가 그 값이면. 싼 거야.", "en": "If a five-kilometer demilitarized zone is the price for that. It's cheap." }}
+        {
+          "speaker": "butcher",
+          "emotion": "slow",
+          "text": {
+            "ko": "나한테 물어봐. 직접.",
+            "en": "Ask me directly."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "direct",
+          "text": {
+            "ko": "CV가 합의를 인정해야 합니까.",
+            "en": "Should CV recognize the agreement."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "Zone 12 이름들이 합의에 있어. Cinder가 Zone 12 생존자로 서명했어.",
+            "en": "Zone 12 names are in the agreement. Cinder signed as Zone 12 survivor."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "serious",
+          "text": {
+            "ko": "그것이 30년 동안 원한 거야. 이름들이 공식 문서에 있는 것.",
+            "en": "That's what thirty years wanted. The names in an official document."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "hollow",
+          "text": {
+            "ko": "비무장 지대 5킬로미터가 그 값이면. 싼 거야.",
+            "en": "If a five-kilometer demilitarized zone is the price for that. It's cheap."
+          }
+        }
       ]
     },
     {
@@ -687,12 +814,43 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Butcher가 사진을 들었다.", "en": "Butcher lifted the photo." }},
-        { "text": { "ko": "뒤집었다. 이름들을 봤다.", "en": "Flipped it. Looked at the names." }},
-        { "text": { "ko": "사진 뒤에 새로운 이름들이 있었다.", "en": "New names were on the back of the photo." }},
-        { "text": { "ko": "Cinder가 추가한 것. 올림포스에서 돌아온 후.", "en": "Added by Cinder. After returning from Olympus." }},
-        { "text": { "ko": "Zone 12 이름들. 공식 문서에 올라간 이름들.", "en": "Zone 12 names. Names now in official documents." }, "overlay": "zone12_record" },
-        { "text": { "ko": "그 이름들이 사진 뒤에도 있었다.", "en": "Those names were on the back of the photo too." }}
+        {
+          "text": {
+            "ko": "Butcher가 사진을 들었다.",
+            "en": "Butcher lifted the photo."
+          }
+        },
+        {
+          "text": {
+            "ko": "뒤집었다. 이름들을 봤다.",
+            "en": "Flipped it. Looked at the names."
+          }
+        },
+        {
+          "text": {
+            "ko": "사진 뒤에 새로운 이름들이 있었다.",
+            "en": "New names were on the back of the photo."
+          }
+        },
+        {
+          "text": {
+            "ko": "Cinder가 추가한 것. 올림포스에서 돌아온 후.",
+            "en": "Added by Cinder. After returning from Olympus."
+          }
+        },
+        {
+          "text": {
+            "ko": "Zone 12 이름들. 공식 문서에 올라간 이름들.",
+            "en": "Zone 12 names. Names now in official documents."
+          },
+          "background": "cv_ch10_from_flames_l32_04_zone12_record"
+        },
+        {
+          "text": {
+            "ko": "그 이름들이 사진 뒤에도 있었다.",
+            "en": "Those names were on the back of the photo too."
+          }
+        }
       ]
     },
     {
@@ -702,12 +860,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "Butcher. 한 가지를 더 말해야 해요.", "en": "Butcher. One more thing to say." }},
-        { "speaker": "butcher", "emotion": "attentive", "text": { "ko": "말해.", "en": "Say it." }},
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "의수 안쪽에 새긴 이름들이에요. 누군가 계속 새겨야 해요.", "en": "The names engraved inside the prosthetic. Someone must keep engraving them." }},
-        { "speaker": "cinder", "emotion": "steady", "text": { "ko": "이름들이 공식 문서에 오르는 것과. 몸에 새기는 것은 달라요.", "en": "Names entering official documents and engraving them on the body are different." }},
-        { "speaker": "butcher", "emotion": "quiet", "text": { "ko": "알아.", "en": "I know." }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "그래서 의수를 줘야 해. 다음 사람에게.", "en": "That's why the prosthetic must be given. To the next person." }}
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Butcher. 한 가지를 더 말해야 해요.",
+            "en": "Butcher. One more thing to say."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "attentive",
+          "text": {
+            "ko": "말해.",
+            "en": "Say it."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "의수 안쪽에 새긴 이름들이에요. 누군가 계속 새겨야 해요.",
+            "en": "The names engraved inside the prosthetic. Someone must keep engraving them."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "steady",
+          "text": {
+            "ko": "이름들이 공식 문서에 오르는 것과. 몸에 새기는 것은 달라요.",
+            "en": "Names entering official documents and engraving them on the body are different."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "quiet",
+          "text": {
+            "ko": "알아.",
+            "en": "I know."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "그래서 의수를 줘야 해. 다음 사람에게.",
+            "en": "That's why the prosthetic must be given. To the next person."
+          }
+        }
       ]
     },
     {
@@ -717,11 +917,36 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "에레보스 기지가 조용했다.", "en": "The Erebus base was quiet." }},
-        { "text": { "ko": "불이 탔다. 배럴 불.", "en": "Fires burned. Barrel fires." }},
-        { "text": { "ko": "30년 동안 꺼지지 않은 불.", "en": "Fires that hadn't gone out in thirty years." }},
-        { "text": { "ko": "따뜻하지 않았다. 그러나 탔다.", "en": "Not warm. But burning." }},
-        { "text": { "ko": "그것이 CV였다. 그것이 항상 CV였다.", "en": "That was CV. That had always been CV." }}
+        {
+          "text": {
+            "ko": "에레보스 기지가 조용했다.",
+            "en": "The Erebus base was quiet."
+          }
+        },
+        {
+          "text": {
+            "ko": "불이 탔다. 배럴 불.",
+            "en": "Fires burned. Barrel fires."
+          }
+        },
+        {
+          "text": {
+            "ko": "30년 동안 꺼지지 않은 불.",
+            "en": "Fires that hadn't gone out in thirty years."
+          }
+        },
+        {
+          "text": {
+            "ko": "따뜻하지 않았다. 그러나 탔다.",
+            "en": "Not warm. But burning."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것이 CV였다. 그것이 항상 CV였다.",
+            "en": "That was CV. That had always been CV."
+          }
+        }
       ]
     },
     {
@@ -731,12 +956,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "crow", "emotion": "quiet", "text": { "ko": "밖에 그들이 있어요. 아직 기다려요.", "en": "They're outside. Still waiting." }},
-        { "speaker": "cinder", "emotion": "calm", "text": { "ko": "공구 들었어요.", "en": "Tools are ready." }},
-        { "speaker": "butcher", "emotion": "stoic", "text": { "ko": "화성에서 기다리는 사람들은 언제나 있었어.", "en": "On Mars there were always people waiting." }},
-        { "speaker": "butcher", "emotion": "heavy", "text": { "ko": "30년 동안 나도 기다렸어. 이 이름들이 기록되는 날을.", "en": "For thirty years I waited too. For the day these names would be recorded." }},
-        { "speaker": "butcher", "emotion": "quiet", "text": { "ko": "됐어. 그 기다림은 됐어.", "en": "Done. That waiting is done." }},
-        { "speaker": "butcher", "emotion": "resolute", "text": { "ko": "이제 그들을 기다리게 해.", "en": "Now make them wait." }}
+        {
+          "speaker": "crow",
+          "emotion": "quiet",
+          "text": {
+            "ko": "밖에 그들이 있어요. 아직 기다려요.",
+            "en": "They're outside. Still waiting."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "공구 들었어요.",
+            "en": "Tools are ready."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "stoic",
+          "text": {
+            "ko": "화성에서 기다리는 사람들은 언제나 있었어.",
+            "en": "On Mars there were always people waiting."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "heavy",
+          "text": {
+            "ko": "30년 동안 나도 기다렸어. 이 이름들이 기록되는 날을.",
+            "en": "For thirty years I waited too. For the day these names would be recorded."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "quiet",
+          "text": {
+            "ko": "됐어. 그 기다림은 됐어.",
+            "en": "Done. That waiting is done."
+          }
+        },
+        {
+          "speaker": "butcher",
+          "emotion": "resolute",
+          "text": {
+            "ko": "이제 그들을 기다리게 해.",
+            "en": "Now make them wait."
+          }
+        }
       ]
     },
     {
@@ -831,7 +1098,7 @@
             "ko": "전투가 끝났다. 에레보스가 살아있었다. Butcher가 사진을 주머니에 넣었다. 천천히. 양손으로. 의수와 오른손으로. 그것이 마지막이었다. 그러나 CV는 있었다. 불이 탔다. Cinder의 공구 소리가 들렸다. Crow가 외부를 감시했다. CV가 있었다.",
             "en": "The battle ended. Erebus was alive. Butcher put the photo in his pocket. Slowly. With both hands. The prosthetic and the right hand. That was the last time. But CV was there. Fires burned. Cinder's tool sounds were heard. Crow watched the exterior. CV existed."
           },
-          "overlay": "candle_flame"
+          "background": "cv_ch10_from_flames_l39_00_candle_flame"
         }
       ]
     },

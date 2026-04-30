@@ -2,11 +2,21 @@
   "questId": "fsp_campaign_ch6",
   "campaignId": "fsp_route",
   "chapterNumber": 6,
-  "title": { "ko": "두더지", "en": "The Mole" },
-  "location": { "id": "hellas_central_underground", "displayNameKo": "헬라스 센트럴 지하 통로" },
+  "title": {
+    "ko": "두더지",
+    "en": "The Mole"
+  },
+  "location": {
+    "id": "hellas_central_underground",
+    "displayNameKo": "헬라스 센트럴 지하 통로"
+  },
   "environment": "underground_passage",
   "estimatedPlayTimeMinutes": 28,
-  "characters": ["player", "kenji", "lena"],
+  "characters": [
+    "player",
+    "kenji",
+    "lena"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -15,7 +25,12 @@
       "bgm": "tension_low",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "지하 통로가 있었다. MCC 본부 아래. 60년 전 지어질 때 만들어진 것이었다. MCC가 만들었지만 MCC가 전부 아는 것은 아니었다. 큰 건물은 모두 아는 사람이 없었다. 그것이 큰 건물의 특징이었다.", "en": "There was an underground passage. Below MCC headquarters. Built when it was constructed sixty years ago. MCC built it but MCC didn't know all of it. No one knew everything about a large building. That was the nature of large buildings." } }
+        {
+          "text": {
+            "ko": "지하 통로가 있었다. MCC 본부 아래. 60년 전 지어질 때 만들어진 것이었다. MCC가 만들었지만 MCC가 전부 아는 것은 아니었다. 큰 건물은 모두 아는 사람이 없었다. 그것이 큰 건물의 특징이었다.",
+            "en": "There was an underground passage. Below MCC headquarters. Built when it was constructed sixty years ago. MCC built it but MCC didn't know all of it. No one knew everything about a large building. That was the nature of large buildings."
+          }
+        }
       ]
     },
     {
@@ -25,7 +40,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "헬라스 센트럴. MCC 헬라스 분지 본부. 건물이 컸다. 유리와 금속. 화성의 먼지 속에서도 빛났다. 그것이 의도된 것이었다. 빛나는 것은 강한 것처럼 보였다. MCC는 강해 보이는 것이 중요했다.", "en": "Hellas Central. MCC Hellas Basin headquarters. A large building. Glass and metal. Shining even in the Martian dust. That was intentional. Shining things looked strong. Looking strong mattered to MCC." } }
+        {
+          "text": {
+            "ko": "헬라스 센트럴. MCC 헬라스 분지 본부. 건물이 컸다. 유리와 금속. 화성의 먼지 속에서도 빛났다. 그것이 의도된 것이었다. 빛나는 것은 강한 것처럼 보였다. MCC는 강해 보이는 것이 중요했다.",
+            "en": "Hellas Central. MCC Hellas Basin headquarters. A large building. Glass and metal. Shining even in the Martian dust. That was intentional. Shining things looked strong. Looking strong mattered to MCC."
+          }
+        }
       ]
     },
     {
@@ -35,7 +55,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Kenji Nakamura. MCC 기술부 3급 엔지니어. 5년째 그 자리. 진급 없이 5년. 화성에서 진급 없이 5년은 두 가지를 뜻했다. 무능하거나. 다른 것을 하고 있거나. Kenji는 무능하지 않았다.", "en": "Kenji Nakamura. Grade 3 MCC technical engineer. Five years in the same position. Five years without promotion. On Mars five years without promotion meant one of two things. Incompetence. Or doing something else. Kenji was not incompetent." } }
+        {
+          "text": {
+            "ko": "Kenji Nakamura. MCC 기술부 3급 엔지니어. 5년째 그 자리. 진급 없이 5년. 화성에서 진급 없이 5년은 두 가지를 뜻했다. 무능하거나. 다른 것을 하고 있거나. Kenji는 무능하지 않았다.",
+            "en": "Kenji Nakamura. Grade 3 MCC technical engineer. Five years in the same position. Five years without promotion. On Mars five years without promotion meant one of two things. Incompetence. Or doing something else. Kenji was not incompetent."
+          }
+        }
       ]
     },
     {
@@ -45,7 +70,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "통로 입구가 있었다. 건물 뒤편. 쓰레기 처리 구역. 아무도 오지 않는 곳이었다. 밤에는 더욱. 그것이 이 만남의 장소가 된 이유였다. 아무도 오지 않는 곳. 아무도 없는 것처럼 있을 수 있는 곳.", "en": "There was a passage entrance. Behind the building. Waste disposal zone. A place nobody came. Even more so at night. That was why it was the meeting place. A place where nobody came. A place to exist as if not existing." } }
+        {
+          "text": {
+            "ko": "통로 입구가 있었다. 건물 뒤편. 쓰레기 처리 구역. 아무도 오지 않는 곳이었다. 밤에는 더욱. 그것이 이 만남의 장소가 된 이유였다. 아무도 오지 않는 곳. 아무도 없는 것처럼 있을 수 있는 곳.",
+            "en": "There was a passage entrance. Behind the building. Waste disposal zone. A place nobody came. Even more so at night. That was why it was the meeting place. A place where nobody came. A place to exist as if not existing."
+          }
+        }
       ]
     },
     {
@@ -55,7 +85,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "헬라스 노동자 구역. 밤에는 달랐다. 낮에는 사람들이 있었다. 밤에는 적었다. 그러나 완전히 없는 것은 아니었다. 야간조 사람들. 청소부들. 화성의 밤에 일하는 사람들은 있었다. 항상 있었다.", "en": "Hellas labor district. Different at night. In the day people were there. At night fewer. But not completely empty. Night shift workers. Cleaners. People who worked in the Martian night were there. Always were." } }
+        {
+          "text": {
+            "ko": "헬라스 노동자 구역. 밤에는 달랐다. 낮에는 사람들이 있었다. 밤에는 적었다. 그러나 완전히 없는 것은 아니었다. 야간조 사람들. 청소부들. 화성의 밤에 일하는 사람들은 있었다. 항상 있었다.",
+            "en": "Hellas labor district. Different at night. In the day people were there. At night fewer. But not completely empty. Night shift workers. Cleaners. People who worked in the Martian night were there. Always were."
+          }
+        }
       ]
     },
     {
@@ -65,9 +100,31 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "tense", "effect": "character_enter:lena:slide_left", "text": { "ko": "야간조 척 해요. 여기서 아무도 우리를 모르면 안 돼요.", "en": "Act like night shift. Nobody here should not know us." } },
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "청소 슈트가 있어요. 미리 준비했어요.", "en": "There are cleaning suits. Prepared in advance." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "Kenji가 이 경로를 쓰는 것은 오늘 처음이에요.", "en": "Kenji using this route is a first today." } }
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "effect": "character_enter:lena:slide_left",
+          "text": {
+            "ko": "야간조 척 해요. 여기서 아무도 우리를 모르면 안 돼요.",
+            "en": "Act like night shift. Nobody here should not know us."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "청소 슈트가 있어요. 미리 준비했어요.",
+            "en": "There are cleaning suits. Prepared in advance."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Kenji가 이 경로를 쓰는 것은 오늘 처음이에요.",
+            "en": "Kenji using this route is a first today."
+          }
+        }
       ]
     },
     {
@@ -77,9 +134,31 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "kenji", "emotion": "nervous", "effect": "character_enter:kenji:slide_right", "text": { "ko": "늦지 않았어요. 5분 있어요.", "en": "Not late. Five minutes." } },
-        { "speaker": "kenji", "emotion": "urgent", "text": { "ko": "MCC가 Liang Wei 데이터를 차단했어요. 그 전에 제가 백업했어요. 이게 있어요.", "en": "MCC blocked Liang Wei's data. I backed it up before that. I have it." } },
-        { "speaker": "kenji", "emotion": "tense", "text": { "ko": "그리고 하나 더요. MCC가 FSP 내부에 있어요. 누군지는 몰라요. 통신 패턴으로 봤을 때 고위직이에요.", "en": "One more thing. MCC has someone inside FSP. Don't know who. Based on communication patterns it's someone senior." } }
+        {
+          "speaker": "kenji",
+          "emotion": "nervous",
+          "effect": "character_enter:kenji:slide_right",
+          "text": {
+            "ko": "늦지 않았어요. 5분 있어요.",
+            "en": "Not late. Five minutes."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "urgent",
+          "text": {
+            "ko": "MCC가 Liang Wei 데이터를 차단했어요. 그 전에 제가 백업했어요. 이게 있어요.",
+            "en": "MCC blocked Liang Wei's data. I backed it up before that. I have it."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "tense",
+          "text": {
+            "ko": "그리고 하나 더요. MCC가 FSP 내부에 있어요. 누군지는 몰라요. 통신 패턴으로 봤을 때 고위직이에요.",
+            "en": "One more thing. MCC has someone inside FSP. Don't know who. Based on communication patterns it's someone senior."
+          }
+        }
       ]
     },
     {
@@ -89,7 +168,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 들었다. 빠른 사람이 멈췄다. 그것은 드문 일이었다. Lena가 멈추면 무언가 무거운 것이 있었다. 왼팔 문신의 이름들. 그 중 누군가가 FSP 내부자 때문에 죽었을 수 있었다. 그것을 아직 알 수 없었다.", "en": "Lena heard it. The fast person stopped. That was rare. When Lena stopped something heavy was there. The names in the tattoo on her left arm. One of them might have died because of the FSP mole. That was not yet knowable." } }
+        {
+          "text": {
+            "ko": "Lena가 들었다. 빠른 사람이 멈췄다. 그것은 드문 일이었다. Lena가 멈추면 무언가 무거운 것이 있었다. 왼팔 문신의 이름들. 그 중 누군가가 FSP 내부자 때문에 죽었을 수 있었다. 그것을 아직 알 수 없었다.",
+            "en": "Lena heard it. The fast person stopped. That was rare. When Lena stopped something heavy was there. The names in the tattoo on her left arm. One of them might have died because of the FSP mole. That was not yet knowable."
+          }
+        }
       ]
     },
     {
@@ -99,7 +183,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Kenji Nakamura. 35세. 아버지가 헬라스 8번 광산 노동자였다. 은퇴 후 연금이 없었다. MCC 규정이 바뀐 것이었다. 바뀌기 전에 30년을 일했다. 바뀌고 나서 연금이 없어졌다. 그것이 Kenji가 여기 있는 이유였다.", "en": "Kenji Nakamura. Thirty-five. Father had been a worker at Hellas Mine 8. After retirement there was no pension. MCC regulations had changed. He had worked thirty years before the change. After the change the pension was gone. That was why Kenji was here." } }
+        {
+          "text": {
+            "ko": "Kenji Nakamura. 35세. 아버지가 헬라스 8번 광산 노동자였다. 은퇴 후 연금이 없었다. MCC 규정이 바뀐 것이었다. 바뀌기 전에 30년을 일했다. 바뀌고 나서 연금이 없어졌다. 그것이 Kenji가 여기 있는 이유였다.",
+            "en": "Kenji Nakamura. Thirty-five. Father had been a worker at Hellas Mine 8. After retirement there was no pension. MCC regulations had changed. He had worked thirty years before the change. After the change the pension was gone. That was why Kenji was here."
+          }
+        }
       ]
     },
     {
@@ -109,10 +198,38 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "kenji", "emotion": "nervous", "text": { "ko": "어떻게 전달하는지 알아요?", "en": "Do you know how to receive the transfer?" } },
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "말해요.", "en": "Tell me." } },
-        { "speaker": "kenji", "emotion": "urgent", "text": { "ko": "물리 스틱만 써요. 통신 없이. MCC가 모든 통신을 봐요. 물리 스틱을 모르는 거는 아니지만 추적이 느려요.", "en": "Physical sticks only. No communications. MCC sees all communications. They're not unaware of physical sticks but tracking is slower." } },
-        { "speaker": "kenji", "emotion": "tense", "text": { "ko": "지금 건네요.", "en": "I'll hand it over now." } }
+        {
+          "speaker": "kenji",
+          "emotion": "nervous",
+          "text": {
+            "ko": "어떻게 전달하는지 알아요?",
+            "en": "Do you know how to receive the transfer?"
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "말해요.",
+            "en": "Tell me."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "urgent",
+          "text": {
+            "ko": "물리 스틱만 써요. 통신 없이. MCC가 모든 통신을 봐요. 물리 스틱을 모르는 거는 아니지만 추적이 느려요.",
+            "en": "Physical sticks only. No communications. MCC sees all communications. They're not unaware of physical sticks but tracking is slower."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "tense",
+          "text": {
+            "ko": "지금 건네요.",
+            "en": "I'll hand it over now."
+          }
+        }
       ]
     },
     {
@@ -122,8 +239,22 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "kenji", "emotion": "afraid", "text": { "ko": "나를 보호해줘야 해요. MCC가 알면 나는 없어져요. 기록에서. 사람들 기억에서. 완전히.", "en": "You need to protect me. If MCC finds out I'll disappear. From the records. From people's memories. Completely." } },
-        { "speaker": "kenji", "emotion": "quiet", "text": { "ko": "5년 동안 이것을 모아왔어요. FSP를 위해서요. 당신들이 옳다고 생각해서요. 나도 광부 가족이에요.", "en": "I've been collecting this for five years. For FSP. Because I think you're right. I'm from a miner family too." } }
+        {
+          "speaker": "kenji",
+          "emotion": "afraid",
+          "text": {
+            "ko": "나를 보호해줘야 해요. MCC가 알면 나는 없어져요. 기록에서. 사람들 기억에서. 완전히.",
+            "en": "You need to protect me. If MCC finds out I'll disappear. From the records. From people's memories. Completely."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "quiet",
+          "text": {
+            "ko": "5년 동안 이것을 모아왔어요. FSP를 위해서요. 당신들이 옳다고 생각해서요. 나도 광부 가족이에요.",
+            "en": "I've been collecting this for five years. For FSP. Because I think you're right. I'm from a miner family too."
+          }
+        }
       ]
     },
     {
@@ -133,7 +264,13 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Kenji가 패키지를 건넸다. 작은 것. 데이터 스틱이었다. Liang Wei의 백업. 그리고 다른 것들. MCC 내부 통신. 5년치. 그것이 손 위에 있었다. 작은 것이었다. 그러나 무거웠다.", "en": "Kenji handed over a package. Small. A data stick. Liang Wei's backup. And other things. MCC internal communications. Five years' worth. That was in the hand. Small. But heavy." }, "overlay": "sealed_file" }
+        {
+          "text": {
+            "ko": "Kenji가 패키지를 건넸다. 작은 것. 데이터 스틱이었다. Liang Wei의 백업. 그리고 다른 것들. MCC 내부 통신. 5년치. 그것이 손 위에 있었다. 작은 것이었다. 그러나 무거웠다.",
+            "en": "Kenji handed over a package. Small. A data stick. Liang Wei's backup. And other things. MCC internal communications. Five years' worth. That was in the hand. Small. But heavy."
+          },
+          "background": "fsp_ch6_the_mole_l11_00_sealed_file"
+        }
       ]
     },
     {
@@ -143,10 +280,38 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "kenji", "emotion": "nervous", "text": { "ko": "스틱 안에 세 파트가 있어요.", "en": "Three parts inside the stick." } },
-        { "speaker": "kenji", "emotion": "urgent", "text": { "ko": "첫째, Liang Wei 원본 데이터. 둘째, MCC 케플러 계획서. 셋째, FSP 내부 통신 패턴. 두더지를 찾는 단서가 있어요.", "en": "First, Liang Wei's original data. Second, MCC Kepler plan documents. Third, FSP internal communication patterns. There are clues to find the mole." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "패턴에서 사람을 찾을 수 있어요?", "en": "Can you find a person from patterns?" } },
-        { "speaker": "kenji", "emotion": "quiet", "text": { "ko": "통신 패턴은 지문이에요. 사람마다 달라요.", "en": "Communication patterns are fingerprints. Different for each person." } }
+        {
+          "speaker": "kenji",
+          "emotion": "nervous",
+          "text": {
+            "ko": "스틱 안에 세 파트가 있어요.",
+            "en": "Three parts inside the stick."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "urgent",
+          "text": {
+            "ko": "첫째, Liang Wei 원본 데이터. 둘째, MCC 케플러 계획서. 셋째, FSP 내부 통신 패턴. 두더지를 찾는 단서가 있어요.",
+            "en": "First, Liang Wei's original data. Second, MCC Kepler plan documents. Third, FSP internal communication patterns. There are clues to find the mole."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "패턴에서 사람을 찾을 수 있어요?",
+            "en": "Can you find a person from patterns?"
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "quiet",
+          "text": {
+            "ko": "통신 패턴은 지문이에요. 사람마다 달라요.",
+            "en": "Communication patterns are fingerprints. Different for each person."
+          }
+        }
       ]
     },
     {
@@ -156,7 +321,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "위험한 정보였다. 두 가지 방향으로. 첫째, 이것이 FSP를 강하게 만들 수 있었다. 둘째, 이것이 FSP 안의 의심을 만들 수 있었다. 같은 정보가 두 방향으로 갔다. 그것이 첩보의 속성이었다.", "en": "Dangerous information. In two directions. First, this could make FSP stronger. Second, this could create suspicion inside FSP. The same information went two ways. That was the nature of intelligence." } }
+        {
+          "text": {
+            "ko": "위험한 정보였다. 두 가지 방향으로. 첫째, 이것이 FSP를 강하게 만들 수 있었다. 둘째, 이것이 FSP 안의 의심을 만들 수 있었다. 같은 정보가 두 방향으로 갔다. 그것이 첩보의 속성이었다.",
+            "en": "Dangerous information. In two directions. First, this could make FSP stronger. Second, this could create suspicion inside FSP. The same information went two ways. That was the nature of intelligence."
+          }
+        }
       ]
     },
     {
@@ -166,9 +336,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "보스. 이 정보를 어떻게 쓸 건지가 중요해요.", "en": "Boss. How we use this information matters." } },
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "FSP 두더지 찾는 게 먼저예요. 아니면 MCC 케플러 계획 막는 게 먼저예요.", "en": "Finding the FSP mole comes first. Or stopping MCC's Kepler plan comes first." } },
-        { "speaker": "kenji", "emotion": "nervous", "text": { "ko": "둘 다 해요. 동시에. 그래야 MCC가 뭐가 유출됐는지 모르거든요.", "en": "Do both. Simultaneously. That way MCC won't know what was leaked." } }
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "보스. 이 정보를 어떻게 쓸 건지가 중요해요.",
+            "en": "Boss. How we use this information matters."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "FSP 두더지 찾는 게 먼저예요. 아니면 MCC 케플러 계획 막는 게 먼저예요.",
+            "en": "Finding the FSP mole comes first. Or stopping MCC's Kepler plan comes first."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "nervous",
+          "text": {
+            "ko": "둘 다 해요. 동시에. 그래야 MCC가 뭐가 유출됐는지 모르거든요.",
+            "en": "Do both. Simultaneously. That way MCC won't know what was leaked."
+          }
+        }
       ]
     },
     {
@@ -178,7 +369,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "통로 끝에서 소리가 났다. 발소리가 아니었다. 환기 팬이었다. 60년 된 것이었다. 그러나 그것과 섞여 다른 소리가 있었다. 작은 소리였다. 그러나 MCC 건물은 소리가 잘 울렸다. 계단도. 통로도.", "en": "A sound from the end of the passage. Not footsteps. The ventilation fan. Sixty years old. But mixed with it was another sound. Small. But MCC buildings carried sound well. Stairs. Passages too." } }
+        {
+          "text": {
+            "ko": "통로 끝에서 소리가 났다. 발소리가 아니었다. 환기 팬이었다. 60년 된 것이었다. 그러나 그것과 섞여 다른 소리가 있었다. 작은 소리였다. 그러나 MCC 건물은 소리가 잘 울렸다. 계단도. 통로도.",
+            "en": "A sound from the end of the passage. Not footsteps. The ventilation fan. Sixty years old. But mixed with it was another sound. Small. But MCC buildings carried sound well. Stairs. Passages too."
+          }
+        }
       ]
     },
     {
@@ -188,9 +384,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "kenji", "emotion": "panicked", "text": { "ko": "소리 들어요? 누가 오고 있어요.", "en": "You hear that? Someone is coming." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "경비야. 교대 시간이 달라졌어.", "en": "Security. The shift change time changed." } },
-        { "speaker": "kenji", "emotion": "afraid", "text": { "ko": "빨리 결정해야 해요. 3분 있어요.", "en": "Need to decide fast. Three minutes." } }
+        {
+          "speaker": "kenji",
+          "emotion": "panicked",
+          "text": {
+            "ko": "소리 들어요? 누가 오고 있어요.",
+            "en": "You hear that? Someone is coming."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "경비야. 교대 시간이 달라졌어.",
+            "en": "Security. The shift change time changed."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "afraid",
+          "text": {
+            "ko": "빨리 결정해야 해요. 3분 있어요.",
+            "en": "Need to decide fast. Three minutes."
+          }
+        }
       ]
     },
     {
@@ -200,7 +417,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "데이터 스틱이 손 안에 있었다. Kenji가 있었다. Lena가 있었다. 통로 끝에서 소리가 났다. 3분. 그것이 선택지가 되는 시간이었다.", "en": "The data stick was in hand. Kenji was there. Lena was there. Sound from the end of the passage. Three minutes. That was the time for choices to become choices." } }
+        {
+          "text": {
+            "ko": "데이터 스틱이 손 안에 있었다. Kenji가 있었다. Lena가 있었다. 통로 끝에서 소리가 났다. 3분. 그것이 선택지가 되는 시간이었다.",
+            "en": "The data stick was in hand. Kenji was there. Lena was there. Sound from the end of the passage. Three minutes. That was the time for choices to become choices."
+          }
+        }
       ]
     },
     {
@@ -210,9 +432,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "kenji", "emotion": "afraid", "text": { "ko": "잡히면 MCC가 뭘 할지 알아요.", "en": "Do you know what MCC will do if we're caught." } },
-        { "speaker": "kenji", "emotion": "quiet", "text": { "ko": "기록 삭제가 먼저예요. 그다음 이전 배치. 아무도 모르는 곳으로.", "en": "Record deletion comes first. Then reassignment. To somewhere nobody knows." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "2분 남았어.", "en": "Two minutes left." } }
+        {
+          "speaker": "kenji",
+          "emotion": "afraid",
+          "text": {
+            "ko": "잡히면 MCC가 뭘 할지 알아요.",
+            "en": "Do you know what MCC will do if we're caught."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "quiet",
+          "text": {
+            "ko": "기록 삭제가 먼저예요. 그다음 이전 배치. 아무도 모르는 곳으로.",
+            "en": "Record deletion comes first. Then reassignment. To somewhere nobody knows."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "2분 남았어.",
+            "en": "Two minutes left."
+          }
+        }
       ]
     },
     {
@@ -220,12 +463,59 @@
       "type": "choice",
       "background": "hellas_central_exterior_night",
       "bgm": "choice_tension",
-      "prompt": { "ko": "Kenji. 데이터. FSP 내부자. 통로 끝의 소리. 3분.", "en": "Kenji. The data. The FSP mole. Sound from the end of the passage. Three minutes." },
+      "prompt": {
+        "ko": "Kenji. 데이터. FSP 내부자. 통로 끝의 소리. 3분.",
+        "en": "Kenji. The data. The FSP mole. Sound from the end of the passage. Three minutes."
+      },
       "choices": [
-        { "id": "fsp_ch6_extract", "text": { "ko": "Kenji를 데이고 나간다. 데이터와 함께.", "en": "Extract Kenji. With the data." }, "tone": "decisive", "preview_hint": { "ko": "→ Kenji 보호, MCC 추적 시작", "en": "→ Kenji protected, MCC pursuit begins" } },
-        { "id": "fsp_ch6_data_only", "text": { "ko": "데이터만 가져간다. Kenji는 자리를 지킨다.", "en": "Take the data only. Kenji stays in place." }, "tone": "strategic", "preview_hint": { "ko": "→ Kenji 위험, 지속 정보 가능", "en": "→ Kenji in danger, ongoing intelligence possible" } },
-        { "id": "fsp_ch6_find_mole", "text": { "ko": "FSP 내부자를 먼저 찾는다.", "en": "Find the FSP mole first." }, "tone": "investigative", "preview_hint": { "ko": "→ 복잡한 조사 시작, 신뢰 위기", "en": "→ Complex investigation begins, trust crisis" } },
-        { "id": "fsp_ch6_mikhail", "text": { "ko": "Mikhail에게 즉시 보고한다.", "en": "Report to Mikhail immediately." }, "tone": "transparent", "preview_hint": { "ko": "→ Mikhail이 조용히 반응한다. 이미 알고 있었다", "en": "→ Mikhail responds quietly. He already knew." } }
+        {
+          "id": "fsp_ch6_extract",
+          "text": {
+            "ko": "Kenji를 데이고 나간다. 데이터와 함께.",
+            "en": "Extract Kenji. With the data."
+          },
+          "tone": "decisive",
+          "preview_hint": {
+            "ko": "→ Kenji 보호, MCC 추적 시작",
+            "en": "→ Kenji protected, MCC pursuit begins"
+          }
+        },
+        {
+          "id": "fsp_ch6_data_only",
+          "text": {
+            "ko": "데이터만 가져간다. Kenji는 자리를 지킨다.",
+            "en": "Take the data only. Kenji stays in place."
+          },
+          "tone": "strategic",
+          "preview_hint": {
+            "ko": "→ Kenji 위험, 지속 정보 가능",
+            "en": "→ Kenji in danger, ongoing intelligence possible"
+          }
+        },
+        {
+          "id": "fsp_ch6_find_mole",
+          "text": {
+            "ko": "FSP 내부자를 먼저 찾는다.",
+            "en": "Find the FSP mole first."
+          },
+          "tone": "investigative",
+          "preview_hint": {
+            "ko": "→ 복잡한 조사 시작, 신뢰 위기",
+            "en": "→ Complex investigation begins, trust crisis"
+          }
+        },
+        {
+          "id": "fsp_ch6_mikhail",
+          "text": {
+            "ko": "Mikhail에게 즉시 보고한다.",
+            "en": "Report to Mikhail immediately."
+          },
+          "tone": "transparent",
+          "preview_hint": {
+            "ko": "→ Mikhail이 조용히 반응한다. 이미 알고 있었다",
+            "en": "→ Mikhail responds quietly. He already knew."
+          }
+        }
       ]
     },
     {
@@ -235,7 +525,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "행동이 있었다. 3분 안에. 그것이 화성에서의 선택이었다. 시간이 있을 때 하는 선택과 시간이 없을 때 하는 선택. 둘 다 선택이었다. 그러나 다른 것이었다.", "en": "Action within three minutes. That was choice on Mars. Choices made with time and choices made without. Both were choices. But different ones." } }
+        {
+          "text": {
+            "ko": "행동이 있었다. 3분 안에. 그것이 화성에서의 선택이었다. 시간이 있을 때 하는 선택과 시간이 없을 때 하는 선택. 둘 다 선택이었다. 그러나 다른 것이었다.",
+            "en": "Action within three minutes. That was choice on Mars. Choices made with time and choices made without. Both were choices. But different ones."
+          }
+        }
       ]
     },
     {
@@ -244,8 +539,14 @@
       "background": "hellas_central_exterior_night",
       "bgm": "battle_theme_fsp",
       "transition": "cut",
-      "title": { "ko": "지하 탈출", "en": "Underground Escape" },
-      "subtitle": { "ko": "헬라스 센트럴 지하 — 첩보 전쟁", "en": "Hellas Central Underground — Intelligence War" }
+      "title": {
+        "ko": "지하 탈출",
+        "en": "Underground Escape"
+      },
+      "subtitle": {
+        "ko": "헬라스 센트럴 지하 — 첩보 전쟁",
+        "en": "Hellas Central Underground — Intelligence War"
+      }
     },
     {
       "id": "s_result",
@@ -259,9 +560,31 @@
       "background": "fsp_base",
       "bgm": "victory_calm",
       "lines": [
-        { "speaker": "kenji", "emotion": "relieved", "effect": "character_enter:kenji:slide_right", "text": { "ko": "나왔어요. 살았어요.", "en": "We're out. Alive." } },
-        { "speaker": "kenji", "emotion": "quiet", "text": { "ko": "5년이에요. 5년 동안 이것을 기다렸어요.", "en": "Five years. I waited five years for this." } },
-        { "speaker": "lena", "emotion": "grim", "text": { "ko": "보스. FSP 내부자 이야기. 계속 파야 해요.", "en": "Boss. The FSP mole story. We have to keep digging." } }
+        {
+          "speaker": "kenji",
+          "emotion": "relieved",
+          "effect": "character_enter:kenji:slide_right",
+          "text": {
+            "ko": "나왔어요. 살았어요.",
+            "en": "We're out. Alive."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "quiet",
+          "text": {
+            "ko": "5년이에요. 5년 동안 이것을 기다렸어요.",
+            "en": "Five years. I waited five years for this."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "grim",
+          "text": {
+            "ko": "보스. FSP 내부자 이야기. 계속 파야 해요.",
+            "en": "Boss. The FSP mole story. We have to keep digging."
+          }
+        }
       ]
     },
     {
@@ -270,7 +593,12 @@
       "background": "hellas_central_exterior_night",
       "bgm": "defeat_ambient",
       "lines": [
-        { "text": { "ko": "통로에 경비가 있었다. Kenji가 없었다. 데이터도 없었다. MCC는 이미 알고 있었다. 두더지는 양쪽에 있었다. 항상 그런 것이었다.", "en": "Guards in the passage. Kenji was gone. Data was gone. MCC had already known. Moles were on both sides. It was always that way." } }
+        {
+          "text": {
+            "ko": "통로에 경비가 있었다. Kenji가 없었다. 데이터도 없었다. MCC는 이미 알고 있었다. 두더지는 양쪽에 있었다. 항상 그런 것이었다.",
+            "en": "Guards in the passage. Kenji was gone. Data was gone. MCC had already known. Moles were on both sides. It was always that way."
+          }
+        }
       ]
     },
     {
@@ -280,7 +608,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "데이터가 있었다. 아니면 없었다. Kenji가 있었다. 아니면 없었다. 두 가지 결과 중 하나. 그러나 둘 다에서 FSP 내부자 문제는 남아 있었다. 그것은 데이터와 상관없었다. 말해진 것이었다. 이미.", "en": "The data was there. Or wasn't. Kenji was there. Or wasn't. One of two outcomes. But in both of them the FSP mole problem remained. That had nothing to do with data. It had been said. Already." } }
+        {
+          "text": {
+            "ko": "데이터가 있었다. 아니면 없었다. Kenji가 있었다. 아니면 없었다. 두 가지 결과 중 하나. 그러나 둘 다에서 FSP 내부자 문제는 남아 있었다. 그것은 데이터와 상관없었다. 말해진 것이었다. 이미.",
+            "en": "The data was there. Or wasn't. Kenji was there. Or wasn't. One of two outcomes. But in both of them the FSP mole problem remained. That had nothing to do with data. It had been said. Already."
+          }
+        }
       ]
     },
     {
@@ -290,7 +623,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "FSP 안에 MCC 사람이 있었다. 고위직. 통신 패턴. 5년치 데이터에 있는 것. 그것이 지금 알려진 것이었다. 모르는 것이 두 가지였다. 누구인가. 그리고 얼마나 오래됐는가.", "en": "There was an MCC person inside FSP. Someone senior. Communication patterns. In five years of data. That was what was now known. Two things were unknown. Who. And how long." } }
+        {
+          "text": {
+            "ko": "FSP 안에 MCC 사람이 있었다. 고위직. 통신 패턴. 5년치 데이터에 있는 것. 그것이 지금 알려진 것이었다. 모르는 것이 두 가지였다. 누구인가. 그리고 얼마나 오래됐는가.",
+            "en": "There was an MCC person inside FSP. Someone senior. Communication patterns. In five years of data. That was what was now known. Two things were unknown. Who. And how long."
+          }
+        }
       ]
     },
     {
@@ -300,7 +638,13 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 팔을 봤다. 이름들. 그 중 누군가가 FSP 내부자 때문에 죽었을 가능성이 있었다. Park Sung-jin. 7번 광산. 세 번의 수리 거부. 그것이 우연이었는지. 아니었는지. 아직 알 수 없었다.", "en": "Lena looked at her arm. The names. One of them might have died because of the FSP mole. Park Sung-jin. Mine 7. Three repair refusals. Whether that was coincidence. Or not. Couldn't yet be known." }, "overlay": "death_still" }
+        {
+          "text": {
+            "ko": "Lena가 팔을 봤다. 이름들. 그 중 누군가가 FSP 내부자 때문에 죽었을 가능성이 있었다. Park Sung-jin. 7번 광산. 세 번의 수리 거부. 그것이 우연이었는지. 아니었는지. 아직 알 수 없었다.",
+            "en": "Lena looked at her arm. The names. One of them might have died because of the FSP mole. Park Sung-jin. Mine 7. Three repair refusals. Whether that was coincidence. Or not. Couldn't yet be known."
+          },
+          "background": "fsp_ch6_the_mole_l27_00_death_still"
+        }
       ]
     },
     {
@@ -310,8 +654,22 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "보스. 내가 이야기할게요. 팔 위의 이름들. 몇은 사고사예요. 몇은 그냥 떠났어요. 몇은 — 모르겠어요.", "en": "Boss. I'll tell you. The names on the arm. Some are accident deaths. Some just left. Some — I don't know." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "모르는 것들이 이제 달라 보여요. FSP 내부자 얘기 들은 다음에는.", "en": "The ones I don't know look different now. After hearing about the FSP mole." } }
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "보스. 내가 이야기할게요. 팔 위의 이름들. 몇은 사고사예요. 몇은 그냥 떠났어요. 몇은 — 모르겠어요.",
+            "en": "Boss. I'll tell you. The names on the arm. Some are accident deaths. Some just left. Some — I don't know."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "모르는 것들이 이제 달라 보여요. FSP 내부자 얘기 들은 다음에는.",
+            "en": "The ones I don't know look different now. After hearing about the FSP mole."
+          }
+        }
       ]
     },
     {
@@ -321,7 +679,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "의심이 있었다. 그것은 집에서 하는 것보다 밖에서 하는 것이 더 나쁜 것이었다. FSP 안에서의 의심. 서로를 의심하는 것. 그것이 MCC가 원하는 것이었다. 그것을 알고 있었다. 그러나 알아도 의심은 생겼다.", "en": "There was suspicion. That was worse to have inside than outside. Suspicion inside FSP. Suspecting each other. That was what MCC wanted. That was known. But even knowing, suspicion arose." } }
+        {
+          "text": {
+            "ko": "의심이 있었다. 그것은 집에서 하는 것보다 밖에서 하는 것이 더 나쁜 것이었다. FSP 안에서의 의심. 서로를 의심하는 것. 그것이 MCC가 원하는 것이었다. 그것을 알고 있었다. 그러나 알아도 의심은 생겼다.",
+            "en": "There was suspicion. That was worse to have inside than outside. Suspicion inside FSP. Suspecting each other. That was what MCC wanted. That was known. But even knowing, suspicion arose."
+          }
+        }
       ]
     },
     {
@@ -331,9 +694,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "데이터를 분석했어요. 통신 패턴.", "en": "Analyzed the data. Communication patterns." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "FSP 내부에서 MCC에 정보를 보낸 사람. 패턴이 있어요. 의원회 회의 전후에 통신이 집중돼요.", "en": "The person inside FSP sending information to MCC. There's a pattern. Communications concentrate before and after assembly meetings." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "의원이에요. 의원회 사람이에요.", "en": "It's an assembly member. Someone from the assembly." } }
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "데이터를 분석했어요. 통신 패턴.",
+            "en": "Analyzed the data. Communication patterns."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "FSP 내부에서 MCC에 정보를 보낸 사람. 패턴이 있어요. 의원회 회의 전후에 통신이 집중돼요.",
+            "en": "The person inside FSP sending information to MCC. There's a pattern. Communications concentrate before and after assembly meetings."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "의원이에요. 의원회 사람이에요.",
+            "en": "It's an assembly member. Someone from the assembly."
+          }
+        }
       ]
     },
     {
@@ -343,7 +727,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "의원이었다. 그것이 좁혀진 것이었다. 그러나 의원이 다섯이었다. 후보가 다섯이었다. 그 중 하나. 알 수 없었다. 패턴은 사람을 특정하지 못했다. 방향만 가리켰다.", "en": "An assembly member. That narrowed it. But there were five assembly members. Five candidates. One of them. Unknowable. Patterns couldn't identify a person. They only pointed a direction." } }
+        {
+          "text": {
+            "ko": "의원이었다. 그것이 좁혀진 것이었다. 그러나 의원이 다섯이었다. 후보가 다섯이었다. 그 중 하나. 알 수 없었다. 패턴은 사람을 특정하지 못했다. 방향만 가리켰다.",
+            "en": "An assembly member. That narrowed it. But there were five assembly members. Five candidates. One of them. Unknowable. Patterns couldn't identify a person. They only pointed a direction."
+          }
+        }
       ]
     },
     {
@@ -353,9 +742,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "kenji", "emotion": "quiet", "text": { "ko": "5년 동안 이것을 모은 거예요. 혼자.", "en": "Five years I collected this. Alone." } },
-        { "speaker": "kenji", "emotion": "nervous", "text": { "ko": "MCC 안에서 혼자 있는 거예요. 아버지 생각이 났어요. 연금이 없어진 날.", "en": "Being alone inside MCC. I thought of my father. The day the pension disappeared." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "이제 혼자가 아니에요.", "en": "You're not alone now." } }
+        {
+          "speaker": "kenji",
+          "emotion": "quiet",
+          "text": {
+            "ko": "5년 동안 이것을 모은 거예요. 혼자.",
+            "en": "Five years I collected this. Alone."
+          }
+        },
+        {
+          "speaker": "kenji",
+          "emotion": "nervous",
+          "text": {
+            "ko": "MCC 안에서 혼자 있는 거예요. 아버지 생각이 났어요. 연금이 없어진 날.",
+            "en": "Being alone inside MCC. I thought of my father. The day the pension disappeared."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이제 혼자가 아니에요.",
+            "en": "You're not alone now."
+          }
+        }
       ]
     },
     {
@@ -365,7 +775,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mikhail에게 가야 했다. 보고해야 했다. FSP 내부자. 통신 패턴. 의원회. 그것이 지금 알려진 것이었다. Mikhail이 반응할 것이었다. 조용하게. 그것이 이 사람의 방식이었다.", "en": "Need to go to Mikhail. Need to report. The FSP mole. Communication patterns. The assembly. That was what was now known. Mikhail would react. Quietly. That was this person's way." } }
+        {
+          "text": {
+            "ko": "Mikhail에게 가야 했다. 보고해야 했다. FSP 내부자. 통신 패턴. 의원회. 그것이 지금 알려진 것이었다. Mikhail이 반응할 것이었다. 조용하게. 그것이 이 사람의 방식이었다.",
+            "en": "Need to go to Mikhail. Need to report. The FSP mole. Communication patterns. The assembly. That was what was now known. Mikhail would react. Quietly. That was this person's way."
+          }
+        }
       ]
     },
     {
@@ -375,9 +790,20 @@
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "Mikhail이 보고를 들었다. 차를 끓였다. 오른손이 왼손을 받쳤다. 마셨다. FSP 내부에 MCC 사람이 있었다. 그것은 새로운 사실이 아닐 수 있었다. 화성에서 내부가 없는 조직은 없었다. 그것을 아는 것과 모르는 것은 달랐다. 알면 선택할 수 있었다.\n\n차가 따뜻했다. 그것이 오늘 밤 확인할 수 있는 것이었다. 차가 따뜻한 것. 그 이상은 내일이었다.", "en": "Mikhail heard the report. Made tea. The right hand supported the left. He drank it. There was an MCC person inside FSP. That might not be a new fact. On Mars no organization had no moles. Knowing it and not knowing it were different. Knowing meant you could choose.\n\nThe tea was warm. That was what could be confirmed tonight. The tea being warm. Beyond that was tomorrow." } }
+        {
+          "text": {
+            "ko": "Mikhail이 보고를 들었다. 차를 끓였다. 오른손이 왼손을 받쳤다. 마셨다. FSP 내부에 MCC 사람이 있었다. 그것은 새로운 사실이 아닐 수 있었다. 화성에서 내부가 없는 조직은 없었다. 그것을 아는 것과 모르는 것은 달랐다. 알면 선택할 수 있었다.\n\n차가 따뜻했다. 그것이 오늘 밤 확인할 수 있는 것이었다. 차가 따뜻한 것. 그 이상은 내일이었다.",
+            "en": "Mikhail heard the report. Made tea. The right hand supported the left. He drank it. There was an MCC person inside FSP. That might not be a new fact. On Mars no organization had no moles. Knowing it and not knowing it were different. Knowing meant you could choose.\n\nThe tea was warm. That was what could be confirmed tonight. The tea being warm. Beyond that was tomorrow."
+          }
+        }
       ],
-      "next_chapter_preview": { "questId": "fsp_campaign_ch7", "teaser": { "ko": "다음 — 의원회", "en": "Next — The Assembly" } }
+      "next_chapter_preview": {
+        "questId": "fsp_campaign_ch7",
+        "teaser": {
+          "ko": "다음 — 의원회",
+          "en": "Next — The Assembly"
+        }
+      }
     }
   ]
 }

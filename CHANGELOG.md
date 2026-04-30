@@ -1,5 +1,20 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-30 — Campaign 오버레이 시스템 폐기 + 씬 전용 9:16 배경 인프라 (1/2)
+
+본 커밋은 오버레이 → 씬 전용 배경 전환의 **인프라 변경분**만 반영. Imagen 3 9:16 신규 배경 약 120개는 후속 커밋에서 추가.
+
+- **오버레이 시스템 전면 제거**: `index.html` 의 `.story-detail-overlay` CSS, `<img class="story-detail-overlay">` 엘리먼트, `_showStoryDetailOverlay()` 함수 폐기. `assets/campaign/overlays/*.png` 35개 파일 일괄 삭제. 사용자 피드백("오버레이는 오히려 보는데 더 방해되니까 차라리 씬 전용 배경으로 바꾸는게 낫겠더라") 반영.
+- **라인 단위 풀스크린 배경 swap**: `_campaignStorySetBackground(scene, overlay, lineBg)` 신규 인자. 라인의 `background` 필드가 있으면 씬 배경 대신 라인 전용 배경으로 풀스크린 전환. 모바일 9:16 portrait 우선.
+- **scene JSON 일괄 변환**: `scripts/update_scene_overlays_to_backgrounds.py` 가 `docs/campaign-story/*.json` 의 모든 `"overlay": "X"` 라인 필드를 `"background": "<chapter>_l<scene>_<line>_X"` 로 변환. 35개 챕터 / 107개 라인 처리.
+- **신규 hand-crafted 프롬프트**: `scripts/gen_scene_dedicated_v2.py` 에 107개 씬 라인 + 13개 저퀄 scene-level 배경 (총 120개) hand-written 영문 프롬프트 정의. 각 라인의 KO 대사를 직접 읽고 캐릭터(Butcher 의수, Lena 문신, Chen 25도 차) / 사물 / 행동 / 분위기를 명시. 모두 9:16 portrait. 현재 백그라운드 생성 중, 완료 후 후속 커밋 (2/2).
+- **hidden_ch5_last_observation.json**: line 370 JSON parse error 수정 — 오타로 들어간 닫는 중괄호 제거. 이제 `update_scene_overlays_to_backgrounds.py` 와 Codex prologue scan 모두 이 챕터 포함 가능.
+
+검증:
+- `index.html` 정적 파싱 통과, `story-detail-overlay` 잔존 0건
+- `python3 -c "import json; [json.load(open(f)) for f in glob.glob('docs/campaign-story/*.json')]"` 36개 모두 파싱 성공
+- 변환된 라인 background ID 가 `gen_scene_dedicated_v2.py PROMPTS` 키와 1:1 일치
+
 ## 2026-04-30 — Campaign scene choice INVALID_CHOICE hotfix
 
 - **Resolved**: visual novel `type:"choice"` scene options that are not present in server `chapter.choices` now advance locally instead of posting to `/api/campaign/choice`, fixing the prologue `INVALID_CHOICE` modal after CONTINUE.

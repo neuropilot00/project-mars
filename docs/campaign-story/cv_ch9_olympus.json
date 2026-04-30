@@ -13,7 +13,12 @@
   "environment": "olympus_exterior_thin_air",
   "pov": "cinder",
   "crossChapterNote": "MCC Ch9 (Chen Weiss POV) 및 FSP Ch9 (Rev. Hale POV)와 동일 사건.",
-  "characters": ["cinder", "player", "chen", "rev_hale"],
+  "characters": [
+    "cinder",
+    "player",
+    "chen",
+    "rev_hale"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -195,7 +200,7 @@
             "ko": "Cinder가 사진을 꺼냈다. 흑백. 30년 된 것. 뒤집었다. 이름들이 있었다. 이름들을 테이블에 올려놓았다. 문서 옆에. 합의 초안 옆에. MCC가 준비한 것들 옆에. 그것들과 사진이 같은 테이블에 있었다.",
             "en": "Cinder took out the photo. Black and white. Thirty years old. Flipped it. Names were there. She placed the names on the table. Next to documents. Next to the draft agreement. Next to what MCC had prepared. Those things and the photo were on the same table."
           },
-          "overlay": "zone12_record"
+          "background": "cv_ch9_olympus_l08_00_zone12_record"
         }
       ]
     },
@@ -751,10 +756,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 나갔다. 공구를 들고. 동쪽 통신 차단을 위해.", "en": "Cinder went out. With tools. To cut east communications." }},
-        { "text": { "ko": "방에 Chen과 플레이어만 남았다.", "en": "Only Chen and the player remained in the room." }},
-        { "text": { "ko": "바깥에서 소리가 났다. 발소리.", "en": "Sound from outside. Footsteps." }},
-        { "text": { "ko": "빠른 것이었다. Pilgrim Arms였다.", "en": "Fast ones. Pilgrim Arms." }}
+        {
+          "text": {
+            "ko": "Cinder가 나갔다. 공구를 들고. 동쪽 통신 차단을 위해.",
+            "en": "Cinder went out. With tools. To cut east communications."
+          }
+        },
+        {
+          "text": {
+            "ko": "방에 Chen과 플레이어만 남았다.",
+            "en": "Only Chen and the player remained in the room."
+          }
+        },
+        {
+          "text": {
+            "ko": "바깥에서 소리가 났다. 발소리.",
+            "en": "Sound from outside. Footsteps."
+          }
+        },
+        {
+          "text": {
+            "ko": "빠른 것이었다. Pilgrim Arms였다.",
+            "en": "Fast ones. Pilgrim Arms."
+          }
+        }
       ]
     },
     {
@@ -764,11 +789,46 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "차를 마실게요. 이 방에서는 처음이에요.", "en": "I'll drink the tea. First time in this room." }},
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "마스크 안에서 마시는 건 방법이 있어요. 관료들이 아는 방법.", "en": "There's a way to drink inside a mask. A method bureaucrats know." }},
-        { "speaker": "player", "emotion": "alert", "text": { "ko": "지금 그게 중요해요?", "en": "Is that important right now." }},
-        { "speaker": "chen", "emotion": "measured", "text": { "ko": "밖에 Cinder가 있어요. 안에 당신이 있어요. 그리고 나는 차를 마셔요.", "en": "Cinder is outside. You are inside. And I drink tea." }},
-        { "speaker": "chen", "emotion": "still", "text": { "ko": "각자 자기 일을 하는 거예요.", "en": "Each of us doing our own work." }}
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "차를 마실게요. 이 방에서는 처음이에요.",
+            "en": "I'll drink the tea. First time in this room."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "마스크 안에서 마시는 건 방법이 있어요. 관료들이 아는 방법.",
+            "en": "There's a way to drink inside a mask. A method bureaucrats know."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "alert",
+          "text": {
+            "ko": "지금 그게 중요해요?",
+            "en": "Is that important right now."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "밖에 Cinder가 있어요. 안에 당신이 있어요. 그리고 나는 차를 마셔요.",
+            "en": "Cinder is outside. You are inside. And I drink tea."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "still",
+          "text": {
+            "ko": "각자 자기 일을 하는 거예요.",
+            "en": "Each of us doing our own work."
+          }
+        }
       ]
     },
     {
@@ -778,11 +838,36 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "밖에서 공구 소리가 들렸다.", "en": "Tool sounds from outside." }},
-        { "text": { "ko": "올림포스에서. 태양계에서 가장 높은 곳에서.", "en": "On Olympus. At the highest point in the solar system." }},
-        { "text": { "ko": "공구 소리가 났다.", "en": "Tool sounds." }},
-        { "text": { "ko": "그다음에 빠른 소리. 두 번.", "en": "Then fast sounds. Twice." }},
-        { "text": { "ko": "그다음에 조용해졌다.", "en": "Then quiet." }}
+        {
+          "text": {
+            "ko": "밖에서 공구 소리가 들렸다.",
+            "en": "Tool sounds from outside."
+          }
+        },
+        {
+          "text": {
+            "ko": "올림포스에서. 태양계에서 가장 높은 곳에서.",
+            "en": "On Olympus. At the highest point in the solar system."
+          }
+        },
+        {
+          "text": {
+            "ko": "공구 소리가 났다.",
+            "en": "Tool sounds."
+          }
+        },
+        {
+          "text": {
+            "ko": "그다음에 빠른 소리. 두 번.",
+            "en": "Then fast sounds. Twice."
+          }
+        },
+        {
+          "text": {
+            "ko": "그다음에 조용해졌다.",
+            "en": "Then quiet."
+          }
+        }
       ]
     },
     {
@@ -792,12 +877,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "returning", "text": { "ko": "동쪽 둘 막았어요. 서쪽 둘은 Rev. Hale 팀이 막았어요.", "en": "East two stopped. West two blocked by Rev. Hale's team." }},
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "Ramos라고 했어요. 잡은 사람.", "en": "He said Ramos. The captured one." }},
-        { "speaker": "cinder", "emotion": "sharp", "text": { "ko": "의뢰인 알아요?", "en": "Do you know the client." }},
-        { "speaker": "chen", "emotion": "measured", "text": { "ko": "Talon Group이에요. 화성 분쟁 자문사. 지구 자본.", "en": "Talon Group. Mars conflict consultants. Earth capital." }},
-        { "speaker": "cinder", "emotion": "grim", "text": { "ko": "평화를 팔면서 평화를 막는 자들.", "en": "Those who sell peace while blocking it." }},
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "그것이 가장 수익성 있는 사업이에요.", "en": "That is the most profitable business." }}
+        {
+          "speaker": "cinder",
+          "emotion": "returning",
+          "text": {
+            "ko": "동쪽 둘 막았어요. 서쪽 둘은 Rev. Hale 팀이 막았어요.",
+            "en": "East two stopped. West two blocked by Rev. Hale's team."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "Ramos라고 했어요. 잡은 사람.",
+            "en": "He said Ramos. The captured one."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "sharp",
+          "text": {
+            "ko": "의뢰인 알아요?",
+            "en": "Do you know the client."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "measured",
+          "text": {
+            "ko": "Talon Group이에요. 화성 분쟁 자문사. 지구 자본.",
+            "en": "Talon Group. Mars conflict consultants. Earth capital."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "grim",
+          "text": {
+            "ko": "평화를 팔면서 평화를 막는 자들.",
+            "en": "Those who sell peace while blocking it."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그것이 가장 수익성 있는 사업이에요.",
+            "en": "That is the most profitable business."
+          }
+        }
       ]
     },
     {
@@ -807,12 +934,42 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "방에 다시 사람들이 모였다.", "en": "People gathered in the room again." }},
-        { "text": { "ko": "Rev. Hale. Chen Weiss. Cinder Grace. 플레이어.", "en": "Rev. Hale. Chen Weiss. Cinder Grace. The player." }},
-        { "text": { "ko": "사진이 테이블 위에 있었다. Zone 12 이름들이 있는 것.", "en": "The photo was on the table. The one with Zone 12 names." }},
-        { "text": { "ko": "합의 초안 종이가 있었다.", "en": "The draft agreement paper was there." }},
-        { "text": { "ko": "Cinder의 공구가 테이블 가장자리에 있었다.", "en": "Cinder's tools were at the table's edge." }},
-        { "text": { "ko": "이 테이블이 올림포스의 테이블이었다.", "en": "This table was the Olympus table." }}
+        {
+          "text": {
+            "ko": "방에 다시 사람들이 모였다.",
+            "en": "People gathered in the room again."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale. Chen Weiss. Cinder Grace. 플레이어.",
+            "en": "Rev. Hale. Chen Weiss. Cinder Grace. The player."
+          }
+        },
+        {
+          "text": {
+            "ko": "사진이 테이블 위에 있었다. Zone 12 이름들이 있는 것.",
+            "en": "The photo was on the table. The one with Zone 12 names."
+          }
+        },
+        {
+          "text": {
+            "ko": "합의 초안 종이가 있었다.",
+            "en": "The draft agreement paper was there."
+          }
+        },
+        {
+          "text": {
+            "ko": "Cinder의 공구가 테이블 가장자리에 있었다.",
+            "en": "Cinder's tools were at the table's edge."
+          }
+        },
+        {
+          "text": {
+            "ko": "이 테이블이 올림포스의 테이블이었다.",
+            "en": "This table was the Olympus table."
+          }
+        }
       ]
     },
     {
@@ -822,12 +979,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "Zone 12. 이름들을 여기서 불러도 될까요.", "en": "Zone 12. May I call the names here." }},
-        { "speaker": "cinder", "emotion": "still", "text": { "ko": "...", "en": "..." }},
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "불러요.", "en": "Call them." }},
-        { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "Zone 12. 열한 명.", "en": "Zone 12. Eleven people." }},
-        { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "이름들이 기록됩니다. 오늘부터.", "en": "The names are being recorded. Starting today." }},
-        { "speaker": "cinder", "emotion": "moved", "text": { "ko": "...", "en": "..." }}
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Zone 12. 이름들을 여기서 불러도 될까요.",
+            "en": "Zone 12. May I call the names here."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "still",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "불러요.",
+            "en": "Call them."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "solemn",
+          "text": {
+            "ko": "Zone 12. 열한 명.",
+            "en": "Zone 12. Eleven people."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "solemn",
+          "text": {
+            "ko": "이름들이 기록됩니다. 오늘부터.",
+            "en": "The names are being recorded. Starting today."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "moved",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        }
       ]
     },
     {
@@ -837,11 +1036,36 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 공구를 만졌다.", "en": "Cinder touched her tools." }},
-        { "text": { "ko": "소리가 났다. 올림포스에서.", "en": "Sound came. On Olympus." }},
-        { "text": { "ko": "Rev. Hale이 그 소리를 들었다.", "en": "Rev. Hale heard that sound." }},
-        { "text": { "ko": "Chen이 차를 마셨다. 이 방에서 처음으로.", "en": "Chen drank the tea. First time in this room." }},
-        { "text": { "ko": "그것이 무언가를 뜻했다.", "en": "That meant something." }}
+        {
+          "text": {
+            "ko": "Cinder가 공구를 만졌다.",
+            "en": "Cinder touched her tools."
+          }
+        },
+        {
+          "text": {
+            "ko": "소리가 났다. 올림포스에서.",
+            "en": "Sound came. On Olympus."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 그 소리를 들었다.",
+            "en": "Rev. Hale heard that sound."
+          }
+        },
+        {
+          "text": {
+            "ko": "Chen이 차를 마셨다. 이 방에서 처음으로.",
+            "en": "Chen drank the tea. First time in this room."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것이 무언가를 뜻했다.",
+            "en": "That meant something."
+          }
+        }
       ]
     },
     {
@@ -851,12 +1075,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "합의문에 Zone 12를 포함해요. 명시적으로.", "en": "Include Zone 12 in the agreement. Explicitly." }},
-        { "speaker": "rev_hale", "emotion": "steady", "text": { "ko": "이름들도요. 열한 명의 이름들.", "en": "And the names. The eleven names." }},
-        { "speaker": "cinder", "emotion": "direct", "text": { "ko": "Butcher가 원한 게 그거예요. 이름들이 문서에 있는 것.", "en": "That's what Butcher wanted. The names in the document." }},
-        { "speaker": "chen", "emotion": "nodding", "text": { "ko": "그리고 Talon Group 조사.", "en": "And investigation of Talon Group." }},
-        { "speaker": "cinder", "emotion": "sharp", "text": { "ko": "그 조사를 MCC가 하면 안 돼요.", "en": "MCC can't conduct that investigation." }},
-        { "speaker": "chen", "emotion": "wry", "text": { "ko": "동의해요. 독립 기관이 해야 해요.", "en": "Agreed. An independent body must do it." }}
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "합의문에 Zone 12를 포함해요. 명시적으로.",
+            "en": "Include Zone 12 in the agreement. Explicitly."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "steady",
+          "text": {
+            "ko": "이름들도요. 열한 명의 이름들.",
+            "en": "And the names. The eleven names."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "direct",
+          "text": {
+            "ko": "Butcher가 원한 게 그거예요. 이름들이 문서에 있는 것.",
+            "en": "That's what Butcher wanted. The names in the document."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "nodding",
+          "text": {
+            "ko": "그리고 Talon Group 조사.",
+            "en": "And investigation of Talon Group."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "sharp",
+          "text": {
+            "ko": "그 조사를 MCC가 하면 안 돼요.",
+            "en": "MCC can't conduct that investigation."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "wry",
+          "text": {
+            "ko": "동의해요. 독립 기관이 해야 해요.",
+            "en": "Agreed. An independent body must do it."
+          }
+        }
       ]
     },
     {
@@ -866,12 +1132,42 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "합의문이 작성됐다.", "en": "The agreement was written." }},
-        { "text": { "ko": "세 파벌의 조항들이 들어갔다.", "en": "Clauses from three factions were included." }},
-        { "text": { "ko": "Zone 12 이름들이 들어갔다. 처음으로. 공식 문서에.", "en": "Zone 12 names were included. For the first time. In an official document." }},
-        { "text": { "ko": "Talon Group 조사 조항이 들어갔다.", "en": "A Talon Group investigation clause was included." }},
-        { "text": { "ko": "서명란이 네 개였다.", "en": "There were four signature lines." }},
-        { "text": { "ko": "세 파벌 대표. 그리고 하나 더.", "en": "Three faction representatives. And one more." }}
+        {
+          "text": {
+            "ko": "합의문이 작성됐다.",
+            "en": "The agreement was written."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 파벌의 조항들이 들어갔다.",
+            "en": "Clauses from three factions were included."
+          }
+        },
+        {
+          "text": {
+            "ko": "Zone 12 이름들이 들어갔다. 처음으로. 공식 문서에.",
+            "en": "Zone 12 names were included. For the first time. In an official document."
+          }
+        },
+        {
+          "text": {
+            "ko": "Talon Group 조사 조항이 들어갔다.",
+            "en": "A Talon Group investigation clause was included."
+          }
+        },
+        {
+          "text": {
+            "ko": "서명란이 네 개였다.",
+            "en": "There were four signature lines."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 파벌 대표. 그리고 하나 더.",
+            "en": "Three faction representatives. And one more."
+          }
+        }
       ]
     },
     {
@@ -881,12 +1177,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "네 번째 서명란은 증인이에요.", "en": "The fourth signature line is for a witness." }},
-        { "speaker": "cinder", "emotion": "curious", "text": { "ko": "누구요.", "en": "Who." }},
-        { "speaker": "rev_hale", "emotion": "gentle", "text": { "ko": "당신이요. CV의 Cinder Grace. 오늘 공구로 이 자리를 지켰어요.", "en": "You. CV's Cinder Grace. Today with tools you protected this place." }},
-        { "speaker": "cinder", "emotion": "surprised", "text": { "ko": "나는 CV 대표예요. 서명은 이미 했어요.", "en": "I'm the CV representative. I already signed." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "CV 대표로가 아니에요. Zone 12 생존자로요.", "en": "Not as CV representative. As a Zone 12 survivor." }},
-        { "speaker": "cinder", "emotion": "still", "text": { "ko": "...", "en": "..." }}
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "네 번째 서명란은 증인이에요.",
+            "en": "The fourth signature line is for a witness."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "curious",
+          "text": {
+            "ko": "누구요.",
+            "en": "Who."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "gentle",
+          "text": {
+            "ko": "당신이요. CV의 Cinder Grace. 오늘 공구로 이 자리를 지켰어요.",
+            "en": "You. CV's Cinder Grace. Today with tools you protected this place."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "surprised",
+          "text": {
+            "ko": "나는 CV 대표예요. 서명은 이미 했어요.",
+            "en": "I'm the CV representative. I already signed."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "CV 대표로가 아니에요. Zone 12 생존자로요.",
+            "en": "Not as CV representative. As a Zone 12 survivor."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "still",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        }
       ]
     },
     {
@@ -896,11 +1234,37 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 펜을 들었다.", "en": "Cinder picked up the pen." }},
-        { "text": { "ko": "공구 벨트의 것이 아니었다. 펜이었다.", "en": "Not something from the tool belt. A pen." }},
-        { "text": { "ko": "서명했다. Zone 12 생존자로.", "en": "She signed. As a Zone 12 survivor." }, "overlay": "contract_sign" },
-        { "text": { "ko": "공구 소리가 났다. 펜을 내려놓으면서.", "en": "Tool sound came. As she put down the pen." }},
-        { "text": { "ko": "그것이 그녀의 방식이었다.", "en": "That was her way." }}
+        {
+          "text": {
+            "ko": "Cinder가 펜을 들었다.",
+            "en": "Cinder picked up the pen."
+          }
+        },
+        {
+          "text": {
+            "ko": "공구 벨트의 것이 아니었다. 펜이었다.",
+            "en": "Not something from the tool belt. A pen."
+          }
+        },
+        {
+          "text": {
+            "ko": "서명했다. Zone 12 생존자로.",
+            "en": "She signed. As a Zone 12 survivor."
+          },
+          "background": "cv_ch9_olympus_l42_02_contract_sign"
+        },
+        {
+          "text": {
+            "ko": "공구 소리가 났다. 펜을 내려놓으면서.",
+            "en": "Tool sound came. As she put down the pen."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것이 그녀의 방식이었다.",
+            "en": "That was her way."
+          }
+        }
       ]
     },
     {
@@ -910,12 +1274,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "Zone 12 기록. 가져가요. 지금.", "en": "The Zone 12 records. Take them. Now." }},
-        { "speaker": "cinder", "emotion": "alert", "text": { "ko": "아카이브가 여기 있어요?", "en": "The archive is here." }},
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "복사본이에요. 이 산에 올라오면서 가져왔어요.", "en": "A copy. I brought it when I came up this mountain." }},
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "22년 동안 기다렸어요. 오늘 줄 수 있는 날을.", "en": "Twenty-two years I waited. For the day I could give this." }},
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "...", "en": "..." }},
-        { "speaker": "cinder", "emotion": "low", "text": { "ko": "Butcher가 볼 거예요.", "en": "Butcher will see it." }}
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Zone 12 기록. 가져가요. 지금.",
+            "en": "The Zone 12 records. Take them. Now."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "alert",
+          "text": {
+            "ko": "아카이브가 여기 있어요?",
+            "en": "The archive is here."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "복사본이에요. 이 산에 올라오면서 가져왔어요.",
+            "en": "A copy. I brought it when I came up this mountain."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "22년 동안 기다렸어요. 오늘 줄 수 있는 날을.",
+            "en": "Twenty-two years I waited. For the day I could give this."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "low",
+          "text": {
+            "ko": "Butcher가 볼 거예요.",
+            "en": "Butcher will see it."
+          }
+        }
       ]
     },
     {
@@ -1010,7 +1416,7 @@
             "ko": "테이블에 이름들이 생겼다. Zone 12. 11명. 처음으로 이 이름들이 문서에 있었다. 세 파벌 모두의 서명과 함께. Cinder가 공구를 만졌다. 소리가 났다. 올림포스에서. 태양계에서 가장 높은 곳에서. 공구 소리가 났다. 그것이 이 합의의 서명이었다.",
             "en": "Names appeared on the table. Zone 12. Eleven people. For the first time these names were in a document. With the signatures of all three factions. Cinder touched her tools. Sound came. On Olympus. At the highest point in the solar system. Tool sounds. That was the signature of this agreement."
           },
-          "overlay": "zone12_record"
+          "background": "cv_ch9_olympus_l47_00_zone12_record"
         }
       ]
     },

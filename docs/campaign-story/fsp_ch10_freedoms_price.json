@@ -2,12 +2,31 @@
   "questId": "fsp_campaign_ch10",
   "campaignId": "fsp_route",
   "chapterNumber": 10,
-  "title": { "ko": "자유의 대가", "en": "The Price of Freedom" },
-  "location": { "id": "hellas_mining_village", "displayNameKo": "헬라스 광부 마을" },
+  "title": {
+    "ko": "자유의 대가",
+    "en": "The Price of Freedom"
+  },
+  "location": {
+    "id": "hellas_mining_village",
+    "displayNameKo": "헬라스 광부 마을"
+  },
   "environment": "mining_village_final",
   "estimatedPlayTimeMinutes": 25,
-  "characters": ["player", "mikhail", "lena", "yuna", "rev_hale", "amara", "thomas_alder"],
-  "endings": ["citizen", "peacemaker", "gaia_captain", "disillusioned"],
+  "characters": [
+    "player",
+    "mikhail",
+    "lena",
+    "yuna",
+    "rev_hale",
+    "amara",
+    "thomas_alder"
+  ],
+  "endings": [
+    "citizen",
+    "peacemaker",
+    "gaia_captain",
+    "disillusioned"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -16,12 +35,42 @@
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "동이 텄다. 광부 마을.", "en": "Dawn broke. The mining village." }},
-        { "text": { "ko": "60명이 남아 있는 곳.", "en": "Where sixty remained." }},
-        { "text": { "ko": "Yuna의 아버지 묘가 있는 곳.", "en": "Where Yuna's father's grave was." }},
-        { "text": { "ko": "분필 이름들이 벽에 있는 곳.", "en": "Where chalk names were on the walls." }},
-        { "text": { "ko": "이 마을은 지도에 없었다. MCC 지도에도. 화성 공식 지도에도.", "en": "This village was on no map. Not MCC's. Not the official Mars map." }},
-        { "text": { "ko": "그러나 여기 있었다.", "en": "But it was here." }}
+        {
+          "text": {
+            "ko": "동이 텄다. 광부 마을.",
+            "en": "Dawn broke. The mining village."
+          }
+        },
+        {
+          "text": {
+            "ko": "60명이 남아 있는 곳.",
+            "en": "Where sixty remained."
+          }
+        },
+        {
+          "text": {
+            "ko": "Yuna의 아버지 묘가 있는 곳.",
+            "en": "Where Yuna's father's grave was."
+          }
+        },
+        {
+          "text": {
+            "ko": "분필 이름들이 벽에 있는 곳.",
+            "en": "Where chalk names were on the walls."
+          }
+        },
+        {
+          "text": {
+            "ko": "이 마을은 지도에 없었다. MCC 지도에도. 화성 공식 지도에도.",
+            "en": "This village was on no map. Not MCC's. Not the official Mars map."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 여기 있었다.",
+            "en": "But it was here."
+          }
+        }
       ]
     },
     {
@@ -31,11 +80,36 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mikhail이 거기 있었다. 차를 끓이고 있었다.", "en": "Mikhail was there. Making tea." }},
-        { "text": { "ko": "오른손이 왼손을 받쳤다. 언제나 그랬다.", "en": "Right hand supporting the left. As always." }},
-        { "text": { "ko": "다리가 더 나빠진 것 같았다. 그러나 차는 끓이고 있었다.", "en": "His leg seemed worse. But he was making tea." }},
-        { "text": { "ko": "이 사람이 차를 끓이는 것을 멈추면 FSP가 무언가를 잃는 것이었다.", "en": "The day this man stopped making tea FSP would lose something." }},
-        { "text": { "ko": "오늘은 차를 끓였다.", "en": "Today he made tea." }}
+        {
+          "text": {
+            "ko": "Mikhail이 거기 있었다. 차를 끓이고 있었다.",
+            "en": "Mikhail was there. Making tea."
+          }
+        },
+        {
+          "text": {
+            "ko": "오른손이 왼손을 받쳤다. 언제나 그랬다.",
+            "en": "Right hand supporting the left. As always."
+          }
+        },
+        {
+          "text": {
+            "ko": "다리가 더 나빠진 것 같았다. 그러나 차는 끓이고 있었다.",
+            "en": "His leg seemed worse. But he was making tea."
+          }
+        },
+        {
+          "text": {
+            "ko": "이 사람이 차를 끓이는 것을 멈추면 FSP가 무언가를 잃는 것이었다.",
+            "en": "The day this man stopped making tea FSP would lose something."
+          }
+        },
+        {
+          "text": {
+            "ko": "오늘은 차를 끓였다.",
+            "en": "Today he made tea."
+          }
+        }
       ]
     },
     {
@@ -45,12 +119,42 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Yuna가 Mikhail 옆에 앉아 있었다.", "en": "Yuna sat beside Mikhail." }},
-        { "text": { "ko": "두 손으로 잔을 들고. 그것을 배운 것이었다.", "en": "Holding her cup with both hands. She had learned that." }},
-        { "text": { "ko": "21살. 화성에서 태어난 첫 번째 세대.", "en": "Twenty-one years old. First generation born on Mars." }},
-        { "text": { "ko": "그녀의 아버지는 그녀가 여덟 살 때 죽었다.", "en": "Her father died when she was eight." }},
-        { "text": { "ko": "광산 사고. 이름은 벽에 있었다.", "en": "A mining accident. His name was on the wall." }},
-        { "text": { "ko": "별표가 달린 이름. 화성 출생 표시.", "en": "A name with a star. The Mars-born marking." }}
+        {
+          "text": {
+            "ko": "Yuna가 Mikhail 옆에 앉아 있었다.",
+            "en": "Yuna sat beside Mikhail."
+          }
+        },
+        {
+          "text": {
+            "ko": "두 손으로 잔을 들고. 그것을 배운 것이었다.",
+            "en": "Holding her cup with both hands. She had learned that."
+          }
+        },
+        {
+          "text": {
+            "ko": "21살. 화성에서 태어난 첫 번째 세대.",
+            "en": "Twenty-one years old. First generation born on Mars."
+          }
+        },
+        {
+          "text": {
+            "ko": "그녀의 아버지는 그녀가 여덟 살 때 죽었다.",
+            "en": "Her father died when she was eight."
+          }
+        },
+        {
+          "text": {
+            "ko": "광산 사고. 이름은 벽에 있었다.",
+            "en": "A mining accident. His name was on the wall."
+          }
+        },
+        {
+          "text": {
+            "ko": "별표가 달린 이름. 화성 출생 표시.",
+            "en": "A name with a star. The Mars-born marking."
+          }
+        }
       ]
     },
     {
@@ -60,12 +164,55 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "heavy", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "오늘이에요.", "en": "Today is the day." }},
-        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "FSP가 28년 동안 원한 것.", "en": "What FSP wanted for twenty-eight years." }},
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "광부들이 자신의 이름으로 화성에서 사는 것.", "en": "For miners to live on Mars in their own names." }},
-        { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "그것이 오늘 결정돼요.", "en": "That is decided today." }},
-        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "당신이 마지막 결정을 내려요.", "en": "You make the final decision." }},
-        { "speaker": "mikhail", "emotion": "wry", "text": { "ko": "나는 차를 마실 거예요. 이미 결정했어요.", "en": "I'll drink my tea. I've already decided." }}
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "오늘이에요.",
+            "en": "Today is the day."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "FSP가 28년 동안 원한 것.",
+            "en": "What FSP wanted for twenty-eight years."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "광부들이 자신의 이름으로 화성에서 사는 것.",
+            "en": "For miners to live on Mars in their own names."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "serious",
+          "text": {
+            "ko": "그것이 오늘 결정돼요.",
+            "en": "That is decided today."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "calm",
+          "text": {
+            "ko": "당신이 마지막 결정을 내려요.",
+            "en": "You make the final decision."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "wry",
+          "text": {
+            "ko": "나는 차를 마실 거예요. 이미 결정했어요.",
+            "en": "I'll drink my tea. I've already decided."
+          }
+        }
       ]
     },
     {
@@ -75,12 +222,55 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "direct", "effect": "character_enter:lena:slide_right", "text": { "ko": "올림포스 합의 이후 세 가지가 생겼어요.", "en": "After the Olympus agreement three things emerged." }},
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "첫째. MCC가 노동자 등록 시스템 구축을 시작했어요.", "en": "First. MCC began building the worker registration system." }},
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "둘째. Talon Group 내부 조사가 시작됐어요.", "en": "Second. An internal investigation into Talon Group began." }},
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "셋째. FSP 내부에서 배신자가 특정됐어요.", "en": "Third. A traitor within FSP was identified." }},
-        { "speaker": "player", "emotion": "alert", "text": { "ko": "누구요.", "en": "Who." }},
-        { "speaker": "lena", "emotion": "cold", "text": { "ko": "Thomas Alder.", "en": "Thomas Alder." }}
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "올림포스 합의 이후 세 가지가 생겼어요.",
+            "en": "After the Olympus agreement three things emerged."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "첫째. MCC가 노동자 등록 시스템 구축을 시작했어요.",
+            "en": "First. MCC began building the worker registration system."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "둘째. Talon Group 내부 조사가 시작됐어요.",
+            "en": "Second. An internal investigation into Talon Group began."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "셋째. FSP 내부에서 배신자가 특정됐어요.",
+            "en": "Third. A traitor within FSP was identified."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "alert",
+          "text": {
+            "ko": "누구요.",
+            "en": "Who."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "cold",
+          "text": {
+            "ko": "Thomas Alder.",
+            "en": "Thomas Alder."
+          }
+        }
       ]
     },
     {
@@ -90,12 +280,42 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Thomas Alder.", "en": "Thomas Alder." }},
-        { "text": { "ko": "의원회 선거에서 논란이 된 사람. MCC 출신 의혹.", "en": "The controversial one in the assembly election. Suspected MCC background." }},
-        { "text": { "ko": "그가 Talon Group에 올림포스 회담 위치를 넘겼다.", "en": "He had passed the Olympus summit location to Talon Group." }},
-        { "text": { "ko": "증거가 있었다.", "en": "There was evidence." }},
-        { "text": { "ko": "Amara가 며칠을 쫓아다닌 결과였다.", "en": "The result of Amara chasing it down for days." }},
-        { "text": { "ko": "상처 난 팔로.", "en": "With her injured arm." }}
+        {
+          "text": {
+            "ko": "Thomas Alder.",
+            "en": "Thomas Alder."
+          }
+        },
+        {
+          "text": {
+            "ko": "의원회 선거에서 논란이 된 사람. MCC 출신 의혹.",
+            "en": "The controversial one in the assembly election. Suspected MCC background."
+          }
+        },
+        {
+          "text": {
+            "ko": "그가 Talon Group에 올림포스 회담 위치를 넘겼다.",
+            "en": "He had passed the Olympus summit location to Talon Group."
+          }
+        },
+        {
+          "text": {
+            "ko": "증거가 있었다.",
+            "en": "There was evidence."
+          }
+        },
+        {
+          "text": {
+            "ko": "Amara가 며칠을 쫓아다닌 결과였다.",
+            "en": "The result of Amara chasing it down for days."
+          }
+        },
+        {
+          "text": {
+            "ko": "상처 난 팔로.",
+            "en": "With her injured arm."
+          }
+        }
       ]
     },
     {
@@ -105,12 +325,55 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "steady", "effect": "character_enter:amara:slide_left", "text": { "ko": "Thomas Alder는 Talon Group 화성 지부 소속이었어요.", "en": "Thomas Alder was a member of Talon Group's Mars branch." }},
-        { "speaker": "amara", "emotion": "serious", "text": { "ko": "FSP에 침투한 거예요. 처음부터.", "en": "He infiltrated FSP. From the beginning." }},
-        { "speaker": "lena", "emotion": "tight", "text": { "ko": "의원회 선거도 그들의 계획이었어요?", "en": "Was the assembly election also their plan." }},
-        { "speaker": "amara", "emotion": "nod", "text": { "ko": "FSP 분열을 위해서요. 성공했어요. 부분적으로.", "en": "To divide FSP. It worked. Partially." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "Thomas Alder도 이름이 있어요. 그러나 그 이름은 우리가 어떻게 해야 해요.", "en": "Thomas Alder has a name too. But what do we do with that name." }},
-        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "그것이 오늘의 질문이에요.", "en": "That is today's question." }}
+        {
+          "speaker": "amara",
+          "emotion": "steady",
+          "effect": "character_enter:amara:slide_left",
+          "text": {
+            "ko": "Thomas Alder는 Talon Group 화성 지부 소속이었어요.",
+            "en": "Thomas Alder was a member of Talon Group's Mars branch."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "serious",
+          "text": {
+            "ko": "FSP에 침투한 거예요. 처음부터.",
+            "en": "He infiltrated FSP. From the beginning."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tight",
+          "text": {
+            "ko": "의원회 선거도 그들의 계획이었어요?",
+            "en": "Was the assembly election also their plan."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "nod",
+          "text": {
+            "ko": "FSP 분열을 위해서요. 성공했어요. 부분적으로.",
+            "en": "To divide FSP. It worked. Partially."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Thomas Alder도 이름이 있어요. 그러나 그 이름은 우리가 어떻게 해야 해요.",
+            "en": "Thomas Alder has a name too. But what do we do with that name."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "text": {
+            "ko": "그것이 오늘의 질문이에요.",
+            "en": "That is today's question."
+          }
+        }
       ]
     },
     {
@@ -120,10 +383,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Thomas Alder가 있었다. 마을 끝에.", "en": "Thomas Alder was there. At the edge of the village." }},
-        { "text": { "ko": "이미 알고 있었다. 들켰다는 것을.", "en": "He already knew. That he had been found." }},
-        { "text": { "ko": "도망치지 않았다.", "en": "He hadn't run." }},
-        { "text": { "ko": "기다리고 있었다.", "en": "He was waiting." }}
+        {
+          "text": {
+            "ko": "Thomas Alder가 있었다. 마을 끝에.",
+            "en": "Thomas Alder was there. At the edge of the village."
+          }
+        },
+        {
+          "text": {
+            "ko": "이미 알고 있었다. 들켰다는 것을.",
+            "en": "He already knew. That he had been found."
+          }
+        },
+        {
+          "text": {
+            "ko": "도망치지 않았다.",
+            "en": "He hadn't run."
+          }
+        },
+        {
+          "text": {
+            "ko": "기다리고 있었다.",
+            "en": "He was waiting."
+          }
+        }
       ]
     },
     {
@@ -133,12 +416,55 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "thomas_alder", "emotion": "resigned", "effect": "character_enter:thomas_alder:fade_in", "text": { "ko": "알아요. 뭘 하러 온지.", "en": "I know. Why you came." }},
-        { "speaker": "lena", "emotion": "hard", "text": { "ko": "Talon Group. Pilgrim Arms. 당신 때문에 사람이 다쳤어요.", "en": "Talon Group. Pilgrim Arms. People were hurt because of you." }},
-        { "speaker": "thomas_alder", "emotion": "bitter", "text": { "ko": "나는 죽이라고 하지 않았어요.", "en": "I didn't say to kill anyone." }},
-        { "speaker": "lena", "emotion": "sharp", "text": { "ko": "위치를 넘긴 거잖아요.", "en": "You handed over the location." }},
-        { "speaker": "thomas_alder", "emotion": "quiet", "text": { "ko": "... 그래요. 했어요.", "en": "... Yes. I did." }},
-        { "speaker": "rev_hale", "emotion": "measured", "text": { "ko": "왜요.", "en": "Why." }}
+        {
+          "speaker": "thomas_alder",
+          "emotion": "resigned",
+          "effect": "character_enter:thomas_alder:fade_in",
+          "text": {
+            "ko": "알아요. 뭘 하러 온지.",
+            "en": "I know. Why you came."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "hard",
+          "text": {
+            "ko": "Talon Group. Pilgrim Arms. 당신 때문에 사람이 다쳤어요.",
+            "en": "Talon Group. Pilgrim Arms. People were hurt because of you."
+          }
+        },
+        {
+          "speaker": "thomas_alder",
+          "emotion": "bitter",
+          "text": {
+            "ko": "나는 죽이라고 하지 않았어요.",
+            "en": "I didn't say to kill anyone."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "sharp",
+          "text": {
+            "ko": "위치를 넘긴 거잖아요.",
+            "en": "You handed over the location."
+          }
+        },
+        {
+          "speaker": "thomas_alder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "... 그래요. 했어요.",
+            "en": "... Yes. I did."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "measured",
+          "text": {
+            "ko": "왜요.",
+            "en": "Why."
+          }
+        }
       ]
     },
     {
@@ -148,12 +474,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "thomas_alder", "emotion": "broken", "text": { "ko": "나는 MCC 출신이에요. 진짜로. 아버지가 MCC 엔지니어였어요.", "en": "I'm really from MCC. Genuinely. My father was an MCC engineer." }},
-        { "speaker": "thomas_alder", "emotion": "heavy", "text": { "ko": "그래서 Talon이 접근했어요. 이십 년 전.", "en": "So Talon approached me. Twenty years ago." }},
-        { "speaker": "thomas_alder", "emotion": "tired", "text": { "ko": "처음엔 정보만 넘기면 된다고 했어요. 그냥 보고서.", "en": "At first they said just pass information. Just reports." }},
-        { "speaker": "thomas_alder", "emotion": "low", "text": { "ko": "그런데 이십 년이 됐어요. 그게 내 인생이 됐어요.", "en": "Then twenty years passed. It became my life." }},
-        { "speaker": "thomas_alder", "emotion": "quiet", "text": { "ko": "FSP에 있는 동안... 나는 FSP가 옳다고 생각했어요. 진짜로.", "en": "While I was in FSP... I actually thought FSP was right. Genuinely." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "그 말이 사실이에요.", "en": "That statement is true." }}
+        {
+          "speaker": "thomas_alder",
+          "emotion": "broken",
+          "text": {
+            "ko": "나는 MCC 출신이에요. 진짜로. 아버지가 MCC 엔지니어였어요.",
+            "en": "I'm really from MCC. Genuinely. My father was an MCC engineer."
+          }
+        },
+        {
+          "speaker": "thomas_alder",
+          "emotion": "heavy",
+          "text": {
+            "ko": "그래서 Talon이 접근했어요. 이십 년 전.",
+            "en": "So Talon approached me. Twenty years ago."
+          }
+        },
+        {
+          "speaker": "thomas_alder",
+          "emotion": "tired",
+          "text": {
+            "ko": "처음엔 정보만 넘기면 된다고 했어요. 그냥 보고서.",
+            "en": "At first they said just pass information. Just reports."
+          }
+        },
+        {
+          "speaker": "thomas_alder",
+          "emotion": "low",
+          "text": {
+            "ko": "그런데 이십 년이 됐어요. 그게 내 인생이 됐어요.",
+            "en": "Then twenty years passed. It became my life."
+          }
+        },
+        {
+          "speaker": "thomas_alder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "FSP에 있는 동안... 나는 FSP가 옳다고 생각했어요. 진짜로.",
+            "en": "While I was in FSP... I actually thought FSP was right. Genuinely."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그 말이 사실이에요.",
+            "en": "That statement is true."
+          }
+        }
       ]
     },
     {
@@ -163,12 +531,42 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Rev. Hale이 Thomas Alder 앞으로 걸어갔다.", "en": "Rev. Hale walked toward Thomas Alder." }},
-        { "text": { "ko": "Lena가 막으려 했다. Rev. Hale이 손을 들었다. 기다려요.", "en": "Lena tried to stop him. Rev. Hale raised a hand. Wait." }},
-        { "text": { "ko": "Rev. Hale이 Thomas Alder 옆에 앉았다.", "en": "Rev. Hale sat beside Thomas Alder." }},
-        { "text": { "ko": "땅에. 마을 끝의 흙 위에.", "en": "On the ground. On the dirt at the village's edge." }},
-        { "text": { "ko": "아무 말도 하지 않았다.", "en": "Said nothing." }},
-        { "text": { "ko": "그냥 있었다.", "en": "Just was there." }}
+        {
+          "text": {
+            "ko": "Rev. Hale이 Thomas Alder 앞으로 걸어갔다.",
+            "en": "Rev. Hale walked toward Thomas Alder."
+          }
+        },
+        {
+          "text": {
+            "ko": "Lena가 막으려 했다. Rev. Hale이 손을 들었다. 기다려요.",
+            "en": "Lena tried to stop him. Rev. Hale raised a hand. Wait."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 Thomas Alder 옆에 앉았다.",
+            "en": "Rev. Hale sat beside Thomas Alder."
+          }
+        },
+        {
+          "text": {
+            "ko": "땅에. 마을 끝의 흙 위에.",
+            "en": "On the ground. On the dirt at the village's edge."
+          }
+        },
+        {
+          "text": {
+            "ko": "아무 말도 하지 않았다.",
+            "en": "Said nothing."
+          }
+        },
+        {
+          "text": {
+            "ko": "그냥 있었다.",
+            "en": "Just was there."
+          }
+        }
       ]
     },
     {
@@ -178,12 +576,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "thomas_alder", "emotion": "confused", "text": { "ko": "... 뭐 해요.", "en": "... What are you doing." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "있어요. 이름이 있는 사람 옆에 있어요.", "en": "Being here. Being beside a person who has a name." }},
-        { "speaker": "thomas_alder", "emotion": "breaking", "text": { "ko": "나는 배신자예요.", "en": "I'm a traitor." }},
-        { "speaker": "rev_hale", "emotion": "gentle", "text": { "ko": "그래요. 그리고 Thomas Alder예요.", "en": "Yes. And you are Thomas Alder." }},
-        { "speaker": "thomas_alder", "emotion": "lost", "text": { "ko": "...", "en": "..." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "이름을 기록하면 책임도 따라요. 그것을 피할 수 없어요.", "en": "When a name is recorded accountability follows. You cannot avoid that." }}
+        {
+          "speaker": "thomas_alder",
+          "emotion": "confused",
+          "text": {
+            "ko": "... 뭐 해요.",
+            "en": "... What are you doing."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "있어요. 이름이 있는 사람 옆에 있어요.",
+            "en": "Being here. Being beside a person who has a name."
+          }
+        },
+        {
+          "speaker": "thomas_alder",
+          "emotion": "breaking",
+          "text": {
+            "ko": "나는 배신자예요.",
+            "en": "I'm a traitor."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "gentle",
+          "text": {
+            "ko": "그래요. 그리고 Thomas Alder예요.",
+            "en": "Yes. And you are Thomas Alder."
+          }
+        },
+        {
+          "speaker": "thomas_alder",
+          "emotion": "lost",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이름을 기록하면 책임도 따라요. 그것을 피할 수 없어요.",
+            "en": "When a name is recorded accountability follows. You cannot avoid that."
+          }
+        }
       ]
     },
     {
@@ -193,11 +633,36 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "플레이어가 결정해야 했다.", "en": "The player had to decide." }},
-        { "text": { "ko": "Thomas Alder를 어떻게 할 것인가.", "en": "What to do with Thomas Alder." }},
-        { "text": { "ko": "Lena가 기다리고 있었다.", "en": "Lena was waiting." }},
-        { "text": { "ko": "Amara가 기다리고 있었다.", "en": "Amara was waiting." }},
-        { "text": { "ko": "마을이 기다리고 있었다.", "en": "The village was waiting." }}
+        {
+          "text": {
+            "ko": "플레이어가 결정해야 했다.",
+            "en": "The player had to decide."
+          }
+        },
+        {
+          "text": {
+            "ko": "Thomas Alder를 어떻게 할 것인가.",
+            "en": "What to do with Thomas Alder."
+          }
+        },
+        {
+          "text": {
+            "ko": "Lena가 기다리고 있었다.",
+            "en": "Lena was waiting."
+          }
+        },
+        {
+          "text": {
+            "ko": "Amara가 기다리고 있었다.",
+            "en": "Amara was waiting."
+          }
+        },
+        {
+          "text": {
+            "ko": "마을이 기다리고 있었다.",
+            "en": "The village was waiting."
+          }
+        }
       ]
     },
     {
@@ -205,31 +670,58 @@
       "type": "choice",
       "background": "hellas_mining_village",
       "bgm": "choice_tension",
-      "prompt": { "ko": "Thomas Alder. 배신자이자 사람. 어떻게 해야 합니까.", "en": "Thomas Alder. Traitor and person. What must be done." },
+      "prompt": {
+        "ko": "Thomas Alder. 배신자이자 사람. 어떻게 해야 합니까.",
+        "en": "Thomas Alder. Traitor and person. What must be done."
+      },
       "choices": [
         {
           "id": "fsp_ch10_alder_public",
-          "text": { "ko": "공개 재판. Talon Group과 함께 이름으로 기록된다.", "en": "Public trial. Recorded by name together with Talon Group." },
+          "text": {
+            "ko": "공개 재판. Talon Group과 함께 이름으로 기록된다.",
+            "en": "Public trial. Recorded by name together with Talon Group."
+          },
           "tone": "justice",
-          "preview_hint": { "ko": "→ 이름의 원칙이 배신자에게도 적용된다", "en": "→ The principle of names applies to traitors too" }
+          "preview_hint": {
+            "ko": "→ 이름의 원칙이 배신자에게도 적용된다",
+            "en": "→ The principle of names applies to traitors too"
+          }
         },
         {
           "id": "fsp_ch10_alder_exile",
-          "text": { "ko": "추방. 화성에서 내보낸다.", "en": "Exile. Send him off Mars." },
+          "text": {
+            "ko": "추방. 화성에서 내보낸다.",
+            "en": "Exile. Send him off Mars."
+          },
           "tone": "mercy",
-          "preview_hint": { "ko": "→ 일 처리가 빠르다. 그러나 기록이 없다", "en": "→ Efficient. But leaves no record" }
+          "preview_hint": {
+            "ko": "→ 일 처리가 빠르다. 그러나 기록이 없다",
+            "en": "→ Efficient. But leaves no record"
+          }
         },
         {
           "id": "fsp_ch10_alder_witness",
-          "text": { "ko": "Talon Group 증인으로 활용한다.", "en": "Use him as a witness against Talon Group." },
+          "text": {
+            "ko": "Talon Group 증인으로 활용한다.",
+            "en": "Use him as a witness against Talon Group."
+          },
           "tone": "pragmatic",
-          "preview_hint": { "ko": "→ 더 큰 적을 잡을 수 있다", "en": "→ Can catch a bigger enemy" }
+          "preview_hint": {
+            "ko": "→ 더 큰 적을 잡을 수 있다",
+            "en": "→ Can catch a bigger enemy"
+          }
         },
         {
           "id": "fsp_ch10_alder_hale",
-          "text": { "ko": "Rev. Hale에게 맡긴다.", "en": "Leave it to Rev. Hale." },
+          "text": {
+            "ko": "Rev. Hale에게 맡긴다.",
+            "en": "Leave it to Rev. Hale."
+          },
           "tone": "sacred",
-          "preview_hint": { "ko": "→ 목사가 이 문제를 짊어진다", "en": "→ The minister carries this burden" }
+          "preview_hint": {
+            "ko": "→ 목사가 이 문제를 짊어진다",
+            "en": "→ The minister carries this burden"
+          }
         }
       ]
     },
@@ -240,12 +732,42 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Thomas Alder 문제가 결정됐다.", "en": "The Thomas Alder matter was decided." }},
-        { "text": { "ko": "그러나 더 큰 결정이 남아 있었다.", "en": "But a larger decision remained." }},
-        { "text": { "ko": "FSP의 미래.", "en": "The future of FSP." }},
-        { "text": { "ko": "올림포스 합의 이후 화성이 변했다.", "en": "After the Olympus agreement Mars had changed." }},
-        { "text": { "ko": "화성 노동자 등록 시스템이 만들어지고 있었다.", "en": "The Mars Worker Registration System was being built." }},
-        { "text": { "ko": "그것을 FSP가 요구한 것이었다. 28년 동안.", "en": "FSP had demanded it. For twenty-eight years." }}
+        {
+          "text": {
+            "ko": "Thomas Alder 문제가 결정됐다.",
+            "en": "The Thomas Alder matter was decided."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 더 큰 결정이 남아 있었다.",
+            "en": "But a larger decision remained."
+          }
+        },
+        {
+          "text": {
+            "ko": "FSP의 미래.",
+            "en": "The future of FSP."
+          }
+        },
+        {
+          "text": {
+            "ko": "올림포스 합의 이후 화성이 변했다.",
+            "en": "After the Olympus agreement Mars had changed."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성 노동자 등록 시스템이 만들어지고 있었다.",
+            "en": "The Mars Worker Registration System was being built."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것을 FSP가 요구한 것이었다. 28년 동안.",
+            "en": "FSP had demanded it. For twenty-eight years."
+          }
+        }
       ]
     },
     {
@@ -255,12 +777,55 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "목표가 달성됐어요. 부분적으로.", "en": "The goal was achieved. Partially." }},
-        { "speaker": "lena", "emotion": "thinking", "text": { "ko": "FSP가 다음에 무엇이 될지를 정해야 해요.", "en": "We need to decide what FSP becomes next." }},
-        { "speaker": "yuna", "emotion": "thoughtful", "effect": "character_enter:yuna:fade_in", "text": { "ko": "우리가 원한 게 이름이었잖아요. 이름이 기록되는 거.", "en": "What we wanted was names. For names to be recorded." }},
-        { "speaker": "yuna", "emotion": "quiet", "text": { "ko": "그게 됐으면... 그다음은 뭐예요.", "en": "If that happened... what comes next." }},
-        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "그것이 항상 어려운 질문이에요.", "en": "That is always the difficult question." }},
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "목표를 이루고 나서. 운동은 어디로 가야 해요.", "en": "After achieving the goal. Where should the movement go." }}
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "목표가 달성됐어요. 부분적으로.",
+            "en": "The goal was achieved. Partially."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "thinking",
+          "text": {
+            "ko": "FSP가 다음에 무엇이 될지를 정해야 해요.",
+            "en": "We need to decide what FSP becomes next."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "thoughtful",
+          "effect": "character_enter:yuna:fade_in",
+          "text": {
+            "ko": "우리가 원한 게 이름이었잖아요. 이름이 기록되는 거.",
+            "en": "What we wanted was names. For names to be recorded."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그게 됐으면... 그다음은 뭐예요.",
+            "en": "If that happened... what comes next."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "text": {
+            "ko": "그것이 항상 어려운 질문이에요.",
+            "en": "That is always the difficult question."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "목표를 이루고 나서. 운동은 어디로 가야 해요.",
+            "en": "After achieving the goal. Where should the movement go."
+          }
+        }
       ]
     },
     {
@@ -270,12 +835,54 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "measured", "text": { "ko": "이름이 기록되면 그 이름들이 요구해요.", "en": "When names are recorded those names make demands." }},
-        { "speaker": "rev_hale", "emotion": "steady", "text": { "ko": "수자원. 의료. 교육. 다음 세대.", "en": "Water rights. Medicine. Education. The next generation." }},
-        { "speaker": "yuna", "emotion": "focused", "text": { "ko": "화성에서 태어난 사람들의 권리.", "en": "The rights of people born on Mars." }},
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "FSP가 그 싸움을 계속해야 해요.", "en": "FSP must continue that fight." }},
-        { "speaker": "amara", "emotion": "quiet", "text": { "ko": "아니면 다른 방식으로요.", "en": "Or in a different way." }},
-        { "speaker": "mikhail", "emotion": "old", "text": { "ko": "다른 방식. 그것을 결정해야 해요. 오늘.", "en": "A different way. That must be decided. Today." }}
+        {
+          "speaker": "rev_hale",
+          "emotion": "measured",
+          "text": {
+            "ko": "이름이 기록되면 그 이름들이 요구해요.",
+            "en": "When names are recorded those names make demands."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "steady",
+          "text": {
+            "ko": "수자원. 의료. 교육. 다음 세대.",
+            "en": "Water rights. Medicine. Education. The next generation."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "focused",
+          "text": {
+            "ko": "화성에서 태어난 사람들의 권리.",
+            "en": "The rights of people born on Mars."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "FSP가 그 싸움을 계속해야 해요.",
+            "en": "FSP must continue that fight."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "quiet",
+          "text": {
+            "ko": "아니면 다른 방식으로요.",
+            "en": "Or in a different way."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "old",
+          "text": {
+            "ko": "다른 방식. 그것을 결정해야 해요. 오늘.",
+            "en": "A different way. That must be decided. Today."
+          }
+        }
       ]
     },
     {
@@ -285,12 +892,43 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "벽이 있었다. 분필 이름들이 있는 벽.", "en": "There was a wall. The wall with chalk names." }},
-        { "text": { "ko": "Kim Yong-jin. Yuna의 아버지.", "en": "Kim Yong-jin. Yuna's father." }},
-        { "text": { "ko": "별표가 달린 이름들. 화성 출생.", "en": "Names with stars. Mars-born." }},
-        { "text": { "ko": "그 아래 이름들. 지구에서 온 사람들.", "en": "Names below. People who came from Earth." }},
-        { "text": { "ko": "모두 같은 벽에 있었다.", "en": "All on the same wall." }},
-        { "text": { "ko": "Rev. Hale이 그 벽을 보았다.", "en": "Rev. Hale looked at that wall." }, "overlay": "candle_flame" }
+        {
+          "text": {
+            "ko": "벽이 있었다. 분필 이름들이 있는 벽.",
+            "en": "There was a wall. The wall with chalk names."
+          }
+        },
+        {
+          "text": {
+            "ko": "Kim Yong-jin. Yuna의 아버지.",
+            "en": "Kim Yong-jin. Yuna's father."
+          }
+        },
+        {
+          "text": {
+            "ko": "별표가 달린 이름들. 화성 출생.",
+            "en": "Names with stars. Mars-born."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 아래 이름들. 지구에서 온 사람들.",
+            "en": "Names below. People who came from Earth."
+          }
+        },
+        {
+          "text": {
+            "ko": "모두 같은 벽에 있었다.",
+            "en": "All on the same wall."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 그 벽을 보았다.",
+            "en": "Rev. Hale looked at that wall."
+          },
+          "background": "fsp_ch10_freedoms_price_l17_05_candle_flame"
+        }
       ]
     },
     {
@@ -300,12 +938,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "soft", "text": { "ko": "이 벽이 FSP가 뭔지 말해줘요.", "en": "This wall tells you what FSP is." }},
-        { "speaker": "yuna", "emotion": "reverent", "text": { "ko": "이름들이에요.", "en": "Names." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "이름들이에요. 그것이 FSP예요.", "en": "Names. That is FSP." }},
-        { "speaker": "mikhail", "emotion": "warm", "text": { "ko": "28년 전 내가 이 운동을 시작할 때 그것을 알았어요.", "en": "When I started this movement twenty-eight years ago I knew that." }},
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "이름들. 그것 하나였어요.", "en": "Names. That was the one thing." }},
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "그러면 다음도 이름들이에요. 아직 기록 안 된 이름들.", "en": "Then what's next is also names. Names not yet recorded." }}
+        {
+          "speaker": "rev_hale",
+          "emotion": "soft",
+          "text": {
+            "ko": "이 벽이 FSP가 뭔지 말해줘요.",
+            "en": "This wall tells you what FSP is."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "reverent",
+          "text": {
+            "ko": "이름들이에요.",
+            "en": "Names."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이름들이에요. 그것이 FSP예요.",
+            "en": "Names. That is FSP."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "warm",
+          "text": {
+            "ko": "28년 전 내가 이 운동을 시작할 때 그것을 알았어요.",
+            "en": "When I started this movement twenty-eight years ago I knew that."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이름들. 그것 하나였어요.",
+            "en": "Names. That was the one thing."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "그러면 다음도 이름들이에요. 아직 기록 안 된 이름들.",
+            "en": "Then what's next is also names. Names not yet recorded."
+          }
+        }
       ]
     },
     {
@@ -315,12 +995,42 @@
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그러나 화성 밖에서도 움직임이 있었다.", "en": "But there was movement from outside Mars too." }},
-        { "text": { "ko": "지구. Talon Group의 모기업들.", "en": "Earth. Talon Group's parent companies." }},
-        { "text": { "ko": "올림포스 합의가 알려지자 그들이 움직이기 시작했다.", "en": "When the Olympus agreement became known they began to move." }},
-        { "text": { "ko": "화성 독립 반대 로비. 경제 제재 압박.", "en": "Lobbying against Martian independence. Economic sanction pressure." }},
-        { "text": { "ko": "Gaia 함선이 그 상징이 됐다.", "en": "The Gaia ship had become the symbol." }},
-        { "text": { "ko": "함선 하나. 그러나 그것이 화성의 방향을 보여주는 것이었다.", "en": "One ship. But it showed the direction of Mars." }}
+        {
+          "text": {
+            "ko": "그러나 화성 밖에서도 움직임이 있었다.",
+            "en": "But there was movement from outside Mars too."
+          }
+        },
+        {
+          "text": {
+            "ko": "지구. Talon Group의 모기업들.",
+            "en": "Earth. Talon Group's parent companies."
+          }
+        },
+        {
+          "text": {
+            "ko": "올림포스 합의가 알려지자 그들이 움직이기 시작했다.",
+            "en": "When the Olympus agreement became known they began to move."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성 독립 반대 로비. 경제 제재 압박.",
+            "en": "Lobbying against Martian independence. Economic sanction pressure."
+          }
+        },
+        {
+          "text": {
+            "ko": "Gaia 함선이 그 상징이 됐다.",
+            "en": "The Gaia ship had become the symbol."
+          }
+        },
+        {
+          "text": {
+            "ko": "함선 하나. 그러나 그것이 화성의 방향을 보여주는 것이었다.",
+            "en": "One ship. But it showed the direction of Mars."
+          }
+        }
       ]
     },
     {
@@ -330,12 +1040,54 @@
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "alert", "text": { "ko": "지구 측 연합이 Gaia 출항을 막으려 해요.", "en": "The Earth-side coalition is trying to block Gaia's departure." }},
-        { "speaker": "lena", "emotion": "sharp", "text": { "ko": "어떻게요.", "en": "How." }},
-        { "speaker": "amara", "emotion": "grim", "text": { "ko": "화성 경제 봉쇄. MCC에 압박. 합의를 뒤집으라고.", "en": "Mars economic blockade. Pressure on MCC. Demanding they reverse the agreement." }},
-        { "speaker": "mikhail", "emotion": "tired", "text": { "ko": "28년 동안 이런 일이 있었어요. 지구가 화성을 누를 때.", "en": "This happened over twenty-eight years. Every time Earth pressed Mars." }},
-        { "speaker": "mikhail", "emotion": "firm", "text": { "ko": "우리가 버텼어요. 이번도 버텨야 해요.", "en": "We endured. We must endure this time too." }},
-        { "speaker": "yuna", "emotion": "determined", "text": { "ko": "Gaia가 뜨면 돼요. 그게 대답이에요.", "en": "Gaia needs to launch. That is the answer." }}
+        {
+          "speaker": "amara",
+          "emotion": "alert",
+          "text": {
+            "ko": "지구 측 연합이 Gaia 출항을 막으려 해요.",
+            "en": "The Earth-side coalition is trying to block Gaia's departure."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "sharp",
+          "text": {
+            "ko": "어떻게요.",
+            "en": "How."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "grim",
+          "text": {
+            "ko": "화성 경제 봉쇄. MCC에 압박. 합의를 뒤집으라고.",
+            "en": "Mars economic blockade. Pressure on MCC. Demanding they reverse the agreement."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "tired",
+          "text": {
+            "ko": "28년 동안 이런 일이 있었어요. 지구가 화성을 누를 때.",
+            "en": "This happened over twenty-eight years. Every time Earth pressed Mars."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "firm",
+          "text": {
+            "ko": "우리가 버텼어요. 이번도 버텨야 해요.",
+            "en": "We endured. We must endure this time too."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "determined",
+          "text": {
+            "ko": "Gaia가 뜨면 돼요. 그게 대답이에요.",
+            "en": "Gaia needs to launch. That is the answer."
+          }
+        }
       ]
     },
     {
@@ -345,12 +1097,42 @@
       "bgm": "tension_medium",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "New Athens 조선소.", "en": "New Athens Shipyard." }},
-        { "text": { "ko": "Gaia 함선. 화성 자체 건조. 지구 의존 없이.", "en": "The Gaia ship. Built by Mars itself. Without Earth dependence." }},
-        { "text": { "ko": "Olu Adeyemi가 거기 있었다. 함선 옆에.", "en": "Olu Adeyemi was there. Beside the ship." }},
-        { "text": { "ko": "Mariam에게 편지를 쓰고 있었다. 오늘도.", "en": "Writing a letter to Mariam. As today too." }},
-        { "text": { "ko": "Mariam이 죽은 지 여섯 달이었다. 광산 사고.", "en": "It had been six months since Mariam died. A mining accident." }},
-        { "text": { "ko": "Olu는 매일 편지를 썼다. 함선에 넣었다.", "en": "Olu wrote every day. And put the letters in the ship." }}
+        {
+          "text": {
+            "ko": "New Athens 조선소.",
+            "en": "New Athens Shipyard."
+          }
+        },
+        {
+          "text": {
+            "ko": "Gaia 함선. 화성 자체 건조. 지구 의존 없이.",
+            "en": "The Gaia ship. Built by Mars itself. Without Earth dependence."
+          }
+        },
+        {
+          "text": {
+            "ko": "Olu Adeyemi가 거기 있었다. 함선 옆에.",
+            "en": "Olu Adeyemi was there. Beside the ship."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mariam에게 편지를 쓰고 있었다. 오늘도.",
+            "en": "Writing a letter to Mariam. As today too."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mariam이 죽은 지 여섯 달이었다. 광산 사고.",
+            "en": "It had been six months since Mariam died. A mining accident."
+          }
+        },
+        {
+          "text": {
+            "ko": "Olu는 매일 편지를 썼다. 함선에 넣었다.",
+            "en": "Olu wrote every day. And put the letters in the ship."
+          }
+        }
       ]
     },
     {
@@ -360,12 +1142,55 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "olu_adeyemi", "emotion": "quiet", "effect": "character_enter:olu_adeyemi:fade_in", "text": { "ko": "당신들이 왔군요.", "en": "You came." }},
-        { "speaker": "olu_adeyemi", "emotion": "tired", "text": { "ko": "지구 측이 출항을 막으려 한다는 거 알아요.", "en": "I know the Earth-side is trying to block the launch." }},
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "방법이 있어요?", "en": "Is there a way." }},
-        { "speaker": "olu_adeyemi", "emotion": "considering", "text": { "ko": "있어요. 하나.", "en": "There is. One." }},
-        { "speaker": "olu_adeyemi", "emotion": "quiet", "text": { "ko": "Gaia가 지금 뜨는 거예요. 봉쇄 전에.", "en": "Gaia launches now. Before the blockade." }},
-        { "speaker": "olu_adeyemi", "emotion": "heavy", "text": { "ko": "준비가 80%예요. 위험해요. 그러나 가능해요.", "en": "We're eighty percent ready. It's dangerous. But possible." }}
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "quiet",
+          "effect": "character_enter:olu_adeyemi:fade_in",
+          "text": {
+            "ko": "당신들이 왔군요.",
+            "en": "You came."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "tired",
+          "text": {
+            "ko": "지구 측이 출항을 막으려 한다는 거 알아요.",
+            "en": "I know the Earth-side is trying to block the launch."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "방법이 있어요?",
+            "en": "Is there a way."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "considering",
+          "text": {
+            "ko": "있어요. 하나.",
+            "en": "There is. One."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Gaia가 지금 뜨는 거예요. 봉쇄 전에.",
+            "en": "Gaia launches now. Before the blockade."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "heavy",
+          "text": {
+            "ko": "준비가 80%예요. 위험해요. 그러나 가능해요.",
+            "en": "We're eighty percent ready. It's dangerous. But possible."
+          }
+        }
       ]
     },
     {
@@ -375,11 +1200,36 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "80%. 위험한 수치였다.", "en": "Eighty percent. A dangerous figure." }},
-        { "text": { "ko": "그러나 Olu는 해낼 수 있다고 했다.", "en": "But Olu said he could do it." }},
-        { "text": { "ko": "Mariam의 결혼 자금으로 만든 함선이었다.", "en": "A ship built with Mariam's wedding money." }},
-        { "text": { "ko": "Mariam이 말했다. 결혼은 두 번 할 수 있다. 우주선은 한 번 만드는 거라고.", "en": "Mariam had said. Marriage can happen twice. A spaceship is made once." }},
-        { "text": { "ko": "그 말이 여기까지 왔다.", "en": "Those words had come this far." }}
+        {
+          "text": {
+            "ko": "80%. 위험한 수치였다.",
+            "en": "Eighty percent. A dangerous figure."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 Olu는 해낼 수 있다고 했다.",
+            "en": "But Olu said he could do it."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mariam의 결혼 자금으로 만든 함선이었다.",
+            "en": "A ship built with Mariam's wedding money."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mariam이 말했다. 결혼은 두 번 할 수 있다. 우주선은 한 번 만드는 거라고.",
+            "en": "Mariam had said. Marriage can happen twice. A spaceship is made once."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 말이 여기까지 왔다.",
+            "en": "Those words had come this far."
+          }
+        }
       ]
     },
     {
@@ -389,12 +1239,55 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "yuna", "emotion": "moved", "text": { "ko": "Mariam이 이걸 원했어요?", "en": "Did Mariam want this." }},
-        { "speaker": "olu_adeyemi", "emotion": "soft", "text": { "ko": "처음엔 몰랐어요. 내가 설명했어요. 그다음에 알았어요.", "en": "At first she didn't know. I explained. Then she knew." }},
-        { "speaker": "olu_adeyemi", "emotion": "quiet", "text": { "ko": "그리고 동의했어요. 그것이 Mariam이었어요.", "en": "And she agreed. That was Mariam." }},
-        { "speaker": "rev_hale", "emotion": "gentle", "text": { "ko": "Mariam Adeyemi. 이 함선에 이름이 있어요.", "en": "Mariam Adeyemi. This ship has that name." }},
-        { "speaker": "olu_adeyemi", "emotion": "breaking", "text": { "ko": "함선 이름이 Gaia인 이유가 있어요.", "en": "There's a reason the ship's name is Gaia." }},
-        { "speaker": "olu_adeyemi", "emotion": "quiet", "text": { "ko": "Mariam의 첫 번째 딸이 그 이름이었어요. 사산이었어요. 화성에서.", "en": "Mariam's first daughter had that name. She was stillborn. On Mars." }, "overlay": "death_still" }
+        {
+          "speaker": "yuna",
+          "emotion": "moved",
+          "text": {
+            "ko": "Mariam이 이걸 원했어요?",
+            "en": "Did Mariam want this."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "soft",
+          "text": {
+            "ko": "처음엔 몰랐어요. 내가 설명했어요. 그다음에 알았어요.",
+            "en": "At first she didn't know. I explained. Then she knew."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그리고 동의했어요. 그것이 Mariam이었어요.",
+            "en": "And she agreed. That was Mariam."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "gentle",
+          "text": {
+            "ko": "Mariam Adeyemi. 이 함선에 이름이 있어요.",
+            "en": "Mariam Adeyemi. This ship has that name."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "breaking",
+          "text": {
+            "ko": "함선 이름이 Gaia인 이유가 있어요.",
+            "en": "There's a reason the ship's name is Gaia."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Mariam의 첫 번째 딸이 그 이름이었어요. 사산이었어요. 화성에서.",
+            "en": "Mariam's first daughter had that name. She was stillborn. On Mars."
+          },
+          "background": "fsp_ch10_freedoms_price_l24_05_death_still"
+        }
       ]
     },
     {
@@ -404,12 +1297,42 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "방이 조용해졌다.", "en": "The space went quiet." }},
-        { "text": { "ko": "Gaia. 지구를 뜻하는 이름.", "en": "Gaia. A name meaning Earth." }},
-        { "text": { "ko": "그러나 화성에서 태어났다가 죽은 아이의 이름이기도 했다.", "en": "But also the name of a child born and died on Mars." }},
-        { "text": { "ko": "Olu가 그 이름을 함선에 붙였다.", "en": "Olu had given that name to the ship." }},
-        { "text": { "ko": "이름들이 있었다.", "en": "There were names." }},
-        { "text": { "ko": "이름들이 계속 있었다.", "en": "There were always names." }}
+        {
+          "text": {
+            "ko": "방이 조용해졌다.",
+            "en": "The space went quiet."
+          }
+        },
+        {
+          "text": {
+            "ko": "Gaia. 지구를 뜻하는 이름.",
+            "en": "Gaia. A name meaning Earth."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 화성에서 태어났다가 죽은 아이의 이름이기도 했다.",
+            "en": "But also the name of a child born and died on Mars."
+          }
+        },
+        {
+          "text": {
+            "ko": "Olu가 그 이름을 함선에 붙였다.",
+            "en": "Olu had given that name to the ship."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름들이 있었다.",
+            "en": "There were names."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름들이 계속 있었다.",
+            "en": "There were always names."
+          }
+        }
       ]
     },
     {
@@ -419,12 +1342,54 @@
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "firm", "text": { "ko": "출항 결정이에요. 당신이 해야 해요.", "en": "The launch decision. You must make it." }},
-        { "speaker": "olu_adeyemi", "emotion": "steady", "text": { "ko": "80%. 그게 내 대답이에요. 가능하다는 거예요.", "en": "Eighty percent. That is my answer. It's possible." }},
-        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "위험해요. Olu.", "en": "It's dangerous. Olu." }},
-        { "speaker": "olu_adeyemi", "emotion": "resolved", "text": { "ko": "화성에서 위험하지 않은 게 뭐가 있어요. Mikhail.", "en": "What isn't dangerous on Mars. Mikhail." }},
-        { "speaker": "mikhail", "emotion": "wry", "text": { "ko": "... 차는 위험하지 않아요.", "en": "... Tea isn't dangerous." }},
-        { "speaker": "olu_adeyemi", "emotion": "small_smile", "text": { "ko": "그래요. 차는 위험하지 않아요.", "en": "That's right. Tea isn't dangerous." }}
+        {
+          "speaker": "lena",
+          "emotion": "firm",
+          "text": {
+            "ko": "출항 결정이에요. 당신이 해야 해요.",
+            "en": "The launch decision. You must make it."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "steady",
+          "text": {
+            "ko": "80%. 그게 내 대답이에요. 가능하다는 거예요.",
+            "en": "Eighty percent. That is my answer. It's possible."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "text": {
+            "ko": "위험해요. Olu.",
+            "en": "It's dangerous. Olu."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "resolved",
+          "text": {
+            "ko": "화성에서 위험하지 않은 게 뭐가 있어요. Mikhail.",
+            "en": "What isn't dangerous on Mars. Mikhail."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "wry",
+          "text": {
+            "ko": "... 차는 위험하지 않아요.",
+            "en": "... Tea isn't dangerous."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "small_smile",
+          "text": {
+            "ko": "그래요. 차는 위험하지 않아요.",
+            "en": "That's right. Tea isn't dangerous."
+          }
+        }
       ]
     },
     {
@@ -434,12 +1399,42 @@
       "bgm": "tension_high",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "지구 측 봉쇄가 시작됐다.", "en": "The Earth-side blockade began." }},
-        { "text": { "ko": "화성 궤도에 두 척의 함선이 나타났다.", "en": "Two ships appeared in Mars orbit." }},
-        { "text": { "ko": "지구 연합 소속. 경고 전송.", "en": "Earth Coalition ships. Warning transmitted." }},
-        { "text": { "ko": "화성 독립 관련 활동 즉시 중단 요구.", "en": "Demanding immediate cessation of Mars independence-related activities." }},
-        { "text": { "ko": "Gaia 출항 금지.", "en": "Gaia launch prohibited." }},
-        { "text": { "ko": "72시간 내 응답 없으면 경제 제재 발동.", "en": "Economic sanctions in 72 hours without response." }}
+        {
+          "text": {
+            "ko": "지구 측 봉쇄가 시작됐다.",
+            "en": "The Earth-side blockade began."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성 궤도에 두 척의 함선이 나타났다.",
+            "en": "Two ships appeared in Mars orbit."
+          }
+        },
+        {
+          "text": {
+            "ko": "지구 연합 소속. 경고 전송.",
+            "en": "Earth Coalition ships. Warning transmitted."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성 독립 관련 활동 즉시 중단 요구.",
+            "en": "Demanding immediate cessation of Mars independence-related activities."
+          }
+        },
+        {
+          "text": {
+            "ko": "Gaia 출항 금지.",
+            "en": "Gaia launch prohibited."
+          }
+        },
+        {
+          "text": {
+            "ko": "72시간 내 응답 없으면 경제 제재 발동.",
+            "en": "Economic sanctions in 72 hours without response."
+          }
+        }
       ]
     },
     {
@@ -449,12 +1444,54 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "urgent", "text": { "ko": "72시간이에요. MCC가 흔들리고 있어요.", "en": "Seventy-two hours. MCC is wavering." }},
-        { "speaker": "lena", "emotion": "sharp", "text": { "ko": "Chen Weiss가요?", "en": "Chen Weiss." }},
-        { "speaker": "amara", "emotion": "tense", "text": { "ko": "지구 측 압박이 강해요. 경제 제재가 현실이면 MCC 경제가 무너져요.", "en": "Earth-side pressure is strong. If sanctions are real MCC's economy collapses." }},
-        { "speaker": "mikhail", "emotion": "tired", "text": { "ko": "28년 전이랑 똑같아요.", "en": "Same as twenty-eight years ago." }},
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "화성이 지구에 독립을 요구할 때마다. 지구가 경제를 들고 왔어요.", "en": "Every time Mars demanded independence from Earth. Earth brought economics." }},
-        { "speaker": "rev_hale", "emotion": "measured", "text": { "ko": "그래서 Gaia가 답이에요.", "en": "That's why Gaia is the answer." }}
+        {
+          "speaker": "amara",
+          "emotion": "urgent",
+          "text": {
+            "ko": "72시간이에요. MCC가 흔들리고 있어요.",
+            "en": "Seventy-two hours. MCC is wavering."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "sharp",
+          "text": {
+            "ko": "Chen Weiss가요?",
+            "en": "Chen Weiss."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "tense",
+          "text": {
+            "ko": "지구 측 압박이 강해요. 경제 제재가 현실이면 MCC 경제가 무너져요.",
+            "en": "Earth-side pressure is strong. If sanctions are real MCC's economy collapses."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "tired",
+          "text": {
+            "ko": "28년 전이랑 똑같아요.",
+            "en": "Same as twenty-eight years ago."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "화성이 지구에 독립을 요구할 때마다. 지구가 경제를 들고 왔어요.",
+            "en": "Every time Mars demanded independence from Earth. Earth brought economics."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "measured",
+          "text": {
+            "ko": "그래서 Gaia가 답이에요.",
+            "en": "That's why Gaia is the answer."
+          }
+        }
       ]
     },
     {
@@ -464,12 +1501,54 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "yuna", "emotion": "clear", "text": { "ko": "Gaia가 뜨면 화성이 지구 없이도 이동할 수 있다는 걸 보여주는 거예요.", "en": "If Gaia launches it shows Mars can move without Earth." }},
-        { "speaker": "yuna", "emotion": "steady", "text": { "ko": "그것이 경제 봉쇄를 무력화해요. 상징으로.", "en": "That neutralizes the economic blockade. As a symbol." }},
-        { "speaker": "lena", "emotion": "calculating", "text": { "ko": "상징만으로는 부족해요.", "en": "Symbols alone aren't enough." }},
-        { "speaker": "yuna", "emotion": "firm", "text": { "ko": "28년 동안 FSP가 한 것이 상징이에요. 분필 이름들. 이름 기록 요구.", "en": "What FSP did for twenty-eight years was symbols. Chalk names. Demanding name registration." }},
-        { "speaker": "yuna", "emotion": "serious", "text": { "ko": "상징이 세상을 바꿨어요.", "en": "Symbols changed the world." }},
-        { "speaker": "mikhail", "emotion": "quiet_pride", "text": { "ko": "Yuna. 잘 배웠어요.", "en": "Yuna. You learned well." }}
+        {
+          "speaker": "yuna",
+          "emotion": "clear",
+          "text": {
+            "ko": "Gaia가 뜨면 화성이 지구 없이도 이동할 수 있다는 걸 보여주는 거예요.",
+            "en": "If Gaia launches it shows Mars can move without Earth."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "steady",
+          "text": {
+            "ko": "그것이 경제 봉쇄를 무력화해요. 상징으로.",
+            "en": "That neutralizes the economic blockade. As a symbol."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "calculating",
+          "text": {
+            "ko": "상징만으로는 부족해요.",
+            "en": "Symbols alone aren't enough."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "firm",
+          "text": {
+            "ko": "28년 동안 FSP가 한 것이 상징이에요. 분필 이름들. 이름 기록 요구.",
+            "en": "What FSP did for twenty-eight years was symbols. Chalk names. Demanding name registration."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "serious",
+          "text": {
+            "ko": "상징이 세상을 바꿨어요.",
+            "en": "Symbols changed the world."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet_pride",
+          "text": {
+            "ko": "Yuna. 잘 배웠어요.",
+            "en": "Yuna. You learned well."
+          }
+        }
       ]
     },
     {
@@ -479,12 +1558,42 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "72시간 카운트다운이 시작됐다.", "en": "The 72-hour countdown began." }},
-        { "text": { "ko": "FSP가 결정을 내려야 했다.", "en": "FSP had to make a decision." }},
-        { "text": { "ko": "Gaia를 출항시킬 것인가.", "en": "Would they launch Gaia." }},
-        { "text": { "ko": "지구 측 요구를 받아들일 것인가.", "en": "Or accept Earth-side demands." }},
-        { "text": { "ko": "그리고 FSP 자체가 무엇이 될 것인가.", "en": "And what would FSP itself become." }},
-        { "text": { "ko": "마을이 기다리고 있었다.", "en": "The village was waiting." }}
+        {
+          "text": {
+            "ko": "72시간 카운트다운이 시작됐다.",
+            "en": "The 72-hour countdown began."
+          }
+        },
+        {
+          "text": {
+            "ko": "FSP가 결정을 내려야 했다.",
+            "en": "FSP had to make a decision."
+          }
+        },
+        {
+          "text": {
+            "ko": "Gaia를 출항시킬 것인가.",
+            "en": "Would they launch Gaia."
+          }
+        },
+        {
+          "text": {
+            "ko": "지구 측 요구를 받아들일 것인가.",
+            "en": "Or accept Earth-side demands."
+          }
+        },
+        {
+          "text": {
+            "ko": "그리고 FSP 자체가 무엇이 될 것인가.",
+            "en": "And what would FSP itself become."
+          }
+        },
+        {
+          "text": {
+            "ko": "마을이 기다리고 있었다.",
+            "en": "The village was waiting."
+          }
+        }
       ]
     },
     {
@@ -492,31 +1601,58 @@
       "type": "choice",
       "background": "hellas_mining_village_dawn",
       "bgm": "choice_finale",
-      "prompt": { "ko": "FSP. 이 마을. 이 사람들. 어떤 결말을 선택합니까.", "en": "FSP. This village. These people. Which ending do you choose." },
+      "prompt": {
+        "ko": "FSP. 이 마을. 이 사람들. 어떤 결말을 선택합니까.",
+        "en": "FSP. This village. These people. Which ending do you choose."
+      },
       "choices": [
         {
           "id": "fsp_ch10_citizen",
-          "text": { "ko": "Gaia를 출항시킨다. 화성이 화성의 방식으로 존재한다.", "en": "Launch Gaia. Mars exists in its own way." },
+          "text": {
+            "ko": "Gaia를 출항시킨다. 화성이 화성의 방식으로 존재한다.",
+            "en": "Launch Gaia. Mars exists in its own way."
+          },
           "tone": "independence",
-          "preview_hint": { "ko": "→ 엔딩: 시민 — 이름들의 행성", "en": "→ Ending: Citizen — planet of names" }
+          "preview_hint": {
+            "ko": "→ 엔딩: 시민 — 이름들의 행성",
+            "en": "→ Ending: Citizen — planet of names"
+          }
         },
         {
           "id": "fsp_ch10_peacemaker",
-          "text": { "ko": "지구 측과 협상한다. Gaia는 나중에.", "en": "Negotiate with the Earth-side. Gaia can wait." },
+          "text": {
+            "ko": "지구 측과 협상한다. Gaia는 나중에.",
+            "en": "Negotiate with the Earth-side. Gaia can wait."
+          },
           "tone": "diplomacy",
-          "preview_hint": { "ko": "→ 엔딩: 평화 조성자 — 더딘 화성", "en": "→ Ending: Peacemaker — slower Mars" }
+          "preview_hint": {
+            "ko": "→ 엔딩: 평화 조성자 — 더딘 화성",
+            "en": "→ Ending: Peacemaker — slower Mars"
+          }
         },
         {
           "id": "fsp_ch10_gaia_captain",
-          "text": { "ko": "플레이어가 직접 Gaia에 탑승한다.", "en": "The player boards Gaia directly." },
+          "text": {
+            "ko": "플레이어가 직접 Gaia에 탑승한다.",
+            "en": "The player boards Gaia directly."
+          },
           "tone": "personal",
-          "preview_hint": { "ko": "→ 엔딩: Gaia 선장 — 화성의 첫 항해", "en": "→ Ending: Gaia Captain — Mars's first voyage" }
+          "preview_hint": {
+            "ko": "→ 엔딩: Gaia 선장 — 화성의 첫 항해",
+            "en": "→ Ending: Gaia Captain — Mars's first voyage"
+          }
         },
         {
           "id": "fsp_ch10_disillusioned",
-          "text": { "ko": "FSP를 떠난다. 이름들은 기억하되 이 싸움은 끝낸다.", "en": "Leave FSP. Remember the names but end this fight." },
+          "text": {
+            "ko": "FSP를 떠난다. 이름들은 기억하되 이 싸움은 끝낸다.",
+            "en": "Leave FSP. Remember the names but end this fight."
+          },
           "tone": "departure",
-          "preview_hint": { "ko": "→ 엔딩: 환멸 — 혼자서 걷는 길", "en": "→ Ending: Disillusioned — walking alone" }
+          "preview_hint": {
+            "ko": "→ 엔딩: 환멸 — 혼자서 걷는 길",
+            "en": "→ Ending: Disillusioned — walking alone"
+          }
         }
       ]
     },
@@ -526,8 +1662,14 @@
       "background": "new_athens_shipyard",
       "bgm": "battle_theme_finale",
       "transition": "fade_slow",
-      "title": { "ko": "광부 마을의 최후", "en": "The Mining Village's Hour" },
-      "subtitle": { "ko": "헬라스 광부 마을 — 28년의 무게", "en": "Hellas Mining Village — The Weight of 28 Years" }
+      "title": {
+        "ko": "광부 마을의 최후",
+        "en": "The Mining Village's Hour"
+      },
+      "subtitle": {
+        "ko": "헬라스 광부 마을 — 28년의 무게",
+        "en": "Hellas Mining Village — The Weight of 28 Years"
+      }
     },
     {
       "id": "s_result",
@@ -542,12 +1684,42 @@
       "bgm": "victory_calm",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "마을이 살아있었다. 차가 따뜻했다.", "en": "The village was alive. The tea was warm." }},
-        { "text": { "ko": "Mikhail이 잔을 내려놓았다. 비어 있었다.", "en": "Mikhail set down his cup. It was empty." }},
-        { "text": { "ko": "다 마신 잔. 28년 동안 끓여온 차. 오늘 다 마신 것이었다.", "en": "A cup completely drunk. Tea made for twenty-eight years. Today it was all drunk." }},
-        { "text": { "ko": "Yuna가 새 잔을 들었다. 두 손으로.", "en": "Yuna picked up a new cup. With both hands." }},
-        { "text": { "ko": "오른손이 왼손을 받쳤다. Mikhail에게 배운 것이었다.", "en": "Right hand supporting the left. Learned from Mikhail." }},
-        { "text": { "ko": "이름들이 벽에 있었다. 이제 기록도 됐다.", "en": "The names were on the wall. Now they were also recorded." }}
+        {
+          "text": {
+            "ko": "마을이 살아있었다. 차가 따뜻했다.",
+            "en": "The village was alive. The tea was warm."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mikhail이 잔을 내려놓았다. 비어 있었다.",
+            "en": "Mikhail set down his cup. It was empty."
+          }
+        },
+        {
+          "text": {
+            "ko": "다 마신 잔. 28년 동안 끓여온 차. 오늘 다 마신 것이었다.",
+            "en": "A cup completely drunk. Tea made for twenty-eight years. Today it was all drunk."
+          }
+        },
+        {
+          "text": {
+            "ko": "Yuna가 새 잔을 들었다. 두 손으로.",
+            "en": "Yuna picked up a new cup. With both hands."
+          }
+        },
+        {
+          "text": {
+            "ko": "오른손이 왼손을 받쳤다. Mikhail에게 배운 것이었다.",
+            "en": "Right hand supporting the left. Learned from Mikhail."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름들이 벽에 있었다. 이제 기록도 됐다.",
+            "en": "The names were on the wall. Now they were also recorded."
+          }
+        }
       ]
     },
     {
@@ -557,12 +1729,42 @@
       "bgm": "defeat_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "마을이 조용했다. 차가 식었다.", "en": "The village was quiet. The tea had cooled." }},
-        { "text": { "ko": "Mikhail의 잔이 여전히 가득 찼다. 마시지 못한 것이었다.", "en": "Mikhail's cup was still full. He couldn't drink it." }},
-        { "text": { "ko": "화성에서 마시지 못한 차가 있었다.", "en": "There was tea on Mars that couldn't be drunk." }},
-        { "text": { "ko": "식지 않는 차보다 슬픈 것이었다. 식어버린 차.", "en": "Sadder than tea that wouldn't cool. Tea that had gone cold." }},
-        { "text": { "ko": "그러나 이름들은 벽에 있었다. 그것은 지워지지 않았다.", "en": "But the names were on the wall. Those had not been erased." }},
-        { "text": { "ko": "분필은 약했다. 그러나 여전히 거기 있었다.", "en": "Chalk was weak. But it was still there." }}
+        {
+          "text": {
+            "ko": "마을이 조용했다. 차가 식었다.",
+            "en": "The village was quiet. The tea had cooled."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mikhail의 잔이 여전히 가득 찼다. 마시지 못한 것이었다.",
+            "en": "Mikhail's cup was still full. He couldn't drink it."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성에서 마시지 못한 차가 있었다.",
+            "en": "There was tea on Mars that couldn't be drunk."
+          }
+        },
+        {
+          "text": {
+            "ko": "식지 않는 차보다 슬픈 것이었다. 식어버린 차.",
+            "en": "Sadder than tea that wouldn't cool. Tea that had gone cold."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 이름들은 벽에 있었다. 그것은 지워지지 않았다.",
+            "en": "But the names were on the wall. Those had not been erased."
+          }
+        },
+        {
+          "text": {
+            "ko": "분필은 약했다. 그러나 여전히 거기 있었다.",
+            "en": "Chalk was weak. But it was still there."
+          }
+        }
       ]
     },
     {
@@ -573,14 +1775,55 @@
       "transition": "fade_slow",
       "endingId": "citizen",
       "lines": [
-        { "text": { "ko": "Gaia가 떴다.", "en": "Gaia launched." }},
-        { "text": { "ko": "화성에서 만든 첫 번째 함선. 화성 자체의 힘으로.", "en": "The first ship made on Mars. By Mars's own power." }},
-        { "text": { "ko": "Olu Adeyemi가 지켜봤다. 편지를 손에 쥐고.", "en": "Olu Adeyemi watched. With the letter in hand." }},
-        { "text": { "ko": "Mariam. 함선이 그 이름을 가지고 갔다.", "en": "Mariam. The ship carried that name." }, "overlay": "mars_horizon" },
-        { "text": { "ko": "헬라스 광부 마을로 돌아오는 길에 Mikhail이 말했다.", "en": "On the way back to the Hellas mining village Mikhail spoke." }},
-        { "text": { "ko": "'이름들이 기록됐어요. 그다음은 Yuna가 결정해요.'", "en": "'The names are recorded. What comes next Yuna decides.'" }},
-        { "text": { "ko": "Yuna가 두 손으로 잔을 들었다.", "en": "Yuna held the cup with both hands." }},
-        { "text": { "ko": "화성에서 태어난 첫 번째 세대. 화성을 이어받을 세대.", "en": "The first generation born on Mars. The generation to inherit Mars." }}
+        {
+          "text": {
+            "ko": "Gaia가 떴다.",
+            "en": "Gaia launched."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성에서 만든 첫 번째 함선. 화성 자체의 힘으로.",
+            "en": "The first ship made on Mars. By Mars's own power."
+          }
+        },
+        {
+          "text": {
+            "ko": "Olu Adeyemi가 지켜봤다. 편지를 손에 쥐고.",
+            "en": "Olu Adeyemi watched. With the letter in hand."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mariam. 함선이 그 이름을 가지고 갔다.",
+            "en": "Mariam. The ship carried that name."
+          },
+          "background": "fsp_ch10_freedoms_price_l36_03_mars_horizon"
+        },
+        {
+          "text": {
+            "ko": "헬라스 광부 마을로 돌아오는 길에 Mikhail이 말했다.",
+            "en": "On the way back to the Hellas mining village Mikhail spoke."
+          }
+        },
+        {
+          "text": {
+            "ko": "'이름들이 기록됐어요. 그다음은 Yuna가 결정해요.'",
+            "en": "'The names are recorded. What comes next Yuna decides.'"
+          }
+        },
+        {
+          "text": {
+            "ko": "Yuna가 두 손으로 잔을 들었다.",
+            "en": "Yuna held the cup with both hands."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성에서 태어난 첫 번째 세대. 화성을 이어받을 세대.",
+            "en": "The first generation born on Mars. The generation to inherit Mars."
+          }
+        }
       ]
     },
     {
@@ -591,13 +1834,48 @@
       "transition": "fade_slow",
       "endingId": "peacemaker",
       "lines": [
-        { "text": { "ko": "Gaia는 72시간 더 기다렸다.", "en": "Gaia waited 72 more hours." }},
-        { "text": { "ko": "지구 측과 협상이 시작됐다.", "en": "Negotiations with the Earth-side began." }},
-        { "text": { "ko": "Rev. Hale이 증인이 됐다. 또다시.", "en": "Rev. Hale became a witness. Again." }},
-        { "text": { "ko": "협상은 느렸다. 화성의 시간으로.", "en": "Negotiations were slow. By Mars's time." }},
-        { "text": { "ko": "그러나 이름들은 기록됐다. 그 사이에도.", "en": "But names were being recorded. Even in between." }},
-        { "text": { "ko": "Mikhail이 차를 끓였다. 기다리면서.", "en": "Mikhail made tea. While waiting." }},
-        { "text": { "ko": "기다림도 방식이었다. 화성에서.", "en": "Waiting was also a way. On Mars." }}
+        {
+          "text": {
+            "ko": "Gaia는 72시간 더 기다렸다.",
+            "en": "Gaia waited 72 more hours."
+          }
+        },
+        {
+          "text": {
+            "ko": "지구 측과 협상이 시작됐다.",
+            "en": "Negotiations with the Earth-side began."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 증인이 됐다. 또다시.",
+            "en": "Rev. Hale became a witness. Again."
+          }
+        },
+        {
+          "text": {
+            "ko": "협상은 느렸다. 화성의 시간으로.",
+            "en": "Negotiations were slow. By Mars's time."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 이름들은 기록됐다. 그 사이에도.",
+            "en": "But names were being recorded. Even in between."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mikhail이 차를 끓였다. 기다리면서.",
+            "en": "Mikhail made tea. While waiting."
+          }
+        },
+        {
+          "text": {
+            "ko": "기다림도 방식이었다. 화성에서.",
+            "en": "Waiting was also a way. On Mars."
+          }
+        }
       ]
     },
     {
@@ -608,14 +1886,54 @@
       "transition": "fade_slow",
       "endingId": "gaia_captain",
       "lines": [
-        { "text": { "ko": "플레이어가 Gaia에 탔다.", "en": "The player boarded Gaia." }},
-        { "text": { "ko": "Olu 옆에 앉았다. 함선 조종석.", "en": "Sat beside Olu. The ship's cockpit." }},
-        { "text": { "ko": "Olu가 편지를 선반에 올렸다. 그것이 의식이었다.", "en": "Olu placed the letter on the shelf. It was a ritual." }},
-        { "text": { "ko": "화성의 하늘이 붉었다. 아래로 멀어졌다.", "en": "The Martian sky was red. It grew distant below." }},
-        { "text": { "ko": "헬라스 광부 마을이 보였다. 점처럼. 그다음에 안 보였다.", "en": "The Hellas mining village was visible. Like a dot. Then it wasn't." }},
-        { "text": { "ko": "그러나 이름들은 여전히 그 점 위에 있었다.", "en": "But the names were still on that dot." }},
-        { "text": { "ko": "벽에. 기록 시스템에. 기억 속에.", "en": "On the wall. In the registration system. In memory." }},
-        { "text": { "ko": "이름들은 지워지지 않았다.", "en": "Names were not erased." }}
+        {
+          "text": {
+            "ko": "플레이어가 Gaia에 탔다.",
+            "en": "The player boarded Gaia."
+          }
+        },
+        {
+          "text": {
+            "ko": "Olu 옆에 앉았다. 함선 조종석.",
+            "en": "Sat beside Olu. The ship's cockpit."
+          }
+        },
+        {
+          "text": {
+            "ko": "Olu가 편지를 선반에 올렸다. 그것이 의식이었다.",
+            "en": "Olu placed the letter on the shelf. It was a ritual."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성의 하늘이 붉었다. 아래로 멀어졌다.",
+            "en": "The Martian sky was red. It grew distant below."
+          }
+        },
+        {
+          "text": {
+            "ko": "헬라스 광부 마을이 보였다. 점처럼. 그다음에 안 보였다.",
+            "en": "The Hellas mining village was visible. Like a dot. Then it wasn't."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 이름들은 여전히 그 점 위에 있었다.",
+            "en": "But the names were still on that dot."
+          }
+        },
+        {
+          "text": {
+            "ko": "벽에. 기록 시스템에. 기억 속에.",
+            "en": "On the wall. In the registration system. In memory."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름들은 지워지지 않았다.",
+            "en": "Names were not erased."
+          }
+        }
       ]
     },
     {
@@ -626,14 +1944,54 @@
       "transition": "fade_slow",
       "endingId": "disillusioned",
       "lines": [
-        { "text": { "ko": "플레이어가 마을을 나갔다.", "en": "The player left the village." }},
-        { "text": { "ko": "혼자. 걸어서.", "en": "Alone. Walking." }},
-        { "text": { "ko": "Mikhail이 뒤에서 보았다. 차를 들고.", "en": "Mikhail watched from behind. Holding tea." }},
-        { "text": { "ko": "부르지 않았다. 그것이 Mikhail의 방식이었다.", "en": "Didn't call out. That was Mikhail's way." }},
-        { "text": { "ko": "Rev. Hale이 기도했다. 걸어가는 사람을 위해.", "en": "Rev. Hale prayed. For the one walking away." }},
-        { "text": { "ko": "화성의 붉은 먼지 길.", "en": "The red dust road of Mars." }},
-        { "text": { "ko": "이름들을 기억하는 사람이 걸어갔다.", "en": "A person who remembered the names walked on." }},
-        { "text": { "ko": "기억이 있는 한. 이름들은 살아 있었다.", "en": "As long as there was memory. The names were alive." }}
+        {
+          "text": {
+            "ko": "플레이어가 마을을 나갔다.",
+            "en": "The player left the village."
+          }
+        },
+        {
+          "text": {
+            "ko": "혼자. 걸어서.",
+            "en": "Alone. Walking."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mikhail이 뒤에서 보았다. 차를 들고.",
+            "en": "Mikhail watched from behind. Holding tea."
+          }
+        },
+        {
+          "text": {
+            "ko": "부르지 않았다. 그것이 Mikhail의 방식이었다.",
+            "en": "Didn't call out. That was Mikhail's way."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 기도했다. 걸어가는 사람을 위해.",
+            "en": "Rev. Hale prayed. For the one walking away."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성의 붉은 먼지 길.",
+            "en": "The red dust road of Mars."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름들을 기억하는 사람이 걸어갔다.",
+            "en": "A person who remembered the names walked on."
+          }
+        },
+        {
+          "text": {
+            "ko": "기억이 있는 한. 이름들은 살아 있었다.",
+            "en": "As long as there was memory. The names were alive."
+          }
+        }
       ]
     }
   ]

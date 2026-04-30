@@ -2,12 +2,22 @@
   "questId": "cv_campaign_ch4",
   "campaignId": "cv_route",
   "chapterNumber": 4,
-  "title": { "ko": "Cinder의 그림자", "en": "Cinder's Shadow" },
-  "location": { "id": "mine_shaft_12", "displayNameKo": "헬라스 12구역 폐광" },
+  "title": {
+    "ko": "Cinder의 그림자",
+    "en": "Cinder's Shadow"
+  },
+  "location": {
+    "id": "mine_shaft_12",
+    "displayNameKo": "헬라스 12구역 폐광"
+  },
   "environment": "abandoned_mine",
   "estimatedPlayTimeMinutes": 20,
   "pov": "cinder_grace",
-  "characters": ["cinder_grace", "player", "butcher_vasquez"],
+  "characters": [
+    "cinder_grace",
+    "player",
+    "butcher_vasquez"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -16,7 +26,12 @@
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "Cinder Grace는 말이 없는 사람이었다. CV에서 말이 없는 사람은 많았다. 그러나 Cinder는 달랐다. 말하지 않는 것이 아니었다. 말할 것이 너무 많아서 말하지 않는 것이었다.", "en": "Cinder Grace was a person of few words. CV had many people of few words. But Cinder was different. Not that she couldn't speak. She didn't speak because she had too much to say." } }
+        {
+          "text": {
+            "ko": "Cinder Grace는 말이 없는 사람이었다. CV에서 말이 없는 사람은 많았다. 그러나 Cinder는 달랐다. 말하지 않는 것이 아니었다. 말할 것이 너무 많아서 말하지 않는 것이었다.",
+            "en": "Cinder Grace was a person of few words. CV had many people of few words. But Cinder was different. Not that she couldn't speak. She didn't speak because she had too much to say."
+          }
+        }
       ]
     },
     {
@@ -26,7 +41,12 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그녀는 기계를 고쳤다. 기지의 것들을. 고장 난 것들. 부서진 것들. 아무도 고칠 수 없는 것들. 그것이 Cinder가 CV에서 하는 일이었다. 고치는 일. 전투가 아니었다. 고치는 것이었다.", "en": "She repaired machines. Things in the base. Broken things. Ruined things. Things no one else could fix. That was what Cinder did in CV. Repair. Not combat. Repair." } }
+        {
+          "text": {
+            "ko": "그녀는 기계를 고쳤다. 기지의 것들을. 고장 난 것들. 부서진 것들. 아무도 고칠 수 없는 것들. 그것이 Cinder가 CV에서 하는 일이었다. 고치는 일. 전투가 아니었다. 고치는 것이었다.",
+            "en": "She repaired machines. Things in the base. Broken things. Ruined things. Things no one else could fix. That was what Cinder did in CV. Repair. Not combat. Repair."
+          }
+        }
       ]
     },
     {
@@ -36,7 +56,12 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "MCC 시절이 있었다. 6년이었다. 기계 기술자였다. 갱도 지지 시스템. 화성 광산에서 가장 중요한 것. 그것이 무너지면 사람이 죽었다. 그것을 막는 사람이었다. 6년 동안.", "en": "There was a time with MCC. Six years. A mechanical engineer. Tunnel support systems. Most important thing in Martian mines. When they collapsed people died. She was the person who prevented that. For six years." } }
+        {
+          "text": {
+            "ko": "MCC 시절이 있었다. 6년이었다. 기계 기술자였다. 갱도 지지 시스템. 화성 광산에서 가장 중요한 것. 그것이 무너지면 사람이 죽었다. 그것을 막는 사람이었다. 6년 동안.",
+            "en": "There was a time with MCC. Six years. A mechanical engineer. Tunnel support systems. Most important thing in Martian mines. When they collapsed people died. She was the person who prevented that. For six years."
+          }
+        }
       ]
     },
     {
@@ -46,7 +71,12 @@
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "아침에 Cinder가 당신에게 왔다. 처음으로. 먼저. 보통 Cinder가 먼저 오지 않았다. 공구 벨트를 만지고 있었다. 그것이 그녀의 신호였다. 무언가 말하려는 신호.", "en": "Morning and Cinder came to you. First time. On her own. Usually Cinder didn't approach first. Touching the tool belt. That was her signal. Signal of something to say." } }
+        {
+          "text": {
+            "ko": "아침에 Cinder가 당신에게 왔다. 처음으로. 먼저. 보통 Cinder가 먼저 오지 않았다. 공구 벨트를 만지고 있었다. 그것이 그녀의 신호였다. 무언가 말하려는 신호.",
+            "en": "Morning and Cinder came to you. First time. On her own. Usually Cinder didn't approach first. Touching the tool belt. That was her signal. Signal of something to say."
+          }
+        }
       ]
     },
     {
@@ -56,11 +86,47 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "neutral", "effect": "character_enter:cinder_grace:slide_right", "text": { "ko": "같이 가줄 수 있어?", "en": "Can you come with me?" } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "어디.", "en": "Where." } },
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "헬라스 외곽. 12구역. 폐광이야.", "en": "Hellas outer. Zone 12. Abandoned mine." } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "이유가 있어.", "en": "Any reason." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "가면 말할게.", "en": "I'll tell you when we get there." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "neutral",
+          "effect": "character_enter:cinder_grace:slide_right",
+          "text": {
+            "ko": "같이 가줄 수 있어?",
+            "en": "Can you come with me?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "어디.",
+            "en": "Where."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "헬라스 외곽. 12구역. 폐광이야.",
+            "en": "Hellas outer. Zone 12. Abandoned mine."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "이유가 있어.",
+            "en": "Any reason."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "가면 말할게.",
+            "en": "I'll tell you when we get there."
+          }
+        }
       ]
     },
     {
@@ -70,7 +136,12 @@
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "헬라스 외곽으로 걸었다. 둘이서. Cinder가 앞에 걸었다. 빠르지 않았다. 그러나 방향이 명확했다. 이 길을 알고 있는 걸음이었다. 이전에 걸어본 걸음이었다.", "en": "Walked to the Hellas outskirts. The two of you. Cinder walked ahead. Not fast. But direction was clear. The walk of someone who knew this path. Had walked it before." } }
+        {
+          "text": {
+            "ko": "헬라스 외곽으로 걸었다. 둘이서. Cinder가 앞에 걸었다. 빠르지 않았다. 그러나 방향이 명확했다. 이 길을 알고 있는 걸음이었다. 이전에 걸어본 걸음이었다.",
+            "en": "Walked to the Hellas outskirts. The two of you. Cinder walked ahead. Not fast. But direction was clear. The walk of someone who knew this path. Had walked it before."
+          }
+        }
       ]
     },
     {
@@ -80,7 +151,12 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "말이 없었다. 두 시간을 걸었다. 그것이 이상하지 않았다. Cinder와 있을 때 말이 없는 것이 자연스러웠다. 공구 소리 같은 것이었다. 있는데 없는 것처럼 자연스러운 것.", "en": "No words. Two hours walking. That wasn't strange. With Cinder silence was natural. Like the sound of tools. Present but natural as if absent." } }
+        {
+          "text": {
+            "ko": "말이 없었다. 두 시간을 걸었다. 그것이 이상하지 않았다. Cinder와 있을 때 말이 없는 것이 자연스러웠다. 공구 소리 같은 것이었다. 있는데 없는 것처럼 자연스러운 것.",
+            "en": "No words. Two hours walking. That wasn't strange. With Cinder silence was natural. Like the sound of tools. Present but natural as if absent."
+          }
+        }
       ]
     },
     {
@@ -90,7 +166,12 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "12구역이 보였다. 폐광이었다. 입구가 있었다. 막혀 있었다. MCC 마크가 있었다. 출입 금지. 그러나 낡은 마크였다. 3년은 된 것이었다.", "en": "Zone 12 visible. Abandoned mine. Entrance. Blocked. MCC marking. No entry. But an old marking. Three years old." } }
+        {
+          "text": {
+            "ko": "12구역이 보였다. 폐광이었다. 입구가 있었다. 막혀 있었다. MCC 마크가 있었다. 출입 금지. 그러나 낡은 마크였다. 3년은 된 것이었다.",
+            "en": "Zone 12 visible. Abandoned mine. Entrance. Blocked. MCC marking. No entry. But an old marking. Three years old."
+          }
+        }
       ]
     },
     {
@@ -100,9 +181,30 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "여기야.", "en": "This is it." } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "이전에 일했던 곳.", "en": "Where you worked before." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "6년 동안.", "en": "For six years." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "여기야.",
+            "en": "This is it."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "이전에 일했던 곳.",
+            "en": "Where you worked before."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "6년 동안.",
+            "en": "For six years."
+          }
+        }
       ]
     },
     {
@@ -112,7 +214,12 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "광산 안으로 들어갔다. 어두웠다. Cinder가 헬등을 켰다. 통로가 있었다. 오래된 것이었다. 그 안에서 Cinder가 멈췄다. 벽을 봤다. 손을 벽에 대었다. 공구를 만지지 않았다. 처음으로.", "en": "Into the mine. Dark. Cinder turned on a lamp. Passages. Old. Inside Cinder stopped. Looked at the wall. Put a hand on the wall. Didn't touch the tools. For the first time." } }
+        {
+          "text": {
+            "ko": "광산 안으로 들어갔다. 어두웠다. Cinder가 헬등을 켰다. 통로가 있었다. 오래된 것이었다. 그 안에서 Cinder가 멈췄다. 벽을 봤다. 손을 벽에 대었다. 공구를 만지지 않았다. 처음으로.",
+            "en": "Into the mine. Dark. Cinder turned on a lamp. Passages. Old. Inside Cinder stopped. Looked at the wall. Put a hand on the wall. Didn't touch the tools. For the first time."
+          }
+        }
       ]
     },
     {
@@ -122,9 +229,31 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "여기서 11명이 죽었어.", "en": "Eleven people died here." } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "...", "en": "..." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "3년 전이야. 갱도 붕괴. MCC 기록에는 없어. 지워졌어.", "en": "Three years ago. Tunnel collapse. Not in MCC records. Erased." }, "overlay": "collapse_debris" }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "여기서 11명이 죽었어.",
+            "en": "Eleven people died here."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "3년 전이야. 갱도 붕괴. MCC 기록에는 없어. 지워졌어.",
+            "en": "Three years ago. Tunnel collapse. Not in MCC records. Erased."
+          },
+          "background": "cv_ch4_cinder_l10_02_collapse_debris"
+        }
       ]
     },
     {
@@ -134,7 +263,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 계속 벽을 봤다. 손이 벽 위에 있었다. 움직이지 않았다. 그것이 이상했다. Cinder의 손은 항상 공구 위에 있었다. 공구를 만지는 손이었다. 지금은 벽 위에 있었다. 차가운 벽.", "en": "Cinder kept looking at the wall. Hand on the wall. Not moving. That was strange. Cinder's hands were always on tools. Hands that touched tools. Now on the wall. Cold wall." } }
+        {
+          "text": {
+            "ko": "Cinder가 계속 벽을 봤다. 손이 벽 위에 있었다. 움직이지 않았다. 그것이 이상했다. Cinder의 손은 항상 공구 위에 있었다. 공구를 만지는 손이었다. 지금은 벽 위에 있었다. 차가운 벽.",
+            "en": "Cinder kept looking at the wall. Hand on the wall. Not moving. That was strange. Cinder's hands were always on tools. Hands that touched tools. Now on the wall. Cold wall."
+          }
+        }
       ]
     },
     {
@@ -144,9 +278,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "나는 기계 기술자였어. 갱도 지지 시스템 담당이었어. 6년 동안. 그 시스템이 제대로 되어 있으면 사람이 안 죽어.", "en": "I was a mechanical engineer. In charge of tunnel support systems. For six years. If the systems were in order, people didn't die." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "내가 보고서를 썼어. 지지대 결함. 즉각 수리 요망.", "en": "I wrote a report. Support beam defects. Immediate repair required." } },
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "MCC 감독관이 돌려보냈어. 수정하라고. 나는 수정하지 않았어.", "en": "The MCC supervisor returned it. Told me to revise. I didn't revise." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "serious",
+          "text": {
+            "ko": "나는 기계 기술자였어. 갱도 지지 시스템 담당이었어. 6년 동안. 그 시스템이 제대로 되어 있으면 사람이 안 죽어.",
+            "en": "I was a mechanical engineer. In charge of tunnel support systems. For six years. If the systems were in order, people didn't die."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "내가 보고서를 썼어. 지지대 결함. 즉각 수리 요망.",
+            "en": "I wrote a report. Support beam defects. Immediate repair required."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "MCC 감독관이 돌려보냈어. 수정하라고. 나는 수정하지 않았어.",
+            "en": "The MCC supervisor returned it. Told me to revise. I didn't revise."
+          }
+        }
       ]
     },
     {
@@ -156,7 +311,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 통로를 따라 걸었다. 안으로. 더 깊은 곳으로. 헬등이 앞을 비췄다. 벽이 가까워졌다. 통로가 좁아졌다. 그리고 막혔다. 거기서 멈췄다. 그것이 어디인지 알 수 없었다.", "en": "Cinder walked along the passage. Inside. Deeper. Lamp lit the way. Walls closer. Passage narrowing. Then blocked. Stopped there. Couldn't tell where that was." } }
+        {
+          "text": {
+            "ko": "Cinder가 통로를 따라 걸었다. 안으로. 더 깊은 곳으로. 헬등이 앞을 비췄다. 벽이 가까워졌다. 통로가 좁아졌다. 그리고 막혔다. 거기서 멈췄다. 그것이 어디인지 알 수 없었다.",
+            "en": "Cinder walked along the passage. Inside. Deeper. Lamp lit the way. Walls closer. Passage narrowing. Then blocked. Stopped there. Couldn't tell where that was."
+          }
+        }
       ]
     },
     {
@@ -166,9 +326,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "hollow", "text": { "ko": "여기야. 갱도가 무너진 곳.", "en": "Here. Where the tunnel collapsed." } },
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "일주일 후였어. 내가 보고서를 낸 후 일주일 후.", "en": "One week after. One week after I submitted the report." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "11명이 여기 있었어. 교대 근무 중에.", "en": "Eleven people were here. During a shift." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "hollow",
+          "text": {
+            "ko": "여기야. 갱도가 무너진 곳.",
+            "en": "Here. Where the tunnel collapsed."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "일주일 후였어. 내가 보고서를 낸 후 일주일 후.",
+            "en": "One week after. One week after I submitted the report."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "11명이 여기 있었어. 교대 근무 중에.",
+            "en": "Eleven people were here. During a shift."
+          }
+        }
       ]
     },
     {
@@ -178,7 +359,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "벽이 막혀 있었다. 거기 너머에 것이 있었다. 11명이 있던 곳. 거기까지 도달할 수 없었다. 3년 동안 그랬다. Cinder가 여기 왔는지 아닌지 알 수 없었다. 그러나 그 발걸음이 이전에 걸어본 것처럼 보였다.", "en": "Wall blocked. Beyond it something. Where the eleven were. Couldn't reach there. Three years of that. Couldn't tell if Cinder had come here or not. But those footsteps looked like ones walked before." } }
+        {
+          "text": {
+            "ko": "벽이 막혀 있었다. 거기 너머에 것이 있었다. 11명이 있던 곳. 거기까지 도달할 수 없었다. 3년 동안 그랬다. Cinder가 여기 왔는지 아닌지 알 수 없었다. 그러나 그 발걸음이 이전에 걸어본 것처럼 보였다.",
+            "en": "Wall blocked. Beyond it something. Where the eleven were. Couldn't reach there. Three years of that. Couldn't tell if Cinder had come here or not. But those footsteps looked like ones walked before."
+          }
+        }
       ]
     },
     {
@@ -188,9 +374,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "이름이 있어. 11명. MCC 기록에는 없어. 그러나 나한테 있어. 이 보고서에.", "en": "There are names. Eleven. Not in MCC records. But I have them. In this report." } },
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "3년 전에 썼어. 원본이야. MCC가 가져가지 못한 것.", "en": "Written three years ago. The original. What MCC couldn't take." } },
-        { "speaker": "cinder_grace", "emotion": "neutral", "text": { "ko": "당신한테 왜 이걸 말하는지 모르겠어. 그냥 말하고 싶어졌어. 처음으로.", "en": "I don't know why I'm telling you this. Just wanted to say it. For the first time." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "serious",
+          "text": {
+            "ko": "이름이 있어. 11명. MCC 기록에는 없어. 그러나 나한테 있어. 이 보고서에.",
+            "en": "There are names. Eleven. Not in MCC records. But I have them. In this report."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "3년 전에 썼어. 원본이야. MCC가 가져가지 못한 것.",
+            "en": "Written three years ago. The original. What MCC couldn't take."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "neutral",
+          "text": {
+            "ko": "당신한테 왜 이걸 말하는지 모르겠어. 그냥 말하고 싶어졌어. 처음으로.",
+            "en": "I don't know why I'm telling you this. Just wanted to say it. For the first time."
+          }
+        }
       ]
     },
     {
@@ -200,7 +407,13 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 보고서를 꺼냈다. 주머니 안에 있던 것. 작은 것이었다. 접혀 있었다. 여러 번. 자주 꺼내봤다는 것이었다. 자주 접었다는 것이었다. 이름들이 거기 있었다. 11개.", "en": "Cinder took out the report. From a pocket. Small. Folded. Many times. Taken out often. Folded often. The names were there. Eleven." }, "overlay": "sealed_file" }
+        {
+          "text": {
+            "ko": "Cinder가 보고서를 꺼냈다. 주머니 안에 있던 것. 작은 것이었다. 접혀 있었다. 여러 번. 자주 꺼내봤다는 것이었다. 자주 접었다는 것이었다. 이름들이 거기 있었다. 11개.",
+            "en": "Cinder took out the report. From a pocket. Small. Folded. Many times. Taken out often. Folded often. The names were there. Eleven."
+          },
+          "background": "cv_ch4_cinder_l17_00_sealed_file"
+        }
       ]
     },
     {
@@ -210,9 +423,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "MCC는 이걸 기록에서 지웠어. 사고가 없었던 것으로 됐어. 11명이 없었던 것으로 됐어.", "en": "MCC erased this from records. The accident became as if it never happened. The eleven became as if they never existed." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "나는 이것 때문에 MCC에서 나왔어. 쫓겨난 게 아니야. 나온 거야.", "en": "I left MCC because of this. Not expelled. Left." } },
-        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "그 차이가 있어. 나한테는.", "en": "That difference matters. To me." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "MCC는 이걸 기록에서 지웠어. 사고가 없었던 것으로 됐어. 11명이 없었던 것으로 됐어.",
+            "en": "MCC erased this from records. The accident became as if it never happened. The eleven became as if they never existed."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "나는 이것 때문에 MCC에서 나왔어. 쫓겨난 게 아니야. 나온 거야.",
+            "en": "I left MCC because of this. Not expelled. Left."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "serious",
+          "text": {
+            "ko": "그 차이가 있어. 나한테는.",
+            "en": "That difference matters. To me."
+          }
+        }
       ]
     },
     {
@@ -222,7 +456,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 공구를 만졌다. 벨트의 것을. 무기가 아닌 것을. 그것이 그녀의 방식이었다. 공구를 만지면 생각이 정리됐다. 3년 동안 그래왔다. 공구를 고치는 것이 아니라 공구를 만지는 것. 그것이 Cinder Grace의 기도였다.", "en": "Cinder touched her tools. The ones on the belt. The ones that weren't weapons. That was her way. Touching tools settled thoughts. Three years of that. Not repairing tools but touching them. That was Cinder Grace's prayer." } }
+        {
+          "text": {
+            "ko": "Cinder가 공구를 만졌다. 벨트의 것을. 무기가 아닌 것을. 그것이 그녀의 방식이었다. 공구를 만지면 생각이 정리됐다. 3년 동안 그래왔다. 공구를 고치는 것이 아니라 공구를 만지는 것. 그것이 Cinder Grace의 기도였다.",
+            "en": "Cinder touched her tools. The ones on the belt. The ones that weren't weapons. That was her way. Touching tools settled thoughts. Three years of that. Not repairing tools but touching them. That was Cinder Grace's prayer."
+          }
+        }
       ]
     },
     {
@@ -232,8 +471,22 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "CV에 온 건 돈 때문이 아니야. 갈 곳이 없어서야.", "en": "I didn't come to CV for money. I came because there was nowhere else to go." } },
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "Butcher가 이 얘기를 들었어. 찾아왔어. 아무 말 안 하고. 그냥 불 앞에 앉았어. 같이. 그게 전부였어. 그게 충분했어.", "en": "Butcher heard about this. He came. Without a word. Just sat by the fire. Together. That was all. That was enough." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "serious",
+          "text": {
+            "ko": "CV에 온 건 돈 때문이 아니야. 갈 곳이 없어서야.",
+            "en": "I didn't come to CV for money. I came because there was nowhere else to go."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Butcher가 이 얘기를 들었어. 찾아왔어. 아무 말 안 하고. 그냥 불 앞에 앉았어. 같이. 그게 전부였어. 그게 충분했어.",
+            "en": "Butcher heard about this. He came. Without a word. Just sat by the fire. Together. That was all. That was enough."
+          }
+        }
       ]
     },
     {
@@ -243,7 +496,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Butcher가 17살 때 팔을 잃은 것이었다. MCC가 배상을 거부한 것이었다. 그것과 11명이 같은 것이었다. 이름이 없어진 사람들. 기록에서 사라진 사람들. MCC가 지운 사람들.", "en": "Butcher had lost an arm at seventeen. MCC had refused compensation. That and the eleven were the same thing. People whose names disappeared. People erased from records. People MCC deleted." } }
+        {
+          "text": {
+            "ko": "Butcher가 17살 때 팔을 잃은 것이었다. MCC가 배상을 거부한 것이었다. 그것과 11명이 같은 것이었다. 이름이 없어진 사람들. 기록에서 사라진 사람들. MCC가 지운 사람들.",
+            "en": "Butcher had lost an arm at seventeen. MCC had refused compensation. That and the eleven were the same thing. People whose names disappeared. People erased from records. People MCC deleted."
+          }
+        }
       ]
     },
     {
@@ -253,9 +511,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "neutral", "text": { "ko": "너한테만 말하는 게 아니야.", "en": "I'm not only telling you." } },
-        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "화성에 있는 모든 사람이 알아야 해. 이름들. 여기서 죽은 사람들. 기록에 없는 사람들.", "en": "Everyone on Mars should know. The names. People who died here. People not in the records." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "그러나 아직 방법을 몰라. 어떻게 알릴지.", "en": "But I don't know how yet. How to tell them." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "neutral",
+          "text": {
+            "ko": "너한테만 말하는 게 아니야.",
+            "en": "I'm not only telling you."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "serious",
+          "text": {
+            "ko": "화성에 있는 모든 사람이 알아야 해. 이름들. 여기서 죽은 사람들. 기록에 없는 사람들.",
+            "en": "Everyone on Mars should know. The names. People who died here. People not in the records."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "그러나 아직 방법을 몰라. 어떻게 알릴지.",
+            "en": "But I don't know how yet. How to tell them."
+          }
+        }
       ]
     },
     {
@@ -265,7 +544,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 보고서를 다시 접었다. 여러 번. 주머니 안으로 넣었다. 공구를 다시 만졌다. 그것이 기도가 끝난 것이었다. 생각이 정리된 것이었다.", "en": "Cinder folded the report again. Many times. Back into the pocket. Touched the tools again. Prayer ended. Thoughts settled." } }
+        {
+          "text": {
+            "ko": "Cinder가 보고서를 다시 접었다. 여러 번. 주머니 안으로 넣었다. 공구를 다시 만졌다. 그것이 기도가 끝난 것이었다. 생각이 정리된 것이었다.",
+            "en": "Cinder folded the report again. Many times. Back into the pocket. Touched the tools again. Prayer ended. Thoughts settled."
+          }
+        }
       ]
     },
     {
@@ -273,31 +557,58 @@
       "type": "choice",
       "background": "mine_shaft",
       "bgm": "choice_tension",
-      "prompt": { "ko": "Cinder Grace. 11명의 이름들. 이 폐광. 어떻게 반응합니까.", "en": "Cinder Grace. Eleven names. This abandoned mine. How do you respond." },
+      "prompt": {
+        "ko": "Cinder Grace. 11명의 이름들. 이 폐광. 어떻게 반응합니까.",
+        "en": "Cinder Grace. Eleven names. This abandoned mine. How do you respond."
+      },
       "choices": [
         {
           "id": "cv_ch4_witness",
-          "text": { "ko": "듣는다. 이름들을 기억한다.", "en": "Listen. Remember the names." },
+          "text": {
+            "ko": "듣는다. 이름들을 기억한다.",
+            "en": "Listen. Remember the names."
+          },
           "tone": "witness",
-          "preview_hint": { "ko": "→ Cinder가 처음으로 눈물 흘린다.", "en": "→ Cinder sheds tears for the first time." }
+          "preview_hint": {
+            "ko": "→ Cinder가 처음으로 눈물 흘린다.",
+            "en": "→ Cinder sheds tears for the first time."
+          }
         },
         {
           "id": "cv_ch4_mcc_file",
-          "text": { "ko": "MCC 파일을 이용하자고 제안한다.", "en": "Propose using the MCC file." },
+          "text": {
+            "ko": "MCC 파일을 이용하자고 제안한다.",
+            "en": "Propose using the MCC file."
+          },
           "tone": "strategic",
-          "preview_hint": { "ko": "→ Cinder가 고개를 젓는다. 그게 목적이 아니라고.", "en": "→ Cinder shakes her head. That's not the point." }
+          "preview_hint": {
+            "ko": "→ Cinder가 고개를 젓는다. 그게 목적이 아니라고.",
+            "en": "→ Cinder shakes her head. That's not the point."
+          }
         },
         {
           "id": "cv_ch4_share",
-          "text": { "ko": "자신의 이야기를 말한다. 비슷한 것을.", "en": "Share your own story. Something similar." },
+          "text": {
+            "ko": "자신의 이야기를 말한다. 비슷한 것을.",
+            "en": "Share your own story. Something similar."
+          },
           "tone": "human",
-          "preview_hint": { "ko": "→ Cinder가 처음으로 먼저 말을 건다.", "en": "→ Cinder speaks first for the first time." }
+          "preview_hint": {
+            "ko": "→ Cinder가 처음으로 먼저 말을 건다.",
+            "en": "→ Cinder speaks first for the first time."
+          }
         },
         {
           "id": "cv_ch4_silent",
-          "text": { "ko": "아무 말도 하지 않는다.", "en": "Say nothing." },
+          "text": {
+            "ko": "아무 말도 하지 않는다.",
+            "en": "Say nothing."
+          },
           "tone": "presence",
-          "preview_hint": { "ko": "→ Cinder가 고맙다고 한다. 말이 없는 것에 대해.", "en": "→ Cinder thanks you. For the silence." }
+          "preview_hint": {
+            "ko": "→ Cinder가 고맙다고 한다. 말이 없는 것에 대해.",
+            "en": "→ Cinder thanks you. For the silence."
+          }
         }
       ]
     },
@@ -308,7 +619,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "선택했다. Cinder가 봤다. 그 눈이 처음이었다. Cinder가 당신을 오래 보는 것이 처음이었다. 보통 Cinder는 공구를 봤다. 기계를 봤다. 벽을 봤다. 사람을 오래 보지 않았다. 지금은 봤다.", "en": "Chose. Cinder looked. Those eyes were new. First time Cinder looked at you for a long time. Usually Cinder looked at tools. Machines. Walls. Didn't look at people long. But now looked." } }
+        {
+          "text": {
+            "ko": "선택했다. Cinder가 봤다. 그 눈이 처음이었다. Cinder가 당신을 오래 보는 것이 처음이었다. 보통 Cinder는 공구를 봤다. 기계를 봤다. 벽을 봤다. 사람을 오래 보지 않았다. 지금은 봤다.",
+            "en": "Chose. Cinder looked. Those eyes were new. First time Cinder looked at you for a long time. Usually Cinder looked at tools. Machines. Walls. Didn't look at people long. But now looked."
+          }
+        }
       ]
     },
     {
@@ -318,9 +634,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "이름을 읽어줄게.", "en": "I'll read the names." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "들을 수 있어?", "en": "Can you listen?" } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "그래.", "en": "Yes." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이름을 읽어줄게.",
+            "en": "I'll read the names."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "들을 수 있어?",
+            "en": "Can you listen?"
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그래.",
+            "en": "Yes."
+          }
+        }
       ]
     },
     {
@@ -330,7 +667,13 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 보고서를 다시 꺼냈다. 펼쳤다. 이름들이 있었다. 11개. 읽었다. 천천히. 하나씩. 이름만 읽었다. 설명하지 않았다. 설명이 필요 없었다. 이름이 있었다. 그것으로 충분했다.", "en": "Cinder took out the report again. Unfolded it. Names. Eleven. Read them. Slowly. One by one. Only names. No explanation. No explanation needed. There were names. That was enough." }, "overlay": "candle_flame" }
+        {
+          "text": {
+            "ko": "Cinder가 보고서를 다시 꺼냈다. 펼쳤다. 이름들이 있었다. 11개. 읽었다. 천천히. 하나씩. 이름만 읽었다. 설명하지 않았다. 설명이 필요 없었다. 이름이 있었다. 그것으로 충분했다.",
+            "en": "Cinder took out the report again. Unfolded it. Names. Eleven. Read them. Slowly. One by one. Only names. No explanation. No explanation needed. There were names. That was enough."
+          },
+          "background": "cv_ch4_cinder_l27_00_candle_flame"
+        }
       ]
     },
     {
@@ -340,7 +683,12 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "11개의 이름. 들었다. 기억하려고 했다. 기억이 가능한지 몰랐다. 11개를 전부. 그러나 들었다. 그것이 Cinder가 원하는 것이었다. 듣는 사람이 있는 것.", "en": "Eleven names. Listened. Tried to remember. Didn't know if all eleven were possible. But listened. That was what Cinder wanted. Someone to listen." } }
+        {
+          "text": {
+            "ko": "11개의 이름. 들었다. 기억하려고 했다. 기억이 가능한지 몰랐다. 11개를 전부. 그러나 들었다. 그것이 Cinder가 원하는 것이었다. 듣는 사람이 있는 것.",
+            "en": "Eleven names. Listened. Tried to remember. Didn't know if all eleven were possible. But listened. That was what Cinder wanted. Someone to listen."
+          }
+        }
       ]
     },
     {
@@ -350,7 +698,12 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 보고서를 접었다. 보고서를 보면서 눈물이 있었다. 보이지 않는 것이었다. 어두워서. 그러나 소리가 있었다. 들었다. 모른 척했다. 그것이 옳은 것이었다.", "en": "Cinder folded the report. Looking at the report there were tears. Not visible. Dark. But there was sound. Heard it. Pretended not to. That was the right thing." } }
+        {
+          "text": {
+            "ko": "Cinder가 보고서를 접었다. 보고서를 보면서 눈물이 있었다. 보이지 않는 것이었다. 어두워서. 그러나 소리가 있었다. 들었다. 모른 척했다. 그것이 옳은 것이었다.",
+            "en": "Cinder folded the report. Looking at the report there were tears. Not visible. Dark. But there was sound. Heard it. Pretended not to. That was the right thing."
+          }
+        }
       ]
     },
     {
@@ -360,9 +713,30 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "고마워.", "en": "Thank you." } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "무엇이.", "en": "For what." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "들어줘서. 그냥 들어줘서.", "en": "For listening. Just for listening." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "고마워.",
+            "en": "Thank you."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "무엇이.",
+            "en": "For what."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "들어줘서. 그냥 들어줘서.",
+            "en": "For listening. Just for listening."
+          }
+        }
       ]
     },
     {
@@ -372,7 +746,12 @@
       "bgm": "tension_medium",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "그때 소리가 났다. 밖에서. 광산 입구 쪽. 발소리. 여러 명. MCC 경비였다. 정기 점검이 아니었다. 이 시간에 오는 것이 아니었다. 무언가 달랐다.", "en": "Then sound. Outside. Toward the mine entrance. Footsteps. Multiple. MCC security. Not a regular check. Not supposed to come at this time. Something different." } }
+        {
+          "text": {
+            "ko": "그때 소리가 났다. 밖에서. 광산 입구 쪽. 발소리. 여러 명. MCC 경비였다. 정기 점검이 아니었다. 이 시간에 오는 것이 아니었다. 무언가 달랐다.",
+            "en": "Then sound. Outside. Toward the mine entrance. Footsteps. Multiple. MCC security. Not a regular check. Not supposed to come at this time. Something different."
+          }
+        }
       ]
     },
     {
@@ -382,9 +761,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "sharp", "text": { "ko": "MCC야. 왜 지금 와.", "en": "MCC. Why now." } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "누가 알렸어.", "en": "Someone told them." } },
-        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "보고서 때문이야. 보고서가 있는 걸 알고 있어. 계속 알고 있었어.", "en": "Because of the report. They know the report exists. Have always known." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "sharp",
+          "text": {
+            "ko": "MCC야. 왜 지금 와.",
+            "en": "MCC. Why now."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "누가 알렸어.",
+            "en": "Someone told them."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "serious",
+          "text": {
+            "ko": "보고서 때문이야. 보고서가 있는 걸 알고 있어. 계속 알고 있었어.",
+            "en": "Because of the report. They know the report exists. Have always known."
+          }
+        }
       ]
     },
     {
@@ -394,7 +794,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 보고서를 쥐었다. 주머니 안에 다시 넣었다. 공구를 만졌다. 그것이 신호였다. 준비하는 신호. 싸울 준비가 아닌 다른 것. 도망칠 준비. 또는 지킬 준비.", "en": "Cinder gripped the report. Back into the pocket. Touched the tools. That was a signal. Signal of preparation. Not preparing to fight. Something else. Preparing to flee. Or to protect." } }
+        {
+          "text": {
+            "ko": "Cinder가 보고서를 쥐었다. 주머니 안에 다시 넣었다. 공구를 만졌다. 그것이 신호였다. 준비하는 신호. 싸울 준비가 아닌 다른 것. 도망칠 준비. 또는 지킬 준비.",
+            "en": "Cinder gripped the report. Back into the pocket. Touched the tools. That was a signal. Signal of preparation. Not preparing to fight. Something else. Preparing to flee. Or to protect."
+          }
+        }
       ]
     },
     {
@@ -404,9 +809,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "나가야 해. 다른 출구가 있어. 여기서 3년 동안 일했어. 알아.", "en": "Need to leave. There's another exit. Worked here three years. I know." } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "보고서.", "en": "The report." } },
-        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "이건 가져가. 기억 안에도 있어. 그러나 종이가 더 오래 남아.", "en": "Taking it. It's in memory too. But paper lasts longer." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "나가야 해. 다른 출구가 있어. 여기서 3년 동안 일했어. 알아.",
+            "en": "Need to leave. There's another exit. Worked here three years. I know."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "보고서.",
+            "en": "The report."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "serious",
+          "text": {
+            "ko": "이건 가져가. 기억 안에도 있어. 그러나 종이가 더 오래 남아.",
+            "en": "Taking it. It's in memory too. But paper lasts longer."
+          }
+        }
       ]
     },
     {
@@ -415,8 +841,14 @@
       "background": "hellas_mining_village_fire",
       "bgm": "battle_theme_cv",
       "transition": "flash_white",
-      "title": { "ko": "12구역의 진실", "en": "The Truth of Zone 12" },
-      "subtitle": { "ko": "MCC 폐광 — 11명을 위하여", "en": "MCC Abandoned Mine — For Eleven" }
+      "title": {
+        "ko": "12구역의 진실",
+        "en": "The Truth of Zone 12"
+      },
+      "subtitle": {
+        "ko": "MCC 폐광 — 11명을 위하여",
+        "en": "MCC Abandoned Mine — For Eleven"
+      }
     },
     {
       "id": "s37",
@@ -431,7 +863,12 @@
       "bgm": "victory_calm",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "폐광에서 나왔다. Cinder가 보고서를 갖고 나왔다. 3년 동안 가지고 있던 것. 이름들이 거기 있었다. 11명. 화성에서 이름이 있는 사람은 계속 거기 있는 것이었다. 기록에 없어도. 폐광이 되어도.", "en": "Out of the abandoned mine. Cinder came out with the report. What she'd carried for three years. The names were there. Eleven. On Mars a person with a name remained there. Even without a record. Even when abandoned." } }
+        {
+          "text": {
+            "ko": "폐광에서 나왔다. Cinder가 보고서를 갖고 나왔다. 3년 동안 가지고 있던 것. 이름들이 거기 있었다. 11명. 화성에서 이름이 있는 사람은 계속 거기 있는 것이었다. 기록에 없어도. 폐광이 되어도.",
+            "en": "Out of the abandoned mine. Cinder came out with the report. What she'd carried for three years. The names were there. Eleven. On Mars a person with a name remained there. Even without a record. Even when abandoned."
+          }
+        }
       ]
     },
     {
@@ -441,9 +878,30 @@
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "나왔어.", "en": "We're out." } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "보고서도.", "en": "The report too." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "응. 그것도.", "en": "Yes. That too." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "나왔어.",
+            "en": "We're out."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "보고서도.",
+            "en": "The report too."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "응. 그것도.",
+            "en": "Yes. That too."
+          }
+        }
       ]
     },
     {
@@ -453,7 +911,12 @@
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 공구를 만졌다. 습관이었다. 모든 것이 있었다. 없어진 것이 없었다. 11명은 없어졌지만. 공구들은 있었다. 보고서도 있었다. 기억도 있었다.", "en": "Cinder touched the tool belt. Habit. Everything was there. Nothing missing. The eleven were gone. But the tools were there. The report was there. The memory was there." } }
+        {
+          "text": {
+            "ko": "Cinder가 공구를 만졌다. 습관이었다. 모든 것이 있었다. 없어진 것이 없었다. 11명은 없어졌지만. 공구들은 있었다. 보고서도 있었다. 기억도 있었다.",
+            "en": "Cinder touched the tool belt. Habit. Everything was there. Nothing missing. The eleven were gone. But the tools were there. The report was there. The memory was there."
+          }
+        }
       ]
     },
     {
@@ -463,7 +926,12 @@
       "bgm": "defeat_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "MCC 경비가 왔다. 폐광이었지만 경비가 있었다. MCC는 폐광도 지켰다. 거기서 지울 것들이 있었다. 보고서가 없었다. 그러나 Cinder의 기억 안에 있었다. 기억은 경비가 없었다.", "en": "MCC security came. Abandoned but there were guards. MCC guarded even abandoned mines. Things to erase there. No report. But it was in Cinder's memory. Memory had no security." } }
+        {
+          "text": {
+            "ko": "MCC 경비가 왔다. 폐광이었지만 경비가 있었다. MCC는 폐광도 지켰다. 거기서 지울 것들이 있었다. 보고서가 없었다. 그러나 Cinder의 기억 안에 있었다. 기억은 경비가 없었다.",
+            "en": "MCC security came. Abandoned but there were guards. MCC guarded even abandoned mines. Things to erase there. No report. But it was in Cinder's memory. Memory had no security."
+          }
+        }
       ]
     },
     {
@@ -473,9 +941,30 @@
       "bgm": "defeat_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "보고서를 잃었어.", "en": "Lost the report." } },
-        { "speaker": "cinder_grace", "emotion": "serious", "text": { "ko": "그러나 이름들은 여기 있어.", "en": "But the names are here." } },
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "기억 안에. 당신도 들었어. 그것으로 충분해.", "en": "In memory. You heard them too. That's enough." } }
+        {
+          "speaker": "cinder_grace",
+          "emotion": "flat",
+          "text": {
+            "ko": "보고서를 잃었어.",
+            "en": "Lost the report."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "serious",
+          "text": {
+            "ko": "그러나 이름들은 여기 있어.",
+            "en": "But the names are here."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "기억 안에. 당신도 들었어. 그것으로 충분해.",
+            "en": "In memory. You heard them too. That's enough."
+          }
+        }
       ]
     },
     {
@@ -485,7 +974,12 @@
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "기지로 돌아왔다. Butcher가 있었다. 불 앞에. Cinder가 보고를 했다. 짧게. Butcher가 들었다. 말이 없었다. 의수를 내려다봤다. 그것이 전부였다.", "en": "Back to base. Butcher was there. Before the fire. Cinder reported. Briefly. Butcher listened. No words. Looked down at the prosthetic. That was all." } }
+        {
+          "text": {
+            "ko": "기지로 돌아왔다. Butcher가 있었다. 불 앞에. Cinder가 보고를 했다. 짧게. Butcher가 들었다. 말이 없었다. 의수를 내려다봤다. 그것이 전부였다.",
+            "en": "Back to base. Butcher was there. Before the fire. Cinder reported. Briefly. Butcher listened. No words. Looked down at the prosthetic. That was all."
+          }
+        }
       ]
     },
     {
@@ -495,9 +989,31 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "butcher_vasquez", "emotion": "hollow", "effect": "character_enter:butcher_vasquez:slide_left", "text": { "ko": "이름들을 알아.", "en": "I know the names." } },
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "알았어?", "en": "You knew?" } },
-        { "speaker": "butcher_vasquez", "emotion": "slow", "text": { "ko": "처음부터. Cinder가 CV에 온 이유를 알았어. 그래서 여기 있는 거야.", "en": "From the beginning. Knew why Cinder came to CV. That's why you're here." } }
+        {
+          "speaker": "butcher_vasquez",
+          "emotion": "hollow",
+          "effect": "character_enter:butcher_vasquez:slide_left",
+          "text": {
+            "ko": "이름들을 알아.",
+            "en": "I know the names."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "알았어?",
+            "en": "You knew?"
+          }
+        },
+        {
+          "speaker": "butcher_vasquez",
+          "emotion": "slow",
+          "text": {
+            "ko": "처음부터. Cinder가 CV에 온 이유를 알았어. 그래서 여기 있는 거야.",
+            "en": "From the beginning. Knew why Cinder came to CV. That's why you're here."
+          }
+        }
       ]
     },
     {
@@ -507,9 +1023,20 @@
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "해가 에레부스 쪽으로 기울었다. 화성의 해. 작은 것. 먼 것. Cinder가 공구 벨트를 다시 확인했다. 습관이었다. 모든 것이 있었다. 없어진 것이 없었다. 11명은 없어졌지만. 공구들은 있었다. 보고서도 있었다. 기억도 있었다. 불이 탔다. 따뜻하지 않았다. 그러나 탔다.", "en": "The sun tilted toward Erebus. Martian sun. Small thing. Distant thing. Cinder checked the tool belt again. Habit. Everything was there. Nothing missing. The eleven were gone. But the tools were there. The report was there. The memory was there. Fire burned. Not warm. But burning." } }
+        {
+          "text": {
+            "ko": "해가 에레부스 쪽으로 기울었다. 화성의 해. 작은 것. 먼 것. Cinder가 공구 벨트를 다시 확인했다. 습관이었다. 모든 것이 있었다. 없어진 것이 없었다. 11명은 없어졌지만. 공구들은 있었다. 보고서도 있었다. 기억도 있었다. 불이 탔다. 따뜻하지 않았다. 그러나 탔다.",
+            "en": "The sun tilted toward Erebus. Martian sun. Small thing. Distant thing. Cinder checked the tool belt again. Habit. Everything was there. Nothing missing. The eleven were gone. But the tools were there. The report was there. The memory was there. Fire burned. Not warm. But burning."
+          }
+        }
       ],
-      "next_chapter_preview": { "questId": "cv_campaign_ch5", "teaser": { "ko": "다음 — 야생의 조약", "en": "Next — Wild Lands Treaty" } }
+      "next_chapter_preview": {
+        "questId": "cv_campaign_ch5",
+        "teaser": {
+          "ko": "다음 — 야생의 조약",
+          "en": "Next — Wild Lands Treaty"
+        }
+      }
     }
   ]
 }

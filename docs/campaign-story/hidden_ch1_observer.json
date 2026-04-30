@@ -2,317 +2,601 @@
   "questId": "hidden_campaign_ch1",
   "campaignId": "hidden_route",
   "chapterNumber": 1,
-  "title": { "ko": "관찰자", "en": "The Observer" },
-  "location": { "id": "hellas_central_exterior", "displayNameKo": "헬라스 센트럴 — 도착" },
+  "title": {
+    "ko": "관찰자",
+    "en": "The Observer"
+  },
+  "location": {
+    "id": "hellas_central_exterior",
+    "displayNameKo": "헬라스 센트럴 — 도착"
+  },
   "environment": "hellas_exterior_arrived",
   "estimatedPlayTimeMinutes": 22,
   "unlockCondition": "모든 루트 Ch1 클리어 또는 숨겨진 조건",
-  "characters": ["observer"],
+  "characters": [
+    "observer"
+  ],
   "scenes": [
     {
-      "id": "s01", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "화성이었다. 붉었다. 언제나 붉었다. 관찰자가 처음 보는 것이 아니었다. 그러나 처음이었다. 발이 땅에 닿았다. 화성의 표면. 압력 마스크. 산소. 숫자들. 관찰자는 숫자를 보지 않았다. 다른 것들을 봤다.",
-        "en": "Mars. Red. Always red. Not the observer's first sight. But the first time. Feet touching ground. The surface of Mars. Pressure mask. Oxygen. Numbers. The observer didn't look at numbers. Looked at other things."
-      }}]
+      "id": "s01",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "화성이었다. 붉었다. 언제나 붉었다. 관찰자가 처음 보는 것이 아니었다. 그러나 처음이었다. 발이 땅에 닿았다. 화성의 표면. 압력 마스크. 산소. 숫자들. 관찰자는 숫자를 보지 않았다. 다른 것들을 봤다.",
+            "en": "Mars. Red. Always red. Not the observer's first sight. But the first time. Feet touching ground. The surface of Mars. Pressure mask. Oxygen. Numbers. The observer didn't look at numbers. Looked at other things."
+          }
+        }
+      ]
     },
     {
-      "id": "s02", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "헬라스 센트럴. 사람들이 있었다. 들어가는 사람들. 나오는 사람들. 서 있는 사람들. 움직이는 사람들. 관찰자는 멈췄다. 멈춘 사람은 관찰자뿐이었다. 그것이 이 사람의 특성이었다. 멈추는 것.",
-        "en": "Hellas Central. There were people. People going in. People coming out. People standing. People moving. The observer stopped. Only the observer had stopped. That was this person's nature. Stopping."
-      }}]
+      "id": "s02",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "헬라스 센트럴. 사람들이 있었다. 들어가는 사람들. 나오는 사람들. 서 있는 사람들. 움직이는 사람들. 관찰자는 멈췄다. 멈춘 사람은 관찰자뿐이었다. 그것이 이 사람의 특성이었다. 멈추는 것.",
+            "en": "Hellas Central. There were people. People going in. People coming out. People standing. People moving. The observer stopped. Only the observer had stopped. That was this person's nature. Stopping."
+          }
+        }
+      ]
     },
     {
-      "id": "s03", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "MCC 건물이 있었다. 예전과 달랐다. 관찰자는 사진을 본 적이 있었다. 화성 도착 전에. 사진과 지금이 달랐다. 건물이 높아졌는지 낮아졌는지는 몰랐다. 그러나 달랐다. 사람들이 달랐다. 사람들의 얼굴이 달랐다.",
-        "en": "The MCC building was there. Different from before. The observer had seen photos. Before arriving on Mars. Photos and now were different. Whether the building had grown taller or shorter was unknown. But it was different. The people were different. The faces of the people were different."
-      }}]
+      "id": "s03",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "MCC 건물이 있었다. 예전과 달랐다. 관찰자는 사진을 본 적이 있었다. 화성 도착 전에. 사진과 지금이 달랐다. 건물이 높아졌는지 낮아졌는지는 몰랐다. 그러나 달랐다. 사람들이 달랐다. 사람들의 얼굴이 달랐다.",
+            "en": "The MCC building was there. Different from before. The observer had seen photos. Before arriving on Mars. Photos and now were different. Whether the building had grown taller or shorter was unknown. But it was different. The people were different. The faces of the people were different."
+          }
+        }
+      ]
     },
     {
-      "id": "s04", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "얼굴들이 피로했다. 또는 경계했다. 또는 둘 다였다. 피로와 경계는 같은 표정을 만들었다. 눈이 좁아졌다. 입이 닫혔다. 어깨가 낮아졌다. 그것이 화성 사람들의 표정이었다. 아니면 이 시기 화성 사람들의 표정이었다.",
-        "en": "The faces were tired. Or vigilant. Or both. Tiredness and vigilance made the same expression. Eyes narrowed. Mouths closed. Shoulders lowered. That was the expression of Mars people. Or the expression of Mars people in this time."
-      }}]
+      "id": "s04",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "얼굴들이 피로했다. 또는 경계했다. 또는 둘 다였다. 피로와 경계는 같은 표정을 만들었다. 눈이 좁아졌다. 입이 닫혔다. 어깨가 낮아졌다. 그것이 화성 사람들의 표정이었다. 아니면 이 시기 화성 사람들의 표정이었다.",
+            "en": "The faces were tired. Or vigilant. Or both. Tiredness and vigilance made the same expression. Eyes narrowed. Mouths closed. Shoulders lowered. That was the expression of Mars people. Or the expression of Mars people in this time."
+          }
+        }
+      ]
     },
     {
-      "id": "s05", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "누군가 관찰자를 봤다. 지나가면서. 이 사람들은 멈추지 않았다. 화성에서 멈추는 것은 사치였다. 관찰자가 멈춰 있다는 것을 그 눈빛이 말했다. 이방인이라고. 화성을 모르는 사람이라고. 관찰자는 그 눈빛을 봤다. 그것도 기록이었다.",
-        "en": "Someone looked at the observer. While passing. These people didn't stop. Stopping on Mars was a luxury. That gaze said the observer had stopped. A stranger. Someone who didn't know Mars. The observer saw that gaze. That too was a record."
-      }}]
+      "id": "s05",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "누군가 관찰자를 봤다. 지나가면서. 이 사람들은 멈추지 않았다. 화성에서 멈추는 것은 사치였다. 관찰자가 멈춰 있다는 것을 그 눈빛이 말했다. 이방인이라고. 화성을 모르는 사람이라고. 관찰자는 그 눈빛을 봤다. 그것도 기록이었다.",
+            "en": "Someone looked at the observer. While passing. These people didn't stop. Stopping on Mars was a luxury. That gaze said the observer had stopped. A stranger. Someone who didn't know Mars. The observer saw that gaze. That too was a record."
+          }
+        }
+      ]
     },
     {
-      "id": "s06", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "MCC 건물 옆에 다른 건물이 있었다. 낡은 것이었다. MCC 건물보다 오래된 것. 그 건물 앞에 사람들이 줄을 섰다. 무언가를 기다렸다. 배급이거나 허가이거나 소식이었다. 관찰자는 그 줄을 봤다. 줄이 긴 것이었다.",
-        "en": "Next to the MCC building was another building. An old one. Older than the MCC building. In front of it people stood in a line. Waiting for something. Rations or permits or news. The observer looked at that line. It was a long line."
-      }}]
+      "id": "s06",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "MCC 건물 옆에 다른 건물이 있었다. 낡은 것이었다. MCC 건물보다 오래된 것. 그 건물 앞에 사람들이 줄을 섰다. 무언가를 기다렸다. 배급이거나 허가이거나 소식이었다. 관찰자는 그 줄을 봤다. 줄이 긴 것이었다.",
+            "en": "Next to the MCC building was another building. An old one. Older than the MCC building. In front of it people stood in a line. Waiting for something. Rations or permits or news. The observer looked at that line. It was a long line."
+          }
+        }
+      ]
     },
     {
-      "id": "s07", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "줄 안에 어린이가 있었다. 어른 옆에. 화성에 어린이가 있었다. 그것이 처음 보는 것이었다. 사진에는 없었다. 어린이가 화성의 흙을 봤다. 어른은 앞을 봤다. 어린이와 어른이 같은 것을 다르게 봤다. 그것도 화성이었다.",
-        "en": "In the line there was a child. Next to an adult. There were children on Mars. That was a first sight. Not in the photos. The child looked at the Martian soil. The adult looked forward. The child and adult saw the same thing differently. That too was Mars."
-      }}]
+      "id": "s07",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "줄 안에 어린이가 있었다. 어른 옆에. 화성에 어린이가 있었다. 그것이 처음 보는 것이었다. 사진에는 없었다. 어린이가 화성의 흙을 봤다. 어른은 앞을 봤다. 어린이와 어른이 같은 것을 다르게 봤다. 그것도 화성이었다.",
+            "en": "In the line there was a child. Next to an adult. There were children on Mars. That was a first sight. Not in the photos. The child looked at the Martian soil. The adult looked forward. The child and adult saw the same thing differently. That too was Mars."
+          }
+        }
+      ]
     },
     {
-      "id": "s08", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "헬라스 센트럴 외벽에 무언가가 있었다. 잘 보이지 않았다. 관찰자가 가까이 갔다. 손자국이었다. 오래된 것. 붉은 흙이 묻어 있었다. 누군가 이 벽을 짚었다. 이유는 몰랐다. 그러나 손이 있었다. 손의 크기가 있었다. 작은 손이었다.",
-        "en": "On the outer wall of Hellas Central there was something. Not clearly visible. The observer moved closer. A handprint. Old. Red soil embedded. Someone had leaned on this wall. The reason was unknown. But a hand had been there. The size of the hand. It was a small hand."
-      }, "overlay": "hand_still" }]
+      "id": "s08",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "헬라스 센트럴 외벽에 무언가가 있었다. 잘 보이지 않았다. 관찰자가 가까이 갔다. 손자국이었다. 오래된 것. 붉은 흙이 묻어 있었다. 누군가 이 벽을 짚었다. 이유는 몰랐다. 그러나 손이 있었다. 손의 크기가 있었다. 작은 손이었다.",
+            "en": "On the outer wall of Hellas Central there was something. Not clearly visible. The observer moved closer. A handprint. Old. Red soil embedded. Someone had leaned on this wall. The reason was unknown. But a hand had been there. The size of the hand. It was a small hand."
+          },
+          "background": "hidden_ch1_observer_l07_00_hand_still"
+        }
+      ]
     },
     {
-      "id": "s09", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "관찰자는 손자국 옆에 섰다. 자신의 손을 올려봤다. 맞지 않았다. 다른 사람의 것이었다. 오래전에 이 손이 이 벽에 있었다. 그 사람이 지금 어디 있는지는 몰랐다. 벽만 남았다. 손자국만 남았다.",
-        "en": "The observer stood next to the handprint. Raised their own hand. Didn't match. Someone else's. Long ago this hand had been on this wall. Where that person was now was unknown. Only the wall remained. Only the handprint remained."
-      }}]
+      "id": "s09",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "관찰자는 손자국 옆에 섰다. 자신의 손을 올려봤다. 맞지 않았다. 다른 사람의 것이었다. 오래전에 이 손이 이 벽에 있었다. 그 사람이 지금 어디 있는지는 몰랐다. 벽만 남았다. 손자국만 남았다.",
+            "en": "The observer stood next to the handprint. Raised their own hand. Didn't match. Someone else's. Long ago this hand had been on this wall. Where that person was now was unknown. Only the wall remained. Only the handprint remained."
+          }
+        }
+      ]
     },
     {
-      "id": "s10", "type": "narration",
-      "background": "hellas_central_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "광산 외부가 보였다. 헬라스 센트럴에서. 멀리. 굴뚝이 있었다. 연기가 없었다. 연기가 없는 굴뚝은 다른 것이었다. 가동 중인 굴뚝과 달랐다. 무언가 달라진 것이었다. 또는 달라지는 중인 것이었다. 관찰자는 그쪽을 봤다.",
-        "en": "The mine exterior was visible. From Hellas Central. Far away. There were smokestacks. No smoke. Smokestacks without smoke were different. Different from operating ones. Something had changed. Or was changing. The observer looked in that direction."
-      }}]
+      "id": "s10",
+      "type": "narration",
+      "background": "hellas_central_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "광산 외부가 보였다. 헬라스 센트럴에서. 멀리. 굴뚝이 있었다. 연기가 없었다. 연기가 없는 굴뚝은 다른 것이었다. 가동 중인 굴뚝과 달랐다. 무언가 달라진 것이었다. 또는 달라지는 중인 것이었다. 관찰자는 그쪽을 봤다.",
+            "en": "The mine exterior was visible. From Hellas Central. Far away. There were smokestacks. No smoke. Smokestacks without smoke were different. Different from operating ones. Something had changed. Or was changing. The observer looked in that direction."
+          }
+        }
+      ]
     },
     {
-      "id": "s11", "type": "narration",
-      "background": "mine_exterior", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "광산 외부. 장비가 있었다. 사용하지 않는 것들. 세워진 것들. 그것들이 먼지를 맞았다. 화성의 먼지. 붉은 것. 장비는 녹슬지 않았다. 공기가 없으니까. 그러나 먼지는 쌓였다. 사용하지 않으면 먼지가 쌓였다. 그것이 이 장비들의 시간이었다.",
-        "en": "The mine exterior. Equipment. Things not in use. Things parked. They received the dust. Martian dust. Red. The equipment didn't rust. No air. But dust accumulated. If not used dust accumulated. That was the time of this equipment."
-      }}]
+      "id": "s11",
+      "type": "narration",
+      "background": "mine_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "광산 외부. 장비가 있었다. 사용하지 않는 것들. 세워진 것들. 그것들이 먼지를 맞았다. 화성의 먼지. 붉은 것. 장비는 녹슬지 않았다. 공기가 없으니까. 그러나 먼지는 쌓였다. 사용하지 않으면 먼지가 쌓였다. 그것이 이 장비들의 시간이었다.",
+            "en": "The mine exterior. Equipment. Things not in use. Things parked. They received the dust. Martian dust. Red. The equipment didn't rust. No air. But dust accumulated. If not used dust accumulated. That was the time of this equipment."
+          }
+        }
+      ]
     },
     {
-      "id": "s12", "type": "narration",
-      "background": "mine_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "광부들이 있었다. 광산 입구에. 들어가지 않는 광부들이었다. 앉아 있었다. 서 있었다. 말을 하는 사람도 있었다. 말을 하지 않는 사람도 있었다. 그들의 눈이 입구를 향했다. 그러나 들어가지 않았다. 뭔가 이유가 있었다.",
-        "en": "There were miners. At the mine entrance. Miners not going inside. Sitting. Standing. Some were talking. Some were not talking. Their eyes faced the entrance. But they didn't enter. There was some reason."
-      }}]
+      "id": "s12",
+      "type": "narration",
+      "background": "mine_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "광부들이 있었다. 광산 입구에. 들어가지 않는 광부들이었다. 앉아 있었다. 서 있었다. 말을 하는 사람도 있었다. 말을 하지 않는 사람도 있었다. 그들의 눈이 입구를 향했다. 그러나 들어가지 않았다. 뭔가 이유가 있었다.",
+            "en": "There were miners. At the mine entrance. Miners not going inside. Sitting. Standing. Some were talking. Some were not talking. Their eyes faced the entrance. But they didn't enter. There was some reason."
+          }
+        }
+      ]
     },
     {
-      "id": "s13", "type": "narration",
-      "background": "mine_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "두 광부가 낮은 목소리로 말했다. 관찰자가 들었다. 전부는 아니었다. 조각들이었다. 사고. 보상. 숫자. 이름. 이름이 들렸다. 관찰자가 몰랐다. 그러나 이름이었다. 화성에는 이름이 많았다. 기억되는 것들도. 잊히는 것들도.",
-        "en": "Two miners spoke in low voices. The observer heard. Not all of it. Fragments. Accident. Compensation. Numbers. A name. A name was audible. The observer didn't know it. But it was a name. On Mars there were many names. Some remembered. Some forgotten."
-      }}]
+      "id": "s13",
+      "type": "narration",
+      "background": "mine_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "두 광부가 낮은 목소리로 말했다. 관찰자가 들었다. 전부는 아니었다. 조각들이었다. 사고. 보상. 숫자. 이름. 이름이 들렸다. 관찰자가 몰랐다. 그러나 이름이었다. 화성에는 이름이 많았다. 기억되는 것들도. 잊히는 것들도.",
+            "en": "Two miners spoke in low voices. The observer heard. Not all of it. Fragments. Accident. Compensation. Numbers. A name. A name was audible. The observer didn't know it. But it was a name. On Mars there were many names. Some remembered. Some forgotten."
+          }
+        }
+      ]
     },
     {
-      "id": "s14", "type": "narration",
-      "background": "mine_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "광산 입구 옆에 판자가 있었다. 공지 같은 것. 관찰자가 읽었다. MCC 로고. 날짜. 숫자들. 법률 용어들. 그 아래 누군가 손으로 썼다. 펜이었다. 작은 글씨로. 관찰자가 몸을 굽혔다. 글씨가 지워질 것 같았다. 그러나 아직 있었다.",
-        "en": "Next to the mine entrance there was a board. A notice of some kind. The observer read it. MCC logo. Date. Numbers. Legal terms. Below that someone had written by hand. A pen. In small writing. The observer bent down. The writing looked like it might be erased. But it was still there."
-      }}]
+      "id": "s14",
+      "type": "narration",
+      "background": "mine_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "광산 입구 옆에 판자가 있었다. 공지 같은 것. 관찰자가 읽었다. MCC 로고. 날짜. 숫자들. 법률 용어들. 그 아래 누군가 손으로 썼다. 펜이었다. 작은 글씨로. 관찰자가 몸을 굽혔다. 글씨가 지워질 것 같았다. 그러나 아직 있었다.",
+            "en": "Next to the mine entrance there was a board. A notice of some kind. The observer read it. MCC logo. Date. Numbers. Legal terms. Below that someone had written by hand. A pen. In small writing. The observer bent down. The writing looked like it might be erased. But it was still there."
+          }
+        }
+      ]
     },
     {
-      "id": "s15", "type": "narration",
-      "background": "mine_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "글씨는 이름들이었다. 세 개. 네 개. 다섯 개. 그것이 전부인지 몰랐다. 공지 아래 공간이 작았다. 이름들이 MCC 법률 용어 아래 있었다. 법률 용어는 컸다. 이름들은 작았다. 그러나 이름들이 있었다. 그것이 있다는 것이 중요했다.",
-        "en": "The writing was names. Three. Four. Five. Whether that was all was unknown. The space below the notice was small. The names were beneath MCC legal terms. The legal terms were large. The names were small. But the names were there. That they existed was what mattered."
-      }, "overlay": "candle_flame" }]
+      "id": "s15",
+      "type": "narration",
+      "background": "mine_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "글씨는 이름들이었다. 세 개. 네 개. 다섯 개. 그것이 전부인지 몰랐다. 공지 아래 공간이 작았다. 이름들이 MCC 법률 용어 아래 있었다. 법률 용어는 컸다. 이름들은 작았다. 그러나 이름들이 있었다. 그것이 있다는 것이 중요했다.",
+            "en": "The writing was names. Three. Four. Five. Whether that was all was unknown. The space below the notice was small. The names were beneath MCC legal terms. The legal terms were large. The names were small. But the names were there. That they existed was what mattered."
+          },
+          "background": "hidden_ch1_observer_l14_00_candle_flame"
+        }
+      ]
     },
     {
-      "id": "s16", "type": "narration",
-      "background": "mine_exterior", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "관찰자가 일어섰다. 광부들이 아직 입구 앞에 있었다. 들어가지 않았다. 관찰자가 그 이유를 물어볼 수 있었다. 그러나 묻지 않았다. 물음은 개입이었다. 개입은 관찰자의 일이 아니었다. 그것이 이 사람의 방식이었다.",
-        "en": "The observer stood. The miners were still in front of the entrance. Not going in. The observer could have asked the reason. But didn't ask. Asking was intervention. Intervention was not the observer's work. That was this person's way."
-      }}]
+      "id": "s16",
+      "type": "narration",
+      "background": "mine_exterior",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "관찰자가 일어섰다. 광부들이 아직 입구 앞에 있었다. 들어가지 않았다. 관찰자가 그 이유를 물어볼 수 있었다. 그러나 묻지 않았다. 물음은 개입이었다. 개입은 관찰자의 일이 아니었다. 그것이 이 사람의 방식이었다.",
+            "en": "The observer stood. The miners were still in front of the entrance. Not going in. The observer could have asked the reason. But didn't ask. Asking was intervention. Intervention was not the observer's work. That was this person's way."
+          }
+        }
+      ]
     },
     {
-      "id": "s17", "type": "narration",
-      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "광부 마을이었다. 비어 있었다. 전부는 아니었다. 그러나 많은 집이 비어 있었다. 문이 열려 있었다. 아무것도 없는 문들. 관찰자가 걸었다. 골목을 걸었다. 발소리가 났다. 다른 발소리가 없었다. 이 마을이 한때 사람들로 가득했다는 것을 아는 방법이 없었다. 그러나 알 수 있었다. 비어 있는 방식이 달랐다.",
-        "en": "A mining village. Empty. Not entirely. But many houses were empty. Doors were open. Doors with nothing inside. The observer walked. Walked through alleys. Footsteps sounded. No other footsteps. There was no way to know that this village had once been full of people. But it could be known. The way of being empty was different."
-      }}]
+      "id": "s17",
+      "type": "narration",
+      "background": "hellas_mining_village_empty",
+      "bgm": "hidden_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "광부 마을이었다. 비어 있었다. 전부는 아니었다. 그러나 많은 집이 비어 있었다. 문이 열려 있었다. 아무것도 없는 문들. 관찰자가 걸었다. 골목을 걸었다. 발소리가 났다. 다른 발소리가 없었다. 이 마을이 한때 사람들로 가득했다는 것을 아는 방법이 없었다. 그러나 알 수 있었다. 비어 있는 방식이 달랐다.",
+            "en": "A mining village. Empty. Not entirely. But many houses were empty. Doors were open. Doors with nothing inside. The observer walked. Walked through alleys. Footsteps sounded. No other footsteps. There was no way to know that this village had once been full of people. But it could be known. The way of being empty was different."
+          }
+        }
+      ]
     },
     {
-      "id": "s18", "type": "narration",
-      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "집 안에 물건이 있었다. 어떤 집에. 떠난 사람들이 두고 간 것들. 컵이었다. 신발이었다. 사진이었다. 사진이 있었다. 관찰자가 안으로 들어가지 않았다. 문가에서만 봤다. 그 사진이 무엇인지는 알 수 없었다. 그러나 누군가의 것이었다.",
-        "en": "Inside a house there were objects. Some houses. Things left behind by those who left. A cup. A shoe. A photograph. There was a photograph. The observer didn't go inside. Only looked from the doorway. What that photograph showed couldn't be known. But it had been someone's."
-      }}]
+      "id": "s18",
+      "type": "narration",
+      "background": "hellas_mining_village_empty",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "집 안에 물건이 있었다. 어떤 집에. 떠난 사람들이 두고 간 것들. 컵이었다. 신발이었다. 사진이었다. 사진이 있었다. 관찰자가 안으로 들어가지 않았다. 문가에서만 봤다. 그 사진이 무엇인지는 알 수 없었다. 그러나 누군가의 것이었다.",
+            "en": "Inside a house there were objects. Some houses. Things left behind by those who left. A cup. A shoe. A photograph. There was a photograph. The observer didn't go inside. Only looked from the doorway. What that photograph showed couldn't be known. But it had been someone's."
+          }
+        }
+      ]
     },
     {
-      "id": "s19", "type": "narration",
-      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "마을 중앙에 공간이 있었다. 모임 장소 같은 것. 테이블이 있었다. 부서진 것. 의자도. 한쪽 구석에 불 피운 흔적이 있었다. 재. 최근의 것과 오래된 것이 섞였다. 사람들이 최근에도 여기 왔다. 빈 마을에. 불을 피우러 왔다.",
-        "en": "In the center of the village was an open space. Something like a gathering place. There was a table. A broken one. Chairs too. In one corner there were traces of a fire. Ash. Recent and old mixed. People had come here recently too. To an empty village. To burn fires."
-      }}]
+      "id": "s19",
+      "type": "narration",
+      "background": "hellas_mining_village_empty",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "마을 중앙에 공간이 있었다. 모임 장소 같은 것. 테이블이 있었다. 부서진 것. 의자도. 한쪽 구석에 불 피운 흔적이 있었다. 재. 최근의 것과 오래된 것이 섞였다. 사람들이 최근에도 여기 왔다. 빈 마을에. 불을 피우러 왔다.",
+            "en": "In the center of the village was an open space. Something like a gathering place. There was a table. A broken one. Chairs too. In one corner there were traces of a fire. Ash. Recent and old mixed. People had come here recently too. To an empty village. To burn fires."
+          }
+        }
+      ]
     },
     {
-      "id": "s20", "type": "narration",
-      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "관찰자가 그 재 앞에 쪼그렸다. 손가락으로 건드리지 않았다. 보기만 했다. 재는 회색이었다. 화성의 붉은 흙 위에 회색 재가 있었다. 색이 달랐다. 불이 있었다는 것을 색이 말했다. 그것으로 충분했다.",
-        "en": "The observer crouched in front of that ash. Didn't touch it with fingers. Only looked. The ash was gray. Gray ash on red Martian soil. The colors were different. That fire had been there the color said. That was enough."
-      }}]
+      "id": "s20",
+      "type": "narration",
+      "background": "hellas_mining_village_empty",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "관찰자가 그 재 앞에 쪼그렸다. 손가락으로 건드리지 않았다. 보기만 했다. 재는 회색이었다. 화성의 붉은 흙 위에 회색 재가 있었다. 색이 달랐다. 불이 있었다는 것을 색이 말했다. 그것으로 충분했다.",
+            "en": "The observer crouched in front of that ash. Didn't touch it with fingers. Only looked. The ash was gray. Gray ash on red Martian soil. The colors were different. That fire had been there the color said. That was enough."
+          }
+        }
+      ]
     },
     {
-      "id": "s21", "type": "narration",
-      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "마을 끝에 폭발 흔적이 있었다. 오래된 것이었다. 벽이 검게 타 있었다. 관찰자가 그쪽으로 걸었다. 폭발이 어디서 온 것인지. 안에서인지 밖에서인지. 알 수 없었다. 그러나 있었다. 흔적이 있었다. 아직 청소되지 않은 것들이 있었다.",
-        "en": "At the end of the village there were traces of an explosion. An old one. The wall was charred black. The observer walked in that direction. Where the explosion had come from. Whether from inside or outside. Unknown. But it was there. There were traces. Things not yet cleaned up."
-      }}]
+      "id": "s21",
+      "type": "narration",
+      "background": "hellas_mining_village_empty",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "마을 끝에 폭발 흔적이 있었다. 오래된 것이었다. 벽이 검게 타 있었다. 관찰자가 그쪽으로 걸었다. 폭발이 어디서 온 것인지. 안에서인지 밖에서인지. 알 수 없었다. 그러나 있었다. 흔적이 있었다. 아직 청소되지 않은 것들이 있었다.",
+            "en": "At the end of the village there were traces of an explosion. An old one. The wall was charred black. The observer walked in that direction. Where the explosion had come from. Whether from inside or outside. Unknown. But it was there. There were traces. Things not yet cleaned up."
+          }
+        }
+      ]
     },
     {
-      "id": "s22", "type": "narration",
-      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "검게 탄 벽에 손자국이 있었다. 손자국들이었다. 여러 개. 탈출한 사람들의 것이었다. 벽을 짚고 나온 것이었다. 그 손자국들이 같은 방향을 향했다. 출구 방향. 모두 살아나가려 했다. 살아나갔는지는 몰랐다.",
-        "en": "On the charred wall there were handprints. Multiple handprints. Those of people who had escaped. They had leaned on the wall to get out. Those handprints all faced the same direction. The exit direction. All had tried to get out alive. Whether they got out alive was unknown."
-      }, "overlay": "collapse_debris" }]
+      "id": "s22",
+      "type": "narration",
+      "background": "hellas_mining_village_empty",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "검게 탄 벽에 손자국이 있었다. 손자국들이었다. 여러 개. 탈출한 사람들의 것이었다. 벽을 짚고 나온 것이었다. 그 손자국들이 같은 방향을 향했다. 출구 방향. 모두 살아나가려 했다. 살아나갔는지는 몰랐다.",
+            "en": "On the charred wall there were handprints. Multiple handprints. Those of people who had escaped. They had leaned on the wall to get out. Those handprints all faced the same direction. The exit direction. All had tried to get out alive. Whether they got out alive was unknown."
+          },
+          "background": "hidden_ch1_observer_l21_00_collapse_debris"
+        }
+      ]
     },
     {
-      "id": "s23", "type": "narration",
-      "background": "hellas_mining_village_empty", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "청소하는 사람이 있었다. 한 명. 노인이었다. 관찰자를 봤다. 말하지 않았다. 관찰자도 말하지 않았다. 노인이 빗자루로 재를 쓸었다. 오래된 재였다. 언제부터 쓸고 있었는지 몰랐다. 언제까지 쓸 것인지도 몰랐다.",
-        "en": "There was a person cleaning. One person. An old person. Looked at the observer. Didn't speak. The observer didn't speak either. The old person swept ash with a broom. Old ash. How long they had been sweeping was unknown. How long they would sweep was also unknown."
-      }}]
+      "id": "s23",
+      "type": "narration",
+      "background": "hellas_mining_village_empty",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "청소하는 사람이 있었다. 한 명. 노인이었다. 관찰자를 봤다. 말하지 않았다. 관찰자도 말하지 않았다. 노인이 빗자루로 재를 쓸었다. 오래된 재였다. 언제부터 쓸고 있었는지 몰랐다. 언제까지 쓸 것인지도 몰랐다.",
+            "en": "There was a person cleaning. One person. An old person. Looked at the observer. Didn't speak. The observer didn't speak either. The old person swept ash with a broom. Old ash. How long they had been sweeping was unknown. How long they would sweep was also unknown."
+          }
+        }
+      ]
     },
     {
-      "id": "s24", "type": "narration",
-      "background": "hellas_zone4_ruins", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "4구역 외곽이었다. 폐쇄된 구역. 표지판이 있었다. MCC 로고. 출입 금지. 관찰자가 멈췄다. 표지판을 봤다. 표지판 뒤에 무언가 있었다. 건물의 잔해. 또는 건물이었던 것. 구역 전체가 막혀 있었다.",
-        "en": "The outskirts of Zone 4. A closed zone. There was a sign. MCC logo. No entry. The observer stopped. Looked at the sign. Behind the sign there was something. Building rubble. Or what had been a building. The entire zone was blocked."
-      }}]
+      "id": "s24",
+      "type": "narration",
+      "background": "hellas_zone4_ruins",
+      "bgm": "hidden_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "4구역 외곽이었다. 폐쇄된 구역. 표지판이 있었다. MCC 로고. 출입 금지. 관찰자가 멈췄다. 표지판을 봤다. 표지판 뒤에 무언가 있었다. 건물의 잔해. 또는 건물이었던 것. 구역 전체가 막혀 있었다.",
+            "en": "The outskirts of Zone 4. A closed zone. There was a sign. MCC logo. No entry. The observer stopped. Looked at the sign. Behind the sign there was something. Building rubble. Or what had been a building. The entire zone was blocked."
+          }
+        }
+      ]
     },
     {
-      "id": "s25", "type": "narration",
-      "background": "hellas_zone4_ruins", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "표지판 옆에 비석이 있었다. 작은 것이었다. MCC가 세운 것이 아니었다. 누군가 세운 것이었다. 돌에 이름들이 새겨져 있었다. 관찰자가 가까이 갔다. 이름들을 읽으려 했다. 읽을 수 없었다. 글씨가 지워져 있었다. 일부러 지운 것인지. 세월에 지워진 것인지. 알 수 없었다.",
-        "en": "Next to the sign there was a small stone marker. Not erected by MCC. Erected by someone. Names were carved in the stone. The observer approached. Tried to read the names. Couldn't read them. The writing had been erased. Whether deliberately erased. Or erased by time. Unknown."
-      }, "overlay": "sealed_file" }]
+      "id": "s25",
+      "type": "narration",
+      "background": "hellas_zone4_ruins",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "표지판 옆에 비석이 있었다. 작은 것이었다. MCC가 세운 것이 아니었다. 누군가 세운 것이었다. 돌에 이름들이 새겨져 있었다. 관찰자가 가까이 갔다. 이름들을 읽으려 했다. 읽을 수 없었다. 글씨가 지워져 있었다. 일부러 지운 것인지. 세월에 지워진 것인지. 알 수 없었다.",
+            "en": "Next to the sign there was a small stone marker. Not erected by MCC. Erected by someone. Names were carved in the stone. The observer approached. Tried to read the names. Couldn't read them. The writing had been erased. Whether deliberately erased. Or erased by time. Unknown."
+          },
+          "background": "hidden_ch1_observer_l24_00_sealed_file"
+        }
+      ]
     },
     {
-      "id": "s26", "type": "narration",
-      "background": "hellas_zone4_ruins", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "비석의 이름을 읽을 수 없었다. 그러나 비석이 있었다. 누군가 세운 것이었다. 이름을 기억하려는 사람이 있었다. 이름을 지우려는 사람도 있었다. 비석이 그 사이에 있었다. 기억과 망각 사이에. 비석이 이겼다. 아직은.",
-        "en": "The names on the marker couldn't be read. But the marker was there. Someone had erected it. There was someone who wanted to remember names. There was also someone who wanted to erase names. The marker was between them. Between memory and oblivion. The marker was winning. For now."
-      }}]
+      "id": "s26",
+      "type": "narration",
+      "background": "hellas_zone4_ruins",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "비석의 이름을 읽을 수 없었다. 그러나 비석이 있었다. 누군가 세운 것이었다. 이름을 기억하려는 사람이 있었다. 이름을 지우려는 사람도 있었다. 비석이 그 사이에 있었다. 기억과 망각 사이에. 비석이 이겼다. 아직은.",
+            "en": "The names on the marker couldn't be read. But the marker was there. Someone had erected it. There was someone who wanted to remember names. There was also someone who wanted to erase names. The marker was between them. Between memory and oblivion. The marker was winning. For now."
+          }
+        }
+      ]
     },
     {
-      "id": "s27", "type": "narration",
-      "background": "hellas_zone4_ruins", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "비석 옆에 꽃이 있었다. 화성에 꽃은 없었다. 가져온 것이었다. 누군가 지구에서 가져왔거나. 또는 화성에서 키운 것이었다. 건조했다. 죽어 있었다. 그러나 가져온 것이었다. 이 이름들에게. 이름을 읽을 수 없는 이름들에게.",
-        "en": "Next to the marker there were flowers. No flowers on Mars. They had been brought. Someone had brought them from Earth. Or grown them on Mars. They were dried. Dead. But they had been brought. For these names. For names that couldn't be read."
-      }}]
+      "id": "s27",
+      "type": "narration",
+      "background": "hellas_zone4_ruins",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "비석 옆에 꽃이 있었다. 화성에 꽃은 없었다. 가져온 것이었다. 누군가 지구에서 가져왔거나. 또는 화성에서 키운 것이었다. 건조했다. 죽어 있었다. 그러나 가져온 것이었다. 이 이름들에게. 이름을 읽을 수 없는 이름들에게.",
+            "en": "Next to the marker there were flowers. No flowers on Mars. They had been brought. Someone had brought them from Earth. Or grown them on Mars. They were dried. Dead. But they had been brought. For these names. For names that couldn't be read."
+          }
+        }
+      ]
     },
     {
-      "id": "s28", "type": "narration",
-      "background": "hellas_zone4_ruins", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "폭발 흔적이 멀리 보였다. 오래된 것. 30년은 됐거나 그 이상이었다. 화성의 폭발 흔적은 사라지지 않았다. 공기가 없으니까. 비가 없으니까. 흔적이 그대로 있었다. 지구에서 30년이 지나면 흔적은 지워졌다. 화성에서는 아니었다. 화성에서 흔적은 오래갔다.",
-        "en": "The trace of an explosion was visible in the distance. An old one. Thirty years at least or more. Explosion traces on Mars didn't disappear. No air. No rain. Traces remained as they were. On Earth traces were erased after thirty years. Not on Mars. On Mars traces lasted long."
-      }}]
+      "id": "s28",
+      "type": "narration",
+      "background": "hellas_zone4_ruins",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "폭발 흔적이 멀리 보였다. 오래된 것. 30년은 됐거나 그 이상이었다. 화성의 폭발 흔적은 사라지지 않았다. 공기가 없으니까. 비가 없으니까. 흔적이 그대로 있었다. 지구에서 30년이 지나면 흔적은 지워졌다. 화성에서는 아니었다. 화성에서 흔적은 오래갔다.",
+            "en": "The trace of an explosion was visible in the distance. An old one. Thirty years at least or more. Explosion traces on Mars didn't disappear. No air. No rain. Traces remained as they were. On Earth traces were erased after thirty years. Not on Mars. On Mars traces lasted long."
+          }
+        }
+      ]
     },
     {
-      "id": "s29", "type": "narration",
-      "background": "hellas_zone4_ruins", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "관찰자가 그 방향을 봤다. 오래 봤다. 무엇이 있었는지를 모르는 사람이 봐도 무언가 있었다는 것을 알 수 있었다. 그것이 화성 흔적의 특성이었다. 사라지지 않는다. 그래서 화성은 기억이 많은 곳이었다. 기억하는 사람이 없어도 기억이 있는 곳.",
-        "en": "The observer looked in that direction. Looked for a long time. Even someone who didn't know what had been there could know that something had been there. That was the nature of Mars traces. They didn't disappear. So Mars was a place with many memories. A place with memories even when no one remembered."
-      }}]
+      "id": "s29",
+      "type": "narration",
+      "background": "hellas_zone4_ruins",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "관찰자가 그 방향을 봤다. 오래 봤다. 무엇이 있었는지를 모르는 사람이 봐도 무언가 있었다는 것을 알 수 있었다. 그것이 화성 흔적의 특성이었다. 사라지지 않는다. 그래서 화성은 기억이 많은 곳이었다. 기억하는 사람이 없어도 기억이 있는 곳.",
+            "en": "The observer looked in that direction. Looked for a long time. Even someone who didn't know what had been there could know that something had been there. That was the nature of Mars traces. They didn't disappear. So Mars was a place with many memories. A place with memories even when no one remembered."
+          }
+        }
+      ]
     },
     {
-      "id": "s30", "type": "narration",
-      "background": "hellas_labor_district_night", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "밤이었다. 노동자 지구. 불빛이 있었다. 창문들. 작은 불빛들. 사람들이 거기 있었다. 창문 안에. 관찰자가 밖에서 봤다. 창문 안에 사람들. 창문 밖에 관찰자. 유리 하나가 차이였다. 그러나 유리는 있었다.",
-        "en": "Night. The labor district. There were lights. Windows. Small lights. People were there. Inside the windows. The observer watched from outside. People inside windows. The observer outside windows. One pane of glass was the difference. But the glass was there."
-      }}]
+      "id": "s30",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "hidden_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "밤이었다. 노동자 지구. 불빛이 있었다. 창문들. 작은 불빛들. 사람들이 거기 있었다. 창문 안에. 관찰자가 밖에서 봤다. 창문 안에 사람들. 창문 밖에 관찰자. 유리 하나가 차이였다. 그러나 유리는 있었다.",
+            "en": "Night. The labor district. There were lights. Windows. Small lights. People were there. Inside the windows. The observer watched from outside. People inside windows. The observer outside windows. One pane of glass was the difference. But the glass was there."
+          }
+        }
+      ]
     },
     {
-      "id": "s31", "type": "narration",
-      "background": "hellas_labor_district_night", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "어느 창문에 그림자가 있었다. 두 사람. 이야기를 나눴다. 소리는 들리지 않았다. 그림자만 보였다. 그림자가 움직였다. 한 사람이 손을 들었다. 내렸다. 다른 사람이 그것을 봤다. 그것이 대화였다. 내용은 몰랐다. 대화가 있었다는 것만 알았다.",
-        "en": "In one window there were shadows. Two people. They were talking. No sound was audible. Only shadows were visible. The shadows moved. One person raised a hand. Lowered it. The other watched. That was conversation. The content was unknown. Only that conversation existed was known."
-      }}]
+      "id": "s31",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "어느 창문에 그림자가 있었다. 두 사람. 이야기를 나눴다. 소리는 들리지 않았다. 그림자만 보였다. 그림자가 움직였다. 한 사람이 손을 들었다. 내렸다. 다른 사람이 그것을 봤다. 그것이 대화였다. 내용은 몰랐다. 대화가 있었다는 것만 알았다.",
+            "en": "In one window there were shadows. Two people. They were talking. No sound was audible. Only shadows were visible. The shadows moved. One person raised a hand. Lowered it. The other watched. That was conversation. The content was unknown. Only that conversation existed was known."
+          }
+        }
+      ]
     },
     {
-      "id": "s32", "type": "narration",
-      "background": "hellas_labor_district_night", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "골목에 사람이 혼자 앉아 있었다. 벽에 기대어. 무릎을 세우고. 아무것도 하지 않았다. 관찰자가 옆을 지나갔다. 그 사람이 올려봤다. 내려봤다. 관찰자가 지나갔다. 잠깐이었다. 그러나 그 눈이 있었다. 눈을 봤다. 눈이 무엇을 말하는지는 몰랐다. 눈이 뭔가를 말했다.",
-        "en": "In the alley a person sat alone. Leaning against a wall. Knees raised. Doing nothing. The observer passed by. That person looked up. Looked down. The observer passed. It was brief. But those eyes were there. The eyes were seen. What the eyes were saying was unknown. But the eyes were saying something."
-      }}]
+      "id": "s32",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "골목에 사람이 혼자 앉아 있었다. 벽에 기대어. 무릎을 세우고. 아무것도 하지 않았다. 관찰자가 옆을 지나갔다. 그 사람이 올려봤다. 내려봤다. 관찰자가 지나갔다. 잠깐이었다. 그러나 그 눈이 있었다. 눈을 봤다. 눈이 무엇을 말하는지는 몰랐다. 눈이 뭔가를 말했다.",
+            "en": "In the alley a person sat alone. Leaning against a wall. Knees raised. Doing nothing. The observer passed by. That person looked up. Looked down. The observer passed. It was brief. But those eyes were there. The eyes were seen. What the eyes were saying was unknown. But the eyes were saying something."
+          }
+        }
+      ]
     },
     {
-      "id": "s33", "type": "narration",
-      "background": "hellas_labor_district_night", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "노동자 지구 중앙에 게시판이 있었다. 전단지들이 붙어 있었다. MCC 공지. 그 위에 다른 것들. 손으로 쓴 것들. 작은 것들. 관찰자가 읽었다. 일자리. 실종. 이름. 모임. 그것들이 섞여 있었다. 각자의 필요가 거기 붙어 있었다.",
-        "en": "In the center of the labor district there was a bulletin board. Flyers were posted. MCC notices. On top of them other things. Handwritten things. Small things. The observer read. Jobs. Missing persons. Names. Meetings. They were mixed. Each person's need was posted there."
-      }}]
+      "id": "s33",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "노동자 지구 중앙에 게시판이 있었다. 전단지들이 붙어 있었다. MCC 공지. 그 위에 다른 것들. 손으로 쓴 것들. 작은 것들. 관찰자가 읽었다. 일자리. 실종. 이름. 모임. 그것들이 섞여 있었다. 각자의 필요가 거기 붙어 있었다.",
+            "en": "In the center of the labor district there was a bulletin board. Flyers were posted. MCC notices. On top of them other things. Handwritten things. Small things. The observer read. Jobs. Missing persons. Names. Meetings. They were mixed. Each person's need was posted there."
+          }
+        }
+      ]
     },
     {
-      "id": "s34", "type": "narration",
-      "background": "hellas_labor_district_night", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "실종 전단지 하나. 사진이 있었다. 사람. 이름. 날짜. 연락처. 관찰자가 그것을 봤다. 이 사람이 어디 있는지 몰랐다. 알 방법이 없었다. 그러나 누군가 이 사람을 찾고 있었다. 찾는 사람이 있었다. 그것이 있었다.",
-        "en": "One missing person flyer. There was a photo. A person. A name. A date. Contact information. The observer looked at it. Didn't know where this person was. No way to know. But someone was looking for this person. Someone was searching. That existed."
-      }}]
+      "id": "s34",
+      "type": "narration",
+      "background": "hellas_labor_district_night",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "실종 전단지 하나. 사진이 있었다. 사람. 이름. 날짜. 연락처. 관찰자가 그것을 봤다. 이 사람이 어디 있는지 몰랐다. 알 방법이 없었다. 그러나 누군가 이 사람을 찾고 있었다. 찾는 사람이 있었다. 그것이 있었다.",
+            "en": "One missing person flyer. There was a photo. A person. A name. A date. Contact information. The observer looked at it. Didn't know where this person was. No way to know. But someone was looking for this person. Someone was searching. That existed."
+          }
+        }
+      ]
     },
     {
-      "id": "s35", "type": "narration",
-      "background": "hellas_central_exterior_panorama", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "헬라스 센트럴 높은 곳에서. 관찰자가 올라왔다. 아래가 보였다. 전체가. MCC 건물. 광부 마을. 노동자 지구. 광산. 4구역. 그것들이 같은 곳에 있었다. 같은 붉은 표면 위에. 다른 것들이 같은 표면 위에 있었다.",
-        "en": "From high up in Hellas Central. The observer had ascended. Below was visible. All of it. MCC building. Mining village. Labor district. Mine. Zone 4. They were all in the same place. On the same red surface. Different things on the same surface."
-      }}]
+      "id": "s35",
+      "type": "narration",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "hidden_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "헬라스 센트럴 높은 곳에서. 관찰자가 올라왔다. 아래가 보였다. 전체가. MCC 건물. 광부 마을. 노동자 지구. 광산. 4구역. 그것들이 같은 곳에 있었다. 같은 붉은 표면 위에. 다른 것들이 같은 표면 위에 있었다.",
+            "en": "From high up in Hellas Central. The observer had ascended. Below was visible. All of it. MCC building. Mining village. Labor district. Mine. Zone 4. They were all in the same place. On the same red surface. Different things on the same surface."
+          }
+        }
+      ]
     },
     {
-      "id": "s36", "type": "narration",
-      "background": "hellas_central_exterior_panorama", "bgm": "hidden_ambient", "transition": "cut",
-      "lines": [{ "text": {
-        "ko": "다른 루트들이 여기 있었다. 흔적으로. 어느 루트에서 MCC가 이겼다. 어느 루트에서 FSP가 이겼다. 어느 루트에서 CV가 이겼다. 그러나 여기는 달랐다. 여기서는 이긴 것이 없었다. 모든 것이 남아 있었다. 흔적으로.",
-        "en": "Other routes were here. As traces. In one route MCC had won. In one route FSP had won. In one route CV had won. But here was different. Here nothing had won. Everything remained. As traces."
-      }}]
+      "id": "s36",
+      "type": "narration",
+      "background": "hellas_central_exterior_panorama",
+      "bgm": "hidden_ambient",
+      "transition": "cut",
+      "lines": [
+        {
+          "text": {
+            "ko": "다른 루트들이 여기 있었다. 흔적으로. 어느 루트에서 MCC가 이겼다. 어느 루트에서 FSP가 이겼다. 어느 루트에서 CV가 이겼다. 그러나 여기는 달랐다. 여기서는 이긴 것이 없었다. 모든 것이 남아 있었다. 흔적으로.",
+            "en": "Other routes were here. As traces. In one route MCC had won. In one route FSP had won. In one route CV had won. But here was different. Here nothing had won. Everything remained. As traces."
+          }
+        }
+      ]
     },
     {
-      "id": "s37", "type": "narration",
-      "background": "hellas_central_exterior_night", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "화성의 첫 밤. 관찰자가 헬라스 센트럴 외벽 앞에 섰다. 손자국이 있던 자리. 작은 손자국. 이름을 읽을 수 없는 비석. 청소하는 노인. 실종 전단지. 그것들이 하루에 있었다. 첫날에. 그것이 화성이었다.",
-        "en": "First night on Mars. The observer stood in front of the outer wall of Hellas Central. Where the handprint had been. A small handprint. A marker with unreadable names. An old person cleaning. A missing person flyer. All of those were in one day. The first day. That was Mars."
-      }}]
+      "id": "s37",
+      "type": "narration",
+      "background": "hellas_central_exterior_night",
+      "bgm": "hidden_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "화성의 첫 밤. 관찰자가 헬라스 센트럴 외벽 앞에 섰다. 손자국이 있던 자리. 작은 손자국. 이름을 읽을 수 없는 비석. 청소하는 노인. 실종 전단지. 그것들이 하루에 있었다. 첫날에. 그것이 화성이었다.",
+            "en": "First night on Mars. The observer stood in front of the outer wall of Hellas Central. Where the handprint had been. A small handprint. A marker with unreadable names. An old person cleaning. A missing person flyer. All of those were in one day. The first day. That was Mars."
+          }
+        }
+      ]
     },
     {
-      "id": "s38", "type": "ending",
-      "background": "hellas_central_exterior_night", "bgm": "hidden_ambient", "transition": "fade_slow",
-      "lines": [{ "text": {
-        "ko": "관찰자가 봤다. 그것이 이 사람이 여기 온 이유였다. 보는 것. 첫날에 본 것들이 있었다. 손자국. 이름들. 재. 폭발 흔적. 눈빛들. 그것들이 흔적이었다. 다른 루트들의 흔적. 이 화성이 어디서 왔는지의 흔적. 관찰자는 더 봐야 했다. 화성이 거기 있었다. 그것이 전부였다.",
-        "en": "The observer watched. That was why this person had come here. Watching. There were things seen on the first day. A handprint. Names. Ash. Explosion traces. Gazes. Those were traces. Traces of other routes. Traces of where this Mars had come from. The observer had to see more. Mars was there. That was everything."
-      } }],
-      "next_chapter_preview": { "questId": "hidden_campaign_ch2", "teaser": { "ko": "다음 — 흔적들", "en": "Next — Traces" }}
+      "id": "s38",
+      "type": "ending",
+      "background": "hellas_central_exterior_night",
+      "bgm": "hidden_ambient",
+      "transition": "fade_slow",
+      "lines": [
+        {
+          "text": {
+            "ko": "관찰자가 봤다. 그것이 이 사람이 여기 온 이유였다. 보는 것. 첫날에 본 것들이 있었다. 손자국. 이름들. 재. 폭발 흔적. 눈빛들. 그것들이 흔적이었다. 다른 루트들의 흔적. 이 화성이 어디서 왔는지의 흔적. 관찰자는 더 봐야 했다. 화성이 거기 있었다. 그것이 전부였다.",
+            "en": "The observer watched. That was why this person had come here. Watching. There were things seen on the first day. A handprint. Names. Ash. Explosion traces. Gazes. Those were traces. Traces of other routes. Traces of where this Mars had come from. The observer had to see more. Mars was there. That was everything."
+          }
+        }
+      ],
+      "next_chapter_preview": {
+        "questId": "hidden_campaign_ch2",
+        "teaser": {
+          "ko": "다음 — 흔적들",
+          "en": "Next — Traces"
+        }
+      }
     }
   ]
 }

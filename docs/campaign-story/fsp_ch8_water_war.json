@@ -2,11 +2,21 @@
   "questId": "fsp_campaign_ch8",
   "campaignId": "fsp_route",
   "chapterNumber": 8,
-  "title": { "ko": "가이아", "en": "Gaia" },
-  "location": { "id": "new_athens_shipyard", "displayNameKo": "뉴 아테네 조선소" },
+  "title": {
+    "ko": "가이아",
+    "en": "Gaia"
+  },
+  "location": {
+    "id": "new_athens_shipyard",
+    "displayNameKo": "뉴 아테네 조선소"
+  },
   "environment": "shipyard_industrial",
   "estimatedPlayTimeMinutes": 35,
-  "characters": ["player", "hagar", "lena"],
+  "characters": [
+    "player",
+    "hagar",
+    "lena"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -15,7 +25,12 @@
       "bgm": "fsp_ambient_heavy",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "뉴 아테네 조선소. 화성 남반구. 바람이 강한 곳이었다. 바람이 강한 곳에서 배를 만들었다. 화성에서 배는 우주선이었다. 우주로 나가는 것이었다. 화성 사람들이 우주선을 만드는 것은 드문 일이었다. 대부분은 회사 것을 탔다. 이곳은 달랐다.", "en": "New Athens Shipyard. Southern hemisphere of Mars. A place of strong winds. Ships were built where the wind was strong. On Mars ships were spacecraft. Things that went to space. Mars people building spacecraft was rare. Most rode company vessels. This place was different." } }
+        {
+          "text": {
+            "ko": "뉴 아테네 조선소. 화성 남반구. 바람이 강한 곳이었다. 바람이 강한 곳에서 배를 만들었다. 화성에서 배는 우주선이었다. 우주로 나가는 것이었다. 화성 사람들이 우주선을 만드는 것은 드문 일이었다. 대부분은 회사 것을 탔다. 이곳은 달랐다.",
+            "en": "New Athens Shipyard. Southern hemisphere of Mars. A place of strong winds. Ships were built where the wind was strong. On Mars ships were spacecraft. Things that went to space. Mars people building spacecraft was rare. Most rode company vessels. This place was different."
+          }
+        }
       ]
     },
     {
@@ -25,7 +40,12 @@
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Hagar Volkov. 조선소 수석 기술자. 화성 1세대. 지구를 기억하는 마지막 세대. 크고 조용한 사람이었다. 말보다 손이 빠른 사람이었다. 손에 흉터가 있었다. 오래된 것들이었다. 화성의 오래된 흉터는 각자의 이야기가 있었다.", "en": "Hagar Volkov. Chief engineer of the shipyard. First generation on Mars. The last generation to remember Earth. A large and quiet person. Hands faster than words. Scars on the hands. Old ones. Old scars on Mars each had their own story." } }
+        {
+          "text": {
+            "ko": "Hagar Volkov. 조선소 수석 기술자. 화성 1세대. 지구를 기억하는 마지막 세대. 크고 조용한 사람이었다. 말보다 손이 빠른 사람이었다. 손에 흉터가 있었다. 오래된 것들이었다. 화성의 오래된 흉터는 각자의 이야기가 있었다.",
+            "en": "Hagar Volkov. Chief engineer of the shipyard. First generation on Mars. The last generation to remember Earth. A large and quiet person. Hands faster than words. Scars on the hands. Old ones. Old scars on Mars each had their own story."
+          }
+        }
       ]
     },
     {
@@ -35,7 +55,12 @@
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "조선소 안에 배가 있었다. 가이아였다. 크지 않았다. 군함이 아니었다. 화물선에 가까웠다. 그러나 뭔가 달랐다. 설계도를 보지 않아도 알 수 있었다. 이 배는 먼 곳을 가기 위한 것이었다. 화성 외부. 화성 너머.", "en": "Inside the shipyard was a ship. Gaia. Not large. Not a warship. Closer to a freighter. But something was different. Even without seeing the blueprints it was knowable. This ship was for going far. Outside Mars. Beyond Mars." } }
+        {
+          "text": {
+            "ko": "조선소 안에 배가 있었다. 가이아였다. 크지 않았다. 군함이 아니었다. 화물선에 가까웠다. 그러나 뭔가 달랐다. 설계도를 보지 않아도 알 수 있었다. 이 배는 먼 곳을 가기 위한 것이었다. 화성 외부. 화성 너머.",
+            "en": "Inside the shipyard was a ship. Gaia. Not large. Not a warship. Closer to a freighter. But something was different. Even without seeing the blueprints it was knowable. This ship was for going far. Outside Mars. Beyond Mars."
+          }
+        }
       ]
     },
     {
@@ -45,9 +70,31 @@
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "gruff", "effect": "character_enter:hagar:slide_left", "text": { "ko": "FSP가 왔군. 좋아. 일손이 필요해.", "en": "FSP came. Good. Need hands." } },
-        { "speaker": "hagar", "emotion": "neutral", "text": { "ko": "이 배 이름이 가이아야. 지구 뜻이야. 내가 붙인 거야. 이유 묻지 마. 대답하기 싫어.", "en": "This ship is called Gaia. Means Earth. I named it. Don't ask why. Don't want to answer." } },
-        { "speaker": "hagar", "emotion": "serious", "text": { "ko": "MCC가 이 조선소를 노려. 가이아를 완성하기 전에 막으려는 거야. 그게 문제야.", "en": "MCC has its eye on this shipyard. They're trying to stop us before Gaia is complete. That's the problem." } }
+        {
+          "speaker": "hagar",
+          "emotion": "gruff",
+          "effect": "character_enter:hagar:slide_left",
+          "text": {
+            "ko": "FSP가 왔군. 좋아. 일손이 필요해.",
+            "en": "FSP came. Good. Need hands."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "neutral",
+          "text": {
+            "ko": "이 배 이름이 가이아야. 지구 뜻이야. 내가 붙인 거야. 이유 묻지 마. 대답하기 싫어.",
+            "en": "This ship is called Gaia. Means Earth. I named it. Don't ask why. Don't want to answer."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "serious",
+          "text": {
+            "ko": "MCC가 이 조선소를 노려. 가이아를 완성하기 전에 막으려는 거야. 그게 문제야.",
+            "en": "MCC has its eye on this shipyard. They're trying to stop us before Gaia is complete. That's the problem."
+          }
+        }
       ]
     },
     {
@@ -57,7 +104,12 @@
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Hagar가 손을 들었다. 배를 향해. 흉터 있는 손으로. 그것이 저 배를 만든 손이었다. 1세대. 화성에서 17년. 지구를 기억하면서 화성을 만든 사람들. 이 배가 그 17년의 결과였다.", "en": "Hagar raised his hand. Toward the ship. The scarred hand. That was the hand that had built that ship. First generation. Seventeen years on Mars. People who remembered Earth while building Mars. This ship was the result of those seventeen years." } }
+        {
+          "text": {
+            "ko": "Hagar가 손을 들었다. 배를 향해. 흉터 있는 손으로. 그것이 저 배를 만든 손이었다. 1세대. 화성에서 17년. 지구를 기억하면서 화성을 만든 사람들. 이 배가 그 17년의 결과였다.",
+            "en": "Hagar raised his hand. Toward the ship. The scarred hand. That was the hand that had built that ship. First generation. Seventeen years on Mars. People who remembered Earth while building Mars. This ship was the result of those seventeen years."
+          }
+        }
       ]
     },
     {
@@ -67,9 +119,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "Olu랑 Mariam이 이 배를 설계했어. 둘이서. 1년 걸렸어.", "en": "Olu and Mariam designed this ship. Both of them. Took a year." } },
-        { "speaker": "hagar", "emotion": "gruff", "text": { "ko": "지금 Olu가 편지를 쓰고 있어. Mariam한테. 가이아가 완성되면 같이 타려고 했는데. Mariam이 6개월 전에 광산 사고로.", "en": "Olu is writing a letter now. To Mariam. They planned to ride Gaia together when it was done. Mariam six months ago. Mine accident." } },
-        { "speaker": "hagar", "emotion": "heavy", "text": { "ko": "편지는 보낼 곳이 없어. 그래도 써. 매일.", "en": "The letter has nowhere to go. But he writes. Every day." } }
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Olu랑 Mariam이 이 배를 설계했어. 둘이서. 1년 걸렸어.",
+            "en": "Olu and Mariam designed this ship. Both of them. Took a year."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "gruff",
+          "text": {
+            "ko": "지금 Olu가 편지를 쓰고 있어. Mariam한테. 가이아가 완성되면 같이 타려고 했는데. Mariam이 6개월 전에 광산 사고로.",
+            "en": "Olu is writing a letter now. To Mariam. They planned to ride Gaia together when it was done. Mariam six months ago. Mine accident."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "heavy",
+          "text": {
+            "ko": "편지는 보낼 곳이 없어. 그래도 써. 매일.",
+            "en": "The letter has nowhere to go. But he writes. Every day."
+          }
+        }
       ]
     },
     {
@@ -79,7 +152,13 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Olu Adeyemi가 있었다. 40대. 배 설계자. 구석에서 글을 쓰고 있었다. 손으로. 종이에. 화성에서 손으로 종이에 쓰는 것은 드문 일이었다. 디지털이 더 쉬웠다. 그러나 이 사람은 손으로 쓰고 있었다. 그것이 이유가 있는 것이었다.", "en": "Olu Adeyemi was there. Forties. Ship designer. Writing in a corner. By hand. On paper. Writing by hand on paper on Mars was rare. Digital was easier. But this person was writing by hand. That had a reason." }, "overlay": "death_still" }
+        {
+          "text": {
+            "ko": "Olu Adeyemi가 있었다. 40대. 배 설계자. 구석에서 글을 쓰고 있었다. 손으로. 종이에. 화성에서 손으로 종이에 쓰는 것은 드문 일이었다. 디지털이 더 쉬웠다. 그러나 이 사람은 손으로 쓰고 있었다. 그것이 이유가 있는 것이었다.",
+            "en": "Olu Adeyemi was there. Forties. Ship designer. Writing in a corner. By hand. On paper. Writing by hand on paper on Mars was rare. Digital was easier. But this person was writing by hand. That had a reason."
+          },
+          "background": "fsp_ch8_water_war_l06_00_death_still"
+        }
       ]
     },
     {
@@ -89,7 +168,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Olu와 Mariam. 두 사람이 가이아를 설계했다. 1년. 그것이 두 사람의 결혼 자금이었다. Hagar가 나중에 말했다. 둘이 결혼하려고 모은 돈으로 가이아를 만들었다고. 그것을 모두가 알고 있었는지는 몰랐다. Olu와 Mariam은 알고 있었다.", "en": "Olu and Mariam. Two people who designed Gaia. One year. That had been their wedding fund. Hagar said later. They had built Gaia with the money they had saved to get married. Whether everyone knew that wasn't certain. Olu and Mariam had known." } }
+        {
+          "text": {
+            "ko": "Olu와 Mariam. 두 사람이 가이아를 설계했다. 1년. 그것이 두 사람의 결혼 자금이었다. Hagar가 나중에 말했다. 둘이 결혼하려고 모은 돈으로 가이아를 만들었다고. 그것을 모두가 알고 있었는지는 몰랐다. Olu와 Mariam은 알고 있었다.",
+            "en": "Olu and Mariam. Two people who designed Gaia. One year. That had been their wedding fund. Hagar said later. They had built Gaia with the money they had saved to get married. Whether everyone knew that wasn't certain. Olu and Mariam had known."
+          }
+        }
       ]
     },
     {
@@ -99,9 +183,31 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "quiet", "effect": "character_enter:lena:slide_right", "text": { "ko": "보스. 알아요? Olu랑 Mariam이 결혼 자금을 이 배에 넣었어요.", "en": "Boss. Do you know? Olu and Mariam put their wedding fund into this ship." } },
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "Mariam은 몰랐어요. 몰랐는데도 동의했어요. Olu가 설명했을 때.", "en": "Mariam didn't know. Even not knowing she agreed. When Olu explained." } },
-        { "speaker": "lena", "emotion": "reflective", "text": { "ko": "그게 사랑인지 어리석음인지 모르겠어요. 둘 다인 것 같기도 해요.", "en": "Don't know if that's love or foolishness. Maybe both." } }
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "보스. 알아요? Olu랑 Mariam이 결혼 자금을 이 배에 넣었어요.",
+            "en": "Boss. Do you know? Olu and Mariam put their wedding fund into this ship."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "Mariam은 몰랐어요. 몰랐는데도 동의했어요. Olu가 설명했을 때.",
+            "en": "Mariam didn't know. Even not knowing she agreed. When Olu explained."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "reflective",
+          "text": {
+            "ko": "그게 사랑인지 어리석음인지 모르겠어요. 둘 다인 것 같기도 해요.",
+            "en": "Don't know if that's love or foolishness. Maybe both."
+          }
+        }
       ]
     },
     {
@@ -111,7 +217,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Olu가 편지를 쓰고 있었다. Mariam에게. 보낼 수 없는 편지였다. 그러나 쓰고 있었다. 손이 종이 위를 움직였다. 그것이 멈추지 않았다. 멈추는 것이 없는 사람이었다. 그것이 이 배를 만든 사람이었다.", "en": "Olu was writing the letter. To Mariam. A letter that couldn't be sent. But he was writing. His hand moved over the paper. It didn't stop. He was someone without stopping. That was the person who had built this ship." } }
+        {
+          "text": {
+            "ko": "Olu가 편지를 쓰고 있었다. Mariam에게. 보낼 수 없는 편지였다. 그러나 쓰고 있었다. 손이 종이 위를 움직였다. 그것이 멈추지 않았다. 멈추는 것이 없는 사람이었다. 그것이 이 배를 만든 사람이었다.",
+            "en": "Olu was writing the letter. To Mariam. A letter that couldn't be sent. But he was writing. His hand moved over the paper. It didn't stop. He was someone without stopping. That was the person who had built this ship."
+          }
+        }
       ]
     },
     {
@@ -121,9 +232,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "Olu가 뭘 쓰는지 물어봤어. 한 번.", "en": "I asked Olu what he was writing. Once." } },
-        { "speaker": "hagar", "emotion": "gruff", "text": { "ko": "가이아가 가는 곳을 쓴다고 했어. 어디로 갈지. 무엇을 볼지. Mariam이 보고 싶어 했던 것들을.", "en": "He said he was writing where Gaia would go. Where it would travel. What it would see. The things Mariam had wanted to see." } },
-        { "speaker": "hagar", "emotion": "heavy", "text": { "ko": "Mariam은 화성 밖을 보고 싶어 했어. 한 번도 못 봤어.", "en": "Mariam had wanted to see outside Mars. Never got to." } }
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Olu가 뭘 쓰는지 물어봤어. 한 번.",
+            "en": "I asked Olu what he was writing. Once."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "gruff",
+          "text": {
+            "ko": "가이아가 가는 곳을 쓴다고 했어. 어디로 갈지. 무엇을 볼지. Mariam이 보고 싶어 했던 것들을.",
+            "en": "He said he was writing where Gaia would go. Where it would travel. What it would see. The things Mariam had wanted to see."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "heavy",
+          "text": {
+            "ko": "Mariam은 화성 밖을 보고 싶어 했어. 한 번도 못 봤어.",
+            "en": "Mariam had wanted to see outside Mars. Never got to."
+          }
+        }
       ]
     },
     {
@@ -133,7 +265,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "MCC 호위선이 조선소 근처에 있었다. 두 척이었다. 합법적인 거리를 유지했다. 그러나 합법적인 거리에서 보이는 것이 있었다. MCC는 항상 합법적인 방식으로 압박했다. 그것이 가장 무서운 종류의 압박이었다.", "en": "MCC escort vessels were near the shipyard. Two of them. Maintaining a legal distance. But there was something visible at legal distance. MCC always pressured through legal means. That was the most frightening kind of pressure." } }
+        {
+          "text": {
+            "ko": "MCC 호위선이 조선소 근처에 있었다. 두 척이었다. 합법적인 거리를 유지했다. 그러나 합법적인 거리에서 보이는 것이 있었다. MCC는 항상 합법적인 방식으로 압박했다. 그것이 가장 무서운 종류의 압박이었다.",
+            "en": "MCC escort vessels were near the shipyard. Two of them. Maintaining a legal distance. But there was something visible at legal distance. MCC always pressured through legal means. That was the most frightening kind of pressure."
+          }
+        }
       ]
     },
     {
@@ -143,7 +280,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "가이아의 완성율이 87%였다. Hagar가 말했다. 2주가 더 필요했다. MCC가 2주를 기다릴 것이었다. 아니면 기다리지 않을 것이었다. 그것이 지금 알 수 없는 것이었다.", "en": "Gaia's completion rate was 87%. Hagar said. Two more weeks were needed. MCC would wait two weeks. Or wouldn't. That was what was unknowable now." } }
+        {
+          "text": {
+            "ko": "가이아의 완성율이 87%였다. Hagar가 말했다. 2주가 더 필요했다. MCC가 2주를 기다릴 것이었다. 아니면 기다리지 않을 것이었다. 그것이 지금 알 수 없는 것이었다.",
+            "en": "Gaia's completion rate was 87%. Hagar said. Two more weeks were needed. MCC would wait two weeks. Or wouldn't. That was what was unknowable now."
+          }
+        }
       ]
     },
     {
@@ -153,9 +295,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "serious", "text": { "ko": "36분이야.", "en": "Thirty-six minutes." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "36분요?", "en": "Thirty-six minutes?" } },
-        { "speaker": "hagar", "emotion": "gruff", "text": { "ko": "MCC 호위선이 접근하면 우리가 방어할 수 있는 시간. 36분. 그 안에 결정하고 움직여야 해.", "en": "If MCC escorts approach the time we can defend. Thirty-six minutes. Need to decide and move within that." } }
+        {
+          "speaker": "hagar",
+          "emotion": "serious",
+          "text": {
+            "ko": "36분이야.",
+            "en": "Thirty-six minutes."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "36분요?",
+            "en": "Thirty-six minutes?"
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "gruff",
+          "text": {
+            "ko": "MCC 호위선이 접근하면 우리가 방어할 수 있는 시간. 36분. 그 안에 결정하고 움직여야 해.",
+            "en": "If MCC escorts approach the time we can defend. Thirty-six minutes. Need to decide and move within that."
+          }
+        }
       ]
     },
     {
@@ -165,10 +328,38 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "neutral", "text": { "ko": "조선소 방어 시스템이 36분을 버텨요. 그 이상은 못 해.", "en": "The shipyard defense system holds for thirty-six minutes. No more." } },
-        { "speaker": "hagar", "emotion": "serious", "text": { "ko": "36분 안에 Gaia가 출항 준비가 되면 우리가 이기는 거야.", "en": "If Gaia is ready to launch within thirty-six minutes we win." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "87%에서 출항 준비까지 36분이요?", "en": "From 87% to launch ready in thirty-six minutes?" } },
-        { "speaker": "hagar", "emotion": "gruff", "text": { "ko": "나는 1세대야. 나는 할 수 있어.", "en": "I'm first generation. I can do it." } }
+        {
+          "speaker": "hagar",
+          "emotion": "neutral",
+          "text": {
+            "ko": "조선소 방어 시스템이 36분을 버텨요. 그 이상은 못 해.",
+            "en": "The shipyard defense system holds for thirty-six minutes. No more."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "serious",
+          "text": {
+            "ko": "36분 안에 Gaia가 출항 준비가 되면 우리가 이기는 거야.",
+            "en": "If Gaia is ready to launch within thirty-six minutes we win."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "87%에서 출항 준비까지 36분이요?",
+            "en": "From 87% to launch ready in thirty-six minutes?"
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "gruff",
+          "text": {
+            "ko": "나는 1세대야. 나는 할 수 있어.",
+            "en": "I'm first generation. I can do it."
+          }
+        }
       ]
     },
     {
@@ -178,7 +369,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 조선소 안으로 들어갔다. 빠른 사람이 더 빨라졌다. 뭔가를 확인하는 것이었다. 배. 연결부. 시스템. 그것이 Lena의 방식이었다. 빠르게 보는 것. 빠르게 결정하는 것.", "en": "Lena went inside the shipyard. The fast person got faster. Checking something. The ship. Connections. Systems. That was Lena's way. Seeing fast. Deciding fast." } }
+        {
+          "text": {
+            "ko": "Lena가 조선소 안으로 들어갔다. 빠른 사람이 더 빨라졌다. 뭔가를 확인하는 것이었다. 배. 연결부. 시스템. 그것이 Lena의 방식이었다. 빠르게 보는 것. 빠르게 결정하는 것.",
+            "en": "Lena went inside the shipyard. The fast person got faster. Checking something. The ship. Connections. Systems. That was Lena's way. Seeing fast. Deciding fast."
+          }
+        }
       ]
     },
     {
@@ -188,10 +384,38 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "Hagar. 주 엔진 상태 어때요.", "en": "Hagar. Status of the main engine." } },
-        { "speaker": "hagar", "emotion": "neutral", "text": { "ko": "93%. 부 시스템이 문제야. 냉각 계통.", "en": "93%. Secondary systems are the issue. Cooling circuits." } },
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "내가 할게요. 냉각 계통은 광산 시스템이랑 비슷해요.", "en": "I'll do it. Cooling circuits are similar to mine systems." } },
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "그래. 해봐.", "en": "Fine. Try it." } }
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "Hagar. 주 엔진 상태 어때요.",
+            "en": "Hagar. Status of the main engine."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "neutral",
+          "text": {
+            "ko": "93%. 부 시스템이 문제야. 냉각 계통.",
+            "en": "93%. Secondary systems are the issue. Cooling circuits."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "내가 할게요. 냉각 계통은 광산 시스템이랑 비슷해요.",
+            "en": "I'll do it. Cooling circuits are similar to mine systems."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그래. 해봐.",
+            "en": "Fine. Try it."
+          }
+        }
       ]
     },
     {
@@ -201,7 +425,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Olu가 편지를 쓰고 있었다. 구석에서. 손으로. 종이에. MCC 호위선이 있었다. 두 척. 36분. 그것이 지금 이 조선소에 있었다. 편지. 배. 시간. 그것들이 같이 있었다.", "en": "Olu was writing the letter. In the corner. By hand. On paper. MCC escorts were there. Two ships. Thirty-six minutes. That was in this shipyard now. The letter. The ship. Time. They were together." } }
+        {
+          "text": {
+            "ko": "Olu가 편지를 쓰고 있었다. 구석에서. 손으로. 종이에. MCC 호위선이 있었다. 두 척. 36분. 그것이 지금 이 조선소에 있었다. 편지. 배. 시간. 그것들이 같이 있었다.",
+            "en": "Olu was writing the letter. In the corner. By hand. On paper. MCC escorts were there. Two ships. Thirty-six minutes. That was in this shipyard now. The letter. The ship. Time. They were together."
+          }
+        }
       ]
     },
     {
@@ -211,7 +440,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Olu가 편지를 접었다. 일어섰다. 하가르를 봤다. 그 눈빛이 말했다. 준비됐다. Olu는 배 설계자였다. 전투원이 아니었다. 그러나 이 배가 그의 것이었다. Mariam의 것이기도 했다. 그것이 그를 일어서게 했다.", "en": "Olu folded the letter. Stood. Looked at Hagar. Those eyes said. Ready. Olu was a ship designer. Not a fighter. But this ship was his. Mariam's too. That had made him stand." } }
+        {
+          "text": {
+            "ko": "Olu가 편지를 접었다. 일어섰다. 하가르를 봤다. 그 눈빛이 말했다. 준비됐다. Olu는 배 설계자였다. 전투원이 아니었다. 그러나 이 배가 그의 것이었다. Mariam의 것이기도 했다. 그것이 그를 일어서게 했다.",
+            "en": "Olu folded the letter. Stood. Looked at Hagar. Those eyes said. Ready. Olu was a ship designer. Not a fighter. But this ship was his. Mariam's too. That had made him stand."
+          }
+        }
       ]
     },
     {
@@ -221,9 +455,32 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "Olu. 안전한 데 있어.", "en": "Olu. Stay somewhere safe." } },
-        { "speaker": "olu_adeyemi", "emotion": "calm", "effect": "character_narration", "text": { "ko": "이 배 설계자예요. 어디가 안전한지 알아요.", "en": "I'm this ship's designer. I know where is safe." } },
-        { "speaker": "olu_adeyemi", "emotion": "quiet", "effect": "character_narration", "text": { "ko": "Mariam이 한 말이에요. 결혼 두 번 할 수 있다고. 우주선은 한 번 만드는 거라고. 이 배는 한 번이에요.", "en": "Something Mariam said. Marriage can happen twice. A spacecraft gets made once. This ship is once." } }
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Olu. 안전한 데 있어.",
+            "en": "Olu. Stay somewhere safe."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "calm",
+          "effect": "character_narration",
+          "text": {
+            "ko": "이 배 설계자예요. 어디가 안전한지 알아요.",
+            "en": "I'm this ship's designer. I know where is safe."
+          }
+        },
+        {
+          "speaker": "olu_adeyemi",
+          "emotion": "quiet",
+          "effect": "character_narration",
+          "text": {
+            "ko": "Mariam이 한 말이에요. 결혼 두 번 할 수 있다고. 우주선은 한 번 만드는 거라고. 이 배는 한 번이에요.",
+            "en": "Something Mariam said. Marriage can happen twice. A spacecraft gets made once. This ship is once."
+          }
+        }
       ]
     },
     {
@@ -233,7 +490,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Olu의 편지가 접혀 있었다. 주머니 안에. 가이아가 가는 곳들을 쓴 것. Mariam이 보고 싶어 했던 것들을 쓴 것. 그것이 가이아와 같이 있었다. 편지가 배와 같이 있었다. 그것이 오늘 이 조선소의 전부였다.", "en": "Olu's letter was folded. In his pocket. Written with the places Gaia would go. Written with the things Mariam had wanted to see. That was together with Gaia. The letter was with the ship. That was everything in this shipyard today." } }
+        {
+          "text": {
+            "ko": "Olu의 편지가 접혀 있었다. 주머니 안에. 가이아가 가는 곳들을 쓴 것. Mariam이 보고 싶어 했던 것들을 쓴 것. 그것이 가이아와 같이 있었다. 편지가 배와 같이 있었다. 그것이 오늘 이 조선소의 전부였다.",
+            "en": "Olu's letter was folded. In his pocket. Written with the places Gaia would go. Written with the things Mariam had wanted to see. That was together with Gaia. The letter was with the ship. That was everything in this shipyard today."
+          }
+        }
       ]
     },
     {
@@ -241,12 +503,59 @@
       "type": "choice",
       "background": "new_athens_shipyard",
       "bgm": "choice_tension",
-      "prompt": { "ko": "가이아. Olu의 편지. MCC 호위선. 36분. 어떻게 합니까.", "en": "Gaia. Olu's letter. MCC escort vessels. Thirty-six minutes. What do you do." },
+      "prompt": {
+        "ko": "가이아. Olu의 편지. MCC 호위선. 36분. 어떻게 합니까.",
+        "en": "Gaia. Olu's letter. MCC escort vessels. Thirty-six minutes. What do you do."
+      },
       "choices": [
-        { "id": "fsp_ch8_defend", "text": { "ko": "조선소를 방어한다. 가이아를 완성한다.", "en": "Defend the shipyard. Complete Gaia." }, "tone": "decisive", "preview_hint": { "ko": "→ MCC와 해상 충돌, 가이아 진수 가능성", "en": "→ Maritime clash with MCC, Gaia launch possible" } },
-        { "id": "fsp_ch8_cv_support", "text": { "ko": "CV에 지원을 요청한다. Sandstone 약속.", "en": "Request CV support. The Sandstone Promise." }, "tone": "alliance", "preview_hint": { "ko": "→ Cinder Grace 등장, 동맹 시험", "en": "→ Cinder Grace appears, alliance tested" } },
-        { "id": "fsp_ch8_negotiate_mcc", "text": { "ko": "MCC와 협상한다. 가이아 건조 목적을 공개한다.", "en": "Negotiate with MCC. Reveal Gaia's purpose." }, "tone": "transparent", "preview_hint": { "ko": "→ MCC가 듣는다. 예상 밖으로", "en": "→ MCC listens. Unexpectedly." } },
-        { "id": "fsp_ch8_launch_now", "text": { "ko": "미완성이어도 지금 당장 진수한다.", "en": "Launch now even if incomplete." }, "tone": "desperate", "preview_hint": { "ko": "→ Hagar가 동의한다. 눈이 빛난다", "en": "→ Hagar agrees. Eyes light up." } }
+        {
+          "id": "fsp_ch8_defend",
+          "text": {
+            "ko": "조선소를 방어한다. 가이아를 완성한다.",
+            "en": "Defend the shipyard. Complete Gaia."
+          },
+          "tone": "decisive",
+          "preview_hint": {
+            "ko": "→ MCC와 해상 충돌, 가이아 진수 가능성",
+            "en": "→ Maritime clash with MCC, Gaia launch possible"
+          }
+        },
+        {
+          "id": "fsp_ch8_cv_support",
+          "text": {
+            "ko": "CV에 지원을 요청한다. Sandstone 약속.",
+            "en": "Request CV support. The Sandstone Promise."
+          },
+          "tone": "alliance",
+          "preview_hint": {
+            "ko": "→ Cinder Grace 등장, 동맹 시험",
+            "en": "→ Cinder Grace appears, alliance tested"
+          }
+        },
+        {
+          "id": "fsp_ch8_negotiate_mcc",
+          "text": {
+            "ko": "MCC와 협상한다. 가이아 건조 목적을 공개한다.",
+            "en": "Negotiate with MCC. Reveal Gaia's purpose."
+          },
+          "tone": "transparent",
+          "preview_hint": {
+            "ko": "→ MCC가 듣는다. 예상 밖으로",
+            "en": "→ MCC listens. Unexpectedly."
+          }
+        },
+        {
+          "id": "fsp_ch8_launch_now",
+          "text": {
+            "ko": "미완성이어도 지금 당장 진수한다.",
+            "en": "Launch now even if incomplete."
+          },
+          "tone": "desperate",
+          "preview_hint": {
+            "ko": "→ Hagar가 동의한다. 눈이 빛난다",
+            "en": "→ Hagar agrees. Eyes light up."
+          }
+        }
       ]
     },
     {
@@ -256,7 +565,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "36분이 시작됐다. 조선소가 움직였다. Hagar의 손. 흉터 있는 손. 그것이 지시했다. 사람들이 따랐다. 조선소는 이미 연습한 것처럼 움직였다. 이 사람들은 이것을 기다리고 있었다. 오래.", "en": "Thirty-six minutes began. The shipyard moved. Hagar's hands. Scarred hands. They directed. People followed. The shipyard moved as if already rehearsed. These people had been waiting for this. For a long time." } }
+        {
+          "text": {
+            "ko": "36분이 시작됐다. 조선소가 움직였다. Hagar의 손. 흉터 있는 손. 그것이 지시했다. 사람들이 따랐다. 조선소는 이미 연습한 것처럼 움직였다. 이 사람들은 이것을 기다리고 있었다. 오래.",
+            "en": "Thirty-six minutes began. The shipyard moved. Hagar's hands. Scarred hands. They directed. People followed. The shipyard moved as if already rehearsed. These people had been waiting for this. For a long time."
+          }
+        }
       ]
     },
     {
@@ -266,7 +580,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 냉각 계통을 작업했다. 빠른 손들. 광산에서 배운 것들. 시스템은 달라도 원리는 같았다. 압력. 흐름. 온도. 그것이 같았다. 화성에서 배운 것들은 화성 어디서든 쓸 수 있었다.", "en": "Lena worked on the cooling circuits. Fast hands. Things learned in the mines. The systems were different but the principles were the same. Pressure. Flow. Temperature. Those were the same. Things learned on Mars could be used anywhere on Mars." } }
+        {
+          "text": {
+            "ko": "Lena가 냉각 계통을 작업했다. 빠른 손들. 광산에서 배운 것들. 시스템은 달라도 원리는 같았다. 압력. 흐름. 온도. 그것이 같았다. 화성에서 배운 것들은 화성 어디서든 쓸 수 있었다.",
+            "en": "Lena worked on the cooling circuits. Fast hands. Things learned in the mines. The systems were different but the principles were the same. Pressure. Flow. Temperature. Those were the same. Things learned on Mars could be used anywhere on Mars."
+          }
+        }
       ]
     },
     {
@@ -276,10 +595,38 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "serious", "text": { "ko": "MCC 호위선이 움직이기 시작해. 접근 고도야.", "en": "MCC escort vessels are starting to move. Approach altitude." } },
-        { "speaker": "hagar", "emotion": "gruff", "text": { "ko": "방어 포인트 세 곳. 북쪽 게이트. 동쪽 도크. 지붕 포탑.", "en": "Three defense points. North gate. East dock. Roof turret." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "인원이 부족해요.", "en": "Not enough people." } },
-        { "speaker": "hagar", "emotion": "calm", "text": { "ko": "항상 부족해. 그래도 36분은 버텨.", "en": "Always short. But hold for thirty-six minutes anyway." } }
+        {
+          "speaker": "hagar",
+          "emotion": "serious",
+          "text": {
+            "ko": "MCC 호위선이 움직이기 시작해. 접근 고도야.",
+            "en": "MCC escort vessels are starting to move. Approach altitude."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "gruff",
+          "text": {
+            "ko": "방어 포인트 세 곳. 북쪽 게이트. 동쪽 도크. 지붕 포탑.",
+            "en": "Three defense points. North gate. East dock. Roof turret."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "인원이 부족해요.",
+            "en": "Not enough people."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "calm",
+          "text": {
+            "ko": "항상 부족해. 그래도 36분은 버텨.",
+            "en": "Always short. But hold for thirty-six minutes anyway."
+          }
+        }
       ]
     },
     {
@@ -289,7 +636,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Olu가 설계도를 폈다. 가이아의 약점들을 알고 있었다. 설계자였다. 그가 약점을 지키러 갔다. 편지는 주머니 안에 있었다. 그것이 오늘 이 사람의 전부였다.", "en": "Olu unfolded the blueprints. He knew Gaia's weak points. He was the designer. He went to guard the weak points. The letter was in his pocket. That was everything for this person today." } }
+        {
+          "text": {
+            "ko": "Olu가 설계도를 폈다. 가이아의 약점들을 알고 있었다. 설계자였다. 그가 약점을 지키러 갔다. 편지는 주머니 안에 있었다. 그것이 오늘 이 사람의 전부였다.",
+            "en": "Olu unfolded the blueprints. He knew Gaia's weak points. He was the designer. He went to guard the weak points. The letter was in his pocket. That was everything for this person today."
+          }
+        }
       ]
     },
     {
@@ -298,8 +650,14 @@
       "background": "new_athens_shipyard",
       "bgm": "battle_theme_fsp",
       "transition": "flash_white",
-      "title": { "ko": "가이아 수호", "en": "Gaia's Defense" },
-      "subtitle": { "ko": "뉴 아테네 조선소 — 화성의 꿈", "en": "New Athens Shipyard — The Dream of Mars" }
+      "title": {
+        "ko": "가이아 수호",
+        "en": "Gaia's Defense"
+      },
+      "subtitle": {
+        "ko": "뉴 아테네 조선소 — 화성의 꿈",
+        "en": "New Athens Shipyard — The Dream of Mars"
+      }
     },
     {
       "id": "s_result",
@@ -313,8 +671,23 @@
       "background": "new_athens_shipyard_night",
       "bgm": "victory_calm",
       "lines": [
-        { "speaker": "hagar", "emotion": "moved", "effect": "character_enter:hagar:slide_left", "text": { "ko": "가이아가 살아남았어.", "en": "Gaia survived." } },
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "Olu가 편지를 마쳤어. 가이아에 넣을 거래. 배가 가는 곳에 편지도 같이 간다고.", "en": "Olu finished the letter. He says he'll put it on Gaia. The letter goes wherever the ship goes." } }
+        {
+          "speaker": "hagar",
+          "emotion": "moved",
+          "effect": "character_enter:hagar:slide_left",
+          "text": {
+            "ko": "가이아가 살아남았어.",
+            "en": "Gaia survived."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Olu가 편지를 마쳤어. 가이아에 넣을 거래. 배가 가는 곳에 편지도 같이 간다고.",
+            "en": "Olu finished the letter. He says he'll put it on Gaia. The letter goes wherever the ship goes."
+          }
+        }
       ]
     },
     {
@@ -323,7 +696,12 @@
       "background": "new_athens_shipyard",
       "bgm": "defeat_ambient",
       "lines": [
-        { "text": { "ko": "조선소가 MCC에 넘어갔다. 가이아가 있었다. MCC 것이 될 것이었다. Olu의 편지는 어디 있는지 알 수 없었다. Hagar는 아무 말이 없었다. 조용한 사람이 말이 없을 때는 더 조용했다.", "en": "The shipyard passed to MCC. Gaia was there. It would become MCC's. Where Olu's letter was could not be known. Hagar said nothing. When a quiet person said nothing it was quieter still." } }
+        {
+          "text": {
+            "ko": "조선소가 MCC에 넘어갔다. 가이아가 있었다. MCC 것이 될 것이었다. Olu의 편지는 어디 있는지 알 수 없었다. Hagar는 아무 말이 없었다. 조용한 사람이 말이 없을 때는 더 조용했다.",
+            "en": "The shipyard passed to MCC. Gaia was there. It would become MCC's. Where Olu's letter was could not be known. Hagar said nothing. When a quiet person said nothing it was quieter still."
+          }
+        }
       ]
     },
     {
@@ -333,7 +711,12 @@
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "가이아가 거기 있었다. 87%. 아니면 더. 또는 완성. 그것에 따라 달랐다. 그러나 가이아는 거기 있었다. Olu와 Mariam의 결혼 자금으로 만들어진 것. 그것이 어느 쪽이든 거기 있었다.", "en": "Gaia was there. 87%. Or more. Or complete. Depending. But Gaia was there. Built with Olu and Mariam's wedding fund. It was there regardless of which way." } }
+        {
+          "text": {
+            "ko": "가이아가 거기 있었다. 87%. 아니면 더. 또는 완성. 그것에 따라 달랐다. 그러나 가이아는 거기 있었다. Olu와 Mariam의 결혼 자금으로 만들어진 것. 그것이 어느 쪽이든 거기 있었다.",
+            "en": "Gaia was there. 87%. Or more. Or complete. Depending. But Gaia was there. Built with Olu and Mariam's wedding fund. It was there regardless of which way."
+          }
+        }
       ]
     },
     {
@@ -343,8 +726,22 @@
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "Olu한테 물었어. 결혼 자금을 이 배에 넣은 이유를.", "en": "Asked Olu. Why he put the wedding fund into this ship." } },
-        { "speaker": "hagar", "emotion": "reflective", "text": { "ko": "Mariam이 말했대. 결혼은 두 번 할 수 있다고. 우주선은 한 번 만드는 거라고.", "en": "He said Mariam told him. Marriage can happen twice. A spacecraft gets made once." } }
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Olu한테 물었어. 결혼 자금을 이 배에 넣은 이유를.",
+            "en": "Asked Olu. Why he put the wedding fund into this ship."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "reflective",
+          "text": {
+            "ko": "Mariam이 말했대. 결혼은 두 번 할 수 있다고. 우주선은 한 번 만드는 거라고.",
+            "en": "He said Mariam told him. Marriage can happen twice. A spacecraft gets made once."
+          }
+        }
       ]
     },
     {
@@ -354,7 +751,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mariam은 6개월 전에 없어졌다. 광산 사고. 결혼은 두 번 할 수 있다는 것. 그러나 결혼을 못 했다. 우주선이 완성됐다. 그것이 지금 거기 있었다. 가이아. 지구 뜻. Hagar가 붙인 이름.", "en": "Mariam had been gone for six months. Mining accident. That marriage could happen twice. But there was no marriage. The spacecraft was complete. That was there now. Gaia. Meaning Earth. The name Hagar gave." } }
+        {
+          "text": {
+            "ko": "Mariam은 6개월 전에 없어졌다. 광산 사고. 결혼은 두 번 할 수 있다는 것. 그러나 결혼을 못 했다. 우주선이 완성됐다. 그것이 지금 거기 있었다. 가이아. 지구 뜻. Hagar가 붙인 이름.",
+            "en": "Mariam had been gone for six months. Mining accident. That marriage could happen twice. But there was no marriage. The spacecraft was complete. That was there now. Gaia. Meaning Earth. The name Hagar gave."
+          }
+        }
       ]
     },
     {
@@ -364,9 +766,30 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "Olu가 편지를 넣었어. 가이아 안에.", "en": "Olu put the letter inside. Inside Gaia." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "어디에요?", "en": "Where?" } },
-        { "speaker": "hagar", "emotion": "neutral", "text": { "ko": "항법 컴퓨터 옆이야. Mariam이 좋아했을 자리야. Olu가 그랬어.", "en": "Beside the navigation computer. A spot Mariam would have liked. Olu said so." } }
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Olu가 편지를 넣었어. 가이아 안에.",
+            "en": "Olu put the letter inside. Inside Gaia."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "어디에요?",
+            "en": "Where?"
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "neutral",
+          "text": {
+            "ko": "항법 컴퓨터 옆이야. Mariam이 좋아했을 자리야. Olu가 그랬어.",
+            "en": "Beside the navigation computer. A spot Mariam would have liked. Olu said so."
+          }
+        }
       ]
     },
     {
@@ -376,7 +799,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "편지가 가이아 안에 있었다. 항법 컴퓨터 옆. 가이아가 가는 곳들을 적은 것. Mariam이 보고 싶어 했던 것들. 화성 밖. 먼 곳. 이름 없는 것들. 편지가 그것들을 갔다. 가이아와 함께.", "en": "The letter was inside Gaia. Beside the navigation computer. Written with the places Gaia would go. The things Mariam had wanted to see. Outside Mars. Far places. Things without names. The letter would go there. Together with Gaia." } }
+        {
+          "text": {
+            "ko": "편지가 가이아 안에 있었다. 항법 컴퓨터 옆. 가이아가 가는 곳들을 적은 것. Mariam이 보고 싶어 했던 것들. 화성 밖. 먼 곳. 이름 없는 것들. 편지가 그것들을 갔다. 가이아와 함께.",
+            "en": "The letter was inside Gaia. Beside the navigation computer. Written with the places Gaia would go. The things Mariam had wanted to see. Outside Mars. Far places. Things without names. The letter would go there. Together with Gaia."
+          }
+        }
       ]
     },
     {
@@ -386,7 +814,13 @@
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "새벽이 왔다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름. 화성에서 지구를 기억하는 사람은 줄어들고 있었다. 그러나 이름은 남았다. 이름은 기억하는 사람보다 오래 살았다.", "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth. On Mars those who remembered Earth were diminishing. But the name remained. Names outlived those who remembered." }, "overlay": "mars_horizon" }
+        {
+          "text": {
+            "ko": "새벽이 왔다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름. 화성에서 지구를 기억하는 사람은 줄어들고 있었다. 그러나 이름은 남았다. 이름은 기억하는 사람보다 오래 살았다.",
+            "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth. On Mars those who remembered Earth were diminishing. But the name remained. Names outlived those who remembered."
+          },
+          "background": "fsp_ch8_water_war_l35_00_mars_horizon"
+        }
       ]
     },
     {
@@ -396,10 +830,38 @@
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "새벽이야.", "en": "Dawn." } },
-        { "speaker": "hagar", "emotion": "reflective", "text": { "ko": "화성 새벽은 지구 새벽이랑 달라. 더 붉어. 태양이 작아. 그래도 새벽은 새벽이야.", "en": "The Martian dawn is different from Earth's dawn. Redder. The sun is smaller. But dawn is still dawn." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "Hagar. 지구 기억해요?", "en": "Hagar. Do you remember Earth?" } },
-        { "speaker": "hagar", "emotion": "heavy", "text": { "ko": "기억해. 매일 조금씩 없어져. 그래서 이름을 붙인 거야. 가이아라고.", "en": "I remember. Fades a little each day. That's why I gave it the name. Gaia." } }
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "새벽이야.",
+            "en": "Dawn."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "reflective",
+          "text": {
+            "ko": "화성 새벽은 지구 새벽이랑 달라. 더 붉어. 태양이 작아. 그래도 새벽은 새벽이야.",
+            "en": "The Martian dawn is different from Earth's dawn. Redder. The sun is smaller. But dawn is still dawn."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Hagar. 지구 기억해요?",
+            "en": "Hagar. Do you remember Earth?"
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "heavy",
+          "text": {
+            "ko": "기억해. 매일 조금씩 없어져. 그래서 이름을 붙인 거야. 가이아라고.",
+            "en": "I remember. Fades a little each day. That's why I gave it the name. Gaia."
+          }
+        }
       ]
     },
     {
@@ -409,7 +871,12 @@
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "1세대가 기억하는 것을 2세대는 기억하지 못했다. 그것이 세대였다. Hagar가 기억하는 지구를. Yuna나 Lena는 기억하지 못했다. 그러나 가이아가 있었다. 이름이 있었다. 기억이 이름으로 남는 것이었다.", "en": "What the first generation remembered the second didn't. That was generation. The Earth that Hagar remembered. Yuna and Lena didn't remember it. But Gaia was there. The name was there. Memory remained as a name." } }
+        {
+          "text": {
+            "ko": "1세대가 기억하는 것을 2세대는 기억하지 못했다. 그것이 세대였다. Hagar가 기억하는 지구를. Yuna나 Lena는 기억하지 못했다. 그러나 가이아가 있었다. 이름이 있었다. 기억이 이름으로 남는 것이었다.",
+            "en": "What the first generation remembered the second didn't. That was generation. The Earth that Hagar remembered. Yuna and Lena didn't remember it. But Gaia was there. The name was there. Memory remained as a name."
+          }
+        }
       ]
     },
     {
@@ -419,10 +886,38 @@
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "Olu가 저기 있어.", "en": "Olu is there." } },
-        { "speaker": "hagar", "emotion": "neutral", "text": { "ko": "가이아 앞에. 서 있어. 아침부터.", "en": "In front of Gaia. Standing. Since morning." } },
-        { "speaker": "lena", "emotion": "reflective", "text": { "ko": "편지 생각하는 거겠죠.", "en": "Probably thinking about the letter." } },
-        { "speaker": "hagar", "emotion": "quiet", "text": { "ko": "아니면 Mariam 생각하는 거야. 둘 다 같은 거야 지금.", "en": "Or thinking about Mariam. They're the same thing now." } }
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Olu가 저기 있어.",
+            "en": "Olu is there."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "neutral",
+          "text": {
+            "ko": "가이아 앞에. 서 있어. 아침부터.",
+            "en": "In front of Gaia. Standing. Since morning."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "reflective",
+          "text": {
+            "ko": "편지 생각하는 거겠죠.",
+            "en": "Probably thinking about the letter."
+          }
+        },
+        {
+          "speaker": "hagar",
+          "emotion": "quiet",
+          "text": {
+            "ko": "아니면 Mariam 생각하는 거야. 둘 다 같은 거야 지금.",
+            "en": "Or thinking about Mariam. They're the same thing now."
+          }
+        }
       ]
     },
     {
@@ -432,9 +927,21 @@
       "bgm": "ambient_vast",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "새벽이었다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름.\n\nOlu의 편지가 가이아 안에 있었다. 아니면 없었다. 그것이 오늘의 결과에 달렸다. 그러나 편지는 쓰여졌다. 종이 위에. 손으로. 화성에서 가장 드문 방식으로.\n\nMariam이 거기 있었다. 편지 안에. 배 안에. 이름으로.", "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth.\n\nOlu's letter was inside Gaia. Or wasn't. That depended on today's outcome. But the letter had been written. On paper. By hand. In the rarest way on Mars.\n\nMariam was there. In the letter. In the ship. As a name." }, "overlay": "candle_flame" }
+        {
+          "text": {
+            "ko": "새벽이었다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름.\n\nOlu의 편지가 가이아 안에 있었다. 아니면 없었다. 그것이 오늘의 결과에 달렸다. 그러나 편지는 쓰여졌다. 종이 위에. 손으로. 화성에서 가장 드문 방식으로.\n\nMariam이 거기 있었다. 편지 안에. 배 안에. 이름으로.",
+            "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth.\n\nOlu's letter was inside Gaia. Or wasn't. That depended on today's outcome. But the letter had been written. On paper. By hand. In the rarest way on Mars.\n\nMariam was there. In the letter. In the ship. As a name."
+          },
+          "background": "fsp_ch8_water_war_l39_00_candle_flame"
+        }
       ],
-      "next_chapter_preview": { "questId": "fsp_campaign_ch9", "teaser": { "ko": "다음 — 세 개의 깃발", "en": "Next — Three Flags" } }
+      "next_chapter_preview": {
+        "questId": "fsp_campaign_ch9",
+        "teaser": {
+          "ko": "다음 — 세 개의 깃발",
+          "en": "Next — Three Flags"
+        }
+      }
     }
   ]
 }

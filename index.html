@@ -1236,10 +1236,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .story-title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.4);font-size:clamp(24px,8vw,44px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.9);padding:28px;letter-spacing:0}
 .story-title-card small{display:block;margin-top:12px;font-size:clamp(13px,3.5vw,18px);color:#FFD700;line-height:1.5}
 .story-narration-text{text-align:center;background:none;color:#f0f0f0;font-size:1rem;line-height:1.8;text-shadow:0 2px 14px rgba(0,0,0,.95)}
-/* 씬 디테일 오버레이 — line.overlay 필드 명시된 장면에서만 중앙 표시 */
-.story-detail-overlay{position:absolute;left:50%;bottom:185px;width:176px;height:176px;border-radius:14px;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .5s ease,transform .5s ease;transform:translateX(-50%) translateY(16px) scale(.9);border:2px solid rgba(255,255,255,.22);box-shadow:0 8px 40px rgba(0,0,0,.85);z-index:10}
-.story-detail-overlay.visible{opacity:.92;transform:translateX(-50%) translateY(0) scale(1)}
-@media(max-width:520px){.story-detail-overlay{width:148px;height:148px;bottom:175px}}
+/* (line.background 라인 전용 풀스크린 배경 swap 으로 대체. 기존 floating .story-detail-overlay 폐기) */
 /* 스토리 컨트롤 (스킵/나가기) — safe area 고려 */
 .story-controls{position:absolute;top:max(10px,env(safe-area-inset-top,10px));right:12px;display:flex;gap:8px;z-index:5;cursor:default}
 .story-ctrl-btn{padding:8px 13px;min-height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.65);color:#ddd;font-family:var(--fn);font-size:9px;letter-spacing:1px;font-weight:800;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .15s;-webkit-tap-highlight-color:transparent}
@@ -24858,7 +24855,6 @@ function showCampaignStory(chapter){
     +'<div class="story-background"></div>'
     +'<img class="story-character-left" alt="">'
     +'<img class="story-character-right" alt="">'
-    +'<img class="story-detail-overlay" alt="">'
     +'<div class="story-controls">'
       +'<button type="button" class="story-ctrl-btn" id="storySkipBtn" title="다음 장면으로">▶ SKIP</button>'
       +'<button type="button" class="story-ctrl-btn danger" id="storyAbandonBtn" title="시나리오를 종료하고 챕터 진행을 포기합니다">✕ 나가기</button>'
@@ -24929,13 +24925,15 @@ async function abandonCampaignFromStory(){
   try{ loadCampaignStatus(); }catch(_){}
 }
 
-function _campaignStorySetBackground(scene,overlay){
-  // 배경 에셋이 없거나 로드 실패하면 지정된 화성풍 그라디언트로 폴백한다.
+function _campaignStorySetBackground(scene,overlay,lineBg){
+  // line.background 가 있으면 라인 전용 배경(전용 dedicated 씬 배경)으로 swap, 없으면 scene.background.
+  // 에셋이 없거나 로드 실패하면 화성풍 그라디언트 폴백.
   var bg=overlay.querySelector('.story-background');
   if(!bg) return;
   var speed=scene.transition==='fade_slow'?'1.5s':(scene.transition==='fade_medium'?'0.8s':'0s');
   bg.style.transitionDuration=speed;
-  if(!scene.background){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';return;}
+  var bgChoice=lineBg||scene.background;
+  if(!bgChoice){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';return;}
   // 배경 ID → 파일명 매핑. 전용 에셋이 생긴 ID는 직접 참조,
   // 아직 파일이 없거나 별칭이 필요한 ID만 폴백을 유지한다.
   var _bgMap={
@@ -24952,7 +24950,7 @@ function _campaignStorySetBackground(scene,overlay){
     'kepler_crater':'kepler_crater_dawn',
     'kepler_crater_dusk':'kepler_crater_edge_dusk'
   };
-  var bgId=_bgMap[scene.background]||scene.background;
+  var bgId=_bgMap[bgChoice]||bgChoice;
   var src='/assets/campaign/backgrounds/'+bgId+'.png';
   var img=new Image();
   img.onload=function(){bg.style.backgroundImage='url("'+src+'")';};
@@ -24992,25 +24990,7 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
   });
 }
 
-// ── 씬 디테일 오버레이 — line.overlay 필드에 명시된 이미지만 표시 ───────────
-// 키워드 자동 매칭 방식 폐기. 시나리오 JSON 작성자가 각 line에 "overlay":"이미지명"
-// 을 직접 태깅한 씬에서만 오버레이가 나타난다. 태깅 없으면 반드시 숨긴다.
-function _showStoryDetailOverlay(overlayName){
-  var el=document.querySelector('.story-detail-overlay');
-  if(!el) return;
-  el.classList.remove('visible');
-  if(!overlayName) return;
-  var src='/assets/campaign/overlays/'+overlayName+'.png';
-  if(el.getAttribute('data-src')===src&&el.complete&&el.naturalWidth>0){
-    el.classList.add('visible');
-    return;
-  }
-  el.setAttribute('data-src',src);
-  el.onload=function(){el.classList.add('visible');};
-  el.onerror=function(){el.classList.remove('visible');};
-  el.src=src;
-}
-// ─────────────────────────────────────────────────────────────────────────────
+// (구 floating overlay 폐기. line.background 가 있으면 _campaignStorySetBackground 가 풀스크린 배경 swap.)
 
 function typeText(element,text,onComplete){
   // 클릭 즉시완료를 위해 타이머와 전체 텍스트를 전역에 보관한다.
@@ -25054,24 +25034,24 @@ function renderCampaignScene(){
 
   if(scene.type==='narration'||scene.type==='ending'){
     var nLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
+    // line 전용 배경(dedicated scene bg)이 있으면 풀스크린으로 swap
+    if(nLine.background) _campaignStorySetBackground(scene,overlay,nLine.background);
     _campaignStoryRenderCharacters(scene,nLine,overlay);
-    // 나레이션은 배경 없는 하단 자막처럼 보이도록 대화 박스 장식을 제거한다.
     box.style.background='transparent';
     box.style.borderTop='none';
     box.style.backdropFilter='none';
     box.innerHTML='<div class="story-text story-narration-text"></div>';
     var _nText=_campaignStoryText(nLine.text);
-    _showStoryDetailOverlay(nLine.overlay||null);
     typeText(box.querySelector('.story-text'),_nText,null);
     return;
   }
 
   if(scene.type==='dialogue'){
     var dLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
+    if(dLine.background) _campaignStorySetBackground(scene,overlay,dLine.background);
     _campaignStoryRenderCharacters(scene,dLine,overlay);
     box.innerHTML='<div class="story-speaker-name">'+escapeHtmlSafe(_campaignStorySpeakerName(dLine.speaker||scene.speaker))+'</div><div class="story-text"></div>';
     var _dText=_campaignStoryText(dLine.text);
-    _showStoryDetailOverlay(dLine.overlay||null);
     typeText(box.querySelector('.story-text'),_dText,null);
     return;
   }

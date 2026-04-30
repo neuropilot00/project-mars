@@ -12,7 +12,12 @@
   },
   "environment": "open_plains_battle",
   "estimatedPlayTimeMinutes": 25,
-  "characters": ["player", "butcher", "cinder", "crow"],
+  "characters": [
+    "player",
+    "butcher",
+    "cinder",
+    "crow"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -90,7 +95,7 @@
             "ko": "Butcher가 외투를 입고 있었다. 주머니에 손이 있었다. 사진 위에. 그것이 전투 전에 하는 일이었다. 30년 동안. 이름들을 만지는 것이었다. 말하지 않고. 손으로. 그것이 이 사람의 준비였다.",
             "en": "Butcher was wearing the coat. Hand in the pocket. On the photo. That was what he did before battle. For thirty years. Touching the names. Without speaking. With the hand. That was this man's preparation."
           },
-          "overlay": "hand_still"
+          "background": "cv_ch8_red_parliament_cv_l03_00_hand_still"
         }
       ]
     },
@@ -356,7 +361,7 @@
             "ko": "Butcher가 사진을 꺼냈다. 뒤집었다. 이름들을 봤다. 30년 된 것들. Zone 12. 그 사이의 것들. 테이블에 올려놓았다. 처음이었다. 테이블 위에 사진을 올려놓은 것. 두 손이 테이블을 짚었다. 의수와 오른손으로.",
             "en": "Butcher took out the photo. Flipped it. Looked at the names. Thirty-year-old ones. Zone 12. The ones in between. He placed it on the table. First time. The photo on the table. Both hands on the table. The prosthetic and the right hand."
           },
-          "overlay": "death_still"
+          "background": "cv_ch8_red_parliament_cv_l15_00_death_still"
         }
       ]
     },
@@ -871,7 +876,7 @@
             "ko": "당신이야. 다음은. 내 결정이야. 사진이 증거야.",
             "en": "You. The next one. My decision. The photo is the proof."
           },
-          "overlay": "death_still"
+          "background": "cv_ch8_red_parliament_cv_l37_02_death_still"
         }
       ]
     },

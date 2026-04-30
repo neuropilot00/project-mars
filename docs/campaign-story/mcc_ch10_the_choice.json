@@ -2,11 +2,24 @@
   "questId": "mcc_campaign_ch10",
   "campaignId": "mcc_route",
   "chapterNumber": 10,
-  "title": { "ko": "선택", "en": "The Choice" },
-  "location": { "id": "hellas_central_mcc", "displayNameKo": "헬라스 센트럴 MCC 본부" },
+  "title": {
+    "ko": "선택",
+    "en": "The Choice"
+  },
+  "location": {
+    "id": "hellas_central_mcc",
+    "displayNameKo": "헬라스 센트럴 MCC 본부"
+  },
   "environment": "corporate_final",
   "estimatedPlayTimeMinutes": 45,
-  "characters": ["player", "chen", "lifang", "osei", "marchetti", "ryu"],
+  "characters": [
+    "player",
+    "chen",
+    "lifang",
+    "osei",
+    "marchetti",
+    "ryu"
+  ],
   "crossChapterNote": "MCC 루트 ch10. Olympus 이후 — Zone 12 기록 공개, Chen의 30년 비밀이 헬라스 안에서 폭발하는 최종장.",
   "scenes": [
     {
@@ -16,9 +29,24 @@
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "올림포스에서 사흘이 지났다.", "en": "Three days had passed since Olympus." } },
-        { "text": { "ko": "MCC 본부에 불이 켜져 있었다. 밤이었다. 화성의 밤은 길었다.", "en": "The lights of MCC headquarters were on. It was night. The Martian night was long." } },
-        { "text": { "ko": "25도 라운지도 켜져 있었다. Chen Weiss가 거기 있었다.", "en": "The 25-Degree Lounge was lit too. Chen Weiss was there." } }
+        {
+          "text": {
+            "ko": "올림포스에서 사흘이 지났다.",
+            "en": "Three days had passed since Olympus."
+          }
+        },
+        {
+          "text": {
+            "ko": "MCC 본부에 불이 켜져 있었다. 밤이었다. 화성의 밤은 길었다.",
+            "en": "The lights of MCC headquarters were on. It was night. The Martian night was long."
+          }
+        },
+        {
+          "text": {
+            "ko": "25도 라운지도 켜져 있었다. Chen Weiss가 거기 있었다.",
+            "en": "The 25-Degree Lounge was lit too. Chen Weiss was there."
+          }
+        }
       ]
     },
     {
@@ -28,9 +56,24 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Zone 12 기록이 공개됐다. 세 개 파벌이 전부 받았다.", "en": "The Zone 12 records had been released. All three factions received them." } },
-        { "text": { "ko": "MCC 이사회가 반응했다. 72시간이었다. 72시간 안에 Chen Weiss에게 해명을 요구했다.", "en": "The MCC board reacted. Seventy-two hours. Within seventy-two hours they demanded an explanation from Chen Weiss." } },
-        { "text": { "ko": "그리고 당신에게도.", "en": "And from you too." } }
+        {
+          "text": {
+            "ko": "Zone 12 기록이 공개됐다. 세 개 파벌이 전부 받았다.",
+            "en": "The Zone 12 records had been released. All three factions received them."
+          }
+        },
+        {
+          "text": {
+            "ko": "MCC 이사회가 반응했다. 72시간이었다. 72시간 안에 Chen Weiss에게 해명을 요구했다.",
+            "en": "The MCC board reacted. Seventy-two hours. Within seventy-two hours they demanded an explanation from Chen Weiss."
+          }
+        },
+        {
+          "text": {
+            "ko": "그리고 당신에게도.",
+            "en": "And from you too."
+          }
+        }
       ]
     },
     {
@@ -40,8 +83,18 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "리팡이 복도에서 기다리고 있었다.", "en": "Lifang was waiting in the corridor." } },
-        { "text": { "ko": "12년. 처음 봤을 때부터 그는 복도에 있었다. 문 안쪽보다 바깥쪽에 더 많이 있는 사람이었다.", "en": "Twelve years. From the first time, he had been in the corridor. A person more often outside the door than inside." } }
+        {
+          "text": {
+            "ko": "리팡이 복도에서 기다리고 있었다.",
+            "en": "Lifang was waiting in the corridor."
+          }
+        },
+        {
+          "text": {
+            "ko": "12년. 처음 봤을 때부터 그는 복도에 있었다. 문 안쪽보다 바깥쪽에 더 많이 있는 사람이었다.",
+            "en": "Twelve years. From the first time, he had been in the corridor. A person more often outside the door than inside."
+          }
+        }
       ]
     },
     {
@@ -51,9 +104,31 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "neutral", "effect": "character_enter:lifang:slide_right", "text": { "ko": "이사회가 오전 10시에 소집됩니다.", "en": "The board convenes at ten in the morning." } },
-        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "Chen이 당신을 데리고 들어갑니다. 이사들이 동의했습니다.", "en": "Chen is bringing you in. The directors agreed." } },
-        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "Osei가 반대했습니다. Ryu가 중립했습니다. Marchetti가 동의했습니다.", "en": "Osei objected. Ryu was neutral. Marchetti agreed." } }
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "effect": "character_enter:lifang:slide_right",
+          "text": {
+            "ko": "이사회가 오전 10시에 소집됩니다.",
+            "en": "The board convenes at ten in the morning."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Chen이 당신을 데리고 들어갑니다. 이사들이 동의했습니다.",
+            "en": "Chen is bringing you in. The directors agreed."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "Osei가 반대했습니다. Ryu가 중립했습니다. Marchetti가 동의했습니다.",
+            "en": "Osei objected. Ryu was neutral. Marchetti agreed."
+          }
+        }
       ]
     },
     {
@@ -63,8 +138,18 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Osei. Marchetti. Ryu. 그 세 이름을 들은 적이 있었다. 이사회 회의실에서. 케플러 발표 때. C-7 블록 심문 때.", "en": "Osei. Marchetti. Ryu. Those three names had been heard before. In the board chamber. During the Kepler presentation. During the C-7 block interrogation." } },
-        { "text": { "ko": "그것이 전부 이어졌다. 오전 10시로.", "en": "All of that connected. To ten in the morning." } }
+        {
+          "text": {
+            "ko": "Osei. Marchetti. Ryu. 그 세 이름을 들은 적이 있었다. 이사회 회의실에서. 케플러 발표 때. C-7 블록 심문 때.",
+            "en": "Osei. Marchetti. Ryu. Those three names had been heard before. In the board chamber. During the Kepler presentation. During the C-7 block interrogation."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것이 전부 이어졌다. 오전 10시로.",
+            "en": "All of that connected. To ten in the morning."
+          }
+        }
       ]
     },
     {
@@ -74,9 +159,31 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "calm", "effect": "character_enter:chen:slide_left", "text": { "ko": "앉아요.", "en": "Sit." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "오늘 이사회에 들어가기 전에 알아야 할 것들이 있어요.", "en": "There are things you need to know before entering the board today." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "내가 말하는 것들은 전부 사실이에요. 22년 동안 사실이었던 것들이에요.", "en": "Everything I'm going to say is true. Things that have been true for twenty-two years." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "effect": "character_enter:chen:slide_left",
+          "text": {
+            "ko": "앉아요.",
+            "en": "Sit."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "오늘 이사회에 들어가기 전에 알아야 할 것들이 있어요.",
+            "en": "There are things you need to know before entering the board today."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "내가 말하는 것들은 전부 사실이에요. 22년 동안 사실이었던 것들이에요.",
+            "en": "Everything I'm going to say is true. Things that have been true for twenty-two years."
+          }
+        }
       ]
     },
     {
@@ -86,9 +193,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "나는 화성에서 태어났어요. 두 번째 세대. 부모가 광산에서 일했어요.", "en": "I was born on Mars. Second generation. My parents worked in the mines." } },
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "Zone 12 사고가 났을 때 나는 MCC에 들어온 지 2년이었어요. 사내 감사팀에 있었어요.", "en": "When the Zone 12 accident happened I had been at MCC for two years. I was on the internal audit team." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "기록을 처음 본 것이 그때예요.", "en": "That was the first time I saw the records." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "나는 화성에서 태어났어요. 두 번째 세대. 부모가 광산에서 일했어요.",
+            "en": "I was born on Mars. Second generation. My parents worked in the mines."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Zone 12 사고가 났을 때 나는 MCC에 들어온 지 2년이었어요. 사내 감사팀에 있었어요.",
+            "en": "When the Zone 12 accident happened I had been at MCC for two years. I was on the internal audit team."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "기록을 처음 본 것이 그때예요.",
+            "en": "That was the first time I saw the records."
+          }
+        }
       ]
     },
     {
@@ -98,9 +226,24 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "기록을 처음 봤다. 그 말이 천천히 왔다.", "en": "The first time she saw the records. Those words came slowly." } },
-        { "text": { "ko": "Chen이 Zone 12 기록을 2년차에 봤다. MCC 내부 감사. 그러나 기록은 잠겼다. 22년 동안.", "en": "Chen saw the Zone 12 records in her second year. Internal MCC audit. But the records were locked. For twenty-two years." } },
-        { "text": { "ko": "잠근 것이 이사회였다. 그리고 그 이사회 안에 Chen이 있었다.", "en": "It was the board that locked them. And Chen was in that board." } }
+        {
+          "text": {
+            "ko": "기록을 처음 봤다. 그 말이 천천히 왔다.",
+            "en": "The first time she saw the records. Those words came slowly."
+          }
+        },
+        {
+          "text": {
+            "ko": "Chen이 Zone 12 기록을 2년차에 봤다. MCC 내부 감사. 그러나 기록은 잠겼다. 22년 동안.",
+            "en": "Chen saw the Zone 12 records in her second year. Internal MCC audit. But the records were locked. For twenty-two years."
+          }
+        },
+        {
+          "text": {
+            "ko": "잠근 것이 이사회였다. 그리고 그 이사회 안에 Chen이 있었다.",
+            "en": "It was the board that locked them. And Chen was in that board."
+          }
+        }
       ]
     },
     {
@@ -110,9 +253,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "기록이 잠긴 것은 내가 한 것이 아니에요.", "en": "The locking of the records wasn't my doing." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "내가 한 것은 — 그 기록이 완전히 사라지지 않도록. 아카이브 지하에 남겨두는 것이었어요.", "en": "What I did was — ensure that record didn't completely disappear. Leaving it in the archive sublevel." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "당신이 그것을 찾을 때까지 거기 있었어요. 22년 동안.", "en": "It was there until you found it. For twenty-two years." } }
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "기록이 잠긴 것은 내가 한 것이 아니에요.",
+            "en": "The locking of the records wasn't my doing."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "내가 한 것은 — 그 기록이 완전히 사라지지 않도록. 아카이브 지하에 남겨두는 것이었어요.",
+            "en": "What I did was — ensure that record didn't completely disappear. Leaving it in the archive sublevel."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "당신이 그것을 찾을 때까지 거기 있었어요. 22년 동안.",
+            "en": "It was there until you found it. For twenty-two years."
+          }
+        }
       ]
     },
     {
@@ -122,9 +286,24 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "아카이브 지하. 그 칩. 먼지가 쌓인 선반.", "en": "The archive sublevel. That chip. A shelf with dust on it." } },
-        { "text": { "ko": "22년 동안 거기 있었다. 아무도 찾지 않은 것이 아니었다. Chen이 있도록 한 것이었다.", "en": "It had been there for twenty-two years. Not that no one had looked. Chen had made sure it stayed." } },
-        { "text": { "ko": "그것이 처음부터 계획이었다는 뜻이었다. 아카이브를 내려간 순간부터. 그 이전부터.", "en": "That meant this had been a plan from the beginning. From the moment of going down to the archive. Before that even." } }
+        {
+          "text": {
+            "ko": "아카이브 지하. 그 칩. 먼지가 쌓인 선반.",
+            "en": "The archive sublevel. That chip. A shelf with dust on it."
+          }
+        },
+        {
+          "text": {
+            "ko": "22년 동안 거기 있었다. 아무도 찾지 않은 것이 아니었다. Chen이 있도록 한 것이었다.",
+            "en": "It had been there for twenty-two years. Not that no one had looked. Chen had made sure it stayed."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것이 처음부터 계획이었다는 뜻이었다. 아카이브를 내려간 순간부터. 그 이전부터.",
+            "en": "That meant this had been a plan from the beginning. From the moment of going down to the archive. Before that even."
+          }
+        }
       ]
     },
     {
@@ -134,9 +313,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "30년 전. Zone 12 사고 전날. 내 어머니가 Butcher에게 연락했어요.", "en": "Thirty years ago. The day before the Zone 12 accident. My mother contacted Butcher." } },
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "어머니도 Zone 12 광부였어요. MCC 통신 주파수를 알고 있었어요. 갱도 교신 주파수에 접속했어요.", "en": "My mother was also a Zone 12 miner. She knew the MCC communication frequencies. She accessed the tunnel communication frequency." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "지금 나가라고 했어요. 이유를 말하지 않았어요. 그냥 나가라고 했어요. 어머니가 죽기 8년 전이었어요.", "en": "She told him to leave now. Didn't say why. Just told him to leave. It was eight years before my mother died." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "30년 전. Zone 12 사고 전날. 내 어머니가 Butcher에게 연락했어요.",
+            "en": "Thirty years ago. The day before the Zone 12 accident. My mother contacted Butcher."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "어머니도 Zone 12 광부였어요. MCC 통신 주파수를 알고 있었어요. 갱도 교신 주파수에 접속했어요.",
+            "en": "My mother was also a Zone 12 miner. She knew the MCC communication frequencies. She accessed the tunnel communication frequency."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "지금 나가라고 했어요. 이유를 말하지 않았어요. 그냥 나가라고 했어요. 어머니가 죽기 8년 전이었어요.",
+            "en": "She told him to leave now. Didn't say why. Just told him to leave. It was eight years before my mother died."
+          }
+        }
       ]
     },
     {
@@ -146,9 +346,24 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "30년 전. Zone 12 광부. 갱도 교신 주파수.", "en": "Thirty years ago. A Zone 12 miner. The tunnel communication frequency." } },
-        { "text": { "ko": "Butcher는 그 목소리를 기억했다. cv_ch10에서 그 기억이 나왔다. 목소리 하나가 그를 살렸다.", "en": "Butcher had remembered that voice. In cv_ch10 that memory surfaced. One voice had saved him." } },
-        { "text": { "ko": "그 목소리가 Chen의 어머니였다. 8년 후에 Zone 12에서 죽은 사람이었다.", "en": "That voice was Chen's mother. The person who died at Zone 12 eight years later." } }
+        {
+          "text": {
+            "ko": "30년 전. Zone 12 광부. 갱도 교신 주파수.",
+            "en": "Thirty years ago. A Zone 12 miner. The tunnel communication frequency."
+          }
+        },
+        {
+          "text": {
+            "ko": "Butcher는 그 목소리를 기억했다. cv_ch10에서 그 기억이 나왔다. 목소리 하나가 그를 살렸다.",
+            "en": "Butcher had remembered that voice. In cv_ch10 that memory surfaced. One voice had saved him."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 목소리가 Chen의 어머니였다. 8년 후에 Zone 12에서 죽은 사람이었다.",
+            "en": "That voice was Chen's mother. The person who died at Zone 12 eight years later."
+          }
+        }
       ]
     },
     {
@@ -158,9 +373,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "어머니에게서 들었어요. 죽기 전에. MCC가 알고도 넘어갔다는 것을. 비용이 이유였다고.", "en": "I heard it from my mother. Before she died. That MCC knew and let it go. That cost was the reason." } },
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "어머니가 할 수 있는 것이 그것뿐이었어요. 한 사람이라도. 갱도에서 나오도록.", "en": "That was all my mother could do. Even one person. Getting them out of the tunnel." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "내가 MCC에 들어온 것은 그 다음이었어요. 어머니가 죽고. 22년 전에. 그것이 이유였어요.", "en": "I entered MCC after that. After my mother died. Twenty-two years ago. That was the reason." } }
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "어머니에게서 들었어요. 죽기 전에. MCC가 알고도 넘어갔다는 것을. 비용이 이유였다고.",
+            "en": "I heard it from my mother. Before she died. That MCC knew and let it go. That cost was the reason."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "어머니가 할 수 있는 것이 그것뿐이었어요. 한 사람이라도. 갱도에서 나오도록.",
+            "en": "That was all my mother could do. Even one person. Getting them out of the tunnel."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "내가 MCC에 들어온 것은 그 다음이었어요. 어머니가 죽고. 22년 전에. 그것이 이유였어요.",
+            "en": "I entered MCC after that. After my mother died. Twenty-two years ago. That was the reason."
+          }
+        }
       ]
     },
     {
@@ -170,9 +406,25 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "한 사람이라도. 그 말이 무거웠다.", "en": "Even one person. Those words were heavy." } },
-        { "text": { "ko": "11명이 죽었다. 보고서는 그것을 알고 있었다. MCC 이사회는 그것을 알고 있었다. 그리고 한 사람이 나왔다.", "en": "Eleven died. The report knew it. The MCC board knew it. And one person came out." }, "overlay": "death_still" },
-        { "text": { "ko": "그 한 사람이 30년 후에 CV를 만들었다. CV가 올림포스에 왔다. Zone 12 기록이 공개됐다.", "en": "That one person built CV thirty years later. CV came to Olympus. The Zone 12 records were released." } }
+        {
+          "text": {
+            "ko": "한 사람이라도. 그 말이 무거웠다.",
+            "en": "Even one person. Those words were heavy."
+          }
+        },
+        {
+          "text": {
+            "ko": "11명이 죽었다. 보고서는 그것을 알고 있었다. MCC 이사회는 그것을 알고 있었다. 그리고 한 사람이 나왔다.",
+            "en": "Eleven died. The report knew it. The MCC board knew it. And one person came out."
+          },
+          "background": "mcc_ch10_the_choice_l13_01_death_still"
+        },
+        {
+          "text": {
+            "ko": "그 한 사람이 30년 후에 CV를 만들었다. CV가 올림포스에 왔다. Zone 12 기록이 공개됐다.",
+            "en": "That one person built CV thirty years later. CV came to Olympus. The Zone 12 records were released."
+          }
+        }
       ]
     },
     {
@@ -182,9 +434,30 @@
       "bgm": "tension_medium",
       "transition": "fade_medium",
       "lines": [
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "창밖을 봐요.", "en": "Look out the window." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "헬라스 센트럴. MCC가 지은 도시. 내 부모가 일한 곳. 지금 C-7 블록 아이들이 분필로 이름을 적는 곳.", "en": "Hellas Central. The city MCC built. Where my parents worked. Where C-7 block children now write names in chalk." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "22년 동안 이것이 목표였어요. 이 창에서 보이는 것들이 달라지는 것. 어머니의 30년까지 합치면 더 오래됐어요.", "en": "For twenty-two years this was the goal. The things visible from this window changing. Add my mother's thirty years and it goes back further." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "창밖을 봐요.",
+            "en": "Look out the window."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "헬라스 센트럴. MCC가 지은 도시. 내 부모가 일한 곳. 지금 C-7 블록 아이들이 분필로 이름을 적는 곳.",
+            "en": "Hellas Central. The city MCC built. Where my parents worked. Where C-7 block children now write names in chalk."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "22년 동안 이것이 목표였어요. 이 창에서 보이는 것들이 달라지는 것. 어머니의 30년까지 합치면 더 오래됐어요.",
+            "en": "For twenty-two years this was the goal. The things visible from this window changing. Add my mother's thirty years and it goes back further."
+          }
+        }
       ]
     },
     {
@@ -194,9 +467,24 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "헬라스 센트럴의 밤이었다. 불빛들이 있었다.", "en": "It was the night of Hellas Central. There were lights." } },
-        { "text": { "ko": "위층. 행정. 중층. 기술자들. 아래층. 노동자들. 광산. 광산 엘리베이터가 내려가고 있었다. 밤에도.", "en": "Upper floors. Administration. Middle. Engineers. Lower. Workers. Mines. The mine elevator was descending. Even at night." } },
-        { "text": { "ko": "22년. 그 창에서 22년을 봤다는 뜻이었다.", "en": "Twenty-two years. That meant twenty-two years of watching from that window." } }
+        {
+          "text": {
+            "ko": "헬라스 센트럴의 밤이었다. 불빛들이 있었다.",
+            "en": "It was the night of Hellas Central. There were lights."
+          }
+        },
+        {
+          "text": {
+            "ko": "위층. 행정. 중층. 기술자들. 아래층. 노동자들. 광산. 광산 엘리베이터가 내려가고 있었다. 밤에도.",
+            "en": "Upper floors. Administration. Middle. Engineers. Lower. Workers. Mines. The mine elevator was descending. Even at night."
+          }
+        },
+        {
+          "text": {
+            "ko": "22년. 그 창에서 22년을 봤다는 뜻이었다.",
+            "en": "Twenty-two years. That meant twenty-two years of watching from that window."
+          }
+        }
       ]
     },
     {
@@ -206,9 +494,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "리팡.", "en": "Lifang." } },
-        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "네.", "en": "Yes." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "Pilgrim Arms 팀이 올림포스에서 어떻게 됐는지 보고해요.", "en": "Report what happened to the Pilgrim Arms team at Olympus." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "리팡.",
+            "en": "Lifang."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "네.",
+            "en": "Yes."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Pilgrim Arms 팀이 올림포스에서 어떻게 됐는지 보고해요.",
+            "en": "Report what happened to the Pilgrim Arms team at Olympus."
+          }
+        }
       ]
     },
     {
@@ -218,9 +527,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "4명이었습니다. 진입 시도가 있었습니다. 당신들이 회의 중에.", "en": "Four of them. There was an entry attempt. While you were in the meeting." } },
-        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "CV측 경호가 막았습니다. Cinder Grace가 진입 전에 파악했습니다.", "en": "CV's security blocked them. Cinder Grace identified them before entry." } },
-        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "의뢰인이 누구인지 파악됐습니다. MCC 이사회 Osei 이사입니다.", "en": "The client has been identified. It's MCC board director Osei." } }
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "4명이었습니다. 진입 시도가 있었습니다. 당신들이 회의 중에.",
+            "en": "Four of them. There was an entry attempt. While you were in the meeting."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "CV측 경호가 막았습니다. Cinder Grace가 진입 전에 파악했습니다.",
+            "en": "CV's security blocked them. Cinder Grace identified them before entry."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "의뢰인이 누구인지 파악됐습니다. MCC 이사회 Osei 이사입니다.",
+            "en": "The client has been identified. It's MCC board director Osei."
+          }
+        }
       ]
     },
     {
@@ -230,9 +560,24 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Osei.", "en": "Osei." } },
-        { "text": { "ko": "케플러 발표 때 첫 번째 질문을 한 이사. C-7 블록 심문 때 가장 날카로웠던 이사.", "en": "The director who asked the first question during the Kepler presentation. The sharpest director during the C-7 block interrogation." } },
-        { "text": { "ko": "그가 Pilgrim Arms에 의뢰했다. Chen을 없애려고. Zone 12 기록이 나오기 전에.", "en": "He had commissioned Pilgrim Arms. To eliminate Chen. Before the Zone 12 records came out." } }
+        {
+          "text": {
+            "ko": "Osei.",
+            "en": "Osei."
+          }
+        },
+        {
+          "text": {
+            "ko": "케플러 발표 때 첫 번째 질문을 한 이사. C-7 블록 심문 때 가장 날카로웠던 이사.",
+            "en": "The director who asked the first question during the Kepler presentation. The sharpest director during the C-7 block interrogation."
+          }
+        },
+        {
+          "text": {
+            "ko": "그가 Pilgrim Arms에 의뢰했다. Chen을 없애려고. Zone 12 기록이 나오기 전에.",
+            "en": "He had commissioned Pilgrim Arms. To eliminate Chen. Before the Zone 12 records came out."
+          }
+        }
       ]
     },
     {
@@ -242,9 +587,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "알고 있었어요.", "en": "I knew." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "그래서 Pilgrim Arms에 대한 정보를 먼저 확보했어요. 올림포스 이전에.", "en": "That's why I secured information on Pilgrim Arms first. Before Olympus." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "지금은 그 정보가 증거예요. 오전 10시 이사회에서 쓸 증거.", "en": "Now that information is evidence. Evidence to be used at the ten o'clock board meeting." } }
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "알고 있었어요.",
+            "en": "I knew."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "그래서 Pilgrim Arms에 대한 정보를 먼저 확보했어요. 올림포스 이전에.",
+            "en": "That's why I secured information on Pilgrim Arms first. Before Olympus."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "지금은 그 정보가 증거예요. 오전 10시 이사회에서 쓸 증거.",
+            "en": "Now that information is evidence. Evidence to be used at the ten o'clock board meeting."
+          }
+        }
       ]
     },
     {
@@ -254,8 +620,18 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Chen은 알고 있었다. 처음부터. Osei가 Pilgrim Arms를 쓴다는 것을.", "en": "Chen had known. From the beginning. That Osei was using Pilgrim Arms." } },
-        { "text": { "ko": "그래서 Cinder Grace가 올림포스에서 먼저 움직인 것이었다. 안이 아닌 밖의 방식으로 싸우는 사람이 안에서 싸우는 사람을 지켰다.", "en": "That's why Cinder Grace had moved first at Olympus. A person who fought by outside means protecting a person who fought from within." } }
+        {
+          "text": {
+            "ko": "Chen은 알고 있었다. 처음부터. Osei가 Pilgrim Arms를 쓴다는 것을.",
+            "en": "Chen had known. From the beginning. That Osei was using Pilgrim Arms."
+          }
+        },
+        {
+          "text": {
+            "ko": "그래서 Cinder Grace가 올림포스에서 먼저 움직인 것이었다. 안이 아닌 밖의 방식으로 싸우는 사람이 안에서 싸우는 사람을 지켰다.",
+            "en": "That's why Cinder Grace had moved first at Olympus. A person who fought by outside means protecting a person who fought from within."
+          }
+        }
       ]
     },
     {
@@ -265,9 +641,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "이사회에서 Osei는 나를 해임하려 할 거예요.", "en": "At the board meeting Osei will try to dismiss me." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "Zone 12 기록 공개를 MCC 기밀 유출로 몰 거예요. Marchetti는 흔들릴 거예요. Ryu는 중립이에요.", "en": "He'll frame the Zone 12 record release as an MCC confidential leak. Marchetti will waver. Ryu stays neutral." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "그때 당신이 필요해요.", "en": "That's when I need you." } }
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "이사회에서 Osei는 나를 해임하려 할 거예요.",
+            "en": "At the board meeting Osei will try to dismiss me."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Zone 12 기록 공개를 MCC 기밀 유출로 몰 거예요. Marchetti는 흔들릴 거예요. Ryu는 중립이에요.",
+            "en": "He'll frame the Zone 12 record release as an MCC confidential leak. Marchetti will waver. Ryu stays neutral."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "그때 당신이 필요해요.",
+            "en": "That's when I need you."
+          }
+        }
       ]
     },
     {
@@ -277,9 +674,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "lifang", "emotion": "neutral", "text": { "ko": "Chen이 증거를 제출합니다. Osei-Pilgrim Arms 연결 문서입니다.", "en": "Chen will present evidence. Documents connecting Osei to Pilgrim Arms." } },
-        { "speaker": "lifang", "emotion": "serious", "text": { "ko": "그 시점에 Marchetti가 입장을 바꿀 가능성이 있습니다.", "en": "At that point there's a chance Marchetti will change position." } },
-        { "speaker": "lifang", "emotion": "cold", "text": { "ko": "Ryu가 중립을 유지하면 Chen과 Osei가 1:1이 됩니다. 그 순간 당신의 발언이 필요합니다.", "en": "If Ryu maintains neutrality, Chen and Osei will be one to one. At that moment your statement is needed." } }
+        {
+          "speaker": "lifang",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Chen이 증거를 제출합니다. Osei-Pilgrim Arms 연결 문서입니다.",
+            "en": "Chen will present evidence. Documents connecting Osei to Pilgrim Arms."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "serious",
+          "text": {
+            "ko": "그 시점에 Marchetti가 입장을 바꿀 가능성이 있습니다.",
+            "en": "At that point there's a chance Marchetti will change position."
+          }
+        },
+        {
+          "speaker": "lifang",
+          "emotion": "cold",
+          "text": {
+            "ko": "Ryu가 중립을 유지하면 Chen과 Osei가 1:1이 됩니다. 그 순간 당신의 발언이 필요합니다.",
+            "en": "If Ryu maintains neutrality, Chen and Osei will be one to one. At that moment your statement is needed."
+          }
+        }
       ]
     },
     {
@@ -289,8 +707,18 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사회가 기다리고 있었다. 오전 10시. 그것이 화성에서 오늘 결정할 것이었다.", "en": "The board was waiting. Ten in the morning. That was what would be decided on Mars today." } },
-        { "text": { "ko": "Osei. Marchetti. Ryu. Chen. 그리고 당신.", "en": "Osei. Marchetti. Ryu. Chen. And you." } }
+        {
+          "text": {
+            "ko": "이사회가 기다리고 있었다. 오전 10시. 그것이 화성에서 오늘 결정할 것이었다.",
+            "en": "The board was waiting. Ten in the morning. That was what would be decided on Mars today."
+          }
+        },
+        {
+          "text": {
+            "ko": "Osei. Marchetti. Ryu. Chen. 그리고 당신.",
+            "en": "Osei. Marchetti. Ryu. Chen. And you."
+          }
+        }
       ]
     },
     {
@@ -300,9 +728,31 @@
       "bgm": "tension_medium",
       "transition": "fade_slow",
       "lines": [
-        { "speaker": "osei", "emotion": "cold", "effect": "character_enter:osei:slide_left", "text": { "ko": "Chen 이사. 올림포스에서의 행동에 대해 설명하시오.", "en": "Director Chen. Explain your actions at Olympus." } },
-        { "speaker": "osei", "emotion": "serious", "text": { "ko": "Zone 12 기록은 MCC 내부 기밀이오. 그것을 세 파벌에 공개한 것은 명백한 배임이오.", "en": "The Zone 12 records are MCC internal confidential material. Releasing them to all three factions is clear breach of trust." } },
-        { "speaker": "osei", "emotion": "cold", "text": { "ko": "해임 동의가 필요하오.", "en": "I move for dismissal." } }
+        {
+          "speaker": "osei",
+          "emotion": "cold",
+          "effect": "character_enter:osei:slide_left",
+          "text": {
+            "ko": "Chen 이사. 올림포스에서의 행동에 대해 설명하시오.",
+            "en": "Director Chen. Explain your actions at Olympus."
+          }
+        },
+        {
+          "speaker": "osei",
+          "emotion": "serious",
+          "text": {
+            "ko": "Zone 12 기록은 MCC 내부 기밀이오. 그것을 세 파벌에 공개한 것은 명백한 배임이오.",
+            "en": "The Zone 12 records are MCC internal confidential material. Releasing them to all three factions is clear breach of trust."
+          }
+        },
+        {
+          "speaker": "osei",
+          "emotion": "cold",
+          "text": {
+            "ko": "해임 동의가 필요하오.",
+            "en": "I move for dismissal."
+          }
+        }
       ]
     },
     {
@@ -312,9 +762,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "marchetti", "emotion": "neutral", "text": { "ko": "공개의 방식에 대해 이의가 있소. 그러나 해임 동의에 지금 바로 찬성하기는—", "en": "I have reservations about the method of release. But agreeing to the dismissal motion right now—" } },
-        { "speaker": "osei", "emotion": "sharp", "text": { "ko": "Marchetti. 배임은 배임이오.", "en": "Marchetti. Breach of trust is breach of trust." } },
-        { "speaker": "ryu", "emotion": "neutral", "text": { "ko": "진행하시오.", "en": "Proceed." } }
+        {
+          "speaker": "marchetti",
+          "emotion": "neutral",
+          "text": {
+            "ko": "공개의 방식에 대해 이의가 있소. 그러나 해임 동의에 지금 바로 찬성하기는—",
+            "en": "I have reservations about the method of release. But agreeing to the dismissal motion right now—"
+          }
+        },
+        {
+          "speaker": "osei",
+          "emotion": "sharp",
+          "text": {
+            "ko": "Marchetti. 배임은 배임이오.",
+            "en": "Marchetti. Breach of trust is breach of trust."
+          }
+        },
+        {
+          "speaker": "ryu",
+          "emotion": "neutral",
+          "text": {
+            "ko": "진행하시오.",
+            "en": "Proceed."
+          }
+        }
       ]
     },
     {
@@ -324,9 +795,32 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "calm", "effect": "character_enter:chen:slide_right", "text": { "ko": "배임이라고 하셨소.", "en": "You said breach of trust." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그렇다면 Osei 이사. Zone 12 안전 결함 보고서를 2004년에 묵살한 것은 무엇이오.", "en": "Then Director Osei. What was suppressing the Zone 12 safety defect report in 2004?" }, "overlay": "sealed_file" },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "그 결정으로 11명이 죽었소. 그 결정에 서명한 이사가 지금 이 자리에 있소.", "en": "Eleven people died from that decision. The director who signed that decision is here in this room." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "effect": "character_enter:chen:slide_right",
+          "text": {
+            "ko": "배임이라고 하셨소.",
+            "en": "You said breach of trust."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "그렇다면 Osei 이사. Zone 12 안전 결함 보고서를 2004년에 묵살한 것은 무엇이오.",
+            "en": "Then Director Osei. What was suppressing the Zone 12 safety defect report in 2004?"
+          },
+          "background": "mcc_ch10_the_choice_l26_01_sealed_file"
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그 결정으로 11명이 죽었소. 그 결정에 서명한 이사가 지금 이 자리에 있소.",
+            "en": "Eleven people died from that decision. The director who signed that decision is here in this room."
+          }
+        }
       ]
     },
     {
@@ -336,8 +830,18 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이사회 회의실이 조용해졌다.", "en": "The board chamber went quiet." } },
-        { "text": { "ko": "Osei가 멈췄다. Marchetti가 의자에서 자세를 바꿨다. Ryu가 테이블을 봤다.", "en": "Osei stopped. Marchetti shifted in his chair. Ryu looked at the table." } }
+        {
+          "text": {
+            "ko": "이사회 회의실이 조용해졌다.",
+            "en": "The board chamber went quiet."
+          }
+        },
+        {
+          "text": {
+            "ko": "Osei가 멈췄다. Marchetti가 의자에서 자세를 바꿨다. Ryu가 테이블을 봤다.",
+            "en": "Osei stopped. Marchetti shifted in his chair. Ryu looked at the table."
+          }
+        }
       ]
     },
     {
@@ -347,9 +851,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그리고 하나 더. Osei 이사가 Pilgrim Arms에 올림포스 작전을 의뢰한 문서가 여기 있소.", "en": "And one more thing. Here is the document showing Director Osei commissioned Pilgrim Arms for the Olympus operation." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "상대가 누구였는지도 여기 있소. 나였소.", "en": "The target is also noted here. It was me." } },
-        { "speaker": "osei", "emotion": "cold", "text": { "ko": "그것은 위조요.", "en": "That is a forgery." } }
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "그리고 하나 더. Osei 이사가 Pilgrim Arms에 올림포스 작전을 의뢰한 문서가 여기 있소.",
+            "en": "And one more thing. Here is the document showing Director Osei commissioned Pilgrim Arms for the Olympus operation."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "상대가 누구였는지도 여기 있소. 나였소.",
+            "en": "The target is also noted here. It was me."
+          }
+        },
+        {
+          "speaker": "osei",
+          "emotion": "cold",
+          "text": {
+            "ko": "그것은 위조요.",
+            "en": "That is a forgery."
+          }
+        }
       ]
     },
     {
@@ -359,9 +884,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "marchetti", "emotion": "uncertain", "text": { "ko": "Osei. 이것은—", "en": "Osei. This is—" } },
-        { "speaker": "ryu", "emotion": "neutral", "text": { "ko": "검증이 필요하오.", "en": "Verification is needed." } },
-        { "speaker": "osei", "emotion": "sharp", "text": { "ko": "Chen이 자작한 것이오. 이 자리를 지키기 위해. 저 외부인과 함께.", "en": "Chen fabricated it. To keep her position. Together with that outsider." } }
+        {
+          "speaker": "marchetti",
+          "emotion": "uncertain",
+          "text": {
+            "ko": "Osei. 이것은—",
+            "en": "Osei. This is—"
+          }
+        },
+        {
+          "speaker": "ryu",
+          "emotion": "neutral",
+          "text": {
+            "ko": "검증이 필요하오.",
+            "en": "Verification is needed."
+          }
+        },
+        {
+          "speaker": "osei",
+          "emotion": "sharp",
+          "text": {
+            "ko": "Chen이 자작한 것이오. 이 자리를 지키기 위해. 저 외부인과 함께.",
+            "en": "Chen fabricated it. To keep her position. Together with that outsider."
+          }
+        }
       ]
     },
     {
@@ -371,9 +917,24 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "외부인. 그 말이 당신에게 왔다.", "en": "Outsider. That word came at you." } },
-        { "text": { "ko": "Osei가 당신을 봤다. Chen이 당신을 봤다. 이사회 전체가 당신을 봤다.", "en": "Osei looked at you. Chen looked at you. The entire board looked at you." } },
-        { "text": { "ko": "이 순간이었다. 리팡이 말했던 순간. 당신의 발언이 필요한 순간.", "en": "This was the moment. The moment Lifang had spoken of. The moment your statement was needed." } }
+        {
+          "text": {
+            "ko": "외부인. 그 말이 당신에게 왔다.",
+            "en": "Outsider. That word came at you."
+          }
+        },
+        {
+          "text": {
+            "ko": "Osei가 당신을 봤다. Chen이 당신을 봤다. 이사회 전체가 당신을 봤다.",
+            "en": "Osei looked at you. Chen looked at you. The entire board looked at you."
+          }
+        },
+        {
+          "text": {
+            "ko": "이 순간이었다. 리팡이 말했던 순간. 당신의 발언이 필요한 순간.",
+            "en": "This was the moment. The moment Lifang had spoken of. The moment your statement was needed."
+          }
+        }
       ]
     },
     {
@@ -383,9 +944,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "player", "emotion": "serious", "text": { "ko": "Zone 12 기록을 아카이브 지하에서 찾았습니다. 제가 직접. 칩이 있었습니다.", "en": "I found the Zone 12 records in the archive sublevel. Directly. There was a chip." } },
-        { "speaker": "player", "emotion": "neutral", "text": { "ko": "그 기록에는 안전 결함 보고서가 있었습니다. 날짜가 있었습니다. 서명이 있었습니다.", "en": "In those records was a safety defect report. There was a date. There was a signature." } },
-        { "speaker": "player", "emotion": "calm", "text": { "ko": "위조가 아닙니다. 그것이 30년 전 MCC가 한 결정이었습니다.", "en": "It's not a forgery. That was the decision MCC made thirty years ago." } }
+        {
+          "speaker": "player",
+          "emotion": "serious",
+          "text": {
+            "ko": "Zone 12 기록을 아카이브 지하에서 찾았습니다. 제가 직접. 칩이 있었습니다.",
+            "en": "I found the Zone 12 records in the archive sublevel. Directly. There was a chip."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그 기록에는 안전 결함 보고서가 있었습니다. 날짜가 있었습니다. 서명이 있었습니다.",
+            "en": "In those records was a safety defect report. There was a date. There was a signature."
+          }
+        },
+        {
+          "speaker": "player",
+          "emotion": "calm",
+          "text": {
+            "ko": "위조가 아닙니다. 그것이 30년 전 MCC가 한 결정이었습니다.",
+            "en": "It's not a forgery. That was the decision MCC made thirty years ago."
+          }
+        }
       ]
     },
     {
@@ -395,9 +977,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "marchetti", "emotion": "serious", "text": { "ko": "Osei. 서명이 확인된다면—", "en": "Osei. If the signature is verified—" } },
-        { "speaker": "osei", "emotion": "cold", "text": { "ko": "Marchetti. 당신도 MCC 이사요.", "en": "Marchetti. You're also an MCC director." } },
-        { "speaker": "marchetti", "emotion": "neutral", "text": { "ko": "그렇소. 그래서 이것을 덮어서는 안 된다고 생각하오.", "en": "That's right. That's why I think this cannot be covered up." } }
+        {
+          "speaker": "marchetti",
+          "emotion": "serious",
+          "text": {
+            "ko": "Osei. 서명이 확인된다면—",
+            "en": "Osei. If the signature is verified—"
+          }
+        },
+        {
+          "speaker": "osei",
+          "emotion": "cold",
+          "text": {
+            "ko": "Marchetti. 당신도 MCC 이사요.",
+            "en": "Marchetti. You're also an MCC director."
+          }
+        },
+        {
+          "speaker": "marchetti",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그렇소. 그래서 이것을 덮어서는 안 된다고 생각하오.",
+            "en": "That's right. That's why I think this cannot be covered up."
+          }
+        }
       ]
     },
     {
@@ -407,9 +1010,24 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Marchetti가 입장을 바꿨다. 리팡의 예측이 맞았다.", "en": "Marchetti had changed position. Lifang's prediction was right." } },
-        { "text": { "ko": "Ryu가 테이블을 계속 봤다. 중립이었다.", "en": "Ryu kept looking at the table. He was neutral." } },
-        { "text": { "ko": "Osei와 Chen. Marchetti와 Ryu. 균형이 무너지고 있었다.", "en": "Osei and Chen. Marchetti and Ryu. The balance was breaking." } }
+        {
+          "text": {
+            "ko": "Marchetti가 입장을 바꿨다. 리팡의 예측이 맞았다.",
+            "en": "Marchetti had changed position. Lifang's prediction was right."
+          }
+        },
+        {
+          "text": {
+            "ko": "Ryu가 테이블을 계속 봤다. 중립이었다.",
+            "en": "Ryu kept looking at the table. He was neutral."
+          }
+        },
+        {
+          "text": {
+            "ko": "Osei와 Chen. Marchetti와 Ryu. 균형이 무너지고 있었다.",
+            "en": "Osei and Chen. Marchetti and Ryu. The balance was breaking."
+          }
+        }
       ]
     },
     {
@@ -419,9 +1037,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "ryu", "emotion": "neutral", "text": { "ko": "한 가지만 묻겠소.", "en": "I have one question." } },
-        { "speaker": "ryu", "emotion": "serious", "text": { "ko": "Chen 이사. 이것을 지금 공개한 이유가 뭐요. 30년을 기다린 이유도.", "en": "Director Chen. What is the reason you're releasing this now. The reason you waited thirty years also." } },
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "적절한 시점이 필요했소. 기록이 증거가 될 수 있는 시점.", "en": "A suitable moment was needed. A moment when records could become evidence." } }
+        {
+          "speaker": "ryu",
+          "emotion": "neutral",
+          "text": {
+            "ko": "한 가지만 묻겠소.",
+            "en": "I have one question."
+          }
+        },
+        {
+          "speaker": "ryu",
+          "emotion": "serious",
+          "text": {
+            "ko": "Chen 이사. 이것을 지금 공개한 이유가 뭐요. 30년을 기다린 이유도.",
+            "en": "Director Chen. What is the reason you're releasing this now. The reason you waited thirty years also."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "적절한 시점이 필요했소. 기록이 증거가 될 수 있는 시점.",
+            "en": "A suitable moment was needed. A moment when records could become evidence."
+          }
+        }
       ]
     },
     {
@@ -431,9 +1070,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그리고 그것을 가져올 사람이 필요했소.", "en": "And someone was needed to bring it." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "그 사람이 지금 이 자리에 있소.", "en": "That person is here now." } },
-        { "speaker": "ryu", "emotion": "neutral", "text": { "ko": "알겠소. 중립을 유지하오.", "en": "Understood. I maintain neutrality." } }
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "그리고 그것을 가져올 사람이 필요했소.",
+            "en": "And someone was needed to bring it."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그 사람이 지금 이 자리에 있소.",
+            "en": "That person is here now."
+          }
+        },
+        {
+          "speaker": "ryu",
+          "emotion": "neutral",
+          "text": {
+            "ko": "알겠소. 중립을 유지하오.",
+            "en": "Understood. I maintain neutrality."
+          }
+        }
       ]
     },
     {
@@ -443,9 +1103,24 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Osei가 자리에서 일어섰다.", "en": "Osei rose from his seat." } },
-        { "text": { "ko": "아무 말도 하지 않았다. 나갔다.", "en": "Said nothing. Left." } },
-        { "text": { "ko": "이사회 회의실에 Marchetti와 Ryu와 Chen이 남았다. 그리고 당신이 남았다.", "en": "In the board chamber remained Marchetti and Ryu and Chen. And you remained." } }
+        {
+          "text": {
+            "ko": "Osei가 자리에서 일어섰다.",
+            "en": "Osei rose from his seat."
+          }
+        },
+        {
+          "text": {
+            "ko": "아무 말도 하지 않았다. 나갔다.",
+            "en": "Said nothing. Left."
+          }
+        },
+        {
+          "text": {
+            "ko": "이사회 회의실에 Marchetti와 Ryu와 Chen이 남았다. 그리고 당신이 남았다.",
+            "en": "In the board chamber remained Marchetti and Ryu and Chen. And you remained."
+          }
+        }
       ]
     },
     {
@@ -455,9 +1130,30 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "marchetti", "emotion": "serious", "text": { "ko": "Osei는 오늘 오후 사임할 것이오.", "en": "Osei will resign this afternoon." } },
-        { "speaker": "marchetti", "emotion": "neutral", "text": { "ko": "공식 이유는 개인 사정이 될 것이오. 그것이 MCC 방식이오.", "en": "The official reason will be personal matters. That is the MCC way." } },
-        { "speaker": "ryu", "emotion": "neutral", "text": { "ko": "Zone 12 기록 대응은 별도 위원회를 구성하겠소.", "en": "A separate committee will be formed for the Zone 12 records response." } }
+        {
+          "speaker": "marchetti",
+          "emotion": "serious",
+          "text": {
+            "ko": "Osei는 오늘 오후 사임할 것이오.",
+            "en": "Osei will resign this afternoon."
+          }
+        },
+        {
+          "speaker": "marchetti",
+          "emotion": "neutral",
+          "text": {
+            "ko": "공식 이유는 개인 사정이 될 것이오. 그것이 MCC 방식이오.",
+            "en": "The official reason will be personal matters. That is the MCC way."
+          }
+        },
+        {
+          "speaker": "ryu",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Zone 12 기록 대응은 별도 위원회를 구성하겠소.",
+            "en": "A separate committee will be formed for the Zone 12 records response."
+          }
+        }
       ]
     },
     {
@@ -467,8 +1163,18 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "MCC 방식이었다. 사임. 위원회. 그것이 이 조직의 방식이었다.", "en": "The MCC way. Resignation. Committee. That was this organization's way." } },
-        { "text": { "ko": "Chen이 이 안에서 22년을 그것과 함께했다. 그 방식을 이용하면서. 그 방식에 맞서면서. 어머니가 시작한 것이었다.", "en": "Chen had been with that for twenty-two years inside. Using that way. Fighting against that way. Her mother had started it." } }
+        {
+          "text": {
+            "ko": "MCC 방식이었다. 사임. 위원회. 그것이 이 조직의 방식이었다.",
+            "en": "The MCC way. Resignation. Committee. That was this organization's way."
+          }
+        },
+        {
+          "text": {
+            "ko": "Chen이 이 안에서 22년을 그것과 함께했다. 그 방식을 이용하면서. 그 방식에 맞서면서. 어머니가 시작한 것이었다.",
+            "en": "Chen had been with that for twenty-two years inside. Using that way. Fighting against that way. Her mother had started it."
+          }
+        }
       ]
     },
     {
@@ -478,9 +1184,30 @@
       "bgm": "mcc_ambient",
       "transition": "fade_medium",
       "lines": [
-        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "이사회에서 살아남았어요. 오늘은.", "en": "We survived the board. Today." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "내일도 이사회가 있어요. 다음 달도. 화성에서는 계속돼요.", "en": "There's board tomorrow. Next month too. It continues on Mars." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그래서 결정이 필요해요. 이 안에서 계속할 것인지.", "en": "That's why a decision is needed. Whether to continue inside this." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "이사회에서 살아남았어요. 오늘은.",
+            "en": "We survived the board. Today."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "내일도 이사회가 있어요. 다음 달도. 화성에서는 계속돼요.",
+            "en": "There's board tomorrow. Next month too. It continues on Mars."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "그래서 결정이 필요해요. 이 안에서 계속할 것인지.",
+            "en": "That's why a decision is needed. Whether to continue inside this."
+          }
+        }
       ]
     },
     {
@@ -490,9 +1217,24 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "이 안에서. 그 조건이 다시 왔다.", "en": "Inside this. That condition came again." } },
-        { "text": { "ko": "MCC 안에서 결정해야 한다고 Chen이 말했다. MCC 밖은 내가 도울 수 없다고.", "en": "Must decide within MCC, Chen had said. Outside MCC I can't help." } },
-        { "text": { "ko": "그러나 화성에는 MCC 밖도 있었다. CV가 있었다. FSP가 있었다. Pilgrim Arms가 있었다. 그것들도 화성이었다.", "en": "But on Mars there was also outside MCC. CV was there. FSP was there. Pilgrim Arms was there. Those too were Mars." } }
+        {
+          "text": {
+            "ko": "이 안에서. 그 조건이 다시 왔다.",
+            "en": "Inside this. That condition came again."
+          }
+        },
+        {
+          "text": {
+            "ko": "MCC 안에서 결정해야 한다고 Chen이 말했다. MCC 밖은 내가 도울 수 없다고.",
+            "en": "Must decide within MCC, Chen had said. Outside MCC I can't help."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 화성에는 MCC 밖도 있었다. CV가 있었다. FSP가 있었다. Pilgrim Arms가 있었다. 그것들도 화성이었다.",
+            "en": "But on Mars there was also outside MCC. CV was there. FSP was there. Pilgrim Arms was there. Those too were Mars."
+          }
+        }
       ]
     },
     {
@@ -502,9 +1244,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "calm", "text": { "ko": "MCC를 운영하는 것은 권력이에요. 그러나 권력은 방향이 있어요.", "en": "Running MCC is power. But power has a direction." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "내 방향이 있었어요. 22년간. 그 방향을 이을 사람이 필요해요.", "en": "I had a direction. For twenty-two years. Someone is needed to continue that direction." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그것이 당신일 수 있어요. 또는 아닐 수 있어요. 결정은 당신이에요.", "en": "That could be you. Or it might not be. The decision is yours." } }
+        {
+          "speaker": "chen",
+          "emotion": "calm",
+          "text": {
+            "ko": "MCC를 운영하는 것은 권력이에요. 그러나 권력은 방향이 있어요.",
+            "en": "Running MCC is power. But power has a direction."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "내 방향이 있었어요. 22년간. 그 방향을 이을 사람이 필요해요.",
+            "en": "I had a direction. For twenty-two years. Someone is needed to continue that direction."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "그것이 당신일 수 있어요. 또는 아닐 수 있어요. 결정은 당신이에요.",
+            "en": "That could be you. Or it might not be. The decision is yours."
+          }
+        }
       ]
     },
     {
@@ -514,9 +1277,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "창밖을 봐요. 헬라스 전체가 보여요.", "en": "Look out the window. All of Hellas is visible." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "위층. 행정. 중층. 기술자들. 아래층. 노동자들. 광산. 그것들이 전부 MCC예요.", "en": "Upper floors. Administration. Middle. Engineers. Lower. Workers. Mines. All of that is MCC." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "이것을 어떻게 할 것인지가 선택이에요. 이어받는 것도. 제국으로 완성하는 것도. 나가는 것도. 넘어서는 것도.", "en": "What to do with this is the choice. Inheriting it. Completing it as an empire. Leaving. Transcending. All of those." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "창밖을 봐요. 헬라스 전체가 보여요.",
+            "en": "Look out the window. All of Hellas is visible."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "위층. 행정. 중층. 기술자들. 아래층. 노동자들. 광산. 그것들이 전부 MCC예요.",
+            "en": "Upper floors. Administration. Middle. Engineers. Lower. Workers. Mines. All of that is MCC."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "serious",
+          "text": {
+            "ko": "이것을 어떻게 할 것인지가 선택이에요. 이어받는 것도. 제국으로 완성하는 것도. 나가는 것도. 넘어서는 것도.",
+            "en": "What to do with this is the choice. Inheriting it. Completing it as an empire. Leaving. Transcending. All of those."
+          }
+        }
       ]
     },
     {
@@ -526,9 +1310,24 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "헬라스가 보였다. 창 안에 도시 전체가 있었다.", "en": "Hellas was visible. In the window the entire city." } },
-        { "text": { "ko": "그 안에 사람들이 있었다. 광부들. 기술자들. C-7 블록 아이들. 분필 이름들.", "en": "People inside it. Miners. Engineers. C-7 block children. Chalk names." } },
-        { "text": { "ko": "광산 엘리베이터가 내려가고 있었다. 올라오고 있었다. 화성은 멈추지 않았다. 결정 후에도.", "en": "The mine elevator was descending. Ascending. Mars didn't stop. Even after a decision." } }
+        {
+          "text": {
+            "ko": "헬라스가 보였다. 창 안에 도시 전체가 있었다.",
+            "en": "Hellas was visible. In the window the entire city."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 안에 사람들이 있었다. 광부들. 기술자들. C-7 블록 아이들. 분필 이름들.",
+            "en": "People inside it. Miners. Engineers. C-7 block children. Chalk names."
+          }
+        },
+        {
+          "text": {
+            "ko": "광산 엘리베이터가 내려가고 있었다. 올라오고 있었다. 화성은 멈추지 않았다. 결정 후에도.",
+            "en": "The mine elevator was descending. Ascending. Mars didn't stop. Even after a decision."
+          }
+        }
       ]
     },
     {
@@ -538,9 +1337,30 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen", "emotion": "reflective", "text": { "ko": "내 부모가 광산에서 죽었을 때 원인란이 비어 있었어요.", "en": "When my parents died in the mines the cause section was blank." } },
-        { "speaker": "chen", "emotion": "quiet", "text": { "ko": "22년이 지났어요. 얼마나 채워졌는지는 모르겠어요.", "en": "Twenty-two years have passed. I don't know how much has been filled." } },
-        { "speaker": "chen", "emotion": "neutral", "text": { "ko": "그러나 오늘 이 차는 마셨어요. 그것만 알아요.", "en": "But today I drank this tea. That's all I know." } }
+        {
+          "speaker": "chen",
+          "emotion": "reflective",
+          "text": {
+            "ko": "내 부모가 광산에서 죽었을 때 원인란이 비어 있었어요.",
+            "en": "When my parents died in the mines the cause section was blank."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "quiet",
+          "text": {
+            "ko": "22년이 지났어요. 얼마나 채워졌는지는 모르겠어요.",
+            "en": "Twenty-two years have passed. I don't know how much has been filled."
+          }
+        },
+        {
+          "speaker": "chen",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그러나 오늘 이 차는 마셨어요. 그것만 알아요.",
+            "en": "But today I drank this tea. That's all I know."
+          }
+        }
       ]
     },
     {
@@ -550,9 +1370,25 @@
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Chen Weiss가 차를 마셨다. 두 번째 잔도 마셨다.", "en": "Chen Weiss drank her tea. Drank the second cup too." } },
-        { "text": { "ko": "22년 동안 마시지 않던 사람이 오늘 마셨다. 이사회를 통과하고. 증거를 내놓고. 30년을 말하고.", "en": "Someone who hadn't drunk for twenty-two years drank today. After passing through the board. After presenting evidence. After speaking of thirty years." } },
-        { "text": { "ko": "차가 식지 않았다. 25도였다. 그것이 변하지 않았다.", "en": "The tea didn't cool. Twenty-five degrees. That hadn't changed." }, "overlay": "alone_window" }
+        {
+          "text": {
+            "ko": "Chen Weiss가 차를 마셨다. 두 번째 잔도 마셨다.",
+            "en": "Chen Weiss drank her tea. Drank the second cup too."
+          }
+        },
+        {
+          "text": {
+            "ko": "22년 동안 마시지 않던 사람이 오늘 마셨다. 이사회를 통과하고. 증거를 내놓고. 30년을 말하고.",
+            "en": "Someone who hadn't drunk for twenty-two years drank today. After passing through the board. After presenting evidence. After speaking of thirty years."
+          }
+        },
+        {
+          "text": {
+            "ko": "차가 식지 않았다. 25도였다. 그것이 변하지 않았다.",
+            "en": "The tea didn't cool. Twenty-five degrees. That hadn't changed."
+          },
+          "background": "mcc_ch10_the_choice_l45_02_alone_window"
+        }
       ]
     },
     {
@@ -560,12 +1396,59 @@
       "type": "choice",
       "background": "mcc_executive_floor",
       "bgm": "choice_tension",
-      "prompt": { "ko": "Chen Weiss. 그녀가 기다린다. 화성이 기다린다.", "en": "Chen Weiss. She waits. Mars waits." },
+      "prompt": {
+        "ko": "Chen Weiss. 그녀가 기다린다. 화성이 기다린다.",
+        "en": "Chen Weiss. She waits. Mars waits."
+      },
       "choices": [
-        { "id": "mcc_ch10_heir", "text": { "ko": "MCC의 후계자가 된다. 당신의 방식으로.", "en": "Become MCC's successor. In your own way." }, "tone": "heir", "preview_hint": { "ko": "→ 엔딩: 후계자 — MCC를 바꾸려는 자", "en": "→ Ending: Heir — one who would change MCC" } },
-        { "id": "mcc_ch10_empire", "text": { "ko": "MCC를 제국으로 완성한다.", "en": "Complete MCC as an empire." }, "tone": "empire", "preview_hint": { "ko": "→ 엔딩: 제국 — 화성을 하나로 통제하는 자", "en": "→ Ending: Empire — one who controls Mars as one" } },
-        { "id": "mcc_ch10_leave", "text": { "ko": "MCC를 떠난다.", "en": "Leave MCC." }, "tone": "departure", "preview_hint": { "ko": "→ 엔딩: 희생자 — 시스템이 당신을 기억한다", "en": "→ Ending: Casualty — the system remembers you" } },
-        { "id": "mcc_ch10_crown", "text": { "ko": "MCC도 FSP도 CV도 아닌 것을 만든다.", "en": "Build something that is neither MCC nor FSP nor CV." }, "tone": "transcendent", "preview_hint": { "ko": "→ 엔딩: 왕관 — 세 파벌을 넘어서는 자", "en": "→ Ending: Crown — one who transcends all three factions" } }
+        {
+          "id": "mcc_ch10_heir",
+          "text": {
+            "ko": "MCC의 후계자가 된다. 당신의 방식으로.",
+            "en": "Become MCC's successor. In your own way."
+          },
+          "tone": "heir",
+          "preview_hint": {
+            "ko": "→ 엔딩: 후계자 — MCC를 바꾸려는 자",
+            "en": "→ Ending: Heir — one who would change MCC"
+          }
+        },
+        {
+          "id": "mcc_ch10_empire",
+          "text": {
+            "ko": "MCC를 제국으로 완성한다.",
+            "en": "Complete MCC as an empire."
+          },
+          "tone": "empire",
+          "preview_hint": {
+            "ko": "→ 엔딩: 제국 — 화성을 하나로 통제하는 자",
+            "en": "→ Ending: Empire — one who controls Mars as one"
+          }
+        },
+        {
+          "id": "mcc_ch10_leave",
+          "text": {
+            "ko": "MCC를 떠난다.",
+            "en": "Leave MCC."
+          },
+          "tone": "departure",
+          "preview_hint": {
+            "ko": "→ 엔딩: 희생자 — 시스템이 당신을 기억한다",
+            "en": "→ Ending: Casualty — the system remembers you"
+          }
+        },
+        {
+          "id": "mcc_ch10_crown",
+          "text": {
+            "ko": "MCC도 FSP도 CV도 아닌 것을 만든다.",
+            "en": "Build something that is neither MCC nor FSP nor CV."
+          },
+          "tone": "transcendent",
+          "preview_hint": {
+            "ko": "→ 엔딩: 왕관 — 세 파벌을 넘어서는 자",
+            "en": "→ Ending: Crown — one who transcends all three factions"
+          }
+        }
       ]
     },
     {
@@ -575,9 +1458,24 @@
       "bgm": "tension_medium",
       "transition": "fade_medium",
       "lines": [
-        { "text": { "ko": "결정이 됐다. Chen이 들었다. 리팡이 문 앞에서 들었다.", "en": "A decision was made. Chen heard it. Lifang heard it at the door." } },
-        { "text": { "ko": "25도 라운지가 조용했다. 차가 식지 않았다.", "en": "The 25-Degree Lounge was quiet. Tea didn't cool." } },
-        { "text": { "ko": "그러나 헬라스 밖에서 움직임이 있었다. Osei가 사임하지 않았다. 대신 Pilgrim Arms가 다시 왔다.", "en": "But outside Hellas there was movement. Osei hadn't resigned. Instead Pilgrim Arms came again." } }
+        {
+          "text": {
+            "ko": "결정이 됐다. Chen이 들었다. 리팡이 문 앞에서 들었다.",
+            "en": "A decision was made. Chen heard it. Lifang heard it at the door."
+          }
+        },
+        {
+          "text": {
+            "ko": "25도 라운지가 조용했다. 차가 식지 않았다.",
+            "en": "The 25-Degree Lounge was quiet. Tea didn't cool."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 헬라스 밖에서 움직임이 있었다. Osei가 사임하지 않았다. 대신 Pilgrim Arms가 다시 왔다.",
+            "en": "But outside Hellas there was movement. Osei hadn't resigned. Instead Pilgrim Arms came again."
+          }
+        }
       ]
     },
     {
@@ -586,8 +1484,14 @@
       "background": "hellas_central_exterior_night",
       "bgm": "battle_theme_mcc",
       "transition": "fade_slow",
-      "title": { "ko": "최후의 결전", "en": "The Final Battle" },
-      "subtitle": { "ko": "헬라스 센트럴 — Osei의 마지막 패", "en": "Hellas Central — Osei's Last Card" }
+      "title": {
+        "ko": "최후의 결전",
+        "en": "The Final Battle"
+      },
+      "subtitle": {
+        "ko": "헬라스 센트럴 — Osei의 마지막 패",
+        "en": "Hellas Central — Osei's Last Card"
+      }
     },
     {
       "id": "s_result",
@@ -602,9 +1506,24 @@
       "bgm": "victory_calm",
       "transition": "fade_medium",
       "lines": [
-        { "text": { "ko": "헬라스 센트럴의 불빛이 있었다. 아래에는 C-7 블록이 있었다.", "en": "There were lights in Hellas Central. Below was block C-7." } },
-        { "text": { "ko": "분필 이름들. Kim Yong-jin. 그 아래 이름들. Zone 12 열한 명.", "en": "Chalk names. Kim Yong-jin. The names below. The eleven from Zone 12." } },
-        { "text": { "ko": "광산 엘리베이터가 여전히 내려가고 있었다. 올라오고 있었다. 화성은 멈추지 않았다.", "en": "The mine elevator was still descending. Still ascending. Mars didn't stop." } }
+        {
+          "text": {
+            "ko": "헬라스 센트럴의 불빛이 있었다. 아래에는 C-7 블록이 있었다.",
+            "en": "There were lights in Hellas Central. Below was block C-7."
+          }
+        },
+        {
+          "text": {
+            "ko": "분필 이름들. Kim Yong-jin. 그 아래 이름들. Zone 12 열한 명.",
+            "en": "Chalk names. Kim Yong-jin. The names below. The eleven from Zone 12."
+          }
+        },
+        {
+          "text": {
+            "ko": "광산 엘리베이터가 여전히 내려가고 있었다. 올라오고 있었다. 화성은 멈추지 않았다.",
+            "en": "The mine elevator was still descending. Still ascending. Mars didn't stop."
+          }
+        }
       ]
     },
     {
@@ -614,8 +1533,18 @@
       "bgm": "defeat_ambient",
       "transition": "fade_medium",
       "lines": [
-        { "text": { "ko": "끝나지 않았다. 화성에서 끝나는 것은 드물었다.", "en": "It wasn't over. Things rarely ended on Mars." } },
-        { "text": { "ko": "다시 시작하는 것이 화성의 방식이었다. 광부들은 매일 아침 갱도로 내려갔다. 그것이 화성이었다.", "en": "Starting again was Mars's way. Miners descended into tunnels every morning. That was Mars." } }
+        {
+          "text": {
+            "ko": "끝나지 않았다. 화성에서 끝나는 것은 드물었다.",
+            "en": "It wasn't over. Things rarely ended on Mars."
+          }
+        },
+        {
+          "text": {
+            "ko": "다시 시작하는 것이 화성의 방식이었다. 광부들은 매일 아침 갱도로 내려갔다. 그것이 화성이었다.",
+            "en": "Starting again was Mars's way. Miners descended into tunnels every morning. That was Mars."
+          }
+        }
       ]
     },
     {
@@ -626,13 +1555,48 @@
       "transition": "fade_slow",
       "endingId": "heir",
       "lines": [
-        { "text": { "ko": "25도 라운지.", "en": "The 25-Degree Lounge." } },
-        { "text": { "ko": "당신이 앉았다. 차를 들었다. 마시지 않았다.", "en": "You sat. Held the tea. Didn't drink it." } },
-        { "text": { "ko": "창밖에 헬라스가 있었다. MCC가 지은 도시. 이제 당신이 이어받는 도시.", "en": "Outside the window was Hellas. The city MCC built. Now the city you would inherit." } },
-        { "text": { "ko": "Chen이 뒷모습을 보였다. 나가지 않았다. 그냥 창을 봤다.", "en": "Chen turned her back. Didn't leave. Just looked out the window." } },
-        { "text": { "ko": "두 사람이 창을 봤다. 25도였다. 차가 식지 않았다.", "en": "Two people looking at the window. Twenty-five degrees. Tea didn't cool." } },
-        { "text": { "ko": "기억해야 할 것들이 식지 않았다.", "en": "Things to be remembered didn't cool." } },
-        { "text": { "ko": "[ 엔딩: 후계자 — MCC를 바꾸려는 자 ]", "en": "[ Ending: Heir — One Who Would Change MCC ]" } }
+        {
+          "text": {
+            "ko": "25도 라운지.",
+            "en": "The 25-Degree Lounge."
+          }
+        },
+        {
+          "text": {
+            "ko": "당신이 앉았다. 차를 들었다. 마시지 않았다.",
+            "en": "You sat. Held the tea. Didn't drink it."
+          }
+        },
+        {
+          "text": {
+            "ko": "창밖에 헬라스가 있었다. MCC가 지은 도시. 이제 당신이 이어받는 도시.",
+            "en": "Outside the window was Hellas. The city MCC built. Now the city you would inherit."
+          }
+        },
+        {
+          "text": {
+            "ko": "Chen이 뒷모습을 보였다. 나가지 않았다. 그냥 창을 봤다.",
+            "en": "Chen turned her back. Didn't leave. Just looked out the window."
+          }
+        },
+        {
+          "text": {
+            "ko": "두 사람이 창을 봤다. 25도였다. 차가 식지 않았다.",
+            "en": "Two people looking at the window. Twenty-five degrees. Tea didn't cool."
+          }
+        },
+        {
+          "text": {
+            "ko": "기억해야 할 것들이 식지 않았다.",
+            "en": "Things to be remembered didn't cool."
+          }
+        },
+        {
+          "text": {
+            "ko": "[ 엔딩: 후계자 — MCC를 바꾸려는 자 ]",
+            "en": "[ Ending: Heir — One Who Would Change MCC ]"
+          }
+        }
       ]
     },
     {
@@ -643,13 +1607,48 @@
       "transition": "fade_slow",
       "endingId": "empire",
       "lines": [
-        { "text": { "ko": "화성에서 가장 큰 건물.", "en": "The largest building on Mars." } },
-        { "text": { "ko": "60년 전 지어진 것. 그 후 계속 커진 것. 이제 당신 것이었다.", "en": "Built sixty years ago. Kept growing since. Now it was yours." } },
-        { "text": { "ko": "그것만이 아니었다. 화성의 광산들. 정제소들. 산소 공급망. 물 배분 시스템.", "en": "Not only that. The mines of Mars. The refineries. Oxygen supply network. Water distribution system." } },
-        { "text": { "ko": "전부 당신 것이었다. 제국이 있었다. 화성에.", "en": "All yours. There was an empire. On Mars." } },
-        { "text": { "ko": "창밖에 헬라스가 보였다. 작았다. 제국에서 보면 전부 작았다.", "en": "Outside the window Hellas was visible. Small. From an empire everything was small." } },
-        { "text": { "ko": "그러나 C-7 블록에 분필이 있었다. 작은 것들이 계속됐다.", "en": "But in C-7 block there was chalk. Small things continued." } },
-        { "text": { "ko": "[ 엔딩: 제국 — 화성을 하나로 통제하는 자 ]", "en": "[ Ending: Empire — One Who Controls Mars as One ]" } }
+        {
+          "text": {
+            "ko": "화성에서 가장 큰 건물.",
+            "en": "The largest building on Mars."
+          }
+        },
+        {
+          "text": {
+            "ko": "60년 전 지어진 것. 그 후 계속 커진 것. 이제 당신 것이었다.",
+            "en": "Built sixty years ago. Kept growing since. Now it was yours."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것만이 아니었다. 화성의 광산들. 정제소들. 산소 공급망. 물 배분 시스템.",
+            "en": "Not only that. The mines of Mars. The refineries. Oxygen supply network. Water distribution system."
+          }
+        },
+        {
+          "text": {
+            "ko": "전부 당신 것이었다. 제국이 있었다. 화성에.",
+            "en": "All yours. There was an empire. On Mars."
+          }
+        },
+        {
+          "text": {
+            "ko": "창밖에 헬라스가 보였다. 작았다. 제국에서 보면 전부 작았다.",
+            "en": "Outside the window Hellas was visible. Small. From an empire everything was small."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 C-7 블록에 분필이 있었다. 작은 것들이 계속됐다.",
+            "en": "But in C-7 block there was chalk. Small things continued."
+          }
+        },
+        {
+          "text": {
+            "ko": "[ 엔딩: 제국 — 화성을 하나로 통제하는 자 ]",
+            "en": "[ Ending: Empire — One Who Controls Mars as One ]"
+          }
+        }
       ]
     },
     {
@@ -660,13 +1659,48 @@
       "transition": "fade_slow",
       "endingId": "casualty",
       "lines": [
-        { "text": { "ko": "헬라스 외곽이었다.", "en": "The outer Hellas." } },
-        { "text": { "ko": "중계소가 있었다. 폐쇄된 것이었다. 이름이 기록에서 삭제됐다.", "en": "A relay station. Closed. The name had been deleted from the records." } },
-        { "text": { "ko": "MCC는 오래 기억했다. 그러나 삭제도 잘 했다.", "en": "MCC had a long memory. But it also deleted well." } },
-        { "text": { "ko": "광부 노인의 말이 기억됐다. 기록에 남길 사람이 필요하다고.", "en": "The old miner's words came back. Someone to put it in the record, he had said." } },
-        { "text": { "ko": "기록에 남기지 못한 이름이 하나 더 생겼다.", "en": "One more name that didn't make it into the record." } },
-        { "text": { "ko": "그러나 분필이 있었다. 골목 아이들이 적을 것이었다.", "en": "But there was chalk. The alley children would write it." } },
-        { "text": { "ko": "[ 엔딩: 희생자 — 시스템이 기억하지 않는 자 ]", "en": "[ Ending: Casualty — One the System Doesn't Remember ]" } }
+        {
+          "text": {
+            "ko": "헬라스 외곽이었다.",
+            "en": "The outer Hellas."
+          }
+        },
+        {
+          "text": {
+            "ko": "중계소가 있었다. 폐쇄된 것이었다. 이름이 기록에서 삭제됐다.",
+            "en": "A relay station. Closed. The name had been deleted from the records."
+          }
+        },
+        {
+          "text": {
+            "ko": "MCC는 오래 기억했다. 그러나 삭제도 잘 했다.",
+            "en": "MCC had a long memory. But it also deleted well."
+          }
+        },
+        {
+          "text": {
+            "ko": "광부 노인의 말이 기억됐다. 기록에 남길 사람이 필요하다고.",
+            "en": "The old miner's words came back. Someone to put it in the record, he had said."
+          }
+        },
+        {
+          "text": {
+            "ko": "기록에 남기지 못한 이름이 하나 더 생겼다.",
+            "en": "One more name that didn't make it into the record."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 분필이 있었다. 골목 아이들이 적을 것이었다.",
+            "en": "But there was chalk. The alley children would write it."
+          }
+        },
+        {
+          "text": {
+            "ko": "[ 엔딩: 희생자 — 시스템이 기억하지 않는 자 ]",
+            "en": "[ Ending: Casualty — One the System Doesn't Remember ]"
+          }
+        }
       ]
     },
     {
@@ -677,15 +1711,61 @@
       "transition": "fade_slow",
       "endingId": "crown",
       "lines": [
-        { "text": { "ko": "올림포스에서 동이 텄다.", "en": "Dawn broke on Olympus." } },
-        { "text": { "ko": "태양계에서 가장 높은 곳. 화성에서 가장 먼저 빛이 오는 곳.", "en": "The highest point in the solar system. Where light came first on Mars." } },
-        { "text": { "ko": "MCC도 없었다. FSP도 없었다. CV도 없었다.", "en": "No MCC. No FSP. No CV." } },
-        { "text": { "ko": "세 개의 깃발이 없는 것이 처음이었다.", "en": "For the first time there were no three flags." } },
-        { "text": { "ko": "그러나 화성은 있었다. 사람들이 있었다.", "en": "But Mars was there. People were there." } },
-        { "text": { "ko": "광산에서 일하는 사람들. 아이들. 분필 이름들.", "en": "People working in mines. Children. Chalk names." } },
-        { "text": { "ko": "그것이 남았다. 깃발보다 오래 남는 것들이었다.", "en": "Those remained. Things that outlasted flags." } },
-        { "text": { "ko": "차 한 잔보다 오래. 25도보다 오래. 그것들이 화성이었다.", "en": "Outlasting a cup of tea. Outlasting twenty-five degrees. Those things were Mars." }, "overlay": "mars_horizon" },
-        { "text": { "ko": "[ 엔딩: 왕관 — 세 파벌을 넘어서는 자 ]", "en": "[ Ending: Crown — One Who Transcends All Three Factions ]" } }
+        {
+          "text": {
+            "ko": "올림포스에서 동이 텄다.",
+            "en": "Dawn broke on Olympus."
+          }
+        },
+        {
+          "text": {
+            "ko": "태양계에서 가장 높은 곳. 화성에서 가장 먼저 빛이 오는 곳.",
+            "en": "The highest point in the solar system. Where light came first on Mars."
+          }
+        },
+        {
+          "text": {
+            "ko": "MCC도 없었다. FSP도 없었다. CV도 없었다.",
+            "en": "No MCC. No FSP. No CV."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 개의 깃발이 없는 것이 처음이었다.",
+            "en": "For the first time there were no three flags."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 화성은 있었다. 사람들이 있었다.",
+            "en": "But Mars was there. People were there."
+          }
+        },
+        {
+          "text": {
+            "ko": "광산에서 일하는 사람들. 아이들. 분필 이름들.",
+            "en": "People working in mines. Children. Chalk names."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것이 남았다. 깃발보다 오래 남는 것들이었다.",
+            "en": "Those remained. Things that outlasted flags."
+          }
+        },
+        {
+          "text": {
+            "ko": "차 한 잔보다 오래. 25도보다 오래. 그것들이 화성이었다.",
+            "en": "Outlasting a cup of tea. Outlasting twenty-five degrees. Those things were Mars."
+          },
+          "background": "mcc_ch10_the_choice_l55_07_mars_horizon"
+        },
+        {
+          "text": {
+            "ko": "[ 엔딩: 왕관 — 세 파벌을 넘어서는 자 ]",
+            "en": "[ Ending: Crown — One Who Transcends All Three Factions ]"
+          }
+        }
       ]
     }
   ],

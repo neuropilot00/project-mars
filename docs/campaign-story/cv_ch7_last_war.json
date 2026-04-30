@@ -13,7 +13,12 @@
   "environment": "cv_base_tension",
   "estimatedPlayTimeMinutes": 25,
   "pov_note": "Cinder Grace 60% POV",
-  "characters": ["player", "cinder", "butcher", "crow"],
+  "characters": [
+    "player",
+    "cinder",
+    "butcher",
+    "crow"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -27,7 +32,7 @@
             "ko": "Butcher가 쓰러졌다. 기지에서. 혼자였다. Cinder가 발견했다. 의수가 떨어져 있었다. 그것이 처음 보는 것이었다. Butcher가 의수 없이 있는 것. 17살 때부터 차고 있던 것. 그것이 떨어져 있었다.",
             "en": "Butcher collapsed. In the base. Alone. Cinder found him. The prosthetic had fallen off. That was something never seen before. Butcher without the prosthetic. Worn since he was seventeen. It had fallen away."
           },
-          "overlay": "death_still"
+          "background": "cv_ch7_last_war_l00_00_death_still"
         }
       ]
     },
@@ -542,7 +547,7 @@
             "ko": "Butcher가 들었다. 보고가 전달됐다. 그가 사진을 꺼냈다. 처음으로. 협상 중에. 사진을 꺼낸 것은 처음이었다. 일 중에. 뒤를 봤다. 이름들을 봤다. 30년 된 것들. 새로 추가된 것들. Zone 12. 그것들이 있었다.",
             "en": "Butcher heard. The report was delivered. He took out the photo. For the first time. During negotiations. Taking out the photo during work was a first. He looked at the back. Looked at the names. Thirty-year-old ones. Newly added ones. Zone 12. They were there."
           },
-          "overlay": "death_still"
+          "background": "cv_ch7_last_war_l23_00_death_still"
         }
       ]
     },
@@ -911,7 +916,7 @@
             "ko": "밤이 깊었다. 에레보스 기지. 불이 탔다. 배럴 불. Butcher가 불 앞에 앉아 있었다. 사진이 주머니에 있었다. 꺼내지 않았다. Cinder가 공구를 소리 없이 만졌다. 그것이 이 기지가 오늘 밤 있는 방식이었다. 불. 사람. 공구. 충분한 것들.",
             "en": "Night deepened. Erebus base. Fires burned. Barrel fires. Butcher sat by the fire. The photo was in his pocket. Not taken out. Cinder touched her tools without sound. That was how this base existed tonight. Fire. People. Tools. Things that were enough."
           },
-          "overlay": "fire_small"
+          "background": "cv_ch7_last_war_l39_00_fire_small"
         }
       ],
       "next_chapter_preview": {

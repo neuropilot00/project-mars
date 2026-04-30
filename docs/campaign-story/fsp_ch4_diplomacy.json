@@ -2,12 +2,22 @@
   "questId": "fsp_campaign_ch4",
   "campaignId": "fsp_route",
   "chapterNumber": 4,
-  "title": { "ko": "Sandstone 약속", "en": "The Sandstone Promise" },
-  "location": { "id": "sandstone_junction", "displayNameKo": "샌드스톤 교차로" },
+  "title": {
+    "ko": "Sandstone 약속",
+    "en": "The Sandstone Promise"
+  },
+  "location": {
+    "id": "sandstone_junction",
+    "displayNameKo": "샌드스톤 교차로"
+  },
   "environment": "crossroads_dust",
   "estimatedPlayTimeMinutes": 30,
   "pov_note": "Cinder Grace 60% POV — 같은 장면 CV Ch5에서 Cinder/Butcher 시각으로 재등장",
-  "characters": ["player", "lena", "cinder"],
+  "characters": [
+    "player",
+    "lena",
+    "cinder"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -16,7 +26,12 @@
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "샌드스톤 교차로. 화성 중부. 어느 파벌의 영토도 아닌 곳이었다. 그래서 세 파벌이 모두 거쳐가는 곳이었다. 모래가 붉었다. 모래 위에 오래된 발자국들이 있었다. 모두 다른 방향에서 왔다. 모두 다른 방향으로 갔다.", "en": "Sandstone Junction. Central Mars. Not in any faction's territory. Which was why all three factions passed through it. The sand was red. Old footprints on the sand. All came from different directions. All left in different directions." } }
+        {
+          "text": {
+            "ko": "샌드스톤 교차로. 화성 중부. 어느 파벌의 영토도 아닌 곳이었다. 그래서 세 파벌이 모두 거쳐가는 곳이었다. 모래가 붉었다. 모래 위에 오래된 발자국들이 있었다. 모두 다른 방향에서 왔다. 모두 다른 방향으로 갔다.",
+            "en": "Sandstone Junction. Central Mars. Not in any faction's territory. Which was why all three factions passed through it. The sand was red. Old footprints on the sand. All came from different directions. All left in different directions."
+          }
+        }
       ]
     },
     {
@@ -26,7 +41,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "샌드스톤. 모래와 돌. 이름이 붙은 이유가 있었다. 여기서 세 개 방향으로 길이 갈렸다. 헬라스. 에레부스. 올림포스. 세 방향이었다. 그 사이 어딘가에 MCC가 있었다. 보이지 않지만 있었다.", "en": "Sandstone. Sand and stone. The name had a reason. Here the road split in three. Hellas. Erebus. Olympus. Three directions. Somewhere between them MCC existed. Not visible but present." } }
+        {
+          "text": {
+            "ko": "샌드스톤. 모래와 돌. 이름이 붙은 이유가 있었다. 여기서 세 개 방향으로 길이 갈렸다. 헬라스. 에레부스. 올림포스. 세 방향이었다. 그 사이 어딘가에 MCC가 있었다. 보이지 않지만 있었다.",
+            "en": "Sandstone. Sand and stone. The name had a reason. Here the road split in three. Hellas. Erebus. Olympus. Three directions. Somewhere between them MCC existed. Not visible but present."
+          }
+        }
       ]
     },
     {
@@ -36,7 +56,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder Grace가 먼저 와 있었다. CV였다. 공구 벨트가 있었다. 손에 오일이 있었다. 이 사람은 어디서든 일하는 사람이었다. 일이 없을 때도 일하는 것처럼 보이는 사람이었다. 그것이 그녀의 방식이었다.", "en": "Cinder Grace had arrived first. CV. Tool belt. Oil on her hands. This was someone who worked everywhere. Even when there was no work she looked like she was working. That was her way." } }
+        {
+          "text": {
+            "ko": "Cinder Grace가 먼저 와 있었다. CV였다. 공구 벨트가 있었다. 손에 오일이 있었다. 이 사람은 어디서든 일하는 사람이었다. 일이 없을 때도 일하는 것처럼 보이는 사람이었다. 그것이 그녀의 방식이었다.",
+            "en": "Cinder Grace had arrived first. CV. Tool belt. Oil on her hands. This was someone who worked everywhere. Even when there was no work she looked like she was working. That was her way."
+          }
+        }
       ]
     },
     {
@@ -46,7 +71,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "공구 벨트를 보면 알 수 있었다. 닳은 것들이었다. 많이 쓴 것들. 아무렇게나 쓴 것이 아니었다. 정밀하게 쓴 것들이었다. 공구는 쓰는 사람을 말했다. 이 사람은 고치는 사람이었다. 부수는 사람이 아니었다. 그 두 가지가 다른 것이었다.", "en": "The tool belt told you. Worn things. Much used. Not used carelessly. Used precisely. Tools spoke of who used them. This person was a repairer. Not a destroyer. Those two were different." } }
+        {
+          "text": {
+            "ko": "공구 벨트를 보면 알 수 있었다. 닳은 것들이었다. 많이 쓴 것들. 아무렇게나 쓴 것이 아니었다. 정밀하게 쓴 것들이었다. 공구는 쓰는 사람을 말했다. 이 사람은 고치는 사람이었다. 부수는 사람이 아니었다. 그 두 가지가 다른 것이었다.",
+            "en": "The tool belt told you. Worn things. Much used. Not used carelessly. Used precisely. Tools spoke of who used them. This person was a repairer. Not a destroyer. Those two were different."
+          }
+        }
       ]
     },
     {
@@ -56,9 +86,31 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "calm", "effect": "character_enter:cinder:slide_right", "text": { "ko": "FSP가 왔군요.", "en": "FSP came." } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "Butcher가 이 회의를 원하지 않았어요. 내가 설득했어요. 오래 걸렸어요.", "en": "Butcher didn't want this meeting. I convinced him. It took a long time." } },
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "한 번만 해요. 오늘 여기서 약속하면 그것은 약속이에요. CV는 약속을 기억해요. 광산에서 배운 거예요.", "en": "Once only. If a promise is made here today it is a promise. CV remembers promises. Learned that in the mines." } }
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "FSP가 왔군요.",
+            "en": "FSP came."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "Butcher가 이 회의를 원하지 않았어요. 내가 설득했어요. 오래 걸렸어요.",
+            "en": "Butcher didn't want this meeting. I convinced him. It took a long time."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "한 번만 해요. 오늘 여기서 약속하면 그것은 약속이에요. CV는 약속을 기억해요. 광산에서 배운 거예요.",
+            "en": "Once only. If a promise is made here today it is a promise. CV remembers promises. Learned that in the mines."
+          }
+        }
       ]
     },
     {
@@ -68,7 +120,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 공구 벨트를 손으로 훑었다. 무의식적인 것이었다. 이것이 그녀에게 확인이었다. 다 있는지. 없어진 것이 없는지. 있는 것들을 확인하는 사람이었다. 없어진 것을 찾는 사람이 아니었다.", "en": "Cinder ran her hand over the tool belt. Unconscious. This was her check. Whether everything was there. Nothing missing. She was a person who confirmed what was present. Not a person who searched for what was lost." } }
+        {
+          "text": {
+            "ko": "Cinder가 공구 벨트를 손으로 훑었다. 무의식적인 것이었다. 이것이 그녀에게 확인이었다. 다 있는지. 없어진 것이 없는지. 있는 것들을 확인하는 사람이었다. 없어진 것을 찾는 사람이 아니었다.",
+            "en": "Cinder ran her hand over the tool belt. Unconscious. This was her check. Whether everything was there. Nothing missing. She was a person who confirmed what was present. Not a person who searched for what was lost."
+          }
+        }
       ]
     },
     {
@@ -78,9 +135,31 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "tense", "effect": "character_enter:lena:slide_left", "text": { "ko": "보스. 제가 말해도 돼요?", "en": "Boss. Can I speak?" } },
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "Cinder. FSP는 CV를 믿어요. 그게 뭔 말인지 알겠어요? 우리가 믿는 건 많지 않아요.", "en": "Cinder. FSP trusts CV. Do you know what that means? There aren't many things we trust." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "내 팔에 이름들이 있어요. 이름들 중에 CV 사람도 있어요.", "en": "There are names on my arm. Among them are CV people too." } }
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "effect": "character_enter:lena:slide_left",
+          "text": {
+            "ko": "보스. 제가 말해도 돼요?",
+            "en": "Boss. Can I speak?"
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "Cinder. FSP는 CV를 믿어요. 그게 뭔 말인지 알겠어요? 우리가 믿는 건 많지 않아요.",
+            "en": "Cinder. FSP trusts CV. Do you know what that means? There aren't many things we trust."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "내 팔에 이름들이 있어요. 이름들 중에 CV 사람도 있어요.",
+            "en": "There are names on my arm. Among them are CV people too."
+          }
+        }
       ]
     },
     {
@@ -90,7 +169,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 Lena의 팔을 봤다. 오래 봤다. 공구를 만지지 않았다. 그것이 이 사람의 주의였다. 공구를 만지지 않을 때 이 사람은 무언가를 생각하는 것이었다. 이름들을 읽는 것이었을지도 몰랐다.", "en": "Cinder looked at Lena's arm. Looked for a long time. Didn't touch her tools. That was this person's attention. When she didn't touch her tools she was thinking something. Perhaps she was reading the names." } }
+        {
+          "text": {
+            "ko": "Cinder가 Lena의 팔을 봤다. 오래 봤다. 공구를 만지지 않았다. 그것이 이 사람의 주의였다. 공구를 만지지 않을 때 이 사람은 무언가를 생각하는 것이었다. 이름들을 읽는 것이었을지도 몰랐다.",
+            "en": "Cinder looked at Lena's arm. Looked for a long time. Didn't touch her tools. That was this person's attention. When she didn't touch her tools she was thinking something. Perhaps she was reading the names."
+          }
+        }
       ]
     },
     {
@@ -100,7 +184,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder의 눈이 어떤 이름에서 멈췄다. 알아보는 것이었다. 그것이 무엇인지는 알 수 없었다. 그러나 멈추는 것이 있었다. 이름이 그렇게 하는 것이었다. 아는 이름은 눈을 멈추게 했다.", "en": "Cinder's eyes stopped at a certain name. Recognizing. What that was couldn't be known. But there was a stopping. Names did that. A known name stopped the eyes." } }
+        {
+          "text": {
+            "ko": "Cinder의 눈이 어떤 이름에서 멈췄다. 알아보는 것이었다. 그것이 무엇인지는 알 수 없었다. 그러나 멈추는 것이 있었다. 이름이 그렇게 하는 것이었다. 아는 이름은 눈을 멈추게 했다.",
+            "en": "Cinder's eyes stopped at a certain name. Recognizing. What that was couldn't be known. But there was a stopping. Names did that. A known name stopped the eyes."
+          }
+        }
       ]
     },
     {
@@ -110,9 +199,31 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "Zone 12 이름이에요.", "en": "That's a Zone 12 name." }, "overlay": "zone12_record" },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "그래요.", "en": "Yes." } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "3년 전이에요. 내가 거기 있었어요.", "en": "Three years ago. I was there." } }
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Zone 12 이름이에요.",
+            "en": "That's a Zone 12 name."
+          },
+          "background": "fsp_ch4_diplomacy_l09_00_zone12_record"
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "그래요.",
+            "en": "Yes."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "3년 전이에요. 내가 거기 있었어요.",
+            "en": "Three years ago. I was there."
+          }
+        }
       ]
     },
     {
@@ -122,7 +233,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 팔을 내려다봤다. 그 이름을. Zone 12. 두 사람이 알고 있는 이름. 한 명은 팔에 새겼다. 한 명은 3년 전에 거기 있었다. 그것이 지금 샌드스톤에 있었다.", "en": "Lena looked down at her arm. That name. Zone 12. A name two people knew. One had engraved it on their arm. One had been there three years ago. That was at Sandstone now." } }
+        {
+          "text": {
+            "ko": "Lena가 팔을 내려다봤다. 그 이름을. Zone 12. 두 사람이 알고 있는 이름. 한 명은 팔에 새겼다. 한 명은 3년 전에 거기 있었다. 그것이 지금 샌드스톤에 있었다.",
+            "en": "Lena looked down at her arm. That name. Zone 12. A name two people knew. One had engraved it on their arm. One had been there three years ago. That was at Sandstone now."
+          }
+        }
       ]
     },
     {
@@ -132,8 +248,22 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "약속의 내용을 말할게요. FSP는 CV 영토를 인정해요. CV는 FSP 노동자를 건드리지 않아요. MCC가 공격하면 같이 막아요.", "en": "I'll state the terms of the promise. FSP recognizes CV territory. CV doesn't touch FSP workers. If MCC attacks we hold together." } },
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "그것뿐이에요. 간단해요. 간단한 것이 오래 가요.", "en": "That's all. Simple. Simple things last." } }
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "약속의 내용을 말할게요. FSP는 CV 영토를 인정해요. CV는 FSP 노동자를 건드리지 않아요. MCC가 공격하면 같이 막아요.",
+            "en": "I'll state the terms of the promise. FSP recognizes CV territory. CV doesn't touch FSP workers. If MCC attacks we hold together."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그것뿐이에요. 간단해요. 간단한 것이 오래 가요.",
+            "en": "That's all. Simple. Simple things last."
+          }
+        }
       ]
     },
     {
@@ -143,7 +273,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 들었다. 빠른 사람이 느려지는 순간이었다. 약속. Zone 12 이름. 공구 벨트. 그것들이 이 교차로에 있었다. 샌드스톤. 이름이 붙은 이유가 있는 곳.", "en": "Lena listened. It was a moment when a fast person became slow. A promise. Zone 12 name. Tool belt. Those things were at this junction. Sandstone. A place with a name for a reason." } }
+        {
+          "text": {
+            "ko": "Lena가 들었다. 빠른 사람이 느려지는 순간이었다. 약속. Zone 12 이름. 공구 벨트. 그것들이 이 교차로에 있었다. 샌드스톤. 이름이 붙은 이유가 있는 곳.",
+            "en": "Lena listened. It was a moment when a fast person became slow. A promise. Zone 12 name. Tool belt. Those things were at this junction. Sandstone. A place with a name for a reason."
+          }
+        }
       ]
     },
     {
@@ -153,7 +288,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "MCC가 보이지 않았다. 그러나 없는 것이 아니었다. 드론이 아마 어딘가에 있었다. 관측하고 있었다. MCC는 항상 관측하고 있었다. 그것이 이 약속을 더 중요하게 만들었다. 보는 사람 앞에서 하는 약속은 무게가 달랐다.", "en": "MCC wasn't visible. But that didn't mean absent. A drone was probably somewhere. Observing. MCC was always observing. That made this promise more important. Promises made before those who watched had different weight." } }
+        {
+          "text": {
+            "ko": "MCC가 보이지 않았다. 그러나 없는 것이 아니었다. 드론이 아마 어딘가에 있었다. 관측하고 있었다. MCC는 항상 관측하고 있었다. 그것이 이 약속을 더 중요하게 만들었다. 보는 사람 앞에서 하는 약속은 무게가 달랐다.",
+            "en": "MCC wasn't visible. But that didn't mean absent. A drone was probably somewhere. Observing. MCC was always observing. That made this promise more important. Promises made before those who watched had different weight."
+          }
+        }
       ]
     },
     {
@@ -163,8 +303,22 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "calm", "text": { "ko": "MCC가 지켜보고 있어요. 드론이 동쪽에 있어요.", "en": "MCC is watching. There's a drone to the east." } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "그래도 괜찮아요. 약속은 보이는 데서 해도 돼요. 보이지 않는 데서 하는 약속보다 더 단단해요.", "en": "That's fine. A promise can be made where it's seen. Sturdier than promises made where they can't be seen." } }
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "MCC가 지켜보고 있어요. 드론이 동쪽에 있어요.",
+            "en": "MCC is watching. There's a drone to the east."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그래도 괜찮아요. 약속은 보이는 데서 해도 돼요. 보이지 않는 데서 하는 약속보다 더 단단해요.",
+            "en": "That's fine. A promise can be made where it's seen. Sturdier than promises made where they can't be seen."
+          }
+        }
       ]
     },
     {
@@ -174,7 +328,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "해가 기울었다. 샌드스톤의 모래가 더 붉어졌다. 세 개의 방향이 있었다. 헬라스. 에레부스. 올림포스. 그 사이에 두 사람이 서 있었다. FSP. CV. 그리고 한 이름. Zone 12.", "en": "The sun tilted. The sand of Sandstone turned redder. Three directions. Hellas. Erebus. Olympus. Between them two people stood. FSP. CV. And one name. Zone 12." } }
+        {
+          "text": {
+            "ko": "해가 기울었다. 샌드스톤의 모래가 더 붉어졌다. 세 개의 방향이 있었다. 헬라스. 에레부스. 올림포스. 그 사이에 두 사람이 서 있었다. FSP. CV. 그리고 한 이름. Zone 12.",
+            "en": "The sun tilted. The sand of Sandstone turned redder. Three directions. Hellas. Erebus. Olympus. Between them two people stood. FSP. CV. And one name. Zone 12."
+          }
+        }
       ]
     },
     {
@@ -184,7 +343,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 말하지 않았다. 공구 벨트에서 뭔가를 꺼냈다. 작은 금속 핀이었다. 바닥에 꽂았다. 모래 속으로. 그것이 뭔지는 알 수 없었다. 설명이 없었다. 그냥 했다. 이것이 Cinder의 방식이었다. 말이 아닌 것으로 시험하는 것.", "en": "Cinder said nothing. She took something from the tool belt. A small metal pin. She pushed it into the ground. Into the sand. What it was couldn't be known. No explanation. She just did it. This was Cinder's way. Testing with something other than words." } }
+        {
+          "text": {
+            "ko": "Cinder가 말하지 않았다. 공구 벨트에서 뭔가를 꺼냈다. 작은 금속 핀이었다. 바닥에 꽂았다. 모래 속으로. 그것이 뭔지는 알 수 없었다. 설명이 없었다. 그냥 했다. 이것이 Cinder의 방식이었다. 말이 아닌 것으로 시험하는 것.",
+            "en": "Cinder said nothing. She took something from the tool belt. A small metal pin. She pushed it into the ground. Into the sand. What it was couldn't be known. No explanation. She just did it. This was Cinder's way. Testing with something other than words."
+          }
+        }
       ]
     },
     {
@@ -194,10 +358,38 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "calm", "text": { "ko": "이게 뭔지 알아요?", "en": "Do you know what this is?" } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "광산 경계 핀이에요. CV 표식.", "en": "Mine boundary pin. CV marker." } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "여기에 꽂으면 CV 영토라는 뜻이에요.", "en": "If I plant it here it means CV territory." } },
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "꽂지 않을게요. 오늘은.", "en": "I won't plant it. Not today." } }
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "이게 뭔지 알아요?",
+            "en": "Do you know what this is?"
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "광산 경계 핀이에요. CV 표식.",
+            "en": "Mine boundary pin. CV marker."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "여기에 꽂으면 CV 영토라는 뜻이에요.",
+            "en": "If I plant it here it means CV territory."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "꽂지 않을게요. 오늘은.",
+            "en": "I won't plant it. Not today."
+          }
+        }
       ]
     },
     {
@@ -207,7 +399,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그것이 시험이었다. 핀을 꽂지 않는 것. 샌드스톤이 어느 쪽 것도 아닌 것으로 두는 것. 그것이 이 약속이 가능한 첫째 조건이었다. Cinder는 그것을 말로 하지 않았다. 행동으로 했다. 핀을 꽂지 않는 행동으로.", "en": "That was the test. Not planting the pin. Leaving Sandstone as belonging to neither side. That was the first condition for this promise to be possible. Cinder didn't say it in words. She did it with action. The action of not planting the pin." } }
+        {
+          "text": {
+            "ko": "그것이 시험이었다. 핀을 꽂지 않는 것. 샌드스톤이 어느 쪽 것도 아닌 것으로 두는 것. 그것이 이 약속이 가능한 첫째 조건이었다. Cinder는 그것을 말로 하지 않았다. 행동으로 했다. 핀을 꽂지 않는 행동으로.",
+            "en": "That was the test. Not planting the pin. Leaving Sandstone as belonging to neither side. That was the first condition for this promise to be possible. Cinder didn't say it in words. She did it with action. The action of not planting the pin."
+          }
+        }
       ]
     },
     {
@@ -217,10 +414,38 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "두 번째예요.", "en": "Second." } },
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "내가 등 돌리면 어떻게 할 거예요.", "en": "If I turn my back what will you do." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "기다려요.", "en": "Wait." } },
-        { "speaker": "cinder", "emotion": "calm", "text": { "ko": "좋아요.", "en": "Good." } }
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "두 번째예요.",
+            "en": "Second."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "내가 등 돌리면 어떻게 할 거예요.",
+            "en": "If I turn my back what will you do."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "기다려요.",
+            "en": "Wait."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "좋아요.",
+            "en": "Good."
+          }
+        }
       ]
     },
     {
@@ -230,7 +455,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 등을 돌렸다. 한 방향을 봤다. 에레부스 방향. 거기 뭔가가 있었다. 아니면 없었다. 알 수 없었다. 그러나 Cinder가 거기를 봤다. 오래. 그것이 두 번째 시험이었다. 등을 보이는 것.", "en": "Cinder turned her back. Looked in one direction. Toward Erebus. Something was there. Or wasn't. Unknowable. But Cinder looked that way. For a long time. That was the second test. Showing her back." } }
+        {
+          "text": {
+            "ko": "Cinder가 등을 돌렸다. 한 방향을 봤다. 에레부스 방향. 거기 뭔가가 있었다. 아니면 없었다. 알 수 없었다. 그러나 Cinder가 거기를 봤다. 오래. 그것이 두 번째 시험이었다. 등을 보이는 것.",
+            "en": "Cinder turned her back. Looked in one direction. Toward Erebus. Something was there. Or wasn't. Unknowable. But Cinder looked that way. For a long time. That was the second test. Showing her back."
+          }
+        }
       ]
     },
     {
@@ -240,7 +470,13 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 다시 돌아섰다. 공구 벨트에서 뭔가를 꺼냈다. 작은 칼이었다. 납작한 것. 광산용이었다. 그것으로 자신의 왼손 손바닥을 그었다. 천천히. 소리 없이. 피가 났다.", "en": "Cinder turned around again. She took something from the tool belt. A small knife. Flat. For mining. She drew it across her left palm. Slowly. Without sound. Blood came." }, "overlay": "hand_fist" }
+        {
+          "text": {
+            "ko": "Cinder가 다시 돌아섰다. 공구 벨트에서 뭔가를 꺼냈다. 작은 칼이었다. 납작한 것. 광산용이었다. 그것으로 자신의 왼손 손바닥을 그었다. 천천히. 소리 없이. 피가 났다.",
+            "en": "Cinder turned around again. She took something from the tool belt. A small knife. Flat. For mining. She drew it across her left palm. Slowly. Without sound. Blood came."
+          },
+          "background": "fsp_ch4_diplomacy_l21_00_hand_fist"
+        }
       ]
     },
     {
@@ -250,9 +486,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "serious", "text": { "ko": "화성에서 계약하는 방법이에요.", "en": "This is how contracts are made on Mars." } },
-        { "speaker": "cinder", "emotion": "calm", "text": { "ko": "서로의 손을 가르고 악수해요. 그것이 계약이에요.", "en": "Cut each other's hands and shake. That is the contract." } },
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "이건 계약이야. 화성에서 계약은 죽어도 유효해.", "en": "This is a contract. On Mars a contract is valid even in death." } }
+        {
+          "speaker": "cinder",
+          "emotion": "serious",
+          "text": {
+            "ko": "화성에서 계약하는 방법이에요.",
+            "en": "This is how contracts are made on Mars."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "서로의 손을 가르고 악수해요. 그것이 계약이에요.",
+            "en": "Cut each other's hands and shake. That is the contract."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이건 계약이야. 화성에서 계약은 죽어도 유효해.",
+            "en": "This is a contract. On Mars a contract is valid even in death."
+          }
+        }
       ]
     },
     {
@@ -262,7 +519,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "칼이 건너왔다. Cinder의 손에서. 이쪽으로. Lena가 봤다. 피가 나는 Cinder의 손. 그것이 기다리고 있었다. 혼자 피 흘리는 손. 대답을 기다리는 것이었다.", "en": "The knife came across. From Cinder's hand. To this side. Lena looked. Cinder's bleeding hand. It was waiting. A hand bleeding alone. Waiting for an answer." } }
+        {
+          "text": {
+            "ko": "칼이 건너왔다. Cinder의 손에서. 이쪽으로. Lena가 봤다. 피가 나는 Cinder의 손. 그것이 기다리고 있었다. 혼자 피 흘리는 손. 대답을 기다리는 것이었다.",
+            "en": "The knife came across. From Cinder's hand. To this side. Lena looked. Cinder's bleeding hand. It was waiting. A hand bleeding alone. Waiting for an answer."
+          }
+        }
       ]
     },
     {
@@ -272,9 +534,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "보스. 저도 해야 해요?", "en": "Boss. Do I need to do it too?" } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "FSP에서 결정권이 있는 사람이 해야 해요.", "en": "Someone with decision-making authority in FSP needs to do it." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "보스가 해요. 보스가 여기서 FSP예요.", "en": "Boss does it. Boss is FSP here." } }
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "보스. 저도 해야 해요?",
+            "en": "Boss. Do I need to do it too?"
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "FSP에서 결정권이 있는 사람이 해야 해요.",
+            "en": "Someone with decision-making authority in FSP needs to do it."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "보스가 해요. 보스가 여기서 FSP예요.",
+            "en": "Boss does it. Boss is FSP here."
+          }
+        }
       ]
     },
     {
@@ -282,12 +565,59 @@
       "type": "choice",
       "background": "sandstone_junction",
       "bgm": "choice_tension",
-      "prompt": { "ko": "Cinder의 피 흘리는 손. 칼이 건너왔다. 샌드스톤. 세 방향의 교차로.", "en": "Cinder's bleeding hand. The knife came across. Sandstone. The junction of three directions." },
+      "prompt": {
+        "ko": "Cinder의 피 흘리는 손. 칼이 건너왔다. 샌드스톤. 세 방향의 교차로.",
+        "en": "Cinder's bleeding hand. The knife came across. Sandstone. The junction of three directions."
+      },
       "choices": [
-        { "id": "fsp_ch4_sign", "text": { "ko": "서명한다. 손을 긋는다.", "en": "Sign it. Cut the hand." }, "tone": "decisive", "preview_hint": { "ko": "→ FSP-CV blood oath, MCC 대응 격화", "en": "→ FSP-CV blood oath, MCC escalates" } },
-        { "id": "fsp_ch4_amend", "text": { "ko": "한 조항을 추가한다. Ancient Metal은 공유한다.", "en": "Add one clause. Ancient Metal is shared." }, "tone": "strategic", "preview_hint": { "ko": "→ Cinder가 생각한다. 오래", "en": "→ Cinder thinks. For a long time." } },
-        { "id": "fsp_ch4_delay", "text": { "ko": "Mikhail에게 먼저 보고한다.", "en": "Report to Mikhail first." }, "tone": "procedural", "preview_hint": { "ko": "→ Mikhail이 말한다. 그것이 중요해", "en": "→ Mikhail speaks. That matters." } },
-        { "id": "fsp_ch4_refuse", "text": { "ko": "서명하지 않는다. 이유를 말한다.", "en": "Don't sign. State the reason." }, "tone": "principled", "preview_hint": { "ko": "→ Cinder가 공구를 잡는다. 그러나 멈춘다", "en": "→ Cinder reaches for her tools. Then stops." } }
+        {
+          "id": "fsp_ch4_sign",
+          "text": {
+            "ko": "서명한다. 손을 긋는다.",
+            "en": "Sign it. Cut the hand."
+          },
+          "tone": "decisive",
+          "preview_hint": {
+            "ko": "→ FSP-CV blood oath, MCC 대응 격화",
+            "en": "→ FSP-CV blood oath, MCC escalates"
+          }
+        },
+        {
+          "id": "fsp_ch4_amend",
+          "text": {
+            "ko": "한 조항을 추가한다. Ancient Metal은 공유한다.",
+            "en": "Add one clause. Ancient Metal is shared."
+          },
+          "tone": "strategic",
+          "preview_hint": {
+            "ko": "→ Cinder가 생각한다. 오래",
+            "en": "→ Cinder thinks. For a long time."
+          }
+        },
+        {
+          "id": "fsp_ch4_delay",
+          "text": {
+            "ko": "Mikhail에게 먼저 보고한다.",
+            "en": "Report to Mikhail first."
+          },
+          "tone": "procedural",
+          "preview_hint": {
+            "ko": "→ Mikhail이 말한다. 그것이 중요해",
+            "en": "→ Mikhail speaks. That matters."
+          }
+        },
+        {
+          "id": "fsp_ch4_refuse",
+          "text": {
+            "ko": "서명하지 않는다. 이유를 말한다.",
+            "en": "Don't sign. State the reason."
+          },
+          "tone": "principled",
+          "preview_hint": {
+            "ko": "→ Cinder가 공구를 잡는다. 그러나 멈춘다",
+            "en": "→ Cinder reaches for her tools. Then stops."
+          }
+        }
       ]
     },
     {
@@ -297,7 +627,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "결정이 있었다. Cinder가 들었다. 반응이 있었다. 공구를 만졌다. 아니면 만지지 않았다. 그것에 따라 다음이 달랐다. 샌드스톤에서 결정은 그런 것이었다. 작은 것들이 큰 것을 만들었다.", "en": "There was a decision. Cinder heard. There was a reaction. She touched her tools. Or she didn't. What came next differed by that. At Sandstone decisions were like that. Small things made large things." } }
+        {
+          "text": {
+            "ko": "결정이 있었다. Cinder가 들었다. 반응이 있었다. 공구를 만졌다. 아니면 만지지 않았다. 그것에 따라 다음이 달랐다. 샌드스톤에서 결정은 그런 것이었다. 작은 것들이 큰 것을 만들었다.",
+            "en": "There was a decision. Cinder heard. There was a reaction. She touched her tools. Or she didn't. What came next differed by that. At Sandstone decisions were like that. Small things made large things."
+          }
+        }
       ]
     },
     {
@@ -307,7 +642,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "피가 섞였다. 아니면 섞이지 않았다. 그것이 오늘 샌드스톤에서의 일이었다. 악수가 있었다. 아니면 없었다. 그러나 이 교차로에 두 사람이 섰다는 것은 바뀌지 않았다. Zone 12 이름이 있는 팔. 광산 칼이 있는 공구 벨트.", "en": "Blood mixed. Or didn't. That was today's business at Sandstone. There was a handshake. Or there wasn't. But that two people had stood at this junction didn't change. The arm with the Zone 12 name. The tool belt with the mine knife." } }
+        {
+          "text": {
+            "ko": "피가 섞였다. 아니면 섞이지 않았다. 그것이 오늘 샌드스톤에서의 일이었다. 악수가 있었다. 아니면 없었다. 그러나 이 교차로에 두 사람이 섰다는 것은 바뀌지 않았다. Zone 12 이름이 있는 팔. 광산 칼이 있는 공구 벨트.",
+            "en": "Blood mixed. Or didn't. That was today's business at Sandstone. There was a handshake. Or there wasn't. But that two people had stood at this junction didn't change. The arm with the Zone 12 name. The tool belt with the mine knife."
+          }
+        }
       ]
     },
     {
@@ -317,9 +657,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "calm", "text": { "ko": "MCC 드론이 봤어요. 아까부터.", "en": "MCC drone has been watching. Since before." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "MCC가 이걸 기록했어요.", "en": "MCC recorded this." } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "좋아요. 기록되면 취소 못 해요.", "en": "Good. If it's recorded it can't be undone." } }
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "MCC 드론이 봤어요. 아까부터.",
+            "en": "MCC drone has been watching. Since before."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "MCC가 이걸 기록했어요.",
+            "en": "MCC recorded this."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "좋아요. 기록되면 취소 못 해요.",
+            "en": "Good. If it's recorded it can't be undone."
+          }
+        }
       ]
     },
     {
@@ -329,7 +690,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 손을 감쌌다. 천으로. 공구 벨트에서 꺼낸 것이었다. 준비한 것이었다. 이 사람은 이것을 알고 왔다. 피 흘리는 것을. 감는 것을. 준비한 것들이었다. 그것이 이 사람의 방식이었다. 계획하고 행동하는 것.", "en": "Cinder wrapped her hand. With cloth. Taken from the tool belt. Something she had prepared. This person had come knowing this. The bleeding. The wrapping. Things prepared. That was this person's way. Planning and acting." } }
+        {
+          "text": {
+            "ko": "Cinder가 손을 감쌌다. 천으로. 공구 벨트에서 꺼낸 것이었다. 준비한 것이었다. 이 사람은 이것을 알고 왔다. 피 흘리는 것을. 감는 것을. 준비한 것들이었다. 그것이 이 사람의 방식이었다. 계획하고 행동하는 것.",
+            "en": "Cinder wrapped her hand. With cloth. Taken from the tool belt. Something she had prepared. This person had come knowing this. The bleeding. The wrapping. Things prepared. That was this person's way. Planning and acting."
+          }
+        }
       ]
     },
     {
@@ -339,7 +705,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "에레부스 쪽에서 먼지가 일었다. 바람이 아니었다. 움직임이었다. CV 사람들이 있었다. 기다리고 있던 것들이었다. Cinder의 신호를 기다렸던 것들. 지금 이쪽으로 오고 있지는 않았다. 기다리고 있었다. 그것이 Cinder가 한 것이었다. 혼자 왔지만 혼자 온 것이 아니었다.", "en": "Dust rose from the Erebus direction. Not wind. Movement. CV people were there. Things that had been waiting. Waiting for Cinder's signal. Not coming this way now. Waiting. That was what Cinder had done. Came alone but not alone." } }
+        {
+          "text": {
+            "ko": "에레부스 쪽에서 먼지가 일었다. 바람이 아니었다. 움직임이었다. CV 사람들이 있었다. 기다리고 있던 것들이었다. Cinder의 신호를 기다렸던 것들. 지금 이쪽으로 오고 있지는 않았다. 기다리고 있었다. 그것이 Cinder가 한 것이었다. 혼자 왔지만 혼자 온 것이 아니었다.",
+            "en": "Dust rose from the Erebus direction. Not wind. Movement. CV people were there. Things that had been waiting. Waiting for Cinder's signal. Not coming this way now. Waiting. That was what Cinder had done. Came alone but not alone."
+          }
+        }
       ]
     },
     {
@@ -349,10 +720,38 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "에레부스 쪽에 사람들이 있어요.", "en": "There are people on the Erebus side." } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "우리 사람들이에요. Butcher가 보낸 거예요.", "en": "Our people. Butcher sent them." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "Butcher가 이 회의를 원하지 않았다고 했잖아요.", "en": "You said Butcher didn't want this meeting." } },
-        { "speaker": "cinder", "emotion": "calm", "text": { "ko": "원하지 않았어도 준비는 했어요. 그것이 Butcher예요.", "en": "Even not wanting it, he prepared. That is Butcher." } }
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "에레부스 쪽에 사람들이 있어요.",
+            "en": "There are people on the Erebus side."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "우리 사람들이에요. Butcher가 보낸 거예요.",
+            "en": "Our people. Butcher sent them."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "Butcher가 이 회의를 원하지 않았다고 했잖아요.",
+            "en": "You said Butcher didn't want this meeting."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "원하지 않았어도 준비는 했어요. 그것이 Butcher예요.",
+            "en": "Even not wanting it, he prepared. That is Butcher."
+          }
+        }
       ]
     },
     {
@@ -361,8 +760,14 @@
       "background": "sandstone_junction",
       "bgm": "battle_theme_fsp",
       "transition": "fade_slow",
-      "title": { "ko": "교차로 방어", "en": "Junction Defense" },
-      "subtitle": { "ko": "샌드스톤 — 약속의 가격", "en": "Sandstone — The Price of a Promise" }
+      "title": {
+        "ko": "교차로 방어",
+        "en": "Junction Defense"
+      },
+      "subtitle": {
+        "ko": "샌드스톤 — 약속의 가격",
+        "en": "Sandstone — The Price of a Promise"
+      }
     },
     {
       "id": "s_result",
@@ -376,9 +781,31 @@
       "background": "sandstone_junction",
       "bgm": "victory_calm",
       "lines": [
-        { "speaker": "cinder", "emotion": "quiet", "effect": "character_enter:cinder:slide_right", "text": { "ko": "약속이에요.", "en": "It's a promise." } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "CV는 약속을 기억해요. 광산에서 배운 거라고 했죠. 광산에서는 약속 하나가 사람을 살리거든요.", "en": "CV remembers promises. Said we learned it in the mines. In the mines one promise saves a life." } },
-        { "speaker": "cinder", "emotion": "calm", "text": { "ko": "Zone 12 이름. 팔 위의 것. 기억해요.", "en": "The Zone 12 name. The one on the arm. I remember." } }
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "effect": "character_enter:cinder:slide_right",
+          "text": {
+            "ko": "약속이에요.",
+            "en": "It's a promise."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "CV는 약속을 기억해요. 광산에서 배운 거라고 했죠. 광산에서는 약속 하나가 사람을 살리거든요.",
+            "en": "CV remembers promises. Said we learned it in the mines. In the mines one promise saves a life."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "calm",
+          "text": {
+            "ko": "Zone 12 이름. 팔 위의 것. 기억해요.",
+            "en": "The Zone 12 name. The one on the arm. I remember."
+          }
+        }
       ]
     },
     {
@@ -387,7 +814,12 @@
       "background": "sandstone_junction",
       "bgm": "defeat_ambient",
       "lines": [
-        { "text": { "ko": "약속이 없었다. 교차로에 발자국만 남았다. 각자의 방향으로. Cinder가 어느 방향으로 갔는지는 보지 못했다. 샌드스톤은 그대로였다. 이름이 붙은 이유가 있는 곳이었다. 모래와 돌. 약속하기에 좋은 곳. 지키기에도 좋은 곳. 그러나 오늘은 아니었다.", "en": "No promise. Only footprints remained at the junction. Each in their own direction. Which direction Cinder went was not seen. Sandstone remained as it was. A place with a name for a reason. Sand and stone. Good for promises. Good for keeping them too. But not today." } }
+        {
+          "text": {
+            "ko": "약속이 없었다. 교차로에 발자국만 남았다. 각자의 방향으로. Cinder가 어느 방향으로 갔는지는 보지 못했다. 샌드스톤은 그대로였다. 이름이 붙은 이유가 있는 곳이었다. 모래와 돌. 약속하기에 좋은 곳. 지키기에도 좋은 곳. 그러나 오늘은 아니었다.",
+            "en": "No promise. Only footprints remained at the junction. Each in their own direction. Which direction Cinder went was not seen. Sandstone remained as it was. A place with a name for a reason. Sand and stone. Good for promises. Good for keeping them too. But not today."
+          }
+        }
       ]
     },
     {
@@ -397,7 +829,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "MCC 드론이 멀어졌다. 봤을 것이었다. 기록했을 것이었다. 그것이 MCC의 방식이었다. 보는 것. 기록하는 것. 그다음 결정하는 것. 지금 결정이 뭔지는 알 수 없었다.", "en": "The MCC drone moved away. It had seen. It had recorded. That was MCC's way. Seeing. Recording. Then deciding. What it was deciding now couldn't be known." } }
+        {
+          "text": {
+            "ko": "MCC 드론이 멀어졌다. 봤을 것이었다. 기록했을 것이었다. 그것이 MCC의 방식이었다. 보는 것. 기록하는 것. 그다음 결정하는 것. 지금 결정이 뭔지는 알 수 없었다.",
+            "en": "The MCC drone moved away. It had seen. It had recorded. That was MCC's way. Seeing. Recording. Then deciding. What it was deciding now couldn't be known."
+          }
+        }
       ]
     },
     {
@@ -407,7 +844,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 팔을 봤다. Zone 12 이름. Cinder가 그 이름을 알았다. 거기 있었다. 그것이 오늘 여기서 생긴 일이었다. 약속과 함께. 아니면 약속 없이.", "en": "Lena looked at her arm. Zone 12 name. Cinder had known that name. She had been there. That was what had happened here today. Together with a promise. Or without one." } }
+        {
+          "text": {
+            "ko": "Lena가 팔을 봤다. Zone 12 이름. Cinder가 그 이름을 알았다. 거기 있었다. 그것이 오늘 여기서 생긴 일이었다. 약속과 함께. 아니면 약속 없이.",
+            "en": "Lena looked at her arm. Zone 12 name. Cinder had known that name. She had been there. That was what had happened here today. Together with a promise. Or without one."
+          }
+        }
       ]
     },
     {
@@ -417,7 +859,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 감싼 손을 봤다. 천이 있었다. 준비했던 것. 이 사람은 오늘 이것을 알고 왔다. 약속이 이렇게 될 것을. 아니면 이렇게 되지 않을 것을. 두 가지 모두를 준비한 것이었다. 그것이 CV의 방식이었다.", "en": "Cinder looked at her wrapped hand. The cloth. Something she had prepared. This person had come today knowing this would happen. That the promise would be this way. Or not this way. Prepared for both. That was CV's way." } }
+        {
+          "text": {
+            "ko": "Cinder가 감싼 손을 봤다. 천이 있었다. 준비했던 것. 이 사람은 오늘 이것을 알고 왔다. 약속이 이렇게 될 것을. 아니면 이렇게 되지 않을 것을. 두 가지 모두를 준비한 것이었다. 그것이 CV의 방식이었다.",
+            "en": "Cinder looked at her wrapped hand. The cloth. Something she had prepared. This person had come today knowing this would happen. That the promise would be this way. Or not this way. Prepared for both. That was CV's way."
+          }
+        }
       ]
     },
     {
@@ -427,9 +874,30 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "케플러 분화구에 일이 있어요. Liang Wei가 선언할 거예요.", "en": "There's business at Kepler Crater. Liang Wei will make a declaration." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "그것도 알고 있었어요?", "en": "You knew that too?" } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "그래서 오늘 여기가 중요했어요. 케플러 전에.", "en": "That's why today here mattered. Before Kepler." } }
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "케플러 분화구에 일이 있어요. Liang Wei가 선언할 거예요.",
+            "en": "There's business at Kepler Crater. Liang Wei will make a declaration."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "그것도 알고 있었어요?",
+            "en": "You knew that too?"
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "그래서 오늘 여기가 중요했어요. 케플러 전에.",
+            "en": "That's why today here mattered. Before Kepler."
+          }
+        }
       ]
     },
     {
@@ -439,7 +907,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Sandstone 약속이 케플러를 앞두고 있었다. 순서가 있는 것이었다. 먼저 약속. 그다음 케플러. 그것이 Cinder의 계획이었다. 이 사람은 계획하고 행동했다. 행동만 하는 것이 아니었다. 그것이 Butcher와의 차이였다.", "en": "The Sandstone Promise was before Kepler. There was an order. First the promise. Then Kepler. That was Cinder's plan. This person planned and acted. Not just acted. That was the difference from Butcher." } }
+        {
+          "text": {
+            "ko": "Sandstone 약속이 케플러를 앞두고 있었다. 순서가 있는 것이었다. 먼저 약속. 그다음 케플러. 그것이 Cinder의 계획이었다. 이 사람은 계획하고 행동했다. 행동만 하는 것이 아니었다. 그것이 Butcher와의 차이였다.",
+            "en": "The Sandstone Promise was before Kepler. There was an order. First the promise. Then Kepler. That was Cinder's plan. This person planned and acted. Not just acted. That was the difference from Butcher."
+          }
+        }
       ]
     },
     {
@@ -449,10 +922,38 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "Zone 12에서 뭐가 있었어요.", "en": "What happened at Zone 12." } },
-        { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "말하지 않을게요.", "en": "Won't say." } },
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "그래도 돼요. 이미 팔에 있어요. 내 것이에요.", "en": "That's fine. It's already on the arm. It's mine." } },
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "그래요. 당신 것이에요.", "en": "Yes. It's yours." } }
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Zone 12에서 뭐가 있었어요.",
+            "en": "What happened at Zone 12."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "neutral",
+          "text": {
+            "ko": "말하지 않을게요.",
+            "en": "Won't say."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "그래도 돼요. 이미 팔에 있어요. 내 것이에요.",
+            "en": "That's fine. It's already on the arm. It's mine."
+          }
+        },
+        {
+          "speaker": "cinder",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그래요. 당신 것이에요.",
+            "en": "Yes. It's yours."
+          }
+        }
       ]
     },
     {
@@ -462,7 +963,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 에레부스 방향을 봤다. 신호를 보냈다. 손으로. 그쪽 CV 사람들이 움직였다. 멀어지는 것이었다. 오늘은 여기까지였다. 교차로에서 일이 끝났다. 아니면 시작됐다.", "en": "Cinder looked toward Erebus. She signaled. With her hand. The CV people that way moved. Moving away. That was it for today. Business at the junction had ended. Or begun." } }
+        {
+          "text": {
+            "ko": "Cinder가 에레부스 방향을 봤다. 신호를 보냈다. 손으로. 그쪽 CV 사람들이 움직였다. 멀어지는 것이었다. 오늘은 여기까지였다. 교차로에서 일이 끝났다. 아니면 시작됐다.",
+            "en": "Cinder looked toward Erebus. She signaled. With her hand. The CV people that way moved. Moving away. That was it for today. Business at the junction had ended. Or begun."
+          }
+        }
       ]
     },
     {
@@ -472,9 +978,21 @@
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "교차로에 혼자였다. 해가 기울었다. 모래가 빨갛게 됐다. 발자국들이 세 방향으로 흩어졌다. 화성에서 만남이 있었다. 약속이 있었다. 그 약속이 화성의 미래를 바꿀 것이었다. 아니면 샌드스톤의 모래처럼 바람에 지워질 것이었다. 어느 쪽인지는 아직 몰랐다.\n\n그러나 Zone 12 이름이 두 팔 위에 있었다. 하나는 문신으로. 하나는 기억으로. 그것은 바람이 지우지 못했다.", "en": "Alone at the junction. The sun tilted. The sand turned red. Footprints scattered in three directions. There had been a meeting on Mars. There had been a promise. That promise would change the future of Mars. Or it would be erased by wind like the sand of Sandstone. Which it would be was not yet known.\n\nBut the Zone 12 name was on two arms. One as a tattoo. One as memory. That the wind couldn't erase." }, "overlay": "zone12_record" }
+        {
+          "text": {
+            "ko": "교차로에 혼자였다. 해가 기울었다. 모래가 빨갛게 됐다. 발자국들이 세 방향으로 흩어졌다. 화성에서 만남이 있었다. 약속이 있었다. 그 약속이 화성의 미래를 바꿀 것이었다. 아니면 샌드스톤의 모래처럼 바람에 지워질 것이었다. 어느 쪽인지는 아직 몰랐다.\n\n그러나 Zone 12 이름이 두 팔 위에 있었다. 하나는 문신으로. 하나는 기억으로. 그것은 바람이 지우지 못했다.",
+            "en": "Alone at the junction. The sun tilted. The sand turned red. Footprints scattered in three directions. There had been a meeting on Mars. There had been a promise. That promise would change the future of Mars. Or it would be erased by wind like the sand of Sandstone. Which it would be was not yet known.\n\nBut the Zone 12 name was on two arms. One as a tattoo. One as memory. That the wind couldn't erase."
+          },
+          "background": "fsp_ch4_diplomacy_l43_00_zone12_record"
+        }
       ],
-      "next_chapter_preview": { "questId": "fsp_campaign_ch5", "teaser": { "ko": "다음 — Kepler 공유지", "en": "Next — Kepler Commons" } }
+      "next_chapter_preview": {
+        "questId": "fsp_campaign_ch5",
+        "teaser": {
+          "ko": "다음 — Kepler 공유지",
+          "en": "Next — Kepler Commons"
+        }
+      }
     }
   ]
 }

@@ -2,12 +2,27 @@
   "questId": "fsp_campaign_ch9",
   "campaignId": "fsp_route",
   "chapterNumber": 9,
-  "title": { "ko": "세 개의 깃발 — FSP", "en": "Three Flags — FSP" },
-  "location": { "id": "olympus_summit_station", "displayNameKo": "올림포스 산 정상 기지" },
+  "title": {
+    "ko": "세 개의 깃발 — FSP",
+    "en": "Three Flags — FSP"
+  },
+  "location": {
+    "id": "olympus_summit_station",
+    "displayNameKo": "올림포스 산 정상 기지"
+  },
   "environment": "olympus_exterior_thin_air",
   "pov": "rev_hale",
   "crossChapterNote": "MCC Ch9 (Chen Weiss POV) 및 CV Ch9 (Cinder Grace POV)와 동일 사건.",
-  "characters": ["rev_hale", "player", "chen_weiss", "cinder_grace", "mikhail", "lena", "amara", "pilgrim_assassin"],
+  "characters": [
+    "rev_hale",
+    "player",
+    "chen_weiss",
+    "cinder_grace",
+    "mikhail",
+    "lena",
+    "amara",
+    "pilgrim_assassin"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -16,11 +31,36 @@
       "bgm": "ambient_vast",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "Rev. Elias Hale은 올라오면서 기도했다.", "en": "Rev. Elias Hale prayed while ascending." }},
-        { "text": { "ko": "기도는 말이 아니었다. 숨이었다.", "en": "Prayer was not words. It was breath." }},
-        { "text": { "ko": "올림포스를 오르는 숨. 마스크 안에서.", "en": "The breath of climbing Olympus. Inside the mask." }},
-        { "text": { "ko": "각 호흡이 기도였다. 화성에서 하는 기도는 그런 것이었다.", "en": "Each breath a prayer. Prayer on Mars was like that." }},
-        { "text": { "ko": "숨을 쉬는 것 자체가 선택이어야 했다.", "en": "The act of breathing itself had to be a choice." }}
+        {
+          "text": {
+            "ko": "Rev. Elias Hale은 올라오면서 기도했다.",
+            "en": "Rev. Elias Hale prayed while ascending."
+          }
+        },
+        {
+          "text": {
+            "ko": "기도는 말이 아니었다. 숨이었다.",
+            "en": "Prayer was not words. It was breath."
+          }
+        },
+        {
+          "text": {
+            "ko": "올림포스를 오르는 숨. 마스크 안에서.",
+            "en": "The breath of climbing Olympus. Inside the mask."
+          }
+        },
+        {
+          "text": {
+            "ko": "각 호흡이 기도였다. 화성에서 하는 기도는 그런 것이었다.",
+            "en": "Each breath a prayer. Prayer on Mars was like that."
+          }
+        },
+        {
+          "text": {
+            "ko": "숨을 쉬는 것 자체가 선택이어야 했다.",
+            "en": "The act of breathing itself had to be a choice."
+          }
+        }
       ]
     },
     {
@@ -30,12 +70,42 @@
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "올림포스. 태양계에서 가장 높은 산.", "en": "Olympus. The tallest mountain in the solar system." }},
-        { "text": { "ko": "화성 적도 서쪽. 높이 21킬로미터. 지구의 에베레스트가 세 배.", "en": "West of the Martian equator. 21 kilometers high. Three times Everest." }},
-        { "text": { "ko": "꼭대기는 화성 대기층 위였다. 거의.", "en": "The summit sat above most of the Martian atmosphere. Almost." }},
-        { "text": { "ko": "이곳까지 오는 데 사흘이 걸렸다.", "en": "It had taken three days to reach here." }},
-        { "text": { "ko": "MCC 에스코트. FSP 대표단. CV 사절단.", "en": "MCC escort. FSP delegation. CV envoy." }},
-        { "text": { "ko": "세 파벌이 처음으로 같은 길을 걸었다.", "en": "Three factions walked the same road for the first time." }}
+        {
+          "text": {
+            "ko": "올림포스. 태양계에서 가장 높은 산.",
+            "en": "Olympus. The tallest mountain in the solar system."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성 적도 서쪽. 높이 21킬로미터. 지구의 에베레스트가 세 배.",
+            "en": "West of the Martian equator. 21 kilometers high. Three times Everest."
+          }
+        },
+        {
+          "text": {
+            "ko": "꼭대기는 화성 대기층 위였다. 거의.",
+            "en": "The summit sat above most of the Martian atmosphere. Almost."
+          }
+        },
+        {
+          "text": {
+            "ko": "이곳까지 오는 데 사흘이 걸렸다.",
+            "en": "It had taken three days to reach here."
+          }
+        },
+        {
+          "text": {
+            "ko": "MCC 에스코트. FSP 대표단. CV 사절단.",
+            "en": "MCC escort. FSP delegation. CV envoy."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 파벌이 처음으로 같은 길을 걸었다.",
+            "en": "Three factions walked the same road for the first time."
+          }
+        }
       ]
     },
     {
@@ -45,12 +115,42 @@
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "정상 기지는 작았다. 돔 하나. 방 셋.", "en": "The summit station was small. One dome. Three rooms." }},
-        { "text": { "ko": "십 년 전 과학 탐사 기지였다. 지금은 아무도 살지 않았다.", "en": "It had been a science outpost ten years ago. Now nobody lived there." }},
-        { "text": { "ko": "누군가 테이블과 의자를 가져다 놓았다.", "en": "Someone had brought a table and chairs." }},
-        { "text": { "ko": "Mikhail이 직접 올라와서 세팅했다고 했다. 그 말이 맞았다.", "en": "Mikhail had come up himself to set it up, they said. That sounded right." }},
-        { "text": { "ko": "테이블 위에 종이 한 장과 펜 하나가 있었다.", "en": "On the table was one sheet of paper and one pen." }},
-        { "text": { "ko": "서명을 위한 것인지. 메모를 위한 것인지. 알 수 없었다.", "en": "Whether for signing or for notes. Unknown." }}
+        {
+          "text": {
+            "ko": "정상 기지는 작았다. 돔 하나. 방 셋.",
+            "en": "The summit station was small. One dome. Three rooms."
+          }
+        },
+        {
+          "text": {
+            "ko": "십 년 전 과학 탐사 기지였다. 지금은 아무도 살지 않았다.",
+            "en": "It had been a science outpost ten years ago. Now nobody lived there."
+          }
+        },
+        {
+          "text": {
+            "ko": "누군가 테이블과 의자를 가져다 놓았다.",
+            "en": "Someone had brought a table and chairs."
+          }
+        },
+        {
+          "text": {
+            "ko": "Mikhail이 직접 올라와서 세팅했다고 했다. 그 말이 맞았다.",
+            "en": "Mikhail had come up himself to set it up, they said. That sounded right."
+          }
+        },
+        {
+          "text": {
+            "ko": "테이블 위에 종이 한 장과 펜 하나가 있었다.",
+            "en": "On the table was one sheet of paper and one pen."
+          }
+        },
+        {
+          "text": {
+            "ko": "서명을 위한 것인지. 메모를 위한 것인지. 알 수 없었다.",
+            "en": "Whether for signing or for notes. Unknown."
+          }
+        }
       ]
     },
     {
@@ -60,12 +160,42 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Rev. Hale은 자신이 여기 있는 이유를 알았다.", "en": "Rev. Hale knew why he was here." }},
-        { "text": { "ko": "협상가가 아니었다. 목사였다.", "en": "Not a negotiator. A minister." }},
-        { "text": { "ko": "그의 회중은 광부들이었다. 갱도 입구에서 예배를 드렸다.", "en": "His congregation was miners. He held service at the tunnel entrance." }},
-        { "text": { "ko": "그들이 죽을 때 그가 이름을 불렀다.", "en": "When they died he called their names." }},
-        { "text": { "ko": "화성에서 장례를 치를 수 있는 사람이 많지 않았다.", "en": "Not many could conduct a funeral on Mars." }},
-        { "text": { "ko": "그래서 그가 왔다. 그것이 전부였다.", "en": "So he had come. That was all." }}
+        {
+          "text": {
+            "ko": "Rev. Hale은 자신이 여기 있는 이유를 알았다.",
+            "en": "Rev. Hale knew why he was here."
+          }
+        },
+        {
+          "text": {
+            "ko": "협상가가 아니었다. 목사였다.",
+            "en": "Not a negotiator. A minister."
+          }
+        },
+        {
+          "text": {
+            "ko": "그의 회중은 광부들이었다. 갱도 입구에서 예배를 드렸다.",
+            "en": "His congregation was miners. He held service at the tunnel entrance."
+          }
+        },
+        {
+          "text": {
+            "ko": "그들이 죽을 때 그가 이름을 불렀다.",
+            "en": "When they died he called their names."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성에서 장례를 치를 수 있는 사람이 많지 않았다.",
+            "en": "Not many could conduct a funeral on Mars."
+          }
+        },
+        {
+          "text": {
+            "ko": "그래서 그가 왔다. 그것이 전부였다.",
+            "en": "So he had come. That was all."
+          }
+        }
       ]
     },
     {
@@ -75,12 +205,57 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "quiet", "effect": "character_enter:rev_hale:slide_left", "text": { "ko": "처음 뵙겠습니다. Rev. Elias Hale입니다.", "en": "A pleasure to meet you. Rev. Elias Hale." }},
-        { "speaker": "chen_weiss", "emotion": "composed", "effect": "character_enter:chen_weiss:slide_right", "text": { "ko": "Chen Weiss. MCC 남반구 총독.", "en": "Chen Weiss. MCC Southern Hemisphere Governor." }},
-        { "speaker": "cinder_grace", "emotion": "guarded", "effect": "character_enter:cinder_grace:fade_in", "text": { "ko": "Cinder Grace. CV 대표.", "en": "Cinder Grace. CV representative." }},
-        { "speaker": "rev_hale", "emotion": "measured", "text": { "ko": "목사입니다. 대표가 아니에요.", "en": "A minister. Not a representative." }},
-        { "speaker": "cinder_grace", "emotion": "curious", "text": { "ko": "그럼 여기 왜 온 거요.", "en": "Then why are you here." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "증인으로요.", "en": "As a witness." }}
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "effect": "character_enter:rev_hale:slide_left",
+          "text": {
+            "ko": "처음 뵙겠습니다. Rev. Elias Hale입니다.",
+            "en": "A pleasure to meet you. Rev. Elias Hale."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "composed",
+          "effect": "character_enter:chen_weiss:slide_right",
+          "text": {
+            "ko": "Chen Weiss. MCC 남반구 총독.",
+            "en": "Chen Weiss. MCC Southern Hemisphere Governor."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "guarded",
+          "effect": "character_enter:cinder_grace:fade_in",
+          "text": {
+            "ko": "Cinder Grace. CV 대표.",
+            "en": "Cinder Grace. CV representative."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "measured",
+          "text": {
+            "ko": "목사입니다. 대표가 아니에요.",
+            "en": "A minister. Not a representative."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "curious",
+          "text": {
+            "ko": "그럼 여기 왜 온 거요.",
+            "en": "Then why are you here."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "증인으로요.",
+            "en": "As a witness."
+          }
+        }
       ]
     },
     {
@@ -90,12 +265,42 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 옆에 있었다. 플레이어가 있었다. Amara가 있었다.", "en": "Lena was beside him. The player was there. Amara was there." }},
-        { "text": { "ko": "FSP 대표단. 다섯 명.", "en": "FSP delegation. Five people." }},
-        { "text": { "ko": "그 밖에도 사람들이 있었다. 경호원들. 보좌관들.", "en": "There were others too. Bodyguards. Aides." }},
-        { "text": { "ko": "기지 안에 열다섯 명이 있었다.", "en": "Fifteen people inside the station." }},
-        { "text": { "ko": "Rev. Hale은 그들을 한 명씩 보았다.", "en": "Rev. Hale looked at them one by one." }},
-        { "text": { "ko": "이름을 알고 싶었다. 그것이 그의 버릇이었다.", "en": "He wanted to know their names. That was his habit." }}
+        {
+          "text": {
+            "ko": "Lena가 옆에 있었다. 플레이어가 있었다. Amara가 있었다.",
+            "en": "Lena was beside him. The player was there. Amara was there."
+          }
+        },
+        {
+          "text": {
+            "ko": "FSP 대표단. 다섯 명.",
+            "en": "FSP delegation. Five people."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 밖에도 사람들이 있었다. 경호원들. 보좌관들.",
+            "en": "There were others too. Bodyguards. Aides."
+          }
+        },
+        {
+          "text": {
+            "ko": "기지 안에 열다섯 명이 있었다.",
+            "en": "Fifteen people inside the station."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale은 그들을 한 명씩 보았다.",
+            "en": "Rev. Hale looked at them one by one."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름을 알고 싶었다. 그것이 그의 버릇이었다.",
+            "en": "He wanted to know their names. That was his habit."
+          }
+        }
       ]
     },
     {
@@ -105,12 +310,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "협상 시작하죠. 시간 없어요.", "en": "Let's start negotiating. No time." }},
-        { "speaker": "chen_weiss", "emotion": "controlled", "text": { "ko": "MCC의 입장은 명확합니다. 화성 통일 행정부. 세 파벌이 통합되는 것.", "en": "MCC's position is clear. Unified Mars administration. All three factions integrated." }},
-        { "speaker": "cinder_grace", "emotion": "sharp", "text": { "ko": "통합은 흡수를 뜻하죠. CV는 흡수 안 됩니다.", "en": "Integration means absorption. CV won't be absorbed." }},
-        { "speaker": "chen_weiss", "emotion": "patient", "text": { "ko": "통합은 협력입니다. 용어를 명확히 해야겠군요.", "en": "Integration is cooperation. We should clarify the terminology." }},
-        { "speaker": "rev_hale", "emotion": "measured", "text": { "ko": "시작하기 전에요.", "en": "Before we begin." }},
-        { "speaker": "rev_hale", "emotion": "serious", "text": { "ko": "이름들이 있어요. 말해야 해요.", "en": "There are names. We must say them." }}
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "협상 시작하죠. 시간 없어요.",
+            "en": "Let's start negotiating. No time."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "controlled",
+          "text": {
+            "ko": "MCC의 입장은 명확합니다. 화성 통일 행정부. 세 파벌이 통합되는 것.",
+            "en": "MCC's position is clear. Unified Mars administration. All three factions integrated."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "sharp",
+          "text": {
+            "ko": "통합은 흡수를 뜻하죠. CV는 흡수 안 됩니다.",
+            "en": "Integration means absorption. CV won't be absorbed."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "patient",
+          "text": {
+            "ko": "통합은 협력입니다. 용어를 명확히 해야겠군요.",
+            "en": "Integration is cooperation. We should clarify the terminology."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "measured",
+          "text": {
+            "ko": "시작하기 전에요.",
+            "en": "Before we begin."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "serious",
+          "text": {
+            "ko": "이름들이 있어요. 말해야 해요.",
+            "en": "There are names. We must say them."
+          }
+        }
       ]
     },
     {
@@ -120,12 +367,42 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "방이 조용해졌다.", "en": "The room went quiet." }},
-        { "text": { "ko": "Chen Weiss가 Rev. Hale을 보았다.", "en": "Chen Weiss looked at Rev. Hale." }},
-        { "text": { "ko": "Cinder Grace가 공구 벨트에 손을 올렸다. 잡지 않았다. 얹었다.", "en": "Cinder Grace placed her hand on the tool belt. Didn't grip it. Just placed it." }},
-        { "text": { "ko": "Lena가 팔짱을 풀었다.", "en": "Lena uncrossed her arms." }},
-        { "text": { "ko": "Rev. Hale은 종이를 꺼냈다. 접힌 것.", "en": "Rev. Hale took out paper. Folded." }},
-        { "text": { "ko": "오래된 종이였다. 여러 번 접혀서 손때가 탔다.", "en": "Old paper. Folded many times. Worn with handling." }}
+        {
+          "text": {
+            "ko": "방이 조용해졌다.",
+            "en": "The room went quiet."
+          }
+        },
+        {
+          "text": {
+            "ko": "Chen Weiss가 Rev. Hale을 보았다.",
+            "en": "Chen Weiss looked at Rev. Hale."
+          }
+        },
+        {
+          "text": {
+            "ko": "Cinder Grace가 공구 벨트에 손을 올렸다. 잡지 않았다. 얹었다.",
+            "en": "Cinder Grace placed her hand on the tool belt. Didn't grip it. Just placed it."
+          }
+        },
+        {
+          "text": {
+            "ko": "Lena가 팔짱을 풀었다.",
+            "en": "Lena uncrossed her arms."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale은 종이를 꺼냈다. 접힌 것.",
+            "en": "Rev. Hale took out paper. Folded."
+          }
+        },
+        {
+          "text": {
+            "ko": "오래된 종이였다. 여러 번 접혀서 손때가 탔다.",
+            "en": "Old paper. Folded many times. Worn with handling."
+          }
+        }
       ]
     },
     {
@@ -135,12 +412,55 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "Kim Yong-jin.", "en": "Kim Yong-jin." }},
-        { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "Mariam Adeyemi.", "en": "Mariam Adeyemi." }},
-        { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "Sector 7의 셋. 이름이 없어요. 등록되지 않았어요.", "en": "The three of Sector 7. No names. Unregistered." }},
-        { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "Zone C의 스물. 이름이 없어요.", "en": "The twenty of Zone C. No names." }},
-        { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "헬라스 분지 광부들. 내가 아는 것만 사십이 명. 내가 모르는 것도 있어요.", "en": "Hellas Basin miners. Forty-two that I know of. There are more I don't know." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "이 이름들이 먼저예요.", "en": "These names come first." }, "overlay": "death_still" }
+        {
+          "speaker": "rev_hale",
+          "emotion": "solemn",
+          "text": {
+            "ko": "Kim Yong-jin.",
+            "en": "Kim Yong-jin."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "solemn",
+          "text": {
+            "ko": "Mariam Adeyemi.",
+            "en": "Mariam Adeyemi."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "solemn",
+          "text": {
+            "ko": "Sector 7의 셋. 이름이 없어요. 등록되지 않았어요.",
+            "en": "The three of Sector 7. No names. Unregistered."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "solemn",
+          "text": {
+            "ko": "Zone C의 스물. 이름이 없어요.",
+            "en": "The twenty of Zone C. No names."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "solemn",
+          "text": {
+            "ko": "헬라스 분지 광부들. 내가 아는 것만 사십이 명. 내가 모르는 것도 있어요.",
+            "en": "Hellas Basin miners. Forty-two that I know of. There are more I don't know."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이 이름들이 먼저예요.",
+            "en": "These names come first."
+          },
+          "background": "fsp_ch9_last_harvest_l08_05_death_still"
+        }
       ]
     },
     {
@@ -150,10 +470,30 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Chen Weiss가 차를 내려놓았다. 처음이었다.", "en": "Chen Weiss set down her tea. First time." }},
-        { "text": { "ko": "마시지 않았지만 내려놓은 것이었다.", "en": "She hadn't drunk it. But she had set it down." }},
-        { "text": { "ko": "그것이 무언가를 뜻했다.", "en": "That meant something." }},
-        { "text": { "ko": "Cinder Grace가 말했다.", "en": "Cinder Grace spoke." }}
+        {
+          "text": {
+            "ko": "Chen Weiss가 차를 내려놓았다. 처음이었다.",
+            "en": "Chen Weiss set down her tea. First time."
+          }
+        },
+        {
+          "text": {
+            "ko": "마시지 않았지만 내려놓은 것이었다.",
+            "en": "She hadn't drunk it. But she had set it down."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것이 무언가를 뜻했다.",
+            "en": "That meant something."
+          }
+        },
+        {
+          "text": {
+            "ko": "Cinder Grace가 말했다.",
+            "en": "Cinder Grace spoke."
+          }
+        }
       ]
     },
     {
@@ -163,12 +503,55 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "low", "text": { "ko": "Zone 12도 있어요.", "en": "There's Zone 12 too." }, "overlay": "zone12_record" },
-        { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "MCC가 봉쇄한 거. 우리가 거기서 사람을 잃었어요.", "en": "The one MCC sealed off. We lost people there." }},
-        { "speaker": "chen_weiss", "emotion": "tense", "text": { "ko": "Zone 12는 안전 문제로 봉쇄된 겁니다.", "en": "Zone 12 was sealed for safety reasons." }},
-        { "speaker": "cinder_grace", "emotion": "sharp", "text": { "ko": "이름을 아세요? 거기서 죽은 사람들.", "en": "Do you know the names. The ones who died there." }},
-        { "speaker": "chen_weiss", "emotion": "silent", "text": { "ko": "...", "en": "..." }},
-        { "speaker": "rev_hale", "emotion": "measured", "text": { "ko": "그 대답이 이미 대답이에요.", "en": "That answer is already an answer." }}
+        {
+          "speaker": "cinder_grace",
+          "emotion": "low",
+          "text": {
+            "ko": "Zone 12도 있어요.",
+            "en": "There's Zone 12 too."
+          },
+          "background": "fsp_ch9_last_harvest_l10_00_zone12_record"
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "quiet",
+          "text": {
+            "ko": "MCC가 봉쇄한 거. 우리가 거기서 사람을 잃었어요.",
+            "en": "The one MCC sealed off. We lost people there."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "tense",
+          "text": {
+            "ko": "Zone 12는 안전 문제로 봉쇄된 겁니다.",
+            "en": "Zone 12 was sealed for safety reasons."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "sharp",
+          "text": {
+            "ko": "이름을 아세요? 거기서 죽은 사람들.",
+            "en": "Do you know the names. The ones who died there."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "silent",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "measured",
+          "text": {
+            "ko": "그 대답이 이미 대답이에요.",
+            "en": "That answer is already an answer."
+          }
+        }
       ]
     },
     {
@@ -178,10 +561,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "밖에서 소리가 들렸다.", "en": "A sound from outside." }},
-        { "text": { "ko": "바람이 아니었다. 올림포스 정상은 바람이 없었다. 대기가 너무 얇아서.", "en": "Not wind. The summit of Olympus had no wind. Too thin an atmosphere." }},
-        { "text": { "ko": "발소리였다.", "en": "Footsteps." }},
-        { "text": { "ko": "경호원 하나가 달려 들어왔다.", "en": "One bodyguard ran in." }}
+        {
+          "text": {
+            "ko": "밖에서 소리가 들렸다.",
+            "en": "A sound from outside."
+          }
+        },
+        {
+          "text": {
+            "ko": "바람이 아니었다. 올림포스 정상은 바람이 없었다. 대기가 너무 얇아서.",
+            "en": "Not wind. The summit of Olympus had no wind. Too thin an atmosphere."
+          }
+        },
+        {
+          "text": {
+            "ko": "발소리였다.",
+            "en": "Footsteps."
+          }
+        },
+        {
+          "text": {
+            "ko": "경호원 하나가 달려 들어왔다.",
+            "en": "One bodyguard ran in."
+          }
+        }
       ]
     },
     {
@@ -191,12 +594,55 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "mcc_guard", "emotion": "urgent", "effect": "character_enter:guard:slide_right", "text": { "ko": "Pilgrim Arms. 외부 접근 감지됐습니다.", "en": "Pilgrim Arms. External approach detected." }},
-        { "speaker": "mcc_guard", "emotion": "alert", "text": { "ko": "네 명. 서쪽 사면. 무장 상태.", "en": "Four of them. Western slope. Armed." }},
-        { "speaker": "lena", "emotion": "sharp", "text": { "ko": "어디서 왔어요.", "en": "Where did they come from." }},
-        { "speaker": "mcc_guard", "emotion": "tense", "text": { "ko": "모르겠습니다. 추적 기록이 없어요.", "en": "Unknown. No tracking record." }},
-        { "speaker": "cinder_grace", "emotion": "grim", "text": { "ko": "올라온 게 아니야. 처음부터 여기 있었던 거야.", "en": "They didn't climb up. They were already here." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "우리 중 누가 데려온 거예요.", "en": "One of us brought them." }}
+        {
+          "speaker": "mcc_guard",
+          "emotion": "urgent",
+          "effect": "character_enter:guard:slide_right",
+          "text": {
+            "ko": "Pilgrim Arms. 외부 접근 감지됐습니다.",
+            "en": "Pilgrim Arms. External approach detected."
+          }
+        },
+        {
+          "speaker": "mcc_guard",
+          "emotion": "alert",
+          "text": {
+            "ko": "네 명. 서쪽 사면. 무장 상태.",
+            "en": "Four of them. Western slope. Armed."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "sharp",
+          "text": {
+            "ko": "어디서 왔어요.",
+            "en": "Where did they come from."
+          }
+        },
+        {
+          "speaker": "mcc_guard",
+          "emotion": "tense",
+          "text": {
+            "ko": "모르겠습니다. 추적 기록이 없어요.",
+            "en": "Unknown. No tracking record."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "grim",
+          "text": {
+            "ko": "올라온 게 아니야. 처음부터 여기 있었던 거야.",
+            "en": "They didn't climb up. They were already here."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "우리 중 누가 데려온 거예요.",
+            "en": "One of us brought them."
+          }
+        }
       ]
     },
     {
@@ -206,12 +652,42 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "방이 얼었다.", "en": "The room froze." }},
-        { "text": { "ko": "Chen Weiss와 Cinder Grace가 서로를 봤다.", "en": "Chen Weiss and Cinder Grace looked at each other." }},
-        { "text": { "ko": "Lena가 플레이어를 봤다.", "en": "Lena looked at the player." }},
-        { "text": { "ko": "Amara가 문 쪽에 섰다.", "en": "Amara moved to stand by the door." }},
-        { "text": { "ko": "Rev. Hale은 종이를 접었다. 조용히.", "en": "Rev. Hale folded the paper. Quietly." }},
-        { "text": { "ko": "기도가 필요한 순간이 있었다. 이런 순간이었다.", "en": "There were moments that required prayer. This was one." }}
+        {
+          "text": {
+            "ko": "방이 얼었다.",
+            "en": "The room froze."
+          }
+        },
+        {
+          "text": {
+            "ko": "Chen Weiss와 Cinder Grace가 서로를 봤다.",
+            "en": "Chen Weiss and Cinder Grace looked at each other."
+          }
+        },
+        {
+          "text": {
+            "ko": "Lena가 플레이어를 봤다.",
+            "en": "Lena looked at the player."
+          }
+        },
+        {
+          "text": {
+            "ko": "Amara가 문 쪽에 섰다.",
+            "en": "Amara moved to stand by the door."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale은 종이를 접었다. 조용히.",
+            "en": "Rev. Hale folded the paper. Quietly."
+          }
+        },
+        {
+          "text": {
+            "ko": "기도가 필요한 순간이 있었다. 이런 순간이었다.",
+            "en": "There were moments that required prayer. This was one."
+          }
+        }
       ]
     },
     {
@@ -221,12 +697,54 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "sharp", "text": { "ko": "Pilgrim Arms는 누구의 고용이에요.", "en": "Who does Pilgrim Arms work for." }},
-        { "speaker": "cinder_grace", "emotion": "hard", "text": { "ko": "화성 최고의 암살 조직. 누구든 살 수 있어요.", "en": "The best assassination outfit on Mars. Anyone can hire them." }},
-        { "speaker": "chen_weiss", "emotion": "controlled", "text": { "ko": "MCC가 고용한 거 아닙니다. 명확히 해두겠습니다.", "en": "MCC did not hire them. I want to be clear on that." }},
-        { "speaker": "lena", "emotion": "cold", "text": { "ko": "그 말이 신뢰가 되려면 당신이 먼저 나가서 그들을 막아야 해요.", "en": "For that to be credible you'd need to go out first and stop them." }},
-        { "speaker": "chen_weiss", "emotion": "sharp", "text": { "ko": "...", "en": "..." }},
-        { "speaker": "rev_hale", "emotion": "calm", "text": { "ko": "지금 책임 문제보다 더 급한 게 있어요. 여기 있는 사람들.", "en": "There's something more urgent than accountability right now. The people here." }}
+        {
+          "speaker": "amara",
+          "emotion": "sharp",
+          "text": {
+            "ko": "Pilgrim Arms는 누구의 고용이에요.",
+            "en": "Who does Pilgrim Arms work for."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "hard",
+          "text": {
+            "ko": "화성 최고의 암살 조직. 누구든 살 수 있어요.",
+            "en": "The best assassination outfit on Mars. Anyone can hire them."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "controlled",
+          "text": {
+            "ko": "MCC가 고용한 거 아닙니다. 명확히 해두겠습니다.",
+            "en": "MCC did not hire them. I want to be clear on that."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "cold",
+          "text": {
+            "ko": "그 말이 신뢰가 되려면 당신이 먼저 나가서 그들을 막아야 해요.",
+            "en": "For that to be credible you'd need to go out first and stop them."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "sharp",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "calm",
+          "text": {
+            "ko": "지금 책임 문제보다 더 급한 게 있어요. 여기 있는 사람들.",
+            "en": "There's something more urgent than accountability right now. The people here."
+          }
+        }
       ]
     },
     {
@@ -236,12 +754,42 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Pilgrim Arms는 표적이 있었다.", "en": "Pilgrim Arms had a target." }},
-        { "text": { "ko": "하나가 아니었다.", "en": "Not just one." }},
-        { "text": { "ko": "정상 기지에 있는 다섯 명. 회담의 핵심 인물들.", "en": "Five people in the summit station. The key figures of the summit." }},
-        { "text": { "ko": "Rev. Hale. Chen Weiss. Cinder Grace. Lena. 플레이어.", "en": "Rev. Hale. Chen Weiss. Cinder Grace. Lena. The player." }},
-        { "text": { "ko": "보호할 경호원은 셋이었다. 네 명의 암살자였다.", "en": "Three guards to protect them. Four assassins." }},
-        { "text": { "ko": "누군가는 희생될 수 있었다. 그것이 계산이었다.", "en": "Someone could be sacrificed. That was the calculation." }}
+        {
+          "text": {
+            "ko": "Pilgrim Arms는 표적이 있었다.",
+            "en": "Pilgrim Arms had a target."
+          }
+        },
+        {
+          "text": {
+            "ko": "하나가 아니었다.",
+            "en": "Not just one."
+          }
+        },
+        {
+          "text": {
+            "ko": "정상 기지에 있는 다섯 명. 회담의 핵심 인물들.",
+            "en": "Five people in the summit station. The key figures of the summit."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale. Chen Weiss. Cinder Grace. Lena. 플레이어.",
+            "en": "Rev. Hale. Chen Weiss. Cinder Grace. Lena. The player."
+          }
+        },
+        {
+          "text": {
+            "ko": "보호할 경호원은 셋이었다. 네 명의 암살자였다.",
+            "en": "Three guards to protect them. Four assassins."
+          }
+        },
+        {
+          "text": {
+            "ko": "누군가는 희생될 수 있었다. 그것이 계산이었다.",
+            "en": "Someone could be sacrificed. That was the calculation."
+          }
+        }
       ]
     },
     {
@@ -251,12 +799,54 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "sharp", "text": { "ko": "빠른 결정이 필요해요. 누가 안에 남고 누가 밖에 나가요.", "en": "Quick decisions needed. Who stays inside and who goes out." }},
-        { "speaker": "cinder_grace", "emotion": "grim", "text": { "ko": "나는 밖에서 싸워요. 내 사람들이 왔어요.", "en": "I fight outside. My people are there." }},
-        { "speaker": "chen_weiss", "emotion": "tense", "text": { "ko": "당신 사람들이 온 거라면 당신이 표적이 아니라는 거죠.", "en": "If your people came then you're not the target." }},
-        { "speaker": "cinder_grace", "emotion": "dark", "text": { "ko": "내 사람들이 아니에요. 나도 표적일 수 있어요.", "en": "They're not my people. I could be a target too." }},
-        { "speaker": "amara", "emotion": "calm", "text": { "ko": "싸울 수 있는 사람. 지금 나오세요.", "en": "Those who can fight. Come now." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "나는 싸울 수 없어요. 그러나 이동할 수 있어요.", "en": "I cannot fight. But I can move." }}
+        {
+          "speaker": "lena",
+          "emotion": "sharp",
+          "text": {
+            "ko": "빠른 결정이 필요해요. 누가 안에 남고 누가 밖에 나가요.",
+            "en": "Quick decisions needed. Who stays inside and who goes out."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "grim",
+          "text": {
+            "ko": "나는 밖에서 싸워요. 내 사람들이 왔어요.",
+            "en": "I fight outside. My people are there."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "tense",
+          "text": {
+            "ko": "당신 사람들이 온 거라면 당신이 표적이 아니라는 거죠.",
+            "en": "If your people came then you're not the target."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "dark",
+          "text": {
+            "ko": "내 사람들이 아니에요. 나도 표적일 수 있어요.",
+            "en": "They're not my people. I could be a target too."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "calm",
+          "text": {
+            "ko": "싸울 수 있는 사람. 지금 나오세요.",
+            "en": "Those who can fight. Come now."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "나는 싸울 수 없어요. 그러나 이동할 수 있어요.",
+            "en": "I cannot fight. But I can move."
+          }
+        }
       ]
     },
     {
@@ -266,12 +856,42 @@
       "bgm": "battle_build",
       "transition": "flash_white",
       "lines": [
-        { "text": { "ko": "기지 밖. 올림포스 정상의 암석 지대.", "en": "Outside the station. The rocky terrain of Olympus summit." }},
-        { "text": { "ko": "공기가 없다시피 했다. 마스크 없이는 삼십 초였다.", "en": "Almost no air. Thirty seconds without a mask." }},
-        { "text": { "ko": "Pilgrim Arms 암살자 넷이 서쪽에서 왔다.", "en": "Four Pilgrim Arms assassins came from the west." }},
-        { "text": { "ko": "장비가 완벽했다. 저중력 전투 훈련을 받은 자들이었다.", "en": "Their equipment was perfect. Trained for low-gravity combat." }},
-        { "text": { "ko": "그러나 올림포스를 먼저 오른 것은 Amara와 플레이어였다.", "en": "But Amara and the player had ascended Olympus first." }},
-        { "text": { "ko": "지형을 알았다.", "en": "They knew the terrain." }}
+        {
+          "text": {
+            "ko": "기지 밖. 올림포스 정상의 암석 지대.",
+            "en": "Outside the station. The rocky terrain of Olympus summit."
+          }
+        },
+        {
+          "text": {
+            "ko": "공기가 없다시피 했다. 마스크 없이는 삼십 초였다.",
+            "en": "Almost no air. Thirty seconds without a mask."
+          }
+        },
+        {
+          "text": {
+            "ko": "Pilgrim Arms 암살자 넷이 서쪽에서 왔다.",
+            "en": "Four Pilgrim Arms assassins came from the west."
+          }
+        },
+        {
+          "text": {
+            "ko": "장비가 완벽했다. 저중력 전투 훈련을 받은 자들이었다.",
+            "en": "Their equipment was perfect. Trained for low-gravity combat."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 올림포스를 먼저 오른 것은 Amara와 플레이어였다.",
+            "en": "But Amara and the player had ascended Olympus first."
+          }
+        },
+        {
+          "text": {
+            "ko": "지형을 알았다.",
+            "en": "They knew the terrain."
+          }
+        }
       ]
     },
     {
@@ -281,10 +901,38 @@
       "bgm": "battle_build",
       "transition": "cut",
       "lines": [
-        { "speaker": "pilgrim_assassin", "emotion": "cold", "text": { "ko": "계약은 다섯. 지금 셋이 나왔어. 좋아.", "en": "Contract is five. Three came out. Good." }},
-        { "speaker": "amara", "emotion": "alert", "text": { "ko": "남은 하나가 어디 있는지 알고 있어요.", "en": "I know where the remaining one is." }},
-        { "speaker": "pilgrim_assassin", "emotion": "amused", "text": { "ko": "FSP 아가씨. 총은 있어요?", "en": "FSP girl. Do you have a gun?" }},
-        { "speaker": "amara", "emotion": "steady", "text": { "ko": "없어요. 그래도 충분해요.", "en": "No. Still enough." }}
+        {
+          "speaker": "pilgrim_assassin",
+          "emotion": "cold",
+          "text": {
+            "ko": "계약은 다섯. 지금 셋이 나왔어. 좋아.",
+            "en": "Contract is five. Three came out. Good."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "alert",
+          "text": {
+            "ko": "남은 하나가 어디 있는지 알고 있어요.",
+            "en": "I know where the remaining one is."
+          }
+        },
+        {
+          "speaker": "pilgrim_assassin",
+          "emotion": "amused",
+          "text": {
+            "ko": "FSP 아가씨. 총은 있어요?",
+            "en": "FSP girl. Do you have a gun?"
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "steady",
+          "text": {
+            "ko": "없어요. 그래도 충분해요.",
+            "en": "No. Still enough."
+          }
+        }
       ]
     },
     {
@@ -294,12 +942,42 @@
       "bgm": "battle_intense",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "올림포스 정상의 전투는 소리가 없었다.", "en": "The battle at Olympus summit had no sound." }},
-        { "text": { "ko": "대기가 너무 얇아서 총성이 전달되지 않았다.", "en": "The atmosphere too thin to carry gunshots." }},
-        { "text": { "ko": "무성의 전투였다. 그림자들이 움직이는 것 같았다.", "en": "A silent battle. It looked like shadows moving." }},
-        { "text": { "ko": "기지 안에서 Rev. Hale이 그것을 창문으로 보았다.", "en": "Inside the station Rev. Hale watched it through the window." }},
-        { "text": { "ko": "기도했다. 이름 없이 기도했다. 이름을 모르는 암살자들도 있었다.", "en": "He prayed. Without names. There were assassins whose names he didn't know." }},
-        { "text": { "ko": "그들도 누군가의 이름이었다.", "en": "They too were someone's names." }}
+        {
+          "text": {
+            "ko": "올림포스 정상의 전투는 소리가 없었다.",
+            "en": "The battle at Olympus summit had no sound."
+          }
+        },
+        {
+          "text": {
+            "ko": "대기가 너무 얇아서 총성이 전달되지 않았다.",
+            "en": "The atmosphere too thin to carry gunshots."
+          }
+        },
+        {
+          "text": {
+            "ko": "무성의 전투였다. 그림자들이 움직이는 것 같았다.",
+            "en": "A silent battle. It looked like shadows moving."
+          }
+        },
+        {
+          "text": {
+            "ko": "기지 안에서 Rev. Hale이 그것을 창문으로 보았다.",
+            "en": "Inside the station Rev. Hale watched it through the window."
+          }
+        },
+        {
+          "text": {
+            "ko": "기도했다. 이름 없이 기도했다. 이름을 모르는 암살자들도 있었다.",
+            "en": "He prayed. Without names. There were assassins whose names he didn't know."
+          }
+        },
+        {
+          "text": {
+            "ko": "그들도 누군가의 이름이었다.",
+            "en": "They too were someone's names."
+          }
+        }
       ]
     },
     {
@@ -309,12 +987,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen_weiss", "emotion": "calculating", "text": { "ko": "이 회담 자체가 표적이에요. 누군가 이 회담을 원하지 않는 거야.", "en": "This summit itself is the target. Someone doesn't want this summit." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "세 파벌 외부에요. 네 번째가 있어요.", "en": "Outside the three factions. There is a fourth." }},
-        { "speaker": "chen_weiss", "emotion": "tense", "text": { "ko": "그게 누구죠.", "en": "Who is that." }},
-        { "speaker": "rev_hale", "emotion": "measured", "text": { "ko": "화성이 통합되면 이득을 잃는 자들이에요. 중간에서 이득을 보는 자들.", "en": "Those who lose when Mars unites. Those who profit from the middle." }},
-        { "speaker": "chen_weiss", "emotion": "grim", "text": { "ko": "지구 측 자본. 화성 분열이 그들에게 이익이야.", "en": "Earth-side capital. Martian division benefits them." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "이름을 알고 싶어요. 언제나 그래요.", "en": "I want to know the names. As always." }}
+        {
+          "speaker": "chen_weiss",
+          "emotion": "calculating",
+          "text": {
+            "ko": "이 회담 자체가 표적이에요. 누군가 이 회담을 원하지 않는 거야.",
+            "en": "This summit itself is the target. Someone doesn't want this summit."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "세 파벌 외부에요. 네 번째가 있어요.",
+            "en": "Outside the three factions. There is a fourth."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "tense",
+          "text": {
+            "ko": "그게 누구죠.",
+            "en": "Who is that."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "measured",
+          "text": {
+            "ko": "화성이 통합되면 이득을 잃는 자들이에요. 중간에서 이득을 보는 자들.",
+            "en": "Those who lose when Mars unites. Those who profit from the middle."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "grim",
+          "text": {
+            "ko": "지구 측 자본. 화성 분열이 그들에게 이익이야.",
+            "en": "Earth-side capital. Martian division benefits them."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이름을 알고 싶어요. 언제나 그래요.",
+            "en": "I want to know the names. As always."
+          }
+        }
       ]
     },
     {
@@ -324,12 +1044,42 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "창문 밖에서 소리가 났다.", "en": "Sound from outside the window." }},
-        { "text": { "ko": "무성의 전투가 아니었다. 무언가가 부서지는 소리였다.", "en": "Not the silent battle. The sound of something breaking." }},
-        { "text": { "ko": "Rev. Hale이 창문으로 보았다.", "en": "Rev. Hale looked through the window." }},
-        { "text": { "ko": "Amara가 쓰러져 있었다.", "en": "Amara was down." }},
-        { "text": { "ko": "일어서고 있었다. 다치지 않았다.", "en": "Getting up. Not injured." }},
-        { "text": { "ko": "암살자 둘이 쓰러져 있었다. 일어서지 않았다.", "en": "Two assassins were down. Not getting up." }}
+        {
+          "text": {
+            "ko": "창문 밖에서 소리가 났다.",
+            "en": "Sound from outside the window."
+          }
+        },
+        {
+          "text": {
+            "ko": "무성의 전투가 아니었다. 무언가가 부서지는 소리였다.",
+            "en": "Not the silent battle. The sound of something breaking."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 창문으로 보았다.",
+            "en": "Rev. Hale looked through the window."
+          }
+        },
+        {
+          "text": {
+            "ko": "Amara가 쓰러져 있었다.",
+            "en": "Amara was down."
+          }
+        },
+        {
+          "text": {
+            "ko": "일어서고 있었다. 다치지 않았다.",
+            "en": "Getting up. Not injured."
+          }
+        },
+        {
+          "text": {
+            "ko": "암살자 둘이 쓰러져 있었다. 일어서지 않았다.",
+            "en": "Two assassins were down. Not getting up."
+          }
+        }
       ]
     },
     {
@@ -339,11 +1089,46 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen_weiss", "emotion": "watching", "text": { "ko": "당신 FSP 사람들 강하군요.", "en": "Your FSP people are strong." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "광부들이에요. 화성에서 태어난 사람들.", "en": "Miners. People born on Mars." }},
-        { "speaker": "chen_weiss", "emotion": "thoughtful", "text": { "ko": "화성에서 태어난 사람들.", "en": "People born on Mars." }},
-        { "speaker": "rev_hale", "emotion": "measured", "text": { "ko": "이 행성의 첫 세대예요. Yuna 같은 사람들. 당신들이 키운 세대에요.", "en": "The first generation of this planet. People like Yuna. The generation you raised." }},
-        { "speaker": "chen_weiss", "emotion": "silent", "text": { "ko": "...", "en": "..." }}
+        {
+          "speaker": "chen_weiss",
+          "emotion": "watching",
+          "text": {
+            "ko": "당신 FSP 사람들 강하군요.",
+            "en": "Your FSP people are strong."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "광부들이에요. 화성에서 태어난 사람들.",
+            "en": "Miners. People born on Mars."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "화성에서 태어난 사람들.",
+            "en": "People born on Mars."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "measured",
+          "text": {
+            "ko": "이 행성의 첫 세대예요. Yuna 같은 사람들. 당신들이 키운 세대에요.",
+            "en": "The first generation of this planet. People like Yuna. The generation you raised."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "silent",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        }
       ]
     },
     {
@@ -353,12 +1138,42 @@
       "bgm": "battle_fade",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "전투가 끝났다.", "en": "The battle ended." }},
-        { "text": { "ko": "암살자 넷 중 셋이 제압됐다. 하나가 도망쳤다.", "en": "Three of four assassins subdued. One escaped." }},
-        { "text": { "ko": "플레이어와 Cinder Grace가 기지로 돌아왔다.", "en": "The player and Cinder Grace returned to the station." }},
-        { "text": { "ko": "Amara의 왼쪽 팔에 상처가 있었다. 깊지 않았다.", "en": "Amara had a wound on her left arm. Not deep." }},
-        { "text": { "ko": "Lena가 그것을 보고 아무 말 하지 않았다.", "en": "Lena saw it and said nothing." }},
-        { "text": { "ko": "그것이 Lena의 방식이었다. 상처를 보면 침묵.", "en": "That was Lena's way. Silence when she saw a wound." }}
+        {
+          "text": {
+            "ko": "전투가 끝났다.",
+            "en": "The battle ended."
+          }
+        },
+        {
+          "text": {
+            "ko": "암살자 넷 중 셋이 제압됐다. 하나가 도망쳤다.",
+            "en": "Three of four assassins subdued. One escaped."
+          }
+        },
+        {
+          "text": {
+            "ko": "플레이어와 Cinder Grace가 기지로 돌아왔다.",
+            "en": "The player and Cinder Grace returned to the station."
+          }
+        },
+        {
+          "text": {
+            "ko": "Amara의 왼쪽 팔에 상처가 있었다. 깊지 않았다.",
+            "en": "Amara had a wound on her left arm. Not deep."
+          }
+        },
+        {
+          "text": {
+            "ko": "Lena가 그것을 보고 아무 말 하지 않았다.",
+            "en": "Lena saw it and said nothing."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것이 Lena의 방식이었다. 상처를 보면 침묵.",
+            "en": "That was Lena's way. Silence when she saw a wound."
+          }
+        }
       ]
     },
     {
@@ -368,12 +1183,54 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "grim", "text": { "ko": "제압된 놈들 심문하면 의뢰인 나올 수도 있어요.", "en": "Interrogate the subdued ones and the client might come out." }},
-        { "speaker": "chen_weiss", "emotion": "controlled", "text": { "ko": "Pilgrim Arms는 의뢰인을 말하지 않아요. 그것이 그들의 원칙이에요.", "en": "Pilgrim Arms don't name clients. That is their principle." }},
-        { "speaker": "cinder_grace", "emotion": "dry", "text": { "ko": "원칙에도 예외가 있죠.", "en": "Principles have exceptions." }},
-        { "speaker": "lena", "emotion": "firm", "text": { "ko": "지금 그 문제 아니에요. 회담 계속해요.", "en": "That's not the issue now. Continue the summit." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "Amara를 먼저요.", "en": "Amara first." }},
-        { "speaker": "amara", "emotion": "dismissive", "text": { "ko": "괜찮아요. 앉을 수 있어요.", "en": "I'm fine. I can sit." }}
+        {
+          "speaker": "cinder_grace",
+          "emotion": "grim",
+          "text": {
+            "ko": "제압된 놈들 심문하면 의뢰인 나올 수도 있어요.",
+            "en": "Interrogate the subdued ones and the client might come out."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "controlled",
+          "text": {
+            "ko": "Pilgrim Arms는 의뢰인을 말하지 않아요. 그것이 그들의 원칙이에요.",
+            "en": "Pilgrim Arms don't name clients. That is their principle."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "dry",
+          "text": {
+            "ko": "원칙에도 예외가 있죠.",
+            "en": "Principles have exceptions."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "firm",
+          "text": {
+            "ko": "지금 그 문제 아니에요. 회담 계속해요.",
+            "en": "That's not the issue now. Continue the summit."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Amara를 먼저요.",
+            "en": "Amara first."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "dismissive",
+          "text": {
+            "ko": "괜찮아요. 앉을 수 있어요.",
+            "en": "I'm fine. I can sit."
+          }
+        }
       ]
     },
     {
@@ -383,12 +1240,42 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "다섯 명이 다시 테이블에 앉았다.", "en": "Five people sat at the table again." }},
-        { "text": { "ko": "방금 전까지 암살자와 싸우고 있었던 사람들이었다.", "en": "They had just been fighting assassins." }},
-        { "text": { "ko": "그러나 테이블에 앉으면 협상자였다.", "en": "But at the table they were negotiators." }},
-        { "text": { "ko": "화성의 방식이었다. 살아있는 한 계속하는 것.", "en": "The Martian way. Continue as long as you're alive." }},
-        { "text": { "ko": "Rev. Hale이 종이를 다시 펼쳤다.", "en": "Rev. Hale unfolded the paper again." }},
-        { "text": { "ko": "이름들이 있었다.", "en": "There were names." }}
+        {
+          "text": {
+            "ko": "다섯 명이 다시 테이블에 앉았다.",
+            "en": "Five people sat at the table again."
+          }
+        },
+        {
+          "text": {
+            "ko": "방금 전까지 암살자와 싸우고 있었던 사람들이었다.",
+            "en": "They had just been fighting assassins."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 테이블에 앉으면 협상자였다.",
+            "en": "But at the table they were negotiators."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성의 방식이었다. 살아있는 한 계속하는 것.",
+            "en": "The Martian way. Continue as long as you're alive."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 종이를 다시 펼쳤다.",
+            "en": "Rev. Hale unfolded the paper again."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름들이 있었다.",
+            "en": "There were names."
+          }
+        }
       ]
     },
     {
@@ -398,12 +1285,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "resolute", "text": { "ko": "FSP의 요구는 하나예요.", "en": "FSP's demand is one." }},
-        { "speaker": "rev_hale", "emotion": "serious", "text": { "ko": "광부의 이름이 기록되는 것. 사고가 공개되는 것.", "en": "That miners' names be recorded. That accidents be made public." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "제국이 필요 없어요. 영토가 필요 없어요.", "en": "No empire. No territory." }},
-        { "speaker": "rev_hale", "emotion": "steady", "text": { "ko": "이름이 있는 사람은 죽어도 존재해요.", "en": "A person with a name exists even after death." }},
-        { "speaker": "lena", "emotion": "firm", "text": { "ko": "그리고 노동 조건 개선. 의료 접근권. 수자원 공정 배분.", "en": "And improved labor conditions. Medical access. Fair water distribution." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "그것들은 이름이 기록되면 따라와요. 이름이 없으면 아무것도 없어요.", "en": "Those follow when names are recorded. Without names there is nothing." }}
+        {
+          "speaker": "rev_hale",
+          "emotion": "resolute",
+          "text": {
+            "ko": "FSP의 요구는 하나예요.",
+            "en": "FSP's demand is one."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "serious",
+          "text": {
+            "ko": "광부의 이름이 기록되는 것. 사고가 공개되는 것.",
+            "en": "That miners' names be recorded. That accidents be made public."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "제국이 필요 없어요. 영토가 필요 없어요.",
+            "en": "No empire. No territory."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "steady",
+          "text": {
+            "ko": "이름이 있는 사람은 죽어도 존재해요.",
+            "en": "A person with a name exists even after death."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "firm",
+          "text": {
+            "ko": "그리고 노동 조건 개선. 의료 접근권. 수자원 공정 배분.",
+            "en": "And improved labor conditions. Medical access. Fair water distribution."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그것들은 이름이 기록되면 따라와요. 이름이 없으면 아무것도 없어요.",
+            "en": "Those follow when names are recorded. Without names there is nothing."
+          }
+        }
       ]
     },
     {
@@ -413,12 +1342,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "chen_weiss", "emotion": "considering", "text": { "ko": "MCC의 입장은 통합이에요. 행정 효율. 자원 관리.", "en": "MCC's position is integration. Administrative efficiency. Resource management." }},
-        { "speaker": "chen_weiss", "emotion": "measured", "text": { "ko": "노동자 등록은... 고려할 수 있어요.", "en": "Worker registration is... something we can consider." }},
-        { "speaker": "cinder_grace", "emotion": "sharp", "text": { "ko": "고려? 그걸 고려라고 부르는 거요?", "en": "Consider. You call that consideration?" }},
-        { "speaker": "chen_weiss", "emotion": "firm", "text": { "ko": "화성 전체 행정 구조를 바꾸는 게 하루 이틀이 아닙니다.", "en": "Changing the entire Mars administrative structure is not a one or two day matter." }},
-        { "speaker": "cinder_grace", "emotion": "grim", "text": { "ko": "그 구조 때문에 사람들이 죽었어요. 그것도 고려해요?", "en": "People died because of that structure. Do you consider that too?" }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "이름들이 먼저예요. 시작은 거기서 해요.", "en": "Names first. Start there." }}
+        {
+          "speaker": "chen_weiss",
+          "emotion": "considering",
+          "text": {
+            "ko": "MCC의 입장은 통합이에요. 행정 효율. 자원 관리.",
+            "en": "MCC's position is integration. Administrative efficiency. Resource management."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "measured",
+          "text": {
+            "ko": "노동자 등록은... 고려할 수 있어요.",
+            "en": "Worker registration is... something we can consider."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "sharp",
+          "text": {
+            "ko": "고려? 그걸 고려라고 부르는 거요?",
+            "en": "Consider. You call that consideration?"
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "firm",
+          "text": {
+            "ko": "화성 전체 행정 구조를 바꾸는 게 하루 이틀이 아닙니다.",
+            "en": "Changing the entire Mars administrative structure is not a one or two day matter."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "grim",
+          "text": {
+            "ko": "그 구조 때문에 사람들이 죽었어요. 그것도 고려해요?",
+            "en": "People died because of that structure. Do you consider that too?"
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이름들이 먼저예요. 시작은 거기서 해요.",
+            "en": "Names first. Start there."
+          }
+        }
       ]
     },
     {
@@ -428,12 +1399,42 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Rev. Hale은 협상가가 아니었다.", "en": "Rev. Hale was not a negotiator." }},
-        { "text": { "ko": "그러나 그는 사람들이 어떻게 마음을 여는지 알았다.", "en": "But he knew how people opened their hearts." }},
-        { "text": { "ko": "장례식에서. 임종에서. 아이가 태어날 때.", "en": "At funerals. At deathbeds. When children were born." }},
-        { "text": { "ko": "공통점이 있었다. 이름.", "en": "There was a common thread. Names." }},
-        { "text": { "ko": "이름을 불러주면 사람들이 달라졌다.", "en": "When you called someone's name people changed." }},
-        { "text": { "ko": "Chen Weiss도 이름이 있었다. Cinder Grace도. 그것부터 시작해야 했다.", "en": "Chen Weiss had a name. Cinder Grace too. That was where to start." }}
+        {
+          "text": {
+            "ko": "Rev. Hale은 협상가가 아니었다.",
+            "en": "Rev. Hale was not a negotiator."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 그는 사람들이 어떻게 마음을 여는지 알았다.",
+            "en": "But he knew how people opened their hearts."
+          }
+        },
+        {
+          "text": {
+            "ko": "장례식에서. 임종에서. 아이가 태어날 때.",
+            "en": "At funerals. At deathbeds. When children were born."
+          }
+        },
+        {
+          "text": {
+            "ko": "공통점이 있었다. 이름.",
+            "en": "There was a common thread. Names."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름을 불러주면 사람들이 달라졌다.",
+            "en": "When you called someone's name people changed."
+          }
+        },
+        {
+          "text": {
+            "ko": "Chen Weiss도 이름이 있었다. Cinder Grace도. 그것부터 시작해야 했다.",
+            "en": "Chen Weiss had a name. Cinder Grace too. That was where to start."
+          }
+        }
       ]
     },
     {
@@ -443,12 +1444,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "gentle", "text": { "ko": "Chen Weiss. 당신이 처음 화성에 온 날이 언제예요.", "en": "Chen Weiss. When was the day you first came to Mars." }},
-        { "speaker": "chen_weiss", "emotion": "surprised", "text": { "ko": "그게 지금 무슨 상관이죠.", "en": "What does that have to do with anything." }},
-        { "speaker": "rev_hale", "emotion": "patient", "text": { "ko": "알고 싶어요. 사람은 처음을 기억해요.", "en": "I want to know. People remember their first time." }},
-        { "speaker": "chen_weiss", "emotion": "quiet", "text": { "ko": "... 열일곱 살이었어요. 아버지 따라서. 아버지는 엔지니어였어요.", "en": "... I was seventeen. Following my father. He was an engineer." }},
-        { "speaker": "rev_hale", "emotion": "gentle", "text": { "ko": "그때 화성이 어떻게 보였어요.", "en": "What did Mars look like then." }},
-        { "speaker": "chen_weiss", "emotion": "distant", "text": { "ko": "... 붉었어요. 그리고 비어 있었어요. 그때는.", "en": "... Red. And empty. Back then." }}
+        {
+          "speaker": "rev_hale",
+          "emotion": "gentle",
+          "text": {
+            "ko": "Chen Weiss. 당신이 처음 화성에 온 날이 언제예요.",
+            "en": "Chen Weiss. When was the day you first came to Mars."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "surprised",
+          "text": {
+            "ko": "그게 지금 무슨 상관이죠.",
+            "en": "What does that have to do with anything."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "patient",
+          "text": {
+            "ko": "알고 싶어요. 사람은 처음을 기억해요.",
+            "en": "I want to know. People remember their first time."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "quiet",
+          "text": {
+            "ko": "... 열일곱 살이었어요. 아버지 따라서. 아버지는 엔지니어였어요.",
+            "en": "... I was seventeen. Following my father. He was an engineer."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "gentle",
+          "text": {
+            "ko": "그때 화성이 어떻게 보였어요.",
+            "en": "What did Mars look like then."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "distant",
+          "text": {
+            "ko": "... 붉었어요. 그리고 비어 있었어요. 그때는.",
+            "en": "... Red. And empty. Back then."
+          }
+        }
       ]
     },
     {
@@ -458,12 +1501,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "patient", "text": { "ko": "Cinder Grace. 당신은.", "en": "Cinder Grace. And you." }},
-        { "speaker": "cinder_grace", "emotion": "guarded", "text": { "ko": "내 이야기는 안 해요.", "en": "I don't tell my story." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "Zone 12 말해줬잖아요. 그것도 이야기예요.", "en": "You told me about Zone 12. That too is a story." }},
-        { "speaker": "cinder_grace", "emotion": "tense", "text": { "ko": "...", "en": "..." }},
-        { "speaker": "cinder_grace", "emotion": "low", "text": { "ko": "나는 거기서 태어났어요. Zone 12에서. 그래서 아는 거예요.", "en": "I was born there. In Zone 12. That's why I know." }},
-        { "speaker": "rev_hale", "emotion": "soft", "text": { "ko": "그 이름도 기록돼야 해요. Cinder Grace. Zone 12 출신.", "en": "That name should be recorded too. Cinder Grace. From Zone 12." }}
+        {
+          "speaker": "rev_hale",
+          "emotion": "patient",
+          "text": {
+            "ko": "Cinder Grace. 당신은.",
+            "en": "Cinder Grace. And you."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "guarded",
+          "text": {
+            "ko": "내 이야기는 안 해요.",
+            "en": "I don't tell my story."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Zone 12 말해줬잖아요. 그것도 이야기예요.",
+            "en": "You told me about Zone 12. That too is a story."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "tense",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "low",
+          "text": {
+            "ko": "나는 거기서 태어났어요. Zone 12에서. 그래서 아는 거예요.",
+            "en": "I was born there. In Zone 12. That's why I know."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "soft",
+          "text": {
+            "ko": "그 이름도 기록돼야 해요. Cinder Grace. Zone 12 출신.",
+            "en": "That name should be recorded too. Cinder Grace. From Zone 12."
+          }
+        }
       ]
     },
     {
@@ -473,11 +1558,36 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder Grace가 Rev. Hale을 봤다.", "en": "Cinder Grace looked at Rev. Hale." }},
-        { "text": { "ko": "오래 봤다.", "en": "For a long time." }},
-        { "text": { "ko": "그러다가 공구 벨트에서 손을 내렸다.", "en": "Then she lowered her hand from the tool belt." }},
-        { "text": { "ko": "Rev. Hale은 그것을 봤다.", "en": "Rev. Hale saw that." }},
-        { "text": { "ko": "작은 것이었다. 그러나 작은 것들이 테이블을 만들었다.", "en": "A small thing. But small things made tables." }}
+        {
+          "text": {
+            "ko": "Cinder Grace가 Rev. Hale을 봤다.",
+            "en": "Cinder Grace looked at Rev. Hale."
+          }
+        },
+        {
+          "text": {
+            "ko": "오래 봤다.",
+            "en": "For a long time."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러다가 공구 벨트에서 손을 내렸다.",
+            "en": "Then she lowered her hand from the tool belt."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale은 그것을 봤다.",
+            "en": "Rev. Hale saw that."
+          }
+        },
+        {
+          "text": {
+            "ko": "작은 것이었다. 그러나 작은 것들이 테이블을 만들었다.",
+            "en": "A small thing. But small things made tables."
+          }
+        }
       ]
     },
     {
@@ -487,12 +1597,54 @@
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "구체적인 합의로 가죠. 시간이 없어요.", "en": "Let's move to specific agreements. No time." }},
-        { "speaker": "chen_weiss", "emotion": "controlled", "text": { "ko": "화성 노동자 통합 등록 시스템. MCC가 인프라를 제공할 수 있어요.", "en": "Mars integrated worker registration system. MCC can provide the infrastructure." }},
-        { "speaker": "cinder_grace", "emotion": "cautious", "text": { "ko": "MCC가 관리하면 MCC가 지울 수도 있어요.", "en": "If MCC manages it MCC can also delete it." }},
-        { "speaker": "chen_weiss", "emotion": "measured", "text": { "ko": "독립 기관으로 만들어요. 세 파벌이 감시.", "en": "Make it an independent body. All three factions oversee." }},
-        { "speaker": "rev_hale", "emotion": "interested", "text": { "ko": "그리고 목사들이요. 종교 공동체가. 기록을 증인으로 보존하는 거예요.", "en": "And ministers. Religious communities. Preserving the records as witnesses." }},
-        { "speaker": "lena", "emotion": "thinking", "text": { "ko": "... 그것도 하나의 방법이네요.", "en": "... That is also a method." }}
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "구체적인 합의로 가죠. 시간이 없어요.",
+            "en": "Let's move to specific agreements. No time."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "controlled",
+          "text": {
+            "ko": "화성 노동자 통합 등록 시스템. MCC가 인프라를 제공할 수 있어요.",
+            "en": "Mars integrated worker registration system. MCC can provide the infrastructure."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "cautious",
+          "text": {
+            "ko": "MCC가 관리하면 MCC가 지울 수도 있어요.",
+            "en": "If MCC manages it MCC can also delete it."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "measured",
+          "text": {
+            "ko": "독립 기관으로 만들어요. 세 파벌이 감시.",
+            "en": "Make it an independent body. All three factions oversee."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "interested",
+          "text": {
+            "ko": "그리고 목사들이요. 종교 공동체가. 기록을 증인으로 보존하는 거예요.",
+            "en": "And ministers. Religious communities. Preserving the records as witnesses."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "thinking",
+          "text": {
+            "ko": "... 그것도 하나의 방법이네요.",
+            "en": "... That is also a method."
+          }
+        }
       ]
     },
     {
@@ -502,12 +1654,42 @@
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "협상이 됐다. 처음으로.", "en": "Negotiations proceeded. For the first time." }},
-        { "text": { "ko": "세 파벌이 같은 방향을 봤다.", "en": "Three factions looked in the same direction." }},
-        { "text": { "ko": "완전히는 아니었다. 그러나 처음이었다.", "en": "Not completely. But it was a first." }},
-        { "text": { "ko": "Rev. Hale은 테이블 위 종이를 봤다.", "en": "Rev. Hale looked at the paper on the table." }},
-        { "text": { "ko": "펜이 옆에 있었다.", "en": "A pen was beside it." }},
-        { "text": { "ko": "이름들을 쓸 수 있었다.", "en": "Names could be written." }}
+        {
+          "text": {
+            "ko": "협상이 됐다. 처음으로.",
+            "en": "Negotiations proceeded. For the first time."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 파벌이 같은 방향을 봤다.",
+            "en": "Three factions looked in the same direction."
+          }
+        },
+        {
+          "text": {
+            "ko": "완전히는 아니었다. 그러나 처음이었다.",
+            "en": "Not completely. But it was a first."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale은 테이블 위 종이를 봤다.",
+            "en": "Rev. Hale looked at the paper on the table."
+          }
+        },
+        {
+          "text": {
+            "ko": "펜이 옆에 있었다.",
+            "en": "A pen was beside it."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름들을 쓸 수 있었다.",
+            "en": "Names could be written."
+          }
+        }
       ]
     },
     {
@@ -515,31 +1697,58 @@
       "type": "choice",
       "background": "olympus_summit_station",
       "bgm": "choice_tension",
-      "prompt": { "ko": "합의문에 무엇을 먼저 써야 합니까.", "en": "What should be written first on the agreement." },
+      "prompt": {
+        "ko": "합의문에 무엇을 먼저 써야 합니까.",
+        "en": "What should be written first on the agreement."
+      },
       "choices": [
         {
           "id": "fsp_ch9_write_names",
-          "text": { "ko": "이름들의 목록을 먼저 쓴다. Kim Yong-jin. Mariam. 그들부터.", "en": "Write the list of names first. Kim Yong-jin. Mariam. Starting with them." },
+          "text": {
+            "ko": "이름들의 목록을 먼저 쓴다. Kim Yong-jin. Mariam. 그들부터.",
+            "en": "Write the list of names first. Kim Yong-jin. Mariam. Starting with them."
+          },
           "tone": "memorial",
-          "preview_hint": { "ko": "→ Rev. Hale이 눈을 감는다", "en": "→ Rev. Hale closes his eyes" }
+          "preview_hint": {
+            "ko": "→ Rev. Hale이 눈을 감는다",
+            "en": "→ Rev. Hale closes his eyes"
+          }
         },
         {
           "id": "fsp_ch9_principles",
-          "text": { "ko": "원칙을 먼저 쓴다. 모든 화성 노동자는 이름으로 기록된다.", "en": "Write the principle first. Every Mars worker is recorded by name." },
+          "text": {
+            "ko": "원칙을 먼저 쓴다. 모든 화성 노동자는 이름으로 기록된다.",
+            "en": "Write the principle first. Every Mars worker is recorded by name."
+          },
           "tone": "institutional",
-          "preview_hint": { "ko": "→ 화성 역사상 처음으로 원칙이 생긴다", "en": "→ Mars gains its first principle" }
+          "preview_hint": {
+            "ko": "→ 화성 역사상 처음으로 원칙이 생긴다",
+            "en": "→ Mars gains its first principle"
+          }
         },
         {
           "id": "fsp_ch9_all_three",
-          "text": { "ko": "세 파벌 대표가 먼저 서명한다. 이름들은 그 다음.", "en": "All three representatives sign first. Names come after." },
+          "text": {
+            "ko": "세 파벌 대표가 먼저 서명한다. 이름들은 그 다음.",
+            "en": "All three representatives sign first. Names come after."
+          },
           "tone": "political",
-          "preview_hint": { "ko": "→ Cinder Grace가 멈칫한다", "en": "→ Cinder Grace hesitates" }
+          "preview_hint": {
+            "ko": "→ Cinder Grace가 멈칫한다",
+            "en": "→ Cinder Grace hesitates"
+          }
         },
         {
           "id": "fsp_ch9_witness",
-          "text": { "ko": "Rev. Hale이 증인으로 서명한다. 혼자.", "en": "Rev. Hale signs as sole witness." },
+          "text": {
+            "ko": "Rev. Hale이 증인으로 서명한다. 혼자.",
+            "en": "Rev. Hale signs as sole witness."
+          },
           "tone": "sacred",
-          "preview_hint": { "ko": "→ 목사가 화성의 기억을 짊어진다", "en": "→ A minister carries Mars's memory" }
+          "preview_hint": {
+            "ko": "→ 목사가 화성의 기억을 짊어진다",
+            "en": "→ A minister carries Mars's memory"
+          }
         }
       ]
     },
@@ -550,11 +1759,36 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "문이 열렸다.", "en": "The door opened." }},
-        { "text": { "ko": "제압된 Pilgrim Arms 암살자 하나가 끌려 들어왔다.", "en": "One subdued Pilgrim Arms assassin was dragged in." }},
-        { "text": { "ko": "Amara가 팔을 잡고 있었다. 상처 난 팔로.", "en": "Amara was holding the arm. With her injured arm." }},
-        { "text": { "ko": "Rev. Hale이 일어섰다.", "en": "Rev. Hale stood." }},
-        { "text": { "ko": "그가 먼저 암살자 앞으로 걸어갔다.", "en": "He walked first toward the assassin." }}
+        {
+          "text": {
+            "ko": "문이 열렸다.",
+            "en": "The door opened."
+          }
+        },
+        {
+          "text": {
+            "ko": "제압된 Pilgrim Arms 암살자 하나가 끌려 들어왔다.",
+            "en": "One subdued Pilgrim Arms assassin was dragged in."
+          }
+        },
+        {
+          "text": {
+            "ko": "Amara가 팔을 잡고 있었다. 상처 난 팔로.",
+            "en": "Amara was holding the arm. With her injured arm."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 일어섰다.",
+            "en": "Rev. Hale stood."
+          }
+        },
+        {
+          "text": {
+            "ko": "그가 먼저 암살자 앞으로 걸어갔다.",
+            "en": "He walked first toward the assassin."
+          }
+        }
       ]
     },
     {
@@ -564,12 +1798,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "rev_hale", "emotion": "calm", "text": { "ko": "이름이 뭐예요.", "en": "What is your name." }},
-        { "speaker": "pilgrim_assassin", "emotion": "defiant", "text": { "ko": "...", "en": "..." }},
-        { "speaker": "rev_hale", "emotion": "patient", "text": { "ko": "누가 보냈는지 묻는 게 아니에요. 이름이요.", "en": "I'm not asking who sent you. Your name." }},
-        { "speaker": "pilgrim_assassin", "emotion": "confused", "text": { "ko": "... 왜요.", "en": "... Why." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "기록하고 싶어서요. 오늘 이 자리에 있었던 사람들.", "en": "I want to record it. The people who were at this place today." }},
-        { "speaker": "pilgrim_assassin", "emotion": "still", "text": { "ko": "... Ramos.", "en": "... Ramos." }}
+        {
+          "speaker": "rev_hale",
+          "emotion": "calm",
+          "text": {
+            "ko": "이름이 뭐예요.",
+            "en": "What is your name."
+          }
+        },
+        {
+          "speaker": "pilgrim_assassin",
+          "emotion": "defiant",
+          "text": {
+            "ko": "...",
+            "en": "..."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "patient",
+          "text": {
+            "ko": "누가 보냈는지 묻는 게 아니에요. 이름이요.",
+            "en": "I'm not asking who sent you. Your name."
+          }
+        },
+        {
+          "speaker": "pilgrim_assassin",
+          "emotion": "confused",
+          "text": {
+            "ko": "... 왜요.",
+            "en": "... Why."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "기록하고 싶어서요. 오늘 이 자리에 있었던 사람들.",
+            "en": "I want to record it. The people who were at this place today."
+          }
+        },
+        {
+          "speaker": "pilgrim_assassin",
+          "emotion": "still",
+          "text": {
+            "ko": "... Ramos.",
+            "en": "... Ramos."
+          }
+        }
       ]
     },
     {
@@ -579,12 +1855,42 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder Grace가 그것을 봤다.", "en": "Cinder Grace watched that." }},
-        { "text": { "ko": "Chen Weiss가 그것을 봤다.", "en": "Chen Weiss watched that." }},
-        { "text": { "ko": "Lena가 그것을 봤다.", "en": "Lena watched that." }},
-        { "text": { "ko": "Rev. Hale이 종이에 Ramos라고 썼다.", "en": "Rev. Hale wrote Ramos on the paper." }},
-        { "text": { "ko": "암살자의 이름과 협상가들의 이름이 같은 종이에 있었다.", "en": "An assassin's name and negotiators' names on the same paper." }},
-        { "text": { "ko": "화성에서 처음 있는 일이었다.", "en": "A first on Mars." }}
+        {
+          "text": {
+            "ko": "Cinder Grace가 그것을 봤다.",
+            "en": "Cinder Grace watched that."
+          }
+        },
+        {
+          "text": {
+            "ko": "Chen Weiss가 그것을 봤다.",
+            "en": "Chen Weiss watched that."
+          }
+        },
+        {
+          "text": {
+            "ko": "Lena가 그것을 봤다.",
+            "en": "Lena watched that."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 종이에 Ramos라고 썼다.",
+            "en": "Rev. Hale wrote Ramos on the paper."
+          }
+        },
+        {
+          "text": {
+            "ko": "암살자의 이름과 협상가들의 이름이 같은 종이에 있었다.",
+            "en": "An assassin's name and negotiators' names on the same paper."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성에서 처음 있는 일이었다.",
+            "en": "A first on Mars."
+          }
+        }
       ]
     },
     {
@@ -594,12 +1900,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "low", "text": { "ko": "의뢰인을 말해줘요. 말하면 우리가 보호해요.", "en": "Tell us the client. Tell us and we'll protect you." }},
-        { "speaker": "ramos", "emotion": "weighing", "text": { "ko": "Pilgrim Arms의 원칙은...", "en": "Pilgrim Arms' principle is..." }},
-        { "speaker": "cinder_grace", "emotion": "direct", "text": { "ko": "원칙이 당신을 여기 가뒀어요. 지금 원칙이 당신 편이에요?", "en": "Principle put you here. Is principle on your side now?" }},
-        { "speaker": "ramos", "emotion": "breaking", "text": { "ko": "... 지구요. 직접은 아니야. 중간 브로커가 있어요. Talon Group.", "en": "... Earth. Not directly. There's a middleman broker. Talon Group." }},
-        { "speaker": "chen_weiss", "emotion": "sharp", "text": { "ko": "Talon. 화성 분쟁 중재 자문사. 그들이.", "en": "Talon. Mars conflict mediation consultants. Them." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "평화가 그들의 적이에요.", "en": "Peace is their enemy." }}
+        {
+          "speaker": "cinder_grace",
+          "emotion": "low",
+          "text": {
+            "ko": "의뢰인을 말해줘요. 말하면 우리가 보호해요.",
+            "en": "Tell us the client. Tell us and we'll protect you."
+          }
+        },
+        {
+          "speaker": "ramos",
+          "emotion": "weighing",
+          "text": {
+            "ko": "Pilgrim Arms의 원칙은...",
+            "en": "Pilgrim Arms' principle is..."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "direct",
+          "text": {
+            "ko": "원칙이 당신을 여기 가뒀어요. 지금 원칙이 당신 편이에요?",
+            "en": "Principle put you here. Is principle on your side now?"
+          }
+        },
+        {
+          "speaker": "ramos",
+          "emotion": "breaking",
+          "text": {
+            "ko": "... 지구요. 직접은 아니야. 중간 브로커가 있어요. Talon Group.",
+            "en": "... Earth. Not directly. There's a middleman broker. Talon Group."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "sharp",
+          "text": {
+            "ko": "Talon. 화성 분쟁 중재 자문사. 그들이.",
+            "en": "Talon. Mars conflict mediation consultants. Them."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "평화가 그들의 적이에요.",
+            "en": "Peace is their enemy."
+          }
+        }
       ]
     },
     {
@@ -609,12 +1957,42 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Talon Group. 이름이 나왔다.", "en": "Talon Group. A name emerged." }},
-        { "text": { "ko": "이름이 있으면 존재가 있었다.", "en": "Where there was a name there was existence." }},
-        { "text": { "ko": "존재하는 것은 책임질 수 있었다.", "en": "What existed could be held accountable." }},
-        { "text": { "ko": "Rev. Hale은 그 이름도 썼다.", "en": "Rev. Hale wrote that name too." }},
-        { "text": { "ko": "종이 위에 이름들이 쌓였다.", "en": "Names accumulated on the paper." }},
-        { "text": { "ko": "죽은 자들. 산 자들. 이름이 없었던 자들. 지금 이름을 말하는 자들.", "en": "The dead. The living. Those who had no names. Those now speaking their names." }}
+        {
+          "text": {
+            "ko": "Talon Group. 이름이 나왔다.",
+            "en": "Talon Group. A name emerged."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름이 있으면 존재가 있었다.",
+            "en": "Where there was a name there was existence."
+          }
+        },
+        {
+          "text": {
+            "ko": "존재하는 것은 책임질 수 있었다.",
+            "en": "What existed could be held accountable."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale은 그 이름도 썼다.",
+            "en": "Rev. Hale wrote that name too."
+          }
+        },
+        {
+          "text": {
+            "ko": "종이 위에 이름들이 쌓였다.",
+            "en": "Names accumulated on the paper."
+          }
+        },
+        {
+          "text": {
+            "ko": "죽은 자들. 산 자들. 이름이 없었던 자들. 지금 이름을 말하는 자들.",
+            "en": "The dead. The living. Those who had no names. Those now speaking their names."
+          }
+        }
       ]
     },
     {
@@ -624,12 +2002,54 @@
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "firm", "text": { "ko": "합의문 초안을 만들어요. 지금이에요.", "en": "Let's draft the agreement. Now." }},
-        { "speaker": "chen_weiss", "emotion": "resolute", "text": { "ko": "MCC는 화성 노동자 통합 등록 시스템 인프라 제공에 동의해요.", "en": "MCC agrees to provide infrastructure for the Mars Integrated Worker Registration System." }},
-        { "speaker": "cinder_grace", "emotion": "considered", "text": { "ko": "CV는 Zone 12를 포함한 비공식 거주 지역의 이름 기록을 지원해요.", "en": "CV supports recording of names in unofficial residential areas including Zone 12." }},
-        { "speaker": "rev_hale", "emotion": "steady", "text": { "ko": "FSP는 종교 공동체를 통한 독립 증인 네트워크를 구성해요. 기록이 지워지지 않도록.", "en": "FSP will establish an independent witness network through religious communities. So records cannot be erased." }},
-        { "speaker": "lena", "emotion": "calculating", "text": { "ko": "그리고 수자원. 의료권. 노동 시간.", "en": "And water rights. Medical rights. Work hours." }},
-        { "speaker": "chen_weiss", "emotion": "nodding", "text": { "ko": "이름 기록이 먼저예요. Rev. Hale이 맞아요. 그게 기반이에요.", "en": "Name recording comes first. Rev. Hale is right. That is the foundation." }}
+        {
+          "speaker": "lena",
+          "emotion": "firm",
+          "text": {
+            "ko": "합의문 초안을 만들어요. 지금이에요.",
+            "en": "Let's draft the agreement. Now."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "resolute",
+          "text": {
+            "ko": "MCC는 화성 노동자 통합 등록 시스템 인프라 제공에 동의해요.",
+            "en": "MCC agrees to provide infrastructure for the Mars Integrated Worker Registration System."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "considered",
+          "text": {
+            "ko": "CV는 Zone 12를 포함한 비공식 거주 지역의 이름 기록을 지원해요.",
+            "en": "CV supports recording of names in unofficial residential areas including Zone 12."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "steady",
+          "text": {
+            "ko": "FSP는 종교 공동체를 통한 독립 증인 네트워크를 구성해요. 기록이 지워지지 않도록.",
+            "en": "FSP will establish an independent witness network through religious communities. So records cannot be erased."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "calculating",
+          "text": {
+            "ko": "그리고 수자원. 의료권. 노동 시간.",
+            "en": "And water rights. Medical rights. Work hours."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "nodding",
+          "text": {
+            "ko": "이름 기록이 먼저예요. Rev. Hale이 맞아요. 그게 기반이에요.",
+            "en": "Name recording comes first. Rev. Hale is right. That is the foundation."
+          }
+        }
       ]
     },
     {
@@ -639,12 +2059,42 @@
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "합의가 형태를 잡았다.", "en": "The agreement took shape." }},
-        { "text": { "ko": "세 파벌이 각자 원하는 것을 가져가지 않았다.", "en": "Each of the three factions didn't get everything they wanted." }},
-        { "text": { "ko": "그러나 함께 원하는 것을 하나 만들었다.", "en": "But together they made one thing they all wanted." }},
-        { "text": { "ko": "화성 역사상 처음이었다.", "en": "A first in Mars history." }},
-        { "text": { "ko": "Rev. Hale은 창문을 봤다. 올림포스 정상의 하늘.", "en": "Rev. Hale looked at the window. The sky above Olympus summit." }},
-        { "text": { "ko": "붉었다. 항상 그랬다.", "en": "Red. As always." }}
+        {
+          "text": {
+            "ko": "합의가 형태를 잡았다.",
+            "en": "The agreement took shape."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 파벌이 각자 원하는 것을 가져가지 않았다.",
+            "en": "Each of the three factions didn't get everything they wanted."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 함께 원하는 것을 하나 만들었다.",
+            "en": "But together they made one thing they all wanted."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성 역사상 처음이었다.",
+            "en": "A first in Mars history."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale은 창문을 봤다. 올림포스 정상의 하늘.",
+            "en": "Rev. Hale looked at the window. The sky above Olympus summit."
+          }
+        },
+        {
+          "text": {
+            "ko": "붉었다. 항상 그랬다.",
+            "en": "Red. As always."
+          }
+        }
       ]
     },
     {
@@ -654,12 +2104,54 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "quiet", "text": { "ko": "Hale 목사님.", "en": "Reverend Hale." }},
-        { "speaker": "rev_hale", "emotion": "attentive", "text": { "ko": "예.", "en": "Yes." }},
-        { "speaker": "amara", "emotion": "thoughtful", "text": { "ko": "이름들이 기록되면... 그다음은 뭐예요.", "en": "When the names are recorded... what comes next." }},
-        { "speaker": "rev_hale", "emotion": "gentle", "text": { "ko": "그다음은 그 이름들이 결정해요.", "en": "The names themselves decide what comes next." }},
-        { "speaker": "amara", "emotion": "wondering", "text": { "ko": "이름이 어떻게 결정해요.", "en": "How do names decide." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "기록된 이름은 잊혀지지 않아요. 잊혀지지 않은 것은 요구해요.", "en": "Recorded names are not forgotten. What is not forgotten makes demands." }}
+        {
+          "speaker": "amara",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Hale 목사님.",
+            "en": "Reverend Hale."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "attentive",
+          "text": {
+            "ko": "예.",
+            "en": "Yes."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "이름들이 기록되면... 그다음은 뭐예요.",
+            "en": "When the names are recorded... what comes next."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "gentle",
+          "text": {
+            "ko": "그다음은 그 이름들이 결정해요.",
+            "en": "The names themselves decide what comes next."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "wondering",
+          "text": {
+            "ko": "이름이 어떻게 결정해요.",
+            "en": "How do names decide."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "기록된 이름은 잊혀지지 않아요. 잊혀지지 않은 것은 요구해요.",
+            "en": "Recorded names are not forgotten. What is not forgotten makes demands."
+          }
+        }
       ]
     },
     {
@@ -669,10 +2161,30 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mikhail이 연락을 해왔다. 라디오로.", "en": "Mikhail contacted them. By radio." }},
-        { "text": { "ko": "기지 아래에 있었다. 삼십 킬로미터.", "en": "He was below the station. Thirty kilometers." }},
-        { "text": { "ko": "차를 마시고 있을 것이었다.", "en": "He would be drinking tea." }},
-        { "text": { "ko": "두 잔. 오른손이 왼손을 받치고.", "en": "Two cups. Right hand supporting the left." }}
+        {
+          "text": {
+            "ko": "Mikhail이 연락을 해왔다. 라디오로.",
+            "en": "Mikhail contacted them. By radio."
+          }
+        },
+        {
+          "text": {
+            "ko": "기지 아래에 있었다. 삼십 킬로미터.",
+            "en": "He was below the station. Thirty kilometers."
+          }
+        },
+        {
+          "text": {
+            "ko": "차를 마시고 있을 것이었다.",
+            "en": "He would be drinking tea."
+          }
+        },
+        {
+          "text": {
+            "ko": "두 잔. 오른손이 왼손을 받치고.",
+            "en": "Two cups. Right hand supporting the left."
+          }
+        }
       ]
     },
     {
@@ -682,12 +2194,55 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "calm", "effect": "radio_static", "text": { "ko": "어떻게 됐어요.", "en": "How did it go." }},
-        { "speaker": "lena", "emotion": "exhausted", "text": { "ko": "됐어요. 초안이 있어요.", "en": "It worked. We have a draft." }},
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "이름들 얘기가 나왔어요?", "en": "Did the names come up." }},
-        { "speaker": "rev_hale", "emotion": "warm", "text": { "ko": "제일 먼저요.", "en": "First of all." }},
-        { "speaker": "mikhail", "emotion": "relieved", "text": { "ko": "... 좋아요. 그럼 됐어요. 차 마시러 내려오세요.", "en": "... Good. Then it's done. Come down for tea." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "곧 가요. Mikhail.", "en": "We'll be down soon. Mikhail." }}
+        {
+          "speaker": "mikhail",
+          "emotion": "calm",
+          "effect": "radio_static",
+          "text": {
+            "ko": "어떻게 됐어요.",
+            "en": "How did it go."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "exhausted",
+          "text": {
+            "ko": "됐어요. 초안이 있어요.",
+            "en": "It worked. We have a draft."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "이름들 얘기가 나왔어요?",
+            "en": "Did the names come up."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "warm",
+          "text": {
+            "ko": "제일 먼저요.",
+            "en": "First of all."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "relieved",
+          "text": {
+            "ko": "... 좋아요. 그럼 됐어요. 차 마시러 내려오세요.",
+            "en": "... Good. Then it's done. Come down for tea."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "quiet",
+          "text": {
+            "ko": "곧 가요. Mikhail.",
+            "en": "We'll be down soon. Mikhail."
+          }
+        }
       ]
     },
     {
@@ -697,12 +2252,42 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그러나 아직 끝나지 않은 것이 있었다.", "en": "But there was still something unfinished." }},
-        { "text": { "ko": "도망친 암살자 하나.", "en": "One escaped assassin." }},
-        { "text": { "ko": "Talon Group.", "en": "Talon Group." }},
-        { "text": { "ko": "그리고 내부의 배신자.", "en": "And an internal traitor." }},
-        { "text": { "ko": "누가 Pilgrim Arms를 불렀는가.", "en": "Who had called Pilgrim Arms." }},
-        { "text": { "ko": "세 파벌 중 하나에서 나온 것이었다.", "en": "It had come from within one of the three factions." }}
+        {
+          "text": {
+            "ko": "그러나 아직 끝나지 않은 것이 있었다.",
+            "en": "But there was still something unfinished."
+          }
+        },
+        {
+          "text": {
+            "ko": "도망친 암살자 하나.",
+            "en": "One escaped assassin."
+          }
+        },
+        {
+          "text": {
+            "ko": "Talon Group.",
+            "en": "Talon Group."
+          }
+        },
+        {
+          "text": {
+            "ko": "그리고 내부의 배신자.",
+            "en": "And an internal traitor."
+          }
+        },
+        {
+          "text": {
+            "ko": "누가 Pilgrim Arms를 불렀는가.",
+            "en": "Who had called Pilgrim Arms."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 파벌 중 하나에서 나온 것이었다.",
+            "en": "It had come from within one of the three factions."
+          }
+        }
       ]
     },
     {
@@ -712,12 +2297,54 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "suspicious", "text": { "ko": "내부에서 나온 거예요. Talon이 우리 위치를 알았어요.", "en": "It came from inside. Talon knew our location." }},
-        { "speaker": "chen_weiss", "emotion": "tense", "text": { "ko": "회담 위치는 극소수만 알았어요.", "en": "Only a very small number knew the summit location." }},
-        { "speaker": "lena", "emotion": "sharp", "text": { "ko": "FSP 내부는 아니에요.", "en": "It's not from inside FSP." }},
-        { "speaker": "cinder_grace", "emotion": "hard", "text": { "ko": "그건 MCC도, CV도 같이 하는 말이에요.", "en": "That's what MCC and CV would say too." }},
-        { "speaker": "rev_hale", "emotion": "measured", "text": { "ko": "지금은 그 문제가 합의를 막아선 안 돼요.", "en": "That problem must not block the agreement now." }},
-        { "speaker": "rev_hale", "emotion": "serious", "text": { "ko": "먼저 합의. 배신자는 그다음이에요. 순서가 있어요.", "en": "Agreement first. The traitor comes after. There is an order." }}
+        {
+          "speaker": "cinder_grace",
+          "emotion": "suspicious",
+          "text": {
+            "ko": "내부에서 나온 거예요. Talon이 우리 위치를 알았어요.",
+            "en": "It came from inside. Talon knew our location."
+          }
+        },
+        {
+          "speaker": "chen_weiss",
+          "emotion": "tense",
+          "text": {
+            "ko": "회담 위치는 극소수만 알았어요.",
+            "en": "Only a very small number knew the summit location."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "sharp",
+          "text": {
+            "ko": "FSP 내부는 아니에요.",
+            "en": "It's not from inside FSP."
+          }
+        },
+        {
+          "speaker": "cinder_grace",
+          "emotion": "hard",
+          "text": {
+            "ko": "그건 MCC도, CV도 같이 하는 말이에요.",
+            "en": "That's what MCC and CV would say too."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "measured",
+          "text": {
+            "ko": "지금은 그 문제가 합의를 막아선 안 돼요.",
+            "en": "That problem must not block the agreement now."
+          }
+        },
+        {
+          "speaker": "rev_hale",
+          "emotion": "serious",
+          "text": {
+            "ko": "먼저 합의. 배신자는 그다음이에요. 순서가 있어요.",
+            "en": "Agreement first. The traitor comes after. There is an order."
+          }
+        }
       ]
     },
     {
@@ -726,8 +2353,14 @@
       "background": "olympus_exterior",
       "bgm": "battle_theme_fsp",
       "transition": "fade_slow",
-      "title": { "ko": "올림포스 — 이름들의 산", "en": "Olympus — Mountain of Names" },
-      "subtitle": { "ko": "올림포스 정상 — 존엄을 위하여", "en": "Olympus Summit — For Dignity" }
+      "title": {
+        "ko": "올림포스 — 이름들의 산",
+        "en": "Olympus — Mountain of Names"
+      },
+      "subtitle": {
+        "ko": "올림포스 정상 — 존엄을 위하여",
+        "en": "Olympus Summit — For Dignity"
+      }
     },
     {
       "id": "s_result",
@@ -742,14 +2375,55 @@
       "bgm": "victory_calm",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "합의문이 서명됐다.", "en": "The agreement was signed." }},
-        { "text": { "ko": "세 줄이었다. Rev. Hale이 원했던 대로.", "en": "Three lines. As Rev. Hale had wanted." }},
-        { "text": { "ko": "첫 번째: 모든 화성 노동자는 이름으로 기록된다.", "en": "First: Every Mars worker is recorded by name." }},
-        { "text": { "ko": "두 번째: 노동 사고는 공개된다.", "en": "Second: Labor accidents are made public." }},
-        { "text": { "ko": "세 번째: 이름들은 지워질 수 없다.", "en": "Third: Names cannot be erased." }},
-        { "text": { "ko": "서명은 Chen Weiss. Cinder Grace. Lena. 플레이어. Rev. Hale.", "en": "Signed by Chen Weiss. Cinder Grace. Lena. The player. Rev. Hale." }},
-        { "text": { "ko": "그리고 Ramos. 암살자의 서명도 있었다.", "en": "And Ramos. The assassin's signature was there too." }, "overlay": "contract_sign" },
-        { "text": { "ko": "그것이 Rev. Hale의 고집이었다.", "en": "That was Rev. Hale's insistence." }}
+        {
+          "text": {
+            "ko": "합의문이 서명됐다.",
+            "en": "The agreement was signed."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 줄이었다. Rev. Hale이 원했던 대로.",
+            "en": "Three lines. As Rev. Hale had wanted."
+          }
+        },
+        {
+          "text": {
+            "ko": "첫 번째: 모든 화성 노동자는 이름으로 기록된다.",
+            "en": "First: Every Mars worker is recorded by name."
+          }
+        },
+        {
+          "text": {
+            "ko": "두 번째: 노동 사고는 공개된다.",
+            "en": "Second: Labor accidents are made public."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 번째: 이름들은 지워질 수 없다.",
+            "en": "Third: Names cannot be erased."
+          }
+        },
+        {
+          "text": {
+            "ko": "서명은 Chen Weiss. Cinder Grace. Lena. 플레이어. Rev. Hale.",
+            "en": "Signed by Chen Weiss. Cinder Grace. Lena. The player. Rev. Hale."
+          }
+        },
+        {
+          "text": {
+            "ko": "그리고 Ramos. 암살자의 서명도 있었다.",
+            "en": "And Ramos. The assassin's signature was there too."
+          },
+          "background": "fsp_ch9_last_harvest_l49_06_contract_sign"
+        },
+        {
+          "text": {
+            "ko": "그것이 Rev. Hale의 고집이었다.",
+            "en": "That was Rev. Hale's insistence."
+          }
+        }
       ]
     },
     {
@@ -759,12 +2433,42 @@
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Rev. Hale이 기도했다.", "en": "Rev. Hale prayed." }},
-        { "text": { "ko": "마스크를 벗지 않았다.", "en": "He didn't remove the mask." }},
-        { "text": { "ko": "마스크 안에서 기도했다. 숨으로.", "en": "He prayed inside the mask. With breath." }},
-        { "text": { "ko": "Kim Yong-jin. Mariam Adeyemi. Sector 7의 셋.", "en": "Kim Yong-jin. Mariam Adeyemi. The three of Sector 7." }},
-        { "text": { "ko": "Zone C의 스물. 헬라스의 사십이. Zone 12의 이름 없는 자들.", "en": "The twenty of Zone C. The forty-two of Hellas. The nameless ones of Zone 12." }},
-        { "text": { "ko": "이제 기록될 것이었다.", "en": "Now they would be recorded." }}
+        {
+          "text": {
+            "ko": "Rev. Hale이 기도했다.",
+            "en": "Rev. Hale prayed."
+          }
+        },
+        {
+          "text": {
+            "ko": "마스크를 벗지 않았다.",
+            "en": "He didn't remove the mask."
+          }
+        },
+        {
+          "text": {
+            "ko": "마스크 안에서 기도했다. 숨으로.",
+            "en": "He prayed inside the mask. With breath."
+          }
+        },
+        {
+          "text": {
+            "ko": "Kim Yong-jin. Mariam Adeyemi. Sector 7의 셋.",
+            "en": "Kim Yong-jin. Mariam Adeyemi. The three of Sector 7."
+          }
+        },
+        {
+          "text": {
+            "ko": "Zone C의 스물. 헬라스의 사십이. Zone 12의 이름 없는 자들.",
+            "en": "The twenty of Zone C. The forty-two of Hellas. The nameless ones of Zone 12."
+          }
+        },
+        {
+          "text": {
+            "ko": "이제 기록될 것이었다.",
+            "en": "Now they would be recorded."
+          }
+        }
       ]
     },
     {
@@ -774,13 +2478,48 @@
       "bgm": "defeat_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "합의가 무너졌다.", "en": "The agreement collapsed." }},
-        { "text": { "ko": "암살 시도 이후 불신이 남았다.", "en": "After the assassination attempt distrust remained." }},
-        { "text": { "ko": "세 파벌이 서로를 봤다. 의심으로.", "en": "Three factions looked at each other. With suspicion." }},
-        { "text": { "ko": "Rev. Hale이 내려왔다.", "en": "Rev. Hale descended." }},
-        { "text": { "ko": "기도하면서. 올라갈 때와 같이.", "en": "Praying. As when he had climbed." }},
-        { "text": { "ko": "이름들은 여전히 기록되지 않았다. 그러나 기도는 계속됐다.", "en": "The names still unrecorded. But the prayer continued." }},
-        { "text": { "ko": "기도가 멈추면 그것이 진짜 끝이었다.", "en": "If prayer stopped that would be the real end." }}
+        {
+          "text": {
+            "ko": "합의가 무너졌다.",
+            "en": "The agreement collapsed."
+          }
+        },
+        {
+          "text": {
+            "ko": "암살 시도 이후 불신이 남았다.",
+            "en": "After the assassination attempt distrust remained."
+          }
+        },
+        {
+          "text": {
+            "ko": "세 파벌이 서로를 봤다. 의심으로.",
+            "en": "Three factions looked at each other. With suspicion."
+          }
+        },
+        {
+          "text": {
+            "ko": "Rev. Hale이 내려왔다.",
+            "en": "Rev. Hale descended."
+          }
+        },
+        {
+          "text": {
+            "ko": "기도하면서. 올라갈 때와 같이.",
+            "en": "Praying. As when he had climbed."
+          }
+        },
+        {
+          "text": {
+            "ko": "이름들은 여전히 기록되지 않았다. 그러나 기도는 계속됐다.",
+            "en": "The names still unrecorded. But the prayer continued."
+          }
+        },
+        {
+          "text": {
+            "ko": "기도가 멈추면 그것이 진짜 끝이었다.",
+            "en": "If prayer stopped that would be the real end."
+          }
+        }
       ]
     },
     {
@@ -790,17 +2529,55 @@
       "bgm": "ambient_vast",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "올림포스에서 내려오면서 Rev. Hale은 이름들을 불렀다.", "en": "Descending from Olympus Rev. Hale called the names." }},
-        { "text": { "ko": "혼자. 마스크 안에서.", "en": "Alone. Inside the mask." }},
-        { "text": { "ko": "Kim Yong-jin. Mariam Adeyemi. Sector 7의 셋.", "en": "Kim Yong-jin. Mariam Adeyemi. The three of Sector 7." }},
-        { "text": { "ko": "그 아래 이름들. 아직 쓰이지 않은 이름들.", "en": "The names below. The names not yet written." }},
-        { "text": { "ko": "화성의 하늘이 붉었다. 항상 그랬다.", "en": "The Martian sky was red. It always was." }},
-        { "text": { "ko": "그러나 이름을 부르면서 내려올 때 붉은 하늘이 다르게 보였다.", "en": "But descending while calling names the red sky looked different." }},
-        { "text": { "ko": "그것은 기도의 효과였다.", "en": "That was the effect of prayer." }}
+        {
+          "text": {
+            "ko": "올림포스에서 내려오면서 Rev. Hale은 이름들을 불렀다.",
+            "en": "Descending from Olympus Rev. Hale called the names."
+          }
+        },
+        {
+          "text": {
+            "ko": "혼자. 마스크 안에서.",
+            "en": "Alone. Inside the mask."
+          }
+        },
+        {
+          "text": {
+            "ko": "Kim Yong-jin. Mariam Adeyemi. Sector 7의 셋.",
+            "en": "Kim Yong-jin. Mariam Adeyemi. The three of Sector 7."
+          }
+        },
+        {
+          "text": {
+            "ko": "그 아래 이름들. 아직 쓰이지 않은 이름들.",
+            "en": "The names below. The names not yet written."
+          }
+        },
+        {
+          "text": {
+            "ko": "화성의 하늘이 붉었다. 항상 그랬다.",
+            "en": "The Martian sky was red. It always was."
+          }
+        },
+        {
+          "text": {
+            "ko": "그러나 이름을 부르면서 내려올 때 붉은 하늘이 다르게 보였다.",
+            "en": "But descending while calling names the red sky looked different."
+          }
+        },
+        {
+          "text": {
+            "ko": "그것은 기도의 효과였다.",
+            "en": "That was the effect of prayer."
+          }
+        }
       ],
       "next_chapter_preview": {
         "questId": "fsp_campaign_ch10",
-        "teaser": { "ko": "다음 — 자유의 대가", "en": "Next — The Price of Freedom" }
+        "teaser": {
+          "ko": "다음 — 자유의 대가",
+          "en": "Next — The Price of Freedom"
+        }
       }
     }
   ]

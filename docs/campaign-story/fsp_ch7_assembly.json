@@ -2,11 +2,23 @@
   "questId": "fsp_campaign_ch7",
   "campaignId": "fsp_route",
   "chapterNumber": 7,
-  "title": { "ko": "의원회", "en": "The Assembly" },
-  "location": { "id": "fsp_assembly_hall", "displayNameKo": "FSP 의원회 의사당" },
+  "title": {
+    "ko": "의원회",
+    "en": "The Assembly"
+  },
+  "location": {
+    "id": "fsp_assembly_hall",
+    "displayNameKo": "FSP 의원회 의사당"
+  },
   "environment": "assembly_hall",
   "estimatedPlayTimeMinutes": 32,
-  "characters": ["player", "mikhail", "lena", "amara", "yuna"],
+  "characters": [
+    "player",
+    "mikhail",
+    "lena",
+    "amara",
+    "yuna"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -15,7 +27,12 @@
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "FSP 의원회 의사당. MCC 이사회와 달랐다. 밀폐되지 않았다. 창문이 있었다. 밖이 보였다. 광산이 보였다. 그것이 의도된 것이었다. FSP는 바깥을 잊지 않으려 했다. 창문이 그것이었다.", "en": "The FSP Assembly Hall. Different from the MCC boardroom. Not sealed. There were windows. The outside was visible. The mines were visible. That was intentional. FSP tried not to forget the outside. That was what the windows were." } }
+        {
+          "text": {
+            "ko": "FSP 의원회 의사당. MCC 이사회와 달랐다. 밀폐되지 않았다. 창문이 있었다. 밖이 보였다. 광산이 보였다. 그것이 의도된 것이었다. FSP는 바깥을 잊지 않으려 했다. 창문이 그것이었다.",
+            "en": "The FSP Assembly Hall. Different from the MCC boardroom. Not sealed. There were windows. The outside was visible. The mines were visible. That was intentional. FSP tried not to forget the outside. That was what the windows were."
+          }
+        }
       ]
     },
     {
@@ -25,7 +42,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "창문을 Mikhail이 만들었다. 28년 전에 의사당을 지을 때. 처음에는 반대가 있었다. 보안 문제. 그러나 Mikhail이 고집했다. 이유는 간단하다고 했다. 바깥을 잊으면 안 된다. 그것뿐이었다. 그래서 창문이 있었다.", "en": "Mikhail had made the windows. When the hall was built twenty-eight years ago. There had been opposition at first. Security concerns. But Mikhail had insisted. He said the reason was simple. We must not forget the outside. That was all. So there were windows." } }
+        {
+          "text": {
+            "ko": "창문을 Mikhail이 만들었다. 28년 전에 의사당을 지을 때. 처음에는 반대가 있었다. 보안 문제. 그러나 Mikhail이 고집했다. 이유는 간단하다고 했다. 바깥을 잊으면 안 된다. 그것뿐이었다. 그래서 창문이 있었다.",
+            "en": "Mikhail had made the windows. When the hall was built twenty-eight years ago. There had been opposition at first. Security concerns. But Mikhail had insisted. He said the reason was simple. We must not forget the outside. That was all. So there were windows."
+          }
+        }
       ]
     },
     {
@@ -35,7 +57,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mikhail이 거기 있었다. 오른쪽 다리가 안 좋았다. 그것은 예전부터였다. 광산 사고. 다리는 그것을 기억했다. 오늘은 더 안 좋아 보였다. 그는 앉아 있었다. 의원회에서 Mikhail이 앉으면 안 좋은 날이었다.", "en": "Mikhail was there. His right leg was troubled. That was old. Mine accident. The leg remembered it. Today it looked worse. He was sitting. When Mikhail sat in the assembly it was a bad day." } }
+        {
+          "text": {
+            "ko": "Mikhail이 거기 있었다. 오른쪽 다리가 안 좋았다. 그것은 예전부터였다. 광산 사고. 다리는 그것을 기억했다. 오늘은 더 안 좋아 보였다. 그는 앉아 있었다. 의원회에서 Mikhail이 앉으면 안 좋은 날이었다.",
+            "en": "Mikhail was there. His right leg was troubled. That was old. Mine accident. The leg remembered it. Today it looked worse. He was sitting. When Mikhail sat in the assembly it was a bad day."
+          }
+        }
       ]
     },
     {
@@ -45,9 +72,31 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "heavy", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "오늘 의원회에 안건이 있어요.", "en": "The assembly has business today." } },
-        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "내가 오래됐어요. FSP를 만든 지 28년. 화성에서 28년은 긴 것이에요. 내 다리도 알아요.", "en": "I've been here a long time. Twenty-eight years since I made FSP. On Mars twenty-eight years is long. My leg knows." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "다음 의장 후보가 다섯이에요. 당신도 봐야 해요.", "en": "There are five candidates for the next chair. You should watch too." } }
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "오늘 의원회에 안건이 있어요.",
+            "en": "The assembly has business today."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "내가 오래됐어요. FSP를 만든 지 28년. 화성에서 28년은 긴 것이에요. 내 다리도 알아요.",
+            "en": "I've been here a long time. Twenty-eight years since I made FSP. On Mars twenty-eight years is long. My leg knows."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "다음 의장 후보가 다섯이에요. 당신도 봐야 해요.",
+            "en": "There are five candidates for the next chair. You should watch too."
+          }
+        }
       ]
     },
     {
@@ -57,7 +106,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "다섯 명이었다. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. 다섯 명이 테이블 앞에 앉았다. 창문 너머로 광산이 보였다. 다섯 명 모두 그 광산과 관련이 있었다. 그것이 FSP였다.", "en": "Five people. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. Five sat before the table. Through the window the mines were visible. All five had connections to those mines. That was FSP." } }
+        {
+          "text": {
+            "ko": "다섯 명이었다. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. 다섯 명이 테이블 앞에 앉았다. 창문 너머로 광산이 보였다. 다섯 명 모두 그 광산과 관련이 있었다. 그것이 FSP였다.",
+            "en": "Five people. Amara Okafor. Yuna Kim. Pak Seung-ho. Dr. Renata Vieira. Thomas Alder. Five sat before the table. Through the window the mines were visible. All five had connections to those mines. That was FSP."
+          }
+        }
       ]
     },
     {
@@ -67,9 +121,31 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "composed", "effect": "character_enter:amara:slide_right", "text": { "ko": "Amara Okafor입니다. 남부 헬라스 출신. 의원 11년.", "en": "Amara Okafor. From southern Hellas. Eleven years as a representative." } },
-        { "speaker": "amara", "emotion": "serious", "text": { "ko": "FSP의 다음은 협상이에요. MCC와도. CV와도. 싸우면서 협상해요. 그것이 화성에서 살아남는 방법이에요.", "en": "FSP's next step is negotiation. With MCC too. With CV too. Negotiate while fighting. That is how to survive on Mars." } },
-        { "speaker": "amara", "emotion": "calm", "text": { "ko": "Mikhail이 만든 것을 내가 이어받아요. 그러나 다른 방식으로.", "en": "What Mikhail built I will carry forward. But in a different way." } }
+        {
+          "speaker": "amara",
+          "emotion": "composed",
+          "effect": "character_enter:amara:slide_right",
+          "text": {
+            "ko": "Amara Okafor입니다. 남부 헬라스 출신. 의원 11년.",
+            "en": "Amara Okafor. From southern Hellas. Eleven years as a representative."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "serious",
+          "text": {
+            "ko": "FSP의 다음은 협상이에요. MCC와도. CV와도. 싸우면서 협상해요. 그것이 화성에서 살아남는 방법이에요.",
+            "en": "FSP's next step is negotiation. With MCC too. With CV too. Negotiate while fighting. That is how to survive on Mars."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "calm",
+          "text": {
+            "ko": "Mikhail이 만든 것을 내가 이어받아요. 그러나 다른 방식으로.",
+            "en": "What Mikhail built I will carry forward. But in a different way."
+          }
+        }
       ]
     },
     {
@@ -79,7 +155,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mikhail이 들었다. 차를 들지 않았다. 오늘은 차가 없었다. 그것이 달랐다. 이 사람이 차 없이 있는 날은 많지 않았다. 그의 손이 테이블 위에 있었다. 두 손. 가만히 있었다. 두 손이 가만히 있을 때 이 사람은 결정하는 것이었다.", "en": "Mikhail listened. He wasn't holding tea. Today there was no tea. That was different. There weren't many days this man was without tea. His hands were on the table. Both hands. Still. When both hands were still this man was deciding something." } }
+        {
+          "text": {
+            "ko": "Mikhail이 들었다. 차를 들지 않았다. 오늘은 차가 없었다. 그것이 달랐다. 이 사람이 차 없이 있는 날은 많지 않았다. 그의 손이 테이블 위에 있었다. 두 손. 가만히 있었다. 두 손이 가만히 있을 때 이 사람은 결정하는 것이었다.",
+            "en": "Mikhail listened. He wasn't holding tea. Today there was no tea. That was different. There weren't many days this man was without tea. His hands were on the table. Both hands. Still. When both hands were still this man was deciding something."
+          }
+        }
       ]
     },
     {
@@ -89,9 +170,31 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "yuna", "emotion": "nervous", "effect": "character_enter:yuna:slide_right", "text": { "ko": "Yuna Kim입니다. 헬라스 광부 마을 출신. 화성 태생이에요.", "en": "Yuna Kim. From Hellas mining village. Born on Mars." } },
-        { "speaker": "yuna", "emotion": "passionate", "text": { "ko": "FSP의 다음은 화성 태생들이에요. 이 행성에서 태어난 사람들이 이 행성을 이끌어야 해요.", "en": "FSP's next step is the Mars-born. People born on this planet must lead this planet." } },
-        { "speaker": "yuna", "emotion": "quiet", "text": { "ko": "아버지가 광산 사고로 돌아가셨어요. 그게 이유예요.", "en": "My father died in a mining accident. That's the reason." } }
+        {
+          "speaker": "yuna",
+          "emotion": "nervous",
+          "effect": "character_enter:yuna:slide_right",
+          "text": {
+            "ko": "Yuna Kim입니다. 헬라스 광부 마을 출신. 화성 태생이에요.",
+            "en": "Yuna Kim. From Hellas mining village. Born on Mars."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "passionate",
+          "text": {
+            "ko": "FSP의 다음은 화성 태생들이에요. 이 행성에서 태어난 사람들이 이 행성을 이끌어야 해요.",
+            "en": "FSP's next step is the Mars-born. People born on this planet must lead this planet."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "quiet",
+          "text": {
+            "ko": "아버지가 광산 사고로 돌아가셨어요. 그게 이유예요.",
+            "en": "My father died in a mining accident. That's the reason."
+          }
+        }
       ]
     },
     {
@@ -101,7 +204,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 Yuna를 봤다. 팔 위의 이름들이 보였다. Yuna의 아버지 이름도 거기 있었다. 헬라스 광부 마을 묘지. 금속판. 오래된 것. 그것이 지금 이 방에 있었다. 이름들이 있는 방이었다.", "en": "Lena looked at Yuna. The names on the arm were visible. Yuna's father's name was there too. Hellas mining village cemetery. Metal plate. Old thing. That was in this room now. A room with names." } }
+        {
+          "text": {
+            "ko": "Lena가 Yuna를 봤다. 팔 위의 이름들이 보였다. Yuna의 아버지 이름도 거기 있었다. 헬라스 광부 마을 묘지. 금속판. 오래된 것. 그것이 지금 이 방에 있었다. 이름들이 있는 방이었다.",
+            "en": "Lena looked at Yuna. The names on the arm were visible. Yuna's father's name was there too. Hellas mining village cemetery. Metal plate. Old thing. That was in this room now. A room with names."
+          }
+        }
       ]
     },
     {
@@ -111,9 +219,33 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "player", "emotion": "neutral", "effect": "character_narration", "text": { "ko": "세 번째 후보 Pak Seung-ho가 섰다.", "en": "Third candidate Pak Seung-ho stood." } },
-        { "speaker": "pak_seung_ho", "emotion": "composed", "effect": "character_narration", "text": { "ko": "Pak Seung-ho입니다. FSP 경제 위원 15년. 실용주의자예요.", "en": "Pak Seung-ho. FSP economics committee fifteen years. I am a pragmatist." } },
-        { "speaker": "pak_seung_ho", "emotion": "serious", "effect": "character_narration", "text": { "ko": "이상보다 실행이에요. 광부들이 오늘 먹어야 해요. 내일 꿈보다 오늘 밥이에요.", "en": "Execution over ideals. Miners need to eat today. Today's meal over tomorrow's dream." } }
+        {
+          "speaker": "player",
+          "emotion": "neutral",
+          "effect": "character_narration",
+          "text": {
+            "ko": "세 번째 후보 Pak Seung-ho가 섰다.",
+            "en": "Third candidate Pak Seung-ho stood."
+          }
+        },
+        {
+          "speaker": "pak_seung_ho",
+          "emotion": "composed",
+          "effect": "character_narration",
+          "text": {
+            "ko": "Pak Seung-ho입니다. FSP 경제 위원 15년. 실용주의자예요.",
+            "en": "Pak Seung-ho. FSP economics committee fifteen years. I am a pragmatist."
+          }
+        },
+        {
+          "speaker": "pak_seung_ho",
+          "emotion": "serious",
+          "effect": "character_narration",
+          "text": {
+            "ko": "이상보다 실행이에요. 광부들이 오늘 먹어야 해요. 내일 꿈보다 오늘 밥이에요.",
+            "en": "Execution over ideals. Miners need to eat today. Today's meal over tomorrow's dream."
+          }
+        }
       ]
     },
     {
@@ -123,8 +255,24 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "renata_vieira", "emotion": "calm", "effect": "character_narration", "text": { "ko": "Dr. Renata Vieira입니다. FSP 의료 지원 팀장 8년.", "en": "Dr. Renata Vieira. FSP medical support team leader eight years." } },
-        { "speaker": "renata_vieira", "emotion": "serious", "effect": "character_narration", "text": { "ko": "화성에서 가장 중요한 것은 사람이 살아남는 것이에요. 광산 안전. 의료 접근. 그것이 먼저예요.", "en": "The most important thing on Mars is people surviving. Mine safety. Medical access. Those come first." } }
+        {
+          "speaker": "renata_vieira",
+          "emotion": "calm",
+          "effect": "character_narration",
+          "text": {
+            "ko": "Dr. Renata Vieira입니다. FSP 의료 지원 팀장 8년.",
+            "en": "Dr. Renata Vieira. FSP medical support team leader eight years."
+          }
+        },
+        {
+          "speaker": "renata_vieira",
+          "emotion": "serious",
+          "effect": "character_narration",
+          "text": {
+            "ko": "화성에서 가장 중요한 것은 사람이 살아남는 것이에요. 광산 안전. 의료 접근. 그것이 먼저예요.",
+            "en": "The most important thing on Mars is people surviving. Mine safety. Medical access. Those come first."
+          }
+        }
       ]
     },
     {
@@ -134,9 +282,33 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "thomas_alder", "emotion": "neutral", "effect": "character_narration", "text": { "ko": "Thomas Alder입니다. MCC 출신이에요. FSP 의원이 된 지 3년.", "en": "Thomas Alder. Former MCC. Three years as FSP representative." } },
-        { "speaker": "thomas_alder", "emotion": "calm", "effect": "character_narration", "text": { "ko": "MCC 안에서 FSP가 옳다는 것을 알았어요. 그래서 왔어요. 내부를 아는 사람이 협상에 필요해요.", "en": "Inside MCC I understood FSP was right. So I came. Someone who knows the inside is needed for negotiation." } },
-        { "speaker": "lena", "emotion": "tense", "effect": "character_enter:lena:slide_right", "text": { "ko": "보스. Alder예요. MCC 출신이에요.", "en": "Boss. Alder. From MCC." } }
+        {
+          "speaker": "thomas_alder",
+          "emotion": "neutral",
+          "effect": "character_narration",
+          "text": {
+            "ko": "Thomas Alder입니다. MCC 출신이에요. FSP 의원이 된 지 3년.",
+            "en": "Thomas Alder. Former MCC. Three years as FSP representative."
+          }
+        },
+        {
+          "speaker": "thomas_alder",
+          "emotion": "calm",
+          "effect": "character_narration",
+          "text": {
+            "ko": "MCC 안에서 FSP가 옳다는 것을 알았어요. 그래서 왔어요. 내부를 아는 사람이 협상에 필요해요.",
+            "en": "Inside MCC I understood FSP was right. So I came. Someone who knows the inside is needed for negotiation."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "보스. Alder예요. MCC 출신이에요.",
+            "en": "Boss. Alder. From MCC."
+          }
+        }
       ]
     },
     {
@@ -146,7 +318,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Thomas Alder. Kenji가 말한 것이 있었다. FSP 내부자. 통신 패턴. 의원회 전후. 패턴이 의원을 가리켰다. Alder가 의원이었다. 3년. MCC 출신. 그것이 지금 이 방에 있었다.", "en": "Thomas Alder. There was what Kenji had said. The FSP mole. Communication patterns. Before and after assembly meetings. The pattern pointed to an assembly member. Alder was an assembly member. Three years. From MCC. That was in this room now." } }
+        {
+          "text": {
+            "ko": "Thomas Alder. Kenji가 말한 것이 있었다. FSP 내부자. 통신 패턴. 의원회 전후. 패턴이 의원을 가리켰다. Alder가 의원이었다. 3년. MCC 출신. 그것이 지금 이 방에 있었다.",
+            "en": "Thomas Alder. There was what Kenji had said. The FSP mole. Communication patterns. Before and after assembly meetings. The pattern pointed to an assembly member. Alder was an assembly member. Three years. From MCC. That was in this room now."
+          }
+        }
       ]
     },
     {
@@ -156,7 +333,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "세 후보가 더 있었다. Pak Seung-ho는 실용주의자였다. Dr. Renata Vieira는 의료 전문가였다. Thomas Alder는 MCC 출신이었다. 그것이 논란이었다. MCC 출신이 FSP 의장이 될 수 있는가. 그것이 오늘 의원회의 다른 안건이었다.", "en": "Three more candidates. Pak Seung-ho was a pragmatist. Dr. Renata Vieira was a medical specialist. Thomas Alder had come from MCC. That was controversial. Could an MCC person become FSP chair. That was another item on today's assembly." } }
+        {
+          "text": {
+            "ko": "세 후보가 더 있었다. Pak Seung-ho는 실용주의자였다. Dr. Renata Vieira는 의료 전문가였다. Thomas Alder는 MCC 출신이었다. 그것이 논란이었다. MCC 출신이 FSP 의장이 될 수 있는가. 그것이 오늘 의원회의 다른 안건이었다.",
+            "en": "Three more candidates. Pak Seung-ho was a pragmatist. Dr. Renata Vieira was a medical specialist. Thomas Alder had come from MCC. That was controversial. Could an MCC person become FSP chair. That was another item on today's assembly."
+          }
+        }
       ]
     },
     {
@@ -166,10 +348,38 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "serious", "text": { "ko": "Mikhail. FSP가 MCC와 협상 테이블에 앉을 수 있어요. 내가 의장이 되면.", "en": "Mikhail. FSP can sit at the negotiating table with MCC. If I become chair." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "협상 테이블에서 뭘 원해요.", "en": "What do you want from the negotiating table." } },
-        { "speaker": "amara", "emotion": "calm", "text": { "ko": "광부들의 안전이요. 법적 보호요. 그것이 없으면 아무것도 없어요.", "en": "The safety of miners. Legal protection. Without those there's nothing." } },
-        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "그것을 위해 MCC와 앉는 거예요. 아니면 MCC가 그것을 줄 거라서 앉는 거예요.", "en": "Are you sitting with MCC to get those. Or because MCC will give those." } }
+        {
+          "speaker": "amara",
+          "emotion": "serious",
+          "text": {
+            "ko": "Mikhail. FSP가 MCC와 협상 테이블에 앉을 수 있어요. 내가 의장이 되면.",
+            "en": "Mikhail. FSP can sit at the negotiating table with MCC. If I become chair."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "협상 테이블에서 뭘 원해요.",
+            "en": "What do you want from the negotiating table."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "calm",
+          "text": {
+            "ko": "광부들의 안전이요. 법적 보호요. 그것이 없으면 아무것도 없어요.",
+            "en": "The safety of miners. Legal protection. Without those there's nothing."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "그것을 위해 MCC와 앉는 거예요. 아니면 MCC가 그것을 줄 거라서 앉는 거예요.",
+            "en": "Are you sitting with MCC to get those. Or because MCC will give those."
+          }
+        }
       ]
     },
     {
@@ -179,7 +389,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mikhail과 Amara의 차이였다. Mikhail은 의심했다. Amara는 가능성을 봤다. 그것이 28년과 11년의 차이였다. 더 오래 본 사람은 더 많이 의심했다. 그것이 좋은 것인지 나쁜 것인지는 알 수 없었다.", "en": "The difference between Mikhail and Amara. Mikhail doubted. Amara saw possibility. That was the difference between twenty-eight years and eleven years. Those who had seen longer doubted more. Whether that was good or bad was unknowable." } }
+        {
+          "text": {
+            "ko": "Mikhail과 Amara의 차이였다. Mikhail은 의심했다. Amara는 가능성을 봤다. 그것이 28년과 11년의 차이였다. 더 오래 본 사람은 더 많이 의심했다. 그것이 좋은 것인지 나쁜 것인지는 알 수 없었다.",
+            "en": "The difference between Mikhail and Amara. Mikhail doubted. Amara saw possibility. That was the difference between twenty-eight years and eleven years. Those who had seen longer doubted more. Whether that was good or bad was unknowable."
+          }
+        }
       ]
     },
     {
@@ -189,7 +404,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "환경 경보가 울렸다. 의사당 시스템. 헬라스 외곽 지역 먼지 폭풍 경보. 규모 4. 화성 기준으로 큰 것이었다. 창문 너머로 지평선이 변하고 있었다. 붉은 것이 더 붉어지고 있었다.", "en": "An environmental alarm sounded. Assembly hall system. Dust storm warning for outer Hellas region. Scale 4. Large by Martian standards. Through the window the horizon was changing. The red was getting redder." } }
+        {
+          "text": {
+            "ko": "환경 경보가 울렸다. 의사당 시스템. 헬라스 외곽 지역 먼지 폭풍 경보. 규모 4. 화성 기준으로 큰 것이었다. 창문 너머로 지평선이 변하고 있었다. 붉은 것이 더 붉어지고 있었다.",
+            "en": "An environmental alarm sounded. Assembly hall system. Dust storm warning for outer Hellas region. Scale 4. Large by Martian standards. Through the window the horizon was changing. The red was getting redder."
+          }
+        }
       ]
     },
     {
@@ -199,9 +419,31 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "tense", "effect": "character_enter:lena:slide_right", "text": { "ko": "규모 4예요. 광산 마을들이 위험해요. 특히 헬라스 외곽.", "en": "Scale 4. Mining villages are at risk. Especially outer Hellas." } },
-        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "의원회를 멈출 수 없어요. 의장 선거는 정해진 날 해야 해요. 그것이 절차예요.", "en": "Can't stop the assembly. The chair election must happen on the scheduled day. That's procedure." } },
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "그러나 광산 마을들이.", "en": "But the mining villages." } }
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "규모 4예요. 광산 마을들이 위험해요. 특히 헬라스 외곽.",
+            "en": "Scale 4. Mining villages are at risk. Especially outer Hellas."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "text": {
+            "ko": "의원회를 멈출 수 없어요. 의장 선거는 정해진 날 해야 해요. 그것이 절차예요.",
+            "en": "Can't stop the assembly. The chair election must happen on the scheduled day. That's procedure."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "그러나 광산 마을들이.",
+            "en": "But the mining villages."
+          }
+        }
       ]
     },
     {
@@ -211,9 +453,30 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "serious", "text": { "ko": "선거를 미뤄야 해요. 위기가 먼저예요.", "en": "Must postpone the election. Crisis comes first." } },
-        { "speaker": "yuna", "emotion": "passionate", "text": { "ko": "미룰 수 없어요. 이게 MCC가 원하는 거예요. 우리를 분열시키는 거예요.", "en": "Can't postpone. This is what MCC wants. To divide us." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "둘 다 맞아요.", "en": "Both are right." } }
+        {
+          "speaker": "amara",
+          "emotion": "serious",
+          "text": {
+            "ko": "선거를 미뤄야 해요. 위기가 먼저예요.",
+            "en": "Must postpone the election. Crisis comes first."
+          }
+        },
+        {
+          "speaker": "yuna",
+          "emotion": "passionate",
+          "text": {
+            "ko": "미룰 수 없어요. 이게 MCC가 원하는 거예요. 우리를 분열시키는 거예요.",
+            "en": "Can't postpone. This is what MCC wants. To divide us."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "둘 다 맞아요.",
+            "en": "Both are right."
+          }
+        }
       ]
     },
     {
@@ -223,7 +486,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "두 가지가 동시에 있었다. 의장 선거. 환경 위기. 화성에서 두 가지가 동시에 오는 것은 보통 일이었다. 그러나 이 두 가지가 같은 날 온 것은 우연이 아닐 수 있었다. MCC가 알고 있었다면.", "en": "Two things at once. The chair election. Environmental crisis. Two things coming at once on Mars was normal. But these two coming the same day might not be coincidence. If MCC had known." } }
+        {
+          "text": {
+            "ko": "두 가지가 동시에 있었다. 의장 선거. 환경 위기. 화성에서 두 가지가 동시에 오는 것은 보통 일이었다. 그러나 이 두 가지가 같은 날 온 것은 우연이 아닐 수 있었다. MCC가 알고 있었다면.",
+            "en": "Two things at once. The chair election. Environmental crisis. Two things coming at once on Mars was normal. But these two coming the same day might not be coincidence. If MCC had known."
+          }
+        }
       ]
     },
     {
@@ -233,7 +501,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "FSP 내부자. Kenji가 말한 것. 고위직. 통신 패턴. 그것이 지금 이 방에 있었다. 다섯 후보 중 한 명이 그것일 수 있었다. 아니면 의원 중 한 명. 아니면 Mikhail 주변 사람. 알 수 없었다.", "en": "The FSP mole. What Kenji had said. Someone senior. Communication patterns. That was in this room now. One of the five candidates might be it. Or one of the representatives. Or someone around Mikhail. Unknowable." } }
+        {
+          "text": {
+            "ko": "FSP 내부자. Kenji가 말한 것. 고위직. 통신 패턴. 그것이 지금 이 방에 있었다. 다섯 후보 중 한 명이 그것일 수 있었다. 아니면 의원 중 한 명. 아니면 Mikhail 주변 사람. 알 수 없었다.",
+            "en": "The FSP mole. What Kenji had said. Someone senior. Communication patterns. That was in this room now. One of the five candidates might be it. Or one of the representatives. Or someone around Mikhail. Unknowable."
+          }
+        }
       ]
     },
     {
@@ -243,7 +516,13 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "창문에 먼지가 치기 시작했다. 규모 4 폭풍. 의사당 안의 불빛이 흔들렸다. 비상 전원으로 바뀌는 것이었다. 그러나 창문은 거기 있었다. 먼지가 쳐도 거기 있었다.", "en": "Dust began hitting the windows. Scale 4 storm. The lights in the assembly hall flickered. Switching to emergency power. But the windows were there. They were there even as the dust hit." }, "overlay": "dust_storm" }
+        {
+          "text": {
+            "ko": "창문에 먼지가 치기 시작했다. 규모 4 폭풍. 의사당 안의 불빛이 흔들렸다. 비상 전원으로 바뀌는 것이었다. 그러나 창문은 거기 있었다. 먼지가 쳐도 거기 있었다.",
+            "en": "Dust began hitting the windows. Scale 4 storm. The lights in the assembly hall flickered. Switching to emergency power. But the windows were there. They were there even as the dust hit."
+          },
+          "background": "fsp_ch7_assembly_l21_00_dust_storm"
+        }
       ]
     },
     {
@@ -253,9 +532,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "창문을 봐요.", "en": "Look at the windows." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "저 바깥에 사람들이 있어요. 먼지 속에서도. 광산 마을들. 대피 중일 거예요.", "en": "There are people outside there. Even in the dust. The mining villages. They'll be evacuating." } },
-        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "선거를 합니다. 그리고 동시에 대피 지원을 보냅니다. 두 가지 다.", "en": "We hold the election. And simultaneously send evacuation support. Both." } }
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "text": {
+            "ko": "창문을 봐요.",
+            "en": "Look at the windows."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "저 바깥에 사람들이 있어요. 먼지 속에서도. 광산 마을들. 대피 중일 거예요.",
+            "en": "There are people outside there. Even in the dust. The mining villages. They'll be evacuating."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "선거를 합니다. 그리고 동시에 대피 지원을 보냅니다. 두 가지 다.",
+            "en": "We hold the election. And simultaneously send evacuation support. Both."
+          }
+        }
       ]
     },
     {
@@ -263,12 +563,59 @@
       "type": "choice",
       "background": "fsp_assembly_hall",
       "bgm": "choice_tension",
-      "prompt": { "ko": "다섯 후보. 환경 위기. FSP 내부자. Mikhail이 당신 의견을 묻는다.", "en": "Five candidates. Environmental crisis. FSP mole. Mikhail asks your opinion." },
+      "prompt": {
+        "ko": "다섯 후보. 환경 위기. FSP 내부자. Mikhail이 당신 의견을 묻는다.",
+        "en": "Five candidates. Environmental crisis. FSP mole. Mikhail asks your opinion."
+      },
       "choices": [
-        { "id": "fsp_ch7_amara", "text": { "ko": "Amara Okafor. 협상과 지속.", "en": "Amara Okafor. Negotiation and continuity." }, "tone": "diplomatic", "preview_hint": { "ko": "→ FSP 안정적 전환, 타협 노선", "en": "→ FSP stable transition, compromise path" } },
-        { "id": "fsp_ch7_yuna", "text": { "ko": "Yuna Kim. 60명 마을의 아이.", "en": "Yuna Kim. The child of the sixty-person village." }, "tone": "idealistic", "preview_hint": { "ko": "→ FSP 급진화, MCC 강경 대응", "en": "→ FSP radicalizes, MCC responds forcefully" } },
-        { "id": "fsp_ch7_mikhail", "text": { "ko": "Mikhail이 계속해야 한다고 말한다.", "en": "Say that Mikhail must continue." }, "tone": "loyal", "preview_hint": { "ko": "→ Mikhail이 고개를 젓는다. 오래", "en": "→ Mikhail shakes his head. Slowly." } },
-        { "id": "fsp_ch7_abstain", "text": { "ko": "의견을 말하지 않는다. FSP의 결정이다.", "en": "Give no opinion. This is FSP's decision." }, "tone": "respectful", "preview_hint": { "ko": "→ Mikhail이 고맙다고 한다. 진심으로", "en": "→ Mikhail thanks you. Sincerely." } }
+        {
+          "id": "fsp_ch7_amara",
+          "text": {
+            "ko": "Amara Okafor. 협상과 지속.",
+            "en": "Amara Okafor. Negotiation and continuity."
+          },
+          "tone": "diplomatic",
+          "preview_hint": {
+            "ko": "→ FSP 안정적 전환, 타협 노선",
+            "en": "→ FSP stable transition, compromise path"
+          }
+        },
+        {
+          "id": "fsp_ch7_yuna",
+          "text": {
+            "ko": "Yuna Kim. 60명 마을의 아이.",
+            "en": "Yuna Kim. The child of the sixty-person village."
+          },
+          "tone": "idealistic",
+          "preview_hint": {
+            "ko": "→ FSP 급진화, MCC 강경 대응",
+            "en": "→ FSP radicalizes, MCC responds forcefully"
+          }
+        },
+        {
+          "id": "fsp_ch7_mikhail",
+          "text": {
+            "ko": "Mikhail이 계속해야 한다고 말한다.",
+            "en": "Say that Mikhail must continue."
+          },
+          "tone": "loyal",
+          "preview_hint": {
+            "ko": "→ Mikhail이 고개를 젓는다. 오래",
+            "en": "→ Mikhail shakes his head. Slowly."
+          }
+        },
+        {
+          "id": "fsp_ch7_abstain",
+          "text": {
+            "ko": "의견을 말하지 않는다. FSP의 결정이다.",
+            "en": "Give no opinion. This is FSP's decision."
+          },
+          "tone": "respectful",
+          "preview_hint": {
+            "ko": "→ Mikhail이 고맙다고 한다. 진심으로",
+            "en": "→ Mikhail thanks you. Sincerely."
+          }
+        }
       ]
     },
     {
@@ -278,7 +625,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "투표가 있었다. 의원들이 일어섰다. 이름을 불렀다. 화성에서 의결은 이름으로 했다. 기계가 아니라 목소리로. 그것이 FSP의 방식이었다. 이름이 있는 존재가 이름으로 결정하는 것.", "en": "There was a vote. Representatives stood. Called names. On Mars decisions were made with names. Not machines but voices. That was FSP's way. Beings with names deciding with names." } }
+        {
+          "text": {
+            "ko": "투표가 있었다. 의원들이 일어섰다. 이름을 불렀다. 화성에서 의결은 이름으로 했다. 기계가 아니라 목소리로. 그것이 FSP의 방식이었다. 이름이 있는 존재가 이름으로 결정하는 것.",
+            "en": "There was a vote. Representatives stood. Called names. On Mars decisions were made with names. Not machines but voices. That was FSP's way. Beings with names deciding with names."
+          }
+        }
       ]
     },
     {
@@ -288,7 +640,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "먼지 폭풍이 창문을 쳤다. 불빛이 흔들렸다. 그러나 목소리들이 있었다. 이름을 부르는 것들. 그것이 멈추지 않았다. 화성에서 목소리들은 멈추지 않았다. 먼지가 와도.", "en": "The dust storm hit the windows. The lights flickered. But the voices were there. Those calling names. They didn't stop. On Mars voices didn't stop. Even when the dust came." } }
+        {
+          "text": {
+            "ko": "먼지 폭풍이 창문을 쳤다. 불빛이 흔들렸다. 그러나 목소리들이 있었다. 이름을 부르는 것들. 그것이 멈추지 않았다. 화성에서 목소리들은 멈추지 않았다. 먼지가 와도.",
+            "en": "The dust storm hit the windows. The lights flickered. But the voices were there. Those calling names. They didn't stop. On Mars voices didn't stop. Even when the dust came."
+          }
+        }
       ]
     },
     {
@@ -298,9 +655,30 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "보스. Alder 투표 패턴 봐요. 이상해요.", "en": "Boss. Look at Alder's voting pattern. Strange." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "Kenji 데이터의 패턴이랑 같아요.", "en": "It matches the pattern in Kenji's data." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "알고 있어요.", "en": "I know." } }
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "보스. Alder 투표 패턴 봐요. 이상해요.",
+            "en": "Boss. Look at Alder's voting pattern. Strange."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Kenji 데이터의 패턴이랑 같아요.",
+            "en": "It matches the pattern in Kenji's data."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "알고 있어요.",
+            "en": "I know."
+          }
+        }
       ]
     },
     {
@@ -310,7 +688,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mikhail이 알고 있었다. 그것이 이 사람의 것이었다. 모든 것을 알면서 말하지 않는 것. 차를 끓이면서 기다리는 것. 28년의 방식이었다.", "en": "Mikhail knew. That was this person's thing. Knowing everything while not speaking. Making tea and waiting. The way of twenty-eight years." } }
+        {
+          "text": {
+            "ko": "Mikhail이 알고 있었다. 그것이 이 사람의 것이었다. 모든 것을 알면서 말하지 않는 것. 차를 끓이면서 기다리는 것. 28년의 방식이었다.",
+            "en": "Mikhail knew. That was this person's thing. Knowing everything while not speaking. Making tea and waiting. The way of twenty-eight years."
+          }
+        }
       ]
     },
     {
@@ -319,8 +702,14 @@
       "background": "fsp_base_exterior",
       "bgm": "battle_theme_fsp",
       "transition": "fade_slow",
-      "title": { "ko": "의원회 수호", "en": "Assembly Guard" },
-      "subtitle": { "ko": "FSP 의사당 — 민주주의의 무게", "en": "FSP Assembly — The Weight of Democracy" }
+      "title": {
+        "ko": "의원회 수호",
+        "en": "Assembly Guard"
+      },
+      "subtitle": {
+        "ko": "FSP 의사당 — 민주주의의 무게",
+        "en": "FSP Assembly — The Weight of Democracy"
+      }
     },
     {
       "id": "s_result",
@@ -334,8 +723,23 @@
       "background": "fsp_assembly_hall",
       "bgm": "victory_calm",
       "lines": [
-        { "speaker": "mikhail", "emotion": "moved", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "의원회가 끝났어요.", "en": "The assembly has concluded." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "28년 전에 여기서 시작했어요. 창문이 없었어요 그때는. 내가 만들었어요. 이유는 간단해요. 바깥을 잊으면 안 되니까.", "en": "Twenty-eight years ago it started here. There were no windows then. I made them. The reason is simple. We must not forget the outside." } }
+        {
+          "speaker": "mikhail",
+          "emotion": "moved",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "의원회가 끝났어요.",
+            "en": "The assembly has concluded."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "28년 전에 여기서 시작했어요. 창문이 없었어요 그때는. 내가 만들었어요. 이유는 간단해요. 바깥을 잊으면 안 되니까.",
+            "en": "Twenty-eight years ago it started here. There were no windows then. I made them. The reason is simple. We must not forget the outside."
+          }
+        }
       ]
     },
     {
@@ -344,7 +748,12 @@
       "background": "fsp_assembly_hall",
       "bgm": "defeat_ambient",
       "lines": [
-        { "text": { "ko": "의원회가 결론에 이르지 못했다. 다섯 명. 다섯 개의 방향. 화성에서 방향이 많으면 아무 곳으로도 가지 못했다. Mikhail이 일어섰다. 다리가 좋지 않았다. 그러나 일어섰다. 그것이 이 사람의 방식이었다.", "en": "The assembly reached no conclusion. Five people. Five directions. On Mars too many directions meant going nowhere. Mikhail stood. His leg was troubled. But he stood. That was this man's way." } }
+        {
+          "text": {
+            "ko": "의원회가 결론에 이르지 못했다. 다섯 명. 다섯 개의 방향. 화성에서 방향이 많으면 아무 곳으로도 가지 못했다. Mikhail이 일어섰다. 다리가 좋지 않았다. 그러나 일어섰다. 그것이 이 사람의 방식이었다.",
+            "en": "The assembly reached no conclusion. Five people. Five directions. On Mars too many directions meant going nowhere. Mikhail stood. His leg was troubled. But he stood. That was this man's way."
+          }
+        }
       ]
     },
     {
@@ -354,7 +763,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "먼지 폭풍 경보가 계속됐다. 그러나 의원회가 끝났다. FSP의 결정이 있었다. 그것이 좋은지 나쁜지는 시간이 말할 것이었다. 지금은 결정이 있었다. 그것이 중요한 것이었다.", "en": "The dust storm warning continued. But the assembly ended. FSP's decision had been made. Whether it was good or bad time would tell. For now there was a decision. That was what mattered." } }
+        {
+          "text": {
+            "ko": "먼지 폭풍 경보가 계속됐다. 그러나 의원회가 끝났다. FSP의 결정이 있었다. 그것이 좋은지 나쁜지는 시간이 말할 것이었다. 지금은 결정이 있었다. 그것이 중요한 것이었다.",
+            "en": "The dust storm warning continued. But the assembly ended. FSP's decision had been made. Whether it was good or bad time would tell. For now there was a decision. That was what mattered."
+          }
+        }
       ]
     },
     {
@@ -364,7 +778,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "광산 마을들로 연락이 갔다. 대피 준비. 먼지 폭풍 대비. 그것이 FSP가 하는 것이었다. 의원회가 끝나도 일은 계속됐다. 화성에서 일은 항상 계속됐다.", "en": "Contact went to the mining villages. Evacuation preparation. Dust storm readiness. That was what FSP did. Even after the assembly ended the work continued. On Mars work always continued." } }
+        {
+          "text": {
+            "ko": "광산 마을들로 연락이 갔다. 대피 준비. 먼지 폭풍 대비. 그것이 FSP가 하는 것이었다. 의원회가 끝나도 일은 계속됐다. 화성에서 일은 항상 계속됐다.",
+            "en": "Contact went to the mining villages. Evacuation preparation. Dust storm readiness. That was what FSP did. Even after the assembly ended the work continued. On Mars work always continued."
+          }
+        }
       ]
     },
     {
@@ -374,8 +793,22 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "보스. FSP 내부자 파악해야 해요. 의원회 안에 있을 수 있어요.", "en": "Boss. Need to find the FSP mole. Could be inside the assembly." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "오늘 투표 패턴이 이상했어요. 특히 Thomas Alder.", "en": "Today's voting pattern was strange. Thomas Alder especially." } }
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "보스. FSP 내부자 파악해야 해요. 의원회 안에 있을 수 있어요.",
+            "en": "Boss. Need to find the FSP mole. Could be inside the assembly."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "오늘 투표 패턴이 이상했어요. 특히 Thomas Alder.",
+            "en": "Today's voting pattern was strange. Thomas Alder especially."
+          }
+        }
       ]
     },
     {
@@ -385,7 +818,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Thomas Alder. MCC 출신. FSP 의원이 된 것. 가능한 일이었다. 화성에서는 많은 것이 바뀌었다. 사람도. 소속도. 그러나 바뀌지 않는 것도 있었다. 과거의 것들. 몸이 기억하는 것들.", "en": "Thomas Alder. From MCC. Became an FSP representative. That was possible. On Mars many things changed. People too. Affiliations too. But some things didn't change. Things of the past. Things the body remembered." } }
+        {
+          "text": {
+            "ko": "Thomas Alder. MCC 출신. FSP 의원이 된 것. 가능한 일이었다. 화성에서는 많은 것이 바뀌었다. 사람도. 소속도. 그러나 바뀌지 않는 것도 있었다. 과거의 것들. 몸이 기억하는 것들.",
+            "en": "Thomas Alder. From MCC. Became an FSP representative. That was possible. On Mars many things changed. People too. Affiliations too. But some things didn't change. Things of the past. Things the body remembered."
+          }
+        }
       ]
     },
     {
@@ -395,7 +833,13 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "의원회 의사당이 조용했다. 창문에 먼지가 날렸다. 폭풍이 오고 있었다. Mikhail이 창문 앞에 섰다. 광산이 보였다. 먼지 속에서도 보였다. 그것이 창문을 만든 이유였다.", "en": "The assembly hall was quiet. Dust hit the windows. The storm was coming. Mikhail stood before the window. The mines were visible. Visible even through the dust. That was why the windows had been made." }, "overlay": "alone_window" }
+        {
+          "text": {
+            "ko": "의원회 의사당이 조용했다. 창문에 먼지가 날렸다. 폭풍이 오고 있었다. Mikhail이 창문 앞에 섰다. 광산이 보였다. 먼지 속에서도 보였다. 그것이 창문을 만든 이유였다.",
+            "en": "The assembly hall was quiet. Dust hit the windows. The storm was coming. Mikhail stood before the window. The mines were visible. Visible even through the dust. That was why the windows had been made."
+          },
+          "background": "fsp_ch7_assembly_l36_00_alone_window"
+        }
       ]
     },
     {
@@ -405,9 +849,30 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "보스. 잠깐 있어요.", "en": "Boss. Stay a moment." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "Alder 얘기. 나도 알고 있었어요.", "en": "About Alder. I knew too." } },
-        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "그러나 증거가 필요해요. 의심만으로는 안 돼요. FSP가 그래서 FSP인 거예요.", "en": "But evidence is needed. Suspicion alone isn't enough. That's why FSP is FSP." } }
+        {
+          "speaker": "mikhail",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "보스. 잠깐 있어요.",
+            "en": "Boss. Stay a moment."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Alder 얘기. 나도 알고 있었어요.",
+            "en": "About Alder. I knew too."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "text": {
+            "ko": "그러나 증거가 필요해요. 의심만으로는 안 돼요. FSP가 그래서 FSP인 거예요.",
+            "en": "But evidence is needed. Suspicion alone isn't enough. That's why FSP is FSP."
+          }
+        }
       ]
     },
     {
@@ -417,7 +882,12 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그것이 Mikhail의 방식이었다. 의심해도 증거를 기다렸다. 28년 동안 그렇게 했다. 그것이 FSP를 지금까지 오게 한 것이었다. 빠른 것보다 맞는 것.", "en": "That was Mikhail's way. Even with suspicion, he waited for evidence. That's how it had been for twenty-eight years. That was what had brought FSP to now. Being right over being fast." } }
+        {
+          "text": {
+            "ko": "그것이 Mikhail의 방식이었다. 의심해도 증거를 기다렸다. 28년 동안 그렇게 했다. 그것이 FSP를 지금까지 오게 한 것이었다. 빠른 것보다 맞는 것.",
+            "en": "That was Mikhail's way. Even with suspicion, he waited for evidence. That's how it had been for twenty-eight years. That was what had brought FSP to now. Being right over being fast."
+          }
+        }
       ]
     },
     {
@@ -427,9 +897,30 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "새 의장이 선출됐어요. 이제 내 손을 떠났어요.", "en": "A new chair has been elected. Now it leaves my hands." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "FSP는 사람이 만드는 게 아니에요. 이름들이 만드는 거예요.", "en": "FSP isn't made by a person. It's made by names." } },
-        { "speaker": "mikhail", "emotion": "calm", "text": { "ko": "Lena 팔 위의 이름들. 그것이 FSP예요.", "en": "The names on Lena's arm. Those are FSP." } }
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "text": {
+            "ko": "새 의장이 선출됐어요. 이제 내 손을 떠났어요.",
+            "en": "A new chair has been elected. Now it leaves my hands."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "FSP는 사람이 만드는 게 아니에요. 이름들이 만드는 거예요.",
+            "en": "FSP isn't made by a person. It's made by names."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "calm",
+          "text": {
+            "ko": "Lena 팔 위의 이름들. 그것이 FSP예요.",
+            "en": "The names on Lena's arm. Those are FSP."
+          }
+        }
       ]
     },
     {
@@ -439,9 +930,21 @@
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "의원회가 끝났다. Mikhail이 혼자 남았다. 창문 앞에 섰다. 광산이 보였다. 저 광산에서 일하는 사람들. 그 사람들의 이름이 이 조직을 만들었다. 이름들이 조직보다 오래 살아남는 것이었다. 그것을 알았다. 창문을 만든 이유가 그것이었다.\n\n먼지 폭풍이 오고 있었다. 그러나 창문은 거기 있었다. 먼지가 와도 거기 있을 것이었다.", "en": "The assembly ended. Mikhail remained alone. He stood before the window. The mines were visible. The people working in those mines. Their names had made this organization. Names outlasted organizations. He knew that. That was why he had made the windows.\n\nA dust storm was coming. But the windows were there. They would be there even when the dust came." }, "overlay": "candle_flame" }
+        {
+          "text": {
+            "ko": "의원회가 끝났다. Mikhail이 혼자 남았다. 창문 앞에 섰다. 광산이 보였다. 저 광산에서 일하는 사람들. 그 사람들의 이름이 이 조직을 만들었다. 이름들이 조직보다 오래 살아남는 것이었다. 그것을 알았다. 창문을 만든 이유가 그것이었다.\n\n먼지 폭풍이 오고 있었다. 그러나 창문은 거기 있었다. 먼지가 와도 거기 있을 것이었다.",
+            "en": "The assembly ended. Mikhail remained alone. He stood before the window. The mines were visible. The people working in those mines. Their names had made this organization. Names outlasted organizations. He knew that. That was why he had made the windows.\n\nA dust storm was coming. But the windows were there. They would be there even when the dust came."
+          },
+          "background": "fsp_ch7_assembly_l40_00_candle_flame"
+        }
       ],
-      "next_chapter_preview": { "questId": "fsp_campaign_ch8", "teaser": { "ko": "다음 — 가이아", "en": "Next — Gaia" } }
+      "next_chapter_preview": {
+        "questId": "fsp_campaign_ch8",
+        "teaser": {
+          "ko": "다음 — 가이아",
+          "en": "Next — Gaia"
+        }
+      }
     }
   ]
 }

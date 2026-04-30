@@ -2,11 +2,22 @@
   "questId": "fsp_campaign_ch1",
   "campaignId": "fsp_route",
   "chapterNumber": 1,
-  "title": { "ko": "차의 무게", "en": "The Weight of Tea" },
-  "location": { "id": "hellas_fsp_hq", "displayNameKo": "헬라스 분지 FSP 본부" },
+  "title": {
+    "ko": "차의 무게",
+    "en": "The Weight of Tea"
+  },
+  "location": {
+    "id": "hellas_fsp_hq",
+    "displayNameKo": "헬라스 분지 FSP 본부"
+  },
   "environment": "morning_cold",
   "estimatedPlayTimeMinutes": 20,
-  "characters": ["player", "mikhail", "lena", "amara"],
+  "characters": [
+    "player",
+    "mikhail",
+    "lena",
+    "amara"
+  ],
   "scenes": [
     {
       "id": "s01",
@@ -15,7 +26,12 @@
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "헬라스 분지. 자유 정착지 FSP 본부 아침. Mikhail Anders는 창문을 보지 않았다. 창문 너머에 화성이 있다는 것을 알았다. 알면 충분했다. 그는 차를 끓였다. 두 잔. 손님이 오면 두 잔이고 혼자라도 두 잔이었다. 30년 동안 그랬다.", "en": "Hellas Basin. FSP headquarters. Morning. Mikhail Anders didn't look at the window. He knew Mars was on the other side. Knowing was enough. He boiled water for tea. Two cups. Two cups if a guest came and two cups if he was alone. It had been that way for thirty years." } }
+        {
+          "text": {
+            "ko": "헬라스 분지. 자유 정착지 FSP 본부 아침. Mikhail Anders는 창문을 보지 않았다. 창문 너머에 화성이 있다는 것을 알았다. 알면 충분했다. 그는 차를 끓였다. 두 잔. 손님이 오면 두 잔이고 혼자라도 두 잔이었다. 30년 동안 그랬다.",
+            "en": "Hellas Basin. FSP headquarters. Morning. Mikhail Anders didn't look at the window. He knew Mars was on the other side. Knowing was enough. He boiled water for tea. Two cups. Two cups if a guest came and two cups if he was alone. It had been that way for thirty years."
+          }
+        }
       ]
     },
     {
@@ -25,7 +41,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "찻물이 끓었다. 기다렸다. 서두르지 않았다. 차에 대해서만 그런 것은 아니었다. 그는 광부였을 때도 그랬다. 오른쪽 다리가 뻐근했다. 앉아있으면 늘 그랬다. 광산 사고. 다리는 그것을 기억했다. 다른 것들은 잊어도 다리는 기억했다.", "en": "The water boiled. He waited. No hurry. This wasn't only true of tea. It had been true when he was a miner too. His right leg ached. It always did when he sat. The mine accident. The leg remembered it. He could forget other things. The leg didn't." } }
+        {
+          "text": {
+            "ko": "찻물이 끓었다. 기다렸다. 서두르지 않았다. 차에 대해서만 그런 것은 아니었다. 그는 광부였을 때도 그랬다. 오른쪽 다리가 뻐근했다. 앉아있으면 늘 그랬다. 광산 사고. 다리는 그것을 기억했다. 다른 것들은 잊어도 다리는 기억했다.",
+            "en": "The water boiled. He waited. No hurry. This wasn't only true of tea. It had been true when he was a miner too. His right leg ached. It always did when he sat. The mine accident. The leg remembered it. He could forget other things. The leg didn't."
+          }
+        }
       ]
     },
     {
@@ -35,7 +56,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "차를 따랐다. 두 손으로. 오른손이 왼손을 받쳤다. 그것은 30년 된 방식이었다. 어떤 광부가 가르쳐주었는지는 기억하지 못했다. 그러나 두 손으로 따르는 것은 기억했다. 잔이 채워졌다. 두 잔이 채워졌다.", "en": "He poured the tea. With both hands. His right hand cradled his left. It was a thirty-year habit. He couldn't remember which miner had taught him. But he remembered the two hands. The cups filled. Both cups filled." } }
+        {
+          "text": {
+            "ko": "차를 따랐다. 두 손으로. 오른손이 왼손을 받쳤다. 그것은 30년 된 방식이었다. 어떤 광부가 가르쳐주었는지는 기억하지 못했다. 그러나 두 손으로 따르는 것은 기억했다. 잔이 채워졌다. 두 잔이 채워졌다.",
+            "en": "He poured the tea. With both hands. His right hand cradled his left. It was a thirty-year habit. He couldn't remember which miner had taught him. But he remembered the two hands. The cups filled. Both cups filled."
+          }
+        }
       ]
     },
     {
@@ -45,7 +71,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "문이 열렸다. 바람이 들어왔다. 그 뒤로 사람이 들어왔다. 가방을 들고 있었다. 작은 가방이었다. 손이 거칠었다. 광부의 손이었지만 광부는 아니었다. Amara가 추천한 사람이었다. 이 사람이 왜 화성에 왔는지는 묻지 않았다. 중요한 것은 지금 여기 있다는 것이었다.", "en": "The door opened. Cold air came in. A person came in behind it. Carrying a small bag. Rough hands. Miner's hands, but not a miner. This was the one Amara had recommended. Why this person had come to Mars wasn't asked. What mattered was being here now." } }
+        {
+          "text": {
+            "ko": "문이 열렸다. 바람이 들어왔다. 그 뒤로 사람이 들어왔다. 가방을 들고 있었다. 작은 가방이었다. 손이 거칠었다. 광부의 손이었지만 광부는 아니었다. Amara가 추천한 사람이었다. 이 사람이 왜 화성에 왔는지는 묻지 않았다. 중요한 것은 지금 여기 있다는 것이었다.",
+            "en": "The door opened. Cold air came in. A person came in behind it. Carrying a small bag. Rough hands. Miner's hands, but not a miner. This was the one Amara had recommended. Why this person had come to Mars wasn't asked. What mattered was being here now."
+          }
+        }
       ]
     },
     {
@@ -55,7 +86,15 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "gentle", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "앉아요. 차야. 지구에서 가져온 씨앗으로 키웠어. 화성에서 자란 유일한 차.", "en": "Sit down. Tea. Grown from seeds brought from Earth. The only tea grown on Mars." } }
+        {
+          "speaker": "mikhail",
+          "emotion": "gentle",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "앉아요. 차야. 지구에서 가져온 씨앗으로 키웠어. 화성에서 자란 유일한 차.",
+            "en": "Sit down. Tea. Grown from seeds brought from Earth. The only tea grown on Mars."
+          }
+        }
       ]
     },
     {
@@ -65,7 +104,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그 사람은 차를 받았다. 잔을 두 손으로 감쌌다. 마시지는 않았다. 들고만 있었다. Mikhail은 그것을 보았다. 아무 말도 하지 않았다. 차를 가져가고 마시지 않는 사람들이 있었다. 그것은 그들의 방식이었다. 그것도 방식이었다.", "en": "The person took the tea. Held the cup in both hands. Didn't drink. Just held it. Mikhail saw this. Said nothing. There were people who took tea and didn't drink it. That was their way. That too was a way." } }
+        {
+          "text": {
+            "ko": "그 사람은 차를 받았다. 잔을 두 손으로 감쌌다. 마시지는 않았다. 들고만 있었다. Mikhail은 그것을 보았다. 아무 말도 하지 않았다. 차를 가져가고 마시지 않는 사람들이 있었다. 그것은 그들의 방식이었다. 그것도 방식이었다.",
+            "en": "The person took the tea. Held the cup in both hands. Didn't drink. Just held it. Mikhail saw this. Said nothing. There were people who took tea and didn't drink it. That was their way. That too was a way."
+          }
+        }
       ]
     },
     {
@@ -75,7 +119,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mikhail이 말했다. Amara가 어제 연락했어. 헬라스 북쪽 광부 55명. 사고가 있었어. MCC가 현장을 봉쇄했어. 광부들이 안에 있는지 밖에 있는지 아무도 모르는 상태야.\n\n현장 진입. 생존자 확인. 그것뿐이야.", "en": "Mikhail said. Amara contacted me yesterday. Fifty-five miners north of Hellas. There was an accident. MCC sealed the site. Nobody knows if the miners are inside or out.\n\nGet inside. Confirm survivors. That's all." } }
+        {
+          "text": {
+            "ko": "Mikhail이 말했다. Amara가 어제 연락했어. 헬라스 북쪽 광부 55명. 사고가 있었어. MCC가 현장을 봉쇄했어. 광부들이 안에 있는지 밖에 있는지 아무도 모르는 상태야.\n\n현장 진입. 생존자 확인. 그것뿐이야.",
+            "en": "Mikhail said. Amara contacted me yesterday. Fifty-five miners north of Hellas. There was an accident. MCC sealed the site. Nobody knows if the miners are inside or out.\n\nGet inside. Confirm survivors. That's all."
+          }
+        }
       ]
     },
     {
@@ -85,7 +134,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그 사람은 차를 마시지 않았다. 잔을 들고 있었다. Mikhail은 그 잔을 잠시 보았다. 차가 식어가고 있었다. 차가 식는 것은 언제나 빨랐다. 화성에서는 모든 것이 빨리 식었다. 온기는 지켜야 하는 것이었다.", "en": "The person still hadn't drunk the tea. Still holding the cup. Mikhail looked at it for a moment. The tea was cooling. Tea always cooled fast. On Mars everything cooled fast. Warmth was something to protect." } }
+        {
+          "text": {
+            "ko": "그 사람은 차를 마시지 않았다. 잔을 들고 있었다. Mikhail은 그 잔을 잠시 보았다. 차가 식어가고 있었다. 차가 식는 것은 언제나 빨랐다. 화성에서는 모든 것이 빨리 식었다. 온기는 지켜야 하는 것이었다.",
+            "en": "The person still hadn't drunk the tea. Still holding the cup. Mikhail looked at it for a moment. The tea was cooling. Tea always cooled fast. On Mars everything cooled fast. Warmth was something to protect."
+          }
+        }
       ]
     },
     {
@@ -95,10 +149,39 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "energetic", "effect": "character_enter:lena:slide_right", "text": { "ko": "보스. 왔어요?", "en": "Boss. You're here?" } },
-        { "speaker": "lena", "emotion": "curious", "text": { "ko": "Mikhail 씨, 이 분 차 안 마시네요.", "en": "Mikhail-ssi, they're not drinking the tea." } },
-        { "speaker": "mikhail", "emotion": "gentle", "text": { "ko": "괜찮아.", "en": "That's fine." } },
-        { "speaker": "lena", "emotion": "grinning", "text": { "ko": "저는 마셔요. 그냥 생각한 거예요, 보스.", "en": "I drink mine. Just saying, boss." } }
+        {
+          "speaker": "lena",
+          "emotion": "energetic",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "보스. 왔어요?",
+            "en": "Boss. You're here?"
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "curious",
+          "text": {
+            "ko": "Mikhail 씨, 이 분 차 안 마시네요.",
+            "en": "Mikhail-ssi, they're not drinking the tea."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "gentle",
+          "text": {
+            "ko": "괜찮아.",
+            "en": "That's fine."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "grinning",
+          "text": {
+            "ko": "저는 마셔요. 그냥 생각한 거예요, 보스.",
+            "en": "I drink mine. Just saying, boss."
+          }
+        }
       ]
     },
     {
@@ -108,7 +191,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "레나의 왼쪽 팔에 문신이 있었다. 이름들이었다. 가족의 이름. 그것이 팔에 있었다. Mikhail은 그 문신을 볼 때마다 같은 생각을 했다. 그 이름 중에 살아있는 사람이 몇인지. 그 생각을 입에 올린 적은 없었다.", "en": "Lena had a tattoo on her left arm. Names. Family names. Mikhail saw those names every time. He always had the same thought when he did. How many of them were still alive. He had never said the thought aloud." } }
+        {
+          "text": {
+            "ko": "레나의 왼쪽 팔에 문신이 있었다. 이름들이었다. 가족의 이름. 그것이 팔에 있었다. Mikhail은 그 문신을 볼 때마다 같은 생각을 했다. 그 이름 중에 살아있는 사람이 몇인지. 그 생각을 입에 올린 적은 없었다.",
+            "en": "Lena had a tattoo on her left arm. Names. Family names. Mikhail saw those names every time. He always had the same thought when he did. How many of them were still alive. He had never said the thought aloud."
+          }
+        }
       ]
     },
     {
@@ -118,9 +206,30 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "북쪽 상황 들었어요. MCC가 봉쇄했어요. 경비가 네 명이에요. 드론 두 개.", "en": "Heard about the north situation. MCC sealed it. Four guards. Two drones." } },
-        { "speaker": "lena", "emotion": "serious", "text": { "ko": "55명이에요. 야간 교대 인원이에요. 사고가 날 때 전부 안에 있었을 거예요.", "en": "Fifty-five. Night shift. They were all inside when the accident happened." } },
-        { "speaker": "mikhail", "emotion": "heavy", "text": { "ko": "사고 경위는 모르는 게 맞아. 들어가봐야 알아.", "en": "Not knowing the accident details is right. Have to go in to know." } }
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "북쪽 상황 들었어요. MCC가 봉쇄했어요. 경비가 네 명이에요. 드론 두 개.",
+            "en": "Heard about the north situation. MCC sealed it. Four guards. Two drones."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "serious",
+          "text": {
+            "ko": "55명이에요. 야간 교대 인원이에요. 사고가 날 때 전부 안에 있었을 거예요.",
+            "en": "Fifty-five. Night shift. They were all inside when the accident happened."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "heavy",
+          "text": {
+            "ko": "사고 경위는 모르는 게 맞아. 들어가봐야 알아.",
+            "en": "Not knowing the accident details is right. Have to go in to know."
+          }
+        }
       ]
     },
     {
@@ -130,7 +239,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "지도가 펼쳐졌다. 헬라스 북부. 광산 구역. MCC 봉쇄선이 표시됐다. 세 개의 진입로. 그 중 두 개는 MCC 경비가 막고 있었다. 세 번째는 비어 있었다. 비어 있는 이유가 있을 것이었다.", "en": "A map was spread. Northern Hellas. Mine sector. MCC perimeter marked. Three entry routes. Two of them guarded. The third was clear. There would be a reason for it being clear." } }
+        {
+          "text": {
+            "ko": "지도가 펼쳐졌다. 헬라스 북부. 광산 구역. MCC 봉쇄선이 표시됐다. 세 개의 진입로. 그 중 두 개는 MCC 경비가 막고 있었다. 세 번째는 비어 있었다. 비어 있는 이유가 있을 것이었다.",
+            "en": "A map was spread. Northern Hellas. Mine sector. MCC perimeter marked. Three entry routes. Two of them guarded. The third was clear. There would be a reason for it being clear."
+          }
+        }
       ]
     },
     {
@@ -140,7 +254,12 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Mikhail이 지도를 짚었다. 두 손으로. 오른손이 왼손을 받치면서. 그 방식이 찻잔을 따를 때와 같았다. 중요한 것을 다루는 방식이 같은 사람이었다. 지도든 차든.", "en": "Mikhail pointed at the map. With both hands. The right supporting the left. The same way as when pouring tea. A person whose way of handling important things was the same. Whether a map or tea." } }
+        {
+          "text": {
+            "ko": "Mikhail이 지도를 짚었다. 두 손으로. 오른손이 왼손을 받치면서. 그 방식이 찻잔을 따를 때와 같았다. 중요한 것을 다루는 방식이 같은 사람이었다. 지도든 차든.",
+            "en": "Mikhail pointed at the map. With both hands. The right supporting the left. The same way as when pouring tea. A person whose way of handling important things was the same. Whether a map or tea."
+          }
+        }
       ]
     },
     {
@@ -150,8 +269,22 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "mikhail", "emotion": "serious", "text": { "ko": "MCC가 왜 봉쇄했는지가 중요해요. 사고를 감추려는 건지. 아니면 다른 이유가 있는 건지.", "en": "Why MCC sealed it matters. Whether they're hiding the accident. Or if there's another reason." } },
-        { "speaker": "mikhail", "emotion": "thoughtful", "text": { "ko": "MCC를 25년 봤어요. 이유 없이 봉쇄하는 경우가 없었어요. 항상 이유가 있었어요. 이유가 나쁜 이유인 게 문제였지.", "en": "Watched MCC for twenty-five years. Never sealed something without a reason. Always had a reason. The problem was the reason was always a bad one." } }
+        {
+          "speaker": "mikhail",
+          "emotion": "serious",
+          "text": {
+            "ko": "MCC가 왜 봉쇄했는지가 중요해요. 사고를 감추려는 건지. 아니면 다른 이유가 있는 건지.",
+            "en": "Why MCC sealed it matters. Whether they're hiding the accident. Or if there's another reason."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "thoughtful",
+          "text": {
+            "ko": "MCC를 25년 봤어요. 이유 없이 봉쇄하는 경우가 없었어요. 항상 이유가 있었어요. 이유가 나쁜 이유인 게 문제였지.",
+            "en": "Watched MCC for twenty-five years. Never sealed something without a reason. Always had a reason. The problem was the reason was always a bad one."
+          }
+        }
       ]
     },
     {
@@ -161,7 +294,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "FSP 기지 안에서 준비가 이루어졌다. 장비. 통신기. 의료 키트. Lena가 점검했다. 빠르게. 그것이 그녀의 방식이었다. 빠르지만 빠뜨리지 않았다. 그것이 오래 살아남은 방식이었다.", "en": "Preparations were made inside the FSP base. Equipment. Communicator. Medical kit. Lena checked them. Quickly. That was her way. Fast but missing nothing. That was the way of surviving long." } }
+        {
+          "text": {
+            "ko": "FSP 기지 안에서 준비가 이루어졌다. 장비. 통신기. 의료 키트. Lena가 점검했다. 빠르게. 그것이 그녀의 방식이었다. 빠르지만 빠뜨리지 않았다. 그것이 오래 살아남은 방식이었다.",
+            "en": "Preparations were made inside the FSP base. Equipment. Communicator. Medical kit. Lena checked them. Quickly. That was her way. Fast but missing nothing. That was the way of surviving long."
+          }
+        }
       ]
     },
     {
@@ -171,10 +309,39 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "speaker": "amara", "emotion": "composed", "effect": "character_enter:amara:slide_right", "text": { "ko": "나도 갈게요.", "en": "I'll go too." } },
-        { "speaker": "mikhail", "emotion": "gentle", "text": { "ko": "Amara. 이번은 아니에요.", "en": "Amara. Not this time." } },
-        { "speaker": "amara", "emotion": "serious", "text": { "ko": "55명이에요, Mikhail. 내가 추천한 사람이 처음 가는 작전이에요. 같이 가야 해요.", "en": "Fifty-five people, Mikhail. This is the first operation for the person I recommended. I need to go." } },
-        { "speaker": "mikhail", "emotion": "quiet", "text": { "ko": "그래서 안 돼요. 당신이 거기 있으면 MCC가 FSP 공식 입장으로 받아들여요. 그것은 협상 카드를 버리는 거예요.", "en": "That's exactly why not. If you're there MCC will take it as FSP official position. That throws away our negotiating card." } }
+        {
+          "speaker": "amara",
+          "emotion": "composed",
+          "effect": "character_enter:amara:slide_right",
+          "text": {
+            "ko": "나도 갈게요.",
+            "en": "I'll go too."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "gentle",
+          "text": {
+            "ko": "Amara. 이번은 아니에요.",
+            "en": "Amara. Not this time."
+          }
+        },
+        {
+          "speaker": "amara",
+          "emotion": "serious",
+          "text": {
+            "ko": "55명이에요, Mikhail. 내가 추천한 사람이 처음 가는 작전이에요. 같이 가야 해요.",
+            "en": "Fifty-five people, Mikhail. This is the first operation for the person I recommended. I need to go."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "quiet",
+          "text": {
+            "ko": "그래서 안 돼요. 당신이 거기 있으면 MCC가 FSP 공식 입장으로 받아들여요. 그것은 협상 카드를 버리는 거예요.",
+            "en": "That's exactly why not. If you're there MCC will take it as FSP official position. That throws away our negotiating card."
+          }
+        }
       ]
     },
     {
@@ -184,7 +351,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Amara가 잠시 있었다. 말이 없었다. 그다음 고개를 끄덕였다. 그것이 이 사람의 방식이었다. 정치적인 사람은 반박이 타당하면 받아들였다. 더 나은 방법이 있으면 그것을 택했다. 그것이 정치였다.", "en": "Amara was still for a moment. No words. Then she nodded. That was her way. A political person accepted a valid counter. If there was a better way they took it. That was politics." } }
+        {
+          "text": {
+            "ko": "Amara가 잠시 있었다. 말이 없었다. 그다음 고개를 끄덕였다. 그것이 이 사람의 방식이었다. 정치적인 사람은 반박이 타당하면 받아들였다. 더 나은 방법이 있으면 그것을 택했다. 그것이 정치였다.",
+            "en": "Amara was still for a moment. No words. Then she nodded. That was her way. A political person accepted a valid counter. If there was a better way they took it. That was politics."
+          }
+        }
       ]
     },
     {
@@ -194,9 +366,30 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "lena", "emotion": "direct", "text": { "ko": "보스. 출발 전에 알아야 할 게 있어요.", "en": "Boss. Need to know something before we leave." } },
-        { "speaker": "lena", "emotion": "tense", "text": { "ko": "55명 중에 Park Sung-jin이 있어요. 내 친구예요. 이름이에요. 내 팔에.", "en": "Among the fifty-five is Park Sung-jin. My friend. A name. On my arm." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "나 빠를 수 있어요. 더 빠를 수 있어요. 그 이유 때문에.", "en": "I can be fast. Even faster. Because of that reason." } }
+        {
+          "speaker": "lena",
+          "emotion": "direct",
+          "text": {
+            "ko": "보스. 출발 전에 알아야 할 게 있어요.",
+            "en": "Boss. Need to know something before we leave."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "tense",
+          "text": {
+            "ko": "55명 중에 Park Sung-jin이 있어요. 내 친구예요. 이름이에요. 내 팔에.",
+            "en": "Among the fifty-five is Park Sung-jin. My friend. A name. On my arm."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "나 빠를 수 있어요. 더 빠를 수 있어요. 그 이유 때문에.",
+            "en": "I can be fast. Even faster. Because of that reason."
+          }
+        }
       ]
     },
     {
@@ -206,7 +399,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "북쪽으로 향했다. 화성 지표. 붉은 것. 바람이 있었다. 모래가 낮게 날았다. 앞에 MCC 봉쇄선이 보였다. 표지판. 경보등. 드론 하나가 상공에 있었다. 조용했다. 조용한 것이 더 무서운 것이었다.", "en": "Heading north. Martian surface. Red. Wind. Sand flew low. Ahead the MCC perimeter was visible. Signs. Warning lights. One drone in the sky. Quiet. Quiet was the more frightening thing." } }
+        {
+          "text": {
+            "ko": "북쪽으로 향했다. 화성 지표. 붉은 것. 바람이 있었다. 모래가 낮게 날았다. 앞에 MCC 봉쇄선이 보였다. 표지판. 경보등. 드론 하나가 상공에 있었다. 조용했다. 조용한 것이 더 무서운 것이었다.",
+            "en": "Heading north. Martian surface. Red. Wind. Sand flew low. Ahead the MCC perimeter was visible. Signs. Warning lights. One drone in the sky. Quiet. Quiet was the more frightening thing."
+          }
+        }
       ]
     },
     {
@@ -216,7 +414,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "경비가 봤다. 두 명이 앞으로 나왔다. MCC 표준 보안복. 헬멧. 통신기. 그들은 말하지 않았다. 서있었다. 그것이 말이었다. 여기 오지 말라는 말. 아니면 어디서 왔는지 말하라는 말.", "en": "The guards watched. Two came forward. MCC standard security suits. Helmets. Communicators. They didn't speak. They stood. That was speech. Don't come here. Or say where you're from." } }
+        {
+          "text": {
+            "ko": "경비가 봤다. 두 명이 앞으로 나왔다. MCC 표준 보안복. 헬멧. 통신기. 그들은 말하지 않았다. 서있었다. 그것이 말이었다. 여기 오지 말라는 말. 아니면 어디서 왔는지 말하라는 말.",
+            "en": "The guards watched. Two came forward. MCC standard security suits. Helmets. Communicators. They didn't speak. They stood. That was speech. Don't come here. Or say where you're from."
+          }
+        }
       ]
     },
     {
@@ -226,7 +429,12 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 앞으로 나왔다. 빠른 사람. 팔 문신이 보였다. 이름들이 흔들렸다. 그것이 전부였다. 그것으로 충분할 수 있었다.", "en": "Lena stepped forward. The fast person. The arm tattoo was visible. The names swayed. That was all. That might be enough." } }
+        {
+          "text": {
+            "ko": "Lena가 앞으로 나왔다. 빠른 사람. 팔 문신이 보였다. 이름들이 흔들렸다. 그것이 전부였다. 그것으로 충분할 수 있었다.",
+            "en": "Lena stepped forward. The fast person. The arm tattoo was visible. The names swayed. That was all. That might be enough."
+          }
+        }
       ]
     },
     {
@@ -234,12 +442,59 @@
       "type": "choice",
       "background": "mine_exterior",
       "bgm": "choice_tension",
-      "prompt": { "ko": "MCC가 봉쇄한 광산. 55명의 광부. Lena가 옆에 있다. 어떻게 접근하겠습니까?", "en": "A mine sealed by MCC. Fifty-five miners. Lena is beside you. How will you approach?" },
+      "prompt": {
+        "ko": "MCC가 봉쇄한 광산. 55명의 광부. Lena가 옆에 있다. 어떻게 접근하겠습니까?",
+        "en": "A mine sealed by MCC. Fifty-five miners. Lena is beside you. How will you approach?"
+      },
       "choices": [
-        { "id": "fsp_ch1_accept_standard", "text": { "ko": "정면 진입. 협상 없이.", "en": "Direct entry. No negotiation." }, "tone": "decisive", "preview_hint": { "ko": "→ 신속하나 충돌 위험, Lena가 앞선다", "en": "→ Fast but risk of conflict, Lena leads" } },
-        { "id": "fsp_ch1_negotiate_price", "text": { "ko": "MCC와 먼저 협상한다.", "en": "Negotiate with MCC first." }, "tone": "diplomatic", "preview_hint": { "ko": "→ 시간이 걸리지만 비전투", "en": "→ Takes time but non-violent" } },
-        { "id": "fsp_ch1_question_mcc", "text": { "ko": "봉쇄 이유를 파악한다.", "en": "Find out why MCC sealed it." }, "tone": "investigative", "preview_hint": { "ko": "→ Mikhail의 과거 MCC 경험 언급", "en": "→ Reveals Mikhail's MCC history" } },
-        { "id": "fsp_ch1_prioritize_patients", "text": { "ko": "부상자부터. 다른 것은 그 다음.", "en": "Injured first. Everything else after." }, "tone": "humanitarian", "preview_hint": { "ko": "→ Lena 신뢰도 +, 레나가 앞장선다", "en": "→ Lena trust +, she leads the way" } }
+        {
+          "id": "fsp_ch1_accept_standard",
+          "text": {
+            "ko": "정면 진입. 협상 없이.",
+            "en": "Direct entry. No negotiation."
+          },
+          "tone": "decisive",
+          "preview_hint": {
+            "ko": "→ 신속하나 충돌 위험, Lena가 앞선다",
+            "en": "→ Fast but risk of conflict, Lena leads"
+          }
+        },
+        {
+          "id": "fsp_ch1_negotiate_price",
+          "text": {
+            "ko": "MCC와 먼저 협상한다.",
+            "en": "Negotiate with MCC first."
+          },
+          "tone": "diplomatic",
+          "preview_hint": {
+            "ko": "→ 시간이 걸리지만 비전투",
+            "en": "→ Takes time but non-violent"
+          }
+        },
+        {
+          "id": "fsp_ch1_question_mcc",
+          "text": {
+            "ko": "봉쇄 이유를 파악한다.",
+            "en": "Find out why MCC sealed it."
+          },
+          "tone": "investigative",
+          "preview_hint": {
+            "ko": "→ Mikhail의 과거 MCC 경험 언급",
+            "en": "→ Reveals Mikhail's MCC history"
+          }
+        },
+        {
+          "id": "fsp_ch1_prioritize_patients",
+          "text": {
+            "ko": "부상자부터. 다른 것은 그 다음.",
+            "en": "Injured first. Everything else after."
+          },
+          "tone": "humanitarian",
+          "preview_hint": {
+            "ko": "→ Lena 신뢰도 +, 레나가 앞장선다",
+            "en": "→ Lena trust +, she leads the way"
+          }
+        }
       ]
     },
     {
@@ -249,7 +504,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "MCC 경비와의 교환이 있었다. 말이 있었고 말이 없는 것이 있었다. 그것이 합쳐진 것이 협상이었다. 화성에서 협상은 그런 것이었다. 말보다 자세. 자세보다 눈빛. 눈빛보다 다음 행동.", "en": "There was exchange with MCC guards. Words and wordlessness. Together that was negotiation. On Mars negotiation was like that. More than words the posture. More than posture the eyes. More than eyes the next action." } }
+        {
+          "text": {
+            "ko": "MCC 경비와의 교환이 있었다. 말이 있었고 말이 없는 것이 있었다. 그것이 합쳐진 것이 협상이었다. 화성에서 협상은 그런 것이었다. 말보다 자세. 자세보다 눈빛. 눈빛보다 다음 행동.",
+            "en": "There was exchange with MCC guards. Words and wordlessness. Together that was negotiation. On Mars negotiation was like that. More than words the posture. More than posture the eyes. More than eyes the next action."
+          }
+        }
       ]
     },
     {
@@ -259,7 +519,12 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "광산 안이었다. 어두웠다. 조명이 일부만 살아있었다. 갱도가 있었다. 좁은 것. 그 끝에서 소리가 났다. 목소리. 살아있는 사람들의 목소리.", "en": "Inside the mine. Dark. Only some lights alive. Tunnels. Narrow ones. From their end a sound came. Voices. Voices of living people." } }
+        {
+          "text": {
+            "ko": "광산 안이었다. 어두웠다. 조명이 일부만 살아있었다. 갱도가 있었다. 좁은 것. 그 끝에서 소리가 났다. 목소리. 살아있는 사람들의 목소리.",
+            "en": "Inside the mine. Dark. Only some lights alive. Tunnels. Narrow ones. From their end a sound came. Voices. Voices of living people."
+          }
+        }
       ]
     },
     {
@@ -269,7 +534,13 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "49명이 살아있었다. 여섯이 부상이었다. 둘이 중상이었다. Lena가 먼저 들어갔다. Park Sung-jin을 찾았다. 찾았다. 그 이름을. 팔 위의 이름을. 살아있는 그 이름을.", "en": "Forty-nine were alive. Six injured. Two critically. Lena went in first. Looking for Park Sung-jin. Found. That name. The name on the arm. That living name." }, "overlay": "death_still" }
+        {
+          "text": {
+            "ko": "49명이 살아있었다. 여섯이 부상이었다. 둘이 중상이었다. Lena가 먼저 들어갔다. Park Sung-jin을 찾았다. 찾았다. 그 이름을. 팔 위의 이름을. 살아있는 그 이름을.",
+            "en": "Forty-nine were alive. Six injured. Two critically. Lena went in first. Looking for Park Sung-jin. Found. That name. The name on the arm. That living name."
+          },
+          "background": "fsp_ch1_breakwater_l24_00_death_still"
+        }
       ]
     },
     {
@@ -278,8 +549,14 @@
       "background": "hellas_mine_exterior",
       "bgm": "battle_theme_fsp",
       "transition": "fade_slow",
-      "title": { "ko": "봉쇄된 광산", "en": "The Sealed Mine" },
-      "subtitle": { "ko": "헬라스 북부 — 광부 55명", "en": "Northern Hellas — 55 Miners" }
+      "title": {
+        "ko": "봉쇄된 광산",
+        "en": "The Sealed Mine"
+      },
+      "subtitle": {
+        "ko": "헬라스 북부 — 광부 55명",
+        "en": "Northern Hellas — 55 Miners"
+      }
     },
     {
       "id": "s_result",
@@ -293,9 +570,32 @@
       "background": "hellas_mining_village_dawn",
       "bgm": "victory_calm",
       "lines": [
-        { "speaker": "lena", "emotion": "relieved", "effect": "character_enter:lena:slide_right", "text": { "ko": "살아있어요. 49명. 부상 여섯. 중상 둘. 구조 완료.", "en": "Alive. Forty-nine. Six injured. Two critical. Extraction complete." } },
-        { "speaker": "lena", "emotion": "quiet", "text": { "ko": "Sung-jin도 있어요. 살아있어요.", "en": "Sung-jin too. Alive." } },
-        { "speaker": "mikhail", "emotion": "warm", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "수고했어요. 정말로.", "en": "Good work. Truly." } }
+        {
+          "speaker": "lena",
+          "emotion": "relieved",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "살아있어요. 49명. 부상 여섯. 중상 둘. 구조 완료.",
+            "en": "Alive. Forty-nine. Six injured. Two critical. Extraction complete."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "quiet",
+          "text": {
+            "ko": "Sung-jin도 있어요. 살아있어요.",
+            "en": "Sung-jin too. Alive."
+          }
+        },
+        {
+          "speaker": "mikhail",
+          "emotion": "warm",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "수고했어요. 정말로.",
+            "en": "Good work. Truly."
+          }
+        }
       ]
     },
     {
@@ -304,8 +604,24 @@
       "background": "hellas_mine_exterior",
       "bgm": "defeat_ambient",
       "lines": [
-        { "speaker": "mikhail", "emotion": "tired", "effect": "character_enter:mikhail:slide_left", "text": { "ko": "광부들이 아직 안에 있어요. MCC가 봉쇄를 더 강화했어. 다시 생각해야 해요.", "en": "The miners are still inside. MCC tightened the seal. We need to rethink." } },
-        { "speaker": "lena", "emotion": "grim", "effect": "character_enter:lena:slide_right", "text": { "ko": "보스, 다음엔 다르게 해요. Sung-jin이 안에 있어요. 아직.", "en": "Boss, next time we do it differently. Sung-jin is still inside. Still." } }
+        {
+          "speaker": "mikhail",
+          "emotion": "tired",
+          "effect": "character_enter:mikhail:slide_left",
+          "text": {
+            "ko": "광부들이 아직 안에 있어요. MCC가 봉쇄를 더 강화했어. 다시 생각해야 해요.",
+            "en": "The miners are still inside. MCC tightened the seal. We need to rethink."
+          }
+        },
+        {
+          "speaker": "lena",
+          "emotion": "grim",
+          "effect": "character_enter:lena:slide_right",
+          "text": {
+            "ko": "보스, 다음엔 다르게 해요. Sung-jin이 안에 있어요. 아직.",
+            "en": "Boss, next time we do it differently. Sung-jin is still inside. Still."
+          }
+        }
       ]
     },
     {
@@ -315,7 +631,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "광부들이 밖으로 나왔다. 한 명씩. 빛을 받았다. 화성의 아침 빛. 그것이 그들에게 닿았다. 눈을 가리는 사람. 그냥 서있는 사람. 한 사람이 무릎을 꿇었다. 지표를 짚었다. 화성의 땅을. 붉은 것을.", "en": "Miners came out. One by one. They received light. The morning light of Mars. It touched them. Someone shielding their eyes. Someone just standing. One person knelt. Touched the ground. The Martian earth. The red thing." } }
+        {
+          "text": {
+            "ko": "광부들이 밖으로 나왔다. 한 명씩. 빛을 받았다. 화성의 아침 빛. 그것이 그들에게 닿았다. 눈을 가리는 사람. 그냥 서있는 사람. 한 사람이 무릎을 꿇었다. 지표를 짚었다. 화성의 땅을. 붉은 것을.",
+            "en": "Miners came out. One by one. They received light. The morning light of Mars. It touched them. Someone shielding their eyes. Someone just standing. One person knelt. Touched the ground. The Martian earth. The red thing."
+          }
+        }
       ]
     },
     {
@@ -325,7 +646,13 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 Park Sung-jin과 있었다. 말이 없었다. 두 사람. 팔 위의 이름. 살아있는 이름. 그것이 지금 앞에 있었다.", "en": "Lena was with Park Sung-jin. No words. Two people. The name on the arm. The living name. That was here now." }, "overlay": "candle_flame" }
+        {
+          "text": {
+            "ko": "Lena가 Park Sung-jin과 있었다. 말이 없었다. 두 사람. 팔 위의 이름. 살아있는 이름. 그것이 지금 앞에 있었다.",
+            "en": "Lena was with Park Sung-jin. No words. Two people. The name on the arm. The living name. That was here now."
+          },
+          "background": "fsp_ch1_breakwater_l30_00_candle_flame"
+        }
       ]
     },
     {
@@ -335,7 +662,12 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "MCC는 봉쇄를 거두었다. 공식 항의가 있었다. 그것은 나중 일이었다. 지금 중요한 것은 49명이 밖에 있다는 것이었다. 차가 기다리고 있었다. Mikhail의 차.", "en": "MCC lifted the seal. There was a formal protest. That was for later. What mattered now was that forty-nine were outside. Tea was waiting. Mikhail's tea." } }
+        {
+          "text": {
+            "ko": "MCC는 봉쇄를 거두었다. 공식 항의가 있었다. 그것은 나중 일이었다. 지금 중요한 것은 49명이 밖에 있다는 것이었다. 차가 기다리고 있었다. Mikhail의 차.",
+            "en": "MCC lifted the seal. There was a formal protest. That was for later. What mattered now was that forty-nine were outside. Tea was waiting. Mikhail's tea."
+          }
+        }
       ]
     },
     {
@@ -345,9 +677,20 @@
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "차는 식어있었다. Mikhail은 두 잔을 내려다보았다. 한 잔은 다 마셨다. 다른 잔은 그대로였다. 그 사람은 차를 마시지 않았다. 들고만 있었다가 내려두었다.\n\nMikhail은 그것을 이상하게 생각하지 않았다. 화성에 오는 사람들은 각자의 방식으로 왔다. 중요한 것은 잔을 받았다는 것이었다. 두 손으로.\n\n그리고 49명이 밖에 있었다. 그것도 중요한 것이었다.", "en": "The tea had gone cold. Mikhail looked at the two cups. One was empty. The other was untouched. The person hadn't drunk it. Had held it and set it down.\n\nMikhail didn't find this strange. People who came to Mars came in their own ways. What mattered was that the cup had been accepted. With both hands.\n\nAnd forty-nine were outside. That mattered too." } }
+        {
+          "text": {
+            "ko": "차는 식어있었다. Mikhail은 두 잔을 내려다보았다. 한 잔은 다 마셨다. 다른 잔은 그대로였다. 그 사람은 차를 마시지 않았다. 들고만 있었다가 내려두었다.\n\nMikhail은 그것을 이상하게 생각하지 않았다. 화성에 오는 사람들은 각자의 방식으로 왔다. 중요한 것은 잔을 받았다는 것이었다. 두 손으로.\n\n그리고 49명이 밖에 있었다. 그것도 중요한 것이었다.",
+            "en": "The tea had gone cold. Mikhail looked at the two cups. One was empty. The other was untouched. The person hadn't drunk it. Had held it and set it down.\n\nMikhail didn't find this strange. People who came to Mars came in their own ways. What mattered was that the cup had been accepted. With both hands.\n\nAnd forty-nine were outside. That mattered too."
+          }
+        }
       ],
-      "next_chapter_preview": { "questId": "fsp_campaign_ch2", "teaser": { "ko": "다음 — 첫 광부의 죽음", "en": "Next — The First Miner's Death" } }
+      "next_chapter_preview": {
+        "questId": "fsp_campaign_ch2",
+        "teaser": {
+          "ko": "다음 — 첫 광부의 죽음",
+          "en": "Next — The First Miner's Death"
+        }
+      }
     }
   ]
 }

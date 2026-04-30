@@ -2,6 +2,24 @@
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-30 기준)
 
+### v5.34 오버레이 폐기 + 씬 전용 9:16 배경 (인프라 1/2) — 진행 중
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 오버레이 시스템 제거 | ✅ | `.story-detail-overlay` CSS, `<img>` 엘리먼트, `_showStoryDetailOverlay()` 함수, `assets/campaign/overlays/*.png` 35개 일괄 삭제. floating closeup → 라인 풀스크린 배경 swap 으로 전환. |
+| `_campaignStorySetBackground` 라인 인자 | ✅ | `(scene, overlay, lineBg)` 시그니처. lineBg 있으면 우선 사용. |
+| scene JSON `overlay` → `background` | ✅ | 35개 챕터 / 107 라인 변환 (`scripts/update_scene_overlays_to_backgrounds.py`). |
+| hand-crafted 프롬프트 120개 | ✅ | 107 씬 라인 + 13 저퀄 scene-level. KO 대사 직접 읽고 캐릭터·사물·행동·분위기 명시. 9:16 portrait. |
+| Imagen 3 9:16 생성 | 🔄 | 진행 중 (~1분/장). 후속 커밋 (2/2) 에 PNG 일괄 포함. |
+| `hidden_ch5_last_observation.json` JSON parse | ✅ | line 370 닫는 중괄호 오타 수정. 캠페인 스캔 / 변환 모두 이 챕터 포함 가능. |
+
+검증:
+- `python3 -c "import json,glob; [json.load(open(f)) for f in glob.glob('docs/campaign-story/*.json')]"` 36개 모두 파싱 성공
+- `grep -c story-detail-overlay index.html` 잔존 0건 (코멘트 1개 제외)
+- 변환된 라인 background ID ↔ `gen_scene_dedicated_v2.py PROMPTS` 키 1:1 일치
+
+---
+
 ### v5.33 Campaign Visual Novel Engine + 이미지 에셋 + Internal Error 수정 — 완료
 
 | 라인 | 상태 | 수정 |
