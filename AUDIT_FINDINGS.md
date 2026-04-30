@@ -53,6 +53,63 @@
 
 ---
 
+### 🔍 Campaign System 정밀 감사 (2026-04-30, Claude+Codex 협업) — **수정 필요**
+
+> 직전 hotfix(commit a84f208) 이후 캠페인 30+ 챕터 출시 전 정밀 감사. Codex가 `server/services/campaign.js` 비즈니스 로직, Claude가 마이그레이션 192-201 + API 라우트 + index.html UI를 분담해 검토함.
+
+#### 🔴 Critical (출시 차단)
+
+| # | 위치 | 결함 | 재현 |
+|---|------|------|------|
+| C1 | `server/services/campaign.js:3122` | `validateChapterChoice()`가 FSP_CH10_ID를 화이트리스트에서 누락 — MCC Ch10만 ending eligibility 체크함 | FSP Ch10에서 `fsp_ending_4_new_chair` 등 자격 미달 엔딩 선택지 직접 제출 → `calculateFspCh10Rewards()` (~line 2855)의 100만 GP급 보상 farming 가능 |
+| C2 | `server/services/campaign.js:3122` | FSP Ch9 조건부 선택지도 동일하게 미게이팅 | 전제 조건 없이 `fsp_ch9_signal_pilgrim_arms` 선택 → `ending_4_pathway_unavoidable` 분기 강제 해금 |
+
+#### 🟡 Major (조기 핫픽스 필요)
+
+| # | 위치 | 결함 | 영향 |
+|---|------|------|------|
+| M1 | `campaign.js:2135` `simulatePrologue()` | 마지막 씬/진행도 검증 없음 | 프롤로그 `start` 직후 `complete` 호출 시 보상/Ch1 해금 즉시 지급 (스킵 farming) |
+| M2 | `campaign.js:3167` `startChapter()` | `campaign_sessions`에 (wallet, chapter_id, status='active') UNIQUE 제약 없음 | 동시 `start()` 호출 시 같은 wallet/chapter에 활성 세션 중복 생성 가능 |
+| M3 | `campaign.js:2173` `simulateChapter()` | 미지원 routeId(CV/hidden) → MCC Ch1 시뮬레이션으로 폴백 | CV 캠페인 완료 시 MCC Ch1 시뮬레이션 결과로 처리 |
+| M4 | `campaign.js:2923` `calculateRewards()` | M3와 동일한 폴백 | CV/hidden 챕터가 MCC Ch1 보상(Prism blueprint + Ch2 unlock)을 잘못 수령 |
+
+#### 🟢 Minor (후속 정리)
+
+| # | 위치 | 결함 |
+|---|------|------|
+| m1 | `campaign.js:3361` `applyOptionalCampaignReward` catch | `err.message`만 로깅, stack 누락 — Railway에서 보상 SAVEPOINT 실패 원인 추적 어려움 |
+| m2 | `campaign.js:43` `loadScenesFile()` | 동일하게 stack/context 없이 detail만 출력 |
+| m3 | `routes/api.js:3508-` 캠페인 라우트 전체 | wallet 길이 검증 없음 (`if (!wallet)`만). 다른 라우트는 `requireWallet`로 ≥10자 강제 — 일관성 부족 (위험도 낮음) |
+
+#### ✅ 검증 통과 항목
+
+- 마이그레이션 192~201 schema/seed 무결성 (FK, ON CONFLICT, schema_migrations 자동 등록 via migrate.js)
+- `complete()` 트랜잭션: `FOR UPDATE` 행 잠금으로 동시 complete 차단, status='in_progress' 필터로 idempotency 보장
+- 보상 SAVEPOINT 격리(blueprint/title/mastery/tag/lore/branch) — 부가 보상 실패가 챕터 완료를 깨지 않음
+- 보상 payload는 클라이언트가 제출하지 않음 — `calculateRewards()`가 서버에서만 결정
+- choice ID 화이트리스트 검증 (`chapter.choices.find(c => c.id === choiceId)`) — Ch1~Ch9는 정상
+- MCC Ch10 ending eligibility 서버 enforcement 정상 (`calculateEligibleEndings()` + `validateChapterChoice()`)
+- Ch7/8/9 route prefix 강제 (a/b/c) 정상
+- 서비스 `CHAPTERS` 딕셔너리 ↔ `docs/campaign-story/*.json` 36개 씬 파일 ↔ migration seed 모두 일관
+- index.html 캠페인 UI 흐름: 파벌 필터, 잠긴 챕터 compact list, sessionId 이어받기, abandon 호출 정상
+- 마이그레이션 201로 prologue + CV 챕터 FK 위반(`Internal error`) 해소 확인
+
+#### 권장 수정 순서
+
+1. **C1, C2** 먼저 (`validateChapterChoice` 확장: `FSP_CH7~10_ID` 추가, FSP ending eligibility 함수 추가)
+2. **M1** (`simulatePrologue`에 최소 진행 시간/씬 도달 플래그 검증)
+3. **M2** (`campaign_sessions(wallet, chapter_id) WHERE status='active'` 부분 UNIQUE 인덱스 추가)
+4. **M3, M4** (지원 안 되는 routeId는 명시적으로 `error: 'NOT_IMPLEMENTED'` 반환)
+5. **m1, m2** (catch 로그에 `err.stack` 추가)
+6. **m3** (`requireWallet` 헬퍼 적용)
+
+검증:
+- Codex agent가 `server/services/campaign.js` 3712줄 정밀 감사
+- Claude가 마이그레이션 192-201 + API 라우트 + index.html UI 검사 (병행)
+- 마이그레이션 BEGIN/ROLLBACK 드라이런은 본 감사에서는 수행하지 않음 (수정 후 별도 검증 예정)
+
+---
+
 ### v5.30 Mobile first-load side panel lock — 수정 완료
 
 | 라인 | 상태 | 수정 |

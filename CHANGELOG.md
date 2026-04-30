@@ -1,5 +1,18 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-30 — Campaign system 정밀 감사 (Claude + Codex 협업)
+
+- **감사 범위**: v5.33 출시 직후 캠페인 30+ 챕터(MCC/FSP/CV 프롤로그 + 1~10 + hidden 1~5) 정밀 감사. Codex가 `server/services/campaign.js` 비즈니스 로직, Claude가 마이그레이션 192-205 + API 라우트 + index.html UI를 분담.
+- **Critical 2건**: `validateChapterChoice()`가 `[CH7_ID, CH8_ID, CH9_ID, CH10_ID]`만 게이팅(line 3124) — FSP_CH7~10은 화이트리스트 누락. FSP Ch10 ending eligibility 함수 부재로 자격 미달 엔딩 선택지 직접 제출 시 `calculateFspCh10Rewards`(~line 2855)의 100만 GP급 보상 farming 가능. FSP Ch9 `fsp_ch9_signal_pilgrim_arms`도 동일.
+- **Major 4건**: `simulatePrologue()`(line 2138) 마지막 씬 도달 검증 없음 → 스킵 farming, `campaign_sessions` 부분 UNIQUE 누락(동시 활성 세션 중복), `simulateChapter`/`calculateRewards` CV/hidden 라우트가 MCC Ch1으로 폴백(line 2175 / 2920+).
+- **Minor 3건**: `applyOptionalCampaignReward`/`loadScenesFile` catch 로그 stack 누락, 캠페인 라우트 wallet 길이 검증 누락(`requireWallet` 미적용).
+- **결함 외 통과 확인**: 마이그레이션 192-205 무결성, `complete()` `FOR UPDATE` idempotency, v5.33 `applyReputation` SAVEPOINT 격리, 서버 보상 결정성, choice 화이트리스트(Ch1~9, FSP Ch1~6), MCC Ch10 ending eligibility, MCC Ch7/8/9 route prefix 강제, 36개 씬 파일 ↔ CHAPTERS dict ↔ seed 일관, 78개 배경 + 21개 캐릭터 에셋 매핑 일관, index.html 캠페인 UI 흐름.
+- **권장 수정 순서**: C1/C2 → M1 → M2 → M3/M4 → m1/m2/m3. 본 커밋은 감사 보고서만 반영하며 코드 수정은 별도 후속.
+
+검증:
+- Codex sub-agent가 `server/services/campaign.js` 3716줄 감사
+- Claude가 마이그레이션 192-205, `routes/api.js` 캠페인 라우트, `index.html` 캠페인 UI 검사
+
 ## 2026-04-30 — Campaign Visual Novel Engine + 배경·캐릭터 에셋 완성 + Internal Error 수정 (v5.33)
 
 ### 비주얼 노벨 씬 엔진 (Codex 구현)
