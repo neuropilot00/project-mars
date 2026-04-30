@@ -87,7 +87,7 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "칩이 손 위에 놓였다. 작았다. 손가락 한 마디만 했다. 17건. 2009년부터 화성의 죽음들이 그 안에 있었다. 그는 떨고 있었다. 칩을 내민 손이. 그러나 눈은 떨리지 않았다. 오래 결심한 사람의 눈이었다. 그것이 가장 무거운 종류의 눈이었다.", "en": "The chip lay in the palm. Small. A fingertip's length. Seventeen cases. The deaths of Mars since 2009 were inside it. He was trembling. The hand that held out the chip. But the eyes didn't tremble. The eyes of someone who had decided long ago. Those were the heaviest kind of eyes." } }
+        { "text": { "ko": "칩이 손 위에 놓였다. 작았다. 손가락 한 마디만 했다. 17건. 2009년부터 화성의 죽음들이 그 안에 있었다. 그는 떨고 있었다. 칩을 내민 손이. 그러나 눈은 떨리지 않았다. 오래 결심한 사람의 눈이었다. 그것이 가장 무거운 종류의 눈이었다.", "en": "The chip lay in the palm. Small. A fingertip's length. Seventeen cases. The deaths of Mars since 2009 were inside it. He was trembling. The hand that held out the chip. But the eyes didn't tremble. The eyes of someone who had decided long ago. Those were the heaviest kind of eyes." }, "overlay": "sealed_file" }
       ]
     },
     {
@@ -323,7 +323,7 @@
       "bgm": "ambient_night",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "노동자 지구 골목에서 아이들이 놀고 있었다. 밤이었다. 마스크를 쓰고 있었다. 화성의 아이들이었다. 벽에 분필 이름이 있었다. Kim Yong-jin. 그 아래 이름들. 광산에서 죽은 사람들. 아이들이 적은 것이었다.", "en": "In the labor district alley children were playing. Night. Wearing masks. Martian children. Chalk names on the wall. Kim Yong-jin. Names below. People who died in mines. Written by the children." } }
+        { "text": { "ko": "노동자 지구 골목에서 아이들이 놀고 있었다. 밤이었다. 마스크를 쓰고 있었다. 화성의 아이들이었다. 벽에 분필 이름이 있었다. Kim Yong-jin. 그 아래 이름들. 광산에서 죽은 사람들. 아이들이 적은 것이었다.", "en": "In the labor district alley children were playing. Night. Wearing masks. Martian children. Chalk names on the wall. Kim Yong-jin. Names below. People who died in mines. Written by the children." }, "overlay": "candle_flame" }
       ]
     },
     {

@@ -139,7 +139,7 @@
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "해가 기울었다. 화성의 노을은 달랐다. 파랬다. 지구의 노을은 붉었다. 화성의 노을은 파랬다. 그것을 아는 사람은 그것을 처음 봤을 때 이상하다고 했다. 이제 당신은 그것이 자연스러웠다. 그것이 변한 것인지 화성에 적응한 것인지 알 수 없었다.", "en": "The sun tilted. The Martian sunset was different. Blue. Earth sunsets were red. Martian sunsets were blue. Those who knew that said it felt strange the first time they saw it. Now it felt natural to you. Couldn't tell if you had changed or adapted to Mars." } }
+        { "text": { "ko": "해가 기울었다. 화성의 노을은 달랐다. 파랬다. 지구의 노을은 붉었다. 화성의 노을은 파랬다. 그것을 아는 사람은 그것을 처음 봤을 때 이상하다고 했다. 이제 당신은 그것이 자연스러웠다. 그것이 변한 것인지 화성에 적응한 것인지 알 수 없었다.", "en": "The sun tilted. The Martian sunset was different. Blue. Earth sunsets were red. Martian sunsets were blue. Those who knew that said it felt strange the first time they saw it. Now it felt natural to you. Couldn't tell if you had changed or adapted to Mars." }, "overlay": "mars_horizon" }
       ]
     },
     {
@@ -269,7 +269,7 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "불 앞에 남자가 앉아 있었다. 크고 무거운 몸이었다. 의수가 있었다. 왼팔이었다. 광산용 구식 의수. 그가 불에서 눈을 들었다. 당신을 봤다. 오래 봤다.", "en": "A man sat before the fire. Large and heavy. A prosthetic. Left arm. Old mining-grade. He lifted his eyes from the fire. Looked at you. For a long time." } }
+        { "text": { "ko": "불 앞에 남자가 앉아 있었다. 크고 무거운 몸이었다. 의수가 있었다. 왼팔이었다. 광산용 구식 의수. 그가 불에서 눈을 들었다. 당신을 봤다. 오래 봤다.", "en": "A man sat before the fire. Large and heavy. A prosthetic. Left arm. Old mining-grade. He lifted his eyes from the fire. Looked at you. For a long time." }, "overlay": "fire_small" }
       ]
     },
     {
@@ -373,7 +373,7 @@
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "불이 탔다. 따뜻하지 않았다. 그러나 30년 동안 꺼지지 않은 불이었다. 당신이 있었다. 첫 번째 밤이었다. 이것이 선택이었는지 발견이었는지 알 수 없었다. 아마 그 둘의 차이가 없는 곳이 여기였다.", "en": "Fire burned. Not warm. But a fire that had not gone out in thirty years. You were here. The first night. Couldn't tell if this was a choice or a discovery. Maybe this was a place where those two things were the same." } }
+        { "text": { "ko": "불이 탔다. 따뜻하지 않았다. 그러나 30년 동안 꺼지지 않은 불이었다. 당신이 있었다. 첫 번째 밤이었다. 이것이 선택이었는지 발견이었는지 알 수 없었다. 아마 그 둘의 차이가 없는 곳이 여기였다.", "en": "Fire burned. Not warm. But a fire that had not gone out in thirty years. You were here. The first night. Couldn't tell if this was a choice or a discovery. Maybe this was a place where those two things were the same." }, "overlay": "fire_small" }
       ],
       "next_chapter_preview": { "questId": "cv_campaign_ch1", "teaser": { "ko": "다음 — 세례", "en": "Next — Baptism" } }
     }

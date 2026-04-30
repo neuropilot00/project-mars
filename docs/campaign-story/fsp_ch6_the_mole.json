@@ -133,7 +133,7 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Kenji가 패키지를 건넸다. 작은 것. 데이터 스틱이었다. Liang Wei의 백업. 그리고 다른 것들. MCC 내부 통신. 5년치. 그것이 손 위에 있었다. 작은 것이었다. 그러나 무거웠다.", "en": "Kenji handed over a package. Small. A data stick. Liang Wei's backup. And other things. MCC internal communications. Five years' worth. That was in the hand. Small. But heavy." } }
+        { "text": { "ko": "Kenji가 패키지를 건넸다. 작은 것. 데이터 스틱이었다. Liang Wei의 백업. 그리고 다른 것들. MCC 내부 통신. 5년치. 그것이 손 위에 있었다. 작은 것이었다. 그러나 무거웠다.", "en": "Kenji handed over a package. Small. A data stick. Liang Wei's backup. And other things. MCC internal communications. Five years' worth. That was in the hand. Small. But heavy." }, "overlay": "sealed_file" }
       ]
     },
     {
@@ -300,7 +300,7 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 팔을 봤다. 이름들. 그 중 누군가가 FSP 내부자 때문에 죽었을 가능성이 있었다. Park Sung-jin. 7번 광산. 세 번의 수리 거부. 그것이 우연이었는지. 아니었는지. 아직 알 수 없었다.", "en": "Lena looked at her arm. The names. One of them might have died because of the FSP mole. Park Sung-jin. Mine 7. Three repair refusals. Whether that was coincidence. Or not. Couldn't yet be known." } }
+        { "text": { "ko": "Lena가 팔을 봤다. 이름들. 그 중 누군가가 FSP 내부자 때문에 죽었을 가능성이 있었다. Park Sung-jin. 7번 광산. 세 번의 수리 거부. 그것이 우연이었는지. 아니었는지. 아직 알 수 없었다.", "en": "Lena looked at her arm. The names. One of them might have died because of the FSP mole. Park Sung-jin. Mine 7. Three repair refusals. Whether that was coincidence. Or not. Couldn't yet be known." }, "overlay": "death_still" }
       ]
     },
     {

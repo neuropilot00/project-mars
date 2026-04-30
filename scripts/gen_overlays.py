@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""씬 오버레이 이미지 생성 — 키워드 매칭용 세부 일러스트"""
+"""씬 오버레이 이미지 생성 — 픽셀아트 스타일 (Stable Image Core + style_preset=pixel-art)"""
 import os, sys, time, requests
 
 STABILITY_KEY = 'sk-PTUCPZoj9uysIUFu0spIL2IE3zq4pqv6axxQMBJRdFCudTMe'
 OUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'assets', 'campaign', 'overlays')
 
+# style_preset=pixel-art 가 렌더링 스타일을 담당하므로
+# 프롬프트는 피사체·분위기·색에만 집중
 STYLE = (
-    "pixel art close-up detail illustration, 32-bit retro game art, "
-    "dark background, dramatic single-subject focus, "
-    "moody sci-fi Mars atmosphere, cinematic detail shot, "
-    "semi-transparent dark vignette edges, square format"
+    "dark background, dramatic close-up, moody Mars sci-fi, "
+    "single subject focus, muted colors with one vivid accent, square"
 )
-NEG = "photorealistic, 3D, anime, text, watermark, full scene, people, faces, background clutter"
+NEG = "photorealistic, 3D render, anime, text, watermark, busy background, multiple subjects, blur"
 
 OVERLAYS = {
     # 신체 / 감정
@@ -195,16 +195,25 @@ OVERLAYS = {
         "support beam broken, rocks fallen, "
         "someone was under this, the weight of what happened, " + STYLE
     ),
+    'child_small': (
+        "silhouette of a small child standing alone, "
+        "tiny figure against a large Mars habitat window, "
+        "red planet light from outside, "
+        "small palm pressed flat against cold glass, " + STYLE
+    ),
 }
 
 
-def generate_sd3(prompt, out_path):
-    url = "https://api.stability.ai/v2beta/stable-image/generate/sd3"
+def generate_core(prompt, out_path):
+    """Stable Image Core + style_preset=pixel-art — 진짜 픽셀아트 출력"""
+    url = "https://api.stability.ai/v2beta/stable-image/generate/core"
     headers = {"Authorization": f"Bearer {STABILITY_KEY}", "Accept": "image/*"}
     data = {
-        "prompt": prompt, "negative_prompt": NEG,
-        "model": "sd3-medium", "output_format": "png",
-        "aspect_ratio": "1:1",  # 오버레이는 정사각형
+        "prompt": prompt,
+        "negative_prompt": NEG,
+        "style_preset": "pixel-art",
+        "output_format": "png",
+        "aspect_ratio": "1:1",
     }
     for attempt in range(3):
         try:
@@ -213,7 +222,7 @@ def generate_sd3(prompt, out_path):
                 open(out_path, "wb").write(r.content)
                 return True
             elif r.status_code == 429:
-                t = 30 * (attempt+1)
+                t = 30 * (attempt + 1)
                 print(f"  rate limit → {t}s...", flush=True)
                 time.sleep(t)
             else:
@@ -237,7 +246,7 @@ def main():
     for i, (name, prompt) in enumerate(targets.items(), 1):
         out = os.path.join(OUT_DIR, f"{name}.png")
         print(f"  [{i:2d}/{len(targets)}] → {name}...", end=" ", flush=True)
-        if generate_sd3(prompt, out):
+        if generate_core(prompt, out):
             print(f"✓ ({os.path.getsize(out)//1024}KB)")
             done += 1
         else:

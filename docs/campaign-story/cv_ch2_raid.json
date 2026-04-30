@@ -319,7 +319,7 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "폭풍이 왔다. 시야가 없었다. 소리가 없었다. 바람만 있었다. 먼지만 있었다. 그 안에서 다섯이 움직였다. 서로의 손을 잡고. 그것이 유일한 방법이었다.", "en": "Storm hit. No visibility. No sound. Only wind. Only dust. Five moving inside it. Holding each other's hands. That was the only way." } }
+        { "text": { "ko": "폭풍이 왔다. 시야가 없었다. 소리가 없었다. 바람만 있었다. 먼지만 있었다. 그 안에서 다섯이 움직였다. 서로의 손을 잡고. 그것이 유일한 방법이었다.", "en": "Storm hit. No visibility. No sound. Only wind. Only dust. Five moving inside it. Holding each other's hands. That was the only way." }, "overlay": "dust_storm" }
       ]
     },
     {
@@ -385,7 +385,7 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "협곡 바닥. Butcher가 기다리고 있었다. 의수. 왼팔. 광산용 구식 의수. 그가 직접 만든 것. 17살 때. 그가 임무 보고를 들었다. 말이 없었다. 그러나 의수가 움직였다.", "en": "Canyon floor. Butcher was waiting. Prosthetic. Left arm. Old mining-grade. He had made it himself. At seventeen. He heard the report. No words. But the prosthetic moved." } }
+        { "text": { "ko": "협곡 바닥. Butcher가 기다리고 있었다. 의수. 왼팔. 광산용 구식 의수. 그가 직접 만든 것. 17살 때. 그가 임무 보고를 들었다. 말이 없었다. 그러나 의수가 움직였다.", "en": "Canyon floor. Butcher was waiting. Prosthetic. Left arm. Old mining-grade. He had made it himself. At seventeen. He heard the report. No words. But the prosthetic moved." }, "overlay": "hand_fist" }
       ]
     },
     {

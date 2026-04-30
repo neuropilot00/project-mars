@@ -79,7 +79,7 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Olu Adeyemi가 있었다. 40대. 배 설계자. 구석에서 글을 쓰고 있었다. 손으로. 종이에. 화성에서 손으로 종이에 쓰는 것은 드문 일이었다. 디지털이 더 쉬웠다. 그러나 이 사람은 손으로 쓰고 있었다. 그것이 이유가 있는 것이었다.", "en": "Olu Adeyemi was there. Forties. Ship designer. Writing in a corner. By hand. On paper. Writing by hand on paper on Mars was rare. Digital was easier. But this person was writing by hand. That had a reason." } }
+        { "text": { "ko": "Olu Adeyemi가 있었다. 40대. 배 설계자. 구석에서 글을 쓰고 있었다. 손으로. 종이에. 화성에서 손으로 종이에 쓰는 것은 드문 일이었다. 디지털이 더 쉬웠다. 그러나 이 사람은 손으로 쓰고 있었다. 그것이 이유가 있는 것이었다.", "en": "Olu Adeyemi was there. Forties. Ship designer. Writing in a corner. By hand. On paper. Writing by hand on paper on Mars was rare. Digital was easier. But this person was writing by hand. That had a reason." }, "overlay": "death_still" }
       ]
     },
     {
@@ -386,7 +386,7 @@
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "새벽이 왔다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름. 화성에서 지구를 기억하는 사람은 줄어들고 있었다. 그러나 이름은 남았다. 이름은 기억하는 사람보다 오래 살았다.", "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth. On Mars those who remembered Earth were diminishing. But the name remained. Names outlived those who remembered." } }
+        { "text": { "ko": "새벽이 왔다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름. 화성에서 지구를 기억하는 사람은 줄어들고 있었다. 그러나 이름은 남았다. 이름은 기억하는 사람보다 오래 살았다.", "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth. On Mars those who remembered Earth were diminishing. But the name remained. Names outlived those who remembered." }, "overlay": "mars_horizon" }
       ]
     },
     {
@@ -432,7 +432,7 @@
       "bgm": "ambient_vast",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "새벽이었다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름.\n\nOlu의 편지가 가이아 안에 있었다. 아니면 없었다. 그것이 오늘의 결과에 달렸다. 그러나 편지는 쓰여졌다. 종이 위에. 손으로. 화성에서 가장 드문 방식으로.\n\nMariam이 거기 있었다. 편지 안에. 배 안에. 이름으로.", "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth.\n\nOlu's letter was inside Gaia. Or wasn't. That depended on today's outcome. But the letter had been written. On paper. By hand. In the rarest way on Mars.\n\nMariam was there. In the letter. In the ship. As a name." } }
+        { "text": { "ko": "새벽이었다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름.\n\nOlu의 편지가 가이아 안에 있었다. 아니면 없었다. 그것이 오늘의 결과에 달렸다. 그러나 편지는 쓰여졌다. 종이 위에. 손으로. 화성에서 가장 드문 방식으로.\n\nMariam이 거기 있었다. 편지 안에. 배 안에. 이름으로.", "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth.\n\nOlu's letter was inside Gaia. Or wasn't. That depended on today's outcome. But the letter had been written. On paper. By hand. In the rarest way on Mars.\n\nMariam was there. In the letter. In the ship. As a name." }, "overlay": "candle_flame" }
       ],
       "next_chapter_preview": { "questId": "fsp_campaign_ch9", "teaser": { "ko": "다음 — 세 개의 깃발", "en": "Next — Three Flags" } }
     }

@@ -55,7 +55,7 @@
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "그녀의 부모는 광부였다. 화성 태생. 화성에서 태어난 두 번째 세대. 광산에서 일했고 광산에서 죽었다. Chen은 그것을 자주 말하지 않았다. 그러나 차를 들 때마다 어디선가 그것이 있었다.", "en": "Her parents had been miners. Born on Mars. Second generation. They worked the mines and they died in them. Chen didn't talk about it often. But whenever she held the tea it was there somewhere." } }
+        { "text": { "ko": "그녀의 부모는 광부였다. 화성 태생. 화성에서 태어난 두 번째 세대. 광산에서 일했고 광산에서 죽었다. Chen은 그것을 자주 말하지 않았다. 그러나 차를 들 때마다 어디선가 그것이 있었다.", "en": "Her parents had been miners. Born on Mars. Second generation. They worked the mines and they died in them. Chen didn't talk about it often. But whenever she held the tea it was there somewhere." }, "overlay": "death_still" }
       ]
     },
     {
@@ -121,7 +121,7 @@
       "lines": [
         { "speaker": "chen", "emotion": "calm", "text": { "ko": "내 부모 얘기를 할게요. 광산에서 일했어요. 두 분 다요. 나는 12살에 혼자 남았어요.", "en": "I'll tell you about my parents. They worked in the mines. Both. I was left alone at twelve." } },
         { "speaker": "chen", "emotion": "neutral", "text": { "ko": "사고 보고서가 있었어요. 원인란이 비어 있었어요.", "en": "There was an accident report. The cause section was blank." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그래서 MCC에 들어왔어요. 그것을 채우려고.", "en": "That's why I entered MCC. To fill it in." } }
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그래서 MCC에 들어왔어요. 그것을 채우려고.", "en": "That's why I entered MCC. To fill it in." }, "overlay": "sealed_file" }
       ]
     },
     {
@@ -385,7 +385,7 @@
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "문을 향해 걸었다. Chen은 창을 보고 있었다. 차를 들고. 마시지 않고. 뒤에서 보면 그녀의 어깨가 보였다. MCC 22년. 광산 부모. 12살의 혼자. 그것들이 그 어깨에 있었다. 보이지 않았지만 있었다. 화성의 것들은 그랬다.", "en": "Walked toward the door. Chen was looking at the window. Holding her tea. Not drinking. From behind her shoulders were visible. 22 years of MCC. Miner parents. Twelve and alone. Those things were in those shoulders. Invisible but there. Things on Mars were like that." } }
+        { "text": { "ko": "문을 향해 걸었다. Chen은 창을 보고 있었다. 차를 들고. 마시지 않고. 뒤에서 보면 그녀의 어깨가 보였다. MCC 22년. 광산 부모. 12살의 혼자. 그것들이 그 어깨에 있었다. 보이지 않았지만 있었다. 화성의 것들은 그랬다.", "en": "Walked toward the door. Chen was looking at the window. Holding her tea. Not drinking. From behind her shoulders were visible. 22 years of MCC. Miner parents. Twelve and alone. Those things were in those shoulders. Invisible but there. Things on Mars were like that." }, "overlay": "alone_window" }
       ]
     },
     {

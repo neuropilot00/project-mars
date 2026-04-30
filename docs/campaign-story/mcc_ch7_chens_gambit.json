@@ -541,7 +541,8 @@
         {
           "text": {
             "ko": "창밖으로 헬라스가 보였다. MCC의 도시. 광산 구역이 보였다. 작았다. C-7 블록이 보였다. 더 작았다. 분필 이름들은 보이지 않았다. 너무 작았다. 그러나 있었다. 없어지지 않았다. 이 방에서 결정되는 것들이 저 아래로 내려갔다. 그것이 이 창이 말하는 것이었다.",
-            "en": "Outside the window Hellas was visible. MCC's city. The mine district visible. Small. Block C-7 visible. Smaller. Chalk names not visible. Too small. But they were there. Not gone. What was decided in this room went down there. That was what this window said."
+            "en": "Outside the window Hellas was visible. MCC's city. The mine district visible. Small. Block C-7 visible. Smaller. Chalk names not visible. Too small. But they were there. Not gone. What was decided in this room went down there. That was what this window said.",
+            "overlay": "candle_flame"
           }
         }
       ]
@@ -901,7 +902,8 @@
         {
           "text": {
             "ko": "Chen은 의사당을 나왔다. 차를 여전히 들고 있었다. 그러나 잔이 비어 있었다. 그것을 본 사람이 한 명 있었다. 22년 동안 비어 있는 Chen Weiss의 잔을 본 사람은 없었다. 화성에서 처음 보는 것은 드물었다. 그러나 가끔 있었다.",
-            "en": "Chen left the chamber. Still holding her tea. But the cup was empty. One person saw it. In twenty-two years nobody had seen Chen Weiss's cup empty. First sightings were rare on Mars. But they happened."
+            "en": "Chen left the chamber. Still holding her tea. But the cup was empty. One person saw it. In twenty-two years nobody had seen Chen Weiss's cup empty. First sightings were rare on Mars. But they happened.",
+            "overlay": "alone_window"
           }
         }
       ],

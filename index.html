@@ -1236,10 +1236,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .story-title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.4);font-size:clamp(24px,8vw,44px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.9);padding:28px;letter-spacing:0}
 .story-title-card small{display:block;margin-top:12px;font-size:clamp(13px,3.5vw,18px);color:#FFD700;line-height:1.5}
 .story-narration-text{text-align:center;background:none;color:#f0f0f0;font-size:1rem;line-height:1.8;text-shadow:0 2px 14px rgba(0,0,0,.95)}
-/* 씬 디테일 오버레이 — 키워드 매칭시 우하단 소형 사각형 일러스트 */
-.story-detail-overlay{position:absolute;right:12px;bottom:155px;width:88px;height:88px;border-radius:8px;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s ease;transform:translateY(8px) scale(.94);border:1px solid rgba(255,255,255,.18);box-shadow:0 4px 18px rgba(0,0,0,.75);z-index:10}
-.story-detail-overlay.visible{opacity:.82;transform:translateY(0) scale(1)}
-@media(max-width:520px){.story-detail-overlay{width:72px;height:72px;bottom:145px;right:10px}}
+/* 씬 디테일 오버레이 — line.overlay 필드 명시된 장면에서만 중앙 표시 */
+.story-detail-overlay{position:absolute;left:50%;bottom:185px;width:176px;height:176px;border-radius:14px;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .5s ease,transform .5s ease;transform:translateX(-50%) translateY(16px) scale(.9);border:2px solid rgba(255,255,255,.22);box-shadow:0 8px 40px rgba(0,0,0,.85);z-index:10}
+.story-detail-overlay.visible{opacity:.92;transform:translateX(-50%) translateY(0) scale(1)}
+@media(max-width:520px){.story-detail-overlay{width:148px;height:148px;bottom:175px}}
 /* 스토리 컨트롤 (스킵/나가기) — safe area 고려 */
 .story-controls{position:absolute;top:max(10px,env(safe-area-inset-top,10px));right:12px;display:flex;gap:8px;z-index:5;cursor:default}
 .story-ctrl-btn{padding:8px 13px;min-height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.65);color:#ddd;font-family:var(--fn);font-size:9px;letter-spacing:1px;font-weight:800;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .15s;-webkit-tap-highlight-color:transparent}
@@ -24969,73 +24969,16 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
   });
 }
 
-// ── 씬 디테일 오버레이: 키워드 → 이미지 자동 매칭 ─────────────────────────
-var _OVERLAY_KW={
-  // 신체
-  '손이':'hand_still','손을':'hand_still','손이 ':'hand_still','손 ':'hand_still',
-  '손가락':'hand_still','움직이지':'hand_still','안 움직':'hand_still',
-  '손을 뻗':'hand_reaches','닿으려':'hand_reaches','잡으려':'hand_reaches',
-  '주먹':'hand_fist','쥐었':'hand_fist','쥐고':'hand_fist','악':'hand_fist',
-  '눈을 감':'eye_closeup','눈이 ':'eye_closeup','시선':'eye_closeup','눈빛':'eye_closeup',
-  '눈물':'tear_drop','울었':'tear_drop','흘렸':'tear_drop','눈가':'tear_drop',
-  '아이가':'child_small','아이는':'child_small','아이를':'child_small','아이의':'child_small','어린':'child_small',
-  '피가':'blood_drop','피를':'blood_drop','피가 ':'blood_drop','상처':'blood_drop','피 ':'blood_drop',
-  // 문서 / 기록
-  '기록이':'sealed_file','기록을':'sealed_file','봉인':'sealed_file','잠겼':'sealed_file','잠긴':'sealed_file',
-  'Zone 12':'zone12_record','zone12':'zone12_record','존 12':'zone12_record','12구역':'zone12_record',
-  '서류':'sealed_file','파일':'sealed_file','문서':'sealed_file',
-  '타오르':'paper_burn','태웠':'paper_burn','불태':'paper_burn',
-  // 장비
-  '산소':'oxygen_mask','마스크':'oxygen_mask','압력':'oxygen_mask',
-  '광석':'ore_sample','고대 금속':'ore_sample','Ancient Metal':'ore_sample','에레보스':'ore_sample',
-  '통신':'comm_static','신호가 없':'comm_static','끊겼':'comm_static','전파':'comm_static',
-  '경보':'mine_sensor','위험':'mine_sensor','센서':'mine_sensor','경고':'mine_sensor',
-  // 무기
-  '총성':'bullet_casing','발사':'bullet_casing','쐈':'bullet_casing','격발':'bullet_casing',
-  '칼':'knife_edge','날':'knife_edge','블레이드':'knife_edge',
-  // 환경
-  '유리':'broken_glass','균열':'broken_glass','깨진':'broken_glass','금이':'broken_glass',
-  '잠긴 문':'door_locked','문이 잠':'door_locked','봉쇄':'door_locked',
-  '발자국':'footprint_dust','발소리':'footprint_dust','흔적':'footprint_dust',
-  '촛불':'candle_flame','추모':'candle_flame','기억하':'candle_flame','불꽃':'candle_flame',
-  // 상징
-  'Crow Vanguard':'cv_insignia','CV':'cv_insignia','까마귀':'cv_insignia',
-  'MCC 배지':'mcc_badge_cracked','배지':'mcc_badge_cracked','ID':'mcc_badge_cracked',
-  '세 개의 깃발':'three_flags','세 깃발':'three_flags','세 세력':'three_flags',
-  '지도':'map_marked','목표':'map_marked','좌표':'map_marked',
-  '빈 의자':'empty_chair','아무도 없':'empty_chair','비어 있':'empty_chair','공석':'empty_chair',
-  // 우주 / 화성
-  '지평선':'mars_horizon','화성의':'mars_horizon','저 너머':'mars_horizon',
-  '별이':'stars_through_glass','별을':'stars_through_glass','지구가':'stars_through_glass','돌아갈':'stars_through_glass',
-  // 죽음 / 붕괴
-  '죽었':'death_still','죽은':'death_still','사망':'death_still','목숨':'death_still','잃었':'death_still',
-  '무너':'collapse_debris','붕괴':'collapse_debris','쓰러':'collapse_debris','쏟아졌':'collapse_debris',
-  // 불 / 폭풍
-  '불이':'fire_small','화재':'fire_small','불꽃이':'fire_small','타고':'fire_small',
-  '폭풍':'dust_storm','먼지':'dust_storm','모래':'dust_storm','황사':'dust_storm',
-  // 침묵 / 고독
-  '침묵':'silence_room','말이 없':'silence_room','아무 말':'silence_room','말하지 않':'silence_room',
-  '혼자':'alone_window','홀로':'alone_window','남겨졌':'alone_window','남겨진':'alone_window',
-  // 계약 / 서명
-  '계약':'contract_sign','서명':'contract_sign','도장':'contract_sign','사인':'contract_sign',
-  // 어둠
-  '어둠':'darkness_corridor','꺼졌':'darkness_corridor','불이 꺼':'darkness_corridor','암흑':'darkness_corridor'
-};
-function _showStoryDetailOverlay(text){
+// ── 씬 디테일 오버레이 — line.overlay 필드에 명시된 이미지만 표시 ───────────
+// 키워드 자동 매칭 방식 폐기. 시나리오 JSON 작성자가 각 line에 "overlay":"이미지명"
+// 을 직접 태깅한 씬에서만 오버레이가 나타난다. 태깅 없으면 반드시 숨긴다.
+function _showStoryDetailOverlay(overlayName){
   var el=document.querySelector('.story-detail-overlay');
   if(!el) return;
-  // 기존 visible 제거
   el.classList.remove('visible');
-  if(!text){return;}
-  var matched=null;
-  var keys=Object.keys(_OVERLAY_KW);
-  for(var k=0;k<keys.length;k++){
-    if(text.indexOf(keys[k])!==-1){matched=_OVERLAY_KW[keys[k]];break;}
-  }
-  if(!matched){return;}
-  var src='/assets/campaign/overlays/'+matched+'.png';
+  if(!overlayName) return;
+  var src='/assets/campaign/overlays/'+overlayName+'.png';
   if(el.getAttribute('data-src')===src&&el.complete&&el.naturalWidth>0){
-    // 같은 이미지면 그냥 다시 보여주기
     el.classList.add('visible');
     return;
   }
@@ -25095,7 +25038,7 @@ function renderCampaignScene(){
     box.style.backdropFilter='none';
     box.innerHTML='<div class="story-text story-narration-text"></div>';
     var _nText=_campaignStoryText(nLine.text);
-    _showStoryDetailOverlay(_nText);
+    _showStoryDetailOverlay(nLine.overlay||null);
     typeText(box.querySelector('.story-text'),_nText,null);
     return;
   }
@@ -25105,7 +25048,7 @@ function renderCampaignScene(){
     _campaignStoryRenderCharacters(scene,dLine,overlay);
     box.innerHTML='<div class="story-speaker-name">'+escapeHtmlSafe(_campaignStorySpeakerName(dLine.speaker||scene.speaker))+'</div><div class="story-text"></div>';
     var _dText=_campaignStoryText(dLine.text);
-    _showStoryDetailOverlay(_dText);
+    _showStoryDetailOverlay(dLine.overlay||null);
     typeText(box.querySelector('.story-text'),_dText,null);
     return;
   }

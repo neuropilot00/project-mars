@@ -140,7 +140,7 @@
         { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "Sector 7의 셋. 이름이 없어요. 등록되지 않았어요.", "en": "The three of Sector 7. No names. Unregistered." }},
         { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "Zone C의 스물. 이름이 없어요.", "en": "The twenty of Zone C. No names." }},
         { "speaker": "rev_hale", "emotion": "solemn", "text": { "ko": "헬라스 분지 광부들. 내가 아는 것만 사십이 명. 내가 모르는 것도 있어요.", "en": "Hellas Basin miners. Forty-two that I know of. There are more I don't know." }},
-        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "이 이름들이 먼저예요.", "en": "These names come first." }}
+        { "speaker": "rev_hale", "emotion": "quiet", "text": { "ko": "이 이름들이 먼저예요.", "en": "These names come first." }, "overlay": "death_still" }
       ]
     },
     {
@@ -163,7 +163,7 @@
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder_grace", "emotion": "low", "text": { "ko": "Zone 12도 있어요.", "en": "There's Zone 12 too." }},
+        { "speaker": "cinder_grace", "emotion": "low", "text": { "ko": "Zone 12도 있어요.", "en": "There's Zone 12 too." }, "overlay": "zone12_record" },
         { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "MCC가 봉쇄한 거. 우리가 거기서 사람을 잃었어요.", "en": "The one MCC sealed off. We lost people there." }},
         { "speaker": "chen_weiss", "emotion": "tense", "text": { "ko": "Zone 12는 안전 문제로 봉쇄된 겁니다.", "en": "Zone 12 was sealed for safety reasons." }},
         { "speaker": "cinder_grace", "emotion": "sharp", "text": { "ko": "이름을 아세요? 거기서 죽은 사람들.", "en": "Do you know the names. The ones who died there." }},
@@ -748,7 +748,7 @@
         { "text": { "ko": "두 번째: 노동 사고는 공개된다.", "en": "Second: Labor accidents are made public." }},
         { "text": { "ko": "세 번째: 이름들은 지워질 수 없다.", "en": "Third: Names cannot be erased." }},
         { "text": { "ko": "서명은 Chen Weiss. Cinder Grace. Lena. 플레이어. Rev. Hale.", "en": "Signed by Chen Weiss. Cinder Grace. Lena. The player. Rev. Hale." }},
-        { "text": { "ko": "그리고 Ramos. 암살자의 서명도 있었다.", "en": "And Ramos. The assassin's signature was there too." }},
+        { "text": { "ko": "그리고 Ramos. 암살자의 서명도 있었다.", "en": "And Ramos. The assassin's signature was there too." }, "overlay": "contract_sign" },
         { "text": { "ko": "그것이 Rev. Hale의 고집이었다.", "en": "That was Rev. Hale's insistence." }}
       ]
     },

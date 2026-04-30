@@ -194,7 +194,8 @@
           "text": {
             "ko": "Cinder가 사진을 꺼냈다. 흑백. 30년 된 것. 뒤집었다. 이름들이 있었다. 이름들을 테이블에 올려놓았다. 문서 옆에. 합의 초안 옆에. MCC가 준비한 것들 옆에. 그것들과 사진이 같은 테이블에 있었다.",
             "en": "Cinder took out the photo. Black and white. Thirty years old. Flipped it. Names were there. She placed the names on the table. Next to documents. Next to the draft agreement. Next to what MCC had prepared. Those things and the photo were on the same table."
-          }
+          },
+          "overlay": "zone12_record"
         }
       ]
     },
@@ -897,7 +898,7 @@
       "lines": [
         { "text": { "ko": "Cinder가 펜을 들었다.", "en": "Cinder picked up the pen." }},
         { "text": { "ko": "공구 벨트의 것이 아니었다. 펜이었다.", "en": "Not something from the tool belt. A pen." }},
-        { "text": { "ko": "서명했다. Zone 12 생존자로.", "en": "She signed. As a Zone 12 survivor." }},
+        { "text": { "ko": "서명했다. Zone 12 생존자로.", "en": "She signed. As a Zone 12 survivor." }, "overlay": "contract_sign" },
         { "text": { "ko": "공구 소리가 났다. 펜을 내려놓으면서.", "en": "Tool sound came. As she put down the pen." }},
         { "text": { "ko": "그것이 그녀의 방식이었다.", "en": "That was her way." }}
       ]
@@ -1008,7 +1009,8 @@
           "text": {
             "ko": "테이블에 이름들이 생겼다. Zone 12. 11명. 처음으로 이 이름들이 문서에 있었다. 세 파벌 모두의 서명과 함께. Cinder가 공구를 만졌다. 소리가 났다. 올림포스에서. 태양계에서 가장 높은 곳에서. 공구 소리가 났다. 그것이 이 합의의 서명이었다.",
             "en": "Names appeared on the table. Zone 12. Eleven people. For the first time these names were in a document. With the signatures of all three factions. Cinder touched her tools. Sound came. On Olympus. At the highest point in the solar system. Tool sounds. That was the signature of this agreement."
-          }
+          },
+          "overlay": "zone12_record"
         }
       ]
     },

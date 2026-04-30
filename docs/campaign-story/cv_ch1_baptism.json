@@ -35,7 +35,7 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Butcher Vasquez는 불 앞에 앉았다. 왼쪽 팔이 불빛을 받았다. 의수였다. 광산용 구식 의수. MCC가 사고 배상을 거부했을 때 그가 직접 만들었다. 17살 때였다. 그 후로 같은 팔이었다.", "en": "Butcher Vasquez sat before the fire. Firelight on the left arm. A prosthetic. Old mining-grade. He had built it himself when MCC refused to cover the accident. Seventeen years old. The same arm ever since." } }
+        { "text": { "ko": "Butcher Vasquez는 불 앞에 앉았다. 왼쪽 팔이 불빛을 받았다. 의수였다. 광산용 구식 의수. MCC가 사고 배상을 거부했을 때 그가 직접 만들었다. 17살 때였다. 그 후로 같은 팔이었다.", "en": "Butcher Vasquez sat before the fire. Firelight on the left arm. A prosthetic. Old mining-grade. He had built it himself when MCC refused to cover the accident. Seventeen years old. The same arm ever since." }, "overlay": "fire_small" }
       ]
     },
     {
@@ -328,7 +328,7 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "별이 있었다. 화성의 별. 맑았다. 공기가 얇아서 별이 잘 보였다. 그러나 별이 따뜻하지는 않았다. 별은 빛이었다. 빛은 따뜻하지 않았다. 이 온도에서는.", "en": "Stars. Martian stars. Clear. Thin air made stars visible. But stars weren't warm. Stars were light. Light wasn't warm. Not at this temperature." } }
+        { "text": { "ko": "별이 있었다. 화성의 별. 맑았다. 공기가 얇아서 별이 잘 보였다. 그러나 별이 따뜻하지는 않았다. 별은 빛이었다. 빛은 따뜻하지 않았다. 이 온도에서는.", "en": "Stars. Martian stars. Clear. Thin air made stars visible. But stars weren't warm. Stars were light. Light wasn't warm. Not at this temperature." }, "overlay": "mars_horizon" }
       ]
     },
     {
@@ -480,7 +480,7 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Reza를 봤다. 그의 눈이 무언가를 말했다. Aisha. 그것이었다. 이름 하나였다. 거기서 살아있는 것이었다. 여동생 이름. Aisha.", "en": "Looked at Reza. His eyes said something. Aisha. That was it. One name. What was alive there. Sister's name. Aisha." } }
+        { "text": { "ko": "Reza를 봤다. 그의 눈이 무언가를 말했다. Aisha. 그것이었다. 이름 하나였다. 거기서 살아있는 것이었다. 여동생 이름. Aisha.", "en": "Looked at Reza. His eyes said something. Aisha. That was it. One name. What was alive there. Sister's name. Aisha." }, "overlay": "candle_flame" }
       ]
     },
     {

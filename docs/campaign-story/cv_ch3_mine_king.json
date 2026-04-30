@@ -248,7 +248,7 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Reza가 생각했다. 오래. 눈을 감았다. 손이 묶이지 않았다. 그 손이 무릎 위에 있었다. 떨리지 않았다. 그것이 이 사람이 강한 방식이었다. 결정하는 방식.", "en": "Reza thought. For a long time. Eyes closed. Hands unbound. Those hands on the knees. Not trembling. That was how this person was strong. The way of deciding." } }
+        { "text": { "ko": "Reza가 생각했다. 오래. 눈을 감았다. 손이 묶이지 않았다. 그 손이 무릎 위에 있었다. 떨리지 않았다. 그것이 이 사람이 강한 방식이었다. 결정하는 방식.", "en": "Reza thought. For a long time. Eyes closed. Hands unbound. Those hands on the knees. Not trembling. That was how this person was strong. The way of deciding." }, "overlay": "hand_still" }
       ]
     },
     {
@@ -557,7 +557,7 @@
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "불이 탔다. 밤이 깊었다. Cinder가 작업을 끝냈다. 무언가가 고쳐졌다. 무엇인지는 말하지 않았다. Butcher가 불 앞에 앉았다. 의수를 내려다봤다. 17살에 만든 것. 30년 된 것. 여전히 작동했다.", "en": "Fire burned. Night deepened. Cinder finished work. Something had been repaired. What it was she didn't say. Butcher sat by the fire. Looked down at the prosthetic. Made at seventeen. Thirty years old. Still working." } }
+        { "text": { "ko": "불이 탔다. 밤이 깊었다. Cinder가 작업을 끝냈다. 무언가가 고쳐졌다. 무엇인지는 말하지 않았다. Butcher가 불 앞에 앉았다. 의수를 내려다봤다. 17살에 만든 것. 30년 된 것. 여전히 작동했다.", "en": "Fire burned. Night deepened. Cinder finished work. Something had been repaired. What it was she didn't say. Butcher sat by the fire. Looked down at the prosthetic. Made at seventeen. Thirty years old. Still working." }, "overlay": "fire_small" }
       ]
     },
     {

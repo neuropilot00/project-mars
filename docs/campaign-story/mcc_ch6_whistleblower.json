@@ -99,7 +99,7 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "벽에 이름이 적혀 있었다. 분필이었다. Kim Yong-jin. 그 아래 다른 이름들. 여러 개였다. FSP 노동자 지구에서 죽은 사람들의 이름이 아니었다. MCC 광산에서 죽은 사람들의 이름이었다. 골목 아이들이 적은 것이었다.", "en": "Names were written on the wall. Chalk. Kim Yong-jin. More names below. Several. Not the names of people who died in FSP labor districts. The names of people who died in MCC mines. Written by the alley children." } }
+        { "text": { "ko": "벽에 이름이 적혀 있었다. 분필이었다. Kim Yong-jin. 그 아래 다른 이름들. 여러 개였다. FSP 노동자 지구에서 죽은 사람들의 이름이 아니었다. MCC 광산에서 죽은 사람들의 이름이었다. 골목 아이들이 적은 것이었다.", "en": "Names were written on the wall. Chalk. Kim Yong-jin. More names below. Several. Not the names of people who died in FSP labor districts. The names of people who died in MCC mines. Written by the alley children." }, "overlay": "candle_flame" }
       ]
     },
     {
@@ -377,7 +377,7 @@
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "C-7 블록의 분필 이름들은 아침 바람에도 지워지지 않을 것이었다. 분필은 약했다. 그러나 화성의 바람이 아무리 강해도 이미 기억된 이름은 지울 수 없었다. Kim Yong-jin. 그 아래 이름들. 그 아래 아직 쓰이지 않은 이름들.", "en": "The chalk names of block C-7 would not be erased by the morning wind. Chalk was weak. But no matter how strong the Martian wind, it could not erase names that had already been remembered. Kim Yong-jin. The names below. The names below that, not yet written." } }
+        { "text": { "ko": "C-7 블록의 분필 이름들은 아침 바람에도 지워지지 않을 것이었다. 분필은 약했다. 그러나 화성의 바람이 아무리 강해도 이미 기억된 이름은 지울 수 없었다. Kim Yong-jin. 그 아래 이름들. 그 아래 아직 쓰이지 않은 이름들.", "en": "The chalk names of block C-7 would not be erased by the morning wind. Chalk was weak. But no matter how strong the Martian wind, it could not erase names that had already been remembered. Kim Yong-jin. The names below. The names below that, not yet written." }, "overlay": "candle_flame" }
       ],
       "next_chapter_preview": { "questId": "mcc_campaign_ch7", "teaser": { "ko": "다음 — 이사회", "en": "Next — The Board" } }
     }

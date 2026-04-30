@@ -44,7 +44,8 @@
           "text": {
             "ko": "Butcher가 거기 앉아 있었다. 사진을 들고 있었다. 처음 본 것이었다. 주머니 밖에서. 흑백이었다. 오래됐다. 30년. 사람들이 있었다. 여러 명. 광부들이었다. 그 중 한 명이 Butcher와 닮은 것 같았다. 젊은 것이었다. 17살쯤 되는 것 같았다.",
             "en": "Butcher was sitting there. Holding the photo. First time seeing it. Outside the pocket. Black and white. Old. Thirty years. There were people. Several. Miners. One of them looked like Butcher. Young. Seemed about seventeen."
-          }
+          },
+          "overlay": "death_still"
         }
       ]
     },
@@ -189,7 +190,8 @@
           "text": {
             "ko": "이름들이 사진 뒤에 있어. 그게 전부야. 이름들이 뭘 만들었는지. CV가 그거야.",
             "en": "The names are on the back of the photo. That's all. What names built. That's CV."
-          }
+          },
+          "overlay": "sealed_file"
         }
       ]
     },
@@ -478,7 +480,8 @@
           "text": {
             "ko": "Zone 12 이름들이 여기 있어요.",
             "en": "The Zone 12 names are here."
-          }
+          },
+          "overlay": "zone12_record"
         },
         {
           "speaker": "cinder",
@@ -871,7 +874,8 @@
           "text": {
             "ko": "사진 뒤에 빈 공간 있어. 거기 당신 이름 쓸 자리야. 시험 통과했어.",
             "en": "There's empty space on the back of the photo. That's where your name goes. Test passed."
-          }
+          },
+          "overlay": "candle_flame"
         }
       ]
     },

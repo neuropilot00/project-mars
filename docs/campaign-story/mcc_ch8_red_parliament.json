@@ -229,7 +229,8 @@
         {
           "text": {
             "ko": "Zone 12. 11명. 보고서. 수정 요청. 거부. 갱도 붕괴. 그것이 Cinder Grace였다. 3년 전에 MCC에 있던 사람. 지금 CV에 있는 사람. 사이에 Zone 12가 있었다. 그것이 이 사람이 여기 있는 이유였다.",
-            "en": "Zone 12. Eleven people. Report. Revision request. Refusal. Tunnel collapse. That was Cinder Grace. Someone in MCC three years ago. Someone in CV now. Zone 12 was in between. That was why this person was here."
+            "en": "Zone 12. Eleven people. Report. Revision request. Refusal. Tunnel collapse. That was Cinder Grace. Someone in MCC three years ago. Someone in CV now. Zone 12 was in between. That was why this person was here.",
+            "overlay": "collapse_debris"
           }
         }
       ]
@@ -317,7 +318,8 @@
         {
           "text": {
             "ko": "광부가 있었다. 구석에. 숨어 있었다. 노인이었다. 60대. 오일이 손에 있었다. 광부였다. 기록에는 사망이었다. 3년 전에. Cinder가 말한 것이었다. MCC 기록에 사망으로 처리된 사람. 살아있었다. 여기서.",
-            "en": "The miner was there. In the corner. Hidden. Old. Sixties. Oil on the hands. A miner. Listed as dead in the records. Three years ago. What Cinder had said. Someone processed as dead in MCC records. Alive. Here."
+            "en": "The miner was there. In the corner. Hidden. Old. Sixties. Oil on the hands. A miner. Listed as dead in the records. Three years ago. What Cinder had said. Someone processed as dead in MCC records. Alive. Here.",
+            "overlay": "death_still"
           }
         }
       ]
@@ -756,7 +758,8 @@
         {
           "text": {
             "ko": "새벽이었다. 헬라스 4구역 외곽. 먼지 폭풍이 지나갔다. 화성의 새벽은 지구와 달랐다. 더 붉었다. 해가 더 작았다. Cinder Grace가 걸어가는 방향에 그 빛이 있었다. 어디서 왔는지를 알 것 같은 사람이었다. 어디로 가는지는 아직 몰랐다.",
-            "en": "Dawn. Outside Hellas Zone 4. The dust storm had passed. Mars's dawn was different from Earth's. Redder. The sun smaller. In the direction Cinder Grace walked was that light. She was someone you felt you could understand where she'd come from. Where she was going was still unknown."
+            "en": "Dawn. Outside Hellas Zone 4. The dust storm had passed. Mars's dawn was different from Earth's. Redder. The sun smaller. In the direction Cinder Grace walked was that light. She was someone you felt you could understand where she'd come from. Where she was going was still unknown.",
+            "overlay": "mars_horizon"
           }
         }
       ],

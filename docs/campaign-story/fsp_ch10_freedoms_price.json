@@ -290,7 +290,7 @@
         { "text": { "ko": "별표가 달린 이름들. 화성 출생.", "en": "Names with stars. Mars-born." }},
         { "text": { "ko": "그 아래 이름들. 지구에서 온 사람들.", "en": "Names below. People who came from Earth." }},
         { "text": { "ko": "모두 같은 벽에 있었다.", "en": "All on the same wall." }},
-        { "text": { "ko": "Rev. Hale이 그 벽을 보았다.", "en": "Rev. Hale looked at that wall." }}
+        { "text": { "ko": "Rev. Hale이 그 벽을 보았다.", "en": "Rev. Hale looked at that wall." }, "overlay": "candle_flame" }
       ]
     },
     {
@@ -394,7 +394,7 @@
         { "speaker": "olu_adeyemi", "emotion": "quiet", "text": { "ko": "그리고 동의했어요. 그것이 Mariam이었어요.", "en": "And she agreed. That was Mariam." }},
         { "speaker": "rev_hale", "emotion": "gentle", "text": { "ko": "Mariam Adeyemi. 이 함선에 이름이 있어요.", "en": "Mariam Adeyemi. This ship has that name." }},
         { "speaker": "olu_adeyemi", "emotion": "breaking", "text": { "ko": "함선 이름이 Gaia인 이유가 있어요.", "en": "There's a reason the ship's name is Gaia." }},
-        { "speaker": "olu_adeyemi", "emotion": "quiet", "text": { "ko": "Mariam의 첫 번째 딸이 그 이름이었어요. 사산이었어요. 화성에서.", "en": "Mariam's first daughter had that name. She was stillborn. On Mars." }}
+        { "speaker": "olu_adeyemi", "emotion": "quiet", "text": { "ko": "Mariam의 첫 번째 딸이 그 이름이었어요. 사산이었어요. 화성에서.", "en": "Mariam's first daughter had that name. She was stillborn. On Mars." }, "overlay": "death_still" }
       ]
     },
     {
@@ -576,7 +576,7 @@
         { "text": { "ko": "Gaia가 떴다.", "en": "Gaia launched." }},
         { "text": { "ko": "화성에서 만든 첫 번째 함선. 화성 자체의 힘으로.", "en": "The first ship made on Mars. By Mars's own power." }},
         { "text": { "ko": "Olu Adeyemi가 지켜봤다. 편지를 손에 쥐고.", "en": "Olu Adeyemi watched. With the letter in hand." }},
-        { "text": { "ko": "Mariam. 함선이 그 이름을 가지고 갔다.", "en": "Mariam. The ship carried that name." }},
+        { "text": { "ko": "Mariam. 함선이 그 이름을 가지고 갔다.", "en": "Mariam. The ship carried that name." }, "overlay": "mars_horizon" },
         { "text": { "ko": "헬라스 광부 마을로 돌아오는 길에 Mikhail이 말했다.", "en": "On the way back to the Hellas mining village Mikhail spoke." }},
         { "text": { "ko": "'이름들이 기록됐어요. 그다음은 Yuna가 결정해요.'", "en": "'The names are recorded. What comes next Yuna decides.'" }},
         { "text": { "ko": "Yuna가 두 손으로 잔을 들었다.", "en": "Yuna held the cup with both hands." }},

@@ -269,7 +269,7 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "49명이 살아있었다. 여섯이 부상이었다. 둘이 중상이었다. Lena가 먼저 들어갔다. Park Sung-jin을 찾았다. 찾았다. 그 이름을. 팔 위의 이름을. 살아있는 그 이름을.", "en": "Forty-nine were alive. Six injured. Two critically. Lena went in first. Looking for Park Sung-jin. Found. That name. The name on the arm. That living name." } }
+        { "text": { "ko": "49명이 살아있었다. 여섯이 부상이었다. 둘이 중상이었다. Lena가 먼저 들어갔다. Park Sung-jin을 찾았다. 찾았다. 그 이름을. 팔 위의 이름을. 살아있는 그 이름을.", "en": "Forty-nine were alive. Six injured. Two critically. Lena went in first. Looking for Park Sung-jin. Found. That name. The name on the arm. That living name." }, "overlay": "death_still" }
       ]
     },
     {
@@ -325,7 +325,7 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Lena가 Park Sung-jin과 있었다. 말이 없었다. 두 사람. 팔 위의 이름. 살아있는 이름. 그것이 지금 앞에 있었다.", "en": "Lena was with Park Sung-jin. No words. Two people. The name on the arm. The living name. That was here now." } }
+        { "text": { "ko": "Lena가 Park Sung-jin과 있었다. 말이 없었다. 두 사람. 팔 위의 이름. 살아있는 이름. 그것이 지금 앞에 있었다.", "en": "Lena was with Park Sung-jin. No words. Two people. The name on the arm. The living name. That was here now." }, "overlay": "candle_flame" }
       ]
     },
     {

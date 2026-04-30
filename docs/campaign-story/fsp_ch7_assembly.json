@@ -243,7 +243,7 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "창문에 먼지가 치기 시작했다. 규모 4 폭풍. 의사당 안의 불빛이 흔들렸다. 비상 전원으로 바뀌는 것이었다. 그러나 창문은 거기 있었다. 먼지가 쳐도 거기 있었다.", "en": "Dust began hitting the windows. Scale 4 storm. The lights in the assembly hall flickered. Switching to emergency power. But the windows were there. They were there even as the dust hit." } }
+        { "text": { "ko": "창문에 먼지가 치기 시작했다. 규모 4 폭풍. 의사당 안의 불빛이 흔들렸다. 비상 전원으로 바뀌는 것이었다. 그러나 창문은 거기 있었다. 먼지가 쳐도 거기 있었다.", "en": "Dust began hitting the windows. Scale 4 storm. The lights in the assembly hall flickered. Switching to emergency power. But the windows were there. They were there even as the dust hit." }, "overlay": "dust_storm" }
       ]
     },
     {
@@ -395,7 +395,7 @@
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "의원회 의사당이 조용했다. 창문에 먼지가 날렸다. 폭풍이 오고 있었다. Mikhail이 창문 앞에 섰다. 광산이 보였다. 먼지 속에서도 보였다. 그것이 창문을 만든 이유였다.", "en": "The assembly hall was quiet. Dust hit the windows. The storm was coming. Mikhail stood before the window. The mines were visible. Visible even through the dust. That was why the windows had been made." } }
+        { "text": { "ko": "의원회 의사당이 조용했다. 창문에 먼지가 날렸다. 폭풍이 오고 있었다. Mikhail이 창문 앞에 섰다. 광산이 보였다. 먼지 속에서도 보였다. 그것이 창문을 만든 이유였다.", "en": "The assembly hall was quiet. Dust hit the windows. The storm was coming. Mikhail stood before the window. The mines were visible. Visible even through the dust. That was why the windows had been made." }, "overlay": "alone_window" }
       ]
     },
     {
@@ -439,7 +439,7 @@
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "의원회가 끝났다. Mikhail이 혼자 남았다. 창문 앞에 섰다. 광산이 보였다. 저 광산에서 일하는 사람들. 그 사람들의 이름이 이 조직을 만들었다. 이름들이 조직보다 오래 살아남는 것이었다. 그것을 알았다. 창문을 만든 이유가 그것이었다.\n\n먼지 폭풍이 오고 있었다. 그러나 창문은 거기 있었다. 먼지가 와도 거기 있을 것이었다.", "en": "The assembly ended. Mikhail remained alone. He stood before the window. The mines were visible. The people working in those mines. Their names had made this organization. Names outlasted organizations. He knew that. That was why he had made the windows.\n\nA dust storm was coming. But the windows were there. They would be there even when the dust came." } }
+        { "text": { "ko": "의원회가 끝났다. Mikhail이 혼자 남았다. 창문 앞에 섰다. 광산이 보였다. 저 광산에서 일하는 사람들. 그 사람들의 이름이 이 조직을 만들었다. 이름들이 조직보다 오래 살아남는 것이었다. 그것을 알았다. 창문을 만든 이유가 그것이었다.\n\n먼지 폭풍이 오고 있었다. 그러나 창문은 거기 있었다. 먼지가 와도 거기 있을 것이었다.", "en": "The assembly ended. Mikhail remained alone. He stood before the window. The mines were visible. The people working in those mines. Their names had made this organization. Names outlasted organizations. He knew that. That was why he had made the windows.\n\nA dust storm was coming. But the windows were there. They would be there even when the dust came." }, "overlay": "candle_flame" }
       ],
       "next_chapter_preview": { "questId": "fsp_campaign_ch8", "teaser": { "ko": "다음 — 가이아", "en": "Next — Gaia" } }
     }

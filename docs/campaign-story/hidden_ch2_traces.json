@@ -22,7 +22,7 @@
       "lines": [{ "text": {
         "ko": "광부 마을이었다. 분필이 있었다. 벽에. 이름들. Kim Yong-jin. 그 아래 이름들. 관찰자가 봤다. 누가 썼는지. 왜 썼는지. 언제 썼는지. 그것들이 벽에 있었다. 분필이 약하다는 것을 아는 사람들이 쓴 것이었다. 그래서 더 많이 썼다.",
         "en": "A mining village. There was chalk. On the wall. Names. Kim Yong-jin. Names below. The observer looked. Who wrote them. Why they wrote. When they wrote. Those things were on the wall. Written by people who knew chalk was weak. So they wrote more."
-      }}]
+      }, "overlay": "candle_flame" }]
     },
     {
       "id": "s03", "type": "narration",
@@ -198,7 +198,7 @@
       "lines": [{ "text": {
         "ko": "사진 아래 쪽지가 있었다. 작은 것. 관찰자가 읽었다. 날짜. 이름들. 그리고 짧은 문장. Zone 12. 우리는 여기 있었다. 그것이 쪽지가 말하는 전부였다. 여기 있었다는 것을 말하려 한 것이었다. 그 이상도 이하도 아니었다.",
         "en": "Below the photo there was a note. A small one. The observer read it. A date. Names. And a short sentence. Zone 12. We were here. That was everything the note said. It was trying to say that they had been here. Nothing more or less."
-      }}]
+      }, "overlay": "zone12_record" }]
     },
     {
       "id": "s25", "type": "narration",
@@ -238,7 +238,7 @@
       "lines": [{ "text": {
         "ko": "테이블에 사진이 있었다. 하나. 오래된 것. 여러 사람. 광부들. 그 사진이 테이블 위에 있었다. 먼지가 없었다. 자주 보는 것이었다. 또는 최근에 닦았다. 사진이 여기서 오래 있었다. 사진과 함께 있는 사람이 오래 이것을 봤다.",
         "en": "On the table there was a photo. One. Old. Multiple people. Miners. That photo was on the table. No dust on it. Someone looked at it often. Or it had been wiped recently. The photo had been here a long time. The person who was here with the photo had looked at it for a long time."
-      }}]
+      }, "overlay": "death_still" }]
     },
     {
       "id": "s30", "type": "narration",

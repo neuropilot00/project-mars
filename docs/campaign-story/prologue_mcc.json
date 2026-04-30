@@ -120,7 +120,7 @@
       "bgm": "ambient_engine_hum",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "12시간이 지났다. 잠이 왔다. 잠들기 전에 창밖을 봤다. 붉은 점이 있었다. 처음에는 별처럼 보였다. 가까워지면서 — 행성이 됐다. 핏빛이었다. 아름다웠다. 두려웠다.", "en": "Twelve hours passed. Sleep came. Before sleeping looked out the window. A red dot was there. At first it looked like a star. As it grew closer — it became a planet. Blood-red. Beautiful. Frightening." } }
+        { "text": { "ko": "12시간이 지났다. 잠이 왔다. 잠들기 전에 창밖을 봤다. 붉은 점이 있었다. 처음에는 별처럼 보였다. 가까워지면서 — 행성이 됐다. 핏빛이었다. 아름다웠다. 두려웠다.", "en": "Twelve hours passed. Sleep came. Before sleeping looked out the window. A red dot was there. At first it looked like a star. As it grew closer — it became a planet. Blood-red. Beautiful. Frightening.", "overlay": "mars_horizon" } }
       ]
     },
     {
@@ -331,7 +331,7 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "더 있었다. 사고 기록이었다. 지난 2년. 세 건이었다. 사고 원인란이 비어 있었다. 세 건 모두. 이름만 있었다. 사망. 사망. 사망. 원인 없는 사망. 그것이 가능했다. 화성에서는. 원인을 쓰지 않으면 원인이 없는 것이었다.", "en": "More was there. Accident records. Past two years. Three cases. The cause section was blank. All three. Only names. Death. Death. Death. Deaths without cause. That was possible on Mars. If you didn't write the cause there was no cause." } }
+        { "text": { "ko": "더 있었다. 사고 기록이었다. 지난 2년. 세 건이었다. 사고 원인란이 비어 있었다. 세 건 모두. 이름만 있었다. 사망. 사망. 사망. 원인 없는 사망. 그것이 가능했다. 화성에서는. 원인을 쓰지 않으면 원인이 없는 것이었다.", "en": "More was there. Accident records. Past two years. Three cases. The cause section was blank. All three. Only names. Death. Death. Death. Deaths without cause. That was possible on Mars. If you didn't write the cause there was no cause." }, "overlay": "death_still" }
       ]
     },
     {
@@ -440,7 +440,7 @@
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "화성이 당신을 기다리고 있었다.\n이 행성에서 당신은 무엇이 될 것인가.\nChen Weiss가 보고서를 읽고 있을 것이었다. 차를 들고. 마시지 않고.", "en": "Mars was waiting for you.\nWhat would you become on this planet.\nChen Weiss would be reading the report. Holding her tea. Not drinking." } }
+        { "text": { "ko": "화성이 당신을 기다리고 있었다.\n이 행성에서 당신은 무엇이 될 것인가.\nChen Weiss가 보고서를 읽고 있을 것이었다. 차를 들고. 마시지 않고.", "en": "Mars was waiting for you.\nWhat would you become on this planet.\nChen Weiss would be reading the report. Holding her tea. Not drinking." }, "overlay": "sealed_file" }
       ],
       "next_chapter_preview": { "questId": "mcc_campaign_ch1", "teaser": { "ko": "다음 — 산소 쟁탈", "en": "Next — Oxygen Rush" } }
     }

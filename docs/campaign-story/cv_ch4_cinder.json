@@ -124,7 +124,7 @@
       "lines": [
         { "speaker": "cinder_grace", "emotion": "quiet", "text": { "ko": "여기서 11명이 죽었어.", "en": "Eleven people died here." } },
         { "speaker": "player", "emotion": "neutral", "text": { "ko": "...", "en": "..." } },
-        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "3년 전이야. 갱도 붕괴. MCC 기록에는 없어. 지워졌어.", "en": "Three years ago. Tunnel collapse. Not in MCC records. Erased." } }
+        { "speaker": "cinder_grace", "emotion": "flat", "text": { "ko": "3년 전이야. 갱도 붕괴. MCC 기록에는 없어. 지워졌어.", "en": "Three years ago. Tunnel collapse. Not in MCC records. Erased." }, "overlay": "collapse_debris" }
       ]
     },
     {
@@ -200,7 +200,7 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 보고서를 꺼냈다. 주머니 안에 있던 것. 작은 것이었다. 접혀 있었다. 여러 번. 자주 꺼내봤다는 것이었다. 자주 접었다는 것이었다. 이름들이 거기 있었다. 11개.", "en": "Cinder took out the report. From a pocket. Small. Folded. Many times. Taken out often. Folded often. The names were there. Eleven." } }
+        { "text": { "ko": "Cinder가 보고서를 꺼냈다. 주머니 안에 있던 것. 작은 것이었다. 접혀 있었다. 여러 번. 자주 꺼내봤다는 것이었다. 자주 접었다는 것이었다. 이름들이 거기 있었다. 11개.", "en": "Cinder took out the report. From a pocket. Small. Folded. Many times. Taken out often. Folded often. The names were there. Eleven." }, "overlay": "sealed_file" }
       ]
     },
     {
@@ -330,7 +330,7 @@
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 보고서를 다시 꺼냈다. 펼쳤다. 이름들이 있었다. 11개. 읽었다. 천천히. 하나씩. 이름만 읽었다. 설명하지 않았다. 설명이 필요 없었다. 이름이 있었다. 그것으로 충분했다.", "en": "Cinder took out the report again. Unfolded it. Names. Eleven. Read them. Slowly. One by one. Only names. No explanation. No explanation needed. There were names. That was enough." } }
+        { "text": { "ko": "Cinder가 보고서를 다시 꺼냈다. 펼쳤다. 이름들이 있었다. 11개. 읽었다. 천천히. 하나씩. 이름만 읽었다. 설명하지 않았다. 설명이 필요 없었다. 이름이 있었다. 그것으로 충분했다.", "en": "Cinder took out the report again. Unfolded it. Names. Eleven. Read them. Slowly. One by one. Only names. No explanation. No explanation needed. There were names. That was enough." }, "overlay": "candle_flame" }
       ]
     },
     {

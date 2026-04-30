@@ -197,7 +197,7 @@
       "bgm": "tension_low",
       "transition": "fade_medium",
       "lines": [
-        { "text": { "ko": "Liang Wei는 샘플을 보고 있었다. 30년간 이것을 기다렸을 것이었다. 그 얼굴에 무엇이 있는지는 보기 어려웠다. 그러나 손이 떨렸다. 조금. 30년간 기다린 사람의 손이었다.", "en": "Liang Wei was looking at the sample. She had waited thirty years for this. What was in that face was hard to read. But her hands trembled. Slightly. The hands of someone who had waited thirty years." } }
+        { "text": { "ko": "Liang Wei는 샘플을 보고 있었다. 30년간 이것을 기다렸을 것이었다. 그 얼굴에 무엇이 있는지는 보기 어려웠다. 그러나 손이 떨렸다. 조금. 30년간 기다린 사람의 손이었다.", "en": "Liang Wei was looking at the sample. She had waited thirty years for this. What was in that face was hard to read. But her hands trembled. Slightly. The hands of someone who had waited thirty years." }, "overlay": "ore_sample" }
       ]
     },
     {
@@ -263,7 +263,7 @@
       "bgm": "tension_medium",
       "transition": "fade_medium",
       "lines": [
-        { "text": { "ko": "석양이었다. 케플러 분화구 가장자리. 태양이 지평선 아래로 내려가고 있었다. 화성의 일몰은 지구와 달랐다. 파랗게 변했다. 붉은 하늘이 해질 무렵 파랗게 됐다. 그 순간이 짧았다. 그러나 있었다. 케플러에서 처음 보는 것이었다.", "en": "Sunset. Edge of Kepler crater. The sun was going below the horizon. Martian sunsets were different from Earth. They turned blue. The red sky turned blue at dusk. That moment was brief. But it was there. The first time seeing it at Kepler." } }
+        { "text": { "ko": "석양이었다. 케플러 분화구 가장자리. 태양이 지평선 아래로 내려가고 있었다. 화성의 일몰은 지구와 달랐다. 파랗게 변했다. 붉은 하늘이 해질 무렵 파랗게 됐다. 그 순간이 짧았다. 그러나 있었다. 케플러에서 처음 보는 것이었다.", "en": "Sunset. Edge of Kepler crater. The sun was going below the horizon. Martian sunsets were different from Earth. They turned blue. The red sky turned blue at dusk. That moment was brief. But it was there. The first time seeing it at Kepler." }, "overlay": "mars_horizon" }
       ]
     },
     {
@@ -431,7 +431,7 @@
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "케플러 분화구는 여전히 있었다. 깊고 검었다. 분지 안에 분지가 있었다. 무엇이 있는지는 이제 알았다. 어두운 은색. 30년의 기다림. 파란 일몰. 그것들이 거기 있었다. 그것이 누구 것인지는 아직 결정되지 않았다.", "en": "Kepler Crater was still there. Deep and dark. A basin within a basin. Now it was known what was inside. Dark silver. Thirty years of waiting. Blue sunset. Those things were there. Whose it was had not yet been decided." } }
+        { "text": { "ko": "케플러 분화구는 여전히 있었다. 깊고 검었다. 분지 안에 분지가 있었다. 무엇이 있는지는 이제 알았다. 어두운 은색. 30년의 기다림. 파란 일몰. 그것들이 거기 있었다. 그것이 누구 것인지는 아직 결정되지 않았다.", "en": "Kepler Crater was still there. Deep and dark. A basin within a basin. Now it was known what was inside. Dark silver. Thirty years of waiting. Blue sunset. Those things were there. Whose it was had not yet been decided." }, "overlay": "ore_sample" }
       ],
       "next_chapter_preview": { "questId": "mcc_campaign_ch5", "teaser": { "ko": "다음 — Whistleblower", "en": "Next — Whistleblower" } }
     }

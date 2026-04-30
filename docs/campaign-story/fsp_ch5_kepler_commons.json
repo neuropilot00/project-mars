@@ -58,7 +58,7 @@
       "lines": [
         { "speaker": "liang_wei", "emotion": "focused", "effect": "character_enter:liang_wei:slide_right", "text": { "ko": "왔군요. FSP.", "en": "You came. FSP." } },
         { "speaker": "liang_wei", "emotion": "serious", "text": { "ko": "30년 전에 처음 이것을 봤어요. 누구한테도 말 못 했어요. 말하면 없어질 것 같았어요. 그런 발견이 있어요. 말하는 순간 빼앗기는 것들.", "en": "I first saw this thirty years ago. Couldn't tell anyone. Felt like it would disappear if I did. There are discoveries like that. Things that get taken away the moment you speak them." } },
-        { "speaker": "liang_wei", "emotion": "determined", "text": { "ko": "이제 말할 거예요. 케플러 분화구 아래 Ancient Metal이 있어요. 그것은 화성의 것이에요. MCC의 것도 FSP의 것도 CV의 것도 아니에요.", "en": "Now I'll say it. Below Kepler Crater there is Ancient Metal. It belongs to Mars. Not to MCC. Not to FSP. Not to CV." } }
+        { "speaker": "liang_wei", "emotion": "determined", "text": { "ko": "이제 말할 거예요. 케플러 분화구 아래 Ancient Metal이 있어요. 그것은 화성의 것이에요. MCC의 것도 FSP의 것도 CV의 것도 아니에요.", "en": "Now I'll say it. Below Kepler Crater there is Ancient Metal. It belongs to Mars. Not to MCC. Not to FSP. Not to CV." }, "overlay": "ore_sample" }
       ]
     },
     {
@@ -164,7 +164,7 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "사람들이 움직이기 시작했다. 데이터 스틱들. 복사. 손에서 손으로. 그것이 퍼져나가는 방식이었다. 디지털이 아닌 방식으로. 사람이 사람에게 건네는 것으로. 화성에서 가장 오래된 방식이었다.", "en": "People began to move. Data sticks. Copying. Hand to hand. That was how it spread. Not digitally. Person handing to person. The oldest way on Mars." } }
+        { "text": { "ko": "사람들이 움직이기 시작했다. 데이터 스틱들. 복사. 손에서 손으로. 그것이 퍼져나가는 방식이었다. 디지털이 아닌 방식으로. 사람이 사람에게 건네는 것으로. 화성에서 가장 오래된 방식이었다.", "en": "People began to move. Data sticks. Copying. Hand to hand. That was how it spread. Not digitally. Person handing to person. The oldest way on Mars." }, "overlay": "darkness_corridor" }
       ]
     },
     {
@@ -403,7 +403,7 @@
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "케플러 분화구가 붉게 물들었다. 화성의 해가 기울었다. Liang Wei가 한 번 더 봤다. 분화구를. 30년간 본 것을. 오늘 처음으로 다른 사람들과 함께 본 것을. 혼자 있던 것이 함께가 되는 순간이 있었다. 그것이 선언이었다. 화성에서 선언은 그런 것이었다.\n\nAncient Metal이 거기 있었다. 외계 기원. 30년의 데이터. 하나의 이름. 케플러 공유지. 그것이 이제 있었다.", "en": "Kepler Crater turned red. The Martian sun tilted. Liang Wei looked once more. At the crater. At what she had seen for thirty years. At what she had seen today for the first time with others. There were moments when what was alone became shared. That was a declaration. On Mars that was what a declaration was.\n\nAncient Metal was there. Extraterrestrial origin. Thirty years of data. One name. Kepler Commons. That existed now." } }
+        { "text": { "ko": "케플러 분화구가 붉게 물들었다. 화성의 해가 기울었다. Liang Wei가 한 번 더 봤다. 분화구를. 30년간 본 것을. 오늘 처음으로 다른 사람들과 함께 본 것을. 혼자 있던 것이 함께가 되는 순간이 있었다. 그것이 선언이었다. 화성에서 선언은 그런 것이었다.\n\nAncient Metal이 거기 있었다. 외계 기원. 30년의 데이터. 하나의 이름. 케플러 공유지. 그것이 이제 있었다.", "en": "Kepler Crater turned red. The Martian sun tilted. Liang Wei looked once more. At the crater. At what she had seen for thirty years. At what she had seen today for the first time with others. There were moments when what was alone became shared. That was a declaration. On Mars that was what a declaration was.\n\nAncient Metal was there. Extraterrestrial origin. Thirty years of data. One name. Kepler Commons. That existed now." }, "overlay": "mars_horizon" }
       ],
       "next_chapter_preview": { "questId": "fsp_campaign_ch6", "teaser": { "ko": "다음 — 두더지", "en": "Next — The Mole" } }
     }

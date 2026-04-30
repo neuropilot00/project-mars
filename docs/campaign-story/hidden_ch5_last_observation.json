@@ -198,7 +198,7 @@
       "lines": [{ "text": {
         "ko": "Kim Yong-jin. 이름을 적었다. Zone 12. 적었다. 샌드스톤 교차로. 적었다. 에레보스 분화구. 적었다. Butcher의 손. 흰 깃발. 4구역 광물. 이름들. 흔적들. 모두 적었다. 그것이 기록이었다. 관찰자의 기록.",
         "en": "Kim Yong-jin. Wrote the name. Zone 12. Wrote. Sandstone Junction. Wrote. Erebus Crater. Wrote. Butcher's hand. White flag. Zone 4 mineral. Names. Traces. Wrote all of it. That was a record. The observer's record."
-      }}]
+      }, "overlay": "zone12_record" }]
     },
     {
       "id": "s25", "type": "narration",
@@ -270,7 +270,7 @@
       "lines": [{ "text": {
         "ko": "그것이 화성이었다. 관찰자가 알았다. 깃발이 아니었다. 파벌이 아니었다. 이름들이었다. 남는 것이 이름들이었다. 화성에서. 이름들이 화성이었다. 분필 이름. 긁힌 이름. 비석의 이름. 이름들이 화성이었다.",
         "en": "That was Mars. The observer understood. Not flags. Not factions. Names. What remained were names. On Mars. Names were Mars. Chalk names. Scratched names. Names on markers. Names were Mars."
-      }}]
+      }, "overlay": "candle_flame" }]
     },
     {
       "id": "s34", "type": "narration",
@@ -367,7 +367,7 @@
         "ko": "관찰자는 내려가지 않았다. 화성이 아래에 있었다. 핏빛 하늘이 위에 있었다. 관찰자가 그 사이에 있었다. 이름들이 아래에 있었다. 기록이 관찰자 안에 있었다. 그것으로 충분했다. 화성이 거기 있었다. 언제나 거기 있었다. 관찰자가 오기 전에도. 관찰자가 떠난 후에도. 화성은 거기 있었다. 붉었다. 언제나 붉었다. 그것이 전부였다."
         ,
         "en": "The observer did not descend. Mars was below. The blood-red sky was above. The observer was between them. Names were below. The record was inside the observer. That was enough. Mars was there. Had always been there. Before the observer came. After the observer left. Mars was there. Red. Always red. That was everything."
-      } }]
+      }, "overlay": "mars_horizon" } }]
     }
   ]
 }

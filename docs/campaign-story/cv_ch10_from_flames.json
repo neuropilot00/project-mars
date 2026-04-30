@@ -25,7 +25,8 @@
           "text": {
             "ko": "에레보스 기지. 불이 탔다. 배럴 불. 여러 개. Butcher가 옥좌의 방에 있었다. 혼자였다. 사진을 꺼내 놓고 있었다. 테이블 위에. 처음이었다. 주머니 밖으로. 테이블 위에. 11시간이 됐다고 했다. 폐가 말했다. 그러나 사진 앞에 앉아 있었다.",
             "en": "Erebus base. Fires burning. Barrel fires. Several. Butcher was in the throne hall. Alone. He had taken out the photo. On the table. First time. Outside the pocket. On the table. The lungs had said eleven hours. But he sat before the photo."
-          }
+          },
+          "overlay": "fire_small"
         }
       ]
     },
@@ -328,7 +329,8 @@
           "text": {
             "ko": "의수였다. 17살에 만든 것. 30년 된 것. Cinder가 수리해서 아직 작동했다. 그것을 준다는 것이었다. 왼팔에 차는 것. Butcher가 30년 동안 찬 것. 그것이 후계의 방식이었다. CV의 방식. 문서도 없었다. 도장도 없었다. 의수 하나.",
             "en": "The prosthetic. Made at seventeen. Thirty years old. Cinder had repaired it and it still worked. He was giving it. Something worn on the left arm. What Butcher had worn for thirty years. That was the way of succession. CV's way. No document. No stamp. One prosthetic."
-          }
+          },
+          "overlay": "hand_still"
         }
       ]
     },
@@ -456,7 +458,8 @@
           "text": {
             "ko": "Butcher가 사진을 내밀었다. 오른손으로. 의수가 아닌 손으로. 30년 동안 주머니에 있던 것. 테이블에 올려놓은 것. 그것을 내미는 것이었다. 다른 사람에게. 처음으로. 30년 만에 처음으로.",
             "en": "Butcher held out the photo. With the right hand. Not the prosthetic. Something in his pocket for thirty years. Something placed on the table. Being offered to another person. First time. First time in thirty years."
-          }
+          },
+          "overlay": "death_still"
         }
       ]
     },
@@ -688,7 +691,7 @@
         { "text": { "ko": "뒤집었다. 이름들을 봤다.", "en": "Flipped it. Looked at the names." }},
         { "text": { "ko": "사진 뒤에 새로운 이름들이 있었다.", "en": "New names were on the back of the photo." }},
         { "text": { "ko": "Cinder가 추가한 것. 올림포스에서 돌아온 후.", "en": "Added by Cinder. After returning from Olympus." }},
-        { "text": { "ko": "Zone 12 이름들. 공식 문서에 올라간 이름들.", "en": "Zone 12 names. Names now in official documents." }},
+        { "text": { "ko": "Zone 12 이름들. 공식 문서에 올라간 이름들.", "en": "Zone 12 names. Names now in official documents." }, "overlay": "zone12_record" },
         { "text": { "ko": "그 이름들이 사진 뒤에도 있었다.", "en": "Those names were on the back of the photo too." }}
       ]
     },
@@ -827,7 +830,8 @@
           "text": {
             "ko": "전투가 끝났다. 에레보스가 살아있었다. Butcher가 사진을 주머니에 넣었다. 천천히. 양손으로. 의수와 오른손으로. 그것이 마지막이었다. 그러나 CV는 있었다. 불이 탔다. Cinder의 공구 소리가 들렸다. Crow가 외부를 감시했다. CV가 있었다.",
             "en": "The battle ended. Erebus was alive. Butcher put the photo in his pocket. Slowly. With both hands. The prosthetic and the right hand. That was the last time. But CV was there. Fires burned. Cinder's tool sounds were heard. Crow watched the exterior. CV existed."
-          }
+          },
+          "overlay": "candle_flame"
         }
       ]
     },

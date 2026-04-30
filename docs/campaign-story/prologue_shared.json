@@ -276,7 +276,7 @@
       "lines": [{ "text": {
         "ko": "화면의 화성은 조금 더 컸다. 핏빛이었다. 황혼 같았다. 그러나 황혼이 아니었다. 화성은 늘 그랬다. 그것이 화성이었다. 누군가 아름답다고 말했다. 아름다움에 대해 생각하지 않았다.",
         "en": "Mars on the screen was a little larger. Blood-red. Like a sunset. But it wasn't a sunset. Mars was always like this. That was what Mars was. Someone said it was beautiful. There was no thought about beauty."
-      }}]
+      }, "overlay": "mars_horizon"}]
     },
 
     {
@@ -424,7 +424,7 @@
       "lines": [{ "text": {
         "ko": "화성의 흙이 첫발 아래 있었다. 핏빛 하늘 아래. 헬라스 센트럴이 정면에 있었다. 거대했다. 밖에서 봐도 거대했다. 안에 들어가면 더 거대할 것이었다. 바람이 왔다. 가방을 더 꽉 쥐었다.",
         "en": "The soil of Mars was there beneath the first step. Under a blood-red sky. Hellas Central stood ahead. Enormous. Enormous even from outside. Inside it would be more enormous. Wind came. The bag was gripped tighter."
-      }}]
+      }, "overlay": "mars_horizon"}]
     },
 
     {

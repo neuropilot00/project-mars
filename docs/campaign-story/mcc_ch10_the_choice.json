@@ -171,7 +171,7 @@
       "transition": "cut",
       "lines": [
         { "text": { "ko": "한 사람이라도. 그 말이 무거웠다.", "en": "Even one person. Those words were heavy." } },
-        { "text": { "ko": "11명이 죽었다. 보고서는 그것을 알고 있었다. MCC 이사회는 그것을 알고 있었다. 그리고 한 사람이 나왔다.", "en": "Eleven died. The report knew it. The MCC board knew it. And one person came out." } },
+        { "text": { "ko": "11명이 죽었다. 보고서는 그것을 알고 있었다. MCC 이사회는 그것을 알고 있었다. 그리고 한 사람이 나왔다.", "en": "Eleven died. The report knew it. The MCC board knew it. And one person came out." }, "overlay": "death_still" },
         { "text": { "ko": "그 한 사람이 30년 후에 CV를 만들었다. CV가 올림포스에 왔다. Zone 12 기록이 공개됐다.", "en": "That one person built CV thirty years later. CV came to Olympus. The Zone 12 records were released." } }
       ]
     },
@@ -325,7 +325,7 @@
       "transition": "cut",
       "lines": [
         { "speaker": "chen", "emotion": "calm", "effect": "character_enter:chen:slide_right", "text": { "ko": "배임이라고 하셨소.", "en": "You said breach of trust." } },
-        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그렇다면 Osei 이사. Zone 12 안전 결함 보고서를 2004년에 묵살한 것은 무엇이오.", "en": "Then Director Osei. What was suppressing the Zone 12 safety defect report in 2004?" } },
+        { "speaker": "chen", "emotion": "serious", "text": { "ko": "그렇다면 Osei 이사. Zone 12 안전 결함 보고서를 2004년에 묵살한 것은 무엇이오.", "en": "Then Director Osei. What was suppressing the Zone 12 safety defect report in 2004?" }, "overlay": "sealed_file" },
         { "speaker": "chen", "emotion": "neutral", "text": { "ko": "그 결정으로 11명이 죽었소. 그 결정에 서명한 이사가 지금 이 자리에 있소.", "en": "Eleven people died from that decision. The director who signed that decision is here in this room." } }
       ]
     },
@@ -552,7 +552,7 @@
       "lines": [
         { "text": { "ko": "Chen Weiss가 차를 마셨다. 두 번째 잔도 마셨다.", "en": "Chen Weiss drank her tea. Drank the second cup too." } },
         { "text": { "ko": "22년 동안 마시지 않던 사람이 오늘 마셨다. 이사회를 통과하고. 증거를 내놓고. 30년을 말하고.", "en": "Someone who hadn't drunk for twenty-two years drank today. After passing through the board. After presenting evidence. After speaking of thirty years." } },
-        { "text": { "ko": "차가 식지 않았다. 25도였다. 그것이 변하지 않았다.", "en": "The tea didn't cool. Twenty-five degrees. That hadn't changed." } }
+        { "text": { "ko": "차가 식지 않았다. 25도였다. 그것이 변하지 않았다.", "en": "The tea didn't cool. Twenty-five degrees. That hadn't changed." }, "overlay": "alone_window" }
       ]
     },
     {
@@ -684,7 +684,7 @@
         { "text": { "ko": "그러나 화성은 있었다. 사람들이 있었다.", "en": "But Mars was there. People were there." } },
         { "text": { "ko": "광산에서 일하는 사람들. 아이들. 분필 이름들.", "en": "People working in mines. Children. Chalk names." } },
         { "text": { "ko": "그것이 남았다. 깃발보다 오래 남는 것들이었다.", "en": "Those remained. Things that outlasted flags." } },
-        { "text": { "ko": "차 한 잔보다 오래. 25도보다 오래. 그것들이 화성이었다.", "en": "Outlasting a cup of tea. Outlasting twenty-five degrees. Those things were Mars." } },
+        { "text": { "ko": "차 한 잔보다 오래. 25도보다 오래. 그것들이 화성이었다.", "en": "Outlasting a cup of tea. Outlasting twenty-five degrees. Those things were Mars." }, "overlay": "mars_horizon" },
         { "text": { "ko": "[ 엔딩: 왕관 — 세 파벌을 넘어서는 자 ]", "en": "[ Ending: Crown — One Who Transcends All Three Factions ]" } }
       ]
     }

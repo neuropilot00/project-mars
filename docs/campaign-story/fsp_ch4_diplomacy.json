@@ -110,7 +110,7 @@
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
-        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "Zone 12 이름이에요.", "en": "That's a Zone 12 name." } },
+        { "speaker": "cinder", "emotion": "quiet", "text": { "ko": "Zone 12 이름이에요.", "en": "That's a Zone 12 name." }, "overlay": "zone12_record" },
         { "speaker": "lena", "emotion": "tense", "text": { "ko": "그래요.", "en": "Yes." } },
         { "speaker": "cinder", "emotion": "neutral", "text": { "ko": "3년 전이에요. 내가 거기 있었어요.", "en": "Three years ago. I was there." } }
       ]
@@ -240,7 +240,7 @@
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Cinder가 다시 돌아섰다. 공구 벨트에서 뭔가를 꺼냈다. 작은 칼이었다. 납작한 것. 광산용이었다. 그것으로 자신의 왼손 손바닥을 그었다. 천천히. 소리 없이. 피가 났다.", "en": "Cinder turned around again. She took something from the tool belt. A small knife. Flat. For mining. She drew it across her left palm. Slowly. Without sound. Blood came." } }
+        { "text": { "ko": "Cinder가 다시 돌아섰다. 공구 벨트에서 뭔가를 꺼냈다. 작은 칼이었다. 납작한 것. 광산용이었다. 그것으로 자신의 왼손 손바닥을 그었다. 천천히. 소리 없이. 피가 났다.", "en": "Cinder turned around again. She took something from the tool belt. A small knife. Flat. For mining. She drew it across her left palm. Slowly. Without sound. Blood came." }, "overlay": "hand_fist" }
       ]
     },
     {
@@ -472,7 +472,7 @@
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
-        { "text": { "ko": "교차로에 혼자였다. 해가 기울었다. 모래가 빨갛게 됐다. 발자국들이 세 방향으로 흩어졌다. 화성에서 만남이 있었다. 약속이 있었다. 그 약속이 화성의 미래를 바꿀 것이었다. 아니면 샌드스톤의 모래처럼 바람에 지워질 것이었다. 어느 쪽인지는 아직 몰랐다.\n\n그러나 Zone 12 이름이 두 팔 위에 있었다. 하나는 문신으로. 하나는 기억으로. 그것은 바람이 지우지 못했다.", "en": "Alone at the junction. The sun tilted. The sand turned red. Footprints scattered in three directions. There had been a meeting on Mars. There had been a promise. That promise would change the future of Mars. Or it would be erased by wind like the sand of Sandstone. Which it would be was not yet known.\n\nBut the Zone 12 name was on two arms. One as a tattoo. One as memory. That the wind couldn't erase." } }
+        { "text": { "ko": "교차로에 혼자였다. 해가 기울었다. 모래가 빨갛게 됐다. 발자국들이 세 방향으로 흩어졌다. 화성에서 만남이 있었다. 약속이 있었다. 그 약속이 화성의 미래를 바꿀 것이었다. 아니면 샌드스톤의 모래처럼 바람에 지워질 것이었다. 어느 쪽인지는 아직 몰랐다.\n\n그러나 Zone 12 이름이 두 팔 위에 있었다. 하나는 문신으로. 하나는 기억으로. 그것은 바람이 지우지 못했다.", "en": "Alone at the junction. The sun tilted. The sand turned red. Footprints scattered in three directions. There had been a meeting on Mars. There had been a promise. That promise would change the future of Mars. Or it would be erased by wind like the sand of Sandstone. Which it would be was not yet known.\n\nBut the Zone 12 name was on two arms. One as a tattoo. One as memory. That the wind couldn't erase." }, "overlay": "zone12_record" }
       ],
       "next_chapter_preview": { "questId": "fsp_campaign_ch5", "teaser": { "ko": "다음 — Kepler 공유지", "en": "Next — Kepler Commons" } }
     }

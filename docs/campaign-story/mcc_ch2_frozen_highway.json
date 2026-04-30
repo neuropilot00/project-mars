@@ -210,7 +210,7 @@
         { "speaker": "miner_elder", "emotion": "hollow",
           "text": { "ko": "지주가 무너졌어요. 오전 7시 반. 교대 시작 30분 후. 새 교대 팀이 아직 자리 잡기 전에.", "en": "The support collapsed. Seven thirty in the morning. Thirty minutes after shift start. Before the new shift team had settled in." }},
         { "speaker": "miner_elder", "emotion": "tired",
-          "text": { "ko": "세 명이요. 30대였어요. 한 명은 이달에 결혼할 예정이었어요.", "en": "Three people. In their thirties. One was supposed to get married this month." }}
+          "text": { "ko": "세 명이요. 30대였어요. 한 명은 이달에 결혼할 예정이었어요.", "en": "Three people. In their thirties. One was supposed to get married this month." }, "overlay": "death_still" }
       ]
     },
 
@@ -282,7 +282,7 @@
       "lines": [{ "text": {
         "ko": "체크리스트가 손 안에 있었다. 항목 37개. 36개가 체크됐다. 마지막 항목. 사고 기록. 체크되지 않았다. 체크할 것이 없었다. 아니면 체크할 것이 너무 많았다.",
         "en": "The checklist was in hand. Thirty-seven items. Thirty-six checked. Last item. Accident records. Not checked. There was nothing to check. Or there was too much to check."
-      }}]
+      }, "overlay": "sealed_file"}]
     },
 
     {
@@ -345,7 +345,7 @@
       "lines": [{ "text": {
         "ko": "엘리베이터가 올라갔다. 지표의 빛이 돌아왔다. 핏빛이었다. 광산은 아래에 남았다. 광부들도 아래에 남았다. 노인도 아래에 남았다. 보고서는 손에 있었다. 손이 떨리지 않았다.",
         "en": "The elevator ascended. Surface light returned. Blood-red. The mine stayed below. The miners stayed below. The old man stayed below. The report was in hand. The hands didn't tremble."
-      }}]
+      }, "overlay": "mars_horizon"}]
     },
 
     {

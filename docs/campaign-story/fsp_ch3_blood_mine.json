@@ -35,7 +35,7 @@
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "마을에 묘지가 있었다. 광부들의 묘. 이름들이 있었다. 분필로 쓴 것도 있었다. 금속판에 새긴 것도 있었다. 오래된 것. 새것. 섞여 있었다. 그 묘지를 어떻게 할 것인지도 명령에 없었다.", "en": "The village had a cemetery. Miners' graves. Names were there. Some written in chalk. Some engraved on metal plates. Old. New. Mixed. What to do with that cemetery was also not in the order." } }
+        { "text": { "ko": "마을에 묘지가 있었다. 광부들의 묘. 이름들이 있었다. 분필로 쓴 것도 있었다. 금속판에 새긴 것도 있었다. 오래된 것. 새것. 섞여 있었다. 그 묘지를 어떻게 할 것인지도 명령에 없었다.", "en": "The village had a cemetery. Miners' graves. Names were there. Some written in chalk. Some engraved on metal plates. Old. New. Mixed. What to do with that cemetery was also not in the order." }, "overlay": "candle_flame" }
       ]
     },
     {
@@ -121,7 +121,7 @@
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
-        { "text": { "ko": "Yuna가 묘지 쪽을 봤다. 어두운 데서. 금속판들이 불빛에 반짝였다. 이름들. 그것들이 지금 이 논의를 듣고 있는 것 같았다. 이름들이 있는 곳을 지키는 것과 이름들이 있는 사람들을 지키는 것. 그것이 같은 것인지 달랐다.", "en": "Yuna looked toward the cemetery. In the dark. Metal plates glinted in the firelight. Names. Those seemed to be listening to this discussion now. Protecting where names were and protecting people who had names. Whether those were the same thing or different." } }
+        { "text": { "ko": "Yuna가 묘지 쪽을 봤다. 어두운 데서. 금속판들이 불빛에 반짝였다. 이름들. 그것들이 지금 이 논의를 듣고 있는 것 같았다. 이름들이 있는 곳을 지키는 것과 이름들이 있는 사람들을 지키는 것. 그것이 같은 것인지 달랐다.", "en": "Yuna looked toward the cemetery. In the dark. Metal plates glinted in the firelight. Names. Those seemed to be listening to this discussion now. Protecting where names were and protecting people who had names. Whether those were the same thing or different." }, "overlay": "death_still" }
       ]
     },
     {
