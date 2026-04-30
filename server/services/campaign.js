@@ -3090,6 +3090,24 @@ async function calculateEligibleEndings(client, wallet) {
   return { route, eligible: Array.from(new Set(eligible)), mcc, flags: Array.from(flags), hasBlackmail };
 }
 
+async function calculateEligibleFspEndings(client, wallet) {
+  const branch = await client.query(
+    `SELECT modifier_id FROM player_branch_modifiers
+     WHERE wallet = $1
+       AND consumed_at IS NULL`,
+    [wallet]
+  );
+  const active = new Set(branch.rows.map(r => r.modifier_id));
+  const eligible = [];
+  if (active.has('ending_1_pathway_aligned') || active.has('ending_1_pathway_strengthened')) eligible.push('fsp_ending_1_citizen');
+  if (active.has('ending_2_pathway_aligned') || active.has('ending_2_pathway_strengthened') || active.has('ending_2_alt_path_cv_alliance')) eligible.push('fsp_ending_2_peacemaker');
+  if (active.has('gaia_captain_offer_unlocked')) eligible.push('fsp_ending_2_alt_gaia_captain');
+  if (active.has('ending_3_pathway_unlocked') || active.has('ending_3_pathway_unavoidable') || active.has('ending_3_pathway_strengthened')) eligible.push('fsp_ending_3_disillusioned');
+  if (active.has('ending_4_pathway_unlocked') || active.has('ending_4_pathway_unavoidable') || active.has('ending_4_pathway_strengthened')) eligible.push('fsp_ending_4_new_chair');
+  if (!eligible.length || active.has('bad_ending_dismissed') || active.has('bad_ending_forced')) eligible.push('fsp_bad_ending_fallback');
+  return Array.from(new Set(eligible));
+}
+
 async function validateChapterChoice(client, wallet, progress, choiceId) {
   if (progress.quest_id === FSP_CH5_ID && (choiceId === 'fsp_ch5_propose_evidence_lever' || choiceId === 'fsp_ch5_propose_global_disclosure')) {
     const evidence = await client.query(
@@ -3121,7 +3139,28 @@ async function validateChapterChoice(client, wallet, progress, choiceId) {
     if (!loreEvidence.rows.length && !branchEvidence.rows.length) return { error: 'CHOICE_REQUIRES_EVIDENCE', requiredAny: ['official_op_chosen', 'mcc_oxygen_slavery_evidence_obtained', 'cross_route_mcc_oxygen_slavery_known'] };
     return null;
   }
-  if (![CH7_ID, CH8_ID, CH9_ID, CH10_ID].includes(progress.quest_id)) return null;
+  if (![CH7_ID, CH8_ID, CH9_ID, CH10_ID, FSP_CH7_ID, FSP_CH8_ID, FSP_CH9_ID, FSP_CH10_ID].includes(progress.quest_id)) return null;
+  const fspConditionalChoiceRequirements = {
+    fsp_ch9_signal_pilgrim_arms: ['ending_4_pathway_unlocked', 'ending_4_pathway_strengthened'],
+  };
+  const requiredFspModifiers = fspConditionalChoiceRequirements[choiceId];
+  if ([FSP_CH7_ID, FSP_CH8_ID, FSP_CH9_ID].includes(progress.quest_id) && requiredFspModifiers) {
+    const branch = await client.query(
+      `SELECT 1 FROM player_branch_modifiers
+       WHERE wallet = $1
+         AND modifier_id = ANY($2)
+         AND consumed_at IS NULL
+       LIMIT 1`,
+      [wallet, requiredFspModifiers]
+    );
+    if (!branch.rows.length) return { error: 'CHOICE_PREREQUISITE_NOT_MET', requiredAny: requiredFspModifiers };
+    return null;
+  }
+  if (progress.quest_id === FSP_CH10_ID) {
+    const eligible = await calculateEligibleFspEndings(client, wallet);
+    if (!eligible.includes(choiceId)) return { error: 'ENDING_NOT_ELIGIBLE', valid: false, reason: 'ending_not_eligible', eligibleEndings: eligible };
+    return null;
+  }
   const route = await getRouteBranch(client, wallet);
   if (progress.quest_id === CH10_ID) {
     const endings = await calculateEligibleEndings(client, wallet);
