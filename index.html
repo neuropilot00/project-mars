@@ -1236,6 +1236,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .story-title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.4);font-size:clamp(24px,8vw,44px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.9);padding:28px;letter-spacing:0}
 .story-title-card small{display:block;margin-top:12px;font-size:clamp(13px,3.5vw,18px);color:#FFD700;line-height:1.5}
 .story-narration-text{text-align:center;background:none;color:#f0f0f0;font-size:1rem;line-height:1.8;text-shadow:0 2px 14px rgba(0,0,0,.95)}
+/* 씬 디테일 오버레이 — 키워드 매칭시 우하단 소형 사각형 일러스트 */
+.story-detail-overlay{position:absolute;right:12px;bottom:155px;width:88px;height:88px;border-radius:8px;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s ease;transform:translateY(8px) scale(.94);border:1px solid rgba(255,255,255,.18);box-shadow:0 4px 18px rgba(0,0,0,.75);z-index:10}
+.story-detail-overlay.visible{opacity:.82;transform:translateY(0) scale(1)}
+@media(max-width:520px){.story-detail-overlay{width:72px;height:72px;bottom:145px;right:10px}}
 /* 스토리 컨트롤 (스킵/나가기) — safe area 고려 */
 .story-controls{position:absolute;top:max(10px,env(safe-area-inset-top,10px));right:12px;display:flex;gap:8px;z-index:5;cursor:default}
 .story-ctrl-btn{padding:8px 13px;min-height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.65);color:#ddd;font-family:var(--fn);font-size:9px;letter-spacing:1px;font-weight:800;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .15s;-webkit-tap-highlight-color:transparent}
@@ -24826,6 +24830,7 @@ function showCampaignStory(chapter){
     +'<div class="story-background"></div>'
     +'<img class="story-character-left" alt="">'
     +'<img class="story-character-right" alt="">'
+    +'<img class="story-detail-overlay" alt="">'
     +'<div class="story-controls">'
       +'<button type="button" class="story-ctrl-btn" id="storySkipBtn" title="다음 장면으로">▶ SKIP</button>'
       +'<button type="button" class="story-ctrl-btn danger" id="storyAbandonBtn" title="시나리오를 종료하고 챕터 진행을 포기합니다">✕ 나가기</button>'
@@ -24959,6 +24964,69 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
   });
 }
 
+// ── 씬 디테일 오버레이: 키워드 → 이미지 자동 매칭 ─────────────────────────
+var _OVERLAY_KW={
+  // 신체
+  '손이':'hand_still','손을':'hand_still','손이 ':'hand_still','손 ':'hand_still',
+  '손가락':'hand_still','움직이지':'hand_still','안 움직':'hand_still',
+  '손을 뻗':'hand_reaches','닿으려':'hand_reaches','잡으려':'hand_reaches',
+  '주먹':'hand_fist','쥐었':'hand_fist','쥐고':'hand_fist','악':'hand_fist',
+  '눈을 감':'eye_closeup','눈이 ':'eye_closeup','시선':'eye_closeup','눈빛':'eye_closeup',
+  '눈물':'tear_drop','울었':'tear_drop','흘렸':'tear_drop','눈가':'tear_drop',
+  '피가':'blood_drop','피를':'blood_drop','피가 ':'blood_drop','상처':'blood_drop','피 ':'blood_drop',
+  // 문서 / 기록
+  '기록이':'sealed_file','기록을':'sealed_file','봉인':'sealed_file','잠겼':'sealed_file','잠긴':'sealed_file',
+  'Zone 12':'zone12_record','zone12':'zone12_record','존 12':'zone12_record','12구역':'zone12_record',
+  '서류':'sealed_file','파일':'sealed_file','문서':'sealed_file',
+  '타오르':'paper_burn','태웠':'paper_burn','불태':'paper_burn',
+  // 장비
+  '산소':'oxygen_mask','마스크':'oxygen_mask','압력':'oxygen_mask',
+  '광석':'ore_sample','고대 금속':'ore_sample','Ancient Metal':'ore_sample','에레보스':'ore_sample',
+  '통신':'comm_static','신호가 없':'comm_static','끊겼':'comm_static','전파':'comm_static',
+  '경보':'mine_sensor','위험':'mine_sensor','센서':'mine_sensor','경고':'mine_sensor',
+  // 무기
+  '총성':'bullet_casing','발사':'bullet_casing','쐈':'bullet_casing','격발':'bullet_casing',
+  '칼':'knife_edge','날':'knife_edge','블레이드':'knife_edge',
+  // 환경
+  '유리':'broken_glass','균열':'broken_glass','깨진':'broken_glass','금이':'broken_glass',
+  '잠긴 문':'door_locked','문이 잠':'door_locked','봉쇄':'door_locked',
+  '발자국':'footprint_dust','발소리':'footprint_dust','흔적':'footprint_dust',
+  '촛불':'candle_flame','추모':'candle_flame','기억하':'candle_flame','불꽃':'candle_flame',
+  // 상징
+  'Crow Vanguard':'cv_insignia','CV':'cv_insignia','까마귀':'cv_insignia',
+  'MCC 배지':'mcc_badge_cracked','배지':'mcc_badge_cracked','ID':'mcc_badge_cracked',
+  '세 개의 깃발':'three_flags','세 깃발':'three_flags','세 세력':'three_flags',
+  '지도':'map_marked','목표':'map_marked','좌표':'map_marked',
+  '빈 의자':'empty_chair','아무도 없':'empty_chair','비어 있':'empty_chair','공석':'empty_chair',
+  // 우주 / 화성
+  '지평선':'mars_horizon','화성의':'mars_horizon','저 너머':'mars_horizon',
+  '별이':'stars_through_glass','별을':'stars_through_glass','지구가':'stars_through_glass','돌아갈':'stars_through_glass'
+};
+function _showStoryDetailOverlay(text){
+  var el=document.querySelector('.story-detail-overlay');
+  if(!el) return;
+  // 기존 visible 제거
+  el.classList.remove('visible');
+  if(!text){return;}
+  var matched=null;
+  var keys=Object.keys(_OVERLAY_KW);
+  for(var k=0;k<keys.length;k++){
+    if(text.indexOf(keys[k])!==-1){matched=_OVERLAY_KW[keys[k]];break;}
+  }
+  if(!matched){return;}
+  var src='/assets/campaign/overlays/'+matched+'.png';
+  if(el.getAttribute('data-src')===src&&el.complete&&el.naturalWidth>0){
+    // 같은 이미지면 그냥 다시 보여주기
+    el.classList.add('visible');
+    return;
+  }
+  el.setAttribute('data-src',src);
+  el.onload=function(){el.classList.add('visible');};
+  el.onerror=function(){el.classList.remove('visible');};
+  el.src=src;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function typeText(element,text,onComplete){
   // 클릭 즉시완료를 위해 타이머와 전체 텍스트를 전역에 보관한다.
   if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
@@ -25007,7 +25075,9 @@ function renderCampaignScene(){
     box.style.borderTop='none';
     box.style.backdropFilter='none';
     box.innerHTML='<div class="story-text story-narration-text"></div>';
-    typeText(box.querySelector('.story-text'),_campaignStoryText(nLine.text),null);
+    var _nText=_campaignStoryText(nLine.text);
+    _showStoryDetailOverlay(_nText);
+    typeText(box.querySelector('.story-text'),_nText,null);
     return;
   }
 
@@ -25015,7 +25085,9 @@ function renderCampaignScene(){
     var dLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
     _campaignStoryRenderCharacters(scene,dLine,overlay);
     box.innerHTML='<div class="story-speaker-name">'+escapeHtmlSafe(_campaignStorySpeakerName(dLine.speaker||scene.speaker))+'</div><div class="story-text"></div>';
-    typeText(box.querySelector('.story-text'),_campaignStoryText(dLine.text),null);
+    var _dText=_campaignStoryText(dLine.text);
+    _showStoryDetailOverlay(_dText);
+    typeText(box.querySelector('.story-text'),_dText,null);
     return;
   }
 

@@ -15,10 +15,13 @@ assets/*
 assets/campaign/*
 !assets/campaign/backgrounds/
 !assets/campaign/characters/
+!assets/campaign/overlays/
 assets/campaign/backgrounds/*
 assets/campaign/characters/*
+assets/campaign/overlays/*
 !assets/campaign/backgrounds/*.png
 !assets/campaign/characters/*.png
+!assets/campaign/overlays/*.png
 server/node_modules/
 uploads/
 logs/
