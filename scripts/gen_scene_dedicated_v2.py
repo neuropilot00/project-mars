@@ -32,12 +32,22 @@ MAPPING_OUT = '/tmp/scene_bg_mapping.json'
 client = genai.Client(vertexai=True, project=PROJECT, location=LOCATION)
 
 STYLE = (
-    "highly detailed 32-bit pixel art game background, hand-painted matte painting style, "
-    "intricate dense pixel detail, cinematic concept art quality like a Studio Ghibli sci-fi panel, "
-    "vertical 9:16 portrait composition for mobile screen, "
-    "dark moody Mars sci-fi color palette with deep crimson amber and black, "
-    "high contrast dramatic chiaroscuro lighting, atmospheric environmental storytelling, "
-    "no text no logos no UI elements, no watermark"
+    "MASTERPIECE detailed 32-bit pixel art game background, hand-painted matte painting style "
+    "with EXTREME intricate dense pixel detail on every surface — every brick stained, "
+    "every metal panel scratched, every rock weathered, every wire visible, "
+    "complex multi-layered cinematic composition with deep foreground midground and far background, "
+    "tightly packed environmental detail filling EVERY square pixel — "
+    "scattered debris, drifting dust particles, atmospheric haze layers, "
+    "graffiti and chalked names on walls, rust streaks, oil stains, hand prints, scuffed paint, exposed wiring and pipes, "
+    "wear-and-tear realism rendered in pixel art, "
+    "Simon Stalenhag concept art quality crossed with Studio Ghibli mood, "
+    "vertical 9:16 portrait composition optimized for full-bleed mobile display, "
+    "every vertical inch densely populated with story-relevant detail and texture, "
+    "dark moody Mars sci-fi palette — deep crimson, amber, ash-grey, oxidized brass, "
+    "rich tonal layering with multiple distinct lighting sources, dramatic chiaroscuro, volumetric atmospheric light shafts, "
+    "background depth showing distant Mars vista or interior structures receding into shadow, "
+    "EXTREMELY HIGH RESOLUTION pixel art with crisp edge detail, "
+    "no text no logos no UI no watermark"
 )
 
 # ── 캐릭터 시각 디스크립션 (재사용 가능) ────────────────────────────────────
@@ -974,27 +984,39 @@ def main():
             print(f'    {prompt[:200]}...')
             mapping[f"{entry['chapter']}|{entry['scene_idx']}|{entry['line_idx']}"] = bg_id
             continue
-        if os.path.exists(out) and os.path.getsize(out) > 1_400_000 and '--force' not in args:
-            print(f'    skip ({os.path.getsize(out)//1024}KB)')
+        # 엄격 모드(--strict): 모든 < 1.4MB 결과를 강화 프롬프트로 재시도.
+        strict = '--strict' in args
+        is_standalone = entry.get('chapter') == '_standalone'
+        if strict:
+            skip_size = 1_400_000  # 골드 스탠다드 임계값
+        else:
+            skip_size = 1_500_000 if is_standalone else 100_000
+        if os.path.exists(out) and os.path.getsize(out) > skip_size and '--force' not in args:
+            print(f'    skip ({os.path.getsize(out)//1024}KB ≥ {skip_size//1024}KB)')
             mapping[f"{entry['chapter']}|{entry['scene_idx']}|{entry['line_idx']}"] = bg_id
             done += 1
             continue
+        # best-of-N: 한 호출로 N장 생성 후 가장 큰 파일 채택 (퀄리티 최대화)
+        best_of = int(os.environ.get('BEST_OF', '2'))
         ok = False
         for attempt in range(3):
             try:
                 r = client.models.generate_images(
-                    model='imagen-3.0-generate-001',
+                    model=os.environ.get('IMAGEN_MODEL', 'imagen-3.0-generate-001'),
                     prompt=prompt,
                     config=types.GenerateImagesConfig(
-                        number_of_images=1,
+                        number_of_images=best_of,
                         aspect_ratio='9:16',
                         safety_filter_level='block_only_high',
                         person_generation='allow_adult',
                     ),
                 )
                 if r.generated_images:
+                    # bytes 배열들 중 가장 긴(=가장 디테일한) 것 채택
+                    candidates = [g.image.image_bytes for g in r.generated_images]
+                    best = max(candidates, key=len)
                     with open(out, 'wb') as f:
-                        f.write(r.generated_images[0].image.image_bytes)
+                        f.write(best)
                     ok = True
                     break
             except Exception as e:
@@ -1008,7 +1030,7 @@ def main():
         if ok:
             kb = os.path.getsize(out) // 1024
             tag = '✓' if kb > 1400 else '⚠ small'
-            print(f'    {tag} {kb}KB')
+            print(f'    {tag} {kb}KB (best-of-{best_of})')
             mapping[f"{entry['chapter']}|{entry['scene_idx']}|{entry['line_idx']}"] = bg_id
             done += 1
         else:

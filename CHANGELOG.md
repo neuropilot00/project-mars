@@ -1,5 +1,34 @@
 # OCCUPY MARS — Changelog
 
+## 2026-04-30 — Imagen 4 Ultra 모델 업그레이드 (4/N)
+
+사용자 피드백 "이미지 퀄리티 기준은 엄격하게 지킬것" 반영.
+Imagen 3 → Imagen 4 Ultra 로 모델 전환. Codex agent 추천 따름.
+
+배경:
+- Imagen 3 (`imagen-3.0-generate-001`) 9:16 portrait 픽셀아트 출력이 일관되게
+  700-1000KB 로 골드 스탠다드(`hellas_central_exterior` 2MB) 못 미침
+- 강화 STYLE 프롬프트 + best-of-2 도입해도 마진 개선만 (~1MB 도달 정도)
+- Codex sandbox 분석 결과: 모델 자체의 출력 해상도/디테일이 병목
+
+해결:
+- `scripts/gen_scene_dedicated_v2.py` 의 `model=` 인자를 환경변수
+  `IMAGEN_MODEL` 로 추출. 기본값 `imagen-3.0-generate-001`,
+  override `imagen-4.0-ultra-generate-001`.
+- 첫 3장 테스트 (CV Ch10 fire_small/hand_still/death_still) 1494/1506/1510KB 달성
+- 시각 디테일 차원이 다름: 정교한 metal gear, 텍스트 레이블 ('BUTCHER VASQUEZ'),
+  환경 스토리텔링 (벽 그래피티, 산소 호스, 광부 헬멧 자국 등) 모두 1차 시도에서
+  픽셀아트로 표현됨
+
+진행:
+- 118장 < 1.4MB 결과물 모두 Imagen 4 Ultra 로 `--strict` 재생성 (백그라운드)
+- ETA ~1.5-2시간 (rate limit 포함)
+- 완료 후 후속 커밋 (5/N) 에 PNG 일괄 포함
+
+검증:
+- `assets/campaign/backgrounds_imagen4_test/` 에 비교용 샘플 3장 보존
+- `IMAGEN_MODEL=imagen-4.0-ultra-generate-001 python3 scripts/gen_scene_dedicated_v2.py --strict` 동작 확인
+
 ## 2026-04-30 — Campaign 오버레이 시스템 폐기 + 씬 전용 9:16 배경 인프라 (1/2)
 
 본 커밋은 오버레이 → 씬 전용 배경 전환의 **인프라 변경분**만 반영. Imagen 3 9:16 신규 배경 약 120개는 후속 커밋에서 추가.

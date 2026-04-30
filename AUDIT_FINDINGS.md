@@ -1,6 +1,23 @@
-# OCCUPY MARS — Codebase Audit (v5.33 / 2026-04-30)
+# OCCUPY MARS — Codebase Audit (v5.34 / 2026-04-30)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-04-30 기준)
+
+### v5.34 Imagen 4 Ultra 모델 업그레이드 + 골드 스탠다드 적용 — 진행 중
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 모델 업그레이드 | ✅ | `imagen-3.0-generate-001` → `imagen-4.0-ultra-generate-001` 전환 (`gen_scene_dedicated_v2.py` 내 `IMAGEN_MODEL` env var 지원). Codex 추천. |
+| 테스트 검증 | ✅ | CV Ch10 첫 3장 (fire_small / hand_still / death_still) 1494/1506/1510KB 달성, 모두 골드 스탠다드 1.4MB+ 돌파. 디테일 차원이 다름 (정교한 metal gear, 텍스트 레이블, 환경 스토리텔링). |
+| 118장 일괄 재생성 | 🔄 | `--strict` 모드로 < 1.4MB 결과물 모두 Imagen 4 Ultra 로 재시도 (백그라운드). |
+| 사이즈 보장 | ✅ | 9:16 portrait + Imagen 4 Ultra = 안정적으로 1.4MB+ 출력 확인 |
+| 비용 노트 | ⚠ | Imagen 4 Ultra 는 Imagen 3 대비 호출당 단가 ↑. 118장 일괄 재생성 cost 약 $X 추정 (별도 확인 필요) |
+
+검증:
+- `imagen-4.0-ultra-generate-001` 첫 3장 모두 1.4MB+ (Imagen 3 대비 약 50-100% 사이즈 증가)
+- 9:16 portrait 유지, hand-crafted prompt 그대로 적용
+- `assets/campaign/backgrounds_imagen4_test/` 에 비교용 샘플 보존
+
+---
 
 ### v5.34 오버레이 폐기 + 씬 전용 9:16 배경 (인프라 1/2) — 진행 중
 
