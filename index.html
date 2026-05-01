@@ -24952,7 +24952,9 @@ function _campaignStorySetBackground(scene,overlay,lineBg){
     'hellas_central_underground':'mcc_briefing_room',
     'hellas_outer_relay_interior':'hellas_outer_relay',
     'erebus_base_medical':'erebus_base_interior',
-    'hellas_various_night':'hellas_labor_district_night'
+    'hellas_various_night':'hellas_labor_district_night',
+    'mcc_25deg_lounge':'mcc_briefing_room',
+    'new_athens_shipyard_launch':'new_athens_shipyard_dawn'
   };
   var bgId=_bgMap[bgChoice]||bgChoice;
   var src='/assets/campaign/backgrounds/'+bgId+'.png?v=20260502a';  // cache-bust: Codex gpt-image-1 184장 재생성 (sw mars-v6)
@@ -25002,7 +25004,7 @@ function _showStoryDetailOverlay(overlayName){
   if(!el) return;
   el.classList.remove('visible');
   if(!overlayName) return;
-  var src = '/assets/campaign/backgrounds/' + overlayName + '.png?v=20260501d';
+  var src = '/assets/campaign/backgrounds/' + overlayName + '.png?v=20260502a';
   if(el.getAttribute('data-src') === src && el.complete && el.naturalWidth > 0){
     el.classList.add('visible');
     return;
