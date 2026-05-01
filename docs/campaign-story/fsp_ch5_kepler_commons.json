@@ -37,7 +37,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "kepler_crater_dawn",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -67,7 +67,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -82,7 +82,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -117,7 +117,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v4",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -132,7 +132,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v5",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -181,7 +181,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -236,7 +236,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -261,7 +261,7 @@
     {
       "id": "s12b_assembly",
       "type": "narration",
-      "background": "kepler_crater_dawn",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -309,7 +309,7 @@
     {
       "id": "s12d_miners",
       "type": "narration",
-      "background": "kepler_crater_dawn",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -325,7 +325,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -340,7 +340,7 @@
     {
       "id": "s13b_mcc_agent",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v5",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -388,7 +388,7 @@
     {
       "id": "s13d_miners_block",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -403,7 +403,7 @@
     {
       "id": "s13e_liang_wei_final",
       "type": "dialogue",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -428,7 +428,7 @@
     {
       "id": "s13f_seed",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -443,7 +443,7 @@
     {
       "id": "s14",
       "type": "dialogue",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v5",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -528,7 +528,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -543,7 +543,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v3",
       "bgm": "battle_theme_fsp",
       "transition": "flash_white",
       "title": {
@@ -589,7 +589,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "kepler_crater",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_v4",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -603,7 +603,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "kepler_crater_edge_dusk",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v2",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -618,7 +618,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "kepler_crater_edge_dusk",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v3",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -658,7 +658,7 @@
     {
       "id": "s19_constitution",
       "type": "dialogue",
-      "background": "kepler_crater_edge_dusk",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v2",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -699,7 +699,7 @@
     {
       "id": "s20_data_spread",
       "type": "narration",
-      "background": "kepler_crater_edge_dusk",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v3",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -747,7 +747,7 @@
     {
       "id": "s22_weight",
       "type": "narration",
-      "background": "kepler_crater_edge_dusk",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v2",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -762,7 +762,7 @@
     {
       "id": "s23_connection",
       "type": "dialogue",
-      "background": "kepler_crater_dawn",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -810,7 +810,7 @@
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "kepler_crater_dawn",
+      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v2",
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [

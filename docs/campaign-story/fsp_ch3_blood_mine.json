@@ -37,7 +37,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "hellas_mining_village",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -52,7 +52,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "hellas_mining_village",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -102,7 +102,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "hellas_mining_village",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -132,7 +132,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "hellas_mining_village_fire",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_fire_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -166,7 +166,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "hellas_mining_village_fire",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_fire_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -196,7 +196,7 @@
     {
       "id": "s10",
       "type": "dialogue",
-      "background": "hellas_mining_village_fire",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_fire_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -229,7 +229,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "hellas_mining_village_fire",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_fire_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -270,7 +270,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "hellas_mining_village_fire",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_fire_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -285,7 +285,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "hellas_mining_village_fire",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_fire_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -360,7 +360,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "hellas_mining_village",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -390,7 +390,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "hellas_mining_village",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -415,7 +415,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "hellas_mining_village",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -485,7 +485,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "hellas_mining_village",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_v2",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -499,7 +499,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "hellas_mining_village_dawn",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_dawn_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -514,7 +514,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "hellas_mining_village_dawn",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_dawn_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -554,7 +554,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "hellas_mining_village_dawn",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_dawn_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -569,7 +569,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "hellas_mining_village_dawn",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_dawn_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -599,7 +599,7 @@
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "hellas_mining_village_dawn",
+      "background": "fsp_ch3_blood_mine_hellas_mining_village_dawn_v2",
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [

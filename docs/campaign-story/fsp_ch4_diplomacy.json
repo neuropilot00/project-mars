@@ -52,7 +52,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -67,7 +67,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -82,7 +82,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v4",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -116,7 +116,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v5",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -180,7 +180,7 @@
     {
       "id": "s09",
       "type": "narration",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -195,7 +195,7 @@
     {
       "id": "s10",
       "type": "dialogue",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -229,7 +229,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -244,7 +244,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -269,7 +269,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -299,7 +299,7 @@
     {
       "id": "s15",
       "type": "dialogue",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -324,7 +324,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -339,7 +339,7 @@
     {
       "id": "s17_test1",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -354,7 +354,7 @@
     {
       "id": "s18_test2",
       "type": "dialogue",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -410,7 +410,7 @@
     {
       "id": "s20_test4",
       "type": "dialogue",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -451,7 +451,7 @@
     {
       "id": "s21_test5",
       "type": "narration",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -482,7 +482,7 @@
     {
       "id": "s23_oath2",
       "type": "dialogue",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -515,7 +515,7 @@
     {
       "id": "s24_oath3",
       "type": "narration",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -530,7 +530,7 @@
     {
       "id": "s25_oath4",
       "type": "dialogue",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -563,7 +563,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v2",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Cinder의 피 흘리는 손. 칼이 건너왔다. 샌드스톤. 세 방향의 교차로.",
@@ -623,7 +623,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -638,7 +638,7 @@
     {
       "id": "s26_after_oath",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -653,7 +653,7 @@
     {
       "id": "s27_mcc_seen",
       "type": "dialogue",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v5",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -716,7 +716,7 @@
     {
       "id": "s30_weight2",
       "type": "dialogue",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -757,7 +757,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v3",
       "bgm": "battle_theme_fsp",
       "transition": "fade_slow",
       "title": {
@@ -778,7 +778,7 @@
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v4",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -811,7 +811,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "sandstone_junction",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_v5",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -840,7 +840,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v2",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -855,7 +855,7 @@
     {
       "id": "s31_after",
       "type": "narration",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v3",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -870,7 +870,7 @@
     {
       "id": "s32_weight3",
       "type": "dialogue",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v4",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -918,7 +918,7 @@
     {
       "id": "s34_zone12",
       "type": "dialogue",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v2",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -959,7 +959,7 @@
     {
       "id": "s35_ending_narr",
       "type": "narration",
-      "background": "sandstone_junction_dusk",
+      "background": "fsp_ch4_diplomacy_sandstone_junction_dusk_v3",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [

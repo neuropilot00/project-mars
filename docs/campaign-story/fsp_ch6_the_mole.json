@@ -66,7 +66,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -130,7 +130,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -164,7 +164,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -179,7 +179,7 @@
     {
       "id": "s06b_kenji_bg",
       "type": "narration",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -235,7 +235,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -260,7 +260,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -276,7 +276,7 @@
     {
       "id": "s08b_data_content",
       "type": "dialogue",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -317,7 +317,7 @@
     {
       "id": "s08c_danger",
       "type": "narration",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -365,7 +365,7 @@
     {
       "id": "s09",
       "type": "narration",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -380,7 +380,7 @@
     {
       "id": "s10",
       "type": "dialogue",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -413,7 +413,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -428,7 +428,7 @@
     {
       "id": "s11b_kenji_fear",
       "type": "dialogue",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v5",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -521,7 +521,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -536,7 +536,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v3",
       "bgm": "battle_theme_fsp",
       "transition": "cut",
       "title": {
@@ -590,7 +590,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "hellas_central_exterior_night",
+      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v4",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -619,7 +619,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "fsp_base_night",
+      "background": "fsp_ch6_the_mole_fsp_base_night_v2",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -634,7 +634,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "fsp_base_night",
+      "background": "fsp_ch6_the_mole_fsp_base_night_v3",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -675,7 +675,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "fsp_base_night",
+      "background": "fsp_ch6_the_mole_fsp_base_night_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -690,7 +690,7 @@
     {
       "id": "s17b_data_use",
       "type": "dialogue",
-      "background": "fsp_base_night",
+      "background": "fsp_ch6_the_mole_fsp_base_night_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -738,7 +738,7 @@
     {
       "id": "s17d_kenji_safe",
       "type": "dialogue",
-      "background": "fsp_base_night",
+      "background": "fsp_ch6_the_mole_fsp_base_night_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -771,7 +771,7 @@
     {
       "id": "s18_mikhail",
       "type": "narration",
-      "background": "fsp_base_night",
+      "background": "fsp_ch6_the_mole_fsp_base_night_v3",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [

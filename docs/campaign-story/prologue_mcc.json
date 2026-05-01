@@ -35,7 +35,7 @@
     {
       "id": "p02",
       "type": "narration",
-      "background": "cargo_ship_interior",
+      "background": "prologue_mcc_cargo_ship_interior_v2",
       "bgm": "ambient_engine_hum",
       "transition": "cut",
       "lines": [
@@ -50,7 +50,7 @@
     {
       "id": "p03",
       "type": "narration",
-      "background": "cargo_ship_interior",
+      "background": "prologue_mcc_cargo_ship_interior_v3",
       "bgm": "ambient_engine_hum",
       "transition": "cut",
       "lines": [
@@ -80,7 +80,7 @@
     {
       "id": "p05",
       "type": "narration",
-      "background": "cargo_ship_interior",
+      "background": "prologue_mcc_cargo_ship_interior_v2",
       "bgm": "ambient_engine_hum",
       "transition": "cut",
       "lines": [
@@ -110,7 +110,7 @@
     {
       "id": "p07",
       "type": "dialogue",
-      "background": "cargo_ship_interior",
+      "background": "prologue_mcc_cargo_ship_interior_v3",
       "bgm": "tension_low",
       "transition": "fade_medium",
       "lines": [
@@ -167,7 +167,7 @@
     {
       "id": "p09",
       "type": "dialogue",
-      "background": "cargo_ship_interior",
+      "background": "prologue_mcc_cargo_ship_interior_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -325,7 +325,7 @@
     {
       "id": "p17",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "prologue_mcc_hellas_central_exterior_v2",
       "bgm": "hellas_ambient",
       "transition": "cut",
       "lines": [
@@ -340,7 +340,7 @@
     {
       "id": "p18",
       "type": "dialogue",
-      "background": "hellas_central_exterior",
+      "background": "prologue_mcc_hellas_central_exterior_v3",
       "bgm": "hellas_ambient",
       "transition": "cut",
       "lines": [
@@ -388,7 +388,7 @@
     {
       "id": "p20",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "prologue_mcc_mcc_briefing_room_v2",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -429,7 +429,7 @@
     {
       "id": "p21",
       "type": "narration",
-      "background": "mcc_briefing_room",
+      "background": "prologue_mcc_mcc_briefing_room_v3",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -474,7 +474,7 @@
     {
       "id": "p24",
       "type": "dialogue",
-      "background": "hellas_central_exterior",
+      "background": "prologue_mcc_hellas_central_exterior_v2",
       "bgm": "hellas_ambient",
       "transition": "fade_medium",
       "lines": [
@@ -522,7 +522,7 @@
     {
       "id": "p26",
       "type": "narration",
-      "background": "hellas_mine_exterior",
+      "background": "prologue_mcc_hellas_mine_exterior_v2",
       "bgm": "hellas_ambient",
       "transition": "cut",
       "lines": [
@@ -570,7 +570,7 @@
     {
       "id": "p28",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "prologue_mcc_hellas_central_exterior_v3",
       "bgm": "hellas_ambient",
       "transition": "fade_medium",
       "lines": [
@@ -600,7 +600,7 @@
     {
       "id": "p30",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_mcc_hellas_mining_outpost_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -631,7 +631,7 @@
     {
       "id": "p32",
       "type": "dialogue",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_mcc_hellas_mining_outpost_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -679,7 +679,7 @@
     {
       "id": "p34",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "prologue_mcc_mcc_briefing_room_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -712,7 +712,7 @@
     {
       "id": "p35",
       "type": "narration",
-      "background": "mcc_briefing_room",
+      "background": "prologue_mcc_mcc_briefing_room_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -760,7 +760,7 @@
     {
       "id": "p37",
       "type": "narration",
-      "background": "mcc_briefing_room",
+      "background": "prologue_mcc_mcc_briefing_room_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -775,7 +775,7 @@
     {
       "id": "p38",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "prologue_mcc_mcc_briefing_room_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -831,7 +831,7 @@
     {
       "id": "p40",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "prologue_mcc_hellas_central_exterior_v2",
       "bgm": "hellas_ambient",
       "transition": "cut",
       "lines": [
@@ -846,7 +846,7 @@
     {
       "id": "p_ending",
       "type": "ending",
-      "background": "hellas_central_exterior",
+      "background": "prologue_mcc_hellas_central_exterior_v3",
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [

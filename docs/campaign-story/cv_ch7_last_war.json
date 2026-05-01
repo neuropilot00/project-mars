@@ -39,7 +39,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "erebus_base_interior",
+      "background": "cv_ch7_last_war_erebus_base_interior_v2",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -54,7 +54,7 @@
     {
       "id": "s03",
       "type": "dialogue",
-      "background": "erebus_base_interior",
+      "background": "cv_ch7_last_war_erebus_base_interior_v3",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -88,7 +88,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "erebus_base_interior",
+      "background": "cv_ch7_last_war_erebus_base_interior_v4",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -137,7 +137,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "erebus_base_interior",
+      "background": "cv_ch7_last_war_erebus_base_interior_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -152,7 +152,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "erebus_base_interior",
+      "background": "cv_ch7_last_war_erebus_base_interior_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -200,7 +200,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch7_last_war_erebus_throne_hall_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -234,7 +234,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch7_last_war_erebus_throne_hall_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -322,7 +322,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "erebus_base_exterior",
+      "background": "cv_ch7_last_war_erebus_base_exterior_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -337,7 +337,7 @@
     {
       "id": "s15",
       "type": "dialogue",
-      "background": "erebus_base_interior",
+      "background": "cv_ch7_last_war_erebus_base_interior_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -385,7 +385,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch7_last_war_erebus_throne_hall_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -410,7 +410,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "erebus_base_exterior",
+      "background": "cv_ch7_last_war_erebus_base_exterior_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -458,7 +458,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "erebus_base_exterior",
+      "background": "cv_ch7_last_war_erebus_base_exterior_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -473,7 +473,7 @@
     {
       "id": "s21",
       "type": "dialogue",
-      "background": "erebus_base_exterior",
+      "background": "cv_ch7_last_war_erebus_base_exterior_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -513,7 +513,7 @@
     {
       "id": "s23",
       "type": "dialogue",
-      "background": "erebus_base_exterior",
+      "background": "cv_ch7_last_war_erebus_base_exterior_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -538,7 +538,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch7_last_war_erebus_throne_hall_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -579,7 +579,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "erebus_base_exterior",
+      "background": "cv_ch7_last_war_erebus_base_exterior_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -627,7 +627,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "erebus_base_interior",
+      "background": "cv_ch7_last_war_erebus_base_interior_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -642,7 +642,7 @@
     {
       "id": "s29",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch7_last_war_erebus_throne_hall_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -667,7 +667,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "erebus_crater_exterior",
+      "background": "cv_ch7_last_war_erebus_crater_exterior_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -682,7 +682,7 @@
     {
       "id": "s31",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch7_last_war_erebus_throne_hall_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -730,7 +730,7 @@
     {
       "id": "s33",
       "type": "dialogue",
-      "background": "erebus_crater_exterior",
+      "background": "cv_ch7_last_war_erebus_crater_exterior_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -838,7 +838,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "erebus_crater_exterior",
+      "background": "cv_ch7_last_war_erebus_crater_exterior_v2",
       "bgm": "battle_theme_cv",
       "transition": "fade_slow",
       "title": {
@@ -859,7 +859,7 @@
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "erebus_base_interior",
+      "background": "cv_ch7_last_war_erebus_base_interior_v3",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -893,7 +893,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "erebus_base_interior",
+      "background": "cv_ch7_last_war_erebus_base_interior_v4",
       "bgm": "defeat_ambient",
       "lines": [
         {

@@ -35,7 +35,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "mcc_ch1_oxygen_rush_hellas_central_exterior_v2",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -65,7 +65,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "mcc_ch1_oxygen_rush_hellas_central_exterior_v2",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -125,7 +125,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v2",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -140,7 +140,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v3",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -182,7 +182,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v4",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -197,7 +197,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v5",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -245,7 +245,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -278,7 +278,7 @@
     {
       "id": "s14",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -312,7 +312,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v4",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -327,7 +327,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -375,7 +375,7 @@
     {
       "id": "s18",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -408,7 +408,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -423,7 +423,7 @@
     {
       "id": "s20",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -456,7 +456,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -546,7 +546,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "mcc_ch1_oxygen_rush_hellas_central_exterior_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -607,7 +607,7 @@
     {
       "id": "s27",
       "type": "narration",
-      "background": "hellas_outer_plains_sunset",
+      "background": "mcc_ch1_oxygen_rush_hellas_outer_plains_sunset_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -637,7 +637,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "hellas_outer_plains_sunset",
+      "background": "mcc_ch1_oxygen_rush_hellas_outer_plains_sunset_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -673,7 +673,7 @@
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v2",
       "bgm": "victory_calm",
       "transition": "fade_medium",
       "lines": [
@@ -715,7 +715,7 @@
     {
       "id": "s_success2",
       "type": "narration",
-      "background": "mcc_briefing_room",
+      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v3",
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [

@@ -35,7 +35,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "hidden_ch1_observer_hellas_central_exterior_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -50,7 +50,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "hidden_ch1_observer_hellas_central_exterior_v3",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -80,7 +80,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "hidden_ch1_observer_hellas_central_exterior_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -95,7 +95,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "hidden_ch1_observer_hellas_central_exterior_v3",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -125,7 +125,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "hidden_ch1_observer_hellas_central_exterior_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -141,7 +141,7 @@
     {
       "id": "s09",
       "type": "narration",
-      "background": "hellas_central_exterior",
+      "background": "hidden_ch1_observer_hellas_central_exterior_v3",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -186,7 +186,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "mine_exterior",
+      "background": "hidden_ch1_observer_mine_exterior_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -216,7 +216,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "mine_exterior",
+      "background": "hidden_ch1_observer_mine_exterior_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -247,7 +247,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "mine_exterior",
+      "background": "hidden_ch1_observer_mine_exterior_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -277,7 +277,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "hellas_mining_village_empty",
+      "background": "hidden_ch1_observer_hellas_mining_village_empty_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -307,7 +307,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "hellas_mining_village_empty",
+      "background": "hidden_ch1_observer_hellas_mining_village_empty_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -337,7 +337,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "hellas_mining_village_empty",
+      "background": "hidden_ch1_observer_hellas_mining_village_empty_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -383,7 +383,7 @@
     {
       "id": "s25",
       "type": "narration",
-      "background": "hellas_zone4_ruins",
+      "background": "hidden_ch1_observer_hellas_zone4_ruins_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -414,7 +414,7 @@
     {
       "id": "s27",
       "type": "narration",
-      "background": "hellas_zone4_ruins",
+      "background": "hidden_ch1_observer_hellas_zone4_ruins_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -444,7 +444,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "hellas_zone4_ruins",
+      "background": "hidden_ch1_observer_hellas_zone4_ruins_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -474,7 +474,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "hellas_labor_district_night",
+      "background": "hidden_ch1_observer_hellas_labor_district_night_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -504,7 +504,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "hellas_labor_district_night",
+      "background": "hidden_ch1_observer_hellas_labor_district_night_v2",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [

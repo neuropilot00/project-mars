@@ -51,7 +51,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
       "bgm": "mcc_ambient_low",
       "transition": "cut",
       "lines": [
@@ -66,7 +66,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -81,7 +81,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v4",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -96,7 +96,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v5",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -145,7 +145,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -161,7 +161,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -194,7 +194,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -209,7 +209,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -257,7 +257,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -290,7 +290,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -305,7 +305,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -320,7 +320,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v5",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -368,7 +368,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -383,7 +383,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "칩이 손 안에 있다. 발소리가 가까워진다.",
@@ -443,7 +443,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -458,7 +458,7 @@
     {
       "id": "s20",
       "type": "dialogue",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v5",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -513,7 +513,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "hellas_labor_district_night",
+      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -528,7 +528,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "hellas_labor_district_night",
+      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -558,7 +558,7 @@
     {
       "id": "s26",
       "type": "dialogue",
-      "background": "hellas_labor_district_night",
+      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -591,7 +591,7 @@
     {
       "id": "s27",
       "type": "narration",
-      "background": "hellas_labor_district_night",
+      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -639,7 +639,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "hellas_labor_district_night",
+      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v2",
       "bgm": "ambient_night",
       "transition": "cut",
       "lines": [
@@ -655,7 +655,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "hellas_labor_district_night",
+      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v3",
       "bgm": "ambient_night",
       "transition": "cut",
       "lines": [
@@ -670,7 +670,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
       "bgm": "battle_theme_mcc",
       "transition": "fade_slow",
       "title": {
@@ -705,7 +705,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "mcc_archive_sublevel",
+      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -719,7 +719,7 @@
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "hellas_labor_district_night",
+      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v2",
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [

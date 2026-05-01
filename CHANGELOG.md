@@ -1,5 +1,29 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-01 — Scene-level 77장 + Variant 301장 + JSON round-robin (6-7/N)
+
+사용자 지적: "이전 것도 다 바꾸라고 했을텐데" + "이미지 반복사용 하지말고 씬이미지 늘려라".
+
+scene-level (Step 6):
+- 77개 location-named scene-level 배경 (cargo_ship_corridor, hellas_central_exterior 등)
+  Imagen 4 Ultra 9:16 cinematic 일괄 재생성. 평균 1418KB. 신규 dedicated 115장과 스타일 일관.
+- 누락 케이스: 이전 단계는 사이즈 < 1.4MB 만 재생성했으나 1.4MB+ 라도 옛날 8-bit pixel art
+  스타일 다수 잔존. 사용자 지적 후 전체 일괄 처리.
+
+Variant (Step 7):
+- 3회 이상 반복되는 (chapter, bg) 케이스 147건에서 variant 생성 + 36개 JSON round-robin 배정.
+- prologue_shared `cargo_ship_corridor` 18회, `olympus_summit_station` fsp_ch9 40회/cv_ch9 39회/
+  mcc_ch9 30회 등 가장 두드러진 반복 분산.
+- 변주 hint 8종 (wide establishing / intimate close / high angle / low angle / side profile /
+  dawn / deep dusk / with crowds) round-robin.
+- 결과: 301/301 1차 성공, 평균 1410KB.
+
+스크립트:
+- scripts/gen_scene_level_v2.py (77 hand-crafted prompts)
+- scripts/gen_scene_variants.py (variant 생성 + JSON round-robin)
+
+총 변경: 301 신규 PNG + 39 JSON 갱신.
+
 ## 2026-05-01 — Imagen 4 Ultra 115장 일괄 재생성 완료 (5/N)
 
 Imagen 3 → Imagen 4 Ultra 전환 후 115장 모두 재생성 완료. Codex agent 가 작성한

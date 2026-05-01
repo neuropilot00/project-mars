@@ -52,7 +52,7 @@
     {
       "id": "s03",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -101,7 +101,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -149,7 +149,7 @@
     {
       "id": "s07",
       "type": "narration",
-      "background": "mine_shaft",
+      "background": "cv_ch6_thirty_years_mine_shaft_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -164,7 +164,7 @@
     {
       "id": "s08",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
       "bgm": "tension_low",
       "transition": "fade_medium",
       "lines": [
@@ -213,7 +213,7 @@
     {
       "id": "s10",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
       "bgm": "tension_medium",
       "transition": "fade_medium",
       "lines": [
@@ -253,7 +253,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -287,7 +287,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "erebus_base_interior",
+      "background": "cv_ch6_thirty_years_erebus_base_interior_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -302,7 +302,7 @@
     {
       "id": "s14",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -350,7 +350,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -375,7 +375,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -415,7 +415,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -455,7 +455,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
       "bgm": "tension_medium",
       "transition": "fade_medium",
       "lines": [
@@ -470,7 +470,7 @@
     {
       "id": "s22",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -519,7 +519,7 @@
     {
       "id": "s24",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -559,7 +559,7 @@
     {
       "id": "s26",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -599,7 +599,7 @@
     {
       "id": "s28",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -632,7 +632,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "erebus_base_interior",
+      "background": "cv_ch6_thirty_years_erebus_base_interior_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -647,7 +647,7 @@
     {
       "id": "s30",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -672,7 +672,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -712,7 +712,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
       "bgm": "choice_tension",
       "transition": "cut",
       "lines": [
@@ -727,7 +727,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Butcher의 시험. 살아남은 자의 의무. 무엇이라고 답합니까.",
@@ -802,7 +802,7 @@
     {
       "id": "s35",
       "type": "dialogue",
-      "background": "erebus_base_interior",
+      "background": "cv_ch6_thirty_years_erebus_base_interior_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -827,7 +827,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "erebus_crater_exterior",
+      "background": "cv_ch6_thirty_years_erebus_crater_exterior_v2",
       "bgm": "battle_theme_cv",
       "transition": "fade_slow",
       "title": {
@@ -848,7 +848,7 @@
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -882,7 +882,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "erebus_throne_hall",
+      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
       "bgm": "defeat_ambient",
       "lines": [
         {

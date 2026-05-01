@@ -1,6 +1,26 @@
-# OCCUPY MARS — Codebase Audit (v5.35 / 2026-05-01)
+# OCCUPY MARS — Codebase Audit (v5.36 / 2026-05-01)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-05-01 기준)
+
+### v5.36 Scene-level 77 + Variant 301 + JSON round-robin — 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| Scene-level 77장 재생성 | ✅ | location-named (cargo_ship_corridor, olympus_summit_station 등) Imagen 4 Ultra 9:16. 평균 1418KB. |
+| 반복 케이스 147건 식별 | ✅ | prologue_shared cargo_ship_corridor 18회, olympus_summit_station 40/39/30회 등. |
+| Variant 301장 생성 | ✅ | bg당 N개 variant (N=1~7, 회수에 비례). 평균 1410KB. 8종 angle/lighting hint round-robin. |
+| 36개 JSON round-robin | ✅ | scene.background 필드를 base + v2/v3/v4… 로 회전. 시각적 반복 피로감 해소. |
+| 인프라 일치 | ✅ | line.background (115 dedicated) + scene.background (77 base + 301 variants) 모두 cinematic 통일 |
+
+검증:
+- variant: 301/301 1차 성공, failed 0
+- find assets/campaign/backgrounds -name "*.png" → 약 480장
+- 36개 챕터 JSON 모든 background ID 가 실제 PNG 와 1:1 매칭
+
+후속:
+- 향후 핵심 씬 더 높은 퀄 필요 시 Codex/gpt-image-1 으로 부분 업그레이드 가능
+
+---
 
 ### v5.35 Imagen 4 Ultra 115장 일괄 재생성 완료 — 완료
 

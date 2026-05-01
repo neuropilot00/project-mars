@@ -54,7 +54,7 @@
     {
       "id": "s03",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -88,7 +88,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -103,7 +103,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -136,7 +136,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -151,7 +151,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -199,7 +199,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -233,7 +233,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -248,7 +248,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -281,7 +281,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -296,7 +296,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -344,7 +344,7 @@
     {
       "id": "s15",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -369,7 +369,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -384,7 +384,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -409,7 +409,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -424,7 +424,7 @@
     {
       "id": "s19",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -505,7 +505,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -520,7 +520,7 @@
     {
       "id": "s23",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -568,7 +568,7 @@
     {
       "id": "s25",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -593,7 +593,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -608,7 +608,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -649,7 +649,7 @@
     {
       "id": "s29",
       "type": "dialogue",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -682,7 +682,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -722,7 +722,7 @@
     {
       "id": "s32",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -737,7 +737,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Chen이 서명하려 한다. Pilgrim Arms가 접근한다. 이사회의 지시와 눈앞의 것 사이에서.",
@@ -797,7 +797,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "olympus_exterior",
+      "background": "mcc_ch9_martian_night_olympus_exterior_v2",
       "bgm": "battle_theme_mcc",
       "transition": "flash_white",
       "title": {
@@ -818,7 +818,7 @@
     {
       "id": "s_success",
       "type": "narration",
-      "background": "olympus_summit_station",
+      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
       "bgm": "victory_calm",
       "lines": [
         {

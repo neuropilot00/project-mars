@@ -51,7 +51,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "argyre_plains",
+      "background": "cv_ch2_raid_argyre_plains_v2",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -108,7 +108,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "argyre_canyon_night",
+      "background": "cv_ch2_raid_argyre_canyon_night_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -123,7 +123,7 @@
     {
       "id": "s06",
       "type": "dialogue",
-      "background": "argyre_canyon_night",
+      "background": "cv_ch2_raid_argyre_canyon_night_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -179,7 +179,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "argyre_canyon_night",
+      "background": "cv_ch2_raid_argyre_canyon_night_v2",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -194,7 +194,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "argyre_canyon_night",
+      "background": "cv_ch2_raid_argyre_canyon_night_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -250,7 +250,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "argyre_canyon_depot",
+      "background": "cv_ch2_raid_argyre_canyon_depot_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -298,7 +298,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "argyre_canyon_depot",
+      "background": "cv_ch2_raid_argyre_canyon_depot_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -313,7 +313,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "argyre_canyon_depot",
+      "background": "cv_ch2_raid_argyre_canyon_depot_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -369,7 +369,7 @@
     {
       "id": "s16",
       "type": "choice",
-      "background": "argyre_canyon_depot",
+      "background": "cv_ch2_raid_argyre_canyon_depot_v2",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "작업자가 보고 있다. 장비가 창고 안에 있다. 이십 분이 남았다.",
@@ -429,7 +429,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "argyre_canyon_depot",
+      "background": "cv_ch2_raid_argyre_canyon_depot_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -444,7 +444,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "argyre_canyon_depot",
+      "background": "cv_ch2_raid_argyre_canyon_depot_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -500,7 +500,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "argyre_canyon_depot",
+      "background": "cv_ch2_raid_argyre_canyon_depot_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -515,7 +515,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "argyre_canyon_depot",
+      "background": "cv_ch2_raid_argyre_canyon_depot_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -530,7 +530,7 @@
     {
       "id": "s22",
       "type": "dialogue",
-      "background": "argyre_canyon_depot",
+      "background": "cv_ch2_raid_argyre_canyon_depot_v4",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -563,7 +563,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "argyre_canyon_night",
+      "background": "cv_ch2_raid_argyre_canyon_night_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -578,7 +578,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "argyre_canyon_night",
+      "background": "cv_ch2_raid_argyre_canyon_night_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -593,7 +593,7 @@
     {
       "id": "s25",
       "type": "narration",
-      "background": "argyre_plains_night",
+      "background": "cv_ch2_raid_argyre_plains_night_v2",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -608,7 +608,7 @@
     {
       "id": "s26",
       "type": "dialogue",
-      "background": "argyre_plains_night",
+      "background": "cv_ch2_raid_argyre_plains_night_v3",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -657,7 +657,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "mars_surface_dust_storm",
+      "background": "cv_ch2_raid_mars_surface_dust_storm_v2",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -713,7 +713,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "argyre_plains_night",
+      "background": "cv_ch2_raid_argyre_plains_night_v4",
       "bgm": "tension_medium",
       "transition": "fade_slow",
       "lines": [
@@ -769,7 +769,7 @@
     {
       "id": "s32",
       "type": "narration",
-      "background": "argyre_plains",
+      "background": "cv_ch2_raid_argyre_plains_v2",
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
@@ -800,7 +800,7 @@
     {
       "id": "s34",
       "type": "dialogue",
-      "background": "argyre_plains_night",
+      "background": "cv_ch2_raid_argyre_plains_night_v2",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -842,7 +842,7 @@
     {
       "id": "s35",
       "type": "narration",
-      "background": "argyre_plains_night",
+      "background": "cv_ch2_raid_argyre_plains_night_v3",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -904,7 +904,7 @@
     {
       "id": "s39",
       "type": "narration",
-      "background": "argyre_plains",
+      "background": "cv_ch2_raid_argyre_plains_v2",
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
@@ -934,7 +934,7 @@
     {
       "id": "s41",
       "type": "narration",
-      "background": "argyre_plains_night",
+      "background": "cv_ch2_raid_argyre_plains_night_v4",
       "bgm": "defeat_ambient",
       "transition": "cut",
       "lines": [
@@ -982,7 +982,7 @@
     {
       "id": "s43",
       "type": "narration",
-      "background": "argyre_plains_night",
+      "background": "cv_ch2_raid_argyre_plains_night_v2",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -997,7 +997,7 @@
     {
       "id": "s44",
       "type": "narration",
-      "background": "argyre_plains_night",
+      "background": "cv_ch2_raid_argyre_plains_night_v3",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -1012,7 +1012,7 @@
     {
       "id": "s45",
       "type": "ending",
-      "background": "argyre_plains_night",
+      "background": "cv_ch2_raid_argyre_plains_night_v4",
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [

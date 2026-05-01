@@ -98,7 +98,7 @@
     {
       "id": "p06",
       "type": "narration",
-      "background": "hellas_labor_district_night",
+      "background": "prologue_fsp_hellas_labor_district_night_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -148,7 +148,7 @@
     {
       "id": "p08",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_fsp_hellas_mining_outpost_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -163,7 +163,7 @@
     {
       "id": "p09",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_fsp_hellas_mining_outpost_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -178,7 +178,7 @@
     {
       "id": "p10",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_fsp_hellas_mining_outpost_v4",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -208,7 +208,7 @@
     {
       "id": "p12",
       "type": "dialogue",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_fsp_hellas_mining_outpost_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -234,7 +234,7 @@
     {
       "id": "p13",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_fsp_hellas_mining_outpost_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -249,7 +249,7 @@
     {
       "id": "p14",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_fsp_hellas_mining_outpost_v4",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -298,7 +298,7 @@
     {
       "id": "p16",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_fsp_hellas_mining_outpost_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -313,7 +313,7 @@
     {
       "id": "p17",
       "type": "dialogue",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_fsp_hellas_mining_outpost_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -361,7 +361,7 @@
     {
       "id": "p19",
       "type": "narration",
-      "background": "hellas_labor_district_night",
+      "background": "prologue_fsp_hellas_labor_district_night_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -406,7 +406,7 @@
     {
       "id": "p22",
       "type": "dialogue",
-      "background": "hellas_mining_village",
+      "background": "prologue_fsp_hellas_mining_village_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -455,7 +455,7 @@
     {
       "id": "p24",
       "type": "dialogue",
-      "background": "hellas_mining_village",
+      "background": "prologue_fsp_hellas_mining_village_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -495,7 +495,7 @@
     {
       "id": "p26",
       "type": "narration",
-      "background": "hellas_mining_village_dawn",
+      "background": "prologue_fsp_hellas_mining_village_dawn_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -510,7 +510,7 @@
     {
       "id": "p27",
       "type": "narration",
-      "background": "hellas_mining_outpost",
+      "background": "prologue_fsp_hellas_mining_outpost_v4",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -558,7 +558,7 @@
     {
       "id": "p29",
       "type": "narration",
-      "background": "hellas_mining_village_dawn",
+      "background": "prologue_fsp_hellas_mining_village_dawn_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -588,7 +588,7 @@
     {
       "id": "p31",
       "type": "dialogue",
-      "background": "hellas_mining_village_dawn",
+      "background": "prologue_fsp_hellas_mining_village_dawn_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -622,7 +622,7 @@
     {
       "id": "p32",
       "type": "narration",
-      "background": "hellas_mining_village_dawn",
+      "background": "prologue_fsp_hellas_mining_village_dawn_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -652,7 +652,7 @@
     {
       "id": "p34",
       "type": "narration",
-      "background": "hellas_mining_village_dawn",
+      "background": "prologue_fsp_hellas_mining_village_dawn_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -667,7 +667,7 @@
     {
       "id": "p35",
       "type": "ending",
-      "background": "hellas_mining_village_dawn",
+      "background": "prologue_fsp_hellas_mining_village_dawn_v3",
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [

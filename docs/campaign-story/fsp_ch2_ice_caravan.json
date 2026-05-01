@@ -36,7 +36,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "hellas_outer_plains",
+      "background": "fsp_ch2_ice_caravan_hellas_outer_plains_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -67,7 +67,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "mine_exterior",
+      "background": "fsp_ch2_ice_caravan_mine_exterior_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -82,7 +82,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "mine_exterior",
+      "background": "fsp_ch2_ice_caravan_mine_exterior_v3",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -116,7 +116,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "mine_exterior",
+      "background": "fsp_ch2_ice_caravan_mine_exterior_v4",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -146,7 +146,7 @@
     {
       "id": "s08",
       "type": "dialogue",
-      "background": "mine_exterior",
+      "background": "fsp_ch2_ice_caravan_mine_exterior_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -186,7 +186,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "mine_exterior",
+      "background": "fsp_ch2_ice_caravan_mine_exterior_v3",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -201,7 +201,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "mine_exterior",
+      "background": "fsp_ch2_ice_caravan_mine_exterior_v4",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -241,7 +241,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "mine_exterior",
+      "background": "fsp_ch2_ice_caravan_mine_exterior_v2",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "MCC 봉쇄선. Park Sung-jin의 가족이 기다리고 있다. 어떻게 하겠습니까.",
@@ -301,7 +301,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "mine_exterior",
+      "background": "fsp_ch2_ice_caravan_mine_exterior_v3",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -316,7 +316,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "mine_exterior",
+      "background": "fsp_ch2_ice_caravan_mine_exterior_v4",
       "bgm": "battle_theme_fsp",
       "transition": "fade_slow",
       "title": {
@@ -395,7 +395,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "hellas_outer_plains_sunset",
+      "background": "fsp_ch2_ice_caravan_hellas_outer_plains_sunset_v2",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -459,7 +459,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "fsp_base",
+      "background": "fsp_ch2_ice_caravan_fsp_base_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -489,7 +489,7 @@
     {
       "id": "s19",
       "type": "dialogue",
-      "background": "fsp_base",
+      "background": "fsp_ch2_ice_caravan_fsp_base_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -537,7 +537,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "fsp_base_night",
+      "background": "fsp_ch2_ice_caravan_fsp_base_night_v2",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -585,7 +585,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "fsp_base_night",
+      "background": "fsp_ch2_ice_caravan_fsp_base_night_v2",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -616,7 +616,7 @@
     {
       "id": "s25",
       "type": "narration",
-      "background": "hellas_outer_plains",
+      "background": "fsp_ch2_ice_caravan_hellas_outer_plains_v2",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
