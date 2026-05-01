@@ -1,6 +1,24 @@
-# OCCUPY MARS — Codebase Audit (v5.36 / 2026-05-01)
+# OCCUPY MARS — Codebase Audit (v5.37 / 2026-05-01)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-05-01 기준)
+
+### v5.37 Ship build transaction silent rollback — 수정 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 함선 건조 실패 root cause | ✅ | `server/services/ship.js` `startBuild()`에서 선택적 `fleet_gp_activity` 로그를 트랜잭션 내부에서 `.catch(() => {})`로 삼켜 PostgreSQL transaction-aborted 상태가 `COMMIT` 시 전체 롤백될 수 있었음. |
+| `ship_build_jobs` INSERT 보장 | ✅ | 건조 트랜잭션은 GP/광물 차감, `ship_build_jobs` INSERT, `ship_build_log` INSERT만 수행하고 바로 `COMMIT`. optional activity log는 `COMMIT` 이후 `logFleetGpActivity()` fire-and-forget. |
+| 재료 조회 스키마 | ✅ | `recipe_minerals` 키는 resource code이며, 조회/차감은 `resources.code` → `resources.id` 매핑 후 `user_resource_inventory(resource_id)`로 수행. `resource_code` 직접 매칭 버그는 현재 경로에 없음. |
+| 설정 게이트 | ✅ | `startBuild()`는 `fleet_combat_enabled`/`flagship_required`로 건조를 막지 않음. `max_ships_per_player`는 명시적 `PLAYER_FLEET_FULL`, ship type limit은 `SERVER_LIMIT_REACHED`/`PLAYER_LIMIT_REACHED` 반환. |
+| GP/광물 오류 응답 | ✅ | `/api/ships/build`는 `INSUFFICIENT_GP`, `INSUFFICIENT_MINERALS`를 402와 `meta`로 반환. |
+| 클라이언트 요청 확인 | ✅ | `index.html` `buildShip()`은 `ship_type_code`를 전송하며 이번 수정에서 UI 파일은 건드리지 않음. `fleet_id`는 optional이고 누락 시 건조 완료 단계에서 기본 함대로 배정됨. |
+
+검증:
+- `node --check server/services/ship.js` 통과
+- `git diff --check` 통과
+- sandbox 네트워크 제한으로 local Postgres `psql` 접속 검증은 불가
+
+---
 
 ### v5.36 Scene-level 77 + Variant 301 + JSON round-robin — 완료
 

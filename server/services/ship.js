@@ -358,20 +358,15 @@ async function startBuild(walletAddress, shipTypeCode, fleetId = null) {
       VALUES ($1, $2, $3, $4, 'success')
     `, [walletAddress, shipTypeCode, gpCost, JSON.stringify(recipe)]);
     
-    // GP activity log (있으면)
-    if (gpCost > 0) {
-      await client.query(`
-        INSERT INTO fleet_gp_activity (wallet_address, activity_type, gp_delta, meta)
-        VALUES ($1, 'ship_build_gp_spent', $2, $3)
-      `, [walletAddress, -gpCost, JSON.stringify({ 
-        ship_type: shipTypeCode, 
-        job_id: job.id 
-      })]).catch(() => {});
-    }
-    
     await client.query('COMMIT');
 
     // ── GP 활동 로그 + 시즌 점수 (fire-and-forget, COMMIT 후) ──
+    if (gpCost > 0) {
+      logFleetGpActivity(walletAddress, 'ship_build_gp_spent', -gpCost, {
+        ship_type: shipTypeCode,
+        job_id: job.id,
+      });
+    }
     if (gpCost > 0) {
       try {
         const { logGPActivity } = require('../db');
@@ -604,21 +599,16 @@ async function cancelBuildJob(jobId, walletAddress) {
       VALUES ($1, $2, $3, $4, 'cancelled')
     `, [walletAddress, job.ship_type_code, -refundedGp, JSON.stringify(refundedMinerals)]);
     
-    // GP activity log
-    if (refundedGp > 0) {
-      await client.query(`
-        INSERT INTO fleet_gp_activity (wallet_address, activity_type, gp_delta, meta)
-        VALUES ($1, 'ship_build_refund', $2, $3)
-      `, [walletAddress, refundedGp, JSON.stringify({ 
-        job_id: jobId, 
-        refund_pct: refundPct,
-        cancelled: true
-      })]).catch(() => {});
-    }
-    
     await client.query('COMMIT');
 
     // ── GP 활동 로그 (환불, fire-and-forget) ──
+    if (refundedGp > 0) {
+      logFleetGpActivity(walletAddress, 'ship_build_refund', refundedGp, {
+        job_id: jobId,
+        refund_pct: refundPct,
+        cancelled: true,
+      });
+    }
     if (refundedGp > 0) {
       try {
         const { logGPActivity } = require('../db');
@@ -963,6 +953,15 @@ async function getSettingInt(client, key, fallback) {
     }
     return val || fallback;
   } catch { return fallback; }
+}
+
+function logFleetGpActivity(walletAddress, activityType, gpDelta, meta = {}) {
+  pool.query(`
+    INSERT INTO fleet_gp_activity (wallet_address, activity_type, gp_delta, meta)
+    VALUES ($1, $2, $3, $4)
+  `, [walletAddress, activityType, gpDelta, JSON.stringify(meta)]).catch(err => {
+    console.warn('[ship] fleet_gp_activity log skipped:', err.message);
+  });
 }
 
 // ── Migration 173: 함선 해체 (Core 광물 sink) ──

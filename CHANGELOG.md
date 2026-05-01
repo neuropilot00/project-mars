@@ -1,5 +1,28 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-01 — Ship build transaction silent rollback fix
+
+사용자 리포트: "재료가 있는데도 함선 건조가 실패함".
+
+원인:
+- `server/services/ship.js` `startBuild()`가 `ship_build_jobs` INSERT 후, 같은 트랜잭션 안에서 선택적
+  `fleet_gp_activity` 로그를 쓰고 `.catch(() => {})`로 에러를 삼켰음.
+- PostgreSQL은 트랜잭션 내부 statement 에러가 한 번 나면 이후 `COMMIT`이 전체 변경을 롤백할 수 있다.
+  이 경우 서비스는 이미 받은 `job.id`로 성공 응답을 만들 수 있어 HTTP 200인데 `ship_build_jobs` 행이
+  남지 않는 silent fail 경로가 생김.
+
+수정:
+- `fleet_gp_activity` 로그를 `COMMIT` 이후 fire-and-forget으로 이동.
+- 건조 트랜잭션은 필수 변경만 포함: 유저/함선 검증 → GP 차감 → `user_resource_inventory(resource_id)`
+  원자적 광물 차감 → `ship_build_jobs` INSERT → `ship_build_log` INSERT → `COMMIT`.
+- 동일한 패턴의 건조 취소 환불 로그도 트랜잭션 밖으로 이동.
+
+검증:
+- `node --check server/services/ship.js` 통과
+- `git diff --check` 통과
+- DB 접속은 sandbox 네트워크 제한으로 실행 불가. 코드 경로상 `ship_build_jobs` INSERT는
+  `server/services/ship.js` `startBuild()`의 `COMMIT` 이전 필수 쿼리로 유지됨.
+
 ## 2026-05-01 — Scene-level 77장 + Variant 301장 + JSON round-robin (6-7/N)
 
 사용자 지적: "이전 것도 다 바꾸라고 했을텐데" + "이미지 반복사용 하지말고 씬이미지 늘려라".
