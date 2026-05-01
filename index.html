@@ -1222,7 +1222,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .story-character-right{right:1%;transform:translateX(0)}
 .story-character-inactive{opacity:.38;filter:brightness(.5) drop-shadow(0 12px 28px rgba(0,0,0,.6))}
 /* 대화창 — 모바일 터치 고려: 패딩 넉넉하게, 글자 충분히 크게 */
-.story-dialog-box{position:absolute;left:0;right:0;bottom:0;width:100%;box-sizing:border-box;background:rgba(4,4,12,.82);padding:20px 18px 64px;padding-bottom:max(env(safe-area-inset-bottom,64px),64px);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.1)}
+.story-dialog-box{position:absolute;left:0;right:0;bottom:0;width:100%;box-sizing:border-box;background:rgba(4,4,12,.82);padding:20px 18px 96px;padding-bottom:max(env(safe-area-inset-bottom,96px),96px);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.1)}
 .story-speaker-name{font-weight:900;color:#FFD700;font-size:1.05rem;margin-bottom:6px;letter-spacing:.3px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
 .story-text{color:#f0f0f0;font-size:1rem;line-height:1.7;min-height:3.4em;white-space:pre-line;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 /* 탭 힌트 — safe area 고려 (아이폰 홈 바) */
@@ -1237,9 +1237,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .story-title-card small{display:block;margin-top:12px;font-size:clamp(13px,3.5vw,18px);color:#FFD700;line-height:1.5}
 .story-narration-text{text-align:center;background:none;color:#f0f0f0;font-size:1rem;line-height:1.8;text-shadow:0 2px 14px rgba(0,0,0,.95)}
 /* 씬 디테일 오버레이 — line.overlay 필드 명시된 장면에서만 중앙 표시 (한 location 안에서 시각적 강조 컷) */
-.story-detail-overlay{position:absolute;left:50%;top:50%;width:min(72vw,300px);height:min(72vw,300px);border-radius:16px;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .5s ease,transform .5s ease;transform:translate(-50%,-50%) translateY(16px) scale(.88);border:2px solid rgba(255,255,255,.28);box-shadow:0 12px 60px rgba(0,0,0,.9);z-index:10}
+.story-detail-overlay{position:absolute;left:50%;top:44%;width:min(84vw,370px);height:min(84vw,370px);border-radius:16px;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .5s ease,transform .5s ease;transform:translate(-50%,-50%) translateY(16px) scale(.88);border:2px solid rgba(255,255,255,.28);box-shadow:0 12px 60px rgba(0,0,0,.9);z-index:10}
 .story-detail-overlay.visible{opacity:.97;transform:translate(-50%,-50%) scale(1)}
-@media(max-width:520px){.story-detail-overlay{width:min(78vw,320px);height:min(78vw,320px)}}
+@media(max-width:520px){.story-detail-overlay{width:min(90vw,370px);height:min(90vw,370px)}}
 /* 스토리 컨트롤 (스킵/나가기) — safe area 고려 */
 .story-controls{position:absolute;top:max(10px,env(safe-area-inset-top,10px));right:12px;display:flex;gap:8px;z-index:5;cursor:default}
 .story-ctrl-btn{padding:8px 13px;min-height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.65);color:#ddd;font-family:var(--fn);font-size:9px;letter-spacing:1px;font-weight:800;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .15s;-webkit-tap-highlight-color:transparent}
