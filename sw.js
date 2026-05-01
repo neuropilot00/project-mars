@@ -3,7 +3,8 @@
 // 2026-04-25 v4: 모바일 사이드바 z-index/태블릿 breakpoint, 토스트 통합, 하이잭 미리보기
 // 2026-05-01 v5: 캠페인 480장 Imagen 4 Ultra 신규 PNG — 옛 image cache 무효화 필수
 // 2026-05-02 v6: 캠페인 배경 184장 Codex gpt-image-1 전면 재생성 (gritty cinematic sci-fi, 9:16/1:1 portrait)
-const CACHE_NAME = 'mars-v6';
+// 2026-05-02 v7: campaign backgrounds → network-first (cache-first로 구 이미지 고착 문제 해소)
+const CACHE_NAME = 'mars-v7';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
@@ -77,6 +78,22 @@ self.addEventListener('fetch', (e) => {
           return res;
         })
         .catch(() => caches.match(e.request).then((c) => c || caches.match('/')))
+    );
+    return;
+  }
+
+  // Network-first for campaign backgrounds (AI 재생성으로 자주 교체됨 — cache-first 금지)
+  if (url.pathname.startsWith('/assets/campaign/')) {
+    e.respondWith(
+      fetch(e.request)
+        .then((res) => {
+          if (res && res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => caches.match(e.request))
     );
     return;
   }
