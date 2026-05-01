@@ -44837,6 +44837,12 @@ if ('serviceWorker' in navigator) {
     // 1시간마다 SW update 체크 (긴 세션 사용자 대응 — 새 sw.js 가 있으면 다음 nav 시 적용)
     setInterval(function(){ try { reg.update(); } catch(_) {} }, 60 * 60 * 1000);
   }).catch(function(){});
+  let _swRefreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    if (_swRefreshing) return;
+    _swRefreshing = true;
+    window.location.reload();
+  });
 }
 // ─── Phase D: Alliance / Replay / Mobile ───
 // ═════════════════════════════════════════════════════════════════
