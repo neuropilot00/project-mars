@@ -14149,6 +14149,8 @@ async function confirmClaim(){
         if(btn){btn.disabled=false;btn.textContent='⚔ DECLARE HIJACK';}
         return;
       }
+      // 슬로대 스타일 — 하이잭 진입 전 파벌 캐릭터 대사
+      try{ await showFactionFlavor('hijack_start'); }catch(_){ }
       // 로딩 표시
       if(btn) btn.textContent='⚔ 함대전 선언 중...';
       var hjHeaders={'Content-Type':'application/json'};
@@ -14276,6 +14278,9 @@ async function confirmClaim(){
     claimsSnapshot=null;
     compositeClaimsOnTexture();
     closeClaimModal();
+
+    // 슬로대 스타일 — 새 영토 클레임 작전 시작 대사
+    try{ await showFactionFlavor('claim_executing'); }catch(_){ }
 
     // ── Server API call: deduct PP/USDT and record claim ──
     var headers={'Content-Type':'application/json'};
@@ -24951,7 +24956,7 @@ function _campaignStorySetBackground(scene,overlay,lineBg){
     'kepler_crater_dusk':'kepler_crater_edge_dusk'
   };
   var bgId=_bgMap[bgChoice]||bgChoice;
-  var src='/assets/campaign/backgrounds/'+bgId+'.png';
+  var src='/assets/campaign/backgrounds/'+bgId+'.png?v=20260501c';  // cache-bust: Imagen 4 Ultra cinematic batch
   var img=new Image();
   img.onload=function(){bg.style.backgroundImage='url("'+src+'")';};
   img.onerror=function(){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';};
@@ -27215,6 +27220,196 @@ function zoomOut(){
   if(newAlt>2)isZoomedIn=false;
 }
 function showToast(msg){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},3500)}
+// ── 슬로대 스타일 파벌 플레이버 다이얼로그 ────────────────────────────────
+// 클레임/하이잭 등 결정적 액션 직전 1-2초 캐릭터 대사로 몰입도 ↑
+// (Super Robot Wars / 시뮬레이션 게임 류 사전 컷)
+var FACTION_FLAVOR = {
+  // 새 영토 클레임 (빈 땅)
+  claim_new: [
+    { faction:'mcc', speaker:'Chen Weiss',  emoji:'⚪', line:'이 구역은 아직 등록되지 않았다. 절차대로 진행한다.' },
+    { faction:'fsp', speaker:'Mikhail',     emoji:'🟢', line:'이 땅은 아직 아무도 깃발 꽂지 않은 거 같군. 우리 차례다.' },
+    { faction:'cv',  speaker:'Butcher',     emoji:'🔴', line:'주인 없는 땅이야. 그럼 우리 거지.' },
+    { faction:null,  speaker:'Mission Control', emoji:'📡', line:'좌표 확인. 빈 영역. 깃발 박을 준비.' },
+  ],
+  // 클레임 진행 중 — 작전 시작
+  claim_executing: [
+    { faction:'mcc', speaker:'Li Fang', emoji:'⚪', line:'사령부, 깃발 박는다. 등록 절차 시작.' },
+    { faction:'fsp', speaker:'Lena',    emoji:'🟢', line:'이름 하나 더 새기자. 우리가 여기 있었다고.' },
+    { faction:'cv',  speaker:'Aisha',   emoji:'🔴', line:'이 땅은 이제 우리 거다. 누구도 못 뺏는다.' },
+  ],
+  // 하이잭 선언 직전 (전투 진입)
+  hijack_start: [
+    { faction:'mcc', speaker:'Chen Weiss', emoji:'⚔', line:'적성 영토 확인. 자, 다들 꽉 잡으라고. 전투 들어간다.' },
+    { faction:'fsp', speaker:'Mikhail',    emoji:'⚔', line:'이번엔 봐주지 마라. 우리 사람들 위한 싸움이다.' },
+    { faction:'cv',  speaker:'Butcher',    emoji:'⚔', line:'전투 개시. 의수 풀어라. 일하러 간다.' },
+    { faction:null,  speaker:'Fleet Command', emoji:'⚔', line:'전 함대 전투 배치. 카운트다운 — 5... 4... 3...' },
+  ],
+};
+
+function _myFactionCode(){
+  try{
+    if(typeof factionState!=='undefined'&&factionState&&factionState.current&&factionState.current.code){
+      return factionState.current.code;
+    }
+  }catch(_){}
+  return null;
+}
+
+function showFactionFlavor(situation, opts){
+  var pool = FACTION_FLAVOR[situation] || [];
+  if(!pool.length) return Promise.resolve();
+  var myFac = _myFactionCode();
+  // 우선 내 파벌 매칭, 없으면 neutral, 없으면 random
+  var candidates = pool.filter(function(p){return p.faction===myFac;});
+  if(!candidates.length) candidates = pool.filter(function(p){return p.faction===null;});
+  if(!candidates.length) candidates = pool;
+  var pick = candidates[Math.floor(Math.random()*candidates.length)];
+  var dur = (opts&&opts.duration)||1800;
+
+  return new Promise(function(resolve){
+    var prev = document.getElementById('factionFlavor'); if(prev) prev.remove();
+    var box = document.createElement('div');
+    box.id = 'factionFlavor';
+    var color = pick.faction==='mcc'?'#5cbbff':pick.faction==='fsp'?'#7cd7a4':pick.faction==='cv'?'#ff6b6b':'#ffd166';
+    box.style.cssText = 'position:fixed;left:50%;bottom:18%;transform:translateX(-50%);z-index:10001;'
+      + 'min-width:280px;max-width:90vw;padding:14px 18px;border:1px solid '+color+';'
+      + 'border-radius:10px;background:linear-gradient(180deg,rgba(10,10,16,.96),rgba(20,16,28,.92));'
+      + 'box-shadow:0 8px 40px '+color+'66;font-family:var(--fn);'
+      + 'opacity:0;transition:opacity .35s ease,transform .35s ease;cursor:pointer';
+    box.innerHTML = '<div style="font-size:9px;color:'+color+';font-weight:800;letter-spacing:1.5px;margin-bottom:5px">'
+      + (pick.emoji||'') + ' ' + escapeHtmlSafe(pick.speaker)
+      + '</div>'
+      + '<div style="font-size:11px;color:#f0f0f0;line-height:1.55">' + escapeHtmlSafe(pick.line) + '</div>';
+    document.body.appendChild(box);
+    requestAnimationFrame(function(){
+      box.style.opacity = '1';
+      box.style.transform = 'translateX(-50%) translateY(-6px)';
+    });
+    function close(){
+      box.style.opacity='0';
+      setTimeout(function(){ try{ box.remove(); }catch(_){ } resolve(); }, 250);
+    }
+    box.onclick = close;
+    setTimeout(close, dur);
+  });
+}
+
+// ── 보조 버튼 실제 구현 ─────────────────────────────────────────────────
+// openMineralsPanel: 보유 광물 (resource_id, name, qty) 모달 표시
+// openShipRegistry: 보유 함선 명부 모달 표시
+// openWorldEventDetail: world event 상세 정보 모달
+
+function _openInfoModal(title, bodyHtml, accentColor){
+  var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
+  var modal = document.createElement('div');
+  modal.id = 'infoDetailModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);font-family:var(--fn)';
+  modal.onclick = function(e){ if(e.target===modal) modal.remove(); };
+  var color = accentColor || '#5cbbff';
+  modal.innerHTML = '<div style="background:linear-gradient(180deg,#181820,#0e0e16);border:1px solid '+color+';border-radius:12px;padding:18px;max-width:420px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 8px 50px '+color+'66">'
+    + '<div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:12px;text-align:center;letter-spacing:1px">'+escapeHtmlSafe(title)+'</div>'
+    + '<div style="font-size:10px;color:var(--tx2);line-height:1.6">'+bodyHtml+'</div>'
+    + '<button onclick="document.getElementById(\'infoDetailModal\').remove()" style="width:100%;margin-top:14px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer">닫기</button>'
+    + '</div>';
+  document.body.appendChild(modal);
+}
+
+function openMineralsPanel(){
+  var w = walletState.address;
+  if(!w){ showToast('LOGIN FIRST'); return; }
+  _openInfoModal('💎 MY MINERALS', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#81c784');
+  fetch('/api/resources/my?wallet='+encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var items = d.resources || d.inventory || d || [];
+      if(!Array.isArray(items)) items = items.resources || [];
+      var body = '';
+      if(!items.length){
+        body = '<div style="text-align:center;color:var(--tx3);padding:14px">보유 광물 없음</div>';
+      } else {
+        body = '<div style="display:grid;grid-template-columns:1fr auto;gap:6px 12px">';
+        items.forEach(function(it){
+          var name = it.name || it.resource_name || it.resource_id || it.id || '?';
+          var qty = it.quantity != null ? it.quantity : (it.qty != null ? it.qty : 0);
+          var tier = it.tier!=null?' T'+it.tier:'';
+          body += '<div style="color:var(--tx2)">'+escapeHtmlSafe(String(name))+tier+'</div><div style="color:#ffd166;font-weight:600;text-align:right">'+qty+'</div>';
+        });
+        body += '</div>';
+      }
+      var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
+      _openInfoModal('💎 MY MINERALS', body, '#81c784');
+    })
+    .catch(function(){
+      var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
+      _openInfoModal('💎 MY MINERALS', '<div style="text-align:center;color:var(--mars)">로드 실패</div>', '#81c784');
+    });
+}
+
+function openShipRegistry(){
+  var w = walletState.address;
+  if(!w){ showToast('LOGIN FIRST'); return; }
+  _openInfoModal('🚀 SHIP REGISTRY', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#5cbbff');
+  fetch('/api/ships/my?wallet='+encodeURIComponent(w))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var ships = (d && d.ships) || [];
+      var summary = (d && d.summary) || null;
+      var body = '';
+      if(summary){
+        body += '<div style="text-align:center;color:var(--tx3);font-size:9px;margin-bottom:10px">총 '+(summary.total_ships||ships.length||0)+'척'+(summary.alive!=null?' · 가용 '+summary.alive+'척':'')+'</div>';
+      }
+      if(!ships.length){
+        body += '<div style="text-align:center;color:var(--tx3);padding:14px">보유 함선 없음<br><span style="font-size:9px">조선소에서 함선을 건조하세요</span></div>';
+      } else {
+        body += '<div style="display:grid;grid-template-columns:1fr auto auto;gap:5px 10px;font-size:9px">';
+        body += '<div style="color:var(--tx3);font-weight:700">SHIP</div><div style="color:var(--tx3);font-weight:700;text-align:center">HP</div><div style="color:var(--tx3);font-weight:700;text-align:right">STATUS</div>';
+        ships.forEach(function(s){
+          var name = s.name || s.ship_type_name || s.ship_type_code || 'Ship#'+s.id;
+          var hp = (s.current_hp!=null && s.max_hp!=null) ? (s.current_hp+'/'+s.max_hp) : (s.hp||'?');
+          var status = s.is_alive===false || s.status==='destroyed' ? '💥' : (s.in_battle ? '⚔' : '✅');
+          body += '<div style="color:var(--tx2)">'+escapeHtmlSafe(String(name))+'</div><div style="color:#7cd7a4;text-align:center">'+escapeHtmlSafe(String(hp))+'</div><div style="text-align:right">'+status+'</div>';
+        });
+        body += '</div>';
+      }
+      var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
+      _openInfoModal('🚀 SHIP REGISTRY', body, '#5cbbff');
+    })
+    .catch(function(){
+      var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
+      _openInfoModal('🚀 SHIP REGISTRY', '<div style="text-align:center;color:var(--mars)">로드 실패</div>', '#5cbbff');
+    });
+}
+
+function openWorldEventDetail(id){
+  if(!id){ showToast('이벤트 ID 없음'); return; }
+  _openInfoModal('⚔ WORLD EVENT', '<div style="text-align:center;color:var(--tx3)">Loading...</div>', '#ff6b6b');
+  fetch('/api/world-events/'+encodeURIComponent(id))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var ev = d.event || d;
+      if(!ev || ev.error){
+        var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
+        _openInfoModal('⚔ WORLD EVENT', '<div style="text-align:center;color:var(--mars)">이벤트를 찾을 수 없음</div>', '#ff6b6b');
+        return;
+      }
+      var body = '<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px">';
+      if(ev.name||ev.title) body += '<div style="color:var(--tx3)">이름</div><div style="color:#fff;font-weight:600">'+escapeHtmlSafe(ev.name||ev.title)+'</div>';
+      if(ev.event_type||ev.type) body += '<div style="color:var(--tx3)">종류</div><div>'+escapeHtmlSafe(ev.event_type||ev.type)+'</div>';
+      if(ev.description) body += '<div style="color:var(--tx3)">설명</div><div>'+escapeHtmlSafe(ev.description)+'</div>';
+      if(ev.starts_at||ev.start_time) body += '<div style="color:var(--tx3)">시작</div><div>'+new Date(ev.starts_at||ev.start_time).toLocaleString()+'</div>';
+      if(ev.ends_at||ev.end_time) body += '<div style="color:var(--tx3)">종료</div><div>'+new Date(ev.ends_at||ev.end_time).toLocaleString()+'</div>';
+      if(ev.location||ev.target_sector) body += '<div style="color:var(--tx3)">위치</div><div>'+escapeHtmlSafe(ev.location||ev.target_sector)+'</div>';
+      if(ev.reward_gp) body += '<div style="color:var(--tx3)">보상</div><div style="color:var(--gold)">+'+ev.reward_gp+' GP</div>';
+      if(ev.participants!=null) body += '<div style="color:var(--tx3)">참여</div><div>'+ev.participants+'명</div>';
+      body += '</div>';
+      var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
+      _openInfoModal('⚔ WORLD EVENT', body, '#ff6b6b');
+    })
+    .catch(function(){
+      var prev = document.getElementById('infoDetailModal'); if(prev) prev.remove();
+      _openInfoModal('⚔ WORLD EVENT', '<div style="text-align:center;color:var(--mars)">로드 실패</div>', '#ff6b6b');
+    });
+}
 // Alias: legacy callers (OPS, guild upgrades) use showAlert(msg[,type]).
 // Route them through the toast so they don't ReferenceError.
 window.showAlert=function(m){return showToast(m);};
@@ -35829,7 +36024,7 @@ function renderAchievementCards() {
     var unlockedDate = unlocked && a.unlocked_at
       ? new Date(a.unlocked_at).toLocaleDateString()
       : '';
-    return '<div style="border:1px solid;border-radius:8px;padding:8px;box-shadow:' + glowStyle + ';' + bgStyle + ';position:relative;cursor:default" title="' + desc + '">'
+    return '<div onclick="showAchievementDetail(\'' + escapeHtmlSafe(a.key||'') + '\')" style="border:1px solid;border-radius:8px;padding:8px;box-shadow:' + glowStyle + ';' + bgStyle + ';position:relative;cursor:pointer" title="' + desc + '">'
       + '<div style="font-size:20px;text-align:center;margin-bottom:4px;' + (unlocked ? '' : 'opacity:.4') + '">' + (a.icon || '🏆') + '</div>'
       + '<div style="font-size:8px;font-weight:700;color:' + (unlocked ? catColor : 'var(--tx3)') + ';text-align:center;line-height:1.3;margin-bottom:2px">' + name + '</div>'
       + '<div style="font-size:7px;color:' + rarityColor + ';text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">' + (a.rarity || 'common') + '</div>'
@@ -35846,6 +36041,119 @@ function renderAchievementCards() {
   summary.style.cssText = 'grid-column:1/-1;text-align:center;font-size:9px;color:var(--tx3);padding:4px 0;border-top:1px solid var(--bdr);margin-top:4px';
   summary.textContent = totalUnlocked + ' / ' + totalAch + ' unlocked';
   grid.appendChild(summary);
+}
+
+// 업적 상세 모달 — 카드 클릭 시 달성 조건/보상/상태 표시
+function _achConditionLabel(condType, condValue) {
+  var v = condValue || 0;
+  var lang = (typeof uiLang !== 'undefined' ? uiLang : 'en') || 'en';
+  // 한국어/영어 라벨
+  var KO = {
+    claim_count:    v + '회 영토 클레임',
+    pixel_count:    v + ' 픽셀 보유',
+    battle_wins:    v + '회 전투 승리',
+    battle_count:   v + '회 전투 참여',
+    fleet_battles:  v + '회 함대전 참여',
+    fleet_wins:     v + '회 함대전 승리',
+    hijack_wins:    v + '회 하이잭 성공',
+    ship_built:     v + '척 함선 건조',
+    gp_spent:       v + ' GP 누적 사용',
+    gp_earned:      v + ' GP 누적 획득',
+    pp_earned:      v + ' PP 누적 획득',
+    sectors_owned:  v + '개 섹터 소유',
+    guild_join:     '길드 가입',
+    guild_leader:   '길드 리더',
+    referrals:      v + '명 추천 가입',
+    daily_streak:   v + '일 연속 일일 미션',
+    market_buy:     v + '회 마켓 구매',
+    market_sell:    v + '회 마켓 판매',
+    items_used:     v + '회 아이템 사용',
+    capsule_made:   v + '회 타임캡슐 작성',
+    sponsor_count:  v + '회 영토 스폰서',
+    siege_wins:     v + '회 공성 승리',
+    rocket_drops:   v + '회 로켓드롭 참여',
+    enhance_count:  v + '회 강화 성공',
+    auction_wins:   v + '회 경매 낙찰',
+    duel_wins:      v + '회 결투 승리',
+    crafting_done:  v + '회 제작 완료',
+    governance_vote: v + '회 거버넌스 투표',
+    season_top:     '시즌 상위',
+  };
+  var EN = {
+    claim_count:    'Claim ' + v + ' territories',
+    pixel_count:    'Hold ' + v + ' pixels',
+    battle_wins:    'Win ' + v + ' battles',
+    battle_count:   'Participate in ' + v + ' battles',
+    fleet_battles:  'Participate in ' + v + ' fleet battles',
+    fleet_wins:     'Win ' + v + ' fleet battles',
+    hijack_wins:    'Successful hijacks: ' + v,
+    ship_built:     'Build ' + v + ' ships',
+    gp_spent:       'Spend ' + v + ' GP cumulative',
+    gp_earned:      'Earn ' + v + ' GP cumulative',
+    pp_earned:      'Earn ' + v + ' PP cumulative',
+    sectors_owned:  'Own ' + v + ' sectors',
+    guild_join:     'Join a guild',
+    guild_leader:   'Become guild leader',
+    referrals:      'Refer ' + v + ' players',
+    daily_streak:   v + '-day daily mission streak',
+    market_buy:     v + ' marketplace purchases',
+    market_sell:    v + ' marketplace sales',
+    items_used:     'Use ' + v + ' items',
+    capsule_made:   'Create ' + v + ' time capsules',
+    sponsor_count:  'Sponsor ' + v + ' territories',
+    siege_wins:     'Win ' + v + ' sieges',
+    rocket_drops:   'Participate in ' + v + ' rocket drops',
+    enhance_count:  v + ' successful enhancements',
+    auction_wins:   v + ' auction wins',
+    duel_wins:      'Win ' + v + ' duels',
+    crafting_done:  v + ' crafts completed',
+    governance_vote: v + ' governance votes',
+    season_top:     'Season top placement',
+  };
+  var dict = (lang === 'ko') ? KO : EN;
+  return dict[condType] || (condType + ' >= ' + v);
+}
+
+function showAchievementDetail(key) {
+  var a = _achievements.find(function(x){ return x.key === key; });
+  if (!a) return;
+  var lang = (typeof uiLang !== 'undefined' ? uiLang : 'en') || 'en';
+  var name = a['name_' + lang] || a.name_en || a.key;
+  var desc = a['desc_' + lang] || a.desc_en || '';
+  var unlocked = !!a.unlocked;
+  var rarityColor = ACH_RARITY_COLOR[a.rarity] || ACH_RARITY_COLOR.common;
+  var unlockedDate = unlocked && a.unlocked_at ? new Date(a.unlocked_at).toLocaleString() : '';
+  var condition = _achConditionLabel(a.condition_type, a.condition_value);
+  var labels = lang === 'ko'
+    ? { criteria:'달성 조건', reward:'보상', status:'상태', unlocked:'달성됨', locked:'미달성', closeBtn:'닫기', date:'달성일' }
+    : { criteria:'Criteria', reward:'Reward', status:'Status', unlocked:'Unlocked', locked:'Locked', closeBtn:'Close', date:'Date' };
+
+  // 기존 모달 있으면 먼저 정리
+  var prev = document.getElementById('achDetailModal');
+  if (prev) prev.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'achDetailModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);font-family:var(--fn)';
+  modal.onclick = function(e){ if (e.target === modal) modal.remove(); };
+
+  var card = '<div style="background:linear-gradient(180deg,#181820,#0e0e16);border:1px solid '+rarityColor+';border-radius:12px;padding:20px;max-width:380px;width:100%;box-shadow:0 8px 50px '+rarityColor+'aa">'
+    + '<div style="text-align:center;margin-bottom:14px">'
+    + '<div style="font-size:48px;line-height:1;margin-bottom:6px;'+(unlocked?'':'opacity:.4')+'">' + (a.icon || '🏆') + '</div>'
+    + '<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:3px">' + escapeHtmlSafe(name) + '</div>'
+    + '<div style="font-size:9px;color:'+rarityColor+';text-transform:uppercase;letter-spacing:2px">' + (a.rarity || 'common') + '</div>'
+    + '</div>'
+    + (desc ? '<div style="font-size:11px;color:var(--tx2);line-height:1.6;text-align:center;padding:8px 4px;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:12px">' + escapeHtmlSafe(desc) + '</div>' : '')
+    + '<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:10px;margin-bottom:14px">'
+    + '<div style="color:var(--tx3)">'+labels.criteria+'</div><div style="color:#ffd166;font-weight:600">' + escapeHtmlSafe(condition) + '</div>'
+    + (a.reward_gp > 0 ? '<div style="color:var(--tx3)">'+labels.reward+'</div><div style="color:var(--gold);font-weight:600">+' + Math.round(a.reward_gp) + ' GP</div>' : '')
+    + '<div style="color:var(--tx3)">'+labels.status+'</div><div style="color:'+(unlocked?'#7cd7a4':'#ff6b6b')+';font-weight:600">' + (unlocked ? '✅ '+labels.unlocked : '🔒 '+labels.locked) + '</div>'
+    + (unlocked && unlockedDate ? '<div style="color:var(--tx3)">'+labels.date+'</div><div style="color:var(--tx2)">' + escapeHtmlSafe(unlockedDate) + '</div>' : '')
+    + '</div>'
+    + '<button onclick="document.getElementById(\'achDetailModal\').remove()" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer">' + labels.closeBtn + '</button>'
+    + '</div>';
+  modal.innerHTML = card;
+  document.body.appendChild(modal);
 }
 
 
