@@ -1,5 +1,46 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-01 — SW mars-v5 캐시 버전 업 + 파벌 대사 풀 65개 + 함대전 hook
+
+사용자 보고:
+1) "옛날 이미지 계속 보임" — Service Worker 가 image cache-first 정책으로 이전 PNG 영구 보관
+2) "대사 엄청 많아야 함, 함대전에도 있어야"
+
+수정:
+- sw.js: CACHE_NAME 'mars-v4' → 'mars-v5' 버전 업.
+  SW activate 이벤트가 옛 캐시 일괄 삭제 → 신규 Imagen 4 Ultra 480장 PNG 강제 fresh fetch.
+- index.html 이미지 URL 쿼리 파라미터 ?v=20260501c → ?v=20260501d (sw 동기).
+- FACTION_FLAVOR 풀 대폭 확장 (총 65 라인):
+  - claim_new: 4 → 16 (MCC/FSP/CV/neutral)
+  - claim_executing: 3 → 15
+  - hijack_start: 4 → 18
+  - 신규 fleet_battle_engage: 16 (함대전 진입)
+- 등장인물 확장: Chen Weiss / Li Fang / Director Osei (MCC), Mikhail / Lena / Hagar / Yuna /
+  Olu Adeyemi (FSP), Butcher / Aisha / Cinder Grace / Crow (CV),
+  Mission Control / AI Scout / Fleet Command / Tactical AI / Battle Bridge (neutral)
+- 함대전 hook: hijack 후 openBattleViewer 진입 직전 fleet_battle_engage 대사 await.
+  setTimeout 1500ms → 2400ms 로 늘려 2.2s 대사 표시 시간 확보.
+
+## 2026-05-01 — UI 검수 + 누락 버튼 구현 + 업적 모달 + 슬로대 파벌 대사 + 캐시 부스트
+
+사용자 검수 보고:
+1) 함선 건조 안됨 (별도 commit 8291b9a)
+2) 모든 버튼 동작 검수
+3) 업적 달성 조건 안 보임 → 모달
+4) 미구현 stub 대신 실제 구현
+5) 영토/하이잭 시 캐릭터 대사 (슬로대 스타일)
+6) 모바일 옛날 이미지
+
+수정:
+- 851개 onclick 핸들러 자동 검사 → 누락 3개 식별·실구현:
+  - openMineralsPanel: /api/resources/my 모달
+  - openShipRegistry: /api/ships/my 모달 (HP/상태)
+  - openWorldEventDetail: /api/world-events/:id 모달
+- 업적 카드 클릭 → showAchievementDetail() 모달:
+  달성 조건 (한/영, condition_type 27종 라벨), 보상 GP, 상태, 달성일시.
+- showFactionFlavor() — 슬로대 풍 사전 대사 시스템 (claim_new/claim_executing/hijack_start)
+- /assets/campaign/backgrounds/<id>.png?v=20260501c 캐시 부스트.
+
 ## 2026-05-01 — Ship build transaction silent rollback fix
 
 사용자 리포트: "재료가 있는데도 함선 건조가 실패함".

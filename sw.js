@@ -1,7 +1,8 @@
 // Bump CACHE_NAME on every UI/CSS-affecting deploy so old caches (with stale
 // index.html) are wiped on next visit via the 'activate' event.
-// 2026-04-25 v4: 모바일 사이드바 z-index/태블릿 breakpoint, 토스트 통합, 하이젝 미리보기
-const CACHE_NAME = 'mars-v4';
+// 2026-04-25 v4: 모바일 사이드바 z-index/태블릿 breakpoint, 토스트 통합, 하이잭 미리보기
+// 2026-05-01 v5: 캠페인 480장 Imagen 4 Ultra 신규 PNG — 옛 image cache 무효화 필수
+const CACHE_NAME = 'mars-v5';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
