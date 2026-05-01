@@ -3549,8 +3549,8 @@ async function complete(wallet, sessionId) {
     const updated = await client.query(
       `UPDATE player_campaign_progress SET
          status = $1,
-         completed_at = CASE WHEN $1 = 'completed' THEN NOW() ELSE completed_at END,
-         failed_at = CASE WHEN $1 = 'failed' THEN NOW() ELSE failed_at END,
+         completed_at = CASE WHEN $8 = 'completed' THEN NOW() ELSE completed_at END,
+         failed_at = CASE WHEN $8 = 'failed' THEN NOW() ELSE failed_at END,
          oxygen_recovery_pct = $2,
          environmental_phase_reached = $3,
          metrics_payload = $4,
@@ -3572,6 +3572,7 @@ async function complete(wallet, sessionId) {
         JSON.stringify({ success: sim.success, failureReason: sim.failureReason, secondaryCompleted: sim.metrics.secondary_completed || [] }),
         JSON.stringify(rewards),
         progress.id,
+        status,
       ]
     );
     await client.query(

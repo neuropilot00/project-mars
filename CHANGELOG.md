@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Campaign complete internal error fix (v5.42)
+
+- **캠페인 완료 Internal error 수정**: `player_campaign_progress` 완료 UPDATE에서 `$1` 파라미터가 `status` 대입과 `CASE WHEN` 비교에 동시에 쓰이며 운영 PostgreSQL에서 타입 추론 충돌이 발생하던 문제 수정.
+- **완료 단계 검증**: 운영 DB 합성 지갑으로 `mcc_prologue` 시작 → 완료 → `mcc_campaign_ch1` unlock까지 확인하고 합성 데이터 삭제.
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- 운영 DB 합성 플로우 `complete ok true completed mcc_campaign_ch1` 확인
+
 ## 2026-05-02 — Backend phantom schema audit + client guard fixes (v5.41)
 
 - **업적 unlock 오류 수정**: `user_achievements` 실제 운영 스키마에는 `id` 컬럼이 없어서 `RETURNING id`가 실패하던 경로를 `RETURNING achievement_key`로 변경.

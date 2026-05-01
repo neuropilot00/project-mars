@@ -1,4 +1,18 @@
-# OCCUPY MARS — Codebase Audit (v5.41 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.42 / 2026-05-02)
+
+## ✅ v5.42 Campaign complete internal error — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 캠페인 완료 Internal error | ✅ | `player_campaign_progress` 완료 UPDATE에서 `$1` 파라미터를 `status` 대입과 `CASE WHEN` 비교에 동시에 사용해 운영 PostgreSQL이 `inconsistent types deduced for parameter $1`로 실패. |
+| 완료 SQL 타입 충돌 제거 | ✅ | `CASE WHEN` 비교용 파라미터를 별도 `$8`로 분리해 `status` 컬럼 대입 타입 추론과 분리. |
+| 실제 캠페인 플로우 검증 | ✅ | 운영 DB 합성 지갑으로 `mcc_prologue` 시작 → 완료 → `mcc_campaign_ch1` unlock 확인 후 합성 데이터 삭제. |
+
+검증:
+- `node --check server/services/campaign.js` 통과
+- 운영 DB 합성 플로우: `complete ok true completed mcc_campaign_ch1`
+
+---
 
 ## ✅ v5.41 Backend phantom schema + client guard audit — 수정 완료
 
