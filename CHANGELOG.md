@@ -1,5 +1,15 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Shipyard build button GP summary fix (v5.40)
+
+- **조선소 건조 버튼 비활성화 수정**: `/api/ships/summary`가 `gp_balance`를 반환하지 않아 프론트가 GP를 항상 0으로 판단하던 문제 수정.
+- **함대 없는 유저 지원**: summary 쿼리를 `fleets` 기준에서 `users` 기준 LEFT JOIN으로 바꿔, 아직 함대가 없어도 GP/큐 요약을 정상 반환.
+
+검증:
+- `node --check server/services/ship.js` 통과
+- 운영 DB `ship_build_jobs`/`ship_build_log` 0건 확인 → 건조 시작 요청 자체가 UI에서 막히던 증상과 일치
+- 운영 DB `BEGIN/ROLLBACK` 건조 INSERT 드라이런 통과
+
 ## 2026-05-02 — Campaign asset hard cache refresh (v5.39)
 
 - `sw.js`: `CACHE_NAME`을 `mars-v8`로 갱신. `/assets/campaign/*`는 `fetch(new Request(..., { cache: 'reload' }))`로 HTTP 캐시까지 우회해 같은 파일명 이미지 교체가 바로 반영되도록 강화.

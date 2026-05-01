@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.39 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.40 / 2026-05-02)
+
+## ✅ v5.40 Shipyard build button GP summary — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 조선소 건조 버튼 비활성화 | ✅ | 프론트가 `summary.gp_balance`를 기준으로 GP 부족 여부를 판단하지만 `/api/ships/summary`가 해당 필드를 반환하지 않아 모든 유료 함선이 GP 0으로 판정됨. |
+| summary 쿼리 기준 | ✅ | `fleets` 기준 집계에서 `users` 기준 LEFT JOIN으로 변경. 함대가 아직 없는 유저도 `gp_balance`, 함대 수, 건조 큐 수를 정상 수신. |
+| DB 건조 스키마 | ✅ | 운영 DB `BEGIN/ROLLBACK` 드라이런에서 `ship_build_jobs`/`ship_build_log` INSERT 통과. |
+
+검증:
+- `node --check server/services/ship.js` 통과
+- 운영 DB `ship_build_jobs`, `ship_build_log` 기존 0건 확인
+- 운영 DB 드라이런 ROLLBACK 확인
+
+---
 
 ## ✅ v5.39 Campaign asset hard cache refresh — 수정 완료
 

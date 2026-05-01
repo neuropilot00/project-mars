@@ -661,19 +661,23 @@ async function getOrCreateDefaultFleet(client, walletAddress) {
 async function getFleetSummary(walletAddress) {
   const { rows } = await pool.query(`
     SELECT 
+      COALESCE(u.gp_balance, 0) AS gp_balance,
       COUNT(DISTINCT f.id) AS fleet_count,
       COUNT(s.id) FILTER (WHERE s.is_alive) AS ships_alive,
       COUNT(s.id) FILTER (WHERE s.is_alive AND st.is_capital) AS capital_ships,
       COALESCE(SUM(s.current_hp) FILTER (WHERE s.is_alive), 0) AS total_hp,
       (SELECT COUNT(*) FROM ship_build_jobs 
        WHERE wallet_address = $1 AND status = 'building') AS jobs_in_progress
-    FROM fleets f
+    FROM users u
+    LEFT JOIN fleets f ON f.owner_wallet = u.wallet_address
     LEFT JOIN ships s ON s.fleet_id = f.id
     LEFT JOIN ship_types st ON st.code = s.ship_type_code
-    WHERE f.owner_wallet = $1
+    WHERE u.wallet_address = $1
+    GROUP BY u.gp_balance
   `, [walletAddress]);
   
   return rows[0] || { 
+    gp_balance: 0,
     fleet_count: 0, ships_alive: 0, capital_ships: 0, 
     total_hp: 0, jobs_in_progress: 0 
   };

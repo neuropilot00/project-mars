@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-02 v5.39 (Campaign asset cache hard refresh: SW mars-v8 + `cache: reload` + URL v20260502b) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-02 v5.40 (Shipyard build button GP summary fix + Campaign asset cache hard refresh) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
