@@ -2,6 +2,17 @@
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-05-01 기준)
 
+### v5.37 UI 검수 + 캐시 무효화 + 파벌 대사 시스템 — 완료
+
+| 라인 | 상태 | 수정 |
+|------|------|------|
+| 851 onclick 핸들러 검수 | ✅ | 자동 스캔 522 unique 함수, 미정의 3건 → 모두 실구현. |
+| 업적 달성 조건 모달 | ✅ | showAchievementDetail() — condition_type 27종 한/영 라벨, 보상, 상태, 일시. |
+| 슬로대 스타일 파벌 대사 | ✅ | showFactionFlavor() — 4 situation × 65 라인. MCC/FSP/CV 캐릭터 12명. claim/hijack/함대전 hook. |
+| 모바일 옛 이미지 캐시 | ✅ | sw.js CACHE_NAME mars-v4 → mars-v5. activate 시 옛 image cache 일괄 삭제. URL ?v=20260501d 동기. |
+
+---
+
 ### v5.37 Ship build transaction silent rollback — 수정 완료
 
 | 라인 | 상태 | 수정 |
