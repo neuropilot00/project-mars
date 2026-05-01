@@ -27,3 +27,4 @@ uploads/
 logs/
 server/backups/
 bug-reports/
+scripts/__pycache__/
