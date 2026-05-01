@@ -2,7 +2,8 @@
 // index.html) are wiped on next visit via the 'activate' event.
 // 2026-04-25 v4: 모바일 사이드바 z-index/태블릿 breakpoint, 토스트 통합, 하이잭 미리보기
 // 2026-05-01 v5: 캠페인 480장 Imagen 4 Ultra 신규 PNG — 옛 image cache 무효화 필수
-const CACHE_NAME = 'mars-v5';
+// 2026-05-02 v6: 캠페인 배경 184장 Codex gpt-image-1 전면 재생성 (gritty cinematic sci-fi, 9:16/1:1 portrait)
+const CACHE_NAME = 'mars-v6';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

@@ -1,3 +1,18 @@
+# OCCUPY MARS — Codebase Audit (v5.38 / 2026-05-02)
+
+## ✅ v5.38 캠페인 배경 184장 Codex 전면 재생성 — 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 77장 scene-level 9:16 portrait | ✅ | 전체 portrait(height>width), 0 DIMENSION_FAIL |
+| 107장 overlay 1:1 square | ✅ | 전체 square(width≈height), 0 DIMENSION_FAIL |
+| style: gritty cinematic sci-fi | ✅ | green CRT 키워드 제거. cargo_ship_interior/mcc_briefing_room 2곳만 유지 |
+| _bgMap 정리 | ✅ | 자체 파일 생긴 항목 제거, 폴백 4개 유지 |
+| SW cache-bust mars-v6 | ✅ | 옛 이미지 캐시 전체 무효화 |
+| URL ?v=20260502a | ✅ | sw 동기 |
+
+---
+
 # OCCUPY MARS — Codebase Audit (v5.37 / 2026-05-01)
 
 ## ✅ 현재 코드베이스 상태 요약 (2026-05-01 기준)

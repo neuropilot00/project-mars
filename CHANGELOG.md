@@ -1,5 +1,23 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — SW mars-v6 캐시 버전 업 + 캠페인 배경 184장 Codex gpt-image-1 전면 재생성
+
+변경:
+- `assets/campaign/backgrounds/` 184장 PNG 전면 교체:
+  - 77장 scene-level (9:16 portrait, ~2200–2800KB): gritty cinematic sci-fi concept art 스타일.
+  - 107장 overlay closeup (1:1 square, ~1800–3000KB): 동일 스타일, 1:1 square.
+  - 생성 도구: Codex gpt-image-1 (`codex exec`), 0 DIMENSION_FAIL.
+  - style lock: "gritty cinematic sci-fi concept art, dense mechanical detail, rusty worn metal,
+    warm orange rim lighting, dark shadows, high-detail painterly realism, dramatic framing,
+    worn industrial spaceship atmosphere" — green CRT 키워드 제거 (cargo_ship_interior, mcc_briefing_room 2곳만 유지).
+- `sw.js`: CACHE_NAME 'mars-v5' → 'mars-v6' — 옛 이미지 캐시 전체 무효화.
+- `index.html`:
+  - 이미지 URL `?v=20260501d` → `?v=20260502a`.
+  - `_bgMap` 정리: 직접 파일 생긴 4개 항목 제거 (cargo_ship_interior, hellas_mining_outpost,
+    kepler_crater, kepler_crater_dusk, mine_interior).
+  - 폴백 유지: hellas_central_underground, hellas_outer_relay_interior, erebus_base_medical,
+    hellas_various_night.
+
 ## 2026-05-01 — SW mars-v5 캐시 버전 업 + 파벌 대사 풀 65개 + 함대전 hook
 
 사용자 보고:

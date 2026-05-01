@@ -24948,21 +24948,14 @@ function _campaignStorySetBackground(scene,overlay,lineBg){
   // 배경 ID → 파일명 매핑. 전용 에셋이 생긴 ID는 직접 참조,
   // 아직 파일이 없거나 별칭이 필요한 ID만 폴백을 유지한다.
   var _bgMap={
-    // 기존 ID → 신규 전용 파일로 업그레이드
-    'hellas_mining_outpost':'hellas_central_exterior',
-    // 전용 파일이 생겼으나 scene JSON에 구버전 ID 남아있을 수 있는 경우 동일 파일로 연결
-    'cargo_ship_interior':'kariope_cargo_bay',
-    // 아직 전용 에셋 없는 것만 폴백 유지
+    // 전용 에셋 없는 ID만 폴백 유지 (184장 Codex 배치 이후 직접 파일 생긴 항목은 제거)
     'hellas_central_underground':'mcc_briefing_room',
-    'mine_interior':'mine_shaft',
     'hellas_outer_relay_interior':'hellas_outer_relay',
     'erebus_base_medical':'erebus_base_interior',
-    'hellas_various_night':'hellas_labor_district_night',
-    'kepler_crater':'kepler_crater_dawn',
-    'kepler_crater_dusk':'kepler_crater_edge_dusk'
+    'hellas_various_night':'hellas_labor_district_night'
   };
   var bgId=_bgMap[bgChoice]||bgChoice;
-  var src='/assets/campaign/backgrounds/'+bgId+'.png?v=20260501d';  // cache-bust: Imagen 4 Ultra cinematic batch (sw mars-v5)
+  var src='/assets/campaign/backgrounds/'+bgId+'.png?v=20260502a';  // cache-bust: Codex gpt-image-1 184장 재생성 (sw mars-v6)
   var img=new Image();
   img.onload=function(){bg.style.backgroundImage='url("'+src+'")';};
   img.onerror=function(){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';};
