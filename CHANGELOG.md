@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Campaign asset hard cache refresh (v5.39)
+
+- `sw.js`: `CACHE_NAME`을 `mars-v8`로 갱신. `/assets/campaign/*`는 `fetch(new Request(..., { cache: 'reload' }))`로 HTTP 캐시까지 우회해 같은 파일명 이미지 교체가 바로 반영되도록 강화.
+- `index.html`: 캠페인 배경/캐릭터/closeup 배경 URL을 `campaignAssetUrl()`로 통합하고 `?v=20260502b`를 적용.
+- `package.json`: 버전 `5.39.0`으로 갱신.
+
+검증:
+- inline script syntax check 통과
+- `node --check sw.js` 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — SW mars-v6 캐시 버전 업 + 캠페인 배경 184장 Codex gpt-image-1 전면 재생성
 
 변경:

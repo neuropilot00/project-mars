@@ -4,7 +4,8 @@
 // 2026-05-01 v5: 캠페인 480장 Imagen 4 Ultra 신규 PNG — 옛 image cache 무효화 필수
 // 2026-05-02 v6: 캠페인 배경 184장 Codex gpt-image-1 전면 재생성 (gritty cinematic sci-fi, 9:16/1:1 portrait)
 // 2026-05-02 v7: campaign backgrounds → network-first (cache-first로 구 이미지 고착 문제 해소)
-const CACHE_NAME = 'mars-v7';
+// 2026-05-02 v8: campaign asset fetch uses cache:reload to bypass HTTP cache too.
+const CACHE_NAME = 'mars-v8';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
@@ -82,10 +83,10 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Network-first for campaign backgrounds (AI 재생성으로 자주 교체됨 — cache-first 금지)
+  // Network-first for campaign assets (AI 재생성으로 자주 교체됨 — cache-first 금지)
   if (url.pathname.startsWith('/assets/campaign/')) {
     e.respondWith(
-      fetch(e.request)
+      fetch(new Request(e.request, { cache: 'reload' }))
         .then((res) => {
           if (res && res.ok) {
             const clone = res.clone();

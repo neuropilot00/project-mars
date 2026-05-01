@@ -24936,6 +24936,11 @@ async function abandonCampaignFromStory(){
   try{ loadCampaignStatus(); }catch(_){}
 }
 
+var CAMPAIGN_ASSET_VERSION='20260502b';
+function campaignAssetUrl(path){
+  return path+(path.indexOf('?')>=0?'&':'?')+'v='+CAMPAIGN_ASSET_VERSION;
+}
+
 function _campaignStorySetBackground(scene,overlay,lineBg){
   // line.background 가 있으면 라인 전용 배경(전용 dedicated 씬 배경)으로 swap, 없으면 scene.background.
   // 에셋이 없거나 로드 실패하면 화성풍 그라디언트 폴백.
@@ -24957,7 +24962,7 @@ function _campaignStorySetBackground(scene,overlay,lineBg){
     'new_athens_shipyard_launch':'new_athens_shipyard_dawn'
   };
   var bgId=_bgMap[bgChoice]||bgChoice;
-  var src='/assets/campaign/backgrounds/'+bgId+'.png?v=20260502a';  // cache-bust: Codex gpt-image-1 184장 재생성 (sw mars-v6)
+  var src=campaignAssetUrl('/assets/campaign/backgrounds/'+bgId+'.png');
   var img=new Image();
   img.onload=function(){bg.style.backgroundImage='url("'+src+'")';};
   img.onerror=function(){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';};
@@ -24991,7 +24996,7 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
       'player':'player_silhouette','observer':'player_silhouette',
       'rev_hale':'hale','young_butcher':'butcher','crow':'kara_vex'
     };
-    el.src='/assets/campaign/characters/'+(_portraitMap[id]||id)+'.png';
+    el.src=campaignAssetUrl('/assets/campaign/characters/'+(_portraitMap[id]||id)+'.png');
     el.style.display='block';
   });
 }
@@ -25004,7 +25009,7 @@ function _showStoryDetailOverlay(overlayName){
   if(!el) return;
   el.classList.remove('visible');
   if(!overlayName) return;
-  var src = '/assets/campaign/backgrounds/' + overlayName + '.png?v=20260502a';
+  var src = campaignAssetUrl('/assets/campaign/backgrounds/' + overlayName + '.png');
   if(el.getAttribute('data-src') === src && el.complete && el.naturalWidth > 0){
     el.classList.add('visible');
     return;

@@ -1,4 +1,19 @@
-# OCCUPY MARS — Codebase Audit (v5.38 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.39 / 2026-05-02)
+
+## ✅ v5.39 Campaign asset hard cache refresh — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| SW 캐시 버전 | ✅ | `mars-v8`. 기존 `mars-v7` 이하 캐시 activate 단계에서 삭제. |
+| HTTP 캐시 우회 | ✅ | `/assets/campaign/*` fetch를 `cache: reload`로 변경해 Service Worker Cache Storage뿐 아니라 브라우저 HTTP 캐시 고착도 회피. |
+| URL 버전 통합 | ✅ | 배경/캐릭터/closeup 배경 URL을 `campaignAssetUrl()` + `?v=20260502b`로 통합. |
+
+검증:
+- inline script syntax check 통과
+- `node --check sw.js` 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.38 캠페인 배경 184장 Codex 전면 재생성 — 완료
 
