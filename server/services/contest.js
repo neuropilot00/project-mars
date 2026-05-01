@@ -37,7 +37,7 @@ async function getEntries(contestId, wallet) {
          WHERE v2.contest_id=e.contest_id AND v2.voter=$2
        ) AS i_voted_in_contest
      FROM art_entries e
-     LEFT JOIN user_profiles up ON up.wallet = e.wallet
+     LEFT JOIN users up ON up.wallet_address = e.wallet
      WHERE e.contest_id=$1 AND e.is_disqualified=false
      ORDER BY e.vote_count DESC, e.created_at ASC`,
     [contestId, wallet ? wallet.toLowerCase() : null]

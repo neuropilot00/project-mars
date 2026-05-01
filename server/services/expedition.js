@@ -91,7 +91,7 @@ async function resolveExpeditions() {
   const { rows: ready } = await pool.query(
     `SELECT e.*, up.nickname
      FROM expeditions e
-     LEFT JOIN user_profiles up ON up.wallet = e.wallet
+     LEFT JOIN users up ON up.wallet_address = e.wallet
      WHERE e.status='active' AND e.returns_at <= NOW()
      LIMIT 50`);
 
@@ -244,7 +244,7 @@ async function getAdminStats() {
     pool.query(
       `SELECT e.*, up.nickname, c.name AS claim_name
        FROM expeditions e
-       LEFT JOIN user_profiles up ON up.wallet = e.wallet
+       LEFT JOIN users up ON up.wallet_address = e.wallet
        LEFT JOIN claims c ON c.id = e.claim_id
        ORDER BY e.launched_at DESC LIMIT 30`),
     pool.query(`SELECT key, value FROM game_settings WHERE category='expedition' ORDER BY key`)

@@ -28761,8 +28761,9 @@ function loadCrashHistory() {
   fetch(ARENA_API + '/crash/history').then(function(r){ return r.json(); }).then(function(d){
     var el = document.getElementById('crashHistory');
     if (!el) return;
+    if (!Array.isArray(d)) d = [];
     el.innerHTML = d.map(function(h){
-      var cp = h.crashPoint;
+      var cp = Number(h && h.crashPoint) || 1;
       var cls = cp < 1.5 ? 'low' : cp < 3 ? 'mid' : cp < 10 ? 'high' : 'mega';
       return '<div class="ch-pill ' + cls + '">' + cp.toFixed(2) + 'x</div>';
     }).join('');
@@ -29711,7 +29712,8 @@ window.addEventListener('resize', _debounce(function(){
   // Animate weather/POI/starlink overlay texture (throttled — mobile much slower)
   var _compositeInterval = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 30000 : 8000;
   setInterval(function() {
-    if (_weatherData.length > 0 || _poiData.length > 0 || _starlinkData.passes.length > 0) compositeClaimsOnTexture();
+    var passes = (_starlinkData && Array.isArray(_starlinkData.passes)) ? _starlinkData.passes : [];
+    if (_weatherData.length > 0 || _poiData.length > 0 || passes.length > 0) compositeClaimsOnTexture();
   }, _compositeInterval);
 
   // ═══════ EXPLORATION POLLING ═══════
@@ -29740,7 +29742,11 @@ window.addEventListener('resize', _debounce(function(){
   window.loadExplorationData = loadExplorationData;
   function loadStarlinkData() {
     fetch('/api/exploration/starlink').then(function(r){return r.json()}).then(function(data){
-      _starlinkData = data;
+      _starlinkData = {
+        satellites: Array.isArray(data && data.satellites) ? data.satellites : [],
+        passes: Array.isArray(data && data.passes) ? data.passes : [],
+        serverTime: data && data.serverTime
+      };
       _updateStarlinkPositions();
     }).catch(function(){});
   }

@@ -97,7 +97,7 @@ async function unlockAchievement(wallet, key, rewardGp) {
       `INSERT INTO user_achievements (wallet, achievement_key)
        VALUES ($1, $2)
        ON CONFLICT (wallet, achievement_key) DO NOTHING
-       RETURNING id`,
+       RETURNING achievement_key`,
       [w, key]
     );
     if (!ins.rows.length) { await client.query('ROLLBACK'); return false; } // already unlocked

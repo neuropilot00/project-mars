@@ -1,5 +1,19 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Backend phantom schema audit + client guard fixes (v5.41)
+
+- **업적 unlock 오류 수정**: `user_achievements` 실제 운영 스키마에는 `id` 컬럼이 없어서 `RETURNING id`가 실패하던 경로를 `RETURNING achievement_key`로 변경.
+- **없는 `user_profiles` 참조 제거**: Contest/Expedition/Rental 서비스의 닉네임 JOIN을 실제 `users.wallet_address` 기준으로 변경.
+- **Rental 목록 오류 수정**: `claims.pixel_count` 없는 컬럼 참조를 `(width * height)` 계산식으로 변경.
+- **지도 합성 클라이언트 오류 방어**: Starlink 응답의 `passes` 배열을 정규화하고, 주기 합성 루프에서 `undefined.length`가 터지지 않도록 가드.
+- **Arena crash history 방어**: history 응답이 배열이 아니어도 모달 전체가 죽지 않도록 가드.
+
+검증:
+- `onclick` 849개 / 호출 함수 523개 자동 스캔, 실제 미정의 핸들러 0개
+- `node --check` 변경 서비스 4개 통과
+- `index.html` inline script syntax check 통과
+- 운영 DB 스키마 확인 및 `BEGIN/ROLLBACK` 쿼리 드라이런 통과
+
 ## 2026-05-02 — Shipyard build button GP summary fix (v5.40)
 
 - **조선소 건조 버튼 비활성화 수정**: `/api/ships/summary`가 `gp_balance`를 반환하지 않아 프론트가 GP를 항상 0으로 판단하던 문제 수정.

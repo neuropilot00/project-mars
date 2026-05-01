@@ -232,10 +232,10 @@ async function getActiveRental(claimId, tenantWallet) {
 
 // ── Queries ───────────────────────────────────────────────────────────────────
 async function getListings(filter = {}) {
-  let q = `SELECT r.*, c.pixel_count, cn.nickname AS owner_nick
+  let q = `SELECT r.*, (c.width * c.height) AS pixel_count, cn.nickname AS owner_nick
            FROM territory_rentals r
            LEFT JOIN claims c ON c.id = r.claim_id
-           LEFT JOIN user_profiles cn ON cn.wallet = r.owner
+           LEFT JOIN users cn ON cn.wallet_address = r.owner
            WHERE 1=1`;
   const params = [];
   if (filter.status) { params.push(filter.status); q += ` AND r.status=$${params.length}`; }
@@ -248,11 +248,11 @@ async function getListings(filter = {}) {
 async function getMyRentals(wallet) {
   const w = wallet.toLowerCase();
   const { rows } = await pool.query(
-    `SELECT r.*, c.pixel_count, cn.nickname AS owner_nick, tn.nickname AS tenant_nick
+    `SELECT r.*, (c.width * c.height) AS pixel_count, cn.nickname AS owner_nick, tn.nickname AS tenant_nick
      FROM territory_rentals r
      LEFT JOIN claims c ON c.id = r.claim_id
-     LEFT JOIN user_profiles cn ON cn.wallet = r.owner
-     LEFT JOIN user_profiles tn ON tn.wallet = r.tenant
+     LEFT JOIN users cn ON cn.wallet_address = r.owner
+     LEFT JOIN users tn ON tn.wallet_address = r.tenant
      WHERE r.owner=$1 OR r.tenant=$1
      ORDER BY r.created_at DESC LIMIT 50`,
     [w]
@@ -273,11 +273,11 @@ async function getAdminStats() {
        FROM rental_log`
     ),
     pool.query(
-      `SELECT r.*, c.pixel_count, cn.nickname AS owner_nick, tn.nickname AS tenant_nick
+      `SELECT r.*, (c.width * c.height) AS pixel_count, cn.nickname AS owner_nick, tn.nickname AS tenant_nick
        FROM territory_rentals r
        LEFT JOIN claims c ON c.id = r.claim_id
-       LEFT JOIN user_profiles cn ON cn.wallet = r.owner
-       LEFT JOIN user_profiles tn ON tn.wallet = r.tenant
+       LEFT JOIN users cn ON cn.wallet_address = r.owner
+       LEFT JOIN users tn ON tn.wallet_address = r.tenant
        ORDER BY r.created_at DESC LIMIT 50`
     ),
     pool.query(

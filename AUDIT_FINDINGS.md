@@ -1,4 +1,26 @@
-# OCCUPY MARS — Codebase Audit (v5.40 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.41 / 2026-05-02)
+
+## ✅ v5.41 Backend phantom schema + client guard audit — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| `user_achievements.id` phantom 반환 | ✅ | 실제 운영 DB `user_achievements`에는 `id`가 없으므로 업적 unlock INSERT가 `RETURNING id`에서 실패 가능. `RETURNING achievement_key`로 변경. |
+| `user_profiles` phantom table 참조 | ✅ | 운영 DB에는 `user_profiles` 테이블이 없음. Contest/Expedition/Rental 닉네임 JOIN을 `users(wallet_address)` 기준으로 변경. |
+| Rental `claims.pixel_count` phantom column | ✅ | 운영 DB `claims`에는 `pixel_count` 컬럼이 없음. `(claims.width * claims.height) AS pixel_count`로 계산. |
+| Starlink overlay `undefined.length` client error | ✅ | 최근 `client_errors`에서 확인된 `passes.length` 접근을 배열 정규화/가드 처리. |
+| Arena crash history 방어 | ✅ | `/api/arena/crash/history`가 배열이 아닌 응답을 주는 순간에도 UI가 터지지 않도록 배열 가드 추가. |
+| Inline onclick handler audit | ✅ | `onclick` 849개 / 호출 함수 523개 스캔. 실제 미정의 핸들러 0개. |
+
+검증:
+- `node --check server/services/achievements.js`
+- `node --check server/services/contest.js`
+- `node --check server/services/expedition.js`
+- `node --check server/services/rental.js`
+- `index.html` inline script syntax check 통과
+- 운영 DB 스키마 확인: `user_profiles` 없음, `user_achievements.id` 없음, `claims.pixel_count` 없음
+- 운영 DB `BEGIN/ROLLBACK` 드라이런: contest/expedition/rental SELECT, achievement INSERT `RETURNING achievement_key` 통과
+
+---
 
 ## ✅ v5.40 Shipyard build button GP summary — 수정 완료
 
