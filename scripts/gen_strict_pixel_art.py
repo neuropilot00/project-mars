@@ -15,14 +15,24 @@ ROOT = os.path.join(os.path.dirname(__file__), '..')
 OUT_DIR = os.path.join(ROOT, 'assets', 'campaign', 'backgrounds')
 client = genai.Client(vertexai=True, project=PROJECT, location=LOCATION)
 
-# ── STRICT 픽셀아트 STYLE (사실풍 차단) ──────────────────────────────────────
+# ── 사용자 reference 매칭 STYLE v3 ──────────────────────────────────────────
+# 핵심 시그니처: Disco Elysium 풍 hand-painted illustration + extreme atmospheric depth
+# + 강한 chiaroscuro (warm fire/lantern primary, deep cold shadow) + dense painterly detail.
+# "pixel art" 키워드는 retro 끌림이 강해서 살짝 줄이고 "painted illustration" 강화.
 PIXEL_STYLE_BASE = (
-    "STRICT 16-bit pixel art game CG, retro JRPG aesthetic in the style of "
-    "Octopath Traveler HD-2D / Stardew Valley / Owlboy / Chrono Trigger SNES, "
-    "chunky blocky pixels visible at 100% zoom, limited 32-color palette, "
-    "hard pixel edges with NO anti-aliasing, NO smooth gradients, "
-    "ABSOLUTELY NOT photorealistic, NOT cinematic 3D render, NOT matte painting, "
-    "NOT realistic concept art, pixel art ONLY, game sprite art aesthetic, "
+    "extremely densely detailed hand-painted illustration in the visual style of "
+    "Disco Elysium concept art / Octopath Traveler HD-2D promo art / Tactics Ogre Reborn key art / "
+    "Diablo 2 painted backgrounds — high-detail painterly digital painting with subtle pixel texture, "
+    "every surface individually painted with rich texture variation (rock walls, metal panels, "
+    "mechanical parts, fabric folds, fire flames, brick courses, dust on the ground), "
+    "DRAMATIC CHIAROSCURO LIGHTING — single warm primary light source (oil-barrel fire / lantern / "
+    "wall torch) casting strong amber glow, deep atmospheric crimson-black shadows enveloping the rest, "
+    "multiple smaller distant light sources receding into deep background depth, "
+    "warm amber-orange-red palette layered against rich crimson and dark sepia shadows, "
+    "9:16 vertical portrait composition with substantial ENVIRONMENTAL DEPTH "
+    "(deep tunnel / cavernous hall / distant horizon visible behind), "
+    "rendered as a high-quality video game key art / promotional illustration, "
+    "NOT photorealistic, NOT 3D CGI render, NOT chunky retro 16-bit, NOT matte painting cinematic photo, "
     "no text no logos no UI elements, no watermark"
 )
 
