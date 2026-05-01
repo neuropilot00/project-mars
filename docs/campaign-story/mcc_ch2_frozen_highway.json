@@ -36,7 +36,7 @@
     {
       "id": "s02",
       "type": "dialogue",
-      "background": "mcc_ch2_frozen_highway_mcc_briefing_room_v2",
+      "background": "mcc_briefing_room",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -130,7 +130,7 @@
     {
       "id": "s07",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_hellas_mine_exterior_v2",
+      "background": "hellas_mine_exterior",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -179,7 +179,7 @@
     {
       "id": "s09",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_hellas_mine_exterior_v2",
+      "background": "hellas_mine_exterior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -224,7 +224,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_interior_v2",
+      "background": "mine_interior",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -239,7 +239,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_interior_v3",
+      "background": "mine_interior",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -269,7 +269,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_interior_v2",
+      "background": "mine_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -284,7 +284,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "mcc_ch2_frozen_highway_mine_interior_v3",
+      "background": "mine_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -332,7 +332,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -347,7 +347,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_shaft_v3",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -362,7 +362,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_shaft_v4",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -405,14 +405,14 @@
             "ko": "세 명이요. 30대였어요. 한 명은 이달에 결혼할 예정이었어요.",
             "en": "Three people. In their thirties. One was supposed to get married this month."
           },
-          "background": "mcc_ch2_frozen_highway_l20_02_death_still"
+          "overlay": "mcc_ch2_frozen_highway_l20_02_death_still"
         }
       ]
     },
     {
       "id": "s22",
       "type": "dialogue",
-      "background": "mcc_ch2_frozen_highway_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -445,7 +445,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_shaft_v3",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -460,7 +460,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_shaft_v4",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -490,7 +490,7 @@
     {
       "id": "s26",
       "type": "dialogue",
-      "background": "mcc_ch2_frozen_highway_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -524,7 +524,7 @@
     {
       "id": "s27",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_shaft_v3",
+      "background": "mine_shaft",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -539,7 +539,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_shaft_v4",
+      "background": "mine_shaft",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -548,7 +548,7 @@
             "ko": "체크리스트가 손 안에 있었다. 항목 37개. 36개가 체크됐다. 마지막 항목. 사고 기록. 체크되지 않았다. 체크할 것이 없었다. 아니면 체크할 것이 너무 많았다.",
             "en": "The checklist was in hand. Thirty-seven items. Thirty-six checked. Last item. Accident records. Not checked. There was nothing to check. Or there was too much to check."
           },
-          "background": "mcc_ch2_frozen_highway_l27_00_sealed_file"
+          "overlay": "mcc_ch2_frozen_highway_l27_00_sealed_file"
         }
       ]
     },
@@ -636,7 +636,7 @@
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "mcc_ch2_frozen_highway_mine_interior_v2",
+      "background": "mine_interior",
       "bgm": "victory_calm",
       "transition": "fade_medium",
       "lines": [
@@ -678,7 +678,7 @@
     {
       "id": "s_success2",
       "type": "narration",
-      "background": "mcc_ch2_frozen_highway_mine_interior_v3",
+      "background": "mine_interior",
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
@@ -717,14 +717,14 @@
             "ko": "엘리베이터가 올라갔다. 지표의 빛이 돌아왔다. 핏빛이었다. 광산은 아래에 남았다. 광부들도 아래에 남았다. 노인도 아래에 남았다. 보고서는 손에 있었다. 손이 떨리지 않았다.",
             "en": "The elevator ascended. Surface light returned. Blood-red. The mine stayed below. The miners stayed below. The old man stayed below. The report was in hand. The hands didn't tremble."
           },
-          "background": "mcc_ch2_frozen_highway_l34_00_mars_horizon"
+          "overlay": "mcc_ch2_frozen_highway_l34_00_mars_horizon"
         }
       ]
     },
     {
       "id": "s30",
       "type": "dialogue",
-      "background": "mcc_ch2_frozen_highway_mcc_briefing_room_v2",
+      "background": "mcc_briefing_room",
       "bgm": "mcc_ambient",
       "transition": "fade_medium",
       "lines": [

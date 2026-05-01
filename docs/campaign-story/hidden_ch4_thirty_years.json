@@ -34,7 +34,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v2",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -49,7 +49,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v3",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -64,7 +64,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v4",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -94,7 +94,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v2",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -109,7 +109,7 @@
     {
       "id": "s07",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v3",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -124,7 +124,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v4",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -133,7 +133,7 @@
             "ko": "결국 Butcher가 내려갔다. 천천히. 분화구 벽을 따라. 막힌 입구 앞에 섰다. 손을 올렸다. 막힌 벽에. 손을 댔다. 의수가 아닌 손으로. 그것이 거기 있었던 것이었다. 막힌 벽 너머에. 30년 전에. 그것이 지금도 있었다.",
             "en": "Eventually Butcher descended. Slowly. Along the crater wall. Stood before the sealed entrance. Raised a hand. To the sealed wall. Touched it. With the hand that was not the prosthetic. It had been there. Beyond the sealed wall. Thirty years ago. It was still there now."
           },
-          "background": "hidden_ch4_thirty_years_l07_00_hand_still"
+          "overlay": "hidden_ch4_thirty_years_l07_00_hand_still"
         }
       ]
     },
@@ -155,7 +155,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v2",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -170,7 +170,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v3",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -185,7 +185,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v4",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -215,7 +215,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v2",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -230,7 +230,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_erebus_crater_exterior_v3",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -260,7 +260,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_ruins_v2",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -275,7 +275,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_ruins_v3",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -290,7 +290,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_ruins_v4",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -299,7 +299,7 @@
             "ko": "한 이름을 관찰자가 읽었다. Kim Yong-jin. 여기 있었다. 분필 이름들에도 있었던 이름. 그 이름이 여기 긁혀 있었다. 30년 전의 것이었다. 같은 이름. 다른 도구. 같은 절박함. Kim Yong-jin이 여기 있었다. 30년 전에. 그리고 이름을 남겼다.",
             "en": "The observer read one name. Kim Yong-jin. Here. A name also in the chalk names. That name was scratched here. Thirty years old. Same name. Different tool. Same desperation. Kim Yong-jin had been here. Thirty years ago. And had left a name."
           },
-          "background": "hidden_ch4_thirty_years_l18_00_candle_flame"
+          "overlay": "hidden_ch4_thirty_years_l18_00_candle_flame"
         }
       ]
     },
@@ -321,7 +321,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_ruins_v2",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -336,7 +336,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_ruins_v3",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -351,7 +351,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_ruins_v4",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -396,7 +396,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_deep_tunnel_v2",
+      "background": "hellas_zone4_deep_tunnel",
       "bgm": "hidden_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -426,7 +426,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_deep_tunnel_v2",
+      "background": "hellas_zone4_deep_tunnel",
       "bgm": "hidden_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -435,7 +435,7 @@
             "ko": "그것이 Ancient Metal이라는 것을 관찰자는 몰랐다. 그 이름을 몰랐다. 그러나 특별하다는 것은 알았다. 광부들이 이것을 발견했다. 파업을 했다. MCC가 봉쇄했다. 이름들이 벽에 남았다. 사람들이 죽었다. 모든 것이 이것 때문이었다. 이 다른 색 때문에.",
             "en": "The observer didn't know that it was Ancient Metal. Didn't know that name. But knew it was special. Miners had found this. Had struck. MCC had sealed it. Names had remained on walls. People had died. Everything had been because of this. Because of this different color."
           },
-          "background": "hidden_ch4_thirty_years_l27_00_ore_sample"
+          "overlay": "hidden_ch4_thirty_years_l27_00_ore_sample"
         }
       ]
     },
@@ -457,7 +457,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_deep_tunnel_v2",
+      "background": "hellas_zone4_deep_tunnel",
       "bgm": "hidden_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -472,7 +472,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_ruins_v2",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -487,7 +487,7 @@
     {
       "id": "s32",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_ruins_v3",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -502,7 +502,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_ruins_v4",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -562,7 +562,7 @@
     {
       "id": "s37",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_outside_dawn_v2",
+      "background": "hellas_zone4_outside_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -592,7 +592,7 @@
     {
       "id": "s39",
       "type": "narration",
-      "background": "hidden_ch4_thirty_years_hellas_zone4_outside_dawn_v2",
+      "background": "hellas_zone4_outside_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [

@@ -38,7 +38,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -88,7 +88,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -163,7 +163,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v3",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "fade_slow",
       "lines": [
@@ -178,7 +178,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v4",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -211,7 +211,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v5",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -267,7 +267,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -282,7 +282,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v3",
+      "background": "erebus_base_interior",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -315,7 +315,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v4",
+      "background": "erebus_base_interior",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -330,7 +330,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v5",
+      "background": "erebus_base_interior",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -394,7 +394,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -409,7 +409,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v3",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "fade_slow",
       "lines": [
@@ -424,7 +424,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v4",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -465,7 +465,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v5",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -529,7 +529,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -538,14 +538,14 @@
             "ko": "Reza가 생각했다. 오래. 눈을 감았다. 손이 묶이지 않았다. 그 손이 무릎 위에 있었다. 떨리지 않았다. 그것이 이 사람이 강한 방식이었다. 결정하는 방식.",
             "en": "Reza thought. For a long time. Eyes closed. Hands unbound. Those hands on the knees. Not trembling. That was how this person was strong. The way of deciding."
           },
-          "background": "cv_ch3_mine_king_l19_00_hand_still"
+          "overlay": "cv_ch3_mine_king_l19_00_hand_still"
         }
       ]
     },
     {
       "id": "s21",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v3",
+      "background": "erebus_base_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -578,7 +578,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v4",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -593,7 +593,7 @@
     {
       "id": "s23",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -641,7 +641,7 @@
     {
       "id": "s25",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v5",
+      "background": "erebus_base_interior",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -671,7 +671,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_sandstone_junction_v2",
+      "background": "sandstone_junction",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -712,7 +712,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "cv_ch3_mine_king_sandstone_junction_v3",
+      "background": "sandstone_junction",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -768,7 +768,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "cv_ch3_mine_king_sandstone_junction_v2",
+      "background": "sandstone_junction",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -783,7 +783,7 @@
     {
       "id": "s31",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_sandstone_junction_v3",
+      "background": "sandstone_junction",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -839,7 +839,7 @@
     {
       "id": "s33",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_sandstone_junction_v2",
+      "background": "sandstone_junction",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -872,7 +872,7 @@
     {
       "id": "s34",
       "type": "narration",
-      "background": "cv_ch3_mine_king_sandstone_junction_v3",
+      "background": "sandstone_junction",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -927,7 +927,7 @@
     {
       "id": "s37",
       "type": "dialogue",
-      "background": "cv_ch3_mine_king_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -983,7 +983,7 @@
     {
       "id": "s39",
       "type": "narration",
-      "background": "cv_ch3_mine_king_mine_interior_v2",
+      "background": "mine_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1031,7 +1031,7 @@
     {
       "id": "s41",
       "type": "narration",
-      "background": "cv_ch3_mine_king_mine_interior_v2",
+      "background": "mine_interior",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -1126,7 +1126,7 @@
     {
       "id": "s46",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
@@ -1141,7 +1141,7 @@
     {
       "id": "s47",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v3",
+      "background": "erebus_base_interior",
       "bgm": "defeat_ambient",
       "transition": "cut",
       "lines": [
@@ -1156,7 +1156,7 @@
     {
       "id": "s48",
       "type": "narration",
-      "background": "cv_ch3_mine_king_erebus_base_interior_v4",
+      "background": "erebus_base_interior",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -1180,7 +1180,7 @@
             "ko": "불이 탔다. 밤이 깊었다. Cinder가 작업을 끝냈다. 무언가가 고쳐졌다. 무엇인지는 말하지 않았다. Butcher가 불 앞에 앉았다. 의수를 내려다봤다. 17살에 만든 것. 30년 된 것. 여전히 작동했다.",
             "en": "Fire burned. Night deepened. Cinder finished work. Something had been repaired. What it was she didn't say. Butcher sat by the fire. Looked down at the prosthetic. Made at seventeen. Thirty years old. Still working."
           },
-          "background": "cv_ch3_mine_king_l48_00_fire_small"
+          "overlay": "cv_ch3_mine_king_l48_00_fire_small"
         }
       ]
     },

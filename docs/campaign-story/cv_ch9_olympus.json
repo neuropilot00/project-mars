@@ -38,7 +38,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_exterior_v2",
+      "background": "olympus_exterior",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -68,7 +68,7 @@
     {
       "id": "s04",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -102,7 +102,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -117,7 +117,7 @@
     {
       "id": "s06",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -151,7 +151,7 @@
     {
       "id": "s07",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -166,7 +166,7 @@
     {
       "id": "s08",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -191,7 +191,7 @@
     {
       "id": "s09",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -200,14 +200,14 @@
             "ko": "Cinder가 사진을 꺼냈다. 흑백. 30년 된 것. 뒤집었다. 이름들이 있었다. 이름들을 테이블에 올려놓았다. 문서 옆에. 합의 초안 옆에. MCC가 준비한 것들 옆에. 그것들과 사진이 같은 테이블에 있었다.",
             "en": "Cinder took out the photo. Black and white. Thirty years old. Flipped it. Names were there. She placed the names on the table. Next to documents. Next to the draft agreement. Next to what MCC had prepared. Those things and the photo were on the same table."
           },
-          "background": "cv_ch9_olympus_l08_00_zone12_record"
+          "overlay": "cv_ch9_olympus_l08_00_zone12_record"
         }
       ]
     },
     {
       "id": "s10",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v8",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -247,7 +247,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -280,7 +280,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -295,7 +295,7 @@
     {
       "id": "s14",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -328,7 +328,7 @@
     {
       "id": "s15",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -361,7 +361,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -409,7 +409,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -424,7 +424,7 @@
     {
       "id": "s19",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v8",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -472,7 +472,7 @@
     {
       "id": "s21",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_exterior_view_v2",
+      "background": "olympus_summit_exterior_view",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -505,7 +505,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -520,7 +520,7 @@
     {
       "id": "s23",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -553,7 +553,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -601,7 +601,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -616,7 +616,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -649,7 +649,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -664,7 +664,7 @@
     {
       "id": "s29",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_exterior_view_v2",
+      "background": "olympus_summit_exterior_view",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -689,7 +689,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v8",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -737,7 +737,7 @@
     {
       "id": "s32",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -752,7 +752,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -785,7 +785,7 @@
     {
       "id": "s34",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -873,7 +873,7 @@
     {
       "id": "s36",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -930,7 +930,7 @@
     {
       "id": "s37",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -975,7 +975,7 @@
     {
       "id": "s38",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1032,7 +1032,7 @@
     {
       "id": "s39",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v8",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1128,7 +1128,7 @@
     {
       "id": "s41",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1173,7 +1173,7 @@
     {
       "id": "s42",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1230,7 +1230,7 @@
     {
       "id": "s43",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1251,7 +1251,7 @@
             "ko": "서명했다. Zone 12 생존자로.",
             "en": "She signed. As a Zone 12 survivor."
           },
-          "background": "cv_ch9_olympus_l42_02_contract_sign"
+          "overlay": "cv_ch9_olympus_l42_02_contract_sign"
         },
         {
           "text": {
@@ -1270,7 +1270,7 @@
     {
       "id": "s44",
       "type": "dialogue",
-      "background": "cv_ch9_olympus_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1327,7 +1327,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "cv_ch9_olympus_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Pilgrim Arms. Chen이 표적. Cinder가 기다린다. 무엇을 합니까.",
@@ -1408,7 +1408,7 @@
     {
       "id": "s_success",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -1416,14 +1416,14 @@
             "ko": "테이블에 이름들이 생겼다. Zone 12. 11명. 처음으로 이 이름들이 문서에 있었다. 세 파벌 모두의 서명과 함께. Cinder가 공구를 만졌다. 소리가 났다. 올림포스에서. 태양계에서 가장 높은 곳에서. 공구 소리가 났다. 그것이 이 합의의 서명이었다.",
             "en": "Names appeared on the table. Zone 12. Eleven people. For the first time these names were in a document. With the signatures of all three factions. Cinder touched her tools. Sound came. On Olympus. At the highest point in the solar system. Tool sounds. That was the signature of this agreement."
           },
-          "background": "cv_ch9_olympus_l47_00_zone12_record"
+          "overlay": "cv_ch9_olympus_l47_00_zone12_record"
         }
       ]
     },
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "cv_ch9_olympus_olympus_exterior_v2",
+      "background": "olympus_exterior",
       "bgm": "defeat_ambient",
       "lines": [
         {

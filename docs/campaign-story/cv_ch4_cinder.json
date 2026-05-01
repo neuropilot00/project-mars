@@ -37,7 +37,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "cv_ch4_cinder_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -82,7 +82,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -177,7 +177,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -210,7 +210,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -225,7 +225,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_shaft_v3",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -252,14 +252,14 @@
             "ko": "3년 전이야. 갱도 붕괴. MCC 기록에는 없어. 지워졌어.",
             "en": "Three years ago. Tunnel collapse. Not in MCC records. Erased."
           },
-          "background": "cv_ch4_cinder_l10_02_collapse_debris"
+          "overlay": "cv_ch4_cinder_l10_02_collapse_debris"
         }
       ]
     },
     {
       "id": "s12",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v4",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -274,7 +274,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_shaft_v5",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -322,7 +322,7 @@
     {
       "id": "s15",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -355,7 +355,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v3",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -370,7 +370,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_shaft_v4",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -403,7 +403,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v5",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -412,7 +412,7 @@
             "ko": "Cinder가 보고서를 꺼냈다. 주머니 안에 있던 것. 작은 것이었다. 접혀 있었다. 여러 번. 자주 꺼내봤다는 것이었다. 자주 접었다는 것이었다. 이름들이 거기 있었다. 11개.",
             "en": "Cinder took out the report. From a pocket. Small. Folded. Many times. Taken out often. Folded often. The names were there. Eleven."
           },
-          "background": "cv_ch4_cinder_l17_00_sealed_file"
+          "overlay": "cv_ch4_cinder_l17_00_sealed_file"
         }
       ]
     },
@@ -452,7 +452,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -467,7 +467,7 @@
     {
       "id": "s21",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_shaft_v3",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -492,7 +492,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v4",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -507,7 +507,7 @@
     {
       "id": "s23",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_shaft_v5",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -555,7 +555,7 @@
     {
       "id": "s25",
       "type": "choice",
-      "background": "cv_ch4_cinder_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Cinder Grace. 11명의 이름들. 이 폐광. 어떻게 반응합니까.",
@@ -615,7 +615,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v3",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -630,7 +630,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_shaft_v4",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -663,7 +663,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v5",
+      "background": "mine_shaft",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -672,7 +672,7 @@
             "ko": "Cinder가 보고서를 다시 꺼냈다. 펼쳤다. 이름들이 있었다. 11개. 읽었다. 천천히. 하나씩. 이름만 읽었다. 설명하지 않았다. 설명이 필요 없었다. 이름이 있었다. 그것으로 충분했다.",
             "en": "Cinder took out the report again. Unfolded it. Names. Eleven. Read them. Slowly. One by one. Only names. No explanation. No explanation needed. There were names. That was enough."
           },
-          "background": "cv_ch4_cinder_l27_00_candle_flame"
+          "overlay": "cv_ch4_cinder_l27_00_candle_flame"
         }
       ]
     },
@@ -694,7 +694,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -709,7 +709,7 @@
     {
       "id": "s31",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_shaft_v3",
+      "background": "mine_shaft",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -790,7 +790,7 @@
     {
       "id": "s34",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -874,7 +874,7 @@
     {
       "id": "s39",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_erebus_canyon_sunset_v2",
+      "background": "erebus_canyon_sunset",
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
@@ -922,7 +922,7 @@
     {
       "id": "s41",
       "type": "narration",
-      "background": "cv_ch4_cinder_mine_shaft_v4",
+      "background": "mine_shaft",
       "bgm": "defeat_ambient",
       "transition": "cut",
       "lines": [
@@ -937,7 +937,7 @@
     {
       "id": "s42",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_mine_shaft_v5",
+      "background": "mine_shaft",
       "bgm": "defeat_ambient",
       "transition": "cut",
       "lines": [
@@ -985,7 +985,7 @@
     {
       "id": "s44",
       "type": "dialogue",
-      "background": "cv_ch4_cinder_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [

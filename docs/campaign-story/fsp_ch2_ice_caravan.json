@@ -36,7 +36,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_hellas_outer_plains_v2",
+      "background": "hellas_outer_plains",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -60,14 +60,14 @@
             "ko": "광부가 죽었다. 헬라스 외곽 7번 광산. 갱도 붕괴. MCC 구역이었다. MCC는 사고를 봉쇄했다. 가족에게 연락이 없었다. 연락이 오지 않는 것이 연락이었다. 화성에서 그런 연락은 자주 있었다.",
             "en": "A miner had died. Mine 7 on the outer Hellas belt. Tunnel collapse. MCC territory. MCC sealed the accident. No notice to the family. No notice was the notice. On Mars that kind of notice came often."
           },
-          "background": "fsp_ch2_ice_caravan_l02_00_death_still"
+          "overlay": "fsp_ch2_ice_caravan_l02_00_death_still"
         }
       ]
     },
     {
       "id": "s04",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -82,7 +82,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "fsp_ch2_ice_caravan_mine_exterior_v3",
+      "background": "mine_exterior",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -116,7 +116,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_mine_exterior_v4",
+      "background": "mine_exterior",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -146,7 +146,7 @@
     {
       "id": "s08",
       "type": "dialogue",
-      "background": "fsp_ch2_ice_caravan_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -186,7 +186,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_mine_exterior_v3",
+      "background": "mine_exterior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -201,7 +201,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "fsp_ch2_ice_caravan_mine_exterior_v4",
+      "background": "mine_exterior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -241,7 +241,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "fsp_ch2_ice_caravan_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "MCC 봉쇄선. Park Sung-jin의 가족이 기다리고 있다. 어떻게 하겠습니까.",
@@ -301,7 +301,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_mine_exterior_v3",
+      "background": "mine_exterior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -316,7 +316,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "fsp_ch2_ice_caravan_mine_exterior_v4",
+      "background": "mine_exterior",
       "bgm": "battle_theme_fsp",
       "transition": "fade_slow",
       "title": {
@@ -395,7 +395,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_hellas_outer_plains_sunset_v2",
+      "background": "hellas_outer_plains_sunset",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -459,7 +459,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_fsp_base_v2",
+      "background": "fsp_base",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -489,7 +489,7 @@
     {
       "id": "s19",
       "type": "dialogue",
-      "background": "fsp_ch2_ice_caravan_fsp_base_v2",
+      "background": "fsp_base",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -537,7 +537,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_fsp_base_night_v2",
+      "background": "fsp_base_night",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -585,7 +585,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_fsp_base_night_v2",
+      "background": "fsp_base_night",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -594,7 +594,7 @@
             "ko": "Lena가 팔을 봤다. 어두운 데서. 문신이 보였다. 이름들이. 하나씩. 어떤 이름 아래에 날짜가 있었다. 그것이 언제 없어진 날이었다. 없어진 날이 새겨진 것이었다.",
             "en": "Lena looked at her arm. In the dark. The tattoo was visible. The names. One by one. Under some names there was a date. The day they disappeared. The day of disappearing was engraved."
           },
-          "background": "fsp_ch2_ice_caravan_l27_00_candle_flame"
+          "overlay": "fsp_ch2_ice_caravan_l27_00_candle_flame"
         }
       ]
     },
@@ -616,7 +616,7 @@
     {
       "id": "s25",
       "type": "narration",
-      "background": "fsp_ch2_ice_caravan_hellas_outer_plains_v2",
+      "background": "hellas_outer_plains",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [

@@ -98,7 +98,7 @@
     {
       "id": "p06",
       "type": "narration",
-      "background": "prologue_fsp_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -107,7 +107,7 @@
             "ko": "벽에 이름들이 있었다. 분필로 쓴 것. 광부들의 이름. 날짜. 어떤 것은 오래됐다. 어떤 것은 새것이었다. 분필은 약했다. 그러나 거기 있었다.",
             "en": "Names were on the walls. Written in chalk. Miners' names. Dates. Some were old. Some were new. Chalk was weak. But they were there."
           },
-          "background": "fsp_prologue_l05_00_candle_flame"
+          "overlay": "fsp_prologue_l05_00_candle_flame"
         }
       ]
     },
@@ -148,7 +148,7 @@
     {
       "id": "p08",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_outpost_v2",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -163,7 +163,7 @@
     {
       "id": "p09",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_outpost_v3",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -178,7 +178,7 @@
     {
       "id": "p10",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_outpost_v4",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -208,7 +208,7 @@
     {
       "id": "p12",
       "type": "dialogue",
-      "background": "prologue_fsp_hellas_mining_outpost_v2",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -234,7 +234,7 @@
     {
       "id": "p13",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_outpost_v3",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -249,7 +249,7 @@
     {
       "id": "p14",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_outpost_v4",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -298,7 +298,7 @@
     {
       "id": "p16",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_outpost_v2",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -313,7 +313,7 @@
     {
       "id": "p17",
       "type": "dialogue",
-      "background": "prologue_fsp_hellas_mining_outpost_v3",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -361,7 +361,7 @@
     {
       "id": "p19",
       "type": "narration",
-      "background": "prologue_fsp_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -406,7 +406,7 @@
     {
       "id": "p22",
       "type": "dialogue",
-      "background": "prologue_fsp_hellas_mining_village_v2",
+      "background": "hellas_mining_village",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -455,7 +455,7 @@
     {
       "id": "p24",
       "type": "dialogue",
-      "background": "prologue_fsp_hellas_mining_village_v2",
+      "background": "hellas_mining_village",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -495,7 +495,7 @@
     {
       "id": "p26",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_village_dawn_v2",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -510,7 +510,7 @@
     {
       "id": "p27",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_outpost_v4",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -558,7 +558,7 @@
     {
       "id": "p29",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_village_dawn_v3",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -588,7 +588,7 @@
     {
       "id": "p31",
       "type": "dialogue",
-      "background": "prologue_fsp_hellas_mining_village_dawn_v2",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -622,7 +622,7 @@
     {
       "id": "p32",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_village_dawn_v3",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -652,7 +652,7 @@
     {
       "id": "p34",
       "type": "narration",
-      "background": "prologue_fsp_hellas_mining_village_dawn_v2",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -667,7 +667,7 @@
     {
       "id": "p35",
       "type": "ending",
-      "background": "prologue_fsp_hellas_mining_village_dawn_v3",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -676,7 +676,7 @@
             "ko": "차가 따뜻했다. 처음으로.\n이 마을이 집이 될 것 같았다.\n이 행성에서 집을 가질 수 있다면.\n\n광산에 불이 켜져 있었다. 벽에 이름들이 있었다. 아이들이 웃고 있었다. Mikhail이 두 손으로 차를 따르고 있었다.\n\n그것이 FSP였다.",
             "en": "The tea was warm. For the first time.\nThis village felt like it could be home.\nIf home is possible on this planet.\n\nThe mine had lights. Names were on the wall. Children were laughing. Mikhail was pouring tea with both hands.\n\nThat was FSP."
           },
-          "background": "fsp_prologue_l34_00_candle_flame"
+          "overlay": "fsp_prologue_l34_00_candle_flame"
         }
       ],
       "next_chapter_preview": {

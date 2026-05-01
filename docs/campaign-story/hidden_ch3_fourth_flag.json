@@ -35,7 +35,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -50,7 +50,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -65,7 +65,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v4",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -74,14 +74,14 @@
             "ko": "깃발이 있었던 자리. 세 개. 구멍들. 샌드스톤에서 본 것과 같은 종류의 구멍들. 그러나 더 컸다. 여기 더 큰 깃발이 있었다. 더 큰 의미가 있었다. 세 개의 구멍이 삼각형을 이뤘다. 삼각형의 중심이 비어 있었다.",
             "en": "Where flags had been. Three. Holes. The same kind of holes as seen at Sandstone. But larger. Larger flags had been here. More significant. Three holes formed a triangle. The center of the triangle was empty."
           },
-          "background": "hidden_ch3_fourth_flag_l03_00_three_flags"
+          "overlay": "hidden_ch3_fourth_flag_l03_00_three_flags"
         }
       ]
     },
     {
       "id": "s05",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v5",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -105,14 +105,14 @@
             "ko": "그 자리에 무언가 있었다. 관찰자가 발 아래를 봤다. 핏빛이었다. 핏자국. 오래된 것이었다. 화성의 붉은 표면이 피를 숨겼다. 그러나 색이 달랐다. 조금 더 짙었다. 피가 있었다. 누군가 여기서 죽었다.",
             "en": "There was something there. The observer looked down at their feet. It was blood-colored. A bloodstain. Old. The red surface of Mars hid blood. But the color was different. A little darker. There was blood. Someone had died here."
           },
-          "background": "hidden_ch3_fourth_flag_l05_00_death_still"
+          "overlay": "hidden_ch3_fourth_flag_l05_00_death_still"
         }
       ]
     },
     {
       "id": "s07",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -127,7 +127,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -142,7 +142,7 @@
     {
       "id": "s09",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v4",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -172,7 +172,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_dawn_v2",
+      "background": "olympus_exterior_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -187,7 +187,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_dawn_v3",
+      "background": "olympus_exterior_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -196,7 +196,7 @@
             "ko": "그러나 네 번째 조각이 있었다. 관찰자가 찾았다. 세 개가 있는 곳에서 조금 떨어진 자리에. 색이 달랐다. 세 파벌의 색이 아니었다. 어떤 색인지 명확하지 않았다. 오래돼서. 화성 먼지를 맞아서. 그러나 달랐다. 네 번째 색이었다.",
             "en": "But there was a fourth piece. The observer found it. A little away from where the three were. A different color. Not the color of the three factions. What color exactly wasn't clear. Old. Hit by Martian dust. But it was different. A fourth color."
           },
-          "background": "hidden_ch3_fourth_flag_l11_00_sealed_file"
+          "overlay": "hidden_ch3_fourth_flag_l11_00_sealed_file"
         }
       ]
     },
@@ -218,7 +218,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_dawn_v2",
+      "background": "olympus_exterior_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -248,7 +248,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_sunset_v2",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -263,7 +263,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_sunset_v3",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -293,7 +293,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v5",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -323,7 +323,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -338,7 +338,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -353,7 +353,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v4",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -368,7 +368,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v5",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -383,7 +383,7 @@
     {
       "id": "s25",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_sunset_v2",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -398,7 +398,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_sunset_v3",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -413,7 +413,7 @@
     {
       "id": "s27",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_dawn_v3",
+      "background": "olympus_exterior_dawn",
       "bgm": "hidden_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -443,7 +443,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_dawn_v2",
+      "background": "olympus_exterior_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -452,14 +452,14 @@
             "ko": "새벽 빛 속에 네 번째 조각이 달리 보였다. 색이 달리 보였다. 어제 알 수 없었던 색. 새벽 빛이 그것을 말해줬다. 흰 색이었다. 그것이 흰 깃발이었다. 네 번째 깃발이 흰 것이었다. 흰 깃발이 무엇을 의미하는지는 몰랐다. 그러나 흰 것이었다.",
             "en": "In the dawn light the fourth piece looked different. The color looked different. The color that couldn't be determined yesterday. The dawn light told it. It was white. It had been a white flag. The fourth flag was white. What a white flag meant was unknown. But it was white."
           },
-          "background": "hidden_ch3_fourth_flag_l28_00_mars_horizon"
+          "overlay": "hidden_ch3_fourth_flag_l28_00_mars_horizon"
         }
       ]
     },
     {
       "id": "s30",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_dawn_v3",
+      "background": "olympus_exterior_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -489,7 +489,7 @@
     {
       "id": "s32",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -504,7 +504,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -519,7 +519,7 @@
     {
       "id": "s34",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v4",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -534,7 +534,7 @@
     {
       "id": "s35",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v5",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -564,7 +564,7 @@
     {
       "id": "s37",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_sunset_v2",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -594,7 +594,7 @@
     {
       "id": "s39",
       "type": "narration",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -609,7 +609,7 @@
     {
       "id": "s40",
       "type": "ending",
-      "background": "hidden_ch3_fourth_flag_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "fade_slow",
       "lines": [

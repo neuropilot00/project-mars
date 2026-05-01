@@ -36,7 +36,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v2",
+      "background": "new_athens_shipyard",
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -66,7 +66,7 @@
     {
       "id": "s04",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v3",
+      "background": "new_athens_shipyard",
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -100,7 +100,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v2",
+      "background": "new_athens_shipyard_interior",
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -115,7 +115,7 @@
     {
       "id": "s06",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v3",
+      "background": "new_athens_shipyard_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -148,7 +148,7 @@
     {
       "id": "s07",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v4",
+      "background": "new_athens_shipyard_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -157,7 +157,7 @@
             "ko": "Olu Adeyemi가 있었다. 40대. 배 설계자. 구석에서 글을 쓰고 있었다. 손으로. 종이에. 화성에서 손으로 종이에 쓰는 것은 드문 일이었다. 디지털이 더 쉬웠다. 그러나 이 사람은 손으로 쓰고 있었다. 그것이 이유가 있는 것이었다.",
             "en": "Olu Adeyemi was there. Forties. Ship designer. Writing in a corner. By hand. On paper. Writing by hand on paper on Mars was rare. Digital was easier. But this person was writing by hand. That had a reason."
           },
-          "background": "fsp_ch8_water_war_l06_00_death_still"
+          "overlay": "fsp_ch8_water_war_l06_00_death_still"
         }
       ]
     },
@@ -179,7 +179,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v2",
+      "background": "new_athens_shipyard_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -213,7 +213,7 @@
     {
       "id": "s09b_letter",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v3",
+      "background": "new_athens_shipyard_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -228,7 +228,7 @@
     {
       "id": "s09c_letter2",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v4",
+      "background": "new_athens_shipyard_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -261,7 +261,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v4",
+      "background": "new_athens_shipyard",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -291,7 +291,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v2",
+      "background": "new_athens_shipyard",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -324,7 +324,7 @@
     {
       "id": "s12b_36min_explain",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v3",
+      "background": "new_athens_shipyard",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -380,7 +380,7 @@
     {
       "id": "s12d_lena_assessment",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v2",
+      "background": "new_athens_shipyard_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -421,7 +421,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v4",
+      "background": "new_athens_shipyard",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -451,7 +451,7 @@
     {
       "id": "s14b_olu_joins",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v3",
+      "background": "new_athens_shipyard_interior",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -486,7 +486,7 @@
     {
       "id": "s14c_mariam_letter",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v4",
+      "background": "new_athens_shipyard_interior",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -501,7 +501,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v2",
+      "background": "new_athens_shipyard",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "가이아. Olu의 편지. MCC 호위선. 36분. 어떻게 합니까.",
@@ -561,7 +561,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v3",
+      "background": "new_athens_shipyard",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -591,7 +591,7 @@
     {
       "id": "s15c_hagar_defense",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v4",
+      "background": "new_athens_shipyard",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -632,7 +632,7 @@
     {
       "id": "s15d_olu_position",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_interior_v2",
+      "background": "new_athens_shipyard_interior",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -693,7 +693,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_v2",
+      "background": "new_athens_shipyard",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -707,7 +707,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_night_v2",
+      "background": "new_athens_shipyard_night",
       "bgm": "fsp_ambient_heavy",
       "transition": "cut",
       "lines": [
@@ -747,7 +747,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_night_v2",
+      "background": "new_athens_shipyard_night",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -795,7 +795,7 @@
     {
       "id": "s18c_letter3",
       "type": "narration",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_night_v2",
+      "background": "new_athens_shipyard_night",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -819,14 +819,14 @@
             "ko": "새벽이 왔다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름. 화성에서 지구를 기억하는 사람은 줄어들고 있었다. 그러나 이름은 남았다. 이름은 기억하는 사람보다 오래 살았다.",
             "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth. On Mars those who remembered Earth were diminishing. But the name remained. Names outlived those who remembered."
           },
-          "background": "fsp_ch8_water_war_l35_00_mars_horizon"
+          "overlay": "fsp_ch8_water_war_l35_00_mars_horizon"
         }
       ]
     },
     {
       "id": "s19b_hagar_dawn",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_dawn_v2",
+      "background": "new_athens_shipyard_dawn",
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
@@ -882,7 +882,7 @@
     {
       "id": "s19d_olu_standing",
       "type": "dialogue",
-      "background": "fsp_ch8_water_war_new_athens_shipyard_dawn_v2",
+      "background": "new_athens_shipyard_dawn",
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
@@ -932,7 +932,7 @@
             "ko": "새벽이었다. 조선소에 빛이 왔다. 가이아의 옆면에 빛이 닿았다. 지구 뜻. Hagar가 붙인 이름. 지구를 기억하는 마지막 세대가 붙인 이름.\n\nOlu의 편지가 가이아 안에 있었다. 아니면 없었다. 그것이 오늘의 결과에 달렸다. 그러나 편지는 쓰여졌다. 종이 위에. 손으로. 화성에서 가장 드문 방식으로.\n\nMariam이 거기 있었다. 편지 안에. 배 안에. 이름으로.",
             "en": "Dawn. Light came to the shipyard. Light touched the side of Gaia. Meaning Earth. The name Hagar gave. A name given by the last generation to remember Earth.\n\nOlu's letter was inside Gaia. Or wasn't. That depended on today's outcome. But the letter had been written. On paper. By hand. In the rarest way on Mars.\n\nMariam was there. In the letter. In the ship. As a name."
           },
-          "background": "fsp_ch8_water_war_l39_00_candle_flame"
+          "overlay": "fsp_ch8_water_war_l39_00_candle_flame"
         }
       ],
       "next_chapter_preview": {

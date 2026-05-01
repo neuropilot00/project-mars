@@ -52,7 +52,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -79,7 +79,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -100,7 +100,7 @@
     {
       "id": "s04",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -134,7 +134,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -155,7 +155,7 @@
     {
       "id": "s06",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v6",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -222,7 +222,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -249,7 +249,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -282,7 +282,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -309,7 +309,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -342,7 +342,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v6",
+      "background": "mcc_executive_floor",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -402,7 +402,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -417,7 +417,7 @@
             "ko": "11명이 죽었다. 보고서는 그것을 알고 있었다. MCC 이사회는 그것을 알고 있었다. 그리고 한 사람이 나왔다.",
             "en": "Eleven died. The report knew it. The MCC board knew it. And one person came out."
           },
-          "background": "mcc_ch10_the_choice_l13_01_death_still"
+          "overlay": "mcc_ch10_the_choice_l13_01_death_still"
         },
         {
           "text": {
@@ -463,7 +463,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_hellas_central_exterior_night_v2",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -490,7 +490,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -523,7 +523,7 @@
     {
       "id": "s18",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -556,7 +556,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -583,7 +583,7 @@
     {
       "id": "s20",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v6",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -637,7 +637,7 @@
     {
       "id": "s22",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -670,7 +670,7 @@
     {
       "id": "s23",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -703,7 +703,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -758,7 +758,7 @@
     {
       "id": "s26",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v2",
+      "background": "mcc_board_chamber",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -791,7 +791,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v3",
+      "background": "mcc_board_chamber",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -811,7 +811,7 @@
             "ko": "그렇다면 Osei 이사. Zone 12 안전 결함 보고서를 2004년에 묵살한 것은 무엇이오.",
             "en": "Then Director Osei. What was suppressing the Zone 12 safety defect report in 2004?"
           },
-          "background": "mcc_ch10_the_choice_l26_01_sealed_file"
+          "overlay": "mcc_ch10_the_choice_l26_01_sealed_file"
         },
         {
           "speaker": "chen",
@@ -826,7 +826,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v4",
+      "background": "mcc_board_chamber",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -880,7 +880,7 @@
     {
       "id": "s30",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v2",
+      "background": "mcc_board_chamber",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -913,7 +913,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v3",
+      "background": "mcc_board_chamber",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -940,7 +940,7 @@
     {
       "id": "s32",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v4",
+      "background": "mcc_board_chamber",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -1006,7 +1006,7 @@
     {
       "id": "s34",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v2",
+      "background": "mcc_board_chamber",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1033,7 +1033,7 @@
     {
       "id": "s35",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v3",
+      "background": "mcc_board_chamber",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1066,7 +1066,7 @@
     {
       "id": "s36",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v4",
+      "background": "mcc_board_chamber",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1126,7 +1126,7 @@
     {
       "id": "s38",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v2",
+      "background": "mcc_board_chamber",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -1159,7 +1159,7 @@
     {
       "id": "s39",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_board_chamber_v3",
+      "background": "mcc_board_chamber",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -1180,7 +1180,7 @@
     {
       "id": "s40",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient",
       "transition": "fade_medium",
       "lines": [
@@ -1213,7 +1213,7 @@
     {
       "id": "s41",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v6",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -1306,7 +1306,7 @@
     {
       "id": "s44",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_hellas_central_exterior_panorama_v2",
+      "background": "hellas_central_exterior_panorama",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -1333,7 +1333,7 @@
     {
       "id": "s45",
       "type": "dialogue",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -1366,7 +1366,7 @@
     {
       "id": "s46",
       "type": "narration",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -1387,14 +1387,14 @@
             "ko": "차가 식지 않았다. 25도였다. 그것이 변하지 않았다.",
             "en": "The tea didn't cool. Twenty-five degrees. That hadn't changed."
           },
-          "background": "mcc_ch10_the_choice_l45_02_alone_window"
+          "overlay": "mcc_ch10_the_choice_l45_02_alone_window"
         }
       ]
     },
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Chen Weiss. 그녀가 기다린다. 화성이 기다린다.",
@@ -1481,7 +1481,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "mcc_ch10_the_choice_hellas_central_exterior_night_v2",
+      "background": "hellas_central_exterior_night",
       "bgm": "battle_theme_mcc",
       "transition": "fade_slow",
       "title": {
@@ -1550,7 +1550,7 @@
     {
       "id": "s_ending_heir",
       "type": "ending",
-      "background": "mcc_ch10_the_choice_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "victory_calm",
       "transition": "fade_slow",
       "endingId": "heir",
@@ -1602,7 +1602,7 @@
     {
       "id": "s_ending_empire",
       "type": "ending",
-      "background": "mcc_ch10_the_choice_hellas_central_exterior_panorama_v2",
+      "background": "hellas_central_exterior_panorama",
       "bgm": "tension_high",
       "transition": "fade_slow",
       "endingId": "empire",
@@ -1758,7 +1758,7 @@
             "ko": "차 한 잔보다 오래. 25도보다 오래. 그것들이 화성이었다.",
             "en": "Outlasting a cup of tea. Outlasting twenty-five degrees. Those things were Mars."
           },
-          "background": "mcc_ch10_the_choice_l55_07_mars_horizon"
+          "overlay": "mcc_ch10_the_choice_l55_07_mars_horizon"
         },
         {
           "text": {

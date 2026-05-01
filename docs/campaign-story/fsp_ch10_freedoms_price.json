@@ -76,7 +76,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v2",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -115,7 +115,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v3",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -160,7 +160,7 @@
     {
       "id": "s04",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v4",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -218,7 +218,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v5",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -379,7 +379,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_v2",
+      "background": "hellas_mining_village",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -412,7 +412,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_v3",
+      "background": "hellas_mining_village",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -527,7 +527,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_v2",
+      "background": "hellas_mining_village",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -572,7 +572,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_v3",
+      "background": "hellas_mining_village",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -668,7 +668,7 @@
     {
       "id": "s14",
       "type": "choice",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_v2",
+      "background": "hellas_mining_village",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Thomas Alder. 배신자이자 사람. 어떻게 해야 합니까.",
@@ -728,7 +728,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v2",
+      "background": "hellas_mining_village_dawn",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -773,7 +773,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v3",
+      "background": "hellas_mining_village_dawn",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -831,7 +831,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v4",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -888,7 +888,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v5",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -927,7 +927,7 @@
             "ko": "Rev. Hale이 그 벽을 보았다.",
             "en": "Rev. Hale looked at that wall."
           },
-          "background": "fsp_ch10_freedoms_price_l17_05_candle_flame"
+          "overlay": "fsp_ch10_freedoms_price_l17_05_candle_flame"
         }
       ]
     },
@@ -1036,7 +1036,7 @@
     {
       "id": "s21",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v2",
+      "background": "hellas_mining_village_dawn",
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
@@ -1138,7 +1138,7 @@
     {
       "id": "s23",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_new_athens_shipyard_v2",
+      "background": "new_athens_shipyard",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -1235,7 +1235,7 @@
     {
       "id": "s25",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_new_athens_shipyard_v2",
+      "background": "new_athens_shipyard",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1286,7 +1286,7 @@
             "ko": "Mariam의 첫 번째 딸이 그 이름이었어요. 사산이었어요. 화성에서.",
             "en": "Mariam's first daughter had that name. She was stillborn. On Mars."
           },
-          "background": "fsp_ch10_freedoms_price_l24_05_death_still"
+          "overlay": "fsp_ch10_freedoms_price_l24_05_death_still"
         }
       ]
     },
@@ -1338,7 +1338,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_new_athens_shipyard_v2",
+      "background": "new_athens_shipyard",
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
@@ -1395,7 +1395,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v3",
+      "background": "hellas_mining_village_dawn",
       "bgm": "tension_high",
       "transition": "fade_slow",
       "lines": [
@@ -1440,7 +1440,7 @@
     {
       "id": "s29",
       "type": "dialogue",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_v3",
+      "background": "hellas_mining_village",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -1554,7 +1554,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v4",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -1599,7 +1599,7 @@
     {
       "id": "s32",
       "type": "choice",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_dawn_v5",
+      "background": "hellas_mining_village_dawn",
       "bgm": "choice_finale",
       "prompt": {
         "ko": "FSP. 이 마을. 이 사람들. 어떤 결말을 선택합니까.",
@@ -1725,7 +1725,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "fsp_ch10_freedoms_price_hellas_mining_village_v2",
+      "background": "hellas_mining_village",
       "bgm": "defeat_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -1798,7 +1798,7 @@
             "ko": "Mariam. 함선이 그 이름을 가지고 갔다.",
             "en": "Mariam. The ship carried that name."
           },
-          "background": "fsp_ch10_freedoms_price_l36_03_mars_horizon"
+          "overlay": "fsp_ch10_freedoms_price_l36_03_mars_horizon"
         },
         {
           "text": {

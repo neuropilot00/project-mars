@@ -51,7 +51,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
+      "background": "mcc_archive_sublevel",
       "bgm": "mcc_ambient_low",
       "transition": "cut",
       "lines": [
@@ -66,7 +66,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -81,7 +81,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v4",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -96,7 +96,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v5",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -145,7 +145,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -154,14 +154,14 @@
             "ko": "칩이 손 위에 놓였다. 작았다. 손가락 한 마디만 했다. 17건. 2009년부터 화성의 죽음들이 그 안에 있었다. 그는 떨고 있었다. 칩을 내민 손이. 그러나 눈은 떨리지 않았다. 오래 결심한 사람의 눈이었다. 그것이 가장 무거운 종류의 눈이었다.",
             "en": "The chip lay in the palm. Small. A fingertip's length. Seventeen cases. The deaths of Mars since 2009 were inside it. He was trembling. The hand that held out the chip. But the eyes didn't tremble. The eyes of someone who had decided long ago. Those were the heaviest kind of eyes."
           },
-          "background": "mcc_ch5_kepler_dispute_l07_00_sealed_file"
+          "overlay": "mcc_ch5_kepler_dispute_l07_00_sealed_file"
         }
       ]
     },
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -194,7 +194,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v4",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -209,7 +209,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v5",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -257,7 +257,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -290,7 +290,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -305,7 +305,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v4",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -320,7 +320,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v5",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -368,7 +368,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -383,7 +383,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
+      "background": "mcc_archive_sublevel",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "칩이 손 안에 있다. 발소리가 가까워진다.",
@@ -443,7 +443,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v4",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -458,7 +458,7 @@
     {
       "id": "s20",
       "type": "dialogue",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v5",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -513,7 +513,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -528,7 +528,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v3",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -558,7 +558,7 @@
     {
       "id": "s26",
       "type": "dialogue",
-      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -591,7 +591,7 @@
     {
       "id": "s27",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v3",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -639,7 +639,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "ambient_night",
       "transition": "cut",
       "lines": [
@@ -648,14 +648,14 @@
             "ko": "노동자 지구 골목에서 아이들이 놀고 있었다. 밤이었다. 마스크를 쓰고 있었다. 화성의 아이들이었다. 벽에 분필 이름이 있었다. Kim Yong-jin. 그 아래 이름들. 광산에서 죽은 사람들. 아이들이 적은 것이었다.",
             "en": "In the labor district alley children were playing. Night. Wearing masks. Martian children. Chalk names on the wall. Kim Yong-jin. Names below. People who died in mines. Written by the children."
           },
-          "background": "mcc_ch5_kepler_dispute_l29_00_candle_flame"
+          "overlay": "mcc_ch5_kepler_dispute_l29_00_candle_flame"
         }
       ]
     },
     {
       "id": "s30",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v3",
+      "background": "hellas_labor_district_night",
       "bgm": "ambient_night",
       "transition": "cut",
       "lines": [
@@ -670,7 +670,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v2",
+      "background": "mcc_archive_sublevel",
       "bgm": "battle_theme_mcc",
       "transition": "fade_slow",
       "title": {
@@ -705,7 +705,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "mcc_ch5_kepler_dispute_mcc_archive_sublevel_v3",
+      "background": "mcc_archive_sublevel",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -719,7 +719,7 @@
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "mcc_ch5_kepler_dispute_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [

@@ -34,7 +34,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -49,7 +49,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -79,7 +79,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_dawn_v2",
+      "background": "olympus_exterior_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -94,7 +94,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v4",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -109,7 +109,7 @@
     {
       "id": "s07",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v5",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -124,7 +124,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v6",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -154,7 +154,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -184,7 +184,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_sunset_v2",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -199,7 +199,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_sunset_v3",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -229,7 +229,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -244,7 +244,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v4",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -259,7 +259,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v5",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -274,7 +274,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v6",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -304,7 +304,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_sunset_v2",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -349,7 +349,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -364,7 +364,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -373,14 +373,14 @@
             "ko": "Kim Yong-jin. 이름을 적었다. Zone 12. 적었다. 샌드스톤 교차로. 적었다. 에레보스 분화구. 적었다. Butcher의 손. 흰 깃발. 4구역 광물. 이름들. 흔적들. 모두 적었다. 그것이 기록이었다. 관찰자의 기록.",
             "en": "Kim Yong-jin. Wrote the name. Zone 12. Wrote. Sandstone Junction. Wrote. Erebus Crater. Wrote. Butcher's hand. White flag. Zone 4 mineral. Names. Traces. Wrote all of it. That was a record. The observer's record."
           },
-          "background": "hidden_ch5_last_observation_l23_00_zone12_record"
+          "overlay": "hidden_ch5_last_observation_l23_00_zone12_record"
         }
       ]
     },
     {
       "id": "s25",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v4",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -410,7 +410,7 @@
     {
       "id": "s27",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_dawn_v2",
+      "background": "olympus_exterior_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -440,7 +440,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_dawn_v2",
+      "background": "olympus_exterior_dawn",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -455,7 +455,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v5",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -470,7 +470,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v6",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -500,7 +500,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -509,14 +509,14 @@
             "ko": "그것이 화성이었다. 관찰자가 알았다. 깃발이 아니었다. 파벌이 아니었다. 이름들이었다. 남는 것이 이름들이었다. 화성에서. 이름들이 화성이었다. 분필 이름. 긁힌 이름. 비석의 이름. 이름들이 화성이었다.",
             "en": "That was Mars. The observer understood. Not flags. Not factions. Names. What remained were names. On Mars. Names were Mars. Chalk names. Scratched names. Names on markers. Names were Mars."
           },
-          "background": "hidden_ch5_last_observation_l32_00_candle_flame"
+          "overlay": "hidden_ch5_last_observation_l32_00_candle_flame"
         }
       ]
     },
     {
       "id": "s34",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_sunset_v3",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -546,7 +546,7 @@
     {
       "id": "s36",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -561,7 +561,7 @@
     {
       "id": "s37",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v4",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -576,7 +576,7 @@
     {
       "id": "s38",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v5",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -591,7 +591,7 @@
     {
       "id": "s39",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_sunset_v2",
+      "background": "olympus_exterior_sunset",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -606,7 +606,7 @@
     {
       "id": "s40",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v6",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -636,7 +636,7 @@
     {
       "id": "s42",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v2",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -651,7 +651,7 @@
     {
       "id": "s43",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v3",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -666,7 +666,7 @@
     {
       "id": "s44",
       "type": "narration",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v4",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -681,7 +681,7 @@
     {
       "id": "s45",
       "type": "ending",
-      "background": "hidden_ch5_last_observation_olympus_exterior_vast_v5",
+      "background": "olympus_exterior_vast",
       "bgm": "hidden_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -690,7 +690,7 @@
             "ko": "관찰자는 내려가지 않았다. 화성이 아래에 있었다. 핏빛 하늘이 위에 있었다. 관찰자가 그 사이에 있었다. 이름들이 아래에 있었다. 기록이 관찰자 안에 있었다. 그것으로 충분했다. 화성이 거기 있었다. 언제나 거기 있었다. 관찰자가 오기 전에도. 관찰자가 떠난 후에도. 화성은 거기 있었다. 붉었다. 언제나 붉었다. 그것이 전부였다.",
             "en": "The observer did not descend. Mars was below. The blood-red sky was above. The observer was between them. Names were below. The record was inside the observer. That was enough. Mars was there. Had always been there. Before the observer came. After the observer left. Mars was there. Red. Always red. That was everything."
           },
-          "background": "hidden_ch5_last_observation_l44_00_mars_horizon"
+          "overlay": "hidden_ch5_last_observation_l44_00_mars_horizon"
         }
       ]
     }

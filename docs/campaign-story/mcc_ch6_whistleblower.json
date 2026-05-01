@@ -36,7 +36,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -66,7 +66,7 @@
     {
       "id": "s04",
       "type": "dialogue",
-      "background": "mcc_ch6_whistleblower_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -115,7 +115,7 @@
     {
       "id": "s06",
       "type": "dialogue",
-      "background": "mcc_ch6_whistleblower_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -178,7 +178,7 @@
     {
       "id": "s09",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -187,14 +187,14 @@
             "ko": "벽에 이름이 적혀 있었다. 분필이었다. Kim Yong-jin. 그 아래 다른 이름들. 여러 개였다. FSP 노동자 지구에서 죽은 사람들의 이름이 아니었다. MCC 광산에서 죽은 사람들의 이름이었다. 골목 아이들이 적은 것이었다.",
             "en": "Names were written on the wall. Chalk. Kim Yong-jin. More names below. Several. Not the names of people who died in FSP labor districts. The names of people who died in MCC mines. Written by the alley children."
           },
-          "background": "mcc_ch6_whistleblower_l08_00_candle_flame"
+          "overlay": "mcc_ch6_whistleblower_l08_00_candle_flame"
         }
       ]
     },
     {
       "id": "s10",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v3",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -209,7 +209,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v4",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -224,7 +224,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v5",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -272,7 +272,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -287,7 +287,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v3",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -302,7 +302,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v4",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -335,7 +335,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v5",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -365,7 +365,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -380,7 +380,7 @@
     {
       "id": "s20",
       "type": "dialogue",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v3",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -413,7 +413,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v4",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -428,7 +428,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v5",
+      "background": "hellas_labor_district_night",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "데이터베이스 서버가 앞에 있다. C-7 블록의 아이들이 골목에서 보고 있다.",
@@ -503,7 +503,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -518,7 +518,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v3",
+      "background": "hellas_labor_district_night",
       "bgm": "battle_theme_mcc",
       "transition": "cut",
       "title": {
@@ -572,7 +572,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v4",
+      "background": "hellas_labor_district_night",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -586,7 +586,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v5",
+      "background": "hellas_labor_district_night",
       "bgm": "ambient_melancholy",
       "transition": "fade_medium",
       "lines": [
@@ -664,7 +664,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_erebus_crater_exterior_v2",
+      "background": "erebus_crater_exterior",
       "bgm": "ambient_wind",
       "transition": "cut",
       "lines": [
@@ -712,7 +712,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "mcc_ch6_whistleblower_erebus_crater_exterior_v2",
+      "background": "erebus_crater_exterior",
       "bgm": "ambient_wind",
       "transition": "cut",
       "lines": [
@@ -727,7 +727,7 @@
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "mcc_ch6_whistleblower_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
@@ -736,7 +736,7 @@
             "ko": "C-7 블록의 분필 이름들은 아침 바람에도 지워지지 않을 것이었다. 분필은 약했다. 그러나 화성의 바람이 아무리 강해도 이미 기억된 이름은 지울 수 없었다. Kim Yong-jin. 그 아래 이름들. 그 아래 아직 쓰이지 않은 이름들.",
             "en": "The chalk names of block C-7 would not be erased by the morning wind. Chalk was weak. But no matter how strong the Martian wind, it could not erase names that had already been remembered. Kim Yong-jin. The names below. The names below that, not yet written."
           },
-          "background": "mcc_ch6_whistleblower_l35_00_candle_flame"
+          "overlay": "mcc_ch6_whistleblower_l35_00_candle_flame"
         }
       ],
       "next_chapter_preview": {

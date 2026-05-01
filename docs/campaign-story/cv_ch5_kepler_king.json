@@ -38,7 +38,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_v2",
+      "background": "kepler_crater_edge",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -53,7 +53,7 @@
     {
       "id": "s03",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_v3",
+      "background": "kepler_crater_edge",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -102,7 +102,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_v2",
+      "background": "kepler_crater_edge",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -136,7 +136,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_v3",
+      "background": "kepler_crater_edge",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -166,7 +166,7 @@
     {
       "id": "s08",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_hellas_outer_plains_v2",
+      "background": "hellas_outer_plains",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -229,7 +229,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_erebus_crater_exterior_v2",
+      "background": "erebus_crater_exterior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -300,7 +300,7 @@
     {
       "id": "s14",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -333,7 +333,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v3",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -348,7 +348,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v4",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -381,7 +381,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v5",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -396,7 +396,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v6",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -438,7 +438,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -453,7 +453,7 @@
     {
       "id": "s21",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v3",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -494,7 +494,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v4",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -503,14 +503,14 @@
             "ko": "Butcher가 들었다. 오래. 외투 주머니의 손이 움직였다. 사진에 닿는 것이었다. 꺼내지 않았다. 손만 닿았다. 30년 전 선언이 있었다. 그때는 달랐다. 광부들이 없었다. 증인이 없었다.",
             "en": "Butcher listened. For a long time. The hand in the coat pocket moved. Touching the photo. Didn't take it out. Just touched. There had been a declaration thirty years ago. Back then it was different. No miners. No witnesses."
           },
-          "background": "cv_ch5_kepler_king_l21_00_hand_still"
+          "overlay": "cv_ch5_kepler_king_l21_00_hand_still"
         }
       ]
     },
     {
       "id": "s23",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v5",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -543,7 +543,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v6",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -599,7 +599,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -614,7 +614,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v3",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -647,7 +647,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v4",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -656,14 +656,14 @@
             "ko": "Butcher가 봤다. 광부들을. 헬멧을 두드렸던 사람들. 이름 없는 사람들. 30년 전 사진 속 사람들과 달랐다. 달랐지만 같은 것이었다. 같은 이유로 같은 곳에 있는 것들이었다. 사진을 꺼냈다. 처음으로.",
             "en": "Butcher looked. At the miners. Those who had struck their helmets. Nameless people. Different from the people in the thirty-year-old photo. Different but the same. Things at the same place for the same reason. He took out the photo. For the first time."
           },
-          "background": "cv_ch5_kepler_king_l27_00_death_still"
+          "overlay": "cv_ch5_kepler_king_l27_00_death_still"
         }
       ]
     },
     {
       "id": "s29",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v5",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -764,7 +764,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_v2",
+      "background": "kepler_crater_edge",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -800,7 +800,7 @@
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_v3",
+      "background": "kepler_crater_edge",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -847,7 +847,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v6",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -895,7 +895,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -904,14 +904,14 @@
             "ko": "Butcher가 사진을 꺼냈다. 다시. 두 번째. 30년 만에 두 번 꺼냈다. 오늘. 광부들을 봤다. 사진을 봤다. 다시 광부들을 봤다. 사진 안 사람들과 바깥 사람들. 달랐다. 그러나 같은 것이었다.",
             "en": "Butcher took out the photo. Again. Second time. Twice in thirty years. Today. Looked at the miners. Looked at the photo. Looked at the miners again. The people in the photo and the people outside. Different. But the same."
           },
-          "background": "cv_ch5_kepler_king_l37_00_death_still"
+          "overlay": "cv_ch5_kepler_king_l37_00_death_still"
         }
       ]
     },
     {
       "id": "s34",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v3",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -952,7 +952,7 @@
     {
       "id": "s35",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v4",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -967,7 +967,7 @@
     {
       "id": "s36",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v5",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -982,7 +982,7 @@
     {
       "id": "s37",
       "type": "dialogue",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v6",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -1030,7 +1030,7 @@
     {
       "id": "s39",
       "type": "narration",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -1045,7 +1045,7 @@
     {
       "id": "s40",
       "type": "ending",
-      "background": "cv_ch5_kepler_king_kepler_crater_edge_dusk_v3",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [

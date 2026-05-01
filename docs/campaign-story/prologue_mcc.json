@@ -35,7 +35,7 @@
     {
       "id": "p02",
       "type": "narration",
-      "background": "prologue_mcc_cargo_ship_interior_v2",
+      "background": "cargo_ship_interior",
       "bgm": "ambient_engine_hum",
       "transition": "cut",
       "lines": [
@@ -50,7 +50,7 @@
     {
       "id": "p03",
       "type": "narration",
-      "background": "prologue_mcc_cargo_ship_interior_v3",
+      "background": "cargo_ship_interior",
       "bgm": "ambient_engine_hum",
       "transition": "cut",
       "lines": [
@@ -80,7 +80,7 @@
     {
       "id": "p05",
       "type": "narration",
-      "background": "prologue_mcc_cargo_ship_interior_v2",
+      "background": "cargo_ship_interior",
       "bgm": "ambient_engine_hum",
       "transition": "cut",
       "lines": [
@@ -110,7 +110,7 @@
     {
       "id": "p07",
       "type": "dialogue",
-      "background": "prologue_mcc_cargo_ship_interior_v3",
+      "background": "cargo_ship_interior",
       "bgm": "tension_low",
       "transition": "fade_medium",
       "lines": [
@@ -167,7 +167,7 @@
     {
       "id": "p09",
       "type": "dialogue",
-      "background": "prologue_mcc_cargo_ship_interior_v2",
+      "background": "cargo_ship_interior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -325,7 +325,7 @@
     {
       "id": "p17",
       "type": "narration",
-      "background": "prologue_mcc_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "hellas_ambient",
       "transition": "cut",
       "lines": [
@@ -340,7 +340,7 @@
     {
       "id": "p18",
       "type": "dialogue",
-      "background": "prologue_mcc_hellas_central_exterior_v3",
+      "background": "hellas_central_exterior",
       "bgm": "hellas_ambient",
       "transition": "cut",
       "lines": [
@@ -388,7 +388,7 @@
     {
       "id": "p20",
       "type": "dialogue",
-      "background": "prologue_mcc_mcc_briefing_room_v2",
+      "background": "mcc_briefing_room",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -429,7 +429,7 @@
     {
       "id": "p21",
       "type": "narration",
-      "background": "prologue_mcc_mcc_briefing_room_v3",
+      "background": "mcc_briefing_room",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -474,7 +474,7 @@
     {
       "id": "p24",
       "type": "dialogue",
-      "background": "prologue_mcc_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "hellas_ambient",
       "transition": "fade_medium",
       "lines": [
@@ -522,7 +522,7 @@
     {
       "id": "p26",
       "type": "narration",
-      "background": "prologue_mcc_hellas_mine_exterior_v2",
+      "background": "hellas_mine_exterior",
       "bgm": "hellas_ambient",
       "transition": "cut",
       "lines": [
@@ -570,7 +570,7 @@
     {
       "id": "p28",
       "type": "narration",
-      "background": "prologue_mcc_hellas_central_exterior_v3",
+      "background": "hellas_central_exterior",
       "bgm": "hellas_ambient",
       "transition": "fade_medium",
       "lines": [
@@ -600,7 +600,7 @@
     {
       "id": "p30",
       "type": "narration",
-      "background": "prologue_mcc_hellas_mining_outpost_v2",
+      "background": "hellas_mining_outpost",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -624,14 +624,14 @@
             "ko": "더 있었다. 사고 기록이었다. 지난 2년. 세 건이었다. 사고 원인란이 비어 있었다. 세 건 모두. 이름만 있었다. 사망. 사망. 사망. 원인 없는 사망. 그것이 가능했다. 화성에서는. 원인을 쓰지 않으면 원인이 없는 것이었다.",
             "en": "More was there. Accident records. Past two years. Three cases. The cause section was blank. All three. Only names. Death. Death. Death. Deaths without cause. That was possible on Mars. If you didn't write the cause there was no cause."
           },
-          "background": "mcc_prologue_l30_00_death_still"
+          "overlay": "mcc_prologue_l30_00_death_still"
         }
       ]
     },
     {
       "id": "p32",
       "type": "dialogue",
-      "background": "prologue_mcc_hellas_mining_outpost_v2",
+      "background": "hellas_mining_outpost",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -679,7 +679,7 @@
     {
       "id": "p34",
       "type": "dialogue",
-      "background": "prologue_mcc_mcc_briefing_room_v2",
+      "background": "mcc_briefing_room",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -712,7 +712,7 @@
     {
       "id": "p35",
       "type": "narration",
-      "background": "prologue_mcc_mcc_briefing_room_v3",
+      "background": "mcc_briefing_room",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -760,7 +760,7 @@
     {
       "id": "p37",
       "type": "narration",
-      "background": "prologue_mcc_mcc_briefing_room_v2",
+      "background": "mcc_briefing_room",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -775,7 +775,7 @@
     {
       "id": "p38",
       "type": "dialogue",
-      "background": "prologue_mcc_mcc_briefing_room_v3",
+      "background": "mcc_briefing_room",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -831,7 +831,7 @@
     {
       "id": "p40",
       "type": "narration",
-      "background": "prologue_mcc_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "hellas_ambient",
       "transition": "cut",
       "lines": [
@@ -846,7 +846,7 @@
     {
       "id": "p_ending",
       "type": "ending",
-      "background": "prologue_mcc_hellas_central_exterior_v3",
+      "background": "hellas_central_exterior",
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -855,7 +855,7 @@
             "ko": "화성이 당신을 기다리고 있었다.\n이 행성에서 당신은 무엇이 될 것인가.\nChen Weiss가 보고서를 읽고 있을 것이었다. 차를 들고. 마시지 않고.",
             "en": "Mars was waiting for you.\nWhat would you become on this planet.\nChen Weiss would be reading the report. Holding her tea. Not drinking."
           },
-          "background": "mcc_prologue_l40_00_sealed_file"
+          "overlay": "mcc_prologue_l40_00_sealed_file"
         }
       ],
       "next_chapter_preview": {

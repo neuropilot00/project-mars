@@ -66,7 +66,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v2",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -130,7 +130,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v3",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -164,7 +164,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v4",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -179,7 +179,7 @@
     {
       "id": "s06b_kenji_bg",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v5",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -235,7 +235,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v2",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -260,7 +260,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v3",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -269,14 +269,14 @@
             "ko": "Kenji가 패키지를 건넸다. 작은 것. 데이터 스틱이었다. Liang Wei의 백업. 그리고 다른 것들. MCC 내부 통신. 5년치. 그것이 손 위에 있었다. 작은 것이었다. 그러나 무거웠다.",
             "en": "Kenji handed over a package. Small. A data stick. Liang Wei's backup. And other things. MCC internal communications. Five years' worth. That was in the hand. Small. But heavy."
           },
-          "background": "fsp_ch6_the_mole_l11_00_sealed_file"
+          "overlay": "fsp_ch6_the_mole_l11_00_sealed_file"
         }
       ]
     },
     {
       "id": "s08b_data_content",
       "type": "dialogue",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v4",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -317,7 +317,7 @@
     {
       "id": "s08c_danger",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v5",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -365,7 +365,7 @@
     {
       "id": "s09",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v2",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -380,7 +380,7 @@
     {
       "id": "s10",
       "type": "dialogue",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v3",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -413,7 +413,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v4",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -428,7 +428,7 @@
     {
       "id": "s11b_kenji_fear",
       "type": "dialogue",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v5",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -521,7 +521,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v2",
+      "background": "hellas_central_exterior_night",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -536,7 +536,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v3",
+      "background": "hellas_central_exterior_night",
       "bgm": "battle_theme_fsp",
       "transition": "cut",
       "title": {
@@ -590,7 +590,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_hellas_central_exterior_night_v4",
+      "background": "hellas_central_exterior_night",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -619,7 +619,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_fsp_base_night_v2",
+      "background": "fsp_base_night",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -634,7 +634,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_fsp_base_night_v3",
+      "background": "fsp_base_night",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -643,7 +643,7 @@
             "ko": "Lena가 팔을 봤다. 이름들. 그 중 누군가가 FSP 내부자 때문에 죽었을 가능성이 있었다. Park Sung-jin. 7번 광산. 세 번의 수리 거부. 그것이 우연이었는지. 아니었는지. 아직 알 수 없었다.",
             "en": "Lena looked at her arm. The names. One of them might have died because of the FSP mole. Park Sung-jin. Mine 7. Three repair refusals. Whether that was coincidence. Or not. Couldn't yet be known."
           },
-          "background": "fsp_ch6_the_mole_l27_00_death_still"
+          "overlay": "fsp_ch6_the_mole_l27_00_death_still"
         }
       ]
     },
@@ -675,7 +675,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_fsp_base_night_v2",
+      "background": "fsp_base_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -690,7 +690,7 @@
     {
       "id": "s17b_data_use",
       "type": "dialogue",
-      "background": "fsp_ch6_the_mole_fsp_base_night_v3",
+      "background": "fsp_base_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -738,7 +738,7 @@
     {
       "id": "s17d_kenji_safe",
       "type": "dialogue",
-      "background": "fsp_ch6_the_mole_fsp_base_night_v2",
+      "background": "fsp_base_night",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -771,7 +771,7 @@
     {
       "id": "s18_mikhail",
       "type": "narration",
-      "background": "fsp_ch6_the_mole_fsp_base_night_v3",
+      "background": "fsp_base_night",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [

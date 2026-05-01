@@ -35,7 +35,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -50,7 +50,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -65,7 +65,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -80,7 +80,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -89,7 +89,7 @@
             "ko": "그녀의 부모는 광부였다. 화성 태생. 화성에서 태어난 두 번째 세대. 광산에서 일했고 광산에서 죽었다. Chen은 그것을 자주 말하지 않았다. 그러나 차를 들 때마다 어디선가 그것이 있었다.",
             "en": "Her parents had been miners. Born on Mars. Second generation. They worked the mines and they died in them. Chen didn't talk about it often. But whenever she held the tea it was there somewhere."
           },
-          "background": "mcc_ch3_boardroom_l04_00_death_still"
+          "overlay": "mcc_ch3_boardroom_l04_00_death_still"
         }
       ]
     },
@@ -111,7 +111,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v6",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -160,7 +160,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -193,7 +193,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -208,7 +208,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -235,14 +235,14 @@
             "ko": "그래서 MCC에 들어왔어요. 그것을 채우려고.",
             "en": "That's why I entered MCC. To fill it in."
           },
-          "background": "mcc_ch3_boardroom_l10_02_sealed_file"
+          "overlay": "mcc_ch3_boardroom_l10_02_sealed_file"
         }
       ]
     },
     {
       "id": "s12",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_hellas_central_exterior_panorama_v2",
+      "background": "hellas_central_exterior_panorama",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -257,7 +257,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -290,7 +290,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v6",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -338,7 +338,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -386,7 +386,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -401,7 +401,7 @@
     {
       "id": "s19",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -442,7 +442,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -457,7 +457,7 @@
     {
       "id": "s21",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_hellas_central_exterior_panorama_v2",
+      "background": "hellas_central_exterior_panorama",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -490,7 +490,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v6",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -538,7 +538,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -553,7 +553,7 @@
     {
       "id": "s25",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -601,7 +601,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -634,7 +634,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -649,7 +649,7 @@
     {
       "id": "s29",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_hellas_central_exterior_panorama_v2",
+      "background": "hellas_central_exterior_panorama",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -682,7 +682,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v6",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -757,7 +757,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v2",
+      "background": "mcc_executive_floor",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -772,7 +772,7 @@
     {
       "id": "s32",
       "type": "dialogue",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v3",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -820,7 +820,7 @@
     {
       "id": "s34",
       "type": "narration",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v4",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "cut",
       "lines": [
@@ -829,7 +829,7 @@
             "ko": "문을 향해 걸었다. Chen은 창을 보고 있었다. 차를 들고. 마시지 않고. 뒤에서 보면 그녀의 어깨가 보였다. MCC 22년. 광산 부모. 12살의 혼자. 그것들이 그 어깨에 있었다. 보이지 않았지만 있었다. 화성의 것들은 그랬다.",
             "en": "Walked toward the door. Chen was looking at the window. Holding her tea. Not drinking. From behind her shoulders were visible. 22 years of MCC. Miner parents. Twelve and alone. Those things were in those shoulders. Invisible but there. Things on Mars were like that."
           },
-          "background": "mcc_ch3_boardroom_l34_00_alone_window"
+          "overlay": "mcc_ch3_boardroom_l34_00_alone_window"
         }
       ]
     },
@@ -904,7 +904,7 @@
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "mcc_ch3_boardroom_mcc_executive_floor_v5",
+      "background": "mcc_executive_floor",
       "bgm": "mcc_ambient_warm",
       "transition": "fade_slow",
       "lines": [

@@ -37,7 +37,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v2",
+      "background": "argyre_plains_dusk",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -52,7 +52,7 @@
     {
       "id": "s03",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v3",
+      "background": "argyre_plains_dusk",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -86,7 +86,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v4",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -95,14 +95,14 @@
             "ko": "Butcher가 외투를 입고 있었다. 주머니에 손이 있었다. 사진 위에. 그것이 전투 전에 하는 일이었다. 30년 동안. 이름들을 만지는 것이었다. 말하지 않고. 손으로. 그것이 이 사람의 준비였다.",
             "en": "Butcher was wearing the coat. Hand in the pocket. On the photo. That was what he did before battle. For thirty years. Touching the names. Without speaking. With the hand. That was this man's preparation."
           },
-          "background": "cv_ch8_red_parliament_cv_l03_00_hand_still"
+          "overlay": "cv_ch8_red_parliament_cv_l03_00_hand_still"
         }
       ]
     },
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v5",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -176,7 +176,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -191,7 +191,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v3",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -224,7 +224,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v4",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -272,7 +272,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -287,7 +287,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v3",
+      "background": "erebus_throne_hall",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -312,7 +312,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v2",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -327,7 +327,7 @@
     {
       "id": "s15",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v3",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -352,7 +352,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v4",
+      "background": "erebus_throne_hall",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -361,7 +361,7 @@
             "ko": "Butcher가 사진을 꺼냈다. 뒤집었다. 이름들을 봤다. 30년 된 것들. Zone 12. 그 사이의 것들. 테이블에 올려놓았다. 처음이었다. 테이블 위에 사진을 올려놓은 것. 두 손이 테이블을 짚었다. 의수와 오른손으로.",
             "en": "Butcher took out the photo. Flipped it. Looked at the names. Thirty-year-old ones. Zone 12. The ones in between. He placed it on the table. First time. The photo on the table. Both hands on the table. The prosthetic and the right hand."
           },
-          "background": "cv_ch8_red_parliament_cv_l15_00_death_still"
+          "overlay": "cv_ch8_red_parliament_cv_l15_00_death_still"
         }
       ]
     },
@@ -393,7 +393,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v4",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -408,7 +408,7 @@
     {
       "id": "s19",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v5",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -441,7 +441,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -456,7 +456,7 @@
     {
       "id": "s21",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v3",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -481,7 +481,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v4",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -536,7 +536,7 @@
     {
       "id": "s25",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v2",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -569,7 +569,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v3",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -584,7 +584,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -617,7 +617,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v4",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -632,7 +632,7 @@
     {
       "id": "s29",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v5",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -680,7 +680,7 @@
     {
       "id": "s31",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v2",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -713,7 +713,7 @@
     {
       "id": "s32",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v3",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -728,7 +728,7 @@
     {
       "id": "s33",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v4",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -753,7 +753,7 @@
     {
       "id": "s34",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v5",
+      "background": "argyre_plains_dusk",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -828,7 +828,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v2",
+      "background": "argyre_plains_dusk",
       "bgm": "battle_theme_cv",
       "transition": "flash_white",
       "title": {
@@ -849,7 +849,7 @@
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v3",
+      "background": "argyre_plains_dusk",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -876,14 +876,14 @@
             "ko": "당신이야. 다음은. 내 결정이야. 사진이 증거야.",
             "en": "You. The next one. My decision. The photo is the proof."
           },
-          "background": "cv_ch8_red_parliament_cv_l37_02_death_still"
+          "overlay": "cv_ch8_red_parliament_cv_l37_02_death_still"
         }
       ]
     },
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v4",
+      "background": "argyre_plains_dusk",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -897,7 +897,7 @@
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "cv_ch8_red_parliament_cv_argyre_plains_dusk_v5",
+      "background": "argyre_plains_dusk",
       "bgm": "cv_ambient",
       "transition": "fade_slow",
       "lines": [

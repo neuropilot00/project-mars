@@ -1236,7 +1236,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .story-title-card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.4);font-size:clamp(24px,8vw,44px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.9);padding:28px;letter-spacing:0}
 .story-title-card small{display:block;margin-top:12px;font-size:clamp(13px,3.5vw,18px);color:#FFD700;line-height:1.5}
 .story-narration-text{text-align:center;background:none;color:#f0f0f0;font-size:1rem;line-height:1.8;text-shadow:0 2px 14px rgba(0,0,0,.95)}
-/* (line.background 라인 전용 풀스크린 배경 swap 으로 대체. 기존 floating .story-detail-overlay 폐기) */
+/* 씬 디테일 오버레이 — line.overlay 필드 명시된 장면에서만 중앙 표시 (한 location 안에서 시각적 강조 컷) */
+.story-detail-overlay{position:absolute;left:50%;bottom:185px;width:176px;height:176px;border-radius:14px;object-fit:cover;opacity:0;pointer-events:none;transition:opacity .5s ease,transform .5s ease;transform:translateX(-50%) translateY(16px) scale(.9);border:2px solid rgba(255,255,255,.22);box-shadow:0 8px 40px rgba(0,0,0,.85);z-index:10}
+.story-detail-overlay.visible{opacity:.95;transform:translateX(-50%) translateY(0) scale(1)}
+@media(max-width:520px){.story-detail-overlay{width:148px;height:148px;bottom:175px}}
 /* 스토리 컨트롤 (스킵/나가기) — safe area 고려 */
 .story-controls{position:absolute;top:max(10px,env(safe-area-inset-top,10px));right:12px;display:flex;gap:8px;z-index:5;cursor:default}
 .story-ctrl-btn{padding:8px 13px;min-height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.65);color:#ddd;font-family:var(--fn);font-size:9px;letter-spacing:1px;font-weight:800;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .15s;-webkit-tap-highlight-color:transparent}
@@ -24862,6 +24865,7 @@ function showCampaignStory(chapter){
     +'<div class="story-background"></div>'
     +'<img class="story-character-left" alt="">'
     +'<img class="story-character-right" alt="">'
+    +'<img class="story-detail-overlay" alt="">'
     +'<div class="story-controls">'
       +'<button type="button" class="story-ctrl-btn" id="storySkipBtn" title="다음 장면으로">▶ SKIP</button>'
       +'<button type="button" class="story-ctrl-btn danger" id="storyAbandonBtn" title="시나리오를 종료하고 챕터 진행을 포기합니다">✕ 나가기</button>'
@@ -24997,7 +25001,24 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
   });
 }
 
-// (구 floating overlay 폐기. line.background 가 있으면 _campaignStorySetBackground 가 풀스크린 배경 swap.)
+// 씬 디테일 오버레이 — line.overlay 필드 (e.g., "cv_ch10_from_flames_l00_00_fire_small")
+// 가 명시된 line 에서만 중앙 closeup 표시. 한 location 의 base 배경은 그대로 두고
+// overlay 만 한정적으로 점멸 → 화면 churn 없이 시각적 강조.
+function _showStoryDetailOverlay(overlayName){
+  var el = document.querySelector('.story-detail-overlay');
+  if(!el) return;
+  el.classList.remove('visible');
+  if(!overlayName) return;
+  var src = '/assets/campaign/backgrounds/' + overlayName + '.png?v=20260501d';
+  if(el.getAttribute('data-src') === src && el.complete && el.naturalWidth > 0){
+    el.classList.add('visible');
+    return;
+  }
+  el.setAttribute('data-src', src);
+  el.onload = function(){ el.classList.add('visible'); };
+  el.onerror = function(){ el.classList.remove('visible'); };
+  el.src = src;
+}
 
 function typeText(element,text,onComplete){
   // 클릭 즉시완료를 위해 타이머와 전체 텍스트를 전역에 보관한다.
@@ -25041,24 +25062,23 @@ function renderCampaignScene(){
 
   if(scene.type==='narration'||scene.type==='ending'){
     var nLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
-    // line 전용 배경(dedicated scene bg)이 있으면 풀스크린으로 swap
-    if(nLine.background) _campaignStorySetBackground(scene,overlay,nLine.background);
     _campaignStoryRenderCharacters(scene,nLine,overlay);
     box.style.background='transparent';
     box.style.borderTop='none';
     box.style.backdropFilter='none';
     box.innerHTML='<div class="story-text story-narration-text"></div>';
     var _nText=_campaignStoryText(nLine.text);
+    _showStoryDetailOverlay(nLine.overlay||null);
     typeText(box.querySelector('.story-text'),_nText,null);
     return;
   }
 
   if(scene.type==='dialogue'){
     var dLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
-    if(dLine.background) _campaignStorySetBackground(scene,overlay,dLine.background);
     _campaignStoryRenderCharacters(scene,dLine,overlay);
     box.innerHTML='<div class="story-speaker-name">'+escapeHtmlSafe(_campaignStorySpeakerName(dLine.speaker||scene.speaker))+'</div><div class="story-text"></div>';
     var _dText=_campaignStoryText(dLine.text);
+    _showStoryDetailOverlay(dLine.overlay||null);
     typeText(box.querySelector('.story-text'),_dText,null);
     return;
   }

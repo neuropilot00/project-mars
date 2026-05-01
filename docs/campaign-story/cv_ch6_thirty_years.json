@@ -45,14 +45,14 @@
             "ko": "Butcher가 거기 앉아 있었다. 사진을 들고 있었다. 처음 본 것이었다. 주머니 밖에서. 흑백이었다. 오래됐다. 30년. 사람들이 있었다. 여러 명. 광부들이었다. 그 중 한 명이 Butcher와 닮은 것 같았다. 젊은 것이었다. 17살쯤 되는 것 같았다.",
             "en": "Butcher was sitting there. Holding the photo. First time seeing it. Outside the pocket. Black and white. Old. Thirty years. There were people. Several. Miners. One of them looked like Butcher. Young. Seemed about seventeen."
           },
-          "background": "cv_ch6_thirty_years_l01_00_death_still"
+          "overlay": "cv_ch6_thirty_years_l01_00_death_still"
         }
       ]
     },
     {
       "id": "s03",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "cv_ambient",
       "transition": "cut",
       "lines": [
@@ -101,7 +101,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
+      "background": "erebus_throne_hall",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -149,7 +149,7 @@
     {
       "id": "s07",
       "type": "narration",
-      "background": "cv_ch6_thirty_years_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -164,7 +164,7 @@
     {
       "id": "s08",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
+      "background": "erebus_throne_hall",
       "bgm": "tension_low",
       "transition": "fade_medium",
       "lines": [
@@ -191,7 +191,7 @@
             "ko": "이름들이 사진 뒤에 있어. 그게 전부야. 이름들이 뭘 만들었는지. CV가 그거야.",
             "en": "The names are on the back of the photo. That's all. What names built. That's CV."
           },
-          "background": "cv_ch6_thirty_years_l07_02_sealed_file"
+          "overlay": "cv_ch6_thirty_years_l07_02_sealed_file"
         }
       ]
     },
@@ -213,7 +213,7 @@
     {
       "id": "s10",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "fade_medium",
       "lines": [
@@ -253,7 +253,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -287,7 +287,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "cv_ch6_thirty_years_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -302,7 +302,7 @@
     {
       "id": "s14",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -350,7 +350,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
+      "background": "erebus_throne_hall",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -375,7 +375,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
+      "background": "erebus_throne_hall",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -415,7 +415,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -455,7 +455,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "fade_medium",
       "lines": [
@@ -470,7 +470,7 @@
     {
       "id": "s22",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -481,7 +481,7 @@
             "ko": "Zone 12 이름들이 여기 있어요.",
             "en": "The Zone 12 names are here."
           },
-          "background": "cv_ch6_thirty_years_l21_00_zone12_record"
+          "overlay": "cv_ch6_thirty_years_l21_00_zone12_record"
         },
         {
           "speaker": "cinder",
@@ -519,7 +519,7 @@
     {
       "id": "s24",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
+      "background": "erebus_throne_hall",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -559,7 +559,7 @@
     {
       "id": "s26",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -599,7 +599,7 @@
     {
       "id": "s28",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -632,7 +632,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "cv_ch6_thirty_years_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -647,7 +647,7 @@
     {
       "id": "s30",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
+      "background": "erebus_throne_hall",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -672,7 +672,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
+      "background": "erebus_throne_hall",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -712,7 +712,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v2",
+      "background": "erebus_throne_hall",
       "bgm": "choice_tension",
       "transition": "cut",
       "lines": [
@@ -727,7 +727,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v3",
+      "background": "erebus_throne_hall",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Butcher의 시험. 살아남은 자의 의무. 무엇이라고 답합니까.",
@@ -802,7 +802,7 @@
     {
       "id": "s35",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_base_interior_v2",
+      "background": "erebus_base_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -827,7 +827,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "cv_ch6_thirty_years_erebus_crater_exterior_v2",
+      "background": "erebus_crater_exterior",
       "bgm": "battle_theme_cv",
       "transition": "fade_slow",
       "title": {
@@ -848,7 +848,7 @@
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v4",
+      "background": "erebus_throne_hall",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -875,14 +875,14 @@
             "ko": "사진 뒤에 빈 공간 있어. 거기 당신 이름 쓸 자리야. 시험 통과했어.",
             "en": "There's empty space on the back of the photo. That's where your name goes. Test passed."
           },
-          "background": "cv_ch6_thirty_years_l38_02_candle_flame"
+          "overlay": "cv_ch6_thirty_years_l38_02_candle_flame"
         }
       ]
     },
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "cv_ch6_thirty_years_erebus_throne_hall_v5",
+      "background": "erebus_throne_hall",
       "bgm": "defeat_ambient",
       "lines": [
         {

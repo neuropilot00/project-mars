@@ -54,7 +54,7 @@
     {
       "id": "s03",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -88,7 +88,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -103,7 +103,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -136,7 +136,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -151,7 +151,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -199,7 +199,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -226,14 +226,14 @@
             "ko": "22년 동안 내가 잠가두었던 것이에요. 그것이 테이블 위에 있어요.",
             "en": "Something I had locked away for twenty-two years. It's on the table."
           },
-          "background": "mcc_ch9_martian_night_l08_02_zone12_record"
+          "overlay": "mcc_ch9_martian_night_l08_02_zone12_record"
         }
       ]
     },
     {
       "id": "s10",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -248,7 +248,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -281,7 +281,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -296,7 +296,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -344,7 +344,7 @@
     {
       "id": "s15",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -369,7 +369,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -384,7 +384,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -409,7 +409,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -424,7 +424,7 @@
     {
       "id": "s19",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -505,7 +505,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -520,7 +520,7 @@
     {
       "id": "s23",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -568,7 +568,7 @@
     {
       "id": "s25",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -593,7 +593,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -608,7 +608,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -642,14 +642,14 @@
             "ko": "Chen이 차를 들었다. 마시지 않았다. 이 방에서. 22년 동안 마시지 않은 것. 그러나 오늘. 조금. 마셨다. 테이블 위에 Zone 12 사진이 있었다. Cinder가 가져온 것. 그것이 이 방에 있었다. 그것이 오늘이 다른 이유였다.",
             "en": "Chen held her tea. Didn't drink it. In this room. Twenty-two years without drinking. But today. A little. She drank. Zone 12 photo was on the table. What Cinder brought. It was in this room. That was why today was different."
           },
-          "background": "mcc_ch9_martian_night_l27_00_zone12_record"
+          "overlay": "mcc_ch9_martian_night_l27_00_zone12_record"
         }
       ]
     },
     {
       "id": "s29",
       "type": "dialogue",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -682,7 +682,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -722,7 +722,7 @@
     {
       "id": "s32",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -737,7 +737,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Chen이 서명하려 한다. Pilgrim Arms가 접근한다. 이사회의 지시와 눈앞의 것 사이에서.",
@@ -797,7 +797,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "mcc_ch9_martian_night_olympus_exterior_v2",
+      "background": "olympus_exterior",
       "bgm": "battle_theme_mcc",
       "transition": "flash_white",
       "title": {
@@ -818,7 +818,7 @@
     {
       "id": "s_success",
       "type": "narration",
-      "background": "mcc_ch9_martian_night_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "victory_calm",
       "lines": [
         {
@@ -826,7 +826,7 @@
             "ko": "합의서가 서명됐다. 세 파벌. 세 서명. Chen의 서명은 마지막이었다. 그녀는 펜을 잡기 전에 차를 내려놓았다. 두 손으로 서명했다. 오른손이 왼손을 받쳤다. 그것은 그녀의 방식이 아니었다. 그러나 오늘은 그랬다. 이 서명은 그만한 것이었다.",
             "en": "The agreement was signed. Three factions. Three signatures. Chen's was last. Before taking the pen she set down her tea. She signed with both hands. The right supporting the left. That was not her way. But today it was. This signature was worth that."
           },
-          "background": "mcc_ch9_martian_night_l35_00_contract_sign"
+          "overlay": "mcc_ch9_martian_night_l35_00_contract_sign"
         }
       ]
     },
@@ -856,7 +856,7 @@
             "ko": "올림포스에서 내려오는 길. 화성 전체가 보였다. 붉었다. 아래에 헬라스가 있었다. MCC의 도시가 있었다. 더 작게 보면 C-7 블록이 있었다. 분필 이름들이 있었다. 내려가면 그것들이 다시 컸다. 그것이 이 산에서 배우는 것이었다. 작은 것들은 내려가면 다시 컸다.",
             "en": "Descending from Olympus. All of Mars was visible. Red. Below was Hellas. MCC's city. Smaller still was block C-7. The chalk names. Coming down they would be large again. That was what this mountain taught. Small things became large again on the way down."
           },
-          "background": "mcc_ch9_martian_night_l37_00_mars_horizon"
+          "overlay": "mcc_ch9_martian_night_l37_00_mars_horizon"
         }
       ],
       "next_chapter_preview": {

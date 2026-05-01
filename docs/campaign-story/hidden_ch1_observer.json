@@ -35,7 +35,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -50,7 +50,7 @@
     {
       "id": "s03",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_central_exterior_v3",
+      "background": "hellas_central_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -80,7 +80,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -95,7 +95,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_central_exterior_v3",
+      "background": "hellas_central_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -125,7 +125,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -134,14 +134,14 @@
             "ko": "헬라스 센트럴 외벽에 무언가가 있었다. 잘 보이지 않았다. 관찰자가 가까이 갔다. 손자국이었다. 오래된 것. 붉은 흙이 묻어 있었다. 누군가 이 벽을 짚었다. 이유는 몰랐다. 그러나 손이 있었다. 손의 크기가 있었다. 작은 손이었다.",
             "en": "On the outer wall of Hellas Central there was something. Not clearly visible. The observer moved closer. A handprint. Old. Red soil embedded. Someone had leaned on this wall. The reason was unknown. But a hand had been there. The size of the hand. It was a small hand."
           },
-          "background": "hidden_ch1_observer_l07_00_hand_still"
+          "overlay": "hidden_ch1_observer_l07_00_hand_still"
         }
       ]
     },
     {
       "id": "s09",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_central_exterior_v3",
+      "background": "hellas_central_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -186,7 +186,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "hidden_ch1_observer_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -216,7 +216,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "hidden_ch1_observer_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -240,14 +240,14 @@
             "ko": "글씨는 이름들이었다. 세 개. 네 개. 다섯 개. 그것이 전부인지 몰랐다. 공지 아래 공간이 작았다. 이름들이 MCC 법률 용어 아래 있었다. 법률 용어는 컸다. 이름들은 작았다. 그러나 이름들이 있었다. 그것이 있다는 것이 중요했다.",
             "en": "The writing was names. Three. Four. Five. Whether that was all was unknown. The space below the notice was small. The names were beneath MCC legal terms. The legal terms were large. The names were small. But the names were there. That they existed was what mattered."
           },
-          "background": "hidden_ch1_observer_l14_00_candle_flame"
+          "overlay": "hidden_ch1_observer_l14_00_candle_flame"
         }
       ]
     },
     {
       "id": "s16",
       "type": "narration",
-      "background": "hidden_ch1_observer_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -277,7 +277,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_mining_village_empty_v2",
+      "background": "hellas_mining_village_empty",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -307,7 +307,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_mining_village_empty_v2",
+      "background": "hellas_mining_village_empty",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -337,7 +337,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_mining_village_empty_v2",
+      "background": "hellas_mining_village_empty",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -346,7 +346,7 @@
             "ko": "검게 탄 벽에 손자국이 있었다. 손자국들이었다. 여러 개. 탈출한 사람들의 것이었다. 벽을 짚고 나온 것이었다. 그 손자국들이 같은 방향을 향했다. 출구 방향. 모두 살아나가려 했다. 살아나갔는지는 몰랐다.",
             "en": "On the charred wall there were handprints. Multiple handprints. Those of people who had escaped. They had leaned on the wall to get out. Those handprints all faced the same direction. The exit direction. All had tried to get out alive. Whether they got out alive was unknown."
           },
-          "background": "hidden_ch1_observer_l21_00_collapse_debris"
+          "overlay": "hidden_ch1_observer_l21_00_collapse_debris"
         }
       ]
     },
@@ -383,7 +383,7 @@
     {
       "id": "s25",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_zone4_ruins_v2",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -392,7 +392,7 @@
             "ko": "표지판 옆에 비석이 있었다. 작은 것이었다. MCC가 세운 것이 아니었다. 누군가 세운 것이었다. 돌에 이름들이 새겨져 있었다. 관찰자가 가까이 갔다. 이름들을 읽으려 했다. 읽을 수 없었다. 글씨가 지워져 있었다. 일부러 지운 것인지. 세월에 지워진 것인지. 알 수 없었다.",
             "en": "Next to the sign there was a small stone marker. Not erected by MCC. Erected by someone. Names were carved in the stone. The observer approached. Tried to read the names. Couldn't read them. The writing had been erased. Whether deliberately erased. Or erased by time. Unknown."
           },
-          "background": "hidden_ch1_observer_l24_00_sealed_file"
+          "overlay": "hidden_ch1_observer_l24_00_sealed_file"
         }
       ]
     },
@@ -414,7 +414,7 @@
     {
       "id": "s27",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_zone4_ruins_v2",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -444,7 +444,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_zone4_ruins_v2",
+      "background": "hellas_zone4_ruins",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -474,7 +474,7 @@
     {
       "id": "s31",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -504,7 +504,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "hidden_ch1_observer_hellas_labor_district_night_v2",
+      "background": "hellas_labor_district_night",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [

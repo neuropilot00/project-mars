@@ -37,7 +37,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v2",
+      "background": "kepler_crater_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -67,7 +67,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v2",
+      "background": "kepler_crater",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -82,7 +82,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v3",
+      "background": "kepler_crater",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -110,14 +110,14 @@
             "ko": "이제 말할 거예요. 케플러 분화구 아래 Ancient Metal이 있어요. 그것은 화성의 것이에요. MCC의 것도 FSP의 것도 CV의 것도 아니에요.",
             "en": "Now I'll say it. Below Kepler Crater there is Ancient Metal. It belongs to Mars. Not to MCC. Not to FSP. Not to CV."
           },
-          "background": "fsp_ch5_kepler_commons_l04_02_ore_sample"
+          "overlay": "fsp_ch5_kepler_commons_l04_02_ore_sample"
         }
       ]
     },
     {
       "id": "s06",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v4",
+      "background": "kepler_crater",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -132,7 +132,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v5",
+      "background": "kepler_crater",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -181,7 +181,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v2",
+      "background": "kepler_crater",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -236,7 +236,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v3",
+      "background": "kepler_crater",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -261,7 +261,7 @@
     {
       "id": "s12b_assembly",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v3",
+      "background": "kepler_crater_dawn",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -309,7 +309,7 @@
     {
       "id": "s12d_miners",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v2",
+      "background": "kepler_crater_dawn",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -318,14 +318,14 @@
             "ko": "사람들이 움직이기 시작했다. 데이터 스틱들. 복사. 손에서 손으로. 그것이 퍼져나가는 방식이었다. 디지털이 아닌 방식으로. 사람이 사람에게 건네는 것으로. 화성에서 가장 오래된 방식이었다.",
             "en": "People began to move. Data sticks. Copying. Hand to hand. That was how it spread. Not digitally. Person handing to person. The oldest way on Mars."
           },
-          "background": "fsp_ch5_kepler_commons_l14_00_darkness_corridor"
+          "overlay": "fsp_ch5_kepler_commons_l14_00_darkness_corridor"
         }
       ]
     },
     {
       "id": "s13",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v4",
+      "background": "kepler_crater",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -340,7 +340,7 @@
     {
       "id": "s13b_mcc_agent",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v5",
+      "background": "kepler_crater",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -388,7 +388,7 @@
     {
       "id": "s13d_miners_block",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v2",
+      "background": "kepler_crater",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -403,7 +403,7 @@
     {
       "id": "s13e_liang_wei_final",
       "type": "dialogue",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v3",
+      "background": "kepler_crater",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -428,7 +428,7 @@
     {
       "id": "s13f_seed",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v4",
+      "background": "kepler_crater",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -443,7 +443,7 @@
     {
       "id": "s14",
       "type": "dialogue",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v5",
+      "background": "kepler_crater",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -528,7 +528,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v2",
+      "background": "kepler_crater",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -543,7 +543,7 @@
     {
       "id": "s_battle",
       "type": "battle_transition",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v3",
+      "background": "kepler_crater",
       "bgm": "battle_theme_fsp",
       "transition": "flash_white",
       "title": {
@@ -589,7 +589,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_v4",
+      "background": "kepler_crater",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -603,7 +603,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -618,7 +618,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v3",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -658,7 +658,7 @@
     {
       "id": "s19_constitution",
       "type": "dialogue",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -699,7 +699,7 @@
     {
       "id": "s20_data_spread",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v3",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -747,7 +747,7 @@
     {
       "id": "s22_weight",
       "type": "narration",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "ambient_melancholy",
       "transition": "cut",
       "lines": [
@@ -762,7 +762,7 @@
     {
       "id": "s23_connection",
       "type": "dialogue",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v3",
+      "background": "kepler_crater_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -810,7 +810,7 @@
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "fsp_ch5_kepler_commons_kepler_crater_dawn_v2",
+      "background": "kepler_crater_dawn",
       "bgm": "ambient_melancholy",
       "transition": "fade_slow",
       "lines": [
@@ -819,7 +819,7 @@
             "ko": "케플러 분화구가 붉게 물들었다. 화성의 해가 기울었다. Liang Wei가 한 번 더 봤다. 분화구를. 30년간 본 것을. 오늘 처음으로 다른 사람들과 함께 본 것을. 혼자 있던 것이 함께가 되는 순간이 있었다. 그것이 선언이었다. 화성에서 선언은 그런 것이었다.\n\nAncient Metal이 거기 있었다. 외계 기원. 30년의 데이터. 하나의 이름. 케플러 공유지. 그것이 이제 있었다.",
             "en": "Kepler Crater turned red. The Martian sun tilted. Liang Wei looked once more. At the crater. At what she had seen for thirty years. At what she had seen today for the first time with others. There were moments when what was alone became shared. That was a declaration. On Mars that was what a declaration was.\n\nAncient Metal was there. Extraterrestrial origin. Thirty years of data. One name. Kepler Commons. That existed now."
           },
-          "background": "fsp_ch5_kepler_commons_l37_00_mars_horizon"
+          "overlay": "fsp_ch5_kepler_commons_l37_00_mars_horizon"
         }
       ],
       "next_chapter_preview": {

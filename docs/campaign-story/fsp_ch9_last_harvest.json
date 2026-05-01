@@ -66,7 +66,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_exterior_v2",
+      "background": "olympus_exterior",
       "bgm": "ambient_vast",
       "transition": "cut",
       "lines": [
@@ -156,7 +156,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -201,7 +201,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -261,7 +261,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -306,7 +306,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -363,7 +363,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -408,7 +408,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -459,14 +459,14 @@
             "ko": "이 이름들이 먼저예요.",
             "en": "These names come first."
           },
-          "background": "fsp_ch9_last_harvest_l08_05_death_still"
+          "overlay": "fsp_ch9_last_harvest_l08_05_death_still"
         }
       ]
     },
     {
       "id": "s10",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v8",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -510,7 +510,7 @@
             "ko": "Zone 12도 있어요.",
             "en": "There's Zone 12 too."
           },
-          "background": "fsp_ch9_last_harvest_l10_00_zone12_record"
+          "overlay": "fsp_ch9_last_harvest_l10_00_zone12_record"
         },
         {
           "speaker": "cinder_grace",
@@ -557,7 +557,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -590,7 +590,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -648,7 +648,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -693,7 +693,7 @@
     {
       "id": "s15",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -750,7 +750,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -795,7 +795,7 @@
     {
       "id": "s17",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -852,7 +852,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_exterior_v3",
+      "background": "olympus_exterior",
       "bgm": "battle_build",
       "transition": "flash_white",
       "lines": [
@@ -938,7 +938,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_exterior_v2",
+      "background": "olympus_exterior",
       "bgm": "battle_intense",
       "transition": "cut",
       "lines": [
@@ -1040,7 +1040,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_interior_v2",
+      "background": "olympus_summit_station_interior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1134,7 +1134,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_exterior_v3",
+      "background": "olympus_exterior",
       "bgm": "battle_fade",
       "transition": "cut",
       "lines": [
@@ -1179,7 +1179,7 @@
     {
       "id": "s25",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v8",
+      "background": "olympus_summit_station",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -1281,7 +1281,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1338,7 +1338,7 @@
     {
       "id": "s28",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1395,7 +1395,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1440,7 +1440,7 @@
     {
       "id": "s30",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1497,7 +1497,7 @@
     {
       "id": "s31",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1554,7 +1554,7 @@
     {
       "id": "s32",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1593,7 +1593,7 @@
     {
       "id": "s33",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v8",
+      "background": "olympus_summit_station",
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
@@ -1695,7 +1695,7 @@
     {
       "id": "s35",
       "type": "choice",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "합의문에 무엇을 먼저 써야 합니까.",
@@ -1755,7 +1755,7 @@
     {
       "id": "s36",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1794,7 +1794,7 @@
     {
       "id": "s37",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1851,7 +1851,7 @@
     {
       "id": "s38",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1896,7 +1896,7 @@
     {
       "id": "s39",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -1953,7 +1953,7 @@
     {
       "id": "s40",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -1998,7 +1998,7 @@
     {
       "id": "s41",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v8",
+      "background": "olympus_summit_station",
       "bgm": "tension_building",
       "transition": "cut",
       "lines": [
@@ -2100,7 +2100,7 @@
     {
       "id": "s43",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v2",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -2157,7 +2157,7 @@
     {
       "id": "s44",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v3",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -2190,7 +2190,7 @@
     {
       "id": "s45",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v4",
+      "background": "olympus_summit_station",
       "bgm": "ambient_quiet",
       "transition": "cut",
       "lines": [
@@ -2248,7 +2248,7 @@
     {
       "id": "s46",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v5",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -2293,7 +2293,7 @@
     {
       "id": "s47",
       "type": "dialogue",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v6",
+      "background": "olympus_summit_station",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -2371,7 +2371,7 @@
     {
       "id": "s48",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v7",
+      "background": "olympus_summit_station",
       "bgm": "victory_calm",
       "transition": "fade_slow",
       "lines": [
@@ -2416,7 +2416,7 @@
             "ko": "그리고 Ramos. 암살자의 서명도 있었다.",
             "en": "And Ramos. The assassin's signature was there too."
           },
-          "background": "fsp_ch9_last_harvest_l49_06_contract_sign"
+          "overlay": "fsp_ch9_last_harvest_l49_06_contract_sign"
         },
         {
           "text": {
@@ -2429,7 +2429,7 @@
     {
       "id": "s49",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_summit_station_v8",
+      "background": "olympus_summit_station",
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
@@ -2474,7 +2474,7 @@
     {
       "id": "s_fail",
       "type": "narration",
-      "background": "fsp_ch9_last_harvest_olympus_exterior_v2",
+      "background": "olympus_exterior",
       "bgm": "defeat_ambient",
       "transition": "fade_slow",
       "lines": [

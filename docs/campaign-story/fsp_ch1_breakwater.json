@@ -67,7 +67,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "fsp_ch1_breakwater_hellas_mining_outpost_v2",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -82,7 +82,7 @@
     {
       "id": "s05",
       "type": "dialogue",
-      "background": "fsp_ch1_breakwater_hellas_mining_outpost_v3",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -115,7 +115,7 @@
     {
       "id": "s07",
       "type": "narration",
-      "background": "fsp_ch1_breakwater_hellas_mining_outpost_v2",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -145,7 +145,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "fsp_ch1_breakwater_hellas_mining_outpost_v3",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -202,7 +202,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "fsp_ch1_breakwater_hellas_mining_outpost_v2",
+      "background": "hellas_mining_outpost",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -235,7 +235,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "fsp_ch1_breakwater_hellas_mine_exterior_v2",
+      "background": "hellas_mine_exterior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -250,7 +250,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "fsp_ch1_breakwater_hellas_mine_exterior_v3",
+      "background": "hellas_mine_exterior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -305,7 +305,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "fsp_ch1_breakwater_fsp_base_v2",
+      "background": "fsp_base",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -362,7 +362,7 @@
     {
       "id": "s18",
       "type": "dialogue",
-      "background": "fsp_ch1_breakwater_hellas_mine_exterior_v2",
+      "background": "hellas_mine_exterior",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -395,7 +395,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "fsp_ch1_breakwater_hellas_mine_exterior_v3",
+      "background": "hellas_mine_exterior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -425,7 +425,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "fsp_ch1_breakwater_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -500,7 +500,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "fsp_ch1_breakwater_mine_exterior_v2",
+      "background": "mine_exterior",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -539,7 +539,7 @@
             "ko": "49명이 살아있었다. 여섯이 부상이었다. 둘이 중상이었다. Lena가 먼저 들어갔다. Park Sung-jin을 찾았다. 찾았다. 그 이름을. 팔 위의 이름을. 살아있는 그 이름을.",
             "en": "Forty-nine were alive. Six injured. Two critically. Lena went in first. Looking for Park Sung-jin. Found. That name. The name on the arm. That living name."
           },
-          "background": "fsp_ch1_breakwater_l24_00_death_still"
+          "overlay": "fsp_ch1_breakwater_l24_00_death_still"
         }
       ]
     },
@@ -601,7 +601,7 @@
     {
       "id": "s_fail",
       "type": "dialogue",
-      "background": "fsp_ch1_breakwater_hellas_mine_exterior_v2",
+      "background": "hellas_mine_exterior",
       "bgm": "defeat_ambient",
       "lines": [
         {
@@ -627,7 +627,7 @@
     {
       "id": "s25",
       "type": "narration",
-      "background": "fsp_ch1_breakwater_hellas_mining_village_dawn_v2",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [
@@ -651,14 +651,14 @@
             "ko": "Lena가 Park Sung-jin과 있었다. 말이 없었다. 두 사람. 팔 위의 이름. 살아있는 이름. 그것이 지금 앞에 있었다.",
             "en": "Lena was with Park Sung-jin. No words. Two people. The name on the arm. The living name. That was here now."
           },
-          "background": "fsp_ch1_breakwater_l30_00_candle_flame"
+          "overlay": "fsp_ch1_breakwater_l30_00_candle_flame"
         }
       ]
     },
     {
       "id": "s27",
       "type": "narration",
-      "background": "fsp_ch1_breakwater_hellas_mining_village_dawn_v2",
+      "background": "hellas_mining_village_dawn",
       "bgm": "fsp_ambient",
       "transition": "cut",
       "lines": [

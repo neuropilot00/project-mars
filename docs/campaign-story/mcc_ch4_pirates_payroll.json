@@ -36,7 +36,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_v2",
+      "background": "kepler_crater_edge",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -51,7 +51,7 @@
     {
       "id": "s03",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_v3",
+      "background": "kepler_crater_edge",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -99,7 +99,7 @@
     {
       "id": "s05",
       "type": "narration",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_dawn_v2",
+      "background": "kepler_crater_dawn",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -129,7 +129,7 @@
     {
       "id": "s07",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_v4",
+      "background": "kepler_crater_edge",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -178,7 +178,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_v2",
+      "background": "kepler_crater_edge",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -226,7 +226,7 @@
     {
       "id": "s11",
       "type": "narration",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_v2",
+      "background": "kepler_crater",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -241,7 +241,7 @@
     {
       "id": "s12",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_v3",
+      "background": "kepler_crater",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -289,7 +289,7 @@
     {
       "id": "s14",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_v2",
+      "background": "kepler_crater",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -322,7 +322,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_v3",
+      "background": "kepler_crater",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -370,7 +370,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_v2",
+      "background": "kepler_crater",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -394,14 +394,14 @@
             "ko": "Liang Wei는 샘플을 보고 있었다. 30년간 이것을 기다렸을 것이었다. 그 얼굴에 무엇이 있는지는 보기 어려웠다. 그러나 손이 떨렸다. 조금. 30년간 기다린 사람의 손이었다.",
             "en": "Liang Wei was looking at the sample. She had waited thirty years for this. What was in that face was hard to read. But her hands trembled. Slightly. The hands of someone who had waited thirty years."
           },
-          "background": "mcc_ch4_pirates_payroll_l17_00_ore_sample"
+          "overlay": "mcc_ch4_pirates_payroll_l17_00_ore_sample"
         }
       ]
     },
     {
       "id": "s19",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_dusk_v2",
+      "background": "kepler_crater_dusk",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -449,7 +449,7 @@
     {
       "id": "s21",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_v3",
+      "background": "kepler_crater_edge",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -482,7 +482,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_v4",
+      "background": "kepler_crater_edge",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -539,14 +539,14 @@
             "ko": "석양이었다. 케플러 분화구 가장자리. 태양이 지평선 아래로 내려가고 있었다. 화성의 일몰은 지구와 달랐다. 파랗게 변했다. 붉은 하늘이 해질 무렵 파랗게 됐다. 그 순간이 짧았다. 그러나 있었다. 케플러에서 처음 보는 것이었다.",
             "en": "Sunset. Edge of Kepler crater. The sun was going below the horizon. Martian sunsets were different from Earth. They turned blue. The red sky turned blue at dusk. That moment was brief. But it was there. The first time seeing it at Kepler."
           },
-          "background": "mcc_ch4_pirates_payroll_l23_00_mars_horizon"
+          "overlay": "mcc_ch4_pirates_payroll_l23_00_mars_horizon"
         }
       ]
     },
     {
       "id": "s25",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -594,7 +594,7 @@
     {
       "id": "s27",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_v2",
+      "background": "kepler_crater_edge",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -627,7 +627,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_v3",
+      "background": "kepler_crater_edge",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -642,7 +642,7 @@
     {
       "id": "s29",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_v4",
+      "background": "kepler_crater_edge",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -675,7 +675,7 @@
     {
       "id": "s30",
       "type": "narration",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_dawn_v2",
+      "background": "kepler_crater_dawn",
       "bgm": "mcc_ambient",
       "transition": "fade_slow",
       "lines": [
@@ -690,7 +690,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "choice_tension",
       "prompt": {
         "ko": "Ancient Metal 샘플. 어떻게 처리하겠습니까.",
@@ -765,7 +765,7 @@
     {
       "id": "s32",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_kepler_crater_dawn_v2",
+      "background": "kepler_crater_dawn",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -813,7 +813,7 @@
     {
       "id": "s34",
       "type": "dialogue",
-      "background": "mcc_ch4_pirates_payroll_mars_surface_dust_storm_v2",
+      "background": "mars_surface_dust_storm",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -923,7 +923,7 @@
             "ko": "케플러 분화구는 여전히 있었다. 깊고 검었다. 분지 안에 분지가 있었다. 무엇이 있는지는 이제 알았다. 어두운 은색. 30년의 기다림. 파란 일몰. 그것들이 거기 있었다. 그것이 누구 것인지는 아직 결정되지 않았다.",
             "en": "Kepler Crater was still there. Deep and dark. A basin within a basin. Now it was known what was inside. Dark silver. Thirty years of waiting. Blue sunset. Those things were there. Whose it was had not yet been decided."
           },
-          "background": "mcc_ch4_pirates_payroll_l39_00_ore_sample"
+          "overlay": "mcc_ch4_pirates_payroll_l39_00_ore_sample"
         }
       ],
       "next_chapter_preview": {

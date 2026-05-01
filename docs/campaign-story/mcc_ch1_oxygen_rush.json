@@ -35,7 +35,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -65,7 +65,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -125,7 +125,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v2",
+      "background": "mcc_briefing_room",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -140,7 +140,7 @@
     {
       "id": "s09",
       "type": "dialogue",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v3",
+      "background": "mcc_briefing_room",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -182,7 +182,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v4",
+      "background": "mcc_briefing_room",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -197,7 +197,7 @@
     {
       "id": "s11",
       "type": "dialogue",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v5",
+      "background": "mcc_briefing_room",
       "bgm": "mcc_ambient",
       "transition": "cut",
       "lines": [
@@ -245,7 +245,7 @@
     {
       "id": "s13",
       "type": "dialogue",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v2",
+      "background": "mcc_briefing_room",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -278,7 +278,7 @@
     {
       "id": "s14",
       "type": "dialogue",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v3",
+      "background": "mcc_briefing_room",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -305,14 +305,14 @@
             "ko": "숫자가 크니까 실감이 안 나지. 한 명을 생각해봐. 한 명이 일주일간 산소가 없으면 어떻게 돼.",
             "en": "The number is too big to feel real. Think about one person. What happens to one person without oxygen for a week."
           },
-          "background": "mcc_ch1_oxygen_rush_l13_02_death_still"
+          "overlay": "mcc_ch1_oxygen_rush_l13_02_death_still"
         }
       ]
     },
     {
       "id": "s15",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v4",
+      "background": "mcc_briefing_room",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -327,7 +327,7 @@
     {
       "id": "s16",
       "type": "dialogue",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v5",
+      "background": "mcc_briefing_room",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -375,7 +375,7 @@
     {
       "id": "s18",
       "type": "dialogue",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v2",
+      "background": "mcc_briefing_room",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -408,7 +408,7 @@
     {
       "id": "s19",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v3",
+      "background": "mcc_briefing_room",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -423,7 +423,7 @@
     {
       "id": "s20",
       "type": "dialogue",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v4",
+      "background": "mcc_briefing_room",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -456,7 +456,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v5",
+      "background": "mcc_briefing_room",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -546,7 +546,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "tension_medium",
       "transition": "cut",
       "lines": [
@@ -555,7 +555,7 @@
             "ko": "북쪽 하늘이 달랐다. 붉은 것이 아니었다. 어두웠다. 폭풍이 오는 방향이었다. 6시간이 맞는지 알 수 없었다. 화성 폭풍은 예측 시간보다 일찍 오는 경우가 있었다.",
             "en": "The northern sky was different. Not red. Dark. The direction the storm was coming from. Whether six hours was accurate was uncertain. Martian storms sometimes came before the predicted time."
           },
-          "background": "mcc_ch1_oxygen_rush_l23_00_dust_storm"
+          "overlay": "mcc_ch1_oxygen_rush_l23_00_dust_storm"
         }
       ]
     },
@@ -607,7 +607,7 @@
     {
       "id": "s27",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_hellas_outer_plains_sunset_v2",
+      "background": "hellas_outer_plains_sunset",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -637,7 +637,7 @@
     {
       "id": "s29",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_hellas_outer_plains_sunset_v2",
+      "background": "hellas_outer_plains_sunset",
       "bgm": "tension_high",
       "transition": "cut",
       "lines": [
@@ -673,7 +673,7 @@
     {
       "id": "s_success",
       "type": "dialogue",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v2",
+      "background": "mcc_briefing_room",
       "bgm": "victory_calm",
       "transition": "fade_medium",
       "lines": [
@@ -715,7 +715,7 @@
     {
       "id": "s_success2",
       "type": "narration",
-      "background": "mcc_ch1_oxygen_rush_mcc_briefing_room_v3",
+      "background": "mcc_briefing_room",
       "bgm": "victory_calm",
       "transition": "cut",
       "lines": [
@@ -811,7 +811,7 @@
             "ko": "Li Fang은 창문 앞에 서서 북쪽 하늘을 보았다. 폭풍이 지나가는 방향이었다. 그가 무슨 생각을 하는지 알 수 없었다. 화성에서 그런 것을 알려는 사람은 없었다. 다들 자기 생각이 바빴다.\n\n첫날이었다.",
             "en": "Li Fang stood at the window looking at the northern sky. The direction the storm was passing. What he was thinking was unknowable. On Mars nobody tried to know that. Everyone was busy with their own thoughts.\n\nIt was the first day."
           },
-          "background": "mcc_ch1_oxygen_rush_l37_00_alone_window"
+          "overlay": "mcc_ch1_oxygen_rush_l37_00_alone_window"
         }
       ],
       "next_chapter_preview": {

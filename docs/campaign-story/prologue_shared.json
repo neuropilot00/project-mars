@@ -35,7 +35,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "prologue_shared_deep_space_window_v2",
+      "background": "deep_space_window",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -110,7 +110,7 @@
     {
       "id": "s07",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v2",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -125,7 +125,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v3",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -140,7 +140,7 @@
     {
       "id": "s09",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v4",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -155,7 +155,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v5",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -185,7 +185,7 @@
     {
       "id": "s12",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v2",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -215,7 +215,7 @@
     {
       "id": "s14",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_interior_v2",
+      "background": "cargo_ship_interior",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -245,7 +245,7 @@
     {
       "id": "s16",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v3",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -260,7 +260,7 @@
     {
       "id": "s17",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v4",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -275,7 +275,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v5",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -305,7 +305,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v2",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -320,7 +320,7 @@
     {
       "id": "s21",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v3",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -335,7 +335,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v4",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -350,7 +350,7 @@
     {
       "id": "s23",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v5",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -380,7 +380,7 @@
     {
       "id": "s25",
       "type": "narration",
-      "background": "prologue_shared_kariope_observation_deck_v2",
+      "background": "kariope_observation_deck",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -425,7 +425,7 @@
     {
       "id": "s28",
       "type": "narration",
-      "background": "prologue_shared_deep_space_mars_approach_v2",
+      "background": "deep_space_mars_approach",
       "bgm": "prologue_ambient",
       "transition": "cut",
       "lines": [
@@ -464,14 +464,14 @@
             "ko": "화면의 화성은 조금 더 컸다. 핏빛이었다. 황혼 같았다. 그러나 황혼이 아니었다. 화성은 늘 그랬다. 그것이 화성이었다. 누군가 아름답다고 말했다. 아름다움에 대해 생각하지 않았다.",
             "en": "Mars on the screen was a little larger. Blood-red. Like a sunset. But it wasn't a sunset. Mars was always like this. That was what Mars was. Someone said it was beautiful. There was no thought about beauty."
           },
-          "background": "prologue_shared_l29_00_mars_horizon"
+          "overlay": "prologue_shared_l29_00_mars_horizon"
         }
       ]
     },
     {
       "id": "s31",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_window_mars_v2",
+      "background": "cargo_ship_window_mars",
       "bgm": "prologue_tension",
       "transition": "cut",
       "lines": [
@@ -520,7 +520,7 @@
     {
       "id": "s33",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v2",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_tension",
       "transition": "cut",
       "lines": [
@@ -535,7 +535,7 @@
     {
       "id": "s34",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_corridor_v3",
+      "background": "cargo_ship_corridor",
       "bgm": "prologue_tension",
       "transition": "cut",
       "lines": [
@@ -565,7 +565,7 @@
     {
       "id": "s36",
       "type": "narration",
-      "background": "prologue_shared_cargo_ship_window_mars_v2",
+      "background": "cargo_ship_window_mars",
       "bgm": "prologue_tension",
       "transition": "cut",
       "lines": [
@@ -595,7 +595,7 @@
     {
       "id": "s38",
       "type": "narration",
-      "background": "prologue_shared_mars_landing_approach_v2",
+      "background": "mars_landing_approach",
       "bgm": "prologue_tension",
       "transition": "cut",
       "lines": [
@@ -625,7 +625,7 @@
     {
       "id": "s40",
       "type": "narration",
-      "background": "prologue_shared_mars_landing_approach_v2",
+      "background": "mars_landing_approach",
       "bgm": "prologue_tension",
       "transition": "cut",
       "lines": [
@@ -655,7 +655,7 @@
     {
       "id": "s42",
       "type": "narration",
-      "background": "prologue_shared_mars_docking_bay_v2",
+      "background": "mars_docking_bay",
       "bgm": "prologue_landing",
       "transition": "cut",
       "lines": [
@@ -685,7 +685,7 @@
     {
       "id": "s44",
       "type": "narration",
-      "background": "prologue_shared_mars_docking_bay_v2",
+      "background": "mars_docking_bay",
       "bgm": "prologue_landing",
       "transition": "cut",
       "lines": [
@@ -724,14 +724,14 @@
             "ko": "화성의 흙이 첫발 아래 있었다. 핏빛 하늘 아래. 헬라스 센트럴이 정면에 있었다. 거대했다. 밖에서 봐도 거대했다. 안에 들어가면 더 거대할 것이었다. 바람이 왔다. 가방을 더 꽉 쥐었다.",
             "en": "The soil of Mars was there beneath the first step. Under a blood-red sky. Hellas Central stood ahead. Enormous. Enormous even from outside. Inside it would be more enormous. Wind came. The bag was gripped tighter."
           },
-          "background": "prologue_shared_l45_00_mars_horizon"
+          "overlay": "prologue_shared_l45_00_mars_horizon"
         }
       ]
     },
     {
       "id": "s47",
       "type": "narration",
-      "background": "prologue_shared_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "prologue_arrival",
       "transition": "cut",
       "lines": [
@@ -746,7 +746,7 @@
     {
       "id": "s48",
       "type": "dialogue",
-      "background": "prologue_shared_hellas_central_exterior_v3",
+      "background": "hellas_central_exterior",
       "bgm": "prologue_arrival",
       "transition": "cut",
       "lines": [
@@ -795,7 +795,7 @@
     {
       "id": "s50",
       "type": "narration",
-      "background": "prologue_shared_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "prologue_arrival",
       "transition": "cut",
       "lines": [
@@ -810,7 +810,7 @@
     {
       "id": "s51",
       "type": "narration",
-      "background": "prologue_shared_hellas_central_exterior_v3",
+      "background": "hellas_central_exterior",
       "bgm": "prologue_arrival",
       "transition": "cut",
       "lines": [
@@ -840,7 +840,7 @@
     {
       "id": "s_choice",
       "type": "choice",
-      "background": "prologue_shared_hellas_central_exterior_v2",
+      "background": "hellas_central_exterior",
       "bgm": "prologue_choice",
       "prompt": {
         "ko": "헬라스 센트럴. 어느 방향으로 가겠습니까.",
@@ -900,7 +900,7 @@
     {
       "id": "s_ending",
       "type": "ending",
-      "background": "prologue_shared_hellas_central_exterior_v3",
+      "background": "hellas_central_exterior",
       "bgm": "prologue_ambient",
       "transition": "fade_slow",
       "lines": [

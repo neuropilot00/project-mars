@@ -34,7 +34,7 @@
     {
       "id": "s02",
       "type": "narration",
-      "background": "hidden_ch2_traces_hellas_mining_village_empty_v2",
+      "background": "hellas_mining_village_empty",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -43,7 +43,7 @@
             "ko": "광부 마을이었다. 분필이 있었다. 벽에. 이름들. Kim Yong-jin. 그 아래 이름들. 관찰자가 봤다. 누가 썼는지. 왜 썼는지. 언제 썼는지. 그것들이 벽에 있었다. 분필이 약하다는 것을 아는 사람들이 쓴 것이었다. 그래서 더 많이 썼다.",
             "en": "A mining village. There was chalk. On the wall. Names. Kim Yong-jin. Names below. The observer looked. Who wrote them. Why they wrote. When they wrote. Those things were on the wall. Written by people who knew chalk was weak. So they wrote more."
           },
-          "background": "hidden_ch2_traces_l01_00_candle_flame"
+          "overlay": "hidden_ch2_traces_l01_00_candle_flame"
         }
       ]
     },
@@ -65,7 +65,7 @@
     {
       "id": "s04",
       "type": "narration",
-      "background": "hidden_ch2_traces_hellas_mining_village_empty_v2",
+      "background": "hellas_mining_village_empty",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -95,7 +95,7 @@
     {
       "id": "s06",
       "type": "narration",
-      "background": "hidden_ch2_traces_hellas_mining_village_empty_v2",
+      "background": "hellas_mining_village_empty",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -125,7 +125,7 @@
     {
       "id": "s08",
       "type": "narration",
-      "background": "hidden_ch2_traces_sandstone_junction_dusk_v2",
+      "background": "sandstone_junction_dusk",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -155,7 +155,7 @@
     {
       "id": "s10",
       "type": "narration",
-      "background": "hidden_ch2_traces_sandstone_junction_dusk_v2",
+      "background": "sandstone_junction_dusk",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -200,7 +200,7 @@
     {
       "id": "s13",
       "type": "narration",
-      "background": "hidden_ch2_traces_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -230,7 +230,7 @@
     {
       "id": "s15",
       "type": "narration",
-      "background": "hidden_ch2_traces_mine_shaft_v2",
+      "background": "mine_shaft",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -275,7 +275,7 @@
     {
       "id": "s18",
       "type": "narration",
-      "background": "hidden_ch2_traces_mcc_archive_sublevel_v2",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -305,7 +305,7 @@
     {
       "id": "s20",
       "type": "narration",
-      "background": "hidden_ch2_traces_mcc_archive_sublevel_v2",
+      "background": "mcc_archive_sublevel",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -335,7 +335,7 @@
     {
       "id": "s22",
       "type": "narration",
-      "background": "hidden_ch2_traces_mcc_sector12_ruins_v2",
+      "background": "mcc_sector12_ruins",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -365,7 +365,7 @@
     {
       "id": "s24",
       "type": "narration",
-      "background": "hidden_ch2_traces_mcc_sector12_ruins_v2",
+      "background": "mcc_sector12_ruins",
       "bgm": "tension_low",
       "transition": "cut",
       "lines": [
@@ -374,7 +374,7 @@
             "ko": "사진 아래 쪽지가 있었다. 작은 것. 관찰자가 읽었다. 날짜. 이름들. 그리고 짧은 문장. Zone 12. 우리는 여기 있었다. 그것이 쪽지가 말하는 전부였다. 여기 있었다는 것을 말하려 한 것이었다. 그 이상도 이하도 아니었다.",
             "en": "Below the photo there was a note. A small one. The observer read it. A date. Names. And a short sentence. Zone 12. We were here. That was everything the note said. It was trying to say that they had been here. Nothing more or less."
           },
-          "background": "hidden_ch2_traces_l23_00_zone12_record"
+          "overlay": "hidden_ch2_traces_l23_00_zone12_record"
         }
       ]
     },
@@ -396,7 +396,7 @@
     {
       "id": "s26",
       "type": "narration",
-      "background": "hidden_ch2_traces_erebus_crater_exterior_v2",
+      "background": "erebus_crater_exterior",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
@@ -450,7 +450,7 @@
             "ko": "테이블에 사진이 있었다. 하나. 오래된 것. 여러 사람. 광부들. 그 사진이 테이블 위에 있었다. 먼지가 없었다. 자주 보는 것이었다. 또는 최근에 닦았다. 사진이 여기서 오래 있었다. 사진과 함께 있는 사람이 오래 이것을 봤다.",
             "en": "On the table there was a photo. One. Old. Multiple people. Miners. That photo was on the table. No dust on it. Someone looked at it often. Or it had been wiped recently. The photo had been here a long time. The person who was here with the photo had looked at it for a long time."
           },
-          "background": "hidden_ch2_traces_l28_00_death_still"
+          "overlay": "hidden_ch2_traces_l28_00_death_still"
         }
       ]
     },
@@ -532,7 +532,7 @@
     {
       "id": "s35",
       "type": "narration",
-      "background": "hidden_ch2_traces_kepler_crater_edge_dusk_v2",
+      "background": "kepler_crater_edge_dusk",
       "bgm": "hidden_ambient",
       "transition": "cut",
       "lines": [
