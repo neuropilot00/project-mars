@@ -730,14 +730,31 @@ function combatModifier(attackerType,targetType){
   return Math.max(.62,Math.min(1.42,mult));
 }
 
+function battleScaleConfig(){
+  const sideMax=Math.max(ATK_FLEETS.length,DEF_FLEETS.length,1);
+  const fleetMass=Math.min(1,(sideMax-1)/4);
+  return {
+    mass:fleetMass,
+    startGap:118+fleetMass*198,
+    minPad:72+fleetMass*118,
+    idealPad:110+fleetMass*175,
+    nearDist:185+fleetMass*145,
+    zoomRange:290+fleetMass*330,
+    maxZoom:1.72-fleetMass*.47,
+    fitPad:.82-fleetMass*.08
+  };
+}
+
 function centeredPos(n, side) {
-  const baseY = side === 'atk' ? H * 0.77 : H * 0.23;
+  const cfg=battleScaleConfig();
+  const baseY = H * 0.5 + (side === 'atk' ? 1 : -1) * cfg.startGap * 0.5;
   if (n <= 1) return [{ cx: W * 0.5, cy: baseY }];
   return Array.from({ length: n }, (_, i) => {
     const t=(i/(n-1))*2-1;
-    const cx=W*(0.24 + (i/(n-1))*0.52);
-    const arc=(1-Math.abs(t))*H*.055;
-    const edgeSag=Math.abs(t)*H*.018;
+    const spread=.38+cfg.mass*.14;
+    const cx=W*(0.5-spread/2 + (i/(n-1))*spread);
+    const arc=(1-Math.abs(t))*H*(.035+cfg.mass*.02);
+    const edgeSag=Math.abs(t)*H*(.012+cfg.mass*.006);
     const cy=side==='atk'
       ? baseY-arc+edgeSag
       : baseY+arc-edgeSag;
@@ -827,6 +844,7 @@ function autoTactics(f,dt){
 }
 
 function updateFleets(dt){
+  const cfg=battleScaleConfig();
   fleets.forEach(f=>{
     if(f.dead)return;
     autoTactics(f,dt);
@@ -835,8 +853,8 @@ function updateFleets(dt){
     const target=focusFleet&&focusFleet.side!==f.side&&!focusFleet.dead?focusFleet
       :enemies.reduce((b,e)=>Math.hypot(e.cx-f.cx,e.cy-f.cy)<Math.hypot(b.cx-f.cx,b.cy-f.cy)?e:b,enemies[0]);
     const dx=target.cx-f.cx,dy=target.cy-f.cy,dist=Math.hypot(dx,dy)||1;
-    const minDist=f.radius+target.radius+190;
-    const idealDist=f.radius+target.radius+285;
+    const minDist=f.radius+target.radius+cfg.minPad;
+    const idealDist=f.radius+target.radius+cfg.idealPad;
     const mv=MANEUVERS[f.maneuver]||MANEUVERS.advance;
     const spdMult=mv.spdMult;
     const nx=dx/dist,ny=dy/dist,perpX=-ny,perpY=nx;
@@ -1543,6 +1561,7 @@ function loop(ts){
   const _atkF=_aliveF.filter(f=>f.side==='atk');
   const _defF=_aliveF.filter(f=>f.side==='def');
   if(_atkF.length&&_defF.length){
+    const cfg=battleScaleConfig();
     let pair={a:_atkF[0],d:_defF[0],dist:Infinity};
     _atkF.forEach(a=>_defF.forEach(d=>{
       const dist=Math.hypot(a.cx-d.cx,a.cy-d.cy);
@@ -1565,10 +1584,10 @@ function loop(ts){
     }
     const mnX=Math.min(...xs),mxX=Math.max(...xs),mnY=Math.min(...ys),mxY=Math.max(...ys);
     _camTargetCx=(mnX+mxX)/2;_camTargetCy=(mnY+mxY)/2;
-    const proximity=1-Math.min(1,Math.max(0,(pair.dist-330)/620));
-    const fitAllScale=Math.min(W/(mxX-mnX),H/(mxY-mnY))*.74;
-    const desiredScale=.42+proximity*.58;
-    _camTargetScale=Math.max(.34,Math.min(1.25,fitAllScale,desiredScale));
+    const proximity=1-Math.min(1,Math.max(0,(pair.dist-cfg.nearDist)/cfg.zoomRange));
+    const fitAllScale=Math.min(W/(mxX-mnX),H/(mxY-mnY))*cfg.fitPad;
+    const desiredScale=.48+proximity*(cfg.maxZoom-.48);
+    _camTargetScale=Math.max(.34,Math.min(cfg.maxZoom,fitAllScale,desiredScale));
   } else if(_aliveF.length===1){
     _camTargetCx=_aliveF[0].cx;_camTargetCy=_aliveF[0].cy;_camTargetScale=2.2;
   } else {

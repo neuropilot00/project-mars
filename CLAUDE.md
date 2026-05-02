@@ -1,5 +1,5 @@
 # OCCUPY MARS — Claude Code 핸드오프 문서
-> 최종 업데이트: 2026-05-03 v5.55 (Fleet battle chatter callouts) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
+> 최종 업데이트: 2026-05-03 v5.56 (Fleet battle scale-aware start distance/zoom) | 이 파일을 먼저 읽으면 코드베이스를 즉시 파악할 수 있습니다.
 
 > **❗ 새 세션이 가장 먼저 읽을 곳**:
 > 1. **AUDIT_FINDINGS.md** — 기능별 동작 상태 매트릭스 (🟢/🟡/🔴 + 우선순위)
@@ -12,6 +12,14 @@
 
 - 코드 변경을 커밋/푸시할 때는 관련 `CHANGELOG.md`와 `AUDIT_FINDINGS.md` 업데이트를 같은 변경 묶음에 포함한다.
 - 빠른 핫픽스로 코드 커밋이 먼저 나간 경우에도 즉시 후속 커밋으로 audit/changelog를 보강한다.
+
+### v5.56 최신 핸드오프 — 함대 수 기반 전투 거리/줌
+
+- 택티컬랩 전투에는 `battleScaleConfig()`가 있음.
+- 함대 수가 적을수록 시작 간격(`startGap`), 최소/이상 교전 거리(`minPad`, `idealPad`)가 줄고 최대 카메라 줌(`maxZoom`)이 커진다.
+- 함대 수가 많을수록 시작 거리와 교전 거리가 멀어지고 자동 카메라는 전체 전장 프레이밍을 우선한다.
+- 1:1 소규모전은 더 가까운 거리에서 크게 보이는 방향으로 조정되어야 한다. 소규모전 카메라를 다시 멀게 만들지 말 것.
+- 데모/본서버 택티컬랩 양쪽에 동일 반영해야 한다. `assets/fleet-assault-demo.html` 수정 후 `assets/tactical-lab-v11.html`로 복사하는 흐름 유지.
 
 ### v5.55 최신 핸드오프 — 함대전 무전 콜아웃
 

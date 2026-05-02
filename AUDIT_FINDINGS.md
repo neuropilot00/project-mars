@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.55 / 2026-05-03)
+# OCCUPY MARS — Codebase Audit (v5.56 / 2026-05-03)
+
+## ✅ v5.56 Fleet battle scale-aware start distance/zoom — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 함대 수 기반 시작 거리 | ✅ | `battleScaleConfig()` 추가. 1:1 소규모전은 더 가까운 상/하단에서 시작하고, 함대 수가 많을수록 시작 간격이 넓어짐. |
+| 함대 수 기반 교전 거리 | ✅ | `updateFleets()`의 최소/이상 교전 거리를 전투 규모에 따라 조정. 소규모전은 가까운 거리에서 싸우고 대규모전은 장거리 교전 유지. |
+| 함대 수 기반 자동 줌 | ✅ | 자동 카메라가 소규모전에서는 더 크게 줌인하고, 대규모전에서는 전체 함대를 담도록 줌 범위를 낮춤. |
+| 데모/본서버 동기화 | ✅ | `assets/fleet-assault-demo.html` 수정 후 `assets/tactical-lab-v11.html`에 동일 반영. |
+
+검증:
+- `assets/fleet-assault-demo.html` inline script syntax check 통과
+- `assets/tactical-lab-v11.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.55 Fleet battle chatter callouts — 수정 완료
 
