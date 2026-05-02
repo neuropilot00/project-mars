@@ -11,6 +11,7 @@ assets/*
 !assets/avatars/
 !assets/nav/
 !assets/tactical-lab-v11.html
+!assets/campaign-editor.html
 !assets/campaign/
 assets/campaign/*
 !assets/campaign/backgrounds/
