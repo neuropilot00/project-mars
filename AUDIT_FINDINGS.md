@@ -1,4 +1,20 @@
-# OCCUPY MARS — Codebase Audit (v5.45 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.46 / 2026-05-02)
+
+## ✅ v5.46 Campaign editor layout save/apply — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 에디터 수정값 서버 미저장 | ✅ | 운영 `/api/campaign/editor-layout`가 `{}`를 반환해 인게임이 적용할 layout이 없던 상태 확인. |
+| 에디터 서버 동기화 | ✅ | 에디터 시작 시 서버 layout을 로드하고, 서버가 비어 있으면 기존 localStorage layout을 자동 업로드. |
+| Save 버튼 의미 정리 | ✅ | `Export Backup` 버튼을 `Save to Game`으로 변경하고 즉시 `/api/campaign/editor-layout`에 저장. |
+| 인게임 fallback | ✅ | 서버 layout이 비어 있거나 로드 실패하면 같은 origin localStorage의 `editorCharacters`/`editorDialog`/`editorFontSize`를 fallback으로 적용. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `assets/campaign-editor.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.45 Campaign story background transition flash — 수정 완료
 

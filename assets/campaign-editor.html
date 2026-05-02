@@ -403,7 +403,7 @@ input[type="number"]:focus, select:focus, #canvas:focus {
         <button id="resetLayoutBtn" type="button">Reset Overlay</button>
         <button id="importBtn" type="button">Import Backup</button>
         <input id="importFile" type="file" accept=".json" style="display:none">
-        <button id="saveBtn" type="button">Export Backup</button>
+        <button id="saveBtn" type="button">Save to Game</button>
       </div>
     </aside>
   </main>
@@ -470,20 +470,57 @@ let dragState = null;
 
 // 서버 동기화 — 레이아웃 변경 시 debounce 후 POST
 let _syncTimer = null;
+function layoutPayload() {
+  return {
+    fontsize: globalFontSize,
+    dialog: globalDialog,
+    characters: globalCharacters,
+    overlays: globalOverlays
+  };
+}
+
+function hasLayoutPayload(payload) {
+  return !!(payload && (
+    payload.fontsize != null ||
+    (payload.dialog && Object.keys(payload.dialog).length) ||
+    (payload.characters && Object.keys(payload.characters).length) ||
+    (payload.overlays && Object.keys(payload.overlays).length)
+  ));
+}
+
+function applyLayoutPayload(payload) {
+  if (!payload || typeof payload !== 'object') return;
+  if (payload.characters) {
+    globalCharacters = payload.characters;
+    localStorage.setItem('editorCharacters', JSON.stringify(globalCharacters));
+  }
+  if (payload.overlays) {
+    globalOverlays = payload.overlays;
+    localStorage.setItem('editorOverlays', JSON.stringify(globalOverlays));
+  }
+  if (payload.dialog) {
+    globalDialog = payload.dialog;
+    localStorage.setItem('editorDialog', JSON.stringify(globalDialog));
+  }
+  if (payload.fontsize != null) {
+    globalFontSize = Number(payload.fontsize) || 1;
+    localStorage.setItem('editorFontSize', globalFontSize);
+  }
+  updateGlobalDisplays();
+}
+
+function syncToServerNow() {
+  return fetch('/api/campaign/editor-layout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(layoutPayload())
+  });
+}
+
 function syncToServer() {
   clearTimeout(_syncTimer);
   _syncTimer = setTimeout(() => {
-    const payload = {
-      fontsize: globalFontSize,
-      dialog: globalDialog,
-      characters: globalCharacters,
-      overlays: globalOverlays
-    };
-    fetch('/api/campaign/editor-layout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(() => {});
+    syncToServerNow().catch(() => {});
   }, 600);
 }
 
@@ -814,12 +851,21 @@ function selectLine(index) {
 }
 
 async function loadInitial() {
-  const [chapterResponse, assetResponse] = await Promise.all([
+  const [chapterResponse, assetResponse, layoutResponse] = await Promise.all([
     fetch(`${API}/chapters`),
-    fetch(`${API}/assets`)
+    fetch(`${API}/assets`),
+    fetch('/api/campaign/editor-layout').catch(() => null)
   ]);
   if (!chapterResponse.ok) throw new Error('Failed to load chapters');
   if (!assetResponse.ok) throw new Error('Failed to load assets');
+  if (layoutResponse && layoutResponse.ok) {
+    const serverLayout = await layoutResponse.json().catch(() => ({}));
+    if (hasLayoutPayload(serverLayout)) {
+      applyLayoutPayload(serverLayout);
+    } else if (hasLayoutPayload(layoutPayload())) {
+      syncToServerNow().catch(() => {});
+    }
+  }
   chapters = (await chapterResponse.json()).chapters || [];
   assets = await assetResponse.json();
   if (!chapters.length) {
@@ -840,8 +886,10 @@ async function loadChapter(file) {
 }
 
 function saveChapter() {
-  // 모든 레이아웃은 setLayoutPart에서 이미 localStorage에 자동 저장됨.
-  // 이 버튼은 전체 설정을 JSON 파일로 내보내기.
+  syncToServerNow().then(showToast).catch(() => alert('Save failed'));
+}
+
+function exportBackup() {
   const backup = {
     version: 1,
     savedAt: new Date().toISOString(),
@@ -982,10 +1030,13 @@ document.getElementById('dyIncBtn').addEventListener('click', () => setGlobalDia
 document.getElementById('dwDecBtn').addEventListener('click', () => setGlobalDialog('w', globalDialog.w - 1));
 document.getElementById('dwIncBtn').addEventListener('click', () => setGlobalDialog('w', globalDialog.w + 1));
 // 초기 표시
-document.getElementById('fontSizeDisplay').textContent = globalFontSize.toFixed(2);
-document.getElementById('dxDisplay').textContent = globalDialog.x;
-document.getElementById('dyDisplay').textContent = globalDialog.y;
-document.getElementById('dwDisplay').textContent = globalDialog.w;
+function updateGlobalDisplays() {
+  document.getElementById('fontSizeDisplay').textContent = Number(globalFontSize || 1).toFixed(2);
+  document.getElementById('dxDisplay').textContent = globalDialog.x;
+  document.getElementById('dyDisplay').textContent = globalDialog.y;
+  document.getElementById('dwDisplay').textContent = globalDialog.w;
+}
+updateGlobalDisplays();
 
 els.resetLayoutBtn.addEventListener('click', resetLayout);
 els.saveBtn.addEventListener('click', () => saveChapter());
@@ -1003,9 +1054,9 @@ els.importFile.addEventListener('change', event => {
       if (data.fontsize != null) {
         globalFontSize = data.fontsize;
         localStorage.setItem('editorFontSize', globalFontSize);
-        document.getElementById('fontSizeDisplay').textContent = globalFontSize.toFixed(2);
       }
-      ['x','y','w'].forEach(f => { if (globalDialog[f] != null) document.getElementById(`d${f}Display`).textContent = globalDialog[f]; });
+      updateGlobalDisplays();
+      syncToServerNow().catch(() => {});
       renderAll();
       showToast();
     } catch { alert('Invalid backup file'); }

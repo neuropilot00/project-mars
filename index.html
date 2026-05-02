@@ -24914,9 +24914,14 @@ function showCampaignStory(chapter){
   });
   // 에디터 레이아웃 서버에서 로드 후 첫 씬 렌더
   fetch('/api/campaign/editor-layout').then(function(r){return r.json();}).then(function(d){
-    if(d&&typeof d==='object') _campaignEditorLayout=d;
+    var local=_campaignLocalEditorLayout();
+    var hasServer=d&&typeof d==='object'&&Object.keys(d).length>0;
+    _campaignEditorLayout=hasServer?d:(local||{});
     renderCampaignScene();
-  }).catch(function(){renderCampaignScene();});
+  }).catch(function(){
+    _campaignEditorLayout=_campaignLocalEditorLayout()||{};
+    renderCampaignScene();
+  });
 }
 
 // 스토리 화면에서 "나가기" 클릭 시 호출. 진행 중인 세션을 서버에 abandon 요청한 뒤 화면을 닫는다.
@@ -24973,6 +24978,21 @@ function _campaignStoryLayout(scene,line){
   var mode=_campaignIsStoryMobile()?'mobile':'desktop';
   if(layout[mode]) _campaignMergeLayout(layout,layout[mode]);
   return layout;
+}
+
+function _campaignLocalEditorLayout(){
+  try{
+    var chars=JSON.parse(localStorage.getItem('editorCharacters')||'{}');
+    var overlays=JSON.parse(localStorage.getItem('editorOverlays')||'{}');
+    var dialog=JSON.parse(localStorage.getItem('editorDialog')||'null');
+    var fontsize=parseFloat(localStorage.getItem('editorFontSize')||'');
+    var payload={};
+    if(chars&&Object.keys(chars).length) payload.characters=chars;
+    if(overlays&&Object.keys(overlays).length) payload.overlays=overlays;
+    if(dialog&&typeof dialog==='object') payload.dialog=dialog;
+    if(isFinite(fontsize)) payload.fontsize=fontsize;
+    return Object.keys(payload).length?payload:null;
+  }catch(_){return null;}
 }
 
 function _campaignLayoutPick(obj,names){

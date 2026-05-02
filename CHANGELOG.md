@@ -1,5 +1,16 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Campaign editor layout save/apply fix (v5.46)
+
+- **에디터 수정값 서버 저장 보장**: 운영 `/api/campaign/editor-layout`가 `{}`인 상태를 확인하고, 에디터 시작 시 서버가 비어 있으면 localStorage layout을 자동 업로드하도록 수정.
+- **Save 버튼 정리**: `Export Backup` 버튼을 `Save to Game`으로 바꾸고, 클릭 시 즉시 서버 layout API에 저장.
+- **인게임 fallback 추가**: 서버 layout이 비어 있거나 로드 실패하면 같은 origin의 `editorCharacters`, `editorDialog`, `editorFontSize` localStorage 값을 fallback으로 적용.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `assets/campaign-editor.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Campaign story background transition flash fix (v5.45)
 
 - **장면 전환 파란/보라 화면 제거**: 스토리 렌더러가 장면마다 `.story-background` inline style을 통째로 지워 기본 그라디언트가 잠깐 노출되던 문제 수정.
