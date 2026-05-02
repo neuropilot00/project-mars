@@ -361,7 +361,6 @@ app.use('/api', milestoneRoutes);
 app.use('/api', apiLimiter, apiRoutes);
 app.use('/api/auth', authRoutes);
 try { app.use('/', require('./routes/bugReport')); } catch (e) { console.warn('[mount] bugReport skipped:', e.message); } // M-192: bug report submit + admin
-app.use('/admin/api', adminRoutes);
 app.use('/api/admin', require('./routes/adminEconomyRoutes'));
 app.use('/api/arena', arenaRoutes);
 app.use('/api/factions', factionRoutes);      // A-1: 파벌 선택 시스템
@@ -504,6 +503,91 @@ app.get('/arena', (req, res) => {
 app.get('/assets/campaign-editor.html', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'assets', 'campaign-editor.html'));
 });
+
+const CAMPAIGN_DIR = path.join(__dirname, '..', 'docs', 'campaign-story');
+
+function isSafeCampaignJsonFile(file) {
+  return typeof file === 'string' && !file.includes('..') && file.endsWith('.json') && path.basename(file) === file;
+}
+
+app.get('/admin/api/campaign-editor/chapters', (req, res) => {
+  try {
+    const chapters = fs.readdirSync(CAMPAIGN_DIR)
+      .filter(file => file.endsWith('.json'))
+      .sort()
+      .map(file => {
+        const fullPath = path.join(CAMPAIGN_DIR, file);
+        const data = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+        const rawTitle = data.title || data.id || file.replace(/\.json$/i, '');
+        const title = typeof rawTitle === 'object'
+          ? (rawTitle.ko || rawTitle.en || file.replace(/\.json$/i, ''))
+          : String(rawTitle);
+        return {
+          id: data.id || data.questId || file.replace(/\.json$/i, ''),
+          title,
+          file,
+          questId: data.questId || null
+        };
+      });
+    res.json({ chapters });
+  } catch (e) {
+    console.error('[campaign-editor] Failed to list chapters:', e);
+    res.status(500).json({ error: 'Failed to list chapters' });
+  }
+});
+
+app.get('/admin/api/campaign-editor/chapter/:file', (req, res) => {
+  const { file } = req.params;
+  if (!isSafeCampaignJsonFile(file)) {
+    return res.status(400).json({ error: 'Invalid chapter file' });
+  }
+
+  try {
+    const fullPath = path.join(CAMPAIGN_DIR, file);
+    if (!fs.existsSync(fullPath)) return res.status(404).json({ error: 'Chapter not found' });
+    res.json(JSON.parse(fs.readFileSync(fullPath, 'utf8')));
+  } catch (e) {
+    console.error(`[campaign-editor] Failed to read chapter ${file}:`, e);
+    res.status(500).json({ error: 'Failed to read chapter' });
+  }
+});
+
+app.post('/admin/api/campaign-editor/chapter/:file', (req, res) => {
+  const { file } = req.params;
+  if (!isSafeCampaignJsonFile(file)) {
+    return res.status(400).json({ error: 'Invalid chapter file' });
+  }
+
+  try {
+    const fullPath = path.join(CAMPAIGN_DIR, file);
+    if (!fs.existsSync(fullPath)) return res.status(404).json({ error: 'Chapter not found' });
+    fs.writeFileSync(fullPath, `${JSON.stringify(req.body, null, 2)}\n`, 'utf8');
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(`[campaign-editor] Failed to save chapter ${file}:`, e);
+    res.status(500).json({ error: 'Failed to save chapter' });
+  }
+});
+
+app.get('/admin/api/campaign-editor/assets', (req, res) => {
+  try {
+    const backgroundsDir = path.join(__dirname, '..', 'assets', 'campaign', 'backgrounds');
+    const charactersDir = path.join(__dirname, '..', 'assets', 'campaign', 'characters');
+    const backgrounds = fs.readdirSync(backgroundsDir)
+      .filter(file => file.endsWith('.png'))
+      .sort();
+    const characters = fs.readdirSync(charactersDir)
+      .filter(file => file.endsWith('.png'))
+      .map(file => file.replace(/\.png$/i, ''))
+      .sort();
+    res.json({ backgrounds, characters });
+  } catch (e) {
+    console.error('[campaign-editor] Failed to list assets:', e);
+    res.status(500).json({ error: 'Failed to list assets' });
+  }
+});
+
+app.use('/admin/api', adminRoutes);
 
 // ── OG Share Card: /share/chronicle/:id ──
 app.get('/share/chronicle/:id', async (req, res) => {

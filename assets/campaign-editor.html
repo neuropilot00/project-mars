@@ -1,391 +1,951 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Campaign Scene Editor</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #1a1a1a; color: #ccc; font-family: monospace; font-size: 13px; display: flex; height: 100vh; overflow: hidden; }
-
-/* LEFT PANEL */
-#left { width: 220px; min-width: 220px; background: #222; border-right: 1px solid #333; display: flex; flex-direction: column; overflow: hidden; }
-#left h3 { padding: 8px 10px; background: #2a2a2a; border-bottom: 1px solid #333; color: #aaa; font-size: 11px; letter-spacing: 1px; }
-#left select { width: 100%; background: #1a1a1a; color: #ccc; border: none; border-bottom: 1px solid #333; padding: 6px 8px; font-size: 12px; }
-#left select:focus { outline: none; background: #252525; }
-#bg-section { padding: 8px; border-bottom: 1px solid #333; }
-#bg-section label { display: block; font-size: 11px; color: #777; margin-bottom: 4px; }
-#ch-section { padding: 8px; border-bottom: 1px solid #333; }
-#ch-section label { display: block; font-size: 11px; color: #777; margin-bottom: 4px; }
-#ch-section .row { display: flex; gap: 4px; }
-#add-btn { flex: 0 0 auto; background: #3a5a3a; color: #7f7; border: none; padding: 4px 8px; cursor: pointer; font-size: 11px; }
-#add-btn:hover { background: #4a6a4a; }
-
-/* LAYERS */
-#layers-section { flex: 1; overflow-y: auto; }
-#layers-section h3 { position: sticky; top: 0; z-index: 1; }
-.layer-item { display: flex; align-items: center; gap: 6px; padding: 5px 8px; cursor: pointer; border-bottom: 1px solid #2a2a2a; }
-.layer-item:hover { background: #2a2a2a; }
-.layer-item.selected { background: #1e3a1e; border-left: 2px solid #4f4; }
-.layer-item .thumb { width: 28px; height: 28px; object-fit: contain; background: #111; border: 1px solid #333; }
-.layer-item .name { flex: 1; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.layer-del { background: none; border: none; color: #a44; cursor: pointer; font-size: 14px; padding: 0 2px; }
-.layer-del:hover { color: #f44; }
-.layer-up, .layer-dn { background: none; border: none; color: #666; cursor: pointer; font-size: 10px; padding: 0 1px; }
-.layer-up:hover, .layer-dn:hover { color: #aaa; }
-
-/* CANVAS AREA */
-#canvas-area { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; background: #111; position: relative; }
-#scene-container { position: relative; }
-#bg-img { display: block; max-height: 90vh; }
-.char-layer { position: absolute; cursor: move; user-select: none; }
-.char-layer img { display: block; width: 100%; height: 100%; object-fit: contain; }
-.char-layer.selected { outline: 2px solid #4f4; }
-.char-layer .handle { position: absolute; width: 10px; height: 10px; background: #4f4; border: 1px solid #000; border-radius: 2px; }
-.char-layer .handle.br { bottom: -5px; right: -5px; cursor: se-resize; }
-.char-layer .handle.bl { bottom: -5px; left: -5px; cursor: sw-resize; }
-.char-layer .handle.tr { top: -5px; right: -5px; cursor: ne-resize; }
-.char-layer .handle.tl { top: -5px; left: -5px; cursor: nw-resize; }
-.char-layer .handle.bc { bottom: -5px; left: calc(50% - 5px); cursor: s-resize; }
-.char-layer .handle.tc { top: -5px; left: calc(50% - 5px); cursor: n-resize; }
-.char-layer .handle.lc { left: -5px; top: calc(50% - 5px); cursor: w-resize; }
-.char-layer .handle.rc { right: -5px; top: calc(50% - 5px); cursor: e-resize; }
-
-/* RIGHT PANEL */
-#right { width: 200px; min-width: 200px; background: #222; border-left: 1px solid #333; overflow-y: auto; }
-#right h3 { padding: 8px 10px; background: #2a2a2a; border-bottom: 1px solid #333; color: #aaa; font-size: 11px; letter-spacing: 1px; }
-.prop-group { padding: 8px; border-bottom: 1px solid #2a2a2a; }
-.prop-group label { display: block; font-size: 10px; color: #666; margin-bottom: 3px; }
-.prop-row { display: flex; gap: 6px; margin-bottom: 6px; }
-.prop-row label { flex: 0 0 20px; font-size: 11px; color: #888; line-height: 24px; }
-.prop-row input[type=number] { flex: 1; background: #1a1a1a; border: 1px solid #333; color: #ccc; padding: 3px 6px; font-size: 12px; width: 100%; }
-.prop-row input[type=number]:focus { outline: none; border-color: #4f4; }
-.prop-row input[type=range] { flex: 1; }
-#btn-export { margin: 8px; width: calc(100% - 16px); background: #1e3a5e; color: #7af; border: none; padding: 7px; cursor: pointer; font-size: 12px; }
-#btn-export:hover { background: #2a4a6e; }
-#btn-copy { margin: 0 8px 8px; width: calc(100% - 16px); background: #3a2a1e; color: #fa7; border: none; padding: 7px; cursor: pointer; font-size: 12px; }
-#btn-copy:hover { background: #4a3a2e; }
-#json-out { margin: 8px; width: calc(100% - 16px); background: #111; border: 1px solid #333; color: #888; font-size: 10px; padding: 6px; height: 120px; resize: none; }
-#zoom-row { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid #2a2a2a; }
-#zoom-row label { font-size: 10px; color: #666; }
-#zoom-val { font-size: 11px; color: #aaa; min-width: 32px; }
+:root {
+  color-scheme: dark;
+  --bg: #111;
+  --panel: #181818;
+  --panel-2: #202020;
+  --line: #333;
+  --muted: #aaa;
+  --text: #eee;
+  --accent: #5cf;
+  --danger: #f76;
+  --warn: #fc5;
+  --ok: #8f8;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 1120px;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+button, select, input {
+  font: inherit;
+}
+button {
+  border: 1px solid #3a3a3a;
+  background: #222;
+  color: var(--text);
+  padding: 7px 10px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); color: #fff; }
+button:disabled { opacity: .45; cursor: default; border-color: #333; }
+select, input[type="number"] {
+  width: 100%;
+  border: 1px solid #3a3a3a;
+  background: #101010;
+  color: var(--text);
+  padding: 7px 8px;
+}
+input[type="number"]:focus, select:focus, #canvas:focus {
+  outline: 1px solid var(--accent);
+  outline-offset: 0;
+}
+.app {
+  display: grid;
+  grid-template-rows: 48px 1fr 54px;
+  height: 100vh;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+  background: #141414;
+}
+.brand {
+  font-size: 16px;
+  letter-spacing: .08em;
+  font-weight: 700;
+}
+.view-toggle {
+  display: flex;
+  gap: 6px;
+}
+.view-toggle button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #13262b;
+}
+.main {
+  display: grid;
+  grid-template-columns: 260px minmax(560px, 1fr) 280px;
+  min-height: 0;
+}
+.left, .right {
+  min-height: 0;
+  overflow: hidden;
+  background: var(--panel);
+}
+.left {
+  border-right: 1px solid var(--line);
+  display: grid;
+  grid-template-rows: auto minmax(150px, 1.05fr) minmax(170px, .95fr);
+}
+.right {
+  border-left: 1px solid var(--line);
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+.section {
+  min-height: 0;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+.section:last-child { border-bottom: 0; }
+.section-title {
+  padding: 9px 10px;
+  color: var(--muted);
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.chapter-box { padding: 10px; }
+.inline-warning {
+  display: none;
+  margin-top: 9px;
+  padding: 9px;
+  border: 1px solid #5a4930;
+  background: #241f12;
+  color: var(--warn);
+}
+.inline-warning.show { display: block; }
+.inline-warning .actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.scroll-list {
+  min-height: 0;
+  overflow-y: auto;
+}
+.item {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #292929;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.item:hover { background: #232323; }
+.item.active {
+  background: #15303a;
+  color: #dff8ff;
+  border-left: 3px solid var(--accent);
+  padding-left: 7px;
+}
+.item small {
+  display: block;
+  margin-top: 3px;
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.info {
+  padding: 10px;
+  line-height: 1.45;
+  color: #ccc;
+  border-top: 1px solid var(--line);
+  background: #151515;
+  max-height: 44%;
+  overflow-y: auto;
+}
+.info .label { color: #888; }
+.info .text {
+  margin-top: 8px;
+  color: #eee;
+  white-space: pre-wrap;
+}
+.preview-wrap {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  overflow: auto;
+  background: #0c0c0c;
+}
+#canvas {
+  position: relative;
+  overflow: hidden;
+  background: #050505;
+  box-shadow: 0 0 0 1px #303030, 0 18px 48px rgba(0,0,0,.45);
+}
+#canvas.desktop {
+  width: min(100%, calc((100vh - 150px) * 16 / 9));
+  aspect-ratio: 16 / 9;
+}
+#canvas.mobile {
+  height: min(100%, calc(100vh - 150px));
+  aspect-ratio: 9 / 16;
+}
+.bg, .overlay, .char, .dialog {
+  position: absolute;
+  pointer-events: none;
+}
+.bg {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.overlay {
+  transform: translate(-50%, -50%);
+  height: auto;
+  opacity: .7;
+  object-fit: contain;
+}
+.char {
+  transform: translate(-50%, -50%);
+  height: auto;
+  cursor: grab;
+  pointer-events: auto;
+  user-select: none;
+}
+.char.dragging { cursor: grabbing; }
+.char.active-speaker {
+  opacity: 1;
+  filter: drop-shadow(0 0 14px rgba(85,204,255,.25));
+}
+.char.inactive-speaker { opacity: .5; }
+.dialog {
+  transform: translate(-50%, -50%);
+  min-height: 20%;
+  padding: 18px 20px;
+  background: rgba(0,0,0,.8);
+  border: 1px solid rgba(255,255,255,.16);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #fff;
+}
+.dialog .speaker {
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.dialog .line-text {
+  line-height: 1.55;
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  font-size: clamp(14px, 2.1vw, 24px);
+}
+.right-scroll {
+  min-height: 0;
+  overflow-y: auto;
+}
+.control-group {
+  border-bottom: 1px solid #2b2b2b;
+  padding: 11px 12px;
+}
+.control-group h3 {
+  margin: 0 0 10px;
+  color: var(--accent);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.field label {
+  display: block;
+  margin-bottom: 4px;
+  color: #888;
+  font-size: 11px;
+}
+.actions-panel {
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  background: #161616;
+}
+.actions-panel button {
+  width: 100%;
+  margin-bottom: 8px;
+}
+#saveBtn.dirty {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+#saveBtn.dirty::after {
+  content: " *";
+}
+.toast {
+  position: fixed;
+  right: 18px;
+  bottom: 66px;
+  padding: 10px 13px;
+  background: #102a18;
+  border: 1px solid #2e7d42;
+  color: var(--ok);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .18s ease, transform .18s ease;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  background: #141414;
+}
+.line-count {
+  min-width: 110px;
+  text-align: center;
+  color: #ddd;
+}
+.empty {
+  padding: 14px;
+  color: #888;
+}
 </style>
 </head>
 <body>
-
-<!-- LEFT: overlay + character select -->
-<div id="left">
-  <h3>OVERLAY</h3>
-  <div id="bg-section">
-    <label>Background</label>
-    <select id="bg-select" size="6"></select>
-  </div>
-  <h3>CHARACTER</h3>
-  <div id="ch-section">
-    <label>Add Character</label>
-    <div class="row">
-      <select id="ch-select" style="flex:1"></select>
-      <button id="add-btn">ADD</button>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">CAMPAIGN SCENE EDITOR</div>
+    <div class="view-toggle" aria-label="Viewport">
+      <button id="desktopBtn" type="button" class="active">Desktop</button>
+      <button id="mobileBtn" type="button">Mobile</button>
     </div>
-  </div>
-  <h3>LAYERS</h3>
-  <div id="layers-section">
-    <div id="layers-list"></div>
-  </div>
-</div>
+  </header>
 
-<!-- CENTER: canvas -->
-<div id="canvas-area">
-  <div id="scene-container">
-    <img id="bg-img" src="" alt="">
-  </div>
-</div>
+  <main class="main">
+    <aside class="left">
+      <section class="section">
+        <div class="section-title">Chapter</div>
+        <div class="chapter-box">
+          <select id="chapterSelect"></select>
+          <div id="chapterWarning" class="inline-warning">
+            Unsaved changes - save first?
+            <div class="actions">
+              <button id="continueChapterBtn" type="button">Continue</button>
+              <button id="cancelChapterBtn" type="button">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-<!-- RIGHT: properties -->
-<div id="right">
-  <h3>PROPERTIES</h3>
-  <div id="zoom-row">
-    <label>ZOOM</label>
-    <input type="range" id="zoom-slider" min="20" max="200" value="100" style="flex:1">
-    <span id="zoom-val">100%</span>
-  </div>
-  <div class="prop-group" id="props-panel">
-    <label>NO LAYER SELECTED</label>
-  </div>
-  <button id="btn-export">EXPORT JSON</button>
-  <button id="btn-copy">COPY TO CLIPBOARD</button>
-  <textarea id="json-out" readonly placeholder="layout JSON appears here..."></textarea>
+      <section class="section">
+        <div class="section-title">Scene List</div>
+        <div id="sceneList" class="scroll-list"></div>
+        <div id="sceneInfo" class="info"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Line List</div>
+        <div id="lineList" class="scroll-list"></div>
+        <div id="lineInfo" class="info"></div>
+      </section>
+    </aside>
+
+    <section class="preview-wrap">
+      <div id="canvas" class="desktop" tabindex="0" aria-label="Campaign preview canvas"></div>
+    </section>
+
+    <aside class="right">
+      <div>
+        <div class="section-title">Layout Controls</div>
+        <div id="controls" class="right-scroll"></div>
+      </div>
+      <div class="actions-panel">
+        <button id="copyLayoutBtn" type="button">Desktop -> Mobile</button>
+        <button id="resetLayoutBtn" type="button">Reset Layout</button>
+        <button id="saveBtn" type="button">Save to JSON</button>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="bottom">
+    <button id="prevBtn" type="button">◀ Prev Line</button>
+    <div id="lineCount" class="line-count">Line 0/0</div>
+    <button id="nextBtn" type="button">Next Line ▶</button>
+  </footer>
 </div>
+<div id="toast" class="toast">Saved ✓</div>
 
 <script>
-const BG_LIST = ["argyre_canyon_depot.png","argyre_canyon_night.png","argyre_plains.png","argyre_plains_dusk.png","argyre_plains_night.png","cargo_ship_corridor.png","cargo_ship_interior.png","cargo_ship_window_mars.png","cv_ch10_from_flames_l00_00_fire_small.png","cv_ch10_from_flames_l14_00_hand_still.png","cv_ch10_from_flames_l20_00_death_still.png","cv_ch10_from_flames_l32_04_zone12_record.png","cv_ch10_from_flames_l39_00_candle_flame.png","cv_ch1_baptism_l02_00_fire_small.png","cv_ch1_baptism_l29_00_mars_horizon.png","cv_ch1_baptism_l41_00_candle_flame.png","cv_ch2_raid_l26_00_dust_storm.png","cv_ch2_raid_l32_00_hand_fist.png","cv_ch3_mine_king_l19_00_hand_still.png","cv_ch3_mine_king_l48_00_fire_small.png","cv_ch4_cinder_l10_02_collapse_debris.png","cv_ch4_cinder_l17_00_sealed_file.png","cv_ch4_cinder_l27_00_candle_flame.png","cv_ch5_kepler_king_l21_00_hand_still.png","cv_ch5_kepler_king_l27_00_death_still.png","cv_ch5_kepler_king_l37_00_death_still.png","cv_ch6_thirty_years_l01_00_death_still.png","cv_ch6_thirty_years_l07_02_sealed_file.png","cv_ch6_thirty_years_l21_00_zone12_record.png","cv_ch6_thirty_years_l38_02_candle_flame.png","cv_ch7_last_war_l00_00_death_still.png","cv_ch7_last_war_l23_00_death_still.png","cv_ch7_last_war_l39_00_fire_small.png","cv_ch8_red_parliament_cv_l03_00_hand_still.png","cv_ch8_red_parliament_cv_l15_00_death_still.png","cv_ch8_red_parliament_cv_l37_02_death_still.png","cv_ch9_olympus_l08_00_zone12_record.png","cv_ch9_olympus_l42_02_contract_sign.png","cv_ch9_olympus_l47_00_zone12_record.png","deep_space_mars_approach.png","deep_space_window.png","erebus_base_exterior.png","erebus_base_interior.png","erebus_base_interior_night.png","erebus_canyon_sunset.png","erebus_crater_exterior.png","erebus_crater_panorama.png","erebus_throne_hall.png","fsp_assembly_hall.png","fsp_assembly_hall_evening.png","fsp_assembly_hall_official.png","fsp_base.png","fsp_base_exterior.png","fsp_base_night.png","fsp_ch10_freedoms_price_l17_05_candle_flame.png","fsp_ch10_freedoms_price_l24_05_death_still.png","fsp_ch10_freedoms_price_l36_03_mars_horizon.png","fsp_ch1_breakwater_l24_00_death_still.png","fsp_ch1_breakwater_l30_00_candle_flame.png","fsp_ch2_ice_caravan_l02_00_death_still.png","fsp_ch2_ice_caravan_l27_00_candle_flame.png","fsp_ch3_blood_mine_l02_00_candle_flame.png","fsp_ch3_blood_mine_l10_00_death_still.png","fsp_ch4_diplomacy_l09_00_zone12_record.png","fsp_ch4_diplomacy_l21_00_hand_fist.png","fsp_ch4_diplomacy_l43_00_zone12_record.png","fsp_ch5_kepler_commons_l04_02_ore_sample.png","fsp_ch5_kepler_commons_l14_00_darkness_corridor.png","fsp_ch5_kepler_commons_l37_00_mars_horizon.png","fsp_ch6_the_mole_l11_00_sealed_file.png","fsp_ch6_the_mole_l27_00_death_still.png","fsp_ch7_assembly_l21_00_dust_storm.png","fsp_ch7_assembly_l36_00_alone_window.png","fsp_ch7_assembly_l40_00_candle_flame.png","fsp_ch8_water_war_l06_00_death_still.png","fsp_ch8_water_war_l35_00_mars_horizon.png","fsp_ch8_water_war_l39_00_candle_flame.png","fsp_ch9_last_harvest_l08_05_death_still.png","fsp_ch9_last_harvest_l10_00_zone12_record.png","fsp_ch9_last_harvest_l49_06_contract_sign.png","gaia_ship_interior.png","hellas_central_exterior.png","hellas_central_exterior_night.png","hellas_central_exterior_panorama.png","hellas_exterior_road.png","hellas_labor_district_night.png","hellas_mine_exterior.png","hellas_mining_outpost.png","hellas_mining_village.png","hellas_mining_village_dawn.png","hellas_mining_village_empty.png","hellas_mining_village_fire.png","hellas_mining_village_panorama.png","hellas_mining_village_wall.png","hellas_outer_plains.png","hellas_outer_plains_sunset.png","hellas_various_night.png","hellas_zone4_deep_tunnel.png","hellas_zone4_outside_dawn.png","hellas_zone4_ruins.png","hellas_zone4_ruins_exit.png","hidden_ch1_observer_l07_00_hand_still.png","hidden_ch1_observer_l14_00_candle_flame.png","hidden_ch1_observer_l21_00_collapse_debris.png","hidden_ch1_observer_l24_00_sealed_file.png","hidden_ch2_traces_l01_00_candle_flame.png","hidden_ch2_traces_l23_00_zone12_record.png","hidden_ch2_traces_l28_00_death_still.png","hidden_ch3_fourth_flag_l03_00_three_flags.png","hidden_ch3_fourth_flag_l05_00_death_still.png","hidden_ch3_fourth_flag_l11_00_sealed_file.png","hidden_ch3_fourth_flag_l28_00_mars_horizon.png","hidden_ch4_thirty_years_l07_00_hand_still.png","hidden_ch4_thirty_years_l18_00_candle_flame.png","hidden_ch4_thirty_years_l27_00_ore_sample.png","hidden_ch5_last_observation_l23_00_zone12_record.png","hidden_ch5_last_observation_l32_00_candle_flame.png","hidden_ch5_last_observation_l44_00_mars_horizon.png","kariope_cargo_bay.png","kariope_observation_deck.png","kepler_crater.png","kepler_crater_dawn.png","kepler_crater_dusk.png","kepler_crater_edge.png","kepler_crater_edge_dusk.png","mars_docking_bay.png","mars_landing_approach.png","mars_sunset.png","mars_surface_dust_storm.png","mcc_archive_sublevel.png","mcc_board_chamber.png","mcc_briefing_room.png","mcc_ch10_the_choice_l13_01_death_still.png","mcc_ch10_the_choice_l26_01_sealed_file.png","mcc_ch10_the_choice_l45_02_alone_window.png","mcc_ch10_the_choice_l55_07_mars_horizon.png","mcc_ch1_oxygen_rush_l13_02_death_still.png","mcc_ch1_oxygen_rush_l23_00_dust_storm.png","mcc_ch1_oxygen_rush_l37_00_alone_window.png","mcc_ch2_frozen_highway_l20_02_death_still.png","mcc_ch2_frozen_highway_l27_00_sealed_file.png","mcc_ch2_frozen_highway_l34_00_mars_horizon.png","mcc_ch3_boardroom_l04_00_death_still.png","mcc_ch3_boardroom_l10_02_sealed_file.png","mcc_ch3_boardroom_l34_00_alone_window.png","mcc_ch4_pirates_payroll_l17_00_ore_sample.png","mcc_ch4_pirates_payroll_l23_00_mars_horizon.png","mcc_ch4_pirates_payroll_l39_00_ore_sample.png","mcc_ch5_kepler_dispute_l07_00_sealed_file.png","mcc_ch5_kepler_dispute_l29_00_candle_flame.png","mcc_ch6_whistleblower_l08_00_candle_flame.png","mcc_ch6_whistleblower_l35_00_candle_flame.png","mcc_ch9_martian_night_l08_02_zone12_record.png","mcc_ch9_martian_night_l27_00_zone12_record.png","mcc_ch9_martian_night_l35_00_contract_sign.png","mcc_ch9_martian_night_l37_00_mars_horizon.png","mcc_executive_floor.png","mcc_sector12_ruins.png","mine_exterior.png","mine_interior.png","mine_shaft.png","new_athens_shipyard.png","new_athens_shipyard_dawn.png","new_athens_shipyard_interior.png","new_athens_shipyard_night.png","olympus_exterior.png","olympus_exterior_dawn.png","olympus_exterior_sunset.png","olympus_exterior_vast.png","olympus_summit_exterior_view.png","olympus_summit_station.png","olympus_summit_station_interior.png","prologue_cv_l12_00_mars_horizon.png","prologue_cv_l24_00_fire_small.png","prologue_cv_l34_00_fire_small.png","prologue_fsp_l05_00_candle_flame.png","prologue_fsp_l34_00_candle_flame.png","prologue_mcc_l30_00_death_still.png","prologue_mcc_l40_00_sealed_file.png","prologue_shared_l29_00_mars_horizon.png","prologue_shared_l45_00_mars_horizon.png","sandstone_junction.png","sandstone_junction_dusk.png","space_battle_start.png"];
-const CH_LIST = ["aisha.png","amara.png","bartender.png","berk.png","butcher.png","butcher_vasquez.png","chen.png","chen_weiss.png","cinder.png","cinder_alt.png","cinder_grace.png","crow.png","crow_reyes.png","cv_scout_1.png","cv_scout_2.png","director_vale.png","hagar.png","hale.png","hestia.png","jin.png","kara_vex.png","kenji.png","lena.png","li_fang.png","liang_wei.png","lifang.png","marchetti.png","marco.png","marko.png","mcc_guard.png","mikhail.png","miner_anon.png","miner_elder.png","narrator.png","observer.png","olu_adeyemi.png","osei.png","pak_seung_ho.png","phoenix.png","pilgrim_assassin.png","player.png","player_silhouette.png","prologue_voice.png","ramos.png","renata_vieira.png","rev_hale.png","reza.png","ryu.png","sera.png","stranger.png","thomas_alder.png","verk.png","worker.png","yuna.png","zhang.png"];
-
-const bgSelect = document.getElementById('bg-select');
-const chSelect = document.getElementById('ch-select');
-const bgImg = document.getElementById('bg-img');
-const container = document.getElementById('scene-container');
-const layersList = document.getElementById('layers-list');
-const propsPanel = document.getElementById('props-panel');
-const jsonOut = document.getElementById('json-out');
-const zoomSlider = document.getElementById('zoom-slider');
-const zoomVal = document.getElementById('zoom-val');
-
-BG_LIST.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f.replace('.png',''); bgSelect.appendChild(o); });
-CH_LIST.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f.replace('.png',''); chSelect.appendChild(o); });
-
-let layers = []; // {id, file, x, y, w, h, opacity, el}
-let selectedId = null;
-let zoom = 1;
-let nextId = 1;
-
-// BG select
-bgSelect.addEventListener('change', () => {
-  bgImg.src = '/assets/campaign/backgrounds/' + bgSelect.value;
-});
-bgImg.addEventListener('load', () => {
-  container.style.width = bgImg.offsetWidth + 'px';
-  container.style.height = bgImg.offsetHeight + 'px';
-});
-// init
-bgSelect.selectedIndex = 0;
-bgImg.src = '/assets/campaign/backgrounds/' + BG_LIST[0];
-
-// Zoom
-zoomSlider.addEventListener('input', () => {
-  zoom = zoomSlider.value / 100;
-  zoomVal.textContent = zoomSlider.value + '%';
-  container.style.transform = `scale(${zoom})`;
-  container.style.transformOrigin = 'top left';
-});
-
-// Add character
-document.getElementById('add-btn').addEventListener('click', () => {
-  const file = chSelect.value;
-  if (!file) return;
-  const id = nextId++;
-  const bgW = bgImg.offsetWidth || 800;
-  const bgH = bgImg.offsetHeight || 800;
-  const w = Math.round(bgW * 0.35);
-  const h = Math.round(w * 1.5);
-  const layer = { id, file, x: Math.round(bgW * 0.3), y: Math.round(bgH - h), w, h, opacity: 1 };
-  layers.push(layer);
-  createLayerEl(layer);
-  renderLayersList();
-  selectLayer(id);
-});
-
-function createLayerEl(layer) {
-  const el = document.createElement('div');
-  el.className = 'char-layer';
-  el.dataset.id = layer.id;
-  el.style.left = layer.x + 'px';
-  el.style.top = layer.y + 'px';
-  el.style.width = layer.w + 'px';
-  el.style.height = layer.h + 'px';
-  el.style.opacity = layer.opacity;
-
-  const img = document.createElement('img');
-  img.src = '/assets/campaign/characters/' + layer.file;
-  img.draggable = false;
-  el.appendChild(img);
-
-  // resize handles
-  ['tl','tc','tr','lc','rc','bl','bc','br'].forEach(pos => {
-    const h = document.createElement('div');
-    h.className = 'handle ' + pos;
-    h.dataset.handle = pos;
-    el.appendChild(h);
-  });
-
-  el.addEventListener('mousedown', (e) => {
-    if (e.target.classList.contains('handle')) return;
-    e.preventDefault();
-    selectLayer(layer.id);
-    startDrag(e, layer);
-  });
-
-  el.querySelectorAll('.handle').forEach(h => {
-    h.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      selectLayer(layer.id);
-      startResize(e, layer, h.dataset.handle);
-    });
-  });
-
-  layer.el = el;
-  container.appendChild(el);
-}
-
-function startDrag(e, layer) {
-  const startX = e.clientX, startY = e.clientY;
-  const origX = layer.x, origY = layer.y;
-  function onMove(e) {
-    const dx = (e.clientX - startX) / zoom;
-    const dy = (e.clientY - startY) / zoom;
-    layer.x = Math.round(origX + dx);
-    layer.y = Math.round(origY + dy);
-    layer.el.style.left = layer.x + 'px';
-    layer.el.style.top = layer.y + 'px';
-    updatePropsPanel();
+const API = '/admin/api/campaign-editor';
+const excludedSpeakers = new Set(['player', 'player_silhouette', 'narrator', 'prologue_voice', 'observer']);
+const portraitMap = {
+  player: 'player_silhouette',
+  observer: 'player_silhouette',
+  rev_hale: 'hale',
+  young_butcher: 'butcher',
+  crow: 'kara_vex'
+};
+const defaults = {
+  desktop: {
+    one: { x: 50, y: 55, w: 40 },
+    twoLeft: { x: 25, y: 55, w: 35 },
+    twoRight: { x: 75, y: 55, w: 35 },
+    dialog: { x: 50, y: 82, w: 86 },
+    overlay: { x: 50, y: 44, w: 84 }
+  },
+  mobile: {
+    one: { x: 50, y: 60, w: 65 },
+    twoLeft: { x: 35, y: 60, w: 58 },
+    twoRight: { x: 65, y: 60, w: 58 },
+    dialog: { x: 50, y: 85, w: 90 },
+    overlay: { x: 50, y: 44, w: 84 }
   }
-  function onUp() {
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onUp);
+};
+
+const els = {
+  chapterSelect: document.getElementById('chapterSelect'),
+  chapterWarning: document.getElementById('chapterWarning'),
+  continueChapterBtn: document.getElementById('continueChapterBtn'),
+  cancelChapterBtn: document.getElementById('cancelChapterBtn'),
+  sceneList: document.getElementById('sceneList'),
+  lineList: document.getElementById('lineList'),
+  sceneInfo: document.getElementById('sceneInfo'),
+  lineInfo: document.getElementById('lineInfo'),
+  canvas: document.getElementById('canvas'),
+  controls: document.getElementById('controls'),
+  desktopBtn: document.getElementById('desktopBtn'),
+  mobileBtn: document.getElementById('mobileBtn'),
+  copyLayoutBtn: document.getElementById('copyLayoutBtn'),
+  resetLayoutBtn: document.getElementById('resetLayoutBtn'),
+  saveBtn: document.getElementById('saveBtn'),
+  prevBtn: document.getElementById('prevBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+  lineCount: document.getElementById('lineCount'),
+  toast: document.getElementById('toast')
+};
+
+let chapters = [];
+let assets = { backgrounds: [], characters: [] };
+let chapter = null;
+let currentFile = '';
+let pendingFile = '';
+let selectedSceneIndex = 0;
+let selectedLineIndex = 0;
+let mode = 'desktop';
+let dirty = false;
+let dragState = null;
+
+function clamp(value, min, max) {
+  const number = Number(value);
+  if (Number.isNaN(number)) return min;
+  return Math.max(min, Math.min(max, number));
+}
+
+function cloneLayoutPart(value) {
+  return JSON.parse(JSON.stringify(value || {}));
+}
+
+function scene() {
+  return chapter && chapter.scenes ? chapter.scenes[selectedSceneIndex] : null;
+}
+
+function lines() {
+  const currentScene = scene();
+  return currentScene && Array.isArray(currentScene.lines) ? currentScene.lines : [];
+}
+
+function line() {
+  return lines()[selectedLineIndex] || null;
+}
+
+function textOf(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  return value.ko || value.en || '';
+}
+
+function titleOf(chapterData, fallback) {
+  const raw = chapterData && chapterData.title;
+  if (!raw) return fallback;
+  return typeof raw === 'object' ? (raw.ko || raw.en || fallback) : String(raw);
+}
+
+function normalizeCharacter(id) {
+  return portraitMap[id] || id;
+}
+
+function assetUrl(kind, id) {
+  const suffix = id.endsWith('.png') ? id : `${id}.png`;
+  return `/assets/campaign/${kind}/${suffix}`;
+}
+
+function ensureSceneLayout() {
+  const currentScene = scene();
+  if (!currentScene.layout) currentScene.layout = {};
+  if (!currentScene.layout.desktop) currentScene.layout.desktop = {};
+  if (!currentScene.layout.mobile) currentScene.layout.mobile = {};
+  if (!currentScene.layout[mode].characters) currentScene.layout[mode].characters = {};
+  return currentScene.layout[mode];
+}
+
+function getLayoutPart(part, key) {
+  const currentScene = scene();
+  const modeLayout = currentScene && currentScene.layout && currentScene.layout[mode];
+  if (!modeLayout) return null;
+  if (part === 'characters') return modeLayout.characters && modeLayout.characters[key] ? modeLayout.characters[key] : null;
+  return modeLayout[part] || null;
+}
+
+function setLayoutPart(part, key, values) {
+  const layout = ensureSceneLayout();
+  if (part === 'characters') {
+    if (!layout.characters[key]) layout.characters[key] = {};
+    Object.assign(layout.characters[key], values);
+  } else {
+    if (!layout[part]) layout[part] = {};
+    Object.assign(layout[part], values);
   }
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
+  markDirty();
 }
 
-function startResize(e, layer, handle) {
-  const startX = e.clientX, startY = e.clientY;
-  const origX = layer.x, origY = layer.y, origW = layer.w, origH = layer.h;
-  function onMove(e) {
-    const dx = (e.clientX - startX) / zoom;
-    const dy = (e.clientY - startY) / zoom;
-    let nx = origX, ny = origY, nw = origW, nh = origH;
-    if (handle.includes('r')) { nw = Math.max(20, origW + dx); }
-    if (handle.includes('l')) { nw = Math.max(20, origW - dx); nx = origX + (origW - nw); }
-    if (handle.includes('b')) { nh = Math.max(20, origH + dy); }
-    if (handle.includes('t')) { nh = Math.max(20, origH - dy); ny = origY + (origH - nh); }
-    // if corner, maintain aspect ratio with shift
-    layer.x = Math.round(nx); layer.y = Math.round(ny);
-    layer.w = Math.round(nw); layer.h = Math.round(nh);
-    layer.el.style.left = layer.x + 'px'; layer.el.style.top = layer.y + 'px';
-    layer.el.style.width = layer.w + 'px'; layer.el.style.height = layer.h + 'px';
-    updatePropsPanel();
+function fallbackCharacterLayout(characters, index) {
+  if (characters.length <= 1) return { ...defaults[mode].one };
+  return { ...(index === 0 ? defaults[mode].twoLeft : defaults[mode].twoRight) };
+}
+
+function effectiveCharacterLayout(id, visibleCharacters, index) {
+  return { ...fallbackCharacterLayout(visibleCharacters, index), ...(getLayoutPart('characters', id) || {}) };
+}
+
+function effectiveOverlayLayout() {
+  return { ...defaults[mode].overlay, ...(getLayoutPart('overlay') || {}) };
+}
+
+function effectiveDialogLayout() {
+  return { ...defaults[mode].dialog, ...(getLayoutPart('dialog') || {}) };
+}
+
+function visibleCharacters() {
+  const currentScene = scene();
+  if (!currentScene) return [];
+  const ids = [];
+  if (Array.isArray(currentScene.characters)) {
+    currentScene.characters.forEach(id => ids.push(id));
+  } else {
+    for (let i = selectedLineIndex; i >= Math.max(0, selectedLineIndex - 1); i--) {
+      const speaker = lines()[i] && lines()[i].speaker;
+      if (speaker) ids.push(speaker);
+    }
   }
-  function onUp() {
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onUp);
+
+  const seen = new Set();
+  return ids
+    .map(normalizeCharacter)
+    .filter(id => id && !excludedSpeakers.has(id))
+    .filter(id => {
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    })
+    .slice(0, 2);
+}
+
+function activeSpeaker() {
+  const speaker = line() && line().speaker;
+  return speaker ? normalizeCharacter(speaker) : '';
+}
+
+function currentOverlay() {
+  return (line() && line().overlay) || (scene() && scene().overlay) || '';
+}
+
+function setDirty(value) {
+  dirty = value;
+  els.saveBtn.classList.toggle('dirty', dirty);
+}
+
+function markDirty() {
+  setDirty(true);
+}
+
+function renderChapterOptions() {
+  els.chapterSelect.innerHTML = chapters.map(ch => {
+    const selected = ch.file === currentFile ? ' selected' : '';
+    const label = `${ch.title} (${ch.file})`;
+    return `<option value="${escapeHtml(ch.file)}"${selected}>${escapeHtml(label)}</option>`;
+  }).join('');
+}
+
+function renderSceneList() {
+  const scenes = chapter && Array.isArray(chapter.scenes) ? chapter.scenes : [];
+  els.sceneList.innerHTML = scenes.map((sc, index) => {
+    const active = index === selectedSceneIndex ? ' active' : '';
+    const label = `${index + 1}. ${sc.id || 'scene'}`;
+    const meta = `${sc.type || 'unknown'} · ${sc.background || 'no background'}`;
+    return `<button type="button" class="item${active}" data-scene="${index}">${escapeHtml(label)}<small>${escapeHtml(meta)}</small></button>`;
+  }).join('') || '<div class="empty">No scenes</div>';
+}
+
+function renderLineList() {
+  const currentLines = lines();
+  els.lineList.innerHTML = currentLines.map((ln, index) => {
+    const active = index === selectedLineIndex ? ' active' : '';
+    const speaker = ln.speaker || 'narration';
+    const text = textOf(ln.text);
+    return `<button type="button" class="item${active}" data-line="${index}">${escapeHtml(index + 1 + '. ' + speaker)}<small>${escapeHtml(text)}</small></button>`;
+  }).join('') || '<div class="empty">No lines</div>';
+}
+
+function renderInfo() {
+  const currentScene = scene();
+  const currentLine = line();
+  if (currentScene) {
+    const count = Array.isArray(currentScene.characters) ? currentScene.characters.length : visibleCharacters().length;
+    els.sceneInfo.innerHTML = [
+      `<div><span class="label">type:</span> ${escapeHtml(currentScene.type || '')}</div>`,
+      `<div><span class="label">background:</span> ${escapeHtml(currentScene.background || '')}</div>`,
+      `<div><span class="label">characters:</span> ${count}</div>`
+    ].join('');
+  } else {
+    els.sceneInfo.innerHTML = '<span class="label">No scene selected</span>';
   }
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
+
+  if (currentLine) {
+    els.lineInfo.innerHTML = [
+      `<div><span class="label">speaker:</span> ${escapeHtml(currentLine.speaker || 'narration')}</div>`,
+      `<div><span class="label">emotion:</span> ${escapeHtml(currentLine.emotion || '')}</div>`,
+      `<div class="text">${escapeHtml(textOf(currentLine.text))}</div>`
+    ].join('');
+  } else {
+    els.lineInfo.innerHTML = '<span class="label">No line selected</span>';
+  }
 }
 
-function selectLayer(id) {
-  selectedId = id;
-  layers.forEach(l => {
-    l.el && l.el.classList.toggle('selected', l.id === id);
-  });
-  renderLayersList();
-  updatePropsPanel();
-}
-
-function renderLayersList() {
-  layersList.innerHTML = '';
-  [...layers].reverse().forEach(layer => {
-    const item = document.createElement('div');
-    item.className = 'layer-item' + (layer.id === selectedId ? ' selected' : '');
-    item.innerHTML = `
-      <img class="thumb" src="/assets/campaign/characters/${layer.file}">
-      <span class="name">${layer.file.replace('.png','')}</span>
-      <button class="layer-up" data-id="${layer.id}" title="Up">▲</button>
-      <button class="layer-dn" data-id="${layer.id}" title="Down">▼</button>
-      <button class="layer-del" data-id="${layer.id}" title="Delete">✕</button>
-    `;
-    item.addEventListener('click', (e) => {
-      if (!e.target.closest('button')) selectLayer(layer.id);
-    });
-    item.querySelector('.layer-del').addEventListener('click', (e) => { e.stopPropagation(); deleteLayer(layer.id); });
-    item.querySelector('.layer-up').addEventListener('click', (e) => { e.stopPropagation(); moveLayer(layer.id, 1); });
-    item.querySelector('.layer-dn').addEventListener('click', (e) => { e.stopPropagation(); moveLayer(layer.id, -1); });
-    layersList.appendChild(item);
-  });
-}
-
-function deleteLayer(id) {
-  const layer = layers.find(l => l.id === id);
-  if (layer && layer.el) layer.el.remove();
-  layers = layers.filter(l => l.id !== id);
-  if (selectedId === id) selectedId = null;
-  renderLayersList();
-  updatePropsPanel();
-}
-
-function moveLayer(id, dir) {
-  const idx = layers.findIndex(l => l.id === id);
-  const newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= layers.length) return;
-  [layers[idx], layers[newIdx]] = [layers[newIdx], layers[idx]];
-  // reorder DOM
-  layers.forEach(l => container.appendChild(l.el));
-  renderLayersList();
-}
-
-function updatePropsPanel() {
-  const layer = layers.find(l => l.id === selectedId);
-  if (!layer) {
-    propsPanel.innerHTML = '<label>NO LAYER SELECTED</label>';
+function renderCanvas() {
+  const currentScene = scene();
+  const currentLine = line();
+  if (!currentScene) {
+    els.canvas.innerHTML = '';
     return;
   }
-  propsPanel.innerHTML = `
-    <label>${layer.file.replace('.png','')}</label>
-    <div class="prop-row"><label>X</label><input type="number" id="p-x" value="${layer.x}"></div>
-    <div class="prop-row"><label>Y</label><input type="number" id="p-y" value="${layer.y}"></div>
-    <div class="prop-row"><label>W</label><input type="number" id="p-w" value="${layer.w}"></div>
-    <div class="prop-row"><label>H</label><input type="number" id="p-h" value="${layer.h}"></div>
-    <div class="prop-row"><label>α</label><input type="range" id="p-op" min="0" max="1" step="0.05" value="${layer.opacity}"></div>
-    <div style="padding:2px 0 0 26px;font-size:10px;color:#666">opacity: ${layer.opacity}</div>
+
+  const chars = visibleCharacters();
+  const overlay = currentOverlay();
+  const speaker = activeSpeaker();
+  const bg = currentScene.background || '';
+  const dialog = effectiveDialogLayout();
+  const lineText = currentLine ? textOf(currentLine.text) : '';
+  const speakerText = currentLine && currentLine.speaker ? currentLine.speaker : '';
+
+  els.canvas.className = mode;
+  els.canvas.innerHTML = '';
+
+  const bgImg = document.createElement('img');
+  bgImg.className = 'bg';
+  bgImg.alt = '';
+  bgImg.src = assetUrl('backgrounds', bg);
+  els.canvas.appendChild(bgImg);
+
+  chars.forEach((id, index) => {
+    const layout = effectiveCharacterLayout(id, chars, index);
+    const img = document.createElement('img');
+    img.className = `char ${speaker === id ? 'active-speaker' : 'inactive-speaker'}`;
+    img.alt = id;
+    img.dataset.character = id;
+    img.draggable = false;
+    img.src = assetUrl('characters', id);
+    applyPercentBox(img, layout, true);
+    img.addEventListener('pointerdown', startDrag);
+    els.canvas.appendChild(img);
+  });
+
+  if (overlay) {
+    const overlayLayout = effectiveOverlayLayout();
+    const overlayImg = document.createElement('img');
+    overlayImg.className = 'overlay';
+    overlayImg.alt = '';
+    overlayImg.src = assetUrl('backgrounds', overlay);
+    applyPercentBox(overlayImg, overlayLayout, true);
+    els.canvas.appendChild(overlayImg);
+  }
+
+  const dialogBox = document.createElement('div');
+  dialogBox.className = 'dialog';
+  applyPercentBox(dialogBox, dialog, false);
+  dialogBox.innerHTML = `${speakerText ? `<div class="speaker">${escapeHtml(speakerText)}</div>` : ''}<div class="line-text">${escapeHtml(lineText)}</div>`;
+  els.canvas.appendChild(dialogBox);
+}
+
+function applyPercentBox(el, layout, keepAspect) {
+  el.style.left = `${layout.x}%`;
+  el.style.top = `${layout.y}%`;
+  el.style.width = `${layout.w}%`;
+  if (keepAspect) el.style.height = 'auto';
+}
+
+function renderControls() {
+  const chars = visibleCharacters();
+  const overlay = currentOverlay();
+  const parts = [];
+  chars.forEach((id, index) => {
+    const layout = effectiveCharacterLayout(id, chars, index);
+    parts.push(controlGroup(`Character: ${id}`, 'characters', id, layout, { minW: 5 }));
+  });
+  if (overlay) {
+    parts.push(controlGroup(`Overlay: ${overlay}`, 'overlay', '', effectiveOverlayLayout(), { minW: 5 }));
+  }
+  parts.push(controlGroup('Dialog Box', 'dialog', '', effectiveDialogLayout(), { minW: 5 }));
+  els.controls.innerHTML = parts.join('');
+}
+
+function controlGroup(title, part, key, layout, options) {
+  return `
+    <div class="control-group" data-part="${escapeHtml(part)}" data-key="${escapeHtml(key)}">
+      <h3>${escapeHtml(title)}</h3>
+      <div class="grid3">
+        ${numberField('x', layout.x, 0, 100)}
+        ${numberField('y', layout.y, 0, 100)}
+        ${numberField('w', layout.w, options.minW, 100)}
+      </div>
+    </div>
   `;
-  const bind = (pid, prop, isFloat) => {
-    document.getElementById(pid).addEventListener('input', (e) => {
-      layer[prop] = isFloat ? parseFloat(e.target.value) : parseInt(e.target.value);
-      layer.el.style.left = layer.x + 'px';
-      layer.el.style.top = layer.y + 'px';
-      layer.el.style.width = layer.w + 'px';
-      layer.el.style.height = layer.h + 'px';
-      layer.el.style.opacity = layer.opacity;
-      if (pid === 'p-op') {
-        propsPanel.querySelector('div:last-child').textContent = 'opacity: ' + layer.opacity;
-      }
-    });
-  };
-  bind('p-x','x'); bind('p-y','y'); bind('p-w','w'); bind('p-h','h'); bind('p-op','opacity',true);
 }
 
-function exportLayout() {
-  const bgW = bgImg.naturalWidth || bgImg.offsetWidth;
-  const bgH = bgImg.naturalHeight || bgImg.offsetHeight;
-  const data = {
-    background: bgSelect.value,
-    bg_display_size: { w: bgImg.offsetWidth, h: bgImg.offsetHeight },
-    bg_natural_size: { w: bgW, h: bgH },
-    characters: layers.map(l => ({
-      file: l.file,
-      x: l.x, y: l.y,
-      w: l.w, h: l.h,
-      opacity: l.opacity,
-      // normalized 0-1 relative to display size
-      x_pct: +(l.x / bgImg.offsetWidth).toFixed(4),
-      y_pct: +(l.y / bgImg.offsetHeight).toFixed(4),
-      w_pct: +(l.w / bgImg.offsetWidth).toFixed(4),
-      h_pct: +(l.h / bgImg.offsetHeight).toFixed(4),
-    }))
-  };
-  return JSON.stringify(data, null, 2);
+function numberField(name, value, min, max) {
+  return `
+    <div class="field">
+      <label>${name}</label>
+      <input type="number" data-field="${name}" min="${min}" max="${max}" step="1" value="${Math.round(value)}">
+    </div>
+  `;
 }
 
-document.getElementById('btn-export').addEventListener('click', () => {
-  jsonOut.value = exportLayout();
-});
-document.getElementById('btn-copy').addEventListener('click', () => {
-  const txt = exportLayout();
-  jsonOut.value = txt;
-  navigator.clipboard.writeText(txt).catch(() => { jsonOut.select(); document.execCommand('copy'); });
+function renderNav() {
+  const total = lines().length;
+  els.lineCount.textContent = `Line ${total ? selectedLineIndex + 1 : 0}/${total}`;
+  els.prevBtn.disabled = selectedLineIndex <= 0;
+  els.nextBtn.disabled = selectedLineIndex >= total - 1;
+}
+
+function renderAll() {
+  renderChapterOptions();
+  renderSceneList();
+  renderLineList();
+  renderInfo();
+  renderCanvas();
+  renderControls();
+  renderNav();
+}
+
+function selectScene(index) {
+  selectedSceneIndex = clamp(index, 0, Math.max(0, (chapter.scenes || []).length - 1));
+  selectedLineIndex = 0;
+  renderAll();
+}
+
+function selectLine(index) {
+  selectedLineIndex = clamp(index, 0, Math.max(0, lines().length - 1));
+  renderAll();
+}
+
+async function loadInitial() {
+  const [chapterResponse, assetResponse] = await Promise.all([
+    fetch(`${API}/chapters`),
+    fetch(`${API}/assets`)
+  ]);
+  if (!chapterResponse.ok) throw new Error('Failed to load chapters');
+  if (!assetResponse.ok) throw new Error('Failed to load assets');
+  chapters = (await chapterResponse.json()).chapters || [];
+  assets = await assetResponse.json();
+  if (!chapters.length) {
+    els.chapterSelect.innerHTML = '<option>No chapters found</option>';
+    return;
+  }
+  await loadChapter(chapters[0].file);
+}
+
+async function loadChapter(file) {
+  const response = await fetch(`${API}/chapter/${encodeURIComponent(file)}`);
+  if (!response.ok) throw new Error(`Failed to load ${file}`);
+  chapter = await response.json();
+  currentFile = file;
+  pendingFile = '';
+  selectedSceneIndex = 0;
+  selectedLineIndex = 0;
+  setDirty(false);
+  els.chapterWarning.classList.remove('show');
+  renderAll();
+}
+
+async function saveChapter() {
+  if (!chapter || !currentFile) return;
+  const response = await fetch(`${API}/chapter/${encodeURIComponent(currentFile)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(chapter)
+  });
+  if (!response.ok) throw new Error('Save failed');
+  setDirty(false);
+  showToast();
+}
+
+function showToast() {
+  els.toast.classList.add('show');
+  window.setTimeout(() => els.toast.classList.remove('show'), 1300);
+}
+
+function copyDesktopToMobile() {
+  const currentScene = scene();
+  if (!currentScene) return;
+  if (!currentScene.layout) currentScene.layout = {};
+  currentScene.layout.mobile = cloneLayoutPart(currentScene.layout.desktop || {});
+  markDirty();
+  if (mode === 'mobile') renderAll();
+}
+
+function resetLayout() {
+  const currentScene = scene();
+  if (!currentScene) return;
+  delete currentScene.layout;
+  markDirty();
+  renderAll();
+}
+
+function updateFromInput(input) {
+  const group = input.closest('.control-group');
+  const part = group.dataset.part;
+  const key = group.dataset.key;
+  const field = input.dataset.field;
+  const min = field === 'w' ? 5 : 0;
+  const value = clamp(input.value, min, 100);
+  input.value = value;
+  setLayoutPart(part, key, { [field]: value });
+  renderCanvas();
+}
+
+function startDrag(event) {
+  const id = event.currentTarget.dataset.character;
+  const rect = els.canvas.getBoundingClientRect();
+  const chars = visibleCharacters();
+  const index = chars.indexOf(id);
+  const layout = effectiveCharacterLayout(id, chars, index);
+  dragState = { id, rect, layout };
+  event.currentTarget.classList.add('dragging');
+  event.currentTarget.setPointerCapture(event.pointerId);
+  window.addEventListener('pointermove', dragMove);
+  window.addEventListener('pointerup', endDrag, { once: true });
+}
+
+function dragMove(event) {
+  if (!dragState) return;
+  const x = clamp(((event.clientX - dragState.rect.left) / dragState.rect.width) * 100, 0, 100);
+  const y = clamp(((event.clientY - dragState.rect.top) / dragState.rect.height) * 100, 0, 100);
+  setLayoutPart('characters', dragState.id, { x: Math.round(x), y: Math.round(y), w: dragState.layout.w });
+  renderCanvas();
+  renderControls();
+}
+
+function endDrag() {
+  document.querySelectorAll('.char.dragging').forEach(el => el.classList.remove('dragging'));
+  dragState = null;
+  window.removeEventListener('pointermove', dragMove);
+}
+
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+els.chapterSelect.addEventListener('change', event => {
+  const nextFile = event.target.value;
+  if (nextFile === currentFile) return;
+  if (dirty) {
+    pendingFile = nextFile;
+    els.chapterWarning.classList.add('show');
+    els.chapterSelect.value = currentFile;
+    return;
+  }
+  loadChapter(nextFile).catch(error => alert(error.message));
 });
 
-// keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-  if (!selectedId) return;
-  const layer = layers.find(l => l.id === selectedId);
-  if (!layer) return;
-  const step = e.shiftKey ? 10 : 1;
-  if (e.key === 'ArrowLeft') { layer.x -= step; layer.el.style.left = layer.x + 'px'; updatePropsPanel(); e.preventDefault(); }
-  if (e.key === 'ArrowRight') { layer.x += step; layer.el.style.left = layer.x + 'px'; updatePropsPanel(); e.preventDefault(); }
-  if (e.key === 'ArrowUp') { layer.y -= step; layer.el.style.top = layer.y + 'px'; updatePropsPanel(); e.preventDefault(); }
-  if (e.key === 'ArrowDown') { layer.y += step; layer.el.style.top = layer.y + 'px'; updatePropsPanel(); e.preventDefault(); }
-  if (e.key === 'Delete' || e.key === 'Backspace') { deleteLayer(selectedId); e.preventDefault(); }
+els.continueChapterBtn.addEventListener('click', () => {
+  const nextFile = pendingFile;
+  pendingFile = '';
+  if (nextFile) loadChapter(nextFile).catch(error => alert(error.message));
+});
+
+els.cancelChapterBtn.addEventListener('click', () => {
+  pendingFile = '';
+  els.chapterWarning.classList.remove('show');
+  els.chapterSelect.value = currentFile;
+});
+
+els.sceneList.addEventListener('click', event => {
+  const button = event.target.closest('[data-scene]');
+  if (button) selectScene(Number(button.dataset.scene));
+});
+
+els.lineList.addEventListener('click', event => {
+  const button = event.target.closest('[data-line]');
+  if (button) selectLine(Number(button.dataset.line));
+});
+
+els.controls.addEventListener('input', event => {
+  if (event.target.matches('input[type="number"]')) updateFromInput(event.target);
+});
+
+els.desktopBtn.addEventListener('click', () => {
+  mode = 'desktop';
+  els.desktopBtn.classList.add('active');
+  els.mobileBtn.classList.remove('active');
+  renderAll();
+});
+
+els.mobileBtn.addEventListener('click', () => {
+  mode = 'mobile';
+  els.mobileBtn.classList.add('active');
+  els.desktopBtn.classList.remove('active');
+  renderAll();
+});
+
+els.copyLayoutBtn.addEventListener('click', copyDesktopToMobile);
+els.resetLayoutBtn.addEventListener('click', resetLayout);
+els.saveBtn.addEventListener('click', () => saveChapter().catch(error => alert(error.message)));
+els.prevBtn.addEventListener('click', () => selectLine(selectedLineIndex - 1));
+els.nextBtn.addEventListener('click', () => selectLine(selectedLineIndex + 1));
+
+els.canvas.addEventListener('keydown', event => {
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    selectLine(selectedLineIndex - 1);
+  } else if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    selectLine(selectedLineIndex + 1);
+  }
+});
+
+loadInitial().catch(error => {
+  els.canvas.innerHTML = `<div class="empty">${escapeHtml(error.message)}</div>`;
 });
 </script>
 </body>
