@@ -1,4 +1,21 @@
-# OCCUPY MARS — Codebase Audit (v5.43 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.44 / 2026-05-02)
+
+## ✅ v5.44 Campaign story editor layout runtime bridge — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 에디터 배치값 인게임 미반영 | ✅ | 스토리 렌더러가 캐릭터/배경/대사박스/closeup overlay 위치를 고정 CSS로만 그려 에디터 preview와 인게임 위치가 달라지던 문제 수정. |
+| layout 필드 지원 | ✅ | 서버 저장 `_campaignEditorLayout`, `scene.layout`, `line.layout`, `editorLayout`, `stageLayout`을 병합하고 `desktop`/`mobile` breakpoint 값을 현재 화면에 맞게 적용. |
+| 캐릭터 위치 적용 | ✅ | `layout.characters.berk` 같은 캐릭터별 좌표/크기/스케일을 읽어 좌우 기본 배치를 덮어씀. y가 없는 에디터 캐릭터 값은 bottom-anchor 방식으로 적용해 상단 overflow/crop을 방지. |
+| 배경/대사창/overlay 위치 적용 | ✅ | `background`, `dialogBox`, `overlay` 계열 layout을 stage percent/px 값으로 적용. |
+| 라인 전용 배경 | ✅ | 기존 주석과 달리 호출부가 `line.background`을 넘기지 않던 누락도 수정. |
+| 캐시 버전 | ✅ | `CAMPAIGN_ASSET_VERSION` `20260502c`로 갱신. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.43 Campaign character portrait generation — 완료
 

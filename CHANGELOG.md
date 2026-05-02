@@ -1,5 +1,17 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Campaign story editor layout runtime bridge (v5.44)
+
+- **에디터 배치값 인게임 반영**: 캠페인 스토리 렌더러가 서버 저장 `_campaignEditorLayout`, `scene.layout`, `line.layout`, `editorLayout`, `stageLayout`을 읽어 캐릭터/배경/대사박스/closeup overlay 위치를 적용하도록 수정.
+- **모바일/데스크탑 분리 지원**: `layout.desktop`, `layout.mobile` 값을 현재 화면 폭에 맞게 병합해 적용.
+- **캐릭터별 좌표 지원**: `layout.characters.berk` 또는 `layout.characters.left/right` 형식으로 x/y/w/h/scale 값을 지정하면 기본 좌우 CSS 배치를 덮어씀. 에디터 저장값처럼 y가 없으면 bottom-anchor로 배치해 캐릭터가 위로 잘리지 않게 처리.
+- **라인 전용 배경 수정**: 기존 `_campaignStorySetBackground()`는 line-level background를 지원한다고 주석만 있었고 호출부가 값을 넘기지 않아 적용되지 않던 문제 수정.
+- **캐시 버전 갱신**: `CAMPAIGN_ASSET_VERSION=20260502c`.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Campaign character portrait generation complete (v5.43)
 
 - **캠페인 캐릭터 포트레이트 28종 생성 완료**: gpt-image-1 (1024×1536, quality=high) + rembg 배경 제거 파이프라인.

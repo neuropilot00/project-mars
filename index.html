@@ -24943,12 +24943,184 @@ async function abandonCampaignFromStory(){
   try{ loadCampaignStatus(); }catch(_){}
 }
 
-var CAMPAIGN_ASSET_VERSION='20260502b';
+var CAMPAIGN_ASSET_VERSION='20260502c';
 function campaignAssetUrl(path){
   return path+(path.indexOf('?')>=0?'&':'?')+'v='+CAMPAIGN_ASSET_VERSION;
 }
 
-function _campaignStorySetBackground(scene,overlay,lineBg){
+function _campaignIsStoryMobile(){
+  return !!(window.matchMedia&&window.matchMedia('(max-width:520px)').matches);
+}
+
+function _campaignMergeLayout(target,src){
+  if(!src||typeof src!=='object') return target;
+  Object.keys(src).forEach(function(k){
+    var v=src[k];
+    if(v&&typeof v==='object'&&!Array.isArray(v)&&target[k]&&typeof target[k]==='object'&&!Array.isArray(target[k])){
+      _campaignMergeLayout(target[k],v);
+    }else{
+      target[k]=v;
+    }
+  });
+  return target;
+}
+
+function _campaignStoryLayout(scene,line){
+  var layout={};
+  [_campaignEditorLayout,scene&&scene.layout,scene&&scene.editorLayout,scene&&scene.stageLayout,line&&line.layout,line&&line.editorLayout,line&&line.stageLayout].forEach(function(src){
+    _campaignMergeLayout(layout,src);
+  });
+  var mode=_campaignIsStoryMobile()?'mobile':'desktop';
+  if(layout[mode]) _campaignMergeLayout(layout,layout[mode]);
+  return layout;
+}
+
+function _campaignLayoutPick(obj,names){
+  if(!obj||typeof obj!=='object') return null;
+  for(var i=0;i<names.length;i++){
+    if(obj[names[i]]!==undefined&&obj[names[i]]!==null) return obj[names[i]];
+  }
+  return null;
+}
+
+function _campaignLayoutBox(layout,names){
+  for(var i=0;i<names.length;i++){
+    var v=_campaignLayoutPick(layout,[names[i]]);
+    if(v&&typeof v==='object') return v;
+  }
+  return null;
+}
+
+function _campaignLayoutUnit(v,fallback){
+  if(v===undefined||v===null||v==='') return fallback;
+  if(typeof v==='number'&&isFinite(v)) return v+'%';
+  if(typeof v==='string') return v;
+  return fallback;
+}
+
+function _campaignLayoutNumber(v,fallback){
+  if(v===undefined||v===null||v==='') return fallback;
+  var n=Number(v);
+  return isFinite(n)?n:fallback;
+}
+
+function _campaignLayoutHasValue(box){
+  return !!(box&&typeof box==='object'&&Object.keys(box).some(function(k){return k!=='desktop'&&k!=='mobile';}));
+}
+
+function _campaignResetStoryLayout(overlay){
+  var bg=overlay.querySelector('.story-background');
+  var left=overlay.querySelector('.story-character-left');
+  var right=overlay.querySelector('.story-character-right');
+  var detail=overlay.querySelector('.story-detail-overlay');
+  var box=overlay.querySelector('.story-dialog-box');
+  if(bg) bg.removeAttribute('style');
+  [left,right].forEach(function(el){
+    if(!el) return;
+    el.removeAttribute('style');
+    el.className=el.classList.contains('story-character-right')?'story-character-right':'story-character-left';
+    el.style.display='none';
+  });
+  if(detail){
+    detail.removeAttribute('style');
+    detail.classList.remove('visible');
+  }
+  if(box) box.removeAttribute('style');
+}
+
+function _campaignApplyRectLayout(el,box,opts){
+  if(!el||!box) return;
+  opts=opts||{};
+  var x=_campaignLayoutPick(box,['x','left','cx','centerX']);
+  var y=_campaignLayoutPick(box,['y','top','cy','centerY']);
+  var w=_campaignLayoutPick(box,['w','width']);
+  var h=_campaignLayoutPick(box,['h','height']);
+  if(x!==null||y!==null){
+    el.style.left=_campaignLayoutUnit(x,el.style.left||'50%');
+    el.style.top=_campaignLayoutUnit(y,el.style.top||'50%');
+    el.style.right='auto';
+    el.style.bottom='auto';
+    el.style.transform=opts.transform||'translate(-50%,-50%)';
+  }
+  if(box.right!==undefined){el.style.right=_campaignLayoutUnit(box.right,'auto');el.style.left='auto';}
+  if(box.bottom!==undefined){el.style.bottom=_campaignLayoutUnit(box.bottom,'auto');el.style.top='auto';}
+  if(w!==null) el.style.width=_campaignLayoutUnit(w,'auto');
+  if(h!==null) el.style.height=_campaignLayoutUnit(h,'auto');
+  if(box.z!==undefined||box.zIndex!==undefined) el.style.zIndex=String(_campaignLayoutPick(box,['z','zIndex']));
+  if(box.opacity!==undefined) el.style.opacity=String(_campaignLayoutNumber(box.opacity,1));
+}
+
+function _campaignApplyCharacterLayout(el,box){
+  if(!el||!box) return;
+  var hasY=_campaignLayoutPick(box,['y','top','cy','centerY'])!==null||box.bottom!==undefined;
+  var hasX=_campaignLayoutPick(box,['x','left','cx','centerX'])!==null;
+  if(hasX&&!hasY){
+    el.style.left=_campaignLayoutUnit(_campaignLayoutPick(box,['x','left','cx','centerX']),'50%');
+    el.style.right='auto';
+    el.style.top='auto';
+    el.style.bottom='0';
+    el.style.transform='translateX(-50%)';
+  }else{
+    _campaignApplyRectLayout(el,box,{transform:'translate(-50%,-50%)'});
+  }
+  el.style.maxWidth='none';
+  el.style.maxHeight=hasY?'none':'92%';
+  if(box.scale!==undefined){
+    var scale=_campaignLayoutNumber(box.scale,1);
+    el.style.transform=(el.style.transform||'translate(-50%,-50%)')+' scale('+scale+')';
+  }
+  if(box.fit||box.objectFit) el.style.objectFit=box.fit||box.objectFit;
+}
+
+function _campaignCharacterLayout(layout,charId,pos){
+  var chars=layout&&(layout.characters||layout.characterLayouts||layout.character);
+  var found=null;
+  if(Array.isArray(chars)){
+    chars.forEach(function(c){
+      if(found||!c) return;
+      if(c.id===charId||c.characterId===charId||c.speaker===charId||c.position===pos) found=c;
+    });
+  }else if(chars&&typeof chars==='object'){
+    found=chars[charId]||chars[pos]||chars[(pos==='right')?'right':'left'];
+  }
+  if(!found&&layout) found=layout['character_'+charId]||layout[pos+'Character'];
+  return found;
+}
+
+function _campaignApplyBackgroundLayout(bg,layout){
+  var box=_campaignLayoutBox(layout,['background','bg','image']);
+  if(!bg||!box) return;
+  var x=_campaignLayoutPick(box,['x','positionX','left']);
+  var y=_campaignLayoutPick(box,['y','positionY','top']);
+  if(x!==null||y!==null) bg.style.backgroundPosition=_campaignLayoutUnit(x,'50%')+' '+_campaignLayoutUnit(y,'25%');
+  var size=_campaignLayoutPick(box,['size','backgroundSize','fit']);
+  if(size) bg.style.backgroundSize=size;
+  else if(box.scale!==undefined) bg.style.backgroundSize=_campaignLayoutNumber(box.scale,100)+'% auto';
+  if(box.opacity!==undefined) bg.style.opacity=String(_campaignLayoutNumber(box.opacity,1));
+}
+
+function _campaignApplyDialogLayout(box,scene,line){
+  var layout=_campaignStoryLayout(scene,line);
+  var cfg=_campaignLayoutBox(layout,['dialog','dialogue','dialogBox','textbox','textBox','box']);
+  if(!cfg) return;
+  var centerMode=cfg.x!==undefined||cfg.cx!==undefined||cfg.centerX!==undefined||cfg.y!==undefined||cfg.cy!==undefined||cfg.centerY!==undefined;
+  _campaignApplyRectLayout(box,cfg,{transform:centerMode?'translate(-50%,-50%)':'none'});
+  box.style.boxSizing='border-box';
+  if(cfg.padding!==undefined) box.style.padding=cfg.padding;
+  if(cfg.background!==undefined) box.style.background=cfg.background;
+  if(cfg.border!==undefined) box.style.border=cfg.border;
+  if(cfg.borderTop!==undefined) box.style.borderTop=cfg.borderTop;
+}
+
+function _campaignApplyStoryFontSize(box,scene,line){
+  if(!box) return;
+  var layout=_campaignStoryLayout(scene,line);
+  var fs=_campaignLayoutPick(layout,['fontsize','fontSize','textSize']);
+  var el=box.querySelector('.story-text');
+  if(el&&fs!==null) el.style.fontSize=(typeof fs==='number'?fs+'rem':fs);
+}
+
+function _campaignStorySetBackground(scene,overlay,lineBg,line){
   // line.background 가 있으면 라인 전용 배경(전용 dedicated 씬 배경)으로 swap, 없으면 scene.background.
   // 에셋이 없거나 로드 실패하면 화성풍 그라디언트 폴백.
   var bg=overlay.querySelector('.story-background');
@@ -24956,7 +25128,11 @@ function _campaignStorySetBackground(scene,overlay,lineBg){
   var speed=scene.transition==='fade_slow'?'1.5s':(scene.transition==='fade_medium'?'0.8s':'0s');
   bg.style.transitionDuration=speed;
   var bgChoice=lineBg||scene.background;
-  if(!bgChoice){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';return;}
+  if(!bgChoice){
+    bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';
+    _campaignApplyBackgroundLayout(bg,_campaignStoryLayout(scene,line));
+    return;
+  }
   // 배경 ID → 파일명 매핑. 전용 에셋이 생긴 ID는 직접 참조,
   // 아직 파일이 없거나 별칭이 필요한 ID만 폴백을 유지한다.
   var _bgMap={
@@ -24974,6 +25150,7 @@ function _campaignStorySetBackground(scene,overlay,lineBg){
   img.onload=function(){bg.style.backgroundImage='url("'+src+'")';};
   img.onerror=function(){bg.style.backgroundImage='linear-gradient(135deg, #1a0a2e, #2d1b4e)';};
   img.src=src;
+  _campaignApplyBackgroundLayout(bg,_campaignStoryLayout(scene,line));
 }
 
 function _campaignStoryRenderCharacters(scene,line,overlay){
@@ -25001,38 +25178,27 @@ function _campaignStoryRenderCharacters(scene,line,overlay){
     // 파일명이 다르거나 새 캐릭터를 기존 초상화로 임시 매핑한다
     var _portraitMap={
       'player':'player_silhouette','observer':'player_silhouette',
-      'rev_hale':'hale','young_butcher':'butcher'
+      'rev_hale':'hale','young_butcher':'butcher','crow':'kara_vex'
     };
     el.src=campaignAssetUrl('/assets/campaign/characters/'+(_portraitMap[id]||id)+'.png');
     el.style.display='block';
-    try{
-      var _edChars=(_campaignEditorLayout&&_campaignEditorLayout.characters)||{};
-      var _edLayout=_edChars[id]||_edChars[_portraitMap[id]||id];
-      if(_edLayout){
-        // 캐릭터는 bottom-anchor + 수평 중심점 방식 — 위쪽 overflow 클리핑 방지
-        el.style.position='absolute';
-        el.style.transform='translateX(-50%)';
-        el.style.left=_edLayout.x+'%';
-        el.style.bottom='0';
-        el.style.top='auto';
-        el.style.right='auto';
-        el.style.width=_edLayout.w+'%';
-        el.style.maxWidth='none';
-        el.style.maxHeight='92%';
-      }
-    }catch(_){}
+    var charLayout=_campaignMergeLayout({},_campaignCharacterLayout(_campaignStoryLayout(scene,line),id,pos)||{});
+    if(_portraitMap[id]) _campaignMergeLayout(charLayout,_campaignCharacterLayout(_campaignStoryLayout(scene,line),_portraitMap[id],pos)||{});
+    _campaignMergeLayout(charLayout,c.layout||c.editorLayout||{});
+    if(_campaignLayoutHasValue(charLayout)) _campaignApplyCharacterLayout(el,charLayout);
   });
 }
 
 // 씬 디테일 오버레이 — line.overlay 필드 (e.g., "cv_ch10_from_flames_l00_00_fire_small")
 // 가 명시된 line 에서만 중앙 closeup 표시. 한 location 의 base 배경은 그대로 두고
 // overlay 만 한정적으로 점멸 → 화면 churn 없이 시각적 강조.
-function _showStoryDetailOverlay(overlayName){
+function _showStoryDetailOverlay(overlayName,layout){
   var el = document.querySelector('.story-detail-overlay');
   if(!el) return;
   el.classList.remove('visible');
   if(!overlayName) return;
   var src = campaignAssetUrl('/assets/campaign/backgrounds/' + overlayName + '.png');
+  _campaignApplyRectLayout(el,_campaignLayoutBox(layout||{},['overlay','detailOverlay','closeup','cutin']),{transform:'translate(-50%,-50%)'});
   if(el.getAttribute('data-src') === src && el.complete && el.naturalWidth > 0){
     el.classList.add('visible');
     return;
@@ -25070,7 +25236,12 @@ function renderCampaignScene(){
   if(_campaignTypingTimer) clearInterval(_campaignTypingTimer);
   if(_campaignBattleTimer) clearTimeout(_campaignBattleTimer);
   _campaignTypingTimer=null; _campaignBattleTimer=null; _campaignTypingDone=true;
-  _campaignStorySetBackground(scene,overlay);
+  var currentLine=null;
+  if(scene.type==='dialogue'||scene.type==='narration'||scene.type==='ending'){
+    currentLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
+  }
+  _campaignResetStoryLayout(overlay);
+  _campaignStorySetBackground(scene,overlay,currentLine&&currentLine.background,currentLine);
   var box=overlay.querySelector('.story-dialog-box');
   var hint=overlay.querySelector('.story-tap-hint');
   var title=overlay.querySelector('.story-title-card');
@@ -25097,26 +25268,28 @@ function renderCampaignScene(){
   if(hint) hint.style.display='block';
 
   if(scene.type==='narration'||scene.type==='ending'){
-    var nLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
+    var nLine=currentLine||{};
     _campaignStoryRenderCharacters(scene,nLine,overlay);
     box.style.background='transparent';
     box.style.borderTop='none';
     box.style.backdropFilter='none';
     box.innerHTML='<div class="story-text story-narration-text"></div>';
     var _nText=_campaignStoryText(nLine.text);
-    _showStoryDetailOverlay(nLine.overlay||null);
-    try{var _nFs=parseFloat((_campaignEditorLayout&&_campaignEditorLayout.fontsize)||'1');var _nEl=box.querySelector('.story-text');if(_nEl&&_nFs!==1)_nEl.style.fontSize=_nFs+'rem';}catch(_){}
+    _campaignApplyDialogLayout(box,scene,nLine);
+    _showStoryDetailOverlay(nLine.overlay||null,_campaignStoryLayout(scene,nLine));
+    _campaignApplyStoryFontSize(box,scene,nLine);
     typeText(box.querySelector('.story-text'),_nText,null);
     return;
   }
 
   if(scene.type==='dialogue'){
-    var dLine=(scene.lines||[])[_campaignSceneLineIndex]||{};
+    var dLine=currentLine||{};
     _campaignStoryRenderCharacters(scene,dLine,overlay);
     box.innerHTML='<div class="story-speaker-name">'+escapeHtmlSafe(_campaignStorySpeakerName(dLine.speaker||scene.speaker))+'</div><div class="story-text"></div>';
     var _dText=_campaignStoryText(dLine.text);
-    _showStoryDetailOverlay(dLine.overlay||null);
-    try{var _dFs=parseFloat((_campaignEditorLayout&&_campaignEditorLayout.fontsize)||'1');var _dEl=box.querySelector('.story-text');if(_dEl&&_dFs!==1)_dEl.style.fontSize=_dFs+'rem';}catch(_){}
+    _campaignApplyDialogLayout(box,scene,dLine);
+    _showStoryDetailOverlay(dLine.overlay||null,_campaignStoryLayout(scene,dLine));
+    _campaignApplyStoryFontSize(box,scene,dLine);
     typeText(box.querySelector('.story-text'),_dText,null);
     return;
   }
@@ -25132,6 +25305,7 @@ function renderCampaignScene(){
     });
     html+='</div>';
     box.innerHTML=html;
+    _campaignApplyDialogLayout(box,scene,null);
     Array.prototype.forEach.call(box.querySelectorAll('.story-choice-btn'),function(btn){
       btn.addEventListener('click',function(ev){
         ev.stopPropagation();
@@ -25158,6 +25332,7 @@ function renderCampaignScene(){
     });
     branchHtml+='</div>';
     box.innerHTML=branchHtml;
+    _campaignApplyDialogLayout(box,scene,null);
     Array.prototype.forEach.call(box.querySelectorAll('.story-choice-btn'),function(btn){
       btn.addEventListener('click',function(ev){
         ev.stopPropagation();

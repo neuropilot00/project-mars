@@ -14,6 +14,48 @@
 
 ---
 
+## Runtime Layout Fields (v5.44)
+
+에디터에서 저장한 배치값은 서버 저장 layout, `scene.layout` 또는 각 `line.layout`에 넣는다. 런타임은 `layout`, `editorLayout`, `stageLayout` 세 이름을 모두 읽으며, 같은 키가 있으면 line 값이 scene 값을 덮어쓴다.
+
+```json
+{
+  "id": "s10",
+  "type": "dialogue",
+  "background": "cargo_ship_corridor",
+  "layout": {
+    "background": { "x": 50, "y": 35, "size": "cover" },
+    "characters": {
+      "berk": { "x": 50, "y": 50, "w": 58, "scale": 1 },
+      "left": { "x": 18, "y": 60, "w": 42 }
+    },
+    "dialogBox": { "left": 4, "bottom": 7, "width": 92, "height": 22 },
+    "mobile": {
+      "characters": { "berk": { "x": 23, "y": 62, "w": 54 } },
+      "dialogBox": { "left": 5, "bottom": 7, "width": 90, "height": 25 }
+    }
+  },
+  "lines": [
+    {
+      "speaker": "berk",
+      "text": { "ko": "승객 중에 화성이 처음인 분 계십니까." },
+      "layout": {
+        "characters": { "berk": { "x": 50, "y": 54, "w": 62 } }
+      }
+    }
+  ]
+}
+```
+
+지원 키:
+- `background` / `bg` / `image`: `x`, `y`, `size`, `scale`, `opacity`
+- `characters`: 캐릭터 ID 또는 `left`/`right` 키로 `x`, `y`, `w`/`width`, `h`/`height`, `scale`, `opacity`, `z`
+- `dialogBox` / `dialog` / `textbox`: `left`, `top`, `right`, `bottom`, `width`, `height`, `padding`, `background`, `border`
+- `overlay` / `detailOverlay` / `closeup`: `x`, `y`, `w`, `h`, `opacity`, `z`
+- `desktop`, `mobile`: 화면 폭에 따라 위 키들을 추가로 덮어쓴다.
+
+---
+
 ## Chapter 구조
 
 ```
