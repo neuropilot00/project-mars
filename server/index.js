@@ -501,6 +501,9 @@ app.get('/admin', (req, res) => {
 app.get('/arena', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'arena.html'));
 });
+app.get('/assets/campaign-editor.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'assets', 'campaign-editor.html'));
+});
 
 // ── OG Share Card: /share/chronicle/:id ──
 app.get('/share/chronicle/:id', async (req, res) => {
