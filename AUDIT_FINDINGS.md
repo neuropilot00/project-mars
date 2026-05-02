@@ -1,4 +1,17 @@
-# OCCUPY MARS — Codebase Audit (v5.47 / 2026-05-02)
+# OCCUPY MARS — Codebase Audit (v5.48 / 2026-05-02)
+
+## ✅ v5.48 Shipyard build tab retention — 수정 완료
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 함선 건조 후 큐 탭 강제 이동 | ✅ | `buildShip()` 성공 후 `switchSyTab('queue')`를 제거해 청사진/건조 탭에 그대로 남도록 수정. |
+| 큐/재화 상태 갱신 | ✅ | `refreshShipyard()`는 유지해 건조 큐, GP, 광물, 버튼 상태는 즉시 갱신됨. |
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
+---
 
 ## ✅ v5.47 Completed prologue compact card — 수정 완료
 

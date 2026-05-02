@@ -42095,8 +42095,8 @@ async function buildShip(shipTypeCode) {
       return;
     }
     showFactionToast(ship.name_ko + ' 건조 시작!', 'success');
+    // Stay on blueprints so players can queue multiple builds in a row.
     await refreshShipyard();
-    switchSyTab('queue');
   } catch(err) {
     console.error('buildShip error:', err);
     showFactionToast('네트워크 오류', 'error');

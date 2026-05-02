@@ -1,5 +1,14 @@
 # OCCUPY MARS — Changelog
 
+## 2026-05-02 — Shipyard build stays on blueprints (v5.48)
+
+- **연속 함선 건조 UX 수정**: 함선 건조 성공 후 Build Queue 탭으로 강제 이동하던 동작을 제거해, 청사진/건조 탭에 머문 채 계속 건조할 수 있도록 수정.
+- **상태 갱신 유지**: 탭 이동만 제거하고 `refreshShipyard()`는 유지해 건조 큐, 재화, 버튼 비활성 상태는 즉시 갱신.
+
+검증:
+- `index.html` inline script syntax check 통과
+- `git diff --check` 통과
+
 ## 2026-05-02 — Completed prologue compact campaign card (v5.47)
 
 - **완료된 프롤로그 접기**: 캠페인 목록에서 완료된 `chapterNumber === 0` 프롤로그는 한 줄 compact 카드로 표시하도록 수정.
