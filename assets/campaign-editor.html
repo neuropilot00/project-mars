@@ -482,6 +482,7 @@ let selectedLineIndex = 0;
 let dirty = false;
 let globalFontSize = parseFloat(localStorage.getItem('editorFontSize') || '1.0');
 let globalDialog = JSON.parse(localStorage.getItem('editorDialog') || 'null') || { x: 50, y: 84, w: 92 };
+let globalCharacters = JSON.parse(localStorage.getItem('editorCharacters') || '{}');
 let dragState = null;
 
 function clamp(value, min, max) {
@@ -531,28 +532,27 @@ function assetUrl(kind, id) {
 function ensureSceneLayout() {
   const currentScene = scene();
   if (!currentScene.layout) currentScene.layout = {};
-  if (!currentScene.layout.characters) currentScene.layout.characters = {};
   return currentScene.layout;
 }
 
 function getLayoutPart(part, key) {
+  if (part === 'characters') return globalCharacters[key] || null;
   const currentScene = scene();
   const lay = currentScene && currentScene.layout;
-  if (!lay) return null;
-  if (part === 'characters') return lay.characters && lay.characters[key] ? lay.characters[key] : null;
-  return lay[part] || null;
+  return lay ? (lay[part] || null) : null;
 }
 
 function setLayoutPart(part, key, values) {
-  const layout = ensureSceneLayout();
   if (part === 'characters') {
-    if (!layout.characters[key]) layout.characters[key] = {};
-    Object.assign(layout.characters[key], values);
+    if (!globalCharacters[key]) globalCharacters[key] = {};
+    Object.assign(globalCharacters[key], values);
+    localStorage.setItem('editorCharacters', JSON.stringify(globalCharacters));
   } else {
+    const layout = ensureSceneLayout();
     if (!layout[part]) layout[part] = {};
     Object.assign(layout[part], values);
+    markDirty();
   }
-  markDirty();
 }
 
 function fallbackCharacterLayout(characters, index) {
